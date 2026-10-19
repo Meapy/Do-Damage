@@ -9,6 +9,7 @@ refuses while an `Unreleased` one is left, so rename it to `## <version> (<date>
 version number itself is in `client-rs/Cargo.toml`.
 
 ## Unreleased
+- Options, Sound: a master volume slider adjusts music and sound effects together.
 - The Support Bot in the Nexus has a new tip about Elder dungeons and their better loot.
 
 ## 1.2.8 (2026-10-19)

@@ -454,6 +454,7 @@ impl Settings {
                 "playSFX" => s.sound.sfx = on,
                 "playPewPew" => s.sound.shots = on,
                 "playMusic" => s.sound.music = on,
+                "masterVolume" => s.sound.master_volume = vol().unwrap_or(s.sound.master_volume),
                 "sfxVolume" => s.sound.sfx_volume = vol().unwrap_or(s.sound.sfx_volume),
                 "musicVolume" => s.sound.music_volume = vol().unwrap_or(s.sound.music_volume),
                 "masterVolume" => s.sound.master_volume = vol().unwrap_or(s.sound.master_volume),
@@ -512,7 +513,7 @@ enum Hit {
     Tab(Tab),
     Bind(Bind),
     Toggle(Toggle),
-    /// A volume slider (sound effects, music) and its track.
+    /// A volume slider and its track.
     Slider(Slider, [f32; 4]),
     Defaults,
     Close,
@@ -809,6 +810,8 @@ mod tests {
         ui.dragging = Some((Slider::PlayerAlpha, track));
         assert!(ui.drag((150.0, 0.0), &mut s));
         assert_eq!(s.player_alpha, 0.25);
+        set_slider(Slider::Master, track, 200.0, &mut s);
+        assert_eq!(s.sound.master_volume, 0.5);
         // Past the end it stops at the end; the same place again changes nothing.
         assert!(ui.drag((900.0, 0.0), &mut s));
         assert_eq!(s.player_alpha, 1.0);
@@ -834,6 +837,7 @@ mod tests {
         s.set_key(Bind::Ability, Some(KeyCode::KeyW));
         assert_eq!(s.key(Bind::MoveUp), None);
         s.particles = false;
+        s.sound.master_volume = 0.6;
         s.sound.music_volume = 0.25;
         s.zoom = 1.2;
         s.max_fps = 144;
@@ -849,6 +853,7 @@ mod tests {
         // Lines another version wrote stay, and its keys don't take a key this one gives.
         let text = "someFutureOption=7\nmoveUp=KeyQ\nlater=KeySomethingNew\nnexus=\n";
         let t = Settings::from_text(text);
+        assert_eq!(t.sound.master_volume, 1.0, "older settings use full master volume");
         assert_eq!(t.key(Bind::MoveUp), Some(KeyCode::KeyQ));
         assert_eq!(t.key(Bind::RotateLeft), None, "Q went to moving up");
         assert!(t.to_text().contains("someFutureOption=7\n"));

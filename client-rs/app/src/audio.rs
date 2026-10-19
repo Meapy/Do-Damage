@@ -20,6 +20,7 @@ pub struct SoundSettings {
     /// Weapons' shot sounds, apart from the other effects.
     pub shots: bool,
     pub music: bool,
+    pub master_volume: f32,
     pub sfx_volume: f32,
     /// Overall master volume applied to both SFX and music.
     pub master_volume: f32,
@@ -28,7 +29,21 @@ pub struct SoundSettings {
 
 impl Default for SoundSettings {
     fn default() -> Self {
+<<<<<<< Updated upstream
         SoundSettings { sfx: true, shots: true, music: true, sfx_volume: 0.8, master_volume: 1.0, music_volume: 0.5 }
+=======
+        SoundSettings { sfx: true, shots: true, music: true, master_volume: 1.0, sfx_volume: 0.8, music_volume: 0.5 }
+    }
+}
+
+impl SoundSettings {
+    fn effects_output_volume(&self) -> f32 {
+        self.master_volume * self.sfx_volume
+    }
+
+    fn music_output_volume(&self) -> f32 {
+        self.master_volume * self.music_volume
+>>>>>>> Stashed changes
     }
 }
 
@@ -124,7 +139,11 @@ impl Audio {
             }
         }
         let Some(output) = &self.output else { return };
+<<<<<<< Updated upstream
         let volume = self.settings.sfx_volume * self.settings.master_volume;
+=======
+        let volume = self.settings.effects_output_volume();
+>>>>>>> Stashed changes
         let clips = &self.clips;
         self.waiting.retain(|(path, v, at)| match clips.get(path) {
             Some(Clip::Ready(bytes)) => {
@@ -144,7 +163,8 @@ impl Audio {
         });
 
         // Music: start the wanted piece once it's here; stop when none is wanted.
-        let wanted = if self.settings.music && self.settings.music_volume > 0.0 { self.music_wanted.clone() } else { String::new() };
+        let music_volume = self.settings.music_output_volume();
+        let wanted = if self.settings.music && music_volume > 0.0 { self.music_wanted.clone() } else { String::new() };
         if wanted != self.music_playing {
             if let Some(sink) = self.music.take() {
                 sink.stop();
@@ -156,7 +176,11 @@ impl Audio {
                 if let (Some(Clip::Ready(bytes)), Some(output)) = (self.clips.get(&path), &self.output) {
                     if let Ok(source) = rodio::Decoder::new_looped(Cursor::new(bytes.clone())) {
                         let sink = rodio::Sink::connect_new(output.mixer());
+<<<<<<< Updated upstream
                         sink.set_volume(self.settings.music_volume * self.settings.master_volume);
+=======
+                        sink.set_volume(music_volume);
+>>>>>>> Stashed changes
                         sink.append(source);
                         self.music = Some(sink);
                         log::debug!("music: {wanted}");
@@ -169,7 +193,23 @@ impl Audio {
             }
         }
         if let Some(sink) = &self.music {
+<<<<<<< Updated upstream
             sink.set_volume(self.settings.music_volume * self.settings.master_volume);
+=======
+            sink.set_volume(music_volume);
+>>>>>>> Stashed changes
         }
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn master_volume_scales_effects_and_music() {
+        let settings = SoundSettings { master_volume: 0.5, sfx_volume: 0.8, music_volume: 0.4, ..Default::default() };
+        assert_eq!(settings.effects_output_volume(), 0.4);
+        assert_eq!(settings.music_output_volume(), 0.2);
     }
 }
