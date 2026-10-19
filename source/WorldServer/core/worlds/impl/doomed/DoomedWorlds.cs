@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using Shared.database.leaderboard;
 using Shared.resources;
 using StackExchange.Redis;
 using WorldServer.core.commands.doomed;
@@ -58,18 +59,9 @@ namespace WorldServer.core.worlds.impl.doomed
                 portal.WorldInstance = null;
         }
 
-        public const string ArenaLeaderboardKey = "doomed.arenaLeaderboard";
-
-        // a finished arena game: score = wave reached, member = "<unix ms>|<players>"
-        public static void AddArenaScore(GameServer gameServer, int wave, IEnumerable<string> players)
-        {
-            var member = $"{DateTimeOffset.UtcNow.ToUnixTimeMilliseconds()}|{string.Join(", ", players)}";
-            gameServer.Database.Conn.SortedSetAdd(ArenaLeaderboardKey, member, wave, CommandFlags.FireAndForget);
-        }
-
-        public static IEnumerable<(int Wave, string Players)> TopArenaScores(GameServer gameServer, int count) =>
-            gameServer.Database.Conn.SortedSetRangeByRankWithScores(ArenaLeaderboardKey, 0, count - 1, Order.Descending)
-                .Select(e => ((int)e.Score, ((string)e.Element).Split('|', 2).Last()));
+        // a finished arena game (Shared DbArenaRuns): the wave reached, how long from the first wave
+        public static void AddArenaScore(GameServer gameServer, int wave, TimeSpan taken, string arena, IEnumerable<string> players) =>
+            DbArenaRuns.Add(gameServer.Database.Conn, wave, (int)taken.TotalSeconds, arena, players);
 
         public static void GiveFame(Player player, int amount)
         {
@@ -97,6 +89,7 @@ namespace WorldServer.core.worlds.impl.doomed
         private int _countdownMs;
         private Action<int> _onSecond;
         private Action _onDone;
+        private bool _goUsed;
 
         protected DoomedMinigame(GameServer gameServer, int id, WorldResource resource, World parent)
             : base(gameServer, id, resource, parent) { }
@@ -113,9 +106,22 @@ namespace WorldServer.core.worlds.impl.doomed
         {
             _countdown = seconds;
             _countdownMs = 0;
+            _goUsed = false;
             _onSecond = onSecond;
             _onDone = onDone;
             onSecond?.Invoke(seconds);
+        }
+
+        // cuts the running countdown to `seconds`, once per countdown; false if it couldn't
+        protected bool CutCountdown(int seconds)
+        {
+            if (_countdown <= seconds || _goUsed)
+                return false;
+            _goUsed = true;
+            _countdown = seconds;
+            _countdownMs = 0;
+            _onSecond?.Invoke(seconds);
+            return true;
         }
 
         // the monsters of the game: enemies that aren't players' allies or walls (destructible walls
@@ -169,12 +175,10 @@ namespace WorldServer.core.worlds.impl.doomed
     // everyone dies; the wave reached goes on the /leaderboard.
     public sealed class DoomedBattleArena : DoomedMinigame
     {
-        private static readonly string[] RandomEnemies =
-            { "Djinn", "Beholder", "White Demon", "Flying Brain", "Slime God", "Native Sprite God", "Ent God" };
-
         private readonly bool _paid;
         private bool _started, _counting;
         private readonly List<string> _participants = new List<string>();
+        private DateTime _firstWave; // when the countdown ended, for the leaderboard's time
         public int Wave { get; private set; }
 
         public DoomedBattleArena(GameServer gameServer, int id, WorldResource resource, World parent, bool paid)
@@ -189,23 +193,22 @@ namespace WorldServer.core.worlds.impl.doomed
 
         public override bool AllowedAccess(Client client) => base.AllowedAccess(client) && (Joinable || client.Account.Admin);
 
-        private static string[] Bosses(int wave) =>
-            wave < 6 ? new[] { "Red Demon", "Phoenix Lord", "Henchman of Oryx" }
-            : wave < 11 ? new[] { "Red Demon", "Phoenix Lord", "Henchman of Oryx", "Stheno the Snake Queen" }
-            : wave < 16 ? new[] { "Elder Tree", "Stheno the Snake Queen", "Archdemon Malphas", "Septavius the Ghost God" }
-            : wave < 21 ? new[] { "Elder Tree", "Archdemon Malphas", "Septavius the Ghost God", "Thessal the Mermaid Goddess", "Crystal Prisoner" }
-            : new[] { "Thessal the Mermaid Goddess", "Crystal Prisoner", "Tomb Defender", "Tomb Attacker", "Tomb Support",
-                      "Oryx the Mad God 4", "Oryx the Mad God 2", "Oryx the Mad God 3" };
+        public override void ChatReceived(Player player, string text)
+        {
+            base.ChatReceived(player, text);
+            if (text.Trim().Equals("GO", StringComparison.OrdinalIgnoreCase) && CutCountdown(3))
+                NotifyAll(0xffff00ff, player.Name + " said GO!");
+        }
 
         private static bool OutOfBounds(float x, float y) => x <= 3.5f || x >= 29.5f || y <= 3.5f || y >= 29.5f;
 
         private void SpawnWave()
         {
-            var count = (int)Math.Ceiling((Wave + Players.Count) / 2.0);
-            for (var i = 0; i < count; i++)
-                Spawn(RandomEnemies[Random.Shared.Next(RandomEnemies.Length)], Random.Shared.Next(6, 27) + 0.5f, Random.Shared.Next(6, 27) + 0.5f);
-            var bosses = Bosses(Wave);
-            Spawn(bosses[Random.Shared.Next(bosses.Length)], Random.Shared.Next(6, 27) + 0.5f, Random.Shared.Next(6, 27) + 0.5f);
+            // the same stages as the public arena (ArenaPools)
+            foreach (var p in Players.Values)
+                p.SendInfo(ArenaPools.WaveMessage(Wave));
+            foreach (var name in ArenaPools.Minions(Wave, Players.Count).Concat(ArenaPools.Bosses(Wave)))
+                Spawn(name, Random.Shared.Next(6, 27) + 0.5f, Random.Shared.Next(6, 27) + 0.5f);
         }
 
         protected override void UpdateLogic(ref TickTime time)
@@ -215,7 +218,7 @@ namespace WorldServer.core.worlds.impl.doomed
             {
                 if (_participants.Count > 0)
                 {
-                    DoomedWorlds.AddArenaScore(GameServer, Wave, _participants);
+                    DoomedWorlds.AddArenaScore(GameServer, Wave, DateTime.UtcNow - _firstWave, IdName, _participants);
                     _participants.Clear();
                 }
                 return;
@@ -229,6 +232,7 @@ namespace WorldServer.core.worlds.impl.doomed
                 {
                     _started = true;
                     _counting = false;
+                    _firstWave = DateTime.UtcNow;
                 });
                 return;
             }
@@ -257,7 +261,8 @@ namespace WorldServer.core.worlds.impl.doomed
                         _participants.Add(p.Name);
                 }
                 _counting = true;
-                Countdown(5, s => NotifyAll(0xffff00ff, (s == 5 ? "Wave " + Wave + " - " : "") + s + " Second" + (s == 1 ? "" : "s")), () =>
+                var gap = ArenaWorld.WaveGapSeconds(Wave);
+                Countdown(gap, s => NotifyAll(0xffff00ff, (s == gap ? "Wave " + Wave + " - " : "") + s + " Second" + (s == 1 ? "" : "s")), () =>
                 {
                     _counting = false;
                     SpawnWave();

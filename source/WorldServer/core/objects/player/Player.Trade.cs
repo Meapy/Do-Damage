@@ -161,19 +161,19 @@ namespace WorldServer.core.objects
         // the slots a trade shows and takes from: equipment and inventory, and the backpack if there is one
         public int TradeSlots => HasBackpack ? InventoryConstants.SWAP_FIRST : InventoryConstants.NUM_EQUIPMENT_SLOTS + InventoryConstants.NUM_INVENTORY_SLOTS;
 
-        // whether the item in slot i can be offered (equipment and soulbound items can't)
-        public bool CanTradeSlot(int i) => i >= InventoryConstants.NUM_EQUIPMENT_SLOTS && i < TradeSlots && Inventory[i] != null && !Inventory[i].Soulbound;
+        // whether the item in slot i can be offered (equipment and untradeable items can't)
+        public bool CanTradeSlot(int i) => i >= InventoryConstants.NUM_EQUIPMENT_SLOTS && i < TradeSlots && Inventory[i] != null && !Inventory[i].Untradeable;
 
         // an offer from the client, cut to the trade's slots, with what can't be offered left out
-        public bool[] CleanTradeOffer(bool[] offer, out bool soulbound)
+        public bool[] CleanTradeOffer(bool[] offer, out bool untradeable)
         {
-            soulbound = false;
+            untradeable = false;
             var clean = new bool[TradeSlots];
             for (var i = 0; i < clean.Length && i < offer.Length; i++)
                 if (offer[i])
                 {
-                    if (Inventory[i] != null && Inventory[i].Soulbound)
-                        soulbound = true;
+                    if (Inventory[i] != null && Inventory[i].Untradeable)
+                        untradeable = true;
                     clean[i] = CanTradeSlot(i);
                 }
             return clean;

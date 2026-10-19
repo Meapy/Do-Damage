@@ -98,6 +98,12 @@ impl Endpoint {
         http::post_form(&format!("{}/guild/listMembers", self.account), &[("guid", email), ("password", password)])
     }
 
+    /// `/arena/leaderboard`: the best arena runs.
+    pub fn arena_leaderboard(&self) -> Pending<http::Response> {
+        let n = crate::npc::LEADERBOARD_RUNS.to_string();
+        http::post_form(&format!("{}/arena/leaderboard", self.account), &[("count", &n)])
+    }
+
     pub fn potions(&self, email: &str, password: &str) -> Pending<http::Response> {
         http::post_form(&format!("{}/account/grabPotions", self.account), &[("guid", email), ("password", password)])
     }

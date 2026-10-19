@@ -356,6 +356,39 @@ pub fn parse_potions(xml: &str) -> Result<(Vec<i32>, i32), String> {
     Ok((nums.into_iter().take(8).collect(), capacity))
 }
 
+/// One run of `/arena/leaderboard`.
+#[derive(Debug, Clone, PartialEq)]
+pub struct ArenaRun {
+    pub wave: i32,
+    /// From the first wave to the end; negative for runs from before times were kept.
+    pub seconds: i32,
+    /// When it ended, unix ms.
+    pub time: i64,
+    /// "Arena", "Battle Arena" or "Free Battle Arena"; empty for older runs.
+    pub arena: String,
+    pub players: Vec<String>,
+}
+
+/// `/arena/leaderboard`: the best arena runs, best first.
+pub fn parse_arena_runs(xml: &str) -> Result<Vec<ArenaRun>, String> {
+    if let Some(e) = error_text(xml) {
+        return Err(e);
+    }
+    let doc = roxmltree::Document::parse(xml).map_err(|e| e.to_string())?;
+    Ok(doc
+        .root_element()
+        .children()
+        .filter(|c| c.has_tag_name("Run"))
+        .map(|r| ArenaRun {
+            wave: r.attribute("wave").and_then(parse_int).unwrap_or(0) as i32,
+            seconds: r.attribute("seconds").and_then(parse_int).unwrap_or(-1) as i32,
+            time: r.attribute("time").and_then(parse_int).unwrap_or(0),
+            arena: r.attribute("arena").unwrap_or("").to_owned(),
+            players: r.children().filter(|p| p.has_tag_name("Player")).filter_map(|p| p.text()).map(str::to_owned).collect(),
+        })
+        .collect())
+}
+
 /// A plain-text answer (the guild board), or the `<Error>`'s text.
 pub fn text_answer(body: &str) -> Result<String, String> {
     match error_text(body) {
@@ -442,6 +475,19 @@ mod tests {
         let (counts, cap) = parse_potions("<StoredPotions>1,2,3,4,5,6,7,8,100</StoredPotions>").unwrap();
         assert_eq!((counts, cap), (vec![1, 2, 3, 4, 5, 6, 7, 8], 100));
         assert_eq!(text_answer("Hello guild"), Ok("Hello guild".into()));
+    }
+
+    #[test]
+    fn arena_runs() {
+        let runs = parse_arena_runs(
+            r#"<ArenaRuns><Run wave="23" seconds="754" time="1760000000000" arena="Battle Arena"><Player>Ann</Player><Player>Bo</Player></Run>
+            <Run wave="9" seconds="-1" time="1" arena=""><Player>Cy</Player></Run></ArenaRuns>"#,
+        )
+        .unwrap();
+        assert_eq!(runs.len(), 2);
+        assert_eq!((runs[0].wave, runs[0].seconds, runs[0].arena.as_str()), (23, 754, "Battle Arena"));
+        assert_eq!(runs[0].players, vec!["Ann".to_owned(), "Bo".to_owned()]);
+        assert_eq!((runs[1].seconds, runs[1].players.len()), (-1, 1));
     }
 
     #[test]

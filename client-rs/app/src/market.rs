@@ -106,7 +106,7 @@ pub fn is_banned(data: &GameData, item: u16) -> bool {
         return true;
     }
     let Some(d) = data.objects.get(&item) else { return true };
-    if d.xml.has("Soulbound") {
+    if d.untradeable() {
         return true;
     }
     let slot = d.xml.int("SlotType", 0);

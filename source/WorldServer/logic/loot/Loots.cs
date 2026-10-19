@@ -80,11 +80,15 @@ namespace WorldServer.logic.loot
             // get all tiers
 
             var allItems = gameServer.Resources.GameData.Items;
+            var doomedItems = new List<(Item Item, ItemType Type)>();
             foreach (var item in allItems.Values)
             {
                 // Items ported from Doomed Realms (types 0xD000-0xDFFF, tools/port_doomed.py) stay out of
-                // the random tier drops; so do items whose slot type isn't a loot category.
-                if (item.ObjectType >= 0xD000 && item.ObjectType <= 0xDFFF)
+                // the random tier drops, apart from the tiered gear of the Doomed Realms classes, whose
+                // slots nothing else fills: a T3 ability drop can be a Mechanic's T3 turret. Items whose
+                // slot type isn't a loot category stay out too.
+                var doomed = item.ObjectType >= 0xD000 && item.ObjectType <= 0xDFFF;
+                if (doomed && (!TierLoot.DoomedClassSlots.Contains(item.SlotType) || item.Tier < 0))
                     continue;
                 if (!TierLoot.TryGetItemType(item.SlotType, out var itemType))
                     continue;
@@ -93,6 +97,19 @@ namespace WorldServer.logic.loot
                 if (!dict.TryGetValue(item.Tier, out var items))
                     Items[itemType][item.Tier] = items = new List<Item>();
                 items.Add(item);
+                if (doomed)
+                    doomedItems.Add((item, itemType));
+            }
+
+            // Doomed Realms gave its gear plainer bags than betterSkillys gives the same tier: a Doomed
+            // item drops in the bag of the betterSkillys items of its kind and tier
+            foreach (var (item, itemType) in doomedItems)
+            {
+                var bag = Items[itemType][item.Tier]
+                    .Where(i => i.ObjectType < 0xD000 || i.ObjectType > 0xDFFF)
+                    .Select(i => i.BagType).DefaultIfEmpty(item.BagType).Max();
+                if (LOOT_BAG_WEIGHTS[bag] > LOOT_BAG_WEIGHTS[item.BagType])
+                    item.BagType = bag;
             }
 
             //GetSlotTypes

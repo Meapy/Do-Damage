@@ -32,26 +32,6 @@ namespace WorldServer.core.worlds.impl
             Done
         }
 
-        private readonly string[] _randomEnemies =
-{
-            "Djinn", "Beholder", "White Demon of the Abyss", "Flying Brain", "Slime God",
-            "Native Sprite God", "Ent God", "Medusa", "Ghost God", "Leviathan",
-            "Mini Bot"
-        };
-
-        private int _bossLevel = 0;
-        private readonly int[] _changeBossLevel = new int[] { 0, 5, 10, 15, 20, 30 };
-
-        private readonly string[][] _randomBosses = new string[][]
-        {
-            ["Red Demon", "Phoenix Lord", "Henchman of Oryx", "Oryx Brute"],
-            ["Red Demon", "Phoenix Lord", "Henchman of Oryx", "Stheno the Snake Queen"],
-            ["Stheno the Snake Queen", "Archdemon Malphas", "Septavius the Ghost God","Lord of the Lost Lands", "Dr Terrible"],
-            ["Archdemon Malphas", "Septavius the Ghost God", "Limon the Sprite God", "Thessal the Mermaid Goddess", "Crystal Prisoner", "Gigacorn"],
-            ["Thessal the Mermaid Goddess", "Crystal Prisoner", "Tomb Support", "Tomb Defender", "Tomb Attacker", "Oryx the Mad God 2", "Grand Sphinx"],
-            ["Thessal the Mermaid Goddess", "Crystal Prisoner", "Tomb Support", "Tomb Defender", "Tomb Attacker", "Oryx the Mad God 2"]
-        };
-
         private readonly Dictionary<int, string[]> _waveRewards = new Dictionary<int, string[]>
         {
             { 5, new string[] {"Spider Den Key", "Pirate Cave Key", "Forest Maze Key"} },
@@ -73,8 +53,13 @@ namespace WorldServer.core.worlds.impl
         private long _restTime;
         private long _time;
         private int _startingPlayers;
+        private readonly HashSet<string> _participants = new HashSet<string>(); // for the leaderboard
         private bool _lastOneStanding = false;
         private bool _reset = false;
+        private bool _goUsed = false; // "GO" cuts a countdown to 3 seconds, once per countdown
+
+        // seconds between waves: 5, then 10 more every 10 waves, at most 20
+        public static int WaveGapSeconds(int wave) => Math.Min(20, 5 + 10 * (wave / 10));
 
         public ArenaWorld(GameServer gameServer, int id, WorldResource resource)
             : base(gameServer, id, resource)
@@ -162,13 +147,39 @@ namespace WorldServer.core.worlds.impl
                 LeaveWorld(en);
 
             _reset = true;
+            // the run goes on the arena leaderboard (DbArenaRuns): the wave reached, the time since
+            // the game started (_time is reset then)
+            if (_startingPlayers > 0 && _participants.Count > 0)
+                doomed.DoomedWorlds.AddArenaScore(GameServer, _wave, TimeSpan.FromMilliseconds(_time), "Arena", _participants);
+            _participants.Clear();
             _time = 0;
             _restTime = 0;
             _wave = 1;
             _startingPlayers = 0;
-            _bossLevel = 0;
             _countDown = CountDownState.NotifyMinute;
+            _goUsed = false;
             CurrentState = ArenaState.NotStarted;
+        }
+
+        public override void ChatReceived(Player player, string text)
+        {
+            base.ChatReceived(player, text);
+            if (!text.Trim().Equals("GO", StringComparison.OrdinalIgnoreCase) || _goUsed)
+                return;
+
+            if (CurrentState == ArenaState.CountDown && _countDown != CountDownState.Done && _time < 57000)
+            {
+                _time = 57000;
+                _countDown = CountDownState.StartGame; // past the minute and 30-second notices
+            }
+            else if (CurrentState == ArenaState.Rest && _time - _restTime < WaveGapSeconds(_wave) * 1000 - 3000)
+                _restTime = _time - (WaveGapSeconds(_wave) * 1000 - 3000);
+            else
+                return;
+
+            _goUsed = true;
+            foreach (var plr in Players.Values)
+                plr.SendInfo($"{player.Name} said GO: starting in 3 seconds.");
         }
 
         private void Countdown(TickTime time)
@@ -191,8 +202,10 @@ namespace WorldServer.core.worlds.impl
                         return;
                     _countDown = CountDownState.Done;
                     _time = 0;
+                    _restTime = 0;
                     _reset = false;
                     _startingPlayers = Players.Count;
+                    _participants.UnionWith(Players.Values.Select(p => p.Name));
                     CurrentState = ArenaState.Start;
                     Broadcast(new ImminentArenaWave((int)_time, _wave, (int)CurrentState));
                     break;
@@ -222,9 +235,6 @@ namespace WorldServer.core.worlds.impl
                 _wave++;
                 _restTime = _time;
                 CurrentState = ArenaState.Rest;
-                if (_bossLevel + 1 < _changeBossLevel.Length &&
-                    _changeBossLevel[_bossLevel + 1] <= _wave)
-                    _bossLevel++;
                 Rest(time, true);
             }
         }
@@ -276,66 +286,51 @@ namespace WorldServer.core.worlds.impl
         {
             if (recover)
             {
+                _participants.UnionWith(Players.Values.Select(p => p.Name));
                 foreach (var plr in Players.Values)
                     plr.ApplyConditionEffect(ConditionEffectIndex.Healing, 5000);
+                _goUsed = false;
+                foreach (var plr in Players.Values)
+                    plr.SendInfo($"Wave {_wave} starts in {WaveGapSeconds(_wave)} seconds. Type GO to start in 3.");
                 Broadcast(new ImminentArenaWave((int)_time, _wave, (int)CurrentState));
                 HandleWaveRewards();
                 return;
             }
-            if (_time - _restTime < 5000)
+            if (_time - _restTime < WaveGapSeconds(_wave) * 1000)
                 return;
             CurrentState = ArenaState.Spawn;
         }
 
         private void Spawn(TickTime time)
         {
+            foreach (var plr in Players.Values)
+                plr.SendInfo(ArenaPools.WaveMessage(_wave));
             SpawnEnemies();
             SpawnBosses();
             CurrentState = ArenaState.Fight;
         }
 
+        // the wave's monsters (ArenaPools): minions at the edge, the bosses in the middle
         private void SpawnEnemies()
         {
-            var enemies = new List<string>();
-            var r = new Random();
-
-            for (int i = 0; i < Math.Ceiling((double)(_wave + Players.Count) / 2); i++)
-                enemies.Add(_randomEnemies[r.Next(0, _randomEnemies.Length)]);
-
-            foreach (string i in enemies)
-            {
-                var id = GameServer.Resources.GameData.IdToObjectType[i];
-
-                var pos = _outerSpawn[r.Next(0, _outerSpawn.Count)];
-                var xloc = pos.X + 0.5f;
-                var yloc = pos.Y + 0.5f;
-
-                var enemy = Entity.Resolve(GameServer, id);
-                enemy.Move(xloc, yloc);
-                EnterWorld(enemy);
-            }
+            foreach (var name in ArenaPools.Minions(_wave, Players.Count))
+                SpawnAt(name, _outerSpawn);
         }
 
         private void SpawnBosses()
         {
-            var bosses = new List<string>();
-            var r = new Random();
+            foreach (var name in ArenaPools.Bosses(_wave))
+                SpawnAt(name, _centralSpawn);
+        }
 
-            for (int i = 0; i < 1; i++)
-                bosses.Add(_randomBosses[_bossLevel][r.Next(0, _randomBosses[_bossLevel].Length)]);
-
-            foreach (string i in bosses)
-            {
-                ushort id = GameServer.Resources.GameData.IdToObjectType[i];
-
-                var pos = _centralSpawn[r.Next(0, _centralSpawn.Count)];
-                var xloc = pos.X + 0.5f;
-                var yloc = pos.Y + 0.5f;
-
-                var enemy = Entity.Resolve(GameServer, id);
-                enemy.Move(xloc, yloc);
-                EnterWorld(enemy);
-            }
+        private void SpawnAt(string name, List<IntPoint> points)
+        {
+            if (!GameServer.Resources.GameData.IdToObjectType.TryGetValue(name, out var id) || points.Count == 0)
+                return;
+            var pos = points[Random.Shared.Next(points.Count)];
+            var enemy = Entity.Resolve(GameServer, id);
+            enemy.Move(pos.X + 0.5f, pos.Y + 0.5f);
+            EnterWorld(enemy);
         }
 
         public override void LeaveWorld(Entity entity)

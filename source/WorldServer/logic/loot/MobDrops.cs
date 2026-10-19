@@ -47,11 +47,17 @@ namespace WorldServer.logic.loot
 
     public class TierLoot : MobDrops
     {
-        private static readonly int[] WeaponT = new int[] { 1, 2, 3, 8, 17, 24 };
-        private static readonly int[] AbilityT = new int[] { 4, 5, 11, 12, 13, 15, 16, 18, 19, 20, 21, 22, 23, 25, 27, 28 };
+        // the slot types after the betterSkillys ones are the Doomed Realms classes' (DoomedClassSlots)
+        private static readonly int[] WeaponT = new int[] { 1, 2, 3, 8, 17, 24, 36, 200 };
+        private static readonly int[] AbilityT = new int[] { 4, 5, 11, 12, 13, 15, 16, 18, 19, 20, 21, 22, 23, 25, 27, 28, 37, 30, 32, 126, 128, 130, 5000, 5005 };
         private static readonly int[] ArmorT = new int[] { 6, 7, 14, };
         private static readonly int[] RingT = new int[] { 9 };
         private static readonly int[] PotionT = new int[] { 10 };
+
+        // slot types only the Doomed Realms classes use: Blademaster's blades (36) and jacket (37),
+        // Monk's fists (200) and ability (130), Druid's pearl (30), Mechanic's turret (32),
+        // Ascendant's halo (126), Summoner's scroll (128), Sharklord's (5000) and Pirate's cannon (5005)
+        public static readonly HashSet<int> DoomedClassSlots = new HashSet<int> { 36, 37, 30, 32, 126, 128, 130, 200, 5000, 5005 };
 
         public static int[] GetSlotTypes(ItemType itemType)
         {

@@ -61,6 +61,14 @@ const TABS_BOX: (f32, f32) = (2.0 * TAB_PAD + 2.0 * TAB + SLOT_GAP, 2.0 * TAB_PA
 /// Objects whose pictures the tabs show: a loot bag, and the backpack.
 const TAB_ICONS: [i32; 2] = [0x0500, 0x0c6c];
 
+/// The nearby players list in the interact area: rows this far apart and this tall (the
+/// characters are 16 tall, 18 with their outline), as many as fit under its title, the list
+/// centred in the space from MEMBER_TOP down.
+const MEMBER_PITCH: f32 = 20.0;
+const MEMBER_ROW_H: f32 = 18.0;
+const MEMBER_ROWS: usize = 4;
+const MEMBER_TOP: f32 = 16.0;
+
 /// The size of a grid of slots, in HUD units.
 pub const fn grid_size(cols: u32, rows: u32) -> (f32, f32) {
     (
@@ -1087,12 +1095,15 @@ impl Panel {
             panel.buttons.push((Button::InviteYes, ia(8.0, 56.0, 82.0, 30.0)));
             panel.buttons.push((Button::InviteNo, ia(94.0, 56.0, 82.0, 30.0)));
         } else {
-            // PartyPanel: the players around us.
-            for (i, o) in party_members(world, data, social.locked).into_iter().take(5).enumerate() {
+            // PartyPanel: the players around us, as many as fit with room for their characters.
+            let members: Vec<_> = party_members(world, data, social.locked).into_iter().take(MEMBER_ROWS).collect();
+            let block = MEMBER_PITCH * members.len() as f32 - (MEMBER_PITCH - MEMBER_ROW_H);
+            let top = MEMBER_TOP + ((GRID8.1 - MEMBER_TOP) - block).max(0.0) / 2.0;
+            for (i, o) in members.into_iter().enumerate() {
                 let starred = account_id(o).is_some_and(|a| social.locked.contains(&a));
                 let name = o.name().unwrap_or("?").to_owned();
                 panel.members.push((o.id, name, o.stat_int(stat::LEVEL).unwrap_or(0), starred));
-                panel.buttons.push((Button::Member(o.id), ia(4.0, 18.0 + 14.5 * i as f32, 176.0, 14.0)));
+                panel.buttons.push((Button::Member(o.id), ia(4.0, top + MEMBER_PITCH * i as f32, 176.0, MEMBER_ROW_H)));
             }
         }
 
@@ -1384,9 +1395,10 @@ pub fn draw_panel(ui: &mut Ui, lay: &Layout, world: &World, camera_angle: f64, c
                 }
                 let p = world.objects.get(id);
                 let size = lay.font(11.5);
-                let y = br[1] + (br[3] - size * 1.22) / 2.0;
-                // The middle of the name's capitals, where the star and the character sit.
-                let cy = y + size * 0.42;
+                // Everything centred on the row's middle: the name's capitals, the star and the
+                // character.
+                let cy = br[1] + br[3] / 2.0;
+                let y = cy - size * 0.42;
                 // Their rank star, as in chat and their card, then their character.
                 let mut x = br[0] + 3.0 * s;
                 if let Some(stars) = p.and_then(|p| p.stat_int(30)).filter(|&n| n >= 0) {
@@ -1396,8 +1408,8 @@ pub fn draw_panel(ui: &mut Ui, lay: &Layout, world: &World, camera_angle: f64, c
                 }
                 let class = p.and_then(|p| ui.data.objects.get(&p.object_type)).map(|d| d.display_id.clone());
                 if let Some(p) = p {
-                    draw_mini_portrait(ui, p, x + 7.0 * s, cy, s);
-                    x += 17.0 * s;
+                    draw_mini_portrait(ui, p, x + 8.0 * s, cy, s);
+                    x += 20.0 * s;
                 }
                 // A locked player's name in gold.
                 ui.label(name, x, y, size, true, if *starred { 0xFFD24A } else { color::TEXT });
@@ -2332,8 +2344,8 @@ pub fn item_tooltip(data: &GameData, item: i32, me: Option<&GameObj>, kind: Slot
     } else if !matches!(kind, SlotKind::Equip(_)) && xml.has("SlotType") && xml.int("SlotType", 0) != 10 {
         note("Double-click to equip", ATTR);
     }
-    if xml.has("Soulbound") {
-        note("Soulbound", ATTR);
+    if desc.untradeable() {
+        note("Untradeable", ATTR);
     }
     if let Some(me) = me {
         let slot_type = xml.int("SlotType", 0);

@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Runtime.CompilerServices;
 using Shared;
+using Shared.database.leaderboard;
 using Shared.resources;
 using StackExchange.Redis;
 using WorldServer.core.objects;
@@ -349,9 +350,9 @@ namespace WorldServer.core.commands.doomed
 
         protected override bool Process(Player player, TickTime time, string args)
         {
-            var top = DoomedWorlds.TopArenaScores(player.GameServer, 10).ToList();
+            var top = DbArenaRuns.Top(player.GameServer.Database.Conn, 10);
             DoomedEconomy.SendLines(player, "Arena Leaderboard:",
-                top.Count == 0 ? new[] { "None" } : top.Select((t, i) => $"{i + 1}. Wave {t.Wave} - {t.Players}"));
+                top.Count == 0 ? new[] { "None" } : top.Select((t, i) => $"{i + 1}. Wave {t.Wave} in {DbArenaRuns.FormatTime(t.Seconds)} - {string.Join(", ", t.Players)}"));
             return true;
         }
     }

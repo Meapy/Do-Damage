@@ -52,7 +52,7 @@ namespace WorldServer.core.commands
                     return false;
                 }
 
-                if(inventorySlot.Soulbound || !CanSellItem(inventorySlot))
+                if(inventorySlot.Untradeable || !CanSellItem(inventorySlot))
                 {
                     player.SendError("You cannot sell this item.");
                     return false;

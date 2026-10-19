@@ -38,8 +38,8 @@ namespace WorldServer.core.net.handlers
 
             if (sb)
             {
-                CheatLog.Info("User {0} tried to trade a Soulbound item.", player.Name);
-                player.SendError("You can't trade Soulbound items.");
+                CheatLog.Info("User {0} tried to trade an untradeable item.", player.Name);
+                player.SendError("You can't trade admin items.");
             }
         }
     }

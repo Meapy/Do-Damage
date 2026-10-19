@@ -259,7 +259,7 @@ namespace WorldServer.core.net.handlers
                             return false;
                     }
             }
-            return container == player || item == null || !item.Soulbound || IsSoleContainerOwner(player, container);
+            return container == player || item == null || !item.Untradeable || IsSoleContainerOwner(player, container);
         }
 
         private bool IsSoleContainerOwner(Player player, IContainer con)
