@@ -20,7 +20,6 @@ namespace WorldServer.core.net.handlers
             for (int i = 0; i < offer.Length; i++)
                 offer[i] = rdr.ReadBoolean();
 
-            var sb = false;
             var player = client.Player;
 
             if (player == null || client?.Player?.World is TestWorld)
@@ -29,17 +28,9 @@ namespace WorldServer.core.net.handlers
             if (player.TradeTarget == null)
                 return;
 
-            for (int i = 0; i < offer.Length; i++)
-                if (offer[i])
-                    if (player.Inventory[i].Soulbound)
-                    {
-                        sb = true;
-                        offer[i] = false;
-                    }
-
             player.TradeAccepted = false;
             player.TradeTarget.TradeAccepted= false;
-            player.TradeOffers = offer;
+            player.TradeOffers = player.CleanTradeOffer(offer, out var sb);
             player.TradeTarget.Client.SendPacket(new TradeChanged()
             {
                 Offer = player.TradeOffers

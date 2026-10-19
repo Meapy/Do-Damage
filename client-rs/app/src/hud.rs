@@ -1099,12 +1099,11 @@ impl Panel {
         // The trade window, in the middle of the view.
         if let Some(trade) = social.trade {
             let s = lay.s;
-            let (w, h) = (440.0 * s, 290.0 * s);
+            let (w, h) = (440.0 * s, (trade_slots_bottom(trade) + 82.0) * s);
             let r = [(lay.view_w() - w) / 2.0, (lay.h - h) / 2.0, w, h];
             panel.trade_rect = Some(r);
-            for i in 0..trade.mine.len().min(12) {
-                let sr = [r[0] + 20.0 * s + (i % 4) as f32 * 46.0 * s, r[1] + 70.0 * s + (i / 4) as f32 * 46.0 * s, 42.0 * s, 42.0 * s];
-                panel.buttons.push((Button::TradeSlot(i), sr));
+            for i in 0..trade.mine.len().min(TRADE_SLOTS) {
+                panel.buttons.push((Button::TradeSlot(i), trade_slot_rect(r, r[0] + 20.0 * s, i, s)));
             }
             panel.buttons.push((Button::TradeCancel, [r[0] + r[2] - 252.0 * s, r[1] + r[3] - 52.0 * s, 110.0 * s, 36.0 * s]));
             panel.buttons.push((Button::TradeAccept, [r[0] + r[2] - 130.0 * s, r[1] + r[3] - 52.0 * s, 110.0 * s, 36.0 * s]));
@@ -1377,23 +1376,43 @@ pub fn draw_panel(ui: &mut Ui, lay: &Layout, world: &World, camera_angle: f64, c
             ui.label(&detail, centred(dw), iy(34.0), small, false, color::TEXT_DIM);
         } else if !panel.members.is_empty() {
             ui.label("Nearby players", ib[0] + 6.0 * s, iy(3.0), lay.font(11.0), true, color::TEXT_MUTED);
+            let classes = crate::stars::class_count(ui.data);
             for (id, name, level, starred) in &panel.members {
                 let br = panel.buttons.iter().find(|(b, _)| *b == Button::Member(*id)).map(|(_, r)| *r).unwrap_or([0.0; 4]);
                 if inside(br, mouse) {
                     theme::fill(ui.renderer, br, 3.0 * s, 0xFFFFFF, 0.07);
                 }
+                let p = world.objects.get(id);
                 let size = lay.font(11.5);
                 let y = br[1] + (br[3] - size * 1.22) / 2.0;
-                // A starred (locked) player: a gold star before the name.
-                let mut x = br[0] + 4.0 * s;
-                if *starred {
-                    theme::star(ui.renderer, x + size * 0.4, br[1] + br[3] / 2.0, size * 0.42, 0xFFD24A);
-                    x += size * 0.95;
+                // The middle of the name's capitals, where the star and the character sit.
+                let cy = y + size * 0.42;
+                // Their rank star, as in chat and their card, then their character.
+                let mut x = br[0] + 3.0 * s;
+                if let Some(stars) = p.and_then(|p| p.stat_int(30)).filter(|&n| n >= 0) {
+                    let k = size / 15.0;
+                    crate::stars::icon(ui.renderer, x + 8.0 * k, cy, k, crate::stars::color(stars, classes));
+                    x += 17.0 * k;
                 }
+                let class = p.and_then(|p| ui.data.objects.get(&p.object_type)).map(|d| d.display_id.clone());
+                if let Some(p) = p {
+                    draw_mini_portrait(ui, p, x + 7.0 * s, cy, s);
+                    x += 17.0 * s;
+                }
+                // A locked player's name in gold.
                 ui.label(name, x, y, size, true, if *starred { 0xFFD24A } else { color::TEXT });
                 let lv = format!("{level}");
                 let lw = ui.measure(&lv, size, false);
-                ui.label(&lv, br[0] + br[2] - lw - 4.0 * s, y, size, false, color::TEXT_MUTED);
+                let lx = br[0] + br[2] - lw - 4.0 * s;
+                ui.label(&lv, lx, y, size, false, color::TEXT_MUTED);
+                // The class beside the level, where it fits.
+                if let Some(class) = class {
+                    let small = lay.font(10.0);
+                    let cw = ui.measure(&class, small, false);
+                    if x + ui.measure(name, size, true) + 6.0 * s < lx - cw - 5.0 * s {
+                        ui.label(&class, lx - cw - 5.0 * s, cy - small * 0.42, small, false, color::TEXT_DIM);
+                    }
+                }
             }
         }
     }
@@ -1666,6 +1685,16 @@ fn draw_slot(ui: &mut Ui, lay: &Layout, slot: &Slot, dragged: bool, target: bool
 
 /// The player's portrait (`Player.getPortrait`): the class (or skin) standing, dyed.
 fn draw_portrait(ui: &mut Ui, lay: &Layout, me: &GameObj, cx: f32, cy: f32) {
+    draw_character(ui, me, cx, cy, ((60.0 * lay.s * 0.8).round() as i32).max(1));
+}
+
+/// A player's character small enough for a list row (the 8-pixel sprite at about twice size).
+fn draw_mini_portrait(ui: &mut Ui, p: &GameObj, cx: f32, cy: f32, s: f32) {
+    draw_character(ui, p, cx, cy, (((40.0 * s) / 5.0).round() as i32 * 5).max(5));
+}
+
+/// `p`'s class (or skin) standing, dyed, centred on (cx, cy), redrawn at `size` (100 = ×5).
+fn draw_character(ui: &mut Ui, me: &GameObj, cx: f32, cy: f32, size: i32) {
     let skin = me.stat_int(stat::TEXTURE).filter(|&t| t != 0).and_then(|t| ui.data.objects.get(&(t as u16)));
     let Some(desc) = skin.or_else(|| ui.data.objects.get(&me.object_type)) else { return };
     let TextureRef::Animated { set, index } = &desc.texture.pick(0).main else { return };
@@ -1676,7 +1705,6 @@ fn draw_portrait(ui: &mut Ui, lay: &Layout, me: &GameObj, cx: f32, cy: f32) {
         tex2: me.stat_int(stat::TEX2).unwrap_or(0),
     });
     // Redrawn at the size it shows, centred on the sprite (see `item_icon`).
-    let size = ((60.0 * lay.s * 0.8).round() as i32).max(1);
     let Some(icon) = ui.redrawer.get(ui.sprites, ui.renderer, src, false, size, dye) else { return };
     let (w, h) = (icon.w as f32, icon.h as f32);
     let lift = (crate::redraw::PAD as f32 - 1.0) / 2.0;
@@ -2318,6 +2346,25 @@ fn draw_tooltip(ui: &mut Ui, lay: &Layout, lines: &[Line], icon: Option<i32>, ac
     }
 }
 
+/// The most slots a side of the trade shows: equipment, inventory and backpack.
+const TRADE_SLOTS: usize = 20;
+
+/// Where slot `i` of a side of the trade window sits, that side's left edge at `x0`: four
+/// across (equipment, then the inventory), the backpack's rows set a little apart below.
+fn trade_slot_rect(r: [f32; 4], x0: f32, i: usize, s: f32) -> [f32; 4] {
+    let row = i / 4;
+    let gap = if row >= 3 { 8.0 } else { 0.0 };
+    [x0 + (i % 4) as f32 * 46.0 * s, r[1] + (70.0 + row as f32 * 46.0 + gap) * s, 42.0 * s, 42.0 * s]
+}
+
+/// Where the trade window's slots end (unscaled, from its top): three rows, five with a backpack
+/// on either side.
+fn trade_slots_bottom(trade: &crate::game::Trade) -> f32 {
+    let slots = trade.mine.len().max(trade.theirs.len()).clamp(12, TRADE_SLOTS);
+    let rows = slots.div_ceil(4);
+    70.0 + rows as f32 * 46.0 + if rows > 3 { 8.0 } else { 0.0 }
+}
+
 /// The trade window (`TradePanel`) and the player menu (`PlayerMenu`), over the view.
 pub fn draw_windows(ui: &mut Ui, lay: &Layout, world: &World, panel: &Panel, social: &Social, mouse: (f64, f64)) {
     let s = lay.s;
@@ -2348,8 +2395,8 @@ pub fn draw_windows(ui: &mut Ui, lay: &Layout, world: &World, panel: &Panel, soc
                 ("Their offer", n, c)
             };
             ui.label(label, x0, r[1] + 48.0 * s, lay.font(13.0), true, color::TEXT_DIM);
-            for (i, item) in items.iter().take(12).enumerate() {
-                let sr = [x0 + (i % 4) as f32 * 46.0 * s, r[1] + 70.0 * s + (i / 4) as f32 * 46.0 * s, 42.0 * s, 42.0 * s];
+            for (i, item) in items.iter().take(TRADE_SLOTS).enumerate() {
+                let sr = trade_slot_rect(r, x0, i, s);
                 let on = offer.get(i).copied().unwrap_or(false);
                 let over = inside(sr, mouse);
                 let clickable = mine && item.tradeable && item.item > 0;
@@ -2369,7 +2416,7 @@ pub fn draw_windows(ui: &mut Ui, lay: &Layout, world: &World, panel: &Panel, soc
                     }
                 }
             }
-            ui.label(note, x0, r[1] + 212.0 * s, lay.font(12.0), true, note_c);
+            ui.label(note, x0, r[1] + (trade_slots_bottom(trade) + 4.0) * s, lay.font(12.0), true, note_c);
         }
         // Accept waits a moment after any change, then needs room on both sides.
         let wait = (crate::game::TRADE_ACCEPT_DELAY - (social.now - trade.changed_at)).max(0);

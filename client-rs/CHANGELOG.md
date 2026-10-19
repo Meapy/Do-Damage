@@ -9,6 +9,11 @@ refuses while an `Unreleased` one is left, so rename it to `## <version> (<date>
 version number itself is in `client-rs/Cargo.toml`.
 
 ## Unreleased
+- Trading now includes your backpack: its items show in two more rows of the trade window,
+  you can offer them, and items you get can go into your backpack when your inventory is full.
+- Fixed: a traded item could lose its extra details (what makes that copy of it special).
+- Nearby players: each player's rank star now shows in their rank colour, as in chat, lined up
+  with their name, with their character and class beside it.
 - The Support Bot in the Nexus has a new tip about Elder dungeons and their better loot.
 - Your rank and its star moved to the top right, above your gold and fame. Each number there
   now lines up with the middle of its icon.

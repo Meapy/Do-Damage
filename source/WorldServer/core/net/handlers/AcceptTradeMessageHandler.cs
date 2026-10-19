@@ -25,7 +25,7 @@ namespace WorldServer.core.net.handlers
                 myOffer[i] = rdr.ReadBoolean();
 
             var yourOffer = new bool[rdr.ReadInt16()];
-            for (int i = 0; i < myOffer.Length; i++)
+            for (int i = 0; i < yourOffer.Length; i++)
                 yourOffer[i] = rdr.ReadBoolean();
 
             var player = client.Player;
@@ -36,8 +36,10 @@ namespace WorldServer.core.net.handlers
                 return;
 
             var tradeTarget = player.TradeTarget;
+            if (tradeTarget == null)
+                return;
 
-            player.TradeOffers = myOffer;
+            player.TradeOffers = player.CleanTradeOffer(myOffer, out _);
             if (tradeTarget.TradeOffers.SequenceEqual(yourOffer))
             {
                 player.TradeAccepted = true;
@@ -77,13 +79,14 @@ namespace WorldServer.core.net.handlers
             var tInvTrans = tradeTarget.Inventory.CreateTransaction();
 
             var pInvDataTrans = player.Inventory.CreateDataTransaction();
-            var tInvDataTrans = player.Inventory.CreateDataTransaction();
+            var tInvDataTrans = tradeTarget.Inventory.CreateDataTransaction();
 
             for (int i = 4; i < player.TradeOffers.Length; i++)
                 if (player.TradeOffers[i])
                 {
                     thisItems.Add((player.Inventory[i], player.Inventory.Data[i]));
                     pInvTrans[i] = null;
+                    pInvDataTrans[i] = null;
                 }
 
             for (int i = 4; i < tradeTarget.TradeOffers.Length; i++)
@@ -91,10 +94,11 @@ namespace WorldServer.core.net.handlers
                 {
                     targetItems.Add((tradeTarget.Inventory[i], tradeTarget.Inventory.Data[i]));
                     tInvTrans[i] = null;
+                    tInvDataTrans[i] = null;
                 }
 
-            // move thisItems -> tradeTarget
-            for (var i = 0; i < 12; i++)
+            // move thisItems -> tradeTarget (into its backpack too, if it has one)
+            for (var i = 0; i < tradeTarget.TradeSlots; i++)
                 for (var j = 0; j < thisItems.Count; j++)
                 {
                     if (tradeTarget.SlotTypes[i] == 0 && tInvTrans[i] == null || thisItems[j].Item1 != null && tradeTarget.SlotTypes[i] == thisItems[j].Item1.SlotType && tInvTrans[i] == null)
@@ -107,7 +111,7 @@ namespace WorldServer.core.net.handlers
                 }
 
             // move tradeItems -> this
-            for (var i = 0; i < 12; i++)
+            for (var i = 0; i < player.TradeSlots; i++)
                 for (var j = 0; j < targetItems.Count; j++)
                 {
                     if (player.SlotTypes[i] == 0 && pInvTrans[i] == null || targetItems[j].Item1 != null && player.SlotTypes[i] == targetItems[j].Item1.SlotType && pInvTrans[i] == null)
