@@ -395,7 +395,7 @@ impl Settings {
         flag("playSFX", self.sound.sfx);
         flag("playPewPew", self.sound.shots);
         flag("playMusic", self.sound.music);
-        out += &format!("sfxVolume={}\nmusicVolume={}\n", self.sound.sfx_volume, self.sound.music_volume);
+        out += &format!("masterVolume={}\nsfxVolume={}\nmusicVolume={}\n", self.sound.master_volume, self.sound.sfx_volume, self.sound.music_volume);
         out += &format!("worldZoom={}\n", self.zoom);
         out += &format!("playerOpacity={}\npetOpacity={}\n", self.player_alpha, self.pet_alpha);
         out += &format!("maxFps={}\n", self.max_fps);
@@ -454,6 +454,7 @@ impl Settings {
                 "playSFX" => s.sound.sfx = on,
                 "playPewPew" => s.sound.shots = on,
                 "playMusic" => s.sound.music = on,
+                "masterVolume" => s.sound.master_volume = vol().unwrap_or(s.sound.master_volume),
                 "sfxVolume" => s.sound.sfx_volume = vol().unwrap_or(s.sound.sfx_volume),
                 "musicVolume" => s.sound.music_volume = vol().unwrap_or(s.sound.music_volume),
                 "worldZoom" => s.zoom = value.parse::<f32>().map_or(1.0, |z| z.clamp(ZOOM_MIN, ZOOM_MAX)),
@@ -496,6 +497,7 @@ pub enum Tab {
 /// A slider on the Graphics, Visuals or Sound tab.
 #[derive(Clone, Copy, Debug, PartialEq)]
 enum Slider {
+    Master,
     Sfx,
     Music,
     Zoom,
@@ -510,7 +512,7 @@ enum Hit {
     Tab(Tab),
     Bind(Bind),
     Toggle(Toggle),
-    /// A volume slider (sound effects, music) and its track.
+    /// A slider (a volume, the zoom...) and its track.
     Slider(Slider, [f32; 4]),
     Defaults,
     Close,
@@ -544,6 +546,7 @@ fn set_slider(slider: Slider, track: [f32; 4], x: f64, settings: &mut Settings) 
     let f = ((x as f32 - track[0]) / track[2]).clamp(0.0, 1.0);
     let v = (f * 20.0).round() / 20.0;
     match slider {
+        Slider::Master => settings.sound.master_volume = v,
         Slider::Music => settings.sound.music_volume = v,
         Slider::Sfx => settings.sound.sfx_volume = v,
         Slider::Zoom => settings.zoom = ZOOM_MIN + v * (ZOOM_MAX - ZOOM_MIN),
@@ -713,31 +716,16 @@ impl OptionsUi {
                     Tab::Visuals => &VISUALS,
                     _ => &SOUNDS,
                 };
-                // A long list of switches goes in two columns.
-                let cols = if list.len() > 6 { 2 } else { 1 };
-                let per_col = list.len().div_ceil(cols);
-                let colw = (body[2] - 20.0 * s * (cols - 1) as f32) / cols as f32;
-                for (i, (t, label)) in list.iter().enumerate() {
-                    let (col, line) = (i / per_col, i % per_col);
-                    let row = [body[0] + col as f32 * (colw + 20.0 * s), body[1] + line as f32 * 38.0 * s, colw, 34.0 * s];
-                    if inside(row, mouse) {
-                        theme::fill(ui.renderer, row, 6.0 * s, 0xFFFFFF, 0.05);
-                    }
-                    ui.label(label, row[0] + 10.0 * s, row[1] + 8.0 * s, font(14.0), false, color::TEXT);
-                    let on = *settings.clone().toggle(*t);
-                    // A switch.
-                    let sw = [row[0] + row[2] - 56.0 * s, row[1] + 7.0 * s, 44.0 * s, 20.0 * s];
-                    theme::fill(ui.renderer, sw, sw[3] / 2.0, if on { color::ACCENT } else { color::SECONDARY }, 1.0);
-                    let knob = sw[3] - 4.0 * s;
-                    let kx = if on { sw[0] + sw[2] - knob - 2.0 * s } else { sw[0] + 2.0 * s };
-                    theme::fill(ui.renderer, [kx, sw[1] + 2.0 * s, knob, knob], knob / 2.0, 0xFFFFFF, 1.0);
-                    self.hits.push((Hit::Toggle(*t), row));
-                }
-                let mut y = body[1] + per_col as f32 * 38.0 * s;
+                // The sliders first, then the switches under them.
+                let mut y = body[1];
                 let pct = |a: f32| format!("{}%", (a * 100.0).round() as i32);
                 let sliders: Vec<(Slider, &str, f32, String)> = if self.tab == Tab::Sound {
-                    let (sv, mv) = (settings.sound.sfx_volume, settings.sound.music_volume);
-                    vec![(Slider::Sfx, "Effects volume", sv, pct(sv)), (Slider::Music, "Music volume", mv, pct(mv))]
+                    let snd = settings.sound;
+                    vec![
+                        (Slider::Master, "Master volume", snd.master_volume, pct(snd.master_volume)),
+                        (Slider::Sfx, "Effects volume", snd.sfx_volume, pct(snd.sfx_volume)),
+                        (Slider::Music, "Music volume", snd.music_volume, pct(snd.music_volume)),
+                    ]
                 } else if self.tab == Tab::Visuals {
                     let look = settings.pet_shot_look;
                     let lv = PetShots::ALL.iter().position(|&p| p == look).unwrap_or(1) as f32 / (PetShots::ALL.len() - 1) as f32;
@@ -754,19 +742,37 @@ impl OptionsUi {
                     let fps = if settings.max_fps == 0 { "No limit".to_owned() } else { settings.max_fps.to_string() };
                     vec![(Slider::Zoom, "World zoom", v, pct(settings.zoom)), (Slider::MaxFps, "Max frame rate", fv, fps)]
                 };
-                if !sliders.is_empty() {
-                    y += 10.0 * s;
-                    for (slider, label, v, value) in sliders {
-                        ui.label(label, body[0] + 10.0 * s, y + 4.0 * s, font(14.0), false, color::TEXT);
-                        let track = [body[0] + 200.0 * s, y + 9.0 * s, body[2] - 280.0 * s, 8.0 * s];
-                        theme::fill(ui.renderer, track, 4.0 * s, color::TRACK, 1.0);
-                        theme::fill(ui.renderer, [track[0], track[1], track[2] * v, track[3]], 4.0 * s, color::ACCENT, 1.0);
-                        let knob = 16.0 * s;
-                        theme::fill(ui.renderer, [track[0] + track[2] * v - knob / 2.0, track[1] - 4.0 * s, knob, knob], knob / 2.0, 0xFFFFFF, 1.0);
-                        ui.label(&value, track[0] + track[2] + 16.0 * s, y + 4.0 * s, font(13.0), true, color::TEXT_DIM);
-                        self.hits.push((Hit::Slider(slider, track), [track[0] - 8.0 * s, y, track[2] + 16.0 * s, 26.0 * s]));
-                        y += 40.0 * s;
+                for (slider, label, v, value) in sliders {
+                    ui.label(label, body[0] + 10.0 * s, y + 4.0 * s, font(14.0), false, color::TEXT);
+                    let track = [body[0] + 200.0 * s, y + 9.0 * s, body[2] - 280.0 * s, 8.0 * s];
+                    theme::fill(ui.renderer, track, 4.0 * s, color::TRACK, 1.0);
+                    theme::fill(ui.renderer, [track[0], track[1], track[2] * v, track[3]], 4.0 * s, color::ACCENT, 1.0);
+                    let knob = 16.0 * s;
+                    theme::fill(ui.renderer, [track[0] + track[2] * v - knob / 2.0, track[1] - 4.0 * s, knob, knob], knob / 2.0, 0xFFFFFF, 1.0);
+                    ui.label(&value, track[0] + track[2] + 16.0 * s, y + 4.0 * s, font(13.0), true, color::TEXT_DIM);
+                    self.hits.push((Hit::Slider(slider, track), [track[0] - 8.0 * s, y, track[2] + 16.0 * s, 26.0 * s]));
+                    y += 40.0 * s;
+                }
+                y += 6.0 * s;
+                // A long list of switches goes in two columns.
+                let cols = if list.len() > 6 { 2 } else { 1 };
+                let per_col = list.len().div_ceil(cols);
+                let colw = (body[2] - 20.0 * s * (cols - 1) as f32) / cols as f32;
+                for (i, (t, label)) in list.iter().enumerate() {
+                    let (col, line) = (i / per_col, i % per_col);
+                    let row = [body[0] + col as f32 * (colw + 20.0 * s), y + line as f32 * 38.0 * s, colw, 34.0 * s];
+                    if inside(row, mouse) {
+                        theme::fill(ui.renderer, row, 6.0 * s, 0xFFFFFF, 0.05);
                     }
+                    ui.label(label, row[0] + 10.0 * s, row[1] + 8.0 * s, font(14.0), false, color::TEXT);
+                    let on = *settings.clone().toggle(*t);
+                    // A switch.
+                    let sw = [row[0] + row[2] - 56.0 * s, row[1] + 7.0 * s, 44.0 * s, 20.0 * s];
+                    theme::fill(ui.renderer, sw, sw[3] / 2.0, if on { color::ACCENT } else { color::SECONDARY }, 1.0);
+                    let knob = sw[3] - 4.0 * s;
+                    let kx = if on { sw[0] + sw[2] - knob - 2.0 * s } else { sw[0] + 2.0 * s };
+                    theme::fill(ui.renderer, [kx, sw[1] + 2.0 * s, knob, knob], knob / 2.0, 0xFFFFFF, 1.0);
+                    self.hits.push((Hit::Toggle(*t), row));
                 }
             }
         }
@@ -828,6 +834,7 @@ mod tests {
         assert_eq!(s.key(Bind::MoveUp), None);
         s.particles = false;
         s.sound.music_volume = 0.25;
+        s.sound.master_volume = 0.6;
         s.zoom = 1.2;
         s.max_fps = 144;
         s.camera_angle = Some(1.5);

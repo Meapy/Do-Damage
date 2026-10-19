@@ -98,7 +98,7 @@ The client itself can be scripted for tests (desktop only):
 | `--bench` | No vsync or frame cap for this run (the settings are left alone), and every 2 s the frame rate, CPU time by section and draw calls in the log. Measure a release build, after the first few seconds |
 | `--shot <png> --shot-after <seconds>` | Save one frame, then quit (logs the position and what it sent) |
 | `--walk-to x,y[;x,y...]` | Walk to world positions in turn (in the first world joined, or the one `--say` moves to) |
-| `--hold <key>:<ms>` | Hold keys one after another: `w a s d q e r 0 1`-`8 space hp mp`, `f` fires, `-` waits |
+| `--hold <key>:<ms>` | Hold keys one after another: `w a s d q e r o z 0 1`-`8 space hp mp`, `f` fires, `-` waits |
 | `--aim <degrees>` / `--aim auto` | Where `f` fires on the screen, or at the nearest enemy |
 | `--say <text>` | Send a chat line or command once in the game; several lines split by `;;` go out in turn, each once another world is joined or 3 s after the last (`"/dungeon Oryx's Sanctuary;;/god"`) |
 | `--npc <class>` | Open that NPC's window once in the game (`GuildBoard`, `PotionStorage`...), wherever you stand |
