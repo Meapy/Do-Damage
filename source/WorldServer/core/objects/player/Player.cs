@@ -196,6 +196,9 @@ namespace WorldServer.core.objects
 			set => _skin.SetValue(value);
         }
 
+        // the rank staff are given: above anyone's real rank (classes x 5), so the client draws their star green
+        public const int STAFF_STARS = 1000;
+
         private StatTypeValue<int> _stars;
         public int Stars
         {
@@ -375,10 +378,10 @@ namespace WorldServer.core.objects
             // Standardowe pobranie gwiazdek z postępów konta
             Stars = GetStars();
 
-            // Jeśli gracz jest adminem, nadpisujemy wartość na 100 dla fioletowej gwiazdki
+            // staff show a green star: a rank above anyone's (the client's stars::STAFF)
             if (Client.Account.Admin)
             {
-                Stars = 100;
+                Stars = STAFF_STARS;
             }
 
             TickCount = 0;

@@ -218,7 +218,8 @@ namespace WorldServer.core.worlds
                     player.Client.SendPacket(outgoingMessage);
         }
 
-        public void ChatReceived(Player player, string text)
+        // arenas override this to hear "GO" (ArenaWorld, DoomedBattleArena)
+        public virtual void ChatReceived(Player player, string text)
         {
             foreach (var en in Enemies)
                 en.Value.OnChatTextReceived(player, text);

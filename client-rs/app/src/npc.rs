@@ -1,14 +1,14 @@
 //! The NPCs of the Nexus and the guild hall, and the windows they open (the AIR client's
 //! `CharacterChangerPanel`, `ReskinPanel`, `NameChangerPanel`, `Guild*Panel` and
 //! `PotionsPanel`, and their frames): the Armoire's skins, choosing a name, creating or leaving
-//! a guild, the guild board and member list, and potion storage.
+//! a guild, the guild board and member list, potion storage, and the Nexus's arena leaderboard.
 //!
 //! One window is open at a time, over the world. It takes the mouse and the keyboard until it
 //! closes (Escape, its close button, or a click outside it).
 
 use crate::hud::{Layout, Ui};
 use crate::theme::{self, color, Kind};
-use bsk_net::account::GuildMember;
+use bsk_net::account::{ArenaRun, GuildMember};
 use bsk_world::GameObj;
 use winit::keyboard::KeyCode;
 
@@ -39,6 +39,8 @@ pub enum NpcKind {
     PotionStorage,
     /// `MarketNPC`: the marketplace.
     Market,
+    /// The Arena Leaderboard trophy in the Nexus's south yard: the best arena runs.
+    ArenaLeaderboard,
 }
 
 impl NpcKind {
@@ -52,6 +54,7 @@ impl NpcKind {
             "GuildChronicle" => Self::GuildChronicle,
             "PotionStorage" => Self::PotionStorage,
             "MarketNPC" => Self::Market,
+            "ArenaLeaderboard" => Self::ArenaLeaderboard,
             _ => return None,
         })
     }
@@ -105,6 +108,7 @@ pub fn interact_text(kind: NpcKind, me: &GameObj, rank_req: i32) -> (String, Opt
         NpcKind::GuildChronicle => open("The guild's members", "View"),
         NpcKind::PotionStorage => open("Store stat potions", "Open"),
         NpcKind::Market => open("Buy and sell items", "Manage"),
+        NpcKind::ArenaLeaderboard => open("The arena's best runs", "View"),
     }
 }
 
@@ -155,6 +159,8 @@ pub enum Window {
     Board { text: Option<String>, edit: Option<String>, error: Option<String> },
     Members { list: Option<(String, Vec<GuildMember>)>, page: usize, error: Option<String> },
     Potions { counts: Option<(Vec<i32>, i32)>, error: Option<String> },
+    /// `/arena/leaderboard`, best first, once it has come.
+    Leaderboard { runs: Option<Vec<ArenaRun>>, error: Option<String> },
 }
 
 /// What the player did in a window.
@@ -198,6 +204,18 @@ pub struct Npcs {
 
 /// Rows of the member list per page.
 const MEMBER_ROWS: usize = 10;
+
+/// Runs the leaderboard shows: the best in its own card, then the rest in rows.
+pub const LEADERBOARD_RUNS: usize = 10;
+
+/// A run's time: "12:05", "1:02:05", or a dash for runs from before times were kept.
+pub fn run_time(seconds: i32) -> String {
+    if seconds < 0 {
+        return "—".to_owned();
+    }
+    let (h, m, s) = (seconds / 3600, seconds / 60 % 60, seconds % 60);
+    if h > 0 { format!("{h}:{m:02}:{s:02}") } else { format!("{m}:{s:02}") }
+}
 
 fn inside(r: [f32; 4], (x, y): (f64, f64)) -> bool {
     let (x, y) = (x as f32, y as f32);
@@ -336,6 +354,11 @@ impl Npcs {
                 (440.0, 104.0 + 30.0 * rows as f32 + if n > MEMBER_ROWS { 64.0 } else { 0.0 })
             }
             Window::Potions { .. } => (480.0, 112.0 + 38.0 * 8.0 + 56.0),
+            // the best run's card, then a row for each of the rest (room for three while loading)
+            Window::Leaderboard { runs, .. } => {
+                let rest = runs.as_ref().map_or(3, |r| r.len().saturating_sub(1)).min(LEADERBOARD_RUNS - 1);
+                (540.0, 74.0 + 118.0 + 30.0 * rest as f32 + 10.0)
+            }
         };
         // Never bigger than the view.
         let k = (lay.view_w() * 0.94 / (w * s)).min(lay.h * 0.94 / (h * s)).min(1.0);
@@ -353,6 +376,7 @@ impl Npcs {
             Window::Board { .. } => "Guild board".to_owned(),
             Window::Members { list, .. } => list.as_ref().map_or("Guild members".to_owned(), |l| l.0.clone()),
             Window::Potions { .. } => "Potion storage".to_owned(),
+            Window::Leaderboard { .. } => "Arena Leaderboard".to_owned(),
         };
         ui.label(&title, r[0] + 20.0 * s, r[1] + 16.0 * s, font(19.0), true, color::TEXT);
         // The close button, top right.
@@ -564,6 +588,19 @@ impl Npcs {
                     }
                 }
             }
+            Window::Leaderboard { runs, error } => {
+                let ts = font(12.5);
+                match runs {
+                    None => {
+                        let t = error.as_deref().unwrap_or("Loading…");
+                        ui.label(t, body[0], body[1], ts, false, if error.is_some() { color::DANGER } else { color::TEXT_MUTED });
+                    }
+                    Some(runs) if runs.is_empty() => {
+                        ui.label("No runs yet. Survive waves in the Battle Arena or /arena to get on the board.", body[0], body[1], ts, false, color::TEXT_MUTED);
+                    }
+                    Some(runs) => draw_runs(ui, runs, body, s, me.and_then(|m| m.name()).unwrap_or("")),
+                }
+            }
         }
         // The window's own buttons, right-aligned along the bottom.
         let mut x = r[0] + r[2] - 20.0 * s;
@@ -586,6 +623,60 @@ fn submit(prompt: Prompt, input: &str, busy: &mut bool, error: &mut Option<Strin
     }
     (*busy, *error) = (true, None);
     Some(if prompt == Prompt::Name { Act::ChooseName(name) } else { Act::CreateGuild(name) })
+}
+
+/// The leaderboard's runs in `body`: the best one in a gold-edged card (its wave, time, arena
+/// and everyone who took part), then the rest a row each. The viewer's own name stands out.
+fn draw_runs(ui: &mut Ui, runs: &[ArenaRun], body: [f32; 4], s: f32, me: &str) {
+    const GOLD: u32 = 0xFFD24A;
+    let font = |size: f32| (size * s).round().max(9.0);
+    let names = |r: &ArenaRun| if r.players.is_empty() { "Unknown".to_owned() } else { r.players.join(", ") };
+    let mine = |r: &ArenaRun| r.players.iter().any(|p| p == me);
+
+    // the best run
+    let best = &runs[0];
+    let card = [body[0], body[1], body[2], 108.0 * s];
+    theme::frame(ui.renderer, card, 8.0 * s, s.max(1.0), (GOLD, 0.9), ((color::SLOT_TOP, 1.0), (color::SLOT_BOTTOM, 1.0)));
+    let (x, mut y) = (card[0] + 16.0 * s, card[1] + 12.0 * s);
+    let big = font(22.0);
+    ui.label("#1", x, y, big, true, GOLD);
+    let wave = format!("Wave {}", best.wave);
+    let wx = x + ui.measure("#1", big, true) + 14.0 * s;
+    ui.label(&wave, wx, y, big, true, color::TEXT);
+    let tx = wx + ui.measure(&wave, big, true) + 14.0 * s;
+    let small = font(13.0);
+    let detail = if best.arena.is_empty() { run_time(best.seconds) } else { format!("{}  ·  {}", run_time(best.seconds), best.arena) };
+    ui.label(&detail, tx, y + (big - small) * 0.8, small, false, color::TEXT_DIM);
+    y += big * 1.35;
+    ui.label("Time taken and the players who took part", x, y, font(10.5), true, color::TEXT_MUTED);
+    y += font(10.5) * 1.5;
+    let ps = font(12.5);
+    let lines = wrap(ui, &names(best), ps, card[2] - 32.0 * s);
+    let shown = lines.len().min(2);
+    for (i, line) in lines.iter().take(shown).enumerate() {
+        let line = if i + 1 == shown && lines.len() > shown { fit(ui, &format!("{line} …"), ps, card[2] - 32.0 * s) } else { line.clone() };
+        ui.label(&line, x, y, ps, false, if mine(best) { color::ACCENT_HI } else { color::TEXT });
+        y += ps * 1.3;
+    }
+
+    // the rest
+    let ts = font(12.5);
+    let top = card[1] + card[3] + 10.0 * s;
+    for (i, r) in runs.iter().enumerate().skip(1).take(LEADERBOARD_RUNS - 1) {
+        let ry = top + (i - 1) as f32 * 30.0 * s;
+        let rr = [body[0] - 6.0 * s, ry, body[2] + 12.0 * s, 28.0 * s];
+        if i % 2 == 1 {
+            theme::fill(ui.renderer, rr, 4.0 * s, 0xFFFFFF, 0.03);
+        }
+        let ty = ry + (28.0 * s - ts * 1.22) / 2.0;
+        let c = if mine(r) { color::ACCENT_HI } else { color::TEXT };
+        ui.label(&format!("#{}", i + 1), body[0], ty, ts, true, color::TEXT_DIM);
+        ui.label(&format!("Wave {}", r.wave), body[0] + 40.0 * s, ty, ts, true, c);
+        ui.label(&run_time(r.seconds), body[0] + 122.0 * s, ty, ts, false, color::TEXT_DIM);
+        let px = body[0] + 190.0 * s;
+        let who = fit(ui, &names(r), ts, body[0] + body[2] - px);
+        ui.label(&who, px, ty, ts, false, c);
+    }
 }
 
 /// Cut a line to fit `width`, with an ellipsis.

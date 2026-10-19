@@ -95,6 +95,7 @@ enum NpcRequest {
     SetBoard,
     Members,
     Potions,
+    Leaderboard,
 }
 
 struct App {
@@ -252,8 +253,9 @@ fn npc_open(kind: npc::NpcKind, game: &Game, npcs: &mut npc::Npcs, market: &mut 
         NpcKind::GuildBoard => Window::Board { text: None, edit: None, error: None },
         NpcKind::GuildChronicle => Window::Members { list: None, page: 0, error: None },
         NpcKind::PotionStorage => Window::Potions { counts: None, error: None },
+        NpcKind::ArenaLeaderboard => Window::Leaderboard { runs: None, error: None },
     };
-    let fetch = matches!(window, Window::Board { .. } | Window::Members { .. } | Window::Potions { .. });
+    let fetch = matches!(window, Window::Board { .. } | Window::Members { .. } | Window::Potions { .. } | Window::Leaderboard { .. });
     npcs.open(window);
     if fetch {
         npcs.reload_at = Some(0);
@@ -1153,6 +1155,7 @@ impl App {
                 Some(npc::Window::Board { .. }) => Some((NpcRequest::Board, endpoint.guild_board(email, password))),
                 Some(npc::Window::Members { .. }) => Some((NpcRequest::Members, endpoint.guild_members(email, password))),
                 Some(npc::Window::Potions { .. }) => Some((NpcRequest::Potions, endpoint.potions(email, password))),
+                Some(npc::Window::Leaderboard { .. }) => Some((NpcRequest::Leaderboard, endpoint.arena_leaderboard())),
                 _ => None,
             };
         }
@@ -1179,6 +1182,10 @@ impl App {
             },
             (NpcRequest::Potions, Some(npc::Window::Potions { counts, error })) => match response.and_then(|x| acc::parse_potions(&x)) {
                 Ok(c) => (*counts, *error) = (Some(c), None),
+                Err(e) => *error = Some(e),
+            },
+            (NpcRequest::Leaderboard, Some(npc::Window::Leaderboard { runs, error })) => match response.and_then(|x| acc::parse_arena_runs(&x)) {
+                Ok(r) => (*runs, *error) = (Some(r), None),
                 Err(e) => *error = Some(e),
             },
             _ => {}

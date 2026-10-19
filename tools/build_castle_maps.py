@@ -25,7 +25,7 @@ The nexus, from the middle out:
 - a market ward behind a colonnade on each side: pavilions whose stalls are shop regions
   (`Store N`, see `MerchantLists.Shops`), as many stalls per shop as the old map had;
 - the south yard: the Battle Arena portals (`ARENA_PORTALS`, which `DoomedWorlds.NexusPortals`
-  must match), the Wine Cellar, the gatehouse with its portcullis, the class memorial and the
+  must match) with the Arena Leaderboard between them, the Wine Cellar, the gatehouse with its portcullis, the class memorial and the
   treasury. The four shared vault chests keep their items in Redis by tile (`DbNexusChest`), so
   they stay on the tiles they had in the old map (`CHESTS`).
 
@@ -430,6 +430,8 @@ def build_nexus():
         g.paths.add((int(x), int(y)))
         g.banner(int(x), int(y) - 2, PLAZA)
     g.put(WINE_CELLAR[0], WINE_CELLAR[1], PATH, "Locked Wine Cellar Portal")
+    # the arena leaderboard (its trophy opens the top runs in the Rust client), between the portals
+    g.put(cx, int(ARENA_PORTALS[0][1]), PATH, "Arena Leaderboard")
     for x in (38, 44, 52, 58):
         g.brazier(x, 72, PLAZA)
     for y in range(67, 81, 3):

@@ -1,6 +1,6 @@
 //! `FameUtil`: the rank stars. Each class has five class quests, one for each fame in `STARS`
 //! that its best character reached; an account's rank is all of them together, and the star's
-//! colour moves up a step every time it passes another multiple of the number of classes.
+//! colour moves up one of nine steps for each ninth of the most stars there are, ending in white.
 
 use bsk_render::{Renderer, Tint};
 
@@ -33,19 +33,24 @@ pub fn class_count(data: &bsk_data::GameData) -> i32 {
     crate::screens::player_classes(data).len() as i32
 }
 
-/// The colour steps, lowest first (`FameUtil.COLORS`).
-pub const COLORS: [u32; 5] = [0x8A98DE, 0x314DDB, 0xC1272D, 0xF7931E, 0xFFFF00];
+/// The colour steps, lowest first: light blue, blue, violet, red, red-orange, orange, gold,
+/// pale yellow and white (the AIR client had five, `FameUtil.COLORS`, up to yellow).
+pub const COLORS: [u32; 9] = [0x8A98DE, 0x314DDB, 0x7B3FD6, 0xC1272D, 0xEE5A24, 0xF7931E, 0xFFD21F, 0xFFF68F, 0xFFFFFF];
+
+/// The rank the server gives staff (`Player.STAFF_STARS`): their star is green.
+pub const STAFF: i32 = 1000;
 
 /// The grey of an uncoloured star (the tooltips' and the class quest line's).
 pub const GREY: u32 = 0xB3B3B3;
 
-/// `FameUtil.numStarsToColorTransform`: light blue, dark blue, red, orange, then yellow as the
-/// stars reach each multiple of the number of classes; green for staff.
+/// The star's colour: the step for each ninth of `max_stars` reached (white only near the top);
+/// green for staff.
 pub fn color(stars: i32, classes: i32) -> u32 {
-    if stars >= 100 {
+    if stars >= STAFF {
         return 0x00FF50;
     }
-    let step = (stars / classes.max(1)).clamp(0, COLORS.len() as i32 - 1);
+    let steps = COLORS.len() as i32;
+    let step = (stars * steps / max_stars(classes).max(1)).clamp(0, steps - 1);
     COLORS[step as usize]
 }
 
@@ -95,11 +100,14 @@ mod tests {
 
     #[test]
     fn colours() {
-        assert_eq!(color(0, 14), 0x8A98DE);
-        assert_eq!(color(13, 14), 0x8A98DE);
-        assert_eq!(color(14, 14), 0x314DDB);
-        assert_eq!(color(56, 14), 0xFFFF00);
-        assert_eq!(color(70, 14), 0xFFFF00);
-        assert_eq!(color(100, 14), 0x00FF50);
+        // 30 classes: 150 stars at most, a step every 16.7
+        assert_eq!(color(0, 30), 0x8A98DE);
+        assert_eq!(color(16, 30), 0x8A98DE);
+        assert_eq!(color(17, 30), 0x314DDB);
+        assert_eq!(color(100, 30), 0xFFD21F);
+        assert_eq!(color(133, 30), 0xFFF68F);
+        assert_eq!(color(134, 30), 0xFFFFFF);
+        assert_eq!(color(150, 30), 0xFFFFFF);
+        assert_eq!(color(STAFF, 30), 0x00FF50);
     }
 }

@@ -171,9 +171,9 @@ namespace WorldServer.core.commands.doomed
 
         protected override bool Process(Player player, TickTime time, string args)
         {
-            if (!int.TryParse(args, out var stars) || stars < 0 || stars > 100)
+            if (!int.TryParse(args, out var stars) || stars < 0 || stars > Player.STAFF_STARS)
             {
-                player.SendInfo("Usage: /stars <0-100> (until you reconnect)");
+                player.SendInfo($"Usage: /stars <0-{Player.STAFF_STARS}> (until you reconnect; {Player.STAFF_STARS} is staff's green star)");
                 return false;
             }
             player.Stars = stars;

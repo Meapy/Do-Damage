@@ -9,6 +9,27 @@ refuses while an `Unreleased` one is left, so rename it to `## <version> (<date>
 version number itself is in `client-rs/Cargo.toml`.
 
 ## Unreleased
+- Nearby players (bottom right): each row's name, star and character now line up in the
+  row's middle, the rows are further apart so characters no longer touch, and the list sits in
+  the middle of its box. It shows up to four players, to make that room (it was five).
+- A golden trophy between the arena portals in the Nexus shows the Arena Leaderboard: the best
+  run with its wave, how long it took and everyone who took part, then the next nine. Runs in
+  the public arena (/arena) count too now, and /leaderboard shows each run's time.
+- Rank stars have nine colours instead of five, spread evenly from no stars to every class
+  done: light blue, blue, violet, red, red-orange, orange, gold, pale yellow and, at the very
+  top, white.
+- Almost every item can now be traded, sold on the market and dropped for other players,
+  Soulbound ones included. Only admin items and a few overpowered or test items can't; their
+  tooltips say "Untradeable".
+- Arenas: the wait between waves grows as you go, from 5 seconds to 15 at wave 10 and 20 from
+  wave 20 on. Type GO in chat to start the next wave (or the game) in 3 seconds instead, once
+  per countdown.
+- Arenas have far more kinds of monsters, getting harder as the waves go on: realm monsters
+  first, then the Godlands gods, dungeon bosses, Elder dungeon bosses and finally Oryx. The
+  Battle Arena and the public arena now use the same waves.
+- Blademaster, Druid, Mechanic, Ascendant, Summoner, Monk and Sharklord gear now drops like
+  everyone else's: wherever a monster can drop, say, a tier 3 ability, it can now be a
+  Mechanic's tier 3 turret. Before, these classes' gear never dropped at all.
 - The status effect icons above a character no longer jump to the side while it shoots.
 - Item tooltips are easier to read: each stat's name and its value are in different colours.
   What an ability does now comes right under the description, its damage first (for a poison,

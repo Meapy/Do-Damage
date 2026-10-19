@@ -55,12 +55,12 @@ namespace WorldServer.core.net.handlers.market
                     return;
                 }
 
-                if (item.Soulbound)
+                if (item.Untradeable)
                 {
                     client.SendPacket(new MarketAddResult
                     {
                         Code = MarketAddResult.ITEM_IS_SOULBOUND,
-                        Description = "You cannot sell soulbound items."
+                        Description = "You cannot sell admin items."
                     });
                     return;
                 }

@@ -51,6 +51,11 @@ namespace Shared.resources
         public bool Resurrects;
         public int SlotType;
         public bool Soulbound;
+        // can't be traded, sold on the market or dropped for others: admin items and the OP ones
+        // around them. Everything else can, Soulbound or not (Soulbound now only means its loot
+        // drops in a private bag). The client's copy of this rule is untradeable() in
+        // client-rs/crates/data/src/object.rs.
+        public bool Untradeable;
         public KeyValuePair<int, int>[] ActivateOnEquips;
         public string SuccessorId;
         public int Texture1;
@@ -66,6 +71,18 @@ namespace Shared.resources
         // NOWA ZMIENNA DLA DOŚWIADCZENIA
         public int Exp;
 
+        // OP items without the <Admin/> tag: Doomed Realms' admin gear, rewards and shop items with
+        // far more stats than anything else, and the developers' test items
+        public static readonly HashSet<string> OpItems = new HashSet<string>
+        {
+            "Doomie", "Doomie Amulet", "Doomie Ninjaspell", "Doomie Robe", "Doomie Staff", "Doomie Star",
+            "Doomie Stick", "Doomie Yolo", "Nuke", "God Rushing", "Doomed Gods", "Doomed Hero Badge",
+            "Class Test", "Test Auraa Generator", "XP Booster Test",
+            "Apple", "Gift", "Keys", "TKeys", "LH Lost Halls Debug Item", "Test TP", "Shatters TP",
+            "Test Close", "Test Ring", "Snowy Spawner", "InvinceMe", "tots", "frpk", "frs", "tgs",
+            "Prod Enemy Item", "Test Horn", "GH1 Key", "GH2 Key", "GH3 Key", "GH4 Key",
+        };
+
         public Item(ushort type, XElement e)
         {
             ObjectType = type;
@@ -79,6 +96,7 @@ namespace Shared.resources
             Description = e.GetValue<string>("Description");
             Consumable = e.HasElement("Consumable");
             Soulbound = e.HasElement("Soulbound");
+            Untradeable = e.HasElement("Admin") || OpItems.Contains(ObjectId);
             Potion = e.HasElement("Potion");
             Usable = e.HasElement("Usable");
             Resurrects = e.HasElement("Resurrects");

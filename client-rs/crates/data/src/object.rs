@@ -247,7 +247,24 @@ impl ParticleDesc {
     }
 }
 
+/// OP items without the `<Admin/>` tag that can't be traded: the server's `Item.OpItems`
+/// (source/Shared/resources/Item.cs). Keep the two lists the same.
+const OP_ITEMS: [&str; 36] = [
+    "Doomie", "Doomie Amulet", "Doomie Ninjaspell", "Doomie Robe", "Doomie Staff", "Doomie Star",
+    "Doomie Stick", "Doomie Yolo", "Nuke", "God Rushing", "Doomed Gods", "Doomed Hero Badge",
+    "Class Test", "Test Auraa Generator", "XP Booster Test",
+    "Apple", "Gift", "Keys", "TKeys", "LH Lost Halls Debug Item", "Test TP", "Shatters TP",
+    "Test Close", "Test Ring", "Snowy Spawner", "InvinceMe", "tots", "frpk", "frs", "tgs",
+    "Prod Enemy Item", "Test Horn", "GH1 Key", "GH2 Key", "GH3 Key", "GH4 Key",
+];
+
 impl ObjectDesc {
+    /// Whether the server refuses to let this item be traded, sold on the market or dropped for
+    /// others: admin items and the OP ones around them. Everything else can, Soulbound or not.
+    pub fn untradeable(&self) -> bool {
+        self.xml.has("Admin") || OP_ITEMS.contains(&self.id.as_str())
+    }
+
     /// Weapons: `<NumProjectiles>` (1), `<ArcGap>` in degrees (11.25), `<RateOfFire>` (1).
     pub fn num_projectiles(&self) -> i32 {
         self.xml.int("NumProjectiles", 1)
