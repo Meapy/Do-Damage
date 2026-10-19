@@ -551,12 +551,15 @@ code { font: .86em ui-monospace, "Cascadia Mono", Consolas, monospace; padding: 
 
 .kinds { display: grid; grid-template-columns: repeat(auto-fill, minmax(230px, 1fr)); gap: 10px; margin: 0 0 1.4em; }
 .prose .kinds, .prose .its { max-width: none; }
-.kind {
+.kind, .pet {
   display: grid; grid-template-columns: 56px minmax(0, 1fr); column-gap: 12px; align-content: center; padding: 10px 12px;
   background: var(--surface); border: 1px solid var(--line); color: var(--text); text-decoration: none !important;
 }
 .kind:hover { border-color: var(--ember); }
-.kind .ico { grid-row: 1 / span 3; align-self: center; }
+.kind .ico, .pet .ico { grid-row: 1 / span 3; align-self: center; }
+.pet { scroll-margin-top: 80px; }
+.pet:target { border-color: var(--ember); box-shadow: 0 0 0 1px var(--ember); }
+.pet .tag { display: inline-block; margin-top: 2px; }
 .kind-name { font-weight: 600; }
 .kind-n { font-size: .8rem; color: var(--text-dim); }
 .kind-who { font-size: .78rem; color: var(--text-muted); line-height: 1.35; }

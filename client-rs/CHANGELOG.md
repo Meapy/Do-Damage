@@ -15,6 +15,10 @@ version number itself is in `client-rs/Cargo.toml`.
   Legendary, Ascended, Ethereal and admin items. Each class has its own page too, with a tab
   each for the weapons, abilities, armor and rings it can use (for example
   dodmg.com/wiki/classes/wizard.html).
+- The wiki's Pets page now has every pet, with pictures: all the pet generators with their
+  damage, healing and where to get them (which Bazaar and /shop shops sell them and who drops
+  them), the items that summon a helper for a while (drake eggs, Santa's reindeer and more),
+  and the classic pet yard's pets by family and rarity.
 - Arena waves mix in monsters from earlier stages: a couple of each wave's monsters come from
   the stage before, and Godlands monsters keep turning up in every stage after the Godlands.
   From wave 30, an Elder dungeon boss joins the wave's Oryx-stage boss. Chat now says which

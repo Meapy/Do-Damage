@@ -11,6 +11,8 @@ and ring in the game's XML, with its sprite, its numbers and where it comes from
 - wiki/icons.css and wiki/sheets/: the client's own sprite sheets (client/src, through the Rust
   client's manifest) and a class per sheet, so each icon is a crop of its sheet.
 - The landing page is the guide website/wiki/gear.md, whose {{gen:gear}} is `overview()`.
+- The Pets guide (website/wiki/pets.md) takes its lists from here too, for the sprites:
+  `pet_generators()`, `pet_summons()` and `pet_yard()`.
 
 A category is where the classes wear the slot type (a class's slots are weapon, ability, armor,
 ring), so a Wakizashi is an ability, as it is for the Samurai.
@@ -349,26 +351,29 @@ class Gear:
 
     # --- an item ------------------------------------------------------------------------------
     def icon(self, it):
-        h = self.h
-        style = ""
-        cls = ""
-        if it["texture"]:
-            sheet, index = it["texture"]
+        return self.sprite(it["texture"], self.edge(it))
+
+    def sprite(self, texture, edge):
+        """A sprite in a slot with the given edge colour; texture is (sheet name, index) or None."""
+        cls = style = ""
+        if texture:
+            sheet, index = texture
             s = self.sheets.get(sheet)
             if s is None and sheet in self._image_sets:
-                path, tw, th = self._image_sets[sheet]
+                path, tw, th, bw, bh = self._image_sets[sheet]
                 full = os.path.join(wd.ROOT, "client", "src", path.replace("/", os.sep))
                 if os.path.isfile(full):
                     sw, sh = png_size(full)
-                    s = self.sheets[sheet] = ("s%d" % len(self.sheets), full, tw, th, sw, sh)
+                    s = self.sheets[sheet] = ("s%d" % len(self.sheets), full, tw, th, sw, sh, bw, bh)
             if s:
-                cls, _, tw, th, sw, sh = s
-                cols = max(1, sw // tw)
+                cls, _, tw, th, sw, sh, bw, bh = s
+                cols = max(1, sw // bw)
                 scale = max(1, ICON // max(tw, th))
-                style = ' style="background-position:-%dpx -%dpx"' % ((index % cols) * tw * scale,
-                                                                     (index // cols) * th * scale)
-        return '<span class="ico" style="--c:%s"><i class="%s"%s></i></span>' % (
-            self.edge(it), h.esc(cls), style) if cls else '<span class="ico" style="--c:%s"></span>' % self.edge(it)
+                style = ' style="background-position:-%dpx -%dpx"' % ((index % cols) * bw * scale,
+                                                                     (index // cols) * bh * scale)
+        if not cls:
+            return '<span class="ico" style="--c:%s"></span>' % edge
+        return '<span class="ico" style="--c:%s"><i class="%s"%s></i></span>' % (edge, cls, style)
 
     def card(self, it):
         h = self.h
@@ -507,6 +512,140 @@ class Gear:
         parts.append('<div class="kinds">%s</div>' % "".join(rows))
         return "\n".join(parts)
 
+    # --- pets, on the Pets guide (pets.md) ----------------------------------------------------
+    def _item_sources(self, oid):
+        """Drops and shops of a non-gear item: [(label, html)]."""
+        h, d = self.h, self.d
+        rows = []
+        drops = h.unique([(m, c) for m, c in self.gen.idx.get(oid, []) if not h.HIDDEN_MONSTER.search(m) and c], d)
+        if drops:
+            names = ["%s (%s)" % (h.esc(h.who(d, m)), h.pct(c)) for m, c in drops[:4]]
+            if len(drops) > 4:
+                names.append("%d more" % (len(drops) - 4))
+            rows.append(("Drops from", ", ".join(names)))
+        for shop, price, currency in self.shop.get(oid, []):
+            rows.append(("Shop", "<code>/shop %s</code>, %d %s" % (h.esc(shop), price, h.esc(currency))))
+        if oid in self.gen.bazaar:
+            price, shop = self.gen.bazaar[oid]
+            rows.append(("Shop", "Nexus Bazaar (%s), %d fame" % (h.esc(shop), price)))
+        return rows
+
+    def _pet_card(self, ident, texture, edge, name, tag, lines, desc, src, flags, search):
+        h = self.h
+        rows = list(lines)
+        if desc:
+            rows.append('<p class="it-desc">%s</p>' % h.esc(desc))
+        if src or flags:
+            rows.append('<dl class="it-src">%s%s</dl>' % (
+                "".join("<div><dt>%s</dt><dd>%s</dd></div>" % r for r in src),
+                '<div class="it-flags"><dd>%s</dd></div>' % " &middot; ".join(flags) if flags else ""))
+        return ('<article class="it" id="%s" data-search="%s">%s<div class="it-body"><h3><span>%s</span>'
+                '<span class="tag" style="--c:%s">%s</span></h3>%s</div></article>' % (
+                    ident, h.esc(search.lower()), self.sprite(texture, edge), h.esc(name), edge, h.esc(tag),
+                    "".join(rows)))
+
+    def _filter_box(self, ident, what, target):
+        return ('<div class="filter"><label for="%s">Filter</label><input id="%s" type="search" placeholder="%s" '
+                'data-filter="%s" autocomplete="off"></div>' % (ident, ident, what, target))
+
+    def pet_generators(self, used):
+        """Every PermaPet item: the pet it gives, its numbers and where to get it."""
+        h, d = self.h, self.d
+        sold = d.bazaar_pets()
+        price = d.pet_generator_price
+        edge = self._edges.get("untiered", SPECIAL_EDGE)
+        ids = set()
+        cards = []
+        for p in sorted(d.pets(), key=lambda p: (-p["dps"], p["name"].lower())):
+            oid = p["item"]
+            nums = []
+            if p["dps"]:
+                nums.append("Damage a second <b>%d</b>" % p["dps"])
+            if p["hp"]:
+                nums.append("Heals <b>%d HP</b> every %gs" % (p["hp"], p["hpms"] / 1000))
+            if p["mp"]:
+                nums.append("Restores <b>%d MP</b> every %gs" % (p["mp"], p["mpms"] / 1000))
+            lines = ['<p class="it-nums">%s</p>' % ' <span class="sep">&middot;</span> '.join(nums)] if nums else []
+            pet = d.name(p["pet"]) if p["pet"] else ""
+            if pet and pet != p["name"]:
+                lines.append('<p class="it-line"><span>Pet</span> %s</p>' % h.esc(pet))
+            src = self._item_sources(oid)
+            if oid in sold and price and not any("Nexus Bazaar" in v for _, v in src):
+                src.append(("Shop", "Nexus Bazaar (pets), %d fame" % price))
+            flags = [x for x, on in (("Soulbound", d.objects[oid]["soulbound"]), ("From Doomed Realms", p["doomed"])) if on]
+            search = " ".join([p["name"], pet, "pet generator"] + [re.sub(r"<[^>]+>", "", v) for _, v in src])
+            cards.append(self._pet_card(self._anchor("pet-" + oid, ids), d.texture(p["pet"]) or d.texture(oid), edge,
+                                        p["name"], "%d DPS" % p["dps"] if p["dps"] else "Pet", lines,
+                                        d.objects[oid]["desc"].strip(), src, flags, search))
+        return (self._filter_box("pet-filter", "Pet, monster or shop", "#pet-list .it")
+                + '<div class="its" id="pet-list">%s</div>' % "".join(cards))
+
+    def pet_summons(self, used):
+        """Every item that summons a helper beside you (the Pet effect)."""
+        h, d = self.h, self.d
+        sold = d.bazaar_pets()
+        ids = set()
+        cards = []
+        gear_ids = {it["id"]: it for it in self.items}
+        for s in sorted(d.summons(), key=lambda s: d.name(s["item"]).lower()):
+            oid = s["item"]
+            o = d.objects[oid]
+            if "Test" in o["file"]:
+                continue
+            it = gear_ids.get(oid)
+            what = d.name(s["summons"])
+            lines = ['<p class="it-line"><span>Summons</span> %s</p>' % h.esc(what)]
+            src = self._item_sources(oid)
+            if oid in sold and d.pet_generator_price and not any("Nexus Bazaar" in v for _, v in src):
+                src.append(("Shop", "Nexus Bazaar (pets), %d fame" % d.pet_generator_price))
+            if it:
+                src.insert(0, ("Gear", '<a href="%s">%s, on the %s page</a>' % (
+                    self.href[oid], h.esc(it["kind"]), h.esc(plural(it["kind"])))))
+            flags = [x for x, on in (("Soulbound", o["soulbound"]), ("Used up when used", o["consumable"])) if on]
+            search = " ".join([o["name"], what, "summon"] + [re.sub(r"<[^>]+>", "", v) for _, v in src])
+            cards.append(self._pet_card(self._anchor("summon-" + oid, ids), d.texture(oid),
+                                        self.edge(it) if it else self._edges.get("untiered", SPECIAL_EDGE),
+                                        o["name"], self.tag(it) if it else "Item", lines, o["desc"].strip(), src,
+                                        flags, search))
+        return (self._filter_box("summon-filter", "Item or what it summons", "#summon-list .it")
+                + '<div class="its" id="summon-list">%s</div>' % "".join(cards))
+
+    def pet_yard(self, used):
+        """The pet yard's pets (EmbeddedData_PetsCXML), by family."""
+        h = self.h
+        tiers = self._edges["tiers"]
+        rarity_edge = {"Common": tiers[0][2] if tiers else SPECIAL_EDGE,
+                       "Rare": tiers[2][2] if len(tiers) > 2 else SPECIAL_EDGE,
+                       "Divine": self._edges.get("special", SPECIAL_EDGE)}
+        order = ["Common", "Rare", "Divine"]
+        fams = {}
+        for p in self.d.yard_pets():
+            fams.setdefault(p["family"] or "? ? ? ?", []).append(p)
+        parts = [self._filter_box("yard-filter", "Pet, family, rarity or ability", "#yard .pet"), '<div id="yard">']
+        ids = set()
+        for fam in sorted(fams, key=lambda f: (not re.search(r"\w", f), f)):
+            lst = sorted(fams[fam], key=lambda p: (order.index(p["rarity"]) if p["rarity"] in order else 9,
+                                                   p["name"].lower()))
+            title = fam if re.search(r"\w", fam) else "Mystery family (? ? ? ?)"
+            ident = "family-" + h.slugify(title)
+            used.add(ident)
+            cards = []
+            for p in lst:
+                edge = rarity_edge.get(p["rarity"], SPECIAL_EDGE)
+                search = " ".join([p["name"], fam, p["rarity"], p["ability"]])
+                cards.append('<article class="pet" id="%s" data-search="%s">%s<span class="kind-name">%s</span>'
+                             '<span class="kind-n"><span class="tag" style="--c:%s">%s</span></span>'
+                             '<span class="kind-who">%s</span></article>' % (
+                                 self._anchor("yard-" + p["id"], ids), h.esc(search.lower()),
+                                 self.sprite(self.d.texture(p["skin"]) or self.d.texture(p["id"]), edge),
+                                 h.esc(p["name"]), edge,
+                                 h.esc(p["rarity"] or "?"), h.esc(p["ability"])))
+            parts.append('<section class="its-group"><h3 id="%s"><a class="anchor" href="#%s" aria-hidden="true">#</a>'
+                         '%s <span class="count">%d</span></h3><div class="kinds">%s</div></section>' % (
+                             ident, ident, h.esc(title), len(lst), "".join(cards)))
+        parts.append("</div>")
+        return "\n".join(parts)
+
     # --- the pages ----------------------------------------------------------------------------
     def pages(self):
         """[(path under wiki/, nav page it belongs to, title, eyebrow, summary, body, pager,
@@ -596,7 +735,7 @@ class Gear:
         the sheets."""
         os.makedirs(os.path.join(out, "sheets"), exist_ok=True)
         rules = []
-        for name, (cls, full, tw, th, sw, sh) in sorted(self.sheets.items(), key=lambda kv: kv[1][0]):
+        for name, (cls, full, tw, th, sw, sh, _, _) in sorted(self.sheets.items(), key=lambda kv: kv[1][0]):
             shutil.copy2(full, os.path.join(out, "sheets", name + ".png"))
             scale = max(1, ICON // max(tw, th))
             rules.append(".%s{background-image:url(sheets/%s.png);background-size:%dpx %dpx;width:%dpx;height:%dpx}" % (

@@ -127,7 +127,8 @@ traffic are encrypted (see "Encrypted connections" below). Older desktop clients
   Ethereal / admin / test as the client colours their slots, and `wiki/classes/<class>.html` per
   class, a tab each for its weapon, ability, armor and ring lists. Item sprites are crops of the
   client's sheets (`client/src`, found through `client-rs/assets/manifest.json`), copied into
-  `wiki/sheets/` with a class each in `wiki/icons.css`.
+  `wiki/sheets/` with a class each in `wiki/icons.css`. The Pets guide's lists (generators,
+  summon items, the pet yard's pets, drawn with their skins' sprites) come from the same module.
 - **Screenshots:** the gallery's pictures are in `website/screenshots/` (`<name>.webp` at 1600x900,
   `<name>-small.webp` at 640x360). Take new ones with the Rust client's `--shot` on an isolated
   stack, with `--credentials` and a test character renamed there, so no real login or player shows.

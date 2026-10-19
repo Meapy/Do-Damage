@@ -408,18 +408,55 @@ class Data:
             else:
                 group = next((t.lower() for t in ("Admin", "Legendary", "Ascended", "Ethereal") if el.find(t) is not None),
                              None) or ("tiered" if o["tier"] >= 0 else "set" if el.get("setType") else "untiered")
-            tex = el.find("Texture")
-            if tex is None:
-                tex = el.find("AnimatedTexture")
             doomed = 0xD000 <= o["type"] <= 0xDFFF
             # the random tier drops (Loots.Initialize): no Doomed Realms items but the tiered gear of
             # the Doomed Realms classes' own slots
             drops_as = (loot["types"].get(o["slot"]) if o["tier"] >= 0 and group == "tiered"
                         and (not doomed or o["slot"] in loot["doomed"]) else None)
             out.append(dict(o, kind=SLOT_NAMES[o["slot"]], category=cat, group=group, el=el, doomed=doomed,
-                            texture=(_text(tex, "File"), _int(_text(tex, "Index"), 0)) if tex is not None else None,
-                            tier_loot=drops_as))
+                            texture=self.texture(oid), tier_loot=drops_as))
         return out
+
+    def texture(self, oid):
+        """(sheet name, index) of an object's sprite, or None."""
+        el = self.elements.get(oid)
+        if el is None:
+            return None
+        tex = el.find("Texture")
+        if tex is None:
+            tex = el.find("AnimatedTexture")
+        if tex is None or not _text(tex, "File"):
+            return None
+        return (_text(tex, "File"), _int(_text(tex, "Index"), 0))
+
+    def summons(self):
+        """Items that summon a helper beside you (the Pet effect, Player.AEPet): [{item, summons}]."""
+        out = []
+        for oid, o in self.objects.items():
+            if o["item"]:
+                for a in o["activate_attrs"]:
+                    if a["effect"] == "Pet" and a.get("objectId"):
+                        out.append({"item": oid, "summons": a["objectId"]})
+                        break
+        return out
+
+    def yard_pets(self):
+        """The pet yard's pets (EmbeddedData_PetsCXML): [{id, name, family, rarity, ability, skin}]. The
+        pet's own Texture is a stand-in: what it looks like is its DefaultSkin's sprite."""
+        out = []
+        for oid, o in self.objects.items():
+            if o["class"] == "Pet":
+                el = self.elements[oid]
+                out.append({"id": oid, "name": o["name"], "family": _text(el, "Family", ""),
+                            "rarity": _text(el, "Rarity", ""), "ability": _text(el, "FirstAbility", ""),
+                            "skin": _text(el, "DefaultSkin")})
+        return out
+
+    def bazaar_pets(self):
+        """The pet generators the Nexus Bazaar sells (MerchantLists.InitDyes: usable items named
+        "...Generator...")."""
+        return {oid for oid, el in self.elements.items()
+                if self.objects[oid]["item"] and "Generator" in oid and el.find("InvUse") is not None}
 
     def gear_items(self, slot_type):
         """What /gear equips in a slot of this type (GearCommand.StarterItem)."""
@@ -549,11 +586,16 @@ def shop_items():
 
 
 def image_sets():
-    """The client's sprite sheets: {name: (path under client/src, tile width, tile height)}, from the
-    Rust client's asset manifest."""
+    """The client's sprite sheets: {name: (path under client/src, tile width, tile height, block
+    width, block height)}, from the Rust client's asset manifest. Index n is the nth block; a block
+    is one tile, or an animated character's frames."""
     with open(os.path.join(ROOT, "client-rs", "assets", "manifest.json"), encoding="utf-8") as f:
         manifest = json.load(f)
-    return {s["name"]: (s["file"], s["w"], s["h"]) for s in manifest["image_sets"] if s.get("file")}
+    out = {s["name"]: (s["file"], s["w"], s["h"], s["w"], s["h"]) for s in manifest["image_sets"] if s.get("file")}
+    # animated characters: each is a block of frames; its first frame is the block's top left tile
+    for c in manifest["animated_chars"]:
+        out.setdefault(c["name"], (c["file"], c["w"], c["h"], c["sheet_w"], c["sheet_h"]))
+    return out
 
 
 def mystery_crate():

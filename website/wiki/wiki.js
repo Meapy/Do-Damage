@@ -171,7 +171,7 @@
       });
       // and so does a group of items with nothing left in it
       document.querySelectorAll(".its-group").forEach(function (group) {
-        group.hidden = !group.querySelector(".it:not([hidden])");
+        group.hidden = !group.querySelector(".it:not([hidden]), .pet:not([hidden])");
       });
     });
   });

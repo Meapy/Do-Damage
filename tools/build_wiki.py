@@ -357,6 +357,12 @@ class Gen:
             "crate_items": len(crate),
             "dungeon_count": len(self.dungeons()),
             "pet_count": len([p for p in self.d.pets()]),
+            "pet_bazaar": len(self.d.bazaar_pets() & {p["item"] for p in self.d.pets()}),
+            "summon_count": len([s for s in self.d.summons() if "Test" not in self.d.objects[s["item"]]["file"]]),
+            "yard_count": len(self.d.yard_pets()),
+            "yard_families": len({p["family"] for p in self.d.yard_pets()}),
+            "skin_unlockers": len([o for o in self.d.objects.values() if o["item"]
+                                   and any(a["effect"] == "UnlockPetSkin" for a in o["activate_attrs"])]),
         }
 
     def __call__(self, name, used):
@@ -737,23 +743,15 @@ class Gen:
         return ('<div class="table-wrap"><table><thead><tr><th>Set</th><th>Pieces</th><th>Dropped by</th></tr></thead>'
                 '<tbody>%s</tbody></table></div>' % "".join(rows))
 
+    # the pets: their cards have sprites, so they're built with the gear pages (tools/wiki_gear.py)
     def gen_pets(self, used):
-        d = self.d
-        rows = []
-        for p in sorted(d.pets(), key=lambda p: (-p["dps"], p["name"])):
-            heal = []
-            if p["hp"]:
-                heal.append("%d HP every %gs" % (p["hp"], p["hpms"] / 1000))
-            if p["mp"]:
-                heal.append("%d MP every %gs" % (p["mp"], p["mpms"] / 1000))
-            src = [d.name(m) for m, c in self.idx.get(p["item"], []) if not HIDDEN_MONSTER.search(m) and c][:3]
-            rows.append('<tr data-search="%s"><td>%s</td><td>%s</td><td>%s</td><td>%s</td></tr>' % (
-                esc((p["name"] + " " + " ".join(src)).lower()), esc(p["name"]), p["dps"] or "",
-                esc(", ".join(heal)), esc(", ".join(src))))
-        return ('<div class="filter"><label for="pet-filter">Filter</label><input id="pet-filter" type="search" '
-                'placeholder="Pet or monster" data-filter=".pets tbody tr" autocomplete="off"></div>'
-                '<div class="table-wrap"><table class="pets"><thead><tr><th>Pet</th><th>Damage a second</th>'
-                '<th>Heals you</th><th>Generator drops from</th></tr></thead><tbody>%s</tbody></table></div>' % "".join(rows))
+        return self.equip.pet_generators(used)
+
+    def gen_pet_summons(self, used):
+        return self.equip.pet_summons(used)
+
+    def gen_pet_yard(self, used):
+        return self.equip.pet_yard(used)
 
     # --- classes -----------------------------------------------------------------------------
     def gen_classes(self, used):
@@ -880,11 +878,14 @@ def sections(page_title, url, body):
             anchor, head = m.group(1), plain(m.group(2)).lstrip("#").strip()
             continue
         # a dungeon card or a class card makes its own entry
-        cards = re.findall(r'<article class="(?:dg|cls)" id="([^"]+)".*?<h3>(.*?)</h3>(.*?)</article>', part, re.S)
+        cards = re.findall(r'<article class="(?:dg|cls|it)" id="([^"]+)".*?<h3>(.*?)</h3>(.*?)</article>', part, re.S)
+        # a pet yard card has no heading: its name is its first span
+        cards += [(cid, name, rest) for cid, name, rest in re.findall(
+            r'<article class="pet" id="([^"]+)".*?<span class="kind-name">(.*?)</span>(.*?)</article>', part, re.S)]
         for cid, name, rest in cards:
             out.append({"p": page_title, "h": plain(name), "u": url + "#" + cid, "t": plain(rest)[:500]})
         if cards:
-            part = re.sub(r'<article class="(?:dg|cls)".*?</article>', " ", part, flags=re.S)
+            part = re.sub(r'<article class="(?:dg|cls|it|pet)".*?</article>', " ", part, flags=re.S)
         out.append({"p": page_title, "h": head, "u": url + "#" + anchor, "t": plain(part)[:900]})
     return [e for e in out if e["t"] or e["h"]]
 
