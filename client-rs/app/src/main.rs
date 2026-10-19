@@ -2012,14 +2012,10 @@ impl App {
                 prof::mark("pre-chat");
                 self.chat_names = hud::draw_chat(&mut ui, &lay, &game.chat, &me, self.chat_input.as_ref(), self.chat_scroll, now);
                 if let Some(p) = game.world.as_ref().and_then(|w| w.player()) {
-                    credits_bottom = hud::draw_credits(&mut ui, &lay, p);
+                    credits_bottom = hud::draw_credits(&mut ui, &lay, p, game.show_displays && game.arena.is_none());
                 }
                 if let Some(arena) = game.arena {
                     hud::draw_arena(&mut ui, &lay, arena, now);
-                } else if game.show_displays {
-                    if let Some(stars) = game.world.as_ref().and_then(|w| w.player()).and_then(|p| p.stat_int(30)) {
-                        hud::draw_rank(&mut ui, &lay, stars);
-                    }
                 }
             }
         }

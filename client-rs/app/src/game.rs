@@ -66,7 +66,7 @@ pub struct Game {
     pub tellers: Vec<String>,
     /// The arena's wave and clock (`ArenaMenu`): wave, seconds, since when, running.
     pub arena: Option<(i32, i32, i32, bool)>,
-    /// `MapInfo.showDisplays`: the map shows your rank at the top left (the Nexus, the Vault...).
+    /// `MapInfo.showDisplays`: the map shows your rank at the top right (the Nexus, the Vault...).
     pub show_displays: bool,
     /// Sparks, effects and area attacks.
     pub particles: crate::particles::Particles,

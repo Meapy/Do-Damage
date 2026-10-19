@@ -23,6 +23,8 @@ version number itself is in `client-rs/Cargo.toml`.
   gear and the Oryx set (it was 10%), and 3% for the extra stat potions.
 - The Stone Guardians, Janus, the Giant Oryx Chicken and Oryx's court in the Sanctuary drop more
   stat potions too.
+- Your rank and its star moved to the top right, above your gold and fame. Each number there
+  now lines up with the middle of its icon.
 
 ## 1.2.8 (2026-10-19)
 - Realms are much easier to close with a few people. A realm closes after 8 events for 1 to 3
