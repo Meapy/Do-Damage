@@ -1099,12 +1099,11 @@ impl Panel {
         // The trade window, in the middle of the view.
         if let Some(trade) = social.trade {
             let s = lay.s;
-            let (w, h) = (440.0 * s, 290.0 * s);
+            let (w, h) = (440.0 * s, (trade_slots_bottom(trade) + 82.0) * s);
             let r = [(lay.view_w() - w) / 2.0, (lay.h - h) / 2.0, w, h];
             panel.trade_rect = Some(r);
-            for i in 0..trade.mine.len().min(12) {
-                let sr = [r[0] + 20.0 * s + (i % 4) as f32 * 46.0 * s, r[1] + 70.0 * s + (i / 4) as f32 * 46.0 * s, 42.0 * s, 42.0 * s];
-                panel.buttons.push((Button::TradeSlot(i), sr));
+            for i in 0..trade.mine.len().min(TRADE_SLOTS) {
+                panel.buttons.push((Button::TradeSlot(i), trade_slot_rect(r, r[0] + 20.0 * s, i, s)));
             }
             panel.buttons.push((Button::TradeCancel, [r[0] + r[2] - 252.0 * s, r[1] + r[3] - 52.0 * s, 110.0 * s, 36.0 * s]));
             panel.buttons.push((Button::TradeAccept, [r[0] + r[2] - 130.0 * s, r[1] + r[3] - 52.0 * s, 110.0 * s, 36.0 * s]));
@@ -1377,23 +1376,43 @@ pub fn draw_panel(ui: &mut Ui, lay: &Layout, world: &World, camera_angle: f64, c
             ui.label(&detail, centred(dw), iy(34.0), small, false, color::TEXT_DIM);
         } else if !panel.members.is_empty() {
             ui.label("Nearby players", ib[0] + 6.0 * s, iy(3.0), lay.font(11.0), true, color::TEXT_MUTED);
+            let classes = crate::stars::class_count(ui.data);
             for (id, name, level, starred) in &panel.members {
                 let br = panel.buttons.iter().find(|(b, _)| *b == Button::Member(*id)).map(|(_, r)| *r).unwrap_or([0.0; 4]);
                 if inside(br, mouse) {
                     theme::fill(ui.renderer, br, 3.0 * s, 0xFFFFFF, 0.07);
                 }
+                let p = world.objects.get(id);
                 let size = lay.font(11.5);
                 let y = br[1] + (br[3] - size * 1.22) / 2.0;
-                // A starred (locked) player: a gold star before the name.
-                let mut x = br[0] + 4.0 * s;
-                if *starred {
-                    theme::star(ui.renderer, x + size * 0.4, br[1] + br[3] / 2.0, size * 0.42, 0xFFD24A);
-                    x += size * 0.95;
+                // The middle of the name's capitals, where the star and the character sit.
+                let cy = y + size * 0.42;
+                // Their rank star, as in chat and their card, then their character.
+                let mut x = br[0] + 3.0 * s;
+                if let Some(stars) = p.and_then(|p| p.stat_int(30)).filter(|&n| n >= 0) {
+                    let k = size / 15.0;
+                    crate::stars::icon(ui.renderer, x + 8.0 * k, cy, k, crate::stars::color(stars, classes));
+                    x += 17.0 * k;
                 }
+                let class = p.and_then(|p| ui.data.objects.get(&p.object_type)).map(|d| d.display_id.clone());
+                if let Some(p) = p {
+                    draw_mini_portrait(ui, p, x + 7.0 * s, cy, s);
+                    x += 17.0 * s;
+                }
+                // A locked player's name in gold.
                 ui.label(name, x, y, size, true, if *starred { 0xFFD24A } else { color::TEXT });
                 let lv = format!("{level}");
                 let lw = ui.measure(&lv, size, false);
-                ui.label(&lv, br[0] + br[2] - lw - 4.0 * s, y, size, false, color::TEXT_MUTED);
+                let lx = br[0] + br[2] - lw - 4.0 * s;
+                ui.label(&lv, lx, y, size, false, color::TEXT_MUTED);
+                // The class beside the level, where it fits.
+                if let Some(class) = class {
+                    let small = lay.font(10.0);
+                    let cw = ui.measure(&class, small, false);
+                    if x + ui.measure(name, size, true) + 6.0 * s < lx - cw - 5.0 * s {
+                        ui.label(&class, lx - cw - 5.0 * s, cy - small * 0.42, small, false, color::TEXT_DIM);
+                    }
+                }
             }
         }
     }
@@ -1666,6 +1685,16 @@ fn draw_slot(ui: &mut Ui, lay: &Layout, slot: &Slot, dragged: bool, target: bool
 
 /// The player's portrait (`Player.getPortrait`): the class (or skin) standing, dyed.
 fn draw_portrait(ui: &mut Ui, lay: &Layout, me: &GameObj, cx: f32, cy: f32) {
+    draw_character(ui, me, cx, cy, ((60.0 * lay.s * 0.8).round() as i32).max(1));
+}
+
+/// A player's character small enough for a list row (the 8-pixel sprite at about twice size).
+fn draw_mini_portrait(ui: &mut Ui, p: &GameObj, cx: f32, cy: f32, s: f32) {
+    draw_character(ui, p, cx, cy, (((40.0 * s) / 5.0).round() as i32 * 5).max(5));
+}
+
+/// `p`'s class (or skin) standing, dyed, centred on (cx, cy), redrawn at `size` (100 = ×5).
+fn draw_character(ui: &mut Ui, me: &GameObj, cx: f32, cy: f32, size: i32) {
     let skin = me.stat_int(stat::TEXTURE).filter(|&t| t != 0).and_then(|t| ui.data.objects.get(&(t as u16)));
     let Some(desc) = skin.or_else(|| ui.data.objects.get(&me.object_type)) else { return };
     let TextureRef::Animated { set, index } = &desc.texture.pick(0).main else { return };
@@ -1676,7 +1705,6 @@ fn draw_portrait(ui: &mut Ui, lay: &Layout, me: &GameObj, cx: f32, cy: f32) {
         tex2: me.stat_int(stat::TEX2).unwrap_or(0),
     });
     // Redrawn at the size it shows, centred on the sprite (see `item_icon`).
-    let size = ((60.0 * lay.s * 0.8).round() as i32).max(1);
     let Some(icon) = ui.redrawer.get(ui.sprites, ui.renderer, src, false, size, dye) else { return };
     let (w, h) = (icon.w as f32, icon.h as f32);
     let lift = (crate::redraw::PAD as f32 - 1.0) / 2.0;
@@ -1940,23 +1968,35 @@ fn draw_player_card(ui: &mut Ui, lay: &Layout, p: &GameObj, mouse: (f64, f64)) {
     }
 }
 
-/// One line of a tooltip.
+/// One line of a tooltip: one or more pieces, each in its colour.
 pub struct Line {
-    text: String,
+    pieces: Vec<(String, u32)>,
     size: f32,
     bold: bool,
-    color: u32,
 }
 
 impl Line {
     fn new(text: &str, size: f32, bold: bool, color: u32) -> Self {
-        Line { text: text.to_owned(), size, bold, color }
+        Line { pieces: vec![(text.to_owned(), color)], size, bold }
+    }
+
+    /// "Label: value", the label in the attribute grey and the value in its own colour.
+    fn stat(label: &str, value: &str, color: u32) -> Self {
+        Line { pieces: vec![(format!("{label}: "), ATTR), (value.to_owned(), color)], size: 13.0, bold: false }
+    }
+
+    /// A little space between the tooltip's parts.
+    fn gap() -> Self {
+        Line::new("", 5.0, false, ATTR)
     }
 }
 
 const TOOLTIP_W: f32 = 230.0;
+/// A stat's name; its value (unless compared); the description; an ability's name.
 const ATTR: u32 = 0xB3B3B3;
 const VALUE: u32 = 0xFFFF8F;
+const DESCRIPTION: u32 = 0xA9A3C2;
+const ABILITY: u32 = 0xFFFFFF;
 
 fn tier_tag(xml: &bsk_data::xml::Element) -> Option<(String, u32)> {
     let hidden = ["Consumable", "NoTierTag", "Treasure", "PetFood"];
@@ -2046,8 +2086,10 @@ fn compare(mine: Option<f64>, worn: Option<f64>, higher_is_better: bool) -> u32 
     }
 }
 
-/// The item worn in the slot this item would go in, if it's another item.
-fn worn_for(data: &GameData, item: i32, me: Option<&GameObj>, kind: SlotKind) -> Option<i32> {
+/// What this item is compared with: `None` when there's nothing to compare (it's the one worn,
+/// the same item is worn, or we can't wear it); otherwise the item worn in the slot it would go
+/// in, `Some(None)` for an empty slot.
+fn worn_for(data: &GameData, item: i32, me: Option<&GameObj>, kind: SlotKind) -> Option<Option<i32>> {
     if matches!(kind, SlotKind::Equip(_)) {
         return None;
     }
@@ -2055,7 +2097,98 @@ fn worn_for(data: &GameData, item: i32, me: Option<&GameObj>, kind: SlotKind) ->
     let slot_type = data.objects.get(&(item as u16))?.xml.int("SlotType", 0);
     let types = class_slot_types(data.objects.get(&me.object_type));
     let i = types.iter().take(4).position(|&t| t == slot_type && t != 0)?;
-    me.stat_int(slot_stat(i as u8)).filter(|&w| w > 0 && w != item)
+    match me.stat_int(slot_stat(i as u8)).filter(|&w| w > 0) {
+        Some(w) if w == item => None,
+        worn => Some(worn),
+    }
+}
+
+/// An `<Activate>` for the tooltip: its name, then its numbers as (label, value), damage first.
+/// A row with no label is a sentence.
+fn activate_rows(a: &bsk_data::xml::Element) -> (String, Vec<(String, String)>) {
+    let effect = a.text.trim();
+    let num = |k: &str| a.attr_number(k, 0.0);
+    let has = |k: &str| a.attr(k).is_some();
+    let text = |k: &str| a.attr(k).unwrap_or("").to_owned();
+    let area = || if has("radius") { num("radius") } else { num("range") };
+    let secs = |v: f64| format!("{v} secs");
+    let sqrs = |v: f64| format!("{v} sqrs");
+    let row = |l: &str, v: String| (l.to_owned(), v);
+    let (name, mut rows): (&str, Vec<(String, String)>) = match effect {
+        // Poison ignores defense (the server's `PoisonEnemy`).
+        "PoisonGrenade" => {
+            let mut r = Vec::new();
+            if num("impactDamage") > 0.0 {
+                r.push(row("Impact damage", num("impactDamage").to_string()));
+            }
+            if num("totalDamage") > 0.0 {
+                r.push(row("Poison damage", format!("{} over {}", num("totalDamage"), secs(num("duration")))));
+            }
+            r.push(row("Radius", sqrs(num("radius"))));
+            r.push(row("", "Ignores defense".into()));
+            ("Poison", r)
+        }
+        "VampireBlast" => (
+            "Vampire Blast",
+            vec![row("Damage", num("totalDamage").to_string()), row("Radius", sqrs(num("radius"))), row("", "Heals you and allies nearby".into())],
+        ),
+        "Trap" => (
+            "Trap",
+            vec![
+                row("Damage", num("totalDamage").to_string()),
+                row("Radius", sqrs(num("radius"))),
+                row("Inflicts", format!("{} for {}", a.attr("condEffect").unwrap_or("Slowed"), secs(if has("condDuration") { num("condDuration") } else { 5.0 }))),
+            ],
+        ),
+        "Lightning" => {
+            let mut r = vec![row("Damage", num("totalDamage").to_string()), row("Targets", format!("up to {}", num("maxTargets")))];
+            if num("decrDamage") > 0.0 {
+                r.push(row("Each next target", format!("{} less", num("decrDamage"))));
+            }
+            ("Lightning", r)
+        }
+        "SamuraiAbility" | "DazeBlast" | "TomeDamage" => ("Blast", vec![row("Damage", num("totalDamage").to_string()), row("Radius", sqrs(area()))]),
+        "BuildTower" => (
+            "Tower",
+            vec![row("Damage", num("totalDamage").to_string()), row("Builds", text("objectId")), row("Lasts", secs(num("duration")))],
+        ),
+        "Heal" => ("Heal", vec![row("Heals", format!("{} HP", num("amount")))]),
+        "Magic" => ("Magic", vec![row("Restores", format!("{} MP", num("amount")))]),
+        "HealNova" => ("Heal", vec![row("Heals", format!("{} HP", num("amount"))), row("Range", format!("you and allies within {}", sqrs(num("range"))))]),
+        "MagicNova" => ("Magic", vec![row("Restores", format!("{} MP", num("amount"))), row("Range", format!("you and allies within {}", sqrs(num("range"))))]),
+        "Halo" => ("Halo", vec![row("Heals", format!("{} HP", num("amount"))), row("Range", sqrs(num("range"))), row("Lasts", secs(num("duration")))]),
+        "StasisBlast" => ("Stasis", vec![row("Radius", sqrs(if has("radius") { num("radius") } else { 3.0 })), row("Lasts", secs(num("duration")))]),
+        "StatBoostSelf" => ("Boost", vec![row("Gives", format!("+{} {}", num("amount"), stat_name(a.attr_int("stat", -1)))), row("Lasts", secs(num("duration")))]),
+        "StatBoostAura" => (
+            "Boost",
+            vec![
+                row("Gives", format!("+{} {}", num("amount"), stat_name(a.attr_int("stat", -1)))),
+                row("Range", format!("you and allies within {}", sqrs(num("range")))),
+                row("Lasts", secs(num("duration"))),
+            ],
+        ),
+        "ConditionEffectSelf" => ("Effect", vec![row("Gives", text("effect")), row("Lasts", secs(num("duration")))]),
+        "ConditionEffectAura" => (
+            "Effect",
+            vec![row("Gives", text("effect")), row("Range", format!("you and allies within {}", sqrs(num("range")))), row("Lasts", secs(num("duration")))],
+        ),
+        "GenericActivate" => {
+            let who = if a.attr("target") == Some("enemy") { "enemies" } else { "allies" };
+            ("Effect", vec![row("Gives", format!("{} to {who}", text("effect"))), row("Range", sqrs(num("range"))), row("Lasts", secs(num("duration")))])
+        }
+        "Teleport" => ("Teleport", vec![row("Distance", format!("up to {}", sqrs(num("maxDistance"))))]),
+        "Decoy" | "MultiDecoy" => ("Decoy", vec![row("Lasts", secs(num("duration")))]),
+        _ => ("", vec![row("", activate_detail(a))]),
+    };
+    if !rows.is_empty() && !name.is_empty() {
+        if let (Some(cond), false) = (a.attr("condEffect"), effect == "Trap") {
+            rows.push(row("Inflicts", format!("{cond} for {}", secs(num("condDuration")))));
+        }
+        if a.attr("useWisMod") == Some("true") {
+            rows.push(row("", "Raised by Wisdom".into()));
+        }
+    }
+    (name.to_owned(), rows)
 }
 
 pub fn item_tooltip(data: &GameData, item: i32, me: Option<&GameObj>, kind: SlotKind) -> Vec<Line> {
@@ -2064,7 +2197,13 @@ pub fn item_tooltip(data: &GameData, item: i32, me: Option<&GameObj>, kind: Slot
     let mut out = Vec::new();
     // Compared with what's worn in its slot.
     let mine = item_numbers(desc);
-    let worn = worn_for(data, item, me, kind).and_then(|w| data.objects.get(&(w as u16))).map(item_numbers).unwrap_or_default();
+    let worn = match worn_for(data, item, me, kind) {
+        // Nothing to compare: no colours for better or worse.
+        None => ItemNumbers::default(),
+        // An empty slot: the bonuses compare with none.
+        Some(None) => ItemNumbers { present: true, ..Default::default() },
+        Some(Some(w)) => data.objects.get(&(w as u16)).map(item_numbers).unwrap_or_default(),
+    };
     let title_color = [("Admin", 0xFF8BDE), ("Ethereal", 0xFF5A5A), ("Ascended", 0x66FFF0), ("Legendary", 0xFFE066)]
         .iter()
         .find(|(t, _)| xml.has(t))
@@ -2076,14 +2215,51 @@ pub fn item_tooltip(data: &GameData, item: i32, me: Option<&GameObj>, kind: Slot
     if let Some(d) = xml.lines_of("Description") {
         // One line each, an empty one between paragraphs.
         for l in d.lines() {
-            out.push(Line::new(l.trim(), if l.trim().is_empty() { 6.0 } else { 13.0 }, false, ATTR));
+            out.push(Line::new(l.trim(), if l.trim().is_empty() { 6.0 } else { 13.0 }, false, DESCRIPTION));
         }
     }
-    let mut attr = |label: &str, value: String, color: u32| out.push(Line::new(&format!("{label}: {value}"), 13.0, false, color));
+    // What using it does, under the description: each ability's name, then its numbers, damage
+    // first.
+    for a in xml.children_named("Activate") {
+        let effect = a.text.trim();
+        if effect == "PermaPet" {
+            // The port writes the pet's damage on one enemy and its healing here.
+            out.push(Line::gap());
+            out.push(Line::new("Permanent pet", 13.0, true, ABILITY));
+            if let Some(dps) = a.attr("petDps") {
+                out.push(Line::stat("    Damage", &format!("{dps} per second"), VALUE));
+            }
+            for (key, verb, what) in [("petHp", "Heals", "HP"), ("petMp", "Restores", "MP")] {
+                if let Some(amount) = a.attr(key) {
+                    let secs = a.attr_number(&format!("{key}Ms"), 0.0) / 1000.0;
+                    out.push(Line::stat(&format!("    {verb}"), &format!("{amount} {what} every {secs}s"), VALUE));
+                }
+            }
+            continue;
+        }
+        // Bullet and shot activations some items mark as not for the tooltip.
+        if a.attr("ignoreOnTooltip") == Some("true") {
+            continue;
+        }
+        let (name, rows) = activate_rows(a);
+        out.push(Line::gap());
+        if !name.is_empty() {
+            out.push(Line::new(&name, 13.0, true, ABILITY));
+        }
+        for (label, value) in rows {
+            if label.is_empty() {
+                out.push(Line::new(&if name.is_empty() { value } else { format!("    {value}") }, 13.0, false, VALUE));
+            } else {
+                out.push(Line::stat(&format!("    {label}"), &value, VALUE));
+            }
+        }
+    }
+    out.push(Line::gap());
+    let mut attr = |label: &str, value: String, color: u32| out.push(Line::stat(label, &value, color));
     if let Some(p) = desc.projectiles.get(&0) {
-        attr("Shots", desc.num_projectiles().to_string(), compare(mine.shots, worn.shots, true));
         let dmg = if p.min_damage == p.max_damage { p.min_damage.to_string() } else { format!("{} - {}", p.min_damage, p.max_damage) };
         attr("Damage", dmg, compare(mine.damage, worn.damage, true));
+        attr("Shots", desc.num_projectiles().to_string(), compare(mine.shots, worn.shots, true));
         let range = p.speed as f64 * p.lifetime as f64 / 10000.0;
         attr("Range", format!("{}", (range * 100.0).round() / 100.0), compare(mine.range, worn.range, true));
         if [1, 2, 3, 8, 17, 24].contains(&xml.int("SlotType", 0)) {
@@ -2105,47 +2281,40 @@ pub fn item_tooltip(data: &GameData, item: i32, me: Option<&GameObj>, kind: Slot
     if let Some(fame) = xml.text_of("FameBonus") {
         attr("Fame Bonus", format!("{}%", fame.trim()), compare(mine.fame_bonus, worn.present.then(|| worn.fame_bonus.unwrap_or(0.0)), true));
     }
-    if !mine.boosts.is_empty() {
+    // The stat bonuses: compared with what the worn item gives (green better, red worse); with
+    // nothing to compare (it's the one worn), all plain. Bonuses the worn item has and this one
+    // lacks are listed as lost.
+    let comparing = worn.present;
+    let total = |boosts: &[(i32, i32)], stat: i32| boosts.iter().filter(|b| b.0 == stat).map(|b| b.1).sum::<i32>();
+    let mut stats: Vec<i32> = Vec::new();
+    for &(stat, _) in mine.boosts.iter().chain(if comparing { worn.boosts.iter() } else { [].iter() }) {
+        if !stats.contains(&stat) {
+            stats.push(stat);
+        }
+    }
+    if !stats.is_empty() {
         out.push(Line::new("On Equip:", 13.0, false, ATTR));
-        let comparing = worn.present;
-        for &(stat, amount) in &mine.boosts {
-            let color = if comparing {
-                // Against what the worn item gives of the same stat (none: 0).
-                let other = worn.boosts.iter().filter(|b| b.0 == stat).map(|b| b.1).sum::<i32>();
+        for stat in stats {
+            let (amount, other) = (total(&mine.boosts, stat), total(&worn.boosts, stat));
+            let color = if !comparing {
+                VALUE
+            } else {
                 match amount.cmp(&other) {
                     std::cmp::Ordering::Greater => BETTER,
                     std::cmp::Ordering::Less => WORSE,
                     std::cmp::Ordering::Equal => VALUE,
                 }
-            } else if amount < 0 {
-                WORSE
-            } else {
-                BETTER
             };
-            out.push(Line::new(&format!("    {amount:+} {}", stat_name(stat)), 13.0, false, color));
+            let pieces = if amount == 0 {
+                // Only the worn item gives it: what equipping this would lose.
+                vec![(format!("    {:+} ", -other), color), (stat_name(stat).to_owned(), ATTR), (" (lost)".to_owned(), color)]
+            } else if comparing && amount != other {
+                vec![(format!("    {amount:+} "), color), (stat_name(stat).to_owned(), ATTR), (format!(" ({:+})", amount - other), color)]
+            } else {
+                vec![(format!("    {amount:+} "), color), (stat_name(stat).to_owned(), ATTR)]
+            };
+            out.push(Line { pieces, size: 13.0, bold: false });
         }
-    }
-    for a in xml.children_named("Activate") {
-        let effect = a.text.trim();
-        if effect == "PermaPet" {
-            // The port writes the pet's damage on one enemy and its healing here.
-            out.push(Line::new("Gives a permanent pet", 13.0, false, VALUE));
-            if let Some(dps) = a.attr("petDps") {
-                out.push(Line::new(&format!("    Pet damage: {dps} per second"), 13.0, false, VALUE));
-            }
-            for (key, verb, what) in [("petHp", "heals", "HP"), ("petMp", "restores", "MP")] {
-                if let Some(amount) = a.attr(key) {
-                    let secs = a.attr_number(&format!("{key}Ms"), 0.0) / 1000.0;
-                    out.push(Line::new(&format!("    Pet {verb} {amount} {what} every {secs}s"), 13.0, false, VALUE));
-                }
-            }
-            continue;
-        }
-        // Bullet and shot activations some items mark as not for the tooltip.
-        if a.attr("ignoreOnTooltip") == Some("true") {
-            continue;
-        }
-        out.push(Line::new(&activate_detail(a), 13.0, false, VALUE));
     }
     // Restrictions.
     let mut note = |t: &str, c: u32| out.push(Line::new(t, 13.0, false, c));
@@ -2279,7 +2448,9 @@ fn draw_tooltip(ui: &mut Ui, lay: &Layout, lines: &[Line], icon: Option<i32>, ac
     let inner = w - 2.0 * pad;
     let icon_w = if icon.is_some() { 44.0 * s } else { 0.0 };
     // Wrap every line; the first ones (title, tier) sit beside the icon.
-    let mut rows: Vec<(String, f32, bool, u32, f32)> = Vec::new();
+    // Each wrapped row: its coloured pieces, size, bold, and where it sits.
+    type Row = (Vec<(String, u32)>, f32, bool, f32);
+    let mut rows: Vec<Row> = Vec::new();
     let mut y: f32 = 0.0;
     for (i, line) in lines.iter().enumerate() {
         let size = lay.font(line.size);
@@ -2287,9 +2458,10 @@ fn draw_tooltip(ui: &mut Ui, lay: &Layout, lines: &[Line], icon: Option<i32>, ac
         if i == 2 {
             y = y.max(icon_w) + 4.0 * s;
         }
-        for part in wrap(ui, &[(line.text.clone(), line.color)], size, inner - indent, 0.0) {
-            let text: String = part.into_iter().map(|(t, _)| t).collect();
-            rows.push((text, size, line.bold, line.color, y));
+        // `wrap` measures regular text: bold is wider, so leave it some room.
+        let room = (inner - indent) * if line.bold { 0.9 } else { 1.0 };
+        for part in wrap(ui, &line.pieces, size, room, 0.0) {
+            rows.push((part, size, line.bold, y));
             y += size * 1.25;
         }
     }
@@ -2312,10 +2484,33 @@ fn draw_tooltip(ui: &mut Ui, lay: &Layout, lines: &[Line], icon: Option<i32>, ac
     if let Some(item) = icon {
         ui.item_icon(item, 60, x0 + pad + icon_w / 2.0 - 2.0 * s, y0 + pad + icon_w / 2.0 - 2.0 * s, s * 0.9);
     }
-    for (i, (text, size, bold, color, ry)) in rows.iter().enumerate() {
+    for (i, (pieces, size, bold, ry)) in rows.iter().enumerate() {
         let indent = if i < 2 && icon.is_some() && *ry < icon_w { icon_w } else { 0.0 };
-        ui.label(text, x0 + pad + indent, y0 + pad + ry, *size, *bold, *color);
+        let mut x = x0 + pad + indent;
+        for (text, color) in pieces {
+            ui.label(text, x, y0 + pad + ry, *size, *bold, *color);
+            x += ui.measure(text, *size, *bold);
+        }
     }
+}
+
+/// The most slots a side of the trade shows: equipment, inventory and backpack.
+const TRADE_SLOTS: usize = 20;
+
+/// Where slot `i` of a side of the trade window sits, that side's left edge at `x0`: four
+/// across (equipment, then the inventory), the backpack's rows set a little apart below.
+fn trade_slot_rect(r: [f32; 4], x0: f32, i: usize, s: f32) -> [f32; 4] {
+    let row = i / 4;
+    let gap = if row >= 3 { 8.0 } else { 0.0 };
+    [x0 + (i % 4) as f32 * 46.0 * s, r[1] + (70.0 + row as f32 * 46.0 + gap) * s, 42.0 * s, 42.0 * s]
+}
+
+/// Where the trade window's slots end (unscaled, from its top): three rows, five with a backpack
+/// on either side.
+fn trade_slots_bottom(trade: &crate::game::Trade) -> f32 {
+    let slots = trade.mine.len().max(trade.theirs.len()).clamp(12, TRADE_SLOTS);
+    let rows = slots.div_ceil(4);
+    70.0 + rows as f32 * 46.0 + if rows > 3 { 8.0 } else { 0.0 }
 }
 
 /// The trade window (`TradePanel`) and the player menu (`PlayerMenu`), over the view.
@@ -2348,8 +2543,8 @@ pub fn draw_windows(ui: &mut Ui, lay: &Layout, world: &World, panel: &Panel, soc
                 ("Their offer", n, c)
             };
             ui.label(label, x0, r[1] + 48.0 * s, lay.font(13.0), true, color::TEXT_DIM);
-            for (i, item) in items.iter().take(12).enumerate() {
-                let sr = [x0 + (i % 4) as f32 * 46.0 * s, r[1] + 70.0 * s + (i / 4) as f32 * 46.0 * s, 42.0 * s, 42.0 * s];
+            for (i, item) in items.iter().take(TRADE_SLOTS).enumerate() {
+                let sr = trade_slot_rect(r, x0, i, s);
                 let on = offer.get(i).copied().unwrap_or(false);
                 let over = inside(sr, mouse);
                 let clickable = mine && item.tradeable && item.item > 0;
@@ -2369,7 +2564,7 @@ pub fn draw_windows(ui: &mut Ui, lay: &Layout, world: &World, panel: &Panel, soc
                     }
                 }
             }
-            ui.label(note, x0, r[1] + 212.0 * s, lay.font(12.0), true, note_c);
+            ui.label(note, x0, r[1] + (trade_slots_bottom(trade) + 4.0) * s, lay.font(12.0), true, note_c);
         }
         // Accept waits a moment after any change, then needs room on both sides.
         let wait = (crate::game::TRADE_ACCEPT_DELAY - (social.now - trade.changed_at)).max(0);

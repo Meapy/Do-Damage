@@ -6,6 +6,7 @@ using WorldServer.core.worlds.impl;
 using WorldServer.networking.packets.outgoing;
 using WorldServer.core.worlds;
 using WorldServer.core.net.datas;
+using WorldServer.core.objects.inventory;
 
 namespace WorldServer.core.objects
 {
@@ -116,10 +117,10 @@ namespace WorldServer.core.objects
             if (_tradeOffers.ContainsKey(target))
             {
                 TradeTarget = target;
-                TradeOffers = new bool[12];
+                TradeOffers = new bool[TradeSlots];
                 TradeAccepted = false;
                 target.TradeTarget = this;
-                target.TradeOffers = new bool[12];
+                target.TradeOffers = new bool[target.TradeSlots];
                 target.TradeAccepted = false;
                 _tradeOffers.Clear();
                 target._tradeOffers.Clear();
@@ -129,29 +130,8 @@ namespace WorldServer.core.objects
                 //MonitorTrade();
                 //target.MonitorTrade();
 
-                var my = new TradeItem[12];
-
-                for (int i = 0; i < 12; i++)
-                    my[i] = new TradeItem()
-                    {
-                        Item = Inventory[i] == null ? -1 : Inventory[i].ObjectType,
-                        SlotType = SlotTypes[i],
-                        Included = false,
-                        Tradeable = Inventory[i] != null && i >= 4 && !Inventory[i].Soulbound,
-                        ItemData = Inventory.Data[i]?.GetData() ?? "{}"
-                    };
-
-                var your = new TradeItem[12];
-
-                for (int i = 0; i < 12; i++)
-                    your[i] = new TradeItem()
-                    {
-                        Item = target.Inventory[i] == null ? -1 : target.Inventory[i].ObjectType,
-                        SlotType = target.SlotTypes[i],
-                        Included = false,
-                        Tradeable = target.Inventory[i] != null && i >= 4 && !target.Inventory[i].Soulbound,
-                        ItemData = target.Inventory.Data[i]?.GetData() ?? "{}"
-                    };
+                var my = TradeItems();
+                var your = target.TradeItems();
 
                 Client.SendPacket(new TradeStart()
                 {
@@ -176,6 +156,42 @@ namespace WorldServer.core.objects
                 SendInfo("You have sent a trade request to " + target.Name + "!");
                 return;
             }
+        }
+
+        // the slots a trade shows and takes from: equipment and inventory, and the backpack if there is one
+        public int TradeSlots => HasBackpack ? InventoryConstants.SWAP_FIRST : InventoryConstants.NUM_EQUIPMENT_SLOTS + InventoryConstants.NUM_INVENTORY_SLOTS;
+
+        // whether the item in slot i can be offered (equipment and soulbound items can't)
+        public bool CanTradeSlot(int i) => i >= InventoryConstants.NUM_EQUIPMENT_SLOTS && i < TradeSlots && Inventory[i] != null && !Inventory[i].Soulbound;
+
+        // an offer from the client, cut to the trade's slots, with what can't be offered left out
+        public bool[] CleanTradeOffer(bool[] offer, out bool soulbound)
+        {
+            soulbound = false;
+            var clean = new bool[TradeSlots];
+            for (var i = 0; i < clean.Length && i < offer.Length; i++)
+                if (offer[i])
+                {
+                    if (Inventory[i] != null && Inventory[i].Soulbound)
+                        soulbound = true;
+                    clean[i] = CanTradeSlot(i);
+                }
+            return clean;
+        }
+
+        private TradeItem[] TradeItems()
+        {
+            var items = new TradeItem[TradeSlots];
+            for (int i = 0; i < items.Length; i++)
+                items[i] = new TradeItem()
+                {
+                    Item = Inventory[i] == null ? -1 : Inventory[i].ObjectType,
+                    SlotType = SlotTypes[i],
+                    Included = false,
+                    Tradeable = CanTradeSlot(i),
+                    ItemData = Inventory.Data[i]?.GetData() ?? "{}"
+                };
+            return items;
         }
 
         public void ResetTrade()

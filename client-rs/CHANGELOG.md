@@ -8,6 +8,25 @@ version (`python tools/build_client_rs.py --publish`) needs a section for that v
 refuses while an `Unreleased` one is left, so rename it to `## <version> (<date>)` then. The
 version number itself is in `client-rs/Cargo.toml`.
 
+## 1.3.1 (2026-10-20)
+- The status effect icons above a character no longer jump to the side while it shoots.
+- Item tooltips are easier to read: each stat's name and its value are in different colours.
+  What an ability does now comes right under the description, its damage first (for a poison,
+  the impact and the poison damage on their own lines), then the item's stats with its damage
+  first.
+- Comparing an item with the one you wear: green and red now say better or worse than what
+  you're wearing in that slot, with the difference beside it, and bonuses you'd lose are listed.
+  Hovering the item you already wear (or a copy of it, or one your class can't use) shows its
+  numbers without green or red.
+- Your abilities' damage now shows over what they hit: poison (its first hit and every tick),
+  traps, lightning, tomes and the rest. Only other players could see those numbers before.
+- A poison with no first-hit damage no longer sends a hit of 0.
+- Trading now includes your backpack: its items show in two more rows of the trade window,
+  you can offer them, and items you get can go into your backpack when your inventory is full.
+- Fixed: a traded item could lose its extra details (what makes that copy of it special).
+- Nearby players: each player's rank star now shows in their rank colour, as in chat, lined up
+  with their name, with their character and class beside it.
+
 ## 1.3.0 (2026-10-19)
 - A new look for the screen: the world fills the whole window, with one bar down the right.
   At its top, the minimap square in the corner, then your experience, HP and MP; at its foot,
