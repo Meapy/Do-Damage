@@ -55,11 +55,18 @@ namespace WorldServer.logic
                     new ItemLoot("Potion of Attack", 0.15),
                     new ItemLoot("Ancient Stone Sword", 0.003)
                 ),
+                new Threshold(0.01,
+                    new ItemLoot("Potion of Defense", 0.4),
+                    new ItemLoot("Potion of Attack", 0.2),
+                    new ItemLoot("Ancient Stone Sword", 0.005)
+                ),
                 new Threshold(.005,
-                    new TierLoot(10, ItemType.Weapon, 0.04),
-                    new TierLoot(11, ItemType.Armor, 0.04),
-                    new TierLoot(4, ItemType.Ability, 0.04),
-                    new TierLoot(4, ItemType.Ring, 0.04)
+                    new TierLoot(10, ItemType.Weapon, 0.05),
+                    new TierLoot(11, ItemType.Weapon, 0.03),
+                    new TierLoot(11, ItemType.Armor, 0.05),
+                    new TierLoot(12, ItemType.Armor, 0.03),
+                    new TierLoot(4, ItemType.Ability, 0.05),
+                    new TierLoot(4, ItemType.Ring, 0.05)
                 )
             )
             .Init("Oryx Stone Guardian Left",
@@ -101,14 +108,16 @@ namespace WorldServer.logic
                     )
                  ),
                 new Threshold(0.01,
-                    new ItemLoot("Potion of Defense", 0.3),
-                    new ItemLoot("Potion of Attack", 0.15)
+                    new ItemLoot("Potion of Defense", 0.4),
+                    new ItemLoot("Potion of Attack", 0.2)
                 ),
                 new Threshold(.005,
-                    new TierLoot(10, ItemType.Weapon, 0.04),
-                    new TierLoot(11, ItemType.Armor, 0.04),
-                    new TierLoot(4, ItemType.Ability, 0.04),
-                    new TierLoot(4, ItemType.Ring, 0.04)
+                    new TierLoot(10, ItemType.Weapon, 0.05),
+                    new TierLoot(11, ItemType.Weapon, 0.03),
+                    new TierLoot(11, ItemType.Armor, 0.05),
+                    new TierLoot(12, ItemType.Armor, 0.03),
+                    new TierLoot(4, ItemType.Ability, 0.05),
+                    new TierLoot(4, ItemType.Ring, 0.05)
                 )
             )
             .Init("Oryx Guardian TaskMaster",
@@ -182,9 +191,10 @@ namespace WorldServer.logic
                     )
                 ),
                 new Threshold(0.01,
-                    new ItemLoot("Potion of Defense", 0.5),
-                    new ItemLoot("Potion of Attack", 0.5),
-                    new ItemLoot("Potion of Wisdom", 0.2),
+                    new ItemLoot("Potion of Defense", 0.8),
+                    new ItemLoot("Potion of Attack", 0.8),
+                    new ItemLoot("Potion of Wisdom", 0.4),
+                    new ItemLoot("Potion of Vitality", 0.3),
                     new ItemLoot("Wine Cellar Incantation", 0.04),
                     new ItemLoot("Oryx Chicken Chamber Key", 0.03)
                 ),

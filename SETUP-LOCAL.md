@@ -406,19 +406,21 @@ The remotes `upstream` (HaloCelsius) and `aurusenth` share no history with `main
       | 6 | Oryx 4 | 240,000 | 30% | 50 | 140-280, rare 410-500 |
       | 7 | Oryx 5 | 320,000 | 35% | 55 | 270-350 |
 
-      **Loot** rises the same way. `python tools/oryx_loot_report.py` works out what one player can expect per kill from the tables, as `Loot.Handle` rolls them: each entry is rolled at its chance times 1 + the player's share of the damage + the loot boosts, so a solo player rolls at double the listed chance and each of three equal players at about 1.6 times (with the 25% server-wide event). For a player in a group of three:
+      **Loot** rises the same way. `python tools/oryx_loot_report.py` works out what one player can expect per kill from the tables, as `Loot.Handle` rolls them: each entry is rolled at its chance times 1 + the player's share of the damage + the loot boosts, so a solo player rolls at about double the listed chance and each of three equal players at about 1.6 times (with the 25% server-wide event). `--ref <commit>` reads older tables, `--compare` adds other late dungeons' bosses for scale and `--items` the chance of each white- and special-bag item. Every player who did enough damage rolls the whole table for their own soulbound bag: 1% of the damage for the sure drops, 3% for the further stat potions and the rare items, 5% for the gear (it was 5% and 10%, which left a weaker player in a group of five without gear or the Oryx set). For a player in a group of three:
 
-      | Stage | Stat potions | Life / Mana | Potion of Oryx | Gear (tier) | White bag |
-      |---|---|---|---|---|---|
-      | 1 Stone Guardians (both) | 1.4 | - | - | 0.5 (T10-12) | 0.5% (Ancient Stone Sword) |
-      | 2 Janus | 1.9 | - | - | 0.5 (T10-12) | - |
-      | 3 Oryx 1 | 2.2 | 0.1 / - | - | 0.6 (T10-12) | - |
-      | 4 Oryx 2 | 2.4 | 1 / 0.5 | - | 0.7 (T11-13) | 0.9% (Seal of Blasphemous Prayer) |
-      | 5 Oryx 3 | 2.6 | 1 / 1 | 6% | 0.6 (T12-14) | 1.6% (Oryx's Escutcheon) |
-      | 6 Oryx 4 | 2.9 | 1.1 / 1 | 13% | 0.6 (T13-15) | 7% (the Oryx set) |
-      | 7 Oryx 5 | 3.8 | 1.2 / 1.2 | 24% | 0.6 (T14-15) | 18% (Oryx set, Doom Poison, Sword of Dark Enchantment, Crown) |
+      | Stage | Stat potions | Life / Mana | Potion of Oryx | Gear (tier) | Oryx set | White bag |
+      |---|---|---|---|---|---|---|
+      | 1 Stone Guardians (both) | 2.6 | - | - | 0.8 (T10-12) | - | 1.3% (Ancient Stone Sword) |
+      | 2 Janus | 3.1 | - | - | 0.5 (T10-12) | - | - |
+      | 3 Oryx 1 / Giant Oryx Chicken | 4.2 (2 sure) | 0.2 / - | - | 0.9 (T11-13) | - | the Chicken's own items 17% |
+      | 4 Oryx 2 | 5.0 (2 sure) | 1 / 0.95 | - | 1.0 (T12-13) | - | 2.8% (Seal of Blasphemous Prayer, Doom Bow) |
+      | 5 Sanctuary court (12 monsters) | 3.1 | 0.2 / - | - | 2.2 (T5-13) | - | - |
+      | 5 Oryx 3 | 5.5 (2 sure) | 1.6 / 1 | 11% | 1.0 (T13-15, T6-7) | 5% | 9% (Oryx's Escutcheon 4%, the set) |
+      | 6 Oryx 4 | 6.0 (2 sure) | 1.9 / 1.1 | 22% | 1.2 (T13-15, T6-7) | 15% | 15% |
+      | 7 Oryx 5 | 7.9 (4 sure) | 2.3 / 2.1 | 40% | 1.7 (T14-15, T6-8) | 25% | 25% (the set, Doom Poison, Sword of Dark Enchantment, Crown) |
+      | Lost Halls' Marble Colossus, for scale | - | 1 / 1.4 | - | 2.1 (1.4 of it T13+, T6) | - | 0.8% |
 
-      Gear stays at about one piece every two kills while its tier rises. A Potion of Oryx counts as all eight potions (`/forge` makes one from them), so it stays rare. Each piece of the Oryx set (Ring of Oryx, Oryx Hide Armor, Oryx Hide Robe, Oryx Scale Armor, Oryx Tooth Sword, Doom Dirk, Flying Doom Daggers, Tome of Noble Assault) is 0.6% from Oryx 4 and 1.4% from Oryx 5 before the multiplier. Oryx 4 and 5 also drop the Oryx forge materials. The first tables were far richer: with the weekday boost bug below, Oryx 5 gave each of three players a Potion of Oryx every kill and an Oryx set piece or other special item about half the time.
+      Before the 2026-10-19 rebalance the same player got 1.4, 1.9, 2.2, 2.4, 2.6, 2.9 and 3.8 stat potions down the chain, about 0.6 pieces of gear a kill at every stage (Oryx 5's top gear was below the Marble Colossus's), Potion of Oryx 6%, 13% and 24% from Oryx 3 to 5, and an Oryx set piece 7.6% (Oryx 4) and 17% (Oryx 5) of the time. Now each Oryx gives sure Attack and Defense (Oryx 5 Speed and Dexterity too), Life from Oryx 2 on and Mana from Oryx 3 on, and each stage's gear is a tier up: T7 abilities and rings from Oryx 3 (0.8%), Oryx 4 (3%) and Oryx 5 (5%), and T8 ones only from Oryx 5 (0.6%), the only places they drop. Oryx 3 now has the Oryx set at 0.4% a piece and Oryx's Escutcheon at 2.5%; each piece is 1.2% from Oryx 4 and 2% from Oryx 5 before the multiplier. Oryx 2 adds Doom Bow (0.8%), as in the original game's Wine Cellar. A solo player rolls at 2.25 times: Oryx 5 then gives a Potion of Oryx about half the time and a given Oryx set piece 4.5% of the time, so the set still takes many full runs. A Potion of Oryx counts as all eight potions (`/forge` makes one from them). Oryx 4 and 5 also drop the Oryx forge materials. The first tables were far richer: with the weekday boost bug below, Oryx 5 gave each of three players a Potion of Oryx every kill and an Oryx set piece or other special item about half the time.
     - **White bags for the Oryx set:** Doomed Realms numbered its loot bags differently, so the Oryx set dropped in brown and blue bags without an announcement. `tools/port_doomed.py` (`BAG_TYPES`) now gives the set, Doom Poison and Sword of Dark Enchantment the white bag (6) and Potion of Oryx and Potion of Power the special-consumable bag (7). Only those lines of the generated XML were updated: a full regeneration also rewrites unrelated parts (Native White Demon moves from ElderObjects.xml to DoomedRealms.xml, Elder Abyss.jm changes), so the committed generated files have drifted from the generator.
     - **Weekend loot boost:** `Loot.Handle` added `wkndBoost` (+30%) to every roll every day, while `/boosts` and the login message only claim it on weekends. It now applies only when `World.isWeekend`. This lowers drop rates everywhere on weekdays, back to what players are told.
     - **Castle:** the Stone Guardians' ring attacks never fired: `RingAttack` only shoots when its radius is 0, and theirs was 20. They now use `Shoot` rings. (Other monsters' `RingAttack`s with a radius are left as they are.)

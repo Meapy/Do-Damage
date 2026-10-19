@@ -88,27 +88,33 @@ namespace WorldServer.logic
                         new Taunt(1, 6000, "Puny mortals! My {HP} HP will annihilate you!")
                     )
                 ),
+                // everyone who did 1% of the damage: the sure drops
                 new Threshold(0.01,
                     new ItemLoot("Potion of Life", 1),
-                    new ItemLoot("Potion of Mana", 0.3)
+                    new ItemLoot("Potion of Mana", 0.6),
+                    new ItemLoot("Potion of Attack", 1),
+                    new ItemLoot("Potion of Defense", 1)
                 ),
-                new Threshold(0.05,
-                    new ItemLoot("Potion of Vitality", 0.38),
-                    new ItemLoot("Potion of Wisdom", 0.38),
-                    new ItemLoot("Potion of Attack", 0.38),
-                    new ItemLoot("Potion of Defense", 0.38),
+                // 3% of the damage: more stat potions and the rare drops
+                new Threshold(0.03,
+                    new ItemLoot("Potion of Vitality", 0.6),
+                    new ItemLoot("Potion of Wisdom", 0.6),
+                    new ItemLoot("Potion of Speed", 0.35),
+                    new ItemLoot("Potion of Dexterity", 0.35),
                     new ItemLoot("Hash Cellar Incantation", 0.04),
-                    new ItemLoot("Seal of Blasphemous Prayer", 0.006)
+                    new ItemLoot("Seal of Blasphemous Prayer", 0.01),
+                    new ItemLoot("Doom Bow", 0.008)
                 ),
-                new Threshold(0.1,
-                    new TierLoot(11, ItemType.Weapon, 0.08),
-                    new TierLoot(12, ItemType.Weapon, 0.05),
-                    new TierLoot(5, ItemType.Ability, 0.08),
-                    new TierLoot(6, ItemType.Ability, 0.04),
-                    new TierLoot(12, ItemType.Armor, 0.08),
-                    new TierLoot(13, ItemType.Armor, 0.04),
-                    new TierLoot(5, ItemType.Ring, 0.07),
-                    new TierLoot(6, ItemType.Ring, 0.03)
+                // 5% of the damage: the gear
+                new Threshold(0.05,
+                    new TierLoot(12, ItemType.Weapon, 0.12),
+                    new TierLoot(13, ItemType.Weapon, 0.06),
+                    new TierLoot(5, ItemType.Ability, 0.1),
+                    new TierLoot(6, ItemType.Ability, 0.06),
+                    new TierLoot(12, ItemType.Armor, 0.1),
+                    new TierLoot(13, ItemType.Armor, 0.07),
+                    new TierLoot(5, ItemType.Ring, 0.08),
+                    new TierLoot(6, ItemType.Ring, 0.06)
                 )
             )
             // Stage 3: cycles through five phases; below 20% he grows and chases.
@@ -218,23 +224,30 @@ namespace WorldServer.logic
                         new Flash(0xFFFF0000, 0.5, 9000001)
                     )
                 ),
+                // everyone who did 1% of the damage: the sure drops
                 new Threshold(0.01,
-                    new ItemLoot("Potion of Attack", 0.45),
-                    new ItemLoot("Potion of Defense", 0.45)
+                    new ItemLoot("Potion of Attack", 1),
+                    new ItemLoot("Potion of Defense", 1),
+                    new ItemLoot("Potion of Life", 0.15)
                 ),
-                new Threshold(0.05,
-                    new ItemLoot("Potion of Dexterity", 0.25),
-                    new ItemLoot("Potion of Speed", 0.25),
-                    new ItemLoot("Potion of Life", 0.08),
+                // 3% of the damage: more stat potions and the rare drops
+                new Threshold(0.03,
+                    new ItemLoot("Potion of Dexterity", 0.45),
+                    new ItemLoot("Potion of Speed", 0.45),
+                    new ItemLoot("Potion of Vitality", 0.25),
+                    new ItemLoot("Potion of Wisdom", 0.25),
                     new ItemLoot("Oryx Sanctuary Key", 0.04)
                 ),
-                new Threshold(0.1,
-                    new TierLoot(10, ItemType.Weapon, 0.08),
-                    new TierLoot(11, ItemType.Weapon, 0.06),
-                    new TierLoot(5, ItemType.Ability, 0.07),
-                    new TierLoot(11, ItemType.Armor, 0.07),
-                    new TierLoot(12, ItemType.Armor, 0.04),
-                    new TierLoot(5, ItemType.Ring, 0.06)
+                // 5% of the damage: the gear
+                new Threshold(0.05,
+                    new TierLoot(11, ItemType.Weapon, 0.12),
+                    new TierLoot(12, ItemType.Weapon, 0.06),
+                    new TierLoot(5, ItemType.Ability, 0.1),
+                    new TierLoot(6, ItemType.Ability, 0.03),
+                    new TierLoot(12, ItemType.Armor, 0.1),
+                    new TierLoot(13, ItemType.Armor, 0.04),
+                    new TierLoot(5, ItemType.Ring, 0.08),
+                    new TierLoot(6, ItemType.Ring, 0.03)
                 )
             )
             .Init("Ring Element",

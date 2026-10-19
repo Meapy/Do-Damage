@@ -188,30 +188,45 @@ namespace WorldServer.logic
                         new Taunt(0.5, 7000, "Your gods have abandoned you!", "There is no escape from my Sanctum!", "I will unmake you!")
                     )
                 ),
+                // everyone who did 1% of the damage: the sure drops
                 new Threshold(0.01,
                     new ItemLoot("Potion of Life", 1),
-                    new ItemLoot("Potion of Mana", 0.7),
-                    new ItemLoot("Potion of Oryx", 0.04)
+                    new ItemLoot("Potion of Life", 0.4),
+                    new ItemLoot("Potion of Mana", 1),
+                    new ItemLoot("Potion of Attack", 1),
+                    new ItemLoot("Potion of Defense", 1),
+                    new ItemLoot("Potion of Oryx", 0.07)
                 ),
+                // 3% of the damage: more stat potions and the rare drops
+                new Threshold(0.03,
+                    new ItemLoot("Potion of Speed", 0.55),
+                    new ItemLoot("Potion of Dexterity", 0.55),
+                    new ItemLoot("Potion of Vitality", 0.55),
+                    new ItemLoot("Potion of Wisdom", 0.55),
+                    new ItemLoot("Shattered Rune of Oryx", 0.25),
+                    new ItemLoot("Oryx Scroll", 0.02),
+                    new ItemLoot("Doomed Cellar Incantation", 0.05),
+                    new ItemLoot("Oryx's Escutcheon", 0.025),
+                    new ItemLoot("Ring of Oryx", 0.004),
+                    new ItemLoot("Oryx Hide Armor", 0.004),
+                    new ItemLoot("Oryx Hide Robe", 0.004),
+                    new ItemLoot("Oryx Scale Armor", 0.004),
+                    new ItemLoot("Oryx Tooth Sword", 0.004),
+                    new ItemLoot("Doom Dirk", 0.004),
+                    new ItemLoot("Flying Doom Daggers", 0.004),
+                    new ItemLoot("Tome of Noble Assault", 0.004)
+                ),
+                // 5% of the damage: the gear
                 new Threshold(0.05,
-                    new ItemLoot("Potion of Attack", 0.27),
-                    new ItemLoot("Potion of Defense", 0.27),
-                    new ItemLoot("Potion of Speed", 0.27),
-                    new ItemLoot("Potion of Dexterity", 0.27),
-                    new ItemLoot("Potion of Vitality", 0.27),
-                    new ItemLoot("Potion of Wisdom", 0.27),
-                    new ItemLoot("Shattered Rune of Oryx", 0.2),
-                    new ItemLoot("Oryx Scroll", 0.015),
-                    new ItemLoot("Doomed Cellar Incantation", 0.04),
-                    new ItemLoot("Oryx's Escutcheon", 0.01)
-                ),
-                new Threshold(0.1,
-                    new TierLoot(12, ItemType.Weapon, 0.08),
-                    new TierLoot(13, ItemType.Weapon, 0.05),
-                    new TierLoot(6, ItemType.Ability, 0.07),
-                    new TierLoot(13, ItemType.Armor, 0.08),
-                    new TierLoot(14, ItemType.Armor, 0.04),
-                    new TierLoot(6, ItemType.Ring, 0.06)
+                    new TierLoot(13, ItemType.Weapon, 0.12),
+                    new TierLoot(14, ItemType.Weapon, 0.03),
+                    new TierLoot(13, ItemType.Armor, 0.06),
+                    new TierLoot(14, ItemType.Armor, 0.1),
+                    new TierLoot(15, ItemType.Armor, 0.02),
+                    new TierLoot(6, ItemType.Ability, 0.14),
+                    new TierLoot(6, ItemType.Ring, 0.12),
+                    new TierLoot(7, ItemType.Ability, 0.008),
+                    new TierLoot(7, ItemType.Ring, 0.008)
                 )
             )
 
@@ -394,11 +409,14 @@ namespace WorldServer.logic
 
         private static MobDrops[] CourtLoot() => new MobDrops[]
         {
-            new ItemLoot("Potion of Defense", 0.04),
-            new ItemLoot("Potion of Attack", 0.04),
-            new ItemLoot("Greater Potion of Life", 0.005),
-            new TierLoot(11, ItemType.Weapon, 0.04),
-            new TierLoot(12, ItemType.Armor, 0.04)
+            new ItemLoot("Potion of Defense", 0.05),
+            new ItemLoot("Potion of Attack", 0.05),
+            new ItemLoot("Potion of Vitality", 0.02),
+            new ItemLoot("Potion of Wisdom", 0.02),
+            new ItemLoot("Greater Potion of Life", 0.008),
+            new TierLoot(12, ItemType.Weapon, 0.04),
+            new TierLoot(13, ItemType.Armor, 0.03),
+            new TierLoot(5, ItemType.Ability, 0.03)
         };
     }
 }

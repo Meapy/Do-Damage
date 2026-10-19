@@ -10,6 +10,19 @@ version number itself is in `client-rs/Cargo.toml`.
 
 ## Unreleased
 - The Support Bot in the Nexus has a new tip about Elder dungeons and their better loot.
+- Every Oryx is worth killing now, and each stage pays more than the last. Every Oryx always
+  drops a Potion of Attack and Defense (Oryx 5 Speed and Dexterity too), with more stat potions
+  on top: about 4 from Oryx 1 up to about 8 from Oryx 5. Oryx 2 always drops Life, Oryx 3 and
+  later Life and Mana, and Oryx 5 two of each.
+- Better gear down the chain: a tier higher at each stage, and tier 7 abilities and rings from
+  Oryx 3, 4 and 5. Oryx 5 is the only place to find tier 8 ones.
+- Rarer prizes are easier to find: Potion of Oryx is nearly twice as likely from Oryx 3, 4 and 5,
+  Oryx 3 can now drop the Oryx set and drops Oryx's Escutcheon more often, and Oryx 4 and 5 drop
+  the Oryx set about twice as often. Oryx 2 can drop the Doom Bow.
+- Everyone who does a fair share of the damage gets the full loot: 5% of the damage is enough for
+  gear and the Oryx set (it was 10%), and 3% for the extra stat potions.
+- The Stone Guardians, Janus, the Giant Oryx Chicken and Oryx's court in the Sanctuary drop more
+  stat potions too.
 
 ## 1.2.8 (2026-10-19)
 - Realms are much easier to close with a few people. A realm closes after 8 events for 1 to 3
