@@ -9,6 +9,9 @@ refuses while an `Unreleased` one is left, so rename it to `## <version> (<date>
 version number itself is in `client-rs/Cargo.toml`.
 
 ## Unreleased
+- Changing your name at the Name Changer now costs 50,000 fame instead of 100 gold. Choosing
+  your first name is still free.
+- The portal's Enter button shows the key you set for Interact in the options, not always 0.
 - The arena trophy in the Nexus now shows the record over it as you walk by: the best run's
   wave, how long it took and who took part, on a card that floats above the trophy (it doesn't
   go in the chat). Stand on the trophy for the full top ten, as before.

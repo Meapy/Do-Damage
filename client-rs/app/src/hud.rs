@@ -892,6 +892,8 @@ pub struct HudState {
     pub minimap_zoom: usize,
     /// The key bound to the Nexus, for its button.
     pub nexus_key: String,
+    /// The key bound to Interact, for the portal's Enter button.
+    pub interact_key: String,
     /// The keys bound to the health and magic potions, for their stacks.
     pub potion_keys: [String; 2],
     /// The boss history is open, and which boss in it shows everyone who hit it.
@@ -1477,7 +1479,8 @@ pub fn draw_panel(ui: &mut Ui, lay: &Layout, world: &World, camera_angle: f64, c
                 ui.label(&state.nexus_key, x0 + icon_w + gap, (cy - mid).round(), size, true, color::TEXT);
                 continue;
             }
-            Button::Enter(_) => ("Enter  0".to_owned(), Kind::Primary),
+            Button::Enter(_) if state.interact_key.is_empty() => ("Enter".to_owned(), Kind::Primary),
+            Button::Enter(_) => (format!("Enter  {}", state.interact_key), Kind::Primary),
             Button::Buy(_) => match panel.interact.as_ref().map(|i| i.kind) {
                 Some(InteractKind::Shop { price, currency, .. }) => (format!("Buy  ·  {}", price_text(price, currency)), Kind::Primary),
                 _ => continue,
