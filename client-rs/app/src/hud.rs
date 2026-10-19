@@ -111,6 +111,11 @@ impl Ui<'_> {
         self.text.draw_ui(self.fonts, self.renderer, s, x, y, Style { size, bold, color });
     }
 
+    /// See `Text::digit_middle`.
+    pub(crate) fn digit_middle(&self, size: f32, bold: bool) -> f32 {
+        self.text.digit_middle(self.fonts, size, bold)
+    }
+
     pub(crate) fn measure(&mut self, s: &str, size: f32, bold: bool) -> f32 {
         self.text.measure(self.fonts, self.renderer, s, Style { size, bold, color: 0 })
     }
@@ -150,12 +155,13 @@ impl Ui<'_> {
         self.renderer.sprite(icon.rect, Quad::rect((cx - w / 2.0).round(), (cy - h / 2.0 - lift).round(), w, h), Tint::NONE);
     }
 
-    /// A sheet's tile redrawn with its outline at `size` (100 = normal), centred on (cx, cy).
+    /// A sheet's tile redrawn with its outline at `size` (100 = normal), centred on (cx, cy):
+    /// padded below as much as above, so the tile itself is in the middle.
     pub(crate) fn tile_icon(&mut self, set: &str, index: u32, size: i32, cx: f32, cy: f32, scale: f32) {
         let Some(src) = self.sprites.tile_src(set, index) else { return };
         let size = if src.h == 16 { size / 2 } else { size };
         let size = ((size as f32 * scale).round() as i32).max(1);
-        let Some(icon) = self.redrawer.get(self.sprites, self.renderer, src, false, size, None) else { return };
+        let Some(icon) = self.redrawer.get_padded(self.sprites, self.renderer, src, false, size, None, true) else { return };
         let (w, h) = (icon.w as f32, icon.h as f32);
         self.renderer.sprite(icon.rect, Quad::rect((cx - w / 2.0).round(), (cy - h / 2.0).round(), w, h), Tint::NONE);
     }
@@ -2299,42 +2305,39 @@ pub fn draw_chat(ui: &mut Ui, lay: &Layout, lines: &[ChatLine], me: &str, input:
     names
 }
 
-/// `GameSprite.rankText_` (`RankText`, large): your rank and its star on a dark plate, at the
-/// top left of the view in maps that show it.
-pub fn draw_rank(ui: &mut Ui, lay: &Layout, stars: i32) {
-    if stars < 0 {
-        return;
-    }
-    let s = lay.s;
-    let size = lay.font(18.0);
-    let t = stars.to_string();
-    let tw = ui.measure(&t, size, true);
-    let k = s * 1.5;
-    let (x, y) = (8.0 * s, 8.0 * s);
-    let plate = [x, y, 6.0 * s + tw + 4.0 * s + 16.0 * k + 6.0 * s, size * 1.3 + 8.0 * s];
-    theme::fill(ui.renderer, plate, 6.0 * s, 0x000000, 0.45);
-    ui.label(&t, x + 6.0 * s, y + 4.0 * s, size, true, crate::stars::GREY);
-    let classes = crate::stars::class_count(ui.data);
-    crate::theme::star(ui.renderer, x + 10.0 * s + tw + 8.0 * k, y + plate[3] / 2.0, 6.5 * k, crate::stars::color(stars, classes));
-}
-
-/// `CreditDisplay`: your gold and fame, each before its icon, at the top right of the view.
-/// Returns how far down it reaches.
-pub fn draw_credits(ui: &mut Ui, lay: &Layout, me: &GameObj) -> f32 {
+/// `CreditDisplay`: your gold and fame, each before its icon, at the top right of the view,
+/// under your rank and its star (`GameSprite.rankText_`) in maps that show it. Each count is
+/// centred on its icon by the middle of its digits. Returns how far down it reaches.
+pub fn draw_credits(ui: &mut Ui, lay: &Layout, me: &GameObj, show_rank: bool) -> f32 {
     let s = lay.s;
     let size = lay.font(16.0);
     let right = lay.view_w() - 8.0 * s;
     let row_h = 24.0 * s;
-    // CREDITS_STAT and FAME_STAT (the account's fame), with lofiObj3's coin and fame icons.
-    let rows = [(me.stat_int(35).unwrap_or(0), 225), (me.stat_int(39).unwrap_or(0), 224)];
-    for (i, (value, icon)) in rows.into_iter().enumerate() {
-        let cy = 6.0 * s + row_h * (i as f32 + 0.5);
-        ui.tile_icon("lofiObj3", icon, 40, right - 12.0 * s, cy, s);
+    let icon_x = right - 12.0 * s;
+    let text_mid = ui.digit_middle(size, true);
+    let count = |ui: &mut Ui, value: i32, cy: f32, color: u32| {
         let t = value.to_string();
         let tw = ui.measure(&t, size, true);
-        ui.label(&t, right - 24.0 * s - tw, cy - size * 0.62, size, true, 0xFFFFFF);
+        ui.label(&t, right - 24.0 * s - tw, (cy - text_mid).round(), size, true, color);
+    };
+    let mut cy = 6.0 * s + row_h / 2.0;
+    // NUM_STARS_STAT, with the star in its rank's colour.
+    if let Some(stars) = me.stat_int(30).filter(|&n| n >= 0 && show_rank) {
+        let classes = crate::stars::class_count(ui.data);
+        // A star reaches `outer` above its centre but only 0.81 of that below, so it's drawn a
+        // little low to look centred.
+        let outer = 8.5 * s;
+        theme::star(ui.renderer, icon_x, cy + outer * 0.095, outer, crate::stars::color(stars, classes));
+        count(ui, stars, cy, crate::stars::GREY);
+        cy += row_h;
     }
-    6.0 * s + row_h * rows.len() as f32
+    // CREDITS_STAT and FAME_STAT (the account's fame), with lofiObj3's coin and fame icons.
+    for (value, icon) in [(me.stat_int(35).unwrap_or(0), 225), (me.stat_int(39).unwrap_or(0), 224)] {
+        ui.tile_icon("lofiObj3", icon, 40, icon_x, cy, s);
+        count(ui, value, cy, 0xFFFFFF);
+        cy += row_h;
+    }
+    cy - row_h / 2.0
 }
 
 /// `ArenaMenu`: the wave and the time, at the top left of the view.

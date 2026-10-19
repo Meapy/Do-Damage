@@ -44,7 +44,7 @@ server messages it handles (`GameServerConnection.mapMessages`), the account ser
 | HUD: minimap, bars, equipment, inventory, backpack, stats, potions | `HUDView` | Done |
 | Minimap zoom (buttons, - and =, the mouse wheel), player tooltips and menus on the minimap; the map's name | `MiniMap` | Done |
 | Nearby players' details on hover: rank, health, magic, gear | `PlayerToolTip` | Done |
-| Your rank at the top left (maps that show it), speakers' rank stars in the chat | `GameSprite.rankText_`, `TextBoxLine` | Done |
+| Your rank at the top right, above your gold (maps that show it), speakers' rank stars in the chat | `GameSprite.rankText_`, `TextBoxLine` | Done |
 | Item tooltips, compared with what's worn in that slot (better green, worse red) | `EquipmentToolTip` | Done |
 | Items: swap, drop, use, equip, bags; Ctrl+click to the other page, Ctrl+right-click to break down; health and magic potions into their stacks (drag or double-click); cloth and dyes in their colours | `ItemGridMediator`, `BreakdownSlot` | Done |
 | Chat, slash commands, speech balloons; editing the line (cursor, selection, words, copy, cut, paste, undo) | `TextBox`, `onText` | Done |

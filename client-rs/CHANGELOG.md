@@ -10,6 +10,8 @@ version number itself is in `client-rs/Cargo.toml`.
 
 ## Unreleased
 - The Support Bot in the Nexus has a new tip about Elder dungeons and their better loot.
+- Your rank and its star moved to the top right, above your gold and fame. Each number there
+  now lines up with the middle of its icon.
 
 ## 1.2.8 (2026-10-19)
 - Realms are much easier to close with a few people. A realm closes after 8 events for 1 to 3

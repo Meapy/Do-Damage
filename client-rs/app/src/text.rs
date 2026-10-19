@@ -104,6 +104,20 @@ impl Text {
         g
     }
 
+    /// How far below a line's top (the `y` given to `draw`) the middle of its digits sits, to
+    /// line a number up with an icon beside it.
+    pub fn digit_middle(&self, fonts: &Fonts, size: f32, bold: bool) -> f32 {
+        let size = size.round();
+        let font = fonts.font(bold);
+        let scaled = font.as_scaled(scale(font, size));
+        let glyph = scaled.scaled_glyph('0');
+        let mid = font.outline_glyph(glyph).map_or(-scaled.ascent() * 0.35, |o| {
+            let b = o.px_bounds();
+            (b.min.y + b.max.y) / 2.0
+        });
+        scaled.ascent() + mid
+    }
+
     /// Width of a line in pixels.
     pub fn measure(&mut self, fonts: &Fonts, renderer: &mut Renderer, text: &str, style: Style) -> f32 {
         let size = style.size.round() as u32;
