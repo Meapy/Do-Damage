@@ -30,8 +30,11 @@ pub struct SoundSettings {
 impl Default for SoundSettings {
     fn default() -> Self {
 <<<<<<< Updated upstream
+<<<<<<< Updated upstream
         SoundSettings { sfx: true, shots: true, music: true, sfx_volume: 0.8, master_volume: 1.0, music_volume: 0.5 }
 =======
+=======
+>>>>>>> Stashed changes
         SoundSettings { sfx: true, shots: true, music: true, master_volume: 1.0, sfx_volume: 0.8, music_volume: 0.5 }
     }
 }
@@ -43,6 +46,9 @@ impl SoundSettings {
 
     fn music_output_volume(&self) -> f32 {
         self.master_volume * self.music_volume
+<<<<<<< Updated upstream
+>>>>>>> Stashed changes
+=======
 >>>>>>> Stashed changes
     }
 }
@@ -140,7 +146,11 @@ impl Audio {
         }
         let Some(output) = &self.output else { return };
 <<<<<<< Updated upstream
+<<<<<<< Updated upstream
         let volume = self.settings.sfx_volume * self.settings.master_volume;
+=======
+        let volume = self.settings.effects_output_volume();
+>>>>>>> Stashed changes
 =======
         let volume = self.settings.effects_output_volume();
 >>>>>>> Stashed changes
@@ -177,7 +187,11 @@ impl Audio {
                     if let Ok(source) = rodio::Decoder::new_looped(Cursor::new(bytes.clone())) {
                         let sink = rodio::Sink::connect_new(output.mixer());
 <<<<<<< Updated upstream
+<<<<<<< Updated upstream
                         sink.set_volume(self.settings.music_volume * self.settings.master_volume);
+=======
+                        sink.set_volume(music_volume);
+>>>>>>> Stashed changes
 =======
                         sink.set_volume(music_volume);
 >>>>>>> Stashed changes
@@ -194,7 +208,11 @@ impl Audio {
         }
         if let Some(sink) = &self.music {
 <<<<<<< Updated upstream
+<<<<<<< Updated upstream
             sink.set_volume(self.settings.music_volume * self.settings.master_volume);
+=======
+            sink.set_volume(music_volume);
+>>>>>>> Stashed changes
 =======
             sink.set_volume(music_volume);
 >>>>>>> Stashed changes
