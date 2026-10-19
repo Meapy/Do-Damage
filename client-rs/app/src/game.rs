@@ -727,15 +727,13 @@ impl Game {
             ServerMessage::Aoe(a) => self.particles.aoe(a.pos.x as f64, a.pos.y as f64, a.radius as f64, a.color),
             ServerMessage::ShowEffect(e) => self.particles.show_effect(&e, world, now),
             ServerMessage::Damage(d) => {
-                // Our own shots throw their sparks where they strike.
-                if Some(d.object_id) != world.me {
-                    self.particles.damaged(world, d.target_id, d.kill);
-                    if let Some(s) = world.objects.get(&d.target_id).and_then(|o| hurt_sound(data, o.object_type, d.kill)) {
-                        self.sounds.push((s, 1.0, false));
-                    }
+                // The server never sends us our own shots' hits (we show those as they strike), so
+                // one credited to us is our ability's (poison, lightning, a trap...): show it too.
+                self.particles.damaged(world, d.target_id, d.kill);
+                if let Some(s) = world.objects.get(&d.target_id).and_then(|o| hurt_sound(data, o.object_type, d.kill)) {
+                    self.sounds.push((s, 1.0, false));
                 }
-                // Someone was hit (not by our shots): show the number.
-                if Some(d.object_id) != world.me {
+                if d.damage_amount > 0 {
                     self.floaters.push(crate::view::Floater::damage(d.target_id, d.damage_amount, now));
                 }
             }

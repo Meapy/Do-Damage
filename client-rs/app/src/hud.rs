@@ -1968,23 +1968,35 @@ fn draw_player_card(ui: &mut Ui, lay: &Layout, p: &GameObj, mouse: (f64, f64)) {
     }
 }
 
-/// One line of a tooltip.
+/// One line of a tooltip: one or more pieces, each in its colour.
 pub struct Line {
-    text: String,
+    pieces: Vec<(String, u32)>,
     size: f32,
     bold: bool,
-    color: u32,
 }
 
 impl Line {
     fn new(text: &str, size: f32, bold: bool, color: u32) -> Self {
-        Line { text: text.to_owned(), size, bold, color }
+        Line { pieces: vec![(text.to_owned(), color)], size, bold }
+    }
+
+    /// "Label: value", the label in the attribute grey and the value in its own colour.
+    fn stat(label: &str, value: &str, color: u32) -> Self {
+        Line { pieces: vec![(format!("{label}: "), ATTR), (value.to_owned(), color)], size: 13.0, bold: false }
+    }
+
+    /// A little space between the tooltip's parts.
+    fn gap() -> Self {
+        Line::new("", 5.0, false, ATTR)
     }
 }
 
 const TOOLTIP_W: f32 = 230.0;
+/// A stat's name; its value (unless compared); the description; an ability's name.
 const ATTR: u32 = 0xB3B3B3;
 const VALUE: u32 = 0xFFFF8F;
+const DESCRIPTION: u32 = 0xA9A3C2;
+const ABILITY: u32 = 0xFFFFFF;
 
 fn tier_tag(xml: &bsk_data::xml::Element) -> Option<(String, u32)> {
     let hidden = ["Consumable", "NoTierTag", "Treasure", "PetFood"];
@@ -2074,8 +2086,10 @@ fn compare(mine: Option<f64>, worn: Option<f64>, higher_is_better: bool) -> u32 
     }
 }
 
-/// The item worn in the slot this item would go in, if it's another item.
-fn worn_for(data: &GameData, item: i32, me: Option<&GameObj>, kind: SlotKind) -> Option<i32> {
+/// What this item is compared with: `None` when there's nothing to compare (it's the one worn,
+/// the same item is worn, or we can't wear it); otherwise the item worn in the slot it would go
+/// in, `Some(None)` for an empty slot.
+fn worn_for(data: &GameData, item: i32, me: Option<&GameObj>, kind: SlotKind) -> Option<Option<i32>> {
     if matches!(kind, SlotKind::Equip(_)) {
         return None;
     }
@@ -2083,7 +2097,98 @@ fn worn_for(data: &GameData, item: i32, me: Option<&GameObj>, kind: SlotKind) ->
     let slot_type = data.objects.get(&(item as u16))?.xml.int("SlotType", 0);
     let types = class_slot_types(data.objects.get(&me.object_type));
     let i = types.iter().take(4).position(|&t| t == slot_type && t != 0)?;
-    me.stat_int(slot_stat(i as u8)).filter(|&w| w > 0 && w != item)
+    match me.stat_int(slot_stat(i as u8)).filter(|&w| w > 0) {
+        Some(w) if w == item => None,
+        worn => Some(worn),
+    }
+}
+
+/// An `<Activate>` for the tooltip: its name, then its numbers as (label, value), damage first.
+/// A row with no label is a sentence.
+fn activate_rows(a: &bsk_data::xml::Element) -> (String, Vec<(String, String)>) {
+    let effect = a.text.trim();
+    let num = |k: &str| a.attr_number(k, 0.0);
+    let has = |k: &str| a.attr(k).is_some();
+    let text = |k: &str| a.attr(k).unwrap_or("").to_owned();
+    let area = || if has("radius") { num("radius") } else { num("range") };
+    let secs = |v: f64| format!("{v} secs");
+    let sqrs = |v: f64| format!("{v} sqrs");
+    let row = |l: &str, v: String| (l.to_owned(), v);
+    let (name, mut rows): (&str, Vec<(String, String)>) = match effect {
+        // Poison ignores defense (the server's `PoisonEnemy`).
+        "PoisonGrenade" => {
+            let mut r = Vec::new();
+            if num("impactDamage") > 0.0 {
+                r.push(row("Impact damage", num("impactDamage").to_string()));
+            }
+            if num("totalDamage") > 0.0 {
+                r.push(row("Poison damage", format!("{} over {}", num("totalDamage"), secs(num("duration")))));
+            }
+            r.push(row("Radius", sqrs(num("radius"))));
+            r.push(row("", "Ignores defense".into()));
+            ("Poison", r)
+        }
+        "VampireBlast" => (
+            "Vampire Blast",
+            vec![row("Damage", num("totalDamage").to_string()), row("Radius", sqrs(num("radius"))), row("", "Heals you and allies nearby".into())],
+        ),
+        "Trap" => (
+            "Trap",
+            vec![
+                row("Damage", num("totalDamage").to_string()),
+                row("Radius", sqrs(num("radius"))),
+                row("Inflicts", format!("{} for {}", a.attr("condEffect").unwrap_or("Slowed"), secs(if has("condDuration") { num("condDuration") } else { 5.0 }))),
+            ],
+        ),
+        "Lightning" => {
+            let mut r = vec![row("Damage", num("totalDamage").to_string()), row("Targets", format!("up to {}", num("maxTargets")))];
+            if num("decrDamage") > 0.0 {
+                r.push(row("Each next target", format!("{} less", num("decrDamage"))));
+            }
+            ("Lightning", r)
+        }
+        "SamuraiAbility" | "DazeBlast" | "TomeDamage" => ("Blast", vec![row("Damage", num("totalDamage").to_string()), row("Radius", sqrs(area()))]),
+        "BuildTower" => (
+            "Tower",
+            vec![row("Damage", num("totalDamage").to_string()), row("Builds", text("objectId")), row("Lasts", secs(num("duration")))],
+        ),
+        "Heal" => ("Heal", vec![row("Heals", format!("{} HP", num("amount")))]),
+        "Magic" => ("Magic", vec![row("Restores", format!("{} MP", num("amount")))]),
+        "HealNova" => ("Heal", vec![row("Heals", format!("{} HP", num("amount"))), row("Range", format!("you and allies within {}", sqrs(num("range"))))]),
+        "MagicNova" => ("Magic", vec![row("Restores", format!("{} MP", num("amount"))), row("Range", format!("you and allies within {}", sqrs(num("range"))))]),
+        "Halo" => ("Halo", vec![row("Heals", format!("{} HP", num("amount"))), row("Range", sqrs(num("range"))), row("Lasts", secs(num("duration")))]),
+        "StasisBlast" => ("Stasis", vec![row("Radius", sqrs(if has("radius") { num("radius") } else { 3.0 })), row("Lasts", secs(num("duration")))]),
+        "StatBoostSelf" => ("Boost", vec![row("Gives", format!("+{} {}", num("amount"), stat_name(a.attr_int("stat", -1)))), row("Lasts", secs(num("duration")))]),
+        "StatBoostAura" => (
+            "Boost",
+            vec![
+                row("Gives", format!("+{} {}", num("amount"), stat_name(a.attr_int("stat", -1)))),
+                row("Range", format!("you and allies within {}", sqrs(num("range")))),
+                row("Lasts", secs(num("duration"))),
+            ],
+        ),
+        "ConditionEffectSelf" => ("Effect", vec![row("Gives", text("effect")), row("Lasts", secs(num("duration")))]),
+        "ConditionEffectAura" => (
+            "Effect",
+            vec![row("Gives", text("effect")), row("Range", format!("you and allies within {}", sqrs(num("range")))), row("Lasts", secs(num("duration")))],
+        ),
+        "GenericActivate" => {
+            let who = if a.attr("target") == Some("enemy") { "enemies" } else { "allies" };
+            ("Effect", vec![row("Gives", format!("{} to {who}", text("effect"))), row("Range", sqrs(num("range"))), row("Lasts", secs(num("duration")))])
+        }
+        "Teleport" => ("Teleport", vec![row("Distance", format!("up to {}", sqrs(num("maxDistance"))))]),
+        "Decoy" | "MultiDecoy" => ("Decoy", vec![row("Lasts", secs(num("duration")))]),
+        _ => ("", vec![row("", activate_detail(a))]),
+    };
+    if !rows.is_empty() && !name.is_empty() {
+        if let (Some(cond), false) = (a.attr("condEffect"), effect == "Trap") {
+            rows.push(row("Inflicts", format!("{cond} for {}", secs(num("condDuration")))));
+        }
+        if a.attr("useWisMod") == Some("true") {
+            rows.push(row("", "Raised by Wisdom".into()));
+        }
+    }
+    (name.to_owned(), rows)
 }
 
 pub fn item_tooltip(data: &GameData, item: i32, me: Option<&GameObj>, kind: SlotKind) -> Vec<Line> {
@@ -2092,7 +2197,13 @@ pub fn item_tooltip(data: &GameData, item: i32, me: Option<&GameObj>, kind: Slot
     let mut out = Vec::new();
     // Compared with what's worn in its slot.
     let mine = item_numbers(desc);
-    let worn = worn_for(data, item, me, kind).and_then(|w| data.objects.get(&(w as u16))).map(item_numbers).unwrap_or_default();
+    let worn = match worn_for(data, item, me, kind) {
+        // Nothing to compare: no colours for better or worse.
+        None => ItemNumbers::default(),
+        // An empty slot: the bonuses compare with none.
+        Some(None) => ItemNumbers { present: true, ..Default::default() },
+        Some(Some(w)) => data.objects.get(&(w as u16)).map(item_numbers).unwrap_or_default(),
+    };
     let title_color = [("Admin", 0xFF8BDE), ("Ethereal", 0xFF5A5A), ("Ascended", 0x66FFF0), ("Legendary", 0xFFE066)]
         .iter()
         .find(|(t, _)| xml.has(t))
@@ -2104,14 +2215,51 @@ pub fn item_tooltip(data: &GameData, item: i32, me: Option<&GameObj>, kind: Slot
     if let Some(d) = xml.lines_of("Description") {
         // One line each, an empty one between paragraphs.
         for l in d.lines() {
-            out.push(Line::new(l.trim(), if l.trim().is_empty() { 6.0 } else { 13.0 }, false, ATTR));
+            out.push(Line::new(l.trim(), if l.trim().is_empty() { 6.0 } else { 13.0 }, false, DESCRIPTION));
         }
     }
-    let mut attr = |label: &str, value: String, color: u32| out.push(Line::new(&format!("{label}: {value}"), 13.0, false, color));
+    // What using it does, under the description: each ability's name, then its numbers, damage
+    // first.
+    for a in xml.children_named("Activate") {
+        let effect = a.text.trim();
+        if effect == "PermaPet" {
+            // The port writes the pet's damage on one enemy and its healing here.
+            out.push(Line::gap());
+            out.push(Line::new("Permanent pet", 13.0, true, ABILITY));
+            if let Some(dps) = a.attr("petDps") {
+                out.push(Line::stat("    Damage", &format!("{dps} per second"), VALUE));
+            }
+            for (key, verb, what) in [("petHp", "Heals", "HP"), ("petMp", "Restores", "MP")] {
+                if let Some(amount) = a.attr(key) {
+                    let secs = a.attr_number(&format!("{key}Ms"), 0.0) / 1000.0;
+                    out.push(Line::stat(&format!("    {verb}"), &format!("{amount} {what} every {secs}s"), VALUE));
+                }
+            }
+            continue;
+        }
+        // Bullet and shot activations some items mark as not for the tooltip.
+        if a.attr("ignoreOnTooltip") == Some("true") {
+            continue;
+        }
+        let (name, rows) = activate_rows(a);
+        out.push(Line::gap());
+        if !name.is_empty() {
+            out.push(Line::new(&name, 13.0, true, ABILITY));
+        }
+        for (label, value) in rows {
+            if label.is_empty() {
+                out.push(Line::new(&if name.is_empty() { value } else { format!("    {value}") }, 13.0, false, VALUE));
+            } else {
+                out.push(Line::stat(&format!("    {label}"), &value, VALUE));
+            }
+        }
+    }
+    out.push(Line::gap());
+    let mut attr = |label: &str, value: String, color: u32| out.push(Line::stat(label, &value, color));
     if let Some(p) = desc.projectiles.get(&0) {
-        attr("Shots", desc.num_projectiles().to_string(), compare(mine.shots, worn.shots, true));
         let dmg = if p.min_damage == p.max_damage { p.min_damage.to_string() } else { format!("{} - {}", p.min_damage, p.max_damage) };
         attr("Damage", dmg, compare(mine.damage, worn.damage, true));
+        attr("Shots", desc.num_projectiles().to_string(), compare(mine.shots, worn.shots, true));
         let range = p.speed as f64 * p.lifetime as f64 / 10000.0;
         attr("Range", format!("{}", (range * 100.0).round() / 100.0), compare(mine.range, worn.range, true));
         if [1, 2, 3, 8, 17, 24].contains(&xml.int("SlotType", 0)) {
@@ -2133,47 +2281,40 @@ pub fn item_tooltip(data: &GameData, item: i32, me: Option<&GameObj>, kind: Slot
     if let Some(fame) = xml.text_of("FameBonus") {
         attr("Fame Bonus", format!("{}%", fame.trim()), compare(mine.fame_bonus, worn.present.then(|| worn.fame_bonus.unwrap_or(0.0)), true));
     }
-    if !mine.boosts.is_empty() {
+    // The stat bonuses: compared with what the worn item gives (green better, red worse); with
+    // nothing to compare (it's the one worn), all plain. Bonuses the worn item has and this one
+    // lacks are listed as lost.
+    let comparing = worn.present;
+    let total = |boosts: &[(i32, i32)], stat: i32| boosts.iter().filter(|b| b.0 == stat).map(|b| b.1).sum::<i32>();
+    let mut stats: Vec<i32> = Vec::new();
+    for &(stat, _) in mine.boosts.iter().chain(if comparing { worn.boosts.iter() } else { [].iter() }) {
+        if !stats.contains(&stat) {
+            stats.push(stat);
+        }
+    }
+    if !stats.is_empty() {
         out.push(Line::new("On Equip:", 13.0, false, ATTR));
-        let comparing = worn.present;
-        for &(stat, amount) in &mine.boosts {
-            let color = if comparing {
-                // Against what the worn item gives of the same stat (none: 0).
-                let other = worn.boosts.iter().filter(|b| b.0 == stat).map(|b| b.1).sum::<i32>();
+        for stat in stats {
+            let (amount, other) = (total(&mine.boosts, stat), total(&worn.boosts, stat));
+            let color = if !comparing {
+                VALUE
+            } else {
                 match amount.cmp(&other) {
                     std::cmp::Ordering::Greater => BETTER,
                     std::cmp::Ordering::Less => WORSE,
                     std::cmp::Ordering::Equal => VALUE,
                 }
-            } else if amount < 0 {
-                WORSE
-            } else {
-                BETTER
             };
-            out.push(Line::new(&format!("    {amount:+} {}", stat_name(stat)), 13.0, false, color));
+            let pieces = if amount == 0 {
+                // Only the worn item gives it: what equipping this would lose.
+                vec![(format!("    {:+} ", -other), color), (stat_name(stat).to_owned(), ATTR), (" (lost)".to_owned(), color)]
+            } else if comparing && amount != other {
+                vec![(format!("    {amount:+} "), color), (stat_name(stat).to_owned(), ATTR), (format!(" ({:+})", amount - other), color)]
+            } else {
+                vec![(format!("    {amount:+} "), color), (stat_name(stat).to_owned(), ATTR)]
+            };
+            out.push(Line { pieces, size: 13.0, bold: false });
         }
-    }
-    for a in xml.children_named("Activate") {
-        let effect = a.text.trim();
-        if effect == "PermaPet" {
-            // The port writes the pet's damage on one enemy and its healing here.
-            out.push(Line::new("Gives a permanent pet", 13.0, false, VALUE));
-            if let Some(dps) = a.attr("petDps") {
-                out.push(Line::new(&format!("    Pet damage: {dps} per second"), 13.0, false, VALUE));
-            }
-            for (key, verb, what) in [("petHp", "heals", "HP"), ("petMp", "restores", "MP")] {
-                if let Some(amount) = a.attr(key) {
-                    let secs = a.attr_number(&format!("{key}Ms"), 0.0) / 1000.0;
-                    out.push(Line::new(&format!("    Pet {verb} {amount} {what} every {secs}s"), 13.0, false, VALUE));
-                }
-            }
-            continue;
-        }
-        // Bullet and shot activations some items mark as not for the tooltip.
-        if a.attr("ignoreOnTooltip") == Some("true") {
-            continue;
-        }
-        out.push(Line::new(&activate_detail(a), 13.0, false, VALUE));
     }
     // Restrictions.
     let mut note = |t: &str, c: u32| out.push(Line::new(t, 13.0, false, c));
@@ -2307,7 +2448,9 @@ fn draw_tooltip(ui: &mut Ui, lay: &Layout, lines: &[Line], icon: Option<i32>, ac
     let inner = w - 2.0 * pad;
     let icon_w = if icon.is_some() { 44.0 * s } else { 0.0 };
     // Wrap every line; the first ones (title, tier) sit beside the icon.
-    let mut rows: Vec<(String, f32, bool, u32, f32)> = Vec::new();
+    // Each wrapped row: its coloured pieces, size, bold, and where it sits.
+    type Row = (Vec<(String, u32)>, f32, bool, f32);
+    let mut rows: Vec<Row> = Vec::new();
     let mut y: f32 = 0.0;
     for (i, line) in lines.iter().enumerate() {
         let size = lay.font(line.size);
@@ -2315,9 +2458,10 @@ fn draw_tooltip(ui: &mut Ui, lay: &Layout, lines: &[Line], icon: Option<i32>, ac
         if i == 2 {
             y = y.max(icon_w) + 4.0 * s;
         }
-        for part in wrap(ui, &[(line.text.clone(), line.color)], size, inner - indent, 0.0) {
-            let text: String = part.into_iter().map(|(t, _)| t).collect();
-            rows.push((text, size, line.bold, line.color, y));
+        // `wrap` measures regular text: bold is wider, so leave it some room.
+        let room = (inner - indent) * if line.bold { 0.9 } else { 1.0 };
+        for part in wrap(ui, &line.pieces, size, room, 0.0) {
+            rows.push((part, size, line.bold, y));
             y += size * 1.25;
         }
     }
@@ -2340,9 +2484,13 @@ fn draw_tooltip(ui: &mut Ui, lay: &Layout, lines: &[Line], icon: Option<i32>, ac
     if let Some(item) = icon {
         ui.item_icon(item, 60, x0 + pad + icon_w / 2.0 - 2.0 * s, y0 + pad + icon_w / 2.0 - 2.0 * s, s * 0.9);
     }
-    for (i, (text, size, bold, color, ry)) in rows.iter().enumerate() {
+    for (i, (pieces, size, bold, ry)) in rows.iter().enumerate() {
         let indent = if i < 2 && icon.is_some() && *ry < icon_w { icon_w } else { 0.0 };
-        ui.label(text, x0 + pad + indent, y0 + pad + ry, *size, *bold, *color);
+        let mut x = x0 + pad + indent;
+        for (text, color) in pieces {
+            ui.label(text, x, y0 + pad + ry, *size, *bold, *color);
+            x += ui.measure(text, *size, *bold);
+        }
     }
 }
 

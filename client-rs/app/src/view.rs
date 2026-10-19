@@ -729,7 +729,9 @@ fn draw_sprite(scene: &Scene, renderer: &mut Renderer, redrawer: &mut Redrawer, 
     }
     tint.mul[3] *= alpha;
     renderer.sprite_filtered(sprite.rect, [0.0, 0.0, 1.0, cut], quad, tint, filter);
-    Some([quad.origin[0] + sw / 2.0, quad.origin[1]])
+    // Centred on where it stands, not on the canvas: a wide attack frame's canvas is shifted, and
+    // the condition icons above would jump to and fro while it shoots.
+    Some([px.round(), quad.origin[1]])
 }
 
 /// `Projectile.draw` with projOutline (the AIR client's default): the outlined texture centred

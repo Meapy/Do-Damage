@@ -1358,8 +1358,11 @@ namespace WorldServer.core.objects
 
                 world.AOE(target, eff.Radius, false, entity =>
                 {
-                    PoisonEnemy(world, (Enemy)entity, eff, eff.UseWisMod);
-                    ((Enemy)entity).Damage(this, ref time, impDamage, true);
+                    // the impact first, then the poison; a poison without one sends no 0-damage hit
+                    if (impDamage > 0)
+                        ((Enemy)entity).Damage(this, ref time, impDamage, true);
+                    if (eff.TotalDamage > 0)
+                        PoisonEnemy(world, (Enemy)entity, eff, eff.UseWisMod);
                 });
             });
         }
