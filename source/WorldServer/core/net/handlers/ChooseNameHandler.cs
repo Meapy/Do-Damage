@@ -16,6 +16,10 @@ namespace WorldServer.core.net.handlers
     {
         private static readonly Logger NameChangeLog = LogManager.GetCurrentClassLogger();
 
+        // what changing a chosen name costs, in fame (the first name is free); the Rust client's
+        // npc::NAME_CHANGE_PRICE shows it
+        public const int NAME_CHANGE_FAME = 50_000;
+
         public override MessageId MessageId => MessageId.CHOOSENAME;
 
         public override void Handle(Client client, NetworkReader rdr, ref TickTime time)
@@ -53,17 +57,17 @@ namespace WorldServer.core.net.handlers
                         return;
                     }
 
-                    if (client.Account.NameChosen && client.Account.Credits < 100)
+                    if (client.Account.NameChosen && client.Account.Fame < NAME_CHANGE_FAME)
                         client.SendPacket(new NameResult()
                         {
                             Success = false,
-                            ErrorText = "Not enough gold"
+                            ErrorText = $"Not enough fame ({NAME_CHANGE_FAME:N0} needed)"
                         });
                     else
                     {
-                        // remove fame is purchasing name change
+                        // a name change (not the first name) costs fame
                         if (client.Account.NameChosen)
-                            client.GameServer.Database.UpdateCredit(client.Account, -100);
+                            client.GameServer.Database.UpdateFame(client.Account, -NAME_CHANGE_FAME).Wait();
 
                         // rename
                         var oldName = client.Account.Name;

@@ -20,9 +20,10 @@ pub mod stat {
     pub const GUILD_RANK: u8 = 63;
 }
 
-/// `NameChangerPanel.NAME_CHANGE_PRICE` (gold), `GuildRegisterPanel`'s price (fame), and
-/// potion storage's upgrade (`DbAccount.PotionStorageUpgradeCost`, fame).
-pub const NAME_CHANGE_PRICE: i32 = 100;
+/// Changing a chosen name (`ChooseNameHandler.NAME_CHANGE_FAME`, fame; the AIR client's was
+/// 100 gold), `GuildRegisterPanel`'s price (fame), and potion storage's upgrade
+/// (`DbAccount.PotionStorageUpgradeCost`, fame).
+pub const NAME_CHANGE_PRICE: i32 = 50_000;
 pub const GUILD_PRICE: i32 = 1000;
 pub const STORAGE_UPGRADE_PRICE: i32 = 500;
 
@@ -91,7 +92,7 @@ pub fn interact_text(kind: NpcKind, me: &GameObj, rank_req: i32) -> (String, Opt
                 (format!("Rank {rank_req} needed"), None)
             } else if int(me, stat::NAME_CHOSEN) != 0 {
                 let name = me.name().unwrap_or("");
-                (format!("Your name is {name}"), Some((format!("Change  ·  {NAME_CHANGE_PRICE} gold"), Kind::Primary)))
+                (format!("Your name is {name}"), Some((format!("Change  ·  {} fame", crate::hud::group_digits(NAME_CHANGE_PRICE)), Kind::Primary)))
             } else {
                 open("Choose your account name", "Choose")
             }
@@ -420,7 +421,7 @@ impl Npcs {
             Window::Prompt { prompt, input, error, busy } => {
                 let hint = match prompt {
                     Prompt::Name => match me {
-                        Some(m) if int(m, stat::NAME_CHOSEN) != 0 => format!("Letters only, at most 10. Costs {NAME_CHANGE_PRICE} gold."),
+                        Some(m) if int(m, stat::NAME_CHOSEN) != 0 => format!("Letters only, at most 10. Costs {} fame.", crate::hud::group_digits(NAME_CHANGE_PRICE)),
                         _ => "Letters only, at most 10. Choose carefully!".to_owned(),
                     },
                     Prompt::Guild => format!("Letters and spaces, at most 20. Costs {GUILD_PRICE} fame."),

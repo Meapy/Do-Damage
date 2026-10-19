@@ -2029,6 +2029,7 @@ impl App {
                             fame: &game.fame_stats,
                         };
                         self.hud.nexus_key = options::key_label(self.settings.key(options::Bind::Nexus));
+                        self.hud.interact_key = self.settings.key(options::Bind::Interact).map_or(String::new(), |k| options::key_label(Some(k)));
                         self.hud.potion_keys = [
                             options::key_label(self.settings.key(options::Bind::HealthPotion)),
                             options::key_label(self.settings.key(options::Bind::MagicPotion)),
