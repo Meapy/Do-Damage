@@ -61,9 +61,14 @@ pub struct Game {
     last_level: i32,
     /// Damage we've done to quest monsters and chests, by object (`Parameters.DamageCounter`).
     pub dealt: std::collections::HashMap<i32, i32>,
-    /// The quest's top damage dealers (name, damage) and our own damage, as the server counts
-    /// them, for the quest it's about.
-    pub quest_damage: Option<(i32, Vec<(String, i32)>, i32)>,
+    /// Who hit the quest and our own damage, as the server counts them, for the quest it's
+    /// about.
+    pub quest_damage: Option<QuestDamage>,
+    /// The last bosses (quests) we hit that died, newest first (`BOSS_HISTORY` of them).
+    pub boss_history: Vec<BossFight>,
+    /// The character's fame records by id (`FameStats`: kills, dungeons, shots...), as the
+    /// server last sent them.
+    pub fame_stats: std::collections::HashMap<u8, i32>,
     /// Who we've whispered with, newest last (Tab cycles through them).
     pub tellers: Vec<String>,
     /// The arena's wave and clock (`ArenaMenu`): wave, seconds, since when, running.
@@ -118,6 +123,41 @@ struct Lost {
 /// minutes in all, long enough for a restarting server or the account lock of the dropped
 /// connection ("Account in Use") to clear.
 const RECONNECT_DELAYS: [i32; 12] = [500, 1000, 2000, 3000, 5000, 8000, 10_000, 15_000, 15_000, 20_000, 20_000, 20_000];
+
+/// Someone who hit a boss: their name, class (0: not known) and damage.
+#[derive(Clone, Debug)]
+pub struct Hitter {
+    pub name: String,
+    pub class: u16,
+    pub damage: i32,
+}
+
+/// Who hit the quest, as the server last said, with the quest's name and type as we last saw
+/// them (it may be gone by the time it dies).
+#[derive(Clone, Debug)]
+pub struct QuestDamage {
+    pub object_id: i32,
+    pub name: String,
+    pub object_type: u16,
+    pub hitters: Vec<Hitter>,
+    pub mine: i32,
+}
+
+/// A boss we hit that died, and who hit it.
+#[derive(Clone, Debug)]
+pub struct BossFight {
+    pub object_id: i32,
+    pub name: String,
+    pub object_type: u16,
+    pub max_hp: i32,
+    pub hitters: Vec<Hitter>,
+    pub mine: i32,
+    /// Our name then.
+    pub me: String,
+}
+
+/// How many of the last bosses are kept.
+pub const BOSS_HISTORY: usize = 3;
 
 /// A trade in progress (`TradePanel`): both sides' items and what each offers.
 #[derive(Clone, Debug)]
@@ -206,6 +246,8 @@ impl Game {
             last_level: 0,
             dealt: Default::default(),
             quest_damage: None,
+            boss_history: Vec::new(),
+            fame_stats: Default::default(),
             arena: None,
             show_displays: false,
             particles: Default::default(),
@@ -346,6 +388,21 @@ impl Game {
         }
     }
 
+    /// The quest's damage as the server sent it, with its name and type while we can see it.
+    fn set_quest_damage(&mut self, object_id: i32, object_type: Option<u16>, hitters: Vec<Hitter>, mine: i32, data: &GameData) {
+        let seen = self.world.as_ref().and_then(|w| w.objects.get(&object_id)).map(|o| {
+            let desc = data.objects.get(&o.object_type);
+            let name = o.name().map(str::to_owned).or_else(|| desc.map(|d| d.display_id.clone())).unwrap_or_default();
+            (name, o.object_type)
+        });
+        let kept = self.quest_damage.as_ref().filter(|q| q.object_id == object_id).map(|q| (q.name.clone(), q.object_type));
+        // Gone already (it died the moment we heard of it): named by its type, as the server
+        // says it.
+        let named = object_type.map(|t| (data.objects.get(&t).map(|d| d.display_id.clone()).unwrap_or_default(), t));
+        let (name, object_type) = seen.or(kept).or(named).unwrap_or_default();
+        self.quest_damage = Some(QuestDamage { object_id, name, object_type, hitters, mine });
+    }
+
     fn handle(&mut self, msg: &ServerMessage, now: i32, data: &GameData) {
         // The session answers first (a NewTick's Move goes out before its statuses apply, as
         // GameServerConnection.onNewTick does).
@@ -404,6 +461,8 @@ impl Game {
                 self.quest_damage = None;
                 self.fallback_to_nexus = false;
                 self.socket.send(&bsk_proto::QuestDamageSubscribe {}.into());
+                self.socket.send(&bsk_proto::QuestDamageFullSubscribe {}.into());
+                self.socket.send(&bsk_proto::FameStatsSubscribe {}.into());
                 self.status.clear();
             }
             Some(Event::Failure { description, .. }) => {
@@ -441,8 +500,22 @@ impl Game {
         match msg {
             ServerMessage::QuestObjId(q) => self.quest = Some(q.object_id),
             ServerMessage::QuestDamage(d) => {
-                let top = d.top.iter().map(|s| (s.name.clone(), s.damage)).collect();
-                self.quest_damage = Some((d.object_id, top, d.mine));
+                let hitters = d.top.iter().map(|s| Hitter { name: s.name.clone(), class: 0, damage: s.damage }).collect();
+                self.set_quest_damage(d.object_id, None, hitters, d.mine, data);
+            }
+            ServerMessage::FameStats(f) => self.fame_stats = f.stats.iter().map(|s| (s.id, s.value)).collect(),
+            ServerMessage::QuestDamageFull(d) => {
+                let hitters = d.hitters.iter().map(|h| Hitter { name: h.name.clone(), class: h.class, damage: h.damage }).collect();
+                self.set_quest_damage(d.object_id, Some(d.object_type), hitters, d.mine, data);
+                // It died: kept if we hit it.
+                if d.dead && d.mine > 0 {
+                    if let Some(q) = self.quest_damage.clone().filter(|q| q.object_id == d.object_id) {
+                        self.boss_history.retain(|b| b.object_id != q.object_id);
+                        let me = self.world.as_ref().and_then(|w| w.player()).and_then(|p| p.name()).unwrap_or("").to_owned();
+                        self.boss_history.insert(0, BossFight { object_id: q.object_id, name: q.name, object_type: q.object_type, max_hp: d.max_hp, hitters: q.hitters, mine: d.mine, me });
+                        self.boss_history.truncate(BOSS_HISTORY);
+                    }
+                }
             }
             ServerMessage::TradeRequested(t) => {
                 self.invite = Some((Invite::Trade { name: t.name.clone() }, now));
@@ -862,6 +935,10 @@ impl Game {
     /// Set an inventory slot locally until the server's update arrives (the AIR client changes
     /// `equipment_` as it sends).
     fn predict(&mut self, owner: i32, slot: u8, item: i32) {
+        // The potion stacks (254, 255) count themselves.
+        if crate::hud::slot_stat(slot) == crate::hud::stat::NONE {
+            return;
+        }
         if let Some(o) = self.world.as_mut().and_then(|w| w.objects.get_mut(&owner)) {
             o.stats.insert(crate::hud::slot_stat(slot), bsk_proto::StatValue::Int(item));
         }

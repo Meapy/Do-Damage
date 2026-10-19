@@ -516,6 +516,8 @@ namespace WorldServer.core.objects
             stats[StatDataType.BackPack5] = Inventory[17]?.ObjectType ?? -1;
             stats[StatDataType.BackPack6] = Inventory[18]?.ObjectType ?? -1;
             stats[StatDataType.BackPack7] = Inventory[19]?.ObjectType ?? -1;
+            for (var i = 0; i < InventoryConstants.NUM_SWAP_SLOTS; i++)
+                stats[(StatDataType)((int)StatDataType.SwapSlot0 + i)] = Inventory[InventoryConstants.SWAP_FIRST + i]?.ObjectType ?? -1;
             stats[StatDataType.Attack] = Stats[2];
             stats[StatDataType.Defense] = Stats[3];
             stats[StatDataType.Speed] = Stats[4];

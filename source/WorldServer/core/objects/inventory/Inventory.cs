@@ -41,6 +41,10 @@ namespace WorldServer.core.objects.inventory
         public const int NUM_EQUIPMENT_SLOTS = 4;
         public const int NUM_INVENTORY_SLOTS = 8;
         public const int NUM_BACKPACK_SLOTS = 8;
+        // after the backpack: the swap-out row, an item kept ready for each equipment slot
+        public const int SWAP_FIRST = 20;
+        public const int NUM_SWAP_SLOTS = 4;
+        public const int SWAP_END = SWAP_FIRST + NUM_SWAP_SLOTS;
     }
 
     public sealed class Inventory : IEnumerable<Item>
@@ -161,7 +165,7 @@ namespace WorldServer.core.objects.inventory
                         if (_items[i] == null && playerDesc.SlotTypes[i] == item.SlotType)
                             return i;
 
-                    for (var i = InventoryConstants.NUM_EQUIPMENT_SLOTS; i < InventoryConstants.NUM_EQUIPMENT_SLOTS + InventoryConstants.NUM_INVENTORY_SLOTS || plr.HasBackpack && i < plr.Inventory.Length; i++)
+                    for (var i = InventoryConstants.NUM_EQUIPMENT_SLOTS; i < InventoryConstants.NUM_EQUIPMENT_SLOTS + InventoryConstants.NUM_INVENTORY_SLOTS || plr.HasBackpack && i < InventoryConstants.SWAP_FIRST; i++)
                         if (_items[i] == null)
                             return i;
                 }

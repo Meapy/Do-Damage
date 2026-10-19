@@ -65,6 +65,26 @@ namespace WorldServer.core.net.handlers
             var conFrom = (IContainer)from;
             var conTo = (IContainer)to;
 
+            // taking one out of a potion stack: into an empty inventory or backpack slot
+            if (from == player)
+                foreach (var stack in player.PotionStacks)
+                    if (stack.Slot == slotFrom)
+                    {
+                        var last = player.HasBackpack ? InventoryConstants.SWAP_FIRST : 12;
+                        if (to != player || slotTo < 4 || slotTo >= last || player.Inventory[slotTo] != null || stack.Count <= 0)
+                        {
+                            to.ForceUpdate(slotTo);
+                            player.Client.SendPacket(new InvResult() { Result = 1 });
+                            return;
+                        }
+                        var popTrans = player.Inventory.CreateTransaction();
+                        popTrans[slotTo] = stack.Item;
+                        if (Inventory.Execute(popTrans))
+                            stack.Count--;
+                        player.Client.SendPacket(new InvResult() { Result = 0 });
+                        return;
+                    }
+
             // check if stacking operation
             if (to == player)
             {
@@ -228,7 +248,7 @@ namespace WorldServer.core.net.handlers
         {
             if (container == player)
             {
-                if (slot > 20)
+                if (slot >= InventoryConstants.SWAP_END)
                     if (item != null)
                     {
                         var count = -1;
@@ -291,9 +311,12 @@ namespace WorldServer.core.net.handlers
             if ((conA is Player playerA && playerA.ObjectType == 0x5719) || (conB is Player playerB && playerB.ObjectType == 0x5719))
                 return true;
 
-            return slotA < 20 && slotB < 20 &&
+            return slotA < SlotLimit(conA) && slotB < SlotLimit(conB) &&
                    conB.AuditItem(conA.Inventory[slotA], slotB) && conA.AuditItem(conB.Inventory[slotB], slotA);
         }
+
+        // a player's slots go up to the swap-out row; a container's are all below 20
+        private static int SlotLimit(IContainer con) => con is Player ? InventoryConstants.SWAP_END : InventoryConstants.SWAP_FIRST;
 
         public static void HandleUnavailableInventoryAction(Player player, Item item, int slotId, Random random, IContainer container)
         {

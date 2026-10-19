@@ -268,7 +268,7 @@ namespace WorldServer.core.commands.doomed
         protected override bool Process(Player player, TickTime time, string args)
         {
             // slots 0-3 are equipment, 4-11 the inventory, 12+ the backpack
-            var last = player.HasBackpack ? player.Inventory.Length : Math.Min(12, player.Inventory.Length);
+            var last = player.HasBackpack ? Math.Min(20, player.Inventory.Length) : Math.Min(12, player.Inventory.Length);
             for (var i = 4; i < last; i++)
                 player.Inventory[i] = null;
             player.SendInfo("Inventory cleared.");

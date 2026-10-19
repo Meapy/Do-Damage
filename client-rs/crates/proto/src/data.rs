@@ -48,6 +48,23 @@ wire_struct! {
 }
 
 wire_struct! {
+    /// Someone who hit the quest, with their class (`QuestDamageFull`).
+    pub struct DamageHit {
+        pub name: String,
+        pub class: u16,
+        pub damage: i32,
+    }
+}
+
+wire_struct! {
+    /// One of the character's fame records (`FameStats`): its id and count.
+    pub struct FameStat {
+        pub id: u8,
+        pub value: i32,
+    }
+}
+
+wire_struct! {
     pub struct TradeItem {
         pub item: i32,
         pub slot_type: i32,

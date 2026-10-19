@@ -1,10 +1,15 @@
 //! The HUD (`HUDView`) and chat (`TextBox`), laid out for whatever size the window is.
 //!
-//! The AIR client's HUD is a 200×600 panel beside a 600×600 view. Here the panel keeps its
-//! look, with room for stats, potions and the interact area (bags, portals) below the
-//! inventory, scaled by one factor (`Layout::s`) chosen from the window's width and height. It
-//! sits at the right edge and the world fills the rest. Everything is worked out each frame
-//! from the current size, so resizing or going fullscreen just works.
+//! The AIR client's HUD is a 200×600 panel beside a 600×600 view. Here the world fills the
+//! whole window and the HUD is one bar down its right, scaled by one factor (`Layout::s`)
+//! chosen from the window's width and height: the minimap square in the top corner, the
+//! experience, HP and MP bars, a menu button that opens the character card (portrait, name, and
+//! the stats or the fame records); and from the bottom, the interact area (bags, portals,
+//! invitations, the players nearby), the inventory, the tabs and potions, the equipment and the
+//! Nexus button. Gold and fame sit beside it, the boss (or the boss history) at the top left.
+//!
+//! Everything is worked out each frame from the current size, so resizing or going fullscreen
+//! just works.
 //!
 //! Items move the AIR client's way (`ItemGridMediator`): drag between slots to swap, onto the
 //! world to drop, double-click to equip or use (or take from a bag), shift-click to use.
@@ -25,25 +30,183 @@ pub struct Layout {
     pub h: f32,
     /// HUD units (the AIR client's pixels) to screen pixels.
     pub s: f32,
-    /// The panel's left edge; the world is drawn left of it.
-    pub panel_x: f32,
 }
 
-/// The panel's design size.
-const PANEL_W: f32 = 200.0;
-const PANEL_H: f32 = 700.0;
+/// The HUD's design height: the bar's parts, top and bottom, fit in it.
+const HUD_H: f32 = 780.0;
+/// The bar down the right: its width, and where its slot grids sit in it.
+const COL_W: f32 = 200.0;
+const GRID_X: f32 = 8.0;
+/// Space between the bar's sections, and below the last.
+const GAP: f32 = 4.0;
+/// The top of the bar: the minimap, the bars, the menu button's row, the card.
+const MAP_BOX: f32 = 200.0;
+const BARS_H: f32 = 74.0;
+const BURGER: f32 = 26.0;
+/// The card: its header (portrait, name, class and level), its tabs, and the least it takes.
+const CARD_HEADER: f32 = 46.0;
+const CARD_TAB_H: f32 = 20.0;
+const CARD_MIN_H: f32 = CARD_HEADER + CARD_TAB_H + 6.0 + 60.0 + 8.0;
+/// A slot, the space between slots, and a slot grid's padding (across, down).
+const SLOT: f32 = 40.0;
+const SLOT_GAP: f32 = 4.0;
+const GRID_PAD: (f32, f32) = (6.0, 5.0);
+const NEXUS_W: f32 = 56.0;
+/// The Nexus button's picture: the Nexus portal.
+const NEXUS_ICON: i32 = 0x0712;
+/// The inventory and backpack tabs: two square buttons in a small box.
+const TAB: f32 = 28.0;
+const TAB_PAD: f32 = 5.0;
+const TABS_BOX: (f32, f32) = (2.0 * TAB_PAD + 2.0 * TAB + SLOT_GAP, 2.0 * TAB_PAD + TAB);
+/// Objects whose pictures the tabs show: a loot bag, and the backpack.
+const TAB_ICONS: [i32; 2] = [0x0500, 0x0c6c];
+
+/// The size of a grid of slots, in HUD units.
+pub const fn grid_size(cols: u32, rows: u32) -> (f32, f32) {
+    (
+        2.0 * GRID_PAD.0 + cols as f32 * SLOT + (cols as f32 - 1.0) * SLOT_GAP,
+        2.0 * GRID_PAD.1 + rows as f32 * SLOT + (rows as f32 - 1.0) * SLOT_GAP,
+    )
+}
+
+const BAR4: (f32, f32) = grid_size(4, 1);
+const GRID8: (f32, f32) = grid_size(4, 2);
+const POTION_BOX: (f32, f32) = grid_size(2, 1);
+
+/// From the screen's bottom up to the top of each of the bar's bottom sections.
+const INTERACT_UP: f32 = GAP + GRID8.1;
+const INVENTORY_UP: f32 = INTERACT_UP + GAP + GRID8.1;
+const ROW_UP: f32 = INVENTORY_UP + GAP + POTION_BOX.1;
+const EQUIP_UP: f32 = ROW_UP + GAP + BAR4.1;
+const NEXUS_UP: f32 = EQUIP_UP + GAP + BURGER;
+
+/// Slot `i` of a grid of `cols` across whose box is `r`.
+pub fn grid_slot(r: [f32; 4], s: f32, cols: u32, i: u32) -> [f32; 4] {
+    let (c, row) = ((i % cols) as f32, (i / cols) as f32);
+    [r[0] + (GRID_PAD.0 + c * (SLOT + SLOT_GAP)) * s, r[1] + (GRID_PAD.1 + row * (SLOT + SLOT_GAP)) * s, SLOT * s, SLOT * s]
+}
 
 impl Layout {
     pub fn new(w: u32, h: u32) -> Self {
         let (w, h) = (w.max(1) as f32, h.max(1) as f32);
-        // The whole panel fits the height, and takes at most 28% of the width.
-        let s = (h / PANEL_H).min(w * 0.28 / PANEL_W).clamp(0.45, 4.0);
-        Layout { w, h, s, panel_x: (w - PANEL_W * s).round() }
+        // The bar's parts fit the height, and the bar takes at most 30% of the width.
+        let s = (h / HUD_H).min(w * 0.3 / COL_W).clamp(0.45, 4.0);
+        Layout { w, h, s }
     }
 
-    /// Width of the world's part of the window.
+    /// Width of the world's part of the window: all of it, under the HUD.
     pub fn view_w(&self) -> f32 {
-        self.panel_x
+        self.w
+    }
+
+    /// The bar's left edge.
+    fn col_x(&self) -> f32 {
+        (self.w - COL_W * self.s).round()
+    }
+
+    /// The whole bar down the right of the window.
+    pub fn column(&self) -> [f32; 4] {
+        let x = self.col_x();
+        [x, 0.0, self.w - x, self.h]
+    }
+
+    /// A box in the bar, `y` HUD units below its top.
+    fn col(&self, x: f32, y: f32, w: f32, h: f32) -> [f32; 4] {
+        let s = self.s;
+        [self.col_x() + x * s, (y * s).round(), w * s, h * s]
+    }
+
+    /// A box in the bar whose top is `up` HUD units above the screen's bottom.
+    fn col_up(&self, x: f32, up: f32, w: f32, h: f32) -> [f32; 4] {
+        let s = self.s;
+        [self.col_x() + x * s, (self.h - up * s).round(), w * s, h * s]
+    }
+
+    /// The minimap's box, square in the top right corner.
+    pub fn minimap_box(&self) -> [f32; 4] {
+        self.col(0.0, 0.0, COL_W, MAP_BOX)
+    }
+
+    /// The experience, HP and MP bars' box, under the minimap.
+    pub fn bars_box(&self) -> [f32; 4] {
+        self.col(0.0, MAP_BOX, COL_W, BARS_H)
+    }
+
+    /// The character card: all of the bar between the bars and the Nexus button (at least its
+    /// header, tabs and a few rows).
+    pub fn card_box(&self) -> [f32; 4] {
+        let top = self.col(0.0, MAP_BOX + BARS_H + GAP, COL_W, 0.0);
+        let bottom = self.nexus_button()[1] - GAP * self.s;
+        [top[0], top[1], top[2], (bottom - top[1]).max(CARD_MIN_H * self.s)]
+    }
+
+    /// The card's tab `i` (0 the stats, 1 the records).
+    pub fn card_tab(&self, i: usize) -> [f32; 4] {
+        within(self.card_box(), self.s, 8.0 + i as f32 * 92.0, CARD_HEADER, 88.0, CARD_TAB_H)
+    }
+
+    /// The card's page under its tabs: the stats or the records.
+    pub fn card_body(&self) -> [f32; 4] {
+        let (s, r) = (self.s, self.card_box());
+        let y = CARD_HEADER + CARD_TAB_H + 6.0;
+        [r[0] + 8.0 * s, r[1] + y * s, 184.0 * s, r[3] - (y + 8.0) * s]
+    }
+
+    /// Where the gold and fame end on the right: beside the bar.
+    pub fn credits_right(&self) -> f32 {
+        self.col_x()
+    }
+
+    /// The Nexus button, at the left over the equipment.
+    pub fn nexus_button(&self) -> [f32; 4] {
+        self.col_up(GRID_X, NEXUS_UP, NEXUS_W, BURGER)
+    }
+
+    /// The equipment, over the tabs and potions.
+    pub fn equip_box(&self) -> [f32; 4] {
+        self.col_up(GRID_X, EQUIP_UP, BAR4.0, BAR4.1)
+    }
+
+    /// The row over the inventory: the tabs at the left, the potions at the right.
+    pub fn bottom_row(&self) -> [f32; 4] {
+        self.col_up(GRID_X, ROW_UP, GRID8.0, POTION_BOX.1)
+    }
+
+    /// The potion stacks, at the right of the row over the inventory.
+    pub fn potion_box(&self) -> [f32; 4] {
+        self.col_up(GRID_X + GRID8.0 - POTION_BOX.0, ROW_UP, POTION_BOX.0, POTION_BOX.1)
+    }
+
+    /// The inventory and backpack tabs' box, at the left of the row over the inventory.
+    pub fn tabs_box(&self) -> [f32; 4] {
+        let (s, row) = (self.s, self.bottom_row());
+        [row[0], row[1] + (row[3] - TABS_BOX.1 * s) / 2.0, TABS_BOX.0 * s, TABS_BOX.1 * s]
+    }
+
+    /// Tab `i` (0 the inventory, 1 the backpack) in the tabs' box.
+    pub fn tab(&self, i: usize) -> [f32; 4] {
+        within(self.tabs_box(), self.s, TAB_PAD + i as f32 * (TAB + SLOT_GAP), TAB_PAD, TAB, TAB)
+    }
+
+    /// The inventory, over the interact area.
+    pub fn inventory_box(&self) -> [f32; 4] {
+        self.col_up(GRID_X, INVENTORY_UP, GRID8.0, GRID8.1)
+    }
+
+    /// The interact area, at the bottom: a bag's loot, a portal, a shop, an invitation (trade,
+    /// party, guild), or the players nearby.
+    pub fn interact_box(&self) -> [f32; 4] {
+        self.col_up(GRID_X, INTERACT_UP, GRID8.0, GRID8.1)
+    }
+
+    /// The space the chat has at the bottom left, clear of the bar.
+    pub fn chat_right(&self) -> f32 {
+        self.col_x()
+    }
+
+    /// The HUD's boxes: the bar.
+    fn hud_boxes(&self) -> impl Iterator<Item = [f32; 4]> {
+        std::iter::once(self.column())
     }
 
     /// Pixels per tile: the AIR client's 50, so a bigger window shows more of the world (as
@@ -61,25 +224,104 @@ impl Layout {
         ((self.view_w() as f64 / 2.0).round(), (self.h as f64 * down).round())
     }
 
-    /// A point on the panel, from HUD units.
-    fn at(&self, x: f32, y: f32) -> (f32, f32) {
-        (self.panel_x + x * self.s, y * self.s)
-    }
-
-    /// A rectangle on the panel (x, y, w, h), from HUD units.
-    fn rect(&self, x: f32, y: f32, w: f32, h: f32) -> [f32; 4] {
-        let (px, py) = self.at(x, y);
-        [px, py, w * self.s, h * self.s]
-    }
-
     /// A font size in HUD units, on the screen (never unreadably small).
     pub fn font(&self, size: f32) -> f32 {
         (size * self.s).round().max(9.0)
     }
 
-    /// Whether a screen point is on the panel.
+    /// Whether a screen point is on one of the HUD's boxes (not the world).
     pub fn on_panel(&self, x: f64, y: f64) -> bool {
-        x as f32 >= self.panel_x && (y as f32) < self.h
+        self.hud_boxes().any(|r| inside(r, (x, y)))
+    }
+}
+
+/// A rectangle `(x, y, w, h)` HUD units into `r`.
+fn within(r: [f32; 4], s: f32, x: f32, y: f32, w: f32, h: f32) -> [f32; 4] {
+    [r[0] + x * s, r[1] + y * s, w * s, h * s]
+}
+
+/// A glass box over the world, as the HUD's parts sit in.
+pub fn hud_box(ui: &mut Ui, r: [f32; 4], s: f32) {
+    styled_box(ui, r, s, (color::PANEL_TOP, color::PANEL_BOTTOM), 0.94);
+}
+
+/// The body of the HUD's groups.
+const GROUP_FILL: u32 = 0x1A132C;
+
+/// Parts of the HUD that touch, drawn as one piece: one body and one outline round the
+/// outside, and the ember accent at the first part's top left. Parts that join should overlap
+/// by a corner's radius, so no notch shows at the seam.
+pub fn group(ui: &mut Ui, parts: &[[f32; 4]], s: f32) {
+    let shaped: Vec<([f32; 4], bool)> = parts.iter().map(|r| (*r, false)).collect();
+    group_shaped(ui, &shaped, s);
+}
+
+/// `group`, with some parts square (`true`) rather than rounded: the menu buttons' tabs.
+pub fn group_shaped(ui: &mut Ui, parts: &[([f32; 4], bool)], s: f32) {
+    let line = s.max(1.0);
+    let radius = 6.0 * s;
+    let round = |square: bool, extra: f32| if square { 0.0 } else { radius + extra };
+    let grow = |r: [f32; 4], d: f32| [r[0] - d, r[1] - d, r[2] + 2.0 * d, r[3] + 2.0 * d];
+    for (r, square) in parts {
+        theme::shadow(ui.renderer, *r, round(*square, 0.0), 8.0 * s, 0.22);
+    }
+    for (r, square) in parts {
+        theme::fill(ui.renderer, grow(*r, 2.0 * line), round(*square, 2.0 * line), 0x05030A, 0.8);
+    }
+    for (r, square) in parts {
+        theme::fill(ui.renderer, grow(*r, line), round(*square, line), color::BORDER_HI, 1.0);
+    }
+    for (r, square) in parts {
+        theme::fill(ui.renderer, *r, round(*square, 0.0), GROUP_FILL, 1.0);
+    }
+    if let Some((r, _)) = parts.first() {
+        theme::fill(ui.renderer, [r[0] + radius, r[1] + line, r[2] - 2.0 * radius, line], 0.0, 0xFFFFFF, 0.06);
+        let accent = (18.0 * s).min(r[2] / 3.0);
+        theme::fill(ui.renderer, [r[0] + radius, r[1], accent, (2.0 * s).max(1.0)], s, color::ACCENT, 0.85);
+    }
+}
+
+/// Fills in the rounding of a box's corner at the screen's top left, so it sits square there.
+fn square_corner(ui: &mut Ui, rgb: u32, s: f32) {
+    let radius = 6.0 * s;
+    theme::fill(ui.renderer, [0.0, 0.0, radius, radius], 0.0, rgb, 1.0);
+}
+
+/// A thin line between two sections of a group: across (`w` long) or down (`h` long).
+pub fn divider(ui: &mut Ui, x: f32, y: f32, w: f32, h: f32, s: f32) {
+    let line = s.max(1.0);
+    if w > 0.0 {
+        theme::fill(ui.renderer, [x, (y - line / 2.0).round(), w, line], 0.0, 0x0A0714, 0.9);
+        theme::fill(ui.renderer, [x, (y + line / 2.0).round(), w, line], 0.0, 0xFFFFFF, 0.05);
+    } else {
+        theme::fill(ui.renderer, [(x - line / 2.0).round(), y, line, h], 0.0, 0x0A0714, 0.9);
+        theme::fill(ui.renderer, [(x + line / 2.0).round(), y, line, h], 0.0, 0xFFFFFF, 0.05);
+    }
+}
+
+/// The HUD's box: a shadow, a dark outline round a light edge, the body shaded top to bottom,
+/// a faint highlight along the top and a short ember accent at the top left.
+pub fn styled_box(ui: &mut Ui, r: [f32; 4], s: f32, (top, bottom): (u32, u32), alpha: f32) {
+    let line = s.max(1.0);
+    let radius = 6.0 * s;
+    theme::shadow(ui.renderer, r, radius, 8.0 * s, 0.35);
+    theme::fill(ui.renderer, [r[0] - line, r[1] - line, r[2] + 2.0 * line, r[3] + 2.0 * line], radius + line, 0x05030A, 0.75);
+    theme::frame(ui.renderer, r, radius, line, (color::BORDER_HI, 0.95), ((top, alpha), (bottom, alpha + 0.02)));
+    theme::fill(ui.renderer, [r[0] + radius, r[1] + line, r[2] - 2.0 * radius, line], 0.0, 0xFFFFFF, 0.07);
+    let accent = (18.0 * s).min(r[2] / 3.0);
+    theme::fill(ui.renderer, [r[0] + radius, r[1], accent, (2.0 * s).max(1.0)], s, color::ACCENT, 0.85);
+}
+
+/// The menu button: three lines, brighter when hovered, in the accent when `open`.
+pub fn burger_button(ui: &mut Ui, r: [f32; 4], open: bool, hover: bool, s: f32) {
+    if hover || open {
+        theme::fill(ui.renderer, r, 0.0, if hover { color::CHIP_HI } else { color::SECONDARY }, 0.8);
+    }
+    let line = if open { color::ACCENT_HI } else if hover { color::TEXT } else { color::TEXT_DIM };
+    let (w, t) = (r[2] * 0.5, (2.0 * s).round().max(1.0));
+    for i in -1..=1 {
+        let y = (r[1] + r[3] / 2.0 + i as f32 * 5.5 * s - t / 2.0).round();
+        theme::fill(ui.renderer, [r[0] + (r[2] - w) / 2.0, y, w, t], t / 2.0, line, 1.0);
     }
 }
 
@@ -285,11 +527,24 @@ pub mod stat {
     pub const BACKPACK_0: u8 = 67;
     pub const HAS_BACKPACK: u8 = 75;
     pub const TEXTURE: u8 = 76;
+    /// The swap-out slots (slots 20-23).
+    pub const SWAP_0: u8 = 144;
+    /// No stat (`StatDataType.None`).
+    pub const NONE: u8 = 255;
 }
 
-/// The stat holding inventory slot `slot` (0-11 the inventory, 12-19 the backpack).
+/// The first swap-out slot: slots 20-23 hold an item ready for equipment slots 0-3.
+pub const SWAP_FIRST: u8 = 20;
+
+/// The stat holding inventory slot `slot` (0-11 the inventory, 12-19 the backpack, 20-23
+/// the swap-out row).
 pub fn slot_stat(slot: u8) -> u8 {
-    if slot < 12 { stat::INVENTORY_0 + slot } else { stat::BACKPACK_0 + slot - 12 }
+    match slot {
+        0..=11 => stat::INVENTORY_0 + slot,
+        12..=19 => stat::BACKPACK_0 + slot - 12,
+        20..=23 => stat::SWAP_0 + slot - SWAP_FIRST,
+        _ => stat::NONE,
+    }
 }
 
 /// The health and magic potions kept in stacks (`PotionInventoryModel`): item, slot id.
@@ -441,6 +696,11 @@ pub enum Button {
     Menu(MenuOpt, i32),
     /// The minimap's zoom: in (-1) or out (+1).
     Zoom(i32),
+    /// The card's tab: 0 the stats, 1 the fame records.
+    CardTab(usize),
+    /// Open or close the boss history; show (or hide) who hit one of its bosses.
+    History,
+    HistoryBoss(usize),
     /// Answer the invitation.
     InviteYes,
     InviteNo,
@@ -487,6 +747,11 @@ pub struct Social<'a> {
     pub locked: &'a std::collections::HashSet<String>,
     pub ignored: &'a std::collections::HashSet<String>,
     pub now: i32,
+    /// The quest, and the bosses we hit lately (the history at the top left).
+    pub quest: Option<i32>,
+    pub history: &'a [crate::game::BossFight],
+    /// The character's fame records (`Game::fame_stats`).
+    pub fame: &'a HashMap<u8, i32>,
 }
 
 /// A player's account id (`ACCOUNT_ID_STAT`), as the account lists hold it.
@@ -620,10 +885,15 @@ pub struct HudState {
     pub nexus_key: String,
     /// The keys bound to the health and magic potions, for their stacks.
     pub potion_keys: [String; 2],
+    /// The boss history is open, and which boss in it shows everyone who hit it.
+    pub history_open: bool,
+    pub history_pick: Option<usize>,
+    /// The character card's tab: 0 the stats, 1 the fame records.
+    pub card_tab: usize,
 }
 
 /// The minimap's design size (HUD units).
-const MINIMAP_SIDE: f32 = 186.0;
+const MINIMAP_SIDE: f32 = MAP_BOX;
 
 /// `MiniMap.zoomLevels`: pixels a tile, halving from 4 until the whole map nearly fits.
 pub fn minimap_levels(world: &World) -> Vec<f32> {
@@ -651,7 +921,9 @@ pub struct MiniView {
 
 impl MiniView {
     pub fn new(lay: &Layout, world: &World, me: &GameObj, zoom_index: usize) -> Self {
-        let (x0, y0) = lay.at(7.0, 7.0);
+        let r = lay.minimap_box();
+        let inset = (MAP_BOX - MINIMAP_SIDE) / 2.0 * lay.s;
+        let (x0, y0) = (r[0] + inset, r[1] + inset);
         let side = MINIMAP_SIDE * lay.s;
         let levels = minimap_levels(world);
         let level = levels[zoom_index.min(levels.len() - 1)];
@@ -700,6 +972,8 @@ pub struct Panel {
     /// Other players on the minimap: id, name, where.
     minimap_players: Vec<(i32, String, (f32, f32))>,
     minimap: Option<MiniView>,
+    /// The boss history's button and list, when they show.
+    history: Vec<[f32; 4]>,
 }
 
 const DOUBLE_CLICK_MS: i32 = 350;
@@ -718,18 +992,16 @@ impl Panel {
             members: Vec::new(),
             minimap_players: Vec::new(),
             minimap: None,
+            history: Vec::new(),
         };
         let Some(me) = world.player() else { return panel };
         let item = |o: &GameObj, slot: u8| o.stat_int(slot_stat(slot)).unwrap_or(-1);
+        let s = lay.s;
         let types = class_slot_types(data.objects.get(&me.object_type));
+        let equip = lay.equip_box();
         for i in 0..4u8 {
-            panel.slots.push(Slot {
-                owner: me.id,
-                index: i,
-                item: item(me, i),
-                kind: SlotKind::Equip(types.get(i as usize).copied().unwrap_or(0)),
-                rect: lay.rect(14.0 + 44.0 * i as f32, 307.0, 40.0, 40.0),
-            });
+            let t = types.get(i as usize).copied().unwrap_or(0);
+            panel.slots.push(Slot { owner: me.id, index: i, item: item(me, i), kind: SlotKind::Equip(t), rect: grid_slot(equip, s, 4, i as u32) });
         }
         panel.has_backpack = me.stat_int(stat::HAS_BACKPACK).unwrap_or(0) != 0;
         let page = if panel.has_backpack { page } else { Page::Inventory };
@@ -740,13 +1012,12 @@ impl Panel {
                 index: first + i,
                 item: item(me, first + i),
                 kind: SlotKind::Inventory(i + 1),
-                rect: lay.rect(14.0 + 44.0 * (i % 4) as f32, 381.0 + 44.0 * (i / 4) as f32, 40.0, 40.0),
+                rect: grid_slot(lay.inventory_box(), s, 4, i as u32),
             });
         }
-        if panel.has_backpack {
-            panel.buttons.push((Button::Page(Page::Inventory), lay.rect(14.0, 355.0, 84.0, 20.0)));
-            panel.buttons.push((Button::Page(Page::Backpack), lay.rect(102.0, 355.0, 84.0, 20.0)));
-        }
+        // The tabs always show; the backpack's does nothing until there is one.
+        panel.buttons.push((Button::Page(Page::Inventory), lay.tab(0)));
+        panel.buttons.push((Button::Page(Page::Backpack), lay.tab(1)));
         for (k, (potion, slot_id)) in POTIONS.iter().enumerate() {
             let count = me.stat_int(if k == 0 { stat::HEALTH_POTION_STACK } else { stat::MAGIC_POTION_STACK }).unwrap_or(0);
             panel.slots.push(Slot {
@@ -754,15 +1025,25 @@ impl Panel {
                 index: *slot_id,
                 item: *potion,
                 kind: SlotKind::Potion(count),
-                rect: lay.rect(14.0 + 44.0 * k as f32, 538.0, 40.0, 40.0),
+                rect: grid_slot(lay.potion_box(), s, 2, k as u32),
             });
         }
-        panel.buttons.push((Button::Nexus, lay.rect(106.0, 544.0, 82.0, 28.0)));
+        panel.buttons.push((Button::Nexus, lay.nexus_button()));
+        // The boss history, at the top left while no boss shows there.
+        if !boss_showing(world, social.quest) {
+            let hl = history_layout(lay, social.history, state);
+            panel.history = hl.areas();
+            panel.buttons.extend(hl.buttons);
+        }
+        for i in 0..2 {
+            panel.buttons.push((Button::CardTab(i), lay.card_tab(i)));
+        }
         // The minimap: zoom buttons in its corner, and the players on it.
         let mini = MiniView::new(lay, world, me, state.minimap_zoom);
         panel.minimap = Some(mini);
-        panel.buttons.push((Button::Zoom(-1), lay.rect(171.0, 11.0, 18.0, 18.0)));
-        panel.buttons.push((Button::Zoom(1), lay.rect(171.0, 31.0, 18.0, 18.0)));
+        let mb = lay.minimap_box();
+        panel.buttons.push((Button::Zoom(-1), within(mb, s, 171.0, 11.0, 18.0, 18.0)));
+        panel.buttons.push((Button::Zoom(1), within(mb, s, 171.0, 31.0, 18.0, 18.0)));
         for o in world.objects.values() {
             if o.id == me.id || !data.objects.get(&o.object_type).is_some_and(|d| d.player) {
                 continue;
@@ -772,7 +1053,9 @@ impl Panel {
                 panel.minimap_players.push((o.id, o.name().unwrap_or("?").to_owned(), (px, py)));
             }
         }
-        // InteractPanel: a bag's eight slots, or a portal's Enter button.
+        // InteractPanel: a bag's eight slots, or a portal's Enter button, in its box.
+        let ib = lay.interact_box();
+        let ia = |x: f32, y: f32, w: f32, h: f32| within(ib, s, x, y, w, h);
         panel.interact = interact_target(world, data);
         if let Some(target) = &panel.interact {
             if target.kind == InteractKind::Container {
@@ -783,33 +1066,33 @@ impl Panel {
                             index: i,
                             item: item(bag, i),
                             kind: SlotKind::Container,
-                            rect: lay.rect(14.0 + 44.0 * (i % 4) as f32, 612.0 + 44.0 * (i / 4) as f32, 40.0, 40.0),
+                            rect: grid_slot(ib, s, 4, i as u32),
                         });
                     }
                 }
             } else if target.kind == InteractKind::Portal {
-                panel.buttons.push((Button::Enter(target.id), lay.rect(40.0, 624.0, 120.0, 34.0)));
+                panel.buttons.push((Button::Enter(target.id), ia(32.0, 42.0, 120.0, 34.0)));
             } else if let InteractKind::Npc { kind, rank_req } = target.kind {
                 if crate::npc::interact_text(kind, me, rank_req).1.is_some() {
-                    panel.buttons.push((Button::Npc(kind), lay.rect(16.0, 650.0, 168.0, 34.0)));
+                    panel.buttons.push((Button::Npc(kind), ia(8.0, 52.0, 168.0, 34.0)));
                 }
             } else {
-                panel.buttons.push((Button::Buy(target.id), lay.rect(16.0, 656.0, 168.0, 32.0)));
+                panel.buttons.push((Button::Buy(target.id), ia(60.0, 48.0, 116.0, 32.0)));
                 if let InteractKind::Shop { item, .. } = target.kind {
-                    panel.shop_icon = Some((lay.rect(76.0, 610.0, 48.0, 44.0), item));
+                    panel.shop_icon = Some((ia(8.0, 30.0, 46.0, 46.0), item));
                 }
             }
         } else if social.invite.is_some() {
             // An invitation waits in the interact area (TradeRequestPanel, PartyInvitePanel...).
-            panel.buttons.push((Button::InviteYes, lay.rect(16.0, 656.0, 82.0, 30.0)));
-            panel.buttons.push((Button::InviteNo, lay.rect(102.0, 656.0, 82.0, 30.0)));
+            panel.buttons.push((Button::InviteYes, ia(8.0, 56.0, 82.0, 30.0)));
+            panel.buttons.push((Button::InviteNo, ia(94.0, 56.0, 82.0, 30.0)));
         } else {
             // PartyPanel: the players around us.
-            for (i, o) in party_members(world, data, social.locked).into_iter().enumerate() {
+            for (i, o) in party_members(world, data, social.locked).into_iter().take(5).enumerate() {
                 let starred = account_id(o).is_some_and(|a| social.locked.contains(&a));
                 let name = o.name().unwrap_or("?").to_owned();
                 panel.members.push((o.id, name, o.stat_int(stat::LEVEL).unwrap_or(0), starred));
-                panel.buttons.push((Button::Member(o.id), lay.rect(12.0, 608.0 + 14.5 * i as f32, 176.0, 14.0)));
+                panel.buttons.push((Button::Member(o.id), ia(4.0, 18.0 + 14.5 * i as f32, 176.0, 14.0)));
             }
         }
 
@@ -862,6 +1145,11 @@ impl Panel {
             .collect()
     }
 
+    /// Whether a screen point is on the HUD (not the world).
+    pub fn on_hud(&self, lay: &Layout, pos: (f64, f64)) -> bool {
+        lay.on_panel(pos.0, pos.1) || self.history.iter().any(|r| inside(*r, pos))
+    }
+
     pub fn slot_at(&self, pos: (f64, f64)) -> Option<Slot> {
         self.slots.iter().find(|s| inside(s.rect, pos)).copied()
     }
@@ -880,7 +1168,7 @@ impl Panel {
             if let Some((b, _)) = option {
                 actions.push(Action::Button(*b));
             }
-            return inside(r, pos) || lay.on_panel(pos.0, pos.1);
+            return inside(r, pos) || self.on_hud(lay, pos);
         }
         // The trade window keeps its clicks.
         if let Some(r) = self.trade_rect {
@@ -901,6 +1189,21 @@ impl Panel {
         if let Some(Button::Zoom(d)) = self.button_at(pos) {
             state.minimap_zoom = (state.minimap_zoom as i32 + d).max(0) as usize;
             return true;
+        }
+        match self.button_at(pos) {
+            Some(Button::History) => {
+                state.history_open = !state.history_open;
+                return true;
+            }
+            Some(Button::CardTab(i)) => {
+                state.card_tab = i;
+                return true;
+            }
+            Some(Button::HistoryBoss(i)) => {
+                state.history_pick = if state.history_pick == Some(i) { None } else { Some(i) };
+                return true;
+            }
+            _ => {}
         }
         // A player on the minimap: their menu.
         if let Some((id, _, _)) = self.minimap_players_at(pos, lay.s).first() {
@@ -929,7 +1232,7 @@ impl Panel {
             actions.push(Action::Button(button));
             return true;
         }
-        lay.on_panel(pos.0, pos.1)
+        self.on_hud(lay, pos)
     }
 
     /// The mouse moved: a press becomes a drag once it has gone a few pixels.
@@ -956,11 +1259,17 @@ impl Panel {
                 }
                 return;
             }
+            if let SlotKind::Potion(count) = from.kind {
+                if count > 0 && to.item <= 0 && matches!(to.kind, SlotKind::Inventory(_)) {
+                    actions.push(Action::Swap(from, to));
+                }
+                return;
+            }
             let fits = can_hold(data, to.kind, from.item) && can_hold(data, from.kind, to.item);
-            if fits && !matches!(from.kind, SlotKind::Potion(_)) {
+            if fits {
                 actions.push(Action::Swap(from, to));
             }
-        } else if !lay.on_panel(pos.0, pos.1) {
+        } else if !self.on_hud(lay, pos) {
             if from.kind != SlotKind::Container {
                 actions.push(Action::Drop(from));
             }
@@ -970,22 +1279,24 @@ impl Panel {
     }
 }
 
-/// The panel: minimap, portrait and name, bars, equipment, inventory, stats, potions, the
-/// interact area.
+/// The bar down the right: the minimap, bars and character card at the top; the Nexus
+/// button, equipment, tabs and potions, inventory and interact area at the foot.
 #[allow(clippy::too_many_arguments)]
 pub fn draw_panel(ui: &mut Ui, lay: &Layout, world: &World, camera_angle: f64, colors: &mut MapColors, panel: &Panel, state: &HudState, social: &Social, mouse: (f64, f64)) {
     let s = lay.s;
-    let (px, pw) = (lay.panel_x, lay.w - lay.panel_x);
-    // A soft shadow cast onto the world, the body, and a light edge.
-    for i in 0..8 {
-        let a = 0.22 * (1.0 - i as f32 / 8.0);
-        ui.rect(px - (i + 1) as f32 * 2.0 * s, 0.0, 2.0 * s, lay.h, 0x000000, a);
-    }
-    theme::rounded(ui.renderer, [px, 0.0, pw, lay.h], 0.0, (color::PANEL_TOP, 0.98), (color::PANEL_BOTTOM, 0.99));
-    ui.rect(px, 0.0, s.max(1.0), lay.h, color::BORDER_HI, 0.7);
     let Some(me) = world.player() else { return };
+
+    // The bar down the right, one piece, its sections divided.
+    let mb = lay.minimap_box();
+    group(ui, &[lay.column()], s);
+    let (div_x, div_w) = (mb[0] + 8.0 * s, mb[2] - 16.0 * s);
+    divider(ui, div_x, lay.card_box()[1] - GAP * s / 2.0, div_w, 0.0, s);
     let mini = panel.minimap.unwrap_or_else(|| MiniView::new(lay, world, me, state.minimap_zoom));
     draw_minimap(ui, lay, world, me, camera_angle, colors, &mini);
+    // A square map in the corner, edged where it meets the screen's middle.
+    let line = s.max(1.0);
+    ui.rect(mini.rect[0], mini.rect[1], line, mini.rect[3], color::BORDER_HI, 1.0);
+    ui.rect(mini.rect[0], mini.rect[1] + mini.rect[3] - line, mini.rect[2], line, color::BORDER_HI, 1.0);
     // Where we are, at the minimap's foot: the realm's (or map's) name.
     if !world.name.is_empty() {
         let size = lay.font(11.0);
@@ -1005,65 +1316,42 @@ pub fn draw_panel(ui: &mut Ui, lay: &Layout, world: &World, camera_angle: f64, c
         ui.label(label, r[0] + (r[2] - w) / 2.0, r[1] + (r[3] - size * 1.22) / 2.0, size, true, if usable { color::TEXT } else { color::TEXT_MUTED });
     }
 
-    // The portrait, name, and class and level.
-    draw_portrait(ui, lay, me);
-    let (x, y) = lay.at(44.0, 199.0);
-    let name = me.name().unwrap_or("").to_owned();
-    ui.label(&name, x, y, lay.font(17.0), true, color::TEXT);
-    let stat = |id: u8| me.stat_int(id).unwrap_or(0);
-    let level = stat(stat::LEVEL);
-    let class = ui.data.objects.get(&me.object_type).map_or("", |d| d.display_id.as_str()).to_owned();
-    let (x, y) = lay.at(44.0, 217.0);
-    ui.label(&format!("{class}  ·  Level {level}"), x, y, lay.font(11.0), false, color::TEXT_DIM);
+    // The bars under it, and the character card under them.
+    draw_bars(ui, lay, me, lay.bars_box());
+    draw_card(ui, lay, me, state.card_tab, social.fame, mouse);
 
-    // Experience (fame at level 20), HP, MP; HP and MP with what items add, and gold when the
-    // base is at the class's maximum (as the stats below show it).
-    let class_max = |tag: &str| {
-        ui.data.objects.get(&me.object_type).and_then(|c| c.xml.child(tag)).and_then(|e| e.attr("max")).and_then(|m| m.parse::<i32>().ok())
-    };
-    let (hp_boost, mp_boost) = (stat(stat::MAX_HP_BOOST), stat(stat::MAX_MP_BOOST));
-    let hp_maxed = class_max("MaxHitPoints").is_some_and(|m| stat(stat::MAX_HP) - hp_boost >= m);
-    let mp_maxed = class_max("MaxMagicPoints").is_some_and(|m| stat(stat::MAX_MP) - mp_boost >= m);
-    let bars = [
-        if level < 20 {
-            ("XP".to_owned(), stat(stat::EXP), stat(stat::NEXT_LEVEL_EXP), 0x6FAF2E, 0, false)
-        } else {
-            ("Fame".to_owned(), stat(stat::CURR_FAME), stat(stat::NEXT_CLASS_QUEST_FAME), 0xF07A1E, 0, false)
-        },
-        ("HP".to_owned(), stat(stat::HP), stat(stat::MAX_HP), 0xE0403E, hp_boost, hp_maxed),
-        ("MP".to_owned(), stat(stat::MP), stat(stat::MAX_MP), 0x4C7BE8, mp_boost, mp_maxed),
-    ];
-    for (i, (label, value, max, c, boost, maxed)) in bars.into_iter().enumerate() {
-        let (bx, by) = lay.at(12.0, 236.0 + 22.0 * i as f32);
-        status_bar(ui, lay, bx, by, &label, value, max, c, boost, maxed);
+    // The bar's foot, from the top: the Nexus button, the equipment, the tabs and potions, the
+    // inventory, the interact area.
+    let (row, inv, ib, equip) = (lay.bottom_row(), lay.inventory_box(), lay.interact_box(), lay.equip_box());
+    for y in [equip[1], row[1], inv[1], ib[1]] {
+        divider(ui, div_x, y - GAP * s / 2.0, div_w, 0.0, s);
     }
 
-    // Sections: equipment, inventory, stats, potions.
-    let section = |ui: &mut Ui, r: [f32; 4]| {
-        theme::frame(ui.renderer, r, 7.0 * s, s.max(1.0), (color::BORDER, 0.9), ((color::INSET_TOP, 0.9), (color::INSET_BOTTOM, 0.9)));
-    };
-    section(ui, lay.rect(8.0, 302.0, 184.0, 50.0));
-    section(ui, lay.rect(8.0, 376.0, 184.0, 94.0));
-    section(ui, lay.rect(8.0, 474.0, 184.0, 60.0));
-    section(ui, lay.rect(8.0, 538.0 - 5.0, 184.0, 50.0));
-
-    // Inventory and backpack tabs, as pills.
-    for (button, r) in &panel.buttons {
-        let Button::Page(p) = button else { continue };
-        let on = *p == state.page;
-        let over = inside(*r, mouse);
-        let bg = if on { color::ACCENT } else if over { color::SECONDARY } else { color::CHIP };
-        theme::fill(ui.renderer, *r, r[3] / 2.0, bg, 1.0);
-        let label = if *p == Page::Inventory { "Inventory" } else { "Backpack" };
-        let size = lay.font(11.0);
-        let w = ui.measure(label, size, true);
-        ui.label(label, r[0] + (r[2] - w) / 2.0, r[1] + (r[3] - size * 1.22) / 2.0, size, true, if on { color::ACCENT_TEXT } else { color::TEXT_DIM });
+    // The inventory and backpack tabs: a bag and the backpack, the page showing edged in the
+    // accent; the backpack's dim until there is one.
+    let page = if panel.has_backpack { state.page } else { Page::Inventory };
+    for (i, p) in [Page::Inventory, Page::Backpack].into_iter().enumerate() {
+        let r = lay.tab(i);
+        let usable = p == Page::Inventory || panel.has_backpack;
+        let edge = (p == page).then_some(color::ACCENT);
+        ui.slot_box(r, edge, usable && inside(r, mouse), s);
+        ui.item_icon(TAB_ICONS[i], 50, r[0] + r[2] / 2.0, r[1] + r[3] / 2.0, s);
+        if !usable {
+            theme::fill(ui.renderer, r, 4.0 * s, 0x000000, 0.6);
+        }
     }
 
-    // The interact area's box goes under its slots (a bag's).
+    // The interact area: a bag's slots in it, the rest placed in it; something there warms it.
+    let iy = |y: f32| ib[1] + y * s;
+    let centred = |w: f32| ib[0] + (ib[2] - w) / 2.0;
+    let warm_box = |ui: &mut Ui, edge: f32| {
+        let line = s.max(1.0);
+        let r = [ib[0] + line, ib[1] + line, ib[2] - 2.0 * line, ib[3] - 2.0 * line];
+        theme::rounded(ui.renderer, r, 0.0, (color::WARM_TOP, 0.75), (color::WARM_BOTTOM, 0.75));
+        theme::fill(ui.renderer, [r[0] + 8.0 * s, r[1], r[2] - 16.0 * s, (2.0 * s).max(1.0)], s, color::ACCENT, edge);
+    };
     if panel.interact.is_some() {
-        let r = lay.rect(8.0, 588.0, 184.0, 108.0);
-        theme::frame(ui.renderer, r, 7.0 * s, s.max(1.0), (color::ACCENT, 0.55), ((color::WARM_TOP, 0.92), (color::WARM_BOTTOM, 0.92)));
+        warm_box(ui, 0.55);
     }
     let hover_target = if state.drag.is_some() { panel.slot_at(mouse) } else { None };
     for slot in &panel.slots {
@@ -1072,48 +1360,10 @@ pub fn draw_panel(ui: &mut Ui, lay: &Layout, world: &World, camera_angle: f64, c
         draw_slot(ui, lay, slot, dragged, target, inside(slot.rect, mouse), &state.potion_keys);
     }
 
-    // Stats, two columns of three: gold at the class maximum, the boost beside in green.
-    let class_desc = ui.data.objects.get(&me.object_type);
-    let max_of = |tag: &str| class_desc.and_then(|c| c.xml.child(tag)).and_then(|e| e.attr("max")).and_then(|m| m.parse::<i32>().ok());
-    let stats = [
-        ("ATT", stat::ATTACK, stat::ATTACK_BOOST, "Attack"),
-        ("DEF", stat::DEFENSE, stat::DEFENSE_BOOST, "Defense"),
-        ("SPD", stat::SPEED, stat::SPEED_BOOST, "Speed"),
-        ("DEX", stat::DEXTERITY, stat::DEXTERITY_BOOST, "Dexterity"),
-        ("VIT", stat::VITALITY, stat::VITALITY_BOOST, "HpRegen"),
-        ("WIS", stat::WISDOM, stat::WISDOM_BOOST, "MpRegen"),
-    ];
-    for (i, (label, id, boost_id, tag)) in stats.into_iter().enumerate() {
-        let (value, boost) = (stat(id), stat(boost_id));
-        let (tx, ty) = lay.at(16.0 + 90.0 * (i % 2) as f32, 479.0 + 17.0 * (i / 2) as f32);
-        let size = lay.font(12.0);
-        ui.label(label, tx, ty, size, true, color::TEXT_MUTED);
-        let maxed = max_of(tag).is_some_and(|m| value - boost >= m);
-        let c = if maxed { 0xFFD24A } else { color::TEXT };
-        let room = 50.0 * s;
-        let value_s = value.to_string();
-        let boost_s = if boost != 0 { format!(" {boost:+}") } else { String::new() };
-        let mut vs = lay.font(13.0);
-        let mut bs = lay.font(10.0);
-        let full = ui.measure(&value_s, vs, true) + ui.measure(&boost_s, bs, true);
-        if full > room {
-            let k = room / full;
-            vs = (vs * k).floor().max(8.0);
-            bs = (bs * k).floor().max(7.0);
-        }
-        let vx = tx + 30.0 * s;
-        ui.label(&value_s, vx, ty + (size - vs) * 0.6, vs, true, c);
-        if boost != 0 {
-            let bx = vx + ui.measure(&value_s, vs, true);
-            ui.label(&boost_s, bx, ty + (size - bs) * 0.9, bs, true, if boost > 0 { color::GOOD } else { color::DANGER });
-        }
-    }
-
     // Nothing to interact with: the invitation, or the players around us.
     if panel.interact.is_none() {
-        let r = lay.rect(8.0, 588.0, 184.0, 108.0);
         if let Some(invite) = social.invite {
-            theme::frame(ui.renderer, r, 7.0 * s, s.max(1.0), (color::ACCENT, 0.7), ((color::WARM_TOP, 0.92), (color::WARM_BOTTOM, 0.92)));
+            warm_box(ui, 0.7);
             let (title, detail) = match invite {
                 crate::game::Invite::Trade { name } => (name.clone(), "wants to trade with you".to_owned()),
                 crate::game::Invite::Party { name, .. } => (name.clone(), "invites you to a party".to_owned()),
@@ -1121,13 +1371,12 @@ pub fn draw_panel(ui: &mut Ui, lay: &Layout, world: &World, camera_angle: f64, c
             };
             let size = lay.font(14.0);
             let tw = ui.measure(&title, size, true);
-            ui.label(&title, lay.panel_x + (PANEL_W * s - tw) / 2.0, 600.0 * s, size, true, color::ACCENT_HI);
+            ui.label(&title, centred(tw), iy(12.0), size, true, color::ACCENT_HI);
             let small = lay.font(11.0);
             let dw = ui.measure(&detail, small, false);
-            ui.label(&detail, lay.panel_x + (PANEL_W * s - dw) / 2.0, 622.0 * s, small, false, color::TEXT_DIM);
+            ui.label(&detail, centred(dw), iy(34.0), small, false, color::TEXT_DIM);
         } else if !panel.members.is_empty() {
-            theme::frame(ui.renderer, r, 7.0 * s, s.max(1.0), (color::BORDER, 0.9), ((color::INSET_TOP, 0.9), (color::INSET_BOTTOM, 0.9)));
-            ui.label("Nearby players", lay.panel_x + 14.0 * s, 591.0 * s, lay.font(11.0), true, color::TEXT_MUTED);
+            ui.label("Nearby players", ib[0] + 6.0 * s, iy(3.0), lay.font(11.0), true, color::TEXT_MUTED);
             for (id, name, level, starred) in &panel.members {
                 let br = panel.buttons.iter().find(|(b, _)| *b == Button::Member(*id)).map(|(_, r)| *r).unwrap_or([0.0; 4]);
                 if inside(br, mouse) {
@@ -1149,17 +1398,17 @@ pub fn draw_panel(ui: &mut Ui, lay: &Layout, world: &World, camera_angle: f64, c
         }
     }
 
-    // The interact area's title: what we stand by.
-    if let Some(target) = &panel.interact {
+    // The interact area's title: what we stand by (a bag's slots fill the box, so not a bag's).
+    if let Some(target) = panel.interact.as_ref().filter(|t| t.kind != InteractKind::Container) {
         let size = lay.font(13.0);
         let w = ui.measure(&target.name, size, true);
-        ui.label(&target.name, lay.panel_x + (PANEL_W * s - w) / 2.0, 592.0 * s, size, true, color::ACCENT_HI);
+        ui.label(&target.name, centred(w), iy(6.0), size, true, color::ACCENT_HI);
         // An NPC: what it does (or who we are to it).
         if let InteractKind::Npc { kind, rank_req } = target.kind {
             let (line, _) = crate::npc::interact_text(kind, me, rank_req);
             let small = lay.font(11.5);
             let lw = ui.measure(&line, small, false);
-            ui.label(&line, lay.panel_x + (PANEL_W * s - lw) / 2.0, 618.0 * s, small, false, color::TEXT_DIM);
+            ui.label(&line, centred(lw), iy(26.0), small, false, color::TEXT_DIM);
         }
         // A shop: what it sells, and the rank it asks for.
         if let InteractKind::Shop { rank_req, .. } = target.kind {
@@ -1172,7 +1421,7 @@ pub fn draw_panel(ui: &mut Ui, lay: &Layout, world: &World, camera_angle: f64, c
                 let t = format!("Rank {rank_req} needed");
                 let small = lay.font(10.0);
                 let tw = ui.measure(&t, small, true);
-                ui.label(&t, lay.panel_x + (PANEL_W * s - tw) / 2.0, 643.0 * s, small, true, 0xFFB070);
+                ui.label(&t, centred(tw), iy(32.0), small, true, 0xFFB070);
             }
         }
     }
@@ -1180,7 +1429,22 @@ pub fn draw_panel(ui: &mut Ui, lay: &Layout, world: &World, camera_angle: f64, c
     // Buttons: Nexus, and Enter for a portal.
     for (button, r) in &panel.buttons {
         let (label, kind) = match button {
-            Button::Nexus => (format!("Nexus  {}", state.nexus_key), Kind::Secondary),
+            Button::Nexus => {
+                // The Nexus portal's picture, then the key.
+                let hover = inside(*r, mouse);
+                ui.button(*r, "", Kind::Secondary, hover, s);
+                // Sized as the gold and fame are: a 16-unit picture, the key at 16, each centred
+                // on the button's middle (the key by the middle of its letters).
+                let size = lay.font(16.0);
+                let kw = ui.measure(&state.nexus_key, size, true);
+                let (icon_w, gap) = (16.0 * s, 6.0 * s);
+                let x0 = (r[0] + (r[2] - icon_w - gap - kw) / 2.0).round();
+                let cy = r[1] + r[3] / 2.0;
+                object_icon(ui, NEXUS_ICON as u16, x0 + icon_w / 2.0, cy, icon_w);
+                let mid = ui.digit_middle(size, true);
+                ui.label(&state.nexus_key, x0 + icon_w + gap, (cy - mid).round(), size, true, color::TEXT);
+                continue;
+            }
             Button::Enter(_) => ("Enter  0".to_owned(), Kind::Primary),
             Button::Buy(_) => match panel.interact.as_ref().map(|i| i.kind) {
                 Some(InteractKind::Shop { price, currency, .. }) => (format!("Buy  ·  {}", price_text(price, currency)), Kind::Primary),
@@ -1198,6 +1462,150 @@ pub fn draw_panel(ui: &mut Ui, lay: &Layout, world: &World, camera_angle: f64, c
             _ => continue,
         };
         ui.button(*r, &label, kind, inside(*r, mouse), s);
+    }
+}
+
+/// Experience (fame at level 20), HP and MP as bars in `r`: HP and MP with what items add,
+/// and gold when the base is at the class's maximum (as the stats show it).
+pub fn draw_bars(ui: &mut Ui, lay: &Layout, me: &GameObj, r: [f32; 4]) {
+    let stat = |id: u8| me.stat_int(id).unwrap_or(0);
+    let class_max = |tag: &str| {
+        ui.data.objects.get(&me.object_type).and_then(|c| c.xml.child(tag)).and_then(|e| e.attr("max")).and_then(|m| m.parse::<i32>().ok())
+    };
+    let (hp_boost, mp_boost) = (stat(stat::MAX_HP_BOOST), stat(stat::MAX_MP_BOOST));
+    let hp_maxed = class_max("MaxHitPoints").is_some_and(|m| stat(stat::MAX_HP) - hp_boost >= m);
+    let mp_maxed = class_max("MaxMagicPoints").is_some_and(|m| stat(stat::MAX_MP) - mp_boost >= m);
+    let bars = [
+        if stat(stat::LEVEL) < 20 {
+            ("XP", stat(stat::EXP), stat(stat::NEXT_LEVEL_EXP), 0x6FAF2E, 0, false)
+        } else {
+            ("Fame", stat(stat::CURR_FAME), stat(stat::NEXT_CLASS_QUEST_FAME), 0xF07A1E, 0, false)
+        },
+        ("HP", stat(stat::HP), stat(stat::MAX_HP), 0xE0403E, hp_boost, hp_maxed),
+        ("MP", stat(stat::MP), stat(stat::MAX_MP), 0x4C7BE8, mp_boost, mp_maxed),
+    ];
+    for (i, (label, value, max, c, boost, maxed)) in bars.into_iter().enumerate() {
+        let b = within(r, lay.s, 12.0, 6.0 + 22.0 * i as f32, 0.0, 0.0);
+        status_bar(ui, lay, b[0], b[1], label, value, max, c, boost, maxed);
+    }
+}
+
+/// The character card (on the bar): the portrait, name, class and level, then two tabs (`tab`)
+/// for the stats or the fame records, the page filling the rest of its space.
+pub fn draw_card(ui: &mut Ui, lay: &Layout, me: &GameObj, tab: usize, fame: &HashMap<u8, i32>, mouse: (f64, f64)) {
+    let s = lay.s;
+    let r = lay.card_box();
+    draw_portrait(ui, lay, me, r[0] + 22.0 * s, r[1] + 24.0 * s);
+    let name = me.name().unwrap_or("").to_owned();
+    ui.label(&name, r[0] + 44.0 * s, r[1] + 6.0 * s, lay.font(17.0), true, color::TEXT);
+    let level = me.stat_int(stat::LEVEL).unwrap_or(0);
+    let class = ui.data.objects.get(&me.object_type).map_or("", |d| d.display_id.as_str()).to_owned();
+    ui.label(&format!("{class}  ·  Level {level}"), r[0] + 44.0 * s, r[1] + 26.0 * s, lay.font(11.0), false, color::TEXT_DIM);
+    for (i, label) in ["Stats", "Records"].into_iter().enumerate() {
+        let tr = lay.card_tab(i);
+        let on = i == tab;
+        let bg = if on { color::ACCENT } else if inside(tr, mouse) { color::SECONDARY } else { color::CHIP };
+        theme::fill(ui.renderer, tr, tr[3] / 2.0, bg, 1.0);
+        let size = lay.font(11.0);
+        let w = ui.measure(label, size, true);
+        ui.label(label, tr[0] + (tr[2] - w) / 2.0, tr[1] + (tr[3] - size * 1.22) / 2.0, size, true, if on { color::ACCENT_TEXT } else { color::TEXT_DIM });
+    }
+    let body = lay.card_body();
+    if tab == 0 {
+        draw_stats(ui, lay, me, body);
+    } else {
+        draw_records(ui, lay, fame, body);
+    }
+}
+
+/// The fame records (`FameStats`, as the death screen counts them) in a box `r`: kills, god
+/// and Oryx kills, quests, dungeons, accuracy, potions drunk and time played.
+pub fn draw_records(ui: &mut Ui, lay: &Layout, fame: &HashMap<u8, i32>, r: [f32; 4]) {
+    let s = lay.s;
+    theme::frame(ui.renderer, r, 7.0 * s, s.max(1.0), (color::BORDER, 0.9), ((color::INSET_TOP, 0.9), (color::INSET_BOTTOM, 0.9)));
+    if fame.is_empty() {
+        let size = lay.font(11.0);
+        let t = "No records yet";
+        let w = ui.measure(t, size, false);
+        ui.label(t, r[0] + (r[2] - w) / 2.0, r[1] + (r[3] - size * 1.22) / 2.0, size, false, color::TEXT_DIM);
+        return;
+    }
+    let get = |id: u8| fame.get(&id).copied().unwrap_or(0);
+    // The dungeons the records count: the pirate cave to the manor.
+    let dungeons: i32 = [13u8, 14, 15, 16, 17, 18, 21, 22, 23, 24].iter().map(|&id| get(id)).sum();
+    let accuracy = if get(0) > 0 { format!("{}%", (get(1) as f64 / get(0) as f64 * 100.0).round() as i32) } else { "-".to_owned() };
+    let played = get(20);
+    let rows = [
+        ("Kills", group_digits(get(6))),
+        ("God kills", group_digits(get(8))),
+        ("Oryx kills", group_digits(get(11))),
+        ("Quests", group_digits(get(12))),
+        ("Dungeons", group_digits(dungeons)),
+        ("Accuracy", accuracy),
+        ("Potions", group_digits(get(5))),
+        ("Played", format!("{}h {}m", played / 60, played % 60)),
+    ];
+    // One column of eight when the page is tall enough for rows 16 units apart, else two
+    // columns of four; the rows spread down the page (at most 24 units apart), centred in it.
+    let one_column = r[3] >= (8.0 * 16.0 + 8.0) * s;
+    let (cols, per_col) = if one_column { (1, 8) } else { (2, 4) };
+    let row_h = ((r[3] - 8.0 * s) / per_col as f32).min(24.0 * s);
+    let (label_size, value_size) = (lay.font(11.0), lay.font(12.0));
+    let col_w = (r[2] - 12.0 * s) / cols as f32;
+    let top = r[1] + (r[3] - per_col as f32 * row_h) / 2.0;
+    for (i, (label, value)) in rows.iter().enumerate() {
+        let (col, row) = if one_column { (0, i) } else { (i % 2, i / 2) };
+        let cx = r[0] + 6.0 * s + col as f32 * col_w;
+        let ty = top + row as f32 * row_h + (row_h - value_size * 1.22) / 2.0;
+        ui.label(label, cx + 2.0 * s, ty + (value_size - label_size) * 0.6, label_size, true, color::TEXT_MUTED);
+        let vw = ui.measure(value, value_size, true);
+        ui.label(value, cx + col_w - 6.0 * s - vw, ty, value_size, true, color::TEXT);
+    }
+}
+
+/// The six stats in a box `r`, two columns of three: gold at the class maximum, the boost
+/// beside in green.
+pub fn draw_stats(ui: &mut Ui, lay: &Layout, me: &GameObj, r: [f32; 4]) {
+    let s = lay.s;
+    theme::frame(ui.renderer, r, 7.0 * s, s.max(1.0), (color::BORDER, 0.9), ((color::INSET_TOP, 0.9), (color::INSET_BOTTOM, 0.9)));
+    let stat = |id: u8| me.stat_int(id).unwrap_or(0);
+    let class_desc = ui.data.objects.get(&me.object_type);
+    let max_of = |tag: &str| class_desc.and_then(|c| c.xml.child(tag)).and_then(|e| e.attr("max")).and_then(|m| m.parse::<i32>().ok());
+    let stats = [
+        ("ATT", stat::ATTACK, stat::ATTACK_BOOST, "Attack"),
+        ("DEF", stat::DEFENSE, stat::DEFENSE_BOOST, "Defense"),
+        ("SPD", stat::SPEED, stat::SPEED_BOOST, "Speed"),
+        ("DEX", stat::DEXTERITY, stat::DEXTERITY_BOOST, "Dexterity"),
+        ("VIT", stat::VITALITY, stat::VITALITY_BOOST, "HpRegen"),
+        ("WIS", stat::WISDOM, stat::WISDOM_BOOST, "MpRegen"),
+    ];
+    for (i, (label, id, boost_id, tag)) in stats.into_iter().enumerate() {
+        let (value, boost) = (stat(id), stat(boost_id));
+        // Three rows spread down the page (at most 28 units apart), centred in it.
+        let row_h = ((r[3] - 10.0 * s) / 3.0).min(28.0 * s);
+        let top = r[1] + (r[3] - 3.0 * row_h) / 2.0 + (row_h - 17.0 * s) / 2.0;
+        let (tx, ty) = (r[0] + (8.0 + 90.0 * (i % 2) as f32) * s, top + row_h * (i / 2) as f32);
+        let size = lay.font(12.0);
+        ui.label(label, tx, ty, size, true, color::TEXT_MUTED);
+        let maxed = max_of(tag).is_some_and(|m| value - boost >= m);
+        let c = if maxed { 0xFFD24A } else { color::TEXT };
+        let room = 50.0 * s;
+        let value_s = value.to_string();
+        let boost_s = if boost != 0 { format!(" {boost:+}") } else { String::new() };
+        let mut vs = lay.font(13.0);
+        let mut bs = lay.font(10.0);
+        let full = ui.measure(&value_s, vs, true) + ui.measure(&boost_s, bs, true);
+        if full > room {
+            let k = room / full;
+            vs = (vs * k).floor().max(8.0);
+            bs = (bs * k).floor().max(7.0);
+        }
+        let vx = tx + 30.0 * s;
+        ui.label(&value_s, vx, ty + (size - vs) * 0.6, vs, true, c);
+        if boost != 0 {
+            let bx = vx + ui.measure(&value_s, vs, true);
+            ui.label(&boost_s, bx, ty + (size - bs) * 0.9, bs, true, if boost > 0 { color::GOOD } else { color::DANGER });
+        }
     }
 }
 
@@ -1257,7 +1665,7 @@ fn draw_slot(ui: &mut Ui, lay: &Layout, slot: &Slot, dragged: bool, target: bool
 }
 
 /// The player's portrait (`Player.getPortrait`): the class (or skin) standing, dyed.
-fn draw_portrait(ui: &mut Ui, lay: &Layout, me: &GameObj) {
+fn draw_portrait(ui: &mut Ui, lay: &Layout, me: &GameObj, cx: f32, cy: f32) {
     let skin = me.stat_int(stat::TEXTURE).filter(|&t| t != 0).and_then(|t| ui.data.objects.get(&(t as u16)));
     let Some(desc) = skin.or_else(|| ui.data.objects.get(&me.object_type)) else { return };
     let TextureRef::Animated { set, index } = &desc.texture.pick(0).main else { return };
@@ -1270,7 +1678,6 @@ fn draw_portrait(ui: &mut Ui, lay: &Layout, me: &GameObj) {
     // Redrawn at the size it shows, centred on the sprite (see `item_icon`).
     let size = ((60.0 * lay.s * 0.8).round() as i32).max(1);
     let Some(icon) = ui.redrawer.get(ui.sprites, ui.renderer, src, false, size, dye) else { return };
-    let (cx, cy) = lay.at(22.0, 213.0);
     let (w, h) = (icon.w as f32, icon.h as f32);
     let lift = (crate::redraw::PAD as f32 - 1.0) / 2.0;
     ui.renderer.sprite(icon.rect, Quad::rect((cx - w / 2.0).round(), (cy - h / 2.0 - lift).round(), w, h), Tint::NONE);
@@ -1314,9 +1721,7 @@ fn status_bar(ui: &mut Ui, lay: &Layout, x: f32, y: f32, label: &str, value: i32
 /// the camera. Static objects that fill their square show their colour over the ground.
 fn draw_minimap(ui: &mut Ui, lay: &Layout, world: &World, me: &GameObj, camera_angle: f64, colors: &mut MapColors, mini: &MiniView) {
     let [x0, y0, side, _] = mini.rect;
-    let e = 3.0 * lay.s;
-    theme::shadow(ui.renderer, [x0, y0, side, side], 6.0 * lay.s, 6.0 * lay.s, 0.35);
-    theme::frame(ui.renderer, [x0 - e, y0 - e, side + 2.0 * e, side + 2.0 * e], 7.0 * lay.s, lay.s.max(1.0), (color::BORDER_HI, 1.0), ((MINIMAP_FILL, 1.0), (MINIMAP_FILL, 1.0)));
+    ui.rect(x0, y0, side, side, MINIMAP_FILL, 1.0);
     // Zoomed far out, a cell covers several tiles (each at least two pixels wide).
     let step = ((2.0 / mini.zoom).ceil() as i32).max(1);
     let zoom = mini.zoom * step as f32;
@@ -1444,16 +1849,25 @@ pub fn draw_overlay(ui: &mut Ui, lay: &Layout, world: &World, panel: &Panel, sta
             return;
         }
     }
+    // The inventory and backpack tabs: which is which.
+    if let Some(Button::Page(p)) = panel.button_at(mouse) {
+        let mut lines = vec![Line::new(if p == Page::Inventory { "Inventory" } else { "Backpack" }, 14.0, true, color::TEXT)];
+        if p == Page::Backpack && !panel.has_backpack {
+            lines.push(Line::new("You have no backpack yet", 11.0, false, color::TEXT_MUTED));
+        }
+        draw_tooltip(ui, lay, &lines, None, None, mouse);
+        return;
+    }
     let Some(slot) = panel.slot_at(mouse) else { return };
     let me = world.player();
     let lines = if slot.item > 0 {
         item_tooltip(ui.data, slot.item, me, slot.kind)
     } else {
-        let what = match slot.kind {
-            SlotKind::Equip(t) => slot_type_name(t),
-            _ => "item",
+        let text = match slot.kind {
+            SlotKind::Equip(t) => format!("Empty {} Slot", slot_type_name(t)),
+            _ => "Empty item Slot".to_owned(),
         };
-        vec![Line::new(&format!("Empty {what} Slot"), 14.0, false, 0x9B9B9B)]
+        vec![Line::new(&text, 14.0, false, 0x9B9B9B)]
     };
     let accent = if slot.item > 0 { crate::screens::tier_edge(ui.data, slot.item) } else { None };
     draw_tooltip(ui, lay, &lines, if slot.item > 0 { Some(slot.item) } else { None }, accent, mouse);
@@ -2000,10 +2414,10 @@ pub fn draw_windows(ui: &mut Ui, lay: &Layout, world: &World, panel: &Panel, soc
     }
 }
 
-/// `QuestArrow` and `BossHealthBar`: the quest's health along the top of the view, and an arrow
-/// at the view's edge pointing to it when it's off screen. Then the dungeon keys (`KeysView`).
-/// The dungeon keys, the boss bar (with the share of its health we took, `DamageCounter`) and
-/// the quest arrow.
+/// `QuestArrow` and `BossHealthBar`: the quest at the top left (its picture, name and health),
+/// the top five who hit it under that (with our share, `DamageCounter`), then the dungeon keys
+/// (`KeysView`); with no quest there, the boss history's button (and list). And an arrow at the
+/// view's edge pointing to the quest when it's off screen.
 #[allow(clippy::too_many_arguments)]
 pub fn draw_quest(
     ui: &mut Ui,
@@ -2013,76 +2427,53 @@ pub fn draw_quest(
     quest: Option<i32>,
     keys: &[u32],
     dealt: &HashMap<i32, i32>,
-    top: Option<&(i32, Vec<(String, i32)>, i32)>,
+    top: Option<&crate::game::QuestDamage>,
+    history: &[crate::game::BossFight],
+    state: &HudState,
+    mouse: (f64, f64),
 ) {
     let s = lay.s;
+    let q = quest.and_then(|id| world.objects.get(&id));
+    let desc = q.and_then(|q| ui.data.objects.get(&q.object_type));
+    // Where the keys go: under the boss's parts, or under the history.
+    let below = match (q, desc) {
+        (Some(q), Some(desc)) if boss_showing(world, quest) => {
+            let (hp, max) = (q.stat_int(stat::HP).unwrap_or(0), q.stat_int(stat::MAX_HP).unwrap_or(0));
+            draw_boss(ui, lay, world, q, desc, hp, max, dealt, top)
+        }
+        _ => {
+            let hl = history_layout(lay, history, state);
+            draw_history(ui, lay, &hl, history, state, mouse);
+            let r = hl.list.unwrap_or(hl.burger);
+            r[1] + r[3]
+        }
+    };
+    draw_keys(ui, s, keys, below);
+    draw_quest_arrow(ui, lay, camera, q, desc);
+}
+
+/// The dungeon keys we hold (`KeysView`), in a row from `y` down.
+fn draw_keys(ui: &mut Ui, s: f32, keys: &[u32], y: f32) {
     for (i, &c) in keys.iter().enumerate() {
         // A key: a ring and a shaft, in the key's colour.
-        let (x, y) = (12.0 * s + i as f32 * 26.0 * s, 12.0 * s);
+        let (x, y) = (12.0 * s + i as f32 * 26.0 * s, y + 12.0 * s);
         theme::fill(ui.renderer, [x - 3.0 * s, y - 3.0 * s, 24.0 * s, 24.0 * s], 6.0 * s, 0x000000, 0.45);
         theme::fill(ui.renderer, [x, y + 4.0 * s, 10.0 * s, 10.0 * s], 5.0 * s, c, 1.0);
         theme::fill(ui.renderer, [x + 8.0 * s, y + 7.0 * s, 10.0 * s, 4.0 * s], 1.0, c, 1.0);
         theme::fill(ui.renderer, [x + 14.0 * s, y + 11.0 * s, 3.0 * s, 4.0 * s], 1.0, c, 1.0);
     }
-    let Some(q) = quest.and_then(|id| world.objects.get(&id)) else { return };
-    let Some(desc) = ui.data.objects.get(&q.object_type) else { return };
-    let (hp, max) = (q.stat_int(stat::HP).unwrap_or(0), q.stat_int(stat::MAX_HP).unwrap_or(0));
+}
+
+/// Whether the quest shows at the top left (it's in sight and has health).
+pub fn boss_showing(world: &World, quest: Option<i32>) -> bool {
+    quest.and_then(|id| world.objects.get(&id)).is_some_and(|q| q.stat_int(stat::MAX_HP).unwrap_or(0) > 0)
+}
+
+/// `QuestArrow`: an arrow at the view's edge pointing to the quest, when it's off screen.
+fn draw_quest_arrow(ui: &mut Ui, lay: &Layout, camera: &crate::view::Camera, q: Option<&GameObj>, desc: Option<&ObjectDesc>) {
+    let s = lay.s;
+    let (Some(q), Some(desc)) = (q, desc) else { return };
     let vw = lay.view_w();
-    // The bar.
-    if max > 0 {
-        let (w, h) = (320.0 * s, 20.0 * s);
-        let r = [(vw - w) / 2.0 + 20.0 * s, 26.0 * s, w, h];
-        theme::shadow(ui.renderer, r, 6.0 * s, 8.0 * s, 0.4);
-        theme::frame(ui.renderer, r, 6.0 * s, s.max(1.0), (color::BORDER_HI, 1.0), ((color::TRACK, 0.9), (theme::shade(color::TRACK, 0.1), 0.9)));
-        let frac = (hp as f32 / max as f32).clamp(0.0, 1.0);
-        if frac > 0.0 {
-            let c = if frac > 0.5 { 0x3FC04A } else if frac > 0.25 { 0xE0B030 } else { 0xE0403E };
-            let inner = [r[0] + s, r[1] + s, (r[2] - 2.0 * s) * frac, r[3] - 2.0 * s];
-            theme::rounded(ui.renderer, inner, 5.0 * s, (theme::shade(c, 0.25), 1.0), (theme::shade(c, -0.2), 1.0));
-        }
-        let size = lay.font(12.0);
-        let t = format!("{hp} / {max}");
-        let tw = ui.measure(&t, size, true);
-        ui.label(&t, r[0] + (r[2] - tw) / 2.0, r[1] + (r[3] - size * 1.22) / 2.0, size, true, color::TEXT);
-        let name = q.name().unwrap_or(&desc.display_id).to_owned();
-        let ns = lay.font(13.0);
-        let nw = ui.measure(&name, ns, true);
-        ui.label(&name, r[0] + (r[2] - nw) / 2.0, r[1] - ns * 1.35, ns, true, color::ACCENT_HI);
-        // Who did the most of it (the server's count, when it sends one), then how much we did
-        // (BossHealthBar.setDamageInflicted).
-        let pct = |d: i32| (d.clamp(0, max) as f32 / max as f32 * 100.0).floor() as i32;
-        let top = top.filter(|t| t.0 == q.id);
-        let me = world.player().and_then(|p| p.name()).unwrap_or("");
-        let mut rows: Vec<(String, u32)> = top
-            .map(|t| {
-                t.1.iter()
-                    .enumerate()
-                    .map(|(i, (name, d))| (format!("{}. {name}  {}%", i + 1, pct(*d)), if name == me { color::ACCENT_HI } else { color::TEXT }))
-                    .collect()
-            })
-            .unwrap_or_default();
-        let mine = top.map(|t| t.2).filter(|&d| d > 0).or_else(|| dealt.get(&q.id).copied().filter(|&d| d > 0));
-        if let Some(d) = mine {
-            rows.push((format!("You: {}%", pct(d)), color::ACCENT_HI));
-        }
-        if !rows.is_empty() {
-            let ds = lay.font(11.0);
-            let row_h = ds * 1.35;
-            let tw = rows.iter().map(|(t, _)| ui.measure(t, ds, true)).fold(0.0, f32::max);
-            let tag = [r[0] + (r[2] - tw) / 2.0 - 8.0 * s, r[1] + r[3] + 3.0 * s, tw + 16.0 * s, row_h * rows.len() as f32 + 4.0 * s];
-            theme::fill(ui.renderer, tag, 8.0 * s, 0x000000, 0.5);
-            for (i, (t, c)) in rows.iter().enumerate() {
-                let w = ui.measure(t, ds, true);
-                ui.label(t, r[0] + (r[2] - w) / 2.0, tag[1] + 2.0 * s + row_h * i as f32 + ds * 0.05, ds, true, *c);
-            }
-        }
-        if let Some(src) = ui.src(&desc.texture) {
-            if let Some(icon) = ui.redrawer.get(ui.sprites, ui.renderer, src, false, 60, None) {
-                let (iw, ih) = (icon.w as f32 * s, icon.h as f32 * s);
-                ui.renderer.sprite(icon.rect, Quad::rect(r[0] - iw - 2.0 * s, r[1] + r[3] / 2.0 - ih / 2.0, iw, ih), Tint::NONE);
-            }
-        }
-    }
     // The arrow, when it's off screen.
     let [px, py] = camera.to_screen(q.x, q.y, 0.0);
     let margin = 26.0 * s;
@@ -2116,7 +2507,261 @@ pub fn draw_quest(
     }
 }
 
-/// One chat line (`TextBoxLine`).
+/// The boss's box at the top left: its picture, its name and a health bar; under it, a
+/// see-through box with the five who did the most damage (their class, damage and share) and
+/// ours. Returns how far down they reach.
+#[allow(clippy::too_many_arguments)]
+fn draw_boss(
+    ui: &mut Ui,
+    lay: &Layout,
+    world: &World,
+    q: &GameObj,
+    desc: &ObjectDesc,
+    hp: i32,
+    max: i32,
+    dealt: &HashMap<i32, i32>,
+    top: Option<&crate::game::QuestDamage>,
+) -> f32 {
+    let s = lay.s;
+    let r = [0.0, 0.0, HISTORY_W * s, 52.0 * s];
+    hud_box(ui, r, s);
+    square_corner(ui, color::PANEL_TOP, s);
+    // The picture, in a slot at the left.
+    let slot = within(r, s, 6.0, 6.0, 40.0, 40.0);
+    ui.slot_box(slot, Some(color::DANGER), false, s);
+    object_icon(ui, q.object_type, slot[0] + slot[2] / 2.0, slot[1] + slot[3] / 2.0, slot[2] - 2.0 * s);
+    let _ = desc;
+    // The name, and the health bar under it.
+    let name = q.name().unwrap_or(&desc.display_id).to_owned();
+    let ns = lay.font(13.0);
+    ui.label(&name, r[0] + 52.0 * s, r[1] + 6.0 * s, ns, true, color::ACCENT_HI);
+    let bar = within(r, s, 52.0, 26.0, 190.0, 18.0);
+    theme::frame(ui.renderer, bar, 5.0 * s, s.max(1.0), (color::BORDER, 1.0), ((color::TRACK, 1.0), (theme::shade(color::TRACK, 0.08), 1.0)));
+    let frac = (hp as f32 / max as f32).clamp(0.0, 1.0);
+    if frac > 0.0 {
+        let c = if frac > 0.5 { 0x3FC04A } else if frac > 0.25 { 0xE0B030 } else { 0xE0403E };
+        let inner = [bar[0] + s, bar[1] + s, (bar[2] - 2.0 * s) * frac, bar[3] - 2.0 * s];
+        theme::rounded(ui.renderer, inner, 4.0 * s, (theme::shade(c, 0.25), 1.0), (theme::shade(c, -0.2), 1.0));
+    }
+    let size = lay.font(11.0);
+    let t = format!("{} / {}", group_digits(hp), group_digits(max));
+    let tw = ui.measure(&t, size, true);
+    ui.label(&t, bar[0] + (bar[2] - tw) / 2.0, bar[1] + (bar[3] - size * 1.22) / 2.0, size, true, color::TEXT);
+    let mut bottom = r[1] + r[3];
+
+    // Who did the most of it (the server's count, when it sends one), then how much we did
+    // (BossHealthBar.setDamageInflicted), unless we're among them.
+    let top = top.filter(|t| t.object_id == q.id);
+    let me = world.player();
+    let my_name = me.and_then(|p| p.name()).unwrap_or("");
+    let shown: Vec<&crate::game::Hitter> = top.map(|t| t.hitters.iter().take(BOSS_TOP).collect()).unwrap_or_default();
+    let mine = top.map(|t| t.mine).filter(|&d| d > 0).or_else(|| dealt.get(&q.id).copied().filter(|&d| d > 0));
+    let me_listed = shown.iter().any(|h| h.name == my_name);
+    let rows = shown.len() + usize::from(mine.is_some() && !me_listed);
+    if rows > 0 {
+        let row_h = HITTER_ROW * s;
+        let box_r = [r[0], bottom + GAP * s, r[2], row_h * rows as f32 + 8.0 * s];
+        theme::fill(ui.renderer, box_r, 6.0 * s, 0x000000, 0.42);
+        let mut y = box_r[1] + 4.0 * s;
+        for (i, h) in shown.iter().enumerate() {
+            let c = if h.name == my_name { color::ACCENT_HI } else { color::TEXT };
+            hitter_row(ui, lay, [box_r[0] + 4.0 * s, y, box_r[2] - 8.0 * s, row_h], Some(i + 1), &h.name, h.class, h.damage, max, c);
+            y += row_h;
+        }
+        if let (Some(d), false) = (mine, me_listed) {
+            let class = me.map_or(0, |p| p.object_type);
+            hitter_row(ui, lay, [box_r[0] + 4.0 * s, y, box_r[2] - 8.0 * s, row_h], None, "You", class, d, max, color::ACCENT_HI);
+        }
+        bottom = box_r[1] + box_r[3];
+    }
+    bottom
+}
+
+/// How many of the quest's damage dealers show under it.
+const BOSS_TOP: usize = 5;
+/// The boss panel's and the history's width.
+const HISTORY_W: f32 = 250.0;
+/// A row of who hit a boss.
+const HITTER_ROW: f32 = 17.0;
+/// The most of who hit a boss the history lists.
+const HISTORY_HITTERS: usize = 12;
+
+/// A number with its thousands apart: 61,520.
+pub fn group_digits(n: i32) -> String {
+    let digits = n.unsigned_abs().to_string();
+    let mut out = String::new();
+    for (i, c) in digits.chars().enumerate() {
+        if i > 0 && (digits.len() - i) % 3 == 0 {
+            out.push(',');
+        }
+        out.push(c);
+    }
+    if n < 0 { format!("-{out}") } else { out }
+}
+
+/// An object's picture (a class, a boss), about `px` pixels, centred on (cx, cy).
+pub fn object_icon(ui: &mut Ui, object_type: u16, cx: f32, cy: f32, px: f32) {
+    let Some(desc) = ui.data.objects.get(&object_type) else { return };
+    let src = match &desc.texture.pick(0).main {
+        TextureRef::Animated { set, index } => ui.sprites.char_src(set, *index, 0, 0),
+        _ => ui.src(&desc.texture),
+    };
+    let Some(src) = src else { return };
+    // Redrawn at the size it shows, the sprite itself (not its padded canvas) as big as fits in
+    // `px`: `size` 100 draws each sprite pixel 5 pixels wide.
+    let side = src.w.max(src.h).max(1) as f32;
+    let size = ((px * 20.0 / side).floor() as i32).max(1);
+    let Some(icon) = ui.redrawer.get(ui.sprites, ui.renderer, src, false, size, None) else { return };
+    let (w, h) = (icon.w as f32, icon.h as f32);
+    // The canvas has more room above the sprite than below (see `item_icon`).
+    let lift = (crate::redraw::PAD as f32 - 1.0) / 2.0;
+    ui.renderer.sprite(icon.rect, Quad::rect((cx - w / 2.0).round(), (cy - h / 2.0 - lift).round(), w, h), Tint::NONE);
+}
+
+/// One row of who hit a boss, in `r`: their class's picture, their place and name, then their
+/// damage and their share of the boss's health.
+#[allow(clippy::too_many_arguments)]
+fn hitter_row(ui: &mut Ui, lay: &Layout, r: [f32; 4], place: Option<usize>, name: &str, class: u16, damage: i32, max: i32, c: u32) {
+    let s = lay.s;
+    let ds = lay.font(11.0);
+    let ty = r[1] + (r[3] - ds * 1.22) / 2.0;
+    if class != 0 {
+        object_icon(ui, class, r[0] + 8.0 * s, r[1] + r[3] / 2.0, r[3]);
+    }
+    let label = place.map_or_else(|| name.to_owned(), |k| format!("{k}. {name}"));
+    ui.label(&label, r[0] + 20.0 * s, ty, ds, true, c);
+    let pct = if max > 0 { (damage.clamp(0, max) as f32 / max as f32 * 100.0).floor() as i32 } else { 0 };
+    let share = format!("{pct}%");
+    let sw = ui.measure(&share, ds, true);
+    let right = r[0] + r[2] - 4.0 * s;
+    ui.label(&share, right - sw, ty, ds, true, c);
+    let dmg = group_digits(damage);
+    let dw = ui.measure(&dmg, ds, false);
+    ui.label(&dmg, right - 40.0 * s - dw, ty, ds, false, color::TEXT_DIM);
+}
+
+/// Where the boss history goes at the top left: its button, and when open the list.
+pub struct HistoryLayout {
+    pub burger: [f32; 4],
+    pub list: Option<[f32; 4]>,
+    pub buttons: Vec<(Button, [f32; 4])>,
+    rows: Vec<HistoryRow>,
+}
+
+enum HistoryRow {
+    Title([f32; 4]),
+    Empty([f32; 4]),
+    Boss(usize, [f32; 4]),
+    Hitter(usize, usize, [f32; 4]),
+    More(usize, [f32; 4]),
+    /// Behind a boss's list of who hit it.
+    Backing([f32; 4]),
+}
+
+impl HistoryLayout {
+    /// What the mouse can't fire through.
+    pub fn areas(&self) -> Vec<[f32; 4]> {
+        std::iter::once(self.burger).chain(self.list).collect()
+    }
+}
+
+/// The boss history's layout: the button in the corner; open, the last bosses under it, and
+/// under the one picked everyone who hit it.
+pub fn history_layout(lay: &Layout, history: &[crate::game::BossFight], state: &HudState) -> HistoryLayout {
+    let s = lay.s;
+    let burger = [0.0, 0.0, BURGER * s, BURGER * s];
+    let mut hl = HistoryLayout { burger, list: None, buttons: vec![(Button::History, burger)], rows: Vec::new() };
+    if !state.history_open {
+        return hl;
+    }
+    let top = burger[3];
+    let (x, w) = (4.0 * s, (HISTORY_W - 8.0) * s);
+    let mut y = top + 6.0 * s;
+    hl.rows.push(HistoryRow::Title([x, y, w, 16.0 * s]));
+    y += 18.0 * s;
+    if history.is_empty() {
+        hl.rows.push(HistoryRow::Empty([x, y, w, 18.0 * s]));
+        y += 18.0 * s;
+    }
+    for (i, fight) in history.iter().enumerate() {
+        let r = [x, y, w, 26.0 * s];
+        hl.buttons.push((Button::HistoryBoss(i), r));
+        hl.rows.push(HistoryRow::Boss(i, r));
+        y += r[3];
+        if state.history_pick == Some(i) {
+            // A little space under the boss, then who hit it on a lighter backing.
+            y += 4.0 * s;
+            let backing = hl.rows.len();
+            let start = y;
+            y += 3.0 * s;
+            for k in 0..fight.hitters.len().min(HISTORY_HITTERS) {
+                hl.rows.push(HistoryRow::Hitter(i, k, [x, y, w, HITTER_ROW * s]));
+                y += HITTER_ROW * s;
+            }
+            if fight.hitters.len() > HISTORY_HITTERS {
+                hl.rows.push(HistoryRow::More(i, [x, y, w, 16.0 * s]));
+                y += 16.0 * s;
+            }
+            y += 3.0 * s;
+            hl.rows.insert(backing, HistoryRow::Backing([x, start, w, y - start]));
+            y += 4.0 * s;
+        }
+    }
+    hl.list = Some([0.0, top, HISTORY_W * s, y + 6.0 * s - top]);
+    hl
+}
+
+/// The boss history: its button (on a tab of the list when open), the last bosses we hit,
+/// with our share, and everyone who hit the one picked.
+pub fn draw_history(ui: &mut Ui, lay: &Layout, hl: &HistoryLayout, history: &[crate::game::BossFight], state: &HudState, mouse: (f64, f64)) {
+    let s = lay.s;
+    let radius = 6.0 * s;
+    match hl.list {
+        Some(list) => group_shaped(ui, &[([hl.burger[0], hl.burger[1], hl.burger[2], hl.burger[3] + radius], true), (list, false)], s),
+        None => group_shaped(ui, &[(hl.burger, true)], s),
+    }
+    square_corner(ui, GROUP_FILL, s);
+    burger_button(ui, hl.burger, state.history_open, inside(hl.burger, mouse), s);
+    let ds = lay.font(11.0);
+    for row in &hl.rows {
+        match *row {
+            HistoryRow::Backing(r) => theme::fill(ui.renderer, r, 4.0 * s, 0xFFFFFF, 0.04),
+            HistoryRow::Title(r) => ui.label("Recent bosses", r[0] + 6.0 * s, r[1], ds, true, color::TEXT_MUTED),
+            HistoryRow::Empty(r) => ui.label("Empty", r[0] + 6.0 * s, r[1], ds, false, color::TEXT_DIM),
+            HistoryRow::Boss(i, r) => {
+                let fight = &history[i];
+                let open = state.history_pick == Some(i);
+                if open || inside(r, mouse) {
+                    theme::fill(ui.renderer, r, 4.0 * s, if open { color::SECONDARY } else { 0xFFFFFF }, if open { 0.9 } else { 0.06 });
+                }
+                object_icon(ui, fight.object_type, r[0] + 13.0 * s, r[1] + r[3] / 2.0, r[3] - 2.0 * s);
+                let ns = lay.font(12.0);
+                ui.label(&fight.name, r[0] + 28.0 * s, r[1] + (r[3] - ns * 1.22) / 2.0, ns, true, color::ACCENT_HI);
+                let pct = if fight.max_hp > 0 { (fight.mine.clamp(0, fight.max_hp) as f32 / fight.max_hp as f32 * 100.0).floor() as i32 } else { 0 };
+                // Our share, then a small arrow: down when open, right when closed.
+                let t = format!("You {pct}%");
+                let tw = ui.measure(&t, ds, true);
+                let (ax, ay, k) = (r[0] + r[2] - 10.0 * s, r[1] + r[3] / 2.0, 3.5 * s);
+                ui.label(&t, ax - k - 6.0 * s - tw, r[1] + (r[3] - ds * 1.22) / 2.0, ds, true, color::TEXT_DIM);
+                let tri = if open { [[ax - k, ay - k * 0.6], [ax + k, ay - k * 0.6], [ax, ay + k * 0.8]] } else { [[ax - k * 0.6, ay - k], [ax - k * 0.6, ay + k], [ax + k * 0.8, ay]] };
+                let white = ui.renderer.white();
+                ui.renderer.triangle(white, tri, [[0.5, 0.5]; 3], Tint::color(color::TEXT_DIM, 1.0));
+            }
+            HistoryRow::Hitter(i, k, r) => {
+                let fight = &history[i];
+                let h = &fight.hitters[k];
+                let me = h.name == fight.me;
+                hitter_row(ui, lay, r, Some(k + 1), &h.name, h.class, h.damage, fight.max_hp, if me { color::ACCENT_HI } else { color::TEXT });
+            }
+            HistoryRow::More(i, r) => {
+                let more = history[i].hitters.len() - HISTORY_HITTERS;
+                ui.label(&format!("and {more} more"), r[0] + 20.0 * s, r[1], ds, false, color::TEXT_MUTED);
+            }
+        }
+    }
+}
+
+/// One chat line (`TextBoxLine`)./// One chat line (`TextBoxLine`).
 #[derive(Debug, Clone)]
 pub struct ChatLine {
     pub name: String,
@@ -2236,7 +2881,7 @@ pub fn draw_chat(ui: &mut Ui, lay: &Layout, lines: &[ChatLine], me: &str, input:
     let size = lay.font(14.0);
     let line_h = (size * 1.3).round();
     let margin = 10.0 * s;
-    let max_w = (lay.view_w() - 2.0 * margin - 16.0 * s).min(620.0 * s).max(120.0);
+    let max_w = (lay.chat_right() - 2.0 * margin - 16.0 * s).min(620.0 * s).max(120.0);
     let max_rows = ((lay.h * 0.4) / line_h).floor().max(3.0) as usize;
     let mut bottom = lay.h - margin;
     if let Some(input) = input {
@@ -2305,14 +2950,31 @@ pub fn draw_chat(ui: &mut Ui, lay: &Layout, lines: &[ChatLine], me: &str, input:
     names
 }
 
-/// `CreditDisplay`: your gold and fame, each before its icon, at the top right of the view,
-/// under your rank and its star (`GameSprite.rankText_`) in maps that show it. Each count is
-/// centred on its icon by the middle of its digits. Returns how far down it reaches.
-pub fn draw_credits(ui: &mut Ui, lay: &Layout, me: &GameObj, show_rank: bool) -> f32 {
+/// `CreditDisplay`: your gold and fame, each before its icon, beside the minimap (no box),
+/// under your rank and its star (`GameSprite.rankText_`) in maps that show it, and the frame
+/// rate (`fps`) at the foot when it's on. Each count is centred on its icon by the middle of
+/// its digits.
+pub fn draw_credits(ui: &mut Ui, lay: &Layout, me: &GameObj, show_rank: bool, fps: Option<&str>) {
     let s = lay.s;
     let size = lay.font(16.0);
-    let right = lay.view_w() - 8.0 * s;
+    let fps_size = lay.font(12.0);
     let row_h = 24.0 * s;
+    let pad = 8.0 * s;
+    let rank = me.stat_int(30).filter(|&n| n >= 0 && show_rank);
+    // CREDITS_STAT and FAME_STAT (the account's fame).
+    let (gold, fame) = (me.stat_int(35).unwrap_or(0), me.stat_int(39).unwrap_or(0));
+    // As wide as the widest line, at least wide enough for a few digits.
+    let mut inner = 72.0 * s;
+    for v in [rank.unwrap_or(0), gold, fame] {
+        inner = inner.max(ui.measure(&v.to_string(), size, true) + 24.0 * s);
+    }
+    if let Some(t) = fps {
+        inner = inner.max(ui.measure(t, fps_size, true));
+    }
+    let right_edge = lay.credits_right();
+    let w = inner + 2.0 * pad;
+    let r = [right_edge - w, lay.minimap_box()[1], w, 0.0];
+    let right = right_edge - pad;
     let icon_x = right - 12.0 * s;
     let text_mid = ui.digit_middle(size, true);
     let count = |ui: &mut Ui, value: i32, cy: f32, color: u32| {
@@ -2320,9 +2982,9 @@ pub fn draw_credits(ui: &mut Ui, lay: &Layout, me: &GameObj, show_rank: bool) ->
         let tw = ui.measure(&t, size, true);
         ui.label(&t, right - 24.0 * s - tw, (cy - text_mid).round(), size, true, color);
     };
-    let mut cy = 6.0 * s + row_h / 2.0;
+    let mut cy = r[1] + 4.0 * s + row_h / 2.0;
     // NUM_STARS_STAT, with the star in its rank's colour.
-    if let Some(stars) = me.stat_int(30).filter(|&n| n >= 0 && show_rank) {
+    if let Some(stars) = rank {
         let classes = crate::stars::class_count(ui.data);
         // A star reaches `outer` above its centre but only 0.81 of that below, so it's drawn a
         // little low to look centred.
@@ -2331,22 +2993,25 @@ pub fn draw_credits(ui: &mut Ui, lay: &Layout, me: &GameObj, show_rank: bool) ->
         count(ui, stars, cy, crate::stars::GREY);
         cy += row_h;
     }
-    // CREDITS_STAT and FAME_STAT (the account's fame), with lofiObj3's coin and fame icons.
-    for (value, icon) in [(me.stat_int(35).unwrap_or(0), 225), (me.stat_int(39).unwrap_or(0), 224)] {
+    // lofiObj3's coin and fame icons.
+    for (value, icon) in [(gold, 225), (fame, 224)] {
         ui.tile_icon("lofiObj3", icon, 40, icon_x, cy, s);
         count(ui, value, cy, 0xFFFFFF);
         cy += row_h;
     }
-    cy - row_h / 2.0
+    if let Some(t) = fps {
+        let tw = ui.measure(t, fps_size, true);
+        ui.label(t, right - tw, cy - row_h / 2.0, fps_size, true, 0xB0FFB0);
+    }
 }
 
-/// `ArenaMenu`: the wave and the time, at the top left of the view.
+/// `ArenaMenu`: the wave and the time, at the top middle of the view.
 pub fn draw_arena(ui: &mut Ui, lay: &Layout, arena: (i32, i32, i32, bool), now: i32) {
     let s = lay.s;
     let (wave, secs, since, running) = arena;
     let secs = secs + if running { (now - since).max(0) / 1000 } else { 0 };
-    let r = [10.0 * s, 10.0 * s, 170.0 * s, 58.0 * s];
-    theme::panel(ui.renderer, r, s);
+    let r = [((lay.w - 170.0 * s) / 2.0).round(), 0.0, 170.0 * s, 58.0 * s];
+    hud_box(ui, r, s);
     let small = lay.font(10.5);
     let big = lay.font(19.0);
     let cols = [("WAVE", wave.to_string()), ("TIME", format!("{:02}:{:02}", secs / 60, secs % 60))];
@@ -2404,11 +3069,33 @@ mod tests {
     fn layout_fits_any_window() {
         for (w, h) in [(800, 600), (1920, 1080), (3840, 2160), (640, 1200), (1200, 400), (320, 240)] {
             let l = Layout::new(w, h);
-            let panel_w = l.w - l.panel_x;
-            assert!(PANEL_H * l.s <= h as f32 + 0.5 || l.s == 0.45, "{w}×{h}: panel too tall");
-            assert!(panel_w <= w as f32 * 0.28 + 1.0 || l.s == 0.45, "{w}×{h}: panel too wide");
-            assert!(l.view_w() > 0.0);
+            let small = l.s == 0.45;
+            assert!(HUD_H * l.s <= h as f32 + 0.5 || small, "{w}×{h}: HUD too tall");
+            // The card fills the space down to the Nexus button, and has room for its page.
+            let card = l.card_box();
+            assert!(card[1] + card[3] <= l.nexus_button()[1] + 0.5 || small, "{w}×{h}: the card runs into the Nexus button");
+            assert!(l.card_body()[3] >= 60.0 * l.s - 0.5, "{w}×{h}: the card's page is too short");
+            assert!(l.column()[0] >= 0.0, "{w}×{h}: the bar is off the window");
+            assert!(l.credits_right() > 0.0);
+            assert_eq!(l.view_w(), w as f32);
         }
+    }
+
+    #[test]
+    fn grids_line_up() {
+        let l = Layout::new(1920, 1080);
+        // The equipment and the inventory line up slot for slot, inside the bar.
+        for i in 0..4 {
+            let (e, v) = (grid_slot(l.equip_box(), l.s, 4, i), grid_slot(l.inventory_box(), l.s, 4, i));
+            assert_eq!(e[0], v[0]);
+            assert!(v[1] > e[1]);
+        }
+        // The last inventory slot sits inside its box, and the box inside the bar.
+        let (inv, last) = (l.inventory_box(), grid_slot(l.inventory_box(), l.s, 4, 7));
+        assert!(last[0] + last[2] <= inv[0] + inv[2] + 0.5 && last[1] + last[3] <= inv[1] + inv[3] + 0.5);
+        assert!(inv[0] + inv[2] <= l.w + 0.5);
+        assert!(l.on_panel(inv[0] as f64 + 1.0, inv[1] as f64 + 1.0));
+        assert!(!l.on_panel(l.w as f64 / 2.0, l.h as f64 / 2.0));
     }
 
     #[test]
@@ -2435,5 +3122,7 @@ mod tests {
         assert_eq!(slot_stat(11), 19);
         assert_eq!(slot_stat(12), 67);
         assert_eq!(slot_stat(19), 74);
+        assert_eq!(slot_stat(20), 144);
+        assert_eq!(slot_stat(23), 147);
     }
 }

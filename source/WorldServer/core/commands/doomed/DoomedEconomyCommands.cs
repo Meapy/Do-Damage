@@ -93,7 +93,7 @@ namespace WorldServer.core.commands.doomed
 
         public static bool CanMake((string Result, int Fame, bool Advanced, string[] Items) r, Player player)
         {
-            var have = Enumerable.Range(4, player.Inventory.Length - 4).Select(i => player.Inventory[i]?.ObjectId).Where(i => i != null).ToList();
+            var have = Enumerable.Range(4, InventoryConstants.SWAP_FIRST - 4).Select(i => player.Inventory[i]?.ObjectId).Where(i => i != null).ToList();
             return r.Items.All(i => have.Remove(i)) && r.Fame <= player.CurrentFame;
         }
 
@@ -493,7 +493,7 @@ namespace WorldServer.core.commands.doomed
             // the replaced items and the boosters go to the backpack
             var replaced = Limited ? upgrades.Select(u => player.Inventory[u.Slot]).Where(it => it != null).ToList() : new List<Item>();
             replaced.AddRange(boosters);
-            var lastSlot = player.HasBackpack ? player.Inventory.Length : InventoryConstants.NUM_EQUIPMENT_SLOTS + InventoryConstants.NUM_INVENTORY_SLOTS;
+            var lastSlot = player.HasBackpack ? InventoryConstants.SWAP_FIRST : InventoryConstants.NUM_EQUIPMENT_SLOTS + InventoryConstants.NUM_INVENTORY_SLOTS;
             var free = Enumerable.Range(InventoryConstants.NUM_EQUIPMENT_SLOTS, lastSlot - InventoryConstants.NUM_EQUIPMENT_SLOTS)
                 .Where(s => player.Inventory[s] == null).ToList();
             if (replaced.Count > free.Count)

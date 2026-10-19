@@ -28,6 +28,19 @@ version number itself is in `client-rs/Cargo.toml`.
 - Options: the sliders now come first on each tab, above the switches.
 - A new Master volume slider on the Sound tab turns all sound and music up or down together.
 - Resetting the camera (Z) now always turns it back to north at the top.
+- A new look for the screen: the world fills the whole window, with one bar down the right.
+  At its top, the minimap square in the corner, then your experience, HP and MP; at its foot,
+  the Nexus button (the Nexus portal and its key), your equipment, your inventory with two
+  small buttons to switch to your backpack, your potions, and a space for bags you stand on,
+  portals, shops and invitations. Your gold, fame and frame rate sit beside the minimap.
+- Under your HP and MP, your character card: your name, class and level, and two tabs, your
+  stats or your records (kills, god and Oryx kills, quests, dungeons, accuracy, potions drunk
+  and time played, as they stand), filling the bar down to the Nexus button.
+- The boss you're after shows at the top left: its picture, name and health, with the five
+  players who did the most damage just under it: their class, exact damage and share.
+- With no boss around, a small menu button at the top left opens your last 3 bosses. Click one
+  to see everyone who hit it, with their class, damage and share.
+- Potions in the potion bar can come back out: drag one onto an empty inventory slot.
 
 ## 1.2.8 (2026-10-19)
 - Realms are much easier to close with a few people. A realm closes after 8 events for 1 to 3

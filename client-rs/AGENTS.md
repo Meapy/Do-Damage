@@ -163,10 +163,26 @@ For example, the Battle Arena (its monsters come 60 s after you enter):
   log out). Items drag between slots, onto the
   world to drop; double-click equips, uses or takes from a bag; shift-click uses; Ctrl+click moves an
   item to the other page (inventory, backpack); Ctrl+right-click breaks it down.
-- **Layout:** `hud::Layout` works everything out from the window size each frame: one scale for
-  the HUD (the AIR client's 200×600 panel plus stats, potions and the interact area: 200×700,
-  fitted to the height, at most 28% of the width), the world in
-  the rest, and chat wrapped to the space. F11 or Alt+Enter toggles fullscreen.
+- **Layout:** `hud::Layout` works everything out from the window size each frame: the world
+  fills the window and the HUD is one bar down the right (200 HUD units wide, 780 fitted to the
+  height, at most 30% of the width). Its top: the minimap square in the corner, the bars, and
+  the character card (portrait, name, then the Stats or Records tab), which takes the space
+  down to the bar's foot and spreads its page to fit. Its foot, from the bottom: the interact area (a bag's loot,
+  portals, shops, invitations, the players nearby), the inventory, the inventory/backpack tabs
+  and the potions, the equipment, the Nexus button. Gold, fame and the frame rate sit beside
+  it; the boss (or the boss history, behind its menu button) at the top left. The pieces
+  (`group`, `hud_box`, `grid_slot`, `burger_button`, `status_bar`, `draw_bars`, `draw_card`, `draw_stats`,
+  `draw_records`) take a rectangle, so they can go anywhere. Chat wraps to the space left of
+  the bar. F11 or Alt+Enter toggles fullscreen.
+- **Swap-out row:** held back for a later release. The server already keeps slots 20-23 for it
+  (one for each equipment slot, taking the same items, sent as stats 144-147; `hud::SWAP_FIRST`,
+  `stat::SWAP_0`, the server's `InventoryConstants`); the client doesn't show them yet.
+- **Fame records:** the client asks for `FameStats` (93/94): the character's `FameStats` (an
+  id and a count each), every few seconds while they change, for the card's Records tab.
+- **Boss damage:** the client asks for `QuestDamageFull` (91/92) as well as `QuestDamage`
+  (89/90): everyone who hit the quest with their class, its maximum health, and a last message
+  marked `dead` when it dies. The client keeps the last 3 bosses it hit
+  (`Game::boss_history`), listed at the top left while no boss shows there.
 - **Async loading:** everything that touches files or the GPU at startup is `async`, because the
   browser can't block. On desktop it runs under `pollster::block_on`.
 
