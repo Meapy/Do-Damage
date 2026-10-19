@@ -563,6 +563,7 @@ fn hold_args() -> Vec<(KeyCode, i32)> {
                     "hp" => KeyCode::KeyF,
                     "mp" => KeyCode::KeyV,
                     "o" => KeyCode::KeyO,
+                    "z" => KeyCode::KeyZ,
                     "-" => KeyCode::F24, // a pause: holds nothing
                     _ => return None,
                 };
@@ -1882,7 +1883,7 @@ impl App {
             game.poll(now, data);
             prof::mark("poll");
             if reset_angle {
-                game.camera_angle = game::DEFAULT_CAMERA_ANGLE;
+                game.camera_angle = game::RESET_CAMERA_ANGLE;
             }
             game.update(now, dt, keys, rotate, data);
             prof::mark("update");
