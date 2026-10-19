@@ -25,6 +25,9 @@ version number itself is in `client-rs/Cargo.toml`.
   stat potions too.
 - Your rank and its star moved to the top right, above your gold and fame. Each number there
   now lines up with the middle of its icon.
+- Options: the sliders now come first on each tab, above the switches.
+- A new Master volume slider on the Sound tab turns all sound and music up or down together.
+- Resetting the camera (Z) now always turns it back to north at the top.
 
 ## 1.2.8 (2026-10-19)
 - Realms are much easier to close with a few people. A realm closes after 8 events for 1 to 3

@@ -13,8 +13,10 @@ use bsk_proto::{
 use bsk_session::{Event, HelloParams, Join, Session};
 use bsk_world::{Hit, MoveInput, Projectile, World};
 
-/// The AIR client's default camera angle (`Parameters`: 7π/4), which Z resets to.
+/// The AIR client's default camera angle (`Parameters`: 7π/4).
 pub const DEFAULT_CAMERA_ANGLE: f64 = 7.0 * std::f64::consts::PI / 4.0;
+/// What Z resets the camera to: no turn, north at the top.
+pub const RESET_CAMERA_ANGLE: f64 = 0.0;
 /// `Parameters.PLAYER_ROTATE_SPEED`, radians per millisecond.
 const ROTATE_SPEED: f64 = 0.003;
 /// `Map.MIN_VIEW_RADIUS` (the server's default sight) and `MAX_VIEW_RADIUS`, in tiles.
