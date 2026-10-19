@@ -38,6 +38,7 @@ namespace WorldServer.core.commands
                     return false;
                 }
 
+                owner.Invite(player.Client.Account.AccountId); // even into an arena game that has started
                 player.Client.Reconnect(new Reconnect()
                 {
                     Host = "",

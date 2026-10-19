@@ -54,6 +54,14 @@ pub fn color(stars: i32, classes: i32) -> u32 {
     COLORS[step as usize]
 }
 
+/// The fewest stars that show colour step `i` (the first is 0), so step `i` covers
+/// `step_start(i)` to `step_start(i + 1) - 1`, and the last runs up to `max_stars`.
+pub fn step_start(i: i32, classes: i32) -> i32 {
+    let (steps, max) = (COLORS.len() as i32, max_stars(classes).max(1));
+    // the smallest n with n * steps / max >= i
+    (i * max + steps - 1) / steps
+}
+
 /// `FameUtil.numStarsToIcon`: a star on a faint dark disc, centred on (x, y); `k` is 1 for
 /// the AIR client's size (16 px across).
 pub fn icon(renderer: &mut Renderer, x: f32, y: f32, k: f32, rgb: u32) {
@@ -109,5 +117,21 @@ mod tests {
         assert_eq!(color(134, 30), 0xFFFFFF);
         assert_eq!(color(150, 30), 0xFFFFFF);
         assert_eq!(color(STAFF, 30), 0x00FF50);
+    }
+
+    #[test]
+    fn steps_match_colours() {
+        for classes in [14, 29, 30] {
+            let steps = COLORS.len() as i32;
+            assert_eq!(step_start(0, classes), 0);
+            assert_eq!(step_start(steps, classes), max_stars(classes));
+            for i in 1..steps {
+                let n = step_start(i, classes);
+                assert_eq!(color(n, classes), COLORS[i as usize]);
+                assert_eq!(color(n - 1, classes), COLORS[i as usize - 1]);
+            }
+        }
+        // 29 classes: 145 stars, white from 129
+        assert_eq!(step_start(8, 29), 129);
     }
 }

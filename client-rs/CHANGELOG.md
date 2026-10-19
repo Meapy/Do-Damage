@@ -9,6 +9,14 @@ refuses while an `Unreleased` one is left, so rename it to `## <version> (<date>
 version number itself is in `client-rs/Cargo.toml`.
 
 ## Unreleased
+- The arena trophy in the Nexus now shows the record over it as you walk by: the best run's
+  wave, how long it took and who took part, on a card that floats above the trophy (it doesn't
+  go in the chat). Stand on the trophy for the full top ten, as before.
+- The camera now centres you in the part of the screen you can see, left of the bar down the
+  right, instead of the middle of the whole window, which put you a little to the right.
+- Joining an arena game that has already started now tells you so ("That game has already
+  started") instead of disconnecting you. Staff who /summon a player into an arena, or /visit
+  one, now get them (or themselves) in even after the game has started.
 - Arena waves mix in monsters from earlier stages: a couple of each wave's monsters come from
   the stage before, and Godlands monsters keep turning up in every stage after the Godlands.
   From wave 30, an Elder dungeon boss joins the wave's Oryx-stage boss. Chat now says which
@@ -21,7 +29,7 @@ version number itself is in `client-rs/Cargo.toml`.
   the public arena (/arena) count too now, and /leaderboard shows each run's time.
 - Rank stars have nine colours instead of five, spread evenly from no stars to every class
   done: light blue, blue, violet, red, red-orange, orange, gold, pale yellow and, at the very
-  top, white.
+  top, white. Hover your rank to see how many stars each colour needs.
 - Almost every item can now be traded, sold on the market and dropped for other players,
   Soulbound ones included. Only admin items and a few overpowered or test items can't; their
   tooltips say "Untradeable".
