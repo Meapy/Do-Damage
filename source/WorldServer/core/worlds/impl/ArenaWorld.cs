@@ -303,19 +303,25 @@ namespace WorldServer.core.worlds.impl
 
         private void Spawn(TickTime time)
         {
+            foreach (var plr in Players.Values)
+                plr.SendInfo(ArenaPools.WaveMessage(_wave));
             SpawnEnemies();
             SpawnBosses();
             CurrentState = ArenaState.Fight;
         }
 
-        // the wave's monsters (ArenaPools): minions at the edge, the boss in the middle
+        // the wave's monsters (ArenaPools): minions at the edge, the bosses in the middle
         private void SpawnEnemies()
         {
-            for (var i = 0; i < ArenaPools.MinionCount(_wave, Players.Count); i++)
-                SpawnAt(ArenaPools.RandomMinion(_wave), _outerSpawn);
+            foreach (var name in ArenaPools.Minions(_wave, Players.Count))
+                SpawnAt(name, _outerSpawn);
         }
 
-        private void SpawnBosses() => SpawnAt(ArenaPools.RandomBoss(_wave), _centralSpawn);
+        private void SpawnBosses()
+        {
+            foreach (var name in ArenaPools.Bosses(_wave))
+                SpawnAt(name, _centralSpawn);
+        }
 
         private void SpawnAt(string name, List<IntPoint> points)
         {

@@ -9,6 +9,10 @@ refuses while an `Unreleased` one is left, so rename it to `## <version> (<date>
 version number itself is in `client-rs/Cargo.toml`.
 
 ## Unreleased
+- Arena waves mix in monsters from earlier stages: a couple of each wave's monsters come from
+  the stage before, and Godlands monsters keep turning up in every stage after the Godlands.
+  From wave 30, an Elder dungeon boss joins the wave's Oryx-stage boss. Chat now says which
+  wave has begun, and its stage (for example "Wave 12 has begun (Dungeons).").
 - Nearby players (bottom right): each row's name, star and character now line up in the
   row's middle, the rows are further apart so characters no longer touch, and the list sits in
   the middle of its box. It shows up to four players, to make that room (it was five).

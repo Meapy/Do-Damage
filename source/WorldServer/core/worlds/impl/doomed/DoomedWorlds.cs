@@ -205,9 +205,10 @@ namespace WorldServer.core.worlds.impl.doomed
         private void SpawnWave()
         {
             // the same stages as the public arena (ArenaPools)
-            for (var i = 0; i < ArenaPools.MinionCount(Wave, Players.Count); i++)
-                Spawn(ArenaPools.RandomMinion(Wave), Random.Shared.Next(6, 27) + 0.5f, Random.Shared.Next(6, 27) + 0.5f);
-            Spawn(ArenaPools.RandomBoss(Wave), Random.Shared.Next(6, 27) + 0.5f, Random.Shared.Next(6, 27) + 0.5f);
+            foreach (var p in Players.Values)
+                p.SendInfo(ArenaPools.WaveMessage(Wave));
+            foreach (var name in ArenaPools.Minions(Wave, Players.Count).Concat(ArenaPools.Bosses(Wave)))
+                Spawn(name, Random.Shared.Next(6, 27) + 0.5f, Random.Shared.Next(6, 27) + 0.5f);
         }
 
         protected override void UpdateLogic(ref TickTime time)
