@@ -1,6 +1,6 @@
 ---
 title: Pets
-nav: 7
+nav: 8
 sprite: potion
 eyebrow: Gear and stuff
 summary: Pet generators and what each of the pets does: how much damage it deals and how much it heals you.

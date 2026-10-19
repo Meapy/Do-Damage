@@ -524,6 +524,76 @@ code { font: .86em ui-monospace, "Cascadia Mono", Consolas, monospace; padding: 
 .maxes li { margin: 0; padding: 4px 6px; background: var(--bg-deep); color: var(--text); font: 600 .85rem var(--body); text-align: center; font-variant-numeric: tabular-nums; }
 .maxes li span { display: block; font: 700 .62rem var(--pixel); color: var(--text-muted); }
 
+.cls-more { margin: .9em 0 0; font-size: .88rem; }
+
+/* gear pages (tools/wiki_gear.py): tabs, kinds, and an item card each with its sprite */
+.tabs { display: flex; gap: 2px; margin: 0 0 16px; overflow-x: auto; border-bottom: 1px solid var(--line); scrollbar-width: thin; }
+.tabs a {
+  flex: none; padding: 10px 14px; margin-bottom: -1px; border-bottom: 3px solid transparent; color: var(--text-dim);
+  font: 700 .74rem var(--pixel); letter-spacing: .08em; text-transform: uppercase; text-decoration: none !important;
+}
+.tabs a:hover { color: var(--text); }
+.tabs a[aria-current], .tabs a[aria-selected="true"] { color: var(--gold); border-bottom-color: var(--ember); }
+.tabs a span { color: var(--text-muted); font-family: var(--body); font-weight: 500; letter-spacing: 0; }
+.tabs-sub, .tabs-in { flex-wrap: wrap; gap: 6px; padding-bottom: 14px; overflow: visible; }
+.tabs-sub a, .tabs-in a {
+  margin: 0; padding: 6px 11px; background: var(--surface); border: 1px solid var(--line); color: var(--text-dim);
+  font: 600 .88rem var(--body); letter-spacing: 0; text-transform: none;
+}
+.tabs-sub a:hover, .tabs-in a:hover { border-color: var(--line-hi); }
+.tabs-sub a[aria-current], .tabs-in a[aria-selected="true"] { border-color: var(--ember); background: var(--surface-hi); color: var(--text); }
+.tabs-in a { padding: 9px 14px; font-size: .95rem; }
+.kind-head { color: var(--text-dim); }
+.count { margin-left: 4px; font: 600 .8rem var(--body); color: var(--text-muted); vertical-align: middle; }
+.tab-panel > h2 { margin-top: .4em; }
+.tab-panel h2 .more { margin-left: 10px; font: 500 .85rem var(--body); vertical-align: middle; }
+.its-group > p { margin-top: -.4em; }
+
+.kinds { display: grid; grid-template-columns: repeat(auto-fill, minmax(230px, 1fr)); gap: 10px; margin: 0 0 1.4em; }
+.prose .kinds, .prose .its { max-width: none; }
+.kind {
+  display: grid; grid-template-columns: 56px minmax(0, 1fr); column-gap: 12px; align-content: center; padding: 10px 12px;
+  background: var(--surface); border: 1px solid var(--line); color: var(--text); text-decoration: none !important;
+}
+.kind:hover { border-color: var(--ember); }
+.kind .ico { grid-row: 1 / span 3; align-self: center; }
+.kind-name { font-weight: 600; }
+.kind-n { font-size: .8rem; color: var(--text-dim); }
+.kind-who { font-size: .78rem; color: var(--text-muted); line-height: 1.35; }
+
+.ico {
+  flex: none; display: grid; place-items: center; width: 56px; height: 56px; border: 2px solid var(--c); border-radius: 6px;
+  background: linear-gradient(transparent 45%, color-mix(in srgb, var(--c) 22%, transparent)), #1d1530;
+}
+.ico i {
+  display: block; background-repeat: no-repeat; image-rendering: pixelated;
+  filter: drop-shadow(1px 0 0 #000) drop-shadow(-1px 0 0 #000) drop-shadow(0 1px 0 #000) drop-shadow(0 -1px 0 #000);
+}
+.its { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; margin: 0 0 1.4em; }
+.it {
+  display: grid; grid-template-columns: 56px minmax(0, 1fr); gap: 12px; align-items: start; padding: 12px 14px;
+  background: var(--surface); border: 1px solid var(--line); scroll-margin-top: 80px;
+}
+.it:target { border-color: var(--ember); box-shadow: 0 0 0 1px var(--ember); }
+.it-body { min-width: 0; }
+.prose .it h3 { display: flex; align-items: baseline; justify-content: space-between; gap: 8px; margin: 0 0 4px; font-size: .98rem; color: var(--text); }
+.tag {
+  flex: none; padding: 2px 6px; border: 1px solid color-mix(in srgb, var(--c) 55%, transparent); color: var(--c);
+  font: 700 .62rem var(--pixel); letter-spacing: .06em; white-space: nowrap;
+}
+.prose .it p { margin: 0 0 4px; font-size: .86rem; line-height: 1.45; }
+.it-nums b { color: var(--text); font-weight: 600; font-variant-numeric: tabular-nums; }
+.it-nums .sep { color: var(--line-hi); }
+.it-line > span { margin-right: 4px; font: 700 .6rem var(--pixel); color: var(--ember); letter-spacing: .08em; text-transform: uppercase; }
+.prose .it-eq { color: var(--good); }
+.prose .it-desc { color: var(--text-muted); font-style: italic; }
+.it-src { display: grid; gap: 2px; margin: 6px 0 0; font-size: .82rem; line-height: 1.4; }
+.it-src > div { display: grid; grid-template-columns: 92px minmax(0, 1fr); gap: 8px; }
+.it-src dt { color: var(--text-muted); }
+.it-src dd { margin: 0; color: var(--text-dim); }
+.it-src > .it-flags { grid-template-columns: 1fr; }
+.it-flags dd { color: var(--text-muted); font-size: .78rem; }
+
 .wiki-pager { display: flex; justify-content: space-between; gap: 12px; max-width: 780px; margin-top: 56px; padding-top: 24px; border-top: 1px solid var(--line); }
 .wiki-pager a { display: flex; flex-direction: column; gap: 2px; padding: 12px 16px; min-width: 0; background: var(--surface); border: 1px solid var(--line); color: var(--text); font-weight: 600; }
 .wiki-pager a:hover { border-color: var(--ember); color: var(--gold); }
@@ -544,12 +614,15 @@ code { font: .86em ui-monospace, "Cascadia Mono", Consolas, monospace; padding: 
   .wiki-nav[open] summary::after { content: "−"; }
   .wiki-nav nav { padding: 0 6px 8px; }
   .wiki-nav ul { grid-template-columns: 1fr 1fr; }
-  .dgs, .classes { grid-template-columns: 1fr; }
+  .dgs, .classes, .its { grid-template-columns: 1fr; }
 }
 @media (max-width: 640px) {
   .wiki-nav ul { grid-template-columns: 1fr; }
   .dg dl > div, .cls dl > div { grid-template-columns: 1fr; gap: 0; }
   .dg dd, .cls dd { margin-bottom: 4px; }
+  .it { grid-template-columns: 56px minmax(0, 1fr); gap: 10px; padding: 10px 12px; }
+  .it-src > div { grid-template-columns: 1fr; gap: 0; }
+  .it-src dd { margin-bottom: 3px; }
   .anchor { display: none; }
   .wiki-pager { flex-direction: column; }
   .wiki-pager .next { margin-left: 0; }

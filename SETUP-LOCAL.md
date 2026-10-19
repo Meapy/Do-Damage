@@ -122,6 +122,12 @@ traffic are encrypted (see "Encrypted connections" below). Older desktop clients
   Support Bot's timers). Rebuild the site after a content change and the wiki follows. A new
   player command needs its words in `COMMAND_HELP` (the build names any that lack them); a boss a
   script spawns, which its dungeon's map doesn't place, goes in `BOSS_OVERRIDE`.
+  The **gear pages** (`tools/wiki_gear.py`) list every weapon, ability, armor and ring in the XML:
+  `wiki/gear/<kind>.html` per kind of item, grouped tiered / UT / ST / Legendary / Ascended /
+  Ethereal / admin / test as the client colours their slots, and `wiki/classes/<class>.html` per
+  class, a tab each for its weapon, ability, armor and ring lists. Item sprites are crops of the
+  client's sheets (`client/src`, found through `client-rs/assets/manifest.json`), copied into
+  `wiki/sheets/` with a class each in `wiki/icons.css`.
 - **Screenshots:** the gallery's pictures are in `website/screenshots/` (`<name>.webp` at 1600x900,
   `<name>-small.webp` at 640x360). Take new ones with the Rust client's `--shot` on an isolated
   stack, with `--credentials` and a test character renamed there, so no real login or player shows.

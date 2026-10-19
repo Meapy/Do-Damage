@@ -9,6 +9,12 @@ refuses while an `Unreleased` one is left, so rename it to `## <version> (<date>
 version number itself is in `client-rs/Cargo.toml`.
 
 ## Unreleased
+- The wiki has a Gear section: every weapon, ability, armor and ring in the game, with its
+  picture, its numbers, what it does and where it comes from (bosses, tier drops and shops).
+  Each kind of item has its own page, with tabs for the others, sorted into tiered, UT, ST,
+  Legendary, Ascended, Ethereal and admin items. Each class has its own page too, with a tab
+  each for the weapons, abilities, armor and rings it can use (for example
+  dodmg.com/wiki/classes/wizard.html).
 - Arena waves mix in monsters from earlier stages: a couple of each wave's monsters come from
   the stage before, and Godlands monsters keep turning up in every stage after the Godlands.
   From wave 30, an Elder dungeon boss joins the wave's Oryx-stage boss. Chat now says which

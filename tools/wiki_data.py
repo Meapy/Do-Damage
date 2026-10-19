@@ -3,7 +3,7 @@ monsters, portals, classes, worlds), the behaviours (who drops which portal, key
 Nexus Bazaar's prices and the chat commands. Nothing here is typed in by hand except the words
 for the commands (COMMAND_HELP in build_wiki.py), so the wiki follows the game as it changes.
 
-    python tools/wiki_data.py [dungeons|classes|commands|sets|pets]   # print what it found
+    python tools/wiki_data.py [dungeons|classes|commands|sets|pets|gear]   # print what it found
 """
 import glob
 import json
@@ -383,6 +383,44 @@ class Data:
                         lst.append((oid, areas))
         return out
 
+    def gear(self):
+        """Every piece of equipment (weapons, abilities, armor and rings): [{id, name, slot, kind,
+        category, group, tier, texture, el, ...}]. `category` is where the classes wear its slot
+        type (weapons, abilities, armor or rings) and `group` what kind of item it is, as the
+        client colours it (tier_edge): admin, legendary, ascended, ethereal, tiered, set, untiered,
+        or test for the test items."""
+        cats = {RING: "rings"}
+        for c in self.classes():
+            for i, cat in enumerate(("weapons", "abilities", "armor")):
+                if i < len(c["slots"]):
+                    cats.setdefault(c["slots"][i], cat)
+        loot = tier_loot_types()
+        out = []
+        for oid, o in self.objects.items():
+            if not o["item"] or o["slot"] not in SLOT_NAMES or o["consumable"]:
+                continue
+            el = self.elements[oid]
+            cat = cats.get(o["slot"])
+            if cat is None:  # a slot no class wears: by what the item does
+                cat = "weapons" if el.find("Projectile") is not None and el.find("Usable") is None else "abilities"
+            if "Test" in o["file"] and el.find("Admin") is None:
+                group = "test"
+            else:
+                group = next((t.lower() for t in ("Admin", "Legendary", "Ascended", "Ethereal") if el.find(t) is not None),
+                             None) or ("tiered" if o["tier"] >= 0 else "set" if el.get("setType") else "untiered")
+            tex = el.find("Texture")
+            if tex is None:
+                tex = el.find("AnimatedTexture")
+            doomed = 0xD000 <= o["type"] <= 0xDFFF
+            # the random tier drops (Loots.Initialize): no Doomed Realms items but the tiered gear of
+            # the Doomed Realms classes' own slots
+            drops_as = (loot["types"].get(o["slot"]) if o["tier"] >= 0 and group == "tiered"
+                        and (not doomed or o["slot"] in loot["doomed"]) else None)
+            out.append(dict(o, kind=SLOT_NAMES[o["slot"]], category=cat, group=group, el=el, doomed=doomed,
+                            texture=(_text(tex, "File"), _int(_text(tex, "Index"), 0)) if tex is not None else None,
+                            tier_loot=drops_as))
+        return out
+
     def gear_items(self, slot_type):
         """What /gear equips in a slot of this type (GearCommand.StarterItem)."""
         max_tier = gear_rules()["max_tier"]
@@ -489,6 +527,35 @@ def account():
     }
 
 
+def tier_loot_types():
+    """Which tier drops a slot type comes in (MobDrops.cs): {"types": {slot type: "Weapon" |
+    "Ability" | "Armor" | "Ring"}, "doomed": {the Doomed Realms classes' slot types}}."""
+    src = _read(os.path.join(LOGIC, "loot", "MobDrops.cs"))
+    types = {}
+    for name, kind in (("WeaponT", "Weapon"), ("AbilityT", "Ability"), ("ArmorT", "Armor"), ("RingT", "Ring")):
+        m = re.search(name + r'\s*=\s*new int\[\]\s*\{([^}]*)\}', src)
+        for n in re.findall(r'\d+', m.group(1) if m else ""):
+            types[int(n)] = kind
+    m = re.search(r'DoomedClassSlots\s*=\s*new HashSet<int>\s*\{([^}]*)\}', src)
+    return {"types": types, "doomed": {int(n) for n in re.findall(r'\d+', m.group(1) if m else "")}}
+
+
+def shop_items():
+    """What the /shop shops sell: [(shop, item id, price, currency)] (DoomedEconomyData.cs)."""
+    src = _read(os.path.join(COMMANDS, "doomed", "DoomedEconomyData.cs"))
+    m = re.search(r'ShopItems\s*=\s*\{(.*?)\};', src, re.S)
+    return [(s, i, int(p), c.lower()) for s, i, p, c in
+            re.findall(r'\("([^"]+)",\s*"([^"]+)",\s*(\d+),\s*CurrencyType\.(\w+)\)', m.group(1) if m else "")]
+
+
+def image_sets():
+    """The client's sprite sheets: {name: (path under client/src, tile width, tile height)}, from the
+    Rust client's asset manifest."""
+    with open(os.path.join(ROOT, "client-rs", "assets", "manifest.json"), encoding="utf-8") as f:
+        manifest = json.load(f)
+    return {s["name"]: (s["file"], s["w"], s["h"]) for s in manifest["image_sets"] if s.get("file")}
+
+
 def mystery_crate():
     """What the Mystery ST Crate gives: [(item id, weight out of the total)] (Player.MysteryBoxes.cs)."""
     src = _read(os.path.join(SRC, "WorldServer", "core", "objects", "player", "Player.MysteryBoxes.cs"))
@@ -589,6 +656,9 @@ if __name__ == "__main__":
     elif what == "sets":
         for st in d.sets():
             print(st["id"], st["pieces"])
+    elif what == "gear":
+        for it in sorted(d.gear(), key=lambda it: (it["category"], it["kind"], it["group"], it["tier"])):
+            print(it["category"], "|", it["kind"], "|", it["group"], it["tier"], "|", it["name"], "|", it["texture"])
     elif what == "pets":
         for p in d.pets()[:10]:
             print(p)
