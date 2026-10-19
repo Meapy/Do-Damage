@@ -18,6 +18,7 @@ mod npc;
 mod options;
 mod redraw;
 mod screens;
+mod signs;
 #[allow(dead_code)] // lookups the game screens will use
 mod sky;
 mod sprites;
@@ -189,6 +190,8 @@ struct App {
     /// into it.
     npcs: npc::Npcs,
     npc_request: Option<(NpcRequest, Pending<bsk_net::http::Response>)>,
+    /// What the signs over objects in the world say (the arena leaderboard's best run).
+    signs: signs::Signs,
     npc_keys: Vec<(KeyCode, Option<String>)>,
     /// Sound effects and music, once we know the account server.
     audio: Option<audio::Audio>,
@@ -1149,13 +1152,23 @@ impl App {
             self.npcs.answer(npc::Prompt::Guild, ok, &why);
         }
         let (Some(endpoint), Some((email, password))) = (&self.endpoint, &self.account) else { return };
+        // The signs over objects: fetched while one is near, and taken when they come.
+        if self.signs.want_arena(now) {
+            self.signs.request = Some(endpoint.arena_leaderboard(1));
+        }
+        if let Some(response) = self.signs.request.as_ref().and_then(|p| p.take()) {
+            self.signs.request = None;
+            if let Ok(runs) = login::reached(response).and_then(|x| bsk_net::account::parse_arena_runs(&x)) {
+                self.signs.set_arena(&runs);
+            }
+        }
         if self.npcs.reload_at.is_some_and(|t| now >= t) && self.npc_request.is_none() {
             self.npcs.reload_at = None;
             self.npc_request = match self.npcs.window {
                 Some(npc::Window::Board { .. }) => Some((NpcRequest::Board, endpoint.guild_board(email, password))),
                 Some(npc::Window::Members { .. }) => Some((NpcRequest::Members, endpoint.guild_members(email, password))),
                 Some(npc::Window::Potions { .. }) => Some((NpcRequest::Potions, endpoint.potions(email, password))),
-                Some(npc::Window::Leaderboard { .. }) => Some((NpcRequest::Leaderboard, endpoint.arena_leaderboard())),
+                Some(npc::Window::Leaderboard { .. }) => Some((NpcRequest::Leaderboard, endpoint.arena_leaderboard(npc::LEADERBOARD_RUNS))),
                 _ => None,
             };
         }
@@ -1185,7 +1198,10 @@ impl App {
                 Err(e) => *error = Some(e),
             },
             (NpcRequest::Leaderboard, Some(npc::Window::Leaderboard { runs, error })) => match response.and_then(|x| acc::parse_arena_runs(&x)) {
-                Ok(r) => (*runs, *error) = (Some(r), None),
+                Ok(r) => {
+                    self.signs.set_arena(&r);
+                    (*runs, *error) = (Some(r), None);
+                }
                 Err(e) => *error = Some(e),
             },
             _ => {}
@@ -1996,6 +2012,7 @@ impl App {
                         };
                         renderer.world_done(filter);
                         let mut ui = hud::Ui { renderer: &mut *renderer, sprites, data, redrawer: &mut *redrawer, fonts, text: &mut *text };
+                        self.signs.draw(&mut ui, world, &camera);
                         hud::draw_quest(&mut ui, &lay, world, &camera, game.quest, &game.keys, &game.dealt, game.quest_damage.as_ref(), &game.boss_history, &self.hud, mouse);
                         prof::mark("quest");
                     }
@@ -2049,7 +2066,7 @@ impl App {
         }
         if !status.is_empty() {
             let style = text::Style { size: 18.0, bold: true, color: 0xFFFFFF };
-            text.draw_centered(fonts, renderer, &status, lay.view_w() / 2.0, h as f32 / 2.0 + 40.0, style);
+            text.draw_centered(fonts, renderer, &status, lay.camera_point(true).0 as f32, h as f32 / 2.0 + 40.0, style);
         }
         // The dragged item and tooltips go over everything.
         if let (Phase::Playing(game), Some(p)) = (&self.phase, &panel) {
@@ -2593,6 +2610,7 @@ fn main() {
         menu_buttons: Vec::new(),
         npcs: Default::default(),
         npc_request: None,
+        signs: signs::Signs::default(),
         npc_keys: Vec::new(),
         audio: None,
         settings: options::Settings::load(),

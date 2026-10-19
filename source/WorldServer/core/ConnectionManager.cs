@@ -177,7 +177,7 @@ namespace WorldServer.core
                 world = client.GameServer.WorldManager.GetWorld(World.NEXUS_ID);
             }
 
-            if (!world.AllowedAccess(client))
+            if (!world.CanEnter(client))
             {
                 client.SendFailure("Invalid Access Permissions [If you think this is a bug report it :)].", FailureMessage.MessageWithDisconnect);
                 return;
