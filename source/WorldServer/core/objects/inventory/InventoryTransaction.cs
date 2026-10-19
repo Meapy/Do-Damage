@@ -42,7 +42,7 @@ namespace WorldServer.core.objects.inventory
                     if (ChangedItems[i] == null && playerDesc.SlotTypes[i] == item.SlotType)
                         return i;
 
-                for (var i = 4; i < 12 || plr.HasBackpack && i < plr.Inventory.Length; i++)
+                for (var i = 4; i < 12 || plr.HasBackpack && i < InventoryConstants.SWAP_FIRST; i++)
                     if (ChangedItems[i] == null)
                         return i;
             }

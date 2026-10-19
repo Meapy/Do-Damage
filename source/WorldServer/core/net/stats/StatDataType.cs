@@ -110,6 +110,11 @@
         SpeedMult = 142,
         // A pet's owner (object id), so clients can tell their own pet from others'.
         PetOwner = 143,
+        // the swap-out row (inventory slots 20-23)
+        SwapSlot0 = 144,
+        SwapSlot1 = 145,
+        SwapSlot2 = 146,
+        SwapSlot3 = 147,
         None = 255
     }
 }

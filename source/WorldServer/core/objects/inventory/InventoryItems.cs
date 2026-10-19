@@ -21,6 +21,8 @@ namespace WorldServer.core.objects.inventory
                 var sti = (int)StatDataType.Inventory0 + i;
                 if (i >= 12)
                     sti = (int)StatDataType.BackPack0 + i - 12;
+                if (i >= InventoryConstants.SWAP_FIRST)
+                    sti = (int)StatDataType.SwapSlot0 + i - InventoryConstants.SWAP_FIRST;
 
                 _itemTypes[i] = new StatTypeValue<int>(container as Entity, (StatDataType)sti, items[i]?.ObjectType ?? -1, container is Player && i > 3);
                 _items[i] = items[i];

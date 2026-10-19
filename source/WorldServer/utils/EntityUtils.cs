@@ -218,14 +218,17 @@ namespace WorldServer.utils
                 case 17:
                 case 18:
                 case 19:
-                    e.InvokeStatChange((StatDataType)((int)StatDataType.BackPack0 + slot), (e as IContainer).Inventory[slot]?.ObjectType ?? -1);
-                    e.InvokeStatChange((StatDataType)((int)StatDataType.BackPackData0 + slot), (e as IContainer).Inventory.Data[slot]?.GetData() ?? "{}");
+                    e.InvokeStatChange((StatDataType)((int)StatDataType.BackPack0 + slot - 12), (e as IContainer).Inventory[slot]?.ObjectType ?? -1);
+                    e.InvokeStatChange((StatDataType)((int)StatDataType.BackPackData0 + slot - 12), (e as IContainer).Inventory.Data[slot]?.GetData() ?? "{}");
                     break;
 
                 case 20:
                 case 21:
                 case 22:
                 case 23:
+                    e.InvokeStatChange((StatDataType)((int)StatDataType.SwapSlot0 + slot - 20), (e as IContainer).Inventory[slot]?.ObjectType ?? -1);
+                    break;
+
                 case 24:
                 case 25:
                 case 26:
