@@ -395,7 +395,7 @@ impl Settings {
         flag("playSFX", self.sound.sfx);
         flag("playPewPew", self.sound.shots);
         flag("playMusic", self.sound.music);
-        out += &format!("sfxVolume={}\nmusicVolume={}\n", self.sound.sfx_volume, self.sound.music_volume);
+        out += &format!("masterVolume={}\nsfxVolume={}\nmusicVolume={}\n", self.sound.master_volume, self.sound.sfx_volume, self.sound.music_volume);
         out += &format!("worldZoom={}\n", self.zoom);
         out += &format!("playerOpacity={}\npetOpacity={}\n", self.player_alpha, self.pet_alpha);
         out += &format!("maxFps={}\n", self.max_fps);
@@ -456,6 +456,7 @@ impl Settings {
                 "playMusic" => s.sound.music = on,
                 "sfxVolume" => s.sound.sfx_volume = vol().unwrap_or(s.sound.sfx_volume),
                 "musicVolume" => s.sound.music_volume = vol().unwrap_or(s.sound.music_volume),
+                "masterVolume" => s.sound.master_volume = vol().unwrap_or(s.sound.master_volume),
                 "worldZoom" => s.zoom = value.parse::<f32>().map_or(1.0, |z| z.clamp(ZOOM_MIN, ZOOM_MAX)),
                 "maxFps" => s.max_fps = value.parse().unwrap_or(0),
                 "cameraAngle" => s.camera_angle = value.parse().ok().filter(|a: &f64| a.is_finite()),
@@ -496,6 +497,7 @@ pub enum Tab {
 /// A slider on the Graphics, Visuals or Sound tab.
 #[derive(Clone, Copy, Debug, PartialEq)]
 enum Slider {
+    Master,
     Sfx,
     Music,
     Zoom,
@@ -544,6 +546,7 @@ fn set_slider(slider: Slider, track: [f32; 4], x: f64, settings: &mut Settings) 
     let f = ((x as f32 - track[0]) / track[2]).clamp(0.0, 1.0);
     let v = (f * 20.0).round() / 20.0;
     match slider {
+        Slider::Master => settings.sound.master_volume = v,
         Slider::Music => settings.sound.music_volume = v,
         Slider::Sfx => settings.sound.sfx_volume = v,
         Slider::Zoom => settings.zoom = ZOOM_MIN + v * (ZOOM_MAX - ZOOM_MIN),
@@ -736,8 +739,12 @@ impl OptionsUi {
                 let mut y = body[1] + per_col as f32 * 38.0 * s;
                 let pct = |a: f32| format!("{}%", (a * 100.0).round() as i32);
                 let sliders: Vec<(Slider, &str, f32, String)> = if self.tab == Tab::Sound {
-                    let (sv, mv) = (settings.sound.sfx_volume, settings.sound.music_volume);
-                    vec![(Slider::Sfx, "Effects volume", sv, pct(sv)), (Slider::Music, "Music volume", mv, pct(mv))]
+                    let (master, sv, mv) = (settings.sound.master_volume, settings.sound.sfx_volume, settings.sound.music_volume);
+                    vec![
+                        (Slider::Master, "Master volume", master, pct(master)),
+                        (Slider::Sfx, "Effects volume", sv, pct(sv)),
+                        (Slider::Music, "Music volume", mv, pct(mv)),
+                    ]
                 } else if self.tab == Tab::Visuals {
                     let look = settings.pet_shot_look;
                     let lv = PetShots::ALL.iter().position(|&p| p == look).unwrap_or(1) as f32 / (PetShots::ALL.len() - 1) as f32;
