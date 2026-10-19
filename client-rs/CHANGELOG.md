@@ -8,6 +8,29 @@ version (`python tools/build_client_rs.py --publish`) needs a section for that v
 refuses while an `Unreleased` one is left, so rename it to `## <version> (<date>)` then. The
 version number itself is in `client-rs/Cargo.toml`.
 
+## 1.3.3 (2026-10-21)
+- Changing your name at the Name Changer now costs 50,000 fame instead of 100 gold. Choosing
+  your first name is still free.
+- The portal's Enter button shows the key you set for Interact in the options, not always 0.
+- The arena trophy in the Nexus now shows the record over it as you walk by: the best run's
+  wave, how long it took and who took part, on a card that floats above the trophy (it doesn't
+  go in the chat). Stand on the trophy for the full top ten, as before.
+- The camera now centres you in the part of the screen you can see, left of the bar down the
+  right, instead of the middle of the whole window, which put you a little to the right.
+- Joining an arena game that has already started now tells you so ("That game has already
+  started") instead of disconnecting you. Staff who /summon a player into an arena, or /visit
+  one, now get them (or themselves) in even after the game has started.
+- The wiki has a Gear section: every weapon, ability, armor and ring in the game, with its
+  picture, its numbers, what it does and where it comes from (bosses, tier drops and shops).
+  Each kind of item has its own page, with tabs for the others, sorted into tiered, UT, ST,
+  Legendary, Ascended, Ethereal and admin items. Each class has its own page too, with a tab
+  each for the weapons, abilities, armor and rings it can use (for example
+  dodmg.com/wiki/classes/wizard.html).
+- The wiki's Pets page now has every pet, with pictures: all the pet generators with their
+  damage, healing and where to get them (which Bazaar and /shop shops sell them and who drops
+  them), the items that summon a helper for a while (drake eggs, Santa's reindeer and more),
+  and the classic pet yard's pets by family and rarity.
+
 ## 1.3.2 (2026-10-20)
 - Arena waves mix in monsters from earlier stages: a couple of each wave's monsters come from
   the stage before, and Godlands monsters keep turning up in every stage after the Godlands.

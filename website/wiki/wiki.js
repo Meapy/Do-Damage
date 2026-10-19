@@ -1,5 +1,6 @@
 // The wiki's live parts: the search over every page (window.WIKI_INDEX, written by
-// tools/build_wiki.py), the filters on the dungeon and pet lists, and the page menu on phones.
+// tools/build_wiki.py), the filters on the dungeon, pet and gear lists, the tabs on the class gear
+// pages, and the page menu on phones.
 (function () {
   "use strict";
 
@@ -15,6 +16,8 @@
   var list = document.getElementById("wiki-results");
   var index = window.WIKI_INDEX || [];
   var picked = -1;
+  // the index's links are from the wiki's root; pages in gear/ and classes/ are one folder down
+  var root = document.body.getAttribute("data-wiki") || "";
 
   function words(q) {
     return q.toLowerCase().replace(/[^\w\s'-]+/g, " ").split(/\s+/).filter(function (w) { return w.length > 1 || /\d/.test(w); });
@@ -81,7 +84,7 @@
     hits.forEach(function (h) {
       var li = document.createElement("li");
       var a = document.createElement("a");
-      a.href = h.e.u;
+      a.href = root + h.e.u;
       a.innerHTML = '<span class="r-head">' + mark(h.e.h, terms) + '</span><span class="r-page">' +
         mark(h.e.p, []) + '</span><span class="r-text">' + mark(snippet(h.e.t, terms), terms) + "</span>";
       li.appendChild(a);
@@ -124,6 +127,31 @@
     if (q) { input.value = q; show(); }
   }
 
+  // --- Tabs on a class's gear page: one panel at a time, picked by the address's #weapon, #ability...
+  // Without the script every panel shows, one under the other. --------------------------------------
+  var panels = document.querySelectorAll(".tab-panel");
+  var tabs = document.querySelectorAll(".tabs-in a[href^='#']");
+  function showPanel(id, scroll) {
+    var target = id && document.getElementById(id);
+    var panel = target && (target.classList.contains("tab-panel") ? target : target.closest(".tab-panel"));
+    if (!panel) panel = panels[0];
+    panels.forEach(function (p) { p.hidden = p !== panel; });
+    tabs.forEach(function (t) { t.setAttribute("aria-selected", t.getAttribute("href") === "#" + panel.id ? "true" : "false"); });
+    if (scroll && target && target !== panel) target.scrollIntoView();
+  }
+  if (panels.length) {
+    showPanel(location.hash.slice(1), true);
+    tabs.forEach(function (t) {
+      t.addEventListener("click", function (e) {
+        e.preventDefault();
+        var id = t.getAttribute("href").slice(1);
+        history.replaceState(null, "", "#" + id);
+        showPanel(id, false);
+      });
+    });
+    addEventListener("hashchange", function () { showPanel(location.hash.slice(1), true); });
+  }
+
   // --- Filters on long lists: <input data-filter="selector"> hides what doesn't match ----------------
   document.querySelectorAll("input[data-filter]").forEach(function (box) {
     var items = document.querySelectorAll(box.getAttribute("data-filter"));
@@ -140,6 +168,10 @@
         var h = group.previousElementSibling, p = h;
         if (p && p.tagName === "P") { p.hidden = !any; h = p.previousElementSibling; }
         if (h && h.tagName === "H2") h.hidden = !any;
+      });
+      // and so does a group of items with nothing left in it
+      document.querySelectorAll(".its-group").forEach(function (group) {
+        group.hidden = !group.querySelector(".it:not([hidden]), .pet:not([hidden])");
       });
     });
   });

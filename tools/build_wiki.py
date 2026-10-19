@@ -11,8 +11,11 @@ with a sidebar, links between the pages and a search over all of them.
   (GENERATORS below: the dungeon list, the classes, the commands, the Oryx chain, the shops, the
   pets and more), and `{{v:<name>}}` in the text by a number read from the code (VALUES), so the
   pages stay true as the game changes. Run `python tools/wiki_data.py` to see what the data says.
+- The gear pages (wiki/gear/, one per kind of item, and wiki/classes/, one per class) are built
+  whole from the game's data by tools/wiki_gear.py, with the item sprites (wiki/icons.css and
+  wiki/sheets/).
 - Other files in website/wiki/ (wiki.js) are copied as they are. The search index is written to
-  wiki/search-index.js, from every page's sections.
+  wiki/search-index.js, from every page's sections and every item.
 """
 import argparse
 import hashlib
@@ -25,6 +28,7 @@ import sys
 
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 import wiki_data as wd  # noqa: E402
+import wiki_gear  # noqa: E402
 
 ROOT = wd.ROOT
 SRC = os.path.join(ROOT, "website", "wiki")
@@ -300,6 +304,31 @@ class Gen:
         self.gear = wd.gear_rules()
         self.stars = wd.star_fames()
         self._dungeons = None
+        self._equip = None
+
+    @property
+    def equip(self):
+        """The gear pages and their items (tools/wiki_gear.py)."""
+        if self._equip is None:
+            self._equip = wiki_gear.Gear(self, sys.modules[__name__])
+        return self._equip
+
+    def gen_gear(self, used):
+        return self.equip.overview(used)
+
+    def item_links(self, ids, up="", limit=None):
+        """Item names, each a link to its entry on the gear pages."""
+        out, seen = [], set()
+        for i in ids:
+            n = self.d.name(i)
+            if n in seen:
+                continue
+            seen.add(n)
+            href = self.equip.href.get(i)
+            out.append('<a href="%s%s">%s</a>' % (up, href, esc(n)) if href else esc(n))
+        if limit and len(out) > limit:
+            return ", ".join(out[:limit]) + " and %d more" % (len(out) - limit)
+        return ", ".join(out)
 
     # values for {{v:name}} in the guides
     def values(self):
@@ -328,6 +357,12 @@ class Gen:
             "crate_items": len(crate),
             "dungeon_count": len(self.dungeons()),
             "pet_count": len([p for p in self.d.pets()]),
+            "pet_bazaar": len(self.d.bazaar_pets() & {p["item"] for p in self.d.pets()}),
+            "summon_count": len([s for s in self.d.summons() if "Test" not in self.d.objects[s["item"]]["file"]]),
+            "yard_count": len(self.d.yard_pets()),
+            "yard_families": len({p["family"] for p in self.d.yard_pets()}),
+            "skin_unlockers": len([o for o in self.d.objects.values() if o["item"]
+                                   and any(a["effect"] == "UnlockPetSkin" for a in o["activate_attrs"])]),
         }
 
     def __call__(self, name, used):
@@ -557,7 +592,7 @@ class Gen:
         if x["boss"]:
             rows.append(("Boss", "%s, %s health" % (esc(who(d, x["boss"])), "{:,}".format(x["hp"]))))
         if x["loot"]:
-            rows.append(("Notable loot", esc(nice([i for i, _ in x["loot"]], d, limit=8))))
+            rows.append(("Notable loot", self.item_links([i for i, _ in x["loot"]], limit=8)))
         if x["random"]:
             rows.append(("Layout", "New every run"))
         lvl = x["level"]
@@ -708,23 +743,15 @@ class Gen:
         return ('<div class="table-wrap"><table><thead><tr><th>Set</th><th>Pieces</th><th>Dropped by</th></tr></thead>'
                 '<tbody>%s</tbody></table></div>' % "".join(rows))
 
+    # the pets: their cards have sprites, so they're built with the gear pages (tools/wiki_gear.py)
     def gen_pets(self, used):
-        d = self.d
-        rows = []
-        for p in sorted(d.pets(), key=lambda p: (-p["dps"], p["name"])):
-            heal = []
-            if p["hp"]:
-                heal.append("%d HP every %gs" % (p["hp"], p["hpms"] / 1000))
-            if p["mp"]:
-                heal.append("%d MP every %gs" % (p["mp"], p["mpms"] / 1000))
-            src = [d.name(m) for m, c in self.idx.get(p["item"], []) if not HIDDEN_MONSTER.search(m) and c][:3]
-            rows.append('<tr data-search="%s"><td>%s</td><td>%s</td><td>%s</td><td>%s</td></tr>' % (
-                esc((p["name"] + " " + " ".join(src)).lower()), esc(p["name"]), p["dps"] or "",
-                esc(", ".join(heal)), esc(", ".join(src))))
-        return ('<div class="filter"><label for="pet-filter">Filter</label><input id="pet-filter" type="search" '
-                'placeholder="Pet or monster" data-filter=".pets tbody tr" autocomplete="off"></div>'
-                '<div class="table-wrap"><table class="pets"><thead><tr><th>Pet</th><th>Damage a second</th>'
-                '<th>Heals you</th><th>Generator drops from</th></tr></thead><tbody>%s</tbody></table></div>' % "".join(rows))
+        return self.equip.pet_generators(used)
+
+    def gen_pet_summons(self, used):
+        return self.equip.pet_summons(used)
+
+    def gen_pet_yard(self, used):
+        return self.equip.pet_yard(used)
 
     # --- classes -----------------------------------------------------------------------------
     def gen_classes(self, used):
@@ -755,9 +782,10 @@ class Gen:
                     '<dl><div><dt>Weapon</dt><dd>%s</dd></div><div><dt>Ability</dt><dd>%s</dd></div>'
                     '<div><dt>Armor</dt><dd>%s</dd></div><div><dt>Starts with</dt><dd>%s</dd></div>'
                     '<div><dt>/gear gives</dt><dd>%s</dd></div></dl>'
-                    '<p class="maxes-head">Highest stats</p><ul class="maxes">%s</ul></article>' % (
+                    '<p class="maxes-head">Highest stats</p><ul class="maxes">%s</ul>'
+                    '<p class="cls-more"><a href="classes/%s">Every weapon, ability, armor and ring it can use</a></p></article>' % (
                         cid, esc(c["name"]), desc, esc(c["weapon"]), esc(c["ability"]), esc(c["armor"]),
-                        start or "&mdash;", ", ".join(gear), maxes))
+                        start or "&mdash;", ", ".join(gear), maxes, self.equip.class_file(c)))
             cards.append("</div>")
         return "\n".join(cards)
 
@@ -771,23 +799,24 @@ TEMPLATE = """<!doctype html>
   <title>{head_title}</title>
   <meta name="description" content="{summary}">
   <meta name="theme-color" content="#0c0915">
-  <link rel="icon" href="../favicon.svg" type="image/svg+xml">
+  <link rel="icon" href="{site}favicon.svg" type="image/svg+xml">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Silkscreen:wght@400;700&family=Inter:wght@400;500;600;700&display=swap">
-  <link rel="stylesheet" href="../style.css?v={{{{BUILD}}}}">
+  <link rel="stylesheet" href="{site}style.css?v={{{{BUILD}}}}">
+  <link rel="stylesheet" href="{wiki}icons.css?v=@INDEX@">
 </head>
-<body class="sub-page wiki">
+<body class="sub-page wiki" data-wiki="{wiki}">
   <header class="bar">
-    <a class="logo" href="../"><i class="sprite" data-sprite="crown" data-px="2"></i><span>{{{{NAME}}}}</span></a>
+    <a class="logo" href="{site}"><i class="sprite" data-sprite="crown" data-px="2"></i><span>{{{{NAME}}}}</span></a>
     <nav class="links">
-      <a href="../#descent">The descent</a>
-      <a href="../#get">Get the game</a>
-      <a href="./" aria-current="page">Wiki</a>
-      <a href="../changelog.html">Changelog</a>
+      <a href="{site}#descent">The descent</a>
+      <a href="{site}#get">Get the game</a>
+      <a href="{home}" aria-current="page">Wiki</a>
+      <a href="{site}changelog.html">Changelog</a>
     </nav>
-    <a class="bar-link" href="./" aria-current="page">Wiki</a>
-    <a class="pill-play" href="../play/">Play now</a>
+    <a class="bar-link" href="{home}" aria-current="page">Wiki</a>
+    <a class="pill-play" href="{site}play/">Play now</a>
   </header>
 
   <div class="wiki-layout">
@@ -818,14 +847,14 @@ TEMPLATE = """<!doctype html>
   </div>
 
   <footer class="foot">
-    <p><span class="mono">{{{{NAME}}}} {{{{VERSION}}}}</span> · <a href="../play/">Play</a> · <a href="./">Wiki</a> · <a href="../changelog.html">Changelog</a></p>
+    <p><span class="mono">{{{{NAME}}}} {{{{VERSION}}}}</span> · <a href="{site}play/">Play</a> · <a href="{home}">Wiki</a> · <a href="{site}changelog.html">Changelog</a></p>
     <p class="dim">Built from the game's own data on every update. Found a mistake? <a href="https://github.com/Meapy/Do-Damage/issues">Tell us on GitHub</a>.</p>
     <p class="dim">A fan-made private server, not affiliated with DECA Games or Kabam. Realm of the Mad God is a trademark of its owners.</p>
   </footer>
 
-  <script src="../site.js?v={{{{BUILD}}}}"></script>
-  <script src="search-index.js?v=@INDEX@"></script>
-  <script src="wiki.js?v={{{{BUILD}}}}"></script>
+  <script src="{site}site.js?v={{{{BUILD}}}}"></script>
+  <script src="{wiki}search-index.js?v=@INDEX@"></script>
+  <script src="{wiki}wiki.js?v={{{{BUILD}}}}"></script>
 </body>
 </html>
 """
@@ -849,11 +878,14 @@ def sections(page_title, url, body):
             anchor, head = m.group(1), plain(m.group(2)).lstrip("#").strip()
             continue
         # a dungeon card or a class card makes its own entry
-        cards = re.findall(r'<article class="(?:dg|cls)" id="([^"]+)".*?<h3>(.*?)</h3>(.*?)</article>', part, re.S)
+        cards = re.findall(r'<article class="(?:dg|cls|it)" id="([^"]+)".*?<h3>(.*?)</h3>(.*?)</article>', part, re.S)
+        # a pet yard card has no heading: its name is its first span
+        cards += [(cid, name, rest) for cid, name, rest in re.findall(
+            r'<article class="pet" id="([^"]+)".*?<span class="kind-name">(.*?)</span>(.*?)</article>', part, re.S)]
         for cid, name, rest in cards:
             out.append({"p": page_title, "h": plain(name), "u": url + "#" + cid, "t": plain(rest)[:500]})
         if cards:
-            part = re.sub(r'<article class="(?:dg|cls)".*?</article>', " ", part, flags=re.S)
+            part = re.sub(r'<article class="(?:dg|cls|it|pet)".*?</article>', " ", part, flags=re.S)
         out.append({"p": page_title, "h": head, "u": url + "#" + anchor, "t": plain(part)[:900]})
     return [e for e in out if e["t"] or e["h"]]
 
@@ -885,6 +917,20 @@ def build(out_root, values=None):
             return v[m.group(1)]
         return re.sub(r"\{\{v:(\w+)\}\}", val, text)
 
+    def render(url, current, title, summary, body, pager, eyebrow, toc=""):
+        """A page at wiki/<url>; `current` is the guide it's marked under in the page list."""
+        up = "../" * url.count("/")
+        nav = []
+        for _, s2, m2, _ in pages:
+            u2 = up + ("./" if s2 == "index" else s2 + ".html")
+            cur = ' aria-current="page"' if s2 == current else ""
+            nav.append('<li><a href="%s"%s><i class="sprite" data-sprite="%s" data-px="2"></i>%s</a></li>' % (
+                u2, cur, esc(m2.get("sprite", "portal")), esc(m2.get("title", s2))))
+        head_title = "{{NAME}} wiki" if url == "index.html" else title + ": {{NAME}} wiki"
+        page = TEMPLATE.format(head_title=head_title, title=title, summary=esc(summary), nav="".join(nav), toc=toc,
+                               body=body, pager=pager, eyebrow=eyebrow, site=up + "../", wiki=up, home=up or "./")
+        return re.sub(r"\{\{(\w+)\}\}", lambda m: values.get(m.group(1), m.group(0)), page)
+
     index = []
     written = []
     for n, (order, slug, meta, text) in enumerate(pages):
@@ -892,12 +938,6 @@ def build(out_root, values=None):
         body = markdown(fill(text), gen)
         title = fill(meta.get("title", slug))
         summary = fill(meta.get("summary", ""))
-        nav = []
-        for _, s2, m2, _ in pages:
-            u2 = "./" if s2 == "index" else s2 + ".html"
-            cur = ' aria-current="page"' if s2 == slug else ""
-            nav.append('<li><a href="%s"%s><i class="sprite" data-sprite="%s" data-px="2"></i>%s</a></li>' % (
-                u2, cur, esc(m2.get("sprite", "portal")), esc(m2.get("title", s2))))
         heads = re.findall(r'<h2 id="([^"]+)"><a[^>]*>#</a>(.*?)</h2>', body)
         toc = ""
         if len(heads) > 2:
@@ -911,22 +951,26 @@ def build(out_root, values=None):
                 "./" if prev_p[1] == "index" else prev_p[1] + ".html", esc(prev_p[2].get("title", "")))
         if next_p:
             pager += '<a class="next" href="%s"><span>Next</span>%s</a>' % (next_p[1] + ".html", esc(next_p[2].get("title", "")))
-        head_title = "{{NAME}} wiki" if slug == "index" else esc(title) + ": {{NAME}} wiki"
-        page = TEMPLATE.format(head_title=head_title, title=esc(title), summary=esc(summary), nav="".join(nav), toc=toc, body=body,
-                               pager=pager, eyebrow=esc(meta.get("eyebrow", "Wiki")))
-        page = re.sub(r"\{\{(\w+)\}\}", lambda m: values.get(m.group(1), m.group(0)), page)
-        written.append((url, page))
+        written.append((url, render(url, slug, esc(title), summary, body, pager, esc(meta.get("eyebrow", "Wiki")), toc)))
         index.extend(sections(title, url, body))
+
+    # the gear pages: one per kind of item and one per class (tools/wiki_gear.py)
+    for url, current, title, eyebrow, summary, body, pager, entries in gen.equip.pages():
+        os.makedirs(os.path.dirname(os.path.join(out, url)), exist_ok=True)
+        written.append((url, render(url, current, esc(title), summary, body, pager, eyebrow)))
+        index.extend(entries)
+    icons = gen.equip.write_assets(out)
 
     # the index changes with the game's data even when website/ doesn't, so it has its own ?v=
     data = json.dumps(index, ensure_ascii=False, separators=(",", ":"))
-    stamp = hashlib.sha1(data.encode("utf-8")).hexdigest()[:10]
+    stamp = hashlib.sha1((data + icons).encode("utf-8")).hexdigest()[:10]
     with open(os.path.join(out, "search-index.js"), "w", encoding="utf-8", newline="\n") as f:
         f.write("// The wiki's search index, written by tools/build_wiki.py\nwindow.WIKI_INDEX = %s;\n" % data)
     for url, page in written:
-        with open(os.path.join(out, url), "w", encoding="utf-8", newline="\n") as f:
+        with open(os.path.join(out, url.replace("/", os.sep)), "w", encoding="utf-8", newline="\n") as f:
             f.write(page.replace("@INDEX@", stamp))
-    print("wiki: %d pages, %d dungeons, %d search entries" % (len(pages), len(gen.dungeons()), len(index)))
+    print("wiki: %d pages, %d dungeons, %d gear items on %d gear pages, %d search entries" % (
+        len(pages), len(gen.dungeons()), len(gen.equip.items), len(written) - len(pages), len(index)))
 
 
 def main():

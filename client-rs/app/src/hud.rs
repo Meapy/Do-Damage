@@ -224,12 +224,13 @@ impl Layout {
         50.0 * zoom as f64 * (self.h as f64 / 1440.0).max(1.0)
     }
 
-    /// Where the player stands (`Camera`'s screen rects): centred across the view, a little
-    /// below the middle (`centered`) or three quarters of the way down,
-    /// on a whole pixel so we're drawn on the same pixels every frame (`view::draw_object`).
+    /// Where the player stands (`Camera`'s screen rects): centred across the world left of the
+    /// bar (the world runs on under it, but that part is hidden), a little below the middle
+    /// (`centered`) or three quarters of the way down, on a whole pixel so we're drawn on the
+    /// same pixels every frame (`view::draw_object`).
     pub fn camera_point(&self, centered: bool) -> (f64, f64) {
         let down = if centered { 13.0 / 24.0 } else { 3.0 / 4.0 };
-        ((self.view_w() as f64 / 2.0).round(), (self.h as f64 * down).round())
+        ((self.col_x() as f64 / 2.0).round(), (self.h as f64 * down).round())
     }
 
     /// A font size in HUD units, on the screen (never unreadably small).
@@ -891,6 +892,8 @@ pub struct HudState {
     pub minimap_zoom: usize,
     /// The key bound to the Nexus, for its button.
     pub nexus_key: String,
+    /// The key bound to Interact, for the portal's Enter button.
+    pub interact_key: String,
     /// The keys bound to the health and magic potions, for their stacks.
     pub potion_keys: [String; 2],
     /// The boss history is open, and which boss in it shows everyone who hit it.
@@ -1476,7 +1479,8 @@ pub fn draw_panel(ui: &mut Ui, lay: &Layout, world: &World, camera_angle: f64, c
                 ui.label(&state.nexus_key, x0 + icon_w + gap, (cy - mid).round(), size, true, color::TEXT);
                 continue;
             }
-            Button::Enter(_) => ("Enter  0".to_owned(), Kind::Primary),
+            Button::Enter(_) if state.interact_key.is_empty() => ("Enter".to_owned(), Kind::Primary),
+            Button::Enter(_) => (format!("Enter  {}", state.interact_key), Kind::Primary),
             Button::Buy(_) => match panel.interact.as_ref().map(|i| i.kind) {
                 Some(InteractKind::Shop { price, currency, .. }) => (format!("Buy  ·  {}", price_text(price, currency)), Kind::Primary),
                 _ => continue,

@@ -13,6 +13,7 @@ using WorldServer.core.net;
 using WorldServer.core.objects;
 using WorldServer.core.worlds;
 using WorldServer.core.worlds.impl;
+using WorldServer.core.worlds.impl.doomed;
 using WorldServer.networking.packets.outgoing;
 
 namespace WorldServer.networking
@@ -135,6 +136,15 @@ namespace WorldServer.networking
                 pkt.ClearKey();
                 Player?.SendInfo("Moving you to the updated server...");
                 SendPacket(pkt);
+                return;
+            }
+
+            // an arena or minigame that has already started turns latecomers away here, with a
+            // message, rather than disconnecting them at the Hello
+            var target = GameServer.WorldManager.GetWorld(pkt.GameId);
+            if ((target is ArenaWorld || target is DoomedMinigame) && !target.CanEnter(this))
+            {
+                Player?.SendError("That game has already started. Wait for the next one.");
                 return;
             }
 

@@ -2,6 +2,7 @@
 using Shared.database;
 using Shared.resources;
 using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
@@ -121,6 +122,24 @@ namespace WorldServer.core.worlds
         public bool RemoveLabel(string labelName) => Labels.Remove(labelName.ToLower());
 
         public virtual bool AllowedAccess(Client client) => true;
+
+        // accounts brought here by /summon or /visit, until when: they may enter even when
+        // AllowedAccess would turn them away (an arena game that has already started)
+        private readonly ConcurrentDictionary<int, DateTime> _invited = new ConcurrentDictionary<int, DateTime>();
+
+        public void Invite(int accountId) => _invited[accountId] = DateTime.UtcNow.AddSeconds(60);
+
+        // AllowedAccess, or an invitation that hasn't run out
+        public bool CanEnter(Client client)
+        {
+            if (_invited.TryGetValue(client.Account.AccountId, out var until))
+            {
+                if (DateTime.UtcNow < until)
+                    return true;
+                _invited.TryRemove(client.Account.AccountId, out _);
+            }
+            return AllowedAccess(client);
+        }
 
         public void Broadcast(OutgoingMessage outgoingMessage)
         {

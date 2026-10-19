@@ -228,6 +228,7 @@ namespace WorldServer.core.commands.doomed
                 return true;
             }
             target.SendInfo($"You are being summoned by {player.Name}.");
+            player.World.Invite(target.Client.Account.AccountId); // even into an arena game that has started
             target.Client.Reconnect(new Reconnect()
             {
                 Host = "",

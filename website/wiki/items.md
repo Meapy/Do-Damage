@@ -19,6 +19,9 @@ The edge of an item's slot in your inventory shows what it is:
 Hover over an item for its tooltip: what it does, its numbers, and how they compare with what
 you're wearing (better in green, worse in red).
 
+The [Gear](gear.html) pages list every weapon, ability, armor and ring in the game, by kind and
+by class, with their numbers and where they come from.
+
 ## UT and ST items
 
 - **Untiered (UT)** items have no tier. They come from specific bosses, each with its own effect

@@ -1705,7 +1705,7 @@ fn spinner(ui: &mut Ui, cx: f32, cy: f32, radius: f32, now: i32, s: f32) {
 pub fn rank_tooltip(ui: &mut Ui, rank: i32, classes: i32, at: (f32, f32), s: f32) {
     let size = (13.0 * s).round();
     let line_h = 20.0 * s;
-    let (w, h) = (230.0 * s, 64.0 * s + line_h * (stars::COLORS.len() + 1) as f32);
+    let (w, h) = (250.0 * s, 64.0 * s + line_h * stars::COLORS.len() as f32);
     let (sw, sh) = ui.renderer.size();
     let r = [at.0.min(sw as f32 - w - 4.0).max(0.0), at.1.min(sh as f32 - h - 4.0).max(0.0), w, h];
     theme::shadow(ui.renderer, r, 8.0 * s, 12.0 * s, 0.5);
@@ -1719,11 +1719,14 @@ pub fn rank_tooltip(ui: &mut Ui, rank: i32, classes: i32, at: (f32, f32), s: f32
     let ly = y + 46.0 * s;
     theme::fill(ui.renderer, [x, ly - 4.0 * s, w - 20.0 * s, s.max(1.0)], 0.0, color::BORDER, 1.0);
     // LegendLine: a coloured star, the range, then a grey star.
-    let mut ranges: Vec<(u32, String)> = (0..stars::COLORS.len() as i32)
-        .map(|i| (stars::COLORS[i as usize], format!(": {} - {}", i * classes, (i + 1) * classes - 1)))
+    // the same steps as `stars::color`: the most stars split into ninths, the last up to the most
+    let last = stars::COLORS.len() as i32 - 1;
+    let ranges: Vec<(u32, String)> = (0..=last)
+        .map(|i| {
+            let (lo, hi) = (stars::step_start(i, classes), stars::step_start(i + 1, classes) - 1);
+            (stars::COLORS[i as usize], format!(": {lo} - {}", if i == last { hi + 1 } else { hi }))
+        })
         .collect();
-    let max = stars::max_stars(classes);
-    ranges.push((0xFFFFFF, format!(": {max}")));
     for (i, (c, text)) in ranges.iter().enumerate() {
         let ry = ly + 4.0 * s + i as f32 * line_h;
         theme::star(ui.renderer, x + 7.0 * s, ry + size * 0.62, 6.5 * s, *c);
