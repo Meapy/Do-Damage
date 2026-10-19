@@ -8,7 +8,7 @@ version (`python tools/build_client_rs.py --publish`) needs a section for that v
 refuses while an `Unreleased` one is left, so rename it to `## <version> (<date>)` then. The
 version number itself is in `client-rs/Cargo.toml`.
 
-## Unreleased
+## 1.2.9 (2026-10-19)
 - The Support Bot in the Nexus has a new tip about Elder dungeons and their better loot.
 - Every Oryx is worth killing now, and each stage pays more than the last. Every Oryx always
   drops a Potion of Attack and Defense (Oryx 5 Speed and Dexterity too), with more stat potions
