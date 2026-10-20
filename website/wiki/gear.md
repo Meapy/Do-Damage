@@ -1,6 +1,7 @@
 ---
 title: Gear
-nav: 7
+nav: 8
+parent: classes
 sprite: sword
 eyebrow: Every item
 summary: Every weapon, ability, armor and ring in the game, by kind and by class: tiered, untiered, set pieces, Legendary, admin and the rest, with their numbers and where they come from.

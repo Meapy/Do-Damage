@@ -1,6 +1,7 @@
 ---
 title: Classes
-nav: 9
+nav: 6
+group: Characters
 sprite: shield
 eyebrow: Who to play
 summary: Every class with its weapon, ability, armor, starting gear, what /gear gives it, and its highest stats.

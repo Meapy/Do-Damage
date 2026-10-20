@@ -448,6 +448,11 @@ code { font: .86em ui-monospace, "Cascadia Mono", Consolas, monospace; padding: 
 .wiki-nav a { display: flex; align-items: center; gap: 10px; padding: 8px 10px; color: var(--text-dim); font-weight: 500; font-size: .94rem; border-left: 3px solid transparent; }
 .wiki-nav a:hover { color: var(--text); background: var(--surface); }
 .wiki-nav a[aria-current] { color: var(--text); background: var(--surface); border-left-color: var(--ember); }
+.wiki-nav .group > a::after { content: "\25B8"; margin-left: auto; color: var(--text-muted); font-size: .8em; }
+.wiki-nav .group.open > a::after { content: "\25BE"; }
+.wiki-nav .group.open > a { color: var(--text); }
+.wiki-nav ul.sub { grid-template-columns: 1fr; margin: 2px 0 4px 20px; padding-left: 6px; border-left: 1px solid var(--line); }
+.wiki-nav .sub a { padding: 6px 10px; font-size: .9rem; }
 .wiki-nav .sprite { opacity: .85; }
 
 .wiki-main { min-width: 0; }

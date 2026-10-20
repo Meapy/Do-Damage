@@ -11,7 +11,10 @@ with a sidebar, links between the pages and a search over all of them.
   (GENERATORS below: the dungeon list, the classes, the commands, the Oryx chain, the shops, the
   pets and more), and `{{v:<name>}}` in the text by a number read from the code (VALUES), so the
   pages stay true as the game changes. Run `python tools/wiki_data.py` to see what the data says.
-- The Gear numbers page (gear-numbers.md) takes its tables from tools/wiki_balance.py.
+- The sidebar groups pages: one with `group: <name>` in its front matter heads a group of that
+  name and opens on itself; pages with `parent: <its slug>` are listed under it while one of the
+  group is showing.
+- The Gear statistics page (gear-statistics.md) takes its tables from tools/wiki_balance.py.
 - The gear pages (wiki/gear/, one per kind of item, and wiki/classes/, one per class) are built
   whole from the game's data by tools/wiki_gear.py, with the item sprites (wiki/icons.css and
   wiki/sheets/).
@@ -318,7 +321,7 @@ class Gen:
     def gen_gear(self, used):
         return self.equip.overview(used)
 
-    # --- the Gear numbers page (tools/wiki_balance.py) ---------------------------------------
+    # --- the Gear statistics page (tools/wiki_balance.py) ------------------------------------
     @property
     def balance(self):
         if getattr(self, "_balance", None) is None:
@@ -938,12 +941,26 @@ def build(out_root, values=None):
     def render(url, current, title, summary, body, pager, eyebrow, toc=""):
         """A page at wiki/<url>; `current` is the guide it's marked under in the page list."""
         up = "../" * url.count("/")
-        nav = []
-        for _, s2, m2, _ in pages:
+        def item(s2, m2, label=None):
             u2 = up + ("./" if s2 == "index" else s2 + ".html")
             cur = ' aria-current="page"' if s2 == current else ""
-            nav.append('<li><a href="%s"%s><i class="sprite" data-sprite="%s" data-px="2"></i>%s</a></li>' % (
-                u2, cur, esc(m2.get("sprite", "portal")), esc(m2.get("title", s2))))
+            return '<a href="%s"%s><i class="sprite" data-sprite="%s" data-px="2"></i>%s</a>' % (
+                u2, cur, esc(m2.get("sprite", "portal")), esc(label or m2.get("title", s2)))
+
+        # A page with `group:` heads a group named that, and opens on itself; the pages with
+        # `parent: <it>` are its sub-pages, listed under it while one of the group is showing.
+        nav = []
+        for _, s2, m2, _ in pages:
+            if m2.get("parent"):
+                continue
+            kids = [(s3, m3) for _, s3, m3, _ in pages if m3.get("parent") == s2]
+            if not kids:
+                nav.append("<li>%s</li>" % item(s2, m2))
+                continue
+            here = current == s2 or any(s3 == current for s3, _ in kids)
+            sub = "".join("<li>%s</li>" % item(s3, m3) for s3, m3 in kids) if here else ""
+            nav.append('<li class="group%s">%s%s</li>' % (" open" if here else "", item(s2, m2, m2.get("group")),
+                                                          '<ul class="sub">%s</ul>' % sub if sub else ""))
         head_title = "{{NAME}} wiki" if url == "index.html" else title + ": {{NAME}} wiki"
         page = TEMPLATE.format(head_title=head_title, title=title, summary=esc(summary), nav="".join(nav), toc=toc,
                                body=body, pager=pager, eyebrow=eyebrow, site=up + "../", wiki=up, home=up or "./")

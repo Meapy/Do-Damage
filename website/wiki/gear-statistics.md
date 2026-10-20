@@ -1,6 +1,7 @@
 ---
-title: Gear numbers
-nav: 7
+title: Gear statistics
+nav: 9
+parent: classes
 sprite: sword
 eyebrow: Every tier
 summary: Every tiered weapon, ability, armor and ring side by side, with what each tier adds over the one below, each class's damage a second with each weapon tier, and each class's effective health with each armor tier.

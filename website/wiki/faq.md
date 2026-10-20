@@ -1,6 +1,6 @@
 ---
 title: FAQ and help
-nav: 10
+nav: 11
 sprite: bolt
 eyebrow: Help
 summary: Browser or desktop, updates, sign-in trouble, and how to report a bug.

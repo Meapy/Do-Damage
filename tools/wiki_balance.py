@@ -1,4 +1,4 @@
-"""The wiki's Gear numbers page (website/wiki/gear-numbers.md), built with the rest by
+"""The wiki's Gear statistics page (website/wiki/gear-statistics.md), built with the rest by
 tools/build_wiki.py from the game's data:
 
 - {{gen:tier-tables}}: every tiered item, one table per kind, lowest tier first, with what changes

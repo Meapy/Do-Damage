@@ -1,6 +1,7 @@
 ---
 title: Pets
-nav: 8
+nav: 10
+parent: classes
 sprite: potion
 eyebrow: Gear and stuff
 summary: Every pet in the game: the pet generators and what each pet does, the items that summon a helper for a while, and the pet yard's pets.

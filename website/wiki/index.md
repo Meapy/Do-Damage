@@ -25,7 +25,9 @@ the site updates, so they match what you'll see in game.
 - **Ready for the endgame?** [The Oryx chain](endgame.html) takes you from a closing realm down to
   the Doomed Cellar.
 - **What does this item do?** [Items](items.html) covers tiers, UT and ST items, keys, the vault,
-  trading and the shops. [Pets](pets.html) lists every pet and what it does.
+  trading and the shops. [Gear statistics](gear-statistics.html) puts every tier side by side,
+  with each class's damage and effective health. [Pets](pets.html) lists every pet and what it
+  does.
 - **Which class?** [Classes](classes.html) has all {{v:class_count}} of them, with their weapons,
   abilities and highest stats.
 - **Something wrong?** The [FAQ](faq.html) answers the usual questions and says how to report a bug.
