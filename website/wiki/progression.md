@@ -52,7 +52,9 @@ each potion to start, and each upgrade ({{v:storage_cost}} fame) adds {{v:storag
 its window you can store, take out, drink, or drink just enough to max a stat.
 
 A **Potion of Oryx** counts as all eight potions at once. It's rare from the deepest Oryx stages
-and can be forged from one of each stat potion (`/forge`).
+and can be forged from one of each stat potion (`/forge`). For a stat that's already maxed, its
+potion goes to your potion storage instead (the message says which). If that storage is full, the
+Potion of Oryx isn't drunk at all: it stays, and the message says which storage to empty.
 
 Health and magic potions (not stat potions) stack up to {{v:potion_stack}} in the HP and MP slots
 next to your inventory; drag one there or double-click it. <kbd>F</kbd> and <kbd>V</kbd> drink

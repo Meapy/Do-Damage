@@ -347,8 +347,9 @@ class Data:
         return out
 
     def pets(self):
-        """Pet generators with their PermaPet numbers: [(item, pet, dps, hp, hpms, mp, mpms)];
-        hp and mp are what one heal restores, as written ("10-60" or "76"), empty for none."""
+        """Pet generators with their PermaPet numbers: [(item, pet, dps, hp, hpms, mp, mpms, size,
+        effects)]; hp and mp are what one heal restores, as written ("10-60" or "76"), empty for
+        none; size is Small, Medium, Large or Admin (empty for none) and effects what else it does."""
         out = []
         for oid, o in self.objects.items():
             for a in o["activate_attrs"]:
@@ -359,6 +360,8 @@ class Data:
                         "dps": _int(a.get("petDps")), "hp": (a.get("petHp") or "").strip(),
                         "hpms": _int(a.get("petHpMs")), "mp": (a.get("petMp") or "").strip(),
                         "mpms": _int(a.get("petMpMs")), "doomed": "DoomedRealms" in o["file"],
+                        "size": (a.get("petSize") or "").strip(),
+                        "effects": [e for e in (a.get("petEffects") or "").split("; ") if e],
                     })
         return out
 

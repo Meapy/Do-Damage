@@ -25,8 +25,10 @@ version number itself is in `client-rs/Cargo.toml`.
   10. Bes's orange boomerangs break armor, Nut also throws small shots that paralyze for a
   moment, the Kythal pets' big shot weakens, and Zenco's and the Doomed Nature Beast's attacks make
   enemies bleed. Nightmare shoots 3 shots in an arc, Scootaloo's dust reaches much further and
-  every fifth shot is a fast wave that slows, and Lil' Oryx shoots like Oryx the Mad God. Kythal
-  and Zenco do less damage, and Horrific Creation no longer shoots its ring of white balls.
+  every fifth shot is a fast wave that slows, and Lil' Oryx shoots like Oryx the Mad God. Kythal,
+  Zenco, Shroom and Cerberus Skull do less damage, and Horrific Creation no longer shoots its ring
+  of white balls. A pet generator's tooltip lists what else its pet does.
+- The wiki's Pets page lists pets by size, with what each one does besides damage and healing.
 - Dinosaur's Thessal and Phoenix are no longer sold. If you have one, you keep it.
 - The Tomb pets' (Bes, Geb, Nut) ring of spinners now does a little damage. The Sphinx pet now
   uses all three of the Grand Sphinx's shots, and Lil' Malphas aims its shields and fires its

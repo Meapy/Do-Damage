@@ -71,7 +71,9 @@ Every key can be rebound in Options (<kbd>O</kbd>).
 | <kbd>Esc</kbd> | Menu: characters, options, log out |
 
 Hover over any item to see what it does; the numbers that beat what you're wearing show in green.
-Hover over a nearby player for their rank and gear.
+Hover over a nearby player for their rank and gear. Right-click one in the Nearby players list (or
+on the minimap) to keep their card open, then hover the items they wear for each one's tooltip;
+right-click again or click anywhere else to close it.
 
 ## The Nexus
 

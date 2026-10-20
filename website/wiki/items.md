@@ -71,6 +71,9 @@ Nexus spawn. In it:
   items out but not put them in.
 - The **Potion Storage**, the Armoire and the Guild Chronicle.
 - A portal to the **marketplace**.
+- A **Training Dummy** beside the spawn. Shoot it and, 5 seconds after your first hit, the chat
+  tells you (and only you) your damage and damage a second, your pet's included. It never dies and
+  gives no experience. [Gear statistics](gear-statistics.html) has every class's numbers on it.
 
 The Nexus also has four **shared vault chests** in its south yard. Anyone can use them, so treat
 them as a place to hand things to friends, not to store them.

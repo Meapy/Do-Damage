@@ -571,7 +571,9 @@ class Gear:
         edge = self._edges.get("untiered", SPECIAL_EDGE)
         ids = set()
         cards = []
-        for p in sorted(d.pets(), key=lambda p: (-p["dps"], p["name"].lower())):
+        # by size, the biggest first, then the strongest
+        order = {"Admin": 0, "Large": 1, "Medium": 2, "Small": 3}
+        for p in sorted(d.pets(), key=lambda p: (order.get(p["size"], 4), -p["dps"], p["name"].lower())):
             oid = p["item"]
             lines = ['<p class="it-nums">Damage a second <b>%d</b></p>' % p["dps"]] if p["dps"] else []
             pet = d.name(p["pet"]) if p["pet"] else ""
@@ -582,13 +584,16 @@ class Gear:
             if heals:
                 lines.append('<dl class="it-heal"><span>Heals</span>%s</dl>' % "".join(
                     '<div class="%s"><dt>%s</dt><dd>%s</dd></div>' % (what.lower(), what, value) for what, value in heals))
+            for effect in p["effects"]:
+                lines.append('<p class="it-line"><span>Also</span> %s</p>' % h.esc(effect))
             src = self._item_sources(oid)
             if oid in sold and price and not any("Nexus Bazaar" in v for _, v in src):
                 src.append(("Shop", "Nexus Bazaar (pets), %d fame" % price))
             flags = [x for x, on in (("Soulbound", d.objects[oid]["soulbound"]), ("From Doomed Realms", p["doomed"])) if on]
-            search = " ".join([p["name"], pet, "pet generator"] + [re.sub(r"<[^>]+>", "", v) for _, v in src])
+            search = " ".join([p["name"], pet, "pet generator", p["size"]] + p["effects"] + [re.sub(r"<[^>]+>", "", v) for _, v in src])
+            tag = " · ".join(x for x in (p["size"], "%d DPS" % p["dps"] if p["dps"] else "") if x) or "Pet"
             cards.append(self._pet_card(self._anchor("pet-" + oid, ids), d.texture(p["pet"]) or d.texture(oid), edge,
-                                        p["name"], "%d DPS" % p["dps"] if p["dps"] else "Pet", lines,
+                                        p["name"], tag, lines,
                                         d.objects[oid]["desc"].strip(), src, flags, search))
         return (self._filter_box("pet-filter", "Pet, monster or shop", "#pet-list .it")
                 + '<div class="its" id="pet-list">%s</div>' % "".join(cards))
