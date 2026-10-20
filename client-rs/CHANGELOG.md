@@ -21,6 +21,8 @@ version number itself is in `client-rs/Cargo.toml`.
 - Every tiered weapon, ability, armor and ring can now be forged from two of the tier below (two
   Rings of Attack make a Ring of Greater Attack), and forging a tiered item never costs more than
   2,000 fame. The forge lists untiered items first, then tiered ones from the highest tier down.
+- The forge no longer makes overpowered items like the Crown, or items no monster drops (such as
+  the Potion of Maxy and the forge-only spells and tomes).
 - Tiered abilities rebalanced. Quivers do 10% more damage, and from T5 they shoot 3 arrows in a
   bow's arc. Tomes from T5 also give you +2 Attack and +2 Dexterity for 4 seconds. Helms can be
   used again straight away, which restarts their buffs. Shields do 10% less damage. Poisons do

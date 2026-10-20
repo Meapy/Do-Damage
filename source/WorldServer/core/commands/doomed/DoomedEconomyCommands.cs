@@ -52,9 +52,9 @@ namespace WorldServer.core.commands.doomed
         }
 
         // the recipe making `result` from exactly these items (each ingredient used once)
-        public static (string Result, int Fame, bool Advanced, string[] Items)? FindRecipe(XmlData data, string[] items, bool amulet, string result)
+        public static (string Result, int Fame, bool Advanced, string[] Items)? FindRecipe(GameServer server, string[] items, bool amulet, string result)
         {
-            foreach (var r in ForgeRecipes.All(data))
+            foreach (var r in ForgeRecipes.All(server))
             {
                 if (r.Result != result || r.Items.Length != items.Length || (r.Advanced && !amulet))
                     continue;
@@ -76,7 +76,7 @@ namespace WorldServer.core.commands.doomed
             var inv = player.Inventory;
             var amulet = WearsForgeAmulet(player);
             var data = player.GameServer.Resources.GameData;
-            var recipe = FindRecipe(data, slots.Select(s => inv[s].ObjectId).ToArray(), amulet, result);
+            var recipe = FindRecipe(player.GameServer, slots.Select(s => inv[s].ObjectId).ToArray(), amulet, result);
             if (recipe == null)
                 return "Those items don't forge into that.";
             fame = recipe.Value.Fame / (amulet ? 2 : 1);

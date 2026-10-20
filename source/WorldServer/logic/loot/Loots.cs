@@ -116,6 +116,35 @@ namespace WorldServer.logic.loot
 
             Items = Items.OrderBy(_ => _.Key).ToDictionary(_ => _.Key, _ => _.Value);
         }
+        // What bosses drop in January and May besides their own loot (ExtraLootTables), and the forge
+        // counts as droppable (ForgeRecipes)
+        public static readonly (string Item, double Chance)[] WinterBossDrops =
+        {
+            ("Frost Citadel Armor", 0.004),
+            ("Frost Drake Hide Armor", 0.004),
+            ("Frost Elementalist Robe", 0.004),
+            ("Scepter of Sainthood", 0.002),
+            ("Snowbound Orb", 0.002),
+            ("Pathfinder's Helm", 0.002),
+            ("Coalbearing Quiver", 0.002),
+            ("Skull of Krampus", 0.002),
+            ("Vigil Spell", 0.002),
+            ("Greedsnatcher Trap", 0.002),
+            ("Resounding Shield", 0.002),
+            ("Ornamental Prism", 0.002),
+            ("Nativity Tome", 0.002),
+            ("Holly Poison", 0.002),
+            ("Cloak of Winter", 0.002),
+            ("Advent Seal", 0.002),
+            ("Ilex Star", 0.002),
+            ("Icicle Launcher", 0.003),
+            ("Winter's Breath Wand", 0.003),
+            ("Frosty's Walking Stick", 0.003),
+            ("Frost Lich's Finger", 0.003),
+            ("Saint Nicolas' Blade", 0.003),
+            ("Yuki", 0.003),
+        };
+
         private List<LootDef> ExtraLootTables(List<LootDef> list, Enemy enemy)
         {
             var gameData = enemy.GameServer.Resources.GameData;
@@ -127,29 +156,8 @@ namespace WorldServer.logic.loot
                 if (TimeOfYear.CurrentMonth == TimeOfYear.Month.May ||
                     TimeOfYear.CurrentMonth == TimeOfYear.Month.January)
                 {
-                    list.Add(new LootDef("Frost Citadel Armor", 0.004, 0.01));
-                    list.Add(new LootDef("Frost Drake Hide Armor", 0.004, 0.01));
-                    list.Add(new LootDef("Frost Elementalist Robe", 0.004, 0.01));
-                    list.Add(new LootDef("Scepter of Sainthood", 0.002, 0.01));
-                    list.Add(new LootDef("Snowbound Orb", 0.002, 0.01));
-                    list.Add(new LootDef("Pathfinder's Helm", 0.002, 0.01));
-                    list.Add(new LootDef("Coalbearing Quiver", 0.002, 0.01));
-                    list.Add(new LootDef("Skull of Krampus", 0.002, 0.01));
-                    list.Add(new LootDef("Vigil Spell", 0.002, 0.01));
-                    list.Add(new LootDef("Greedsnatcher Trap", 0.002, 0.01));
-                    list.Add(new LootDef("Resounding Shield", 0.002, 0.01));
-                    list.Add(new LootDef("Ornamental Prism", 0.002, 0.01));
-                    list.Add(new LootDef("Nativity Tome", 0.002, 0.01));
-                    list.Add(new LootDef("Holly Poison", 0.002, 0.01));
-                    list.Add(new LootDef("Cloak of Winter", 0.002, 0.01));
-                    list.Add(new LootDef("Advent Seal", 0.002, 0.01));
-                    list.Add(new LootDef("Ilex Star", 0.002, 0.01));
-                    list.Add(new LootDef("Icicle Launcher", 0.003, 0.01));
-                    list.Add(new LootDef("Winter's Breath Wand", 0.003, 0.01));
-                    list.Add(new LootDef("Frosty's Walking Stick", 0.003, 0.01));
-                    list.Add(new LootDef("Frost Lich's Finger", 0.003, 0.01));
-                    list.Add(new LootDef("Saint Nicolas' Blade", 0.003, 0.01));
-                    list.Add(new LootDef("Yuki", 0.003, 0.01));
+                    foreach (var (item, chance) in WinterBossDrops)
+                        list.Add(new LootDef(item, chance, 0.01));
                 }
             }
             /*if (NexusWorld.GetCurrentMonth == 5 ||

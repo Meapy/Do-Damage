@@ -20,7 +20,7 @@ namespace WorldServer.core.net.handlers
             var data = client.GameServer.Resources.GameData;
             var types = data.IdToObjectType;
             // recipes whose result or ingredients aren't items here are left out
-            var recipes = ForgeRecipes.All(data)
+            var recipes = ForgeRecipes.All(client.GameServer)
                 .Where(r => types.ContainsKey(r.Result) && r.Items.All(types.ContainsKey))
                 .Select(r => (types[r.Result], r.Fame, r.Advanced, r.Items.Select(i => types[i]).ToArray()))
                 .ToArray();
