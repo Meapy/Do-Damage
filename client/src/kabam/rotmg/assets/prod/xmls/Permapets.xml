@@ -39,7 +39,7 @@
       <NoMiniMap/>
       <Z>0.15</Z>
       <Flying/>
-      <Size>40</Size>
+      <Size>60</Size>
       <ShadowSize>70</ShadowSize>
    </Object>
    <Object type="0x1547" id="Beer Slurp Generator">
@@ -75,7 +75,7 @@
          </AnimatedTexture>
       </AltTexture>
       <NoMiniMap/>
-      <Size>60</Size>
+      <Size>95</Size>
       <ShadowSize>50</ShadowSize>
    </Object>
    <Object type="0x153f" id="Beach Ball Generator">

@@ -64,19 +64,27 @@ SMALL_PETS = {
 # godland and dungeon monsters, heroes, the players' own named pets and other striking sprites
 MEDIUM_PETS = {
     "Angell", "Ninjaa", "Knightt", "Paladinn", "Priestt", "sharkmann", "Pumpkinnnnn", "Beholderr", "Drakee",
-    "Reddemonn", "Phoenixx", "Djinnn", "Reaperr", "Tornadoo", "Cookiee", "Gyaradoss", "Nightmareee", "pumpkmann",
-    "Zombie Penguin", "Shroom (Doomed)", "Skeletal Guardian Pet", "Kythal the Skull", "Cerberus Skull", "Sea Maree",
-    "Pyramid Artifact P", "KingSlime", "Josh's Pet", "Dallas's Pet", "Astro's Griffin", "Aceaku's Pet",
-    "Lunar's Phoenix", "Support Bot", "Knight Pet", "Twilight Sparkle",
+    "Reddemonn", "Phoenixx", "Djinnn", "Reaperr", "Tornadoo", "Gyaradoss", "pumpkmann", "Zombie Penguin",
+    "Skeletal Guardian Pet", "Sea Maree", "Pyramid Artifact P", "KingSlime", "Josh's Pet", "Dallas's Pet",
+    "Astro's Griffin", "Aceaku's Pet", "Lunar's Phoenix", "Support Bot", "Knight Pet",
 }
-# bosses: these, and any pet drawn as a boss (find_bosses)
+# bosses and the other pets that shoot: these, and any pet drawn as a boss (find_bosses)
 LARGE_PETS = {
     "Gebb", "Bess", "Nutt", "Thessal Pet", "Dinosaur's Pet", "Skull Shrine P", "Cubee", "Septaviuss", "Malphass",
     "Sthenos", "Horrificc", "Limonn", "Coill Snake", "Scootaloo", "sphinxxx",
-    "Kythal the Necromancer", "Zenco The Undead God", "Doomed Nature Beast",
+    "Kythal the Necromancer", "Zenco The Undead God", "Doomed Nature Beast", "Kythal the Skull", "Cerberus Skull",
+    "Cookiee", "Nightmareee", "Shroom (Doomed)", "Twilight Sparkle",
 }
 # admins' own pets: their generators are marked <Admin/>, so they can't be traded
 ADMIN_PETS = {"Lil' Oryx (Doomed)"}
+# How big each size is drawn, in a character's heights (a character is an 8x8 sprite at Size 100): a
+# pet's <Size> is set from how much of its sprite's frame the picture covers (pet_draw_sizes).
+SIZE_HEIGHTS = {"Small": 0.6, "Medium": 0.85, "Large": 1.2, "Admin": 1.2}
+# where pets' <Size> is written: the port's XML and betterSkillys' own pets
+PET_XMLS = ITEM_XMLS + [os.path.join(ROOT, "source", "Shared", "resources", "xml", "prod", "EmbeddedData_PermapetsCXML.xml"),
+                        os.path.join(ROOT, "client", "src", "kabam", "rotmg", "assets", "prod", "xmls", "Permapets.xml")]
+# the sprite sheets' files and cell sizes (tools/gen_rs_manifest.py), paths relative to client/src
+MANIFEST = os.path.join(ROOT, "client-rs", "assets", "manifest.json")
 # Shoot's parameters in order (logic/behaviors/Shoot.cs)
 SHOOT_PARAMS = ["radius", "count", "shootAngle", "projectileIndex", "fixedAngle", "rotateAngle", "angleOffset",
                 "defaultAngle", "predictive", "coolDownOffset", "coolDown"]
@@ -404,6 +412,7 @@ def write_pet_behaviors(dr_root, dr, chosen, bs, types):
         f.write("\n".join(lines) + ";\n")
         f.write("    }\n}\n")
     annotate_generators(stats)
+    write_pet_draw_sizes({oid: s["size"] for oid, s in stats.items() if s.get("size")})
     write_boss_projectiles(boss_projs)
     for pet in sorted(boss_projs):
         print("  %s shoots like %s" % (pet, bosses[pet]))
@@ -450,8 +459,69 @@ def apply_sizes():
             oid = saxutils.unescape(m.group(1), {"&quot;": '"', "&apos;": "'"})
             stats.setdefault(oid, {})["dps"] = int(m.group(2))
     annotate_generators(stats)
+    write_pet_draw_sizes({oid: s["size"] for oid, s in stats.items() if s.get("size")})
     unsized = sorted(oid for oid in stats if oid not in SMALL_PETS | MEDIUM_PETS | LARGE_PETS | ADMIN_PETS and stats[oid].get("size") is None)
     print("%d pets sized; keeping their own healing: %s" % (sized, ", ".join(unsized) or "none"))
+
+
+def sprite_extent(obj, sheets, anims):
+    """The longer side, in pixels, of what an object's sprite covers in its (first) frame; None when
+    it has no picture."""
+    from PIL import Image  # only here: the rest of the port doesn't need Pillow
+    anim = obj.find("AnimatedTexture")
+    tex = anim if anim is not None else obj.find("Texture")
+    if tex is None:
+        return None
+    sheet = (anims if anim is not None else sheets).get(tex.findtext("File", "").strip())
+    if not sheet or not sheet.get("file"):
+        return None
+    index = int(tex.findtext("Index", "0").strip(), 0)
+    image = Image.open(os.path.join(ROOT, "client", "src", sheet["file"])).convert("RGBA")
+    if anim is not None:
+        # a character's row; its first frame, the square at the start (a 16x8 sheet's second half
+        # is for the attack frame), is the standing one
+        w = h = sheet["h"]
+        x, y = 0, index * h
+    else:
+        w, h = sheet["w"], sheet["h"]
+        cols = image.width // w
+        x, y = index % cols * w, index // cols * h
+    box = image.crop((x, y, x + w, y + h)).getchannel("A").getbbox()
+    return max(box[2] - box[0], box[3] - box[1]) if box else None
+
+
+def pet_draw_size(extent, size):
+    """<Size> drawing a sprite covering extent pixels at its size's height, to the nearest 5."""
+    return int(round(SIZE_HEIGHTS[size] * 8 / extent * 100 / 5.0)) * 5
+
+
+def write_pet_draw_sizes(sizes):
+    """Sets each sized pet's <Size> (sizes: pet id -> size) in PET_XMLS, so that pets of a size look
+    about as big as one another, whatever their sprite's resolution."""
+    import json
+    manifest = json.load(open(MANIFEST, encoding="utf-8"))
+    sheets = {s["name"]: s for s in manifest["image_sets"]}
+    anims = {s["name"]: s for s in manifest["animated_chars"]}
+    for path in PET_XMLS:
+        text = open(path, encoding="utf-8", newline="").read()
+        objects = {o.get("id"): o for o in ET.fromstring(text.encode("utf-8")).iter("Object")}
+
+        def resize(m):
+            oid = saxutils.unescape(m.group(2), {"&quot;": '"', "&apos;": "'"})
+            obj = objects.get(oid)
+            if oid not in sizes or obj is None or obj.findtext("Class") != "Character":
+                return m.group(0)
+            extent = sprite_extent(obj, sheets, anims)
+            if not extent:
+                return m.group(0)
+            new = "<Size>%d</Size>" % pet_draw_size(extent, sizes[oid])
+            # the object's own <Size>, not its projectiles'
+            return re.sub(r"(<Projectile\b.*?</Projectile>)|<Size>[^<]*</Size>",
+                          lambda s: s.group(1) or new, m.group(0), flags=re.S)
+
+        text = re.sub(r'(<Object [^>]*\sid="([^"]*)"[^>]*>)(.*?)</Object>', resize, text, flags=re.S)
+        with open(path, "w", encoding="utf-8", newline="") as f:
+            f.write(text)
 
 
 def shots_on_target(count, angle, offset):
