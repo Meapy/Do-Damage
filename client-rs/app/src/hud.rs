@@ -888,6 +888,9 @@ pub struct HudState {
     last_click: Option<(i32, u8, i32)>,
     /// The player menu: for whom, and where it opened.
     menu: Option<(i32, (f32, f32))>,
+    /// A player's card kept open by a right-click, so their gear can be looked over: whose, and
+    /// where it was opened.
+    pinned: Option<(i32, (f64, f64))>,
     /// Which of the minimap's zoom levels (`MiniMap.zoomIndex`): 0 is the closest.
     pub minimap_zoom: usize,
     /// The key bound to the Nexus, for its button.
@@ -980,6 +983,8 @@ pub struct Panel {
     /// The trade window and the player menu, when up (clicks inside them stay there).
     trade_rect: Option<[f32; 4]>,
     menu_rect: Option<[f32; 4]>,
+    /// The player card kept open (`HudState::pinned`): whose, and where it is.
+    pinned: Option<(i32, [f32; 4])>,
     /// The nearby players listed, and the invitation shown.
     members: Vec<(i32, String, i32, bool)>,
     /// Other players on the minimap: id, name, where.
@@ -1002,6 +1007,7 @@ impl Panel {
             shop_icon: None,
             trade_rect: None,
             menu_rect: None,
+            pinned: None,
             members: Vec::new(),
             minimap_players: Vec::new(),
             minimap: None,
@@ -1148,6 +1154,11 @@ impl Panel {
                 }
             }
         }
+        if let Some((id, at)) = state.pinned {
+            if let Some(p) = world.objects.get(&id) {
+                panel.pinned = Some((id, player_card_rect(lay, p, at)));
+            }
+        }
         panel
     }
 
@@ -1173,8 +1184,35 @@ impl Panel {
         self.buttons.iter().find(|(_, r)| inside(*r, pos)).map(|(b, _)| *b)
     }
 
+    /// The right button went down at `pos`: on a nearby player (in the list, or alone under the
+    /// mouse on the minimap) it keeps their card open, so their gear can be hovered; on them again,
+    /// or off the card, it closes it. True if the HUD took it.
+    pub fn right_click(&self, state: &mut HudState, lay: &Layout, pos: (f64, f64)) -> bool {
+        let id = match (self.button_at(pos), self.minimap_players_at(pos, lay.s).as_slice()) {
+            (Some(Button::Member(id)), _) => Some(id),
+            (_, [(id, _, _)]) => Some(*id),
+            _ => None,
+        };
+        if let Some(id) = id {
+            state.pinned = if state.pinned.is_some_and(|(p, _)| p == id) { None } else { Some((id, pos)) };
+            return true;
+        }
+        if self.pinned.is_some_and(|(_, r)| inside(r, pos)) {
+            return true;
+        }
+        state.pinned = None;
+        false
+    }
+
     /// The left button went down at `pos`. True if the HUD took it (so the game doesn't fire).
     pub fn press(&self, state: &mut HudState, lay: &Layout, pos: (f64, f64), shift: bool, now: i32, actions: &mut Vec<Action>) -> bool {
+        // The card kept open keeps its clicks; a click anywhere else closes it.
+        if let Some((_, r)) = self.pinned {
+            if inside(r, pos) {
+                return true;
+            }
+            state.pinned = None;
+        }
         // The player menu: an option, or a click anywhere else closes it.
         if let Some(r) = self.menu_rect {
             state.menu = None;
@@ -1252,6 +1290,10 @@ impl Panel {
 
     /// The mouse moved: a press becomes a drag once it has gone a few pixels.
     pub fn moved(&self, state: &mut HudState, pos: (f64, f64)) {
+        // The player whose card was kept open has gone.
+        if self.pinned.is_none() {
+            state.pinned = None;
+        }
         if let Some((slot, from)) = state.press {
             if (pos.0 - from.0).hypot(pos.1 - from.1) > 4.0 {
                 state.drag = Some(slot);
@@ -1865,20 +1907,36 @@ pub fn draw_overlay(ui: &mut Ui, lay: &Layout, world: &World, panel: &Panel, sta
         ui.item_icon(drag.item, 80, mx, my, lay.s);
         return;
     }
+    // The card kept open by a right-click, and the tooltip of the item under the mouse on it.
+    if let Some((id, r)) = panel.pinned {
+        if let Some(p) = world.objects.get(&id) {
+            draw_player_card(ui, lay, p, r, true);
+            if inside(r, mouse) {
+                let slots = player_card_slots(lay, p, r);
+                let item = (0..4u8).find(|&i| inside(slots[i as usize], mouse)).map_or(-1, |i| p.stat_int(slot_stat(i)).unwrap_or(-1));
+                if item > 0 {
+                    let lines = item_tooltip(ui.data, item, world.player(), SlotKind::Shop);
+                    draw_tooltip(ui, lay, &lines, Some(item), crate::screens::tier_edge(ui.data, item), mouse);
+                }
+                return;
+            }
+        }
+    }
     // A nearby player in the list: who they are, their health, magic and gear (PlayerToolTip).
     let member = panel.buttons.iter().find_map(|(b, r)| match b {
         Button::Member(id) if inside(*r, mouse) => Some(*id),
         _ => None,
     });
-    if let Some(p) = member.and_then(|id| world.objects.get(&id)) {
-        draw_player_card(ui, lay, p, mouse);
+    let hovered = |id: i32| panel.pinned.is_none_or(|(p, _)| p != id);
+    if let Some(p) = member.filter(|&id| hovered(id)).and_then(|id| world.objects.get(&id)) {
+        draw_player_card(ui, lay, p, player_card_rect(lay, p, mouse), false);
         return;
     }
     // Players under the mouse on the minimap (`PlayerGroupToolTip`): one is shown in full.
     let near = panel.minimap_players_at(mouse, lay.s);
     if let [(id, _, _)] = near.as_slice() {
-        if let Some(p) = world.objects.get(id) {
-            draw_player_card(ui, lay, p, mouse);
+        if let Some(p) = world.objects.get(id).filter(|_| hovered(*id)) {
+            draw_player_card(ui, lay, p, player_card_rect(lay, p, mouse), false);
             return;
         }
     }
@@ -1922,12 +1980,15 @@ pub fn draw_overlay(ui: &mut Ui, lay: &Layout, world: &World, panel: &Panel, sta
     draw_tooltip(ui, lay, &lines, if slot.item > 0 { Some(slot.item) } else { None }, accent, mouse);
 }
 
-/// `PlayerToolTip`: a player's name, guild, level and class, health and magic, and the four
-/// items they wear, in a box beside the mouse.
-fn draw_player_card(ui: &mut Ui, lay: &Layout, p: &GameObj, mouse: (f64, f64)) {
+/// Whether a player's card has a line for their guild.
+fn has_guild(p: &GameObj) -> bool {
+    p.stat_str(62).is_some_and(|g| !g.is_empty())
+}
+
+/// Where a player's card sits, beside the mouse at `mouse`.
+fn player_card_rect(lay: &Layout, p: &GameObj, mouse: (f64, f64)) -> [f32; 4] {
     let s = lay.s;
-    let (w, h) = (230.0 * s, 150.0 * s);
-    let pad = 10.0 * s;
+    let (w, h) = (230.0 * s, if has_guild(p) { 169.0 } else { 154.0 } * s);
     let (mut x0, mut y0) = (mouse.0 as f32 + 16.0 * s, mouse.1 as f32 + 8.0 * s);
     if x0 + w > lay.w {
         x0 = mouse.0 as f32 - w - 8.0 * s;
@@ -1935,7 +1996,21 @@ fn draw_player_card(ui: &mut Ui, lay: &Layout, p: &GameObj, mouse: (f64, f64)) {
     if y0 + h > lay.h {
         y0 = (lay.h - h).max(0.0);
     }
-    let r = [x0.max(0.0), y0, w, h];
+    [x0.max(0.0), y0, w, h]
+}
+
+/// The four equipment slots on a player's card at `r`.
+fn player_card_slots(lay: &Layout, p: &GameObj, r: [f32; 4]) -> [[f32; 4]; 4] {
+    let s = lay.s;
+    let sy = r[1] + if has_guild(p) { 101.0 } else { 86.0 } * s;
+    std::array::from_fn(|i| [r[0] + 10.0 * s + i as f32 * 44.0 * s, sy, 40.0 * s, 40.0 * s])
+}
+
+/// `PlayerToolTip`: a player's name, guild, level and class, health and magic, and the four
+/// items they wear, in a box at `r`; `pinned` when a right-click keeps it open.
+fn draw_player_card(ui: &mut Ui, lay: &Layout, p: &GameObj, r: [f32; 4], pinned: bool) {
+    let s = lay.s;
+    let (w, pad) = (r[2], 10.0 * s);
     theme::shadow(ui.renderer, r, 8.0 * s, 12.0 * s, 0.5);
     theme::frame(ui.renderer, r, 8.0 * s, s.max(1.0), (color::BORDER_HI, 0.9), ((color::PANEL_TOP, 0.97), (color::PANEL_BOTTOM, 0.98)));
     let (x, y) = (r[0] + pad, r[1] + pad);
@@ -1957,7 +2032,7 @@ fn draw_player_card(ui: &mut Ui, lay: &Layout, p: &GameObj, mouse: (f64, f64)) {
     let info = format!("Level {} {class}", stat(stat::LEVEL));
     ui.label(&info, x, y + 20.0 * s, lay.font(11.5), false, color::TEXT_DIM);
     let mut by = y + 36.0 * s;
-    if let Some(guild) = p.stat_str(62).filter(|g| !g.is_empty()) {
+    if let Some(guild) = p.stat_str(62).filter(|_| has_guild(p)) {
         ui.label(guild, x, by, lay.font(11.0), true, 0xA6FF5D);
         by += 15.0 * s;
     }
@@ -1978,15 +2053,17 @@ fn draw_player_card(ui: &mut Ui, lay: &Layout, p: &GameObj, mouse: (f64, f64)) {
     bar(ui, by, "HP", stat(stat::HP), stat(stat::MAX_HP), 0xE03434);
     bar(ui, by + 18.0 * s, "MP", stat(stat::MP), stat(stat::MAX_MP), 0x3A6FE0);
     // The equipment, in slots.
-    let sy = by + 40.0 * s;
+    let slots = player_card_slots(lay, p, r);
     for i in 0..4u8 {
-        let sr = [x + i as f32 * 44.0 * s, sy, 40.0 * s, 40.0 * s];
+        let sr = slots[i as usize];
         let item = p.stat_int(slot_stat(i)).unwrap_or(-1);
         ui.slot_box(sr, if item > 0 { crate::screens::tier_edge(ui.data, item) } else { None }, false, s);
         if item > 0 {
             ui.item_icon(item, 80, sr[0] + sr[2] / 2.0, sr[1] + sr[3] / 2.0, s);
         }
     }
+    let hint = if pinned { "Hover an item to see it, right-click to close" } else { "Right-click to keep open" };
+    ui.label(hint, x, slots[0][1] + 44.0 * s, lay.font(10.0), false, color::TEXT_MUTED);
 }
 
 /// One line of a tooltip: one or more pieces, each in its colour.

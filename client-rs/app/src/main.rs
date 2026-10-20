@@ -425,10 +425,12 @@ enum MouseStep {
     Down,
     Up,
     Move,
+    /// A right-click.
+    Right,
 }
 
 /// `--mouse-script "down@1500:x,y;move@1600:x,y;up@1700:x,y"` (desktop tests): left-button
-/// steps at times (ms) after joining, for drags and clicks on the HUD.
+/// steps at times (ms) after joining, for drags and clicks on the HUD; `right` right-clicks.
 fn mouse_script_arg() -> Vec<(i32, MouseStep, (f64, f64))> {
     #[cfg(not(target_arch = "wasm32"))]
     {
@@ -444,6 +446,7 @@ fn mouse_script_arg() -> Vec<(i32, MouseStep, (f64, f64))> {
                     "down" => MouseStep::Down,
                     "up" => MouseStep::Up,
                     "move" => MouseStep::Move,
+                    "right" => MouseStep::Right,
                     _ => return None,
                 };
                 Some((ms.parse().ok()?, kind, (x.parse().ok()?, y.parse().ok()?)))
@@ -1529,6 +1532,7 @@ impl App {
                     MouseStep::Down => self.clicks.push((true, pos)),
                     MouseStep::Up => self.clicks.push((false, pos)),
                     MouseStep::Move => {}
+                    MouseStep::Right => self.right_clicks.push(pos),
                 }
             }
         }
@@ -1832,7 +1836,11 @@ impl App {
             if let Some(p) = &built {
                 p.moved(&mut self.hud, self.mouse);
                 // Ctrl+right-click: break the item down (ItemGridMediator.onRightCtrlClick).
+                // A right-click on a nearby player keeps their card open.
                 for pos in std::mem::take(&mut self.right_clicks) {
+                    if !self.ctrl_held && p.right_click(&mut self.hud, &lay, pos) {
+                        continue;
+                    }
                     if let (true, Some(slot)) = (self.ctrl_held, p.slot_at(pos)) {
                         if slot.item > 0 && matches!(slot.kind, hud::SlotKind::Inventory(_) | hud::SlotKind::Container) {
                             game.breakdown(now, slot.owner, slot.index);

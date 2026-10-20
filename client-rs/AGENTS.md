@@ -106,7 +106,7 @@ The client itself can be scripted for tests (desktop only):
 | `--type <text>` | Type into the first NPC prompt that opens (then Enter), or onto the guild board being edited |
 | `--size WxH` | Open the window at this size (physical pixels), to check the layout |
 | `--mouse x,y` | Put the mouse there (window pixels) and ignore the real one: tooltips, aiming |
-| `--mouse-script "down@ms:x,y;move@ms:x,y;up@ms:x,y"` | Left-button steps after joining: drags and clicks on the HUD |
+| `--mouse-script "down@ms:x,y;move@ms:x,y;up@ms:x,y;right@ms:x,y"` | Mouse steps after joining: left-button drags and clicks on the HUD, and right-clicks |
 
 - **Paths and slashes:** from Git Bash, run it with `MSYS_NO_PATHCONV=1` and give
   `--credentials` a Windows path (`C:/Users/...`); a `/c/Users/...` path isn't found and the client

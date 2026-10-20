@@ -9,6 +9,9 @@ refuses while an `Unreleased` one is left, so rename it to `## <version> (<date>
 version number itself is in `client-rs/Cargo.toml`.
 
 ## Unreleased
+- Right-click a player in the Nearby players list (or on the minimap) to keep their card open,
+  then hover the items they wear to see each one's tooltip. Right-click again, or click
+  anywhere else, to close it.
 - The Sharklord's highest Attack is 70 (was 80), and it starts with 13 (was 15); it still gains 1 to
   2 a level. Sharklords above 70 come down to it.
 - Dual Blades ignore enemies' defense: every hit does its full damage. Hits that ignore defense
