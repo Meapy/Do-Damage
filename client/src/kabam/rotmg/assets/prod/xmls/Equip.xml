@@ -966,8 +966,8 @@
 		<Projectile>
 			<ObjectId>Silver Shield</ObjectId>
 			<Speed>160</Speed>
-			<MinDamage>55</MinDamage>
-			<MaxDamage>90</MaxDamage>
+			<MinDamage>50</MinDamage>
+			<MaxDamage>80</MaxDamage>
 			<LifetimeMS>200</LifetimeMS>
 			<Size>140</Size>
 			<ConditionEffect duration="3">Stunned</ConditionEffect>
@@ -999,8 +999,8 @@
 		<Projectile>
 			<ObjectId>Silver Shield</ObjectId>
 			<Speed>160</Speed>
-			<MinDamage>100</MinDamage>
-			<MaxDamage>140</MaxDamage>
+			<MinDamage>90</MinDamage>
+			<MaxDamage>125</MaxDamage>
 			<LifetimeMS>200</LifetimeMS>
 			<Size>140</Size>
 			<ConditionEffect duration="3">Stunned</ConditionEffect>
@@ -1032,8 +1032,8 @@
 		<Projectile>
 			<ObjectId>Silver Shield</ObjectId>
 			<Speed>160</Speed>
-			<MinDamage>150</MinDamage>
-			<MaxDamage>190</MaxDamage>
+			<MinDamage>135</MinDamage>
+			<MaxDamage>170</MaxDamage>
 			<LifetimeMS>200</LifetimeMS>
 			<Size>140</Size>
 			<ConditionEffect duration="3">Stunned</ConditionEffect>
@@ -1065,8 +1065,8 @@
 		<Projectile>
 			<ObjectId>Silver Shield</ObjectId>
 			<Speed>160</Speed>
-			<MinDamage>190</MinDamage>
-			<MaxDamage>240</MaxDamage>
+			<MinDamage>170</MinDamage>
+			<MaxDamage>215</MaxDamage>
 			<LifetimeMS>200</LifetimeMS>
 			<Size>140</Size>
 			<ConditionEffect duration="3">Stunned</ConditionEffect>
@@ -1099,8 +1099,8 @@
 		<Projectile>
 			<ObjectId>Silver Shield</ObjectId>
 			<Speed>160</Speed>
-			<MinDamage>230</MinDamage>
-			<MaxDamage>280</MaxDamage>
+			<MinDamage>205</MinDamage>
+			<MaxDamage>250</MaxDamage>
 			<LifetimeMS>200</LifetimeMS>
 			<Size>140</Size>
 			<ConditionEffect duration="3">Stunned</ConditionEffect>
@@ -1133,8 +1133,8 @@
 		<Projectile>
 			<ObjectId>Silver Shield</ObjectId>
 			<Speed>160</Speed>
-			<MinDamage>270</MinDamage>
-			<MaxDamage>330</MaxDamage>
+			<MinDamage>245</MinDamage>
+			<MaxDamage>295</MaxDamage>
 			<LifetimeMS>200</LifetimeMS>
 			<Size>140</Size>
 			<ConditionEffect duration="3">Stunned</ConditionEffect>
@@ -1166,8 +1166,8 @@
 		<Projectile>
 			<ObjectId>Silver Shield</ObjectId>
 			<Speed>160</Speed>
-			<MinDamage>300</MinDamage>
-			<MaxDamage>360</MaxDamage>
+			<MinDamage>270</MinDamage>
+			<MaxDamage>325</MaxDamage>
 			<LifetimeMS>200</LifetimeMS>
 			<Size>140</Size>
 			<ConditionEffect duration="3">Stunned</ConditionEffect>
@@ -5144,6 +5144,8 @@
 		<MpCost>80</MpCost>
 		<Activate effect="Healing" duration="5" range="5" useWisMod="true">ConditionEffectAura</Activate>
 		<Activate range="5" amount="200" useWisMod="true">HealNova</Activate>
+		<Activate stat="20" amount="2" duration="4" noStack="true">StatBoostSelf</Activate>
+		<Activate stat="28" amount="2" duration="4" noStack="true">StatBoostSelf</Activate>
 		<ActivateOnEquip stat="26" amount="5">IncrementStat</ActivateOnEquip>
 		<feedPower>185</feedPower>
 	</Object>
@@ -5165,6 +5167,8 @@
 		<Activate effect="Healing" duration="6" range="5" useWisMod="true">ConditionEffectAura</Activate>
 		<Activate range="5" amount="200" useWisMod="true">HealNova</Activate>
 		<Activate effect="Speedy" duration="1.5" useWisMod="true">ConditionEffectSelf</Activate>
+		<Activate stat="20" amount="2" duration="4" noStack="true">StatBoostSelf</Activate>
+		<Activate stat="28" amount="2" duration="4" noStack="true">StatBoostSelf</Activate>
 		<ActivateOnEquip stat="26" amount="6">IncrementStat</ActivateOnEquip>
 		<ActivateOnEquip stat="0" amount="20">IncrementStat</ActivateOnEquip>
 		<ActivateOnEquip stat="3" amount="20">IncrementStat</ActivateOnEquip>
@@ -5836,8 +5840,8 @@
 		<Projectile>
 			<ObjectId>Red Arrow</ObjectId>
 			<Speed>150</Speed>
-			<MinDamage>60</MinDamage>
-			<MaxDamage>100</MaxDamage>
+			<MinDamage>65</MinDamage>
+			<MaxDamage>110</MaxDamage>
 			<LifetimeMS>1000</LifetimeMS>
 			<Size>150</Size>
 			<ConditionEffect duration="3">Slowed</ConditionEffect>
@@ -5867,8 +5871,8 @@
 		<Projectile>
 			<ObjectId>Red Arrow</ObjectId>
 			<Speed>150</Speed>
-			<MinDamage>100</MinDamage>
-			<MaxDamage>140</MaxDamage>
+			<MinDamage>110</MinDamage>
+			<MaxDamage>155</MaxDamage>
 			<LifetimeMS>1000</LifetimeMS>
 			<Size>150</Size>
 			<ConditionEffect duration="3">Slowed</ConditionEffect>
@@ -5899,8 +5903,8 @@
 		<Projectile>
 			<ObjectId>Green Arrow</ObjectId>
 			<Speed>150</Speed>
-			<MinDamage>140</MinDamage>
-			<MaxDamage>180</MaxDamage>
+			<MinDamage>155</MinDamage>
+			<MaxDamage>200</MaxDamage>
 			<LifetimeMS>1000</LifetimeMS>
 			<Size>150</Size>
 			<ConditionEffect duration="3">Slowed</ConditionEffect>
@@ -5931,8 +5935,8 @@
 		<Projectile>
 			<ObjectId>Indigo Arrow</ObjectId>
 			<Speed>150</Speed>
-			<MinDamage>180</MinDamage>
-			<MaxDamage>220</MaxDamage>
+			<MinDamage>200</MinDamage>
+			<MaxDamage>240</MaxDamage>
 			<LifetimeMS>1000</LifetimeMS>
 			<Size>150</Size>
 			<ConditionEffect duration="3">Paralyzed</ConditionEffect>
@@ -5964,8 +5968,8 @@
 		<Projectile>
 			<ObjectId>Purple Arrow</ObjectId>
 			<Speed>150</Speed>
-			<MinDamage>200</MinDamage>
-			<MaxDamage>280</MaxDamage>
+			<MinDamage>220</MinDamage>
+			<MaxDamage>310</MaxDamage>
 			<LifetimeMS>1000</LifetimeMS>
 			<Size>150</Size>
 			<ConditionEffect duration="3">Paralyzed</ConditionEffect>
@@ -5997,8 +6001,8 @@
 		<Projectile>
 			<ObjectId>Gold Arrow</ObjectId>
 			<Speed>150</Speed>
-			<MinDamage>250</MinDamage>
-			<MaxDamage>310</MaxDamage>
+			<MinDamage>275</MinDamage>
+			<MaxDamage>340</MaxDamage>
 			<LifetimeMS>1000</LifetimeMS>
 			<Size>150</Size>
 			<ConditionEffect duration="3">Paralyzed</ConditionEffect>
@@ -6008,6 +6012,8 @@
 		</Projectile>
 		<ActivateOnEquip stat="28" amount="5">IncrementStat</ActivateOnEquip>
 		<ConditionEffect duration="3">Paralyzed</ConditionEffect>
+		<NumProjectiles>3</NumProjectiles>
+		<ArcGap>7.2</ArcGap>
 		<Usable/>
 		<BagType>4</BagType>
 		<FameBonus>3</FameBonus>
@@ -6029,8 +6035,8 @@
 		<Projectile>
 			<ObjectId>Blue Arrow</ObjectId>
 			<Speed>150</Speed>
-			<MinDamage>290</MinDamage>
-			<MaxDamage>350</MaxDamage>
+			<MinDamage>320</MinDamage>
+			<MaxDamage>385</MaxDamage>
 			<LifetimeMS>1000</LifetimeMS>
 			<Size>150</Size>
 			<ConditionEffect duration="3">Paralyzed</ConditionEffect>
@@ -6042,6 +6048,8 @@
 		<ActivateOnEquip stat="3" amount="20">IncrementStat</ActivateOnEquip>
 		<ActivateOnEquip stat="28" amount="6">IncrementStat</ActivateOnEquip>
 		<ConditionEffect duration="3">Paralyzed</ConditionEffect>
+		<NumProjectiles>3</NumProjectiles>
+		<ArcGap>7.2</ArcGap>
 		<Usable/>
 		<BagType>4</BagType>
 		<FameBonus>4</FameBonus>
@@ -6097,7 +6105,6 @@
 		<MpCost>55</MpCost>
 		<Activate effect="Berserk" duration="3" range="4">ConditionEffectAura</Activate>
 		<Activate effect="Speedy" duration="3">ConditionEffectSelf</Activate>
-		<Cooldown>4</Cooldown>
 		<feedPower>5</feedPower>
 		<DropTradable/>
 	</Object>
@@ -6117,7 +6124,6 @@
 		<MpCost>65</MpCost>
 		<Activate effect="Berserk" duration="3.5" range="4">ConditionEffectAura</Activate>
 		<Activate effect="Speedy" duration="3.5">ConditionEffectSelf</Activate>
-		<Cooldown>4.5</Cooldown>
 		<feedPower>10</feedPower>
 		<DropTradable/>
 	</Object>
@@ -6137,7 +6143,6 @@
 		<MpCost>70</MpCost>
 		<Activate effect="Berserk" duration="4" range="4">ConditionEffectAura</Activate>
 		<Activate effect="Speedy" duration="4">ConditionEffectSelf</Activate>
-		<Cooldown>5</Cooldown>
 		<feedPower>20</feedPower>
 		<DropTradable/>
 	</Object>
@@ -6158,7 +6163,6 @@
 		<MpCost>75</MpCost>
 		<Activate effect="Berserk" duration="4.5" range="4">ConditionEffectAura</Activate>
 		<Activate effect="Speedy" duration="4.5">ConditionEffectSelf</Activate>
-		<Cooldown>5.5</Cooldown>
 		<feedPower>45</feedPower>
 		<DropTradable/>
 	</Object>
@@ -6179,7 +6183,6 @@
 		<MpCost>80</MpCost>
 		<Activate effect="Berserk" duration="5" range="4">ConditionEffectAura</Activate>
 		<Activate effect="Speedy" duration="5">ConditionEffectSelf</Activate>
-		<Cooldown>6</Cooldown>
 		<feedPower>90</feedPower>
 		<DropTradable/>
 	</Object>
@@ -6200,7 +6203,6 @@
 		<MpCost>85</MpCost>
 		<Activate effect="Berserk" duration="5.5" range="4">ConditionEffectAura</Activate>
 		<Activate effect="Speedy" duration="5.5">ConditionEffectSelf</Activate>
-		<Cooldown>6.5</Cooldown>
 		<feedPower>185</feedPower>
 	</Object>
 	<Object type="0xb29" id="Helm of the Great General">
@@ -6222,7 +6224,6 @@
 		<MpCost>85</MpCost>
 		<Activate effect="Berserk" duration="6" range="4">ConditionEffectAura</Activate>
 		<Activate effect="Speedy" duration="6">ConditionEffectSelf</Activate>
-		<Cooldown>7</Cooldown>
 		<feedPower>380</feedPower>
 	</Object>
 	<Object type="0xc08" id="Helm of the Juggernaut">
@@ -6716,7 +6717,7 @@
 		<Usable/>
 		<BagType>1</BagType>
 		<MpCost>25</MpCost>
-		<Activate radius="2" impactDamage="20" totalDamage="120" duration="3" throwTime="0.8">PoisonGrenade</Activate>
+		<Activate radius="2" impactDamage="25" totalDamage="140" duration="3" throwTime="0.8">PoisonGrenade</Activate>
 		<feedPower>5</feedPower>
 		<DropTradable/>
 	</Object>
@@ -6733,7 +6734,7 @@
 		<Usable/>
 		<BagType>1</BagType>
 		<MpCost>40</MpCost>
-		<Activate radius="2.5" impactDamage="50" totalDamage="250" duration="3.2" throwTime="0.8">PoisonGrenade</Activate>
+		<Activate radius="2.5" impactDamage="55" totalDamage="290" duration="3.2" throwTime="0.8">PoisonGrenade</Activate>
 		<ActivateOnEquip stat="27" amount="1">IncrementStat</ActivateOnEquip>
 		<feedPower>10</feedPower>
 		<DropTradable/>
@@ -6751,7 +6752,7 @@
 		<Usable/>
 		<BagType>1</BagType>
 		<MpCost>55</MpCost>
-		<Activate radius="3" impactDamage="80" totalDamage="380" duration="3.5" throwTime="0.8">PoisonGrenade</Activate>
+		<Activate radius="3" impactDamage="90" totalDamage="435" duration="3.5" throwTime="0.8">PoisonGrenade</Activate>
 		<ActivateOnEquip stat="27" amount="1">IncrementStat</ActivateOnEquip>
 		<feedPower>20</feedPower>
 		<DropTradable/>
@@ -6770,7 +6771,7 @@
 		<BagType>2</BagType>
 		<FameBonus>1</FameBonus>
 		<MpCost>70</MpCost>
-		<Activate radius="3.5" impactDamage="110" totalDamage="510" duration="3.7" throwTime="0.8">PoisonGrenade</Activate>
+		<Activate radius="3.5" impactDamage="125" totalDamage="585" duration="3.7" throwTime="0.8">PoisonGrenade</Activate>
 		<ActivateOnEquip stat="27" amount="2">IncrementStat</ActivateOnEquip>
 		<feedPower>45</feedPower>
 		<DropTradable/>
@@ -6789,7 +6790,7 @@
 		<BagType>2</BagType>
 		<FameBonus>2</FameBonus>
 		<MpCost>80</MpCost>
-		<Activate radius="4" impactDamage="140" totalDamage="640" duration="4" throwTime="0.8">PoisonGrenade</Activate>
+		<Activate radius="4" impactDamage="160" totalDamage="735" duration="4" throwTime="0.8">PoisonGrenade</Activate>
 		<ActivateOnEquip stat="27" amount="2">IncrementStat</ActivateOnEquip>
 		<feedPower>90</feedPower>
 		<DropTradable/>
@@ -6808,7 +6809,7 @@
 		<BagType>4</BagType>
 		<FameBonus>3</FameBonus>
 		<MpCost>90</MpCost>
-		<Activate radius="4.5" impactDamage="170" totalDamage="770" duration="4.3" throwTime="0.8">PoisonGrenade</Activate>
+		<Activate radius="4.5" impactDamage="195" totalDamage="885" duration="4.3" throwTime="0.8">PoisonGrenade</Activate>
 		<ActivateOnEquip stat="27" amount="3">IncrementStat</ActivateOnEquip>
 		<feedPower>185</feedPower>
 	</Object>
@@ -6826,7 +6827,7 @@
 		<BagType>4</BagType>
 		<FameBonus>4</FameBonus>
 		<MpCost>100</MpCost>
-		<Activate radius="5" impactDamage="200" totalDamage="900" duration="4.5" throwTime="0.8">PoisonGrenade</Activate>
+		<Activate radius="5" impactDamage="230" totalDamage="1035" duration="4.5" throwTime="0.8">PoisonGrenade</Activate>
 		<ActivateOnEquip stat="27" amount="3">IncrementStat</ActivateOnEquip>
 		<ActivateOnEquip stat="0" amount="20">IncrementStat</ActivateOnEquip>
 		<ActivateOnEquip stat="3" amount="20">IncrementStat</ActivateOnEquip>
@@ -6845,7 +6846,7 @@
 		<Usable/>
 		<BagType>1</BagType>
 		<MpCost>40</MpCost>
-		<Activate radius="2.5" totalDamage="35" heal="25" wisDamageBase="10">VampireBlast</Activate>
+		<Activate radius="2.5" totalDamage="40" heal="25" wisDamageBase="10">VampireBlast</Activate>
 		<feedPower>5</feedPower>
 		<DropTradable/>
 	</Object>
@@ -6863,7 +6864,7 @@
 		<BagType>1</BagType>
 		<MpCost>55</MpCost>
 		<ActivateOnEquip stat="0" amount="5">IncrementStat</ActivateOnEquip>
-		<Activate radius="2.75" totalDamage="55" heal="45" ignoreDef="5" wisDamageBase="15">VampireBlast</Activate>
+		<Activate radius="2.75" totalDamage="65" heal="45" ignoreDef="5" wisDamageBase="15">VampireBlast</Activate>
 		<feedPower>10</feedPower>
 		<DropTradable/>
 	</Object>
@@ -6881,7 +6882,7 @@
 		<BagType>1</BagType>
 		<MpCost>70</MpCost>
 		<ActivateOnEquip stat="0" amount="15">IncrementStat</ActivateOnEquip>
-		<Activate radius="3" totalDamage="80" heal="65" ignoreDef="10" wisDamageBase="20">VampireBlast</Activate>
+		<Activate radius="3" totalDamage="90" heal="65" ignoreDef="10" wisDamageBase="20">VampireBlast</Activate>
 		<feedPower>20</feedPower>
 		<DropTradable/>
 	</Object>
@@ -6900,7 +6901,7 @@
 		<FameBonus>1</FameBonus>
 		<MpCost>85</MpCost>
 		<ActivateOnEquip stat="0" amount="30">IncrementStat</ActivateOnEquip>
-		<Activate radius="3.25" totalDamage="110" heal="90" ignoreDef="15" wisDamageBase="25">VampireBlast</Activate>
+		<Activate radius="3.25" totalDamage="125" heal="90" ignoreDef="15" wisDamageBase="25">VampireBlast</Activate>
 		<feedPower>45</feedPower>
 		<DropTradable/>
 	</Object>
@@ -6919,7 +6920,7 @@
 		<FameBonus>2</FameBonus>
 		<MpCost>100</MpCost>
 		<ActivateOnEquip stat="0" amount="45">IncrementStat</ActivateOnEquip>
-		<Activate radius="3.5" totalDamage="140" heal="100" ignoreDef="25" wisDamageBase="30">VampireBlast</Activate>
+		<Activate radius="3.5" totalDamage="160" heal="100" ignoreDef="25" wisDamageBase="30">VampireBlast</Activate>
 		<feedPower>90</feedPower>
 		<DropTradable/>
 	</Object>
@@ -6937,8 +6938,9 @@
 		<BagType>4</BagType>
 		<FameBonus>3</FameBonus>
 		<MpCost>110</MpCost>
+		<ActivateOnEquip stat="20" amount="2">IncrementStat</ActivateOnEquip>
 		<ActivateOnEquip stat="0" amount="60">IncrementStat</ActivateOnEquip>
-		<Activate radius="3.75" totalDamage="170" heal="105" ignoreDef="35" wisDamageBase="35">VampireBlast</Activate>
+		<Activate radius="3.75" totalDamage="195" heal="105" ignoreDef="35" wisDamageBase="35">VampireBlast</Activate>
 		<feedPower>185</feedPower>
 	</Object>
 	<Object type="0xb2b" id="Bloodsucker Skull">
@@ -6955,9 +6957,10 @@
 		<BagType>4</BagType>
 		<FameBonus>4</FameBonus>
 		<MpCost>115</MpCost>
+		<ActivateOnEquip stat="20" amount="4">IncrementStat</ActivateOnEquip>
 		<ActivateOnEquip stat="0" amount="90">IncrementStat</ActivateOnEquip>
 		<ActivateOnEquip stat="3" amount="20">IncrementStat</ActivateOnEquip>
-		<Activate radius="3.75" totalDamage="180" heal="110" ignoreDef="40" wisDamageBase="40">VampireBlast</Activate>
+		<Activate radius="3.75" totalDamage="205" heal="110" ignoreDef="40" wisDamageBase="40">VampireBlast</Activate>
 		<feedPower>380</feedPower>
 	</Object>
 	<Object type="0x911" id="Skull of Endless Torment">
@@ -7564,7 +7567,7 @@
 		<Usable/>
 		<BagType>1</BagType>
 		<MpCost>30</MpCost>
-		<Activate totalDamage="80" decrDamage="8" wisDamageBase="15" maxTargets="3">Lightning</Activate>
+		<Activate totalDamage="95" decrDamage="10" wisDamageBase="15" maxTargets="3">Lightning</Activate>
 		<feedPower>5</feedPower>
 		<DropTradable/>
 	</Object>
@@ -7582,7 +7585,7 @@
 		<Usable/>
 		<BagType>1</BagType>
 		<MpCost>40</MpCost>
-		<Activate totalDamage="120" decrDamage="12" wisDamageBase="25" maxTargets="4">Lightning</Activate>
+		<Activate totalDamage="145" decrDamage="15" wisDamageBase="25" maxTargets="4">Lightning</Activate>
 		<feedPower>10</feedPower>
 		<DropTradable/>
 	</Object>
@@ -7600,7 +7603,7 @@
 		<Usable/>
 		<BagType>1</BagType>
 		<MpCost>50</MpCost>
-		<Activate totalDamage="160" decrDamage="20" wisDamageBase="40" maxTargets="4">Lightning</Activate>
+		<Activate totalDamage="190" decrDamage="25" wisDamageBase="40" maxTargets="4">Lightning</Activate>
 		<feedPower>20</feedPower>
 		<DropTradable/>
 	</Object>
@@ -7619,7 +7622,7 @@
 		<BagType>2</BagType>
 		<FameBonus>1</FameBonus>
 		<MpCost>60</MpCost>
-		<Activate totalDamage="200" decrDamage="25" wisDamageBase="50" maxTargets="5">Lightning</Activate>
+		<Activate totalDamage="240" decrDamage="30" wisDamageBase="50" maxTargets="5">Lightning</Activate>
 		<feedPower>45</feedPower>
 		<DropTradable/>
 	</Object>
@@ -7638,7 +7641,7 @@
 		<BagType>2</BagType>
 		<FameBonus>2</FameBonus>
 		<MpCost>70</MpCost>
-		<Activate totalDamage="240" decrDamage="30" wisDamageBase="60" maxTargets="4">Lightning</Activate>
+		<Activate totalDamage="290" decrDamage="35" wisDamageBase="60" maxTargets="4">Lightning</Activate>
 		<ActivateOnEquip stat="22" amount="1">IncrementStat</ActivateOnEquip>
 		<feedPower>90</feedPower>
 		<DropTradable/>
@@ -7658,7 +7661,7 @@
 		<BagType>4</BagType>
 		<FameBonus>3</FameBonus>
 		<MpCost>80</MpCost>
-		<Activate totalDamage="280" decrDamage="35" wisDamageBase="70" maxTargets="5">Lightning</Activate>
+		<Activate totalDamage="335" decrDamage="40" wisDamageBase="70" maxTargets="5">Lightning</Activate>
 		<ActivateOnEquip stat="22" amount="2">IncrementStat</ActivateOnEquip>
 		<feedPower>185</feedPower>
 	</Object>
@@ -7680,7 +7683,7 @@
 		<BagType>4</BagType>
 		<FameBonus>4</FameBonus>
 		<MpCost>90</MpCost>
-		<Activate totalDamage="300" decrDamage="40" wisDamageBase="80" maxTargets="5">Lightning</Activate>
+		<Activate totalDamage="405" decrDamage="55" wisDamageBase="80" maxTargets="5">Lightning</Activate>
 		<feedPower>380</feedPower>
 	</Object>
 	<Object type="0xb3e" id="Amulet of Resurrection">
@@ -9116,12 +9119,6 @@
 		<Tier>0</Tier>
 		<Description>A basic ninja-star.</Description>
 		<Sound>spell/fire_spray</Sound>
-		<ExtraTooltipData>
-			<EffectInfo name="While Key Held" description=""/>
-			<EffectInfo name="" description="Speedy on self"/>
-			<EffectInfo name="" description="Drain 10 MP/sec"/>
-			<EffectInfo name="When Key Released" description=""/>
-		</ExtraTooltipData>
 		<Projectile>
 			<ObjectId>Ninja Star Basic</ObjectId>
 			<Speed>150</Speed>
@@ -9133,10 +9130,8 @@
 		</Projectile>
 		<Usable/>
 		<BagType>1</BagType>
-		<MpCost>0</MpCost>
-		<MpEndCost>30</MpEndCost>
-		<MultiPhase/>
-		<Activate>ShurikenAbility</Activate>
+		<MpCost>40</MpCost>
+		<Activate>Shoot</Activate>
 		<feedPower>5</feedPower>
 		<DropTradable/>
 	</Object>
@@ -9151,12 +9146,6 @@
 		<Tier>1</Tier>
 		<Description>A ninja-star with four razor-sharp points.</Description>
 		<Sound>spell/fire_spray</Sound>
-		<ExtraTooltipData>
-			<EffectInfo name="While Key Held" description=""/>
-			<EffectInfo name="" description="Speedy on self"/>
-			<EffectInfo name="" description="Drain 10 MP/sec"/>
-			<EffectInfo name="When Key Released" description=""/>
-		</ExtraTooltipData>
 		<Projectile>
 			<ObjectId>Ninja Star Four-Point</ObjectId>
 			<Speed>150</Speed>
@@ -9169,10 +9158,8 @@
 		<ActivateOnEquip stat="26" amount="3">IncrementStat</ActivateOnEquip>
 		<Usable/>
 		<BagType>1</BagType>
-		<MpCost>0</MpCost>
-		<MpEndCost>40</MpEndCost>
-		<MultiPhase/>
-		<Activate>ShurikenAbility</Activate>
+		<MpCost>50</MpCost>
+		<Activate>Shoot</Activate>
 		<feedPower>10</feedPower>
 		<DropTradable/>
 	</Object>
@@ -9187,12 +9174,6 @@
 		<Tier>2</Tier>
 		<Description>A ninja-star with curved spiraling blades.</Description>
 		<Sound>spell/fire_spray</Sound>
-		<ExtraTooltipData>
-			<EffectInfo name="While Key Held" description=""/>
-			<EffectInfo name="" description="Speedy on self"/>
-			<EffectInfo name="" description="Drain 10 MP/sec"/>
-			<EffectInfo name="When Key Released" description=""/>
-		</ExtraTooltipData>
 		<Projectile>
 			<ObjectId>Ninja Star Spiral</ObjectId>
 			<Speed>150</Speed>
@@ -9205,10 +9186,8 @@
 		<ActivateOnEquip stat="26" amount="3">IncrementStat</ActivateOnEquip>
 		<Usable/>
 		<BagType>1</BagType>
-		<MpCost>0</MpCost>
-		<MpEndCost>50</MpEndCost>
-		<MultiPhase/>
-		<Activate>ShurikenAbility</Activate>
+		<MpCost>60</MpCost>
+		<Activate>Shoot</Activate>
 		<feedPower>20</feedPower>
 		<DropTradable/>
 	</Object>
@@ -9223,12 +9202,6 @@
 		<Tier>3</Tier>
 		<Description>A beautifully crafted shuriken.</Description>
 		<Sound>spell/fire_spray</Sound>
-		<ExtraTooltipData>
-			<EffectInfo name="While Key Held" description=""/>
-			<EffectInfo name="" description="Speedy on self"/>
-			<EffectInfo name="" description="Drain 10 MP/sec"/>
-			<EffectInfo name="When Key Released" description=""/>
-		</ExtraTooltipData>
 		<Projectile>
 			<ObjectId>Ninja Star Silver</ObjectId>
 			<Speed>150</Speed>
@@ -9242,10 +9215,8 @@
 		<Usable/>
 		<BagType>2</BagType>
 		<FameBonus>1</FameBonus>
-		<MpCost>0</MpCost>
-		<MpEndCost>60</MpEndCost>
-		<MultiPhase/>
-		<Activate>ShurikenAbility</Activate>
+		<MpCost>70</MpCost>
+		<Activate>Shoot</Activate>
 		<feedPower>45</feedPower>
 		<DropTradable/>
 	</Object>
@@ -9260,12 +9231,6 @@
 		<Tier>4</Tier>
 		<Description>A sacred shuriken that embodies the power and speed of the wind.</Description>
 		<Sound>spell/fire_spray</Sound>
-		<ExtraTooltipData>
-			<EffectInfo name="While Key Held" description=""/>
-			<EffectInfo name="" description="Speedy on self"/>
-			<EffectInfo name="" description="Drain 10 MP/sec"/>
-			<EffectInfo name="When Key Released" description=""/>
-		</ExtraTooltipData>
 		<Projectile>
 			<ObjectId>Ninja Star Wind</ObjectId>
 			<Speed>150</Speed>
@@ -9279,10 +9244,8 @@
 		<Usable/>
 		<BagType>2</BagType>
 		<FameBonus>2</FameBonus>
-		<MpCost>0</MpCost>
-		<MpEndCost>70</MpEndCost>
-		<MultiPhase/>
-		<Activate>ShurikenAbility</Activate>
+		<MpCost>80</MpCost>
+		<Activate>Shoot</Activate>
 		<feedPower>90</feedPower>
 		<DropTradable/>
 	</Object>
@@ -9297,12 +9260,6 @@
 		<Tier>5</Tier>
 		<Description>A mystical shuriken formed from ever-frozen ice.</Description>
 		<Sound>spell/fire_spray</Sound>
-		<ExtraTooltipData>
-			<EffectInfo name="While Key Held" description=""/>
-			<EffectInfo name="" description="Speedy on self"/>
-			<EffectInfo name="" description="Drain 10 MP/sec"/>
-			<EffectInfo name="When Key Released" description=""/>
-		</ExtraTooltipData>
 		<Projectile>
 			<ObjectId>Ninja Star Ice</ObjectId>
 			<Speed>150</Speed>
@@ -9316,10 +9273,8 @@
 		<Usable/>
 		<BagType>4</BagType>
 		<FameBonus>3</FameBonus>
-		<MpCost>0</MpCost>
-		<MpEndCost>80</MpEndCost>
-		<MultiPhase/>
-		<Activate>ShurikenAbility</Activate>
+		<MpCost>90</MpCost>
+		<Activate>Shoot</Activate>
 		<feedPower>185</feedPower>
 	</Object>
 	<Object type="0xc59" id="Doom Circle">
@@ -9333,12 +9288,6 @@
 		<Tier>6</Tier>
 		<Description>An ancient weapon that spells destruction for all who oppose its master.</Description>
 		<Sound>spell/fire_spray</Sound>
-		<ExtraTooltipData>
-			<EffectInfo name="While Key Held" description=""/>
-			<EffectInfo name="" description="Speedy on self"/>
-			<EffectInfo name="" description="Drain 10 MP/sec"/>
-			<EffectInfo name="When Key Released" description=""/>
-		</ExtraTooltipData>
 		<Projectile>
 			<ObjectId>Ninja Star Doom</ObjectId>
 			<Speed>150</Speed>
@@ -9354,10 +9303,8 @@
 		<Usable/>
 		<BagType>4</BagType>
 		<FameBonus>4</FameBonus>
-		<MpCost>0</MpCost>
-		<MpEndCost>90</MpEndCost>
-		<MultiPhase/>
-		<Activate>ShurikenAbility</Activate>
+		<MpCost>110</MpCost>
+		<Activate>Shoot</Activate>
 		<feedPower>380</feedPower>
 	</Object>
 	<Object type="0x916" id="Midnight Star">
@@ -26411,6 +26358,8 @@
 		<Activate effect="Healing" duration="7" range="5.5" useWisMod="true">ConditionEffectAura</Activate>
 		<Activate range="5.5" amount="220" useWisMod="true">HealNova</Activate>
 		<Activate effect="Speedy" duration="2.2" useWisMod="true">ConditionEffectSelf</Activate>
+		<Activate stat="20" amount="2" duration="4" noStack="true">StatBoostSelf</Activate>
+		<Activate stat="28" amount="2" duration="4" noStack="true">StatBoostSelf</Activate>
 		<Soulbound/>
 		<feedPower>570</feedPower>
 	</Object>
@@ -26428,8 +26377,8 @@
 		<Projectile>
 			<ObjectId>Crimson Arrow</ObjectId>
 			<Speed>150</Speed>
-			<MinDamage>330</MinDamage>
-			<MaxDamage>390</MaxDamage>
+			<MinDamage>365</MinDamage>
+			<MaxDamage>430</MaxDamage>
 			<LifetimeMS>1000</LifetimeMS>
 			<Size>150</Size>
 			<ConditionEffect duration="3">Paralyzed</ConditionEffect>
@@ -26441,6 +26390,8 @@
 		<ActivateOnEquip stat="0" amount="40">IncrementStat</ActivateOnEquip>
 		<ActivateOnEquip stat="3" amount="40">IncrementStat</ActivateOnEquip>
 		<ConditionEffect duration="3">Paralyzed</ConditionEffect>
+		<NumProjectiles>3</NumProjectiles>
+		<ArcGap>7.2</ArcGap>
 		<Usable/>
 		<BagType>9</BagType>
 		<FameBonus>5</FameBonus>
@@ -26492,7 +26443,6 @@
 		<MpCost>90</MpCost>
 		<Activate effect="Berserk" duration="6.5" range="4">ConditionEffectAura</Activate>
 		<Activate effect="Speedy" duration="6.5">ConditionEffectSelf</Activate>
-		<Cooldown>7.5</Cooldown>
 		<Soulbound/>
 		<feedPower>570</feedPower>
 	</Object>
@@ -26510,8 +26460,8 @@
 		<Projectile>
 			<ObjectId>Silver Shield</ObjectId>
 			<Speed>160</Speed>
-			<MinDamage>340</MinDamage>
-			<MaxDamage>400</MaxDamage>
+			<MinDamage>305</MinDamage>
+			<MaxDamage>360</MaxDamage>
 			<LifetimeMS>200</LifetimeMS>
 			<Size>140</Size>
 			<ConditionEffect duration="3">Stunned</ConditionEffect>
@@ -26553,6 +26503,7 @@
 		<Activate stat="0" amount="95" duration="4.5" range="4.5" noStack="true" useWisMod="true">StatBoostAura</Activate>
 		<Activate effect="Healing" duration="4.5" range="4.5" color="0xff0080" target="player" center="player" visualEffect="5" useWisMod="true">GenericActivate</Activate>
 		<Activate effect="Damaging" duration="4.5" range="4.5" color="0xff0080" target="player" center="player" visualEffect="0" useWisMod="true">GenericActivate</Activate>
+		<Activate stat="22" amount="2" duration="4.5" noStack="true">StatBoostSelf</Activate>
 		<Soulbound/>
 		<feedPower>570</feedPower>
 	</Object>
@@ -26573,7 +26524,7 @@
 		<BagType>9</BagType>
 		<FameBonus>5</FameBonus>
 		<MpCost>110</MpCost>
-		<Activate radius="5.5" impactDamage="230" totalDamage="1030" duration="4.8" throwTime="0.8">PoisonGrenade</Activate>
+		<Activate radius="5.5" impactDamage="265" totalDamage="1185" duration="4.8" throwTime="0.8">PoisonGrenade</Activate>
 		<Soulbound/>
 		<feedPower>570</feedPower>
 	</Object>
@@ -26591,9 +26542,10 @@
 		<BagType>9</BagType>
 		<FameBonus>5</FameBonus>
 		<MpCost>120</MpCost>
+		<ActivateOnEquip stat="20" amount="6">IncrementStat</ActivateOnEquip>
 		<ActivateOnEquip stat="0" amount="120">IncrementStat</ActivateOnEquip>
 		<ActivateOnEquip stat="3" amount="40">IncrementStat</ActivateOnEquip>
-		<Activate radius="4" totalDamage="190" heal="120" ignoreDef="45" wisDamageBase="45">VampireBlast</Activate>
+		<Activate radius="4" totalDamage="220" heal="120" ignoreDef="45" wisDamageBase="45">VampireBlast</Activate>
 		<Soulbound/>
 		<feedPower>570</feedPower>
 	</Object>
@@ -26660,6 +26612,8 @@
 		<MpCost>95</MpCost>
 		<Activate duration="10" speed="1.30">Decoy</Activate>
 		<Activate maxDistance="13">Teleport</Activate>
+		<Activate effect="Damaging" duration="4">ConditionEffectSelf</Activate>
+		<Activate effect="Armored" duration="4">ConditionEffectSelf</Activate>
 		<Soulbound/>
 		<feedPower>570</feedPower>
 	</Object>
@@ -26681,7 +26635,7 @@
 		<BagType>9</BagType>
 		<FameBonus>5</FameBonus>
 		<MpCost>95</MpCost>
-		<Activate totalDamage="320" decrDamage="45" wisDamageBase="90" maxTargets="5">Lightning</Activate>
+		<Activate totalDamage="430" decrDamage="60" wisDamageBase="90" maxTargets="5">Lightning</Activate>
 		<Soulbound/>
 		<feedPower>570</feedPower>
 	</Object>
@@ -26696,12 +26650,6 @@
 		<Tier>7</Tier>
 		<Description>A heraldic shuriken of the ancient royal family, revered for its astonishingly lethal edge after generations of use by a mighty eastern empire.</Description>
 		<Sound>spell/fire_spray</Sound>
-		<ExtraTooltipData>
-			<EffectInfo name="While Key Held" description=""/>
-			<EffectInfo name="" description="Speedy on self"/>
-			<EffectInfo name="" description="Drain 10 MP/sec"/>
-			<EffectInfo name="When Key Released" description=""/>
-		</ExtraTooltipData>
 		<Projectile>
 			<ObjectId>Ninja Star Dynastic</ObjectId>
 			<Speed>150</Speed>
@@ -26717,10 +26665,8 @@
 		<Usable/>
 		<BagType>9</BagType>
 		<FameBonus>5</FameBonus>
-		<MpCost>0</MpCost>
-		<MpEndCost>100</MpEndCost>
-		<MultiPhase/>
-		<Activate>ShurikenAbility</Activate>
+		<MpCost>130</MpCost>
+		<Activate>Shoot</Activate>
 		<Soulbound/>
 		<feedPower>570</feedPower>
 	</Object>
@@ -26805,6 +26751,8 @@
 		<Activate effect="Healing" duration="8" range="6" useWisMod="true">ConditionEffectAura</Activate>
 		<Activate range="6" amount="240" useWisMod="true">HealNova</Activate>
 		<Activate effect="Speedy" duration="2.2" useWisMod="true">ConditionEffectSelf</Activate>
+		<Activate stat="20" amount="2" duration="4" noStack="true">StatBoostSelf</Activate>
+		<Activate stat="28" amount="2" duration="4" noStack="true">StatBoostSelf</Activate>
 		<Soulbound/>
 		<feedPower>855</feedPower>
 	</Object>
@@ -26822,8 +26770,8 @@
 		<Projectile>
 			<ObjectId>Spring Green Arrow</ObjectId>
 			<Speed>150</Speed>
-			<MinDamage>380</MinDamage>
-			<MaxDamage>420</MaxDamage>
+			<MinDamage>420</MinDamage>
+			<MaxDamage>460</MaxDamage>
 			<LifetimeMS>1000</LifetimeMS>
 			<Size>150</Size>
 			<ConditionEffect duration="3">Paralyzed</ConditionEffect>
@@ -26835,6 +26783,8 @@
 		<ActivateOnEquip stat="0" amount="60">IncrementStat</ActivateOnEquip>
 		<ActivateOnEquip stat="3" amount="60">IncrementStat</ActivateOnEquip>
 		<ConditionEffect duration="3">Paralyzed</ConditionEffect>
+		<NumProjectiles>3</NumProjectiles>
+		<ArcGap>7.2</ArcGap>
 		<Usable/>
 		<BagType>9</BagType>
 		<FameBonus>6</FameBonus>
@@ -26886,7 +26836,6 @@
 		<MpCost>95</MpCost>
 		<Activate effect="Berserk" duration="7" range="4">ConditionEffectAura</Activate>
 		<Activate effect="Speedy" duration="7">ConditionEffectSelf</Activate>
-		<Cooldown>8</Cooldown>
 		<Soulbound/>
 		<feedPower>855</feedPower>
 	</Object>
@@ -26904,8 +26853,8 @@
 		<Projectile>
 			<ObjectId>Silver Shield</ObjectId>
 			<Speed>160</Speed>
-			<MinDamage>360</MinDamage>
-			<MaxDamage>420</MaxDamage>
+			<MinDamage>325</MinDamage>
+			<MaxDamage>380</MaxDamage>
 			<LifetimeMS>200</LifetimeMS>
 			<Size>140</Size>
 			<ConditionEffect duration="3">Stunned</ConditionEffect>
@@ -26947,6 +26896,7 @@
 		<Activate stat="0" amount="115" duration="4.5" range="4.5" noStack="true" useWisMod="true">StatBoostAura</Activate>
 		<Activate effect="Healing" duration="4.5" range="4.75" color="0xff0080" target="player" center="player" visualEffect="5" useWisMod="true">GenericActivate</Activate>
 		<Activate effect="Damaging" duration="4.5" range="4.75" color="0xff0080" target="player" center="player" visualEffect="0" useWisMod="true">GenericActivate</Activate>
+		<Activate stat="22" amount="4" duration="4.5" noStack="true">StatBoostSelf</Activate>
 		<Soulbound/>
 		<feedPower>855</feedPower>
 	</Object>
@@ -26967,7 +26917,7 @@
 		<BagType>9</BagType>
 		<FameBonus>6</FameBonus>
 		<MpCost>120</MpCost>
-		<Activate radius="6" impactDamage="260" totalDamage="1160" duration="5" throwTime="0.8">PoisonGrenade</Activate>
+		<Activate radius="6" impactDamage="300" totalDamage="1335" duration="5" throwTime="0.8">PoisonGrenade</Activate>
 		<Soulbound/>
 		<feedPower>855</feedPower>
 	</Object>
@@ -26985,9 +26935,10 @@
 		<BagType>9</BagType>
 		<FameBonus>6</FameBonus>
 		<MpCost>125</MpCost>
+		<ActivateOnEquip stat="20" amount="8">IncrementStat</ActivateOnEquip>
 		<ActivateOnEquip stat="0" amount="150">IncrementStat</ActivateOnEquip>
 		<ActivateOnEquip stat="3" amount="60">IncrementStat</ActivateOnEquip>
-		<Activate radius="4.25" totalDamage="200" heal="130" ignoreDef="50" wisDamageBase="50">VampireBlast</Activate>
+		<Activate radius="4.25" totalDamage="230" heal="130" ignoreDef="50" wisDamageBase="50">VampireBlast</Activate>
 		<Soulbound/>
 		<feedPower>855</feedPower>
 	</Object>
@@ -27001,7 +26952,7 @@
 		<SlotType>20</SlotType>
 		<Tier>8</Tier>
 		<Description>An enormously dangerous trap engineered by blastsmith dwarves to annihilate the magma dragons that threaten their underkingdoms.</Description>
-		<ActivateOnEquip stat="20" amount="5">IncrementStat</ActivateOnEquip>
+		<ActivateOnEquip stat="20" amount="7">IncrementStat</ActivateOnEquip>
 		<ActivateOnEquip stat="0" amount="60">IncrementStat</ActivateOnEquip>
 		<ActivateOnEquip stat="3" amount="60">IncrementStat</ActivateOnEquip>
 		<Usable/>
@@ -27054,6 +27005,8 @@
 		<MpCost>100</MpCost>
 		<Activate duration="11" speed="1.30">Decoy</Activate>
 		<Activate maxDistance="13">Teleport</Activate>
+		<Activate effect="Damaging" duration="6">ConditionEffectSelf</Activate>
+		<Activate effect="Armored" duration="6">ConditionEffectSelf</Activate>
 		<Soulbound/>
 		<feedPower>855</feedPower>
 	</Object>
@@ -27075,7 +27028,7 @@
 		<BagType>9</BagType>
 		<FameBonus>6</FameBonus>
 		<MpCost>100</MpCost>
-		<Activate totalDamage="340" decrDamage="50" wisDamageBase="100" maxTargets="5">Lightning</Activate>
+		<Activate totalDamage="460" decrDamage="70" wisDamageBase="100" maxTargets="5">Lightning</Activate>
 		<Soulbound/>
 		<feedPower>855</feedPower>
 	</Object>
@@ -27090,12 +27043,6 @@
 		<Tier>8</Tier>
 		<Description>A marvelous treasure and destructive weapon that embodies the cardinal duality of light and dark.</Description>
 		<Sound>spell/fire_spray</Sound>
-		<ExtraTooltipData>
-			<EffectInfo name="While Key Held" description=""/>
-			<EffectInfo name="" description="Speedy on self"/>
-			<EffectInfo name="" description="Drain 10 MP/sec"/>
-			<EffectInfo name="When Key Released" description=""/>
-		</ExtraTooltipData>
 		<Projectile>
 			<ObjectId>Ninja Star Unity</ObjectId>
 			<Speed>150</Speed>
@@ -27111,10 +27058,8 @@
 		<Usable/>
 		<BagType>9</BagType>
 		<FameBonus>6</FameBonus>
-		<MpCost>0</MpCost>
-		<MpEndCost>110</MpEndCost>
-		<MultiPhase/>
-		<Activate>ShurikenAbility</Activate>
+		<MpCost>150</MpCost>
+		<Activate>Shoot</Activate>
 		<Soulbound/>
 		<feedPower>855</feedPower>
 	</Object>
@@ -27343,6 +27288,7 @@
 		<ActivateOnEquip stat="0" amount="40">IncrementStat</ActivateOnEquip>
 		<ActivateOnEquip stat="3" amount="40">IncrementStat</ActivateOnEquip>
 		<Activate stat="21" amount="12" duration="4.5">StatBoostSelf</Activate>
+		<Activate stat="28" amount="5" duration="4.5" noStack="true">StatBoostSelf</Activate>
 		<Cooldown>7.5</Cooldown>
 		<BagType>9</BagType>
 		<MpCost>105</MpCost>
@@ -27371,6 +27317,7 @@
 		<ActivateOnEquip stat="0" amount="60">IncrementStat</ActivateOnEquip>
 		<ActivateOnEquip stat="3" amount="60">IncrementStat</ActivateOnEquip>
 		<Activate stat="21" amount="14" duration="5">StatBoostSelf</Activate>
+		<Activate stat="28" amount="10" duration="5" noStack="true">StatBoostSelf</Activate>
 		<Cooldown>8</Cooldown>
 		<BagType>9</BagType>
 		<MpCost>110</MpCost>

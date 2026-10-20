@@ -1451,6 +1451,9 @@ namespace WorldServer.core.objects
             var amount = eff.Amount;
             var duration = eff.DurationMS;
             var range = eff.Range;
+            // noStack (the seals): using it again while it lasts refreshes the boost instead of
+            // adding half of it again on top
+            var stack = eff.NoStack;
             if (eff.UseWisMod)
             {
                 amount = (int)UseWisMod(eff.Amount, 0);
@@ -1463,12 +1466,12 @@ namespace WorldServer.core.objects
                 if (player.HasConditionEffect(ConditionEffectIndex.HpBoost))
                     return;
 
-                ((Player)player).Stats.Boost.ActivateBoost[idx].Push(amount, false);
+                ((Player)player).Stats.Boost.ActivateBoost[idx].Push(amount, stack);
                 ((Player)player).Stats.ReCalculateValues();
 
                 World.StartNewTimer(duration, (world, t) =>
                 {
-                    ((Player)player).Stats.Boost.ActivateBoost[idx].Pop(amount, false);
+                    ((Player)player).Stats.Boost.ActivateBoost[idx].Pop(amount, stack);
                     ((Player)player).Stats.ReCalculateValues();
                 });
             });

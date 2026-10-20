@@ -9,6 +9,17 @@ refuses while an `Unreleased` one is left, so rename it to `## <version> (<date>
 version number itself is in `client-rs/Cargo.toml`.
 
 ## Unreleased
+- Tiered abilities rebalanced. Quivers do 10% more damage, and from T5 they shoot 3 arrows in a
+  bow's arc. Tomes from T5 also give you +2 Attack and +2 Dexterity for 4 seconds. Helms can be
+  used again straight away, which restarts their buffs. Shields do 10% less damage. Poisons do
+  15% more damage. Skulls do 15% more damage and give +2 Attack at T5, up to +8 at T8. Scepters
+  do 20% more damage, and 35% more from T6. The T8 trap gives +7 Attack (it gave less than T7's).
+- Seals T7 and T8 also give you +2 and +4 Speed for 4.5 seconds. Using a seal again while its
+  health boost lasts now restarts the boost; before, it added half the boost again on top.
+- Prisms T7 and T8 make you Damaging and Armored for 4 and 6 seconds. Lutes T7 and T8 give you
+  +5 and +10 Dexterity while their Defense boost lasts.
+- Shurikens now throw their star when used, for 40 MP (T0) up to 150 MP (T8). Before, using one
+  only made the Ninja Speedy and never threw anything.
 - Pets now come in three sizes, shown on the pet's tooltip. Every pet heals both your HP and MP:
   Small pets (the pet shop's critters) 15 every 2 seconds, Medium pets (monsters, heroes and the
   named pets) 30 every 2 seconds, and Large pets (the bosses) 45 every 1.5 seconds. Their attacks

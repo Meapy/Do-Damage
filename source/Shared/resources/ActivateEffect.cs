@@ -131,7 +131,8 @@ namespace Shared.resources
                     Color = uint.Parse(e.Attribute("color").Value.Substring(2), System.Globalization.NumberStyles.AllowHexSpecifier);
             }
 
-            NoStack = e.HasElement("noStack");
+            // an attribute (noStack="true"): read as a child element, it was never set
+            NoStack = e.Attribute("noStack")?.Value == "true";
             TotalDamage = e.GetAttribute<int>("totalDamage");
             Radius = e.GetAttribute<float>("radius");
             EffectDuration = e.GetAttribute<float>("condDuration");

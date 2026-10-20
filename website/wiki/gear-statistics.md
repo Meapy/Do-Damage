@@ -97,7 +97,10 @@ Things to know when reading it:
 - Abilities that heal, buff or hide you (Priest, Rogue, Bard, King, Father) add little or
   nothing against the dummy alone. Trickster's and Monk's abilities teleport you off the dummy,
   so they have no number with abilities.
-- Ninja's star was tapped, not held.
+- These runs are from before the tiered abilities were rebalanced on 20 October 2026, so the
+  numbers with abilities are out of date for the classes whose ability changed (quivers, tomes,
+  helms, shields, seals, poisons, skulls, prisms, scepters, shurikens and lutes). The Ninja's star
+  didn't throw then, which is why it added nothing.
 - Pirate has no tiered cannon, so it used the Doom Cannon.
 
 | Class | Weapon | Ability | Armor | Weapon only | With 3 abilities | Change |
