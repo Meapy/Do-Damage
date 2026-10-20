@@ -12,7 +12,7 @@ version number itself is in `client-rs/Cargo.toml`.
 - Pets now come in three sizes, shown on the pet's tooltip. Every pet heals both your HP and MP:
   Small pets (the pet shop's critters) 15 every 2 seconds, Medium pets (monsters, heroes and the
   named pets) 30 every 2 seconds, and Large pets (the bosses) 45 every 1.5 seconds. Their attacks
-  are unchanged for now.
+  are unchanged for now. Lil' Oryx is now an admin pet and can't be traded.
 - Your vault has a Training Dummy beside the spawn. Shoot it and, 5 seconds after your first hit,
   the chat tells you (and only you) the damage you did and your damage a second (DPS). Keep
   shooting for another reading. It never dies and gives no experience.

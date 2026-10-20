@@ -44,7 +44,7 @@ MAX_BOSS_ATTACKS = 4
 MIN_COOLDOWN = 300
 # Pet sizes: every sized pet heals its owner's HP and MP by the same amount, replacing Doomed Realms'
 # healing (name: (amount, every how many ms)). Its attacks are as before.
-PET_SIZES = {"Small": (15, 2000), "Medium": (30, 2000), "Large": (45, 1500)}
+PET_SIZES = {"Small": (15, 2000), "Medium": (30, 2000), "Large": (45, 1500), "Admin": (200, 800)}
 # the pet shop's critters and pets like them
 SMALL_PETS = {
     "Black Cat (Doomed)", "Grey Cat (Doomed)", "Orange Cat (Doomed)", "Tan Cat (Doomed)", "Yellow Cat (Doomed)",
@@ -72,9 +72,11 @@ MEDIUM_PETS = {
 # bosses: these, and any pet drawn as a boss (find_bosses)
 LARGE_PETS = {
     "Gebb", "Bess", "Nutt", "Thessal Pet", "Dinosaur's Pet", "Skull Shrine P", "Cubee", "Septaviuss", "Malphass",
-    "Sthenos", "Horrificc", "Limonn", "Coill Snake", "Scootaloo", "sphinxxx", "Lil' Oryx (Doomed)",
+    "Sthenos", "Horrificc", "Limonn", "Coill Snake", "Scootaloo", "sphinxxx",
     "Kythal the Necromancer", "Zenco The Undead God", "Doomed Nature Beast",
 }
+# admins' own pets: their generators are marked <Admin/>, so they can't be traded
+ADMIN_PETS = {"Lil' Oryx (Doomed)"}
 # Shoot's parameters in order (logic/behaviors/Shoot.cs)
 SHOOT_PARAMS = ["radius", "count", "shootAngle", "projectileIndex", "fixedAngle", "rotateAngle", "angleOffset",
                 "defaultAngle", "predictive", "coolDownOffset", "coolDown"]
@@ -410,7 +412,7 @@ def write_pet_behaviors(dr_root, dr, chosen, bs, types):
 
 def pet_size(oid, boss):
     """The pet's size (a PET_SIZES key), or None to keep its Doomed Realms healing."""
-    for size, pets in (("Small", SMALL_PETS), ("Medium", MEDIUM_PETS), ("Large", LARGE_PETS)):
+    for size, pets in (("Small", SMALL_PETS), ("Medium", MEDIUM_PETS), ("Large", LARGE_PETS), ("Admin", ADMIN_PETS)):
         if oid in pets:
             return size
     return "Large" if boss else None
@@ -448,7 +450,7 @@ def apply_sizes():
             oid = saxutils.unescape(m.group(1), {"&quot;": '"', "&apos;": "'"})
             stats.setdefault(oid, {})["dps"] = int(m.group(2))
     annotate_generators(stats)
-    unsized = sorted(oid for oid in stats if oid not in SMALL_PETS | MEDIUM_PETS | LARGE_PETS and stats[oid].get("size") is None)
+    unsized = sorted(oid for oid in stats if oid not in SMALL_PETS | MEDIUM_PETS | LARGE_PETS | ADMIN_PETS and stats[oid].get("size") is None)
     print("%d pets sized; keeping their own healing: %s" % (sized, ", ".join(unsized) or "none"))
 
 
@@ -461,7 +463,7 @@ def shots_on_target(count, angle, offset):
 def annotate_generators(stats):
     """Puts each pet's damage per second (on one enemy) and healing on the PermaPet activates of
     the items that give it, for the item tooltips: petDps, petSize, petHp / petMp ("min-max") and
-    petHpMs / petMpMs (every how many milliseconds)."""
+    petHpMs / petMpMs (every how many milliseconds). Admin pets' generators get <Admin/>."""
     for path in ITEM_XMLS:
         text = open(path, encoding="utf-8", newline="").read()
 
@@ -479,6 +481,13 @@ def annotate_generators(stats):
             return '<Activate objectId="%s"%s>PermaPet</Activate>' % (m.group(1), attrs)
 
         text = re.sub(r'<Activate objectId="([^"]*)"([^>]*)>PermaPet</Activate>', annotate, text)
+
+        def admin(m):
+            if 'petSize="Admin"' in m.group(0) and "<Admin" not in m.group(0):
+                return re.sub(r"(<Item\s*/>)(\r?\n)([ \t]*)", r"\1\2\3<Admin />\2\3", m.group(0), count=1)
+            return m.group(0)
+
+        text = re.sub(r"<Object [^>]*>.*?</Object>", admin, text, flags=re.S)
         with open(path, "w", encoding="utf-8", newline="") as f:
             f.write(text)
 
