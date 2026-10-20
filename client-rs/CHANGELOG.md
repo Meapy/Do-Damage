@@ -9,6 +9,10 @@ refuses while an `Unreleased` one is left, so rename it to `## <version> (<date>
 version number itself is in `client-rs/Cargo.toml`.
 
 ## Unreleased
+- Armor rebalance (T1 to T15). Leather armor that gives Dexterity now gives Speed too, half as
+  much (rounded up): +1 at T4 up to +4 at T15. Every robe gives 20 more MP and health equal to half
+  its MP: +20 MP and +10 HP at T1 up to +95 MP and +48 HP at T15. Heavy armor gives +15 health a
+  tier from T11 (+75 at T15) and +2 Vitality a tier from T12 (+8 at T15).
 - The Monk's fists have their own pictures, one for each tier and coloured after its name, from
   plain Cloth Hand Wraps to the gold and cyan Fists of the Eternal Master.
 - New Monks start with Cloth Hand Wraps and a Fountain Droplet, as other classes start with their
