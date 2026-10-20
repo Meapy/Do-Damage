@@ -21,6 +21,11 @@ version number itself is in `client-rs/Cargo.toml`.
 - The Monk has tiered fists at last, T0 to T14, from Cloth Hand Wraps to Fists of the Eternal
   Master, dropping like every other tiered weapon. Fists of Broken Bones is now an untiered boss
   drop instead of a T1 item.
+- Every class's ability now has one item at each tier from T0 to T8, and all of them drop. Extra
+  copies of the T7 and T8 abilities (and the Samurai's slashes) that never dropped are no longer
+  tiered. New: T7 and T8 halos for the Ascendant, a T8 scroll for the Summoner, fountains at every
+  tier for the Monk, and oceanic spells at every tier for the Sharklord. Power of the Fountains is
+  now T7. The Doomed Realms classes' T7 and T8 abilities drop in your own bag, like everyone else's.
 - The wiki has a Gear statistics page: every tiered item side by side with what each tier adds, each
   class's damage a second with each weapon tier, and each class's effective health with each
   armor tier.

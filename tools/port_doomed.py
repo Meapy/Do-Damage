@@ -414,14 +414,34 @@ ITEM_STORE = {
 }
 
 
-# The tiered weapon rebalance (SETUP-LOCAL.md, "Tiered weapon rebalance"). The Dual Blades all
+# The tiered gear changes (SETUP-LOCAL.md, "Tiered weapon rebalance" and "Tiered abilities").
+# Weapons: the Dual Blades all
 # reach 5 tiles (LifetimeMS from their speed), get +2 Defense a tier from T11 and +2 Speed a tier
 # from T12; Rage Claw Blades (T9) lose their 1.5x rate of fire for damage between T8's and T10's.
 # Fists of Broken Bones, a boss drop, is untiered: the Monk's tiered fists are in CustomItems.xml,
 # with the T13 and T14 Dual Blades.
-# id -> {lifetime, rof, damage: (min, max), stats: {stat: amount}, untier}
+# Abilities: the Doomed Realms copies in the betterSkillys classes' ability slots, which never
+# dropped (the tier drops leave them out), are untiered, so each tier has the one ability that
+# drops; so are Oceanic Curse (T9, no source) and Oceanic Nova (T10, a boss drop). Power of the
+# Fountains, the Monk's only ability, moves from T1 to T7, where its numbers belong; the missing
+# tiers of the Doomed Realms classes' abilities are in CustomItems.xml.
+# id -> {lifetime, rof, damage: (min, max), stats: {stat: amount}, untier, tier}
 DEF, SPD = "21", "22"
-WEAPON_TUNING = {
+UNTIERED_ABILITIES = [
+    "1940s Orb", "Azure Trap", "Bile Poison", "Bloodorc Quiver", "Class Test", "Cloak of Dimensions",
+    "Cloak of the Phantom", "Ent Ancient Quiver", "Flaming Blade", "Fury Orb", "Helm of the Holy Warrior",
+    "Helm of the Leviathan General", "Lightning Fury", "Lizard Cut", "Magma Shield", "Mobstopper Trap",
+    "Prism of the Bloody Surprise", "Prism of the Soul Stealer", "Quiver of Artemis", "Roar of the Raging Dragon",
+    "Scepter of Vorv", "Scepter of the Grand Sorcerer", "Seal of Mass Power", "Seal of War", "Shadow Slash",
+    "Shield of Death", "Skull of the Twizted", "Skull of the Undead King", "Snake's Fang", "Souleater Skull",
+    "Space Deterioration Spell", "Spell of the Eternal Void", "Strike of Mass Devestation", "Sword Shield",
+    "Tome of the Ancients", "Tome of the Fountains", "Toothpaste Poison", "Oceanic Curse", "Oceanic Nova",
+]
+# The Doomed Realms classes' tiered abilities drop in the bags the betterSkillys abilities of their
+# tier use (T0-T8), T7 and T8 Soulbound as theirs are. Slot types as betterSkillys numbers them.
+DOOMED_ABILITY_SLOTS = {30, 32, 37, 126, 128, 130, 5000}
+ABILITY_BAGS = [1, 1, 1, 2, 2, 4, 4, 9, 9]
+GEAR_TUNING = {
     "Bronze Daggers": {"lifetime": 278}, "Invert Blades": {"lifetime": 278}, "Dusky Blades": {"lifetime": 278},
     "Duo Blades": {"lifetime": 278}, "Silver Blades": {"lifetime": 278}, "Half Blades": {"lifetime": 278},
     "Obsidian Blades": {"lifetime": 250}, "Mithril Blades": {"lifetime": 313}, "Infinity Blades": {"lifetime": 313},
@@ -430,11 +450,13 @@ WEAPON_TUNING = {
     "Eldricht Blades": {"lifetime": 313, "stats": {DEF: 2}},
     "Master Blades": {"lifetime": 313, "stats": {DEF: 4, SPD: 2}},
     "Fists of Broken Bones": {"untier": True},
+    "Power of the Fountains": {"tier": "7"},
+    **{oid: {"untier": True} for oid in UNTIERED_ABILITIES},
 }
 
 
-def tune_weapons(dr):
-    for oid, t in WEAPON_TUNING.items():
+def tune_gear(dr):
+    for oid, t in GEAR_TUNING.items():
         o = dr.get(oid)
         if o is None:
             continue
@@ -447,11 +469,21 @@ def tune_weapons(dr):
             o.find("RateOfFire").text = t["rof"]
         if t.get("untier") and o.find("Tier") is not None:
             o.remove(o.find("Tier"))
+        if "tier" in t:
+            o.find("Tier").text = t["tier"]
         at = list(o).index(o.find("BagType")) if o.find("BagType") is not None else len(o)
         for i, (stat, amount) in enumerate(t.get("stats", {}).items()):
             e = ET.Element("ActivateOnEquip", {"stat": stat, "amount": str(amount)})
             e.text = "IncrementStat"
             o.insert(at + i, e)
+    for o in dr.values():
+        slot = SLOT_TYPE_REMAP.get(o.findtext("SlotType") or "", o.findtext("SlotType") or "")
+        tier = o.findtext("Tier")
+        if (slot.isdigit() and int(slot) in DOOMED_ABILITY_SLOTS and tier and tier.isdigit() and int(tier) <= 8
+                and o.find("BagType") is not None):
+            o.find("BagType").text = str(ABILITY_BAGS[int(tier)])
+            if int(tier) >= 7 and o.find("Soulbound") is None:
+                ET.SubElement(o, "Soulbound")
 
 
 # The Oryx chain's incantations: each unlocks the locked portal the Oryx before it drops, in that
@@ -467,7 +499,7 @@ INCANTATIONS = {
 
 def fix_doomed_data(dr):
     """Mistakes in the Doomed Realms data, fixed before porting."""
-    tune_weapons(dr)
+    tune_gear(dr)
     for oid, bag in BAG_TYPES.items():
         o = dr.get(oid)
         if o is not None and o.find("BagType") is not None:

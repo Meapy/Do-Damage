@@ -1002,4 +1002,493 @@
 		<feedPower>950</feedPower>
 		<Soulbound/>
 	</Object>
+	<Object type="0x5811" id="Halo of the Seraphim">
+		<Class>Equipment</Class>
+		<Item/>
+		<Texture>
+			<File>drLofiObj6</File>
+			<Index>0x106</Index>
+		</Texture>
+		<SlotType>126</SlotType>
+		<Tier>7</Tier>
+		<Description>A halo worn by the highest of the angels.</Description>
+		<Sound>spell/major_heal</Sound>
+		<Activate range="8" amount="70" duration="22">Halo</Activate>
+		<ActivateOnEquip stat="26" amount="3">IncrementStat</ActivateOnEquip>
+		<ActivateOnEquip stat="27" amount="3">IncrementStat</ActivateOnEquip>
+		<Usable/>
+		<BagType>9</BagType>
+		<FameBonus>5</FameBonus>
+		<MpCost>105</MpCost>
+		<feedPower>570</feedPower>
+		<Soulbound/>
+	</Object>
+	<Object type="0x5812" id="Halo of the Archangel">
+		<Class>Equipment</Class>
+		<Item/>
+		<Texture>
+			<File>drLofiObj6</File>
+			<Index>0x106</Index>
+		</Texture>
+		<SlotType>126</SlotType>
+		<Tier>8</Tier>
+		<Description>The halo of the first angel, brighter than any sun.</Description>
+		<Sound>spell/major_heal</Sound>
+		<Activate range="8" amount="80" duration="24">Halo</Activate>
+		<ActivateOnEquip stat="26" amount="4">IncrementStat</ActivateOnEquip>
+		<ActivateOnEquip stat="27" amount="4">IncrementStat</ActivateOnEquip>
+		<Usable/>
+		<BagType>9</BagType>
+		<FameBonus>6</FameBonus>
+		<MpCost>110</MpCost>
+		<feedPower>855</feedPower>
+		<Soulbound/>
+	</Object>
+	<Object type="0x5813" id="Scroll of the Mad God">
+		<Class>Equipment</Class>
+		<Item/>
+		<Texture>
+			<File>drLofiObj5</File>
+			<Index>0x10e</Index>
+		</Texture>
+		<SlotType>128</SlotType>
+		<Tier>8</Tier>
+		<Description>Binds the Mad God himself to your will, for a while.</Description>
+		<Sound>spell/major_heal</Sound>
+		<Activate objectId="Oryx" duration="120">Summon</Activate>
+		<ActivateOnEquip stat="26" amount="4">IncrementStat</ActivateOnEquip>
+		<ActivateOnEquip stat="27" amount="4">IncrementStat</ActivateOnEquip>
+		<Usable/>
+		<BagType>9</BagType>
+		<FameBonus>6</FameBonus>
+		<MpCost>110</MpCost>
+		<feedPower>855</feedPower>
+		<Soulbound/>
+	</Object>
+	<Object type="0x5814" id="Fountain Droplet">
+		<Class>Equipment</Class>
+		<Item/>
+		<Texture>
+			<File>drLofiObj5</File>
+			<Index>0x10a</Index>
+		</Texture>
+		<SlotType>130</SlotType>
+		<Tier>0</Tier>
+		<Description>Water from the Nexus fountains, that heals your friends and carries you along.</Description>
+		<Sound>spell/major_heal</Sound>
+		<Activate range="5" amount="110">HealNova</Activate>
+		<Activate maxDistance="10">Teleport</Activate>
+		<Usable/>
+		<BagType>1</BagType>
+		<MpCost>50</MpCost>
+		<feedPower>5</feedPower>
+		<DropTradable/>
+	</Object>
+	<Object type="0x5815" id="Fountain Trickle">
+		<Class>Equipment</Class>
+		<Item/>
+		<Texture>
+			<File>drLofiObj5</File>
+			<Index>0x10a</Index>
+		</Texture>
+		<SlotType>130</SlotType>
+		<Tier>1</Tier>
+		<Description>Water from the Nexus fountains, that heals your friends and carries you along.</Description>
+		<Sound>spell/major_heal</Sound>
+		<Activate range="5.5" amount="145">HealNova</Activate>
+		<Activate maxDistance="11">Teleport</Activate>
+		<Usable/>
+		<BagType>1</BagType>
+		<MpCost>55</MpCost>
+		<feedPower>10</feedPower>
+		<DropTradable/>
+	</Object>
+	<Object type="0x5816" id="Fountain Spring">
+		<Class>Equipment</Class>
+		<Item/>
+		<Texture>
+			<File>drLofiObj5</File>
+			<Index>0x10a</Index>
+		</Texture>
+		<SlotType>130</SlotType>
+		<Tier>2</Tier>
+		<Description>Water from the Nexus fountains, that heals your friends and carries you along.</Description>
+		<Sound>spell/major_heal</Sound>
+		<Activate range="6.5" amount="225">HealNova</Activate>
+		<Activate maxDistance="13">Teleport</Activate>
+		<Usable/>
+		<BagType>1</BagType>
+		<MpCost>65</MpCost>
+		<feedPower>20</feedPower>
+		<DropTradable/>
+	</Object>
+	<Object type="0x5817" id="Fountain Brook">
+		<Class>Equipment</Class>
+		<Item/>
+		<Texture>
+			<File>drLofiObj5</File>
+			<Index>0x10a</Index>
+		</Texture>
+		<SlotType>130</SlotType>
+		<Tier>3</Tier>
+		<Description>Water from the Nexus fountains, that heals your friends and carries you along.</Description>
+		<Sound>spell/major_heal</Sound>
+		<Activate range="7.5" amount="255">HealNova</Activate>
+		<Activate maxDistance="14">Teleport</Activate>
+		<Usable/>
+		<BagType>2</BagType>
+		<FameBonus>1</FameBonus>
+		<MpCost>70</MpCost>
+		<feedPower>45</feedPower>
+		<DropTradable/>
+	</Object>
+	<Object type="0x5818" id="Fountain Stream">
+		<Class>Equipment</Class>
+		<Item/>
+		<Texture>
+			<File>drLofiObj5</File>
+			<Index>0x10a</Index>
+		</Texture>
+		<SlotType>130</SlotType>
+		<Tier>4</Tier>
+		<Description>Water from the Nexus fountains, that heals your friends and carries you along.</Description>
+		<Sound>spell/major_heal</Sound>
+		<Activate range="7.5" amount="285">HealNova</Activate>
+		<Activate maxDistance="16">Teleport</Activate>
+		<Usable/>
+		<BagType>2</BagType>
+		<FameBonus>2</FameBonus>
+		<MpCost>75</MpCost>
+		<feedPower>90</feedPower>
+		<DropTradable/>
+	</Object>
+	<Object type="0x5819" id="Fountain Cascade">
+		<Class>Equipment</Class>
+		<Item/>
+		<Texture>
+			<File>drLofiObj5</File>
+			<Index>0x10a</Index>
+		</Texture>
+		<SlotType>130</SlotType>
+		<Tier>5</Tier>
+		<Description>Water from the Nexus fountains, that heals your friends and carries you along.</Description>
+		<Sound>spell/major_heal</Sound>
+		<Activate range="8" amount="320">HealNova</Activate>
+		<Activate maxDistance="17">Teleport</Activate>
+		<Usable/>
+		<BagType>4</BagType>
+		<FameBonus>3</FameBonus>
+		<MpCost>80</MpCost>
+		<feedPower>185</feedPower>
+		<DropTradable/>
+	</Object>
+	<Object type="0x581a" id="Fountain Torrent">
+		<Class>Equipment</Class>
+		<Item/>
+		<Texture>
+			<File>drLofiObj5</File>
+			<Index>0x10a</Index>
+		</Texture>
+		<SlotType>130</SlotType>
+		<Tier>6</Tier>
+		<Description>Water from the Nexus fountains, that heals your friends and carries you along.</Description>
+		<Sound>spell/major_heal</Sound>
+		<Activate range="8" amount="320">HealNova</Activate>
+		<Activate maxDistance="19">Teleport</Activate>
+		<ActivateOnEquip stat="26" amount="2">IncrementStat</ActivateOnEquip>
+		<ActivateOnEquip stat="27" amount="2">IncrementStat</ActivateOnEquip>
+		<Usable/>
+		<BagType>4</BagType>
+		<FameBonus>4</FameBonus>
+		<MpCost>85</MpCost>
+		<feedPower>380</feedPower>
+		<DropTradable/>
+	</Object>
+	<Object type="0x581b" id="Heart of the Fountains">
+		<Class>Equipment</Class>
+		<Item/>
+		<Texture>
+			<File>drLofiObj5</File>
+			<Index>0x10a</Index>
+		</Texture>
+		<SlotType>130</SlotType>
+		<Tier>8</Tier>
+		<Description>Water from the Nexus fountains, that heals your friends and carries you along.</Description>
+		<Sound>spell/major_heal</Sound>
+		<Activate range="10" amount="380">HealNova</Activate>
+		<Activate maxDistance="21">Teleport</Activate>
+		<ActivateOnEquip stat="26" amount="4">IncrementStat</ActivateOnEquip>
+		<ActivateOnEquip stat="27" amount="4">IncrementStat</ActivateOnEquip>
+		<Usable/>
+		<BagType>9</BagType>
+		<FameBonus>6</FameBonus>
+		<MpCost>95</MpCost>
+		<feedPower>855</feedPower>
+		<Soulbound/>
+	</Object>
+	<Object type="0x581c" id="Ripple">
+		<Class>Equipment</Class>
+		<Item/>
+		<Texture>
+			<File>drLofiObj5</File>
+			<Index>0xec</Index>
+		</Texture>
+		<SlotType>5000</SlotType>
+		<Tier>0</Tier>
+		<Description>The power of the sea, in a ring of waves.</Description>
+		<Sound>weapon/sprite_wand</Sound>
+		<Projectile>
+			<ObjectId>Wavess</ObjectId>
+			<Speed>160</Speed>
+			<MinDamage>11</MinDamage>
+			<MaxDamage>16</MaxDamage>
+			<LifetimeMS>364</LifetimeMS>
+			<Size>100</Size>
+			<MultiHit/>
+			<PassesCover/>
+			<ParticleTrail/>
+		</Projectile>
+		<NumProjectiles>10</NumProjectiles>
+		<ArcGap>36</ArcGap>
+		<OldSound>magicShoot</OldSound>
+		<Activate>Shoot</Activate>
+		<Usable/>
+		<BagType>1</BagType>
+		<MpCost>22</MpCost>
+		<feedPower>5</feedPower>
+		<DropTradable/>
+	</Object>
+	<Object type="0x581d" id="Splash">
+		<Class>Equipment</Class>
+		<Item/>
+		<Texture>
+			<File>drLofiObj5</File>
+			<Index>0xec</Index>
+		</Texture>
+		<SlotType>5000</SlotType>
+		<Tier>1</Tier>
+		<Description>The power of the sea, in a ring of waves.</Description>
+		<Sound>weapon/sprite_wand</Sound>
+		<Projectile>
+			<ObjectId>Wavess</ObjectId>
+			<Speed>160</Speed>
+			<MinDamage>21</MinDamage>
+			<MaxDamage>33</MaxDamage>
+			<LifetimeMS>364</LifetimeMS>
+			<Size>105</Size>
+			<MultiHit/>
+			<PassesCover/>
+			<ParticleTrail/>
+		</Projectile>
+		<NumProjectiles>10</NumProjectiles>
+		<ArcGap>36</ArcGap>
+		<OldSound>magicShoot</OldSound>
+		<Activate>Shoot</Activate>
+		<Usable/>
+		<BagType>1</BagType>
+		<MpCost>33</MpCost>
+		<feedPower>10</feedPower>
+		<DropTradable/>
+	</Object>
+	<Object type="0x581e" id="Swell">
+		<Class>Equipment</Class>
+		<Item/>
+		<Texture>
+			<File>drLofiObj5</File>
+			<Index>0xec</Index>
+		</Texture>
+		<SlotType>5000</SlotType>
+		<Tier>2</Tier>
+		<Description>The power of the sea, in a ring of waves.</Description>
+		<Sound>weapon/sprite_wand</Sound>
+		<Projectile>
+			<ObjectId>Wavess</ObjectId>
+			<Speed>160</Speed>
+			<MinDamage>32</MinDamage>
+			<MaxDamage>49</MaxDamage>
+			<LifetimeMS>364</LifetimeMS>
+			<Size>110</Size>
+			<MultiHit/>
+			<PassesCover/>
+			<ParticleTrail/>
+		</Projectile>
+		<NumProjectiles>10</NumProjectiles>
+		<ArcGap>36</ArcGap>
+		<OldSound>magicShoot</OldSound>
+		<Activate>Shoot</Activate>
+		<Usable/>
+		<BagType>1</BagType>
+		<MpCost>44</MpCost>
+		<feedPower>20</feedPower>
+		<DropTradable/>
+	</Object>
+	<Object type="0x581f" id="Breaker">
+		<Class>Equipment</Class>
+		<Item/>
+		<Texture>
+			<File>drLofiObj5</File>
+			<Index>0xec</Index>
+		</Texture>
+		<SlotType>5000</SlotType>
+		<Tier>3</Tier>
+		<Description>The power of the sea, in a ring of waves.</Description>
+		<Sound>weapon/sprite_wand</Sound>
+		<Projectile>
+			<ObjectId>Wavess</ObjectId>
+			<Speed>160</Speed>
+			<MinDamage>43</MinDamage>
+			<MaxDamage>65</MaxDamage>
+			<LifetimeMS>364</LifetimeMS>
+			<Size>115</Size>
+			<MultiHit/>
+			<PassesCover/>
+			<ParticleTrail/>
+		</Projectile>
+		<NumProjectiles>10</NumProjectiles>
+		<ArcGap>36</ArcGap>
+		<OldSound>magicShoot</OldSound>
+		<Activate>Shoot</Activate>
+		<Usable/>
+		<BagType>2</BagType>
+		<FameBonus>1</FameBonus>
+		<MpCost>56</MpCost>
+		<feedPower>45</feedPower>
+		<DropTradable/>
+	</Object>
+	<Object type="0x5820" id="Riptide">
+		<Class>Equipment</Class>
+		<Item/>
+		<Texture>
+			<File>drLofiObj5</File>
+			<Index>0xec</Index>
+		</Texture>
+		<SlotType>5000</SlotType>
+		<Tier>4</Tier>
+		<Description>The power of the sea, in a ring of waves.</Description>
+		<Sound>weapon/sprite_wand</Sound>
+		<Projectile>
+			<ObjectId>Wavess</ObjectId>
+			<Speed>160</Speed>
+			<MinDamage>53</MinDamage>
+			<MaxDamage>81</MaxDamage>
+			<LifetimeMS>364</LifetimeMS>
+			<Size>120</Size>
+			<MultiHit/>
+			<PassesCover/>
+			<ParticleTrail/>
+		</Projectile>
+		<NumProjectiles>10</NumProjectiles>
+		<ArcGap>36</ArcGap>
+		<OldSound>magicShoot</OldSound>
+		<Activate>Shoot</Activate>
+		<Usable/>
+		<BagType>2</BagType>
+		<FameBonus>2</FameBonus>
+		<MpCost>67</MpCost>
+		<feedPower>90</feedPower>
+		<DropTradable/>
+	</Object>
+	<Object type="0x5821" id="Undertow">
+		<Class>Equipment</Class>
+		<Item/>
+		<Texture>
+			<File>drLofiObj5</File>
+			<Index>0xec</Index>
+		</Texture>
+		<SlotType>5000</SlotType>
+		<Tier>5</Tier>
+		<Description>The power of the sea, in a ring of waves.</Description>
+		<Sound>weapon/sprite_wand</Sound>
+		<Projectile>
+			<ObjectId>Wavess</ObjectId>
+			<Speed>160</Speed>
+			<MinDamage>64</MinDamage>
+			<MaxDamage>98</MaxDamage>
+			<LifetimeMS>364</LifetimeMS>
+			<Size>125</Size>
+			<MultiHit/>
+			<PassesCover/>
+			<ParticleTrail/>
+		</Projectile>
+		<NumProjectiles>10</NumProjectiles>
+		<ArcGap>36</ArcGap>
+		<OldSound>magicShoot</OldSound>
+		<Activate>Shoot</Activate>
+		<Usable/>
+		<BagType>4</BagType>
+		<FameBonus>3</FameBonus>
+		<MpCost>78</MpCost>
+		<feedPower>185</feedPower>
+		<DropTradable/>
+	</Object>
+	<Object type="0x5822" id="Maelstrom">
+		<Class>Equipment</Class>
+		<Item/>
+		<Texture>
+			<File>drLofiObj5</File>
+			<Index>0xec</Index>
+		</Texture>
+		<SlotType>5000</SlotType>
+		<Tier>6</Tier>
+		<Description>The power of the sea, in a ring of waves.</Description>
+		<Sound>weapon/sprite_wand</Sound>
+		<Projectile>
+			<ObjectId>Wavess</ObjectId>
+			<Speed>160</Speed>
+			<MinDamage>74</MinDamage>
+			<MaxDamage>114</MaxDamage>
+			<LifetimeMS>364</LifetimeMS>
+			<Size>130</Size>
+			<MultiHit/>
+			<PassesCover/>
+			<ParticleTrail/>
+		</Projectile>
+		<NumProjectiles>10</NumProjectiles>
+		<ArcGap>36</ArcGap>
+		<OldSound>magicShoot</OldSound>
+		<Activate>Shoot</Activate>
+		<ActivateOnEquip stat="26" amount="2">IncrementStat</ActivateOnEquip>
+		<ActivateOnEquip stat="27" amount="2">IncrementStat</ActivateOnEquip>
+		<Usable/>
+		<BagType>4</BagType>
+		<FameBonus>4</FameBonus>
+		<MpCost>89</MpCost>
+		<feedPower>380</feedPower>
+		<DropTradable/>
+	</Object>
+	<Object type="0x5823" id="Tsunami">
+		<Class>Equipment</Class>
+		<Item/>
+		<Texture>
+			<File>drLofiObj5</File>
+			<Index>0xec</Index>
+		</Texture>
+		<SlotType>5000</SlotType>
+		<Tier>8</Tier>
+		<Description>The power of the sea, in a ring of waves.</Description>
+		<Sound>weapon/sprite_wand</Sound>
+		<Projectile>
+			<ObjectId>Wavess</ObjectId>
+			<Speed>160</Speed>
+			<MinDamage>96</MinDamage>
+			<MaxDamage>146</MaxDamage>
+			<LifetimeMS>364</LifetimeMS>
+			<Size>140</Size>
+			<MultiHit/>
+			<PassesCover/>
+			<ParticleTrail/>
+		</Projectile>
+		<NumProjectiles>10</NumProjectiles>
+		<ArcGap>36</ArcGap>
+		<OldSound>magicShoot</OldSound>
+		<Activate>Shoot</Activate>
+		<ActivateOnEquip stat="26" amount="4">IncrementStat</ActivateOnEquip>
+		<ActivateOnEquip stat="27" amount="4">IncrementStat</ActivateOnEquip>
+		<Usable/>
+		<BagType>9</BagType>
+		<FameBonus>6</FameBonus>
+		<MpCost>111</MpCost>
+		<feedPower>855</feedPower>
+		<Soulbound/>
+	</Object>
 </Objects>
