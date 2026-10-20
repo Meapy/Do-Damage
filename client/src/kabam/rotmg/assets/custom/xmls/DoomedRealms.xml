@@ -7409,6 +7409,7 @@
 		<BagType>2</BagType>
 		<MpCost>75</MpCost>
 		<Activate effect="Armored" duration="4.5" range="4">ConditionEffectAura</Activate>
+		<Activate stat="20" amount="3" duration="3">StatBoostSelf</Activate>
 		<Cooldown>5</Cooldown>
 	</Object>
 	<Object type="0xD1A3" id="Murderous Jacket">
@@ -7426,6 +7427,7 @@
 		<BagType>2</BagType>
 		<MpCost>80</MpCost>
 		<Activate effect="Armored" duration="5" range="4">ConditionEffectAura</Activate>
+		<Activate stat="20" amount="5" duration="4">StatBoostSelf</Activate>
 		<Cooldown>5.5</Cooldown>
 	</Object>
 	<Object type="0xD1A4" id="Invincibility Jacket">
@@ -7443,6 +7445,7 @@
 		<BagType>4</BagType>
 		<MpCost>85</MpCost>
 		<Activate effect="Armored" duration="5.5" range="4">ConditionEffectAura</Activate>
+		<Activate stat="20" amount="7" duration="5">StatBoostSelf</Activate>
 		<Cooldown>6</Cooldown>
 	</Object>
 	<Object type="0xD1A5" id="Jacket of Sorrows">
@@ -7462,6 +7465,7 @@
 		<ActivateOnEquip stat="26" amount="2">IncrementStat</ActivateOnEquip>
 		<ActivateOnEquip stat="27" amount="2">IncrementStat</ActivateOnEquip>
 		<Activate effect="Armored" duration="5.5" range="4">ConditionEffectAura</Activate>
+		<Activate stat="20" amount="10" duration="6">StatBoostSelf</Activate>
 		<Cooldown>6</Cooldown>
 	</Object>
 	<Object type="0xD1A6" id="Skyfall Jacket">
@@ -7481,6 +7485,7 @@
 		<ActivateOnEquip stat="26" amount="3">IncrementStat</ActivateOnEquip>
 		<ActivateOnEquip stat="27" amount="3">IncrementStat</ActivateOnEquip>
 		<Activate effect="Armored" duration="6" range="4">ConditionEffectAura</Activate>
+		<Activate stat="20" amount="12" duration="7">StatBoostSelf</Activate>
 		<Cooldown>6.5</Cooldown>
 		<Soulbound />
 	</Object>
@@ -8454,6 +8459,7 @@
 			<MaxDamage>80</MaxDamage>
 			<LifetimeMS>278</LifetimeMS>
 			<MultiHit />
+			<ArmorPiercing />
 		</Projectile>
 		<BagType>1</BagType>
 		<NumProjectiles>1</NumProjectiles>
@@ -8478,6 +8484,7 @@
 			<MaxDamage>90</MaxDamage>
 			<LifetimeMS>278</LifetimeMS>
 			<MultiHit />
+			<ArmorPiercing />
 		</Projectile>
 		<BagType>1</BagType>
 		<NumProjectiles>1</NumProjectiles>
@@ -8502,6 +8509,7 @@
 			<MaxDamage>100</MaxDamage>
 			<LifetimeMS>278</LifetimeMS>
 			<MultiHit />
+			<ArmorPiercing />
 		</Projectile>
 		<BagType>1</BagType>
 		<NumProjectiles>1</NumProjectiles>
@@ -8526,6 +8534,7 @@
 			<MaxDamage>110</MaxDamage>
 			<LifetimeMS>278</LifetimeMS>
 			<MultiHit />
+			<ArmorPiercing />
 		</Projectile>
 		<BagType>1</BagType>
 		<NumProjectiles>1</NumProjectiles>
@@ -8550,6 +8559,7 @@
 			<MaxDamage>125</MaxDamage>
 			<LifetimeMS>278</LifetimeMS>
 			<MultiHit />
+			<ArmorPiercing />
 		</Projectile>
 		<BagType>1</BagType>
 		<NumProjectiles>1</NumProjectiles>
@@ -8574,6 +8584,7 @@
 			<MaxDamage>140</MaxDamage>
 			<LifetimeMS>278</LifetimeMS>
 			<MultiHit />
+			<ArmorPiercing />
 		</Projectile>
 		<BagType>1</BagType>
 		<NumProjectiles>1</NumProjectiles>
@@ -8598,6 +8609,7 @@
 			<MaxDamage>100</MaxDamage>
 			<LifetimeMS>250</LifetimeMS>
 			<MultiHit />
+			<ArmorPiercing />
 		</Projectile>
 		<BagType>1</BagType>
 		<NumProjectiles>1</NumProjectiles>
@@ -8622,6 +8634,7 @@
 			<MaxDamage>150</MaxDamage>
 			<LifetimeMS>313</LifetimeMS>
 			<MultiHit />
+			<ArmorPiercing />
 		</Projectile>
 		<BagType>1</BagType>
 		<NumProjectiles>1</NumProjectiles>
@@ -8646,6 +8659,7 @@
 			<MaxDamage>160</MaxDamage>
 			<LifetimeMS>313</LifetimeMS>
 			<MultiHit />
+			<ArmorPiercing />
 		</Projectile>
 		<BagType>1</BagType>
 		<NumProjectiles>1</NumProjectiles>
@@ -8670,6 +8684,7 @@
 			<MaxDamage>168</MaxDamage>
 			<LifetimeMS>313</LifetimeMS>
 			<MultiHit />
+			<ArmorPiercing />
 		</Projectile>
 		<BagType>2</BagType>
 		<FameBonus>1</FameBonus>
@@ -8695,6 +8710,7 @@
 			<MaxDamage>175</MaxDamage>
 			<LifetimeMS>250</LifetimeMS>
 			<MultiHit />
+			<ArmorPiercing />
 		</Projectile>
 		<BagType>2</BagType>
 		<FameBonus>2</FameBonus>
@@ -8720,6 +8736,7 @@
 			<MaxDamage>190</MaxDamage>
 			<LifetimeMS>313</LifetimeMS>
 			<MultiHit />
+			<ArmorPiercing />
 		</Projectile>
 		<ActivateOnEquip stat="21" amount="2">IncrementStat</ActivateOnEquip>
 		<BagType>2</BagType>
@@ -8746,6 +8763,7 @@
 			<MaxDamage>200</MaxDamage>
 			<LifetimeMS>313</LifetimeMS>
 			<MultiHit />
+			<ArmorPiercing />
 		</Projectile>
 		<ActivateOnEquip stat="21" amount="4">IncrementStat</ActivateOnEquip>
 		<ActivateOnEquip stat="22" amount="2">IncrementStat</ActivateOnEquip>
@@ -8772,6 +8790,7 @@
 			<MaxDamage>250</MaxDamage>
 			<LifetimeMS>300</LifetimeMS>
 			<MultiHit />
+			<ArmorPiercing />
 		</Projectile>
 		<BagType>2</BagType>
 		<FameBonus>5</FameBonus>
@@ -8796,6 +8815,7 @@
 			<MaxDamage>200</MaxDamage>
 			<LifetimeMS>300</LifetimeMS>
 			<MultiHit />
+			<ArmorPiercing />
 		</Projectile>
 		<BagType>2</BagType>
 		<FameBonus>6</FameBonus>
@@ -9603,6 +9623,7 @@
 		<ActivateOnEquip stat="27" amount="4">IncrementStat</ActivateOnEquip>
 		<Activate effect="Armored" duration="6" range="4">ConditionEffectAura</Activate>
 		<Activate effect="Damaging" duration="6">ConditionEffectSelf</Activate>
+		<Activate stat="20" amount="15" duration="8">StatBoostSelf</Activate>
 		<Cooldown>7</Cooldown>
 		<Soulbound />
 	</Object>

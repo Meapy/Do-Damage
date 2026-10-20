@@ -576,6 +576,7 @@
 			<MaxDamage>210</MaxDamage>
 			<LifetimeMS>313</LifetimeMS>
 			<MultiHit/>
+			<ArmorPiercing/>
 		</Projectile>
 		<ActivateOnEquip stat="21" amount="6">IncrementStat</ActivateOnEquip>
 		<ActivateOnEquip stat="22" amount="4">IncrementStat</ActivateOnEquip>
@@ -604,6 +605,7 @@
 			<MaxDamage>221</MaxDamage>
 			<LifetimeMS>313</LifetimeMS>
 			<MultiHit/>
+			<ArmorPiercing/>
 		</Projectile>
 		<ActivateOnEquip stat="21" amount="8">IncrementStat</ActivateOnEquip>
 		<ActivateOnEquip stat="22" amount="6">IncrementStat</ActivateOnEquip>

@@ -34,7 +34,7 @@ def stats(it):
 
 
 def weapon(it):
-    """(min, max, shots, rate of fire, range) of an item that shoots, or None."""
+    """(min, max, shots, rate of fire, range, ignores defense) of an item that shoots, or None."""
     el = it["el"]
     p = el.find("Projectile")
     if p is None:
@@ -42,7 +42,8 @@ def weapon(it):
     lo = wd._int(wd._text(p, "MinDamage") or wd._text(p, "Damage"), 0)
     hi = wd._int(wd._text(p, "MaxDamage") or wd._text(p, "Damage"), lo)
     speed, life = float(wd._text(p, "Speed") or 0), float(wd._text(p, "LifetimeMS") or 0)
-    return lo, hi, wd._int(wd._text(el, "NumProjectiles"), 1), float(wd._text(el, "RateOfFire") or 1), speed * life / 10000
+    return (lo, hi, wd._int(wd._text(el, "NumProjectiles"), 1), float(wd._text(el, "RateOfFire") or 1), speed * life / 10000,
+            p.find("ArmorPiercing") is not None)
 
 
 def attack_mult(att):
@@ -165,7 +166,7 @@ class Balance:
         da, do = self.deltas(rows, avg), self.deltas(rows, output)
         body = []
         for i, it in enumerate(rows):
-            lo, hi, shots, rof, rng = w[it["id"]] or (0, 0, 1, 1, 0)
+            lo, hi, shots, rof, rng, _ = w[it["id"]] or (0, 0, 1, 1, 0, False)
             body.append('<tr><td class="t">%d</td><td>%s</td><td class="n">%s</td><td class="n">%s</td><td class="n">%s</td>'
                         '<td class="n">%d</td><td class="n">%s</td><td class="n">%s</td><td class="n">%s</td><td class="n">%s</td>'
                         '<td>%s</td></tr>' % (
@@ -220,7 +221,8 @@ class Balance:
                     continue
                 s, arm = stats(it), armors.get(t)
                 a = stats(arm) if arm else {}
-                v = dps(w[0], w[1], w[2], w[3], att + s.get(ATT, 0) + a.get(ATT, 0), dex + s.get(DEX, 0) + a.get(DEX, 0))
+                v = dps(w[0], w[1], w[2], w[3], att + s.get(ATT, 0) + a.get(ATT, 0), dex + s.get(DEX, 0) + a.get(DEX, 0),
+                        0 if w[5] else TARGET_DEF)
                 cells.append('<td class="n" title="%s%s">%d</td>' % (
                     self.esc(it["name"]), " + " + self.esc(arm["name"]) if arm else "", round(v)))
             body.append('<tr><td>%s</td><td>%s</td><td class="n">%d</td><td class="n">%d</td>%s</tr>' % (
@@ -248,16 +250,21 @@ class Balance:
             dex = c["stats"].get("Dexterity", (0, 0))[1] + s.get(DEX, 0) + a.get(DEX, 0)
             hp = c["stats"].get("MaxHitPoints", (0, 0))[1] + s.get(HP, 0) + a.get(HP, 0)
             df = c["stats"].get("Defense", (0, 0))[1] + s.get(DEF, 0) + a.get(DEF, 0)
-            v = dps(w[0], w[1], w[2], w[3], att, dex)
+            v = dps(w[0], w[1], w[2], w[3], att, dex, 0 if w[5] else TARGET_DEF)
             e = hp * hit / int(taken(hit, df))
             rows.append(dict(c=c, it=it, arm=arm, rng=w[4], dps=v, ehp=e, dpr=v / w[4], epr=e / w[4]))
         top = {k: max(r[k] for r in rows) for k in ("dps", "ehp", "dpr", "epr")}
-        # one number to compare classes by: the geometric mean of DPS and EHP per tile, each as a share
-        # of the best class's (100 would be the best at both; strong at one and weak at the other
-        # scores lower than fair at both)
+        # one number to compare every class by: the square root of DPS x EHP x range, as a share of the
+        # best class's. Range counts with diminishing returns (twice the reach is worth about 41%
+        # more): of the powers of range tried, the square root leaves the weapon kinds' averages the
+        # most even (about 1.2 times between highest and lowest), so what stands out is the class.
+        # Strong at one of DPS and EHP and weak at the other scores lower than fair at both.
         for r in rows:
-            r["score"] = 100 * (r["dpr"] / top["dpr"] * r["epr"] / top["epr"]) ** 0.5
-        top["score"] = max(r["score"] for r in rows)
+            r["raw"] = (r["dps"] * r["ehp"] * r["rng"]) ** 0.5
+        best = max(r["raw"] for r in rows)
+        for r in rows:
+            r["score"] = 100 * r["raw"] / best
+        top["score"] = 100
 
         def vs(r, k):
             d = (r[k] / top[k] - 1) * 100
@@ -271,7 +278,7 @@ class Balance:
 
         head = [("Class", 0), ("Weapon", 0), ("Armor", 0), ("Range", 1), ("DPS", 1), ("vs top", 1), ("EHP", 1),
                 ("EHP vs top", 1), ("DPS per tile", 1), ("vs top", 1), ("EHP per tile", 1), ("vs top", 1),
-                ("Score per tile", 1), ("vs top", 1)]
+                ("Score", 1), ("vs top", 1)]
         body = []
         for r in rows:
             body.append("<tr><td>%s</td><td>%s</td><td>%s</td><td class=\"n\">%s</td>%s%s%s%s%s%s%s%s%s%s</tr>" % (

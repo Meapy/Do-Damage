@@ -9,6 +9,11 @@ refuses while an `Unreleased` one is left, so rename it to `## <version> (<date>
 version number itself is in `client-rs/Cargo.toml`.
 
 ## Unreleased
+- Dual Blades ignore enemies' defense: every hit does its full damage.
+- The Blademaster's jackets from T3 up also give it Attack for a few seconds when used: +3 for 3
+  seconds at T3 up to +15 for 8 seconds at T8, shown as Att Boost over the character.
+- Abilities that boost one of your stats for a while now show the right status: a Dexterity,
+  Vitality or Wisdom boost showed as another stat's.
 - Wands hit about a third harder on every tier and give +3 Attack and +3 Dexterity on every tier,
   on top of their other bonuses: a Priest with the best gear now does about 2,000 damage a second.
 - The Knight's highest Defense is 35 (was 40) and its highest health 750 (was 770). Knights

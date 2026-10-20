@@ -447,6 +447,11 @@ UNTIERED_ABILITIES = [
 # The Doomed Realms classes' tiered abilities drop in the bags the betterSkillys abilities of their
 # tier use (T0-T8), T7 and T8 Soulbound as theirs are. Slot types as betterSkillys numbers them.
 DOOMED_ABILITY_SLOTS = {30, 32, 37, 126, 128, 130, 5000}
+# The Blademaster: every Dual Blades shot ignores defense (<ArmorPiercing/>), and its T3-T8 jackets
+# also give it Attack for a while (StatBoostSelf, which shows the Att Boost status): (amount, seconds).
+DUAL_BLADES_SLOT = "36"
+JACKET_BOOSTS = {"Lightweight Jacket": (3, 3), "Murderous Jacket": (5, 4), "Invincibility Jacket": (7, 5),
+                 "Jacket of Sorrows": (10, 6), "Skyfall Jacket": (12, 7), "Jacket of Bloodrut Nature": (15, 8)}
 ABILITY_BAGS = [1, 1, 1, 2, 2, 4, 4, 9, 9]
 GEAR_TUNING = {
     "Bronze Daggers": {"lifetime": 278}, "Invert Blades": {"lifetime": 278}, "Dusky Blades": {"lifetime": 278},
@@ -483,6 +488,16 @@ def tune_gear(dr):
             e = ET.Element("ActivateOnEquip", {"stat": stat, "amount": str(amount)})
             e.text = "IncrementStat"
             o.insert(at + i, e)
+    for oid, (amount, secs) in JACKET_BOOSTS.items():
+        o = dr.get(oid)
+        if o is not None and not any(a.text == "StatBoostSelf" for a in o.findall("Activate")):
+            acts = o.findall("Activate")
+            e = ET.Element("Activate", {"stat": "20", "amount": str(amount), "duration": str(secs)})
+            e.text = "StatBoostSelf"
+            o.insert(list(o).index(acts[-1]) + 1 if acts else len(o), e)
+    for o in dr.values():
+        if o.findtext("SlotType") == DUAL_BLADES_SLOT and o.find("Projectile") is not None                 and o.find("Projectile").find("ArmorPiercing") is None:
+            ET.SubElement(o.find("Projectile"), "ArmorPiercing")
     for o in dr.values():
         slot = SLOT_TYPE_REMAP.get(o.findtext("SlotType") or "", o.findtext("SlotType") or "")
         tier = o.findtext("Tier")

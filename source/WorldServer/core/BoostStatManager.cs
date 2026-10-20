@@ -47,6 +47,15 @@ namespace WorldServer.core
                 _boostSV[i].SetValue(_boost[i]);
         }
 
+        // the Boost condition of each stat, in StatsManager's order (HP, MP, Att, Def, Spd, Dex, Vit,
+        // Wis), which isn't the conditions' order (... Spd, Vit, Wis, Dex)
+        private static readonly ConditionEffectIndex[] BoostConditions =
+        {
+            ConditionEffectIndex.HpBoost, ConditionEffectIndex.MpBoost, ConditionEffectIndex.AttBoost,
+            ConditionEffectIndex.DefBoost, ConditionEffectIndex.SpdBoost, ConditionEffectIndex.DexBoost,
+            ConditionEffectIndex.VitBoost, ConditionEffectIndex.WisBoost
+        };
+
         private void ApplyActivateBonus()
         {
             for (var i = 0; i < ActivateBoost.Length; i++)
@@ -55,9 +64,9 @@ namespace WorldServer.core
                 var b = ActivateBoost[i].GetBoost();
                 _boost[i] += b;
 
-                // set condition icon
-
-                var effect = (ConditionEffectIndex)((int)ConditionEffectIndex.HpBoost + i);
+                // the stat's Boost condition shows while a timed boost (StatBoostSelf, StatBoostAura)
+                // lasts: its icon over the player and its name
+                var effect = BoostConditions[i];
                 var haveCondition = _player.HasConditionEffect(effect);
                 if (b > 0)
                 {
