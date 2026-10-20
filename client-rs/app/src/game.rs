@@ -685,8 +685,7 @@ impl Game {
                     world.add_projectile(p);
                 }
                 if let Some(owner) = world.objects.get_mut(&e.owner_id) {
-                    owner.attack_start = now;
-                    owner.attack_angle = e.angle as f64 + inc * (num - 1) as f64 / 2.0;
+                    owner.note_attack(now, e.angle as f64 + inc * (num - 1) as f64 / 2.0);
                 }
             }
             ServerMessage::ServerPlayerShoot(s) => {
@@ -698,8 +697,7 @@ impl Game {
             }
             ServerMessage::AllyShoot(a) => {
                 let Some(owner) = world.objects.get_mut(&a.owner_id).filter(|o| !o.dead) else { return };
-                owner.attack_start = now;
-                owner.attack_angle = a.angle as f64;
+                owner.note_attack(now, a.angle as f64);
                 let (x, y) = (owner.x, owner.y);
                 let p = Projectile::new(a.owner_id, a.bullet_id, a.container_type as u16, 0, a.angle as f64, now, x, y, 1.0, 0, false);
                 world.add_projectile(p);

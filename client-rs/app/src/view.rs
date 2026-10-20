@@ -259,8 +259,8 @@ impl Scene<'_> {
             }
         };
         // Attacking (GameObject.getTexture): face the attack, play the attack frames.
-        const ATTACK_PERIOD: i32 = 300;
-        let attacking = self.time < obj.attack_start + ATTACK_PERIOD;
+        let attack_phase = obj.attack_phase(self.time);
+        let attacking = attack_phase.is_some();
         let facing = if attacking && !desc.dont_face_attacks { obj.attack_angle } else { obj.facing };
         let rel = bound_to_pi(facing - self.camera.angle);
         let sec = ((rel / std::f64::consts::FRAC_PI_4 + 4.0) as i32).rem_euclid(8) as usize;
@@ -268,8 +268,8 @@ impl Scene<'_> {
         let (dir, (row, mirror)) = dirs.iter().find_map(|&d| row_of(d).map(|r| (d, r)))?;
         let symmetric = matches!(dir, Dir::Down | Dir::Up);
 
-        if attacking {
-            if let Some(look) = self.attack_look(set, *index, row, mirror, obj) {
+        if let Some(p) = attack_phase {
+            if let Some(look) = self.attack_look(set, *index, row, mirror, p) {
                 return Some(look);
             }
         }
@@ -297,8 +297,9 @@ impl Scene<'_> {
     }
 
     /// How long a walk cycle (both frames) takes, ms. Players: `Player.getTexture`'s
-    /// 3.5 / move speed (365 ms at the fastest, 875 at the slowest); others:
-    /// `GameObject.getTexture`'s 0.5 / speed, rounded up to a multiple of 400.
+    /// 3.5 / move speed (365 ms at the fastest, 875 at the slowest), never quicker than
+    /// `MIN_ANIM_CYCLE` however fast they go; others: `GameObject.getTexture`'s 0.5 / speed,
+    /// rounded up to a multiple of 400.
     fn walk_period(&self, obj: &GameObj, desc: &ObjectDesc) -> i32 {
         let speed = if desc.class != ObjectClass::Player {
             let w = (0.5 / obj.walk_speed.max(1e-6)).min(1e6) as i32;
@@ -308,19 +309,18 @@ impl Scene<'_> {
         } else {
             bsk_world::move_speed(obj.stat_int(bsk_world::SPEED_STAT).unwrap_or(0), obj.conditions(), 1.0)
         };
-        ((3.5 / speed.max(1e-6)) as i32).clamp(100, 2000)
+        ((3.5 / speed.max(1e-6)) as i32).clamp(bsk_world::MIN_ANIM_CYCLE, 2000)
     }
 
-    /// `AnimatedChar.loadDir`'s attack frames: frame 4, then frame 5 (two frames wide with frame 6,
+    /// `AnimatedChar.loadDir`'s attack frames, `p` of the way through a pass: frame 4, then frame 5 (two frames wide with frame 6,
     /// the sword bit, when that isn't blank). `None` if both are blank (then it walks instead).
-    fn attack_look(&self, set: &str, index: u32, row: u32, mirror: bool, obj: &GameObj) -> Option<Look> {
+    fn attack_look(&self, set: &str, index: u32, row: u32, mirror: bool, p: f64) -> Option<Look> {
         let a1 = self.sprites.char_src(set, index, row, 4).filter(|r| !self.sprites.is_blank(*r));
         let a2 = self.sprites.char_src(set, index, row, 5).filter(|r| !self.sprites.is_blank(*r));
         let frames: Vec<SrcRect> = a1.into_iter().chain(a2).collect();
         if frames.is_empty() {
             return None;
         }
-        let p = ((self.time - obj.attack_start).rem_euclid(300)) as f64 / 300.0;
         let i = ((p.clamp(0.0, 0.99999) * frames.len() as f64) as usize).min(frames.len() - 1);
         let mut src = frames[i];
         let frame = if Some(src) == a1 { 4 } else { 5 };

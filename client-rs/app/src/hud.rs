@@ -1343,8 +1343,7 @@ pub fn draw_panel(ui: &mut Ui, lay: &Layout, world: &World, camera_angle: f64, c
     }
 
     // The inventory and backpack tabs: a bag and the backpack, the page showing edged in the
-    // accent; the backpack's dim until there is one. Hovered, a tab shows the key that switches
-    // between them, at its right middle.
+    // accent; the backpack's dim until there is one. Their tooltip shows the key that switches.
     let page = if panel.has_backpack { state.page } else { Page::Inventory };
     for (i, p) in [Page::Inventory, Page::Backpack].into_iter().enumerate() {
         let r = lay.tab(i);
@@ -1355,12 +1354,6 @@ pub fn draw_panel(ui: &mut Ui, lay: &Layout, world: &World, camera_angle: f64, c
         ui.item_icon(TAB_ICONS[i], 50, r[0] + r[2] / 2.0, r[1] + r[3] / 2.0, s);
         if !usable {
             theme::fill(ui.renderer, r, 4.0 * s, 0x000000, 0.6);
-        }
-        if hover && panel.has_backpack && !state.tabs_key.is_empty() {
-            let small = lay.font(10.0);
-            let kw = ui.measure(&state.tabs_key, small, true);
-            let mid = ui.digit_middle(small, true);
-            ui.label(&state.tabs_key, r[0] + r[2] - kw - 4.0 * s, (r[1] + r[3] / 2.0 - mid).round(), small, true, color::TEXT_DIM);
         }
     }
 
@@ -1903,11 +1896,13 @@ pub fn draw_overlay(ui: &mut Ui, lay: &Layout, world: &World, panel: &Panel, sta
             return;
         }
     }
-    // The inventory and backpack tabs: which is which.
+    // The inventory and backpack tabs: which is which, and the key that switches, centred.
     if let Some(Button::Page(p)) = panel.button_at(mouse) {
         let mut lines = vec![Line::new(if p == Page::Inventory { "Inventory" } else { "Backpack" }, 14.0, true, color::TEXT)];
         if p == Page::Backpack && !panel.has_backpack {
             lines.push(Line::new("You have no backpack yet", 11.0, false, color::TEXT_MUTED));
+        } else if !state.tabs_key.is_empty() {
+            lines.push(Line { centred: true, ..Line::new(&state.tabs_key, 14.0, true, color::TEXT_DIM) });
         }
         draw_tooltip(ui, lay, &lines, None, None, mouse);
         return;
@@ -1999,16 +1994,18 @@ pub struct Line {
     pieces: Vec<(String, u32)>,
     size: f32,
     bold: bool,
+    /// Centred across the box rather than from its left.
+    centred: bool,
 }
 
 impl Line {
     fn new(text: &str, size: f32, bold: bool, color: u32) -> Self {
-        Line { pieces: vec![(text.to_owned(), color)], size, bold }
+        Line { pieces: vec![(text.to_owned(), color)], size, bold, centred: false }
     }
 
     /// "Label: value", the label in the attribute grey and the value in its own colour.
     fn stat(label: &str, value: &str, color: u32) -> Self {
-        Line { pieces: vec![(format!("{label}: "), ATTR), (value.to_owned(), color)], size: 13.0, bold: false }
+        Line { pieces: vec![(format!("{label}: "), ATTR), (value.to_owned(), color)], size: 13.0, bold: false, centred: false }
     }
 
     /// A little space between the tooltip's parts.
@@ -2339,7 +2336,7 @@ pub fn item_tooltip(data: &GameData, item: i32, me: Option<&GameObj>, kind: Slot
             } else {
                 vec![(format!("    {amount:+} "), color), (stat_name(stat).to_owned(), ATTR)]
             };
-            out.push(Line { pieces, size: 13.0, bold: false });
+            out.push(Line { pieces, size: 13.0, bold: false, centred: false });
         }
     }
     // Restrictions.
@@ -2483,7 +2480,7 @@ fn draw_tooltip(ui: &mut Ui, lay: &Layout, lines: &[Line], icon: Option<i32>, ac
     let icon_w = if icon.is_some() { 44.0 * s } else { 0.0 };
     // Wrap every line; the first ones (title, tier) sit beside the icon.
     // Each wrapped row: its coloured pieces, size, bold, and where it sits.
-    type Row = (Vec<(String, u32)>, f32, bool, f32);
+    type Row = (Vec<(String, u32)>, f32, bool, f32, bool);
     let mut rows: Vec<Row> = Vec::new();
     let mut y: f32 = 0.0;
     for (i, line) in lines.iter().enumerate() {
@@ -2495,7 +2492,7 @@ fn draw_tooltip(ui: &mut Ui, lay: &Layout, lines: &[Line], icon: Option<i32>, ac
         // `wrap` measures regular text: bold is wider, so leave it some room.
         let room = (inner - indent) * if line.bold { 0.9 } else { 1.0 };
         for part in wrap(ui, &line.pieces, size, room, 0.0) {
-            rows.push((part, size, line.bold, y));
+            rows.push((part, size, line.bold, y, line.centred));
             y += size * 1.25;
         }
     }
@@ -2518,9 +2515,13 @@ fn draw_tooltip(ui: &mut Ui, lay: &Layout, lines: &[Line], icon: Option<i32>, ac
     if let Some(item) = icon {
         ui.item_icon(item, 60, x0 + pad + icon_w / 2.0 - 2.0 * s, y0 + pad + icon_w / 2.0 - 2.0 * s, s * 0.9);
     }
-    for (i, (pieces, size, bold, ry)) in rows.iter().enumerate() {
+    for (i, (pieces, size, bold, ry, centred)) in rows.iter().enumerate() {
         let indent = if i < 2 && icon.is_some() && *ry < icon_w { icon_w } else { 0.0 };
         let mut x = x0 + pad + indent;
+        if *centred {
+            let rw: f32 = pieces.iter().map(|(text, _)| ui.measure(text, *size, *bold)).sum();
+            x += ((inner - indent - rw) / 2.0).max(0.0);
+        }
         for (text, color) in pieces {
             ui.label(text, x, y0 + pad + ry, *size, *bold, *color);
             x += ui.measure(text, *size, *bold);

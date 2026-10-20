@@ -9,6 +9,10 @@ refuses while an `Unreleased` one is left, so rename it to `## <version> (<date>
 version number itself is in `client-rs/Cargo.toml`.
 
 ## Unreleased
+- Skins keep animating at high dexterity and speed: shooting very fast used to freeze a skin
+  on its first attack frame, and running very fast could make its walk look stuck.
+- Hovering the inventory and backpack buttons shows the key that switches between them in the
+  tooltip, centred under the name, instead of on the button.
 - Arenas: everyone is invulnerable for 2.5 seconds as each wave starts, so monsters that appear
   right on top of you can't kill you before you can move.
 - The Potion of Max Life still fills your health to your class's maximum, but if it's already

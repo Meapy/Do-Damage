@@ -133,6 +133,38 @@ fn our_walk_frames_keep_going_in_a_0_ms_frame() {
 }
 
 #[test]
+fn quick_shots_still_show_both_attack_frames() {
+    let d = data();
+    let mut w = world(&d);
+    let me = w.me.unwrap();
+    let o = w.objects.get_mut(&me).unwrap();
+    // A shot every 60 ms, far quicker than a pass through the frames: sampled every 10 ms, the
+    // second frame (past half way) still shows, and for at least half the quickest pass at a time.
+    let (mut second, mut run, mut longest) = (0, 0, 0);
+    for t in (1000..3000).step_by(10) {
+        if t % 60 == 40 {
+            o.note_attack(t, 0.0);
+        }
+        let p = o.attack_phase(t).expect("attacking");
+        if p >= 0.5 {
+            second += 1;
+            run += 10;
+        } else {
+            longest = longest.max(run);
+            run = 0;
+        }
+    }
+    assert!(second > 50, "second frame shown {second} times");
+    assert!(longest >= MIN_ANIM_CYCLE / 2, "longest second frame {longest} ms");
+    // Shots slower than a pass start it over each time, as before.
+    let o = w.objects.get_mut(&me).unwrap();
+    o.note_attack(10_000, 0.0);
+    o.note_attack(10_400, 0.0);
+    assert_eq!(o.attack_phase(10_400), Some(0.0));
+    assert!(o.attack_phase(10_400 + ATTACK_PERIOD).is_none());
+}
+
+#[test]
 fn others_glide_to_their_tick_position() {
     let d = data();
     let mut w = world(&d);

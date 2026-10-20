@@ -236,8 +236,7 @@ impl World {
         let att_mult = self.attack_multiplier(player.stat_int(STAT_ATTACK).unwrap_or(0), conditions);
         let shots = self.do_shoot(time, weapon_type, angle, att_mult, last_move, data);
         if let Some(player) = self.objects.get_mut(&me) {
-            player.attack_start = time;
-            player.attack_angle = angle;
+            player.note_attack(time, angle);
         }
         shots
     }

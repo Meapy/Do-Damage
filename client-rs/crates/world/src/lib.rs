@@ -26,6 +26,15 @@ const GLIDE_SLACK: f64 = 1.3;
 /// was stops them at once.
 const WALK_HOLD_MS: i32 = 100;
 
+/// How long the attack frames last after a shot, ms (`GameObject.ATTACK_PERIOD`), and how long
+/// one pass through them takes when shots come slower than that.
+pub const ATTACK_PERIOD: i32 = 300;
+
+/// The quickest a skin's two-frame cycle (attack or walk) may run, ms: each frame then shows for
+/// at least 80 ms, about five frames at 60 Hz. Faster, a high dexterity or speed would restart or
+/// alias the cycle on the same frame and the skin would look frozen.
+pub const MIN_ANIM_CYCLE: i32 = 160;
+
 /// The tile type of a square nothing has been sent for (`Square.tileType_` default).
 pub const NO_TILE: u16 = 255;
 
@@ -58,6 +67,10 @@ pub struct GameObj {
     /// When it last attacked and toward which world angle (for the attack frames).
     pub attack_start: i32,
     pub attack_angle: f64,
+    /// When the attack frames' current pass began, and how long a pass takes (ms): the time
+    /// between shots, kept between `MIN_ANIM_CYCLE` and `ATTACK_PERIOD`.
+    attack_cycle_start: i32,
+    attack_cycle: i32,
     /// Killed by one of our shots, before the server says so, and when (the projectile clock).
     pub dead: bool,
     pub dead_at: i32,
@@ -93,6 +106,29 @@ impl GameObj {
     /// Condition effects, first and second batch.
     pub fn conditions(&self) -> [u32; 2] {
         [self.stat_int(29).unwrap_or(0) as u32, self.stat_int(120).unwrap_or(0) as u32]
+    }
+
+    /// It attacked toward `angle` at `time`. A shot starts the attack frames over only once the
+    /// pass under way is done and back on its first frame, at the pace the shots come; quicker
+    /// shots leave the frames running, so both always show.
+    pub fn note_attack(&mut self, time: i32, angle: f64) {
+        let interval = time.saturating_sub(self.attack_start);
+        let since = time.saturating_sub(self.attack_cycle_start);
+        let attacking = interval < ATTACK_PERIOD;
+        let on_first = since.rem_euclid(self.attack_cycle) * 2 < self.attack_cycle;
+        if !attacking || (since >= self.attack_cycle && on_first) {
+            self.attack_cycle = if attacking { interval.clamp(MIN_ANIM_CYCLE, ATTACK_PERIOD) } else { ATTACK_PERIOD };
+            self.attack_cycle_start = time;
+        }
+        self.attack_start = time;
+        self.attack_angle = angle;
+    }
+
+    /// How far through a pass of the attack frames it is at `time` (0 to 1), or `None` once it
+    /// hasn't attacked for `ATTACK_PERIOD`.
+    pub fn attack_phase(&self, time: i32) -> Option<f64> {
+        (time < self.attack_start + ATTACK_PERIOD)
+            .then(|| (time - self.attack_cycle_start).rem_euclid(self.attack_cycle) as f64 / self.attack_cycle as f64)
     }
 
     fn apply_stats(&mut self, stats: &[StatData]) {
@@ -249,6 +285,8 @@ impl World {
             facing: 0.0,
             attack_start: i32::MIN / 2,
             attack_angle: 0.0,
+            attack_cycle_start: i32::MIN / 2,
+            attack_cycle: ATTACK_PERIOD,
             dead: false,
             dead_at: 0,
             animations: Default::default(),
