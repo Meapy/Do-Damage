@@ -3,8 +3,8 @@ tools/build_wiki.py from the game's data:
 
 - {{gen:tier-tables}}: every tiered item, one table per kind, lowest tier first, with what changes
   from the tier below (damage, output, MP, defense, stat points).
-- {{gen:class-dps}}: each class's damage a second with each tier of its weapon, at its highest
-  Attack and Dexterity, against a target with 50 defense.
+- {{gen:class-dps}}: each class's damage a second with each tier of its weapon and the same tier of
+  its armor, at its highest Attack and Dexterity, against a target with 50 defense.
 - {{gen:class-ehp}}: each class's effective health at its highest health and defense, with each
   tier of its armor and nothing else.
 
@@ -209,6 +209,8 @@ class Balance:
             slot = c["slots"][0]
             att, dex = c["stats"].get("Attack", (0, 0))[1], c["stats"].get("Dexterity", (0, 0))[1]
             items = self.by_tier(slot)
+            # with the armor of the same tier: its Attack and Dexterity count too
+            armors = self.by_tier(c["slots"][2]) if len(c["slots"]) > 2 else {}
             cells = []
             for t in TIERS:
                 it = items.get(t)
@@ -216,9 +218,11 @@ class Balance:
                 if not w or not w[1]:
                     cells.append('<td class="n dim">&ndash;</td>')
                     continue
-                s = stats(it)
-                v = dps(w[0], w[1], w[2], w[3], att + s.get(ATT, 0), dex + s.get(DEX, 0))
-                cells.append('<td class="n" title="%s">%d</td>' % (self.esc(it["name"]), round(v)))
+                s, arm = stats(it), armors.get(t)
+                a = stats(arm) if arm else {}
+                v = dps(w[0], w[1], w[2], w[3], att + s.get(ATT, 0) + a.get(ATT, 0), dex + s.get(DEX, 0) + a.get(DEX, 0))
+                cells.append('<td class="n" title="%s%s">%d</td>' % (
+                    self.esc(it["name"]), " + " + self.esc(arm["name"]) if arm else "", round(v)))
             body.append('<tr><td>%s</td><td>%s</td><td class="n">%d</td><td class="n">%d</td>%s</tr>' % (
                 self.esc(c["name"]), self.esc(wd.SLOT_NAMES.get(slot, "")), att, dex, "".join(cells)))
         return self.table(head, body, "balance grid")

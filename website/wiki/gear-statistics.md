@@ -25,9 +25,10 @@ where each item comes from, and the untiered and set items, see [Gear](gear.html
 
 ## Damage a second by class
 
-What each class does with each tier of its weapon, at its highest **Attack** and **Dexterity**
-(the stat bonuses on the weapon itself count too), against a monster with **50 defense**, with
-every shot hitting. Hover a number to see the weapon.
+What each class does with each tier of its weapon, wearing the same tier of its armor, at its
+highest **Attack** and **Dexterity**. The Attack and Dexterity on the weapon and the armor count
+too (leather armor's Dexterity, robes' Attack). Against a monster with **50 defense**, with every
+shot hitting. Hover a number to see the weapon and armor.
 
 How it works out:
 
@@ -35,7 +36,8 @@ How it works out:
 - A monster takes that less its defense, but always at least a tenth of it.
 - You fire (1.5 + 6.5 × Dexterity ÷ 75) times a second, times the weapon's rate of fire.
 
-Abilities, rings, pets and effects such as Damaging and Berserk aren't counted.
+Abilities, rings, pets and effects such as Damaging and Berserk aren't counted. There's no T0
+armor, so the T0 column has none.
 
 {{gen:class-dps}}
 
