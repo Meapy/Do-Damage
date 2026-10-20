@@ -137,15 +137,6 @@ impl Floater {
     }
 }
 
-/// Whether a condition effect helps whoever has it (its text shows green, not red): speed,
-/// healing, damage and defence buffs, invisibility, the immunities and stat boosts.
-pub fn helps(effect: u32) -> bool {
-    use bsk_world::condition::*;
-    matches!(effect, SPEEDY | HEALING | DAMAGING | BERSERK | INVULNERABLE | INVINCIBLE | ARMORED | NINJA_SPEEDY | INVISIBLE | INSPIRED)
-        || matches!(effect, 12 | 17 | 23 | 32 | 33 | 34 | 36 | 39 | 50)
-        || (40..=47).contains(&effect)
-}
-
 /// `SpeechBalloon`: what someone said, over their head for a few seconds.
 #[derive(Debug, Clone)]
 pub struct Bubble {

@@ -9,6 +9,8 @@ refuses while an `Unreleased` one is left, so rename it to `## <version> (<date>
 version number itself is in `client-rs/Cargo.toml`.
 
 ## Unreleased
+- Status effects no longer write their names over players and monsters when they start; the
+  status icons show them.
 - The Divine Forge: a god's anvil and hearth now stands in the middle of the class memorial, in
   the Nexus's south yard west of the arena portals, on a floor of gold. Stand by it and open its
   window to forge: browse the recipes by weapons, abilities, armor, rings and the rest (then by

@@ -49,8 +49,6 @@ pub struct Game {
     pub floaters: Vec<crate::view::Floater>,
     /// Speech balloons, one per speaker.
     pub bubbles: Vec<crate::view::Bubble>,
-    /// Each object's condition effects as last seen, to name the ones it gains.
-    seen_conditions: std::collections::HashMap<i32, [u32; 2]>,
     /// The market's answers, for its window.
     pub market_events: Vec<crate::market::Event>,
     /// The Divine Forge's answers, for its window.
@@ -239,7 +237,6 @@ impl Game {
             sent_view_radius: MIN_VIEW_RADIUS,
             view_radius_sent_at: i32::MIN / 2,
             floaters: Vec::new(),
-            seen_conditions: std::collections::HashMap::new(),
             bubbles: Vec::new(),
             tellers: Vec::new(),
             sounds: Vec::new(),
@@ -856,39 +853,8 @@ impl Game {
             *self.counts.entry(msg.name()).or_default() += 1;
             self.socket.send(&msg);
         }
-        self.condition_text(now);
         self.floaters.retain(|f| now - f.at < f.life);
         self.bubbles.retain(|b| now - b.at < b.life);
-    }
-
-    /// Effects an object gains, named over it like a damage number: red when they hurt, green
-    /// when they help. Objects just come into sight say nothing about what they already had.
-    fn condition_text(&mut self, now: i32) {
-        use bsk_world::condition::{active, EFFECTS};
-        let Some(world) = &self.world else { return };
-        let mut seen = std::collections::HashMap::with_capacity(world.objects.len());
-        for o in world.objects.values() {
-            let c = o.conditions();
-            if let Some(before) = self.seen_conditions.get(&o.id) {
-                let gained = [c[0] & !before[0], c[1] & !before[1]];
-                let (mut good, mut bad) = (Vec::new(), Vec::new());
-                for n in active(gained).filter(|&n| n > 1) {
-                    let name = EFFECTS[n as usize].name;
-                    if crate::view::helps(n) {
-                        good.push(name);
-                    } else {
-                        bad.push(name);
-                    }
-                }
-                for (names, color) in [(bad, 0xFF0000), (good, 0x5AFF5A)] {
-                    if !names.is_empty() {
-                        self.floaters.push(crate::view::Floater { object_id: o.id, text: names.join(", "), color, at: now, life: 2000 });
-                    }
-                }
-            }
-            seen.insert(o.id, c);
-        }
-        self.seen_conditions = seen;
     }
 
     /// Advance the world by `dt` ms with the keys held; `rotate` is -1, 0 or 1.
