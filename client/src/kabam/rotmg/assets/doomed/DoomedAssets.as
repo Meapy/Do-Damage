@@ -388,11 +388,11 @@ package kabam.rotmg.assets.doomed
          AssetLibrary.addImageSet("drRemote_draw_19795118", new drRemote_draw_19795118().bitmapData, 16, 16);
          AssetLibrary.addImageSet("drRemote_draw_19845460", new drRemote_draw_19845460().bitmapData, 8, 8);
          AssetLibrary.addImageSet("drRemote_draw_20036182", new drRemote_draw_20036182().bitmapData, 16, 16);
-         AnimatedChars.add("drRemote_draw_20482145", new drRemote_draw_20482145().bitmapData, null, 1, 8, 8, 8, AnimatedChar.DOWN);
-         AssetLibrary.addImageSet("drRemote_draw_20482145", new drRemote_draw_20482145().bitmapData, 1, 8);
+         AnimatedChars.add("drRemote_draw_20482145", new drRemote_draw_20482145().bitmapData, null, 8, 8, 8, 8, AnimatedChar.DOWN);
+         AssetLibrary.addImageSet("drRemote_draw_20482145", new drRemote_draw_20482145().bitmapData, 8, 8);
          AssetLibrary.addImageSet("drRemote_draw_21281370", new drRemote_draw_21281370().bitmapData, 16, 16);
          AssetLibrary.addImageSet("drRemote_draw_21442058", new drRemote_draw_21442058().bitmapData, 8, 8);
-         AnimatedChars.add("drRemote_draw_220164173", new drRemote_draw_220164173().bitmapData, null, 2, 16, 16, 16, AnimatedChar.DOWN);
+         AnimatedChars.add("drRemote_draw_220164173", new drRemote_draw_220164173().bitmapData, null, 16, 16, 16, 16, AnimatedChar.DOWN);
          AssetLibrary.addImageSet("drRemote_draw_230784358", new drRemote_draw_230784358().bitmapData, 8, 8);
          AssetLibrary.addImageSet("drRemote_draw_24362609", new drRemote_draw_24362609().bitmapData, 8, 8);
          AssetLibrary.addImageSet("drRemote_draw_24514195", new drRemote_draw_24514195().bitmapData, 8, 8);
@@ -405,8 +405,8 @@ package kabam.rotmg.assets.doomed
          AssetLibrary.addImageSet("drRemote_draw_428890379", new drRemote_draw_428890379().bitmapData, 16, 16);
          AnimatedChars.add("drRemote_draw_4560923003977728", new drRemote_draw_4560923003977728().bitmapData, null, 16, 16, 112, 16, AnimatedChar.DOWN);
          AnimatedChars.add("drRemote_draw_4613116478357504", new drRemote_draw_4613116478357504().bitmapData, null, 16, 16, 112, 16, AnimatedChar.DOWN);
-         AnimatedChars.add("drRemote_draw_4712140350947328", new drRemote_draw_4712140350947328().bitmapData, null, 1, 8, 8, 8, AnimatedChar.DOWN);
-         AssetLibrary.addImageSet("drRemote_draw_4712140350947328", new drRemote_draw_4712140350947328().bitmapData, 1, 8);
+         AnimatedChars.add("drRemote_draw_4712140350947328", new drRemote_draw_4712140350947328().bitmapData, null, 8, 8, 8, 8, AnimatedChar.DOWN);
+         AssetLibrary.addImageSet("drRemote_draw_4712140350947328", new drRemote_draw_4712140350947328().bitmapData, 8, 8);
          AnimatedChars.add("drRemote_draw_4749920137379840", new drRemote_draw_4749920137379840().bitmapData, null, 16, 16, 112, 16, AnimatedChar.DOWN);
          AssetLibrary.addImageSet("drRemote_draw_4749920137379840", new drRemote_draw_4749920137379840().bitmapData, 16, 16);
          AnimatedChars.add("drRemote_draw_4753894108299264", new drRemote_draw_4753894108299264().bitmapData, null, 16, 16, 112, 16, AnimatedChar.DOWN);
@@ -440,7 +440,7 @@ package kabam.rotmg.assets.doomed
          AnimatedChars.add("drRemote_draw_5964462121025536", new drRemote_draw_5964462121025536().bitmapData, null, 8, 8, 56, 8, AnimatedChar.DOWN);
          AnimatedChars.add("drRemote_draw_6046102470000640", new drRemote_draw_6046102470000640().bitmapData, null, 16, 16, 112, 16, AnimatedChar.DOWN);
          AssetLibrary.addImageSet("drRemote_draw_6077797936136192", new drRemote_draw_6077797936136192().bitmapData, 16, 16);
-         AnimatedChars.add("drRemote_draw_6261539245916160", new drRemote_draw_6261539245916160().bitmapData, null, 2, 16, 16, 16, AnimatedChar.DOWN);
+         AnimatedChars.add("drRemote_draw_6261539245916160", new drRemote_draw_6261539245916160().bitmapData, null, 16, 16, 16, 16, AnimatedChar.DOWN);
          AssetLibrary.addImageSet("drRemote_draw_6323904540835840", new drRemote_draw_6323904540835840().bitmapData, 16, 16);
          AssetLibrary.addImageSet("drRemote_draw_6488147892371456", new drRemote_draw_6488147892371456().bitmapData, 8, 8);
          AssetLibrary.addImageSet("drRemote_draw_6514899693862912", new drRemote_draw_6514899693862912().bitmapData, 8, 8);
@@ -469,9 +469,9 @@ package kabam.rotmg.assets.doomed
          AnimatedChars.add("drRemote_draw_950358156", new drRemote_draw_950358156().bitmapData, null, 16, 16, 112, 16, AnimatedChar.DOWN);
          AssetLibrary.addImageSet("drRemote_draw_950358156", new drRemote_draw_950358156().bitmapData, 16, 16);
          AssetLibrary.addImageSet("drRemote_draw_969918974", new drRemote_draw_969918974().bitmapData, 8, 8);
-         AnimatedChars.add("drRemote_draw_9720863", new drRemote_draw_9720863().bitmapData, null, 2, 16, 16, 16, AnimatedChar.DOWN);
-         AssetLibrary.addImageSet("drRemote_draw_9720863", new drRemote_draw_9720863().bitmapData, 2, 16);
-         AnimatedChars.add("drRemote_draw_9772594", new drRemote_draw_9772594().bitmapData, null, 1, 8, 8, 8, AnimatedChar.DOWN);
+         AnimatedChars.add("drRemote_draw_9720863", new drRemote_draw_9720863().bitmapData, null, 16, 16, 16, 16, AnimatedChar.DOWN);
+         AssetLibrary.addImageSet("drRemote_draw_9720863", new drRemote_draw_9720863().bitmapData, 16, 16);
+         AnimatedChars.add("drRemote_draw_9772594", new drRemote_draw_9772594().bitmapData, null, 8, 8, 8, 8, AnimatedChar.DOWN);
          AnimatedChars.add("drRemote_draw_980207997", new drRemote_draw_980207997().bitmapData, null, 16, 16, 112, 16, AnimatedChar.DOWN);
          AssetLibrary.addImageSet("drRemote_draw_988954579", new drRemote_draw_988954579().bitmapData, 16, 16);
          AnimatedChars.add("drRemote_draw_992396809", new drRemote_draw_992396809().bitmapData, null, 16, 16, 112, 16, AnimatedChar.DOWN);

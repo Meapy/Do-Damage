@@ -87,12 +87,21 @@ impl Sprites {
         Some(src(s.sheet?, (index % s.cols) * s.tile_w, (index / s.cols) * s.tile_h, s.tile_w, s.tile_h))
     }
 
-    /// Frame `frame` (0..7) of row `row` of character `index` in an animated sheet.
+    /// Frame `frame` (0..7) of row `row` of character `index` in an animated sheet. A sheet with
+    /// fewer frames (a single picture, like some Doomed Realms pets) walks in its standing frame
+    /// and has no attack frames.
     pub fn char_src(&self, name: &str, index: u32, row: u32, frame: u32) -> Option<SrcRect> {
         let c = self.chars.get(name)?;
         if index >= c.count || row >= c.rows() || frame >= 7 {
             return None;
         }
+        let frame = if (frame + 1) * c.tile_w <= c.block_w {
+            frame
+        } else if frame < 4 {
+            0
+        } else {
+            return None;
+        };
         let bx = (index % c.blocks_per_row) * c.block_w;
         let by = (index / c.blocks_per_row) * c.block_h;
         Some(src(c.sheet, bx + frame * c.tile_w, by + row * c.tile_h, c.tile_w, c.tile_h))

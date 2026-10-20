@@ -467,7 +467,7 @@ def apply_sizes():
 def sprite_extent(obj, sheets, anims):
     """The longer side, in pixels, of what an object's sprite covers in its (first) frame; None when
     it has no picture."""
-    from PIL import Image  # only here: the rest of the port doesn't need Pillow
+    from PIL import Image
     anim = obj.find("AnimatedTexture")
     tex = anim if anim is not None else obj.find("Texture")
     if tex is None:
@@ -478,10 +478,11 @@ def sprite_extent(obj, sheets, anims):
     index = int(tex.findtext("Index", "0").strip(), 0)
     image = Image.open(os.path.join(ROOT, "client", "src", sheet["file"])).convert("RGBA")
     if anim is not None:
-        # a character's row; its first frame, the square at the start (a 16x8 sheet's second half
-        # is for the attack frame), is the standing one
+        # the character's block (as the Rust client's Sprites::char_src finds it); its first frame,
+        # the square at the start (a 16x8 sheet's second half is for the attack frame), stands
         w = h = sheet["h"]
-        x, y = 0, index * h
+        per_row = max(1, image.width // sheet["sheet_w"])
+        x, y = index % per_row * sheet["sheet_w"], index // per_row * sheet["sheet_h"]
     else:
         w, h = sheet["w"], sheet["h"]
         cols = image.width // w
@@ -497,8 +498,14 @@ def pet_draw_size(extent, size):
 
 def write_pet_draw_sizes(sizes):
     """Sets each sized pet's <Size> (sizes: pet id -> size) in PET_XMLS, so that pets of a size look
-    about as big as one another, whatever their sprite's resolution."""
+    about as big as one another, whatever their sprite's resolution. Measuring the sprites needs
+    Pillow; without it the sizes are left as they are."""
     import json
+    try:
+        import PIL  # noqa: F401
+    except ImportError:
+        print("  Pillow isn't installed (pip install pillow): pets' drawn sizes left as they are")
+        return
     manifest = json.load(open(MANIFEST, encoding="utf-8"))
     sheets = {s["name"]: s for s in manifest["image_sets"]}
     anims = {s["name"]: s for s in manifest["animated_chars"]}

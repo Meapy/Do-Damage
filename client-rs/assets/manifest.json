@@ -988,7 +988,7 @@
   {
    "name": "drRemote_draw_20482145",
    "file": "kabam/rotmg/assets/doomed/images/drRemote_draw_20482145.png",
-   "w": 1,
+   "w": 8,
    "h": 8
   },
   {
@@ -1054,7 +1054,7 @@
   {
    "name": "drRemote_draw_4712140350947328",
    "file": "kabam/rotmg/assets/doomed/images/drRemote_draw_4712140350947328.png",
-   "w": 1,
+   "w": 8,
    "h": 8
   },
   {
@@ -1258,7 +1258,7 @@
   {
    "name": "drRemote_draw_9720863",
    "file": "kabam/rotmg/assets/doomed/images/drRemote_draw_9720863.png",
-   "w": 2,
+   "w": 16,
    "h": 16
   },
   {
@@ -2433,7 +2433,7 @@
    "name": "drRemote_draw_20482145",
    "file": "kabam/rotmg/assets/doomed/images/drRemote_draw_20482145.png",
    "mask": null,
-   "w": 1,
+   "w": 8,
    "h": 8,
    "sheet_w": 8,
    "sheet_h": 8,
@@ -2443,7 +2443,7 @@
    "name": "drRemote_draw_220164173",
    "file": "kabam/rotmg/assets/doomed/images/drRemote_draw_220164173.png",
    "mask": null,
-   "w": 2,
+   "w": 16,
    "h": 16,
    "sheet_w": 16,
    "sheet_h": 16,
@@ -2493,7 +2493,7 @@
    "name": "drRemote_draw_4712140350947328",
    "file": "kabam/rotmg/assets/doomed/images/drRemote_draw_4712140350947328.png",
    "mask": null,
-   "w": 1,
+   "w": 8,
    "h": 8,
    "sheet_w": 8,
    "sheet_h": 8,
@@ -2683,7 +2683,7 @@
    "name": "drRemote_draw_6261539245916160",
    "file": "kabam/rotmg/assets/doomed/images/drRemote_draw_6261539245916160.png",
    "mask": null,
-   "w": 2,
+   "w": 16,
    "h": 16,
    "sheet_w": 16,
    "sheet_h": 16,
@@ -2793,7 +2793,7 @@
    "name": "drRemote_draw_9720863",
    "file": "kabam/rotmg/assets/doomed/images/drRemote_draw_9720863.png",
    "mask": null,
-   "w": 2,
+   "w": 16,
    "h": 16,
    "sheet_w": 16,
    "sheet_h": 16,
@@ -2803,7 +2803,7 @@
    "name": "drRemote_draw_9772594",
    "file": "kabam/rotmg/assets/doomed/images/drRemote_draw_9772594.png",
    "mask": null,
-   "w": 1,
+   "w": 8,
    "h": 8,
    "sheet_w": 8,
    "sheet_h": 8,

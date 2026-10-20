@@ -795,15 +795,16 @@ def write_assets(sheets, remotes, images_dir):
         name = remote_sheet(rid)
         embed(name, remote_file(rid))
         w, h = png_size(remote_file(rid))
+        # remote character sprites are mostly a strip of 7 frames, as the old client loaded them;
+        # a single picture (Cookie, Reaper, Aceaku's Pet) is one frame, not 7 slivers of it
+        strip = w == 7 * h
+        tile_w = w // 7 if strip else w
         if use["animated"]:
-            # remote character sprites are a strip of 7 frames, as the old client loaded them
             lines.append('         AnimatedChars.add("%s", new %s().bitmapData, null, %d, %d, %d, %d, AnimatedChar.%s);'
-                         % (name, name, max(1, w // 7), h, w, h, "RIGHT" if use["right"] else "DOWN"))
+                         % (name, name, tile_w, h, w, h, "RIGHT" if use["right"] else "DOWN"))
         if use["static"]:
             # an item that shares a character's strip (e.g. a pet generator), or whose own sprite is
             # such a strip (the Elder Draconis Key), shows its first frame
-            strip = use["animated"] or (w == 7 * h)
-            tile_w = max(1, w // 7) if strip else w
             lines.append('         AssetLibrary.addImageSet("%s", new %s().bitmapData, %d, %d);' % (name, name, tile_w, h))
 
     with open(CLIENT_ASSETS_AS, "w", encoding="utf-8", newline="\r\n") as f:

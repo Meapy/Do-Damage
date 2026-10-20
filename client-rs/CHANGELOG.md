@@ -17,6 +17,8 @@ version number itself is in `client-rs/Cargo.toml`.
   height, Medium pets a little shorter than a character, and Large pets a little taller. Boss pets
   like Nut were twice a character's height. Cookie, Nightmare, Twilight Sparkle, Cerberus Skull,
   Kythal the Skull and Shroom, which shoot, are now Large.
+- Cookie, Reaper and Aceaku's Pet, Cookie's shots, and a few other Doomed Realms sprites drawn
+  from a single picture showed as a thin sliver; they now show whole.
 - Your vault has a Training Dummy beside the spawn. Shoot it and, 5 seconds after your first hit,
   the chat tells you (and only you) the damage you did and your damage a second (DPS). Keep
   shooting for another reading. It never dies and gives no experience.
