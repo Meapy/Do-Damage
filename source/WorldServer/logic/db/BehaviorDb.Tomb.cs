@@ -157,7 +157,7 @@ namespace WorldServer.logic
                     ),
                 ElderLoot(0.01,
                     new ItemLoot("Crusader's Lost Relic", 0.05),
-                    new ItemLoot("Potion of Max Life", 0.1),
+                    new ItemLoot("Potion of Max Life", 0.01),
                     new ItemLoot("Angel's Hope", 0.01),
                     new ItemLoot("Pyramid Artifact Generator", 0.03),
                     new ItemLoot("Large Egyptian Cloth", 0.5),
@@ -292,7 +292,7 @@ namespace WorldServer.logic
                 ElderLoot(0.01,
                     new ItemLoot("Burning Amulet", 0.03),
                     new ItemLoot("Wine Cellar Incantation", 0.01),
-                    new ItemLoot("Potion of Max Life", 0.1),
+                    new ItemLoot("Potion of Max Life", 0.01),
                     new ItemLoot("Wings of Natural Bloodlust", 0.01),
                     new ItemLoot("Large Egyptian Cloth", 0.5),
                     new ItemLoot("Small Egyptian Cloth", 0.5)
@@ -502,7 +502,7 @@ namespace WorldServer.logic
                     ),
                 ElderLoot(0.01,
                     new ItemLoot("Wine Cellar Incantation", 0.01),
-                    new ItemLoot("Potion of Max Life", 0.1),
+                    new ItemLoot("Potion of Max Life", 0.01),
                     new ItemLoot("Raw Hope", 0.01),
                     new ItemLoot("Large Egyptian Cloth", 0.01),
                     new ItemLoot("Small Egyptian Cloth", 0.01)

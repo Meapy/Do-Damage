@@ -401,6 +401,16 @@ BAG_TYPES = {
     "Oryx Tooth Sword": 6, "Doom Dirk": 6, "Flying Doom Daggers": 6, "Tome of Noble Assault": 6,
     "Doom Poison": 6, "Sword of Dark Enchantment": 6,
     "Potion of Oryx": 7, "Potion of Power": 7,
+    "Potion of Max Life": 6,
+}
+
+
+# What an IncrementStat item puts into potion storage when its stat is already at the class
+# maximum (storeAmount, in stat points; it was the whole amount): (stat, stored, description).
+# The Potion of Max Life still fills health to the maximum (+1000), but would have stored 200
+# life potions; it stores 30 health (6 potions).
+ITEM_STORE = {
+    "Potion of Max Life": ("0", "30", "A rare potion that permanently maxes health. At full maximum health, it adds 30 health to your potion storage instead."),
 }
 
 
@@ -421,6 +431,15 @@ def fix_doomed_data(dr):
         o = dr.get(oid)
         if o is not None and o.find("BagType") is not None:
             o.find("BagType").text = str(bag)
+    for oid, (stat, stored, text) in ITEM_STORE.items():
+        o = dr.get(oid)
+        if o is None:
+            continue
+        for a in o.iter("Activate"):
+            if a.text == "IncrementStat" and a.get("stat") == stat:
+                a.set("storeAmount", stored)
+        if o.find("Description") is not None:
+            o.find("Description").text = text
     for oid, (area, portal, text) in INCANTATIONS.items():
         o = dr.get(oid)
         if o is None or o.find("Activate") is None:

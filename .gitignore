@@ -7,5 +7,4 @@
 /deploy/*.local.json
 /source/Redis/data/
 *.local.txt
-/Dev Test.bat
 /tools/__pycache__/

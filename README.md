@@ -44,6 +44,33 @@ python tools\build_client_rs.py --account https://dodmg.com/api --package       
 running a copy on a Windows PC (`Run Server.bat`) or an isolated test stack
 (`tools\testclient\iso_stack.py`).
 
+## Developing locally
+
+`Dev Test.bat` (Windows) runs everything on your own PC, away from the live game: test servers
+on their own ports and the Rust client signed in to them, or the website with its wiki.
+Double-click it for a menu of the four, or give one from a terminal:
+
+```
+"Dev Test.bat" all       # build and start the test servers, then build and open the client
+"Dev Test.bat" server    # rebuild and restart the servers only (sign in again in your client)
+"Dev Test.bat" client    # build and open the client only
+"Dev Test.bat" site      # build the website and wiki and open http://127.0.0.1:8000/wiki/
+```
+
+- **Servers:** an isolated stack (`tools\testclient\iso_stack.py`, slot 1): Redis on 6381, the
+  account server on 8082 and the world server on 2053, built from your checkout into
+  `build\iso1`. The first start copies `source\Redis\data` if you have it; on a fresh clone the
+  stack starts empty, so register an account in the client. Its data is kept between runs.
+- **Client:** `cargo run` in `client-rs`, pointed at the test account server
+  (`--account http://127.0.0.1:8082`). Close it before restarting the servers.
+- **Website and wiki:** `tools\build_site.py` builds `website\` and the wiki (generated from the
+  game's XML, behaviours and maps by `tools\build_wiki.py`) into `build\site`, which is then
+  served on port 8000. Run it again after a change to see it; Ctrl+C stops the server.
+
+It needs the [prerequisites](#prerequisites) below (not the AIR SDK). Admin commands on your
+test account: set `admin` on its `account.<id>` in the stack's Redis
+(`source\Redisedis-cli.exe -p 6381`), as in [source/AGENTS.md](source/AGENTS.md).
+
 ## The Rust client
 
 `client-rs/` is a complete rewrite of the AIR client. It uses the same art and the same server

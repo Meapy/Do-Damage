@@ -347,15 +347,17 @@ class Data:
         return out
 
     def pets(self):
-        """Pet generators with their PermaPet numbers: [(item, pet, dps, hp, hpms, mp, mpms)]."""
+        """Pet generators with their PermaPet numbers: [(item, pet, dps, hp, hpms, mp, mpms)];
+        hp and mp are what one heal restores, as written ("10-60" or "76"), empty for none."""
         out = []
         for oid, o in self.objects.items():
             for a in o["activate_attrs"]:
                 if a["effect"] == "PermaPet":
                     out.append({
                         "item": oid, "name": o["name"], "pet": a.get("objectId"),
-                        "dps": _int(a.get("petDps")), "hp": _int(a.get("petHp")),
-                        "hpms": _int(a.get("petHpMs")), "mp": _int(a.get("petMp")),
+                        # heals are "min-max" or one number
+                        "dps": _int(a.get("petDps")), "hp": (a.get("petHp") or "").strip(),
+                        "hpms": _int(a.get("petHpMs")), "mp": (a.get("petMp") or "").strip(),
                         "mpms": _int(a.get("petMpMs")), "doomed": "DoomedRealms" in o["file"],
                     })
         return out

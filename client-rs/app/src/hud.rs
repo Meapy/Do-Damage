@@ -894,6 +894,8 @@ pub struct HudState {
     pub nexus_key: String,
     /// The key bound to Interact, for the portal's Enter button.
     pub interact_key: String,
+    /// The key that switches between the inventory and the backpack, shown on their tabs.
+    pub tabs_key: String,
     /// The keys bound to the health and magic potions, for their stacks.
     pub potion_keys: [String; 2],
     /// The boss history is open, and which boss in it shows everyone who hit it.
@@ -1341,16 +1343,24 @@ pub fn draw_panel(ui: &mut Ui, lay: &Layout, world: &World, camera_angle: f64, c
     }
 
     // The inventory and backpack tabs: a bag and the backpack, the page showing edged in the
-    // accent; the backpack's dim until there is one.
+    // accent; the backpack's dim until there is one. Hovered, a tab shows the key that switches
+    // between them, at its right middle.
     let page = if panel.has_backpack { state.page } else { Page::Inventory };
     for (i, p) in [Page::Inventory, Page::Backpack].into_iter().enumerate() {
         let r = lay.tab(i);
         let usable = p == Page::Inventory || panel.has_backpack;
         let edge = (p == page).then_some(color::ACCENT);
-        ui.slot_box(r, edge, usable && inside(r, mouse), s);
+        let hover = usable && inside(r, mouse);
+        ui.slot_box(r, edge, hover, s);
         ui.item_icon(TAB_ICONS[i], 50, r[0] + r[2] / 2.0, r[1] + r[3] / 2.0, s);
         if !usable {
             theme::fill(ui.renderer, r, 4.0 * s, 0x000000, 0.6);
+        }
+        if hover && panel.has_backpack && !state.tabs_key.is_empty() {
+            let small = lay.font(10.0);
+            let kw = ui.measure(&state.tabs_key, small, true);
+            let mid = ui.digit_middle(small, true);
+            ui.label(&state.tabs_key, r[0] + r[2] - kw - 4.0 * s, (r[1] + r[3] / 2.0 - mid).round(), small, true, color::TEXT_DIM);
         }
     }
 
@@ -2376,7 +2386,15 @@ fn activate_detail(a: &bsk_data::xml::Element) -> String {
         "Magic" => format!("Restores {} MP", num("amount")),
         "HealNova" => format!("Heals {} HP to you and allies within {} sqrs", num("amount"), num("range")),
         "MagicNova" => format!("Restores {} MP to you and allies within {} sqrs", num("amount"), num("range")),
-        "IncrementStat" => format!("Permanently +{} {}", a.attr_int("amount", 0), stat_name(a.attr_int("stat", -1))),
+        "IncrementStat" => {
+            let mut s = format!("Permanently +{} {}", a.attr_int("amount", 0), stat_name(a.attr_int("stat", -1)));
+            // what it stores when the stat is already maxed, when that isn't the whole amount
+            let store = a.attr_int("storeAmount", 0);
+            if store > 0 {
+                s += &format!(" (+{store} to potion storage when maxed)");
+            }
+            s
+        }
         // Poison ignores defense (the server's `PoisonEnemy`).
         "PoisonGrenade" => {
             let mut s = format!("Poison: {} damage over {} secs, within {} sqrs", num("totalDamage"), num("duration"), num("radius"));

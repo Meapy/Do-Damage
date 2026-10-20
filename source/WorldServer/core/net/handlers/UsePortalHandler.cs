@@ -100,6 +100,13 @@ namespace WorldServer.core.net.handlers
                     case TOMB_PORTAL_OF_COWARDICE:
                     case PORTAL_OF_COWARDICE:
                     case GLOWING_PORTAL_OF_COWARDICE:
+                        // back the way you came: to a realm from a dungeon opened in a realm, else
+                        // (opened in the Nexus, or in another dungeon) to the Nexus
+                        world = player.World.ParentWorld is RealmWorld ? player.GameServer.WorldManager.GetRandomRealm() : null;
+                        if (world == null)
+                            world = player.GameServer.WorldManager.Nexus;
+                        player.Reconnect(world);
+                        break;
                     case RANDOM_REALM_PORTAL:
                     case REALM_PORTAL:
                     case GLOWING_REALM_PORTAL:

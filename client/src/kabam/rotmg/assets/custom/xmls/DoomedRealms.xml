@@ -8266,12 +8266,12 @@
 			<Index>0x26</Index>
 		</Texture>
 		<SlotType>10</SlotType>
-		<Description>A potion that permanently maxes health.</Description>
+		<Description>A rare potion that permanently maxes health. At full maximum health, it adds 30 health to your potion storage instead.</Description>
 		<Sound>use_potion</Sound>
-		<Activate stat="0" amount="1000">IncrementStat</Activate>
+		<Activate stat="0" amount="1000" storeAmount="30">IncrementStat</Activate>
 		<Consumable />
 		<Potion />
-		<BagType>4</BagType>
+		<BagType>6</BagType>
 	</Object>
 	<Object type="0xD1CA" id="Potion of Max Mana">
 		<Class>Equipment</Class>

@@ -1129,7 +1129,7 @@ namespace WorldServer.core.objects
             if (Stats.Base[idx] >= statInfo[idx].MaxValue)
             {
                 Stats.Base[idx] = statInfo[idx].MaxValue;
-                var inc = idx <= 1 ? eff.Amount / 5 : eff.Amount;
+                var inc = idx <= 1 ? eff.StoreAmount / 5 : eff.StoreAmount;
                 var storedAmount = AttemptToAdd(idx, inc);
 
                 if (storedAmount != -1)

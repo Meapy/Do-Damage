@@ -58,6 +58,10 @@ namespace WorldServer.core.worlds.impl
 
         // from this wave on, an Elder dungeons boss comes with the stage's own boss
         public const int ElderBossFromWave = 30;
+
+        // as each wave spawns, everyone in the arena is invulnerable for this long (ms), so the
+        // monsters that appear on top of a player can't kill them before they can move
+        public const int WaveStartInvulnerableMs = 2500;
         private const string ElderBossStage = "Elder dungeons";
 
         public static Stage For(int wave) => Stages.Last(s => s.FromWave <= Math.Max(1, wave));

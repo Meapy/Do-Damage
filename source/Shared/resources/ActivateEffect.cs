@@ -10,6 +10,9 @@ namespace Shared.resources
         protected static readonly Logger Log = LogManager.GetCurrentClassLogger();
 
         public readonly int Amount;
+        /// IncrementStat: what goes into potion storage when the stat is at its maximum, in stat
+        /// points (the amount unless the XML sets storeAmount).
+        public readonly int StoreAmount;
         public readonly ConditionEffectIndex? CheckExistingEffect;
         public readonly uint Color;
         public readonly ConditionEffectIndex? ConditionEffect;
@@ -136,6 +139,7 @@ namespace Shared.resources
             DurationMS = (int)(DurationSec * 1000.0f);
             DurationMS2 = (int)(e.GetAttribute<float>("duration2") * 1000.0f);
             Amount = e.GetAttribute<int>("amount");
+            StoreAmount = e.HasAttribute("storeAmount") ? e.GetAttribute<int>("storeAmount") : Amount;
             Range = e.GetAttribute<float>("range");
             ObjectId = e.GetAttribute<string>("objectId");
             Id = e.GetAttribute<string>("id");

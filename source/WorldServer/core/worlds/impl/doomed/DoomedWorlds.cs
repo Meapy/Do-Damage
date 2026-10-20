@@ -206,7 +206,10 @@ namespace WorldServer.core.worlds.impl.doomed
         {
             // the same stages as the public arena (ArenaPools)
             foreach (var p in Players.Values)
+            {
                 p.SendInfo(ArenaPools.WaveMessage(Wave));
+                p.ApplyConditionEffect(ConditionEffectIndex.Invulnerable, ArenaPools.WaveStartInvulnerableMs);
+            }
             foreach (var name in ArenaPools.Minions(Wave, Players.Count).Concat(ArenaPools.Bosses(Wave)))
                 Spawn(name, Random.Shared.Next(6, 27) + 0.5f, Random.Shared.Next(6, 27) + 0.5f);
         }

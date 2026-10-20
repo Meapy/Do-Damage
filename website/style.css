@@ -591,6 +591,17 @@ code { font: .86em ui-monospace, "Cascadia Mono", Consolas, monospace; padding: 
 .prose .it-eq { color: var(--good); }
 .prose .it-desc { color: var(--text-muted); font-style: italic; }
 .it-src { display: grid; gap: 2px; margin: 6px 0 0; font-size: .82rem; line-height: 1.4; }
+/* a pet's healing: a small titled block, a row each for HP and MP */
+.it-heal { display: grid; gap: 2px; margin: 6px 0 0; padding: 6px 8px; border: 1px solid var(--line); border-radius: 6px;
+  background: rgba(255, 255, 255, .02); font-size: .82rem; line-height: 1.4; }
+.it-heal > span { font: 700 .6rem var(--pixel); color: var(--ember); letter-spacing: .08em; text-transform: uppercase; }
+.it-heal > div { display: grid; grid-template-columns: 34px minmax(0, 1fr); gap: 8px; }
+.it-heal dt { font-weight: 700; }
+.it-heal .hp dt { color: #5be37a; }
+.it-heal .mp dt { color: #5aa8ff; }
+.it-heal dd { margin: 0; color: var(--text-dim); }
+.it-heal b { color: var(--text); font-weight: 600; font-variant-numeric: tabular-nums; }
+.it-heal .sep { color: var(--line-hi); }
 .it-src > div { display: grid; grid-template-columns: 92px minmax(0, 1fr); gap: 8px; }
 .it-src dt { color: var(--text-muted); }
 .it-src dd { margin: 0; color: var(--text-dim); }

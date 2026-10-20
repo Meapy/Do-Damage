@@ -304,7 +304,10 @@ namespace WorldServer.core.worlds.impl
         private void Spawn(TickTime time)
         {
             foreach (var plr in Players.Values)
+            {
                 plr.SendInfo(ArenaPools.WaveMessage(_wave));
+                plr.ApplyConditionEffect(ConditionEffectIndex.Invulnerable, ArenaPools.WaveStartInvulnerableMs);
+            }
             SpawnEnemies();
             SpawnBosses();
             CurrentState = ArenaState.Fight;
