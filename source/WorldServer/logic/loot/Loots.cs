@@ -116,8 +116,8 @@ namespace WorldServer.logic.loot
 
             Items = Items.OrderBy(_ => _.Key).ToDictionary(_ => _.Key, _ => _.Value);
         }
-        // What bosses drop in January and May besides their own loot (ExtraLootTables), and the forge
-        // counts as droppable (ForgeRecipes)
+        // What bosses drop in January and May besides their own loot (ExtraLootTables); seasonal, so
+        // the forge never makes them (ForgeRecipes)
         public static readonly (string Item, double Chance)[] WinterBossDrops =
         {
             ("Frost Citadel Armor", 0.004),

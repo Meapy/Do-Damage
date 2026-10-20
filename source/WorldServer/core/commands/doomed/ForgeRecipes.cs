@@ -16,8 +16,10 @@ namespace WorldServer.core.commands.doomed
     // new tiered items get recipes without a change here.
     //
     // The forge only makes what players can find: a recipe's result must be tradeable (not an
-    // <Admin/> or Item.OpItems item, like the Crown) and dropped by some monster (its loot, the
-    // tier pools it rolls, or the bosses' seasonal drops), and its ingredients tradeable.
+    // <Admin/> or Item.OpItems item, like the Crown), dropped by some monster (its loot or the
+    // tier pools it rolls) and not a seasonal drop (SeasonalThreshold.Items,
+    // Loot.WinterBossDrops: they come back each year without having been rebalanced), and its
+    // ingredients tradeable.
     internal static class ForgeRecipes
     {
         public const int TieredCap = 2000;
@@ -44,9 +46,10 @@ namespace WorldServer.core.commands.doomed
             var data = server.Resources.GameData;
             var items = data.Items.Values.Where(i => !i.Untradeable).GroupBy(i => i.ObjectId).ToDictionary(g => g.Key, g => g.First());
             var dropped = Dropped(server);
+            var seasonal = new HashSet<string>(SeasonalThreshold.Items.Concat(Loot.WinterBossDrops.Select(d => d.Item)));
             bool Tiered(string id) => items.TryGetValue(id, out var i) && i.Tier >= 0;
             bool Allowed((string Result, int Fame, bool Advanced, string[] Items) r) =>
-                items.ContainsKey(r.Result) && dropped.Contains(r.Result) && r.Items.All(items.ContainsKey);
+                items.ContainsKey(r.Result) && dropped.Contains(r.Result) && !seasonal.Contains(r.Result) && r.Items.All(items.ContainsKey);
 
             var recipes = DoomedEconomyData.Recipes
                 .Select(r => Tiered(r.Result) ? (r.Result, Math.Min(r.Fame, TieredCap), r.Advanced, r.Items) : r)
@@ -82,12 +85,12 @@ namespace WorldServer.core.commands.doomed
             }
             var left = recipes.Where(r => !Allowed(r)).Select(r => r.Result).Distinct().OrderBy(r => r).ToList();
             var all = recipes.Where(Allowed).ToArray();
-            Log.Info($"Forge: {all.Length} recipes; left out {left.Count} results nothing drops or that are OP: {string.Join(", ", left)}");
+            Log.Info($"Forge: {all.Length} recipes; left out {left.Count} results that are OP, seasonal or dropped by nothing: {string.Join(", ", left)}");
             return all;
         }
 
-        // Every item some monster can drop: the named drops in its loot, every item of the tier
-        // pools it rolls (Loot.GetItems), and the bosses' seasonal drops.
+        // Every item some monster can drop: the named drops in its loot and every item of the tier
+        // pools it rolls (Loot.GetItems).
         private static HashSet<string> Dropped(GameServer server)
         {
             var defs = new List<LootDef>();
@@ -95,7 +98,7 @@ namespace WorldServer.core.commands.doomed
                 if (def.Item2 != null)
                     foreach (var drop in def.Item2)
                         drop.Populate(defs);
-            var dropped = new HashSet<string>(Loot.WinterBossDrops.Select(d => d.Item));
+            var dropped = new HashSet<string>();
             var pools = new Loot();
             foreach (var d in defs)
             {

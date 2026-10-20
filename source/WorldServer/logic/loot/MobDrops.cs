@@ -214,8 +214,16 @@ namespace WorldServer.logic.loot
 
     public class SeasonalThreshold : MobDrops
     {
+        // Every item a seasonal drop names, in season or not (the forge never makes them)
+        public static readonly HashSet<string> Items = new HashSet<string>();
+
         public SeasonalThreshold(string season, double threshold, params MobDrops[] children)
         {
+            var named = new List<LootDef>();
+            foreach (var i in children)
+                i.Populate(named);
+            Items.UnionWith(named.Where(d => d.Item != null).Select(d => d.Item));
+
             if(!TimeOfYear.InSeason(season)) 
                 return;
 
