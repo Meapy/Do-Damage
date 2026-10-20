@@ -53,6 +53,8 @@ pub struct Game {
     seen_conditions: std::collections::HashMap<i32, [u32; 2]>,
     /// The market's answers, for its window.
     pub market_events: Vec<crate::market::Event>,
+    /// The Divine Forge's answers, for its window.
+    pub forge_events: Vec<crate::forge::Event>,
     /// Sound effects to play: (name, volume, is it a weapon's shot).
     pub sounds: Vec<(String, f32, bool)>,
     /// The map's music (`MapInfo.music`, `SwitchMusic`).
@@ -242,6 +244,7 @@ impl Game {
             tellers: Vec::new(),
             sounds: Vec::new(),
             market_events: Vec::new(),
+            forge_events: Vec::new(),
             music: None,
             last_level: 0,
             dealt: Default::default(),
@@ -673,6 +676,14 @@ impl Game {
             ServerMessage::MarketAddResult(r) => self.market_events.push(crate::market::Event::Add(r.code, r.description.clone())),
             ServerMessage::MarketRemoveResult(r) => self.market_events.push(crate::market::Event::Remove(r.code, r.description.clone())),
             ServerMessage::MarketMyOffersResult(r) => self.market_events.push(crate::market::Event::MyOffers(r.results.0.clone())),
+            ServerMessage::ForgeData(d) => self.forge_events.push(crate::forge::Event::Data(d.recipes.0.clone(), d.prices.0.clone())),
+            ServerMessage::ForgeResult(r) => self.forge_events.push(crate::forge::Event::Result {
+                sold: r.sold,
+                success: r.success,
+                item: r.item,
+                fame: r.fame,
+                message: r.message.clone(),
+            }),
             ServerMessage::Goto(g) => world.apply_goto(g.object_id, g.pos.x as f64, g.pos.y as f64, now, data),
             ServerMessage::EnemyShoot(e) => {
                 let Some(owner) = world.objects.get(&e.owner_id).filter(|o| !o.dead) else { return };
@@ -1194,6 +1205,17 @@ impl Game {
             Act::Add(slots, price) => bsk_proto::MarketAdd { slots: bsk_proto::List8(slots), price, currency: 1, hours: 24 }.into(),
             Act::Remove(id) => bsk_proto::MarketRemove { id }.into(),
             Act::MyOffers => bsk_proto::MarketMyOffers {}.into(),
+        };
+        self.send(msg);
+    }
+
+    /// Ask the Divine Forge (`ForgeHandlers.cs`).
+    pub fn forge(&mut self, act: crate::forge::Act) {
+        use crate::forge::Act;
+        let msg: ClientMessage = match act {
+            Act::Data => bsk_proto::ForgeDataRequest {}.into(),
+            Act::Forge(result, slots) => bsk_proto::Forge { result, slots: bsk_proto::List8(slots) }.into(),
+            Act::Sell(slots) => bsk_proto::ForgeSell { slots: bsk_proto::List8(slots) }.into(),
         };
         self.send(msg);
     }

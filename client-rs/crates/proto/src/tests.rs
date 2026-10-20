@@ -227,10 +227,30 @@ fn every_client_message_round_trips() {
         MarketAdd { slots: vec![4, 5].into(), price: 100, currency: 0, hours: 24 }.into(),
         PlayerText { text: "héllo /tell".into() }.into(),
         ViewRadius { radius: 22 }.into(),
+        Forge { result: 0x497a, slots: vec![4, 13].into() }.into(),
+        ForgeSell { slots: vec![6].into() }.into(),
     ];
     for msg in msgs {
         let frame = msg.to_frame();
         let back = ClientMessage::decode(frame[4], &frame[5..]).unwrap();
         assert_eq!(back, msg);
     }
+}
+
+#[test]
+fn forge_messages_match_forge_handlers() {
+    // ForgeData.Write: a short count of recipes (result, fame, advanced, a byte count of
+    // ingredients), then a short count of prices (item, fame).
+    let body = B::default().i16(1).i16(0x0a0f).i32(500).u8(1).u8(2).i16(0x0a01).i16(0x0a02).i16(1).i16(0x0a01).i32(30).0;
+    let ServerMessage::ForgeData(d) = ServerMessage::decode(96, &body).unwrap() else { panic!() };
+    assert_eq!((d.recipes[0].result, d.recipes[0].fame, d.recipes[0].advanced), (0x0a0f, 500, true));
+    assert_eq!(*d.recipes[0].items, vec![0x0a01, 0x0a02]);
+    assert_eq!((d.prices[0].item, d.prices[0].fame), (0x0a01, 30));
+    // ForgeResult.Write: sold, success, item, fame, message.
+    let body = B::default().u8(0).u8(1).i16(0x0a0f).i32(250).utf("").0;
+    let ServerMessage::ForgeResult(r) = ServerMessage::decode(99, &body).unwrap() else { panic!() };
+    assert_eq!((r.sold, r.success, r.item, r.fame), (false, true, 0x0a0f, 250));
+    // ForgeHandler reads the result, then a byte count of slots.
+    let frame = ClientMessage::from(Forge { result: 0x0a0f, slots: vec![4, 5].into() }).to_frame();
+    assert_eq!(frame, B::default().i16(0x0a0f).u8(2).u8(4).u8(5).frame(97));
 }

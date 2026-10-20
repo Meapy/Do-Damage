@@ -104,6 +104,14 @@ public enum MessageId : byte
     // them every few seconds while they change.
     FAME_STATS_SUBSCRIBE = 93,
     FAME_STATS = 94,
+    // The Divine Forge's window (Rust client): the client asks for the recipes and sell prices
+    // (FORGE_DATA), forges a recipe from inventory slots or sells slots for fame, and gets
+    // FORGE_RESULT for each. The AIR client never sends them.
+    FORGE_DATA_REQUEST = 95,
+    FORGE_DATA = 96,
+    FORGE = 97,
+    FORGE_SELL = 98,
+    FORGE_RESULT = 99,
     // From the world proxy (tools/world_proxy.py), before the client's first message: the
     // client's address. Only taken on a connection from this PC; clients never send it.
     PROXY_INFO = 250

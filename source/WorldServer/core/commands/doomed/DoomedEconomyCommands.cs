@@ -1,7 +1,6 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Runtime.CompilerServices;
 using Shared;
 using Shared.database.leaderboard;
 using Shared.resources;
@@ -12,70 +11,44 @@ using WorldServer.core.worlds;
 using WorldServer.core.worlds.impl;
 using WorldServer.core.worlds.impl.doomed;
 
-// More commands ported from the Doomed Realms server (wserver/realm/commands): the forge, selling
-// items for fame, the shops, the minigame arenas and leaderboards, AFK, and some staff tools.
+// More commands ported from the Doomed Realms server (wserver/realm/commands): the forge and selling
+// items for fame (now the Divine Forge's window, ForgeHandlers.cs), the shops, the minigame arenas and leaderboards, AFK, and some staff tools.
 // Recipes, prices and shop lists are generated into DoomedEconomyData.cs.
 namespace WorldServer.core.commands.doomed
 {
     internal static class DoomedEconomy
     {
-        // what /yes or /no answers
-        public sealed class Pending
-        {
-            public bool Selling;
-            public int[] Slots;
-            public string Result;
-            public int Fame;
-            public bool UsesAmulet;
-        }
-
-        private static readonly ConditionalWeakTable<Player, Pending> PendingDecisions = new ConditionalWeakTable<Player, Pending>();
-
-        public static void SetPending(Player player, Pending pending)
-        {
-            PendingDecisions.Remove(player);
-            if (pending != null)
-                PendingDecisions.Add(player, pending);
-        }
-
-        public static Pending TakePending(Player player)
-        {
-            if (!PendingDecisions.TryGetValue(player, out var p))
-                return null;
-            PendingDecisions.Remove(player);
-            return p;
-        }
-
         public const string ForgeAmulet = "Forge Amulet";
 
         public static bool WearsForgeAmulet(Player player) => player.Inventory[3]?.ObjectId == ForgeAmulet;
 
-        // "/forge 1 2" style slot numbers: 1-8 inventory, 9-16 backpack -> inventory indexes
-        public static int[] ParseSlots(Player player, string args, out string error)
+        // The Divine Forge in the Nexus (class Forge): forging and selling for fame happen in its
+        // window in the Rust client, within this many tiles of it.
+        public const string ForgeClass = "Forge";
+        public const float ForgeReach = 5;
+
+        public const string UseTheForge = "Forging and selling for fame have moved to the Divine Forge, in the Nexus's south yard west of the arena portals: stand by it and open its window.";
+
+        // The map holds the forge as a tile's object (it's static), so look at the tiles around.
+        public static bool NearForge(Player player)
         {
-            error = null;
-            var slots = new List<int>();
-            foreach (var a in args.Split(' ', StringSplitOptions.RemoveEmptyEntries))
-            {
-                if (!int.TryParse(a, out var n) || n < 1 || n > (player.HasBackpack ? 16 : 8))
-                {
-                    error = $"'{a}' isn't an inventory slot (1-{(player.HasBackpack ? 16 : 8)}).";
-                    return null;
-                }
-                var slot = n + 3;
-                if (slots.Contains(slot))
-                {
-                    error = "You cannot select the same slot twice!";
-                    return null;
-                }
-                if (player.Inventory[slot] == null)
-                {
-                    error = $"Slot {n} is empty.";
-                    return null;
-                }
-                slots.Add(slot);
-            }
-            return slots.ToArray();
+            var map = player.World.Map;
+            var r = (int)MathF.Ceiling(ForgeReach);
+            for (var y = (int)player.Y - r; y <= (int)player.Y + r; y++)
+                for (var x = (int)player.X - r; x <= (int)player.X + r; x++)
+                    if (map.Contains(x, y) && map[x, y].ObjDesc?.Class == ForgeClass &&
+                        MathF.Sqrt((x + 0.5f - player.X) * (x + 0.5f - player.X) + (y + 0.5f - player.Y) * (y + 0.5f - player.Y)) <= ForgeReach)
+                        return true;
+            return false;
+        }
+
+        // The forge window's slots (inventory indexes 4-11, and 12-19 with a backpack): each once,
+        // none empty.
+        public static bool ValidSlots(Player player, byte[] slots)
+        {
+            var end = player.HasBackpack ? InventoryConstants.SWAP_FIRST : 12;
+            return slots.Length > 0 && slots.Distinct().Count() == slots.Length &&
+                   slots.All(s => s >= 4 && s < end && player.Inventory[s] != null);
         }
 
         // the recipe made of exactly these items (each ingredient used once)
@@ -92,10 +65,58 @@ namespace WorldServer.core.commands.doomed
             return null;
         }
 
-        public static bool CanMake((string Result, int Fame, bool Advanced, string[] Items) r, Player player)
+        // Forges the items in these slots into `result`, the item the window showed: they must make
+        // that recipe. A worn Forge Amulet halves the price, unlocks the advanced recipes and breaks.
+        // The forged item takes the first slot. Returns what went wrong, or null.
+        public static string Forge(Player player, byte[] slots, string result, out int fame)
         {
-            var have = Enumerable.Range(4, InventoryConstants.SWAP_FIRST - 4).Select(i => player.Inventory[i]?.ObjectId).Where(i => i != null).ToList();
-            return r.Items.All(i => have.Remove(i)) && r.Fame <= player.CurrentFame;
+            fame = 0;
+            if (!ValidSlots(player, slots) || slots.Length < 2)
+                return "Put the ingredients in your inventory first.";
+            var inv = player.Inventory;
+            var amulet = WearsForgeAmulet(player);
+            var recipe = FindRecipe(slots.Select(s => inv[s].ObjectId).ToArray(), amulet);
+            if (recipe == null || recipe.Value.Result != result)
+                return "Those items don't forge into that.";
+            fame = recipe.Value.Fame / (amulet ? 2 : 1);
+            if (player.CurrentFame < fame)
+                return "Not enough fame to forge these items!";
+            var data = player.GameServer.Resources.GameData;
+            if (!data.IdToObjectType.TryGetValue(result, out var type) || !data.Items.TryGetValue(type, out var item))
+                return "That item doesn't exist here.";
+            foreach (var s in slots)
+            {
+                inv[s] = null;
+                inv.Data[s] = null;
+            }
+            inv[slots[0]] = item;
+            if (amulet)
+                inv[3] = null;
+            // taken at once, so a second forge before the database answers can't spend it again
+            player.CurrentFame -= fame;
+            DoomedWorlds.GiveFame(player, -fame);
+            return null;
+        }
+
+        // Sells the items in these slots for their fame (DoomedEconomyData.SellPrices). Returns what
+        // went wrong, or null.
+        public static string Sell(Player player, byte[] slots, out int fame)
+        {
+            fame = 0;
+            if (!ValidSlots(player, slots))
+                return "Pick items to sell first.";
+            var inv = player.Inventory;
+            if (slots.Any(s => SellPrice(inv[s].ObjectId) <= 0))
+                return "The forge doesn't buy some of those items.";
+            fame = slots.Sum(s => SellPrice(inv[s].ObjectId));
+            foreach (var s in slots)
+            {
+                inv[s] = null;
+                inv.Data[s] = null;
+            }
+            player.CurrentFame += fame;
+            DoomedWorlds.GiveFame(player, fame);
+            return null;
         }
 
         public static int SellPrice(string itemId)
@@ -126,36 +147,14 @@ namespace WorldServer.core.commands.doomed
 
     #region Everyone
 
+    // /forge, /forgelist and /sellfame point to the Divine Forge's window, which does what they did.
     internal class ForgeCommand : Command
     {
         public override string CommandName => "forge";
 
         protected override bool Process(Player player, TickTime time, string args)
         {
-            DoomedEconomy.SetPending(player, null);
-            var slots = DoomedEconomy.ParseSlots(player, args, out var error);
-            if (slots == null || slots.Length < 2)
-            {
-                player.SendHelp(error ?? "Usage: /forge <slot #1> <slot #2> etc. (inventory slots 1-8). /forgelist shows the recipes.");
-                return false;
-            }
-            var amulet = DoomedEconomy.WearsForgeAmulet(player);
-            player.SendInfo("Researching " + (amulet ? "advanced " : "") + "combinations...");
-            var recipe = DoomedEconomy.FindRecipe(slots.Select(s => player.Inventory[s].ObjectId).ToArray(), amulet);
-            if (recipe == null)
-            {
-                player.SendInfo("No combination found!");
-                return false;
-            }
-            var cost = recipe.Value.Fame / (amulet ? 2 : 1);
-            DoomedEconomy.SetPending(player, new DoomedEconomy.Pending()
-            {
-                Slots = slots,
-                Result = recipe.Value.Result,
-                Fame = cost,
-                UsesAmulet = amulet
-            });
-            player.SendInfo($"It costs {cost} fame to forge these items into a {DoomedEconomy.Name(player, recipe.Value.Result)}. Are you sure? Type /yes or /no");
+            player.SendInfo(DoomedEconomy.UseTheForge);
             return true;
         }
     }
@@ -166,32 +165,9 @@ namespace WorldServer.core.commands.doomed
 
         protected override bool Process(Player player, TickTime time, string args)
         {
-            var amulet = DoomedEconomy.WearsForgeAmulet(player);
-            var filter = args.Trim();
-            var recipes = DoomedEconomyData.Recipes.Where(r => amulet || !r.Advanced).ToList();
-            if (filter.Length == 0)
-            {
-                var ready = recipes.Where(r => DoomedEconomy.CanMake(r, player)).ToList();
-                DoomedEconomy.SendLines(player, $"Forge: {recipes.Count} recipes" + (amulet ? " (Forge Amulet: advanced recipes, half price)" : "") +
-                    $". You can make {ready.Count} now. Use /forgelist <item> to search, /forgelist all for all.",
-                    ready.Select(r => Line(player, r, amulet)));
-                return true;
-            }
-            var shown = filter.Equals("all", StringComparison.OrdinalIgnoreCase) ? recipes
-                : recipes.Where(r => r.Result.IndexOf(filter, StringComparison.OrdinalIgnoreCase) >= 0 ||
-                                     r.Items.Any(i => i.IndexOf(filter, StringComparison.OrdinalIgnoreCase) >= 0)).ToList();
-            if (shown.Count == 0)
-            {
-                player.SendInfo($"No forge recipe uses or makes '{filter}'.");
-                return false;
-            }
-            DoomedEconomy.SendLines(player, $"Forge recipes ({shown.Count}):", shown.Select(r => Line(player, r, amulet)));
+            player.SendInfo(DoomedEconomy.UseTheForge);
             return true;
         }
-
-        private static string Line(Player player, (string Result, int Fame, bool Advanced, string[] Items) r, bool amulet) =>
-            (DoomedEconomy.CanMake(r, player) ? "* " : "") + (r.Advanced ? "[advanced] " : "") + DoomedEconomy.Name(player, r.Result) +
-            " = " + string.Join(" + ", r.Items.Select(i => DoomedEconomy.Name(player, i))) + $" ({r.Fame / (amulet ? 2 : 1)} fame)";
     }
 
     // Doomed Realms' /sell (betterSkillys' /sell is the market)
@@ -201,95 +177,7 @@ namespace WorldServer.core.commands.doomed
 
         protected override bool Process(Player player, TickTime time, string args)
         {
-            DoomedEconomy.SetPending(player, null);
-            var slots = DoomedEconomy.ParseSlots(player, args, out var error);
-            if (slots == null || slots.Length == 0)
-            {
-                player.SendHelp(error ?? "Usage: /sellfame <slot #1> <slot #2> etc. (inventory slots 1-8)");
-                return false;
-            }
-            var priced = slots.Where(s => DoomedEconomy.SellPrice(player.Inventory[s].ObjectId) > 0).ToArray();
-            if (priced.Length == 0)
-            {
-                player.SendInfo("No prices for specified items!");
-                return false;
-            }
-            var fame = priced.Sum(s => DoomedEconomy.SellPrice(player.Inventory[s].ObjectId));
-            DoomedEconomy.SetPending(player, new DoomedEconomy.Pending() { Selling = true, Slots = priced, Fame = fame });
-            player.SendInfo("Slots being sold: [" + string.Join(", ", priced.Select(s => s - 3)) + "]");
-            player.SendInfo($"You gain {fame} fame from these items. Sell them? Type /yes or /no");
-            return true;
-        }
-    }
-
-    internal class YesCommand : Command
-    {
-        public override string CommandName => "yes";
-
-        protected override bool Process(Player player, TickTime time, string args)
-        {
-            var p = DoomedEconomy.TakePending(player);
-            if (p == null)
-            {
-                player.SendInfo("Nothing to confirm.");
-                return false;
-            }
-            var inv = player.Inventory;
-            if (p.Selling)
-            {
-                var fame = 0;
-                foreach (var s in p.Slots)
-                    fame += inv[s] == null ? 0 : DoomedEconomy.SellPrice(inv[s].ObjectId);
-                if (fame != p.Fame)
-                {
-                    player.SendError("Your items changed. Could not sell.");
-                    return false;
-                }
-                foreach (var s in p.Slots)
-                    inv[s] = null;
-                DoomedWorlds.GiveFame(player, fame);
-                player.SendInfo("Items sold!");
-                return true;
-            }
-
-            // forging: the same items must still be there
-            var items = p.Slots.Select(s => inv[s]?.ObjectId).ToArray();
-            var recipe = items.Any(i => i == null) ? null : DoomedEconomy.FindRecipe(items, p.UsesAmulet);
-            if (recipe == null || recipe.Value.Result != p.Result || (p.UsesAmulet && !DoomedEconomy.WearsForgeAmulet(player)))
-            {
-                player.SendError("Your items changed. Forge again.");
-                return false;
-            }
-            if (player.CurrentFame < p.Fame)
-            {
-                player.SendInfo("Not enough fame to forge these items!");
-                return false;
-            }
-            var data = player.GameServer.Resources.GameData;
-            if (!data.IdToObjectType.TryGetValue(p.Result, out var type) || !data.Items.TryGetValue(type, out var result))
-            {
-                player.SendError("That item doesn't exist here.");
-                return false;
-            }
-            foreach (var s in p.Slots)
-                inv[s] = null;
-            inv[p.Slots[0]] = result;
-            DoomedWorlds.GiveFame(player, -p.Fame);
-            if (p.UsesAmulet)
-                inv[3] = null;
-            player.SendInfo($"Your items have been forged into a {DoomedEconomy.Name(player, p.Result)}" + (p.UsesAmulet ? ", breaking your Forge Amulet." : "!"));
-            return true;
-        }
-    }
-
-    internal class NoCommand : Command
-    {
-        public override string CommandName => "no";
-
-        protected override bool Process(Player player, TickTime time, string args)
-        {
-            var p = DoomedEconomy.TakePending(player);
-            player.SendInfo(p == null ? "Nothing to cancel." : p.Selling ? "Cancelled selling." : "Cancelled forging.");
+            player.SendInfo(DoomedEconomy.UseTheForge);
             return true;
         }
     }

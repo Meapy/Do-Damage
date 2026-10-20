@@ -9,6 +9,13 @@ refuses while an `Unreleased` one is left, so rename it to `## <version> (<date>
 version number itself is in `client-rs/Cargo.toml`.
 
 ## Unreleased
+- The Divine Forge: a god's anvil and hearth now stands in the middle of the class memorial, in
+  the Nexus's south yard west of the arena portals, on a floor of gold. Stand by it and open its
+  window to forge: browse the recipes by weapons, abilities, armor, rings and the rest (then by
+  sword, bow, tome and so on), search them, or show only what you can make now. Pick one to see
+  its ingredients and price, put the items in, and forge it. Its Sell for fame tab shows your
+  inventory with what the forge pays for each item under it; pick items and sell them. `/forge`,
+  `/forgelist` and `/sellfame` now point you to the forge.
 - Tiered abilities rebalanced. Quivers do 10% more damage, and from T5 they shoot 3 arrows in a
   bow's arc. Tomes from T5 also give you +2 Attack and +2 Dexterity for 4 seconds. Helms can be
   used again straight away, which restarts their buffs. Shields do 10% less damage. Poisons do

@@ -816,12 +816,16 @@ pub mod merch {
     pub const RANK_REQ: u8 = 45;
 }
 
+/// How near the Divine Forge its window can be opened, in tiles (the server allows 5).
+pub const FORGE_REACH: f64 = 3.0;
+
 /// Whether objects of this description are sold where they stand.
 pub fn is_shop(d: &ObjectDesc) -> bool {
     d.class == ObjectClass::Merchant || matches!(&d.class, ObjectClass::Other(c) if c == "GuildMerchant" || c == "ClosedVaultChest")
 }
 
-/// `GameSprite.updateNearestInteractive`: the closest bag, portal or shop within a tile.
+/// `GameSprite.updateNearestInteractive`: the closest bag, portal or shop within a tile (the
+/// Divine Forge, four tiles wide, within `FORGE_REACH`).
 pub fn interact_target(world: &World, data: &GameData) -> Option<Interact> {
     let me = world.player()?;
     world
@@ -846,7 +850,8 @@ pub fn interact_target(world: &World, data: &GameData) -> Option<Interact> {
                 return None;
             };
             let dist = (o.x - me.x).hypot(o.y - me.y);
-            (dist < 1.0).then_some((dist, o, d, kind))
+            let reach = if matches!(kind, InteractKind::Npc { kind: crate::npc::NpcKind::Forge, .. }) { FORGE_REACH } else { 1.0 };
+            (dist < reach).then_some((dist, o, d, kind))
         })
         .min_by(|a, b| a.0.total_cmp(&b.0))
         .map(|(_, o, d, kind)| Interact {
@@ -2561,7 +2566,7 @@ fn activate_detail(a: &bsk_data::xml::Element) -> String {
 
 /// A tooltip box beside the mouse, kept inside the window: the item's icon and title on top,
 /// then the lines wrapped to the box.
-fn draw_tooltip(ui: &mut Ui, lay: &Layout, lines: &[Line], icon: Option<i32>, accent: Option<u32>, mouse: (f64, f64)) {
+pub(crate) fn draw_tooltip(ui: &mut Ui, lay: &Layout, lines: &[Line], icon: Option<i32>, accent: Option<u32>, mouse: (f64, f64)) {
     let s = lay.s;
     let w = TOOLTIP_W * s;
     let pad = 10.0 * s;

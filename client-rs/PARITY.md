@@ -63,7 +63,7 @@ server messages it handles (`GameServerConnection.mapMessages`), the account ser
 | Guild: create, renounce, board (read and write), member list (promote, demote, remove), hall portal | `Guild*Panel`, `/guild/*` | Done |
 | Merchants and shops (and their balloons) | `SellableObjectPanel`, `Merchant`, `onBuyResult` | Done |
 | Market: search, offers (sorted), buy, sell for fame, your offers, take back | `MemMarket`, `onMarket*Result` | Done |
-| Forge | `ForgePanel` | Dropped: no map places a Forge (the server's `/forge` works from chat) |
+| Forge | `ForgePanel` | Replaced: the Divine Forge's window (`forge.rs`), forging and selling for fame |
 | Potion storage: store, take, drink, drink to the maximum, upgrade | `PotionsPanel`, `/account/grabPotions` | Done |
 | Character changer, the Armoire (skins) | `CharacterChangerPanel`, `ReskinPanel` | Done |
 | Name changer | `NameChangerPanel`, `onNameResult` | Done |

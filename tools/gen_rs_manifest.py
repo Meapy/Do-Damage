@@ -8,6 +8,9 @@ them in code (AssetLoader.as, DoomedAssets.as, EmbeddedData.as). This script rea
 writes the same registrations as JSON, so the Rust client loads exactly what the AIR client loads,
 from the same files. Run it again whenever those files change; don't edit the JSON by hand.
 
+Sheets only the Rust client uses (`RS_ONLY_SETS`, art made after the AIR client was retired) are
+added after the AIR client's.
+
 All paths in the manifest are relative to client/src.
 """
 
@@ -26,6 +29,11 @@ EMBEDDED_DATA = "kabam/rotmg/assets/EmbeddedData.as"
 DOOMED_ASSETS = "kabam/rotmg/assets/doomed/DoomedAssets.as"
 EMOTES = "kabam/rotmg/emotes/Emotes.as"
 EMOTES_XML = "kabam/rotmg/assets/custom/xmls/EmotesXML.xml"
+# (name, file, cell width, cell height): sheets the AIR client doesn't register
+RS_ONLY_SETS = [
+    # the Divine Forge (tools/draw_forge_sprite.py)
+    ("customAssets32x32", "kabam/rotmg/assets/custom/images/CustomAssets32x32.png", 32, 32),
+]
 ADD_EMOTE = re.compile(r'addEmote\("((?:[^"\\]|\\.)*)",\s*AssetLibrary\.getImageFromSet\("(\w+)",\s*(\d+)\)(?:,\s*([\d.]+))?')
 
 EMBED_VAR = re.compile(
@@ -160,7 +168,8 @@ def main():
     manifest = {
         "_generated_by": "tools/gen_rs_manifest.py; paths are relative to client/src",
         # The AIR client registers in this order; later registrations of a name replace earlier ones.
-        "image_sets": image_sets(loader, assets, "EmbeddedAssets") + image_sets(doomed_code, doomed, "DoomedAssets"),
+        "image_sets": image_sets(loader, assets, "EmbeddedAssets") + image_sets(doomed_code, doomed, "DoomedAssets")
+                      + [{"name": n, "file": f, "w": w, "h": h} for n, f, w, h in RS_ONLY_SETS],
         "animated_chars": animated_chars(loader, assets, "EmbeddedAssets")
                           + animated_chars(doomed_code, doomed, "DoomedAssets"),
         "models": [{"name": n, "file": assets.resolve(e, "EmbeddedAssets")} for n, e in MODEL.findall(models_block)],

@@ -1,6 +1,6 @@
 //! Structures shared by several messages (`kabam/rotmg/messaging/impl/data` in the AIR client).
 
-use crate::wire::{List16, Reader, Result, Wire, Writer};
+use crate::wire::{List16, List8, Reader, Result, Wire, Writer};
 use crate::wire_struct;
 
 wire_struct! {
@@ -61,6 +61,25 @@ wire_struct! {
     pub struct FameStat {
         pub id: u8,
         pub value: i32,
+    }
+}
+
+wire_struct! {
+    /// A forge recipe (`ForgeData`): the item it makes, its fame, whether it needs a Forge
+    /// Amulet, and the ingredients.
+    pub struct ForgeRecipe {
+        pub result: u16,
+        pub fame: i32,
+        pub advanced: bool,
+        pub items: List8<u16>,
+    }
+}
+
+wire_struct! {
+    /// What the forge pays for an item (`ForgeData`).
+    pub struct ForgePrice {
+        pub item: u16,
+        pub fame: i32,
     }
 }
 

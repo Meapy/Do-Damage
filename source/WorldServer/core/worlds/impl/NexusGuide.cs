@@ -59,7 +59,7 @@ namespace WorldServer.core.worlds.impl
             "Stand by the fountains around the spawn to heal.",
             "Type /vault to store items in your vault; they stay safe when a character dies.",
             "Type /shop to see the shops: abilities, weapons, armor, potions and keys for fame.",
-            "Type /sellfame <slot> to sell items you don't need for fame.",
+            "The Divine Forge in the south yard, west of the arena portals, forges items and buys the ones you don't need for fame.",
             "Type /tell <name> <message> to whisper, and /trade <name> to trade.",
             "Type /commands to see every command you can use.",
             "Do Damage is open source: github.com/Meapy/Do-Damage",

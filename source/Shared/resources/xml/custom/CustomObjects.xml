@@ -26,6 +26,41 @@
 		<Static />
 		<ShadowSize>60</ShadowSize>
 	</Object>
+	<!-- the Divine Forge in the Nexus's south yard (tools/build_castle_maps.py): its window in the
+	     Rust client forges items and sells them for fame (ForgeHandlers.cs); its sprite is drawn by
+	     tools/draw_forge_sprite.py -->
+	<Object type="0x497a" id="Divine Forge">
+		<Class>Forge</Class>
+		<DisplayId>Divine Forge</DisplayId>
+		<Texture>
+			<File>customAssets32x32</File>
+			<Index>0x00</Index>
+		</Texture>
+		<Animation prob="1.0" period="0.0">
+			<Frame time="0.15">
+				<Texture>
+					<File>customAssets32x32</File>
+					<Index>0x00</Index>
+				</Texture>
+			</Frame>
+			<Frame time="0.15">
+				<Texture>
+					<File>customAssets32x32</File>
+					<Index>0x01</Index>
+				</Texture>
+			</Frame>
+			<Frame time="0.15">
+				<Texture>
+					<File>customAssets32x32</File>
+					<Index>0x02</Index>
+				</Texture>
+			</Frame>
+		</Animation>
+		<Size>120</Size>
+		<Static/>
+		<OccupySquare/>
+		<ShadowSize>110</ShadowSize>
+	</Object>
 	<!-- the Elder Tomb's boss anchor: its bosses circle it, and it drops the exit portal once
 	     they are dead -->
 	<Object type="0xe901" id="Elder Tomb Boss Anchor">

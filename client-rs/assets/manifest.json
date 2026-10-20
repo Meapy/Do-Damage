@@ -1266,6 +1266,12 @@
    "file": "kabam/rotmg/assets/doomed/images/drRemote_draw_988954579.png",
    "w": 16,
    "h": 16
+  },
+  {
+   "name": "customAssets32x32",
+   "file": "kabam/rotmg/assets/custom/images/CustomAssets32x32.png",
+   "w": 32,
+   "h": 32
   }
  ],
  "animated_chars": [

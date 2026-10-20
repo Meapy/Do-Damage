@@ -169,6 +169,11 @@ messages! {
         // seconds while they change.
         94 => FameStats { stats: List8<FameStat> },
         92 => QuestDamageFull { object_id: i32, object_type: u16, max_hp: i32, dead: bool, hitters: List8<DamageHit>, mine: i32 },
+        // The Divine Forge's recipes and what it pays for items (ForgeDataRequest).
+        96 => ForgeData { recipes: List16<ForgeRecipe>, prices: List16<ForgePrice> },
+        // The answer to Forge or ForgeSell: the item forged (0 for a sale), the fame paid or
+        // gained, and what went wrong.
+        99 => ForgeResult { sold: bool, success: bool, item: u16, fame: i32, message: String },
     }
 }
 
@@ -230,5 +235,11 @@ messages! {
         91 => QuestDamageFullSubscribe {},
         // Ask for FameStats (a server without it ignores it).
         93 => FameStatsSubscribe {},
+        // The Divine Forge's window: ask for its recipes and prices, forge the recipe making
+        // `result` from these inventory slots, or sell these slots for fame (an older server
+        // ignores all three).
+        95 => ForgeDataRequest {},
+        97 => Forge { result: u16, slots: List8<u8> },
+        98 => ForgeSell { slots: List8<u8> },
     }
 }

@@ -156,5 +156,5 @@ The most useful ones; the [Commands](commands.html) page lists them all.
 | `/tell <name> <message>` | Whisper |
 | `/trade <name>` | Trade (needs 2 rank stars; clicking a player's name and choosing Trade doesn't) |
 | `/shop` | The shops: gear, potions, keys and pets for fame |
-| `/sellfame <slot>` | Sell an item for fame |
+| `/sellfame` | Points you to the Divine Forge, which buys items for fame |
 | `/commands` | Every command you can use |

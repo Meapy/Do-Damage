@@ -11,6 +11,7 @@ mod game;
 mod ground;
 mod hud;
 mod login;
+mod forge;
 mod market;
 mod particles;
 mod prof;
@@ -197,6 +198,9 @@ struct App {
     audio: Option<audio::Audio>,
     /// The marketplace window.
     market: market::Market,
+    /// The Divine Forge's window, and what it asked of the server on opening.
+    forge: forge::Forge,
+    forge_acts: Vec<forge::Act>,
     /// Key bindings, graphics and sound settings, and their window.
     settings: options::Settings,
     options_ui: options::OptionsUi,
@@ -228,13 +232,18 @@ struct App {
 
 /// Open the window of the NPC we stand by. True for the character changer: back to the
 /// character list.
-fn npc_open(kind: npc::NpcKind, game: &Game, npcs: &mut npc::Npcs, market: &mut market::Market, list: Option<&bsk_net::account::CharList>, data: &bsk_data::GameData) -> bool {
+#[allow(clippy::too_many_arguments)]
+fn npc_open(kind: npc::NpcKind, game: &Game, npcs: &mut npc::Npcs, market: &mut market::Market, forge: &mut forge::Forge, forge_acts: &mut Vec<forge::Act>, list: Option<&bsk_net::account::CharList>, data: &bsk_data::GameData) -> bool {
     use npc::{NpcKind, Prompt, Window};
     let Some(me) = game.world.as_ref().and_then(|w| w.player()) else { return false };
     let window = match kind {
         NpcKind::CharacterChanger => return true,
         NpcKind::Market => {
             market.show(data);
+            return false;
+        }
+        NpcKind::Forge => {
+            forge_acts.extend(forge.show(data));
             return false;
         }
         NpcKind::Reskin => {
@@ -1699,7 +1708,7 @@ impl App {
                         Some(hud::Interact { id, kind: hud::InteractKind::Portal, .. }) => game.use_portal(id),
                         Some(hud::Interact { id, kind: hud::InteractKind::Shop { .. }, .. }) => game.buy(id),
                         Some(hud::Interact { kind: hud::InteractKind::Npc { kind, .. }, .. }) => {
-                            to_chars |= npc_open(kind, game, &mut self.npcs, &mut self.market, self.front.list.as_ref(), data);
+                            to_chars |= npc_open(kind, game, &mut self.npcs, &mut self.market, &mut self.forge, &mut self.forge_acts, self.front.list.as_ref(), data);
                             self.keys.clear();
                         }
                         _ => {
@@ -1766,7 +1775,7 @@ impl App {
             }
             if game.world.as_ref().is_some_and(|w| w.player().is_some()) {
                 if let Some(kind) = self.npc_test.take().and_then(|c| npc::NpcKind::of_class(&c)) {
-                    to_chars |= npc_open(kind, game, &mut self.npcs, &mut self.market, self.front.list.as_ref(), data);
+                    to_chars |= npc_open(kind, game, &mut self.npcs, &mut self.market, &mut self.forge, &mut self.forge_acts, self.front.list.as_ref(), data);
                 }
             }
             // The options window takes the mouse while it's open.
@@ -1802,6 +1811,22 @@ impl App {
             }
             for act in market_acts {
                 game.market(act);
+            }
+            // The forge window: the same.
+            let mut forge_acts = std::mem::take(&mut self.forge_acts);
+            if self.forge.open {
+                for (down, pos) in std::mem::take(&mut self.clicks) {
+                    if down {
+                        forge_acts.extend(self.forge.click(pos, data));
+                    }
+                }
+                self.mouse_down = false;
+            }
+            for e in std::mem::take(&mut game.forge_events) {
+                self.forge.event(e, data);
+            }
+            for act in forge_acts {
+                game.forge(act);
             }
             // An NPC's window takes the keyboard and the mouse while it's open.
             // --type: into a prompt (and Enter), or onto the board being edited.
@@ -1892,7 +1917,7 @@ impl App {
                 }
                 for action in actions {
                     if let hud::Action::Button(hud::Button::Npc(kind)) = action {
-                        to_chars |= npc_open(kind, game, &mut self.npcs, &mut self.market, self.front.list.as_ref(), data);
+                        to_chars |= npc_open(kind, game, &mut self.npcs, &mut self.market, &mut self.forge, &mut self.forge_acts, self.front.list.as_ref(), data);
                         self.keys.clear();
                         continue;
                     }
@@ -2101,6 +2126,7 @@ impl App {
                 hud::draw_windows(&mut ui, &lay, world, p, &social, mouse);
                 self.npcs.draw(&mut ui, &lay, world.player(), mouse, now);
                 self.market.draw(&mut ui, &lay, world.player(), mouse, now);
+                self.forge.draw(&mut ui, &lay, world.player(), mouse, now);
                 prof::mark("chat..windows");
                 hud::draw_overlay(&mut ui, &lay, world, p, &self.hud, mouse);
                 prof::mark("overlay");
@@ -2115,6 +2141,7 @@ impl App {
             && !self.options_ui.open
             && !self.changelog.open
             && !self.market.open
+            && !self.forge.open
             && self.npcs.window.is_none()
             && self.hud.drag.is_none();
         if crosshair {
@@ -2414,6 +2441,15 @@ impl ApplicationHandler<UserEvent> for App {
                     self.keys.remove(&code);
                     return;
                 }
+                if self.forge.open && matches!(self.phase, Phase::Playing(_)) {
+                    if pressed {
+                        if let Some(l) = &self.loaded {
+                            self.forge.key(code, event.text.as_deref(), &l.data);
+                        }
+                    }
+                    self.keys.remove(&code);
+                    return;
+                }
                 if self.options_ui.open && matches!(self.phase, Phase::Playing(_)) {
                     if pressed && self.options_ui.key(code, &mut self.settings) {
                         self.settings.save();
@@ -2505,6 +2541,17 @@ impl ApplicationHandler<UserEvent> for App {
                 let notches = self.wheel.trunc();
                 self.wheel -= notches;
                 self.front.wheel(notches as i32);
+            }
+            WindowEvent::MouseWheel { delta, .. } if self.forge.open && matches!(self.phase, Phase::Playing(_)) => {
+                // The forge's recipes scroll a row a notch.
+                let lines = match delta {
+                    winit::event::MouseScrollDelta::LineDelta(_, y) => y,
+                    winit::event::MouseScrollDelta::PixelDelta(p) => (p.y / 40.0) as f32,
+                };
+                self.wheel += lines;
+                let notches = self.wheel.trunc();
+                self.wheel -= notches;
+                self.forge.scroll(-notches as i32);
             }
             WindowEvent::MouseWheel { delta, .. } => {
                 let free = matches!(self.phase, Phase::Playing(_))
@@ -2635,6 +2682,8 @@ fn main() {
         settings: options::Settings::load(),
         options_ui: Default::default(),
         market: Default::default(),
+        forge: Default::default(),
+        forge_acts: Vec::new(),
         type_text: text_arg("--type"),
         npc_test: text_arg("--npc"),
         effect_test: text_arg("--effect").and_then(|t| t.parse().ok()).map(|t| (t, i32::MIN / 2)),
