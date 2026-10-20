@@ -10754,7 +10754,7 @@
 		<Player />
 		<BloodProb>1.0</BloodProb>
 		<SlotTypes>200, 130, 6, 9, 0, 0, 0, 0, 0, 0, 0, 0</SlotTypes>
-		<Equipment>0xD1EC, 0xD1AE, -1, -1, 0xa22, -1, -1, -1, -1, -1, -1, -1</Equipment>
+		<Equipment>0x5802, 0x5814, -1, -1, 0xa22, -1, -1, -1, -1, -1, -1, -1</Equipment>
 		<MaxHitPoints max="720">150</MaxHitPoints>
 		<MaxMagicPoints max="452">100</MaxMagicPoints>
 		<Attack max="75">10</Attack>

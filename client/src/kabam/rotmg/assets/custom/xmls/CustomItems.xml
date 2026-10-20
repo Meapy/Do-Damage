@@ -617,8 +617,8 @@
 		<Class>Equipment</Class>
 		<Item/>
 		<Texture>
-			<File>drLofiObj5</File>
-			<Index>0x10b</Index>
+			<File>customAssets8x8</File>
+			<Index>0x70</Index>
 		</Texture>
 		<SlotType>200</SlotType>
 		<Tier>0</Tier>
@@ -642,8 +642,8 @@
 		<Class>Equipment</Class>
 		<Item/>
 		<Texture>
-			<File>drLofiObj5</File>
-			<Index>0x10b</Index>
+			<File>customAssets8x8</File>
+			<Index>0x71</Index>
 		</Texture>
 		<SlotType>200</SlotType>
 		<Tier>1</Tier>
@@ -667,8 +667,8 @@
 		<Class>Equipment</Class>
 		<Item/>
 		<Texture>
-			<File>drLofiObj5</File>
-			<Index>0x10b</Index>
+			<File>customAssets8x8</File>
+			<Index>0x72</Index>
 		</Texture>
 		<SlotType>200</SlotType>
 		<Tier>2</Tier>
@@ -692,8 +692,8 @@
 		<Class>Equipment</Class>
 		<Item/>
 		<Texture>
-			<File>drLofiObj5</File>
-			<Index>0x10b</Index>
+			<File>customAssets8x8</File>
+			<Index>0x73</Index>
 		</Texture>
 		<SlotType>200</SlotType>
 		<Tier>3</Tier>
@@ -717,8 +717,8 @@
 		<Class>Equipment</Class>
 		<Item/>
 		<Texture>
-			<File>drLofiObj5</File>
-			<Index>0x10b</Index>
+			<File>customAssets8x8</File>
+			<Index>0x74</Index>
 		</Texture>
 		<SlotType>200</SlotType>
 		<Tier>4</Tier>
@@ -742,8 +742,8 @@
 		<Class>Equipment</Class>
 		<Item/>
 		<Texture>
-			<File>drLofiObj5</File>
-			<Index>0x10b</Index>
+			<File>customAssets8x8</File>
+			<Index>0x75</Index>
 		</Texture>
 		<SlotType>200</SlotType>
 		<Tier>5</Tier>
@@ -767,8 +767,8 @@
 		<Class>Equipment</Class>
 		<Item/>
 		<Texture>
-			<File>drLofiObj5</File>
-			<Index>0x10b</Index>
+			<File>customAssets8x8</File>
+			<Index>0x76</Index>
 		</Texture>
 		<SlotType>200</SlotType>
 		<Tier>6</Tier>
@@ -792,8 +792,8 @@
 		<Class>Equipment</Class>
 		<Item/>
 		<Texture>
-			<File>drLofiObj5</File>
-			<Index>0x10b</Index>
+			<File>customAssets8x8</File>
+			<Index>0x77</Index>
 		</Texture>
 		<SlotType>200</SlotType>
 		<Tier>7</Tier>
@@ -817,8 +817,8 @@
 		<Class>Equipment</Class>
 		<Item/>
 		<Texture>
-			<File>drLofiObj5</File>
-			<Index>0x10b</Index>
+			<File>customAssets8x8</File>
+			<Index>0x78</Index>
 		</Texture>
 		<SlotType>200</SlotType>
 		<Tier>8</Tier>
@@ -843,8 +843,8 @@
 		<Class>Equipment</Class>
 		<Item/>
 		<Texture>
-			<File>drLofiObj5</File>
-			<Index>0x10b</Index>
+			<File>customAssets8x8</File>
+			<Index>0x79</Index>
 		</Texture>
 		<SlotType>200</SlotType>
 		<Tier>9</Tier>
@@ -869,8 +869,8 @@
 		<Class>Equipment</Class>
 		<Item/>
 		<Texture>
-			<File>drLofiObj5</File>
-			<Index>0x10b</Index>
+			<File>customAssets8x8</File>
+			<Index>0x7a</Index>
 		</Texture>
 		<SlotType>200</SlotType>
 		<Tier>10</Tier>
@@ -895,8 +895,8 @@
 		<Class>Equipment</Class>
 		<Item/>
 		<Texture>
-			<File>drLofiObj5</File>
-			<Index>0x10b</Index>
+			<File>customAssets8x8</File>
+			<Index>0x7b</Index>
 		</Texture>
 		<SlotType>200</SlotType>
 		<Tier>11</Tier>
@@ -922,8 +922,8 @@
 		<Class>Equipment</Class>
 		<Item/>
 		<Texture>
-			<File>drLofiObj5</File>
-			<Index>0x10b</Index>
+			<File>customAssets8x8</File>
+			<Index>0x7c</Index>
 		</Texture>
 		<SlotType>200</SlotType>
 		<Tier>12</Tier>
@@ -950,8 +950,8 @@
 		<Class>Equipment</Class>
 		<Item/>
 		<Texture>
-			<File>drLofiObj5</File>
-			<Index>0x10b</Index>
+			<File>customAssets8x8</File>
+			<Index>0x7d</Index>
 		</Texture>
 		<SlotType>200</SlotType>
 		<Tier>13</Tier>
@@ -978,8 +978,8 @@
 		<Class>Equipment</Class>
 		<Item/>
 		<Texture>
-			<File>drLofiObj5</File>
-			<Index>0x10b</Index>
+			<File>customAssets8x8</File>
+			<Index>0x7e</Index>
 		</Texture>
 		<SlotType>200</SlotType>
 		<Tier>14</Tier>

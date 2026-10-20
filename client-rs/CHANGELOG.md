@@ -9,6 +9,11 @@ refuses while an `Unreleased` one is left, so rename it to `## <version> (<date>
 version number itself is in `client-rs/Cargo.toml`.
 
 ## Unreleased
+- The Monk's fists have their own pictures, one for each tier and coloured after its name, from
+  plain Cloth Hand Wraps to the gold and cyan Fists of the Eternal Master.
+- New Monks start with Cloth Hand Wraps and a Fountain Droplet, as other classes start with their
+  first tier, and /gear now gives a Monk Serpent Fang Gauntlets and a Fountain Stream (it gave the
+  Monk no weapon or ability before).
 - The Doomed Cellar (Oryx the Mad God 5) is sealed for now while his loot is reworked: a Doomed
   Cellar Incantation won't open his portal and isn't used up if you try, and the shops stop selling
   it until he's back. Hold on to any you have.

@@ -333,6 +333,12 @@ def convert(o, new_type, sheets, remotes):
     return o
 
 
+# Classes that start with the lowest tier of their weapon and ability, as the betterSkillys classes
+# do, in place of what Doomed Realms gave them: the Monk started with Fists of Broken Bones (a boss
+# drop) and Power of the Fountains (T7), which also kept /gear from upgrading its weapon.
+STARTS_AT_LOWEST_TIER = {"Monk"}
+
+
 def fix_class_references(converted, dr, bs, types):
     """Ported classes list their starting equipment and unlock requirements by type code."""
     dr_by_type = {int(o.get("type"), 16): oid for oid, o in dr.items() if o.get("type")}
@@ -370,7 +376,8 @@ def fix_class_references(converted, dr, bs, types):
                 if code not in ("-1", "") and int(code, 16) in dr_by_type:
                     t, _ = new_type(dr_by_type[int(code, 16)])
                 # weapon and ability: replace a missing or wrong-slot starting item
-                if i < 2 and i < len(slots) and (t is None or slot_of.get(t.lower()) != slots[i]):
+                if i < 2 and i < len(slots) and (t is None or slot_of.get(t.lower()) != slots[i]
+                                                 or o.get("id") in STARTS_AT_LOWEST_TIER):
                     t = starter.get(slots[i], (0, None))[1]
                 codes.append(t or "-1")
             eq.text = ", ".join(codes)
