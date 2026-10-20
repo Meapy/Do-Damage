@@ -18,7 +18,8 @@ import wiki_data as wd
 ATT, DEF, SPD, DEX, HP = 20, 21, 22, 28, 0
 TARGET_DEF = 50
 HITS = (100, 200)
-TIERS = range(0, 15)
+TIERS = range(0, 15)        # weapons: T0-T14
+ARMOR_TIERS = range(0, 16)  # armor: T0-T15 (T16 and up are Doomed Realms pieces that don't drop)
 STAT_ORDER = ["HP", "MP", "Att", "Def", "Spd", "Vit", "Wis", "Dex"]
 STAT = {0: "HP", 3: "MP", 20: "Att", 21: "Def", 22: "Spd", 26: "Vit", 27: "Wis", 28: "Dex"}
 
@@ -224,8 +225,7 @@ class Balance:
 
     def class_ehp(self, used):
         out = []
-        # T0-T14, as the weapons: the higher tiers are a few Doomed Realms boss pieces
-        tiers = sorted({it["tier"] for it in self.tiered if it["category"] == "armor" and it["tier"] in TIERS})
+        tiers = sorted({it["tier"] for it in self.tiered if it["category"] == "armor" and it["tier"] in ARMOR_TIERS})
         for hit in HITS:
             out.append('<p class="table-caption">Against hits of <b>%d</b> damage:</p>' % hit)
             head = [("Class", 0), ("Armor", 0), ("HP", 1), ("Def", 1), ("No armor", 1)] + [("T%d" % t, 1) for t in tiers]
