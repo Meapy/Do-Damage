@@ -15,8 +15,12 @@ version number itself is in `client-rs/Cargo.toml`.
   are unchanged for now. Lil' Oryx is now an admin pet and can't be traded.
 - A pet's size now shows how big it is drawn: Small pets are a bit over half a character's
   height, Medium pets a little shorter than a character, and Large pets a little taller. Boss pets
-  like Nut were twice a character's height. Cookie, Nightmare, Twilight Sparkle, Cerberus Skull,
-  Kythal the Skull and Shroom, which shoot, are now Large.
+  like Nut were twice a character's height.
+- Large pets are now the boss pets, which shoot their boss's attacks. Pets with plain shots of
+  their own (Pancookie, Kythal, Zenco, Shroom, Cerberus Skull, Nightmare, Phoenix) are Medium.
+- The Tomb pets' (Bes, Geb, Nut) ring of spinners now does a little damage. The Sphinx pet now
+  uses all three of the Grand Sphinx's shots, and Lil' Malphas aims its shields and fires its
+  big bullet.
 - Cookie, Reaper and Aceaku's Pet, Cookie's shots, and a few other Doomed Realms sprites drawn
   from a single picture showed as a thin sliver; they now show whole.
 - Your vault has a Training Dummy beside the spawn. Shoot it and, 5 seconds after your first hit,

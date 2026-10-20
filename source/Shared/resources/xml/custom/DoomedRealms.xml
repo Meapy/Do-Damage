@@ -2863,7 +2863,7 @@
 		<Sound>spell/light_heal</Sound>
 		<InvUse />
 		<VaultItem />
-		<Activate objectId="Twilight Sparkle" cooldown="10" petDps="267" petSize="Large" petHp="45" petHpMs="1500" petMp="45" petMpMs="1500">PermaPet</Activate>
+		<Activate objectId="Twilight Sparkle" cooldown="10" petDps="267" petSize="Medium" petHp="30" petHpMs="2000" petMp="30" petMpMs="2000">PermaPet</Activate>
 		<OldSound>use_potion</OldSound>
 		<Shop>
 			<Name>donorpets</Name>
@@ -2884,7 +2884,7 @@
 		<ScaleValue>3</ScaleValue>
 		<InvUse />
 		<VaultItem />
-		<Activate objectId="Kythal the Necromancer" cooldown="10" petDps="1515" petSize="Large" petHp="45" petHpMs="1500" petMp="45" petMpMs="1500">PermaPet</Activate>
+		<Activate objectId="Kythal the Necromancer" cooldown="10" petDps="1515" petSize="Medium" petHp="30" petHpMs="2000" petMp="30" petMpMs="2000">PermaPet</Activate>
 		<OldSound>use_potion</OldSound>
 		<Shop>
 			<Name>donorpets</Name>
@@ -3002,7 +3002,7 @@
 		</Projectile>
 		<Projectile id="3">
 			<ObjectId>Dark Gray Spinner</ObjectId>
-			<Damage>0</Damage>
+			<Damage>30</Damage>
 			<Speed>120</Speed>
 			<LifetimeMS>5000</LifetimeMS>
 			<MultiHit />
@@ -3619,7 +3619,7 @@
 			<Index>0</Index>
 		</AnimatedTexture>
 		<NoMiniMap />
-		<Size>80</Size>
+		<Size>55</Size>
 		<Projectile id="0">
 			<ObjectId>Rainbow Magic Star</ObjectId>
 			<Speed>130</Speed>
@@ -3650,7 +3650,7 @@
 			<LifetimeMS>1800</LifetimeMS>
 			<MultiHit />
 		</Projectile>
-		<Size>60</Size>
+		<Size>40</Size>
 		<ShadowSize>150</ShadowSize>
 	</Object>
 	<Object type="0xD0E0" id="KingSlime">
@@ -3689,7 +3689,7 @@
 			<Index>0</Index>
 		</AnimatedTexture>
 		<NoMiniMap />
-		<Size>65</Size>
+		<Size>45</Size>
 		<Projectile id="0">
 			<ObjectId>Fire Bolt</ObjectId>
 			<Speed>67</Speed>
@@ -4979,7 +4979,7 @@
 		<InvUse />
 		<VaultItem />
 		<ScaleValue>3</ScaleValue>
-		<Activate objectId="Bess" cooldown="10" petDps="390" petSize="Large" petHp="45" petHpMs="1500" petMp="45" petMpMs="1500">PermaPet</Activate>
+		<Activate objectId="Bess" cooldown="10" petDps="450" petSize="Large" petHp="45" petHpMs="1500" petMp="45" petMpMs="1500">PermaPet</Activate>
 		<OldSound>use_potion</OldSound>
 	</Object>
 	<Object type="0xD122" id="Geb Generator">
@@ -4996,7 +4996,7 @@
 		<InvUse />
 		<VaultItem />
 		<ScaleValue>3</ScaleValue>
-		<Activate objectId="Gebb" cooldown="10" petDps="370" petSize="Large" petHp="45" petHpMs="1500" petMp="45" petMpMs="1500">PermaPet</Activate>
+		<Activate objectId="Gebb" cooldown="10" petDps="430" petSize="Large" petHp="45" petHpMs="1500" petMp="45" petMpMs="1500">PermaPet</Activate>
 		<OldSound>use_potion</OldSound>
 	</Object>
 	<Object type="0xD123" id="Nut Generator">
@@ -5013,7 +5013,7 @@
 		<InvUse />
 		<VaultItem />
 		<ScaleValue>3</ScaleValue>
-		<Activate objectId="Nutt" cooldown="10" petDps="80" petSize="Large" petHp="45" petHpMs="1500" petMp="45" petMpMs="1500">PermaPet</Activate>
+		<Activate objectId="Nutt" cooldown="10" petDps="140" petSize="Large" petHp="45" petHpMs="1500" petMp="45" petMpMs="1500">PermaPet</Activate>
 		<OldSound>use_potion</OldSound>
 	</Object>
 	<Object type="0xD124" id="Pyramid Artifact Generator">
@@ -5166,7 +5166,7 @@
 		<InvUse />
 		<VaultItem />
 		<ScaleValue>3</ScaleValue>
-		<Activate objectId="Malphass" cooldown="10" petDps="240" petSize="Large" petHp="45" petHpMs="1500" petMp="45" petMpMs="1500">PermaPet</Activate>
+		<Activate objectId="Malphass" cooldown="10" petDps="427" petSize="Large" petHp="45" petHpMs="1500" petMp="45" petMpMs="1500">PermaPet</Activate>
 		<OldSound>use_potion</OldSound>
 	</Object>
 	<Object type="0xD12D" id="Stheno Generator">
@@ -5374,7 +5374,7 @@
 		<InvUse />
 		<VaultItem />
 		<ScaleValue>3</ScaleValue>
-		<Activate objectId="sphinxxx" cooldown="10" petDps="531" petSize="Large" petHp="45" petHpMs="1500" petMp="45" petMpMs="1500">PermaPet</Activate>
+		<Activate objectId="sphinxxx" cooldown="10" petDps="746" petSize="Large" petHp="45" petHpMs="1500" petMp="45" petMpMs="1500">PermaPet</Activate>
 		<OldSound>use_potion</OldSound>
 	</Object>
 	<Object type="0xD139" id="Phoenix Generator">
@@ -5509,7 +5509,7 @@
 		<ScaleValue>3</ScaleValue>
 		<InvUse />
 		<VaultItem />
-		<Activate objectId="Kythal the Skull" cooldown="10" petDps="1515" petSize="Large" petHp="45" petHpMs="1500" petMp="45" petMpMs="1500">PermaPet</Activate>
+		<Activate objectId="Kythal the Skull" cooldown="10" petDps="1515" petSize="Medium" petHp="30" petHpMs="2000" petMp="30" petMpMs="2000">PermaPet</Activate>
 		<OldSound>use_potion</OldSound>
 		<Shop>
 			<Name>donorpets</Name>
@@ -5530,7 +5530,7 @@
 		<ScaleValue>3</ScaleValue>
 		<InvUse />
 		<VaultItem />
-		<Activate objectId="Shroom (Doomed)" cooldown="10" petDps="1515" petSize="Large" petHp="45" petHpMs="1500" petMp="45" petMpMs="1500">PermaPet</Activate>
+		<Activate objectId="Shroom (Doomed)" cooldown="10" petDps="1515" petSize="Medium" petHp="30" petHpMs="2000" petMp="30" petMpMs="2000">PermaPet</Activate>
 		<OldSound>use_potion</OldSound>
 		<Shop>
 			<Name>donorpets</Name>
@@ -5577,7 +5577,7 @@
 		<ScaleValue>3</ScaleValue>
 		<InvUse />
 		<VaultItem />
-		<Activate objectId="Cookiee" cooldown="10" petDps="2165" petSize="Large" petHp="45" petHpMs="1500" petMp="45" petMpMs="1500">PermaPet</Activate>
+		<Activate objectId="Cookiee" cooldown="10" petDps="2165" petSize="Medium" petHp="30" petHpMs="2000" petMp="30" petMpMs="2000">PermaPet</Activate>
 		<OldSound>use_potion</OldSound>
 	</Object>
 	<Object type="0xD147" id="Nightmare Generator">
@@ -5594,7 +5594,7 @@
 		<InvUse />
 		<VaultItem />
 		<ScaleValue>3</ScaleValue>
-		<Activate objectId="Nightmareee" cooldown="10" petDps="70" petSize="Large" petHp="45" petHpMs="1500" petMp="45" petMpMs="1500">PermaPet</Activate>
+		<Activate objectId="Nightmareee" cooldown="10" petDps="70" petSize="Medium" petHp="30" petHpMs="2000" petMp="30" petMpMs="2000">PermaPet</Activate>
 		<OldSound>use_potion</OldSound>
 	</Object>
 	<Object type="0xD148" id="Lil' Oryx 2">
@@ -5968,7 +5968,7 @@
 			<LifetimeMS>1800</LifetimeMS>
 			<MultiHit />
 		</Projectile>
-		<Size>80</Size>
+		<Size>55</Size>
 		<ShadowSize>120</ShadowSize>
 	</Object>
 	<Object type="0xD15D" id="Bess">
@@ -6003,7 +6003,7 @@
 		</Projectile>
 		<Projectile id="3">
 			<ObjectId>Dark Gray Spinner</ObjectId>
-			<Damage>0</Damage>
+			<Damage>30</Damage>
 			<Speed>120</Speed>
 			<LifetimeMS>5000</LifetimeMS>
 			<MultiHit />
@@ -6083,7 +6083,7 @@
 		</Projectile>
 		<Projectile id="7">
 			<ObjectId>Dark Gray Spinner</ObjectId>
-			<Damage>0</Damage>
+			<Damage>30</Damage>
 			<Speed>120</Speed>
 			<LifetimeMS>5000</LifetimeMS>
 			<MultiHit />
@@ -6579,7 +6579,7 @@
 			<File>drRemote_draw_20482145</File>
 			<Index>0</Index>
 		</AnimatedTexture>
-		<Size>120</Size>
+		<Size>85</Size>
 		<ShadowSize>120</ShadowSize>
 		<NoMiniMap />
 		<Z>0.20</Z>
@@ -8300,7 +8300,7 @@
 		<ScaleValue>3</ScaleValue>
 		<InvUse />
 		<VaultItem />
-		<Activate objectId="Zenco The Undead God" cooldown="10" petDps="1515" petSize="Large" petHp="45" petHpMs="1500" petMp="45" petMpMs="1500">PermaPet</Activate>
+		<Activate objectId="Zenco The Undead God" cooldown="10" petDps="1515" petSize="Medium" petHp="30" petHpMs="2000" petMp="30" petMpMs="2000">PermaPet</Activate>
 		<OldSound>use_potion</OldSound>
 		<Shop>
 			<Name>donorpets</Name>
@@ -8321,7 +8321,7 @@
 		<ScaleValue>3</ScaleValue>
 		<InvUse />
 		<VaultItem />
-		<Activate objectId="Cerberus Skull" cooldown="10" petDps="740" petSize="Large" petHp="45" petHpMs="1500" petMp="45" petMpMs="1500">PermaPet</Activate>
+		<Activate objectId="Cerberus Skull" cooldown="10" petDps="740" petSize="Medium" petHp="30" petHpMs="2000" petMp="30" petMpMs="2000">PermaPet</Activate>
 		<OldSound>use_potion</OldSound>
 		<Shop>
 			<Name>donorpets</Name>
@@ -8344,7 +8344,7 @@
 			<File>drRemote_draw_6646544889544704</File>
 			<Index>0</Index>
 		</AnimatedTexture>
-		<Size>60</Size>
+		<Size>40</Size>
 		<ShadowSize>120</ShadowSize>
 		<NoMiniMap />
 		<Projectile id="0">
@@ -8368,7 +8368,7 @@
 			<File>drRemote_draw_5359574336929792</File>
 			<Index>0</Index>
 		</AnimatedTexture>
-		<Size>75</Size>
+		<Size>50</Size>
 		<ShadowSize>120</ShadowSize>
 		<NoMiniMap />
 		<Projectile id="0">
@@ -10320,7 +10320,7 @@
 			<File>drChars16x16dMountains1</File>
 			<Index>0x1d</Index>
 		</AnimatedTexture>
-		<Size>60</Size>
+		<Size>40</Size>
 		<ShadowSize>120</ShadowSize>
 		<NoMiniMap />
 		<Projectile id="0">
