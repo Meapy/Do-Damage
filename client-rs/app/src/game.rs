@@ -742,6 +742,7 @@ impl Game {
     /// `stars` is the speaker's rank, or -1 for none (the server's own lines).
     #[allow(clippy::too_many_arguments)]
     pub fn add_chat(&mut self, name: &str, recipient: &str, text: &str, name_color: i32, text_color: i32, stars: i32, now: i32) {
+        log::debug!("chat {name}: {text}"); // scripted tests read results from here (RUST_LOG=debug)
         // TextBox.tellers_: who we last whispered with, newest last.
         let me = self.world.as_ref().and_then(|w| w.player()).and_then(|p| p.name()).unwrap_or("").to_owned();
         let other = if !recipient.is_empty() && recipient == me {

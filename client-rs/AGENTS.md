@@ -98,14 +98,14 @@ The client itself can be scripted for tests (desktop only):
 | `--bench` | No vsync or frame cap for this run (the settings are left alone), and every 2 s the frame rate, CPU time by section and draw calls in the log. Measure a release build, after the first few seconds |
 | `--shot <png> --shot-after <seconds>` | Save one frame, then quit (logs the position and what it sent) |
 | `--walk-to x,y[;x,y...]` | Walk to world positions in turn (in the first world joined, or the one `--say` moves to) |
-| `--hold <key>:<ms>` | Hold keys one after another: `w a s d q e r o z 0 1`-`8 space hp mp`, `f` fires, `-` waits |
+| `--hold <key>:<ms>` | Hold keys one after another: `w a s d q e r o z 0 1`-`8 space hp mp`, `f` fires, `i` turns autofire on or off (it fires at the mouse while other keys are held), `-` waits |
 | `--aim <degrees>` / `--aim auto` | Where `f` fires on the screen, or at the nearest enemy |
 | `--say <text>` | Send a chat line or command once in the game; several lines split by `;;` go out in turn, each once another world is joined or 3 s after the last (`"/dungeon Oryx's Sanctuary;;/god"`) |
 | `--npc <class>` | Open that NPC's window once in the game (`GuildBoard`, `PotionStorage`...), wherever you stand |
 | `--effect <type>` | Show that `ShowEffect` type on you every half second (0: an area attack beside you), to check particles |
 | `--type <text>` | Type into the first NPC prompt that opens (then Enter), or onto the guild board being edited |
 | `--size WxH` | Open the window at this size (physical pixels), to check the layout |
-| `--mouse x,y` | Put the mouse there (window pixels) and ignore the real one: tooltips, aiming |
+| `--mouse x,y` | Put the mouse there (window pixels) and ignore the real one and its buttons: tooltips, aiming |
 | `--mouse-script "down@ms:x,y;move@ms:x,y;up@ms:x,y;right@ms:x,y"` | Mouse steps after joining: left-button drags and clicks on the HUD, and right-clicks |
 
 - **Paths and slashes:** from Git Bash, run it with `MSYS_NO_PATHCONV=1` and give
@@ -114,6 +114,11 @@ The client itself can be scripted for tests (desktop only):
 - **Your login stays yours:** sign-ins from `--credentials` are never saved ("Remember me" is
   skipped for them). But a run without `--credentials` signs in with the login saved on this PC,
   which is the owner's own: its sign-in screen shows their email. Don't share those shots.
+- **In the background:** a run with `--shot`, `--hold` or `--mouse-script` opens its window
+  without taking focus, so the keyboard stays with the window in use; `--mouse` also ignores
+  clicks on it.
+- **Chat in the log:** with `RUST_LOG=info,betterskillys=debug` every chat line is logged
+  (`chat <name>: <text>`), for reading results such as the vault Training Dummy's.
 - **No server needed** for the screens outside the game: `--account http://127.0.0.1:1` with
   `--shot` shows the menu and sign-in screens over the sky, at any `--size`.
 

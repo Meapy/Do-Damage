@@ -160,7 +160,7 @@ struct App {
     ctrl_held: bool,
     /// Right button presses since the last frame, and where (Ctrl+right-click breaks items down).
     right_clicks: Vec<(f64, f64)>,
-    /// `--mouse` was given: ignore the real cursor.
+    /// `--mouse` was given: ignore the real cursor and its buttons.
     mouse_fixed: bool,
     /// `--mouse-script` (tests): (ms after joining, down/up/move, where), oldest first.
     mouse_script: Vec<(i32, MouseStep, (f64, f64))>,
@@ -570,6 +570,7 @@ fn hold_args() -> Vec<(KeyCode, i32)> {
                     "space" => KeyCode::Space,
                     "hp" => KeyCode::KeyF,
                     "mp" => KeyCode::KeyV,
+                    "i" => KeyCode::F22, // autofire on or off, whatever key it's bound to
                     "o" => KeyCode::KeyO,
                     "z" => KeyCode::KeyZ,
                     "-" => KeyCode::F24, // a pause: holds nothing
@@ -1539,8 +1540,13 @@ impl App {
         // A scripted key starting counts as a press.
         let scripted = self.scripted_key(now);
         if scripted != self.last_scripted {
-            if let Some(k) = scripted {
-                self.pressed.push(k);
+            match scripted {
+                Some(KeyCode::F22) => {
+                    self.autofire = !self.autofire;
+                    log::info!("autofire {}", if self.autofire { "on" } else { "off" });
+                }
+                Some(k) => self.pressed.push(k),
+                None => {}
             }
             self.last_scripted = scripted;
         }
@@ -2265,6 +2271,8 @@ impl ApplicationHandler<UserEvent> for App {
             }
             // The AIR client's icon (WebMain-app.xml).
             .with_window_icon(window_icon())
+            // A scripted test run opens behind the window in use, so it doesn't take the keyboard.
+            .with_active(!args.iter().any(|a| matches!(a.as_str(), "--shot" | "--hold" | "--mouse-script")))
         };
         // In a browser the page's CSS sizes the canvas.
         #[cfg(target_arch = "wasm32")]
@@ -2517,6 +2525,7 @@ impl ApplicationHandler<UserEvent> for App {
                     }
                 }
             }
+            WindowEvent::MouseInput { .. } if self.mouse_fixed => {}
             WindowEvent::MouseInput { state: ElementState::Pressed, button: winit::event::MouseButton::Right, .. } => {
                 self.right_clicks.push(self.mouse);
             }
