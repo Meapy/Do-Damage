@@ -16,6 +16,8 @@ version number itself is in `client-rs/Cargo.toml`.
   Dual Blades and fists show their rate of fire in the tooltip too.
 - The Blademaster's jackets from T3 up also give it Attack for a few seconds when used: +3 for 3
   seconds at T3 up to +15 for 8 seconds at T8, shown as Att Boost over the character.
+- Stat boost icons over a character are smaller, and every status icon keeps a little space
+  around it, so a boost no longer covers the icons beside it.
 - Abilities that boost one of your stats for a while now show the right status: a Dexterity,
   Vitality or Wisdom boost showed as another stat's.
 - Wands hit about a third harder on every tier and give +3 Attack and +3 Dexterity on every tier,

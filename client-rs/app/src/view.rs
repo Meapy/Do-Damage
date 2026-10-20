@@ -519,17 +519,23 @@ pub fn draw(scene: &Scene, renderer: &mut Renderer, redrawer: &mut Redrawer, gro
         if c == [0, 0] || has(c, condition::PAUSED) {
             continue;
         }
+        // The 16 x 16 icons (the stat boosts) at three quarters of the 8 x 8 ones' scale, so they're
+        // only a little bigger; each icon takes its own width, with a gap, so none covers another.
+        let big_scale = (icon_scale * 3 / 4).max(1);
         let icons: Vec<_> = condition::icons(c, scene.time)
             .into_iter()
-            .filter_map(|(big, index)| scene.sprites.tile_src(if big { "lofiInterfaceBig" } else { "lofiInterface2" }, index))
-            .filter_map(|src| redrawer.icon(scene.sprites, renderer, src, icon_scale))
+            .filter_map(|(big, index)| {
+                let src = scene.sprites.tile_src(if big { "lofiInterfaceBig" } else { "lofiInterface2" }, index)?;
+                redrawer.icon(scene.sprites, renderer, src, if big { big_scale } else { icon_scale })
+            })
             .collect();
-        let step = 8.0 * icon_scale as f32 + 3.0;
-        let left = x - step * icons.len() as f32 / 2.0;
-        for (i, icon) in icons.iter().enumerate() {
-            let cx = left + step * (i as f32 + 0.5);
+        let gap = (2.0 * icon_scale as f32).max(3.0);
+        let total = icons.iter().map(|i| i.w as f32).sum::<f32>() + gap * icons.len().saturating_sub(1) as f32;
+        let mut left = x - total / 2.0;
+        for icon in &icons {
             let (w, h) = (icon.w as f32, icon.h as f32);
-            renderer.sprite(icon.rect, Quad::rect((cx - w / 2.0).round(), (y - h / 2.0).round(), w, h), Tint::NONE);
+            renderer.sprite(icon.rect, Quad::rect(left.round(), (y - h / 2.0).round(), w, h), Tint::NONE);
+            left += w + gap;
         }
     }
 
