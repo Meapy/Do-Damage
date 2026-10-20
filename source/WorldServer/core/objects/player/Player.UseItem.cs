@@ -143,6 +143,15 @@ namespace WorldServer.core.objects
                 return;
             }
 
+            // a stat potion goes to the storage for a stat already at its highest, so with that storage
+            // full it isn't spent: all of it, so a Potion of Oryx doesn't raise its other stats and stay
+            foreach (var eff in item.ActivateEffects)
+                if (eff.Effect == ActivateEffects.IncrementStat && PotionStorageFull(eff, out var stat))
+                {
+                    Refuse($"Your {PotionNames[stat]} potion storage is full..");
+                    return;
+                }
+
             // an incantation is only spent where it works: in its dungeon, beside its locked portal
             foreach (var eff in item.ActivateEffects)
                 if (eff.Effect == ActivateEffects.ChangeObject && ChangeObjectTarget(eff, out var why) == null)
@@ -1141,7 +1150,7 @@ namespace WorldServer.core.objects
 
                 if (storedAmount != -1)
                 {
-                    string statname = item.DisplayName.Split(' ').Last();
+                    string statname = PotionNames[idx];
                     bool checkVowel = statname.Substring(0, 1) == "A";
                     string accForVowel = checkVowel ? "n" : "";
                     switch (inc)
@@ -1175,6 +1184,19 @@ namespace WorldServer.core.objects
                     Stats.Base[idx] = statInfo[idx].MaxValue;
                 SendInfo($"{item.DisplayName} was consumed");
             }
+        }
+
+        // the stat potions by stat index, as their names end (Potion of Life...)
+        private static readonly string[] PotionNames = { "Life", "Mana", "Attack", "Defense", "Speed", "Dexterity", "Vitality", "Wisdom" };
+
+        // whether this IncrementStat effect would go to potion storage (the stat is at its highest)
+        // and that stat's storage has no room
+        private bool PotionStorageFull(ActivateEffect eff, out int idx)
+        {
+            idx = StatsManager.GetStatIndex((StatDataType)eff.Stats);
+            var statInfo = GameServer.Resources.GameData.Classes[ObjectType].Stats;
+            return idx >= 0 && Stats.Base[idx] >= statInfo[idx].MaxValue
+                && Client.Account.StoredPotions[idx] >= Client.Account.PotionStorageCapacity;
         }
 
         private int AttemptToAdd(int idx, int amount)

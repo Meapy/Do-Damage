@@ -9,6 +9,10 @@ refuses while an `Unreleased` one is left, so rename it to `## <version> (<date>
 version number itself is in `client-rs/Cargo.toml`.
 
 ## Unreleased
+- A Potion of Oryx is no longer drunk halfway: if a stat it raises is already maxed and that stat's
+  potion storage is full, it now does nothing and stays, where before it raised your other stats
+  and stayed to be drunk again. The message says which storage is full, and a Potion of Oryx's
+  overflow now says which stat's potion went to storage.
 - Bosses that build their lair where they appear (the Grand Sphinx and others) no longer do it in
   the arenas, where its walls could shut monsters in where nobody could kill them.
 - Right-click a player in the Nearby players list (or on the minimap) to keep their card open,
