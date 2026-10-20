@@ -487,6 +487,15 @@ code { font: .86em ui-monospace, "Cascadia Mono", Consolas, monospace; padding: 
 .cmds td:first-child { white-space: nowrap; }
 .chain td:first-child { font: 700 .85rem var(--pixel); color: var(--ember); white-space: nowrap; }
 .dim { color: var(--text-muted); }
+.balance td, .balance th { white-space: nowrap; }
+.balance td.n, .balance th.n { text-align: right; font-variant-numeric: tabular-nums; }
+.balance td.t { font: 700 .85rem var(--pixel); color: var(--ember); }
+.balance td.wide { white-space: normal; min-width: 240px; }
+.balance .up { color: var(--good); }
+.balance .down { color: var(--blood); }
+.balance.grid td, .balance.grid th { padding: 7px 9px; }
+.prose h4 .dim { font-weight: 400; font-size: .85em; }
+.table-caption { margin: 0 0 .5em; }
 
 .chips { list-style: none; padding: 0 !important; display: flex; flex-wrap: wrap; gap: 8px; }
 .chips li { margin: 0; padding: .3em .75em; background: var(--surface); border: 1px solid var(--line-hi); color: var(--text); font-size: .9rem; }

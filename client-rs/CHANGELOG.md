@@ -9,6 +9,21 @@ refuses while an `Unreleased` one is left, so rename it to `## <version> (<date>
 version number itself is in `client-rs/Cargo.toml`.
 
 ## Unreleased
+- Weapon rebalance. The top tiers of Swords, Daggers, Bows, Wands, Staves, Katanas and Dual Blades
+  now give stats: +2 a tier from T11 (+8 at T14) and +2 a tier from T12 (+6 at T14). Swords and
+  Katanas give Defense and Attack, Daggers and Bows Dexterity and Attack, Wands Attack and
+  Dexterity, Staves Defense, and Dual Blades Defense and Speed.
+- T13 and T14 weapons reach further: Swords 4 tiles, Daggers 6, Bows 7.2, Katanas 5.25. Every Wand
+  now reaches 8 tiles (was 9) and hits 10% harder; Katanas hit 10% harder on every tier; Dual
+  Blades all reach 5 tiles. Bows with several arrows spread them 10% less.
+- New Dual Blades for the Blademaster at T13 (Sovereign Blades) and T14 (Eclipse Blades). Rage
+  Claw Blades fire at the normal rate now, with damage between the tiers either side of them.
+- The Monk has tiered fists at last, T0 to T14, from Cloth Hand Wraps to Fists of the Eternal
+  Master, dropping like every other tiered weapon. Fists of Broken Bones is now an untiered boss
+  drop instead of a T1 item.
+- The wiki has a Gear numbers page: every tiered item side by side with what each tier adds, each
+  class's damage a second with each weapon tier, and each class's effective health with each
+  armor tier.
 - Skins keep animating at high dexterity and speed: shooting very fast used to freeze a skin
   on its first attack frame, and running very fast could make its walk look stuck.
 - Hovering the inventory and backpack buttons shows the key that switches between them in the

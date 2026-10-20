@@ -302,6 +302,7 @@
 			<MaxDamage>270</MaxDamage>
 			<LifetimeMS>350</LifetimeMS>
 		</Projectile>
+		<ActivateOnEquip stat="21" amount="2">IncrementStat</ActivateOnEquip>
 		<BagType>4</BagType>
 		<FameBonus>3</FameBonus>
 		<OldSound>bladeSwing</OldSound>
@@ -326,6 +327,8 @@
 			<MaxDamage>275</MaxDamage>
 			<LifetimeMS>350</LifetimeMS>
 		</Projectile>
+		<ActivateOnEquip stat="21" amount="4">IncrementStat</ActivateOnEquip>
+		<ActivateOnEquip stat="20" amount="2">IncrementStat</ActivateOnEquip>
 		<BagType>4</BagType>
 		<FameBonus>4</FameBonus>
 		<OldSound>bladeSwing</OldSound>
@@ -348,8 +351,10 @@
 			<Speed>100</Speed>
 			<MinDamage>235</MinDamage>
 			<MaxDamage>290</MaxDamage>
-			<LifetimeMS>350</LifetimeMS>
+			<LifetimeMS>400</LifetimeMS>
 		</Projectile>
+		<ActivateOnEquip stat="21" amount="6">IncrementStat</ActivateOnEquip>
+		<ActivateOnEquip stat="20" amount="4">IncrementStat</ActivateOnEquip>
 		<BagType>9</BagType>
 		<FameBonus>5</FameBonus>
 		<OldSound>bladeSwing</OldSound>
@@ -373,8 +378,10 @@
 			<Speed>100</Speed>
 			<MinDamage>250</MinDamage>
 			<MaxDamage>305</MaxDamage>
-			<LifetimeMS>350</LifetimeMS>
+			<LifetimeMS>400</LifetimeMS>
 		</Projectile>
+		<ActivateOnEquip stat="21" amount="8">IncrementStat</ActivateOnEquip>
+		<ActivateOnEquip stat="20" amount="6">IncrementStat</ActivateOnEquip>
 		<BagType>9</BagType>
 		<FameBonus>6</FameBonus>
 		<OldSound>bladeSwing</OldSound>
@@ -472,9 +479,9 @@
 		<Projectile>
 			<ObjectId>Red Fire</ObjectId>
 			<Speed>180</Speed>
-			<LifetimeMS>500</LifetimeMS>
-			<MinDamage>25</MinDamage>
-			<MaxDamage>40</MaxDamage>
+			<LifetimeMS>444</LifetimeMS>
+			<MinDamage>28</MinDamage>
+			<MaxDamage>44</MaxDamage>
 			<MultiHit/>
 		</Projectile>
 		<BagType>1</BagType>
@@ -497,9 +504,9 @@
 		<Projectile>
 			<ObjectId>Blue Magic</ObjectId>
 			<Speed>180</Speed>
-			<LifetimeMS>500</LifetimeMS>
-			<MinDamage>35</MinDamage>
-			<MaxDamage>50</MaxDamage>
+			<LifetimeMS>444</LifetimeMS>
+			<MinDamage>39</MinDamage>
+			<MaxDamage>55</MaxDamage>
 			<MultiHit/>
 		</Projectile>
 		<BagType>1</BagType>
@@ -522,9 +529,9 @@
 		<Projectile>
 			<ObjectId>Blue Magic</ObjectId>
 			<Speed>180</Speed>
-			<LifetimeMS>500</LifetimeMS>
-			<MinDamage>40</MinDamage>
-			<MaxDamage>55</MaxDamage>
+			<LifetimeMS>444</LifetimeMS>
+			<MinDamage>44</MinDamage>
+			<MaxDamage>61</MaxDamage>
 			<MultiHit/>
 		</Projectile>
 		<BagType>1</BagType>
@@ -547,9 +554,9 @@
 		<Projectile>
 			<ObjectId>Blue Magic</ObjectId>
 			<Speed>180</Speed>
-			<LifetimeMS>500</LifetimeMS>
-			<MinDamage>45</MinDamage>
-			<MaxDamage>60</MaxDamage>
+			<LifetimeMS>444</LifetimeMS>
+			<MinDamage>50</MinDamage>
+			<MaxDamage>66</MaxDamage>
 			<MultiHit/>
 		</Projectile>
 		<BagType>1</BagType>
@@ -572,9 +579,9 @@
 		<Projectile>
 			<ObjectId>Blue Magic</ObjectId>
 			<Speed>180</Speed>
-			<LifetimeMS>500</LifetimeMS>
-			<MinDamage>55</MinDamage>
-			<MaxDamage>70</MaxDamage>
+			<LifetimeMS>444</LifetimeMS>
+			<MinDamage>61</MinDamage>
+			<MaxDamage>77</MaxDamage>
 			<MultiHit/>
 		</Projectile>
 		<BagType>1</BagType>
@@ -597,9 +604,9 @@
 		<Projectile>
 			<ObjectId>Purple Magic</ObjectId>
 			<Speed>180</Speed>
-			<LifetimeMS>500</LifetimeMS>
-			<MinDamage>60</MinDamage>
-			<MaxDamage>85</MaxDamage>
+			<LifetimeMS>444</LifetimeMS>
+			<MinDamage>66</MinDamage>
+			<MaxDamage>94</MaxDamage>
 			<MultiHit/>
 		</Projectile>
 		<BagType>1</BagType>
@@ -622,9 +629,9 @@
 		<Projectile>
 			<ObjectId>Pink Bolt</ObjectId>
 			<Speed>180</Speed>
-			<LifetimeMS>500</LifetimeMS>
-			<MinDamage>70</MinDamage>
-			<MaxDamage>100</MaxDamage>
+			<LifetimeMS>444</LifetimeMS>
+			<MinDamage>77</MinDamage>
+			<MaxDamage>110</MaxDamage>
 			<MultiHit/>
 		</Projectile>
 		<BagType>1</BagType>
@@ -647,9 +654,9 @@
 		<Projectile>
 			<ObjectId>Red Fire</ObjectId>
 			<Speed>180</Speed>
-			<LifetimeMS>500</LifetimeMS>
-			<MinDamage>75</MinDamage>
-			<MaxDamage>115</MaxDamage>
+			<LifetimeMS>444</LifetimeMS>
+			<MinDamage>83</MinDamage>
+			<MaxDamage>127</MaxDamage>
 			<MultiHit/>
 		</Projectile>
 		<BagType>2</BagType>
@@ -697,9 +704,9 @@
 		<Projectile>
 			<ObjectId>Green Magic</ObjectId>
 			<Speed>180</Speed>
-			<LifetimeMS>500</LifetimeMS>
-			<MinDamage>80</MinDamage>
-			<MaxDamage>125</MaxDamage>
+			<LifetimeMS>444</LifetimeMS>
+			<MinDamage>88</MinDamage>
+			<MaxDamage>138</MaxDamage>
 			<MultiHit/>
 		</Projectile>
 		<BagType>2</BagType>
@@ -723,9 +730,9 @@
 		<Projectile>
 			<ObjectId>Purple Magic</ObjectId>
 			<Speed>180</Speed>
-			<LifetimeMS>500</LifetimeMS>
-			<MinDamage>85</MinDamage>
-			<MaxDamage>130</MaxDamage>
+			<LifetimeMS>444</LifetimeMS>
+			<MinDamage>94</MinDamage>
+			<MaxDamage>143</MaxDamage>
 			<MultiHit/>
 		</Projectile>
 		<BagType>2</BagType>
@@ -749,9 +756,9 @@
 		<Projectile>
 			<ObjectId>Red Fire</ObjectId>
 			<Speed>180</Speed>
-			<LifetimeMS>500</LifetimeMS>
-			<MinDamage>90</MinDamage>
-			<MaxDamage>135</MaxDamage>
+			<LifetimeMS>444</LifetimeMS>
+			<MinDamage>99</MinDamage>
+			<MaxDamage>149</MaxDamage>
 			<MultiHit/>
 		</Projectile>
 		<BagType>4</BagType>
@@ -774,11 +781,12 @@
 		<Projectile>
 			<ObjectId>Green Magic</ObjectId>
 			<Speed>180</Speed>
-			<LifetimeMS>500</LifetimeMS>
-			<MinDamage>95</MinDamage>
-			<MaxDamage>135</MaxDamage>
+			<LifetimeMS>444</LifetimeMS>
+			<MinDamage>105</MinDamage>
+			<MaxDamage>149</MaxDamage>
 			<MultiHit/>
 		</Projectile>
+		<ActivateOnEquip stat="20" amount="2">IncrementStat</ActivateOnEquip>
 		<BagType>4</BagType>
 		<FameBonus>3</FameBonus>
 		<OldSound>magicShoot</OldSound>
@@ -799,11 +807,13 @@
 		<Projectile>
 			<ObjectId>Blue Magic</ObjectId>
 			<Speed>180</Speed>
-			<LifetimeMS>500</LifetimeMS>
-			<MinDamage>95</MinDamage>
-			<MaxDamage>140</MaxDamage>
+			<LifetimeMS>444</LifetimeMS>
+			<MinDamage>105</MinDamage>
+			<MaxDamage>154</MaxDamage>
 			<MultiHit/>
 		</Projectile>
+		<ActivateOnEquip stat="20" amount="4">IncrementStat</ActivateOnEquip>
+		<ActivateOnEquip stat="28" amount="2">IncrementStat</ActivateOnEquip>
 		<BagType>4</BagType>
 		<FameBonus>4</FameBonus>
 		<OldSound>magicShoot</OldSound>
@@ -824,11 +834,13 @@
 		<Projectile>
 			<ObjectId>Evocation Magic</ObjectId>
 			<Speed>180</Speed>
-			<LifetimeMS>500</LifetimeMS>
-			<MinDamage>105</MinDamage>
-			<MaxDamage>145</MaxDamage>
+			<LifetimeMS>444</LifetimeMS>
+			<MinDamage>116</MinDamage>
+			<MaxDamage>160</MaxDamage>
 			<MultiHit/>
 		</Projectile>
+		<ActivateOnEquip stat="20" amount="6">IncrementStat</ActivateOnEquip>
+		<ActivateOnEquip stat="28" amount="4">IncrementStat</ActivateOnEquip>
 		<BagType>9</BagType>
 		<FameBonus>5</FameBonus>
 		<OldSound>magicShoot</OldSound>
@@ -850,11 +862,13 @@
 		<Projectile>
 			<ObjectId>Retribution Magic</ObjectId>
 			<Speed>180</Speed>
-			<LifetimeMS>500</LifetimeMS>
-			<MinDamage>110</MinDamage>
-			<MaxDamage>155</MaxDamage>
+			<LifetimeMS>444</LifetimeMS>
+			<MinDamage>121</MinDamage>
+			<MaxDamage>171</MaxDamage>
 			<MultiHit/>
 		</Projectile>
+		<ActivateOnEquip stat="20" amount="8">IncrementStat</ActivateOnEquip>
+		<ActivateOnEquip stat="28" amount="6">IncrementStat</ActivateOnEquip>
 		<BagType>9</BagType>
 		<FameBonus>6</FameBonus>
 		<OldSound>magicShoot</OldSound>
@@ -2018,6 +2032,7 @@
 			<MaxDamage>175</MaxDamage>
 			<LifetimeMS>400</LifetimeMS>
 		</Projectile>
+		<ActivateOnEquip stat="28" amount="2">IncrementStat</ActivateOnEquip>
 		<BagType>4</BagType>
 		<FameBonus>3</FameBonus>
 		<OldSound>daggerSwing</OldSound>
@@ -2042,6 +2057,8 @@
 			<MaxDamage>175</MaxDamage>
 			<LifetimeMS>400</LifetimeMS>
 		</Projectile>
+		<ActivateOnEquip stat="20" amount="2">IncrementStat</ActivateOnEquip>
+		<ActivateOnEquip stat="28" amount="4">IncrementStat</ActivateOnEquip>
 		<BagType>4</BagType>
 		<FameBonus>4</FameBonus>
 		<OldSound>daggerSwing</OldSound>
@@ -2064,8 +2081,10 @@
 			<Speed>140</Speed>
 			<MinDamage>110</MinDamage>
 			<MaxDamage>190</MaxDamage>
-			<LifetimeMS>400</LifetimeMS>
+			<LifetimeMS>429</LifetimeMS>
 		</Projectile>
+		<ActivateOnEquip stat="20" amount="4">IncrementStat</ActivateOnEquip>
+		<ActivateOnEquip stat="28" amount="6">IncrementStat</ActivateOnEquip>
 		<BagType>9</BagType>
 		<FameBonus>5</FameBonus>
 		<OldSound>daggerSwing</OldSound>
@@ -2089,8 +2108,10 @@
 			<Speed>140</Speed>
 			<MinDamage>125</MinDamage>
 			<MaxDamage>205</MaxDamage>
-			<LifetimeMS>400</LifetimeMS>
+			<LifetimeMS>429</LifetimeMS>
 		</Projectile>
+		<ActivateOnEquip stat="20" amount="6">IncrementStat</ActivateOnEquip>
+		<ActivateOnEquip stat="28" amount="8">IncrementStat</ActivateOnEquip>
 		<BagType>9</BagType>
 		<FameBonus>6</FameBonus>
 		<OldSound>daggerSwing</OldSound>
@@ -2295,6 +2316,7 @@
 		</Projectile>
 		<BagType>1</BagType>
 		<NumProjectiles>2</NumProjectiles>
+		<ArcGap>10.125</ArcGap>
 		<OldSound>arrowShoot</OldSound>
 		<feedPower>47</feedPower>
 		<DropTradable/>
@@ -2347,7 +2369,7 @@
 		<BagType>2</BagType>
 		<FameBonus>1</FameBonus>
 		<NumProjectiles>3</NumProjectiles>
-		<ArcGap>8</ArcGap>
+		<ArcGap>7.2</ArcGap>
 		<OldSound>arrowShoot</OldSound>
 		<feedPower>100</feedPower>
 		<DropTradable/>
@@ -2375,7 +2397,7 @@
 		<BagType>2</BagType>
 		<FameBonus>1</FameBonus>
 		<NumProjectiles>3</NumProjectiles>
-		<ArcGap>8</ArcGap>
+		<ArcGap>7.2</ArcGap>
 		<OldSound>arrowShoot</OldSound>
 		<feedPower>145</feedPower>
 		<DropTradable/>
@@ -2403,7 +2425,7 @@
 		<BagType>4</BagType>
 		<FameBonus>2</FameBonus>
 		<NumProjectiles>3</NumProjectiles>
-		<ArcGap>8</ArcGap>
+		<ArcGap>7.2</ArcGap>
 		<OldSound>arrowShoot</OldSound>
 		<feedPower>212</feedPower>
 	</Object>
@@ -2427,10 +2449,11 @@
 			<LifetimeMS>440</LifetimeMS>
 			<MultiHit/>
 		</Projectile>
+		<ActivateOnEquip stat="28" amount="2">IncrementStat</ActivateOnEquip>
 		<BagType>4</BagType>
 		<FameBonus>3</FameBonus>
 		<NumProjectiles>3</NumProjectiles>
-		<ArcGap>8</ArcGap>
+		<ArcGap>7.2</ArcGap>
 		<OldSound>arrowShoot</OldSound>
 		<feedPower>310</feedPower>
 	</Object>
@@ -2454,10 +2477,12 @@
 			<LifetimeMS>440</LifetimeMS>
 			<MultiHit/>
 		</Projectile>
+		<ActivateOnEquip stat="20" amount="2">IncrementStat</ActivateOnEquip>
+		<ActivateOnEquip stat="28" amount="4">IncrementStat</ActivateOnEquip>
 		<BagType>4</BagType>
 		<FameBonus>4</FameBonus>
 		<NumProjectiles>3</NumProjectiles>
-		<ArcGap>8</ArcGap>
+		<ArcGap>7.2</ArcGap>
 		<OldSound>arrowShoot</OldSound>
 		<feedPower>450</feedPower>
 	</Object>
@@ -2478,13 +2503,15 @@
 			<Speed>160</Speed>
 			<MinDamage>60</MinDamage>
 			<MaxDamage>80</MaxDamage>
-			<LifetimeMS>440</LifetimeMS>
+			<LifetimeMS>450</LifetimeMS>
 			<MultiHit/>
 		</Projectile>
+		<ActivateOnEquip stat="20" amount="4">IncrementStat</ActivateOnEquip>
+		<ActivateOnEquip stat="28" amount="6">IncrementStat</ActivateOnEquip>
 		<BagType>9</BagType>
 		<FameBonus>5</FameBonus>
 		<NumProjectiles>3</NumProjectiles>
-		<ArcGap>8</ArcGap>
+		<ArcGap>7.2</ArcGap>
 		<OldSound>arrowShoot</OldSound>
 		<feedPower>650</feedPower>
 		<Soulbound/>
@@ -2506,13 +2533,15 @@
 			<Speed>160</Speed>
 			<MinDamage>70</MinDamage>
 			<MaxDamage>85</MaxDamage>
-			<LifetimeMS>440</LifetimeMS>
+			<LifetimeMS>450</LifetimeMS>
 			<MultiHit/>
 		</Projectile>
+		<ActivateOnEquip stat="20" amount="6">IncrementStat</ActivateOnEquip>
+		<ActivateOnEquip stat="28" amount="8">IncrementStat</ActivateOnEquip>
 		<BagType>9</BagType>
 		<FameBonus>6</FameBonus>
 		<NumProjectiles>3</NumProjectiles>
-		<ArcGap>8</ArcGap>
+		<ArcGap>7.2</ArcGap>
 		<OldSound>arrowShoot</OldSound>
 		<feedPower>950</feedPower>
 		<Soulbound/>
@@ -6488,6 +6517,7 @@
 			<Amplitude>0.5</Amplitude>
 			<Frequency>2</Frequency>
 		</Projectile>
+		<ActivateOnEquip stat="21" amount="2">IncrementStat</ActivateOnEquip>
 		<BagType>4</BagType>
 		<FameBonus>3</FameBonus>
 		<NumProjectiles>2</NumProjectiles>
@@ -6516,6 +6546,7 @@
 			<Amplitude>0.5</Amplitude>
 			<Frequency>2</Frequency>
 		</Projectile>
+		<ActivateOnEquip stat="21" amount="4">IncrementStat</ActivateOnEquip>
 		<BagType>4</BagType>
 		<FameBonus>4</FameBonus>
 		<NumProjectiles>2</NumProjectiles>
@@ -6544,6 +6575,7 @@
 			<Amplitude>0.5</Amplitude>
 			<Frequency>2</Frequency>
 		</Projectile>
+		<ActivateOnEquip stat="21" amount="6">IncrementStat</ActivateOnEquip>
 		<BagType>9</BagType>
 		<FameBonus>5</FameBonus>
 		<NumProjectiles>2</NumProjectiles>
@@ -6573,6 +6605,7 @@
 			<Amplitude>0.5</Amplitude>
 			<Frequency>2</Frequency>
 		</Projectile>
+		<ActivateOnEquip stat="21" amount="8">IncrementStat</ActivateOnEquip>
 		<BagType>9</BagType>
 		<FameBonus>6</FameBonus>
 		<NumProjectiles>2</NumProjectiles>
@@ -8588,8 +8621,8 @@
 			<ObjectId>Katana Slash</ObjectId>
 			<Speed>130</Speed>
 			<LifetimeMS>365</LifetimeMS>
-			<MinDamage>25</MinDamage>
-			<MaxDamage>70</MaxDamage>
+			<MinDamage>28</MinDamage>
+			<MaxDamage>77</MaxDamage>
 			<MultiHit/>
 		</Projectile>
 		<BagType>1</BagType>
@@ -8613,8 +8646,8 @@
 			<ObjectId>Kendo Slash</ObjectId>
 			<Speed>130</Speed>
 			<LifetimeMS>365</LifetimeMS>
-			<MinDamage>30</MinDamage>
-			<MaxDamage>75</MaxDamage>
+			<MinDamage>33</MinDamage>
+			<MaxDamage>83</MaxDamage>
 			<MultiHit/>
 		</Projectile>
 		<BagType>1</BagType>
@@ -8638,8 +8671,8 @@
 			<ObjectId>Katana Slash</ObjectId>
 			<Speed>130</Speed>
 			<LifetimeMS>365</LifetimeMS>
-			<MinDamage>35</MinDamage>
-			<MaxDamage>80</MaxDamage>
+			<MinDamage>39</MinDamage>
+			<MaxDamage>88</MaxDamage>
 			<MultiHit/>
 		</Projectile>
 		<BagType>1</BagType>
@@ -8663,8 +8696,8 @@
 			<ObjectId>Katana Slash</ObjectId>
 			<Speed>130</Speed>
 			<LifetimeMS>365</LifetimeMS>
-			<MinDamage>45</MinDamage>
-			<MaxDamage>85</MaxDamage>
+			<MinDamage>50</MinDamage>
+			<MaxDamage>94</MaxDamage>
 			<MultiHit/>
 		</Projectile>
 		<BagType>1</BagType>
@@ -8688,8 +8721,8 @@
 			<ObjectId>Line Slash</ObjectId>
 			<Speed>130</Speed>
 			<LifetimeMS>365</LifetimeMS>
-			<MinDamage>55</MinDamage>
-			<MaxDamage>90</MaxDamage>
+			<MinDamage>61</MinDamage>
+			<MaxDamage>99</MaxDamage>
 			<MultiHit/>
 		</Projectile>
 		<BagType>1</BagType>
@@ -8713,8 +8746,8 @@
 			<ObjectId>Night Slash</ObjectId>
 			<Speed>130</Speed>
 			<LifetimeMS>365</LifetimeMS>
-			<MinDamage>55</MinDamage>
-			<MaxDamage>105</MaxDamage>
+			<MinDamage>61</MinDamage>
+			<MaxDamage>116</MaxDamage>
 			<MultiHit/>
 		</Projectile>
 		<BagType>1</BagType>
@@ -8738,8 +8771,8 @@
 			<ObjectId>Sky Slash</ObjectId>
 			<Speed>130</Speed>
 			<LifetimeMS>365</LifetimeMS>
-			<MinDamage>75</MinDamage>
-			<MaxDamage>110</MaxDamage>
+			<MinDamage>83</MinDamage>
+			<MaxDamage>121</MaxDamage>
 			<MultiHit/>
 		</Projectile>
 		<BagType>1</BagType>
@@ -8763,8 +8796,8 @@
 			<ObjectId>Buster Slash</ObjectId>
 			<Speed>130</Speed>
 			<LifetimeMS>365</LifetimeMS>
-			<MinDamage>90</MinDamage>
-			<MaxDamage>120</MaxDamage>
+			<MinDamage>99</MinDamage>
+			<MaxDamage>132</MaxDamage>
 			<MultiHit/>
 		</Projectile>
 		<BagType>2</BagType>
@@ -8788,8 +8821,8 @@
 			<ObjectId>Demon Slash</ObjectId>
 			<Speed>130</Speed>
 			<LifetimeMS>365</LifetimeMS>
-			<MinDamage>90</MinDamage>
-			<MaxDamage>150</MaxDamage>
+			<MinDamage>99</MinDamage>
+			<MaxDamage>165</MaxDamage>
 			<MultiHit/>
 		</Projectile>
 		<BagType>2</BagType>
@@ -8814,8 +8847,8 @@
 			<ObjectId>Jewel Slash</ObjectId>
 			<Speed>130</Speed>
 			<LifetimeMS>365</LifetimeMS>
-			<MinDamage>100</MinDamage>
-			<MaxDamage>160</MaxDamage>
+			<MinDamage>110</MinDamage>
+			<MaxDamage>176</MaxDamage>
 			<MultiHit/>
 		</Projectile>
 		<BagType>2</BagType>
@@ -8840,8 +8873,8 @@
 			<ObjectId>Ichimonji Slash</ObjectId>
 			<Speed>130</Speed>
 			<LifetimeMS>365</LifetimeMS>
-			<MinDamage>110</MinDamage>
-			<MaxDamage>165</MaxDamage>
+			<MinDamage>121</MinDamage>
+			<MaxDamage>182</MaxDamage>
 			<MultiHit/>
 		</Projectile>
 		<BagType>4</BagType>
@@ -8865,10 +8898,11 @@
 			<ObjectId>Muramasa Slash</ObjectId>
 			<Speed>130</Speed>
 			<LifetimeMS>365</LifetimeMS>
-			<MinDamage>120</MinDamage>
-			<MaxDamage>175</MaxDamage>
+			<MinDamage>132</MinDamage>
+			<MaxDamage>193</MaxDamage>
 			<MultiHit/>
 		</Projectile>
+		<ActivateOnEquip stat="21" amount="2">IncrementStat</ActivateOnEquip>
 		<BagType>4</BagType>
 		<FameBonus>3</FameBonus>
 		<OldSound>bladeSwing</OldSound>
@@ -8890,10 +8924,12 @@
 			<ObjectId>Masamune Slash</ObjectId>
 			<Speed>130</Speed>
 			<LifetimeMS>365</LifetimeMS>
-			<MinDamage>135</MinDamage>
-			<MaxDamage>180</MaxDamage>
+			<MinDamage>149</MinDamage>
+			<MaxDamage>198</MaxDamage>
 			<MultiHit/>
 		</Projectile>
+		<ActivateOnEquip stat="21" amount="4">IncrementStat</ActivateOnEquip>
+		<ActivateOnEquip stat="20" amount="2">IncrementStat</ActivateOnEquip>
 		<BagType>4</BagType>
 		<FameBonus>4</FameBonus>
 		<OldSound>bladeSwing</OldSound>
@@ -8914,11 +8950,13 @@
 		<Projectile>
 			<ObjectId>Sadamune Slash</ObjectId>
 			<Speed>130</Speed>
-			<LifetimeMS>365</LifetimeMS>
-			<MinDamage>150</MinDamage>
-			<MaxDamage>195</MaxDamage>
+			<LifetimeMS>404</LifetimeMS>
+			<MinDamage>165</MinDamage>
+			<MaxDamage>215</MaxDamage>
 			<MultiHit/>
 		</Projectile>
+		<ActivateOnEquip stat="21" amount="6">IncrementStat</ActivateOnEquip>
+		<ActivateOnEquip stat="20" amount="4">IncrementStat</ActivateOnEquip>
 		<BagType>9</BagType>
 		<FameBonus>5</FameBonus>
 		<OldSound>bladeSwing</OldSound>
@@ -8940,11 +8978,13 @@
 		<Projectile>
 			<ObjectId>Kusanagi Slash</ObjectId>
 			<Speed>130</Speed>
-			<LifetimeMS>365</LifetimeMS>
-			<MinDamage>165</MinDamage>
-			<MaxDamage>210</MaxDamage>
+			<LifetimeMS>404</LifetimeMS>
+			<MinDamage>182</MinDamage>
+			<MaxDamage>231</MaxDamage>
 			<MultiHit/>
 		</Projectile>
+		<ActivateOnEquip stat="21" amount="8">IncrementStat</ActivateOnEquip>
+		<ActivateOnEquip stat="20" amount="6">IncrementStat</ActivateOnEquip>
 		<BagType>9</BagType>
 		<FameBonus>6</FameBonus>
 		<OldSound>bladeSwing</OldSound>

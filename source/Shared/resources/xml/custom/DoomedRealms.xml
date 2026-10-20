@@ -8481,7 +8481,7 @@
 			<Speed>180</Speed>
 			<MinDamage>30</MinDamage>
 			<MaxDamage>80</MaxDamage>
-			<LifetimeMS>300</LifetimeMS>
+			<LifetimeMS>278</LifetimeMS>
 			<MultiHit />
 		</Projectile>
 		<BagType>1</BagType>
@@ -8505,7 +8505,7 @@
 			<Speed>180</Speed>
 			<MinDamage>35</MinDamage>
 			<MaxDamage>90</MaxDamage>
-			<LifetimeMS>300</LifetimeMS>
+			<LifetimeMS>278</LifetimeMS>
 			<MultiHit />
 		</Projectile>
 		<BagType>1</BagType>
@@ -8529,7 +8529,7 @@
 			<Speed>180</Speed>
 			<MinDamage>45</MinDamage>
 			<MaxDamage>100</MaxDamage>
-			<LifetimeMS>300</LifetimeMS>
+			<LifetimeMS>278</LifetimeMS>
 			<MultiHit />
 		</Projectile>
 		<BagType>1</BagType>
@@ -8553,7 +8553,7 @@
 			<Speed>180</Speed>
 			<MinDamage>60</MinDamage>
 			<MaxDamage>110</MaxDamage>
-			<LifetimeMS>300</LifetimeMS>
+			<LifetimeMS>278</LifetimeMS>
 			<MultiHit />
 		</Projectile>
 		<BagType>1</BagType>
@@ -8577,7 +8577,7 @@
 			<Speed>180</Speed>
 			<MinDamage>70</MinDamage>
 			<MaxDamage>125</MaxDamage>
-			<LifetimeMS>300</LifetimeMS>
+			<LifetimeMS>278</LifetimeMS>
 			<MultiHit />
 		</Projectile>
 		<BagType>1</BagType>
@@ -8601,7 +8601,7 @@
 			<Speed>180</Speed>
 			<MinDamage>70</MinDamage>
 			<MaxDamage>140</MaxDamage>
-			<LifetimeMS>300</LifetimeMS>
+			<LifetimeMS>278</LifetimeMS>
 			<MultiHit />
 		</Projectile>
 		<BagType>1</BagType>
@@ -8625,7 +8625,7 @@
 			<Speed>200</Speed>
 			<MinDamage>70</MinDamage>
 			<MaxDamage>100</MaxDamage>
-			<LifetimeMS>300</LifetimeMS>
+			<LifetimeMS>250</LifetimeMS>
 			<MultiHit />
 		</Projectile>
 		<BagType>1</BagType>
@@ -8649,7 +8649,7 @@
 			<Speed>160</Speed>
 			<MinDamage>80</MinDamage>
 			<MaxDamage>150</MaxDamage>
-			<LifetimeMS>300</LifetimeMS>
+			<LifetimeMS>313</LifetimeMS>
 			<MultiHit />
 		</Projectile>
 		<BagType>1</BagType>
@@ -8673,7 +8673,7 @@
 			<Speed>160</Speed>
 			<MinDamage>90</MinDamage>
 			<MaxDamage>160</MaxDamage>
-			<LifetimeMS>300</LifetimeMS>
+			<LifetimeMS>313</LifetimeMS>
 			<MultiHit />
 		</Projectile>
 		<BagType>1</BagType>
@@ -8690,14 +8690,14 @@
 		<SlotType>36</SlotType>
 		<Tier>9</Tier>
 		<Description>Two blades, a Ragetalon and Agateclaw. When used together, they vibrate and seem to sing.</Description>
-		<RateOfFire>1.5</RateOfFire>
+		<RateOfFire>1</RateOfFire>
 		<Sound>weapon/fire_dagger</Sound>
 		<Projectile>
 			<ObjectId>Rageclaw Proj</ObjectId>
 			<Speed>160</Speed>
-			<MinDamage>115</MinDamage>
-			<MaxDamage>170</MaxDamage>
-			<LifetimeMS>300</LifetimeMS>
+			<MinDamage>105</MinDamage>
+			<MaxDamage>168</MaxDamage>
+			<LifetimeMS>313</LifetimeMS>
 			<MultiHit />
 		</Projectile>
 		<BagType>2</BagType>
@@ -8722,7 +8722,7 @@
 			<Speed>200</Speed>
 			<MinDamage>120</MinDamage>
 			<MaxDamage>175</MaxDamage>
-			<LifetimeMS>300</LifetimeMS>
+			<LifetimeMS>250</LifetimeMS>
 			<MultiHit />
 		</Projectile>
 		<BagType>2</BagType>
@@ -8747,9 +8747,10 @@
 			<Speed>160</Speed>
 			<MinDamage>130</MinDamage>
 			<MaxDamage>190</MaxDamage>
-			<LifetimeMS>300</LifetimeMS>
+			<LifetimeMS>313</LifetimeMS>
 			<MultiHit />
 		</Projectile>
+		<ActivateOnEquip stat="21" amount="2">IncrementStat</ActivateOnEquip>
 		<BagType>2</BagType>
 		<FameBonus>3</FameBonus>
 		<NumProjectiles>1</NumProjectiles>
@@ -8772,9 +8773,11 @@
 			<Speed>160</Speed>
 			<MinDamage>140</MinDamage>
 			<MaxDamage>200</MaxDamage>
-			<LifetimeMS>300</LifetimeMS>
+			<LifetimeMS>313</LifetimeMS>
 			<MultiHit />
 		</Projectile>
+		<ActivateOnEquip stat="21" amount="4">IncrementStat</ActivateOnEquip>
+		<ActivateOnEquip stat="22" amount="2">IncrementStat</ActivateOnEquip>
 		<BagType>2</BagType>
 		<FameBonus>4</FameBonus>
 		<NumProjectiles>1</NumProjectiles>
@@ -9031,7 +9034,6 @@
 			<File>drLofiObj5</File>
 			<Index>0x10b</Index>
 		</Texture>
-		<Tier>1</Tier>
 		<SlotType>200</SlotType>
 		<Description>A broken bloody bone made from the bones of Kyuko.</Description>
 		<RateOfFire>1</RateOfFire>

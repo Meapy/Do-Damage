@@ -11,6 +11,7 @@ with a sidebar, links between the pages and a search over all of them.
   (GENERATORS below: the dungeon list, the classes, the commands, the Oryx chain, the shops, the
   pets and more), and `{{v:<name>}}` in the text by a number read from the code (VALUES), so the
   pages stay true as the game changes. Run `python tools/wiki_data.py` to see what the data says.
+- The Gear numbers page (gear-numbers.md) takes its tables from tools/wiki_balance.py.
 - The gear pages (wiki/gear/, one per kind of item, and wiki/classes/, one per class) are built
   whole from the game's data by tools/wiki_gear.py, with the item sprites (wiki/icons.css and
   wiki/sheets/).
@@ -28,6 +29,7 @@ import sys
 
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 import wiki_data as wd  # noqa: E402
+import wiki_balance  # noqa: E402
 import wiki_gear  # noqa: E402
 
 ROOT = wd.ROOT
@@ -315,6 +317,22 @@ class Gen:
 
     def gen_gear(self, used):
         return self.equip.overview(used)
+
+    # --- the Gear numbers page (tools/wiki_balance.py) ---------------------------------------
+    @property
+    def balance(self):
+        if getattr(self, "_balance", None) is None:
+            self._balance = wiki_balance.Balance(self)
+        return self._balance
+
+    def gen_tier_tables(self, used):
+        return self.balance.tier_tables(used)
+
+    def gen_class_dps(self, used):
+        return self.balance.class_dps(used)
+
+    def gen_class_ehp(self, used):
+        return self.balance.class_ehp(used)
 
     def item_links(self, ids, up="", limit=None):
         """Item names, each a link to its entry on the gear pages."""

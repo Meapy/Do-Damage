@@ -557,4 +557,449 @@
 		<FameBonus>5</FameBonus>
 		<feedPower>325</feedPower>
 	</Object>
+	<Object type="0x5800" id="Sovereign Blades">
+		<Class>Equipment</Class>
+		<Item/>
+		<Texture>
+			<File>drLofiObj5</File>
+			<Index>0xdc</Index>
+		</Texture>
+		<SlotType>36</SlotType>
+		<Tier>13</Tier>
+		<Description>Twin blades carried by the guards of a forgotten king.</Description>
+		<RateOfFire>1</RateOfFire>
+		<Sound>weapon/fire_dagger</Sound>
+		<Projectile>
+			<ObjectId>Master Proj</ObjectId>
+			<Speed>160</Speed>
+			<MinDamage>147</MinDamage>
+			<MaxDamage>210</MaxDamage>
+			<LifetimeMS>313</LifetimeMS>
+			<MultiHit/>
+		</Projectile>
+		<ActivateOnEquip stat="21" amount="6">IncrementStat</ActivateOnEquip>
+		<ActivateOnEquip stat="22" amount="4">IncrementStat</ActivateOnEquip>
+		<BagType>9</BagType>
+		<FameBonus>5</FameBonus>
+		<OldSound>daggerSwing</OldSound>
+		<feedPower>650</feedPower>
+		<Soulbound/>
+	</Object>
+	<Object type="0x5801" id="Eclipse Blades">
+		<Class>Equipment</Class>
+		<Item/>
+		<Texture>
+			<File>drLofiObj5</File>
+			<Index>0xdc</Index>
+		</Texture>
+		<SlotType>36</SlotType>
+		<Tier>14</Tier>
+		<Description>Twin blades that drink the light around them.</Description>
+		<RateOfFire>1</RateOfFire>
+		<Sound>weapon/fire_dagger</Sound>
+		<Projectile>
+			<ObjectId>Master Proj</ObjectId>
+			<Speed>160</Speed>
+			<MinDamage>154</MinDamage>
+			<MaxDamage>221</MaxDamage>
+			<LifetimeMS>313</LifetimeMS>
+			<MultiHit/>
+		</Projectile>
+		<ActivateOnEquip stat="21" amount="8">IncrementStat</ActivateOnEquip>
+		<ActivateOnEquip stat="22" amount="6">IncrementStat</ActivateOnEquip>
+		<BagType>9</BagType>
+		<FameBonus>6</FameBonus>
+		<OldSound>daggerSwing</OldSound>
+		<feedPower>950</feedPower>
+		<Soulbound/>
+	</Object>
+	<Object type="0x5802" id="Cloth Hand Wraps">
+		<Class>Equipment</Class>
+		<Item/>
+		<Texture>
+			<File>drLofiObj5</File>
+			<Index>0x10b</Index>
+		</Texture>
+		<SlotType>200</SlotType>
+		<Tier>0</Tier>
+		<Description>Strips of cloth wound tight around the knuckles.</Description>
+		<RateOfFire>1</RateOfFire>
+		<Sound>weapon/fire_dagger</Sound>
+		<Projectile>
+			<ObjectId>Bone Proj</ObjectId>
+			<Speed>120</Speed>
+			<MinDamage>31</MinDamage>
+			<MaxDamage>44</MaxDamage>
+			<LifetimeMS>417</LifetimeMS>
+			<MultiHit/>
+		</Projectile>
+		<BagType>1</BagType>
+		<OldSound>daggerSwing</OldSound>
+		<feedPower>5</feedPower>
+		<DropTradable/>
+	</Object>
+	<Object type="0x5803" id="Leather Hand Wraps">
+		<Class>Equipment</Class>
+		<Item/>
+		<Texture>
+			<File>drLofiObj5</File>
+			<Index>0x10b</Index>
+		</Texture>
+		<SlotType>200</SlotType>
+		<Tier>1</Tier>
+		<Description>Hardened leather that turns a fist into a club.</Description>
+		<RateOfFire>1</RateOfFire>
+		<Sound>weapon/fire_dagger</Sound>
+		<Projectile>
+			<ObjectId>Bone Proj</ObjectId>
+			<Speed>120</Speed>
+			<MinDamage>35</MinDamage>
+			<MaxDamage>50</MaxDamage>
+			<LifetimeMS>417</LifetimeMS>
+			<MultiHit/>
+		</Projectile>
+		<BagType>1</BagType>
+		<OldSound>daggerSwing</OldSound>
+		<feedPower>7</feedPower>
+		<DropTradable/>
+	</Object>
+	<Object type="0x5804" id="Studded Hand Wraps">
+		<Class>Equipment</Class>
+		<Item/>
+		<Texture>
+			<File>drLofiObj5</File>
+			<Index>0x10b</Index>
+		</Texture>
+		<SlotType>200</SlotType>
+		<Tier>2</Tier>
+		<Description>Wraps set with iron studs over each knuckle.</Description>
+		<RateOfFire>1</RateOfFire>
+		<Sound>weapon/fire_dagger</Sound>
+		<Projectile>
+			<ObjectId>Bone Proj</ObjectId>
+			<Speed>120</Speed>
+			<MinDamage>44</MinDamage>
+			<MaxDamage>63</MaxDamage>
+			<LifetimeMS>417</LifetimeMS>
+			<MultiHit/>
+		</Projectile>
+		<BagType>1</BagType>
+		<OldSound>daggerSwing</OldSound>
+		<feedPower>10</feedPower>
+		<DropTradable/>
+	</Object>
+	<Object type="0x5805" id="Iron Knuckles">
+		<Class>Equipment</Class>
+		<Item/>
+		<Texture>
+			<File>drLofiObj5</File>
+			<Index>0x10b</Index>
+		</Texture>
+		<SlotType>200</SlotType>
+		<Tier>3</Tier>
+		<Description>Plain iron rings for a plain, heavy punch.</Description>
+		<RateOfFire>1</RateOfFire>
+		<Sound>weapon/fire_dagger</Sound>
+		<Projectile>
+			<ObjectId>Bone Proj</ObjectId>
+			<Speed>120</Speed>
+			<MinDamage>53</MinDamage>
+			<MaxDamage>75</MaxDamage>
+			<LifetimeMS>417</LifetimeMS>
+			<MultiHit/>
+		</Projectile>
+		<BagType>1</BagType>
+		<OldSound>daggerSwing</OldSound>
+		<feedPower>15</feedPower>
+		<DropTradable/>
+	</Object>
+	<Object type="0x5806" id="Steel Knuckles">
+		<Class>Equipment</Class>
+		<Item/>
+		<Texture>
+			<File>drLofiObj5</File>
+			<Index>0x10b</Index>
+		</Texture>
+		<SlotType>200</SlotType>
+		<Tier>4</Tier>
+		<Description>Tempered steel shaped to the hand.</Description>
+		<RateOfFire>1</RateOfFire>
+		<Sound>weapon/fire_dagger</Sound>
+		<Projectile>
+			<ObjectId>Bone Proj</ObjectId>
+			<Speed>120</Speed>
+			<MinDamage>61</MinDamage>
+			<MaxDamage>88</MaxDamage>
+			<LifetimeMS>417</LifetimeMS>
+			<MultiHit/>
+		</Projectile>
+		<BagType>1</BagType>
+		<OldSound>daggerSwing</OldSound>
+		<feedPower>22</feedPower>
+		<DropTradable/>
+	</Object>
+	<Object type="0x5807" id="Tiger Claw Gauntlets">
+		<Class>Equipment</Class>
+		<Item/>
+		<Texture>
+			<File>drLofiObj5</File>
+			<Index>0x10b</Index>
+		</Texture>
+		<SlotType>200</SlotType>
+		<Tier>5</Tier>
+		<Description>Curved claws for the striking style of the tiger.</Description>
+		<RateOfFire>1</RateOfFire>
+		<Sound>weapon/fire_dagger</Sound>
+		<Projectile>
+			<ObjectId>Bone Proj</ObjectId>
+			<Speed>120</Speed>
+			<MinDamage>79</MinDamage>
+			<MaxDamage>113</MaxDamage>
+			<LifetimeMS>417</LifetimeMS>
+			<MultiHit/>
+		</Projectile>
+		<BagType>1</BagType>
+		<OldSound>daggerSwing</OldSound>
+		<feedPower>32</feedPower>
+		<DropTradable/>
+	</Object>
+	<Object type="0x5808" id="Crane Talon Gauntlets">
+		<Class>Equipment</Class>
+		<Item/>
+		<Texture>
+			<File>drLofiObj5</File>
+			<Index>0x10b</Index>
+		</Texture>
+		<SlotType>200</SlotType>
+		<Tier>6</Tier>
+		<Description>Thin talons for the swift style of the crane.</Description>
+		<RateOfFire>1</RateOfFire>
+		<Sound>weapon/fire_dagger</Sound>
+		<Projectile>
+			<ObjectId>Bone Proj</ObjectId>
+			<Speed>120</Speed>
+			<MinDamage>96</MinDamage>
+			<MaxDamage>138</MaxDamage>
+			<LifetimeMS>417</LifetimeMS>
+			<MultiHit/>
+		</Projectile>
+		<BagType>1</BagType>
+		<OldSound>daggerSwing</OldSound>
+		<feedPower>47</feedPower>
+		<DropTradable/>
+	</Object>
+	<Object type="0x5809" id="Serpent Fang Gauntlets">
+		<Class>Equipment</Class>
+		<Item/>
+		<Texture>
+			<File>drLofiObj5</File>
+			<Index>0x10b</Index>
+		</Texture>
+		<SlotType>200</SlotType>
+		<Tier>7</Tier>
+		<Description>Fangs for the darting style of the serpent.</Description>
+		<RateOfFire>1</RateOfFire>
+		<Sound>weapon/fire_dagger</Sound>
+		<Projectile>
+			<ObjectId>Bone Proj</ObjectId>
+			<Speed>120</Speed>
+			<MinDamage>114</MinDamage>
+			<MaxDamage>163</MaxDamage>
+			<LifetimeMS>417</LifetimeMS>
+			<MultiHit/>
+		</Projectile>
+		<BagType>2</BagType>
+		<OldSound>daggerSwing</OldSound>
+		<feedPower>70</feedPower>
+		<DropTradable/>
+	</Object>
+	<Object type="0x580a" id="Mantis Gauntlets">
+		<Class>Equipment</Class>
+		<Item/>
+		<Texture>
+			<File>drLofiObj5</File>
+			<Index>0x10b</Index>
+		</Texture>
+		<SlotType>200</SlotType>
+		<Tier>8</Tier>
+		<Description>Hooked blades for the patient style of the mantis.</Description>
+		<RateOfFire>1</RateOfFire>
+		<Sound>weapon/fire_dagger</Sound>
+		<Projectile>
+			<ObjectId>Bone Proj</ObjectId>
+			<Speed>120</Speed>
+			<MinDamage>123</MinDamage>
+			<MaxDamage>175</MaxDamage>
+			<LifetimeMS>417</LifetimeMS>
+			<MultiHit/>
+		</Projectile>
+		<BagType>2</BagType>
+		<FameBonus>1</FameBonus>
+		<OldSound>daggerSwing</OldSound>
+		<feedPower>100</feedPower>
+		<DropTradable/>
+	</Object>
+	<Object type="0x580b" id="Dragon Scale Gauntlets">
+		<Class>Equipment</Class>
+		<Item/>
+		<Texture>
+			<File>drLofiObj5</File>
+			<Index>0x10b</Index>
+		</Texture>
+		<SlotType>200</SlotType>
+		<Tier>9</Tier>
+		<Description>Scales shed by a young dragon, still warm.</Description>
+		<RateOfFire>1</RateOfFire>
+		<Sound>weapon/fire_dagger</Sound>
+		<Projectile>
+			<ObjectId>Bone Proj</ObjectId>
+			<Speed>120</Speed>
+			<MinDamage>127</MinDamage>
+			<MaxDamage>181</MaxDamage>
+			<LifetimeMS>417</LifetimeMS>
+			<MultiHit/>
+		</Projectile>
+		<BagType>2</BagType>
+		<FameBonus>1</FameBonus>
+		<OldSound>daggerSwing</OldSound>
+		<feedPower>145</feedPower>
+		<DropTradable/>
+	</Object>
+	<Object type="0x580c" id="Fists of the Storm">
+		<Class>Equipment</Class>
+		<Item/>
+		<Texture>
+			<File>drLofiObj5</File>
+			<Index>0x10b</Index>
+		</Texture>
+		<SlotType>200</SlotType>
+		<Tier>10</Tier>
+		<Description>Each blow lands like a thunderclap.</Description>
+		<RateOfFire>1</RateOfFire>
+		<Sound>weapon/fire_dagger</Sound>
+		<Projectile>
+			<ObjectId>Bone Proj</ObjectId>
+			<Speed>120</Speed>
+			<MinDamage>131</MinDamage>
+			<MaxDamage>188</MaxDamage>
+			<LifetimeMS>417</LifetimeMS>
+			<MultiHit/>
+		</Projectile>
+		<BagType>4</BagType>
+		<FameBonus>2</FameBonus>
+		<OldSound>daggerSwing</OldSound>
+		<feedPower>212</feedPower>
+		<DropTradable/>
+	</Object>
+	<Object type="0x580d" id="Fists of the Mountain">
+		<Class>Equipment</Class>
+		<Item/>
+		<Texture>
+			<File>drLofiObj5</File>
+			<Index>0x10b</Index>
+		</Texture>
+		<SlotType>200</SlotType>
+		<Tier>11</Tier>
+		<Description>Strikes as unmoving stone answers the sea.</Description>
+		<RateOfFire>1</RateOfFire>
+		<Sound>weapon/fire_dagger</Sound>
+		<Projectile>
+			<ObjectId>Bone Proj</ObjectId>
+			<Speed>120</Speed>
+			<MinDamage>136</MinDamage>
+			<MaxDamage>194</MaxDamage>
+			<LifetimeMS>417</LifetimeMS>
+			<MultiHit/>
+		</Projectile>
+		<ActivateOnEquip stat="20" amount="2">IncrementStat</ActivateOnEquip>
+		<BagType>4</BagType>
+		<FameBonus>3</FameBonus>
+		<OldSound>daggerSwing</OldSound>
+		<feedPower>310</feedPower>
+		<DropTradable/>
+	</Object>
+	<Object type="0x580e" id="Fists of the Heavens">
+		<Class>Equipment</Class>
+		<Item/>
+		<Texture>
+			<File>drLofiObj5</File>
+			<Index>0x10b</Index>
+		</Texture>
+		<SlotType>200</SlotType>
+		<Tier>12</Tier>
+		<Description>A master's gauntlets, blessed at a high temple.</Description>
+		<RateOfFire>1</RateOfFire>
+		<Sound>weapon/fire_dagger</Sound>
+		<Projectile>
+			<ObjectId>Bone Proj</ObjectId>
+			<Speed>120</Speed>
+			<MinDamage>140</MinDamage>
+			<MaxDamage>200</MaxDamage>
+			<LifetimeMS>417</LifetimeMS>
+			<MultiHit/>
+		</Projectile>
+		<ActivateOnEquip stat="20" amount="4">IncrementStat</ActivateOnEquip>
+		<ActivateOnEquip stat="22" amount="2">IncrementStat</ActivateOnEquip>
+		<BagType>4</BagType>
+		<FameBonus>4</FameBonus>
+		<OldSound>daggerSwing</OldSound>
+		<feedPower>450</feedPower>
+		<DropTradable/>
+	</Object>
+	<Object type="0x580f" id="Fists of the Void">
+		<Class>Equipment</Class>
+		<Item/>
+		<Texture>
+			<File>drLofiObj5</File>
+			<Index>0x10b</Index>
+		</Texture>
+		<SlotType>200</SlotType>
+		<Tier>13</Tier>
+		<Description>Every strike opens a little of the dark between stars.</Description>
+		<RateOfFire>1</RateOfFire>
+		<Sound>weapon/fire_dagger</Sound>
+		<Projectile>
+			<ObjectId>Bone Proj</ObjectId>
+			<Speed>120</Speed>
+			<MinDamage>153</MinDamage>
+			<MaxDamage>219</MaxDamage>
+			<LifetimeMS>417</LifetimeMS>
+			<MultiHit/>
+		</Projectile>
+		<ActivateOnEquip stat="20" amount="6">IncrementStat</ActivateOnEquip>
+		<ActivateOnEquip stat="22" amount="4">IncrementStat</ActivateOnEquip>
+		<BagType>9</BagType>
+		<FameBonus>5</FameBonus>
+		<OldSound>daggerSwing</OldSound>
+		<feedPower>650</feedPower>
+		<Soulbound/>
+	</Object>
+	<Object type="0x5810" id="Fists of the Eternal Master">
+		<Class>Equipment</Class>
+		<Item/>
+		<Texture>
+			<File>drLofiObj5</File>
+			<Index>0x10b</Index>
+		</Texture>
+		<SlotType>200</SlotType>
+		<Tier>14</Tier>
+		<Description>Worn by the first master, and by none since.</Description>
+		<RateOfFire>1</RateOfFire>
+		<Sound>weapon/fire_dagger</Sound>
+		<Projectile>
+			<ObjectId>Bone Proj</ObjectId>
+			<Speed>120</Speed>
+			<MinDamage>166</MinDamage>
+			<MaxDamage>238</MaxDamage>
+			<LifetimeMS>417</LifetimeMS>
+			<MultiHit/>
+		</Projectile>
+		<ActivateOnEquip stat="20" amount="8">IncrementStat</ActivateOnEquip>
+		<ActivateOnEquip stat="22" amount="6">IncrementStat</ActivateOnEquip>
+		<BagType>9</BagType>
+		<FameBonus>6</FameBonus>
+		<OldSound>daggerSwing</OldSound>
+		<feedPower>950</feedPower>
+		<Soulbound/>
+	</Object>
 </Objects>

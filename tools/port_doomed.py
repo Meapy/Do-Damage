@@ -414,6 +414,46 @@ ITEM_STORE = {
 }
 
 
+# The tiered weapon rebalance (SETUP-LOCAL.md, "Tiered weapon rebalance"). The Dual Blades all
+# reach 5 tiles (LifetimeMS from their speed), get +2 Defense a tier from T11 and +2 Speed a tier
+# from T12; Rage Claw Blades (T9) lose their 1.5x rate of fire for damage between T8's and T10's.
+# Fists of Broken Bones, a boss drop, is untiered: the Monk's tiered fists are in CustomItems.xml,
+# with the T13 and T14 Dual Blades.
+# id -> {lifetime, rof, damage: (min, max), stats: {stat: amount}, untier}
+DEF, SPD = "21", "22"
+WEAPON_TUNING = {
+    "Bronze Daggers": {"lifetime": 278}, "Invert Blades": {"lifetime": 278}, "Dusky Blades": {"lifetime": 278},
+    "Duo Blades": {"lifetime": 278}, "Silver Blades": {"lifetime": 278}, "Half Blades": {"lifetime": 278},
+    "Obsidian Blades": {"lifetime": 250}, "Mithril Blades": {"lifetime": 313}, "Infinity Blades": {"lifetime": 313},
+    "Rage Claw Blades": {"lifetime": 313, "rof": "1", "damage": (105, 168)},
+    "Emerald Malevolence Blades": {"lifetime": 250},
+    "Eldricht Blades": {"lifetime": 313, "stats": {DEF: 2}},
+    "Master Blades": {"lifetime": 313, "stats": {DEF: 4, SPD: 2}},
+    "Fists of Broken Bones": {"untier": True},
+}
+
+
+def tune_weapons(dr):
+    for oid, t in WEAPON_TUNING.items():
+        o = dr.get(oid)
+        if o is None:
+            continue
+        p = o.find("Projectile")
+        if "lifetime" in t:
+            p.find("LifetimeMS").text = str(t["lifetime"])
+        if "damage" in t:
+            p.find("MinDamage").text, p.find("MaxDamage").text = map(str, t["damage"])
+        if "rof" in t:
+            o.find("RateOfFire").text = t["rof"]
+        if t.get("untier") and o.find("Tier") is not None:
+            o.remove(o.find("Tier"))
+        at = list(o).index(o.find("BagType")) if o.find("BagType") is not None else len(o)
+        for i, (stat, amount) in enumerate(t.get("stats", {}).items()):
+            e = ET.Element("ActivateOnEquip", {"stat": stat, "amount": str(amount)})
+            e.text = "IncrementStat"
+            o.insert(at + i, e)
+
+
 # The Oryx chain's incantations: each unlocks the locked portal the Oryx before it drops, in that
 # Oryx's dungeon only (Player.AEChangeObject), instead of opening its dungeon anywhere like a key.
 # (incantation, the dungeon it works in, the portal it opens, what it says)
@@ -427,6 +467,7 @@ INCANTATIONS = {
 
 def fix_doomed_data(dr):
     """Mistakes in the Doomed Realms data, fixed before porting."""
+    tune_weapons(dr)
     for oid, bag in BAG_TYPES.items():
         o = dr.get(oid)
         if o is not None and o.find("BagType") is not None:
