@@ -108,10 +108,13 @@ PET_ATTACKS = {
     "Scootaloo": ["new PetShoot(10, 1, 0, 0, 0, 300)", "new PetShoot(10, 1, 0, 0, 1, 1500)"],
     # its zap bleeds the enemy for 300 over 4 seconds
     "Doomed Nature Beast": ["new PetStrike(90, 200, 4000, 10, 300, 4000)"],
-    # a Medium pet's damage; the big shot weakens (Kythal) or bleeds (Zenco)
+    # a Medium pet's damage (Kythal, Zenco, Shroom, Cerberus Skull); the big shot weakens (Kythal)
+    # or bleeds (Zenco)
     "Kythal the Necromancer": ["new PetShoot(10, 3, 10, 0, 0, 1000)", "new PetShoot(10, 1, 0, 0, 1, 2000)"],
     "Kythal the Skull": ["new PetShoot(10, 3, 10, 0, 0, 1000)", "new PetShoot(10, 1, 0, 0, 1, 2000)"],
     "Zenco The Undead God": ["new PetShoot(10, 3, 10, 0, 0, 1000)", "new PetShoot(10, 1, 0, 0, 1, 2000)"],
+    "Shroom (Doomed)": ["new PetShoot(10, 3, 10, 0, 0, 1000)", "new PetShoot(10, 1, 0, 0, 1, 2000)"],
+    "Cerberus Skull": ["new PetShoot(10, 3, 10, 0, 0, 1000)"],
     # three shots in an arc, like a bow
     "Nightmareee": ["new PetShoot(10, 3, 8, 0, 0, 1000)"],
     # Oryx the Mad God 2's attacks (its Attack phase, aimed), without its minions
@@ -151,6 +154,9 @@ PET_PROJECTILES = {
     ("Kythal the Skull", 1): {"damage": 120, "effects": [("Weak", 2)]},
     ("Zenco The Undead God", 0): {"damage": 70},
     ("Zenco The Undead God", 1): {"damage": 120, "bleed": (120, 3)},
+    ("Shroom (Doomed)", 0): {"damage": 70},
+    ("Shroom (Doomed)", 1): {"damage": 120},
+    ("Cerberus Skull", 0): {"damage": 80},
 }
 # The pet drawn as another object's sprite (its generator's)
 PET_TEXTURES = {"Scootaloo": "Scootaloo Generator"}
@@ -602,6 +608,34 @@ def behaviour_dps(parts, obj):
     return dps
 
 
+def pet_effects(parts, obj):
+    """What a pet does besides its damage and healing, in words for its tooltip: its abilities, and
+    the conditions and bleeds its attacks put on enemies."""
+    out = []
+
+    def seconds(ms):
+        return "%gs" % (float(ms) / 1000)
+
+    for kind, args in re.findall(r"new (PetOwnerEffect|PetOwnerBoost|PetShoot|PetStrike)\(([^)]*)\)", ", ".join(parts)):
+        a = [x.strip() for x in args.split(",")]
+        if kind == "PetOwnerEffect":
+            out.append("%s on you for %s every %s" % (a[0].split(".")[-1], seconds(a[1]), seconds(a[2])))
+        elif kind == "PetOwnerBoost":
+            out.append("+%s %s for %s every %s" % (a[1], a[0].split(".")[-1], seconds(a[2]), seconds(a[3])))
+        elif kind == "PetStrike" and len(a) > 5 and int(a[4]):
+            out.append("Bleeds %s over %s" % (a[4], seconds(a[5])))
+        elif kind == "PetShoot" and obj is not None:
+            proj = next((p for p in obj.findall("Projectile") if p.get("id", "0") == a[4]), None)
+            if proj is None:
+                continue
+            for e in proj.findall("ConditionEffect"):
+                out.append("%s on hit for %ss" % (re.sub(r"(?<=[a-z])(?=[A-Z])", " ", e.text.strip()), e.get("duration")))
+            bleed = proj.find("Bleed")
+            if bleed is not None:
+                out.append("Bleeds %s over %ss" % (bleed.text, bleed.get("duration")))
+    return list(dict.fromkeys(out))
+
+
 def apply_pet_changes(bs=None):
     """What's set by hand, after the port: the sizes' healing, PET_ATTACKS, PET_ABILITIES and the
     pets' projectiles and sprites, into BehaviorDb.DoomedPets.cs and both copies of DoomedRealms.xml;
@@ -635,6 +669,9 @@ def apply_pet_changes(bs=None):
         dps = behaviour_dps(parts, objects.get(oid))
         if dps:
             stat["dps"] = round(dps)
+        effects = pet_effects(parts, objects.get(oid))
+        if effects:
+            stat["effects"] = effects
         return '.Init("%s", new State(%s))%s' % (m.group(1), ", ".join(parts), m.group(3))
 
     text = re.sub(r'\.Init\("((?:[^"\\]|\\.)*)", new State\((.*)\)\)((?:  //[^\r\n]*)?)', change, text)
@@ -726,7 +763,8 @@ def shots_on_target(count, angle, offset):
 
 def annotate_generators(stats):
     """Puts each pet's damage per second (on one enemy) and healing on the PermaPet activates of
-    the items that give it, for the item tooltips: petDps, petSize, petHp / petMp ("min-max") and
+    the items that give it, for the item tooltips: petDps, petSize, petEffects (what else it does,
+    "; " between), petHp / petMp ("min-max") and
     petHpMs / petMpMs (every how many milliseconds). Admin pets' generators get <Admin/>."""
     for path in ITEM_XMLS:
         text = open(path, encoding="utf-8", newline="").read()
@@ -738,6 +776,8 @@ def annotate_generators(stats):
                 attrs += ' petDps="%d"' % stat["dps"]
             if "size" in stat:
                 attrs += ' petSize="%s"' % stat["size"]
+            if "effects" in stat:
+                attrs += ' petEffects=%s' % saxutils.quoteattr("; ".join(stat["effects"]))
             for key, name in (("hp", "Hp"), ("mp", "Mp")):
                 if key in stat:
                     lo, hi, ms = stat[key]

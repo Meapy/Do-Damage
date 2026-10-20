@@ -2338,6 +2338,12 @@ pub fn item_tooltip(data: &GameData, item: i32, me: Option<&GameObj>, kind: Slot
                     out.push(Line::stat(&format!("    {verb}"), &format!("{amount} {what} every {secs}s"), VALUE));
                 }
             }
+            // What else it does (its abilities, and what its hits do), "; " between.
+            if let Some(effects) = a.attr("petEffects") {
+                for effect in effects.split("; ").filter(|e| !e.is_empty()) {
+                    out.push(Line::stat("    Also", effect, VALUE));
+                }
+            }
             continue;
         }
         // Bullet and shot activations some items mark as not for the tooltip.

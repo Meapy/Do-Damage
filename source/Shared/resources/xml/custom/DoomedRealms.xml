@@ -2761,7 +2761,7 @@
 		<Sound>spell/light_heal</Sound>
 		<InvUse />
 		<VaultItem />
-		<Activate objectId="Scootaloo" cooldown="10" petDps="333" petSize="Large" petHp="45" petHpMs="1500" petMp="45" petMpMs="1500">PermaPet</Activate>
+		<Activate objectId="Scootaloo" cooldown="10" petDps="333" petSize="Large" petEffects="Slowed on hit for 1s" petHp="45" petHpMs="1500" petMp="45" petMpMs="1500">PermaPet</Activate>
 		<OldSound>use_potion</OldSound>
 		<Shop>
 			<Name>donorpets</Name>
@@ -2884,7 +2884,7 @@
 		<ScaleValue>3</ScaleValue>
 		<InvUse />
 		<VaultItem />
-		<Activate objectId="Kythal the Necromancer" cooldown="10" petDps="270" petSize="Medium" petHp="30" petHpMs="2000" petMp="30" petMpMs="2000">PermaPet</Activate>
+		<Activate objectId="Kythal the Necromancer" cooldown="10" petDps="270" petSize="Medium" petEffects="Weak on hit for 2s" petHp="30" petHpMs="2000" petMp="30" petMpMs="2000">PermaPet</Activate>
 		<OldSound>use_potion</OldSound>
 		<Shop>
 			<Name>donorpets</Name>
@@ -4987,7 +4987,7 @@
 		<InvUse />
 		<VaultItem />
 		<ScaleValue>3</ScaleValue>
-		<Activate objectId="Bess" cooldown="10" petDps="450" petSize="Large" petHp="45" petHpMs="1500" petMp="45" petMpMs="1500">PermaPet</Activate>
+		<Activate objectId="Bess" cooldown="10" petDps="450" petSize="Large" petEffects="Armor Broken on hit for 2s" petHp="45" petHpMs="1500" petMp="45" petMpMs="1500">PermaPet</Activate>
 		<OldSound>use_potion</OldSound>
 	</Object>
 	<Object type="0xD122" id="Geb Generator">
@@ -5004,7 +5004,7 @@
 		<InvUse />
 		<VaultItem />
 		<ScaleValue>3</ScaleValue>
-		<Activate objectId="Gebb" cooldown="10" petDps="430" petSize="Large" petHp="45" petHpMs="1500" petMp="45" petMpMs="1500">PermaPet</Activate>
+		<Activate objectId="Gebb" cooldown="10" petDps="430" petSize="Large" petEffects="Healing on you for 2s every 5s" petHp="45" petHpMs="1500" petMp="45" petMpMs="1500">PermaPet</Activate>
 		<OldSound>use_potion</OldSound>
 	</Object>
 	<Object type="0xD123" id="Nut Generator">
@@ -5021,7 +5021,7 @@
 		<InvUse />
 		<VaultItem />
 		<ScaleValue>3</ScaleValue>
-		<Activate objectId="Nutt" cooldown="10" petDps="173" petSize="Large" petHp="45" petHpMs="1500" petMp="45" petMpMs="1500">PermaPet</Activate>
+		<Activate objectId="Nutt" cooldown="10" petDps="173" petSize="Large" petEffects="Paralyzed on hit for 0.25s" petHp="45" petHpMs="1500" petMp="45" petMpMs="1500">PermaPet</Activate>
 		<OldSound>use_potion</OldSound>
 	</Object>
 	<Object type="0xD124" id="Pyramid Artifact Generator">
@@ -5055,7 +5055,7 @@
 		<InvUse />
 		<VaultItem />
 		<ScaleValue>3</ScaleValue>
-		<Activate objectId="Skull Shrine P" cooldown="10" petDps="500" petSize="Large" petHp="45" petHpMs="1500" petMp="45" petMpMs="1500">PermaPet</Activate>
+		<Activate objectId="Skull Shrine P" cooldown="10" petDps="500" petSize="Large" petEffects="+15 Attack for 5s every 10s" petHp="45" petHpMs="1500" petMp="45" petMpMs="1500">PermaPet</Activate>
 		<OldSound>use_potion</OldSound>
 	</Object>
 	<Object type="0xD126" id="Bunny Generator">
@@ -5106,7 +5106,7 @@
 		<InvUse />
 		<VaultItem />
 		<ScaleValue>3</ScaleValue>
-		<Activate objectId="Cubee" cooldown="10" petDps="800" petSize="Large" petHp="45" petHpMs="1500" petMp="45" petMpMs="1500">PermaPet</Activate>
+		<Activate objectId="Cubee" cooldown="10" petDps="800" petSize="Large" petEffects="+15 Wisdom for 5s every 10s" petHp="45" petHpMs="1500" petMp="45" petMpMs="1500">PermaPet</Activate>
 		<OldSound>use_potion</OldSound>
 	</Object>
 	<Object type="0xD129" id="Angel Generator">
@@ -5174,7 +5174,7 @@
 		<InvUse />
 		<VaultItem />
 		<ScaleValue>3</ScaleValue>
-		<Activate objectId="Malphass" cooldown="10" petDps="427" petSize="Large" petHp="45" petHpMs="1500" petMp="45" petMpMs="1500">PermaPet</Activate>
+		<Activate objectId="Malphass" cooldown="10" petDps="427" petSize="Large" petEffects="+15 Vitality for 5s every 10s" petHp="45" petHpMs="1500" petMp="45" petMpMs="1500">PermaPet</Activate>
 		<OldSound>use_potion</OldSound>
 	</Object>
 	<Object type="0xD12D" id="Stheno Generator">
@@ -5416,7 +5416,7 @@
 		<InvUse />
 		<VaultItem />
 		<ScaleValue>3</ScaleValue>
-		<Activate objectId="Horrificc" cooldown="10" petDps="550" petSize="Large" petHp="45" petHpMs="1500" petMp="45" petMpMs="1500">PermaPet</Activate>
+		<Activate objectId="Horrificc" cooldown="10" petDps="550" petSize="Large" petEffects="Invulnerable on you for 1s every 10s" petHp="45" petHpMs="1500" petMp="45" petMpMs="1500">PermaPet</Activate>
 		<OldSound>use_potion</OldSound>
 	</Object>
 	<Object type="0xD13B" id="Limon Generator">
@@ -5433,7 +5433,7 @@
 		<InvUse />
 		<VaultItem />
 		<ScaleValue>3</ScaleValue>
-		<Activate objectId="Limonn" cooldown="10" petDps="350" petSize="Large" petHp="45" petHpMs="1500" petMp="45" petMpMs="1500">PermaPet</Activate>
+		<Activate objectId="Limonn" cooldown="10" petDps="350" petSize="Large" petEffects="Speedy on you for 2s every 5s" petHp="45" petHpMs="1500" petMp="45" petMpMs="1500">PermaPet</Activate>
 		<OldSound>use_potion</OldSound>
 	</Object>
 	<Object type="0xD13C" id="Red Demon Generator">
@@ -5517,7 +5517,7 @@
 		<ScaleValue>3</ScaleValue>
 		<InvUse />
 		<VaultItem />
-		<Activate objectId="Kythal the Skull" cooldown="10" petDps="270" petSize="Medium" petHp="30" petHpMs="2000" petMp="30" petMpMs="2000">PermaPet</Activate>
+		<Activate objectId="Kythal the Skull" cooldown="10" petDps="270" petSize="Medium" petEffects="Weak on hit for 2s" petHp="30" petHpMs="2000" petMp="30" petMpMs="2000">PermaPet</Activate>
 		<OldSound>use_potion</OldSound>
 		<Shop>
 			<Name>donorpets</Name>
@@ -5538,7 +5538,7 @@
 		<ScaleValue>3</ScaleValue>
 		<InvUse />
 		<VaultItem />
-		<Activate objectId="Shroom (Doomed)" cooldown="10" petDps="1515" petSize="Medium" petHp="30" petHpMs="2000" petMp="30" petMpMs="2000">PermaPet</Activate>
+		<Activate objectId="Shroom (Doomed)" cooldown="10" petDps="270" petSize="Medium" petHp="30" petHpMs="2000" petMp="30" petMpMs="2000">PermaPet</Activate>
 		<OldSound>use_potion</OldSound>
 		<Shop>
 			<Name>donorpets</Name>
@@ -5602,7 +5602,7 @@
 		<InvUse />
 		<VaultItem />
 		<ScaleValue>3</ScaleValue>
-		<Activate objectId="Nightmareee" cooldown="10" petDps="210" petSize="Large" petHp="45" petHpMs="1500" petMp="45" petMpMs="1500">PermaPet</Activate>
+		<Activate objectId="Nightmareee" cooldown="10" petDps="210" petSize="Large" petEffects="Weak on hit for 2s" petHp="45" petHpMs="1500" petMp="45" petMpMs="1500">PermaPet</Activate>
 		<OldSound>use_potion</OldSound>
 	</Object>
 	<Object type="0xD148" id="Lil' Oryx 2">
@@ -6272,7 +6272,7 @@
 		<Soulbound />
 		<VaultItem />
 		<ScaleValue>3</ScaleValue>
-		<Activate objectId="Doomed Nature Beast" cooldown="10" petDps="111" petSize="Large" petHp="45" petHpMs="1500" petMp="45" petMpMs="1500">PermaPet</Activate>
+		<Activate objectId="Doomed Nature Beast" cooldown="10" petDps="111" petSize="Large" petEffects="Bleeds 300 over 4s" petHp="45" petHpMs="1500" petMp="45" petMpMs="1500">PermaPet</Activate>
 		<OldSound>use_potion</OldSound>
 	</Object>
 	<Object type="0xD168" id="Small skul Proj 1">
@@ -8311,7 +8311,7 @@
 		<ScaleValue>3</ScaleValue>
 		<InvUse />
 		<VaultItem />
-		<Activate objectId="Zenco The Undead God" cooldown="10" petDps="310" petSize="Medium" petHp="30" petHpMs="2000" petMp="30" petMpMs="2000">PermaPet</Activate>
+		<Activate objectId="Zenco The Undead God" cooldown="10" petDps="310" petSize="Medium" petEffects="Bleeds 120 over 3s" petHp="30" petHpMs="2000" petMp="30" petMpMs="2000">PermaPet</Activate>
 		<OldSound>use_potion</OldSound>
 		<Shop>
 			<Name>donorpets</Name>
@@ -8332,7 +8332,7 @@
 		<ScaleValue>3</ScaleValue>
 		<InvUse />
 		<VaultItem />
-		<Activate objectId="Cerberus Skull" cooldown="10" petDps="740" petSize="Medium" petHp="30" petHpMs="2000" petMp="30" petMpMs="2000">PermaPet</Activate>
+		<Activate objectId="Cerberus Skull" cooldown="10" petDps="240" petSize="Medium" petHp="30" petHpMs="2000" petMp="30" petMpMs="2000">PermaPet</Activate>
 		<OldSound>use_potion</OldSound>
 		<Shop>
 			<Name>donorpets</Name>
@@ -8380,13 +8380,10 @@
 			<File>drRemote_draw_5359574336929792</File>
 			<Index>0</Index>
 		</AnimatedTexture>
-		<Size>50</Size>
-		<ShadowSize>120</ShadowSize>
-		<NoMiniMap />
 		<Projectile id="0">
 			<ObjectId>Small skul Proj 1</ObjectId>
 			<Speed>300</Speed>
-			<Damage>185</Damage>
+			<Damage>80</Damage>
 			<LifetimeMS>1800</LifetimeMS>
 			<MultiHit />
 		</Projectile>
@@ -8397,6 +8394,9 @@
 			<LifetimeMS>1800</LifetimeMS>
 			<MultiHit />
 		</Projectile>
+		<Size>50</Size>
+		<ShadowSize>120</ShadowSize>
+		<NoMiniMap />
 	</Object>
 	<Object type="0xD1D1" id="Spell of Deep Depression">
 		<Class>Equipment</Class>
@@ -10332,23 +10332,23 @@
 			<File>drChars16x16dMountains1</File>
 			<Index>0x1d</Index>
 		</AnimatedTexture>
-		<Size>40</Size>
-		<ShadowSize>120</ShadowSize>
-		<NoMiniMap />
 		<Projectile id="0">
 			<ObjectId>Small Mush Proj 1</ObjectId>
 			<Speed>150</Speed>
-			<Damage>185</Damage>
+			<Damage>70</Damage>
 			<LifetimeMS>1800</LifetimeMS>
 			<MultiHit />
 		</Projectile>
 		<Projectile id="1">
 			<ObjectId>Large Mush Proj 1</ObjectId>
 			<Speed>150</Speed>
-			<Damage>310</Damage>
+			<Damage>120</Damage>
 			<LifetimeMS>1800</LifetimeMS>
 			<MultiHit />
 		</Projectile>
+		<Size>40</Size>
+		<ShadowSize>120</ShadowSize>
+		<NoMiniMap />
 	</Object>
 	<Object type="0xD245" id="Lil' Oryx (Doomed)">
 		<DisplayId>Lil' Oryx</DisplayId>
