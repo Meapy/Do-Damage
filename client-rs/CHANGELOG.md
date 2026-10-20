@@ -27,8 +27,8 @@ version number itself is in `client-rs/Cargo.toml`.
 - The wiki uses more of a big screen: on wide monitors its pages grow wider, so the big tables show
   more columns before you scroll sideways and the dungeon, class and item cards sit three or more
   to a row. Text stays at a comfortable reading width.
-- The wiki's page list is shorter: Classes, Items, Gear, Gear statistics and Pets sit together under
-  Characters, which opens on Classes.
+- The wiki's page list is shorter: Commands, Getting stronger and The Oryx chain sit under Getting
+  started, and Items, Gear, Gear statistics and Pets under Characters, which opens on Classes.
 - Skins keep animating at high dexterity and speed: shooting very fast used to freeze a skin
   on its first attack frame, and running very fast could make its walk look stuck.
 - Hovering the inventory and backpack buttons shows the key that switches between them in the

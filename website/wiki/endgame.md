@@ -1,6 +1,7 @@
 ---
 title: The Oryx chain
 nav: 4
+parent: getting-started
 sprite: skull
 eyebrow: Endgame
 summary: From a closing realm down to the Doomed Cellar: every stage, its boss, and which incantation or key opens the next.

@@ -1,6 +1,7 @@
 ---
 title: Commands
 nav: 2
+parent: getting-started
 sprite: bolt
 eyebrow: Getting started
 summary: Every chat command a player can use, read from the game's code.

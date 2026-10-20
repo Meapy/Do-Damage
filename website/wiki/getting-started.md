@@ -1,6 +1,7 @@
 ---
 title: Getting started
 nav: 1
+group: Getting started
 sprite: sword
 eyebrow: New players
 summary: From the main menu to your first realm: guest or account, choosing a class, the controls, the Nexus, free starter gear and the Support Bot.

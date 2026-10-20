@@ -1,6 +1,7 @@
 ---
 title: Getting stronger
 nav: 3
+parent: getting-started
 sprite: potion
 eyebrow: Progress
 summary: Levels and experience, fame and rank stars, stat potions and maxing, the realm, the Godlands, quests and events, and what happens when you die.
