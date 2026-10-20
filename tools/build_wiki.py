@@ -337,6 +337,9 @@ class Gen:
     def gen_class_ehp(self, used):
         return self.balance.class_ehp(used)
 
+    def gen_class_totals(self, used):
+        return self.balance.class_totals(used)
+
     def item_links(self, ids, up="", limit=None):
         """Item names, each a link to its entry on the gear pages."""
         out, seen = [], set()

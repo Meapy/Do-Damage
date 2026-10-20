@@ -39,8 +39,9 @@ version number itself is in `client-rs/Cargo.toml`.
   tier for the Monk, and oceanic spells at every tier for the Sharklord. Power of the Fountains is
   now T7. The Doomed Realms classes' T7 and T8 abilities drop in your own bag, like everyone else's.
 - The wiki has a Gear statistics page: every tiered item side by side with what each tier adds, each
-  class's damage a second with each weapon tier, and each class's effective health with each
-  armor tier.
+  class's damage a second with each weapon tier, each class's effective health with each armor
+  tier, and a table of every class at the top tier: its damage, its health, both per tile of its
+  weapon's range, and how far it is from the best class.
 - The wiki uses more of a big screen: on wide monitors its pages grow wider, so the big tables show
   more columns before you scroll sideways and the dungeon, class and item cards sit three or more
   to a row. Text stays at a comfortable reading width.

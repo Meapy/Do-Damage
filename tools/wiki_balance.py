@@ -227,6 +227,52 @@ class Balance:
                 self.esc(c["name"]), self.esc(wd.SLOT_NAMES.get(slot, "")), att, dex, "".join(cells)))
         return self.table(head, body, "balance grid")
 
+    def top_gear(self, c):
+        """The class's best tiered weapon (up to T14) and armor (up to T15)."""
+        weapons = {t: it for t, it in self.by_tier(c["slots"][0]).items() if t in TIERS}
+        armors = {t: it for t, it in self.by_tier(c["slots"][2]).items() if t in ARMOR_TIERS} if len(c["slots"]) > 2 else {}
+        return (weapons[max(weapons)] if weapons else None), (armors[max(armors)] if armors else None)
+
+    def class_totals(self, used):
+        """Each class at the top tier (T14 weapon, T15 armor): damage a second, effective health, both
+        per tile of the weapon's range, and how each compares with the best class."""
+        hit = HITS[0]
+        rows = []
+        for c in self.classes:
+            it, arm = self.top_gear(c)
+            w = weapon(it) if it else None
+            if not w or not w[1]:
+                continue
+            s, a = stats(it), stats(arm) if arm else {}
+            att = c["stats"].get("Attack", (0, 0))[1] + s.get(ATT, 0) + a.get(ATT, 0)
+            dex = c["stats"].get("Dexterity", (0, 0))[1] + s.get(DEX, 0) + a.get(DEX, 0)
+            hp = c["stats"].get("MaxHitPoints", (0, 0))[1] + s.get(HP, 0) + a.get(HP, 0)
+            df = c["stats"].get("Defense", (0, 0))[1] + s.get(DEF, 0) + a.get(DEF, 0)
+            v = dps(w[0], w[1], w[2], w[3], att, dex)
+            e = hp * hit / int(taken(hit, df))
+            rows.append(dict(c=c, it=it, arm=arm, rng=w[4], dps=v, ehp=e, dpr=v / w[4], epr=e / w[4]))
+        top = {k: max(r[k] for r in rows) for k in ("dps", "ehp", "dpr", "epr")}
+
+        def vs(r, k):
+            d = (r[k] / top[k] - 1) * 100
+            if abs(d) < 0.5:
+                return '<td class="n"><b>top</b></td>'
+            return '<td class="n"><span class="down">&minus;%d%%</span></td>' % round(-d)
+
+        def cell(r, k, fmt="%d"):
+            text = fmt % r[k]
+            return '<td class="n">%s</td>' % ("<b>%s</b>" % text if r[k] == top[k] else text)
+
+        head = [("Class", 0), ("Weapon", 0), ("Armor", 0), ("Range", 1), ("DPS", 1), ("vs top", 1), ("EHP", 1),
+                ("EHP vs top", 1), ("DPS per tile", 1), ("vs top", 1), ("EHP per tile", 1), ("vs top", 1)]
+        body = []
+        for r in rows:
+            body.append("<tr><td>%s</td><td>%s</td><td>%s</td><td class=\"n\">%s</td>%s%s%s%s%s%s%s%s</tr>" % (
+                self.esc(r["c"]["name"]), self.link(r["it"]), self.link(r["arm"]) if r["arm"] else "&ndash;",
+                self.fmt(round(r["rng"], 2)), cell(r, "dps"), vs(r, "dps"), cell(r, "ehp"), vs(r, "ehp"),
+                cell(r, "dpr"), vs(r, "dpr"), cell(r, "epr"), vs(r, "epr")))
+        return self.table(head, body, "balance grid")
+
     def class_ehp(self, used):
         out = []
         tiers = sorted({it["tier"] for it in self.tiered if it["category"] == "armor" and it["tier"] in ARMOR_TIERS})

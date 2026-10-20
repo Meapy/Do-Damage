@@ -52,3 +52,14 @@ defense counts for more against small hits than against big ones. Effective heal
 health × the hit ÷ the damage you take from it.
 
 {{gen:class-ehp}}
+
+## Class totals at the top tier
+
+Every class with its best tiered gear, a T14 weapon and T15 armor (no weapon goes past T14),
+worked out as in the two tables above: **DPS** against 50 defense and **EHP** against hits of 100.
+
+- **Per tile** divides DPS and EHP by the weapon's range in tiles. A short-range class has to stand
+  closer to hit, so this shows what it gets for each tile of reach it gives up.
+- **vs top** is how far each class is below the best class in that column (bold).
+
+{{gen:class-totals}}
