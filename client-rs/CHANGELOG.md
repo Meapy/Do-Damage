@@ -9,6 +9,8 @@ refuses while an `Unreleased` one is left, so rename it to `## <version> (<date>
 version number itself is in `client-rs/Cargo.toml`.
 
 ## Unreleased
+- The Sharklord's highest Attack is 70 (was 80), and it starts with 13 (was 15); it still gains 1 to
+  2 a level. Sharklords above 70 come down to it.
 - Dual Blades ignore enemies' defense: every hit does its full damage. Hits that ignore defense
   show their damage in purple instead of red, and the weapon's tooltip says "Ignores defense".
   Dual Blades and fists show their rate of fire in the tooltip too.

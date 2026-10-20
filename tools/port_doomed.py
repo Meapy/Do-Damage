@@ -467,6 +467,23 @@ GEAR_TUNING = {
 }
 
 
+# Class stats changed from Doomed Realms': class -> {stat element: (starting value, highest)}. The
+# Sharklord's highest Attack is 70 (was 80), its start 13 (was 15) so a level 20 one is as far
+# along as before; it still gains 1-2 a level.
+CLASS_STATS = {"Sharklord": {"Attack": ("13", "70")}}
+
+
+def tune_classes(dr):
+    for oid, stats in CLASS_STATS.items():
+        o = dr.get(oid)
+        if o is None:
+            continue
+        for tag, (start, top) in stats.items():
+            e = o.find(tag)
+            if e is not None:
+                e.text, e.attrib["max"] = start, top
+
+
 def tune_gear(dr):
     for oid, t in GEAR_TUNING.items():
         o = dr.get(oid)
@@ -522,6 +539,7 @@ INCANTATIONS = {
 def fix_doomed_data(dr):
     """Mistakes in the Doomed Realms data, fixed before porting."""
     tune_gear(dr)
+    tune_classes(dr)
     for oid, bag in BAG_TYPES.items():
         o = dr.get(oid)
         if o is not None and o.find("BagType") is not None:
