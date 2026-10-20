@@ -810,16 +810,16 @@ impl Game {
         let Some(world) = &mut self.world else { return };
         for hit in world.update_projectiles(now, data) {
             let msg: ClientMessage = match hit {
-                Hit::Player { bullet_id, owner_id, damage } => {
+                Hit::Player { bullet_id, owner_id, damage, pierced } => {
                     if let Some(s) = world.player().and_then(|p| hurt_sound(data, p.object_type, false)) {
                         self.sounds.push((s, 1.0, false));
                     }
                     if let Some(me) = world.me {
-                        self.floaters.push(crate::view::Floater::damage(me, damage, now));
+                        self.floaters.push(crate::view::Floater::hit(me, damage, pierced, now));
                     }
                     PlayerHit { bullet_id, object_id: owner_id }.into()
                 }
-                Hit::Enemy { time, bullet_id, target_id, kill, damage } => {
+                Hit::Enemy { time, bullet_id, target_id, kill, damage, pierced } => {
                     let counted = world.objects.get(&target_id).and_then(|o| data.objects.get(&o.object_type)).is_some_and(|d| d.xml.has("Quest") || d.xml.has("Chest"));
                     if counted {
                         *self.dealt.entry(target_id).or_default() += damage;
@@ -827,7 +827,7 @@ impl Game {
                     if let Some(s) = world.objects.get(&target_id).and_then(|o| hurt_sound(data, o.object_type, kill)) {
                         self.sounds.push((s, 1.0, false));
                     }
-                    self.floaters.push(crate::view::Floater::damage(target_id, damage, now));
+                    self.floaters.push(crate::view::Floater::hit(target_id, damage, pierced, now));
                     EnemyHit { time, bullet_id, target_id, kill }.into()
                 }
                 Hit::Other { time, bullet_id, owner_id, target_id } => {

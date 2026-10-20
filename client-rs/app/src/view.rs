@@ -116,10 +116,24 @@ pub struct Floater {
     pub life: i32,
 }
 
+/// Damage numbers: red, or purple for a hit that ignored defense (an `ArmorPiercing` shot).
+pub const DAMAGE_COLOR: u32 = 0xFF0000;
+pub const PIERCED_COLOR: u32 = 0xC060FF;
+
 impl Floater {
     /// A damage number: red, for a second.
     pub fn damage(object_id: i32, amount: i32, at: i32) -> Self {
-        Floater { object_id, text: format!("-{amount}"), color: 0xFF0000, at, life: 1000 }
+        Floater::hit(object_id, amount, false, at)
+    }
+
+    /// A shot's damage number, purple when the shot ignored defense.
+    pub fn hit(object_id: i32, amount: i32, pierced: bool, at: i32) -> Self {
+        let color = if pierced { PIERCED_COLOR } else { DAMAGE_COLOR };
+        Floater { object_id, text: format!("-{amount}"), color, at, life: 1000 }
+    }
+
+    pub fn is_damage(&self) -> bool {
+        (self.color == DAMAGE_COLOR || self.color == PIERCED_COLOR) && self.text.starts_with('-')
     }
 }
 
@@ -549,7 +563,7 @@ pub fn draw(scene: &Scene, renderer: &mut Renderer, redrawer: &mut Redrawer, gro
     crate::prof::mark("v.hp");
     // Damage numbers and notifications, rising above the object.
     let style = Style { size: (18.0 * k).round().max(10.0), bold: true, color: 0xFF0000 };
-    for f in scene.floaters.iter().filter(|f| scene.show.damage_numbers || !(f.color == 0xFF0000 && f.text.starts_with('-'))) {
+    for f in scene.floaters.iter().filter(|f| scene.show.damage_numbers || !f.is_damage()) {
         let Some(obj) = world.objects.get(&f.object_id) else { continue };
         let age = (scene.time - f.at) as f32 / 1000.0;
         let [px, py] = cam.to_screen(obj.x, obj.y, 0.0);

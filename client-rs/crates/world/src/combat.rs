@@ -49,10 +49,10 @@ pub struct Projectile {
 /// What a projectile did that the server must hear about.
 #[derive(Debug, Clone, PartialEq)]
 pub enum Hit {
-    /// A monster's projectile hit us: PlayerHit.
-    Player { bullet_id: i32, owner_id: i32, damage: i32 },
+    /// A monster's projectile hit us: PlayerHit. `pierced`: it ignores defense (`ArmorPiercing`).
+    Player { bullet_id: i32, owner_id: i32, damage: i32, pierced: bool },
     /// Our projectile hit a monster: EnemyHit (`kill` if it should die of it).
-    Enemy { time: i32, bullet_id: i32, target_id: i32, kill: bool, damage: i32 },
+    Enemy { time: i32, bullet_id: i32, target_id: i32, kill: bool, damage: i32, pierced: bool },
     /// A monster's projectile hit something else (another player, an obstacle): OtherHit.
     Other { time: i32, bullet_id: i32, owner_id: i32, target_id: i32 },
     /// A monster's projectile left the map or hit empty ground: SquareHit.
@@ -343,9 +343,9 @@ impl World {
             let dmg = damage_with_defense(p.damage, defense, desc.armor_piercing, target.conditions());
             let dead = target.stat_int(STAT_HP).is_some_and(|hp| hp <= dmg);
             if Some(target_id) == me {
-                hits.push(Hit::Player { bullet_id: p.bullet_id, owner_id: p.owner_id, damage: dmg });
+                hits.push(Hit::Player { bullet_id: p.bullet_id, owner_id: p.owner_id, damage: dmg, pierced: desc.armor_piercing });
             } else if target_is_enemy {
-                hits.push(Hit::Enemy { time, bullet_id: p.bullet_id, target_id, kill: dead, damage: dmg });
+                hits.push(Hit::Enemy { time, bullet_id: p.bullet_id, target_id, kill: dead, damage: dmg, pierced: desc.armor_piercing });
                 if let Some(i) = self.impacts.last_mut() {
                     i.kill = dead;
                 }

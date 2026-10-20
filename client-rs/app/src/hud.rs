@@ -2285,11 +2285,14 @@ pub fn item_tooltip(data: &GameData, item: i32, me: Option<&GameObj>, kind: Slot
         attr("Shots", desc.num_projectiles().to_string(), compare(mine.shots, worn.shots, true));
         let range = p.speed as f64 * p.lifetime as f64 / 10000.0;
         attr("Range", format!("{}", (range * 100.0).round() / 100.0), compare(mine.range, worn.range, true));
-        if [1, 2, 3, 8, 17, 24].contains(&xml.int("SlotType", 0)) {
+        if [1, 2, 3, 8, 17, 24, 36, 200].contains(&xml.int("SlotType", 0)) {
             attr("Rate of Fire", format!("{:.0}%", desc.rate_of_fire() * 100.0), compare(mine.rate_of_fire, worn.rate_of_fire, true));
         }
         for e in &p.effects {
             attr("Shot effect", e.clone(), VALUE);
+        }
+        if p.armor_piercing {
+            attr("Shot effect", "Ignores defense".to_owned(), crate::view::PIERCED_COLOR);
         }
     }
     if xml.has("Usable") {

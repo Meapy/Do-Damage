@@ -9,7 +9,9 @@ refuses while an `Unreleased` one is left, so rename it to `## <version> (<date>
 version number itself is in `client-rs/Cargo.toml`.
 
 ## Unreleased
-- Dual Blades ignore enemies' defense: every hit does its full damage.
+- Dual Blades ignore enemies' defense: every hit does its full damage. Hits that ignore defense
+  show their damage in purple instead of red, and the weapon's tooltip says "Ignores defense".
+  Dual Blades and fists show their rate of fire in the tooltip too.
 - The Blademaster's jackets from T3 up also give it Attack for a few seconds when used: +3 for 3
   seconds at T3 up to +15 for 8 seconds at T8, shown as Att Boost over the character.
 - Abilities that boost one of your stats for a while now show the right status: a Dexterity,
