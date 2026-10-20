@@ -2,6 +2,8 @@
 // Permanent pets: the Doomed Realms pets with their healing and attacks (PetHeal, PetStrike, PetShoot),
 // and betterSkillys' own permanent pets, which had no behaviour, with a follow. Pets drawn as a
 // boss shoot that boss's projectiles in its patterns (port_doomed_pets.find_bosses).
+using Shared.resources;
+using WorldServer.core.net.stats;
 using WorldServer.logic.behaviors;
 using WorldServer.logic.behaviors.doomed;
 
@@ -18,17 +20,17 @@ namespace WorldServer.logic
             .Init("Sea Horsee", new State(new PetFollow(), new PetHeal(false, 15, 15, 2000), new PetHeal(true, 15, 15, 2000), new PetStrike(50, 70, 3000, 10)))
             .Init("Sea Maree", new State(new PetFollow(), new PetHeal(false, 30, 30, 2000), new PetHeal(true, 30, 30, 2000), new PetStrike(50, 70, 3000, 10)))
             .Init("Pentaract Eyee", new State(new PetFollow(), new PetHeal(false, 15, 15, 2000), new PetHeal(true, 15, 15, 2000), new PetStrike(50, 70, 3000, 10)))
-            .Init("Gebb", new State(new PetFollow(), new PetHeal(false, 45, 45, 1500), new PetHeal(true, 45, 45, 1500), new PetShoot(15, 20, 18, 0, 3, 1000), new PetShoot(14, 2, 10, 0, 2, 1000), new PetShoot(12, 1, 0, 0, 0, 1000), new PetShoot(14, 1, 0, 0, 2, 1000)))  // shoots like Tomb Attacker
+            .Init("Gebb", new State(new PetFollow(), new PetHeal(false, 45, 45, 1500), new PetHeal(true, 45, 45, 1500), new PetShoot(15, 20, 18, 0, 3, 1000), new PetShoot(14, 2, 10, 0, 2, 1000), new PetShoot(12, 1, 0, 0, 0, 1000), new PetShoot(14, 1, 0, 0, 2, 1000), new PetOwnerEffect(ConditionEffectIndex.Healing, 2000, 5000)))  // shoots like Tomb Attacker
             .Init("Thessal Pet", new State(new PetFollow(), new PetHeal(false, 45, 45, 1500), new PetHeal(true, 45, 45, 1500), new PetShoot(8.8, 8, 45, 0, 0, 1000), new PetShoot(8.8, 16, 22.5, 0, 0, 1000), new PetShoot(15, 2, 25, 0, 2, 1000), new PetShoot(15, 2, 25, 90, 2, 1000)))  // shoots like Thessal the Mermaid Goddess
             .Init("Pyramid Artifact P", new State(new PetFollow(), new PetHeal(false, 30, 30, 2000), new PetHeal(true, 30, 30, 2000), new PetStrike(50, 70, 3000, 10)))
-            .Init("Skull Shrine P", new State(new PetFollow(), new PetHeal(false, 45, 45, 1500), new PetHeal(true, 45, 45, 1500), new PetShoot(15, 13, 10, 0, 0, 600)))  // shoots like Skull Shrine
+            .Init("Skull Shrine P", new State(new PetFollow(), new PetHeal(false, 45, 45, 1500), new PetHeal(true, 45, 45, 1500), new PetShoot(15, 13, 10, 0, 0, 600), new PetOwnerBoost(StatDataType.Attack, 15, 5000, 10000)))  // shoots like Skull Shrine
             .Init("Bunnyy", new State(new PetFollow(), new PetHeal(false, 15, 15, 2000), new PetHeal(true, 15, 15, 2000), new PetStrike(50, 70, 3000, 10)))
             .Init("White Bag Pet", new State(new PetFollow(), new PetHeal(false, 15, 15, 2000), new PetHeal(true, 15, 15, 2000), new PetStrike(50, 70, 3000, 10)))
-            .Init("Cubee", new State(new PetFollow(), new PetHeal(false, 45, 45, 1500), new PetHeal(true, 45, 45, 1500), new PetShoot(15, 9, 10, 0, 0, 750), new PetShoot(15, 4, 10, 0, 1, 1500)))  // shoots like Cube God
+            .Init("Cubee", new State(new PetFollow(), new PetHeal(false, 45, 45, 1500), new PetHeal(true, 45, 45, 1500), new PetShoot(15, 9, 10, 0, 0, 750), new PetShoot(15, 4, 10, 0, 1, 1500), new PetOwnerBoost(StatDataType.Wisdom, 15, 5000, 10000)))  // shoots like Cube God
             .Init("Angell", new State(new PetFollow(), new PetHeal(false, 30, 30, 2000), new PetHeal(true, 30, 30, 2000), new PetStrike(50, 70, 3000, 10)))
             .Init("Ninjaa", new State(new PetFollow(), new PetHeal(false, 30, 30, 2000), new PetHeal(true, 30, 30, 2000), new PetStrike(50, 70, 3000, 10)))
             .Init("Septaviuss", new State(new PetFollow(), new PetHeal(false, 45, 45, 1500), new PetHeal(true, 45, 45, 1500), new PetShoot(15, 3, 120, 0, 0, 1000), new PetShoot(15, 5, 20, 0, 0, 1000), new PetShoot(10, 12, 30, 0, 4, 1000), new PetShoot(10, 8, 45, 0, 1, 1000)))  // shoots like Septavius the Ghost God
-            .Init("Malphass", new State(new PetFollow(), new PetHeal(false, 45, 45, 1500), new PetHeal(true, 45, 45, 1500), new PetShoot(10, 2, 20, 0, 0, 1000), new PetShoot(8, 1, 0, 0, 0, 1000), new PetShoot(12, 1, 0, 0, 3, 1500), new PetShoot(12, 2, 10, 0, 4, 1500)))  // shoots like Archdemon Malphas
+            .Init("Malphass", new State(new PetFollow(), new PetHeal(false, 45, 45, 1500), new PetHeal(true, 45, 45, 1500), new PetShoot(10, 2, 20, 0, 0, 1000), new PetShoot(8, 1, 0, 0, 0, 1000), new PetShoot(12, 1, 0, 0, 3, 1500), new PetShoot(12, 2, 10, 0, 4, 1500), new PetOwnerBoost(StatDataType.Vitality, 15, 5000, 10000)))  // shoots like Archdemon Malphas
             .Init("Sthenos", new State(new PetFollow(), new PetHeal(false, 45, 45, 1500), new PetHeal(true, 45, 45, 1500), new PetShoot(8, 3, 15, 0, 0, 1000), new PetShoot(15, 4, 90, 0, 1, 1000)))  // shoots like Stheno the Snake Queen
             .Init("Reaperr", new State(new PetFollow(), new PetHeal(false, 30, 30, 2000), new PetHeal(true, 30, 30, 2000), new PetStrike(50, 70, 3000, 10)))
             .Init("Kirbyy", new State(new PetFollow(), new PetHeal(false, 15, 15, 2000), new PetHeal(true, 15, 15, 2000), new PetStrike(50, 70, 3000, 10)))
@@ -40,8 +42,8 @@ namespace WorldServer.logic
             .Init("sharkmann", new State(new PetFollow(), new PetHeal(false, 30, 30, 2000), new PetHeal(true, 30, 30, 2000), new PetStrike(50, 70, 3000, 10)))
             .Init("pumpkmann", new State(new PetFollow(), new PetHeal(false, 30, 30, 2000), new PetHeal(true, 30, 30, 2000), new PetStrike(50, 70, 3000, 10)))
             .Init("Phoenixx", new State(new PetFollow(), new PetHeal(false, 30, 30, 2000), new PetHeal(true, 30, 30, 2000), new PetStrike(50, 70, 3000, 10)))
-            .Init("Horrificc", new State(new PetFollow(), new PetHeal(false, 45, 45, 1500), new PetHeal(true, 45, 45, 1500), new PetShoot(12, 3, 15, 0, 1, 1500), new PetShoot(10, 8, 45, 0, 5, 3000), new PetShoot(12, 1, 0, 0, 6, 800), new PetShoot(10, 12, 30, 0, 2, 4000)))  // shoots like Horrific Creation
-            .Init("Limonn", new State(new PetFollow(), new PetHeal(false, 45, 45, 1500), new PetHeal(true, 45, 45, 1500), new PetShoot(12, 2, 10, 0.7, 0, 1000), new PetShoot(12, 2, 180, 0.7, 0, 1000), new PetShoot(8, 18, 20, 0.4, 0, 1000), new PetShoot(12, 1, 0, 0, 0, 1000)))  // shoots like Limon the Sprite God
+            .Init("Horrificc", new State(new PetFollow(), new PetHeal(false, 45, 45, 1500), new PetHeal(true, 45, 45, 1500), new PetShoot(12, 3, 15, 0, 1, 1500), new PetShoot(10, 8, 45, 0, 5, 3000), new PetShoot(12, 1, 0, 0, 6, 800), new PetOwnerEffect(ConditionEffectIndex.Invulnerable, 1000, 10000)))  // shoots like Horrific Creation
+            .Init("Limonn", new State(new PetFollow(), new PetHeal(false, 45, 45, 1500), new PetHeal(true, 45, 45, 1500), new PetShoot(12, 2, 10, 0.7, 0, 1000), new PetShoot(12, 2, 180, 0.7, 0, 1000), new PetShoot(8, 18, 20, 0.4, 0, 1000), new PetShoot(12, 1, 0, 0, 0, 1000), new PetOwnerEffect(ConditionEffectIndex.Speedy, 2000, 5000)))  // shoots like Limon the Sprite God
             .Init("Reddemonn", new State(new PetFollow(), new PetHeal(false, 30, 30, 2000), new PetHeal(true, 30, 30, 2000), new PetStrike(50, 70, 3000, 10)))
             .Init("Monkeyn", new State(new PetFollow(), new PetHeal(false, 15, 15, 2000), new PetHeal(true, 15, 15, 2000), new PetStrike(50, 70, 3000, 10)))
             .Init("Beholderr", new State(new PetFollow(), new PetHeal(false, 30, 30, 2000), new PetHeal(true, 30, 30, 2000), new PetStrike(50, 70, 3000, 10)))
@@ -53,25 +55,25 @@ namespace WorldServer.logic
             .Init("Lunar's Phoenix", new State(new PetFollow(), new PetHeal(false, 30, 30, 2000), new PetHeal(true, 30, 30, 2000)))
             .Init("Dallas's Pet", new State(new PetFollow(), new PetHeal(false, 30, 30, 2000), new PetHeal(true, 30, 30, 2000)))
             .Init("Astro's Griffin", new State(new PetFollow(), new PetHeal(false, 30, 30, 2000), new PetHeal(true, 30, 30, 2000)))
-            .Init("Scootaloo", new State(new PetFollow(), new PetHeal(false, 45, 45, 1500), new PetHeal(true, 45, 45, 1500), new PetShoot(10, 1, 0, 0, 0, 300)))  // shoots like Mama Megamoth
+            .Init("Scootaloo", new State(new PetFollow(), new PetHeal(false, 45, 45, 1500), new PetHeal(true, 45, 45, 1500), new PetShoot(10, 1, 0, 0, 0, 300), new PetShoot(10, 1, 0, 0, 1, 1500)))  // shoots like Mama Megamoth
             .Init("Twilight Sparkle", new State(new PetFollow(), new PetHeal(false, 30, 30, 2000), new PetHeal(true, 30, 30, 2000), new PetShoot(7, 4, 10, 0, 0, 1500)))
-            .Init("Kythal the Necromancer", new State(new PetFollow(), new PetHeal(false, 30, 30, 2000), new PetHeal(true, 30, 30, 2000), new PetShoot(10, 5, 10, 0, 0, 750), new PetShoot(10, 3, 10, 352.39, 1, 800)))
+            .Init("Kythal the Necromancer", new State(new PetFollow(), new PetHeal(false, 30, 30, 2000), new PetHeal(true, 30, 30, 2000), new PetShoot(10, 3, 10, 0, 0, 1000), new PetShoot(10, 1, 0, 0, 1, 2000)))
             .Init("KingSlime", new State(new PetFollow(), new PetHeal(false, 30, 30, 2000), new PetHeal(true, 30, 30, 2000)))
             .Init("Pumpkinnnnn", new State(new PetFollow(), new PetHeal(false, 30, 30, 2000), new PetHeal(true, 30, 30, 2000), new PetStrike(50, 70, 3000, 10)))
-            .Init("Nightmareee", new State(new PetFollow(), new PetHeal(false, 30, 30, 2000), new PetHeal(true, 30, 30, 2000), new PetShoot(10, 1, 0, 0, 0, 1000)))
+            .Init("Nightmareee", new State(new PetFollow(), new PetHeal(false, 45, 45, 1500), new PetHeal(true, 45, 45, 1500), new PetShoot(10, 3, 8, 0, 0, 1000)))
             .Init("Zombie Penguin", new State(new PetFollow(), new PetHeal(false, 30, 30, 2000), new PetHeal(true, 30, 30, 2000), new PetStrike(50, 70, 3000, 10)))
             .Init("TestAuraa", new State(new PetFollow()))
-            .Init("Kythal the Skull", new State(new PetFollow(), new PetHeal(false, 30, 30, 2000), new PetHeal(true, 30, 30, 2000), new PetShoot(10, 5, 10, 0, 0, 750), new PetShoot(10, 3, 10, 352.39, 1, 800)))
+            .Init("Kythal the Skull", new State(new PetFollow(), new PetHeal(false, 30, 30, 2000), new PetHeal(true, 30, 30, 2000), new PetShoot(10, 3, 10, 0, 0, 1000), new PetShoot(10, 1, 0, 0, 1, 2000)))
             .Init("Bess", new State(new PetFollow(), new PetHeal(false, 45, 45, 1500), new PetHeal(true, 45, 45, 1500), new PetShoot(15, 20, 18, 0, 3, 1000), new PetShoot(15, 8, 45, 0, 2, 1000), new PetShoot(15, 3, 120, 0, 1, 1000), new PetShoot(15, 5, 72, 0, 0, 1000)))  // shoots like Tomb Defender
-            .Init("Nutt", new State(new PetFollow(), new PetHeal(false, 45, 45, 1500), new PetHeal(true, 45, 45, 1500), new PetShoot(15, 20, 18, 0, 7, 1000), new PetShoot(15, 1, 0, 0, 5, 1000), new PetShoot(12, 3, 120, 0, 1, 1000), new PetShoot(12, 4, 90, 0, 2, 1000)))  // shoots like Tomb Support
+            .Init("Nutt", new State(new PetFollow(), new PetHeal(false, 45, 45, 1500), new PetHeal(true, 45, 45, 1500), new PetShoot(15, 20, 18, 0, 7, 1000), new PetShoot(15, 1, 0, 0, 5, 1000), new PetShoot(12, 3, 120, 0, 1, 1000), new PetShoot(12, 4, 90, 0, 2, 1000), new PetShoot(12, 3, 25, 0, 8, 1500)))  // shoots like Tomb Support
             .Init("sphinxxx", new State(new PetFollow(), new PetHeal(false, 45, 45, 1500), new PetHeal(true, 45, 45, 1500), new PetShoot(12, 1, 0, 0, 0, 800), new PetShoot(12, 3, 10, 0, 0, 1000), new PetShoot(10, 3, 10, 0, 1, 2000), new PetShoot(10, 2, 4, 0, 2, 1500)))  // shoots like Grand Sphinx
-            .Init("Doomed Nature Beast", new State(new PetFollow(), new PetHeal(false, 45, 45, 1500), new PetHeal(true, 45, 45, 1500), new PetStrike(90, 200, 4000, 10)))
+            .Init("Doomed Nature Beast", new State(new PetFollow(), new PetHeal(false, 45, 45, 1500), new PetHeal(true, 45, 45, 1500), new PetStrike(90, 200, 4000, 10, 300, 4000)))
             .Init("Gyaradoss", new State(new PetFollow(), new PetHeal(false, 30, 30, 2000), new PetHeal(true, 30, 30, 2000), new PetStrike(50, 70, 3000, 10)))
-            .Init("Cookiee", new State(new PetFollow(), new PetHeal(false, 30, 30, 2000), new PetHeal(true, 30, 30, 2000), new PetShoot(10, 5, 10, 0, 0, 750), new PetShoot(10, 3, 10, 352.39, 1, 800)))
+            .Init("Cookiee", new State(new PetFollow(), new PetHeal(false, 45, 45, 1500), new PetHeal(true, 45, 45, 1500), new PetShoot(10, 5, 10, 0, 0, 750), new PetShoot(10, 3, 10, 352.39, 1, 800)))
             .Init("Dinosaur's Pet", new State(new PetFollow(), new PetHeal(false, 45, 45, 1500), new PetHeal(true, 45, 45, 1500), new PetShoot(8.8, 8, 45, 0, 0, 1000), new PetShoot(8.8, 16, 22.5, 0, 0, 1000), new PetShoot(15, 2, 25, 0, 2, 1000), new PetShoot(15, 2, 25, 90, 2, 1000)))  // shoots like Thessal the Mermaid Goddess
             .Init("Aceaku's Pet", new State(new PetFollow(), new PetHeal(false, 30, 30, 2000), new PetHeal(true, 30, 30, 2000)))
             .Init("Support Bot", new State(new PetFollow(), new PetHeal(false, 30, 30, 2000), new PetHeal(true, 30, 30, 2000)))
-            .Init("Zenco The Undead God", new State(new PetFollow(), new PetHeal(false, 30, 30, 2000), new PetHeal(true, 30, 30, 2000), new PetShoot(10, 5, 10, 0, 0, 750), new PetShoot(10, 3, 10, 352.39, 1, 800)))
+            .Init("Zenco The Undead God", new State(new PetFollow(), new PetHeal(false, 30, 30, 2000), new PetHeal(true, 30, 30, 2000), new PetShoot(10, 3, 10, 0, 0, 1000), new PetShoot(10, 1, 0, 0, 1, 2000)))
             .Init("Cerberus Skull", new State(new PetFollow(), new PetHeal(false, 30, 30, 2000), new PetHeal(true, 30, 30, 2000), new PetShoot(10, 5, 10, 0, 0, 750)))
             .Init("Black Cat (Doomed)", new State(new PetFollow(), new PetHeal(false, 15, 15, 2000), new PetHeal(true, 15, 15, 2000), new PetStrike(50, 70, 3000, 10)))
             .Init("Grey Cat (Doomed)", new State(new PetFollow(), new PetHeal(false, 15, 15, 2000), new PetHeal(true, 15, 15, 2000), new PetStrike(50, 70, 3000, 10)))
@@ -131,7 +133,7 @@ namespace WorldServer.logic
             .Init("Baby Dragon (Doomed)", new State(new PetFollow(), new PetHeal(false, 15, 15, 2000), new PetHeal(true, 15, 15, 2000), new PetStrike(50, 70, 3000, 10)))
             .Init("Robobuddy (Doomed)", new State(new PetFollow(), new PetHeal(false, 15, 15, 2000), new PetHeal(true, 15, 15, 2000), new PetStrike(50, 70, 3000, 10)))
             .Init("Shroom (Doomed)", new State(new PetFollow(), new PetHeal(false, 30, 30, 2000), new PetHeal(true, 30, 30, 2000), new PetShoot(10, 5, 10, 0, 0, 750), new PetShoot(10, 3, 10, 352.39, 1, 800)))
-            .Init("Lil' Oryx (Doomed)", new State(new PetFollow(), new PetHeal(false, 200, 200, 800), new PetHeal(true, 200, 200, 800)))
+            .Init("Lil' Oryx (Doomed)", new State(new PetFollow(), new PetHeal(false, 200, 200, 800), new PetHeal(true, 200, 200, 800), new PetShoot(12, 8, 45, 0, 0, 1500), new PetShoot(12, 3, 10, 0, 1, 1000), new PetShoot(5, 3, 10, 0, 2, 1000), new PetShoot(12, 2, 10, 0, 3, 1000), new PetShoot(12, 3, 10, 0, 4, 1000), new PetShoot(12, 2, 10, 0, 5, 1000), new PetShoot(12, 3, 10, 0, 6, 1000)))
             .Init("Beach Ball", new State(new PetFollow(), new PetHeal(false, 15, 15, 2000), new PetHeal(true, 15, 15, 2000)))
             .Init("Beer Slurp", new State(new PetFollow(), new PetHeal(false, 15, 15, 2000), new PetHeal(true, 15, 15, 2000)))
             .Init("Snowball Throw", new State(new PetFollow()))

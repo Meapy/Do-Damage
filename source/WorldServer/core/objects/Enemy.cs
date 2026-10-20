@@ -205,6 +205,63 @@ namespace WorldServer.core.objects
             return 0;
         }
 
+        private Dictionary<int, BleedState> _bleeds;
+
+        private sealed class BleedState
+        {
+            public int Total, DurationMs, Elapsed, SinceHit, Dealt;
+        }
+
+        // Pets' bleeds (PetStrike's, and pet projectiles with <Bleed>): total damage over durationMs,
+        // ignoring defense, a share each second, credited to from like any hit (so it counts for
+        // loot). A bleed from the same player starts again rather than stacking. It doesn't use the
+        // Bleeding condition, which drains health of its own without crediting anyone.
+        public void Bleed(Player from, int total, int durationMs)
+        {
+            if (Dead || World == null || total <= 0)
+                return;
+            _bleeds ??= new Dictionary<int, BleedState>();
+            var fresh = !_bleeds.TryGetValue(from.Id, out var b);
+            if (fresh)
+                _bleeds[from.Id] = b = new BleedState();
+            b.Total = total;
+            b.DurationMs = Math.Max(1, durationMs);
+            b.Elapsed = b.SinceHit = b.Dealt = 0;
+            if (!fresh)
+                return;
+
+            WorldTimer tmr = null;
+            bool tick(World w, TickTime t)
+            {
+                if (Dead || World != w || from.World != w)
+                {
+                    _bleeds.Remove(from.Id);
+                    return true;
+                }
+                b.Elapsed += t.ElapsedMsDelta;
+                b.SinceHit += t.ElapsedMsDelta;
+                var done = b.Elapsed >= b.DurationMs;
+                if (b.SinceHit >= 1000 || done)
+                {
+                    b.SinceHit = 0;
+                    var owed = (int)((long)b.Total * Math.Min(b.Elapsed, b.DurationMs) / b.DurationMs) - b.Dealt;
+                    if (owed > 0)
+                    {
+                        b.Dealt += owed;
+                        Damage(from, ref t, owed, true);
+                    }
+                }
+                if (done || Dead)
+                {
+                    _bleeds.Remove(from.Id);
+                    return true;
+                }
+                tmr.Reset();
+                return false;
+            }
+            tmr = World.StartNewTimer(0, tick);
+        }
+
         public event EventHandler<BehaviorEventArgs> OnDeath;
 
         public void Death(ref TickTime time)

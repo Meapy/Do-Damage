@@ -213,6 +213,8 @@ namespace WorldServer.core.objects
                 EnemyHitEffects();
 
                 entity.ApplyConditionEffect(projectileDesc.Effects);
+                if (projectileDesc.BleedDamage > 0 && entity.Health > 0)
+                    entity.Bleed(this, projectileDesc.BleedDamage, projectileDesc.BleedDurationMS);
 
                 World.BroadcastIfVisibleExclude(new DamageMessage()
                 {

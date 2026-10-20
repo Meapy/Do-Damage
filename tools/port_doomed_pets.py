@@ -14,8 +14,9 @@ spread, offset, projectile and cooldown; aimed at the nearest enemy, as every pe
 betterSkillys' own permanent pets, which had no behaviour, get the follow.
 Pets are sorted into sizes (SMALL_PETS, MEDIUM_PETS, LARGE_PETS), which set their healing.
 
-Run on its own (python tools/port_doomed_pets.py), it puts the sizes' healing into the files the
-last port wrote, without the Doomed Realms repo.
+Run on its own (python tools/port_doomed_pets.py), it applies what's set by hand (apply_pet_changes:
+sizes, PET_ATTACKS, PET_ABILITIES, PET_PROJECTILES...) to the files the last port wrote, without the
+Doomed Realms repo.
 """
 
 import copy
@@ -29,6 +30,8 @@ from xml.sax import saxutils
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 PET_BEHAVIOR_FILES = ["BehaviorDb.Pets.cs", "BehaviorDb.HealPets.cs"]
 PET_BEHAVIORS_CS = os.path.join(ROOT, "source", "WorldServer", "logic", "db", "BehaviorDb.DoomedPets.cs")
+CS_USINGS = ("using Shared.resources;\nusing WorldServer.core.net.stats;\nusing WorldServer.logic.behaviors;\n"
+             "using WorldServer.logic.behaviors.doomed;\n\n")
 ITEM_XMLS = [os.path.join(ROOT, "source", "Shared", "resources", "xml", "custom", "DoomedRealms.xml"),
              os.path.join(ROOT, "client", "src", "kabam", "rotmg", "assets", "custom", "xmls", "DoomedRealms.xml")]
 # shots this close to the aim count towards a pet's damage on one enemy
@@ -68,32 +71,89 @@ MEDIUM_PETS = {
     "Skeletal Guardian Pet", "Sea Maree", "Pyramid Artifact P", "KingSlime", "Josh's Pet", "Dallas's Pet",
     "Astro's Griffin", "Aceaku's Pet", "Lunar's Phoenix", "Support Bot", "Knight Pet",
     # pets that shoot a plain pattern of their own
-    "Kythal the Necromancer", "Kythal the Skull", "Zenco The Undead God", "Shroom (Doomed)", "Cookiee",
-    "Cerberus Skull", "Nightmareee", "Twilight Sparkle",
+    "Kythal the Necromancer", "Kythal the Skull", "Zenco The Undead God", "Shroom (Doomed)", "Cerberus Skull",
+    "Twilight Sparkle",
 }
 # bosses, the stronger and more unique pets (most have Elder versions): these, and any pet drawn as a
 # boss (find_bosses), which shoots that boss's patterns
 LARGE_PETS = {
     "Gebb", "Bess", "Nutt", "Thessal Pet", "Dinosaur's Pet", "Skull Shrine P", "Cubee", "Septaviuss", "Malphass",
     "Sthenos", "Horrificc", "Limonn", "Coill Snake", "Scootaloo", "sphinxxx", "Doomed Nature Beast",
+    # the strongest of the pets with shots of their own
+    "Cookiee", "Nightmareee",
 }
 # admins' own pets: their generators are marked <Admin/>, so they can't be traded
 ADMIN_PETS = {"Lil' Oryx (Doomed)"}
-# Attacks set by hand, in place of the ones the port finds: PetShoot's arguments (range, count, degrees
-# between shots, offset, projectile id, cooldown ms), every volley aimed at the pet's target
+# Set by hand, after the port (apply_pet_changes):
+# A pet's attacks, in place of the ones the port found, as written in BehaviorDb.DoomedPets.cs:
+# PetShoot(range, count, degrees between shots, offset, projectile id, cooldown ms), each volley aimed
+# at the pet's target; PetStrike(min, max, cooldown ms, range, bleed damage, bleed ms).
 PET_ATTACKS = {
     # Grand Sphinx's three phases (the port took 4 shots from the first, all the same Fireball):
     # Fireballs, Zedshots, Hellfire
-    "sphinxxx": [(12, 1, 0, 0, 0, 800), (12, 3, 10, 0, 0, 1000), (10, 3, 10, 0, 1, 2000), (10, 2, 4, 0, 2, 1500)],
+    "sphinxxx": ["new PetShoot(12, 1, 0, 0, 0, 800)", "new PetShoot(12, 3, 10, 0, 0, 1000)",
+                 "new PetShoot(10, 3, 10, 0, 1, 2000)", "new PetShoot(10, 2, 4, 0, 2, 1500)"],
     # Archdemon Malphas' bullets, then its big bullet and shields, aimed (its pair of shields flew 72
     # degrees apart, both wide of the target, and its heaviest shots weren't used)
-    "Malphass": [(10, 2, 20, 0, 0, 1000), (8, 1, 0, 0, 0, 1000), (12, 1, 0, 0, 3, 1500), (12, 2, 10, 0, 4, 1500)],
+    "Malphass": ["new PetShoot(10, 2, 20, 0, 0, 1000)", "new PetShoot(8, 1, 0, 0, 0, 1000)",
+                 "new PetShoot(12, 1, 0, 0, 3, 1500)", "new PetShoot(12, 2, 10, 0, 4, 1500)"],
+    # Tomb Support's, and its small paralysing Ice Magic, spread so not every one flies at the target
+    "Nutt": ["new PetShoot(15, 20, 18, 0, 7, 1000)", "new PetShoot(15, 1, 0, 0, 5, 1000)",
+             "new PetShoot(12, 3, 120, 0, 1, 1000)", "new PetShoot(12, 4, 90, 0, 2, 1000)",
+             "new PetShoot(12, 3, 25, 0, 8, 1500)"],
+    # without the ring of 12 White Balls
+    "Horrificc": ["new PetShoot(12, 3, 15, 0, 1, 1500)", "new PetShoot(10, 8, 45, 0, 5, 3000)",
+                  "new PetShoot(12, 1, 0, 0, 6, 800)"],
+    # Moth Dust, and every fifth shot a fast slowing wave
+    "Scootaloo": ["new PetShoot(10, 1, 0, 0, 0, 300)", "new PetShoot(10, 1, 0, 0, 1, 1500)"],
+    # its zap bleeds the enemy for 300 over 4 seconds
+    "Doomed Nature Beast": ["new PetStrike(90, 200, 4000, 10, 300, 4000)"],
+    # a Medium pet's damage; the big shot weakens (Kythal) or bleeds (Zenco)
+    "Kythal the Necromancer": ["new PetShoot(10, 3, 10, 0, 0, 1000)", "new PetShoot(10, 1, 0, 0, 1, 2000)"],
+    "Kythal the Skull": ["new PetShoot(10, 3, 10, 0, 0, 1000)", "new PetShoot(10, 1, 0, 0, 1, 2000)"],
+    "Zenco The Undead God": ["new PetShoot(10, 3, 10, 0, 0, 1000)", "new PetShoot(10, 1, 0, 0, 1, 2000)"],
+    # three shots in an arc, like a bow
+    "Nightmareee": ["new PetShoot(10, 3, 8, 0, 0, 1000)"],
+    # Oryx the Mad God 2's attacks (its Attack phase, aimed), without its minions
+    "Lil' Oryx (Doomed)": ["new PetShoot(12, 8, 45, 0, 0, 1500)", "new PetShoot(12, 3, 10, 0, 1, 1000)",
+                           "new PetShoot(5, 3, 10, 0, 2, 1000)", "new PetShoot(12, 2, 10, 0, 3, 1000)",
+                           "new PetShoot(12, 3, 10, 0, 4, 1000)", "new PetShoot(12, 2, 10, 0, 5, 1000)",
+                           "new PetShoot(12, 3, 10, 0, 6, 1000)"],
 }
-# Projectile damage set by hand: (pet, projectile id) -> damage
-PET_PROJECTILE_DAMAGE = {
-    # the Tomb bosses' ring of spinners did none
-    ("Gebb", 3): 30, ("Bess", 3): 30, ("Nutt", 7): 30,
+# What a pet does for its owner, besides healing: PetOwnerEffect(condition, ms, cooldown ms) and
+# PetOwnerBoost(stat, amount, ms, cooldown ms)
+PET_ABILITIES = {
+    "Gebb": ["new PetOwnerEffect(ConditionEffectIndex.Healing, 2000, 5000)"],
+    "Limonn": ["new PetOwnerEffect(ConditionEffectIndex.Speedy, 2000, 5000)"],
+    "Horrificc": ["new PetOwnerEffect(ConditionEffectIndex.Invulnerable, 1000, 10000)"],
+    "Malphass": ["new PetOwnerBoost(StatDataType.Vitality, 15, 5000, 10000)"],
+    "Cubee": ["new PetOwnerBoost(StatDataType.Wisdom, 15, 5000, 10000)"],
+    "Skull Shrine P": ["new PetOwnerBoost(StatDataType.Attack, 15, 5000, 10000)"],
 }
+# The pet's projectiles copied from a betterSkillys boss (without their condition effects), in place
+# of its own
+PET_BOSS_PROJECTILES = {"Lil' Oryx (Doomed)": "Oryx the Mad God 2"}
+# Projectiles changed by hand: (pet, projectile id) -> what to set: damage, speed, lifetime (ms),
+# object (its sprite), effects (condition, seconds) on the enemy hit, bleed (damage, seconds), multihit.
+# A projectile the pet doesn't have is made from these.
+PET_PROJECTILES = {
+    # the Tomb bosses' ring of spinners did no damage
+    ("Gebb", 3): {"damage": 30}, ("Bess", 3): {"damage": 30}, ("Nutt", 7): {"damage": 30},
+    ("Bess", 1): {"effects": [("Armor Broken", 2)]},
+    ("Nutt", 8): {"effects": [("Paralyzed", 0.25)]},
+    # Moth Dust flew 1 tile
+    ("Scootaloo", 0): {"damage": 80, "speed": 50, "lifetime": 1600, "multihit": False},
+    ("Scootaloo", 1): {"object": "Cyan Fairy Wave", "damage": 100, "speed": 120, "lifetime": 900,
+                       "effects": [("Slowed", 1)], "multihit": False},
+    ("Kythal the Necromancer", 0): {"damage": 70},
+    ("Kythal the Necromancer", 1): {"damage": 120, "effects": [("Weak", 2)]},
+    ("Kythal the Skull", 0): {"damage": 70},
+    ("Kythal the Skull", 1): {"damage": 120, "effects": [("Weak", 2)]},
+    ("Zenco The Undead God", 0): {"damage": 70},
+    ("Zenco The Undead God", 1): {"damage": 120, "bleed": (120, 3)},
+}
+# The pet drawn as another object's sprite (its generator's)
+PET_TEXTURES = {"Scootaloo": "Scootaloo Generator"}
 # How big each size is drawn, in a character's heights (a character is an 8x8 sprite at Size 100): a
 # pet's <Size> is set from how much of its sprite's frame the picture covers (pet_draw_sizes).
 SIZE_HEIGHTS = {"Small": 0.6, "Medium": 0.85, "Large": 1.2, "Admin": 1.2}
@@ -369,7 +429,7 @@ def write_pet_behaviors(dr_root, dr, chosen, bs, types):
 
     bosses = find_bosses(pets, chosen, bs)
     boss_projs = {}
-    lines, stats = [], {}
+    lines = []
     for oid in sorted(pets, key=lambda p: types[p]):
         d = behaviors.get(oid, {"hp": None, "mp": None, "attacks": []})
         shooter = chosen[oid]
@@ -381,60 +441,37 @@ def write_pet_behaviors(dr_root, dr, chosen, bs, types):
             boss_projs[oid] = boss_projectiles(shooter)
             d = dict(d, attacks=[(cooldown, "projectile", index, count, min(max(radius, 8.0), 15.0) if radius else 10.0, angle, offset)
                                  for radius, count, angle, offset, index, cooldown in attacks])
-        if oid in PET_ATTACKS:
-            d = dict(d, attacks=[(cd, "projectile", index, count, rng, angle, offset)
-                                 for rng, count, angle, offset, index, cd in PET_ATTACKS[oid]])
-        size = pet_size(oid, boss)
-        if size:
-            amount, ms = PET_SIZES[size]
-            d = dict(d, hp=(ms, amount, amount), mp=(ms, amount, amount))
         parts = ["new PetFollow()"]
-        stat = stats[oid] = {"size": size} if size else {}
         for key, mana in (("hp", "false"), ("mp", "true")):
             if d[key]:
                 ms, lo, hi = d[key]
                 parts.append("new PetHeal(%s, %d, %d, %d)" % (mana, lo, hi, ms))
-                stat[key] = (lo, hi, ms)
-        dps = 0.0
         for attack in d["attacks"]:
             ms, kind = attack[0], attack[1]
             if kind == "direct":
                 lo, hi, rng = attack[2], attack[3], attack[4]
                 parts.append("new PetStrike(%d, %d, %d, %g)" % (lo, hi, ms, rng))
-                dps += (lo + hi) / 2 * 1000 / ms
-            elif pet_projectile_damage(oid, shooter, attack[2]):
+            elif projectile_damage(shooter, attack[2]):
                 index, count, rng, angle, offset = attack[2:]
                 parts.append("new PetShoot(%g, %d, %g, %g, %d, %d)" % (
                     rng, count, round(angle, 2), round(offset % 360, 2), index, ms))
-                lo, hi = pet_projectile_damage(oid, shooter, index)
-                dps += (lo + hi) / 2 * shots_on_target(count, angle, offset) * 1000 / ms
-        if dps:
-            stat["dps"] = round(dps)
         comment = "  // shoots like %s" % boss if oid in boss_projs else ""
         lines.append("            .Init(%s, new State(%s))%s" % (cs_string(oid), ", ".join(parts), comment))
     for oid in sorted(bs_pets):
-        size = pet_size(oid, None)
-        parts = ["new PetFollow()"]
-        if size:
-            amount, ms = PET_SIZES[size]
-            parts += ["new PetHeal(%s, %d, %d, %d)" % (mana, amount, amount, ms) for mana in ("false", "true")]
-            stats[oid] = {"size": size, "hp": (amount, amount, ms), "mp": (amount, amount, ms)}
-        lines.append("            .Init(%s, new State(%s))" % (cs_string(oid), ", ".join(parts)))
+        lines.append("            .Init(%s, new State(new PetFollow()))" % cs_string(oid))
 
     with open(PET_BEHAVIORS_CS, "w", encoding="utf-8", newline="\r\n") as f:
         f.write("// Generated by tools/port_doomed.py (port_doomed_pets.py). Do not edit.\n")
         f.write("// Permanent pets: the Doomed Realms pets with their healing and attacks (PetHeal, PetStrike, PetShoot),\n")
         f.write("// and betterSkillys' own permanent pets, which had no behaviour, with a follow. Pets drawn as a\n")
         f.write("// boss shoot that boss's projectiles in its patterns (port_doomed_pets.find_bosses).\n")
-        f.write("using WorldServer.logic.behaviors;\nusing WorldServer.logic.behaviors.doomed;\n\n")
+        f.write(CS_USINGS)
         f.write("namespace WorldServer.logic\n{\n    partial class BehaviorDb\n    {\n")
         f.write("        private _ DoomedPets = () => Behav()\n")
         f.write("\n".join(lines) + ";\n")
         f.write("    }\n}\n")
-    annotate_generators(stats)
-    write_pet_draw_sizes({oid: s["size"] for oid, s in stats.items() if s.get("size")})
     write_boss_projectiles(boss_projs)
-    write_projectile_damage()
+    apply_pet_changes(bs)
     for pet in sorted(boss_projs):
         print("  %s shoots like %s" % (pet, bosses[pet]))
     return len(pets), len(bs_pets)
@@ -448,46 +485,143 @@ def pet_size(oid, boss):
     return "Large" if boss else None
 
 
-def pet_projectile_damage(oid, shooter, index):
-    """(min, max) damage of a pet's projectile: PET_PROJECTILE_DAMAGE, or the shooter's XML."""
-    if (oid, index) in PET_PROJECTILE_DAMAGE:
-        return PET_PROJECTILE_DAMAGE[oid, index], PET_PROJECTILE_DAMAGE[oid, index]
-    return projectile_damage(shooter, index)
+def load_bs():
+    """betterSkillys' objects (every XML but the port's), by id."""
+    objects = {}
+    for f in glob.glob(os.path.join(ROOT, "source", "Shared", "resources", "xml", "**", "*.xml"), recursive=True):
+        if os.path.abspath(f) == os.path.abspath(ITEM_XMLS[0]):
+            continue
+        try:
+            for o in ET.parse(f).getroot().iter("Object"):
+                objects.setdefault(o.get("id"), o)
+        except ET.ParseError:
+            pass
+    return objects
 
 
-def write_projectile_damage():
-    """Puts PET_PROJECTILE_DAMAGE into the pets' projectiles in both copies of DoomedRealms.xml."""
+def set_child(el, tag, value):
+    child = el.find(tag)
+    if child is None:
+        child = ET.SubElement(el, tag)
+    child.text = str(value)
+
+
+def change_projectile(p, change):
+    """Sets PET_PROJECTILES' changes on a <Projectile> element."""
+    if "object" in change:
+        set_child(p, "ObjectId", change["object"])
+    if "damage" in change:
+        for tag in ("MinDamage", "MaxDamage"):
+            if p.find(tag) is not None:
+                p.remove(p.find(tag))
+        set_child(p, "Damage", change["damage"])
+    if "speed" in change:
+        set_child(p, "Speed", change["speed"])
+    if "lifetime" in change:
+        set_child(p, "LifetimeMS", change["lifetime"])
+    if "effects" in change:
+        for e in p.findall("ConditionEffect"):
+            p.remove(e)
+        for name, seconds in change["effects"]:
+            ET.SubElement(p, "ConditionEffect", duration="%g" % seconds).text = name
+    if "bleed" in change:
+        for e in p.findall("Bleed"):
+            p.remove(e)
+        ET.SubElement(p, "Bleed", duration="%g" % change["bleed"][1]).text = str(change["bleed"][0])
+    if change.get("multihit") is False:
+        for e in p.findall("MultiHit"):
+            p.remove(e)
+
+
+def write_pet_projectiles(bs):
+    """PET_BOSS_PROJECTILES, then PET_PROJECTILES, into both copies of DoomedRealms.xml."""
+    pets = set(PET_BOSS_PROJECTILES) | {pet for pet, _ in PET_PROJECTILES}
+    objects = {o.get("id"): o for o in ET.parse(ITEM_XMLS[0]).getroot().iter("Object")}
+    new = {}
+    for pet in sorted(pets):
+        if pet not in objects:
+            print("  %s: not found" % pet)
+            continue
+        if pet in PET_BOSS_PROJECTILES:
+            projs = boss_projectiles(bs[PET_BOSS_PROJECTILES[pet]])
+        else:
+            projs = [copy.deepcopy(p) for p in objects[pet].findall("Projectile")]
+        by_id = {int(p.get("id", "0")): p for p in projs}
+        for (owner, index), change in sorted(PET_PROJECTILES.items()):
+            if owner != pet:
+                continue
+            if index not in by_id:
+                by_id[index] = ET.Element("Projectile", id=str(index))
+                projs.append(by_id[index])
+            change_projectile(by_id[index], change)
+        for p in projs:
+            p.text = p.tail = None
+            for c in p:
+                c.tail = None
+        new[pet] = projs
+    write_boss_projectiles(new)
+
+
+def write_pet_textures():
+    """Draws each pet in PET_TEXTURES as its generator's sprite, in both copies of DoomedRealms.xml."""
     for path in ITEM_XMLS:
         text = open(path, encoding="utf-8", newline="").read()
-        for (pet, index), damage in PET_PROJECTILE_DAMAGE.items():
-            m = re.search(r'<Object [^>]*\sid="%s">.*?</Object>' % re.escape(saxutils.escape(pet)), text, re.S)
-            if not m:
-                print("  %s: not found in %s" % (pet, os.path.basename(path)))
+        for pet, source in PET_TEXTURES.items():
+            m = re.search(r'<Object [^>]*\sid="%s">.*?</Object>' % re.escape(saxutils.escape(source)), text, re.S)
+            tex = m and re.search(r"<(Animated)?Texture>.*?</(Animated)?Texture>", m.group(0), re.S)
+            p = re.search(r'<Object [^>]*\sid="%s">.*?</Object>' % re.escape(saxutils.escape(pet)), text, re.S)
+            if not tex or not p:
+                print("  %s: no sprite from %s in %s" % (pet, source, os.path.basename(path)))
                 continue
-            obj = re.sub(r'(<Projectile id="%d">.*?<Damage>)\d+(</Damage>)' % index,
-                         lambda p: "%s%d%s" % (p.group(1), damage, p.group(2)), m.group(0), count=1, flags=re.S)
-            text = text[:m.start()] + obj + text[m.end():]
+            obj = re.sub(r"<(Animated)?Texture>.*?</(Animated)?Texture>", lambda _: tex.group(0), p.group(0), count=1, flags=re.S)
+            text = text[:p.start()] + obj + text[p.end():]
         with open(path, "w", encoding="utf-8", newline="") as f:
             f.write(text)
 
 
-def apply_sizes():
-    """Puts the sizes' healing, PET_ATTACKS and PET_PROJECTILE_DAMAGE into the files the last port
-    wrote (BehaviorDb.DoomedPets.cs, the pets and their generators), without the Doomed Realms
-    repo: the pets' other attacks stay as the port made them."""
-    write_projectile_damage()
+def behaviour_dps(parts, obj):
+    """A pet's damage per second on one enemy, from its PetShoots (with their projectiles' damage and
+    bleeds, as many shots as fly at the target) and PetStrikes (with their bleeds)."""
+    dps = 0.0
+    for kind, args in re.findall(r"new (PetShoot|PetStrike)\(([^)]*)\)", ", ".join(parts)):
+        a = [float(x) for x in args.split(",")]
+        if kind == "PetStrike":
+            dps += (a[0] + a[1]) / 2 * 1000 / a[2]
+            if len(a) > 5 and a[4]:
+                dps += a[4] * 1000 / max(a[2], a[5])
+            continue
+        index, cooldown = int(a[4]), a[5]
+        damage = obj is not None and projectile_damage(obj, index)
+        if not damage:
+            continue
+        on_target = shots_on_target(int(a[1]), a[2], a[3])
+        dps += (damage[0] + damage[1]) / 2 * on_target * 1000 / cooldown
+        bleed = next((p.find("Bleed") for p in obj.findall("Projectile") if int(p.get("id", "0")) == index), None)
+        if on_target and bleed is not None:
+            dps += int(bleed.text) * 1000 / max(cooldown, float(bleed.get("duration")) * 1000)
+    return dps
+
+
+def apply_pet_changes(bs=None):
+    """What's set by hand, after the port: the sizes' healing, PET_ATTACKS, PET_ABILITIES and the
+    pets' projectiles and sprites, into BehaviorDb.DoomedPets.cs and both copies of DoomedRealms.xml;
+    then each pet's tooltip numbers (annotate_generators) and drawn size. It runs at the end of the
+    port, and on its own (without the Doomed Realms repo) on the files the last port wrote."""
+    write_pet_projectiles(bs or load_bs())
+    write_pet_textures()
     objects = {o.get("id"): o for o in ET.parse(ITEM_XMLS[0]).getroot().iter("Object")}
     with open(PET_BEHAVIORS_CS, encoding="utf-8", newline="") as f:
         text = f.read()
     stats, sized = {}, 0
 
-    def resize(m):
+    def change(m):
         nonlocal sized
         oid = m.group(1).replace('\\"', '"').replace("\\\\", "\\")
-        parts = [p for p in re.split(r", (?=new )", m.group(2)) if not p.startswith("new PetHeal(")]
+        parts = [p for p in re.split(r", (?=new )", m.group(2))
+                 if not p.startswith(("new PetHeal(", "new PetOwnerEffect(", "new PetOwnerBoost("))]
         if oid in PET_ATTACKS:
-            parts = [p for p in parts if not p.startswith(("new PetShoot(", "new PetStrike("))]
-            parts += ["new PetShoot(%g, %d, %g, %g, %d, %d)" % a for a in PET_ATTACKS[oid]]
+            parts = [p for p in parts if not p.startswith(("new PetShoot(", "new PetStrike("))] + PET_ATTACKS[oid]
+        parts += PET_ABILITIES.get(oid, [])
         size = pet_size(oid, "boss" if "// shoots like" in m.group(3) else None)
         stat = stats[oid] = {}
         if size:
@@ -498,20 +632,17 @@ def apply_sizes():
         else:
             for h in re.finditer(r"new PetHeal\((true|false), (\d+), (\d+), (\d+)\)", m.group(2)):
                 stat["mp" if h.group(1) == "true" else "hp"] = (int(h.group(2)), int(h.group(3)), int(h.group(4)))
-        # damage per second on one enemy, as write_pet_behaviors works it out
-        dps = 0.0
-        for kind, args in re.findall(r"new (PetShoot|PetStrike)\(([^)]*)\)", ", ".join(parts)):
-            a = [float(x) for x in args.split(",")]
-            if kind == "PetStrike":
-                dps += (a[0] + a[1]) / 2 * 1000 / a[2]
-            elif oid in objects and pet_projectile_damage(oid, objects[oid], int(a[4])):
-                lo, hi = pet_projectile_damage(oid, objects[oid], int(a[4]))
-                dps += (lo + hi) / 2 * shots_on_target(int(a[1]), a[2], a[3]) * 1000 / a[5]
+        dps = behaviour_dps(parts, objects.get(oid))
         if dps:
             stat["dps"] = round(dps)
         return '.Init("%s", new State(%s))%s' % (m.group(1), ", ".join(parts), m.group(3))
 
-    text = re.sub(r'\.Init\("((?:[^"\\]|\\.)*)", new State\((.*)\)\)((?:  //[^\r\n]*)?)', resize, text)
+    text = re.sub(r'\.Init\("((?:[^"\\]|\\.)*)", new State\((.*)\)\)((?:  //[^\r\n]*)?)', change, text)
+    # the usings the abilities need
+    head = text.index("namespace ")
+    nl = "\r\n" if "\r\n" in text else "\n"
+    usings_start = text.index("using ")
+    text = text[:usings_start] + CS_USINGS.replace("\n", nl) + text[head:]
     with open(PET_BEHAVIORS_CS, "w", encoding="utf-8", newline="") as f:
         f.write(text)
     annotate_generators(stats)
@@ -626,4 +757,4 @@ def annotate_generators(stats):
 
 
 if __name__ == "__main__":
-    apply_sizes()
+    apply_pet_changes()

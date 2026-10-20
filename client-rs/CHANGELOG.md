@@ -16,8 +16,18 @@ version number itself is in `client-rs/Cargo.toml`.
 - A pet's size now shows how big it is drawn: Small pets are a bit over half a character's
   height, Medium pets a little shorter than a character, and Large pets a little taller. Boss pets
   like Nut were twice a character's height.
-- Large pets are now the boss pets, which shoot their boss's attacks. Pets with plain shots of
-  their own (Pancookie, Kythal, Zenco, Shroom, Cerberus Skull, Nightmare, Phoenix) are Medium.
+- Large pets are now the boss pets, which shoot their boss's attacks, and Pancookie and
+  Nightmare. Other pets with plain shots of their own (Kythal, Zenco, Shroom, Cerberus Skull) are
+  Medium.
+- Pets help in new ways: Geb heals you over 2 seconds every 5, Limon makes you speedy for 2
+  seconds every 5, Horrific Creation makes you invulnerable for 1 second every 10, and Lil'
+  Malphas, Lil' Cube and Skull Shrine give +15 Vitality, Wisdom and Attack for 5 seconds of every
+  10. Bes's orange boomerangs break armor, Nut also throws small shots that paralyze for a
+  moment, the Kythal pets' big shot weakens, and Zenco's and the Doomed Nature Beast's attacks make
+  enemies bleed. Nightmare shoots 3 shots in an arc, Scootaloo's dust reaches much further and
+  every fifth shot is a fast wave that slows, and Lil' Oryx shoots like Oryx the Mad God. Kythal
+  and Zenco do less damage, and Horrific Creation no longer shoots its ring of white balls.
+- Dinosaur's Thessal and Phoenix are no longer sold. If you have one, you keep it.
 - The Tomb pets' (Bes, Geb, Nut) ring of spinners now does a little damage. The Sphinx pet now
   uses all three of the Grand Sphinx's shots, and Lil' Malphas aims its shields and fires its
   big bullet.

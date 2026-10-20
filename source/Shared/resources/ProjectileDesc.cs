@@ -23,6 +23,9 @@ namespace Shared.resources
         public bool PassesCover;
         public float Speed;
         public bool Wavy;
+        // a bleed on the enemy it hits (pets' shots): <Bleed duration="seconds">total damage</Bleed>
+        public int BleedDamage;
+        public int BleedDurationMS;
 
         public ProjectileDesc(XElement e)
         {
@@ -49,6 +52,12 @@ namespace Shared.resources
                 effects.Add(new ConditionEffect(i));
 
             Effects = effects.ToArray();
+            var bleed = e.Element("Bleed");
+            if (bleed != null)
+            {
+                BleedDamage = e.GetValue<int>("Bleed");
+                BleedDurationMS = (int)(bleed.GetAttribute<float>("duration") * 1000.0f);
+            }
             MultiHit = e.HasElement("MultiHit");
             PassesCover = e.HasElement("PassesCover");
             ArmorPiercing = e.HasElement("ArmorPiercing");
