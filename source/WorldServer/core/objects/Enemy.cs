@@ -43,13 +43,17 @@ namespace WorldServer.core.objects
         // multiplies the experience it gives (below 1 while a realm event has less health than
         // its XML, so a smaller boss isn't worth as much)
         public float XpScale { get; set; } = 1f;
-        
+        // the Training Dummy's: tells each player their damage over 5 seconds
+        public DpsMeter DpsMeter { get; private set; }
+
         public Enemy(GameServer manager, ushort objType)
             : base(manager, objType)
         {
             DamageCounter = new DamageCounter(this);
             _glowcolor = new StatTypeValue<int>(this, StatDataType.GlowEnemy, 0);
             _defense = new StatTypeValue<int>(this, StatDataType.Defense, ObjectDesc.Defense);
+            if (ObjectDesc.IdName == DpsMeter.ObjectId)
+                DpsMeter = new DpsMeter(this);
         }
 
         public override void Init(World owner)
@@ -61,6 +65,8 @@ namespace WorldServer.core.objects
 
         public override void Tick(ref TickTime time)
         {
+            DpsMeter?.Tick();
+
             // objects without MaxHitPoints (anchors, spawners, traps) start at 0 HP; they end
             // through their behaviour instead of dying on their first tick
             if (Health == 0 && MaxHealth > 0 && !Dead)

@@ -32,7 +32,7 @@ The nexus, from the middle out:
 The vault is a cellar under the castle, walled with the tall walls of Oryx's Sanctuary and dark
 beyond them (`Grid.underground_walls`): its chest hall (the `Vault` region; `VaultWorld` fills the chests
 nearest the spawn first, so only their number matters), the gift chests (`Gifting Chest`) and a
-court with the Potion Storage, Armoire, Guild Chronicle and the portals.
+court with the Potion Storage, Armoire, Guild Chronicle, the Training Dummy and the portals.
 
 `--preview` draws each map from the game's sprites, one tile per 8 pixels, to check a change
 without starting a server.
@@ -565,6 +565,9 @@ def build_vault():
     for x in (sx - 3, sx + 3):
         g.banner(x, 36, FLOOR)
     g.accents(rng, 0.08)
+    # the Training Dummy beside the spawn, in reach of every weapon from it (`DpsMeter`)
+    assert not g[sx + 5, sy]["obj"]
+    g.put(sx + 5, sy, obj="Training Dummy")
     g.mark_open()
     return g
 

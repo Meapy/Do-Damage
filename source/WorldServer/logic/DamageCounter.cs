@@ -107,6 +107,9 @@ namespace WorldServer.logic
 
         public void HitBy(Player player, int dmg)
         {
+            // every hit on an enemy comes here, a shot's and an ability's
+            Host.DpsMeter?.Hit(player, dmg);
+
             var hitters = GetHitters();
             if (!hitters.TryGetValue(player, out int totalDmg))
                 totalDmg = 0;

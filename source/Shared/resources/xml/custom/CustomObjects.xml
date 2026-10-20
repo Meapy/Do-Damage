@@ -68,4 +68,21 @@
 		<Static/>
 		<ShadowSize>70</ShadowSize>
 	</Object>
+	<!-- the vault's Training Dummy: it never dies, and tells whoever hits it their damage over 5
+	     seconds (DpsMeter) -->
+	<Object type="0x4976" id="Training Dummy">
+		<Class>GameObject</Class>
+		<Texture>
+			<File>lofiEnvironment3</File>
+			<Index>0x97</Index>
+		</Texture>
+		<Enemy/>
+		<MaxHitPoints>1000000</MaxHitPoints>
+		<Defense>0</Defense>
+		<Exp>0</Exp>
+		<StasisImmune/>
+		<NoMiniMap/>
+		<HitSound>monster/wooden_walls_hit</HitSound>
+		<DeathSound>monster/stone_walls_death</DeathSound>
+	</Object>
 </Objects>

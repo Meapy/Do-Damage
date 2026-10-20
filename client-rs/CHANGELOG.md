@@ -9,6 +9,9 @@ refuses while an `Unreleased` one is left, so rename it to `## <version> (<date>
 version number itself is in `client-rs/Cargo.toml`.
 
 ## Unreleased
+- Your vault has a Training Dummy beside the spawn. Shoot it and, 5 seconds after your first hit,
+  the chat tells you (and only you) the damage you did and your damage a second (DPS). Keep
+  shooting for another reading. It never dies and gives no experience.
 - A Potion of Oryx is no longer drunk halfway: if a stat it raises is already maxed and that stat's
   potion storage is full, it now does nothing and stays, where before it raised your other stats
   and stayed to be drunk again. The message says which storage is full, and a Potion of Oryx's
