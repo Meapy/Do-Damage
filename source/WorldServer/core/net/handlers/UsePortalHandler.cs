@@ -68,6 +68,13 @@ namespace WorldServer.core.net.handlers
                 return;
             }
 
+            var sealedWhy = SealedDungeons.WhyDungeon(portal.PortalDescr?.DungeonName);
+            if (sealedWhy != null && !client.Account.Admin)
+            {
+                player.SendError(sealedWhy);
+                return;
+            }
+
             if (portal.Locked)
             {
                 player.SendError(portal.LockedHint ?? "This portal is locked. Use its incantation beside it to open it.");

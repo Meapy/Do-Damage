@@ -2,6 +2,7 @@ using Shared.resources;
 using WorldServer.logic.behaviors;
 using WorldServer.logic.loot;
 using WorldServer.logic.transitions;
+using WorldServer.core.worlds;
 
 namespace WorldServer.logic
 {
@@ -16,9 +17,12 @@ namespace WorldServer.logic
                 new State(
                     new BossStats(240000, 50, 1.0, 0.3),
                     new DropPortalOnDeath("Locked Wine Cellar Portal", 1.0, timeout: 600, xAdjustment: 2,
-                        name: "Locked: Doomed Cellar", lockedHint: "This portal is locked. Use a Doomed Cellar Incantation beside it to open it."),
+                        name: "Locked: Doomed Cellar", lockedHint: SealedDungeons.WhyDungeon("Doomed Cellar")
+                            ?? "This portal is locked. Use a Doomed Cellar Incantation beside it to open it."),
                     new DropPortalOnDeath("Realm Portal", 1.0, timeout: 120, xAdjustment: -2),
-                    new AnnounceOnDeath("{PL_LIST} burned Oryx the Mad God out of the Hash Cellar! He makes his last stand in the Doomed Cellar, sealed by a Doomed Cellar Incantation..."),
+                    new AnnounceOnDeath(SealedDungeons.WhyDungeon("Doomed Cellar") != null
+                        ? "{PL_LIST} burned Oryx the Mad God out of the Hash Cellar! He flees to the Doomed Cellar, sealed for now..."
+                        : "{PL_LIST} burned Oryx the Mad God out of the Hash Cellar! He makes his last stand in the Doomed Cellar, sealed by a Doomed Cellar Incantation..."),
                     new State("Dormant",
                         new ConditionEffectBehavior(ConditionEffectIndex.Invulnerable),
                         new PlayerWithinTransition(15, "Awaken")

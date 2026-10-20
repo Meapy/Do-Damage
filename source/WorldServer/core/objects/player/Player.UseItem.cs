@@ -957,6 +957,13 @@ namespace WorldServer.core.objects
                 return null;
             }
 
+            var sealedWhy = SealedDungeons.WhyPortal(eff.NewId);
+            if (sealedWhy != null && !Client.Account.Admin)
+            {
+                why = sealedWhy;
+                return null;
+            }
+
             if (!string.IsNullOrWhiteSpace(eff.OnlyInArea))
             {
                 var areas = eff.OnlyInArea.Split(',').Select(a => a.Trim()).Where(a => a.Length > 0).ToArray();

@@ -11,6 +11,10 @@ through his Chamber, his Wine Cellar, the new Oryx's Sanctuary and the Hash Cell
 Cellar, the end of the line. Every stage is harder than the last and drops better loot, and every
 Oryx's death is announced to the whole server.
 
+> **The Doomed Cellar is sealed for now.** Oryx the Mad God 5's loot is being reworked, so a Doomed
+> Cellar Incantation won't open his portal until he's back (it isn't used up if you try), and the
+> shops don't sell it meanwhile. Keep any you have.
+
 ## The stages
 
 {{gen:oryx-chain}}

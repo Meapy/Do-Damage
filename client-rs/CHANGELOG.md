@@ -9,6 +9,9 @@ refuses while an `Unreleased` one is left, so rename it to `## <version> (<date>
 version number itself is in `client-rs/Cargo.toml`.
 
 ## Unreleased
+- The Doomed Cellar (Oryx the Mad God 5) is sealed for now while his loot is reworked: a Doomed
+  Cellar Incantation won't open his portal and isn't used up if you try, and the shops stop selling
+  it until he's back. Hold on to any you have.
 - Weapon rebalance. The top tiers of Swords, Daggers, Bows, Wands, Staves, Katanas and Dual Blades
   now give stats: +2 a tier from T11 (+8 at T14) and +2 a tier from T12 (+6 at T14). Swords and
   Katanas give Defense and Attack, Daggers and Bows Dexterity and Attack, Wands Attack and

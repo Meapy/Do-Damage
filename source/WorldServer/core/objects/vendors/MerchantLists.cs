@@ -4,6 +4,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using WorldServer.core;
+using WorldServer.core.worlds;
 
 namespace WorldServer.core.objects.vendors
 {
@@ -105,7 +106,7 @@ namespace WorldServer.core.objects.vendors
         };
 
         private static readonly List<ISellableItem> DungeonKeys = DungeonKeyPrices.Select(k => (ISellableItem)new ShopItem(k.Key, (ushort)k.Price)).ToList();
-        private static readonly List<ISellableItem> DoomedKeys = DoomedKeyPrices.Select(k => (ISellableItem)new ShopItem(k.Key, (ushort)k.Price)).ToList();
+        private static readonly List<ISellableItem> DoomedKeys = DoomedKeyPrices.Where(k => !SealedDungeons.IsSealedItem(k.Key)).Select(k => (ISellableItem)new ShopItem(k.Key, (ushort)k.Price)).ToList();
         private static readonly List<ISellableItem> EnchantedKeys = EnchantedKeyDungeons
             .Select(d => (ISellableItem)new ShopItem($"{d} Enchanted Key", (ushort)(DungeonKeyPrices.First(k => k.Key == $"{d} Key").Price * 2 + 250)))
             .ToList();

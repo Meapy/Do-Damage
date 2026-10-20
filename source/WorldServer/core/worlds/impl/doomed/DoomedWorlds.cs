@@ -546,7 +546,7 @@ namespace WorldServer.core.worlds.impl.doomed
         {
             var data = GameServer.Resources.GameData;
             _items = new List<ISellableItem>();
-            var entries = DoomedEconomyData.ShopItems.Where(i => i.Shop == ShopName).ToList();
+            var entries = DoomedEconomyData.ShopItems.Where(i => i.Shop == ShopName && !SealedDungeons.IsSealedItem(i.Item)).ToList();
             _currency = entries.Count > 0 ? entries[0].Currency : CurrencyType.Fame;
             foreach (var e in entries)
                 if (data.IdToObjectType.TryGetValue(e.Item, out var type) && data.Items.ContainsKey(type))
