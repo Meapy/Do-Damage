@@ -9,6 +9,10 @@ refuses while an `Unreleased` one is left, so rename it to `## <version> (<date>
 version number itself is in `client-rs/Cargo.toml`.
 
 ## Unreleased
+- Wands hit about a third harder on every tier and give +3 Attack and +3 Dexterity on every tier,
+  on top of their other bonuses: a Priest with the best gear now does about 2,000 damage a second.
+- The Knight's highest Defense is 35 (was 40) and its highest health 750 (was 770). Knights
+  above the new highest come down to it.
 - Armor rebalance (T1 to T15). Leather armor that gives Dexterity now gives Speed too, half as
   much (rounded up): +1 at T4 up to +4 at T15. Every robe gives 20 more MP and health equal to half
   its MP: +20 MP and +10 HP at T1 up to +95 MP and +48 HP at T15. Heavy armor gives +15 health a

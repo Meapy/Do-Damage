@@ -252,6 +252,12 @@ class Balance:
             e = hp * hit / int(taken(hit, df))
             rows.append(dict(c=c, it=it, arm=arm, rng=w[4], dps=v, ehp=e, dpr=v / w[4], epr=e / w[4]))
         top = {k: max(r[k] for r in rows) for k in ("dps", "ehp", "dpr", "epr")}
+        # one number to compare classes by: the geometric mean of DPS and EHP per tile, each as a share
+        # of the best class's (100 would be the best at both; strong at one and weak at the other
+        # scores lower than fair at both)
+        for r in rows:
+            r["score"] = 100 * (r["dpr"] / top["dpr"] * r["epr"] / top["epr"]) ** 0.5
+        top["score"] = max(r["score"] for r in rows)
 
         def vs(r, k):
             d = (r[k] / top[k] - 1) * 100
@@ -264,13 +270,14 @@ class Balance:
             return '<td class="n">%s</td>' % ("<b>%s</b>" % text if r[k] == top[k] else text)
 
         head = [("Class", 0), ("Weapon", 0), ("Armor", 0), ("Range", 1), ("DPS", 1), ("vs top", 1), ("EHP", 1),
-                ("EHP vs top", 1), ("DPS per tile", 1), ("vs top", 1), ("EHP per tile", 1), ("vs top", 1)]
+                ("EHP vs top", 1), ("DPS per tile", 1), ("vs top", 1), ("EHP per tile", 1), ("vs top", 1),
+                ("Score per tile", 1), ("vs top", 1)]
         body = []
         for r in rows:
-            body.append("<tr><td>%s</td><td>%s</td><td>%s</td><td class=\"n\">%s</td>%s%s%s%s%s%s%s%s</tr>" % (
+            body.append("<tr><td>%s</td><td>%s</td><td>%s</td><td class=\"n\">%s</td>%s%s%s%s%s%s%s%s%s%s</tr>" % (
                 self.esc(r["c"]["name"]), self.link(r["it"]), self.link(r["arm"]) if r["arm"] else "&ndash;",
                 self.fmt(round(r["rng"], 2)), cell(r, "dps"), vs(r, "dps"), cell(r, "ehp"), vs(r, "ehp"),
-                cell(r, "dpr"), vs(r, "dpr"), cell(r, "epr"), vs(r, "epr")))
+                cell(r, "dpr"), vs(r, "dpr"), cell(r, "epr"), vs(r, "epr"), cell(r, "score"), vs(r, "score")))
         return self.table(head, body, "balance grid")
 
     def class_ehp(self, used):

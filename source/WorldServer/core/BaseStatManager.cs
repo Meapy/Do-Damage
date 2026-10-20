@@ -13,6 +13,13 @@ namespace WorldServer.core
             _parent = parent;
             _base = Utils.ResizeArray(parent.Owner.Client.Character.Stats, StatsManager.NumStatTypes);
 
+            // a stat above its class's highest (the class's maximum was lowered since: the Knight's
+            // health and defense) comes down to it, as levelling up would bring it
+            if (parent.Owner.GameServer.Resources.GameData.Classes.TryGetValue(parent.Owner.ObjectType, out var desc))
+                for (var i = 0; i < desc.Stats.Length && i < _base.Length; i++)
+                    if (_base[i] > desc.Stats[i].MaxValue)
+                        _base[i] = desc.Stats[i].MaxValue;
+
             ReCalculateValues();
         }
 

@@ -60,6 +60,10 @@ worked out as in the two tables above: **DPS** against 50 defense and **EHP** ag
 
 - **Per tile** divides DPS and EHP by the weapon's range in tiles. A short-range class has to stand
   closer to hit, so this shows what it gets for each tile of reach it gives up.
+- **Score per tile** puts the two together, so every class can be compared on one number:
+  √(DPS per tile ÷ the best DPS per tile × EHP per tile ÷ the best EHP per tile) × 100. A class
+  that was best at both would score 100; one that hits very hard but dies fast scores lower than
+  one that is fair at both.
 - **vs top** is how far each class is below the best class in that column (bold).
 
 {{gen:class-totals}}

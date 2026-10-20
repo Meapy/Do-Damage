@@ -154,10 +154,10 @@
 		<BloodProb>1.0</BloodProb>
 		<SlotTypes>1, 5, 7, 9, 0, 0, 0, 0, 0, 0, 0, 0</SlotTypes>
 		<Equipment>0xa00, 0x0a08, -1, -1, 0xa22, -1, -1, -1, -1, -1, -1, -1</Equipment>
-		<MaxHitPoints max="770">200</MaxHitPoints>
+		<MaxHitPoints max="750">200</MaxHitPoints>
 		<MaxMagicPoints max="252">100</MaxMagicPoints>
 		<Attack max="50">15</Attack>
-		<Defense max="40">0</Defense>
+		<Defense max="35">0</Defense>
 		<Speed max="50">7</Speed>
 		<Dexterity max="50">10</Dexterity>
 		<HpRegen max="75">10</HpRegen>
