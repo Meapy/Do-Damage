@@ -478,8 +478,8 @@
 		<Sound>weapon/fire_wand</Sound>
 		<Projectile>
 			<ObjectId>Red Fire</ObjectId>
-			<Speed>180</Speed>
-			<LifetimeMS>444</LifetimeMS>
+			<Speed>200</Speed>
+			<LifetimeMS>400</LifetimeMS>
 			<MinDamage>37</MinDamage>
 			<MaxDamage>58</MaxDamage>
 			<MultiHit/>
@@ -505,8 +505,8 @@
 		<Sound>weapon/missile_wand</Sound>
 		<Projectile>
 			<ObjectId>Blue Magic</ObjectId>
-			<Speed>180</Speed>
-			<LifetimeMS>444</LifetimeMS>
+			<Speed>200</Speed>
+			<LifetimeMS>400</LifetimeMS>
 			<MinDamage>51</MinDamage>
 			<MaxDamage>73</MaxDamage>
 			<MultiHit/>
@@ -532,8 +532,8 @@
 		<Sound>weapon/missile_wand</Sound>
 		<Projectile>
 			<ObjectId>Blue Magic</ObjectId>
-			<Speed>180</Speed>
-			<LifetimeMS>444</LifetimeMS>
+			<Speed>200</Speed>
+			<LifetimeMS>400</LifetimeMS>
 			<MinDamage>58</MinDamage>
 			<MaxDamage>81</MaxDamage>
 			<MultiHit/>
@@ -559,8 +559,8 @@
 		<Sound>weapon/missile_wand</Sound>
 		<Projectile>
 			<ObjectId>Blue Magic</ObjectId>
-			<Speed>180</Speed>
-			<LifetimeMS>444</LifetimeMS>
+			<Speed>200</Speed>
+			<LifetimeMS>400</LifetimeMS>
 			<MinDamage>66</MinDamage>
 			<MaxDamage>87</MaxDamage>
 			<MultiHit/>
@@ -586,8 +586,8 @@
 		<Sound>weapon/missile_wand</Sound>
 		<Projectile>
 			<ObjectId>Blue Magic</ObjectId>
-			<Speed>180</Speed>
-			<LifetimeMS>444</LifetimeMS>
+			<Speed>200</Speed>
+			<LifetimeMS>400</LifetimeMS>
 			<MinDamage>81</MinDamage>
 			<MaxDamage>102</MaxDamage>
 			<MultiHit/>
@@ -613,8 +613,8 @@
 		<Sound>weapon/hells_fire_wand</Sound>
 		<Projectile>
 			<ObjectId>Purple Magic</ObjectId>
-			<Speed>180</Speed>
-			<LifetimeMS>444</LifetimeMS>
+			<Speed>200</Speed>
+			<LifetimeMS>400</LifetimeMS>
 			<MinDamage>87</MinDamage>
 			<MaxDamage>124</MaxDamage>
 			<MultiHit/>
@@ -640,8 +640,8 @@
 		<Sound>weapon/wand_of_dark_magic</Sound>
 		<Projectile>
 			<ObjectId>Pink Bolt</ObjectId>
-			<Speed>180</Speed>
-			<LifetimeMS>444</LifetimeMS>
+			<Speed>200</Speed>
+			<LifetimeMS>400</LifetimeMS>
 			<MinDamage>102</MinDamage>
 			<MaxDamage>145</MaxDamage>
 			<MultiHit/>
@@ -667,8 +667,8 @@
 		<Sound>weapon/wand_of_dark_magic</Sound>
 		<Projectile>
 			<ObjectId>Red Fire</ObjectId>
-			<Speed>180</Speed>
-			<LifetimeMS>444</LifetimeMS>
+			<Speed>200</Speed>
+			<LifetimeMS>400</LifetimeMS>
 			<MinDamage>110</MinDamage>
 			<MaxDamage>168</MaxDamage>
 			<MultiHit/>
@@ -719,8 +719,8 @@
 		<Sound>weapon/wand_of_death</Sound>
 		<Projectile>
 			<ObjectId>Green Magic</ObjectId>
-			<Speed>180</Speed>
-			<LifetimeMS>444</LifetimeMS>
+			<Speed>200</Speed>
+			<LifetimeMS>400</LifetimeMS>
 			<MinDamage>116</MinDamage>
 			<MaxDamage>182</MaxDamage>
 			<MultiHit/>
@@ -747,8 +747,8 @@
 		<Sound>weapon/wand_of_death</Sound>
 		<Projectile>
 			<ObjectId>Purple Magic</ObjectId>
-			<Speed>180</Speed>
-			<LifetimeMS>444</LifetimeMS>
+			<Speed>200</Speed>
+			<LifetimeMS>400</LifetimeMS>
 			<MinDamage>124</MinDamage>
 			<MaxDamage>189</MaxDamage>
 			<MultiHit/>
@@ -775,8 +775,8 @@
 		<Sound>weapon/wand_of_death</Sound>
 		<Projectile>
 			<ObjectId>Red Fire</ObjectId>
-			<Speed>180</Speed>
-			<LifetimeMS>444</LifetimeMS>
+			<Speed>200</Speed>
+			<LifetimeMS>400</LifetimeMS>
 			<MinDamage>131</MinDamage>
 			<MaxDamage>197</MaxDamage>
 			<MultiHit/>
@@ -802,8 +802,8 @@
 		<Sound>weapon/wand_of_death</Sound>
 		<Projectile>
 			<ObjectId>Green Magic</ObjectId>
-			<Speed>180</Speed>
-			<LifetimeMS>444</LifetimeMS>
+			<Speed>200</Speed>
+			<LifetimeMS>400</LifetimeMS>
 			<MinDamage>139</MinDamage>
 			<MaxDamage>197</MaxDamage>
 			<MultiHit/>
@@ -829,8 +829,8 @@
 		<Sound>weapon/wand_of_death</Sound>
 		<Projectile>
 			<ObjectId>Blue Magic</ObjectId>
-			<Speed>180</Speed>
-			<LifetimeMS>444</LifetimeMS>
+			<Speed>200</Speed>
+			<LifetimeMS>400</LifetimeMS>
 			<MinDamage>139</MinDamage>
 			<MaxDamage>203</MaxDamage>
 			<MultiHit/>
@@ -856,8 +856,8 @@
 		<Sound>weapon/wand_of_death</Sound>
 		<Projectile>
 			<ObjectId>Evocation Magic</ObjectId>
-			<Speed>180</Speed>
-			<LifetimeMS>444</LifetimeMS>
+			<Speed>200</Speed>
+			<LifetimeMS>400</LifetimeMS>
 			<MinDamage>153</MinDamage>
 			<MaxDamage>211</MaxDamage>
 			<MultiHit/>
@@ -884,8 +884,8 @@
 		<Sound>weapon/wand_of_death</Sound>
 		<Projectile>
 			<ObjectId>Retribution Magic</ObjectId>
-			<Speed>180</Speed>
-			<LifetimeMS>444</LifetimeMS>
+			<Speed>200</Speed>
+			<LifetimeMS>400</LifetimeMS>
 			<MinDamage>160</MinDamage>
 			<MaxDamage>226</MaxDamage>
 			<MultiHit/>
@@ -2122,10 +2122,10 @@
 		<Sound>weapon/fire_dagger</Sound>
 		<Projectile>
 			<ObjectId>Orange Magic</ObjectId>
-			<Speed>140</Speed>
+			<Speed>150</Speed>
 			<MinDamage>110</MinDamage>
 			<MaxDamage>190</MaxDamage>
-			<LifetimeMS>429</LifetimeMS>
+			<LifetimeMS>400</LifetimeMS>
 		</Projectile>
 		<ActivateOnEquip stat="20" amount="4">IncrementStat</ActivateOnEquip>
 		<ActivateOnEquip stat="28" amount="6">IncrementStat</ActivateOnEquip>
@@ -2149,10 +2149,10 @@
 		<Sound>weapon/fire_dagger</Sound>
 		<Projectile>
 			<ObjectId>Black Magic</ObjectId>
-			<Speed>140</Speed>
+			<Speed>150</Speed>
 			<MinDamage>125</MinDamage>
 			<MaxDamage>205</MaxDamage>
-			<LifetimeMS>429</LifetimeMS>
+			<LifetimeMS>400</LifetimeMS>
 		</Projectile>
 		<ActivateOnEquip stat="20" amount="6">IncrementStat</ActivateOnEquip>
 		<ActivateOnEquip stat="28" amount="8">IncrementStat</ActivateOnEquip>
@@ -9010,8 +9010,8 @@
 		<Sound>weapon/long_sword</Sound>
 		<Projectile>
 			<ObjectId>Sadamune Slash</ObjectId>
-			<Speed>130</Speed>
-			<LifetimeMS>404</LifetimeMS>
+			<Speed>150</Speed>
+			<LifetimeMS>350</LifetimeMS>
 			<MinDamage>165</MinDamage>
 			<MaxDamage>215</MaxDamage>
 			<MultiHit/>
@@ -9038,8 +9038,8 @@
 		<Sound>weapon/long_sword</Sound>
 		<Projectile>
 			<ObjectId>Kusanagi Slash</ObjectId>
-			<Speed>130</Speed>
-			<LifetimeMS>404</LifetimeMS>
+			<Speed>150</Speed>
+			<LifetimeMS>350</LifetimeMS>
 			<MinDamage>182</MinDamage>
 			<MaxDamage>231</MaxDamage>
 			<MultiHit/>

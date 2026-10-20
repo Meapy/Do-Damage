@@ -423,7 +423,7 @@ ITEM_STORE = {
 
 # The tiered gear changes (SETUP-LOCAL.md, "Tiered weapon rebalance" and "Tiered abilities").
 # Weapons: the Dual Blades all
-# reach 5 tiles (LifetimeMS from their speed), get +2 Defense a tier from T11 and +2 Speed a tier
+# reach exactly 5 tiles (speed 200, LifetimeMS 250), get +2 Defense a tier from T11 and +2 Speed a tier
 # from T12; Rage Claw Blades (T9) lose their 1.5x rate of fire for damage between T8's and T10's.
 # Fists of Broken Bones, a boss drop, is untiered: the Monk's tiered fists are in CustomItems.xml,
 # with the T13 and T14 Dual Blades.
@@ -432,7 +432,7 @@ ITEM_STORE = {
 # drops; so are Oceanic Curse (T9, no source) and Oceanic Nova (T10, a boss drop). Power of the
 # Fountains, the Monk's only ability, moves from T1 to T7, where its numbers belong; the missing
 # tiers of the Doomed Realms classes' abilities are in CustomItems.xml.
-# id -> {lifetime, rof, damage: (min, max), stats: {stat: amount}, untier, tier}
+# id -> {speed, lifetime, rof, damage: (min, max), stats: {stat: amount}, untier, tier}
 DEF, SPD = "21", "22"
 UNTIERED_ABILITIES = [
     "1940s Orb", "Azure Trap", "Bile Poison", "Bloodorc Quiver", "Class Test", "Cloak of Dimensions",
@@ -454,13 +454,12 @@ JACKET_BOOSTS = {"Lightweight Jacket": (3, 3), "Murderous Jacket": (5, 4), "Invi
                  "Jacket of Sorrows": (10, 6), "Skyfall Jacket": (12, 7), "Jacket of Bloodrut Nature": (15, 8)}
 ABILITY_BAGS = [1, 1, 1, 2, 2, 4, 4, 9, 9]
 GEAR_TUNING = {
-    "Bronze Daggers": {"lifetime": 278}, "Invert Blades": {"lifetime": 278}, "Dusky Blades": {"lifetime": 278},
-    "Duo Blades": {"lifetime": 278}, "Silver Blades": {"lifetime": 278}, "Half Blades": {"lifetime": 278},
-    "Obsidian Blades": {"lifetime": 250}, "Mithril Blades": {"lifetime": 313}, "Infinity Blades": {"lifetime": 313},
-    "Rage Claw Blades": {"lifetime": 313, "rof": "1", "damage": (105, 168)},
-    "Emerald Malevolence Blades": {"lifetime": 250},
-    "Eldricht Blades": {"lifetime": 313, "stats": {DEF: 2}},
-    "Master Blades": {"lifetime": 313, "stats": {DEF: 4, SPD: 2}},
+    **{oid: {"speed": 200, "lifetime": 250} for oid in (
+        "Bronze Daggers", "Invert Blades", "Dusky Blades", "Duo Blades", "Silver Blades", "Half Blades",
+        "Obsidian Blades", "Mithril Blades", "Infinity Blades", "Emerald Malevolence Blades")},
+    "Rage Claw Blades": {"speed": 200, "lifetime": 250, "rof": "1", "damage": (105, 168)},
+    "Eldricht Blades": {"speed": 200, "lifetime": 250, "stats": {DEF: 2}},
+    "Master Blades": {"speed": 200, "lifetime": 250, "stats": {DEF: 4, SPD: 2}},
     "Fists of Broken Bones": {"untier": True},
     "Power of the Fountains": {"tier": "7"},
     **{oid: {"untier": True} for oid in UNTIERED_ABILITIES},
@@ -490,6 +489,8 @@ def tune_gear(dr):
         if o is None:
             continue
         p = o.find("Projectile")
+        if "speed" in t:
+            p.find("Speed").text = str(t["speed"])
         if "lifetime" in t:
             p.find("LifetimeMS").text = str(t["lifetime"])
         if "damage" in t:

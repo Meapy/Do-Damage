@@ -8454,10 +8454,10 @@
 		<Sound>weapon/blunt_dagger</Sound>
 		<Projectile>
 			<ObjectId>Bronze Proj</ObjectId>
-			<Speed>180</Speed>
+			<Speed>200</Speed>
 			<MinDamage>30</MinDamage>
 			<MaxDamage>80</MaxDamage>
-			<LifetimeMS>278</LifetimeMS>
+			<LifetimeMS>250</LifetimeMS>
 			<MultiHit />
 			<ArmorPiercing />
 		</Projectile>
@@ -8479,10 +8479,10 @@
 		<Sound>weapon/dirk</Sound>
 		<Projectile>
 			<ObjectId>Steel Proj</ObjectId>
-			<Speed>180</Speed>
+			<Speed>200</Speed>
 			<MinDamage>35</MinDamage>
 			<MaxDamage>90</MaxDamage>
-			<LifetimeMS>278</LifetimeMS>
+			<LifetimeMS>250</LifetimeMS>
 			<MultiHit />
 			<ArmorPiercing />
 		</Projectile>
@@ -8504,10 +8504,10 @@
 		<Sound>weapon/dirkr</Sound>
 		<Projectile>
 			<ObjectId>Bronze Proj</ObjectId>
-			<Speed>180</Speed>
+			<Speed>200</Speed>
 			<MinDamage>45</MinDamage>
 			<MaxDamage>100</MaxDamage>
-			<LifetimeMS>278</LifetimeMS>
+			<LifetimeMS>250</LifetimeMS>
 			<MultiHit />
 			<ArmorPiercing />
 		</Projectile>
@@ -8529,10 +8529,10 @@
 		<Sound>weapon/dirk</Sound>
 		<Projectile>
 			<ObjectId>Steel Proj</ObjectId>
-			<Speed>180</Speed>
+			<Speed>200</Speed>
 			<MinDamage>60</MinDamage>
 			<MaxDamage>110</MaxDamage>
-			<LifetimeMS>278</LifetimeMS>
+			<LifetimeMS>250</LifetimeMS>
 			<MultiHit />
 			<ArmorPiercing />
 		</Projectile>
@@ -8554,10 +8554,10 @@
 		<Sound>weapon/dirk</Sound>
 		<Projectile>
 			<ObjectId>Silver Proj</ObjectId>
-			<Speed>180</Speed>
+			<Speed>200</Speed>
 			<MinDamage>70</MinDamage>
 			<MaxDamage>125</MaxDamage>
-			<LifetimeMS>278</LifetimeMS>
+			<LifetimeMS>250</LifetimeMS>
 			<MultiHit />
 			<ArmorPiercing />
 		</Projectile>
@@ -8579,10 +8579,10 @@
 		<Sound>weapon/dirk</Sound>
 		<Projectile>
 			<ObjectId>Steel Proj</ObjectId>
-			<Speed>180</Speed>
+			<Speed>200</Speed>
 			<MinDamage>70</MinDamage>
 			<MaxDamage>140</MaxDamage>
-			<LifetimeMS>278</LifetimeMS>
+			<LifetimeMS>250</LifetimeMS>
 			<MultiHit />
 			<ArmorPiercing />
 		</Projectile>
@@ -8629,10 +8629,10 @@
 		<Sound>weapon/mithril_dagger</Sound>
 		<Projectile>
 			<ObjectId>Mithril Proj</ObjectId>
-			<Speed>160</Speed>
+			<Speed>200</Speed>
 			<MinDamage>80</MinDamage>
 			<MaxDamage>150</MaxDamage>
-			<LifetimeMS>313</LifetimeMS>
+			<LifetimeMS>250</LifetimeMS>
 			<MultiHit />
 			<ArmorPiercing />
 		</Projectile>
@@ -8654,10 +8654,10 @@
 		<Sound>weapon/fire_dagger</Sound>
 		<Projectile>
 			<ObjectId>Infinity Proj</ObjectId>
-			<Speed>160</Speed>
+			<Speed>200</Speed>
 			<MinDamage>90</MinDamage>
 			<MaxDamage>160</MaxDamage>
-			<LifetimeMS>313</LifetimeMS>
+			<LifetimeMS>250</LifetimeMS>
 			<MultiHit />
 			<ArmorPiercing />
 		</Projectile>
@@ -8679,10 +8679,10 @@
 		<Sound>weapon/fire_dagger</Sound>
 		<Projectile>
 			<ObjectId>Rageclaw Proj</ObjectId>
-			<Speed>160</Speed>
+			<Speed>200</Speed>
 			<MinDamage>105</MinDamage>
 			<MaxDamage>168</MaxDamage>
-			<LifetimeMS>313</LifetimeMS>
+			<LifetimeMS>250</LifetimeMS>
 			<MultiHit />
 			<ArmorPiercing />
 		</Projectile>
@@ -8731,10 +8731,10 @@
 		<Sound>weapon/fire_dagger</Sound>
 		<Projectile>
 			<ObjectId>Eldricht Proj</ObjectId>
-			<Speed>160</Speed>
+			<Speed>200</Speed>
 			<MinDamage>130</MinDamage>
 			<MaxDamage>190</MaxDamage>
-			<LifetimeMS>313</LifetimeMS>
+			<LifetimeMS>250</LifetimeMS>
 			<MultiHit />
 			<ArmorPiercing />
 		</Projectile>
@@ -8758,10 +8758,10 @@
 		<Sound>weapon/fire_dagger</Sound>
 		<Projectile>
 			<ObjectId>Master Proj</ObjectId>
-			<Speed>160</Speed>
+			<Speed>200</Speed>
 			<MinDamage>140</MinDamage>
 			<MaxDamage>200</MaxDamage>
-			<LifetimeMS>313</LifetimeMS>
+			<LifetimeMS>250</LifetimeMS>
 			<MultiHit />
 			<ArmorPiercing />
 		</Projectile>

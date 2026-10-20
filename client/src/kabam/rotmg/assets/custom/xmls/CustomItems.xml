@@ -571,10 +571,10 @@
 		<Sound>weapon/fire_dagger</Sound>
 		<Projectile>
 			<ObjectId>Master Proj</ObjectId>
-			<Speed>160</Speed>
+			<Speed>200</Speed>
 			<MinDamage>147</MinDamage>
 			<MaxDamage>210</MaxDamage>
-			<LifetimeMS>313</LifetimeMS>
+			<LifetimeMS>250</LifetimeMS>
 			<MultiHit/>
 			<ArmorPiercing/>
 		</Projectile>
@@ -600,10 +600,10 @@
 		<Sound>weapon/fire_dagger</Sound>
 		<Projectile>
 			<ObjectId>Master Proj</ObjectId>
-			<Speed>160</Speed>
+			<Speed>200</Speed>
 			<MinDamage>154</MinDamage>
 			<MaxDamage>221</MaxDamage>
-			<LifetimeMS>313</LifetimeMS>
+			<LifetimeMS>250</LifetimeMS>
 			<MultiHit/>
 			<ArmorPiercing/>
 		</Projectile>
@@ -629,10 +629,10 @@
 		<Sound>weapon/fire_dagger</Sound>
 		<Projectile>
 			<ObjectId>Bone Proj</ObjectId>
-			<Speed>120</Speed>
+			<Speed>125</Speed>
 			<MinDamage>31</MinDamage>
 			<MaxDamage>44</MaxDamage>
-			<LifetimeMS>417</LifetimeMS>
+			<LifetimeMS>400</LifetimeMS>
 			<MultiHit/>
 		</Projectile>
 		<BagType>1</BagType>
@@ -654,10 +654,10 @@
 		<Sound>weapon/fire_dagger</Sound>
 		<Projectile>
 			<ObjectId>Bone Proj</ObjectId>
-			<Speed>120</Speed>
+			<Speed>125</Speed>
 			<MinDamage>35</MinDamage>
 			<MaxDamage>50</MaxDamage>
-			<LifetimeMS>417</LifetimeMS>
+			<LifetimeMS>400</LifetimeMS>
 			<MultiHit/>
 		</Projectile>
 		<BagType>1</BagType>
@@ -679,10 +679,10 @@
 		<Sound>weapon/fire_dagger</Sound>
 		<Projectile>
 			<ObjectId>Bone Proj</ObjectId>
-			<Speed>120</Speed>
+			<Speed>125</Speed>
 			<MinDamage>44</MinDamage>
 			<MaxDamage>63</MaxDamage>
-			<LifetimeMS>417</LifetimeMS>
+			<LifetimeMS>400</LifetimeMS>
 			<MultiHit/>
 		</Projectile>
 		<BagType>1</BagType>
@@ -704,10 +704,10 @@
 		<Sound>weapon/fire_dagger</Sound>
 		<Projectile>
 			<ObjectId>Bone Proj</ObjectId>
-			<Speed>120</Speed>
+			<Speed>125</Speed>
 			<MinDamage>53</MinDamage>
 			<MaxDamage>75</MaxDamage>
-			<LifetimeMS>417</LifetimeMS>
+			<LifetimeMS>400</LifetimeMS>
 			<MultiHit/>
 		</Projectile>
 		<BagType>1</BagType>
@@ -729,10 +729,10 @@
 		<Sound>weapon/fire_dagger</Sound>
 		<Projectile>
 			<ObjectId>Bone Proj</ObjectId>
-			<Speed>120</Speed>
+			<Speed>125</Speed>
 			<MinDamage>61</MinDamage>
 			<MaxDamage>88</MaxDamage>
-			<LifetimeMS>417</LifetimeMS>
+			<LifetimeMS>400</LifetimeMS>
 			<MultiHit/>
 		</Projectile>
 		<BagType>1</BagType>
@@ -754,10 +754,10 @@
 		<Sound>weapon/fire_dagger</Sound>
 		<Projectile>
 			<ObjectId>Bone Proj</ObjectId>
-			<Speed>120</Speed>
+			<Speed>125</Speed>
 			<MinDamage>79</MinDamage>
 			<MaxDamage>113</MaxDamage>
-			<LifetimeMS>417</LifetimeMS>
+			<LifetimeMS>400</LifetimeMS>
 			<MultiHit/>
 		</Projectile>
 		<BagType>1</BagType>
@@ -779,10 +779,10 @@
 		<Sound>weapon/fire_dagger</Sound>
 		<Projectile>
 			<ObjectId>Bone Proj</ObjectId>
-			<Speed>120</Speed>
+			<Speed>125</Speed>
 			<MinDamage>96</MinDamage>
 			<MaxDamage>138</MaxDamage>
-			<LifetimeMS>417</LifetimeMS>
+			<LifetimeMS>400</LifetimeMS>
 			<MultiHit/>
 		</Projectile>
 		<BagType>1</BagType>
@@ -804,10 +804,10 @@
 		<Sound>weapon/fire_dagger</Sound>
 		<Projectile>
 			<ObjectId>Bone Proj</ObjectId>
-			<Speed>120</Speed>
+			<Speed>125</Speed>
 			<MinDamage>114</MinDamage>
 			<MaxDamage>163</MaxDamage>
-			<LifetimeMS>417</LifetimeMS>
+			<LifetimeMS>400</LifetimeMS>
 			<MultiHit/>
 		</Projectile>
 		<BagType>2</BagType>
@@ -829,10 +829,10 @@
 		<Sound>weapon/fire_dagger</Sound>
 		<Projectile>
 			<ObjectId>Bone Proj</ObjectId>
-			<Speed>120</Speed>
+			<Speed>125</Speed>
 			<MinDamage>123</MinDamage>
 			<MaxDamage>175</MaxDamage>
-			<LifetimeMS>417</LifetimeMS>
+			<LifetimeMS>400</LifetimeMS>
 			<MultiHit/>
 		</Projectile>
 		<BagType>2</BagType>
@@ -855,10 +855,10 @@
 		<Sound>weapon/fire_dagger</Sound>
 		<Projectile>
 			<ObjectId>Bone Proj</ObjectId>
-			<Speed>120</Speed>
+			<Speed>125</Speed>
 			<MinDamage>127</MinDamage>
 			<MaxDamage>181</MaxDamage>
-			<LifetimeMS>417</LifetimeMS>
+			<LifetimeMS>400</LifetimeMS>
 			<MultiHit/>
 		</Projectile>
 		<BagType>2</BagType>
@@ -881,10 +881,10 @@
 		<Sound>weapon/fire_dagger</Sound>
 		<Projectile>
 			<ObjectId>Bone Proj</ObjectId>
-			<Speed>120</Speed>
+			<Speed>125</Speed>
 			<MinDamage>131</MinDamage>
 			<MaxDamage>188</MaxDamage>
-			<LifetimeMS>417</LifetimeMS>
+			<LifetimeMS>400</LifetimeMS>
 			<MultiHit/>
 		</Projectile>
 		<BagType>4</BagType>
@@ -907,10 +907,10 @@
 		<Sound>weapon/fire_dagger</Sound>
 		<Projectile>
 			<ObjectId>Bone Proj</ObjectId>
-			<Speed>120</Speed>
+			<Speed>125</Speed>
 			<MinDamage>136</MinDamage>
 			<MaxDamage>194</MaxDamage>
-			<LifetimeMS>417</LifetimeMS>
+			<LifetimeMS>400</LifetimeMS>
 			<MultiHit/>
 		</Projectile>
 		<ActivateOnEquip stat="20" amount="2">IncrementStat</ActivateOnEquip>
@@ -934,10 +934,10 @@
 		<Sound>weapon/fire_dagger</Sound>
 		<Projectile>
 			<ObjectId>Bone Proj</ObjectId>
-			<Speed>120</Speed>
+			<Speed>125</Speed>
 			<MinDamage>140</MinDamage>
 			<MaxDamage>200</MaxDamage>
-			<LifetimeMS>417</LifetimeMS>
+			<LifetimeMS>400</LifetimeMS>
 			<MultiHit/>
 		</Projectile>
 		<ActivateOnEquip stat="20" amount="4">IncrementStat</ActivateOnEquip>
@@ -962,10 +962,10 @@
 		<Sound>weapon/fire_dagger</Sound>
 		<Projectile>
 			<ObjectId>Bone Proj</ObjectId>
-			<Speed>120</Speed>
+			<Speed>125</Speed>
 			<MinDamage>153</MinDamage>
 			<MaxDamage>219</MaxDamage>
-			<LifetimeMS>417</LifetimeMS>
+			<LifetimeMS>400</LifetimeMS>
 			<MultiHit/>
 		</Projectile>
 		<ActivateOnEquip stat="20" amount="6">IncrementStat</ActivateOnEquip>
@@ -990,10 +990,10 @@
 		<Sound>weapon/fire_dagger</Sound>
 		<Projectile>
 			<ObjectId>Bone Proj</ObjectId>
-			<Speed>120</Speed>
+			<Speed>125</Speed>
 			<MinDamage>166</MinDamage>
 			<MaxDamage>238</MaxDamage>
-			<LifetimeMS>417</LifetimeMS>
+			<LifetimeMS>400</LifetimeMS>
 			<MultiHit/>
 		</Projectile>
 		<ActivateOnEquip stat="20" amount="8">IncrementStat</ActivateOnEquip>
