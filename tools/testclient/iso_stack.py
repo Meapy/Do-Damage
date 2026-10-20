@@ -126,17 +126,33 @@ def start(args):
           % (REDIS_PORT, APP_PORT, WORLD_PORT, os.path.relpath(os.path.join(world_dir, "ws.out"), ROOT)))
 
 
+def strays():
+    """Processes still running from this stack's folder that pids.json doesn't list (a world server
+    started by hand from build/iso<N>/ws, or one left by a lost pids.json): (pid, path). They hold
+    its files, so the next build can't replace them. Windows only."""
+    if os.name != "nt":
+        return []
+    ps = ("Get-CimInstance Win32_Process | Where-Object { $_.ExecutablePath -and "
+          "$_.ExecutablePath.StartsWith('%s', 'OrdinalIgnoreCase') } | "
+          "ForEach-Object { \"$($_.ProcessId)|$($_.ExecutablePath)\" }" % (os.path.abspath(ISO) + os.sep))
+    out = subprocess.run(["powershell", "-NoProfile", "-Command", ps], capture_output=True, text=True).stdout
+    return [(int(p), path) for p, _, path in (line.partition("|") for line in out.splitlines()) if p.strip().isdigit()]
+
+
 def stop(_):
     if os.path.exists(os.path.join(ISO, "live", "state.json")):
         subprocess.run([sys.executable, os.path.join(ROOT, "tools", "rolling_restart.py"), "--iso", str(SLOT), "stop"])
-    if not os.path.exists(PIDS):
+    if os.path.exists(PIDS):
+        for name, pid in json.load(open(PIDS)).items():
+            if running(pid):
+                subprocess.run(["taskkill", "/PID", str(pid), "/T", "/F"], capture_output=True)
+                print("stopped", name, pid)
+        os.remove(PIDS)
+    else:
         print("not running")
-        return
-    for name, pid in json.load(open(PIDS)).items():
-        if running(pid):
-            subprocess.run(["taskkill", "/PID", str(pid), "/T", "/F"], capture_output=True)
-            print("stopped", name, pid)
-    os.remove(PIDS)
+    for pid, path in strays():
+        subprocess.run(["taskkill", "/PID", str(pid), "/T", "/F"], capture_output=True)
+        print("stopped", os.path.relpath(path, ROOT), pid, "(not started by this script)")
 
 
 def status(_):
