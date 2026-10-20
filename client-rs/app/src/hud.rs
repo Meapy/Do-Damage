@@ -2326,6 +2326,9 @@ pub fn item_tooltip(data: &GameData, item: i32, me: Option<&GameObj>, kind: Slot
             // The port writes the pet's damage on one enemy and its healing here.
             out.push(Line::gap());
             out.push(Line::new("Permanent pet", 13.0, true, ABILITY));
+            if let Some(size) = a.attr("petSize") {
+                out.push(Line::stat("    Size", size, VALUE));
+            }
             if let Some(dps) = a.attr("petDps") {
                 out.push(Line::stat("    Damage", &format!("{dps} per second"), VALUE));
             }

@@ -12,6 +12,10 @@ or one in EXTRA_BOSSES) shoots like that boss instead: the boss's projectiles re
 DoomedRealms.xml, and each distinct Shoot of the boss's behaviour becomes a PetShoot (count,
 spread, offset, projectile and cooldown; aimed at the nearest enemy, as every pet shot is).
 betterSkillys' own permanent pets, which had no behaviour, get the follow.
+Pets are sorted into sizes (SMALL_PETS, MEDIUM_PETS, LARGE_PETS), which set their healing.
+
+Run on its own (python tools/port_doomed_pets.py), it puts the sizes' healing into the files the
+last port wrote, without the Doomed Realms repo.
 """
 
 import copy
@@ -38,6 +42,39 @@ EXTRA_BOSSES = {"Horrific Creation"}
 MAX_BOSS_ATTACKS = 4
 # a boss pet's fastest attack, ms (Mama Megamoth fires every 50)
 MIN_COOLDOWN = 300
+# Pet sizes: every sized pet heals its owner's HP and MP by the same amount, replacing Doomed Realms'
+# healing (name: (amount, every how many ms)). Its attacks are as before.
+PET_SIZES = {"Small": (15, 2000), "Medium": (30, 2000), "Large": (45, 1500)}
+# the pet shop's critters and pets like them
+SMALL_PETS = {
+    "Black Cat (Doomed)", "Grey Cat (Doomed)", "Orange Cat (Doomed)", "Tan Cat (Doomed)", "Yellow Cat (Doomed)",
+    "White Cat (Doomed)", "Brown Pup (Doomed)", "Grey Pup (Doomed)", "Golden Pup (Doomed)", "Blue Snail (Doomed)",
+    "Purple Snail (Doomed)", "Grey Wolf (Doomed)", "Black Wolf (Doomed)", "Brown Fox (Doomed)", "Grey Fox (Doomed)",
+    "Green Frog (Doomed)", "Purple Frog (Doomed)", "Lion (Doomed)", "White Lion (Doomed)", "Penguin (Doomed)",
+    "Green Penguin (Doomed)", "Grass Penguin (Doomed)", "Purple Penguin", "Karate Penguin Red", "Karate Penguin Blue",
+    "Karate Penguin Yellow", "Karate Penguin Purple", "Sheepdog (Doomed)", "Golden Sheepdog (Doomed)", "Panda (Doomed)",
+    "Bluebird (Doomed)", "Chick (Doomed)", "Pig (Doomed)", "Sea Slurp (Doomed)", "Squirrel (Doomed)", "Bat (Doomed)",
+    "Lil' Ghost (Doomed)", "Leprechaun (Doomed)", "Toucan (Doomed)", "Skunk (Doomed)", "Mallard (Doomed)",
+    "Duck (Doomed)", "Eagle (Doomed)", "Turtle (Doomed)", "Jelly (Doomed)", "Bee (Doomed)", "Raven (Doomed)",
+    "Elf (Doomed)", "Crab (Doomed)", "Hamster (Doomed)", "Dino (Doomed)", "Elephant (Doomed)", "Demon Frog (Doomed)",
+    "Gargoyle (Doomed)", "Gummy Bear (Doomed)", "Dragonfly (Doomed)", "Lil' Cyclops (Doomed)", "Snowy Owl (Doomed)",
+    "Turkey (Doomed)", "Baby (Doomed)", "Baby Dragon (Doomed)", "Robobuddy (Doomed)", "Beach Ball",
+    "Beer Slurp", "Valentine", "Bunnyy", "White Bag Pet", "Monkeyn", "Sea Horsee", "Kirbyy", "Pentaract Eyee",
+}
+# godland and dungeon monsters, heroes, the players' own named pets and other striking sprites
+MEDIUM_PETS = {
+    "Angell", "Ninjaa", "Knightt", "Paladinn", "Priestt", "sharkmann", "Pumpkinnnnn", "Beholderr", "Drakee",
+    "Reddemonn", "Phoenixx", "Djinnn", "Reaperr", "Tornadoo", "Cookiee", "Gyaradoss", "Nightmareee", "pumpkmann",
+    "Zombie Penguin", "Shroom (Doomed)", "Skeletal Guardian Pet", "Kythal the Skull", "Cerberus Skull", "Sea Maree",
+    "Pyramid Artifact P", "KingSlime", "Josh's Pet", "Dallas's Pet", "Astro's Griffin", "Aceaku's Pet",
+    "Lunar's Phoenix", "Support Bot", "Knight Pet", "Twilight Sparkle",
+}
+# bosses: these, and any pet drawn as a boss (find_bosses)
+LARGE_PETS = {
+    "Gebb", "Bess", "Nutt", "Thessal Pet", "Dinosaur's Pet", "Skull Shrine P", "Cubee", "Septaviuss", "Malphass",
+    "Sthenos", "Horrificc", "Limonn", "Coill Snake", "Scootaloo", "sphinxxx", "Lil' Oryx (Doomed)",
+    "Kythal the Necromancer", "Zenco The Undead God", "Doomed Nature Beast",
+}
 # Shoot's parameters in order (logic/behaviors/Shoot.cs)
 SHOOT_PARAMS = ["radius", "count", "shootAngle", "projectileIndex", "fixedAngle", "rotateAngle", "angleOffset",
                 "defaultAngle", "predictive", "coolDownOffset", "coolDown"]
@@ -317,8 +354,12 @@ def write_pet_behaviors(dr_root, dr, chosen, bs, types):
             boss_projs[oid] = boss_projectiles(shooter)
             d = dict(d, attacks=[(cooldown, "projectile", index, count, min(max(radius, 8.0), 15.0) if radius else 10.0, angle, offset)
                                  for radius, count, angle, offset, index, cooldown in attacks])
+        size = pet_size(oid, boss)
+        if size:
+            amount, ms = PET_SIZES[size]
+            d = dict(d, hp=(ms, amount, amount), mp=(ms, amount, amount))
         parts = ["new PetFollow()"]
-        stat = stats[oid] = {}
+        stat = stats[oid] = {"size": size} if size else {}
         for key, mana in (("hp", "false"), ("mp", "true")):
             if d[key]:
                 ms, lo, hi = d[key]
@@ -342,7 +383,13 @@ def write_pet_behaviors(dr_root, dr, chosen, bs, types):
         comment = "  // shoots like %s" % boss if oid in boss_projs else ""
         lines.append("            .Init(%s, new State(%s))%s" % (cs_string(oid), ", ".join(parts), comment))
     for oid in sorted(bs_pets):
-        lines.append("            .Init(%s, new State(new PetFollow()))" % cs_string(oid))
+        size = pet_size(oid, None)
+        parts = ["new PetFollow()"]
+        if size:
+            amount, ms = PET_SIZES[size]
+            parts += ["new PetHeal(%s, %d, %d, %d)" % (mana, amount, amount, ms) for mana in ("false", "true")]
+            stats[oid] = {"size": size, "hp": (amount, amount, ms), "mp": (amount, amount, ms)}
+        lines.append("            .Init(%s, new State(%s))" % (cs_string(oid), ", ".join(parts)))
 
     with open(PET_BEHAVIORS_CS, "w", encoding="utf-8", newline="\r\n") as f:
         f.write("// Generated by tools/port_doomed.py (port_doomed_pets.py). Do not edit.\n")
@@ -361,6 +408,50 @@ def write_pet_behaviors(dr_root, dr, chosen, bs, types):
     return len(pets), len(bs_pets)
 
 
+def pet_size(oid, boss):
+    """The pet's size (a PET_SIZES key), or None to keep its Doomed Realms healing."""
+    for size, pets in (("Small", SMALL_PETS), ("Medium", MEDIUM_PETS), ("Large", LARGE_PETS)):
+        if oid in pets:
+            return size
+    return "Large" if boss else None
+
+
+def apply_sizes():
+    """Puts the sizes' healing into the generated BehaviorDb.DoomedPets.cs and onto the generators,
+    without the Doomed Realms repo: the pets' follow and attacks stay as the last port wrote them."""
+    with open(PET_BEHAVIORS_CS, encoding="utf-8", newline="") as f:
+        text = f.read()
+    stats, sized = {}, 0
+
+    def resize(m):
+        nonlocal sized
+        oid = m.group(1).replace('\\"', '"').replace("\\\\", "\\")
+        parts = [p for p in re.split(r", (?=new )", m.group(2)) if not p.startswith("new PetHeal(")]
+        size = pet_size(oid, "boss" if "// shoots like" in m.group(3) else None)
+        stat = stats[oid] = {}
+        if size:
+            sized += 1
+            amount, ms = PET_SIZES[size]
+            parts[1:1] = ["new PetHeal(%s, %d, %d, %d)" % (mana, amount, amount, ms) for mana in ("false", "true")]
+            stat.update(size=size, hp=(amount, amount, ms), mp=(amount, amount, ms))
+        else:
+            for h in re.finditer(r"new PetHeal\((true|false), (\d+), (\d+), (\d+)\)", m.group(2)):
+                stat["mp" if h.group(1) == "true" else "hp"] = (int(h.group(2)), int(h.group(3)), int(h.group(4)))
+        return '.Init("%s", new State(%s))%s' % (m.group(1), ", ".join(parts), m.group(3))
+
+    text = re.sub(r'\.Init\("((?:[^"\\]|\\.)*)", new State\((.*)\)\)((?:  //[^\r\n]*)?)', resize, text)
+    with open(PET_BEHAVIORS_CS, "w", encoding="utf-8", newline="") as f:
+        f.write(text)
+    # the pets' damage per second, from the generators as the last port wrote it
+    with open(ITEM_XMLS[0], encoding="utf-8") as f:
+        for m in re.finditer(r'<Activate objectId="([^"]*)"[^>]*\spetDps="(\d+)"', f.read()):
+            oid = saxutils.unescape(m.group(1), {"&quot;": '"', "&apos;": "'"})
+            stats.setdefault(oid, {})["dps"] = int(m.group(2))
+    annotate_generators(stats)
+    unsized = sorted(oid for oid in stats if oid not in SMALL_PETS | MEDIUM_PETS | LARGE_PETS and stats[oid].get("size") is None)
+    print("%d pets sized; keeping their own healing: %s" % (sized, ", ".join(unsized) or "none"))
+
+
 def shots_on_target(count, angle, offset):
     """How many shots of a PetShoot volley fly at the enemy it aims at."""
     start = -angle * (count - 1) / 2 + offset
@@ -369,7 +460,7 @@ def shots_on_target(count, angle, offset):
 
 def annotate_generators(stats):
     """Puts each pet's damage per second (on one enemy) and healing on the PermaPet activates of
-    the items that give it, for the item tooltips: petDps, petHp / petMp ("min-max") and
+    the items that give it, for the item tooltips: petDps, petSize, petHp / petMp ("min-max") and
     petHpMs / petMpMs (every how many milliseconds)."""
     for path in ITEM_XMLS:
         text = open(path, encoding="utf-8", newline="").read()
@@ -379,6 +470,8 @@ def annotate_generators(stats):
             attrs = re.sub(r'\s+pet\w+="[^"]*"', "", m.group(2))
             if "dps" in stat:
                 attrs += ' petDps="%d"' % stat["dps"]
+            if "size" in stat:
+                attrs += ' petSize="%s"' % stat["size"]
             for key, name in (("hp", "Hp"), ("mp", "Mp")):
                 if key in stat:
                     lo, hi, ms = stat[key]
@@ -388,3 +481,7 @@ def annotate_generators(stats):
         text = re.sub(r'<Activate objectId="([^"]*)"([^>]*)>PermaPet</Activate>', annotate, text)
         with open(path, "w", encoding="utf-8", newline="") as f:
             f.write(text)
+
+
+if __name__ == "__main__":
+    apply_sizes()
