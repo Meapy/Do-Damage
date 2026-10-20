@@ -130,7 +130,7 @@ class Balance:
 
     def table(self, head, rows, cls="balance"):
         th = "".join('<th%s>%s</th>' % (' class="n"' if n else "", t) for t, n in head)
-        return ('<div class="table-wrap"><table class="%s"><thead><tr>%s</tr></thead><tbody>%s</tbody></table></div>'
+        return ('<div class="table-wrap wide"><table class="%s"><thead><tr>%s</tr></thead><tbody>%s</tbody></table></div>'
                 % (cls, th, "".join(rows)))
 
     def heading(self, used, level, text, ident):

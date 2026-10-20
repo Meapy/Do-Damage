@@ -24,6 +24,9 @@ version number itself is in `client-rs/Cargo.toml`.
 - The wiki has a Gear numbers page: every tiered item side by side with what each tier adds, each
   class's damage a second with each weapon tier, and each class's effective health with each
   armor tier.
+- The wiki uses more of a big screen: on wide monitors its pages grow wider, so the big tables show
+  more columns before you scroll sideways and the dungeon, class and item cards sit three or more
+  to a row. Text stays at a comfortable reading width.
 - Skins keep animating at high dexterity and speed: shooting very fast used to freeze a skin
   on its first attack frame, and running very fast could make its walk look stuck.
 - Hovering the inventory and backpack buttons shows the key that switches between them in the

@@ -22,6 +22,7 @@
   --body: "Inter", system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
   --gutter: 16px;
   --max: 1120px;
+  --wiki-max: 1680px; /* the wiki grows wider on big screens, for its wide tables and card grids */
   color-scheme: dark;
 }
 
@@ -415,8 +416,9 @@ code { font: .86em ui-monospace, "Cascadia Mono", Consolas, monospace; padding: 
 
 /* --- The wiki (tools/build_wiki.py, wiki/wiki.js) ------------------------------------------ */
 .sr-only { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
+.wiki .bar { padding-left: max(var(--gutter), calc((100% - var(--wiki-max)) / 2)); padding-right: max(var(--gutter), calc((100% - var(--wiki-max)) / 2)); }
 .wiki-layout {
-  max-width: var(--max); margin: 0 auto; padding: 40px var(--gutter) 0;
+  max-width: var(--wiki-max); margin: 0 auto; padding: 40px var(--gutter) 0;
   display: grid; grid-template-columns: 236px minmax(0, 1fr); gap: 44px; align-items: start;
 }
 .wiki-side { position: sticky; top: 76px; z-index: 5; padding-bottom: 16px; }
@@ -459,7 +461,10 @@ code { font: .86em ui-monospace, "Cascadia Mono", Consolas, monospace; padding: 
 .toc a { color: var(--text-dim); font-size: .93rem; }
 .toc a:hover { color: var(--gold); }
 
-.prose { max-width: 780px; }
+/* Running text keeps a readable width; wide tables and card grids take the whole column. */
+.prose { max-width: none; }
+.prose > :where(p, ul, ol, blockquote, .note, .legend, .table-wrap) { max-width: 780px; }
+.prose > .table-wrap.wide { width: fit-content; max-width: 100%; }
 .prose > * + h2 { margin-top: 2em; }
 .prose h2 { font-size: clamp(1.35rem, 3.2vw, 1.8rem); color: var(--text); scroll-margin-top: 80px; }
 .prose h3 { font-size: 1.12rem; margin-top: 1.6em; color: var(--gold); scroll-margin-top: 80px; }
@@ -515,7 +520,7 @@ code { font: .86em ui-monospace, "Cascadia Mono", Consolas, monospace; padding: 
 .legend { display: flex; align-items: center; flex-wrap: wrap; gap: 10px; font-size: .88rem; }
 .legend .danger { --heat: var(--gold); }
 
-.dgs, .classes { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; margin: 0 0 1em; }
+.dgs, .classes { display: grid; grid-template-columns: repeat(auto-fill, minmax(min(100%, 380px), 1fr)); gap: 12px; margin: 0 0 1em; }
 .prose .dgs, .prose .classes { max-width: none; }
 .dg, .cls { padding: 16px 18px 14px; background: var(--surface); border: 1px solid var(--line); scroll-margin-top: 80px; }
 .dg:target, .cls:target { border-color: var(--ember); box-shadow: 0 0 0 1px var(--ember); }
@@ -581,7 +586,7 @@ code { font: .86em ui-monospace, "Cascadia Mono", Consolas, monospace; padding: 
   display: block; background-repeat: no-repeat; image-rendering: pixelated;
   filter: drop-shadow(1px 0 0 #000) drop-shadow(-1px 0 0 #000) drop-shadow(0 1px 0 #000) drop-shadow(0 -1px 0 #000);
 }
-.its { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; margin: 0 0 1.4em; }
+.its { display: grid; grid-template-columns: repeat(auto-fill, minmax(min(100%, 380px), 1fr)); gap: 10px; margin: 0 0 1.4em; }
 .it {
   display: grid; grid-template-columns: 56px minmax(0, 1fr); gap: 12px; align-items: start; padding: 12px 14px;
   background: var(--surface); border: 1px solid var(--line); scroll-margin-top: 80px;
@@ -617,7 +622,7 @@ code { font: .86em ui-monospace, "Cascadia Mono", Consolas, monospace; padding: 
 .it-src > .it-flags { grid-template-columns: 1fr; }
 .it-flags dd { color: var(--text-muted); font-size: .78rem; }
 
-.wiki-pager { display: flex; justify-content: space-between; gap: 12px; max-width: 780px; margin-top: 56px; padding-top: 24px; border-top: 1px solid var(--line); }
+.wiki-pager { display: flex; justify-content: space-between; gap: 12px; margin-top: 56px; padding-top: 24px; border-top: 1px solid var(--line); }
 .wiki-pager a { display: flex; flex-direction: column; gap: 2px; padding: 12px 16px; min-width: 0; background: var(--surface); border: 1px solid var(--line); color: var(--text); font-weight: 600; }
 .wiki-pager a:hover { border-color: var(--ember); color: var(--gold); }
 .wiki-pager span { font: 700 .66rem var(--pixel); color: var(--ember); letter-spacing: .1em; text-transform: uppercase; }
