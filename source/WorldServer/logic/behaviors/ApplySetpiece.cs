@@ -22,6 +22,10 @@ namespace WorldServer.logic.behaviors
 
         protected override void OnStateEntry(Entity host, TickTime time, ref object state)
         {
+            // Not in the arenas: the walls would shut the wave's monsters in where nobody can reach them.
+            if (host.World.IdName.Contains("Arena"))
+                return;
+
             var pos = UseSpawnPoint ? new IntPoint((int)host.SpawnPoint.Value.X, (int)host.SpawnPoint.Value.Y) : new IntPoint((int)host.X, (int)host.Y);
             if (xOffset != 0)
                 pos.X -= (int)xOffset;

@@ -9,6 +9,8 @@ refuses while an `Unreleased` one is left, so rename it to `## <version> (<date>
 version number itself is in `client-rs/Cargo.toml`.
 
 ## Unreleased
+- Bosses that build their lair where they appear (the Grand Sphinx and others) no longer do it in
+  the arenas, where its walls could shut monsters in where nobody could kill them.
 - Right-click a player in the Nearby players list (or on the minimap) to keep their card open,
   then hover the items they wear to see each one's tooltip. Right-click again, or click
   anywhere else, to close it.
