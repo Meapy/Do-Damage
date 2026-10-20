@@ -51,12 +51,12 @@ namespace WorldServer.core.commands.doomed
                    slots.All(s => s >= 4 && s < end && player.Inventory[s] != null);
         }
 
-        // the recipe made of exactly these items (each ingredient used once)
-        public static (string Result, int Fame, bool Advanced, string[] Items)? FindRecipe(string[] items, bool amulet)
+        // the recipe making `result` from exactly these items (each ingredient used once)
+        public static (string Result, int Fame, bool Advanced, string[] Items)? FindRecipe(XmlData data, string[] items, bool amulet, string result)
         {
-            foreach (var r in DoomedEconomyData.Recipes)
+            foreach (var r in ForgeRecipes.All(data))
             {
-                if (r.Items.Length != items.Length || (r.Advanced && !amulet))
+                if (r.Result != result || r.Items.Length != items.Length || (r.Advanced && !amulet))
                     continue;
                 var left = r.Items.ToList();
                 if (items.All(i => left.Remove(i)))
@@ -75,13 +75,13 @@ namespace WorldServer.core.commands.doomed
                 return "Put the ingredients in your inventory first.";
             var inv = player.Inventory;
             var amulet = WearsForgeAmulet(player);
-            var recipe = FindRecipe(slots.Select(s => inv[s].ObjectId).ToArray(), amulet);
-            if (recipe == null || recipe.Value.Result != result)
+            var data = player.GameServer.Resources.GameData;
+            var recipe = FindRecipe(data, slots.Select(s => inv[s].ObjectId).ToArray(), amulet, result);
+            if (recipe == null)
                 return "Those items don't forge into that.";
             fame = recipe.Value.Fame / (amulet ? 2 : 1);
             if (player.CurrentFame < fame)
                 return "Not enough fame to forge these items!";
-            var data = player.GameServer.Resources.GameData;
             if (!data.IdToObjectType.TryGetValue(result, out var type) || !data.Items.TryGetValue(type, out var item))
                 return "That item doesn't exist here.";
             foreach (var s in slots)

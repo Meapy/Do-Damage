@@ -29,7 +29,8 @@ the class memorial, in the Nexus's south yard west of the arena portals. Stand b
 window: browse the recipes by what they make (weapons, abilities, armor, rings, the rest, then by
 type), search them, or show only what you can make with what you carry. Pick a recipe, put its
 ingredients in from your inventory, and forge it for fame; the new item takes the first
-ingredient's place in your inventory. Wearing a Forge Amulet halves the price and unlocks a few
+ingredient's place in your inventory. Every tiered weapon, ability, armor and ring can be forged
+from two of the tier below, for at most 2,000 fame. Wearing a Forge Amulet halves the price and unlocks a few
 advanced recipes, but it breaks when used. `/forge` and `/forgelist` now just point you there.
 
 One recipe worth knowing: a **Potion of Oryx** is forged from one of each of the eight stat

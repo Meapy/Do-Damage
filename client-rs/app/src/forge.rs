@@ -202,11 +202,13 @@ impl Forge {
         r.fame / if self.wears_amulet { 2 } else { 1 }
     }
 
-    /// The recipes the filters let through, by category, then name.
+    /// The recipes the filters let through: untiered gear first, then tiered gear from the
+    /// highest tier down, then everything else (`order`), each by category and name.
     fn filter(&mut self, data: &GameData) {
         let q = self.query.trim().to_lowercase();
         let name = |t: u16| data.objects.get(&t).map_or(String::new(), |d| d.display_id.to_lowercase());
-        let mut shown: Vec<(Category, String, usize)> = self
+        let tier = |t: u16| data.objects.get(&t).and_then(|d| d.xml.text_of("Tier")).and_then(|t| t.trim().parse().ok());
+        let mut shown: Vec<((u8, i32), Category, String, usize)> = self
             .recipes
             .iter()
             .enumerate()
@@ -217,10 +219,13 @@ impl Forge {
                     && (!self.ready_only || self.can_make(r))
                     && (q.is_empty() || name(r.result).contains(&q) || r.items.iter().any(|&i| name(i).contains(&q)))
             })
-            .map(|(i, r)| (self.category_of(data, r.result).0, name(r.result), i))
+            .map(|(i, r)| {
+                let cat = self.category_of(data, r.result).0;
+                (order(cat, tier(r.result)), cat, name(r.result), i)
+            })
             .collect();
-        shown.sort_by(|a, b| (a.0 as u8, &a.1).cmp(&(b.0 as u8, &b.1)));
-        self.shown = shown.into_iter().map(|(_, _, i)| i).collect();
+        shown.sort_by(|a, b| (a.0, a.1 as u8, &a.2).cmp(&(b.0, b.1 as u8, &b.2)));
+        self.shown = shown.into_iter().map(|(_, _, _, i)| i).collect();
         self.row = 0;
     }
 
@@ -268,6 +273,7 @@ impl Forge {
     pub fn event(&mut self, e: Event, data: &GameData) {
         match e {
             Event::Data(recipes, prices) => {
+                log::info!("forge: {} recipes, {} prices", recipes.len(), prices.len());
                 self.recipes = recipes;
                 self.prices = prices.into_iter().map(|p| (p.item, p.fame)).collect();
                 self.loaded = true;
@@ -484,19 +490,31 @@ impl Forge {
         self.rect = Some(r);
         theme::panel(ui.renderer, r, s);
         let font = |size: f32| (size * s).round().max(9.0);
-        ui.label("Divine Forge", r[0] + 22.0 * s, r[1] + 16.0 * s, font(22.0), true, color::GOLD);
-        let mut x = r[0] + 200.0 * s;
-        for (t, label) in [(Tab::Forge, "Forge"), (Tab::Sell, "Sell for fame")] {
-            let ts = font(13.0);
-            let tr = [x, r[1] + 18.0 * s, ui.measure(label, ts, true) + 36.0 * s, 28.0 * s];
-            self.chip(ui, tr, label, t == self.tab, mouse, ts);
+        // The header row: the title, the tabs in the middle of the window, the fame and the close
+        // button, all centred on one line.
+        let mid = r[1] + 32.0 * s;
+        let ts = font(22.0);
+        ui.label("Divine Forge", r[0] + 22.0 * s, (mid - ui.digit_middle(ts, true)).round(), ts, true, color::GOLD);
+        let tabs = [(Tab::Forge, "Forge"), (Tab::Sell, "Sell for fame")];
+        let cs = font(13.0);
+        let widths: Vec<f32> = tabs.iter().map(|(_, l)| ui.measure(l, cs, true) + 36.0 * s).collect();
+        let gap = 8.0 * s;
+        let mut x = (r[0] + (r[2] - widths.iter().sum::<f32>() - gap) / 2.0).round();
+        for ((t, label), w) in tabs.into_iter().zip(widths) {
+            let tr = [x, (mid - 14.0 * s).round(), w, 28.0 * s];
+            self.chip(ui, tr, label, t == self.tab, mouse, cs);
             self.hits.push((Hit::Tab(t), tr));
-            x += tr[2] + 8.0 * s;
+            x += w + gap;
         }
         let ft = crate::hud::group_digits(self.fame);
-        let fw = fame_width(ui, &ft, font(15.0), s);
-        fame_text(ui, &ft, r[0] + r[2] - fw - 60.0 * s, r[1] + 21.0 * s, font(15.0), color::TEXT, s);
-        let cb = [r[0] + r[2] - 42.0 * s, r[1] + 14.0 * s, 28.0 * s, 28.0 * s];
+        let fs = font(15.0);
+        let fw = fame_width(ui, &ft, fs, s);
+        let fx = r[0] + r[2] - fw - 60.0 * s;
+        let fy = (mid - ui.digit_middle(fs, true)).round();
+        fame_text(ui, &ft, fx, fy, fs, color::TEXT, s);
+        // underlined in the ember accent
+        ui.rect(fx, (mid + fs * 0.62).round(), fw, (2.0 * s).max(1.0).round(), color::ACCENT, 1.0);
+        let cb = [r[0] + r[2] - 42.0 * s, (mid - 14.0 * s).round(), 28.0 * s, 28.0 * s];
         if inside(cb, mouse) {
             theme::fill(ui.renderer, cb, 6.0 * s, 0xFFFFFF, 0.1);
         }
@@ -560,7 +578,7 @@ impl Forge {
         let fs = font(14.0);
         let ty = fr[1] + (fr[3] - fs * 1.22) / 2.0;
         if self.query.is_empty() {
-            ui.label("Search recipes or ingredients", fr[0] + 10.0 * s, ty, fs, false, color::TEXT_MUTED);
+            ui.label("Search the Forge...", fr[0] + 10.0 * s, ty, fs, false, color::TEXT_MUTED);
         } else {
             let q = self.query.clone();
             ui.label(&q, fr[0] + 10.0 * s, ty, fs, false, color::TEXT);
@@ -611,7 +629,7 @@ impl Forge {
         self.hits.push((Hit::Up, up));
         self.hits.push((Hit::Down, down));
         let rb = [left[0] + 126.0 * s, by, left[2] - 126.0 * s, 26.0 * s];
-        self.chip(ui, rb, "Only what I can forge now", self.ready_only, mouse, font(11.5));
+        self.chip(ui, rb, "Forge Ready Items", self.ready_only, mouse, font(11.5));
         self.hits.push((Hit::Ready, rb));
 
         self.draw_stage(ui, right, s, mouse, now);
@@ -859,6 +877,16 @@ impl Forge {
     }
 }
 
+/// Where a recipe's result goes in the list: untiered gear (UTs) first, then tiered gear from
+/// the highest tier down, then the rest (potions, keys, materials).
+fn order(cat: Category, tier: Option<i32>) -> (u8, i32) {
+    match (cat, tier) {
+        (Category::Other | Category::All, _) => (2, 0),
+        (_, None) => (0, 0),
+        (_, Some(t)) => (1, -t),
+    }
+}
+
 /// The HUD's fame icon (`draw_credits`: lofiObj3's 224).
 fn fame_icon(ui: &mut Ui, cx: f32, cy: f32, size: f32, s: f32) {
     ui.tile_icon("lofiObj3", 224, (size / s * 2.4).round() as i32, cx, cy, s);
@@ -930,6 +958,18 @@ mod tests {
 
     fn recipe(result: u16, items: &[u16]) -> ForgeRecipe {
         ForgeRecipe { result, fame: 100, advanced: false, items: items.to_vec().into() }
+    }
+
+    #[test]
+    fn untiered_gear_first_then_tiers_down() {
+        let mut keys = [
+            order(Category::Other, None),
+            order(Category::Weapons, Some(3)),
+            order(Category::Armor, None),
+            order(Category::Rings, Some(8)),
+        ];
+        keys.sort();
+        assert_eq!(keys, [(0, 0), (1, -8), (1, -3), (2, 0)]);
     }
 
     #[test]

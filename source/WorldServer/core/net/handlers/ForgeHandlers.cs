@@ -17,9 +17,10 @@ namespace WorldServer.core.net.handlers
         {
             if (client.Player == null)
                 return;
-            var types = client.GameServer.Resources.GameData.IdToObjectType;
+            var data = client.GameServer.Resources.GameData;
+            var types = data.IdToObjectType;
             // recipes whose result or ingredients aren't items here are left out
-            var recipes = DoomedEconomyData.Recipes
+            var recipes = ForgeRecipes.All(data)
                 .Where(r => types.ContainsKey(r.Result) && r.Items.All(types.ContainsKey))
                 .Select(r => (types[r.Result], r.Fame, r.Advanced, r.Items.Select(i => types[i]).ToArray()))
                 .ToArray();
