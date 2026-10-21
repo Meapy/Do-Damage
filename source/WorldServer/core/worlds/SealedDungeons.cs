@@ -11,7 +11,7 @@ namespace WorldServer.core.worlds
     {
         private static readonly (string Dungeon, string Portal, string Item, string Why)[] Sealed =
         {
-            // Oryx the Mad God 5: being reworked (his dungeon is rebuilt, his attacks and drops are next)
+            // Oryx 5, Oryx the Ascended God: being reworked (his dungeon and fight are rebuilt, his guardians and drops are next)
             ("Oryx's Elysium", "Oryx's Elysium Portal", "Doomed Cellar Incantation",
                 "Oryx's Elysium is sealed for now: Oryx the Ascended God is being reworked."),
         };

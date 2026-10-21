@@ -37,7 +37,7 @@ STAGES = [
      [("Oryx Noble", 3), ("Oryx Aristocrat", 3)] + [(m, 1) for m in COURT[2:]]),
     ("5 Oryx 3", "BehaviorDb.OryxSanctuary.cs", [("Oryx the Mad God 3", 1)]),
     ("6 Oryx 4", "BehaviorDb.OryxDoomed.cs", [("Oryx the Mad God 4", 1)]),
-    ("7 Oryx 5", "BehaviorDb.OryxDoomed.cs", [("Oryx the Mad God 5", 1)]),
+    ("7 Oryx 5", "BehaviorDb.Elysium.cs", [("Oryx the Ascended God", 1)]),
 ]
 COMPARE = [
     ("Lost Halls: Marble Colossus", "BehaviorDb.LostHalls.cs", [("LH Marble Colossus", 1)]),

@@ -414,14 +414,14 @@ MINIGAME_SPAWNS = {"Zombie", "Hell Hound", "Crawler", "Zombie of Draconis", "Reg
 # sprite donors for objects whose remote sprite is gone and whose name matches nothing in betterSkillys
 SPRITE_DONORS = {"Elder Beach Portal": "Beachzone Portal"}
 
-# objects drawn anew here: id -> (sheet, index). Oryx 4 burns (tools/build_hash_cellar.py); Oryx 5
-# ascends, in gold and white with a spear (tools/build_elysium.py).
-TEXTURE_OVERRIDES = {"Oryx the Mad God 4": ("hashCellarOryx16x16", 0), "Oryx the Mad God 5": ("elysiumOryx16x16", 0)}
+# objects drawn anew here: id -> (sheet, index). Oryx 4 burns (tools/build_hash_cellar.py). (Oryx 5
+# is a new object, Oryx the Ascended God, made by tools/build_elysium.py; this one is left unused.)
+TEXTURE_OVERRIDES = {"Oryx the Mad God 4": ("hashCellarOryx16x16", 0)}
 # projectiles drawn anew: id -> {projectile id: object}. Oryx 4's first phase shoots hellfire.
 PROJECTILE_OVERRIDES = {"Oryx the Mad God 4": {"2": "Hellfire Bolt", "4": "Hellfire Star"}}
 # names for players: each Oryx after the Chamber is named for his theme
 DISPLAY_OVERRIDES = {"Oryx the Mad God 4": "Oryx the Infernal Mad God", "Hash Cellar Incantation": "Oryx's Inferno Incantation",
-                     "Oryx the Mad God 5": "Oryx the Ascended God", "Doomed Cellar Incantation": "Oryx's Elysium Incantation"}
+                     "Doomed Cellar Incantation": "Oryx's Elysium Incantation"}
 
 
 # Loot bags (<BagType>): Doomed Realms numbered its bags differently, so its rarest items dropped

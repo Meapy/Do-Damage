@@ -542,6 +542,62 @@
 		</Texture>
 		<AngleCorrection>1</AngleCorrection>
 	</Object>
+	<Object type="0x5422" id="Stilling Mote">
+		<Class>Projectile</Class>
+		<Texture>
+			<File>elysium8x8</File>
+			<Index>0x42</Index>
+		</Texture>
+		<Rotation>100</Rotation>
+	</Object>
+	<Object type="0x5423" id="Wounding Mote">
+		<Class>Projectile</Class>
+		<Texture>
+			<File>elysium8x8</File>
+			<Index>0x43</Index>
+		</Texture>
+		<Rotation>100</Rotation>
+	</Object>
+	<Object type="0x5424" id="Swift Mote">
+		<Class>Projectile</Class>
+		<Texture>
+			<File>elysium8x8</File>
+			<Index>0x44</Index>
+		</Texture>
+		<Rotation>100</Rotation>
+	</Object>
+	<Object type="0x5425" id="Blighting Mote">
+		<Class>Projectile</Class>
+		<Texture>
+			<File>elysium8x8</File>
+			<Index>0x45</Index>
+		</Texture>
+		<Rotation>100</Rotation>
+	</Object>
+	<Object type="0x5426" id="Bleeding Ray">
+		<Class>Projectile</Class>
+		<Texture>
+			<File>elysium8x8</File>
+			<Index>0x46</Index>
+		</Texture>
+		<AngleCorrection>1</AngleCorrection>
+	</Object>
+	<Object type="0x5427" id="Blighting Ray">
+		<Class>Projectile</Class>
+		<Texture>
+			<File>elysium8x8</File>
+			<Index>0x47</Index>
+		</Texture>
+		<AngleCorrection>1</AngleCorrection>
+	</Object>
+	<Object type="0x5428" id="Breaking Ray">
+		<Class>Projectile</Class>
+		<Texture>
+			<File>elysium8x8</File>
+			<Index>0x48</Index>
+		</Texture>
+		<AngleCorrection>1</AngleCorrection>
+	</Object>
 	<Object type="0x541C" id="Oryx's Elysium Portal">
 		<DisplayId>Oryx's Elysium</DisplayId>
 		<Class>Portal</Class>
@@ -611,38 +667,38 @@
 		<Size>0</Size>
 		<Texture>
 			<File>elysium8x8</File>
-			<Index>0x42</Index>
+			<Index>0x49</Index>
 		</Texture>
 	</Object>
 	<Object type="0x541F" id="O5C Torch Wall Flame">
 		<Class>GameObject</Class>
 		<Texture>
 			<File>elysium8x8</File>
-			<Index>0x43</Index>
+			<Index>0x4a</Index>
 		</Texture>
 		<Animation sync="true" prob="1" period="0.6">
 			<Frame time="0.15">
 				<Texture>
 					<File>elysium8x8</File>
-					<Index>0x43</Index>
+					<Index>0x4a</Index>
 				</Texture>
 			</Frame>
 			<Frame time="0.15">
 				<Texture>
 					<File>elysium8x8</File>
-					<Index>0x44</Index>
+					<Index>0x4b</Index>
 				</Texture>
 			</Frame>
 			<Frame time="0.15">
 				<Texture>
 					<File>elysium8x8</File>
-					<Index>0x45</Index>
+					<Index>0x4c</Index>
 				</Texture>
 			</Frame>
 			<Frame time="0.15">
 				<Texture>
 					<File>elysium8x8</File>
-					<Index>0x46</Index>
+					<Index>0x4d</Index>
 				</Texture>
 			</Frame>
 		</Animation>
@@ -654,31 +710,31 @@
 		<Class>GameObject</Class>
 		<Texture>
 			<File>elysium8x8</File>
-			<Index>0x47</Index>
+			<Index>0x4e</Index>
 		</Texture>
 		<Animation sync="true" prob="1" period="0.6">
 			<Frame time="0.15">
 				<Texture>
 					<File>elysium8x8</File>
-					<Index>0x47</Index>
+					<Index>0x4e</Index>
 				</Texture>
 			</Frame>
 			<Frame time="0.15">
 				<Texture>
 					<File>elysium8x8</File>
-					<Index>0x48</Index>
+					<Index>0x4f</Index>
 				</Texture>
 			</Frame>
 			<Frame time="0.15">
 				<Texture>
 					<File>elysium8x8</File>
-					<Index>0x49</Index>
+					<Index>0x50</Index>
 				</Texture>
 			</Frame>
 			<Frame time="0.15">
 				<Texture>
 					<File>elysium8x8</File>
-					<Index>0x4a</Index>
+					<Index>0x51</Index>
 				</Texture>
 			</Frame>
 		</Animation>
@@ -695,5 +751,239 @@
 		</Texture>
 		<Size>100</Size>
 		<ShadowSize>0</ShadowSize>
+	</Object>
+	<Object type="0x5429" id="Oryx the Ascended God">
+		<ShowName />
+		<Enemy />
+		<Class>Character</Class>
+		<AnimatedTexture>
+			<File>elysiumOryx16x16</File>
+			<Index>0</Index>
+		</AnimatedTexture>
+		<AltTexture id="1">
+			<AnimatedTexture>
+				<File>elysiumOryx16x16</File>
+				<Index>1</Index>
+			</AnimatedTexture>
+		</AltTexture>
+		<HitSound>monster/oryx_hit</HitSound>
+		<DeathSound>monster/oryx_death</DeathSound>
+		<Sound id="0">use_key</Sound>
+		<Sound id="1">spell/fire_spray</Sound>
+		<Sound id="2">spell/fire_nova</Sound>
+		<Size>220</Size>
+		<MaxHitPoints>320000</MaxHitPoints>
+		<Defense>100</Defense>
+		<Quest />
+		<God />
+		<Oryx />
+		<StasisImmune />
+		<Level>20</Level>
+		<XpMult>1</XpMult>
+		<NoArticle />
+		<Projectile id="0">
+			<ObjectId>Azure Lance</ObjectId>
+			<Damage>180</Damage>
+			<Speed>110</Speed>
+			<LifetimeMS>1600</LifetimeMS>
+			<Size>100</Size>
+			<MultiHit />
+		</Projectile>
+		<Projectile id="1">
+			<ObjectId>Sunfire Missile</ObjectId>
+			<Damage>170</Damage>
+			<Speed>90</Speed>
+			<LifetimeMS>1800</LifetimeMS>
+			<Size>100</Size>
+		</Projectile>
+		<Projectile id="2">
+			<ObjectId>Divine Spike</ObjectId>
+			<Damage>200</Damage>
+			<Speed>120</Speed>
+			<LifetimeMS>800</LifetimeMS>
+			<Size>130</Size>
+		</Projectile>
+		<Projectile id="3">
+			<ObjectId>Divine Spike</ObjectId>
+			<Damage>200</Damage>
+			<Speed>95</Speed>
+			<LifetimeMS>950</LifetimeMS>
+			<Size>120</Size>
+		</Projectile>
+		<Projectile id="4">
+			<ObjectId>Divine Spike</ObjectId>
+			<Damage>200</Damage>
+			<Speed>75</Speed>
+			<LifetimeMS>1100</LifetimeMS>
+			<Size>110</Size>
+		</Projectile>
+		<Projectile id="5">
+			<ObjectId>Radiant Beam</ObjectId>
+			<Damage>110</Damage>
+			<Speed>70</Speed>
+			<LifetimeMS>1600</LifetimeMS>
+			<Size>100</Size>
+			<MultiHit />
+			<ConditionEffect duration="2">Slowed</ConditionEffect>
+		</Projectile>
+		<Projectile id="6">
+			<ObjectId>Holy Wave</ObjectId>
+			<Damage>120</Damage>
+			<Speed>70</Speed>
+			<LifetimeMS>1600</LifetimeMS>
+			<Size>100</Size>
+			<MultiHit />
+			<ConditionEffect duration="3">Bleeding</ConditionEffect>
+		</Projectile>
+		<Projectile id="7">
+			<ObjectId>Divine Spear</ObjectId>
+			<Damage>380</Damage>
+			<Speed>40</Speed>
+			<LifetimeMS>4200</LifetimeMS>
+			<Size>220</Size>
+			<ConditionEffect duration="3">Armor Broken</ConditionEffect>
+		</Projectile>
+	</Object>
+	<Object type="0x542A" id="Stilling Star">
+		<Class>Character</Class>
+		<Enemy />
+		<Texture>
+			<File>elysium8x8</File>
+			<Index>0x52</Index>
+		</Texture>
+		<Size>150</Size>
+		<MaxHitPoints>10000</MaxHitPoints>
+		<Defense>0</Defense>
+		<StasisImmune />
+		<XpMult>0</XpMult>
+		<Projectile id="0">
+			<ObjectId>Stilling Mote</ObjectId>
+			<Damage>90</Damage>
+			<Speed>55</Speed>
+			<LifetimeMS>2000</LifetimeMS>
+			<Size>100</Size>
+			<ConditionEffect duration="2">Slowed</ConditionEffect>
+		</Projectile>
+	</Object>
+	<Object type="0x542B" id="Wounding Star">
+		<Class>Character</Class>
+		<Enemy />
+		<Texture>
+			<File>elysium8x8</File>
+			<Index>0x53</Index>
+		</Texture>
+		<Size>150</Size>
+		<MaxHitPoints>10000</MaxHitPoints>
+		<Defense>0</Defense>
+		<StasisImmune />
+		<XpMult>0</XpMult>
+		<Projectile id="0">
+			<ObjectId>Wounding Mote</ObjectId>
+			<Damage>110</Damage>
+			<Speed>55</Speed>
+			<LifetimeMS>2000</LifetimeMS>
+			<Size>100</Size>
+			<ConditionEffect duration="2">Bleeding</ConditionEffect>
+		</Projectile>
+	</Object>
+	<Object type="0x542C" id="Swift Star">
+		<Class>Character</Class>
+		<Enemy />
+		<Texture>
+			<File>elysium8x8</File>
+			<Index>0x54</Index>
+		</Texture>
+		<Size>150</Size>
+		<MaxHitPoints>10000</MaxHitPoints>
+		<Defense>0</Defense>
+		<StasisImmune />
+		<XpMult>0</XpMult>
+		<Projectile id="0">
+			<ObjectId>Swift Mote</ObjectId>
+			<Damage>120</Damage>
+			<Speed>150</Speed>
+			<LifetimeMS>900</LifetimeMS>
+			<Size>100</Size>
+		</Projectile>
+	</Object>
+	<Object type="0x542D" id="Blighting Star">
+		<Class>Character</Class>
+		<Enemy />
+		<Texture>
+			<File>elysium8x8</File>
+			<Index>0x55</Index>
+		</Texture>
+		<Size>150</Size>
+		<MaxHitPoints>10000</MaxHitPoints>
+		<Defense>0</Defense>
+		<StasisImmune />
+		<XpMult>0</XpMult>
+		<Projectile id="0">
+			<ObjectId>Blighting Mote</ObjectId>
+			<Damage>110</Damage>
+			<Speed>70</Speed>
+			<LifetimeMS>1700</LifetimeMS>
+			<Size>100</Size>
+			<ConditionEffect duration="3">Sick</ConditionEffect>
+		</Projectile>
+	</Object>
+	<Object type="0x542E" id="Halo Orb">
+		<Class>Character</Class>
+		<Enemy />
+		<Texture>
+			<File>elysium8x8</File>
+			<Index>0x56</Index>
+		</Texture>
+		<Size>110</Size>
+		<MaxHitPoints>10000</MaxHitPoints>
+		<Defense>0</Defense>
+		<StasisImmune />
+		<XpMult>0</XpMult>
+		<Projectile id="0">
+			<ObjectId>Holy Orb</ObjectId>
+			<Damage>150</Damage>
+			<Speed>55</Speed>
+			<LifetimeMS>2400</LifetimeMS>
+			<Size>100</Size>
+			<MultiHit />
+			<ConditionEffect duration="1.5">Slowed</ConditionEffect>
+		</Projectile>
+	</Object>
+	<Object type="0x542F" id="Pillar of Heaven">
+		<Class>Character</Class>
+		<Enemy />
+		<Texture>
+			<File>elysium16x16</File>
+			<Index>0x0a</Index>
+		</Texture>
+		<Size>120</Size>
+		<MaxHitPoints>10000</MaxHitPoints>
+		<Defense>0</Defense>
+		<StasisImmune />
+		<XpMult>0</XpMult>
+		<Projectile id="0">
+			<ObjectId>Bleeding Ray</ObjectId>
+			<Damage>170</Damage>
+			<Speed>80</Speed>
+			<LifetimeMS>4400</LifetimeMS>
+			<Size>100</Size>
+			<ConditionEffect duration="3">Bleeding</ConditionEffect>
+		</Projectile>
+		<Projectile id="1">
+			<ObjectId>Blighting Ray</ObjectId>
+			<Damage>170</Damage>
+			<Speed>80</Speed>
+			<LifetimeMS>4400</LifetimeMS>
+			<Size>100</Size>
+			<ConditionEffect duration="3">Sick</ConditionEffect>
+		</Projectile>
+		<Projectile id="2">
+			<ObjectId>Breaking Ray</ObjectId>
+			<Damage>170</Damage>
+			<Speed>80</Speed>
+			<LifetimeMS>4400</LifetimeMS>
+			<Size>100</Size>
+			<ConditionEffect duration="3">Armor Broken</ConditionEffect>
+		</Projectile>
 	</Object>
 </Objects>

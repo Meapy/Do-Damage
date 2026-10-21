@@ -17,12 +17,15 @@ namespace WorldServer.logic.behaviors
         private readonly int damage;
         private readonly ConditionEffectIndex effect;
         private readonly int effectDuration;
+        private readonly double scatter;
         private readonly double? fixedAngle;
         private readonly float radius;
         private readonly double range;
         private readonly int coolDownOffset;
 
-        public Grenade(double radius, int damage, double range = 5, double? fixedAngle = null, Cooldown coolDown = new Cooldown(), ConditionEffectIndex effect = 0, int effectDuration = 0, uint color = 0xffff0000, int coolDownOffset = 0)
+        // scatter: when above 0, each grenade lands at a random spot up to that many tiles from where
+        // the host spawned, wherever the players are (Oryx 5's bombs, all round his arena)
+        public Grenade(double radius, int damage, double range = 5, double? fixedAngle = null, Cooldown coolDown = new Cooldown(), ConditionEffectIndex effect = 0, int effectDuration = 0, uint color = 0xffff0000, int coolDownOffset = 0, double scatter = 0)
         {
             this.radius = (float)radius;
             this.damage = damage;
@@ -31,6 +34,7 @@ namespace WorldServer.logic.behaviors
             this.coolDown = coolDown.Normalize();
             this.effect = effect;
             this.effectDuration = effectDuration;
+            this.scatter = scatter;
             this.color = color;
             this.coolDownOffset = coolDownOffset;
         }
@@ -51,10 +55,19 @@ namespace WorldServer.logic.behaviors
                 var enemyClasified = enemy.IsLegendary ? 50 : enemy.IsEpic ? 25 : enemy.IsRare ? 10 : 0;
                 var player = host.AttackTarget ?? host.GetNearestEntity(range, true);
 
-                if (player != null || fixedAngle != null)
+                if (player != null || fixedAngle != null || scatter > 0)
                 {
-                    var target = fixedAngle != null ? new Position() { X = (float)(range * Math.Cos(fixedAngle.Value)) + host.X, Y = (float)(range * Math.Sin(fixedAngle.Value)) + host.Y }
-                    : new Position() { X = player.X, Y = player.Y };
+                    Position target;
+                    if (scatter > 0)
+                    {
+                        var a = Random.NextDouble() * 2 * Math.PI;
+                        var d = scatter * Math.Sqrt(Random.NextDouble());
+                        var spawn = host.SpawnPoint.Value;
+                        target = new Position() { X = spawn.X + (float)(d * Math.Cos(a)), Y = spawn.Y + (float)(d * Math.Sin(a)) };
+                    }
+                    else
+                        target = fixedAngle != null ? new Position() { X = (float)(range * Math.Cos(fixedAngle.Value)) + host.X, Y = (float)(range * Math.Sin(fixedAngle.Value)) + host.Y }
+                        : new Position() { X = player.X, Y = player.Y };
 
                     host.World.BroadcastIfVisible(new ShowEffect() { EffectType = EffectType.Throw, Color = new ARGB(color), TargetObjectId = host.Id, Pos1 = target, Pos2 = new Position() { X = 222 } }, host);
                     host.World.StartNewTimer(1500, (world, t) =>

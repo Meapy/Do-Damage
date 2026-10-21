@@ -14,12 +14,14 @@ A holy island in a turquoise sea, from south to north:
   hold the roads;
 - the Courtyard, where the roads meet before the Holy Gates, which open once no Tree of Doom and
   no guardian is left (the Gate Watcher watches);
-- the Temple, a round marble arena with Oryx the Mad God 5 at its centre and his three Ascended
+- the Temple, a round marble arena with Oryx the Ascended God at its centre and his three Ascended
   Wardens circling him: he wakes when they fall.
 
-Oryx 5 is redrawn: white and silver armour with gold horns and trim, light blue eyes, a purple
-shield and a gold spear in place of his sword (`elysiumOryx16x16`; port_doomed.py's
-TEXTURE_OVERRIDES points him at it).
+Oryx 5 is his own object here, "Oryx the Ascended God" (the Doomed Realms "Oryx the Mad God 5"'s
+XML, with his shots, sprites and helpers made here; his fight is in BehaviorDb.Elysium.cs). He is
+redrawn: white and silver armour with gold horns and trim, light blue eyes, a purple shield and a
+gold spear in place of his sword, and below 20% his Apotheosis, gold all over with a light blue
+glow (`elysiumOryx16x16`, rows 0 and 1).
 
 Outputs (generated, don't edit):
 - the map, source/Shared/resources/worlds/Dungeons/Oryx's Elysium/Oryx's Elysium.jm;
@@ -276,7 +278,32 @@ def draw_oryx(path):
         for y in range(head + 4, 16):
             hand = y - top in (7, 8)
             out[y][x0 + 1] = (ORYX_PLATE if hand else (ORYX_GOLD if y % 2 else ORYX_GOLD_DARK)) + (255,)
-    write_png(path, 16 * frames, 16, out)
+    write_png(path, 16 * frames, 32, out + apotheosis(out))
+
+
+# his Apotheosis (below 20%): the same strip, gold where it was white and silver, white-hot horns
+# and eyes, a light blue shield and a violet spearhead, glowing light blue round his edge
+APOTHEOSIS = {
+    ORYX_PLATE: (255, 232, 140), ORYX_STEEL: (232, 176, 52), ORYX_SHADOW: (170, 112, 30),
+    ORYX_GOLD: (255, 250, 230), ORYX_GOLD_LIGHT: (255, 255, 255), ORYX_GOLD_DARK: (255, 214, 110),
+    ORYX_EYES: (255, 255, 255), SHIELD: (120, 210, 255), SHIELD_DARK: (40, 110, 200),
+    SPEAR_HEAD: (214, 170, 255),
+}
+GLOW = (150, 226, 255, 150)
+
+
+def apotheosis(strip):
+    out = [[(APOTHEOSIS.get(p[:3], p[:3]) + (p[3],)) if p[3] else p for p in row] for row in strip]
+    w = len(strip[0])
+    for y in range(16):
+        for x in range(w):
+            if strip[y][x][3]:
+                continue
+            cx = x % 16
+            if any(0 <= cx + dx < 16 and 0 <= y + dy < 16 and strip[y + dy][x + dx][3]
+                   for dx, dy in ((1, 0), (-1, 0), (0, 1), (0, -1))):
+                out[y][x] = GLOW
+    return out
 
 
 # ------------------------------------------------------------------------------------------------
@@ -334,6 +361,14 @@ PROJECTILES = {
     "Celestial Bolt": ("O3 Black Big Bolt", T_VIOLET),
     "Sun Shockwave": ("O3 Red Shockwave", T_GOLD),
     "Divine Spear": ("O3 Black Spear", T_GOLD),
+    # Oryx 5's fight: his stars' motes, and the rays of the Pillars of Heaven
+    "Stilling Mote": ("Blue Star", T_AZURE),
+    "Wounding Mote": ("Blue Star", T_GOLD),
+    "Swift Mote": ("Blue Star", T_HOLY),
+    "Blighting Mote": ("Blue Star", T_VIOLET),
+    "Bleeding Ray": ("O3 Blue Stab", T_GOLD),
+    "Blighting Ray": ("O3 Blue Stab", T_VIOLET),
+    "Breaking Ray": ("O3 Blue Stab", T_AZURE),
 }
 
 
@@ -438,6 +473,89 @@ def characters(types, chars, sheets, everything, tones):
         if size:
             set_field(e, "Size", str(size))
         for p in HOST.get(name, (None, None, []))[2]:
+            e.append(copy.deepcopy(p))
+        out.append(e)
+    return out
+
+
+# Oryx 5 himself: his Doomed Realms XML (sounds, size, quest and Oryx flags) under a name of his own,
+# with his two sprites and these shots. The phases that fire them are in BehaviorDb.Elysium.cs.
+ORYX_ID = "Oryx the Ascended God"
+ORYX_BASE = ("Oryx the Mad God 5", os.path.join(XML_DIR, "custom", "DoomedRealms.xml"))
+ORYX_HEALTH = 320000
+ORYX_SHOTS = [
+    # the Radiant Cross: twin lances along four lines, gold arrowheads along the four between
+    shot(0, "Azure Lance", 180, 110, 1600),
+    shot(1, "Sunfire Missile", 170, 90, 1800, multi=False),
+    # the Divine Hunt: a shotgun in front, an arrowhead of spikes (fast in the middle, slower out to
+    # the sides), and a fan behind him that slows, or bleeds once he has transcended
+    shot(2, "Divine Spike", 200, 120, 800, 130, multi=False),
+    shot(3, "Divine Spike", 200, 95, 950, 120, multi=False),
+    shot(4, "Divine Spike", 200, 75, 1100, 110, multi=False),
+    shot(5, "Radiant Beam", 110, 70, 1600, effects=[("Slowed", 2)]),
+    shot(6, "Holy Wave", 120, 70, 1600, effects=[("Bleeding", 3)]),
+    # the Spear of Heaven, thrown in his Last Judgement: slow and large
+    shot(7, "Divine Spear", 380, 40, 4200, 220, multi=False, effects=[("Armor Broken", 3)]),
+]
+
+
+def ascended_oryx(types):
+    base_id, path = ORYX_BASE
+    e = copy.deepcopy(next(o for o in ET.parse(path).getroot() if o.get("id") == base_id))
+    e.set("type", types.get(ORYX_ID, OBJECT_TYPES))
+    e.set("id", ORYX_ID)
+    strip(e, "DisplayId", "Projectile", "AltTexture")
+    tex = e.find("AnimatedTexture")
+    tex.find("File").text, tex.find("Index").text = ORYX[0], "0"
+    alt = ET.Element("AltTexture", {"id": "1"})
+    alt_tex = ET.SubElement(alt, "AnimatedTexture")
+    ET.SubElement(alt_tex, "File").text = ORYX[0]
+    ET.SubElement(alt_tex, "Index").text = "1"
+    e.insert(list(e).index(tex) + 1, alt)
+    set_field(e, "MaxHitPoints", str(ORYX_HEALTH))
+    for p in ORYX_SHOTS:
+        e.append(copy.deepcopy(p))
+    return e
+
+
+# The helpers of his fight, all invulnerable (BehaviorDb.Elysium.cs): the Firmament's stars, one
+# kind for each mote they shoot (the slowing stars nearest him, the swift or, once he has
+# transcended, the blighting ones furthest out), the Halo Orbs of his Apotheosis and the Pillars
+# of Heaven of his Last Judgement. name -> (sprite donor, tone, size, shots)
+FIGHT = {
+    "Stilling Star": ("Magic Star", T_AZURE, 150, [shot(0, "Stilling Mote", 90, 55, 2000, multi=False, effects=[("Slowed", 2)])]),
+    "Wounding Star": ("Magic Star", T_GOLD, 150, [shot(0, "Wounding Mote", 110, 55, 2000, multi=False, effects=[("Bleeding", 2)])]),
+    "Swift Star": ("Magic Star", T_HOLY, 150, [shot(0, "Swift Mote", 120, 150, 900, multi=False)]),
+    "Blighting Star": ("Magic Star", T_VIOLET, 150, [shot(0, "Blighting Mote", 110, 70, 1700, multi=False, effects=[("Sick", 3)])]),
+    "Halo Orb": ("White Moon", T_AZURE, 110, [shot(0, "Holy Orb", 150, 55, 2400, effects=[("Slowed", 1.5)])]),
+    "Pillar of Heaven": ("Ancient Ruins Pillars", T_HOLY, 120, [
+        shot(0, "Bleeding Ray", 170, 80, 4400, multi=False, effects=[("Bleeding", 3)]),
+        shot(1, "Blighting Ray", 170, 80, 4400, multi=False, effects=[("Sick", 3)]),
+        shot(2, "Breaking Ray", 170, 80, 4400, multi=False, effects=[("Armor Broken", 3)]),
+    ]),
+}
+
+
+def fight_helpers(types, sheets, everything, tones):
+    out = []
+    for name, (donor, tone, size, shots) in FIGHT.items():
+        tone = tone.fresh()
+        tones.append(tone)
+        e = ET.Element("Object", {"type": types.get(name, OBJECT_TYPES), "id": name})
+        ET.SubElement(e, "Class").text = "Character"
+        ET.SubElement(e, "Enemy")
+        # the donor's first picture (some keep it inside a RandomTexture)
+        art = next(n for n in everything[donor].iter() if n.find("File") is not None and n.find("Index") is not None)
+        tex = ET.SubElement(e, "AnimatedTexture" if art.tag == "AnimatedTexture" else "Texture")
+        ET.SubElement(tex, "File").text = art.findtext("File")
+        ET.SubElement(tex, "Index").text = art.findtext("Index")
+        ET.SubElement(e, "Size").text = str(size)
+        ET.SubElement(e, "MaxHitPoints").text = "10000"
+        ET.SubElement(e, "Defense").text = "0"
+        ET.SubElement(e, "StasisImmune")
+        ET.SubElement(e, "XpMult").text = "0"
+        retexture(e, sheets, tone)
+        for p in shots:
             e.append(copy.deepcopy(p))
         out.append(e)
     return out
@@ -716,7 +834,7 @@ def build_map():
                 g.ground[y][x] = SURF
 
     # --- the Temple's furnishings ----------------------------------------------------------------
-    g.place(tx, ty, "Oryx the Mad God 5")
+    g.place(tx, ty, ORYX_ID)
     for k in range(3):
         a = 2 * math.pi * k / 3 - math.pi / 2
         g.place(round(tx + math.cos(a) * 6), round(ty + math.sin(a) * 6), "Ascended Warden")
@@ -893,11 +1011,12 @@ def main():
         retexture(e, sheets, T_STONE)
         objects.append(e)
 
-    everything = load("Object", "EmbeddedData_oryxSanctuaryObjectsCXML.xml", "EmbeddedData_oryxSanctuaryUObjectsCXML.xml",
-                      "EmbeddedData_EncountersCXML.xml", "EmbeddedData_ProjectilesCXML.xml")
+    everything = load("Object", *sorted(f for f in os.listdir(os.path.join(XML_DIR, "prod")) if f.endswith(".xml")))
     tones = [T_MARBLE, T_GILDED, T_RUG, T_STONE, T_LOCKED]
     objects += characters(types, chars, sheets, everything, tones)
     objects += copies(types, sheets, everything, tones)
+    objects.append(ascended_oryx(types))
+    objects += fight_helpers(types, sheets, everything, tones)
 
     for tone in tones:
         tone.settle()
@@ -915,7 +1034,7 @@ def main():
     save_map(g)
     types.save()
     unknown = sorted({t for row in g.obj for t in row if t} - {e.get("id") for e in objects} - OWN
-                     - {"Oryx the Mad God 5", "Tree of Doom", "Nexus Portal"})
+                     - {"Tree of Doom", "Nexus Portal"})
     assert not unknown, unknown
     print("wrote %s (%dx%d), %d grounds, %d objects" % (OUT_MAP, W, H, len(grounds), len(objects)))
 
@@ -927,8 +1046,6 @@ def main():
         table.update(load("Object", "EmbeddedData_StaticObjectsCXML.xml", "EmbeddedData_ancientRuinsObjectsCXML.xml",
                           "EmbeddedData_oryxSanctuaryObjectsCXML.xml"))
         table.update({e.get("id"): e for e in grounds + objects})
-        table["Oryx the Mad God 5"] = ET.fromstring(
-            "<Object><AnimatedTexture><File>%s</File><Index>0</Index></AnimatedTexture></Object>" % ORYX[0])
         preview(g, os.path.join(out, "elysium.png"), table)
         print("preview in", out)
 

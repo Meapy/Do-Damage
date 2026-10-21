@@ -11,10 +11,10 @@ through his Chamber, his Wine Cellar, the new Oryx's Sanctuary and Oryx's Infern
 Elysium, the end of the line. Every stage is harder than the last and drops better loot, and every
 Oryx's death is announced to the whole server.
 
-> **Oryx's Elysium is sealed for now.** Oryx 5 is being reworked (his new island is built; his
-> attacks and loot are next), so an Oryx's Elysium Incantation (the old Doomed Cellar Incantation)
-> won't open his portal until he's back (it isn't used up if you try), and the shops don't sell it
-> meanwhile. Keep any you have.
+> **Oryx's Elysium is sealed for now.** Oryx 5 is being reworked (his island and his fight are
+> new; his guardians and loot are next), so an Oryx's Elysium Incantation (the old Doomed Cellar
+> Incantation) won't open his portal until he's back (it isn't used up if you try), and the shops
+> don't sell it meanwhile. Keep any you have.
 
 ## The stages
 
@@ -92,8 +92,24 @@ Janus and is sold in the Nexus Bazaar.
   the islet in the Oasis; east, the **Gilded Sphinx** sits atop the Pyramid. Each road has three
   **Trees of Doom** on the way, and each guardian drops three more when it dies: all twelve must
   fall before the **Holy Gates** to his temple open. Inside, his three **Ascended Wardens** circle
-  him; he wakes when they fall. Then he cycles fire, a blade charge, star spirals and new Knights
-  and Trees (each living tree heals him), turns faster below 60% and makes a last stand below 20%.
+  him; he wakes when they fall.
+  - **Judgement** (to 60%): three patterns. The **Radiant Cross**: he follows you but keeps about
+    six tiles off, firing twin lances along four lines and gold arrowheads along the four between,
+    then the same turned. The **Firmament**: from the middle he raises twelve stars in a cross that
+    turns slowly round him; touching one slows you, and they shoot slowing, bleeding and swift
+    motes. The **Divine Hunt**: he chases the nearest player with a shotgun in front and a slowing
+    fan behind, throwing bleeding bombs round the arena; every ten seconds he stops, names a player
+    and hunts them instead. At 80% he calls his Host down beside him, and from then on picks his
+    patterns at random.
+  - **Transcendence** (60%): he heals everyone to full. The Cross comes faster, the outer stars
+    blight (sicken) instead, and while he hunts the whole arena is slowed, the fan behind him
+    bleeds and his Host rise beneath him, though he's slower.
+  - **Apotheosis** (20%): he turns gold, and a ring of Halo Orbs circles him firing outward. He
+    chases without stopping, the Cross (now aimed at you) and the Hunt in turn.
+  - **Last Judgement** (10%): he goes to the middle and can't be hurt. The columns fall, the Holy
+    Gates shut, and Pillars of Heaven ring the arena, firing bleeding, blighting and
+    armour-breaking rays straight across it while he throws his great spear. After 30 seconds he
+    concedes, the gates open, and he can be killed.
 
 ## The loot
 

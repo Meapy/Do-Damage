@@ -9,13 +9,21 @@ refuses while an `Unreleased` one is left, so rename it to `## <version> (<date>
 version number itself is in `client-rs/Cargo.toml`.
 
 ## Unreleased
+- Oryx the Ascended God (Oryx 5) has a whole new fight. Judgement: the Radiant Cross (twin lances
+  and gold arrowheads while he keeps his distance), the Firmament (a turning cross of stars round
+  him that slow you on touch) and the Divine Hunt (he chases, shotgun in front and a slowing fan
+  behind, throws bleeding bombs, and every ten seconds picks a player by name to hunt). At 80% he
+  calls his Host. At 60% he Transcends, heals everyone to full and comes back stronger. At 20% his
+  Apotheosis: he turns gold, Halo Orbs circle him, and he chases without rest. At 10% the Last
+  Judgement: the gates shut and Pillars of Heaven fire across the arena while he throws his spear,
+  until he concedes. Oryx's Elysium is still sealed while the rest of his rework is finished.
 - Oryx 5 has ascended: he is now Oryx the Ascended God, in white and gold armour with a spear,
   and his Doomed Cellar is now Oryx's Elysium, a holy island of gold, marble and turquoise sea. The
   road forks round the island past his Ascended Host (Oryx 3's court, ascended, with new attacks)
   to the Oasis and the Pyramid, each with a guardian. Cut down the twelve Trees of Doom (three on
   each road, and three more from each guardian) to open the Holy Gates to his temple, then kill the
   three Wardens circling him to wake him. Oryx's Elysium stays sealed while the rest of his
-  rework (his attacks and loot) is finished.
+  rework (his guardians and loot) is finished.
 - The Doomed Cellar Incantation is now the Oryx's Elysium Incantation (any you already have still
   work), and the locked portal Oryx 4 leaves behind is the Elysium's gateway, pale and still.
 - The locked portals Oryx 2 and Oryx 3 leave behind now look like the gateways they open into,
