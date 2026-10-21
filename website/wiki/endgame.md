@@ -104,12 +104,15 @@ Janus and is sold in the Nexus Bazaar.
   - **Transcendence** (60%): he heals everyone to full. The Cross comes faster, the outer stars
     blight (sicken) instead, and while he hunts the whole arena is slowed, the fan behind him
     bleeds and his Host rise beneath him, though he's slower.
-  - **Apotheosis** (20%): he turns gold, and a ring of Halo Orbs circles him firing outward. He
-    chases without stopping, the Cross (now aimed at you) and the Hunt in turn.
-  - **Last Judgement** (10%): he goes to the middle and can't be hurt. The columns fall, the Holy
-    Gates shut, and Pillars of Heaven ring the arena, firing bleeding, blighting and
-    armour-breaking rays straight across it while he throws his great spear. After 30 seconds he
-    concedes, the gates open, and he can be killed.
+  - **Apotheosis** (20%): he turns gold, and a ring of Halo Orbs circles the edge of the arena,
+    firing in at its middle. He chases without stopping, the Cross (now aimed at you) and the Hunt
+    in turn.
+  - **Last Judgement** (10%): he goes to the middle and can't be hurt. The Holy Gates shut, and
+    Pillars of Heaven ring the arena, firing bleeding, blighting and armour-breaking rays straight
+    across it, while he throws his great spear and fires his Radiant Cross again, slowed right
+    down so it fills the arena. After 30 seconds he concedes, the gates open, and he can be killed.
+  - Minions he summons can't be hurt and hold their fire for their first two seconds, and the
+    Firmament's stars vanish as soon as it ends.
 
 ## The loot
 

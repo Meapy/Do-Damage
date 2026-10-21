@@ -293,4 +293,125 @@
 			<Index>0x37</Index>
 		</Texture>
 	</Ground>
+	<Ground type="0x531F" id="Elysian Ocean">
+		<RandomTexture>
+			<Texture>
+				<File>elysium8x8</File>
+				<Index>0x38</Index>
+			</Texture>
+			<Texture>
+				<File>elysium8x8</File>
+				<Index>0x39</Index>
+			</Texture>
+			<Texture>
+				<File>elysium8x8</File>
+				<Index>0x3a</Index>
+			</Texture>
+		</RandomTexture>
+		<NoWalk />
+		<Sink />
+		<Animate dx="0.3" dy="0.3">Wave</Animate>
+		<BlendPriority>1</BlendPriority>
+		<Color>0x1C5AA0</Color>
+	</Ground>
+	<Ground type="0x5320" id="Elysian Reef">
+		<RandomTexture>
+			<Texture>
+				<File>elysium8x8</File>
+				<Index>0x3b</Index>
+			</Texture>
+			<Texture>
+				<File>elysium8x8</File>
+				<Index>0x3c</Index>
+			</Texture>
+			<Texture>
+				<File>elysium8x8</File>
+				<Index>0x3d</Index>
+			</Texture>
+		</RandomTexture>
+		<NoWalk />
+		<Sink />
+		<Animate dx="0.3" dy="0.3">Wave</Animate>
+		<BlendPriority>2</BlendPriority>
+		<Color>0x2E8AC8</Color>
+	</Ground>
+	<Ground type="0x5321" id="Elysian Shallows">
+		<RandomTexture>
+			<Texture>
+				<File>elysium8x8</File>
+				<Index>0x3e</Index>
+			</Texture>
+			<Texture>
+				<File>elysium8x8</File>
+				<Index>0x3f</Index>
+			</Texture>
+			<Texture>
+				<File>elysium8x8</File>
+				<Index>0x40</Index>
+			</Texture>
+		</RandomTexture>
+		<Sink />
+		<Speed>0.8</Speed>
+		<Animate dx="0.3" dy="0.3">Wave</Animate>
+		<BlendPriority>3</BlendPriority>
+		<Color>0x5CC4DC</Color>
+	</Ground>
+	<Ground type="0x5322" id="Elysian Wet Sand">
+		<RandomTexture>
+			<Texture>
+				<File>elysium8x8</File>
+				<Index>0x41</Index>
+			</Texture>
+			<Texture>
+				<File>elysium8x8</File>
+				<Index>0x42</Index>
+			</Texture>
+			<Texture>
+				<File>elysium8x8</File>
+				<Index>0x43</Index>
+			</Texture>
+		</RandomTexture>
+		<BlendPriority>4</BlendPriority>
+		<Color>0xC6AA78</Color>
+	</Ground>
+	<Ground type="0x5323" id="Elysian Sand">
+		<RandomTexture>
+			<Texture>
+				<File>elysium8x8</File>
+				<Index>0x44</Index>
+			</Texture>
+			<Texture>
+				<File>elysium8x8</File>
+				<Index>0x45</Index>
+			</Texture>
+			<Texture>
+				<File>elysium8x8</File>
+				<Index>0x46</Index>
+			</Texture>
+			<Texture>
+				<File>elysium8x8</File>
+				<Index>0x47</Index>
+			</Texture>
+		</RandomTexture>
+		<BlendPriority>5</BlendPriority>
+		<Color>0xF0DCAA</Color>
+	</Ground>
+	<Ground type="0x5324" id="Elysian Gilded Sand">
+		<RandomTexture>
+			<Texture>
+				<File>elysium8x8</File>
+				<Index>0x48</Index>
+			</Texture>
+			<Texture>
+				<File>elysium8x8</File>
+				<Index>0x49</Index>
+			</Texture>
+			<Texture>
+				<File>elysium8x8</File>
+				<Index>0x4a</Index>
+			</Texture>
+		</RandomTexture>
+		<BlendPriority>6</BlendPriority>
+		<Color>0xF2C868</Color>
+	</Ground>
 </Grounds>

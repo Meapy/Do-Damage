@@ -9,6 +9,14 @@ refuses while an `Unreleased` one is left, so rename it to `## <version> (<date>
 version number itself is in `client-rs/Cargo.toml`.
 
 ## Unreleased
+- Oryx's Elysium's sea and beaches are redrawn: smooth turquoise shallows, a deeper reef and the
+  open sea beyond, wet sand at the waterline and soft sand with the odd shell, all blending into
+  each other.
+- Oryx the Ascended God: the minions he summons can't be hurt and hold their fire for their first
+  two seconds, so they don't land on you shooting; the Firmament's stars vanish as soon as it ends;
+  the columns in his arena are gone; his Halo Orbs (below 20%) now circle the edge of the arena and
+  fire in at its middle; and in his Last Judgement he also fires his Radiant Cross, slowed right
+  down, so the arena fills up.
 - Oryx the Ascended God (Oryx 5) has a whole new fight. Judgement: the Radiant Cross (twin lances
   and gold arrowheads while he keeps his distance), the Firmament (a turning cross of stars round
   him that slow you on touch) and the Divine Hunt (he chases, shotgun in front and a slowing fan

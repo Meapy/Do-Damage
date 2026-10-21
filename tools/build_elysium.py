@@ -181,15 +181,20 @@ class Sheet:
             tone.measure([p for row in block(src, index) for p in row])
         return self.index[key]
 
+    def add_painted(self, pixels):
+        """A cell painted here (the island's tiles): rows of RGBA pixels."""
+        self.cells.append((None, pixels, None))
+        return len(self.cells) - 1
+
     def write(self, path, w=None, h=None):
         cw, ch = (w, h) if w else (self.cell, self.cell)
         rows = max(1, (len(self.cells) + self.per_row - 1) // self.per_row)
         pix = [[(0, 0, 0, 0)] * (self.per_row * cw) for _ in range(rows * ch)]
         for k, (src, index, tone) in enumerate(self.cells):
             dx, dy = (k % self.per_row) * cw, (k // self.per_row) * ch
-            for y, row in enumerate(block(src, index)):
+            for y, row in enumerate(index if src is None else block(src, index)):
                 for x, p in enumerate(row):
-                    pix[dy + y][dx + x] = tone(p)
+                    pix[dy + y][dx + x] = p if tone is None else tone(p)
         write_png(path, self.per_row * cw, rows * ch, pix)
 
 
@@ -303,6 +308,92 @@ def apotheosis(strip):
             if any(0 <= cx + dx < 16 and 0 <= y + dy < 16 and strip[y + dy][x + dx][3]
                    for dx, dy in ((1, 0), (-1, 0), (0, 1), (0, -1))):
                 out[y][x] = GLOW
+    return out
+
+
+# ------------------------------------------------------------------------------------------------
+# the island's own tiles, painted here in place of the game's old flat 8x8 water and sand: the sea
+# in three depths, the shallows with bright caustics, wet sand at the waterline, soft dry sand with
+# the odd shell, and gilded paving. Each has a few variants; the patterns tile (whole periods of
+# waves across the 8 pixels) and the water's scroll as it ripples. Their blend priorities rise
+# from the open sea to the paving, so each blends softly into the one below it (the client rounds
+# the corners where they meet).
+
+def _hash(x, y, seed):
+    h = (x * 73856093) ^ (y * 19349663) ^ (seed * 83492791)
+    h = (h ^ (h >> 13)) * 1274126177
+    return ((h ^ (h >> 16)) & 0xffff) / 65535
+
+
+def _mix(a, b, f):
+    return tuple(int(round(p + (q - p) * f)) for p, q in zip(a, b))
+
+
+def paint_water(dark, light, crest, seed):
+    p1, p2 = _hash(1, 2, seed) * 6.283, _hash(3, 4, seed) * 6.283
+    out = []
+    for y in range(8):
+        row = []
+        for x in range(8):
+            v = 0.5 + 0.28 * math.sin(2 * math.pi * (x / 8 + 2 * y / 8) + p1) + 0.22 * math.sin(2 * math.pi * (2 * x / 8 - y / 8) + p2)
+            v = min(1.0, max(0.0, v))
+            c = crest if v > 0.97 else _mix(dark, light, round(v * 4) / 4)
+            row.append(c + (255,))
+        out.append(row)
+    return out
+
+
+def paint_sand(base, light, dark, seed, shell=None):
+    out = []
+    for y in range(8):
+        row = []
+        for x in range(8):
+            n = _hash(x, y, seed)
+            c = light if n > 0.8 else dark if n < 0.14 else base
+            row.append(c + (255,))
+        out.append(row)
+    if shell:
+        sx, sy = 2 + int(_hash(5, 6, seed) * 4), 2 + int(_hash(7, 8, seed) * 4)
+        out[sy][sx], out[sy][sx + 1], out[sy + 1][sx] = shell[0] + (255,), shell[0] + (255,), shell[1] + (255,)
+    return out
+
+
+SHELL = ((250, 226, 222), (214, 170, 160))
+# id -> (cells, blend priority, minimap colour, extra tags)
+ISLAND_GROUNDS = {
+    "Elysian Ocean": (lambda: [paint_water((16, 66, 136), (28, 98, 172), (80, 150, 210), s) for s in range(3)],
+                      1, "0x1C5AA0", {"NoWalk": None, "Sink": None, "Animate": ("Wave", "0.3")}),
+    "Elysian Reef": (lambda: [paint_water((26, 112, 182), (48, 150, 210), (140, 210, 242), s) for s in range(3, 6)],
+                     2, "0x2E8AC8", {"NoWalk": None, "Sink": None, "Animate": ("Wave", "0.3")}),
+    "Elysian Shallows": (lambda: [paint_water((62, 180, 212), (104, 212, 232), (226, 250, 252), s) for s in range(6, 9)],
+                         3, "0x5CC4DC", {"Sink": None, "Speed": "0.8", "Animate": ("Wave", "0.3")}),
+    "Elysian Wet Sand": (lambda: [paint_sand((198, 170, 120), (212, 186, 136), (178, 150, 104), s) for s in range(9, 12)],
+                         4, "0xC6AA78", {}),
+    "Elysian Sand": (lambda: [paint_sand((240, 220, 170), (250, 236, 198), (224, 198, 148), s) for s in range(12, 15)]
+                     + [paint_sand((240, 220, 170), (250, 236, 198), (224, 198, 148), 15, SHELL)],
+                     5, "0xF0DCAA", {}),
+    "Elysian Gilded Sand": (lambda: [paint_sand((242, 200, 104), (255, 226, 144), (214, 166, 72), s) for s in range(16, 19)],
+                            6, "0xF2C868", {}),
+}
+
+
+def island_grounds(types, sheet):
+    out = []
+    for name, (cells, blend, colour, extra) in ISLAND_GROUNDS.items():
+        e = ET.Element("Ground", {"type": types.get(name, GROUND_TYPES), "id": name})
+        holder = ET.SubElement(e, "RandomTexture")
+        for pixels in cells():
+            tex = ET.SubElement(holder, "Texture")
+            ET.SubElement(tex, "File").text = SHEETS[8][0]
+            ET.SubElement(tex, "Index").text = "0x%02x" % sheet.add_painted(pixels)
+        for tag, value in extra.items():
+            if tag == "Animate":
+                ET.SubElement(e, "Animate", {"dx": value[1], "dy": value[1]}).text = value[0]
+            else:
+                ET.SubElement(e, tag).text = value
+        ET.SubElement(e, "BlendPriority").text = str(blend)
+        ET.SubElement(e, "Color").text = colour
+        out.append(e)
     return out
 
 
@@ -496,6 +587,9 @@ ORYX_SHOTS = [
     shot(6, "Holy Wave", 120, 70, 1600, effects=[("Bleeding", 3)]),
     # the Spear of Heaven, thrown in his Last Judgement: slow and large
     shot(7, "Divine Spear", 380, 40, 4200, 220, multi=False, effects=[("Armor Broken", 3)]),
+    # the Radiant Cross again in his Last Judgement, slowed right down so it fills the arena
+    shot(8, "Azure Lance", 180, 30, 6000),
+    shot(9, "Sunfire Missile", 170, 26, 6500, multi=False),
 ]
 
 
@@ -659,18 +753,20 @@ FLAME = "O5C Violet Flame"
 GATE = "O5 Holy Gate"
 BANNERS = ["O3 G Banner", "O3 D Banner", "O3 O Banner", "O3 L Banner", "O3 B Banner"]
 # the island: the game's own tiles and props, as they are
-SEA = "Tropical Water Deep"
-SURF = "Tropical Water Surf"
-SAND = "Light Sand"
-GOLD_SAND = "Gold Sand"
+SEA = "Elysian Ocean"
+REEF = "Elysian Reef"
+SURF = "Elysian Shallows"
+SAND = "Elysian Sand"
+WET_SAND = "Elysian Wet Sand"
+GOLD_SAND = "Elysian Gilded Sand"
 GRASS = "Light Grass"
-POOL = "Shallow Water"
+POOL = SURF
 SANDSTONE = "Sandstone Tile"
 GOLD_TILE = "Gold Tile"
 APEX = "Ancient Ruins Gold Tile"
 PALM = "Palm Tree"
 PILLAR = "Ancient Ruins Pillars"
-OWN = {SEA, SURF, SAND, GOLD_SAND, GRASS, POOL, SANDSTONE, GOLD_TILE, APEX, PALM, PILLAR} | set(BANNERS)
+OWN = {GRASS, SANDSTONE, GOLD_TILE, APEX, PALM, PILLAR} | set(BANNERS)
 
 
 def sdf(x, y):
@@ -690,7 +786,7 @@ class Grid:
             self.ground[y][x] = ground
 
     def is_floor(self, x, y):
-        return 0 <= x < W and 0 <= y < H and self.ground[y][x] not in (None, SEA, SURF)
+        return 0 <= x < W and 0 <= y < H and self.ground[y][x] not in (None, SEA, REEF, SURF)
 
     def free(self, x, y):
         return self.is_floor(x, y) and self.obj[y][x] is None and self.ground[y][x] != POOL
@@ -832,16 +928,25 @@ def build_map():
                     g.ground[y + dy][x + dx] not in (SEA, SURF) and g.obj[y + dy][x + dx] not in (WALL,) + ARCH
                     for dx in (-1, 0, 1) for dy in (-1, 0, 1) if 0 <= x + dx < W and 0 <= y + dy < H):
                 g.ground[y][x] = SURF
+    # past the shallows, two tiles of reef before the open sea
+    for _ in range(2):
+        reef = [(x, y) for y in range(H) for x in range(W) if g.ground[y][x] == SEA and any(
+            g.ground[y + dy][x + dx] in (SURF, REEF) for dx in (-1, 0, 1) for dy in (-1, 0, 1)
+            if 0 <= x + dx < W and 0 <= y + dy < H)]
+        for x, y in reef:
+            g.ground[y][x] = REEF
+    # and wet sand where the shallows lap the beach
+    wet = [(x, y) for y in range(H) for x in range(W) if g.ground[y][x] == SAND and any(
+        g.ground[y + dy][x + dx] == SURF for dx in (-1, 0, 1) for dy in (-1, 0, 1)
+        if 0 <= x + dx < W and 0 <= y + dy < H)]
+    for x, y in wet:
+        g.ground[y][x] = WET_SAND
 
     # --- the Temple's furnishings ----------------------------------------------------------------
     g.place(tx, ty, ORYX_ID)
     for k in range(3):
         a = 2 * math.pi * k / 3 - math.pi / 2
         g.place(round(tx + math.cos(a) * 6), round(ty + math.sin(a) * 6), "Ascended Warden")
-    # eight columns round the edge, off the rugs
-    for k in range(8):
-        a = 2 * math.pi * k / 8 + math.pi / 8
-        g.place(round(tx + math.cos(a) * 12), round(ty + math.sin(a) * 12), COLUMN)
     for i, banner in enumerate(BANNERS):
         bx = tx - 8 + i * 4
         by = min(y for y in range(H) if (bx, y) in g.temple) + 1
@@ -1004,6 +1109,7 @@ def main():
         if colour is not None:
             colour.text = {T_RUG: "0x7A44C0", T_GILDED: "0xE2C070"}.get(tone, "0xDCE0EE")
         grounds.append(e)
+    grounds += island_grounds(types, sheets[8])
     for name in used_objects:
         e = copy.deepcopy(o3_objects["O3" + name[2:]])
         e.set("type", types.get(name, OBJECT_TYPES))

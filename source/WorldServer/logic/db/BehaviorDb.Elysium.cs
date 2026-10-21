@@ -16,11 +16,17 @@ namespace WorldServer.logic
     // himself, with the helpers of his fight.
     partial class BehaviorDb
     {
+        // Each of the Host arrives invulnerable and holds its fire for 2 s (Arrival), so one Oryx 5
+        // summons doesn't land on a player shooting.
         private _ Elysium = () => Behav()
             // a gold fan of wavering missiles, and a slow ring of halos turning between volleys
             .Init("Ascended Noble",
                 new State(
                     new BossStats(17000, 25, 1.0, 0.25),
+                    new State("Arrival",
+                        new ConditionEffectBehavior(ConditionEffectIndex.Invulnerable),
+                        new TimedTransition(2000, "Idle")
+                    ),
                     new State("Idle", new PlayerWithinTransition(11, "Attack")),
                     new State("Attack",
                         new Prioritize(new StayCloseToSpawn(0.6, 6), new Follow(0.6, 11, 4), new Wander(0.3)),
@@ -34,6 +40,10 @@ namespace WorldServer.logic
             .Init("Ascended Aristocrat",
                 new State(
                     new BossStats(17000, 25, 1.0, 0.25),
+                    new State("Arrival",
+                        new ConditionEffectBehavior(ConditionEffectIndex.Invulnerable),
+                        new TimedTransition(2000, "Idle")
+                    ),
                     new State("Idle", new PlayerWithinTransition(11, "Lances")),
                     new State("Attack",
                         new Prioritize(new StayCloseToSpawn(0.7, 6), new Orbit(0.7, 5, 11, null), new Wander(0.3)),
@@ -55,6 +65,10 @@ namespace WorldServer.logic
             .Init("Ascended Sergeant",
                 new State(
                     new BossStats(17000, 40, 1.0, 0.25),
+                    new State("Arrival",
+                        new ConditionEffectBehavior(ConditionEffectIndex.Invulnerable),
+                        new TimedTransition(2000, "Idle")
+                    ),
                     new State("Idle", new PlayerWithinTransition(12, "Attack")),
                     new State("Attack",
                         new Prioritize(new StayCloseToSpawn(0.5, 7), new Follow(0.45, 12, 5)),
@@ -70,6 +84,10 @@ namespace WorldServer.logic
             .Init("Ascended Officer",
                 new State(
                     new BossStats(18000, 35, 1.0, 0.25),
+                    new State("Arrival",
+                        new ConditionEffectBehavior(ConditionEffectIndex.Invulnerable),
+                        new TimedTransition(2000, "Idle")
+                    ),
                     new State("Idle", new PlayerWithinTransition(12, "Volley")),
                     new State("Attack",
                         new Prioritize(new StayCloseToSpawn(0.5, 7), new Follow(0.5, 12, 4)),
@@ -93,6 +111,10 @@ namespace WorldServer.logic
             .Init("Ascended Major",
                 new State(
                     new BossStats(18000, 45, 1.0, 0.25),
+                    new State("Arrival",
+                        new ConditionEffectBehavior(ConditionEffectIndex.Invulnerable),
+                        new TimedTransition(2000, "Idle")
+                    ),
                     new State("Idle", new PlayerWithinTransition(12, "Charge")),
                     new State("Attack",
                         new State("Charge",
@@ -119,6 +141,10 @@ namespace WorldServer.logic
                     new HealEntity(12, "Ascended Aristocrat", 800, 3000),
                     new HealEntity(12, "Ascended Cleric", 800, 3000),
                     new HealEntity(12, "Ascended Cardinal", 800, 3000),
+                    new State("Arrival",
+                        new ConditionEffectBehavior(ConditionEffectIndex.Invulnerable),
+                        new TimedTransition(2000, "Idle")
+                    ),
                     new State("Idle", new PlayerWithinTransition(12, "Attack")),
                     new State("Attack",
                         new Prioritize(new StayCloseToSpawn(0.5, 6), new StayBack(0.5, 7), new Wander(0.3)),
@@ -132,6 +158,10 @@ namespace WorldServer.logic
             .Init("Ascended Cleric",
                 new State(
                     new BossStats(15000, 15, 1.0, 0.25),
+                    new State("Arrival",
+                        new ConditionEffectBehavior(ConditionEffectIndex.Invulnerable),
+                        new TimedTransition(2000, "Idle")
+                    ),
                     new State("Idle", new PlayerWithinTransition(12, "Attack")),
                     new State("Attack",
                         new Prioritize(new StayCloseToSpawn(0.6, 6), new Follow(0.6, 12, 3)),
@@ -148,6 +178,10 @@ namespace WorldServer.logic
             .Init("Ascended Cardinal",
                 new State(
                     new BossStats(15000, 25, 1.0, 0.25),
+                    new State("Arrival",
+                        new ConditionEffectBehavior(ConditionEffectIndex.Invulnerable),
+                        new TimedTransition(2000, "Idle")
+                    ),
                     new State("Idle", new PlayerWithinTransition(12, "Attack")),
                     new State("Attack",
                         new Prioritize(new StayCloseToSpawn(0.5, 6), new StayBack(0.5, 6), new Wander(0.3)),
@@ -166,11 +200,13 @@ namespace WorldServer.logic
             // - Transcendence (60%): back to the middle, heals everyone to full, then the same three
             //   patterns, Transcendent: a quicker Cross, blighting stars, and a Hunt that slows the
             //   whole arena, bleeds behind him and brings his Host up beneath him, though he's slower.
-            // - Apotheosis (20%): his sprite turns gold and eight Halo Orbs circle him. Wrath: the
-            //   Cross (aimed at you now) and the Hunt in turn, chasing all the while.
-            // - Last Judgement (10%): invulnerable in the middle. The columns fall, the Holy Gates
-            //   shut, the Pillars of Heaven ring the arena firing straight across it, and he throws
-            //   the Spear of Heaven. After 30 s, the Concession: the gates open and he can be killed.
+            // - Apotheosis (20%): his sprite turns gold and eight Halo Orbs circle the edge of the
+            //   arena, firing in at its middle. Wrath: the Cross (aimed at you now) and the Hunt in
+            //   turn, chasing all the while.
+            // - Last Judgement (10%): invulnerable in the middle. The Holy Gates shut, the Pillars of
+            //   Heaven ring the arena firing straight across it, and he throws the Spear of Heaven
+            //   and fires the Radiant Cross, slowed right down. After 30 s, the Concession: the gates
+            //   open and he can be killed.
             .Init("Oryx the Ascended God",
                 new State(
                     new BossStats(320000, 55, 1.0, 0.35),
@@ -247,7 +283,7 @@ namespace WorldServer.logic
                         new SetAltTexture(1),
                         new Flash(0xFFFFE070, 0.25, 16),
                         new Taunt(true, "Behold my APOTHEOSIS! I am the light, and the light does not die!") { Bubble = false },
-                        new SpawnRing("Halo Orb", 8, 5),
+                        new SpawnRing("Halo Orb", 8, 14, aroundSpawn: true),
                         new TimedTransition(4000, "W Cross")
                     ),
                     new State("Wrath",
@@ -272,16 +308,21 @@ namespace WorldServer.logic
                             new Taunt(true, "ENOUGH! The heavens themselves shall be your prison!") { Bubble = false },
                             new TimedTransition(2000, "LJ Fall")
                         ),
-                        // the arena's columns fall and the Holy Gates shut (rows 20 and 21 below him,
-                        // three either side: GATE_ROWS and CORRIDOR in tools/build_elysium.py)
+                        // the Holy Gates shut (rows 20 and 21 below him, three either side: GATE_ROWS and
+                        // CORRIDOR in tools/build_elysium.py)
                         new State("LJ Fall",
-                            new RemoveObject("O5 Wall Column 1", 13),
                             new PlaceObject("O5 Holy Gate", -3, 20, 3, 21),
                             new SpawnRing("Pillar of Heaven", 24, 15, 7.5, aroundSpawn: true),
                             new TimedTransition(500, "LJ Siege")
                         ),
+                        // the spear, and the Radiant Cross as it began (lanes and arrowheads, then turned),
+                        // drifting slowly out to crowd the arena
                         new State("LJ Siege",
                             new Shoot(25, projectileIndex: 7, predictive: 0.4, coolDown: 2800, coolDownOffset: 1500),
+                            new ShootFormation(25, 4, Lanes, 8, fixedAngle: 0, coolDown: 2400),
+                            new ShootFormation(25, 4, Arrowhead, 9, fixedAngle: 45, coolDown: 2400),
+                            new ShootFormation(25, 4, Lanes, 8, fixedAngle: 45, coolDown: 2400, coolDownOffset: 1200),
+                            new ShootFormation(25, 4, Arrowhead, 9, fixedAngle: 0, coolDown: 2400, coolDownOffset: 1200),
                             new TimedTransition(30000, "Concession")
                         )
                     ),
@@ -356,12 +397,14 @@ namespace WorldServer.logic
             .Init("Wounding Star", Star(300))
             .Init("Swift Star", Star(600))
             .Init("Blighting Star", Star(600))
-            // the Halo Orbs of his Apotheosis: a turning ring that fires outward, fencing you in
+            // the Halo Orbs of his Apotheosis: a ring turning round the edge of his arena, firing in at
+            // its middle, so the arena closes in on you
             .Init("Halo Orb",
                 new State(
                     new ConditionEffectBehavior(ConditionEffectIndex.Invulnerable),
-                    new Revolve("Oryx the Ascended God", 40),
-                    new ShootFromCenter("Oryx the Ascended God", new[] { 0 }, count: 2, shootAngle: 20, coolDown: 1400),
+                    new Revolve("Oryx the Ascended God", 20, aroundSpawn: true),
+                    new ShootFromCenter("Oryx the Ascended God", new[] { 0 }, inward: true, count: 2, shootAngle: 20, coolDown: 1400,
+                        aroundSpawn: true),
                     new State("Live"),
                     new State("Gone", new Suicide())
                 )
@@ -446,6 +489,7 @@ namespace WorldServer.logic
                 ),
                 new State(name + " Stars",
                     new ReturnToSpawn(1.5),
+                    new RemoveEntitiesOnExit(30, "Stilling Star", "Wounding Star", "Swift Star", "Blighting Star"),
                     new SpawnRing("Stilling Star", 4, 3.5, 45, aroundSpawn: true),
                     new SpawnRing("Wounding Star", 4, 6, 45, aroundSpawn: true),
                     new SpawnRing(transcended ? "Blighting Star" : "Swift Star", 4, 8.5, 45, aroundSpawn: true),

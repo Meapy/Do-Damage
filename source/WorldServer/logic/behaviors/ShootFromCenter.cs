@@ -8,8 +8,9 @@ using WorldServer.networking.packets.outgoing;
 
 namespace WorldServer.logic.behaviors
 {
-    // Shoots along the line through the nearest `center` (Oryx 5): away from it (his Halo Orbs fire
-    // outward) or across to it (the Pillars of Heaven fire into his arena). With snapToAxis the
+    // Shoots along the line through the nearest `center` (Oryx 5), or with aroundSpawn through the
+    // point where it spawned (the middle of his arena): away from it, or across to it (his Halo Orbs
+    // and the Pillars of Heaven fire into his arena). With snapToAxis the
     // line is the nearest of east, south, west and north, so the pillars on the sides shoot straight
     // across and those above and below straight down or up. Each volley takes the next of
     // `projectileIndices` in turn.
@@ -23,10 +24,12 @@ namespace WorldServer.logic.behaviors
         private readonly float _shootAngle;
         private readonly Cooldown _coolDown;
         private readonly int _coolDownOffset;
+        private readonly bool _aroundSpawn;
 
         public ShootFromCenter(string center, int[] projectileIndices, bool inward = false, bool snapToAxis = false,
-            int count = 1, double shootAngle = 0, Cooldown coolDown = new Cooldown(), int coolDownOffset = 0)
+            int count = 1, double shootAngle = 0, Cooldown coolDown = new Cooldown(), int coolDownOffset = 0, bool aroundSpawn = false)
         {
+            _aroundSpawn = aroundSpawn;
             _center = GetObjType(center);
             _projectiles = projectileIndices;
             _inward = inward;
@@ -63,7 +66,8 @@ namespace WorldServer.logic.behaviors
             if (!host.ObjectDesc.Projectiles.TryGetValue(index, out var desc))
                 return;
 
-            var a = Math.Atan2(host.Y - center.Y, host.X - center.X);
+            var (cx, cy) = _aroundSpawn ? (center.SpawnPoint.Value.X, center.SpawnPoint.Value.Y) : (center.X, center.Y);
+            var a = Math.Atan2(host.Y - cy, host.X - cx);
             if (_inward)
                 a += Math.PI;
             if (_snapToAxis)
