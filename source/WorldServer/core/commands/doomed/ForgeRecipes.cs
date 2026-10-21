@@ -11,8 +11,9 @@ namespace WorldServer.core.commands.doomed
     // Every recipe the Divine Forge knows: Doomed Realms' (DoomedEconomyData.Recipes), plus two of
     // each tiered item forging into the next tier up, for every slot type a class wears (rings by
     // their stat: two Rings of Attack make a Ring of Greater Attack). Tiered results cost at most
-    // TieredCap fame, as the tier chains are there to save players trips, not to sink fame;
-    // untiered results keep their Doomed Realms price. Built from the game data on first use, so
+    // TieredCap fame, as the tier chains are there to save players trips, not to sink fame, and an
+    // ability's two-for-one costs its tier's price whatever the Doomed Realms list says (every
+    // ability kind then costs what the rings do); untiered results keep their Doomed Realms price. Built from the game data on first use, so
     // new tiered items get recipes without a change here.
     //
     // The forge only makes what players can find: a recipe's result must be tradeable (not an
@@ -51,29 +52,57 @@ namespace WorldServer.core.commands.doomed
             bool Allowed((string Result, int Fame, bool Advanced, string[] Items) r) =>
                 items.ContainsKey(r.Result) && dropped.Contains(r.Result) && !seasonal.Contains(r.Result) && r.Items.All(items.ContainsKey);
 
-            var recipes = DoomedEconomyData.Recipes
-                .Select(r => Tiered(r.Result) ? (r.Result, Math.Min(r.Fame, TieredCap), r.Advanced, r.Items) : r)
-                .ToList();
-            var known = new HashSet<string>(recipes.Select(Key));
-
             var slots = new HashSet<int>(data.Classes.Values.Where(c => c.SlotTypes != null).SelectMany(c => c.SlotTypes.Take(4)));
             slots.Remove(0);
+            var abilitySlots = new HashSet<int>(data.Classes.Values.Where(c => c.SlotTypes != null && c.SlotTypes.Length > 1)
+                .Select(c => c.SlotTypes[1]));
+            // each slot's items by tier, and the fame for each tier it can forge: the price scale runs
+            // to the top of the unbroken chain from the lowest tier
+            var chains = new Dictionary<int, (Dictionary<int, List<Item>> ByTier, Dictionary<int, int> Fame)>();
             foreach (var slot in slots)
             {
                 var byTier = items.Values.Where(i => i.SlotType == slot && i.Tier >= 0)
                     .GroupBy(i => i.Tier).ToDictionary(g => g.Key, g => g.OrderBy(i => i.ObjectType).ToList());
                 if (byTier.Count == 0)
                     continue;
-                // the top of the unbroken chain from the lowest tier, for the price scale
                 var top = byTier.Keys.Min();
                 while (byTier.ContainsKey(top + 1))
                     top++;
+                var fames = new Dictionary<int, int>();
+                foreach (var tier in byTier.Keys.Where(t => t <= top && byTier.ContainsKey(t - 1)))
+                {
+                    var scaled = (int)Math.Round(tier * 14.0 / Math.Max(top, 1));
+                    fames[tier] = Math.Min(TierFame[Math.Clamp(scaled, 1, TierFame.Length - 1)], TieredCap);
+                }
+                chains[slot] = (byTier, fames);
+            }
+
+            // An ability's two of the tier below costs its tier's price on the scale, as every ability
+            // kind (and ring) has the same eight tiers: the Doomed Realms list's own prices for them
+            // went up and down from tier to tier.
+            int? AbilityChainFame((string Result, int Fame, bool Advanced, string[] Items) r)
+            {
+                if (!items.TryGetValue(r.Result, out var res) || res.Tier < 1 || !abilitySlots.Contains(res.SlotType)
+                    || r.Items.Length != 2 || r.Items[0] != r.Items[1] || !items.TryGetValue(r.Items[0], out var from)
+                    || from.SlotType != res.SlotType || from.Tier != res.Tier - 1
+                    || !chains.TryGetValue(res.SlotType, out var chain) || !chain.Fame.TryGetValue(res.Tier, out var fame))
+                    return null;
+                return fame;
+            }
+
+            var recipes = DoomedEconomyData.Recipes
+                .Select(r => AbilityChainFame(r) is int fame ? (r.Result, fame, r.Advanced, r.Items)
+                    : Tiered(r.Result) ? (r.Result, Math.Min(r.Fame, TieredCap), r.Advanced, r.Items) : r)
+                .ToList();
+            var known = new HashSet<string>(recipes.Select(Key));
+
+            foreach (var (slot, (byTier, fames)) in chains)
+            {
                 foreach (var (tier, results) in byTier)
                 {
-                    if (!byTier.TryGetValue(tier - 1, out var below) || tier > top)
+                    if (!fames.TryGetValue(tier, out var fame))
                         continue;
-                    var scaled = (int)Math.Round(tier * 14.0 / Math.Max(top, 1));
-                    var fame = Math.Min(TierFame[Math.Clamp(scaled, 1, TierFame.Length - 1)], TieredCap);
+                    var below = byTier[tier - 1];
                     foreach (var result in results)
                     {
                         var from = Below(result, below);

@@ -9,6 +9,10 @@ refuses while an `Unreleased` one is left, so rename it to `## <version> (<date>
 version number itself is in `client-rs/Cargo.toml`.
 
 ## Unreleased
+- Forging an ability from two of the tier below now costs the same for every kind of ability,
+  as rings do: 30 fame for tier 1, then 70, 90, 200, 400, 500, 1,000 and 2,000 for tier 8. Some
+  abilities cost more for a lower tier before (2,000 for tier 6 but 1,000 for tier 7).
+- The item icons on the wiki's Divine Forge page sit in the middle of their slots.
 - The wiki's guides are up to date with the last week's changes: a new Arenas section (the waves
   and their stages, GO, fame, the leaderboard, and that losing doesn't kill you), the screen's
   layout and the Visuals options, how realm events scale with players, the Oryx loot as it is now,

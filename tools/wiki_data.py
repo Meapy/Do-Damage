@@ -314,25 +314,17 @@ class Data:
         winter = re.search(r'WinterBossDrops\s*=\s*\{(.*?)\};', _read(os.path.join(LOGIC, "loot", "Loots.cs")), re.S)
         seasonal.update(re.findall(r'\("([^"]+)"', winter.group(1) if winter else ""))
 
-        econ = _read(os.path.join(COMMANDS, "doomed", "DoomedEconomyData.cs"))
-        m = re.search(r'Recipes\s*=\s*\{(.*?)\};', econ, re.S)
-        recipes = []
-        for res, fame, adv, ing in re.findall(
-                r'\("([^"]+)",\s*(\d+),\s*(true|false),\s*new\[\]\s*\{([^}]*)\}\)', m.group(1) if m else ""):
-            fame = int(fame)
-            if res in items and items[res]["tier"] >= 0:
-                fame = min(fame, self.FORGE_TIERED_CAP)
-            recipes.append({"result": res, "fame": fame, "advanced": adv == "true",
-                            "items": re.findall(r'"([^"]+)"', ing)})
-
-        def key(r):
-            return r["result"] + "=" + "+".join(sorted(r["items"]))
-        known = {key(r) for r in recipes}
-        slots = set()
+        slots, ability_slots = set(), set()
         for oid, o in self.objects.items():
             if o["class"] == "Player":
-                slots.update(_int(x) for x in (_text(self.elements[oid], "SlotTypes", "") or "").split(",")[:4])
+                st = [_int(x) for x in (_text(self.elements[oid], "SlotTypes", "") or "").split(",")[:4]]
+                slots.update(st)
+                if len(st) > 1:
+                    ability_slots.add(st[1])
         slots.discard(0)
+        # each slot's items by tier, and the fame for each tier it can forge: the price scale runs to
+        # the top of the unbroken chain from the lowest tier
+        chains = {}
         for slot in sorted(slots):
             by_tier = {}
             for oid, o in sorted(items.items(), key=lambda kv: kv[1]["type"]):
@@ -340,21 +332,51 @@ class Data:
                     by_tier.setdefault(o["tier"], []).append(oid)
             if not by_tier:
                 continue
-            top = min(by_tier)  # the top of the unbroken chain from the lowest tier, for the price scale
+            top = min(by_tier)
             while top + 1 in by_tier:
                 top += 1
+            fames = {}
+            for tier in by_tier:
+                if tier <= top and tier - 1 in by_tier:
+                    scaled = round(tier * 14.0 / max(top, 1))
+                    fames[tier] = min(self.FORGE_TIER_FAME[max(1, min(scaled, len(self.FORGE_TIER_FAME) - 1))],
+                                      self.FORGE_TIERED_CAP)
+            chains[slot] = (by_tier, fames)
+
+        def ability_chain_fame(res, ing):
+            """An ability's two of the tier below costs its tier's price on the scale."""
+            r, f = items.get(res), items.get(ing[0]) if ing else None
+            if (not r or r["tier"] < 1 or r["slot"] not in ability_slots or len(ing) != 2 or ing[0] != ing[1]
+                    or not f or f["slot"] != r["slot"] or f["tier"] != r["tier"] - 1 or r["slot"] not in chains):
+                return None
+            return chains[r["slot"]][1].get(r["tier"])
+
+        econ = _read(os.path.join(COMMANDS, "doomed", "DoomedEconomyData.cs"))
+        m = re.search(r'Recipes\s*=\s*\{(.*?)\};', econ, re.S)
+        recipes = []
+        for res, fame, adv, ing in re.findall(
+                r'\("([^"]+)",\s*(\d+),\s*(true|false),\s*new\[\]\s*\{([^}]*)\}\)', m.group(1) if m else ""):
+            ing = re.findall(r'"([^"]+)"', ing)
+            fame = int(fame)
+            if ability_chain_fame(res, ing) is not None:
+                fame = ability_chain_fame(res, ing)
+            elif res in items and items[res]["tier"] >= 0:
+                fame = min(fame, self.FORGE_TIERED_CAP)
+            recipes.append({"result": res, "fame": fame, "advanced": adv == "true", "items": ing})
+
+        def key(r):
+            return r["result"] + "=" + "+".join(sorted(r["items"]))
+        known = {key(r) for r in recipes}
+        for slot, (by_tier, fames) in chains.items():
             for tier, results in by_tier.items():
-                below = by_tier.get(tier - 1)
-                if not below or tier > top:
+                if tier not in fames:
                     continue
-                scaled = round(tier * 14.0 / max(top, 1))
-                fame = min(self.FORGE_TIER_FAME[max(1, min(scaled, len(self.FORGE_TIER_FAME) - 1))],
-                           self.FORGE_TIERED_CAP)
+                below = by_tier[tier - 1]
                 for res in results:
                     last = res.rsplit(" ", 1)[-1]
                     frm = below[0] if len(below) == 1 else next(
                         (b for b in below if b.rsplit(" ", 1)[-1] == last), below[0])
-                    r = {"result": res, "fame": fame, "advanced": False, "items": [frm, frm]}
+                    r = {"result": res, "fame": fames[tier], "advanced": False, "items": [frm, frm]}
                     if key(r) not in known:
                         known.add(key(r))
                         recipes.append(r)

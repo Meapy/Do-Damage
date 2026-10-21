@@ -635,8 +635,8 @@ code { font: .86em ui-monospace, "Cascadia Mono", Consolas, monospace; padding: 
 }
 .banner figcaption { margin-top: 14px; font-size: .85rem; color: var(--text-muted); }
 .fr-item { display: inline-flex; align-items: center; gap: 8px; margin: 2px 14px 2px 0; vertical-align: middle; }
-.fr-item .ico { width: 40px; height: 40px; border-width: 2px; border-radius: 5px; }
-.fr-item .ico i { transform: scale(.7); }
+/* zoom, not a transform, so the box and its sprite shrink together and stay centred */
+.fr-item .ico { zoom: .72; }
 .fr-name { color: var(--text); }
 .fr-n { font-weight: 700; color: var(--gold); font-variant-numeric: tabular-nums; }
 .prose .fr-recipe {

@@ -40,8 +40,8 @@ costs more than {{v:forge_cap}} fame.
 {{gen:forge_tiers}}
 
 > Weapons and armor start at tier 0 and 1, so the first upgrade makes a tier 1 weapon or a tier 2
-> armor. A few tiers cost less than the one below them: those prices come from the Doomed Realms
-> forge's own recipes.
+> armor. Every ability and ring costs the same at each tier. A few weapon and armor tiers keep the
+> Doomed Realms forge's own prices, which is why daggers, wands and the armors differ a little.
 
 ## Other recipes
 
