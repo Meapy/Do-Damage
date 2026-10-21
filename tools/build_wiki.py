@@ -283,7 +283,7 @@ BOSS_OVERRIDE = {"Tomb of the Ancients": "Tomb Defender", "Elder Tomb of the Anc
 BOSS_PROPS = re.compile(r"Spawner|spawner|Wall|Sarcophagus|Present|Chest|Anchor|Gate|Tooky|Totem$")
 EQUIP_SLOTS = set(wd.SLOT_NAMES)
 ORYX_CHAIN = ["Oryx's Castle", "Oryx's Chamber", "Chicken Chamber", "Wine Cellar", "Oryx's Sanctuary",
-              "Hash Cellar", "Doomed Cellar"]
+              "Oryx's Inferno", "Doomed Cellar"]
 SKIP_WORLDS = {"Admin Room", "Admin Arena", "Shop", "?????", "Lair of Shaitan New Auru", "Battle Arena",
                "Free Battle Arena"}
 # difficulty from the boss's health: the upper bound of each of six steps
@@ -687,8 +687,9 @@ class Gen:
             rows.append(("Opens", " ".join(esc(s) for s in x["special"])))
         for item, areas, bosses in x["unlock"]:
             beaten = " or ".join(esc(who(d, b)) for b in bosses) or "The boss"
-            rows.append(("Opens", "%s leaves a locked portal behind (%s). Use a <strong>%s</strong> beside it." % (
-                beaten, joined([esc(a) for a in areas]), esc(d.name(item)))))
+            name = d.name(item)
+            rows.append(("Opens", "%s leaves a locked portal behind (%s). Use %s<strong>%s</strong> beside it." % (
+                beaten, joined([esc(a) for a in areas]), with_article(name)[:-len(name)], esc(name))))
         if src:
             rows.append(("Portal from", ", ".join(src)))
         if x["bot"]:

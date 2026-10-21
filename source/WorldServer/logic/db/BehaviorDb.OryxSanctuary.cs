@@ -9,7 +9,7 @@ namespace WorldServer.logic
     // Mad God. Players fight
     // through his nobles and court to a gate that opens once the court is dead, then face Oryx the
     // Mad God 3 in the Sanctum. His attacks use the "White" projectiles until half health and the
-    // stronger "Exalted" ones after. He drops the portal to the Hash Cellar (Oryx 4).
+    // stronger "Exalted" ones after. He drops the portal to Oryx's Inferno (Oryx 4).
     // His taunts go to chat only (no bubbles over his attacks). He stands at the Sanctum's centre. His missiles chase the players, his wheels charge about,
     // his bombs flee from them, and before the Kneel ring and the spinners he turns invulnerable
     // and dashes back to the centre.
@@ -26,9 +26,9 @@ namespace WorldServer.logic
                 new State(
                     new BossStats(180000, 45, 1.0, 0.3),
                     new DropPortalOnDeath("Locked Wine Cellar Portal", 1.0, timeout: 600, xAdjustment: 2,
-                        name: "Locked: Hash Cellar", lockedHint: "This portal is locked. Use a Hash Cellar Incantation beside it to open it."),
+                        name: "Locked: Oryx's Inferno", lockedHint: "This portal is locked. Use an Oryx's Inferno Incantation beside it to open it."),
                     new DropPortalOnDeath("Realm Portal", 1.0, timeout: 120, xAdjustment: -2),
-                    new AnnounceOnDeath("{PL_LIST} broke Oryx the Celestial Mad God in his Sanctuary! His spirit sinks into the Hash Cellar, sealed by a Hash Cellar Incantation..."),
+                    new AnnounceOnDeath("{PL_LIST} broke Oryx the Celestial Mad God in his Sanctuary! His spirit sinks into his Inferno, sealed by an Oryx's Inferno Incantation..."),
                     new State("Dormant",
                         new ConditionEffectBehavior(ConditionEffectIndex.Invulnerable),
                         new PlayerWithinTransition(17, "Awaken 1")

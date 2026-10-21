@@ -6,7 +6,7 @@ using WorldServer.core.worlds;
 
 namespace WorldServer.logic
 {
-    // The last two stages of the Oryx chain, from Doomed Realms: Oryx the Mad God 4 in the Hash Cellar
+    // The last two stages of the Oryx chain, from Doomed Realms: Oryx the Mad God 4 in Oryx's Inferno
     // and Oryx the Mad God 5 in the Doomed Cellar. These replace the generated Doomed Realms versions
     // (InitDoomed), whose Oryx 4 stuck in its first ring phase for good.
     partial class BehaviorDb
@@ -22,8 +22,8 @@ namespace WorldServer.logic
                             ?? "This portal is locked. Use a Doomed Cellar Incantation beside it to open it."),
                     new DropPortalOnDeath("Realm Portal", 1.0, timeout: 120, xAdjustment: -2),
                     new AnnounceOnDeath(SealedDungeons.WhyDungeon("Doomed Cellar") != null
-                        ? "{PL_LIST} burned Oryx the Infernal Mad God out of the Hash Cellar! He flees to the Doomed Cellar, sealed for now..."
-                        : "{PL_LIST} burned Oryx the Infernal Mad God out of the Hash Cellar! He makes his last stand in the Doomed Cellar, sealed by a Doomed Cellar Incantation..."),
+                        ? "{PL_LIST} burned Oryx the Infernal Mad God out of his Inferno! He flees to the Doomed Cellar, sealed for now..."
+                        : "{PL_LIST} burned Oryx the Infernal Mad God out of his Inferno! He makes his last stand in the Doomed Cellar, sealed by a Doomed Cellar Incantation..."),
                     new State("Dormant",
                         new ConditionEffectBehavior(ConditionEffectIndex.Invulnerable),
                         new PlayerWithinTransition(15, "Awaken")
@@ -434,7 +434,7 @@ namespace WorldServer.logic
                 new ItemLoot("Potion of Defense", 0.05)
             )
             // a fireball for anyone who stands right beside one, mild enough that walking past is safe
-            // (they lined the old Hash Cellar's path)
+            // (they lined the old Oryx 4 dungeon's path)
             .Init("Jungle Fire",
                 new State(
                     new BossStats(400, 80, 2.0, 0),

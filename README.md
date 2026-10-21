@@ -210,7 +210,7 @@ What's finished and what's still to do, upstream's work and this repository's to
 - [x] Ancient Ruins, Cursed Library, Fungal Cavern, Parasite Chambers, Secluded Thicket: each has
   behaviours for every monster, a boss with loot and an exit portal, and a portal source.
 - [x] Abyss Idols, Horrific Creation, Mixcoatl, Belladonna: all have fights now.
-- [x] The Oryx chain: Oryx's Castle, Oryx's Chamber, Wine Cellar, Oryx's Sanctuary, Hash Cellar
+- [x] The Oryx chain: Oryx's Castle, Oryx's Chamber, Wine Cellar, Oryx's Sanctuary, Oryx's Inferno
   and Doomed Cellar, opened with incantations; and the Chicken Chamber.
 - [x] Ivory Wyvern ✮, Ice Cave / Inner Sanctum ✮.
 - [x] Battle for the Nexus ✮: four bosses with loot; its key is sold in the Nexus Bazaar.

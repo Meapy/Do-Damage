@@ -7,7 +7,7 @@ eyebrow: Endgame
 summary: From a closing realm down to the Doomed Cellar: every stage, its boss, and which incantation or key opens the next.
 ---
 When a realm closes, Oryx runs. On this server you can follow him a long way: from his Castle
-through his Chamber, his Wine Cellar, the new Oryx's Sanctuary and the Hash Cellar to the Doomed
+through his Chamber, his Wine Cellar, the new Oryx's Sanctuary and Oryx's Inferno to the Doomed
 Cellar, the end of the line. Every stage is harder than the last and drops better loot, and every
 Oryx's death is announced to the whole server.
 
@@ -70,7 +70,7 @@ Janus and is sold in the Nexus Bazaar.
   dashes back to the middle. When he shouts **"KNEEL!"**, get more than eight tiles from the
   middle, or you're stunned. At half health his three Protectors circle him and must die before he
   can be hurt again; after that his attacks get stronger, and below 20% he hunts players down.
-- **Oryx 4**, Oryx the Infernal Mad God (Hash Cellar): a burning copy of the Sanctuary. The
+- **Oryx 4**, Oryx the Infernal Mad God (Oryx's Inferno): a burning copy of the Sanctuary. The
   Burning Path winds through four chambers held by his Infernal Court, Oryx 3's court with Oryx
   2's minions' tricks and a little stronger: the Infernal Officer (confusing shuriken), the
   Brimstone Major (charges, and a cone of fire up close), the Cinder Cleric (heals the others and

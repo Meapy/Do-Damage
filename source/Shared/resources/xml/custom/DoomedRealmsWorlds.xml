@@ -42,10 +42,10 @@
 		<VisibilityType>1</VisibilityType>
 		<Dungeon/>
 	</World>
-	<World id="Hash Cellar">
+	<World id="Oryx's Inferno">
 		<Width>64</Width>
 		<Height>122</Height>
-		<MapJM>Dungeons/Hash Cellar/Hash Cellar.jm</MapJM>
+		<MapJM>Dungeons/Oryx's Inferno/Oryx's Inferno.jm</MapJM>
 		<VisibilityType>1</VisibilityType>
 		<Dungeon/>
 	</World>

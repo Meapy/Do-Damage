@@ -9,15 +9,18 @@ refuses while an `Unreleased` one is left, so rename it to `## <version> (<date>
 version number itself is in `client-rs/Cargo.toml`.
 
 ## Unreleased
+- The Hash Cellar is now Oryx's Inferno, and its incantation the Oryx's Inferno Incantation
+  (any you already have still work). Using it beside the portal Oryx 3 leaves now opens a burning,
+  swirling gateway down into the Inferno, a fiery version of the Sanctuary's portal.
 - Oryx 3 and Oryx 4 have names of their own: Oryx the Celestial Mad God in his Sanctuary, and
-  Oryx the Infernal Mad God in the Hash Cellar.
+  Oryx the Infernal Mad God in Oryx's Inferno.
 - Oryx 3 and Oryx 4's taunts now show only in chat, with no speech bubble over them hiding their
   attacks.
 - Oryx the Mad God 3 now starts in the middle of his Sanctum and moves more: he chases you
   while firing missiles, backs away while throwing bombs, and turns invulnerable to dash back to
   the middle before his Kneel ring and his spinners. He charges faster while leaving his spinning
   wheels, still firing at you, and his Protectors now always circle him.
-- The Hash Cellar (Oryx 4) is rebuilt in the red of fire and doom: new tiles and walls, a winding
+- Oryx's Inferno (Oryx 4) is rebuilt in the red of fire and doom: new tiles and walls, a winding
   Burning Path through four chambers, and a slightly larger round arena with a couple of lava
   pools, where Oryx now waits in the middle. Oryx 4 himself burns: fiery horns and embers in his
   armour. Outside the walls a dark molten sea glows instead of black.
@@ -25,7 +28,7 @@ version number itself is in `client-rs/Cargo.toml`.
   of Oryx's minions and Knights of Doom. His blue Guardian Elements are now red Infernal Elements,
   which circle him properly: four close and four further out, evenly spaced. His first phase's
   white bolts and green stars are now hellfire.
-- New monsters guard the Hash Cellar's path, the Infernal Court: the Infernal Officer, Brimstone
+- New monsters guard Oryx's Inferno's path, the Infernal Court: the Infernal Officer, Brimstone
   Major, Cinder Cleric and Doom Cardinal, Oryx 3's court with Oryx 2's minions' tricks, a little
   tougher, with better drops.
 - Forging an ability from two of the tier below now costs the same for every kind of ability,

@@ -5,7 +5,7 @@ using WorldServer.logic.transitions;
 
 namespace WorldServer.logic
 {
-    // The Hash Cellar's Infernal Court (tools/build_hash_cellar.py), who hold the Burning Path to
+    // Oryx's Inferno's Infernal Court (tools/build_hash_cellar.py), who hold the Burning Path to
     // Oryx 4: Oryx 3's court monsters, burnt, with an Oryx 2 minion's tricks on top. Their XML is
     // their O3 base's with every shot a sixth stronger; projectiles 10 and up are the O2 minion's.
     partial class BehaviorDb

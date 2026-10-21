@@ -67,9 +67,11 @@ PORTED_WORLDS = {
 }
 
 # Ported worlds whose map betterSkillys builds itself (a path under worlds/): the world keeps its
-# Doomed Realms name, background and portals, the map is the script's. Hash Cellar (Oryx 4):
+# Doomed Realms background and portals, the map is the script's. Oryx's Inferno (Oryx 4):
 # tools/build_hash_cellar.py.
-OWN_MAPS = {"Dragonlord": "Dungeons/Hash Cellar/Hash Cellar.jm"}
+OWN_MAPS = {"Dragonlord": "Dungeons/Oryx's Inferno/Oryx's Inferno.jm"}
+# Ported worlds renamed for players: Oryx 4's Hash Cellar is Oryx's Inferno.
+WORLD_NAMES = {"Dragonlord": "Oryx's Inferno"}
 
 # Elder dungeons Doomed Realms left unfinished (it made their keys, portals and monsters, but no
 # maps): built like its finished ones, from the regular dungeon's maps with every object that has
@@ -319,6 +321,7 @@ def world_maps(dr_root, dr_ids=frozenset()):
     out = {}
     for cls in PORTED_WORLDS:
         name, bg, tp, maps = classes[cls]
+        name = WORLD_NAMES.get(cls, name)
         if cls in OWN_MAPS:
             with open(os.path.join(os.path.dirname(WORLDS_DIR), OWN_MAPS[cls]), encoding="utf-8") as f:
                 j = json.load(f)

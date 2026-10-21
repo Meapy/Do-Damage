@@ -12668,6 +12668,7 @@
 		</Texture>
 	</Object>
 	<Object type="0xD2B8" id="Hash Cellar Incantation">
+		<DisplayId>Oryx's Inferno Incantation</DisplayId>
 		<Class>Equipment</Class>
 		<Item />
 		<Key>500</Key>
@@ -12676,15 +12677,15 @@
 			<Index>0x14a</Index>
 		</Texture>
 		<SlotType>10</SlotType>
-		<Description>Unlocks the portal Oryx leaves behind in his Sanctuary, leading down to the Hash Cellar.</Description>
+		<Description>Unlocks the portal Oryx leaves behind in his Sanctuary, leading down into Oryx's Inferno.</Description>
 		<Sound>use_key</Sound>
 		<Consumable />
-		<Activate radius="25" targetId="Locked Wine Cellar Portal" newId="Hash Cellar Portal" onlyInArea="Oryx's Sanctuary" customString="Hash Cellar unlocked by">ChangeObject</Activate>
+		<Activate radius="25" targetId="Locked Wine Cellar Portal" newId="Oryx's Inferno Portal" onlyInArea="Oryx's Sanctuary" customString="Oryx's Inferno unlocked by">ChangeObject</Activate>
 	</Object>
 	<Object type="0xD2B9" id="Hash Cellar Portal">
 		<Class>Portal</Class>
 		<IntergamePortal />
-		<DungeonName>Hash Cellar</DungeonName>
+		<DungeonName>Oryx's Inferno</DungeonName>
 		<Texture>
 			<File>drLofiObj5</File>
 			<Index>0x149</Index>
@@ -13011,10 +13012,10 @@
 			<Index>0x14b</Index>
 		</Texture>
 		<SlotType>10</SlotType>
-		<Description>Unlocks the portal Oryx leaves behind in the Hash Cellar, leading to his last stand in the Doomed Cellar.</Description>
+		<Description>Unlocks the portal Oryx leaves behind in his Inferno, leading to his last stand in the Doomed Cellar.</Description>
 		<Sound>use_key</Sound>
 		<Consumable />
-		<Activate radius="25" targetId="Locked Wine Cellar Portal" newId="Doomed Cellar Portal" onlyInArea="Hash Cellar" customString="Doomed Cellar unlocked by">ChangeObject</Activate>
+		<Activate radius="25" targetId="Locked Wine Cellar Portal" newId="Doomed Cellar Portal" onlyInArea="Oryx's Inferno" customString="Doomed Cellar unlocked by">ChangeObject</Activate>
 	</Object>
 	<Object type="0xD2C7" id="Doomed Cellar Portal">
 		<Class>Portal</Class>
