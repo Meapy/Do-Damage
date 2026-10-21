@@ -319,6 +319,99 @@ class Gen:
     def gen_gear(self, used):
         return self.equip.overview(used)
 
+    # --- the Divine Forge (wiki_data.forge_recipes, as ForgeRecipes.cs builds them) -----------
+    @property
+    def forge(self):
+        if getattr(self, "_forge", None) is None:
+            self._forge = self.d.forge_recipes()
+        return self._forge
+
+    def forge_item(self, oid, count=1):
+        """An item's icon and name, linked to its gear page entry, with "2 ×" for a pair."""
+        eq = self.equip
+        it = next((i for i in eq.items if i["id"] == oid), None)
+        ico = eq.icon(it) if it else eq.sprite(self.d.texture(oid), wiki_gear.SPECIAL_EDGE)
+        name = esc(self.d.name(oid))
+        href = eq.href.get(oid)
+        if href:
+            name = '<a href="%s">%s</a>' % (href, name)
+        n = '<span class="fr-n">%d &times;</span>' % count if count > 1 else ""
+        return '<span class="fr-item">%s%s<span class="fr-name">%s</span></span>' % (n, ico, name)
+
+    def gen_forge_banner(self, used):
+        return ('<figure class="banner"><img src="forge.webp" width="1040" height="700" alt="The Divine Forge\'s '
+                'window: the sword recipes, with Skysplitter Sword picked: two Archon Swords and 800 fame">'
+                '<figcaption>The Divine Forge\'s window, forging a Skysplitter Sword (T11) from two Archon '
+                'Swords (T10)</figcaption></figure>')
+
+    def gen_forge_example(self, used):
+        r = next((r for r in self.forge if r["result"] == "Skysplitter Sword" and r["chain"]), None) or \
+            next(r for r in self.forge if r["chain"])
+        return '<p class="fr-recipe">%s<span class="fr-arrow">&rarr;</span>%s<span class="fr-fame">%s fame</span></p>' % (
+            self.forge_item(r["items"][0], 2), self.forge_item(r["result"]), "{:,}".format(r["fame"]))
+
+    def gen_forge_tiers(self, used):
+        """The two-for-one upgrades' fame by tier, a row for each set of kinds that share a price list."""
+        eq = self.equip
+        ladders = {}
+        for r in self.forge:
+            if r["chain"]:
+                o = self.d.objects[r["result"]]
+                ladders.setdefault(o["slot"], {})[o["tier"]] = r["fame"]
+        order = [s for cat in ("weapons", "armor", "abilities", "rings") for s in eq.kinds.get(cat, [])]
+        order += sorted(s for s in ladders if s not in order)
+        rows = []
+        for slot in order:
+            if slot not in ladders:
+                continue
+            ladder = ladders[slot]
+            row = next((r for r in rows if r[1] == ladder), None)
+            if row:
+                row[0].append(slot)
+            else:
+                rows.append(([slot], ladder))
+        top = max(t for _, lad in rows for t in lad)
+        head = "<th>Kind</th>" + "".join("<th>T%d</th>" % t for t in range(1, top + 1))
+        body = []
+        for slots, lad in rows:
+            names = ", ".join('<a href="gear/%s">%s</a>' % (eq.kind_file(s), esc(wiki_gear.plural(eq.kind_name(s))))
+                              for s in slots)
+            cells = "".join("<td>%s</td>" % ("{:,}".format(lad[t]) if t in lad else "&ndash;")
+                            for t in range(1, top + 1))
+            body.append('<tr><th scope="row">%s</th>%s</tr>' % (names, cells))
+        return ('<div class="table-wrap wide fr-tiers"><table><thead><tr>%s</tr></thead><tbody>%s</tbody></table></div>'
+                % (head, "".join(body)))
+
+    def gen_forge_special(self, used):
+        """The other recipes, by what they make: the Doomed Realms forge's own."""
+        eq = self.equip
+        cat_of = {i["id"]: i["category"] for i in eq.items}
+        groups = [("weapons", "Weapons"), ("abilities", "Abilities"), ("armor", "Armor"), ("rings", "Rings"),
+                  (None, "Potions and the rest")]
+        slot_order = [s for cat, _ in groups if cat for s in eq.kinds.get(cat, [])]
+        out = []
+        for cat, title in groups:
+            rs = [r for r in self.forge if not r["chain"] and cat_of.get(r["result"]) == cat]
+            if not rs:
+                continue
+            o = self.d.objects
+            rs.sort(key=lambda r: (slot_order.index(o[r["result"]]["slot"]) if o[r["result"]]["slot"] in slot_order
+                                   else 99, r["fame"], r["result"]))
+            rows = []
+            for r in rs:
+                counts = {}
+                for i in r["items"]:
+                    counts[i] = counts.get(i, 0) + 1
+                ing = "".join(self.forge_item(i, n) for i, n in counts.items())
+                note = ' <span class="tag" style="--c:%s">Forge Amulet</span>' % wiki_gear.SPECIAL_EDGE if r["advanced"] else ""
+                rows.append('<tr><td>%s%s</td><td class="fr-ing">%s</td><td class="fr-fame">%s</td></tr>' % (
+                    self.forge_item(r["result"]), note, ing, "{:,}".format(r["fame"])))
+            out.append('<h3 id="%s">%s</h3><div class="table-wrap fr-list"><table><thead><tr><th>Makes</th>'
+                       '<th>From</th><th>Fame</th></tr></thead><tbody>%s</tbody></table></div>' % (
+                           "forge-" + slugify(title), esc(title), "".join(rows)))
+            used.add("forge-" + slugify(title))
+        return "\n".join(out)
+
     # --- the Gear statistics page (tools/wiki_balance.py) ------------------------------------
     @property
     def balance(self):
@@ -358,6 +451,8 @@ class Gen:
         gift = self.d.objects.get("XP Gift", {})
         crate = wd.mystery_crate()
         return {
+            "forge_recipes": "{:,}".format(len(self.forge)), "forge_chains": "{:,}".format(sum(r["chain"] for r in self.forge)),
+            "forge_cap": "{:,}".format(wd.Data.FORGE_TIERED_CAP),
             "char_slots": a["char_slots"], "vault_chests": a["vault_chests"],
             "slot_cost": "%d %s" % (a["slot_cost"], a["slot_currency"]),
             "vault_chest_price": a["vault_chest_price"], "potion_stack": a["potion_stack"],

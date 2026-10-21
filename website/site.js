@@ -184,6 +184,19 @@
       "....oggo....",
       ".....oo....."
     ],
+    anvil: [
+      ".....e......",
+      "....eYe..e..",
+      "....eyYe.eY.",
+      "oooooooooooo",
+      "osssssssssSo",
+      ".oSSSSSSSSo.",
+      "..ooSSSSoo..",
+      "....oSSo....",
+      "...oSSSSo...",
+      "..oSSSSSSo..",
+      "..oooooooo.."
+    ],
     bolt: [
       "......oooo",
       ".....oyyyo",

@@ -72,8 +72,19 @@ fn slot_name(t: i32) -> &'static str {
         9 => "Ring",
         24 => "Katana",
         25 => "Shuriken",
+        // the Doomed Realms classes' slots, which the HUD's names leave as "Item"
+        27 => "Wakizashi",
+        28 => "Lute",
+        30 => "Pearl",
+        32 => "Turret",
+        36 => "Dual Blades",
+        37 => "Jacket",
         126 => "Halo",
         128 => "Scroll",
+        130 => "Fountain",
+        200 => "Fists",
+        5000 => "Oceanic Spell",
+        5005 => "Cannon",
         _ => crate::hud::slot_type_name(t),
     }
 }

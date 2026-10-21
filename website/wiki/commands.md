@@ -24,17 +24,11 @@ boosters and whatever it replaces go to your inventory, which needs room for the
 
 ## Forging
 
-The **Divine Forge** combines items into new ones, Doomed Realms style. It stands in the middle of
-the class memorial, in the Nexus's south yard west of the arena portals. Stand by it and open its
-window: browse the recipes by what they make (weapons, abilities, armor, rings, the rest, then by
-type), search them, or show only what you can make with what you carry. Pick a recipe, put its
-ingredients in from your inventory, and forge it for fame; the new item takes the first
-ingredient's place in your inventory. Every tiered weapon, ability, armor and ring can be forged
-from two of the tier below, for at most 2,000 fame. Wearing a Forge Amulet halves the price and unlocks a few
-advanced recipes, but it breaks when used. `/forge` and `/forgelist` now just point you there.
-
-One recipe worth knowing: a **Potion of Oryx** is forged from one of each of the eight stat
-potions.
+The **Divine Forge** in the Nexus's south yard combines items into new ones: two of any tiered
+weapon, ability, armor or ring make one of the next tier, and Doomed Realms' own recipes make
+untiered items and a few potions (a **Potion of Oryx** from one of each of the eight stat
+potions). `/forge` and `/forgelist` just point you there. [The Divine Forge](forge.html) has every
+recipe and what it costs.
 
 ## Shops and selling
 

@@ -9,6 +9,11 @@ refuses while an `Unreleased` one is left, so rename it to `## <version> (<date>
 version number itself is in `client-rs/Cargo.toml`.
 
 ## Unreleased
+- The wiki has a page for the Divine Forge: how to use it, what every tier upgrade costs, and
+  every other recipe with its ingredients.
+- The wiki's gear pages now list what the Elder monsters drop; they were missing.
+- The Divine Forge's filters name the Doomed Realms classes' items (Dual Blades, Fists, Cannon and
+  the rest) instead of showing "Item".
 - The wiki's gear pages now count the Godlands gods and the many dungeon bosses that share their
   drop lists among the monsters that drop each tier; they were missing before.
 - Pirate cannons now drop: they had no tier, so no monster ever dropped one. Rusty to Wave Cannon
