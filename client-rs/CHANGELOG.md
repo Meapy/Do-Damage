@@ -9,6 +9,10 @@ refuses while an `Unreleased` one is left, so rename it to `## <version> (<date>
 version number itself is in `client-rs/Cargo.toml`.
 
 ## Unreleased
+- Tier 9 weapons and tier 10 armor can now drop outside the Tomb's treasure cave: the godlands
+  gods drop them now and then, as do the Beer God and the Natural Slime God (the Beer God also drops
+  tier 9 armor). The treasure cave's Treasure Pot now drops tier 5 armor too (it skipped it) and
+  tier 10 armor.
 - Status effects no longer write their names over players and monsters when they start; the
   status icons show them.
 - The Divine Forge: a god's anvil and hearth now stands in the middle of the class memorial, in

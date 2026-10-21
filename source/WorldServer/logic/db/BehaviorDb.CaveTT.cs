@@ -130,10 +130,10 @@ namespace WorldServer.logic
                 new TierLoot(7, ItemType.Armor, 0.1),
                 new TierLoot(8, ItemType.Armor, 0.07),
                 new TierLoot(9, ItemType.Armor, 0.05),
-                //new TierLoot(10, ItemType.Armor, 0.03),
+                new TierLoot(10, ItemType.Armor, 0.03),
                 new TierLoot(3, ItemType.Armor, 0.1),
                 new TierLoot(4, ItemType.Armor, 0.05),
-                //new TierLoot(5, ItemType.Armor, 0.01),
+                new TierLoot(5, ItemType.Armor, 0.03),
                 new TierLoot(2, ItemType.Ring, 0.07),
                 new TierLoot(3, ItemType.Ring, 0.05)
                 )

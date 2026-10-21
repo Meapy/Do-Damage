@@ -413,9 +413,11 @@ namespace WorldServer.logic
                 new ItemLoot("Potion of Defense", 0.03),
                 new TierLoot(7, ItemType.Weapon, 0.1),
                 new TierLoot(8, ItemType.Weapon, 0.08),
+                new TierLoot(9, ItemType.Weapon, 0.05),
                 new TierLoot(7, ItemType.Armor, 0.1),
                 new TierLoot(8, ItemType.Armor, 0.08),
                 new TierLoot(9, ItemType.Armor, 0.05),
+                new TierLoot(10, ItemType.Armor, 0.03),
                 new TierLoot(4, ItemType.Ability, 0.05)
                 )
             )
