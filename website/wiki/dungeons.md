@@ -14,6 +14,9 @@ show the dungeon's name. A **key** opens its dungeon's portal wherever you use i
 bosses and are sold in the **Nexus Bazaar**. The Support Bot also opens a random dungeon by the
 Nexus spawn every {{v:bot_minutes}} minutes.
 
+A **Portal of Cowardice** takes you back the way you came: to the realm from a dungeon opened in
+a realm, and to the Nexus from one opened in the Nexus or in another dungeon.
+
 Some dungeons are laid out anew for every run, from the rooms of their map: small, medium or large.
 
 > **About these numbers.** The list is built from the server's data each time the site updates.

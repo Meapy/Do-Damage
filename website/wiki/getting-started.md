@@ -70,6 +70,27 @@ Every key can be rebound in Options (<kbd>O</kbd>).
 | <kbd>F11</kbd> | Fullscreen |
 | <kbd>Esc</kbd> | Menu: characters, options, log out |
 
+**Options** (<kbd>O</kbd>, or from the <kbd>Esc</kbd> menu) has a **Visuals** tab for what you
+see in the world: the crosshair, particles, shadows, health bars, damage numbers, and how much of
+other players and their pets you see. "Pets' shots" there switches between Normal, Subtle (the
+default: smaller, see-through shots) and Hidden. The **Sound** tab has a Master volume.
+
+## The screen
+
+The world fills the window, with one bar down the right:
+
+- **At the top:** the minimap, your experience, HP and MP. Your rank star, gold and fame sit
+  beside the minimap.
+- **Your character card:** your name, class and level, with two tabs: your stats, and your records
+  (kills, god and Oryx kills, quests, dungeons, accuracy, potions drunk and time played).
+- **At the foot:** the Nexus button, your equipment, your inventory (two small buttons switch to
+  your backpack), your potions, and a space for whatever is beside you: a bag you stand on, a
+  portal, a shop or an invitation. Drag a potion from the potion bar onto an empty inventory
+  slot to take it back out.
+- **At the top left:** the boss you're after, with its health and the five players doing the most
+  damage to it, with their class and share. With no boss around, the menu button there opens your
+  last 3 bosses: click one to see everyone who hit it.
+
 Hover over any item to see what it does; the numbers that beat what you're wearing show in green.
 Hover over a nearby player for their rank and gear. Right-click one in the Nearby players list (or
 on the minimap) to keep their card open, then hover the items they wear for each one's tooltip;
@@ -83,12 +104,13 @@ you while you stand next to them. Around the spawn:
 - **North**, in the keep's great hall: the **realm portals**, each with its name and how many
   players are inside.
 - **West** of the spawn: the **Vault** portal. **East**: the **Guild Hall** portal and guild board.
-- **Beside the spawn**: the Name Changer, the Character Changer, the Armoire (skins) and the
-  Support Bot.
+- **Beside the spawn**: the Name Changer (your first name is free; changing it costs
+  {{v:name_change}} fame), the Character Changer, the Armoire (skins) and the Support Bot.
 - **Both sides**, behind the colonnades: the **market wards**, the Nexus Bazaar's stalls. Everything
   there costs fame.
-- **South yard**: the Battle Arena portals, the locked Wine Cellar portal, the class memorial and
-  four shared vault chests anyone can use.
+- **South yard**: the arena portals with the Arena Leaderboard's golden trophy between them
+  ([Arenas](progression.html#arenas)), the locked Wine Cellar portal, the class memorial with the
+  [Divine Forge](forge.html) in its middle, and four shared vault chests anyone can use.
 
 `/nexus` or <kbd>R</kbd> brings you back from anywhere.
 

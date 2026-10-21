@@ -84,8 +84,11 @@ switches between them. Like everything a character carries, it's lost when the c
 ## Trading and the marketplace
 
 **Trading:** click a player's name (in the nearby list, on the minimap or in chat) and choose
-Trade, or type `/trade <name>` (which needs 2 rank stars). Both of you put items in and accept.
-Soulbound items can't be traded.
+Trade, or type `/trade <name>` (which needs 2 rank stars). Both of you put items in and accept;
+your backpack's items show in the trade window too, and what you get can go into your backpack
+when your inventory is full. Almost every item can be traded, sold and dropped for other players,
+Soulbound ones included. Only admin items and a few overpowered or test items can't: their
+tooltips say "Untradeable".
 
 **The marketplace** sells items to other players for fame, even when you're offline. Its portal is
 in your vault. Inside, use the market to:
@@ -95,7 +98,7 @@ in your vault. Inside, use the market to:
   less a 5% tax, and a message says so;
 - see **your offers** and take back what hasn't sold.
 
-Soulbound items can't be listed. You can't trade, drop items or go to your vault while you're in
+Untradeable items can't be listed. You can't trade, drop items or go to your vault while you're in
 the marketplace.
 
 ## The shops

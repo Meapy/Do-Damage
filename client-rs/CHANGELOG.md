@@ -9,6 +9,11 @@ refuses while an `Unreleased` one is left, so rename it to `## <version> (<date>
 version number itself is in `client-rs/Cargo.toml`.
 
 ## Unreleased
+- The wiki's guides are up to date with the last week's changes: a new Arenas section (the waves
+  and their stages, GO, fame, the leaderboard, and that losing doesn't kill you), the screen's
+  layout and the Visuals options, how realm events scale with players, the Oryx loot as it is now,
+  trading Soulbound items and your backpack, the nine rank star colours, the Potion of Max Life,
+  the name change price, Recent Deaths and the Portal of Cowardice.
 - The wiki has a page for the Divine Forge: how to use it, what every tier upgrade costs, and
   every other recipe with its ingredients.
 - The wiki's gear pages now list what the Elder monsters drop; they were missing.

@@ -31,8 +31,9 @@ spend in the Nexus Bazaar, the shops, the marketplace and on upgrades.
 Each class has {{v:star_count}} **class quests**: having a character of that class reach
 {{v:stars}} fame. Fame counts while the character is alive, so you don't have to die to complete
 them. Every class quest you complete is one **rank star**, so with {{v:class_count}} classes there
-are {{v:max_stars}} stars in all. Your star's colour moves from light blue to dark blue, red,
-orange and yellow as you go.
+are {{v:max_stars}} stars in all. Your star's colour moves through nine colours as you go:
+light blue, blue, violet, red, red-orange, orange, gold, pale yellow and, with every class quest
+done, white.
 
 - The character screen shows your rank (hover over it for the colours) and each character's next
   class quest.
@@ -50,6 +51,9 @@ A character with every stat at its highest is "maxed" (8/8). A potion drunk on a
 wasted, so keep spares in your **potion storage**, in your vault: it holds {{v:storage_base}} of
 each potion to start, and each upgrade ({{v:storage_cost}} fame) adds {{v:storage_step}} more. From
 its window you can store, take out, drink, or drink just enough to max a stat.
+
+A **Potion of Max Life** (from the Elder Tomb's bosses) fills your health to your class's highest
+at once; if it's already there, it puts 30 health into your potion storage.
 
 A **Potion of Oryx** counts as all eight potions at once. It's rare from the deepest Oryx stages
 and can be forged from one of each stat potion (at the Divine Forge). For a stat that's already maxed, its
@@ -82,7 +86,8 @@ Be at least level 20 and bring friends.
 ### Quests and the quest arrow
 
 Your **quest** is a strong monster near your level. An arrow at the edge of the screen points at
-it, and its health bar shows at the top, with the top three damage dealers and your own share.
+it, and it shows at the top left of the screen with its health and the five players doing the most
+damage to it.
 Killing it gives a bigger share of experience. `/getquest` names it.
 
 ### Realm events
@@ -92,7 +97,16 @@ worth more loot than anything around it. They're the realm's main quests.
 
 {{gen:realm-events}}
 
-Each event killed counts towards closing the realm, which takes {{v:realm_close}}. Then Oryx closes
+Events scale with the players around them. An event boss has 60% of its health when 1 or 2
+players fight it, and 20% more for each extra player who comes near, up to three times its health;
+it never loses health it has gained, and one below its full health gives that share of the
+experience. The next event appears 15 seconds after the last is defeated, out of sight but near a
+player. Busy realms run two events at once from 6 players and three from 12, and an event nobody
+fights for 10 minutes lets another one come. The Shatters' Defense System only appears in a realm
+that has had 5 or more players.
+
+Each event killed counts towards closing the realm, which takes {{v:realm_close}}; the chat shows
+the count (for example "[3/8]"). Then Oryx closes
 the realm, and a little later everyone still inside is sent to **Oryx's Castle**, the start of the
 [Oryx chain](endgame.html).
 
@@ -106,6 +120,29 @@ chance at every drop.
 - On weekends every drop is 30% more likely.
 - A **Loot Drop Potion** (Nexus Bazaar) raises your drop chances for a while.
 
+## Arenas
+
+The arenas are waves of monsters that get harder as you go: realm monsters first, then the
+Godlands gods (from wave 5), dungeon bosses (10), harder dungeon bosses (15), Elder dungeon bosses
+(20) and Oryx (30). Each wave has a boss of its stage, a few of its monsters come from the stage
+before, and from wave 30 an Elder dungeon boss joins Oryx's. The chat says which wave has begun
+and its stage.
+
+- **Where:** the **Battle Arena** and **Free Battle Arena** portals in the Nexus's south yard, or
+  `/arena` for the public arena. Everyone who goes in before a game's countdown ends plays that
+  game. Once a Battle Arena game has started, its portal opens a new one; the public arena says
+  "That game has already started". `/arenas` lists the games running.
+- **Fame:** the Battle Arena pays fame after every wave (ten times the wave, halved in a group);
+  the free one doesn't.
+- **Between waves** you rest for 5 seconds, 15 from wave 10 and 20 from wave 20. Type **GO** in
+  chat to start the next wave (or the game) in 3 seconds instead, once per countdown. Everyone is
+  invulnerable for the first 2.5 seconds of each wave.
+- **Losing doesn't kill you.** A hit that would kill you in an arena sends you to the Nexus at full
+  health, with your gear and fame: no grave, and it doesn't count as a death.
+- **The leaderboard:** the golden trophy between the arena portals shows the best run (its wave,
+  how long it took and who took part) as you walk by; stand on it for the top ten. `/leaderboard`
+  lists them too.
+
 ## Dying
 
 Death is permanent. When a character dies, it's gone, with everything it was wearing and carrying,
@@ -114,6 +151,9 @@ and a gravestone marks the spot. What you keep:
 - its **fame**, added to your account with bonuses;
 - everything in your **vault**, your potion storage and your gift chests;
 - your rank stars and class quests.
+
+The Legends screen (on the character screen) has the top characters and a **Recent Deaths** tab:
+the last 20 characters to die, with what killed them and where.
 
 So store what you can't afford to lose before a risky run, and don't take your best gear
 somewhere you aren't ready for.

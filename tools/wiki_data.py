@@ -612,6 +612,13 @@ def _read(path):
         return f.read()
 
 
+def name_change_fame():
+    """What changing your name costs, in fame (ChooseNameHandler; the first name is free)."""
+    src = _read(os.path.join(SRC, "WorldServer", "core", "net", "handlers", "ChooseNameHandler.cs"))
+    m = re.search(r'NAME_CHANGE_FAME\s*=\s*([\d_]+)', src)
+    return int(m.group(1).replace("_", "")) if m else 0
+
+
 def gear_rules():
     """/gear's limits, from GearCommand."""
     src = _read(os.path.join(COMMANDS, "doomed", "DoomedEconomyCommands.cs"))

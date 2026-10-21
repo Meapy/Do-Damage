@@ -81,10 +81,17 @@ Loot rises with each stage: more stat potions, more Potions of Life and Mana, an
 from tier 10-12 at the Castle to tier 14-15 at Oryx 5. Potions of Oryx and the white-bag items are
 the real prizes:
 
-- **Oryx 3** can drop Oryx's Escutcheon and Potions of Oryx.
-- **Oryx 4 and 5** drop the **Oryx set**: Ring of Oryx, Oryx Hide Armor, Oryx Hide Robe, Oryx
+- **Every Oryx** always drops a Potion of Attack and of Defense (Oryx 5 Speed and Dexterity too),
+  with more stat potions on top: about 4 from Oryx 1 up to about 8 from Oryx 5. Oryx 2 always drops
+  a Potion of Life, Oryx 3 and later Life and Mana, and Oryx 5 two of each.
+- **Oryx 2** can drop the Doom Bow.
+- **Oryx 3, 4 and 5** drop the **Oryx set**: Ring of Oryx, Oryx Hide Armor, Oryx Hide Robe, Oryx
   Scale Armor, Oryx Tooth Sword, Doom Dirk, Flying Doom Daggers and Tome of Noble Assault, in white
-  bags announced to everyone.
-- **Oryx 5** also drops Doom Poison, the Sword of Dark Enchantment and the Crown.
+  bags announced to everyone, and Potions of Oryx. Oryx 3 can also drop Oryx's Escutcheon.
+- **Oryx 4 and 5** drop Doom Poison; **Oryx 5** also the Sword of Dark Enchantment and the Crown.
+- **Tier 7 abilities and rings** come from Oryx 3, 4 and 5; Oryx 5 is the only place for tier 8.
+
+Everyone who does a fair share of the damage gets the full loot: 5% of the damage is enough for the
+gear and the Oryx set, and 3% for the extra stat potions.
 
 The [Dungeons](dungeons.html#the-oryx-chain) page lists each stage's notable drops.
