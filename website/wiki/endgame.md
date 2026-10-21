@@ -33,8 +33,10 @@ player, depending on the stage).
 3. From then on, **each Oryx leaves two portals** when he dies, two tiles either side of his loot:
    a **Realm Portal** back out (open for two minutes) and a **locked portal** to the next stage
    (open for ten). The locked portal's name says where it leads; Oryx 2's, Oryx 3's and Oryx 4's
-   look like the gateway they open into, still and dark (grey stone for the Sanctuary, charred for
-   the Inferno, pale stone for the Elysium).
+   look like the gateway they open into, still and dark: the Sanctuary's in grey stone, the
+   Inferno's a horned maw of charred rock round a vortex of fire, the Elysium's a marble temple
+   door round a swirl of light. Each stage's incantation is a seal in its colours: a gold crescent
+   on navy for the Sanctuary, a flame for the Inferno, a winged star for the Elysium.
 4. **To open a locked portal**, someone uses the right **incantation** within 25 tiles of it, in
    that Oryx's dungeon. It turns into the open portal for five minutes, and the dungeon is told who
    opened it. Entering the locked portal without one tells you which incantation it needs. An
@@ -113,6 +115,8 @@ Janus and is sold in the Nexus Bazaar.
     down so it fills the arena. After 30 seconds he concedes, the gates open, and he can be killed.
   - Minions he summons can't be hurt and hold their fire for their first two seconds, and the
     Firmament's stars vanish as soon as it ends.
+  - Below 90%, every second time he changes pattern he throws two splats of **Divine Ichor**. Each
+    hatches an **Ichor Sprite**: it has little health, and its shots barely hurt but slow you.
 
 ## The loot
 

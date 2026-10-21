@@ -12673,8 +12673,8 @@
 		<Item />
 		<Key>500</Key>
 		<Texture>
-			<File>drLofiObj5</File>
-			<Index>0x14a</Index>
+			<File>oryxIncantations16x16</File>
+			<Index>1</Index>
 		</Texture>
 		<SlotType>10</SlotType>
 		<Description>Unlocks the portal Oryx leaves behind in his Sanctuary, leading down into Oryx's Inferno.</Description>
@@ -13009,8 +13009,8 @@
 		<Item />
 		<Key>1000</Key>
 		<Texture>
-			<File>drLofiObj5</File>
-			<Index>0x14b</Index>
+			<File>oryxIncantations16x16</File>
+			<Index>2</Index>
 		</Texture>
 		<SlotType>10</SlotType>
 		<Description>Unlocks the portal Oryx leaves behind in his Inferno, leading up to his last stand in Oryx's Elysium.</Description>

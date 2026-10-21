@@ -42,6 +42,10 @@ RS_ONLY_SETS = [
     ("elysium8x8", "kabam/rotmg/assets/custom/images/Elysium8x8.png", 8, 8),
     ("elysium16x16", "kabam/rotmg/assets/custom/images/Elysium16x16.png", 16, 16),
     ("elysium32x32", "kabam/rotmg/assets/custom/images/Elysium32x32.png", 32, 32),
+    # the gateways of Oryx's Inferno and Oryx's Elysium, and the Oryx chain's incantations
+    # (tools/draw_oryx_gates.py)
+    ("oryxGates32x32", "kabam/rotmg/assets/custom/images/OryxGates32x32.png", 32, 32),
+    ("oryxIncantations16x16", "kabam/rotmg/assets/custom/images/OryxIncantations16x16.png", 16, 16),
 ]
 # (name, file, frame width, frame height, sheet width, sheet height, direction): characters
 RS_ONLY_CHARS = [

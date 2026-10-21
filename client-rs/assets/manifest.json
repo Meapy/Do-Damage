@@ -1308,6 +1308,18 @@
    "file": "kabam/rotmg/assets/custom/images/Elysium32x32.png",
    "w": 32,
    "h": 32
+  },
+  {
+   "name": "oryxGates32x32",
+   "file": "kabam/rotmg/assets/custom/images/OryxGates32x32.png",
+   "w": 32,
+   "h": 32
+  },
+  {
+   "name": "oryxIncantations16x16",
+   "file": "kabam/rotmg/assets/custom/images/OryxIncantations16x16.png",
+   "w": 16,
+   "h": 16
   }
  ],
  "animated_chars": [

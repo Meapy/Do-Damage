@@ -36,6 +36,7 @@ import zlib
 
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 from make_elder import read_png, write_png  # noqa: E402
+import draw_oryx_gates as gates  # noqa: E402
 
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 XML_DIR = os.path.join(ROOT, "source", "Shared", "resources", "xml")
@@ -295,18 +296,19 @@ BURNT_OBJECTS = {
     "Infernal Flame": ("White Flame", RED_RAMP, {}),
     "Hellfire Bolt": ("White Bolt", FIRE_RAMP, {}),
     "Hellfire Star": ("Green Star", FIRE_RAMP, {}),
-    # the way in: the Sanctuary's swirling portal, burning (the Inferno incantation opens it)
-    "Oryx's Inferno Portal": ("Oryx's Sanctuary Portal", FIRE_RAMP, {}),
 }
 # what the copies are called and where they lead, where they need it
-BURNT_FIELDS = {"Oryx's Inferno Portal": {"DisplayId": "Oryx's Inferno", "DungeonName": "Oryx's Inferno"}}
-# The locked portals Oryx 2 and Oryx 3 drop, until an incantation opens them: the gateway they
-# turn into, still and cold (the Sanctuary's grey, the Inferno's charred), in place of the plain
-# Locked Wine Cellar Portal every stage shared. id -> ramp; the art is the gateway's first frame.
+BURNT_FIELDS = {}
+# The way into the Inferno, a horned maw round a vortex of fire (the Inferno incantation opens
+# it), and its locked state, still and dark: drawn by tools/draw_oryx_gates.py.
+INFERNO_PORTAL = "Oryx's Inferno Portal"
+LOCKED_INFERNO = "Locked Oryx's Inferno Portal"
+# The locked portal Oryx 2 drops, until an incantation opens it: the Sanctuary's gateway, still
+# and cold grey, in place of the plain Locked Wine Cellar Portal every stage shared. id -> ramp;
+# the art is the gateway's first frame.
 LOCKED_GATE = ("oryxSanctuaryObjects32x32", 0xcc)
 LOCKED_PORTALS = {
     "Locked Oryx's Sanctuary Portal": [(0.0, (8, 8, 14)), (0.5, (58, 60, 78)), (1.0, (150, 154, 176))],
-    "Locked Oryx's Inferno Portal": [(0.0, (10, 3, 3)), (0.5, (62, 16, 12)), (1.0, (146, 52, 30))],
 }
 # the molten dark beyond the walls: lava's flow, burnt dark, no damage, nobody walks on it
 MOLTEN = "O4 Molten Abyss"
@@ -348,6 +350,9 @@ def locked_portals(types, sheets):
         ET.SubElement(e, "ShadowSize").text = "0"
         retexture(e, sheets, stops)
         out.append(e)
+    out.append(gates.gate_object(types.get(INFERNO_PORTAL, OBJECT_TYPES), INFERNO_PORTAL, gates.INFERNO_FRAMES,
+                                 "Oryx's Inferno", "Oryx's Inferno"))
+    out.append(gates.locked_object(types.get(LOCKED_INFERNO, OBJECT_TYPES), LOCKED_INFERNO, gates.INFERNO_LOCKED))
     return out
 
 

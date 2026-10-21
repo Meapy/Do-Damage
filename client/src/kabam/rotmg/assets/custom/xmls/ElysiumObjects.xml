@@ -598,57 +598,6 @@
 		</Texture>
 		<AngleCorrection>1</AngleCorrection>
 	</Object>
-	<Object type="0x541C" id="Oryx's Elysium Portal">
-		<DisplayId>Oryx's Elysium</DisplayId>
-		<Class>Portal</Class>
-		<IntergamePortal />
-		<DungeonName>Oryx's Elysium</DungeonName>
-		<Texture>
-			<File>elysium32x32</File>
-			<Index>0x00</Index>
-		</Texture>
-		<Size>100</Size>
-		<ShadowSize>0</ShadowSize>
-		<UnityOnly />
-		<Animation prob="1.0">
-			<Frame time="0.1">
-				<Texture>
-					<File>elysium32x32</File>
-					<Index>0x00</Index>
-				</Texture>
-			</Frame>
-			<Frame time="0.1">
-				<Texture>
-					<File>elysium32x32</File>
-					<Index>0x01</Index>
-				</Texture>
-			</Frame>
-			<Frame time="0.1">
-				<Texture>
-					<File>elysium32x32</File>
-					<Index>0x02</Index>
-				</Texture>
-			</Frame>
-			<Frame time="0.1">
-				<Texture>
-					<File>elysium32x32</File>
-					<Index>0x03</Index>
-				</Texture>
-			</Frame>
-			<Frame time="0.1">
-				<Texture>
-					<File>elysium32x32</File>
-					<Index>0x02</Index>
-				</Texture>
-			</Frame>
-			<Frame time="0.1">
-				<Texture>
-					<File>elysium32x32</File>
-					<Index>0x01</Index>
-				</Texture>
-			</Frame>
-		</Animation>
-	</Object>
 	<Object type="0x541D" id="O5 Holy Gate">
 		<Class>GameObject</Class>
 		<Model>Candy Col Whole</Model>
@@ -742,12 +691,50 @@
 		<Size>120</Size>
 		<Z>1</Z>
 	</Object>
+	<Object type="0x541C" id="Oryx's Elysium Portal">
+		<DisplayId>Oryx's Elysium</DisplayId>
+		<Class>Portal</Class>
+		<IntergamePortal />
+		<DungeonName>Oryx's Elysium</DungeonName>
+		<Texture>
+			<File>oryxGates32x32</File>
+			<Index>0x05</Index>
+		</Texture>
+		<Size>100</Size>
+		<ShadowSize>0</ShadowSize>
+		<Animation prob="1.0">
+			<Frame time="0.12">
+				<Texture>
+					<File>oryxGates32x32</File>
+					<Index>0x05</Index>
+				</Texture>
+			</Frame>
+			<Frame time="0.12">
+				<Texture>
+					<File>oryxGates32x32</File>
+					<Index>0x06</Index>
+				</Texture>
+			</Frame>
+			<Frame time="0.12">
+				<Texture>
+					<File>oryxGates32x32</File>
+					<Index>0x07</Index>
+				</Texture>
+			</Frame>
+			<Frame time="0.12">
+				<Texture>
+					<File>oryxGates32x32</File>
+					<Index>0x08</Index>
+				</Texture>
+			</Frame>
+		</Animation>
+	</Object>
 	<Object type="0x5421" id="Locked Oryx's Elysium Portal">
 		<Class>Portal</Class>
 		<LockedPortal />
 		<Texture>
-			<File>elysium32x32</File>
-			<Index>0x04</Index>
+			<File>oryxGates32x32</File>
+			<Index>0x09</Index>
 		</Texture>
 		<Size>100</Size>
 		<ShadowSize>0</ShadowSize>
@@ -1020,5 +1007,36 @@
 		<Size>150</Size>
 		<MaxHitPoints>1000</MaxHitPoints>
 		<NoMiniMap />
+	</Object>
+	<Object type="0x5432" id="Divine Ichor">
+		<Class>Character</Class>
+		<Texture>
+			<File>elysium16x16</File>
+			<Index>0x0c</Index>
+		</Texture>
+		<Size>110</Size>
+		<MaxHitPoints>1000</MaxHitPoints>
+		<Defense>0</Defense>
+		<NoMiniMap />
+	</Object>
+	<Object type="0x5433" id="Ichor Sprite">
+		<Class>Character</Class>
+		<Enemy />
+		<Texture>
+			<File>elysium16x16</File>
+			<Index>0x0d</Index>
+		</Texture>
+		<Size>90</Size>
+		<MaxHitPoints>2500</MaxHitPoints>
+		<Defense>0</Defense>
+		<Exp>200</Exp>
+		<Projectile id="0">
+			<ObjectId>Stilling Mote</ObjectId>
+			<Damage>15</Damage>
+			<Speed>70</Speed>
+			<LifetimeMS>1400</LifetimeMS>
+			<Size>100</Size>
+			<ConditionEffect duration="2">Slowed</ConditionEffect>
+		</Projectile>
 	</Object>
 </Objects>

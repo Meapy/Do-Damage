@@ -482,73 +482,60 @@
 		</Texture>
 		<Rotation>100</Rotation>
 	</Object>
-	<Object type="0x5993" id="Oryx's Inferno Portal">
-		<DisplayId>Oryx's Inferno</DisplayId>
+	<Object type="0x5994" id="Locked Oryx's Sanctuary Portal">
 		<Class>Portal</Class>
-		<IntergamePortal />
-		<DungeonName>Oryx's Inferno</DungeonName>
+		<LockedPortal />
 		<Texture>
 			<File>hashCellar32x32</File>
 			<Index>0x05</Index>
 		</Texture>
 		<Size>100</Size>
 		<ShadowSize>0</ShadowSize>
-		<UnityOnly />
-		<Animation prob="1.0">
-			<Frame time="0.1">
-				<Texture>
-					<File>hashCellar32x32</File>
-					<Index>0x05</Index>
-				</Texture>
-			</Frame>
-			<Frame time="0.1">
-				<Texture>
-					<File>hashCellar32x32</File>
-					<Index>0x06</Index>
-				</Texture>
-			</Frame>
-			<Frame time="0.1">
-				<Texture>
-					<File>hashCellar32x32</File>
-					<Index>0x07</Index>
-				</Texture>
-			</Frame>
-			<Frame time="0.1">
-				<Texture>
-					<File>hashCellar32x32</File>
-					<Index>0x08</Index>
-				</Texture>
-			</Frame>
-			<Frame time="0.1">
-				<Texture>
-					<File>hashCellar32x32</File>
-					<Index>0x07</Index>
-				</Texture>
-			</Frame>
-			<Frame time="0.1">
-				<Texture>
-					<File>hashCellar32x32</File>
-					<Index>0x06</Index>
-				</Texture>
-			</Frame>
-		</Animation>
 	</Object>
-	<Object type="0x5994" id="Locked Oryx's Sanctuary Portal">
+	<Object type="0x5993" id="Oryx's Inferno Portal">
+		<DisplayId>Oryx's Inferno</DisplayId>
 		<Class>Portal</Class>
-		<LockedPortal />
+		<IntergamePortal />
+		<DungeonName>Oryx's Inferno</DungeonName>
 		<Texture>
-			<File>hashCellar32x32</File>
-			<Index>0x09</Index>
+			<File>oryxGates32x32</File>
+			<Index>0x00</Index>
 		</Texture>
 		<Size>100</Size>
 		<ShadowSize>0</ShadowSize>
+		<Animation prob="1.0">
+			<Frame time="0.12">
+				<Texture>
+					<File>oryxGates32x32</File>
+					<Index>0x00</Index>
+				</Texture>
+			</Frame>
+			<Frame time="0.12">
+				<Texture>
+					<File>oryxGates32x32</File>
+					<Index>0x01</Index>
+				</Texture>
+			</Frame>
+			<Frame time="0.12">
+				<Texture>
+					<File>oryxGates32x32</File>
+					<Index>0x02</Index>
+				</Texture>
+			</Frame>
+			<Frame time="0.12">
+				<Texture>
+					<File>oryxGates32x32</File>
+					<Index>0x03</Index>
+				</Texture>
+			</Frame>
+		</Animation>
 	</Object>
 	<Object type="0x5995" id="Locked Oryx's Inferno Portal">
 		<Class>Portal</Class>
 		<LockedPortal />
 		<Texture>
-			<File>hashCellar32x32</File>
-			<Index>0x0a</Index>
+			<File>oryxGates32x32</File>
+			<Index>0x04</Index>
 		</Texture>
 		<Size>100</Size>
 		<ShadowSize>0</ShadowSize>

@@ -416,7 +416,10 @@ SPRITE_DONORS = {"Elder Beach Portal": "Beachzone Portal"}
 
 # objects drawn anew here: id -> (sheet, index). Oryx 4 burns (tools/build_hash_cellar.py). (Oryx 5
 # is a new object, Oryx the Ascended God, made by tools/build_elysium.py; this one is left unused.)
-TEXTURE_OVERRIDES = {"Oryx the Mad God 4": ("hashCellarOryx16x16", 0)}
+TEXTURE_OVERRIDES = {"Oryx the Mad God 4": ("hashCellarOryx16x16", 0),
+                     # the incantations' seals (tools/draw_oryx_gates.py, INCANTATION_CELLS)
+                     "Hash Cellar Incantation": ("oryxIncantations16x16", 1),
+                     "Doomed Cellar Incantation": ("oryxIncantations16x16", 2)}
 # projectiles drawn anew: id -> {projectile id: object}. Oryx 4's first phase shoots hellfire.
 PROJECTILE_OVERRIDES = {"Oryx the Mad God 4": {"2": "Hellfire Bolt", "4": "Hellfire Star"}}
 # names for players: each Oryx after the Chamber is named for his theme

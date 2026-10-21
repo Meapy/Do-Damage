@@ -9,6 +9,14 @@ refuses while an `Unreleased` one is left, so rename it to `## <version> (<date>
 version number itself is in `client-rs/Cargo.toml`.
 
 ## Unreleased
+- New looks for the way to the end of the Oryx chain: the Oryx's Sanctuary, Oryx's Inferno and
+  Oryx's Elysium Incantations are seals in each stage's colours (a gold crescent on navy, a flame,
+  a winged star); Oryx's Inferno is entered through a horned maw of charred rock round a turning
+  vortex of fire, and Oryx's Elysium through a marble temple door with a swirl of light. Their
+  locked portals are the same gateways, still and dark.
+- Oryx the Ascended God: below 90% health, every second time he changes pattern he throws two
+  splats of Divine Ichor, which hatch Ichor Sprites: they have little health, and their shots
+  barely hurt but slow you.
 - Oryx's Elysium's sea and beaches are redrawn: smooth turquoise shallows, a deeper reef and the
   open sea beyond, wet sand at the waterline and soft sand with the odd shell, all blending into
   each other. Soft white clouds drift over the Landing and out over the sea (just scenery: they

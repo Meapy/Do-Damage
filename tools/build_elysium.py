@@ -44,6 +44,7 @@ import zlib
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 from make_elder import read_png, write_png  # noqa: E402
 from build_hash_cellar import load, luma, ramp, write_xml  # noqa: E402
+import draw_oryx_gates as gates  # noqa: E402
 
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 XML_DIR = os.path.join(ROOT, "source", "Shared", "resources", "xml")
@@ -126,8 +127,7 @@ T_GOLD = Tone(GOLD, (0.15, 1.0))
 T_AZURE = Tone(AZURE, (0.2, 1.0))
 T_VIOLET = Tone(VIOLET, (0.2, 1.0))
 T_HOLY = Tone(HOLY)
-T_PORTAL = Tone(GOLD, accent=lambda r, g, b: b > r + 30, accent_stops=AZURE)
-T_LOCKED = Tone([(0.0, (40, 34, 30)), (0.5, (128, 112, 84)), (1.0, (214, 200, 160))])
+
 
 
 # ------------------------------------------------------------------------------------------------
@@ -417,6 +417,82 @@ def clouds(types, sheet):
     return out
 
 
+def paint_ichor_splat():
+    """A splash of golden ichor: a puddle with droplets round it, bright where it pools."""
+    blobs = [(8, 9, 4.6), (4.2, 6.2, 1.6), (12.5, 6.5, 1.3), (3.6, 12.2, 1.2), (12.2, 12.6, 1.5), (8.4, 3.2, 1.0)]
+    out = []
+    for y in range(16):
+        row = []
+        for x in range(16):
+            depth = max(r - math.hypot(x + 0.5 - cx, y + 0.5 - cy) for cx, cy, r in blobs)
+            if depth <= 0:
+                row.append((0, 0, 0, 0))
+                continue
+            c = _mix((214, 150, 40), (255, 236, 150), min(1.0, depth / 3.5))
+            if _hash(x, y, 31) > 0.93:
+                c = (255, 255, 240)
+            row.append(c + (235,))
+        out.append(row)
+    return out
+
+
+def paint_ichor_sprite():
+    """The spirit that rises from it: a little flame of gold, white at its heart, light blue eyes."""
+    out = []
+    for y in range(16):
+        row = []
+        for x in range(16):
+            dx = x + 0.5 - 8
+            # a teardrop: a point at the top, round below
+            if y < 2 or y > 14:
+                row.append((0, 0, 0, 0))
+                continue
+            width = 5.2 * math.sin(math.pi * (y - 1.5) / 14) ** 0.8 if y <= 10 else math.sqrt(max(0.0, 25 - (y - 9.5) ** 2 * 1.4))
+            if abs(dx) > width:
+                row.append((0, 0, 0, 0))
+                continue
+            heat = 1 - abs(dx) / (width + 0.01)
+            c = _mix((226, 140, 40), (255, 232, 140), heat) if heat < 0.7 else _mix((255, 232, 140), (255, 255, 236), (heat - 0.7) / 0.3)
+            row.append(c + (255,))
+        out.append(row)
+    for x, y in ((6, 9), (9, 9), (6, 10), (9, 10)):
+        out[y][x] = (90, 190, 255, 255)
+    return out
+
+
+# Oryx 5's splats (BehaviorDb.Elysium.cs): he throws Divine Ichor below 90% health, and each splat
+# hatches an Ichor Sprite: few hit points, weak shots that slow. The ichor isn't an enemy (shots
+# pass over it). name -> (painter, size, enemy, health)
+ICHOR = {
+    "Divine Ichor": (paint_ichor_splat, 110, False, 1000),
+    "Ichor Sprite": (paint_ichor_sprite, 90, True, 2500),
+}
+
+
+def ichor(types, sheet):
+    out = []
+    for name, (painter, size, enemy, health) in ICHOR.items():
+        shots = [shot(0, "Stilling Mote", 15, 70, 1400, multi=False, effects=[("Slowed", 2)])] if enemy else []
+        e = ET.Element("Object", {"type": types.get(name, OBJECT_TYPES), "id": name})
+        ET.SubElement(e, "Class").text = "Character"
+        if enemy:
+            ET.SubElement(e, "Enemy")
+        tex = ET.SubElement(e, "Texture")
+        ET.SubElement(tex, "File").text = SHEETS[16][0]
+        ET.SubElement(tex, "Index").text = "0x%02x" % sheet.add_painted(painter())
+        ET.SubElement(e, "Size").text = str(size)
+        ET.SubElement(e, "MaxHitPoints").text = str(health)
+        ET.SubElement(e, "Defense").text = "0"
+        if enemy:
+            ET.SubElement(e, "Exp").text = "200"
+        else:
+            ET.SubElement(e, "NoMiniMap")
+        for p in shots:
+            e.append(copy.deepcopy(p))
+        out.append(e)
+    return out
+
+
 def island_grounds(types, sheet):
     out = []
     for name, (cells, blend, colour, extra) in ISLAND_GROUNDS.items():
@@ -698,8 +774,6 @@ def fight_helpers(types, sheets, everything, tones):
 # Recoloured copies of other objects: new id -> (original, tone).
 COPIES = dict(PROJECTILES)
 COPIES.update({
-    # the way in: the Sanctuary's swirling portal, gold and light blue (the incantation opens it)
-    "Oryx's Elysium Portal": ("Oryx's Sanctuary Portal", T_PORTAL),
     # the holy gates, and the watcher that opens them
     "O5 Holy Gate": ("O3 Wall Gate", T_GOLD),
     "O5 Gate Watcher": ("O3 Gate Deleter 1", T_HOLY),
@@ -707,10 +781,12 @@ COPIES.update({
     "O5C Torch Wall Flame": ("O3C Torch Wall Flame", T_AZURE),
     "O5C Violet Flame": ("O3C Torch Wall Flame", T_VIOLET),
 })
-COPY_FIELDS = {"Oryx's Elysium Portal": {"DisplayId": "Oryx's Elysium", "DungeonName": "Oryx's Elysium"}}
-# the locked portal Oryx 4 drops, until a Doomed Cellar Incantation (shown as the Oryx's Elysium
-# Incantation) opens it: the gateway, still and pale (tools/build_hash_cellar.py draws the others)
-LOCKED = ("Locked Oryx's Elysium Portal", ("oryxSanctuaryObjects32x32", 0xcc))
+COPY_FIELDS = {}
+# the way in, a marble temple door round a swirl of light (a Doomed Cellar Incantation, shown as
+# the Oryx's Elysium Incantation, opens it), and the locked portal Oryx 4 drops, that door still
+# and dark: drawn by tools/draw_oryx_gates.py
+ELYSIUM_PORTAL = "Oryx's Elysium Portal"
+LOCKED = "Locked Oryx's Elysium Portal"
 
 
 def copies(types, sheets, everything, tones):
@@ -730,17 +806,9 @@ def copies(types, sheets, everything, tones):
         tones.append(tone)
         retexture(e, sheets, tone)
         out.append(e)
-    name, (sheet, index) = LOCKED
-    e = ET.Element("Object", {"type": types.get(name, OBJECT_TYPES), "id": name})
-    ET.SubElement(e, "Class").text = "Portal"
-    ET.SubElement(e, "LockedPortal")
-    tex = ET.SubElement(e, "Texture")
-    ET.SubElement(tex, "File").text = sheet
-    ET.SubElement(tex, "Index").text = "0x%x" % index
-    ET.SubElement(e, "Size").text = "100"
-    ET.SubElement(e, "ShadowSize").text = "0"
-    retexture(e, sheets, T_LOCKED)
-    out.append(e)
+    out.append(gates.gate_object(types.get(ELYSIUM_PORTAL, OBJECT_TYPES), ELYSIUM_PORTAL, gates.ELYSIUM_FRAMES,
+                                 "Oryx's Elysium", "Oryx's Elysium"))
+    out.append(gates.locked_object(types.get(LOCKED, OBJECT_TYPES), LOCKED, gates.ELYSIUM_LOCKED))
     return out
 
 
@@ -1173,12 +1241,13 @@ def main():
         objects.append(e)
 
     everything = load("Object", *sorted(f for f in os.listdir(os.path.join(XML_DIR, "prod")) if f.endswith(".xml")))
-    tones = [T_MARBLE, T_GILDED, T_RUG, T_STONE, T_LOCKED]
+    tones = [T_MARBLE, T_GILDED, T_RUG, T_STONE]
     objects += characters(types, chars, sheets, everything, tones)
     objects += copies(types, sheets, everything, tones)
     objects.append(ascended_oryx(types))
     objects += fight_helpers(types, sheets, everything, tones)
     objects += clouds(types, sheets[16])
+    objects += ichor(types, sheets[16])
 
     for tone in tones:
         tone.settle()

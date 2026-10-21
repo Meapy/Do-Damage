@@ -196,7 +196,8 @@ namespace WorldServer.logic
             // Asleep behind the Holy Gates, then invulnerable while his Wardens live. After that:
             // - Judgement (100% to 60%): the Radiant Cross, the Firmament and the Divine Hunt in
             //   turn. At 80%, the Call of the Host: back to the middle to summon his Host, and from
-            //   then on he picks each pattern at random.
+            //   then on he picks each pattern at random. Below 90%, every second pattern he throws
+            //   two splats of Divine Ichor, each hatching an Ichor Sprite.
             // - Transcendence (60%): back to the middle, heals everyone to full, then the same three
             //   patterns, Transcendent: a quicker Cross, blighting stars, and a Hunt that slows the
             //   whole arena, bleeds behind him and brings his Host up beneath him, though he's slower.
@@ -290,6 +291,7 @@ namespace WorldServer.logic
                         new HpLessTransition(0.1, "Last Judgement"),
                         // the Cross, aimed: one line of lances at you, arrowheads between
                         new State("W Cross",
+                            Splats(),
                             new Follow(0.75, 25, 2),
                             new ShootFormation(25, 4, Lanes, 0, coolDown: 1300),
                             new ShootFormation(25, 4, Arrowhead, 1, angleOffset: 45, coolDown: 1300, coolDownOffset: 650),
@@ -390,6 +392,22 @@ namespace WorldServer.logic
                 )
             )
 
+            // his splats: a splash of Divine Ichor (not an enemy) that hatches an Ichor Sprite, which
+            // has few hit points and follows you about with weak shots that slow
+            .Init("Divine Ichor",
+                new State(
+                    new State("Settle", new Flash(0xFFFFD060, 0.25, 4), new TimedTransition(1500, "Hatch")),
+                    new State("Hatch", new Transform("Ichor Sprite"))
+                )
+            )
+            .Init("Ichor Sprite",
+                new State(
+                    new BossStats(2500, 0, 1.0, 0),
+                    new Prioritize(new Follow(0.6, 12, 3), new Wander(0.3)),
+                    new Shoot(10, 2, 12, projectileIndex: 0, coolDown: 900)
+                )
+            )
+
             // ---- his helpers, all invulnerable ----
             // the Firmament's stars, turning round him as one: they slow anyone who touches them and
             // shoot two motes each way, turning their cross a little each time
@@ -473,6 +491,7 @@ namespace WorldServer.logic
         {
             var period = transcended ? 1600 : 2000;
             return new State(name,
+                Splats(),
                 new Prioritize(new StayBack(transcended ? 0.8 : 0.7, 6), new Follow(transcended ? 0.65 : 0.55, 25, 6.5)),
                 new ShootFormation(25, 4, Lanes, 0, fixedAngle: 0, coolDown: period),
                 new ShootFormation(25, 4, Arrowhead, 1, fixedAngle: 45, coolDown: period),
@@ -487,6 +506,7 @@ namespace WorldServer.logic
         // bleeding ones next, and swift ones (blighting, once he has transcended) furthest out.
         private static State Firmament(string name, bool transcended, Transition then) =>
             new State(name,
+                Splats(),
                 new State(name + " Rise",
                     new ReturnToSpawn(1.5),
                     new TimedTransition(2500, name + " Stars")
@@ -525,6 +545,7 @@ namespace WorldServer.logic
                 : new IStateChildren[0];
 
             return new State(name,
+                Splats(),
                 new State(name + " Chase",
                     Attack().Concat(Rise()).Append<IStateChildren>(new TimedTransition(HuntLeg, name + " Pause")).ToArray()
                 ),
@@ -545,6 +566,9 @@ namespace WorldServer.logic
                 )
             );
         }
+
+        // below 90%, every second pattern he throws two splats of Divine Ichor, which hatch Ichor Sprites
+        private static Behavior Splats() => new ThrowEveryNthEntry("Divine Ichor", 2, 2, 0.9, 4, 10);
 
         private static State Star(int coolDownOffset) =>
             new State(
