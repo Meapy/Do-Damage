@@ -571,7 +571,8 @@ def tune_gear(dr):
 
 # The Oryx chain's incantations: each unlocks the locked portal the Oryx before it drops, in that
 # Oryx's dungeon only (Player.AEChangeObject), instead of opening its dungeon anywhere like a key.
-# (incantation, the dungeon it works in, the portal it opens, what it says)
+# (incantation, the dungeon it works in, the portal it opens, what it says); the locked portal it
+# opens is the stage's own where INCANTATION_LOCKS names one (tools/build_hash_cellar.py draws them)
 # Oryx 4's dungeon is Oryx's Inferno (the Doomed Realms "Hash Cellar"; port_doomed_worlds.WORLD_NAMES),
 # entered by a burnt Sanctuary portal (tools/build_hash_cellar.py).
 INCANTATIONS = {
@@ -580,6 +581,7 @@ INCANTATIONS = {
     "Doomed Cellar Incantation": ("Oryx's Inferno", "Doomed Cellar Portal",
                                   "Unlocks the portal Oryx leaves behind in his Inferno, leading to his last stand in the Doomed Cellar."),
 }
+INCANTATION_LOCKS = {"Hash Cellar Incantation": "Locked Oryx's Inferno Portal"}
 
 
 def fix_doomed_data(dr):
@@ -606,7 +608,7 @@ def fix_doomed_data(dr):
         act = o.find("Activate")
         act.attrib.clear()
         act.set("radius", "25")
-        act.set("targetId", "Locked Wine Cellar Portal")
+        act.set("targetId", INCANTATION_LOCKS.get(oid, "Locked Wine Cellar Portal"))
         act.set("newId", portal)
         act.set("onlyInArea", area)
         act.set("customString", portal.replace(" Portal", "") + " unlocked by")

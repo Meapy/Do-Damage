@@ -31,7 +31,9 @@ player, depending on the stage).
    Doorwarden**, who drops the open portal to **Oryx's Chamber**.
 3. From then on, **each Oryx leaves two portals** when he dies, two tiles either side of his loot:
    a **Realm Portal** back out (open for two minutes) and a **locked portal** to the next stage
-   (open for ten). The locked portal's name says where it leads.
+   (open for ten). The locked portal's name says where it leads; Oryx 2's and Oryx 3's look like
+   the gateway they open into, still and dark (grey stone for the Sanctuary, charred for the
+   Inferno).
 4. **To open a locked portal**, someone uses the right **incantation** within 25 tiles of it, in
    that Oryx's dungeon. It turns into the open portal for five minutes, and the dungeon is told who
    opened it. Entering the locked portal without one tells you which incantation it needs. An

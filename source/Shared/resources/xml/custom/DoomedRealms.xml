@@ -12680,7 +12680,7 @@
 		<Description>Unlocks the portal Oryx leaves behind in his Sanctuary, leading down into Oryx's Inferno.</Description>
 		<Sound>use_key</Sound>
 		<Consumable />
-		<Activate radius="25" targetId="Locked Wine Cellar Portal" newId="Oryx's Inferno Portal" onlyInArea="Oryx's Sanctuary" customString="Oryx's Inferno unlocked by">ChangeObject</Activate>
+		<Activate radius="25" targetId="Locked Oryx's Inferno Portal" newId="Oryx's Inferno Portal" onlyInArea="Oryx's Sanctuary" customString="Oryx's Inferno unlocked by">ChangeObject</Activate>
 	</Object>
 	<Object type="0xD2B9" id="Hash Cellar Portal">
 		<Class>Portal</Class>

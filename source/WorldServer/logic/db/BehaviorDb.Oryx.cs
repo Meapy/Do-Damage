@@ -14,7 +14,7 @@ namespace WorldServer.logic
                 new State(
                     new BossStats(130000, 40, 1.0, 0.3),
                     new DropPortalOnDeath("Realm Portal", 1.0, timeout: 120, xAdjustment: -2),
-                    new DropPortalOnDeath("Locked Wine Cellar Portal", 1.0, timeout: 600, xAdjustment: 2,
+                    new DropPortalOnDeath("Locked Oryx's Sanctuary Portal", 1.0, timeout: 600, xAdjustment: 2,
                         name: "Locked: Oryx's Sanctuary", lockedHint: "This portal is locked. Use an Oryx's Sanctuary Incantation beside it to open it."),
                     new DropPortalOnDeath("Lost Halls Portal", 0.1, timeout: 120, yAdjustment: 2),
                     new AnnounceOnDeath("{PL_LIST} drove Oryx the Mad God out of his Wine Cellar! He flees to his Sanctuary, sealed by an Oryx's Sanctuary Incantation..."),

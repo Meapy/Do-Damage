@@ -9,6 +9,9 @@ refuses while an `Unreleased` one is left, so rename it to `## <version> (<date>
 version number itself is in `client-rs/Cargo.toml`.
 
 ## Unreleased
+- The locked portals Oryx 2 and Oryx 3 leave behind now look like the gateways they open into,
+  dark and still: grey stone for Oryx's Sanctuary, charred red for Oryx's Inferno. They used to
+  be the plain locked portal every stage shared.
 - The Hash Cellar is now Oryx's Inferno, and its incantation the Oryx's Inferno Incantation
   (any you already have still work). Using it beside the portal Oryx 3 leaves now opens a burning,
   swirling gateway down into the Inferno, a fiery version of the Sanctuary's portal.

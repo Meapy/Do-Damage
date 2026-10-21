@@ -5991,7 +5991,7 @@
       <Sound>use_key</Sound>
       <Consumable/>
       
-      <Activate radius="25" targetId="Locked Wine Cellar Portal" newId="Oryx's Sanctuary Portal" onlyInArea="Wine Cellar" customString="Oryx's Sanctuary unlocked by">ChangeObject</Activate>
+      <Activate radius="25" targetId="Locked Oryx's Sanctuary Portal" newId="Oryx's Sanctuary Portal" onlyInArea="Wine Cellar" customString="Oryx's Sanctuary unlocked by">ChangeObject</Activate>
       <feedPower>200</feedPower>
       <BagType>7</BagType>
       <Track/>
