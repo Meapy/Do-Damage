@@ -432,8 +432,12 @@ ITEM_STORE = {
 # drops; so are Oceanic Curse (T9, no source) and Oceanic Nova (T10, a boss drop). Power of the
 # Fountains, the Monk's only ability, moves from T1 to T7, where its numbers belong; the missing
 # tiers of the Doomed Realms classes' abilities are in CustomItems.xml.
-# id -> {speed, lifetime, rof, damage: (min, max), stats: {stat: amount}, untier, tier}
-DEF, SPD = "21", "22"
+# The Pirate's cannons had no tier, so they never dropped: Rusty to Wave Cannon are T0-T5 as their
+# numbers stand, and Nature, Shade and Fragment Cannon (copies of Wave Cannon with Vitality and
+# Wisdom) become T6-T8, climbing as the quivers do (cannons sit about 15 damage above the quiver of
+# their tier). Doom Cannon stays untiered.
+# id -> {speed, lifetime, rof, damage: (min, max), mp, stats: {stat: amount}, untier, tier}
+DEF, SPD, VIT, WIS, DEX = "21", "22", "26", "27", "28"
 UNTIERED_ABILITIES = [
     "1940s Orb", "Azure Trap", "Bile Poison", "Bloodorc Quiver", "Class Test", "Cloak of Dimensions",
     "Cloak of the Phantom", "Ent Ancient Quiver", "Flaming Blade", "Fury Orb", "Helm of the Holy Warrior",
@@ -444,9 +448,16 @@ UNTIERED_ABILITIES = [
     "Space Deterioration Spell", "Spell of the Eternal Void", "Strike of Mass Devestation", "Sword Shield",
     "Tome of the Ancients", "Tome of the Fountains", "Toothpaste Poison", "Oceanic Curse", "Oceanic Nova",
 ]
+CANNON_TIERS = ["Rusty Cannon", "Pirate Cannon", "Reinforced Cannon", "Iron Cannon", "Heavy Cannon",
+                "Wave Cannon", "Nature Cannon", "Shade Cannon", "Fragment Cannon"]
+CANNON_TUNING = {
+    "Nature Cannon": {"damage": (335, 395), "mp": 80, "stats": {VIT: 2, WIS: 2, DEX: 6}},
+    "Shade Cannon": {"damage": (380, 440), "mp": 85, "stats": {VIT: 3, WIS: 3, DEX: 7}},
+    "Fragment Cannon": {"damage": (435, 470), "mp": 90, "stats": {VIT: 4, WIS: 4, DEX: 8}},
+}
 # The Doomed Realms classes' tiered abilities drop in the bags the betterSkillys abilities of their
 # tier use (T0-T8), T7 and T8 Soulbound as theirs are. Slot types as betterSkillys numbers them.
-DOOMED_ABILITY_SLOTS = {30, 32, 37, 126, 128, 130, 5000}
+DOOMED_ABILITY_SLOTS = {30, 32, 37, 126, 128, 130, 5000, 5005}
 # The Blademaster: every Dual Blades shot ignores defense (<ArmorPiercing/>), and its T3-T8 jackets
 # also give it Attack for a while (StatBoostSelf, which shows the Att Boost status): (amount, seconds).
 DUAL_BLADES_SLOT = "36"
@@ -463,6 +474,7 @@ GEAR_TUNING = {
     "Fists of Broken Bones": {"untier": True},
     "Power of the Fountains": {"tier": "7"},
     **{oid: {"untier": True} for oid in UNTIERED_ABILITIES},
+    **{oid: {"tier": str(t), **CANNON_TUNING.get(oid, {})} for t, oid in enumerate(CANNON_TIERS)},
 }
 
 
@@ -497,15 +509,24 @@ def tune_gear(dr):
             p.find("MinDamage").text, p.find("MaxDamage").text = map(str, t["damage"])
         if "rof" in t:
             o.find("RateOfFire").text = t["rof"]
+        if "mp" in t:
+            o.find("MpCost").text = str(t["mp"])
         if t.get("untier") and o.find("Tier") is not None:
             o.remove(o.find("Tier"))
         if "tier" in t:
+            if o.find("Tier") is None:
+                o.insert(list(o).index(o.find("Item")) + 1, ET.Element("Tier"))
             o.find("Tier").text = t["tier"]
         at = list(o).index(o.find("BagType")) if o.find("BagType") is not None else len(o)
-        for i, (stat, amount) in enumerate(t.get("stats", {}).items()):
+        for stat, amount in t.get("stats", {}).items():
+            e = next((a for a in o.findall("ActivateOnEquip") if a.get("stat") == stat), None)
+            if e is not None:
+                e.set("amount", str(amount))
+                continue
             e = ET.Element("ActivateOnEquip", {"stat": stat, "amount": str(amount)})
             e.text = "IncrementStat"
-            o.insert(at + i, e)
+            o.insert(at, e)
+            at += 1
     for oid, (amount, secs) in JACKET_BOOSTS.items():
         o = dr.get(oid)
         if o is not None and not any(a.text == "StatBoostSelf" for a in o.findall("Activate")):

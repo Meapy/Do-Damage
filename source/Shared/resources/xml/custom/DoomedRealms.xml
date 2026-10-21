@@ -7796,6 +7796,7 @@
 	<Object type="0xD1B4" id="Rusty Cannon">
 		<Class>Equipment</Class>
 		<Item />
+		<Tier>0</Tier>
 		<Texture>
 			<File>drLofiObj4</File>
 			<Index>0xbe</Index>
@@ -7817,13 +7818,14 @@
 		</Projectile>
 		<ConditionEffect duration="3">Slowed</ConditionEffect>
 		<Usable />
-		<BagType>0</BagType>
+		<BagType>1</BagType>
 		<MpCost>50</MpCost>
 		<Activate>Shoot</Activate>
 	</Object>
 	<Object type="0xD1B5" id="Pirate Cannon">
 		<Class>Equipment</Class>
 		<Item />
+		<Tier>1</Tier>
 		<Texture>
 			<File>drLofiObj4</File>
 			<Index>0xc7</Index>
@@ -7846,13 +7848,14 @@
 		<ActivateOnEquip stat="28" amount="1">IncrementStat</ActivateOnEquip>
 		<ConditionEffect duration="3">Slowed</ConditionEffect>
 		<Usable />
-		<BagType>0</BagType>
+		<BagType>1</BagType>
 		<MpCost>55</MpCost>
 		<Activate>Shoot</Activate>
 	</Object>
 	<Object type="0xD1B6" id="Reinforced Cannon">
 		<Class>Equipment</Class>
 		<Item />
+		<Tier>2</Tier>
 		<Texture>
 			<File>drLofiObj4</File>
 			<Index>0xbd</Index>
@@ -7875,13 +7878,14 @@
 		<ActivateOnEquip stat="28" amount="2">IncrementStat</ActivateOnEquip>
 		<ConditionEffect duration="3">Slowed</ConditionEffect>
 		<Usable />
-		<BagType>0</BagType>
+		<BagType>1</BagType>
 		<MpCost>60</MpCost>
 		<Activate>Shoot</Activate>
 	</Object>
 	<Object type="0xD1B7" id="Iron Cannon">
 		<Class>Equipment</Class>
 		<Item />
+		<Tier>3</Tier>
 		<Texture>
 			<File>drLofiObj4</File>
 			<Index>0xb9</Index>
@@ -7904,7 +7908,7 @@
 		<ActivateOnEquip stat="28" amount="3">IncrementStat</ActivateOnEquip>
 		<ConditionEffect duration="3">Paralyzed</ConditionEffect>
 		<Usable />
-		<BagType>1</BagType>
+		<BagType>2</BagType>
 		<FameBonus>1</FameBonus>
 		<MpCost>65</MpCost>
 		<Activate>Shoot</Activate>
@@ -7912,6 +7916,7 @@
 	<Object type="0xD1B8" id="Heavy Cannon">
 		<Class>Equipment</Class>
 		<Item />
+		<Tier>4</Tier>
 		<Texture>
 			<File>drLofiObj4</File>
 			<Index>0xba</Index>
@@ -7934,7 +7939,7 @@
 		<ActivateOnEquip stat="28" amount="4">IncrementStat</ActivateOnEquip>
 		<ConditionEffect duration="3">Paralyzed</ConditionEffect>
 		<Usable />
-		<BagType>1</BagType>
+		<BagType>2</BagType>
 		<FameBonus>2</FameBonus>
 		<MpCost>70</MpCost>
 		<Activate>Shoot</Activate>
@@ -7942,6 +7947,7 @@
 	<Object type="0xD1B9" id="Wave Cannon">
 		<Class>Equipment</Class>
 		<Item />
+		<Tier>5</Tier>
 		<Texture>
 			<File>drLofiObj4</File>
 			<Index>0xca</Index>
@@ -7964,7 +7970,7 @@
 		<ActivateOnEquip stat="28" amount="5">IncrementStat</ActivateOnEquip>
 		<ConditionEffect duration="3">Paralyzed</ConditionEffect>
 		<Usable />
-		<BagType>2</BagType>
+		<BagType>4</BagType>
 		<FameBonus>3</FameBonus>
 		<MpCost>75</MpCost>
 		<Activate>Shoot</Activate>
@@ -7972,6 +7978,7 @@
 	<Object type="0xD1BA" id="Nature Cannon">
 		<Class>Equipment</Class>
 		<Item />
+		<Tier>6</Tier>
 		<Texture>
 			<File>drLofiObj4</File>
 			<Index>0xc6</Index>
@@ -7982,8 +7989,8 @@
 		<Projectile>
 			<ObjectId>CannonBall11</ObjectId>
 			<Speed>150</Speed>
-			<MinDamage>290</MinDamage>
-			<MaxDamage>350</MaxDamage>
+			<MinDamage>335</MinDamage>
+			<MaxDamage>395</MaxDamage>
 			<LifetimeMS>1000</LifetimeMS>
 			<Size>150</Size>
 			<ConditionEffect duration="3">Paralyzed</ConditionEffect>
@@ -7993,17 +8000,18 @@
 		</Projectile>
 		<ActivateOnEquip stat="26" amount="2">IncrementStat</ActivateOnEquip>
 		<ActivateOnEquip stat="27" amount="2">IncrementStat</ActivateOnEquip>
-		<ActivateOnEquip stat="28" amount="5">IncrementStat</ActivateOnEquip>
+		<ActivateOnEquip stat="28" amount="6">IncrementStat</ActivateOnEquip>
 		<ConditionEffect duration="3">Paralyzed</ConditionEffect>
 		<Usable />
-		<BagType>2</BagType>
+		<BagType>4</BagType>
 		<FameBonus>4</FameBonus>
-		<MpCost>75</MpCost>
+		<MpCost>80</MpCost>
 		<Activate>Shoot</Activate>
 	</Object>
 	<Object type="0xD1BB" id="Shade Cannon">
 		<Class>Equipment</Class>
 		<Item />
+		<Tier>7</Tier>
 		<Texture>
 			<File>drLofiObj4</File>
 			<Index>0xc8</Index>
@@ -8014,8 +8022,8 @@
 		<Projectile>
 			<ObjectId>CannonBall12</ObjectId>
 			<Speed>150</Speed>
-			<MinDamage>290</MinDamage>
-			<MaxDamage>350</MaxDamage>
+			<MinDamage>380</MinDamage>
+			<MaxDamage>440</MaxDamage>
 			<LifetimeMS>1000</LifetimeMS>
 			<Size>150</Size>
 			<ConditionEffect duration="3">Paralyzed</ConditionEffect>
@@ -8023,19 +8031,21 @@
 			<PassesCover />
 			<ParticleTrail />
 		</Projectile>
-		<ActivateOnEquip stat="26" amount="2">IncrementStat</ActivateOnEquip>
-		<ActivateOnEquip stat="27" amount="2">IncrementStat</ActivateOnEquip>
-		<ActivateOnEquip stat="28" amount="5">IncrementStat</ActivateOnEquip>
+		<ActivateOnEquip stat="26" amount="3">IncrementStat</ActivateOnEquip>
+		<ActivateOnEquip stat="27" amount="3">IncrementStat</ActivateOnEquip>
+		<ActivateOnEquip stat="28" amount="7">IncrementStat</ActivateOnEquip>
 		<ConditionEffect duration="3">Paralyzed</ConditionEffect>
 		<Usable />
-		<BagType>2</BagType>
+		<BagType>9</BagType>
 		<FameBonus>4</FameBonus>
-		<MpCost>75</MpCost>
+		<MpCost>85</MpCost>
 		<Activate>Shoot</Activate>
+		<Soulbound />
 	</Object>
 	<Object type="0xD1BC" id="Fragment Cannon">
 		<Class>Equipment</Class>
 		<Item />
+		<Tier>8</Tier>
 		<Texture>
 			<File>drLofiObj4</File>
 			<Index>0xbc</Index>
@@ -8046,8 +8056,8 @@
 		<Projectile>
 			<ObjectId>CannonBall12</ObjectId>
 			<Speed>150</Speed>
-			<MinDamage>290</MinDamage>
-			<MaxDamage>350</MaxDamage>
+			<MinDamage>435</MinDamage>
+			<MaxDamage>470</MaxDamage>
 			<LifetimeMS>1000</LifetimeMS>
 			<Size>150</Size>
 			<ConditionEffect duration="3">Paralyzed</ConditionEffect>
@@ -8055,15 +8065,16 @@
 			<PassesCover />
 			<ParticleTrail />
 		</Projectile>
-		<ActivateOnEquip stat="26" amount="2">IncrementStat</ActivateOnEquip>
-		<ActivateOnEquip stat="27" amount="2">IncrementStat</ActivateOnEquip>
-		<ActivateOnEquip stat="28" amount="5">IncrementStat</ActivateOnEquip>
+		<ActivateOnEquip stat="26" amount="4">IncrementStat</ActivateOnEquip>
+		<ActivateOnEquip stat="27" amount="4">IncrementStat</ActivateOnEquip>
+		<ActivateOnEquip stat="28" amount="8">IncrementStat</ActivateOnEquip>
 		<ConditionEffect duration="3">Paralyzed</ConditionEffect>
 		<Usable />
-		<BagType>2</BagType>
+		<BagType>9</BagType>
 		<FameBonus>4</FameBonus>
-		<MpCost>75</MpCost>
+		<MpCost>90</MpCost>
 		<Activate>Shoot</Activate>
+		<Soulbound />
 	</Object>
 	<Object type="0xD1BD" id="Doom Cannon">
 		<Class>Equipment</Class>

@@ -9,6 +9,10 @@ refuses while an `Unreleased` one is left, so rename it to `## <version> (<date>
 version number itself is in `client-rs/Cargo.toml`.
 
 ## Unreleased
+- Pirate cannons now drop: they had no tier, so no monster ever dropped one. Rusty to Wave Cannon
+  are tiers 0 to 5, and Nature, Shade and Fragment Cannon are tiers 6, 7 and 8, with more damage
+  and Dexterity, Vitality and Wisdom than before (they were copies of the Wave Cannon). They drop
+  wherever other abilities of their tier do, and the forge makes them from the tier below.
 - Tier 9 weapons and tier 10 armor can now drop outside the Tomb's treasure cave: the godlands
   gods drop them now and then, as do the Beer God and the Natural Slime God (the Beer God also drops
   tier 9 armor). The treasure cave's Treasure Pot now drops tier 5 armor too (it skipped it) and
