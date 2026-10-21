@@ -429,8 +429,8 @@ namespace WorldServer.logic
                 ),
                 new ItemLoot("Potion of Defense", 0.05)
             )
-            // Hash Cellar's fires line the path and ring Oryx 4: a fireball for anyone who stands right
-            // beside one, mild enough that walking the path past them is safe
+            // a fireball for anyone who stands right beside one, mild enough that walking past is safe
+            // (they lined the old Hash Cellar's path)
             .Init("Jungle Fire",
                 new State(
                     new BossStats(400, 80, 2.0, 0),

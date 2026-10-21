@@ -70,9 +70,13 @@ Janus and is sold in the Nexus Bazaar.
   When he shouts **"KNEEL!"**, get more than eight tiles from the middle, or you're stunned. At
   half health his three Protectors circle him and must die before he can be hurt again; after
   that his attacks get stronger, and below 20% he hunts players down.
-- **Oryx 4** (Hash Cellar) is Oryx 1's fight made harder, with Knights of Doom, six orbiting White
-  Moons and a weakening ring he warns you about. The fires along the path burn anyone standing
-  right next to them.
+- **Oryx 4** (Hash Cellar): a burning copy of the Sanctuary. The Burning Path winds through four
+  chambers held by his Infernal Court, Oryx 3's court with Oryx 2's minions' tricks and a little
+  stronger: the Infernal Officer (confusing shuriken), the Brimstone Major (charges, and a cone of
+  fire up close), the Cinder Cleric (heals the others and throws blasters: kill it first) and the
+  Doom Cardinal (paralysing spears, and a Vintner at its side). Oryx 4 waits in the middle of the
+  Pyre at its end: Oryx 1's fight made harder, with Knights of Doom, six orbiting White Moons and
+  a weakening ring he warns you about. Mind the lava pools on the floor.
 - **Oryx 5** (Doomed Cellar) can't be hurt until the twenty **Trees of Doom** around him are cut
   down, and the castle's Stone Guardians stand with him. Then he cycles fire, a blade charge, star
   spirals and new Knights and Trees (each living tree heals him), turns faster below 60% and makes

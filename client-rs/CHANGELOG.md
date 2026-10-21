@@ -13,6 +13,13 @@ version number itself is in `client-rs/Cargo.toml`.
   while firing missiles, backs away while throwing bombs, and turns invulnerable to dash back to
   the middle before his Kneel ring and his spinners. He charges faster while leaving his spinning
   wheels, still firing at you, and his Protectors now always circle him.
+- The Hash Cellar (Oryx 4) is rebuilt in the red of fire and doom: new tiles and walls, a winding
+  Burning Path through four chambers, and a slightly larger round arena with a couple of lava
+  pools, where Oryx now waits in the middle. Oryx 4 himself burns: fiery horns and embers in his
+  armour.
+- New monsters guard the Hash Cellar's path, the Infernal Court: the Infernal Officer, Brimstone
+  Major, Cinder Cleric and Doom Cardinal, Oryx 3's court with Oryx 2's minions' tricks, a little
+  tougher, with better drops.
 - Forging an ability from two of the tier below now costs the same for every kind of ability,
   as rings do: 30 fame for tier 1, then 70, 90, 200, 400, 500, 1,000 and 2,000 for tier 8. Some
   abilities cost more for a lower tier before (2,000 for tier 6 but 1,000 for tier 7).

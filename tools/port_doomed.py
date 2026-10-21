@@ -330,6 +330,11 @@ def convert(o, new_type, sheets, remotes):
             use = remotes.setdefault(rid, {"animated": False, "static": False, "right": False})
             use["animated" if animated else "static"] = True
             use["right"] = use["right"] or child.find("Right") is not None
+    # betterSkillys' own sprite in place of the Doomed Realms one
+    if o.get("id") in TEXTURE_OVERRIDES:
+        sheet, index = TEXTURE_OVERRIDES[o.get("id")]
+        tex = next(t for t in o if t.tag in ("AnimatedTexture", "Texture"))
+        tex.find("File").text, tex.find("Index").text = sheet, str(index)
     return o
 
 
@@ -398,6 +403,9 @@ MINIGAME_SPAWNS = {"Zombie", "Hell Hound", "Crawler", "Zombie of Draconis", "Reg
 
 # sprite donors for objects whose remote sprite is gone and whose name matches nothing in betterSkillys
 SPRITE_DONORS = {"Elder Beach Portal": "Beachzone Portal"}
+
+# objects drawn anew here: id -> (sheet, index). Oryx 4 burns (tools/build_hash_cellar.py).
+TEXTURE_OVERRIDES = {"Oryx the Mad God 4": ("hashCellarOryx16x16", 0)}
 
 
 # Loot bags (<BagType>): Doomed Realms numbered its bags differently, so its rarest items dropped

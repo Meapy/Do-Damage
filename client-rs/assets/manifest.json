@@ -1272,6 +1272,24 @@
    "file": "kabam/rotmg/assets/custom/images/CustomAssets32x32.png",
    "w": 32,
    "h": 32
+  },
+  {
+   "name": "hashCellar8x8",
+   "file": "kabam/rotmg/assets/custom/images/HashCellar8x8.png",
+   "w": 8,
+   "h": 8
+  },
+  {
+   "name": "hashCellar16x16",
+   "file": "kabam/rotmg/assets/custom/images/HashCellar16x16.png",
+   "w": 16,
+   "h": 16
+  },
+  {
+   "name": "hashCellar32x32",
+   "file": "kabam/rotmg/assets/custom/images/HashCellar32x32.png",
+   "w": 32,
+   "h": 32
   }
  ],
  "animated_chars": [
@@ -2834,6 +2852,26 @@
    "sheet_w": 112,
    "sheet_h": 16,
    "dir": "down"
+  },
+  {
+   "name": "hashCellarChars16x16",
+   "file": "kabam/rotmg/assets/custom/images/HashCellarChars16x16.png",
+   "mask": null,
+   "w": 16,
+   "h": 16,
+   "sheet_w": 112,
+   "sheet_h": 16,
+   "dir": "right"
+  },
+  {
+   "name": "hashCellarOryx16x16",
+   "file": "kabam/rotmg/assets/custom/images/HashCellarOryx16x16.png",
+   "mask": null,
+   "w": 16,
+   "h": 16,
+   "sheet_w": 112,
+   "sheet_h": 16,
+   "dir": "down"
   }
  ],
  "models": [
@@ -3093,7 +3131,8 @@
   "kabam/rotmg/assets/prod/xmls/ancientRuinsGround.xml",
   "kabam/rotmg/assets/custom/xmls/CustomGrounds.xml",
   "kabam/rotmg/assets/custom/xmls/DoomedRealmsGrounds.xml",
-  "kabam/rotmg/assets/custom/xmls/ElderGrounds.xml"
+  "kabam/rotmg/assets/custom/xmls/ElderGrounds.xml",
+  "kabam/rotmg/assets/custom/xmls/HashCellarGrounds.xml"
  ],
  "object_xml": [
   "kabam/rotmg/assets/custom/xmls/CustomItems.xml",
@@ -3204,7 +3243,8 @@
   "kabam/rotmg/assets/prod/xmls/archbishopObjects.xml",
   "kabam/rotmg/assets/prod/xmls/archbishopObjectsMen.xml",
   "kabam/rotmg/assets/prod/xmls/ancientRuinsObjects.xml",
-  "kabam/rotmg/assets/prod/xmls/Skins.xml"
+  "kabam/rotmg/assets/prod/xmls/Skins.xml",
+  "kabam/rotmg/assets/custom/xmls/HashCellarObjects.xml"
  ],
  "region_xml": [
   "kabam/rotmg/assets/prod/xmls/Regions.xml"

@@ -43,9 +43,9 @@
 		<Dungeon/>
 	</World>
 	<World id="Hash Cellar">
-		<Width>56</Width>
-		<Height>107</Height>
-		<MapJM>Doomed/Hash Cellar.jm</MapJM>
+		<Width>64</Width>
+		<Height>122</Height>
+		<MapJM>Dungeons/Hash Cellar/Hash Cellar.jm</MapJM>
 		<VisibilityType>1</VisibilityType>
 		<Dungeon/>
 	</World>
