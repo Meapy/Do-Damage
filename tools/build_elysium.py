@@ -690,6 +690,13 @@ def characters(types, chars, sheets, everything, tones):
 ORYX_ID = "Oryx the Ascended God"
 ORYX_BASE = ("Oryx the Mad God 5", os.path.join(XML_DIR, "custom", "DoomedRealms.xml"))
 ORYX_HEALTH = 320000
+# the Oryxes before him, in the order he falls back through them when he concedes
+PAST_FORMS = [
+    ("Oryx the Mad God 4", os.path.join(XML_DIR, "custom", "DoomedRealms.xml")),
+    ("Oryx the Mad God 3", os.path.join(XML_DIR, "prod", "EmbeddedData_oryxSanctuaryObjectsCXML.xml")),
+    ("Oryx the Mad God 2", os.path.join(XML_DIR, "prod", "EmbeddedData_OryxWineCellarCXML.xml")),
+    ("Oryx the Mad God 1", os.path.join(XML_DIR, "prod", "EmbeddedData_OryxChamberCXML.xml")),
+]
 ORYX_SHOTS = [
     # the Radiant Cross: twin lances along four lines, gold arrowheads along the four between
     shot(0, "Azure Lance", 180, 110, 1600),
@@ -722,6 +729,12 @@ def ascended_oryx(types):
     ET.SubElement(alt_tex, "File").text = ORYX[0]
     ET.SubElement(alt_tex, "Index").text = "1"
     e.insert(list(e).index(tex) + 1, alt)
+    # his past selves, as he unravels when he concedes: AltTextures 2 to 5 are Oryx 4, 3, 2 and 1
+    for k, (oid, path) in enumerate(PAST_FORMS, start=2):
+        past = next(o for o in ET.parse(path).getroot() if o.get("id") == oid)
+        holder = ET.Element("AltTexture", {"id": str(k)})
+        holder.append(copy.deepcopy(next(c for c in past if c.tag in ("AnimatedTexture", "Texture"))))
+        e.insert(list(e).index(alt) + k - 1, holder)
     set_field(e, "MaxHitPoints", str(ORYX_HEALTH))
     for p in ORYX_SHOTS:
         e.append(copy.deepcopy(p))

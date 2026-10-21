@@ -9,6 +9,10 @@ refuses while an `Unreleased` one is left, so rename it to `## <version> (<date>
 version number itself is in `client-rs/Cargo.toml`.
 
 ## Unreleased
+- Oryx the Ascended God: in his Last Judgement every second volley of his slowed Radiant Cross is
+  turned to fall between the last one's lines (and they come a touch further apart), so you have
+  to keep moving. When he concedes he falls back through every Oryx he was, from Oryx 4 down to a
+  small Oryx 1, before he can be hurt, and he now leaves a Nexus Portal instead of a Realm Portal.
 - New looks for the way to the end of the Oryx chain: the Oryx's Sanctuary, Oryx's Inferno and
   Oryx's Elysium Incantations are seals in each stage's colours (a gold crescent on navy, a flame,
   a winged star); Oryx's Inferno is entered through a horned maw of charred rock round a turning

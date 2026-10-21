@@ -112,7 +112,10 @@ Janus and is sold in the Nexus Bazaar.
   - **Last Judgement** (10%): he goes to the middle and can't be hurt. The Holy Gates shut, and
     Pillars of Heaven ring the arena, firing bleeding, blighting and armour-breaking rays straight
     across it, while he throws his great spear and fires his Radiant Cross again, slowed right
-    down so it fills the arena. After 30 seconds he concedes, the gates open, and he can be killed.
+    down so it fills the arena, every second volley turned to fall between the last one's lines.
+    After 30 seconds he concedes: the gates open and he falls back through every Oryx he was, from
+    Oryx 4 down to Oryx 1, ending as small as Oryx 1, and only then can he be killed. He leaves a
+    Nexus Portal: the chain ends here.
   - Minions he summons can't be hurt and hold their fire for their first two seconds, and the
     Firmament's stars vanish as soon as it ends.
   - Below 90%, every second time he changes pattern he throws two splats of **Divine Ichor**. Each

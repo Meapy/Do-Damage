@@ -207,11 +207,12 @@ namespace WorldServer.logic
             // - Last Judgement (10%): invulnerable in the middle. The Holy Gates shut, the Pillars of
             //   Heaven ring the arena firing straight across it, and he throws the Spear of Heaven
             //   and fires the Radiant Cross, slowed right down. After 30 s, the Concession: the gates
-            //   open and he can be killed.
+            //   open, he falls back through every Oryx he was, and then he can be killed.
             .Init("Oryx the Ascended God",
                 new State(
                     new BossStats(320000, 55, 1.0, 0.35),
-                    new DropPortalOnDeath("Realm Portal", 1.0, timeout: 120, xAdjustment: 2),
+                    // the end of the chain: the way out is home to the Nexus
+                    new DropPortalOnDeath("Nexus Portal", 1.0, timeout: 120, xAdjustment: 2),
                     new AnnounceOnDeath("{PL_LIST} cast down Oryx the Ascended God in his Elysium! The Realm is free... for now."),
                     new State("Dormant",
                         new ConditionEffectBehavior(ConditionEffectIndex.Invulnerable),
@@ -317,24 +318,58 @@ namespace WorldServer.logic
                             new SpawnRing("Pillar of Heaven", 24, 15, 7.5, aroundSpawn: true),
                             new TimedTransition(500, "LJ Siege")
                         ),
-                        // the spear, and the Radiant Cross as it began (lanes and arrowheads, then turned),
-                        // drifting slowly out to crowd the arena
+                        // the spear, and the Radiant Cross as it began, drifting slowly out to crowd the
+                        // arena: every second volley turned half a step (22.5 degrees), so its lines
+                        // fall between the last ones' and there's no standing still
                         new State("LJ Siege",
                             new Shoot(25, projectileIndex: 7, predictive: 0.4, coolDown: 2800, coolDownOffset: 1500),
-                            new ShootFormation(25, 4, Lanes, 8, fixedAngle: 0, coolDown: 2400),
-                            new ShootFormation(25, 4, Arrowhead, 9, fixedAngle: 45, coolDown: 2400),
-                            new ShootFormation(25, 4, Lanes, 8, fixedAngle: 45, coolDown: 2400, coolDownOffset: 1200),
-                            new ShootFormation(25, 4, Arrowhead, 9, fixedAngle: 0, coolDown: 2400, coolDownOffset: 1200),
+                            new ShootFormation(25, 4, Lanes, 8, fixedAngle: 0, coolDown: 2600),
+                            new ShootFormation(25, 4, Arrowhead, 9, fixedAngle: 45, coolDown: 2600),
+                            new ShootFormation(25, 4, Lanes, 8, fixedAngle: 22.5, coolDown: 2600, coolDownOffset: 1300),
+                            new ShootFormation(25, 4, Arrowhead, 9, fixedAngle: 67.5, coolDown: 2600, coolDownOffset: 1300),
                             new TimedTransition(30000, "Concession")
                         )
                     ),
+                    // he falls back through every Oryx he was (AltTextures 2 to 5: Oryx 4, 3, 2 and 1),
+                    // each at that Oryx's own size, ending as small as Oryx 1, and only then can be hurt
                     new State("Concession",
                         new Order(30, "Pillar of Heaven", "Gone"),
                         new State("Concession Open",
+                            new ConditionEffectBehavior(ConditionEffectIndex.Invulnerable),
                             new RemoveObject("O5 Holy Gate", 22),
                             new Flash(0xFFFFFFFF, 0.5, 6),
                             new Taunt(true, "I... concede. Strike, then, if you are worthy.") { Bubble = false },
-                            new TimedTransition(1000, "Conceded")
+                            new SetAltTexture(0),
+                            new TimedTransition(1800, "Unravel 4")
+                        ),
+                        new State("Unravel 4",
+                            new ConditionEffectBehavior(ConditionEffectIndex.Invulnerable),
+                            new SetAltTexture(2),
+                            new ChangeSize(1000, 170),
+                            new Flash(0xFFFF4400, 0.3, 3),
+                            new TimedTransition(1300, "Unravel 3")
+                        ),
+                        new State("Unravel 3",
+                            new ConditionEffectBehavior(ConditionEffectIndex.Invulnerable),
+                            new SetAltTexture(3),
+                            new ChangeSize(1000, 100),
+                            new Flash(0xFF4060FF, 0.3, 3),
+                            new TimedTransition(1300, "Unravel 2")
+                        ),
+                        new State("Unravel 2",
+                            new ConditionEffectBehavior(ConditionEffectIndex.Invulnerable),
+                            new SetAltTexture(4),
+                            new ChangeSize(1000, 120),
+                            new Flash(0xFF800000, 0.3, 3),
+                            new TimedTransition(1300, "Unravel 1")
+                        ),
+                        new State("Unravel 1",
+                            new ConditionEffectBehavior(ConditionEffectIndex.Invulnerable),
+                            new SetAltTexture(5),
+                            new ChangeSize(1000, 100),
+                            new Flash(0xFF000000, 0.3, 3),
+                            new Taunt(true, "...and in the end, I am only Oryx.") { Bubble = false },
+                            new TimedTransition(1800, "Conceded")
                         ),
                         new State("Conceded")
                     )
