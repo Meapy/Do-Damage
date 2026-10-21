@@ -64,9 +64,12 @@ Janus and is sold in the Nexus Bazaar.
 - **Oryx 2** (Wine Cellar) calls his guards at 55% health, with silencing and weakening spinners,
   then fights faster.
 - **Oryx 3** (Sanctuary): first fight through his nobles and his court (kill the Deacon first: he
-  heals the others) until the Sanctum's gate opens. When he shouts **"KNEEL!"**, get more than
-  eight tiles away, or you're stunned. At half health his three Protectors must die before he can
-  be hurt again; after that his attacks get stronger, and below 20% he hunts players down.
+  heals the others) until the Sanctum's gate opens. He waits in the middle of the Sanctum, chases
+  you while he fires missiles, charges about leaving spinning wheels behind him, and backs away
+  while he throws bombs. Before some attacks he turns invulnerable and dashes back to the middle.
+  When he shouts **"KNEEL!"**, get more than eight tiles from the middle, or you're stunned. At
+  half health his three Protectors circle him and must die before he can be hurt again; after
+  that his attacks get stronger, and below 20% he hunts players down.
 - **Oryx 4** (Hash Cellar) is Oryx 1's fight made harder, with Knights of Doom, six orbiting White
   Moons and a weakening ring he warns you about. The fires along the path burn anyone standing
   right next to them.

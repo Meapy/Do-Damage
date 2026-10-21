@@ -148,7 +148,8 @@ def build():
         g.obj[y][x] = w
 
     # --- the Sanctum's furnishings -------------------------------------------------------------
-    g.place(ax, ay - 3, "Oryx the Mad God 3")
+    # dead centre: his spawn point is the middle he dashes back to between phases
+    g.place(ax, ay, "Oryx the Mad God 3")
     # four pillars to hide behind, on the diagonals
     for dx, dy in ((-1, -1), (1, -1), (-1, 1), (1, 1)):
         g.place(ax + dx * 9, ay + dy * 9, COLUMN)
