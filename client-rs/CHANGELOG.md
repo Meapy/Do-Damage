@@ -9,6 +9,10 @@ refuses while an `Unreleased` one is left, so rename it to `## <version> (<date>
 version number itself is in `client-rs/Cargo.toml`.
 
 ## Unreleased
+- Oryx 3 and Oryx 4 have names of their own: Oryx the Celestial Mad God in his Sanctuary, and
+  Oryx the Infernal Mad God in the Hash Cellar.
+- Oryx 3 and Oryx 4's taunts now show only in chat, with no speech bubble over them hiding their
+  attacks.
 - Oryx the Mad God 3 now starts in the middle of his Sanctum and moves more: he chases you
   while firing missiles, backs away while throwing bombs, and turns invulnerable to dash back to
   the middle before his Kneel ring and his spinners. He charges faster while leaving his spinning

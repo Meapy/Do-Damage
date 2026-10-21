@@ -243,11 +243,11 @@ WHO = {"Hermit portal maker": "Hermit God", "Encounter Altar": "The Statues", "T
 
 
 def who(d, m):
-    """A monster's name for players; Oryx's stages all share a display name, so number them."""
+    """A monster's name for players; Oryx's stages that share a display name are numbered."""
     if m in WHO:
         return WHO[m]
     st = re.match(r"Oryx the Mad God (\d)$", m)
-    return "Oryx %s" % st.group(1) if st else d.name(m)
+    return "Oryx %s" % st.group(1) if st and d.name(m) == "Oryx the Mad God" else d.name(m)
 
 
 def with_article(name):

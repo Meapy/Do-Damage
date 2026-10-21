@@ -335,6 +335,8 @@ def convert(o, new_type, sheets, remotes):
         sheet, index = TEXTURE_OVERRIDES[o.get("id")]
         tex = next(t for t in o if t.tag in ("AnimatedTexture", "Texture"))
         tex.find("File").text, tex.find("Index").text = sheet, str(index)
+    if o.get("id") in DISPLAY_OVERRIDES:
+        o.find("DisplayId").text = DISPLAY_OVERRIDES[o.get("id")]
     for proj in o.findall("Projectile"):
         new = PROJECTILE_OVERRIDES.get(o.get("id"), {}).get(proj.get("id"))
         if new:
@@ -412,6 +414,8 @@ SPRITE_DONORS = {"Elder Beach Portal": "Beachzone Portal"}
 TEXTURE_OVERRIDES = {"Oryx the Mad God 4": ("hashCellarOryx16x16", 0)}
 # projectiles drawn anew: id -> {projectile id: object}. Oryx 4's first phase shoots hellfire.
 PROJECTILE_OVERRIDES = {"Oryx the Mad God 4": {"2": "Hellfire Bolt", "4": "Hellfire Star"}}
+# names for players: each Oryx after the Chamber is named for his theme
+DISPLAY_OVERRIDES = {"Oryx the Mad God 4": "Oryx the Infernal Mad God"}
 
 
 # Loot bags (<BagType>): Doomed Realms numbered its bags differently, so its rarest items dropped

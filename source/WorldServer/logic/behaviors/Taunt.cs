@@ -16,6 +16,10 @@ namespace WorldServer.logic.behaviors
         private int? ordered;
         private string[] text;
 
+        // false: the line goes to chat only, without a speech bubble over the speaker (a boss's
+        // bubbles hide his attacks)
+        public bool Bubble { get; init; } = true;
+
         public Taunt(params string[] text) => this.text = text;
 
         public Taunt(double probability, params string[] text)
@@ -121,7 +125,7 @@ namespace WorldServer.logic.behaviors
                   enemy.IsRare ? $"Rare {name}" :
                   name;
 
-            var packet = new Text() { Name = "#" + displayenemy, ObjectId = host.Id, NumStars = -1, BubbleTime = 3, Recipient = "", Txt = taunt };
+            var packet = new Text() { Name = "#" + displayenemy, ObjectId = host.Id, NumStars = -1, BubbleTime = (byte)(Bubble ? 3 : 0), Recipient = "", Txt = taunt };
 
             if (broadcast)
                 host.World.Broadcast(packet);

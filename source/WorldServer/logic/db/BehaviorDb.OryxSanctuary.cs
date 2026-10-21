@@ -5,11 +5,12 @@ using WorldServer.logic.transitions;
 
 namespace WorldServer.logic
 {
-    // Oryx's Sanctuary (tools/build_oryx_sanctuary.py): stage 5 of the Oryx chain. Players fight
+    // Oryx's Sanctuary (tools/build_oryx_sanctuary.py): stage 5 of the Oryx chain, Oryx the Celestial
+    // Mad God. Players fight
     // through his nobles and court to a gate that opens once the court is dead, then face Oryx the
     // Mad God 3 in the Sanctum. His attacks use the "White" projectiles until half health and the
     // stronger "Exalted" ones after. He drops the portal to the Hash Cellar (Oryx 4).
-    // He stands at the Sanctum's centre. His missiles chase the players, his wheels charge about,
+    // His taunts go to chat only (no bubbles over his attacks). He stands at the Sanctum's centre. His missiles chase the players, his wheels charge about,
     // his bombs flee from them, and before the Kneel ring and the spinners he turns invulnerable
     // and dashes back to the centre.
     partial class BehaviorDb
@@ -27,7 +28,7 @@ namespace WorldServer.logic
                     new DropPortalOnDeath("Locked Wine Cellar Portal", 1.0, timeout: 600, xAdjustment: 2,
                         name: "Locked: Hash Cellar", lockedHint: "This portal is locked. Use a Hash Cellar Incantation beside it to open it."),
                     new DropPortalOnDeath("Realm Portal", 1.0, timeout: 120, xAdjustment: -2),
-                    new AnnounceOnDeath("{PL_LIST} broke Oryx the Mad God in his Sanctuary! His spirit sinks into the Hash Cellar, sealed by a Hash Cellar Incantation..."),
+                    new AnnounceOnDeath("{PL_LIST} broke Oryx the Celestial Mad God in his Sanctuary! His spirit sinks into the Hash Cellar, sealed by a Hash Cellar Incantation..."),
                     new State("Dormant",
                         new ConditionEffectBehavior(ConditionEffectIndex.Invulnerable),
                         new PlayerWithinTransition(17, "Awaken 1")
@@ -35,17 +36,17 @@ namespace WorldServer.logic
                     new State("Awaken 1",
                         new ConditionEffectBehavior(ConditionEffectIndex.Invulnerable),
                         new Flash(0xFFFFFFFF, 0.5, 12),
-                        new Taunt(true, "So. You have butchered my court and walked into my Sanctum."),
+                        new Taunt(true, "So. You have butchered my court and walked into my Sanctum.") { Bubble = false },
                         new TimedTransition(3000, "Awaken 2")
                     ),
                     new State("Awaken 2",
                         new ConditionEffectBehavior(ConditionEffectIndex.Invulnerable),
-                        new Taunt(true, "Twice you have humbled me. There will be no third time."),
+                        new Taunt(true, "Twice you have humbled me. There will be no third time.") { Bubble = false },
                         new TimedTransition(3000, "Awaken 3")
                     ),
                     new State("Awaken 3",
                         new ConditionEffectBehavior(ConditionEffectIndex.Invulnerable),
-                        new Taunt(true, "KNEEL, AND BE ERASED!"),
+                        new Taunt(true, "KNEEL, AND BE ERASED!") { Bubble = false },
                         new TimedTransition(1500, "Missiles")
                     ),
 
@@ -64,7 +65,7 @@ namespace WorldServer.logic
                         // he charges about, leaving his wheels where he passed for eight seconds,
                         // and keeps firing his big balls at the players as he goes
                         new State("Wheels",
-                            new Taunt("Mind your step."),
+                            new Taunt("Mind your step.") { Bubble = false },
                             new Charge(1.6, 15, 1600),
                             new Shoot(0, fixedAngle: 0, projectileIndex: 2, coolDown: 250),
                             new Shoot(25, 6, projectileIndex: 9, coolDown: 1500),
@@ -75,7 +76,7 @@ namespace WorldServer.logic
                             new ReturnToSpawn(2.5),
                             new ConditionEffectBehavior(ConditionEffectIndex.Invulnerable),
                             new Flash(0xFFFFFFFF, 0.4, 6),
-                            new Taunt("KNEEL!"),
+                            new Taunt("KNEEL!") { Bubble = false },
                             new TimedTransition(2500, "Kneel Blast")
                         ),
                         new State("Kneel Blast",
@@ -84,7 +85,7 @@ namespace WorldServer.logic
                             new TimedTransition(500, "Bombs")
                         ),
                         new State("Bombs",
-                            new Taunt("My artifacts burn brighter than your sun!"),
+                            new Taunt("My artifacts burn brighter than your sun!") { Bubble = false },
                             new Prioritize(new StayCloseToSpawn(0.6, 13), new StayBack(0.45, 9), new Wander(0.25)),
                             new TossObject("O3 Bomb Artifact", 12, coolDown: 1600),
                             new Shoot(25, 2, 30, projectileIndex: 13, coolDown: 900),
@@ -108,7 +109,7 @@ namespace WorldServer.logic
                         new ConditionEffectBehavior(ConditionEffectIndex.Invulnerable),
                         new ReturnToSpawn(2.5),
                         new Flash(0xFF8000FF, 0.5, 8),
-                        new Taunt(true, "Protectors! Shield your master!"),
+                        new Taunt(true, "Protectors! Shield your master!") { Bubble = false },
                         new Spawn("O3 Protector 1", 1, 1, 90000000),
                         new Spawn("O3 Protector 2", 1, 1, 90000000),
                         new Spawn("O3 Protector 3", 1, 1, 90000000),
@@ -124,7 +125,7 @@ namespace WorldServer.logic
                     new State("Exalt",
                         new ConditionEffectBehavior(ConditionEffectIndex.Invulnerable),
                         new Flash(0xFFFFD700, 0.3, 10),
-                        new Taunt(true, "Enough games. Behold the EXALTED form of your god!"),
+                        new Taunt(true, "Enough games. Behold the EXALTED form of your god!") { Bubble = false },
                         new TimedTransition(3000, "X Missiles")
                     ),
 
@@ -150,7 +151,7 @@ namespace WorldServer.logic
                             new ReturnToSpawn(2.5),
                             new ConditionEffectBehavior(ConditionEffectIndex.Invulnerable),
                             new Flash(0xFFFFD700, 0.3, 7),
-                            new Taunt("KNEEL BEFORE YOUR GOD!"),
+                            new Taunt("KNEEL BEFORE YOUR GOD!") { Bubble = false },
                             new TimedTransition(2000, "X Kneel Blast")
                         ),
                         new State("X Kneel Blast",
@@ -184,7 +185,7 @@ namespace WorldServer.logic
                         new ConditionEffectBehavior(ConditionEffectIndex.Invulnerable),
                         new ReturnToSpawn(2.5),
                         new Flash(0xFFFF0000, 0.3, 10),
-                        new Taunt(true, "I AM ETERNAL! I AM THE REALM ITSELF!"),
+                        new Taunt(true, "I AM ETERNAL! I AM THE REALM ITSELF!") { Bubble = false },
                         new TimedTransition(3000, "Rage")
                     ),
                     new State("Rage",
@@ -195,7 +196,7 @@ namespace WorldServer.logic
                         new Shoot(25, projectileIndex: 45, predictive: 0.5, coolDown: 1700),
                         new Shoot(25, 3, 15, projectileIndex: 41, coolDown: 1300, coolDownOffset: 650),
                         new TossObject("O3 Bomb Artifact", 12, coolDown: 2000),
-                        new Taunt(0.5, 7000, "Your gods have abandoned you!", "There is no escape from my Sanctum!", "I will unmake you!")
+                        new Taunt(0.5, 7000, "Your gods have abandoned you!", "There is no escape from my Sanctum!", "I will unmake you!") { Bubble = false }
                     )
                 ),
                 // everyone who did 1% of the damage: the sure drops

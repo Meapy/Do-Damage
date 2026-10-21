@@ -12,7 +12,8 @@ namespace WorldServer.logic
     partial class BehaviorDb
     {
         private _ OryxDoomed = () => Behav()
-            // Stage 6: Oryx 1's moveset, corrupted and harder, with Knights of Doom and White Moons
+            // Stage 6, Oryx the Infernal Mad God: Oryx 1's moveset, burning and harder, with his Infernal
+            // Court and White Moons. His taunts go to chat only (no bubbles over his attacks).
             .Init("Oryx the Mad God 4",
                 new State(
                     new BossStats(240000, 50, 1.0, 0.3),
@@ -21,8 +22,8 @@ namespace WorldServer.logic
                             ?? "This portal is locked. Use a Doomed Cellar Incantation beside it to open it."),
                     new DropPortalOnDeath("Realm Portal", 1.0, timeout: 120, xAdjustment: -2),
                     new AnnounceOnDeath(SealedDungeons.WhyDungeon("Doomed Cellar") != null
-                        ? "{PL_LIST} burned Oryx the Mad God out of the Hash Cellar! He flees to the Doomed Cellar, sealed for now..."
-                        : "{PL_LIST} burned Oryx the Mad God out of the Hash Cellar! He makes his last stand in the Doomed Cellar, sealed by a Doomed Cellar Incantation..."),
+                        ? "{PL_LIST} burned Oryx the Infernal Mad God out of the Hash Cellar! He flees to the Doomed Cellar, sealed for now..."
+                        : "{PL_LIST} burned Oryx the Infernal Mad God out of the Hash Cellar! He makes his last stand in the Doomed Cellar, sealed by a Doomed Cellar Incantation..."),
                     new State("Dormant",
                         new ConditionEffectBehavior(ConditionEffectIndex.Invulnerable),
                         new PlayerWithinTransition(15, "Awaken")
@@ -30,13 +31,13 @@ namespace WorldServer.logic
                     new State("Awaken",
                         new ConditionEffectBehavior(ConditionEffectIndex.Invulnerable),
                         new Flash(0xFFFF4400, 0.4, 10),
-                        new Taunt(true, "Three times you have struck me down. Here, in the fire, I am stronger."),
+                        new Taunt(true, "Three times you have struck me down. Here, in the fire, I am stronger.") { Bubble = false },
                         new TimedTransition(4000, "Hatred")
                     ),
                     new State("Cycle",
                         new HpLessTransition(0.25, "Ascend"),
                         new State("Hatred",
-                            new Taunt("Fools! I still have {HP} hitpoints!"),
+                            new Taunt("Fools! I still have {HP} hitpoints!") { Bubble = false },
                             new Wander(0.15),
                             new StayCloseToSpawn(0.4, 6),
                             // his Infernal Court, from the Burning Path (BehaviorDb.HashCellar.cs)
@@ -51,7 +52,7 @@ namespace WorldServer.logic
                             new ConditionEffectBehavior(ConditionEffectIndex.Invulnerable),
                             new ReturnToSpawn(1.5),
                             new Flash(0xFF389E13, 0.5, 20),
-                            new Taunt("BE SILENT!!!"),
+                            new Taunt("BE SILENT!!!") { Bubble = false },
                             new Shoot(0, 4, fixedAngle: 0, rotateAngle: 15, projectileIndex: 17, coolDown: 260),
                             new TossObject("Ring Element", 9, 24, 320000),
                             new TossObject("Ring Element", 9, 48, 320000),
@@ -71,7 +72,7 @@ namespace WorldServer.logic
                             new TimedTransition(10000, "Artifacts")
                         ),
                         new State("Artifacts",
-                            new Taunt("My Artifacts will protect me!"),
+                            new Taunt("My Artifacts will protect me!") { Bubble = false },
                             new Shoot(25, 3, 20, projectileIndex: 16, coolDown: 1800, coolDownOffset: 500),
                             new Shoot(0, 12, fixedAngle: 0, rotateAngle: 15, projectileIndex: 8, coolDown: 2200),
                             new Shoot(3, 10, projectileIndex: 7, coolDown: 700),
@@ -88,7 +89,7 @@ namespace WorldServer.logic
                         ),
                         // White Moons circle him; his flames punish anyone who gets close
                         new State("Moons",
-                            new Taunt("I am the master of this existence!"),
+                            new Taunt("I am the master of this existence!") { Bubble = false },
                             new Follow(0.35, 14, 6),
                             new TossObject("White Moon", 8, 0, 90000001),
                             new TossObject("White Moon", 8, 60, 90000001),
@@ -105,7 +106,7 @@ namespace WorldServer.logic
                             new ConditionEffectBehavior(ConditionEffectIndex.Invulnerable),
                             new ReturnToSpawn(1.5),
                             new Flash(0xFFFFFFFF, 0.3, 6),
-                            new Taunt("Feel the weight of my doom!"),
+                            new Taunt("Feel the weight of my doom!") { Bubble = false },
                             new State("Doom Charge",
                                 new TimedTransition(2000, "Doom Fire")
                             ),
@@ -121,7 +122,7 @@ namespace WorldServer.logic
                         new ReturnToSpawn(1.5),
                         new ChangeSize(15, 220),
                         new Flash(0xFFFF0000, 0.3, 12),
-                        new Taunt(true, "I HAVE HAD ENOUGH OF YOU! THE FIRE TAKES YOU ALL!"),
+                        new Taunt(true, "I HAVE HAD ENOUGH OF YOU! THE FIRE TAKES YOU ALL!") { Bubble = false },
                         new Shoot(0, 8, fixedAngle: 0, rotateAngle: 9, projectileIndex: 13, coolDown: 500),
                         new Shoot(0, 8, fixedAngle: 22, rotateAngle: -9, projectileIndex: 14, coolDown: 500, coolDownOffset: 250),
                         new TimedTransition(4000, "Rage")
@@ -135,7 +136,7 @@ namespace WorldServer.logic
                         new Shoot(0, 12, fixedAngle: 0, rotateAngle: 15, projectileIndex: 18, coolDown: 3200),
                         new Shoot(25, 3, 12, projectileIndex: 2, predictive: 0.8, coolDown: 700),
                         new Shoot(0, 6, fixedAngle: 0, rotateAngle: 12, projectileIndex: 14, coolDown: 1200),
-                        new Taunt(0.4, 6000, "DIE!!!", "ENOUGH!!!", "Your bones will feed my fire!")
+                        new Taunt(0.4, 6000, "DIE!!!", "ENOUGH!!!", "Your bones will feed my fire!") { Bubble = false }
                     )
                 ),
                 // everyone who did 1% of the damage: the sure drops
