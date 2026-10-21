@@ -80,6 +80,14 @@ it asks first; never run test copies under the live process names (`redis-server
   Changelog window and the website show it. Start the section if it isn't there. Publishing a
   client version renames it to that version, so only release lines that are true for players by
   then: hold back a line whose change isn't live yet (put it back under `Unreleased`).
+- **Wiki:** a finished change players can notice (content, items, drops, classes, commands, a
+  feature) also updates the wiki, `website/wiki/` (built by `tools/build_wiki.py`), in the same
+  commit. Much of it is read from the game's data (the gear pages and their drops, dungeons,
+  commands, the forge's recipes), so build it (`python tools/build_wiki.py --out <a scratch
+  folder>`) and read the pages the change touches. Fix the generator (`tools/wiki_*.py`) when it
+  doesn't pick the change up, and edit the hand-written guides (`website/wiki/*.md`) where they
+  describe it. Measured tables (Gear statistics) stay as measured: add a note when one goes out of
+  date.
 - **Generated files** come from the `tools/port_doomed*.py` scripts (see source/AGENTS.md). Change
   the script and regenerate rather than editing the output by hand.
 - **DNS:** dodmg.com's records live at Register365 with a TTL of a day, so a change can take that
