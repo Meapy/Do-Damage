@@ -377,6 +377,46 @@ ISLAND_GROUNDS = {
 }
 
 
+def paint_cloud():
+    """A soft cloud, 16x16: overlapping puffs, white on top shading to pale blue beneath, its
+    edges half see-through."""
+    puffs = [(5, 9.5, 3.6), (9, 7, 4.2), (12.2, 9.6, 3.0), (8.5, 10.5, 3.6)]
+    out = []
+    for y in range(16):
+        row = []
+        for x in range(16):
+            depth = max((r - math.hypot(x + 0.5 - cx, y + 0.5 - cy)) for cx, cy, r in puffs)
+            if depth <= 0:
+                row.append((0, 0, 0, 0))
+                continue
+            shade = min(1.0, max(0.0, (y - 5) / 9))
+            c = _mix((255, 255, 255), (216, 232, 250), shade)
+            row.append(c + (190 if depth < 1 else 240,))
+        out.append(row)
+    return out
+
+
+# Scenery: clouds drifting over the Landing and the sea. Not enemies, so shots pass through them
+# and nothing can hurt them (Drift, BehaviorDb.Elysium.cs). name -> size
+CLOUDS = {"Elysian Cloud": 230, "Elysian Cloudlet": 150}
+
+
+def clouds(types, sheet):
+    cell = sheet.add_painted(paint_cloud())
+    out = []
+    for name, size in CLOUDS.items():
+        e = ET.Element("Object", {"type": types.get(name, OBJECT_TYPES), "id": name})
+        ET.SubElement(e, "Class").text = "Character"
+        tex = ET.SubElement(e, "Texture")
+        ET.SubElement(tex, "File").text = SHEETS[16][0]
+        ET.SubElement(tex, "Index").text = "0x%02x" % cell
+        ET.SubElement(e, "Size").text = str(size)
+        ET.SubElement(e, "MaxHitPoints").text = "1000"
+        ET.SubElement(e, "NoMiniMap")
+        out.append(e)
+    return out
+
+
 def island_grounds(types, sheet):
     out = []
     for name, (cells, blend, colour, extra) in ISLAND_GROUNDS.items():
@@ -743,6 +783,16 @@ HOST_POSTS = [
     ((41, 53), "Ascended Officer"), ((55, 53), "Ascended Cardinal"), ((48, 58), "Ascended Major"),
 ]
 
+# where the clouds drift: a few round the Landing, the rest over the open sea
+CLOUD_SPOTS = [
+    ((39, 117), "Elysian Cloud"), ((57, 121), "Elysian Cloudlet"), ((41, 133), "Elysian Cloudlet"),
+    ((56, 132), "Elysian Cloud"),
+    ((10, 18), "Elysian Cloud"), ((84, 14), "Elysian Cloud"), ((90, 44), "Elysian Cloudlet"),
+    ((6, 52), "Elysian Cloudlet"), ((90, 108), "Elysian Cloud"), ((7, 112), "Elysian Cloud"),
+    ((22, 130), "Elysian Cloudlet"), ((74, 130), "Elysian Cloudlet"), ((24, 30), "Elysian Cloudlet"),
+    ((74, 34), "Elysian Cloud"), ((48, 92), "Elysian Cloud"), ((4, 86), "Elysian Cloudlet"),
+]
+
 MARBLE_TILE = o5("O3 Normal Tile")
 RUG = o5("O3 Sanctuary Rug Base")
 WALL = o5("O3 Wall 1")
@@ -1015,6 +1065,11 @@ def build_map():
             if abs(x - CX) >= 2:
                 g.region[y][x] = "Spawn"
     g.place(CX, ly1 - 1, "Nexus Portal")
+
+    # --- clouds over the Landing and the sea ---------------------------------------------------
+    for (x, y), name in CLOUD_SPOTS:
+        if g.obj[y][x] is None and (g.ground[y][x] in (SEA, REEF) or g.free(x, y)):
+            g.obj[y][x] = name
     for x in (lx0, lx1):
         for y in (ly0, ly1):
             g.place(x, y, TORCH)
@@ -1123,6 +1178,7 @@ def main():
     objects += copies(types, sheets, everything, tones)
     objects.append(ascended_oryx(types))
     objects += fight_helpers(types, sheets, everything, tones)
+    objects += clouds(types, sheets[16])
 
     for tone in tones:
         tone.settle()

@@ -1001,4 +1001,24 @@
 			<ConditionEffect duration="3">Armor Broken</ConditionEffect>
 		</Projectile>
 	</Object>
+	<Object type="0x5430" id="Elysian Cloud">
+		<Class>Character</Class>
+		<Texture>
+			<File>elysium16x16</File>
+			<Index>0x0b</Index>
+		</Texture>
+		<Size>230</Size>
+		<MaxHitPoints>1000</MaxHitPoints>
+		<NoMiniMap />
+	</Object>
+	<Object type="0x5431" id="Elysian Cloudlet">
+		<Class>Character</Class>
+		<Texture>
+			<File>elysium16x16</File>
+			<Index>0x0b</Index>
+		</Texture>
+		<Size>150</Size>
+		<MaxHitPoints>1000</MaxHitPoints>
+		<NoMiniMap />
+	</Object>
 </Objects>

@@ -11,7 +11,8 @@ version number itself is in `client-rs/Cargo.toml`.
 ## Unreleased
 - Oryx's Elysium's sea and beaches are redrawn: smooth turquoise shallows, a deeper reef and the
   open sea beyond, wet sand at the waterline and soft sand with the odd shell, all blending into
-  each other.
+  each other. Soft white clouds drift over the Landing and out over the sea (just scenery: they
+  can't be hit).
 - Oryx the Ascended God: the minions he summons can't be hurt and hold their fire for their first
   two seconds, so they don't land on you shooting; the Firmament's stars vanish as soon as it ends;
   the columns in his arena are gone; his Halo Orbs (below 20%) now circle the edge of the arena and

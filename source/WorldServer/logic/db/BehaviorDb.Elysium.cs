@@ -421,6 +421,10 @@ namespace WorldServer.logic
                 )
             )
 
+            // scenery: clouds drifting over the Landing and the sea (not enemies: nothing hits them)
+            .Init("Elysian Cloud", new State(new Drift(0.35, 5)))
+            .Init("Elysian Cloudlet", new State(new Drift(0.5, 4)))
+
             // the guardians, for now: no attacks, and three Trees of Doom when they die
             .Init("Gilded Sphinx", Guardian())
             .Init("Oasis Seraph", Guardian())
