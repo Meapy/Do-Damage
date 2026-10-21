@@ -406,4 +406,80 @@
 			<Boomerang />
 		</Projectile>
 	</Object>
+	<Object type="0x598E" id="Infernal Element">
+		<Class>Character</Class>
+		<MaxHitPoints>100000</MaxHitPoints>
+		<Defense>1000</Defense>
+		<Enemy />
+		<StasisImmune />
+		<Texture>
+			<File>hashCellar8x8</File>
+			<Index>0x3c</Index>
+		</Texture>
+		<Projectile id="0">
+			<ObjectId>Infernal Flame</ObjectId>
+			<Speed>65</Speed>
+			<Damage>60</Damage>
+			<Size>65</Size>
+			<LifetimeMS>2000</LifetimeMS>
+			<MultiHit />
+		</Projectile>
+		<Projectile id="1">
+			<ObjectId>Infernal Flame</ObjectId>
+			<Speed>52</Speed>
+			<Damage>60</Damage>
+			<Size>60</Size>
+			<LifetimeMS>940</LifetimeMS>
+			<MultiHit />
+			<Amplitude>0.3</Amplitude>
+			<Frequency>0.5</Frequency>
+		</Projectile>
+		<Size>130</Size>
+		<XpMult>0.0</XpMult>
+	</Object>
+	<Object type="0x598F" id="Infernal Outer Element">
+		<Class>Character</Class>
+		<MaxHitPoints>100000</MaxHitPoints>
+		<Defense>1000</Defense>
+		<Enemy />
+		<StasisImmune />
+		<Texture>
+			<File>hashCellar8x8</File>
+			<Index>0x3c</Index>
+		</Texture>
+		<Projectile id="0">
+			<ObjectId>Infernal Flame</ObjectId>
+			<Damage>50</Damage>
+			<Size>60</Size>
+			<Speed>80</Speed>
+			<LifetimeMS>620</LifetimeMS>
+			<MultiHit />
+		</Projectile>
+		<Size>130</Size>
+		<XpMult>0.0</XpMult>
+	</Object>
+	<Object type="0x5990" id="Infernal Flame">
+		<Class>Projectile</Class>
+		<Texture>
+			<File>hashCellar8x8</File>
+			<Index>0x3d</Index>
+		</Texture>
+		<AngleCorrection>1</AngleCorrection>
+	</Object>
+	<Object type="0x5991" id="Hellfire Bolt">
+		<Class>Projectile</Class>
+		<Texture>
+			<File>hashCellar8x8</File>
+			<Index>0x3e</Index>
+		</Texture>
+		<AngleCorrection>1</AngleCorrection>
+	</Object>
+	<Object type="0x5992" id="Hellfire Star">
+		<Class>Projectile</Class>
+		<Texture>
+			<File>hashCellar8x8</File>
+			<Index>0x3f</Index>
+		</Texture>
+		<Rotation>100</Rotation>
+	</Object>
 </Objects>

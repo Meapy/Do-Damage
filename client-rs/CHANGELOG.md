@@ -16,7 +16,11 @@ version number itself is in `client-rs/Cargo.toml`.
 - The Hash Cellar (Oryx 4) is rebuilt in the red of fire and doom: new tiles and walls, a winding
   Burning Path through four chambers, and a slightly larger round arena with a couple of lava
   pools, where Oryx now waits in the middle. Oryx 4 himself burns: fiery horns and embers in his
-  armour.
+  armour. Outside the walls a dark molten sea glows instead of black.
+- Oryx 4 now calls his Infernal Court to his side (Infernal Officers and Brimstone Majors) instead
+  of Oryx's minions and Knights of Doom. His blue Guardian Elements are now red Infernal Elements,
+  which circle him properly: four close and four further out, evenly spaced. His first phase's
+  white bolts and green stars are now hellfire.
 - New monsters guard the Hash Cellar's path, the Infernal Court: the Infernal Officer, Brimstone
   Major, Cinder Cleric and Doom Cardinal, Oryx 3's court with Oryx 2's minions' tricks, a little
   tougher, with better drops.

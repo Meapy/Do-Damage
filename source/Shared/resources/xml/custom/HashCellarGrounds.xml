@@ -293,4 +293,13 @@
 			<Index>0x37</Index>
 		</Texture>
 	</Ground>
+	<Ground type="0x591F" id="O4 Molten Abyss">
+		<Texture>
+			<File>hashCellar8x8</File>
+			<Index>0x40</Index>
+		</Texture>
+		<Animate dx=".33" dy=".33">Flow</Animate>
+		<BlendPriority>1</BlendPriority>
+		<NoWalk />
+	</Ground>
 </Grounds>

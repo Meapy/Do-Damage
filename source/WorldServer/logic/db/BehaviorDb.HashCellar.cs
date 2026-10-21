@@ -96,7 +96,32 @@ namespace WorldServer.logic
                     )
                 ),
                 InfernalLoot()
+            )
+
+            // Oryx 4's Artifacts: red Guardian Elements on fixed rings at one speed, so they stay
+            // evenly spaced round him (the inner ones counter to the outer)
+            .Init("Infernal Element",
+                new State(
+                    new ConditionEffectBehavior(ConditionEffectIndex.Invulnerable),
+                    new Orbit(1, InfernalInner, 20, "Oryx the Mad God 4", speedVariance: 0, radiusVariance: 0, orbitClockwise: true),
+                    new Shoot(25, 3, 10, projectileIndex: 0, coolDown: 1000),
+                    new State("Live", new TimedTransition(14000, "Gone")),
+                    new State("Gone", new Suicide())
+                )
+            )
+            .Init("Infernal Outer Element",
+                new State(
+                    new ConditionEffectBehavior(ConditionEffectIndex.Invulnerable),
+                    new Orbit(1.1, InfernalOuter, 25, "Oryx the Mad God 4", speedVariance: 0, radiusVariance: 0, orbitClockwise: false),
+                    new Shoot(6, 2, 20, projectileIndex: 0, coolDown: 900),
+                    new State("Live", new TimedTransition(14000, "Gone")),
+                    new State("Gone", new Suicide())
+                )
             );
+
+        // the Infernal Elements' rings round Oryx 4, in tiles
+        private const double InfernalInner = 2.5;
+        private const double InfernalOuter = 9.5;
 
         // a little better than the Sanctuary court's (CourtLoot)
         private static MobDrops[] InfernalLoot() => new MobDrops[]

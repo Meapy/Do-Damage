@@ -75,7 +75,8 @@ Janus and is sold in the Nexus Bazaar.
   stronger: the Infernal Officer (confusing shuriken), the Brimstone Major (charges, and a cone of
   fire up close), the Cinder Cleric (heals the others and throws blasters: kill it first) and the
   Doom Cardinal (paralysing spears, and a Vintner at its side). Oryx 4 waits in the middle of the
-  Pyre at its end: Oryx 1's fight made harder, with Knights of Doom, six orbiting White Moons and
+  Pyre at its end: Oryx 1's fight made harder, with hellfire, his court called back to his side,
+  red Infernal Elements circling him (four close, four further out), six orbiting White Moons and
   a weakening ring he warns you about. Mind the lava pools on the floor.
 - **Oryx 5** (Doomed Cellar) can't be hurt until the twenty **Trees of Doom** around him are cut
   down, and the castle's Stone Guardians stand with him. Then he cycles fire, a blade charge, star

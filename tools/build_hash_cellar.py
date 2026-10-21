@@ -40,12 +40,8 @@ ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 XML_DIR = os.path.join(ROOT, "source", "Shared", "resources", "xml")
 PROD_XML = os.path.join(XML_DIR, "prod")
 CLIENT = os.path.join(ROOT, "client", "src", "kabam", "rotmg", "assets")
-SOURCE_SHEETS = {
-    "oryxSanctuaryObjects8x8": os.path.join(CLIENT, "prod", "objects", "oryxSanctuaryObjects8x8.png"),
-    "oryxSanctuaryObjects16x16": os.path.join(CLIENT, "prod", "objects", "oryxSanctuaryObjects16x16.png"),
-    "oryxSanctuaryObjects32x32": os.path.join(CLIENT, "prod", "objects", "oryxSanctuaryObjects32x32.png"),
-    "oryxSanctuaryChars16x16": os.path.join(CLIENT, "prod", "objects", "oryxSanctuaryChars16x16.png"),
-}
+MANIFEST = os.path.join(ROOT, "client-rs", "assets", "manifest.json")
+COURT_CHARS = os.path.join(CLIENT, "prod", "objects", "oryxSanctuaryChars16x16.png")
 ORYX_SPRITE = os.path.join(CLIENT, "doomed", "images", "drRemote_draw_935820711.png")
 IMAGES = os.path.join(CLIENT, "custom", "images")
 OUT_MAP = os.path.join(ROOT, "source", "Shared", "resources", "worlds", "Dungeons", "Hash Cellar", "Hash Cellar.jm")
@@ -139,11 +135,16 @@ class Sheet:
         write_png(path, w, h, pix)
 
 
-def sheet_cell(name):
-    for size in (8, 16, 32):
-        if name.endswith("%dx%d" % (size, size)):
-            return size
-    raise ValueError(name)
+def source_sheets():
+    """{sheet name: (png path, cell size)} for the square sheets the clients register."""
+    out = {}
+    for e in json.load(open(MANIFEST, encoding="utf-8"))["image_sets"]:
+        if e["file"] and e["w"] == e["h"] and e["w"] in SHEETS and not e["name"].startswith("hashCellar"):
+            out[e["name"]] = (os.path.join(ROOT, "client", "src", e["file"]), e["w"])
+    return out
+
+
+SOURCE_SHEETS = source_sheets()
 
 
 def retexture(element, sheets, stops):
@@ -152,7 +153,7 @@ def retexture(element, sheets, stops):
         f, i = node.find("File"), node.find("Index")
         if f is None or i is None or f.text not in SOURCE_SHEETS:
             continue
-        size = sheet_cell(f.text)
+        size = SOURCE_SHEETS[f.text][1]
         i.text = "0x%02x" % sheets[size].add(f.text, int(i.text, 0), stops)
         f.text = SHEETS[size][0]
 
@@ -281,6 +282,52 @@ def court(types, chars, sanctuary, cellar):
     return out
 
 
+# Burnt copies of other objects: new id -> (original, ramp, projectile renames). Oryx 4's blue
+# Guardian Elements turn to red Infernal Elements with red flames (their own behaviours, in
+# BehaviorDb.HashCellar.cs), and the white bolts and green stars of his first phase to hellfire
+# (port_doomed.PROJECTILE_OVERRIDES points his projectiles at them).
+RED_RAMP = [(0.0, (24, 2, 2)), (0.3, (110, 8, 8)), (0.6, (200, 24, 16)), (0.85, (255, 64, 32)), (1.0, (255, 120, 64))]
+FIRE_RAMP = [(0.0, (40, 4, 2)), (0.35, (170, 30, 10)), (0.7, (255, 110, 20)), (1.0, (255, 214, 100))]
+BURNT_OBJECTS = {
+    "Infernal Element": ("Guardian Element 1", RED_RAMP, {"White Flame": "Infernal Flame", "White Bullet": "Infernal Flame"}),
+    "Infernal Outer Element": ("Outer Guardian Element", RED_RAMP, {"White Flame": "Infernal Flame"}),
+    "Infernal Flame": ("White Flame", RED_RAMP, {}),
+    "Hellfire Bolt": ("White Bolt", FIRE_RAMP, {}),
+    "Hellfire Star": ("Green Star", FIRE_RAMP, {}),
+}
+# the molten dark beyond the walls: lava's flow, burnt dark, no damage, nobody walks on it
+MOLTEN = "O4 Molten Abyss"
+MOLTEN_RAMP = [(0.0, (10, 2, 2)), (0.4, (44, 8, 6)), (0.7, (96, 18, 10)), (1.0, (168, 52, 18))]
+
+
+def burnt_objects(types, sheets, everything):
+    out = []
+    for name, (orig, stops, renames) in BURNT_OBJECTS.items():
+        e = copy.deepcopy(everything[orig])
+        e.set("type", types.get(name, OBJECT_TYPES))
+        e.set("id", name)
+        for tag in ("DisplayId", "Group"):
+            for n in e.findall(tag):
+                e.remove(n)
+        for oid in e.iter("ObjectId"):
+            oid.text = renames.get(oid.text, oid.text)
+        retexture(e, sheets, stops)
+        out.append(e)
+    return out
+
+
+def molten(types, sheets, lava):
+    e = copy.deepcopy(lava)
+    e.set("type", types.get(MOLTEN, GROUND_TYPES))
+    e.set("id", MOLTEN)
+    for tag in ("MinDamage", "MaxDamage", "Sink", "DisplayId", "Speed"):
+        for n in e.findall(tag):
+            e.remove(n)
+    ET.SubElement(e, "NoWalk")
+    retexture(e, sheets, MOLTEN_RAMP)
+    return e
+
+
 # ------------------------------------------------------------------------------------------------
 # the map
 
@@ -329,7 +376,7 @@ class Grid:
         self.ground[y][x] = ground
 
     def is_floor(self, x, y):
-        return 0 <= x < W and 0 <= y < H and self.ground[y][x] is not None
+        return 0 <= x < W and 0 <= y < H and self.ground[y][x] not in (None, MOLTEN)
 
     def place(self, x, y, obj):
         assert self.is_floor(x, y), (obj, x, y)
@@ -408,7 +455,7 @@ def build_map():
     for (lx, ly), r in LAVA:
         disc(g, lx, ly, r, LAVA_TILE)
 
-    # walls: two tiles thick around every floor tile, arches on the face
+    # walls: two tiles thick around every floor tile, arches on the face; beyond them, molten dark
     walls = {}
     for y in range(H):
         for x in range(W):
@@ -422,6 +469,10 @@ def build_map():
             walls[(x, y)] = ARCH[(x + y) % 2] if face else WALL
     for (x, y), w in walls.items():
         g.obj[y][x] = w
+    for y in range(H):
+        for x in range(W):
+            if g.ground[y][x] is None:
+                g.ground[y][x] = MOLTEN
 
     # --- the Pyre's furnishings ------------------------------------------------------------------
     g.place(ax, ay, "Oryx the Mad God 4")
@@ -543,7 +594,7 @@ def main():
     # every O3 tile and furnishing the map uses, burnt
     o3_grounds = load("Ground", "EmbeddedData_oryxSanctuaryGroundCXML.xml")
     o3_objects = load("Object", "EmbeddedData_oryxSanctuaryObjectsCXML.xml", "EmbeddedData_oryxSanctuaryUObjectsCXML.xml")
-    used_grounds = sorted({t for row in g.ground for t in row if t and t.startswith("O4")})
+    used_grounds = sorted({t for row in g.ground for t in row if t and t.startswith("O4") and t != MOLTEN})
     used_objects = sorted({t for row in g.obj for t in row if t and t.startswith("O4")})
     grounds, objects = [], []
     for name in used_grounds:
@@ -566,8 +617,14 @@ def main():
     cellar = load("Object", "EmbeddedData_OryxWineCellarCXML.xml")
     rows = []
     objects += court(types, rows, o3_objects, cellar)
+    # the moons and hellfire, and the dark beyond the walls
+    everything = load("Object", "EmbeddedData_OryxChamberCXML.xml", "EmbeddedData_ProjectilesCXML.xml")
+    objects += burnt_objects(types, sheets, everything)
+    grounds.append(molten(types, sheets, load("Ground", "EmbeddedData_GroundCXML.xml")[LAVA_TILE]))
 
-    sources = {k: read_png(p) for k, p in SOURCE_SHEETS.items()}
+    used = {src for sh in sheets.values() for src, _, _ in sh.cells}
+    sources = {k: read_png(SOURCE_SHEETS[k][0]) for k in used}
+    sources["oryxSanctuaryChars16x16"] = read_png(COURT_CHARS)
     os.makedirs(IMAGES, exist_ok=True)
     for size, (_, fname) in SHEETS.items():
         sheets[size].write(os.path.join(IMAGES, fname), sources)

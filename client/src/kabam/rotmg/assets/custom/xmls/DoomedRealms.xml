@@ -12813,7 +12813,7 @@
 			<MultiHit />
 		</Projectile>
 		<Projectile id="2">
-			<ObjectId>White Bolt</ObjectId>
+			<ObjectId>Hellfire Bolt</ObjectId>
 			<Speed>80</Speed>
 			<Damage>190</Damage>
 			<LifetimeMS>1600</LifetimeMS>
@@ -12827,7 +12827,7 @@
 			<LifetimeMS>2000</LifetimeMS>
 		</Projectile>
 		<Projectile id="4">
-			<ObjectId>Green Star</ObjectId>
+			<ObjectId>Hellfire Star</ObjectId>
 			<Speed>80</Speed>
 			<Damage>160</Damage>
 			<LifetimeMS>2000</LifetimeMS>
