@@ -194,6 +194,18 @@ class Data:
     def monsters(self):
         return set(self.inits) | set(self.doomed)
 
+    # TierLoot(5, ItemType.Weapon ...) or TierLoot(tier: 5, type: ItemType.Weapon ...)
+    TIER_LOOT = re.compile(r'TierLoot\(\s*(?:tier:\s*)?(\d+)\s*,\s*(?:type:\s*)?ItemType\.(\w+)')
+
+    def _loot_templates(self):
+        """{name: source of its list} for the shared drop lists in MobDrops.cs (LootTemplates:
+        MountainDrop, the godlands gods'; BasicDrop and StrongerDrop, many dungeon bosses')."""
+        if not hasattr(self, "_templates"):
+            with open(os.path.join(LOGIC, "loot", "MobDrops.cs"), encoding="utf-8-sig") as f:
+                text = f.read()
+            self._templates = dict(re.findall(r'public static MobDrops\[\] (\w+)\(\)(.*?)\];', text, re.S))
+        return self._templates
+
     def drops(self, monster, _seen=None):
         """[(kind, id, chance)] a monster drops: kind is 'portal', 'item' or 'tier'. Loot a boss
         leaves in a chest or balloon it turns into or spawns counts as the boss's."""
@@ -218,9 +230,11 @@ class Data:
                 o = self.objects.get(m.group(1))
                 if o and o["class"] == "Portal":
                     out.append(("portal", m.group(1), 1.0))
+            block += "".join(self._loot_templates().get(t, "")
+                             for t in re.findall(r'LootTemplates\.(\w+)\(\)', block))
             for m in re.finditer(r'ItemLoot\(\s*"([^"]+)"\s*,\s*([0-9.]+)', block):
                 out.append(("item", m.group(1), float(m.group(2))))
-            for m in re.finditer(r'TierLoot\(\s*(\d+)\s*,\s*ItemType\.(\w+)', block):
+            for m in self.TIER_LOOT.finditer(block):
                 out.append(("tier", (m.group(2), int(m.group(1))), None))
         block = self.doomed.get(monster)
         if block:

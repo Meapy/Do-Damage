@@ -101,7 +101,8 @@ Things to know when reading it:
   numbers with abilities are out of date for the classes whose ability changed (quivers, tomes,
   helms, shields, seals, poisons, skulls, prisms, scepters, shurikens and lutes). The Ninja's star
   didn't throw then, which is why it added nothing.
-- Pirate has no tiered cannon, so it used the Doom Cannon.
+- Pirate had no tiered cannon then, so it used the Doom Cannon. The cannons were tiered on
+  21 October 2026; the best one now is the Fragment Cannon (T8).
 
 | Class | Weapon | Ability | Armor | Weapon only | With 3 abilities | Change |
 |---|---|---|---|---:|---:|---:|

@@ -9,6 +9,8 @@ refuses while an `Unreleased` one is left, so rename it to `## <version> (<date>
 version number itself is in `client-rs/Cargo.toml`.
 
 ## Unreleased
+- The wiki's gear pages now count the Godlands gods and the many dungeon bosses that share their
+  drop lists among the monsters that drop each tier; they were missing before.
 - Pirate cannons now drop: they had no tier, so no monster ever dropped one. Rusty to Wave Cannon
   are tiers 0 to 5, and Nature, Shade and Fragment Cannon are tiers 6, 7 and 8, with more damage
   and Dexterity, Vitality and Wisdom than before (they were copies of the Wave Cannon). They drop
