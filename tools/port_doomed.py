@@ -414,12 +414,14 @@ MINIGAME_SPAWNS = {"Zombie", "Hell Hound", "Crawler", "Zombie of Draconis", "Reg
 # sprite donors for objects whose remote sprite is gone and whose name matches nothing in betterSkillys
 SPRITE_DONORS = {"Elder Beach Portal": "Beachzone Portal"}
 
-# objects drawn anew here: id -> (sheet, index). Oryx 4 burns (tools/build_hash_cellar.py).
-TEXTURE_OVERRIDES = {"Oryx the Mad God 4": ("hashCellarOryx16x16", 0)}
+# objects drawn anew here: id -> (sheet, index). Oryx 4 burns (tools/build_hash_cellar.py); Oryx 5
+# ascends, in gold and white with a spear (tools/build_elysium.py).
+TEXTURE_OVERRIDES = {"Oryx the Mad God 4": ("hashCellarOryx16x16", 0), "Oryx the Mad God 5": ("elysiumOryx16x16", 0)}
 # projectiles drawn anew: id -> {projectile id: object}. Oryx 4's first phase shoots hellfire.
 PROJECTILE_OVERRIDES = {"Oryx the Mad God 4": {"2": "Hellfire Bolt", "4": "Hellfire Star"}}
 # names for players: each Oryx after the Chamber is named for his theme
-DISPLAY_OVERRIDES = {"Oryx the Mad God 4": "Oryx the Infernal Mad God", "Hash Cellar Incantation": "Oryx's Inferno Incantation"}
+DISPLAY_OVERRIDES = {"Oryx the Mad God 4": "Oryx the Infernal Mad God", "Hash Cellar Incantation": "Oryx's Inferno Incantation",
+                     "Oryx the Mad God 5": "Oryx the Ascended God", "Doomed Cellar Incantation": "Oryx's Elysium Incantation"}
 
 
 # Loot bags (<BagType>): Doomed Realms numbered its bags differently, so its rarest items dropped
@@ -574,14 +576,16 @@ def tune_gear(dr):
 # (incantation, the dungeon it works in, the portal it opens, what it says); the locked portal it
 # opens is the stage's own where INCANTATION_LOCKS names one (tools/build_hash_cellar.py draws them)
 # Oryx 4's dungeon is Oryx's Inferno (the Doomed Realms "Hash Cellar"; port_doomed_worlds.WORLD_NAMES),
-# entered by a burnt Sanctuary portal (tools/build_hash_cellar.py).
+# entered by a burnt Sanctuary portal (tools/build_hash_cellar.py); Oryx 5's is Oryx's Elysium (the
+# "Doomed Cellar"), entered by a gold one (tools/build_elysium.py).
 INCANTATIONS = {
     "Hash Cellar Incantation": ("Oryx's Sanctuary", "Oryx's Inferno Portal",
                                 "Unlocks the portal Oryx leaves behind in his Sanctuary, leading down into Oryx's Inferno."),
-    "Doomed Cellar Incantation": ("Oryx's Inferno", "Doomed Cellar Portal",
-                                  "Unlocks the portal Oryx leaves behind in his Inferno, leading to his last stand in the Doomed Cellar."),
+    "Doomed Cellar Incantation": ("Oryx's Inferno", "Oryx's Elysium Portal",
+                                  "Unlocks the portal Oryx leaves behind in his Inferno, leading up to his last stand in Oryx's Elysium."),
 }
-INCANTATION_LOCKS = {"Hash Cellar Incantation": "Locked Oryx's Inferno Portal"}
+INCANTATION_LOCKS = {"Hash Cellar Incantation": "Locked Oryx's Inferno Portal",
+                     "Doomed Cellar Incantation": "Locked Oryx's Elysium Portal"}
 
 
 def fix_doomed_data(dr):

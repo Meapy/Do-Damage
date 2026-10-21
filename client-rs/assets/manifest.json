@@ -1290,6 +1290,24 @@
    "file": "kabam/rotmg/assets/custom/images/HashCellar32x32.png",
    "w": 32,
    "h": 32
+  },
+  {
+   "name": "elysium8x8",
+   "file": "kabam/rotmg/assets/custom/images/Elysium8x8.png",
+   "w": 8,
+   "h": 8
+  },
+  {
+   "name": "elysium16x16",
+   "file": "kabam/rotmg/assets/custom/images/Elysium16x16.png",
+   "w": 16,
+   "h": 16
+  },
+  {
+   "name": "elysium32x32",
+   "file": "kabam/rotmg/assets/custom/images/Elysium32x32.png",
+   "w": 32,
+   "h": 32
   }
  ],
  "animated_chars": [
@@ -2872,6 +2890,26 @@
    "sheet_w": 112,
    "sheet_h": 16,
    "dir": "down"
+  },
+  {
+   "name": "elysiumChars16x16",
+   "file": "kabam/rotmg/assets/custom/images/ElysiumChars16x16.png",
+   "mask": null,
+   "w": 16,
+   "h": 16,
+   "sheet_w": 112,
+   "sheet_h": 16,
+   "dir": "right"
+  },
+  {
+   "name": "elysiumOryx16x16",
+   "file": "kabam/rotmg/assets/custom/images/ElysiumOryx16x16.png",
+   "mask": null,
+   "w": 16,
+   "h": 16,
+   "sheet_w": 112,
+   "sheet_h": 16,
+   "dir": "down"
   }
  ],
  "models": [
@@ -3132,7 +3170,8 @@
   "kabam/rotmg/assets/custom/xmls/CustomGrounds.xml",
   "kabam/rotmg/assets/custom/xmls/DoomedRealmsGrounds.xml",
   "kabam/rotmg/assets/custom/xmls/ElderGrounds.xml",
-  "kabam/rotmg/assets/custom/xmls/HashCellarGrounds.xml"
+  "kabam/rotmg/assets/custom/xmls/HashCellarGrounds.xml",
+  "kabam/rotmg/assets/custom/xmls/ElysiumGrounds.xml"
  ],
  "object_xml": [
   "kabam/rotmg/assets/custom/xmls/CustomItems.xml",
@@ -3244,7 +3283,8 @@
   "kabam/rotmg/assets/prod/xmls/archbishopObjectsMen.xml",
   "kabam/rotmg/assets/prod/xmls/ancientRuinsObjects.xml",
   "kabam/rotmg/assets/prod/xmls/Skins.xml",
-  "kabam/rotmg/assets/custom/xmls/HashCellarObjects.xml"
+  "kabam/rotmg/assets/custom/xmls/HashCellarObjects.xml",
+  "kabam/rotmg/assets/custom/xmls/ElysiumObjects.xml"
  ],
  "region_xml": [
   "kabam/rotmg/assets/prod/xmls/Regions.xml"

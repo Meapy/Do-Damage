@@ -28,10 +28,10 @@
 		<VisibilityType>1</VisibilityType>
 		<Dungeon/>
 	</World>
-	<World id="Doomed Cellar">
-		<Width>256</Width>
-		<Height>256</Height>
-		<MapJM>Doomed/Doomed Cellar.jm</MapJM>
+	<World id="Oryx's Elysium">
+		<Width>96</Width>
+		<Height>136</Height>
+		<MapJM>Dungeons/Oryx's Elysium/Oryx's Elysium.jm</MapJM>
 		<VisibilityType>1</VisibilityType>
 		<Dungeon/>
 	</World>

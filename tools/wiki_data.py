@@ -526,11 +526,13 @@ class Data:
 
     def incantations(self):
         """{open portal id: [(item id, [dungeons it works in])]}: items that unlock a locked
-        portal (the XML ChangeObject effect on the Locked Wine Cellar Portal)."""
+        portal (the XML ChangeObject effect on a "Locked ..." portal: the Locked Wine Cellar Portal,
+        or a stage's own, such as the Locked Oryx's Inferno Portal)."""
         out = {}
         for oid, o in self.objects.items():
             for a in o["activate_attrs"]:
-                if a["effect"] == "ChangeObject" and a.get("targetId") == "Locked Wine Cellar Portal" and a.get("newId"):
+                if (a["effect"] == "ChangeObject" and (a.get("targetId") or "").startswith("Locked ")
+                        and a.get("newId")):
                     areas = [x.strip() for x in a.get("onlyInArea", "").split(",") if x.strip()]
                     lst = out.setdefault(a["newId"], [])
                     if not any(i == oid for i, _ in lst):

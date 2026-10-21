@@ -11,9 +11,9 @@ namespace WorldServer.core.worlds
     {
         private static readonly (string Dungeon, string Portal, string Item, string Why)[] Sealed =
         {
-            // Oryx the Mad God 5: his drops are being reworked
-            ("Doomed Cellar", "Doomed Cellar Portal", "Doomed Cellar Incantation",
-                "The Doomed Cellar is sealed for now: Oryx the Mad God 5 is being reworked."),
+            // Oryx the Mad God 5: being reworked (his dungeon is rebuilt, his attacks and drops are next)
+            ("Oryx's Elysium", "Oryx's Elysium Portal", "Doomed Cellar Incantation",
+                "Oryx's Elysium is sealed for now: Oryx the Ascended God is being reworked."),
         };
 
         public static string WhyDungeon(string dungeon) =>

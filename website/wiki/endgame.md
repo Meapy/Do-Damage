@@ -4,16 +4,17 @@ nav: 4
 parent: getting-started
 sprite: skull
 eyebrow: Endgame
-summary: From a closing realm down to the Doomed Cellar: every stage, its boss, and which incantation or key opens the next.
+summary: From a closing realm to Oryx's Elysium: every stage, its boss, and which incantation or key opens the next.
 ---
 When a realm closes, Oryx runs. On this server you can follow him a long way: from his Castle
-through his Chamber, his Wine Cellar, the new Oryx's Sanctuary and Oryx's Inferno to the Doomed
-Cellar, the end of the line. Every stage is harder than the last and drops better loot, and every
+through his Chamber, his Wine Cellar, the new Oryx's Sanctuary and Oryx's Inferno up to Oryx's
+Elysium, the end of the line. Every stage is harder than the last and drops better loot, and every
 Oryx's death is announced to the whole server.
 
-> **The Doomed Cellar is sealed for now.** Oryx the Mad God 5's loot is being reworked, so a Doomed
-> Cellar Incantation won't open his portal until he's back (it isn't used up if you try), and the
-> shops don't sell it meanwhile. Keep any you have.
+> **Oryx's Elysium is sealed for now.** Oryx 5 is being reworked (his new island is built; his
+> attacks and loot are next), so an Oryx's Elysium Incantation (the old Doomed Cellar Incantation)
+> won't open his portal until he's back (it isn't used up if you try), and the shops don't sell it
+> meanwhile. Keep any you have.
 
 ## The stages
 
@@ -31,9 +32,9 @@ player, depending on the stage).
    Doorwarden**, who drops the open portal to **Oryx's Chamber**.
 3. From then on, **each Oryx leaves two portals** when he dies, two tiles either side of his loot:
    a **Realm Portal** back out (open for two minutes) and a **locked portal** to the next stage
-   (open for ten). The locked portal's name says where it leads; Oryx 2's and Oryx 3's look like
-   the gateway they open into, still and dark (grey stone for the Sanctuary, charred for the
-   Inferno).
+   (open for ten). The locked portal's name says where it leads; Oryx 2's, Oryx 3's and Oryx 4's
+   look like the gateway they open into, still and dark (grey stone for the Sanctuary, charred for
+   the Inferno, pale stone for the Elysium).
 4. **To open a locked portal**, someone uses the right **incantation** within 25 tiles of it, in
    that Oryx's dungeon. It turns into the open portal for five minutes, and the dungeon is told who
    opened it. Entering the locked portal without one tells you which incantation it needs. An
@@ -81,10 +82,18 @@ Janus and is sold in the Nexus Bazaar.
   hellfire, his court called back to his side, red Infernal Elements circling him (four close,
   four further out), six orbiting White Moons and a weakening ring he warns you about. Mind the
   lava pools on the floor.
-- **Oryx 5** (Doomed Cellar) can't be hurt until the twenty **Trees of Doom** around him are cut
-  down, and the castle's Stone Guardians stand with him. Then he cycles fire, a blade charge, star
-  spirals and new Knights and Trees (each living tree heals him), turns faster below 60% and makes
-  a last stand below 20%.
+- **Oryx 5**, Oryx the Ascended God (Oryx's Elysium): a holy island of gold, marble and turquoise
+  sea, where he wears white and gold and carries a spear. From the Landing the road forks round the
+  island, held by his **Ascended Host**, Oryx 3's court ascended with attacks of their own: the
+  Noble (wavering gold missiles, rings of halos), the Aristocrat (dazing lances that come back), the
+  Sergeant (lines of stakes, the fastest breaking armour), the Officer (silencing rings), the Major
+  (charges behind waves that pass cover), the Deacon (heals the others: kill it first), the Cleric
+  (a dazing nova up close) and the Cardinal (paralysing spears). West, the **Oasis Seraph** waits on
+  the islet in the Oasis; east, the **Gilded Sphinx** sits atop the Pyramid. Each road has three
+  **Trees of Doom** on the way, and each guardian drops three more when it dies: all twelve must
+  fall before the **Holy Gates** to his temple open. Inside, his three **Ascended Wardens** circle
+  him; he wakes when they fall. Then he cycles fire, a blade charge, star spirals and new Knights
+  and Trees (each living tree heals him), turns faster below 60% and makes a last stand below 20%.
 
 ## The loot
 

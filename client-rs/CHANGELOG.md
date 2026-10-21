@@ -9,6 +9,15 @@ refuses while an `Unreleased` one is left, so rename it to `## <version> (<date>
 version number itself is in `client-rs/Cargo.toml`.
 
 ## Unreleased
+- Oryx 5 has ascended: he is now Oryx the Ascended God, in white and gold armour with a spear,
+  and his Doomed Cellar is now Oryx's Elysium, a holy island of gold, marble and turquoise sea. The
+  road forks round the island past his Ascended Host (Oryx 3's court, ascended, with new attacks)
+  to the Oasis and the Pyramid, each with a guardian. Cut down the twelve Trees of Doom (three on
+  each road, and three more from each guardian) to open the Holy Gates to his temple, then kill the
+  three Wardens circling him to wake him. Oryx's Elysium stays sealed while the rest of his
+  rework (his attacks and loot) is finished.
+- The Doomed Cellar Incantation is now the Oryx's Elysium Incantation (any you already have still
+  work), and the locked portal Oryx 4 leaves behind is the Elysium's gateway, pale and still.
 - The locked portals Oryx 2 and Oryx 3 leave behind now look like the gateways they open into,
   dark and still: grey stone for Oryx's Sanctuary, charred red for Oryx's Inferno. They used to
   be the plain locked portal every stage shared.

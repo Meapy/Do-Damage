@@ -10,8 +10,7 @@ namespace WorldServer.logic
         private _ OryxCastle = () => Behav()
             .Init("Oryx Stone Guardian Right",
                 new State(
-                    // stage 1 of the Oryx chain; in the Doomed Cellar they are Oryx 5's honour guard
-                    new BossStats(60000, 45, 1.6, 0.3, world: "Doomed Cellar"),
+                    // stage 1 of the Oryx chain
                     new BossStats(35000, 30, 0.75, 0.25),
                     new State("Idle",
                         new ConditionEffectBehavior(ConditionEffectIndex.Invulnerable),
@@ -71,7 +70,6 @@ namespace WorldServer.logic
             )
             .Init("Oryx Stone Guardian Left",
                 new State(
-                    new BossStats(60000, 45, 1.6, 0.3, world: "Doomed Cellar"),
                     new BossStats(35000, 30, 0.75, 0.25),
                     new State("Start",
                         new ConditionEffectBehavior(ConditionEffectIndex.Invulnerable),

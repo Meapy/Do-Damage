@@ -38,16 +38,25 @@ RS_ONLY_SETS = [
     ("hashCellar8x8", "kabam/rotmg/assets/custom/images/HashCellar8x8.png", 8, 8),
     ("hashCellar16x16", "kabam/rotmg/assets/custom/images/HashCellar16x16.png", 16, 16),
     ("hashCellar32x32", "kabam/rotmg/assets/custom/images/HashCellar32x32.png", 32, 32),
+    # Oryx's Elysium's marble and gold tiles, gates, portals and divine shots (tools/build_elysium.py)
+    ("elysium8x8", "kabam/rotmg/assets/custom/images/Elysium8x8.png", 8, 8),
+    ("elysium16x16", "kabam/rotmg/assets/custom/images/Elysium16x16.png", 16, 16),
+    ("elysium32x32", "kabam/rotmg/assets/custom/images/Elysium32x32.png", 32, 32),
 ]
 # (name, file, frame width, frame height, sheet width, sheet height, direction): characters
 RS_ONLY_CHARS = [
     # Oryx's Inferno's Infernal Court and Oryx 4 (tools/build_hash_cellar.py)
     ("hashCellarChars16x16", "kabam/rotmg/assets/custom/images/HashCellarChars16x16.png", 16, 16, 112, 16, "right"),
     ("hashCellarOryx16x16", "kabam/rotmg/assets/custom/images/HashCellarOryx16x16.png", 16, 16, 112, 16, "down"),
+    # Oryx's Elysium's Ascended Host and guardians, and Oryx 5 (tools/build_elysium.py)
+    ("elysiumChars16x16", "kabam/rotmg/assets/custom/images/ElysiumChars16x16.png", 16, 16, 112, 16, "right"),
+    ("elysiumOryx16x16", "kabam/rotmg/assets/custom/images/ElysiumOryx16x16.png", 16, 16, 112, 16, "down"),
 ]
 # game data only the Rust client loads
-RS_ONLY_GROUND_XML = ["kabam/rotmg/assets/custom/xmls/HashCellarGrounds.xml"]
-RS_ONLY_OBJECT_XML = ["kabam/rotmg/assets/custom/xmls/HashCellarObjects.xml"]
+RS_ONLY_GROUND_XML = ["kabam/rotmg/assets/custom/xmls/HashCellarGrounds.xml",
+                      "kabam/rotmg/assets/custom/xmls/ElysiumGrounds.xml"]
+RS_ONLY_OBJECT_XML = ["kabam/rotmg/assets/custom/xmls/HashCellarObjects.xml",
+                      "kabam/rotmg/assets/custom/xmls/ElysiumObjects.xml"]
 ADD_EMOTE = re.compile(r'addEmote\("((?:[^"\\]|\\.)*)",\s*AssetLibrary\.getImageFromSet\("(\w+)",\s*(\d+)\)(?:,\s*([\d.]+))?')
 
 EMBED_VAR = re.compile(

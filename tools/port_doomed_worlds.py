@@ -68,10 +68,12 @@ PORTED_WORLDS = {
 
 # Ported worlds whose map betterSkillys builds itself (a path under worlds/): the world keeps its
 # Doomed Realms background and portals, the map is the script's. Oryx's Inferno (Oryx 4):
-# tools/build_hash_cellar.py.
-OWN_MAPS = {"Dragonlord": "Dungeons/Oryx's Inferno/Oryx's Inferno.jm"}
-# Ported worlds renamed for players: Oryx 4's Hash Cellar is Oryx's Inferno.
-WORLD_NAMES = {"Dragonlord": "Oryx's Inferno"}
+# tools/build_hash_cellar.py; Oryx's Elysium (Oryx 5): tools/build_elysium.py.
+OWN_MAPS = {"Dragonlord": "Dungeons/Oryx's Inferno/Oryx's Inferno.jm",
+            "Dcellar": "Dungeons/Oryx's Elysium/Oryx's Elysium.jm"}
+# Ported worlds renamed for players: Oryx 4's Hash Cellar is Oryx's Inferno, Oryx 5's Doomed Cellar
+# Oryx's Elysium.
+WORLD_NAMES = {"Dragonlord": "Oryx's Inferno", "Dcellar": "Oryx's Elysium"}
 
 # Elder dungeons Doomed Realms left unfinished (it made their keys, portals and monsters, but no
 # maps): built like its finished ones, from the regular dungeon's maps with every object that has

@@ -7,8 +7,8 @@ using WorldServer.core.worlds;
 namespace WorldServer.logic
 {
     // The last two stages of the Oryx chain, from Doomed Realms: Oryx the Mad God 4 in Oryx's Inferno
-    // and Oryx the Mad God 5 in the Doomed Cellar. These replace the generated Doomed Realms versions
-    // (InitDoomed), whose Oryx 4 stuck in its first ring phase for good.
+    // and Oryx the Mad God 5 in Oryx's Elysium (the Doomed Realms "Doomed Cellar"). These replace the
+    // generated Doomed Realms versions (InitDoomed), whose Oryx 4 stuck in its first ring phase for good.
     partial class BehaviorDb
     {
         private _ OryxDoomed = () => Behav()
@@ -17,13 +17,13 @@ namespace WorldServer.logic
             .Init("Oryx the Mad God 4",
                 new State(
                     new BossStats(240000, 50, 1.0, 0.3),
-                    new DropPortalOnDeath("Locked Wine Cellar Portal", 1.0, timeout: 600, xAdjustment: 2,
-                        name: "Locked: Doomed Cellar", lockedHint: SealedDungeons.WhyDungeon("Doomed Cellar")
-                            ?? "This portal is locked. Use a Doomed Cellar Incantation beside it to open it."),
+                    new DropPortalOnDeath("Locked Oryx's Elysium Portal", 1.0, timeout: 600, xAdjustment: 2,
+                        name: "Locked: Oryx's Elysium", lockedHint: SealedDungeons.WhyDungeon("Oryx's Elysium")
+                            ?? "This portal is locked. Use an Oryx's Elysium Incantation beside it to open it."),
                     new DropPortalOnDeath("Realm Portal", 1.0, timeout: 120, xAdjustment: -2),
-                    new AnnounceOnDeath(SealedDungeons.WhyDungeon("Doomed Cellar") != null
-                        ? "{PL_LIST} burned Oryx the Infernal Mad God out of his Inferno! He flees to the Doomed Cellar, sealed for now..."
-                        : "{PL_LIST} burned Oryx the Infernal Mad God out of his Inferno! He makes his last stand in the Doomed Cellar, sealed by a Doomed Cellar Incantation..."),
+                    new AnnounceOnDeath(SealedDungeons.WhyDungeon("Oryx's Elysium") != null
+                        ? "{PL_LIST} burned Oryx the Infernal Mad God out of his Inferno! He rises to his Elysium, sealed for now..."
+                        : "{PL_LIST} burned Oryx the Infernal Mad God out of his Inferno! He rises to his Elysium, sealed by an Oryx's Elysium Incantation..."),
                     new State("Dormant",
                         new ConditionEffectBehavior(ConditionEffectIndex.Invulnerable),
                         new PlayerWithinTransition(15, "Awaken")
@@ -183,26 +183,24 @@ namespace WorldServer.logic
                 )
             )
 
-            // Stage 7, the finale. Invulnerable until his Trees of Doom fall; the Stone Guardians from
-            // the castle stand beside him (BossStats gives them Doomed Cellar stats).
+            // Stage 7, the finale: Oryx the Ascended God, in the temple at the top of his Elysium. Asleep
+            // behind the Holy Gates until the Gate Watcher opens them (the island's Trees of Doom and
+            // guardians are gone: BehaviorDb.Elysium.cs), then invulnerable until his three Ascended
+            // Wardens fall.
             .Init("Oryx the Mad God 5",
                 new State(
                     new BossStats(320000, 55, 0.8, 0.35),
                     new DropPortalOnDeath("Realm Portal", 1.0, timeout: 120, xAdjustment: 2),
-                    new AnnounceOnDeath("{PL_LIST} vanquished Oryx the Mad God in the Doomed Cellar! The Realm is free... for now."),
+                    new AnnounceOnDeath("{PL_LIST} cast down Oryx the Ascended God in his Elysium! The Realm is free... for now."),
                     new State("Dormant",
                         new ConditionEffectBehavior(ConditionEffectIndex.Invulnerable),
-                        new PlayerWithinTransition(20, "Trees")
+                        new PlayerWithinTransition(18, "Wardens")
                     ),
-                    new State("Trees",
+                    new State("Wardens",
                         new ConditionEffectBehavior(ConditionEffectIndex.Invulnerable),
-                        new Taunt(true, "How DARE you follow me here! My Trees of Doom will keep me whole forever."),
+                        new Taunt(true, "My Holy Gates open. Come, then, and kneel... if my Wardens let you."),
                         new Shoot(15, 3, 12, projectileIndex: 0, predictive: 0.4, coolDown: 2000),
-                        new State("Trees Wait", new TimedTransition(3000, "Trees Watch")),
-                        // the twenty trees stand all over the cellar, in its gardens and side rooms too
-                        new State("Trees Watch",
-                            new Taunt(true, 20000, "My Trees of Doom still stand! Search my cellar for them, if you dare."),
-                            new EntitiesNotExistsTransition(60, "Awaken 1", "Tree of Doom"))
+                        new EntitiesNotExistsTransition(40, "Awaken 1", "Ascended Warden")
                     ),
                     new State("Awaken 1",
                         new ConditionEffectBehavior(ConditionEffectIndex.Invulnerable),

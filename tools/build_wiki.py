@@ -283,7 +283,7 @@ BOSS_OVERRIDE = {"Tomb of the Ancients": "Tomb Defender", "Elder Tomb of the Anc
 BOSS_PROPS = re.compile(r"Spawner|spawner|Wall|Sarcophagus|Present|Chest|Anchor|Gate|Tooky|Totem$")
 EQUIP_SLOTS = set(wd.SLOT_NAMES)
 ORYX_CHAIN = ["Oryx's Castle", "Oryx's Chamber", "Chicken Chamber", "Wine Cellar", "Oryx's Sanctuary",
-              "Oryx's Inferno", "Doomed Cellar"]
+              "Oryx's Inferno", "Oryx's Elysium"]
 SKIP_WORLDS = {"Admin Room", "Admin Arena", "Shop", "?????", "Lair of Shaitan New Auru", "Battle Arena",
                "Free Battle Arena"}
 # difficulty from the boss's health: the upper bound of each of six steps
@@ -539,7 +539,8 @@ class Gen:
         d = self.d
         bot = set(self.bot["portals"])
         out = []
-        locked_by = self.idx.get("Locked Wine Cellar Portal", [])
+        # the bosses that drop a locked portal (the shared one, or a stage's own)
+        locked_by = [mc for oid in d.objects if oid.startswith("Locked ") for mc in self.idx.get(oid, [])]
         for wid, w in d.worlds.items():
             if wid in SKIP_WORLDS:
                 continue

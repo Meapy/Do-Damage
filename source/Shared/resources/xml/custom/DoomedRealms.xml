@@ -13004,6 +13004,7 @@
 		</Texture>
 	</Object>
 	<Object type="0xD2C6" id="Doomed Cellar Incantation">
+		<DisplayId>Oryx's Elysium Incantation</DisplayId>
 		<Class>Equipment</Class>
 		<Item />
 		<Key>1000</Key>
@@ -13012,15 +13013,15 @@
 			<Index>0x14b</Index>
 		</Texture>
 		<SlotType>10</SlotType>
-		<Description>Unlocks the portal Oryx leaves behind in his Inferno, leading to his last stand in the Doomed Cellar.</Description>
+		<Description>Unlocks the portal Oryx leaves behind in his Inferno, leading up to his last stand in Oryx's Elysium.</Description>
 		<Sound>use_key</Sound>
 		<Consumable />
-		<Activate radius="25" targetId="Locked Wine Cellar Portal" newId="Doomed Cellar Portal" onlyInArea="Oryx's Inferno" customString="Doomed Cellar unlocked by">ChangeObject</Activate>
+		<Activate radius="25" targetId="Locked Oryx's Elysium Portal" newId="Oryx's Elysium Portal" onlyInArea="Oryx's Inferno" customString="Oryx's Elysium unlocked by">ChangeObject</Activate>
 	</Object>
 	<Object type="0xD2C7" id="Doomed Cellar Portal">
 		<Class>Portal</Class>
 		<IntergamePortal />
-		<DungeonName>Doomed Cellar</DungeonName>
+		<DungeonName>Oryx's Elysium</DungeonName>
 		<Texture>
 			<File>drRemote_draw_16642062</File>
 			<Index>0</Index>
@@ -17755,13 +17756,13 @@
 		<XpBonus>2</XpBonus>
 	</Object>
 	<Object type="0xD35B" id="Oryx the Mad God 5">
-		<DisplayId>Oryx the Mad God</DisplayId>
+		<DisplayId>Oryx the Ascended God</DisplayId>
 		<ShowName />
 		<Enemy />
 		<Class>Character</Class>
 		<AnimatedTexture>
-			<File>drChars16x16dEncounters2</File>
-			<Index>37</Index>
+			<File>elysiumOryx16x16</File>
+			<Index>0</Index>
 		</AnimatedTexture>
 		<HitSound>monster/oryx_hit</HitSound>
 		<DeathSound>monster/oryx_death</DeathSound>
