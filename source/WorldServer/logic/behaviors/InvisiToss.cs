@@ -44,6 +44,7 @@ namespace WorldServer.logic.behaviors
                 entity.Move(target.X, target.Y);
                 (entity as Enemy).Terrain = (host as Enemy).Terrain;
 
+                entity.SummonedBy(host);
                 host.World.EnterWorld(entity);
 
                 cool = coolDown.Next(Random);

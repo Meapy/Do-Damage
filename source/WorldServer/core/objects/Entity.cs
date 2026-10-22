@@ -47,6 +47,12 @@ namespace WorldServer.core.objects
         public bool StatsTunedForWorld { get; set; }
         public bool Spawned { get; set; }
         public bool SpawnedByBehavior { get; set; }
+        // Brought in by the behaviours (Spawn, TossObject, Transform...) of a damage event's enemy, or
+        // of something it brought in: its attacks are softened with theirs (DamageEvent).
+        public bool DamageEventSummon { get; private set; }
+
+        public void SummonedBy(Entity host) =>
+            DamageEventSummon = host.DamageEventSummon || GameServer.DamageEvent.Names(host.ObjectType);
 
         public bool Dead { get; protected set; }
 

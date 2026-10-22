@@ -162,6 +162,7 @@ namespace WorldServer.logic.doomed
             if (entity is Enemy child && parent is Enemy enemyParent && enemyParent.Spawned)
                 child.Spawned = true;
             entity.Move(x, y);
+            entity.SummonedBy(parent);
             parent.World.EnterWorld(entity);
             return entity;
         }

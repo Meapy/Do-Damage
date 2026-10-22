@@ -36,6 +36,7 @@ namespace WorldServer.logic.behaviors
                     continue;
                 var entity = Entity.Resolve(host.GameServer, _child);
                 entity.Move(x, y);
+                entity.SummonedBy(host);
                 host.World.EnterWorld(entity);
             }
         }

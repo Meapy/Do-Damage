@@ -3,12 +3,13 @@ using Shared.resources;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using WorldServer.core.objects;
 
 namespace WorldServer.core
 {
     // A server-wide event that makes some enemies hit softer (serverSettings.damageEvent and
-    // damageEventEnemies): their shots, bombs and grenades deal that much less damage. The Nexus
-    // tells players when it's on.
+    // damageEventEnemies): their shots, bombs and grenades deal that much less damage, and so do
+    // those of everything they summon. The Nexus tells players when it's on.
     public sealed class DamageEvent
     {
         private readonly HashSet<ushort> Enemies = new HashSet<ushort>();
@@ -43,8 +44,12 @@ namespace WorldServer.core
 
         public bool Active => Enemies.Count > 0;
 
-        // The damage an enemy of this type deals while the event is on.
-        public int Apply(ushort enemyType, int damage) =>
-            Enemies.Contains(enemyType) ? (int)Math.Round(damage * Multiplier) : damage;
+        // Whether the event names enemies of this type.
+        public bool Names(ushort enemyType) => Enemies.Contains(enemyType);
+
+        // The damage this enemy deals while the event is on: one it names, or anything their
+        // behaviours brought in (Entity.DamageEventSummon); not the same monsters placed by the map.
+        public int Apply(Entity host, int damage) =>
+            host != null && (host.DamageEventSummon || Names(host.ObjectType)) ? (int)Math.Round(damage * Multiplier) : damage;
     }
 }

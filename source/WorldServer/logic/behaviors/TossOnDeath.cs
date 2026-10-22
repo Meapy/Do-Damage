@@ -44,6 +44,7 @@ namespace WorldServer.logic.behaviors
                 });
                 var entity = Entity.Resolve(host.GameServer, _child);
                 entity.Move(x, y);
+                entity.SummonedBy(host);
                 world.EnterWorld(entity);
             }
         }

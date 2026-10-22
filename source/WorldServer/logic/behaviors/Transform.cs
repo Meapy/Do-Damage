@@ -27,6 +27,7 @@ namespace WorldServer.logic.behaviors
                 (entity as Enemy).ApplyPermanentConditionEffect(ConditionEffectIndex.Invisible);
             }
 
+            entity.SummonedBy(host);
             host.World.EnterWorld(entity);
             host.World.LeaveWorld(host);
         }

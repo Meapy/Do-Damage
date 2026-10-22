@@ -195,6 +195,7 @@ namespace WorldServer.logic.behaviors
                             }
                         }
 
+                        entity.SummonedBy(host);
                         world.EnterWorld(entity);
                     });
                     cool = _coolDown.Next(Random);

@@ -122,7 +122,9 @@ Janus and is sold in the Nexus Bazaar.
     hatches an **Ichor Sprite**: it has little health, and its shots barely hurt but slow you.
 
 While the **Oryx 4 and Oryx 5 event** is on, Oryx the Infernal Mad God and Oryx the Ascended God
-deal 20% less damage with their shots and bombs (their minions hit as hard as ever). The Nexus
+deal 20% less damage with their shots and bombs, and so does everything they bring into the
+fight: the court they summon, Oryx 4's elements and moons, and Oryx 5's stars, Halo Orbs, Pillars
+of Heaven and Ichor Sprites. The monsters in the rooms on the way hit as hard as ever. The Nexus
 tells you when you arrive if it's on.
 
 ## The loot

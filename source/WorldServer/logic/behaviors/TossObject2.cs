@@ -67,6 +67,7 @@ namespace WorldServer.logic.behaviors
                     if (entity is Enemy && host is Enemy)
                         (entity as Enemy).Terrain = (host as Enemy).Terrain;
 
+                    entity.SummonedBy(host);
                     world.EnterWorld(entity);
                 });
 

@@ -53,6 +53,7 @@ namespace WorldServer.logic.behaviors
                     }
                 }
 
+                entity.SummonedBy(host);
                 host.World.EnterWorld(entity);
             }
         }
@@ -89,6 +90,7 @@ namespace WorldServer.logic.behaviors
                     }
                 }
 
+                entity.SummonedBy(host);
                 host.World.EnterWorld(entity);
 
                 spawn.RemainingTime = coolDown.Next(Random);

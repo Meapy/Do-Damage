@@ -336,7 +336,7 @@ namespace WorldServer.core.objects
             if (IsInvulnerable)
                 return;
 
-            dmg = GameServer.DamageEvent.Apply(src.ObjectType, dmg);
+            dmg = GameServer.DamageEvent.Apply(src, dmg);
             dmg = (int)Stats.GetDefenseDamage(dmg, false);
             if (!HasConditionEffect(ConditionEffectIndex.Invulnerable))
                 Health -= dmg;

@@ -167,9 +167,9 @@ namespace WorldServer.core.worlds
         public void BroadcastIfVisible(OutgoingMessage outgoingMessage, Entity host)
         {
             if (outgoingMessage is EnemyShootMessage enemyShoot)
-                enemyShoot.Damage = GameServer.DamageEvent.Apply(host.ObjectType, enemyShoot.Damage);
+                enemyShoot.Damage = GameServer.DamageEvent.Apply(host, enemyShoot.Damage);
             else if (outgoingMessage is AoeMessage aoe)
-                aoe.Damage = GameServer.DamageEvent.Apply(host.ObjectType, aoe.Damage);
+                aoe.Damage = GameServer.DamageEvent.Apply(host, aoe.Damage);
             foreach (var player in Players.Values)
                 if (player.SqDistTo(host) < CULL_RANGE * CULL_RANGE)
                 {
@@ -181,7 +181,7 @@ namespace WorldServer.core.worlds
 
         public void BroadcastEnemyShootIfVisible(EnemyShootMessage enemyShoot, Entity host)
         {
-            enemyShoot.Damage = GameServer.DamageEvent.Apply(host.ObjectType, enemyShoot.Damage);
+            enemyShoot.Damage = GameServer.DamageEvent.Apply(host, enemyShoot.Damage);
             foreach (var player in Players.Values)
                 if (player.SqDistTo(host) < CULL_RANGE * CULL_RANGE)
                 {

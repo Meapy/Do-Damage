@@ -103,6 +103,7 @@ namespace WorldServer.logic.behaviors
                             }
                         }
 
+                        entity.SummonedBy(host);
                         host.World.EnterWorld(entity);
                     }
 
