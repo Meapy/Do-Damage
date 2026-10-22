@@ -97,6 +97,21 @@ fn parse_int(s: &str) -> Option<i64> {
     }
 }
 
+/// An `<Equipment>` list: item types, -1 for an empty slot. Types are 16-bit: the server writes
+/// the legends' as signed numbers, so the types from 0x8000 up (the Doomed Realms items) come as
+/// negative ones, and empty slots as 65535 or -1.
+fn parse_items(list: Option<&str>) -> Vec<i32> {
+    list.map(|l| {
+        l.split(',')
+            .map(|i| match parse_int(i).map(|v| v as u16) {
+                Some(t) if t != 0xFFFF => t as i32,
+                _ => -1,
+            })
+            .collect()
+    })
+    .unwrap_or_default()
+}
+
 /// `/char/list`.
 pub fn parse_char_list(xml: &str) -> Result<CharList, String> {
     if let Some(e) = error_text(xml) {
@@ -118,9 +133,7 @@ pub fn parse_char_list(xml: &str) -> Result<CharList, String> {
             dead: child_text(c, "Dead").is_some_and(|d| d.eq_ignore_ascii_case("true")),
             exp: int("Exp") as i32,
             fame: int("CurrentFame") as i32,
-            equipment: child_text(c, "Equipment")
-                .map(|e| e.split(',').map(|i| parse_int(i).unwrap_or(-1) as i32).collect())
-                .unwrap_or_default(),
+            equipment: parse_items(child_text(c, "Equipment")),
             tex1: int("Tex1") as i32,
             tex2: int("Tex2") as i32,
             skin: int("Texture") as i32,
@@ -206,9 +219,7 @@ pub fn parse_fame_list(xml: &str) -> Result<Vec<Legend>, String> {
                 tex1: int("Tex1") as i32,
                 tex2: int("Tex2") as i32,
                 skin: int("Texture") as i32,
-                equipment: child_text(e, "Equipment")
-                    .map(|q| q.split(',').map(|i| parse_int(i).unwrap_or(-1) as i32).collect())
-                    .unwrap_or_default(),
+                equipment: parse_items(child_text(e, "Equipment")),
                 total_fame: int("TotalFame") as i32,
             }
         })
@@ -445,11 +456,13 @@ mod tests {
 
         let legends = parse_fame_list(
             r#"<FameList timespan="week"><FameListElem accountId="1" charId="4"><Name>Bob</Name>
-            <ObjectType>782</ObjectType><Equipment>2580, -1</Equipment><TotalFame>120</TotalFame>
+            <ObjectType>782</ObjectType><Equipment>2580, -1, -12286, 65535</Equipment><TotalFame>120</TotalFame>
             </FameListElem></FameList>"#,
         )
         .unwrap();
         assert_eq!((legends[0].name.as_str(), legends[0].char_id, legends[0].total_fame), ("Bob", 4, 120));
+        // The server writes the legends' items as signed numbers: -12286 is 0xD002.
+        assert_eq!(legends[0].equipment, vec![2580, -1, 0xD002, -1]);
 
         let fame = parse_char_fame(
             r#"<Fame><Char id="4"><ObjectType>782</ObjectType><Level>20</Level></Char><BaseFame>100</BaseFame>

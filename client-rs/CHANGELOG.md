@@ -9,6 +9,7 @@ refuses while an `Unreleased` one is left, so rename it to `## <version> (<date>
 version number itself is in `client-rs/Cargo.toml`.
 
 ## Unreleased
+- Legends: characters wearing Doomed Realms gear show all their items again, not empty slots.
 - Oryx the Ascended God: in his Last Judgement every second volley of his slowed Radiant Cross is
   turned to fall between the last one's lines (and they come a touch further apart), so you have
   to keep moving. When he concedes he falls back through every Oryx he was, from Oryx 4 down to a
