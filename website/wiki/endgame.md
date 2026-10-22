@@ -121,6 +121,10 @@ Janus and is sold in the Nexus Bazaar.
   - Below 90%, every second time he changes pattern he throws two splats of **Divine Ichor**. Each
     hatches an **Ichor Sprite**: it has little health, and its shots barely hurt but slow you.
 
+While the **Oryx 4 and Oryx 5 event** is on, Oryx the Infernal Mad God and Oryx the Ascended God
+deal 20% less damage with their shots and bombs (their minions hit as hard as ever). The Nexus
+tells you when you arrive if it's on.
+
 ## The loot
 
 Loot rises with each stage: more stat potions, more Potions of Life and Mana, and higher-tier gear,

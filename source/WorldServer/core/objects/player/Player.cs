@@ -336,6 +336,7 @@ namespace WorldServer.core.objects
             if (IsInvulnerable)
                 return;
 
+            dmg = GameServer.DamageEvent.Apply(src.ObjectType, dmg);
             dmg = (int)Stats.GetDefenseDamage(dmg, false);
             if (!HasConditionEffect(ConditionEffectIndex.Invulnerable))
                 Health -= dmg;
@@ -398,6 +399,8 @@ namespace WorldServer.core.objects
                         SendInfo($"A server wide event is giving you a {Math.Round(settings.lootEvent * 100, 0)}% loot boost.");
                 if (owner.isWeekend)
                     SendInfo($"It's the weekend! You've been given an additional {Math.Round(settings.wkndBoost * 100, 0)}% loot boost.");
+                if (GameServer.DamageEvent.Active)
+                    SendInfo(GameServer.DamageEvent.Message);
             }
 
             ResetNewbiePeriod();

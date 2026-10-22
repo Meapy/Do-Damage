@@ -28,6 +28,7 @@ namespace WorldServer.core
         public string InstanceId { get; private set; }
         public ServerConfig Configuration { get; private set; }
         public Resources Resources { get; private set; }
+        public DamageEvent DamageEvent { get; private set; }
         public Database Database { get; private set; }
         public MarketSweeper MarketSweeper { get; private set; }
         public ConnectionManager ConnectionManager { get; private set; }
@@ -62,6 +63,7 @@ namespace WorldServer.core
             ThreadPool.SetMinThreads(250, completionPortThreads);
 
             Resources = new Resources(Configuration.serverSettings.resourceFolder, true, true);
+            DamageEvent = new DamageEvent(Configuration.serverSettings, Resources.GameData);
             Database = new Database(Resources, Configuration);
             MarketSweeper = new MarketSweeper(Database);
             ConnectionManager = new ConnectionManager(this);

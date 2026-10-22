@@ -9,6 +9,8 @@ refuses while an `Unreleased` one is left, so rename it to `## <version> (<date>
 version number itself is in `client-rs/Cargo.toml`.
 
 ## Unreleased
+- Oryx 4 and Oryx 5 event: while it's on, Oryx the Infernal Mad God and Oryx the Ascended God
+  deal 20% less damage, and the Nexus tells you so when you arrive.
 - Legends: characters wearing Doomed Realms gear show all their items again, not empty slots.
 - Oryx the Ascended God: in his Last Judgement every second volley of his slowed Radiant Cross is
   turned to fall between the last one's lines (and they come a touch further apart), so you have

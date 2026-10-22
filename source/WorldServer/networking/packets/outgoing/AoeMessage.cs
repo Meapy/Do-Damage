@@ -9,7 +9,7 @@ namespace WorldServer.networking.packets.outgoing
     {
         private readonly Position Pos;
         private readonly float Radius;
-        private readonly int Damage;
+        public int Damage { get; set; }
         private readonly ConditionEffectIndex Effect;
         private readonly float Duration;
         private readonly ushort OrigType;

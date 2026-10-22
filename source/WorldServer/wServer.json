@@ -29,6 +29,8 @@
         "lootEvent": 0.25,
         "expEvent": 0.25,
         "wkndBoost": 0.3,
+        "damageEvent": 0.2,
+        "damageEventEnemies": [ "Oryx the Mad God 4", "Oryx the Ascended God" ],
         "mapEvent": "Halloween"
     }
 }

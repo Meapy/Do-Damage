@@ -10,6 +10,10 @@ namespace Shared
         public double lootEvent { get; set; } = 0; // .5 gives 50%
         public double expEvent { get; set; } = 0;
         public double wkndBoost { get; set; } = 0.30;
+        // A damage event: the enemies named (object ids) deal this much less damage, .2 is 20%
+        // (WorldServer/core/DamageEvent.cs). 0: none.
+        public double damageEvent { get; set; } = 0;
+        public string[] damageEventEnemies { get; set; } = new string[] { };
         public string logFolder { get; set; } = "undefined";
         public int maxConnections { get; set; } = 0;
         public int maxPlayers { get; set; } = 0;
