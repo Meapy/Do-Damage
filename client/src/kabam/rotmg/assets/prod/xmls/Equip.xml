@@ -2170,7 +2170,6 @@
 			<Index>0x54</Index>
 		</Texture>
 		<SlotType>2</SlotType>
-		<Legendary/>
 		<Description>This legendary dagger was commissioned by a band of mad rogues to prove the worth of the Dirk.</Description>
 		<RateOfFire>0.9</RateOfFire>
 		<Sound>weapon/fire_dagger</Sound>
@@ -7532,7 +7531,6 @@
 			<Index>0x1d</Index>
 		</Texture>
 		<SlotType>2</SlotType>
-		<Ethereal/>
 		<Description>A chicken leg of doom.</Description>
 		<RateOfFire>0.9</RateOfFire>
 		<Sound>weapon/dirk</Sound>
@@ -8197,7 +8195,6 @@
 			<Index>0xc9</Index>
 		</Texture>
 		<SlotType>2</SlotType>
-		<Ascended/>
 		<Description>A dagger that was condemned to Davy Jones' Locker.</Description>
 		<RateOfFire>1</RateOfFire>
 		<Sound>weapon/dirk</Sound>
@@ -10932,7 +10929,6 @@
 			<Index>0x42c</Index>
 		</Texture>
 		<SlotType>2</SlotType>
-		<Ethereal/>
 		<Description>Forged from sunshine, baby smiles, and the sparkle from unicorns.</Description>
 		<RateOfFire>0.5</RateOfFire>
 		<Sound>weapon/fire_dagger</Sound>
@@ -11465,7 +11461,6 @@
 			<Index>0x4CE</Index>
 		</Texture>
 		<SlotType>2</SlotType>
-		<Ascended/>
 		<Description>A dagger imbued with Amethyst magic to protect its owner from harm.</Description>
 		<RateOfFire>1</RateOfFire>
 		<Sound>weapon/fire_dagger</Sound>
@@ -11596,7 +11591,6 @@
 			<Index>0x4D3</Index>
 		</Texture>
 		<SlotType>2</SlotType>
-		<Ethereal/>
 		<Description>This was all the rage a few Winter Solstices ago.</Description>
 		<RateOfFire>0.75</RateOfFire>
 		<Sound>weapon/fire_dagger</Sound>
@@ -14643,7 +14637,6 @@
 			<Index>0x21</Index>
 		</Texture>
 		<SlotType>2</SlotType>
-		<Ethereal/>
 		<RateOfFire>1</RateOfFire>
 		<Description>The blade of this dagger was once the enormous Killer Bee Queen's stinger. It remains exceptionally sharp, and could easily cut through even the heaviest of armor in a single strike.</Description>
 		<OldSound>bladeSwing</OldSound>
@@ -21364,6 +21357,7 @@
 		<Soulbound/>
 	</Object>
 	<Object type="0x580" id="Corruption Cutter">
+		<DisplayId>Infernal Bloodletter</DisplayId>
 		<Class>Equipment</Class>
 		<Item/>
 		<Texture>
@@ -21371,8 +21365,10 @@
 			<Index>0x4b</Index>
 		</Texture>
 		<SlotType>2</SlotType>
-		<Legendary/>
-		<Description>A fragment of Lord Ruthven's curse manifest itself into this pulsating dagger. Its formless state allows it to cut in ways no other weapon could.</Description>
+		<Description>A fragment of Lord Ruthven's curse, burnt in the fires of Oryx's Inferno. Its formless blade cuts deep: each hit leaves the enemy bleeding for 120 damage over 3 seconds.</Description>
+		<ExtraTooltipData>
+			<EffectInfo name="Bleed" description="Each hit makes the enemy bleed for 120 damage over 3 seconds"/>
+		</ExtraTooltipData>
 		<RateOfFire>1.3</RateOfFire>
 		<Sound>weapon/fire_dagger</Sound>
 		<Projectile>
@@ -21385,6 +21381,7 @@
 			<Frequency>0.7</Frequency>
 			<Size>80</Size>
 			<Wavy/>
+			<Bleed duration="3">120</Bleed>
 		</Projectile>
 		<NumProjectiles>2</NumProjectiles>
 		<ArcGap>20</ArcGap>
@@ -23812,7 +23809,6 @@
 			<Index>0x17d</Index>
 		</Texture>
 		<SlotType>2</SlotType>
-		<Ascended/>
 		<Description>A short lived dirk which saw little use in the hands of a quickly slain adventurer, too lucky for their own good. Knowing its purpose was left unfulfilled, it seeks to eliminate the evil chicken menace from beyond the grave.\n\nSprite Credits: Aurum</Description>
 		<RateOfFire>0.9</RateOfFire>
 		<Sound>weapon/fire_dagger</Sound>

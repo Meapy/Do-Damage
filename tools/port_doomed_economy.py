@@ -40,9 +40,9 @@ PET_PRICE = 1250  # Doomed Realms sold them for no price; betterSkillys' pet gen
 DEFAULT_SHOP = "abilities"
 # items no shop sells: pets taken out of the game (whoever has one keeps it), and from the rings
 # pass (SETUP-LOCAL.md, "Untiered rings") the admin items, the reward rings and the Amulet of
-# Dispersion, which drops in the Haunted Cemetery instead
+# Dispersion, which drops in the Haunted Cemetery instead, and (the daggers pass) the Dirk of Cronus
 NOT_SOLD = {"Twilight Generator", "Dinosaur's Pet Generator", "Crown", "God Rushing", "America Ring",
-            "Amulet of Resurrection"}
+            "Amulet of Resurrection", "Dirk of Cronus"}
 # results the Divine Forge doesn't make: the admin items
 NOT_FORGED = {"Crown"}
 

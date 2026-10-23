@@ -190,6 +190,7 @@ namespace WorldServer.logic
                     new ItemLoot("Burning Amulet", 0.012),
                     new ItemLoot("Gem of Adoration", 0.012),
                     new ItemLoot("Gem of Tenderness", 0.012),
+                    new ItemLoot("Corruption Cutter", 0.012),
                     new ItemLoot("Doom Poison", 0.003)
                 ),
                 // 5% of the damage: the gear

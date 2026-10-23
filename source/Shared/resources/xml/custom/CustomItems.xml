@@ -219,7 +219,6 @@
 			<Index>0x10</Index>
 		</Texture>
 		<SlotType>2</SlotType>
-		<Ethereal/>
 		<Description>A legendary blade perfected through masterful craftsmanship. It no longer merely proves the Dirk's worth—it embodies its ultimate supremacy.</Description>
 		<RateOfFire>0.95</RateOfFire>
 		<Sound>weapon/fire_dagger</Sound>

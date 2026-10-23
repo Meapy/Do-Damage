@@ -133,7 +133,8 @@ namespace WorldServer.logic
             new ItemLoot("Greater Potion of Life", 0.01),
             new TierLoot(13, ItemType.Weapon, 0.04),
             new TierLoot(13, ItemType.Armor, 0.04),
-            new TierLoot(5, ItemType.Ability, 0.04)
+            new TierLoot(5, ItemType.Ability, 0.04),
+            new ItemLoot("Bounty Hunter's Dagger", 0.001)
         };
     }
 }

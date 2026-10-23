@@ -9,6 +9,20 @@ refuses while an `Unreleased` one is left, so rename it to `## <version> (<date>
 version number itself is in `client-rs/Cargo.toml`.
 
 ## Unreleased
+- Untiered daggers: Esben drops An Icicle, Oryx the Celestial Mad God (Oryx 3) Avarice, the
+  Crystal Prisoner the Crystal Dagger, and the monsters in Oryx 3's, Oryx 4's and Oryx 5's
+  dungeons now and then the Bounty Hunter's Dagger. Oryx 3 no longer drops the Doom Dirk or the
+  Flying Doom Daggers.
+- The Corruption Cutter is now the Infernal Bloodletter and drops from Oryx the Infernal Mad God
+  (Oryx 4): each hit makes the enemy bleed for 120 damage over 3 seconds.
+- Soul Tipped Dirk: 120-230 damage at 90% rate of fire (was 405-1045 at 100%), and its shots weave
+  from side to side.
+- The Divine Forge makes the Reforged Dirk of Cronus (two Dirks of Cronus) and the Dagger of the
+  Terrible Talon (two Obsidian Daggers), and turns a Dirk of Cronus into a Phantasm Dirk or back
+  for 100 fame (they have the same numbers, a different look). The Dirk of Cronus is no longer
+  sold in the shop.
+- The Legendary, Ascended and Ethereal daggers are ordinary untiered daggers for now, until
+  they're reworked.
 - Untiered rings now drop where they belong. Oryx the Celestial Mad God (Oryx 3) can drop the
   Battalion Banner, Chancellor's Cranium, Collector's Monocle, Divine Coronation and the
   Celestial God's Horn (the Exalted God's Horn, renamed). Oryx the Infernal Mad God (Oryx 4) can

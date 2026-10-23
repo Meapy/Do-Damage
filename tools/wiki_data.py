@@ -174,10 +174,14 @@ class Data:
                 continue
             with open(path, encoding="utf-8-sig") as f:
                 text = f.read()
+            # a file's own loot lists (private static MobDrops[] CourtLoot() => new MobDrops[] {...}),
+            # which its monsters call
+            helpers = dict(re.findall(r'static MobDrops\[\]\s+(\w+)\(\)\s*=>\s*new MobDrops\[\]\s*\{(.*?)\};', text, re.S))
             marks = list(start.finditer(text))
             for i, m in enumerate(marks):
                 end = marks[i + 1].start() if i + 1 < len(marks) else len(text)
                 block = text[m.start():end]
+                block += "".join(helpers[h] for h in re.findall(r'\b(\w+)\(\)', block) if h in helpers)
                 name = m.group(3)
                 if m.group(1):
                     d = re.search(r'DoomedMonsterDefs\.(M_\w+)', block)

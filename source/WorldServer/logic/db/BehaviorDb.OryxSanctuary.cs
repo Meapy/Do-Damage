@@ -237,14 +237,13 @@ namespace WorldServer.logic
                     new ItemLoot("Oryx Hide Robe", 0.004),
                     new ItemLoot("Oryx Scale Armor", 0.004),
                     new ItemLoot("Oryx Tooth Sword", 0.004),
-                    new ItemLoot("Doom Dirk", 0.004),
-                    new ItemLoot("Flying Doom Daggers", 0.004),
                     new ItemLoot("Tome of Noble Assault", 0.004),
                     new ItemLoot("Battalion Banner", 0.004),
                     new ItemLoot("Chancellor's Cranium", 0.004),
                     new ItemLoot("Collector's Monocle", 0.004),
                     new ItemLoot("Divine Coronation", 0.004),
-                    new ItemLoot("Exalted God's Horn", 0.004)
+                    new ItemLoot("Exalted God's Horn", 0.004),
+                    new ItemLoot("Avarice", 0.004)
                 ),
                 // 5% of the damage: the gear
                 new Threshold(0.05,
@@ -445,7 +444,8 @@ namespace WorldServer.logic
             new ItemLoot("Greater Potion of Life", 0.008),
             new TierLoot(12, ItemType.Weapon, 0.04),
             new TierLoot(13, ItemType.Armor, 0.03),
-            new TierLoot(5, ItemType.Ability, 0.03)
+            new TierLoot(5, ItemType.Ability, 0.03),
+            new ItemLoot("Bounty Hunter's Dagger", 0.001)
         };
     }
 }

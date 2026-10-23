@@ -31,11 +31,16 @@ namespace WorldServer.core.commands.doomed
         // chain: 10 for a Broad Sword up to 2000 for a Sword of Splendor).
         private static readonly int[] TierFame = { 0, 10, 30, 50, 70, 90, 100, 200, 300, 400, 500, 800, 1000, 2000, 2000 };
 
-        // Items only the forge makes, which no monster drops (so they skip that rule): result, fame,
-        // needs a Forge Amulet, ingredients.
+        // Items only the forge makes, which no monster drops (so they skip that rule), and the
+        // Dirk of Cronus and Phantasm Dirk swapping looks (the same numbers): result, fame, needs a
+        // Forge Amulet, ingredients.
         private static readonly (string Result, int Fame, bool Advanced, string[] Items)[] ForgeOnly =
         {
             ("Reforged Forgotten Crown", 6000, false, new[] { "The Forgotten Crown", "The Forgotten Crown" }),
+            ("Reforged Dirk of Cronus", 6000, false, new[] { "Dirk of Cronus", "Dirk of Cronus" }),
+            ("Dagger of the Terrible Talon", 200, false, new[] { "Obsidian Dagger", "Obsidian Dagger" }),
+            ("Phantasm Dirk", 100, false, new[] { "Dirk of Cronus" }),
+            ("Dirk of Cronus", 100, false, new[] { "Phantasm Dirk" }),
         };
 
         private static (string Result, int Fame, bool Advanced, string[] Items)[] _all;

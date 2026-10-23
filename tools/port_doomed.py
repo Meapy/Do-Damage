@@ -473,7 +473,8 @@ DESCRIPTIONS = {
 # numbers stand, and Nature, Shade and Fragment Cannon (copies of Wave Cannon with Vitality and
 # Wisdom) become T6-T8, climbing as the quivers do (cannons sit about 15 damage above the quiver of
 # their tier). Doom Cannon stays untiered.
-# id -> {speed, lifetime, rof, damage: (min, max), mp, stats: {stat: amount}, untier, tier}
+# id -> {speed, lifetime, rof, damage: (min, max), wave: (amplitude, frequency), mp, stats: {stat: amount},
+# untier, tier}
 DEF, SPD, VIT, WIS, DEX = "21", "22", "26", "27", "28"
 UNTIERED_ABILITIES = [
     "1940s Orb", "Azure Trap", "Bile Poison", "Bloodorc Quiver", "Class Test", "Cloak of Dimensions",
@@ -510,6 +511,8 @@ GEAR_TUNING = {
     "Master Blades": {"speed": 200, "lifetime": 250, "stats": {DEF: 4, SPD: 2}},
     "Fists of Broken Bones": {"untier": True},
     "Ring of the Abyss": {"stats": {"0": 120, DEF: 10}},  # was 500 health and 24 Defense
+    # was 405-1045 at rate 1, its shots barely waving
+    "Soul Tipped Dirk": {"damage": (120, 230), "rof": "0.9", "wave": ("0.6", "1")},
     "Power of the Fountains": {"tier": "7"},
     **{oid: {"untier": True} for oid in UNTIERED_ABILITIES},
     **{oid: {"tier": str(t), **CANNON_TUNING.get(oid, {})} for t, oid in enumerate(CANNON_TIERS)},
@@ -547,6 +550,8 @@ def tune_gear(dr):
             p.find("MinDamage").text, p.find("MaxDamage").text = map(str, t["damage"])
         if "rof" in t:
             o.find("RateOfFire").text = t["rof"]
+        if "wave" in t:  # the shots weave side to side: (amplitude in tiles, frequency)
+            p.find("Amplitude").text, p.find("Frequency").text = t["wave"]
         if "mp" in t:
             o.find("MpCost").text = str(t["mp"])
         if t.get("untier") and o.find("Tier") is not None:

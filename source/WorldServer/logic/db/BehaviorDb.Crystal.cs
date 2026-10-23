@@ -224,7 +224,8 @@ namespace WorldServer.logic
                 ),
                 new Threshold(0.01,
                     new ItemLoot("Crystal Sword", 0.003),
-                    new ItemLoot("Crystal Wand", 0.003)
+                    new ItemLoot("Crystal Wand", 0.003),
+                    new ItemLoot("Crystal Dagger", 0.003)
                     ),
                 new Threshold(.005,
                     LootTemplates.BasicDrop()

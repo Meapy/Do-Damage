@@ -41,8 +41,10 @@ GROUPS = [
     ("test", "Test items", "Test", "Left in the game's data from testing."),
 ]
 GROUP_NAMES = {g: (title, tag) for g, title, tag, _ in GROUPS}
-# groups a category's pages show even with no items in them, as their items are reworked
-ALWAYS_SHOWN = {"rings": {"legendary", "ascended", "ethereal"}}
+# groups a kind's page shows even with no items in them: the kinds whose untiered items have been
+# reworked, whose special items are plain untiered ones for now
+REWORKED = {"legendary", "ascended", "ethereal"}
+ALWAYS_SHOWN = {"Ring": REWORKED, "Dagger": REWORKED}
 PLURAL = {"Staff": "Staves", "Dual Blades": "Dual Blades", "Shuriken": "Shuriken", "Wakizashi": "Wakizashi",
           "Leather armor": "Leather armor", "Heavy armor": "Heavy armor"}
 STAT = {0: "HP", 3: "MP", 20: "Att", 21: "Def", 22: "Spd", 26: "Vit", 27: "Wis", 28: "Dex"}
@@ -288,6 +290,9 @@ class Gear:
                                       ("ArmorPiercing", "ignores defense")) if proj.find(tag) is not None]
             for c in proj.findall("ConditionEffect"):
                 flags.append("%s %ss" % ((c.text or "").strip(), num(c.get("duration"), "?")))
+            bleed = proj.find("Bleed")
+            if bleed is not None:
+                flags.append("bleeds %s over %ss" % ((bleed.text or "").strip(), num(bleed.get("duration"), "?")))
             if flags:
                 out.append('<span class="dim">%s</span>' % self.h.esc(", ".join(flags)))
         mp = wd._text(el, "MpCost")
@@ -461,7 +466,7 @@ class Gear:
         h = self.h
         parts = []
         lst = self.by_slot.get(slot, [])
-        shown = ALWAYS_SHOWN.get(lst[0]["category"] if lst else None, set())
+        shown = ALWAYS_SHOWN.get(lst[0]["kind"] if lst else None, set())
         for g, title, _, blurb in GROUPS:
             its = [it for it in lst if it["group"] == g]
             if not its and g not in shown:

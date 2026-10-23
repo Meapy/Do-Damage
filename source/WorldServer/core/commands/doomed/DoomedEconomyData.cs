@@ -508,7 +508,6 @@ namespace WorldServer.core.commands.doomed
             ("consumables", "Orange Drake Egg", 400, CurrencyType.Fame),
             ("consumables", "Green Drake Egg", 400, CurrencyType.Fame),
             ("consumables", "Yellow Drake Egg", 400, CurrencyType.Fame),
-            ("consumables", "Dirk of Cronus", 20, CurrencyType.Fame),
             ("consumables", "Greater Health Potion", 20, CurrencyType.Fame),
             ("consumables", "Greater Magic Potion", 20, CurrencyType.Fame),
             ("rings", "Ring of Superior Defense", 100, CurrencyType.Fame),
