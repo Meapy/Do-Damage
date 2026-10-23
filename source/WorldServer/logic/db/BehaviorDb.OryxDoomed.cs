@@ -1,3 +1,4 @@
+using System.Linq;
 using Shared.resources;
 using WorldServer.logic.behaviors;
 using WorldServer.logic.loot;
@@ -11,11 +12,102 @@ namespace WorldServer.logic
     // Ascended God, in BehaviorDb.Elysium.cs; his old helpers stay here.
     partial class BehaviorDb
     {
+        // Oryx 4's cycle above 25%: Hatred, Silence, Artifacts, Moons and the Doom Ring in turn; p goes
+        // before the states' names. In an arena it skips the Silence, ten invulnerable seconds.
+        private static IStateChildren[] O4Cycle(string p, bool arena)
+        {
+            var hatred = new State(p + "Hatred",
+                new Taunt("Fools! I still have {HP} hitpoints!") { Bubble = false },
+                new Wander(0.15),
+                new StayCloseToSpawn(0.4, 6),
+                // his Infernal Court, from the Burning Path (BehaviorDb.HashCellar.cs)
+                new Spawn("Infernal Officer", 1, 1, 12000),
+                new Spawn("Brimstone Major", 1, 0, 12000),
+                new Shoot(25, 5, 10, projectileIndex: 4, coolDown: 1000),
+                new Shoot(25, 3, 12, projectileIndex: 2, predictive: 0.6, coolDown: 800),
+                new Shoot(25, 2, 6, projectileIndex: 3, coolDown: 1300, coolDownOffset: 600),
+                new TimedTransition(12000, p + (arena ? "Artifacts" : "Silence"))
+            );
+            var silence = new State(p + "Silence",
+                new ConditionEffectBehavior(ConditionEffectIndex.Invulnerable),
+                new ReturnToSpawn(1.5),
+                new Flash(0xFF389E13, 0.5, 20),
+                new Taunt("BE SILENT!!!") { Bubble = false },
+                new Shoot(0, 4, fixedAngle: 0, rotateAngle: 15, projectileIndex: 17, coolDown: 260),
+                new TossObject("Ring Element", 9, 24, 320000),
+                new TossObject("Ring Element", 9, 48, 320000),
+                new TossObject("Ring Element", 9, 72, 320000),
+                new TossObject("Ring Element", 9, 96, 320000),
+                new TossObject("Ring Element", 9, 120, 320000),
+                new TossObject("Ring Element", 9, 144, 320000),
+                new TossObject("Ring Element", 9, 168, 320000),
+                new TossObject("Ring Element", 9, 192, 320000),
+                new TossObject("Ring Element", 9, 216, 320000),
+                new TossObject("Ring Element", 9, 240, 320000),
+                new TossObject("Ring Element", 9, 264, 320000),
+                new TossObject("Ring Element", 9, 288, 320000),
+                new TossObject("Ring Element", 9, 312, 320000),
+                new TossObject("Ring Element", 9, 336, 320000),
+                new TossObject("Ring Element", 9, 360, 320000),
+                new TimedTransition(10000, p + "Artifacts")
+            );
+            var rest = new IStateChildren[]
+            {
+                new State(p + "Artifacts",
+                    new Taunt("My Artifacts will protect me!") { Bubble = false },
+                    new Shoot(25, 3, 20, projectileIndex: 16, coolDown: 1800, coolDownOffset: 500),
+                    new Shoot(0, 12, fixedAngle: 0, rotateAngle: 15, projectileIndex: 8, coolDown: 2200),
+                    new Shoot(3, 10, projectileIndex: 7, coolDown: 700),
+                    // four Infernal Elements circle him close, four more further out
+                    new TossObject("Infernal Element", InfernalInner, 0, 90000001, 800),
+                    new TossObject("Infernal Element", InfernalInner, 90, 90000001, 800),
+                    new TossObject("Infernal Element", InfernalInner, 180, 90000001, 800),
+                    new TossObject("Infernal Element", InfernalInner, 270, 90000001, 800),
+                    new TossObject("Infernal Outer Element", InfernalOuter, 45, 90000001, 800),
+                    new TossObject("Infernal Outer Element", InfernalOuter, 135, 90000001, 800),
+                    new TossObject("Infernal Outer Element", InfernalOuter, 225, 90000001, 800),
+                    new TossObject("Infernal Outer Element", InfernalOuter, 315, 90000001, 800),
+                    new TimedTransition(14000, p + "Moons")
+                ),
+                // White Moons circle him; his flames punish anyone who gets close
+                new State(p + "Moons",
+                    new Taunt("I am the master of this existence!") { Bubble = false },
+                    new Follow(0.35, 14, 6),
+                    new TossObject("White Moon", 8, 0, 90000001),
+                    new TossObject("White Moon", 8, 60, 90000001),
+                    new TossObject("White Moon", 8, 120, 90000001),
+                    new TossObject("White Moon", 8, 180, 90000001),
+                    new TossObject("White Moon", 8, 240, 90000001),
+                    new TossObject("White Moon", 8, 300, 90000001),
+                    new Shoot(6, 3, 12, projectileIndex: 1, coolDown: 900),
+                    new Shoot(25, 2, 10, projectileIndex: 5, predictive: 0.5, coolDown: 1400),
+                    new TimedTransition(12000, p + "Doom Ring")
+                ),
+                // telegraphed: a weakening ring with gaps to stand in
+                new State(p + "Doom Ring",
+                    new ConditionEffectBehavior(ConditionEffectIndex.Invulnerable),
+                    new ReturnToSpawn(1.5),
+                    new Flash(0xFFFFFFFF, 0.3, 6),
+                    new Taunt("Feel the weight of my doom!") { Bubble = false },
+                    new State(p + "Doom Charge",
+                        new TimedTransition(2000, p + "Doom Fire")
+                    ),
+                    new State(p + "Doom Fire",
+                        new Shoot(0, 16, fixedAngle: 0, projectileIndex: 19, coolDown: 1500),
+                        new Shoot(0, 16, fixedAngle: 11.25, projectileIndex: 19, coolDown: 1500, coolDownOffset: 750),
+                        new TimedTransition(3000, p + "Hatred")
+                    )
+                )
+            };
+            return (arena ? new IStateChildren[] { hatred } : new IStateChildren[] { hatred, silence }).Concat(rest).ToArray();
+        }
+
         private _ OryxDoomed = () => Behav()
             // Stage 6, Oryx the Infernal Mad God: Oryx 1's moveset, burning and harder, with his Infernal
             // Court and White Moons. His taunts go to chat only (no bubbles over his attacks).
             .Init("Oryx the Mad God 4",
                 new State(
+                    new BossStats(90000, 50, 1.0, 0.3, arena: true),
                     new BossStats(240000, 50, 1.0, 0.3),
                     new DropPortalOnDeath("Locked Oryx's Elysium Portal", 1.0, timeout: 600, xAdjustment: 2,
                         name: "Locked: Oryx's Elysium", lockedHint: SealedDungeons.WhyDungeon("Oryx's Elysium")
@@ -24,6 +116,13 @@ namespace WorldServer.logic
                     new AnnounceOnDeath(SealedDungeons.WhyDungeon("Oryx's Elysium") != null
                         ? "{PL_LIST} burned Oryx the Infernal Mad God out of his Inferno! He rises to his Elysium, sealed for now..."
                         : "{PL_LIST} burned Oryx the Infernal Mad God out of his Inferno! He rises to his Elysium, sealed by an Oryx's Elysium Incantation..."),
+                    new State("Where",
+                        new ArenaTransition("Arena Wake"),
+                        new ArenaTransition("Dormant", false)
+                    ),
+                    // in an arena: only his cycle, without the Silence, and no Ascend or Rage
+                    ArenaWake("Here, too, the fire answers me.", "Arena Hatred"),
+                    new State("Arena Cycle", O4Cycle("Arena ", true)),
                     new State("Dormant",
                         new ConditionEffectBehavior(ConditionEffectIndex.Invulnerable),
                         new PlayerWithinTransition(15, "Awaken")
@@ -35,87 +134,7 @@ namespace WorldServer.logic
                         new TimedTransition(4000, "Hatred")
                     ),
                     new State("Cycle",
-                        new HpLessTransition(0.25, "Ascend"),
-                        new State("Hatred",
-                            new Taunt("Fools! I still have {HP} hitpoints!") { Bubble = false },
-                            new Wander(0.15),
-                            new StayCloseToSpawn(0.4, 6),
-                            // his Infernal Court, from the Burning Path (BehaviorDb.HashCellar.cs)
-                            new Spawn("Infernal Officer", 1, 1, 12000),
-                            new Spawn("Brimstone Major", 1, 0, 12000),
-                            new Shoot(25, 5, 10, projectileIndex: 4, coolDown: 1000),
-                            new Shoot(25, 3, 12, projectileIndex: 2, predictive: 0.6, coolDown: 800),
-                            new Shoot(25, 2, 6, projectileIndex: 3, coolDown: 1300, coolDownOffset: 600),
-                            new TimedTransition(12000, "Silence")
-                        ),
-                        new State("Silence",
-                            new ConditionEffectBehavior(ConditionEffectIndex.Invulnerable),
-                            new ReturnToSpawn(1.5),
-                            new Flash(0xFF389E13, 0.5, 20),
-                            new Taunt("BE SILENT!!!") { Bubble = false },
-                            new Shoot(0, 4, fixedAngle: 0, rotateAngle: 15, projectileIndex: 17, coolDown: 260),
-                            new TossObject("Ring Element", 9, 24, 320000),
-                            new TossObject("Ring Element", 9, 48, 320000),
-                            new TossObject("Ring Element", 9, 72, 320000),
-                            new TossObject("Ring Element", 9, 96, 320000),
-                            new TossObject("Ring Element", 9, 120, 320000),
-                            new TossObject("Ring Element", 9, 144, 320000),
-                            new TossObject("Ring Element", 9, 168, 320000),
-                            new TossObject("Ring Element", 9, 192, 320000),
-                            new TossObject("Ring Element", 9, 216, 320000),
-                            new TossObject("Ring Element", 9, 240, 320000),
-                            new TossObject("Ring Element", 9, 264, 320000),
-                            new TossObject("Ring Element", 9, 288, 320000),
-                            new TossObject("Ring Element", 9, 312, 320000),
-                            new TossObject("Ring Element", 9, 336, 320000),
-                            new TossObject("Ring Element", 9, 360, 320000),
-                            new TimedTransition(10000, "Artifacts")
-                        ),
-                        new State("Artifacts",
-                            new Taunt("My Artifacts will protect me!") { Bubble = false },
-                            new Shoot(25, 3, 20, projectileIndex: 16, coolDown: 1800, coolDownOffset: 500),
-                            new Shoot(0, 12, fixedAngle: 0, rotateAngle: 15, projectileIndex: 8, coolDown: 2200),
-                            new Shoot(3, 10, projectileIndex: 7, coolDown: 700),
-                            // four Infernal Elements circle him close, four more further out
-                            new TossObject("Infernal Element", InfernalInner, 0, 90000001, 800),
-                            new TossObject("Infernal Element", InfernalInner, 90, 90000001, 800),
-                            new TossObject("Infernal Element", InfernalInner, 180, 90000001, 800),
-                            new TossObject("Infernal Element", InfernalInner, 270, 90000001, 800),
-                            new TossObject("Infernal Outer Element", InfernalOuter, 45, 90000001, 800),
-                            new TossObject("Infernal Outer Element", InfernalOuter, 135, 90000001, 800),
-                            new TossObject("Infernal Outer Element", InfernalOuter, 225, 90000001, 800),
-                            new TossObject("Infernal Outer Element", InfernalOuter, 315, 90000001, 800),
-                            new TimedTransition(14000, "Moons")
-                        ),
-                        // White Moons circle him; his flames punish anyone who gets close
-                        new State("Moons",
-                            new Taunt("I am the master of this existence!") { Bubble = false },
-                            new Follow(0.35, 14, 6),
-                            new TossObject("White Moon", 8, 0, 90000001),
-                            new TossObject("White Moon", 8, 60, 90000001),
-                            new TossObject("White Moon", 8, 120, 90000001),
-                            new TossObject("White Moon", 8, 180, 90000001),
-                            new TossObject("White Moon", 8, 240, 90000001),
-                            new TossObject("White Moon", 8, 300, 90000001),
-                            new Shoot(6, 3, 12, projectileIndex: 1, coolDown: 900),
-                            new Shoot(25, 2, 10, projectileIndex: 5, predictive: 0.5, coolDown: 1400),
-                            new TimedTransition(12000, "Doom Ring")
-                        ),
-                        // telegraphed: a weakening ring with gaps to stand in
-                        new State("Doom Ring",
-                            new ConditionEffectBehavior(ConditionEffectIndex.Invulnerable),
-                            new ReturnToSpawn(1.5),
-                            new Flash(0xFFFFFFFF, 0.3, 6),
-                            new Taunt("Feel the weight of my doom!") { Bubble = false },
-                            new State("Doom Charge",
-                                new TimedTransition(2000, "Doom Fire")
-                            ),
-                            new State("Doom Fire",
-                                new Shoot(0, 16, fixedAngle: 0, projectileIndex: 19, coolDown: 1500),
-                                new Shoot(0, 16, fixedAngle: 11.25, projectileIndex: 19, coolDown: 1500, coolDownOffset: 750),
-                                new TimedTransition(3000, "Hatred")
-                            )
-                        )
+                        new IStateChildren[] { new HpLessTransition(0.25, "Ascend") }.Concat(O4Cycle("", false)).ToArray()
                     ),
                     new State("Ascend",
                         new ConditionEffectBehavior(ConditionEffectIndex.Invulnerable),

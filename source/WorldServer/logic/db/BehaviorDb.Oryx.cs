@@ -1,3 +1,4 @@
+using System.Linq;
 using Shared.resources;
 using WorldServer.logic.behaviors;
 using WorldServer.logic.loot;
@@ -12,29 +13,22 @@ namespace WorldServer.logic
             // every stage on one difficulty curve; SETUP-LOCAL.md has the table.
             .Init("Oryx the Mad God 2",
                 new State(
+                    new BossStats(60000, 40, 1.0, 0.3, arena: true),
                     new BossStats(130000, 40, 1.0, 0.3),
                     new DropPortalOnDeath("Realm Portal", 1.0, timeout: 120, xAdjustment: -2),
                     new DropPortalOnDeath("Locked Oryx's Sanctuary Portal", 1.0, timeout: 600, xAdjustment: 2,
                         name: "Locked: Oryx's Sanctuary", lockedHint: "This portal is locked. Use an Oryx's Sanctuary Incantation beside it to open it."),
                     new DropPortalOnDeath("Lost Halls Portal", 0.1, timeout: 120, yAdjustment: 2),
                     new AnnounceOnDeath("{PL_LIST} drove Oryx the Mad God out of his Wine Cellar! He flees to his Sanctuary, sealed by an Oryx's Sanctuary Incantation..."),
+                    new State("Where",
+                        new ArenaTransition("Arena Wake"),
+                        new ArenaTransition("Attack", false)
+                    ),
+                    // in an arena: only his first phase, with fewer henchmen
+                    ArenaWake("Puny mortals! You will not leave this arena alive!", "Arena Attack"),
+                    new State("Arena Attack", Oryx2Attack(3)),
                     new State("Attack",
-                        new Wander(.05),
-                        new Shoot(25, projectileIndex: 0, count: 8, shootAngle: 45, coolDown: 1500, coolDownOffset: 1500),
-                        new Shoot(25, projectileIndex: 1, count: 3, shootAngle: 10, coolDown: 1000, coolDownOffset: 1000),
-                        new Shoot(25, projectileIndex: 2, count: 3, shootAngle: 10, predictive: 0.2, coolDown: 1000,
-                            coolDownOffset: 1000),
-                        new Shoot(25, projectileIndex: 3, count: 2, shootAngle: 10, predictive: 0.4, coolDown: 1000,
-                            coolDownOffset: 1000),
-                        new Shoot(25, projectileIndex: 4, count: 3, shootAngle: 10, predictive: 0.6, coolDown: 1000,
-                            coolDownOffset: 1000),
-                        new Shoot(25, projectileIndex: 5, count: 2, shootAngle: 10, predictive: 0.8, coolDown: 1000,
-                            coolDownOffset: 1000),
-                        new Shoot(25, projectileIndex: 6, count: 3, shootAngle: 10, predictive: 1, coolDown: 1000,
-                            coolDownOffset: 1000),
-                        new Taunt(1, 6000, "Puny mortals! My {HP} HP will annihilate you!"),
-                        new Spawn("Henchman of Oryx", 5, coolDown: 5000),
-                        new HpLessTransition(.55, "Guards")
+                        Oryx2Attack(5).Append(new HpLessTransition(.55, "Guards")).ToArray()
                     ),
                     // halfway: a short invulnerable call for help, under rings of silencing and weakening spinners
                     new State("Guards",
@@ -460,6 +454,26 @@ namespace WorldServer.logic
                     );
 
         // Wine Cellar puddles: anyone standing in one is sickened and slowed
+        // Oryx 2's first phase: his volleys, and henchmen up to this many
+        private static IStateChildren[] Oryx2Attack(int henchmen) => new IStateChildren[]
+        {
+            new Wander(.05),
+            new Shoot(25, projectileIndex: 0, count: 8, shootAngle: 45, coolDown: 1500, coolDownOffset: 1500),
+            new Shoot(25, projectileIndex: 1, count: 3, shootAngle: 10, coolDown: 1000, coolDownOffset: 1000),
+            new Shoot(25, projectileIndex: 2, count: 3, shootAngle: 10, predictive: 0.2, coolDown: 1000,
+                coolDownOffset: 1000),
+            new Shoot(25, projectileIndex: 3, count: 2, shootAngle: 10, predictive: 0.4, coolDown: 1000,
+                coolDownOffset: 1000),
+            new Shoot(25, projectileIndex: 4, count: 3, shootAngle: 10, predictive: 0.6, coolDown: 1000,
+                coolDownOffset: 1000),
+            new Shoot(25, projectileIndex: 5, count: 2, shootAngle: 10, predictive: 0.8, coolDown: 1000,
+                coolDownOffset: 1000),
+            new Shoot(25, projectileIndex: 6, count: 3, shootAngle: 10, predictive: 1, coolDown: 1000,
+                coolDownOffset: 1000),
+            new Taunt(1, 6000, "Puny mortals! My {HP} HP will annihilate you!"),
+            new Spawn("Henchman of Oryx", henchmen, coolDown: 5000)
+        };
+
         private _ WineCellarGoo = () => Behav()
             .Init("Purple Goo",
                 new State(

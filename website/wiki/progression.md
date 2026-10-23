@@ -124,9 +124,13 @@ chance at every drop.
 
 The arenas are waves of monsters that get harder as you go: realm monsters first, then the
 Godlands gods (from wave 5), dungeon bosses (10), harder dungeon bosses (15), Elder dungeon bosses
-(20) and Oryx (30). Each wave has a boss of its stage, a few of its monsters come from the stage
-before, and from wave 30 an Elder dungeon boss joins Oryx's. The chat says which wave has begun
-and its stage.
+(20), Oryx (30) and Oryx's Court (40), where the courts of Oryx 3, 4 and 5 fight beside Oryx 3, 4
+or 5. Each wave has a boss of its stage, a few of its monsters come from the stage before, and
+from wave 30 an Elder dungeon boss joins Oryx's. The chat says which wave has begun and its stage.
+
+- **Oryx in the arena** appears in the middle and is invulnerable for his first 5 seconds. He has
+  less health than in his own dungeon and only fights his first phase, over and over: no calls
+  for help, shields or rage.
 
 - **Where:** the **Battle Arena** and **Free Battle Arena** portals in the Nexus's south yard, or
   `/arena` for the public arena. Everyone who goes in before a game's countdown ends plays that
@@ -136,7 +140,7 @@ and its stage.
   the free one doesn't.
 - **Between waves** you rest for 5 seconds, 15 from wave 10 and 20 from wave 20. Type **GO** in
   chat to start the next wave (or the game) in 3 seconds instead, once per countdown. Everyone is
-  invulnerable for the first 2.5 seconds of each wave.
+  invulnerable for the first 2.5 seconds of each wave, 5 when an Oryx comes.
 - **Losing doesn't kill you.** A hit that would kill you in an arena sends you to the Nexus at full
   health, with your gear and fame: no grave, and it doesn't count as a death.
 - **The leaderboard:** the golden trophy between the arena portals shows the best run (its wave,

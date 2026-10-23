@@ -201,17 +201,25 @@ namespace WorldServer.core.worlds.impl.doomed
         }
 
         private static bool OutOfBounds(float x, float y) => x <= 3.5f || x >= 29.5f || y <= 3.5f || y >= 29.5f;
+        private const float ArenaMiddle = 16.5f;
 
         private void SpawnWave()
         {
             // the same stages as the public arena (ArenaPools)
+            var bosses = ArenaPools.Bosses(Wave);
             foreach (var p in Players.Values)
             {
                 p.SendInfo(ArenaPools.WaveMessage(Wave));
-                p.ApplyConditionEffect(ConditionEffectIndex.Invulnerable, ArenaPools.WaveStartInvulnerableMs);
+                p.ApplyConditionEffect(ConditionEffectIndex.Invulnerable, ArenaPools.StartInvulnerableMs(bosses));
             }
-            foreach (var name in ArenaPools.Minions(Wave, Players.Count).Concat(ArenaPools.Bosses(Wave)))
-                Spawn(name, Random.Shared.Next(6, 27) + 0.5f, Random.Shared.Next(6, 27) + 0.5f);
+            foreach (var name in ArenaPools.Minions(Wave, Players.Count).Concat(bosses))
+            {
+                // an Oryx fights round where he spawns, so he takes the middle
+                if (ArenaPools.IsOryx(name))
+                    Spawn(name, ArenaMiddle, ArenaMiddle);
+                else
+                    Spawn(name, Random.Shared.Next(6, 27) + 0.5f, Random.Shared.Next(6, 27) + 0.5f);
+            }
         }
 
         protected override void UpdateLogic(ref TickTime time)

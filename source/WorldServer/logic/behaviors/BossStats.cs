@@ -2,6 +2,7 @@ using System.Collections.Generic;
 using System.Linq;
 using WorldServer.core.objects;
 using WorldServer.core.worlds;
+using WorldServer.logic.transitions;
 using WorldServer.utils;
 
 namespace WorldServer.logic.behaviors
@@ -12,7 +13,8 @@ namespace WorldServer.logic.behaviors
     // first who comes within range, and never shrinks when they leave. Shot damage is the XML damage
     // times damageScale (Shoot applies Enemy.DamageScale). It also clears the random rare, epic and
     // legendary rolls that quest monsters get, which would multiply the tuned health.
-    // With world set, it only applies in that world and wins over an untargeted BossStats.
+    // With world set, it only applies in that world and wins over an untargeted BossStats; with arena
+    // set, the same in any arena (ArenaTransition). List it before the untargeted one.
     internal class BossStats : Behavior
     {
         private readonly int _health;
@@ -21,8 +23,10 @@ namespace WorldServer.logic.behaviors
         private readonly double _perPlayer;
         private readonly double _range;
         private readonly string _world;
+        private readonly bool _arena;
 
-        public BossStats(int health, int defense, double damageScale = 1.0, double perPlayer = 0.3, double range = 30, string world = null)
+        public BossStats(int health, int defense, double damageScale = 1.0, double perPlayer = 0.3, double range = 30, string world = null,
+            bool arena = false)
         {
             _health = health;
             _defense = defense;
@@ -30,6 +34,7 @@ namespace WorldServer.logic.behaviors
             _perPlayer = perPlayer;
             _range = range;
             _world = world;
+            _arena = arena;
         }
 
         private sealed class ScaleState
@@ -38,15 +43,17 @@ namespace WorldServer.logic.behaviors
             public int Cooldown;
         }
 
+        private bool Targeted => _world != null || _arena;
+
         private bool Applies(Entity host) =>
-            _world == null ? !host.StatsTunedForWorld : host.World?.IdName == _world;
+            _arena ? ArenaTransition.InArena(host) : _world == null ? !host.StatsTunedForWorld : host.World?.IdName == _world;
 
         protected override void OnStateEntry(Entity host, TickTime time, ref object state)
         {
             if (state != null || host is not Enemy enemy || !Applies(host))
                 return;
 
-            if (_world != null)
+            if (Targeted)
                 host.StatsTunedForWorld = true;
 
             enemy.IsLegendary = enemy.IsEpic = enemy.IsRare = false;

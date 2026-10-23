@@ -303,13 +303,14 @@ namespace WorldServer.core.worlds.impl
 
         private void Spawn(TickTime time)
         {
+            var bosses = ArenaPools.Bosses(_wave);
             foreach (var plr in Players.Values)
             {
                 plr.SendInfo(ArenaPools.WaveMessage(_wave));
-                plr.ApplyConditionEffect(ConditionEffectIndex.Invulnerable, ArenaPools.WaveStartInvulnerableMs);
+                plr.ApplyConditionEffect(ConditionEffectIndex.Invulnerable, ArenaPools.StartInvulnerableMs(bosses));
             }
             SpawnEnemies();
-            SpawnBosses();
+            SpawnBosses(bosses);
             CurrentState = ArenaState.Fight;
         }
 
@@ -320,9 +321,9 @@ namespace WorldServer.core.worlds.impl
                 SpawnAt(name, _outerSpawn);
         }
 
-        private void SpawnBosses()
+        private void SpawnBosses(string[] bosses)
         {
-            foreach (var name in ArenaPools.Bosses(_wave))
+            foreach (var name in bosses)
                 SpawnAt(name, _centralSpawn);
         }
 

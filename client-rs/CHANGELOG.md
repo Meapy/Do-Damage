@@ -9,6 +9,11 @@ refuses while an `Unreleased` one is left, so rename it to `## <version> (<date>
 version number itself is in `client-rs/Cargo.toml`.
 
 ## Unreleased
+- Arenas: Oryx 2, 3, 4 and 5 have arena versions. They appear in the middle, stay invulnerable for
+  their first 5 seconds (and you for 5 seconds too), have less health, and only fight their first
+  phase. Oryx 3 is back in the Oryx waves, and from wave 40 a new stage, Oryx's Court, brings the
+  courts of Oryx 3, 4 and 5 with Oryx 3, 4 or 5 as its boss. Beating an Oryx in an arena no longer
+  tells the whole server.
 - Oryx 4 and Oryx 5 event: while it's on, Oryx the Infernal Mad God and Oryx the Ascended God
   deal 20% less damage, and so does everything they bring into their fights (their summoned
   court, elements and moons, stars, Halo Orbs, Pillars of Heaven, Divine Ichor and Ichor

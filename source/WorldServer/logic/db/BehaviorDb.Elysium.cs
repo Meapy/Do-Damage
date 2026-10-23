@@ -210,10 +210,23 @@ namespace WorldServer.logic
             //   open, he falls back through every Oryx he was, and then he can be killed.
             .Init("Oryx the Ascended God",
                 new State(
+                    new BossStats(110000, 55, 1.0, 0.35, arena: true),
                     new BossStats(320000, 55, 1.0, 0.35),
                     // the end of the chain: the way out is home to the Nexus
                     new DropPortalOnDeath("Nexus Portal", 1.0, timeout: 120, xAdjustment: 2),
                     new AnnounceOnDeath("{PL_LIST} cast down Oryx the Ascended God in his Elysium! The Realm is free... for now."),
+                    new State("Where",
+                        new ArenaTransition("Arena Wake"),
+                        new ArenaTransition("Dormant", false)
+                    ),
+                    // in an arena: the Judgement's three patterns in turn, for good (no Host, no
+                    // Transcendence, no Halo Orbs or Pillars of Heaven, no Concession)
+                    ArenaWake("Even here, you kneel before your god.", "A Cross"),
+                    new State("Arena Judgement",
+                        RadiantCross("A Cross", false, new TimedTransition(CrossTime, "A Firmament")),
+                        Firmament("A Firmament", false, new TimedTransition(StarLife, "A Hunt")),
+                        DivineHunt("A Hunt", false, false, ms => new TimedTransition(ms, "A Cross"))
+                    ),
                     new State("Dormant",
                         new ConditionEffectBehavior(ConditionEffectIndex.Invulnerable),
                         new PlayerWithinTransition(18, "Wardens")

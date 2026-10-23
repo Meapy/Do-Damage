@@ -6,10 +6,12 @@ namespace WorldServer.core.worlds.impl
     // What the arenas (ArenaWorld, the public /arena, and DoomedBattleArena) spawn on each wave: a
     // stage chosen by the wave number, its minions (ceil((wave + players) / 2) of them, picked at
     // random, a couple from earlier stages) and one of its bosses (two from wave 30). Later stages are harder: realm monsters, then the Godlands, then
-    // dungeon bosses, Elder dungeon bosses, and Oryx. Every name must be a monster with a behaviour.
-    // A wave ends when its monsters are dead, so nothing here may stay invulnerable for long: Limon
-    // and Arachna (invulnerable elements and webs), Oryx's Suit of Armor and the Son of Arachna
-    // (invulnerable until a player comes close) are left out.
+    // dungeon bosses, Elder dungeon bosses, Oryx, and Oryx's Court (the courts of Oryx 3, 4 and 5).
+    // Every name must be a monster with a behaviour. A wave ends when its monsters are dead, so
+    // nothing here may stay invulnerable for long: Limon and Arachna (invulnerable elements and
+    // webs), Oryx's Suit of Armor and the Son of Arachna (invulnerable until a player comes close)
+    // are left out. The Oryxes (OryxBosses) have arena versions of their own: lower health, a wake
+    // of OryxWakeMs, then only their first phase (ArenaTransition in their behaviours).
     public static class ArenaPools
     {
         public sealed class Stage
@@ -47,9 +49,27 @@ namespace WorldServer.core.worlds.impl
                 ["Elder Stheno the Snake Queen", "Elder Septavius the Ghost God", "Elder Archdemon Malphas", "Elder Lord Ruthven", "Murderous Megamoth", "Grand Sphinx",
                  "Thessal the Mermaid Goddess", "Tomb Support", "Tomb Defender", "Tomb Attacker"]),
             new Stage(30, "Oryx",
-                ["Oryx Brute", "Elder Coffin Creature", "Elder Lion Archer", "Elder Jackal Lord", "Elder Giant Squid", "Elder Sea Mare", "Elder Beam Priestess"],
-                ["Oryx the Mad God 2", "Oryx the Mad God 4", "Lord of the Lost Lands", "Elder Thessal the Mermaid Goddess", "Crystal Prisoner"]),
+                ["Oryx Brute", "Elder Coffin Creature", "Elder Lion Archer", "Elder Jackal Lord", "Elder Giant Squid", "Elder Sea Mare", "Elder Beam Priestess",
+                 "Oryx Noble", "Oryx Aristocrat", "Oryx Sergeant", "Oryx Deacon"],
+                ["Oryx the Mad God 2", "Oryx the Mad God 3", "Lord of the Lost Lands", "Elder Thessal the Mermaid Goddess", "Crystal Prisoner"]),
+            new Stage(40, "Oryx's Court",
+                ["Oryx Officer", "Oryx Major", "Oryx Cleric", "Oryx Cardinal",
+                 "Infernal Officer", "Brimstone Major", "Cinder Cleric", "Doom Cardinal",
+                 "Ascended Noble", "Ascended Aristocrat", "Ascended Sergeant", "Ascended Officer",
+                 "Ascended Major", "Ascended Deacon", "Ascended Cleric", "Ascended Cardinal"],
+                ["Oryx the Mad God 3", "Oryx the Mad God 4", "Oryx the Ascended God"]),
         };
+
+        // bosses with arena versions (see above): they spawn in the arena's middle, and a wave with
+        // one of them keeps everyone invulnerable for OryxWaveInvulnerableMs
+        public static readonly string[] OryxBosses =
+            { "Oryx the Mad God 2", "Oryx the Mad God 3", "Oryx the Mad God 4", "Oryx the Ascended God" };
+
+        // how long an Oryx spends invulnerable and holding his fire after spawning in an arena (ms)
+        public const int OryxWakeMs = 5000;
+        public const int OryxWaveInvulnerableMs = 5000;
+
+        public static bool IsOryx(string name) => OryxBosses.Contains(name);
 
         // up to this many of a wave's minions come from earlier stages: the stage just before, and
         // the Godlands from then on (Godlands monsters turn up in every later stage)
@@ -62,6 +82,9 @@ namespace WorldServer.core.worlds.impl
         // as each wave spawns, everyone in the arena is invulnerable for this long (ms), so the
         // monsters that appear on top of a player can't kill them before they can move
         public const int WaveStartInvulnerableMs = 2500;
+
+        public static int StartInvulnerableMs(string[] bosses) =>
+            bosses.Any(IsOryx) ? OryxWaveInvulnerableMs : WaveStartInvulnerableMs;
         private const string ElderBossStage = "Elder dungeons";
 
         public static Stage For(int wave) => Stages.Last(s => s.FromWave <= Math.Max(1, wave));

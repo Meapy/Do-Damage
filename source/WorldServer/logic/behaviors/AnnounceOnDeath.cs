@@ -3,6 +3,7 @@ using System.Text;
 using WorldServer.core.objects;
 using WorldServer.core.worlds;
 using WorldServer.core.worlds.impl;
+using WorldServer.logic.transitions;
 
 namespace WorldServer.logic.behaviors
 {
@@ -16,7 +17,8 @@ namespace WorldServer.logic.behaviors
 
         public override void OnDeath(Entity host, ref TickTime time)
         {
-            if (host.Spawned || host.World is TestWorld)
+            // nor in the arenas, where Oryx 5 falling isn't the Realm set free
+            if (host.Spawned || host.World is TestWorld || ArenaTransition.InArena(host))
                 return;
 
             var owner = host.World;
