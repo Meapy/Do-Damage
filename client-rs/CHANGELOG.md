@@ -9,6 +9,10 @@ refuses while an `Unreleased` one is left, so rename it to `## <version> (<date>
 version number itself is in `client-rs/Cargo.toml`.
 
 ## Unreleased
+- The T15 weapons (Sword of Ascension, Dagger of Divine Wrath, Bow of the Firmament, Wand of
+  Absolution, Ame-no-Habakiri, Seraphic Blades and Fists of the Ascended) now wear Oryx the
+  Ascended God's colours: blue-silver blades with purple grips and gems and orange-gold fittings,
+  in place of white and gold.
 - Untiered abilities, new drops: Oryx the Celestial Mad God (Oryx 3) drops the Chaotic Scripture
   and the Ballistic Star, Oryx the Infernal Mad God (Oryx 4) the Cloak of Bloody Surprises, Frimar
   in the Ice Tomb the Tome of Frigid Protection, the Sandstone Titan the Amber Encrusted Helmet,
