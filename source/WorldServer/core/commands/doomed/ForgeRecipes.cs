@@ -19,7 +19,7 @@ namespace WorldServer.core.commands.doomed
     //
     // The forge only makes what players can find: a recipe's result must be tradeable (not an
     // <Admin/> or Item.OpItems item, like the Crown), dropped by some monster (its loot or the
-    // tier pools it rolls) or one of the ForgeOnly items, and not a seasonal drop (SeasonalThreshold.Items,
+    // tier pools it rolls) or one of the ForgeOnly or Ascended items, and not a seasonal drop (SeasonalThreshold.Items,
     // Loot.WinterBossDrops: they come back each year without having been rebalanced), and its
     // ingredients tradeable.
     internal static class ForgeRecipes
@@ -77,6 +77,33 @@ namespace WorldServer.core.commands.doomed
             "Sphinx Leather Armor", "Armor of the Pyramid", "Robe of the Nile"
         };
 
+        // The Ascended items (tools/build_ascended_items.py), placeholders nothing drops: each from an
+        // item of the top tier Oryx the Ascended God drops of its kind and the Ascended shard of that
+        // kind, taken from the forge storage (ForgeStorage.cs). A weapon or armour comes from its own
+        // slot's item; his own pieces (slot 0) from any of the tier and kind. Result, fame, the kind,
+        // tier and slot it's forged from, the shard.
+        private const string WeaponShard = "Ascended Weapon Shard", AbilityShard = "Ascended Ability Shard",
+            ArmorShard = "Ascended Armor Shard", AccessoryShard = "Ascended Accessory Shard";
+        private const int AscendedFame = 2000;
+        private static readonly (string Result, ItemType Kind, int Tier, int Slot, string Shard)[] Ascended =
+        {
+            ("Ascended Sword", ItemType.Weapon, 15, 1, WeaponShard),
+            ("Ascended Dagger", ItemType.Weapon, 15, 2, WeaponShard),
+            ("Ascended Bow", ItemType.Weapon, 15, 3, WeaponShard),
+            ("Ascended Wand", ItemType.Weapon, 15, 8, WeaponShard),
+            ("Ascended Katana", ItemType.Weapon, 15, 24, WeaponShard),
+            ("Ascended Dual Blades", ItemType.Weapon, 15, 36, WeaponShard),
+            ("Ascended Fists", ItemType.Weapon, 15, 200, WeaponShard),
+            ("Spear of Heaven", ItemType.Weapon, 15, 0, WeaponShard),
+            ("Ascended Hide", ItemType.Armor, 16, 6, ArmorShard),
+            ("Ascended Plate", ItemType.Armor, 16, 7, ArmorShard),
+            ("Robe of the Ascended God", ItemType.Armor, 16, 0, ArmorShard),
+            ("Helm of the Ascended God", ItemType.Ability, 8, 0, AbilityShard),
+            ("Boots of the Ascended God", ItemType.Ring, 8, 0, AccessoryShard),
+            ("Ring of Ascended Wrath", ItemType.Ring, 8, 0, AccessoryShard),
+            ("Ring of Ascended Grace", ItemType.Ring, 8, 0, AccessoryShard),
+        };
+
         private static (string Result, int Fame, bool Advanced, string[] Items)[] _all;
         private static readonly object Lock = new object();
 
@@ -95,7 +122,7 @@ namespace WorldServer.core.commands.doomed
             var dropped = Dropped(server);
             var seasonal = new HashSet<string>(SeasonalThreshold.Items.Concat(Loot.WinterBossDrops.Select(d => d.Item)));
             bool Tiered(string id) => items.TryGetValue(id, out var i) && i.Tier >= 0;
-            var forgeOnly = new HashSet<string>(ForgeOnly.Select(r => r.Result));
+            var forgeOnly = new HashSet<string>(ForgeOnly.Select(r => r.Result).Concat(Ascended.Select(a => a.Result)));
             bool Allowed((string Result, int Fame, bool Advanced, string[] Items) r) =>
                 items.ContainsKey(r.Result) && !NeverForged.Contains(r.Result)
                 && (dropped.Contains(r.Result) || forgeOnly.Contains(r.Result))
@@ -165,6 +192,19 @@ namespace WorldServer.core.commands.doomed
                     }
                 }
             }
+            foreach (var (result, kind, tier, slot, shard) in Ascended)
+            {
+                var kinds = TierLoot.GetSlotTypes(kind);
+                var from = items.Values.Where(i => i.Tier == tier && (slot == 0 ? kinds.Contains(i.SlotType) : i.SlotType == slot))
+                    .OrderBy(i => i.ObjectType);
+                foreach (var f in from)
+                {
+                    var r = (result, AscendedFame, false, new[] { f.ObjectId, shard });
+                    if (known.Add(Key(r)))
+                        recipes.Add(r);
+                }
+            }
+
             var left = recipes.Where(r => !Allowed(r)).Select(r => r.Result).Distinct().OrderBy(r => r).ToList();
             var all = recipes.Where(Allowed).ToArray();
             Log.Info($"Forge: {all.Length} recipes; left out {left.Count} results that are OP, seasonal or dropped by nothing: {string.Join(", ", left)}");

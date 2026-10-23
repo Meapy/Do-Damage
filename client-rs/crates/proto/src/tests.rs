@@ -253,4 +253,10 @@ fn forge_messages_match_forge_handlers() {
     // ForgeHandler reads the result, then a byte count of slots.
     let frame = ClientMessage::from(Forge { result: 0x0a0f, slots: vec![4, 5].into() }).to_frame();
     assert_eq!(frame, B::default().i16(0x0a0f).u8(2).u8(4).u8(5).frame(97));
+    // ForgeShards.Write: a short count of shards (item, count); ForgeWithdrawHandler reads the item.
+    let body = B::default().i16(1).i16(0x5844).i32(7).0;
+    let ServerMessage::ForgeShards(s) = ServerMessage::decode(100, &body).unwrap() else { panic!() };
+    assert_eq!((s.shards[0].item, s.shards[0].count), (0x5844, 7));
+    let frame = ClientMessage::from(ForgeWithdraw { item: 0x5844 }).to_frame();
+    assert_eq!(frame, B::default().i16(0x5844).frame(101));
 }

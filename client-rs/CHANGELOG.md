@@ -9,6 +9,25 @@ refuses while an `Unreleased` one is left, so rename it to `## <version> (<date>
 version number itself is in `client-rs/Cargo.toml`.
 
 ## Unreleased
+- Forge shards: Oryx the Infernal Mad God (Oryx 4) drops Infernal Weapon, Ability, Armor and
+  Accessory Shards, and Oryx the Ascended God (Oryx 5) the four Ascended Shards, each half as often
+  as their Potion of Oryx. They take the place of the Shattered Rune of Oryx, Broken Oryx Armor,
+  Oryx Cloths and Purified Doom Saliva those two dropped. Use a shard and it goes into your forge
+  storage, which your whole account shares: the Divine Forge's new Shards tab shows it, and a click
+  there takes one back out to trade. Recipes take their shards straight from your storage.
+- The first Ascended items, Oryx 5's own gear, which he never drops: the Divine Forge makes them from
+  an item of the top tier he drops and an Ascended shard, for 2,000 fame. An Ascended Sword, Dagger,
+  Bow, Wand, Katana, Dual Blades and Fists from their tier 15s, an Ascended Hide and Plate from the
+  tier 16 armours, and his own pieces from any item of the tier: the Spear of Heaven (a staff, from
+  any tier 15 weapon), the Robe of the Ascended God (any tier 16 armour), the Helm of the Ascended
+  God (any tier 8 ability), and the Boots of the Ascended God and the Rings of Ascended Wrath and
+  Ascended Grace (any tier 8 ring). For now each is a placeholder with the numbers of the item it's
+  copied from. The Infernal shards' recipes come later.
+- The Divine Forge lists an item that several recipes make once, and picks the recipe you can make.
+  A new Enchant tab is there too, locked until a later update.
+- The Divine Forge's one-for-one recipes (the Phantasm Dirk and Dirk of Cronus, the Doom Bow's
+  looks, and the others that swap an item's looks) work now: the forge used to refuse anything made
+  from a single item.
 - The T15 weapons (Sword of Ascension, Dagger of Divine Wrath, Bow of the Firmament, Wand of
   Absolution, Ame-no-Habakiri, Seraphic Blades, Fists of the Ascended and the Staff of Endless
   Energy) now wear Oryx the Ascended God's colours: blue-silver blades with purple grips and gems

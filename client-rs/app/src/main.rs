@@ -1838,6 +1838,12 @@ impl App {
             for act in forge_acts {
                 game.forge(act);
             }
+            // --type: into the forge's search once its recipes came.
+            if self.forge.open && self.forge.loaded() {
+                if let Some(t) = self.type_text.take() {
+                    self.forge.key(KeyCode::KeyA, Some(&t), data);
+                }
+            }
             // An NPC's window takes the keyboard and the mouse while it's open.
             // --type: into a prompt (and Enter), or onto the board being edited.
             match &self.npcs.window {

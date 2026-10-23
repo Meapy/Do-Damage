@@ -174,6 +174,8 @@ messages! {
         // The answer to Forge or ForgeSell: the item forged (0 for a sale), the fame paid or
         // gained, and what went wrong.
         99 => ForgeResult { sold: bool, success: bool, item: u16, fame: i32, message: String },
+        // The forge storage's shards (after ForgeDataRequest, and whenever they change).
+        100 => ForgeShards { shards: List16<ForgeShard> },
     }
 }
 
@@ -241,5 +243,8 @@ messages! {
         95 => ForgeDataRequest {},
         97 => Forge { result: u16, slots: List8<u8> },
         98 => ForgeSell { slots: List8<u8> },
+        // Take a shard out of the forge storage into the inventory (an older server doesn't
+        // know it: send it only once ForgeShards came).
+        101 => ForgeWithdraw { item: u16 },
     }
 }

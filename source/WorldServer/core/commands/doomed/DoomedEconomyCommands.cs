@@ -51,35 +51,43 @@ namespace WorldServer.core.commands.doomed
                    slots.All(s => s >= 4 && s < end && player.Inventory[s] != null);
         }
 
-        // the recipe making `result` from exactly these items (each ingredient used once)
-        public static (string Result, int Fame, bool Advanced, string[] Items)? FindRecipe(GameServer server, string[] items, bool amulet, string result)
+        // The recipe making `result` from these items (each ingredient used once), and the forge
+        // shards it takes from the forge storage for the ingredients they leave out: a shard can come
+        // from either, so a client that doesn't know the storage can still forge with shards it holds.
+        public static ((string Result, int Fame, bool Advanced, string[] Items) Recipe, Dictionary<string, int> Shards)? FindRecipe(
+            Player player, string[] items, bool amulet, string result)
         {
-            foreach (var r in ForgeRecipes.All(server))
+            foreach (var r in ForgeRecipes.All(player.GameServer))
             {
-                if (r.Result != result || r.Items.Length != items.Length || (r.Advanced && !amulet))
+                if (r.Result != result || r.Items.Length < items.Length || (r.Advanced && !amulet))
                     continue;
                 var left = r.Items.ToList();
-                if (items.All(i => left.Remove(i)))
-                    return r;
+                if (!items.All(i => left.Remove(i)) || !left.All(i => ForgeStorage.Index(i) >= 0))
+                    continue;
+                var shards = left.GroupBy(i => i).ToDictionary(g => g.Key, g => g.Count());
+                if (ForgeStorage.Has(player, shards))
+                    return (r, shards);
             }
             return null;
         }
 
-        // Forges the items in these slots into `result`, the item the window showed: they must make
-        // that recipe. A worn Forge Amulet halves the price, unlocks the advanced recipes and breaks.
-        // The forged item takes the first slot. Returns what went wrong, or null.
+        // Forges the items in these slots, with any shards the recipe takes from the forge storage,
+        // into `result`, the item the window showed: they must make that recipe. A worn Forge Amulet
+        // halves the price, unlocks the advanced recipes and breaks. The forged item takes the first
+        // slot. Returns what went wrong, or null.
         public static string Forge(Player player, byte[] slots, string result, out int fame)
         {
             fame = 0;
-            if (!ValidSlots(player, slots) || slots.Length < 2)
+            if (!ValidSlots(player, slots))
                 return "Put the ingredients in your inventory first.";
             var inv = player.Inventory;
             var amulet = WearsForgeAmulet(player);
             var data = player.GameServer.Resources.GameData;
-            var recipe = FindRecipe(player.GameServer, slots.Select(s => inv[s].ObjectId).ToArray(), amulet, result);
-            if (recipe == null)
-                return "Those items don't forge into that.";
-            fame = recipe.Value.Fame / (amulet ? 2 : 1);
+            var found = FindRecipe(player, slots.Select(s => inv[s].ObjectId).ToArray(), amulet, result);
+            if (found == null)
+                return "Those items don't forge into that, or your forge storage lacks its shards.";
+            var (recipe, shards) = found.Value;
+            fame = recipe.Fame / (amulet ? 2 : 1);
             if (player.CurrentFame < fame)
                 return "Not enough fame to forge these items!";
             if (!data.IdToObjectType.TryGetValue(result, out var type) || !data.Items.TryGetValue(type, out var item))
@@ -92,6 +100,7 @@ namespace WorldServer.core.commands.doomed
             inv[slots[0]] = item;
             if (amulet)
                 inv[3] = null;
+            ForgeStorage.Take(player, shards);
             // taken at once, so a second forge before the database answers can't spend it again
             player.CurrentFame -= fame;
             DoomedWorlds.GiveFame(player, -fame);

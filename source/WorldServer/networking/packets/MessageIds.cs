@@ -112,6 +112,10 @@ public enum MessageId : byte
     FORGE = 97,
     FORGE_SELL = 98,
     FORGE_RESULT = 99,
+    // The forge storage's shards (after FORGE_DATA_REQUEST and when they change), and the
+    // client taking one out into the inventory. An older client ignores FORGE_SHARDS.
+    FORGE_SHARDS = 100,
+    FORGE_WITHDRAW = 101,
     // From the world proxy (tools/world_proxy.py), before the client's first message: the
     // client's address. Only taken on a connection from this PC; clients never send it.
     PROXY_INFO = 250

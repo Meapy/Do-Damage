@@ -103,7 +103,7 @@ The client itself can be scripted for tests (desktop only):
 | `--say <text>` | Send a chat line or command once in the game; several lines split by `;;` go out in turn, each once another world is joined or 3 s after the last (`"/dungeon Oryx's Sanctuary;;/god"`) |
 | `--npc <class>` | Open that NPC's window once in the game (`GuildBoard`, `PotionStorage`...), wherever you stand |
 | `--effect <type>` | Show that `ShowEffect` type on you every half second (0: an area attack beside you), to check particles |
-| `--type <text>` | Type into the first NPC prompt that opens (then Enter), or onto the guild board being edited |
+| `--type <text>` | Type into the first NPC prompt that opens (then Enter), onto the guild board being edited, or into the Divine Forge's search (with `--npc Forge`) |
 | `--size WxH` | Open the window at this size (physical pixels), to check the layout |
 | `--mouse x,y` | Put the mouse there (window pixels) and ignore the real one and its buttons: tooltips, aiming |
 | `--mouse-script "down@ms:x,y;move@ms:x,y;up@ms:x,y;right@ms:x,y"` | Mouse steps after joining: left-button drags and clicks on the HUD, and right-clicks |

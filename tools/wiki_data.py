@@ -435,6 +435,23 @@ class Data:
             forge_only.add(res)
             recipes.append({"result": res, "fame": int(fame), "advanced": adv == "true", "items": re.findall(r'"([^"]+)"', ing)})
 
+        # the Ascended items (ForgeRecipes.Ascended): an item of a tier, of its slot or (slot 0) of any
+        # slot of its kind, and an Ascended shard; `ascended` marks them, with the kind and tier when
+        # any item of them will do, for the forge page
+        forge_src = _read(os.path.join(COMMANDS, "doomed", "ForgeRecipes.cs"))
+        consts = dict(re.findall(r'(\w+Shard)\s*=\s*"([^"]+)"', forge_src))
+        fame_m = re.search(r'AscendedFame\s*=\s*(\d+)', forge_src)
+        m = re.search(r'\bAscended\s*=\s*\{(.*?)\};', forge_src, re.S)
+        for res, kind, tier, slot, shard in re.findall(
+                r'\("([^"]+)",\s*ItemType\.(\w+),\s*(\d+),\s*(\d+),\s*(\w+)\)', m.group(1) if m else ""):
+            tier, slot = int(tier), int(slot)
+            forge_only.add(res)
+            for oid, o in sorted(items.items(), key=lambda kv: kv[1]["type"]):
+                if o["tier"] == tier and (o["slot"] == slot if slot else loot["types"].get(o["slot"]) == kind):
+                    recipes.append({"result": res, "fame": int(fame_m.group(1)), "advanced": False,
+                                    "items": [oid, consts[shard]],
+                                    "ascended": {"any": (kind, tier) if slot == 0 else None}})
+
         def key(r):
             return r["result"] + "=" + "+".join(sorted(r["items"]))
         known = {key(r) for r in recipes}

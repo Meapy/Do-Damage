@@ -400,7 +400,13 @@ namespace WorldServer.logic
                     new ItemLoot("Potion of Speed", 1),
                     new ItemLoot("Potion of Dexterity", 1),
                     new ItemLoot("Potion of Oryx", 0.25),
-                    new ItemLoot("Potion of Power", 0.06)
+                    new ItemLoot("Potion of Power", 0.06),
+                    // his forge shards, each half as common as the Potion of Oryx (ForgeStorage.cs):
+                    // they forge his Ascended items (ForgeRecipes.Ascended), which he never drops
+                    new ItemLoot("Ascended Weapon Shard", 0.125),
+                    new ItemLoot("Ascended Ability Shard", 0.125),
+                    new ItemLoot("Ascended Armor Shard", 0.125),
+                    new ItemLoot("Ascended Accessory Shard", 0.125)
                 ),
                 // 3% of the damage: more stat potions and the rare drops
                 new Threshold(0.03,
@@ -410,11 +416,6 @@ namespace WorldServer.logic
                     new ItemLoot("Potion of Defense", 0.3),
                     new ItemLoot("Potion of Speed", 0.3),
                     new ItemLoot("Potion of Dexterity", 0.3),
-                    new ItemLoot("Shattered Rune of Oryx", 0.5),
-                    new ItemLoot("Broken Oryx Armor", 0.4),
-                    new ItemLoot("Purified Doom Saliva", 0.3),
-                    new ItemLoot("Large Oryx Cloth", 0.15),
-                    new ItemLoot("Small Oryx Cloth", 0.15),
                     new ItemLoot("Doom Dirk", 0.02),
                     new ItemLoot("Flying Doom Daggers", 0.02),
                     new ItemLoot("Tome of Noble Assault", 0.02),

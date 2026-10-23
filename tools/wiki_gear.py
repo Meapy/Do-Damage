@@ -256,7 +256,16 @@ class Gear:
         if oid in self.gen.bazaar:
             price, shop = self.gen.bazaar[oid]
             rows.append(("Shop", "Nexus Bazaar (%s), %d fame" % (h.esc(shop), price)))
+        any_done = False
         for r in self.forged.get(oid, []):
+            # an Ascended item from any item of a tier and kind: one line for all its recipes
+            if r.get("ascended") and r["ascended"]["any"]:
+                if not any_done:
+                    kind, tier = r["ascended"]["any"]
+                    rows.append(("Divine Forge", "any tier %d %s + %s, %s fame" % (
+                        tier, h.esc(kind.lower()), h.esc(d.name(r["items"][1])), "{:,}".format(r["fame"]))))
+                    any_done = True
+                continue
             counts = {}
             for i in r["items"]:
                 counts[i] = counts.get(i, 0) + 1

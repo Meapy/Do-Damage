@@ -689,6 +689,7 @@ impl Game {
                 fame: r.fame,
                 message: r.message.clone(),
             }),
+            ServerMessage::ForgeShards(s) => self.forge_events.push(crate::forge::Event::Shards(s.shards.0.clone())),
             ServerMessage::Goto(g) => world.apply_goto(g.object_id, g.pos.x as f64, g.pos.y as f64, now, data),
             ServerMessage::EnemyShoot(e) => {
                 let Some(owner) = world.objects.get(&e.owner_id).filter(|o| !o.dead) else { return };
@@ -1190,6 +1191,7 @@ impl Game {
             Act::Data => bsk_proto::ForgeDataRequest {}.into(),
             Act::Forge(result, slots) => bsk_proto::Forge { result, slots: bsk_proto::List8(slots) }.into(),
             Act::Sell(slots) => bsk_proto::ForgeSell { slots: bsk_proto::List8(slots) }.into(),
+            Act::Withdraw(item) => bsk_proto::ForgeWithdraw { item }.into(),
         };
         self.send(msg);
     }

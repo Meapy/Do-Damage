@@ -3,7 +3,7 @@ title: The Divine Forge
 nav: 11
 sprite: anvil
 eyebrow: Gear and stuff
-summary: Forging items at the Divine Forge in the Nexus: two of a tier make one of the next, what each tier costs, every other recipe, and selling items for fame.
+summary: Forging items at the Divine Forge in the Nexus: two of a tier make one of the next, what each tier costs, forge shards and the Ascended items, every other recipe, and selling items for fame.
 ---
 {{gen:forge_banner}}
 
@@ -19,8 +19,9 @@ tier below, and the rest are special recipes, most of them from Doomed Realms.
 3. Browse the recipes by what they make (weapons, abilities, armor, rings, the rest, then by kind),
    search for one, or turn on **Forge Ready Items** to see only what you can make with what you
    carry.
-4. Pick a recipe. **Insert all** puts its ingredients in from your inventory, or click each empty
-   ingredient slot to put one in.
+4. Pick a recipe. **Insert all** puts its ingredients in from your inventory (and forge shards from
+   your forge storage), or click each empty ingredient slot to put one in. An item several recipes
+   make is listed once: the forge picks a recipe you can make, and says how many there are.
 5. Press **Forge**. It takes the fame shown, and the new item takes the first ingredient's place in
    your inventory.
 
@@ -42,6 +43,34 @@ costs more than {{v:forge_cap}} fame.
 > Weapons and armor start at tier 0 and 1, so the first upgrade makes a tier 1 weapon or a tier 2
 > armor. Every ability and ring costs the same at each tier. A few weapon and armor tiers keep the
 > Doomed Realms forge's own prices, which is why daggers, wands and the armors differ a little.
+
+## Forge shards and the forge storage
+
+Oryx the Infernal Mad God (Oryx 4) drops **Infernal shards** and Oryx the Ascended God (Oryx 5)
+**Ascended shards**, one of each kind of gear: a Weapon, Ability, Armor and Accessory Shard. Each
+drops half as often as that Oryx's Potion of Oryx.
+
+Use a shard (double-click it, as you would a potion) and it goes into your **forge storage**, which
+your whole account shares, wherever you are. The forge's **Shards** tab shows what it holds; click a
+shard there to take one back out into your inventory, to trade it. When a recipe needs a shard, the
+forge takes it from your storage: you don't need to carry it.
+
+The Infernal shards don't make anything yet: their recipes come in a later update.
+
+## The Ascended items
+
+Oryx the Ascended God's own gear, which he never drops: the forge makes it from an item of the
+highest tier he drops and an Ascended shard of its kind. Each weapon and armour comes from its own
+kind's top item (a tier 15 dagger makes the Ascended Dagger); his own pieces take any item of the
+tier: the **Spear of Heaven**, a staff, from any tier 15 weapon, his robe from any tier 16 armour,
+his helm from any tier 8 ability, and his boots and two rings from any tier 8 ring.
+
+> These are **placeholders**: for now each has the numbers of the item it's copied from (its tooltip
+> says which). They'll get their own later.
+
+{{gen:forge_ascended}}
+
+The **Enchant** tab beside Forge is locked: enchanting comes in a later update.
 
 ## Other recipes
 

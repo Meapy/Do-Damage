@@ -29,6 +29,23 @@ namespace WorldServer.core.net.handlers
                 .Select(p => (types[p.Item], p.Fame))
                 .ToArray();
             client.SendPacket(new ForgeData() { Recipes = recipes, Prices = prices });
+            ForgeStorage.Send(client.Player);
+        }
+    }
+
+    public class ForgeWithdrawHandler : IMessageHandler
+    {
+        public override MessageId MessageId => MessageId.FORGE_WITHDRAW;
+
+        public override void Handle(Client client, NetworkReader rdr, ref TickTime time)
+        {
+            var item = rdr.ReadUInt16();
+            var player = client.Player;
+            if (player == null)
+                return;
+            var error = DoomedEconomy.NearForge(player) ? ForgeStorage.Withdraw(player, item) : "Stand by the Divine Forge to take shards out.";
+            if (error != null)
+                player.SendError(error);
         }
     }
 

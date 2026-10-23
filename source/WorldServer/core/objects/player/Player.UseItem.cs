@@ -7,6 +7,7 @@ using System;
 using System.Collections.Generic;
 using System.Data;
 using System.Linq;
+using WorldServer.core.commands.doomed;
 using WorldServer.core.net.datas;
 using WorldServer.core.net.stats;
 using WorldServer.core.objects.containers;
@@ -151,6 +152,13 @@ namespace WorldServer.core.objects
                     Refuse($"Your {PotionNames[stat]} potion storage is full..");
                     return;
                 }
+
+            // a forge shard goes to the forge storage, so with that full it isn't spent
+            if (ForgeStorage.Full(this, item.ObjectId))
+            {
+                Refuse($"Your forge storage holds no more {item.ObjectId}s.");
+                return;
+            }
 
             // an incantation is only spent where it works: in its dungeon, beside its locked portal
             foreach (var eff in item.ActivateEffects)
@@ -452,6 +460,9 @@ namespace WorldServer.core.objects
                 StartXPBoost(item, slot, objId, item.Timer < 0 ? -1 : (int)(item.Timer * 1000));
             if (item.LDBoosted && item.Timer > 0 && !item.ActivateEffects.Any(e => e.Effect == ActivateEffects.LDBoost))
                 StartLDBoost((int)(item.Timer * 1000));
+            // the forge shards have no Activate effect: used, they go to the forge storage
+            if (ForgeStorage.Index(item.ObjectId) >= 0)
+                ForgeStorage.Store(this, item.ObjectId);
 
             foreach (var eff in item.ActivateEffects)
             {

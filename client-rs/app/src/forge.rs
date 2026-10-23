@@ -1,10 +1,13 @@
 //! The Divine Forge's window, opened from the forge in the Nexus's south yard.
 //!
 //! Forge: the recipes (`ForgeData`), filtered by what they make (weapons, abilities, armor,
-//! rings and the rest, then by slot type) or by name, or to what can be made now. Picking one
-//! shows its ingredients as sockets; the player puts in items from the inventory, forges, and
-//! watches the items go into the fire and the forged item come out. Sell: the inventory with
-//! what the forge pays for each item under it; pick items and sell them for fame.
+//! rings and the rest, then by slot type) or by name, or to what can be made now; a result
+//! several recipes make is listed once. Picking one shows its ingredients as sockets; the player
+//! puts in items from the inventory (forge shards come from the forge storage), forges, and
+//! watches the items go into the fire and the forged item come out. Enchant: locked, a teaser
+//! for a later update. Shards: the forge storage (`ForgeShards`), the shards the account has
+//! used, which a click takes back out into the inventory. Sell: the inventory with what the
+//! forge pays for each item under it; pick items and sell them for fame.
 //!
 //! The server checks everything (`ForgeHandlers.cs`): the window only says what it asks for. The
 //! forged item takes the first ingredient's inventory slot.
@@ -12,7 +15,7 @@
 use crate::hud::{Layout, SlotKind, Ui};
 use crate::theme::{self, color, Kind};
 use bsk_data::GameData;
-use bsk_proto::{ForgePrice, ForgeRecipe};
+use bsk_proto::{ForgePrice, ForgeRecipe, ForgeShard};
 use bsk_world::GameObj;
 use std::collections::{HashMap, HashSet};
 use winit::keyboard::KeyCode;
@@ -26,6 +29,8 @@ pub enum Act {
     Forge(u16, Vec<u8>),
     /// Sell the items in these inventory slots.
     Sell(Vec<u8>),
+    /// Take one of this shard out of the forge storage.
+    Withdraw(u16),
 }
 
 /// What the server said.
@@ -33,12 +38,17 @@ pub enum Act {
 pub enum Event {
     Data(Vec<ForgeRecipe>, Vec<ForgePrice>),
     Result { sold: bool, success: bool, item: u16, fame: i32, message: String },
+    /// The forge storage's shards and counts.
+    Shards(Vec<ForgeShard>),
 }
 
 #[derive(Clone, Copy, Debug, PartialEq, Eq, Default)]
 enum Tab {
     #[default]
     Forge,
+    /// Locked: a teaser for a later update.
+    Enchant,
+    Shards,
     Sell,
 }
 
@@ -107,6 +117,7 @@ enum Hit {
     SellSlot(u8),
     SellAll,
     Sell,
+    Withdraw(u16),
 }
 
 /// Where a forging is.
@@ -132,6 +143,8 @@ const AMULET: &str = "Forge Amulet";
 const FAME_STAT: u8 = 39;
 /// The forge's sprite sheet (`tools/draw_forge_sprite.py`): three frames of fire, then a flash.
 const SHEET: &str = "customAssets32x32";
+/// A socket filled from the forge storage rather than an inventory slot.
+const STORAGE: u8 = 255;
 
 /// The forge window.
 #[derive(Default)]
@@ -153,8 +166,11 @@ pub struct Forge {
     row: usize,
     rows: usize,
     picked: Option<usize>,
-    /// The inventory slot put into each of the picked recipe's sockets.
+    /// The inventory slot put into each of the picked recipe's sockets (`STORAGE`: a shard from
+    /// the forge storage).
     sockets: Vec<Option<u8>>,
+    /// The forge storage's shards, in the server's order, and how many of each.
+    shards: Vec<(u16, i32)>,
     forging: Option<Forging>,
     /// The Sell tab's picked slots.
     selling: Vec<u8>,
@@ -192,20 +208,37 @@ impl Forge {
         (!self.loaded).then_some(Act::Data)
     }
 
+    /// Whether the recipes came.
+    pub fn loaded(&self) -> bool {
+        self.loaded
+    }
+
     fn category_of(&self, data: &GameData, item: u16) -> (Category, i32) {
         let slot = data.objects.get(&item).map_or(0, |d| d.xml.int("SlotType", 0));
         (self.kinds.get(&slot).copied().unwrap_or(Category::Other), slot)
     }
 
-    /// Whether the inventory holds all of a recipe's ingredients.
+    /// How many of this shard the forge storage holds (0 for anything else).
+    fn stored(&self, item: u16) -> i32 {
+        self.shards.iter().find(|&&(t, _)| t == item).map_or(0, |&(_, n)| n)
+    }
+
+    /// Whether the inventory and the forge storage hold all of a recipe's ingredients.
     fn can_make(&self, r: &ForgeRecipe) -> bool {
         let mut have: Vec<i32> = self.inventory.iter().map(|&(_, t)| t).collect();
+        let mut stored = self.shards.clone();
         r.items.iter().all(|&i| match have.iter().position(|&t| t == i as i32) {
             Some(k) => {
                 have.swap_remove(k);
                 true
             }
-            None => false,
+            None => match stored.iter_mut().find(|(t, n)| *t == i && *n > 0) {
+                Some((_, n)) => {
+                    *n -= 1;
+                    true
+                }
+                None => false,
+            },
         })
     }
 
@@ -236,7 +269,25 @@ impl Forge {
             })
             .collect();
         shown.sort_by(|a, b| (a.0, a.1 as u8, &a.2).cmp(&(b.0, b.1 as u8, &b.2)));
-        self.shown = shown.into_iter().map(|(_, _, _, i)| i).collect();
+        // A result several recipes make (an Ascended item from any T15 weapon) is listed once:
+        // the first that can be made now, else the first.
+        let mut seen: HashMap<u16, usize> = HashMap::new();
+        let mut list: Vec<usize> = Vec::new();
+        for (_, _, _, i) in shown {
+            let result = self.recipes[i].result;
+            match seen.get(&result) {
+                Some(&at) => {
+                    if !self.can_make(&self.recipes[list[at]]) && self.can_make(&self.recipes[i]) {
+                        list[at] = i;
+                    }
+                }
+                None => {
+                    seen.insert(result, list.len());
+                    list.push(i);
+                }
+            }
+        }
+        self.shown = list;
         self.row = 0;
     }
 
@@ -262,6 +313,13 @@ impl Forge {
         if self.forging.as_ref().is_some_and(|f| matches!(f, Forging::Going { .. })) {
             return;
         }
+        // of the recipes making the same item, one that can be made now
+        let result = self.recipes[i].result;
+        let i = if self.can_make(&self.recipes[i]) {
+            i
+        } else {
+            (0..self.recipes.len()).find(|&k| self.recipes[k].result == result && self.can_make(&self.recipes[k])).unwrap_or(i)
+        };
         self.picked = Some(i);
         self.sockets = vec![None; self.recipes[i].items.len()];
         self.forging = None;
@@ -273,7 +331,13 @@ impl Forge {
         let Some(r) = self.picked.map(|i| &self.recipes[i]) else { return false };
         let want = r.items[k] as i32;
         let used: Vec<u8> = self.sockets.iter().flatten().copied().collect();
-        let found = self.inventory.iter().find(|&&(s, t)| t == want && !used.contains(&s)).map(|&(s, _)| s);
+        // a shard comes from the forge storage while it has one not in use
+        let from_storage = self.sockets.iter().enumerate().filter(|&(j, s)| *s == Some(STORAGE) && r.items[j] == r.items[k]).count() as i32;
+        let found = if self.stored(r.items[k]) > from_storage {
+            Some(STORAGE)
+        } else {
+            self.inventory.iter().find(|&&(s, t)| t == want && !used.contains(&s)).map(|&(s, _)| s)
+        };
         if let Some(s) = found {
             self.sockets[k] = Some(s);
         }
@@ -290,6 +354,12 @@ impl Forge {
                 self.loaded = true;
                 self.picked = None;
                 self.filter(data);
+            }
+            Event::Shards(shards) => {
+                self.shards = shards.into_iter().map(|s| (s.item, s.count)).collect();
+                if self.loaded {
+                    self.filter(data);
+                }
             }
             Event::Result { sold: true, success, fame, message, .. } => {
                 if success {
@@ -314,6 +384,9 @@ impl Forge {
         }
         let hit = self.hits.iter().find(|(_, r)| inside(*r, pos)).map(|(h, _)| *h)?;
         match hit {
+            Hit::Tab(Tab::Enchant) => {
+                self.message = Some(("Enchanting is locked: it comes in a later update.".into(), false));
+            }
             Hit::Tab(t) => {
                 if !matches!(self.forging, Some(Forging::Going { .. })) {
                     self.tab = t;
@@ -343,7 +416,7 @@ impl Forge {
                     if self.sockets[k].is_some() {
                         self.sockets[k] = None;
                     } else if !self.insert(k) {
-                        self.message = Some(("You have none of those in your inventory.".into(), true));
+                        self.message = Some(("You have none of those in your inventory or forge storage.".into(), true));
                     }
                 }
             }
@@ -355,7 +428,7 @@ impl Forge {
                             missing |= !self.insert(k);
                         }
                     }
-                    self.message = missing.then(|| ("Some ingredients aren't in your inventory.".into(), true));
+                    self.message = missing.then(|| ("Some ingredients aren't in your inventory or forge storage.".into(), true));
                 }
             }
             Hit::Forge => {
@@ -367,7 +440,7 @@ impl Forge {
                 } else if self.fame < self.price(r) {
                     self.message = Some(("Not enough fame.".into(), true));
                 } else {
-                    let slots: Vec<u8> = self.sockets.iter().flatten().copied().collect();
+                    let slots: Vec<u8> = self.sockets.iter().flatten().copied().filter(|&s| s != STORAGE).collect();
                     self.message = None;
                     self.forging = Some(Forging::Going { since: self.now, answer: None });
                     return Some(Act::Forge(r.result, slots));
@@ -395,6 +468,14 @@ impl Forge {
                     self.message = Some(("Pick items to sell first.".into(), true));
                 } else {
                     return Some(Act::Sell(self.selling.clone()));
+                }
+            }
+            Hit::Withdraw(item) => {
+                if self.stored(item) <= 0 {
+                    self.message = Some(("None of those in your forge storage.".into(), true));
+                } else {
+                    self.message = None;
+                    return Some(Act::Withdraw(item));
                 }
             }
         }
@@ -450,8 +531,18 @@ impl Forge {
         self.wears_amulet = self.amulet.is_some_and(|a| me.stat_int(crate::hud::slot_stat(3)).unwrap_or(-1) == a as i32);
         if self.forging.is_none() {
             if let Some(r) = self.picked.map(|i| self.recipes[i].clone()) {
+                let mut from_storage: HashMap<u16, i32> = HashMap::new();
                 for (k, s) in self.sockets.iter_mut().enumerate() {
-                    if s.is_some_and(|s| !self.inventory.contains(&(s, r.items[k] as i32))) {
+                    let gone = match *s {
+                        Some(STORAGE) => {
+                            let n = from_storage.entry(r.items[k]).or_insert(0);
+                            *n += 1;
+                            *n > self.shards.iter().find(|&&(t, _)| t == r.items[k]).map_or(0, |&(_, c)| c)
+                        }
+                        Some(slot) => !self.inventory.contains(&(slot, r.items[k] as i32)),
+                        None => false,
+                    };
+                    if gone {
                         *s = None;
                     }
                 }
@@ -506,14 +597,18 @@ impl Forge {
         let mid = r[1] + 32.0 * s;
         let ts = font(22.0);
         ui.label("Divine Forge", r[0] + 22.0 * s, (mid - ui.digit_middle(ts, true)).round(), ts, true, color::GOLD);
-        let tabs = [(Tab::Forge, "Forge"), (Tab::Sell, "Sell for fame")];
+        let tabs = [(Tab::Forge, "Forge"), (Tab::Enchant, "Enchant"), (Tab::Shards, "Shards"), (Tab::Sell, "Sell for fame")];
         let cs = font(13.0);
         let widths: Vec<f32> = tabs.iter().map(|(_, l)| ui.measure(l, cs, true) + 36.0 * s).collect();
         let gap = 8.0 * s;
         let mut x = (r[0] + (r[2] - widths.iter().sum::<f32>() - gap) / 2.0).round();
         for ((t, label), w) in tabs.into_iter().zip(widths) {
             let tr = [x, (mid - 14.0 * s).round(), w, 28.0 * s];
-            self.chip(ui, tr, label, t == self.tab, mouse, cs);
+            if t == Tab::Enchant {
+                locked_chip(ui, tr, label, cs, s);
+            } else {
+                self.chip(ui, tr, label, t == self.tab, mouse, cs);
+            }
             self.hits.push((Hit::Tab(t), tr));
             x += w + gap;
         }
@@ -538,6 +633,8 @@ impl Forge {
         match self.tab {
             Tab::Forge => self.draw_forge(ui, body, s, mouse, now),
             Tab::Sell => self.draw_sell(ui, body, s, mouse),
+            Tab::Shards => self.draw_shards(ui, body, s, mouse),
+            Tab::Enchant => {}
         }
         let foot_y = r[1] + r[3] - 36.0 * s;
         if let Some((m, err)) = &self.message {
@@ -739,13 +836,15 @@ impl Forge {
         let row_w = n as f32 * cell + (n.saturating_sub(1)) as f32 * gap;
         let sy = r[1] + r[3] - 120.0 * s;
         let sx = fx - row_w / 2.0;
-        let label = "Ingredients";
-        let lw = ui.measure(label, font(12.0), true);
-        ui.label(label, fx - lw / 2.0, sy - 22.0 * s, font(12.0), true, color::TEXT_DIM);
+        // a result several recipes make: say so (the list shows it once)
+        let others = self.recipes.iter().filter(|o| o.result == rec.result).count();
+        let label = if others > 1 { format!("Ingredients  ·  one of {others} recipes") } else { "Ingredients".to_owned() };
+        let lw = ui.measure(&label, font(12.0), true);
+        ui.label(&label, fx - lw / 2.0, sy - 22.0 * s, font(12.0), true, color::TEXT_DIM);
         for (k, &item) in rec.items.iter().enumerate() {
             let cr = [sx + k as f32 * (cell + gap), sy, cell, cell];
             let inserted = self.sockets.get(k).copied().flatten();
-            let have = inserted.is_some() || self.inventory.iter().any(|&(_, t)| t == item as i32);
+            let have = inserted.is_some() || self.inventory.iter().any(|&(_, t)| t == item as i32) || self.stored(item) > 0;
             let edge = if inserted.is_some() { Some(color::GOLD) } else if have { crate::screens::tier_edge(ui.data, item as i32) } else { Some(color::DANGER) };
             // Once forged, the sockets stand empty: their items went into the fire.
             if done.is_some() {
@@ -769,6 +868,14 @@ impl Forge {
                     ui.item_icon(item as i32, 80, cx, cy, s);
                     if inserted.is_none() {
                         theme::fill(ui.renderer, cr, 5.0 * s, 0x000000, if have { 0.35 } else { 0.6 });
+                    }
+                    // a shard: how many the forge storage holds
+                    if self.shards.iter().any(|&(t, _)| t == item) {
+                        let t = self.stored(item).to_string();
+                        let fs = font(11.0);
+                        let w = ui.measure(&t, fs, true);
+                        let col = if inserted == Some(STORAGE) { color::GOLD } else { color::TEXT_DIM };
+                        ui.label(&t, cr[0] + cr[2] - w - 4.0 * s, cr[1] + cr[3] - fs * 1.25, fs, true, col);
                     }
                 }
             }
@@ -816,6 +923,47 @@ impl Forge {
             fame_button(ui, fb, &label, if ready { Kind::Primary } else { Kind::Secondary }, inside(fb, mouse), s);
             self.hits.push((Hit::InsertAll, ib));
             self.hits.push((Hit::Forge, fb));
+        }
+    }
+
+    /// The Shards tab: the forge storage, the Infernal shards on one row and the Ascended on
+    /// the next (the server's order, four a row), each with its count; a click takes one out.
+    fn draw_shards(&mut self, ui: &mut Ui, body: [f32; 4], s: f32, mouse: (f64, f64)) {
+        let font = |size: f32| (size * s).round().max(9.0);
+        ui.label("Forge storage", body[0], body[1], font(14.0), true, color::TEXT_DIM);
+        let help = "Shards you use go here, and the forge takes a recipe's shards from here. Click a shard to take one out.";
+        ui.label(help, body[0], body[1] + 22.0 * s, font(12.0), false, color::TEXT_MUTED);
+        if self.shards.is_empty() {
+            ui.label("This server has no forge storage yet.", body[0], body[1] + 60.0 * s, font(13.0), false, color::TEXT_MUTED);
+            return;
+        }
+        let cell = 64.0 * s;
+        let (gx, gy) = (120.0 * s, 52.0 * s);
+        let cols = 4;
+        let grid_w = cols as f32 * cell + (cols - 1) as f32 * gx;
+        let x0 = body[0] + (body[2] - grid_w) / 2.0;
+        let y0 = body[1] + 70.0 * s;
+        for (n, &(item, count)) in self.shards.clone().iter().enumerate() {
+            let sr = [x0 + (n % cols) as f32 * (cell + gx), y0 + (n / cols) as f32 * (cell + gy), cell, cell];
+            let over = inside(sr, mouse);
+            let edge = if count > 0 { crate::screens::tier_edge(ui.data, item as i32) } else { None };
+            ui.slot_box(sr, edge, over && count > 0, s);
+            ui.item_icon(item as i32, 80, sr[0] + sr[2] / 2.0, sr[1] + sr[3] / 2.0, s * 1.1);
+            if count <= 0 {
+                theme::fill(ui.renderer, sr, 5.0 * s, 0x000000, 0.55);
+            }
+            let t = crate::hud::group_digits(count);
+            let fs = font(12.0);
+            let w = ui.measure(&t, fs, true);
+            ui.label(&t, sr[0] + sr[2] - w - 5.0 * s, sr[1] + sr[3] - fs * 1.3, fs, true, if count > 0 { color::TEXT } else { color::TEXT_MUTED });
+            let name = ui.data.objects.get(&item).map_or(String::new(), |d| d.display_id.clone());
+            let ns = font(11.5);
+            let nw = ui.measure(&name, ns, false);
+            ui.label(&name, sr[0] + (sr[2] - nw) / 2.0, sr[1] + sr[3] + 6.0 * s, ns, false, color::TEXT_DIM);
+            if over {
+                self.hover_item = Some(item as i32);
+            }
+            self.hits.push((Hit::Withdraw(item), sr));
         }
     }
 
@@ -886,6 +1034,22 @@ impl Forge {
         self.hits.push((Hit::SellAll, ab));
         self.hits.push((Hit::Sell, sb));
     }
+}
+
+/// A tab that can't be opened yet: dimmed, with a padlock before its label.
+fn locked_chip(ui: &mut Ui, r: [f32; 4], label: &str, size: f32, s: f32) {
+    theme::fill(ui.renderer, r, r[3] / 2.0, color::CHIP, 0.5);
+    let lock = 10.0 * s;
+    let lw = ui.measure(label, size, true);
+    let x = r[0] + (r[2] - lw - lock - 5.0 * s) / 2.0;
+    let ly = r[1] + r[3] / 2.0 - lock * 0.15;
+    // the shackle, then the body
+    let t = (1.5 * s).max(1.0);
+    ui.rect(x + lock * 0.2, ly - lock * 0.45, t, lock * 0.45, color::TEXT_MUTED, 1.0);
+    ui.rect(x + lock * 0.8 - t, ly - lock * 0.45, t, lock * 0.45, color::TEXT_MUTED, 1.0);
+    ui.rect(x + lock * 0.2, ly - lock * 0.45, lock * 0.6, t, color::TEXT_MUTED, 1.0);
+    ui.rect(x, ly, lock, lock * 0.6, color::TEXT_MUTED, 1.0);
+    ui.label(label, x + lock + 5.0 * s, r[1] + (r[3] - size * 1.22) / 2.0, size, true, color::TEXT_MUTED);
 }
 
 /// Where a recipe's result goes in the list: untiered gear (UTs) first, then tiered gear from
@@ -996,6 +1160,29 @@ mod tests {
         f.pick(0);
         assert!(f.insert(0) && f.insert(1) && !f.insert(2));
         assert!(!f.can_make(&f.recipes[0].clone()));
+    }
+
+    #[test]
+    fn shards_come_from_the_forge_storage() {
+        let mut f = Forge { recipes: vec![recipe(9, &[5, 7]), recipe(9, &[6, 7])], ..Default::default() };
+        f.inventory = vec![(4, 6)];
+        assert!(!f.can_make(&f.recipes[1].clone()));
+        f.shards = vec![(7, 1)];
+        assert!(f.can_make(&f.recipes[1].clone()));
+        // picking the first recipe for item 9 picks the one that can be made
+        f.pick(0);
+        assert_eq!(f.picked, Some(1));
+        assert!(f.insert(0) && f.insert(1));
+        assert_eq!(f.sockets, vec![Some(4), Some(STORAGE)]);
+        // one in storage fills one socket only
+        f.recipes = vec![recipe(9, &[7, 7])];
+        f.pick(0);
+        assert!(f.insert(0) && !f.insert(1));
+        // the list shows a result once
+        f.recipes = vec![recipe(9, &[5, 7]), recipe(9, &[6, 7]), recipe(8, &[6])];
+        f.filter(&GameData::default());
+        assert_eq!(f.shown.len(), 2);
+        assert!(f.shown.contains(&1));
     }
 
     #[test]

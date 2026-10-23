@@ -391,7 +391,7 @@ class Gen:
         slot_order = [s for cat, _ in groups if cat for s in eq.kinds.get(cat, [])]
         out = []
         for cat, title in groups:
-            rs = [r for r in self.forge if not r["chain"] and cat_of.get(r["result"]) == cat]
+            rs = [r for r in self.forge if not r["chain"] and not r.get("ascended") and cat_of.get(r["result"]) == cat]
             if not rs:
                 continue
             o = self.d.objects
@@ -411,6 +411,26 @@ class Gen:
                            "forge-" + slugify(title), esc(title), "".join(rows)))
             used.add("forge-" + slugify(title))
         return "\n".join(out)
+
+    def gen_forge_ascended(self, used):
+        """The Ascended items, a row each: an item of his top tier (its slot's, or any of its kind) and
+        an Ascended shard."""
+        rows, seen = [], set()
+        for r in self.forge:
+            a = r.get("ascended")
+            if not a or r["result"] in seen:
+                continue
+            seen.add(r["result"])
+            if a["any"]:
+                kind, tier = a["any"]
+                frm = '<span class="fr-item"><span class="fr-name">any tier %d %s</span></span>' % (
+                    tier, esc({"Ability": "ability", "Ring": "ring", "Armor": "armor"}.get(kind, kind.lower())))
+            else:
+                frm = self.forge_item(r["items"][0])
+            rows.append('<tr><td>%s</td><td class="fr-ing">%s%s</td><td class="fr-fame">%s</td></tr>' % (
+                self.forge_item(r["result"]), frm, self.forge_item(r["items"][1]), "{:,}".format(r["fame"])))
+        return ('<div class="table-wrap fr-list"><table><thead><tr><th>Makes</th><th>From</th><th>Fame</th></tr>'
+                '</thead><tbody>%s</tbody></table></div>' % "".join(rows))
 
     # --- the Gear statistics page (tools/wiki_balance.py) ------------------------------------
     @property

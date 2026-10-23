@@ -84,6 +84,14 @@ wire_struct! {
 }
 
 wire_struct! {
+    /// A forge shard in the forge storage (`ForgeShards`) and how many are there.
+    pub struct ForgeShard {
+        pub item: u16,
+        pub count: i32,
+    }
+}
+
+wire_struct! {
     pub struct TradeItem {
         pub item: i32,
         pub slot_type: i32,
