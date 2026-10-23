@@ -19,6 +19,7 @@ and ring in the game's XML, with its sprite, its numbers and where it comes from
 A category is where the classes wear the slot type (a class's slots are weapon, ability, armor,
 ring), so a Wakizashi is an ability, as it is for the Samurai.
 """
+import hashlib
 import os
 import re
 import shutil
@@ -788,8 +789,11 @@ class Gear:
         for name, (cls, full, tw, th, sw, sh, _, _) in sorted(self.sheets.items(), key=lambda kv: kv[1][0]):
             shutil.copy2(full, os.path.join(out, "sheets", name + ".png"))
             scale = max(1, ICON // max(tw, th))
-            rules.append(".%s{background-image:url(sheets/%s.png);background-size:%dpx %dpx;width:%dpx;height:%dpx}" % (
-                cls, name, sw * scale, sh * scale, tw * scale, th * scale))
+            # the sheet's own hash on its url, so a redrawn sheet isn't served from a browser's cache
+            with open(full, "rb") as f:
+                v = hashlib.sha1(f.read()).hexdigest()[:8]
+            rules.append(".%s{background-image:url(sheets/%s.png?v=%s);background-size:%dpx %dpx;width:%dpx;height:%dpx}" % (
+                cls, name, v, sw * scale, sh * scale, tw * scale, th * scale))
         css = "/* The item sprites on the wiki's gear pages, written by tools/wiki_gear.py */\n" + "\n".join(rules) + "\n"
         with open(os.path.join(out, "icons.css"), "w", encoding="utf-8", newline="\n") as f:
             f.write(css)
