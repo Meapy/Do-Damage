@@ -70,6 +70,13 @@ namespace WorldServer.core.commands.doomed
             ("Helm of the Juggernaut", 100, false, new[] { "Helm of the Jack-o'-naut" }),
         };
 
+        // Tiered items only their boss gives, which no recipe makes (the T16 armours, which only Oryx the
+        // Ascended God drops). They still count for their slot's price scale, which they always topped.
+        private static readonly HashSet<string> NeverForged = new HashSet<string>
+        {
+            "Sphinx Leather Armor", "Armor of the Pyramid", "Robe of the Nile"
+        };
+
         private static (string Result, int Fame, bool Advanced, string[] Items)[] _all;
         private static readonly object Lock = new object();
 
@@ -90,7 +97,8 @@ namespace WorldServer.core.commands.doomed
             bool Tiered(string id) => items.TryGetValue(id, out var i) && i.Tier >= 0;
             var forgeOnly = new HashSet<string>(ForgeOnly.Select(r => r.Result));
             bool Allowed((string Result, int Fame, bool Advanced, string[] Items) r) =>
-                items.ContainsKey(r.Result) && (dropped.Contains(r.Result) || forgeOnly.Contains(r.Result))
+                items.ContainsKey(r.Result) && !NeverForged.Contains(r.Result)
+                && (dropped.Contains(r.Result) || forgeOnly.Contains(r.Result))
                 && !seasonal.Contains(r.Result) && r.Items.All(items.ContainsKey);
 
             var slots = new HashSet<int>(data.Classes.Values.Where(c => c.SlotTypes != null).SelectMany(c => c.SlotTypes.Take(4)));

@@ -415,10 +415,6 @@ namespace WorldServer.logic
                     new ItemLoot("Purified Doom Saliva", 0.3),
                     new ItemLoot("Large Oryx Cloth", 0.15),
                     new ItemLoot("Small Oryx Cloth", 0.15),
-                    new ItemLoot("Ring of Oryx", 0.02),
-                    new ItemLoot("Oryx Hide Armor", 0.02),
-                    new ItemLoot("Oryx Hide Robe", 0.02),
-                    new ItemLoot("Oryx Scale Armor", 0.02),
                     new ItemLoot("Doom Dirk", 0.02),
                     new ItemLoot("Flying Doom Daggers", 0.02),
                     new ItemLoot("Tome of Noble Assault", 0.02),
@@ -438,7 +434,9 @@ namespace WorldServer.logic
                     new TierLoot(7, ItemType.Ring, 0.05),
                     new TierLoot(8, ItemType.Ability, 0.006),
                     new TierLoot(8, ItemType.Ring, 0.006),
-                    new TierLoot(15, ItemType.Weapon, 0.005)
+                    new TierLoot(15, ItemType.Weapon, 0.005),
+                    // the T16 armours, his alone (TierLoot.DoomedPoolItems)
+                    new TierLoot(16, ItemType.Armor, 0.02)
                 )
             )
 

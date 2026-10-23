@@ -2475,6 +2475,10 @@ pub fn item_tooltip(data: &GameData, item: i32, me: Option<&GameObj>, kind: Slot
     if desc.untradeable() {
         note("Untradeable", ATTR);
     }
+    // taken out of the game's drops (tools/port_doomed.py UNOBTAINABLE_ITEMS)
+    if xml.has("Unobtainable") {
+        note("Unobtainable: nothing drops it any more", ATTR);
+    }
     if let Some(me) = me {
         let slot_type = xml.int("SlotType", 0);
         let equips = class_slot_types(data.objects.get(&me.object_type));

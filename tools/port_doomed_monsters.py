@@ -54,14 +54,16 @@ HEX = re.compile(r"^\s*(\(\s*short\s*\)\s*)?(0x[0-9a-fA-F]+)\s*$")
 # Drops changed from Doomed Realms' (SETUP-LOCAL.md, "Untiered rings"): monster -> {item: its new
 # chance, or None to drop it}. The Crown is an admin item, the America Ring a reward, and Santa's
 # Hat, which saves its wearer from death, is rarer.
+# The T20 Oryx set and armours are unobtainable (port_doomed.UNOBTAINABLE_ITEMS).
+ORYX_SET_GONE = {"Ring of Oryx": None, "Oryx Hide Armor": None, "Oryx Hide Robe": None, "Oryx Scale Armor": None}
 LOOT_CHANGES = {
-    "Christmas Oryx": {"Crown": None, "Santa's Hat": 0.05, "Oryx Tooth Sword": None},
-    "Oryx the Mad God 4": {"Crown": None, "Oryx Tooth Sword": None},
-    "Oryx the Mad God 5": {"Crown": None, "Oryx Tooth Sword": None},
+    "Christmas Oryx": {"Crown": None, "Santa's Hat": 0.05, "Oryx Tooth Sword": None, **ORYX_SET_GONE},
+    "Oryx the Mad God 4": {"Crown": None, "Oryx Tooth Sword": None, **ORYX_SET_GONE},
+    "Oryx the Mad God 5": {"Crown": None, "Oryx Tooth Sword": None, **ORYX_SET_GONE},
     "Turkey God": {"America Ring": None, "America Sword": None, "America Shield": None},
     # the swords pass: the T20 and Sword of Ghostly Power can't be found for now, the America Sword
-    # is a reward
-    "Elder Septavius the Ghost God": {"Sword of Ghostly Power": None, "Soul Mask": 0.02},
+    # is a reward; Soul Spawned Armor, a T20, is unobtainable
+    "Elder Septavius the Ghost God": {"Sword of Ghostly Power": None, "Soul Mask": 0.02, "Soul Spawned Armor": None},
     # the abilities pass
     "Actual Greater Nature Sprite": {"Quiver of Thunder": 0.05},
     "Mad Gas Controller": {"Orb of Conflict": 0.02},

@@ -1328,6 +1328,12 @@
    "h": 8
   },
   {
+   "name": "t16Armors8x8",
+   "file": "kabam/rotmg/assets/custom/images/T16Armors8x8.png",
+   "w": 8,
+   "h": 8
+  },
+  {
    "name": "abilityFx8x8",
    "file": "kabam/rotmg/assets/custom/images/AbilityFx8x8.png",
    "w": 8,

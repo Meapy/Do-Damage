@@ -334,6 +334,11 @@ class Data:
             if o["class"] in ("Equipment", "Dye") and oid not in op and self.elements[oid].find("Admin") is None:
                 items[oid] = o
 
+        # tiered items only their boss gives, which no recipe makes (ForgeRecipes.NeverForged); they
+        # still count for their slot's price scale
+        m = re.search(r'NeverForged\s*=\s*new HashSet<string>\s*\{([^}]*)\}', _read(os.path.join(COMMANDS, "doomed", "ForgeRecipes.cs")))
+        never = set(re.findall(r'"([^"]+)"', m.group(1) if m else ""))
+
         # what some monster drops: its named loot and every item of the tier pools it rolls
         loot = tier_loot_types()
         kinds = {**loot["types"], 10: "Potion"}
@@ -449,7 +454,8 @@ class Data:
 
         out = []
         for r in recipes:
-            if (r["result"] in items and (r["result"] in dropped or r["result"] in forge_only) and r["result"] not in seasonal
+            if (r["result"] in items and r["result"] not in never
+                    and (r["result"] in dropped or r["result"] in forge_only) and r["result"] not in seasonal
                     and all(i in items for i in r["items"])):
                 res = items[r["result"]]
                 a, b = (r["items"] + [None, None])[:2]
@@ -623,7 +629,8 @@ class Data:
             if "Test" in o["file"] and el.find("Admin") is None:
                 group = "test"
             else:
-                group = next((t.lower() for t in ("Admin", "Reward", "Legendary", "Ascended", "Ethereal") if el.find(t) is not None),
+                group = next((t.lower() for t in ("Admin", "Reward", "Unobtainable", "Legendary", "Ascended", "Ethereal")
+                              if el.find(t) is not None),
                              None) or ("tiered" if o["tier"] >= 0 else "set" if el.get("setType") else "untiered")
             doomed = 0xD000 <= o["type"] <= 0xDFFF
             # the random tier drops (Loots.Initialize): no Doomed Realms items but the tiered gear of

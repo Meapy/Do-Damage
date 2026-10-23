@@ -4259,8 +4259,8 @@
 		<Class>Equipment</Class>
 		<Item />
 		<Texture>
-			<File>drLofiObj5</File>
-			<Index>0xbe</Index>
+			<File>t15Weapons8x8</File>
+			<Index>7</Index>
 		</Texture>
 		<SlotType>17</SlotType>
 		<Tier>15</Tier>
@@ -4358,50 +4358,59 @@
 		<AngleCorrection>1</AngleCorrection>
 	</Object>
 	<Object type="0xD104" id="Sphinx Leather Armor">
+		<DisplayId>Hide of the Firmament</DisplayId>
 		<Class>Equipment</Class>
 		<Item />
 		<Texture>
-			<File>drLofiObj5</File>
-			<Index>0x12a</Index>
+			<File>t16Armors8x8</File>
+			<Index>0</Index>
 		</Texture>
 		<SlotType>6</SlotType>
+		<Soulbound />
 		<Tier>16</Tier>
-		<Description>-</Description>
-		<ActivateOnEquip stat="21" amount="21">IncrementStat</ActivateOnEquip>
-		<ActivateOnEquip stat="28" amount="6">IncrementStat</ActivateOnEquip>
-		<BagType>0</BagType>
+		<Description>Leather cut from the open sky over Oryx's Elysium, light as a cloud and as hard to strike. Only Oryx the Ascended God drops it.</Description>
+		<ActivateOnEquip stat="21" amount="24">IncrementStat</ActivateOnEquip>
+		<ActivateOnEquip stat="28" amount="8">IncrementStat</ActivateOnEquip>
+		<ActivateOnEquip stat="22" amount="5">IncrementStat</ActivateOnEquip>
+		<BagType>6</BagType>
 		<FameBonus>6</FameBonus>
 	</Object>
 	<Object type="0xD105" id="Armor of the Pyramid">
+		<DisplayId>Armor of Ascension</DisplayId>
 		<Class>Equipment</Class>
 		<Item />
 		<Texture>
-			<File>drLofiObj5</File>
-			<Index>0x12b</Index>
+			<File>t16Armors8x8</File>
+			<Index>1</Index>
 		</Texture>
 		<SlotType>7</SlotType>
+		<Soulbound />
 		<Tier>16</Tier>
-		<Description>.</Description>
-		<ActivateOnEquip stat="21" amount="27">IncrementStat</ActivateOnEquip>
-		<ActivateOnEquip stat="0" amount="55">IncrementStat</ActivateOnEquip>
-		<BagType>2</BagType>
+		<Description>Plate forged for the Ascended God's own guard, purple steel trimmed in gold. Only Oryx the Ascended God drops it.</Description>
+		<ActivateOnEquip stat="21" amount="31">IncrementStat</ActivateOnEquip>
+		<ActivateOnEquip stat="0" amount="85">IncrementStat</ActivateOnEquip>
+		<ActivateOnEquip stat="26" amount="9">IncrementStat</ActivateOnEquip>
+		<BagType>6</BagType>
 		<FameBonus>6</FameBonus>
 	</Object>
 	<Object type="0xD106" id="Robe of the Nile">
+		<DisplayId>Robe of Absolution</DisplayId>
 		<Class>Equipment</Class>
 		<Item />
 		<Texture>
-			<File>drLofiObj5</File>
-			<Index>0x12c</Index>
+			<File>t16Armors8x8</File>
+			<Index>2</Index>
 		</Texture>
 		<SlotType>14</SlotType>
+		<Soulbound />
 		<Tier>16</Tier>
-		<Description>.</Description>
+		<Description>Woven for the priests of Oryx's last temple, it hums with the light of the Elysium. Only Oryx the Ascended God drops it.</Description>
 		<ActivateOnEquip stat="20" amount="7">IncrementStat</ActivateOnEquip>
-		<ActivateOnEquip stat="21" amount="18">IncrementStat</ActivateOnEquip>
+		<ActivateOnEquip stat="21" amount="19">IncrementStat</ActivateOnEquip>
 		<ActivateOnEquip stat="27" amount="9">IncrementStat</ActivateOnEquip>
-		<ActivateOnEquip stat="3" amount="70">IncrementStat</ActivateOnEquip>
-		<BagType>2</BagType>
+		<ActivateOnEquip stat="3" amount="105">IncrementStat</ActivateOnEquip>
+		<ActivateOnEquip stat="0" amount="55">IncrementStat</ActivateOnEquip>
+		<BagType>6</BagType>
 		<FameBonus>6</FameBonus>
 	</Object>
 	<Object type="0xD107" id="Ponie Blade">
@@ -4491,6 +4500,7 @@
 			<Index>0xf6</Index>
 		</Texture>
 		<SlotType>9</SlotType>
+		<Unobtainable />
 		<Tier>20</Tier>
 		<Description>A huge ring made from the blood and bones of Oryx himself.</Description>
 		<ActivateOnEquip stat="20" amount="6">IncrementStat</ActivateOnEquip>
@@ -4513,6 +4523,7 @@
 			<Index>0xef</Index>
 		</Texture>
 		<SlotType>7</SlotType>
+		<Unobtainable />
 		<Tier>20</Tier>
 		<ActivateOnEquip stat="20" amount="2">IncrementStat</ActivateOnEquip>
 		<ActivateOnEquip stat="21" amount="61">IncrementStat</ActivateOnEquip>
@@ -4534,6 +4545,7 @@
 			<Index>0xee</Index>
 		</Texture>
 		<SlotType>14</SlotType>
+		<Unobtainable />
 		<Tier>20</Tier>
 		<ActivateOnEquip stat="20" amount="2">IncrementStat</ActivateOnEquip>
 		<ActivateOnEquip stat="21" amount="31">IncrementStat</ActivateOnEquip>
@@ -5788,6 +5800,7 @@
 			<Index>0x0f</Index>
 		</Texture>
 		<SlotType>6</SlotType>
+		<Unobtainable />
 		<Tier>20</Tier>
 		<ActivateOnEquip stat="20" amount="2">IncrementStat</ActivateOnEquip>
 		<ActivateOnEquip stat="21" amount="41">IncrementStat</ActivateOnEquip>
@@ -9041,6 +9054,7 @@
 			<Index>0x106</Index>
 		</Texture>
 		<SlotType>6</SlotType>
+		<Unobtainable />
 		<Tier>20</Tier>
 		<ActivateOnEquip stat="21" amount="50">IncrementStat</ActivateOnEquip>
 		<ActivateOnEquip stat="28" amount="20">IncrementStat</ActivateOnEquip>

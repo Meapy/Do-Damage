@@ -47,8 +47,9 @@ NOT_SOLD = {"Twilight Generator", "Dinosaur's Pet Generator", "Crown", "God Rush
             "Spell of Shielding", "Spell of Teleportation", "Tome of Poison", "Tome of Speed", "Tome of the Dead",
             "Tome of Shining Stars"}
 # results the Divine Forge doesn't make: the admin items, the rewards, and the very rare drops of
-# Oryx 5 its Doomed Realms recipes would make easy
-NOT_FORGED = {"Crown", "Anatis Staff", "Staff of Endless Energy", "Eternal Sword"}
+# Oryx 5 its Doomed Realms recipes would make easy (the T16 armours only he drops)
+NOT_FORGED = {"Crown", "Anatis Staff", "Staff of Endless Energy", "Eternal Sword",
+              "Sphinx Leather Armor", "Armor of the Pyramid", "Robe of the Nile"}
 
 
 def _num(s):

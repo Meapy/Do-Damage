@@ -419,14 +419,23 @@ SPRITE_DONORS = {"Elder Beach Portal": "Beachzone Portal"}
 TEXTURE_OVERRIDES = {"Oryx the Mad God 4": ("hashCellarOryx16x16", 0),
                      # the incantations' seals (tools/draw_oryx_gates.py, INCANTATION_CELLS)
                      "Hash Cellar Incantation": ("oryxIncantations16x16", 1),
-                     "Doomed Cellar Incantation": ("oryxIncantations16x16", 2)}
+                     "Doomed Cellar Incantation": ("oryxIncantations16x16", 2),
+                     # Oryx 5's colours (tools/draw_t15_weapons.py): the T15 staff, and the T16 armours
+                     "Staff of Endless Energy": ("t15Weapons8x8", 7),
+                     "Sphinx Leather Armor": ("t16Armors8x8", 0),
+                     "Armor of the Pyramid": ("t16Armors8x8", 1),
+                     "Robe of the Nile": ("t16Armors8x8", 2)}
 # projectiles drawn anew: id -> {projectile id: object}. Oryx 4's first phase shoots hellfire.
 PROJECTILE_OVERRIDES = {"Oryx the Mad God 4": {"2": "Hellfire Bolt", "4": "Hellfire Star"},
                         # the Elysian Staff shoots Oryx 5's Celestial Bolt (its projectile has no id)
                         "Staff of Heavens": {None: "Celestial Bolt"}}
 # names for players: each Oryx after the Chamber is named for his theme
 DISPLAY_OVERRIDES = {"Oryx the Mad God 4": "Oryx the Infernal Mad God", "Hash Cellar Incantation": "Oryx's Inferno Incantation",
-                     "Doomed Cellar Incantation": "Oryx's Elysium Incantation", "Staff of Heavens": "Elysian Staff"}
+                     "Doomed Cellar Incantation": "Oryx's Elysium Incantation", "Staff of Heavens": "Elysian Staff",
+                     # the T16 armours are Oryx 5's own (SETUP-LOCAL.md, "T16 armours"); their ids stay so
+                     # ones players hold keep working
+                     "Sphinx Leather Armor": "Hide of the Firmament", "Armor of the Pyramid": "Armor of Ascension",
+                     "Robe of the Nile": "Robe of Absolution"}
 
 
 # Loot bags (<BagType>): Doomed Realms numbered its bags differently, so its rarest items dropped
@@ -438,6 +447,7 @@ BAG_TYPES = {
     "Doom Poison": 6, "Sword of Dark Enchantment": 6,
     "Potion of Oryx": 7, "Potion of Power": 7,
     "Potion of Max Life": 6,
+    "Sphinx Leather Armor": 6, "Armor of the Pyramid": 6, "Robe of the Nile": 6,
 }
 
 
@@ -457,12 +467,23 @@ ADMIN_ITEMS = ["Doomie Amulet", "Doomed Hero Badge", "Fallen Crown", "God Rushin
                "Doomie Staff", "Doomie Yolo"]
 # rewards the staff give (<Reward/>, which only the wiki reads)
 REWARD_ITEMS = ["America Sword", "America Shield"]
+# items nothing gives any more (<Unobtainable/>: the client's tooltip and the wiki say so): the T20
+# Oryx set and armours, taken out of the drops (port_doomed_monsters.LOOT_CHANGES, the Oryx behaviours)
+UNOBTAINABLE_ITEMS = ["Ring of Oryx", "Oryx Hide Armor", "Oryx Hide Robe", "Oryx Scale Armor", "Soul Spawned Armor"]
+# loot in a private bag (the T16 armours, as the T15s they top)
+SOULBOUND_ITEMS = ["Sphinx Leather Armor", "Armor of the Pyramid", "Robe of the Nile"]
 DESCRIPTIONS = {
     "Santa's Hat": "A hat that protects Santa from even death itself. A blow that would kill its wearer breaks "
                    "the hat instead, and sends them back to the Nexus.",
     "Staff of Heavens": "Raised over Oryx's Elysium in his last stand, it fires the holy bolts of the Ascended God.",
     "America Sword": "Rewarded by DODMG: America!",
     "America Shield": "Rewarded by DODMG: America!",
+    "Sphinx Leather Armor": "Leather cut from the open sky over Oryx's Elysium, light as a cloud and as hard to strike. "
+                            "Only Oryx the Ascended God drops it.",
+    "Armor of the Pyramid": "Plate forged for the Ascended God's own guard, purple steel trimmed in gold. "
+                            "Only Oryx the Ascended God drops it.",
+    "Robe of the Nile": "Woven for the priests of Oryx's last temple, it hums with the light of the Elysium. "
+                        "Only Oryx the Ascended God drops it.",
 }
 
 
@@ -525,6 +546,10 @@ GEAR_TUNING = {
     "Staff of Tainted Light": {"damage": (95, 105)},  # was 190-210: a better Staff of Extreme Prejudice
     # the staves' T15, a step over the T14's 75-115 (was 120-180), and T15's +10 Defense
     "Staff of Endless Energy": {"damage": (100, 135), "stats": {DEF: 10}},
+    # the T16 armours: their kind's T15 a tenth better, rounded up (health and mana to the next 5)
+    "Sphinx Leather Armor": {"stats": {DEF: 24, DEX: 8, SPD: 5}},             # Leviathan Armor 21, 7, 4
+    "Armor of the Pyramid": {"stats": {DEF: 31, "0": 85, VIT: 9}},            # Annihilation Armor 28, 75, 8
+    "Robe of the Nile": {"stats": {"3": 105, "20": 7, DEF: 19, WIS: 9, "0": 55}},  # Robe of the Ancient Intellect 95, 6, 17, 8, 48
     # was 380-410, and T15: a very rare drop of its own, not a step of the staves' tiers (or the forge
     # would make it from two T14 staves)
     "Eternal Sword": {"damage": (180, 180), "pierce": True, "untier": True},
@@ -662,7 +687,8 @@ def fix_doomed_data(dr):
                 a.set("storeAmount", stored)
         if o.find("Description") is not None:
             o.find("Description").text = text
-    for tag, oids in (("Admin", ADMIN_ITEMS), ("Reward", REWARD_ITEMS)):
+    for tag, oids in (("Admin", ADMIN_ITEMS), ("Reward", REWARD_ITEMS), ("Unobtainable", UNOBTAINABLE_ITEMS),
+                      ("Soulbound", SOULBOUND_ITEMS)):
         for oid in oids:
             o = dr.get(oid)
             if o is not None and o.find(tag) is None:

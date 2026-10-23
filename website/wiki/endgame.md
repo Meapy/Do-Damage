@@ -137,11 +137,14 @@ the real prizes:
   with more stat potions on top: about 4 from Oryx 1 up to about 8 from Oryx 5. Oryx 2 always drops
   a Potion of Life, Oryx 3 and later Life and Mana, and Oryx 5 two of each.
 - **Oryx 2** can drop the Doom Bow.
-- **Oryx 3, 4 and 5** drop the **Oryx set**: Ring of Oryx, Oryx Hide Armor, Oryx Hide Robe, Oryx
-  Scale Armor, Oryx Tooth Sword, Doom Dirk, Flying Doom Daggers and Tome of Noble Assault, in white
-  bags announced to everyone, and Potions of Oryx. Oryx 3 can also drop Oryx's Escutcheon.
+- **Oryx 3, 4 and 5** drop the **Oryx set**: Doom Dirk, Flying Doom Daggers and Tome of Noble
+  Assault, in white bags announced to everyone, and Potions of Oryx. Oryx 3 can also drop Oryx's
+  Escutcheon. The Ring of Oryx, Oryx Hide Armor, Oryx Hide Robe and Oryx Scale Armor no longer drop
+  anywhere: they're unobtainable.
 - **Oryx 4 and 5** drop Doom Poison; **Oryx 5** also the Sword of Dark Enchantment and the Crown.
 - **Tier 7 abilities and rings** come from Oryx 3, 4 and 5; Oryx 5 is the only place for tier 8.
+- **Oryx 5** alone drops the **tier 16 armours**, in his colours: Hide of the Firmament, Armor of
+  Ascension and Robe of Absolution, in white bags. The Divine Forge doesn't make them.
 
 Everyone who does a fair share of the damage gets the full loot: 5% of the damage is enough for the
 gear and the Oryx set, and 3% for the extra stat potions.

@@ -3,7 +3,8 @@ and ring in the game's XML, with its sprite, its numbers and where it comes from
 
 - wiki/gear/<kind>.html: one page per kind of item (sword, spell, robe...; the rings are
   gear/rings.html), its items grouped as the client colours their slots: tiered (by tier),
-  untiered (UT), future additions (untiered items with no source yet), set pieces (ST), Legendary,
+  untiered (UT), future additions (untiered items with no source yet), unobtainable (taken out of
+  the game's drops), set pieces (ST), Legendary,
   Ascended, Ethereal, rewards, admin and test items. Tabs on top lead to the four categories and the
   kinds in the one shown.
 - wiki/gear/weapons.html, abilities.html and armor.html: a category's kinds.
@@ -31,6 +32,8 @@ GROUPS = [
     ("tiered", "Tiered", "T", "Drop from monsters all over the game, by tier: the higher the tier, the better."),
     ("untiered", "Untiered (UT)", "UT", "Each comes from particular bosses, with numbers or an effect of its own."),
     ("future", "Future additions", "UT", "Untiered items that nothing drops, sells or forges yet: they'll get a source in a later update."),
+    ("unobtainable", "Unobtainable", "Unobtainable",
+     "Nothing drops, sells or forges these any more. Ones players already have still work."),
     ("set", "Set pieces (ST): future additions", "ST",
      "One piece of a set of four for one class: weapon, ability, armor and ring. None can be found for now."),
     ("legendary", "Legendary", "Legendary", "Rare untiered items with the gold slot edge."),
@@ -194,7 +197,7 @@ class Gear:
 
     def edge(self, it):
         e = self._edges
-        if it["group"] == "tiered":
+        if it["group"] == "tiered" or (it["group"] == "unobtainable" and it["tier"] >= 0):
             for lo, hi, c in e["tiers"]:
                 if lo <= it["tier"] <= hi:
                     return c

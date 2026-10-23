@@ -10,9 +10,18 @@ version number itself is in `client-rs/Cargo.toml`.
 
 ## Unreleased
 - The T15 weapons (Sword of Ascension, Dagger of Divine Wrath, Bow of the Firmament, Wand of
-  Absolution, Ame-no-Habakiri, Seraphic Blades and Fists of the Ascended) now wear Oryx the
-  Ascended God's colours: blue-silver blades with purple grips and gems and orange-gold fittings,
-  in place of white and gold.
+  Absolution, Ame-no-Habakiri, Seraphic Blades, Fists of the Ascended and the Staff of Endless
+  Energy) now wear Oryx the Ascended God's colours: blue-silver blades with purple grips and gems
+  and orange-gold fittings, in place of white and gold.
+- New tier 16 armours, in Oryx the Ascended God's colours, which only he drops (in white bags):
+  Hide of the Firmament (+24 Defense, +8 Dexterity, +5 Speed), Armor of Ascension (+31 Defense,
+  +85 health, +9 Vitality) and Robe of Absolution (+105 mana, +55 health, +19 Defense, +9 Wisdom,
+  +7 Attack), each a tenth better than its tier 15. They take the place of the Sphinx Leather
+  Armor, Armor of the Pyramid and Robe of the Nile, which nothing dropped: ones you have become the
+  new armours. The Divine Forge doesn't make them.
+- The Ring of Oryx and the tier 20 armours (Oryx Hide Armor, Oryx Hide Robe, Oryx Scale Armor and
+  Soul Spawned Armor) no longer drop from anything. Their tooltips and the wiki say they're
+  unobtainable; ones you already have still work.
 - Untiered abilities, new drops: Oryx the Celestial Mad God (Oryx 3) drops the Chaotic Scripture
   and the Ballistic Star, Oryx the Infernal Mad God (Oryx 4) the Cloak of Bloody Surprises, Frimar
   in the Ice Tomb the Tome of Frigid Protection, the Sandstone Titan the Amber Encrusted Helmet,
