@@ -43,7 +43,9 @@ DEFAULT_SHOP = "abilities"
 # Dispersion, which drops in the Haunted Cemetery instead, and (the daggers pass) the Dirk of Cronus
 NOT_SOLD = {"Twilight Generator", "Dinosaur's Pet Generator", "Crown", "God Rushing", "America Ring",
             "Amulet of Resurrection", "Dirk of Cronus", "Staff of Endless Energy",
-            "America Sword", "Turkey Leg of Doom"}
+            "America Sword", "Turkey Leg of Doom", "America Shield", "Spell of Invisibility", "Spell of Life",
+            "Spell of Shielding", "Spell of Teleportation", "Tome of Poison", "Tome of Speed", "Tome of the Dead",
+            "Tome of Shining Stars"}
 # results the Divine Forge doesn't make: the admin items, the rewards, and the very rare drops of
 # Oryx 5 its Doomed Realms recipes would make easy
 NOT_FORGED = {"Crown", "Anatis Staff", "Staff of Endless Energy", "Eternal Sword"}

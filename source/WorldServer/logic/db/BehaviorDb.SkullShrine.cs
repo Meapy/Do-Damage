@@ -24,7 +24,7 @@ namespace WorldServer.logic
                     LootTemplates.BasicPots()
                     ),
             new Threshold(0.01,
-                new ItemLoot("Orb of Conflict", 0.001, threshold: 0.03)
+                new ItemLoot("Orb of Conflict", 0.02, threshold: 0.03)
                 )
             )
         .Init("Red Flaming Skull",

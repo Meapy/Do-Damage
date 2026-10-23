@@ -53,4 +53,13 @@
 			<Index>0x0e</Index>
 		</Texture>
 	</Object>
+	<!-- the Thousand Suns Spell's shot: the Idol Wave in bright yellow (tools/draw_ability_fx.py) -->
+	<Object type="0x582b" id="Thousand Suns Wave">
+		<Class>Projectile</Class>
+		<Texture>
+			<File>abilityFx8x8</File>
+			<Index>0</Index>
+		</Texture>
+		<AngleCorrection>1</AngleCorrection>
+	</Object>
 </Objects>

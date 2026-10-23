@@ -298,7 +298,6 @@
 			<Index>0x0f</Index>
 		</Texture>
 		<SlotType>16</SlotType>
-		<Ethereal/>
 		<Description>An extraterrestrial masterpiece, perfected by master smiths. The meteoric steel now vibrates with unstoppable, crushing durability.</Description>
 		<ActivateOnEquip stat="21" amount="15">IncrementStat</ActivateOnEquip>
 		<ActivateOnEquip stat="22" amount="7">IncrementStat</ActivateOnEquip>

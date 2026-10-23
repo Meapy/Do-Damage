@@ -48,6 +48,8 @@ RS_ONLY_SETS = [
     ("oryxIncantations16x16", "kabam/rotmg/assets/custom/images/OryxIncantations16x16.png", 16, 16),
     # the T15 weapons, their T14s in white and gold (tools/draw_t15_weapons.py)
     ("t15Weapons8x8", "kabam/rotmg/assets/custom/images/T15Weapons8x8.png", 8, 8),
+    # ability shots recoloured for items of their own (tools/draw_ability_fx.py)
+    ("abilityFx8x8", "kabam/rotmg/assets/custom/images/AbilityFx8x8.png", 8, 8),
 ]
 # (name, file, frame width, frame height, sheet width, sheet height, direction): characters
 RS_ONLY_CHARS = [

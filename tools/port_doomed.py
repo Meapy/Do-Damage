@@ -456,12 +456,13 @@ ITEM_STORE = {
 ADMIN_ITEMS = ["Doomie Amulet", "Doomed Hero Badge", "Fallen Crown", "God Rushing", "Doomed Gods",
                "Doomie Staff", "Doomie Yolo"]
 # rewards the staff give (<Reward/>, which only the wiki reads)
-REWARD_ITEMS = ["America Sword"]
+REWARD_ITEMS = ["America Sword", "America Shield"]
 DESCRIPTIONS = {
     "Santa's Hat": "A hat that protects Santa from even death itself. A blow that would kill its wearer breaks "
                    "the hat instead, and sends them back to the Nexus.",
     "Staff of Heavens": "Raised over Oryx's Elysium in his last stand, it fires the holy bolts of the Ascended God.",
     "America Sword": "Rewarded by DODMG: America!",
+    "America Shield": "Rewarded by DODMG: America!",
 }
 
 
@@ -481,7 +482,8 @@ DESCRIPTIONS = {
 # Wisdom) become T6-T8, climbing as the quivers do (cannons sit about 15 damage above the quiver of
 # their tier). Doom Cannon stays untiered.
 # id -> {speed, lifetime, rof, damage: (min, max), wave: (amplitude, frequency), pierce, mp,
-# stats: {stat: amount}, untier, tier}
+# stats: {stat: amount}, activates: [(effect, {attribute: value it has}, {new values} or None)],
+# untier, tier}
 DEF, SPD, VIT, WIS, DEX = "21", "22", "26", "27", "28"
 UNTIERED_ABILITIES = [
     "1940s Orb", "Azure Trap", "Bile Poison", "Bloodorc Quiver", "Class Test", "Cloak of Dimensions",
@@ -530,6 +532,15 @@ GEAR_TUNING = {
     # T20 and T22, which no tier reaches: no source for now, listed with the future additions
     "Oryx Tooth Sword": {"untier": True},
     "Sword of the Angelic Soul": {"untier": True},
+    # the abilities pass (SETUP-LOCAL.md, "Untiered abilities")
+    "Cloak of Dimensions": {"stats": {VIT: 20}},  # was +3 Vitality
+    # the T6 poison's numbers (Baneserpent Poison; was 2,500 over 10.5 s)
+    "Tome of Poison": {"activates": [("PoisonGrenade", {}, {"impactDamage": "230", "totalDamage": "1035", "duration": "4.5"})]},
+    "Tome of Noble Assault": {"activates": [("TomeDamage", {}, {"totalDamage": "800"})]},  # was 500
+    "Sword Shield": {"damage": (175, 225)},  # was 350-450
+    "Seal of the Fallen Angel": {"activates": [("ConditionEffectSelf", {"effect": "Invulnerable"}, {"duration": "2"})]},  # was 10 s
+    "Tome of Shining Stars": {"activates": [("ConditionEffectAura", {"effect": "Invulnerable"}, None)]},
+    "Scepter of Zeus": {"activates": [("Lightning", {}, {"condDuration": "1"})]},  # was 3 s
     "Power of the Fountains": {"tier": "7"},
     **{oid: {"untier": True} for oid in UNTIERED_ABILITIES},
     **{oid: {"tier": str(t), **CANNON_TUNING.get(oid, {})} for t, oid in enumerate(CANNON_TIERS)},
@@ -567,6 +578,14 @@ def tune_gear(dr):
             p.find("MinDamage").text, p.find("MaxDamage").text = map(str, t["damage"])
         if "rof" in t:
             o.find("RateOfFire").text = t["rof"]
+        # (effect, the attributes it has, its new attributes or None to remove it)
+        for effect, has, new in t.get("activates", []):
+            for a in [a for a in o.findall("Activate") if (a.text or "").strip() == effect
+                      and all(a.get(k) == v for k, v in has.items())]:
+                if new is None:
+                    o.remove(a)
+                else:
+                    a.attrib.update(new)
         if t.get("pierce") and p.find("ArmorPiercing") is None:
             ET.SubElement(p, "ArmorPiercing")
         if "wave" in t:  # the shots weave side to side: (amplitude in tiles, frequency)

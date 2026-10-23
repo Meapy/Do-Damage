@@ -240,7 +240,8 @@ namespace WorldServer.logic
                         new Shoot(50, 4, 10, 4, coolDown: 300),
                         new Shoot(50, 3, 10, 0, coolDown: 4750, coolDownOffset: 500)
                     )
-                )
+                ),
+                new Threshold(0.01, new ItemLoot("Tome of Frigid Protection", 0.005))
             )
             .Init("Ice Tomb Support",
                 new State(

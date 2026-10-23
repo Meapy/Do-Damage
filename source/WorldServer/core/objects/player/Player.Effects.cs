@@ -56,8 +56,15 @@ namespace WorldServer.core.objects
                 var abil = Inventory[1];
                 if (abil != null)
                     Mana -= (int)(abil.ManaCostPerSecond * time.DeltaTime);
-                if (Mana < abil.ManaCostPerSecond)
+                // out of mana: the held ability stops (the Crystal Shield's invulnerability lasted
+                // until the key was let go)
+                if (abil == null || Mana < abil.ManaCostPerSecond)
+                {
                     RemoveCondition(ConditionEffectIndex.ManaDeplete);
+                    if (_heldAbilityEffect is ConditionEffectIndex held)
+                        RemoveCondition(held);
+                    _heldAbilityEffect = null;
+                }
             }
 
             if (HasConditionEffect(ConditionEffectIndex.Inspired))

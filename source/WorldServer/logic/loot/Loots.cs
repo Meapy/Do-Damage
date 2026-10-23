@@ -67,6 +67,17 @@ namespace WorldServer.logic.loot
         // item
         private static Dictionary<ItemType, Dictionary<int, List<Item>>> Items = new Dictionary<ItemType, Dictionary<int, List<Item>>>();
 
+        // a pool's item, each as likely as the others but TierLoot.ExtraPoolItems at their weight
+        private static Item Pick(List<Item> items)
+        {
+            double Weight(Item i) => TierLoot.ExtraPoolItems.TryGetValue(i.ObjectId, out var e) ? e.Weight : 1;
+            var r = Random.Shared.NextDouble() * items.Sum(Weight);
+            foreach (var i in items)
+                if ((r -= Weight(i)) < 0)
+                    return i;
+            return items[^1];
+        }
+
         public List<Item> GetItems(ItemType itemType, int tier)
         {
             if (Items.TryGetValue(itemType, out var keyValuePairs))
@@ -87,6 +98,15 @@ namespace WorldServer.logic.loot
                 // the random tier drops, apart from the tiered gear of the Doomed Realms classes, whose
                 // slots nothing else fills: a T3 ability drop can be a Mechanic's T3 turret, and the few
                 // TierLoot.DoomedPoolItems. Items whose slot type isn't a loot category stay out too.
+                if (TierLoot.ExtraPoolItems.TryGetValue(item.ObjectId, out var extra) && TierLoot.TryGetItemType(item.SlotType, out var extraType))
+                {
+                    if (!Items.TryGetValue(extraType, out var tiers))
+                        Items[extraType] = tiers = new Dictionary<int, List<Item>>();
+                    if (!tiers.TryGetValue(extra.Tier, out var pool))
+                        tiers[extra.Tier] = pool = new List<Item>();
+                    pool.Add(item);
+                    continue;
+                }
                 var doomed = item.ObjectType >= 0xD000 && item.ObjectType <= 0xDFFF;
                 if (doomed && (!TierLoot.DoomedClassSlots.Contains(item.SlotType) || item.Tier < 0)
                     && !TierLoot.DoomedPoolItems.Contains(item.ObjectId))
@@ -205,7 +225,7 @@ namespace WorldServer.logic.loot
                 if (i.Threshold <= 0 && chance < i.Probabilty)
                 {
                     var items = GetItems(i.ItemType, i.Tier);
-                    var chosenTieredItem = items[Random.Shared.Next(items.Count)];
+                    var chosenTieredItem = Pick(items);
                     pubDrops.Add(chosenTieredItem);
                 }
             }
@@ -252,7 +272,7 @@ namespace WorldServer.logic.loot
                         {
                             var items = GetItems(i.ItemType, i.Tier);
                             if (items != null)
-                                item = Random.Shared.NextLength(items);
+                                item = Pick(items);
                         }
                         else
                         {

@@ -38,8 +38,8 @@ namespace WorldServer.core.commands.doomed
         // Sun's Judgement and Bow of the Morning Star; the Thousand Shot and Sunny Side Bow; the Staff
         // of the Cosmic Whole and Frosty's Walking Stick; the Staff of Extreme Prejudice and Staff of
         // Iceblast; the Wand of the Bulwark and Eternal Snowflake Wand; the Wand of Evocation and
-        // Winter's Breath Wand; the Demon Blade and Sword of Illumination): result, fame, needs a Forge
-        // Amulet, ingredients.
+        // Winter's Breath Wand; the Demon Blade and Sword of Illumination; the Helm of the Juggernaut
+        // and Helm of the Jack-o'-naut): result, fame, needs a Forge Amulet, ingredients.
         private static readonly (string Result, int Fame, bool Advanced, string[] Items)[] ForgeOnly =
         {
             ("Reforged Forgotten Crown", 3000, false, new[] { "The Forgotten Crown", "The Forgotten Crown" }),
@@ -65,6 +65,9 @@ namespace WorldServer.core.commands.doomed
             ("Wand of Evocation", 100, false, new[] { "Winter's Breath Wand" }),
             ("Sword of Illumination", 100, false, new[] { "Demon Blade" }),
             ("Demon Blade", 100, false, new[] { "Sword of Illumination" }),
+            ("ST Spell", 1000, false, new[] { "Elemental Detonation Spell", "Elemental Detonation Spell" }),
+            ("Helm of the Jack-o'-naut", 100, false, new[] { "Helm of the Juggernaut" }),
+            ("Helm of the Juggernaut", 100, false, new[] { "Helm of the Jack-o'-naut" }),
         };
 
         private static (string Result, int Fame, bool Advanced, string[] Items)[] _all;

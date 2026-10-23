@@ -1250,7 +1250,6 @@
 		<Activate>Shoot</Activate>
 		<NumProjectiles>5</NumProjectiles>
 		<feedPower>1200</feedPower>
-		<Legendary/>
 		<Soulbound/>
 	</Object>
 	<Object type="0xa78" id="Wolfskin Armor">
@@ -4999,7 +4998,7 @@
 			<Index>0x57</Index>
 		</Texture>
 		<SlotType>11</SlotType>
-		<Ethereal/>
+		<Admin/>
 		<Description>This spell's destructive power is so notorious that casting it was banned for many generations.</Description>
 		<Sound>spell/magic_nova</Sound>
 		<Projectile>
@@ -5353,7 +5352,6 @@
 			<Index>0x6e</Index>
 		</Texture>
 		<SlotType>12</SlotType>
-		<Ethereal/>
 		<Description>A seal that is said to briefly borrow the power of the Gods themselves.  Some Paladins shun its dark power, others embrace it.</Description>
 		<Sound>spell/light_heal</Sound>
 		<ActivateOnEquip stat="22" amount="4">IncrementStat</ActivateOnEquip>
@@ -5532,7 +5530,7 @@
 		<MpCost>100</MpCost>
 		<Activate effect="Invisible" duration="5.5">ConditionEffectSelf</Activate>
 		<Activate maxDistance="13">Teleport</Activate>
-		<Cooldown>6.5</Cooldown>
+		<Cooldown>1.5</Cooldown>
 		<feedPower>750</feedPower>
 		<Soulbound/>
 	</Object>
@@ -6057,7 +6055,6 @@
 			<Index>0x6f</Index>
 		</Texture>
 		<SlotType>15</SlotType>
-		<Ethereal/>
 		<Description>This strange quiver was created in a forgotten age by a lost tribe of Dark Elves.</Description>
 		<Sound>spell/fire_spray</Sound>
 		<Projectile>
@@ -6226,7 +6223,6 @@
 			<Index>0x52</Index>
 		</Texture>
 		<SlotType>16</SlotType>
-		<Ascended/>
 		<Description>This helm was forged of metal that fell from the sky.  It is strangely light and emits a faint hum.</Description>
 		<ActivateOnEquip stat="21" amount="10">IncrementStat</ActivateOnEquip>
 		<ActivateOnEquip stat="22" amount="5">IncrementStat</ActivateOnEquip>
@@ -6963,7 +6959,6 @@
 			<Index>0x59</Index>
 		</Texture>
 		<SlotType>19</SlotType>
-		<Ethereal/>
 		<Description>This skull glows with the stolen soul of a phoenix trapped in the skull many years ago by Shaitan.</Description>
 		<Usable/>
 		<BagType>6</BagType>
@@ -6972,7 +6967,8 @@
 		<ActivateOnEquip stat="0" amount="50">IncrementStat</ActivateOnEquip>
 		<ActivateOnEquip stat="21" amount="3">IncrementStat</ActivateOnEquip>
 		<ActivateOnEquip stat="28" amount="3">IncrementStat</ActivateOnEquip>
-		<Activate radius="2.75" totalDamage="120" heal="80" ignoreDef="20" color="0xff7d27" wisDamageBase="50" hitsForSelfPuri="2" hitsForGroupPuri="4">VampireBlast</Activate>
+		<ActivateOnEquip stat="26" amount="-10">IncrementStat</ActivateOnEquip>
+		<Activate radius="2.75" totalDamage="150" heal="100" ignoreDef="20" color="0xff7d27" wisDamageBase="50" hitsForSelfPuri="2" hitsForGroupPuri="4">VampireBlast</Activate>
 		<feedPower>1000</feedPower>
 		<Soulbound/>
 	</Object>
@@ -7246,7 +7242,6 @@
 			<Index>0x55</Index>
 		</Texture>
 		<SlotType>21</SlotType>
-		<Legendary/>
 		<Description>This orb of ancient bloodstone has a dark reputation of twisting those who wield it.</Description>
 		<ActivateOnEquip stat="20" amount="2">IncrementStat</ActivateOnEquip>
 		<ActivateOnEquip stat="28" amount="2">IncrementStat</ActivateOnEquip>
@@ -7257,6 +7252,7 @@
 		<Activate duration="7">StasisBlast</Activate>
 		<Activate effect="Speedy" duration="2" useWisMod="true">ConditionEffectSelf</Activate>
 		<Activate effect="Damaging" duration="2" useWisMod="true">ConditionEffectSelf</Activate>
+		<Activate amount="100">Heal</Activate>
 		<feedPower>850</feedPower>
 		<Soulbound/>
 	</Object>
@@ -7900,7 +7896,6 @@
 			<Index>0x1b</Index>
 		</Texture>
 		<SlotType>20</SlotType>
-		<Legendary/>
 		<Description>A trap imbued with deadly venom from the coral of the Ocean Trench.</Description>
 		<ActivateOnEquip stat="28" amount="2">IncrementStat</ActivateOnEquip>
 		<ActivateOnEquip stat="22" amount="2">IncrementStat</ActivateOnEquip>
@@ -7966,7 +7961,6 @@
 			<Index>0x53</Index>
 		</Texture>
 		<SlotType>4</SlotType>
-		<Legendary/>
 		<Description>A tome dedicated to the works of a forgotten god. It is written in a strange script that glows with a pure white light.</Description>
 		<Sound>spell/major_heal</Sound>
 		<ActivateOnEquip stat="26" amount="4">IncrementStat</ActivateOnEquip>
@@ -7977,6 +7971,7 @@
 		<MpCost>120</MpCost>
 		<Activate amount="200" range="6" useWisMod="true">HealNova</Activate>
 		<Activate effect="Armored" duration="4" useWisMod="true">ConditionEffectSelf</Activate>
+		<Activate effect="Healing" duration="6" range="5" useWisMod="true">ConditionEffectAura</Activate>
 		<feedPower>1250</feedPower>
 		<Soulbound/>
 	</Object>
@@ -7988,7 +7983,6 @@
 			<Index>0x1d</Index>
 		</Texture>
 		<SlotType>4</SlotType>
-		<Ascended/>
 		<Description>An ancient tome cloaked in white leather, created to aid in the struggle against the ultimate evil.</Description>
 		<Sound>spell/major_heal</Sound>
 		<ActivateOnEquip stat="26" amount="7">IncrementStat</ActivateOnEquip>
@@ -8216,10 +8210,8 @@
 		</Texture>
 		<SlotType>22</SlotType>
 		<ExtraTooltipData>
-			<EffectInfo name="" description="Summons a Spirit Prism Bomb"/>
-			<EffectInfo name="Duration" description="2.4 seconds"/>
-			<EffectInfo name="Damage" description="320 - 480"/>
-			<EffectInfo name="Explosions" description="6"/>
+			<EffectInfo name="On Use" description="Leaves a Spirit Prism Bomb where you stand and teleports you to your cursor" />
+			<EffectInfo name="Spirit Prism Bomb" description="Explodes after 2.4 seconds for 500 damage within 6 squares" />
 		</ExtraTooltipData>
 		<Description>A cursed piece of Davy Jones' treasure. Using it leaves behind a deadly spirit bomb.</Description>
 		<Usable/>
@@ -8296,7 +8288,6 @@
 			<Index>0x1af</Index>
 		</Texture>
 		<SlotType>23</SlotType>
-		<Ascended/>
 		<Description>This scepter's blast is so powerful it will slow opponents.</Description>
 		<Sound>spell/magic_nova</Sound>
 		<ActivateOnEquip stat="20" amount="2">IncrementStat</ActivateOnEquip>
@@ -8305,7 +8296,7 @@
 		<BagType>6</BagType>
 		<FameBonus>4</FameBonus>
 		<MpCost>70</MpCost>
-		<Activate totalDamage="150" decrDamage="30" wisDamageBase="60" maxTargets="5" wisPerTarget="6" condEffect="Slowed" condDuration="3" color="0xff9933">Lightning</Activate>
+		<Activate totalDamage="405" decrDamage="55" wisDamageBase="80" maxTargets="5" wisPerTarget="6" condEffect="Slowed" condDuration="3" color="0xff9933">Lightning</Activate>
 		<feedPower>900</feedPower>
 		<Soulbound/>
 	</Object>
@@ -9301,7 +9292,6 @@
 			<Index>0x232</Index>
 		</Texture>
 		<SlotType>25</SlotType>
-		<Ascended/>
 		<Description>A legendary shuriken that absorbs the light around it.</Description>
 		<Sound>spell/fire_spray</Sound>
 		<ExtraTooltipData>
@@ -9313,19 +9303,19 @@
 		<Projectile>
 			<ObjectId>Ninja Star Midnight</ObjectId>
 			<Speed>150</Speed>
-			<MinDamage>300</MinDamage>
-			<MaxDamage>600</MaxDamage>
+			<MinDamage>975</MinDamage>
+			<MaxDamage>1075</MaxDamage>
 			<LifetimeMS>1000</LifetimeMS>
 			<Size>120</Size>
-			<ConditionEffect duration="4">Paralyzed</ConditionEffect>
+			<ConditionEffect duration="2.5">Paralyzed</ConditionEffect>
 			<PassesCover/>
 		</Projectile>
-		<ConditionEffect duration="4">Paralyzed</ConditionEffect>
+		<ConditionEffect duration="2.5">Paralyzed</ConditionEffect>
 		<Usable/>
 		<BagType>6</BagType>
 		<FameBonus>6</FameBonus>
 		<MpCost>0</MpCost>
-		<MpEndCost>90</MpEndCost>
+		<MpEndCost>120</MpEndCost>
 		<MultiPhase/>
 		<Activate>ShurikenAbility</Activate>
 		<feedPower>850</feedPower>
@@ -9566,7 +9556,6 @@
 			<Index>0xea</Index>
 		</Texture>
 		<SlotType>27</SlotType>
-		<Legendary/>
 		<Description>A blade created within the Hellforge and enchanted with dark magics to grant its wielder the power of a demon king.</Description>
 		<Projectile>
 			<ObjectId>Wakizashi Fire</ObjectId>
@@ -9915,7 +9904,6 @@
 			<Index>0x314</Index>
 		</Texture>
 		<SlotType>18</SlotType>
-		<Legendary/>
 		<Description>A foul poison harvested from the corpses of plague victims. It infects many targets, but kills slowly.</Description>
 		<ActivateOnEquip stat="20" amount="2">IncrementStat</ActivateOnEquip>
 		<ActivateOnEquip stat="27" amount="2">IncrementStat</ActivateOnEquip>
@@ -10962,7 +10950,6 @@
 			<Index>0x490</Index>
 		</Texture>
 		<SlotType>11</SlotType>
-		<Ethereal/>
 		<Description>Thought to have been lost to the ages, the wisdom imparted in this tablet will summon a power unrivaled by any modern spell.</Description>
 		<Sound>spell/magic_nova</Sound>
 		<Projectile>
@@ -11320,14 +11307,13 @@
 			<Index>0x4C8</Index>
 		</Texture>
 		<SlotType>11</SlotType>
-		<Legendary/>
 		<Description>A spell that blasts enemies with the fiery force of a thousand suns.</Description>
 		<ExtraTooltipData>
 			<EffectInfo name="Set" description="Summer Solstice"/>
 		</ExtraTooltipData>
 		<Sound>spell/magic_nova</Sound>
 		<Projectile>
-			<ObjectId>Idol Wave</ObjectId>
+			<ObjectId>Thousand Suns Wave</ObjectId>
 			<Speed>160</Speed>
 			<MinDamage>80</MinDamage>
 			<MaxDamage>165</MaxDamage>
@@ -13229,7 +13215,6 @@
 			<Index>0x571</Index>
 		</Texture>
 		<SlotType>18</SlotType>
-		<Legendary/>
 		<Description>A deadly substance concocted with ingredients found in the sewers.</Description>
 		<Usable/>
 		<BagType>6</BagType>
@@ -13237,8 +13222,8 @@
 		<MpCost>120</MpCost>
 		<ActivateOnEquip stat="20" amount="3">IncrementStat</ActivateOnEquip>
 		<ActivateOnEquip stat="28" amount="3">IncrementStat</ActivateOnEquip>
-		<Activate color="0xAA7400" radius="2" impactDamage="150" totalDamage="900" duration="4" throwTime="0.8">PoisonGrenade</Activate>
-		<Activate color="0x7E5700" radius="4" impactDamage="50" totalDamage="300" duration="4" throwTime="0.8">PoisonGrenade</Activate>
+		<Activate color="0xAA7400" radius="2" impactDamage="180" totalDamage="1080" duration="4" throwTime="0.8">PoisonGrenade</Activate>
+		<Activate color="0x7E5700" radius="4" impactDamage="60" totalDamage="360" duration="4" throwTime="0.8">PoisonGrenade</Activate>
 		<feedPower>800</feedPower>
 		<Soulbound/>
 	</Object>
@@ -13272,7 +13257,7 @@
 		<BagType>4</BagType>
 		<FameBonus>2</FameBonus>
 		<MpCost>70</MpCost>
-		<Activate arcDegrees="45" totalDamage="100" wisDamageBase="40" maxTargets="6" color="0xffdf00">Lightning</Activate>
+		<Activate condDuration="1" condEffect="Slowed" arcDegrees="45" totalDamage="100" wisDamageBase="40" maxTargets="6" color="0xffdf00">Lightning</Activate>
 		<feedPower>250</feedPower>
 		<DisplayId>Honey Scepter</DisplayId>
 		<Soulbound/>
@@ -13320,7 +13305,6 @@
 			<Index>0x2c</Index>
 		</Texture>
 		<SlotType>22</SlotType>
-		<Legendary/>
 		<Description>Seemingly bleak at first, this prism has erratic magical properties looming inside, which affect the light it scatters in unforeseen ways.</Description>
 		<Projectile>
 			<ObjectId>Dire Blast</ObjectId>
@@ -13386,18 +13370,18 @@
 		<Class>Equipment</Class>
 		<Item/>
 		<SlotType>23</SlotType>
-		<Legendary/>
 		<Usable/>
 		<Texture>
 			<File>cnidarianReefObjects8x8</File>
 			<Index>0x08</Index>
 		</Texture>
 		<Description>An intricate scepter of unfathomable power containing the electric fluids of a jellyfish behemoth.</Description>
-		<Activate totalDamage="150" decrDamage="-100" wisDamageBase="50" wisMin="50" maxTargets="5" color="0xFFE1C6" colorMissed="0xFFC58C">Lightning</Activate>
+		<Activate totalDamage="405" decrDamage="55" wisDamageBase="80" wisMin="50" maxTargets="5" color="0xFFE1C6" colorMissed="0xFFC58C">Lightning</Activate>
 		<MpCost>90</MpCost>
 		<ActivateOnEquip stat="28" amount="2">IncrementStat</ActivateOnEquip>
 		<ActivateOnEquip stat="21" amount="2">IncrementStat</ActivateOnEquip>
 		<ActivateOnEquip stat="27" amount="2">IncrementStat</ActivateOnEquip>
+		<Activate stat="27" amount="15" duration="3">StatBoostSelf</Activate>
 		<FameBonus>6</FameBonus>
 		<feedPower>900</feedPower>
 		<BagType>6</BagType>
@@ -13515,8 +13499,8 @@
 		<Projectile>
 			<ObjectId>Frozen Arrow</ObjectId>
 			<Speed>160</Speed>
-			<MinDamage>180</MinDamage>
-			<MaxDamage>260</MaxDamage>
+			<MinDamage>320</MinDamage>
+			<MaxDamage>385</MaxDamage>
 			<LifetimeMS>600</LifetimeMS>
 			<Size>120</Size>
 			<ConditionEffect duration="5">Slowed</ConditionEffect>
@@ -13826,7 +13810,6 @@
 			<Index>0x25</Index>
 		</Texture>
 		<SlotType>4</SlotType>
-		<Legendary/>
 		<Description>A tome that allows the caster to encase themselves in extremely durable ice. However, despite being nearly impenetrable, it will melt after a while.\n\nSprite Credits: Poshun</Description>
 		<Sound>spell/major_heal</Sound>
 		<ActivateOnEquip stat="26" amount="4">IncrementStat</ActivateOnEquip>
@@ -14347,7 +14330,6 @@
 			<Index>0x9e</Index>
 		</Texture>
 		<SlotType>25</SlotType>
-		<Ethereal/>
 		<Description>Imbued with energy from another place, the blade will pierce through any foe.</Description>
 		<Sound>spell/fire_spray</Sound>
 		<ExtraTooltipData>
@@ -14359,12 +14341,13 @@
 		<Projectile>
 			<ObjectId>Staruu Missile</ObjectId>
 			<Speed>161</Speed>
-			<MinDamage>414</MinDamage>
-			<MaxDamage>506</MaxDamage>
+			<MinDamage>975</MinDamage>
+			<MaxDamage>1075</MaxDamage>
 			<LifetimeMS>522</LifetimeMS>
 			<Size>100</Size>
 			<PassesCover/>
 			<MultiHit/>
+			<ConditionEffect duration="2.5">Slowed</ConditionEffect>
 		</Projectile>
 		<ActivateOnEquip stat="21" amount="2">IncrementStat</ActivateOnEquip>
 		<ActivateOnEquip stat="26" amount="5">IncrementStat</ActivateOnEquip>
@@ -14372,7 +14355,7 @@
 		<BagType>6</BagType>
 		<FameBonus>5</FameBonus>
 		<MpCost>0</MpCost>
-		<MpEndCost>80</MpEndCost>
+		<MpEndCost>120</MpEndCost>
 		<MultiPhase/>
 		<Activate>ShurikenAbility</Activate>
 		<feedPower>800</feedPower>
@@ -14414,7 +14397,6 @@
 			<Index>0x20</Index>
 		</Texture>
 		<SlotType>16</SlotType>
-		<Legendary/>
 		<Description>Made from the remains of a violent bunny, whoever wears this helm is given the magical ability to hop as fast as a bunny!</Description>
 		<ActivateOnEquip stat="21" amount="5">IncrementStat</ActivateOnEquip>
 		<ActivateOnEquip stat="22" amount="5">IncrementStat</ActivateOnEquip>
@@ -14641,7 +14623,6 @@
 			<Index>0x62</Index>
 		</Texture>
 		<SlotType>16</SlotType>
-		<Ethereal/>
 		<Description>A nefarious helm combining pheromones and Killer Honey to captivate Killer Bees into servitude.</Description>
 		<Sound>spell/fire_spray</Sound>
 		<Usable/>
@@ -14673,7 +14654,6 @@
 			<Index>0x4b</Index>
 		</Texture>
 		<SlotType>15</SlotType>
-		<Legendary/>
 		<Description>A quiver crafted from the remains of a yellow Beehemoth, filled with razor-sharp arrows fashioned from Killer Bee stingers.</Description>
 		<ActivateOnEquip stat="20" amount="5">IncrementStat</ActivateOnEquip>
 		<ActivateOnEquip stat="28" amount="5">IncrementStat</ActivateOnEquip>
@@ -14689,6 +14669,7 @@
 			<MultiHit/>
 			<PassesCover/>
 			<ParticleTrail>0x992803</ParticleTrail>
+			<Bleed duration="3">120</Bleed>
 		</Projectile>
 		<MpCost>90</MpCost>
 		<ArcGap>8</ArcGap>
@@ -14709,7 +14690,6 @@
 			<Index>0x4c</Index>
 		</Texture>
 		<SlotType>15</SlotType>
-		<Ascended/>
 		<Description>A quiver crafted from the remains of a red Beehemoth, filled with razor-sharp arrows fashioned from Killer Bee stingers.</Description>
 		<ActivateOnEquip stat="20" amount="15">IncrementStat</ActivateOnEquip>
 		<ActivateOnEquip stat="28" amount="15">IncrementStat</ActivateOnEquip>
@@ -14725,6 +14705,7 @@
 			<MultiHit/>
 			<PassesCover/>
 			<ParticleTrail>0x910a16</ParticleTrail>
+			<Bleed duration="3">120</Bleed>
 		</Projectile>
 		<Soulbound/>
 		<MpCost>90</MpCost>
@@ -14745,7 +14726,6 @@
 			<Index>0x4d</Index>
 		</Texture>
 		<SlotType>15</SlotType>
-		<Ascended/>
 		<Description>A quiver crafted from the remains of a blue Beehemoth, filled with razor-sharp arrows fashioned from Killer Bee stingers.</Description>
 		<ActivateOnEquip stat="20" amount="10">IncrementStat</ActivateOnEquip>
 		<ActivateOnEquip stat="28" amount="10">IncrementStat</ActivateOnEquip>
@@ -14761,6 +14741,7 @@
 			<MultiHit/>
 			<PassesCover/>
 			<ParticleTrail>0x001133</ParticleTrail>
+			<Bleed duration="3">120</Bleed>
 		</Projectile>
 		<Soulbound/>
 		<MpCost>90</MpCost>
@@ -15076,15 +15057,13 @@
 		</Texture>
 		<Usable/>
 		<SlotType>12</SlotType>
-		<Ascended/>
 		<BagType>6</BagType>
 		<FameBonus>6</FameBonus>
 		<MpCost>135</MpCost>
 		<Description>A seal made from the Marble Colossus' head. The power of a pure and mighty paladin still remains within.</Description>
 		<ExtraTooltipData>
-			<EffectInfo name="" description="Summon an Eye of Marble for 4.5 seconds"/>
-			<EffectInfo name="Eye Effect" description="Armored within 4 sqrs"/>
-			<EffectInfo name="Eye Effect" description="Damaging within 4 sqrs"/>
+			<EffectInfo name="" description="Summon an Eye of Marble for 4.5 seconds" />
+			<EffectInfo name="Eye Effect" description="Armored, Damaging and Healing for 2 seconds (renewed) within 4 squares" />
 		</ExtraTooltipData>
 		<ActivateOnEquip stat="21" amount="5">IncrementStat</ActivateOnEquip>
 		<Activate objectId="Eye of Marble">Pet</Activate>
@@ -15191,7 +15170,6 @@
 			<Index>0xa8</Index>
 		</Texture>
 		<SlotType>15</SlotType>
-		<Ascended/>
 		<Description>A mysterious quiver formed of pure evil and dark matter. Its ethereal existence creates a small implosion of nearby atmosphere when drawn.</Description>
 		<Sound>spell/fire_spray</Sound>
 		<Projectile>
@@ -15398,7 +15376,6 @@
 		</Texture>
 		<Usable/>
 		<SlotType>13</SlotType>
-		<Ethereal/>
 		<Description>Many Rogues have tried to use this to escape their asylum. All have failed.</Description>
 		<MpCost>95</MpCost>
 		<Activate effect="Invisible" duration="4.5">ConditionEffectSelf</Activate>
@@ -16297,17 +16274,16 @@
 			<Index>0x35</Index>
 		</Texture>
 		<SlotType>16</SlotType>
-		<Ethereal/>
 		<Description>This unorthodox helm was created by carving out a pumpkin that is found only in the darkest pumpkin patches. Donning this cursed piece of equipment is said to cause the wearer to fly into a fit of rage.</Description>
-		<ActivateOnEquip stat="21" amount="15">IncrementStat</ActivateOnEquip>
-		<ActivateOnEquip stat="22" amount="10">IncrementStat</ActivateOnEquip>
+		<ActivateOnEquip stat="21" amount="10">IncrementStat</ActivateOnEquip>
+		<ActivateOnEquip stat="22" amount="5">IncrementStat</ActivateOnEquip>
 		<Usable/>
 		<BagType>6</BagType>
 		<FameBonus>8</FameBonus>
 		<MpCost>90</MpCost>
-		<Activate effect="Berserk" duration="6.5" range="3">ConditionEffectAura</Activate>
-		<Activate effect="Armored" duration="7.5">ConditionEffectSelf</Activate>
-		<Cooldown>4</Cooldown>
+		<Activate effect="Berserk" duration="4.5" range="4">ConditionEffectAura</Activate>
+		<Activate effect="Armored" duration="4.5">ConditionEffectSelf</Activate>
+		<Cooldown>6</Cooldown>
 		<feedPower>2500</feedPower>
 		<Soulbound/>
 	</Object>
@@ -16503,7 +16479,6 @@
 			<Index>0x07</Index>
 		</Texture>
 		<SlotType>11</SlotType>
-		<Legendary/>
 		<Sound>spell/magic_nova</Sound>
 		<Projectile>
 			<ObjectId>pD Spell Shot</ObjectId>
@@ -16540,7 +16515,6 @@
 			<Index>0x08</Index>
 		</Texture>
 		<SlotType>4</SlotType>
-		<Legendary/>
 		<Sound>spell/major_heal</Sound>
 		<ActivateOnEquip stat="0" amount="-20">IncrementStat</ActivateOnEquip>
 		<ActivateOnEquip stat="20" amount="4">IncrementStat</ActivateOnEquip>
@@ -16551,7 +16525,7 @@
 		<BagType>6</BagType>
 		<FameBonus>6</FameBonus>
 		<MpCost>95</MpCost>
-		<Activate amount="120" damage="280" range="3.8" useWisMod="true" color="0xE28A8A">HealNova</Activate>
+		<Activate amount="120" damage="400" range="4" useWisMod="true" color="0xE28A8A">HealNova</Activate>
 		<feedPower>750</feedPower>
 		<Soulbound/>
 	</Object>
@@ -16565,7 +16539,6 @@
 			<Index>0x09</Index>
 		</Texture>
 		<SlotType>23</SlotType>
-		<Ethereal/>
 		<Sound>spell/magic_nova</Sound>
 		<ActivateOnEquip stat="20" amount="6">IncrementStat</ActivateOnEquip>
 		<ActivateOnEquip stat="27" amount="6">IncrementStat</ActivateOnEquip>
@@ -16576,6 +16549,7 @@
 		<FameBonus>8</FameBonus>
 		<MpCost>80</MpCost>
 		<Activate arcDegrees="15" totalDamage="1020" decrDamage="20" wisDamageBase="150" maxTargets="1" color="0xE28A8A" wisPerTarget="20">Lightning</Activate>
+		<Activate effect="Bleeding" duration="1">ConditionEffectSelf</Activate>
 		<feedPower>2500</feedPower>
 		<Soulbound/>
 	</Object>
@@ -19532,7 +19506,6 @@
 			<Index>0xa0</Index>
 		</Texture>
 		<SlotType>13</SlotType>
-		<Admin/>
 		<Description>A pitch black cloak enhanced with the defensive strength of Oryx's own signature armor.</Description>
 		<Sound>spell/fire_nova</Sound>
 		<Usable/>
@@ -19553,7 +19526,6 @@
 			<Index>0xa2</Index>
 		</Texture>
 		<SlotType>5</SlotType>
-		<Admin/>
 		<Description>This shimmering shield allows knights to enhance their concentration on targets, giving them more time to think about their next move in battle.</Description>
 		<Sound>spell/fire_spray</Sound>
 		<Projectile>
@@ -19759,8 +19731,8 @@
 		<Projectile>
 			<ObjectId>Volt Bolt</ObjectId>
 			<Speed>160</Speed>
-			<MinDamage>60</MinDamage>
-			<MaxDamage>90</MaxDamage>
+			<MinDamage>80</MinDamage>
+			<MaxDamage>165</MaxDamage>
 			<LifetimeMS>700</LifetimeMS>
 			<MultiHit/>
 		</Projectile>
@@ -20079,7 +20051,6 @@
 			<Index>0xd2</Index>
 		</Texture>
 		<SlotType>12</SlotType>
-		<Admin/>
 		<Description>The Paladins of Lira-Tin used this seal to reach high level of focus during their training.</Description>
 		<Sound>spell/light_heal</Sound>
 		<ActivateOnEquip stat="20" amount="4">IncrementStat</ActivateOnEquip>
@@ -22338,7 +22309,6 @@
 			<Index>0x143</Index>
 		</Texture>
 		<SlotType>11</SlotType>
-		<Ascended/>
 		<Description>An ancient druidic spell that invokes earth spirits into furnishing the soil with a noxious, deadly skullshroom colony.</Description>
 		<Sound>spell/fire_spray</Sound>
 		<ExtraTooltipData>
@@ -22402,7 +22372,6 @@
 			<Index>0x14a</Index>
 		</Texture>
 		<SlotType>5</SlotType>
-		<Ascended/>
 		<Description>An ornately decorated buckler made from an array of crystalline stone. It is too frail to swing around, but it can somehow grow and mantle its wielder in an indestructible crystal armor.</Description>
 		<Sound>spell/fire_spray</Sound>
 		<Projectile>
@@ -22526,7 +22495,6 @@
 			<Index>0x87</Index>
 		</Texture>
 		<SlotType>27</SlotType>
-		<Ethereal/>
 		<Description>Carved from the unblemished minerals deep beneath the realm, this unconventional wakizashi fractures itself when swung to release a strange supernatural energy.</Description>
 		<ExtraTooltipData>
 			<EffectInfo description="Summons sentient crystal star orbiting you for 5 seconds" name=""/>
@@ -22777,7 +22745,6 @@
 			<Index>0x5cc</Index>
 		</Texture>
 		<SlotType>22</SlotType>
-		<Ascended/>
 		<Description>The perfectly cut head of a Prismimic, dastardly agents of the Crystal Entity. Its copying abilities are unprecedented.\n\nSprite Credits: Aurum</Description>
 		<Usable/>
 		<BagType>6</BagType>
@@ -25775,6 +25742,7 @@
 			<Index>0x52</Index>
 		</Texture>
 		<SlotType>16</SlotType>
+		<Admin/>
 		<Activate ignoreOnTooltip="true" center="player" visualEffect="27" color="0xffdf00">GenericActivate</Activate>
 		<Activate effect="Berserk" duration="4.5" range="4" color="-1">ConditionEffectAura</Activate>
 		<Activate effect="Armored" duration="4.5" color="-1">ConditionEffectSelf</Activate>
@@ -25797,6 +25765,7 @@
 			<Index>0x52</Index>
 		</Texture>
 		<SlotType>16</SlotType>
+		<Admin/>
 		<Activate ignoreOnTooltip="true" center="player" visualEffect="28" color="0xffdf00">GenericActivate</Activate>
 		<Activate effect="Berserk" duration="4.5" range="4" color="-1">ConditionEffectAura</Activate>
 		<Activate effect="Armored" duration="4.5" color="-1">ConditionEffectSelf</Activate>
@@ -25819,6 +25788,7 @@
 			<Index>0x52</Index>
 		</Texture>
 		<SlotType>16</SlotType>
+		<Admin/>
 		<Activate ignoreOnTooltip="true" center="player" visualEffect="29" color="0xffdf00">GenericActivate</Activate>
 		<Activate effect="Berserk" duration="4.5" range="4" color="-1">ConditionEffectAura</Activate>
 		<Activate effect="Armored" duration="4.5" color="-1">ConditionEffectSelf</Activate>
@@ -28318,7 +28288,7 @@
 		<SlotType>11</SlotType>
 		<Description>Dammah's powers of summoning portals stem from this profane spell. Most may use it to call attacks from primitive dimensions of untapped energy, but Oryx's greatest thaumaturges can create stable gateways to the realm and beyond.</Description>
 		<ExtraTooltipData>
-			<EffectInfo name="On Ability Use" description="Summons 4 portals which zap enemies and deal 250 damage in a radius of 6 every 0.4 seconds"/>
+			<EffectInfo name="On Ability Use" description="Summons 4 portals, 2.5 squares north, east, south and west of your cursor. Each zaps the nearest enemy within 6 squares for 250 damage every 0.8 seconds"/>
 			<EffectInfo name="Duration" description="4 seconds"/>
 		</ExtraTooltipData>
 		<Sound>spell/magic_nova</Sound>
@@ -28327,10 +28297,10 @@
 		<FameBonus>7</FameBonus>
 		<Cooldown>4</Cooldown>
 		<MpCost>120</MpCost>
-		<Activate objectId="Genesis Spell Portal 1" throwTime="0" color="-1">ObjectToss</Activate>
-		<Activate objectId="Genesis Spell Portal 2" throwTime="0" color="-1">ObjectToss</Activate>
-		<Activate objectId="Genesis Spell Portal 3" throwTime="0" color="-1">ObjectToss</Activate>
-		<Activate objectId="Genesis Spell Portal 4" throwTime="0" color="-1">ObjectToss</Activate>
+		<Activate objectId="Genesis Spell Portal 1" throwTime="0" offsetX="0" offsetY="-2.5" color="-1">ObjectToss</Activate>
+		<Activate objectId="Genesis Spell Portal 2" throwTime="0" offsetX="2.5" offsetY="0" color="-1">ObjectToss</Activate>
+		<Activate objectId="Genesis Spell Portal 3" throwTime="0" offsetX="0" offsetY="2.5" color="-1">ObjectToss</Activate>
+		<Activate objectId="Genesis Spell Portal 4" throwTime="0" offsetX="-2.5" offsetY="0" color="-1">ObjectToss</Activate>
 		<feedPower>1300</feedPower>
 		<Soulbound/>
 	</Object>
@@ -28422,8 +28392,8 @@
 		<Projectile>
 			<ObjectId>StarTestProj</ObjectId>
 			<Speed>0</Speed>
-			<MinDamage>400</MinDamage>
-			<MaxDamage>400</MaxDamage>
+			<MinDamage>250</MinDamage>
+			<MaxDamage>250</MaxDamage>
 			<LifetimeMS>2000</LifetimeMS>
 			<Amplitude>3</Amplitude>
 			<Frequency>1</Frequency>
@@ -28556,16 +28526,17 @@
 		<Description>An enormous shield decorated with the crest of Oryx, an infamous symbol of oppression dreaded across the realm.</Description>
 		<Sound>spell/fire_spray</Sound>
 		<ExtraTooltipData>
-			<EffectInfo name="On Ability Use" description="Summons three consecutive Exalted Beams that each deal 850-950 damage in a 2.25 square radius, inflicting Stunned for 1.4 seconds"/>
+			<EffectInfo name="On Ability Use" description="Calls down three Exalted Beams of lightning, 0.8 seconds apart, that each deal 850-950 armor piercing damage in a 2.25 square radius, inflicting Stunned for 1.4 seconds"/>
 			<EffectInfo name="Max Cast Range" description="2.5 squares"/>
 			<EffectInfo name="Cooldown" description="2 seconds"/>
 		</ExtraTooltipData>
 		<ActivateOnEquip stat="22" amount="7">IncrementStat</ActivateOnEquip>
 		<ActivateOnEquip stat="21" amount="10">IncrementStat</ActivateOnEquip>
 		<Activate maxDistance="2.5" objectId="Oryx's Escutcheon Effect 1" throwTime="0" color="-1">ObjectToss</Activate>
-		<Activate maxDistance="2.5" objectId="Oryx's Escutcheon Effect 1" throwTime="0.8" color="-1">ObjectToss</Activate>
-		<Activate maxDistance="2.5" objectId="Oryx's Escutcheon Effect 1" throwTime="1.6" color="-1">ObjectToss</Activate>
+		<Activate maxDistance="2.5" objectId="Oryx's Escutcheon Effect 1" throwTime="0" delay="0.8" color="-1">ObjectToss</Activate>
+		<Activate maxDistance="2.5" objectId="Oryx's Escutcheon Effect 1" throwTime="0" delay="1.6" color="-1">ObjectToss</Activate>
 		<MpCost>100</MpCost>
+		<Cooldown>2</Cooldown>
 		<Usable/>
 		<BagType>6</BagType>
 		<FameBonus>8</FameBonus>

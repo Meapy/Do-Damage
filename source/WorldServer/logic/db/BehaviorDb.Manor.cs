@@ -58,7 +58,7 @@ namespace WorldServer.logic
                     new ItemLoot("Holy Water", 0.5),
                     new ItemLoot("Chasuble of Holy Light", 0.003),
                     new ItemLoot("St. Abraham's Wand", 0.05),
-                    new ItemLoot("Tome of Purification", 0.003),
+                    new ItemLoot("Tome of Purification", 0.05),
                     new ItemLoot("Ring of Divine Faith", 0.003),
                     new ItemLoot("Bone Dagger", 0.008)
                     ),
@@ -167,7 +167,7 @@ namespace WorldServer.logic
                     new ItemLoot("Potion of Attack", 0.5),
                     new ItemLoot("Chasuble of Holy Light", 0.01),
                     new ItemLoot("St. Abraham's Wand", 0.05),
-                    new ItemLoot("Tome of Purification", 0.001),
+                    new ItemLoot("Tome of Purification", 0.05),
                     new ItemLoot("Ring of Divine Faith", 0.01),
                     new ItemLoot("Bone Dagger", 0.08),
                     new TierLoot(7, ItemType.Weapon, 0.05),

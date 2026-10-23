@@ -750,6 +750,7 @@ namespace WorldServer.core.objects
         private void AEObjectToss(Item item, Position target, ActivateEffect eff)
         {
             GameServer.Resources.GameData.IdToObjectType.TryGetValue(eff.Id == null ? eff.ObjectId : eff.Id, out ushort objType);
+            target = new Position { X = target.X + eff.OffsetX, Y = target.Y + eff.OffsetY };
             var throwTime = eff.ThrowTime;
             if (eff.ThrowTime != 0)
             {
@@ -766,11 +767,11 @@ namespace WorldServer.core.objects
 
             // ThrowTime is already in ms: * 1000 left an invisible object in the world for 25 minutes
             // after every throw, which every nearby player was sent and every tick went through.
-            var x = new Placeholder(GameServer, eff.ThrowTime + 1000);
+            var x = new Placeholder(GameServer, eff.ThrowTime + eff.DelayMS + 1000);
             x.Move(target.X, target.Y);
             World.EnterWorld(x);
 
-            World.StartNewTimer(throwTime, (world, t) =>
+            World.StartNewTimer(throwTime + eff.DelayMS, (world, t) =>
             {
                 world.BroadcastIfVisible(new ShowEffect()
                 {
@@ -1425,6 +1426,10 @@ namespace WorldServer.core.objects
             }, this);
         }
 
+        // the condition a held ability (MultiPhase, with an effect of its own) gives while its key is
+        // held and mana lasts (Player.Effects takes it off when the mana runs out)
+        private ConditionEffectIndex? _heldAbilityEffect;
+
         private void AEShurikenAbility(int time, TickTime tickTime, Item item, Position target, ActivateEffect eff, int useType)
         {
             ConditionEffectIndex effect = ConditionEffectIndex.NinjaSpeedy;
@@ -1434,13 +1439,17 @@ namespace WorldServer.core.objects
             {
                 case START_USE:
                     if (effect != ConditionEffectIndex.NinjaSpeedy)
+                    {
                         ApplyPermanentConditionEffect(ConditionEffectIndex.ManaDeplete);
+                        _heldAbilityEffect = effect;
+                    }
                     ApplyPermanentConditionEffect(effect);
                     break;
                 case END_USE:
                     if (Mana >= item.MpEndCost)
                         Mana -= item.MpEndCost;
                     RemoveCondition(effect);
+                    _heldAbilityEffect = null;
                     break;
             }
         }

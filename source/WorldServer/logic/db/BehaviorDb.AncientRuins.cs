@@ -180,7 +180,8 @@ namespace WorldServer.logic
             new Threshold(0.01,
                 new ItemLoot("Potion of Defense", 1),
                 new ItemLoot("Potion of Vitality", 0.5),
-                new ItemLoot("Sandstone Seal", 0.01)
+                new ItemLoot("Sandstone Seal", 0.01),
+                new ItemLoot("Amber Encrusted Helmet", 0.01)
                 )
             );
     }

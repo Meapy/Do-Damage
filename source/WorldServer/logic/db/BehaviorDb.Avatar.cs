@@ -1523,7 +1523,7 @@ namespace WorldServer.logic
                    )
                 ),
                 new Threshold(0.03,
-                    new ItemLoot("Tablet of the King's Avatar", 0.0015)
+                    new ItemLoot("Tablet of the King's Avatar", 0.05)
                     ),
                 new Threshold(0.005,
                     new ItemLoot("Potion of Defense", .2),

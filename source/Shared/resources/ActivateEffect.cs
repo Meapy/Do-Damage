@@ -32,6 +32,11 @@ namespace Shared.resources
         public readonly ushort SkinType;
         public readonly int Stats;
         public readonly int ThrowTime;
+        // ObjectToss: a wait in ms before the object appears, with no throw shown (delay="seconds"),
+        // and where it appears relative to the target (offsetX, offsetY in tiles)
+        public readonly int DelayMS;
+        public readonly float OffsetX;
+        public readonly float OffsetY;
         public readonly int TotalDamage;
         public readonly bool UseWisMod;
         public readonly int VisualEffect;
@@ -169,6 +174,9 @@ namespace Shared.resources
             if (e.Attribute("throwTime") != null) 
                 ThrowTime = (int)(float.Parse(e.Attribute("throwTime").Value) * 1000);
             else ThrowTime = 1500;
+            DelayMS = (int)(e.GetAttribute<float>("delay") * 1000);
+            OffsetX = e.GetAttribute<float>("offsetX");
+            OffsetY = e.GetAttribute<float>("offsetY");
 
             if (e.Attribute("proc") != null)
                 Proc = float.Parse(e.Attribute("proc").Value);

@@ -2323,6 +2323,24 @@ pub fn item_tooltip(data: &GameData, item: i32, me: Option<&GameObj>, kind: Slot
             out.push(Line::new(l.trim(), if l.trim().is_empty() { 6.0 } else { 13.0 }, false, DESCRIPTION));
         }
     }
+    // The item's own notes on what it does (ExtraTooltipData): "name: description", a name alone as
+    // a heading, or a description alone. Many items tell their effects only here.
+    if let Some(extra) = xml.child("ExtraTooltipData") {
+        let infos: Vec<_> = extra.children_named("EffectInfo").collect();
+        if !infos.is_empty() {
+            out.push(Line::gap());
+        }
+        for info in infos {
+            let name = info.attr("name").unwrap_or("").trim();
+            let text = info.attr("description").unwrap_or("").trim();
+            match (name.is_empty(), text.is_empty()) {
+                (false, false) => out.push(Line::stat(name, text, VALUE)),
+                (false, true) => out.push(Line::new(name, 13.0, true, ABILITY)),
+                (true, false) => out.push(Line::new(text, 13.0, false, VALUE)),
+                (true, true) => {}
+            }
+        }
+    }
     // What using it does, under the description: each ability's name, then its numbers, damage
     // first.
     for a in xml.children_named("Activate") {
@@ -2353,6 +2371,11 @@ pub fn item_tooltip(data: &GameData, item: i32, me: Option<&GameObj>, kind: Slot
         }
         // Bullet and shot activations some items mark as not for the tooltip.
         if a.attr("ignoreOnTooltip") == Some("true") {
+            continue;
+        }
+        // A helper it throws or summons ("Throws a Genesis Spell Portal 1") says nothing when the
+        // item's own notes (ExtraTooltipData, above) tell what it does.
+        if matches!(effect, "ObjectToss" | "Pet" | "Create") && xml.child("ExtraTooltipData").is_some() {
             continue;
         }
         let (name, rows) = activate_rows(a);

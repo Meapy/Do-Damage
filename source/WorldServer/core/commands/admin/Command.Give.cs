@@ -29,7 +29,9 @@ namespace WorldServer.core.commands
                     itemName = string.Join(" ", splitArgs.Skip(1));
                 }
 
-                if (!gameData.DisplayIdToObjectType.TryGetValue(itemName, out ushort objType))
+                // by display name, else by id: some names belong to an object that isn't an item too
+                // (Prismimic, an event chest's)
+                if (!gameData.DisplayIdToObjectType.TryGetValue(itemName, out ushort objType) || !gameData.Items.ContainsKey(objType))
                 {
                     if (!gameData.IdToObjectType.TryGetValue(itemName, out objType))
                     {

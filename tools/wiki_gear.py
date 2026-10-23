@@ -45,7 +45,7 @@ GROUP_NAMES = {g: (title, tag) for g, title, tag, _ in GROUPS}
 # reworked, whose special items are plain untiered ones for now
 REWORKED = {"legendary", "ascended", "ethereal"}
 ALWAYS_SHOWN = {"Ring": REWORKED, "Dagger": REWORKED, "Bow": REWORKED, "Staff": REWORKED, "Wand": REWORKED,
-                "Katana": REWORKED, "Sword": REWORKED}
+                "Katana": REWORKED, "Sword": REWORKED, "abilities": REWORKED}  # a kind, or a whole category
 PLURAL = {"Staff": "Staves", "Dual Blades": "Dual Blades", "Shuriken": "Shuriken", "Wakizashi": "Wakizashi",
           "Leather armor": "Leather armor", "Heavy armor": "Heavy armor"}
 STAT = {0: "HP", 3: "MP", 20: "Att", 21: "Def", 22: "Spd", 26: "Vit", 27: "Wis", 28: "Dex"}
@@ -237,7 +237,7 @@ class Gear:
                 names.append("%d more" % (len(drops) - 4))
             rows.append(("Drops from", ", ".join(names)))
         if it["tier_loot"]:
-            ms = self.tier_loot.get((it["tier_loot"], it["tier"]), [])
+            ms = self.tier_loot.get((it["tier_loot"], it["pool_tier"]), [])
             names = []
             for m in ms:
                 n = h.who(d, m)
@@ -467,7 +467,7 @@ class Gear:
         h = self.h
         parts = []
         lst = self.by_slot.get(slot, [])
-        shown = ALWAYS_SHOWN.get(lst[0]["kind"] if lst else None, set())
+        shown = (ALWAYS_SHOWN.get(lst[0]["kind"]) or ALWAYS_SHOWN.get(lst[0]["category"], set())) if lst else set()
         for g, title, _, blurb in GROUPS:
             its = [it for it in lst if it["group"] == g]
             if not its and g not in shown:

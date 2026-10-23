@@ -245,7 +245,9 @@ namespace WorldServer.logic
                     new ItemLoot("Avarice", 0.004),
                     new ItemLoot("Superior", 0.004),
                     new ItemLoot("Lumiaire", 0.004),
-                    new ItemLoot("Divinity", 0.004)
+                    new ItemLoot("Divinity", 0.004),
+                    new ItemLoot("Chaotic Scripture", 0.004),
+                    new ItemLoot("Ballistic Star", 0.004)
                 ),
                 // 5% of the damage: the gear
                 new Threshold(0.05,

@@ -58,10 +58,13 @@ LOOT_CHANGES = {
     "Christmas Oryx": {"Crown": None, "Santa's Hat": 0.05, "Oryx Tooth Sword": None},
     "Oryx the Mad God 4": {"Crown": None, "Oryx Tooth Sword": None},
     "Oryx the Mad God 5": {"Crown": None, "Oryx Tooth Sword": None},
-    "Turkey God": {"America Ring": None, "America Sword": None},
+    "Turkey God": {"America Ring": None, "America Sword": None, "America Shield": None},
     # the swords pass: the T20 and Sword of Ghostly Power can't be found for now, the America Sword
     # is a reward
-    "Elder Septavius the Ghost God": {"Sword of Ghostly Power": None},
+    "Elder Septavius the Ghost God": {"Sword of Ghostly Power": None, "Soul Mask": 0.02},
+    # the abilities pass
+    "Actual Greater Nature Sprite": {"Quiver of Thunder": 0.05},
+    "Mad Gas Controller": {"Orb of Conflict": 0.02},
     # the staves pass: Natural Essence is commoner, Raw Fish of Terror waits for a rework, and the
     # Anatis Staff is a reward
     "Elder Tree": {"Staff of Natural Essence": 0.05},

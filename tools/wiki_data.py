@@ -343,7 +343,8 @@ class Data:
             if o["slot"] not in kinds or (doomed and (o["slot"] not in loot["doomed"] or o["tier"] < 0)
                                           and oid not in loot["doomed_items"]):
                 continue
-            pools.setdefault((kinds[o["slot"]], o["tier"]), []).append(oid)
+            tier = loot["extra_items"].get(oid, o["tier"])  # TierLoot.ExtraPoolItems join the pool of their tier
+            pools.setdefault((kinds[o["slot"]], tier), []).append(oid)
         blocks = ([b for bs in self.inits.values() for b in bs] + list(self.doomed.values())
                   + list(self.elder_loot.values()))
         blocks.append(_read(os.path.join(LOGIC, "doomed", "DoomedExtraLoot.cs")))
@@ -629,8 +630,11 @@ class Data:
             # the Doomed Realms classes' own slots
             drops_as = (loot["types"].get(o["slot"]) if o["tier"] >= 0 and group == "tiered"
                         and (not doomed or o["slot"] in loot["doomed"] or oid in loot["doomed_items"]) else None)
+            pool_tier = o["tier"]
+            if oid in loot["extra_items"]:  # an untiered item in a tier pool (TierLoot.ExtraPoolItems)
+                drops_as, pool_tier = loot["types"].get(o["slot"]), loot["extra_items"][oid]
             out.append(dict(o, kind=SLOT_NAMES[o["slot"]], category=cat, group=group, el=el, doomed=doomed,
-                            texture=self.texture(oid), tier_loot=drops_as))
+                            texture=self.texture(oid), tier_loot=drops_as, pool_tier=pool_tier))
         return out
 
     def texture(self, oid):
@@ -800,7 +804,9 @@ def tier_loot_types():
     m = re.search(r'DoomedClassSlots\s*=\s*new HashSet<int>\s*\{([^}]*)\}', src)
     items = re.search(r'DoomedPoolItems\s*=\s*new HashSet<string>\s*\{([^}]*)\}', src)
     return {"types": types, "doomed": {int(n) for n in re.findall(r'\d+', m.group(1) if m else "")},
-            "doomed_items": set(re.findall(r'"([^"]+)"', items.group(1) if items else ""))}
+            "doomed_items": set(re.findall(r'"([^"]+)"', items.group(1) if items else "")),
+            # untiered items in a tier pool: {id: tier}
+            "extra_items": {i: int(t) for i, t in re.findall(r'\["([^"]+)"\]\s*=\s*\((\d+),', src)}}
 
 
 def shop_items():

@@ -9,6 +9,39 @@ refuses while an `Unreleased` one is left, so rename it to `## <version> (<date>
 version number itself is in `client-rs/Cargo.toml`.
 
 ## Unreleased
+- Untiered abilities, new drops: Oryx the Celestial Mad God (Oryx 3) drops the Chaotic Scripture
+  and the Ballistic Star, Oryx the Infernal Mad God (Oryx 4) the Cloak of Bloody Surprises, Frimar
+  in the Ice Tomb the Tome of Frigid Protection, the Sandstone Titan the Amber Encrusted Helmet,
+  Janus the Doorwarden the Spiteful Scutum and Elder Archdemon Malphas the Skull of Endless
+  Torment. More often: the Quiver of Thunder, Tablet of the King's Avatar, Tome of Purification,
+  Plague Poison and Murky Toxin (5%), and the Soul Mask and Orb of Conflict (2%). The Penetrating
+  Blast Spell (T6 damage, its shots pass through enemies) now and then comes in the T6 ability
+  drops, and the Divine Forge makes it from two Elemental Detonation Spells.
+- Oryx's Escutcheon calls down three beams of lightning, the Genesis Spell's four portals stand
+  2.5 squares around your cursor and zap the nearest enemy, the Chaotic Scripture's Chaos Beam,
+  the Battalion Banner's banner, the Hivemaster Helm's bees and the Marble Seal's eye (Armored,
+  Damaging and Healing) all work now; they did nothing before. The Ghostly Prism's spirit bomb
+  bursts for 500 within 6 squares.
+- Item tooltips now show each item's own notes on what it does (many abilities explain their
+  effect only there).
+- Ability changes: Cloak of the Planewalker 1.5 s cooldown; Cloak of Dimensions +20 Vitality;
+  Freezing Quiver the T6 quiver's damage; Beehemoth Quivers make enemies bleed (120 over 3 s);
+  Tome of Poison the T6 poison's damage; Tome of Noble Assault 800 damage; Tome of Holy Protection
+  also gives Healing like the T6 tome; Tome of Pain 400 damage within 4 squares; the Helm of the
+  Jack-o'-naut is the Juggernaut's look-alike (same numbers; the forge swaps them for 100 fame);
+  Sword Shield half its damage; Seal of the Fallen Angel 2 s of invulnerability; Murky Toxin 20%
+  more damage; Skull of Endless Torment 25% more damage and healing, and -10 Vitality; Orb of
+  Conflict heals you 100; Honey Scepter slows for 1 s; Scepter of Zeus paralyzes for 1 s; Cnidaria
+  Rod gives +15 Wisdom for 3 s; Cnidaria Rod and Scepter of Fulmination the T6 scepter's damage;
+  Scepter of Devastation makes you bleed for 1 s; Ballistic Star 250 a star; Midnight Star and
+  Kageboshi 975-1075 damage and 120 MP, paralyzing and slowing for 2.5 s; the Thousand Suns
+  Spell's shots are bright yellow. The Crystal Shield's invulnerability ends when your mana runs
+  out.
+- Out of the shops: the donor spells and tomes, the Tome of Shining Stars (no longer
+  invulnerable) and the America Shield (a reward from the staff now). The Fool's Prism's fake bag
+  goes after 40 seconds.
+- The Legendary, Ascended and Ethereal abilities are ordinary untiered items for now, until
+  they're reworked.
 - Untiered katanas: Doku No Ken does the Sadamune's (T13) damage, 165-215, and each hit makes the
   enemy bleed for 120 damage a second for 3 seconds. The Ray Katana does 175 that ignores defense.
   Belladonna drops Arbiter's Wrath.

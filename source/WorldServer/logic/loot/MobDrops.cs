@@ -62,6 +62,13 @@ namespace WorldServer.logic.loot
         // Doomed Realms items that join the tier pools of their slot all the same: the staves' T15
         public static readonly HashSet<string> DoomedPoolItems = new HashSet<string> { "Staff of Endless Energy" };
 
+        // untiered items that join a tier pool all the same, at a weight (any other item's is 1): the
+        // Penetrating Blast Spell (id ST Spell) with the T6 abilities, at a quarter of a T6's chance
+        public static readonly Dictionary<string, (int Tier, double Weight)> ExtraPoolItems = new Dictionary<string, (int Tier, double Weight)>
+        {
+            ["ST Spell"] = (6, 0.25),
+        };
+
         public static int[] GetSlotTypes(ItemType itemType)
         {
             int[] types;
