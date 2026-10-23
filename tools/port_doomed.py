@@ -421,10 +421,12 @@ TEXTURE_OVERRIDES = {"Oryx the Mad God 4": ("hashCellarOryx16x16", 0),
                      "Hash Cellar Incantation": ("oryxIncantations16x16", 1),
                      "Doomed Cellar Incantation": ("oryxIncantations16x16", 2)}
 # projectiles drawn anew: id -> {projectile id: object}. Oryx 4's first phase shoots hellfire.
-PROJECTILE_OVERRIDES = {"Oryx the Mad God 4": {"2": "Hellfire Bolt", "4": "Hellfire Star"}}
+PROJECTILE_OVERRIDES = {"Oryx the Mad God 4": {"2": "Hellfire Bolt", "4": "Hellfire Star"},
+                        # the Elysian Staff shoots Oryx 5's Celestial Bolt (its projectile has no id)
+                        "Staff of Heavens": {None: "Celestial Bolt"}}
 # names for players: each Oryx after the Chamber is named for his theme
 DISPLAY_OVERRIDES = {"Oryx the Mad God 4": "Oryx the Infernal Mad God", "Hash Cellar Incantation": "Oryx's Inferno Incantation",
-                     "Doomed Cellar Incantation": "Oryx's Elysium Incantation"}
+                     "Doomed Cellar Incantation": "Oryx's Elysium Incantation", "Staff of Heavens": "Elysian Staff"}
 
 
 # Loot bags (<BagType>): Doomed Realms numbered its bags differently, so its rarest items dropped
@@ -451,10 +453,12 @@ ITEM_STORE = {
 # The untiered rings pass (SETUP-LOCAL.md, "Untiered rings"). Admin items: untradeable and listed with
 # the staff's gear (Doomed Realms' admin gear and rewards, with far more stats than anything else).
 # Ring of the Abyss's numbers are in GEAR_TUNING.
-ADMIN_ITEMS = ["Doomie Amulet", "Doomed Hero Badge", "Fallen Crown", "God Rushing", "Doomed Gods"]
+ADMIN_ITEMS = ["Doomie Amulet", "Doomed Hero Badge", "Fallen Crown", "God Rushing", "Doomed Gods",
+               "Doomie Staff", "Doomie Yolo"]
 DESCRIPTIONS = {
     "Santa's Hat": "A hat that protects Santa from even death itself. A blow that would kill its wearer breaks "
                    "the hat instead, and sends them back to the Nexus.",
+    "Staff of Heavens": "Raised over Oryx's Elysium in his last stand, it fires the holy bolts of the Ascended God.",
 }
 
 
@@ -513,6 +517,7 @@ GEAR_TUNING = {
     "Ring of the Abyss": {"stats": {"0": 120, DEF: 10}},  # was 500 health and 24 Defense
     # was 405-1045 at rate 1, its shots barely waving
     "Soul Tipped Dirk": {"damage": (120, 230), "rof": "0.9", "wave": ("0.6", "1")},
+    "Staff of Tainted Light": {"damage": (95, 105)},  # was 190-210: a better Staff of Extreme Prejudice
     "Power of the Fountains": {"tier": "7"},
     **{oid: {"untier": True} for oid in UNTIERED_ABILITIES},
     **{oid: {"tier": str(t), **CANNON_TUNING.get(oid, {})} for t, oid in enumerate(CANNON_TIERS)},

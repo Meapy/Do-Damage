@@ -33,8 +33,9 @@ namespace WorldServer.core.commands.doomed
 
         // Items only the forge makes, which no monster drops (so they skip that rule), and items
         // with the same numbers swapping looks (the Dirk of Cronus and Phantasm Dirk; the Doom Bow,
-        // Sun's Judgement and Bow of the Morning Star; the Thousand Shot and Sunny Side Bow): result,
-        // fame, needs a Forge Amulet, ingredients.
+        // Sun's Judgement and Bow of the Morning Star; the Thousand Shot and Sunny Side Bow; the Staff
+        // of the Cosmic Whole and Frosty's Walking Stick; the Staff of Extreme Prejudice and Staff of
+        // Iceblast): result, fame, needs a Forge Amulet, ingredients.
         private static readonly (string Result, int Fame, bool Advanced, string[] Items)[] ForgeOnly =
         {
             ("Reforged Forgotten Crown", 6000, false, new[] { "The Forgotten Crown", "The Forgotten Crown" }),
@@ -49,6 +50,10 @@ namespace WorldServer.core.commands.doomed
             ("Doom Bow", 100, false, new[] { "Bow of the Morning Star" }),
             ("Sunny Side Bow", 100, false, new[] { "Thousand Shot" }),
             ("Thousand Shot", 100, false, new[] { "Sunny Side Bow" }),
+            ("Frosty's Walking Stick", 100, false, new[] { "Staff of the Cosmic Whole" }),
+            ("Staff of the Cosmic Whole", 100, false, new[] { "Frosty's Walking Stick" }),
+            ("Staff of Iceblast", 100, false, new[] { "Staff of Extreme Prejudice" }),
+            ("Staff of Extreme Prejudice", 100, false, new[] { "Staff of Iceblast" }),
         };
 
         private static (string Result, int Fame, bool Advanced, string[] Items)[] _all;

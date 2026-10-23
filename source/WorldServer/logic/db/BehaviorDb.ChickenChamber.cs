@@ -111,7 +111,6 @@ namespace WorldServer.logic
                     new ItemLoot("Potion of Vitality", 0.25),
                     new ItemLoot("Potion of Wisdom", 0.25),
                     new ItemLoot("Chicken Leg of Doom", 0.05),
-                    new ItemLoot("Anatis Staff", 0.05),
                     new ItemLoot("Apocalypse Feather", 0.015),
                     new ItemLoot("Oryx Sanctuary Key", 0.04)
                 ),

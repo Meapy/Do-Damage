@@ -9,6 +9,22 @@ refuses while an `Unreleased` one is left, so rename it to `## <version> (<date>
 version number itself is in `client-rs/Cargo.toml`.
 
 ## Unreleased
+- Untiered staves: Oryx the Celestial Mad God (Oryx 3) drops Superior; Oryx the Ascended God
+  (Oryx 5) drops the Elysian Staff (once the Staff of Heavens, now firing his golden Celestial
+  Bolts), and very rarely the Staff of Endless Energy and the Eternal Sword. Esben and the Ice
+  Tomb's chest drop Frosty's Walking Stick, the Ice Tomb also the Staff of Iceblast, Limon the
+  Spirit Staff and Belladonna the Staff of Adoration.
+- More common: the Staff of Extreme Prejudice (5% from Limon), Tezcacoatl's Tail (5%), the Staff of
+  Natural Essence (5% from the Elder Tree), the Staff of the Crystal Serpent (2%) and the Staff of
+  Esben (2%), which also does twice the damage (140-180).
+- Staff of Tainted Light: half its damage (95-105), a step above the Staff of Extreme Prejudice.
+- The Divine Forge swaps the Staff of the Cosmic Whole and Frosty's Walking Stick, and the Staff
+  of Extreme Prejudice and the Staff of Iceblast, for 100 fame (same numbers, a different look).
+- The Staff of Endless Energy is no longer in the donor shop. Raw Fish of Terror no longer drops
+  (it's being reworked). The Anatis Staff is a reward from the staff now and no longer drops or
+  forges; the Staff of Someone and Yolo are staff-only.
+- The Legendary, Ascended and Ethereal staves are ordinary untiered staves for now, until they're
+  reworked.
 - Untiered bows: the Ice Tomb's chest drops the Arctic Bow and the Bow of Eternal Frost, and the
   Puppet Master in his Encore the Blazon Bow. The Bow of Eternal Frost fires three arrows of 70
   that ignore defense and slow for a second; the Icicle Launcher fires two icicles that slow for a

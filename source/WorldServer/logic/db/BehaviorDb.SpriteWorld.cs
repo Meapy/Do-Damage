@@ -170,7 +170,8 @@ namespace WorldServer.logic
                     new ItemLoot("Potion of Defense", 1),
                     new ItemLoot("Sprite Wand", 0.01),
                     new ItemLoot("Cloak of the Planewalker", 0.009),
-                    new ItemLoot("Staff of Extreme Prejudice", 0.009),
+                    new ItemLoot("Staff of Extreme Prejudice", 0.05),
+                    new ItemLoot("Spirit Staff", 0.009),
                     new TierLoot(5, ItemType.Ring, 0.12),
                     new TierLoot(12, ItemType.Armor, 0.12),
                     new TierLoot(5, ItemType.Ability, 0.07)

@@ -425,7 +425,10 @@ namespace WorldServer.logic
                     new ItemLoot("Tome of Noble Assault", 0.02),
                     new ItemLoot("Doom Poison", 0.01),
                     new ItemLoot("Sword of Dark Enchantment", 0.004),
-                    new ItemLoot("Forge Amulet", 0.004)
+                    new ItemLoot("Forge Amulet", 0.004),
+                    new ItemLoot("Staff of Heavens", 0.004),
+                    new ItemLoot("Staff of Endless Energy", 0.001),
+                    new ItemLoot("Eternal Sword", 0.001)
                 ),
                 // 5% of the damage: the gear
                 new Threshold(0.05,

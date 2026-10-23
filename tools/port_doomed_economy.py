@@ -42,9 +42,10 @@ DEFAULT_SHOP = "abilities"
 # pass (SETUP-LOCAL.md, "Untiered rings") the admin items, the reward rings and the Amulet of
 # Dispersion, which drops in the Haunted Cemetery instead, and (the daggers pass) the Dirk of Cronus
 NOT_SOLD = {"Twilight Generator", "Dinosaur's Pet Generator", "Crown", "God Rushing", "America Ring",
-            "Amulet of Resurrection", "Dirk of Cronus"}
-# results the Divine Forge doesn't make: the admin items
-NOT_FORGED = {"Crown"}
+            "Amulet of Resurrection", "Dirk of Cronus", "Staff of Endless Energy"}
+# results the Divine Forge doesn't make: the admin items, the rewards, and the very rare drops of
+# Oryx 5 its Doomed Realms recipes would make easy
+NOT_FORGED = {"Crown", "Anatis Staff", "Staff of Endless Energy", "Eternal Sword"}
 
 
 def _num(s):

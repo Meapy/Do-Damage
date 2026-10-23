@@ -370,8 +370,7 @@ namespace WorldServer.logic.doomed
                             Tuple.Create(0.2, (ILoot)new StatPotionLoot(StatPotion.Vit)),
                             Tuple.Create(0.2, (ILoot)new StatPotionLoot(StatPotion.Def)),
 
-                            Tuple.Create(0.3, (ILoot)new ItemLoot("Chicken Leg of Doom")),
-                            Tuple.Create(0.3, (ILoot)new ItemLoot("Anatis Staff"))
+                            Tuple.Create(0.3, (ILoot)new ItemLoot("Chicken Leg of Doom"))
                     ))));
 
         // April Fools Egg
@@ -1924,7 +1923,6 @@ namespace WorldServer.logic.doomed
                     Tuple.Create(360, new LootDef(0, 3, 0, 8,
                         Tuple.Create(0.1, (ILoot)new ItemLoot("Potion of Max Mana")),
                         Tuple.Create(0.005, (ILoot)new ItemLoot("Wine Cellar Incantation")),
-                            Tuple.Create(0.01, (ILoot)new ItemLoot("Raw Fish of Terror")),
                             Tuple.Create(0.01, (ILoot)new ItemLoot("Scaled Robe")),
                             Tuple.Create(0.01, (ILoot)new ItemLoot("Oceans Gift")),
                             Tuple.Create(0.01, (ILoot)new ItemLoot("Idol of the Fish")),
@@ -5222,7 +5220,6 @@ namespace WorldServer.logic.doomed
                     Tuple.Create(100, new LootDef(0, 5, 2, 5,
                         Tuple.Create(0.1, (ILoot) new ItemLoot("Potion of Max Mana")),
                         Tuple.Create(0.005, (ILoot) new ItemLoot("Wine Cellar Incantation")),
-                            Tuple.Create(0.01, (ILoot)new ItemLoot("Raw Fish of Terror")),
                             Tuple.Create(0.01, (ILoot)new ItemLoot("Scaled Robe")),
                             Tuple.Create(0.01, (ILoot)new ItemLoot("Oceans Gift")),
                             Tuple.Create(0.01, (ILoot)new ItemLoot("Idol of the Fish")),
@@ -5646,7 +5643,7 @@ namespace WorldServer.logic.doomed
                     Tuple.Create(500, new LootDef(0, 5, 0, 10,
                         Tuple.Create(0.9, (ILoot) new ItemLoot("Potion of Speed")),
                         Tuple.Create(0.1, (ILoot) new ItemLoot("Potion of Vitality")),
-                        Tuple.Create(0.005, (ILoot) new ItemLoot("Staff of Natural Essence"))
+                        Tuple.Create(0.05, (ILoot) new ItemLoot("Staff of Natural Essence"))
                         ))));
 
         // Elder Tree Roots

@@ -6752,6 +6752,7 @@
 			<Index>0x3e</Index>
 		</Texture>
 		<SlotType>17</SlotType>
+		<Admin />
 		<Description>A OP staff of Someone.</Description>
 		<RateOfFire>4</RateOfFire>
 		<Sound>weapon/mithril_sword</Sound>
@@ -6880,6 +6881,7 @@
 			<Index>0x3e</Index>
 		</Texture>
 		<SlotType>17</SlotType>
+		<Admin />
 		<Description>#SWAG</Description>
 		<RateOfFire>1.2</RateOfFire>
 		<Sound>weapon/fire_dagger</Sound>
@@ -8440,6 +8442,7 @@
 		<Activate>BulletNova</Activate>
 	</Object>
 	<Object type="0xD1D2" id="Staff of Heavens">
+		<DisplayId>Elysian Staff</DisplayId>
 		<Class>Equipment</Class>
 		<Item />
 		<Texture>
@@ -8447,11 +8450,11 @@
 			<Index>0x142</Index>
 		</Texture>
 		<SlotType>17</SlotType>
-		<Description>Adrian's staff that was used too defeat the demons of the abyss. </Description>
+		<Description>Raised over Oryx's Elysium in his last stand, it fires the holy bolts of the Ascended God.</Description>
 		<RateOfFire>0.35</RateOfFire>
 		<Sound>weapon/wand_of_death</Sound>
 		<Projectile>
-			<ObjectId>Grey Missile</ObjectId>
+			<ObjectId>Celestial Bolt</ObjectId>
 			<Speed>100</Speed>
 			<MinDamage>200</MinDamage>
 			<MaxDamage>250</MaxDamage>
@@ -9107,8 +9110,8 @@
 		<Projectile>
 			<ObjectId>Fire Missile</ObjectId>
 			<Speed>110</Speed>
-			<MinDamage>190</MinDamage>
-			<MaxDamage>210</MaxDamage>
+			<MinDamage>95</MinDamage>
+			<MaxDamage>105</MaxDamage>
 			<LifetimeMS>364</LifetimeMS>
 			<Amplitude>0.15</Amplitude>
 			<Frequency>2</Frequency>

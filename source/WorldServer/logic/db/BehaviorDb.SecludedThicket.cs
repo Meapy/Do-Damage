@@ -107,10 +107,10 @@ namespace WorldServer.logic
             new Threshold(0.01,
                 new ItemLoot("Potion of Defense", 1),
                 new ItemLoot("Potion of Life", 0.5),
-                new ItemLoot("Tezcacoatl's Tail", 0.005),
+                new ItemLoot("Tezcacoatl's Tail", 0.05),
                 new ItemLoot("Mask of Lightning", 0.005),
                 new ItemLoot("Lightning in a Bottle", 0.005),
-                new ItemLoot("Staff of the Crystal Serpent", 0.005),
+                new ItemLoot("Staff of the Crystal Serpent", 0.02),
                 new ItemLoot("Cracked Crystal Skull", 0.005)
                 )
             );

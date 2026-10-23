@@ -59,6 +59,12 @@ LOOT_CHANGES = {
     "Oryx the Mad God 4": {"Crown": None},
     "Oryx the Mad God 5": {"Crown": None},
     "Turkey God": {"America Ring": None},
+    # the staves pass: Natural Essence is commoner, Raw Fish of Terror waits for a rework, and the
+    # Anatis Staff is a reward
+    "Elder Tree": {"Staff of Natural Essence": 0.05},
+    "Elder Coral Gift": {"Raw Fish of Terror": None},
+    "Elder Thessal the Mermaid Goddess": {"Raw Fish of Terror": None},
+    "April Fools Chicken": {"Anatis Staff": None},
 }
 
 

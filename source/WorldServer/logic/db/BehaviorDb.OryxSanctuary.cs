@@ -243,7 +243,8 @@ namespace WorldServer.logic
                     new ItemLoot("Collector's Monocle", 0.004),
                     new ItemLoot("Divine Coronation", 0.004),
                     new ItemLoot("Exalted God's Horn", 0.004),
-                    new ItemLoot("Avarice", 0.004)
+                    new ItemLoot("Avarice", 0.004),
+                    new ItemLoot("Superior", 0.004)
                 ),
                 // 5% of the damage: the gear
                 new Threshold(0.05,

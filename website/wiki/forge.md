@@ -52,7 +52,8 @@ makes: the **Reforged Forgotten Crown** (from two Forgotten Crowns), the **Refor
 Talon** (two Obsidian Daggers). Some items share their numbers and differ only in looks, and the
 forge turns one into the other for 100 fame, either way: the **Dirk of Cronus** and the **Phantasm
 Dirk**; the **Doom Bow**, **Sun's Judgement** and **Bow of the Morning Star**; the **Thousand Shot**
-and the **Sunny Side Bow**. Click an item for what it does.
+and the **Sunny Side Bow**; the **Staff of the Cosmic Whole** and **Frosty's Walking Stick**; the
+**Staff of Extreme Prejudice** and the **Staff of Iceblast**. Click an item for what it does.
 
 {{gen:forge_special}}
 

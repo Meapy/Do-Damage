@@ -51,6 +51,7 @@ namespace WorldServer.logic
                 new ItemLoot("Potion of Defense", 1),
                 new ItemLoot("Potion of Life", 0.3),
                 new ItemLoot("Cupid's Bow", 0.01),
+                new ItemLoot("Staff of Adoration", 0.01),
                 new ItemLoot("Valentine's Mystery Item", 0.05)
                 )
             );
