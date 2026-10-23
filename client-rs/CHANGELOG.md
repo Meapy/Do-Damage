@@ -9,6 +9,15 @@ refuses while an `Unreleased` one is left, so rename it to `## <version> (<date>
 version number itself is in `client-rs/Cargo.toml`.
 
 ## Unreleased
+- Untiered bows: the Ice Tomb's chest drops the Arctic Bow and the Bow of Eternal Frost, and the
+  Puppet Master in his Encore the Blazon Bow. The Bow of Eternal Frost fires three arrows of 70
+  that ignore defense and slow for a second; the Icicle Launcher fires two icicles that slow for a
+  second.
+- Reforged Doom Bow: its two shots now part and meet again at the end of their flight. The Divine
+  Forge makes it from two Doom Bows, and turns a Doom Bow into a Sun's Judgement or a Bow of the
+  Morning Star (or back), and a Thousand Shot into a Sunny Side Bow (or back), for 100 fame: they
+  have the same numbers, a different look.
+- The Ascended and Ethereal bows are ordinary untiered bows for now, until they're reworked.
 - Untiered daggers: Esben drops An Icicle, Oryx the Celestial Mad God (Oryx 3) Avarice, the
   Crystal Prisoner the Crystal Dagger, and the monsters in Oryx 3's, Oryx 4's and Oryx 5's
   dungeons now and then the Bounty Hunter's Dagger. Oryx 3 no longer drops the Doom Dirk or the

@@ -44,7 +44,7 @@ GROUP_NAMES = {g: (title, tag) for g, title, tag, _ in GROUPS}
 # groups a kind's page shows even with no items in them: the kinds whose untiered items have been
 # reworked, whose special items are plain untiered ones for now
 REWORKED = {"legendary", "ascended", "ethereal"}
-ALWAYS_SHOWN = {"Ring": REWORKED, "Dagger": REWORKED}
+ALWAYS_SHOWN = {"Ring": REWORKED, "Dagger": REWORKED, "Bow": REWORKED}
 PLURAL = {"Staff": "Staves", "Dual Blades": "Dual Blades", "Shuriken": "Shuriken", "Wakizashi": "Wakizashi",
           "Leather armor": "Leather armor", "Heavy armor": "Heavy armor"}
 STAT = {0: "HP", 3: "MP", 20: "Att", 21: "Def", 22: "Spd", 26: "Vit", 27: "Wis", 28: "Dex"}

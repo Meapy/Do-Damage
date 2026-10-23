@@ -7,7 +7,6 @@
 			<Index>0x05</Index>
 		</Texture>
 		<SlotType>3</SlotType>
-		<Ethereal/>
 		<Description>A bow imbued with energy from faraway galaxies. It's origin is unknown.</Description>
 		<ExtraTooltipData>
 			<EffectInfo name="On Ability use" description=""/>
@@ -188,7 +187,7 @@
 			<Index>0x0b</Index>
 		</Texture>
 		<SlotType>3</SlotType>
-		<Description>An upgraded catalyst of destruction. Its heavy shots tear through flesh and spell alike.</Description>
+		<Description>An upgraded catalyst of destruction. Its twin shots part and meet again at the end of their flight, tearing through flesh and spell alike.</Description>
 		<RateOfFire>0.3</RateOfFire>
 		<Sound>weapon/golden_bow</Sound>
 		<Projectile>
@@ -197,13 +196,14 @@
 			<MinDamage>320</MinDamage>
 			<MaxDamage>475</MaxDamage>
 			<LifetimeMS>550</LifetimeMS>
-			<Frequency>1</Frequency>
+			<Frequency>0.5</Frequency>
 			<Size>125</Size>
 			<MultiHit/>
 			<PassesCover/>
+			<Amplitude>0.8</Amplitude>
 		</Projectile>
 		<NumProjectiles>2</NumProjectiles>
-		<ArcGap>20</ArcGap>
+		<ArcGap>0</ArcGap>
 		<ActivateOnEquip stat="20" amount="4">IncrementStat</ActivateOnEquip>
 		<BagType>6</BagType>
 		<FameBonus>8</FameBonus>

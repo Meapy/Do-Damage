@@ -48,9 +48,11 @@ costs more than {{v:forge_cap}} fame.
 Recipes that don't follow the two-for-one rule: the Doomed Realms forge's untiered (UT) items,
 other ways to the same tiered items, a few potions, and items no monster drops, which only the forge
 makes: the **Reforged Forgotten Crown** (from two Forgotten Crowns), the **Reforged Dirk of Cronus**
-(two Dirks of Cronus) and the **Dagger of the Terrible Talon** (two Obsidian Daggers). The **Dirk of
-Cronus** and the **Phantasm Dirk** have the same numbers, and the forge turns one into the other for
-100 fame, either way, if you prefer the other look. Click an item for what it does.
+(two Dirks of Cronus), the **Reforged Doom Bow** (two Doom Bows) and the **Dagger of the Terrible
+Talon** (two Obsidian Daggers). Some items share their numbers and differ only in looks, and the
+forge turns one into the other for 100 fame, either way: the **Dirk of Cronus** and the **Phantasm
+Dirk**; the **Doom Bow**, **Sun's Judgement** and **Bow of the Morning Star**; the **Thousand Shot**
+and the **Sunny Side Bow**. Click an item for what it does.
 
 {{gen:forge_special}}
 

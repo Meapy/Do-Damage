@@ -753,6 +753,8 @@ namespace WorldServer.logic
                     new ItemLoot("Enchanted Ice Shard", 0.02),
                     new ItemLoot("Frimarra", 0.02),
                     new ItemLoot("Freezing Quiver", 0.005),
+                    new ItemLoot("Arctic Bow", 0.005),
+                    new ItemLoot("Bow of Eternal Frost", 0.005),
                     new ItemLoot("Potion of Life", .35, 3),
                     new ItemLoot("Ice Crown", .0025)
                 )

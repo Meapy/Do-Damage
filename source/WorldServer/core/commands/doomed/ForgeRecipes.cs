@@ -31,9 +31,10 @@ namespace WorldServer.core.commands.doomed
         // chain: 10 for a Broad Sword up to 2000 for a Sword of Splendor).
         private static readonly int[] TierFame = { 0, 10, 30, 50, 70, 90, 100, 200, 300, 400, 500, 800, 1000, 2000, 2000 };
 
-        // Items only the forge makes, which no monster drops (so they skip that rule), and the
-        // Dirk of Cronus and Phantasm Dirk swapping looks (the same numbers): result, fame, needs a
-        // Forge Amulet, ingredients.
+        // Items only the forge makes, which no monster drops (so they skip that rule), and items
+        // with the same numbers swapping looks (the Dirk of Cronus and Phantasm Dirk; the Doom Bow,
+        // Sun's Judgement and Bow of the Morning Star; the Thousand Shot and Sunny Side Bow): result,
+        // fame, needs a Forge Amulet, ingredients.
         private static readonly (string Result, int Fame, bool Advanced, string[] Items)[] ForgeOnly =
         {
             ("Reforged Forgotten Crown", 6000, false, new[] { "The Forgotten Crown", "The Forgotten Crown" }),
@@ -41,6 +42,13 @@ namespace WorldServer.core.commands.doomed
             ("Dagger of the Terrible Talon", 200, false, new[] { "Obsidian Dagger", "Obsidian Dagger" }),
             ("Phantasm Dirk", 100, false, new[] { "Dirk of Cronus" }),
             ("Dirk of Cronus", 100, false, new[] { "Phantasm Dirk" }),
+            ("Reforged Doom Bow", 6000, false, new[] { "Doom Bow", "Doom Bow" }),
+            ("Sun's Judgement", 100, false, new[] { "Doom Bow" }),
+            ("Doom Bow", 100, false, new[] { "Sun's Judgement" }),
+            ("Bow of the Morning Star", 100, false, new[] { "Doom Bow" }),
+            ("Doom Bow", 100, false, new[] { "Bow of the Morning Star" }),
+            ("Sunny Side Bow", 100, false, new[] { "Thousand Shot" }),
+            ("Thousand Shot", 100, false, new[] { "Sunny Side Bow" }),
         };
 
         private static (string Result, int Fame, bool Advanced, string[] Items)[] _all;

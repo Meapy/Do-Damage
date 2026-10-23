@@ -664,6 +664,7 @@ namespace WorldServer.logic
                 ),
             new Threshold(0.03,
                 new ItemLoot("Thousand Shot", 0.003),
+                new ItemLoot("Blazon Bow", 0.003),
                 new ItemLoot("Puppet Master's Encore Key", 0.01, 0, 0.01)
                 ),
             new Threshold(0.02,

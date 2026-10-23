@@ -2597,7 +2597,6 @@
 			<Index>0x6a</Index>
 		</Texture>
 		<SlotType>3</SlotType>
-		<Ascended/>
 		<Description>No mortal can fire this dreaded bow without resting in between shots. It requires tremendous skill to wield.</Description>
 		<RateOfFire>0.33</RateOfFire>
 		<Sound>weapon/golden_bow</Sound>
@@ -7877,7 +7876,6 @@
 			<Index>0x1a</Index>
 		</Texture>
 		<SlotType>3</SlotType>
-		<Ethereal/>
 		<Description>A deadly repeater crossbow and a marvel of craftsmanship. This mechanical weapon is efficient, but carries additional weight.</Description>
 		<RateOfFire>2</RateOfFire>
 		<Sound>weapon/heavy_crossbow</Sound>
@@ -10795,7 +10793,6 @@
 			<Index>0x405</Index>
 		</Texture>
 		<SlotType>3</SlotType>
-		<Ascended/>
 		<Description>Fashioned from the finest logs found within the Woodland Labyrinths, this bow uses sharp leaves instead of conventional arrows. Such lightweight ammunition allows for quick movement.</Description>
 		<RateOfFire>1.4</RateOfFire>
 		<Sound>weapon/golden_bow</Sound>
@@ -10903,7 +10900,6 @@
 			<Index>0x42b</Index>
 		</Texture>
 		<SlotType>3</SlotType>
-		<Ethereal/>
 		<Description>Toats sweet robobow bro!</Description>
 		<RateOfFire>1.5</RateOfFire>
 		<Sound>weapon/heavy_crossbow</Sound>
@@ -11406,7 +11402,6 @@
 			<Index>0x4CA</Index>
 		</Texture>
 		<SlotType>3</SlotType>
-		<Ascended/>
 		<Description>A bow of light forged by the angels for use in their eternal struggle against darkness and evil.</Description>
 		<RateOfFire>0.33</RateOfFire>
 		<Sound>weapon/golden_bow</Sound>
@@ -11512,7 +11507,6 @@
 			<Index>0x4D1</Index>
 		</Texture>
 		<SlotType>3</SlotType>
-		<Ethereal/>
 		<Description>Meow! Meow meow meow! MEOWMEOWMEOW.</Description>
 		<RateOfFire>0.25</RateOfFire>
 		<Sound>weapon/heavy_crossbow</Sound>
@@ -13024,17 +13018,19 @@
 			<Index>0x491</Index>
 		</Texture>
 		<SlotType>3</SlotType>
-		<Description>You are not a unique snowflake. You're like one of five or something.</Description>
+		<Description>You are not a unique snowflake. Its three frozen arrows pierce armor and slow whatever they hit.</Description>
 		<RateOfFire>1</RateOfFire>
 		<Sound>weapon/golden_bow</Sound>
 		<Projectile>
 			<ObjectId>snow flakes</ObjectId>
 			<Size>80</Size>
 			<Speed>160</Speed>
-			<MinDamage>49</MinDamage>
+			<MinDamage>70</MinDamage>
 			<MaxDamage>70</MaxDamage>
 			<LifetimeMS>440</LifetimeMS>
 			<MultiHit/>
+			<ArmorPiercing/>
+			<ConditionEffect duration="1">Slowed</ConditionEffect>
 		</Projectile>
 		<ArcGap>8</ArcGap>
 		<BagType>4</BagType>
@@ -15187,7 +15183,6 @@
 			<Index>0xa7</Index>
 		</Texture>
 		<SlotType>3</SlotType>
-		<Ethereal/>
 		<Description>Every shot that hits a target frees the soul of a forgotten hero. Every shot that misses is trapped for eternity.</Description>
 		<RateOfFire>1</RateOfFire>
 		<Sound>weapon/golden_bow</Sound>
@@ -17131,7 +17126,7 @@
 			<Index>0xc0</Index>
 		</Texture>
 		<SlotType>3</SlotType>
-		<Description>Magic in the bow pulls in water vapor and instantly freezes it, creating ammo out of thin air. Not recommended for desert use.</Description>
+		<Description>Magic in the bow pulls in water vapor and instantly freezes it, creating ammo out of thin air. Its icicles slow whatever they hit. Not recommended for desert use.</Description>
 		<RateOfFire>1</RateOfFire>
 		<Sound>weapon/golden_bow</Sound>
 		<Projectile>
@@ -17141,10 +17136,11 @@
 			<MaxDamage>75</MaxDamage>
 			<LifetimeMS>440</LifetimeMS>
 			<MultiHit/>
+			<ConditionEffect duration="1">Slowed</ConditionEffect>
 		</Projectile>
 		<BagType>9</BagType>
 		<FameBonus>7</FameBonus>
-		<NumProjectiles>3</NumProjectiles>
+		<NumProjectiles>2</NumProjectiles>
 		<ArcGap>8</ArcGap>
 		<OldSound>arrowShoot</OldSound>
 		<feedPower>450</feedPower>
