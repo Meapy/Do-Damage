@@ -455,10 +455,13 @@ ITEM_STORE = {
 # Ring of the Abyss's numbers are in GEAR_TUNING.
 ADMIN_ITEMS = ["Doomie Amulet", "Doomed Hero Badge", "Fallen Crown", "God Rushing", "Doomed Gods",
                "Doomie Staff", "Doomie Yolo"]
+# rewards the staff give (<Reward/>, which only the wiki reads)
+REWARD_ITEMS = ["America Sword"]
 DESCRIPTIONS = {
     "Santa's Hat": "A hat that protects Santa from even death itself. A blow that would kill its wearer breaks "
                    "the hat instead, and sends them back to the Nexus.",
     "Staff of Heavens": "Raised over Oryx's Elysium in his last stand, it fires the holy bolts of the Ascended God.",
+    "America Sword": "Rewarded by DODMG: America!",
 }
 
 
@@ -523,6 +526,10 @@ GEAR_TUNING = {
     # was 380-410, and T15: a very rare drop of its own, not a step of the staves' tiers (or the forge
     # would make it from two T14 staves)
     "Eternal Sword": {"damage": (180, 180), "pierce": True, "untier": True},
+    "Platinum Sword": {"lifetime": 800},  # range 8 (was 5)
+    # T20 and T22, which no tier reaches: no source for now, listed with the future additions
+    "Oryx Tooth Sword": {"untier": True},
+    "Sword of the Angelic Soul": {"untier": True},
     "Power of the Fountains": {"tier": "7"},
     **{oid: {"untier": True} for oid in UNTIERED_ABILITIES},
     **{oid: {"tier": str(t), **CANNON_TUNING.get(oid, {})} for t, oid in enumerate(CANNON_TIERS)},
@@ -636,10 +643,11 @@ def fix_doomed_data(dr):
                 a.set("storeAmount", stored)
         if o.find("Description") is not None:
             o.find("Description").text = text
-    for oid in ADMIN_ITEMS:
-        o = dr.get(oid)
-        if o is not None and o.find("Admin") is None:
-            o.insert(list(o).index(o.find("SlotType")) + 1, ET.Element("Admin"))
+    for tag, oids in (("Admin", ADMIN_ITEMS), ("Reward", REWARD_ITEMS)):
+        for oid in oids:
+            o = dr.get(oid)
+            if o is not None and o.find(tag) is None:
+                o.insert(list(o).index(o.find("SlotType")) + 1, ET.Element(tag))
     for oid, text in DESCRIPTIONS.items():
         o = dr.get(oid)
         if o is not None and o.find("Description") is not None:

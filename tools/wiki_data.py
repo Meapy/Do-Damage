@@ -320,6 +320,7 @@ class Data:
     # The fame for a tiered result by tier on the weapons' 0-14 scale, and its cap (ForgeRecipes.cs)
     FORGE_TIER_FAME = [0, 10, 30, 50, 70, 90, 100, 200, 300, 400, 500, 800, 1000, 2000, 2000]
     FORGE_TIERED_CAP = 2000
+    FORGE_UNTIERED_CAP = 3000  # ForgeRecipes.UntieredCap
 
     def forge_recipes(self):
         """Every recipe the Divine Forge knows, as ForgeRecipes.Build makes them: [{result, fame,
@@ -417,6 +418,8 @@ class Data:
                 fame = ability_chain_fame(res, ing)
             elif res in items and items[res]["tier"] >= 0:
                 fame = min(fame, self.FORGE_TIERED_CAP)
+            else:
+                fame = min(fame, self.FORGE_UNTIERED_CAP)
             recipes.append({"result": res, "fame": fame, "advanced": adv == "true", "items": ing})
         # the items only the forge makes, which no monster drops (ForgeRecipes.ForgeOnly)
         m = re.search(r'ForgeOnly\s*=\s*\{(.*?)\};', _read(os.path.join(COMMANDS, "doomed", "ForgeRecipes.cs")), re.S)

@@ -54,8 +54,9 @@ forge turns one into the other for 100 fame, either way: the **Dirk of Cronus** 
 Dirk**; the **Doom Bow**, **Sun's Judgement** and **Bow of the Morning Star**; the **Thousand Shot**
 and the **Sunny Side Bow**; the **Staff of the Cosmic Whole** and **Frosty's Walking Stick**; the
 **Staff of Extreme Prejudice** and the **Staff of Iceblast**; the **Wand of the Bulwark** and the
-**Eternal Snowflake Wand**; the **Wand of Evocation** and **Winter's Breath Wand**. The **Prismatic
-Crystal Wand** is forged from two Crystal Wands. Click an item for what it does.
+**Eternal Snowflake Wand**; the **Wand of Evocation** and **Winter's Breath Wand**; the **Demon Blade**
+and the **Sword of Illumination**. The **Prismatic Crystal Wand** is forged from two Crystal Wands.
+No recipe for an untiered item costs more than 3,000 fame. Click an item for what it does.
 
 {{gen:forge_special}}
 

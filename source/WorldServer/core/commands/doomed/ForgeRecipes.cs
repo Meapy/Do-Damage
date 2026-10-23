@@ -13,7 +13,8 @@ namespace WorldServer.core.commands.doomed
     // their stat: two Rings of Attack make a Ring of Greater Attack). Tiered results cost at most
     // TieredCap fame, as the tier chains are there to save players trips, not to sink fame, and an
     // ability's two-for-one costs its tier's price whatever the Doomed Realms list says (every
-    // ability kind then costs what the rings do); untiered results keep their Doomed Realms price. Built from the game data on first use, so
+    // ability kind then costs what the rings do); untiered results keep their Doomed Realms price up
+    // to UntieredCap (it reached 10,000; the untiered weapons pass brought it down). Built from the game data on first use, so
     // new tiered items get recipes without a change here.
     //
     // The forge only makes what players can find: a recipe's result must be tradeable (not an
@@ -24,6 +25,7 @@ namespace WorldServer.core.commands.doomed
     internal static class ForgeRecipes
     {
         public const int TieredCap = 2000;
+        public const int UntieredCap = 3000;
 
         private static readonly Logger Log = LogManager.GetCurrentClassLogger();
 
@@ -36,15 +38,16 @@ namespace WorldServer.core.commands.doomed
         // Sun's Judgement and Bow of the Morning Star; the Thousand Shot and Sunny Side Bow; the Staff
         // of the Cosmic Whole and Frosty's Walking Stick; the Staff of Extreme Prejudice and Staff of
         // Iceblast; the Wand of the Bulwark and Eternal Snowflake Wand; the Wand of Evocation and
-        // Winter's Breath Wand): result, fame, needs a Forge Amulet, ingredients.
+        // Winter's Breath Wand; the Demon Blade and Sword of Illumination): result, fame, needs a Forge
+        // Amulet, ingredients.
         private static readonly (string Result, int Fame, bool Advanced, string[] Items)[] ForgeOnly =
         {
-            ("Reforged Forgotten Crown", 6000, false, new[] { "The Forgotten Crown", "The Forgotten Crown" }),
-            ("Reforged Dirk of Cronus", 6000, false, new[] { "Dirk of Cronus", "Dirk of Cronus" }),
+            ("Reforged Forgotten Crown", 3000, false, new[] { "The Forgotten Crown", "The Forgotten Crown" }),
+            ("Reforged Dirk of Cronus", 3000, false, new[] { "Dirk of Cronus", "Dirk of Cronus" }),
             ("Dagger of the Terrible Talon", 200, false, new[] { "Obsidian Dagger", "Obsidian Dagger" }),
             ("Phantasm Dirk", 100, false, new[] { "Dirk of Cronus" }),
             ("Dirk of Cronus", 100, false, new[] { "Phantasm Dirk" }),
-            ("Reforged Doom Bow", 6000, false, new[] { "Doom Bow", "Doom Bow" }),
+            ("Reforged Doom Bow", 3000, false, new[] { "Doom Bow", "Doom Bow" }),
             ("Sun's Judgement", 100, false, new[] { "Doom Bow" }),
             ("Doom Bow", 100, false, new[] { "Sun's Judgement" }),
             ("Bow of the Morning Star", 100, false, new[] { "Doom Bow" }),
@@ -55,11 +58,13 @@ namespace WorldServer.core.commands.doomed
             ("Staff of the Cosmic Whole", 100, false, new[] { "Frosty's Walking Stick" }),
             ("Staff of Iceblast", 100, false, new[] { "Staff of Extreme Prejudice" }),
             ("Staff of Extreme Prejudice", 100, false, new[] { "Staff of Iceblast" }),
-            ("Reforged Crystal Wand", 6000, false, new[] { "Crystal Wand", "Crystal Wand" }),
+            ("Reforged Crystal Wand", 3000, false, new[] { "Crystal Wand", "Crystal Wand" }),
             ("Eternal Snowflake Wand", 100, false, new[] { "Wand of the Bulwark" }),
             ("Wand of the Bulwark", 100, false, new[] { "Eternal Snowflake Wand" }),
             ("Winter's Breath Wand", 100, false, new[] { "Wand of Evocation" }),
             ("Wand of Evocation", 100, false, new[] { "Winter's Breath Wand" }),
+            ("Sword of Illumination", 100, false, new[] { "Demon Blade" }),
+            ("Demon Blade", 100, false, new[] { "Sword of Illumination" }),
         };
 
         private static (string Result, int Fame, bool Advanced, string[] Items)[] _all;
@@ -128,7 +133,7 @@ namespace WorldServer.core.commands.doomed
 
             var recipes = DoomedEconomyData.Recipes
                 .Select(r => AbilityChainFame(r) is int fame ? (r.Result, fame, r.Advanced, r.Items)
-                    : Tiered(r.Result) ? (r.Result, Math.Min(r.Fame, TieredCap), r.Advanced, r.Items) : r)
+                    : (r.Result, Math.Min(r.Fame, Tiered(r.Result) ? TieredCap : UntieredCap), r.Advanced, r.Items))
                 .Concat(ForgeOnly)
                 .ToList();
             var known = new HashSet<string>(recipes.Select(Key));

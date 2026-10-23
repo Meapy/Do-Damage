@@ -419,7 +419,6 @@ namespace WorldServer.logic
                     new ItemLoot("Oryx Hide Armor", 0.02),
                     new ItemLoot("Oryx Hide Robe", 0.02),
                     new ItemLoot("Oryx Scale Armor", 0.02),
-                    new ItemLoot("Oryx Tooth Sword", 0.02),
                     new ItemLoot("Doom Dirk", 0.02),
                     new ItemLoot("Flying Doom Daggers", 0.02),
                     new ItemLoot("Tome of Noble Assault", 0.02),

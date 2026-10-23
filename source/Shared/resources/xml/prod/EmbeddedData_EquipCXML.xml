@@ -447,7 +447,6 @@
 			<Index>0x6d</Index>
 		</Texture>
 		<SlotType>1</SlotType>
-		<Legendary/>
 		<Description>A slow but powerful sword that is a relic of a long forgotten age.</Description>
 		<RateOfFire>0.6</RateOfFire>
 		<Sound>weapon/glass_sword</Sound>
@@ -9051,7 +9050,6 @@
 			<Index>0x3db</Index>
 		</Texture>
 		<SlotType>24</SlotType>
-		<Ethereal/>
 		<Description>Used to be crappy, now it's something else...</Description>
 		<ExtraTooltipData>
 			<EffectInfo name="" description="Mistake"/>
@@ -9078,17 +9076,17 @@
 			<Index>0x22a</Index>
 		</Texture>
 		<SlotType>24</SlotType>
-		<Legendary/>
-		<Description>A great katana charged with the power of the sun itself.</Description>
+		<Description>A great katana charged with the power of the sun itself. Its light passes through any armor.</Description>
 		<RateOfFire>1</RateOfFire>
 		<Sound>weapon/long_sword</Sound>
 		<Projectile>
 			<ObjectId>Beam Slash</ObjectId>
 			<Speed>180</Speed>
-			<MinDamage>111</MinDamage>
-			<MaxDamage>111</MaxDamage>
+			<MinDamage>175</MinDamage>
+			<MaxDamage>175</MaxDamage>
 			<LifetimeMS>340</LifetimeMS>
 			<MultiHit/>
+			<ArmorPiercing/>
 		</Projectile>
 		<BagType>6</BagType>
 		<FameBonus>3</FameBonus>
@@ -10496,7 +10494,6 @@
 			<Index>0x53</Index>
 		</Texture>
 		<SlotType>24</SlotType>
-		<Ethereal/>
 		<Description>An ancient weapon imbued with the power of the cosmos.</Description>
 		<Sound>weapon/long_sword</Sound>
 		<RateOfFire>1</RateOfFire>
@@ -10733,7 +10730,6 @@
 			<Index>0x403</Index>
 		</Texture>
 		<SlotType>1</SlotType>
-		<Legendary/>
 		<Description>Used only by the pirates who would make themselves kings, this cutlass is said to be cursed as each Pirate King seems to be killed rather unexpectedly.</Description>
 		<RateOfFire>1.3</RateOfFire>
 		<Sound>weapon/glass_sword</Sound>
@@ -10760,20 +10756,20 @@
 			<Index>0x404</Index>
 		</Texture>
 		<SlotType>24</SlotType>
-		<Legendary/>
-		<Description>Stuck in the maw of the Son of Arachna, this Katana is coated in the creature's poisonous venom. In the hands of the right person, this is a truly deadly weapon.</Description>
+		<Description>Stuck in the maw of the Son of Arachna, this Katana is coated in the creature's poisonous venom: each hit leaves the enemy bleeding for 120 damage a second for 3 seconds.</Description>
 		<RateOfFire>1.20</RateOfFire>
 		<Sound>weapon/long_sword</Sound>
 		<Projectile id="0">
 			<ObjectId>Poison Katana Slash</ObjectId>
 			<Speed>130</Speed>
-			<MinDamage>120</MinDamage>
-			<MaxDamage>150</MaxDamage>
+			<MinDamage>165</MinDamage>
+			<MaxDamage>215</MaxDamage>
 			<LifetimeMS>400</LifetimeMS>
 			<Amplitude>0.5</Amplitude>
 			<Frequency>1</Frequency>
 			<Size>90</Size>
 			<MultiHit/>
+			<Bleed duration="3">360</Bleed>
 		</Projectile>
 		<BagType>6</BagType>
 		<FameBonus>5</FameBonus>
@@ -10818,7 +10814,6 @@
 			<Index>0x428</Index>
 		</Texture>
 		<SlotType>1</SlotType>
-		<Ethereal/>
 		<Description>This legendary sword is used to summon the beautiful power of bears.</Description>
 		<RateOfFire>0.85</RateOfFire>
 		<Sound>weapon/blunt_sword</Sound>
@@ -10941,7 +10936,6 @@
 			<Index>0x42d</Index>
 		</Texture>
 		<SlotType>24</SlotType>
-		<Ethereal/>
 		<Description>Battle for the Nexus: Never Forget.</Description>
 		<RateOfFire>0.5</RateOfFire>
 		<Sound>weapon/long_sword</Sound>
@@ -11473,7 +11467,6 @@
 			<Index>0x4CF</Index>
 		</Texture>
 		<SlotType>1</SlotType>
-		<Ethereal/>
 		<Description>An odd energy source known for the amazing ability to fire hats.</Description>
 		<RateOfFire>0.25</RateOfFire>
 		<Sound>weapon/mithril_sword</Sound>
@@ -13208,7 +13201,6 @@
 			<Index>0x56e</Index>
 		</Texture>
 		<SlotType>24</SlotType>
-		<Ascended/>
 		<Description>An astronomically heavy katana. It is forged from dark matter.</Description>
 		<RateOfFire>0.3</RateOfFire>
 		<Sound>weapon/long_sword</Sound>
@@ -15342,7 +15334,6 @@
 			<Index>0xb0</Index>
 		</Texture>
 		<SlotType>1</SlotType>
-		<Ethereal/>
 		<Description>A sword with an impossibly sharp edge. It has been designed with holy magic to slash like no other blade.</Description>
 		<RateOfFire>1</RateOfFire>
 		<Sound>weapon/golden_bow</Sound>

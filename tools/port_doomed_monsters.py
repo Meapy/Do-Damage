@@ -55,10 +55,13 @@ HEX = re.compile(r"^\s*(\(\s*short\s*\)\s*)?(0x[0-9a-fA-F]+)\s*$")
 # chance, or None to drop it}. The Crown is an admin item, the America Ring a reward, and Santa's
 # Hat, which saves its wearer from death, is rarer.
 LOOT_CHANGES = {
-    "Christmas Oryx": {"Crown": None, "Santa's Hat": 0.05},
-    "Oryx the Mad God 4": {"Crown": None},
-    "Oryx the Mad God 5": {"Crown": None},
-    "Turkey God": {"America Ring": None},
+    "Christmas Oryx": {"Crown": None, "Santa's Hat": 0.05, "Oryx Tooth Sword": None},
+    "Oryx the Mad God 4": {"Crown": None, "Oryx Tooth Sword": None},
+    "Oryx the Mad God 5": {"Crown": None, "Oryx Tooth Sword": None},
+    "Turkey God": {"America Ring": None, "America Sword": None},
+    # the swords pass: the T20 and Sword of Ghostly Power can't be found for now, the America Sword
+    # is a reward
+    "Elder Septavius the Ghost God": {"Sword of Ghostly Power": None},
     # the staves pass: Natural Essence is commoner, Raw Fish of Terror waits for a rework, and the
     # Anatis Staff is a reward
     "Elder Tree": {"Staff of Natural Essence": 0.05},

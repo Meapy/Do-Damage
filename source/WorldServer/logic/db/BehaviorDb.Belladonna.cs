@@ -53,6 +53,7 @@ namespace WorldServer.logic
                 new ItemLoot("Cupid's Bow", 0.01),
                 new ItemLoot("Staff of Adoration", 0.01),
                 new ItemLoot("Wand of Budding Romance", 0.01),
+                new ItemLoot("Arbiter's Wrath", 0.01),
                 new ItemLoot("Valentine's Mystery Item", 0.05)
                 )
             );

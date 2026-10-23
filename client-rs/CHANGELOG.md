@@ -9,6 +9,18 @@ refuses while an `Unreleased` one is left, so rename it to `## <version> (<date>
 version number itself is in `client-rs/Cargo.toml`.
 
 ## Unreleased
+- Untiered katanas: Doku No Ken does the Sadamune's (T13) damage, 165-215, and each hit makes the
+  enemy bleed for 120 damage a second for 3 seconds. The Ray Katana does 175 that ignores defense.
+  Belladonna drops Arbiter's Wrath.
+- Untiered swords: Oryx the Celestial Mad God (Oryx 3) drops Divinity. The Platinum Sword reaches
+  8 tiles (was 5). The Divine Forge swaps the Demon Blade and the Sword of Illumination for 100
+  fame (same numbers, a different look). The Oryx Tooth Sword, Sword of the Angelic Soul and
+  Sword of Ghostly Power no longer drop, and the Turkey Leg of Doom left the shop. The America
+  Sword is a reward from the staff now, out of the shop and the Turkey God's loot.
+- Divine Forge: no recipe for an untiered item costs more than 3,000 fame now (some cost 10,000),
+  the Ancient Stone Sword's included.
+- The Legendary, Ascended and Ethereal katanas and swords are ordinary untiered items for now,
+  until they're reworked.
 - New T15 weapons, a step above each T14, from Oryx the Ascended God (Oryx 5): the Sword of
   Ascension, Dagger of Divine Wrath, Bow of the Firmament, Wand of Absolution, Ame-no-Habakiri,
   Seraphic Blades and Fists of the Ascended, in white and gold, and the Staff of Endless Energy as
@@ -24,7 +36,7 @@ version number itself is in `client-rs/Cargo.toml`.
   the Wand of Evocation, and the Eternal Snowflake Wand with the Wand of the Bulwark, for 100 fame
   (same numbers, a different look).
 - The Prismatic Crystal Wand (once shown as Crystal Wand) is forged from two Crystal Wands
-  (6,000 fame) and does 153-211 damage that ignores defense.
+  (3,000 fame) and does 153-211 damage that ignores defense.
 - The Legendary, Ascended and Ethereal wands are ordinary untiered wands for now, until they're
   reworked.
 - Untiered staves: Oryx the Celestial Mad God (Oryx 3) drops Superior; Oryx the Ascended God
@@ -86,7 +98,7 @@ version number itself is in `client-rs/Cargo.toml`.
   it does: a blow that would kill you breaks the hat instead and sends you to the Nexus.
 - The Legendary, Ascended and Ethereal rings are ordinary untiered rings for now, until they're
   reworked. The medals and the America Ring are rewards from the staff ("Rewarded by DODMG"). The
-  Reforged Forgotten Crown is made at the Divine Forge from two Forgotten Crowns (6,000 fame).
+  Reforged Forgotten Crown is made at the Divine Forge from two Forgotten Crowns (3,000 fame).
 - The Crown, God Rushing, Gods Path, Fallen Crown, Amulet of Someone, Badge of the Proud Hero,
   Creator's Ring and Test Horn are staff-only items: they no longer drop and the shops don't sell
   them. The America Ring and the Amulet of Dispersion left the shops too, and the Crusader's Lost
