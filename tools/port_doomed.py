@@ -477,8 +477,8 @@ DESCRIPTIONS = {
 # numbers stand, and Nature, Shade and Fragment Cannon (copies of Wave Cannon with Vitality and
 # Wisdom) become T6-T8, climbing as the quivers do (cannons sit about 15 damage above the quiver of
 # their tier). Doom Cannon stays untiered.
-# id -> {speed, lifetime, rof, damage: (min, max), wave: (amplitude, frequency), mp, stats: {stat: amount},
-# untier, tier}
+# id -> {speed, lifetime, rof, damage: (min, max), wave: (amplitude, frequency), pierce, mp,
+# stats: {stat: amount}, untier, tier}
 DEF, SPD, VIT, WIS, DEX = "21", "22", "26", "27", "28"
 UNTIERED_ABILITIES = [
     "1940s Orb", "Azure Trap", "Bile Poison", "Bloodorc Quiver", "Class Test", "Cloak of Dimensions",
@@ -518,6 +518,11 @@ GEAR_TUNING = {
     # was 405-1045 at rate 1, its shots barely waving
     "Soul Tipped Dirk": {"damage": (120, 230), "rof": "0.9", "wave": ("0.6", "1")},
     "Staff of Tainted Light": {"damage": (95, 105)},  # was 190-210: a better Staff of Extreme Prejudice
+    # the staves' T15, a step over the T14's 75-115 (was 120-180), and T15's +10 Defense
+    "Staff of Endless Energy": {"damage": (100, 135), "stats": {DEF: 10}},
+    # was 380-410, and T15: a very rare drop of its own, not a step of the staves' tiers (or the forge
+    # would make it from two T14 staves)
+    "Eternal Sword": {"damage": (180, 180), "pierce": True, "untier": True},
     "Power of the Fountains": {"tier": "7"},
     **{oid: {"untier": True} for oid in UNTIERED_ABILITIES},
     **{oid: {"tier": str(t), **CANNON_TUNING.get(oid, {})} for t, oid in enumerate(CANNON_TIERS)},
@@ -555,6 +560,8 @@ def tune_gear(dr):
             p.find("MinDamage").text, p.find("MaxDamage").text = map(str, t["damage"])
         if "rof" in t:
             o.find("RateOfFire").text = t["rof"]
+        if t.get("pierce") and p.find("ArmorPiercing") is None:
+            ET.SubElement(p, "ArmorPiercing")
         if "wave" in t:  # the shots weave side to side: (amplitude in tiles, frequency)
             p.find("Amplitude").text, p.find("Frequency").text = t["wave"]
         if "mp" in t:

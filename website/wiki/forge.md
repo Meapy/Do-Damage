@@ -53,7 +53,9 @@ Talon** (two Obsidian Daggers). Some items share their numbers and differ only i
 forge turns one into the other for 100 fame, either way: the **Dirk of Cronus** and the **Phantasm
 Dirk**; the **Doom Bow**, **Sun's Judgement** and **Bow of the Morning Star**; the **Thousand Shot**
 and the **Sunny Side Bow**; the **Staff of the Cosmic Whole** and **Frosty's Walking Stick**; the
-**Staff of Extreme Prejudice** and the **Staff of Iceblast**. Click an item for what it does.
+**Staff of Extreme Prejudice** and the **Staff of Iceblast**; the **Wand of the Bulwark** and the
+**Eternal Snowflake Wand**; the **Wand of Evocation** and **Winter's Breath Wand**. The **Prismatic
+Crystal Wand** is forged from two Crystal Wands. Click an item for what it does.
 
 {{gen:forge_special}}
 

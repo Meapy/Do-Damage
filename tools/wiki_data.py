@@ -339,7 +339,8 @@ class Data:
         pools = {}
         for oid, o in items.items():
             doomed = 0xD000 <= o["type"] <= 0xDFFF
-            if o["slot"] not in kinds or (doomed and (o["slot"] not in loot["doomed"] or o["tier"] < 0)):
+            if o["slot"] not in kinds or (doomed and (o["slot"] not in loot["doomed"] or o["tier"] < 0)
+                                          and oid not in loot["doomed_items"]):
                 continue
             pools.setdefault((kinds[o["slot"]], o["tier"]), []).append(oid)
         blocks = ([b for bs in self.inits.values() for b in bs] + list(self.doomed.values())
@@ -387,10 +388,12 @@ class Data:
             top = min(by_tier)
             while top + 1 in by_tier:
                 top += 1
+            # the weapons' scale still ends at T14, as it did before their T15s: those cost the top price
+            scale_top = min(top, 14) if loot["types"].get(slot) == "Weapon" else top
             fames = {}
             for tier in by_tier:
                 if tier <= top and tier - 1 in by_tier:
-                    scaled = round(tier * 14.0 / max(top, 1))
+                    scaled = round(tier * 14.0 / max(scale_top, 1))
                     fames[tier] = min(self.FORGE_TIER_FAME[max(1, min(scaled, len(self.FORGE_TIER_FAME) - 1))],
                                       self.FORGE_TIERED_CAP)
             chains[slot] = (by_tier, fames)
@@ -622,7 +625,7 @@ class Data:
             # the random tier drops (Loots.Initialize): no Doomed Realms items but the tiered gear of
             # the Doomed Realms classes' own slots
             drops_as = (loot["types"].get(o["slot"]) if o["tier"] >= 0 and group == "tiered"
-                        and (not doomed or o["slot"] in loot["doomed"]) else None)
+                        and (not doomed or o["slot"] in loot["doomed"] or oid in loot["doomed_items"]) else None)
             out.append(dict(o, kind=SLOT_NAMES[o["slot"]], category=cat, group=group, el=el, doomed=doomed,
                             texture=self.texture(oid), tier_loot=drops_as))
         return out
@@ -783,7 +786,8 @@ def account():
 
 def tier_loot_types():
     """Which tier drops a slot type comes in (MobDrops.cs): {"types": {slot type: "Weapon" |
-    "Ability" | "Armor" | "Ring"}, "doomed": {the Doomed Realms classes' slot types}}."""
+    "Ability" | "Armor" | "Ring"}, "doomed": {the Doomed Realms classes' slot types}, "doomed_items":
+    {the Doomed Realms items in the pools all the same}}."""
     src = _read(os.path.join(LOGIC, "loot", "MobDrops.cs"))
     types = {}
     for name, kind in (("WeaponT", "Weapon"), ("AbilityT", "Ability"), ("ArmorT", "Armor"), ("RingT", "Ring")):
@@ -791,7 +795,9 @@ def tier_loot_types():
         for n in re.findall(r'\d+', m.group(1) if m else ""):
             types[int(n)] = kind
     m = re.search(r'DoomedClassSlots\s*=\s*new HashSet<int>\s*\{([^}]*)\}', src)
-    return {"types": types, "doomed": {int(n) for n in re.findall(r'\d+', m.group(1) if m else "")}}
+    items = re.search(r'DoomedPoolItems\s*=\s*new HashSet<string>\s*\{([^}]*)\}', src)
+    return {"types": types, "doomed": {int(n) for n in re.findall(r'\d+', m.group(1) if m else "")},
+            "doomed_items": set(re.findall(r'"([^"]+)"', items.group(1) if items else ""))}
 
 
 def shop_items():

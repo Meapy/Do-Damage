@@ -757,6 +757,9 @@ namespace WorldServer.logic
                     new ItemLoot("Bow of Eternal Frost", 0.005),
                     new ItemLoot("Frosty's Walking Stick", 0.005),
                     new ItemLoot("Staff of Iceblast", 0.005),
+                    new ItemLoot("Eternal Snowflake Wand", 0.005),
+                    new ItemLoot("Frozen Wand", 0.005),
+                    new ItemLoot("Snowblind Wand", 0.005),
                     new ItemLoot("Potion of Life", .35, 3),
                     new ItemLoot("Ice Crown", .0025)
                 )

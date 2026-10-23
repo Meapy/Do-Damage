@@ -314,6 +314,7 @@ namespace WorldServer.logic
                     new ItemLoot("Resurrected Warrior's Armor", 0.002),
                     new ItemLoot("Plague Poison", 0.002),
                     new ItemLoot("Amulet of Resurrection", 0.002),
+                    new ItemLoot("Soul's Guidance", 0.002),
                     new ItemLoot("Cemetery Key", 0.008)
                     )
             )

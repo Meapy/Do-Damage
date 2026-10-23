@@ -4268,12 +4268,13 @@
 		<Projectile>
 			<ObjectId>Staff of Endless Energy Projectile</ObjectId>
 			<Speed>180</Speed>
-			<MinDamage>120</MinDamage>
-			<MaxDamage>180</MaxDamage>
+			<MinDamage>100</MinDamage>
+			<MaxDamage>135</MaxDamage>
 			<LifetimeMS>475</LifetimeMS>
 			<Amplitude>0.5</Amplitude>
 			<Frequency>2</Frequency>
 		</Projectile>
+		<ActivateOnEquip stat="21" amount="10">IncrementStat</ActivateOnEquip>
 		<BagType>6</BagType>
 		<FameBonus>5</FameBonus>
 		<NumProjectiles>2</NumProjectiles>
@@ -6464,17 +6465,17 @@
 			<Index>0xb4</Index>
 		</Texture>
 		<SlotType>17</SlotType>
-		<Tier>15</Tier>
 		<Description>A lightweight blade that seems to dance in your hands.</Description>
 		<RateOfFire>0.75</RateOfFire>
 		<Sound>weapon/glass_sword</Sound>
 		<Projectile>
 			<ObjectId>EEBlade</ObjectId>
 			<Speed>100</Speed>
-			<MinDamage>380</MinDamage>
-			<MaxDamage>410</MaxDamage>
+			<MinDamage>180</MinDamage>
+			<MaxDamage>180</MaxDamage>
 			<LifetimeMS>575</LifetimeMS>
 			<MultiHit />
+			<ArmorPiercing />
 		</Projectile>
 		<BagType>4</BagType>
 		<FameBonus>7</FameBonus>

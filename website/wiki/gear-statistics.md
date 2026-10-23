@@ -103,6 +103,9 @@ Things to know when reading it:
   didn't throw then, which is why it added nothing.
 - Pirate had no tiered cannon then, so it used the Doom Cannon. The cannons were tiered on
   21 October 2026; the best one now is the Fragment Cannon (T8).
+- The runs used the T14 weapons. The T15 weapons, from Oryx the Ascended God, came on 23 October
+  2026 and do about a quarter more, so "Weapon only" is low for every class now. The Staff of
+  Endless Energy (the staves' T15) does 100-135 since then too.
 
 | Class | Weapon | Ability | Armor | Weapon only | With 3 abilities | Change |
 |---|---|---|---|---:|---:|---:|

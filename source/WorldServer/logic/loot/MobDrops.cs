@@ -59,6 +59,9 @@ namespace WorldServer.logic.loot
         // Ascendant's halo (126), Summoner's scroll (128), Sharklord's (5000) and Pirate's cannon (5005)
         public static readonly HashSet<int> DoomedClassSlots = new HashSet<int> { 36, 37, 30, 32, 126, 128, 130, 200, 5000, 5005 };
 
+        // Doomed Realms items that join the tier pools of their slot all the same: the staves' T15
+        public static readonly HashSet<string> DoomedPoolItems = new HashSet<string> { "Staff of Endless Energy" };
+
         public static int[] GetSlotTypes(ItemType itemType)
         {
             int[] types;

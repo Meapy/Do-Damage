@@ -906,7 +906,6 @@
 			<Index>0x63</Index>
 		</Texture>
 		<SlotType>8</SlotType>
-		<Legendary/>
 		<Description>A sound almost like a wind chime emanates softly from this wand.</Description>
 		<RateOfFire>1.1</RateOfFire>
 		<Sound>weapon/wand_of_death</Sound>
@@ -932,7 +931,6 @@
 			<Index>0x6c</Index>
 		</Texture>
 		<SlotType>8</SlotType>
-		<Ascended/>
 		<Description>This strange weapon was used by ancient battle mages to deter invaders. The secret to its construction has long been lost.</Description>
 		<RateOfFire>0.33</RateOfFire>
 		<Sound>weapon/wand_of_death</Sound>
@@ -9982,7 +9980,6 @@
 			<Index>0x8f</Index>
 		</Texture>
 		<SlotType>8</SlotType>
-		<Ascended/>
 		<Description>A crude walking stick enchanted by Skuld's distinct style of sorcery, constructed to guide fallen spirits to the afterlife.</Description>
 		<ExtraTooltipData>
 			<EffectInfo description="Releases a Forgotten Soul when hit." name="Skuld's Enchantment"/>
@@ -10874,7 +10871,6 @@
 			<Index>0x42a</Index>
 		</Texture>
 		<SlotType>8</SlotType>
-		<Ethereal/>
 		<Description>The fabled weapon of the Sauce Boss himself.</Description>
 		<RateOfFire>1</RateOfFire>
 		<Sound>weapon/missile_wand</Sound>
@@ -11555,7 +11551,6 @@
 			<Index>0x4D0</Index>
 		</Texture>
 		<SlotType>8</SlotType>
-		<Ethereal/>
 		<Description>Created by a lonely Sorcerer. This sentient eye doesn't make a very good friend. It does, however, make fruit.</Description>
 		<RateOfFire>0.25</RateOfFire>
 		<Sound>weapon/wand_of_death</Sound>
@@ -14333,7 +14328,6 @@
 			<Index>0x9d</Index>
 		</Texture>
 		<SlotType>8</SlotType>
-		<Legendary/>
 		<Description>Made from a cherry tree branch. This wand was gifted by Xil to Daichi for bringing him into this world.</Description>
 		<RateOfFire>0.85</RateOfFire>
 		<Sound>weapon/wand_of_death</Sound>
@@ -17205,12 +17199,14 @@
 		<Sound>weapon/wand_of_death</Sound>
 		<Projectile>
 			<ObjectId>XMAS Sparkling Bolt</ObjectId>
-			<Speed>180</Speed>
-			<LifetimeMS>500</LifetimeMS>
-			<MinDamage>95</MinDamage>
-			<MaxDamage>140</MaxDamage>
+			<Speed>200</Speed>
+			<LifetimeMS>400</LifetimeMS>
+			<MinDamage>153</MinDamage>
+			<MaxDamage>211</MaxDamage>
 			<MultiHit/>
 		</Projectile>
+		<ActivateOnEquip stat="20" amount="9">IncrementStat</ActivateOnEquip>
+		<ActivateOnEquip stat="28" amount="7">IncrementStat</ActivateOnEquip>
 		<BagType>9</BagType>
 		<FameBonus>7</FameBonus>
 		<OldSound>magicShoot</OldSound>
@@ -22098,7 +22094,6 @@
 			<Index>0x116</Index>
 		</Texture>
 		<SlotType>8</SlotType>
-		<Ethereal/>
 		<Description>An accomplished alien conquerer brandished this wand as a show of might, topping it with a gemstone from each planet he overthrew.\n\nSprite Credits: Aurum</Description>
 		<RateOfFire>1.1</RateOfFire>
 		<Sound>weapon/wand_of_death</Sound>

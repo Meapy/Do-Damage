@@ -427,7 +427,6 @@ namespace WorldServer.logic
                     new ItemLoot("Sword of Dark Enchantment", 0.004),
                     new ItemLoot("Forge Amulet", 0.004),
                     new ItemLoot("Staff of Heavens", 0.004),
-                    new ItemLoot("Staff of Endless Energy", 0.001),
                     new ItemLoot("Eternal Sword", 0.001)
                 ),
                 // 5% of the damage: the gear
@@ -439,7 +438,8 @@ namespace WorldServer.logic
                     new TierLoot(7, ItemType.Ability, 0.05),
                     new TierLoot(7, ItemType.Ring, 0.05),
                     new TierLoot(8, ItemType.Ability, 0.006),
-                    new TierLoot(8, ItemType.Ring, 0.006)
+                    new TierLoot(8, ItemType.Ring, 0.006),
+                    new TierLoot(15, ItemType.Weapon, 0.005)
                 )
             )
 

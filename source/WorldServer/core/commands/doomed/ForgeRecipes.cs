@@ -35,7 +35,8 @@ namespace WorldServer.core.commands.doomed
         // with the same numbers swapping looks (the Dirk of Cronus and Phantasm Dirk; the Doom Bow,
         // Sun's Judgement and Bow of the Morning Star; the Thousand Shot and Sunny Side Bow; the Staff
         // of the Cosmic Whole and Frosty's Walking Stick; the Staff of Extreme Prejudice and Staff of
-        // Iceblast): result, fame, needs a Forge Amulet, ingredients.
+        // Iceblast; the Wand of the Bulwark and Eternal Snowflake Wand; the Wand of Evocation and
+        // Winter's Breath Wand): result, fame, needs a Forge Amulet, ingredients.
         private static readonly (string Result, int Fame, bool Advanced, string[] Items)[] ForgeOnly =
         {
             ("Reforged Forgotten Crown", 6000, false, new[] { "The Forgotten Crown", "The Forgotten Crown" }),
@@ -54,6 +55,11 @@ namespace WorldServer.core.commands.doomed
             ("Staff of the Cosmic Whole", 100, false, new[] { "Frosty's Walking Stick" }),
             ("Staff of Iceblast", 100, false, new[] { "Staff of Extreme Prejudice" }),
             ("Staff of Extreme Prejudice", 100, false, new[] { "Staff of Iceblast" }),
+            ("Reforged Crystal Wand", 6000, false, new[] { "Crystal Wand", "Crystal Wand" }),
+            ("Eternal Snowflake Wand", 100, false, new[] { "Wand of the Bulwark" }),
+            ("Wand of the Bulwark", 100, false, new[] { "Eternal Snowflake Wand" }),
+            ("Winter's Breath Wand", 100, false, new[] { "Wand of Evocation" }),
+            ("Wand of Evocation", 100, false, new[] { "Winter's Breath Wand" }),
         };
 
         private static (string Result, int Fame, bool Advanced, string[] Items)[] _all;
@@ -86,6 +92,7 @@ namespace WorldServer.core.commands.doomed
             // each slot's items by tier, and the fame for each tier it can forge: the price scale runs
             // to the top of the unbroken chain from the lowest tier
             var chains = new Dictionary<int, (Dictionary<int, List<Item>> ByTier, Dictionary<int, int> Fame)>();
+            var weaponSlots = new HashSet<int>(TierLoot.GetSlotTypes(ItemType.Weapon));
             foreach (var slot in slots)
             {
                 var byTier = items.Values.Where(i => i.SlotType == slot && i.Tier >= 0)
@@ -95,10 +102,12 @@ namespace WorldServer.core.commands.doomed
                 var top = byTier.Keys.Min();
                 while (byTier.ContainsKey(top + 1))
                     top++;
+                // the weapons' scale still ends at T14, as it did before their T15s: those cost the top price
+                var scaleTop = weaponSlots.Contains(slot) ? Math.Min(top, 14) : top;
                 var fames = new Dictionary<int, int>();
                 foreach (var tier in byTier.Keys.Where(t => t <= top && byTier.ContainsKey(t - 1)))
                 {
-                    var scaled = (int)Math.Round(tier * 14.0 / Math.Max(top, 1));
+                    var scaled = (int)Math.Round(tier * 14.0 / Math.Max(scaleTop, 1));
                     fames[tier] = Math.Min(TierFame[Math.Clamp(scaled, 1, TierFame.Length - 1)], TieredCap);
                 }
                 chains[slot] = (byTier, fames);

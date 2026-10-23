@@ -467,6 +467,7 @@ namespace WorldServer.logic
                 new Threshold(0.005,
                     new ItemLoot("Staff of Esben", 0.02),
                     new ItemLoot("Frosty's Walking Stick", 0.005),
+                    new ItemLoot("Winter's Breath Wand", 0.005),
                     new ItemLoot("Skullish Remains of Esben", 0.004),
                     new ItemLoot("Esben's Wedding Ring", 0.004),
                     new ItemLoot("An Icicle", 0.004),

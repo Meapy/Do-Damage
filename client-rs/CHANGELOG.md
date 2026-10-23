@@ -9,6 +9,24 @@ refuses while an `Unreleased` one is left, so rename it to `## <version> (<date>
 version number itself is in `client-rs/Cargo.toml`.
 
 ## Unreleased
+- New T15 weapons, a step above each T14, from Oryx the Ascended God (Oryx 5): the Sword of
+  Ascension, Dagger of Divine Wrath, Bow of the Firmament, Wand of Absolution, Ame-no-Habakiri,
+  Seraphic Blades and Fists of the Ascended, in white and gold, and the Staff of Endless Energy as
+  the staves' T15 (now 100-135 and +10 Defense). The Divine Forge makes each from two T14s
+  (2,000 fame); the forge's other prices stay as they were.
+- The Eternal Sword does 180 damage that ignores defense (was 380-410), and is a rare untiered
+  staff now rather than a T15.
+- Untiered wands: Oryx the Celestial Mad God (Oryx 3) drops Lumiaire, the Ice Tomb's chest the
+  Eternal Snowflake, Frozen and Snowblind Wands, Esben Winter's Breath Wand, Belladonna the Wand of
+  Budding Romance and the Ghost of Skuld Soul's Guidance. The Conducting Wand and St. Abraham's
+  Wand drop far more often (5%).
+- Winter's Breath Wand has the Wand of Evocation's (T13) numbers. The Divine Forge swaps it with
+  the Wand of Evocation, and the Eternal Snowflake Wand with the Wand of the Bulwark, for 100 fame
+  (same numbers, a different look).
+- The Prismatic Crystal Wand (once shown as Crystal Wand) is forged from two Crystal Wands
+  (6,000 fame) and does 153-211 damage that ignores defense.
+- The Legendary, Ascended and Ethereal wands are ordinary untiered wands for now, until they're
+  reworked.
 - Untiered staves: Oryx the Celestial Mad God (Oryx 3) drops Superior; Oryx the Ascended God
   (Oryx 5) drops the Elysian Staff (once the Staff of Heavens, now firing his golden Celestial
   Bolts), and very rarely the Staff of Endless Energy and the Eternal Sword. Esben and the Ice

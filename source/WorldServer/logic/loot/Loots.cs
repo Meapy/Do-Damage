@@ -85,10 +85,11 @@ namespace WorldServer.logic.loot
             {
                 // Items ported from Doomed Realms (types 0xD000-0xDFFF, tools/port_doomed.py) stay out of
                 // the random tier drops, apart from the tiered gear of the Doomed Realms classes, whose
-                // slots nothing else fills: a T3 ability drop can be a Mechanic's T3 turret. Items whose
-                // slot type isn't a loot category stay out too.
+                // slots nothing else fills: a T3 ability drop can be a Mechanic's T3 turret, and the few
+                // TierLoot.DoomedPoolItems. Items whose slot type isn't a loot category stay out too.
                 var doomed = item.ObjectType >= 0xD000 && item.ObjectType <= 0xDFFF;
-                if (doomed && (!TierLoot.DoomedClassSlots.Contains(item.SlotType) || item.Tier < 0))
+                if (doomed && (!TierLoot.DoomedClassSlots.Contains(item.SlotType) || item.Tier < 0)
+                    && !TierLoot.DoomedPoolItems.Contains(item.ObjectId))
                     continue;
                 if (!TierLoot.TryGetItemType(item.SlotType, out var itemType))
                     continue;

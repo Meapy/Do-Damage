@@ -1320,6 +1320,12 @@
    "file": "kabam/rotmg/assets/custom/images/OryxIncantations16x16.png",
    "w": 16,
    "h": 16
+  },
+  {
+   "name": "t15Weapons8x8",
+   "file": "kabam/rotmg/assets/custom/images/T15Weapons8x8.png",
+   "w": 8,
+   "h": 8
   }
  ],
  "animated_chars": [
