@@ -521,8 +521,18 @@ fn walk_to_arg() -> Vec<(f64, f64)> {
     text_arg("--walk-to").map_or_else(Vec::new, |v| v.split(';').filter_map(point).collect())
 }
 
+/// `--say`'s lines, with `/autoaim` first for `--aim auto`: aiming at the nearest enemy is staff's
+/// `/autoaim`, so it only works on a staff account once the server has said yes.
+fn say_lines() -> Vec<String> {
+    let mut lines = say_arg();
+    if aim_arg().is_none() {
+        lines.insert(0, "/autoaim".to_string());
+    }
+    lines
+}
+
 /// `--aim <degrees>` (desktop tests): the screen direction scripted fire aims at, or `auto` for
-/// the nearest enemy.
+/// the nearest enemy (staff only: see `say_lines`).
 fn aim_arg() -> Option<f64> {
     #[cfg(not(target_arch = "wasm32"))]
     {
@@ -2003,13 +2013,15 @@ impl App {
                             .fold(0.0, f64::max);
                         view_radius = Some(far);
                         // Firing: toward the mouse from where we stand on the screen (MapUserInput),
-                        // or toward --aim for scripted fire.
+                        // or toward --aim for scripted fire. With staff's /autoaim on (and only
+                        // then, for --aim auto too), at the nearest enemy, or the mouse if there's none.
                         if wants_fire {
+                            let auto = game.auto_aim.then(|| nearest_enemy_angle(world, data)).flatten();
                             fire = match (scripted_fire, script_aim) {
                                 (true, Some(screen_angle)) => Some(game.camera_angle + screen_angle),
-                                (true, None) => nearest_enemy_angle(world, data),
+                                (true, None) => auto,
                                 _ if on_hud(mouse) => None,
-                                _ => Some(game.camera_angle + (mouse.1 - camera.cy).atan2(mouse.0 - camera.cx)),
+                                _ => auto.or(Some(game.camera_angle + (mouse.1 - camera.cy).atan2(mouse.0 - camera.cx))),
                             };
                         }
                         let conditions = world.player().map_or([0, 0], |p| p.conditions());
@@ -2646,7 +2658,7 @@ fn main() {
         teller: 0,
         chat_names: Vec::new(),
         chat_send: Vec::new(),
-        say: say_arg(),
+        say: say_lines(),
         say_sent_in: None,
         say_given: (!say_arg().is_empty()).then_some(()),
         alt_held: false,

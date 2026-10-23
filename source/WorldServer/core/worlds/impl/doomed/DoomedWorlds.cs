@@ -200,6 +200,17 @@ namespace WorldServer.core.worlds.impl.doomed
                 NotifyAll(0xffff00ff, player.Name + " said GO!");
         }
 
+        // the wave and time box, as in the public arena: the clock runs from the end of the countdown
+        private void SendWaveInfo(Player p) =>
+            ArenaPools.SendWaveInfo(p, Wave, _started ? (int)(DateTime.UtcNow - _firstWave).TotalMilliseconds : 0, _started);
+
+        public override void AddToWorld(Entity entity)
+        {
+            base.AddToWorld(entity);
+            if (entity is Player p)
+                SendWaveInfo(p);
+        }
+
         private static bool OutOfBounds(float x, float y) => x <= 3.5f || x >= 29.5f || y <= 3.5f || y >= 29.5f;
         private const float ArenaMiddle = 16.5f;
 
@@ -212,6 +223,8 @@ namespace WorldServer.core.worlds.impl.doomed
                 p.SendInfo(ArenaPools.WaveMessage(Wave));
                 p.ApplyConditionEffect(ConditionEffectIndex.Invulnerable, ArenaPools.StartInvulnerableMs(bosses));
             }
+            foreach (var p in Players.Values)
+                SendWaveInfo(p);
             foreach (var name in ArenaPools.Minions(Wave, Players.Count).Concat(bosses))
             {
                 // an Oryx fights round where he spawns, so he takes the middle
@@ -244,6 +257,8 @@ namespace WorldServer.core.worlds.impl.doomed
                     _started = true;
                     _counting = false;
                     _firstWave = DateTime.UtcNow;
+                    foreach (var p in Players.Values)
+                        SendWaveInfo(p);
                 });
                 return;
             }

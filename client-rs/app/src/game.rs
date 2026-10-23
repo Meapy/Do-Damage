@@ -73,6 +73,9 @@ pub struct Game {
     pub tellers: Vec<String>,
     /// The arena's wave and clock (`ArenaMenu`): wave, seconds, since when, running.
     pub arena: Option<(i32, i32, i32, bool)>,
+    /// Staff's `/autoaim`: shots go at the nearest enemy. Only the server turns it on, with a line
+    /// from `*AutoAim*` (a name no player can have); `--aim auto` asks for it.
+    pub auto_aim: bool,
     /// `MapInfo.showDisplays`: the map shows your rank at the top right (the Nexus, the Vault...).
     pub show_displays: bool,
     /// Sparks, effects and area attacks.
@@ -249,6 +252,7 @@ impl Game {
             boss_history: Vec::new(),
             fame_stats: Default::default(),
             arena: None,
+            auto_aim: false,
             show_displays: false,
             particles: Default::default(),
             quest: None,
@@ -603,6 +607,10 @@ impl Game {
             }
         }
         if let ServerMessage::Text(t) = msg {
+            if t.name == "*AutoAim*" {
+                self.auto_aim = t.text == "on";
+                return;
+            }
             if self.is_ignored(t.object_id) {
                 return;
             }

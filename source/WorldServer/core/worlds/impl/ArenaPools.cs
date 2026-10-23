@@ -1,5 +1,7 @@
 using System;
 using System.Linq;
+using WorldServer.core.objects;
+using WorldServer.networking.packets.outgoing;
 
 namespace WorldServer.core.worlds.impl
 {
@@ -91,6 +93,16 @@ namespace WorldServer.core.worlds.impl
 
         // the chat line both arenas send as a wave spawns
         public static string WaveMessage(int wave) => $"Wave {wave} has begun ({For(wave).Name}).";
+
+        // The wave and time box at the top of the view (both clients' ArenaMenu): a state other than 1
+        // sets its time to runtimeMs, and state 1 then starts its clock from there. Send it on
+        // joining and as each wave starts; the clock keeps going between.
+        public static void SendWaveInfo(Player player, int wave, int runtimeMs, bool running)
+        {
+            player.Client.SendPacket(new ImminentArenaWave(runtimeMs, wave, 0));
+            if (running)
+                player.Client.SendPacket(new ImminentArenaWave(runtimeMs, wave, 1));
+        }
 
         public static int MinionCount(int wave, int players) => (int)Math.Ceiling((wave + players) / 2.0);
 

@@ -102,7 +102,14 @@ namespace WorldServer.core.worlds.impl
         {
             base.AddToWorld(entity);
             if (entity is Player plr)
-                plr.Client.SendPacket(new ImminentArenaWave((int)_time, _wave, (int)CurrentState));
+                SendWaveInfo(plr);
+        }
+
+        // the game's clock runs from the end of the countdown (_time is reset then) until it's over
+        private void SendWaveInfo(Player plr)
+        {
+            var running = _countDown == CountDownState.Done && CurrentState != ArenaState.Over;
+            ArenaPools.SendWaveInfo(plr, _wave, running ? (int)_time : 0, running);
         }
 
         protected override void UpdateLogic(ref TickTime time)
@@ -207,7 +214,8 @@ namespace WorldServer.core.worlds.impl
                     _startingPlayers = Players.Count;
                     _participants.UnionWith(Players.Values.Select(p => p.Name));
                     CurrentState = ArenaState.Start;
-                    Broadcast(new ImminentArenaWave((int)_time, _wave, (int)CurrentState));
+                    foreach (var plr in Players.Values)
+                        SendWaveInfo(plr);
                     break;
                 case CountDownState.Done:
                     break;
@@ -292,7 +300,8 @@ namespace WorldServer.core.worlds.impl
                 _goUsed = false;
                 foreach (var plr in Players.Values)
                     plr.SendInfo($"Wave {_wave} starts in {WaveGapSeconds(_wave)} seconds. Type GO to start in 3.");
-                Broadcast(new ImminentArenaWave((int)_time, _wave, (int)CurrentState));
+                foreach (var plr in Players.Values)
+                    SendWaveInfo(plr);
                 HandleWaveRewards();
                 return;
             }

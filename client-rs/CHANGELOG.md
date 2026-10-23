@@ -9,6 +9,8 @@ refuses while an `Unreleased` one is left, so rename it to `## <version> (<date>
 version number itself is in `client-rs/Cargo.toml`.
 
 ## Unreleased
+- Arenas: the wave and time box at the top now counts the time in the public arena (it stayed at
+  00:00), and shows in the Battle Arena and Free Battle Arena too.
 - Arenas: Oryx 2, 3, 4 and 5 have arena versions. They appear in the middle, stay invulnerable for
   their first 5 seconds (and you for 5 seconds too), have less health, and only fight their first
   phase. Oryx 3 is back in the Oryx waves, and from wave 40 a new stage, Oryx's Court, brings the

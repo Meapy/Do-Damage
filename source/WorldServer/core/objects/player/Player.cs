@@ -403,6 +403,8 @@ namespace WorldServer.core.objects
                     SendInfo(GameServer.DamageEvent.Message);
             }
 
+            commands.Command.AutoAim.Resend(this);
+
             ResetNewbiePeriod();
             InitializeUpdate();
         }
