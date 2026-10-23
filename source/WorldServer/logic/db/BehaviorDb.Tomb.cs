@@ -156,7 +156,7 @@ namespace WorldServer.logic
                     new ItemLoot("Tome of Holy Protection", 0.009)
                     ),
                 ElderLoot(0.01,
-                    new ItemLoot("Crusader's Lost Relic", 0.05),
+                    new ItemLoot("Jade Beetle", 0.009),
                     new ItemLoot("Potion of Max Life", 0.01),
                     new ItemLoot("Angel's Hope", 0.01),
                     new ItemLoot("Pyramid Artifact Generator", 0.03),
@@ -290,7 +290,7 @@ namespace WorldServer.logic
                     new ItemLoot("Ring of the Sphinx", 0.009)
                     ),
                 ElderLoot(0.01,
-                    new ItemLoot("Burning Amulet", 0.03),
+                    new ItemLoot("Jade Beetle", 0.009),
                     new ItemLoot("Wine Cellar Incantation", 0.01),
                     new ItemLoot("Potion of Max Life", 0.01),
                     new ItemLoot("Wings of Natural Bloodlust", 0.01),
@@ -496,11 +496,10 @@ namespace WorldServer.logic
                     new ItemLoot("Tomb of the Ancients Key", 0.01, 0, 0.03),
                     new ItemLoot("Potion of Life", 1),
                     new ItemLoot("Potion of Life", 1),
-                    new ItemLoot("Ring of the Nile", 0.009),
-                    new ItemLoot("PriestST1", 0.009),
-                    new ItemLoot("PriestST3", 0.009)
+                    new ItemLoot("Ring of the Nile", 0.009)
                     ),
                 ElderLoot(0.01,
+                    new ItemLoot("Jade Beetle", 0.009),
                     new ItemLoot("Wine Cellar Incantation", 0.01),
                     new ItemLoot("Potion of Max Life", 0.01),
                     new ItemLoot("Raw Hope", 0.01),
@@ -725,6 +724,7 @@ namespace WorldServer.logic
                     ),
                 new ItemLoot("Magic Potion", 0.002),
                 new ItemLoot("Health Potion", 0.15),
+                new ItemLoot("Mask of Anubis", 0.01),
                 new Threshold(0.32,
                     new ItemLoot("Tincture of Mana", 0.15),
                     new ItemLoot("Tincture of Dexterity", 0.15),

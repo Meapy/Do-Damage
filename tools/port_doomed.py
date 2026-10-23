@@ -448,6 +448,16 @@ ITEM_STORE = {
 }
 
 
+# The untiered rings pass (SETUP-LOCAL.md, "Untiered rings"). Admin items: untradeable and listed with
+# the staff's gear (Doomed Realms' admin gear and rewards, with far more stats than anything else).
+# Ring of the Abyss's numbers are in GEAR_TUNING.
+ADMIN_ITEMS = ["Doomie Amulet", "Doomed Hero Badge", "Fallen Crown", "God Rushing", "Doomed Gods"]
+DESCRIPTIONS = {
+    "Santa's Hat": "A hat that protects Santa from even death itself. A blow that would kill its wearer breaks "
+                   "the hat instead, and sends them back to the Nexus.",
+}
+
+
 # The tiered gear changes (SETUP-LOCAL.md, "Tiered weapon rebalance" and "Tiered abilities").
 # Weapons: the Dual Blades all
 # reach exactly 5 tiles (speed 200, LifetimeMS 250), get +2 Defense a tier from T11 and +2 Speed a tier
@@ -499,6 +509,7 @@ GEAR_TUNING = {
     "Eldricht Blades": {"speed": 200, "lifetime": 250, "stats": {DEF: 2}},
     "Master Blades": {"speed": 200, "lifetime": 250, "stats": {DEF: 4, SPD: 2}},
     "Fists of Broken Bones": {"untier": True},
+    "Ring of the Abyss": {"stats": {"0": 120, DEF: 10}},  # was 500 health and 24 Defense
     "Power of the Fountains": {"tier": "7"},
     **{oid: {"untier": True} for oid in UNTIERED_ABILITIES},
     **{oid: {"tier": str(t), **CANNON_TUNING.get(oid, {})} for t, oid in enumerate(CANNON_TIERS)},
@@ -607,6 +618,14 @@ def fix_doomed_data(dr):
             if a.text == "IncrementStat" and a.get("stat") == stat:
                 a.set("storeAmount", stored)
         if o.find("Description") is not None:
+            o.find("Description").text = text
+    for oid in ADMIN_ITEMS:
+        o = dr.get(oid)
+        if o is not None and o.find("Admin") is None:
+            o.insert(list(o).index(o.find("SlotType")) + 1, ET.Element("Admin"))
+    for oid, text in DESCRIPTIONS.items():
+        o = dr.get(oid)
+        if o is not None and o.find("Description") is not None:
             o.find("Description").text = text
     for oid, (area, portal, text) in INCANTATIONS.items():
         o = dr.get(oid)

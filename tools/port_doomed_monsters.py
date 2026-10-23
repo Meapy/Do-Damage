@@ -51,6 +51,30 @@ SHARED = """        private const double PotProbability = 0.075;
 """
 HEX = re.compile(r"^\s*(\(\s*short\s*\)\s*)?(0x[0-9a-fA-F]+)\s*$")
 
+# Drops changed from Doomed Realms' (SETUP-LOCAL.md, "Untiered rings"): monster -> {item: its new
+# chance, or None to drop it}. The Crown is an admin item, the America Ring a reward, and Santa's
+# Hat, which saves its wearer from death, is rarer.
+LOOT_CHANGES = {
+    "Christmas Oryx": {"Crown": None, "Santa's Hat": 0.05},
+    "Oryx the Mad God 4": {"Crown": None},
+    "Oryx the Mad God 5": {"Crown": None},
+    "Turkey God": {"America Ring": None},
+}
+
+
+def change_loot(monster, loot):
+    """`loot` (a definition's loot expression) with LOOT_CHANGES applied."""
+    for item, chance in LOOT_CHANGES.get(monster, {}).items():
+        entry = r'Tuple\.Create\(\s*([0-9.]+)\s*,\s*\(ILoot\)\s*new ItemLoot\(%s\)\)' % re.escape(cs_string(item))
+        if chance is not None:
+            loot = re.sub(entry, lambda m: m.group(0).replace(m.group(1), "%g" % chance, 1), loot)
+            continue
+        # with the comma after it, or the one before it when it's the last of its list
+        loot, n = re.subn(r'\s*' + entry + r'\s*,', "", loot)
+        if not n:
+            loot = re.sub(r',\s*' + entry, "", loot)
+    return loot
+
 
 def split_args(text):
     """Top-level comma split of an argument list (no surrounding parentheses)."""
@@ -169,7 +193,8 @@ def write_monsters(dr_root, monsters, aliases=None):
         if block is None or "PetBehaves" in block or "PetChasing" in block:
             continue  # pets have their own behaviours (port_doomed_pets.py)
         _, behaviours, cond, loot = definition(block, type_to_id, refs)
-        field = "M_" + re.sub(r"\W", "_", oid)
+        loot = change_loot(oid, loot)
+        field ="M_" + re.sub(r"\W", "_", oid)
         body = ",\n                ".join(b.strip() for b in behaviours)
         members.append("        // %s\n        public static readonly Definition %s = new Definition(\n"
                        "            new Behavior[] {\n                %s\n            },\n            %s,\n            %s);\n"

@@ -29,6 +29,7 @@
          <Index>0x2b3</Index>
       </Texture>
       <SlotType>9</SlotType>
+      <Admin/>
       <Description>A horn claimed from Oryx's iconic helmet. To hold this in one's hand is a monumental insult to the Mad God's ego.</Description>
       <ExtraTooltipData>
          <EffectInfo name="Mad God's Hubris" description="Gain +10 dexterity while attacking if your health is BELOW 90% Max HP"/>

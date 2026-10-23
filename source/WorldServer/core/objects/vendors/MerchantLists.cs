@@ -97,19 +97,8 @@ namespace WorldServer.core.objects.vendors
             ("Elder Tomb Key", 500)
         };
 
-        // an Enchanted key also turns into a Mystery ST Crate, so it costs twice the key plus 250
-        private static readonly string[] EnchantedKeyDungeons =
-        {
-            "Cemetery", "Davy's", "Deadwater Docks", "Fungal Cavern", "Ice Cave", "Ice Tomb", "Lost Halls",
-            "Mountain Temple", "Ocean Trench", "Puppet Master's Encore", "Reef", "Secluded Thicket", "Shaitan's",
-            "Shatters", "Snake Pit", "The Crawling Depths", "Tomb of the Ancients", "Woodland Labyrinth"
-        };
-
         private static readonly List<ISellableItem> DungeonKeys = DungeonKeyPrices.Select(k => (ISellableItem)new ShopItem(k.Key, (ushort)k.Price)).ToList();
         private static readonly List<ISellableItem> DoomedKeys = DoomedKeyPrices.Where(k => !SealedDungeons.IsSealedItem(k.Key)).Select(k => (ISellableItem)new ShopItem(k.Key, (ushort)k.Price)).ToList();
-        private static readonly List<ISellableItem> EnchantedKeys = EnchantedKeyDungeons
-            .Select(d => (ISellableItem)new ShopItem($"{d} Enchanted Key", (ushort)(DungeonKeyPrices.First(k => k.Key == $"{d} Key").Price * 2 + 250)))
-            .ToList();
 
         public static void Initialize(GameServer gameServer)
         {
@@ -139,7 +128,8 @@ namespace WorldServer.core.objects.vendors
             { TileRegion.Store_1, new Tuple<List<ISellableItem>, CurrencyType, int>(StatPotions, CurrencyType.Fame, 0) },
             { TileRegion.Store_2, new Tuple<List<ISellableItem>, CurrencyType, int>(Consumables, CurrencyType.Fame, 0) },
             { TileRegion.Store_3, new Tuple<List<ISellableItem>, CurrencyType, int>(Specials, CurrencyType.Fame, 0) },
-            { TileRegion.Store_4, new Tuple<List<ISellableItem>, CurrencyType, int>(EnchantedKeys, CurrencyType.Fame, 0) },
+            // Store_4 sold the Enchanted Keys, which also gave a Mystery ST Crate: set (ST) gear has no
+            // source for now (SETUP-LOCAL.md, "Untiered rings")
             { TileRegion.Store_11, new Tuple<List<ISellableItem>, CurrencyType, int>(DungeonKeys, CurrencyType.Fame, 0) },
             { TileRegion.Store_12, new Tuple<List<ISellableItem>, CurrencyType, int>(DoomedKeys, CurrencyType.Fame, 0) }
         };

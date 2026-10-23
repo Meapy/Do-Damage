@@ -4635,7 +4635,7 @@
 		</Texture>
 		<SlotType>9</SlotType>
 		<Description>Cut from a fallen star, a deep purple emanating an unearthly glow, hinting at the power fused within.</Description>
-		<ActivateOnEquip stat="0" amount="190">IncrementStat</ActivateOnEquip>
+		<ActivateOnEquip stat="0" amount="200">IncrementStat</ActivateOnEquip>
 		<BagType>9</BagType>
 		<FameBonus>5</FameBonus>
 		<feedPower>350</feedPower>
@@ -4663,7 +4663,6 @@
 			<Index>0x480</Index>
 		</Texture>
 		<SlotType>9</SlotType>
-		<Legendary/>
 		<Description>An eerie reminder of what lays in the depths of the Shatters.</Description>
 		<ActivateOnEquip stat="28" amount="6">IncrementStat</ActivateOnEquip>
 		<ActivateOnEquip stat="20" amount="6">IncrementStat</ActivateOnEquip>
@@ -4681,7 +4680,6 @@
 			<Index>0x481</Index>
 		</Texture>
 		<SlotType>9</SlotType>
-		<Legendary/>
 		<Description>An odd stone, emanating a dark and mysterious energy.</Description>
 		<ActivateOnEquip stat="22" amount="6">IncrementStat</ActivateOnEquip>
 		<ActivateOnEquip stat="21" amount="6">IncrementStat</ActivateOnEquip>
@@ -4699,7 +4697,6 @@
 			<Index>0x482</Index>
 		</Texture>
 		<SlotType>9</SlotType>
-		<Legendary/>
 		<Description>Wearing it makes you feel particularly strong.</Description>
 		<ActivateOnEquip stat="21" amount="6">IncrementStat</ActivateOnEquip>
 		<ActivateOnEquip stat="20" amount="6">IncrementStat</ActivateOnEquip>
@@ -7695,7 +7692,6 @@
 			<Index>0x46</Index>
 		</Texture>
 		<SlotType>9</SlotType>
-		<Ethereal/>
 		<Soulbound/>
 		<Description>A historical amulet that has been passed down for generations. Although once cursed in the past, it still holds a hint of its ancient power.</Description>
 		<ActivateOnEquip stat="20" amount="1">IncrementStat</ActivateOnEquip>
@@ -8041,7 +8037,6 @@
 			<Index>0x1f</Index>
 		</Texture>
 		<SlotType>9</SlotType>
-		<Ascended/>
 		<Description>A ring that symbolizes divine might.</Description>
 		<ActivateOnEquip stat="26" amount="5">IncrementStat</ActivateOnEquip>
 		<ActivateOnEquip stat="27" amount="5">IncrementStat</ActivateOnEquip>
@@ -8287,8 +8282,8 @@
 			<Index>0xcd</Index>
 		</Texture>
 		<SlotType>9</SlotType>
-		<Ethereal/>
-		<Description>An American hero's ring.</Description>
+		<Reward/>
+		<Description>Rewarded by DODMG: an American hero's ring.</Description>
 		<ActivateOnEquip stat="21" amount="1">IncrementStat</ActivateOnEquip>
 		<ActivateOnEquip stat="20" amount="1">IncrementStat</ActivateOnEquip>
 		<ActivateOnEquip stat="26" amount="1">IncrementStat</ActivateOnEquip>
@@ -8569,11 +8564,12 @@
 			<Index>0x178</Index>
 		</Texture>
 		<SlotType>9</SlotType>
-		<Ethereal/>
-		<Description>An Olympic gold medal in synchronised swimming.</Description>
-		<ActivateOnEquip stat="28" amount="35">IncrementStat</ActivateOnEquip>
-		<ActivateOnEquip stat="26" amount="35">IncrementStat</ActivateOnEquip>
-		<ActivateOnEquip stat="22" amount="35">IncrementStat</ActivateOnEquip>
+		<Reward/>
+		<Description>Rewarded by DODMG: a gold medal for first place.</Description>
+		<ActivateOnEquip stat="28" amount="45">IncrementStat</ActivateOnEquip>
+		<ActivateOnEquip stat="26" amount="25">IncrementStat</ActivateOnEquip>
+		<ActivateOnEquip stat="22" amount="25">IncrementStat</ActivateOnEquip>
+		<ActivateOnEquip stat="0" amount="50">IncrementStat</ActivateOnEquip>
 		<FameBonus>8</FameBonus>
 		<BagType>6</BagType>
 		<feedPower>5000</feedPower>
@@ -8587,8 +8583,8 @@
 			<Index>0x179</Index>
 		</Texture>
 		<SlotType>9</SlotType>
-		<Ascended/>
-		<Description>An Olympic silver medal in synchronised swimming.</Description>
+		<Reward/>
+		<Description>Rewarded by DODMG: a silver medal for a place on the podium.</Description>
 		<ActivateOnEquip stat="28" amount="25">IncrementStat</ActivateOnEquip>
 		<ActivateOnEquip stat="26" amount="25">IncrementStat</ActivateOnEquip>
 		<ActivateOnEquip stat="22" amount="25">IncrementStat</ActivateOnEquip>
@@ -8605,8 +8601,8 @@
 			<Index>0x17a</Index>
 		</Texture>
 		<SlotType>9</SlotType>
-		<Legendary/>
-		<Description>An Olympic bronze medal in synchronised swimming.</Description>
+		<Reward/>
+		<Description>Rewarded by DODMG: a bronze medal for a place on the podium.</Description>
 		<ActivateOnEquip stat="28" amount="15">IncrementStat</ActivateOnEquip>
 		<ActivateOnEquip stat="26" amount="15">IncrementStat</ActivateOnEquip>
 		<ActivateOnEquip stat="22" amount="15">IncrementStat</ActivateOnEquip>
@@ -9689,7 +9685,6 @@
 			<Index>0x28a</Index>
 		</Texture>
 		<SlotType>9</SlotType>
-		<Legendary/>
 		<Description>A high-fructose ring that will give you pep, but hurt your concentration.</Description>
 		<ActivateOnEquip stat="22" amount="10">IncrementStat</ActivateOnEquip>
 		<ActivateOnEquip stat="26" amount="10">IncrementStat</ActivateOnEquip>
@@ -11402,6 +11397,7 @@
 			<EffectInfo name="Set" description="Summer Solstice"/>
 		</ExtraTooltipData>
 		<ActivateOnEquip stat="21" amount="8">IncrementStat</ActivateOnEquip>
+		<ActivateOnEquip stat="26" amount="8">IncrementStat</ActivateOnEquip>
 		<BagType>4</BagType>
 		<FameBonus>4</FameBonus>
 		<feedPower>300</feedPower>
@@ -13826,7 +13822,6 @@
 			<Index>0x1f</Index>
 		</Texture>
 		<SlotType>9</SlotType>
-		<Ethereal/>
 		<Description>An ancient artifact, once worn by a corrupt king of the frost realms.\n\nSprite Credits: Poshun</Description>
 		<ActivateOnEquip stat="28" amount="6">IncrementStat</ActivateOnEquip>
 		<ActivateOnEquip stat="20" amount="6">IncrementStat</ActivateOnEquip>
@@ -15278,7 +15273,6 @@
 			<Index>0xaa</Index>
 		</Texture>
 		<SlotType>9</SlotType>
-		<Legendary/>
 		<Description>Unknown.</Description>
 		<ActivateOnEquip stat="0" amount="110">IncrementStat</ActivateOnEquip>
 		<ActivateOnEquip stat="3" amount="110">IncrementStat</ActivateOnEquip>
@@ -15296,7 +15290,6 @@
 			<Index>0xab</Index>
 		</Texture>
 		<SlotType>9</SlotType>
-		<Ethereal/>
 		<Description>An unfathomable amount of strength pulses through this ring. Only the most righteous mortals can touch this ring and live.</Description>
 		<ActivateOnEquip stat="0" amount="125">IncrementStat</ActivateOnEquip>
 		<ActivateOnEquip stat="3" amount="125">IncrementStat</ActivateOnEquip>
@@ -25339,6 +25332,7 @@
 		<Soulbound/>
 	</Object>
 	<Object type="0xfd5" id="Gem of Tenderness">
+		<DisplayId>Infernal Gem of Tenderness</DisplayId>
 		<Class>Equipment</Class>
 		<Item/>
 		<Texture>
@@ -25346,15 +25340,17 @@
 			<Index>0x219</Index>
 		</Texture>
 		<SlotType>9</SlotType>
-		<Description>Only until you find true love, will you know what sweet tenderness feels like.\n\nSprite Credits: Trensient</Description>
-		<ActivateOnEquip stat="27" amount="5">IncrementStat</ActivateOnEquip>
+		<Description>Only until you find true love, will you know what sweet tenderness feels like. Tempered in the fires of Oryx's Inferno.\n\nSprite Credits: Trensient</Description>
+		<ActivateOnEquip stat="27" amount="10">IncrementStat</ActivateOnEquip>
 		<ActivateOnEquip stat="3" amount="150">IncrementStat</ActivateOnEquip>
+		<ActivateOnEquip stat="22" amount="10">IncrementStat</ActivateOnEquip>
 		<BagType>6</BagType>
 		<FameBonus>5</FameBonus>
 		<feedPower>350</feedPower>
 		<Soulbound/>
 	</Object>
 	<Object type="0xfd6" id="Gem of Adoration">
+		<DisplayId>Infernal Gem of Adoration</DisplayId>
 		<Class>Equipment</Class>
 		<Item/>
 		<Texture>
@@ -25362,9 +25358,11 @@
 			<Index>0x21a</Index>
 		</Texture>
 		<SlotType>9</SlotType>
-		<Description>Dedicated to the one who will see beauty within.\n\nSprite Credits: Trensient</Description>
+		<Description>Dedicated to the one who will see beauty within, it burns with the fires of Oryx's Inferno.\n\nSprite Credits: Trensient</Description>
 		<ActivateOnEquip stat="0" amount="150">IncrementStat</ActivateOnEquip>
 		<ActivateOnEquip stat="26" amount="5">IncrementStat</ActivateOnEquip>
+		<ActivateOnEquip stat="20" amount="5">IncrementStat</ActivateOnEquip>
+		<ActivateOnEquip stat="28" amount="5">IncrementStat</ActivateOnEquip>
 		<BagType>6</BagType>
 		<FameBonus>5</FameBonus>
 		<feedPower>350</feedPower>
@@ -25426,7 +25424,7 @@
 		<SlotType>9</SlotType>
 		<Description>A relic of the Tomb of the Ancients, once used by holy worshipers in ceremonies.\n\nSprite Credits: Beige</Description>
 		<ActivateOnEquip stat="0" amount="180">IncrementStat</ActivateOnEquip>
-		<BagType>9</BagType>
+		<BagType>6</BagType>
 		<FameBonus>5</FameBonus>
 		<feedPower>325</feedPower>
 		<Soulbound/>
@@ -25441,6 +25439,8 @@
 		<SlotType>9</SlotType>
 		<Description>A gilded artifact discovered in the temple of El Dorado, presumably belonging to none other than Xolotl himself.\n\nSprite Credits: Aurum</Description>
 		<ActivateOnEquip stat="3" amount="180">IncrementStat</ActivateOnEquip>
+		<ActivateOnEquip stat="0" amount="50">IncrementStat</ActivateOnEquip>
+		<ActivateOnEquip stat="28" amount="5">IncrementStat</ActivateOnEquip>
 		<BagType>9</BagType>
 		<FameBonus>5</FameBonus>
 		<feedPower>325</feedPower>
@@ -25455,7 +25455,7 @@
 		</Texture>
 		<SlotType>9</SlotType>
 		<Description>An uncomfortably squishy piece of headgear that the Royal Cnidarian probably wants back.\n\nSprite Credits: Aurum</Description>
-		<ActivateOnEquip stat="3" amount="180">IncrementStat</ActivateOnEquip>
+		<ActivateOnEquip stat="3" amount="200">IncrementStat</ActivateOnEquip>
 		<BagType>9</BagType>
 		<FameBonus>5</FameBonus>
 		<feedPower>325</feedPower>
@@ -28623,6 +28623,7 @@
 		<Soulbound/>
 	</Object>
 	<Object type="0x70b8" id="Exalted God's Horn">
+		<DisplayId>Celestial God's Horn</DisplayId>
 		<Class>Equipment</Class>
 		<Item/>
 		<Texture>

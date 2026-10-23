@@ -309,11 +309,11 @@ namespace WorldServer.logic
                     LootTemplates.BasicDrop()
                     ),
                 new Threshold(0.001,
-                    new ItemLoot("RogueST0", 0.008),
                     new ItemLoot("Potion of Vitality", 1),
                     new ItemLoot("Potion of Wisdom", 1),
                     new ItemLoot("Resurrected Warrior's Armor", 0.002),
                     new ItemLoot("Plague Poison", 0.002),
+                    new ItemLoot("Amulet of Resurrection", 0.002),
                     new ItemLoot("Cemetery Key", 0.008)
                     )
             )

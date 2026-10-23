@@ -144,7 +144,6 @@ namespace WorldServer.logic
                     new ItemLoot("Large Blue Dragon Scale Cloth", 0.4),
                     new ItemLoot("Small Blue Dragon Scale Cloth", 0.4),
                     new ItemLoot("Water Dragon Silk Robe", 0.004),
-                    new ItemLoot("WarriorST2", 0.02),
                     new ItemLoot("Potion of Wisdom", 1)
                 )
             )
@@ -326,7 +325,6 @@ namespace WorldServer.logic
                     new ItemLoot("Large Red Dragon Scale Cloth", 0.4),
                     new ItemLoot("Small Red Dragon Scale Cloth", 0.4),
                     new ItemLoot("Fire Dragon Battle Armor", 0.004),
-                    new ItemLoot("WarriorST0", 0.02),
                     new ItemLoot("Potion of Attack", 1),
                     new ItemLoot("Potion of Defense", 1)
                 )
@@ -590,7 +588,6 @@ namespace WorldServer.logic
                 new Threshold(0.01,
                     new ItemLoot("Large Midnight Dragon Scale Cloth", 0.4),
                     new ItemLoot("Small Midnight Dragon Scale Cloth", 0.4),
-                    new ItemLoot("WarriorST3", 0.02),
                     new ItemLoot("Potion of Vitality", 1)
                 )
             )

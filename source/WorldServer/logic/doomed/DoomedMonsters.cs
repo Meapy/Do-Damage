@@ -780,7 +780,6 @@ namespace WorldServer.logic.doomed
                             Tuple.Create(0.2, (ILoot)new TierLoot(8, ItemType.Ability)),
                             Tuple.Create(0.2, (ILoot)new TierLoot(15, ItemType.Armor)),
                             Tuple.Create(0.2, (ILoot)new TierLoot(14, ItemType.Weapon)),
-                            Tuple.Create(0.009, (ILoot)new ItemLoot("Crown")),
                             Tuple.Create(0.2, (ILoot)new ItemLoot("Oryx Tooth Sword")),
                             Tuple.Create(0.2, (ILoot)new ItemLoot("Doom Dirk")),
                             Tuple.Create(0.1, (ILoot)new ItemLoot("Platinum Sword")),
@@ -798,7 +797,7 @@ namespace WorldServer.logic.doomed
                             Tuple.Create(0.1, (ILoot)new ItemLoot("Flying Doom Daggers")),
                            Tuple.Create(0.3, (ILoot)new ItemLoot("Candy Cane Sword")),
                            Tuple.Create(0.3, (ILoot)new ItemLoot("The Snowball")),
-                           Tuple.Create(0.3, (ILoot)new ItemLoot("Santa's Hat")),
+                           Tuple.Create(0.05, (ILoot)new ItemLoot("Santa's Hat")),
                             Tuple.Create(0.3, (ILoot)new ItemLoot("The Agressive Caroller"))
                     ))));
 
@@ -7501,7 +7500,6 @@ namespace WorldServer.logic.doomed
                             Tuple.Create(0.029, (ILoot)new TierLoot(8, ItemType.Ability)),
                             Tuple.Create(0.029, (ILoot)new TierLoot(15, ItemType.Armor)),
                             Tuple.Create(0.029, (ILoot)new TierLoot(14, ItemType.Weapon)),
-                            Tuple.Create(0.00009, (ILoot)new ItemLoot("Crown")),
                             Tuple.Create(0.1, (ILoot)new ItemLoot("Oryx Tooth Sword")),
                             Tuple.Create(0.2, (ILoot)new ItemLoot("Tornado Generator")),
                             Tuple.Create(0.1, (ILoot)new ItemLoot("Rain Bow")),
@@ -7615,7 +7613,6 @@ namespace WorldServer.logic.doomed
                             Tuple.Create(0.2, (ILoot)new TierLoot(9, ItemType.Ability)),
                             Tuple.Create(0.2, (ILoot)new TierLoot(15, ItemType.Armor)),
                             Tuple.Create(0.2, (ILoot)new TierLoot(14, ItemType.Weapon)),
-                            Tuple.Create(0.009, (ILoot)new ItemLoot("Crown")),
                             Tuple.Create(0.2, (ILoot)new ItemLoot("Oryx Tooth Sword")),
                             Tuple.Create(0.2, (ILoot)new ItemLoot("Doom Dirk")),
                             Tuple.Create(0.2, (ILoot)new ItemLoot("Oryx Hide Robe")),
@@ -8303,7 +8300,6 @@ namespace WorldServer.logic.doomed
                             Tuple.Create(0.05, (ILoot)new ItemLoot("America Sword")),
                             Tuple.Create(0.05, (ILoot)new ItemLoot("America Armor")),
                             Tuple.Create(0.05, (ILoot)new ItemLoot("America Shield")),
-                            Tuple.Create(0.05, (ILoot)new ItemLoot("America Ring")),
 
                             Tuple.Create(0.5, (ILoot)new StatPotionLoot(StatPotion.Att)),
                             Tuple.Create(0.5, (ILoot)new StatPotionLoot(StatPotion.Wis)),

@@ -127,7 +127,7 @@ namespace WorldServer.logic
                         new Wander(0.3)
                         ),
                     new Shoot(20, coolDown: Cd(1000))
-                    ), Elder("Pit Viper"))
+                    ), new ItemLoot("Crystal Bone Ring", 0.01), Elder("Pit Viper"))
             .Init(E("Yellow Python"),
                 new State(
                     new Prioritize(

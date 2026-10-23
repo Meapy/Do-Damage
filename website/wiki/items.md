@@ -28,19 +28,15 @@ by class, with their numbers and where they come from.
 - **Untiered (UT)** items have no tier. They come from specific bosses, each with its own effect
   or stats, and they're often better than tiered items of the same kind, or different in a way
   that suits a class. The [Dungeons](dungeons.html) page lists each boss's notable drops.
-- **Set (ST)** items belong to a set of four for one class (weapon, ability, armor and ring), and
-  usually drop from one boss.
+- **Set (ST)** items belong to a set of four for one class (weapon, ability, armor and ring).
+  **None can be found for now**: no monster drops them and nothing sells them. They're future
+  additions, like the untiered items with no source yet ([Gear](gear.html)).
+- **Reward** items are given by the staff (their description says "Rewarded by DODMG"): nothing
+  drops or sells them.
 
 > **Set bonuses don't work yet.** The game's data lists extra stats for wearing two, three or all
 > four pieces of a set, but this server doesn't apply them. Each piece's own stats count as
 > normal.
-
-Sets you can find, and where:
-
-{{gen:sets}}
-
-The [Mystery ST Crate](#enchanted-keys-and-mystery-boxes) and the Mystery ST Chest also give set
-pieces.
 
 ## Loot bags
 
@@ -106,7 +102,7 @@ the marketplace.
 Every shop here sells for fame; there's no way to earn gold.
 
 - The **Nexus Bazaar**, the market wards either side of the Nexus spawn: stat potions, consumables,
-  specials, dungeon keys, Elder and Doomed keys, Enchanted Keys, pet generators
+  specials, dungeon keys, Elder and Doomed keys, pet generators
   ({{v:pet_price}} fame) and cloth and dyes. Its stalls rotate through each shop's items. Guests
   can't buy.
 - `/shop` opens the Doomed Realms shops: weapons, abilities, armor, rings, consumables, dyes, keys
@@ -123,10 +119,8 @@ Dungeon keys and their prices are on the [Dungeons](dungeons.html) page, and sta
 ## Enchanted Keys and mystery boxes
 
 An **Enchanted Key** opens its dungeon like the regular key **and** gives you a **Mystery ST
-Crate**, into your inventory (or your gift chests if it's full). They cost twice the regular key
-plus 250 fame:
-
-{{gen:enchanted}}
+Crate**, into your inventory (or your gift chests if it's full). The Nexus Bazaar doesn't sell them
+any more, as set (ST) pieces can't be found for now; one you already have still works.
 
 Using a **Mystery ST Crate** gives one of these, with these chances:
 

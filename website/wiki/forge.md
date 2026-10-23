@@ -9,7 +9,7 @@ summary: Forging items at the Divine Forge in the Nexus: two of a tier make one 
 
 The **Divine Forge** turns items you don't need into ones you do. It knows {{v:forge_recipes}}
 recipes: {{v:forge_chains}} of them make any tiered weapon, ability, armor or ring from two of the
-tier below, and the rest are special recipes from Doomed Realms.
+tier below, and the rest are special recipes, most of them from Doomed Realms.
 
 ## Using the forge
 
@@ -46,15 +46,17 @@ costs more than {{v:forge_cap}} fame.
 ## Other recipes
 
 Recipes that don't follow the two-for-one rule: the Doomed Realms forge's untiered (UT) items,
-other ways to the same tiered items, and a few potions. Click an item for what it does.
+other ways to the same tiered items, a few potions, and the **Reforged Forgotten Crown**, which no
+monster drops: only the forge makes it, from two Forgotten Crowns. Click an item for what it does.
 
 {{gen:forge_special}}
 
 ## The Forge Amulet
 
 Wearing a **Forge Amulet** in your ring slot halves a recipe's price and unlocks the *advanced*
-recipes, but the amulet breaks when you forge. No monster or shop gives one at the moment, and
-the advanced recipes all make items that don't drop yet, so none is listed above.
+recipes, but the amulet breaks when you forge. Oryx the Ascended God (Oryx 5) drops one now and
+then, and it will become a crafting material for the forge in a later update. The advanced recipes
+all make items that don't drop yet, so none is listed above.
 
 ## Selling for fame
 

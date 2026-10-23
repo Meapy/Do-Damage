@@ -187,6 +187,9 @@ namespace WorldServer.logic
                     new ItemLoot("Doom Dirk", 0.012),
                     new ItemLoot("Flying Doom Daggers", 0.012),
                     new ItemLoot("Tome of Noble Assault", 0.012),
+                    new ItemLoot("Burning Amulet", 0.012),
+                    new ItemLoot("Gem of Adoration", 0.012),
+                    new ItemLoot("Gem of Tenderness", 0.012),
                     new ItemLoot("Doom Poison", 0.003)
                 ),
                 // 5% of the damage: the gear

@@ -3,8 +3,9 @@ and ring in the game's XML, with its sprite, its numbers and where it comes from
 
 - wiki/gear/<kind>.html: one page per kind of item (sword, spell, robe...; the rings are
   gear/rings.html), its items grouped as the client colours their slots: tiered (by tier),
-  untiered (UT), set pieces (ST), Legendary, Ascended, Ethereal, admin and test items. Tabs on top
-  lead to the four categories and the kinds in the one shown.
+  untiered (UT), future additions (untiered items with no source yet), set pieces (ST), Legendary,
+  Ascended, Ethereal, rewards, admin and test items. Tabs on top lead to the four categories and the
+  kinds in the one shown.
 - wiki/gear/weapons.html, abilities.html and armor.html: a category's kinds.
 - wiki/classes/<class>.html: one page per class, a tab each for the weapons, abilities, armor and
   rings it can use (#weapon, #ability, #armor, #ring).
@@ -29,14 +30,19 @@ CATEGORIES = [("weapons", "Weapons", "Weapon", "weapon"), ("abilities", "Abiliti
 GROUPS = [
     ("tiered", "Tiered", "T", "Drop from monsters all over the game, by tier: the higher the tier, the better."),
     ("untiered", "Untiered (UT)", "UT", "Each comes from particular bosses, with numbers or an effect of its own."),
-    ("set", "Set pieces (ST)", "ST", "One piece of a set of four for one class: weapon, ability, armor and ring."),
+    ("future", "Future additions", "UT", "Untiered items that nothing drops, sells or forges yet: they'll get a source in a later update."),
+    ("set", "Set pieces (ST): future additions", "ST",
+     "One piece of a set of four for one class: weapon, ability, armor and ring. None can be found for now."),
     ("legendary", "Legendary", "Legendary", "Rare untiered items with the gold slot edge."),
     ("ascended", "Ascended", "Ascended", "Rare untiered items with the gold slot edge."),
     ("ethereal", "Ethereal", "Ethereal", "Rare untiered items with the gold slot edge."),
+    ("reward", "Reward items", "Reward", "Given by the staff as rewards: nothing drops or sells them."),
     ("admin", "Admin items", "Admin", "Made for staff and testing."),
     ("test", "Test items", "Test", "Left in the game's data from testing."),
 ]
 GROUP_NAMES = {g: (title, tag) for g, title, tag, _ in GROUPS}
+# groups a category's pages show even with no items in them, as their items are reworked
+ALWAYS_SHOWN = {"rings": {"legendary", "ascended", "ethereal"}}
 PLURAL = {"Staff": "Staves", "Dual Blades": "Dual Blades", "Shuriken": "Shuriken", "Wakizashi": "Wakizashi",
           "Leather armor": "Leather armor", "Heavy armor": "Heavy armor"}
 STAT = {0: "HP", 3: "MP", 20: "Att", 21: "Def", 22: "Spd", 26: "Vit", 27: "Wis", 28: "Dex"}
@@ -101,13 +107,6 @@ class Gear:
         for t in sorted(cat_of):
             if t not in self.kinds[cat_of[t]]:
                 self.kinds[cat_of[t]].append(t)
-        self.by_slot = {}
-        for it in self.items:
-            self.by_slot.setdefault(it["slot"], []).append(it)
-        order = [g for g, _, _, _ in GROUPS]
-        for lst in self.by_slot.values():
-            lst.sort(key=lambda it: (order.index(it["group"]), it["tier"] if it["group"] == "tiered" else 0,
-                                     it["doomed"], it["name"].lower()))
         self.wearers = {}
         for c in self.classes:
             for t in c["slots"]:
@@ -123,6 +122,22 @@ class Gear:
                 g = self.d.gear_items(t)
                 if g:
                     self.gear_gives.setdefault(g["id"], []).append(c["name"])
+        # the forge's own recipes for untiered items (not the two-of-the-tier-below chains)
+        self.forged = {}
+        for r in self.gen.forge:
+            if not r["chain"]:
+                self.forged.setdefault(r["result"], []).append(r)
+        # untiered items with no source yet are future additions
+        for it in self.items:
+            if it["group"] == "untiered" and not self.sources(it):
+                it["group"] = "future"
+        self.by_slot = {}
+        for it in self.items:
+            self.by_slot.setdefault(it["slot"], []).append(it)
+        order = [g for g, _, _, _ in GROUPS]
+        for lst in self.by_slot.values():
+            lst.sort(key=lambda it: (order.index(it["group"]), it["tier"] if it["group"] == "tiered" else 0,
+                                     it["doomed"], it["name"].lower()))
         self.sheets = {}  # sheet name -> (css class, file, tile w, tile h, sheet w, sheet h)
         self.href = {}    # item id -> its place on its kind's page, from the wiki's root
         for slot, lst in self.by_slot.items():
@@ -183,7 +198,7 @@ class Gear:
             return e.get("top", SPECIAL_EDGE)
         if it["group"] in ("set", "untiered"):
             return e.get(it["group"], SPECIAL_EDGE)
-        if it["group"] == "test":
+        if it["group"] in ("test", "future", "reward"):
             return e.get("untiered", SPECIAL_EDGE)
         return e.get("special", SPECIAL_EDGE)
 
@@ -234,6 +249,13 @@ class Gear:
         if oid in self.gen.bazaar:
             price, shop = self.gen.bazaar[oid]
             rows.append(("Shop", "Nexus Bazaar (%s), %d fame" % (h.esc(shop), price)))
+        for r in self.forged.get(oid, []):
+            counts = {}
+            for i in r["items"]:
+                counts[i] = counts.get(i, 0) + 1
+            items = " + ".join(("%d &times; " % n if n > 1 else "") + h.esc(d.name(i)) for i, n in counts.items())
+            rows.append(("Divine Forge", "%s, %s fame%s" % (items, "{:,}".format(r["fame"]),
+                                                             " (needs a Forge Amulet)" if r["advanced"] else "")))
         if oid in self.starts:
             rows.append(("Starting gear", h.esc(", ".join(self.starts[oid]))))
         if oid in self.gear_gives:
@@ -439,9 +461,10 @@ class Gear:
         h = self.h
         parts = []
         lst = self.by_slot.get(slot, [])
+        shown = ALWAYS_SHOWN.get(lst[0]["category"] if lst else None, set())
         for g, title, _, blurb in GROUPS:
             its = [it for it in lst if it["group"] == g]
-            if not its:
+            if not its and g not in shown:
                 continue
             ident = prefix + g
             parts.append('<section class="its-group"><h%d id="%s"><a class="anchor" href="#%s" aria-hidden="true">#</a>'
@@ -456,7 +479,7 @@ class Gear:
         for g, _, tag, _ in GROUPS:
             n = sum(1 for it in lst if it["group"] == g)
             if n:
-                bits.append("%d %s" % (n, "tiered" if g == "tiered" else tag))
+                bits.append("%d %s" % (n, {"tiered": "tiered", "future": "future additions"}.get(g, tag)))
         return " &middot; ".join(bits)
 
     def best(self, slot):

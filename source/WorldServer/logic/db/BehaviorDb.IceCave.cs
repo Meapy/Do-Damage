@@ -467,6 +467,7 @@ namespace WorldServer.logic
                 new Threshold(0.005,
                     new ItemLoot("Staff of Esben", 0.006),
                     new ItemLoot("Skullish Remains of Esben", 0.004),
+                    new ItemLoot("Esben's Wedding Ring", 0.004),
                     new ItemLoot("Potion of Mana", 1)
                 )
             );

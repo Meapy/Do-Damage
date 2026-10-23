@@ -557,7 +557,7 @@ namespace WorldServer.logic
                         new ItemLoot("Sword of the Colossus", 0.00125),
                         new ItemLoot("Breastplate of New Life", 0.00125),
                         new ItemLoot("Marble Seal", 0.00125),
-                        new ItemLoot("Magical Lodestone", 0.00125)
+                        new ItemLoot("Magical Lodestone", 0.02)
                     )
 
             )

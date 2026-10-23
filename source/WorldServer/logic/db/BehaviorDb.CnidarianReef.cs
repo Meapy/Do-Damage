@@ -214,6 +214,7 @@ namespace WorldServer.logic
                 ),
                 new Threshold(0.01,
                     new ItemLoot("Bottled Medusozoan", 0.03),
+                    new ItemLoot("Mask of Cnidaria", 0.03),
                     new ItemLoot("Cnidaria Rod", 0.06),
                     new ItemLoot("Large Blue Wave Cloth", 0.5),
                     new ItemLoot("Small Blue Wave Cloth", 0.5),

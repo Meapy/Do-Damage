@@ -18,7 +18,7 @@ namespace WorldServer.core.commands.doomed
     //
     // The forge only makes what players can find: a recipe's result must be tradeable (not an
     // <Admin/> or Item.OpItems item, like the Crown), dropped by some monster (its loot or the
-    // tier pools it rolls) and not a seasonal drop (SeasonalThreshold.Items,
+    // tier pools it rolls) or one of the ForgeOnly items, and not a seasonal drop (SeasonalThreshold.Items,
     // Loot.WinterBossDrops: they come back each year without having been rebalanced), and its
     // ingredients tradeable.
     internal static class ForgeRecipes
@@ -30,6 +30,13 @@ namespace WorldServer.core.commands.doomed
         // The fame for a tiered result by tier, on the weapons' 0-14 scale (Doomed Realms' sword
         // chain: 10 for a Broad Sword up to 2000 for a Sword of Splendor).
         private static readonly int[] TierFame = { 0, 10, 30, 50, 70, 90, 100, 200, 300, 400, 500, 800, 1000, 2000, 2000 };
+
+        // Items only the forge makes, which no monster drops (so they skip that rule): result, fame,
+        // needs a Forge Amulet, ingredients.
+        private static readonly (string Result, int Fame, bool Advanced, string[] Items)[] ForgeOnly =
+        {
+            ("Reforged Forgotten Crown", 6000, false, new[] { "The Forgotten Crown", "The Forgotten Crown" }),
+        };
 
         private static (string Result, int Fame, bool Advanced, string[] Items)[] _all;
         private static readonly object Lock = new object();
@@ -49,8 +56,10 @@ namespace WorldServer.core.commands.doomed
             var dropped = Dropped(server);
             var seasonal = new HashSet<string>(SeasonalThreshold.Items.Concat(Loot.WinterBossDrops.Select(d => d.Item)));
             bool Tiered(string id) => items.TryGetValue(id, out var i) && i.Tier >= 0;
+            var forgeOnly = new HashSet<string>(ForgeOnly.Select(r => r.Result));
             bool Allowed((string Result, int Fame, bool Advanced, string[] Items) r) =>
-                items.ContainsKey(r.Result) && dropped.Contains(r.Result) && !seasonal.Contains(r.Result) && r.Items.All(items.ContainsKey);
+                items.ContainsKey(r.Result) && (dropped.Contains(r.Result) || forgeOnly.Contains(r.Result))
+                && !seasonal.Contains(r.Result) && r.Items.All(items.ContainsKey);
 
             var slots = new HashSet<int>(data.Classes.Values.Where(c => c.SlotTypes != null).SelectMany(c => c.SlotTypes.Take(4)));
             slots.Remove(0);
@@ -93,6 +102,7 @@ namespace WorldServer.core.commands.doomed
             var recipes = DoomedEconomyData.Recipes
                 .Select(r => AbilityChainFame(r) is int fame ? (r.Result, fame, r.Advanced, r.Items)
                     : Tiered(r.Result) ? (r.Result, Math.Min(r.Fame, TieredCap), r.Advanced, r.Items) : r)
+                .Concat(ForgeOnly)
                 .ToList();
             var known = new HashSet<string>(recipes.Select(Key));
 

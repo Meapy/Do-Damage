@@ -38,8 +38,13 @@ EXTRA_CONSUMABLES = [2878, 0xAEB, 0xAEC]  # Amulet of Resurrection, Greater Heal
 PET_SHOP_TYPES = range(0x1500, 0x1541)  # MerchantLists.AddPetShop
 PET_PRICE = 1250  # Doomed Realms sold them for no price; betterSkillys' pet generator price
 DEFAULT_SHOP = "abilities"
-# items no shop sells: pets taken out of the game (whoever has one keeps it)
-NOT_SOLD = {"Twilight Generator", "Dinosaur's Pet Generator"}
+# items no shop sells: pets taken out of the game (whoever has one keeps it), and from the rings
+# pass (SETUP-LOCAL.md, "Untiered rings") the admin items, the reward rings and the Amulet of
+# Dispersion, which drops in the Haunted Cemetery instead
+NOT_SOLD = {"Twilight Generator", "Dinosaur's Pet Generator", "Crown", "God Rushing", "America Ring",
+            "Amulet of Resurrection"}
+# results the Divine Forge doesn't make: the admin items
+NOT_FORGED = {"Crown"}
 
 
 def _num(s):
@@ -122,7 +127,7 @@ def write_economy(dr_root, dr, bs, final_id, known):
     combos = []
     for result, price, adv, items in parse_combos(dr_root):
         r, ids = resolve(result), [resolve(i) for i in items]
-        if r and all(ids):
+        if r and all(ids) and r not in NOT_FORGED:
             combos.append((r, price, adv, ids))
 
     sell = {}

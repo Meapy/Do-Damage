@@ -561,8 +561,6 @@ class Gen:
                     price = self.bazaar.get(k)
                     if kd or price:
                         keys.append((k, kd, price))
-            enchanted = [(k, self.bazaar[k][0]) for p in portals for k in self.keys.get(p, [])
-                         if "Enchanted" in k and k in self.bazaar]
             special = []
             unlock = []
             for p in portals:
@@ -584,7 +582,7 @@ class Gen:
                      else "doomed" if "DoomedRealms" in w["file"] else "realm")
             out.append({
                 "id": wid, "name": w["name"], "group": group, "sources": sources, "keys": keys,
-                "enchanted": enchanted, "special": special, "unlock": unlock, "bot": on_bot,
+                "special": special, "unlock": unlock, "bot": on_bot,
                 "boss": boss, "hp": hp, "loot": loot, "random": w["random"],
                 "level": self.level(hp),
             })
@@ -706,8 +704,6 @@ class Gen:
                     names.append("%d more" % (len(kd) - 3))
                 bits.append("drops from " + ", ".join(names))
             rows.append(("Key", "<strong>%s</strong>: %s" % (esc(d.name(k)), "; ".join(bits))))
-        for k, price in x["enchanted"]:
-            rows.append(("Enchanted key", "%s, %d fame (also gives a Mystery ST Crate)" % (esc(d.name(k)), price)))
         if x["boss"]:
             rows.append(("Boss", "%s, %s health" % (esc(who(d, x["boss"])), "{:,}".format(x["hp"]))))
         if x["loot"]:
@@ -837,30 +833,6 @@ class Gen:
         return '<ul class="price-list">%s</ul>' % "".join(
             "<li><span>%s</span><span>%s</span></li>" % (esc(n), ("%.1f%%" % (100 * w / total)).replace(".0%", "%"))
             for n, w in sorted(merged.items(), key=lambda x: -x[1]))
-
-    def gen_enchanted(self, used):
-        ks = sorted([(i, p) for i, (p, s) in self.bazaar.items() if s == "Enchanted Keys"], key=lambda x: x[1])
-        return '<ul class="price-list cols">%s</ul>' % "".join(
-            "<li><span>%s</span><span>%d fame</span></li>" % (esc(i), p) for i, p in ks)
-
-    def gen_sets(self, used):
-        d = self.d
-        rows = []
-        for s in d.sets():
-            pieces = [p for p in s["pieces"] if p in d.objects]
-            if len(pieces) != 4 or "Legacy" in s["id"]:
-                continue
-            src = []
-            for p in pieces:
-                for m, c in self.idx.get(p, []):
-                    if not HIDDEN_MONSTER.search(m) and c and d.name(m) not in src:
-                        src.append(d.name(m))
-            if not src:
-                continue
-            rows.append("<tr><td><strong>%s</strong></td><td>%s</td><td>%s</td></tr>" % (
-                esc(s["id"]), esc(nice(pieces, d)), esc(", ".join(src[:4]))))
-        return ('<div class="table-wrap"><table><thead><tr><th>Set</th><th>Pieces</th><th>Dropped by</th></tr></thead>'
-                '<tbody>%s</tbody></table></div>' % "".join(rows))
 
     # the pets: their cards have sprites, so they're built with the gear pages (tools/wiki_gear.py)
     def gen_pets(self, used):

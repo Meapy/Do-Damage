@@ -142,6 +142,23 @@
 		<NoMiniMap/>
 		<ShadowSize>0</ShadowSize>
 	</Object>
+	<!-- the WIP Admin Cat ring's cat, which its ability throws (BehaviorDb.Allies.cs) -->
+	<Object type="0x571a" id="Admin Cat">
+		<Class>Character</Class>
+		<Texture>
+			<File>customAssets8x8</File>
+			<Index>0x07</Index>
+		</Texture>
+		<Size>80</Size>
+		<MaxHitPoints>1000</MaxHitPoints>
+		<Defense>0</Defense>
+		<Projectile id="0">
+			<ObjectId>Flying Cato</ObjectId>
+			<Damage>250</Damage>
+			<Speed>120</Speed>
+			<LifetimeMS>800</LifetimeMS>
+		</Projectile>
+	</Object>
 	<Object type="0x5718" id="Admin Cat XP">
 		<Enemy/>
 		<Class>Character</Class>

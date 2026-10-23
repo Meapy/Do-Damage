@@ -41,6 +41,17 @@ namespace WorldServer.logic.doomed
             ["Small Ghost"] = () => Minion(4), ["Medium Ghost"] = () => Minion(5), ["Large Ghost"] = () => Minion(6, 0.06),
             ["Ent Sapling"] = () => Minion(4),
             ["Vampire Bat"] = () => Pots(), ["Vampire Bat Swarmer 1"] = () => Pots(),
+
+            // untiered rings given a source (SETUP-LOCAL.md, "Untiered rings"), as rare as each boss's own
+            ["Christmas Oryx"] = () => new BL.MobDrops[]
+            {
+                new BL.ItemLoot("Oryxmas Ornament: Energized", 0.01, threshold: .01),
+                new BL.ItemLoot("Oryxmas Ornament: Exposed", 0.01, threshold: .01),
+                new BL.ItemLoot("Oryxmas Ornament: Weak", 0.01, threshold: .01)
+            },
+            ["Elder Thessal the Mermaid Goddess"] = () => new BL.MobDrops[] { new BL.ItemLoot("Coral Medallion", 0.01, threshold: .01) },
+            ["Elder Limon the Sprite God"] = () => new BL.MobDrops[] { new BL.ItemLoot("Necklace of Light", 0.005, threshold: .01) },
+            ["Elder Archdemon Malphas"] = () => new BL.MobDrops[] { new BL.ItemLoot("Ring of the Blood Harvest", 0.01, threshold: .01) },
         };
 
         private static BL.MobDrops StatPotion(string id, double probability) => new BL.ItemLoot(id, probability, threshold: .01);

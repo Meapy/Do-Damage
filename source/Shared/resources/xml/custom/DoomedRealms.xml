@@ -6424,7 +6424,7 @@
 			<Index>0x186</Index>
 		</Texture>
 		<SlotType>9</SlotType>
-		<Description>An hat that protects Santa from even death itself.</Description>
+		<Description>A hat that protects Santa from even death itself. A blow that would kill its wearer breaks the hat instead, and sends them back to the Nexus.</Description>
 		<ActivateOnEquip stat="20" amount="4">IncrementStat</ActivateOnEquip>
 		<ActivateOnEquip stat="21" amount="4">IncrementStat</ActivateOnEquip>
 		<ActivateOnEquip stat="22" amount="4">IncrementStat</ActivateOnEquip>
@@ -6854,6 +6854,7 @@
 			<Index>0x50</Index>
 		</Texture>
 		<SlotType>9</SlotType>
+		<Admin />
 		<Description>Admin Amulet.</Description>
 		<ActivateOnEquip stat="20" amount="250">IncrementStat</ActivateOnEquip>
 		<ActivateOnEquip stat="21" amount="250">IncrementStat</ActivateOnEquip>
@@ -7253,6 +7254,7 @@
 			<Index>0x13c</Index>
 		</Texture>
 		<SlotType>9</SlotType>
+		<Admin />
 		<Description>God Rusher.</Description>
 		<ActivateOnEquip stat="22" amount="1000">IncrementStat</ActivateOnEquip>
 		<Soulbound />
@@ -9127,8 +9129,8 @@
 		<SlotType>9</SlotType>
 		<Description>The dolomite stone makes you feel able to stand against anything, and you CAN.</Description>
 		<ActivateOnEquip stat="20" amount="14">IncrementStat</ActivateOnEquip>
-		<ActivateOnEquip stat="21" amount="24">IncrementStat</ActivateOnEquip>
-		<ActivateOnEquip stat="0" amount="500">IncrementStat</ActivateOnEquip>
+		<ActivateOnEquip stat="21" amount="10">IncrementStat</ActivateOnEquip>
+		<ActivateOnEquip stat="0" amount="120">IncrementStat</ActivateOnEquip>
 		<BagType>4</BagType>
 		<Resurrects />
 		<FameBonus>5</FameBonus>
@@ -9244,6 +9246,7 @@
 			<Index>0</Index>
 		</Texture>
 		<SlotType>9</SlotType>
+		<Admin />
 		<Description>The Badge is only awarded to those who have defeated the Elder Oryx.</Description>
 		<ActivateOnEquip stat="20" amount="50">IncrementStat</ActivateOnEquip>
 		<ActivateOnEquip stat="21" amount="50">IncrementStat</ActivateOnEquip>
@@ -9367,6 +9370,7 @@
 			<Index>0</Index>
 		</Texture>
 		<SlotType>9</SlotType>
+		<Admin />
 		<Description>Super regal!</Description>
 		<ActivateOnEquip stat="27" amount="500">IncrementStat</ActivateOnEquip>
 		<ActivateOnEquip stat="26" amount="60">IncrementStat</ActivateOnEquip>
@@ -9527,6 +9531,7 @@
 			<Index>0</Index>
 		</Texture>
 		<SlotType>9</SlotType>
+		<Admin />
 		<Description>God Rusher Extreme.</Description>
 		<ActivateOnEquip stat="22" amount="1000">IncrementStat</ActivateOnEquip>
 		<Soulbound />

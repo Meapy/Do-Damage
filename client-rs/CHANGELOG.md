@@ -9,6 +9,35 @@ refuses while an `Unreleased` one is left, so rename it to `## <version> (<date>
 version number itself is in `client-rs/Cargo.toml`.
 
 ## Unreleased
+- Untiered rings now drop where they belong. Oryx the Celestial Mad God (Oryx 3) can drop the
+  Battalion Banner, Chancellor's Cranium, Collector's Monocle, Divine Coronation and the
+  Celestial God's Horn (the Exalted God's Horn, renamed). Oryx the Infernal Mad God (Oryx 4) can
+  drop the Burning Amulet and the Infernal Gems of Adoration and Tenderness. Oryx the Ascended God
+  (Oryx 5) can drop the Forge Amulet instead of the Crown. The Elder Tomb's bosses drop the Jade
+  Beetle, Pit Vipers the Crystal Bone Ring, Esben his Wedding Ring, the Royal Cnidarian the Mask of
+  Cnidaria, Sarcophagi the Mask of Anubis (now in a white bag), Candyland's bosses the Candy Ring,
+  its Swoll and Beefy Fairies the Fairy Ring, the Ghost of Skuld the Amulet of Dispersion, Oryx the
+  Christmas God the Oryxmas Ornaments, Elder Thessal the Coral Medallion, Elder Limon the Necklace
+  of Light and Elder Archdemon Malphas the Ring of the Blood Harvest. The Magical Lodestone drops
+  far more often (2%).
+- Ring changes: Infernal Gem of Adoration +5 Attack and +5 Dexterity on top of its Health and
+  Vitality; Infernal Gem of Tenderness 10 Wisdom and +10 Speed with its Mana; Mask of Cnidaria 200
+  Mana; Mask of Lightning +50 Health and +5 Dexterity; Ring of Decades 200 Health; Ring of the
+  Burning Sun +8 Vitality; Ring of the Abyss 120 Health and 10 Defense (was 500 and 24); Gold
+  Medal 45 Dexterity, 25 Vitality, 25 Speed and 50 Health.
+- Santa's Hat drops less often from Oryx the Christmas God (5%), and its description now says what
+  it does: a blow that would kill you breaks the hat instead and sends you to the Nexus.
+- The Legendary, Ascended and Ethereal rings are ordinary untiered rings for now, until they're
+  reworked. The medals and the America Ring are rewards from the staff ("Rewarded by DODMG"). The
+  Reforged Forgotten Crown is made at the Divine Forge from two Forgotten Crowns (6,000 fame).
+- The Crown, God Rushing, Gods Path, Fallen Crown, Amulet of Someone, Badge of the Proud Hero,
+  Creator's Ring and Test Horn are staff-only items: they no longer drop and the shops don't sell
+  them. The America Ring and the Amulet of Dispersion left the shops too, and the Crusader's Lost
+  Relic no longer drops.
+- Set (ST) items no longer drop anywhere, and the Nexus Bazaar no longer sells Enchanted Keys (the
+  other way to get them). Enchanted Keys and Mystery ST Crates you already have still work.
+- Wiki: untiered items nothing drops yet are listed as Future additions, the staff's rewards have
+  their own section, and items the Divine Forge makes say so.
 - Arenas: the wave and time box at the top now counts the time in the public arena (it stayed at
   00:00), and shows in the Battle Arena and Free Battle Arena too.
 - Arenas: Oryx 2, 3, 4 and 5 have arena versions. They appear in the middle, stay invulnerable for

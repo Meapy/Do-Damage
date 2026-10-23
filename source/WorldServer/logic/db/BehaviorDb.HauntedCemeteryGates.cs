@@ -526,8 +526,7 @@ namespace WorldServer.logic
                         ),
                     new Threshold(0.01,
                         new ItemLoot("Potion of Speed", 0.3, 3),
-                        new ItemLoot("Potion of Wisdom", 0.3),
-                        new ItemLoot("RogueST3", 0.008)
+                        new ItemLoot("Potion of Wisdom", 0.3)
                     )
                 )
                 .Init("Arena Statue Right",

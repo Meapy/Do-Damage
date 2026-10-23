@@ -251,7 +251,6 @@
 			<Index>0x0a</Index>
 		</Texture>
 		<SlotType>9</SlotType>
-		<Ethereal/>
 		<Description>Restored to its true, devastating splendor. To wear it is to command the absolute, ruinous power of a forgotten empire...</Description>
 		<ActivateOnEquip stat="28" amount="12">IncrementStat</ActivateOnEquip>
 		<ActivateOnEquip stat="20" amount="12">IncrementStat</ActivateOnEquip>
