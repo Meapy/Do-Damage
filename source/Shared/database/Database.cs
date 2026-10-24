@@ -1030,13 +1030,18 @@ namespace Shared.database
             return true;
         }
 
-        public bool RenewLock(DbAccount acc)
+        public bool RenewLock(DbAccount acc) => RenewLockTransaction(acc).Execute();
+
+        /// <summary>As RenewLock, without waiting for Redis (the world servers renew every second).</summary>
+        public Task<bool> RenewLockAsync(DbAccount acc) => RenewLockTransaction(acc).ExecuteAsync();
+
+        private ITransaction RenewLockTransaction(DbAccount acc)
         {
             var tran = _db.CreateTransaction();
             var aKey = $"lock:{acc.AccountId}";
             tran.AddCondition(Condition.StringEqual(aKey, acc.LockToken));
             tran.KeyExpireAsync(aKey, TimeSpan.FromSeconds(_lockTTL));
-            return tran.Execute();
+            return tran;
         }
 
         public int ResolveId(string ign)

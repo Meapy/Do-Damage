@@ -16,6 +16,7 @@ namespace WorldServer
                 DisableQuickEdit();
             }
 
+            GcPauseLog.Start();
             new GameServer(args).Run();
         }
 

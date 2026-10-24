@@ -44,6 +44,7 @@ namespace WorldServer.core.objects
         private readonly HashSet<WmapTile> _newStaticObjects = new HashSet<WmapTile>();
         private readonly Dictionary<int, byte> _seenTiles = new Dictionary<int, byte>();
         private readonly Dictionary<Entity, Dictionary<StatDataType, object>> _statsUpdates = new Dictionary<Entity, Dictionary<StatDataType, object>>();
+        private readonly Stack<Dictionary<StatDataType, object>> _statsPool = new Stack<Dictionary<StatDataType, object>>();
         
         private bool _needsUpdateTiles = true;
         
@@ -107,15 +108,30 @@ namespace WorldServer.core.objects
 
             lock (_statsUpdates)
             {
-                if (!_statsUpdates.ContainsKey(e))
-                    _statsUpdates[e] = new Dictionary<StatDataType, object>();
+                // every moving monster in sight comes here each tick: its dictionary comes back
+                // to the pool once the tick is sent, rather than a new one each time
+                if (!_statsUpdates.TryGetValue(e, out var stats))
+                    _statsUpdates[e] = stats = _statsPool.Count > 0 ? _statsPool.Pop() : new Dictionary<StatDataType, object>();
 
                 if (statChange.Stat != StatDataType.None)
-                    _statsUpdates[e][statChange.Stat] = statChange.Value;
+                    stats[statChange.Stat] = statChange.Value;
             }
         }
 
         public void UpdateTiles() => _needsUpdateTiles = true;
+
+        // the tile the sight was last worked out from
+        private int _sightX = int.MinValue, _sightY = int.MinValue;
+
+        /// <summary>
+        /// The player moved: the tiles and objects in sight change only when it steps onto another
+        /// tile (working them out is ~700 tiles at the default radius, 5,000 at the largest).
+        /// </summary>
+        public void UpdateTilesIfMoved()
+        {
+            if ((int)X != _sightX || (int)Y != _sightY)
+                _needsUpdateTiles = true;
+        }
 
         public void UpdateState(int dt)
         {
@@ -132,6 +148,8 @@ namespace WorldServer.core.objects
             if (_needsUpdateTiles)
             {
                 GetNewTiles(update);
+                // the map's own objects (trees, walls, signs) change only with the tiles
+                GetNewStaticObjects(update);
                 _needsUpdateTiles = false;
             }
             GetNewObjects(update);
@@ -144,6 +162,8 @@ namespace WorldServer.core.objects
 
         public void GetNewTiles(Update update)
         {
+            _sightX = (int)X;
+            _sightY = (int)Y;
             _activeTiles.Clear();
             var cachedTiles = DetermineSight();
             foreach (var point in cachedTiles)
@@ -234,12 +254,9 @@ namespace WorldServer.core.objects
                     StepPath(points, pathMap, x + p.X, y + p.Y, px, py);
         }
 
-        public void GetNewObjects(Update update)
+        private void GetNewStaticObjects(Update update)
         {
-            var x = X;
-            var y = Y;
-
-            foreach (var point in _activeTiles) //static objects
+            foreach (var point in _activeTiles)
             {
                 var pointX = point.X;
                 var pointY = point.Y;
@@ -251,6 +268,12 @@ namespace WorldServer.core.objects
                 if (tile.ObjId != 0 && tile.ObjType != 0 && _newStaticObjects.Add(tile))
                     update.NewObjs.Add(tile.ToObjectDef(pointX, pointY));
             }
+        }
+
+        public void GetNewObjects(Update update)
+        {
+            var x = X;
+            var y = Y;
 
             var players = World.GetPlayers();
 
@@ -325,19 +348,29 @@ namespace WorldServer.core.objects
 
             lock (_statsUpdates)
             {
-                newTick.Statuses = _statsUpdates.Select(_ => new ObjectStats()
+                var statuses = new List<ObjectStats>(_statsUpdates.Count);
+                foreach (var (entity, stats) in _statsUpdates)
                 {
-                    Id = _.Key.Id,
-                    X = _.Key.X,
-                    Y = _.Key.Y,
-                    Stats = _.Value.ToArray()
-                }).ToList();
+                    statuses.Add(new ObjectStats()
+                    {
+                        Id = entity.Id,
+                        X = entity.X,
+                        Y = entity.Y,
+                        Stats = stats.Count == 0 ? NoStats : stats.ToArray()
+                    });
+                    stats.Clear();
+                    if (_statsPool.Count < 512)
+                        _statsPool.Push(stats);
+                }
+                newTick.Statuses = statuses;
                 _statsUpdates.Clear();
             }
 
             Client.SendPacket(newTick);
             AwaitMove(TickId);
         }
+
+        private static readonly KeyValuePair<StatDataType, object>[] NoStats = Array.Empty<KeyValuePair<StatDataType, object>>();
 
         public void CleanupPlayerUpdate()
         {

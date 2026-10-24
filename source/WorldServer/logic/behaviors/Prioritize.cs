@@ -11,7 +11,7 @@ namespace WorldServer.logic.behaviors
 
         protected override void OnStateEntry(Entity host, TickTime time, ref object state)
         {
-            state = -1;
+            state = Boxed(-1);
 
             foreach (var i in children)
                 i.OnStateEntry(host, time);
@@ -44,7 +44,17 @@ namespace WorldServer.logic.behaviors
                     index = -1;
             }
 
-            state = index;
+            state = Boxed(index);
+        }
+
+        // the index boxed once per value, not every tick of every monster
+        private static readonly object[] Boxes = new object[64];
+
+        private static object Boxed(int index)
+        {
+            if (index < -1 || index >= Boxes.Length - 1)
+                return index;
+            return Boxes[index + 1] ??= index;
         }
     }
 }

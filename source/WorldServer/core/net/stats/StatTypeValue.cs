@@ -39,6 +39,16 @@ namespace WorldServer.core.net.stats
 
             _transformValue = tVal;
 
+            // nobody sees the owner: nothing to tell (and no boxing of the value for nobody)
+            if (!_owner.HasStatListeners)
+                return;
+            if (_type == StatDataType.None)
+            {
+                // a position (Entity X and Y): the players send it from the entity itself
+                _owner.InvokeMoved();
+                return;
+            }
+
             // hacky fix to xp
             if (_owner is Player && _type == StatDataType.Experience)
                 _owner.InvokeStatChange(_type, (int)(object)tVal - Player.GetLevelExp((_owner as Player).Level), _updateSelfOnly);

@@ -38,7 +38,9 @@ dotnet build source\WorldServer\WorldServer.csproj -c Debug -o build\wscheck   #
   `App/bin/Debug/net8.0/logs/app/`. Ticks slower than 200 ms are logged as "Slow tick", and passes
   over players' messages slower than 100 ms as "Slow messages". Every 30 s each world with players
   logs "Tick stats" (`core/worlds/TickProfile.cs`): its ticks' work, the gaps between them (what
-  players feel), the time per part of the tick, and the garbage collections. Measure with those.
+  players feel), the time per part of the tick, and the garbage collections; dungeons and vaults log
+  their own. A garbage collection that stops every world for over 50 ms is logged as "GC pause"
+  (`core/GcPauseLog.cs`). Measure with those.
 - **Deploying a server change:** `python deploy\deploy.py` from the main checkout (ask the owner
   first: it changes what players run). Nothing it does kicks anyone: a new world server goes in
   with a rolling deploy (see "Rolling deploys" below); a changed account server restarts, which
