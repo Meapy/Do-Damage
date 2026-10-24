@@ -24,8 +24,8 @@ The nexus, from the middle out:
   one portal per tile) along a red carpet;
 - a market ward behind a colonnade on each side: pavilions whose stalls are shop regions
   (`Store N`, see `MerchantLists.Shops`), as many stalls per shop as the old map had;
-- the south yard: the Battle Arena portals (`ARENA_PORTALS`, which `DoomedWorlds.NexusPortals`
-  must match) with the Arena Leaderboard between them, the Wine Cellar, the gatehouse with its portcullis, the class memorial
+- the south yard: the Arena portal (`ARENA_PORTALS`, which `DoomedWorlds.NexusPortals`
+  must match) west of the road with the Arena Leaderboard east of it, the Wine Cellar, the gatehouse with its portcullis, the class memorial
   with the Divine Forge in its middle on a floor of gold, and the treasury. The four shared vault chests keep their items in Redis by tile (`DbNexusChest`), so
   they stay on the tiles they had in the old map (`CHESTS`).
 
@@ -326,8 +326,8 @@ MEMORIAL = (23, 72)                 # the middle of the class memorial
 FORGE = (23, 73)                    # the Divine Forge (its sprite stands four tiles tall above it)
 CLASSES = ["Warrior", "Assassin", "Sorcerer", "Priest", "Trickster", "Wizard", "Knight", "Rogue",
            "Mystic", "Necromancer", "Huntress", "Archer", "Paladin"]
-# where DoomedWorlds.AddNexusPortals puts the Battle Arena portals (keep the two in step)
-ARENA_PORTALS = [(42.5, 68.5), (54.5, 68.5)]
+# where DoomedWorlds.AddNexusPortals puts the Arena portal (keep the two in step)
+ARENA_PORTALS = [(45.5, 68.5)]
 WINE_CELLAR = (48, 77)
 # (name, region, x0, y0, columns, rows): see Grid.pavilion. The stall counts are the old map's:
 # one stall per item where a shop has few, so each stall shows something different.
@@ -424,7 +424,7 @@ def build_nexus():
     g.put(COLONNADES[1] - 4, cy - 6, FLOOR, "BulletinBoard")
     g.put(COLONNADES[1] - 2, cy - 6, FLOOR, "BulletinBoard")
 
-    # the south yard: arena portals, the wine cellar, the gate
+    # the south yard: the arena portal, the wine cellar, the gate
     g.rect(36, 66, 60, 81, PLAZA)
     g.path(cx - 1, 64, cx + 1, 85)
     for x, y in ARENA_PORTALS:
@@ -432,8 +432,9 @@ def build_nexus():
         g.paths.add((int(x), int(y)))
         g.banner(int(x), int(y) - 2, PLAZA)
     g.put(WINE_CELLAR[0], WINE_CELLAR[1], PATH, "Locked Wine Cellar Portal")
-    # the arena leaderboard (its trophy opens the top runs in the Rust client), between the portals
-    g.put(cx, int(ARENA_PORTALS[0][1]), PATH, "Arena Leaderboard")
+    # the arena leaderboard (its trophy opens the top runs in the Rust client), across the road
+    # from the portal
+    g.put(2 * cx - int(ARENA_PORTALS[0][0]), int(ARENA_PORTALS[0][1]), PLAZA, "Arena Leaderboard")
     for x in (38, 44, 52, 58):
         g.brazier(x, 72, PLAZA)
     for y in range(67, 81, 3):

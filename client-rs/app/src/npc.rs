@@ -601,7 +601,7 @@ impl Npcs {
                         ui.label(t, body[0], body[1], ts, false, if error.is_some() { color::DANGER } else { color::TEXT_MUTED });
                     }
                     Some(runs) if runs.is_empty() => {
-                        ui.label("No runs yet. Survive waves in the Battle Arena or /arena to get on the board.", body[0], body[1], ts, false, color::TEXT_MUTED);
+                        ui.label("No runs yet. Survive waves in the Arena (/arena) to get on the board.", body[0], body[1], ts, false, color::TEXT_MUTED);
                     }
                     Some(runs) => draw_runs(ui, runs, body, s, me.and_then(|m| m.name()).unwrap_or("")),
                 }

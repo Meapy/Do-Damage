@@ -375,7 +375,7 @@ pub struct ArenaRun {
     pub seconds: i32,
     /// When it ended, unix ms.
     pub time: i64,
-    /// "Arena", "Battle Arena" or "Free Battle Arena"; empty for older runs.
+    /// "Arena" (the server reads older runs' "Battle Arena" and "Free Battle Arena" as it); empty for older runs.
     pub arena: String,
     pub players: Vec<String>,
 }

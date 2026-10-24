@@ -13,7 +13,7 @@ tier below, and the rest are special recipes, most of them from Doomed Realms.
 
 ## Using the forge
 
-1. Go to the Nexus's south yard, west of the arena portals. The forge stands in the middle of the
+1. Go to the Nexus's south yard, west of the Arena portal. The forge stands in the middle of the
    class memorial, on a floor of gold.
 2. Stand by it: the bottom of your HUD says "Forge items, or sell them for fame". Press **Open**.
 3. Browse the recipes by what they make (weapons, abilities, armor, rings, the rest, then by kind),

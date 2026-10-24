@@ -17,7 +17,6 @@ namespace WorldServer.core.worlds
         private int NextWorldId = 0;
 
         public NexusWorld Nexus { get; private set; }
-        public ArenaWorld Arena { get; private set; }
         public TestWorld Test { get; private set; }
 
         private readonly ConcurrentDictionary<int, World> Worlds = new ConcurrentDictionary<int, World>();
@@ -38,7 +37,6 @@ namespace WorldServer.core.worlds
         public void Initialize()
         {
             CreateNexus();
-            CreateArena();
         }
 
         public void CreateNexus()
@@ -51,24 +49,6 @@ namespace WorldServer.core.worlds
             var success = world.LoadMapFromData(worldResource);
             if (!success)
                 throw new Exception("Unable to initialize Nexus.");
-            world.Init();
-            _ = Worlds.TryAdd(world.Id, world);
-            lock (Threads)
-            {
-                Threads.Add(world.Id, new RootWorldThread(this, world));
-            }
-        }
-
-        public void CreateArena()
-        {
-            var worldResource = GameServer.Resources.GameData.GetWorld("Arena");
-            if (worldResource == null)
-                return;
-
-            var world = Arena = new ArenaWorld(GameServer, -3, worldResource);
-            var success = world.LoadMapFromData(worldResource);
-            if (!success)
-                throw new Exception("Unable to initialize Arena.");
             world.Init();
             _ = Worlds.TryAdd(world.Id, world);
             lock (Threads)
@@ -159,9 +139,6 @@ namespace WorldServer.core.worlds
                     break;
                 case WorldResourceInstanceType.Vault:
                     world = new VaultWorld(GameServer, nextId, worldResource, parent);
-                    break;
-                case WorldResourceInstanceType.Arena:
-                    world = new ArenaWorld(GameServer, nextId, worldResource);
                     break;
                 case WorldResourceInstanceType.Test:
                     world = new TestWorld(GameServer, nextId, worldResource);

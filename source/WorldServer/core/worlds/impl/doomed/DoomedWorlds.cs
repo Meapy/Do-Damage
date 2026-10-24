@@ -24,8 +24,7 @@ namespace WorldServer.core.worlds.impl.doomed
         {
             switch (resource.IdName)
             {
-                case "Battle Arena": return new DoomedBattleArena(gameServer, id, resource, parent, paid: true);
-                case "Free Battle Arena": return new DoomedBattleArena(gameServer, id, resource, parent, paid: false);
+                case ArenaName: return new DoomedBattleArena(gameServer, id, resource, parent);
                 case "Zombies": return new DoomedZombies(gameServer, id, resource, parent);
                 case "Zombies Minigame": return new DoomedZombieGame(gameServer, id, resource, parent);
                 case "Sheep Herding Minigame": return new DoomedHerding(gameServer, id, resource, parent);
@@ -34,12 +33,16 @@ namespace WorldServer.core.worlds.impl.doomed
             }
         }
 
-        // Battle Arena portals in the nexus's south yard, under their banners (tools/build_castle_maps.py,
-        // ARENA_PORTALS; Doomed Realms only opened them for 30 seconds with its /arena command)
+        // the Arena (Doomed Realms' Battle Arena; port_doomed_worlds.WORLD_NAMES) and its portal, whose
+        // id stays Doomed Realms' (players see "Arena Portal", port_doomed.DISPLAY_OVERRIDES)
+        public const string ArenaName = "Arena";
+        public const string ArenaPortal = "Battle Arena Portal";
+
+        // the Arena portal in the nexus's south yard, under its banner (tools/build_castle_maps.py,
+        // ARENA_PORTALS; Doomed Realms only opened it for 30 seconds with its /arena command)
         private static readonly (string Portal, float X, float Y)[] NexusPortals =
         {
-            ("Battle Arena Portal", 42.5f, 68.5f),
-            ("Free Battle Arena Portal", 54.5f, 68.5f),
+            (ArenaPortal, 45.5f, 68.5f),
         };
 
         public static void AddNexusPortals(World nexus)
@@ -57,6 +60,50 @@ namespace WorldServer.core.worlds.impl.doomed
                 return;
             if (world.Deleted || portal.GameServer.WorldManager.GetWorld(world.Id) == null || (world is DoomedMinigame m && !m.Joinable))
                 portal.WorldInstance = null;
+        }
+
+        // /arena: into the game the Nexus's Arena portal leads to, opening one (for the portal too)
+        // when there is none, so the command and the portal always lead to the same game
+        public static void JoinArena(Player player)
+        {
+            var nexus = player.GameServer.WorldManager.Nexus;
+            nexus.Post(() =>
+            {
+                var portal = nexus.Portals.Values.FirstOrDefault(p => p.ObjectDesc.IdName == ArenaPortal);
+                if (portal == null)
+                {
+                    player.SendError("The Arena is closed.");
+                    return;
+                }
+                RefreshPortal(portal);
+                if (portal.WorldInstance != null)
+                {
+                    player.Reconnect(portal.WorldInstance);
+                    return;
+                }
+                if (portal.Opening != null)
+                {
+                    player.SendInfo("The Arena is opening: try again in a moment.");
+                    return;
+                }
+                portal.Opening = new List<Player>();
+                player.GameServer.WorldManager.CreateNewWorldAsync(ArenaName, nexus, built =>
+                {
+                    var waiting = portal.Opening;
+                    portal.Opening = null;
+                    if (built == null)
+                    {
+                        player.SendError("[Bug] Unable to open the Arena.");
+                        return;
+                    }
+                    portal.WorldInstance = built;
+                    player.Reconnect(built);
+                    // anyone who took the portal meanwhile goes in too
+                    foreach (var p in waiting ?? new List<Player>())
+                        if (p.Client != null && !p.Dead && p.World == nexus)
+                            p.Reconnect(built);
+                });
+            });
         }
 
         // a finished arena game (Shared DbArenaRuns): the wave reached, how long from the first wave
@@ -171,20 +218,18 @@ namespace WorldServer.core.worlds.impl.doomed
         }
     }
 
-    // Battle Arena (paid: fame every wave) and Free Battle Arena: waves of gods and a boss until
-    // everyone dies; the wave reached goes on the /leaderboard.
+    // The Arena (Doomed Realms' Battle Arena): waves of gods and a boss until everyone is defeated,
+    // fame after every wave; the wave reached goes on the /leaderboard.
     public sealed class DoomedBattleArena : DoomedMinigame
     {
-        private readonly bool _paid;
         private bool _started, _counting;
         private readonly List<string> _participants = new List<string>();
         private DateTime _firstWave; // when the countdown ended, for the leaderboard's time
         public int Wave { get; private set; }
 
-        public DoomedBattleArena(GameServer gameServer, int id, WorldResource resource, World parent, bool paid)
+        public DoomedBattleArena(GameServer gameServer, int id, WorldResource resource, World parent)
             : base(gameServer, id, resource, parent)
         {
-            _paid = paid;
             DefeatToNexus = true; // its world XML is generated (port_doomed_worlds.py)
         }
 
@@ -200,7 +245,7 @@ namespace WorldServer.core.worlds.impl.doomed
                 NotifyAll(0xffff00ff, player.Name + " said GO!");
         }
 
-        // the wave and time box, as in the public arena: the clock runs from the end of the countdown
+        // the wave and time box: the clock runs from the end of the countdown
         private void SendWaveInfo(Player p) =>
             ArenaPools.SendWaveInfo(p, Wave, _started ? (int)(DateTime.UtcNow - _firstWave).TotalMilliseconds : 0, _started);
 
@@ -216,7 +261,7 @@ namespace WorldServer.core.worlds.impl.doomed
 
         private void SpawnWave()
         {
-            // the same stages as the public arena (ArenaPools)
+            // the stages of ArenaPools
             var bosses = ArenaPools.Bosses(Wave);
             foreach (var p in Players.Values)
             {
@@ -250,7 +295,7 @@ namespace WorldServer.core.worlds.impl.doomed
 
             if (!_started && !_counting)
             {
-                GameServer.ChatManager.ServerAnnounce($"A {(_paid ? "paid" : "free")} arena game has been started. Closing in 1 minute!");
+                GameServer.ChatManager.Arena("An Arena game starts in one minute. Type /arena to join.");
                 _counting = true;
                 Countdown(60, s => NotifyAll(0xffff00ff, s + " Second" + (s == 1 ? "" : "s")), () =>
                 {
@@ -269,16 +314,13 @@ namespace WorldServer.core.worlds.impl.doomed
             if (!Hostiles.Any())
             {
                 Wave++;
-                if (_paid)
+                var pot = Wave * 10 / (Players.Count == 1 ? 1 : 2);
+                foreach (var p in Players.Values)
                 {
-                    var pot = Wave * 10 / (Players.Count == 1 ? 1 : 2);
-                    foreach (var p in Players.Values)
-                    {
-                        DoomedWorlds.GiveFame(p, pot);
-                        DoomedWorlds.Notify(p, 0xFFFF6600, "+" + pot + " Fame");
-                    }
+                    DoomedWorlds.GiveFame(p, pot);
+                    DoomedWorlds.Notify(p, 0xFFFF6600, "+" + pot + " Fame");
                 }
-                var ms = _paid ? 6000 : 5000;
+                var ms = 6000;
                 foreach (var p in Players.Values)
                 {
                     p.ApplyConditionEffect(ConditionEffectIndex.Invulnerable, ms);
@@ -287,7 +329,7 @@ namespace WorldServer.core.worlds.impl.doomed
                         _participants.Add(p.Name);
                 }
                 _counting = true;
-                var gap = ArenaWorld.WaveGapSeconds(Wave);
+                var gap = ArenaPools.WaveGapSeconds(Wave);
                 Countdown(gap, s => NotifyAll(0xffff00ff, (s == gap ? "Wave " + Wave + " - " : "") + s + " Second" + (s == 1 ? "" : "s")), () =>
                 {
                     _counting = false;

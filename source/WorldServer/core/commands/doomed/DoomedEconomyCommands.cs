@@ -23,7 +23,7 @@ namespace WorldServer.core.commands.doomed
         public const string ForgeClass = "Forge";
         public const float ForgeReach = 5;
 
-        public const string UseTheForge = "Forging and selling for fame have moved to the Divine Forge, in the Nexus's south yard west of the arena portals: stand by it and open its window.";
+        public const string UseTheForge = "Forging and selling for fame have moved to the Divine Forge, in the Nexus's south yard west of the Arena portal: stand by it and open its window.";
 
         // The map holds the forge as a tile's object (it's static), so look at the tiles around.
         public static bool NearForge(Player player)
@@ -558,7 +558,7 @@ namespace WorldServer.core.commands.doomed
         }
     }
 
-    // Doomed Realms' /arena: a Battle Arena portal for 30 seconds (betterSkillys' /arena joins its own arena)
+    // Doomed Realms' /arena: an Arena portal for 30 seconds (/arena joins the Arena)
     internal class OpenArenaCommand : Command
     {
         public override RankingType RankRequirement => RankingType.Admin;
@@ -566,15 +566,14 @@ namespace WorldServer.core.commands.doomed
 
         protected override bool Process(Player player, TickTime time, string args)
         {
-            var free = args.Trim().Equals("free", StringComparison.OrdinalIgnoreCase);
-            var portal = player.World.CreateNewEntity(free ? "Free Battle Arena Portal" : "Battle Arena Portal", player.X, player.Y);
+            var portal = player.World.CreateNewEntity(DoomedWorlds.ArenaPortal, player.X, player.Y);
             if (portal == null)
             {
-                player.SendError("The Battle Arena portal doesn't exist.");
+                player.SendError("The Arena portal doesn't exist.");
                 return false;
             }
             player.World.StartNewTimer(30 * 1000, (w, t) => w.LeaveWorld(portal));
-            player.GameServer.ChatManager.ServerAnnounce($"{(free ? "Free arena" : "Arena")} opened by {player.Name}");
+            player.GameServer.ChatManager.ServerAnnounce($"Arena opened by {player.Name}");
             return true;
         }
     }

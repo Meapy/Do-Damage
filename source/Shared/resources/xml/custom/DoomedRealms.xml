@@ -12692,9 +12692,10 @@
 		<BlocksSight />
 	</Object>
 	<Object type="0xD2B7" id="Battle Arena Portal">
+		<DisplayId>Arena Portal</DisplayId>
 		<Class>Portal</Class>
 		<IntergamePortal />
-		<DungeonName>Battle Arena</DungeonName>
+		<DungeonName>Arena</DungeonName>
 		<Texture>
 			<File>drLofiEnvironment</File>
 			<Index>0x5b</Index>
@@ -12722,15 +12723,6 @@
 		<Texture>
 			<File>drLofiObj5</File>
 			<Index>0x149</Index>
-		</Texture>
-	</Object>
-	<Object type="0xD2BA" id="Free Battle Arena Portal">
-		<Class>Portal</Class>
-		<IntergamePortal />
-		<DungeonName>Free Battle Arena</DungeonName>
-		<Texture>
-			<File>drLofiEnvironment</File>
-			<Index>0x5b</Index>
 		</Texture>
 	</Object>
 	<Object type="0xD2BB" id="Secret Portal">

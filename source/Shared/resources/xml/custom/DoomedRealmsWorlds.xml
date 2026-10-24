@@ -7,17 +7,10 @@
 		<VisibilityType>1</VisibilityType>
 		<Dungeon/>
 	</World>
-	<World id="Battle Arena">
+	<World id="Arena">
 		<Width>34</Width>
 		<Height>34</Height>
-		<MapJM>Doomed/Battle Arena.jm</MapJM>
-		<VisibilityType>1</VisibilityType>
-		<Dungeon/>
-	</World>
-	<World id="Free Battle Arena">
-		<Width>34</Width>
-		<Height>34</Height>
-		<MapJM>Doomed/Free Battle Arena.jm</MapJM>
+		<MapJM>Doomed/Arena.jm</MapJM>
 		<VisibilityType>1</VisibilityType>
 		<Dungeon/>
 	</World>

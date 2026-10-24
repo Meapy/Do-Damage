@@ -457,7 +457,7 @@ namespace WorldServer.core.commands.doomed
     }
 
     // Opens a new instance of a dungeon and sends you there. Several Doomed Realms areas have no
-    // natural entrance (Battle Arena, Kitchen, Mine, Gauntlet, ...).
+    // natural entrance (Kitchen, Mine, Gauntlet, ...).
     internal class DungeonCommand : Command
     {
         public override RankingType RankRequirement => RankingType.Admin;

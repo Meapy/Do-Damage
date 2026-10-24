@@ -108,8 +108,8 @@ you while you stand next to them. Around the spawn:
   {{v:name_change}} fame), the Character Changer, the Armoire (skins) and the Support Bot.
 - **Both sides**, behind the colonnades: the **market wards**, the Nexus Bazaar's stalls. Everything
   there costs fame.
-- **South yard**: the arena portals with the Arena Leaderboard's golden trophy between them
-  ([Arenas](progression.html#arenas)), the locked Wine Cellar portal, the class memorial with the
+- **South yard**: the Arena portal, with the Arena Leaderboard's golden trophy across the road
+  ([The Arena](progression.html#the-arena)), the locked Wine Cellar portal, the class memorial with the
   [Divine Forge](forge.html) in its middle, and four shared vault chests anyone can use.
 
 `/nexus` or <kbd>R</kbd> brings you back from anywhere.

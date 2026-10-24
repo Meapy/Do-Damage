@@ -13,7 +13,7 @@ namespace Shared.database.leaderboard
         public int Seconds;
         /// When it ended, in unix ms.
         public long Time;
-        /// "Arena", "Battle Arena" or "Free Battle Arena"; empty for older runs.
+        /// "Arena"; empty for older runs.
         public string Arena;
         public string[] Players;
     }
@@ -50,7 +50,9 @@ namespace Shared.database.leaderboard
             if (parts.Length >= 4 && int.TryParse(parts[1], out var seconds))
             {
                 run.Seconds = seconds;
-                run.Arena = parts[2];
+                // runs from the arenas there were before the Arena ("Battle Arena", "Free Battle
+                // Arena", the public /arena's "Arena") all count as the Arena's
+                run.Arena = parts[2].Length == 0 ? "" : "Arena";
                 players = string.Join("|", parts.Skip(3));
             }
             else

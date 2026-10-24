@@ -3,8 +3,8 @@ using WorldServer.core.worlds;
 
 namespace WorldServer.logic.transitions
 {
-    // Goes on when the host is in one of the arenas (the public /arena and the Battle Arenas,
-    // ArenaPools), or with inArena false when it isn't: a boss's first state picks its arena version.
+    // Goes on when the host is in an arena (a world with "Arena" in its name: the Arena, ArenaPools,
+    // and the Admin Arena), or with inArena false when it isn't: a boss's first state picks its arena version.
     internal class ArenaTransition : Transition
     {
         //State storage: none

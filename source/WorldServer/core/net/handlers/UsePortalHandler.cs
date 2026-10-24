@@ -18,7 +18,6 @@ namespace WorldServer.core.net.handlers
         private const string RANDOM_REALM_PORTAL = "Random Realm Portal";
         private const string REALM_PORTAL = "Realm Portal";
         private const string GLOWING_REALM_PORTAL = "Glowing Realm Portal";
-        private const string ARENA_PORTAL = "Arena Portal";
 
         public override MessageId MessageId => MessageId.USEPORTAL;
 
@@ -96,12 +95,6 @@ namespace WorldServer.core.net.handlers
                     case PORTAL_TO_NEXUS:
                     case NEXUS_PORTAL:
                         world = player.GameServer.WorldManager.Nexus;
-                        player.Reconnect(world);
-                        break;
-                    case ARENA_PORTAL:
-                        world = player.GameServer.WorldManager.Arena;
-                        if (world == null)
-                            world = player.GameServer.WorldManager.Nexus;
                         player.Reconnect(world);
                         break;
                     case TOMB_PORTAL_OF_COWARDICE:

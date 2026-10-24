@@ -139,10 +139,10 @@ namespace WorldServer.networking
                 return;
             }
 
-            // an arena or minigame that has already started turns latecomers away here, with a
+            // an Arena game or minigame that has already started turns latecomers away here, with a
             // message, rather than disconnecting them at the Hello
             var target = GameServer.WorldManager.GetWorld(pkt.GameId);
-            if ((target is ArenaWorld || target is DoomedMinigame) && !target.CanEnter(this))
+            if (target is DoomedMinigame && !target.CanEnter(this))
             {
                 Player?.SendError("That game has already started. Wait for the next one.");
                 return;

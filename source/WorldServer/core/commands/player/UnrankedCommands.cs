@@ -15,6 +15,7 @@ using WorldServer.core.objects;
 using WorldServer.core.structures;
 using WorldServer.core.worlds;
 using WorldServer.core.worlds.impl;
+using WorldServer.core.worlds.impl.doomed;
 using WorldServer.logic.loot;
 using WorldServer.networking;
 using WorldServer.networking.packets.outgoing;
@@ -673,19 +674,19 @@ namespace WorldServer.core.commands.player
         }
     }
 
+    // into the Arena game the Nexus's portal leads to (DoomedWorlds.JoinArena)
     internal class ArenaCommand : Command
     {
         public override string CommandName => "arena";
 
         protected override bool Process(Player player, TickTime time, string args)
         {
-            player.Client.Reconnect(new Reconnect()
+            if (player.World is DoomedBattleArena)
             {
-                Host = "",
-                Port = 2050,
-                GameId = World.ARENA_ID,
-                Name = "Arena"
-            });
+                player.SendError("You are already in the Arena.");
+                return false;
+            }
+            DoomedWorlds.JoinArena(player);
             return true;
         }
     }

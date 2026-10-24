@@ -8,6 +8,7 @@ using WorldServer.core.net.datas;
 using WorldServer.core.objects;
 using WorldServer.core.structures;
 using WorldServer.core.worlds;
+using WorldServer.core.worlds.impl.doomed;
 using WorldServer.networking.packets.outgoing;
 using WorldServer.utils;
 using BL = WorldServer.logic.loot;
@@ -1094,7 +1095,7 @@ namespace WorldServer.logic.doomed
         protected override void BehaveCore(BehaviorCondition cond, TickTime time, string msg, Player player)
         {
             var world = Host.Self.World;
-            if (world == null || objType == null || world.IdName == "Battle Arena" || world.IdName == "Free Battle Arena")
+            if (world == null || objType == null || world is DoomedBattleArena)
                 return;
             if (Rng.Next(1, 100) > percent)
                 return;
@@ -1982,7 +1983,7 @@ namespace WorldServer.logic.doomed
         protected override bool TickCore(TickTime time)
         {
             var world = Host.Self.World;
-            if (world.IdName == "Battle Arena" || world.IdName == "Free Battle Arena" || !Pieces.TryGetValue(piece, out var p))
+            if (world is DoomedBattleArena || !Pieces.TryGetValue(piece, out var p))
                 return false;
             var dat = Host.Self.GameServer.Resources.GameData;
             ushort? Ground(string id) => id != null && dat.IdToTileType.TryGetValue(id, out var t) ? t : (ushort?)null;

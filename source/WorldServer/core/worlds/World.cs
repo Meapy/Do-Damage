@@ -25,7 +25,6 @@ namespace WorldServer.core.worlds
         public const int CULL_RANGE = 30;
         
         public const int NEXUS_ID = -2;
-        public const int ARENA_ID = -3;
         public const int TEST_ID = -4;
 
         private int NextEntityId;
@@ -242,7 +241,7 @@ namespace WorldServer.core.worlds
                     player.Client.SendPacket(outgoingMessage);
         }
 
-        // arenas override this to hear "GO" (ArenaWorld, DoomedBattleArena)
+        // the Arena overrides this to hear "GO" (DoomedBattleArena)
         public virtual void ChatReceived(Player player, string text)
         {
             foreach (var en in Enemies)

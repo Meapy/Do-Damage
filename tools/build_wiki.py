@@ -47,7 +47,7 @@ COMMAND_HELP = {
     "godlands": "To the Godlands, the realm's richest and most dangerous part. Works from anywhere: outside a realm it takes you to the busiest one first.",
     "vault": "To your vault.",
     "guildhall": "To your guild's hall.",
-    "arena": "To the arena.",
+    "arena": "Into the Arena's next game, the one its Nexus portal leads to.",
     "gear": "Free starter gear for your class, and a couple of boosters. See below for its limits.",
     "shop": "Opens a shop: weapons, abilities, armor, rings, consumables, keys and pets for fame. With no name it lists the shops.",
     "sellfame": "Selling items for fame is now done at the Divine Forge in the Nexus; this points you to it.",
@@ -84,10 +84,10 @@ COMMAND_HELP = {
     "unignore": "Shows an ignored player's chat again.",
     "lock": "Locks a player (they show first in your lists); <code>/unlock</code> undoes it.",
     "unlock": "Unlocks a player.",
-    "afk": "Pauses you while no monster is near (not in arenas). Again to unpause.",
+    "afk": "Pauses you while no monster is near (not in the Arena). Again to unpause.",
     "pause": "The same as /afk.",
-    "arenas": "Lists the arena games running now.",
-    "leaderboard": "The best Battle Arena waves.",
+    "arenas": "Lists the Arena games running now.",
+    "leaderboard": "The best Arena waves.",
     "gleaderboard": "The guilds with the most fame.",
     "uptime": "How long the server has been up.",
     "restartwhen": "When the world server next restarts.",
@@ -284,8 +284,7 @@ BOSS_PROPS = re.compile(r"Spawner|spawner|Wall|Sarcophagus|Present|Chest|Anchor|
 EQUIP_SLOTS = set(wd.SLOT_NAMES)
 ORYX_CHAIN = ["Oryx's Castle", "Oryx's Chamber", "Chicken Chamber", "Wine Cellar", "Oryx's Sanctuary",
               "Oryx's Inferno", "Oryx's Elysium"]
-SKIP_WORLDS = {"Admin Room", "Admin Arena", "Shop", "?????", "Lair of Shaitan New Auru", "Battle Arena",
-               "Free Battle Arena"}
+SKIP_WORLDS = {"Admin Room", "Admin Arena", "Shop", "?????", "Lair of Shaitan New Auru", "Arena"}
 # difficulty from the boss's health: the upper bound of each of six steps
 DIFFICULTY = [6000, 20000, 45000, 90000, 160000]
 DIFFICULTY_WORDS = ["Beginner", "Easy", "Medium", "Hard", "Very hard", "Endgame"]

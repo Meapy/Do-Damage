@@ -136,7 +136,7 @@ The highlights; [SETUP-LOCAL.md](SETUP-LOCAL.md) has the rest.
 
 - **Doomed Realms port:**
   - 13 classes and about 390 items, dyes and 122 pets;
-  - 31 dungeons and its minigames (Battle Arenas, Zombies, Sheep Herding);
+  - 31 dungeons and its minigames (the Arena, Zombies, Sheep Herding);
   - 29 commands, the forge, fame selling and the shops;
   - its monster behaviour engine.
 - **Elder dungeons:** rebuilt from this server's own maps, with darker tiles, braziers whose light
@@ -156,7 +156,7 @@ The highlights; [SETUP-LOCAL.md](SETUP-LOCAL.md) has the rest.
   - the Nexus Bazaar, a market island selling keys, potions, consumables, dyes and cloths for
     fame;
   - fountains that spray and heal;
-  - Battle Arena portals.
+  - the Arena's portal.
 - **Fixes:**
   - 358 monster attacks that named missing projectiles;
   - objects without HP dying on their first tick;

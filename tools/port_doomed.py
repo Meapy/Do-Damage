@@ -443,7 +443,9 @@ DISPLAY_OVERRIDES = {"Oryx the Mad God 4": "Oryx the Infernal Mad God", "Hash Ce
                      "Sphinx Leather Armor": "Hide of the Firmament", "Armor of the Pyramid": "Armor of Ascension",
                      "Robe of the Nile": "Robe of Absolution",
                      # Oryx 4's poison, in his Inferno's name (the Oryx UT pass)
-                     "Doom Poison": "Infernal Brimstone Poison"}
+                     "Doom Poison": "Infernal Brimstone Poison",
+                     # the portal to the Arena (port_doomed_worlds.WORLD_NAMES)
+                     "Battle Arena Portal": "Arena Portal"}
 
 
 # Loot bags (<BagType>): Doomed Realms numbered its bags differently, so its rarest items dropped

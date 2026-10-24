@@ -120,30 +120,29 @@ chance at every drop.
 - On weekends every drop is 30% more likely.
 - A **Loot Drop Potion** (Nexus Bazaar) raises your drop chances for a while.
 
-## Arenas
+## The Arena
 
-The arenas are waves of monsters that get harder as you go: realm monsters first, then the
+The Arena is waves of monsters that get harder as you go: realm monsters first, then the
 Godlands gods (from wave 5), dungeon bosses (10), harder dungeon bosses (15), Elder dungeon bosses
 (20), Oryx (30) and Oryx's Court (40), where the courts of Oryx 3, 4 and 5 fight beside Oryx 3, 4
 or 5. Each wave has a boss of its stage, a few of its monsters come from the stage before, and
 from wave 30 an Elder dungeon boss joins Oryx's. The chat says which wave has begun and its stage.
 
-- **Oryx in the arena** appears in the middle and is invulnerable for his first 5 seconds. He has
+- **Oryx in the Arena** appears in the middle and is invulnerable for his first 5 seconds. He has
   less health than in his own dungeon and only fights his first phase, over and over: no calls
   for help, shields or rage.
 
-- **Where:** the **Battle Arena** and **Free Battle Arena** portals in the Nexus's south yard, or
-  `/arena` for the public arena. Everyone who goes in before a game's countdown ends plays that
-  game. Once a Battle Arena game has started, its portal opens a new one; the public arena says
-  "That game has already started". `/arenas` lists the games running.
-- **Fame:** the Battle Arena pays fame after every wave (ten times the wave, halved in a group);
-  the free one doesn't.
+- **Where:** the **Arena** portal in the Nexus's south yard, or `/arena` from anywhere: both lead
+  to the same game. Everyone who goes in before a game's countdown ends plays that game. Once a
+  game has started, the portal (and `/arena`) opens a new one. `/arenas` lists the games running.
+- **Fame:** the Arena pays fame after every wave (ten times the wave, halved in a group).
+- **Oryx's loot:** Oryx 3, 4 and 5 drop everything at half their usual chances in the Arena.
 - **Between waves** you rest for 5 seconds, 15 from wave 10 and 20 from wave 20. Type **GO** in
   chat to start the next wave (or the game) in 3 seconds instead, once per countdown. Everyone is
   invulnerable for the first 2.5 seconds of each wave, 5 when an Oryx comes.
-- **Losing doesn't kill you.** A hit that would kill you in an arena sends you to the Nexus at full
+- **Losing doesn't kill you.** A hit that would kill you in the Arena sends you to the Nexus at full
   health, with your gear and fame: no grave, and it doesn't count as a death.
-- **The leaderboard:** the golden trophy between the arena portals shows the best run (its wave,
+- **The leaderboard:** the golden trophy beside the Arena portal shows the best run (its wave,
   how long it took and who took part) as you walk by; stand on it for the top ten. `/leaderboard`
   lists them too.
 

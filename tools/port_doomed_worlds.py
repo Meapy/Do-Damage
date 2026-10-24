@@ -57,8 +57,9 @@ PORTED_WORLDS = {
     "PartyCellarMap": ["Birthday Portal"],
     "Kitchen": ["Kitchen Portal"],
     "Secret": ["Secret Portal"],
+    # the Arena (WORLD_NAMES); Doomed Realms' Free Battle Arena (BattleArenaMap2) is left out, so
+    # the Arena is the only one
     "BattleArenaMap": ["Battle Arena Portal"],
-    "BattleArenaMap2": ["Free Battle Arena Portal"],
     "Mine": [],
     "GauntletMap": [],
     "TurkeyMap": [],
@@ -72,8 +73,8 @@ PORTED_WORLDS = {
 OWN_MAPS = {"Dragonlord": "Dungeons/Oryx's Inferno/Oryx's Inferno.jm",
             "Dcellar": "Dungeons/Oryx's Elysium/Oryx's Elysium.jm"}
 # Ported worlds renamed for players: Oryx 4's Hash Cellar is Oryx's Inferno, Oryx 5's Doomed Cellar
-# Oryx's Elysium.
-WORLD_NAMES = {"Dragonlord": "Oryx's Inferno", "Dcellar": "Oryx's Elysium"}
+# Oryx's Elysium, and the Battle Arena the Arena (DoomedWorlds.ArenaName).
+WORLD_NAMES = {"Dragonlord": "Oryx's Inferno", "Dcellar": "Oryx's Elysium", "BattleArenaMap": "Arena"}
 
 # Elder dungeons Doomed Realms left unfinished (it made their keys, portals and monsters, but no
 # maps): built like its finished ones, from the regular dungeon's maps with every object that has

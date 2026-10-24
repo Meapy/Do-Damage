@@ -209,6 +209,7 @@ namespace WorldServer.logic.loot
                 i.Populate(possDrops);
 
             var pubDrops = new List<Item>();
+            var rate = ArenaPools.LootRate(enemy); // Oryx 3, 4 and 5 drop half as often in the Arena
 
             foreach (var i in possDrops)
             {
@@ -222,7 +223,7 @@ namespace WorldServer.logic.loot
                     continue;
                 
                 var chance = Random.Shared.NextDouble();
-                if (i.Threshold <= 0 && chance < i.Probabilty)
+                if (i.Threshold <= 0 && chance < i.Probabilty * rate)
                 {
                     var items = GetItems(i.ItemType, i.Tier);
                     var chosenTieredItem = Pick(items);
@@ -263,7 +264,7 @@ namespace WorldServer.logic.loot
                 {
                     var c = Random.Shared.NextDouble();
 
-                    var probability = i.Probabilty * totalBoost;
+                    var probability = i.Probabilty * totalBoost * rate;
 
                     if (i.Threshold >= 0 && i.Threshold < Math.Round(tupPlayer.Item2 / (double)enemy.DamageCounter.TotalDamage, 4))
                     {

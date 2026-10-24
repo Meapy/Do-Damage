@@ -5,7 +5,7 @@ using WorldServer.networking.packets.outgoing;
 
 namespace WorldServer.core.worlds.impl
 {
-    // What the arenas (ArenaWorld, the public /arena, and DoomedBattleArena) spawn on each wave: a
+    // What the Arena (DoomedBattleArena) spawns on each wave: a
     // stage chosen by the wave number, its minions (ceil((wave + players) / 2) of them, picked at
     // random, a couple from earlier stages) and one of its bosses (two from wave 30). Later stages are harder: realm monsters, then the Godlands, then
     // dungeon bosses, Elder dungeon bosses, Oryx, and Oryx's Court (the courts of Oryx 3, 4 and 5).
@@ -73,6 +73,17 @@ namespace WorldServer.core.worlds.impl
 
         public static bool IsOryx(string name) => OryxBosses.Contains(name);
 
+        // Oryx 3, 4 and 5 drop at this share of their usual rates in the Arena (Loot.Handle), where
+        // they come every few waves rather than at the end of a dungeon
+        public static readonly string[] HalfLootBosses = { "Oryx the Mad God 3", "Oryx the Mad God 4", "Oryx the Ascended God" };
+        public const double HalfLootRate = 0.5;
+
+        public static double LootRate(Enemy enemy) =>
+            enemy.World is doomed.DoomedBattleArena && HalfLootBosses.Contains(enemy.ObjectDesc.IdName) ? HalfLootRate : 1;
+
+        // seconds between waves: 5, then 10 more every 10 waves, at most 20
+        public static int WaveGapSeconds(int wave) => Math.Min(20, 5 + 10 * (wave / 10));
+
         // up to this many of a wave's minions come from earlier stages: the stage just before, and
         // the Godlands from then on (Godlands monsters turn up in every later stage)
         public const int CarriedMinions = 2;
@@ -91,7 +102,7 @@ namespace WorldServer.core.worlds.impl
 
         public static Stage For(int wave) => Stages.Last(s => s.FromWave <= Math.Max(1, wave));
 
-        // the chat line both arenas send as a wave spawns
+        // the chat line the Arena sends as a wave spawns
         public static string WaveMessage(int wave) => $"Wave {wave} has begun ({For(wave).Name}).";
 
         // The wave and time box at the top of the view (both clients' ArenaMenu): a state other than 1

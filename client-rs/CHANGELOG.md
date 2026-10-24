@@ -9,6 +9,11 @@ refuses while an `Unreleased` one is left, so rename it to `## <version> (<date>
 version number itself is in `client-rs/Cargo.toml`.
 
 ## Unreleased
+- One Arena: the Battle Arena is now just the Arena, and the Free Battle Arena and the public
+  arena are gone. Its portal stands in the Nexus's south yard beside the leaderboard's trophy, and
+  `/arena` takes you into the same game from anywhere. It pays fame after every wave as before;
+  older runs on the leaderboard count as the Arena's.
+- In the Arena, Oryx 3, 4 and 5 drop everything at half their usual chances.
 - Oryx's Elysium shows what's to come: the Oasis Seraph's islet now holds the Ascended Totem, a
   statue of Oryx's staff for the Ascended items, and the Pyramid has fallen to the Void, seeping out
   over the roads round it, with the Void Entity in place of the Gilded Sphinx. It doesn't attack yet
