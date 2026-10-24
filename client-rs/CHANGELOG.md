@@ -24,6 +24,8 @@ details). Add to a group's line when a change adds to it, rather than adding ano
   nobody is in the Nexus or realm they were opened from, and the ping shown there is no longer
   about 100 ms too high. Effects from the Ghostly Prism, Chaotic Scripture and other ally items
   no longer linger in the world after they go off.
+- The Nexus Bazaar no longer sells the Christmas Key. A Christmas Key you already have still opens
+  Christmas Oryx's Chamber.
 
 ## 2.0.1 (2026-10-24)
 

@@ -329,7 +329,7 @@ CLASSES = ["Warrior", "Assassin", "Sorcerer", "Priest", "Trickster", "Wizard", "
 # where DoomedWorlds.AddNexusPortals puts the Arena portal (keep the two in step)
 ARENA_PORTALS = [(45.5, 68.5)]
 WINE_CELLAR = (48, 77)
-# (name, region, x0, y0, columns, rows): see Grid.pavilion. The stall counts are the old map's:
+# (name, region, x0, y0, columns, rows[, stalls]): see Grid.pavilion. The stall counts are the old map's:
 # one stall per item where a shop has few, so each stall shows something different.
 PAVILIONS = [
     # the west ward
@@ -340,7 +340,7 @@ PAVILIONS = [
     ("Clothing Dyes", "Store 8", 7, 55, 5, 2),
     ("Specials", "Store 3", 22, 55, 4, 2),
     # the east ward
-    ("Elder and Doomed Keys", "Store 12", 65, 24, 10, 2),
+    ("Elder and Doomed Keys", "Store 12", 65, 24, 10, 2, 19),   # the old map's 20, less the Christmas Key
     ("Enchanted Keys", "Store 4", 66, 32, 9, 2),
     ("Consumables", "Store 2", 66, 45, 9, 2),
     ("Pet Generators", "Store 5", 66, 53, 9, 1),

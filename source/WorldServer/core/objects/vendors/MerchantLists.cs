@@ -87,10 +87,11 @@ namespace WorldServer.core.objects.vendors
             ("Oryx Chicken Chamber Key", 400)
         };
 
+        // the Christmas Key isn't sold (it still opens its dungeon); the Bazaar has a stall for each of these
         private static readonly (string Key, int Price)[] DoomedKeyPrices =
         {
             ("Doom Crystal Key", 30), ("Zombies Key", 50), ("Birthday Key", 50), ("Island Key", 75),
-            ("Christmas Key", 100), ("Hash Cellar Incantation", 500), ("Doomed Cellar Incantation", 1000),
+            ("Hash Cellar Incantation", 500), ("Doomed Cellar Incantation", 1000),
             ("Elder Pirate Cave Key", 50), ("Elder Spider Den Key", 70), ("Elder Snake Pit Key", 100), ("Elder Sprite World Key", 100),
             ("Elder Manor Key", 100), ("Elder Beach Key", 150), ("Elder Jungle Key", 150), ("Elder Undead Lair Key", 200),
             ("Elder Davy Key", 200), ("Elder Ocean Trench Key", 200), ("Elder Abyss Key", 300), ("Elder Draconis Key", 400),
