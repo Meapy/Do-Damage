@@ -52,6 +52,7 @@ RS_ONLY_SETS = [
     ("t16Armors8x8", "kabam/rotmg/assets/custom/images/T16Armors8x8.png", 8, 8),
     # the forge shards and Oryx 5's Ascended pieces (tools/build_ascended_items.py)
     ("ascendedItems8x8", "kabam/rotmg/assets/custom/images/AscendedItems8x8.png", 8, 8),
+    ("ascendedItems16x16", "kabam/rotmg/assets/custom/images/AscendedItems16x16.png", 16, 16),
     # ability shots recoloured for items of their own (tools/draw_ability_fx.py)
     ("abilityFx8x8", "kabam/rotmg/assets/custom/images/AbilityFx8x8.png", 8, 8),
 ]

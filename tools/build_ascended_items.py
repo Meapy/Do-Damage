@@ -9,9 +9,11 @@ storage (ForgeStorage.cs), which the Divine Forge takes them from.
 The Ascended items: placeholders that nothing drops, forged from an item of Oryx the Ascended
 God's top tier and an Ascended shard (ForgeRecipes.Ascended), marked <Ascended/> (the red slot
 edge, and the wiki's Ascended group). Each keeps the numbers of the item it's copied from until
-it gets its own. The weapons and the leather and heavy armours keep its sprite too, with a few
-purple sparkles added round it (SPARKLE); Oryx 5's own Enthroned pieces (his staff, as his sprite
-holds it, and his helm, boots, robe and two rings) are drawn here.
+it gets its own; all are named Enthroned. The weapons and the leather and heavy armours keep its
+sprite too, with a few purple sparkles added round it (SPARKLE); his helm, boots, robe and two
+rings are drawn here, and the Enthroned Staff is the staff his own sprite holds, copied from
+ElysiumOryx16x16.png (STAFF) onto a 16 by 16 sheet of its own, `AscendedItems16x16.png`
+(`ascendedItems16x16`).
 
 Writes `AscendedItems8x8.png` (client/src/kabam/rotmg/assets/custom/images, `ascendedItems8x8`,
 which tools/gen_rs_manifest.py registers for the Rust client), 8 by 8 pixels a cell in the order
@@ -31,11 +33,14 @@ ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 SRC = os.path.join(ROOT, "client", "src")
 SERVER_XML = os.path.join(ROOT, "source", "Shared", "resources", "xml")
 OUT = os.path.join(SRC, "kabam", "rotmg", "assets", "custom", "images", "AscendedItems8x8.png")
+OUT16 = os.path.join(SRC, "kabam", "rotmg", "assets", "custom", "images", "AscendedItems16x16.png")
+ORYX = os.path.join(SRC, "kabam", "rotmg", "assets", "custom", "images", "ElysiumOryx16x16.png")
 ITEM_XMLS = [
     os.path.join(SERVER_XML, "custom", "CustomItems.xml"),
     os.path.join(SRC, "kabam", "rotmg", "assets", "custom", "xmls", "CustomItems.xml"),
 ]
 SHEET = "ascendedItems8x8"
+SHEET16 = "ascendedItems16x16"
 CELL = 8
 COLS = 8
 BEGIN = "<!-- BEGIN forge shards and Ascended items (tools/build_ascended_items.py) -->"
@@ -164,18 +169,15 @@ PIECES = {
         "..gGGg..",
         "........",
     ],
-    # the staff Oryx 5 holds: a pale crystal on a purple collar, a gold shaft banded light and dark
-    "staff": [
-        "......CW",
-        ".....CKC",
-        "....BKC.",
-        "...pPB..",
-        "..Gg....",
-        ".Gg.....",
-        "Gg......",
-        "g.......",
-    ],
 }
+
+# The staff in Oryx 5's first frame (ElysiumOryx16x16.png): its pixels, as (x, y) there, the white
+# sparkle, the crystal head and the gold glints beside it, the blue core, the purple crossbar and
+# the shaft. His hand grips the shaft at rows 7 and 8, so those take the shaft's banding instead.
+STAFF = [(1, 0), (0, 1), (1, 1), (2, 1), (3, 1), (0, 2), (1, 2), (2, 2), (3, 2), (1, 3), (0, 4), (1, 4), (2, 4)] + \
+        [(1, y) for y in range(5, 16) if y not in (7, 8)]
+STAFF_GRIP = {(1, 7): (1, 5), (1, 8): (1, 6)}  # a pixel: the shaft pixel it copies
+STAFF_X = 6  # where its column 0 goes on the 16 by 16 cell, to stand in the middle
 
 # The sheets the Ascended weapons and armours copy their sprites from
 SOURCE_SHEETS = {
@@ -207,17 +209,17 @@ SHARDS = [
 PLACEHOLDER = "A placeholder for the first of the Ascended gear: it has its T{tier} counterpart's numbers for now."
 OWN = "Oryx the Ascended God's own {what}, a placeholder: it has the numbers of {source} for now."
 ASCENDED = [
-    (0x5850, "Ascended Sword", "Sword of Ascension", None, None, PLACEHOLDER.format(tier=15)),
-    (0x5851, "Ascended Dagger", "Dagger of Divine Wrath", None, None, PLACEHOLDER.format(tier=15)),
-    (0x5852, "Ascended Bow", "Bow of the Firmament", None, None, PLACEHOLDER.format(tier=15)),
-    (0x5853, "Ascended Wand", "Wand of Absolution", None, None, PLACEHOLDER.format(tier=15)),
-    (0x5854, "Ascended Katana", "Ame-no-Habakiri", None, None, PLACEHOLDER.format(tier=15)),
-    (0x5855, "Ascended Dual Blades", "Seraphic Blades", None, None, PLACEHOLDER.format(tier=15)),
-    (0x5856, "Ascended Fists", "Fists of the Ascended", None, None, PLACEHOLDER.format(tier=15)),
-    (0x5857, "Enthroned Staff", "Staff of Endless Energy", (SHEET, cell_of("piece", "staff")), None,
+    (0x5850, "Enthroned Sword", "Sword of Ascension", None, None, PLACEHOLDER.format(tier=15)),
+    (0x5851, "Enthroned Dagger", "Dagger of Divine Wrath", None, None, PLACEHOLDER.format(tier=15)),
+    (0x5852, "Enthroned Bow", "Bow of the Firmament", None, None, PLACEHOLDER.format(tier=15)),
+    (0x5853, "Enthroned Wand", "Wand of Absolution", None, None, PLACEHOLDER.format(tier=15)),
+    (0x5854, "Enthroned Katana", "Ame-no-Habakiri", None, None, PLACEHOLDER.format(tier=15)),
+    (0x5855, "Enthroned Dual Blades", "Seraphic Blades", None, None, PLACEHOLDER.format(tier=15)),
+    (0x5856, "Enthroned Fists", "Fists of the Ascended", None, None, PLACEHOLDER.format(tier=15)),
+    (0x5857, "Enthroned Staff", "Staff of Endless Energy", (SHEET16, 0), None,
      OWN.format(what="staff", source="the T15 staff")),
-    (0x5858, "Ascended Hide", "Sphinx Leather Armor", None, None, PLACEHOLDER.format(tier=16)),
-    (0x5859, "Ascended Plate", "Armor of the Pyramid", None, None, PLACEHOLDER.format(tier=16)),
+    (0x5858, "Enthroned Hide", "Sphinx Leather Armor", None, None, PLACEHOLDER.format(tier=16)),
+    (0x5859, "Enthroned Plate", "Armor of the Pyramid", None, None, PLACEHOLDER.format(tier=16)),
     (0x585a, "Enthroned Robe", "Robe of the Nile", (SHEET, cell_of("piece", "robe")), None,
      OWN.format(what="robe", source="the T16 robe")),
     (0x585b, "Enthroned Helm", "Helm of Imperial Right", (SHEET, cell_of("piece", "helm")), None,
@@ -370,8 +372,20 @@ def source_texture(src):
     return src.findtext("Texture/File"), int(src.findtext("Texture/Index"), 0)
 
 
+def draw_staff():
+    """The Enthroned Staff: the staff from Oryx 5's sprite, standing in a 16 by 16 cell."""
+    oryx = Image.open(ORYX).convert("RGBA")
+    img = Image.new("RGBA", (16, 16), (0, 0, 0, 0))
+    for x, y in STAFF:
+        img.putpixel((STAFF_X + x, y), oryx.getpixel((x, y)))
+    for (x, y), (sx, sy) in STAFF_GRIP.items():
+        img.putpixel((STAFF_X + x, y), oryx.getpixel((sx, sy)))
+    return img
+
+
 def main():
     items = server_items()
+    draw_staff().save(OUT16)
     for _, name, source, texture, _, _ in ASCENDED:
         if texture is None and source in items:
             SPRITES.append(("sparkle",) + source_texture(items[source]))

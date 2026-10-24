@@ -17,10 +17,10 @@ version number itself is in `client-rs/Cargo.toml`.
   there takes one back out to trade. Recipes take their shards straight from your storage.
 - The first Ascended items, Oryx 5's own gear, which he never drops: untiered items with a red slot
   edge, which the Divine Forge makes from an item of the top tier he drops and an Ascended shard,
-  for 2,000 fame. An Ascended Sword, Dagger, Bow, Wand, Katana, Dual Blades and Fists from their
-  tier 15s, and an Ascended Hide and Plate from the tier 16 armours, each looking like the item it's
-  made from with purple sparkles; and his own Enthroned pieces from any item of the tier: the
-  Enthroned Staff (the staff he holds, from any tier 15 weapon), the Enthroned Robe (any tier 16
+  for 2,000 fame, all named Enthroned. An Enthroned Sword, Dagger, Bow, Wand, Katana, Dual Blades
+  and Fists from their tier 15s, and an Enthroned Hide and Plate from the tier 16 armours, each
+  looking like the item it's made from with purple sparkles; and his own pieces from any item of
+  the tier: the Enthroned Staff (the staff he holds, from any tier 15 weapon), the Enthroned Robe (any tier 16
   armour), the Enthroned Helm (any tier 8 ability), and the Enthroned Boots and Enthroned Rings of
   Wrath and Grace (any tier 8 ring). For now each is a placeholder with the numbers of the item it's
   copied from. The Infernal shards' recipes come later.

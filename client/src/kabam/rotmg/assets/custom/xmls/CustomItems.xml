@@ -1793,12 +1793,12 @@
 		<Consumable/>
 		<BagType>9</BagType>
 	</Object>
-	<Object type="0x5850" id="Ascended Sword">
+	<Object type="0x5850" id="Enthroned Sword">
 		<Class>Equipment</Class>
 		<Item/>
 		<Texture>
 			<File>ascendedItems8x8</File>
-			<Index>0x0e</Index>
+			<Index>0x0d</Index>
 		</Texture>
 		<SlotType>1</SlotType>
 		<Description>A placeholder for the first of the Ascended gear: it has its T15 counterpart's numbers for now.</Description>
@@ -1820,12 +1820,12 @@
 		<BagType>9</BagType>
 		<Soulbound/>
 	</Object>
-	<Object type="0x5851" id="Ascended Dagger">
+	<Object type="0x5851" id="Enthroned Dagger">
 		<Class>Equipment</Class>
 		<Item/>
 		<Texture>
 			<File>ascendedItems8x8</File>
-			<Index>0x0f</Index>
+			<Index>0x0e</Index>
 		</Texture>
 		<SlotType>2</SlotType>
 		<Description>A placeholder for the first of the Ascended gear: it has its T15 counterpart's numbers for now.</Description>
@@ -1847,12 +1847,12 @@
 		<BagType>9</BagType>
 		<Soulbound/>
 	</Object>
-	<Object type="0x5852" id="Ascended Bow">
+	<Object type="0x5852" id="Enthroned Bow">
 		<Class>Equipment</Class>
 		<Item/>
 		<Texture>
 			<File>ascendedItems8x8</File>
-			<Index>0x10</Index>
+			<Index>0x0f</Index>
 		</Texture>
 		<SlotType>3</SlotType>
 		<Description>A placeholder for the first of the Ascended gear: it has its T15 counterpart's numbers for now.</Description>
@@ -1877,12 +1877,12 @@
 		<BagType>9</BagType>
 		<Soulbound/>
 	</Object>
-	<Object type="0x5853" id="Ascended Wand">
+	<Object type="0x5853" id="Enthroned Wand">
 		<Class>Equipment</Class>
 		<Item/>
 		<Texture>
 			<File>ascendedItems8x8</File>
-			<Index>0x11</Index>
+			<Index>0x10</Index>
 		</Texture>
 		<SlotType>8</SlotType>
 		<Description>A placeholder for the first of the Ascended gear: it has its T15 counterpart's numbers for now.</Description>
@@ -1905,12 +1905,12 @@
 		<BagType>9</BagType>
 		<Soulbound/>
 	</Object>
-	<Object type="0x5854" id="Ascended Katana">
+	<Object type="0x5854" id="Enthroned Katana">
 		<Class>Equipment</Class>
 		<Item/>
 		<Texture>
 			<File>ascendedItems8x8</File>
-			<Index>0x12</Index>
+			<Index>0x11</Index>
 		</Texture>
 		<SlotType>24</SlotType>
 		<Description>A placeholder for the first of the Ascended gear: it has its T15 counterpart's numbers for now.</Description>
@@ -1933,12 +1933,12 @@
 		<BagType>9</BagType>
 		<Soulbound/>
 	</Object>
-	<Object type="0x5855" id="Ascended Dual Blades">
+	<Object type="0x5855" id="Enthroned Dual Blades">
 		<Class>Equipment</Class>
 		<Item/>
 		<Texture>
 			<File>ascendedItems8x8</File>
-			<Index>0x13</Index>
+			<Index>0x12</Index>
 		</Texture>
 		<SlotType>36</SlotType>
 		<Description>A placeholder for the first of the Ascended gear: it has its T15 counterpart's numbers for now.</Description>
@@ -1962,12 +1962,12 @@
 		<BagType>9</BagType>
 		<Soulbound/>
 	</Object>
-	<Object type="0x5856" id="Ascended Fists">
+	<Object type="0x5856" id="Enthroned Fists">
 		<Class>Equipment</Class>
 		<Item/>
 		<Texture>
 			<File>ascendedItems8x8</File>
-			<Index>0x14</Index>
+			<Index>0x13</Index>
 		</Texture>
 		<SlotType>200</SlotType>
 		<Description>A placeholder for the first of the Ascended gear: it has its T15 counterpart's numbers for now.</Description>
@@ -1994,8 +1994,8 @@
 		<Class>Equipment</Class>
 		<Item/>
 		<Texture>
-			<File>ascendedItems8x8</File>
-			<Index>0x0d</Index>
+			<File>ascendedItems16x16</File>
+			<Index>0x00</Index>
 		</Texture>
 		<SlotType>17</SlotType>
 		<Description>Oryx the Ascended God's own staff, a placeholder: it has the numbers of the T15 staff for now.</Description>
@@ -2019,12 +2019,12 @@
 		<BagType>9</BagType>
 		<Soulbound/>
 	</Object>
-	<Object type="0x5858" id="Ascended Hide">
+	<Object type="0x5858" id="Enthroned Hide">
 		<Class>Equipment</Class>
 		<Item/>
 		<Texture>
 			<File>ascendedItems8x8</File>
-			<Index>0x15</Index>
+			<Index>0x14</Index>
 		</Texture>
 		<SlotType>6</SlotType>
 		<Description>A placeholder for the first of the Ascended gear: it has its T16 counterpart's numbers for now.</Description>
@@ -2036,12 +2036,12 @@
 		<BagType>9</BagType>
 		<Soulbound/>
 	</Object>
-	<Object type="0x5859" id="Ascended Plate">
+	<Object type="0x5859" id="Enthroned Plate">
 		<Class>Equipment</Class>
 		<Item/>
 		<Texture>
 			<File>ascendedItems8x8</File>
-			<Index>0x16</Index>
+			<Index>0x15</Index>
 		</Texture>
 		<SlotType>7</SlotType>
 		<Description>A placeholder for the first of the Ascended gear: it has its T16 counterpart's numbers for now.</Description>

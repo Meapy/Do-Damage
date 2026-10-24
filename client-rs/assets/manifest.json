@@ -1340,6 +1340,12 @@
    "h": 8
   },
   {
+   "name": "ascendedItems16x16",
+   "file": "kabam/rotmg/assets/custom/images/AscendedItems16x16.png",
+   "w": 16,
+   "h": 16
+  },
+  {
    "name": "abilityFx8x8",
    "file": "kabam/rotmg/assets/custom/images/AbilityFx8x8.png",
    "w": 8,

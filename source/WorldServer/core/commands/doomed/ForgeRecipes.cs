@@ -80,23 +80,23 @@ namespace WorldServer.core.commands.doomed
         // The Ascended items (tools/build_ascended_items.py), placeholders nothing drops: each from an
         // item of the top tier Oryx the Ascended God drops of its kind and the Ascended shard of that
         // kind, taken from the forge storage (ForgeStorage.cs). A weapon or armour comes from its own
-        // slot's item; his own Enthroned pieces (slot 0) from any of the tier and kind. Result, fame, the kind,
+        // slot's item; his own pieces (slot 0) from any of the tier and kind. All are named Enthroned. Result, fame, the kind,
         // tier and slot it's forged from, the shard.
         private const string WeaponShard = "Ascended Weapon Shard", AbilityShard = "Ascended Ability Shard",
             ArmorShard = "Ascended Armor Shard", AccessoryShard = "Ascended Accessory Shard";
         private const int AscendedFame = 2000;
         private static readonly (string Result, ItemType Kind, int Tier, int Slot, string Shard)[] Ascended =
         {
-            ("Ascended Sword", ItemType.Weapon, 15, 1, WeaponShard),
-            ("Ascended Dagger", ItemType.Weapon, 15, 2, WeaponShard),
-            ("Ascended Bow", ItemType.Weapon, 15, 3, WeaponShard),
-            ("Ascended Wand", ItemType.Weapon, 15, 8, WeaponShard),
-            ("Ascended Katana", ItemType.Weapon, 15, 24, WeaponShard),
-            ("Ascended Dual Blades", ItemType.Weapon, 15, 36, WeaponShard),
-            ("Ascended Fists", ItemType.Weapon, 15, 200, WeaponShard),
+            ("Enthroned Sword", ItemType.Weapon, 15, 1, WeaponShard),
+            ("Enthroned Dagger", ItemType.Weapon, 15, 2, WeaponShard),
+            ("Enthroned Bow", ItemType.Weapon, 15, 3, WeaponShard),
+            ("Enthroned Wand", ItemType.Weapon, 15, 8, WeaponShard),
+            ("Enthroned Katana", ItemType.Weapon, 15, 24, WeaponShard),
+            ("Enthroned Dual Blades", ItemType.Weapon, 15, 36, WeaponShard),
+            ("Enthroned Fists", ItemType.Weapon, 15, 200, WeaponShard),
             ("Enthroned Staff", ItemType.Weapon, 15, 0, WeaponShard),
-            ("Ascended Hide", ItemType.Armor, 16, 6, ArmorShard),
-            ("Ascended Plate", ItemType.Armor, 16, 7, ArmorShard),
+            ("Enthroned Hide", ItemType.Armor, 16, 6, ArmorShard),
+            ("Enthroned Plate", ItemType.Armor, 16, 7, ArmorShard),
             ("Enthroned Robe", ItemType.Armor, 16, 0, ArmorShard),
             ("Enthroned Helm", ItemType.Ability, 8, 0, AbilityShard),
             ("Enthroned Boots", ItemType.Ring, 8, 0, AccessoryShard),
