@@ -12,6 +12,13 @@ Keep each version short: changes go under `### ` group headings (Oryx 5, Arena, 
 on), one line per change players notice, summed up rather than item by item (the wiki has the
 details). Add to a group's line when a change adds to it, rather than adding another line.
 
+## Unreleased
+
+### Items
+- A Potion of Max drunk on a stat that's already maxed now puts 6 of that stat's potions into your
+  potion storage, as many as fit, instead of 100 or more past its limit. With that storage full,
+  the potion stays with you.
+
 ## 2.0.2 (2026-10-24)
 
 ### Game

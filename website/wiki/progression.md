@@ -52,8 +52,10 @@ wasted, so keep spares in your **potion storage**, in your vault: it holds {{v:s
 each potion to start, and each upgrade ({{v:storage_cost}} fame) adds {{v:storage_step}} more. From
 its window you can store, take out, drink, or drink just enough to max a stat.
 
-A **Potion of Max Life** (from the Elder Tomb's bosses) fills your health to your class's highest
-at once; if it's already there, it puts 30 health into your potion storage.
+A **Potion of Max** Life, Mana, Attack, Defense, Speed, Dexterity, Vitality or Wisdom (from the
+Elder dungeons' bosses; Max Life from the Elder Tomb's) fills that stat to your class's highest at
+once; if it's already there, it puts 6 of that stat's potions into your potion storage, as many as
+fit. If that storage is full, the potion isn't drunk and stays with you.
 
 A **Potion of Oryx** counts as all eight potions at once. It's rare from the deepest Oryx stages
 and can be forged from one of each stat potion (at the Divine Forge). For a stat that's already maxed, its
