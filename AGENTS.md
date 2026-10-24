@@ -108,7 +108,8 @@ it asks first; never run test copies under the live process names (`redis-server
     - Sessions work in worktrees under `.claude/worktrees/`, rebase onto the release branch
       (`git rebase release/<version>`), then fast-forward it from the main checkout:
       `git -C <main checkout> fetch . <branch>:release/<version>`, which refuses anything but a
-      fast-forward.
+      fast-forward. When the main checkout has the release branch checked out, `fetch` refuses
+      it: use `git -C <main checkout> merge --ff-only <branch>` there instead.
     - A hook stops edits into the main checkout from a worktree session.
     - **Clean up once it's in.** When a session's work has been fast-forwarded into the release
       branch, that session removes its own worktree and branch (or the app's worktree clean-up
