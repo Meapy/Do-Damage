@@ -207,7 +207,8 @@ For example, the Battle Arena (its monsters come 60 s after you enter):
    **Done.**
 6. Party, trading, guild and the NPC windows (`npc.rs`): **Done.** Market, emotes, sound to do.
 7. Packaging: `build_client_rs.py --account <url> --package` (the address built in, release
-   builds without a console window on Windows, the AIR client's icon). **Done.**
+   builds without a console window on Windows, the website's crown as the window and taskbar icon,
+   `tools/draw_client_icon.py`). **Done.**
 8. Updates: versions, the changelog window, signed releases on the account server, downloads in
    the background and the switch at the next portal. **Done** (desktop; the browser loads the
    newest build when the page loads).

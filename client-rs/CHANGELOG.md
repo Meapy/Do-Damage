@@ -9,6 +9,14 @@ refuses while an `Unreleased` one is left, so rename it to `## <version> (<date>
 version number itself is in `client-rs/Cargo.toml`.
 
 ## Unreleased
+- Oryx 5's weapons:
+  - The Sword of Dark Enchantment fires black and red slashes (it fired sheep), and each shot has a
+    15% chance (at most every 2 seconds) of a small dark orb that follows you for 4 seconds, zapping
+    the nearest enemy for 220-280 every half second: about a fifth more damage.
+  - The Elysian Staff fires his bolts in his silver, purple and gold, and each shot has a 10% chance
+    (at most every 6 seconds) of one of his halos, which circles you for 5 seconds firing two Holy
+    Orbs at the nearest enemy every second, for 120-150 each.
+- The game's window and taskbar icon is the Do Damage crown, as on the website.
 - Oryx 4's untiered items, reworked and named for his Inferno:
   - Doom Poison is now the Infernal Brimstone Poison: 2,000 poison damage (was 15,000) that curses
     the enemies it hits instead of dazing them, still with its stasis blast, and it silences you for
@@ -38,10 +46,11 @@ version number itself is in `client-rs/Cargo.toml`.
   for 2,000 fame, all named Enthroned. An Enthroned Sword, Dagger, Bow, Wand, Katana, Dual Blades
   and Fists from their tier 15s, and an Enthroned Hide and Plate from the tier 16 armours, each
   looking like the item it's made from with purple sparkles; and his own pieces from any item of
-  the tier: the Enthroned Staff (a gold staff with a crystal head, like the one he holds, from any tier 15 weapon), the Enthroned Robe (any tier 16
-  armour), the Enthroned Helm (any tier 8 ability), and the Enthroned Boots and Enthroned Rings of
-  Wrath and Grace (gold, light blue and purple bands under a purple or a golden gem; any tier 8 ring). For now each is a placeholder with the numbers of the item it's
-  copied from. The Infernal shards' recipes come later.
+  the tier: the Enthroned Spear (a gold staff with a crystal head, like the one he holds, from his
+  Elysian Staff), the Enthroned Robe (any tier 16 armour), the Enthroned Helm (any tier 8 ability),
+  and the Enthroned Boots and Enthroned Rings of Wrath and Grace (gold, light blue and purple bands
+  under a purple or a golden gem; any tier 8 ring). They're placeholders with no numbers yet (their
+  weapons hit for 0); those come later, as do the Infernal shards' recipes.
 - The Divine Forge lists an item that several recipes make once, and picks the recipe you can make.
   Two new filters: UT (untiered gear, the Ascended items first) and Highest tier (the top tier it
   makes of each kind). A new Enchant tab is there too, locked until a later update.

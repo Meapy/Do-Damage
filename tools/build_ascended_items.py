@@ -8,8 +8,8 @@ storage (ForgeStorage.cs), which the Divine Forge takes them from.
 
 The Ascended items: placeholders that nothing drops, forged from an item of Oryx the Ascended
 God's top tier and an Ascended shard (ForgeRecipes.Ascended), marked <Ascended/> (the red slot
-edge, and the wiki's Ascended group). Each keeps the numbers of the item it's copied from until
-it gets its own; all are named Enthroned. The weapons and the leather and heavy armours keep its
+edge, and the wiki's Ascended group); all are named Enthroned. Their numbers come later: each is
+the item it's copied from with none (damage 0-0, no stats or ability effects; VALUELESS). The weapons and the leather and heavy armours keep its
 sprite too, with a few purple sparkles added round it (SPARKLE); his helm, boots and robe are
 drawn here at 8 by 8, and his staff and two rings at 16 by 16, on `AscendedItems16x16.png`
 (`ascendedItems16x16`, in the order of SPRITES16): the staff his own sprite holds, gold with a
@@ -159,7 +159,7 @@ BIG = {"W": (255, 255, 255), "C": (196, 240, 255), "K": (120, 228, 255), "B": (1
 DARKER = {"W": "C", "C": "K", "K": "B", "B": "b", "b": "b", "y": "G", "G": "g", "g": "g",
           "V": "v", "v": "P", "P": "p", "p": "p"}
 
-# The Enthroned Staff, lying from bottom left to top right: its upper-left half and its middle
+# The Enthroned Spear (a staff), lying from bottom left to top right: its upper-left half and its middle
 # line (x + y <= 15), {(x, y): colour}; the other half is the mirror of it across the middle line,
 # a shade darker. A crystal head in a gold cradle, a purple crossbar with a jewel, a gold shaft
 # three pixels across with purple grip bands, and a pommel.
@@ -216,33 +216,39 @@ SHARDS = [
     (0x5844, "Ascended", "Weapon"), (0x5845, "Ascended", "Ability"),
     (0x5846, "Ascended", "Armor"), (0x5847, "Ascended", "Accessory"),
 ]
-PLACEHOLDER = "A placeholder for the first of the Ascended gear: it has its T{tier} counterpart's numbers for now."
-OWN = "Oryx the Ascended God's own {what}, a placeholder: it has the numbers of {source} for now."
+PLACEHOLDER = "A placeholder for the first of the Ascended gear: its numbers come later."
+OWN = "Oryx the Ascended God's own {what}, a placeholder: its numbers come later."
 ASCENDED = [
-    (0x5850, "Enthroned Sword", "Sword of Ascension", None, None, PLACEHOLDER.format(tier=15)),
-    (0x5851, "Enthroned Dagger", "Dagger of Divine Wrath", None, None, PLACEHOLDER.format(tier=15)),
-    (0x5852, "Enthroned Bow", "Bow of the Firmament", None, None, PLACEHOLDER.format(tier=15)),
-    (0x5853, "Enthroned Wand", "Wand of Absolution", None, None, PLACEHOLDER.format(tier=15)),
-    (0x5854, "Enthroned Katana", "Ame-no-Habakiri", None, None, PLACEHOLDER.format(tier=15)),
-    (0x5855, "Enthroned Dual Blades", "Seraphic Blades", None, None, PLACEHOLDER.format(tier=15)),
-    (0x5856, "Enthroned Fists", "Fists of the Ascended", None, None, PLACEHOLDER.format(tier=15)),
-    (0x5857, "Enthroned Staff", "Staff of Endless Energy", (SHEET16, SPRITES16.index("staff")), None,
-     OWN.format(what="staff", source="the T15 staff")),
-    (0x5858, "Enthroned Hide", "Sphinx Leather Armor", None, None, PLACEHOLDER.format(tier=16)),
-    (0x5859, "Enthroned Plate", "Armor of the Pyramid", None, None, PLACEHOLDER.format(tier=16)),
+    (0x5850, "Enthroned Sword", "Sword of Ascension", None, None, PLACEHOLDER),
+    (0x5851, "Enthroned Dagger", "Dagger of Divine Wrath", None, None, PLACEHOLDER),
+    (0x5852, "Enthroned Bow", "Bow of the Firmament", None, None, PLACEHOLDER),
+    (0x5853, "Enthroned Wand", "Wand of Absolution", None, None, PLACEHOLDER),
+    (0x5854, "Enthroned Katana", "Ame-no-Habakiri", None, None, PLACEHOLDER),
+    (0x5855, "Enthroned Dual Blades", "Seraphic Blades", None, None, PLACEHOLDER),
+    (0x5856, "Enthroned Fists", "Fists of the Ascended", None, None, PLACEHOLDER),
+    (0x5857, "Enthroned Spear", "Staff of Endless Energy", (SHEET16, SPRITES16.index("staff")), None,
+     OWN.format(what="spear, borne as a staff")),
+    (0x5858, "Enthroned Hide", "Sphinx Leather Armor", None, None, PLACEHOLDER),
+    (0x5859, "Enthroned Plate", "Armor of the Pyramid", None, None, PLACEHOLDER),
     (0x585a, "Enthroned Robe", "Robe of the Nile", (SHEET, cell_of("piece", "robe")), None,
-     OWN.format(what="robe", source="the T16 robe")),
+     OWN.format(what="robe")),
     (0x585b, "Enthroned Helm", "Helm of Imperial Right", (SHEET, cell_of("piece", "helm")), None,
-     OWN.format(what="helm", source="the T8 helm")),
+     OWN.format(what="helm")),
     (0x585c, "Enthroned Boots", "Ring of Absolute Speed", (SHEET, cell_of("piece", "boots")), None,
-     OWN.format(what="boots, worn as a ring", source="the T8 speed ring")),
+     OWN.format(what="boots, worn as a ring")),
     (0x585d, "Enthroned Ring of Wrath", "Ring of Absolute Attack", (SHEET16, SPRITES16.index("ring wrath")), None,
-     OWN.format(what="ring of wrath", source="the T8 attack ring")),
+     OWN.format(what="ring of wrath")),
     (0x585e, "Enthroned Ring of Grace", "Ring of Absolute Defense", (SHEET16, SPRITES16.index("ring grace")), None,
-     OWN.format(what="ring of grace", source="the T8 defense ring")),
+     OWN.format(what="ring of grace")),
 ]
 # what an Ascended item leaves out of the item it copies
 DROPPED = {"Texture", "Tier", "Description", "DisplayId", "Shop", "SlotType"}
+# and, as its numbers come later, everything that gives it any: stats, ability effects and their
+# costs, effects on shooting; its shots' damage is 0-0
+VALUELESS = {"ActivateOnEquip", "Activate", "MpCost", "Usable", "Cooldown", "FameBonus", "ExtraTooltipData",
+             "OnPlayerShootActivate", "OnPlayerHitActivate", "OnEnemyHitActivate", "OnPlayerAbilityActivate",
+             "OnPlayerPassiveActivate"}
+DAMAGE = {"MinDamage", "MaxDamage", "Damage"}
 
 
 def sparkled(sheet, index):
@@ -356,9 +362,9 @@ def block(items):
             "\t\t<Ascended/>",
         ]
         for child in src:
-            if child.tag in DROPPED or child.tag in ("Class", "Item", "Soulbound", "BagType"):
+            if child.tag in DROPPED or child.tag in VALUELESS or child.tag in ("Class", "Item", "Soulbound", "BagType"):
                 continue
-            out += element_lines(child, 2)
+            out += [re.sub(r"<(%s)>[^<]*</" % "|".join(DAMAGE), r"<\1>0</", line) for line in element_lines(child, 2)]
         out += ["\t\t<BagType>9</BagType>", "\t\t<Soulbound/>", "\t</Object>"]
     out.append("\t" + END)
     return out
@@ -383,7 +389,7 @@ def source_texture(src):
 
 
 def draw_staff():
-    """The Enthroned Staff: STAFF_HALF and its darker mirror."""
+    """The Enthroned Spear: STAFF_HALF and its darker mirror."""
     img = Image.new("RGBA", (16, 16), (0, 0, 0, 0))
     for (x, y), c in STAFF_HALF.items():
         img.putpixel((x, y), BIG[c] + (255,))

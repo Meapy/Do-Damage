@@ -451,6 +451,12 @@ class Data:
                     recipes.append({"result": res, "fame": int(fame_m.group(1)), "advanced": False,
                                     "items": [oid, consts[shard]],
                                     "ascended": {"any": (kind, tier) if slot == 0 else None}})
+        # and the ones from one item (ForgeRecipes.AscendedFrom)
+        m = re.search(r'\bAscendedFrom\s*=\s*\{(.*?)\};', forge_src, re.S)
+        for res, frm, shard in re.findall(r'\("([^"]+)",\s*"([^"]+)",\s*(\w+)\)', m.group(1) if m else ""):
+            forge_only.add(res)
+            recipes.append({"result": res, "fame": int(fame_m.group(1)), "advanced": False,
+                            "items": [frm, consts[shard]], "ascended": {"any": None}})
 
         def key(r):
             return r["result"] + "=" + "+".join(sorted(r["items"]))

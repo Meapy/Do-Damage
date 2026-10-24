@@ -430,8 +430,11 @@ TEXTURE_OVERRIDES = {"Oryx the Mad God 4": ("hashCellarOryx16x16", 0),
                      "Flying Doom Daggers": ("oryxUts8x8", 1)}
 # projectiles drawn anew: id -> {projectile id: object}. Oryx 4's first phase shoots hellfire.
 PROJECTILE_OVERRIDES = {"Oryx the Mad God 4": {"2": "Hellfire Bolt", "4": "Hellfire Star"},
-                        # the Elysian Staff shoots Oryx 5's Celestial Bolt (its projectile has no id)
-                        "Staff of Heavens": {None: "Celestial Bolt"}}
+                        # Oryx 5's weapons (their projectiles have no id; tools/draw_oryx_uts.py): the
+                        # Elysian Staff shoots his Celestial Bolt in his colours, the Sword of Dark
+                        # Enchantment a black and red slash (it shot sheep)
+                        "Staff of Heavens": {None: "Elysian Bolt"},
+                        "Sword of Dark Enchantment": {None: "Dark Enchantment Slash"}}
 # names for players: each Oryx after the Chamber is named for his theme
 DISPLAY_OVERRIDES = {"Oryx the Mad God 4": "Oryx the Infernal Mad God", "Hash Cellar Incantation": "Oryx's Inferno Incantation",
                      "Doomed Cellar Incantation": "Oryx's Elysium Incantation", "Staff of Heavens": "Elysian Staff",
@@ -484,7 +487,10 @@ SOULBOUND_ITEMS = ["Sphinx Leather Armor", "Armor of the Pyramid", "Robe of the 
 DESCRIPTIONS = {
     "Santa's Hat": "A hat that protects Santa from even death itself. A blow that would kill its wearer breaks "
                    "the hat instead, and sends them back to the Nexus.",
-    "Staff of Heavens": "Raised over Oryx's Elysium in his last stand, it fires the holy bolts of the Ascended God.",
+    "Staff of Heavens": "Raised over Oryx's Elysium in his last stand, it fires the holy bolts of the Ascended God, "
+                        "and now and then calls one of his halos to circle its bearer.",
+    "Sword of Dark Enchantment": "A fatal sword enchanted with the black magic of the dark mages. Its strikes "
+                                 "now and then tear loose a small dark orb that zaps whatever is near.",
     "Doom Poison": "Brimstone from the deepest fires of Oryx's Inferno. It curses all it burns, but its fumes "
                    "leave the one who throws it silenced for a moment.",
     "America Sword": "Rewarded by DODMG: America!",
@@ -573,6 +579,16 @@ GEAR_TUNING = {
     # the T6 poison's numbers (Baneserpent Poison; was 2,500 over 10.5 s)
     "Tome of Poison": {"activates": [("PoisonGrenade", {}, {"impactDamage": "230", "totalDamage": "1035", "duration": "4.5"})]},
     "Tome of Noble Assault": {"activates": [("TomeDamage", {}, {"totalDamage": "800"})]},  # was 500
+    # the Oryx 5 weapons pass: a chance with each shot of a helper (BehaviorDb.Allies.cs): the sword's
+    # dark orb, about a fifth more damage, and the staff's halo
+    "Sword of Dark Enchantment": {"add_xml": [
+        "<OnPlayerShootActivate cooldown=\"2\" objectId=\"Dark Enchantment Orb\" proc=\"0.15\">Pet</OnPlayerShootActivate>",
+        "<ExtraTooltipData><EffectInfo name=\"Dark Orb\" description=\"Each shot: a 15% chance (at most every 2 seconds) of a dark orb that zaps the nearest enemy for 220-280 every 0.5 seconds for 4 seconds\" /></ExtraTooltipData>",
+    ]},
+    "Staff of Heavens": {"add_xml": [
+        "<OnPlayerShootActivate cooldown=\"6\" objectId=\"Elysian Halo\" proc=\"0.1\">Pet</OnPlayerShootActivate>",
+        "<ExtraTooltipData><EffectInfo name=\"Halo\" description=\"Each shot: a 10% chance (at most every 6 seconds) of a halo that circles you for 5 seconds, firing two Holy Orbs at the nearest enemy every second for 120-150 each\" /></ExtraTooltipData>",
+    ]},
     # the Oryx UT pass: 2,000 poison damage (was 15,000), cursing instead of dazing, and its thrower
     # silenced 2 s; Oryx 4's alone (no shop)
     "Doom Poison": {"activates": [("PoisonGrenade", {}, {"totalDamage": "2000", "condEffect": "Curse"})],
@@ -633,6 +649,10 @@ def tune_gear(dr):
             e = ET.Element("Activate", attrs)
             e.text = effect
             o.insert(list(o).index(acts[-1]) + 1 if acts else len(o), e)
+        # elements added before the BagType (or at the end), as XML text
+        for text in t.get("add_xml", []):
+            at_bag = list(o).index(o.find("BagType")) if o.find("BagType") is not None else len(o)
+            o.insert(at_bag, ET.fromstring(text))
         if t.get("no_shop") and o.find("Shop") is not None:
             o.remove(o.find("Shop"))
         if t.get("pierce") and p.find("ArmorPiercing") is None:

@@ -66,13 +66,13 @@ Oryx the Ascended God's own gear, which he never drops: untiered items with a re
 the forge makes from an item of the highest tier he drops and an Ascended shard of its kind. Each
 weapon and armour comes from its own kind's top item (a tier 15 dagger makes the Enthroned Dagger)
 and looks like it, with purple sparkles. All are named **Enthroned**: the Enthroned Sword, Dagger,
-Bow, Wand, Katana, Dual Blades, Fists, Hide and Plate. His own pieces take any item of the tier:
-the **Enthroned Staff**, the staff he holds, from any tier 15 weapon, the **Enthroned Robe** from any
-tier 16 armour, the **Enthroned Helm** from any tier 8 ability, and the **Enthroned Boots** and the
+Bow, Wand, Katana, Dual Blades, Fists, Hide and Plate. His own pieces: the **Enthroned Spear**, a
+staff drawn after the one he holds, from his **Elysian Staff**; the **Enthroned Robe** from any tier
+16 armour, the **Enthroned Helm** from any tier 8 ability, and the **Enthroned Boots** and the
 **Enthroned Rings of Wrath and Grace** from any tier 8 ring.
 
-> These are **placeholders**: for now each has the numbers of the item it's copied from (its tooltip
-> says which). They'll get their own later.
+> These are **placeholders** with no numbers yet: their weapons hit for 0, and they give no stats or
+> ability effects. They'll get their own numbers later.
 
 {{gen:forge_ascended}}
 

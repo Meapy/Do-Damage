@@ -62,4 +62,21 @@
 		</Texture>
 		<AngleCorrection>1</AngleCorrection>
 	</Object>
+	<!-- the Sword of Dark Enchantment's and the Elysian Staff's shots (tools/draw_oryx_uts.py) -->
+	<Object type="0x5862" id="Dark Enchantment Slash">
+		<Class>Projectile</Class>
+		<Texture>
+			<File>oryxUts8x8</File>
+			<Index>4</Index>
+		</Texture>
+		<AngleCorrection>1</AngleCorrection>
+	</Object>
+	<Object type="0x5863" id="Elysian Bolt">
+		<Class>Projectile</Class>
+		<AngleCorrection>1</AngleCorrection>
+		<Texture>
+			<File>oryxUts16x16</File>
+			<Index>0</Index>
+		</Texture>
+	</Object>
 </Objects>

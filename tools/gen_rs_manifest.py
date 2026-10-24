@@ -53,8 +53,10 @@ RS_ONLY_SETS = [
     # the forge shards and Oryx 5's Ascended pieces (tools/build_ascended_items.py)
     ("ascendedItems8x8", "kabam/rotmg/assets/custom/images/AscendedItems8x8.png", 8, 8),
     ("ascendedItems16x16", "kabam/rotmg/assets/custom/images/AscendedItems16x16.png", 16, 16),
-    # Oryx 4's red-shaded daggers and Oryx 5's Ascended gems (tools/draw_oryx_uts.py)
+    # Oryx 4's red-shaded daggers, Oryx 5's Ascended gems, and his weapons' shots and helpers
+    # (tools/draw_oryx_uts.py)
     ("oryxUts8x8", "kabam/rotmg/assets/custom/images/OryxUts8x8.png", 8, 8),
+    ("oryxUts16x16", "kabam/rotmg/assets/custom/images/OryxUts16x16.png", 16, 16),
     # ability shots recoloured for items of their own (tools/draw_ability_fx.py)
     ("abilityFx8x8", "kabam/rotmg/assets/custom/images/AbilityFx8x8.png", 8, 8),
 ]

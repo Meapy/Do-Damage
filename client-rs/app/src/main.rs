@@ -482,10 +482,12 @@ fn mouse_arg() -> Option<(f64, f64)> {
     None
 }
 
-/// The window's icon: the AIR client's `moe.png`, built in.
+/// The window's icon: the website's Do Damage crown (tools/draw_client_icon.py), built in. The small
+/// one is the title bar's, the big one the taskbar's (on Windows they're set apart).
 #[cfg(not(target_arch = "wasm32"))]
-fn window_icon() -> Option<winit::window::Icon> {
-    let img = image::load_from_memory(include_bytes!("../../../client/src/moe.png")).ok()?.to_rgba8();
+fn window_icon(big: bool) -> Option<winit::window::Icon> {
+    let png: &[u8] = if big { include_bytes!("../icons/icon-256.png") } else { include_bytes!("../icons/icon-32.png") };
+    let img = image::load_from_memory(png).ok()?.to_rgba8();
     let (w, h) = img.dimensions();
     winit::window::Icon::from_rgba(img.into_raw(), w, h).ok()
 }
@@ -2314,10 +2316,14 @@ impl ApplicationHandler<UserEvent> for App {
                 Some((w, h)) => attributes.with_inner_size(winit::dpi::PhysicalSize::new(w, h)),
                 None => attributes.with_inner_size(winit::dpi::LogicalSize::new(1280.0, 800.0)),
             }
-            // The AIR client's icon (WebMain-app.xml).
-            .with_window_icon(window_icon())
+            .with_window_icon(window_icon(false))
             // A scripted test run opens behind the window in use, so it doesn't take the keyboard.
             .with_active(!args.iter().any(|a| matches!(a.as_str(), "--shot" | "--hold" | "--mouse-script")))
+        };
+        #[cfg(target_os = "windows")]
+        let attributes = {
+            use winit::platform::windows::WindowAttributesExtWindows;
+            attributes.with_taskbar_icon(window_icon(true))
         };
         // In a browser the page's CSS sizes the canvas.
         #[cfg(target_arch = "wasm32")]

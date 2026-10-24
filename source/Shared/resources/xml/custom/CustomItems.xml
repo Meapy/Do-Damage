@@ -1801,20 +1801,17 @@
 			<Index>0x0b</Index>
 		</Texture>
 		<SlotType>1</SlotType>
-		<Description>A placeholder for the first of the Ascended gear: it has its T15 counterpart's numbers for now.</Description>
+		<Description>A placeholder for the first of the Ascended gear: its numbers come later.</Description>
 		<Ascended/>
 		<RateOfFire>1</RateOfFire>
 		<Sound>weapon/mithril_sword</Sound>
 		<Projectile>
 			<ObjectId>Majesty Bolt</ObjectId>
 			<Speed>100</Speed>
-			<MinDamage>333</MinDamage>
-			<MaxDamage>358</MaxDamage>
+			<MinDamage>0</MinDamage>
+			<MaxDamage>0</MaxDamage>
 			<LifetimeMS>400</LifetimeMS>
 		</Projectile>
-		<ActivateOnEquip stat="21" amount="10">IncrementStat</ActivateOnEquip>
-		<ActivateOnEquip stat="20" amount="8">IncrementStat</ActivateOnEquip>
-		<FameBonus>7</FameBonus>
 		<OldSound>bladeSwing</OldSound>
 		<feedPower>950</feedPower>
 		<BagType>9</BagType>
@@ -1828,20 +1825,17 @@
 			<Index>0x0c</Index>
 		</Texture>
 		<SlotType>2</SlotType>
-		<Description>A placeholder for the first of the Ascended gear: it has its T15 counterpart's numbers for now.</Description>
+		<Description>A placeholder for the first of the Ascended gear: its numbers come later.</Description>
 		<Ascended/>
 		<RateOfFire>1</RateOfFire>
 		<Sound>weapon/fire_dagger</Sound>
 		<Projectile>
 			<ObjectId>Black Magic</ObjectId>
 			<Speed>150</Speed>
-			<MinDamage>167</MinDamage>
-			<MaxDamage>241</MaxDamage>
+			<MinDamage>0</MinDamage>
+			<MaxDamage>0</MaxDamage>
 			<LifetimeMS>400</LifetimeMS>
 		</Projectile>
-		<ActivateOnEquip stat="20" amount="8">IncrementStat</ActivateOnEquip>
-		<ActivateOnEquip stat="28" amount="10">IncrementStat</ActivateOnEquip>
-		<FameBonus>7</FameBonus>
 		<OldSound>daggerSwing</OldSound>
 		<feedPower>950</feedPower>
 		<BagType>9</BagType>
@@ -1855,21 +1849,18 @@
 			<Index>0x0d</Index>
 		</Texture>
 		<SlotType>3</SlotType>
-		<Description>A placeholder for the first of the Ascended gear: it has its T15 counterpart's numbers for now.</Description>
+		<Description>A placeholder for the first of the Ascended gear: its numbers come later.</Description>
 		<Ascended/>
 		<RateOfFire>1</RateOfFire>
 		<Sound>weapon/golden_bow</Sound>
 		<Projectile>
 			<ObjectId>Deep Enchantment Arrow</ObjectId>
 			<Speed>160</Speed>
-			<MinDamage>93</MinDamage>
-			<MaxDamage>100</MaxDamage>
+			<MinDamage>0</MinDamage>
+			<MaxDamage>0</MaxDamage>
 			<LifetimeMS>450</LifetimeMS>
 			<MultiHit/>
 		</Projectile>
-		<ActivateOnEquip stat="20" amount="8">IncrementStat</ActivateOnEquip>
-		<ActivateOnEquip stat="28" amount="10">IncrementStat</ActivateOnEquip>
-		<FameBonus>7</FameBonus>
 		<NumProjectiles>3</NumProjectiles>
 		<ArcGap>7.2</ArcGap>
 		<OldSound>arrowShoot</OldSound>
@@ -1885,7 +1876,7 @@
 			<Index>0x0e</Index>
 		</Texture>
 		<SlotType>8</SlotType>
-		<Description>A placeholder for the first of the Ascended gear: it has its T15 counterpart's numbers for now.</Description>
+		<Description>A placeholder for the first of the Ascended gear: its numbers come later.</Description>
 		<Ascended/>
 		<RateOfFire>1</RateOfFire>
 		<Sound>weapon/wand_of_death</Sound>
@@ -1893,13 +1884,10 @@
 			<ObjectId>Retribution Magic</ObjectId>
 			<Speed>200</Speed>
 			<LifetimeMS>400</LifetimeMS>
-			<MinDamage>213</MinDamage>
-			<MaxDamage>265</MaxDamage>
+			<MinDamage>0</MinDamage>
+			<MaxDamage>0</MaxDamage>
 			<MultiHit/>
 		</Projectile>
-		<ActivateOnEquip stat="20" amount="13">IncrementStat</ActivateOnEquip>
-		<ActivateOnEquip stat="28" amount="11">IncrementStat</ActivateOnEquip>
-		<FameBonus>7</FameBonus>
 		<OldSound>magicShoot</OldSound>
 		<feedPower>950</feedPower>
 		<BagType>9</BagType>
@@ -1913,7 +1901,7 @@
 			<Index>0x0f</Index>
 		</Texture>
 		<SlotType>24</SlotType>
-		<Description>A placeholder for the first of the Ascended gear: it has its T15 counterpart's numbers for now.</Description>
+		<Description>A placeholder for the first of the Ascended gear: its numbers come later.</Description>
 		<Ascended/>
 		<RateOfFire>1</RateOfFire>
 		<Sound>weapon/long_sword</Sound>
@@ -1921,13 +1909,10 @@
 			<ObjectId>Kusanagi Slash</ObjectId>
 			<Speed>150</Speed>
 			<LifetimeMS>350</LifetimeMS>
-			<MinDamage>243</MinDamage>
-			<MaxDamage>271</MaxDamage>
+			<MinDamage>0</MinDamage>
+			<MaxDamage>0</MaxDamage>
 			<MultiHit/>
 		</Projectile>
-		<ActivateOnEquip stat="21" amount="10">IncrementStat</ActivateOnEquip>
-		<ActivateOnEquip stat="20" amount="8">IncrementStat</ActivateOnEquip>
-		<FameBonus>7</FameBonus>
 		<OldSound>bladeSwing</OldSound>
 		<feedPower>950</feedPower>
 		<BagType>9</BagType>
@@ -1941,22 +1926,19 @@
 			<Index>0x10</Index>
 		</Texture>
 		<SlotType>36</SlotType>
-		<Description>A placeholder for the first of the Ascended gear: it has its T15 counterpart's numbers for now.</Description>
+		<Description>A placeholder for the first of the Ascended gear: its numbers come later.</Description>
 		<Ascended/>
 		<RateOfFire>1</RateOfFire>
 		<Sound>weapon/fire_dagger</Sound>
 		<Projectile>
 			<ObjectId>Master Proj</ObjectId>
 			<Speed>200</Speed>
-			<MinDamage>205</MinDamage>
-			<MaxDamage>259</MaxDamage>
+			<MinDamage>0</MinDamage>
+			<MaxDamage>0</MaxDamage>
 			<LifetimeMS>250</LifetimeMS>
 			<MultiHit/>
 			<ArmorPiercing/>
 		</Projectile>
-		<ActivateOnEquip stat="21" amount="10">IncrementStat</ActivateOnEquip>
-		<ActivateOnEquip stat="22" amount="8">IncrementStat</ActivateOnEquip>
-		<FameBonus>7</FameBonus>
 		<OldSound>daggerSwing</OldSound>
 		<feedPower>950</feedPower>
 		<BagType>9</BagType>
@@ -1970,27 +1952,24 @@
 			<Index>0x11</Index>
 		</Texture>
 		<SlotType>200</SlotType>
-		<Description>A placeholder for the first of the Ascended gear: it has its T15 counterpart's numbers for now.</Description>
+		<Description>A placeholder for the first of the Ascended gear: its numbers come later.</Description>
 		<Ascended/>
 		<RateOfFire>1</RateOfFire>
 		<Sound>weapon/fire_dagger</Sound>
 		<Projectile>
 			<ObjectId>Bone Proj</ObjectId>
 			<Speed>125</Speed>
-			<MinDamage>221</MinDamage>
-			<MaxDamage>279</MaxDamage>
+			<MinDamage>0</MinDamage>
+			<MaxDamage>0</MaxDamage>
 			<LifetimeMS>400</LifetimeMS>
 			<MultiHit/>
 		</Projectile>
-		<ActivateOnEquip stat="20" amount="10">IncrementStat</ActivateOnEquip>
-		<ActivateOnEquip stat="22" amount="8">IncrementStat</ActivateOnEquip>
-		<FameBonus>7</FameBonus>
 		<OldSound>daggerSwing</OldSound>
 		<feedPower>950</feedPower>
 		<BagType>9</BagType>
 		<Soulbound/>
 	</Object>
-	<Object type="0x5857" id="Enthroned Staff">
+	<Object type="0x5857" id="Enthroned Spear">
 		<Class>Equipment</Class>
 		<Item/>
 		<Texture>
@@ -1998,21 +1977,19 @@
 			<Index>0x00</Index>
 		</Texture>
 		<SlotType>17</SlotType>
-		<Description>Oryx the Ascended God's own staff, a placeholder: it has the numbers of the T15 staff for now.</Description>
+		<Description>Oryx the Ascended God's own spear, borne as a staff, a placeholder: its numbers come later.</Description>
 		<Ascended/>
 		<RateOfFire>1</RateOfFire>
 		<Sound>weapon/wand_of_death</Sound>
 		<Projectile>
 			<ObjectId>Staff of Endless Energy Projectile</ObjectId>
 			<Speed>180</Speed>
-			<MinDamage>100</MinDamage>
-			<MaxDamage>135</MaxDamage>
+			<MinDamage>0</MinDamage>
+			<MaxDamage>0</MaxDamage>
 			<LifetimeMS>475</LifetimeMS>
 			<Amplitude>0.5</Amplitude>
 			<Frequency>2</Frequency>
 		</Projectile>
-		<ActivateOnEquip stat="21" amount="10">IncrementStat</ActivateOnEquip>
-		<FameBonus>5</FameBonus>
 		<NumProjectiles>2</NumProjectiles>
 		<ArcGap>0</ArcGap>
 		<OldSound>magicShoot</OldSound>
@@ -2027,12 +2004,8 @@
 			<Index>0x12</Index>
 		</Texture>
 		<SlotType>6</SlotType>
-		<Description>A placeholder for the first of the Ascended gear: it has its T16 counterpart's numbers for now.</Description>
+		<Description>A placeholder for the first of the Ascended gear: its numbers come later.</Description>
 		<Ascended/>
-		<ActivateOnEquip stat="21" amount="24">IncrementStat</ActivateOnEquip>
-		<ActivateOnEquip stat="28" amount="8">IncrementStat</ActivateOnEquip>
-		<ActivateOnEquip stat="22" amount="5">IncrementStat</ActivateOnEquip>
-		<FameBonus>6</FameBonus>
 		<BagType>9</BagType>
 		<Soulbound/>
 	</Object>
@@ -2044,12 +2017,8 @@
 			<Index>0x13</Index>
 		</Texture>
 		<SlotType>7</SlotType>
-		<Description>A placeholder for the first of the Ascended gear: it has its T16 counterpart's numbers for now.</Description>
+		<Description>A placeholder for the first of the Ascended gear: its numbers come later.</Description>
 		<Ascended/>
-		<ActivateOnEquip stat="21" amount="31">IncrementStat</ActivateOnEquip>
-		<ActivateOnEquip stat="0" amount="85">IncrementStat</ActivateOnEquip>
-		<ActivateOnEquip stat="26" amount="9">IncrementStat</ActivateOnEquip>
-		<FameBonus>6</FameBonus>
 		<BagType>9</BagType>
 		<Soulbound/>
 	</Object>
@@ -2061,14 +2030,8 @@
 			<Index>0x0a</Index>
 		</Texture>
 		<SlotType>14</SlotType>
-		<Description>Oryx the Ascended God's own robe, a placeholder: it has the numbers of the T16 robe for now.</Description>
+		<Description>Oryx the Ascended God's own robe, a placeholder: its numbers come later.</Description>
 		<Ascended/>
-		<ActivateOnEquip stat="20" amount="7">IncrementStat</ActivateOnEquip>
-		<ActivateOnEquip stat="21" amount="19">IncrementStat</ActivateOnEquip>
-		<ActivateOnEquip stat="27" amount="9">IncrementStat</ActivateOnEquip>
-		<ActivateOnEquip stat="3" amount="105">IncrementStat</ActivateOnEquip>
-		<ActivateOnEquip stat="0" amount="55">IncrementStat</ActivateOnEquip>
-		<FameBonus>6</FameBonus>
 		<BagType>9</BagType>
 		<Soulbound/>
 	</Object>
@@ -2080,16 +2043,8 @@
 			<Index>0x08</Index>
 		</Texture>
 		<SlotType>16</SlotType>
-		<Description>Oryx the Ascended God's own helm, a placeholder: it has the numbers of the T8 helm for now.</Description>
+		<Description>Oryx the Ascended God's own helm, a placeholder: its numbers come later.</Description>
 		<Ascended/>
-		<ActivateOnEquip stat="21" amount="14">IncrementStat</ActivateOnEquip>
-		<ActivateOnEquip stat="0" amount="60">IncrementStat</ActivateOnEquip>
-		<ActivateOnEquip stat="3" amount="60">IncrementStat</ActivateOnEquip>
-		<Usable/>
-		<FameBonus>6</FameBonus>
-		<MpCost>95</MpCost>
-		<Activate effect="Berserk" duration="7" range="4">ConditionEffectAura</Activate>
-		<Activate effect="Speedy" duration="7">ConditionEffectSelf</Activate>
 		<feedPower>855</feedPower>
 		<BagType>9</BagType>
 		<Soulbound/>
@@ -2102,10 +2057,8 @@
 			<Index>0x09</Index>
 		</Texture>
 		<SlotType>9</SlotType>
-		<Description>Oryx the Ascended God's own boots, worn as a ring, a placeholder: it has the numbers of the T8 speed ring for now.</Description>
+		<Description>Oryx the Ascended God's own boots, worn as a ring, a placeholder: its numbers come later.</Description>
 		<Ascended/>
-		<ActivateOnEquip stat="22" amount="18">IncrementStat</ActivateOnEquip>
-		<FameBonus>5</FameBonus>
 		<feedPower>325</feedPower>
 		<BagType>9</BagType>
 		<Soulbound/>
@@ -2118,10 +2071,8 @@
 			<Index>0x01</Index>
 		</Texture>
 		<SlotType>9</SlotType>
-		<Description>Oryx the Ascended God's own ring of wrath, a placeholder: it has the numbers of the T8 attack ring for now.</Description>
+		<Description>Oryx the Ascended God's own ring of wrath, a placeholder: its numbers come later.</Description>
 		<Ascended/>
-		<ActivateOnEquip stat="20" amount="18">IncrementStat</ActivateOnEquip>
-		<FameBonus>5</FameBonus>
 		<feedPower>325</feedPower>
 		<BagType>9</BagType>
 		<Soulbound/>
@@ -2134,10 +2085,8 @@
 			<Index>0x02</Index>
 		</Texture>
 		<SlotType>9</SlotType>
-		<Description>Oryx the Ascended God's own ring of grace, a placeholder: it has the numbers of the T8 defense ring for now.</Description>
+		<Description>Oryx the Ascended God's own ring of grace, a placeholder: its numbers come later.</Description>
 		<Ascended/>
-		<ActivateOnEquip stat="21" amount="18">IncrementStat</ActivateOnEquip>
-		<FameBonus>5</FameBonus>
 		<feedPower>325</feedPower>
 		<BagType>9</BagType>
 		<Soulbound/>

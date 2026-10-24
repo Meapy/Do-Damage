@@ -80,8 +80,8 @@ namespace WorldServer.core.commands.doomed
         // The Ascended items (tools/build_ascended_items.py), placeholders nothing drops: each from an
         // item of the top tier Oryx the Ascended God drops of its kind and the Ascended shard of that
         // kind, taken from the forge storage (ForgeStorage.cs). A weapon or armour comes from its own
-        // slot's item; his own pieces (slot 0) from any of the tier and kind. All are named Enthroned. Result, fame, the kind,
-        // tier and slot it's forged from, the shard.
+        // slot's item; his own pieces (slot 0) from any of the tier and kind, or (AscendedFrom) from one
+        // item of his. All are named Enthroned. Result, the kind, tier and slot it's forged from, the shard.
         private const string WeaponShard = "Ascended Weapon Shard", AbilityShard = "Ascended Ability Shard",
             ArmorShard = "Ascended Armor Shard", AccessoryShard = "Ascended Accessory Shard";
         private const int AscendedFame = 2000;
@@ -94,7 +94,6 @@ namespace WorldServer.core.commands.doomed
             ("Enthroned Katana", ItemType.Weapon, 15, 24, WeaponShard),
             ("Enthroned Dual Blades", ItemType.Weapon, 15, 36, WeaponShard),
             ("Enthroned Fists", ItemType.Weapon, 15, 200, WeaponShard),
-            ("Enthroned Staff", ItemType.Weapon, 15, 0, WeaponShard),
             ("Enthroned Hide", ItemType.Armor, 16, 6, ArmorShard),
             ("Enthroned Plate", ItemType.Armor, 16, 7, ArmorShard),
             ("Enthroned Robe", ItemType.Armor, 16, 0, ArmorShard),
@@ -102,6 +101,11 @@ namespace WorldServer.core.commands.doomed
             ("Enthroned Boots", ItemType.Ring, 8, 0, AccessoryShard),
             ("Enthroned Ring of Wrath", ItemType.Ring, 8, 0, AccessoryShard),
             ("Enthroned Ring of Grace", ItemType.Ring, 8, 0, AccessoryShard),
+        };
+        // Ascended items from one item: result, the item, the shard. His spear from his Elysian Staff.
+        private static readonly (string Result, string From, string Shard)[] AscendedFrom =
+        {
+            ("Enthroned Spear", "Staff of Heavens", WeaponShard),
         };
 
         private static (string Result, int Fame, bool Advanced, string[] Items)[] _all;
@@ -122,7 +126,8 @@ namespace WorldServer.core.commands.doomed
             var dropped = Dropped(server);
             var seasonal = new HashSet<string>(SeasonalThreshold.Items.Concat(Loot.WinterBossDrops.Select(d => d.Item)));
             bool Tiered(string id) => items.TryGetValue(id, out var i) && i.Tier >= 0;
-            var forgeOnly = new HashSet<string>(ForgeOnly.Select(r => r.Result).Concat(Ascended.Select(a => a.Result)));
+            var forgeOnly = new HashSet<string>(ForgeOnly.Select(r => r.Result).Concat(Ascended.Select(a => a.Result))
+                .Concat(AscendedFrom.Select(a => a.Result)));
             // (the advanced recipes needed the Forge Amulet, which is gone)
             bool Allowed((string Result, int Fame, bool Advanced, string[] Items) r) =>
                 !r.Advanced && items.ContainsKey(r.Result) && !NeverForged.Contains(r.Result)
@@ -204,6 +209,12 @@ namespace WorldServer.core.commands.doomed
                     if (known.Add(Key(r)))
                         recipes.Add(r);
                 }
+            }
+            foreach (var (result, from, shard) in AscendedFrom)
+            {
+                var r = (result, AscendedFame, false, new[] { from, shard });
+                if (known.Add(Key(r)))
+                    recipes.Add(r);
             }
 
             var left = recipes.Where(r => !Allowed(r)).Select(r => r.Result).Distinct().OrderBy(r => r).ToList();

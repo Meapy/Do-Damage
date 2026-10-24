@@ -55,6 +55,21 @@ namespace WorldServer.logic
                 new Decay(4000)
                 )
             )
+        // the Sword of Dark Enchantment's orb (a shot's 15% chance, every 2 s at most): for 4 s it
+        // stays by its summoner and zaps the nearest enemy within 5 tiles for 220-280 every 0.5 s,
+        // about a fifth more damage for a Warrior at full Attack and Dexterity
+        .Init("Dark Enchantment Orb", new State(
+            new AllyFollow(1.4, 10, 1.5),
+            new AllyZap(5, 220, 280, 500, 0x9b30ff),
+            new Decay(4000)
+            ))
+        // the Elysian Staff's halo (a shot's 10% chance, every 6 s at most): for 5 s it circles its
+        // summoner and fires two Holy Orbs straight at the nearest enemy every second
+        .Init("Elysian Halo", new State(
+            new AllyOrbit(2, 120),
+            new AllyShoot(10, 2, 8, projectileIndex: 0, coolDown: 1000),
+            new Decay(5000)
+            ))
         // the Hivemaster Helm's bees: for 6 s they stay by their summoner and sting the nearest enemy
         // within 4 tiles for 120 every 0.6 s; the red one's stings curse half the time
         .Init("EH Ability Bee 1", HiveBee(ConditionEffectIndex.Curse))

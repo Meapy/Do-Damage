@@ -120,4 +120,35 @@
 		<HitSound>monster/wooden_walls_hit</HitSound>
 		<DeathSound>monster/stone_walls_death</DeathSound>
 	</Object>
+	<!-- helpers the Oryx 5 weapons summon as they shoot (OnPlayerShootActivate Pet; their behaviours in
+	     BehaviorDb.Allies.cs): the Sword of Dark Enchantment's dark orb, which zaps, and the Elysian
+	     Staff's halo, Oryx 5's Halo Orb, which circles you firing his Holy Orbs -->
+	<Object type="0x5864" id="Dark Enchantment Orb">
+		<Class>GameObject</Class>
+		<Texture>
+			<File>oryxUts8x8</File>
+			<Index>5</Index>
+		</Texture>
+		<Flying/>
+		<Size>70</Size>
+		<Z>0.3</Z>
+	</Object>
+	<Object type="0x5865" id="Elysian Halo">
+		<Class>GameObject</Class>
+		<Texture>
+			<File>elysium8x8</File>
+			<Index>0x69</Index>
+		</Texture>
+		<Flying/>
+		<Size>80</Size>
+		<Z>0.3</Z>
+		<Projectile id="0">
+			<ObjectId>Holy Orb</ObjectId>
+			<Speed>110</Speed>
+			<MinDamage>120</MinDamage>
+			<MaxDamage>150</MaxDamage>
+			<LifetimeMS>900</LifetimeMS>
+			<Size>90</Size>
+		</Projectile>
+	</Object>
 </Objects>

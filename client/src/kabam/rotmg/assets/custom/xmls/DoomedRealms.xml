@@ -4175,11 +4175,11 @@
 		</Texture>
 		<ScaleValue>3</ScaleValue>
 		<SlotType>1</SlotType>
-		<Description>A fatal sword enchanted with the black magic of the dark mages designed to make the world do its bidding.</Description>
+		<Description>A fatal sword enchanted with the black magic of the dark mages. Its strikes now and then tear loose a small dark orb that zaps whatever is near.</Description>
 		<RateOfFire>1.33</RateOfFire>
 		<Sound>weapon/glass_sword</Sound>
 		<Projectile>
-			<ObjectId>Sheep</ObjectId>
+			<ObjectId>Dark Enchantment Slash</ObjectId>
 			<Speed>120</Speed>
 			<MinDamage>230</MinDamage>
 			<MaxDamage>280</MaxDamage>
@@ -4187,6 +4187,10 @@
 			<MultiHit />
 		</Projectile>
 		<Secret />
+		<OnPlayerShootActivate cooldown="2" objectId="Dark Enchantment Orb" proc="0.15">Pet</OnPlayerShootActivate>
+		<ExtraTooltipData>
+			<EffectInfo name="Dark Orb" description="Each shot: a 15% chance (at most every 2 seconds) of a dark orb that zaps the nearest enemy for 220-280 every 0.5 seconds for 4 seconds" />
+		</ExtraTooltipData>
 		<BagType>6</BagType>
 		<ActivateOnEquip stat="26" amount="10">IncrementStat</ActivateOnEquip>
 		<FameBonus>7</FameBonus>
@@ -8466,11 +8470,11 @@
 			<Index>0x142</Index>
 		</Texture>
 		<SlotType>17</SlotType>
-		<Description>Raised over Oryx's Elysium in his last stand, it fires the holy bolts of the Ascended God.</Description>
+		<Description>Raised over Oryx&apos;s Elysium in his last stand, it fires the holy bolts of the Ascended God, and now and then calls one of his halos to circle its bearer.</Description>
 		<RateOfFire>0.35</RateOfFire>
 		<Sound>weapon/wand_of_death</Sound>
 		<Projectile>
-			<ObjectId>Celestial Bolt</ObjectId>
+			<ObjectId>Elysian Bolt</ObjectId>
 			<Speed>100</Speed>
 			<MinDamage>200</MinDamage>
 			<MaxDamage>250</MaxDamage>
@@ -8479,6 +8483,10 @@
 			<Frequency>5</Frequency>
 			<MultiHit />
 		</Projectile>
+		<OnPlayerShootActivate cooldown="6" objectId="Elysian Halo" proc="0.1">Pet</OnPlayerShootActivate>
+		<ExtraTooltipData>
+			<EffectInfo name="Halo" description="Each shot: a 10% chance (at most every 6 seconds) of a halo that circles you for 5 seconds, firing two Holy Orbs at the nearest enemy every second for 120-150 each" />
+		</ExtraTooltipData>
 		<BagType>6</BagType>
 		<FameBonus>5</FameBonus>
 		<NumProjectiles>2</NumProjectiles>
