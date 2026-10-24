@@ -56,7 +56,9 @@ your whole account shares, wherever you are. The forge's **Shards** tab shows wh
 shard there to take one back out into your inventory, to trade it. When a recipe needs a shard, the
 forge takes it from your storage: you don't need to carry it.
 
-The Infernal shards don't make anything yet: their recipes come in a later update.
+The Infernal shards don't make anything yet: their recipes come in a later update. The old forge
+materials (the Shattered Rune of Oryx, Broken Oryx Armor and Purified Doom Saliva) and the Forge
+Amulet are gone: nothing drops them, and the forge neither takes nor buys them.
 
 ## The Ascended items
 
@@ -94,13 +96,6 @@ Jack-o'-naut**. The **Prismatic Crystal Wand** is forged from two Crystal Wands,
 No recipe for an untiered item costs more than 3,000 fame. Click an item for what it does.
 
 {{gen:forge_special}}
-
-## The Forge Amulet
-
-Wearing a **Forge Amulet** in your ring slot halves a recipe's price and unlocks the *advanced*
-recipes, but the amulet breaks when you forge. Oryx the Ascended God (Oryx 5) drops one now and
-then, and it will become a crafting material for the forge in a later update. The advanced recipes
-all make items that don't drop yet, so none is listed above.
 
 ## Selling for fame
 

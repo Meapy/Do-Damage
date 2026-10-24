@@ -49,6 +49,12 @@ namespace Shared.resources
         public int QuantityLimit;
         public float RateOfFire;
         public bool Resurrects;
+        // a stat boost while equipped, when health first drops below a share of its maximum
+        // (<LowHealthBoost stat amount duration below/>, the Ascended Gem of Adoration), or with a
+        // chance on each use of the ability (<AbilityBoost stat amount duration chance/>, the
+        // Ascended Gem of Tenderness): (stat, amount, duration in ms, the share or the chance)
+        public (int Stat, int Amount, int DurationMs, float Value)? LowHealthBoost;
+        public (int Stat, int Amount, int DurationMs, float Value)? AbilityBoost;
         public int SlotType;
         public bool Soulbound;
         // can't be traded, sold on the market or dropped for others: admin items and the OP ones
@@ -100,6 +106,8 @@ namespace Shared.resources
             Potion = e.HasElement("Potion");
             Usable = e.HasElement("Usable");
             Resurrects = e.HasElement("Resurrects");
+            LowHealthBoost = StatProc(e.Element("LowHealthBoost"), "below");
+            AbilityBoost = StatProc(e.Element("AbilityBoost"), "chance");
             RateOfFire = e.GetValue<float>("RateOfFire");
             Tier = e.GetValue("Tier", -1);
             BagType = e.GetValue<int>("BagType");
@@ -136,5 +144,9 @@ namespace Shared.resources
             if (e.Element("BreakDown") != null)
                 BreakDownData = new BreakDownData(e.Element("BreakDown"));
         }
+
+        private static (int, int, int, float)? StatProc(XElement e, string value) =>
+            e == null ? null : (e.GetAttribute<int>("stat"), e.GetAttribute<int>("amount"),
+                (int)(e.GetAttribute<float>("duration") * 1000), e.GetAttribute<float>(value));
     }
 }

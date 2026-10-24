@@ -56,10 +56,15 @@ HEX = re.compile(r"^\s*(\(\s*short\s*\)\s*)?(0x[0-9a-fA-F]+)\s*$")
 # Hat, which saves its wearer from death, is rarer.
 # The T20 Oryx set and armours are unobtainable (port_doomed.UNOBTAINABLE_ITEMS).
 ORYX_SET_GONE = {"Ring of Oryx": None, "Oryx Hide Armor": None, "Oryx Hide Robe": None, "Oryx Scale Armor": None}
+# The Oryx UT pass: the old forge materials drop from nothing (the forge shards took their place), and
+# Oryx 4 alone drops the Infernal Brimstone Poison (the Doom Poison)
+MATERIALS_GONE = {"Shattered Rune of Oryx": None, "Broken Oryx Armor": None, "Purified Doom Saliva": None}
 LOOT_CHANGES = {
-    "Christmas Oryx": {"Crown": None, "Santa's Hat": 0.05, "Oryx Tooth Sword": None, **ORYX_SET_GONE},
-    "Oryx the Mad God 4": {"Crown": None, "Oryx Tooth Sword": None, **ORYX_SET_GONE},
-    "Oryx the Mad God 5": {"Crown": None, "Oryx Tooth Sword": None, **ORYX_SET_GONE},
+    "Christmas Oryx": {"Crown": None, "Santa's Hat": 0.05, "Oryx Tooth Sword": None, **ORYX_SET_GONE, "Doom Poison": None},
+    "Oryx the Mad God 4": {"Crown": None, "Oryx Tooth Sword": None, **ORYX_SET_GONE, **MATERIALS_GONE},
+    "Oryx the Mad God 5": {"Crown": None, "Oryx Tooth Sword": None, **ORYX_SET_GONE, **MATERIALS_GONE, "Doom Poison": None},
+    # the Burning Amulet is unobtainable (port_doomed.UNOBTAINABLE_ITEMS)
+    "Elder Tomb Support": {"Burning Amulet": None},
     "Turkey God": {"America Ring": None, "America Sword": None, "America Shield": None},
     # the swords pass: the T20 and Sword of Ghostly Power can't be found for now, the America Sword
     # is a reward; Soul Spawned Armor, a T20, is unobtainable

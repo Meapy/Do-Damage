@@ -470,6 +470,7 @@ namespace WorldServer.core.objects
                 HandleQuest(time);
                 HandleEffects(ref time);
                 HandleRegen(ref time);
+                LowHealthBoosts();
                 GroundEffect(time);
                 TickCooldownTimers(time);
                 TickSlotCooldowns(time);

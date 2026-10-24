@@ -228,7 +228,6 @@ namespace WorldServer.logic
                     new ItemLoot("Potion of Dexterity", 0.55),
                     new ItemLoot("Potion of Vitality", 0.55),
                     new ItemLoot("Potion of Wisdom", 0.55),
-                    new ItemLoot("Shattered Rune of Oryx", 0.25),
                     new ItemLoot("Oryx Scroll", 0.02),
                     new ItemLoot("Doomed Cellar Incantation", 0.05),
                     new ItemLoot("Oryx's Escutcheon", 0.025),

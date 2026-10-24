@@ -2143,4 +2143,49 @@
 		<Soulbound/>
 	</Object>
 	<!-- END forge shards and Ascended items -->
+	<!-- Oryx 5's gems, his versions of Oryx 4's Infernal ones (sprites: tools/draw_oryx_uts.py; their
+	     effects: Item.LowHealthBoost and AbilityBoost, Player.ItemProcs.cs) -->
+	<Object type="0x5860" id="Ascended Gem of Adoration">
+		<Class>Equipment</Class>
+		<Item/>
+		<Texture>
+			<File>oryxUts8x8</File>
+			<Index>0x02</Index>
+		</Texture>
+		<SlotType>9</SlotType>
+		<Description>The Ascended God's own gem of adoration, which will not let its bearer fall: as their life fails, it floods them with vitality.</Description>
+		<ExtraTooltipData>
+			<EffectInfo name="Last Stand" description="When your health drops below 20%: +400 Vitality for 3 seconds"/>
+		</ExtraTooltipData>
+		<LowHealthBoost stat="26" amount="400" duration="3" below="0.2"/>
+		<ActivateOnEquip stat="0" amount="150">IncrementStat</ActivateOnEquip>
+		<ActivateOnEquip stat="26" amount="5">IncrementStat</ActivateOnEquip>
+		<ActivateOnEquip stat="20" amount="5">IncrementStat</ActivateOnEquip>
+		<ActivateOnEquip stat="28" amount="5">IncrementStat</ActivateOnEquip>
+		<BagType>6</BagType>
+		<FameBonus>5</FameBonus>
+		<feedPower>350</feedPower>
+		<Soulbound/>
+	</Object>
+	<Object type="0x5861" id="Ascended Gem of Tenderness">
+		<Class>Equipment</Class>
+		<Item/>
+		<Texture>
+			<File>oryxUts8x8</File>
+			<Index>0x03</Index>
+		</Texture>
+		<SlotType>9</SlotType>
+		<Description>The Ascended God's own gem of tenderness. Now and then, the power its bearer calls on answers with wisdom.</Description>
+		<ExtraTooltipData>
+			<EffectInfo name="Grace" description="Each use of your ability: a 35% chance of +50 Wisdom for 4 seconds"/>
+		</ExtraTooltipData>
+		<AbilityBoost stat="27" amount="50" duration="4" chance="0.35"/>
+		<ActivateOnEquip stat="27" amount="10">IncrementStat</ActivateOnEquip>
+		<ActivateOnEquip stat="3" amount="150">IncrementStat</ActivateOnEquip>
+		<ActivateOnEquip stat="22" amount="10">IncrementStat</ActivateOnEquip>
+		<BagType>6</BagType>
+		<FameBonus>5</FameBonus>
+		<feedPower>350</feedPower>
+		<Soulbound/>
+	</Object>
 </Objects>

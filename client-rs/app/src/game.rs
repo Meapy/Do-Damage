@@ -1017,7 +1017,9 @@ impl Game {
         let Some(me) = self.world.as_ref().and_then(|w| w.player()) else { return };
         let item = me.stat_int(crate::hud::slot_stat(1)).unwrap_or(-1);
         let mp = me.stat_int(crate::hud::stat::MP).unwrap_or(0);
-        let (id, paused) = (me.id, bsk_world::condition::has(me.conditions(), bsk_world::condition::PAUSED));
+        // Silenced (the Infernal Brimstone Poison's user): no ability, as the server refuses it
+        let paused = [bsk_world::condition::PAUSED, bsk_world::condition::SILENCED].iter().any(|&c| bsk_world::condition::has(me.conditions(), c));
+        let id = me.id;
         let Some(xml) = data.objects.get(&(item as u16)).map(|d| &d.xml) else { return };
         if now < self.next_ability {
             return;

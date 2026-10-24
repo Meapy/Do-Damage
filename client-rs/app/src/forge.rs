@@ -147,9 +147,6 @@ const OUT: i32 = 700;
 /// How long to wait for the server before giving up.
 const NO_ANSWER: i32 = 8000;
 
-/// The Forge Amulet's name (`DoomedEconomy.ForgeAmulet`): worn in the ring slot, it halves the
-/// price and unlocks the advanced recipes, and breaks when used.
-const AMULET: &str = "Forge Amulet";
 /// `FAME_STAT`: the account's fame.
 const FAME_STAT: u8 = 39;
 /// The forge's sprite sheet (`tools/draw_forge_sprite.py`): three frames of fire, then a flash.
@@ -167,7 +164,6 @@ pub struct Forge {
     loaded: bool,
     /// Which category each slot type belongs to, from the classes' `SlotTypes`.
     kinds: HashMap<i32, Category>,
-    amulet: Option<u16>,
     query: String,
     category: Category,
     slot: Option<i32>,
@@ -194,7 +190,6 @@ pub struct Forge {
     /// What the inventory held when last drawn, by slot (the clicks and sockets work on it).
     inventory: Vec<(u8, i32)>,
     fame: i32,
-    wears_amulet: bool,
     backpack: bool,
     now: i32,
 }
@@ -215,7 +210,6 @@ impl Forge {
         self.selling.clear();
         if self.kinds.is_empty() {
             self.kinds = slot_categories(data);
-            self.amulet = data.objects.values().find(|d| d.id == AMULET).map(|d| d.object_type);
         }
         (!self.loaded).then_some(Act::Data)
     }
@@ -255,7 +249,7 @@ impl Forge {
     }
 
     fn price(&self, r: &ForgeRecipe) -> i32 {
-        r.fame / if self.wears_amulet { 2 } else { 1 }
+        r.fame
     }
 
     /// The recipes the filters let through: untiered gear first, then tiered gear from the
@@ -375,7 +369,8 @@ impl Forge {
         match e {
             Event::Data(recipes, prices) => {
                 log::info!("forge: {} recipes, {} prices", recipes.len(), prices.len());
-                self.recipes = recipes;
+                // an older server's advanced recipes, which needed the Forge Amulet, are left out
+                self.recipes = recipes.into_iter().filter(|r| !r.advanced).collect();
                 self.prices = prices.into_iter().map(|p| (p.item, p.fame)).collect();
                 self.loaded = true;
                 self.picked = None;
@@ -465,8 +460,6 @@ impl Forge {
                 let r = &self.recipes[self.picked?];
                 if self.sockets.iter().any(Option::is_none) {
                     self.message = Some(("Put every ingredient in first.".into(), true));
-                } else if r.advanced && !self.wears_amulet {
-                    self.message = Some(("Wear a Forge Amulet to forge this.".into(), true));
                 } else if self.fame < self.price(r) {
                     self.message = Some(("Not enough fame.".into(), true));
                 } else {
@@ -546,7 +539,7 @@ impl Forge {
         }
     }
 
-    /// Reads the inventory, fame and amulet, and drops sockets whose item has gone.
+    /// Reads the inventory and fame, and drops sockets whose item has gone.
     fn look(&mut self, me: Option<&GameObj>) {
         self.inventory.clear();
         let Some(me) = me else { return };
@@ -558,7 +551,6 @@ impl Forge {
             }
         }
         self.fame = me.stat_int(FAME_STAT).unwrap_or(0);
-        self.wears_amulet = self.amulet.is_some_and(|a| me.stat_int(crate::hud::slot_stat(3)).unwrap_or(-1) == a as i32);
         if self.forging.is_none() {
             if let Some(r) = self.picked.map(|i| self.recipes[i].clone()) {
                 let mut from_storage: HashMap<u16, i32> = HashMap::new();
@@ -671,8 +663,6 @@ impl Forge {
             ui.label(m, r[0] + 22.0 * s, foot_y, font(13.0), true, if *err { color::DANGER } else { color::GOOD });
         } else if !self.loaded {
             ui.label("Asking the forge for its recipes...", r[0] + 22.0 * s, foot_y, font(13.0), false, color::TEXT_MUTED);
-        } else if self.wears_amulet {
-            ui.label("Forge Amulet worn: advanced recipes, half price; it breaks when you forge.", r[0] + 22.0 * s, foot_y, font(13.0), false, color::GOLD);
         }
         if let Some(item) = self.hover_item {
             let lines = crate::hud::item_tooltip(ui.data, item, me, SlotKind::Shop);
@@ -751,9 +741,7 @@ impl Forge {
             let edge = if picked == Some(i) { Some(color::GOLD) } else { crate::screens::tier_edge(ui.data, r.result as i32) };
             ui.slot_box(sr, edge, over, s);
             ui.item_icon(r.result as i32, 80, sr[0] + sr[2] / 2.0, sr[1] + sr[3] / 2.0, s);
-            if r.advanced && !self.wears_amulet {
-                theme::fill(ui.renderer, sr, 5.0 * s, 0x000000, 0.5);
-            } else if self.can_make(&r) {
+            if self.can_make(&r) {
                 theme::fill(ui.renderer, [sr[0] + sr[2] - 11.0 * s, sr[1] + 4.0 * s, 7.0 * s, 7.0 * s], 3.5 * s, color::GOOD, 1.0);
             }
             if over {
@@ -810,15 +798,8 @@ impl Forge {
         let price = self.price(&rec);
         let afford = self.fame >= price;
         let (px, py) = (result_box[0] + rs + 14.0 * s, result_box[1] + 46.0 * s);
-        if rec.advanced && !self.wears_amulet {
-            ui.label("Needs a Forge Amulet in your ring slot", px, py, font(13.0), true, color::DANGER);
-        } else {
-            let pt = crate::hud::group_digits(price);
-            let w = fame_text(ui, &pt, px, py, font(13.0), if afford { color::GOLD } else { color::DANGER }, s);
-            if self.wears_amulet {
-                ui.label("(half price)", px + w + 6.0 * s, py, font(13.0), false, color::TEXT_DIM);
-            }
-        }
+        let pt = crate::hud::group_digits(price);
+        fame_text(ui, &pt, px, py, font(13.0), if afford { color::GOLD } else { color::DANGER }, s);
 
         // The result's slot: empty until forged, then the item with a burst behind it.
         let done = match &self.forging {
@@ -951,7 +932,7 @@ impl Forge {
             let ib = [fx - bw - 6.0 * s, by, bw, 36.0 * s];
             let fb = [fx + 6.0 * s, by, bw, 36.0 * s];
             ui.button(ib, "Insert all", Kind::Secondary, inside(ib, mouse), s);
-            let ready = self.sockets.iter().all(Option::is_some) && afford && (!rec.advanced || self.wears_amulet);
+            let ready = self.sockets.iter().all(Option::is_some) && afford;
             let label = format!("Forge  ·  {}", crate::hud::group_digits(price));
             fame_button(ui, fb, &label, if ready { Kind::Primary } else { Kind::Secondary }, inside(fb, mouse), s);
             self.hits.push((Hit::InsertAll, ib));

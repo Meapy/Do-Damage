@@ -18,10 +18,6 @@ namespace WorldServer.core.commands.doomed
 {
     internal static class DoomedEconomy
     {
-        public const string ForgeAmulet = "Forge Amulet";
-
-        public static bool WearsForgeAmulet(Player player) => player.Inventory[3]?.ObjectId == ForgeAmulet;
-
         // The Divine Forge in the Nexus (class Forge): forging and selling for fame happen in its
         // window in the Rust client, within this many tiles of it.
         public const string ForgeClass = "Forge";
@@ -55,11 +51,11 @@ namespace WorldServer.core.commands.doomed
         // shards it takes from the forge storage for the ingredients they leave out: a shard can come
         // from either, so a client that doesn't know the storage can still forge with shards it holds.
         public static ((string Result, int Fame, bool Advanced, string[] Items) Recipe, Dictionary<string, int> Shards)? FindRecipe(
-            Player player, string[] items, bool amulet, string result)
+            Player player, string[] items, string result)
         {
             foreach (var r in ForgeRecipes.All(player.GameServer))
             {
-                if (r.Result != result || r.Items.Length < items.Length || (r.Advanced && !amulet))
+                if (r.Result != result || r.Items.Length < items.Length || r.Advanced)
                     continue;
                 var left = r.Items.ToList();
                 if (!items.All(i => left.Remove(i)) || !left.All(i => ForgeStorage.Index(i) >= 0))
@@ -72,22 +68,21 @@ namespace WorldServer.core.commands.doomed
         }
 
         // Forges the items in these slots, with any shards the recipe takes from the forge storage,
-        // into `result`, the item the window showed: they must make that recipe. A worn Forge Amulet
-        // halves the price, unlocks the advanced recipes and breaks. The forged item takes the first
-        // slot. Returns what went wrong, or null.
+        // into `result`, the item the window showed: they must make that recipe. (The advanced
+        // recipes needed a worn Forge Amulet, which is gone: none is forged.) The forged item takes
+        // the first slot. Returns what went wrong, or null.
         public static string Forge(Player player, byte[] slots, string result, out int fame)
         {
             fame = 0;
             if (!ValidSlots(player, slots))
                 return "Put the ingredients in your inventory first.";
             var inv = player.Inventory;
-            var amulet = WearsForgeAmulet(player);
             var data = player.GameServer.Resources.GameData;
-            var found = FindRecipe(player, slots.Select(s => inv[s].ObjectId).ToArray(), amulet, result);
+            var found = FindRecipe(player, slots.Select(s => inv[s].ObjectId).ToArray(), result);
             if (found == null)
                 return "Those items don't forge into that, or your forge storage lacks its shards.";
             var (recipe, shards) = found.Value;
-            fame = recipe.Fame / (amulet ? 2 : 1);
+            fame = recipe.Fame;
             if (player.CurrentFame < fame)
                 return "Not enough fame to forge these items!";
             if (!data.IdToObjectType.TryGetValue(result, out var type) || !data.Items.TryGetValue(type, out var item))
@@ -98,8 +93,6 @@ namespace WorldServer.core.commands.doomed
                 inv.Data[s] = null;
             }
             inv[slots[0]] = item;
-            if (amulet)
-                inv[3] = null;
             ForgeStorage.Take(player, shards);
             // taken at once, so a second forge before the database answers can't spend it again
             player.CurrentFame -= fame;

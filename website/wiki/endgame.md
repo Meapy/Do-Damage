@@ -141,7 +141,13 @@ the real prizes:
   Assault, in white bags announced to everyone, and Potions of Oryx. Oryx 3 can also drop Oryx's
   Escutcheon. The Ring of Oryx, Oryx Hide Armor, Oryx Hide Robe and Oryx Scale Armor no longer drop
   anywhere: they're unobtainable.
-- **Oryx 4 and 5** drop Doom Poison; **Oryx 5** also the Sword of Dark Enchantment and the Crown.
+- **Oryx 4** drops his own untiered items in white bags: the **Infernal Brimstone Poison** (2,000 poison
+  damage that curses, with a stasis blast, but it silences you for 2 seconds), the **Infernal Cloak of
+  Bloodshed** (it makes you bleed for a moment), the **Infernal Bloodletter** and the **Infernal Gems
+  of Adoration and Tenderness**. **Oryx 5** drops the Sword of Dark Enchantment, and his own
+  **Ascended Gem of Adoration** (+400 Vitality for 3 seconds when your health drops below 20%) and
+  **Ascended Gem of Tenderness** (each ability use: a 35% chance of +50 Wisdom for 4 seconds), as
+  often as Oryx 4's gems. The Burning Amulet is unobtainable.
 - **Tier 7 abilities and rings** come from Oryx 3, 4 and 5; Oryx 5 is the only place for tier 8.
 - **Oryx 5** alone drops the **tier 16 armours**, in his colours: Hide of the Firmament, Armor of
   Ascension and Robe of Absolution, in white bags. The Divine Forge doesn't make them.

@@ -781,7 +781,6 @@ namespace WorldServer.logic.doomed
                             Tuple.Create(0.2, (ILoot)new TierLoot(14, ItemType.Weapon)),
                             Tuple.Create(0.2, (ILoot)new ItemLoot("Doom Dirk")),
                             Tuple.Create(0.1, (ILoot)new ItemLoot("Platinum Sword")),
-                            Tuple.Create(0.01, (ILoot)new ItemLoot("Doom Poison")),
                             Tuple.Create(0.9, (ILoot)new ItemLoot("Potion of Oryx")),
                             Tuple.Create(0.1, (ILoot)new ItemLoot("Oceanic Nova")),
                             Tuple.Create(0.05, (ILoot)new ItemLoot("Great Coil Snake Generator")),
@@ -5537,7 +5536,6 @@ namespace WorldServer.logic.doomed
             null,
             new LootBehavior(LootDef.Empty,
                     Tuple.Create(100, new LootDef(0, 2, 0, 2,
-                        Tuple.Create(0.03, (ILoot)new ItemLoot("Burning Amulet")),
                         Tuple.Create(0.01, (ILoot) new ItemLoot("Wine Cellar Incantation")),
                         Tuple.Create(0.1, (ILoot) new ItemLoot("Potion of Max Life")),
                                                 Tuple.Create(0.01, (ILoot)new ItemLoot("Wings of Natural Bloodlust")),
@@ -7505,11 +7503,8 @@ namespace WorldServer.logic.doomed
                             Tuple.Create(0.3, (ILoot)new ItemLoot("Strike Amulet")),
                             Tuple.Create(0.4, (ILoot)new ItemLoot("Transformation Potion")),
                             Tuple.Create(0.1, (ILoot)new ItemLoot("Flying Doom Daggers")),
-                            Tuple.Create(0.6, (ILoot)new ItemLoot("Shattered Rune of Oryx")),
-                            Tuple.Create(0.5, (ILoot)new ItemLoot("Broken Oryx Armor")),
                             Tuple.Create(0.4, (ILoot)new ItemLoot("Large Oryx Cloth")),
-                            Tuple.Create(0.4, (ILoot)new ItemLoot("Small Oryx Cloth")),
-                            Tuple.Create(0.4, (ILoot)new ItemLoot("Purified Doom Saliva"))
+                            Tuple.Create(0.4, (ILoot)new ItemLoot("Small Oryx Cloth"))
                                 ))));
 
         // Oryx the Mad God 5
@@ -7599,7 +7594,6 @@ namespace WorldServer.logic.doomed
                             Tuple.Create(0.2, (ILoot)new TierLoot(15, ItemType.Armor)),
                             Tuple.Create(0.2, (ILoot)new TierLoot(14, ItemType.Weapon)),
                             Tuple.Create(0.2, (ILoot)new ItemLoot("Doom Dirk")),
-                            Tuple.Create(0.01, (ILoot)new ItemLoot("Doom Poison")),
                             Tuple.Create(0.9, (ILoot)new ItemLoot("Potion of Oryx")),
                             Tuple.Create(0.1, (ILoot)new ItemLoot("Oceanic Nova")),
                             Tuple.Create(0.09, (ILoot)new ItemLoot("Potion of Power")),

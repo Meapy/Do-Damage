@@ -123,8 +123,9 @@ namespace WorldServer.core.commands.doomed
             var seasonal = new HashSet<string>(SeasonalThreshold.Items.Concat(Loot.WinterBossDrops.Select(d => d.Item)));
             bool Tiered(string id) => items.TryGetValue(id, out var i) && i.Tier >= 0;
             var forgeOnly = new HashSet<string>(ForgeOnly.Select(r => r.Result).Concat(Ascended.Select(a => a.Result)));
+            // (the advanced recipes needed the Forge Amulet, which is gone)
             bool Allowed((string Result, int Fame, bool Advanced, string[] Items) r) =>
-                items.ContainsKey(r.Result) && !NeverForged.Contains(r.Result)
+                !r.Advanced && items.ContainsKey(r.Result) && !NeverForged.Contains(r.Result)
                 && (dropped.Contains(r.Result) || forgeOnly.Contains(r.Result))
                 && !seasonal.Contains(r.Result) && r.Items.All(items.ContainsKey);
 

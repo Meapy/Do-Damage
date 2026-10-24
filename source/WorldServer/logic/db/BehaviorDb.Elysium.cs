@@ -419,9 +419,10 @@ namespace WorldServer.logic
                     new ItemLoot("Doom Dirk", 0.02),
                     new ItemLoot("Flying Doom Daggers", 0.02),
                     new ItemLoot("Tome of Noble Assault", 0.02),
-                    new ItemLoot("Doom Poison", 0.01),
                     new ItemLoot("Sword of Dark Enchantment", 0.004),
-                    new ItemLoot("Forge Amulet", 0.004),
+                    // his gems, as often as Oryx 4's Infernal ones
+                    new ItemLoot("Ascended Gem of Adoration", 0.012),
+                    new ItemLoot("Ascended Gem of Tenderness", 0.012),
                     new ItemLoot("Staff of Heavens", 0.004),
                     new ItemLoot("Eternal Sword", 0.001)
                 ),

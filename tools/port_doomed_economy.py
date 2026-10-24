@@ -45,7 +45,12 @@ NOT_SOLD = {"Twilight Generator", "Dinosaur's Pet Generator", "Crown", "God Rush
             "Amulet of Resurrection", "Dirk of Cronus", "Staff of Endless Energy",
             "America Sword", "Turkey Leg of Doom", "America Shield", "Spell of Invisibility", "Spell of Life",
             "Spell of Shielding", "Spell of Teleportation", "Tome of Poison", "Tome of Speed", "Tome of the Dead",
-            "Tome of Shining Stars"}
+            "Tome of Shining Stars",
+            # Oryx 4's alone (the Oryx UT pass)
+            "Doom Poison"}
+# items gone from the forge (the Oryx UT pass): the old forge materials, which the forge shards
+# replaced, and the Forge Amulet. No recipe takes or makes them, and the forge doesn't buy them.
+FORGE_GONE = {"Shattered Rune of Oryx", "Broken Oryx Armor", "Purified Doom Saliva", "Forge Amulet"}
 # results the Divine Forge doesn't make: the admin items, the rewards, and the very rare drops of
 # Oryx 5 its Doomed Realms recipes would make easy (the T16 armours only he drops)
 NOT_FORGED = {"Crown", "Anatis Staff", "Staff of Endless Energy", "Eternal Sword",
@@ -132,13 +137,13 @@ def write_economy(dr_root, dr, bs, final_id, known):
     combos = []
     for result, price, adv, items in parse_combos(dr_root):
         r, ids = resolve(result), [resolve(i) for i in items]
-        if r and all(ids) and r not in NOT_FORGED:
+        if r and all(ids) and r not in NOT_FORGED and r not in FORGE_GONE and not FORGE_GONE & set(ids) and not adv:
             combos.append((r, price, adv, ids))
 
     sell = {}
     for name, price in parse_sell_prices(dr_root).items():
         oid = resolve(name)
-        if oid:
+        if oid and oid not in FORGE_GONE:
             sell.setdefault(oid, price)
 
     prices, lists = parse_merchant_lists(dr_root)

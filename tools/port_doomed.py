@@ -424,7 +424,10 @@ TEXTURE_OVERRIDES = {"Oryx the Mad God 4": ("hashCellarOryx16x16", 0),
                      "Staff of Endless Energy": ("t15Weapons8x8", 7),
                      "Sphinx Leather Armor": ("t16Armors8x8", 0),
                      "Armor of the Pyramid": ("t16Armors8x8", 1),
-                     "Robe of the Nile": ("t16Armors8x8", 2)}
+                     "Robe of the Nile": ("t16Armors8x8", 2),
+                     # Oryx 4's daggers, red in their shading (tools/draw_oryx_uts.py)
+                     "Doom Dirk": ("oryxUts8x8", 0),
+                     "Flying Doom Daggers": ("oryxUts8x8", 1)}
 # projectiles drawn anew: id -> {projectile id: object}. Oryx 4's first phase shoots hellfire.
 PROJECTILE_OVERRIDES = {"Oryx the Mad God 4": {"2": "Hellfire Bolt", "4": "Hellfire Star"},
                         # the Elysian Staff shoots Oryx 5's Celestial Bolt (its projectile has no id)
@@ -435,7 +438,9 @@ DISPLAY_OVERRIDES = {"Oryx the Mad God 4": "Oryx the Infernal Mad God", "Hash Ce
                      # the T16 armours are Oryx 5's own (SETUP-LOCAL.md, "T16 armours"); their ids stay so
                      # ones players hold keep working
                      "Sphinx Leather Armor": "Hide of the Firmament", "Armor of the Pyramid": "Armor of Ascension",
-                     "Robe of the Nile": "Robe of Absolution"}
+                     "Robe of the Nile": "Robe of Absolution",
+                     # Oryx 4's poison, in his Inferno's name (the Oryx UT pass)
+                     "Doom Poison": "Infernal Brimstone Poison"}
 
 
 # Loot bags (<BagType>): Doomed Realms numbered its bags differently, so its rarest items dropped
@@ -469,13 +474,19 @@ ADMIN_ITEMS = ["Doomie Amulet", "Doomed Hero Badge", "Fallen Crown", "God Rushin
 REWARD_ITEMS = ["America Sword", "America Shield"]
 # items nothing gives any more (<Unobtainable/>: the client's tooltip and the wiki say so): the T20
 # Oryx set and armours, taken out of the drops (port_doomed_monsters.LOOT_CHANGES, the Oryx behaviours)
-UNOBTAINABLE_ITEMS = ["Ring of Oryx", "Oryx Hide Armor", "Oryx Hide Robe", "Oryx Scale Armor", "Soul Spawned Armor"]
+UNOBTAINABLE_ITEMS = ["Ring of Oryx", "Oryx Hide Armor", "Oryx Hide Robe", "Oryx Scale Armor", "Soul Spawned Armor",
+                      # the Oryx UT pass: the old forge materials (the forge shards took their place),
+                      # the Forge Amulet (the forge no longer takes it) and the Burning Amulet
+                      "Shattered Rune of Oryx", "Broken Oryx Armor", "Purified Doom Saliva", "Forge Amulet",
+                      "Burning Amulet"]
 # loot in a private bag (the T16 armours, as the T15s they top)
 SOULBOUND_ITEMS = ["Sphinx Leather Armor", "Armor of the Pyramid", "Robe of the Nile"]
 DESCRIPTIONS = {
     "Santa's Hat": "A hat that protects Santa from even death itself. A blow that would kill its wearer breaks "
                    "the hat instead, and sends them back to the Nexus.",
     "Staff of Heavens": "Raised over Oryx's Elysium in his last stand, it fires the holy bolts of the Ascended God.",
+    "Doom Poison": "Brimstone from the deepest fires of Oryx's Inferno. It curses all it burns, but its fumes "
+                   "leave the one who throws it silenced for a moment.",
     "America Sword": "Rewarded by DODMG: America!",
     "America Shield": "Rewarded by DODMG: America!",
     "Sphinx Leather Armor": "Leather cut from the open sky over Oryx's Elysium, light as a cloud and as hard to strike. "
@@ -562,6 +573,11 @@ GEAR_TUNING = {
     # the T6 poison's numbers (Baneserpent Poison; was 2,500 over 10.5 s)
     "Tome of Poison": {"activates": [("PoisonGrenade", {}, {"impactDamage": "230", "totalDamage": "1035", "duration": "4.5"})]},
     "Tome of Noble Assault": {"activates": [("TomeDamage", {}, {"totalDamage": "800"})]},  # was 500
+    # the Oryx UT pass: 2,000 poison damage (was 15,000), cursing instead of dazing, and its thrower
+    # silenced 2 s; Oryx 4's alone (no shop)
+    "Doom Poison": {"activates": [("PoisonGrenade", {}, {"totalDamage": "2000", "condEffect": "Curse"})],
+                    "add_activates": [("ConditionEffectSelf", {"effect": "Silenced", "duration": "2"})],
+                    "no_shop": True},
     "Sword Shield": {"damage": (175, 225)},  # was 350-450
     "Seal of the Fallen Angel": {"activates": [("ConditionEffectSelf", {"effect": "Invulnerable"}, {"duration": "2"})]},  # was 10 s
     "Tome of Shining Stars": {"activates": [("ConditionEffectAura", {"effect": "Invulnerable"}, None)]},
@@ -611,6 +627,14 @@ def tune_gear(dr):
                     o.remove(a)
                 else:
                     a.attrib.update(new)
+        # Activates added after the last one: (effect, its attributes)
+        for effect, attrs in t.get("add_activates", []):
+            acts = o.findall("Activate")
+            e = ET.Element("Activate", attrs)
+            e.text = effect
+            o.insert(list(o).index(acts[-1]) + 1 if acts else len(o), e)
+        if t.get("no_shop") and o.find("Shop") is not None:
+            o.remove(o.find("Shop"))
         if t.get("pierce") and p.find("ArmorPiercing") is None:
             ET.SubElement(p, "ArmorPiercing")
         if "wave" in t:  # the shots weave side to side: (amplitude in tiles, frequency)

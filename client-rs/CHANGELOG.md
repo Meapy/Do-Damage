@@ -9,6 +9,24 @@ refuses while an `Unreleased` one is left, so rename it to `## <version> (<date>
 version number itself is in `client-rs/Cargo.toml`.
 
 ## Unreleased
+- Oryx 4's untiered items, reworked and named for his Inferno:
+  - Doom Poison is now the Infernal Brimstone Poison: 2,000 poison damage (was 15,000) that curses
+    the enemies it hits instead of dazing them, still with its stasis blast, and it silences you for
+    2 seconds when you throw it. Only Oryx 4 drops it now: Oryx 5 and the donor shop no longer have it.
+  - The Cloak of Bloody Surprises is now the Infernal Cloak of Bloodshed: +8 Defense and +10 Vitality
+    (were 6 and 4), and it makes you bleed for a second when you use it.
+  - The Doom Dirk and Flying Doom Daggers have red in their shading now.
+- Oryx 5 drops two gems of his own, as often as Oryx 4 drops his: the Ascended Gem of Adoration
+  (+400 Vitality for 3 seconds when your health drops below 20%) and the Ascended Gem of Tenderness
+  (each use of your ability: a 35% chance of +50 Wisdom for 4 seconds).
+- Bleeding enemies show the bleeding icon: the Infernal Bloodletter's, pets' and every other bleed
+  a weapon or pet puts on them.
+- Poisons now put on the condition their numbers list: the Infernal Brimstone Poison's Curse, and
+  four other poisons' Sick, Dazed, Curse and Armor Broken, which never took hold before.
+- Silenced really stops your ability now, for as long as it lasts.
+- Gone: the Shattered Rune of Oryx, Broken Oryx Armor and Purified Doom Saliva (the forge shards
+  took their place), the Forge Amulet (the forge no longer takes it) and the Burning Amulet. Nothing
+  drops them; ones you have stay, marked unobtainable, and the forge no longer buys them.
 - Forge shards: Oryx the Infernal Mad God (Oryx 4) drops Infernal Weapon, Ability, Armor and
   Accessory Shards, and Oryx the Ascended God (Oryx 5) the four Ascended Shards, each half as often
   as their Potion of Oryx. They take the place of the Shattered Rune of Oryx, Broken Oryx Armor,

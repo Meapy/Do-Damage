@@ -43,8 +43,8 @@ by class, with their numbers and where they come from.
 Loot drops in bags. Their colour says how rare the best thing inside is, from brown for common
 loot up to **white**, the rarest: a white bag is announced to everyone. Bags with
 good loot are **soulbound**: only you can see and open them, and you need to have done enough of
-the monster's damage to get one. The Oryx set, the tier 16 armours, Doom Poison and the Sword of
-Dark Enchantment drop in white bags; Potions of Oryx and Potions of Power in their own special bag.
+the monster's damage to get one. The Oryx set, the tier 16 armours, Oryx 4's and Oryx 5's untiered items and
+the Sword of Dark Enchantment drop in white bags; Potions of Oryx and Potions of Power in their own special bag.
 
 ## Potions
 

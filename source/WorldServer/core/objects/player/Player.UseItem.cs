@@ -153,6 +153,13 @@ namespace WorldServer.core.objects
                     return;
                 }
 
+            // no ability while Silenced (the Infernal Brimstone Poison does it to its user)
+            if (slot == 1 && entity == this && HasConditionEffect(ConditionEffectIndex.Silenced))
+            {
+                Refuse("You are silenced.");
+                return;
+            }
+
             // a forge shard goes to the forge storage, so with that full it isn't spent
             if (ForgeStorage.Full(this, item.ObjectId))
             {
@@ -245,6 +252,8 @@ namespace WorldServer.core.objects
                 if (item.SlotType == slotType || (Client.Account.Admin && slot == 1))
                 {
                     AbilityUseEffects(pos);
+                    if (slot == 1 && objId == Id)
+                        AbilityBoosts();
                 }
             }
             else
@@ -1404,6 +1413,9 @@ namespace WorldServer.core.objects
                         ((Enemy)entity).Damage(this, ref time, impDamage, true);
                     if (eff.TotalDamage > 0)
                         PoisonEnemy(world, (Enemy)entity, eff, eff.UseWisMod);
+                    // and its condEffect, for condDuration (the Infernal Brimstone Poison's Curse)
+                    if (eff.ConditionEffect is { } cond && eff.EffectDuration > 0)
+                        entity.ApplyConditionEffect(cond, (int)(eff.EffectDuration * 1000));
                 });
             });
         }
