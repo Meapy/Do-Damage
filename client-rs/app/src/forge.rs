@@ -1,7 +1,8 @@
 //! The Divine Forge's window, opened from the forge in the Nexus's south yard.
 //!
 //! Forge: the recipes (`ForgeData`), filtered by what they make (weapons, abilities, armor,
-//! rings and the rest, then by slot type) or by name, or to what can be made now; a result
+//! rings and the rest, then by slot type), to untiered gear or each kind's highest tier, or by
+//! name, or to what can be made now; a result
 //! several recipes make is listed once. Picking one shows its ingredients as sockets; the player
 //! puts in items from the inventory (forge shards come from the forge storage), forges, and
 //! watches the items go into the fire and the forged item come out. Enchant: locked, a teaser
@@ -65,6 +66,15 @@ pub enum Category {
     Other,
 }
 
+/// The second filter: untiered gear only, or only the highest tier the forge makes of each kind.
+#[derive(Clone, Copy, Debug, PartialEq, Eq, Default)]
+enum Rarity {
+    #[default]
+    Any,
+    Untiered,
+    Top,
+}
+
 const CATEGORIES: [(Category, &str); 6] = [
     (Category::All, "All"),
     (Category::Weapons, "Weapons"),
@@ -105,6 +115,7 @@ enum Hit {
     Close,
     Search,
     Category(Category),
+    Rarity(Rarity),
     Slot(Option<i32>),
     Ready,
     Recipe(usize),
@@ -161,6 +172,7 @@ pub struct Forge {
     category: Category,
     slot: Option<i32>,
     ready_only: bool,
+    rarity: Rarity,
     /// The recipes shown (indexes into `recipes`), and the first row drawn.
     shown: Vec<usize>,
     row: usize,
@@ -251,7 +263,15 @@ impl Forge {
     fn filter(&mut self, data: &GameData) {
         let q = self.query.trim().to_lowercase();
         let name = |t: u16| data.objects.get(&t).map_or(String::new(), |d| d.display_id.to_lowercase());
-        let tier = |t: u16| data.objects.get(&t).and_then(|d| d.xml.text_of("Tier")).and_then(|t| t.trim().parse().ok());
+        let tier = |t: u16| -> Option<i32> { data.objects.get(&t).and_then(|d| d.xml.text_of("Tier")).and_then(|t| t.trim().parse().ok()) };
+        // the highest tier the forge makes of each slot type, for the Highest tier filter
+        let mut top: HashMap<i32, i32> = HashMap::new();
+        for r in &self.recipes {
+            if let Some(t) = tier(r.result) {
+                let e = top.entry(self.category_of(data, r.result).1).or_insert(t);
+                *e = (*e).max(t);
+            }
+        }
         let mut shown: Vec<((u8, i32), Category, String, usize)> = self
             .recipes
             .iter()
@@ -261,11 +281,17 @@ impl Forge {
                 (self.category == Category::All || cat == self.category)
                     && self.slot.is_none_or(|s| s == slot)
                     && (!self.ready_only || self.can_make(r))
+                    && match self.rarity {
+                        Rarity::Any => true,
+                        Rarity::Untiered => tier(r.result).is_none() && cat != Category::Other,
+                        Rarity::Top => tier(r.result).is_some_and(|t| top.get(&slot) == Some(&t)),
+                    }
                     && (q.is_empty() || name(r.result).contains(&q) || r.items.iter().any(|&i| name(i).contains(&q)))
             })
             .map(|(i, r)| {
                 let cat = self.category_of(data, r.result).0;
-                (order(cat, tier(r.result)), cat, name(r.result), i)
+                let ascended = data.objects.get(&r.result).is_some_and(|d| d.xml.has("Ascended"));
+                (order(cat, tier(r.result), ascended), cat, name(r.result), i)
             })
             .collect();
         shown.sort_by(|a, b| (a.0, a.1 as u8, &a.2).cmp(&(b.0, b.1 as u8, &b.2)));
@@ -398,6 +424,10 @@ impl Forge {
             Hit::Category(c) => {
                 self.category = c;
                 self.slot = None;
+                self.filter(data);
+            }
+            Hit::Rarity(k) => {
+                self.rarity = if self.rarity == k { Rarity::Any } else { k };
                 self.filter(data);
             }
             Hit::Slot(s) => {
@@ -696,7 +726,10 @@ impl Forge {
             ui.rect(cx, fr[1] + 7.0 * s, (1.5 * s).max(1.0), fr[3] - 14.0 * s, color::ACCENT, 1.0);
         }
         self.hits.push((Hit::Search, fr));
-        let cats: Vec<(Hit, String, bool)> = CATEGORIES.iter().map(|&(c, l)| (Hit::Category(c), l.to_owned(), c == self.category)).collect();
+        let mut cats: Vec<(Hit, String, bool)> = CATEGORIES.iter().map(|&(c, l)| (Hit::Category(c), l.to_owned(), c == self.category)).collect();
+        for (k, label) in [(Rarity::Untiered, "UT"), (Rarity::Top, "Highest tier")] {
+            cats.push((Hit::Rarity(k), label.to_owned(), self.rarity == k));
+        }
         let mut y = self.chips(ui, left[0], fr[1] + fr[3] + 10.0 * s, left[0] + left[2], &cats, s, mouse);
         let slots = self.slot_filters(ui.data);
         if !slots.is_empty() {
@@ -1052,13 +1085,15 @@ fn locked_chip(ui: &mut Ui, r: [f32; 4], label: &str, size: f32, s: f32) {
     ui.label(label, x + lock + 5.0 * s, r[1] + (r[3] - size * 1.22) / 2.0, size, true, color::TEXT_MUTED);
 }
 
-/// Where a recipe's result goes in the list: untiered gear (UTs) first, then tiered gear from
-/// the highest tier down, then the rest (potions, keys, materials).
-fn order(cat: Category, tier: Option<i32>) -> (u8, i32) {
+/// Where a recipe's result goes in the list: Oryx 5's Ascended gear first, then the other
+/// untiered gear (UTs), then tiered gear from the highest tier down, then the rest (potions,
+/// keys, materials).
+fn order(cat: Category, tier: Option<i32>, ascended: bool) -> (u8, i32) {
     match (cat, tier) {
-        (Category::Other | Category::All, _) => (2, 0),
-        (_, None) => (0, 0),
-        (_, Some(t)) => (1, -t),
+        (Category::Other | Category::All, _) => (3, 0),
+        _ if ascended => (0, 0),
+        (_, None) => (1, 0),
+        (_, Some(t)) => (2, -t),
     }
 }
 
@@ -1136,15 +1171,16 @@ mod tests {
     }
 
     #[test]
-    fn untiered_gear_first_then_tiers_down() {
+    fn ascended_then_untiered_gear_first_then_tiers_down() {
         let mut keys = [
-            order(Category::Other, None),
-            order(Category::Weapons, Some(3)),
-            order(Category::Armor, None),
-            order(Category::Rings, Some(8)),
+            order(Category::Other, None, false),
+            order(Category::Weapons, Some(3), false),
+            order(Category::Armor, None, false),
+            order(Category::Rings, Some(8), false),
+            order(Category::Weapons, None, true),
         ];
         keys.sort();
-        assert_eq!(keys, [(0, 0), (1, -8), (1, -3), (2, 0)]);
+        assert_eq!(keys, [(0, 0), (1, 0), (2, -8), (2, -3), (3, 0)]);
     }
 
     #[test]

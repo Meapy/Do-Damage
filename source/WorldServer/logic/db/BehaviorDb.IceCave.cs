@@ -470,6 +470,7 @@ namespace WorldServer.logic
                     new ItemLoot("Winter's Breath Wand", 0.005),
                     new ItemLoot("Skullish Remains of Esben", 0.004),
                     new ItemLoot("Esben's Wedding Ring", 0.004),
+                    new ItemLoot("Esben's Shaman Attire", 0.004),
                     new ItemLoot("An Icicle", 0.004),
                     new ItemLoot("Potion of Mana", 1)
                 )

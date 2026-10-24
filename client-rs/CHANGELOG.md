@@ -15,16 +15,23 @@ version number itself is in `client-rs/Cargo.toml`.
   Oryx Cloths and Purified Doom Saliva those two dropped. Use a shard and it goes into your forge
   storage, which your whole account shares: the Divine Forge's new Shards tab shows it, and a click
   there takes one back out to trade. Recipes take their shards straight from your storage.
-- The first Ascended items, Oryx 5's own gear, which he never drops: the Divine Forge makes them from
-  an item of the top tier he drops and an Ascended shard, for 2,000 fame. An Ascended Sword, Dagger,
-  Bow, Wand, Katana, Dual Blades and Fists from their tier 15s, an Ascended Hide and Plate from the
-  tier 16 armours, and his own pieces from any item of the tier: the Spear of Heaven (a staff, from
-  any tier 15 weapon), the Robe of the Ascended God (any tier 16 armour), the Helm of the Ascended
-  God (any tier 8 ability), and the Boots of the Ascended God and the Rings of Ascended Wrath and
-  Ascended Grace (any tier 8 ring). For now each is a placeholder with the numbers of the item it's
+- The first Ascended items, Oryx 5's own gear, which he never drops: untiered items with a red slot
+  edge, which the Divine Forge makes from an item of the top tier he drops and an Ascended shard,
+  for 2,000 fame. An Ascended Sword, Dagger, Bow, Wand, Katana, Dual Blades and Fists from their
+  tier 15s, and an Ascended Hide and Plate from the tier 16 armours, each looking like the item it's
+  made from with purple sparkles; and his own Enthroned pieces from any item of the tier: the
+  Enthroned Staff (the staff he holds, from any tier 15 weapon), the Enthroned Robe (any tier 16
+  armour), the Enthroned Helm (any tier 8 ability), and the Enthroned Boots and Enthroned Rings of
+  Wrath and Grace (any tier 8 ring). For now each is a placeholder with the numbers of the item it's
   copied from. The Infernal shards' recipes come later.
 - The Divine Forge lists an item that several recipes make once, and picks the recipe you can make.
-  A new Enchant tab is there too, locked until a later update.
+  Two new filters: UT (untiered gear, the Ascended items first) and Highest tier (the top tier it
+  makes of each kind). A new Enchant tab is there too, locked until a later update.
+- Armours: the Coral Silk Armor, Leaf Dragon Hide Armor, Esben's Shaman Attire, Fungal Breastplate,
+  Resurrected Warrior's Armor, Breastplate of New Life and Candy-Coated Armor are plain untiered
+  items now, no longer Legendary, Ascended or Ethereal. Esben's Shaman Attire drops in the Ice Cave
+  from Esben the Unwilling, as often as his other untiered items (0.4%). The Judge's Robe, which
+  nothing drops, is unobtainable.
 - The Divine Forge's one-for-one recipes (the Phantasm Dirk and Dirk of Cronus, the Doom Bow's
   looks, and the others that swap an item's looks) work now: the forge used to refuse anything made
   from a single item.

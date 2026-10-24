@@ -7,10 +7,11 @@ armor, accessory), dropped by Oryx 4 and Oryx 5. Used, a shard goes to the accou
 storage (ForgeStorage.cs), which the Divine Forge takes them from.
 
 The Ascended items: placeholders that nothing drops, forged from an item of Oryx the Ascended
-God's top tier and an Ascended shard (ForgeRecipes.Ascended). Each keeps the numbers of the item
-it's copied from (SOURCE below) until it gets its own, and the weapons and the leather and heavy
-armours its sprite too; Oryx 5's own pieces (the staff, a spear like his Divine Spear, and his
-helm, boots, robe and two rings) have sprites drawn here.
+God's top tier and an Ascended shard (ForgeRecipes.Ascended), marked <Ascended/> (the red slot
+edge, and the wiki's Ascended group). Each keeps the numbers of the item it's copied from until
+it gets its own. The weapons and the leather and heavy armours keep its sprite too, with a few
+purple sparkles added round it (SPARKLE); Oryx 5's own Enthroned pieces (his staff, as his sprite
+holds it, and his helm, boots, robe and two rings) are drawn here.
 
 Writes `AscendedItems8x8.png` (client/src/kabam/rotmg/assets/custom/images, `ascendedItems8x8`,
 which tools/gen_rs_manifest.py registers for the Rust client), 8 by 8 pixels a cell in the order
@@ -107,9 +108,11 @@ RAMPS = {
 }
 SETS = {"Infernal": "Oryx the Mad God's", "Ascended": "Oryx the Ascended God's"}
 
-# Oryx 5's own pieces, by colour: k b s w W silver, p P v purple, g G y gold
+# Oryx 5's own pieces, by colour: k b s w W silver, p P v purple, g G y gold, B K C his staff's
+# crystal (ElysiumOryx16x16.png)
 O5 = {"k": SILVER[0], "b": SILVER[1], "s": SILVER[2], "w": SILVER[3], "W": SILVER[4],
-      "p": PURPLE[0], "P": PURPLE[1], "v": PURPLE[2], "g": GOLD[0], "G": GOLD[1], "y": GOLD[2]}
+      "p": PURPLE[0], "P": PURPLE[1], "v": PURPLE[2], "g": GOLD[0], "G": GOLD[1], "y": GOLD[2],
+      "B": (110, 200, 245), "K": (120, 228, 255), "C": (196, 240, 255)}
 PIECES = {
     "helm": [
         "...Gy...",
@@ -161,9 +164,29 @@ PIECES = {
         "..gGGg..",
         "........",
     ],
+    # the staff Oryx 5 holds: a pale crystal on a purple collar, a gold shaft banded light and dark
+    "staff": [
+        "......CW",
+        ".....CKC",
+        "....BKC.",
+        "...pPB..",
+        "..Gg....",
+        ".Gg.....",
+        "Gg......",
+        "g.......",
+    ],
 }
 
-# The sheet's cells, in order: the shards, then Oryx 5's pieces
+# The sheets the Ascended weapons and armours copy their sprites from
+SOURCE_SHEETS = {
+    "t15Weapons8x8": os.path.join(SRC, "kabam", "rotmg", "assets", "custom", "images", "T15Weapons8x8.png"),
+    "t16Armors8x8": os.path.join(SRC, "kabam", "rotmg", "assets", "custom", "images", "T16Armors8x8.png"),
+}
+# the sparkles added round a copied sprite: in the empty pixels touching it nearest these corners
+SPARKLE = [((7, 0), (214, 160, 255)), ((0, 7), PURPLE[2]), ((7, 7), (214, 160, 255)), ((0, 0), PURPLE[2])]
+
+# The sheet's cells, in order: the shards, Oryx 5's pieces, then the copied sprites with sparkles
+# (("sparkle", sheet, index), which main adds as the items need them)
 SPRITES = [("shard", s, k) for s in ("Infernal", "Ascended") for k in KINDS] + \
           [("piece", p, None) for p in PIECES]
 
@@ -173,8 +196,8 @@ def cell_of(kind, a, b=None):
 
 
 # The shards: (type code, set, kind); the Ascended items: (type code, id, the item whose numbers
-# it copies, its texture as (sheet, index) or None for the source's, its slot type or None for
-# the source's, description). Only ever add to these lists.
+# it copies, its texture as (sheet, index) or None for the source's with sparkles, its slot type or
+# None for the source's, description). Only ever add to these lists.
 SHARDS = [
     (0x5840, "Infernal", "Weapon"), (0x5841, "Infernal", "Ability"),
     (0x5842, "Infernal", "Armor"), (0x5843, "Infernal", "Accessory"),
@@ -191,29 +214,52 @@ ASCENDED = [
     (0x5854, "Ascended Katana", "Ame-no-Habakiri", None, None, PLACEHOLDER.format(tier=15)),
     (0x5855, "Ascended Dual Blades", "Seraphic Blades", None, None, PLACEHOLDER.format(tier=15)),
     (0x5856, "Ascended Fists", "Fists of the Ascended", None, None, PLACEHOLDER.format(tier=15)),
-    (0x5857, "Spear of Heaven", "Staff of Endless Energy", ("elysium8x8", 0x54), None,
-     "Oryx the Ascended God's Divine Spear, borne as a staff. A placeholder: it has the numbers of the T15 staff for now."),
+    (0x5857, "Enthroned Staff", "Staff of Endless Energy", (SHEET, cell_of("piece", "staff")), None,
+     OWN.format(what="staff", source="the T15 staff")),
     (0x5858, "Ascended Hide", "Sphinx Leather Armor", None, None, PLACEHOLDER.format(tier=16)),
     (0x5859, "Ascended Plate", "Armor of the Pyramid", None, None, PLACEHOLDER.format(tier=16)),
-    (0x585a, "Robe of the Ascended God", "Robe of the Nile", (SHEET, cell_of("piece", "robe")), None,
+    (0x585a, "Enthroned Robe", "Robe of the Nile", (SHEET, cell_of("piece", "robe")), None,
      OWN.format(what="robe", source="the T16 robe")),
-    (0x585b, "Helm of the Ascended God", "Helm of Imperial Right", (SHEET, cell_of("piece", "helm")), None,
+    (0x585b, "Enthroned Helm", "Helm of Imperial Right", (SHEET, cell_of("piece", "helm")), None,
      OWN.format(what="helm", source="the T8 helm")),
-    (0x585c, "Boots of the Ascended God", "Ring of Absolute Speed", (SHEET, cell_of("piece", "boots")), None,
+    (0x585c, "Enthroned Boots", "Ring of Absolute Speed", (SHEET, cell_of("piece", "boots")), None,
      OWN.format(what="boots, worn as a ring", source="the T8 speed ring")),
-    (0x585d, "Ring of Ascended Wrath", "Ring of Absolute Attack", (SHEET, cell_of("piece", "ring wrath")), None,
-     "The offensive Ascended ring, a placeholder: it has the numbers of the T8 attack ring for now."),
-    (0x585e, "Ring of Ascended Grace", "Ring of Absolute Defense", (SHEET, cell_of("piece", "ring grace")), None,
-     "The defensive Ascended ring, a placeholder: it has the numbers of the T8 defense ring for now."),
+    (0x585d, "Enthroned Ring of Wrath", "Ring of Absolute Attack", (SHEET, cell_of("piece", "ring wrath")), None,
+     OWN.format(what="ring of wrath", source="the T8 attack ring")),
+    (0x585e, "Enthroned Ring of Grace", "Ring of Absolute Defense", (SHEET, cell_of("piece", "ring grace")), None,
+     OWN.format(what="ring of grace", source="the T8 defense ring")),
 ]
 # what an Ascended item leaves out of the item it copies
 DROPPED = {"Texture", "Tier", "Description", "DisplayId", "Shop", "SlotType"}
+
+
+def sparkled(sheet, index):
+    """A cell of another sheet, with purple sparkles in the empty pixels round it."""
+    src = Image.open(SOURCE_SHEETS[sheet]).convert("RGBA")
+    cols = src.width // CELL
+    x0, y0 = (index % cols) * CELL, (index // cols) * CELL
+    cell = src.crop((x0, y0, x0 + CELL, y0 + CELL))
+    solid = {(x, y) for x in range(CELL) for y in range(CELL) if cell.getpixel((x, y))[3]}
+    edge = [(x, y) for x in range(CELL) for y in range(CELL) if (x, y) not in solid
+            and any((x + dx, y + dy) in solid for dx, dy in ((1, 0), (-1, 0), (0, 1), (0, -1)))]
+    taken = []
+    for (cx, cy), colour in SPARKLE:
+        free = [p for p in edge if all(abs(p[0] - q[0]) + abs(p[1] - q[1]) > 2 for q in taken)]
+        if not free:
+            break
+        p = min(free, key=lambda p: (abs(p[0] - cx) + abs(p[1] - cy), p))
+        taken.append(p)
+        cell.putpixel(p, colour + (255,))
+    return cell
 
 
 def draw():
     rows = (len(SPRITES) + COLS - 1) // COLS
     img = Image.new("RGBA", (COLS * CELL, rows * CELL), (0, 0, 0, 0))
     for n, (kind, a, b) in enumerate(SPRITES):
+        if kind == "sparkle":
+            img.paste(sparkled(a, b), ((n % COLS) * CELL, (n // COLS) * CELL))
+            continue
         if kind == "shard":
             grid, colours = SHAPES[b], {str(i + 1): c for i, c in enumerate(RAMPS[a][b])}
         else:
@@ -284,7 +330,7 @@ def block(items):
         src = items.get(source)
         if src is None:
             sys.exit(f"{name}: no item {source!r} to copy")
-        sheet, index = texture or (src.findtext("Texture/File"), int(src.findtext("Texture/Index"), 0))
+        sheet, index = texture or (SHEET, cell_of("sparkle", *source_texture(src)))
         out += [
             f'\t<Object type="0x{code:04x}" id="{name}">',
             "\t\t<Class>Equipment</Class>",
@@ -295,6 +341,7 @@ def block(items):
             "\t\t</Texture>",
             f"\t\t<SlotType>{slot or src.findtext('SlotType')}</SlotType>",
             f"\t\t<Description>{esc(desc)}</Description>",
+            "\t\t<Ascended/>",
         ]
         for child in src:
             if child.tag in DROPPED or child.tag in ("Class", "Item", "Soulbound", "BagType"):
@@ -319,12 +366,20 @@ def write_xml(path, lines):
     open(path, "wb").write(text.replace("\n", nl).encode("utf-8"))
 
 
+def source_texture(src):
+    return src.findtext("Texture/File"), int(src.findtext("Texture/Index"), 0)
+
+
 def main():
+    items = server_items()
+    for _, name, source, texture, _, _ in ASCENDED:
+        if texture is None and source in items:
+            SPRITES.append(("sparkle",) + source_texture(items[source]))
     img = draw()
     img.save(OUT)
     if "--preview" in sys.argv:
         img.resize((img.width * 12, img.height * 12), Image.NEAREST).save(sys.argv[sys.argv.index("--preview") + 1])
-    lines = block(server_items())
+    lines = block(items)
     for path in ITEM_XMLS:
         write_xml(path, lines)
     print(f"{len(SPRITES)} sprites, {len(SHARDS)} shards and {len(ASCENDED)} Ascended items")

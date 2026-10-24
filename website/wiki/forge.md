@@ -17,8 +17,9 @@ tier below, and the rest are special recipes, most of them from Doomed Realms.
    class memorial, on a floor of gold.
 2. Stand by it: the bottom of your HUD says "Forge items, or sell them for fame". Press **Open**.
 3. Browse the recipes by what they make (weapons, abilities, armor, rings, the rest, then by kind),
-   search for one, or turn on **Forge Ready Items** to see only what you can make with what you
-   carry.
+   narrow them to **UT** (untiered gear, the Ascended items first) or **Highest tier** (the top tier
+   the forge makes of each kind), search for one, or turn on **Forge Ready Items** to see only what
+   you can make with what you carry.
 4. Pick a recipe. **Insert all** puts its ingredients in from your inventory (and forge shards from
    your forge storage), or click each empty ingredient slot to put one in. An item several recipes
    make is listed once: the forge picks a recipe you can make, and says how many there are.
@@ -59,11 +60,13 @@ The Infernal shards don't make anything yet: their recipes come in a later updat
 
 ## The Ascended items
 
-Oryx the Ascended God's own gear, which he never drops: the forge makes it from an item of the
-highest tier he drops and an Ascended shard of its kind. Each weapon and armour comes from its own
-kind's top item (a tier 15 dagger makes the Ascended Dagger); his own pieces take any item of the
-tier: the **Spear of Heaven**, a staff, from any tier 15 weapon, his robe from any tier 16 armour,
-his helm from any tier 8 ability, and his boots and two rings from any tier 8 ring.
+Oryx the Ascended God's own gear, which he never drops: untiered items with a red slot edge, which
+the forge makes from an item of the highest tier he drops and an Ascended shard of its kind. Each
+weapon and armour comes from its own kind's top item (a tier 15 dagger makes the Ascended Dagger)
+and looks like it, with purple sparkles. His own **Enthroned** pieces take any item of the tier:
+the **Enthroned Staff**, the staff he holds, from any tier 15 weapon, the **Enthroned Robe** from any
+tier 16 armour, the **Enthroned Helm** from any tier 8 ability, and the **Enthroned Boots** and the
+**Enthroned Rings of Wrath and Grace** from any tier 8 ring.
 
 > These are **placeholders**: for now each has the numbers of the item it's copied from (its tooltip
 > says which). They'll get their own later.

@@ -890,6 +890,9 @@ def tier_colours():
     m = re.search(r'has\("SlotType"\)\.then_some\(0x([0-9A-Fa-f]{6})\)', body)
     if m:
         out.append(("Untiered items (UT)", "#" + m.group(1)))
+    m = re.search(r'has\("Ascended"\)\s*\{\s*return Some\(0x([0-9A-Fa-f]{6})\)', body)
+    if m:
+        out.append(("Ascended items", "#" + m.group(1)))
     m = re.search(r'\[([^\]]+)\]\.iter\(\)\.any.*?Some\(0x([0-9A-Fa-f]{6})\)', body, re.S)
     if m:
         names = [n for n in re.findall(r'"(\w+)"', m.group(1)) if n != "Admin"]

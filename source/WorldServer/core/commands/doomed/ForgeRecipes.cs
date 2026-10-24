@@ -80,7 +80,7 @@ namespace WorldServer.core.commands.doomed
         // The Ascended items (tools/build_ascended_items.py), placeholders nothing drops: each from an
         // item of the top tier Oryx the Ascended God drops of its kind and the Ascended shard of that
         // kind, taken from the forge storage (ForgeStorage.cs). A weapon or armour comes from its own
-        // slot's item; his own pieces (slot 0) from any of the tier and kind. Result, fame, the kind,
+        // slot's item; his own Enthroned pieces (slot 0) from any of the tier and kind. Result, fame, the kind,
         // tier and slot it's forged from, the shard.
         private const string WeaponShard = "Ascended Weapon Shard", AbilityShard = "Ascended Ability Shard",
             ArmorShard = "Ascended Armor Shard", AccessoryShard = "Ascended Accessory Shard";
@@ -94,14 +94,14 @@ namespace WorldServer.core.commands.doomed
             ("Ascended Katana", ItemType.Weapon, 15, 24, WeaponShard),
             ("Ascended Dual Blades", ItemType.Weapon, 15, 36, WeaponShard),
             ("Ascended Fists", ItemType.Weapon, 15, 200, WeaponShard),
-            ("Spear of Heaven", ItemType.Weapon, 15, 0, WeaponShard),
+            ("Enthroned Staff", ItemType.Weapon, 15, 0, WeaponShard),
             ("Ascended Hide", ItemType.Armor, 16, 6, ArmorShard),
             ("Ascended Plate", ItemType.Armor, 16, 7, ArmorShard),
-            ("Robe of the Ascended God", ItemType.Armor, 16, 0, ArmorShard),
-            ("Helm of the Ascended God", ItemType.Ability, 8, 0, AbilityShard),
-            ("Boots of the Ascended God", ItemType.Ring, 8, 0, AccessoryShard),
-            ("Ring of Ascended Wrath", ItemType.Ring, 8, 0, AccessoryShard),
-            ("Ring of Ascended Grace", ItemType.Ring, 8, 0, AccessoryShard),
+            ("Enthroned Robe", ItemType.Armor, 16, 0, ArmorShard),
+            ("Enthroned Helm", ItemType.Ability, 8, 0, AbilityShard),
+            ("Enthroned Boots", ItemType.Ring, 8, 0, AccessoryShard),
+            ("Enthroned Ring of Wrath", ItemType.Ring, 8, 0, AccessoryShard),
+            ("Enthroned Ring of Grace", ItemType.Ring, 8, 0, AccessoryShard),
         };
 
         private static (string Result, int Fame, bool Advanced, string[] Items)[] _all;

@@ -277,11 +277,14 @@ pub fn class_skins<'a>(data: &'a bsk_data::GameData, class: u16, list: &CharList
 }
 
 /// A tier colour for an item's slot edge: white tiers, gold for the top ones, purple for
-/// untiered, orange for sets.
+/// untiered, orange for sets, red for Oryx 5's Ascended gear.
 pub fn tier_edge(data: &bsk_data::GameData, item: i32) -> Option<u32> {
     let d = data.objects.get(&(item as u16))?;
     let xml = &d.xml;
-    if ["Admin", "Ethereal", "Ascended", "Legendary"].iter().any(|t| xml.has(t)) {
+    if xml.has("Ascended") {
+        return Some(0xE5383B);
+    }
+    if ["Admin", "Ethereal", "Legendary"].iter().any(|t| xml.has(t)) {
         return Some(0xFFC800);
     }
     if xml.has("Consumable") || xml.has("Treasure") {

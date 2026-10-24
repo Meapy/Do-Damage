@@ -2108,7 +2108,7 @@ fn tier_tag(xml: &bsk_data::xml::Element) -> Option<(String, u32)> {
     if hidden.iter().any(|t| xml.has(t)) {
         return None;
     }
-    let color = [("Admin", 0xFC65D0), ("Ethereal", 0xF61D1D), ("Ascended", 0x1BF7DD), ("Legendary", 0xFFC800)]
+    let color = [("Admin", 0xFC65D0), ("Ethereal", 0xF61D1D), ("Ascended", 0xFF5A5F), ("Legendary", 0xFFC800)]
         .iter()
         .find(|(t, _)| xml.has(t))
         .map(|(_, c)| *c);
@@ -2116,6 +2116,8 @@ fn tier_tag(xml: &bsk_data::xml::Element) -> Option<(String, u32)> {
         Some((format!("T{}", tier.trim()), color.unwrap_or(0xFFFFFF)))
     } else if xml.attr("setType").is_some() {
         Some(("ST".into(), color.unwrap_or(0xF2FF00)))
+    } else if xml.has("Ascended") {
+        Some(("UT · Ascended".into(), 0xFF5A5F))
     } else {
         Some(("UT".into(), color.unwrap_or(0xE22BC9)))
     }
@@ -2309,7 +2311,7 @@ pub fn item_tooltip(data: &GameData, item: i32, me: Option<&GameObj>, kind: Slot
         Some(None) => ItemNumbers { present: true, ..Default::default() },
         Some(Some(w)) => data.objects.get(&(w as u16)).map(item_numbers).unwrap_or_default(),
     };
-    let title_color = [("Admin", 0xFF8BDE), ("Ethereal", 0xFF5A5A), ("Ascended", 0x66FFF0), ("Legendary", 0xFFE066)]
+    let title_color = [("Admin", 0xFF8BDE), ("Ethereal", 0xFF5A5A), ("Ascended", 0xFF8A8E), ("Legendary", 0xFFE066)]
         .iter()
         .find(|(t, _)| xml.has(t))
         .map_or(0xFFFFFF, |(_, c)| *c);

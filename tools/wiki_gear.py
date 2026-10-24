@@ -38,7 +38,8 @@ GROUPS = [
     ("set", "Set pieces (ST): future additions", "ST",
      "One piece of a set of four for one class: weapon, ability, armor and ring. None can be found for now."),
     ("legendary", "Legendary", "Legendary", "Rare untiered items with the gold slot edge."),
-    ("ascended", "Ascended", "Ascended", "Rare untiered items with the gold slot edge."),
+    ("ascended", "Untiered (UT): Ascended", "Ascended",
+     "Oryx the Ascended God's own gear, with the red slot edge: nothing drops it, the Divine Forge makes it from his top tier and an Ascended shard."),
     ("ethereal", "Ethereal", "Ethereal", "Rare untiered items with the gold slot edge."),
     ("reward", "Reward items", "Reward", "Given by the staff as rewards: nothing drops or sells them."),
     ("admin", "Admin items", "Admin", "Made for staff and testing."),
@@ -191,6 +192,8 @@ class Gear:
                 out["set"] = colour
             elif "(UT)" in label:
                 out["untiered"] = colour
+            elif label == "Ascended items":
+                out["ascended"] = colour
             else:
                 out["special"] = colour
         out["tiers"] = tiers
@@ -203,7 +206,7 @@ class Gear:
                 if lo <= it["tier"] <= hi:
                     return c
             return e.get("top", SPECIAL_EDGE)
-        if it["group"] in ("set", "untiered"):
+        if it["group"] in ("set", "untiered", "ascended"):
             return e.get(it["group"], SPECIAL_EDGE)
         if it["group"] in ("test", "future", "reward"):
             return e.get("untiered", SPECIAL_EDGE)
