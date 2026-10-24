@@ -585,7 +585,8 @@ GEAR_TUNING = {
         "<OnPlayerShootActivate cooldown=\"2\" objectId=\"Dark Enchantment Orb\" proc=\"0.15\">Pet</OnPlayerShootActivate>",
         "<ExtraTooltipData><EffectInfo name=\"Dark Orb\" description=\"Each shot: a 15% chance (at most every 2 seconds) of a dark orb that zaps the nearest enemy for 220-280 every 0.5 seconds for 4 seconds\" /></ExtraTooltipData>",
     ]},
-    "Staff of Heavens": {"add_xml": [
+    # its shots weave twice, as the other staves' do (they weaved five times: jittery)
+    "Staff of Heavens": {"wave": ("0.5", "2"), "add_xml": [
         "<OnPlayerShootActivate cooldown=\"6\" objectId=\"Elysian Halo\" proc=\"0.1\">Pet</OnPlayerShootActivate>",
         "<ExtraTooltipData><EffectInfo name=\"Halo\" description=\"Each shot: a 10% chance (at most every 6 seconds) of a halo that circles you for 5 seconds, firing two Holy Orbs at the nearest enemy every second for 120-150 each\" /></ExtraTooltipData>",
     ]},

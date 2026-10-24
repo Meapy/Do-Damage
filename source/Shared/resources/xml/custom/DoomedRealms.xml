@@ -8480,7 +8480,7 @@
 			<MaxDamage>250</MaxDamage>
 			<LifetimeMS>500</LifetimeMS>
 			<Amplitude>0.5</Amplitude>
-			<Frequency>5</Frequency>
+			<Frequency>2</Frequency>
 			<MultiHit />
 		</Projectile>
 		<OnPlayerShootActivate cooldown="6" objectId="Elysian Halo" proc="0.1">Pet</OnPlayerShootActivate>

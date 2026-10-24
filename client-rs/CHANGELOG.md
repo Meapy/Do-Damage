@@ -13,7 +13,8 @@ version number itself is in `client-rs/Cargo.toml`.
   - The Sword of Dark Enchantment fires black and red slashes (it fired sheep), and each shot has a
     15% chance (at most every 2 seconds) of a small dark orb that follows you for 4 seconds, zapping
     the nearest enemy for 220-280 every half second: about a fifth more damage.
-  - The Elysian Staff fires his bolts in his silver, purple and gold, and each shot has a 10% chance
+  - The Elysian Staff fires his bolts in his silver, purple and gold, weaving smoothly as other
+    staves' shots do (they jittered), and each shot has a 10% chance
     (at most every 6 seconds) of one of his halos, which circles you for 5 seconds firing two Holy
     Orbs at the nearest enemy every second, for 120-150 each.
 - The game's window and taskbar icon is the Do Damage crown, as on the website.
