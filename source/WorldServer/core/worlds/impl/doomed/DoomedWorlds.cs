@@ -9,6 +9,7 @@ using WorldServer.core.net.datas;
 using WorldServer.core.objects;
 using WorldServer.core.objects.vendors;
 using WorldServer.core.structures;
+using WorldServer.core.terrain;
 using WorldServer.logic.doomed;
 using WorldServer.networking;
 using WorldServer.networking.packets.outgoing;
@@ -227,6 +228,24 @@ namespace WorldServer.core.worlds.impl.doomed
         private DateTime _firstWave; // when the countdown ended, for the leaderboard's time
         public int Wave { get; private set; }
 
+        // The map is the Admin Arena's (port_doomed_worlds.OWN_MAPS): a walled ring with four
+        // gateways, each shut by a pair of Oryx Doors (spiked gates drawn wider than their tile, so
+        // two cover the gateway), and the spawn points outside it in the forest. The doors come off
+        // when the world opens, so the gateways look and are open through the countdown; when it
+        // ends they go back, invisible blockers fill the tiles between them, and anyone left outside
+        // or in a gateway is moved just inside. All of it is read from the map, so another map with
+        // Oryx Doors works too. Static tile objects, so both clients' collision agrees.
+        private const string GapObject = "Iinvisible NoWalk";
+        private const int SpawnRadius = 18; // monsters spawn this close to the middle
+        private List<(IntPoint At, ushort Type)> _doors;
+        private List<IntPoint> _gates;      // the gateways' tiles between and beside the doors
+        private HashSet<IntPoint> _inside;  // what's inside the ring, gateways not included
+        private List<IntPoint> _floor;      // inside, walkable and not lava
+        private IntPoint _middle;
+        private bool _closed;
+        private TickTime _time;
+        private readonly Dictionary<int, long> _movedAt = new Dictionary<int, long>();
+
         public DoomedBattleArena(GameServer gameServer, int id, WorldResource resource, World parent)
             : base(gameServer, id, resource, parent)
         {
@@ -235,6 +254,12 @@ namespace WorldServer.core.worlds.impl.doomed
 
         public override bool Joinable => !_started;
         public IEnumerable<string> PlayerNames => Players.Values.Select(p => p.Name);
+
+        public override void Init()
+        {
+            base.Init();
+            FindGates(); // the doors come off before anyone arrives
+        }
 
         public override bool AllowedAccess(Client client) => base.AllowedAccess(client) && (Joinable || client.Account.Admin);
 
@@ -256,8 +281,121 @@ namespace WorldServer.core.worlds.impl.doomed
                 SendWaveInfo(p);
         }
 
-        private static bool OutOfBounds(float x, float y) => x <= 3.5f || x >= 29.5f || y <= 3.5f || y >= 29.5f;
-        private const float ArenaMiddle = 16.5f;
+        private bool OutOfBounds(float x, float y) => !_inside.Contains(new IntPoint((int)x, (int)y));
+
+        private bool Blocks(WmapTile tile) =>
+            GameServer.Resources.GameData.Tiles[tile.TileId].NoWalk ||
+            tile.ObjType != 0 && tile.ObjDesc != null && (tile.ObjDesc.FullOccupy || tile.ObjDesc.OccupySquare || tile.ObjDesc.EnemyOccupySquare);
+
+        // finds the gateways (from each Oryx Door along its wall, up to the next object), the middle
+        // (between the doors) and the inside of the ring (from the middle, gateways shut)
+        private void FindGates()
+        {
+            if (_gates != null)
+                return;
+            var gates = new HashSet<IntPoint>();
+            var doors = new List<(IntPoint At, ushort Type)>();
+            for (var y = 0; y < Map.Height; y++)
+                for (var x = 0; x < Map.Width; x++)
+                {
+                    var id = Map[x, y].ObjDesc?.IdName;
+                    if (Map[x, y].ObjType == 0 || id == null || !id.StartsWith("Oryx Door "))
+                        continue;
+                    doors.Add((new IntPoint(x, y), Map[x, y].ObjType));
+                    // doors 0 and 180 face each other across a gateway in a wall that runs east-west
+                    var across = id.EndsWith(" 0") || id.EndsWith(" 180");
+                    foreach (var dir in new[] { -1, 1 })
+                        for (var i = 1; i <= 5; i++)
+                        {
+                            var (gx, gy) = across ? (x + dir * i, y) : (x, y + dir * i);
+                            if (!Map.Contains(gx, gy) || Map[gx, gy].ObjType != 0 || Blocks(Map[gx, gy]))
+                                break;
+                            gates.Add(new IntPoint(gx, gy));
+                        }
+                }
+            _gates = gates.ToList();
+            _doors = doors;
+            _middle = doors.Count == 0
+                ? new IntPoint(Map.Width / 2, Map.Height / 2)
+                : new IntPoint((int)doors.Average(d => d.At.X), (int)doors.Average(d => d.At.Y));
+
+            _inside = new HashSet<IntPoint> { _middle };
+            var todo = new Queue<IntPoint>();
+            todo.Enqueue(_middle);
+            while (todo.Count > 0)
+            {
+                var p = todo.Dequeue();
+                foreach (var (dx, dy) in new[] { (1, 0), (-1, 0), (0, 1), (0, -1) })
+                {
+                    var n = new IntPoint(p.X + dx, p.Y + dy);
+                    if (!Map.Contains(n.X, n.Y) || _inside.Contains(n) || gates.Contains(n) || Blocks(Map[n.X, n.Y]))
+                        continue;
+                    _inside.Add(n);
+                    todo.Enqueue(n);
+                }
+            }
+            var tiles = GameServer.Resources.GameData.Tiles;
+            _floor = _inside.Where(p => !tiles[Map[p.X, p.Y].TileId].Damaging && IsPassable(p.X, p.Y, true)).ToList();
+            if (_floor.Count == 0)
+                _floor.Add(_middle);
+            SetGates(false); // the doors were found shut (in the map); the inside, with them shut
+        }
+
+        private void SetGates(bool closed)
+        {
+            var gap = GameServer.Resources.GameData.IdToObjectType[GapObject];
+            foreach (var (at, type) in _doors)
+                SetObject(at, closed ? type : (ushort)0);
+            foreach (var g in _gates)
+                SetObject(g, closed ? gap : (ushort)0);
+            _closed = closed;
+        }
+
+        // A tile's static object. One put down gets a new object id, which players are sent as a new
+        // object; one taken off keeps its id until players are sent its drop.
+        private void SetObject(IntPoint at, ushort type)
+        {
+            var tile = Map[at.X, at.Y];
+            if (tile.ObjType == type)
+                return;
+            tile.ObjType = type;
+            tile.ObjDesc = type == 0 ? null : GameServer.Resources.GameData.ObjectDescs[type];
+            if (type != 0)
+                tile.ObjId = GetNextEntityId();
+            tile.UpdateCount++;
+        }
+
+        // moves a player who isn't inside the ring (outside, or in a gateway) to the nearest floor
+        // inside it; once every 2 s at most, while the Goto is on its way
+        private void MoveInside(Player p)
+        {
+            if (!OutOfBounds(p.X, p.Y))
+                return;
+            var now = _time.TotalElapsedMs;
+            if (_movedAt.TryGetValue(p.Id, out var at) && now - at < 2000)
+                return;
+            _movedAt[p.Id] = now;
+            var to = _floor.OrderBy(f => (f.X + 0.5f - p.X) * (f.X + 0.5f - p.X) + (f.Y + 0.5f - p.Y) * (f.Y + 0.5f - p.Y)).First();
+            p.TeleportPosition(_time, to.X + 0.5f, to.Y + 0.5f, true);
+        }
+
+        private void CloseGates()
+        {
+            foreach (var p in Players.Values)
+                MoveInside(p);
+            SetGates(true);
+            NotifyAll(0xffff00ff, "The gates are shut!");
+        }
+
+        // a random floor tile inside the ring, within SpawnRadius of the middle
+        private (float X, float Y) SpawnSpot()
+        {
+            var near = _floor.Where(f => (f.X - _middle.X) * (f.X - _middle.X) + (f.Y - _middle.Y) * (f.Y - _middle.Y) <= SpawnRadius * SpawnRadius).ToList();
+            if (near.Count == 0)
+                near = _floor;
+            var f = near[Random.Shared.Next(near.Count)];
+            return (f.X + 0.5f, f.Y + 0.5f);
+        }
 
         private void SpawnWave()
         {
@@ -274,15 +412,23 @@ namespace WorldServer.core.worlds.impl.doomed
             {
                 // an Oryx fights round where he spawns, so he takes the middle
                 if (ArenaPools.IsOryx(name))
-                    Spawn(name, ArenaMiddle, ArenaMiddle);
+                    Spawn(name, _middle.X + 0.5f, _middle.Y + 0.5f);
                 else
-                    Spawn(name, Random.Shared.Next(6, 27) + 0.5f, Random.Shared.Next(6, 27) + 0.5f);
+                {
+                    var (x, y) = SpawnSpot();
+                    Spawn(name, x, y);
+                }
             }
         }
 
         protected override void UpdateLogic(ref TickTime time)
         {
+            _time = time; // for the teleports at the countdown's end, which base.UpdateLogic runs
+            FindGates();
             base.UpdateLogic(ref time);
+            if (_closed)
+                foreach (var p in Players.Values)
+                    MoveInside(p); // someone let in after the start (admins, /summon) spawns outside
             if (Players.Count == 0)
             {
                 if (_participants.Count > 0)
@@ -302,6 +448,7 @@ namespace WorldServer.core.worlds.impl.doomed
                     _started = true;
                     _counting = false;
                     _firstWave = DateTime.UtcNow;
+                    CloseGates();
                     foreach (var p in Players.Values)
                         SendWaveInfo(p);
                 });

@@ -14,6 +14,11 @@ details). Add to a group's line when a change adds to it, rather than adding ano
 
 ## Unreleased
 
+### Arena
+- The Arena is fought in the Admin Arena's walled ring. You arrive in the forest outside and walk
+  in through one of its four open gateways during the countdown; when the game starts, the gates
+  shut, and anyone still outside or in a gateway is moved just inside.
+
 ### Items
 - A Potion of Max drunk on a stat that's already maxed now puts 6 of that stat's potions into your
   potion storage, as many as fit, instead of 100 or more past its limit. With that storage full,
