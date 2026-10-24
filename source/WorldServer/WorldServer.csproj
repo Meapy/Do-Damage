@@ -9,12 +9,14 @@
 	<Platforms>AnyCPU;x64</Platforms>
 	<!-- optimise the Debug build too: it is the one Run Server.bat builds and runs -->
 	<Optimize>true</Optimize>
-	<!-- Garbage collection on every core, alongside the world threads, so a full collection of the
-	     ~1 GB heap (millions of map tiles) doesn't stop every world for a second or two. DATAS (.NET 8)
-	     sizes the heaps to the load, so memory stays near the single-heap collector's. -->
-	<ServerGarbageCollection>true</ServerGarbageCollection>
+	<!-- The workstation collector, with full collections in the background beside the world
+	     threads. Measured under load (9 bots, 2026-10-24): the server collector (with DATAS or
+	     without) stopped every world for 50-420 ms at its gen 0 and gen 1 collections, several times
+	     a minute; this one for none over 50 ms in 10 minutes, with 400 MB less memory and less CPU.
+	     GcPauseLog logs any pause over 50 ms ("GC pause"), to keep an eye on full collections of the
+	     ~1 GB heap (millions of map tiles). -->
+	<ServerGarbageCollection>false</ServerGarbageCollection>
 	<ConcurrentGarbageCollection>true</ConcurrentGarbageCollection>
-	<GarbageCollectionAdaptationMode>1</GarbageCollectionAdaptationMode>
   </PropertyGroup>
 
   <ItemGroup>

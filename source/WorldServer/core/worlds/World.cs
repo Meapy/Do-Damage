@@ -674,8 +674,10 @@ namespace WorldServer.core.worlds
 
         private IEnumerable<(float X, float Y, int Radius)> SightCentres()
         {
+            // enough chunks (16 tiles) round the player's own chunk to cover its sight from anywhere in
+            // it: 1 for the default 15 tiles (16 to 31 tiles awake), 2 up to 32, 3 for more
             foreach (var player in Players.Values)
-                yield return (player.X, player.Y, player.SightRadius > 20 ? 3 : 2);
+                yield return (player.X, player.Y, (player.SightRadius + CollisionMap<Entity>.CHUNK_SIZE - 1) / CollisionMap<Entity>.CHUNK_SIZE);
         }
 
         protected virtual void UpdateLogic(ref TickTime time)

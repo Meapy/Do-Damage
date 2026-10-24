@@ -187,9 +187,13 @@ namespace WorldServer.core.objects
             FameCounter.TileSent(update.Tiles.Count); // adds the new amount to the tiles been sent
         }
 
+        // the line-of-sight points, reused: only GetNewTiles reads them, at once
+        private readonly HashSet<IntPoint> _losPoints = new HashSet<IntPoint>();
+
         public HashSet<IntPoint> DetermineSight()
         {
-            var hashSet = new HashSet<IntPoint>();
+            var hashSet = _losPoints;
+            hashSet.Clear();
             switch (World.Blocking)
             {
                 case 0:

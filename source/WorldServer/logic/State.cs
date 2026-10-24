@@ -50,11 +50,11 @@ namespace WorldServer.logic
             }
         }
 
-        public IList<Behavior> Behaviors { get; private set; }
+        public List<Behavior> Behaviors { get; private set; }
         public string Name { get; private set; }
         public State Parent { get; private set; }
-        public IList<State> States { get; private set; }
-        public IList<Transition> Transitions { get; private set; }
+        public List<State> States { get; private set; }
+        public List<Transition> Transitions { get; private set; }
 
         public static State CommonParent(State a, State b)
         {

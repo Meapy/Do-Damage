@@ -35,7 +35,9 @@ namespace WorldServer.core.worlds.census
             if (from.w != w || from.h != h)
                 throw new ArgumentException("from");
 
-            var ret = new HashSet<T>();
+            // reused, as GetChunksAround's is: a new set every tick of every world was garbage
+            var ret = _around;
+            ret.Clear();
 
             for (var y = 0; y < cH; y++)
                 for (var x = 0; x < cW; x++)
