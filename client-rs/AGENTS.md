@@ -17,9 +17,10 @@ python tools\build_client_rs.py --web        # build\client-rs\web: index.html +
 python tools\build_client_rs.py --account https://dodmg.com/api --package --publish   # a release for players (main checkout only)
 ```
 
-- **Releasing to players** (ask the owner first): in the **main checkout**, which holds the
-  signing key, raise the version and name the changelog section (below), then run the line above
-  with the live address. It writes `dist\Do-Damage-windows.zip` (the website's download) and a
+- **Releasing to players** (ask the owner first): raise the version and name the changelog section
+  (below) on the release branch, and squash-merge its pull request into `main` (../AGENTS.md, Git,
+  "Release branches"). Then, in the **main checkout**, which holds the signing key, run the line
+  above with the live address. It writes `dist\Do-Damage-windows.zip` (the website's download) and a
   signed release in `dist\client`; `python deploy\deploy.py` then puts both on the VPS, where
   clients find it at `<account>/client/`. Desktop clients switch at their next portal, or straight
   away on the menu, the character list or an empty sign-in screen; nobody is disconnected. Browser players get
