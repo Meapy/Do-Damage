@@ -687,7 +687,9 @@ fn draw_sprite(scene: &Scene, renderer: &mut Renderer, redrawer: &mut Redrawer, 
     }
     let (tex1, tex2) = look.tex.unwrap_or((obj.stat_int(32).unwrap_or(0), obj.stat_int(33).unwrap_or(0)));
     let dye = look.mask.map(|mask| Dye { mask, tex1, tex2 });
-    let sprite = redrawer.get(scene.sprites, renderer, look.src, look.mirror, size, dye)?;
+    // A player's GLOW_COLOR (Player.getTexture's outlineGlow): red for a legend, or their /glow.
+    let glow = if desc.player { obj.stat_int(59).filter(|&g| g > 0 && g <= 0xFF_FFFF).unwrap_or(0) as u32 } else { 0 };
+    let sprite = redrawer.get_glowing(scene.sprites, renderer, look.src, look.mirror, size, dye, glow)?;
     // The canvas's bottom centre stands on the object (raised by its z); sprites scale with the
     // map. On sinking ground (water) the sprite is drawn lower with its bottom cut off, unless it
     // flies.

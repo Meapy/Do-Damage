@@ -156,7 +156,9 @@ and a gravestone marks the spot. What you keep:
 - your rank stars and class quests.
 
 The Legends screen (on the character screen) has the top characters and a **Recent Deaths** tab:
-the last 20 characters to die, with what killed them and where.
+the last 20 characters to die, with what killed them and where. A player with a character in the
+top 20 of the week, the month or all time is a legend, and their characters glow red in the game
+(from the next time they enter a world).
 
 So store what you can't afford to lose before a risky run, and don't take your best gear
 somewhere you aren't ready for.

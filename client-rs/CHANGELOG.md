@@ -17,6 +17,7 @@ details). Add to a group's line when a change adds to it, rather than adding ano
 ### Game
 - In the browser, the chat and sign-in boxes now copy, cut and paste with Ctrl+C, X and V (Cmd on
   a Mac), as on the desktop, and the browser keeps its own reload, tab and zoom keys.
+- Legends glow red again, as they did in the old client, for you and everyone around you.
 
 ## 2.0.1 (2026-10-24)
 
