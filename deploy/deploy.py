@@ -24,6 +24,8 @@ The settings are in deploy/vps.local.json (copy deploy/vps.example.json; --confi
                     2026-10-16 or later running (bsk-world restarted since): an older one sends
                     those connections to the active world server whatever their Hello asks for
     build_wsl       on Windows: the WSL distro (with Rust) that builds the Linux gateway
+    backup_repo     the private git repository the database is backed up to every 6 hours
+                    (git@github.com:<owner>/<repo>.git); see deploy/backup.py
 
 What it builds (in build/vps/bundle), then unpacks into /opt/bsk/incoming and installs with
 deploy/remote/install.sh as root:
@@ -167,6 +169,10 @@ def build(cfg, args):
              "BSK_GATEWAY_FLAGS=%s\n"
              % (os.path.basename(args.config), cfg["public_address"], ports["redis"], ports["account"],
                 ports["world"], ports["gateway"], "--forward-address" if cfg.get("forward_address") else ""))
+    # kept out of bsk.env, whose every change means a new gateway slot and an account restart
+    write_lf(os.path.join(STAGE, "backup.env"),
+             "# Written by deploy/deploy.py from %s: change it there.\nBSK_BACKUP_REPO=%s\n"
+             % (os.path.basename(args.config), cfg.get("backup_repo", "")))
     if cfg["site"]:
         # Caddy gets the certificate for the site by itself (ports 80 and 443 must be open);
         # WebSockets pass through reverse_proxy as they are. The website is the site's root. The

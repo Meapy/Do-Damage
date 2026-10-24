@@ -10,8 +10,8 @@ namespace WorldServer.logic
     // Oryx's Elysium (tools/build_elysium.py), Oryx 5's holy island. His Ascended Host hold the roads:
     // Oryx 3's court monsters, ascended, with divine shots and attacks of their own (their XML is
     // the script's). The roads lead to what's to come: west, the Ascended Totem in the Oasis (scenery);
-    // east, the Void Entity on the voided Pyramid, a placeholder boss with no attacks and no loot that
-    // drops three Trees of Doom when it dies; with three more on each road, that's nine. Once no tree
+    // east, the Void Entity on the voided Pyramid, a boss of the void who throws three Trees of Doom
+    // when he dies; with three more on each road, that's nine. Once no tree
     // and no Void Entity is left, the Gate Watcher opens the Holy Gates to
     // his temple, where his three Ascended Wardens circle him until they fall, and Oryx the Ascended God
     // himself, with the helpers of his fight.
@@ -494,15 +494,71 @@ namespace WorldServer.logic
             .Init("Elysian Cloud", new State(new Drift(0.35, 5)))
             .Init("Elysian Cloudlet", new State(new Drift(0.5, 4)))
 
-            // the Void Entity, for now: no attacks, no loot, and three Trees of Doom when it dies
-            .Init("Elysian Void Entity", Guardian())
+            // the Void Entity, on the voided Pyramid: darkening bullets at you and a wavering ring,
+            // then spinning wheels, then a shuriken burst with a slow ring of shockwaves; faster
+            // below half health. Three Trees of Doom when he dies.
+            .Init("Elysian Void Entity",
+                new State(
+                    new BossStats(60000, 30, 1.0, 0.25),
+                    new TossOnDeath("Tree of Doom", 3, 8),
+                    new State("Idle", new PlayerWithinTransition(12, "Gaze")),
+                    new State("Fight",
+                        new Prioritize(new StayCloseToSpawn(0.3, 2), new Wander(0.2)),
+                        new State("Gaze",
+                            new Shoot(12, 5, 10, projectileIndex: 0, predictive: 0.4, coolDown: 1200),
+                            new Shoot(0, 10, fixedAngle: 0, rotateAngle: 12, projectileIndex: 1, coolDown: 1600, coolDownOffset: 600),
+                            new TimedTransition(6000, "Wheels")
+                        ),
+                        new State("Wheels",
+                            new Flash(0xFF7A3CFF, 0.3, 3),
+                            new Shoot(0, 6, fixedAngle: 0, rotateAngle: 20, projectileIndex: 2, coolDown: 450),
+                            new TimedTransition(3500, "Shuriken")
+                        ),
+                        new State("Shuriken",
+                            new Shoot(12, 3, 20, projectileIndex: 3, predictive: 0.3, coolDown: 900),
+                            new Shoot(0, 16, fixedAngle: 11.25, projectileIndex: 4, coolDown: 2500),
+                            new TimedTransition(5000, "Gaze")
+                        ),
+                        new HpLessTransition(0.5, "Rage")
+                    ),
+                    new State("Rage",
+                        new Taunt("The Void does not end.") { Bubble = false },
+                        new Prioritize(new StayCloseToSpawn(0.4, 3), new Wander(0.3)),
+                        new Shoot(12, 5, 10, projectileIndex: 0, predictive: 0.4, coolDown: 900),
+                        new Shoot(0, 6, fixedAngle: 0, rotateAngle: 17, projectileIndex: 2, coolDown: 700),
+                        new Shoot(0, 12, fixedAngle: 15, projectileIndex: 4, coolDown: 3000, coolDownOffset: 1500)
+                    )
+                ),
+                new Threshold(0.03,
+                    new ItemLoot("Potion of Vitality", 0.5),
+                    new ItemLoot("Potion of Wisdom", 0.5),
+                    new ItemLoot("Potion of Attack", 0.3),
+                    new ItemLoot("Potion of Defense", 0.3),
+                    new ItemLoot("Greater Potion of Life", 0.1),
+                    new ItemLoot("Ascended Weapon Shard", 0.03),
+                    new ItemLoot("Ascended Ability Shard", 0.03),
+                    new ItemLoot("Ascended Armor Shard", 0.03),
+                    new ItemLoot("Ascended Accessory Shard", 0.03),
+                    new TierLoot(14, ItemType.Weapon, 0.1),
+                    new TierLoot(15, ItemType.Armor, 0.08),
+                    new TierLoot(6, ItemType.Ability, 0.1),
+                    new TierLoot(6, ItemType.Ring, 0.1)
+                )
+            )
 
-            // the three who circle Oryx 5 in his temple, evenly spaced; when they fall, he wakes
+            // the three who circle Oryx 5 in his temple, evenly spaced, firing gold missiles at you
+            // and slowing halos out round them; when they fall, he wakes
             .Init("Ascended Warden",
                 new State(
-                    new BossStats(25000, 30, 1.0, 0),
-                    new Orbit(0.6, 6, 20, "Oryx the Ascended God", speedVariance: 0, radiusVariance: 0, orbitClockwise: true)
-                )
+                    new BossStats(25000, 30, 1.0, 0.25),
+                    new Orbit(0.6, 6, 20, "Oryx the Ascended God", speedVariance: 0, radiusVariance: 0, orbitClockwise: true),
+                    new State("Idle", new PlayerWithinTransition(14, "Guard")),
+                    new State("Guard",
+                        new Shoot(10, 2, 10, projectileIndex: 0, predictive: 0.3, coolDown: 1400),
+                        new Shoot(0, 4, fixedAngle: 45, rotateAngle: 20, projectileIndex: 1, coolDown: 2800, coolDownOffset: 900)
+                    )
+                ),
+                ElysianLoot()
             )
 
             // opens the Holy Gates once no Tree of Doom and no Void Entity is left on the island
@@ -629,12 +685,6 @@ namespace WorldServer.logic
                 new Shoot(0, 4, fixedAngle: 0, rotateAngle: 15, projectileIndex: 0, coolDown: 1800, coolDownOffset: coolDownOffset + 250),
                 new State("Live", new TimedTransition(StarLife - 500, "Gone")),
                 new State("Gone", new Suicide())
-            );
-
-        private static State Guardian() =>
-            new State(
-                new BossStats(50000, 30, 1.0, 0),
-                new TossOnDeath("Tree of Doom", 3, 8)
             );
 
         // a little better than the Inferno's (InfernalLoot)

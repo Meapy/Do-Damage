@@ -388,6 +388,15 @@ impl Front {
         }
     }
 
+    /// What a copy or cut key would take from the field being typed in (never a password).
+    #[cfg_attr(not(target_arch = "wasm32"), allow(dead_code))]
+    pub fn copyable(&self) -> Option<&str> {
+        if self.confirm.is_some() || !self.fields_on_screen().contains(&self.focus) || Self::field_is_secret(self.focus) {
+            return None;
+        }
+        self.fields[self.focus].selected_text()
+    }
+
     /// A key pressed (with the text it types, if any, and whether Ctrl and Shift are held).
     pub fn key(&mut self, code: KeyCode, text: Option<&str>, ctrl: bool, shift: bool) -> Option<Action> {
         if self.confirm.is_some() {

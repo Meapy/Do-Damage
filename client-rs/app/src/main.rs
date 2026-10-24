@@ -31,6 +31,8 @@ mod theme;
 mod update;
 mod version;
 mod view;
+#[cfg(target_arch = "wasm32")]
+mod web;
 
 use bsk_assets::AssetSource;
 use bsk_data::GameData;
@@ -2397,7 +2399,9 @@ impl ApplicationHandler<UserEvent> for App {
             WindowEvent::ModifiersChanged(m) => {
                 self.alt_held = m.state().alt_key();
                 self.shift_held = m.state().shift_key();
-                self.ctrl_held = m.state().control_key();
+                // Cmd on a Mac edits text as Ctrl does elsewhere.
+                self.ctrl_held = m.state().control_key()
+                    || (cfg!(any(target_arch = "wasm32", target_os = "macos")) && m.state().super_key());
             }
             WindowEvent::KeyboardInput { event, .. } => {
                 let PhysicalKey::Code(code) = event.physical_key else { return };
@@ -2427,6 +2431,14 @@ impl ApplicationHandler<UserEvent> for App {
                     return;
                 }
                 if matches!(self.phase, Phase::Menu) {
+                    // The page's copy or cut event comes straight after the key, before the frame
+                    // that handles it, so the text goes to the clipboard now.
+                    #[cfg(target_arch = "wasm32")]
+                    if pressed && textedit::LineEdit::copies(code, self.ctrl_held, self.shift_held) {
+                        if let Some(text) = self.front.copyable() {
+                            textedit::clipboard::set(text);
+                        }
+                    }
                     if pressed {
                         self.front_keys.push((code, event.text.as_ref().map(|t| t.to_string()), self.ctrl_held, self.shift_held));
                     }
@@ -2636,6 +2648,7 @@ fn main() {
     {
         std::panic::set_hook(Box::new(console_error_panic_hook::hook));
         textedit::clipboard::listen();
+        web::listen();
         let _ = console_log::init_with_level(log::Level::Info);
     }
 

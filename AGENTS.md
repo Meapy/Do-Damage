@@ -66,7 +66,8 @@ it asks first; never run test copies under the live process names (`redis-server
 - **The client and server ship together** when a message changes (ids, fields). An old client
   must keep working with a new server where possible. Note in the commit which side needs
   redeploying.
-- **Client releases are published from the main checkout only.** It holds the signing key
+- **Client releases are published from the main checkout only, after the release's pull request
+  is merged** (Git, "Release branches"). It holds the signing key
   (`build/client-update.key`) and `dist/client`. Clients only take releases signed with that key,
   so publishing from a worktree or a fresh clone makes a new key and strands every player.
 - **Secrets** stay in git-ignored files: `*.local.txt` (`test-account.local.txt`),
@@ -97,14 +98,32 @@ it asks first; never run test copies under the live process names (`redis-server
 
 ## Git
 
-- `main` is the working branch (`local` is older and no longer used). Sessions work in worktrees
-  under `.claude/worktrees/` and bring each finished piece into `main` as they go:
-  `git -C <main checkout> merge --ff-only <branch>`. A hook stops edits into the main checkout
-  from a worktree session.
-- **No merge commits: `main`'s history stays linear.** If `main` moved while you worked, rebase
-  your branch onto it (`git rebase main`) instead of merging `main` in, then fast-forward `main`
-  as above. Never `git merge` a branch into `main` or `main` into a branch, and don't rewrite
-  commits already pushed to `origin` unless the owner asks.
+- **Release branches (since 2026-10-24).** `main` only ever gets one squashed commit per
+  released version, through a pull request; nothing else lands on it directly (`local` is older
+  and no longer used).
+  - **Collecting work:** finished work goes into the release branch for the next version,
+    `release/<version>`, such as `release/2.0.3`.
+    - Find the open one with `git branch --list 'release/*'`; if there is none, create it from
+      `main`, named for the next patch version (the owner may pick another number).
+    - Sessions work in worktrees under `.claude/worktrees/`, rebase onto the release branch
+      (`git rebase release/<version>`), then fast-forward it from the main checkout:
+      `git -C <main checkout> fetch . <branch>:release/<version>`, which refuses anything but a
+      fast-forward.
+    - A hook stops edits into the main checkout from a worktree session.
+  - **Releasing** (the owner asks for it):
+    1. On the release branch, name the changelog section and raise the version (client-rs/AGENTS.md,
+       "Releasing to players"), and check the client tests, `python tools\build_site.py` and the
+       server builds.
+    2. Push it (`git push -u origin release/<version>`) and open a pull request against `main`
+       (`gh pr create --base main --head release/<version>`), its body listing what's in the
+       release.
+    3. Squash and merge it (`gh pr merge --squash --delete-branch`, the title naming the
+       version), then update the main checkout (`git -C <main checkout> pull --ff-only`).
+    4. Only then publish the client and deploy, from the main checkout, so what players get is
+       exactly `main`.
+- **No merge commits** on `main` or a release branch: if the branch moved while you worked,
+  rebase onto it instead of merging it in. Never `git merge` one branch into another, and don't
+  rewrite commits already pushed to `origin` unless the owner asks.
 - Another session may be editing the same tree. Stage and commit explicit paths only (never
   `git add -A` or `git commit -a`), and check `git status` for changes that aren't yours.
 - `core.autocrlf` is on: the repository stores LF, while many working files are CRLF. Scripts

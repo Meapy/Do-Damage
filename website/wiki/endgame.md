@@ -11,11 +11,6 @@ through his Chamber, his Wine Cellar, the new Oryx's Sanctuary and Oryx's Infern
 Elysium, the end of the line. Every stage is harder than the last and drops better loot, and every
 Oryx's death is announced to the whole server.
 
-> **Oryx's Elysium is sealed for now.** Oryx 5 is being reworked (his island and his fight are
-> new; his guardians and loot are next), so an Oryx's Elysium Incantation (the old Doomed Cellar
-> Incantation) won't open his portal until he's back (it isn't used up if you try), and the shops
-> don't sell it meanwhile. Keep any you have.
-
 ## The stages
 
 {{gen:oryx-chain}}
@@ -93,10 +88,13 @@ Janus and is sold in the Nexus Bazaar.
   (a dazing nova up close) and the Cardinal (paralysing spears). The two sides of the island show
   what's to come. West, the **Ascended Totem**, a statue of Oryx's staff, stands on the islet in the
   Oasis, for the Ascended items. East, the Pyramid has fallen to the Void, which seeps out over the
-  roads round it, and the **Void Entity** waits there: it doesn't attack yet and drops no loot, only
-  three **Trees of Doom** when it dies. With three more Trees on each road, all nine and the Void
-  Entity must fall before the **Holy Gates** to his temple open. Inside, his three **Ascended Wardens** circle
-  him; he wakes when they fall.
+  roads round it, and the **Void Entity** waits there: darkening bullets aimed at you and a wavering
+  ring, then spinning wheels that make you unstable, then a burst of silencing shuriken with a slow
+  ring of shockwaves; below half health he moves and fires them all at once. He drops potions,
+  top-tier gear and now and then an Ascended shard, and throws three **Trees of Doom** when he
+  dies. With three more Trees on each road, all nine and the Void Entity must fall before the
+  **Holy Gates** to his temple open. Inside, his three **Ascended Wardens** circle him, firing gold
+  missiles at you and slowing halos round them; he wakes when they fall.
   - **Judgement** (to 60%): three patterns. The **Radiant Cross**: he follows you but keeps about
     six tiles off, firing twin lances along four lines and gold arrowheads along the four between,
     then the same turned. The **Firmament**: from the middle he raises twelve stars in a cross that

@@ -16,6 +16,7 @@ struct Key {
     size: i32,
     dye: Option<Dye>,
     pad_bottom: bool,
+    glow: u32,
 }
 
 /// Cloth and dye on a masked sprite (players): the mask's red channel takes `tex1`, its green
@@ -176,10 +177,31 @@ impl Redrawer {
         dye: Option<Dye>,
         pad_bottom: bool,
     ) -> Option<Redrawn> {
+        self.redrawn(sprites, renderer, Key { src, mirror, size, dye, pad_bottom, glow: 0 })
+    }
+
+    /// Like `get`, ringed by a glow in `glow` (0xRRGGBB, 0 for none): a player's GLOW_COLOR, red
+    /// for a legend, or a rare, epic or legendary enemy's colour.
+    #[allow(clippy::too_many_arguments)]
+    pub fn get_glowing(
+        &mut self,
+        sprites: &Sprites,
+        renderer: &mut Renderer,
+        src: SrcRect,
+        mirror: bool,
+        size: i32,
+        dye: Option<Dye>,
+        glow: u32,
+    ) -> Option<Redrawn> {
+        self.redrawn(sprites, renderer, Key { src, mirror, size, dye, pad_bottom: false, glow })
+    }
+
+    fn redrawn(&mut self, sprites: &Sprites, renderer: &mut Renderer, key: Key) -> Option<Redrawn> {
+        let Key { src, mirror, size, dye, pad_bottom, glow } = key;
         let dye = dye.filter(|d| d.tex1 != 0 || d.tex2 != 0);
-        let key = Key { src, mirror, size, dye, pad_bottom };
+        let key = Key { dye, ..key };
         *self.cache.entry(key).or_insert_with(|| {
-            let image = match dye {
+            let mut image = match dye {
                 None if pad_bottom => redraw_padded(&sprites.pixels(src), mirror, size, 5.0, PAD),
                 None => redraw(&sprites.pixels(src), mirror, size, 5.0),
                 Some(d) => {
@@ -193,6 +215,9 @@ impl Redrawer {
                     redraw(&dyed, false, size / 5, 5.0)
                 }
             };
+            if glow != 0 {
+                add_glow(&mut image, glow);
+            }
             let (w, h) = image.dimensions();
             renderer.add_image(&image).map(|rect| Redrawn { rect, w, h })
         })
@@ -264,6 +289,59 @@ fn outline(img: &mut RgbaImage) {
     }
 }
 
+/// `GlowRedrawer.outlineGlow` with a glow colour, after the black outline: a hard ring of the
+/// colour (`GlowFilter(colour, 0.8 alpha, blur 2, strength 255)`), then a soft halo
+/// (`GlowFilter(colour, 0.3 alpha, blur 12, strength 2)`), each behind what is already drawn.
+fn add_glow(img: &mut RgbaImage, color: u32) {
+    let rgb = [(color >> 16) as u8, (color >> 8) as u8, color as u8];
+    glow_filter(img, rgb, 0.8, 2.0, 255.0);
+    glow_filter(img, rgb, 0.3, 12.0, 2.0);
+}
+
+/// Flash's `GlowFilter` at low quality (one box blur pass, `blur` pixels wide) on the outside
+/// only: the blurred alpha times `strength`, capped at 1, times `alpha`, in `rgb`, behind the
+/// image.
+fn glow_filter(img: &mut RgbaImage, rgb: [u8; 3], alpha: f32, blur: f32, strength: f32) {
+    let (w, h) = (img.width() as usize, img.height() as usize);
+    let a: Vec<f32> = img.pixels().map(|p| p[3] as f32 / 255.0).collect();
+    let b = box_blur(&box_blur(&a, w, h, blur, 1, w), w, h, blur, w, 1);
+    for (i, p) in img.pixels_mut().enumerate() {
+        // Flash works in 8 bits: a faint blur is still a pixel, and strength saturates it.
+        let g = ((b[i] * 255.0).round() / 255.0 * strength).min(1.0) * alpha;
+        if g <= 0.0 {
+            continue;
+        }
+        let sa = p[3] as f32 / 255.0;
+        let oa = sa + g * (1.0 - sa);
+        for c in 0..3 {
+            p[c] = ((p[c] as f32 * sa + rgb[c] as f32 * g * (1.0 - sa)) / oa).round().min(255.0) as u8;
+        }
+        p[3] = (oa * 255.0).round() as u8;
+    }
+}
+
+/// A box blur `width` pixels wide along one axis (`step` apart, `stride` between lines): whole
+/// pixels in the middle, a part of one at each end.
+fn box_blur(a: &[f32], w: usize, h: usize, width: f32, step: usize, stride: usize) -> Vec<f32> {
+    let full = ((width - 1.0) / 2.0).floor().max(0.0) as i64;
+    let edge = (width - (2 * full + 1) as f32) / 2.0;
+    let (len, lines) = if step == 1 { (w, h) } else { (h, w) };
+    let mut out = vec![0.0; a.len()];
+    for line in 0..lines {
+        let at = |i: i64| -> f32 {
+            if i < 0 || i >= len as i64 { 0.0 } else { a[line * stride + i as usize * step] }
+        };
+        for i in 0..len as i64 {
+            let mut sum = (edge > 0.0).then(|| (at(i - full - 1) + at(i + full + 1)) * edge).unwrap_or(0.0);
+            for d in -full..=full {
+                sum += at(i + d);
+            }
+            out[line * stride + i as usize * step] = sum / width;
+        }
+    }
+    out
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
@@ -286,6 +364,24 @@ mod tests {
         assert_eq!(*out.get_pixel(12 + 39, 12), Rgba([255, 0, 0, 255]));
         // Size 50 halves it.
         assert_eq!(redraw(&src, false, 50, 5.0).dimensions(), (20 + 24, 20 + 13));
+    }
+
+    #[test]
+    fn glow_rings_the_outline() {
+        // The red block from canvas_and_outline: black outline at x = 17, then a hard 80% ring
+        // of the glow colour at x = 18, fading to nothing a few pixels further out.
+        let mut src = RgbaImage::new(8, 8);
+        src.put_pixel(0, 0, Rgba([255, 0, 0, 255]));
+        let mut out = redraw(&src, false, 100, 5.0);
+        add_glow(&mut out, 0x00FF00);
+        assert_eq!(*out.get_pixel(14, 14), Rgba([255, 0, 0, 255]), "sprite untouched");
+        let outline = out.get_pixel(17, 14);
+        assert!(outline[1] < 60 && outline[3] > 204, "outline stays dark: {outline:?}");
+        let ring = out.get_pixel(18, 14);
+        assert!(ring[1] == 255 && ring[0] == 0 && ring[3] >= 204, "ring: {ring:?}");
+        let halo = out.get_pixel(21, 14);
+        assert!(halo[1] == 255 && halo[3] > 0 && halo[3] < ring[3], "halo: {halo:?}");
+        assert_eq!(out.get_pixel(30, 14)[3], 0, "nothing far out");
     }
 
     #[test]

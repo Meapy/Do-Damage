@@ -1,5 +1,4 @@
-﻿using System;
-using WorldServer.core.objects;
+﻿using WorldServer.core.objects;
 using WorldServer.core.worlds;
 using WorldServer.logic;
 
@@ -9,10 +8,12 @@ namespace WorldServer.logic.behaviors
     {
         protected override void TickCore(Entity host, TickTime time, ref object state)
         {
-            if (!(host is Enemy))
-                throw new NotSupportedException("Use Decay instead");
-
-            (host as Enemy).Death(ref time);
+            // an ally's effect (a GameObject, not an Enemy) just leaves, as with Decay: throwing here
+            // left it in the world, throwing and logging every tick until the world closed
+            if (host is Enemy enemy)
+                enemy.Death(ref time);
+            else
+                host.World.LeaveWorld(host);
         }
     }
 }

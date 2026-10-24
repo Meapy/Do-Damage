@@ -17,9 +17,10 @@ python tools\build_client_rs.py --web        # build\client-rs\web: index.html +
 python tools\build_client_rs.py --account https://dodmg.com/api --package --publish   # a release for players (main checkout only)
 ```
 
-- **Releasing to players** (ask the owner first): in the **main checkout**, which holds the
-  signing key, raise the version and name the changelog section (below), then run the line above
-  with the live address. It writes `dist\Do-Damage-windows.zip` (the website's download) and a
+- **Releasing to players** (ask the owner first): raise the version and name the changelog section
+  (below) on the release branch, and squash-merge its pull request into `main` (../AGENTS.md, Git,
+  "Release branches"). Then, in the **main checkout**, which holds the signing key, run the line
+  above with the live address. It writes `dist\Do-Damage-windows.zip` (the website's download) and a
   signed release in `dist\client`; `python deploy\deploy.py` then puts both on the VPS, where
   clients find it at `<account>/client/`. Desktop clients switch at their next portal, or straight
   away on the menu, the character list or an empty sign-in screen; nobody is disconnected. Browser players get
@@ -46,6 +47,16 @@ python tools\build_client_rs.py --account https://dodmg.com/api --package --publ
   `no-cache`. The game reports each asset to the page (`window.bskAssetLoaded`) and says when
   it can draw (`window.bskReady`). Serve it with the gateway (below);
   `.claude/launch.json` has `client-rs-web`, a gateway on port 8095 for isolated stack slot 1.
+  The `?v=` is the version and commit, so a rebuild before committing is cached under the old
+  one: refetch both files with `fetch(url, {cache: "reload"})` and reload the page.
+- **Keys in the browser:** winit cancels every key press on the canvas; `web.rs` hands a few
+  back to the browser (the clipboard keys, so the page's paste, copy and cut events come, and
+  reload, tabs, zoom, the developer tools). Clipboard text goes through those events
+  (`textedit.rs` `clipboard`). To test them, dispatch `KeyboardEvent`s (with `code`, Control
+  pressed first) and `ClipboardEvent`s on the canvas: the built-in browser's own key presses
+  leave `code` empty for some keys, and its pane draws about two frames a second in the
+  background, so the sign-in screens, which take keys at the next frame, need a second between
+  steps. Its pane can't go fullscreen at all.
 - **Window title** is "Do Damage", the game's name for players, never "betterSkillys" (that's
   the AIR client's). Settings and the saved login stay in `betterSkillys-rs` folders, so the
   rename didn't lose anyone's.
@@ -86,7 +97,9 @@ new connection; it exits non-zero if it gets disconnected. The second form goes
 through the gateway, as the browser does. With no living character it makes a Wizard.
 `--say "/godlands;;/god"` sends lines (split by `;;`) 3 s apart after each join, and
 `--wander <tiles>` walks it round a circle that size, so several bots keep a realm busy for load
-tests (accounts from the account server's `/account/register` on the isolated stack).
+tests (accounts from the account server's `/account/register` on the isolated stack). Every 10 s it
+logs the ping the server measured and the gaps between NewTicks as they arrived (100 ms when
+nothing holds them up).
 
 The client itself can be scripted for tests (desktop only):
 

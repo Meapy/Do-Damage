@@ -477,11 +477,20 @@ impl Settings {
     }
 
     pub fn load() -> Self {
-        crate::login::store::load("settings").map_or_else(Settings::default, |t| Settings::from_text(&t))
+        let s = crate::login::store::load("settings").map_or_else(Settings::default, |t| Settings::from_text(&t));
+        s.note_keys();
+        s
     }
 
     pub fn save(&self) {
         crate::login::store::save("settings", Some(&self.to_text()));
+        self.note_keys();
+    }
+
+    /// In the browser, the keys the controls use stay the game's (web.rs).
+    fn note_keys(&self) {
+        #[cfg(target_arch = "wasm32")]
+        crate::web::keys_in_use(self.keys.iter().flatten().copied());
     }
 }
 

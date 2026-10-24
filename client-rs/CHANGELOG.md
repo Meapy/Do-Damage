@@ -12,6 +12,28 @@ Keep each version short: changes go under `### ` group headings (Oryx 5, Arena, 
 on), one line per change players notice, summed up rather than item by item (the wiki has the
 details). Add to a group's line when a change adds to it, rather than adding another line.
 
+## 2.0.2 (2026-10-24)
+
+### Game
+- In the browser, the chat and sign-in boxes now copy, cut and paste with Ctrl+C, X and V (Cmd on
+  a Mac), as on the desktop, and the browser keeps its own reload, tab and zoom keys.
+- Legends glow red again, as they did in the old client, for you and everyone around you, and
+  rare, epic and legendary monsters glow green, purple and pink, with their rank by their name
+  on the quest bar.
+- In dungeons and vaults, what you do reaches the server up to a tenth of a second sooner when
+  nobody is in the Nexus or realm they were opened from, and the ping shown there is no longer
+  about 100 ms too high. Effects from the Ghostly Prism, Chaotic Scripture and other ally items
+  no longer linger in the world after they go off.
+- The Nexus Bazaar no longer sells the Christmas Key. A Christmas Key you already have still opens
+  Christmas Oryx's Chamber.
+
+## 2.0.1 (2026-10-24)
+
+### Oryx 5: Oryx the Ascended God
+- Oryx's Elysium is open: use an Oryx's Elysium Incantation by the locked portal Oryx 4 drops, and
+  the Nexus Bazaar sells it again. The Void Entity on the Pyramid now fights back and drops loot,
+  and the Ascended Wardens round Oryx 5 shoot.
+
 ## 2.0.0 (2026-10-24)
 - Do Damage 2.0: the whole Oryx chain is rebuilt, with Oryx's Inferno for Oryx 4 and Oryx's
   Elysium for Oryx 5, one tougher Arena, the Divine Forge in the Nexus, and every weapon, armour,

@@ -103,15 +103,12 @@ namespace WorldServer.core.worlds
                     NetworkSendHandler.FlushBatch();
                     profile.Mark(TickProfile.Phase.Send);
 
-                    if (World.Players.Count == 0)
-                        Thread.Sleep(TICK_TIME_MS);
-                    else
-                    {
-                        // sleep until a player's message arrives or the next tick is due
-                        var untilTick = TICK_TIME_MS - elapsed - (watch.ElapsedMilliseconds - lastMS);
-                        if (untilTick > 0)
-                            World.WaitForIO((int)untilTick);
-                    }
+                    // sleep until a player's message arrives or the next tick is due; also with nobody
+                    // in this world itself, as its branches' players (a dungeon opened from the Nexus)
+                    // signal it too, and a flat 100 ms sleep held their messages until the next tick
+                    var untilTick = TICK_TIME_MS - elapsed - (watch.ElapsedMilliseconds - lastMS);
+                    if (untilTick > 0)
+                        World.WaitForIO((int)untilTick);
                 }
 
                 NetworkSendHandler.FlushBatch();

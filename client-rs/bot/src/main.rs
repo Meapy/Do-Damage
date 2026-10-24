@@ -124,6 +124,9 @@ fn run(args: Args) -> Result<(), String> {
     let mut next_report = started + Duration::from_secs(10);
     // The round trips the server measured (each Ping carries its recent average), this report.
     let mut rtts: Vec<i32> = Vec::new();
+    // Gaps between NewTicks as they arrive here (100 ms when nothing holds them up), this report.
+    let mut last_tick: Option<Instant> = None;
+    let mut tick_gaps: Vec<u128> = Vec::new();
     let mut reconnects = 0;
     // --say: the lines still to send and when the next may go; --wander: since when it walks
     let mut say = args.say.iter();
@@ -164,8 +167,19 @@ fn run(args: Args) -> Result<(), String> {
                     _ => String::new(),
                 };
                 rtts.clear();
+                tick_gaps.sort_unstable();
+                let gaps = match tick_gaps.last() {
+                    Some(max) => format!(
+                        ", tick gaps p50 {} p90 {} max {max} ms, {} over 150",
+                        tick_gaps[tick_gaps.len() / 2],
+                        tick_gaps[tick_gaps.len() * 9 / 10],
+                        tick_gaps.iter().filter(|&&g| g > 150).count()
+                    ),
+                    None => String::new(),
+                };
+                tick_gaps.clear();
                 log::info!(
-                    "{:>3} s: {} ticks, {} objects seen{ping}",
+                    "{:>3} s: {} ticks, {} objects seen{ping}{gaps}",
                     started.elapsed().as_secs(),
                     received.get("NewTick").unwrap_or(&0),
                     objects.len()
@@ -180,6 +194,11 @@ fn run(args: Args) -> Result<(), String> {
                 *received.entry(msg.name()).or_default() += 1;
                 match &*msg {
                     ServerMessage::Ping(p) if p.round_trip_time >= 0 => rtts.push(p.round_trip_time),
+                    ServerMessage::NewTick(_) => {
+                        if let Some(last) = last_tick.replace(Instant::now()) {
+                            tick_gaps.push(last.elapsed().as_millis());
+                        }
+                    }
                     ServerMessage::Update(u) => {
                         objects.extend(u.new_objs.iter().map(|o| o.status.object_id));
                         for o in u.new_objs.iter() {
@@ -216,6 +235,7 @@ fn run(args: Args) -> Result<(), String> {
                             target.port = r.port as u16;
                         }
                         socket = GameSocket::connect(&target);
+                        last_tick = None;
                         let (s, first) = Session::start(hello(r.game_id, r.key_time, r.key.0.clone()), join(char_id));
                         session = s;
                         out.clear();

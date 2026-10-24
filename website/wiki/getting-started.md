@@ -70,6 +70,11 @@ Every key can be rebound in Options (<kbd>O</kbd>).
 | <kbd>F11</kbd> | Fullscreen |
 | <kbd>Esc</kbd> | Menu: characters, options, log out |
 
+Text boxes (chat, sign-in) copy, cut and paste with <kbd>Ctrl</kbd>+<kbd>C</kbd>, <kbd>X</kbd> and
+<kbd>V</kbd>, select all with <kbd>Ctrl</kbd>+<kbd>A</kbd> and undo with <kbd>Ctrl</kbd>+<kbd>Z</kbd>
+(<kbd>Cmd</kbd> on a Mac). In the browser, <kbd>Ctrl</kbd>+<kbd>R</kbd>, <kbd>F5</kbd>,
+<kbd>F12</kbd> and the browser's tab and zoom keys still work, unless a control uses that key.
+
 **Options** (<kbd>O</kbd>, or from the <kbd>Esc</kbd> menu) has a **Visuals** tab for what you
 see in the world: the crosshair, particles, shadows, health bars, damage numbers, and how much of
 other players and their pets you see. "Pets' shots" there switches between Normal, Subtle (the

@@ -184,6 +184,16 @@ impl LineEdit {
         true
     }
 
+    /// Whether the key copies or cuts.
+    #[cfg_attr(not(target_arch = "wasm32"), allow(dead_code))]
+    pub fn copies(code: KeyCode, ctrl: bool, shift: bool) -> bool {
+        match code {
+            KeyCode::KeyC | KeyCode::KeyX | KeyCode::Insert => ctrl,
+            KeyCode::Delete => shift && !ctrl,
+            _ => false,
+        }
+    }
+
     fn copy(&self) {
         if let Some(t) = self.selected_text() {
             clipboard::set(t);
@@ -223,10 +233,18 @@ impl LineEdit {
 
 /// The system clipboard (text only).
 pub mod clipboard {
-    // Text the browser pasted, for the frame to put into the field being typed in.
+    // In the browser: text the page pasted, for the frame to put into the field being typed in;
+    // text the field copied or cut, for the page's copy or cut event that follows the key; and
+    // when the last paste event came (ms), to tell whether the browser sent one.
     #[cfg(target_arch = "wasm32")]
     thread_local! {
         static WEB: std::cell::RefCell<Option<String>> = const { std::cell::RefCell::new(None) };
+        static COPIED: std::cell::RefCell<Option<String>> = const { std::cell::RefCell::new(None) };
+        static PASTED_AT: std::cell::Cell<f64> = const { std::cell::Cell::new(f64::MIN) };
+        // Each text copied is numbered, and the copy event notes the last one it took.
+        static COPIES: std::cell::Cell<(u32, u32)> = const { std::cell::Cell::new((0, 0)) };
+        // The last text copied and when (ms): the sign-in screens copy it again at the frame.
+        static LAST_COPY: std::cell::RefCell<(String, f64)> = const { std::cell::RefCell::new((String::new(), f64::MIN)) };
     }
 
     #[cfg(windows)]
@@ -285,29 +303,67 @@ pub mod clipboard {
     }
 
     /// In the browser the text comes with the page's paste event, after the key: see
-    /// `take_pasted`.
+    /// `take_pasted`. A browser that sends none (Safari, with nothing selected on the page) is
+    /// asked for the clipboard instead, which it may first ask the player about.
     #[cfg(target_arch = "wasm32")]
     pub fn get() -> Option<String> {
+        use wasm_bindgen::JsCast;
+        let window = web_sys::window()?;
+        // The sign-in screens take their keys at the next frame, after the paste event.
+        let asked = js_sys::Date::now() - 500.0;
+        let check = wasm_bindgen::closure::Closure::once_into_js(move || {
+            if PASTED_AT.with(|p| p.get()) >= asked {
+                return;
+            }
+            let Some(window) = web_sys::window() else { return };
+            let read = wasm_bindgen_futures::JsFuture::from(window.navigator().clipboard().read_text());
+            wasm_bindgen_futures::spawn_local(async move {
+                if let Some(text) = read.await.ok().and_then(|t| t.as_string()) {
+                    WEB.with(|w| *w.borrow_mut() = Some(text));
+                }
+            });
+        });
+        // The paste event comes straight after the key press; this runs after both.
+        let _ = window.set_timeout_with_callback_and_timeout_and_arguments_0(check.unchecked_ref(), 50);
         None
     }
 
-    /// Listen for the page's paste events (Ctrl+V, Shift+Insert, the context menu).
+    /// Listen for the page's paste events (Ctrl+V, Shift+Insert) and fill in its copy and cut
+    /// events (Ctrl+C and X, Ctrl+Insert, Shift+Delete) with the field's text.
     #[cfg(target_arch = "wasm32")]
     pub fn listen() {
         use wasm_bindgen::JsCast;
         let Some(document) = web_sys::window().and_then(|w| w.document()) else { return };
         let on_paste = wasm_bindgen::closure::Closure::<dyn FnMut(web_sys::ClipboardEvent)>::new(|e: web_sys::ClipboardEvent| {
+            PASTED_AT.with(|p| p.set(js_sys::Date::now()));
             if let Some(text) = e.clipboard_data().and_then(|d| d.get_data("text/plain").ok()) {
                 WEB.with(|w| *w.borrow_mut() = Some(text));
             }
+            e.prevent_default();
         });
         let _ = document.add_event_listener_with_callback("paste", on_paste.as_ref().unchecked_ref());
         on_paste.forget();
+        let on_copy = wasm_bindgen::closure::Closure::<dyn FnMut(web_sys::ClipboardEvent)>::new(|e: web_sys::ClipboardEvent| {
+            if let Some(text) = COPIED.with(|c| c.borrow_mut().take()) {
+                if let Some(data) = e.clipboard_data() {
+                    if data.set_data("text/plain", &text).is_ok() {
+                        e.prevent_default();
+                        COPIES.with(|c| c.set((c.get().0, c.get().0)));
+                    }
+                }
+            }
+        });
+        for event in ["copy", "cut"] {
+            let _ = document.add_event_listener_with_callback(event, on_copy.as_ref().unchecked_ref());
+        }
+        on_copy.forget();
     }
 
-    /// Text the page pasted since last asked.
+    /// Text the page pasted since last asked. Text copied for a copy event that never came is
+    /// dropped too, so a later one doesn't take it.
     #[cfg(target_arch = "wasm32")]
     pub fn take_pasted() -> Option<String> {
+        COPIED.with(|c| c.borrow_mut().take());
         WEB.with(|w| w.borrow_mut().take())
     }
 
@@ -316,11 +372,39 @@ pub mod clipboard {
         None
     }
 
+    /// The page's copy or cut event, which follows the key, takes the text; the async clipboard
+    /// is the fallback for a browser that sends none.
     #[cfg(target_arch = "wasm32")]
     pub fn set(text: &str) {
-        if let Some(clipboard) = web_sys::window().map(|w| w.navigator().clipboard()) {
-            let _ = clipboard.write_text(text);
+        use wasm_bindgen::JsCast;
+        let now = js_sys::Date::now();
+        let (last, at) = LAST_COPY.with(|l| std::mem::replace(&mut *l.borrow_mut(), (text.to_string(), now)));
+        if last == text && now - at < 1000.0 {
+            return;
         }
+        COPIED.with(|c| *c.borrow_mut() = Some(text.to_string()));
+        let n = COPIES.with(|c| {
+            let n = c.get().0.wrapping_add(1);
+            c.set((n, c.get().1));
+            n
+        });
+        let Some(window) = web_sys::window() else { return };
+        let text = text.to_string();
+        let fallback = wasm_bindgen::closure::Closure::once_into_js(move || {
+            if COPIES.with(|c| c.get().1) == n {
+                return;
+            }
+            let Some(window) = web_sys::window() else { return };
+            // A browser may refuse it (no permission): the text just isn't copied.
+            thread_local! {
+                static IGNORE: wasm_bindgen::closure::Closure<dyn FnMut(wasm_bindgen::JsValue)> =
+                    wasm_bindgen::closure::Closure::new(|_| ());
+            }
+            IGNORE.with(|ignore| {
+                let _ = window.navigator().clipboard().write_text(&text).catch(ignore);
+            });
+        });
+        let _ = window.set_timeout_with_callback_and_timeout_and_arguments_0(fallback.unchecked_ref(), 0);
     }
 
     #[cfg(not(any(windows, target_arch = "wasm32")))]
