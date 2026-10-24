@@ -249,7 +249,9 @@ namespace WorldServer.core.worlds.impl.doomed
         public DoomedBattleArena(GameServer gameServer, int id, WorldResource resource, World parent)
             : base(gameServer, id, resource, parent)
         {
-            DefeatToNexus = true; // its world XML is generated (port_doomed_worlds.py)
+            // its world XML is generated (port_doomed_worlds.py)
+            DefeatToNexus = true;
+            LootRate = ArenaPools.LootRate;
         }
 
         public override bool Joinable => !_started;

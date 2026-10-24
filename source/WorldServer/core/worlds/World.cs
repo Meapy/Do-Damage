@@ -48,6 +48,8 @@ namespace WorldServer.core.worlds
         public bool DisableAbilities { get; set; }
         // a lethal hit here sends the player to the Nexus instead of killing them (arenas)
         public bool DefeatToNexus { get; protected set; }
+        // each drop's chance is multiplied by this here, after the boosts (Loot.Handle): 0.5 in the arenas
+        public double LootRate { get; protected set; } = 1;
         private long Lifetime { get; set; }
 
         public bool isWeekend { get; set; } = false;
@@ -100,6 +102,7 @@ namespace WorldServer.core.worlds
             DisableShooting = resource.DisableShooting;
             DisableAbilities = resource.DisableAbilities;
             DefeatToNexus = resource.DefeatToNexus;
+            LootRate = resource.LootRate;
             CreateInstance = resource.CreateInstance;
 
             IsRealm = false;

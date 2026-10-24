@@ -400,6 +400,7 @@
 		<MapJM>Dungeons/Admin Arena.jm</MapJM>
 		<VisibilityType>1</VisibilityType>
 		<DefeatToNexus/>
+		<LootRate>0.5</LootRate>
 		<Dungeon/>
 	</World>
 </Worlds>

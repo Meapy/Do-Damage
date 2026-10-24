@@ -198,6 +198,19 @@ namespace WorldServer.logic.loot
 
         public Loot(params MobDrops[] drops) => AddRange(drops);
 
+        // A drop's chance: its own times the boosts, at most sure, times the world's LootRate for a
+        // monster that isn't a boss. The rate comes last so that in an arena (0.5) every drop is half
+        // as likely as anywhere else with the same boosts, a sure drop included (a 50% chance there).
+        public static double Chance(double probability, double boost, double worldRate) =>
+            Math.Min(1, probability * boost) * worldRate;
+
+        // a boss's drops under a LootRate: that share of them, rounded up, picked at random
+        public static List<Item> KeepShare(List<Item> drops, double share)
+        {
+            var keep = (int)Math.Ceiling(drops.Count * share - 1e-9);
+            return drops.OrderBy(_ => Random.Shared.Next()).Take(keep).ToList();
+        }
+
         public void Handle(Enemy enemy, TickTime time)
         {
             if (enemy.SpawnedByBehavior)
@@ -209,7 +222,10 @@ namespace WorldServer.logic.loot
                 i.Populate(possDrops);
 
             var pubDrops = new List<Item>();
-            var rate = ArenaPools.LootRate(enemy); // Oryx 3, 4 and 5 drop half as often in the Arena
+            // half in the arenas: for a boss, half the items it rolls; for any other, half the chance
+            var worldRate = enemy.World?.LootRate ?? 1;
+            var share = worldRate < 1 && ArenaPools.LootHalvesItems(enemy) ? worldRate : 1;
+            var rate = share < 1 ? 1 : worldRate;
 
             foreach (var i in possDrops)
             {
@@ -223,7 +239,7 @@ namespace WorldServer.logic.loot
                     continue;
                 
                 var chance = Random.Shared.NextDouble();
-                if (i.Threshold <= 0 && chance < i.Probabilty * rate)
+                if (i.Threshold <= 0 && chance < Chance(i.Probabilty, 1, rate))
                 {
                     var items = GetItems(i.ItemType, i.Tier);
                     var chosenTieredItem = Pick(items);
@@ -231,6 +247,8 @@ namespace WorldServer.logic.loot
                 }
             }
 
+            if (share < 1)
+                pubDrops = KeepShare(pubDrops, share);
             if(pubDrops.Count > 0)
                 ProcessPublic(pubDrops, enemy);
 
@@ -264,7 +282,7 @@ namespace WorldServer.logic.loot
                 {
                     var c = Random.Shared.NextDouble();
 
-                    var probability = i.Probabilty * totalBoost * rate;
+                    var probability = Chance(i.Probabilty, totalBoost, rate);
 
                     if (i.Threshold >= 0 && i.Threshold < Math.Round(tupPlayer.Item2 / (double)enemy.DamageCounter.TotalDamage, 4))
                     {
@@ -302,7 +320,7 @@ namespace WorldServer.logic.loot
                     }
                 }
 
-                privDrops[player] = drops;
+                privDrops[player] = share < 1 ? KeepShare(drops, share) : drops;
             }
 
             foreach (var priv in privDrops)
