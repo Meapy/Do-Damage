@@ -2889,7 +2889,19 @@ fn draw_boss(
     // The name, and the health bar under it.
     let name = q.name().unwrap_or(&desc.display_id).to_owned();
     let ns = lay.font(13.0);
-    ui.label(&name, r[0] + 52.0 * s, r[1] + 6.0 * s, ns, true, color::ACCENT_HI);
+    let mut nx = r[0] + 52.0 * s;
+    // A rare, epic or legendary enemy's rank before its name, in its glow colour (stat 115).
+    let rank = match q.stat_int(115) {
+        Some(0xD865A5) => Some(("Legendary ", 0xD865A5)),
+        Some(0xC183AF) => Some(("Epic ", 0xC183AF)),
+        Some(0x82D9BC) => Some(("Rare ", 0x82D9BC)),
+        _ => None,
+    };
+    if let Some((rank, c)) = rank {
+        ui.label(rank, nx, r[1] + 6.0 * s, ns, true, c);
+        nx += ui.measure(rank, ns, true);
+    }
+    ui.label(&name, nx, r[1] + 6.0 * s, ns, true, color::ACCENT_HI);
     let bar = within(r, s, 52.0, 26.0, 190.0, 18.0);
     theme::frame(ui.renderer, bar, 5.0 * s, s.max(1.0), (color::BORDER, 1.0), ((color::TRACK, 1.0), (theme::shade(color::TRACK, 0.08), 1.0)));
     let frac = (hp as f32 / max as f32).clamp(0.0, 1.0);

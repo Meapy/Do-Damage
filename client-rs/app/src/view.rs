@@ -688,7 +688,10 @@ fn draw_sprite(scene: &Scene, renderer: &mut Renderer, redrawer: &mut Redrawer, 
     let (tex1, tex2) = look.tex.unwrap_or((obj.stat_int(32).unwrap_or(0), obj.stat_int(33).unwrap_or(0)));
     let dye = look.mask.map(|mask| Dye { mask, tex1, tex2 });
     // A player's GLOW_COLOR (Player.getTexture's outlineGlow): red for a legend, or their /glow.
-    let glow = if desc.player { obj.stat_int(59).filter(|&g| g > 0 && g <= 0xFF_FFFF).unwrap_or(0) as u32 } else { 0 };
+    // An enemy's GLOW_ENEMY_COLOR (GameObject.getTexture): green, purple or pink for a rare,
+    // epic or legendary one.
+    let glow_stat = if desc.player { Some(59) } else if desc.enemy { Some(115) } else { None };
+    let glow = glow_stat.and_then(|s| obj.stat_int(s)).filter(|&g| g > 0 && g <= 0xFF_FFFF).unwrap_or(0) as u32;
     let sprite = redrawer.get_glowing(scene.sprites, renderer, look.src, look.mirror, size, dye, glow)?;
     // The canvas's bottom centre stands on the object (raised by its z); sprites scale with the
     // map. On sinking ground (water) the sprite is drawn lower with its bottom cut off, unless it

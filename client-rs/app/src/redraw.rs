@@ -181,7 +181,7 @@ impl Redrawer {
     }
 
     /// Like `get`, ringed by a glow in `glow` (0xRRGGBB, 0 for none): a player's GLOW_COLOR, red
-    /// for a legend.
+    /// for a legend, or a rare, epic or legendary enemy's colour.
     #[allow(clippy::too_many_arguments)]
     pub fn get_glowing(
         &mut self,

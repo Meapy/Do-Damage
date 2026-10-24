@@ -17,7 +17,9 @@ details). Add to a group's line when a change adds to it, rather than adding ano
 ### Game
 - In the browser, the chat and sign-in boxes now copy, cut and paste with Ctrl+C, X and V (Cmd on
   a Mac), as on the desktop, and the browser keeps its own reload, tab and zoom keys.
-- Legends glow red again, as they did in the old client, for you and everyone around you.
+- Legends glow red again, as they did in the old client, for you and everyone around you, and
+  rare, epic and legendary monsters glow green, purple and pink, with their rank by their name
+  on the quest bar.
 - In dungeons and vaults, what you do reaches the server up to a tenth of a second sooner when
   nobody is in the Nexus or realm they were opened from, and the ping shown there is no longer
   about 100 ms too high. Effects from the Ghostly Prism, Chaotic Scripture and other ally items
