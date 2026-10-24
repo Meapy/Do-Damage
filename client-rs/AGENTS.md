@@ -46,6 +46,16 @@ python tools\build_client_rs.py --account https://dodmg.com/api --package --publ
   `no-cache`. The game reports each asset to the page (`window.bskAssetLoaded`) and says when
   it can draw (`window.bskReady`). Serve it with the gateway (below);
   `.claude/launch.json` has `client-rs-web`, a gateway on port 8095 for isolated stack slot 1.
+  The `?v=` is the version and commit, so a rebuild before committing is cached under the old
+  one: refetch both files with `fetch(url, {cache: "reload"})` and reload the page.
+- **Keys in the browser:** winit cancels every key press on the canvas; `web.rs` hands a few
+  back to the browser (the clipboard keys, so the page's paste, copy and cut events come, and
+  reload, tabs, zoom, the developer tools). Clipboard text goes through those events
+  (`textedit.rs` `clipboard`). To test them, dispatch `KeyboardEvent`s (with `code`, Control
+  pressed first) and `ClipboardEvent`s on the canvas: the built-in browser's own key presses
+  leave `code` empty for some keys, and its pane draws about two frames a second in the
+  background, so the sign-in screens, which take keys at the next frame, need a second between
+  steps. Its pane can't go fullscreen at all.
 - **Window title** is "Do Damage", the game's name for players, never "betterSkillys" (that's
   the AIR client's). Settings and the saved login stay in `betterSkillys-rs` folders, so the
   rename didn't lose anyone's.

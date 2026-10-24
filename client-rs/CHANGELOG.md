@@ -12,6 +12,12 @@ Keep each version short: changes go under `### ` group headings (Oryx 5, Arena, 
 on), one line per change players notice, summed up rather than item by item (the wiki has the
 details). Add to a group's line when a change adds to it, rather than adding another line.
 
+## Unreleased
+
+### Game
+- In the browser, the chat and sign-in boxes now copy, cut and paste with Ctrl+C, X and V (Cmd on
+  a Mac), as on the desktop, and the browser keeps its own reload, tab and zoom keys.
+
 ## 2.0.1 (2026-10-24)
 
 ### Oryx 5: Oryx the Ascended God
