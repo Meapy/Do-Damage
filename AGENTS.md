@@ -77,9 +77,10 @@ it asks first; never run test copies under the live process names (`redis-server
 - **Changelog:** every change players can notice (client, servers, content, website, fixes) gets a
   line in [client-rs/CHANGELOG.md](client-rs/CHANGELOG.md) under `## Unreleased` at the top, in
   the same commit as the change. Write it in plain words for players, not code names; the game's
-  Changelog window and the website show it. Start the section if it isn't there. Publishing a
-  client version renames it to that version, so only release lines that are true for players by
-  then: hold back a line whose change isn't live yet (put it back under `Unreleased`).
+  Changelog window and the website show it. Put it in its `### ` group, summed up with what's
+  already there rather than as a new line for each detail. Start the section if it isn't there.
+  Publishing a client version renames it to that version, so only release lines that are true for
+  players by then: hold back a line whose change isn't live yet (put it back under `Unreleased`).
 - **Wiki:** a finished change players can notice (content, items, drops, classes, commands, a
   feature) also updates the wiki, `website/wiki/` (built by `tools/build_wiki.py`), in the same
   commit. Much of it is read from the game's data (the gear pages and their drops, dungeons,

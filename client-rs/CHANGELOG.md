@@ -8,450 +8,104 @@ version (`python tools/build_client_rs.py --publish`) needs a section for that v
 refuses while an `Unreleased` one is left, so rename it to `## <version> (<date>)` then. The
 version number itself is in `client-rs/Cargo.toml`.
 
+Keep each version short: changes go under `### ` group headings (Oryx 5, Arena, Items, Game and so
+on), one line per change players notice, summed up rather than item by item (the wiki has the
+details). Add to a group's line when a change adds to it, rather than adding another line.
+
 ## Unreleased
+### Oryx 5: Oryx the Ascended God
+- Oryx 5 has ascended: he is now Oryx the Ascended God, in white and gold with a spear, and his
+  fight is all new: his Radiant Cross, the Firmament, the Divine Hunt, his Host at 80%, his
+  Transcendence at 60%, his Apotheosis at 20% and the Last Judgement at 10%. When he concedes he
+  falls back through every Oryx he was and leaves a Nexus Portal.
+- A new dungeon: the Doomed Cellar is now Oryx's Elysium, a holy island of gold, marble and
+  turquoise sea. His Ascended Host guards the roads, a guardian waits at the Oasis and at the
+  Pyramid (now fallen to the Void, with the Void Entity), and twelve Trees of Doom hold the Holy
+  Gates to his temple shut. It stays sealed while his guardians and loot are finished.
+- New items from him: a T15 of every weapon, three T16 armours (Hide of the Firmament, Armor of
+  Ascension, Robe of Absolution, which replace the Sphinx Leather Armor, Armor of the Pyramid and
+  Robe of the Nile you have), the Elysian Staff, the reworked Sword of Dark Enchantment, two
+  Ascended Gems and the Ascended forge shards.
+- The first Ascended items: the Enthroned set, forged from his top tier and an Ascended shard.
+  They're placeholders with no numbers yet.
+
+### Oryx 3 and Oryx 4
+- New names: Oryx the Celestial Mad God (Oryx 3) and Oryx the Infernal Mad God (Oryx 4). Their
+  taunts go to the chat only, so no speech bubble hides their attacks.
+- Oryx 3 moves more: he chases, backs away and dashes back to the middle of his Sanctum.
+- The Hash Cellar is now Oryx's Inferno, rebuilt in fire: a Burning Path through four chambers,
+  guarded by the new Infernal Court, and a round arena with lava pools. Oryx 4 burns, calls his
+  Infernal Court and fires hellfire.
+- New gateways and incantation seals for Oryx's Sanctuary, Inferno and Elysium. Incantations you
+  have still work.
+- Oryx 4's items are Infernal now (the Brimstone Poison, the Cloak of Bloodshed, the Bloodletter,
+  which makes enemies bleed, and the Gems), and he drops the Infernal forge shards.
+- The Oryx 4 and Oryx 5 event: while it's on, they and everything they bring hit 20% softer.
+
+### Arena
 - One Arena: the Battle Arena is now just the Arena, and the Free Battle Arena and the public
-  arena are gone. Its portal stands in the Nexus's south yard beside the leaderboard's trophy, and
-  `/arena` takes you into the same game from anywhere. It pays fame after every wave as before;
-  older runs on the leaderboard count as the Arena's.
-- In the Arena, Oryx 3, 4 and 5 drop everything at half their usual chances.
-- Oryx's Elysium shows what's to come: the Oasis Seraph's islet now holds the Ascended Totem, a
-  statue of Oryx's staff for the Ascended items, and the Pyramid has fallen to the Void, seeping out
-  over the roads round it, with the Void Entity in place of the Gilded Sphinx. It doesn't attack yet
-  and drops no loot, only its three Trees of Doom: nine trees and the Void Entity now hold the Holy
-  Gates shut.
-- Oryx 5's weapons:
-  - The Sword of Dark Enchantment fires black and red slashes (it fired sheep), and each shot has a
-    15% chance (at most every 2 seconds) of a small dark orb that follows you for 4 seconds, zapping
-    the nearest enemy for 220-280 every half second: about a fifth more damage.
-  - The Elysian Staff fires his bolts in his silver, purple and gold, weaving smoothly as other
-    staves' shots do (they jittered), and each shot has a 10% chance
-    (at most every 6 seconds) of one of his halos, which circles you for 5 seconds firing two Holy
-    Orbs at the nearest enemy every second, for 120-150 each.
-- The game's window and taskbar icon is the Do Damage crown, as on the website.
-- Oryx 4's untiered items, reworked and named for his Inferno:
-  - Doom Poison is now the Infernal Brimstone Poison: 2,000 poison damage (was 15,000) that curses
-    the enemies it hits instead of dazing them, still with its stasis blast, and it silences you for
-    2 seconds when you throw it. Only Oryx 4 drops it now: Oryx 5 and the donor shop no longer have it.
-  - The Cloak of Bloody Surprises is now the Infernal Cloak of Bloodshed: +8 Defense and +10 Vitality
-    (were 6 and 4), and it makes you bleed for a second when you use it.
-  - The Doom Dirk and Flying Doom Daggers have red in their shading now.
-- Oryx 5 drops two gems of his own, as often as Oryx 4 drops his: the Ascended Gem of Adoration
-  (+400 Vitality for 3 seconds when your health drops below 20%) and the Ascended Gem of Tenderness
-  (each use of your ability: a 35% chance of +50 Wisdom for 4 seconds).
-- Bleeding enemies show the bleeding icon: the Infernal Bloodletter's, pets' and every other bleed
-  a weapon or pet puts on them.
-- Poisons now put on the condition their numbers list: the Infernal Brimstone Poison's Curse, and
-  four other poisons' Sick, Dazed, Curse and Armor Broken, which never took hold before.
-- Silenced really stops your ability now, for as long as it lasts.
-- Gone: the Shattered Rune of Oryx, Broken Oryx Armor and Purified Doom Saliva (the forge shards
-  took their place), the Forge Amulet (the forge no longer takes it) and the Burning Amulet. Nothing
-  drops them; ones you have stay, marked unobtainable, and the forge no longer buys them.
-- Forge shards: Oryx the Infernal Mad God (Oryx 4) drops Infernal Weapon, Ability, Armor and
-  Accessory Shards, and Oryx the Ascended God (Oryx 5) the four Ascended Shards, each half as often
-  as their Potion of Oryx. They take the place of the Shattered Rune of Oryx, Broken Oryx Armor,
-  Oryx Cloths and Purified Doom Saliva those two dropped. Use a shard and it goes into your forge
-  storage, which your whole account shares: the Divine Forge's new Shards tab shows it, and a click
-  there takes one back out to trade. Recipes take their shards straight from your storage.
-- The first Ascended items, Oryx 5's own gear, which he never drops: untiered items with a red slot
-  edge, which the Divine Forge makes from an item of the top tier he drops and an Ascended shard,
-  for 2,000 fame, all named Enthroned. An Enthroned Sword, Dagger, Bow, Wand, Katana, Dual Blades
-  and Fists from their tier 15s, and an Enthroned Hide and Plate from the tier 16 armours, each
-  looking like the item it's made from with purple sparkles; and his own pieces from any item of
-  the tier: the Enthroned Spear (a gold staff with a crystal head, like the one he holds, from his
-  Elysian Staff), the Enthroned Robe (any tier 16 armour), the Enthroned Helm (any tier 8 ability),
-  and the Enthroned Boots and Enthroned Rings of Wrath and Grace (gold, light blue and purple bands
-  under a purple or a golden gem; any tier 8 ring). They're placeholders with no numbers yet (their
-  weapons hit for 0); those come later, as do the Infernal shards' recipes.
-- The Divine Forge lists an item that several recipes make once, and picks the recipe you can make.
-  Two new filters: UT (untiered gear, the Ascended items first) and Highest tier (the top tier it
-  makes of each kind). A new Enchant tab is there too, locked until a later update.
-- The Open button of the Divine Forge and the other NPCs shows your interact key (0 unless you
-  changed it), as a portal's Enter button does: that key opens them too.
-- Armours: the Coral Silk Armor, Leaf Dragon Hide Armor, Esben's Shaman Attire, Fungal Breastplate,
-  Resurrected Warrior's Armor, Breastplate of New Life and Candy-Coated Armor are plain untiered
-  items now, no longer Legendary, Ascended or Ethereal. Esben's Shaman Attire drops in the Ice Cave
-  from Esben the Unwilling, as often as his other untiered items (0.4%). The Judge's Robe, which
-  nothing drops, is unobtainable.
-- The Divine Forge's one-for-one recipes (the Phantasm Dirk and Dirk of Cronus, the Doom Bow's
-  looks, and the others that swap an item's looks) work now: the forge used to refuse anything made
-  from a single item.
-- The T15 weapons (Sword of Ascension, Dagger of Divine Wrath, Bow of the Firmament, Wand of
-  Absolution, Ame-no-Habakiri, Seraphic Blades, Fists of the Ascended and the Staff of Endless
-  Energy) now wear Oryx the Ascended God's colours: blue-silver blades with purple grips and gems
-  and orange-gold fittings, in place of white and gold.
-- New tier 16 armours, in Oryx the Ascended God's colours, which only he drops (in white bags):
-  Hide of the Firmament (+24 Defense, +8 Dexterity, +5 Speed), Armor of Ascension (+31 Defense,
-  +85 health, +9 Vitality) and Robe of Absolution (+105 mana, +55 health, +19 Defense, +9 Wisdom,
-  +7 Attack), each a tenth better than its tier 15. They take the place of the Sphinx Leather
-  Armor, Armor of the Pyramid and Robe of the Nile, which nothing dropped: ones you have become the
-  new armours. The Divine Forge doesn't make them.
-- The Ring of Oryx and the tier 20 armours (Oryx Hide Armor, Oryx Hide Robe, Oryx Scale Armor and
-  Soul Spawned Armor) no longer drop from anything. Their tooltips and the wiki say they're
-  unobtainable; ones you already have still work.
-- Untiered abilities, new drops: Oryx the Celestial Mad God (Oryx 3) drops the Chaotic Scripture
-  and the Ballistic Star, Oryx the Infernal Mad God (Oryx 4) the Cloak of Bloody Surprises, Frimar
-  in the Ice Tomb the Tome of Frigid Protection, the Sandstone Titan the Amber Encrusted Helmet,
-  Janus the Doorwarden the Spiteful Scutum and Elder Archdemon Malphas the Skull of Endless
-  Torment. More often: the Quiver of Thunder, Tablet of the King's Avatar, Tome of Purification,
-  Plague Poison and Murky Toxin (5%), and the Soul Mask and Orb of Conflict (2%). The Penetrating
-  Blast Spell (T6 damage, its shots pass through enemies) now and then comes in the T6 ability
-  drops, and the Divine Forge makes it from two Elemental Detonation Spells.
-- Oryx's Escutcheon calls down three beams of lightning, the Genesis Spell's four portals stand
-  2.5 squares around your cursor and zap the nearest enemy, the Chaotic Scripture's Chaos Beam,
-  the Battalion Banner's banner, the Hivemaster Helm's bees and the Marble Seal's eye (Armored,
-  Damaging and Healing) all work now; they did nothing before. The Ghostly Prism's spirit bomb
-  bursts for 500 within 6 squares.
-- Item tooltips now show each item's own notes on what it does (many abilities explain their
-  effect only there).
-- Ability changes: Cloak of the Planewalker 1.5 s cooldown; Cloak of Dimensions +20 Vitality;
-  Freezing Quiver the T6 quiver's damage; Beehemoth Quivers make enemies bleed (120 over 3 s);
-  Tome of Poison the T6 poison's damage; Tome of Noble Assault 800 damage; Tome of Holy Protection
-  also gives Healing like the T6 tome; Tome of Pain 400 damage within 4 squares; the Helm of the
-  Jack-o'-naut is the Juggernaut's look-alike (same numbers; the forge swaps them for 100 fame);
-  Sword Shield half its damage; Seal of the Fallen Angel 2 s of invulnerability; Murky Toxin 20%
-  more damage; Skull of Endless Torment 25% more damage and healing, and -10 Vitality; Orb of
-  Conflict heals you 100; Honey Scepter slows for 1 s; Scepter of Zeus paralyzes for 1 s; Cnidaria
-  Rod gives +15 Wisdom for 3 s; Cnidaria Rod and Scepter of Fulmination the T6 scepter's damage;
-  Scepter of Devastation makes you bleed for 1 s; Ballistic Star 250 a star; Midnight Star and
-  Kageboshi 975-1075 damage and 120 MP, paralyzing and slowing for 2.5 s; the Thousand Suns
-  Spell's shots are bright yellow. The Crystal Shield's invulnerability ends when your mana runs
-  out.
-- Out of the shops: the donor spells and tomes, the Tome of Shining Stars (no longer
-  invulnerable) and the America Shield (a reward from the staff now). The Fool's Prism's fake bag
-  goes after 40 seconds.
-- The Legendary, Ascended and Ethereal abilities are ordinary untiered items for now, until
-  they're reworked.
-- Untiered katanas: Doku No Ken does the Sadamune's (T13) damage, 165-215, and each hit makes the
-  enemy bleed for 120 damage a second for 3 seconds. The Ray Katana does 175 that ignores defense.
-  Belladonna drops Arbiter's Wrath.
-- Untiered swords: Oryx the Celestial Mad God (Oryx 3) drops Divinity. The Platinum Sword reaches
-  8 tiles (was 5). The Divine Forge swaps the Demon Blade and the Sword of Illumination for 100
-  fame (same numbers, a different look). The Oryx Tooth Sword, Sword of the Angelic Soul and
-  Sword of Ghostly Power no longer drop, and the Turkey Leg of Doom left the shop. The America
-  Sword is a reward from the staff now, out of the shop and the Turkey God's loot.
-- Divine Forge: no recipe for an untiered item costs more than 3,000 fame now (some cost 10,000),
-  the Ancient Stone Sword's included.
-- The Legendary, Ascended and Ethereal katanas and swords are ordinary untiered items for now,
-  until they're reworked.
-- New T15 weapons, a step above each T14, from Oryx the Ascended God (Oryx 5): the Sword of
-  Ascension, Dagger of Divine Wrath, Bow of the Firmament, Wand of Absolution, Ame-no-Habakiri,
-  Seraphic Blades and Fists of the Ascended, in white and gold, and the Staff of Endless Energy as
-  the staves' T15 (now 100-135 and +10 Defense). The Divine Forge makes each from two T14s
-  (2,000 fame); the forge's other prices stay as they were.
-- The Eternal Sword does 180 damage that ignores defense (was 380-410), and is a rare untiered
-  staff now rather than a T15.
-- Untiered wands: Oryx the Celestial Mad God (Oryx 3) drops Lumiaire, the Ice Tomb's chest the
-  Eternal Snowflake, Frozen and Snowblind Wands, Esben Winter's Breath Wand, Belladonna the Wand of
-  Budding Romance and the Ghost of Skuld Soul's Guidance. The Conducting Wand and St. Abraham's
-  Wand drop far more often (5%).
-- Winter's Breath Wand has the Wand of Evocation's (T13) numbers. The Divine Forge swaps it with
-  the Wand of Evocation, and the Eternal Snowflake Wand with the Wand of the Bulwark, for 100 fame
-  (same numbers, a different look).
-- The Prismatic Crystal Wand (once shown as Crystal Wand) is forged from two Crystal Wands
-  (3,000 fame) and does 153-211 damage that ignores defense.
-- The Legendary, Ascended and Ethereal wands are ordinary untiered wands for now, until they're
-  reworked.
-- Untiered staves: Oryx the Celestial Mad God (Oryx 3) drops Superior; Oryx the Ascended God
-  (Oryx 5) drops the Elysian Staff (once the Staff of Heavens, now firing his golden Celestial
-  Bolts), and very rarely the Staff of Endless Energy and the Eternal Sword. Esben and the Ice
-  Tomb's chest drop Frosty's Walking Stick, the Ice Tomb also the Staff of Iceblast, Limon the
-  Spirit Staff and Belladonna the Staff of Adoration.
-- More common: the Staff of Extreme Prejudice (5% from Limon), Tezcacoatl's Tail (5%), the Staff of
-  Natural Essence (5% from the Elder Tree), the Staff of the Crystal Serpent (2%) and the Staff of
-  Esben (2%), which also does twice the damage (140-180).
-- Staff of Tainted Light: half its damage (95-105), a step above the Staff of Extreme Prejudice.
-- The Divine Forge swaps the Staff of the Cosmic Whole and Frosty's Walking Stick, and the Staff
-  of Extreme Prejudice and the Staff of Iceblast, for 100 fame (same numbers, a different look).
-- The Staff of Endless Energy is no longer in the donor shop. Raw Fish of Terror no longer drops
-  (it's being reworked). The Anatis Staff is a reward from the staff now and no longer drops or
-  forges; the Staff of Someone and Yolo are staff-only.
-- The Legendary, Ascended and Ethereal staves are ordinary untiered staves for now, until they're
-  reworked.
-- Untiered bows: the Ice Tomb's chest drops the Arctic Bow and the Bow of Eternal Frost, and the
-  Puppet Master in his Encore the Blazon Bow. The Bow of Eternal Frost fires three arrows of 70
-  that ignore defense and slow for a second; the Icicle Launcher fires two icicles that slow for a
-  second.
-- Reforged Doom Bow: its two shots now part and meet again at the end of their flight. The Divine
-  Forge makes it from two Doom Bows, and turns a Doom Bow into a Sun's Judgement or a Bow of the
-  Morning Star (or back), and a Thousand Shot into a Sunny Side Bow (or back), for 100 fame: they
-  have the same numbers, a different look.
-- The Ascended and Ethereal bows are ordinary untiered bows for now, until they're reworked.
-- Untiered daggers: Esben drops An Icicle, Oryx the Celestial Mad God (Oryx 3) Avarice, the
-  Crystal Prisoner the Crystal Dagger, and the monsters in Oryx 3's, Oryx 4's and Oryx 5's
-  dungeons now and then the Bounty Hunter's Dagger. Oryx 3 no longer drops the Doom Dirk or the
-  Flying Doom Daggers.
-- The Corruption Cutter is now the Infernal Bloodletter and drops from Oryx the Infernal Mad God
-  (Oryx 4): each hit makes the enemy bleed for 120 damage over 3 seconds.
-- Soul Tipped Dirk: 120-230 damage at 90% rate of fire (was 405-1045 at 100%), and its shots weave
-  from side to side.
-- The Divine Forge makes the Reforged Dirk of Cronus (two Dirks of Cronus) and the Dagger of the
-  Terrible Talon (two Obsidian Daggers), and turns a Dirk of Cronus into a Phantasm Dirk or back
-  for 100 fame (they have the same numbers, a different look). The Dirk of Cronus is no longer
-  sold in the shop.
-- The Legendary, Ascended and Ethereal daggers are ordinary untiered daggers for now, until
-  they're reworked.
-- Untiered rings now drop where they belong. Oryx the Celestial Mad God (Oryx 3) can drop the
-  Battalion Banner, Chancellor's Cranium, Collector's Monocle, Divine Coronation and the
-  Celestial God's Horn (the Exalted God's Horn, renamed). Oryx the Infernal Mad God (Oryx 4) can
-  drop the Burning Amulet and the Infernal Gems of Adoration and Tenderness. Oryx the Ascended God
-  (Oryx 5) can drop the Forge Amulet instead of the Crown. The Elder Tomb's bosses drop the Jade
-  Beetle, Pit Vipers the Crystal Bone Ring, Esben his Wedding Ring, the Royal Cnidarian the Mask of
-  Cnidaria, Sarcophagi the Mask of Anubis (now in a white bag), Candyland's bosses the Candy Ring,
-  its Swoll and Beefy Fairies the Fairy Ring, the Ghost of Skuld the Amulet of Dispersion, Oryx the
-  Christmas God the Oryxmas Ornaments, Elder Thessal the Coral Medallion, Elder Limon the Necklace
-  of Light and Elder Archdemon Malphas the Ring of the Blood Harvest. The Magical Lodestone drops
-  far more often (2%).
-- Ring changes: Infernal Gem of Adoration +5 Attack and +5 Dexterity on top of its Health and
-  Vitality; Infernal Gem of Tenderness 10 Wisdom and +10 Speed with its Mana; Mask of Cnidaria 200
-  Mana; Mask of Lightning +50 Health and +5 Dexterity; Ring of Decades 200 Health; Ring of the
-  Burning Sun +8 Vitality; Ring of the Abyss 120 Health and 10 Defense (was 500 and 24); Gold
-  Medal 45 Dexterity, 25 Vitality, 25 Speed and 50 Health.
-- Santa's Hat drops less often from Oryx the Christmas God (5%), and its description now says what
-  it does: a blow that would kill you breaks the hat instead and sends you to the Nexus.
-- The Legendary, Ascended and Ethereal rings are ordinary untiered rings for now, until they're
-  reworked. The medals and the America Ring are rewards from the staff ("Rewarded by DODMG"). The
-  Reforged Forgotten Crown is made at the Divine Forge from two Forgotten Crowns (3,000 fame).
-- The Crown, God Rushing, Gods Path, Fallen Crown, Amulet of Someone, Badge of the Proud Hero,
-  Creator's Ring and Test Horn are staff-only items: they no longer drop and the shops don't sell
-  them. The America Ring and the Amulet of Dispersion left the shops too, and the Crusader's Lost
-  Relic no longer drops.
-- Set (ST) items no longer drop anywhere, and the Nexus Bazaar no longer sells Enchanted Keys (the
-  other way to get them). Enchanted Keys and Mystery ST Crates you already have still work.
-- Wiki: untiered items nothing drops yet are listed as Future additions, the staff's rewards have
-  their own section, and items the Divine Forge makes say so.
-- Arenas: the wave and time box at the top now counts the time in the public arena (it stayed at
-  00:00), and shows in the Battle Arena and Free Battle Arena too.
-- Arenas: Oryx 2, 3, 4 and 5 have arena versions. They appear in the middle, stay invulnerable for
-  their first 5 seconds (and you for 5 seconds too), have less health, and only fight their first
-  phase. Oryx 3 is back in the Oryx waves, and from wave 40 a new stage, Oryx's Court, brings the
-  courts of Oryx 3, 4 and 5 with Oryx 3, 4 or 5 as its boss. Beating an Oryx in an arena no longer
-  tells the whole server.
-- Oryx 4 and Oryx 5 event: while it's on, Oryx the Infernal Mad God and Oryx the Ascended God
-  deal 20% less damage, and so does everything they bring into their fights (their summoned
-  court, elements and moons, stars, Halo Orbs, Pillars of Heaven, Divine Ichor and Ichor
-  Sprites). The monsters in the rooms on the way hit as hard as ever. The Nexus tells you when
-  you arrive if it's on.
-- Legends: characters wearing Doomed Realms gear show all their items again, not empty slots.
-- Oryx the Ascended God: in his Last Judgement every second volley of his slowed Radiant Cross is
-  turned to fall between the last one's lines (and they come a touch further apart), so you have
-  to keep moving. When he concedes he falls back through every Oryx he was, from Oryx 4 down to a
-  small Oryx 1, before he can be hurt, and he now leaves a Nexus Portal instead of a Realm Portal.
-- New looks for the way to the end of the Oryx chain: the Oryx's Sanctuary, Oryx's Inferno and
-  Oryx's Elysium Incantations are seals in each stage's colours (a gold crescent on navy, a flame,
-  a winged star); Oryx's Inferno is entered through a horned maw of charred rock round a turning
-  vortex of fire, and Oryx's Elysium through a marble temple door with a swirl of light. Their
-  locked portals are the same gateways, still and dark.
-- Oryx the Ascended God: below 90% health, every second time he changes pattern he throws two
-  splats of Divine Ichor, which hatch Ichor Sprites: they have little health, and their shots
-  barely hurt but slow you.
-- Oryx's Elysium's sea and beaches are redrawn: smooth turquoise shallows, a deeper reef and the
-  open sea beyond, wet sand at the waterline and soft sand with the odd shell, all blending into
-  each other. Soft white clouds drift over the Landing and out over the sea (just scenery: they
-  can't be hit).
-- Oryx the Ascended God: the minions he summons can't be hurt and hold their fire for their first
-  two seconds, so they don't land on you shooting; the Firmament's stars vanish as soon as it ends;
-  the columns in his arena are gone; his Halo Orbs (below 20%) now circle the edge of the arena and
-  fire in at its middle; and in his Last Judgement he also fires his Radiant Cross, slowed right
-  down, so the arena fills up.
-- Oryx the Ascended God (Oryx 5) has a whole new fight. Judgement: the Radiant Cross (twin lances
-  and gold arrowheads while he keeps his distance), the Firmament (a turning cross of stars round
-  him that slow you on touch) and the Divine Hunt (he chases, shotgun in front and a slowing fan
-  behind, throws bleeding bombs, and every ten seconds picks a player by name to hunt). At 80% he
-  calls his Host. At 60% he Transcends, heals everyone to full and comes back stronger. At 20% his
-  Apotheosis: he turns gold, Halo Orbs circle him, and he chases without rest. At 10% the Last
-  Judgement: the gates shut and Pillars of Heaven fire across the arena while he throws his spear,
-  until he concedes. Oryx's Elysium is still sealed while the rest of his rework is finished.
-- Oryx 5 has ascended: he is now Oryx the Ascended God, in white and gold armour with a spear,
-  and his Doomed Cellar is now Oryx's Elysium, a holy island of gold, marble and turquoise sea. The
-  road forks round the island past his Ascended Host (Oryx 3's court, ascended, with new attacks)
-  to the Oasis and the Pyramid, each with a guardian. Cut down the twelve Trees of Doom (three on
-  each road, and three more from each guardian) to open the Holy Gates to his temple, then kill the
-  three Wardens circling him to wake him. Oryx's Elysium stays sealed while the rest of his
-  rework (his guardians and loot) is finished.
-- The Doomed Cellar Incantation is now the Oryx's Elysium Incantation (any you already have still
-  work), and the locked portal Oryx 4 leaves behind is the Elysium's gateway, pale and still.
-- The locked portals Oryx 2 and Oryx 3 leave behind now look like the gateways they open into,
-  dark and still: grey stone for Oryx's Sanctuary, charred red for Oryx's Inferno. They used to
-  be the plain locked portal every stage shared.
-- The Hash Cellar is now Oryx's Inferno, and its incantation the Oryx's Inferno Incantation
-  (any you already have still work). Using it beside the portal Oryx 3 leaves now opens a burning,
-  swirling gateway down into the Inferno, a fiery version of the Sanctuary's portal.
-- Oryx 3 and Oryx 4 have names of their own: Oryx the Celestial Mad God in his Sanctuary, and
-  Oryx the Infernal Mad God in Oryx's Inferno.
-- Oryx 3 and Oryx 4's taunts now show only in chat, with no speech bubble over them hiding their
-  attacks.
-- Oryx the Mad God 3 now starts in the middle of his Sanctum and moves more: he chases you
-  while firing missiles, backs away while throwing bombs, and turns invulnerable to dash back to
-  the middle before his Kneel ring and his spinners. He charges faster while leaving his spinning
-  wheels, still firing at you, and his Protectors now always circle him.
-- Oryx's Inferno (Oryx 4) is rebuilt in the red of fire and doom: new tiles and walls, a winding
-  Burning Path through four chambers, and a slightly larger round arena with a couple of lava
-  pools, where Oryx now waits in the middle. Oryx 4 himself burns: fiery horns and embers in his
-  armour. Outside the walls a dark molten sea glows instead of black.
-- Oryx 4 now calls his Infernal Court to his side (Infernal Officers and Brimstone Majors) instead
-  of Oryx's minions and Knights of Doom. His blue Guardian Elements are now red Infernal Elements,
-  which circle him properly: four close and four further out, evenly spaced. His first phase's
-  white bolts and green stars are now hellfire.
-- New monsters guard Oryx's Inferno's path, the Infernal Court: the Infernal Officer, Brimstone
-  Major, Cinder Cleric and Doom Cardinal, Oryx 3's court with Oryx 2's minions' tricks, a little
-  tougher, with better drops.
-- Forging an ability from two of the tier below now costs the same for every kind of ability,
-  as rings do: 30 fame for tier 1, then 70, 90, 200, 400, 500, 1,000 and 2,000 for tier 8. Some
-  abilities cost more for a lower tier before (2,000 for tier 6 but 1,000 for tier 7).
-- The item icons on the wiki's Divine Forge page sit in the middle of their slots.
-- The wiki's guides are up to date with the last week's changes: a new Arenas section (the waves
-  and their stages, GO, fame, the leaderboard, and that losing doesn't kill you), the screen's
-  layout and the Visuals options, how realm events scale with players, the Oryx loot as it is now,
-  trading Soulbound items and your backpack, the nine rank star colours, the Potion of Max Life,
-  the name change price, Recent Deaths and the Portal of Cowardice.
-- The wiki has a page for the Divine Forge: how to use it, what every tier upgrade costs, and
-  every other recipe with its ingredients.
-- The wiki's gear pages now list what the Elder monsters drop; they were missing.
-- The Divine Forge's filters name the Doomed Realms classes' items (Dual Blades, Fists, Cannon and
-  the rest) instead of showing "Item".
-- The wiki's gear pages now count the Godlands gods and the many dungeon bosses that share their
-  drop lists among the monsters that drop each tier; they were missing before.
-- Pirate cannons now drop: they had no tier, so no monster ever dropped one. Rusty to Wave Cannon
-  are tiers 0 to 5, and Nature, Shade and Fragment Cannon are tiers 6, 7 and 8, with more damage
-  and Dexterity, Vitality and Wisdom than before (they were copies of the Wave Cannon). They drop
-  wherever other abilities of their tier do, and the forge makes them from the tier below.
-- Tier 9 weapons and tier 10 armor can now drop outside the Tomb's treasure cave: the godlands
-  gods drop them now and then, as do the Beer God and the Natural Slime God (the Beer God also drops
-  tier 9 armor). The treasure cave's Treasure Pot now drops tier 5 armor too (it skipped it) and
-  tier 10 armor.
-- Status effects no longer write their names over players and monsters when they start; the
-  status icons show them.
-- The Divine Forge: a god's anvil and hearth now stands in the middle of the class memorial, in
-  the Nexus's south yard west of the arena portals, on a floor of gold. Stand by it and open its
-  window to forge: browse the recipes by weapons, abilities, armor, rings and the rest (then by
-  sword, bow, tome and so on), search them, or show only what you can make now. Pick one to see
-  its ingredients and price, put the items in, and forge it. Its Sell for fame tab shows your
-  inventory with what the forge pays for each item under it; pick items and sell them. `/forge`,
-  `/forgelist` and `/sellfame` now point you to the forge.
-- Every tiered weapon, ability, armor and ring can now be forged from two of the tier below (two
-  Rings of Attack make a Ring of Greater Attack), and forging a tiered item never costs more than
-  2,000 fame. The forge lists untiered items first, then tiered ones from the highest tier down.
-- The forge no longer makes overpowered items like the Crown, seasonal drops, or items no monster
-  drops (such as the Potion of Maxy and the forge-only spells and tomes).
-- Tiered abilities rebalanced. Quivers do 10% more damage, and from T5 they shoot 3 arrows in a
-  bow's arc. Tomes from T5 also give you +2 Attack and +2 Dexterity for 4 seconds. Helms can be
-  used again straight away, which restarts their buffs. Shields do 10% less damage. Poisons do
-  15% more damage. Skulls do 15% more damage and give +2 Attack at T5, up to +8 at T8. Scepters
-  do 20% more damage, and 35% more from T6. The T8 trap gives +7 Attack (it gave less than T7's).
-- Seals T7 and T8 also give you +2 and +4 Speed for 4.5 seconds. Using a seal again while its
-  health boost lasts now restarts the boost; before, it added half the boost again on top.
-- Prisms T7 and T8 make you Damaging and Armored for 4 and 6 seconds. Lutes T7 and T8 give you
-  +5 and +10 Dexterity while their Defense boost lasts.
-- Shurikens now throw their star when used, for 40 MP (T0) up to 150 MP (T8). Before, using one
-  only made the Ninja Speedy and never threw anything.
-- Pets now come in three sizes, shown on the pet's tooltip. Every pet heals both your HP and MP:
-  Small pets (the pet shop's critters) 15 every 2 seconds, Medium pets (monsters, heroes and the
-  named pets) 30 every 2 seconds, and Large pets (the bosses) 45 every 1.5 seconds. Their attacks
-  are unchanged for now. Lil' Oryx is now an admin pet and can't be traded.
-- A pet's size now shows how big it is drawn: Small pets are a bit over half a character's
-  height, Medium pets a little shorter than a character, and Large pets a little taller. Boss pets
-  like Nut were twice a character's height.
-- Large pets are now the boss pets, which shoot their boss's attacks, and Pancookie and
-  Nightmare. Other pets with plain shots of their own (Kythal, Zenco, Shroom, Cerberus Skull) are
-  Medium.
-- Pets help in new ways: Geb heals you over 2 seconds every 5, Limon makes you speedy for 2
-  seconds every 5, Horrific Creation makes you invulnerable for 1 second every 10, and Lil'
-  Malphas, Lil' Cube and Skull Shrine give +15 Vitality, Wisdom and Attack for 5 seconds of every
-  10. Bes's orange boomerangs break armor, Nut also throws small shots that paralyze for a
-  moment, the Kythal pets' big shot weakens, and Zenco's and the Doomed Nature Beast's attacks make
-  enemies bleed. Nightmare shoots 3 shots in an arc, Scootaloo's dust reaches much further and
-  every fifth shot is a fast wave that slows, and Lil' Oryx shoots like Oryx the Mad God. Kythal,
-  Zenco, Shroom and Cerberus Skull do less damage, and Horrific Creation no longer shoots its ring
-  of white balls. A pet generator's tooltip lists what else its pet does.
-- The wiki's Pets page lists pets by size, with what each one does besides damage and healing.
-- Dinosaur's Thessal and Phoenix are no longer sold. If you have one, you keep it.
-- The Tomb pets' (Bes, Geb, Nut) ring of spinners now does a little damage. The Sphinx pet now
-  uses all three of the Grand Sphinx's shots, and Lil' Malphas aims its shields and fires its
-  big bullet.
-- Cookie, Reaper and Aceaku's Pet, Cookie's shots, and a few other Doomed Realms sprites drawn
-  from a single picture showed as a thin sliver; they now show whole.
-- Your vault has a Training Dummy beside the spawn. Shoot it and, 5 seconds after your first hit,
-  the chat tells you (and only you) the damage you did and your damage a second (DPS). Keep
-  shooting for another reading. It never dies and gives no experience.
-- The wiki's Gear statistics page has every class's damage measured on the Training Dummy, with
-  its best tiered gear: with the weapon alone, and with 3 uses of its ability.
-- A Potion of Oryx is no longer drunk halfway: if a stat it raises is already maxed and that stat's
-  potion storage is full, it now does nothing and stays, where before it raised your other stats
-  and stayed to be drunk again. The message says which storage is full, and a Potion of Oryx's
-  overflow now says which stat's potion went to storage.
-- Bosses that build their lair where they appear (the Grand Sphinx and others) no longer do it in
-  the arenas, where its walls could shut monsters in where nobody could kill them.
-- Right-click a player in the Nearby players list (or on the minimap) to keep their card open,
-  then hover the items they wear to see each one's tooltip. Right-click again, or click
-  anywhere else, to close it.
-- The Sharklord's highest Attack is 70 (was 80), and it starts with 13 (was 15); it still gains 1 to
-  2 a level. Sharklords above 70 come down to it.
-- Dual Blades ignore enemies' defense: every hit does its full damage. Hits that ignore defense
-  show their damage in purple instead of red, and the weapon's tooltip says "Ignores defense".
-  Dual Blades and fists show their rate of fire in the tooltip too.
-- The Blademaster's jackets from T3 up also give it Attack for a few seconds when used: +3 for 3
-  seconds at T3 up to +15 for 8 seconds at T8, shown as Att Boost over the character.
-- Stat boost icons over a character are smaller, and every status icon keeps a little space
-  around it, so a boost no longer covers the icons beside it.
-- Abilities that boost one of your stats for a while now show the right status: a Dexterity,
-  Vitality or Wisdom boost showed as another stat's.
-- Wands hit about a third harder on every tier and give +3 Attack and +3 Dexterity on every tier,
-  on top of their other bonuses: a Priest with the best gear now does about 2,000 damage a second.
-- The Knight's highest Defense is 35 (was 40) and its highest health 750 (was 770). Knights
-  above the new highest come down to it.
-- Armor rebalance (T1 to T15). Leather armor that gives Dexterity now gives Speed too, half as
-  much (rounded up): +1 at T4 up to +4 at T15. Every robe gives 20 more MP and health equal to half
-  its MP: +20 MP and +10 HP at T1 up to +95 MP and +48 HP at T15. Heavy armor gives +15 health a
-  tier from T11 (+75 at T15) and +2 Vitality a tier from T12 (+8 at T15).
-- The Monk's fists have their own pictures, one for each tier and coloured after its name, from
-  plain Cloth Hand Wraps to the gold and cyan Fists of the Eternal Master.
-- New Monks start with Cloth Hand Wraps and a Fountain Droplet, as other classes start with their
-  first tier, and /gear now gives a Monk Serpent Fang Gauntlets and a Fountain Stream (it gave the
-  Monk no weapon or ability before).
-- The Doomed Cellar (Oryx the Mad God 5) is sealed for now while his loot is reworked: a Doomed
-  Cellar Incantation won't open his portal and isn't used up if you try, and the shops stop selling
-  it until he's back. Hold on to any you have.
-- Weapon rebalance. The top tiers of Swords, Daggers, Bows, Wands, Staves, Katanas and Dual Blades
-  now give stats: +2 a tier from T11 (+8 at T14) and +2 a tier from T12 (+6 at T14). Swords and
-  Katanas give Defense and Attack, Daggers and Bows Dexterity and Attack, Wands Attack and
-  Dexterity, Staves Defense, and Dual Blades Defense and Speed.
-- T13 and T14 weapons reach further: Swords 4 tiles, Daggers 6, Bows 7.2, Katanas 5.25. Every Wand
-  now reaches 8 tiles (was 9) and hits 10% harder; Katanas hit 10% harder on every tier; Dual
-  Blades all reach 5 tiles. Bows with several arrows spread them 10% less.
-- New Dual Blades for the Blademaster at T13 (Sovereign Blades) and T14 (Eclipse Blades). Rage
-  Claw Blades fire at the normal rate now, with damage between the tiers either side of them.
-- The Monk has tiered fists at last, T0 to T14, from Cloth Hand Wraps to Fists of the Eternal
-  Master, dropping like every other tiered weapon. Fists of Broken Bones is now an untiered boss
-  drop instead of a T1 item.
-- Every class's ability now has one item at each tier from T0 to T8, and all of them drop. Extra
-  copies of the T7 and T8 abilities (and the Samurai's slashes) that never dropped are no longer
-  tiered. New: T7 and T8 halos for the Ascendant, a T8 scroll for the Summoner, fountains at every
-  tier for the Monk, and oceanic spells at every tier for the Sharklord. Power of the Fountains is
-  now T7. The Doomed Realms classes' T7 and T8 abilities drop in your own bag, like everyone else's.
-- The wiki has a Gear statistics page: every tiered item side by side with what each tier adds, each
-  class's damage a second with each weapon tier, each class's effective health with each armor
-  tier, and a table of every class at the top tier: its damage, its health, both per tile of its
-  weapon's range, and how far it is from the best class.
-- The wiki uses more of a big screen: on wide monitors its pages grow wider, so the big tables show
-  more columns before you scroll sideways and the dungeon, class and item cards sit three or more
-  to a row. Text stays at a comfortable reading width.
-- The wiki's page list is shorter: Commands, Getting stronger and The Oryx chain sit under Getting
-  started, and Items, Gear, Gear statistics and Pets under Characters, which opens on Classes.
-- Skins keep animating at high dexterity and speed: shooting very fast used to freeze a skin
-  on its first attack frame, and running very fast could make its walk look stuck.
-- Hovering the inventory and backpack buttons shows the key that switches between them in the
-  tooltip, centred under the name, instead of on the button.
-- Arenas: everyone is invulnerable for 2.5 seconds as each wave starts, so monsters that appear
-  right on top of you can't kill you before you can move.
-- The Potion of Max Life still fills your health to your class's maximum, but if it's already
-  maxed it now adds 30 health to your potion storage (it used to add 1,000). It's also much
-  rarer (1 in 100 from each Elder Tomb boss, was 1 in 10) and drops in a white bag.
-- The wiki's Pets page shows how much each pet heals and restores (for example 10-60 HP every
-  3 seconds, about 12 a second); healing pets showed nothing before.
-- A Portal of Cowardice takes you back the way you came: to a realm from a dungeon opened in a
-  realm, and to the Nexus from one opened in the Nexus or in another dungeon (it always went to
-  a realm).
-- Hovering the inventory or backpack tab shows the key that switches between them, on the tab.
+  arena are gone. Its portal stands in the Nexus's south yard, and `/arena` takes you into the
+  same game from anywhere. It pays fame after every wave as before, and older runs on the
+  leaderboard count as the Arena's.
+- Tougher waves: Oryx 2 to 5 fight in it (with less health and only their first phase), and from
+  wave 40 Oryx's Court comes with them.
+- Fairer starts: everyone is invulnerable for the first 2.5 seconds of each wave, and bosses no
+  longer wall monsters in.
+- The wave and time box at the top works.
+- Oryx 3, 4 and 5 drop everything at half their usual chances here.
+
+### Items
+- Weapons rebalanced: the top tiers give stats and reach further, and wands and katanas hit harder.
+  The Blademaster gets T13 and T14 Dual Blades, and the Monk gets tiered fists (T0 to T14) with
+  their own pictures.
+- Armour rebalanced: leather adds Speed, robes add mana and health, and the top heavy armours add
+  health and Vitality.
+- Abilities: every class has one ability at each tier from T0 to T8, and all of them drop. Most
+  kinds are stronger or do more: quivers, tomes, helms, seals, prisms, lutes, skulls, scepters
+  and poisons. Shurikens throw their star, and the Pirate's cannons drop.
+- Untiered items have new drops, mostly from Oryx 3, 4 and 5, the Ice Tomb, Esben, Belladonna and
+  the Elder bosses. Many have new numbers, and the abilities that did nothing (Oryx's Escutcheon,
+  Genesis, Chaotic Scripture, Battalion Banner, Hivemaster Helm, Marble Seal) work. Legendary,
+  Ascended and Ethereal items are plain untiered items until they're reworked.
+- Gone: set (ST) items, Enchanted Keys in the Bazaar, the old forge materials, the Forge and
+  Burning Amulets, the Ring of Oryx and the T20 armours stop dropping, and several overpowered,
+  donor and seasonal items are staff rewards only now. Ones you have still work.
+- More drops: T9 weapons and T10 armour from the Godlands gods.
+- Potions: the Potion of Max Life is much rarer and stores 30 health when you're maxed, and a
+  Potion of Oryx is no longer drunk halfway.
+- Conditions do what they say: poisons put on their conditions, Silenced stops your ability, and
+  bleeding enemies show the bleed icon.
+
+### Divine Forge
+- The Divine Forge stands in the Nexus's south yard, west of the Arena portal: browse and search
+  its recipes, forge, and sell items for fame. `/forge`, `/forgelist` and `/sellfame` point to it.
+- Every tiered item forges from two of the tier below, for at most 2,000 fame, and no untiered
+  recipe costs more than 3,000. Look swaps cost 100 fame, and one-item recipes work.
+- Forge shards go into a forge storage your whole account shares (its Shards tab). There are
+  new UT and Highest tier filters, and an Enchant tab comes later.
+- It no longer makes overpowered, seasonal or never-dropped items.
+
+### Classes and pets
+- Class changes: the Sharklord's highest Attack is 70 and the Knight's highest Defense 35. Dual
+  Blades ignore defense, the Blademaster's jackets give Attack, and new Monks start with their
+  gear.
+- Pets come in three sizes, Small, Medium and Large, drawn to scale. Every pet heals your health
+  and mana, many help in new ways, and boss pets shoot their boss's attacks.
+- A Training Dummy in your vault tells you your damage a second.
+
+### Game
+- Character sprites keep animating at high dexterity and speed.
+- Right-click a player in the Nearby players list to keep their card open and see their items.
+- Item tooltips show what an item does. NPC buttons and the inventory tab show their keys. Status
+  icons are tidier, with no names written over characters.
+- Legends show characters' Doomed Realms gear again.
+- A Portal of Cowardice takes you back the way you came.
+- The game's window and taskbar icon is the Do Damage crown.
+
+### Wiki
+- New pages for the Divine Forge and Gear statistics (every class's damage on the Training Dummy).
+  The Pets page shows sizes and healing, and the guides are up to date.
+- A wider layout on big screens, a shorter page list, and more complete drop lists.
 
 ## 1.3.3 (2026-10-21)
 - Changing your name at the Name Changer now costs 50,000 fame instead of 100 gold. Choosing

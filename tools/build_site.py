@@ -34,7 +34,9 @@ LATEST = 2
 
 
 def releases():
-    """[(version, date, [item, ...])] from the changelog, newest first, without Unreleased."""
+    """[(version, date, [(group, [item, ...]), ...])] from the changelog, newest first, without
+    Unreleased. A version's `### ` headings group its items; items before the first are in a
+    group with no title ("")."""
     with open(CHANGELOG, encoding="utf-8") as f:
         text = f.read()
     out = []
@@ -43,13 +45,16 @@ def releases():
         m = re.match(r"([\d.]+)\s*(?:\((.*?)\))?", head.strip())
         if not m:
             continue  # Unreleased
-        items = []
+        groups = [("", [])]
         for line in body.splitlines():
-            if line.startswith("- "):
+            items = groups[-1][1]
+            if line.startswith("### "):
+                groups.append((line[4:].strip(), []))
+            elif line.startswith("- "):
                 items.append(line[2:].strip())
             elif line.startswith("  ") and items:
                 items[-1] += " " + line.strip()
-        out.append((m.group(1), m.group(2) or "", items))
+        out.append((m.group(1), m.group(2) or "", [g for g in groups if g[1]]))
     return out
 
 
@@ -62,11 +67,15 @@ def inline(text):
 
 def releases_html(rel):
     parts = []
-    for version, date, items in rel:
+    for version, date, groups in rel:
         when = '<time datetime="%s">%s</time>' % (date, date) if date else ""
-        lis = "\n".join("      <li>%s</li>" % inline(i) for i in items)
-        parts.append('<article class="release" id="v%s">\n  <h3>%s %s</h3>\n  <ul>\n%s\n  </ul>\n</article>'
-                     % (version, version, when, lis))
+        body = []
+        for title, items in groups:
+            if title:
+                body.append("  <h4>%s</h4>" % inline(title))
+            body.append("  <ul>\n%s\n  </ul>" % "\n".join("      <li>%s</li>" % inline(i) for i in items))
+        parts.append('<article class="release" id="v%s">\n  <h3>%s %s</h3>\n%s\n</article>'
+                     % (version, version, when, "\n".join(body)))
     return "\n".join(parts)
 
 

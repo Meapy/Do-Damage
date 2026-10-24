@@ -31,6 +31,8 @@ fn inside(r: [f32; 4], (x, y): (f64, f64)) -> bool {
 /// A line of the window: a version's heading, or a change.
 enum Row {
     Heading { version: String, date: String, tag: Option<&'static str> },
+    /// A group's title, over its changes.
+    Group(String),
     Change(String, bool),
     Gap,
 }
@@ -127,7 +129,10 @@ impl ChangelogUi {
                 None
             };
             rows.push(Row::Heading { version: e.version.clone(), date: e.date.clone(), tag });
-            for change in &e.changes {
+            for (i, change) in e.changes.iter().enumerate() {
+                for (title, _) in e.groups.iter().filter(|g| g.1 == i) {
+                    rows.push(Row::Group(title.clone()));
+                }
                 for (i, line) in crate::npc::wrap(ui, change, size, text_w).into_iter().enumerate() {
                     rows.push(Row::Change(line, i == 0));
                 }
@@ -136,6 +141,7 @@ impl ChangelogUi {
         }
         let row_h = |row: &Row| match row {
             Row::Heading { .. } => head * 1.9,
+            Row::Group(..) => size * 2.0,
             Row::Change(..) => size * 1.45,
             Row::Gap => size * 0.9,
         };
@@ -174,6 +180,9 @@ impl ChangelogUi {
                         let dw = ui.measure(date, ds, false);
                         ui.label(date, r[0] + r[2] - pad - dw, y + 5.0 * s, ds, false, color::TEXT_MUTED);
                     }
+                }
+                Row::Group(title) => {
+                    ui.label(title, r[0] + pad, y + size * 0.5, size, true, color::TEXT_DIM);
                 }
                 Row::Change(line, first) => {
                     if *first {
