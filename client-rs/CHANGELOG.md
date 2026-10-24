@@ -12,7 +12,11 @@ Keep each version short: changes go under `### ` group headings (Oryx 5, Arena, 
 on), one line per change players notice, summed up rather than item by item (the wiki has the
 details). Add to a group's line when a change adds to it, rather than adding another line.
 
-## Unreleased
+## 2.0.0 (2026-10-24)
+- Do Damage 2.0: the whole Oryx chain is rebuilt, with Oryx's Inferno for Oryx 4 and Oryx's
+  Elysium for Oryx 5, one tougher Arena, the Divine Forge in the Nexus, and every weapon, armour,
+  ability and pet reworked.
+
 ### Oryx 5: Oryx the Ascended God
 - Oryx 5 has ascended: he is now Oryx the Ascended God, in white and gold with a spear, and his
   fight is all new: his Radiant Cross, the Firmament, the Divine Hunt, his Host at 80%, his
@@ -87,7 +91,8 @@ details). Add to a group's line when a change adds to it, rather than adding ano
 
 ### Classes and pets
 - Class changes: the Sharklord's highest Attack is 70 and the Knight's highest Defense 35. Dual
-  Blades ignore defense, the Blademaster's jackets give Attack, and new Monks start with their
+  Blades ignore defense (hits that do show their damage in purple, and tooltips say so), the
+  Blademaster's jackets give Attack, and new Monks start with their
   gear.
 - Pets come in three sizes, Small, Medium and Large, drawn to scale. Every pet heals your health
   and mana, many help in new ways, and boss pets shoot their boss's attacks.
