@@ -25,9 +25,9 @@ details). Add to a group's line when a change adds to it, rather than adding ano
   the potion stays with you.
 
 ### Game
-- The server does about a quarter less work in busy realms and stops for memory clean-up far less
-  (no pauses over a twentieth of a second where they used to reach nearly half a second), so big
-  fights lag less. Fixed a server crash when several players dropped at the same moment.
+- The server does about a quarter less work in busy realms, uses less than half the memory, and
+  stops for memory clean-up far less (no pauses over a twentieth of a second where they used to
+  reach nearly half a second), so big fights lag less. Fixed a server crash when several players dropped at the same moment.
 
 ## 2.0.2 (2026-10-24)
 

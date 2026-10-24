@@ -5,6 +5,7 @@ using System.Collections.Generic;
 using System.IO;
 using Shared;
 using Shared.resources;
+using WorldServer.core.net.datas;
 using WorldServer.core.objects;
 using WorldServer.core.objects.connection;
 using WorldServer.core.objects.vendors;
@@ -19,14 +20,22 @@ namespace WorldServer.core.terrain
 
         private static readonly Logger Log = LogManager.GetCurrentClassLogger();
 
-        private WmapTile[,] Tiles;
+        // The tiles, row by row (index y * Width + x); WmapTile is a view of one of them.
+        internal WmapTileData[] TileData;
+        internal List<WmapDesc> Descs;
+        internal readonly WmapPalette<TileDesc> TileDescs = new WmapPalette<TileDesc>();
+        internal readonly WmapPalette<ObjectDesc> ObjDescs = new WmapPalette<ObjectDesc>();
+        internal readonly WmapPalette<string> ObjCfgs = new WmapPalette<string>();
+        // Static objects' definitions, by tile index, made when a player first sees them.
+        internal readonly Dictionary<int, ObjectDef> ObjectDefs = new Dictionary<int, ObjectDef>();
         private readonly World World;
         private XmlData XmlData => World.GameServer.Resources.GameData;
         private Tuple<IntPoint, ushort, string>[] Entities;
 
         public int Height { get; private set; }
         public int Width { get; private set; }
-        public WmapTile this[int x, int y] { get => !Contains(x, y) ? null : Tiles[x, y]; set => Tiles[x, y] = value; }
+        // Outside the map, the tile doesn't exist (Exists is false).
+        public WmapTile this[int x, int y] => Contains(x, y) ? new WmapTile(this, y * Width + x) : default;
 
         public Wmap(World world) => World = world;
 
@@ -77,7 +86,8 @@ namespace WorldServer.core.terrain
                 Width = rdr.ReadInt32();
                 Height = rdr.ReadInt32();
 
-                Tiles = new WmapTile[Width, Height];
+                TileData = new WmapTileData[Width * Height];
+                Descs = dict;
 
                 var enCount = 0;
                 var entities = new List<Tuple<IntPoint, ushort, string>>();
@@ -85,7 +95,9 @@ namespace WorldServer.core.terrain
                 for (short y = 0; y < Height; y++)
                     for (short x = 0; x < Width; x++)
                     {
-                        var tile = new WmapTile(dict[rdr.ReadInt16()]);
+                        var descIndex = (ushort)rdr.ReadInt16();
+                        var tile = new WmapTile(this, y * Width + x);
+                        tile.Init(dict[descIndex], descIndex);
                         if (ver == 2)
                             tile.Elevation = rdr.ReadByte();
 
@@ -109,13 +121,11 @@ namespace WorldServer.core.terrain
 
                         if (desc != null && desc.Connects)
                             tile.TileId = 0xFD;
-
-                        Tiles[x, y] = tile;
                     }
 
                 for (var x = 0; x < Width; x++)
                     for (var y = 0; y < Height; y++)
-                        Tiles[x, y].InitConnection(this, x, y);
+                        this[x, y].InitConnection(this, x, y);
 
                 Entities = entities.ToArray();
 
@@ -139,7 +149,7 @@ namespace WorldServer.core.terrain
                         continue;
 
                     var tile = world.Map[projX, projY];
-                    var spTile = Tiles[x, y];
+                    var spTile = this[x, y];
 
                     tile.ObjType = 0;
                     tile.UpdateCount++;
@@ -251,7 +261,8 @@ namespace WorldServer.core.terrain
 
         public void Clear()
         {
-            Tiles = null;
+            TileData = null;
+            ObjectDefs.Clear();
         }
     }
 }

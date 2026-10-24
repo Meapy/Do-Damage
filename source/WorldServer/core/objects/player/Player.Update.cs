@@ -60,9 +60,7 @@ namespace WorldServer.core.objects
 
             foreach (var staticTile in _newStaticObjects)
             {
-                var x = staticTile.X;
-                var y = staticTile.Y;
-                if (x * x + y * y > SightRadius * SightRadius || staticTile.ObjType == 0)
+                if (staticTile.ObjType == 0)
                     if (staticTile.ObjId != 0)
                     {
                         update.Drops.Add(staticTile.ObjId);
@@ -178,7 +176,7 @@ namespace WorldServer.core.objects
                 var hash = playerX << 16 | playerY;
                 _ = _seenTiles.TryGetValue(hash, out var updateCount);
 
-                if (tile == null || tile.TileId == 0xFF || updateCount >= tile.UpdateCount)
+                if (!tile.Exists || tile.TileId == 0xFF || updateCount >= tile.UpdateCount)
                     continue;
 
                 _seenTiles[hash] = tile.UpdateCount;
@@ -262,7 +260,7 @@ namespace WorldServer.core.objects
                 var pointY = point.Y;
 
                 var tile = World.Map[pointX, pointY];
-                if (tile == null)
+                if (!tile.Exists)
                     continue;
 
                 if (tile.ObjId != 0 && tile.ObjType != 0 && _newStaticObjects.Add(tile))

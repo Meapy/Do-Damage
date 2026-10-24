@@ -8,75 +8,102 @@ using WorldServer.core.objects.connection;
 
 namespace WorldServer.core.terrain
 {
-    public class WmapTile
+    // One tile's data, kept in Wmap's tile array. References (descriptions, configs) are stored as
+    // indexes into the map's palettes so that the array holds no pointers for the GC to walk.
+    internal struct WmapTileData
     {
-        private readonly WmapDesc _originalDesc;
-
-        public short X;
-        public short Y;
-
+        public int ObjId;
+        public int ObjCfg;
         public ushort TileId;
-        public TileDesc TileDesc;
+        public ushort TileDesc;
+        public ushort ObjType;
+        public ushort ObjDesc;
+        public ushort OriginalDesc;
+        public byte Region; // TileRegion and TerrainType, a byte each in the map file
+        public byte Terrain;
+        public byte Elevation;
+        public byte UpdateCount;
+        public bool Spawned;
+    }
+
+    // A view of one tile of a map: reads and writes go to the map's arrays. The default value
+    // stands for a position outside the map (Exists is false).
+    public readonly struct WmapTile : IEquatable<WmapTile>
+    {
+        private readonly Wmap _map;
+        private readonly int _index;
+
+        internal WmapTile(Wmap map, int index)
+        {
+            _map = map;
+            _index = index;
+        }
+
+        public bool Exists => _map != null;
+
+        private ref WmapTileData D => ref _map.TileData[_index];
+
+        public ushort TileId { get => D.TileId; set => D.TileId = value; }
+        public TileDesc TileDesc { get => _map.TileDescs[D.TileDesc]; set => D.TileDesc = (ushort)_map.TileDescs.IndexOf(value); }
 
         // static entity stuff
-        public int ObjId;
-        public ushort ObjType;
-        public string ObjCfg;
-        public ObjectDesc ObjDesc;
+        public int ObjId { get => D.ObjId; set => D.ObjId = value; }
+        public ushort ObjType { get => D.ObjType; set => D.ObjType = value; }
+        public string ObjCfg { get => _map.ObjCfgs[D.ObjCfg]; set => D.ObjCfg = _map.ObjCfgs.IndexOf(value); }
+        public ObjectDesc ObjDesc { get => _map.ObjDescs[D.ObjDesc]; set => D.ObjDesc = (ushort)_map.ObjDescs.IndexOf(value); }
 
-        public TileRegion Region;
-        public TerrainType Terrain;
-        public ObjectDef? ToDefine;
-        public byte Elevation;
-        public byte UpdateCount = 1;
-        public bool Spawned;
+        public TileRegion Region { get => (TileRegion)D.Region; set => D.Region = (byte)value; }
+        public TerrainType Terrain { get => (TerrainType)D.Terrain; set => D.Terrain = (byte)value; }
+        public byte Elevation { get => D.Elevation; set => D.Elevation = value; }
+        public byte UpdateCount { get => D.UpdateCount; set => D.UpdateCount = value; }
+        public bool Spawned { get => D.Spawned; set => D.Spawned = value; }
 
-        public WmapTile(WmapDesc desc)
+        public bool Equals(WmapTile other) => _map == other._map && _index == other._index;
+        public override bool Equals(object obj) => obj is WmapTile other && Equals(other);
+        public override int GetHashCode() => _index;
+
+        internal void Init(WmapDesc desc, ushort descIndex)
         {
-            _originalDesc = desc;
-            Reset();
+            D.OriginalDesc = descIndex;
+            TileId = desc.TileId;
+            TileDesc = desc.TileDesc;
+            ObjType = desc.ObjType;
+            ObjDesc = desc.ObjDesc;
+            ObjCfg = desc.ObjCfg;
+            Terrain = desc.Terrain;
+            Region = desc.Region;
+            Elevation = desc.Elevation;
+            UpdateCount = 2;
         }
 
-        public WmapTile Clone()
+        // Puts the tile back as the map file had it (keeping its object description), as a fresh
+        // tile: no object id and not spawned.
+        public void Restore()
         {
-            return new WmapTile(_originalDesc)
-            {
-                UpdateCount = (byte)(UpdateCount + 1),
-                TileId = _originalDesc.TileId,
-                ObjType = _originalDesc.ObjType,
-                ObjDesc = ObjDesc,
-                ObjCfg = _originalDesc.ObjCfg,
-                Terrain = _originalDesc.Terrain,
-                Region = _originalDesc.Region,
-            };
-        }
-
-        public void Reset(Wmap map = null, int x = 0, int y = 0)
-        {
-            TileId = _originalDesc.TileId;
-            TileDesc = _originalDesc.TileDesc;
-
-            ObjType = _originalDesc.ObjType;
-            ObjDesc = _originalDesc.ObjDesc;
-            ObjCfg = _originalDesc.ObjCfg;
-
-            Terrain = _originalDesc.Terrain;
-            Region = _originalDesc.Region;
-            Elevation = _originalDesc.Elevation;
-
-            if (map != null)
-                InitConnection(map, x, y);
-
+            var desc = _map.Descs[D.OriginalDesc];
+            TileId = desc.TileId;
+            TileDesc = desc.TileDesc;
+            ObjType = desc.ObjType;
+            ObjCfg = desc.ObjCfg;
+            Terrain = desc.Terrain;
+            Region = desc.Region;
+            Elevation = desc.Elevation;
+            ObjId = 0;
+            Spawned = false;
             UpdateCount++;
+            _map.ObjectDefs.Remove(_index);
         }
 
         public void InitConnection(Wmap map, int x, int y)
         {
-            if (ObjDesc == null || !ObjDesc.Connects || ObjCfg.Contains("conn:"))
+            var objDesc = ObjDesc;
+            var objCfg = ObjCfg;
+            if (objDesc == null || !objDesc.Connects || objCfg.Contains("conn:"))
                 return;
 
-            var connStr = ConnectionComputer.GetConnString((dx, dy) => map.Contains(x + dx, y + dy) && map[x + dx, y + dy].ObjType == ObjType);
-            ObjCfg = $"{ObjCfg};{connStr};";
+            var objType = ObjType;
+            var connStr = ConnectionComputer.GetConnString((dx, dy) => map.Contains(x + dx, y + dy) && map[x + dx, y + dy].ObjType == objType);
+            ObjCfg = $"{objCfg};{connStr};";
         }
 
         public void CopyTo(WmapTile tile)
@@ -89,17 +116,19 @@ namespace WorldServer.core.terrain
             tile.Terrain = Terrain;
             tile.Region = Region;
             tile.Elevation = Elevation;
+            tile._map.ObjectDefs.Remove(tile._index);
         }
 
         public ObjectDef ToObjectDef(int x, int y)
         {
-            if (ToDefine != null)
-                return ToDefine.Value;
+            if (_map.ObjectDefs.TryGetValue(_index, out var cached))
+                return cached;
 
             var stats = new List<KeyValuePair<StatDataType, object>>();
 
-            if (!string.IsNullOrEmpty(ObjCfg))
-                foreach (var item in ObjCfg.Split(';'))
+            var objCfg = ObjCfg;
+            if (!string.IsNullOrEmpty(objCfg))
+                foreach (var item in objCfg.Split(';'))
                 {
                     var kv = item.Split(':');
 
@@ -158,7 +187,7 @@ namespace WorldServer.core.terrain
                     }
                 }
 
-            ToDefine = new ObjectDef()
+            var def = new ObjectDef()
             {
                 ObjectType = ObjType,
                 Stats = new ObjectStats()
@@ -169,8 +198,31 @@ namespace WorldServer.core.terrain
                     Stats = stats.ToArray()
                 }
             };
+            _map.ObjectDefs[_index] = def;
+            return def;
+        }
+    }
 
-            return ToDefine.Value;
+    // The distinct values of a reference-typed tile field in one map; tiles store their index.
+    // Index 0 is null.
+    public sealed class WmapPalette<T> where T : class
+    {
+        private readonly List<T> _items = new List<T>() { null };
+        private readonly Dictionary<T, int> _indexes = new Dictionary<T, int>();
+
+        public T this[int index] => _items[index];
+
+        public int IndexOf(T value)
+        {
+            if (value == null)
+                return 0;
+            if (!_indexes.TryGetValue(value, out var index))
+            {
+                index = _items.Count;
+                _items.Add(value);
+                _indexes[value] = index;
+            }
+            return index;
         }
     }
 }

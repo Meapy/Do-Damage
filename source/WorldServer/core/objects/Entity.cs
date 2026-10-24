@@ -455,7 +455,7 @@ namespace WorldServer.core.objects
 
             var tile = map[x_, y_];
 
-            if (tile == null)
+            if (!tile.Exists)
                 return false;
 
             var tiles = GameServer.Resources.GameData.Tiles;

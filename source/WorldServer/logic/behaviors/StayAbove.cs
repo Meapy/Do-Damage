@@ -30,7 +30,7 @@ namespace WorldServer.logic.behaviors
             var map = host.World.Map;
             var tile = map[(int)host.X, (int)host.Y];
 
-            if (tile == null)
+            if (!tile.Exists)
                 return;
 
             if (tile.Elevation != 0 && tile.Elevation < altitude)
