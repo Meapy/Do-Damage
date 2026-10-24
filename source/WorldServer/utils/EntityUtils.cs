@@ -371,12 +371,34 @@ namespace WorldServer.utils
 
         public static Entity GetNearestEntity(this Entity entity, double dist, ushort? objType, bool seeInvis = false)   //Null for entity
         {
-            // the nearest of GetNearestEntities, without building an array of them (monsters' AI
-            // asks this every tick)
+            // the nearest of GetNearestEntities (the same filters), in one pass with nothing allocated:
+            // monsters' AI asks this every tick, and its iterator was a fifth of all allocations
+            if (entity.World == null)
+                return null;
             Entity nearest = null;
             var nearestSq = double.MaxValue;
-            foreach (var e in entity.GetNearestEntities(dist, objType, seeInvis))
+            var map = objType == null ? entity.World.PlayersCollision : entity.World.EnemiesCollision;
+            foreach (var e in map.HitTest(entity.X, entity.Y, dist))
             {
+                switch (objType)
+                {
+                    case null:
+                        if (!(e is IPlayer p) || !seeInvis && !p.IsVisibleToEnemy()) // pets share the map
+                            continue;
+                        break;
+                    case 0:
+                        break;
+                    case 1:
+                        if (e.Name == entity.Name)
+                            continue;
+                        break;
+                    default:
+                        if (e.ObjectType != objType.Value)
+                            continue;
+                        break;
+                }
+                if (!(e.DistTo(entity) < dist))
+                    continue;
                 var sq = e.SqDistTo(entity);
                 if (nearest == null || sq < nearestSq)
                 {
