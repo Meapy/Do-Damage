@@ -18,8 +18,9 @@ details). Add to a group's line when a change adds to it, rather than adding ano
 - The Arena is fought in the Admin Arena's walled ring. You arrive in the forest outside and walk
   in through one of its four open gateways during the countdown; when the game starts, the gates
   shut, and anyone still outside or in a gateway is moved just inside.
-- Loot is halved in the Arena and the Admin Arena: bosses, Oryx included, still drop loot as often
-  but half as many items (rounded up), and other monsters drop each item half as often.
+- Loot is halved in the Arena and the Admin Arena: bosses still drop loot as often but half as many
+  items (rounded up), and other monsters drop each item half as often. Oryx 3, 4 and 5 get both, so
+  about a quarter of their usual loot.
 
 ### Items
 - A Potion of Max drunk on a stat that's already maxed now puts 6 of that stat's potions into your

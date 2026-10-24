@@ -89,6 +89,15 @@ namespace WorldServer.core.worlds.impl
         public static bool LootHalvesItems(Enemy enemy) =>
             enemy.ObjectDesc.HealthBarBoss || WaveBosses.Contains(enemy.ObjectDesc.IdName);
 
+        // Oryx 3, 4 and 5 come every few waves rather than at the end of a dungeon, so under a
+        // LootRate they also roll each drop at it: with 0.5, half the chance and half of what drops,
+        // about a quarter of the items
+        public static readonly string[] HalfChanceBosses = { "Oryx the Mad God 3", "Oryx the Mad God 4", "Oryx the Ascended God" };
+
+        // what a boss under a LootRate rolls its drops at: the rate for Oryx 3, 4 and 5, else 1
+        public static double BossChanceRate(Enemy enemy, double worldRate) =>
+            HalfChanceBosses.Contains(enemy.ObjectDesc.IdName) ? worldRate : 1;
+
         // seconds between waves: 5, then 10 more every 10 waves, at most 20
         public static int WaveGapSeconds(int wave) => Math.Min(20, 5 + 10 * (wave / 10));
 

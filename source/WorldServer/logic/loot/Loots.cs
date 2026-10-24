@@ -222,10 +222,11 @@ namespace WorldServer.logic.loot
                 i.Populate(possDrops);
 
             var pubDrops = new List<Item>();
-            // half in the arenas: for a boss, half the items it rolls; for any other, half the chance
+            // half in the arenas: for a boss, half the items it rolls (Oryx 3, 4 and 5 at half the
+            // chance too); for any other, half the chance
             var worldRate = enemy.World?.LootRate ?? 1;
             var share = worldRate < 1 && ArenaPools.LootHalvesItems(enemy) ? worldRate : 1;
-            var rate = share < 1 ? 1 : worldRate;
+            var rate = share < 1 ? ArenaPools.BossChanceRate(enemy, worldRate) : worldRate;
 
             foreach (var i in possDrops)
             {

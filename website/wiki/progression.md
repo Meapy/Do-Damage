@@ -143,8 +143,9 @@ from wave 30 an Elder dungeon boss joins Oryx's. The chat says which wave has be
 - **Fame:** the Arena pays fame after every wave (ten times the wave, halved in a group).
 - **Loot is halved** in the Arena and the Admin Arena, since losing there costs nothing. A boss (a
   wave's boss, or Oryx) drops loot as often as anywhere else, but half the items, rounded up: if
-  you'd have got 4 items you get 2, and 1 stays 1. Any other monster drops each item half as
-  often. Loot boosts (weekend, Loot Drop Potion, events) still count on top.
+  you'd have got 4 items you get 2, and 1 stays 1. Oryx 3, 4 and 5 also drop each item half as
+  often, so they give about a quarter of their usual loot. Any other monster drops each item half
+  as often. Loot boosts (weekend, Loot Drop Potion, events) still count on top.
 - **Between waves** you rest for 5 seconds, 15 from wave 10 and 20 from wave 20. Type **GO** in
   chat to start the next wave (or the game) in 3 seconds instead, once per countdown. Everyone is
   invulnerable for the first 2.5 seconds of each wave, 5 when an Oryx comes.
