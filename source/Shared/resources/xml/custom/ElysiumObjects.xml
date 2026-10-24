@@ -390,36 +390,6 @@
 			<Size>100</Size>
 		</Projectile>
 	</Object>
-	<Object type="0x540C" id="Gilded Sphinx">
-		<Enemy />
-		<Class>Character</Class>
-		<AnimatedTexture>
-			<File>elysiumChars16x16</File>
-			<Index>8</Index>
-		</AnimatedTexture>
-		<HitSound>monster/ghost_god_hit</HitSound>
-		<DeathSound>monster/ghost_god_death</DeathSound>
-		<Size>170</Size>
-		<MaxHitPoints>50000</MaxHitPoints>
-		<Defense>25</Defense>
-		<StasisImmune />
-		<Exp>6000</Exp>
-	</Object>
-	<Object type="0x540D" id="Oasis Seraph">
-		<Enemy />
-		<Class>Character</Class>
-		<AnimatedTexture>
-			<File>elysiumChars16x16</File>
-			<Index>9</Index>
-		</AnimatedTexture>
-		<HitSound>monster/ghost_god_hit</HitSound>
-		<DeathSound>monster/ghost_god_death</DeathSound>
-		<Size>170</Size>
-		<MaxHitPoints>50000</MaxHitPoints>
-		<Defense>25</Defense>
-		<StasisImmune />
-		<Exp>6000</Exp>
-	</Object>
 	<Object type="0x540E" id="Ascended Warden">
 		<Enemy />
 		<Class>Character</Class>
@@ -1062,5 +1032,223 @@
 			<Size>100</Size>
 			<ConditionEffect duration="2">Slowed</ConditionEffect>
 		</Projectile>
+	</Object>
+	<Object type="0x5434" id="Elysian Void Entity">
+		<DisplayId>Void Entity</DisplayId>
+		<Class>Character</Class>
+		<Enemy />
+		<Portrait>
+			<AnimatedTexture>
+				<File>lostHallsChars16x16</File>
+				<Index>5</Index>
+			</AnimatedTexture>
+		</Portrait>
+		<AnimatedTexture>
+			<File>lostHallsChars16x16</File>
+			<Index>5</Index>
+		</AnimatedTexture>
+		<AltTexture id="1">
+			<Texture>
+				<File>lostHallsObjects16x16</File>
+				<Index>0x01</Index>
+			</Texture>
+		</AltTexture>
+		<AltTexture id="2">
+			<Texture>
+				<File>lostHallsObjects16x16</File>
+				<Index>0x02</Index>
+			</Texture>
+		</AltTexture>
+		<AltTexture id="3">
+			<Texture>
+				<File>lostHallsObjects16x16</File>
+				<Index>0x03</Index>
+			</Texture>
+		</AltTexture>
+		<AltTexture id="4">
+			<Texture>
+				<File>lostHallsObjects16x16</File>
+				<Index>0x04</Index>
+			</Texture>
+		</AltTexture>
+		<AltTexture id="5">
+			<Texture>
+				<File>lostHallsObjects16x16</File>
+				<Index>0x05</Index>
+			</Texture>
+		</AltTexture>
+		<AltTexture id="6">
+			<Texture>
+				<File>lostHallsObjects16x16</File>
+				<Index>0x14</Index>
+			</Texture>
+		</AltTexture>
+		<AltTexture id="7">
+			<Texture>
+				<File>lostHallsObjects16x16</File>
+				<Index>0x15</Index>
+			</Texture>
+		</AltTexture>
+		<AltTexture id="8">
+			<Texture>
+				<File>lostHallsObjects16x16</File>
+				<Index>0x16</Index>
+			</Texture>
+		</AltTexture>
+		<AltTexture id="9">
+			<Texture>
+				<File>lostHallsObjects16x16</File>
+				<Index>0x17</Index>
+			</Texture>
+		</AltTexture>
+		<AltTexture id="10">
+			<Texture>
+				<File>lostHallsObjects16x16</File>
+				<Index>0x18</Index>
+			</Texture>
+		</AltTexture>
+		<AltTexture id="11">
+			<Texture>
+				<File>lostHallsObjects16x16</File>
+				<Index>0x19</Index>
+			</Texture>
+		</AltTexture>
+		<AltTexture id="12">
+			<Texture>
+				<File>lostHallsObjects16x16</File>
+				<Index>0x1a</Index>
+			</Texture>
+		</AltTexture>
+		<AltTexture id="13">
+			<Texture>
+				<File>lostHallsObjects16x16</File>
+				<Index>0x1b</Index>
+			</Texture>
+		</AltTexture>
+		<AltTexture id="14">
+			<Texture>
+				<File>lostHallsObjects16x16</File>
+				<Index>0x1c</Index>
+			</Texture>
+		</AltTexture>
+		<AltTexture id="15">
+			<Texture>
+				<File>lostHallsObjects16x16</File>
+				<Index>0x1d</Index>
+			</Texture>
+		</AltTexture>
+		<AltTexture id="16">
+			<Texture>
+				<File>lostHallsObjects16x16</File>
+				<Index>0x1e</Index>
+			</Texture>
+		</AltTexture>
+		<AltTexture id="17">
+			<Texture>
+				<File>lostHallsObjects16x16</File>
+				<Index>0x1f</Index>
+			</Texture>
+		</AltTexture>
+		<AltTexture id="18">
+			<Texture>
+				<File>lostHallsObjects16x16</File>
+				<Index>0x25</Index>
+			</Texture>
+		</AltTexture>
+		<AltTexture id="19">
+			<Texture>
+				<File>lostHallsObjects16x16</File>
+				<Index>0x26</Index>
+			</Texture>
+		</AltTexture>
+		<AltTexture id="20">
+			<Texture>
+				<File>lostHallsObjects16x16</File>
+				<Index>0x27</Index>
+			</Texture>
+		</AltTexture>
+		<AltTexture id="21">
+			<Texture>
+				<File>lostHallsObjects16x16</File>
+				<Index>0x28</Index>
+			</Texture>
+		</AltTexture>
+		<AltTexture id="22">
+			<Texture>
+				<File>lostHallsObjects16x16</File>
+				<Index>0x29</Index>
+			</Texture>
+		</AltTexture>
+		<AltTexture id="23">
+			<Texture>
+				<File>lostHallsObjects16x16</File>
+				<Index>0x2a</Index>
+			</Texture>
+		</AltTexture>
+		<AltTexture id="24">
+			<Texture>
+				<File>lostHallsObjects16x16</File>
+				<Index>0x2b</Index>
+			</Texture>
+		</AltTexture>
+		<AltTexture id="25">
+			<Texture>
+				<File>lostHallsObjects16x16</File>
+				<Index>0x2c</Index>
+			</Texture>
+		</AltTexture>
+		<AltTexture id="26">
+			<Texture>
+				<File>lostHallsObjects16x16</File>
+				<Index>0x2d</Index>
+			</Texture>
+		</AltTexture>
+		<AltTexture id="27">
+			<Texture>
+				<File>lostHallsObjects16x16</File>
+				<Index>0x2e</Index>
+			</Texture>
+		</AltTexture>
+		<AltTexture id="28">
+			<Texture>
+				<File>lostHallsObjects16x16</File>
+				<Index>0x2f</Index>
+			</Texture>
+		</AltTexture>
+		<AltTexture id="29">
+			<Texture>
+				<File>lostHallsObjects16x16</File>
+				<Index>0x30</Index>
+			</Texture>
+		</AltTexture>
+		<AltTexture id="30">
+			<Texture>
+				<File>invisible</File>
+				<Index>0</Index>
+			</Texture>
+		</AltTexture>
+		<Size>200</Size>
+		<MaxHitPoints>50000</MaxHitPoints>
+		<Exp>6000</Exp>
+		<Defense>25</Defense>
+		<HitSound>weapon/wand_of_dark_magic</HitSound>
+		<DeathSound>enter_realm</DeathSound>
+		<Flying />
+		<EventChestBoss />
+		<StunImmune />
+		<ParalyzeImmune />
+		<DazedImmune />
+		<StasisImmune />
+	</Object>
+	<Object type="0x5435" id="Ascended Totem">
+		<Class>GameObject</Class>
+		<Texture>
+			<File>elysium32x32</File>
+			<Index>0x00</Index>
+		</Texture>
+		<Size>120</Size>
+		<ShadowSize>140</ShadowSize>
+		<Static />
+		<OccupySquare />
 	</Object>
 </Objects>

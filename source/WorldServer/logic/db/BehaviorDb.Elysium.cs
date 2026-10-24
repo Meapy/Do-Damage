@@ -9,9 +9,10 @@ namespace WorldServer.logic
 {
     // Oryx's Elysium (tools/build_elysium.py), Oryx 5's holy island. His Ascended Host hold the roads:
     // Oryx 3's court monsters, ascended, with divine shots and attacks of their own (their XML is
-    // the script's). Each road leads to a guardian, the Gilded Sphinx atop the Pyramid and the Oasis
-    // Seraph in the Oasis, who drops three Trees of Doom when it dies; with three more on each road,
-    // that's twelve. Once no tree and no guardian is left, the Gate Watcher opens the Holy Gates to
+    // the script's). The roads lead to what's to come: west, the Ascended Totem in the Oasis (scenery);
+    // east, the Void Entity on the voided Pyramid, a placeholder boss with no attacks and no loot that
+    // drops three Trees of Doom when it dies; with three more on each road, that's nine. Once no tree
+    // and no Void Entity is left, the Gate Watcher opens the Holy Gates to
     // his temple, where his three Ascended Wardens circle him until they fall, and Oryx the Ascended God
     // himself, with the helpers of his fight.
     partial class BehaviorDb
@@ -493,9 +494,8 @@ namespace WorldServer.logic
             .Init("Elysian Cloud", new State(new Drift(0.35, 5)))
             .Init("Elysian Cloudlet", new State(new Drift(0.5, 4)))
 
-            // the guardians, for now: no attacks, and three Trees of Doom when they die
-            .Init("Gilded Sphinx", Guardian())
-            .Init("Oasis Seraph", Guardian())
+            // the Void Entity, for now: no attacks, no loot, and three Trees of Doom when it dies
+            .Init("Elysian Void Entity", Guardian())
 
             // the three who circle Oryx 5 in his temple, evenly spaced; when they fall, he wakes
             .Init("Ascended Warden",
@@ -505,7 +505,7 @@ namespace WorldServer.logic
                 )
             )
 
-            // opens the Holy Gates once no Tree of Doom and no guardian is left on the island
+            // opens the Holy Gates once no Tree of Doom and no Void Entity is left on the island
             .Init("O5 Gate Watcher",
                 new State(
                     new State("Wait",
@@ -524,7 +524,7 @@ namespace WorldServer.logic
             );
 
         // what keeps the Holy Gates shut
-        private static readonly string[] ElysiumGatekeepers = { "Tree of Doom", "Gilded Sphinx", "Oasis Seraph" };
+        private static readonly string[] ElysiumGatekeepers = { "Tree of Doom", "Elysian Void Entity" };
 
         // ---- Oryx the Ascended God's patterns ----
         private const int CrossTime = 8000;

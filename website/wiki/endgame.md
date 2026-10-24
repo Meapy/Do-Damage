@@ -90,10 +90,12 @@ Janus and is sold in the Nexus Bazaar.
   Noble (wavering gold missiles, rings of halos), the Aristocrat (dazing lances that come back), the
   Sergeant (lines of stakes, the fastest breaking armour), the Officer (silencing rings), the Major
   (charges behind waves that pass cover), the Deacon (heals the others: kill it first), the Cleric
-  (a dazing nova up close) and the Cardinal (paralysing spears). West, the **Oasis Seraph** waits on
-  the islet in the Oasis; east, the **Gilded Sphinx** sits atop the Pyramid. Each road has three
-  **Trees of Doom** on the way, and each guardian drops three more when it dies: all twelve must
-  fall before the **Holy Gates** to his temple open. Inside, his three **Ascended Wardens** circle
+  (a dazing nova up close) and the Cardinal (paralysing spears). The two sides of the island show
+  what's to come. West, the **Ascended Totem**, a statue of Oryx's staff, stands on the islet in the
+  Oasis, for the Ascended items. East, the Pyramid has fallen to the Void, which seeps out over the
+  roads round it, and the **Void Entity** waits there: it doesn't attack yet and drops no loot, only
+  three **Trees of Doom** when it dies. With three more Trees on each road, all nine and the Void
+  Entity must fall before the **Holy Gates** to his temple open. Inside, his three **Ascended Wardens** circle
   him; he wakes when they fall.
   - **Judgement** (to 60%): three patterns. The **Radiant Cross**: he follows you but keeps about
     six tiles off, firing twin lances along four lines and gold arrowheads along the four between,

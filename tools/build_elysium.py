@@ -7,13 +7,15 @@ light blue with purple through it.
 A holy island in a turquoise sea, from south to north:
 
 - the Landing, a marble dock where players arrive (Spawn region) with a Nexus Portal to leave by;
-- the Crossroads, where the road forks round the island. West, the Oasis: palms round a pool, with
-  the Oasis Seraph on its islet. East, the Pyramid: a stepped gold pyramid with the Gilded Sphinx on
-  top. Each road has three Trees of Doom on the way, and each guardian drops three more when it
-  dies: twelve in all. Oryx's Ascended Host (O3's court monsters, ascended: BehaviorDb.Elysium.cs)
+- the Crossroads, where the road forks round the island. Both sides show what's to come. West, the
+  Oasis: palms round a pool, with the Ascended Totem on its islet, a statue of Oryx's staff for the
+  Ascended items. East, the Pyramid, fallen to the Void: void floor where its steps were, seeping
+  out over the land round it, and the Void Entity on it, a placeholder boss with no attacks that
+  drops no loot, only three Trees of Doom when it dies. Each road has three Trees of Doom on the
+  way: nine in all. Oryx's Ascended Host (O3's court monsters, ascended: BehaviorDb.Elysium.cs)
   hold the roads;
 - the Courtyard, where the roads meet before the Holy Gates, which open once no Tree of Doom and
-  no guardian is left (the Gate Watcher watches);
+  no Void Entity is left (the Gate Watcher watches);
 - the Temple, a round marble arena with Oryx the Ascended God at its centre and his three Ascended
   Wardens circling him: he wakes when they fall.
 
@@ -646,14 +648,116 @@ HOST = {
 }
 HOST_HEALTH = 17000
 
-# The guardians, for now: sprites borrowed and recoloured, no attacks (BehaviorDb.Elysium.cs).
+# The temple's Wardens: sprites borrowed and recoloured (BehaviorDb.Elysium.cs).
 # name -> (base, its strip: (sheet, index), or None to recolour the base's own texture, tone, size,
 # health)
 GUARDIANS = {
-    "Gilded Sphinx": ("Grand Sphinx", ("chars16x16rEncounters", 4), T_GOLD, 170, 50000),
-    "Oasis Seraph": ("Grand Sphinx", ("chars16x16rEncounters", 112), T_AZURE, 170, 50000),
     "Ascended Warden": ("O3 Protector 1", None, T_GOLD, 130, 25000),
 }
+
+# East, on the voided Pyramid: the Lost Halls' Void Entity, as it looks there, a placeholder boss with
+# no attacks and no loot that drops three Trees of Doom when it dies (BehaviorDb.Elysium.cs): (name,
+# its base, health)
+VOID_ENTITY = ("Elysian Void Entity", "LH Void Entity", 50000)
+# the void floor, the Lost Halls' (walkable, harmless), and how far it seeps out round the Pyramid
+VOID = "LH Void Platform"
+VOID_LEAK = 7
+
+
+def void_edge(x, y):
+    """How far the voided land reaches from the Pyramid's middle in the direction of (x, y): round
+    but uneven, a few slow waves round its edge."""
+    (px, py), pr = PYRAMID
+    a = math.atan2(y - py, x - px)
+    return (pr + 2) * (1 + 0.10 * math.sin(3 * a + 1.3) + 0.07 * math.sin(5 * a + 0.4) + 0.05 * math.sin(7 * a + 2.1))
+
+
+def void_depth(x, y):
+    """How far (x, y) is inside the voided land's edge (negative: outside)."""
+    (px, py), _ = PYRAMID
+    return void_edge(x, y) - math.hypot(x - px, y - py)
+# West, on the Oasis's islet: a statue of Oryx's staff, for the Ascended items to come
+TOTEM = "Ascended Totem"
+
+
+def void_entity(types, everything):
+    name, base, hp = VOID_ENTITY
+    e = copy.deepcopy(everything[base])
+    e.set("type", types.get(name, OBJECT_TYPES))
+    e.set("id", name)
+    strip(e, "Group", "DisplayId", "Projectile", "Quest", "Hero", "Encounter", "PerRealmMax", "TrackLoot",
+          "HealthBarBoss", "Level", "God")
+    e.insert(0, ET.Element("DisplayId"))
+    e[0].text = "Void Entity"
+    set_field(e, "MaxHitPoints", str(hp))
+    set_field(e, "Defense", "25")
+    set_field(e, "Exp", "6000")
+    if e.find("StasisImmune") is None:
+        ET.SubElement(e, "StasisImmune")
+    return e
+
+
+def paint_totem():
+    """The Ascended Totem, 32 by 32: Oryx's staff standing on a marble plinth, a great pale crystal in
+    gold prongs at the top, a purple crossbar spread like wings, a gold shaft banded in purple, and
+    sparkles round the crystal."""
+    gold, gold_dark, gold_light = (240, 192, 64), (168, 112, 26), (255, 238, 150)
+    purple, purple_dark, purple_light = (124, 64, 196), (64, 30, 112), (176, 124, 240)
+    marble, marble_dark = (226, 230, 242), (150, 160, 196)
+    out = [[(0, 0, 0, 0)] * 32 for _ in range(32)]
+
+    def put(x, y, c):
+        if 0 <= x < 32 and 0 <= y < 32:
+            out[y][x] = c + (255,)
+    # the plinth: two steps of marble with a gold band
+    for y in range(26, 32):
+        half = 8 if y >= 29 else 6
+        for x in range(16 - half, 16 + half):
+            c = marble if x < 16 + half - 2 else marble_dark
+            put(x, y, gold if y == 26 or y == 29 else (marble_dark if y == 31 else c))
+    # the shaft, two wide, light on the left, with purple bands
+    for y in range(12, 26):
+        band = y in (16, 17, 21, 22)
+        put(15, y, purple_light if band else gold_light)
+        put(16, y, purple if band else gold)
+    # the crossbar, swept up at its ends like wings
+    for x in range(8, 24):
+        d = abs(x - 15.5)
+        y = 12 - int(d * d / 22)
+        put(x, y, purple if d < 6 else purple_light)
+        put(x, y + 1, purple_dark)
+    for x in (8, 23):
+        put(x, 12 - int(7.5 * 7.5 / 22) - 1, gold_light)
+    # the gold prongs cradling the crystal
+    for k in range(5):
+        put(11 + (k // 3), 10 - k, gold)
+        put(20 - (k // 3), 10 - k, gold_dark)
+    # the crystal: a tall diamond, lit from the upper left
+    cx, cy = 15.5, 5.5
+    for y in range(0, 11):
+        for x in range(10, 22):
+            u, v = abs(x - cx) / 4.2, abs(y - cy) / 5.3
+            if u + v <= 1:
+                lit = (cx - x) + (cy - y) * 0.6
+                c = (255, 255, 255) if lit > 2.5 else (196, 240, 255) if lit > 0 else (120, 228, 255) if lit > -2.5 else (60, 120, 200)
+                put(x, y, c)
+    # sparkles
+    for x, y in ((9, 2), (22, 4), (12, 0), (24, 9), (7, 7)):
+        put(x, y, gold_light)
+    return out
+
+
+def totem(types, sheet):
+    e = ET.Element("Object", {"type": types.get(TOTEM, OBJECT_TYPES), "id": TOTEM})
+    ET.SubElement(e, "Class").text = "GameObject"
+    tex = ET.SubElement(e, "Texture")
+    ET.SubElement(tex, "File").text = SHEETS[32][0]
+    ET.SubElement(tex, "Index").text = "0x%02x" % sheet.add_painted(paint_totem())
+    ET.SubElement(e, "Size").text = "120"
+    ET.SubElement(e, "ShadowSize").text = "140"
+    ET.SubElement(e, "Static")
+    ET.SubElement(e, "OccupySquare")
+    return e
 
 
 def characters(types, chars, sheets, everything, tones):
@@ -858,7 +962,7 @@ HOST_POSTS = [
     ((17, 62), "Ascended Noble"), ((25, 59), "Ascended Aristocrat"),
     # the east road and the Pyramid: his officers
     ((64, 103), "Ascended Sergeant"), ((73, 99), "Ascended Officer"),
-    ((65, 70), "Ascended Major"), ((87, 70), "Ascended Sergeant"), ((76, 90), "Ascended Officer"),
+    ((71, 73), "Ascended Major"), ((81, 73), "Ascended Sergeant"), ((76, 90), "Ascended Officer"),
     ((79, 62), "Ascended Noble"), ((71, 59), "Ascended Aristocrat"),
     # before the gates
     ((41, 53), "Ascended Officer"), ((55, 53), "Ascended Cardinal"), ((48, 58), "Ascended Major"),
@@ -897,7 +1001,7 @@ GOLD_TILE = "Gold Tile"
 APEX = "Ancient Ruins Gold Tile"
 PALM = "Palm Tree"
 PILLAR = "Ancient Ruins Pillars"
-OWN = {GRASS, SANDSTONE, GOLD_TILE, APEX, PALM, PILLAR} | set(BANNERS)
+OWN = {GRASS, SANDSTONE, GOLD_TILE, APEX, PALM, PILLAR, VOID} | set(BANNERS)
 
 
 def sdf(x, y):
@@ -988,7 +1092,8 @@ def build_map():
     (ox, oy), orr = OASIS
     disc(g, ox, oy, orr + 1.5, SAND)
     (px, py), pr = PYRAMID
-    rect(g, px - pr - 2, py - pr - 2, px + pr + 2, py + pr + 2, SAND)
+    # the Pyramid's land, round and uneven since the Void took it (void_edge)
+    disc(g, px, py, pr + 6, lambda x, y: SAND if void_depth(x, y) >= -1.5 else g.ground[y][x])
     x0, y0, x1, y1 = COURTYARD
     rect(g, x0 - 2, y0 - 2, x1 + 2, y1 + 2, SAND)
     lx0, ly0, lx1, ly1 = LANDING
@@ -1002,11 +1107,8 @@ def build_map():
     disc(g, ox, oy, 6.5, POOL)
     disc(g, ox, oy, 2.5, GOLD_SAND)
 
-    # the Pyramid: steps of sandstone with a gold edge every third, gold at the top
-    for y in range(py - pr, py + pr + 1):
-        for x in range(px - pr, px + pr + 1):
-            d = max(abs(x - px), abs(y - py))
-            g.floor(x, y, APEX if d <= 2 else (GOLD_TILE if d % 3 == 0 else SANDSTONE))
+    # the Pyramid, fallen to the Void: void where it and its sand were
+    disc(g, px, py, pr + 6, lambda x, y: VOID if void_depth(x, y) >= 0 else g.ground[y][x])
 
     # the Crossroads and the Courtyard: marble with a gold heart
     disc(g, cx, cy, cr, MARBLE_TILE)
@@ -1017,6 +1119,15 @@ def build_map():
     # the Landing: a marble dock reaching into the sea
     rect(g, lx0, ly0, lx1, ly1, MARBLE_TILE)
     rug(g, (CX, ly0), (CX, ly1 - 2))
+
+    # the Void seeps out from the Pyramid over the land round it, thinning to a stray tile at VOID_LEAK
+    reach = int(pr * 1.3) + 4 + VOID_LEAK
+    for y in range(py - reach, py + reach + 1):
+        for x in range(px - reach, px + reach + 1):
+            k = -void_depth(x, y)
+            if 0 < k <= VOID_LEAK and g.is_floor(x, y) and g.ground[y][x] != VOID:
+                if _hash(x, y, 97) < 0.8 * (1 - k / (VOID_LEAK + 1)) ** 1.6:
+                    g.floor(x, y, VOID)
 
     # --- the Temple: walled in, reached only through the Holy Gates ------------------------------
     tx, ty = TEMPLE_C
@@ -1104,17 +1215,20 @@ def build_map():
         g.place(round(cx + math.cos(a) * (cr - 1)), round(cy + math.sin(a) * (cr - 1)), FLAME)
 
     # --- the Oasis -------------------------------------------------------------------------------
-    g.place(ox, oy, "Oasis Seraph")
+    g.place(ox, oy, TOTEM)
     for k in range(12):
         a = 2 * math.pi * k / 12
         x, y = round(ox + math.cos(a) * 9), round(oy + math.sin(a) * 9)
         if g.free(x, y) and max(abs(x - ox), abs(y - oy)) > 3:
             g.place(x, y, PALM)
 
-    # --- the Pyramid: obelisks at its corners, purple flames up its stairs -----------------------
-    g.place(px, py, "Gilded Sphinx")
-    for dx, dy in ((-1, -1), (1, -1), (-1, 1), (1, 1)):
-        g.place(px + dx * (pr + 1), py + dy * (pr + 1), PILLAR)
+    # --- the Pyramid, voided: the Void Entity at its heart, its obelisks still standing round it,
+    # purple flames up the road to it ---------------------------------------------------------------
+    g.place(px, py, VOID_ENTITY[0])
+    for k in range(4):
+        a = math.pi / 4 + k * math.pi / 2
+        r = void_edge(px + math.cos(a), py + math.sin(a)) - 3
+        g.place(round(px + math.cos(a) * r), round(py + math.sin(a) * r), PILLAR)
     for d in (4, 7, 10):
         for side in (-2, 2):
             g.place(px + side, py + d, FLAME)
@@ -1132,7 +1246,7 @@ def build_map():
                     ty2 = round(y + side * ny / norm * (CORRIDOR + 1))
                     if (g.free(tx2, ty2) and g.ground[ty2][tx2] == SAND
                             and math.hypot(tx2 - ox, ty2 - oy) > orr + 2
-                            and max(abs(tx2 - px), abs(ty2 - py)) > pr + 2
+                            and void_depth(tx2, ty2) < -1
                             and math.hypot(tx2 - cx, ty2 - cy) > cr + 1):
                         g.place(tx2, ty2, what)
     for x, y in TREES:
@@ -1261,6 +1375,9 @@ def main():
     objects += fight_helpers(types, sheets, everything, tones)
     objects += clouds(types, sheets[16])
     objects += ichor(types, sheets[16])
+    # the teasers, after the rest so their cells don't move others'
+    objects.append(void_entity(types, everything))
+    objects.append(totem(types, sheets[32]))
 
     for tone in tones:
         tone.settle()
@@ -1286,7 +1403,8 @@ def main():
         out = sys.argv[sys.argv.index("--preview") + 1]
         os.makedirs(out, exist_ok=True)
         table = {e.get("id"): e for e in grounds + objects}
-        table.update(load("Ground", "EmbeddedData_GroundCXML.xml", "EmbeddedData_ancientRuinsGroundCXML.xml"))
+        table.update(load("Ground", "EmbeddedData_GroundCXML.xml", "EmbeddedData_ancientRuinsGroundCXML.xml",
+                          "EmbeddedData_lostHallsGroundCXML.xml"))
         table.update(load("Object", "EmbeddedData_StaticObjectsCXML.xml", "EmbeddedData_ancientRuinsObjectsCXML.xml",
                           "EmbeddedData_oryxSanctuaryObjectsCXML.xml"))
         table.update({e.get("id"): e for e in grounds + objects})

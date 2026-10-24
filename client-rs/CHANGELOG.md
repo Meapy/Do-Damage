@@ -9,6 +9,11 @@ refuses while an `Unreleased` one is left, so rename it to `## <version> (<date>
 version number itself is in `client-rs/Cargo.toml`.
 
 ## Unreleased
+- Oryx's Elysium shows what's to come: the Oasis Seraph's islet now holds the Ascended Totem, a
+  statue of Oryx's staff for the Ascended items, and the Pyramid has fallen to the Void, seeping out
+  over the roads round it, with the Void Entity in place of the Gilded Sphinx. It doesn't attack yet
+  and drops no loot, only its three Trees of Doom: nine trees and the Void Entity now hold the Holy
+  Gates shut.
 - Oryx 5's weapons:
   - The Sword of Dark Enchantment fires black and red slashes (it fired sheep), and each shot has a
     15% chance (at most every 2 seconds) of a small dark orb that follows you for 4 seconds, zapping
