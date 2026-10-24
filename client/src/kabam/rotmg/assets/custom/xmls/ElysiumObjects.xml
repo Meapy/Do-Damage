@@ -410,6 +410,23 @@
 		<Defense>60</Defense>
 		<StasisImmune />
 		<Exp>6000</Exp>
+		<Projectile id="0">
+			<ObjectId>Sunfire Missile</ObjectId>
+			<Damage>170</Damage>
+			<Speed>80</Speed>
+			<LifetimeMS>1500</LifetimeMS>
+			<Size>110</Size>
+			<MultiHit />
+		</Projectile>
+		<Projectile id="1">
+			<ObjectId>Halo Wheel</ObjectId>
+			<Damage>140</Damage>
+			<Speed>35</Speed>
+			<LifetimeMS>2400</LifetimeMS>
+			<Size>100</Size>
+			<MultiHit />
+			<ConditionEffect duration="1.5">Slowed</ConditionEffect>
+		</Projectile>
 	</Object>
 	<Object type="0x540F" id="Sunfire Missile">
 		<Class>Projectile</Class>
@@ -1228,7 +1245,7 @@
 			</Texture>
 		</AltTexture>
 		<Size>200</Size>
-		<MaxHitPoints>50000</MaxHitPoints>
+		<MaxHitPoints>60000</MaxHitPoints>
 		<Exp>6000</Exp>
 		<Defense>25</Defense>
 		<HitSound>weapon/wand_of_dark_magic</HitSound>
@@ -1239,6 +1256,52 @@
 		<ParalyzeImmune />
 		<DazedImmune />
 		<StasisImmune />
+		<Projectile id="0">
+			<ObjectId>Void Bullet</ObjectId>
+			<Damage>190</Damage>
+			<Speed>100</Speed>
+			<LifetimeMS>2500</LifetimeMS>
+			<Size>120</Size>
+			<MultiHit />
+			<ConditionEffect duration="2">Darkness</ConditionEffect>
+		</Projectile>
+		<Projectile id="1">
+			<ObjectId>Void Bullet</ObjectId>
+			<Damage>170</Damage>
+			<Speed>70</Speed>
+			<LifetimeMS>3000</LifetimeMS>
+			<Size>120</Size>
+			<Amplitude>1.5</Amplitude>
+			<Frequency>1.5</Frequency>
+			<MultiHit />
+		</Projectile>
+		<Projectile id="2">
+			<ObjectId>Void Wheel</ObjectId>
+			<Damage>200</Damage>
+			<Speed>80</Speed>
+			<LifetimeMS>2000</LifetimeMS>
+			<Size>120</Size>
+			<MultiHit />
+			<ConditionEffect duration="2">Unstable</ConditionEffect>
+		</Projectile>
+		<Projectile id="3">
+			<ObjectId>Void Shuriken</ObjectId>
+			<Damage>240</Damage>
+			<Speed>100</Speed>
+			<LifetimeMS>1800</LifetimeMS>
+			<Size>120</Size>
+			<MultiHit />
+			<ConditionEffect duration="2">Quiet</ConditionEffect>
+		</Projectile>
+		<Projectile id="4">
+			<ObjectId>Void Shockwave</ObjectId>
+			<Damage>200</Damage>
+			<Speed>50</Speed>
+			<LifetimeMS>3500</LifetimeMS>
+			<Size>120</Size>
+			<MultiHit />
+			<ConditionEffect duration="2">Slowed</ConditionEffect>
+		</Projectile>
 	</Object>
 	<Object type="0x5435" id="Ascended Totem">
 		<Class>GameObject</Class>

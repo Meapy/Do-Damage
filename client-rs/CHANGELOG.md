@@ -12,6 +12,13 @@ Keep each version short: changes go under `### ` group headings (Oryx 5, Arena, 
 on), one line per change players notice, summed up rather than item by item (the wiki has the
 details). Add to a group's line when a change adds to it, rather than adding another line.
 
+## Unreleased
+
+### Oryx 5: Oryx the Ascended God
+- Oryx's Elysium is open: use an Oryx's Elysium Incantation by the locked portal Oryx 4 drops, and
+  the Nexus Bazaar sells it again. The Void Entity on the Pyramid now fights back and drops loot,
+  and the Ascended Wardens round Oryx 5 shoot.
+
 ## 2.0.0 (2026-10-24)
 - Do Damage 2.0: the whole Oryx chain is rebuilt, with Oryx's Inferno for Oryx 4 and Oryx's
   Elysium for Oryx 5, one tougher Arena, the Divine Forge in the Nexus, and every weapon, armour,

@@ -606,11 +606,12 @@ class Data:
 
 
     def boss_health(self, monster):
-        """The health a boss really has: its BossStats when it sets one, else its XML."""
+        """The health a boss really has: its BossStats when it sets one (not the one for the
+        Arena, `arena: true`), else its XML."""
         for block in self.inits.get(monster, []):
-            m = re.search(r'new BossStats\(\s*(\d+)', block)
-            if m:
-                return int(m.group(1))
+            for m in re.finditer(r'new BossStats\(\s*(\d+)([^)]*)\)', block):
+                if "arena: true" not in m.group(2):
+                    return int(m.group(1))
         o = self.objects.get(monster)
         return o["hp"] if o else 0
 

@@ -10,8 +10,8 @@ A holy island in a turquoise sea, from south to north:
 - the Crossroads, where the road forks round the island. Both sides show what's to come. West, the
   Oasis: palms round a pool, with the Ascended Totem on its islet, a statue of Oryx's staff for the
   Ascended items. East, the Pyramid, fallen to the Void: void floor where its steps were, seeping
-  out over the land round it, and the Void Entity on it, a placeholder boss with no attacks that
-  drops no loot, only three Trees of Doom when it dies. Each road has three Trees of Doom on the
+  out over the land round it, and the Void Entity on it, a boss of the void who throws three
+  Trees of Doom when he dies. Each road has three Trees of Doom on the
   way: nine in all. Oryx's Ascended Host (O3's court monsters, ascended: BehaviorDb.Elysium.cs)
   hold the roads;
 - the Courtyard, where the roads meet before the Holy Gates, which open once no Tree of Doom and
@@ -648,17 +648,29 @@ HOST = {
 }
 HOST_HEALTH = 17000
 
-# The temple's Wardens: sprites borrowed and recoloured (BehaviorDb.Elysium.cs).
+# The temple's Wardens: sprites borrowed and recoloured, with shots of their own (BehaviorDb.Elysium.cs).
 # name -> (base, its strip: (sheet, index), or None to recolour the base's own texture, tone, size,
-# health)
+# health, [projectiles])
 GUARDIANS = {
-    "Ascended Warden": ("O3 Protector 1", None, T_GOLD, 130, 25000),
+    "Ascended Warden": ("O3 Protector 1", None, T_GOLD, 130, 25000, [
+        shot(0, "Sunfire Missile", 170, 80, 1500, 110),
+        shot(1, "Halo Wheel", 140, 35, 2400, effects=[("Slowed", 1.5)]),
+    ]),
 }
 
-# East, on the voided Pyramid: the Lost Halls' Void Entity, as it looks there, a placeholder boss with
-# no attacks and no loot that drops three Trees of Doom when it dies (BehaviorDb.Elysium.cs): (name,
-# its base, health)
-VOID_ENTITY = ("Elysian Void Entity", "LH Void Entity", 50000)
+# East, on the voided Pyramid: the Lost Halls' Void Entity, as it looks there, a boss of the void that
+# drops three Trees of Doom when it dies (BehaviorDb.Elysium.cs), with shots of the Lost Halls' void
+# sprites: (name, its base, health, [projectiles])
+VOID_ENTITY = ("Elysian Void Entity", "LH Void Entity", 60000, [
+    # aimed, darkening; and a ring that wavers out between them
+    shot(0, "Void Bullet", 190, 100, 2500, 120, effects=[("Darkness", 2)]),
+    shot(1, "Void Bullet", 170, 70, 3000, 120, amplitude=1.5, frequency=1.5),
+    # the spinning wheels
+    shot(2, "Void Wheel", 200, 80, 2000, 120, effects=[("Unstable", 2)]),
+    # the shuriken burst: aimed, silencing, and a slow ring of shockwaves
+    shot(3, "Void Shuriken", 240, 100, 1800, 120, effects=[("Quiet", 2)]),
+    shot(4, "Void Shockwave", 200, 50, 3500, 120, effects=[("Slowed", 2)]),
+])
 # the void floor, the Lost Halls' (walkable, harmless), and how far it seeps out round the Pyramid
 VOID = "LH Void Platform"
 VOID_LEAK = 7
@@ -681,7 +693,7 @@ TOTEM = "Ascended Totem"
 
 
 def void_entity(types, everything):
-    name, base, hp = VOID_ENTITY
+    name, base, hp, shots = VOID_ENTITY
     e = copy.deepcopy(everything[base])
     e.set("type", types.get(name, OBJECT_TYPES))
     e.set("id", name)
@@ -694,6 +706,8 @@ def void_entity(types, everything):
     set_field(e, "Exp", "6000")
     if e.find("StasisImmune") is None:
         ET.SubElement(e, "StasisImmune")
+    for p in shots:
+        e.append(copy.deepcopy(p))
     return e
 
 
@@ -762,9 +776,10 @@ def totem(types, sheet):
 
 def characters(types, chars, sheets, everything, tones):
     out = []
-    rows = [(name, everything[base], None, tone, None, HOST_HEALTH) for name, (base, tone, _) in HOST.items()]
-    rows += [(name, everything[base], strip_, tone, size, hp) for name, (base, strip_, tone, size, hp) in GUARDIANS.items()]
-    for name, base, strip_, tone, size, hp in rows:
+    rows = [(name, everything[base], None, tone, None, HOST_HEALTH, shots) for name, (base, tone, shots) in HOST.items()]
+    rows += [(name, everything[base], strip_, tone, size, hp, shots)
+             for name, (base, strip_, tone, size, hp, shots) in GUARDIANS.items()]
+    for name, base, strip_, tone, size, hp, shots in rows:
         e = copy.deepcopy(base)
         e.set("type", types.get(name, OBJECT_TYPES))
         e.set("id", name)
@@ -783,7 +798,7 @@ def characters(types, chars, sheets, everything, tones):
         set_field(e, "Exp", "2500" if name in HOST else "6000")
         if size:
             set_field(e, "Size", str(size))
-        for p in HOST.get(name, (None, None, []))[2]:
+        for p in shots:
             e.append(copy.deepcopy(p))
         out.append(e)
     return out
