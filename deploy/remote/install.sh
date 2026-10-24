@@ -6,7 +6,7 @@
 #
 # - First run: installs Redis 7, the .NET 8 runtime, Caddy and Python, makes the bsk user and
 #   /opt/bsk, a swap file if there is none, and the services (bsk-redis, bsk-account, bsk-world,
-#   bsk-gateway@<slot>, caddy).
+#   bsk-gateway@<slot>, caddy), and bsk-backup.timer when the config names a backup repository.
 # - Later runs replace what changed, without disconnecting anyone:
 #   - a new world server build goes in with a rolling deploy (rolling_restart.py request update);
 #   - a new gateway starts in a free slot (a b c, ports gateway+0/1/2) and the old one hands over:
@@ -115,7 +115,7 @@ cmp -s $IN/bsk.env $ROOT/bsk.env || { install -m 644 $IN/bsk.env $ROOT/bsk.env; 
 rm -rf $ROOT/deploy && cp -r $IN/deploy $ROOT/deploy
 rm -rf $ROOT/tools && cp -r $IN/tools $ROOT/tools
 changed_units=""
-for u in $IN/deploy/systemd/*.service; do
+for u in $IN/deploy/systemd/*.service $IN/deploy/systemd/*.timer; do
     dest=/etc/systemd/system/$(basename "$u")
     cmp -s "$u" "$dest" || { install -m 644 "$u" "$dest"; changed_units="$changed_units $(basename "$u")"; }
 done
@@ -137,6 +137,28 @@ if [ $IMPORT_DATA = 1 ]; then
         mkdir -p $ROOT/redis/data
     fi
     cp -r $IN/redis-data/. $ROOT/redis/data/
+    if [ -f $ROOT/redis/data/dump.rdb ] && [ ! -e $ROOT/redis/data/appendonlydir ] && [ ! -e $ROOT/redis/data/appendonly.aof ]; then
+        # only a snapshot (a backup from deploy/backup.py): with AOF on, Redis would ignore it and
+        # start empty. Load it with AOF off, then turn AOF on, which writes the AOF from it.
+        say "loading the snapshot and writing Redis's AOF from it"
+        chown -R bsk:bsk $ROOT/redis
+        sock=$ROOT/redis/import.sock
+        runuser -u bsk -- redis-server --port 0 --unixsocket $sock --dir $ROOT/redis/data --dbfilename dump.rdb \
+            --appendonly no --appenddirname appendonlydir --appendfilename appendonly.aof --save "" \
+            --daemonize yes --logfile $ROOT/redis/import.log
+        for i in $(seq 120); do [ "$(redis-cli -s $sock ping 2>/dev/null)" = PONG ] && break; sleep 1; done
+        echo "snapshot: $(redis-cli -s $sock dbsize) keys"
+        redis-cli -s $sock config set appendonly yes >/dev/null
+        for i in $(seq 300); do
+            redis-cli -s $sock info persistence | grep -q '^aof_rewrite_in_progress:0' \
+                && redis-cli -s $sock info persistence | grep -q '^aof_rewrite_scheduled:0' \
+                && [ -f $ROOT/redis/data/appendonlydir/appendonly.aof.manifest ] && break
+            sleep 1
+        done
+        redis-cli -s $sock shutdown save >/dev/null 2>&1 || true
+        for i in $(seq 30); do [ -S $sock ] || break; sleep 1; done
+        [ -f $ROOT/redis/data/appendonlydir/appendonly.aof.manifest ] || { echo "writing the AOF failed: see $ROOT/redis/import.log" >&2; exit 1; }
+    fi
 fi
 chown -R bsk:bsk $ROOT/redis
 systemctl enable --quiet bsk-redis
@@ -178,6 +200,10 @@ if ! diff -rq $IN/worldserver $ROOT/worldserver >/dev/null 2>&1; then
     rm -rf $ROOT/worldserver.old && mv $ROOT/worldserver $ROOT/worldserver.old && mv $ROOT/worldserver.new $ROOT/worldserver
     rm -rf $ROOT/worldserver.old
 fi
+
+# --- database backups (deploy/backup.py --setup makes the key; until then the timer only says so)
+mkdir -p $ROOT/backup
+install -m 644 $IN/backup.env $ROOT/backup/backup.env
 
 chown -R bsk:bsk $ROOT
 chown root:root $ROOT/bsk.env
@@ -290,6 +316,12 @@ if systemctl is-active --quiet bsk-world; then
 else
     say "starting the world servers"
     systemctl start bsk-world
+fi
+
+if grep -q '^BSK_BACKUP_REPO=.' $ROOT/backup/backup.env; then
+    systemctl enable --quiet --now bsk-backup.timer
+else
+    systemctl disable --quiet --now bsk-backup.timer 2>/dev/null || true
 fi
 
 say "done"

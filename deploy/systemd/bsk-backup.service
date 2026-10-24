@@ -1,0 +1,12 @@
+[Unit]
+Description=betterSkillys database backup (a Redis snapshot pushed to the private backup repository)
+After=network-online.target bsk-redis.service
+Wants=network-online.target
+
+[Service]
+Type=oneshot
+User=bsk
+Group=bsk
+ExecStart=/bin/bash /opt/bsk/deploy/backup.sh
+Nice=10
+IOSchedulingClass=idle
