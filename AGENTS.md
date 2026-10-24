@@ -99,8 +99,7 @@ it asks first; never run test copies under the live process names (`redis-server
 ## Git
 
 - **Release branches (since 2026-10-24).** `main` only ever gets one squashed commit per
-  released version, through a pull request; nothing else lands on it directly (`local` is older
-  and no longer used).
+  released version, through a pull request; nothing else lands on it directly.
   - **Collecting work:** finished work goes into the release branch for the next version,
     `release/<version>`, such as `release/2.0.3`.
     - Find the open one with `git branch --list 'release/*'`; if there is none, create it from
