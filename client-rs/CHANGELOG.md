@@ -27,6 +27,8 @@ version number itself is in `client-rs/Cargo.toml`.
 - The Divine Forge lists an item that several recipes make once, and picks the recipe you can make.
   Two new filters: UT (untiered gear, the Ascended items first) and Highest tier (the top tier it
   makes of each kind). A new Enchant tab is there too, locked until a later update.
+- The Open button of the Divine Forge and the other NPCs shows your interact key (0 unless you
+  changed it), as a portal's Enter button does: that key opens them too.
 - Armours: the Coral Silk Armor, Leaf Dragon Hide Armor, Esben's Shaman Attire, Fungal Breastplate,
   Resurrected Warrior's Armor, Breastplate of New Life and Candy-Coated Armor are plain untiered
   items now, no longer Legendary, Ascended or Ethereal. Esben's Shaman Attire drops in the Ice Cave

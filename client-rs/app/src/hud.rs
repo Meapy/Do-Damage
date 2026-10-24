@@ -1536,8 +1536,10 @@ pub fn draw_panel(ui: &mut Ui, lay: &Layout, world: &World, camera_angle: f64, c
                 _ => continue,
             },
             Button::Npc(_) => match panel.interact.as_ref().map(|i| i.kind) {
+                // with the interact key after it, as Enter has
                 Some(InteractKind::Npc { kind, rank_req }) => match crate::npc::interact_text(kind, me, rank_req).1 {
-                    Some(b) => b,
+                    Some((text, k)) if state.interact_key.is_empty() => (text.to_string(), k),
+                    Some((text, k)) => (format!("{text}  {}", state.interact_key), k),
                     None => continue,
                 },
                 _ => continue,
