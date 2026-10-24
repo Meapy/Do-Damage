@@ -637,6 +637,33 @@ namespace WorldServer.core.worlds
         /// <summary>Where this world's ticks spend their time (logged as "Tick stats").</summary>
         public readonly TickProfile Profile = new TickProfile();
 
+        private long _branchLastTick, _branchLastReport;
+
+        /// <summary>
+        /// A branch (a dungeon or vault on its root's thread) finished a tick that began at
+        /// <paramref name="started"/> (a Stopwatch timestamp): count it, and every 30 s while anyone
+        /// is here log its Tick stats, as RootWorldThread does for root worlds.
+        /// </summary>
+        public void ReportBranchTick(long started)
+        {
+            var now = Stopwatch.GetTimestamp();
+            var workMs = Stopwatch.GetElapsedTime(started, now).TotalMilliseconds;
+            var gapMs = _branchLastTick == 0 ? RootWorldThread.TICK_TIME_MS : Stopwatch.GetElapsedTime(_branchLastTick, started).TotalMilliseconds;
+            _branchLastTick = started;
+            if (workMs > 200)
+                StaticLogger.Instance.Warn($"[{IdName} {Id}] Slow tick: {workMs:0} ms, {Players.Count} players");
+            Profile.Tick(workMs, gapMs);
+            if (_branchLastReport == 0)
+                _branchLastReport = now;
+            else if (Stopwatch.GetElapsedTime(_branchLastReport, now).TotalMilliseconds >= 30000)
+            {
+                var report = Profile.Report();
+                if (Players.Count > 0)
+                    StaticLogger.Instance.Info($"[{IdName} {Id}] Tick stats, {Players.Count} players, {Enemies.Count} enemies: {report}");
+                _branchLastReport = now;
+            }
+        }
+
         /// <summary>
         /// Wake monsters only out to just past each player's sight (2 chunks, 32-47 tiles, or 3
         /// for a sight radius over 20) instead of 3 chunks round every player and pet. Realms use

@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 
 namespace WorldServer.core.worlds
 {
@@ -34,8 +35,14 @@ namespace WorldServer.core.worlds
         {
             var toRemove = new List<World>();
             foreach (var world in SubWorlds.Values)
+            {
+                // a branch's ticks go into its own Tick stats, as a root world's do on its thread
+                var started = Stopwatch.GetTimestamp();
+                world.Profile.Begin();
                 if (world.Update(ref time))
                     toRemove.Add(world);
+                world.ReportBranchTick(started);
+            }
 
             foreach (var world in toRemove)
             {

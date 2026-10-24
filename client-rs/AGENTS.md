@@ -96,7 +96,9 @@ new connection; it exits non-zero if it gets disconnected. The second form goes
 through the gateway, as the browser does. With no living character it makes a Wizard.
 `--say "/godlands;;/god"` sends lines (split by `;;`) 3 s apart after each join, and
 `--wander <tiles>` walks it round a circle that size, so several bots keep a realm busy for load
-tests (accounts from the account server's `/account/register` on the isolated stack).
+tests (accounts from the account server's `/account/register` on the isolated stack). Every 10 s it
+logs the ping the server measured and the gaps between NewTicks as they arrived (100 ms when
+nothing holds them up).
 
 The client itself can be scripted for tests (desktop only):
 
