@@ -26,6 +26,12 @@ details). Add to a group's line when a change adds to it, rather than adding ano
   potion storage, as many as fit, instead of 100 or more past its limit. With that storage full,
   the potion stays with you.
 
+### Divine Forge
+- The forge now uses what's in your vault: ingredients you don't carry are taken from your vault
+  chests (not the shared Nexus chests), and the forge window marks each one that comes from your
+  vault with how many it holds. With every ingredient from your vault and a full inventory, the
+  forged item goes into your vault.
+
 ### Game
 - The server does about half the work in busy realms, uses a third of the memory, and stops for
   memory clean-up far less, so ping is lower and steadier and big fights lag less. In the realm,

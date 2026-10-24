@@ -8,7 +8,8 @@ using WorldServer.networking.packets.outgoing;
 namespace WorldServer.core.net.handlers
 {
     // The Divine Forge's window (the Rust client): its recipes and prices, forging and selling.
-    // The work is DoomedEconomy's; forging and selling need the player beside a forge.
+    // The work is DoomedEconomy's; forging and selling need the player beside a forge. Forging also
+    // takes ingredients from the account's vault (ForgeVault), whose contents the window gets too.
     public class ForgeDataRequestHandler : IMessageHandler
     {
         public override MessageId MessageId => MessageId.FORGE_DATA_REQUEST;
@@ -30,6 +31,7 @@ namespace WorldServer.core.net.handlers
                 .ToArray();
             client.SendPacket(new ForgeData() { Recipes = recipes, Prices = prices });
             ForgeStorage.Send(client.Player);
+            ForgeVault.Send(client.Player);
         }
     }
 

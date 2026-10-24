@@ -690,6 +690,7 @@ impl Game {
                 message: r.message.clone(),
             }),
             ServerMessage::ForgeShards(s) => self.forge_events.push(crate::forge::Event::Shards(s.shards.0.clone())),
+            ServerMessage::ForgeVault(v) => self.forge_events.push(crate::forge::Event::Vault(v.items.0.clone())),
             ServerMessage::Goto(g) => world.apply_goto(g.object_id, g.pos.x as f64, g.pos.y as f64, now, data),
             ServerMessage::EnemyShoot(e) => {
                 let Some(owner) = world.objects.get(&e.owner_id).filter(|o| !o.dead) else { return };

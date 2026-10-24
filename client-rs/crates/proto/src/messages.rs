@@ -176,6 +176,9 @@ messages! {
         99 => ForgeResult { sold: bool, success: bool, item: u16, fame: i32, message: String },
         // The forge storage's shards (after ForgeDataRequest, and whenever they change).
         100 => ForgeShards { shards: List16<ForgeShard> },
+        // What the account's vault holds that the forge can take, by item type (after
+        // ForgeDataRequest and each forging).
+        102 => ForgeVault { items: List16<ForgeShard> },
     }
 }
 
