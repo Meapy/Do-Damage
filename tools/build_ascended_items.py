@@ -10,10 +10,11 @@ The Ascended items: placeholders that nothing drops, forged from an item of Oryx
 God's top tier and an Ascended shard (ForgeRecipes.Ascended), marked <Ascended/> (the red slot
 edge, and the wiki's Ascended group). Each keeps the numbers of the item it's copied from until
 it gets its own; all are named Enthroned. The weapons and the leather and heavy armours keep its
-sprite too, with a few purple sparkles added round it (SPARKLE); his helm, boots, robe and two
-rings are drawn here, and the Enthroned Staff is the staff his own sprite holds, copied from
-ElysiumOryx16x16.png (STAFF) onto a 16 by 16 sheet of its own, `AscendedItems16x16.png`
-(`ascendedItems16x16`).
+sprite too, with a few purple sparkles added round it (SPARKLE); his helm, boots and robe are
+drawn here at 8 by 8, and his staff and two rings at 16 by 16, on `AscendedItems16x16.png`
+(`ascendedItems16x16`, in the order of SPRITES16): the staff his own sprite holds, gold with a
+crystal head, sideways as items lie (STAFF_HALF), and the rings gold at the bottom, light blue up
+the sides and purple at the top, under a gem in its setting (ring).
 
 Writes `AscendedItems8x8.png` (client/src/kabam/rotmg/assets/custom/images, `ascendedItems8x8`,
 which tools/gen_rs_manifest.py registers for the Rust client), 8 by 8 pixels a cell in the order
@@ -22,6 +23,7 @@ of SPRITES, and the items into both copies of CustomItems.xml, between the BEGIN
 never renumber them. Needs Pillow.
 """
 
+import math
 import os
 import re
 import sys
@@ -34,7 +36,6 @@ SRC = os.path.join(ROOT, "client", "src")
 SERVER_XML = os.path.join(ROOT, "source", "Shared", "resources", "xml")
 OUT = os.path.join(SRC, "kabam", "rotmg", "assets", "custom", "images", "AscendedItems8x8.png")
 OUT16 = os.path.join(SRC, "kabam", "rotmg", "assets", "custom", "images", "AscendedItems16x16.png")
-ORYX = os.path.join(SRC, "kabam", "rotmg", "assets", "custom", "images", "ElysiumOryx16x16.png")
 ITEM_XMLS = [
     os.path.join(SERVER_XML, "custom", "CustomItems.xml"),
     os.path.join(SRC, "kabam", "rotmg", "assets", "custom", "xmls", "CustomItems.xml"),
@@ -149,35 +150,44 @@ PIECES = {
         "bswwwwsb",
         "GGGGGGGG",
     ],
-    "ring wrath": [
-        "...vv...",
-        "..vPPp..",
-        "..GppG..",
-        ".G....G.",
-        ".G....G.",
-        ".g....g.",
-        "..gGGg..",
-        "........",
-    ],
-    "ring grace": [
-        "...WW...",
-        "..Wwsb..",
-        "..GbbG..",
-        ".G....G.",
-        ".G....G.",
-        ".g....g.",
-        "..gGGg..",
-        "........",
-    ],
 }
 
-# The staff in Oryx 5's first frame (ElysiumOryx16x16.png): its pixels, as (x, y) there, the white
-# sparkle, the crystal head and the gold glints beside it, the blue core, the purple crossbar and
-# the shaft. His hand grips the shaft at rows 7 and 8, so those take the shaft's banding instead.
-STAFF = [(1, 0), (0, 1), (1, 1), (2, 1), (3, 1), (0, 2), (1, 2), (2, 2), (3, 2), (1, 3), (0, 4), (1, 4), (2, 4)] + \
-        [(1, y) for y in range(5, 16) if y not in (7, 8)]
-STAFF_GRIP = {(1, 7): (1, 5), (1, 8): (1, 6)}  # a pixel: the shaft pixel it copies
-STAFF_X = 6  # where its column 0 goes on the 16 by 16 cell, to stand in the middle
+# The 16 by 16 pieces' colours: his staff's crystal (ElysiumOryx16x16.png), blues, golds, purples
+BIG = {"W": (255, 255, 255), "C": (196, 240, 255), "K": (120, 228, 255), "B": (110, 200, 245),
+       "b": (60, 120, 200), "y": GOLD[2], "G": GOLD[1], "g": GOLD[0],
+       "P": PURPLE[1], "p": PURPLE[0], "v": PURPLE[2], "V": (214, 160, 255)}
+DARKER = {"W": "C", "C": "K", "K": "B", "B": "b", "b": "b", "y": "G", "G": "g", "g": "g",
+          "V": "v", "v": "P", "P": "p", "p": "p"}
+
+# The Enthroned Staff, lying from bottom left to top right: its upper-left half and its middle
+# line (x + y <= 15), {(x, y): colour}; the other half is the mirror of it across the middle line,
+# a shade darker. A crystal head in a gold cradle, a purple crossbar with a jewel, a gold shaft
+# three pixels across with purple grip bands, and a pommel.
+STAFF_HALF = {
+    # the crystal
+    (15, 0): "W", (14, 1): "W", (13, 2): "C", (12, 3): "C", (11, 4): "K",
+    (14, 0): "W", (13, 1): "C", (12, 2): "W", (11, 3): "C", (10, 4): "K",
+    (13, 0): "C", (12, 1): "C", (11, 2): "C", (10, 3): "K",
+    (12, 0): "K", (11, 1): "C", (10, 2): "K",
+    # the gold prongs and cradle
+    (10, 1): "y", (9, 2): "G", (8, 3): "G", (8, 4): "G", (9, 4): "G", (9, 5): "G", (10, 5): "G",
+    # the crossbar, a jewel where it meets the shaft
+    (9, 6): "y", (8, 6): "P", (8, 5): "v", (7, 5): "V", (7, 4): "V",
+    (0, 13): "y",  # the pommel
+}
+for _i in range(9):  # the shaft, from the crossbar to the corner
+    _x, _y = 8 - _i, 7 + _i
+    STAFF_HALF[(_x, _y)] = "P" if _x - _y in (-5, -7, -13) else "G"
+    if _x >= 1:
+        STAFF_HALF[(_x - 1, _y)] = "v" if _x - 1 - _y in (-6, -8, -14) else "y"
+
+# Each ring's gem (dark to light) and setting (dark to light)
+RINGS = {
+    "wrath": ([PURPLE[0], PURPLE[1], PURPLE[2], (214, 160, 255)], [GOLD[0], GOLD[1], GOLD[2]]),
+    "grace": ([GOLD[0], GOLD[1], GOLD[2], (255, 250, 220)], [PURPLE[0], PURPLE[1], (214, 160, 255)]),
+}
+# The 16 by 16 sheet's cells, in order
+SPRITES16 = ["staff", "ring wrath", "ring grace"]
 
 # The sheets the Ascended weapons and armours copy their sprites from
 SOURCE_SHEETS = {
@@ -216,7 +226,7 @@ ASCENDED = [
     (0x5854, "Enthroned Katana", "Ame-no-Habakiri", None, None, PLACEHOLDER.format(tier=15)),
     (0x5855, "Enthroned Dual Blades", "Seraphic Blades", None, None, PLACEHOLDER.format(tier=15)),
     (0x5856, "Enthroned Fists", "Fists of the Ascended", None, None, PLACEHOLDER.format(tier=15)),
-    (0x5857, "Enthroned Staff", "Staff of Endless Energy", (SHEET16, 0), None,
+    (0x5857, "Enthroned Staff", "Staff of Endless Energy", (SHEET16, SPRITES16.index("staff")), None,
      OWN.format(what="staff", source="the T15 staff")),
     (0x5858, "Enthroned Hide", "Sphinx Leather Armor", None, None, PLACEHOLDER.format(tier=16)),
     (0x5859, "Enthroned Plate", "Armor of the Pyramid", None, None, PLACEHOLDER.format(tier=16)),
@@ -226,9 +236,9 @@ ASCENDED = [
      OWN.format(what="helm", source="the T8 helm")),
     (0x585c, "Enthroned Boots", "Ring of Absolute Speed", (SHEET, cell_of("piece", "boots")), None,
      OWN.format(what="boots, worn as a ring", source="the T8 speed ring")),
-    (0x585d, "Enthroned Ring of Wrath", "Ring of Absolute Attack", (SHEET, cell_of("piece", "ring wrath")), None,
+    (0x585d, "Enthroned Ring of Wrath", "Ring of Absolute Attack", (SHEET16, SPRITES16.index("ring wrath")), None,
      OWN.format(what="ring of wrath", source="the T8 attack ring")),
-    (0x585e, "Enthroned Ring of Grace", "Ring of Absolute Defense", (SHEET, cell_of("piece", "ring grace")), None,
+    (0x585e, "Enthroned Ring of Grace", "Ring of Absolute Defense", (SHEET16, SPRITES16.index("ring grace")), None,
      OWN.format(what="ring of grace", source="the T8 defense ring")),
 ]
 # what an Ascended item leaves out of the item it copies
@@ -373,19 +383,57 @@ def source_texture(src):
 
 
 def draw_staff():
-    """The Enthroned Staff: the staff from Oryx 5's sprite, standing in a 16 by 16 cell."""
-    oryx = Image.open(ORYX).convert("RGBA")
+    """The Enthroned Staff: STAFF_HALF and its darker mirror."""
     img = Image.new("RGBA", (16, 16), (0, 0, 0, 0))
-    for x, y in STAFF:
-        img.putpixel((STAFF_X + x, y), oryx.getpixel((x, y)))
-    for (x, y), (sx, sy) in STAFF_GRIP.items():
-        img.putpixel((STAFF_X + x, y), oryx.getpixel((sx, sy)))
+    for (x, y), c in STAFF_HALF.items():
+        img.putpixel((x, y), BIG[c] + (255,))
+        if x + y < 15:
+            img.putpixel((15 - y, 15 - x), BIG[DARKER[c]] + (255,))
+    return img
+
+
+def draw_ring(gem, claw):
+    """A ring from the front: the band gold at the bottom, light blue up the sides and purple at
+    the top, lit from the left, with the gem in its setting above."""
+    img = Image.new("RGBA", (16, 16), (0, 0, 0, 0))
+    cx, cy, rx, ry = 7.5, 9.5, 5.6, 4.9
+    for y in range(16):
+        for x in range(16):
+            r = math.hypot((x - cx) / rx, (y - cy) / ry)
+            if not 0.68 <= r <= 1.05:
+                continue
+            h = (y - (cy - ry)) / (2 * ry)  # 0 at the top of the band, 1 at the bottom
+            lit = x < cx
+            if h > 0.62:
+                c = "y" if lit and r > 0.88 else ("G" if lit or r > 0.88 else "g")
+            elif h > 0.3:
+                c = "C" if lit else "K"
+            elif h > 0.16:
+                c = "B" if lit else "v"
+            else:
+                c = "V" if lit else "P"
+            img.putpixel((x, y), BIG[c] + (255,))
+    for (x, y), k in {(4, 4): 1, (5, 3): 2, (11, 4): 0, (10, 3): 1, (7, 5): 1, (8, 5): 0}.items():
+        img.putpixel((x, y), claw[k] + (255,))
+    for (x, y), k in {(7, 0): 3, (8, 0): 2, (6, 1): 3, (7, 1): 3, (8, 1): 2, (9, 1): 1,
+                      (6, 2): 2, (7, 2): 2, (8, 2): 1, (9, 2): 1, (6, 3): 1, (7, 3): 1, (8, 3): 0, (9, 3): 0,
+                      (7, 4): 0, (8, 4): 0}.items():
+        img.putpixel((x, y), gem[k] + (255,))
+    img.putpixel((6, 1), BIG["W"] + (255,))  # a glint
+    return img
+
+
+def draw16():
+    img = Image.new("RGBA", (16 * len(SPRITES16), 16), (0, 0, 0, 0))
+    for n, name in enumerate(SPRITES16):
+        cell = draw_staff() if name == "staff" else draw_ring(*RINGS[name.split()[1]])
+        img.paste(cell, (16 * n, 0))
     return img
 
 
 def main():
     items = server_items()
-    draw_staff().save(OUT16)
+    draw16().save(OUT16)
     for _, name, source, texture, _, _ in ASCENDED:
         if texture is None and source in items:
             SPRITES.append(("sparkle",) + source_texture(items[source]))

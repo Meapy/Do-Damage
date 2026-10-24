@@ -1798,7 +1798,7 @@
 		<Item/>
 		<Texture>
 			<File>ascendedItems8x8</File>
-			<Index>0x0d</Index>
+			<Index>0x0b</Index>
 		</Texture>
 		<SlotType>1</SlotType>
 		<Description>A placeholder for the first of the Ascended gear: it has its T15 counterpart's numbers for now.</Description>
@@ -1825,7 +1825,7 @@
 		<Item/>
 		<Texture>
 			<File>ascendedItems8x8</File>
-			<Index>0x0e</Index>
+			<Index>0x0c</Index>
 		</Texture>
 		<SlotType>2</SlotType>
 		<Description>A placeholder for the first of the Ascended gear: it has its T15 counterpart's numbers for now.</Description>
@@ -1852,7 +1852,7 @@
 		<Item/>
 		<Texture>
 			<File>ascendedItems8x8</File>
-			<Index>0x0f</Index>
+			<Index>0x0d</Index>
 		</Texture>
 		<SlotType>3</SlotType>
 		<Description>A placeholder for the first of the Ascended gear: it has its T15 counterpart's numbers for now.</Description>
@@ -1882,7 +1882,7 @@
 		<Item/>
 		<Texture>
 			<File>ascendedItems8x8</File>
-			<Index>0x10</Index>
+			<Index>0x0e</Index>
 		</Texture>
 		<SlotType>8</SlotType>
 		<Description>A placeholder for the first of the Ascended gear: it has its T15 counterpart's numbers for now.</Description>
@@ -1910,7 +1910,7 @@
 		<Item/>
 		<Texture>
 			<File>ascendedItems8x8</File>
-			<Index>0x11</Index>
+			<Index>0x0f</Index>
 		</Texture>
 		<SlotType>24</SlotType>
 		<Description>A placeholder for the first of the Ascended gear: it has its T15 counterpart's numbers for now.</Description>
@@ -1938,7 +1938,7 @@
 		<Item/>
 		<Texture>
 			<File>ascendedItems8x8</File>
-			<Index>0x12</Index>
+			<Index>0x10</Index>
 		</Texture>
 		<SlotType>36</SlotType>
 		<Description>A placeholder for the first of the Ascended gear: it has its T15 counterpart's numbers for now.</Description>
@@ -1967,7 +1967,7 @@
 		<Item/>
 		<Texture>
 			<File>ascendedItems8x8</File>
-			<Index>0x13</Index>
+			<Index>0x11</Index>
 		</Texture>
 		<SlotType>200</SlotType>
 		<Description>A placeholder for the first of the Ascended gear: it has its T15 counterpart's numbers for now.</Description>
@@ -2024,7 +2024,7 @@
 		<Item/>
 		<Texture>
 			<File>ascendedItems8x8</File>
-			<Index>0x14</Index>
+			<Index>0x12</Index>
 		</Texture>
 		<SlotType>6</SlotType>
 		<Description>A placeholder for the first of the Ascended gear: it has its T16 counterpart's numbers for now.</Description>
@@ -2041,7 +2041,7 @@
 		<Item/>
 		<Texture>
 			<File>ascendedItems8x8</File>
-			<Index>0x15</Index>
+			<Index>0x13</Index>
 		</Texture>
 		<SlotType>7</SlotType>
 		<Description>A placeholder for the first of the Ascended gear: it has its T16 counterpart's numbers for now.</Description>
@@ -2114,8 +2114,8 @@
 		<Class>Equipment</Class>
 		<Item/>
 		<Texture>
-			<File>ascendedItems8x8</File>
-			<Index>0x0b</Index>
+			<File>ascendedItems16x16</File>
+			<Index>0x01</Index>
 		</Texture>
 		<SlotType>9</SlotType>
 		<Description>Oryx the Ascended God's own ring of wrath, a placeholder: it has the numbers of the T8 attack ring for now.</Description>
@@ -2130,8 +2130,8 @@
 		<Class>Equipment</Class>
 		<Item/>
 		<Texture>
-			<File>ascendedItems8x8</File>
-			<Index>0x0c</Index>
+			<File>ascendedItems16x16</File>
+			<Index>0x02</Index>
 		</Texture>
 		<SlotType>9</SlotType>
 		<Description>Oryx the Ascended God's own ring of grace, a placeholder: it has the numbers of the T8 defense ring for now.</Description>

@@ -20,9 +20,9 @@ version number itself is in `client-rs/Cargo.toml`.
   for 2,000 fame, all named Enthroned. An Enthroned Sword, Dagger, Bow, Wand, Katana, Dual Blades
   and Fists from their tier 15s, and an Enthroned Hide and Plate from the tier 16 armours, each
   looking like the item it's made from with purple sparkles; and his own pieces from any item of
-  the tier: the Enthroned Staff (the staff he holds, from any tier 15 weapon), the Enthroned Robe (any tier 16
+  the tier: the Enthroned Staff (a gold staff with a crystal head, like the one he holds, from any tier 15 weapon), the Enthroned Robe (any tier 16
   armour), the Enthroned Helm (any tier 8 ability), and the Enthroned Boots and Enthroned Rings of
-  Wrath and Grace (any tier 8 ring). For now each is a placeholder with the numbers of the item it's
+  Wrath and Grace (gold, light blue and purple bands under a purple or a golden gem; any tier 8 ring). For now each is a placeholder with the numbers of the item it's
   copied from. The Infernal shards' recipes come later.
 - The Divine Forge lists an item that several recipes make once, and picks the recipe you can make.
   Two new filters: UT (untiered gear, the Ascended items first) and Highest tier (the top tier it
