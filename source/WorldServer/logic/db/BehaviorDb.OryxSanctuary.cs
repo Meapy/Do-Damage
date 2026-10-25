@@ -13,7 +13,7 @@ namespace WorldServer.logic
     // stronger "Exalted" ones after. He drops the portal to Oryx's Inferno (Oryx 4).
     // His taunts go to chat only (no bubbles over his attacks). He stands at the Sanctum's centre. His missiles chase the players, his wheels charge about,
     // his bombs flee from them, and before the Kneel ring and the spinners he turns invulnerable
-    // and dashes back to the centre.
+    // and dashes back to the centre. Below 80% the Sanctum's four pillars fire his shots as well.
     partial class BehaviorDb
     {
         private static readonly string[] SanctuaryCourt =
@@ -275,6 +275,17 @@ namespace WorldServer.logic
                 new State(
                     new Shoot(0, 8, fixedAngle: 0, projectileIndex: 0, coolDown: 10000),
                     new Decay(300)
+                )
+            )
+
+            // an invisible turret beside each of the Sanctum's four pillars: below his 80% the pillars
+            // fire copies of his shots, through every phase: along the square's sides (his Slashes)
+            // and pairs in at the middle (his armour-piercing Big Bashes) in turn, with a Spear at whoever
+            // is closest; Exalted below half health
+            .Init("O3 Pillar Turret",
+                new State(
+                    new ShootFromPillars("Oryx the Mad God 3", "O3 Wall Column 1", 0.8,
+                        edge: new[] { 22, 52 }, middle: new[] { 18, 54 }, aimed: new[] { 16, 46 }, damage: 0.6)
                 )
             )
 

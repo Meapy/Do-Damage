@@ -185,4 +185,64 @@
 		</Projectile>
 	</Object>
 
+	<Object type="0x571b" id="O3 Pillar Turret">
+		<!-- invisible, nameless and not an enemy: it fires Oryx 3's shots from a Sanctum pillar
+		     (BehaviorDb.OryxSanctuary.cs), copies of his projectiles 16, 18, 22, 46, 52 and 54 -->
+		<Class>GameObject</Class>
+		<Texture>
+			<File>invisible</File>
+			<Index>0</Index>
+		</Texture>
+		<NoMiniMap/>
+		<ShadowSize>0</ShadowSize>
+		<Size>0</Size>
+		<Projectile id="16">
+			<ObjectId>O3 White Spear</ObjectId>
+			<Damage>205</Damage>
+			<Speed>90</Speed>
+			<LifetimeMS>2500</LifetimeMS>
+			<Size>140</Size>
+			<MultiHit/>
+		</Projectile>
+		<Projectile id="18">
+			<ObjectId>O3 White Big Bash</ObjectId>
+			<Damage>135</Damage>
+			<Speed>70</Speed>
+			<LifetimeMS>2500</LifetimeMS>
+			<Size>140</Size>
+			<MultiHit/>
+			<ArmorPiercing/>
+		</Projectile>
+		<Projectile id="22">
+			<ObjectId>O3 White Slash</ObjectId>
+			<Damage>195</Damage>
+			<Speed>70</Speed>
+			<LifetimeMS>2500</LifetimeMS>
+			<MultiHit/>
+		</Projectile>
+		<Projectile id="46">
+			<ObjectId>O3 Exalted Spear</ObjectId>
+			<Damage>245</Damage>
+			<Speed>90</Speed>
+			<LifetimeMS>2500</LifetimeMS>
+			<Size>140</Size>
+			<MultiHit/>
+		</Projectile>
+		<Projectile id="52">
+			<ObjectId>O3 Exalted Slash</ObjectId>
+			<Damage>230</Damage>
+			<Speed>70</Speed>
+			<LifetimeMS>2500</LifetimeMS>
+			<MultiHit/>
+		</Projectile>
+		<Projectile id="54">
+			<ObjectId>O3 Exalted Big Bash</ObjectId>
+			<Damage>210</Damage>
+			<Speed>70</Speed>
+			<LifetimeMS>3000</LifetimeMS>
+			<Size>140</Size>
+			<MultiHit/>
+			<ArmorPiercing/>
+		</Projectile>
+	</Object>
 </Objects>

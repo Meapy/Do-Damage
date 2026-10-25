@@ -23,8 +23,9 @@ player, depending on the stage).
 1. **A realm closes** once enough of its events are beaten: {{v:realm_close}}. Oryx shouts, the realm's
    monsters vanish, and about 30 seconds later everyone still in the realm is sent to a new
    **Oryx's Castle**. You can also open the Castle with an Oryx's Castle Key.
-2. **In the Castle**, kill both Stone Guardians. Their death opens the way to **Janus the
-   Doorwarden**, who drops the open portal to **Oryx's Chamber**.
+2. **In the Castle**, kill both Stone Guardians and at least a quarter of the castle's haunted
+   **Suits of Armor**. Then the way opens to **Janus the Doorwarden**, who drops the open portal to
+   **Oryx's Chamber**.
 3. From then on, **each Oryx leaves two portals** when he dies, two tiles either side of his loot:
    a **Realm Portal** back out (open for two minutes) and a **locked portal** to the next stage
    (open for ten). The locked portal's name says where it leads; Oryx 2's, Oryx 3's and Oryx 4's
@@ -58,7 +59,8 @@ Janus and is sold in the Nexus Bazaar.
 ## Tips for each boss
 
 - **Stone Guardians and Janus:** the Guardians fire rings; keep moving around them, not through
-  them.
+  them. Janus's door stays shut until a quarter of the Suits of Armor are broken too (Janus says so
+  if you kill the Guardians first): clear them on your way.
 - **Oryx 1** (Chamber) cycles minions, an invulnerable dance with rings and a spiral, his artifacts
   and his gaze. Below 20% he grows and chases you.
 - **Oryx 2** (Wine Cellar) calls his guards at 55% health, with silencing and weakening spinners,
@@ -70,14 +72,19 @@ Janus and is sold in the Nexus Bazaar.
   dashes back to the middle. When he shouts **"KNEEL!"**, get more than eight tiles from the
   middle, or you're stunned. At half health his three Protectors circle him and must die before he
   can be hurt again; after that his attacks get stronger, and below 20% he hunts players down.
+  From 80% the Sanctum's four pillars fire his shots too (60% as hard as his own), whatever he's
+  doing: for five seconds pairs of slashes along the sides of the square they stand on, then, after
+  a short pause, pairs of armour-piercing bashes in at the middle; and every few seconds each pillar
+  throws a spear at the nearest player. Below half health they fire his stronger, Exalted shots.
 - **Oryx 4**, Oryx the Infernal Mad God (Oryx's Inferno): a burning copy of the Sanctuary. The
   Burning Path winds through four chambers held by his Infernal Court, Oryx 3's court with Oryx
   2's minions' tricks and a little stronger: the Infernal Officer (confusing shuriken), the
   Brimstone Major (charges, and a cone of fire up close), the Cinder Cleric (heals the others and
   throws blasters: kill it first) and the Doom Cardinal (paralysing spears, and a Vintner at its
   side). Oryx 4 waits in the middle of the Pyre at its end: Oryx 1's fight made harder, with
-  hellfire, his court called back to his side, red Infernal Elements circling him (four close,
-  four further out), six orbiting White Moons and a weakening ring he warns you about. Mind the
+  hellfire, his court called back to his side, red butterfly-winged Infernal Elements circling him
+  (four close, four further out, their flames 20 damage that ignores armour), six orbiting White
+  Moons and a weakening ring he warns you about. Mind the
   lava pools on the floor.
 - **Oryx 5**, Oryx the Ascended God (Oryx's Elysium): a holy island of gold, marble and turquoise
   sea, where he wears white and gold and carries a spear. From the Landing the road forks round the
@@ -90,11 +97,13 @@ Janus and is sold in the Nexus Bazaar.
   Oasis, for the Ascended items. East, the Pyramid has fallen to the Void, which seeps out over the
   roads round it, and the **Void Entity** waits there: darkening bullets aimed at you and a wavering
   ring, then spinning wheels that make you unstable, then a burst of silencing shuriken with a slow
-  ring of shockwaves; below half health he moves and fires them all at once. He drops potions,
-  top-tier gear and now and then an Ascended shard, and throws three **Trees of Doom** when he
+  ring of shockwaves; below half health he moves and fires them all at once. He drops potions
+  and top-tier gear (Ascended shards come from Oryx 5 alone), and throws three **Trees of Doom** when he
   dies. With three more Trees on each road, all nine and the Void Entity must fall before the
   **Holy Gates** to his temple open. Inside, his three **Ascended Wardens** circle him, firing gold
-  missiles at you and slowing halos round them; he wakes when they fall.
+  missiles at you and slowing halos round them; he wakes when they fall, and the Holy Gates shut
+  behind you until he dies. Anyone standing in them is moved inside; anyone left outside has to
+  teleport to a player within.
   - **Judgement** (to 60%): three patterns. The **Radiant Cross**: he follows you but keeps about
     six tiles off, firing twin lances along four lines and gold arrowheads along the four between,
     then the same turned. The **Firmament**: from the middle he raises twelve stars in a cross that
@@ -102,18 +111,19 @@ Janus and is sold in the Nexus Bazaar.
     motes. The **Divine Hunt**: he chases the nearest player with a shotgun in front and a slowing
     fan behind, throwing bleeding bombs round the arena; every ten seconds he stops, names a player
     and hunts them instead. At 80% he calls his Host down beside him, and from then on picks his
-    patterns at random.
+    patterns at random, though never the same one three times running.
   - **Transcendence** (60%): he heals everyone to full. The Cross comes faster, the outer stars
     blight (sicken) instead, and while he hunts the whole arena is slowed, the fan behind him
     bleeds and his Host rise beneath him, though he's slower.
   - **Apotheosis** (20%): he turns gold, and a ring of Halo Orbs circles the edge of the arena,
     firing in at its middle. He chases without stopping, the Cross (now aimed at you) and the Hunt
     in turn.
-  - **Last Judgement** (10%): he goes to the middle and can't be hurt. The Holy Gates shut, and
-    Pillars of Heaven ring the arena, firing bleeding, blighting and armour-breaking rays straight
+  - **Last Judgement** (10%): he goes to the middle and can't be hurt. Gates fill the corridor
+    between the arena and the Holy Gates (anyone hiding there is moved into the arena), lances
+    sweep across the corridor's mouth from its walls, and Pillars of Heaven ring the arena, firing bleeding, blighting and armour-breaking rays straight
     across it, while he throws his great spear and fires his Radiant Cross again, slowed right
     down so it fills the arena, every second volley turned to fall between the last one's lines.
-    After 30 seconds he concedes: the gates open and he falls back through every Oryx he was, from
+    After 30 seconds he concedes: the corridor opens and he falls back through every Oryx he was, from
     Oryx 4 down to Oryx 1, ending as small as Oryx 1, and only then can he be killed. He leaves a
     Nexus Portal: the chain ends here.
   - Minions he summons can't be hurt and hold their fire for their first two seconds, and the

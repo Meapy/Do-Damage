@@ -72,8 +72,8 @@ the forge makes from an item of the highest tier he drops and an Ascended shard 
 weapon and armour comes from its own kind's top item (a tier 15 dagger makes the Enthroned Dagger)
 and looks like it, with purple sparkles. All are named **Enthroned**: the Enthroned Sword, Dagger,
 Bow, Wand, Katana, Dual Blades, Fists, Hide and Plate. His own pieces: the **Enthroned Spear**, a
-staff drawn after the one he holds, from his **Elysian Staff**; the **Enthroned Robe** from any tier
-16 armour, the **Enthroned Helm** from any tier 8 ability, and the **Enthroned Boots** and the
+staff drawn after the one he holds, from his **Elysian Staff**; the **Enthroned Robe** from his
+**Robe of Absolution**, the **Enthroned Helm** from any tier 8 ability, and the **Enthroned Boots** and the
 **Enthroned Rings of Wrath and Grace** from any tier 8 ring.
 
 > These are **placeholders** with no numbers yet: their weapons hit for 0, and they give no stats or
