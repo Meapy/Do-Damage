@@ -264,3 +264,43 @@ fn forge_messages_match_forge_handlers() {
     let ServerMessage::ForgeVault(v) = ServerMessage::decode(102, &body).unwrap() else { panic!() };
     assert_eq!((v.items[0].item, v.items[0].count), (0x0a01, 3));
 }
+
+#[test]
+fn quest_messages_match_quest_handlers() {
+    // QuestsData.Write: now, rank, points, colour rank, ranks (name, points, colour), periods
+    // (period, resets, swaps left, bonus claimed, bonus), quests (period, id, title, text,
+    // progress, goal, claimed, rewards), the login track (day, ready, streak, total, next, days
+    // (milestone, rewards)), achievements (id, category, title, text, claimed, progress, goals,
+    // next points, next rewards). A reward is kind, item, amount.
+    let reward = |b: B, kind: u8, item: i16, amount: i32| b.u8(kind).i16(item).i32(amount);
+    let mut b = B::default().i32(1_800_000_000).u8(1).i32(120).u8(255);
+    b = b.u8(1).utf("Adventurer").i32(100).i32(0xCD8A4E);
+    b = b.u8(1).u8(0).i32(1_800_003_600).u8(1).u8(0).u8(1);
+    b = reward(b, 1, 0x0c69, 1);
+    b = b.u8(1).u8(0).utf("d_gods").utf("Godslayer's Errand").utf("Defeat 40 gods.").i32(12).i32(40).u8(0).u8(1);
+    b = reward(b, 0, 0, 150);
+    b = b.u8(3).u8(1).i32(4).i32(9).i32(1_800_003_600).u8(1).u8(1).u8(1);
+    b = reward(b, 0, 0, 50);
+    b = b.u8(1).utf("oryx").utf("Combat").utf("Oryx's Bane").utf("Help defeat Oryx 10 times.").u8(1).i32(3).u8(2).i32(1).i32(10).i32(20).u8(1);
+    b = reward(b, 0, 0, 100);
+    let ServerMessage::QuestsData(d) = ServerMessage::decode(104, &b.0).unwrap() else { panic!() };
+    assert_eq!((d.now, d.rank, d.points, d.color_rank), (1_800_000_000, 1, 120, 255));
+    assert_eq!((d.ranks[0].name.as_str(), d.ranks[0].color), ("Adventurer", 0xCD8A4E));
+    assert_eq!((d.periods[0].rerolls_left, d.periods[0].bonus[0].item), (1, 0x0c69));
+    assert_eq!((d.quests[0].id.as_str(), d.quests[0].progress, d.quests[0].goal, d.quests[0].rewards[0].amount), ("d_gods", 12, 40, 150));
+    assert_eq!((d.login_day, d.login_ready, d.login_streak, d.login_total), (3, true, 4, 9));
+    assert!(d.login_days[0].milestone);
+    assert_eq!((d.achievements[0].claimed, d.achievements[0].progress, &*d.achievements[0].goals), (1, 3, &vec![1, 10]));
+    assert_eq!(d.achievements[0].next_points, 20);
+    // QuestResult, QuestNoticeMessage, QuestProgress (a short count of kind, index, progress).
+    let ServerMessage::QuestResult(r) = ServerMessage::decode(106, &B::default().u8(1).utf("Done!").0).unwrap() else { panic!() };
+    assert!(r.success && r.message == "Done!");
+    let ServerMessage::QuestNotice(n) = ServerMessage::decode(107, &B::default().u8(1).utf("Achievement earned!").utf("x").0).unwrap() else { panic!() };
+    assert_eq!((n.kind, n.title.as_str()), (1, "Achievement earned!"));
+    let ServerMessage::QuestProgress(p) = ServerMessage::decode(108, &B::default().i16(1).u8(1).i16(5).i32(77).0).unwrap() else { panic!() };
+    assert_eq!((p.changes[0].kind, p.changes[0].index, p.changes[0].progress), (1, 5, 77));
+    // QuestClaimHandler reads a byte, then a string; QuestsRequest is empty.
+    let frame = ClientMessage::from(QuestClaim { kind: 3, id: "oryx".into() }).to_frame();
+    assert_eq!(frame, B::default().u8(3).utf("oryx").frame(105));
+    assert_eq!(ClientMessage::from(QuestsRequest {}).to_frame(), B::default().frame(103));
+}

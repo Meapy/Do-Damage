@@ -12,6 +12,7 @@ mod ground;
 mod hud;
 mod login;
 mod forge;
+mod quests;
 mod market;
 mod particles;
 mod prof;
@@ -203,6 +204,10 @@ struct App {
     /// The Divine Forge's window, and what it asked of the server on opening.
     forge: forge::Forge,
     forge_acts: Vec<forge::Act>,
+    /// The quest log (quests, daily rewards, achievements) and its popups, and what it asked of
+    /// the server on opening.
+    quests: quests::Quests,
+    quest_acts: Vec<quests::Act>,
     /// Key bindings, graphics and sound settings, and their window.
     settings: options::Settings,
     options_ui: options::OptionsUi,
@@ -210,6 +215,9 @@ struct App {
     type_text: Option<String>,
     /// `--npc <class>` (tests): open that NPC's window once in the game, wherever we stand.
     npc_test: Option<String>,
+    /// `--quests <tab>` (tests): open the quest log at that tab (daily, weekly, monthly, login,
+    /// achievements) once its data has come.
+    quests_test: Option<String>,
     /// `--effect <type>` (tests): show that effect on us every half second, and when it last did.
     effect_test: Option<(u8, i32)>,
     /// The Changelog window and the "updated" note.
@@ -235,7 +243,7 @@ struct App {
 /// Open the window of the NPC we stand by. True for the character changer: back to the
 /// character list.
 #[allow(clippy::too_many_arguments)]
-fn npc_open(kind: npc::NpcKind, game: &Game, npcs: &mut npc::Npcs, market: &mut market::Market, forge: &mut forge::Forge, forge_acts: &mut Vec<forge::Act>, list: Option<&bsk_net::account::CharList>, data: &bsk_data::GameData) -> bool {
+fn npc_open(kind: npc::NpcKind, game: &Game, npcs: &mut npc::Npcs, market: &mut market::Market, forge: &mut forge::Forge, forge_acts: &mut Vec<forge::Act>, quests: (&mut quests::Quests, &mut Vec<quests::Act>), list: Option<&bsk_net::account::CharList>, data: &bsk_data::GameData) -> bool {
     use npc::{NpcKind, Prompt, Window};
     let Some(me) = game.world.as_ref().and_then(|w| w.player()) else { return false };
     let window = match kind {
@@ -246,6 +254,18 @@ fn npc_open(kind: npc::NpcKind, game: &Game, npcs: &mut npc::Npcs, market: &mut 
         }
         NpcKind::Forge => {
             forge_acts.extend(forge.show(data));
+            return false;
+        }
+        // the Tinkerer: the quests (the tab with something to claim); the Chronicler: the daily
+        // reward while it waits, else the achievements
+        NpcKind::QuestMaster | NpcKind::Chronicler => {
+            let (log, acts) = quests;
+            let tab = match kind {
+                NpcKind::QuestMaster => [quests::Tab::Daily, quests::Tab::Weekly, quests::Tab::Monthly].into_iter().find(|&t| log.ready_in(t) > 0).unwrap_or(quests::Tab::Daily),
+                _ if log.ready_in(quests::Tab::Login) > 0 => quests::Tab::Login,
+                _ => quests::Tab::Achievements,
+            };
+            acts.extend(log.show(Some(tab)));
             return false;
         }
         NpcKind::Reskin => {
@@ -425,7 +445,7 @@ fn apply_action(game: &mut Game, panel: &hud::Panel, action: hud::Action, now: i
         Action::Button(Button::TradeAccept) => game.trade_accept(now),
         Action::Button(Button::TradeCancel) => game.trade_cancel(),
         Action::Button(Button::Member(_)) => {}
-        Action::Button(Button::Page(_) | Button::Npc(_) | Button::Zoom(_) | Button::CardTab(_) | Button::History | Button::HistoryBoss(_)) => {}
+        Action::Button(Button::Page(_) | Button::Npc(_) | Button::Quests | Button::Zoom(_) | Button::CardTab(_) | Button::History | Button::HistoryBoss(_)) => {}
     }
     None
 }
@@ -1133,6 +1153,7 @@ impl App {
         self.chat_input = None;
         self.game_menu = false;
         self.npcs.close();
+        self.quests.reset();
         self.npc_request = None;
         self.keys.clear();
     }
@@ -1149,6 +1170,7 @@ impl App {
         self.phase = Phase::Menu;
         self.game_menu = false;
         self.npcs.close();
+        self.quests.reset();
         self.npc_request = None;
         self.mouse_down = false;
         self.front.message = why.map(|w| (w, true));
@@ -1724,7 +1746,7 @@ impl App {
                         Some(hud::Interact { id, kind: hud::InteractKind::Portal, .. }) => game.use_portal(id),
                         Some(hud::Interact { id, kind: hud::InteractKind::Shop { .. }, .. }) => game.buy(id),
                         Some(hud::Interact { kind: hud::InteractKind::Npc { kind, .. }, .. }) => {
-                            to_chars |= npc_open(kind, game, &mut self.npcs, &mut self.market, &mut self.forge, &mut self.forge_acts, self.front.list.as_ref(), data);
+                            to_chars |= npc_open(kind, game, &mut self.npcs, &mut self.market, &mut self.forge, &mut self.forge_acts, (&mut self.quests, &mut self.quest_acts), self.front.list.as_ref(), data);
                             self.keys.clear();
                         }
                         _ => {}
@@ -1772,6 +1794,11 @@ impl App {
                         self.options_ui.show();
                         self.keys.clear();
                     }
+                    Some(Bind::Quests) => {
+                        let tab = self.quests.best_tab();
+                        self.quest_acts.extend(self.quests.show(Some(tab)));
+                        self.keys.clear();
+                    }
                     // Equip or use what's in that inventory slot (MapUserInput.useItem).
                     Some(Bind::Slot(n)) => {
                         if let Some(p) = &built {
@@ -1787,7 +1814,7 @@ impl App {
             }
             if game.world.as_ref().is_some_and(|w| w.player().is_some()) {
                 if let Some(kind) = self.npc_test.take().and_then(|c| npc::NpcKind::of_class(&c)) {
-                    to_chars |= npc_open(kind, game, &mut self.npcs, &mut self.market, &mut self.forge, &mut self.forge_acts, self.front.list.as_ref(), data);
+                    to_chars |= npc_open(kind, game, &mut self.npcs, &mut self.market, &mut self.forge, &mut self.forge_acts, (&mut self.quests, &mut self.quest_acts), self.front.list.as_ref(), data);
                 }
             }
             // The options window takes the mouse while it's open.
@@ -1839,6 +1866,38 @@ impl App {
             }
             for act in forge_acts {
                 game.forge(act);
+            }
+            // The quest log: a click on a popup opens it; while open it takes the mouse.
+            if !self.quests.open && !self.options_ui.open && !self.game_menu {
+                let (log, acts) = (&mut self.quests, &mut self.quest_acts);
+                self.clicks.retain(|&(down, pos)| match down.then(|| log.toast_click(pos)).flatten() {
+                    Some(act) => {
+                        acts.extend(act);
+                        false
+                    }
+                    None => true,
+                });
+            }
+            let mut quest_acts = std::mem::take(&mut self.quest_acts);
+            if self.quests.open {
+                for (down, pos) in std::mem::take(&mut self.clicks) {
+                    if down {
+                        quest_acts.extend(self.quests.click(pos));
+                    }
+                }
+                self.mouse_down = false;
+            }
+            for e in std::mem::take(&mut game.quest_events) {
+                self.quests.event(e, now);
+            }
+            if self.quests.loaded() {
+                if let Some(tab) = self.quests_test.take() {
+                    self.quests.show(quests::Tab::named(&tab));
+                }
+            }
+            for act in quest_acts {
+                log::info!("quests: {act:?}");
+                game.quest(act);
             }
             // --type: into the forge's search once its recipes came.
             if self.forge.open && self.forge.loaded() {
@@ -1934,8 +1993,13 @@ impl App {
                     }
                 }
                 for action in actions {
+                    if let hud::Action::Button(hud::Button::Quests) = action {
+                        let tab = self.quests.best_tab();
+                        self.quest_acts.extend(self.quests.show(Some(tab)));
+                        continue;
+                    }
                     if let hud::Action::Button(hud::Button::Npc(kind)) = action {
-                        to_chars |= npc_open(kind, game, &mut self.npcs, &mut self.market, &mut self.forge, &mut self.forge_acts, self.front.list.as_ref(), data);
+                        to_chars |= npc_open(kind, game, &mut self.npcs, &mut self.market, &mut self.forge, &mut self.forge_acts, (&mut self.quests, &mut self.quest_acts), self.front.list.as_ref(), data);
                         self.keys.clear();
                         continue;
                     }
@@ -2088,6 +2152,8 @@ impl App {
                             fame: &game.fame_stats,
                         };
                         self.hud.nexus_key = options::key_label(self.settings.key(options::Bind::Nexus));
+                        self.hud.quests_key = options::key_label(self.settings.key(options::Bind::Quests));
+                        self.hud.quests_ready = self.quests.ready();
                         self.hud.interact_key = self.settings.key(options::Bind::Interact).map_or(String::new(), |k| options::key_label(Some(k)));
                         self.hud.tabs_key = self.settings.key(options::Bind::SwitchTabs).map_or(String::new(), |k| options::key_label(Some(k)));
                         self.hud.potion_keys = [
@@ -2147,6 +2213,8 @@ impl App {
                 self.npcs.draw(&mut ui, &lay, world.player(), mouse, now);
                 self.market.draw(&mut ui, &lay, world.player(), mouse, now);
                 self.forge.draw(&mut ui, &lay, world.player(), mouse, now);
+                self.quests.draw(&mut ui, &lay, world.player(), mouse, now);
+                self.quests.draw_toasts(&mut ui, &lay, now);
                 prof::mark("chat..windows");
                 hud::draw_overlay(&mut ui, &lay, world, p, &self.hud, mouse);
                 prof::mark("overlay");
@@ -2162,6 +2230,8 @@ impl App {
             && !self.changelog.open
             && !self.market.open
             && !self.forge.open
+            && !self.quests.open
+            && !self.quests.on_toast(mouse)
             && self.npcs.window.is_none()
             && self.hud.drag.is_none();
         if crosshair {
@@ -2484,6 +2554,17 @@ impl ApplicationHandler<UserEvent> for App {
                     self.keys.remove(&code);
                     return;
                 }
+                if self.quests.open && matches!(self.phase, Phase::Playing(_)) {
+                    if pressed {
+                        if Some(code) == self.settings.key(options::Bind::Quests) {
+                            self.quests.close();
+                        } else {
+                            self.quests.key(code);
+                        }
+                    }
+                    self.keys.remove(&code);
+                    return;
+                }
                 if self.options_ui.open && matches!(self.phase, Phase::Playing(_)) {
                     if pressed && self.options_ui.key(code, &mut self.settings) {
                         self.settings.save();
@@ -2575,6 +2656,17 @@ impl ApplicationHandler<UserEvent> for App {
                 let notches = self.wheel.trunc();
                 self.wheel -= notches;
                 self.front.wheel(notches as i32);
+            }
+            WindowEvent::MouseWheel { delta, .. } if self.quests.open && matches!(self.phase, Phase::Playing(_)) => {
+                // The achievements scroll a row a notch.
+                let lines = match delta {
+                    winit::event::MouseScrollDelta::LineDelta(_, y) => y,
+                    winit::event::MouseScrollDelta::PixelDelta(p) => (p.y / 40.0) as f32,
+                };
+                self.wheel += lines;
+                let notches = self.wheel.trunc();
+                self.wheel -= notches;
+                self.quests.scroll(-notches as i32);
             }
             WindowEvent::MouseWheel { delta, .. } if self.forge.open && matches!(self.phase, Phase::Playing(_)) => {
                 // The forge's recipes scroll a row a notch.
@@ -2718,9 +2810,12 @@ fn main() {
         options_ui: Default::default(),
         market: Default::default(),
         forge: Default::default(),
+        quests: Default::default(),
+        quest_acts: Vec::new(),
         forge_acts: Vec::new(),
         type_text: text_arg("--type"),
         npc_test: text_arg("--npc"),
+        quests_test: text_arg("--quests"),
         effect_test: text_arg("--effect").and_then(|t| t.parse().ok()).map(|t| (t, i32::MIN / 2)),
         changelog: Default::default(),
         noted_version: false,

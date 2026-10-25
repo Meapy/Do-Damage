@@ -93,6 +93,88 @@ wire_struct! {
 }
 
 wire_struct! {
+    /// A quest's, bonus's, daily reward's or achievement tier's reward (`QuestsData`): fame (kind
+    /// 0, `amount`) or an item (kind 1, its type and how many).
+    #[derive(Copy)]
+    pub struct QuestReward {
+        pub kind: u8,
+        pub item: u16,
+        pub amount: i32,
+    }
+}
+
+wire_struct! {
+    /// An achievement rank (`QuestsData`): its name, the points it needs, and the chat name
+    /// colour it unlocks (0: none).
+    pub struct QuestRankInfo {
+        pub name: String,
+        pub points: i32,
+        pub color: i32,
+    }
+}
+
+wire_struct! {
+    /// A quest period (0 daily, 1 weekly, 2 monthly): when it resets (Unix seconds), the swaps
+    /// left, and its bonus for claiming all its quests.
+    pub struct QuestPeriodInfo {
+        pub period: u8,
+        pub resets_at: i32,
+        pub rerolls_left: u8,
+        pub bonus_claimed: bool,
+        pub bonus: List8<QuestReward>,
+    }
+}
+
+wire_struct! {
+    /// One of the player's quests.
+    pub struct QuestInfo {
+        pub period: u8,
+        pub id: String,
+        pub title: String,
+        pub text: String,
+        pub progress: i32,
+        pub goal: i32,
+        pub claimed: bool,
+        pub rewards: List8<QuestReward>,
+    }
+}
+
+wire_struct! {
+    /// A day of the daily reward track.
+    pub struct LoginDayInfo {
+        pub milestone: bool,
+        pub rewards: List8<QuestReward>,
+    }
+}
+
+wire_struct! {
+    /// An achievement: its tiers' goals, the tiers claimed, the progress, and the next tier's
+    /// points and rewards.
+    pub struct AchievementInfo {
+        pub id: String,
+        pub category: String,
+        pub title: String,
+        pub text: String,
+        pub claimed: u8,
+        pub progress: i32,
+        pub goals: List8<i32>,
+        pub next_points: i32,
+        pub next_rewards: List8<QuestReward>,
+    }
+}
+
+wire_struct! {
+    /// Progress that changed (`QuestProgress`): a quest (kind 0) or an achievement (1) by its
+    /// place in `QuestsData`'s lists.
+    #[derive(Copy)]
+    pub struct QuestChange {
+        pub kind: u8,
+        pub index: u16,
+        pub progress: i32,
+    }
+}
+
+wire_struct! {
     pub struct TradeItem {
         pub item: i32,
         pub slot_type: i32,

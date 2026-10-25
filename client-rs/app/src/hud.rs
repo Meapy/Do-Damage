@@ -170,6 +170,11 @@ impl Layout {
         self.col_up(GRID_X, NEXUS_UP, NEXUS_W, BURGER)
     }
 
+    /// The quest log's button, beside the Nexus button.
+    pub fn quests_button(&self) -> [f32; 4] {
+        self.col_up(GRID_X + NEXUS_W + SLOT_GAP, NEXUS_UP, GRID8.0 - NEXUS_W - SLOT_GAP, BURGER)
+    }
+
     /// The equipment, over the tabs and potions.
     pub fn equip_box(&self) -> [f32; 4] {
         self.col_up(GRID_X, EQUIP_UP, BAR4.0, BAR4.1)
@@ -692,6 +697,8 @@ pub enum Page {
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]
 pub enum Button {
     Nexus,
+    /// Open the quest log.
+    Quests,
     Page(Page),
     /// Enter the portal.
     Enter(i32),
@@ -900,6 +907,9 @@ pub struct HudState {
     pub minimap_zoom: usize,
     /// The key bound to the Nexus, for its button.
     pub nexus_key: String,
+    /// The key bound to the quest log, and how many of its rewards wait, for its button.
+    pub quests_key: String,
+    pub quests_ready: usize,
     /// The key bound to Interact, for the portal's Enter button.
     pub interact_key: String,
     /// The key that switches between the inventory and the backpack, shown on their tabs.
@@ -1076,6 +1086,7 @@ impl Panel {
             });
         }
         panel.buttons.push((Button::Nexus, lay.nexus_button()));
+        panel.buttons.push((Button::Quests, lay.quests_button()));
         // The boss history, at the top left while no boss shows there.
         if !boss_showing(world, social.quest) {
             let hl = history_layout(lay, social.history, state);
@@ -1556,6 +1567,35 @@ pub fn draw_panel(ui: &mut Ui, lay: &Layout, world: &World, camera_angle: f64, c
                 object_icon(ui, NEXUS_ICON as u16, x0 + icon_w / 2.0, cy, icon_w);
                 let mid = ui.digit_middle(size, true);
                 ui.label(&state.nexus_key, x0 + icon_w + gap, (cy - mid).round(), size, true, color::TEXT);
+                continue;
+            }
+            Button::Quests => {
+                // Ember while rewards wait, with their count on a gold badge at the corner.
+                let hover = inside(*r, mouse);
+                let ready = state.quests_ready;
+                ui.button(*r, "", if ready > 0 { Kind::Primary } else { Kind::Secondary }, hover, s);
+                let size = lay.font(14.0);
+                let label = "Quests";
+                let lw = ui.measure(label, size, true);
+                let ks = lay.font(12.0);
+                let kw = if state.quests_key.is_empty() { 0.0 } else { ui.measure(&state.quests_key, ks, true) + 6.0 * s };
+                let x0 = (r[0] + (r[2] - lw - kw) / 2.0).round();
+                let cy = r[1] + r[3] / 2.0;
+                let (text, dim) = if ready > 0 { (color::ACCENT_TEXT, color::ACCENT_TEXT) } else { (color::TEXT, color::TEXT_MUTED) };
+                ui.label(label, x0, (cy - ui.digit_middle(size, true)).round(), size, true, text);
+                if !state.quests_key.is_empty() {
+                    ui.label(&state.quests_key, x0 + lw + 6.0 * s, (cy - ui.digit_middle(ks, true)).round(), ks, true, dim);
+                }
+                if ready > 0 {
+                    let d = 17.0 * s;
+                    let br = [r[0] + r[2] - d * 0.7, r[1] - d * 0.35, d, d];
+                    theme::fill(ui.renderer, [br[0] - s, br[1] - s, d + 2.0 * s, d + 2.0 * s], d / 2.0 + s, 0x000000, 0.5);
+                    theme::fill(ui.renderer, br, d / 2.0, color::GOLD, 1.0);
+                    let t = if ready > 9 { "9+".to_owned() } else { ready.to_string() };
+                    let ts = lay.font(11.0);
+                    let tw = ui.measure(&t, ts, true);
+                    ui.label(&t, br[0] + (d - tw) / 2.0, (br[1] + d / 2.0 - ui.digit_middle(ts, true)).round(), ts, true, color::ACCENT_TEXT);
+                }
                 continue;
             }
             Button::Enter(_) if state.interact_key.is_empty() => ("Enter".to_owned(), Kind::Primary),

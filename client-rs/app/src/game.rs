@@ -53,6 +53,8 @@ pub struct Game {
     pub market_events: Vec<crate::market::Event>,
     /// The Divine Forge's answers, for its window.
     pub forge_events: Vec<crate::forge::Event>,
+    /// Quests, daily rewards and achievements, for the quest log (`quests.rs`).
+    pub quest_events: Vec<crate::quests::Event>,
     /// Sound effects to play: (name, volume, is it a weapon's shot).
     pub sounds: Vec<(String, f32, bool)>,
     /// The map's music (`MapInfo.music`, `SwitchMusic`).
@@ -245,6 +247,7 @@ impl Game {
             sounds: Vec::new(),
             market_events: Vec::new(),
             forge_events: Vec::new(),
+            quest_events: Vec::new(),
             music: None,
             last_level: 0,
             dealt: Default::default(),
@@ -467,6 +470,8 @@ impl Game {
                 self.socket.send(&bsk_proto::QuestDamageSubscribe {}.into());
                 self.socket.send(&bsk_proto::QuestDamageFullSubscribe {}.into());
                 self.socket.send(&bsk_proto::FameStatsSubscribe {}.into());
+                // quests: the HUD's badge counts what waits, so ask in every world
+                self.socket.send(&bsk_proto::QuestsRequest {}.into());
                 self.status.clear();
             }
             Some(Event::Failure { description, .. }) => {
@@ -691,6 +696,10 @@ impl Game {
             }),
             ServerMessage::ForgeShards(s) => self.forge_events.push(crate::forge::Event::Shards(s.shards.0.clone())),
             ServerMessage::ForgeVault(v) => self.forge_events.push(crate::forge::Event::Vault(v.items.0.clone())),
+            ServerMessage::QuestsData(d) => self.quest_events.push(crate::quests::Event::Data(Box::new(d.clone()))),
+            ServerMessage::QuestProgress(p) => self.quest_events.push(crate::quests::Event::Progress(p.changes.0.clone())),
+            ServerMessage::QuestResult(r) => self.quest_events.push(crate::quests::Event::Result(r.success, r.message.clone())),
+            ServerMessage::QuestNotice(n) => self.quest_events.push(crate::quests::Event::Notice(n.kind, n.title.clone(), n.text.clone())),
             ServerMessage::Goto(g) => world.apply_goto(g.object_id, g.pos.x as f64, g.pos.y as f64, now, data),
             ServerMessage::EnemyShoot(e) => {
                 let Some(owner) = world.objects.get(&e.owner_id).filter(|o| !o.dead) else { return };
@@ -1178,6 +1187,16 @@ impl Game {
             Act::Forge(result, slots) => bsk_proto::Forge { result, slots: bsk_proto::List8(slots) }.into(),
             Act::Sell(slots) => bsk_proto::ForgeSell { slots: bsk_proto::List8(slots) }.into(),
             Act::Withdraw(item) => bsk_proto::ForgeWithdraw { item }.into(),
+        };
+        self.send(msg);
+    }
+
+    /// Ask the quest log's server side (`QuestTracker.cs`).
+    pub fn quest(&mut self, act: crate::quests::Act) {
+        use crate::quests::Act;
+        let msg: ClientMessage = match act {
+            Act::Request => bsk_proto::QuestsRequest {}.into(),
+            Act::Claim(kind, id) => bsk_proto::QuestClaim { kind, id }.into(),
         };
         self.send(msg);
     }

@@ -179,6 +179,22 @@ messages! {
         // What the account's vault holds that the forge can take, by item type (after
         // ForgeDataRequest and each forging).
         102 => ForgeVault { items: List16<ForgeShard> },
+        // Quests, daily login rewards and achievements, after QuestsRequest, a claim or a reset:
+        // the time (Unix seconds), the rank, points and chosen name colour (255: none), the
+        // ranks, each period's reset and bonus, the quests, the daily reward track and the
+        // achievements.
+        104 => QuestsData {
+            now: i32, rank: u8, points: i32, color_rank: u8, ranks: List8<QuestRankInfo>,
+            periods: List8<QuestPeriodInfo>, quests: List8<QuestInfo>, login_day: u8, login_ready: bool,
+            login_streak: i32, login_total: i32, login_next_at: i32, login_days: List8<LoginDayInfo>,
+            achievements: List8<AchievementInfo>,
+        },
+        // The answer to QuestClaim.
+        106 => QuestResult { success: bool, message: String },
+        // A popup: a quest done (0), an achievement earned (1), a new rank (3), a bonus (4).
+        107 => QuestNotice { kind: u8, title: String, text: String },
+        // Progress that changed since QuestsData, by place in its lists.
+        108 => QuestProgress { changes: List16<QuestChange> },
     }
 }
 
@@ -249,5 +265,12 @@ messages! {
         // Take a shard out of the forge storage into the inventory (an older server doesn't
         // know it: send it only once ForgeShards came).
         101 => ForgeWithdraw { item: u16 },
+        // Ask for QuestsData, and from then on QuestProgress and QuestNotice (an older server
+        // ignores it, and the window stays empty).
+        103 => QuestsRequest {},
+        // Claim a quest (kind 0, its id), a period's bonus (1, "daily"...), the daily reward (2),
+        // an achievement's tiers (3, its id), swap a quest (4, its id) or pick a name colour (5,
+        // the rank, -1 for none).
+        105 => QuestClaim { kind: u8, id: String },
     }
 }

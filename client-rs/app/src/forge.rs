@@ -1126,12 +1126,12 @@ fn fame_icon(ui: &mut Ui, cx: f32, cy: f32, size: f32, s: f32) {
 }
 
 /// How wide `fame_text` draws.
-fn fame_width(ui: &mut Ui, text: &str, size: f32, s: f32) -> f32 {
+pub(crate) fn fame_width(ui: &mut Ui, text: &str, size: f32, s: f32) -> f32 {
     ui.measure(text, size, true) + 4.0 * s + size
 }
 
 /// An amount of fame: the number, then the fame icon. Returns how wide it is.
-fn fame_text(ui: &mut Ui, text: &str, x: f32, y: f32, size: f32, rgb: u32, s: f32) -> f32 {
+pub(crate) fn fame_text(ui: &mut Ui, text: &str, x: f32, y: f32, size: f32, rgb: u32, s: f32) -> f32 {
     let tw = ui.measure(text, size, true);
     ui.label(text, x, y, size, true, rgb);
     fame_icon(ui, x + tw + 4.0 * s + size / 2.0, y + ui.digit_middle(size, true), size, s);
