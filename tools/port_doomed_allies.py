@@ -18,6 +18,9 @@ from port_doomed_pets import balanced, cs_string
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 ALLY_BEHAVIOR_FILES = ["BehaviorDb.Towers.cs", "BehaviorDb.PearlSubstitutes.cs", "BehaviorDb.Summons.cs"]
 ALLY_BEHAVIORS_CS = os.path.join(ROOT, "source", "WorldServer", "logic", "db", "BehaviorDb.DoomedAllies.cs")
+# Summons fire this many times slower than in Doomed Realms: a Summoner keeps up to six out
+# (Player.UseItem.Doomed.cs), and six at the Doomed Realms rate doubled its damage.
+SUMMON_FIRE_SLOWDOWN = 3
 
 
 def degrees(expr):
@@ -95,7 +98,8 @@ def write_ally_behaviors(dr_root, chosen):
             state = ('new State(new State("fire", %s, new TimedTransition(500, "die")), new State("die", new Suicide()))'
                      % shoot(radius, count, 10, index, 10000))
         elif d["chase"]:
-            shots = ", ".join(shoot(r, c, a, i, ms) for ms, r, c, a, i in d["shots"])
+            slow = SUMMON_FIRE_SLOWDOWN if oid.endswith(" Summon") else 1
+            shots = ", ".join(shoot(r, c, a, i, ms * slow) for ms, r, c, a, i in d["shots"])
             state = ('new State(new State("attack", new AllyCharge(1, 10, 1), %s, new NoEntityWithinAllyTransition(10, false, "follow")), '
                      'new State("follow", new AllyFollow(1, 10, 1.5), new EntityWithinAllyTransition(10, "attack")))' % shots)
         else:

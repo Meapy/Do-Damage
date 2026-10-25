@@ -1214,6 +1214,8 @@
 		<ActivateOnEquip stat="26" amount="3">IncrementStat</ActivateOnEquip>
 		<ActivateOnEquip stat="27" amount="3">IncrementStat</ActivateOnEquip>
 		<Usable/>
+		<ActivateOnEquip stat="0" amount="40">IncrementStat</ActivateOnEquip>
+		<ActivateOnEquip stat="3" amount="40">IncrementStat</ActivateOnEquip>
 		<BagType>9</BagType>
 		<FameBonus>5</FameBonus>
 		<MpCost>105</MpCost>
@@ -1235,6 +1237,8 @@
 		<ActivateOnEquip stat="26" amount="4">IncrementStat</ActivateOnEquip>
 		<ActivateOnEquip stat="27" amount="4">IncrementStat</ActivateOnEquip>
 		<Usable/>
+		<ActivateOnEquip stat="0" amount="60">IncrementStat</ActivateOnEquip>
+		<ActivateOnEquip stat="3" amount="60">IncrementStat</ActivateOnEquip>
 		<BagType>9</BagType>
 		<FameBonus>6</FameBonus>
 		<MpCost>110</MpCost>
@@ -1256,6 +1260,8 @@
 		<ActivateOnEquip stat="26" amount="4">IncrementStat</ActivateOnEquip>
 		<ActivateOnEquip stat="27" amount="4">IncrementStat</ActivateOnEquip>
 		<Usable/>
+		<ActivateOnEquip stat="0" amount="60">IncrementStat</ActivateOnEquip>
+		<ActivateOnEquip stat="3" amount="60">IncrementStat</ActivateOnEquip>
 		<BagType>9</BagType>
 		<FameBonus>6</FameBonus>
 		<MpCost>110</MpCost>
@@ -1390,11 +1396,13 @@
 		<Tier>6</Tier>
 		<Description>Water from the Nexus fountains, that heals your friends and carries you along.</Description>
 		<Sound>spell/major_heal</Sound>
-		<Activate range="8" amount="320">HealNova</Activate>
+		<Activate range="8" amount="335">HealNova</Activate>
 		<Activate maxDistance="19">Teleport</Activate>
 		<ActivateOnEquip stat="26" amount="2">IncrementStat</ActivateOnEquip>
 		<ActivateOnEquip stat="27" amount="2">IncrementStat</ActivateOnEquip>
 		<Usable/>
+		<ActivateOnEquip stat="0" amount="20">IncrementStat</ActivateOnEquip>
+		<ActivateOnEquip stat="3" amount="20">IncrementStat</ActivateOnEquip>
 		<BagType>4</BagType>
 		<FameBonus>4</FameBonus>
 		<MpCost>85</MpCost>
@@ -1417,6 +1425,8 @@
 		<ActivateOnEquip stat="26" amount="4">IncrementStat</ActivateOnEquip>
 		<ActivateOnEquip stat="27" amount="4">IncrementStat</ActivateOnEquip>
 		<Usable/>
+		<ActivateOnEquip stat="0" amount="60">IncrementStat</ActivateOnEquip>
+		<ActivateOnEquip stat="3" amount="60">IncrementStat</ActivateOnEquip>
 		<BagType>9</BagType>
 		<FameBonus>6</FameBonus>
 		<MpCost>95</MpCost>
@@ -1647,6 +1657,8 @@
 		<ActivateOnEquip stat="26" amount="2">IncrementStat</ActivateOnEquip>
 		<ActivateOnEquip stat="27" amount="2">IncrementStat</ActivateOnEquip>
 		<Usable/>
+		<ActivateOnEquip stat="0" amount="20">IncrementStat</ActivateOnEquip>
+		<ActivateOnEquip stat="3" amount="20">IncrementStat</ActivateOnEquip>
 		<BagType>4</BagType>
 		<FameBonus>4</FameBonus>
 		<MpCost>89</MpCost>
@@ -1682,6 +1694,8 @@
 		<ActivateOnEquip stat="26" amount="4">IncrementStat</ActivateOnEquip>
 		<ActivateOnEquip stat="27" amount="4">IncrementStat</ActivateOnEquip>
 		<Usable/>
+		<ActivateOnEquip stat="0" amount="60">IncrementStat</ActivateOnEquip>
+		<ActivateOnEquip stat="3" amount="60">IncrementStat</ActivateOnEquip>
 		<BagType>9</BagType>
 		<FameBonus>6</FameBonus>
 		<MpCost>111</MpCost>

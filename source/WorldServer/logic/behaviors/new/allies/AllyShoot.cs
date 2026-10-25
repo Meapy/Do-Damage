@@ -108,13 +108,16 @@ namespace WorldServer.logic.behaviors
                 if (player == null)
                     return;
 
-                var bulletId = host.GetNextBulletId(count);
+                // the shots are the owner's (their hits count as theirs), so they take ids from the
+                // owner's ability range, one each, as PetShoot does: ids from the ally's own counter
+                // clashed with the owner's weapon shots, and a volley sharing one id counted one hit
+                var bulletId = player.GetNextBulletId(count, true);
                 var damage = Random.Shared.Next(desc.MinDamage, desc.MaxDamage);
                 float startAngle = angle - _shootAngle * (count - 1) / 2;
                 for (int i = 0; i < count; i++)
                 {
                     var shotAngle = startAngle + (i * _shootAngle);
-                    var serverPlayerShoot = new ServerPlayerShoot(player.Id, bulletId, host.ObjectType, host.Position, shotAngle, damage, desc);
+                    var serverPlayerShoot = new ServerPlayerShoot(player.Id, bulletId + i, host.ObjectType, host.Position, shotAngle, damage, desc);
                     host.World.BroadcastServerPlayerShoot(serverPlayerShoot, host);
                 }
             }

@@ -15,7 +15,7 @@ hit), **Spd** (how fast you move), **Dex** (how fast you shoot), **Vit** (health
 **Wis** (magic regeneration).
 
 The **Doomed Realms classes** were ported from another private server. They have abilities of
-their own: turrets, summons, halos, pearls and more. Where a class's own kind of item has no tiers,
+their own: turrets, summons, halos, pearls and more. A Summoner can keep up to six summons out at a time. Where a class's own kind of item has no tiers,
 `/gear` leaves that slot alone.
 
 {{gen:classes}}

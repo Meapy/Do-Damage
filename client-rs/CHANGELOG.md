@@ -12,6 +12,32 @@ Keep each version short: changes go under `### ` group headings (Oryx 5, Arena, 
 on), one line per change players notice, summed up rather than item by item (the wiki has the
 details). Add to a group's line when a change adds to it, rather than adding another line.
 
+## 2.1.1 (2026-10-25)
+
+### Classes
+- A balance pass over the Doomed Realms classes. Stronger: Blademaster (highest Attack 45, was 35;
+  Defense 25, was 15), Adept (Attack 60, was 50; Defense 25, was 20), Snowman (Defense 25, was 20;
+  Dexterity 70, was 65), Mechanic (health 700, was 650) and Ascendant (Attack 70, was 60). Weaker:
+  King (highest Attack 75 and Dexterity 70, were 85 and 85) and Sharklord (Defense 25, was 30;
+  health 750, was 800). Maxed Kings and Sharklords keep what is still under their new highest.
+- Their abilities too: from T6 up, every Doomed Realms class's ability gives +20/+40/+60 health and
+  mana, as every other class's does. Druid pearls cost what a tome of their tier costs (up to 95
+  mana, was 160), the Pirate's T5-T8 cannons hit twice as hard (one ball against the quiver's three
+  arrows), and the Dragon and Oryx scrolls and Tidal Wave give Vitality and Wisdom like the rest.
+  The Fountain Torrent heals
+  335 (was 320, the same as the tier below), and the Obsidian Blades fire at 1.3 times the normal
+  rate (was twice, more than the next two tiers of blades).
+- Summoners can keep up to 6 summons out (a seventh sends the oldest away). Each summon now fires
+  a third as often, but every shot of a volley counts: the Dragon's and Oryx's five-shot volleys
+  only ever hurt for one shot before. The T0-T5 summons hit much harder (the Bunny 70 a shot, was
+  20; the Wisp 100, was 65), so a full set of six adds about a quarter to a half to your damage
+  at every tier. Other helpers that fire several shots at once land all of them now too.
+
+### Fixes
+- Drinking or taking potions from a loot bag on top of a portal no longer sends you through the
+  portal: a click meant for the bag can't press the portal's Enter button when the bag empties,
+  and the interact key only enters a portal when its Enter button is the one showing.
+
 ## 2.1.0 (2026-10-25)
 
 ### Arena

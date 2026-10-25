@@ -911,6 +911,23 @@ pub struct HudState {
     pub history_pick: Option<usize>,
     /// The character card's tab: 0 the stats, 1 the fame records.
     pub card_tab: usize,
+    /// What the interact area shows (its object's id) and since when (`see_interact`).
+    interact_seen: Option<(i32, i32)>,
+}
+
+impl HudState {
+    /// Note what the interact area shows this frame, so its buttons wait until it has shown
+    /// for a moment (`INTERACT_SETTLE_MS`).
+    pub fn see_interact(&mut self, id: Option<i32>, now: i32) {
+        if id != self.interact_seen.map(|(seen, _)| seen) {
+            self.interact_seen = id.map(|id| (id, now));
+        }
+    }
+
+    /// The interact area has shown this object long enough for its buttons to be clicked.
+    fn interact_settled(&self, id: i32, now: i32) -> bool {
+        self.interact_seen.is_some_and(|(seen, since)| seen == id && now - since >= INTERACT_SETTLE_MS)
+    }
 }
 
 /// The minimap's design size (HUD units).
@@ -1000,6 +1017,12 @@ pub struct Panel {
 }
 
 const DOUBLE_CLICK_MS: i32 = 350;
+
+/// How long the interact area shows a portal, shop or NPC before its button can be clicked.
+/// The area changes under the mouse (a bag emptied by drinking from it goes, and the portal
+/// under it shows instead), and a click meant for the bag mustn't press the button that
+/// takes its place: longer than a double click.
+const INTERACT_SETTLE_MS: i32 = 500;
 
 impl Panel {
     pub fn new(lay: &Layout, world: &World, data: &GameData, state: &HudState, social: &Social) -> Self {
@@ -1286,6 +1309,12 @@ impl Panel {
         if let Some(button) = self.button_at(pos) {
             if let Button::Page(p) = button {
                 state.page = p;
+            }
+            // The interact area's buttons only once it has settled on what it shows.
+            if matches!(button, Button::Enter(_) | Button::Buy(_) | Button::Npc(_))
+                && !self.interact.as_ref().is_some_and(|t| state.interact_settled(t.id, now))
+            {
+                return true;
             }
             actions.push(Action::Button(button));
             return true;
@@ -3481,6 +3510,35 @@ mod tests {
         assert_eq!(line("#Oryx", "").pieces("Me")[0], ("<Oryx> ".into(), 0xFFA800));
         // A tell we sent shows who it went to.
         assert_eq!(line("Me", "Bob").pieces("Me")[0], ("To: ".into(), 0x00F0FF));
+    }
+
+    #[test]
+    fn portal_button_waits_for_its_panel() {
+        let (locked, fame) = (Default::default(), HashMap::new());
+        let social = Social { trade: None, invite: None, locked: &locked, ignored: &locked, now: 0, quest: None, history: &[], fame: &fame };
+        let (lay, data, world) = (Layout::new(1920, 1080), GameData::default(), World::new(10, 10, "test", 1));
+        let mut state = HudState::default();
+        let mut panel = Panel::new(&lay, &world, &data, &state, &social);
+        // The portal under an emptied bag shows in its place, its button where the bag's slots were.
+        panel.interact = Some(Interact { id: 7, name: "Portal".into(), kind: InteractKind::Portal });
+        let r = [10.0, 10.0, 50.0, 20.0];
+        panel.buttons.push((Button::Enter(7), r));
+        let at = (20.0, 20.0);
+        let press = |state: &mut HudState, now: i32| {
+            let mut actions = Vec::new();
+            assert!(panel.press(state, &lay, at, false, now, &mut actions));
+            actions.iter().any(|a| matches!(a, Action::Button(Button::Enter(7))))
+        };
+        state.see_interact(Some(3), 0); // the bag
+        state.see_interact(Some(7), 1000);
+        assert!(!press(&mut state, 1000), "a click on the bag pressed the portal's button");
+        assert!(!press(&mut state, 1200));
+        state.see_interact(Some(7), 1600);
+        assert!(press(&mut state, 1600), "the portal's button doesn't work");
+        // The bag shown again, and then the portal: it waits again.
+        state.see_interact(Some(3), 1700);
+        state.see_interact(Some(7), 1800);
+        assert!(!press(&mut state, 1900));
     }
 
     #[test]

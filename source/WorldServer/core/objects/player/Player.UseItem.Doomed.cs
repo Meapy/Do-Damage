@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using Shared.resources;
 using WorldServer.core.net.datas;
 using WorldServer.core.structures;
@@ -45,10 +46,22 @@ namespace WorldServer.core.objects
             SpawnAlly(eff.ObjectId, new Position(X, Y), eff.DurationMS > 0 ? eff.DurationMS : 10000);
         }
 
-        // Summoner scrolls: "<objectId> Summon" follows the player and attacks for the duration.
+        // Summoner scrolls: "<objectId> Summon" follows the player and attacks for the duration. At
+        // most MaxSummons at a time: a new one past that sends the oldest away.
+        private const int MaxSummons = 6;
+        private readonly List<Entity> _summons = new List<Entity>();
+
         private void AESummon(TickTime time, Item item, Position target, ActivateEffect eff)
         {
-            SpawnAlly(eff.ObjectId + " Summon", new Position(X, Y), eff.DurationMS > 0 ? eff.DurationMS : 30000);
+            _summons.RemoveAll(s => s.Dead || s.World != World);
+            if (_summons.Count >= MaxSummons)
+            {
+                World.LeaveWorld(_summons[0]);
+                _summons.RemoveAt(0);
+            }
+            var summon = SpawnAlly(eff.ObjectId + " Summon", new Position(X, Y), eff.DurationMS > 0 ? eff.DurationMS : 30000);
+            if (summon != null)
+                _summons.Add(summon);
         }
 
         // Throws a monster (hostile, as in Doomed Realms) that appears at the target after 1.5 s.
