@@ -313,12 +313,16 @@ namespace WorldServer.core.worlds
         {
             var count = 0;
             var quests = new HashSet<ushort>();
+            var questsAt = new List<IntPoint>();
             foreach (var enemy in World.Enemies.Values)
             {
                 if (!_areaMobs.TryGetValue(enemy.ObjectType, out var kind) || Layout.AreaAt((int)enemy.X, (int)enemy.Y) != area)
                     continue;
                 if (kind.Quest)
+                {
                     quests.Add(enemy.ObjectType);
+                    questsAt.Add(new IntPoint((int)enemy.X, (int)enemy.Y));
+                }
                 else
                     count++;
             }
@@ -336,7 +340,7 @@ namespace WorldServer.core.worlds
             var data = World.GameServer.Resources.GameData;
             foreach (var quest in area.Theme.Quests)
                 if (data.IdToObjectType.TryGetValue(quest, out var type) && !quests.Contains(type))
-                    SpawnGroup(area, quest, 1);
+                    SpawnQuest(area, quest, questsAt);
         }
 
         private static string PickMob(Realm2Theme theme)
@@ -349,6 +353,28 @@ namespace WorldServer.core.worlds
                     return id;
             }
             return theme.Mobs[^1].Id;
+        }
+
+        // A land's quests apart from each other: in its middle ring, the second roughly across the
+        // land from the first, never within 22 tiles of another of its quests
+        private void SpawnQuest(Realm2Area area, string id, List<IntPoint> others)
+        {
+            for (var tries = 0; tries < 80; tries++)
+            {
+                var angle = others.Count == 0
+                    ? Random.Shared.NextDouble() * Math.PI * 2
+                    : Math.Atan2(others[0].Y - area.Center.Y, others[0].X - area.Center.X) + Math.PI + (Random.Shared.NextDouble() - 0.5) * 1.8;
+                var dist = area.Radius * (0.45 + Random.Shared.NextDouble() * 0.35);
+                var x = (int)(area.Center.X + Math.Cos(angle) * dist);
+                var y = (int)(area.Center.Y + Math.Sin(angle) * dist);
+                if (Layout.AreaAt(x, y) != area || !World.IsPassable(x, y) || World.AnyPlayerNearby(x, y, SpawnClear)
+                    || others.Any(o => Realm2Canvas.Dist(o, x, y) < 22))
+                    continue;
+                if (Place(id, x + 0.5f, y + 0.5f) != null)
+                    others.Add(new IntPoint(x, y));
+                return;
+            }
+            SpawnGroup(area, id, 1);
         }
 
         private int SpawnGroup(Realm2Area area, string id, int size)
@@ -376,7 +402,10 @@ namespace WorldServer.core.worlds
 
         private string LayoutStatus()
         {
-            var lands = Layout.Areas.Where(a => a.Theme != null).Select(a => $"{a.Kind}{(a.Link != null ? " by " + a.Link : "")} ({a.Center.X}, {a.Center.Y})");
+            string Quests(Realm2Area a) => string.Join(" ", World.Enemies.Values
+                .Where(e => _areaMobs.TryGetValue(e.ObjectType, out var k) && k.Quest && Layout.AreaAt((int)e.X, (int)e.Y) == a)
+                .Select(e => $"{e.ObjectDesc.DisplayId ?? e.ObjectDesc.IdName} ({(int)e.X}, {(int)e.Y})"));
+            var lands = Layout.Areas.Where(a => a.Theme != null).Select(a => $"{a.Kind}{(a.Link != null ? " by " + a.Link : "")} ({a.Center.X}, {a.Center.Y}) quests: {Quests(a)}");
             return $"Realm 2: next {string.Join(", ", _upcoming.Take(3).Select(EventTitle))}; lands: {string.Join(", ", lands)}";
         }
     }
