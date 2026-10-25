@@ -11130,7 +11130,7 @@
 		<Usable />
 		<BagType>1</BagType>
 		<MpCost>60</MpCost>
-		<Activate objectId="Bunny" duration="30">Summon</Activate>
+		<Activate objectId="Bunny" duration="30" allyDamage="70" allyShots="1" allyMs="3000">Summon</Activate>
 	</Object>
 	<Object type="0xD260" id="Bunny Summon">
 		<Class>Character</Class>
@@ -11161,7 +11161,7 @@
 		<Usable />
 		<BagType>1</BagType>
 		<MpCost>65</MpCost>
-		<Activate objectId="Snake" duration="40">Summon</Activate>
+		<Activate objectId="Snake" duration="40" allyDamage="100" allyShots="1" allyMs="3000">Summon</Activate>
 	</Object>
 	<Object type="0xD262" id="Snake Summon">
 		<Class>Character</Class>
@@ -11192,7 +11192,7 @@
 		<Usable />
 		<BagType>1</BagType>
 		<MpCost>75</MpCost>
-		<Activate objectId="Wasp" duration="50">Summon</Activate>
+		<Activate objectId="Wasp" duration="50" allyDamage="140" allyShots="1" allyMs="3000">Summon</Activate>
 	</Object>
 	<Object type="0xD264" id="Wasp Summon">
 		<Class>Character</Class>
@@ -11224,7 +11224,7 @@
 		<Usable />
 		<BagType>2</BagType>
 		<MpCost>80</MpCost>
-		<Activate objectId="Wolf" duration="60">Summon</Activate>
+		<Activate objectId="Wolf" duration="60" allyDamage="180" allyShots="1" allyMs="3000">Summon</Activate>
 	</Object>
 	<Object type="0xD266" id="Wolf Summon">
 		<Class>Character</Class>
@@ -11255,7 +11255,7 @@
 		<Usable />
 		<BagType>2</BagType>
 		<MpCost>85</MpCost>
-		<Activate objectId="Drake" duration="70">Summon</Activate>
+		<Activate objectId="Drake" duration="70" allyDamage="100" allyShots="3" allyMs="3600">Summon</Activate>
 	</Object>
 	<Object type="0xD268" id="Drake Summon">
 		<Class>Character</Class>
@@ -11287,7 +11287,7 @@
 		<Usable />
 		<BagType>4</BagType>
 		<MpCost>90</MpCost>
-		<Activate objectId="Wisp" duration="80">Summon</Activate>
+		<Activate objectId="Wisp" duration="80" allyDamage="100" allyShots="3" allyMs="3000">Summon</Activate>
 	</Object>
 	<Object type="0xD26A" id="Wisp Summon">
 		<Class>Character</Class>
@@ -11333,7 +11333,7 @@
 		<ActivateOnEquip stat="3" amount="20">IncrementStat</ActivateOnEquip>
 		<BagType>4</BagType>
 		<MpCost>100</MpCost>
-		<Activate objectId="Dragon" duration="90">Summon</Activate>
+		<Activate objectId="Dragon" duration="90" allyDamage="75" allyShots="5" allyMs="3000">Summon</Activate>
 	</Object>
 	<Object type="0xD26C" id="Dragon Summon">
 		<Class>Character</Class>
@@ -11364,7 +11364,7 @@
 		<Usable />
 		<BagType>2</BagType>
 		<MpCost>85</MpCost>
-		<Activate objectId="Sheep" duration="30">Summon</Activate>
+		<Activate objectId="Sheep" duration="30" allyDamage="10" allyShots="1" allyMs="3000">Summon</Activate>
 	</Object>
 	<Object type="0xD26E" id="Sheep Summon">
 		<Class>Character</Class>
@@ -11400,7 +11400,7 @@
 		<ActivateOnEquip stat="3" amount="40">IncrementStat</ActivateOnEquip>
 		<BagType>9</BagType>
 		<MpCost>100</MpCost>
-		<Activate objectId="Oryx" duration="90">Summon</Activate>
+		<Activate objectId="Oryx" duration="90" allyDamage="95" allyShots="5" allyMs="3000">Summon</Activate>
 		<Soulbound />
 	</Object>
 	<Object type="0xD270" id="Oryx Summon">
@@ -12202,7 +12202,7 @@
 		<Sound>spell/light_heal</Sound>
 		<Usable />
 		<BagType>1</BagType>
-		<Activate objectId="Tower1" duration="10" totalDamage="50">BuildTower</Activate>
+		<Activate objectId="Tower1" duration="10" totalDamage="50" allyDamage="50" allyShots="1" allyMs="500">BuildTower</Activate>
 		<MpCost>45</MpCost>
 		<OldSound>use_potion</OldSound>
 	</Object>
@@ -12218,7 +12218,7 @@
 		<Sound>spell/light_heal</Sound>
 		<Usable />
 		<BagType>4</BagType>
-		<Activate objectId="SpecialTower" duration="20" totalDamage="45">BuildTower</Activate>
+		<Activate objectId="SpecialTower" duration="20" totalDamage="45" allyDamage="30" allyShots="1" allyMs="100">BuildTower</Activate>
 		<MpCost>100</MpCost>
 		<OldSound>use_potion</OldSound>
 	</Object>
@@ -12251,7 +12251,7 @@
 		<Sound>spell/light_heal</Sound>
 		<Usable />
 		<BagType>1</BagType>
-		<Activate objectId="Tower2" duration="10" totalDamage="60">BuildTower</Activate>
+		<Activate objectId="Tower2" duration="10" totalDamage="60" allyDamage="60" allyShots="1" allyMs="500">BuildTower</Activate>
 		<ActivateOnEquip stat="28" amount="1">IncrementStat</ActivateOnEquip>
 		<MpCost>50</MpCost>
 		<OldSound>use_potion</OldSound>
@@ -12269,7 +12269,7 @@
 		<Sound>spell/light_heal</Sound>
 		<Usable />
 		<BagType>1</BagType>
-		<Activate objectId="Tower3" duration="15" totalDamage="75">BuildTower</Activate>
+		<Activate objectId="Tower3" duration="15" totalDamage="75" allyDamage="75" allyShots="1" allyMs="500">BuildTower</Activate>
 		<ActivateOnEquip stat="28" amount="2">IncrementStat</ActivateOnEquip>
 		<MpCost>60</MpCost>
 		<OldSound>use_potion</OldSound>
@@ -12287,7 +12287,7 @@
 		<Sound>spell/light_heal</Sound>
 		<Usable />
 		<BagType>2</BagType>
-		<Activate objectId="Tower4" duration="20" totalDamage="85">BuildTower</Activate>
+		<Activate objectId="Tower4" duration="20" totalDamage="85" allyDamage="85" allyShots="1" allyMs="500">BuildTower</Activate>
 		<ActivateOnEquip stat="28" amount="3">IncrementStat</ActivateOnEquip>
 		<MpCost>80</MpCost>
 		<OldSound>use_potion</OldSound>
@@ -12305,7 +12305,7 @@
 		<Sound>spell/light_heal</Sound>
 		<Usable />
 		<BagType>2</BagType>
-		<Activate objectId="Tower5" duration="20" totalDamage="100">BuildTower</Activate>
+		<Activate objectId="Tower5" duration="20" totalDamage="100" allyDamage="100" allyShots="1" allyMs="500">BuildTower</Activate>
 		<ActivateOnEquip stat="28" amount="4">IncrementStat</ActivateOnEquip>
 		<MpCost>95</MpCost>
 		<OldSound>use_potion</OldSound>
@@ -12323,7 +12323,7 @@
 		<Sound>spell/light_heal</Sound>
 		<Usable />
 		<BagType>4</BagType>
-		<Activate objectId="Tower6" duration="20" totalDamage="120">BuildTower</Activate>
+		<Activate objectId="Tower6" duration="20" totalDamage="120" allyDamage="120" allyShots="1" allyMs="500">BuildTower</Activate>
 		<ActivateOnEquip stat="28" amount="5">IncrementStat</ActivateOnEquip>
 		<ActivateOnEquip stat="21" amount="1">IncrementStat</ActivateOnEquip>
 		<MpCost>110</MpCost>
@@ -12344,7 +12344,7 @@
 		<ActivateOnEquip stat="0" amount="20">IncrementStat</ActivateOnEquip>
 		<ActivateOnEquip stat="3" amount="20">IncrementStat</ActivateOnEquip>
 		<BagType>4</BagType>
-		<Activate objectId="Tower7" duration="25" totalDamage="140">BuildTower</Activate>
+		<Activate objectId="Tower7" duration="25" totalDamage="140" allyDamage="140" allyShots="1" allyMs="500">BuildTower</Activate>
 		<ActivateOnEquip stat="28" amount="5">IncrementStat</ActivateOnEquip>
 		<ActivateOnEquip stat="21" amount="2">IncrementStat</ActivateOnEquip>
 		<ActivateOnEquip stat="26" amount="2">IncrementStat</ActivateOnEquip>
@@ -12367,7 +12367,7 @@
 		<ActivateOnEquip stat="0" amount="40">IncrementStat</ActivateOnEquip>
 		<ActivateOnEquip stat="3" amount="40">IncrementStat</ActivateOnEquip>
 		<BagType>9</BagType>
-		<Activate objectId="Tower8" duration="30" totalDamage="160">BuildTower</Activate>
+		<Activate objectId="Tower8" duration="30" totalDamage="160" allyDamage="160" allyShots="1" allyMs="500">BuildTower</Activate>
 		<ActivateOnEquip stat="28" amount="5">IncrementStat</ActivateOnEquip>
 		<ActivateOnEquip stat="21" amount="2">IncrementStat</ActivateOnEquip>
 		<ActivateOnEquip stat="26" amount="3">IncrementStat</ActivateOnEquip>
@@ -12391,7 +12391,7 @@
 		<ActivateOnEquip stat="0" amount="60">IncrementStat</ActivateOnEquip>
 		<ActivateOnEquip stat="3" amount="60">IncrementStat</ActivateOnEquip>
 		<BagType>9</BagType>
-		<Activate objectId="Tower9" duration="30" totalDamage="180">BuildTower</Activate>
+		<Activate objectId="Tower9" duration="30" totalDamage="180" allyDamage="180" allyShots="1" allyMs="500">BuildTower</Activate>
 		<ActivateOnEquip stat="28" amount="5">IncrementStat</ActivateOnEquip>
 		<ActivateOnEquip stat="21" amount="2">IncrementStat</ActivateOnEquip>
 		<ActivateOnEquip stat="26" amount="4">IncrementStat</ActivateOnEquip>
