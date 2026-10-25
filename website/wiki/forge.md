@@ -22,8 +22,8 @@ tier below, and the rest are special recipes, most of them from Doomed Realms.
    you can make with what you carry and what's in your vault.
 4. Pick a recipe. **Insert all** puts its ingredients in from your inventory (forge shards from
    your forge storage), and anything you don't carry from your vault, or click each empty
-   ingredient slot to put one in. An ingredient from your vault says "vault" on its slot, with how
-   many your vault holds. An item several recipes make is listed once: the forge picks a recipe
+   ingredient slot to put one in. An ingredient from your vault shows a little vault chest on its
+   slot, with how many your vault holds (its tooltip says so too). An item several recipes make is listed once: the forge picks a recipe
    you can make, and says how many there are.
 5. Press **Forge**. It takes the fame shown, and the new item takes the first ingredient's place in
    your inventory. If every ingredient came from your vault or forge storage, it goes into a free

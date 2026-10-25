@@ -158,6 +158,8 @@ const SHEET: &str = "customAssets32x32";
 const STORAGE: u8 = 255;
 /// A socket filled from the account's vault.
 const VAULT: u8 = 254;
+/// The vault chest (`Vault Chest`), drawn on a socket filled from the vault.
+const VAULT_CHEST: u16 = 0x0504;
 
 /// The forge window.
 #[derive(Default)]
@@ -195,6 +197,8 @@ pub struct Forge {
     rect: Option<[f32; 4]>,
     hits: Vec<(Hit, [f32; 4])>,
     hover_item: Option<i32>,
+    /// The hovered socket is filled from the vault: the tooltip says so.
+    hover_vault: bool,
     /// What the inventory held when last drawn, by slot (the clicks and sockets work on it).
     inventory: Vec<(u8, i32)>,
     fame: i32,
@@ -636,6 +640,7 @@ impl Forge {
     pub fn draw(&mut self, ui: &mut Ui, lay: &Layout, me: Option<&GameObj>, mouse: (f64, f64), now: i32) {
         self.hits.clear();
         self.hover_item = None;
+        self.hover_vault = false;
         if !self.open {
             self.rect = None;
             return;
@@ -700,7 +705,12 @@ impl Forge {
             ui.label("Asking the forge for its recipes...", r[0] + 22.0 * s, foot_y, font(13.0), false, color::TEXT_MUTED);
         }
         if let Some(item) = self.hover_item {
-            let lines = crate::hud::item_tooltip(ui.data, item, me, SlotKind::Shop);
+            let mut lines = crate::hud::item_tooltip(ui.data, item, me, SlotKind::Shop);
+            if self.hover_vault {
+                let n = self.vaulted(item as u16);
+                lines.push(crate::hud::Line::gap());
+                lines.push(crate::hud::Line::new(&format!("From your vault ({n} there)"), 12.0, true, color::GOOD));
+            }
             crate::hud::draw_tooltip(ui, lay, &lines, Some(item), crate::screens::tier_edge(ui.data, item), mouse);
         }
     }
@@ -926,8 +936,8 @@ impl Forge {
                         let col = if inserted == Some(STORAGE) { color::GOLD } else { color::TEXT_DIM };
                         ui.label(&t, cr[0] + cr[2] - w - 4.0 * s, cr[1] + cr[3] - fs * 1.25, fs, true, col);
                     } else if inserted == Some(VAULT) {
-                        // from the vault: say so on the socket, and how many it holds
-                        ui.label("vault", cr[0] + 4.0 * s, cr[1] + 2.0 * s, font(10.0), true, color::GOOD);
+                        // from the vault: the vault chest in the corner, and how many it holds
+                        crate::hud::object_icon(ui, VAULT_CHEST, cr[0] + 10.0 * s, cr[1] + 10.0 * s, 14.0 * s);
                         let t = self.vaulted(item).to_string();
                         let fs = font(11.0);
                         let w = ui.measure(&t, fs, true);
@@ -937,6 +947,7 @@ impl Forge {
             }
             if inside(cr, mouse) {
                 self.hover_item = Some(item as i32);
+                self.hover_vault = inserted == Some(VAULT);
             }
             self.hits.push((Hit::Socket(k), cr));
         }

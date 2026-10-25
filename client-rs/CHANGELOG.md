@@ -19,6 +19,10 @@ details). Add to a group's line when a change adds to it, rather than adding ano
   times a player's size, now a little over one), and so are their shots, so six of them no longer
   hide the boss.
 
+### Divine Forge
+- An ingredient taken from your vault shows a little vault chest in its corner instead of the word
+  "vault", and its tooltip says how many your vault holds.
+
 ### Fixes
 - Janus leaves the Oryx's Chamber portal beside his loot bags instead of under them, where it
   was hidden and couldn't be entered, and no Realm Portal beside it.
