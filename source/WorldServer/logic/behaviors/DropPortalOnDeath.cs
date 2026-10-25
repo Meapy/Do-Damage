@@ -54,8 +54,12 @@ namespace WorldServer.logic.behaviors
                 var gameData = manager.Resources.GameData;
                 var timeoutTime = _timeout == null ? gameData.Portals[_target].Timeout : _timeout.Value;
                 var entity = Entity.Resolve(manager, _target);
-                entity.Move(host.X, host.Y);
-                entity.Move(host.X + xAdjustment, host.Y + yAdjustment);
+                // beside the boss, so its loot bags don't cover the portal; on the other side when
+                // that spot is a wall (a boss that chases players can die beside one)
+                var (x, y) = (host.X + xAdjustment, host.Y + yAdjustment);
+                if (!owner.IsPassable(x, y) && owner.IsPassable(host.X - xAdjustment, host.Y - yAdjustment))
+                    (x, y) = (host.X - xAdjustment, host.Y - yAdjustment);
+                entity.Move(x, y);
                 if (_name != null)
                     entity.Name = _name;
                 if (entity is Portal portal && _lockedHint != null)
