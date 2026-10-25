@@ -12,7 +12,7 @@ Keep each version short: changes go under `### ` group headings (Oryx 5, Arena, 
 on), one line per change players notice, summed up rather than item by item (the wiki has the
 details). Add to a group's line when a change adds to it, rather than adding another line.
 
-## Unreleased
+## 2.2.0 (2026-10-25)
 
 ### Quests and achievements
 - Quests: every day you get three daily quests, every week three weekly ones and every month three
