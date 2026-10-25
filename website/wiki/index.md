@@ -24,6 +24,8 @@ the site updates, so they match what you'll see in game.
   portal or key comes from, how hard it is and what it drops.
 - **Ready for the endgame?** [The Oryx chain](endgame.html) takes you from a closing realm to
   Oryx's Elysium.
+- **Something to do today?** [Quests and achievements](quests.html) covers the daily, weekly and
+  monthly quests, the daily reward and every achievement, with their rewards.
 - **What does this item do?** [Items](items.html) covers tiers, UT and ST items, keys, the vault,
   trading and the shops. [Gear statistics](gear-statistics.html) puts every tier side by side,
   with each class's damage and effective health. [Pets](pets.html) lists every pet and what it

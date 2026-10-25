@@ -64,6 +64,7 @@ Every key can be rebound in Options (<kbd>O</kbd>).
 | <kbd>B</kbd> | Switch between your inventory and backpack |
 | <kbd>0</kbd> | Enter a portal, or talk to the NPC next to you |
 | <kbd>R</kbd> | Back to the Nexus |
+| <kbd>J</kbd> | The quest log: quests, the daily reward and achievements |
 | <kbd>Enter</kbd> | Chat; <kbd>Tab</kbd> whispers, <kbd>G</kbd> guild chat, <kbd>P</kbd> party chat |
 | <kbd>L</kbd> | Show the frame rate and your ping |
 | <kbd>X</kbd> | Center the view on you |
@@ -110,7 +111,9 @@ you while you stand next to them. Around the spawn:
   players are inside.
 - **West** of the spawn: the **Vault** portal. **East**: the **Guild Hall** portal and guild board.
 - **Beside the spawn**: the Name Changer (your first name is free; changing it costs
-  {{v:name_change}} fame), the Character Changer, the Armoire (skins) and the Support Bot.
+  {{v:name_change}} fame), the Character Changer, the Armoire (skins) and the Support Bot, and
+  either side of the rug the **Tinkerer** and the **Chronicler**, who keep your
+  [quests, daily reward and achievements](quests.html).
 - **Both sides**, behind the colonnades: the **market wards**, the Nexus Bazaar's stalls. Everything
   there costs fame.
 - **South yard**: the Arena portal, with the Arena Leaderboard's golden trophy across the road

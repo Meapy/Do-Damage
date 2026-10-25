@@ -147,6 +147,18 @@ dotnet build source\WorldServer\WorldServer.csproj -c Debug -o build\wscheck   #
 - **The start-up log lists "Failed to add behavior ... Xml data not found"** for a few upstream
   behaviours with no object data. That's long-standing upstream noise, not a new error.
 
+## Quests and achievements
+
+- **Rules** are in `Shared/quests/` (no game code, so `dotnet test source\Tests` covers them), the
+  numbers in `Shared/resources/data/quests.json`. `WorldServer/core/quests/QuestTracker.cs` is the
+  game side: one per player, fed by hooks (kills, dungeon clears, realm closes, Arena waves,
+  potions, fame, levels, forging, white bags, trades) through `Player.Quests.Event`.
+- **State:** the `progress` field of `account.<id>` (JSON). `Client.Save` stores it on leaving;
+  claims save before paying, so a claim is never paid twice.
+- **Testing:** `/questadmin time <hours>` moves the quests' clock for the whole server (resets,
+  daily rewards), `add <event> [n] [flags]` counts an event on you, `done` finishes your quests and
+  `reset` starts you afresh. Admins only; use it on a test stack, never the live servers.
+
 ## Commands
 
 - **Where:** `core/commands/`, `admin/`, `player/`, `supporter/` and `doomed/`. Each command is a

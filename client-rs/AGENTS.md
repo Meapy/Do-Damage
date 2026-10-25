@@ -122,6 +122,7 @@ The client itself can be scripted for tests (desktop only):
 | `--aim <degrees>` / `--aim auto` | Where `f` fires on the screen, or at the nearest enemy. `auto` is staff's `/autoaim`: the client sends it first and aims only once the server agrees, so the account must be an admin on the test stack (`rank` 6 in its Redis) |
 | `--say <text>` | Send a chat line or command once in the game; several lines split by `;;` go out in turn, each once another world is joined or 3 s after the last (`"/dungeon Oryx's Sanctuary;;/god"`) |
 | `--npc <class>` | Open that NPC's window once in the game (`GuildBoard`, `PotionStorage`...), wherever you stand |
+| `--quests <tab>` | Open the quest log at a tab once its data has come: `daily`, `weekly`, `monthly`, `login`, `achievements` (with `/questadmin` in `--say` to set up a state) |
 | `--effect <type>` | Show that `ShowEffect` type on you every half second (0: an area attack beside you), to check particles |
 | `--type <text>` | Type into the first NPC prompt that opens (then Enter), onto the guild board being edited, or into the Divine Forge's search (with `--npc Forge`) |
 | `--size WxH` | Open the window at this size (physical pixels), to check the layout |
@@ -184,7 +185,7 @@ yard): `--walk-to 45.5,68.5 --hold 0:200 --hold -:6000 --hold f:100000 --aim aut
   uses the ability at the mouse, 1-8 equip or use an inventory slot, F/V drink a stacked potion,
   0 enters a portal (or opens the NPC beside you), R goes to the Nexus, Enter or / chats, Tab
   whispers (again to cycle who to), G and P guild and party chat, Page Up/Down the chat history,
-  - and = zoom the minimap, O opens the options (all of these can be rebound there), Escape opens the menu (character select,
+  - and = zoom the minimap, O opens the options, J the quest log (all of these can be rebound there), Escape opens the menu (character select,
   log out). Items drag between slots, onto the
   world to drop; double-click equips, uses or takes from a bag; shift-click uses; Ctrl+click moves an
   item to the other page (inventory, backpack); Ctrl+right-click breaks it down.
@@ -204,6 +205,10 @@ yard): `--walk-to 45.5,68.5 --hold 0:200 --hold -:6000 --hold f:100000 --aim aut
   `stat::SWAP_0`, the server's `InventoryConstants`); the client doesn't show them yet.
 - **Fame records:** the client asks for `FameStats` (93/94): the character's `FameStats` (an
   id and a count each), every few seconds while they change, for the card's Records tab.
+- **Quests:** the client asks for `QuestsData` (103/104) in every world, keeps it current from
+  `QuestProgress` (108) and pops up `QuestNotice`s (107); claims are `QuestClaim` (105), answered by
+  `QuestResult` (106). The quest log (`quests.rs`) and the HUD's Quests button and its badge read
+  it. The Tinkerer (`QuestMaster`) and the Chronicler (`Chronicler`) open it at their pages.
 - **Boss damage:** the client asks for `QuestDamageFull` (91/92) as well as `QuestDamage`
   (89/90): everyone who hit the quest with their class, its maximum health, and a last message
   marked `dead` when it dies. The client keeps the last 3 bosses it hit

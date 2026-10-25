@@ -34,6 +34,7 @@ sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 import wiki_data as wd  # noqa: E402
 import wiki_balance  # noqa: E402
 import wiki_gear  # noqa: E402
+import wiki_quests  # noqa: E402
 
 ROOT = wd.ROOT
 SRC = os.path.join(ROOT, "website", "wiki")
@@ -52,6 +53,7 @@ COMMAND_HELP = {
     "shop": "Opens a shop: weapons, abilities, armor, rings, consumables, keys and pets for fame. With no name it lists the shops.",
     "sellfame": "Selling items for fame is now done at the Divine Forge in the Nexus; this points you to it.",
     "forge": "Forging is now done at the Divine Forge in the Nexus; this points you to it.",
+    "quests": "Your quests, today's reward and your achievements in the chat (the <kbd>J</kbd> key opens the quest log, where you claim them).",
     "forgelist": "The recipes are in the Divine Forge's window, in the Nexus; this points you to it.",
     "trade": "Asks a player to trade: <code>/trade &lt;name&gt;</code>. Needs 2 rank stars; clicking a player's name and choosing Trade doesn't.",
     "tell": "Whispers to a player: <code>/tell &lt;name&gt; &lt;message&gt;</code> (or press <kbd>Tab</kbd>).",
@@ -438,6 +440,37 @@ class Gen:
             self._balance = wiki_balance.Balance(self)
         return self._balance
 
+    # --- quests, daily rewards and achievements (tools/wiki_quests.py) ---------------------------
+    @property
+    def quests(self):
+        if getattr(self, "_quests", None) is None:
+            self._quests = wiki_quests.Quests(self)
+        return self._quests
+
+    def gen_quests_daily(self, used):
+        return self.quests.pool("daily")
+
+    def gen_quests_weekly(self, used):
+        return self.quests.pool("weekly")
+
+    def gen_quests_monthly(self, used):
+        return self.quests.pool("monthly")
+
+    def gen_quests_bonuses(self, used):
+        return self.quests.bonuses()
+
+    def gen_quests_login(self, used):
+        return self.quests.login()
+
+    def gen_quests_achievements(self, used):
+        return self.quests.achievements()
+
+    def gen_quests_tiers(self, used):
+        return self.quests.tiers()
+
+    def gen_quests_ranks(self, used):
+        return self.quests.ranks()
+
     def gen_tier_tables(self, used):
         return self.balance.tier_tables(used)
 
@@ -470,6 +503,7 @@ class Gen:
         gift = self.d.objects.get("XP Gift", {})
         crate = wd.mystery_crate()
         return {
+            **self.quests.values(),
             "forge_recipes": "{:,}".format(len(self.forge)), "forge_chains": "{:,}".format(sum(r["chain"] for r in self.forge)),
             "forge_cap": "{:,}".format(wd.Data.FORGE_TIERED_CAP), "name_change": "{:,}".format(wd.name_change_fame()),
             "char_slots": a["char_slots"], "vault_chests": a["vault_chests"],

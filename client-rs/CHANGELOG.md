@@ -14,6 +14,21 @@ details). Add to a group's line when a change adds to it, rather than adding ano
 
 ## Unreleased
 
+### Quests and achievements
+- Quests: every day you get three daily quests, every week three weekly ones and every month three
+  monthly ones (slay monsters or gods, clear dungeons, defeat realm events or Oryx, beat Arena
+  waves, earn fame and more), each worth fame and some potions or keys, plus a bonus for finishing
+  them all. Don't like one? Swap it, once a period. They reset at midnight UTC.
+- A daily reward for logging in: a 28-day track with bigger rewards every seventh day. Missing a
+  day never loses your place.
+- Achievements: 22 of them, each with Bronze, Silver, Gold and Ember tiers, for everything from
+  kills and dungeons to trades and white bags. Each tier gives fame and points; points raise your
+  rank, and ranks unlock chat name colours. Your kills, fame and levels from before count.
+- Press J, or the new Quests button beside the Nexus button, to open the quest log; the button
+  shows how many rewards are waiting, and a popup tells you when you finish something. The
+  Tinkerer and the Chronicler by the Nexus spawn keep your quests and your deeds. /quests lists it
+  all in the chat.
+
 ### Lair of Draconis
 - The Lair of Draconis is open. The Rock Dragon drops its portal (and the Lair of Shaitan's half
   the time), and the Draconis Key opens it: it's in the Nexus Bazaar's key stalls for 300 fame. Step onto a dragon's soul by the altar to face Nikao,

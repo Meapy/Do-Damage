@@ -497,6 +497,13 @@ code { font: .86em ui-monospace, "Cascadia Mono", Consolas, monospace; padding: 
 .prose tbody tr:nth-child(even) td { background: rgba(22, 16, 37, .55); }
 .prose td code { white-space: nowrap; }
 .cmds td:first-child { white-space: nowrap; }
+/* the Quests page (tools/wiki_quests.py): rewards in a row, the daily reward track, name colours */
+.q-rewards { display: inline-flex; flex-wrap: wrap; align-items: center; gap: 4px 12px; }
+.q-fame b { color: var(--gold); }
+.q-track td { min-width: 96px; text-align: center; }
+.q-track td.q-milestone { background: rgba(255, 122, 61, .1); }
+.q-track .q-rewards { justify-content: center; margin-top: 4px; }
+.q-swatch { display: inline-block; width: .9em; height: .9em; border-radius: 50%; vertical-align: -.1em; }
 .chain td:first-child { font: 700 .85rem var(--pixel); color: var(--ember); white-space: nowrap; }
 .dim { color: var(--text-muted); }
 .balance td, .balance th { white-space: nowrap; }
