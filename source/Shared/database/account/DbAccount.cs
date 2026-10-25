@@ -54,6 +54,8 @@ namespace Shared.database.account
         public const int PotionStorageUpgradeCost = 500;
         // the forge shards stored, in the order of ForgeStorage.Shards (the world server's)
         public int[] ForgeShards { get => GetValue<int[]>("forgeShards") ?? new int[0]; set => SetValue("forgeShards", value); }
+        // quests, daily login rewards and achievements (Shared.quests.QuestState, as JSON)
+        public string Progress { get => GetValue<string>("progress"); set => SetValue("progress", value); }
         internal string LockToken { get; set; }
 
         public DbAccount(IDatabase db, int accountId, string field = null, bool isAsync = false)
