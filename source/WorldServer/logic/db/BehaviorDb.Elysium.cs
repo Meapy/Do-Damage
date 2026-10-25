@@ -205,10 +205,12 @@ namespace WorldServer.logic
             // - Apotheosis (20%): his sprite turns gold and eight Halo Orbs circle the edge of the
             //   arena, firing in at its middle. Wrath: the Cross (aimed at you now) and the Hunt in
             //   turn, chasing all the while.
-            // - Last Judgement (10%): invulnerable in the middle. The Holy Gates shut, the Pillars of
-            //   Heaven ring the arena firing straight across it, and he throws the Spear of Heaven
-            //   and fires the Radiant Cross, slowed right down. After 30 s, the Concession: the gates
-            //   open, he falls back through every Oryx he was, and then he can be killed.
+            // - Last Judgement (10%): invulnerable in the middle. Gates fill the corridor below the
+            //   arena, the Pillars of Heaven ring the arena firing straight across it, and he throws
+            //   the Spear of Heaven and fires the Radiant Cross, slowed right down. After 30 s, the
+            //   Concession: the corridor opens, he falls back through every Oryx he was, and then he
+            //   can be killed.
+            // The Holy Gates shut behind the players as he wakes and open when he dies.
             .Init("Oryx the Ascended God",
                 new State(
                     new BossStats(110000, 55, 1.0, 0.35, arena: true),
@@ -216,6 +218,7 @@ namespace WorldServer.logic
                     // the end of the chain: the way out is home to the Nexus
                     new DropPortalOnDeath("Nexus Portal", 1.0, timeout: 120, xAdjustment: 2),
                     new AnnounceOnDeath("{PL_LIST} cast down Oryx the Ascended God in his Elysium! The Realm is free... for now."),
+                    new RemoveObjectOnDeath("O5 Holy Gate", 30),
                     new State("Where",
                         new ArenaTransition("Arena Wake"),
                         new ArenaTransition("Dormant", false)
@@ -238,10 +241,14 @@ namespace WorldServer.logic
                         new Shoot(15, 3, 12, projectileIndex: 0, predictive: 0.4, coolDown: 2000),
                         new EntitiesNotExistsTransition(40, "Awaken 1", "Ascended Warden")
                     ),
+                    // the Holy Gates shut behind the players for the whole fight (rows 20 and 21 below
+                    // him, three either side: GATE_ROWS and CORRIDOR in tools/build_elysium.py), and
+                    // anyone standing in them is moved inside; they open when he dies
                     new State("Awaken 1",
                         new ConditionEffectBehavior(ConditionEffectIndex.Invulnerable),
+                        new PlaceObject("O5 Holy Gate", -3, 20, 3, 21, clear: true),
                         new Flash(0xFFFFE070, 0.4, 10),
-                        new Taunt(true, "You struck down my Wardens. You stand in MY heaven now.") { Bubble = false },
+                        new Taunt(true, "You struck down my Wardens. My gates are shut: you stand in MY heaven now.") { Bubble = false },
                         new TimedTransition(3500, "Awaken 2")
                     ),
                     new State("Awaken 2",
@@ -266,14 +273,15 @@ namespace WorldServer.logic
                         new TossObject("Ascended Cleric", 7, 135, 90000000),
                         new TossObject("Ascended Aristocrat", 7, 225, 90000000),
                         new TossObject("Ascended Sergeant", 7, 315, 90000000),
-                        new TimedRandomTransition(4000, false, "J Cross", "J Firmament", "J Hunt")
+                        new TimedPatternTransition(4000, "J Cross", "J Firmament", "J Hunt")
                     ),
-                    // ---- Judgement (80% to 60%): a pattern at random each time ----
+                    // ---- Judgement (80% to 60%): a pattern at random each time, never one a third time
+                    // in a row (TimedPatternTransition, as in his Transcendence) ----
                     new State("Judgement Unbound",
                         new HpLessTransition(0.6, "Transcendence"),
-                        RadiantCross("J Cross", false, new TimedRandomTransition(CrossTime, false, "J Cross", "J Firmament", "J Hunt")),
-                        Firmament("J Firmament", false, new TimedRandomTransition(StarLife, false, "J Cross", "J Firmament", "J Hunt")),
-                        DivineHunt("J Hunt", false, false, ms => new TimedRandomTransition(ms, false, "J Cross", "J Firmament", "J Hunt"))
+                        RadiantCross("J Cross", false, new TimedPatternTransition(CrossTime, "J Cross", "J Firmament", "J Hunt")),
+                        Firmament("J Firmament", false, new TimedPatternTransition(StarLife, "J Cross", "J Firmament", "J Hunt")),
+                        DivineHunt("J Hunt", false, false, ms => new TimedPatternTransition(ms, "J Cross", "J Firmament", "J Hunt"))
                     ),
 
                     // ---- Transcendence (60% to 20%) ----
@@ -283,13 +291,13 @@ namespace WorldServer.logic
                         new Flash(0xFFFFFFFF, 0.3, 16),
                         new Taunt(true, "I... have... TRANSCENDED! Rise, mortals, whole again, so you may be broken anew!") { Bubble = false },
                         new HealPlayer(30, 60000, 100000),
-                        new TimedRandomTransition(5000, false, "T Cross", "T Firmament", "T Hunt")
+                        new TimedPatternTransition(5000, "T Cross", "T Firmament", "T Hunt")
                     ),
                     new State("Transcendent",
                         new HpLessTransition(0.2, "Apotheosis"),
-                        RadiantCross("T Cross", true, new TimedRandomTransition(CrossTime, false, "T Cross", "T Firmament", "T Hunt")),
-                        Firmament("T Firmament", true, new TimedRandomTransition(StarLife, false, "T Cross", "T Firmament", "T Hunt")),
-                        DivineHunt("T Hunt", true, true, ms => new TimedRandomTransition(ms, false, "T Cross", "T Firmament", "T Hunt"))
+                        RadiantCross("T Cross", true, new TimedPatternTransition(CrossTime, "T Cross", "T Firmament", "T Hunt")),
+                        Firmament("T Firmament", true, new TimedPatternTransition(StarLife, "T Cross", "T Firmament", "T Hunt")),
+                        DivineHunt("T Hunt", true, true, ms => new TimedPatternTransition(ms, "T Cross", "T Firmament", "T Hunt"))
                     ),
 
                     // ---- Apotheosis (20% to 10%) ----
@@ -319,16 +327,17 @@ namespace WorldServer.logic
                     new State("Last Judgement",
                         new ConditionEffectBehavior(ConditionEffectIndex.Invulnerable),
                         new Order(30, "Halo Orb", "Gone"),
+                        // the corridor between the arena and the Holy Gates (rows 17 to 19 below him),
+                        // out of the Pillars' reach, fills with gates until the Concession: anyone
+                        // sheltering there is moved into the arena
+                        new PlaceObject("O5 Holy Gate", -3, 17, 3, 19, clear: true, removeOnExit: true),
                         new State("LJ Gather",
                             new ReturnToSpawn(2),
                             new Flash(0xFFFFFFFF, 0.25, 8),
                             new Taunt(true, "ENOUGH! The heavens themselves shall be your prison!") { Bubble = false },
                             new TimedTransition(2000, "LJ Fall")
                         ),
-                        // the Holy Gates shut (rows 20 and 21 below him, three either side: GATE_ROWS and
-                        // CORRIDOR in tools/build_elysium.py)
                         new State("LJ Fall",
-                            new PlaceObject("O5 Holy Gate", -3, 20, 3, 21),
                             new SpawnRing("Pillar of Heaven", 24, 15, 7.5, aroundSpawn: true),
                             new TimedTransition(500, "LJ Siege")
                         ),
@@ -336,6 +345,11 @@ namespace WorldServer.logic
                         // arena: every second volley turned half a step (22.5 degrees), so its lines
                         // fall between the last ones' and there's no standing still
                         new State("LJ Siege",
+                            // the corridor's mouth (rows 14 to 16 below him, behind the lowest Pillars):
+                            // lances straight across it from the walls, a side and its rows in turn
+                            new ShootFromSpots(0, 700,
+                                new[] { (-4, 14, 0.0), (-4, 16, 0.0), (4, 15, 180.0) },
+                                new[] { (4, 14, 180.0), (4, 16, 180.0), (-4, 15, 0.0) }),
                             new Shoot(25, projectileIndex: 7, predictive: 0.4, coolDown: 2800, coolDownOffset: 1500),
                             new ShootFormation(25, 4, Lanes, 8, fixedAngle: 0, coolDown: 2600),
                             new ShootFormation(25, 4, Arrowhead, 9, fixedAngle: 45, coolDown: 2600),
@@ -350,7 +364,6 @@ namespace WorldServer.logic
                         new Order(30, "Pillar of Heaven", "Gone"),
                         new State("Concession Open",
                             new ConditionEffectBehavior(ConditionEffectIndex.Invulnerable),
-                            new RemoveObject("O5 Holy Gate", 22),
                             new Flash(0xFFFFFFFF, 0.5, 6),
                             new Taunt(true, "I... concede. Strike, then, if you are worthy.") { Bubble = false },
                             new SetAltTexture(0),
@@ -535,10 +548,6 @@ namespace WorldServer.logic
                     new ItemLoot("Potion of Attack", 0.3),
                     new ItemLoot("Potion of Defense", 0.3),
                     new ItemLoot("Greater Potion of Life", 0.1),
-                    new ItemLoot("Ascended Weapon Shard", 0.03),
-                    new ItemLoot("Ascended Ability Shard", 0.03),
-                    new ItemLoot("Ascended Armor Shard", 0.03),
-                    new ItemLoot("Ascended Accessory Shard", 0.03),
                     new TierLoot(14, ItemType.Weapon, 0.1),
                     new TierLoot(15, ItemType.Armor, 0.08),
                     new TierLoot(6, ItemType.Ability, 0.1),

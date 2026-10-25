@@ -150,9 +150,11 @@ def build():
     # --- the Sanctum's furnishings -------------------------------------------------------------
     # dead centre: his spawn point is the middle he dashes back to between phases
     g.place(ax, ay, "Oryx the Mad God 3")
-    # four pillars to hide behind, on the diagonals
+    # four pillars to hide behind, on the diagonals, each with an invisible turret on its inner side
+    # that fires from it once he's hurt (BehaviorDb.OryxSanctuary.cs)
     for dx, dy in ((-1, -1), (1, -1), (-1, 1), (1, 1)):
         g.place(ax + dx * 9, ay + dy * 9, COLUMN)
+        g.place(ax + dx * 8, ay + dy * 8, "O3 Pillar Turret")
     # banners on the north wall and torches all the way round
     for i, banner in enumerate(("O3 G Banner", "O3 D Banner", "O3 O Banner", "O3 L Banner", "O3 B Banner")):
         bx = ax - 8 + i * 4

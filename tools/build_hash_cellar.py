@@ -299,6 +299,10 @@ BURNT_OBJECTS = {
 }
 # what the copies are called and where they lead, where they need it
 BURNT_FIELDS = {}
+# the copies' shots, where they differ from the original's: Oryx 4's butterflies (both kinds of
+# Infernal Element) sting for 20, through armour
+BUTTERFLY_SHOTS = {"Damage": "20", "ArmorPiercing": None}
+BURNT_SHOTS = {"Infernal Element": BUTTERFLY_SHOTS, "Infernal Outer Element": BUTTERFLY_SHOTS}
 # The way into the Inferno, a horned maw round a vortex of fire (the Inferno incantation opens
 # it), and its locked state, still and dark: drawn by tools/draw_oryx_gates.py.
 INFERNO_PORTAL = "Oryx's Inferno Portal"
@@ -332,6 +336,12 @@ def burnt_objects(types, sheets, everything):
                 node = ET.Element(tag)
                 e.insert(0, node)
             node.text = text
+        for shot in e.iter("Projectile"):
+            for tag, text in BURNT_SHOTS.get(name, {}).items():
+                node = shot.find(tag)
+                if node is None:
+                    node = ET.SubElement(shot, tag)
+                node.text = text
         retexture(e, sheets, stops)
         out.append(e)
     return out
