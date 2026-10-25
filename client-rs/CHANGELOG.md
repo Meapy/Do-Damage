@@ -16,7 +16,7 @@ details). Add to a group's line when a change adds to it, rather than adding ano
 
 ### Lair of Draconis
 - The Lair of Draconis is open. The Rock Dragon drops its portal (and the Lair of Shaitan's half
-  the time), and the Draconis Key opens it. Step onto a dragon's soul by the altar to face Nikao,
+  the time), and the Draconis Key opens it: it's in the Nexus Bazaar's key stalls for 300 fame. Step onto a dragon's soul by the altar to face Nikao,
   Pyyr, Limoz or Feargus in its lair; pop the loot balloon it leaves and the way back opens. Slay
   all four and the altar opens the Ivory Wyvern, and half the time the Elder Lair too.
 - The Elder Lair of Draconis is the same lair, darker, with Elder dragons: twice the health, harder

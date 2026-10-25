@@ -80,7 +80,7 @@ namespace WorldServer.core.objects.vendors
             ("Bella's Key", 75), ("Undead Lair Key", 100), ("Lab Key", 100), ("Davy's Key", 100),
             ("Reef Key", 100), ("Ice Cave Key", 100), ("The Crawling Depths Key", 100), ("Secluded Thicket Key", 100),
             ("Fungal Cavern Key", 100), ("Parasite Chambers Key", 100), ("Mountain Temple Key", 100), ("Ancient Ruins Key", 100),
-            ("Wine Cellar Incantation", 125), ("Cult Key", 150), ("Ice Tomb Key", 150), ("Shaitan's Key", 300),
+            ("Wine Cellar Incantation", 125), ("Cult Key", 150), ("Ice Tomb Key", 150), ("Shaitan's Key", 300), ("Draconis Key", 300),
             ("Puppet Master's Encore Key", 300), ("Oryx's Castle Key", 300), ("Shatters Key", 400), ("Oryx Chamber Key", 400),
             ("Battle Nexus Key", 400), ("Tomb of the Ancients Key", 500), ("Lost Halls Key", 500),
             ("Oryx Sanctuary Key", 300),  // the Oryx chain's incantation for the Sanctuary
