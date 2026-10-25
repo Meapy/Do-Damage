@@ -100,6 +100,13 @@ through the gateway, as the browser does. With no living character it makes a Wi
 tests (accounts from the account server's `/account/register` on the isolated stack). Every 10 s it
 logs the ping the server measured and the gaps between NewTicks as they arrived (100 ms when
 nothing holds them up).
+`--fight` plays as a player does (`bot/src/fight.rs`, the client's `bsk-world` logic): it circles
+the nearest enemy at its weapon's reach, shoots it at the weapon's rate of fire, uses its ability
+when it has the mana, keeps off ground that hurts, and sends the hits as the client does.
+`--class <name or 0x type>` is the class of a new character, and `--view <tiles>` the sight it asks
+for (a large window asks for about 20). It reads the game's XML from `assets/` beside it (only the
+manifest's ground, object, particle and model files) or the repository's. God mode is lost with
+each world change, so `--say` it after joining: `"/gear;;/arena;;/god"` (one bot `/openarena` first).
 
 The client itself can be scripted for tests (desktop only):
 

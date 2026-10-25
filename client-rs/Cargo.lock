@@ -352,11 +352,15 @@ dependencies = [
 name = "bsk-bot"
 version = "2.0.2"
 dependencies = [
+ "bsk-assets",
+ "bsk-data",
  "bsk-net",
  "bsk-proto",
  "bsk-session",
+ "bsk-world",
  "env_logger",
  "log",
+ "pollster",
 ]
 
 [[package]]

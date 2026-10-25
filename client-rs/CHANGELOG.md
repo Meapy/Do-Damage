@@ -35,7 +35,7 @@ details). Add to a group's line when a change adds to it, rather than adding ano
 
 ### Game
 - The server does about half the work in busy realms, uses a third of the memory, and stops for
-  memory clean-up far less, so ping is lower and steadier and big fights lag less. In the realm,
+  memory clean-up far less, so ping is lower and steadier and big fights, the Arena above all, lag less. In the realm,
   monsters more than about 16 tiles from everyone now wait until someone comes closer. Fixed a
   server crash when several players dropped at the same moment.
 

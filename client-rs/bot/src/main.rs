@@ -14,6 +14,14 @@
 //! `--say` sends chat lines or commands (split by `;;`), one 3 s after each world is joined or
 //! 3 s after the last. `--wander` walks the bot round a circle of that radius about where it
 //! joined each world, so several bots keep parts of a realm awake for load tests.
+//!
+//! `--fight` plays as a player does (`fight.rs`): it circles the nearest enemy, shoots it and
+//! uses its ability, with the client's game logic and the game's XML (the client's assets,
+//! packaged beside the bot or the repository's). `--class <type>` is the class a new character
+//! gets (hex as in the XML, `0x0300`, or a name: rogue, archer, wizard...), `--view <tiles>` the
+//! sight radius it asks for, as a large window does (default 15).
+
+mod fight;
 
 
 use bsk_net::{account, http, login, GameSocket, SocketEvent, Target};
@@ -30,11 +38,28 @@ struct Args {
     gateway: Option<String>,
     say: Vec<String>,
     wander: f32,
+    fight: bool,
+    class: u16,
+    view: i32,
+}
+
+/// The classes' object types, for `--class`.
+const CLASSES: &[(&str, u16)] = &[
+    ("rogue", 0x0300), ("archer", 0x0307), ("wizard", 0x030e), ("priest", 0x0310), ("warrior", 0x031d),
+    ("knight", 0x031e), ("paladin", 0x031f), ("assassin", 0x0320), ("necromancer", 0x0321), ("huntress", 0x0322),
+    ("mystic", 0x0323), ("trickster", 0x0324), ("sorcerer", 0x0325), ("ninja", 0x0326),
+];
+
+fn parse_class(v: &str) -> Result<u16, String> {
+    if let Some(hex) = v.strip_prefix("0x") {
+        return u16::from_str_radix(hex, 16).map_err(|e| format!("--class: {e}"));
+    }
+    CLASSES.iter().find(|c| c.0.eq_ignore_ascii_case(v)).map(|c| c.1).ok_or(format!("--class: no class {v}"))
 }
 
 fn parse_args() -> Result<Args, String> {
     let mut args =
-        Args { account: String::new(), credentials: String::new(), seconds: 60, char_id: None, gateway: None, say: Vec::new(), wander: 0.0 };
+        Args { account: String::new(), credentials: String::new(), seconds: 60, char_id: None, gateway: None, say: Vec::new(), wander: 0.0, fight: false, class: 0x030e, view: 15 };
     let mut it = std::env::args().skip(1);
     while let Some(a) = it.next() {
         let mut value = || it.next().ok_or(format!("{a} needs a value"));
@@ -46,6 +71,9 @@ fn parse_args() -> Result<Args, String> {
             "--gateway" => args.gateway = Some(value()?),
             "--say" => args.say = value()?.split(";;").map(|l| l.trim().to_owned()).filter(|l| !l.is_empty()).collect(),
             "--wander" => args.wander = value()?.parse().map_err(|e| format!("--wander: {e}"))?,
+            "--fight" => args.fight = true,
+            "--class" => args.class = parse_class(&value()?)?,
+            "--view" => args.view = value()?.parse().map_err(|e| format!("--view: {e}"))?,
             _ => return Err(format!("unknown argument {a}")),
         }
     }
@@ -96,7 +124,7 @@ fn run(args: Args) -> Result<(), String> {
     let mut char_id = ch.map(|c| c.id);
     let join = |char_id: Option<i32>| match char_id {
         Some(char_id) => Join::Load { char_id },
-        None => Join::Create { class_type: 0x030e, skin_type: 0 },
+        None => Join::Create { class_type: args.class, skin_type: 0 },
     };
 
     // Through the gateway the same way the desktop client goes (wss with BSK_CA, as in its tests).
@@ -133,6 +161,10 @@ fn run(args: Args) -> Result<(), String> {
     let mut next_say: Option<Instant> = None;
     let mut circle: Option<Instant> = None;
     let mut last_step = Instant::now();
+    // --fight: the game's data and the fighting, a frame every 16 ms as the client's
+    let data = if args.fight { Some(load_data()?) } else { None };
+    let mut fighter = fight::Fighter::new();
+    let mut last_frame = Instant::now();
 
     let result = loop {
         if Instant::now() >= deadline {
@@ -146,7 +178,22 @@ fn run(args: Args) -> Result<(), String> {
                 next_say = Some(Instant::now() + Duration::from_secs(3));
             }
         }
-        if args.wander > 0.0 && last_step.elapsed() >= Duration::from_millis(100) {
+        if let Some(data) = &data {
+            if last_frame.elapsed() >= Duration::from_millis(16) {
+                let dt = last_frame.elapsed().as_millis() as i32;
+                last_frame = Instant::now();
+                let t = now();
+                let mut msgs = Vec::new();
+                if let Some(pos) = fighter.frame(t, dt, session.last_move_time().unwrap_or(t), data, &mut msgs) {
+                    session.set_position(pos, t);
+                }
+                for m in msgs {
+                    *sent.entry(m.name()).or_default() += 1;
+                    socket.send(&m);
+                }
+            }
+        }
+        if !args.fight && args.wander > 0.0 && last_step.elapsed() >= Duration::from_millis(100) {
             last_step = Instant::now();
             if let (Some(since), Some(p)) = (circle, session.position) {
                 // 3 tiles a second, turning so a lap is a circle of that radius; stepping from
@@ -178,8 +225,13 @@ fn run(args: Args) -> Result<(), String> {
                     None => String::new(),
                 };
                 tick_gaps.clear();
+                let fights = if args.fight {
+                    format!(", {} shots, {} hits, {} abilities", fighter.shots, fighter.hits, fighter.abilities)
+                } else {
+                    String::new()
+                };
                 log::info!(
-                    "{:>3} s: {} ticks, {} objects seen{ping}{gaps}",
+                    "{:>3} s: {} ticks, {} objects seen{ping}{gaps}{fights}",
                     started.elapsed().as_secs(),
                     received.get("NewTick").unwrap_or(&0),
                     objects.len()
@@ -192,6 +244,9 @@ fn run(args: Args) -> Result<(), String> {
             SocketEvent::Closed(why) => break Err(format!("disconnected after {} ms: {why}", now())),
             SocketEvent::Message(msg) => {
                 *received.entry(msg.name()).or_default() += 1;
+                if let Some(data) = &data {
+                    fighter.handle(&msg, now(), data);
+                }
                 match &*msg {
                     ServerMessage::Ping(p) if p.round_trip_time >= 0 => rtts.push(p.round_trip_time),
                     ServerMessage::NewTick(_) => {
@@ -216,9 +271,25 @@ fn run(args: Args) -> Result<(), String> {
                     _ => {}
                 }
                 match session.handle(&msg, now(), &mut out) {
-                    Some(Event::MapInfo(m)) => log::info!("map {} ({}×{})", m.name, m.width, m.height),
+                    Some(Event::MapInfo(m)) => {
+                        log::info!("map {} ({}×{})", m.name, m.width, m.height);
+                        fighter.map(m.width as i32, m.height as i32, &m.display_name, m.seed);
+                    }
                     Some(Event::Joined { object_id, char_id: id }) => {
                         log::info!("joined as object {object_id}");
+                        if args.fight {
+                            fighter.joined(object_id);
+                            // what the client asks for once in: the boss's damage, fame, its view
+                            let asks: [ClientMessage; 4] = [
+                                bsk_proto::QuestDamageSubscribe {}.into(),
+                                bsk_proto::QuestDamageFullSubscribe {}.into(),
+                                bsk_proto::FameStatsSubscribe {}.into(),
+                                bsk_proto::ViewRadius { radius: args.view }.into(),
+                            ];
+                            for m in asks {
+                                socket.send(&m);
+                            }
+                        }
                         char_id = Some(id);
                         next_say = Some(Instant::now() + Duration::from_secs(3));
                         circle = None;
@@ -229,6 +300,7 @@ fn run(args: Args) -> Result<(), String> {
                     Some(Event::Reconnect(r)) => {
                         log::info!("reconnecting to {} (game {}{})", r.name, r.game_id,
                             if r.host.is_empty() { String::new() } else { format!(" at {}:{}", r.host, r.port) });
+                        fighter.reset();
                         socket.close();
                         if !r.host.is_empty() {
                             target.host = r.host.clone();
@@ -248,9 +320,13 @@ fn run(args: Args) -> Result<(), String> {
                 if args.wander > 0.0 && circle.is_none() && session.phase == Phase::InGame {
                     circle = Some(Instant::now());
                 }
+                let moved = out.iter().any(|m| matches!(m, ClientMessage::Move(_)));
                 for m in out.drain(..) {
                     *sent.entry(m.name()).or_default() += 1;
                     socket.send(&m);
+                }
+                if let (true, Some(data)) = (moved, &data) {
+                    fighter.moved(data);
                 }
             }
         }
@@ -265,6 +341,15 @@ fn run(args: Args) -> Result<(), String> {
     log::info!("stayed connected for {} s at {:?} ({reconnects} world changes)", args.seconds, session.position);
     socket.close();
     Ok(())
+}
+
+/// The game's XML, as the client loads it (its assets beside the bot, or the repository's).
+fn load_data() -> Result<bsk_data::GameData, String> {
+    let source = bsk_assets::AssetSource::locate().map_err(|e| e.to_string())?;
+    let manifest = pollster::block_on(source.manifest()).map_err(|e| e.to_string())?;
+    let data = pollster::block_on(bsk_data::GameData::load(&source, &manifest))?;
+    log::info!("game data: {} objects ({})", data.objects.len(), source.describe());
+    Ok(data)
 }
 
 fn main() {
