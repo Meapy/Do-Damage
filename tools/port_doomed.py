@@ -576,6 +576,16 @@ ABILITY_TIER_HP_MP = {6: 20, 7: 40, 8: 60}
 # of a staff of the matching tier.
 SUMMON_DAMAGE = {"Bunny Summon": 70, "Snake Summon": 100, "Wasp Summon": 140, "Wolf Summon": 180,
                  "Drake Summon": 100, "Wisp Summon": 100}
+# How big the Summoner's summons are drawn (Size; a sprite's pixels are drawn 5 x Size / 100 screen
+# pixels, so an 8x8 at 100 is a player). Doomed Realms drew the Dragon and the Oryxes, 16x16
+# sprites at 150, three times a player's width, and with six out they hid the boss. Now the T0-T2
+# ones are about half a player, T3-T5 three quarters and T6-T8 a little over a player, each at a
+# whole number of screen pixels per sprite pixel (40, 60, 80, 100) so they stay crisp.
+SUMMON_SIZE = {"Bunny Summon": 60, "Snake Summon": 60, "Wasp Summon": 60, "Wolf Summon": 80,
+               "Drake Summon": 60, "Wisp Summon": 80, "Sheep Summon": 80, "Dragon Summon": 60,
+               "Oryx Summon": 60, "Dragonholder Summon": 60}
+# ...and their shots, at most this (no Size is 100; the Dragon's and Oryxes' waves were 150).
+SUMMON_SHOT_SIZE = 80
 # The Doomed Realms classes' tiered abilities drop in the bags the betterSkillys abilities of their
 # tier use (T0-T8), T7 and T8 Soulbound as theirs are. Slot types as betterSkillys numbers them.
 DOOMED_ABILITY_SLOTS = {30, 32, 37, 126, 128, 130, 5000, 5005}
@@ -769,6 +779,18 @@ def tune_gear(dr):
         if o is not None:
             for p in o.findall("Projectile"):  # the Wisp has three, one per colour
                 p.find("Damage").text = str(damage)
+    for oid, size in SUMMON_SIZE.items():
+        o = dr.get(oid)
+        if o is None:
+            continue
+        if o.find("Size") is None:
+            at = next((i for i, e in enumerate(o) if e.tag.endswith("Texture")), 0)  # Texture, RemoteTexture...
+            o.insert(at + 1, ET.Element("Size"))
+        o.find("Size").text = str(size)
+        for p in o.findall("Projectile"):  # no Size is 100
+            if p.find("Size") is None:
+                p.insert(list(p).index(p.find("Damage")) + 1, ET.Element("Size"))
+            p.find("Size").text = str(min(int(p.find("Size").text or 100), SUMMON_SHOT_SIZE))
     for oid, (amount, secs) in JACKET_BOOSTS.items():
         o = dr.get(oid)
         if o is not None and not any(a.text == "StatBoostSelf" for a in o.findall("Activate")):

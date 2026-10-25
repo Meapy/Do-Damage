@@ -11138,11 +11138,12 @@
 			<File>drChars8x8rLow2</File>
 			<Index>4</Index>
 		</AnimatedTexture>
+		<Size>60</Size>
 		<Projectile id="0">
 			<ObjectId>Fire Missile</ObjectId>
 			<Damage>70</Damage>
 			<Speed>70</Speed>
-			<Size>90</Size>
+			<Size>80</Size>
 			<LifetimeMS>1600</LifetimeMS>
 		</Projectile>
 		<NoMiniMap />
@@ -11169,10 +11170,11 @@
 			<File>drChars8x8dBeach</File>
 			<Index>0</Index>
 		</AnimatedTexture>
-		<Size>80</Size>
+		<Size>60</Size>
 		<Projectile id="0">
 			<ObjectId>Green Magic</ObjectId>
 			<Damage>100</Damage>
+			<Size>80</Size>
 			<Speed>40</Speed>
 			<LifetimeMS>2000</LifetimeMS>
 		</Projectile>
@@ -11200,7 +11202,7 @@
 			<File>drChars8x8rMid2</File>
 			<Index>7</Index>
 		</AnimatedTexture>
-		<Size>80</Size>
+		<Size>60</Size>
 		<Projectile id="0">
 			<ObjectId>Yellow Missile</ObjectId>
 			<Damage>140</Damage>
@@ -11232,11 +11234,12 @@
 			<File>drChars8x8rPets1</File>
 			<Index>0x04</Index>
 		</AnimatedTexture>
+		<Size>80</Size>
 		<Projectile id="0">
 			<ObjectId>Red Fire</ObjectId>
 			<Damage>180</Damage>
 			<Speed>65</Speed>
-			<Size>100</Size>
+			<Size>80</Size>
 			<LifetimeMS>2000</LifetimeMS>
 		</Projectile>
 		<NoMiniMap />
@@ -11263,12 +11266,12 @@
 			<File>drLofiChar216x8</File>
 			<Index>0x34</Index>
 		</Texture>
-		<Size>100</Size>
+		<Size>60</Size>
 		<Projectile id="0">
 			<ObjectId>Red Fire</ObjectId>
 			<Damage>100</Damage>
 			<Speed>65</Speed>
-			<Size>100</Size>
+			<Size>80</Size>
 			<LifetimeMS>2000</LifetimeMS>
 		</Projectile>
 		<NoMiniMap />
@@ -11295,21 +11298,25 @@
 			<File>drRemote_draw_5964462121025536</File>
 			<Index>0</Index>
 		</AnimatedTexture>
+		<Size>80</Size>
 		<Projectile id="0">
 			<ObjectId>Red Power Wave</ObjectId>
 			<Damage>100</Damage>
+			<Size>80</Size>
 			<Speed>35</Speed>
 			<LifetimeMS>2000</LifetimeMS>
 		</Projectile>
 		<Projectile id="1">
 			<ObjectId>Green Power Wave</ObjectId>
 			<Damage>100</Damage>
+			<Size>80</Size>
 			<Speed>35</Speed>
 			<LifetimeMS>2000</LifetimeMS>
 		</Projectile>
 		<Projectile id="2">
 			<ObjectId>Blue Power Wave</ObjectId>
 			<Damage>100</Damage>
+			<Size>80</Size>
 			<Speed>35</Speed>
 			<LifetimeMS>2000</LifetimeMS>
 		</Projectile>
@@ -11341,12 +11348,12 @@
 			<File>drChars16x16dEncounters2</File>
 			<Index>47</Index>
 		</AnimatedTexture>
-		<Size>150</Size>
+		<Size>60</Size>
 		<Projectile id="0">
 			<ObjectId>Dragon Attack Red Firewave</ObjectId>
 			<Speed>85</Speed>
 			<Damage>75</Damage>
-			<Size>150</Size>
+			<Size>80</Size>
 			<LifetimeMS>1200</LifetimeMS>
 		</Projectile>
 		<NoMiniMap />
@@ -11372,11 +11379,12 @@
 			<File>drChars8x8rBeach</File>
 			<Index>0</Index>
 		</AnimatedTexture>
+		<Size>80</Size>
 		<Projectile id="0">
 			<ObjectId>Sleep Z</ObjectId>
 			<Speed>40</Speed>
 			<Damage>10</Damage>
-			<Size>100</Size>
+			<Size>80</Size>
 			<LifetimeMS>1500</LifetimeMS>
 			<ConditionEffect duration="2">Paralyzed</ConditionEffect>
 		</Projectile>
@@ -11409,12 +11417,12 @@
 			<File>drChars16x16dEncounters2</File>
 			<Index>37</Index>
 		</AnimatedTexture>
-		<Size>150</Size>
+		<Size>60</Size>
 		<Projectile id="0">
 			<ObjectId>Dragon Attack Red Firewave</ObjectId>
 			<Speed>85</Speed>
 			<Damage>95</Damage>
-			<Size>150</Size>
+			<Size>80</Size>
 			<LifetimeMS>1200</LifetimeMS>
 		</Projectile>
 		<NoMiniMap />
@@ -12421,12 +12429,12 @@
 			<File>drChars16x16dEncounters2</File>
 			<Index>37</Index>
 		</AnimatedTexture>
-		<Size>150</Size>
+		<Size>60</Size>
 		<Projectile id="0">
 			<ObjectId>Dragon Attack Red Firewave</ObjectId>
 			<Speed>85</Speed>
 			<Damage>95</Damage>
-			<Size>150</Size>
+			<Size>80</Size>
 			<LifetimeMS>1200</LifetimeMS>
 		</Projectile>
 		<NoMiniMap />
