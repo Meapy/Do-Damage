@@ -15,6 +15,8 @@ with a sidebar, links between the pages and a search over all of them.
   name and opens on itself; pages with `parent: <its slug>` are listed under it while one of the
   group is showing.
 - The Gear statistics page (gear-statistics.md) takes its tables from tools/wiki_balance.py.
+- The Loot Simulation page (loot-simulation.md) takes its bosses' drops from tools/wiki_loot.py, and
+  wiki/loot.js shows and rolls them.
 - The gear pages (wiki/gear/, one per kind of item, and wiki/classes/, one per class) are built
   whole from the game's data by tools/wiki_gear.py, with the item sprites (wiki/icons.css and
   wiki/sheets/).
@@ -35,6 +37,7 @@ import wiki_data as wd  # noqa: E402
 import wiki_balance  # noqa: E402
 import wiki_gear  # noqa: E402
 import wiki_quests  # noqa: E402
+import wiki_loot  # noqa: E402
 
 ROOT = wd.ROOT
 SRC = os.path.join(ROOT, "website", "wiki")
@@ -338,6 +341,13 @@ class Gen:
             name = '<a href="%s">%s</a>' % (href, name)
         n = '<span class="fr-n">%d &times;</span>' % count if count > 1 else ""
         return '<span class="fr-item">%s%s<span class="fr-name">%s</span></span>' % (n, ico, name)
+
+    # --- the Loot Simulation page (tools/wiki_loot.py; wiki/loot.js draws it) ------------------
+    def gen_loot_sim(self, used):
+        data = json.dumps(wiki_loot.page_data(self), ensure_ascii=False, separators=(",", ":"))
+        return ('<div class="loot-sim" id="loot-sim"><p class="note">The simulator needs JavaScript.</p></div>'
+                '<script type="application/json" id="loot-data">%s</script>'
+                '<script src="loot.js?v={{BUILD}}"></script>' % data.replace("</", r"<\/"))
 
     def gen_forge_banner(self, used):
         return ('<figure class="banner"><img src="forge.webp" width="1040" height="700" alt="The Divine Forge\'s '
