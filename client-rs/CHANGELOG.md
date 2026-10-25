@@ -19,6 +19,10 @@ details). Add to a group's line when a change adds to it, rather than adding ano
   times a player's size, now a little over one), and so are their shots, so six of them no longer
   hide the boss.
 
+### Fixes
+- Janus leaves the Oryx's Chamber portal beside his loot bags instead of under them, where it
+  was hidden and couldn't be entered.
+
 ### Wiki
 - A new Loot Simulation page: pick Oryx 3, 4 or 5, set your share of the damage and your loot
   boosts, and see every drop's chance, the bags a kill gives, and roll as many kills as you like.

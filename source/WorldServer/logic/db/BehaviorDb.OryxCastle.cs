@@ -160,7 +160,9 @@ namespace WorldServer.logic
                 new State(
                     // stage 2: its boomerangs are 50 damage in the XML, far below the guardians before it
                     new BossStats(70000, 25, 2.4, 0.25),
-                    new DropPortalOnDeath("Oryx Chamber Portal", 1.0, timeout: 0),
+                    // beside him: on his death spot his loot bags cover it, and the interact key
+                    // doesn't enter a portal under a bag
+                    new DropPortalOnDeath("Oryx Chamber Portal", 1.0, timeout: 0, xAdjustment: 2),
                     new State("Idle",
                         new ConditionEffectBehavior(ConditionEffectIndex.Invulnerable),
                         new PlayerWithinTransition(8, "Wake")
