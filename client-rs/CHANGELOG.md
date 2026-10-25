@@ -12,6 +12,15 @@ Keep each version short: changes go under `### ` group headings (Oryx 5, Arena, 
 on), one line per change players notice, summed up rather than item by item (the wiki has the
 details). Add to a group's line when a change adds to it, rather than adding another line.
 
+## Unreleased
+
+### Classes
+- A balance pass over the Doomed Realms classes. Stronger: Blademaster (highest Attack 45, was 35;
+  Defense 25, was 15), Adept (Attack 60, was 50; Defense 25, was 20), Snowman (Defense 25, was 20;
+  Dexterity 70, was 65), Mechanic (health 700, was 650) and Ascendant (Attack 70, was 60). Weaker:
+  King (highest Attack 75 and Dexterity 70, were 85 and 85) and Sharklord (Defense 25, was 30;
+  health 750, was 800). Maxed Kings and Sharklords keep what is still under their new highest.
+
 ## 2.1.0 (2026-10-25)
 
 ### Arena

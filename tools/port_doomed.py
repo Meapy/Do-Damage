@@ -616,9 +616,24 @@ GEAR_TUNING = {
 
 
 # Class stats changed from Doomed Realms': class -> {stat element: (starting value, highest)}. The
-# Sharklord's highest Attack is 70 (was 80), its start 13 (was 15) so a level 20 one is as far
-# along as before; it still gains 1-2 a level.
-CLASS_STATS = {"Sharklord": {"Attack": ("13", "70")}}
+# class balance pass (the wiki's Gear statistics, class totals: every custom class between the
+# standard classes' lowest and highest scores):
+# - Sharklord: highest Attack 70 (was 80, start 13 was 15), Defense 25 (was 30), health 750 (was 800);
+# - King: highest Attack 75 and Dexterity 70 (were 85 and 85), the Wizard's damage with a tome;
+# - Blademaster: highest Attack 45 (was 35) and Defense 25 (was 15);
+# - Adept: highest Attack 60 (was 50) and Defense 25 (was 20);
+# - Snowman: highest Defense 25 (was 20) and Dexterity 70 (was 65);
+# - Mechanic: highest health 700 (was 650);
+# - Ascendant: highest Attack 70 (was 60).
+CLASS_STATS = {
+    "Sharklord": {"Attack": ("13", "70"), "Defense": ("2", "25"), "MaxHitPoints": ("120", "750")},
+    "King": {"Attack": ("12", "75"), "Dexterity": ("15", "70")},
+    "Blademaster": {"Attack": ("10", "45"), "Defense": ("0", "25")},
+    "Adept": {"Attack": ("10", "60"), "Defense": ("0", "25")},
+    "Snowman (Doomed)": {"Defense": ("0", "25"), "Dexterity": ("15", "70")},
+    "Mechanic": {"MaxHitPoints": ("100", "700")},
+    "Ascendant": {"Attack": ("12", "70")},
+}
 
 
 def tune_classes(dr):

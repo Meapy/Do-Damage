@@ -10480,8 +10480,8 @@
 		<Equipment>0xD1D3, 0xD19F, -1, -1, 0xa22, -1, -1, -1, -1, -1, -1, -1</Equipment>
 		<MaxHitPoints max="720">150</MaxHitPoints>
 		<MaxMagicPoints max="252">100</MaxMagicPoints>
-		<Attack max="35">10</Attack>
-		<Defense max="15">0</Defense>
+		<Attack max="45">10</Attack>
+		<Defense max="25">0</Defense>
 		<Speed max="100">15</Speed>
 		<Dexterity max="100">15</Dexterity>
 		<HpRegen max="40">15</HpRegen>
@@ -10542,7 +10542,7 @@
 		<BloodProb>1.0</BloodProb>
 		<SlotTypes>2, 32, 6, 9, 0, 0, 0, 0, 0, 0, 0, 0</SlotTypes>
 		<Equipment>0xa14, 0xD297, -1, -1, 0xa22, -1, -1, -1, -1, -1, -1, -1</Equipment>
-		<MaxHitPoints max="650">100</MaxHitPoints>
+		<MaxHitPoints max="700">100</MaxHitPoints>
 		<MaxMagicPoints max="300">100</MaxMagicPoints>
 		<Attack max="75">12</Attack>
 		<Defense max="25">0</Defense>
@@ -10576,7 +10576,7 @@
 		<Equipment>0xa1a, 0xD253, -1, -1, 0xa22, -1, -1, -1, -1, -1, -1, -1</Equipment>
 		<MaxHitPoints max="700">130</MaxHitPoints>
 		<MaxMagicPoints max="252">100</MaxMagicPoints>
-		<Attack max="60">12</Attack>
+		<Attack max="70">12</Attack>
 		<Defense max="25">0</Defense>
 		<Speed max="60">12</Speed>
 		<Dexterity max="50">12</Dexterity>
@@ -10640,10 +10640,10 @@
 		<Equipment>0xa97, 0xa31, -1, -1, 0xa22, -1, -1, -1, -1, -1, -1, -1</Equipment>
 		<MaxHitPoints max="700">100</MaxHitPoints>
 		<MaxMagicPoints max="400">100</MaxMagicPoints>
-		<Attack max="85">12</Attack>
+		<Attack max="75">12</Attack>
 		<Defense max="20">0</Defense>
 		<Speed max="60">10</Speed>
-		<Dexterity max="85">15</Dexterity>
+		<Dexterity max="70">15</Dexterity>
 		<HpRegen max="50">12</HpRegen>
 		<MpRegen max="70">12</MpRegen>
 		<LevelIncrease min="20" max="40">MaxHitPoints</LevelIncrease>
@@ -10744,10 +10744,10 @@
 		<BloodProb>1.0</BloodProb>
 		<SlotTypes>17, 5000, 14, 9, 0, 0, 0, 0, 0, 0, 0, 0</SlotTypes>
 		<Equipment>0xa97, 0xD115, -1, -1, 0xa22, -1, -1, -1, -1, -1, -1, -1</Equipment>
-		<MaxHitPoints max="800">120</MaxHitPoints>
+		<MaxHitPoints max="750">120</MaxHitPoints>
 		<MaxMagicPoints max="300">100</MaxMagicPoints>
 		<Attack max="70">13</Attack>
-		<Defense max="30">2</Defense>
+		<Defense max="25">2</Defense>
 		<Speed max="45">15</Speed>
 		<Dexterity max="75">15</Dexterity>
 		<HpRegen max="50">12</HpRegen>
@@ -10780,9 +10780,9 @@
 		<MaxHitPoints max="720">150</MaxHitPoints>
 		<MaxMagicPoints max="300">100</MaxMagicPoints>
 		<Attack max="70">10</Attack>
-		<Defense max="20">0</Defense>
+		<Defense max="25">0</Defense>
 		<Speed max="65">15</Speed>
-		<Dexterity max="65">15</Dexterity>
+		<Dexterity max="70">15</Dexterity>
 		<HpRegen max="50">15</HpRegen>
 		<MpRegen max="60">10</MpRegen>
 		<LevelIncrease min="20" max="30">MaxHitPoints</LevelIncrease>
@@ -10845,8 +10845,8 @@
 		<Equipment>0xa14, 0xa2e, -1, -1, 0xa22, -1, -1, -1, -1, -1, -1, -1</Equipment>
 		<MaxHitPoints max="720">150</MaxHitPoints>
 		<MaxMagicPoints max="252">100</MaxMagicPoints>
-		<Attack max="50">10</Attack>
-		<Defense max="20">0</Defense>
+		<Attack max="60">10</Attack>
+		<Defense max="25">0</Defense>
 		<Speed max="80">15</Speed>
 		<Dexterity max="75">15</Dexterity>
 		<HpRegen max="50">15</HpRegen>
