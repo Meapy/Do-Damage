@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Concurrent;
+using System.Threading.Tasks;
 using WorldServer.core.structures;
 using WorldServer.core.worlds;
 using WorldServer.core.worlds.impl;
@@ -195,17 +196,19 @@ namespace WorldServer.core.objects
 
         private bool UpdateOnPing()
         {
-            // renew account lock
-            try
+            // renew account lock, without holding up the world thread for Redis's answer; the
+            // client may have moved on (clients are pooled) by the time it comes
+            var client = Client;
+            var account = client.Account;
+            GameServer.Database.RenewLockAsync(account).ContinueWith(t =>
             {
-                if (!GameServer.Database.RenewLock(Client.Account))
-                    Client.Disconnect("RenewLock failed. (Pong)");
-            }
-            catch
-            {
-                Client.Disconnect("RenewLock failed. (Timeout)");
-                return false;
-            }
+                if (client.Account != account || client.Player != this)
+                    return;
+                if (t.IsFaulted || t.IsCanceled)
+                    client.Disconnect("RenewLock failed. (Timeout)");
+                else if (!t.Result)
+                    client.Disconnect("RenewLock failed. (Pong)");
+            }, TaskContinuationOptions.ExecuteSynchronously);
 
             // save character
             if (!(World is TestWorld))

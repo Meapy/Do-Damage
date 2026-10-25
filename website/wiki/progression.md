@@ -52,8 +52,10 @@ wasted, so keep spares in your **potion storage**, in your vault: it holds {{v:s
 each potion to start, and each upgrade ({{v:storage_cost}} fame) adds {{v:storage_step}} more. From
 its window you can store, take out, drink, or drink just enough to max a stat.
 
-A **Potion of Max Life** (from the Elder Tomb's bosses) fills your health to your class's highest
-at once; if it's already there, it puts 30 health into your potion storage.
+A **Potion of Max** Life, Mana, Attack, Defense, Speed, Dexterity, Vitality or Wisdom (from the
+Elder dungeons' bosses; Max Life from the Elder Tomb's) fills that stat to your class's highest at
+once; if it's already there, it puts 6 of that stat's potions into your potion storage, as many as
+fit. If that storage is full, the potion isn't drunk and stays with you.
 
 A **Potion of Oryx** counts as all eight potions at once. It's rare from the deepest Oryx stages
 and can be forged from one of each stat potion (at the Divine Forge). For a stat that's already maxed, its
@@ -132,11 +134,18 @@ from wave 30 an Elder dungeon boss joins Oryx's. The chat says which wave has be
   less health than in his own dungeon and only fights his first phase, over and over: no calls
   for help, shields or rage.
 
+- **The ring:** you arrive in the forest outside a walled ring and walk in through one of its four
+  gateways while the countdown runs. When the game starts the gates shut, and anyone still outside
+  or in a gateway is moved just inside. Mind the lava inside the walls.
 - **Where:** the **Arena** portal in the Nexus's south yard, or `/arena` from anywhere: both lead
   to the same game. Everyone who goes in before a game's countdown ends plays that game. Once a
   game has started, the portal (and `/arena`) opens a new one. `/arenas` lists the games running.
 - **Fame:** the Arena pays fame after every wave (ten times the wave, halved in a group).
-- **Oryx's loot:** Oryx 3, 4 and 5 drop everything at half their usual chances in the Arena.
+- **Loot is halved** in the Arena and the Admin Arena, since losing there costs nothing. A boss (a
+  wave's boss, or Oryx) drops loot as often as anywhere else, but half the items, rounded up: if
+  you'd have got 4 items you get 2, and 1 stays 1. Oryx 3, 4 and 5 also drop each item half as
+  often, so they give about a quarter of their usual loot. Any other monster drops each item half
+  as often. Loot boosts (weekend, Loot Drop Potion, events) still count on top.
 - **Between waves** you rest for 5 seconds, 15 from wave 10 and 20 from wave 20. Type **GO** in
   chat to start the next wave (or the game) in 3 seconds instead, once per countdown. Everyone is
   invulnerable for the first 2.5 seconds of each wave, 5 when an Oryx comes.

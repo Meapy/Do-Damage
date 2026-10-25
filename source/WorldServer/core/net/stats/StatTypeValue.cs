@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using WorldServer.core.objects;
 
 namespace WorldServer.core.net.stats
@@ -27,17 +28,29 @@ namespace WorldServer.core.net.stats
 
         public void SetValue(T value)
         {
-            if (_value != null && _value.Equals(value))
+            // EqualityComparer, not _value.Equals(value): for a T like int that is object.Equals,
+            // which boxed the value on every call (half of all the server's allocations)
+            if (EqualityComparer<T>.Default.Equals(_value, value))
                 return;
 
             _value = value;
 
             var tVal = Transform(value);
 
-            if (_transformValue != null && _transformValue.Equals(tVal))
+            if (EqualityComparer<T>.Default.Equals(_transformValue, tVal))
                 return;
 
             _transformValue = tVal;
+
+            // nobody sees the owner: nothing to tell (and no boxing of the value for nobody)
+            if (!_owner.HasStatListeners)
+                return;
+            if (_type == StatDataType.None)
+            {
+                // a position (Entity X and Y): the players send it from the entity itself
+                _owner.InvokeMoved();
+                return;
+            }
 
             // hacky fix to xp
             if (_owner is Player && _type == StatDataType.Experience)

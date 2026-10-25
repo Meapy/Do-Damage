@@ -58,6 +58,10 @@ namespace WorldServer.core.objects
             if (_masks[CE_FIRST_BATCH] != 0 || _masks[CE_SECOND_BATCH] != 0)
                 for (byte effect = 0; effect < _durations.Length; effect++)
                 {
+                    // only the effects the entity has: removing each absent one every tick (as
+                    // before) cost a stat update apiece for every entity with any effect
+                    if (!HasCondition(effect))
+                        continue;
                     var duration = _durations[effect];
                     if (duration == -1)
                         continue;

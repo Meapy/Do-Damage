@@ -2,6 +2,7 @@
 using System.Net;
 using System.Net.Sockets;
 using System.Threading;
+using System.Threading.Tasks;
 using WorldServer.networking;
 using WorldServer.utils;
 
@@ -242,14 +243,26 @@ namespace WorldServer.core.connection
             }
             catch (Exception e)
             {
+                // not only SocketExceptions (an already closed socket throws ObjectDisposedException):
+                // logging se.Message for those threw here, on a socket thread, which ended the server
                 var se = e as SocketException;
                 if (se == null || se.SocketErrorCode != SocketError.NotConnected)
-                    StaticLogger.Instance.Error($"{se.Message} {se.StackTrace}");
+                    StaticLogger.Instance.Error($"{e.Message} {e.StackTrace}");
             }
 
-            client.Socket.Close();
+            client.Socket?.Close();
             client.Reset();
 
+            // Back into the pool a little later: the old socket's last send or receive can still be
+            // completing on another thread, and a new connection given this client meanwhile was
+            // cut off by it, or ended the server (seen when several players dropped at once).
+            _ = Task.Delay(ReuseDelayMs).ContinueWith(_ => Reuse(client));
+        }
+
+        private const int ReuseDelayMs = 2000;
+
+        private void Reuse(Client client)
+        {
             ClientPool.Push(client);
 
             try

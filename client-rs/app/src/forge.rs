@@ -4,14 +4,15 @@
 //! rings and the rest, then by slot type), to untiered gear or each kind's highest tier, or by
 //! name, or to what can be made now; a result
 //! several recipes make is listed once. Picking one shows its ingredients as sockets; the player
-//! puts in items from the inventory (forge shards come from the forge storage), forges, and
-//! watches the items go into the fire and the forged item come out. Enchant: locked, a teaser
+//! puts in items from the inventory (forge shards come from the forge storage, and anything the
+//! inventory lacks from the account's vault chests, `ForgeVault`), forges, and watches the items go into the fire and the forged item come out. Enchant: locked, a teaser
 //! for a later update. Shards: the forge storage (`ForgeShards`), the shards the account has
 //! used, which a click takes back out into the inventory. Sell: the inventory with what the
 //! forge pays for each item under it; pick items and sell them for fame.
 //!
-//! The server checks everything (`ForgeHandlers.cs`): the window only says what it asks for. The
-//! forged item takes the first ingredient's inventory slot.
+//! The server checks everything (`ForgeHandlers.cs`): the window only says what it asks for, the
+//! inventory slots it uses (the server takes the rest from the forge storage, then the vault). The
+//! forged item takes the first ingredient's inventory slot; with none, a free one, or the vault.
 
 use crate::hud::{Layout, SlotKind, Ui};
 use crate::theme::{self, color, Kind};
@@ -41,6 +42,8 @@ pub enum Event {
     Result { sold: bool, success: bool, item: u16, fame: i32, message: String },
     /// The forge storage's shards and counts.
     Shards(Vec<ForgeShard>),
+    /// What the vault holds that the forge can take, by item type (`ForgeVault`).
+    Vault(Vec<ForgeShard>),
 }
 
 #[derive(Clone, Copy, Debug, PartialEq, Eq, Default)]
@@ -153,6 +156,8 @@ const FAME_STAT: u8 = 39;
 const SHEET: &str = "customAssets32x32";
 /// A socket filled from the forge storage rather than an inventory slot.
 const STORAGE: u8 = 255;
+/// A socket filled from the account's vault.
+const VAULT: u8 = 254;
 
 /// The forge window.
 #[derive(Default)]
@@ -175,10 +180,13 @@ pub struct Forge {
     rows: usize,
     picked: Option<usize>,
     /// The inventory slot put into each of the picked recipe's sockets (`STORAGE`: a shard from
-    /// the forge storage).
+    /// the forge storage; `VAULT`: an item from the vault).
     sockets: Vec<Option<u8>>,
     /// The forge storage's shards, in the server's order, and how many of each.
     shards: Vec<(u16, i32)>,
+    /// What the vault holds that the forge can take, and how many of each (an older server sends
+    /// nothing).
+    vault: HashMap<u16, i32>,
     forging: Option<Forging>,
     /// The Sell tab's picked slots.
     selling: Vec<u8>,
@@ -229,10 +237,16 @@ impl Forge {
         self.shards.iter().find(|&&(t, _)| t == item).map_or(0, |&(_, n)| n)
     }
 
-    /// Whether the inventory and the forge storage hold all of a recipe's ingredients.
+    /// How many of this item the vault holds.
+    fn vaulted(&self, item: u16) -> i32 {
+        self.vault.get(&item).copied().unwrap_or(0)
+    }
+
+    /// Whether the inventory, the forge storage and the vault hold all of a recipe's ingredients.
     fn can_make(&self, r: &ForgeRecipe) -> bool {
         let mut have: Vec<i32> = self.inventory.iter().map(|&(_, t)| t).collect();
         let mut stored = self.shards.clone();
+        let mut vault = self.vault.clone();
         r.items.iter().all(|&i| match have.iter().position(|&t| t == i as i32) {
             Some(k) => {
                 have.swap_remove(k);
@@ -243,7 +257,13 @@ impl Forge {
                     *n -= 1;
                     true
                 }
-                None => false,
+                None => match vault.get_mut(&i).filter(|n| **n > 0) {
+                    Some(n) => {
+                        *n -= 1;
+                        true
+                    }
+                    None => false,
+                },
             },
         })
     }
@@ -346,17 +366,20 @@ impl Forge {
         self.message = None;
     }
 
-    /// Puts an inventory item of the right type into socket `k`, if there's one not in use.
+    /// Puts an item of the right type into socket `k`, if there's one not in use: a shard from the
+    /// forge storage, else from the inventory, else from the vault.
     fn insert(&mut self, k: usize) -> bool {
         let Some(r) = self.picked.map(|i| &self.recipes[i]) else { return false };
         let want = r.items[k] as i32;
         let used: Vec<u8> = self.sockets.iter().flatten().copied().collect();
+        let using = |from: u8| self.sockets.iter().enumerate().filter(|&(j, s)| *s == Some(from) && r.items[j] == r.items[k]).count() as i32;
         // a shard comes from the forge storage while it has one not in use
-        let from_storage = self.sockets.iter().enumerate().filter(|&(j, s)| *s == Some(STORAGE) && r.items[j] == r.items[k]).count() as i32;
-        let found = if self.stored(r.items[k]) > from_storage {
+        let found = if self.stored(r.items[k]) > using(STORAGE) {
             Some(STORAGE)
+        } else if let Some(&(s, _)) = self.inventory.iter().find(|&&(s, t)| t == want && !used.contains(&s)) {
+            Some(s)
         } else {
-            self.inventory.iter().find(|&&(s, t)| t == want && !used.contains(&s)).map(|&(s, _)| s)
+            (self.vaulted(r.items[k]) > using(VAULT)).then_some(VAULT)
         };
         if let Some(s) = found {
             self.sockets[k] = Some(s);
@@ -378,6 +401,12 @@ impl Forge {
             }
             Event::Shards(shards) => {
                 self.shards = shards.into_iter().map(|s| (s.item, s.count)).collect();
+                if self.loaded {
+                    self.filter(data);
+                }
+            }
+            Event::Vault(items) => {
+                self.vault = items.into_iter().map(|s| (s.item, s.count)).collect();
                 if self.loaded {
                     self.filter(data);
                 }
@@ -441,7 +470,7 @@ impl Forge {
                     if self.sockets[k].is_some() {
                         self.sockets[k] = None;
                     } else if !self.insert(k) {
-                        self.message = Some(("You have none of those in your inventory or forge storage.".into(), true));
+                        self.message = Some(("You have none of those in your inventory, forge storage or vault.".into(), true));
                     }
                 }
             }
@@ -453,7 +482,7 @@ impl Forge {
                             missing |= !self.insert(k);
                         }
                     }
-                    self.message = missing.then(|| ("Some ingredients aren't in your inventory or forge storage.".into(), true));
+                    self.message = missing.then(|| ("Some ingredients aren't in your inventory, forge storage or vault.".into(), true));
                 }
             }
             Hit::Forge => {
@@ -463,7 +492,7 @@ impl Forge {
                 } else if self.fame < self.price(r) {
                     self.message = Some(("Not enough fame.".into(), true));
                 } else {
-                    let slots: Vec<u8> = self.sockets.iter().flatten().copied().filter(|&s| s != STORAGE).collect();
+                    let slots: Vec<u8> = self.sockets.iter().flatten().copied().filter(|&s| s != STORAGE && s != VAULT).collect();
                     self.message = None;
                     self.forging = Some(Forging::Going { since: self.now, answer: None });
                     return Some(Act::Forge(r.result, slots));
@@ -554,12 +583,18 @@ impl Forge {
         if self.forging.is_none() {
             if let Some(r) = self.picked.map(|i| self.recipes[i].clone()) {
                 let mut from_storage: HashMap<u16, i32> = HashMap::new();
+                let mut from_vault: HashMap<u16, i32> = HashMap::new();
                 for (k, s) in self.sockets.iter_mut().enumerate() {
                     let gone = match *s {
                         Some(STORAGE) => {
                             let n = from_storage.entry(r.items[k]).or_insert(0);
                             *n += 1;
                             *n > self.shards.iter().find(|&&(t, _)| t == r.items[k]).map_or(0, |&(_, c)| c)
+                        }
+                        Some(VAULT) => {
+                            let n = from_vault.entry(r.items[k]).or_insert(0);
+                            *n += 1;
+                            *n > self.vault.get(&r.items[k]).copied().unwrap_or(0)
                         }
                         Some(slot) => !self.inventory.contains(&(slot, r.items[k] as i32)),
                         None => false,
@@ -858,7 +893,7 @@ impl Forge {
         for (k, &item) in rec.items.iter().enumerate() {
             let cr = [sx + k as f32 * (cell + gap), sy, cell, cell];
             let inserted = self.sockets.get(k).copied().flatten();
-            let have = inserted.is_some() || self.inventory.iter().any(|&(_, t)| t == item as i32) || self.stored(item) > 0;
+            let have = inserted.is_some() || self.inventory.iter().any(|&(_, t)| t == item as i32) || self.stored(item) > 0 || self.vaulted(item) > 0;
             let edge = if inserted.is_some() { Some(color::GOLD) } else if have { crate::screens::tier_edge(ui.data, item as i32) } else { Some(color::DANGER) };
             // Once forged, the sockets stand empty: their items went into the fire.
             if done.is_some() {
@@ -890,6 +925,13 @@ impl Forge {
                         let w = ui.measure(&t, fs, true);
                         let col = if inserted == Some(STORAGE) { color::GOLD } else { color::TEXT_DIM };
                         ui.label(&t, cr[0] + cr[2] - w - 4.0 * s, cr[1] + cr[3] - fs * 1.25, fs, true, col);
+                    } else if inserted == Some(VAULT) {
+                        // from the vault: say so on the socket, and how many it holds
+                        ui.label("vault", cr[0] + 4.0 * s, cr[1] + 2.0 * s, font(10.0), true, color::GOOD);
+                        let t = self.vaulted(item).to_string();
+                        let fs = font(11.0);
+                        let w = ui.measure(&t, fs, true);
+                        ui.label(&t, cr[0] + cr[2] - w - 4.0 * s, cr[1] + cr[3] - fs * 1.25, fs, true, color::GOOD);
                     }
                 }
             }
@@ -1200,6 +1242,24 @@ mod tests {
         f.filter(&GameData::default());
         assert_eq!(f.shown.len(), 2);
         assert!(f.shown.contains(&1));
+    }
+
+    #[test]
+    fn the_vault_fills_what_the_inventory_lacks() {
+        let mut f = Forge { recipes: vec![recipe(9, &[5, 5, 7])], ..Default::default() };
+        f.inventory = vec![(4, 5)];
+        assert!(!f.can_make(&f.recipes[0].clone()));
+        f.vault = [(5, 1), (7, 2)].into_iter().collect();
+        assert!(f.can_make(&f.recipes[0].clone()));
+        // the inventory first, then the vault; a shard in storage before either
+        f.shards = vec![(7, 1)];
+        f.pick(0);
+        assert!(f.insert(0) && f.insert(1) && f.insert(2));
+        assert_eq!(f.sockets, vec![Some(4), Some(VAULT), Some(STORAGE)]);
+        // one in the vault fills one socket only
+        f.inventory.clear();
+        f.pick(0);
+        assert!(f.insert(0) && !f.insert(1));
     }
 
     #[test]

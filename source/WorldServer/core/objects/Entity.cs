@@ -293,6 +293,12 @@ namespace WorldServer.core.objects
 
         public void InvokeStatChange(StatDataType t, object val, bool updateSelfOnly = false) => StatChanged?.Invoke(this, new StatChangedEventArgs(t, val, updateSelfOnly));
 
+        /// <summary>Whether any player sees this entity (listens for its stat changes).</summary>
+        public bool HasStatListeners => StatChanged != null;
+
+        /// <summary>X or Y changed: the players who see this send its position with their next tick.</summary>
+        public void InvokeMoved() => StatChanged?.Invoke(this, StatChangedEventArgs.Moved);
+
         public void Move(float x, float y)
         {
             // pets are in PlayersCollision too (World.EnterWorld); moving them keeps them visible to players near their owner
@@ -449,7 +455,7 @@ namespace WorldServer.core.objects
 
             var tile = map[x_, y_];
 
-            if (tile == null)
+            if (!tile.Exists)
                 return false;
 
             var tiles = GameServer.Resources.GameData.Tiles;

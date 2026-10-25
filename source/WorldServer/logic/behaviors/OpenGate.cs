@@ -49,7 +49,6 @@ namespace WorldServer.logic.behaviors
                         if (tile.ObjType == host.GameServer.Resources.GameData.IdToObjectType[target])
                         {
                             tile.ObjType = 0;
-                            host.World.Map[x, y] = tile;
                         }
                     }
                 }
@@ -62,7 +61,6 @@ namespace WorldServer.logic.behaviors
                     {
                         var tile = host.World.Map[x, y];
                         tile.ObjType = 0;
-                        host.World.Map[x, y] = tile;
                     }
                 }
             }

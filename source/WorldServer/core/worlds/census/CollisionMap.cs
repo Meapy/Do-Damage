@@ -35,7 +35,9 @@ namespace WorldServer.core.worlds.census
             if (from.w != w || from.h != h)
                 throw new ArgumentException("from");
 
-            var ret = new HashSet<T>();
+            // reused, as GetChunksAround's is: a new set every tick of every world was garbage
+            var ret = _around;
+            ret.Clear();
 
             for (var y = 0; y < cH; y++)
                 for (var x = 0; x < cW; x++)
@@ -80,25 +82,87 @@ namespace WorldServer.core.worlds.census
             return _around;
         }
 
-        public IEnumerable<T> HitTest(Position pos, double radius) => HitTest(pos.X, pos.Y, radius);
+        public Area HitTest(Position pos, double radius) => HitTest(pos.X, pos.Y, radius);
 
-        public IEnumerable<T> HitTest(double _x, double _y, double radius)
+        /// <summary>
+        /// Everything in the chunks within <paramref name="radius"/> of the point. A struct, so a
+        /// foreach over it allocates nothing: monsters' AI asks this many times a tick.
+        /// </summary>
+        public Area HitTest(double _x, double _y, double radius)
         {
             int xl = Math.Max(0, (int)(_x - radius) / CHUNK_SIZE);
             int xh = Math.Min(cW - 1, (int)(_x + radius) / CHUNK_SIZE);
             int yl = Math.Max(0, (int)(_y - radius) / CHUNK_SIZE);
             int yh = Math.Min(cH - 1, (int)(_y + radius) / CHUNK_SIZE);
-            for (var y = yl; y <= yh; y++)
-                for (var x = xl; x <= xh; x++)
-                {
-                    var node = chunks[x, y];
+            return new Area(chunks, xl, xh, yl, yh);
+        }
 
-                    while (node != null)
-                    {
-                        yield return (T)node.Parent;
-                        node = node.Next;
-                    }
+        public readonly struct Area : IEnumerable<T>
+        {
+            private readonly CollisionNode<T>[,] _chunks;
+            private readonly int _xl, _xh, _yl, _yh;
+
+            public Area(CollisionNode<T>[,] chunks, int xl, int xh, int yl, int yh)
+            {
+                _chunks = chunks;
+                _xl = xl;
+                _xh = xh;
+                _yl = yl;
+                _yh = yh;
+            }
+
+            public Enumerator GetEnumerator() => new Enumerator(_chunks, _xl, _xh, _yl, _yh);
+
+            IEnumerator<T> IEnumerable<T>.GetEnumerator() => GetEnumerator();
+
+            System.Collections.IEnumerator System.Collections.IEnumerable.GetEnumerator() => GetEnumerator();
+
+            // chunk by chunk, row by row, each chunk's list in order, as the iterator before it did
+            public struct Enumerator : IEnumerator<T>
+            {
+                private readonly CollisionNode<T>[,] _chunks;
+                private readonly int _xl, _xh, _yh;
+                private int _x, _y;
+                private CollisionNode<T> _next;
+
+                public Enumerator(CollisionNode<T>[,] chunks, int xl, int xh, int yl, int yh)
+                {
+                    _chunks = chunks;
+                    _xl = xl;
+                    _xh = xh;
+                    _yh = yh;
+                    _x = xl - 1;
+                    _y = yl;
+                    _next = null;
+                    Current = default;
                 }
+
+                public T Current { get; private set; }
+
+                object System.Collections.IEnumerator.Current => Current;
+
+                public bool MoveNext()
+                {
+                    while (_next == null)
+                    {
+                        if (++_x > _xh)
+                        {
+                            _x = _xl;
+                            _y++;
+                        }
+                        if (_y > _yh || _xl > _xh)
+                            return false;
+                        _next = _chunks[_x, _y];
+                    }
+                    Current = (T)_next.Parent;
+                    _next = _next.Next;
+                    return true;
+                }
+
+                public void Reset() => throw new NotSupportedException();
+
+                public void Dispose() { }
+            }
         }
 
         public IEnumerable<T> HitTest(double _x, double _y)

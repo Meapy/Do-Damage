@@ -7,6 +7,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
+using System.Threading;
 using WorldServer.core.objects;
 using WorldServer.core.objects.containers;
 using WorldServer.core.objects.vendors;
@@ -47,6 +48,8 @@ namespace WorldServer.core.worlds
         public bool DisableAbilities { get; set; }
         // a lethal hit here sends the player to the Nexus instead of killing them (arenas)
         public bool DefeatToNexus { get; protected set; }
+        // each drop's chance is multiplied by this here, after the boosts (Loot.Handle): 0.5 in the arenas
+        public double LootRate { get; protected set; } = 1;
         private long Lifetime { get; set; }
 
         public bool isWeekend { get; set; } = false;
@@ -99,6 +102,7 @@ namespace WorldServer.core.worlds
             DisableShooting = resource.DisableShooting;
             DisableAbilities = resource.DisableAbilities;
             DefeatToNexus = resource.DefeatToNexus;
+            LootRate = resource.LootRate;
             CreateInstance = resource.CreateInstance;
 
             IsRealm = false;
@@ -303,7 +307,7 @@ namespace WorldServer.core.worlds
             return null;
         }
 
-        public int GetNextEntityId() => NextEntityId++;
+        public int GetNextEntityId() => Interlocked.Increment(ref NextEntityId);
 
         public IEnumerable<Player> GetPlayers() => Players.Values;
 
@@ -673,8 +677,10 @@ namespace WorldServer.core.worlds
 
         private IEnumerable<(float X, float Y, int Radius)> SightCentres()
         {
+            // enough chunks (16 tiles) round the player's own chunk to cover its sight from anywhere in
+            // it: 1 for the default 15 tiles (16 to 31 tiles awake), 2 up to 32, 3 for more
             foreach (var player in Players.Values)
-                yield return (player.X, player.Y, player.SightRadius > 20 ? 3 : 2);
+                yield return (player.X, player.Y, (player.SightRadius + CollisionMap<Entity>.CHUNK_SIZE - 1) / CollisionMap<Entity>.CHUNK_SIZE);
         }
 
         protected virtual void UpdateLogic(ref TickTime time)

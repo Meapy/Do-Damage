@@ -69,9 +69,11 @@ PORTED_WORLDS = {
 
 # Ported worlds whose map betterSkillys builds itself (a path under worlds/): the world keeps its
 # Doomed Realms background and portals, the map is the script's. Oryx's Inferno (Oryx 4):
-# tools/build_hash_cellar.py; Oryx's Elysium (Oryx 5): tools/build_elysium.py.
+# tools/build_hash_cellar.py; Oryx's Elysium (Oryx 5): tools/build_elysium.py. The Arena plays on
+# the Admin Arena's map (a ring whose gateways DoomedBattleArena shuts when the countdown ends).
 OWN_MAPS = {"Dragonlord": "Dungeons/Oryx's Inferno/Oryx's Inferno.jm",
-            "Dcellar": "Dungeons/Oryx's Elysium/Oryx's Elysium.jm"}
+            "Dcellar": "Dungeons/Oryx's Elysium/Oryx's Elysium.jm",
+            "BattleArenaMap": "Dungeons/Admin Arena.jm"}
 # Ported worlds renamed for players: Oryx 4's Hash Cellar is Oryx's Inferno, Oryx 5's Doomed Cellar
 # Oryx's Elysium, and the Battle Arena the Arena (DoomedWorlds.ArenaName).
 WORLD_NAMES = {"Dragonlord": "Oryx's Inferno", "Dcellar": "Oryx's Elysium", "BattleArenaMap": "Arena"}

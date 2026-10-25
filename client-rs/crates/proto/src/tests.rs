@@ -259,4 +259,8 @@ fn forge_messages_match_forge_handlers() {
     assert_eq!((s.shards[0].item, s.shards[0].count), (0x5844, 7));
     let frame = ClientMessage::from(ForgeWithdraw { item: 0x5844 }).to_frame();
     assert_eq!(frame, B::default().i16(0x5844).frame(101));
+    // ForgeVaultItems.Write: a short count of items (item, count).
+    let body = B::default().i16(1).i16(0x0a01).i32(3).0;
+    let ServerMessage::ForgeVault(v) = ServerMessage::decode(102, &body).unwrap() else { panic!() };
+    assert_eq!((v.items[0].item, v.items[0].count), (0x0a01, 3));
 }

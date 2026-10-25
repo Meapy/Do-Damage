@@ -12,6 +12,33 @@ Keep each version short: changes go under `### ` group headings (Oryx 5, Arena, 
 on), one line per change players notice, summed up rather than item by item (the wiki has the
 details). Add to a group's line when a change adds to it, rather than adding another line.
 
+## 2.1.0 (2026-10-25)
+
+### Arena
+- The Arena is fought in the Admin Arena's walled ring. You arrive in the forest outside and walk
+  in through one of its four open gateways during the countdown; when the game starts, the gates
+  shut, and anyone still outside or in a gateway is moved just inside.
+- Loot is halved in the Arena and the Admin Arena: bosses still drop loot as often but half as many
+  items (rounded up), and other monsters drop each item half as often. Oryx 3, 4 and 5 get both, so
+  about a quarter of their usual loot.
+
+### Items
+- A Potion of Max drunk on a stat that's already maxed now puts 6 of that stat's potions into your
+  potion storage, as many as fit, instead of 100 or more past its limit. With that storage full,
+  the potion stays with you.
+
+### Divine Forge
+- The forge now uses what's in your vault: ingredients you don't carry are taken from your vault
+  chests (not the shared Nexus chests), and the forge window marks each one that comes from your
+  vault with how many it holds. With every ingredient from your vault and a full inventory, the
+  forged item goes into your vault.
+
+### Game
+- The server does about half the work in busy realms, uses a third of the memory, and stops for
+  memory clean-up far less, so ping is lower and steadier and big fights, the Arena above all, lag less. In the realm,
+  monsters more than about 16 tiles from everyone now wait until someone comes closer. Fixed a
+  server crash when several players dropped at the same moment.
+
 ## 2.0.2 (2026-10-24)
 
 ### Game

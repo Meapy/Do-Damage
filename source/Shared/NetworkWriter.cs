@@ -18,16 +18,17 @@ namespace Shared
         public override void Write(uint value) => base.Write((uint)IPAddress.HostToNetworkOrder((int)value));
         public override void Write(ulong value) => base.Write((ulong)IPAddress.HostToNetworkOrder((long)value));
 
+        // big-endian, without a new array for each value
         public override void Write(float value)
         {
-            var b = BitConverter.GetBytes(value);
-            Array.Reverse(b);
+            Span<byte> b = stackalloc byte[4];
+            System.Buffers.Binary.BinaryPrimitives.WriteSingleBigEndian(b, value);
             Write(b);
         }
         public override void Write(double value)
         {
-            var b = BitConverter.GetBytes(value);
-            Array.Reverse(b);
+            Span<byte> b = stackalloc byte[8];
+            System.Buffers.Binary.BinaryPrimitives.WriteDoubleBigEndian(b, value);
             Write(b);
         }
 

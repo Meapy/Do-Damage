@@ -44,11 +44,19 @@ namespace WorldServer.logic.behaviors
             _seeInvis = seeInvis;
         }
 
-        protected override void OnStateEntry(Entity host, TickTime time, ref object state) => state = _coolDownOffset;
+        // the cooldown, kept in one object per monster rather than a new boxed int every tick
+        private sealed class CooldownLeft
+        {
+            public int Ms;
+        }
+
+        protected override void OnStateEntry(Entity host, TickTime time, ref object state) => state = new CooldownLeft { Ms = _coolDownOffset };
 
         protected override void TickCore(Entity host, TickTime time, ref object state)
         {
-            var cool = (int?)state ?? -1; // <-- crashes server due to state being null... patched now but should be looked at.
+            var box = state as CooldownLeft ?? new CooldownLeft { Ms = -1 };
+            state = box;
+            var cool = box.Ms;
 
             Status = CycleStatus.NotStarted;
 
@@ -56,7 +64,7 @@ namespace WorldServer.logic.behaviors
             {
                 cool -= time.ElapsedMsDelta;
                 Status = CycleStatus.InProgress;
-                state = cool;
+                box.Ms = cool;
                 return;
             }
 
@@ -64,7 +72,7 @@ namespace WorldServer.logic.behaviors
             {
                 cool = _coolDown.Next(Random);
                 Status = CycleStatus.Completed;
-                state = cool;
+                box.Ms = cool;
                 return;
             }
 
@@ -83,7 +91,7 @@ namespace WorldServer.logic.behaviors
                     Console.WriteLine($"{host.ObjectDesc.IdName} Doesnt have projectile: {_projectileIndex}");
                     cool = _coolDown.Next(Random);
                     Status = CycleStatus.Completed;
-                    state = cool;
+                    box.Ms = cool;
                     return;
                 }
 
@@ -142,7 +150,7 @@ namespace WorldServer.logic.behaviors
 
             Status = CycleStatus.Completed;
 
-            state = cool;
+            box.Ms = cool;
         }
 
         private static float Predict(Entity host, Entity target)

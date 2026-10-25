@@ -261,9 +261,9 @@ namespace WorldServer.utils
             switch (objType)
             {
                 case null:
-                    foreach (var i in entity.World.PlayersCollision.HitTest(entity.X, entity.Y, dist).Where(e => e is IPlayer))
+                    foreach (var i in entity.World.PlayersCollision.HitTest(entity.X, entity.Y, dist))
                     {
-                        if (!seeInvis && !(i as IPlayer).IsVisibleToEnemy())
+                        if (!(i is IPlayer ip) || !seeInvis && !ip.IsVisibleToEnemy()) // pets share the map
                             continue;
 
                         var d = i.DistTo(entity);
@@ -346,9 +346,9 @@ namespace WorldServer.utils
                 yield break;
 
             if (objType == null)
-                foreach (var i in entity.World.PlayersCollision.HitTest(entity.X, entity.Y, dist).Where(e => e is IPlayer))
+                foreach (var i in entity.World.PlayersCollision.HitTest(entity.X, entity.Y, dist))
                 {
-                    if (!seeInvis && !(i as IPlayer).IsVisibleToEnemy())
+                    if (!(i is IPlayer ip) || !seeInvis && !ip.IsVisibleToEnemy()) // pets share the map
                         continue;
 
                     var d = i.DistTo(entity);
@@ -371,12 +371,42 @@ namespace WorldServer.utils
 
         public static Entity GetNearestEntity(this Entity entity, double dist, ushort? objType, bool seeInvis = false)   //Null for entity
         {
-            var entities = entity.GetNearestEntities(dist, objType, seeInvis).ToArray();
-
-            if (entities.Length <= 0)
+            // the nearest of GetNearestEntities (the same filters), in one pass with nothing allocated:
+            // monsters' AI asks this every tick, and its iterator was a fifth of all allocations
+            if (entity.World == null)
                 return null;
-
-            return entities.Aggregate((curmin, x) => curmin == null || x.SqDistTo(entity) < curmin.SqDistTo(entity) ? x : curmin);
+            Entity nearest = null;
+            var nearestSq = double.MaxValue;
+            var map = objType == null ? entity.World.PlayersCollision : entity.World.EnemiesCollision;
+            foreach (var e in map.HitTest(entity.X, entity.Y, dist))
+            {
+                switch (objType)
+                {
+                    case null:
+                        if (!(e is IPlayer p) || !seeInvis && !p.IsVisibleToEnemy()) // pets share the map
+                            continue;
+                        break;
+                    case 0:
+                        break;
+                    case 1:
+                        if (e.Name == entity.Name)
+                            continue;
+                        break;
+                    default:
+                        if (e.ObjectType != objType.Value)
+                            continue;
+                        break;
+                }
+                if (!(e.DistTo(entity) < dist))
+                    continue;
+                var sq = e.SqDistTo(entity);
+                if (nearest == null || sq < nearestSq)
+                {
+                    nearest = e;
+                    nearestSq = sq;
+                }
+            }
+            return nearest;
         }
 
         public static Entity GetNearestEntity(this Entity entity, double dist, bool players, Predicate<Entity> predicate = null)
@@ -387,9 +417,9 @@ namespace WorldServer.utils
             Entity ret = null;
 
             if (players)
-                foreach (var i in entity.World.PlayersCollision.HitTest(entity.X, entity.Y, dist).Where(e => e is IPlayer))
+                foreach (var i in entity.World.PlayersCollision.HitTest(entity.X, entity.Y, dist))
                 {
-                    if (!(i as IPlayer).IsVisibleToEnemy() || i == entity)
+                    if (!(i is IPlayer ip) || !ip.IsVisibleToEnemy() || i == entity) // pets share the map
                         continue;
 
                     var d = i.DistTo(entity);

@@ -116,6 +116,9 @@ public enum MessageId : byte
     // client taking one out into the inventory. An older client ignores FORGE_SHARDS.
     FORGE_SHARDS = 100,
     FORGE_WITHDRAW = 101,
+    // What the account's vault holds that the forge can take (after FORGE_DATA_REQUEST and each
+    // forging). An older client ignores it.
+    FORGE_VAULT = 102,
     // From the world proxy (tools/world_proxy.py), before the client's first message: the
     // client's address. Only taken on a connection from this PC; clients never send it.
     PROXY_INFO = 250

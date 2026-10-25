@@ -6,8 +6,12 @@ publish.workspace = true
 description = "Headless client: logs in, joins the nexus and stays connected, for protocol tests"
 
 [dependencies]
+bsk-assets.workspace = true
+bsk-data.workspace = true
 bsk-net.workspace = true
 bsk-proto.workspace = true
 bsk-session.workspace = true
+bsk-world.workspace = true
+pollster.workspace = true
 env_logger.workspace = true
 log.workspace = true

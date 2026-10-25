@@ -84,7 +84,8 @@ wire_struct! {
 }
 
 wire_struct! {
-    /// A forge shard in the forge storage (`ForgeShards`) and how many are there.
+    /// A forge shard in the forge storage (`ForgeShards`), or an item in the vault (`ForgeVault`),
+    /// and how many are there.
     pub struct ForgeShard {
         pub item: u16,
         pub count: i32,

@@ -1167,25 +1167,18 @@ namespace WorldServer.core.objects
             {
                 Stats.Base[idx] = statInfo[idx].MaxValue;
                 var inc = idx <= 1 ? eff.StoreAmount / 5 : eff.StoreAmount;
+                var before = Client.Account.StoredPotions[idx];
                 var storedAmount = AttemptToAdd(idx, inc);
 
                 if (storedAmount != -1)
                 {
+                    var added = storedAmount - before;
                     string statname = PotionNames[idx];
-                    bool checkVowel = statname.Substring(0, 1) == "A";
-                    string accForVowel = checkVowel ? "n" : "";
-                    switch (inc)
-                    {
-                        case 1:
-                            SendInfo($"Added a{accForVowel} {statname} potion to your storage! [{storedAmount}/{Client.Account.PotionStorageCapacity}]");
-                            break;
-                        case 2:
-                            SendInfo($"Added two {statname} potions to your storage! [{storedAmount}/{Client.Account.PotionStorageCapacity}]");
-                            break;
-                        default:
-                            SendInfo($"Added multiple {statname} potions to your storage! [{storedAmount}/{Client.Account.PotionStorageCapacity}]");
-                            break;
-                    }
+                    string what = added == 1
+                        ? $"a{(statname.StartsWith("A") ? "n" : "")} {statname} potion"
+                        : $"{added} {statname} potions";
+                    var full = added < inc ? " Your storage is now full." : "";
+                    SendInfo($"Added {what} to your storage! [{storedAmount}/{Client.Account.PotionStorageCapacity}]{full}");
                 }
                 else
                 {
@@ -1224,8 +1217,9 @@ namespace WorldServer.core.objects
         {
             var potions = Client.Account.StoredPotions;
             var acc = Client.Account;
+            // up to the limit: a Potion of Max stores several at once, and what doesn't fit is left out
             if (potions[idx] < acc.PotionStorageCapacity)
-                potions[idx] += amount;
+                potions[idx] += Math.Min(amount, acc.PotionStorageCapacity - potions[idx]);
             else
                 return -1;
 

@@ -136,6 +136,10 @@ namespace WorldServer.core.worlds
 
             sp.Load(ms, 0);
             sp.ProjectOntoWorld(world, pos);
+
+            // players already there see it now, not only once they step onto another tile
+            foreach (var player in world.Players.Values)
+                player.UpdateTiles();
         }
     }
 }

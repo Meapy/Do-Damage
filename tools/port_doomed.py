@@ -463,10 +463,18 @@ BAG_TYPES = {
 
 # What an IncrementStat item puts into potion storage when its stat is already at the class
 # maximum (storeAmount, in stat points; it was the whole amount): (stat, stored, description).
-# The Potion of Max Life still fills health to the maximum (+1000), but would have stored 200
-# life potions; it stores 30 health (6 potions).
+# The Potions of Max still fill their stat to the maximum (+100, or +1000 health and magic), but
+# would have stored 100 potions (200 life or mana); each stores 6 potions' worth, as the Max Life
+# one first did (life and mana potions are 5 points each).
 ITEM_STORE = {
-    "Potion of Max Life": ("0", "30", "A rare potion that permanently maxes health. At full maximum health, it adds 30 health to your potion storage instead."),
+    "Potion of Max Life": ("0", "30", "A rare potion that permanently maxes health. At full maximum health, it adds 6 life potions to your potion storage instead."),
+    "Potion of Max Mana": ("3", "30", "A potion that permanently maxes magic. At full maximum magic, it adds 6 mana potions to your potion storage instead."),
+    "Potion of Max Attack": ("20", "6", "A potion that permanently maxes attack power. At full maximum attack, it adds 6 attack potions to your potion storage instead."),
+    "Potion of Max Defense": ("21", "6", "A potion that permanently maxes defense power. At full maximum defense, it adds 6 defense potions to your potion storage instead."),
+    "Potion of Max Speed": ("22", "6", "A potion that permanently maxes speed. At full maximum speed, it adds 6 speed potions to your potion storage instead."),
+    "Potion of Max Vitality": ("26", "6", "A potion that permanently maxes vitality. At full maximum vitality, it adds 6 vitality potions to your potion storage instead."),
+    "Potion of Max Wisdom": ("27", "6", "A potion that permanently maxes wisdom. At full maximum wisdom, it adds 6 wisdom potions to your potion storage instead."),
+    "Potion of Max Dexterity": ("28", "6", "A potion that permanently maxes dexterity. At full maximum dexterity, it adds 6 dexterity potions to your potion storage instead."),
 }
 
 

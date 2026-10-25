@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using WorldServer.core.objects;
 using WorldServer.networking.packets.outgoing;
@@ -73,13 +74,29 @@ namespace WorldServer.core.worlds.impl
 
         public static bool IsOryx(string name) => OryxBosses.Contains(name);
 
-        // Oryx 3, 4 and 5 drop at this share of their usual rates in the Arena (Loot.Handle), where
-        // they come every few waves rather than at the end of a dungeon
-        public static readonly string[] HalfLootBosses = { "Oryx the Mad God 3", "Oryx the Mad God 4", "Oryx the Ascended God" };
-        public const double HalfLootRate = 0.5;
+        // the share of the usual loot in the Arena and the Admin Arena (World.LootRate, Dungeons.xml):
+        // no one dies there, so it's safe to farm. Loot.Handle applies it (LootHalvesItems says how).
+        public const double LootRate = 0.5;
 
-        public static double LootRate(Enemy enemy) =>
-            enemy.World is doomed.DoomedBattleArena && HalfLootBosses.Contains(enemy.ObjectDesc.IdName) ? HalfLootRate : 1;
+        // the waves' bosses and the Oryxes, which keep their drop chances but drop fewer items
+        private static readonly HashSet<string> WaveBosses =
+            Stages.SelectMany(s => s.Bosses).Concat(OryxBosses).ToHashSet();
+
+        // A boss (a wave's boss, an Oryx, or anything with a boss health bar, for the Admin Arena's
+        // spawns) under a LootRate rolls its drops as anywhere else, then keeps that share of the
+        // items, rounded up, so whoever would get loot still does. Any other monster rolls each drop
+        // at the rate instead: it mostly drops one item or none, and halving one item leaves one.
+        public static bool LootHalvesItems(Enemy enemy) =>
+            enemy.ObjectDesc.HealthBarBoss || WaveBosses.Contains(enemy.ObjectDesc.IdName);
+
+        // Oryx 3, 4 and 5 come every few waves rather than at the end of a dungeon, so under a
+        // LootRate they also roll each drop at it: with 0.5, half the chance and half of what drops,
+        // about a quarter of the items
+        public static readonly string[] HalfChanceBosses = { "Oryx the Mad God 3", "Oryx the Mad God 4", "Oryx the Ascended God" };
+
+        // what a boss under a LootRate rolls its drops at: the rate for Oryx 3, 4 and 5, else 1
+        public static double BossChanceRate(Enemy enemy, double worldRate) =>
+            HalfChanceBosses.Contains(enemy.ObjectDesc.IdName) ? worldRate : 1;
 
         // seconds between waves: 5, then 10 more every 10 waves, at most 20
         public static int WaveGapSeconds(int wave) => Math.Min(20, 5 + 10 * (wave / 10));

@@ -40,10 +40,16 @@ namespace WorldServer.core.objects
 
         private UpdatedHashSet _newObjects;
         
-        private readonly HashSet<IntPoint> _activeTiles = new HashSet<IntPoint>();
+        // the tiles in sight, worked out when the player steps onto another tile
+        private readonly SightSet _activeTiles = new SightSet();
+        // the line-of-sight tiles (worlds that block sight), before the map is looked up
+        private readonly SightSet _los = new SightSet();
         private readonly HashSet<WmapTile> _newStaticObjects = new HashSet<WmapTile>();
         private readonly Dictionary<int, byte> _seenTiles = new Dictionary<int, byte>();
+        private const int SeenArrayMax = 1024 * 1024;
+        private byte[] _seenArray;
         private readonly Dictionary<Entity, Dictionary<StatDataType, object>> _statsUpdates = new Dictionary<Entity, Dictionary<StatDataType, object>>();
+        private readonly Stack<Dictionary<StatDataType, object>> _statsPool = new Stack<Dictionary<StatDataType, object>>();
         
         private bool _needsUpdateTiles = true;
         
@@ -59,9 +65,7 @@ namespace WorldServer.core.objects
 
             foreach (var staticTile in _newStaticObjects)
             {
-                var x = staticTile.X;
-                var y = staticTile.Y;
-                if (x * x + y * y > SightRadius * SightRadius || staticTile.ObjType == 0)
+                if (staticTile.ObjType == 0)
                     if (staticTile.ObjId != 0)
                     {
                         update.Drops.Add(staticTile.ObjId);
@@ -84,7 +88,7 @@ namespace WorldServer.core.objects
                 if (entity is Player && (entity as Player).CanBeSeenBy(this))
                     continue;
 
-                if (entity is Player || _activeTiles.Contains(new IntPoint((int)entity.X, (int)entity.Y)))
+                if (entity is Player || _activeTiles.Contains((int)entity.X, (int)entity.Y))
                     continue;
 
                 drops.Add(entity.Id);
@@ -107,15 +111,30 @@ namespace WorldServer.core.objects
 
             lock (_statsUpdates)
             {
-                if (!_statsUpdates.ContainsKey(e))
-                    _statsUpdates[e] = new Dictionary<StatDataType, object>();
+                // every moving monster in sight comes here each tick: its dictionary comes back
+                // to the pool once the tick is sent, rather than a new one each time
+                if (!_statsUpdates.TryGetValue(e, out var stats))
+                    _statsUpdates[e] = stats = _statsPool.Count > 0 ? _statsPool.Pop() : new Dictionary<StatDataType, object>();
 
                 if (statChange.Stat != StatDataType.None)
-                    _statsUpdates[e][statChange.Stat] = statChange.Value;
+                    stats[statChange.Stat] = statChange.Value;
             }
         }
 
         public void UpdateTiles() => _needsUpdateTiles = true;
+
+        // the tile the sight was last worked out from
+        private int _sightX = int.MinValue, _sightY = int.MinValue;
+
+        /// <summary>
+        /// The player moved: the tiles and objects in sight change only when it steps onto another
+        /// tile (working them out is ~700 tiles at the default radius, 5,000 at the largest).
+        /// </summary>
+        public void UpdateTilesIfMoved()
+        {
+            if ((int)X != _sightX || (int)Y != _sightY)
+                _needsUpdateTiles = true;
+        }
 
         public void UpdateState(int dt)
         {
@@ -132,6 +151,8 @@ namespace WorldServer.core.objects
             if (_needsUpdateTiles)
             {
                 GetNewTiles(update);
+                // the map's own objects (trees, walls, signs) change only with the tiles
+                GetNewStaticObjects(update);
                 _needsUpdateTiles = false;
             }
             GetNewObjects(update);
@@ -144,65 +165,115 @@ namespace WorldServer.core.objects
 
         public void GetNewTiles(Update update)
         {
-            _activeTiles.Clear();
-            var cachedTiles = DetermineSight();
-            foreach (var point in cachedTiles)
+            var px = _sightX = (int)X;
+            var py = _sightY = (int)Y;
+            _activeTiles.Reset(px, py);
+            switch (World.Blocking)
             {
-                var playerX = point.X + (int)X;
-                var playerY = point.Y + (int)Y;
-
-                _ = _activeTiles.Add(new IntPoint(playerX, playerY));
-
-                var tile = World.Map[playerX, playerY];
-
-                var hash = playerX << 16 | playerY;
-                _ = _seenTiles.TryGetValue(hash, out var updateCount);
-
-                if (tile == null || tile.TileId == 0xFF || updateCount >= tile.UpdateCount)
-                    continue;
-
-                _seenTiles[hash] = tile.UpdateCount;
-
-                var tileData = new TileData(playerX, playerY, tile.TileId);
-                update.Tiles.Add(tileData);
+                case 1:
+                    CalculateLineOfSight(px, py);
+                    foreach (var point in _los.Points)
+                        AddSightTile(update, point.X, point.Y);
+                    break;
+                case 2:
+                    _pathPoints.Clear();
+                    CalculatePath(_pathPoints);
+                    foreach (var point in _pathPoints)
+                        AddSightTile(update, point.X + px, point.Y + py);
+                    break;
+                default:
+                    foreach (var point in _sightPoints)
+                        AddSightTile(update, point.X + px, point.Y + py);
+                    break;
             }
             FameCounter.TileSent(update.Tiles.Count); // adds the new amount to the tiles been sent
         }
 
-        public HashSet<IntPoint> DetermineSight()
+        private void AddSightTile(Update update, int x, int y)
         {
-            var hashSet = new HashSet<IntPoint>();
-            switch (World.Blocking)
+            if (!_activeTiles.Add(x, y))
+                return;
+
+            var map = World.Map;
+            var tile = map[x, y];
+            if (!tile.Exists || tile.TileId == 0xFF)
+                return;
+
+            // what the client has of the tile: an array for maps up to 1024 x 1024 (dungeons, the
+            // Arena, the Nexus: an index instead of a hash), the dictionary for realms (2048 x 2048
+            // would be 4 MB a player)
+            if (map.Width * map.Height <= SeenArrayMax)
             {
-                case 0:
-                    return _sightPoints;
-                case 1:
-                    CalculateLineOfSight(hashSet);
-                    break;
-                case 2:
-                    CalculatePath(hashSet);
-                    break;
+                var seen = _seenArray ??= new byte[map.Width * map.Height];
+                var i = x + y * map.Width;
+                if (seen[i] >= tile.UpdateCount)
+                    return;
+                seen[i] = tile.UpdateCount;
             }
-            return hashSet;
+            else
+            {
+                var hash = x << 16 | y;
+                _ = _seenTiles.TryGetValue(hash, out var updateCount);
+                if (updateCount >= tile.UpdateCount)
+                    return;
+                _seenTiles[hash] = tile.UpdateCount;
+            }
+            update.Tiles.Add(new TileData(x, y, tile.TileId));
         }
 
-        public void CalculateLineOfSight(HashSet<IntPoint> points)
+        private readonly HashSet<IntPoint> _pathPoints = new HashSet<IntPoint>();
+
+        /// <summary>
+        /// The tiles seen from (px, py) where objects block sight: a line to each tile round the
+        /// edge of the sight, stopping at the first that blocks it (Bresenham, as DrawLine). Into
+        /// a reused SightSet, without a callback per tile: in the Arena, with players stepping onto
+        /// another tile every few ticks, this was most of the tick.
+        /// </summary>
+        private void CalculateLineOfSight(int px, int py)
         {
-            var px = (int)X;
-            var py = (int)Y;
-
+            _los.Reset(px, py);
+            var map = World.Map;
             foreach (var point in _circleCircumferenceSightPoints)
-                DrawLine(px, py, px + point.X, py + point.Y, (x, y) =>
+            {
+                int x = px, y = py;
+                var w = point.X;
+                var h = point.Y;
+                int dx1 = Math.Sign(w), dy1 = Math.Sign(h), dx2 = Math.Sign(w), dy2 = 0;
+                var longest = Math.Abs(w);
+                var shortest = Math.Abs(h);
+                if (!(longest > shortest))
                 {
-                    _ = points.Add(new IntPoint(x - px, y - py));
+                    longest = Math.Abs(h);
+                    shortest = Math.Abs(w);
+                    dy2 = Math.Sign(h);
+                    dx2 = 0;
+                }
 
-                    if (World.Map.Contains(x, y))
+                var numerator = longest >> 1;
+                for (var i = 0; i <= longest; i++)
+                {
+                    _los.Add(x, y);
+                    if (map.Contains(x, y))
                     {
-                        var t = World.Map[x, y];
-                        return t.ObjType != 0 && t.ObjDesc != null && t.ObjDesc.BlocksSight;
+                        var t = map[x, y];
+                        if (t.ObjType != 0 && t.ObjDesc != null && t.ObjDesc.BlocksSight)
+                            break;
                     }
-                    return false;
-                });
+
+                    numerator += shortest;
+                    if (!(numerator < longest))
+                    {
+                        numerator -= longest;
+                        x += dx1;
+                        y += dy1;
+                    }
+                    else
+                    {
+                        x += dx2;
+                        y += dy2;
+                    }
+                }
+            }
         }
 
         public void CalculatePath(HashSet<IntPoint> points)
@@ -234,23 +305,26 @@ namespace WorldServer.core.objects
                     StepPath(points, pathMap, x + p.X, y + p.Y, px, py);
         }
 
-        public void GetNewObjects(Update update)
+        private void GetNewStaticObjects(Update update)
         {
-            var x = X;
-            var y = Y;
-
-            foreach (var point in _activeTiles) //static objects
+            foreach (var point in _activeTiles.Points)
             {
                 var pointX = point.X;
                 var pointY = point.Y;
 
                 var tile = World.Map[pointX, pointY];
-                if (tile == null)
+                if (!tile.Exists)
                     continue;
 
                 if (tile.ObjId != 0 && tile.ObjType != 0 && _newStaticObjects.Add(tile))
                     update.NewObjs.Add(tile.ToObjectDef(pointX, pointY));
             }
+        }
+
+        public void GetNewObjects(Update update)
+        {
+            var x = X;
+            var y = Y;
 
             var players = World.GetPlayers();
 
@@ -280,7 +354,7 @@ namespace WorldServer.core.objects
                 intPoint.X = (int)entity.X;
                 intPoint.Y = (int)entity.Y;
 
-                if (_activeTiles.Contains(intPoint) && _newObjects.Add(entity))
+                if (_activeTiles.Contains(intPoint.X, intPoint.Y) && _newObjects.Add(entity))
                     update.NewObjs.Add(entity.ToDefinition());
             }
 
@@ -293,7 +367,7 @@ namespace WorldServer.core.objects
 
                 intPoint.X = (int)entity.X;
                 intPoint.Y = (int)entity.Y;
-                if (_activeTiles.Contains(intPoint) && _newObjects.Add(entity))
+                if (_activeTiles.Contains(intPoint.X, intPoint.Y) && _newObjects.Add(entity))
                     update.NewObjs.Add(entity.ToDefinition());
             }
 
@@ -302,7 +376,7 @@ namespace WorldServer.core.objects
                 intPoint.X = (int)entity.X;
                 intPoint.Y = (int)entity.Y;
 
-                if (_activeTiles.Contains(intPoint) && _newObjects.Add(entity))
+                if (_activeTiles.Contains(intPoint.X, intPoint.Y) && _newObjects.Add(entity))
                     update.NewObjs.Add(entity.ToDefinition());
             }
 
@@ -311,7 +385,7 @@ namespace WorldServer.core.objects
                 intPoint.X = (int)entity.X;
                 intPoint.Y = (int)entity.Y;
 
-                if (_activeTiles.Contains(intPoint) && _newObjects.Add(entity))
+                if (_activeTiles.Contains(intPoint.X, intPoint.Y) && _newObjects.Add(entity))
                     update.NewObjs.Add(entity.ToDefinition());
             }
 
@@ -325,13 +399,21 @@ namespace WorldServer.core.objects
 
             lock (_statsUpdates)
             {
-                newTick.Statuses = _statsUpdates.Select(_ => new ObjectStats()
+                var statuses = new List<ObjectStats>(_statsUpdates.Count);
+                foreach (var (entity, stats) in _statsUpdates)
                 {
-                    Id = _.Key.Id,
-                    X = _.Key.X,
-                    Y = _.Key.Y,
-                    Stats = _.Value.ToArray()
-                }).ToList();
+                    statuses.Add(new ObjectStats()
+                    {
+                        Id = entity.Id,
+                        X = entity.X,
+                        Y = entity.Y,
+                        Stats = stats.Count == 0 ? NoStats : stats.ToArray()
+                    });
+                    stats.Clear();
+                    if (_statsPool.Count < 512)
+                        _statsPool.Push(stats);
+                }
+                newTick.Statuses = statuses;
                 _statsUpdates.Clear();
             }
 
@@ -339,10 +421,13 @@ namespace WorldServer.core.objects
             AwaitMove(TickId);
         }
 
+        private static readonly KeyValuePair<StatDataType, object>[] NoStats = Array.Empty<KeyValuePair<StatDataType, object>>();
+
         public void CleanupPlayerUpdate()
         {
             _seenTiles.Clear();
-            _activeTiles.Clear();
+            _seenArray = null;
+            _activeTiles.Reset(0, 0);
             _newStaticObjects.Clear();
             _statsUpdates.Clear();
             _newObjects.Dispose();
@@ -399,58 +484,52 @@ namespace WorldServer.core.objects
             return ret;
         }
 
-        public static void DrawLine(int x, int y, int x2, int y2, Func<int, int, bool> func)
+        /// <summary>
+        /// Tiles round a centre, out to the largest sight, as stamps in a reused array: adding and
+        /// looking up is an index, where the hash sets they replace hashed every tile, and nothing
+        /// is allocated when they're worked out again. Points lists what was added.
+        /// </summary>
+        private sealed class SightSet
         {
-            var w = x2 - x;
-            var h = y2 - y;
-            var dx1 = 0;
-            var dy1 = 0;
-            var dx2 = 0;
-            var dy2 = 0;
-            if (w < 0)
-                dx1 = -1;
-            else if (w > 0)
-                dx1 = 1;
-            if (h < 0)
-                dy1 = -1;
-            else if (h > 0)
-                dy1 = 1;
-            if (w < 0)
-                dx2 = -1;
-            else if (w > 0)
-                dx2 = 1;
+            private const int Size = 2 * MAX_VISIBILITY_RADIUS + 3;
+            private readonly int[] _stamps = new int[Size * Size];
+            private int _stamp = 1;
+            private int _cx, _cy;
+            public readonly List<IntPoint> Points = new List<IntPoint>();
 
-            var longest = Math.Abs(w);
-            var shortest = Math.Abs(h);
-            if (!(longest > shortest))
+            public void Reset(int cx, int cy)
             {
-                longest = Math.Abs(h);
-                shortest = Math.Abs(w);
-                if (h < 0)
-                    dy2 = -1;
-                else if (h > 0)
-                    dy2 = 1;
-                dx2 = 0;
+                _cx = cx;
+                _cy = cy;
+                Points.Clear();
+                if (++_stamp == int.MaxValue)
+                {
+                    Array.Clear(_stamps);
+                    _stamp = 1;
+                }
             }
 
-            var numerator = longest >> 1;
-            for (var i = 0; i <= longest; i++)
+            private int Index(int x, int y)
             {
-                if (func(x, y))
-                    break;
+                var i = x - _cx + Size / 2;
+                var j = y - _cy + Size / 2;
+                return (uint)i < Size && (uint)j < Size ? i + j * Size : -1;
+            }
 
-                numerator += shortest;
-                if (!(numerator < longest))
-                {
-                    numerator -= longest;
-                    x += dx1;
-                    y += dy1;
-                }
-                else
-                {
-                    x += dx2;
-                    y += dy2;
-                }
+            public bool Add(int x, int y)
+            {
+                var k = Index(x, y);
+                if (k < 0 || _stamps[k] == _stamp)
+                    return false;
+                _stamps[k] = _stamp;
+                Points.Add(new IntPoint(x, y));
+                return true;
+            }
+
+            public bool Contains(int x, int y)
+            {
+                var k = Index(x, y);
+                return k >= 0 && _stamps[k] == _stamp;
             }
         }
     }

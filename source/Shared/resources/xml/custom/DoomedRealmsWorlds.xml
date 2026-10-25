@@ -8,9 +8,9 @@
 		<Dungeon/>
 	</World>
 	<World id="Arena">
-		<Width>34</Width>
-		<Height>34</Height>
-		<MapJM>Doomed/Arena.jm</MapJM>
+		<Width>124</Width>
+		<Height>127</Height>
+		<MapJM>Dungeons/Admin Arena.jm</MapJM>
 		<VisibilityType>1</VisibilityType>
 		<Dungeon/>
 	</World>

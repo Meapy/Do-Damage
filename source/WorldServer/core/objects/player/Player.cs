@@ -324,6 +324,10 @@ namespace WorldServer.core.objects
 
         public override bool CanBeSeenBy(Player player)
         {
+            // only a hidden player depends on who looks (staff don't see them); asked for every
+            // pair of players every tick, and the account's fields are parsed on each read
+            if (!IsHidden)
+                return true;
             var admin = player.Client?.Account.Admin ?? false;
             var moderator = (player.Client.Account.Rank == (int)RankingType.Moderator);
             if (admin || moderator)

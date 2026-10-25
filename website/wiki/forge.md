@@ -19,12 +19,17 @@ tier below, and the rest are special recipes, most of them from Doomed Realms.
 3. Browse the recipes by what they make (weapons, abilities, armor, rings, the rest, then by kind),
    narrow them to **UT** (untiered gear, the Ascended items first) or **Highest tier** (the top tier
    the forge makes of each kind), search for one, or turn on **Forge Ready Items** to see only what
-   you can make with what you carry.
-4. Pick a recipe. **Insert all** puts its ingredients in from your inventory (and forge shards from
-   your forge storage), or click each empty ingredient slot to put one in. An item several recipes
-   make is listed once: the forge picks a recipe you can make, and says how many there are.
+   you can make with what you carry and what's in your vault.
+4. Pick a recipe. **Insert all** puts its ingredients in from your inventory (forge shards from
+   your forge storage), and anything you don't carry from your vault, or click each empty
+   ingredient slot to put one in. An ingredient from your vault says "vault" on its slot, with how
+   many your vault holds. An item several recipes make is listed once: the forge picks a recipe
+   you can make, and says how many there are.
 5. Press **Forge**. It takes the fame shown, and the new item takes the first ingredient's place in
-   your inventory.
+   your inventory. If every ingredient came from your vault or forge storage, it goes into a free
+   inventory slot, or into your vault when your inventory is full.
+
+Only your own vault chests count, not the shared chests in the Nexus.
 
 `/forge` and `/forgelist` only point you to the forge now.
 

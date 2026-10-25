@@ -39,64 +39,137 @@ namespace WorldServer.core.commands.doomed
         }
 
         // The forge window's slots (inventory indexes 4-11, and 12-19 with a backpack): each once,
-        // none empty.
-        public static bool ValidSlots(Player player, byte[] slots)
+        // none empty. Forging may name none (everything from the forge storage and the vault).
+        public static bool ValidSlots(Player player, byte[] slots, bool allowNone = false)
         {
             var end = player.HasBackpack ? InventoryConstants.SWAP_FIRST : 12;
-            return slots.Length > 0 && slots.Distinct().Count() == slots.Length &&
+            return (allowNone || slots.Length > 0) && slots.Distinct().Count() == slots.Length &&
                    slots.All(s => s >= 4 && s < end && player.Inventory[s] != null);
         }
 
-        // The recipe making `result` from these items (each ingredient used once), and the forge
-        // shards it takes from the forge storage for the ingredients they leave out: a shard can come
-        // from either, so a client that doesn't know the storage can still forge with shards it holds.
-        public static ((string Result, int Fame, bool Advanced, string[] Items) Recipe, Dictionary<string, int> Shards)? FindRecipe(
-            Player player, string[] items, string result)
+        // What a recipe takes beyond the items given: forge shards from the forge storage, and the
+        // rest from the account's vault chests (ForgeVault).
+        public struct ForgeSources
         {
+            public Dictionary<string, int> Shards;
+            public Dictionary<string, int> Vault;
+        }
+
+        // The recipe making `result` from these items (each ingredient used once), and where the
+        // ingredients they leave out come from: forge shards from the forge storage first, then
+        // anything from the vault (read once, into `vault`, when a recipe needs it). A client that
+        // doesn't know the storage or the vault can still forge with what it holds.
+        public static ((string Result, int Fame, bool Advanced, string[] Items) Recipe, ForgeSources From)? FindRecipe(
+            Player player, string[] items, string result, ref ForgeVault vault, ref bool vaultRead)
+        {
+            var stored = ForgeStorage.Counts(player);
             foreach (var r in ForgeRecipes.All(player.GameServer))
             {
                 if (r.Result != result || r.Items.Length < items.Length || r.Advanced)
                     continue;
                 var left = r.Items.ToList();
-                if (!items.All(i => left.Remove(i)) || !left.All(i => ForgeStorage.Index(i) >= 0))
+                if (!items.All(i => left.Remove(i)))
                     continue;
-                var shards = left.GroupBy(i => i).ToDictionary(g => g.Key, g => g.Count());
-                if (ForgeStorage.Has(player, shards))
-                    return (r, shards);
+                var from = new ForgeSources { Shards = new Dictionary<string, int>(), Vault = new Dictionary<string, int>() };
+                foreach (var g in left.GroupBy(i => i))
+                {
+                    var n = g.Count();
+                    var shard = ForgeStorage.Index(g.Key);
+                    var fromStorage = shard >= 0 ? Math.Min(n, stored[shard]) : 0;
+                    if (fromStorage > 0)
+                        from.Shards[g.Key] = fromStorage;
+                    if (n > fromStorage)
+                        from.Vault[g.Key] = n - fromStorage;
+                }
+                if (from.Vault.Count > 0)
+                {
+                    if (!vaultRead)
+                    {
+                        vault = ForgeVault.Read(player);
+                        vaultRead = true;
+                    }
+                    var read = vault;
+                    if (read == null || from.Vault.Any(v => read.Count(v.Key) < v.Value))
+                        continue;
+                }
+                return (r, from);
             }
             return null;
         }
 
-        // Forges the items in these slots, with any shards the recipe takes from the forge storage,
-        // into `result`, the item the window showed: they must make that recipe. (The advanced
-        // recipes needed a worn Forge Amulet, which is gone: none is forged.) The forged item takes
-        // the first slot. Returns what went wrong, or null.
+        // Forges the items in these slots, with what else the recipe takes from the forge storage and
+        // the vault, into `result`, the item the window showed: they must make that recipe. (The
+        // advanced recipes needed a worn Forge Amulet, which is gone: none is forged.) The forged
+        // item takes the first slot; with none, the first free inventory slot, or the vault when the
+        // inventory is full. Returns what went wrong, or null.
         public static string Forge(Player player, byte[] slots, string result, out int fame)
         {
             fame = 0;
-            if (!ValidSlots(player, slots))
+            if (!ValidSlots(player, slots, true))
                 return "Put the ingredients in your inventory first.";
             var inv = player.Inventory;
             var data = player.GameServer.Resources.GameData;
-            var found = FindRecipe(player, slots.Select(s => inv[s].ObjectId).ToArray(), result);
+            ForgeVault vault = null;
+            var vaultRead = false;
+            var found = FindRecipe(player, slots.Select(s => inv[s].ObjectId).ToArray(), result, ref vault, ref vaultRead);
             if (found == null)
-                return "Those items don't forge into that, or your forge storage lacks its shards.";
-            var (recipe, shards) = found.Value;
+                return vaultRead && vault == null
+                    ? "You're missing some ingredients (your vault can't be used while you're in it)."
+                    : "You don't have all the ingredients, in your inventory, forge storage or vault.";
+            var (recipe, from) = found.Value;
             fame = recipe.Fame;
             if (player.CurrentFame < fame)
                 return "Not enough fame to forge these items!";
             if (!data.IdToObjectType.TryGetValue(result, out var type) || !data.Items.TryGetValue(type, out var item))
                 return "That item doesn't exist here.";
+
+            // where the forged item goes
+            var slot = -1;
+            if (slots.Length > 0)
+                slot = slots[0];
+            else
+            {
+                var end = player.HasBackpack ? InventoryConstants.SWAP_FIRST : 12;
+                for (var s = 4; s < end && slot == -1; s++)
+                    if (inv[s] == null)
+                        slot = s;
+            }
+            if (slot == -1 && !vaultRead)
+            {
+                vault = ForgeVault.Read(player);
+                vaultRead = true;
+            }
+            var toVault = slot == -1;
+
+            // the vault first: the one step that can find things changed, before anything else moves
+            if (vault != null && from.Vault.Count > 0)
+                vault.Take(from.Vault);
+            if (toVault && (vault == null || !vault.Put(type)))
+                return "Your inventory and vault are full: make room for the forged item.";
+            if (vault != null && !vault.Save())
+                return "Your vault changed while forging: nothing was used. Try again.";
+
             foreach (var s in slots)
             {
                 inv[s] = null;
                 inv.Data[s] = null;
             }
-            inv[slots[0]] = item;
-            ForgeStorage.Take(player, shards);
+            if (!toVault)
+                inv[slot] = item;
+            ForgeStorage.Take(player, from.Shards);
             // taken at once, so a second forge before the database answers can't spend it again
             player.CurrentFame -= fame;
             DoomedWorlds.GiveFame(player, -fame);
+            if (from.Vault.Count > 0 || toVault)
+            {
+                var took = string.Join(", ", from.Vault.Select(v => v.Value > 1 ? $"{v.Value} {Name(player, v.Key)}" : Name(player, v.Key)));
+                if (took.Length > 0)
+                    player.SendInfo($"Took {took} from your vault.");
+                if (toVault)
+                    player.SendInfo($"Your inventory is full: {Name(player, result)} went into your vault.");
+            }
+            if (vault != null)
+                ForgeVault.Send(player, vault);
             return null;
         }
 
