@@ -245,7 +245,8 @@ namespace Shared.quests
         public int NameColor => State.ColorRank >= 0 && State.ColorRank < Data.Ranks.Count && State.ColorRank <= RankOf(Points)
             ? Data.Ranks[State.ColorRank].ColorValue : 0;
 
-        public bool LoginReady(DateTime now) => Data.Login.Count > 0 && State.Login.LastDay != QuestPeriods.DayKey(now);
+        // a later day than the last claim (never an earlier one, should the clock go back)
+        public bool LoginReady(DateTime now) => Data.Login.Count > 0 && State.Login.LastDay < QuestPeriods.DayKey(now);
 
         public bool BonusReady(QuestPeriod p)
         {
@@ -299,7 +300,7 @@ namespace Shared.quests
             var login = State.Login;
             if (Data.Login.Count == 0)
                 return ClaimResult.Fail("There are no daily rewards.");
-            if (login.LastDay == today)
+            if (login.LastDay >= today)
                 return ClaimResult.Fail("You already collected today's reward. Come back tomorrow!");
             var day = login.Step % Data.Login.Count;
             login.Streak = login.LastDay == today - 1 ? login.Streak + 1 : 1;

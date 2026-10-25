@@ -220,6 +220,9 @@ namespace Tests
             Assert.Equal(1, book.State.Login.Streak);
             Assert.Equal(3, book.State.Login.Step);
             Assert.Equal(3, book.AchievementOf("logins").Progress);
+            // a clock that goes back doesn't give the reward again
+            Assert.False(book.LoginReady(Wed.AddDays(1)));
+            Assert.False(book.ClaimLogin(Wed.AddDays(1)).Ok);
         }
 
         [Fact]
@@ -311,6 +314,16 @@ namespace Tests
             Assert.Equal(1, back.State.Of(QuestPeriod.Daily).Quests.First(s => s.Id == "d_monsters").Progress);
             Assert.False(back.ClaimLogin(Wed).Ok);
             Assert.NotNull(QuestState.FromJson("not json"));
+        }
+
+        [Fact]
+        public void TextsFillInTheGoalAndPlurals()
+        {
+            Assert.Equal("Help defeat Oryx the Mad God 1 time.", Data.Achievement("oryx").Describe(1));
+            Assert.Equal("Help defeat Oryx the Mad God 10 times.", Data.Achievement("oryx").Describe(10));
+            Assert.Equal("Reach level 20 with 1 different class.", Data.Achievement("classes").Describe(1));
+            Assert.Equal("Defeat 12,000 monsters in realms or dungeons.", Data.Quest("m_monsters").Describe());
+            Assert.All(Data.Quests, q => Assert.DoesNotContain("{", q.Describe()));
         }
 
         [Fact]

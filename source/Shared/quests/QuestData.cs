@@ -108,7 +108,7 @@ namespace Shared.quests
 
         [JsonIgnore] public QuestPeriod PeriodKind { get; set; }
         [JsonIgnore] public bool IsMax => Mode == "max";
-        public string Describe() => (Text ?? "").Replace("{n}", Goal.ToString("N0"));
+        public string Describe() => QuestData.Fill(Text, Goal);
 
         public bool Counts(in QuestEvent e) => e.Type == Event && (Filter == null || Filter.Matches(e));
     }
@@ -126,7 +126,7 @@ namespace Shared.quests
 
         [JsonIgnore] public bool IsMax => Mode == "max";
         [JsonIgnore] public bool IsDistinct => Mode == "distinct";
-        public string Describe(int goal) => (Text ?? "").Replace("{n}", goal.ToString("N0"));
+        public string Describe(int goal) => QuestData.Fill(Text, goal);
 
         public bool Counts(in QuestEvent e) => e.Type == Event && (Filter == null || Filter.Matches(e));
     }
@@ -160,6 +160,13 @@ namespace Shared.quests
         public static readonly string[] PeriodNames = { "daily", "weekly", "monthly" };
 
         public static string Name(QuestPeriod p) => PeriodNames[(int)p];
+
+        // A quest's or achievement's text for a goal: {n} is the goal, and {s} and {es} the
+        // plural endings, left out when the goal is 1 ("1 time", "5 times").
+        public static string Fill(string text, int goal) => (text ?? "")
+            .Replace("{n}", goal.ToString("N0"))
+            .Replace("{s}", goal == 1 ? "" : "s")
+            .Replace("{es}", goal == 1 ? "" : "es");
 
         public int SlotsOf(QuestPeriod p) => Slots.TryGetValue(Name(p), out var n) ? n : 3;
         public int RerollsOf(QuestPeriod p) => Rerolls.TryGetValue(Name(p), out var n) ? n : 0;

@@ -34,6 +34,9 @@ namespace WorldServer.core.commands
                             return false;
                         QuestTracker.ClockOffsetHours = hours;
                         player.SendInfo($"The quests' clock on this server is now {hours} hours ahead: {QuestTracker.Now:yyyy-MM-dd HH:mm} UTC.");
+                        tracker.Book.Refresh(QuestTracker.Now);
+                        if (tracker.Subscribed)
+                            tracker.SendData();
                         break;
                     case "add":
                         if (parts.Length < 2 || !QuestEvents.All.Contains(parts[1]))
