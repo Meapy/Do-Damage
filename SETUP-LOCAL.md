@@ -211,8 +211,11 @@ it running for a while; it doesn't survive a restart of this PC.
   doesn't matter (TLS covers the Hello); it was left as it is so old clients keep working.
 
 **Updating:** `python deploy\deploy.py`. It replaces only what changed, and nobody is disconnected
-(see below). `--skip-build` uploads the last build again, `--no-releases` leaves `dist\client`
-out, and `--status` shows the services, the world server slots and the gateway slots (each with
+(see below). It publishes the desktop client first (`--account https://<site>/api --package
+--publish`) when `client-rs/` or `client/src/` changed since the newest release in `dist\client`,
+and stops instead when it can't: not the main checkout on `main`, uncommitted client changes, or
+the version not raised; `--no-publish` skips that. `--skip-build` uploads the last build again,
+`--no-releases` leaves `dist\client` out, and `--status` shows the services, the world server slots and the gateway slots (each with
 its open connections).
 
 **Deploys that kick nobody** (`deploy/remote/install.sh`):

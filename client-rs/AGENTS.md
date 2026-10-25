@@ -19,10 +19,15 @@ python tools\build_client_rs.py --account https://dodmg.com/api --package --publ
 
 - **Releasing to players** (ask the owner first): raise the version and name the changelog section
   (below) on the release branch, and squash-merge its pull request into `main` (../AGENTS.md, Git,
-  "Release branches"). Then, in the **main checkout**, which holds the signing key, run the line
-  above with the live address. It writes `dist\Do-Damage-windows.zip` (the website's download) and a
-  signed release in `dist\client`; `python deploy\deploy.py` then puts both on the VPS, where
-  clients find it at `<account>/client/`. Desktop clients switch at their next portal, or straight
+  "Release branches"). Then, in the **main checkout**, which holds the signing key, run
+  `python deploy\deploy.py`: when `client-rs/` or `client/src/` changed since the newest release in
+  `dist\client`, it runs the line above first (with `https://<site>/api` from the VPS config), and
+  stops if the version wasn't raised or the checkout isn't `main`. That writes
+  `dist\Do-Damage-windows.zip` (the website's download) and a signed release in `dist\client`, and
+  the deploy puts both on the VPS, where clients find it at `<account>/client/`. Publishing by hand
+  needs `--account` (the script refuses without it): a release built without it has
+  `http://127.0.0.1:8080` built in, and players who restart after updating to it are stranded, as
+  2.1.1 and the first 2.2.0 were. Desktop clients switch at their next portal, or straight
   away on the menu, the character list or an empty sign-in screen; nobody is disconnected. Browser players get
   the new build when they next load the page. Check `https://dodmg.com/api/client/windows/latest.json`
   afterwards.

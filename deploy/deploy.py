@@ -5,6 +5,15 @@ server (a VPS with Ubuntu 24.04) over ssh. Nothing is built on the server.
     python deploy/deploy.py --import-data source/Redis/data   # first time: also copy the Redis data
     python deploy/deploy.py --skip-build             # upload the last build again
     python deploy/deploy.py --status                 # the services and world servers on the server
+    python deploy/deploy.py --no-publish             # deploy without publishing the desktop client
+
+Before building, it publishes the desktop client (tools/build_client_rs.py --package --publish,
+with --account https://<site>/api, or http://<public_address>:<account port> without a site) when the
+client changed since the newest release in dist/client: anything under client-rs/ or client/src/
+(its assets) since that release's commit. That needs the main checkout on main with those folders
+committed (the release is signed with build/client-update.key, which only the main checkout has),
+and a version in client-rs/Cargo.toml above the release's, with its changelog section named.
+Otherwise it stops before building anything; --no-publish deploys the client releases as they are.
 
 The settings are in deploy/vps.local.json (copy deploy/vps.example.json; --config picks another):
 
@@ -41,6 +50,7 @@ deploy/remote/install.sh as root:
 - redis-data/   with --import-data: dump.rdb and appendonly.aof from that folder
 """
 import argparse
+import importlib.util
 import io
 import json
 import os
@@ -121,6 +131,65 @@ def build_gateway(cfg):
               'cp "$HOME/.cache/bsk-gateway/release/bsk-gateway" "%s/"'
               % (wsl_path(distro, manifest), wsl_path(distro, dest)))
     run(["wsl", "-d", distro, "--", "bash", "-c", script])
+
+
+def git(*args):
+    r = subprocess.run(["git"] + list(args), cwd=ROOT, capture_output=True, text=True)
+    return r.returncode, r.stdout.strip()
+
+
+def version_key(v):
+    return tuple(int(p) for p in v.split("."))
+
+
+def client_version():
+    """The client's version as tools/build_client_rs.py publishes it."""
+    spec = importlib.util.spec_from_file_location("build_client_rs", os.path.join(ROOT, "tools", "build_client_rs.py"))
+    mod = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(mod)
+    return mod.version()
+
+
+def player_account(cfg):
+    """The account server players' desktop clients use: the site's gateway (https), else the
+    account server itself."""
+    if cfg["site"]:
+        return "https://%s/api" % cfg["site"]
+    return "http://%s:%d" % (cfg["public_address"], cfg["ports"]["account"])
+
+
+def publish_client(cfg):
+    """Publishes the desktop client when it changed since the newest release (see the top)."""
+    latest = os.path.join(ROOT, "dist", "client", "windows", "latest.json")
+    published, published_commit = None, ""
+    if os.path.exists(latest):
+        with open(latest, encoding="utf-8") as f:
+            data = json.load(f)
+        published, published_commit = data["version"], data.get("commit", "")
+    paths = ["client-rs", "client/src"]
+    if published:
+        known = published_commit and git("cat-file", "-e", published_commit + "^{commit}")[0] == 0
+        if known and git("diff", "--quiet", published_commit, "HEAD", "--", *paths)[0] == 0:
+            print("client: unchanged since %s (%s), not publishing" % (published, published_commit))
+            return
+    current = client_version()
+    why = "client: changed since %s (%s)" % (published, published_commit) if published else "client: no release yet"
+    stop = " Fix it, or deploy with --no-publish to leave the client releases as they are."
+    if not os.path.exists(os.path.join(ROOT, "build", "client-update.key")):
+        sys.exit(why + ", but this checkout has no build/client-update.key: publish from the main checkout"
+                 " (a new key would strand every player)." + stop)
+    if git("branch", "--show-current")[1] != "main":
+        sys.exit(why + ", but this checkout isn't on main: releases are published from main, after the"
+                 " release's pull request is merged." + stop)
+    if git("status", "--porcelain", "--", *paths)[1]:
+        sys.exit(why + ", but client-rs/ or client/src/ has uncommitted changes." + stop)
+    if published and version_key(current) <= version_key(published):
+        sys.exit(why + ", but client-rs/Cargo.toml still says %s: raise the version and name its"
+                 " changelog section." % current + stop)
+    print(why + ": publishing %s" % current, flush=True)
+    # --package too: the website's download (dist/Do-Damage-<os>.zip) is the same release
+    run([sys.executable, os.path.join(ROOT, "tools", "build_client_rs.py"),
+         "--account", player_account(cfg), "--package", "--publish"])
 
 
 def build(cfg, args):
@@ -275,6 +344,7 @@ def main():
     ap.add_argument("--config", default=os.path.join(HERE, "vps.local.json"))
     ap.add_argument("--skip-build", action="store_true", help="upload build/vps/bundle as it is")
     ap.add_argument("--no-releases", action="store_true", help="leave out dist/client (desktop client releases)")
+    ap.add_argument("--no-publish", action="store_true", help="don't publish the desktop client, even if it changed")
     ap.add_argument("--import-data", metavar="DIR", help="also copy this Redis data folder (first install)")
     ap.add_argument("--force-data", action="store_true", help="with --import-data: replace data already there")
     ap.add_argument("--status", action="store_true", help="only show the services' state")
@@ -291,6 +361,8 @@ def main():
                              " h=$(curl -s --max-time 2 http://127.0.0.1:$p/healthz) && echo \"gateway slot $s (port $p): $h\"; p=$((p + 1)); done"
                         % {"r": REMOTE}))
     if not args.skip_build:
+        if not (args.no_publish or args.no_releases):
+            publish_client(cfg)
         build(cfg, args)
     elif not os.path.isdir(STAGE):
         sys.exit("nothing built yet: run without --skip-build")

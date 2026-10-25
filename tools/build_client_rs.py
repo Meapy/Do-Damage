@@ -230,6 +230,11 @@ def main():
     args = parser.parse_args()
     if args.publish and args.web:
         sys.exit("--publish is for the desktop build (browsers load the newest files when the page loads)")
+    if args.publish and not args.account:
+        # without it the release has http://127.0.0.1:8080 built in: players who restart the game
+        # after updating can't reach the servers, or the next update (2.1.1 and 2.2.0 did that)
+        sys.exit("--publish needs --account: the account server players' clients use, such as "
+                 "https://dodmg.com/api")
     out = os.path.join(ROOT, "build", "client-rs", "web" if args.web else "native")
     # Builds for players check for updates, signed with this key.
     key = update_key() if (args.package or args.publish) and not args.web else None
