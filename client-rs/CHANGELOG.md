@@ -21,7 +21,7 @@ details). Add to a group's line when a change adds to it, rather than adding ano
 
 ### Fixes
 - Janus leaves the Oryx's Chamber portal beside his loot bags instead of under them, where it
-  was hidden and couldn't be entered.
+  was hidden and couldn't be entered, and no Realm Portal beside it.
 
 ### Wiki
 - A new Loot Simulation page: pick Oryx 3, 4 or 5, set your share of the damage and your loot

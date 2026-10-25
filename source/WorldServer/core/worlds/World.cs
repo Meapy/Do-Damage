@@ -637,7 +637,9 @@ namespace WorldServer.core.worlds
                     world._clearCounted = true;
                     quests.QuestTracker.DungeonCleared(world);
                 }
-                if (world.Quests.Count > 0 || world.Portals.Values.Any(p => p.ObjectDesc.IdName is "Realm Portal" or "Random Realm Portal"))
+                // Oryx's Castle leads on, not out: Janus leaves only the Oryx's Chamber portal
+                if (world.Quests.Count > 0 || world.IdName == "Oryx's Castle"
+                    || world.Portals.Values.Any(p => p.ObjectDesc.IdName is "Realm Portal" or "Random Realm Portal"))
                     return;
                 var portal = Entity.Resolve(world.GameServer, "Realm Portal");
                 if (portal == null)
