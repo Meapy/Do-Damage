@@ -187,7 +187,7 @@
 	
 	<Object type="0x571b" id="O3 Pillar Turret">
 		<!-- invisible, nameless and not an enemy: it fires Oryx 3's shots from a Sanctum pillar
-		     (BehaviorDb.OryxSanctuary.cs), copies of his projectiles 16, 18, 22, 46, 52 and 54 -->
+		     (BehaviorDb.OryxSanctuary.cs), copies of his projectiles 16, 18, 46 and 54 -->
 		<Class>GameObject</Class>
 		<Texture>
 			<File>invisible</File>
@@ -213,26 +213,12 @@
 			<MultiHit/>
 			<ArmorPiercing/>
 		</Projectile>
-		<Projectile id="22">
-			<ObjectId>O3 White Slash</ObjectId>
-			<Damage>195</Damage>
-			<Speed>70</Speed>
-			<LifetimeMS>2500</LifetimeMS>
-			<MultiHit/>
-		</Projectile>
 		<Projectile id="46">
 			<ObjectId>O3 Exalted Spear</ObjectId>
 			<Damage>245</Damage>
 			<Speed>90</Speed>
 			<LifetimeMS>2500</LifetimeMS>
 			<Size>140</Size>
-			<MultiHit/>
-		</Projectile>
-		<Projectile id="52">
-			<ObjectId>O3 Exalted Slash</ObjectId>
-			<Damage>230</Damage>
-			<Speed>70</Speed>
-			<LifetimeMS>2500</LifetimeMS>
 			<MultiHit/>
 		</Projectile>
 		<Projectile id="54">

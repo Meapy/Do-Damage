@@ -13,7 +13,8 @@ namespace WorldServer.logic
     // stronger "Exalted" ones after. He drops the portal to Oryx's Inferno (Oryx 4).
     // His taunts go to chat only (no bubbles over his attacks). He stands at the Sanctum's centre. His missiles chase the players, his wheels charge about,
     // his bombs flee from them, and before the Kneel ring and the spinners he turns invulnerable
-    // and dashes back to the centre. Below 80% the Sanctum's four pillars fire his shots as well.
+    // and dashes back to the centre. Below 80% the Sanctum's four pillars fire his shots as well. The
+    // Sanctum's gate shuts behind the players as he wakes and opens when he dies.
     partial class BehaviorDb
     {
         private static readonly string[] SanctuaryCourt =
@@ -84,6 +85,7 @@ namespace WorldServer.logic
                     new DropPortalOnDeath("Locked Oryx's Inferno Portal", 1.0, timeout: 600, xAdjustment: 2,
                         name: "Locked: Oryx's Inferno", lockedHint: "This portal is locked. Use an Oryx's Inferno Incantation beside it to open it."),
                     new DropPortalOnDeath("Realm Portal", 1.0, timeout: 120, xAdjustment: -2),
+                    new RemoveObjectOnDeath("O3 Wall Gate", 30),
                     new AnnounceOnDeath("{PL_LIST} broke Oryx the Celestial Mad God in his Sanctuary! His spirit sinks into his Inferno, sealed by an Oryx's Inferno Incantation..."),
                     new State("Where",
                         new ArenaTransition("Arena Wake"),
@@ -96,8 +98,12 @@ namespace WorldServer.logic
                         new ConditionEffectBehavior(ConditionEffectIndex.Invulnerable),
                         new PlayerWithinTransition(17, "Awaken 1")
                     ),
+                    // the Sanctum's gate shuts behind the players for the whole fight (rows 22 and 23
+                    // below him, four either side: GATE_Y in tools/build_oryx_sanctuary.py), and anyone
+                    // standing in it is moved inside; it opens when he dies
                     new State("Awaken 1",
                         new ConditionEffectBehavior(ConditionEffectIndex.Invulnerable),
+                        new PlaceObject("O3 Wall Gate", -4, 22, 4, 23, clear: true),
                         new Flash(0xFFFFFFFF, 0.5, 12),
                         new Taunt(true, "So. You have butchered my court and walked into my Sanctum.") { Bubble = false },
                         new TimedTransition(3000, "Awaken 2")
@@ -279,13 +285,12 @@ namespace WorldServer.logic
             )
 
             // an invisible turret beside each of the Sanctum's four pillars: below his 80% the pillars
-            // fire copies of his shots, through every phase: along the square's sides (his Slashes)
-            // and pairs in at the middle (his armour-piercing Big Bashes) in turn, with a Spear at whoever
-            // is closest; Exalted below half health
+            // fire copies of his shots, through every phase: pairs in at the middle (his armour-piercing
+            // Big Bashes) and a Spear at whoever is closest; Exalted below half health
             .Init("O3 Pillar Turret",
                 new State(
                     new ShootFromPillars("Oryx the Mad God 3", "O3 Wall Column 1", 0.8,
-                        edge: new[] { 22, 52 }, middle: new[] { 18, 54 }, aimed: new[] { 16, 46 }, damage: 0.6)
+                        middle: new[] { 18, 54 }, aimed: new[] { 16, 46 }, damage: 0.6)
                 )
             )
 
