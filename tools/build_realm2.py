@@ -397,9 +397,9 @@ def shot(obj, damage, speed, life, **extra):
 MOBS = {
     # --- the Cubic Expanse
     "R2 Cubelet": ("Cubelet", 900, 8, 80, "g", [shot("Blue Bolt", 70, 70, 1100)]),
-    "R2 Prism Sentinel": ("Prism Sentinel", 1800, 15, 100, "gf", [
+    "R2 Prism Sentinel": ("Prism Sentinel", 2000, 15, 100, "gf", [
         shot("Crystal Shard", 90, 55, 2000), shot("Blue Star", 60, 80, 1200, effect=("Slowed", 2))]),
-    "R2 Shard Walker": ("Shard Walker", 1500, 12, 100, "g", [shot("Crystal Bolt", 110, 80, 1000)]),
+    "R2 Shard Walker": ("Shard Walker", 1800, 12, 100, "g", [shot("Crystal Bolt", 110, 80, 1000)]),
     "R2 Cube Overseer": ("Cube Overseer", 2400, 18, 110, "gf", [shot("Blue Magic", 100, 60, 2000)]),
     "R2 Tesseract": ("Tesseract", 14000, 22, 120, "f", [
         shot("Crystal Shard", 120, 60, 2500), shot("Blue Star", 90, 45, 3000, effect=("Slowed", 2)),
@@ -407,7 +407,7 @@ MOBS = {
     "R2 Hypercube Warden": ("Hypercube Warden", 12000, 25, 120, "", [
         shot("Silver Shield", 150, 60, 1500, multi=True), shot("Blue Bolt", 100, 90, 1300)], 18),
     # --- the Watching Dark
-    "R2 Floating Eye": ("Floating Eye", 1400, 10, 100, "gf", [shot("Red Star", 90, 60, 1800)]),
+    "R2 Floating Eye": ("Floating Eye", 1800, 10, 100, "gf", [shot("Red Star", 90, 60, 1800)]),
     "R2 Eye Swarmer": ("Eye Swarmer", 700, 5, 70, "gf", [shot("Red Fire", 60, 90, 900)]),
     "R2 Gazer": ("Gazer", 2200, 15, 110, "gf", [
         shot("White Bolt", 120, 50, 2700, size=120), shot("Purple Star", 0, 70, 3000, effect=("Blind", 3))]),
@@ -419,10 +419,10 @@ MOBS = {
     "R2 Elder Watcher": ("Elder Watcher", 12000, 18, 120, "f", [
         shot("White Bolt", 140, 50, 3000, size=130), shot("Purple Star", 0, 70, 3000, effect=("Blind", 3))], 18),
     # --- the Lost Lands
-    "R2 Lost Sentry": ("Lost Sentry", 1800, 16, 100, "g", [
+    "R2 Lost Sentry": ("Lost Sentry", 2000, 16, 100, "g", [
         shot("Blade", 110, 90, 600), shot("White Shard Bolt", 90, 70, 1500)]),
-    "R2 Forsaken Archer": ("Forsaken Archer", 1300, 8, 100, "g", [shot("Blue Arrow", 110, 120, 1200)]),
-    "R2 Wailing Wraith": ("Wailing Wraith", 1200, 5, 100, "gf", [
+    "R2 Forsaken Archer": ("Forsaken Archer", 1700, 8, 100, "g", [shot("Blue Arrow", 110, 120, 1200)]),
+    "R2 Wailing Wraith": ("Wailing Wraith", 1600, 5, 100, "gf", [
         shot("White Flame", 80, 50, 2000, effect=("Slowed", 2))]),
     "R2 Ruin Golem": ("Ruin Golem", 2800, 25, 120, "g", [shot("Grey Star", 130, 40, 2500)]),
     "R2 Sentry Captain": ("Sentry Captain", 12000, 22, 120, "", [
@@ -431,21 +431,21 @@ MOBS = {
         shot("Dark Gray Spinner", 140, 50, 2500), shot("Silver Shield", 160, 70, 1200, multi=True)], 19),
     # --- the Tidepools
     "R2 Hermit Brute": ("Hermit Brute", 2400, 22, 110, "g", [shot("Aqua Missile", 110, 60, 1500)]),
-    "R2 Tide Snapper": ("Tide Snapper", 1200, 10, 90, "g", [
+    "R2 Tide Snapper": ("Tide Snapper", 1600, 10, 90, "g", [
         shot("Blue Boomerang", 90, 70, 1400, multi=True)]),
     "R2 Barnacle Turret": ("Barnacle Turret", 1500, 18, 100, "gs", [shot("Aqua Missile", 90, 55, 2000)]),
-    "R2 Kelp Lurker": ("Kelp Lurker", 1600, 8, 100, "g", [
+    "R2 Kelp Lurker": ("Kelp Lurker", 1800, 8, 100, "g", [
         shot("Green Spinner", 90, 40, 2600, effect=("Slowed", 2))]),
     "R2 Shellback Champion": ("Shellback Champion", 14000, 30, 130, "", [
         shot("Aqua Missile", 140, 60, 2000), shot("Blue Bolt", 110, 90, 1300)], 18),
     "R2 Ancient Snapper": ("Ancient Snapper", 12000, 20, 130, "", [
         shot("Blue Boomerang", 150, 80, 1600, multi=True), shot("Aqua Missile", 110, 55, 2200)], 19),
     # --- the Wreck Coast
-    "R2 Drowned Buccaneer": ("Drowned Buccaneer", 1600, 12, 100, "g", [
+    "R2 Drowned Buccaneer": ("Drowned Buccaneer", 1900, 12, 100, "g", [
         shot("Blade", 120, 100, 500), shot("Grey Boomerang", 90, 70, 1200)]),
     "R2 Spectral Gull": ("Spectral Gull", 800, 4, 80, "gf", [shot("Feather", 60, 90, 900)]),
     "R2 Bone Gunner": ("Bone Gunner", 1700, 15, 100, "g", [shot("Black Ball", 140, 50, 2200, size=130)]),
-    "R2 Wreck Wraith": ("Wreck Wraith", 1400, 6, 100, "gf", [
+    "R2 Wreck Wraith": ("Wreck Wraith", 1700, 6, 100, "gf", [
         shot("Green Magic", 90, 60, 1800, effect=("Slowed", 2))]),
     "R2 Phantom Quartermaster": ("Phantom Quartermaster", 13000, 20, 120, "", [
         shot("Green Star", 130, 60, 2400), shot("Black Ball", 160, 45, 2500, size=140)], 18),
@@ -462,18 +462,18 @@ MOBS = {
     "R2 Sand Scourge": ("Sand Scourge", 12000, 18, 130, "", [
         shot("Yellow Shard Bolt", 110, 80, 1200), shot("Brown Magic", 100, 50, 2400, effect=("Slowed", 3))], 19),
     # --- the Bonefields
-    "R2 Bone Flayer": ("Bone Flayer", 1700, 12, 100, "g", [shot("White Shard Bolt", 110, 90, 900)]),
+    "R2 Bone Flayer": ("Bone Flayer", 1900, 12, 100, "g", [shot("White Shard Bolt", 110, 90, 900)]),
     "R2 Skull Wisp": ("Skull Wisp", 900, 5, 90, "gf", [shot("Fire Bolt", 90, 70, 1400)]),
-    "R2 Blood Imp": ("Blood Imp", 1100, 8, 90, "g", [shot("Red Fire", 90, 80, 1200)]),
-    "R2 Shrine Cultist": ("Shrine Cultist", 1500, 10, 100, "g", [shot("Cultist Fire Shot", 110, 60, 2000)]),
+    "R2 Blood Imp": ("Blood Imp", 1500, 8, 90, "g", [shot("Red Fire", 90, 80, 1200)]),
+    "R2 Shrine Cultist": ("Shrine Cultist", 1800, 10, 100, "g", [shot("Cultist Fire Shot", 110, 60, 2000)]),
     "R2 Shrine Keeper": ("Shrine Keeper", 14000, 20, 120, "", [
         shot("Cultist Fire Shot", 140, 60, 2400), shot("Red Star", 110, 70, 1800)], 19),
     "R2 Marrow Fiend": ("Marrow Fiend", 12000, 22, 130, "", [
         shot("White Shard Bolt", 120, 80, 1600), shot("Red Shard Bolt", 150, 100, 1000)], 18),
     # --- the Jade Garden
     "R2 Komainu": ("Komainu", 2000, 20, 100, "g", [shot("Grey Star", 110, 60, 1400)]),
-    "R2 Oni Mask": ("Oni Mask", 1500, 10, 100, "gf", [shot("Red Fire", 100, 70, 1500)]),
-    "R2 Kitsune Spirit": ("Kitsune Spirit", 1300, 8, 100, "g", [
+    "R2 Oni Mask": ("Oni Mask", 1800, 10, 100, "gf", [shot("Red Fire", 100, 70, 1500)]),
+    "R2 Kitsune Spirit": ("Kitsune Spirit", 1700, 8, 100, "g", [
         shot("Cyan Magic", 90, 80, 1500), shot("Pink Bolt", 80, 60, 2000)]),
     "R2 Lantern Wisp": ("Lantern Wisp", 900, 5, 90, "gf", [shot("Fire Bullet", 80, 60, 1600)]),
     "R2 Oni Warlord": ("Oni Warlord", 14000, 24, 130, "", [
@@ -481,7 +481,7 @@ MOBS = {
     "R2 Jade Golem": ("Jade Golem", 15000, 30, 130, "", [
         shot("Crystal Green Shard", 140, 50, 2400), shot("Green Bolt", 110, 80, 1400)], 18),
     # --- the Ashen Caldera
-    "R2 Drakeling": ("Drakeling", 1400, 10, 100, "gf", [shot("Fire Bolt", 100, 80, 1200)]),
+    "R2 Drakeling": ("Drakeling", 1700, 10, 100, "gf", [shot("Fire Bolt", 100, 80, 1200)]),
     "R2 Magma Salamander": ("Magma Salamander", 1800, 14, 100, "g", [shot("Fire Missile", 110, 60, 1600)]),
     "R2 Ember Wyrm": ("Ember Wyrm", 1600, 10, 110, "gf", [
         shot("Dragon Attack Red Spinning Fireball", 100, 50, 2400, amplitude=0.5, frequency=2)]),
@@ -494,7 +494,7 @@ MOBS = {
     # --- the Forgotten Kingdom
     "R2 Shattered Knight": ("Shattered Knight", 2000, 22, 100, "g", [
         shot("Silver Shield", 120, 70, 800, multi=True), shot("Blade", 110, 90, 600)]),
-    "R2 Forgotten Mage": ("Forgotten Mage", 1300, 8, 100, "g", [
+    "R2 Forgotten Mage": ("Forgotten Mage", 1700, 8, 100, "g", [
         shot("Violet Missile", 100, 80, 1600), shot("Purple Magic", 90, 60, 2000)]),
     "R2 Stone Gargoyle": ("Stone Gargoyle", 1800, 25, 100, "gf", [shot("Grey Star", 100, 70, 1300)]),
     "R2 Soul Lantern": ("Soul Lantern", 1100, 10, 90, "gf", [shot("Cyan Magic", 80, 50, 2400)]),
@@ -504,8 +504,8 @@ MOBS = {
         shot("Silver Shield", 160, 70, 1400, multi=True), shot("Blade", 130, 100, 700)], 18),
     # --- the Honey Meadow
     "R2 Worker Bee": ("Worker Bee", 700, 4, 70, "gf", [shot("EH Yellow Stinger Small", 70, 90, 800)]),
-    "R2 Hornet Drone": ("Hornet Drone", 1200, 10, 90, "gf", [shot("EH Red Stinger Small", 100, 100, 900)]),
-    "R2 Honey Slime": ("Honey Slime", 1600, 12, 100, "g", [
+    "R2 Hornet Drone": ("Hornet Drone", 1600, 10, 90, "gf", [shot("EH Red Stinger Small", 100, 100, 900)]),
+    "R2 Honey Slime": ("Honey Slime", 1900, 12, 100, "g", [
         shot("Yellow Energy Shot", 90, 40, 2000, effect=("Slowed", 3))]),
     "R2 Pollen Sprite": ("Pollen Sprite", 900, 4, 90, "gf", [
         shot("Green Spinner", 60, 50, 2000, effect=("Slowed", 1))]),

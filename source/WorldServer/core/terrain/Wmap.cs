@@ -134,8 +134,10 @@ namespace WorldServer.core.terrain
         }
 
         // typically this method is used with setpieces. It's data is
-        // copied to the supplied world at the said position
-        public void ProjectOntoWorld(World world, IntPoint pos)
+        // copied to the supplied world at the said position. With keepUnset, the set piece's
+        // Empty tiles leave the world's tile as it is, objects and all (Realm 2's event lands,
+        // whose blob shape lies in a square).
+        public void ProjectOntoWorld(World world, IntPoint pos, bool keepUnset = false)
         {
             pos.X -= Width / 2;
             pos.Y -= Height / 2;
@@ -150,6 +152,8 @@ namespace WorldServer.core.terrain
 
                     var tile = world.Map[projX, projY];
                     var spTile = this[x, y];
+                    if (keepUnset && spTile.TileId == 0xFF)
+                        continue;
 
                     tile.ObjType = 0;
                     tile.UpdateCount++;

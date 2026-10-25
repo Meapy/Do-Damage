@@ -849,7 +849,7 @@
 		<HitSound>monster/cube_god_hit</HitSound>
 		<DeathSound>monster/cube_god_death</DeathSound>
 		<Size>100</Size>
-		<MaxHitPoints>1800</MaxHitPoints>
+		<MaxHitPoints>2000</MaxHitPoints>
 		<Defense>15</Defense>
 		<God />
 		<Flying />
@@ -879,7 +879,7 @@
 		<HitSound>monster/cube_god_hit</HitSound>
 		<DeathSound>monster/cube_god_death</DeathSound>
 		<Size>100</Size>
-		<MaxHitPoints>1500</MaxHitPoints>
+		<MaxHitPoints>1800</MaxHitPoints>
 		<Defense>12</Defense>
 		<God />
 		<Projectile id="0">
@@ -993,7 +993,7 @@
 		<HitSound>monster/beholder_hit</HitSound>
 		<DeathSound>monster/beholder_death</DeathSound>
 		<Size>100</Size>
-		<MaxHitPoints>1400</MaxHitPoints>
+		<MaxHitPoints>1800</MaxHitPoints>
 		<Defense>10</Defense>
 		<God />
 		<Flying />
@@ -1170,7 +1170,7 @@
 		<HitSound>monster/ghost_god_hit</HitSound>
 		<DeathSound>monster/ghost_god_death</DeathSound>
 		<Size>100</Size>
-		<MaxHitPoints>1800</MaxHitPoints>
+		<MaxHitPoints>2000</MaxHitPoints>
 		<Defense>16</Defense>
 		<God />
 		<Projectile id="0">
@@ -1198,7 +1198,7 @@
 		<HitSound>monster/ghost_god_hit</HitSound>
 		<DeathSound>monster/ghost_god_death</DeathSound>
 		<Size>100</Size>
-		<MaxHitPoints>1300</MaxHitPoints>
+		<MaxHitPoints>1700</MaxHitPoints>
 		<Defense>8</Defense>
 		<God />
 		<Projectile id="0">
@@ -1220,7 +1220,7 @@
 		<HitSound>monster/ghost_god_hit</HitSound>
 		<DeathSound>monster/ghost_god_death</DeathSound>
 		<Size>100</Size>
-		<MaxHitPoints>1200</MaxHitPoints>
+		<MaxHitPoints>1600</MaxHitPoints>
 		<Defense>5</Defense>
 		<God />
 		<Flying />
@@ -1355,7 +1355,7 @@
 		<HitSound>monster/crab_hit</HitSound>
 		<DeathSound>monster/crab_death</DeathSound>
 		<Size>90</Size>
-		<MaxHitPoints>1200</MaxHitPoints>
+		<MaxHitPoints>1600</MaxHitPoints>
 		<Defense>10</Defense>
 		<God />
 		<Projectile id="0">
@@ -1400,7 +1400,7 @@
 		<HitSound>monster/crab_hit</HitSound>
 		<DeathSound>monster/crab_death</DeathSound>
 		<Size>100</Size>
-		<MaxHitPoints>1600</MaxHitPoints>
+		<MaxHitPoints>1800</MaxHitPoints>
 		<Defense>8</Defense>
 		<God />
 		<Projectile id="0">
@@ -1484,7 +1484,7 @@
 		<HitSound>monster/pirates_hit</HitSound>
 		<DeathSound>monster/pirates_death</DeathSound>
 		<Size>100</Size>
-		<MaxHitPoints>1600</MaxHitPoints>
+		<MaxHitPoints>1900</MaxHitPoints>
 		<Defense>12</Defense>
 		<God />
 		<Projectile id="0">
@@ -1558,7 +1558,7 @@
 		<HitSound>monster/pirates_hit</HitSound>
 		<DeathSound>monster/pirates_death</DeathSound>
 		<Size>100</Size>
-		<MaxHitPoints>1400</MaxHitPoints>
+		<MaxHitPoints>1700</MaxHitPoints>
 		<Defense>6</Defense>
 		<God />
 		<Flying />
@@ -1793,7 +1793,7 @@
 		<HitSound>monster/skeletons_hit</HitSound>
 		<DeathSound>monster/skeletons_death</DeathSound>
 		<Size>100</Size>
-		<MaxHitPoints>1700</MaxHitPoints>
+		<MaxHitPoints>1900</MaxHitPoints>
 		<Defense>12</Defense>
 		<God />
 		<Projectile id="0">
@@ -1838,7 +1838,7 @@
 		<HitSound>monster/skeletons_hit</HitSound>
 		<DeathSound>monster/skeletons_death</DeathSound>
 		<Size>90</Size>
-		<MaxHitPoints>1100</MaxHitPoints>
+		<MaxHitPoints>1500</MaxHitPoints>
 		<Defense>8</Defense>
 		<God />
 		<Projectile id="0">
@@ -1860,7 +1860,7 @@
 		<HitSound>monster/skeletons_hit</HitSound>
 		<DeathSound>monster/skeletons_death</DeathSound>
 		<Size>100</Size>
-		<MaxHitPoints>1500</MaxHitPoints>
+		<MaxHitPoints>1800</MaxHitPoints>
 		<Defense>10</Defense>
 		<God />
 		<Projectile id="0">
@@ -1964,7 +1964,7 @@
 		<HitSound>monster/stone_walls_hit</HitSound>
 		<DeathSound>monster/stone_walls_death</DeathSound>
 		<Size>100</Size>
-		<MaxHitPoints>1500</MaxHitPoints>
+		<MaxHitPoints>1800</MaxHitPoints>
 		<Defense>10</Defense>
 		<God />
 		<Flying />
@@ -1987,7 +1987,7 @@
 		<HitSound>monster/stone_walls_hit</HitSound>
 		<DeathSound>monster/stone_walls_death</DeathSound>
 		<Size>100</Size>
-		<MaxHitPoints>1300</MaxHitPoints>
+		<MaxHitPoints>1700</MaxHitPoints>
 		<Defense>8</Defense>
 		<God />
 		<Projectile id="0">
@@ -2099,7 +2099,7 @@
 		<HitSound>monster/lizard_god_hit</HitSound>
 		<DeathSound>monster/lizard_god_death</DeathSound>
 		<Size>100</Size>
-		<MaxHitPoints>1400</MaxHitPoints>
+		<MaxHitPoints>1700</MaxHitPoints>
 		<Defense>10</Defense>
 		<God />
 		<Flying />
@@ -2282,7 +2282,7 @@
 		<HitSound>monster/knights_hit</HitSound>
 		<DeathSound>monster/knights_death</DeathSound>
 		<Size>100</Size>
-		<MaxHitPoints>1300</MaxHitPoints>
+		<MaxHitPoints>1700</MaxHitPoints>
 		<Defense>8</Defense>
 		<God />
 		<Projectile id="0">
@@ -2441,7 +2441,7 @@
 		<HitSound>monster/flies_hit</HitSound>
 		<DeathSound>monster/flies_death</DeathSound>
 		<Size>90</Size>
-		<MaxHitPoints>1200</MaxHitPoints>
+		<MaxHitPoints>1600</MaxHitPoints>
 		<Defense>10</Defense>
 		<God />
 		<Flying />
@@ -2464,7 +2464,7 @@
 		<HitSound>monster/flies_hit</HitSound>
 		<DeathSound>monster/flies_death</DeathSound>
 		<Size>100</Size>
-		<MaxHitPoints>1600</MaxHitPoints>
+		<MaxHitPoints>1900</MaxHitPoints>
 		<Defense>12</Defense>
 		<God />
 		<Projectile id="0">

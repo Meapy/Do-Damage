@@ -477,8 +477,8 @@ namespace WorldServer.core.worlds
             }
         }
 
-        // Realm 2 starts with all its events up, and only needs more for a crowd (RealmManager.Realm2.cs)
-        public int EventsNeeded => Layout != null ? Math.Max(Layout.EventCount, EventsToClose(RecentPlayers)) : EventsToClose(RecentPlayers);
+        // Realm 2 needs every one of its events, the Lucky gods and the eleven lands' (RealmManager.Realm2.cs), more for a crowd
+        public int EventsNeeded => Layout != null ? Math.Max(2 + realm2.Realm2Themes.Events.Length, EventsToClose(RecentPlayers)) : EventsToClose(RecentPlayers);
 
         /// <summary>For /realmstatus.</summary>
         public string Status()
@@ -588,12 +588,6 @@ namespace WorldServer.core.worlds
             if (_now - _lastEventChange < EventGapMs)
                 return;
 
-            if (Layout != null)
-            {
-                EnsureLayoutEvents();
-                return;
-            }
-
             _parts.RemoveAll(p => p.Enemy.World != World || p.Enemy.Dead);
             var alive = 0;
             var fresh = 0;
@@ -618,6 +612,14 @@ namespace WorldServer.core.worlds
 
             if (fresh >= EventsAtOnce(RecentPlayers) || alive >= MaxEventsAlive)
                 return;
+
+            // Realm 2: its next event, with its land, until it has as many as it needs
+            if (Layout != null)
+            {
+                if (_EventCount + alive < EventsNeeded && SpawnNextLayoutEvent())
+                    _lastEventChange = _now;
+                return;
+            }
 
             var next = PickEvent();
             if (next == null)

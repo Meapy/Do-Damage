@@ -3,8 +3,9 @@ using Shared.resources;
 namespace WorldServer.core.worlds.realm2
 {
     /// <summary>
-    /// One of Realm 2's areas: its grounds, scenery, walls, monsters and quests, and for the
-    /// eleven event areas the realm event that lives at its heart. The art and the monsters' XML
+    /// One of Realm 2's event lands: its grounds, scenery, walls, monsters and quests, and the realm
+    /// event at its heart, which brings the land with it. The small monsters (Cubelets, Eye
+    /// Swarmers, Scarabs, Worker Bees...) aren't in its tables: the bigger ones bring them. The art and the monsters' XML
     /// are tools/build_realm2.py's; their behaviours BehaviorDb.Realm2.cs.
     /// </summary>
     public sealed class Realm2Theme
@@ -18,8 +19,7 @@ namespace WorldServer.core.worlds.realm2
         public double DecorDensity;
         public string Wall;
         public (string Id, double Weight)[] Mobs;
-        public string[] Quests;             // two of each are kept in the area
-        public int TilesPerMob = 70;
+        public string[] Quests;             // one of each is kept in the land
     }
 
     public static class Realm2Themes
@@ -28,6 +28,7 @@ namespace WorldServer.core.worlds.realm2
         // shore and lowlands, then the midlands and highlands round the two Lucky gods
         public const string Starter = "starter";
         public const string Midlands = "midlands";
+        public const string Godlands = "godlands";
 
         public static readonly Realm2Theme[] Events =
         {
@@ -37,7 +38,7 @@ namespace WorldServer.core.worlds.realm2
                 Ground = "R2 Cube Grid", Patches = "R2 Cube Grid Bright", Arena = "R2 Prism Floor",
                 Decor = new[] { ("R2 Cube Crystal", 3.0), ("R2 Floating Cube", 2.0), ("R2 Cube Monolith", 1.0), ("R2 Cube Shards", 3.0) },
                 DecorDensity = 0.05, Wall = "R2 Cube Wall",
-                Mobs = new[] { ("R2 Cubelet", 3.0), ("R2 Prism Sentinel", 2.0), ("R2 Shard Walker", 2.0), ("R2 Cube Overseer", 1.0) },
+                Mobs = new[] { ("R2 Prism Sentinel", 2.0), ("R2 Shard Walker", 2.0), ("R2 Cube Overseer", 1.5) },
                 Quests = new[] { "R2 Tesseract", "R2 Hypercube Warden" },
             },
             new Realm2Theme
@@ -46,7 +47,7 @@ namespace WorldServer.core.worlds.realm2
                 Ground = "R2 Dark Soil", Patches = "R2 Ashen Soil", Arena = "R2 Ritual Floor",
                 Decor = new[] { ("R2 Dead Tree", 3.0), ("R2 Dead Sapling", 2.0), ("R2 Eye Stalk", 1.5), ("R2 Bone Pile", 1.5) },
                 DecorDensity = 0.06, Wall = "R2 Dark Wall",
-                Mobs = new[] { ("R2 Floating Eye", 3.0), ("R2 Eye Swarmer", 2.0), ("R2 Gazer", 1.5), ("R2 Watcher Stalk", 1.5), ("Beholder", 1.0) },
+                Mobs = new[] { ("R2 Floating Eye", 2.0), ("R2 Gazer", 1.5), ("R2 Watcher Stalk", 1.5), ("Beholder", 1.5) },
                 Quests = new[] { "R2 Eye of the Pentagram", "R2 Elder Watcher" },
             },
             new Realm2Theme
@@ -55,7 +56,7 @@ namespace WorldServer.core.worlds.realm2
                 Ground = "R2 Lost Dust", Patches = "R2 Lost Cracked Earth", Arena = "R2 Lost Flagstones",
                 Decor = new[] { ("R2 Broken Pillar", 2.0), ("R2 Lost Crystal", 1.5), ("R2 Gravestone", 2.0), ("R2 Withered Shrub", 3.0) },
                 DecorDensity = 0.05, Wall = "R2 Lost Wall",
-                Mobs = new[] { ("R2 Lost Sentry", 3.0), ("R2 Forsaken Archer", 2.0), ("R2 Wailing Wraith", 2.0), ("R2 Ruin Golem", 1.0) },
+                Mobs = new[] { ("R2 Lost Sentry", 2.0), ("R2 Forsaken Archer", 1.5), ("R2 Wailing Wraith", 1.5), ("R2 Ruin Golem", 1.5) },
                 Quests = new[] { "R2 Sentry Captain", "R2 Forgotten Warlord" },
             },
             new Realm2Theme
@@ -64,7 +65,7 @@ namespace WorldServer.core.worlds.realm2
                 Ground = "R2 Tide Sand", Patches = "R2 Kelp Bed", Arena = "R2 Tide Sand", Pools = "R2 Tide Pool",
                 Decor = new[] { ("R2 Coral", 2.0), ("R2 Giant Shell", 1.5), ("R2 Seaweed", 3.0), ("R2 Barnacle Rock", 2.0) },
                 DecorDensity = 0.05, Wall = "R2 Coral Wall",
-                Mobs = new[] { ("R2 Hermit Brute", 2.0), ("R2 Tide Snapper", 3.0), ("R2 Barnacle Turret", 1.5), ("R2 Kelp Lurker", 2.0) },
+                Mobs = new[] { ("R2 Hermit Brute", 2.0), ("R2 Tide Snapper", 1.5), ("R2 Barnacle Turret", 1.5), ("R2 Kelp Lurker", 1.5) },
                 Quests = new[] { "R2 Shellback Champion", "R2 Ancient Snapper" },
             },
             new Realm2Theme
@@ -73,7 +74,7 @@ namespace WorldServer.core.worlds.realm2
                 Ground = "R2 Wet Shingle", Patches = "R2 Fog Shallows", Arena = "R2 Wreck Planks", Pools = "R2 Fog Shallows",
                 Decor = new[] { ("R2 Broken Mast", 1.5), ("R2 Wreck Hull", 1.5), ("R2 Anchor", 1.0), ("R2 Barrel", 2.5) },
                 DecorDensity = 0.04, Wall = "R2 Hull Wall",
-                Mobs = new[] { ("R2 Drowned Buccaneer", 3.0), ("R2 Spectral Gull", 2.0), ("R2 Bone Gunner", 1.5), ("R2 Wreck Wraith", 2.0) },
+                Mobs = new[] { ("R2 Drowned Buccaneer", 2.0), ("R2 Bone Gunner", 1.5), ("R2 Wreck Wraith", 1.5) },
                 Quests = new[] { "R2 Phantom Quartermaster", "R2 Abyssal Kraken" },
             },
             new Realm2Theme
@@ -82,7 +83,7 @@ namespace WorldServer.core.worlds.realm2
                 Ground = "R2 Tomb Sand", Patches = "R2 Dune Sand", Arena = "R2 Sandstone Tiles",
                 Decor = new[] { ("R2 Obelisk", 1.0), ("R2 Broken Statue", 1.5), ("R2 Sandstone Block", 2.0), ("R2 Tomb Urn", 2.0) },
                 DecorDensity = 0.035, Wall = "R2 Tomb Wall",
-                Mobs = new[] { ("R2 Scarab", 3.0), ("R2 Tomb Mummy", 2.5), ("R2 Jackal Guard", 2.0), ("R2 Sun Obelisk", 1.0) },
+                Mobs = new[] { ("R2 Tomb Mummy", 2.0), ("R2 Jackal Guard", 2.0), ("R2 Sun Obelisk", 1.0) },
                 Quests = new[] { "R2 Tomb Sentinel", "R2 Sand Scourge" },
             },
             new Realm2Theme
@@ -91,7 +92,7 @@ namespace WorldServer.core.worlds.realm2
                 Ground = "R2 Blood Soil", Patches = "R2 Bone Dust", Arena = "R2 Charred Stone",
                 Decor = new[] { ("R2 Skull Totem", 1.5), ("R2 Rib Cage", 2.0), ("R2 Bone Brazier", 1.0), ("R2 Blood Spike", 2.0) },
                 DecorDensity = 0.045, Wall = "R2 Bone Wall",
-                Mobs = new[] { ("R2 Bone Flayer", 3.0), ("R2 Skull Wisp", 2.0), ("R2 Blood Imp", 2.5), ("R2 Shrine Cultist", 1.5) },
+                Mobs = new[] { ("R2 Bone Flayer", 2.0), ("R2 Blood Imp", 1.5), ("R2 Shrine Cultist", 1.5) },
                 Quests = new[] { "R2 Shrine Keeper", "R2 Marrow Fiend" },
             },
             new Realm2Theme
@@ -100,7 +101,7 @@ namespace WorldServer.core.worlds.realm2
                 Ground = "R2 Moss Grass", Patches = "R2 Petal Grass", Arena = "R2 Garden Stones",
                 Decor = new[] { ("R2 Blossom Tree", 3.0), ("R2 Stone Lantern", 1.0), ("R2 Bamboo", 2.0), ("R2 Garden Shrub", 3.0) },
                 DecorDensity = 0.07, Wall = "R2 Garden Wall",
-                Mobs = new[] { ("R2 Komainu", 2.0), ("R2 Oni Mask", 2.5), ("R2 Kitsune Spirit", 2.5), ("R2 Lantern Wisp", 2.0) },
+                Mobs = new[] { ("R2 Komainu", 2.0), ("R2 Oni Mask", 2.0), ("R2 Kitsune Spirit", 2.0) },
                 Quests = new[] { "R2 Oni Warlord", "R2 Jade Golem" },
             },
             new Realm2Theme
@@ -109,7 +110,7 @@ namespace WorldServer.core.worlds.realm2
                 Ground = "R2 Obsidian Ground", Patches = "R2 Ash Ground", Arena = "R2 Magma Cracks", Pools = "R2 Lava",
                 Decor = new[] { ("R2 Dragon Bones", 1.5), ("R2 Obsidian Spire", 2.0), ("R2 Ember Vent", 1.5), ("R2 Charred Tree", 2.0) },
                 DecorDensity = 0.045, Wall = "R2 Obsidian Wall",
-                Mobs = new[] { ("R2 Drakeling", 3.0), ("R2 Magma Salamander", 2.5), ("R2 Ember Wyrm", 2.0), ("R2 Obsidian Golem", 1.0) },
+                Mobs = new[] { ("R2 Drakeling", 1.5), ("R2 Magma Salamander", 2.0), ("R2 Ember Wyrm", 1.5), ("R2 Obsidian Golem", 1.5) },
                 Quests = new[] { "R2 Wyrm Matriarch", "R2 Elder Drake" },
             },
             new Realm2Theme
@@ -118,7 +119,7 @@ namespace WorldServer.core.worlds.realm2
                 Ground = "R2 Kingdom Slate", Patches = "R2 Kingdom Rubble Floor", Arena = "R2 Kingdom Mosaic",
                 Decor = new[] { ("R2 Fallen Column", 2.0), ("R2 Forgotten Statue", 1.5), ("R2 Soul Brazier", 1.0), ("R2 Kingdom Rubble", 3.0) },
                 DecorDensity = 0.045, Wall = "R2 Kingdom Wall",
-                Mobs = new[] { ("R2 Shattered Knight", 3.0), ("R2 Forgotten Mage", 2.0), ("R2 Stone Gargoyle", 2.0), ("R2 Soul Lantern", 1.5) },
+                Mobs = new[] { ("R2 Shattered Knight", 2.0), ("R2 Forgotten Mage", 1.5), ("R2 Stone Gargoyle", 1.5) },
                 Quests = new[] { "R2 Forgotten Archmage", "R2 King's Champion" },
             },
             new Realm2Theme
@@ -127,7 +128,7 @@ namespace WorldServer.core.worlds.realm2
                 Ground = "R2 Meadow Grass", Patches = "R2 Honeycomb Floor", Arena = "R2 Honeycomb Floor", Pools = "R2 Honey Pool",
                 Decor = new[] { ("R2 Giant Flower", 3.0), ("R2 Sunflower", 2.0), ("R2 Small Hive", 1.0), ("R2 Clover Bush", 3.0) },
                 DecorDensity = 0.07, Wall = "R2 Honeycomb Wall",
-                Mobs = new[] { ("R2 Worker Bee", 3.0), ("R2 Hornet Drone", 2.0), ("R2 Honey Slime", 2.0), ("R2 Pollen Sprite", 2.0) },
+                Mobs = new[] { ("R2 Hornet Drone", 2.0), ("R2 Honey Slime", 2.0) },
                 Quests = new[] { "R2 Royal Guard Bee", "R2 Hornet Queen" },
             },
         };

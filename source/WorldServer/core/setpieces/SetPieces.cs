@@ -129,13 +129,13 @@ namespace WorldServer.core.worlds
             //log.InfoFormat("Applied setpieces to: '{0}'. [ID: {1}]", world.DisplayName, world.Id);
         }
 
-        public static void RenderFromData(World world, IntPoint pos, byte[] data)
+        public static void RenderFromData(World world, IntPoint pos, byte[] data, bool keepUnset = false)
         {
             var ms = new MemoryStream(data);
             var sp = new Wmap(world);
 
             sp.Load(ms, 0);
-            sp.ProjectOntoWorld(world, pos);
+            sp.ProjectOntoWorld(world, pos, keepUnset);
 
             // players already there see it now, not only once they step onto another tile
             foreach (var player in world.Players.Values)

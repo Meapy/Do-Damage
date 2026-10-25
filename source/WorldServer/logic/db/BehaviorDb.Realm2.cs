@@ -6,8 +6,9 @@ using WorldServer.logic.transitions;
 namespace WorldServer.logic
 {
     // Realm 2's monsters (tools/build_realm2.py draws them and writes their XML; the projectile
-    // indices here are its MOBS lists). Four monsters and two quests for each event area, as
-    // strong as the godlands': the monsters drop as the gods do, the quests better, with a
+    // indices here are its MOBS lists). For each event land, two to four monsters as strong as the
+    // gods, a few small ones that only come with them (Cubelets, Eye Swarmers, Scarabs, Worker
+    // Bees...), and two quests: the monsters drop as the gods do, the quests better, with a
     // dungeon of their land's kind now and then.
     partial class BehaviorDb
     {
@@ -42,8 +43,7 @@ namespace WorldServer.logic
         .Init("R2 Cubelet",
             new State(
                 new Prioritize(new StayCloseToSpawn(1.2, 16), new Swirl(1.2, 3, 9), new Wander(0.6)),
-                new Shoot(8, 3, shootAngle: 15, coolDown: 900),
-                new Reproduce(densityMax: 4, densityRadius: 8, coolDown: 6000)
+                new Shoot(8, 3, shootAngle: 15, coolDown: 900)
                 ),
             R2Mob("Potion of Wisdom"))
         .Init("R2 Prism Sentinel",
@@ -370,6 +370,7 @@ namespace WorldServer.logic
                     new Taunt("Fire the cannons!"),
                     new Shoot(13, 3, shootAngle: 30, projectileIndex: 1, predictive: 0.4, coolDown: 700),
                     new Grenade(3, 140, 9, coolDown: 1200, color: 0x3a3a3a),
+                    new Spawn("R2 Spectral Gull", maxChildren: 4, initialSpawn: 0, coolDown: 2500),
                     new TimedTransition(3500, "Orders")
                     ),
                 new DropPortalOnDeath("Davy Jones' Locker Portal", 0.2)
@@ -405,8 +406,7 @@ namespace WorldServer.logic
         .Init("R2 Scarab",
             new State(
                 new Prioritize(new StayCloseToSpawn(1.3, 16), new Swirl(1.3, 2, 9), new Wander(0.8)),
-                new Shoot(7, 2, shootAngle: 30, coolDown: 600),
-                new Reproduce(densityMax: 5, densityRadius: 8, coolDown: 5000)
+                new Shoot(7, 2, shootAngle: 30, coolDown: 600)
                 ),
             R2Mob("Potion of Speed"))
         .Init("R2 Tomb Mummy",
@@ -601,6 +601,7 @@ namespace WorldServer.logic
                     new Flash(0x90F0C0, 0.3, 4),
                     new ConditionEffectBehavior(ConditionEffectIndex.Armored),
                     new Shoot(13, 20, projectileIndex: 0, coolDown: 1200),
+                    new Spawn("R2 Lantern Wisp", maxChildren: 3, initialSpawn: 0, coolDown: 2000),
                     new TimedTransition(3000, "Stand")
                     ),
                 new DropPortalOnDeath("Magic Woods Portal", 0.15)
@@ -718,6 +719,7 @@ namespace WorldServer.logic
                     R2Keep(0.6, 7),
                     new Shoot(14, 3, shootAngle: 120, projectileIndex: 0, rotateAngle: 11, coolDown: 200),
                     new Shoot(12, 2, shootAngle: 10, projectileIndex: 1, predictive: 0.6, coolDown: 1400),
+                    new Spawn("R2 Soul Lantern", maxChildren: 3, initialSpawn: 0, coolDown: 6000),
                     new TimedTransition(6000, "Blink"),
                     new HpLessTransition(0.35, "Unravel")
                     ),
@@ -782,7 +784,7 @@ namespace WorldServer.logic
             new State(
                 R2Walk(0.4, 8, 2),
                 new Shoot(9, 5, shootAngle: 72, coolDown: 1600),
-                new Reproduce(densityMax: 3, densityRadius: 6, coolDown: 9000)
+                new Spawn("R2 Pollen Sprite", maxChildren: 2, initialSpawn: 0, coolDown: 8000)
                 ),
             R2Mob("Potion of Speed"))
         .Init("R2 Pollen Sprite",
