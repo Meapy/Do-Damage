@@ -37,6 +37,9 @@ details). Add to a group's line when a change adds to it, rather than adding ano
   the Nexus weapons (Robobow, KoalaPOW, Doctor Swordsworth), the Scepter of Zeus (650 damage to 6
   enemies, was 4,000 to 20), the pD Scepter, the Seal of the Fallen Angel (6-second auras, were
   15), the Helm of the Pumpkin and the red and blue bee quivers. Items you already have change too.
+- The Chancellor's Cranium and Diplomatic Robe (and the Turncoat Cape and Crystallised Mist) go off on
+  any shot that hits for over their threshold before your defense: in good armour they hardly ever
+  went off before.
 
 ### Oryx 5
 - The Holy Gates shut behind you when Oryx the Ascended God wakes and stay shut until he dies;
