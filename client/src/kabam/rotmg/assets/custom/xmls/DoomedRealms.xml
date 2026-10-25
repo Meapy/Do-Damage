@@ -11140,7 +11140,7 @@
 		</AnimatedTexture>
 		<Projectile id="0">
 			<ObjectId>Fire Missile</ObjectId>
-			<Damage>20</Damage>
+			<Damage>70</Damage>
 			<Speed>70</Speed>
 			<Size>90</Size>
 			<LifetimeMS>1600</LifetimeMS>
@@ -11172,7 +11172,7 @@
 		<Size>80</Size>
 		<Projectile id="0">
 			<ObjectId>Green Magic</ObjectId>
-			<Damage>30</Damage>
+			<Damage>100</Damage>
 			<Speed>40</Speed>
 			<LifetimeMS>2000</LifetimeMS>
 		</Projectile>
@@ -11203,7 +11203,7 @@
 		<Size>80</Size>
 		<Projectile id="0">
 			<ObjectId>Yellow Missile</ObjectId>
-			<Damage>45</Damage>
+			<Damage>140</Damage>
 			<Speed>75</Speed>
 			<Size>80</Size>
 			<LifetimeMS>1200</LifetimeMS>
@@ -11234,7 +11234,7 @@
 		</AnimatedTexture>
 		<Projectile id="0">
 			<ObjectId>Red Fire</ObjectId>
-			<Damage>60</Damage>
+			<Damage>180</Damage>
 			<Speed>65</Speed>
 			<Size>100</Size>
 			<LifetimeMS>2000</LifetimeMS>
@@ -11266,7 +11266,7 @@
 		<Size>100</Size>
 		<Projectile id="0">
 			<ObjectId>Red Fire</ObjectId>
-			<Damage>50</Damage>
+			<Damage>100</Damage>
 			<Speed>65</Speed>
 			<Size>100</Size>
 			<LifetimeMS>2000</LifetimeMS>
@@ -11297,19 +11297,19 @@
 		</AnimatedTexture>
 		<Projectile id="0">
 			<ObjectId>Red Power Wave</ObjectId>
-			<Damage>65</Damage>
+			<Damage>100</Damage>
 			<Speed>35</Speed>
 			<LifetimeMS>2000</LifetimeMS>
 		</Projectile>
 		<Projectile id="1">
 			<ObjectId>Green Power Wave</ObjectId>
-			<Damage>65</Damage>
+			<Damage>100</Damage>
 			<Speed>35</Speed>
 			<LifetimeMS>2000</LifetimeMS>
 		</Projectile>
 		<Projectile id="2">
 			<ObjectId>Blue Power Wave</ObjectId>
-			<Damage>65</Damage>
+			<Damage>100</Damage>
 			<Speed>35</Speed>
 			<LifetimeMS>2000</LifetimeMS>
 		</Projectile>

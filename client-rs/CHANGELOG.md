@@ -24,9 +24,14 @@ details). Add to a group's line when a change adds to it, rather than adding ano
   mana, as every other class's does. Druid pearls cost what a tome of their tier costs (up to 95
   mana, was 160), the Pirate's T5-T8 cannons hit twice as hard (one ball against the quiver's three
   arrows), and the Dragon and Oryx scrolls and Tidal Wave give Vitality and Wisdom like the rest.
-  A Summoner has one summon at a time: a new one sends the last away. The Fountain Torrent heals
+  The Fountain Torrent heals
   335 (was 320, the same as the tier below), and the Obsidian Blades fire at 1.3 times the normal
   rate (was twice, more than the next two tiers of blades).
+- Summoners can keep up to 6 summons out (a seventh sends the oldest away). Each summon now fires
+  a third as often, but every shot of a volley counts: the Dragon's and Oryx's five-shot volleys
+  only ever hurt for one shot before. The T0-T5 summons hit much harder (the Bunny 70 a shot, was
+  20; the Wisp 100, was 65), so a full set of six adds about a quarter to a half to your damage
+  at every tier. Other helpers that fire several shots at once land all of them now too.
 
 ### Fixes
 - Drinking or taking potions from a loot bag on top of a portal no longer sends you through the

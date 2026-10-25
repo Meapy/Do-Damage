@@ -560,6 +560,13 @@ PEARL_MP = {"Magic Pearl": 50, "Pearl of Alleviation": 70, "Pearl of Silent Life
 # Every betterSkillys ability gives +20/+40/+60 health and mana at T6/T7/T8: the Doomed Realms
 # classes' tiered abilities do too (at least that much; a pearl's own health stays if it's more).
 ABILITY_TIER_HP_MP = {6: 20, 7: 40, 8: 60}
+# Each shot of the T0-T5 Summoner summons (their projectile's Damage; they were 20-65, a few
+# percent of a staff and next to nothing against defense, as summons' shots don't scale with
+# Attack). At port_doomed_allies.SUMMON_FIRE_SLOWDOWN a summon does 23-100 damage a second up to the
+# Dragon's 125 and the Oryx's 158, and the six a Summoner can keep out add about a quarter to a half
+# of a staff of the matching tier.
+SUMMON_DAMAGE = {"Bunny Summon": 70, "Snake Summon": 100, "Wasp Summon": 140, "Wolf Summon": 180,
+                 "Drake Summon": 100, "Wisp Summon": 100}
 # The Doomed Realms classes' tiered abilities drop in the bags the betterSkillys abilities of their
 # tier use (T0-T8), T7 and T8 Soulbound as theirs are. Slot types as betterSkillys numbers them.
 DOOMED_ABILITY_SLOTS = {30, 32, 37, 126, 128, 130, 5000, 5005}
@@ -719,6 +726,11 @@ def tune_gear(dr):
             e.text = "IncrementStat"
             o.insert(at, e)
             at += 1
+    for oid, damage in SUMMON_DAMAGE.items():
+        o = dr.get(oid)
+        if o is not None:
+            for p in o.findall("Projectile"):  # the Wisp has three, one per colour
+                p.find("Damage").text = str(damage)
     for oid, (amount, secs) in JACKET_BOOSTS.items():
         o = dr.get(oid)
         if o is not None and not any(a.text == "StatBoostSelf" for a in o.findall("Activate")):
