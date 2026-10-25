@@ -11,10 +11,11 @@ namespace WorldServer.logic
 {
     partial class BehaviorDb
     {
+        // the arena is Aurusenth's map: the head sits over the lava at (32.5, 33.5) and comes down
+        // to the floor at the MoveTo points below it
         private _ LairofShaitan = () => Behav()
             .Init("md1 Head of Shaitan",
                 new State(
-                    new DropPortalOnDeath("Realm Portal", 1.0),
                     new ScaleHP2(40, 3, 15),
                     new State("1",
                         new ConditionEffectBehavior(ConditionEffectIndex.Invincible),
@@ -39,7 +40,7 @@ namespace WorldServer.logic
                             new ConditionEffectBehavior(ConditionEffectIndex.Invulnerable),
                             new SetAltTexture(1),
                             new OrderOnce(999, "md1 Governor", "1"),
-                            new MoveTo(0.8f, 13.5f, 5),
+                            new MoveTo(0.8f, 37.5f, 36),
                             new TimedTransition(2000, "7")
                             )
                         ),
@@ -56,7 +57,7 @@ namespace WorldServer.logic
                     new State("9",
                         new ConditionEffectBehavior(ConditionEffectIndex.Invulnerable),
                         new SetAltTexture(1),
-                        new MoveTo(0.8f, 8.5f, 5),
+                        new MoveTo(0.8f, 32.5f, 36),
                         new TimedTransition(2000, "10")
                         ),
                     new State("10",
@@ -68,7 +69,7 @@ namespace WorldServer.logic
                     new State("11",
                         new ConditionEffectBehavior(ConditionEffectIndex.Invulnerable),
                         new SetAltTexture(1),
-                        new MoveTo(0.8f, 3.5f, 5),
+                        new MoveTo(0.8f, 27.5f, 36),
                         new TimedTransition(2000, "12")
                         ),
                     new State("12",
@@ -126,7 +127,7 @@ namespace WorldServer.logic
                         new ConditionEffectBehavior(ConditionEffectIndex.Invulnerable),
                         new SetAltTexture(1),
                         new OrderOnce(999, "md1 Governor", "1"),
-                        new MoveTo(0.8f, 13.5f, 5),
+                        new MoveTo(0.8f, 37.5f, 36),
                         new TimedTransition(2000, "22")
                         ),
                     new State("22",
@@ -142,7 +143,7 @@ namespace WorldServer.logic
                     new State("24",
                         new ConditionEffectBehavior(ConditionEffectIndex.Invulnerable),
                         new SetAltTexture(1),
-                        new MoveTo(0.8f, 8.5f, 5),
+                        new MoveTo(0.8f, 32.5f, 36),
                         new TimedTransition(2000, "25")
                         ),
                     new State("25",
@@ -154,7 +155,7 @@ namespace WorldServer.logic
                     new State("26",
                         new ConditionEffectBehavior(ConditionEffectIndex.Invulnerable),
                         new SetAltTexture(1),
-                        new MoveTo(0.8f, 3.5f, 5),
+                        new MoveTo(0.8f, 27.5f, 36),
                         new TimedTransition(2000, "27")
                         ),
                     new State("27",
@@ -210,7 +211,7 @@ namespace WorldServer.logic
                         new ConditionEffectBehavior(ConditionEffectIndex.Invulnerable),
                         new SetAltTexture(1),
                         new OrderOnce(999, "md1 Governor", "1"),
-                        new MoveTo(0.8f, 13.5f, 5),
+                        new MoveTo(0.8f, 37.5f, 36),
                         new TimedTransition(2000, "37")
                         ),
                     new State("37",
@@ -226,7 +227,7 @@ namespace WorldServer.logic
                     new State("39",
                         new ConditionEffectBehavior(ConditionEffectIndex.Invulnerable),
                         new SetAltTexture(1),
-                        new MoveTo(0.8f, 8.5f, 5),
+                        new MoveTo(0.8f, 32.5f, 36),
                         new TimedTransition(2000, "40")
                         ),
                     new State("40",
@@ -238,7 +239,7 @@ namespace WorldServer.logic
                     new State("41",
                         new ConditionEffectBehavior(ConditionEffectIndex.Invulnerable),
                         new SetAltTexture(1),
-                        new MoveTo(0.8f, 3.5f, 5),
+                        new MoveTo(0.8f, 27.5f, 36),
                         new TimedTransition(2000, "42")
                         ),
                     new State("42",
@@ -271,7 +272,7 @@ namespace WorldServer.logic
                         new ConditionEffectBehavior(ConditionEffectIndex.Invulnerable),
                         new SetAltTexture(1),
                         new OrderOnce(999, "md1 Governor", "1"),
-                        new MoveTo(0.8f, 13.5f, 5),
+                        new MoveTo(0.8f, 37.5f, 36),
                         new TimedTransition(2000, "47")
                         ),
                     new State("47",
@@ -288,7 +289,7 @@ namespace WorldServer.logic
                     new State("49",
                         new ConditionEffectBehavior(ConditionEffectIndex.Invulnerable),
                         new SetAltTexture(1),
-                        new MoveTo(0.8f, 8.5f, 5),
+                        new MoveTo(0.8f, 32.5f, 36),
                         new TimedTransition(2000, "50")
                         ),
                     new State("50",
@@ -301,7 +302,7 @@ namespace WorldServer.logic
                     new State("51",
                         new ConditionEffectBehavior(ConditionEffectIndex.Invulnerable),
                         new SetAltTexture(1),
-                        new MoveTo(0.8f, 3.5f, 5),
+                        new MoveTo(0.8f, 27.5f, 36),
                         new TimedTransition(2000, "52")
                         ),
                     new State("52",
@@ -359,7 +360,7 @@ namespace WorldServer.logic
                         new ConditionEffectBehavior(ConditionEffectIndex.Invulnerable),
                         new SetAltTexture(1),
                         new OrderOnce(999, "md1 Governor", "1"),
-                        new MoveTo(0.8f, 13.5f, 5),
+                        new MoveTo(0.8f, 37.5f, 36),
                         new TimedTransition(2000, "62")
                         ),
                     new State("62",
@@ -376,7 +377,7 @@ namespace WorldServer.logic
                     new State("64",
                         new ConditionEffectBehavior(ConditionEffectIndex.Invulnerable),
                         new SetAltTexture(1),
-                        new MoveTo(0.8f, 8.5f, 5),
+                        new MoveTo(0.8f, 32.5f, 36),
                         new TimedTransition(5000, "65")
                         ),
                     new State("65",
@@ -389,7 +390,7 @@ namespace WorldServer.logic
                     new State("66",
                         new ConditionEffectBehavior(ConditionEffectIndex.Invulnerable),
                         new SetAltTexture(1),
-                        new MoveTo(0.8f, 3.5f, 5),
+                        new MoveTo(0.8f, 27.5f, 36),
                         new TimedTransition(2000, "67")
                         ),
                     new State("67",
@@ -424,7 +425,7 @@ namespace WorldServer.logic
                         new ConditionEffectBehavior(ConditionEffectIndex.Invulnerable),
                         new SetAltTexture(1),
                         new OrderOnce(999, "md1 Governor", "1"),
-                        new MoveTo(0.8f, 13.5f, 5),
+                        new MoveTo(0.8f, 37.5f, 36),
                         new TimedTransition(2000, "72")
                         ),
                     new State("72",
@@ -441,7 +442,7 @@ namespace WorldServer.logic
                     new State("74",
                         new ConditionEffectBehavior(ConditionEffectIndex.Invulnerable),
                         new SetAltTexture(1),
-                        new MoveTo(0.8f, 8.5f, 5),
+                        new MoveTo(0.8f, 32.5f, 36),
                         new TimedTransition(2000, "75")
                         ),
                     new State("75",
@@ -454,7 +455,7 @@ namespace WorldServer.logic
                     new State("76",
                         new ConditionEffectBehavior(ConditionEffectIndex.Invulnerable),
                         new SetAltTexture(1),
-                        new MoveTo(0.8f, 3.5f, 5),
+                        new MoveTo(0.8f, 27.5f, 36),
                         new TimedTransition(2000, "77")
                         ),
                     new State("77",
@@ -513,7 +514,7 @@ namespace WorldServer.logic
                         new ConditionEffectBehavior(ConditionEffectIndex.Invulnerable),
                         new SetAltTexture(1),
                         new OrderOnce(999, "md1 Governor", "1"),
-                        new MoveTo(0.8f, 13.5f, 5),
+                        new MoveTo(0.8f, 37.5f, 36),
                         new TimedTransition(2000, "87")
                         ),
                     new State("87",
@@ -530,7 +531,7 @@ namespace WorldServer.logic
                     new State("89",
                         new ConditionEffectBehavior(ConditionEffectIndex.Invulnerable),
                         new SetAltTexture(1),
-                        new MoveTo(0.8f, 8.5f, 5),
+                        new MoveTo(0.8f, 32.5f, 36),
                         new TimedTransition(5000, "90")
                         ),
                     new State("90",
@@ -543,7 +544,7 @@ namespace WorldServer.logic
                     new State("91",
                         new ConditionEffectBehavior(ConditionEffectIndex.Invulnerable),
                         new SetAltTexture(1),
-                        new MoveTo(0.8f, 3.5f, 5),
+                        new MoveTo(0.8f, 27.5f, 36),
                         new TimedTransition(2000, "92")
                         ),
                     new State("92",
@@ -575,7 +576,8 @@ namespace WorldServer.logic
                         new TimedTransition(2000, "3")
                         ),
                     new State("3",
-                        new Spawn("md1 Loot Balloon Shaitan", 1, 0),
+                        // not as a minion: those drop no loot
+                        new Spawn("md1 Loot Balloon Shaitan", 1, 0, spawnedByBehav: false),
                         new Suicide()
                         )
                     )
@@ -626,8 +628,8 @@ namespace WorldServer.logic
                         new GroundTransform("Hot Lava"),
                         new TimedTransition(5000, "2")
                         ),
+                    // leaving "1" puts back the ground that was there
                     new State("2",
-                        new GroundTransform("Earth Light"),
                         new Suicide()
                         )
                     )
@@ -865,6 +867,9 @@ namespace WorldServer.logic
                     )
             .Init("md1 Loot Balloon Shaitan",
                 new State(
+                    // the way out, on the floor rather than in the lava where the head dies (as the
+                    // Shatters' chests do)
+                    new DropPortalOnDeath("Realm Portal", 1.0),
                     new State("Idle",
                         new ConditionEffectBehavior(ConditionEffectIndex.Invulnerable),
                         new TimedTransition(5000, "UnsetEffect")
@@ -881,8 +886,10 @@ namespace WorldServer.logic
                     new ItemLoot("Small Flame Cloth", 0.1),
                     new ItemLoot("Large Crossbox Cloth", 0.1),
                     new ItemLoot("Small Crossbox Cloth", 0.1),
-                    new ItemLoot("Large Heavy Chainmail Cloth", 0.1),
-                    new ItemLoot("Skull of Endless Torment")
+                    new ItemLoot("Large Heavy Chainmail Cloth", 0.1)
+                    ),
+                new Threshold(0.01,
+                    new ItemLoot("Skull of Endless Torment", 0.01)
                     )
                 );
     }

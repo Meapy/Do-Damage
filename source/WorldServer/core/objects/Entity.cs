@@ -31,8 +31,8 @@ namespace WorldServer.core.objects
         private StatTypeValue<int> _altTextureIndex;
         private StatTypeValue<string> _name;
         private StatTypeValue<int> _size;
+        private State _enteredState;
         private bool _stateEntry;
-        private State _stateEntryCommonRoot;
         private Dictionary<object, object> _states;
         private StatTypeValue<float> _x;
         private StatTypeValue<float> _y;
@@ -333,14 +333,11 @@ namespace WorldServer.core.objects
 
         public void SwitchTo(State state)
         {
-            var origState = CurrentState;
-
             CurrentState = state;
             if (CurrentState != null)
                 while (CurrentState.States.Count > 0)
                     CurrentState = CurrentState.States[0];
 
-            _stateEntryCommonRoot = State.CommonParent(origState, CurrentState);
             _stateEntry = true;
         }
 
@@ -360,22 +357,24 @@ namespace WorldServer.core.objects
 
             if (_stateEntry)
             {
-                //State entry
-                var s = CurrentState;
+                // leave the states last entered up to the one they share with the new state, then
+                // enter the new ones. Done here rather than when a transition fires, so a switch
+                // ordered by another monster (Order, OrderOnce) also runs the exits: before, it
+                // skipped them, and an effect such as Invincible stayed on for good
+                var root = State.CommonParent(_enteredState, CurrentState);
 
-                while (s != null && s != _stateEntryCommonRoot)
-                {
+                for (var s = _enteredState; s != null && s != root; s = s.Parent)
+                    foreach (var i in s.Behaviors)
+                        i.OnStateExit(this, time);
+
+                for (var s = CurrentState; s != null && s != root; s = s.Parent)
                     foreach (var i in s.Behaviors)
                         i.OnStateEntry(this, time);
 
-                    s = s.Parent;
-                }
-
-                _stateEntryCommonRoot = null;
+                _enteredState = CurrentState;
                 _stateEntry = false;
             }
 
-            var origState = CurrentState;
             var state = CurrentState;
             var transited = false;
 
@@ -399,20 +398,6 @@ namespace WorldServer.core.objects
                     StaticLogger.Instance.Error(e);
                 }
                 state = state.Parent;
-            }
-
-            if (transited)
-            {
-                //State exit
-                var s = origState;
-
-                while (s != null && s != _stateEntryCommonRoot)
-                {
-                    foreach (var i in s.Behaviors)
-                        i.OnStateExit(this, time);
-
-                    s = s.Parent;
-                }
             }
         }
 

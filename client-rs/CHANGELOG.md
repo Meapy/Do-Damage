@@ -51,6 +51,15 @@ details). Add to a group's line when a change adds to it, rather than adding ano
   The Elder Manor's Coffin can also drop a Potion of Max Attack.
 - The Manor's bats only bite up close, and its Nosferatu and Rock Bombs fire properly.
 
+### Lair of Shaitan and the Avatar
+- The Lair of Shaitan has a new arena: a rocky island in a sea of lava, made by Aurusenth. The fight
+  can be won now: Shaitan's hands could never be hurt before. His loot balloon drops its loot (it
+  dropped nothing) and the way out, and the Skull of Endless Torment drops 1 time in 100, not every
+  time.
+- The Avatar of the Forgotten King always fights in its own arena, wherever it appears: four Killer
+  Pillars round it (there were eight, half of them out of place) and the blobomb makers its "Blobs,
+  attack!" phase sets off. The Tablet of the King's Avatar drops 1 time in 200, was 1 in 20.
+
 ### Items
 - The Doomed Realms classes' tier 6 abilities (Pearl of Wasted Blood, Halo of God's Blessing, Light
   Turret, Dragon Scroll, Nature Cannon, Jacket of Sorrows) drop in the same bag as other tier 6
@@ -95,6 +104,8 @@ details). Add to a group's line when a change adds to it, rather than adding ano
   wiki's scroll and turret pages show the same.
 - Every item's tooltip says which classes can use it ("Usable by Wizard, Adept"), or "Usable by
   every class" for rings.
+- A monster that another monster moves on to its next phase drops the shields of the phase before.
+  Some stayed unhittable for good (Shaitan's hands among them).
 
 ## 2.1.1 (2026-10-25)
 

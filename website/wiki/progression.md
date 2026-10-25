@@ -104,8 +104,9 @@ players fight it, and 20% more for each extra player who comes near, up to three
 it never loses health it has gained, and one below its full health gives that share of the
 experience. The next event appears 15 seconds after the last is defeated, out of sight but near a
 player. Busy realms run two events at once from 6 players and three from 12, and an event nobody
-fights for 10 minutes lets another one come. The Shatters' Defense System only appears in a realm
-that has had 5 or more players.
+fights for 10 minutes lets another one come. The Avatar of the Forgotten King, who opens the
+Shatters, only comes as an event to a realm that has had 5 or more players, but every realm has one
+waiting from the start in its arena in the mountains, ringed by four Killer Pillars.
 
 Each event killed counts towards closing the realm, which takes {{v:realm_close}}; the chat shows
 the count (for example "[3/8]"). Then Oryx closes

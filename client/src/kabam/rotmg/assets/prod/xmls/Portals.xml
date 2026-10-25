@@ -894,8 +894,8 @@
    <Object type="0x5709" id="Lair of Shaitan New Auru">
       <Class>Portal</Class>
       <IntergamePortal/>
-      <DisplayId>Lair of Shaitan New Test</DisplayId>
-      <DungeonName>Lair of Shaitan New Auru</DungeonName>
+      <DisplayId>Lair of Shaitan</DisplayId>
+      <DungeonName>Lair of Shaitan</DungeonName>
       <Texture>
          <File>customAssets8x8</File>
          <Index>0x33</Index>

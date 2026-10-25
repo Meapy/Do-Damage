@@ -298,11 +298,14 @@ class Data:
 
     def chest_spawners(self):
         """{boss: [its chest spawners]}: a "Chest Spawner" opens (its loot balloon or chest) once the
-        bosses its (Entity|Entities)NotExistsTransition waits for are gone (the Shatters')."""
+        bosses its (Entity|Entities)NotExistsTransition waits for are gone (the Shatters'), as does
+        any other hidden object that waits for a boss and spawns a loot balloon or chest (Shaitan's
+        md1 LeftHandSmash)."""
         if not hasattr(self, "_chest_spawners"):
             self._chest_spawners = {}
             for name, blocks in self.inits.items():
-                if "Chest Spawner" not in name:
+                if "Chest Spawner" not in name and (self.objects.get(name, {}).get("enemy") or not any(
+                        re.search(r'(?:Spawn|TossObject)\(\s*"[^"]*(?:Loot|Chest|Balloon|Treasure)[^"]*"', b) for b in blocks)):
                     continue
                 for b in blocks:
                     for m in re.finditer(r'Entit(?:y|ies)NotExistsTransition\(([^)]*)\)', b):
@@ -314,7 +317,10 @@ class Data:
     def drops_index(self):
         """{portal or item id: [(monster, chance)]}, from every behaviour."""
         idx = {}
+        spawners = {s for lst in self.chest_spawners().values() for s in lst}  # their loot is their boss's
         for monster in sorted(self.monsters()):
+            if monster in spawners:
+                continue
             for kind, oid, chance in self.drops(monster):
                 if kind in ("portal", "item"):
                     lst = idx.setdefault(oid, [])

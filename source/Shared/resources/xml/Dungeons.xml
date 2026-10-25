@@ -398,13 +398,6 @@
 		<VisibilityType>1</VisibilityType>
 		<Dungeon/>
 	</World>
-	<World id="Lair of Shaitan New Auru">
-		<Width>256</Width>
-		<Height>256</Height>
-		<MapJM>Dungeons/Lair of Shaitan New Auru.jm</MapJM>
-		<VisibilityType>1</VisibilityType>
-		<Dungeon/>
-	</World>
 	<World id="Admin Arena">
 		<Width>256</Width>
 		<Height>256</Height>

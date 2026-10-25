@@ -11,14 +11,14 @@ namespace WorldServer.logic
 
         private _ Avatar = () => Behav()
             .Init("shtrs Defense System",
+                // its arena, pillars and blobomb makers come with it: the ShtrsDefenseSystem set piece,
+                // Aurusenth's "Shtrs Defense System.jm", in every realm and for the realm event
                 new State(
-                    new PlaceMap("Setpieces/avatar/spawn.jm", true),
-                    new PlaceMapAtDeath("Setpieces/avatar/death.jm", true),
                     new ScaleHP2(30),
                     new DropPortalOnDeath("The Shatters", probability: 1, timeout: 70),
                     new State("stars",
                         new Taunt("BURN!!"),
-                        new HpLessTransition(.8, "Throwing niggos"),
+                        new HpLessTransition(.8, "Shadows"),
                         new SetAltTexture(0),
                         new Shoot(20, 3, 10, 0, 160),
                         new Shoot(20, 4, 10, 0, 180, coolDownOffset: 200),
@@ -34,7 +34,7 @@ namespace WorldServer.logic
                     new State("spiral",
                         new Taunt("HAHAHAHAHAHA!"),
                         new Taunt("LEAVE THE PLACE!"),
-                        new HpLessTransition(.8, "Throwing niggos"),
+                        new HpLessTransition(.8, "Shadows"),
                         new Shoot(20, 1, 0, 1, 60),
                         new Shoot(20, 1, 0, 1, 120),
                         new Shoot(20, 1, 0, 1, 180),
@@ -98,7 +98,7 @@ namespace WorldServer.logic
                         new TimedTransition(2000, "spiral2")
                         ),
                     new State("spiral2",
-                        new HpLessTransition(.8, "Throwing niggos"),
+                        new HpLessTransition(.8, "Shadows"),
                         new Shoot(20, 1, 0, 0, 120),
                         new Shoot(20, 1, 0, 0, 180),
                         new Shoot(20, 1, 0, 0, 240),
@@ -143,7 +143,7 @@ namespace WorldServer.logic
                         new TimedTransition(1400, "spiral3")
                         ),
                     new State("spiral3",
-                        new HpLessTransition(.8, "Throwing niggos"),
+                        new HpLessTransition(.8, "Shadows"),
                         new Shoot(20, 1, 0, 0, 60),
                         new Shoot(20, 1, 0, 0, 120),
                         new Shoot(20, 1, 0, 0, 180),
@@ -189,7 +189,7 @@ namespace WorldServer.logic
                         new TimedTransition(1200, "spiral4")
                         ),
                     new State("spiral4",
-                        new HpLessTransition(.8, "Throwing niggos"),
+                        new HpLessTransition(.8, "Shadows"),
                         new Shoot(20, 1, 0, 1, 120),
                         new Shoot(20, 1, 0, 1, 180),
                         new Shoot(20, 1, 0, 1, 240),
@@ -241,7 +241,7 @@ namespace WorldServer.logic
                         new TimedTransition(1600, "spiral5")
                         ),
                     new State("spiral5",
-                        new HpLessTransition(.8, "Throwing niggos"),
+                        new HpLessTransition(.8, "Shadows"),
                         new Shoot(20, 1, 0, 1, 60),
                         new Shoot(20, 1, 0, 1, 120),
                         new Shoot(20, 1, 0, 1, 180),
@@ -292,9 +292,9 @@ namespace WorldServer.logic
                         new Flash(0xfFF0000, 0.5, 9000001),
                         new TimedTransition(3000, "stars")
                         ),
-                    new State("Throwing niggos",
+                    new State("Shadows",
                         new ConditionEffectBehavior(ConditionEffectIndex.Invulnerable),
-                        new State("Niggos like dancing",
+                        new State("Shadows dance",
                             new Taunt("Be consumed by shadow!"),
                             new TossObject("shtrs shadowmans", 5, 0, coolDown: 100000, coolDownOffset: 1900),
                             new TossObject("shtrs shadowmans", 5, 45, coolDown: 100000, coolDownOffset: 1900),
@@ -304,17 +304,17 @@ namespace WorldServer.logic
                             new TossObject("shtrs shadowmans", 5, 225, coolDown: 100000, coolDownOffset: 1900),
                             new TossObject("shtrs shadowmans", 5, 270, coolDown: 100000, coolDownOffset: 1900),
                             new TossObject("shtrs shadowmans", 5, 315, coolDown: 100000, coolDownOffset: 1900),
-                            new TimedTransition(4000, "kill niggos")
+                            new TimedTransition(4000, "Shadows attack")
                             ),
-                        new State("kill niggos",
+                        new State("Shadows attack",
                             new ConditionEffectBehavior(ConditionEffectIndex.Invulnerable),
-                            new EntityNotExistsTransition("shtrs shadowmans", 100, "stars after niggo")
+                            new EntityNotExistsTransition("shtrs shadowmans", 100, "stars after shadows")
                             )
                         ),
-                    new State("stars after niggo",
+                    new State("stars after shadows",
                         new Taunt("You show some strangth, but your coniction is lacking."),
                         new Taunt("BURN!!"),
-                        new HpLessTransition(.6, "fuck this eyes"),
+                        new HpLessTransition(.6, "Eyes"),
                         new SetAltTexture(0),
                         new Shoot(20, 3, 10, 0, 160),
                         new Shoot(20, 4, 10, 0, 180, coolDownOffset: 200),
@@ -325,12 +325,12 @@ namespace WorldServer.logic
                         new Shoot(20, 3, 10, 0, 0, coolDownOffset: 1200),
                         new Shoot(20, 4, 10, 0, 20, coolDownOffset: 1400),
                         new Shoot(20, 3, 10, 0, 40, coolDownOffset: 1600),
-                        new TimedTransition(1600, "spiral after niggo")
+                        new TimedTransition(1600, "spiral after shadows")
                         ),
-                    new State("spiral after niggo",
+                    new State("spiral after shadows",
                         new Taunt("HAHAHAHAHAHA!"),
                         new Taunt("LEAVE THE PLACE!"),
-                        new HpLessTransition(.6, "fuck this eyes"),
+                        new HpLessTransition(.6, "Eyes"),
                         new Shoot(20, 1, 0, 1, 60),
                         new Shoot(20, 1, 0, 1, 120),
                         new Shoot(20, 1, 0, 1, 180),
@@ -391,10 +391,10 @@ namespace WorldServer.logic
                         new Shoot(20, 1, 0, 1, 330, coolDownOffset: 2000),
                         new Shoot(20, 1, 0, 1, 30, coolDownOffset: 2000),
                         new Shoot(20, 1, 0, 1, 90, coolDownOffset: 2000),
-                        new TimedTransition(2000, "spiral2 after niggo")
+                        new TimedTransition(2000, "spiral2 after shadows")
                         ),
-                    new State("spiral2 after niggo",
-                        new HpLessTransition(.6, "fuck this eyes"),
+                    new State("spiral2 after shadows",
+                        new HpLessTransition(.6, "Eyes"),
                         new Shoot(20, 1, 0, 0, 120),
                         new Shoot(20, 1, 0, 0, 180),
                         new Shoot(20, 1, 0, 0, 240),
@@ -436,10 +436,10 @@ namespace WorldServer.logic
                         new Shoot(20, 1, 0, 0, 180, coolDownOffset: 1200),
                         new Shoot(20, 1, 0, 0, 240, coolDownOffset: 1200),
                         new Shoot(20, 1, 0, 0, 300, coolDownOffset: 1200),
-                        new TimedTransition(1400, "spiral3 after niggo")
+                        new TimedTransition(1400, "spiral3 after shadows")
                         ),
-                    new State("spiral3 after niggo",
-                        new HpLessTransition(.6, "fuck this eyes"),
+                    new State("spiral3 after shadows",
+                        new HpLessTransition(.6, "Eyes"),
                         new Shoot(20, 1, 0, 0, 60),
                         new Shoot(20, 1, 0, 0, 120),
                         new Shoot(20, 1, 0, 0, 180),
@@ -482,10 +482,10 @@ namespace WorldServer.logic
                         new Shoot(20, 1, 0, 0, 300, coolDownOffset: 1600),
                         new Shoot(20, 1, 0, 0, 0, coolDownOffset: 1600),
                         new Shoot(20, 1, 0, 0, 60, coolDownOffset: 1600),
-                        new TimedTransition(1200, "spiral4 after niggo")
+                        new TimedTransition(1200, "spiral4 after shadows")
                         ),
-                    new State("spiral4 after niggo",
-                        new HpLessTransition(.6, "fuck this eyes"),
+                    new State("spiral4 after shadows",
+                        new HpLessTransition(.6, "Eyes"),
                         new Shoot(20, 1, 0, 1, 120),
                         new Shoot(20, 1, 0, 1, 180),
                         new Shoot(20, 1, 0, 1, 240),
@@ -534,10 +534,10 @@ namespace WorldServer.logic
                         new Shoot(20, 1, 0, 1, 230, coolDownOffset: 1600),
                         new Shoot(20, 1, 0, 1, 290, coolDownOffset: 1600),
                         new Shoot(20, 1, 0, 1, 350, coolDownOffset: 1600),
-                        new TimedTransition(1600, "spiral5 after niggo")
+                        new TimedTransition(1600, "spiral5 after shadows")
                         ),
-                    new State("spiral5 after niggo",
-                        new HpLessTransition(.6, "fuck this eyes"),
+                    new State("spiral5 after shadows",
+                        new HpLessTransition(.6, "Eyes"),
                         new Shoot(20, 1, 0, 1, 60),
                         new Shoot(20, 1, 0, 1, 120),
                         new Shoot(20, 1, 0, 1, 180),
@@ -580,17 +580,17 @@ namespace WorldServer.logic
                         new Shoot(20, 1, 0, 1, 300, coolDownOffset: 1200),
                         new Shoot(20, 1, 0, 1, 0, coolDownOffset: 1200),
                         new Shoot(20, 1, 0, 1, 60, coolDownOffset: 1200),
-                        new TimedTransition(1200, "idle after niggo")
+                        new TimedTransition(1200, "idle after shadows")
                         ),
-                    new State("idle after niggo",
+                    new State("idle after shadows",
                         new Taunt("Foolish whelps...leave me be..."),
                         new SetAltTexture(0),
                         new Flash(0xfFF0000, 0.5, 9000001),
-                        new TimedTransition(3000, "stars after niggoo")
+                        new TimedTransition(3000, "stars after shadows 2")
                         ),
-                    new State("stars after niggoo",
+                    new State("stars after shadows 2",
                         new Taunt("BURN!!"),
-                        new HpLessTransition(.6, "fuck this eyes"),
+                        new HpLessTransition(.6, "Eyes"),
                         new SetAltTexture(0),
                         new Shoot(20, 3, 10, 0, 160),
                         new Shoot(20, 4, 10, 0, 180, coolDownOffset: 200),
@@ -601,9 +601,9 @@ namespace WorldServer.logic
                         new Shoot(20, 3, 10, 0, 0, coolDownOffset: 1200),
                         new Shoot(20, 4, 10, 0, 20, coolDownOffset: 1400),
                         new Shoot(20, 3, 10, 0, 40, coolDownOffset: 1600),
-                        new TimedTransition(1600, "spiral after niggo")
+                        new TimedTransition(1600, "spiral after shadows")
                         ),
-                    new State("fuck this eyes",
+                    new State("Eyes",
                         new ConditionEffectBehavior(ConditionEffectIndex.Invulnerable),
                         new State("eyes...",
                            new Taunt("EYE see you!"),
@@ -1523,7 +1523,7 @@ namespace WorldServer.logic
                    )
                 ),
                 new Threshold(0.03,
-                    new ItemLoot("Tablet of the King's Avatar", 0.05)
+                    new ItemLoot("Tablet of the King's Avatar", 0.005)
                     ),
                 new Threshold(0.005,
                     new ItemLoot("Potion of Defense", .2),

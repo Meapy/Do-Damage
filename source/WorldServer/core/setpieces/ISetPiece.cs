@@ -25,7 +25,9 @@ namespace WorldServer.core.setpieces
                 Console.WriteLine($"[{GetType().Name}] Invalid RenderSetPiece {Map}");
                 return;
             }
-            SetPieces.RenderFromData(world, pos, data);
+            // pos is the corner of the Size by Size square the realm (or /setpiece) keeps for it, and a
+            // map is drawn centred on the point it's given
+            SetPieces.RenderFromData(world, new IntPoint(pos.X + Size / 2, pos.Y + Size / 2), data);
         }
     }
 }

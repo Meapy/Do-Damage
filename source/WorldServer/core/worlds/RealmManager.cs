@@ -383,7 +383,7 @@ namespace WorldServer.core.worlds
             Tuple.Create("Lucky Ent God", (ISetPiece) null),
             Tuple.Create("Dragon Head", (ISetPiece) null),
             Tuple.Create("Lucky Djinn", (ISetPiece) null),
-            Tuple.Create("shtrs Defense System", (ISetPiece)null),
+            Tuple.Create("shtrs Defense System", (ISetPiece)new ShtrsDefenseSystem()),
             Tuple.Create("EH Event Hive", (ISetPiece)null)
         };
 
