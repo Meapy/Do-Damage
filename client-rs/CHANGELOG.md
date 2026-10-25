@@ -38,13 +38,13 @@ details). Add to a group's line when a change adds to it, rather than adding ano
 ### Divine Forge
 - The Enthroned Robe is forged from the Robe of Absolution (with an Ascended Armor Shard), not from
   any tier 16 armour.
-- Every item's tooltip says which classes can use it ("Usable by Wizard, Adept"), or "Usable by
-  every class" for rings.
   
 ### Fixes
 - Summoner scrolls show their summon's damage (a shot, how often, and a second), and that up to 6
   can be out at once; Mechanic turrets show how often they fire and their damage a second. The
   wiki's scroll and turret pages show the same.
+- Every item's tooltip says which classes can use it ("Usable by Wizard, Adept"), or "Usable by
+  every class" for rings.
 
 ## 2.1.1 (2026-10-25)
 
