@@ -12,6 +12,15 @@ Keep each version short: changes go under `### ` group headings (Oryx 5, Arena, 
 on), one line per change players notice, summed up rather than item by item (the wiki has the
 details). Add to a group's line when a change adds to it, rather than adding another line.
 
+## Unreleased
+
+### Items
+- Every item's tooltip says which classes can use it ("Usable by Wizard, Adept"), or "Usable by
+  every class" for rings.
+- Summoner scrolls show their summon's damage (a shot, how often, and a second), and that up to 6
+  can be out at once; Mechanic turrets show how often they fire and their damage a second. The
+  wiki's scroll and turret pages show the same.
+
 ## 2.1.1 (2026-10-25)
 
 ### Classes

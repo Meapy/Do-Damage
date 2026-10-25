@@ -399,11 +399,23 @@ class Gear:
             return "removes bad effects" + within()
         if e == "ClearConditionEffectAura":
             return "clears %s%s" % (g("effect") or "effects", within())
+        def ally_shots():
+            # a summon's or turret's shots, which the port writes on the activate (allyDamage,
+            # allyShots, allyMs)
+            dmg, ms = g("allyDamage"), float(g("allyMs") or 0)
+            if not dmg or ms <= 0:
+                return ""
+            lo, _, hi = dmg.partition("-")
+            count = int(float(g("allyShots") or 1))
+            mean = (float(lo) + float(hi or lo)) / 2
+            return ", %s%s every %ss (%d a second)" % (dmg, " x%d" % count if count > 1 else "", "%g" % (ms / 1000),
+                                                     round(mean * count * 1000 / ms))
+
         if e == "BuildTower":
-            return "builds a turret" + (" for %ss" % n("duration") if g("duration") else "")
+            return "builds a turret" + (" for %ss" % n("duration") if g("duration") else "") + ally_shots()
         if e in ("Summon", "Pet", "ObjectToss", "MonsterToss") and name:
             verb = "throws" if "Toss" in e else "summons"
-            return "%s %s" % (verb, name) + (" for %ss" % n("duration") if g("duration") else "")
+            return "%s %s" % (verb, name) + (" for %ss" % n("duration") if g("duration") else "") + ally_shots()
         if e == "SelfTransform":
             return "changes your look for %ss" % n("duration")
         return re.sub(r"(?<!^)(?=[A-Z])", " ", e).lower() if e else None

@@ -27,6 +27,9 @@ pub struct GameData {
     pub models: HashMap<String, Model>,
     /// Particles by id (particles.xml), for objects' `XMLEffect`s.
     pub particles: HashMap<String, ParticleDesc>,
+    /// The classes players can pick (`<Player/>` objects, not `<AdminOnly/>`), by type: the item
+    /// tooltips list which of them use an item.
+    pub classes: Vec<u16>,
 }
 
 impl GameData {
@@ -85,6 +88,11 @@ impl GameData {
                 continue;
             }
             let o = ObjectDesc::from_xml(&node);
+            self.classes.retain(|&t| t != o.object_type);
+            if o.player && !node.has("AdminOnly") {
+                let at = self.classes.partition_point(|&t| t < o.object_type);
+                self.classes.insert(at, o.object_type);
+            }
             self.object_ids.insert(o.id.clone(), o.object_type);
             self.objects.insert(o.object_type, o);
         }

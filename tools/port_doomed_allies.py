@@ -12,6 +12,7 @@ Their lifetimes come from the item (Player.UseItem.Doomed.cs).
 
 import os
 import re
+from xml.sax import saxutils
 
 from port_doomed_pets import balanced, cs_string
 
@@ -21,6 +22,9 @@ ALLY_BEHAVIORS_CS = os.path.join(ROOT, "source", "WorldServer", "logic", "db", "
 # Summons fire this many times slower than in Doomed Realms: a Summoner keeps up to six out
 # (Player.UseItem.Doomed.cs), and six at the Doomed Realms rate doubled its damage.
 SUMMON_FIRE_SLOWDOWN = 3
+# The item XMLs whose Summon and BuildTower activates get their helper's shots, for the tooltips.
+ITEM_XMLS = [os.path.join(ROOT, "source", "Shared", "resources", "xml", "custom", "DoomedRealms.xml"),
+             os.path.join(ROOT, "client", "src", "kabam", "rotmg", "assets", "custom", "xmls", "DoomedRealms.xml")]
 
 
 def degrees(expr):
@@ -87,6 +91,7 @@ def shoot(radius, count, angle, index, cooldown):
 def write_ally_behaviors(dr_root, chosen):
     defs = parse_ally_behaviors(dr_root)
     lines = []
+    shots_of = {}  # ally id -> (damage a shot, shots a volley, ms between volleys)
     for oid, o in sorted(chosen.items(), key=lambda kv: kv[0]):
         if o.findtext("Class") != "Character" or not o.get("type"):
             continue
@@ -100,10 +105,12 @@ def write_ally_behaviors(dr_root, chosen):
         elif d["chase"]:
             slow = SUMMON_FIRE_SLOWDOWN if oid.endswith(" Summon") else 1
             shots = ", ".join(shoot(r, c, a, i, ms * slow) for ms, r, c, a, i in d["shots"])
+            shots_of[oid] = volley(o, d["shots"], slow)
             state = ('new State(new State("attack", new AllyCharge(1, 10, 1), %s, new NoEntityWithinAllyTransition(10, false, "follow")), '
                      'new State("follow", new AllyFollow(1, 10, 1.5), new EntityWithinAllyTransition(10, "attack")))' % shots)
         else:
             state = "new State(%s)" % ", ".join(shoot(r, c, a, i, ms) for ms, r, c, a, i in d["shots"])
+            shots_of[oid] = volley(o, d["shots"], 1)
         lines.append("            .Init(%s, %s)" % (cs_string(oid), state))
 
     with open(ALLY_BEHAVIORS_CS, "w", encoding="utf-8", newline="\r\n") as f:
@@ -115,4 +122,45 @@ def write_ally_behaviors(dr_root, chosen):
         f.write("        private _ DoomedAllies = () => Behav()\n")
         f.write("\n".join(lines) + ";\n")
         f.write("    }\n}\n")
+    annotate_items({k: v for k, v in shots_of.items() if v})
     return len(lines)
+
+
+def volley(o, shots, slow):
+    """(damage a shot, shots a volley, ms between volleys) of an ally that keeps firing, or None:
+    its shots (all aimed at its target, which they hit) from the projectile of its first attack,
+    every attack at the shortest cooldown counted as one volley."""
+    if not shots:
+        return None
+    ms = min(s[0] for s in shots)
+    index = shots[0][4]
+    p = next((p for p in o.findall("Projectile") if int(p.get("id", "0")) == index), None)
+    if p is None:
+        return None
+    lo = p.findtext("MinDamage") or p.findtext("Damage")
+    hi = p.findtext("MaxDamage") or lo
+    if lo is None:
+        return None
+    damage = lo.strip() if lo.strip() == hi.strip() else "%s-%s" % (lo.strip(), hi.strip())
+    return damage, sum(s[2] for s in shots if s[0] == ms), ms * slow
+
+
+def annotate_items(shots_of):
+    """Puts each summon's and turret's shots on the Summon and BuildTower activates of the items that
+    make it, for the item tooltips: allyDamage (a shot, "min-max" if it varies), allyShots (a
+    volley) and allyMs (between volleys)."""
+    for path in ITEM_XMLS:
+        text = open(path, encoding="utf-8", newline="").read()
+
+        def annotate(m):
+            oid = saxutils.unescape(m.group(1), {"&quot;": '"', "&apos;": "'"})
+            ally = oid + " Summon" if m.group(3) == "Summon" else oid
+            attrs = re.sub(r'\s+ally\w+="[^"]*"', "", m.group(2))
+            if ally in shots_of:
+                damage, count, ms = shots_of[ally]
+                attrs += ' allyDamage="%s" allyShots="%d" allyMs="%d"' % (damage, count, ms)
+            return '<Activate objectId="%s"%s>%s</Activate>' % (m.group(1), attrs, m.group(3))
+
+        text = re.sub(r'<Activate objectId="([^"]*)"([^>]*)>(Summon|BuildTower)</Activate>', annotate, text)
+        with open(path, "w", encoding="utf-8", newline="") as f:
+            f.write(text)

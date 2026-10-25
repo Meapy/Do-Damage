@@ -2286,10 +2286,18 @@ fn activate_rows(a: &bsk_data::xml::Element) -> (String, Vec<(String, String)>) 
             ("Lightning", r)
         }
         "SamuraiAbility" | "DazeBlast" | "TomeDamage" => ("Blast", vec![row("Damage", num("totalDamage").to_string()), row("Radius", sqrs(area()))]),
-        "BuildTower" => (
-            "Tower",
-            vec![row("Damage", num("totalDamage").to_string()), row("Builds", text("objectId")), row("Lasts", secs(num("duration")))],
-        ),
+        "BuildTower" => {
+            let mut r = ally_shot_rows(a).unwrap_or_else(|| vec![row("Damage", num("totalDamage").to_string())]);
+            r.push(row("Builds", text("objectId")));
+            r.push(row("Lasts", secs(num("duration"))));
+            ("Tower", r)
+        }
+        "Summon" => {
+            let mut r = vec![row("Summons", format!("{} for {}", text("objectId"), secs(num("duration"))))];
+            r.extend(ally_shot_rows(a).unwrap_or_default());
+            r.push(row("", format!("Up to {MAX_SUMMONS} out at once")));
+            ("Summon", r)
+        }
         "Heal" => ("Heal", vec![row("Heals", format!("{} HP", num("amount")))]),
         "Magic" => ("Magic", vec![row("Restores", format!("{} MP", num("amount")))]),
         "HealNova" => ("Heal", vec![row("Heals", format!("{} HP", num("amount"))), row("Range", format!("you and allies within {}", sqrs(num("range"))))]),
@@ -2327,6 +2335,30 @@ fn activate_rows(a: &bsk_data::xml::Element) -> (String, Vec<(String, String)>) 
         }
     }
     (name.to_owned(), rows)
+}
+
+/// How many summons a Summoner keeps out at once (the server's `Player.MaxSummons`).
+const MAX_SUMMONS: u32 = 6;
+
+/// A summon's or turret's shots, which the port writes on the item's activate (allyDamage a shot,
+/// "min-max" if it varies; allyShots a volley; allyMs between volleys): the damage of a shot and
+/// how often, then on one enemy a second, before its defense.
+fn ally_shot_rows(a: &bsk_data::xml::Element) -> Option<Vec<(String, String)>> {
+    let damage = a.attr("allyDamage")?;
+    let shots = a.attr_number("allyShots", 1.0);
+    let ms = a.attr_number("allyMs", 0.0);
+    if ms <= 0.0 {
+        return None;
+    }
+    let mean = match damage.split_once('-') {
+        Some((lo, hi)) => (lo.trim().parse::<f64>().ok()? + hi.trim().parse::<f64>().ok()?) / 2.0,
+        None => damage.trim().parse::<f64>().ok()?,
+    };
+    let volley = if shots > 1.0 { format!("{damage} x{shots}") } else { damage.to_owned() };
+    Some(vec![
+        ("Damage".to_owned(), format!("{volley} every {} secs", ms / 1000.0)),
+        ("Per second".to_owned(), format!("{:.0}", mean * shots * 1000.0 / ms)),
+    ])
 }
 
 pub fn item_tooltip(data: &GameData, item: i32, me: Option<&GameObj>, kind: SlotKind) -> Vec<Line> {
@@ -2512,12 +2544,27 @@ pub fn item_tooltip(data: &GameData, item: i32, me: Option<&GameObj>, kind: Slot
     if xml.has("Unobtainable") {
         note("Unobtainable: nothing drops it any more", ATTR);
     }
-    if let Some(me) = me {
-        let slot_type = xml.int("SlotType", 0);
-        let equips = class_slot_types(data.objects.get(&me.object_type));
-        if (1..=24).contains(&slot_type) && slot_type != 10 && !equips.iter().take(4).any(|&t| t == slot_type) {
-            let class = data.objects.get(&me.object_type).map_or("you", |c| c.display_id.as_str());
-            note(&format!("Not usable by {class}"), 0xFC8642);
+    // Who can equip it: the classes with its slot type among their four equipment slots (10 is
+    // potions and other inventory items).
+    let slot_type = xml.int("SlotType", 0);
+    let users: Vec<&ObjectDesc> = if slot_type > 0 && slot_type != 10 {
+        data.classes.iter().filter_map(|t| data.objects.get(t)).filter(|c| class_slot_types(Some(c)).iter().take(4).any(|&s| s == slot_type)).collect()
+    } else {
+        Vec::new()
+    };
+    if !users.is_empty() {
+        if users.len() == data.classes.len() {
+            note("Usable by every class", ATTR);
+        } else {
+            let names: Vec<&str> = users.iter().map(|c| c.display_id.as_str()).collect();
+            note(&format!("Usable by {}", names.join(", ")), ATTR);
+        }
+        if let Some(me) = me {
+            // (an admin-only class, which holds anything, isn't listed)
+            if data.classes.contains(&me.object_type) && !users.iter().any(|c| c.object_type == me.object_type) {
+                let class = data.objects.get(&me.object_type).map_or("you", |c| c.display_id.as_str());
+                note(&format!("Not usable by {class}"), 0xFC8642);
+            }
         }
     }
     out
