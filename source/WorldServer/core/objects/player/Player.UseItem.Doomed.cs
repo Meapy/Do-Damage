@@ -45,10 +45,16 @@ namespace WorldServer.core.objects
             SpawnAlly(eff.ObjectId, new Position(X, Y), eff.DurationMS > 0 ? eff.DurationMS : 10000);
         }
 
-        // Summoner scrolls: "<objectId> Summon" follows the player and attacks for the duration.
+        // Summoner scrolls: "<objectId> Summon" follows the player and attacks for the duration. One
+        // at a time: a new summon sends the last one away, or a summon lasting 90-120 s for 100 MP
+        // could be stacked several deep.
+        private Entity _summon;
+
         private void AESummon(TickTime time, Item item, Position target, ActivateEffect eff)
         {
-            SpawnAlly(eff.ObjectId + " Summon", new Position(X, Y), eff.DurationMS > 0 ? eff.DurationMS : 30000);
+            if (_summon != null && _summon.World == World && !_summon.Dead)
+                World.LeaveWorld(_summon);
+            _summon = SpawnAlly(eff.ObjectId + " Summon", new Position(X, Y), eff.DurationMS > 0 ? eff.DurationMS : 30000);
         }
 
         // Throws a monster (hostile, as in Doomed Realms) that appears at the target after 1.5 s.

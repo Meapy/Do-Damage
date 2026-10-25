@@ -545,11 +545,21 @@ UNTIERED_ABILITIES = [
 ]
 CANNON_TIERS = ["Rusty Cannon", "Pirate Cannon", "Reinforced Cannon", "Iron Cannon", "Heavy Cannon",
                 "Wave Cannon", "Nature Cannon", "Shade Cannon", "Fragment Cannon"]
+# From T5 a quiver fires three arrows; a cannon fires one ball that hits about as hard as two of them
+# (the ability balance pass; T5-T8 had one arrow's damage).
 CANNON_TUNING = {
-    "Nature Cannon": {"damage": (335, 395), "mp": 80, "stats": {VIT: 2, WIS: 2, DEX: 6}},
-    "Shade Cannon": {"damage": (380, 440), "mp": 85, "stats": {VIT: 3, WIS: 3, DEX: 7}},
-    "Fragment Cannon": {"damage": (435, 470), "mp": 90, "stats": {VIT: 4, WIS: 4, DEX: 8}},
+    "Wave Cannon": {"damage": (580, 700)},
+    "Nature Cannon": {"damage": (670, 790), "mp": 80, "stats": {VIT: 2, WIS: 2, DEX: 6}},
+    "Shade Cannon": {"damage": (760, 880), "mp": 85, "stats": {VIT: 3, WIS: 3, DEX: 7}},
+    "Fragment Cannon": {"damage": (870, 940), "mp": 90, "stats": {VIT: 4, WIS: 4, DEX: 8}},
 }
+# Druid pearls cost what a tome of the same tier does (they cost 40 up to 160).
+PEARL_MP = {"Magic Pearl": 50, "Pearl of Alleviation": 70, "Pearl of Silent Life": 75,
+            "Pearl of the Infinite Shadows": 80, "Pearl of Wasted Blood": 85, "Pearl of the Blessed Heavens": 90,
+            "Pearl of Total Chaos": 95}
+# Every betterSkillys ability gives +20/+40/+60 health and mana at T6/T7/T8: the Doomed Realms
+# classes' tiered abilities do too (at least that much; a pearl's own health stays if it's more).
+ABILITY_TIER_HP_MP = {6: 20, 7: 40, 8: 60}
 # The Doomed Realms classes' tiered abilities drop in the bags the betterSkillys abilities of their
 # tier use (T0-T8), T7 and T8 Soulbound as theirs are. Slot types as betterSkillys numbers them.
 DOOMED_ABILITY_SLOTS = {30, 32, 37, 126, 128, 130, 5000, 5005}
@@ -562,7 +572,7 @@ ABILITY_BAGS = [1, 1, 1, 2, 2, 4, 4, 9, 9]
 GEAR_TUNING = {
     **{oid: {"speed": 200, "lifetime": 250} for oid in (
         "Bronze Daggers", "Invert Blades", "Dusky Blades", "Duo Blades", "Silver Blades", "Half Blades",
-        "Obsidian Blades", "Mithril Blades", "Infinity Blades", "Emerald Malevolence Blades")},
+        "Mithril Blades", "Infinity Blades", "Emerald Malevolence Blades")},
     "Rage Claw Blades": {"speed": 200, "lifetime": 250, "rof": "1", "damage": (105, 168)},
     "Eldricht Blades": {"speed": 200, "lifetime": 250, "stats": {DEF: 2}},
     "Master Blades": {"speed": 200, "lifetime": 250, "stats": {DEF: 4, SPD: 2}},
@@ -610,6 +620,12 @@ GEAR_TUNING = {
     "Tome of Shining Stars": {"activates": [("ConditionEffectAura", {"effect": "Invulnerable"}, None)]},
     "Scepter of Zeus": {"activates": [("Lightning", {}, {"condDuration": "1"})]},  # was 3 s
     "Power of the Fountains": {"tier": "7"},
+    # the ability balance pass: the T6 and T7 scrolls and the T7 oceanic spell had no stat bonuses
+    "Dragon Scroll": {"stats": {VIT: 2, WIS: 2}},
+    "Oryx Scroll": {"stats": {VIT: 3, WIS: 3}},
+    "Tidal Wave": {"stats": {VIT: 3, WIS: 3}},
+    "Obsidian Blades": {"speed": 200, "lifetime": 250, "rof": "1.3"},  # was 2: more than the T7 and T8 blades
+    **{oid: {"mp": mp} for oid, mp in PEARL_MP.items()},
     **{oid: {"untier": True} for oid in UNTIERED_ABILITIES},
     **{oid: {"tier": str(t), **CANNON_TUNING.get(oid, {})} for t, oid in enumerate(CANNON_TIERS)},
 }
@@ -710,6 +726,23 @@ def tune_gear(dr):
             e = ET.Element("Activate", {"stat": "20", "amount": str(amount), "duration": str(secs)})
             e.text = "StatBoostSelf"
             o.insert(list(o).index(acts[-1]) + 1 if acts else len(o), e)
+    for o in dr.values():
+        slot = SLOT_TYPE_REMAP.get(o.findtext("SlotType") or "", o.findtext("SlotType") or "")
+        tier = o.findtext("Tier")
+        if not (slot.isdigit() and int(slot) in DOOMED_ABILITY_SLOTS and tier and tier.isdigit()
+                and int(tier) in ABILITY_TIER_HP_MP):
+            continue
+        bonus = ABILITY_TIER_HP_MP[int(tier)]
+        at = list(o).index(o.find("BagType")) if o.find("BagType") is not None else len(o)
+        for stat in ("0", "3"):
+            e = next((a for a in o.findall("ActivateOnEquip") if a.get("stat") == stat), None)
+            if e is not None:
+                e.set("amount", str(max(bonus, int(e.get("amount")))))
+                continue
+            e = ET.Element("ActivateOnEquip", {"stat": stat, "amount": str(bonus)})
+            e.text = "IncrementStat"
+            o.insert(at, e)
+            at += 1
     for o in dr.values():
         if o.findtext("SlotType") == DUAL_BLADES_SLOT and o.find("Projectile") is not None                 and o.find("Projectile").find("ArmorPiercing") is None:
             ET.SubElement(o.find("Projectile"), "ArmorPiercing")

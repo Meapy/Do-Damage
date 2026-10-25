@@ -20,6 +20,13 @@ details). Add to a group's line when a change adds to it, rather than adding ano
   Dexterity 70, was 65), Mechanic (health 700, was 650) and Ascendant (Attack 70, was 60). Weaker:
   King (highest Attack 75 and Dexterity 70, were 85 and 85) and Sharklord (Defense 25, was 30;
   health 750, was 800). Maxed Kings and Sharklords keep what is still under their new highest.
+- Their abilities too: from T6 up, every Doomed Realms class's ability gives +20/+40/+60 health and
+  mana, as every other class's does. Druid pearls cost what a tome of their tier costs (up to 95
+  mana, was 160), the Pirate's T5-T8 cannons hit twice as hard (one ball against the quiver's three
+  arrows), and the Dragon and Oryx scrolls and Tidal Wave give Vitality and Wisdom like the rest.
+  A Summoner has one summon at a time: a new one sends the last away. The Fountain Torrent heals
+  335 (was 320, the same as the tier below), and the Obsidian Blades fire at 1.3 times the normal
+  rate (was twice, more than the next two tiers of blades).
 
 ## 2.1.0 (2026-10-25)
 

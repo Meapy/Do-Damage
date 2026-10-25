@@ -103,7 +103,9 @@ Things to know when reading it:
   didn't throw then, which is why it added nothing.
 - The Doomed Realms classes' highest stats were rebalanced on 25 October 2026 (Blademaster,
   Adept, Snowman, Mechanic and Ascendant up; King and Sharklord down), so their rows here are from
-  before that. The class totals above use the new stats.
+  before that. The class totals above use the new stats. Their abilities changed the same day: the
+  Druid's pearls cost less, the Pirate's T5-T8 cannons do twice the damage, and the Summoner has
+  one summon at a time.
 - Pirate had no tiered cannon then, so it used the Doom Cannon. The cannons were tiered on
   21 October 2026; the best one now is the Fragment Cannon (T8).
 - The runs used the T14 weapons. The T15 weapons, from Oryx the Ascended God, came on 23 October
