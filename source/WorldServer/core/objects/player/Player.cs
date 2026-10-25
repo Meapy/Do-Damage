@@ -29,6 +29,8 @@ namespace WorldServer.core.objects
 
         public bool ShowDeltaTimeLog { get; set; }
         public FameCounter FameCounter { get; private set; }
+        // quests, daily login rewards and achievements
+        public quests.QuestTracker Quests { get; private set; }
         public ConcurrentQueue<InboundBuffer> IncomingMessages { get; private set; } = new ConcurrentQueue<InboundBuffer>();
         public Pet Pet { get; set; }
         public int PetId { get; set; }
@@ -377,6 +379,7 @@ namespace WorldServer.core.objects
             SpawnPetIfAttached(owner);
 
             FameCounter = new FameCounter(this);
+            Quests = new quests.QuestTracker(this);
             FameGoal = GetFameGoal(FameCounter.ClassStats[ObjectType].BestFame);
             ExperienceGoal = GetExpGoal(Client.Character.Level);
 
@@ -479,6 +482,7 @@ namespace WorldServer.core.objects
                 TickCooldownTimers(time);
                 TickSlotCooldowns(time);
                 FameCounter.Tick(time);
+                Quests?.Tick(ref time);
                 if (TickCount % 5 == 0)
                     PassiveEffects();
                 TickCount++;

@@ -97,6 +97,9 @@ namespace WorldServer.core.net.handlers
                     tInvDataTrans[i] = null;
                 }
 
+            // only a trade that moves something counts for the achievements
+            var moved = thisItems.Count(x => x.Item1 != null) + targetItems.Count(x => x.Item1 != null);
+
             // move thisItems -> tradeTarget (into its backpack too, if it has one)
             for (var i = 0; i < tradeTarget.TradeSlots; i++)
                 for (var j = 0; j < thisItems.Count; j++)
@@ -146,6 +149,11 @@ namespace WorldServer.core.net.handlers
             
             // trade successful, notify and save
             TradeDone(player, tradeTarget, msg);
+            if (moved > 0)
+            {
+                player.Quests?.Event(new Shared.quests.QuestEvent(Shared.quests.QuestEvents.Trade));
+                tradeTarget.Quests?.Event(new Shared.quests.QuestEvent(Shared.quests.QuestEvents.Trade));
+            }
         }
 
         private void LogTrade(Player player, Player tradeTarget, List<(Item, ItemData)> items)

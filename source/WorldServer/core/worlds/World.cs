@@ -618,6 +618,11 @@ namespace WorldServer.core.worlds
         // seconds, for bosses that change form and for portals their death behaviours drop.
         // quest monsters (bosses) killed here: with none left, the dungeon is cleared (NexusGuide)
         public int QuestKills { get; private set; }
+        // for quests (QuestTracker.DungeonCleared): the accounts near a boss here when it died, the
+        // strongest boss's health (the dungeon's difficulty), and whether it was counted
+        public readonly HashSet<int> BossCredit = new HashSet<int>();
+        public int StrongestBossHp { get; set; }
+        private bool _clearCounted;
 
         public void BossDied(Enemy boss)
         {
@@ -627,6 +632,11 @@ namespace WorldServer.core.worlds
             var (x, y) = (boss.X, boss.Y);
             StartNewTimer(2000, (world, t) =>
             {
+                if (world.Quests.Count == 0 && !world._clearCounted)
+                {
+                    world._clearCounted = true;
+                    quests.QuestTracker.DungeonCleared(world);
+                }
                 if (world.Quests.Count > 0 || world.Portals.Values.Any(p => p.ObjectDesc.IdName is "Realm Portal" or "Random Realm Portal"))
                     return;
                 var portal = Entity.Resolve(world.GameServer, "Realm Portal");

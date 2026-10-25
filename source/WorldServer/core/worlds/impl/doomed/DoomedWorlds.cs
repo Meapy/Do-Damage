@@ -462,6 +462,10 @@ namespace WorldServer.core.worlds.impl.doomed
 
             if (!Hostiles.Any())
             {
+                // the wave just beaten, for quests and achievements (0: the start, nothing beaten)
+                if (Wave > 0)
+                    foreach (var p in Players.Values)
+                        p.Quests?.Event(new Shared.quests.QuestEvent(Shared.quests.QuestEvents.ArenaWave) { Value = Wave });
                 Wave++;
                 var pot = Wave * 10 / (Players.Count == 1 ? 1 : 2);
                 foreach (var p in Players.Values)

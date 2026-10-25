@@ -757,7 +757,13 @@ namespace WorldServer.core.worlds
             var needed = EventsNeeded;
             RealmBroadcast($"{eventDead} has been defeated! [{_EventCount}/{needed}]");
             if (_EventCount >= needed)
+            {
+                // everyone here helped close it (quests and achievements)
+                if (!World.Closed)
+                    foreach (var player in World.Players.Values)
+                        player.Quests?.Event(new Shared.quests.QuestEvent(Shared.quests.QuestEvents.RealmClosed));
                 _ = World.CloseRealm();
+            }
         }
 
         // the first event comes from EnsureQuest, 15 s in (EventGapMs)

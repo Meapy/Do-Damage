@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Linq;
+using Shared.quests;
 using Shared.resources;
 using WorldServer.core.net.datas;
 using WorldServer.core.net.stats;
@@ -67,6 +68,8 @@ namespace WorldServer.core.objects
                 }
             }
 
+            if (newFame > Fame)
+                Quests?.Event(new QuestEvent(QuestEvents.Fame, newFame - Fame));
             Fame = newFame;
             FameGoal = newGoal;
         }
@@ -201,6 +204,9 @@ namespace WorldServer.core.objects
             {
                 Level++;
                 ExperienceGoal = GetExpGoal(Level);
+                Quests?.Event(new QuestEvent(QuestEvents.Level));
+                if (Level == 20)
+                    Quests?.CheckClasses();
 
                 if (Level < 20)
                 {

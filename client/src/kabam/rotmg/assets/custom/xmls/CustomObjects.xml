@@ -61,6 +61,58 @@
 		<OccupySquare/>
 		<ShadowSize>110</ShadowSize>
 	</Object>
+	<!-- the quest NPCs by the Nexus spawn (QuestGivers.cs places them): the Tinkerer opens the quests in
+	     the Rust client's quest window, the Chronicler its daily rewards and achievements; their
+	     sprites are drawn by tools/draw_quest_npcs.py -->
+	<Object type="0x497b" id="The Tinkerer">
+		<Class>QuestMaster</Class>
+		<DisplayId>The Tinkerer</DisplayId>
+		<Texture>
+			<File>questNpcs16x16</File>
+			<Index>0x00</Index>
+		</Texture>
+		<Animation prob="1.0" period="0.0">
+			<Frame time="1.6">
+				<Texture>
+					<File>questNpcs16x16</File>
+					<Index>0x00</Index>
+				</Texture>
+			</Frame>
+			<Frame time="0.6">
+				<Texture>
+					<File>questNpcs16x16</File>
+					<Index>0x01</Index>
+				</Texture>
+			</Frame>
+		</Animation>
+		<Static/>
+		<ShadowSize>70</ShadowSize>
+	</Object>
+	<!-- see The Tinkerer -->
+	<Object type="0x497c" id="The Chronicler">
+		<Class>Chronicler</Class>
+		<DisplayId>The Chronicler</DisplayId>
+		<Texture>
+			<File>questNpcs16x16</File>
+			<Index>0x02</Index>
+		</Texture>
+		<Animation prob="1.0" period="0.0">
+			<Frame time="1.8">
+				<Texture>
+					<File>questNpcs16x16</File>
+					<Index>0x02</Index>
+				</Texture>
+			</Frame>
+			<Frame time="0.5">
+				<Texture>
+					<File>questNpcs16x16</File>
+					<Index>0x03</Index>
+				</Texture>
+			</Frame>
+		</Animation>
+		<Static/>
+		<ShadowSize>70</ShadowSize>
+	</Object>
 	<!-- the Elder Tomb's boss anchor: its bosses circle it, and it drops the exit portal once
 	     they are dead -->
 	<Object type="0xe901" id="Elder Tomb Boss Anchor">

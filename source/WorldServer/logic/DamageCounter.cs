@@ -2,7 +2,9 @@
 using System.Collections.Generic;
 using Shared;
 using Shared.resources;
+using Shared.quests;
 using WorldServer.core.objects;
+using WorldServer.core.quests;
 using WorldServer.core.worlds;
 using WorldServer.core.worlds.impl;
 
@@ -47,6 +49,8 @@ namespace WorldServer.logic
                 (enemy.World as RealmWorld).EnemyKilled(enemy, (Parent ?? this).LastHitter);
 
             var levelUpAssists = 0;
+            // quests and achievements: everyone near counts the kill, as they share its experience
+            var questKill = QuestTracker.KillCounts(enemy) ? QuestTracker.KillEvent(enemy) : (QuestEvent?)null;
             foreach (var player in enemy.World.Players.Values)
             {
                 if (player.SqDistTo(enemy) >= World.CULL_RANGE * World.CULL_RANGE)
@@ -83,6 +87,14 @@ namespace WorldServer.logic
                 var killer = (Parent ?? this).LastHitter == player;
                 if (player.EnemyKilled(enemy, (int)playerXp, killer) && !killer)
                     levelUpAssists++;
+
+                if (enemy.ObjectDesc.Quest)
+                {
+                    enemy.World.BossCredit.Add(player.AccountId);
+                    enemy.World.StrongestBossHp = Math.Max(enemy.World.StrongestBossHp, enemy.ObjectDesc.MaxHP);
+                }
+                if (questKill.HasValue)
+                    player.Quests?.Event(questKill.Value);
             }
 
             if ((Parent ?? this).LastHitter != null)

@@ -408,6 +408,7 @@ namespace WorldServer.logic.loot
                         var msg = new StringBuilder($" {player.Client.Account.Name} has obtained:");
                         msg.Append($" [{i.DisplayId ?? i.ObjectId}], by doing {Math.Round(100.0 * (hitters[player] / (double)enemy.DamageCounter.TotalDamage), 0)}% damage!");
                         gameServer.ChatManager.AnnounceLoot(msg.ToString());
+                        player.Quests?.Event(new Shared.quests.QuestEvent(Shared.quests.QuestEvents.WhiteBag) { Name = i.ObjectId });
                     }
                 }
                 

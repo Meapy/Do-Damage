@@ -71,6 +71,8 @@ namespace WorldServer.core.net.handlers
                 error = "That item doesn't exist here.";
             else
                 error = DoomedEconomy.Forge(player, slots, resultId, out fame);
+            if (error == null)
+                player.Quests?.Event(new Shared.quests.QuestEvent(Shared.quests.QuestEvents.Forge));
             client.SendPacket(new ForgeResult() { Success = error == null, Item = result, Fame = fame, Message = error });
         }
     }

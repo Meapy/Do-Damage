@@ -110,6 +110,7 @@ namespace WorldServer.networking
             }
 
             Player.SaveToCharacter();
+            Player.Quests?.Store();
             acc.RefreshLastSeen();
             acc.FlushAsync();
 

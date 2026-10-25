@@ -1197,6 +1197,9 @@ namespace WorldServer.core.objects
                 if (Stats.Base[idx] >= statInfo[idx].MaxValue)
                     Stats.Base[idx] = statInfo[idx].MaxValue;
                 SendInfo($"{item.DisplayName} was consumed");
+                // quests count potions that raise a stat, not ones stored (storage gives them back)
+                Quests?.Event(new Shared.quests.QuestEvent(Shared.quests.QuestEvents.Potion) { Name = item.ObjectId });
+                Quests?.Event(new Shared.quests.QuestEvent(Shared.quests.QuestEvents.MaxedStats) { Value = GetMaxedStats() });
             }
         }
 

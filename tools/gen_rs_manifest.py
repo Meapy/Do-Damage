@@ -34,6 +34,8 @@ EMOTES_XML = "kabam/rotmg/assets/custom/xmls/EmotesXML.xml"
 RS_ONLY_SETS = [
     # the Divine Forge (tools/draw_forge_sprite.py)
     ("customAssets32x32", "kabam/rotmg/assets/custom/images/CustomAssets32x32.png", 32, 32),
+    # the Tinkerer and the Chronicler, the quest NPCs (tools/draw_quest_npcs.py)
+    ("questNpcs16x16", "kabam/rotmg/assets/custom/images/QuestNpcs16x16.png", 16, 16),
     # Oryx's Inferno's burnt sanctuary tiles and portal (tools/build_hash_cellar.py)
     ("hashCellar8x8", "kabam/rotmg/assets/custom/images/HashCellar8x8.png", 8, 8),
     ("hashCellar16x16", "kabam/rotmg/assets/custom/images/HashCellar16x16.png", 16, 16),

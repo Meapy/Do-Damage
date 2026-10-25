@@ -119,6 +119,17 @@ public enum MessageId : byte
     // What the account's vault holds that the forge can take (after FORGE_DATA_REQUEST and each
     // forging). An older client ignores it.
     FORGE_VAULT = 102,
+    // Quests, daily login rewards and achievements (Rust client): the client asks for them
+    // (QUESTS_REQUEST), gets them all (QUESTS_DATA) and from then on what changes
+    // (QUEST_PROGRESS) and popups (QUEST_NOTICE); it claims rewards, swaps a quest or picks a
+    // name colour (QUEST_CLAIM) and gets QUEST_RESULT. The server sends none of these to a client
+    // that never asked, so the AIR client and older Rust clients never get them.
+    QUESTS_REQUEST = 103,
+    QUESTS_DATA = 104,
+    QUEST_CLAIM = 105,
+    QUEST_RESULT = 106,
+    QUEST_NOTICE = 107,
+    QUEST_PROGRESS = 108,
     // From the world proxy (tools/world_proxy.py), before the client's first message: the
     // client's address. Only taken on a connection from this PC; clients never send it.
     PROXY_INFO = 250
