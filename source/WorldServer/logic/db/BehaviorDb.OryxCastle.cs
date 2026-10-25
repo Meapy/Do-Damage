@@ -128,17 +128,29 @@ namespace WorldServer.logic
                     )
                 )
             )
-            // sits directly above the wall between the guardian room and Janus' room (row 30)
+            // sits directly above the wall between the guardian room and Janus' room (row 30), and
+            // opens it once the Stone Guardians are dead and a quarter of the castle's haunted Suits
+            // of Armor are broken (it speaks as Janus, its DisplayId)
             .Init("md dwGenerator",
                 new State(
-                    new State("Init",
-                        new TimedTransition(2000, "Idle")
+                    new State("Shut",
+                        new ShareKilledTransition(0.25, "Armour Broken", "Oryx Suit of Armor"),
+                        new State("Init",
+                            new TimedTransition(2000, "Idle")
+                        ),
+                        new State("Idle",
+                            new EntitiesNotExistsTransition(100, "Armour Stands", "Oryx Stone Guardian Right", "Oryx Stone Guardian Left")
+                        ),
+                        new State("Armour Stands",
+                            new Taunt(true, "My door holds while my master's armour stands. Break a quarter of his haunted Suits of Armor, and perhaps it will yield.") { Bubble = false }
+                        )
                     ),
-                    new State("Idle",
+                    new State("Armour Broken",
                         new EntitiesNotExistsTransition(100, "Open", "Oryx Stone Guardian Right", "Oryx Stone Guardian Left")
                     ),
                     new State("Open",
                         new RemoveObject("Castle Brick Wall3", 6),
+                        new Taunt(true, "The door yields. Come, then, and face me!") { Bubble = false },
                         new TimedTransition(1000, "Done")
                     ),
                     new State("Done")

@@ -419,20 +419,22 @@
 		<Projectile id="0">
 			<ObjectId>Infernal Flame</ObjectId>
 			<Speed>65</Speed>
-			<Damage>60</Damage>
+			<Damage>20</Damage>
 			<Size>65</Size>
 			<LifetimeMS>2000</LifetimeMS>
 			<MultiHit />
+			<ArmorPiercing />
 		</Projectile>
 		<Projectile id="1">
 			<ObjectId>Infernal Flame</ObjectId>
 			<Speed>52</Speed>
-			<Damage>60</Damage>
+			<Damage>20</Damage>
 			<Size>60</Size>
 			<LifetimeMS>940</LifetimeMS>
 			<MultiHit />
 			<Amplitude>0.3</Amplitude>
 			<Frequency>0.5</Frequency>
+			<ArmorPiercing />
 		</Projectile>
 		<Size>130</Size>
 		<XpMult>0.0</XpMult>
@@ -449,11 +451,12 @@
 		</Texture>
 		<Projectile id="0">
 			<ObjectId>Infernal Flame</ObjectId>
-			<Damage>50</Damage>
+			<Damage>20</Damage>
 			<Size>60</Size>
 			<Speed>80</Speed>
 			<LifetimeMS>620</LifetimeMS>
 			<MultiHit />
+			<ArmorPiercing />
 		</Projectile>
 		<Size>130</Size>
 		<XpMult>0.0</XpMult>

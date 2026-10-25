@@ -96,7 +96,7 @@ namespace WorldServer.core.commands.doomed
             ("Enthroned Fists", ItemType.Weapon, 15, 200, WeaponShard),
             ("Enthroned Hide", ItemType.Armor, 16, 6, ArmorShard),
             ("Enthroned Plate", ItemType.Armor, 16, 7, ArmorShard),
-            ("Enthroned Robe", ItemType.Armor, 16, 0, ArmorShard),
+            ("Enthroned Robe", ItemType.Armor, 16, 14, ArmorShard),
             ("Enthroned Helm", ItemType.Ability, 8, 0, AbilityShard),
             ("Enthroned Boots", ItemType.Ring, 8, 0, AccessoryShard),
             ("Enthroned Ring of Wrath", ItemType.Ring, 8, 0, AccessoryShard),

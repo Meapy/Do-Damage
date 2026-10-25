@@ -15,8 +15,33 @@ details). Add to a group's line when a change adds to it, rather than adding ano
 ## Unreleased
 
 ### Items
+- The Doomed Realms classes' tier 6 abilities (Pearl of Wasted Blood, Halo of God's Blessing, Light
+  Turret, Dragon Scroll, Nature Cannon, Jacket of Sorrows) drop in the same bag as other tier 6
+  abilities again, not a white one.
+
+### Oryx 5
+- The Holy Gates shut behind you when Oryx the Ascended God wakes and stay shut until he dies;
+  anyone standing in them is moved inside. In his Last Judgement the corridor below the arena fills
+  with gates (anyone hiding there is moved out) and lances sweep across its mouth, so there's no
+  safe corner left.
+- When he picks his patterns at random, he never picks the same one three times in a row.
+- Only Oryx 5 drops Ascended shards: the Void Entity no longer does.
+
+### Oryx 3 and 4
+- From 80% health the four pillars in Oryx 3's Sanctum fire his shots too: slashes along the sides
+  of their square and armour-piercing pairs in at the middle in turn, and now and then a spear at
+  the nearest player, softer than his own and stronger below half health.
+- Oryx 4's red butterflies (the Infernal Elements) hit for 20, through armour.
+- Janus the Doorwarden's door opens only once both Stone Guardians are dead and a quarter of the
+  Castle's haunted Suits of Armor are broken; Janus tells you when the armour is all that holds it.
+
+### Divine Forge
+- The Enthroned Robe is forged from the Robe of Absolution (with an Ascended Armor Shard), not from
+  any tier 16 armour.
 - Every item's tooltip says which classes can use it ("Usable by Wizard, Adept"), or "Usable by
   every class" for rings.
+  
+### Fixes
 - Summoner scrolls show their summon's damage (a shot, how often, and a second), and that up to 6
   can be out at once; Mechanic turrets show how often they fire and their damage a second. The
   wiki's scroll and turret pages show the same.

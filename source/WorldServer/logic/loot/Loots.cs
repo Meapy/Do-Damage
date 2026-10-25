@@ -123,12 +123,15 @@ namespace WorldServer.logic.loot
             }
 
             // Doomed Realms gave its gear plainer bags than betterSkillys gives the same tier: a Doomed
-            // item drops in the bag of the betterSkillys items of its kind and tier
+            // item drops in the best bag of the betterSkillys items of its kind and tier. Only those
+            // really of the tier: an untiered item placed in its pool (ExtraPoolItems, the ST Spell
+            // among the T6 abilities) would make every Doomed item of the tier drop in a white bag.
             foreach (var (item, itemType) in doomedItems)
             {
                 var bag = Items[itemType][item.Tier]
-                    .Where(i => i.ObjectType < 0xD000 || i.ObjectType > 0xDFFF)
-                    .Select(i => i.BagType).DefaultIfEmpty(item.BagType).Max();
+                    .Where(i => (i.ObjectType < 0xD000 || i.ObjectType > 0xDFFF) && i.Tier == item.Tier)
+                    .Select(i => i.BagType).DefaultIfEmpty(item.BagType)
+                    .OrderBy(b => LOOT_BAG_WEIGHTS[b]).Last();
                 if (LOOT_BAG_WEIGHTS[bag] > LOOT_BAG_WEIGHTS[item.BagType])
                     item.BagType = bag;
             }
