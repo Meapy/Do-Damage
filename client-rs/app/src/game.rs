@@ -894,23 +894,6 @@ impl Game {
         }
     }
 
-    /// The portal within a tile of us, if any, with what to call it.
-    pub fn nearest_portal<'a>(&'a self, data: &'a GameData) -> Option<(i32, &'a str)> {
-        let world = self.world.as_ref()?;
-        let me = world.player()?;
-        world
-            .objects
-            .values()
-            .filter_map(|o| {
-                let desc = data.objects.get(&o.object_type)?;
-                matches!(desc.class, ObjectClass::Portal | ObjectClass::GuildHallPortal).then_some((o, desc))
-            })
-            .map(|(o, desc)| ((o.x - me.x).hypot(o.y - me.y), o, desc))
-            .filter(|(d, _, _)| *d < 1.0)
-            .min_by(|a, b| a.0.total_cmp(&b.0))
-            .map(|(_, o, desc)| (o.id, o.name().unwrap_or(&desc.display_id)))
-    }
-
     fn send(&mut self, msg: ClientMessage) {
         *self.counts.entry(msg.name()).or_default() += 1;
         self.socket.send(&msg);

@@ -28,6 +28,11 @@ details). Add to a group's line when a change adds to it, rather than adding ano
   335 (was 320, the same as the tier below), and the Obsidian Blades fire at 1.3 times the normal
   rate (was twice, more than the next two tiers of blades).
 
+### Fixes
+- Drinking or taking potions from a loot bag on top of a portal no longer sends you through the
+  portal: a click meant for the bag can't press the portal's Enter button when the bag empties,
+  and the interact key only enters a portal when its Enter button is the one showing.
+
 ## 2.1.0 (2026-10-25)
 
 ### Arena

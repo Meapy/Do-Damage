@@ -1706,6 +1706,7 @@ impl App {
                 fame: &game.fame_stats,
             };
             let built = game.world.as_ref().map(|w| hud::Panel::new(&lay, w, data, &self.hud, &social));
+            self.hud.see_interact(built.as_ref().and_then(|p| p.interact.as_ref()).map(|t| t.id), now);
             let mut actions = Vec::new();
             use options::Bind;
             for key in pressed {
@@ -1717,7 +1718,8 @@ impl App {
                     _ => None,
                 });
                 match bind {
-                    // Interact with what we stand by (enter the portal, buy from the shop).
+                    // Interact with what the interact area shows (enter the portal, buy from the
+                    // shop): not a portal under the bag it shows instead.
                     Some(Bind::Interact) => match built.as_ref().and_then(|p| p.interact.clone()) {
                         Some(hud::Interact { id, kind: hud::InteractKind::Portal, .. }) => game.use_portal(id),
                         Some(hud::Interact { id, kind: hud::InteractKind::Shop { .. }, .. }) => game.buy(id),
@@ -1725,11 +1727,7 @@ impl App {
                             to_chars |= npc_open(kind, game, &mut self.npcs, &mut self.market, &mut self.forge, &mut self.forge_acts, self.front.list.as_ref(), data);
                             self.keys.clear();
                         }
-                        _ => {
-                            if let Some((id, _)) = game.nearest_portal(data) {
-                                game.use_portal(id);
-                            }
-                        }
+                        _ => {}
                     },
                     Some(Bind::Nexus) => {
                         if game.map_name() == "Nexus" {
