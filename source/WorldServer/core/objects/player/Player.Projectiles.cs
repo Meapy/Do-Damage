@@ -144,7 +144,10 @@ namespace WorldServer.core.objects
             var dmg = StatsManager.DamageWithDefense(this, projectile.Damage, projectileDesc.ArmorPiercing, Stats[3]);
             Health -= dmg;
 
-            PlayerHitEffects(dmg);
+            // items' damageThreshold ("Shots above 50 damage": the Chancellor's Cranium, the Diplomatic
+            // Robe) is the shot's damage, before defense: after it, players in good armour hardly ever
+            // took 50 and the items never fired
+            PlayerHitEffects(projectile.Damage);
 
             ApplyConditionEffect(projectileDesc.Effects);
             World.BroadcastIfVisibleExclude(new DamageMessage()

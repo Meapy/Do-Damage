@@ -37,6 +37,9 @@ details). Add to a group's line when a change adds to it, rather than adding ano
   the Nexus weapons (Robobow, KoalaPOW, Doctor Swordsworth), the Scepter of Zeus (650 damage to 6
   enemies, was 4,000 to 20), the pD Scepter, the Seal of the Fallen Angel (6-second auras, were
   15), the Helm of the Pumpkin and the red and blue bee quivers. Items you already have change too.
+- The Chancellor's Cranium and Diplomatic Robe (and the Turncoat Cape and Crystallised Mist) go off on
+  any shot that hits for over their threshold before your defense: in good armour they hardly ever
+  went off before.
 
 ### Oryx 5
 - The Holy Gates shut behind you when Oryx the Ascended God wakes and stay shut until he dies;
@@ -47,9 +50,11 @@ details). Add to a group's line when a change adds to it, rather than adding ano
 - Only Oryx 5 drops Ascended shards: the Void Entity no longer does.
 
 ### Oryx 3 and 4
-- From 80% health the four pillars in Oryx 3's Sanctum fire his shots too: slashes along the sides
-  of their square and armour-piercing pairs in at the middle in turn, and now and then a spear at
-  the nearest player, softer than his own and stronger below half health.
+- From 80% health the four pillars in Oryx 3's Sanctum fire his shots too: armour-piercing pairs in
+  at the middle, and now and then a spear at the nearest player, softer than his own and stronger
+  below half health.
+- Oryx 3's Sanctum gate shuts behind you when he wakes and opens when he dies; anyone standing in it
+  is moved inside.
 - Oryx 4's red butterflies (the Infernal Elements) hit for 20, through armour.
 - Janus the Doorwarden's door opens only once both Stone Guardians are dead and a quarter of the
   Castle's haunted Suits of Armor are broken; Janus tells you when the armour is all that holds it.

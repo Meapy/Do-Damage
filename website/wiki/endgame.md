@@ -73,9 +73,10 @@ Janus and is sold in the Nexus Bazaar.
   middle, or you're stunned. At half health his three Protectors circle him and must die before he
   can be hurt again; after that his attacks get stronger, and below 20% he hunts players down.
   From 80% the Sanctum's four pillars fire his shots too (60% as hard as his own), whatever he's
-  doing: for five seconds pairs of slashes along the sides of the square they stand on, then, after
-  a short pause, pairs of armour-piercing bashes in at the middle; and every few seconds each pillar
-  throws a spear at the nearest player. Below half health they fire his stronger, Exalted shots.
+  doing: every two seconds a pair of armour-piercing bashes in at the middle, and every few seconds
+  a spear at the nearest player. Below half health they fire his stronger, Exalted shots. The
+  Sanctum's gate shuts behind you when he wakes and opens when he dies: anyone left outside has to
+  teleport to a player within.
 - **Oryx 4**, Oryx the Infernal Mad God (Oryx's Inferno): a burning copy of the Sanctuary. The
   Burning Path winds through four chambers held by his Infernal Court, Oryx 3's court with Oryx
   2's minions' tricks and a little stronger: the Infernal Officer (confusing shuriken), the
