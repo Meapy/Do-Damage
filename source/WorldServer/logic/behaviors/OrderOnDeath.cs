@@ -39,21 +39,21 @@ namespace WorldServer.logic.behaviors
                 .FirstOrDefault(s => s != null);
         }
 
-        protected internal override void Resolve(State parent)
+        // Enemy.Death calls each behaviour's OnDeath; the State.Death event this used to wait for is
+        // never raised, so the order never went out
+        public override void OnDeath(Entity host, ref TickTime time)
         {
-            parent.Death += (sender, e) =>
-            {
-                if (_targetState == null)
-                    _targetState = FindState(e.Host.GameServer.BehaviorDb.Definitions[_target].Item1, _stateName);
+            if (Random.NextDouble() >= _probability)
+                return;
 
-                if (e.Host.CurrentState.Is(parent) &&
-                    Random.NextDouble() < _probability)
-                {
-                    foreach (var i in e.Host.GetNearestEntities(_range, _target))
-                        if (!i.CurrentState.Is(_targetState))
-                            i.SwitchTo(_targetState);
-                }
-            };
+            if (_targetState == null && host.GameServer.BehaviorDb.Definitions.TryGetValue(_target, out var def))
+                _targetState = FindState(def.Item1, _stateName);
+            if (_targetState == null)
+                return;
+
+            foreach (var i in host.GetNearestEntities(_range, _target))
+                if (i.CurrentState != null && !i.CurrentState.Is(_targetState))
+                    i.SwitchTo(_targetState);
         }
 
         protected override void TickCore(Entity host, TickTime time, ref object state) { }

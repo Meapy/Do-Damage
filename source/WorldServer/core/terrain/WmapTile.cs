@@ -94,6 +94,15 @@ namespace WorldServer.core.terrain
             _map.ObjectDefs.Remove(_index);
         }
 
+        // The ground the map file gives the tile: under a connected wall the loader puts the
+        // Composite ground (0xFD) instead, which shows black once the wall is taken away.
+        public void RestoreGround()
+        {
+            var desc = _map.Descs[D.OriginalDesc];
+            TileId = desc.TileId;
+            TileDesc = desc.TileDesc;
+        }
+
         public void InitConnection(Wmap map, int x, int y)
         {
             var objDesc = ObjDesc;

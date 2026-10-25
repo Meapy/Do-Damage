@@ -16,7 +16,9 @@ namespace WorldServer.logic
                 new State(
                     new PlaceMap("Setpieces/Rock Dragon.jm", true),
                     new Reproduce("Rock Dragon Bat", 5, 5, coolDown: 10000),
-                    new DropPortalOnDeath("Lair of Shaitan Portal", 1),
+                    // the Lair of Draconis, and the Lair of Shaitan half the time
+                    new DropPortalOnDeath("Lair of Draconis Portal", 1),
+                    new DropPortalOnDeath("Lair of Shaitan Portal", 0.5, xAdjustment: 3),
                     new State("default",
                         new PlayerWithinTransition(10, "spawnbody")
                         ),

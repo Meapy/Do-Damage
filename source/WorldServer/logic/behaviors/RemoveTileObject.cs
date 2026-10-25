@@ -21,6 +21,11 @@ namespace WorldServer.logic.behaviors
             _range = range;
         }
 
+        public RemoveTileObject(string objId, int range)
+            : this(GetObjType(objId), range)
+        {
+        }
+
         protected override void OnStateEntry(Entity host, TickTime time, ref object state)
         {
             var objType = _objType;
@@ -45,8 +50,15 @@ namespace WorldServer.logic.behaviors
                         continue;
 
                     tile.ObjType = 0;
+                    if (tile.TileId == 0xFD)
+                        tile.RestoreGround();
                     tile.UpdateCount++;
                 }
+
+            // players work out their tiles again only when they step onto another one: without this
+            // they saw the walls go only once they moved
+            foreach (var player in host.World.Players.Values)
+                player.UpdateTiles();
         }
 
         protected override void TickCore(Entity host, TickTime time, ref object state) { }

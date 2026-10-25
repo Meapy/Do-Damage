@@ -384,22 +384,1222 @@
 		<DisplayId>Elder GhostShip Barrel</DisplayId>
 		<XpBonus>2</XpBonus>
 	</Object>
-	<Object type="0xF018" id="Elder Gothic Arch">
+	<Object type="0xF035" id="Elder Dragon Wall Blue">
 		<Class>Wall</Class>
 		<RandomTexture>
 			<Texture>
 				<File>elderAssets8x8</File>
-				<Index>0x12b</Index>
+				<Index>0x14e</Index>
 			</Texture>
 			<Texture>
 				<File>elderAssets8x8</File>
-				<Index>0x12c</Index>
+				<Index>0x14f</Index>
+			</Texture>
+			<Texture>
+				<File>elderAssets8x8</File>
+				<Index>0x150</Index>
+			</Texture>
+			<Texture>
+				<File>elderAssets8x8</File>
+				<Index>0x150</Index>
+			</Texture>
+			<Texture>
+				<File>elderAssets8x8</File>
+				<Index>0x150</Index>
 			</Texture>
 		</RandomTexture>
 		<Top>
 			<Texture>
 				<File>elderAssets8x8</File>
-				<Index>0x12d</Index>
+				<Index>0x151</Index>
+			</Texture>
+		</Top>
+		<HitSound>monster/stone_walls_hit</HitSound>
+		<DeathSound>monster/stone_walls_death</DeathSound>
+		<Static />
+		<FullOccupy />
+		<OccupySquare />
+		<EnemyOccupySquare />
+		<BlocksSight />
+	</Object>
+	<Object type="0xF036" id="Elder Dragon Wall Gold">
+		<Class>Wall</Class>
+		<Texture>
+			<File>elderAssets8x8</File>
+			<Index>0x152</Index>
+		</Texture>
+		<Top>
+			<Texture>
+				<File>elderAssets8x8</File>
+				<Index>0x153</Index>
+			</Texture>
+		</Top>
+		<HitSound>monster/stone_walls_hit</HitSound>
+		<DeathSound>monster/stone_walls_death</DeathSound>
+		<Static />
+		<FullOccupy />
+		<OccupySquare />
+		<EnemyOccupySquare />
+		<BlocksSight />
+	</Object>
+	<Object type="0xF037" id="Elder Dragon Wall Green">
+		<Class>Wall</Class>
+		<RandomTexture>
+			<Texture>
+				<File>elderAssets8x8</File>
+				<Index>0x154</Index>
+			</Texture>
+			<Texture>
+				<File>elderAssets8x8</File>
+				<Index>0x155</Index>
+			</Texture>
+			<Texture>
+				<File>elderAssets8x8</File>
+				<Index>0x156</Index>
+			</Texture>
+			<Texture>
+				<File>elderAssets8x8</File>
+				<Index>0x156</Index>
+			</Texture>
+			<Texture>
+				<File>elderAssets8x8</File>
+				<Index>0x156</Index>
+			</Texture>
+		</RandomTexture>
+		<Top>
+			<Texture>
+				<File>elderAssets8x8</File>
+				<Index>0x157</Index>
+			</Texture>
+		</Top>
+		<HitSound>monster/stone_walls_hit</HitSound>
+		<DeathSound>monster/stone_walls_death</DeathSound>
+		<Static />
+		<FullOccupy />
+		<OccupySquare />
+		<EnemyOccupySquare />
+		<BlocksSight />
+	</Object>
+	<Object type="0xF038" id="Elder Dragon Wall Purple">
+		<Class>Wall</Class>
+		<RandomTexture>
+			<Texture>
+				<File>elderAssets8x8</File>
+				<Index>0x158</Index>
+			</Texture>
+			<Texture>
+				<File>elderAssets8x8</File>
+				<Index>0x159</Index>
+			</Texture>
+			<Texture>
+				<File>elderAssets8x8</File>
+				<Index>0x15a</Index>
+			</Texture>
+			<Texture>
+				<File>elderAssets8x8</File>
+				<Index>0x15a</Index>
+			</Texture>
+			<Texture>
+				<File>elderAssets8x8</File>
+				<Index>0x15a</Index>
+			</Texture>
+		</RandomTexture>
+		<Top>
+			<Texture>
+				<File>elderAssets8x8</File>
+				<Index>0x15b</Index>
+			</Texture>
+		</Top>
+		<HitSound>monster/stone_walls_hit</HitSound>
+		<DeathSound>monster/stone_walls_death</DeathSound>
+		<Static />
+		<FullOccupy />
+		<OccupySquare />
+		<EnemyOccupySquare />
+		<BlocksSight />
+	</Object>
+	<Object type="0xF039" id="Elder Dragon Wall Red">
+		<Class>Wall</Class>
+		<RandomTexture>
+			<Texture>
+				<File>elderAssets8x8</File>
+				<Index>0x15c</Index>
+			</Texture>
+			<Texture>
+				<File>elderAssets8x8</File>
+				<Index>0x15d</Index>
+			</Texture>
+			<Texture>
+				<File>elderAssets8x8</File>
+				<Index>0x15e</Index>
+			</Texture>
+			<Texture>
+				<File>elderAssets8x8</File>
+				<Index>0x15e</Index>
+			</Texture>
+			<Texture>
+				<File>elderAssets8x8</File>
+				<Index>0x15e</Index>
+			</Texture>
+		</RandomTexture>
+		<Top>
+			<Texture>
+				<File>elderAssets8x8</File>
+				<Index>0x15f</Index>
+			</Texture>
+		</Top>
+		<HitSound>monster/stone_walls_hit</HitSound>
+		<DeathSound>monster/stone_walls_death</DeathSound>
+		<Static />
+		<FullOccupy />
+		<OccupySquare />
+		<EnemyOccupySquare />
+		<BlocksSight />
+	</Object>
+	<Object type="0xF03A" id="Elder NM Blue Minion Spawner">
+		<DisplayId>Blue Egg</DisplayId>
+		<Class>GameObject</Class>
+		<ShadowSize>80</ShadowSize>
+		<Size>140</Size>
+		<Z>-0.30</Z>
+		<Texture>
+			<File>lofiObj3</File>
+			<Index>0x3aa</Index>
+		</Texture>
+		<StasisImmune />
+	</Object>
+	<Object type="0xF03B" id="Elder NM Red Fake Egg">
+		<DisplayId>Red Egg</DisplayId>
+		<Class>GameObject</Class>
+		<ShadowSize>80</ShadowSize>
+		<Size>140</Size>
+		<Z>-0.20</Z>
+		<Texture>
+			<File>lofiObj3</File>
+			<Index>0x3ab</Index>
+		</Texture>
+		<StasisImmune />
+	</Object>
+	<Object type="0xF03C" id="Elder NM Red Minion Spawner">
+		<DisplayId>Red Egg</DisplayId>
+		<Class>GameObject</Class>
+		<ShadowSize>80</ShadowSize>
+		<Size>140</Size>
+		<Z>-0.20</Z>
+		<Texture>
+			<File>lofiObj3</File>
+			<Index>0x3ab</Index>
+		</Texture>
+		<StasisImmune />
+	</Object>
+	<Object type="0xF03D" id="Elder NM Altar of Draconis">
+		<DisplayId>Elder Altar of Draconis</DisplayId>
+		<Class>Character</Class>
+		<Enemy />
+		<EventChestBoss />
+		<Invincible />
+		<Color>0x30BBFB</Color>
+		<Texture>
+			<File>lofiObjBig</File>
+			<Index>0xda</Index>
+		</Texture>
+		<Size>120</Size>
+		<Z>1.2</Z>
+		<ShadowSize>0</ShadowSize>
+		<Animation prob="1" period="1.8">
+			<Frame time="0.1">
+				<Texture>
+					<File>lofiObjBig</File>
+					<Index>0xda</Index>
+				</Texture>
+			</Frame>
+			<Frame time="0.2">
+				<Texture>
+					<File>lofiObjBig</File>
+					<Index>0xdb</Index>
+				</Texture>
+			</Frame>
+			<Frame time="0.4">
+				<Texture>
+					<File>lofiObjBig</File>
+					<Index>0xdc</Index>
+				</Texture>
+			</Frame>
+			<Frame time="0.2">
+				<Texture>
+					<File>lofiObjBig</File>
+					<Index>0xdb</Index>
+				</Texture>
+			</Frame>
+			<Frame time="0.1">
+				<Texture>
+					<File>lofiObjBig</File>
+					<Index>0xda</Index>
+				</Texture>
+			</Frame>
+			<Frame time="0.2">
+				<Texture>
+					<File>lofiObjBig</File>
+					<Index>0xd9</Index>
+				</Texture>
+			</Frame>
+			<Frame time="0.4">
+				<Texture>
+					<File>lofiObjBig</File>
+					<Index>0xdd</Index>
+				</Texture>
+			</Frame>
+			<Frame time="0.2">
+				<Texture>
+					<File>lofiObjBig</File>
+					<Index>0xd9</Index>
+				</Texture>
+			</Frame>
+		</Animation>
+		<XpBonus>2</XpBonus>
+	</Object>
+	<Object type="0xF03E" id="Elder NM Black Dragon Dead">
+		<Group>Dead Dragons</Group>
+		<Enemy />
+		<Class>Character</Class>
+		<Texture>
+			<File>lofiObj3</File>
+			<Index>0x3a9</Index>
+		</Texture>
+		<Size>0</Size>
+		<NoMiniMap />
+		<StasisImmune />
+		<MaxHitPoints>2500000</MaxHitPoints>
+		<DisplayId>Elder NM Black Dragon Dead</DisplayId>
+		<XpBonus>2</XpBonus>
+	</Object>
+	<Object type="0xF03F" id="Elder NM Black Dragon God">
+		<DisplayId>Elder Feargus the Obsidian Dragon</DisplayId>
+		<Enemy />
+		<Class>Character</Class>
+		<AnimatedTexture>
+			<File>chars16x16dEncounters2</File>
+			<Index>51</Index>
+		</AnimatedTexture>
+		<AltTexture id="1">
+			<AnimatedTexture>
+				<File>chars16x16dEncounters2</File>
+				<Index>52</Index>
+			</AnimatedTexture>
+		</AltTexture>
+		<AltTexture id="2">
+			<Texture>
+				<File>invisible</File>
+				<Index>0</Index>
+			</Texture>
+		</AltTexture>
+		<HitSound>monster/skeletons_hit</HitSound>
+		<DeathSound>monster/skeletons_death</DeathSound>
+		<Size>240</Size>
+		<MaxHitPoints>60000</MaxHitPoints>
+		<Defense>80</Defense>
+		<Exp>1462</Exp>
+		<Quest />
+		<HealthBarBoss />
+		<God />
+		<ParalyzeImmune />
+		<DazedImmune />
+		<StasisImmune />
+		<StunImmune />
+		<Projectile id="0">
+			<ObjectId>Dragon Attack Black Ray</ObjectId>
+			<Speed>55</Speed>
+			<Damage>195</Damage>
+			<Size>240</Size>
+			<LifetimeMS>1500</LifetimeMS>
+		</Projectile>
+		<Projectile id="1">
+			<ObjectId>Dragon Attack Black Spin</ObjectId>
+			<Speed>90</Speed>
+			<Damage>58</Damage>
+			<Size>100</Size>
+			<LifetimeMS>1200</LifetimeMS>
+			<ConditionEffect duration="8" target="1">Stasis</ConditionEffect>
+		</Projectile>
+		<Projectile id="2">
+			<ObjectId>Dragon Attack Black Shot</ObjectId>
+			<Speed>55</Speed>
+			<Damage>130</Damage>
+			<Size>140</Size>
+			<LifetimeMS>1200</LifetimeMS>
+		</Projectile>
+		<Projectile id="3">
+			<ObjectId>Dragon Attack Black Bullet</ObjectId>
+			<Speed>100</Speed>
+			<Damage>195</Damage>
+			<Size>140</Size>
+			<LifetimeMS>1200</LifetimeMS>
+		</Projectile>
+		<Projectile id="4">
+			<ObjectId>Black Missile</ObjectId>
+			<Speed>55</Speed>
+			<Damage>130</Damage>
+			<Size>100</Size>
+			<LifetimeMS>1200</LifetimeMS>
+		</Projectile>
+		<Projectile id="5">
+			<ObjectId>Dragon Attack Blue Fireball</ObjectId>
+			<Speed>75</Speed>
+			<Damage>98</Damage>
+			<Size>140</Size>
+			<LifetimeMS>1500</LifetimeMS>
+			<ConditionEffect duration="8">Weak</ConditionEffect>
+		</Projectile>
+		<Projectile id="6">
+			<ObjectId>Dragon Attack Red Spinning Fireball</ObjectId>
+			<Speed>55</Speed>
+			<Damage>65</Damage>
+			<Size>110</Size>
+			<LifetimeMS>2000</LifetimeMS>
+			<ConditionEffect duration="3">Armor Broken</ConditionEffect>
+		</Projectile>
+		<Projectile id="7">
+			<ObjectId>Dragon Attack Green Spin Ball</ObjectId>
+			<Damage>156</Damage>
+			<Speed>40</Speed>
+			<Size>90</Size>
+			<LifetimeMS>2500</LifetimeMS>
+			<ConditionEffect duration="5">Sick</ConditionEffect>
+		</Projectile>
+		<Projectile id="8">
+			<ObjectId>Black Missile</ObjectId>
+			<Speed>55</Speed>
+			<Damage>65</Damage>
+			<Size>100</Size>
+			<LifetimeMS>1200</LifetimeMS>
+		</Projectile>
+		<Projectile id="9">
+			<ObjectId>Black Missile</ObjectId>
+			<Speed>55</Speed>
+			<Damage>65</Damage>
+			<Size>100</Size>
+			<LifetimeMS>1200</LifetimeMS>
+		</Projectile>
+		<Projectile id="10">
+			<ObjectId>Black Missile</ObjectId>
+			<Speed>25</Speed>
+			<Damage>455</Damage>
+			<Size>200</Size>
+			<LifetimeMS>1200</LifetimeMS>
+		</Projectile>
+		<XpBonus>2</XpBonus>
+	</Object>
+	<Object type="0xF040" id="Elder NM Black Dragon Minion">
+		<DisplayId>Elder Obsidian Soul Shard</DisplayId>
+		<Enemy />
+		<Class>Character</Class>
+		<Texture>
+			<File>lofiObj3</File>
+			<Index>0x3ad</Index>
+		</Texture>
+		<AltTexture id="1">
+			<AnimatedTexture>
+				<File>chars8x8rEncounters</File>
+				<Index>102</Index>
+			</AnimatedTexture>
+		</AltTexture>
+		<Size>150</Size>
+		<MaxHitPoints>8000</MaxHitPoints>
+		<Defense>30</Defense>
+		<Exp>0</Exp>
+		<Projectile id="0">
+			<ObjectId>Black Missile</ObjectId>
+			<Speed>55</Speed>
+			<Damage>130</Damage>
+			<Size>100</Size>
+			<LifetimeMS>1200</LifetimeMS>
+		</Projectile>
+		<XpBonus>2</XpBonus>
+	</Object>
+	<Object type="0xF041" id="Elder NM Black Dragon Soul">
+		<DisplayId>Elder Obsidian Dragon Soul</DisplayId>
+		<Group>Dragon Souls</Group>
+		<Enemy />
+		<Class>Character</Class>
+		<Texture>
+			<File>lofiObj3</File>
+			<Index>0x3a9</Index>
+		</Texture>
+		<Animation prob="1.0" period="0.8">
+			<Frame time="0.2">
+				<Texture>
+					<File>lofiObj3</File>
+					<Index>0x3a9</Index>
+				</Texture>
+			</Frame>
+			<Frame time="0.2">
+				<Texture>
+					<File>lofiObj3</File>
+					<Index>0x3c9</Index>
+				</Texture>
+			</Frame>
+			<Frame time="0.2">
+				<Texture>
+					<File>lofiObj3</File>
+					<Index>0x3ca</Index>
+				</Texture>
+			</Frame>
+			<Frame time="0.2">
+				<Texture>
+					<File>lofiObj3</File>
+					<Index>0x3cb</Index>
+				</Texture>
+			</Frame>
+		</Animation>
+		<AltTexture id="1">
+			<Texture>
+				<File>invisible</File>
+				<Index>0</Index>
+			</Texture>
+		</AltTexture>
+		<Size>100</Size>
+		<ShadowSize>60</ShadowSize>
+		<Z>.4</Z>
+		<Flying />
+		<MaxHitPoints>10000</MaxHitPoints>
+		<Defense>30</Defense>
+		<NoMiniMap />
+		<XpBonus>2</XpBonus>
+	</Object>
+	<Object type="0xF042" id="Elder NM Black Open Wall">
+		<Class>Character</Class>
+		<Enemy />
+		<Texture>
+			<File>invisible</File>
+			<Index>0</Index>
+		</Texture>
+		<NoMiniMap />
+		<Size>0</Size>
+		<StasisImmune />
+		<DisplayId>Elder NM Black Open Wall</DisplayId>
+		<XpBonus>2</XpBonus>
+	</Object>
+	<Object type="0xF043" id="Elder NM Blue Dragon Dead">
+		<Group>Dead Dragons</Group>
+		<Enemy />
+		<Class>Character</Class>
+		<Texture>
+			<File>lofiObj3</File>
+			<Index>0x3a6</Index>
+		</Texture>
+		<Size>0</Size>
+		<MaxHitPoints>2500000</MaxHitPoints>
+		<NoMiniMap />
+		<StasisImmune />
+		<DisplayId>Elder NM Blue Dragon Dead</DisplayId>
+		<XpBonus>2</XpBonus>
+	</Object>
+	<Object type="0xF044" id="Elder NM Blue Dragon God">
+		<DisplayId>Elder Nikao the Azure Dragon</DisplayId>
+		<Group>Dragon Gods</Group>
+		<Enemy />
+		<Class>Character</Class>
+		<AnimatedTexture>
+			<File>chars16x16dEncounters2</File>
+			<Index>45</Index>
+		</AnimatedTexture>
+		<AltTexture id="1">
+			<AnimatedTexture>
+				<File>chars16x16dEncounters2</File>
+				<Index>46</Index>
+			</AnimatedTexture>
+		</AltTexture>
+		<HitSound>monster/skeletons_hit</HitSound>
+		<DeathSound>monster/skeletons_death</DeathSound>
+		<Size>175</Size>
+		<MaxHitPoints>70000</MaxHitPoints>
+		<Defense>50</Defense>
+		<Exp>975</Exp>
+		<Level>20</Level>
+		<Quest />
+		<HealthBarBoss />
+		<God />
+		<ParalyzeImmune />
+		<DazedImmune />
+		<StasisImmune />
+		<StunImmune />
+		<Projectile id="0">
+			<ObjectId>Dragon Attack Blue Bullet</ObjectId>
+			<Speed>55</Speed>
+			<Damage>130</Damage>
+			<Size>75</Size>
+			<LifetimeMS>2000</LifetimeMS>
+		</Projectile>
+		<Projectile id="1">
+			<ObjectId>Dragon Attack Blue Fireball</ObjectId>
+			<Speed>35</Speed>
+			<Damage>124</Damage>
+			<Size>140</Size>
+			<LifetimeMS>6000</LifetimeMS>
+			<ConditionEffect duration="8">Weak</ConditionEffect>
+		</Projectile>
+		<Projectile id="2">
+			<ObjectId>Dragon Attack Blue Blast</ObjectId>
+			<Speed>55</Speed>
+			<Damage>130</Damage>
+			<Size>100</Size>
+			<LifetimeMS>1700</LifetimeMS>
+		</Projectile>
+		<Projectile id="3">
+			<ObjectId>Water Storm</ObjectId>
+			<Speed>40</Speed>
+			<Damage>104</Damage>
+			<Size>125</Size>
+			<LifetimeMS>5000</LifetimeMS>
+		</Projectile>
+		<Projectile id="5">
+			<ObjectId>Dragon Attack Green Spin Ball</ObjectId>
+			<Damage>104</Damage>
+			<Speed>40</Speed>
+			<Size>90</Size>
+			<LifetimeMS>2500</LifetimeMS>
+			<ConditionEffect duration="5">Sick</ConditionEffect>
+		</Projectile>
+		<Projectile id="6">
+			<ObjectId>Dragon Attack Red Spinning Fireball</ObjectId>
+			<Speed>35</Speed>
+			<Damage>104</Damage>
+			<Size>110</Size>
+			<LifetimeMS>2000</LifetimeMS>
+			<ConditionEffect duration="3">Armor Broken</ConditionEffect>
+		</Projectile>
+		<XpBonus>2</XpBonus>
+	</Object>
+	<Object type="0xF045" id="Elder NM Blue Dragon Minion">
+		<DisplayId>Elder Azure Soul Shard</DisplayId>
+		<Enemy />
+		<Class>Character</Class>
+		<AnimatedTexture>
+			<File>chars8x8dEncounters</File>
+			<Index>20</Index>
+		</AnimatedTexture>
+		<Size>100</Size>
+		<MaxHitPoints>6000</MaxHitPoints>
+		<Defense>30</Defense>
+		<Exp>0</Exp>
+		<Projectile id="0">
+			<ObjectId>Dragon Attack Black Spin</ObjectId>
+			<Speed>70</Speed>
+			<Damage>58</Damage>
+			<Size>100</Size>
+			<LifetimeMS>1200</LifetimeMS>
+			<ConditionEffect duration="8" target="1">Stasis</ConditionEffect>
+		</Projectile>
+		<Projectile id="1">
+			<ObjectId>Silver Shield</ObjectId>
+			<Damage>39</Damage>
+			<Speed>70</Speed>
+			<LifetimeMS>750</LifetimeMS>
+			<Size>100</Size>
+		</Projectile>
+		<Projectile id="2">
+			<ObjectId>Dragon Attack Blue Bullet</ObjectId>
+			<Speed>55</Speed>
+			<Damage>72</Damage>
+			<Size>75</Size>
+			<LifetimeMS>2000</LifetimeMS>
+		</Projectile>
+		<Projectile id="3">
+			<ObjectId>Dragon Attack Red Big Fireball</ObjectId>
+			<Speed>30</Speed>
+			<Damage>39</Damage>
+			<Size>100</Size>
+			<LifetimeMS>2500</LifetimeMS>
+		</Projectile>
+		<Projectile id="4">
+			<ObjectId>Black Missile</ObjectId>
+			<Speed>55</Speed>
+			<Damage>39</Damage>
+			<Size>100</Size>
+			<LifetimeMS>1200</LifetimeMS>
+		</Projectile>
+		<XpBonus>2</XpBonus>
+	</Object>
+	<Object type="0xF046" id="Elder NM Blue Dragon Soul">
+		<DisplayId>Elder Azure Dragon Soul</DisplayId>
+		<Group>Dragon Souls</Group>
+		<Enemy />
+		<Class>Character</Class>
+		<Texture>
+			<File>lofiObj3</File>
+			<Index>0x3a6</Index>
+		</Texture>
+		<Animation prob="1.0" period="0.8">
+			<Frame time="0.2">
+				<Texture>
+					<File>lofiObj3</File>
+					<Index>0x3a6</Index>
+				</Texture>
+			</Frame>
+			<Frame time="0.2">
+				<Texture>
+					<File>lofiObj3</File>
+					<Index>0x3c0</Index>
+				</Texture>
+			</Frame>
+			<Frame time="0.2">
+				<Texture>
+					<File>lofiObj3</File>
+					<Index>0x3c1</Index>
+				</Texture>
+			</Frame>
+			<Frame time="0.2">
+				<Texture>
+					<File>lofiObj3</File>
+					<Index>0x3c2</Index>
+				</Texture>
+			</Frame>
+		</Animation>
+		<AltTexture id="1">
+			<Texture>
+				<File>invisible</File>
+				<Index>0</Index>
+			</Texture>
+		</AltTexture>
+		<NoMiniMap />
+		<Size>100</Size>
+		<ShadowSize>60</ShadowSize>
+		<Z>.4</Z>
+		<Flying />
+		<MaxHitPoints>10000</MaxHitPoints>
+		<Defense>30</Defense>
+		<XpBonus>2</XpBonus>
+	</Object>
+	<Object type="0xF047" id="Elder NM Blue Open Wall">
+		<Class>Character</Class>
+		<Enemy />
+		<Texture>
+			<File>invisible</File>
+			<Index>0</Index>
+		</Texture>
+		<NoMiniMap />
+		<Size>0</Size>
+		<StasisImmune />
+		<DisplayId>Elder NM Blue Open Wall</DisplayId>
+		<XpBonus>2</XpBonus>
+	</Object>
+	<Object type="0xF048" id="Elder NM Green Dragon Dead">
+		<Group>Dead Dragons</Group>
+		<Enemy />
+		<Class>Character</Class>
+		<NoMiniMap />
+		<Texture>
+			<File>lofiObj3</File>
+			<Index>0x3a8</Index>
+		</Texture>
+		<Size>0</Size>
+		<StasisImmune />
+		<MaxHitPoints>2500000</MaxHitPoints>
+		<DisplayId>Elder NM Green Dragon Dead</DisplayId>
+		<XpBonus>2</XpBonus>
+	</Object>
+	<Object type="0xF049" id="Elder NM Green Dragon God">
+		<DisplayId>Elder Limoz the Veridian Dragon</DisplayId>
+		<Group>Dragon Gods</Group>
+		<Enemy />
+		<Class>Character</Class>
+		<AnimatedTexture>
+			<File>chars16x16dEncounters2</File>
+			<Index>49</Index>
+		</AnimatedTexture>
+		<AltTexture id="1">
+			<AnimatedTexture>
+				<File>chars16x16dEncounters2</File>
+				<Index>50</Index>
+			</AnimatedTexture>
+		</AltTexture>
+		<HitSound>monster/skeletons_hit</HitSound>
+		<DeathSound>monster/skeletons_death</DeathSound>
+		<Size>175</Size>
+		<MaxHitPoints>80000</MaxHitPoints>
+		<Defense>70</Defense>
+		<Exp>975</Exp>
+		<Level>20</Level>
+		<Quest />
+		<HealthBarBoss />
+		<God />
+		<ParalyzeImmune />
+		<DazedImmune />
+		<StasisImmune />
+		<StunImmune />
+		<Projectile id="0">
+			<ObjectId>Dragon Attack Green Ball</ObjectId>
+			<Damage>176</Damage>
+			<Speed>30</Speed>
+			<LifetimeMS>3000</LifetimeMS>
+			<PassesCover />
+		</Projectile>
+		<Projectile id="1">
+			<ObjectId>Dragon Attack Green Spin Ball</ObjectId>
+			<Damage>156</Damage>
+			<Speed>45</Speed>
+			<Size>90</Size>
+			<LifetimeMS>2500</LifetimeMS>
+			<ConditionEffect duration="5">Sick</ConditionEffect>
+		</Projectile>
+		<Projectile id="2">
+			<ObjectId>Dragon Attack Green Arrow</ObjectId>
+			<Speed>100</Speed>
+			<Damage>98</Damage>
+			<Size>100</Size>
+			<LifetimeMS>1200</LifetimeMS>
+		</Projectile>
+		<Projectile id="3">
+			<ObjectId>Dragon Attack Green Bullet</ObjectId>
+			<Damage>156</Damage>
+			<Speed>100</Speed>
+			<LifetimeMS>1000</LifetimeMS>
+		</Projectile>
+		<Projectile id="4">
+			<ObjectId>Dragon Attack Green Spine</ObjectId>
+			<Speed>55</Speed>
+			<Damage>130</Damage>
+			<Size>100</Size>
+			<LifetimeMS>2500</LifetimeMS>
+		</Projectile>
+		<Projectile id="5">
+			<ObjectId>Dragon Attack Blue Fireball</ObjectId>
+			<Speed>75</Speed>
+			<Damage>98</Damage>
+			<Size>140</Size>
+			<LifetimeMS>1500</LifetimeMS>
+			<ConditionEffect duration="8">Weak</ConditionEffect>
+		</Projectile>
+		<Projectile id="6">
+			<ObjectId>Dragon Attack Red Spinning Fireball</ObjectId>
+			<Speed>55</Speed>
+			<Damage>156</Damage>
+			<Size>110</Size>
+			<LifetimeMS>2000</LifetimeMS>
+			<ConditionEffect duration="3">Armor Broken</ConditionEffect>
+		</Projectile>
+		<XpBonus>2</XpBonus>
+	</Object>
+	<Object type="0xF04A" id="Elder NM Green Dragon Minion">
+		<DisplayId>Elder Veridian Hatchling</DisplayId>
+		<Enemy />
+		<Class>Character</Class>
+		<AnimatedTexture>
+			<File>chars8x8rEncounters</File>
+			<Index>101</Index>
+		</AnimatedTexture>
+		<Size>100</Size>
+		<MaxHitPoints>6000</MaxHitPoints>
+		<Defense>30</Defense>
+		<Exp>0</Exp>
+		<Projectile id="0">
+			<ObjectId>Dragon Attack Green Ball</ObjectId>
+			<Damage>52</Damage>
+			<Speed>70</Speed>
+			<LifetimeMS>1900</LifetimeMS>
+			<PassesCover />
+		</Projectile>
+		<Projectile id="1">
+			<ObjectId>Dragon Attack Green Spin Ball</ObjectId>
+			<Damage>39</Damage>
+			<Speed>40</Speed>
+			<Size>90</Size>
+			<LifetimeMS>2500</LifetimeMS>
+			<ConditionEffect duration="5">Sick</ConditionEffect>
+		</Projectile>
+		<Projectile id="2">
+			<ObjectId>Dragon Attack Green Arrow</ObjectId>
+			<Speed>100</Speed>
+			<Damage>39</Damage>
+			<Size>100</Size>
+			<LifetimeMS>1200</LifetimeMS>
+		</Projectile>
+		<Projectile id="3">
+			<ObjectId>Dragon Attack Green Bullet</ObjectId>
+			<Damage>39</Damage>
+			<Speed>100</Speed>
+			<LifetimeMS>1000</LifetimeMS>
+		</Projectile>
+		<Projectile id="4">
+			<ObjectId>Dragon Attack Green Spine</ObjectId>
+			<Speed>55</Speed>
+			<Damage>39</Damage>
+			<Size>100</Size>
+			<LifetimeMS>2500</LifetimeMS>
+		</Projectile>
+		<XpBonus>2</XpBonus>
+	</Object>
+	<Object type="0xF04B" id="Elder NM Green Dragon Soul">
+		<DisplayId>Elder Veridian Dragon Soul</DisplayId>
+		<Group>Dragon Souls</Group>
+		<Enemy />
+		<Class>Character</Class>
+		<Texture>
+			<File>lofiObj3</File>
+			<Index>0x3a8</Index>
+		</Texture>
+		<Animation prob="1.0" period="0.8">
+			<Frame time="0.2">
+				<Texture>
+					<File>lofiObj3</File>
+					<Index>0x3a8</Index>
+				</Texture>
+			</Frame>
+			<Frame time="0.2">
+				<Texture>
+					<File>lofiObj3</File>
+					<Index>0x3c6</Index>
+				</Texture>
+			</Frame>
+			<Frame time="0.2">
+				<Texture>
+					<File>lofiObj3</File>
+					<Index>0x3c7</Index>
+				</Texture>
+			</Frame>
+			<Frame time="0.2">
+				<Texture>
+					<File>lofiObj3</File>
+					<Index>0x3c8</Index>
+				</Texture>
+			</Frame>
+		</Animation>
+		<AltTexture id="1">
+			<Texture>
+				<File>invisible</File>
+				<Index>0</Index>
+			</Texture>
+		</AltTexture>
+		<NoMiniMap />
+		<Size>100</Size>
+		<ShadowSize>60</ShadowSize>
+		<Z>.4</Z>
+		<Flying />
+		<MaxHitPoints>10000</MaxHitPoints>
+		<Defense>30</Defense>
+		<XpBonus>2</XpBonus>
+	</Object>
+	<Object type="0xF04C" id="Elder NM Green Open Wall">
+		<Class>Character</Class>
+		<Enemy />
+		<Texture>
+			<File>invisible</File>
+			<Index>0</Index>
+		</Texture>
+		<NoMiniMap />
+		<Size>0</Size>
+		<StasisImmune />
+		<DisplayId>Elder NM Green Open Wall</DisplayId>
+		<XpBonus>2</XpBonus>
+	</Object>
+	<Object type="0xF04D" id="Elder NM Red Dragon Dead">
+		<Group>Dead Dragons</Group>
+		<Enemy />
+		<Class>Character</Class>
+		<NoMiniMap />
+		<Texture>
+			<File>lofiObj3</File>
+			<Index>0x3a7</Index>
+		</Texture>
+		<Size>0</Size>
+		<StasisImmune />
+		<MaxHitPoints>2500000</MaxHitPoints>
+		<DisplayId>Elder NM Red Dragon Dead</DisplayId>
+		<XpBonus>2</XpBonus>
+	</Object>
+	<Object type="0xF04E" id="Elder NM Red Dragon God">
+		<DisplayId>Elder Pyyr the Crimson Dragon</DisplayId>
+		<Group>Red Dragon God Group</Group>
+		<Enemy />
+		<Class>Character</Class>
+		<AnimatedTexture>
+			<File>chars16x16dEncounters2</File>
+			<Index>47</Index>
+		</AnimatedTexture>
+		<AltTexture id="1">
+			<AnimatedTexture>
+				<File>chars16x16dEncounters2</File>
+				<Index>48</Index>
+			</AnimatedTexture>
+		</AltTexture>
+		<HitSound>monster/skeletons_hit</HitSound>
+		<DeathSound>monster/skeletons_death</DeathSound>
+		<Size>200</Size>
+		<MaxHitPoints>55000</MaxHitPoints>
+		<Defense>50</Defense>
+		<Exp>975</Exp>
+		<Level>20</Level>
+		<Quest />
+		<HealthBarBoss />
+		<God />
+		<ParalyzeImmune />
+		<DazedImmune />
+		<StasisImmune />
+		<StunImmune />
+		<Projectile id="0">
+			<ObjectId>Dragon Attack Red Big Fireball</ObjectId>
+			<Speed>35</Speed>
+			<Damage>156</Damage>
+			<Size>400</Size>
+			<LifetimeMS>2500</LifetimeMS>
+		</Projectile>
+		<Projectile id="1">
+			<ObjectId>Dragon Attack Red Firewave</ObjectId>
+			<Speed>85</Speed>
+			<Damage>130</Damage>
+			<Size>140</Size>
+			<LifetimeMS>1200</LifetimeMS>
+		</Projectile>
+		<Projectile id="2">
+			<ObjectId>Dragon Attack Red Spinning Fireball</ObjectId>
+			<Speed>55</Speed>
+			<Damage>156</Damage>
+			<Size>110</Size>
+			<LifetimeMS>2000</LifetimeMS>
+			<ConditionEffect duration="3">Armor Broken</ConditionEffect>
+		</Projectile>
+		<Projectile id="3">
+			<ObjectId>Dragon Attack Red Orb</ObjectId>
+			<Speed>60</Speed>
+			<Damage>98</Damage>
+			<Size>200</Size>
+			<LifetimeMS>1200</LifetimeMS>
+		</Projectile>
+		<Projectile id="4">
+			<ObjectId>Dragon Attack Green Spin Ball</ObjectId>
+			<Damage>156</Damage>
+			<Speed>40</Speed>
+			<Size>90</Size>
+			<LifetimeMS>2500</LifetimeMS>
+			<ConditionEffect duration="5">Sick</ConditionEffect>
+		</Projectile>
+		<Projectile id="5">
+			<ObjectId>Dragon Attack Blue Fireball</ObjectId>
+			<Speed>75</Speed>
+			<Damage>98</Damage>
+			<Size>140</Size>
+			<LifetimeMS>1500</LifetimeMS>
+			<ConditionEffect duration="8">Weak</ConditionEffect>
+		</Projectile>
+		<Projectile id="6">
+			<ObjectId>Dragon Attack Black Spin</ObjectId>
+			<Speed>90</Speed>
+			<Damage>58</Damage>
+			<Size>100</Size>
+			<LifetimeMS>1200</LifetimeMS>
+			<ConditionEffect duration="8" target="1">Stasis</ConditionEffect>
+		</Projectile>
+		<Projectile id="7">
+			<ObjectId>Red Fire</ObjectId>
+			<Speed>100</Speed>
+			<Damage>65</Damage>
+			<Size>100</Size>
+			<LifetimeMS>1200</LifetimeMS>
+		</Projectile>
+		<Projectile id="8">
+			<ObjectId>Red Fire</ObjectId>
+			<Speed>55</Speed>
+			<Damage>65</Damage>
+			<Size>100</Size>
+			<LifetimeMS>1200</LifetimeMS>
+		</Projectile>
+		<Projectile id="9">
+			<ObjectId>Red Fire</ObjectId>
+			<Speed>55</Speed>
+			<Damage>65</Damage>
+			<Size>100</Size>
+			<LifetimeMS>1200</LifetimeMS>
+		</Projectile>
+		<Projectile id="10">
+			<ObjectId>Red Fire</ObjectId>
+			<Speed>25</Speed>
+			<Damage>455</Damage>
+			<Size>200</Size>
+			<LifetimeMS>1200</LifetimeMS>
+		</Projectile>
+		<XpBonus>2</XpBonus>
+	</Object>
+	<Object type="0xF04F" id="Elder NM Red Dragon Lava Bomb">
+		<Class>Character</Class>
+		<Enemy />
+		<NoMiniMap />
+		<StasisImmune />
+		<Texture>
+			<File>invisible</File>
+			<Index>0</Index>
+		</Texture>
+		<MaxHitPoints>20</MaxHitPoints>
+		<Exp>0</Exp>
+		<Size>0</Size>
+		<DisplayId>Elder NM Red Dragon Lava Bomb</DisplayId>
+		<XpBonus>2</XpBonus>
+	</Object>
+	<Object type="0xF050" id="Elder NM Red Dragon Minion">
+		<DisplayId>Elder Crimson Soul Shard</DisplayId>
+		<Enemy />
+		<Class>Character</Class>
+		<AnimatedTexture>
+			<File>chars8x8dEncounters</File>
+			<Index>21</Index>
+		</AnimatedTexture>
+		<Size>150</Size>
+		<MaxHitPoints>5000</MaxHitPoints>
+		<Exp>0</Exp>
+		<Defense>30</Defense>
+		<Z>.4</Z>
+		<Flying />
+		<Projectile id="0">
+			<ObjectId>Dragon Attack Red Small Fireball</ObjectId>
+			<Speed>55</Speed>
+			<Damage>130</Damage>
+			<Size>100</Size>
+			<LifetimeMS>950</LifetimeMS>
+		</Projectile>
+		<XpBonus>2</XpBonus>
+	</Object>
+	<Object type="0xF051" id="Elder NM Red Dragon Soul">
+		<DisplayId>Elder Crimson Dragon Soul</DisplayId>
+		<Group>Dragon Souls</Group>
+		<Enemy />
+		<Class>Character</Class>
+		<Texture>
+			<File>lofiObj3</File>
+			<Index>0x3a7</Index>
+		</Texture>
+		<Animation prob="1.0" period="0.8">
+			<Frame time="0.2">
+				<Texture>
+					<File>lofiObj3</File>
+					<Index>0x3a7</Index>
+				</Texture>
+			</Frame>
+			<Frame time="0.2">
+				<Texture>
+					<File>lofiObj3</File>
+					<Index>0x3c3</Index>
+				</Texture>
+			</Frame>
+			<Frame time="0.2">
+				<Texture>
+					<File>lofiObj3</File>
+					<Index>0x3c4</Index>
+				</Texture>
+			</Frame>
+			<Frame time="0.2">
+				<Texture>
+					<File>lofiObj3</File>
+					<Index>0x3c5</Index>
+				</Texture>
+			</Frame>
+		</Animation>
+		<AltTexture id="1">
+			<Texture>
+				<File>invisible</File>
+				<Index>0</Index>
+			</Texture>
+		</AltTexture>
+		<Size>100</Size>
+		<ShadowSize>60</ShadowSize>
+		<Z>.4</Z>
+		<Flying />
+		<MaxHitPoints>10000</MaxHitPoints>
+		<Defense>30</Defense>
+		<NoMiniMap />
+		<XpBonus>2</XpBonus>
+	</Object>
+	<Object type="0xF052" id="Elder NM Red Open Wall">
+		<Class>Character</Class>
+		<Enemy />
+		<Texture>
+			<File>invisible</File>
+			<Index>0</Index>
+		</Texture>
+		<NoMiniMap />
+		<Size>0</Size>
+		<StasisImmune />
+		<DisplayId>Elder NM Red Open Wall</DisplayId>
+		<XpBonus>2</XpBonus>
+	</Object>
+	<Object type="0xF053" id="Elder lod Black Loot Balloon">
+		<Class>Character</Class>
+		<Enemy />
+		<Texture>
+			<File>lofiObj3</File>
+			<Index>0x466</Index>
+		</Texture>
+		<MaxHitPoints>20000</MaxHitPoints>
+		<Defense>20</Defense>
+		<Size>160</Size>
+		<Exp>0</Exp>
+		<StasisImmune />
+		<TrackLoot />
+		<DisplayId>Elder lod Black Loot Balloon</DisplayId>
+		<XpBonus>2</XpBonus>
+	</Object>
+	<Object type="0xF054" id="Elder lod Blue Loot Balloon">
+		<Class>Character</Class>
+		<Enemy />
+		<Texture>
+			<File>lofiObj3</File>
+			<Index>0x466</Index>
+		</Texture>
+		<MaxHitPoints>20000</MaxHitPoints>
+		<Defense>20</Defense>
+		<Size>160</Size>
+		<Exp>0</Exp>
+		<StasisImmune />
+		<TrackLoot />
+		<DisplayId>Elder lod Blue Loot Balloon</DisplayId>
+		<XpBonus>2</XpBonus>
+	</Object>
+	<Object type="0xF055" id="Elder lod Green Loot Balloon">
+		<Class>Character</Class>
+		<Enemy />
+		<Texture>
+			<File>lofiObj3</File>
+			<Index>0x466</Index>
+		</Texture>
+		<MaxHitPoints>20000</MaxHitPoints>
+		<Defense>20</Defense>
+		<Size>160</Size>
+		<Exp>0</Exp>
+		<StasisImmune />
+		<TrackLoot />
+		<DisplayId>Elder lod Green Loot Balloon</DisplayId>
+		<XpBonus>2</XpBonus>
+	</Object>
+	<Object type="0xF056" id="Elder lod Red Loot Balloon">
+		<Class>Character</Class>
+		<Enemy />
+		<Texture>
+			<File>lofiObj3</File>
+			<Index>0x466</Index>
+		</Texture>
+		<MaxHitPoints>20000</MaxHitPoints>
+		<Defense>20</Defense>
+		<Size>160</Size>
+		<Exp>0</Exp>
+		<StasisImmune />
+		<TrackLoot />
+		<DisplayId>Elder lod Red Loot Balloon</DisplayId>
+		<XpBonus>2</XpBonus>
+	</Object>
+	<Object type="0xF018" id="Elder Gothic Arch">
+		<Class>Wall</Class>
+		<RandomTexture>
+			<Texture>
+				<File>elderAssets8x8</File>
+				<Index>0x1a6</Index>
+			</Texture>
+			<Texture>
+				<File>elderAssets8x8</File>
+				<Index>0x1a7</Index>
+			</Texture>
+		</RandomTexture>
+		<Top>
+			<Texture>
+				<File>elderAssets8x8</File>
+				<Index>0x1a8</Index>
 			</Texture>
 		</Top>
 		<HitSound>monster/stone_walls_hit</HitSound>
@@ -415,17 +1615,17 @@
 		<RandomTexture>
 			<Texture>
 				<File>elderAssets8x8</File>
-				<Index>0x12e</Index>
+				<Index>0x1a9</Index>
 			</Texture>
 			<Texture>
 				<File>elderAssets8x8</File>
-				<Index>0x12f</Index>
+				<Index>0x1aa</Index>
 			</Texture>
 		</RandomTexture>
 		<Top>
 			<Texture>
 				<File>elderAssets8x8</File>
-				<Index>0x130</Index>
+				<Index>0x1ab</Index>
 			</Texture>
 		</Top>
 		<Static />
@@ -439,17 +1639,17 @@
 		<RandomTexture>
 			<Texture>
 				<File>elderAssets8x8</File>
-				<Index>0x131</Index>
+				<Index>0x1ac</Index>
 			</Texture>
 			<Texture>
 				<File>elderAssets8x8</File>
-				<Index>0x132</Index>
+				<Index>0x1ad</Index>
 			</Texture>
 		</RandomTexture>
 		<Top>
 			<Texture>
 				<File>elderAssets8x8</File>
-				<Index>0x133</Index>
+				<Index>0x1ae</Index>
 			</Texture>
 		</Top>
 		<HitSound>monster/stone_walls_hit</HitSound>
@@ -465,17 +1665,17 @@
 		<RandomTexture>
 			<Texture>
 				<File>elderAssets8x8</File>
-				<Index>0x134</Index>
+				<Index>0x1af</Index>
 			</Texture>
 			<Texture>
 				<File>elderAssets8x8</File>
-				<Index>0x135</Index>
+				<Index>0x1b0</Index>
 			</Texture>
 		</RandomTexture>
 		<Top>
 			<Texture>
 				<File>elderAssets8x8</File>
-				<Index>0x12d</Index>
+				<Index>0x1a8</Index>
 			</Texture>
 		</Top>
 		<HitSound>monster/stone_walls_hit</HitSound>
@@ -490,37 +1690,37 @@
 		<Class>Wall</Class>
 		<Texture>
 			<File>elderAssets8x8</File>
-			<Index>0x136</Index>
+			<Index>0x1b1</Index>
 		</Texture>
 		<Top>
 			<Texture>
 				<File>elderAssets8x8</File>
-				<Index>0x12d</Index>
+				<Index>0x1a8</Index>
 			</Texture>
 		</Top>
 		<Animation sync="true" prob="1" period="5.5">
 			<Frame time="4">
 				<Texture>
 					<File>elderAssets8x8</File>
-					<Index>0x136</Index>
+					<Index>0x1b1</Index>
 				</Texture>
 			</Frame>
 			<Frame time="0.2">
 				<Texture>
 					<File>elderAssets8x8</File>
-					<Index>0x137</Index>
+					<Index>0x1b2</Index>
 				</Texture>
 			</Frame>
 			<Frame time="0.2">
 				<Texture>
 					<File>elderAssets8x8</File>
-					<Index>0x136</Index>
+					<Index>0x1b1</Index>
 				</Texture>
 			</Frame>
 			<Frame time="0.4">
 				<Texture>
 					<File>elderAssets8x8</File>
-					<Index>0x137</Index>
+					<Index>0x1b2</Index>
 				</Texture>
 			</Frame>
 		</Animation>
@@ -536,12 +1736,12 @@
 		<Class>Wall</Class>
 		<Texture>
 			<File>elderAssets8x8</File>
-			<Index>0x170</Index>
+			<Index>0x1eb</Index>
 		</Texture>
 		<Top>
 			<Texture>
 				<File>elderAssets8x8</File>
-				<Index>0x171</Index>
+				<Index>0x1ec</Index>
 			</Texture>
 		</Top>
 		<HitSound>monster/wooden_walls_hit</HitSound>
@@ -556,12 +1756,12 @@
 		<Class>Wall</Class>
 		<Texture>
 			<File>elderAssets8x8</File>
-			<Index>0x172</Index>
+			<Index>0x1ed</Index>
 		</Texture>
 		<Top>
 			<Texture>
 				<File>elderAssets8x8</File>
-				<Index>0x171</Index>
+				<Index>0x1ec</Index>
 			</Texture>
 		</Top>
 		<HitSound>monster/wooden_walls_hit</HitSound>
@@ -591,7 +1791,7 @@
 		<Class>CaveWall</Class>
 		<Texture>
 			<File>elderAssets8x8</File>
-			<Index>0x18f</Index>
+			<Index>0x20a</Index>
 		</Texture>
 		<ShadowSize>0</ShadowSize>
 		<Static />
@@ -605,45 +1805,25 @@
 		<Class>Wall</Class>
 		<Texture>
 			<File>elderAssets8x8</File>
-			<Index>0x1c1</Index>
+			<Index>0x23c</Index>
 		</Texture>
 		<Animation prob="0.5" period=".6">
 			<Frame time="0.2">
 				<Texture>
 					<File>elderAssets8x8</File>
-					<Index>0x1c1</Index>
+					<Index>0x23c</Index>
 				</Texture>
 			</Frame>
 			<Frame time="0.2">
 				<Texture>
 					<File>elderAssets8x8</File>
-					<Index>0x1c2</Index>
+					<Index>0x23d</Index>
 				</Texture>
 			</Frame>
 			<Frame time="0.2">
 				<Texture>
 					<File>elderAssets8x8</File>
-					<Index>0x1c3</Index>
-				</Texture>
-			</Frame>
-		</Animation>
-		<Animation prob="0.5" period=".6">
-			<Frame time="0.2">
-				<Texture>
-					<File>elderAssets8x8</File>
-					<Index>0x1c4</Index>
-				</Texture>
-			</Frame>
-			<Frame time="0.2">
-				<Texture>
-					<File>elderAssets8x8</File>
-					<Index>0x1c3</Index>
-				</Texture>
-			</Frame>
-			<Frame time="0.2">
-				<Texture>
-					<File>elderAssets8x8</File>
-					<Index>0x1c2</Index>
+					<Index>0x23e</Index>
 				</Texture>
 			</Frame>
 		</Animation>
@@ -651,26 +1831,46 @@
 			<Frame time="0.2">
 				<Texture>
 					<File>elderAssets8x8</File>
-					<Index>0x1c5</Index>
+					<Index>0x23f</Index>
 				</Texture>
 			</Frame>
 			<Frame time="0.2">
 				<Texture>
 					<File>elderAssets8x8</File>
-					<Index>0x1c1</Index>
+					<Index>0x23e</Index>
 				</Texture>
 			</Frame>
 			<Frame time="0.2">
 				<Texture>
 					<File>elderAssets8x8</File>
-					<Index>0x1c3</Index>
+					<Index>0x23d</Index>
+				</Texture>
+			</Frame>
+		</Animation>
+		<Animation prob="0.5" period=".6">
+			<Frame time="0.2">
+				<Texture>
+					<File>elderAssets8x8</File>
+					<Index>0x240</Index>
+				</Texture>
+			</Frame>
+			<Frame time="0.2">
+				<Texture>
+					<File>elderAssets8x8</File>
+					<Index>0x23c</Index>
+				</Texture>
+			</Frame>
+			<Frame time="0.2">
+				<Texture>
+					<File>elderAssets8x8</File>
+					<Index>0x23e</Index>
 				</Texture>
 			</Frame>
 		</Animation>
 		<Top>
 			<Texture>
 				<File>elderAssets8x8</File>
-				<Index>0x1c6</Index>
+				<Index>0x241</Index>
 			</Texture>
 		</Top>
 		<HitSound>monster/stone_walls_hit</HitSound>
@@ -686,57 +1886,57 @@
 		<RandomTexture>
 			<Texture>
 				<File>elderAssets8x8</File>
-				<Index>0x1c7</Index>
+				<Index>0x242</Index>
 			</Texture>
 			<Texture>
 				<File>elderAssets8x8</File>
-				<Index>0x1c8</Index>
+				<Index>0x243</Index>
 			</Texture>
 			<Texture>
 				<File>elderAssets8x8</File>
-				<Index>0x1c9</Index>
+				<Index>0x244</Index>
 			</Texture>
 			<Texture>
 				<File>elderAssets8x8</File>
-				<Index>0x1ca</Index>
+				<Index>0x245</Index>
 			</Texture>
 			<Texture>
 				<File>elderAssets8x8</File>
-				<Index>0x1cb</Index>
+				<Index>0x246</Index>
 			</Texture>
 			<Texture>
 				<File>elderAssets8x8</File>
-				<Index>0x1cc</Index>
+				<Index>0x247</Index>
 			</Texture>
 			<Texture>
 				<File>elderAssets8x8</File>
-				<Index>0x1cd</Index>
+				<Index>0x248</Index>
 			</Texture>
 			<Texture>
 				<File>elderAssets8x8</File>
-				<Index>0x1ce</Index>
+				<Index>0x249</Index>
 			</Texture>
 			<Texture>
 				<File>elderAssets8x8</File>
-				<Index>0x1cf</Index>
+				<Index>0x24a</Index>
 			</Texture>
 			<Texture>
 				<File>elderAssets8x8</File>
-				<Index>0x1d0</Index>
+				<Index>0x24b</Index>
 			</Texture>
 			<Texture>
 				<File>elderAssets8x8</File>
-				<Index>0x1d1</Index>
+				<Index>0x24c</Index>
 			</Texture>
 			<Texture>
 				<File>elderAssets8x8</File>
-				<Index>0x1d2</Index>
+				<Index>0x24d</Index>
 			</Texture>
 		</RandomTexture>
 		<Top>
 			<Texture>
 				<File>elderAssets8x8</File>
-				<Index>0x1c6</Index>
+				<Index>0x241</Index>
 			</Texture>
 		</Top>
 		<HitSound>monster/stone_walls_hit</HitSound>
@@ -752,25 +1952,25 @@
 		<RandomTexture>
 			<Texture>
 				<File>elderAssets8x8</File>
-				<Index>0x1d3</Index>
+				<Index>0x24e</Index>
 			</Texture>
 			<Texture>
 				<File>elderAssets8x8</File>
-				<Index>0x1d4</Index>
+				<Index>0x24f</Index>
 			</Texture>
 			<Texture>
 				<File>elderAssets8x8</File>
-				<Index>0x1d5</Index>
+				<Index>0x250</Index>
 			</Texture>
 			<Texture>
 				<File>elderAssets8x8</File>
-				<Index>0x1d6</Index>
+				<Index>0x251</Index>
 			</Texture>
 		</RandomTexture>
 		<Top>
 			<Texture>
 				<File>elderAssets8x8</File>
-				<Index>0x1c6</Index>
+				<Index>0x241</Index>
 			</Texture>
 		</Top>
 		<HitSound>monster/stone_walls_hit</HitSound>
@@ -785,12 +1985,12 @@
 		<Class>Wall</Class>
 		<Texture>
 			<File>elderAssets8x8</File>
-			<Index>0x1d7</Index>
+			<Index>0x252</Index>
 		</Texture>
 		<Top>
 			<Texture>
 				<File>elderAssets8x8</File>
-				<Index>0x1d8</Index>
+				<Index>0x253</Index>
 			</Texture>
 		</Top>
 		<HitSound>monster/stone_walls_hit</HitSound>
@@ -808,7 +2008,7 @@
 		<Class>GameObject</Class>
 		<Texture>
 			<File>elderAssets8x8</File>
-			<Index>0x1d9</Index>
+			<Index>0x254</Index>
 		</Texture>
 		<DrawOnGround />
 	</Object>
@@ -973,144 +2173,144 @@
 		<RandomTexture>
 			<Texture>
 				<File>elderAssets8x8</File>
-				<Index>0x220</Index>
+				<Index>0x29b</Index>
 			</Texture>
 			<Texture>
 				<File>elderAssets8x8</File>
-				<Index>0x221</Index>
+				<Index>0x29c</Index>
 			</Texture>
 			<Texture>
 				<File>elderAssets8x8</File>
-				<Index>0x222</Index>
+				<Index>0x29d</Index>
 			</Texture>
 			<Texture>
 				<File>elderAssets8x8</File>
-				<Index>0x223</Index>
+				<Index>0x29e</Index>
 			</Texture>
 			<Texture>
 				<File>elderAssets8x8</File>
-				<Index>0x224</Index>
+				<Index>0x29f</Index>
 			</Texture>
 			<Texture>
 				<File>elderAssets8x8</File>
-				<Index>0x225</Index>
+				<Index>0x2a0</Index>
 			</Texture>
 			<Texture>
 				<File>elderAssets8x8</File>
-				<Index>0x226</Index>
+				<Index>0x2a1</Index>
 			</Texture>
 			<Texture>
 				<File>elderAssets8x8</File>
-				<Index>0x227</Index>
+				<Index>0x2a2</Index>
 			</Texture>
 			<Texture>
 				<File>elderAssets8x8</File>
-				<Index>0x228</Index>
+				<Index>0x2a3</Index>
 			</Texture>
 			<Texture>
 				<File>elderAssets8x8</File>
-				<Index>0x229</Index>
+				<Index>0x2a4</Index>
 			</Texture>
 			<Texture>
 				<File>elderAssets8x8</File>
-				<Index>0x22a</Index>
+				<Index>0x2a5</Index>
 			</Texture>
 			<Texture>
 				<File>elderAssets8x8</File>
-				<Index>0x22b</Index>
+				<Index>0x2a6</Index>
 			</Texture>
 			<Texture>
 				<File>elderAssets8x8</File>
-				<Index>0x22c</Index>
+				<Index>0x2a7</Index>
 			</Texture>
 			<Texture>
 				<File>elderAssets8x8</File>
-				<Index>0x22d</Index>
+				<Index>0x2a8</Index>
 			</Texture>
 			<Texture>
 				<File>elderAssets8x8</File>
-				<Index>0x22e</Index>
+				<Index>0x2a9</Index>
 			</Texture>
 			<Texture>
 				<File>elderAssets8x8</File>
-				<Index>0x22f</Index>
+				<Index>0x2aa</Index>
 			</Texture>
 			<Texture>
 				<File>elderAssets8x8</File>
-				<Index>0x230</Index>
+				<Index>0x2ab</Index>
 			</Texture>
 			<Texture>
 				<File>elderAssets8x8</File>
-				<Index>0x231</Index>
+				<Index>0x2ac</Index>
 			</Texture>
 			<Texture>
 				<File>elderAssets8x8</File>
-				<Index>0x232</Index>
+				<Index>0x2ad</Index>
 			</Texture>
 			<Texture>
 				<File>elderAssets8x8</File>
-				<Index>0x233</Index>
+				<Index>0x2ae</Index>
 			</Texture>
 			<Texture>
 				<File>elderAssets8x8</File>
-				<Index>0x234</Index>
+				<Index>0x2af</Index>
 			</Texture>
 			<Texture>
 				<File>elderAssets8x8</File>
-				<Index>0x235</Index>
+				<Index>0x2b0</Index>
 			</Texture>
 			<Texture>
 				<File>elderAssets8x8</File>
-				<Index>0x236</Index>
+				<Index>0x2b1</Index>
 			</Texture>
 			<Texture>
 				<File>elderAssets8x8</File>
-				<Index>0x237</Index>
+				<Index>0x2b2</Index>
 			</Texture>
 			<Texture>
 				<File>elderAssets8x8</File>
-				<Index>0x238</Index>
+				<Index>0x2b3</Index>
 			</Texture>
 			<Texture>
 				<File>elderAssets8x8</File>
-				<Index>0x239</Index>
+				<Index>0x2b4</Index>
 			</Texture>
 			<Texture>
 				<File>elderAssets8x8</File>
-				<Index>0x23a</Index>
+				<Index>0x2b5</Index>
 			</Texture>
 			<Texture>
 				<File>elderAssets8x8</File>
-				<Index>0x23b</Index>
+				<Index>0x2b6</Index>
 			</Texture>
 			<Texture>
 				<File>elderAssets8x8</File>
-				<Index>0x23c</Index>
+				<Index>0x2b7</Index>
 			</Texture>
 		</RandomTexture>
 		<DotTexture>
 			<File>elderAssets8x8</File>
-			<Index>0x23d</Index>
+			<Index>0x2b8</Index>
 		</DotTexture>
 		<ShortLineTexture>
 			<File>elderAssets8x8</File>
-			<Index>0x23e</Index>
+			<Index>0x2b9</Index>
 		</ShortLineTexture>
 		<LTexture>
 			<File>elderAssets8x8</File>
-			<Index>0x23f</Index>
+			<Index>0x2ba</Index>
 		</LTexture>
 		<LineTexture>
 			<File>elderAssets8x8</File>
-			<Index>0x240</Index>
+			<Index>0x2bb</Index>
 		</LineTexture>
 		<TTexture>
 			<File>elderAssets8x8</File>
-			<Index>0x241</Index>
+			<Index>0x2bc</Index>
 		</TTexture>
 		<CrossTexture>
 			<File>elderAssets8x8</File>
-			<Index>0x242</Index>
+			<Index>0x2bd</Index>
 		</CrossTexture>
 		<Static />
 		<FullOccupy />
@@ -1124,12 +2324,12 @@
 		<Class>Wall</Class>
 		<Texture>
 			<File>elderAssets8x8</File>
-			<Index>0x258</Index>
+			<Index>0x2d3</Index>
 		</Texture>
 		<Top>
 			<Texture>
 				<File>elderAssets8x8</File>
-				<Index>0x259</Index>
+				<Index>0x2d4</Index>
 			</Texture>
 		</Top>
 		<HitSound>monster/stone_walls_hit</HitSound>
@@ -1144,45 +2344,25 @@
 		<Class>Wall</Class>
 		<Texture>
 			<File>elderAssets8x8</File>
-			<Index>0x25a</Index>
+			<Index>0x2d5</Index>
 		</Texture>
 		<Animation prob="0.5" period=".6">
 			<Frame time="0.2">
 				<Texture>
 					<File>elderAssets8x8</File>
-					<Index>0x25b</Index>
+					<Index>0x2d6</Index>
 				</Texture>
 			</Frame>
 			<Frame time="0.2">
 				<Texture>
 					<File>elderAssets8x8</File>
-					<Index>0x25c</Index>
+					<Index>0x2d7</Index>
 				</Texture>
 			</Frame>
 			<Frame time="0.2">
 				<Texture>
 					<File>elderAssets8x8</File>
-					<Index>0x25d</Index>
-				</Texture>
-			</Frame>
-		</Animation>
-		<Animation prob="0.5" period=".6">
-			<Frame time="0.2">
-				<Texture>
-					<File>elderAssets8x8</File>
-					<Index>0x25e</Index>
-				</Texture>
-			</Frame>
-			<Frame time="0.2">
-				<Texture>
-					<File>elderAssets8x8</File>
-					<Index>0x25f</Index>
-				</Texture>
-			</Frame>
-			<Frame time="0.2">
-				<Texture>
-					<File>elderAssets8x8</File>
-					<Index>0x260</Index>
+					<Index>0x2d8</Index>
 				</Texture>
 			</Frame>
 		</Animation>
@@ -1190,26 +2370,46 @@
 			<Frame time="0.2">
 				<Texture>
 					<File>elderAssets8x8</File>
-					<Index>0x25d</Index>
+					<Index>0x2d9</Index>
 				</Texture>
 			</Frame>
 			<Frame time="0.2">
 				<Texture>
 					<File>elderAssets8x8</File>
-					<Index>0x25e</Index>
+					<Index>0x2da</Index>
 				</Texture>
 			</Frame>
 			<Frame time="0.2">
 				<Texture>
 					<File>elderAssets8x8</File>
-					<Index>0x25b</Index>
+					<Index>0x2db</Index>
+				</Texture>
+			</Frame>
+		</Animation>
+		<Animation prob="0.5" period=".6">
+			<Frame time="0.2">
+				<Texture>
+					<File>elderAssets8x8</File>
+					<Index>0x2d8</Index>
+				</Texture>
+			</Frame>
+			<Frame time="0.2">
+				<Texture>
+					<File>elderAssets8x8</File>
+					<Index>0x2d9</Index>
+				</Texture>
+			</Frame>
+			<Frame time="0.2">
+				<Texture>
+					<File>elderAssets8x8</File>
+					<Index>0x2d6</Index>
 				</Texture>
 			</Frame>
 		</Animation>
 		<Top>
 			<Texture>
 				<File>elderAssets8x8</File>
-				<Index>0x259</Index>
+				<Index>0x2d4</Index>
 			</Texture>
 		</Top>
 		<HitSound>monster/stone_walls_hit</HitSound>

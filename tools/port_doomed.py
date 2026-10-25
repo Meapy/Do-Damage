@@ -495,6 +495,15 @@ UNOBTAINABLE_ITEMS = ["Ring of Oryx", "Oryx Hide Armor", "Oryx Hide Robe", "Oryx
 # loot in a private bag (the T16 armours, as the T15s they top)
 SOULBOUND_ITEMS = ["Sphinx Leather Armor", "Armor of the Pyramid", "Robe of the Nile"]
 DESCRIPTIONS = {
+    # the Lair of Draconis's four relics (BehaviorDb.Draconis.cs), the Elder key's recipe
+    "Black Dragon Gods Blade": "A shard of Feargus the Obsidian Dragon, dropped in the Lair of Draconis."
+        " The Divine Forge melds it with the other three dragons' relics into an Elder Draconis Key.",
+    "Blue Dragon Gods Helm": "A relic of Nikao the Azure Dragon, dropped in the Lair of Draconis."
+        " The Divine Forge melds it with the other three dragons' relics into an Elder Draconis Key.",
+    "Red Dragon Gods Helm": "A relic of Pyyr the Crimson Dragon, dropped in the Lair of Draconis."
+        " The Divine Forge melds it with the other three dragons' relics into an Elder Draconis Key.",
+    "Green Dragon Gods Helm": "A relic of Limoz the Veridian Dragon, dropped in the Lair of Draconis."
+        " The Divine Forge melds it with the other three dragons' relics into an Elder Draconis Key.",
     "Santa's Hat": "A hat that protects Santa from even death itself. A blow that would kill its wearer breaks "
                    "the hat instead, and sends them back to the Nexus.",
     "Staff of Heavens": "Raised over Oryx's Elysium in his last stand, it fires the holy bolts of the Ascended God, "
@@ -584,7 +593,7 @@ GEAR_TUNING = {
     "Eldricht Blades": {"speed": 200, "lifetime": 250, "stats": {DEF: 2}},
     "Master Blades": {"speed": 200, "lifetime": 250, "stats": {DEF: 4, SPD: 2}},
     "Fists of Broken Bones": {"untier": True},
-    "Ring of the Abyss": {"stats": {"0": 120, DEF: 10}},  # was 500 health and 24 Defense
+    "Ring of the Abyss": {"stats": {"0": 100, "20": 10, DEF: 6}},  # was 500 health and 24 Defense, then 120, 14 and 10
     # was 405-1045 at rate 1, its shots barely waving
     "Soul Tipped Dirk": {"damage": (120, 230), "rof": "0.9", "wave": ("0.6", "1")},
     "Staff of Tainted Light": {"damage": (95, 105)},  # was 190-210: a better Staff of Extreme Prejudice
@@ -623,10 +632,39 @@ GEAR_TUNING = {
                     "add_activates": [("ConditionEffectSelf", {"effect": "Silenced", "duration": "2"})],
                     "no_shop": True},
     "Sword Shield": {"damage": (175, 225)},  # was 350-450
-    "Seal of the Fallen Angel": {"activates": [("ConditionEffectSelf", {"effect": "Invulnerable"}, {"duration": "2"})]},  # was 10 s
+    # invulnerable 2 s (was 10), and its healing and damaging auras 6 s (were 15: the T8 seal's last 4.5)
+    "Seal of the Fallen Angel": {"activates": [("ConditionEffectSelf", {"effect": "Invulnerable"}, {"duration": "2"}),
+                                               ("ConditionEffectAura", {"effect": "Healing"}, {"duration": "6"}),
+                                               ("ConditionEffectAura", {"effect": "Damaging"}, {"duration": "6"})]},
     "Tome of Shining Stars": {"activates": [("ConditionEffectAura", {"effect": "Invulnerable"}, None)]},
-    "Scepter of Zeus": {"activates": [("Lightning", {}, {"condDuration": "1"})]},  # was 3 s
+    # was 4,000 damage to 20 targets (paralysing 3 s, then 1 s): the T8 scepter does 460 to 5
+    "Scepter of Zeus": {"activates": [("Lightning", {}, {"condDuration": "1", "totalDamage": "650", "maxTargets": "6"})]},
     "Power of the Fountains": {"tier": "7"},
+    # the item pass of 2.1.2: Doomed Realms' Elder drops still had its own far stronger scale. Each
+    # is now a little over the best tiered piece of its kind (T16 armour, T8 ring, T15 weapon),
+    # keeping its own mix of stats.
+    # armour (was): Raw Hope 175 Def, 20 Spd, 25 Dex, 15 Wis, 10 Vit; Angel's Hope 200 Def, 250 HP,
+    # 25 Att, 30 Vit; Wings of Natural Bloodlust 155 Def, 20 Att, 30 Wis, 200 MP; Armor of the Leaf
+    # 122 Def, 22 Dex, 20 Att; Robe of Silk Water 116 Def, 20 Att, 22 Wis, 180 MP; Momento of the
+    # Fire Dragon 128 Def, 14 Vit, 160 HP; Scaled Robe 100 Def, 20 Vit, 15 Wis, 150 MP, 100 HP;
+    # America Armor 37 Def, 20 Vit, 20 Wis, 100 HP, 100 MP
+    "Raw Hope": {"stats": {DEF: 25, SPD: 6, DEX: 9, WIS: 4, VIT: 4}},
+    "Angel's Hope": {"stats": {DEF: 32, "0": 90, "20": 4, VIT: 10}},
+    "Wings of Natural Bloodlust": {"stats": {DEF: 20, "20": 8, WIS: 10, "3": 110}},
+    "Armor of the Leaf": {"stats": {DEF: 24, DEX: 9, "20": 5}},
+    "Robe of Silk Water": {"stats": {DEF: 19, "20": 7, WIS: 10, "3": 100}},
+    "Momento of the Fire Dragon": {"stats": {DEF: 31, VIT: 10, "0": 90}},
+    "Scaled Robe": {"stats": {VIT: 5, DEF: 19, WIS: 8, "3": 100, "0": 60}},
+    "America Armor": {"stats": {DEF: 30, VIT: 10, WIS: 8, "0": 80, "3": 60}},
+    # rings (was): Coral Medallion 15 Dex, 13 Vit, 7 Spd, 20 Wis; Oceans Gift 29 Def, 2 Dex
+    "Coral Medallion": {"stats": {DEX: 10, VIT: 8, SPD: 6, WIS: 10}},
+    "Oceans Gift": {"stats": {DEF: 18, DEX: 4}},
+    # weapons (was): Lightning Bow 100-955 (5.8 times the T15 bow), Sword of the Abyss 350-500 (2.3
+    # times the T15 sword); now about 1.15 times
+    "Lightning Bow": {"damage": (60, 190)},
+    "Sword of the Abyss": {"damage": (200, 265)},
+    # abilities (was): Helm of the Pumpkin 40 Def, 10 Spd, 10 Dex (the T8 helm gives 14 Def)
+    "Helm of the Pumpkin": {"stats": {DEF: 14, SPD: 6, DEX: 6}},
     # the ability balance pass: the T6 and T7 scrolls and the T7 oceanic spell had no stat bonuses
     "Dragon Scroll": {"stats": {VIT: 2, WIS: 2}},
     "Oryx Scroll": {"stats": {VIT: 3, WIS: 3}},

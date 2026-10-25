@@ -25,4 +25,20 @@ Some dungeons are laid out anew for every run, from the rooms of their map: smal
 > boss's health, alone: groups make bosses tougher, and some easy bosses have hard dungeons
 > before them.
 
+## The Lair of Draconis
+
+The Rock Dragon in the realm drops its portal, and a Draconis Key opens it. You arrive by the
+Altar of Draconis, with four dragon souls round it, one in front of each sealed corridor. Step onto
+a soul to be taken into its dragon's lair: Nikao the Azure Dragon (north), Pyyr the Crimson Dragon
+(west), Limoz the Veridian Dragon (east) or Feargus the Obsidian Dragon (south). A dragon wakes
+when you come near. Pyyr hides behind his hatchlings and throws lava bombs, Limoz behind six
+shields that must fall first. At the end each dragon turns into a loot balloon: pop it and the
+corridor back to the altar opens. Beat all four in any order and the altar opens the Ivory
+Wyvern's portal, and half the time the Elder Lair's.
+
+Each dragon drops its own stat potions and a relic. The four relics forge into an Elder Draconis
+Key at the Divine Forge. The **Elder Lair** is the same lair with Elder dragons: twice their
+health, harder hits and faster attacks, and better loot, including a potion that maxes the
+dragon's stat and its Elder armour or bow.
+
 {{gen:dungeons}}

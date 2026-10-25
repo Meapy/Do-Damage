@@ -283,6 +283,7 @@
       <Size>175</Size>
       <MaxHitPoints>35000</MaxHitPoints>
       <Defense>40</Defense>
+      <Exp>975</Exp>
       <Level>20</Level>
       <Quest/>
       <HealthBarBoss/>
@@ -344,8 +345,8 @@
          <File>lofiObj3</File>
          <Index>0x466</Index>
       </Texture>
-      <MaxHitPoints>45000</MaxHitPoints>
-      <Defense>35</Defense>
+      <MaxHitPoints>10000</MaxHitPoints>
+      <Defense>10</Defense>
       <Size>160</Size>
       <Exp>0</Exp>
       <StasisImmune/>
@@ -477,7 +478,7 @@
          <Index>20</Index>
       </AnimatedTexture>
       <Size>100</Size>
-      <MaxHitPoints>5000</MaxHitPoints>
+      <MaxHitPoints>3000</MaxHitPoints>
       <Defense>20</Defense>
       <Exp>0</Exp>
       <Projectile id="0">
@@ -549,7 +550,7 @@
       <Projectile id="0">
          <ObjectId>Dragon Attack Red Big Fireball</ObjectId>
          <Speed>35</Speed>
-         <Damage>150</Damage>
+         <Damage>120</Damage>
          <Size>400</Size>
          <LifetimeMS>2500</LifetimeMS>
       </Projectile>
@@ -635,8 +636,8 @@
          <File>lofiObj3</File>
          <Index>0x466</Index>
       </Texture>
-      <MaxHitPoints>45000</MaxHitPoints>
-      <Defense>35</Defense>
+      <MaxHitPoints>10000</MaxHitPoints>
+      <Defense>10</Defense>
       <Size>160</Size>
       <Exp>0</Exp>
       <StasisImmune/>
@@ -778,7 +779,7 @@
          <Index>21</Index>
       </AnimatedTexture>
       <Size>150</Size>
-      <MaxHitPoints>5000</MaxHitPoints>
+      <MaxHitPoints>2500</MaxHitPoints>
       <Exp>0</Exp>
       <Defense>20</Defense>
       <Z>.4</Z>
@@ -905,8 +906,8 @@
          <File>lofiObj3</File>
          <Index>0x466</Index>
       </Texture>
-      <MaxHitPoints>45000</MaxHitPoints>
-      <Defense>35</Defense>
+      <MaxHitPoints>10000</MaxHitPoints>
+      <Defense>10</Defense>
       <Size>160</Size>
       <Exp>0</Exp>
       <StasisImmune/>
@@ -1064,7 +1065,7 @@
          <Index>101</Index>
       </AnimatedTexture>
       <Size>100</Size>
-      <MaxHitPoints>5000</MaxHitPoints>
+      <MaxHitPoints>3000</MaxHitPoints>
       <Defense>20</Defense>
       <Exp>0</Exp>
       <Projectile id="0">
@@ -1139,7 +1140,7 @@
       <Projectile id="0">
          <ObjectId>Dragon Attack Black Ray</ObjectId>
          <Speed>55</Speed>
-         <Damage>200</Damage>
+         <Damage>150</Damage>
          <Size>240</Size>
          <LifetimeMS>1500</LifetimeMS>
       </Projectile>
@@ -1161,7 +1162,7 @@
       <Projectile id="3">
          <ObjectId>Dragon Attack Black Bullet</ObjectId>
          <Speed>100</Speed>
-         <Damage>200</Damage>
+         <Damage>150</Damage>
          <Size>140</Size>
          <LifetimeMS>1200</LifetimeMS>
       </Projectile>
@@ -1225,8 +1226,8 @@
          <File>lofiObj3</File>
          <Index>0x466</Index>
       </Texture>
-      <MaxHitPoints>45000</MaxHitPoints>
-      <Defense>35</Defense>
+      <MaxHitPoints>10000</MaxHitPoints>
+      <Defense>10</Defense>
       <Size>160</Size>
       <Exp>0</Exp>
       <StasisImmune/>
@@ -1413,7 +1414,7 @@
          </AnimatedTexture>
       </AltTexture>
       <Size>150</Size>
-      <MaxHitPoints>7000</MaxHitPoints>
+      <MaxHitPoints>4000</MaxHitPoints>
       <Defense>20</Defense>
       <Exp>0</Exp>
       <Projectile id="0">

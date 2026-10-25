@@ -177,6 +177,8 @@ class Data:
             # a file's own loot lists (private static MobDrops[] CourtLoot() => new MobDrops[] {...}),
             # which its monsters call
             helpers = dict(re.findall(r'static MobDrops\[\]\s+(\w+)\(\)\s*=>\s*new MobDrops\[\]\s*\{(.*?)\};', text, re.S))
+            # and a shared builder's local ones (MobDrops[] Common() => [ ... ];, BehaviorDb.Draconis.cs)
+            helpers.update(re.findall(r'\bMobDrops\[\]\s+(\w+)\(\)\s*=>\s*\[(.*?)\];', text, re.S))
             marks = list(start.finditer(text))
             for i, m in enumerate(marks):
                 end = marks[i + 1].start() if i + 1 < len(marks) else len(text)
@@ -250,9 +252,13 @@ class Data:
         seen.add(monster)
         out = []
         for block in self.inits.get(monster, []):
-            for m in re.finditer(r'(?:TransformOnDeath|Spawn|TossObject)\(\s*"([^"]*(?:Loot|Chest|Balloon|Treasure)[^"]*)"', block):
-                if m.group(1) not in seen and self.objects.get(m.group(1), {}).get("class") != "Portal":
-                    out.extend(x for x in self.drops(m.group(1), seen) if x[0] != "portal")
+            # N("x") in a shared builder is "Elder x" in the Elder version, where there is one
+            for m in re.finditer(r'(?:TransformOnDeath|Spawn|TossObject)\(\s*(N\()?"([^"]*(?:Loot|Chest|Balloon|Treasure)[^"]*)"', block):
+                target = m.group(2)
+                if m.group(1) and monster.startswith("Elder ") and "Elder " + target in self.inits:
+                    target = "Elder " + target
+                if target not in seen and self.objects.get(target, {}).get("class") != "Portal":
+                    out.extend(x for x in self.drops(target, seen) if x[0] != "portal")
         for spawner in self.chest_spawners().get(monster, []):
             if spawner not in seen:
                 out.extend(x for x in self.drops(spawner, seen) if x[0] != "portal")

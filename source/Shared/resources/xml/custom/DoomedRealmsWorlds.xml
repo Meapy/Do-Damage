@@ -68,8 +68,8 @@
 		<Dungeon/>
 	</World>
 	<World id="Lair of Elder Draconis">
-		<Width>138</Width>
-		<Height>148</Height>
+		<Width>119</Width>
+		<Height>119</Height>
 		<MapJM>Doomed/Lair of Elder Draconis.jm</MapJM>
 		<VisibilityType>1</VisibilityType>
 		<DisableTeleport/>

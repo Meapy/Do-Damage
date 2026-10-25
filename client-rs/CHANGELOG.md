@@ -14,10 +14,29 @@ details). Add to a group's line when a change adds to it, rather than adding ano
 
 ## Unreleased
 
+### Lair of Draconis
+- The Lair of Draconis is open. The Rock Dragon drops its portal (and the Lair of Shaitan's half
+  the time), and the Draconis Key opens it. Step onto a dragon's soul by the altar to face Nikao,
+  Pyyr, Limoz or Feargus in its lair; pop the loot balloon it leaves and the way back opens. Slay
+  all four and the altar opens the Ivory Wyvern, and half the time the Elder Lair too.
+- The Elder Lair of Draconis is the same lair, darker, with Elder dragons: twice the health, harder
+  hits and faster attacks, and better loot, including a potion that maxes the dragon's stat and its
+  Elder armour or bow. Before, it was Doomed Realms' unfinished map.
+- Each dragon drops its stat potions, top-tier gear and a relic; the four relics forge into an Elder
+  Draconis Key at the Divine Forge.
+
 ### Items
 - The Doomed Realms classes' tier 6 abilities (Pearl of Wasted Blood, Halo of God's Blessing, Light
   Turret, Dragon Scroll, Nature Cannon, Jacket of Sorrows) drop in the same bag as other tier 6
   abilities again, not a white one.
+- A pass over items that were far stronger than the best tiered gear. Each is now a little better
+  than the top tier of its kind, with its own mix of stats: the Elder armours (Raw Hope, Angel's
+  Hope, Wings of Natural Bloodlust, Scaled Robe and the three Elder Draconis ones, which had 100 to
+  200 Defense), the America Armor, the Coral Medallion, Oceans Gift, Ring of the Abyss and Reforged
+  Forgotten Crown, the Lightning Bow, Sword of the Abyss, Sword of the Colossus and the Battle for
+  the Nexus weapons (Robobow, KoalaPOW, Doctor Swordsworth), the Scepter of Zeus (650 damage to 6
+  enemies, was 4,000 to 20), the pD Scepter, the Seal of the Fallen Angel (6-second auras, were
+  15), the Helm of the Pumpkin and the red and blue bee quivers. Items you already have change too.
 
 ### Oryx 5
 - The Holy Gates shut behind you when Oryx the Ascended God wakes and stay shut until he dies;

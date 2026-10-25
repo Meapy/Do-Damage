@@ -330,7 +330,11 @@ def world_maps(dr_root, dr_ids=frozenset()):
         if cls in OWN_MAPS:
             with open(os.path.join(os.path.dirname(WORLDS_DIR), OWN_MAPS[cls]), encoding="utf-8") as f:
                 j = json.load(f)
-            out[cls] = (name, bg, tp, [{"width": j["width"], "height": j["height"], "own": OWN_MAPS[cls]}])
+            # what the map uses, as read_wmap gives it, and what the Doomed Realms map it replaced
+            # used, so the port keeps bringing both over
+            used = [(e.get("ground"), (e.get("objs") or [{}])[0].get("id"), "", 0) for e in j["dict"]]
+            used += [e for m in maps if find_map(dr_root, m) for e in read_wmap(find_map(dr_root, m))["dict"]]
+            out[cls] = (name, bg, tp, [{"width": j["width"], "height": j["height"], "own": OWN_MAPS[cls], "dict": used}])
             continue
         maps = [read_wmap(find_map(dr_root, m)) for m in maps]
         if cls == SHOP_WORLD:

@@ -212,6 +212,7 @@ What's finished and what's still to do, upstream's work and this repository's to
 - [x] Abyss Idols, Horrific Creation, Mixcoatl, Belladonna: all have fights now.
 - [x] The Oryx chain: Oryx's Castle, Oryx's Chamber, Wine Cellar, Oryx's Sanctuary, Oryx's Inferno
   and Oryx's Elysium, opened with incantations; and the Chicken Chamber.
+- [x] Lair of Draconis and its Elder version ✮.
 - [x] Ivory Wyvern ✮, Ice Cave / Inner Sanctum ✮.
 - [x] Battle for the Nexus ✮: four bosses with loot; its key is sold in the Nexus Bazaar.
 - [x] Lost Halls ✮: the Marble Colossus fight, with loot (Oryx 2 drops the portal).
@@ -219,8 +220,6 @@ What's finished and what's still to do, upstream's work and this repository's to
 ### Still to do
 
 - [ ] Every equipment item from RotMG 1.0.4.0 working: some items still can't be used.
-- [ ] Lair of Draconis: no map or world yet (the Rock Dragon drops Lair of Shaitan instead;
-  Elder Draconis uses Doomed Realms' map).
 - [ ] Cultist Hideout: a map, but Malus and the cultists have no fight and nothing leads there.
 - [ ] The Void: a map, but no world or monsters.
 - [ ] Court of Oryx: a map, but no world or monsters.

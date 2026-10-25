@@ -251,9 +251,9 @@
 		</Texture>
 		<SlotType>9</SlotType>
 		<Description>Restored to its true, devastating splendor. To wear it is to command the absolute, ruinous power of a forgotten empire...</Description>
-		<ActivateOnEquip stat="28" amount="12">IncrementStat</ActivateOnEquip>
-		<ActivateOnEquip stat="20" amount="12">IncrementStat</ActivateOnEquip>
-		<ActivateOnEquip stat="0" amount="200">IncrementStat</ActivateOnEquip>
+		<ActivateOnEquip stat="28" amount="8">IncrementStat</ActivateOnEquip>
+		<ActivateOnEquip stat="20" amount="8">IncrementStat</ActivateOnEquip>
+		<ActivateOnEquip stat="0" amount="150">IncrementStat</ActivateOnEquip>
 		<BagType>6</BagType>
 		<FameBonus>8</FameBonus>
 		<feedPower>2000</feedPower>

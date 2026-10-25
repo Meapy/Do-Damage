@@ -87,6 +87,7 @@ DUNGEONS = {
     "ElderManor": ("Dungeons/Manor of the Immortals.jm", "BehaviorDb.Manor.cs"),
     "ElderSpriteWorld": ("Dungeons/Sprite World.jm", "BehaviorDb.SpriteWorld.cs"),
     "ElderDavy": ("Dungeons/Davy Jones' Locker.jm", "BehaviorDb.DavyJones.cs"),
+    "ElderDraconis": ("Dungeons/Lair of Draconis.jm", "BehaviorDb.Draconis.cs"),
 }
 
 
