@@ -733,3 +733,75 @@ code { font: .86em ui-monospace, "Cascadia Mono", Consolas, monospace; padding: 
   .timeline .release::before { left: -26px; }
   .final-cta { margin-top: 80px; padding: 70px var(--gutter); }
 }
+
+/* --- The wiki's Loot Simulation (wiki/loot-simulation.md, wiki/loot.js) ---------------------- */
+.loot-sim { margin: 0 0 2em; }
+.ls-bosses { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 220px), 1fr)); gap: 10px; }
+.ls-boss {
+  display: flex; gap: 12px; align-items: center; text-align: left; padding: 10px 12px; cursor: pointer;
+  background: var(--surface); border: 1px solid var(--line); color: var(--text); font: inherit;
+}
+.ls-boss:hover { border-color: var(--line-hi); }
+.ls-boss[aria-pressed="true"] { border-color: var(--ember); background: var(--surface-hi); }
+.ls-boss .n { display: block; font: 700 1rem var(--pixel); color: var(--gold); }
+.ls-boss .s { display: block; font-size: .8rem; line-height: 1.35; color: var(--text-muted); }
+.ls-controls { display: flex; flex-wrap: wrap; align-items: center; gap: 12px 22px; margin: 16px 0 10px; }
+.ls-share { display: flex; align-items: center; gap: 10px; font-size: .92rem; }
+.ls-share input { width: 160px; accent-color: var(--ember); }
+.ls-share output, .ls-mult b { font-weight: 700; color: var(--gold); font-variant-numeric: tabular-nums; }
+.ls-boosts { display: flex; flex-wrap: wrap; gap: 6px; }
+.ls-chk { position: relative; cursor: pointer; font-size: .85rem; }
+.ls-chk input { position: absolute; opacity: 0; }
+.ls-chk span { display: inline-block; padding: 4px 10px; border: 1px solid var(--line-hi); color: var(--text-dim); }
+.ls-chk input:checked + span { border-color: var(--gold); color: var(--text); background: rgba(255, 198, 92, .1); }
+.ls-chk input:focus-visible + span, .ls-tab:focus-visible, .ls-boss:focus-visible, .ls-roll:focus-visible { outline: 2px solid var(--ember); outline-offset: 2px; }
+.ls-mult { font-size: .85rem; color: var(--text-muted); }
+.ls-head { margin: 0 0 12px; color: var(--text-dim); font-size: .92rem; }
+.ls-head b { color: var(--text); }
+.ls-tabs, .ls-simctl { display: flex; flex-wrap: wrap; gap: 6px; align-items: center; margin: 0 0 14px; }
+.ls-tab {
+  font: 700 .78rem var(--pixel); letter-spacing: .04em; padding: 6px 12px; cursor: pointer;
+  background: var(--surface); color: var(--text-dim); border: 1px solid var(--line-hi);
+}
+.ls-tab[aria-pressed="true"] { background: var(--ember); border-color: var(--ember); color: var(--on-ember); }
+.ls-lbl { font-size: .9rem; color: var(--text-dim); margin-right: 4px; }
+.ls-simctl input { width: 80px; padding: 5px 8px; background: var(--surface); color: var(--text); border: 1px solid var(--line-hi); font: inherit; }
+.ls-roll { margin-left: 8px; padding: 7px 16px; cursor: pointer; border: 0; background: var(--gold); color: var(--on-ember); font: 700 .8rem var(--pixel); }
+.ls-roll:hover { filter: brightness(1.08); }
+.ls-view h3 { margin: 22px 0 10px; }
+.ls-stats { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 170px), 1fr)); gap: 8px; }
+.ls-stat { background: var(--surface); border: 1px solid var(--line); padding: 10px 12px; }
+.ls-stat .v { font: 700 1.4rem var(--pixel); color: var(--text); font-variant-numeric: tabular-nums; }
+.ls-stat .l { font-size: .8rem; line-height: 1.4; color: var(--text-muted); }
+.ls-ico { display: inline-block; flex: none; line-height: 0; }
+.ls-ico .ico { width: 34px; height: 34px; border-width: 1px; border-radius: 4px; }
+.ls-ico .ico i { zoom: .55; }
+.ls-ico.empty { width: 34px; height: 34px; border: 1px dashed var(--line); border-radius: 4px; }
+.ls-bag { display: inline-block; vertical-align: middle; line-height: 0; }
+.ls-bag .ico { width: 26px; height: 26px; border: 0; background: none; }
+.ls-bag .ico i { zoom: .42; }
+.ls-pile { display: flex; flex-wrap: wrap; gap: 6px; }
+.ls-pi { display: flex; align-items: center; gap: 6px; min-width: 0; max-width: 280px; padding: 3px 10px 3px 3px; background: var(--surface); border: 1px solid var(--line); }
+.ls-cnt { font-weight: 700; color: var(--gold); font-variant-numeric: tabular-nums; }
+.ls-cnt::before { content: "\00d7"; color: var(--text-muted); margin-right: 1px; }
+.ls-pn { font-size: .85rem; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; min-width: 0; }
+.ls-kills { display: grid; gap: 6px; }
+.ls-kill { display: flex; flex-wrap: wrap; align-items: center; gap: 12px; padding: 8px 12px; background: var(--surface); border: 1px solid var(--line); }
+.ls-kn { width: 72px; flex: none; font: 700 .8rem var(--pixel); color: var(--text); }
+.ls-kn span { display: block; font: .75rem var(--body); color: var(--text-muted); }
+.ls-kbag { display: flex; align-items: center; gap: 6px; }
+.ls-kslots { display: grid; grid-template-columns: repeat(4, 34px); gap: 2px; }
+.ls-table td, .ls-table th { vertical-align: middle; }
+.ls-row { display: flex; align-items: center; gap: 10px; min-width: 220px; }
+.ls-nm { font-weight: 600; line-height: 1.25; }
+.ls-sub { font-size: .8rem; color: var(--text-muted); display: flex; align-items: center; gap: 4px; }
+.ls-pool { display: flex; flex-wrap: wrap; gap: 2px; margin-top: 6px; max-width: 460px; }
+.ls-rate { text-align: right; white-space: nowrap; font-weight: 700; font-variant-numeric: tabular-nums; width: 170px; }
+.ls-rate span { display: block; font-weight: 400; font-size: .75rem; color: var(--text-muted); }
+.ls-rate.dim { color: var(--text-muted); }
+.ls-bar { height: 4px; margin-top: 4px; background: var(--surface-hi); }
+.ls-bar i { display: block; height: 100%; background: var(--ember); }
+.ls-group td { background: var(--bg-deep); font: 700 .75rem var(--pixel); letter-spacing: .06em; text-transform: uppercase; color: var(--gold); }
+.ls-group small { margin-left: 8px; font: .78rem var(--body); text-transform: none; letter-spacing: 0; color: var(--text-muted); }
+.ls-group.locked td { color: var(--text-muted); }
+@media (max-width: 640px) { .ls-controls { gap: 10px 14px; } .ls-share input { width: 120px; } .ls-rate { width: auto; } }

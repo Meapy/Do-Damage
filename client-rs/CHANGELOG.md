@@ -12,6 +12,12 @@ Keep each version short: changes go under `### ` group headings (Oryx 5, Arena, 
 on), one line per change players notice, summed up rather than item by item (the wiki has the
 details). Add to a group's line when a change adds to it, rather than adding another line.
 
+## Unreleased
+
+### Wiki
+- A new Loot Simulation page: pick Oryx 3, 4 or 5, set your share of the damage and your loot
+  boosts, and see every drop's chance, the bags a kill gives, and roll as many kills as you like.
+
 ## 2.2.0 (2026-10-25)
 
 ### Quests and achievements
