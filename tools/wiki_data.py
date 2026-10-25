@@ -253,7 +253,7 @@ class Data:
         out = []
         for block in self.inits.get(monster, []):
             # N("x") in a shared builder is "Elder x" in the Elder version, where there is one
-            for m in re.finditer(r'(?:TransformOnDeath|Spawn|TossObject)\(\s*(N\()?"([^"]*(?:Loot|Chest|Balloon|Treasure)[^"]*)"', block):
+            for m in re.finditer(r'(?:TransformOnDeath|Spawn|TossObject)\(\s*(N\()?"([^"]*(?:Loot|Chest|Balloon|Treasure|Coffin)[^"]*)"', block):
                 target = m.group(2)
                 if m.group(1) and monster.startswith("Elder ") and "Elder " + target in self.inits:
                     target = "Elder " + target

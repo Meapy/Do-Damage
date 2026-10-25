@@ -179,6 +179,9 @@
 		<Width>256</Width>
 		<Height>256</Height>
 		<MapJM>Dungeons/Manor of the Immortals.jm</MapJM>
+		<RandomLayout passage="4" corridor="3">
+			<Goal>Lord Ruthven</Goal>
+		</RandomLayout>
 		<VisibilityType>1</VisibilityType>
 		<Dungeon/>
 	</World>

@@ -25,6 +25,17 @@ details). Add to a group's line when a change adds to it, rather than adding ano
 - Each dragon drops its stat potions, top-tier gear and a relic; the four relics forge into an Elder
   Draconis Key at the Divine Forge.
 
+### Manor of the Immortals
+- The Manor is a whole house now: you arrive in the Foyer and fight through its gallery, library,
+  kennels, crypt, chapel and dining hall (a different set and order each visit) to Lord Ruthven's
+  hall, instead of starting next to him. The Elder Manor is built the same way.
+- Lord Ruthven has a full fight: he wakes when you come near, stalks you with daggers, rises to fire
+  rings of shots, and turns into a swarm of bats that sends swarmers after you, faster and with more
+  daggers at 60% and 25% health. He leaves his Coffin, which lets out bats and Nosferatu as you break
+  it and holds the loot: the Manor's special items, Attack and Dexterity potions and tiered gear.
+  The Elder Manor's Coffin can also drop a Potion of Max Attack.
+- The Manor's bats only bite up close, and its Nosferatu and Rock Bombs fire properly.
+
 ### Items
 - The Doomed Realms classes' tier 6 abilities (Pearl of Wasted Blood, Halo of God's Blessing, Light
   Turret, Dragon Scroll, Nature Cannon, Jacket of Sorrows) drop in the same bag as other tier 6

@@ -83,10 +83,13 @@
 		<Dungeon/>
 	</World>
 	<World id="Elder Manor">
-		<Width>32</Width>
-		<Height>32</Height>
+		<Width>64</Width>
+		<Height>87</Height>
 		<MapJM>Doomed/Elder Manor.jm</MapJM>
 		<VisibilityType>1</VisibilityType>
+		<RandomLayout corridor="3" passage="4">
+			<Goal>Elder Lord Ruthven</Goal>
+		</RandomLayout>
 		<Dungeon/>
 	</World>
 	<World id="Elder Ocean Trench">
