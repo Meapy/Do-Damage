@@ -275,8 +275,8 @@ namespace WorldServer.core.objects
             _oxygenBar = new StatTypeValue<int>(this, StatDataType.OxygenBar, -1, true);
             _baseStat = new StatTypeValue<int>(this, StatDataType.BaseStat, account.SetBaseStat, true);
             _rank = new StatTypeValue<int>(this, StatDataType.Rank, account.Rank);
-            _colornamechat = new StatTypeValue<int>(this, StatDataType.ColorNameChat, 0);
-            _colorchat = new StatTypeValue<int>(this, StatDataType.ColorChat, 0);
+            _colornamechat = new StatTypeValue<int>(this, StatDataType.ColorNameChat, account.ColorNameChat);
+            _colorchat = new StatTypeValue<int>(this, StatDataType.ColorChat, account.ColorChat);
             _partyId = new StatTypeValue<int>(this, StatDataType.PartyId, account.PartyId, true);
             _speedMult = new StatTypeValue<int>(this, StatDataType.SpeedMult, 100, true);
 

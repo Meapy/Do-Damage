@@ -26,6 +26,8 @@ details). Add to a group's line when a change adds to it, rather than adding ano
 ### Fixes
 - Janus leaves the Oryx's Chamber portal beside his loot bags instead of under them, where it
   was hidden and couldn't be entered, and no Realm Portal beside it.
+- The chat name colour you pick in the quest log now stays with you in every world and after
+  you log out, instead of going back to the usual colour when you change world.
 
 ### Wiki
 - A new Loot Simulation page: pick Oryx 3, 4 or 5, set your share of the damage and your loot

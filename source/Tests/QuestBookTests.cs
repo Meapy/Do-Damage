@@ -274,6 +274,20 @@ namespace Tests
         }
 
         [Fact]
+        public void TheChosenNameColourSurvivesSavingAndLoading()
+        {
+            var book = NewBook();
+            foreach (var a in Data.Achievements.Take(4))
+                book.Apply(new QuestEvent(a.Event) { Value = a.Tiers[1], Amount = a.Tiers[1], Name = "x", God = true, Boss = true, Oryx = true, RealmEvent = true, Elder = true, Difficulty = 5, Group = true, Cube = true }, null);
+            foreach (var a in Data.Achievements.Take(4))
+                book.ClaimAchievement(a.Id);
+            Assert.True(book.ChooseColor(1).Ok);
+            // a new world loads the quest state from the account afresh
+            var back = new QuestBook(Data, QuestState.FromJson(book.State.ToJson()), 7);
+            Assert.Equal(Data.Ranks[1].ColorValue, back.NameColor);
+        }
+
+        [Fact]
         public void ASwapReplacesAnUnfinishedQuestOncePerPeriod()
         {
             var book = WithDaily("d_events", "d_gods", "d_monsters");

@@ -71,6 +71,10 @@ namespace WorldServer.core.quests
                 Seed();
             if (Book.Refresh(Now))
                 _dirty = true;
+            // the rank colour chosen in the quest log, in every world (the account holds it too, but
+            // a rank's colour can change in the data)
+            if (Book.NameColor != 0 && Book.NameColor != player.ColorNameChat)
+                player.ColorNameChat = acc.ColorNameChat = Book.NameColor;
             // what the character already has counts (a maxed character, classes at 20)
             Event(new QuestEvent(QuestEvents.MaxedStats) { Value = player.GetMaxedStats() });
             CheckClasses();
