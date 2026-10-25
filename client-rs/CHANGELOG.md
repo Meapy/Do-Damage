@@ -14,14 +14,10 @@ details). Add to a group's line when a change adds to it, rather than adding ano
 
 ## Unreleased
 
-### Classes
-- Summoner: summons are much smaller, the top tiers most of all (the Dragon and Oryx were three
-  times a player's size, now a little over one), and so are their shots, so six of them no longer
-  hide the boss.
-
-### Fixes
-- Janus leaves the Oryx's Chamber portal beside his loot bags instead of under them, where it
-  was hidden and couldn't be entered, and no Realm Portal beside it.
+### Realm 2
+- Realm 2, a new realm made afresh every time it opens: the shore and lowlands, the midlands
+  with the Lucky gods, then a land of its own for each of the eleven big realm events, with 66
+  new monsters and quests, joined by bridges, pools and land. Beat all its events to close it.
 
 ### Wiki
 - A new Loot Simulation page: pick Oryx 3, 4 or 5, set your share of the damage and your loot

@@ -484,7 +484,7 @@ namespace WorldServer.core.worlds
             InitMap();
         }
 
-        public bool LoadMapFromData(WorldResource worldResource)
+        public virtual bool LoadMapFromData(WorldResource worldResource)
         {
             var map = worldResource.MapJM[Random.Shared.Next(0, worldResource.MapJM.Count)];
             var mapEvent = GameServer.Configuration.serverSettings.mapEvent;

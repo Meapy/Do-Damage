@@ -4,10 +4,13 @@ using WorldServer.networking;
 
 namespace WorldServer.core.worlds.impl
 {
-    public sealed class RealmWorld : World
+    public class RealmWorld : World
     {
         public bool Closed { get; private set; }
         public RealmManager RealmManager { get; private set; }
+
+        /// <summary>A realm the Nexus lists, opens portals to and sends Realm Portals to: not Realm 2, which a key opens.</summary>
+        public virtual bool ListedInNexus => true;
 
         public RealmWorld(GameServer gameServer, int id, WorldResource resource) : base(gameServer, id, resource)
         {
@@ -21,17 +24,21 @@ namespace WorldServer.core.worlds.impl
         {
             base.Init();
             RealmManager.Init();
-            SetPieces.ApplySetPieces(this);
+            if (ListedInNexus)
+                SetPieces.ApplySetPieces(this);
         }
 
         public override bool AllowedAccess(Client client) => !Closed || client.Account.Admin;
 
         protected override void UpdateLogic(ref TickTime time)
         {
-            if (IsPlayersMax())
-                GameServer.WorldManager.Nexus.PortalMonitor.ClosePortal(Id);
-            else if (!GameServer.WorldManager.Nexus.PortalMonitor.PortalIsOpen(Id))
-                GameServer.WorldManager.Nexus.PortalMonitor.OpenPortal(Id);
+            if (ListedInNexus)
+            {
+                if (IsPlayersMax())
+                    GameServer.WorldManager.Nexus.PortalMonitor.ClosePortal(Id);
+                else if (!GameServer.WorldManager.Nexus.PortalMonitor.PortalIsOpen(Id))
+                    GameServer.WorldManager.Nexus.PortalMonitor.OpenPortal(Id);
+            }
 
             RealmManager.Update(ref time);
             base.UpdateLogic(ref time);
@@ -63,7 +70,8 @@ namespace WorldServer.core.worlds.impl
             Closed = true;
             RealmManager.DisableSpawning = true;
             RealmManager.CurrentState = RealmState.Emptying;
-            GameServer.WorldManager.Nexus.PortalMonitor.RemovePortal(Id);
+            if (ListedInNexus)
+                GameServer.WorldManager.Nexus.PortalMonitor.RemovePortal(Id);
             FlagForClose();
             return true;
         }

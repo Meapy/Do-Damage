@@ -23,7 +23,7 @@ namespace WorldServer.core.worlds
         DoNothing
     }
 
-    public sealed class RealmManager
+    public sealed partial class RealmManager
     {
         public int _EventCount = 0;
         public RealmWorld World;
@@ -477,7 +477,8 @@ namespace WorldServer.core.worlds
             }
         }
 
-        public int EventsNeeded => EventsToClose(RecentPlayers);
+        // Realm 2 starts with all its events up, and only needs more for a crowd (RealmManager.Realm2.cs)
+        public int EventsNeeded => Layout != null ? Math.Max(Layout.EventCount, EventsToClose(RecentPlayers)) : EventsToClose(RecentPlayers);
 
         /// <summary>For /realmstatus.</summary>
         public string Status()
@@ -487,7 +488,8 @@ namespace WorldServer.core.worlds
                 .Select(p => $"{p.Enemy.ObjectDesc.IdName} {p.Enemy.Health}/{p.Enemy.MaxHealth} ({(int)p.Enemy.X}, {(int)p.Enemy.Y})"));
             var spawned = World.Enemies.Values.Count(e => e.Spawned);
             return $"{_EventCount}/{EventsNeeded} events defeated; {World.Players.Count} players now, scaled for {players}, " +
-                $"{EventsAtOnce(players)} at once; {World.Enemies.Count} enemies, {spawned} spawned by others; running: {(parts.Length == 0 ? "none" : parts)}";
+                $"{EventsAtOnce(players)} at once; {World.Enemies.Count} enemies, {spawned} spawned by others; running: {(parts.Length == 0 ? "none" : parts)}" +
+                (Layout != null ? "; " + LayoutStatus() : "");
         }
 
         private int[] EnemyCounts = new int[12];
@@ -533,6 +535,8 @@ namespace WorldServer.core.worlds
                         if (time.TotalElapsedMs - LastEnsurePopulationTime >= 60000)
                         {
                             EnsurePopulation();
+                            if (Layout != null)
+                                LayoutPopulation();
                             LastEnsurePopulationTime = time.TotalElapsedMs;
                         }
                     }
@@ -583,6 +587,12 @@ namespace WorldServer.core.worlds
             // a gap between events, which also lets the last one's parts reach the world
             if (_now - _lastEventChange < EventGapMs)
                 return;
+
+            if (Layout != null)
+            {
+                EnsureLayoutEvents();
+                return;
+            }
 
             _parts.RemoveAll(p => p.Enemy.World != World || p.Enemy.Dead);
             var alive = 0;
@@ -802,6 +812,8 @@ namespace WorldServer.core.worlds
                         break;
                 }
             }
+            if (Layout != null)
+                InitLayout();
         }
 
         public void OnEnemyKilled(Enemy enemy, Player killer)
@@ -843,6 +855,11 @@ namespace WorldServer.core.worlds
 
         public void OnPlayerEntered(Player player)
         {
+            if (Layout != null)
+            {
+                LayoutWelcome(player);
+                return;
+            }
             player.SendInfo("Welcome to Do Damage");
             player.SendInfo("Use [WASDQE] to move; click to shoot!");
             player.SendInfo("Type \"/commands\" for more help");
@@ -866,7 +883,15 @@ namespace WorldServer.core.worlds
 
         private void BroadcastMsg(string message) => World.GameServer.ChatManager.Oryx(World, message);
 
-        private void RealmBroadcast(string message) => World.GameServer.ChatManager.Realm(message);
+        // Realm 2's news is its own players' only
+        private void RealmBroadcast(string message)
+        {
+            if (Layout == null)
+                World.GameServer.ChatManager.Realm(message);
+            else if (!string.IsNullOrWhiteSpace(message))
+                foreach (var player in World.Players.Values)
+                    player.RealmRecieved(message);
+        }
 
         private void EnsurePopulation()
         {
