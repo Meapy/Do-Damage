@@ -8,7 +8,7 @@ namespace WorldServer.core.worlds.impl
 {
     /// <summary>
     /// Realm 2 (SETUP-LOCAL.md, "Realm 2"): a realm made afresh each time its key opens one, with
-    /// the Godlands, and a land for each realm event drawn into it when the event comes
+    /// a land for each realm event that grows out of the others when the event comes
     /// (Realm2Generator, Realm2EventPainter). It closes as a realm does, once its events are
     /// defeated (RealmManager with a layout), but the Nexus doesn't list it.
     /// </summary>
@@ -30,7 +30,7 @@ namespace WorldServer.core.worlds.impl
             Layout = layout;
             RealmManager.Layout = layout;
             FromWorldMap(new MemoryStream(canvas.Export()));
-            StaticLogger.Instance.Info($"Realm 2 {Id}: seed {seed}, {layout.Width}x{layout.Height}, the Godlands {layout.Godlands.Tiles} tiles, in {(DateTime.UtcNow - started).TotalMilliseconds:0} ms");
+            StaticLogger.Instance.Info($"Realm 2 {Id}: seed {seed}, {layout.Width}x{layout.Height}, in {(DateTime.UtcNow - started).TotalMilliseconds:0} ms");
             return true;
         }
     }

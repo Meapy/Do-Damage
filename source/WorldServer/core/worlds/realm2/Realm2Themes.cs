@@ -5,7 +5,7 @@ namespace WorldServer.core.worlds.realm2
     /// <summary>
     /// One of Realm 2's event lands: its grounds, scenery, walls, monsters and quests, and the realm
     /// event at its heart, which brings the land with it. The small monsters (Cubelets, Eye
-    /// Swarmers, Scarabs, Worker Bees...) aren't in its tables: the bigger ones bring them. The art and the monsters' XML
+    /// Swarmers, Scarabs, Worker Bees...) aren't in its tables: its quests bring them. The art and the monsters' XML
     /// are tools/build_realm2.py's; their behaviours BehaviorDb.Realm2.cs.
     /// </summary>
     public sealed class Realm2Theme
@@ -28,7 +28,6 @@ namespace WorldServer.core.worlds.realm2
         // shore and lowlands, then the midlands and highlands round the two Lucky gods
         public const string Starter = "starter";
         public const string Midlands = "midlands";
-        public const string Godlands = "godlands";
 
         public static readonly Realm2Theme[] Events =
         {

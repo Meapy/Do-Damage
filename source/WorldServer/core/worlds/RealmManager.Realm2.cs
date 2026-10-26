@@ -10,13 +10,15 @@ using WorldServer.utils;
 namespace WorldServer.core.worlds
 {
     // Realm 2 (Realm2World): its map comes with a layout, and the realm runs by it. It opens with
-    // the shore and lowlands, the midlands and the Godlands, whose monsters live by terrain as in
-    // the realm. Events come as the realm's do (EnsureQuest: one at a time for a few players, more
-    // for a crowd): first the two Lucky gods in their midland clearings, then the eleven events in a
-    // random order, each bringing its own land, drawn into the Godlands (or out in the void with a
-    // bridge or pool) further from the shore than the last, in any direction. Each land keeps its
-    // monsters, in small groups as the gods are, and two of each of its quests. Realm 2 needs every
-    // event to close (EventsNeeded), more for a crowd; once all have come, more come to new lands.
+    // the shore and lowlands and the midlands, whose monsters live by terrain as in the realm.
+    // Events come as the realm's do (EnsureQuest: one at a time for a few players, more for a
+    // crowd): first the two Lucky gods in their midland clearings, then the eleven events in a
+    // random order, each bringing its own land, which grows out of one already there (joined by a
+    // broad neck of land, now and then a bridge or a pool), further from the shore than the last and
+    // well apart from the others, so the realm spreads into one land as it's played. Each land keeps
+    // monsters as the realm's Godlands does, its own and the gods, in small groups, and one of each
+    // of its two quests. Realm 2 needs every event to close (EventsNeeded), more for a crowd; once
+    // all eleven have come, more come with new lands.
     public sealed partial class RealmManager
     {
         public Realm2Layout Layout;
@@ -24,29 +26,40 @@ namespace WorldServer.core.worlds
         private const double PopulationLow = 0.75;      // a land below this share of its monsters is topped up
         private const int SpawnClear = 12;              // tiles from any player a monster may appear
         private const int TilesPerMob = 125;            // as the realm's Godlands
-        private const double LandRadius = 50;
-        private const double MaxBack = 15;              // how much nearer the shore than the last a land may come
+        private const double LandRadius = 56;
+        private const double StepMin = 100, StepMax = 120;      // from the land a new one grows out of
+        private const double Apart = 98;                // at least this far from every other land's heart
+        private const double Outward = 35;              // ...this much further out than the land it grows from
+        private const double ShoreClear = 175;          // ...and this far from the shore's
+        private const double GodShare = 0.35;           // of a land's monsters, how many are the Godlands' gods
 
-        private Dictionary<ushort, (Realm2Theme Theme, bool Quest)> _areaMobs;
+        // the realm's Godlands gods, who roam every event land too (with their own drops)
+        private static readonly string[] Gods =
+        {
+            "White Demon", "Sprite God", "Medusa", "Ent God", "Beholder", "Flying Brain", "Slime God", "Ghost God", "Djinn", "Leviathan",
+        };
+
+        private Dictionary<ushort, bool> _areaMobs;     // monster -> a quest
         private readonly Queue<string> _upcoming = new Queue<string>();
-        private IntPoint? _lastSite;
         private double _lastAlong;
-        private int _lands;                             // event lands drawn so far
 
         private void InitLayout()
         {
             var data = World.GameServer.Resources.GameData;
-            _areaMobs = new Dictionary<ushort, (Realm2Theme, bool)>();
+            _areaMobs = new Dictionary<ushort, bool>();
+            foreach (var id in Gods)
+                if (data.IdToObjectType.TryGetValue(id, out var type))
+                    _areaMobs[type] = false;
             foreach (var theme in Realm2Themes.Events)
             {
                 foreach (var id in theme.Mobs.Select(m => m.Id))
                     if (data.IdToObjectType.TryGetValue(id, out var type))
-                        _areaMobs[type] = (theme, false);
+                        _areaMobs[type] = false;
                     else
                         Log.Warn("Realm 2: no monster '{0}' ({1})", id, theme.Key);
                 foreach (var id in theme.Quests)
                     if (data.IdToObjectType.TryGetValue(id, out var type))
-                        _areaMobs[type] = (theme, true);
+                        _areaMobs[type] = true;
                     else
                         Log.Warn("Realm 2: no quest '{0}' ({1})", id, theme.Key);
             }
@@ -56,7 +69,7 @@ namespace WorldServer.core.worlds
             foreach (var (evt, _) in mid.Events.OrderBy(_ => Random.Shared.Next()))
                 _upcoming.Enqueue(evt);
             QueueLands();
-            _lastAlong = Layout.GodlandsFrom;
+            _lastAlong = Layout.Along(mid.Center.X, mid.Center.Y);
         }
 
         private void QueueLands()
@@ -69,7 +82,7 @@ namespace WorldServer.core.worlds
         {
             player.SendInfo("Welcome to Realm 2!");
             player.SendInfo($"Its events bring lands of their own as they come: defeat {EventsNeeded} and Oryx must face you.");
-            player.SendInfo("Head out from the shore, through the midlands to the Godlands.");
+            player.SendInfo("Head out from the shore through the midlands: the realm grows from there.");
             player.SendEnemy("Oryx the Mad God", "You wander into MY menagerie? Every beast here answers to me!");
         }
 
@@ -109,108 +122,65 @@ namespace WorldServer.core.worlds
             if (site == null)
                 return false;
             _upcoming.Dequeue();
-            var area = DrawLand(theme, site.Value.At, site.Value.LinkTo, site.Value.Pool);
+            var area = DrawLand(theme, site.Value.At, site.Value.From);
             SpawnLayoutEvent(evt, area.Center, area, true);
             return true;
         }
 
-        // Where the next land goes: the eleven spread evenly along the Godlands from the midlands to
-        // its far end (the nth at about n/11 of the way), never nearer the shore than the last, any
-        // way across; best on the Godlands' edge, sticking out into the void, so its middle stays
-        // free (or, a quarter of the time, out in the void beside it, joined by a bridge or pool);
-        // out of sight of everyone but not far from someone, and clear of the events still running.
-        private (IntPoint At, IntPoint? LinkTo, bool Pool)? PickSite()
+        // Where the next land goes: a step out from one of the lands already there (the midlands or
+        // an event's), in any direction but back towards the shore (diagonals and sideways are fine),
+        // no nearer the shore than the furthest land yet less a little, well apart from every other
+        // land; never on anyone, and when it can be, not far from someone.
+        private (IntPoint At, Realm2Area From)? PickSite()
         {
             var players = World.Players.Values.ToArray();
-            var running = _parts.Where(p => p.Counted && !p.Enemy.Dead && p.Enemy.World == World)
-                .Select(p => new IntPoint((int)p.Enemy.X, (int)p.Enemy.Y)).ToList();
-            var edge = (int)(LandRadius * 1.25) + 6;
-            var island = Random.Shared.NextDouble() < 0.25;
-            var count = Realm2Themes.Events.Length;
-            var span = Layout.GodlandsTo - Layout.GodlandsFrom;
-            var target = Layout.GodlandsFrom + span * ((_lands % count) + 0.6) / count;
+            var edge = (int)(LandRadius * 1.25) + 8;
+            var roots = Layout.Areas.Where(a => a.Theme != null || a.Kind == Realm2Themes.Midlands).ToList();
+            var heading = Math.Atan2(Layout.AxisY, Layout.AxisX);
 
-            for (var pass = 0; pass < 5; pass++)
+            for (var pass = 0; pass < 4; pass++)
             {
-                var lo = Math.Max(_lastAlong - (pass < 4 ? MaxBack : 80), target - 40 - pass * 15);
-                var hi = target + 45 + pass * 25;
-                for (var tries = 0; tries < 500; tries++)
+                var spread = pass < 2 ? 1.75 : Math.PI;              // how far round from the way out
+                var back = pass < 3 ? 40.0 : 400;
+                for (var tries = 0; tries < 400; tries++)
                 {
-                    var x = Random.Shared.Next(edge, Layout.Width - edge);
-                    var y = Random.Shared.Next(edge, Layout.Height - edge);
+                    // the newest lands grow most often, so the realm keeps moving out
+                    var from = roots[roots.Count - 1 - (int)(Math.Pow(Random.Shared.NextDouble(), 2) * roots.Count)];
+                    var angle = heading + (Random.Shared.NextDouble() * 2 - 1) * spread;
+                    var step = StepMin + Random.Shared.NextDouble() * (StepMax - StepMin);
+                    var x = (int)(from.Center.X + Math.Cos(angle) * step);
+                    var y = (int)(from.Center.Y + Math.Sin(angle) * step);
+                    if (x < edge || y < edge || x > Layout.Width - edge || y > Layout.Height - edge)
+                        continue;
+                    // out from the land it grows from, and from the furthest yet less a little
                     var along = Layout.Along(x, y);
-                    if (along < lo || along > hi)
+                    if (along < _lastAlong - back || pass < 3 && along < Layout.Along(from.Center.X, from.Center.Y) + Outward)
                         continue;
-                    var p = new IntPoint(x, y);
-                    if (_lastSite is IntPoint last && Realm2Canvas.Dist(last, x, y) < 55)
+                    if (Layout.Areas.Any(a => a != from && Realm2Canvas.Dist(a.Center, x, y) < (a.Kind == Realm2Themes.Starter ? ShoreClear : Apart)))
                         continue;
-                    if (running.Any(r => Realm2Canvas.Dist(r, x, y) < 85))
-                        continue;
-                    // no one inside the land when it comes; someone within reach of it, if anyone's here
                     if (players.Any(pl => pl.DistTo(x, y) < LandRadius + 8))
                         continue;
-                    if (pass < 2 && players.Length > 0 && !players.Any(pl => pl.DistTo(x, y) < 150))
+                    if (pass < 1 && players.Length > 0 && !players.Any(pl => pl.DistTo(x, y) < 170))
                         continue;
-                    // nothing of the starter lands or midlands under it
-                    if (Covers(p, LandRadius * 1.2, a => a.Kind is Realm2Themes.Starter or Realm2Themes.Midlands))
-                        continue;
-
-                    if (island && pass < 2)
-                    {
-                        if (Layout.AreaOf[x, y] >= 0)
-                            continue;
-                        var to = NearestLand(p, LandRadius * 0.9, LandRadius + 28);
-                        if (to == null)
-                            continue;
-                        return (p, to, Random.Shared.NextDouble() < 0.4);
-                    }
-                    if (Layout.AreaOf[x, y] < 0)
-                        continue;
-                    if (pass < 2 && !Covers(p, LandRadius * 0.9, a => false, true))
-                        continue;
-                    return (p, null, false);
+                    return (new IntPoint(x, y), from);
                 }
             }
             return null;
         }
 
-        // whether any of a ring of points round c lies in an area `what` takes (or, with voidToo, in the void)
-        private bool Covers(IntPoint c, double r, Func<Realm2Area, bool> what, bool voidToo = false)
-        {
-            for (var a = 0.0; a < Math.PI * 2; a += Math.PI / 8)
-                for (var d = r / 3; d <= r; d += r / 3)
-                {
-                    var area = Layout.AreaAt((int)(c.X + Math.Cos(a) * d), (int)(c.Y + Math.Sin(a) * d));
-                    if (area == null ? voidToo : what(area))
-                        return true;
-                }
-            return false;
-        }
-
-        private IntPoint? NearestLand(IntPoint c, double from, double to)
-        {
-            for (var d = from; d <= to; d += 2)
-                for (var a = 0.0; a < Math.PI * 2; a += Math.PI / 24)
-                {
-                    var x = (int)(c.X + Math.Cos(a) * d);
-                    var y = (int)(c.Y + Math.Sin(a) * d);
-                    if (Layout.AreaAt(x, y) is Realm2Area area && (area.Kind == Realm2Themes.Godlands || area.Theme != null))
-                        return new IntPoint(x, y);
-                }
-            return null;
-        }
-
-        // Draws the land into the world, clearing the monsters that stood there, and peoples it.
-        private Realm2Area DrawLand(Realm2Theme theme, IntPoint at, IntPoint? linkTo, bool pool)
+        // Draws the land into the world, joined to the land it grows from, clearing the monsters
+        // that stood where it goes, and peoples it.
+        private Realm2Area DrawLand(Realm2Theme theme, IntPoint at, Realm2Area from)
         {
             var radius = LandRadius + Random.Shared.Next(-3, 7);
-            var painter = new Realm2EventPainter(World.GameServer.Resources.GameData, Random.Shared.Next(), theme, at, radius);
-            painter.Paint((x, y) => Layout.AreaAt(x, y) != null, linkTo, pool);
+            var roll = Random.Shared.NextDouble();
+            var link = roll < 0.75 ? "land" : roll < 0.9 ? "bridge" : "pool";
+            var painter = new Realm2EventPainter(World.GameServer.Resources.GameData, Random.Shared.Next(), theme, at, radius, from.Center);
+            painter.Paint((x, y) => Layout.AreaAt(x, y) != null, from.Center, link);
 
             var area = new Realm2Area
             {
-                Index = Layout.Areas.Count, Theme = theme, Kind = theme.Key, Center = at, Radius = radius,
-                Link = linkTo == null ? null : pool ? "pool" : "bridge",
+                Index = Layout.Areas.Count, Theme = theme, Kind = theme.Key, Center = at, Radius = radius, Link = link,
             };
             area.Events.Add((theme.Event, at));
             Layout.Areas.Add(area);
@@ -231,9 +201,7 @@ namespace WorldServer.core.worlds
 
             var c = painter.Canvas;
             SetPieces.RenderFromData(World, new IntPoint(c.X0 + c.W / 2, c.Y0 + c.H / 2), c.Export(), true);
-            _lastSite = at;
             _lastAlong = Math.Max(_lastAlong, Layout.Along(at.X, at.Y));
-            _lands++;
             Populate(area);
             return area;
         }
@@ -316,9 +284,9 @@ namespace WorldServer.core.worlds
             var questsAt = new List<IntPoint>();
             foreach (var enemy in World.Enemies.Values)
             {
-                if (!_areaMobs.TryGetValue(enemy.ObjectType, out var kind) || Layout.AreaAt((int)enemy.X, (int)enemy.Y) != area)
+                if (!_areaMobs.TryGetValue(enemy.ObjectType, out var quest) || Layout.AreaAt((int)enemy.X, (int)enemy.Y) != area)
                     continue;
-                if (kind.Quest)
+                if (quest)
                 {
                     quests.Add(enemy.ObjectType);
                     questsAt.Add(new IntPoint((int)enemy.X, (int)enemy.Y));
@@ -327,12 +295,13 @@ namespace WorldServer.core.worlds
                     count++;
             }
 
-            // in groups of two to four, as the gods come
+            // in groups of two to four, as the gods come: the land's own monsters, and the gods
             var target = area.Tiles / TilesPerMob;
             if (count < target * PopulationLow)
                 while (count < target)
                 {
-                    var placed = SpawnGroup(area, PickMob(area.Theme), 2 + Random.Shared.Next(3));
+                    var id = Random.Shared.NextDouble() < GodShare ? Gods[Random.Shared.Next(Gods.Length)] : PickMob(area.Theme);
+                    var placed = SpawnGroup(area, id, 2 + Random.Shared.Next(3));
                     if (placed == 0)
                         break;
                     count += placed;
@@ -403,9 +372,9 @@ namespace WorldServer.core.worlds
         private string LayoutStatus()
         {
             string Quests(Realm2Area a) => string.Join(" ", World.Enemies.Values
-                .Where(e => _areaMobs.TryGetValue(e.ObjectType, out var k) && k.Quest && Layout.AreaAt((int)e.X, (int)e.Y) == a)
+                .Where(e => _areaMobs.TryGetValue(e.ObjectType, out var q) && q && Layout.AreaAt((int)e.X, (int)e.Y) == a)
                 .Select(e => $"{e.ObjectDesc.DisplayId ?? e.ObjectDesc.IdName} ({(int)e.X}, {(int)e.Y})"));
-            var lands = Layout.Areas.Where(a => a.Theme != null).Select(a => $"{a.Kind}{(a.Link != null ? " by " + a.Link : "")} ({a.Center.X}, {a.Center.Y}) quests: {Quests(a)}");
+            var lands = Layout.Areas.Where(a => a.Theme != null).Select(a => $"{a.Kind} by {a.Link} ({a.Center.X}, {a.Center.Y}) quests: {Quests(a)}");
             return $"Realm 2: next {string.Join(", ", _upcoming.Take(3).Select(EventTitle))}; lands: {string.Join(", ", lands)}";
         }
     }

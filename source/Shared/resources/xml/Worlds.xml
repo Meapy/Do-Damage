@@ -17,8 +17,8 @@
 	</World>
 	<!-- Realm 2: made afresh each time its key opens one (Realm2Generator), so no map here -->
 	<World id="Realm 2">
-		<Width>1024</Width>
-		<Height>768</Height>
+		<Width>1152</Width>
+		<Height>896</Height>
 		<Capacity>85</Capacity>
 		<Instance enum="realm2"/>
 		<Music>

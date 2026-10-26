@@ -7,15 +7,15 @@ namespace WorldServer.core.worlds.realm2
 {
     /// <summary>
     /// Draws an event's land when its event comes (RealmManager.Realm2.cs): a blob of its own
-    /// grounds, scenery and ruined walls over the Godlands (or out in the void, joined by a bridge or
-    /// a pool), with an arena at its heart dressed for its boss. What it doesn't draw is left unset,
-    /// so the world keeps it.
+    /// grounds, scenery and ruined walls out in the void, joined to the land it grows from by a broad
+    /// neck of its own ground (or now and then a bridge or a pool), with an arena at its heart
+    /// dressed for its boss. What it doesn't draw is left unset, so the world keeps it.
     /// </summary>
     public sealed class Realm2EventPainter
     {
         public const int ArenaRadius = 14;
         private const int ArenaClear = 19;          // no scenery or walls this close to the arena's centre
-        private const int Pad = 36;                 // room round the land for a crossing
+        private const int Pad = 8;                  // room round the land and its link
 
         private readonly Realm2Canvas _c;
         private readonly Realm2Theme _theme;
@@ -26,23 +26,29 @@ namespace WorldServer.core.worlds.realm2
         public Realm2Canvas Canvas => _c;
         public List<IntPoint> Tiles { get; } = new List<IntPoint>();
 
-        public Realm2EventPainter(XmlData data, int seed, Realm2Theme theme, IntPoint at, double radius)
+        public Realm2EventPainter(XmlData data, int seed, Realm2Theme theme, IntPoint at, double radius, IntPoint linkTo)
         {
             _theme = theme;
             _at = at;
             _radius = radius;
+            // the land's square, stretched to take in its link
             var half = (int)(radius * 1.25) + Pad;
-            _c = new Realm2Canvas(data, seed, at.X - half, at.Y - half, half * 2 + 1, half * 2 + 1, null);
+            var x0 = Math.Min(at.X - half, linkTo.X - 20);
+            var y0 = Math.Min(at.Y - half, linkTo.Y - 20);
+            var x1 = Math.Max(at.X + half, linkTo.X + 20);
+            var y1 = Math.Max(at.Y + half, linkTo.Y + 20);
+            // odd sides, so the projection's centre is a tile's
+            _c = new Realm2Canvas(data, seed, x0, y0, (x1 - x0) | 1, (y1 - y0) | 1, null);
             _own = new bool[_c.W, _c.H];
         }
 
         private bool Own(int x, int y) => _c.Inside(x, y) && _own[x - _c.X0, y - _c.Y0];
 
         /// <summary>
-        /// Draws the land. `land` says which world tiles are land already; `link` is the land to cross
-        /// to when this one is out in the void (bridge or pool), or null.
+        /// Draws the land. `land` says which world tiles are land already; it joins the land at
+        /// `linkTo` (a point of the land it grows from) by `link`: "land", "bridge" or "pool".
         /// </summary>
-        public void Paint(Func<int, int, bool> land, IntPoint? linkTo, bool pool)
+        public void Paint(Func<int, int, bool> land, IntPoint linkTo, string link)
         {
             var edge = Realm2Generator.Edge(_c.Rand, _radius);
             var reach = (int)(_radius * 1.25) + 2;
@@ -61,12 +67,40 @@ namespace WorldServer.core.worlds.realm2
                     PaintTile(x, y);
                 }
 
-            if (linkTo is IntPoint to)
-                _c.Crossing(_at.X, _at.Y, to.X, to.Y, pool, (x, y) => !Own(x, y) && !land(x, y));
+            if (link == "land")
+                Neck(linkTo, land);
+            else
+                _c.Crossing(_at.X, _at.Y, linkTo.X, linkTo.Y, link == "pool", (x, y) => !Own(x, y) && !land(x, y));
 
             Arena();
             Walls();
             Scenery();
+        }
+
+        // A broad neck of the land's own ground over the void to the land it grows from, 36-52 tiles
+        // across with a ragged edge, as the realm's lands run into each other.
+        private void Neck(IntPoint to, Func<int, int, bool> land)
+        {
+            double ax = _at.X, ay = _at.Y;
+            var len = Realm2Canvas.Dist(to, ax, ay);
+            if (len < 1)
+                return;
+            double ux = (to.X - ax) / len, uy = (to.Y - ay) / len;
+            for (var x = _c.X0; x < _c.X0 + _c.W; x++)
+                for (var y = _c.Y0; y < _c.Y0 + _c.H; y++)
+                {
+                    if (Own(x, y) || land(x, y))
+                        continue;
+                    var t = (x - ax) * ux + (y - ay) * uy;
+                    var side = Math.Abs((x - ax) * -uy + (y - ay) * ux);
+                    // wider where it meets each land, narrowest half way
+                    var width = 18 + 8 * Math.Abs(t / len - 0.5) * 2 + (_c.Noise(x, y, 0.08, 13) - 0.5) * 10;
+                    if (t < 0 || t > len + 6 || side > width)
+                        continue;
+                    _own[x - _c.X0, y - _c.Y0] = true;
+                    Tiles.Add(new IntPoint(x, y));
+                    PaintTile(x, y);
+                }
         }
 
         private void PaintTile(int x, int y)

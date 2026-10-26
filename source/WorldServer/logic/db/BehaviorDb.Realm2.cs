@@ -7,9 +7,9 @@ namespace WorldServer.logic
 {
     // Realm 2's monsters (tools/build_realm2.py draws them and writes their XML; the projectile
     // indices here are its MOBS lists). For each event land, two to four monsters as strong as the
-    // gods, a few small ones that only come with them (Cubelets, Eye Swarmers, Scarabs, Worker
-    // Bees...), and two quests: the monsters drop as the gods do, the quests better, with a
-    // dungeon of their land's kind now and then.
+    // gods (who roam the lands with them), a few small ones that only its quests bring (Eye
+    // Swarmers, Scarabs, Worker Bees...), and two quests: the monsters drop as the gods do, the
+    // quests better, with a dungeon of their land's kind now and then.
     partial class BehaviorDb
     {
         // keeps to its patch, comes for players near it, otherwise wanders
@@ -71,8 +71,7 @@ namespace WorldServer.logic
             new State(
                 R2Keep(0.6, 6),
                 new Shoot(11, 4, shootAngle: 90, fixedAngle: 45, rotateAngle: 15, coolDown: 1100),
-                new Shoot(11, predictive: 0.5, coolDown: 1500),
-                new Spawn("R2 Cubelet", maxChildren: 3, initialSpawn: 0, coolDown: 7000)
+                new Shoot(11, predictive: 0.5, coolDown: 1500)
                 ),
             R2Mob("Potion of Wisdom"))
         .Init("R2 Tesseract",
@@ -137,8 +136,7 @@ namespace WorldServer.logic
             new State(
                 R2Walk(0.6, 10, 6),
                 new Shoot(12, 5, shootAngle: 72, projectileIndex: 0, predictive: 0.5, coolDown: 900),
-                new Shoot(10, projectileIndex: 1, predictive: 1, coolDown: 3000),
-                new Reproduce("R2 Eye Swarmer", densityMax: 3, densityRadius: 6, coolDown: 5000)
+                new Shoot(10, projectileIndex: 1, predictive: 1, coolDown: 3000)
                 ),
             R2Mob("Potion of Wisdom"))
         .Init("R2 Watcher Stalk",
@@ -160,7 +158,7 @@ namespace WorldServer.logic
                     new Flash(0xFF4030, 0.4, 3),
                     new Shoot(14, 3, shootAngle: 10, projectileIndex: 1, predictive: 0.5, coolDown: 1200),
                     new Shoot(12, 10, projectileIndex: 0, coolDown: 1500),
-                    new Spawn("R2 Eye Swarmer", maxChildren: 4, initialSpawn: 0, coolDown: 4000),
+                    new Spawn("R2 Eye Swarmer", maxChildren: 2, initialSpawn: 0, coolDown: 6000),
                     new TimedTransition(4500, "Watch"),
                     new HpLessTransition(0.4, "Bleed")
                     ),
@@ -370,7 +368,7 @@ namespace WorldServer.logic
                     new Taunt("Fire the cannons!"),
                     new Shoot(13, 3, shootAngle: 30, projectileIndex: 1, predictive: 0.4, coolDown: 700),
                     new Grenade(3, 140, 9, coolDown: 1200, color: 0x3a3a3a),
-                    new Spawn("R2 Spectral Gull", maxChildren: 4, initialSpawn: 0, coolDown: 2500),
+                    new Spawn("R2 Spectral Gull", maxChildren: 2, initialSpawn: 0, coolDown: 5000),
                     new TimedTransition(3500, "Orders")
                     ),
                 new DropPortalOnDeath("Davy Jones' Locker Portal", 0.2)
@@ -448,7 +446,7 @@ namespace WorldServer.logic
                     new Flash(0xD8A020, 0.3, 5),
                     new ConditionEffectBehavior(ConditionEffectIndex.Armored),
                     new Shoot(14, 16, projectileIndex: 0, coolDown: 800),
-                    new Spawn("R2 Scarab", maxChildren: 5, initialSpawn: 0, coolDown: 3000),
+                    new Spawn("R2 Scarab", maxChildren: 3, initialSpawn: 0, coolDown: 5000),
                     new TimedTransition(3200, "Rays")
                     ),
                 new DropPortalOnDeath("Tomb of the Ancients Portal", 0.15)
@@ -502,7 +500,7 @@ namespace WorldServer.logic
                     R2Keep(0.5, 6),
                     new Shoot(13, 5, shootAngle: 15, projectileIndex: 0, predictive: 0.4, coolDown: 1100),
                     new Shoot(12, 6, shootAngle: 60, projectileIndex: 1, rotateAngle: 12, coolDown: 700),
-                    new Spawn("R2 Skull Wisp", maxChildren: 4, initialSpawn: 0, coolDown: 6000),
+                    new Spawn("R2 Skull Wisp", maxChildren: 2, initialSpawn: 0, coolDown: 8000),
                     new TimedTransition(6000, "Pyre"),
                     new HpLessTransition(0.3, "Ascend")
                     ),
@@ -601,7 +599,7 @@ namespace WorldServer.logic
                     new Flash(0x90F0C0, 0.3, 4),
                     new ConditionEffectBehavior(ConditionEffectIndex.Armored),
                     new Shoot(13, 20, projectileIndex: 0, coolDown: 1200),
-                    new Spawn("R2 Lantern Wisp", maxChildren: 3, initialSpawn: 0, coolDown: 2000),
+                    new Spawn("R2 Lantern Wisp", maxChildren: 2, initialSpawn: 0, coolDown: 5000),
                     new TimedTransition(3000, "Stand")
                     ),
                 new DropPortalOnDeath("Magic Woods Portal", 0.15)
@@ -719,7 +717,7 @@ namespace WorldServer.logic
                     R2Keep(0.6, 7),
                     new Shoot(14, 3, shootAngle: 120, projectileIndex: 0, rotateAngle: 11, coolDown: 200),
                     new Shoot(12, 2, shootAngle: 10, projectileIndex: 1, predictive: 0.6, coolDown: 1400),
-                    new Spawn("R2 Soul Lantern", maxChildren: 3, initialSpawn: 0, coolDown: 6000),
+                    new Spawn("R2 Soul Lantern", maxChildren: 2, initialSpawn: 0, coolDown: 8000),
                     new TimedTransition(6000, "Blink"),
                     new HpLessTransition(0.35, "Unravel")
                     ),
@@ -783,8 +781,7 @@ namespace WorldServer.logic
         .Init("R2 Honey Slime",
             new State(
                 R2Walk(0.4, 8, 2),
-                new Shoot(9, 5, shootAngle: 72, coolDown: 1600),
-                new Spawn("R2 Pollen Sprite", maxChildren: 2, initialSpawn: 0, coolDown: 8000)
+                new Shoot(9, 5, shootAngle: 72, coolDown: 1600)
                 ),
             R2Mob("Potion of Speed"))
         .Init("R2 Pollen Sprite",
@@ -805,7 +802,7 @@ namespace WorldServer.logic
                     new Flash(0xF8C030, 0.25, 5),
                     new Charge(2.5, 12, coolDown: 900),
                     new Shoot(10, 8, projectileIndex: 0, coolDown: 1000),
-                    new Spawn("R2 Worker Bee", maxChildren: 4, initialSpawn: 0, coolDown: 5000),
+                    new Spawn("R2 Worker Bee", maxChildren: 2, initialSpawn: 0, coolDown: 7000),
                     new TimedTransition(3500, "Patrol")
                     ),
                 new DropPortalOnDeath("The Hive Portal", 0.15)
@@ -817,14 +814,14 @@ namespace WorldServer.logic
                     new Prioritize(new StayCloseToSpawn(0.7, 10), new Orbit(0.7, 5, 12), new Wander(0.4)),
                     new Shoot(13, 3, shootAngle: 120, projectileIndex: 0, rotateAngle: 13, coolDown: 500),
                     new Shoot(11, 4, shootAngle: 10, projectileIndex: 1, predictive: 0.5, coolDown: 900),
-                    new Spawn("R2 Hornet Drone", maxChildren: 3, initialSpawn: 0, coolDown: 7000),
+                    new Spawn("R2 Hornet Drone", maxChildren: 2, initialSpawn: 0, coolDown: 9000),
                     new TimedTransition(6000, "Swarm"),
                     new HpLessTransition(0.35, "Fury")
                     ),
                 new State("Swarm",
                     new Taunt("Bzzzz... protect your queen!"),
                     new Shoot(13, 12, projectileIndex: 1, coolDown: 600),
-                    new Spawn("R2 Worker Bee", maxChildren: 6, initialSpawn: 0, coolDown: 1500),
+                    new Spawn("R2 Worker Bee", maxChildren: 3, initialSpawn: 0, coolDown: 3000),
                     new TimedTransition(3000, "Court"),
                     new HpLessTransition(0.35, "Fury")
                     ),
