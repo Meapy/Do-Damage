@@ -12,7 +12,7 @@ Keep each version short: changes go under `### ` group headings (Oryx 5, Arena, 
 on), one line per change players notice, summed up rather than item by item (the wiki has the
 details). Add to a group's line when a change adds to it, rather than adding another line.
 
-## Unreleased
+## 2.2.2 (2026-10-26)
 
 ### Fixes
 - Entering a world puts you in the middle of a free spot where you arrive, instead of on the edge
