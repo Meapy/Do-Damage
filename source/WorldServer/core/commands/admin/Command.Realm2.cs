@@ -11,7 +11,7 @@ namespace WorldServer.core.commands
     {
         // /realm2: open a new Realm 2 and go in (as its key does). In a Realm 2: list its lands so
         // far, /realm2 next to bring its next event (and land) now, or /realm2 <land> (its key or a
-        // word of its name: midlands, cube, penta, garden...; last for the newest) to go there.
+        // word of its name: midlands, godlands, cube, penta, garden...; last for the newest) to go there.
         internal class Realm2 : Command
         {
             public override RankingType RankRequirement => RankingType.Admin;

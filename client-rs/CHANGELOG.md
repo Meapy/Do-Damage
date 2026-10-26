@@ -15,10 +15,9 @@ details). Add to a group's line when a change adds to it, rather than adding ano
 ## Unreleased
 
 ### Realm 2
-- Realm 2, a new realm made afresh every time it opens: the shore and lowlands and the midlands,
-  then each of the eleven big realm events brings a land of its own as it comes, growing out of
-  the others into one land to roam like the Godlands, with the gods and 66 new monsters and quests.
-  Beat all its events to close it.
+- Realm 2, a new realm made afresh every time it opens: the shore and lowlands, the midlands and
+  a great winding Godlands. Each of the eleven big realm events brings a land of its own when it
+  comes, with its own monsters and quests (66 new ones in all). Beat all its events to close it.
 
 ### Wiki
 - A new Loot Simulation page: pick Oryx 3, 4 or 5, set your share of the damage and your loot
