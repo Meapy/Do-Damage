@@ -406,6 +406,7 @@
 		<DefeatToNexus/>
 		<LootRate>0.5</LootRate>
 		<FameRate>0.5</FameRate>
+		<KillFameRate>0.75</KillFameRate>
 		<Dungeon/>
 	</World>
 </Worlds>

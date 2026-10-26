@@ -253,6 +253,7 @@ namespace WorldServer.core.worlds.impl.doomed
             DefeatToNexus = true;
             LootRate = ArenaPools.LootRate;
             FameRate = ArenaPools.FameRate;
+            KillFameRate = ArenaPools.KillFameRate;
         }
 
         public override bool Joinable => !_started;

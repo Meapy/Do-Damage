@@ -15,8 +15,8 @@ details). Add to a group's line when a change adds to it, rather than adding ano
 ## Unreleased
 
 ### Arena
-- The Arena and the Admin Arena give half as much fame: half the fame after each wave, and at
-  level 20 half the experience (so half the fame) for each kill. Levelling there is as fast as
+- The Arena and the Admin Arena give less fame: half the fame after each wave, and at level 20
+  three quarters of the experience (so of the fame) for each kill. Levelling there is as fast as
   before, and the Arena quests pay the same.
 
 ## 2.2.2 (2026-10-26)

@@ -36,6 +36,7 @@ namespace Shared.resources
         public readonly bool DefeatToNexus;
         public readonly double LootRate;
         public readonly double FameRate;
+        public readonly double KillFameRate;
 
         public WorldResource(XElement elem)
         {
@@ -57,6 +58,7 @@ namespace Shared.resources
             DefeatToNexus = elem.HasElement("DefeatToNexus");
             LootRate = elem.GetValue("LootRate", 1.0);
             FameRate = elem.GetValue("FameRate", 1.0);
+            KillFameRate = elem.GetValue("KillFameRate", 1.0);
 
             MapJM = new List<string>();
             foreach (var map in elem.Elements("MapJM"))

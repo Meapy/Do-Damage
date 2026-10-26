@@ -13,9 +13,10 @@ namespace Tests
         }
 
         [Fact]
-        public void FameExperienceIsHalvedInTheArenas()
+        public void FameExperienceIsCutInTheArenas()
         {
             Assert.Equal(600f, FameRates.Experience(1200f, 20, 0.5));
+            Assert.Equal(900f, FameRates.Experience(1200f, 20, 0.75));
             Assert.Equal(1200f, FameRates.Experience(1200f, 20, 1));
         }
 
@@ -32,11 +33,13 @@ namespace Tests
         public void FameRateIsReadFromTheWorldXml()
         {
             var arena = new WorldResource(System.Xml.Linq.XElement.Parse(
-                "<World id=\"Admin Arena\"><Width>8</Width><Height>8</Height><FameRate>0.5</FameRate></World>"));
+                "<World id=\"Admin Arena\"><Width>8</Width><Height>8</Height><FameRate>0.5</FameRate><KillFameRate>0.75</KillFameRate></World>"));
             var other = new WorldResource(System.Xml.Linq.XElement.Parse(
                 "<World id=\"Tomb\"><Width>8</Width><Height>8</Height></World>"));
             Assert.Equal(0.5, arena.FameRate);
+            Assert.Equal(0.75, arena.KillFameRate);
             Assert.Equal(1, other.FameRate);
+            Assert.Equal(1, other.KillFameRate);
         }
     }
 }

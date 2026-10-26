@@ -2,8 +2,8 @@ using System;
 
 namespace Shared.resources
 {
-    // Fame in a world with a FameRate below 1 (WorldResource, World.FameRate: 0.5 in the Arena and
-    // the Admin Arena). A character's base fame is its experience over 1000 (Player.CalculateFame),
+    // Fame in a world with a FameRate or KillFameRate below 1 (WorldResource, World: 0.5 and 0.75
+    // in the Arena and the Admin Arena). A character's base fame is its experience over 1000 (Player.CalculateFame),
     // so cutting the experience cuts the fame, and the death bonuses (FameStats), which are shares
     // of the base fame, with it.
     public static class FameRates

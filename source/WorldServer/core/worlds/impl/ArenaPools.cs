@@ -78,9 +78,10 @@ namespace WorldServer.core.worlds.impl
         // no one dies there, so it's safe to farm. Loot.Handle applies it (LootHalvesItems says how).
         public const double LootRate = 0.5;
 
-        // and the share of the usual fame (World.FameRate, FameRates): the waves' fame and the
-        // fame from kills' experience
+        // and the share of the usual fame (FameRates): the waves' fame (World.FameRate), and the
+        // experience, so fame, from kills at level 20 (World.KillFameRate)
         public const double FameRate = 0.5;
+        public const double KillFameRate = 0.75;
 
         // the waves' bosses and the Oryxes, which keep their drop chances but drop fewer items
         private static readonly HashSet<string> WaveBosses =
