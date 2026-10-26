@@ -843,12 +843,12 @@
 		<Enemy />
 		<Group>Realm 2 cube</Group>
 		<AnimatedTexture>
-			<File>realm2Chars16x16</File>
-			<Index>0</Index>
+			<File>realm2Chars8x8</File>
+			<Index>1</Index>
 		</AnimatedTexture>
 		<HitSound>monster/cube_god_hit</HitSound>
 		<DeathSound>monster/cube_god_death</DeathSound>
-		<Size>100</Size>
+		<Size>200</Size>
 		<MaxHitPoints>1000</MaxHitPoints>
 		<Defense>12</Defense>
 		<God />
@@ -866,12 +866,12 @@
 		<Enemy />
 		<Group>Realm 2 cube</Group>
 		<AnimatedTexture>
-			<File>realm2Chars16x16</File>
-			<Index>1</Index>
+			<File>realm2Chars8x8</File>
+			<Index>2</Index>
 		</AnimatedTexture>
 		<HitSound>monster/cube_god_hit</HitSound>
 		<DeathSound>monster/cube_god_death</DeathSound>
-		<Size>100</Size>
+		<Size>200</Size>
 		<MaxHitPoints>1000</MaxHitPoints>
 		<Defense>12</Defense>
 		<God />
@@ -891,12 +891,12 @@
 		<Enemy />
 		<Group>Realm 2 cube</Group>
 		<AnimatedTexture>
-			<File>realm2Chars16x16</File>
-			<Index>2</Index>
+			<File>realm2Chars8x8</File>
+			<Index>3</Index>
 		</AnimatedTexture>
 		<HitSound>monster/cube_god_hit</HitSound>
 		<DeathSound>monster/cube_god_death</DeathSound>
-		<Size>100</Size>
+		<Size>200</Size>
 		<MaxHitPoints>2000</MaxHitPoints>
 		<Defense>12</Defense>
 		<God />
@@ -923,7 +923,7 @@
 		<Group>Realm 2 cube</Group>
 		<AnimatedTexture>
 			<File>realm2Chars16x16</File>
-			<Index>3</Index>
+			<Index>0</Index>
 		</AnimatedTexture>
 		<HitSound>monster/cube_god_hit</HitSound>
 		<DeathSound>monster/cube_god_death</DeathSound>
@@ -961,7 +961,7 @@
 		<Group>Realm 2 cube</Group>
 		<AnimatedTexture>
 			<File>realm2Chars16x16</File>
-			<Index>4</Index>
+			<Index>1</Index>
 		</AnimatedTexture>
 		<HitSound>monster/cube_god_hit</HitSound>
 		<DeathSound>monster/cube_god_death</DeathSound>
@@ -991,12 +991,12 @@
 		<Enemy />
 		<Group>Realm 2 penta</Group>
 		<AnimatedTexture>
-			<File>realm2Chars16x16</File>
-			<Index>5</Index>
+			<File>realm2Chars8x8</File>
+			<Index>4</Index>
 		</AnimatedTexture>
 		<HitSound>monster/beholder_hit</HitSound>
 		<DeathSound>monster/beholder_death</DeathSound>
-		<Size>100</Size>
+		<Size>200</Size>
 		<MaxHitPoints>1000</MaxHitPoints>
 		<Defense>12</Defense>
 		<God />
@@ -1016,7 +1016,7 @@
 		<Group>Realm 2 penta</Group>
 		<AnimatedTexture>
 			<File>realm2Chars8x8</File>
-			<Index>1</Index>
+			<Index>5</Index>
 		</AnimatedTexture>
 		<HitSound>monster/beholder_hit</HitSound>
 		<DeathSound>monster/beholder_death</DeathSound>
@@ -1038,12 +1038,12 @@
 		<Enemy />
 		<Group>Realm 2 penta</Group>
 		<AnimatedTexture>
-			<File>realm2Chars16x16</File>
+			<File>realm2Chars8x8</File>
 			<Index>6</Index>
 		</AnimatedTexture>
 		<HitSound>monster/beholder_hit</HitSound>
 		<DeathSound>monster/beholder_death</DeathSound>
-		<Size>100</Size>
+		<Size>200</Size>
 		<MaxHitPoints>1500</MaxHitPoints>
 		<Defense>12</Defense>
 		<God />
@@ -1069,12 +1069,12 @@
 		<Enemy />
 		<Group>Realm 2 penta</Group>
 		<AnimatedTexture>
-			<File>realm2Chars16x16</File>
+			<File>realm2Chars8x8</File>
 			<Index>7</Index>
 		</AnimatedTexture>
 		<HitSound>monster/beholder_hit</HitSound>
 		<DeathSound>monster/beholder_death</DeathSound>
-		<Size>100</Size>
+		<Size>200</Size>
 		<MaxHitPoints>2000</MaxHitPoints>
 		<Defense>18</Defense>
 		<God />
@@ -1092,7 +1092,7 @@
 		<Group>Realm 2 penta</Group>
 		<AnimatedTexture>
 			<File>realm2Chars16x16</File>
-			<Index>8</Index>
+			<Index>2</Index>
 		</AnimatedTexture>
 		<HitSound>monster/beholder_hit</HitSound>
 		<DeathSound>monster/beholder_death</DeathSound>
@@ -1130,7 +1130,7 @@
 		<Group>Realm 2 penta</Group>
 		<AnimatedTexture>
 			<File>realm2Chars16x16</File>
-			<Index>9</Index>
+			<Index>3</Index>
 		</AnimatedTexture>
 		<HitSound>monster/beholder_hit</HitSound>
 		<DeathSound>monster/beholder_death</DeathSound>
@@ -1162,12 +1162,12 @@
 		<Enemy />
 		<Group>Realm 2 lost</Group>
 		<AnimatedTexture>
-			<File>realm2Chars16x16</File>
-			<Index>10</Index>
+			<File>realm2Chars8x8</File>
+			<Index>8</Index>
 		</AnimatedTexture>
 		<HitSound>monster/ghost_god_hit</HitSound>
 		<DeathSound>monster/ghost_god_death</DeathSound>
-		<Size>100</Size>
+		<Size>200</Size>
 		<MaxHitPoints>1000</MaxHitPoints>
 		<Defense>18</Defense>
 		<God />
@@ -1185,12 +1185,12 @@
 		<Enemy />
 		<Group>Realm 2 lost</Group>
 		<AnimatedTexture>
-			<File>realm2Chars16x16</File>
-			<Index>11</Index>
+			<File>realm2Chars8x8</File>
+			<Index>9</Index>
 		</AnimatedTexture>
 		<HitSound>monster/ghost_god_hit</HitSound>
 		<DeathSound>monster/ghost_god_death</DeathSound>
-		<Size>100</Size>
+		<Size>200</Size>
 		<MaxHitPoints>1000</MaxHitPoints>
 		<Defense>12</Defense>
 		<God />
@@ -1210,12 +1210,12 @@
 		<Enemy />
 		<Group>Realm 2 lost</Group>
 		<AnimatedTexture>
-			<File>realm2Chars16x16</File>
-			<Index>12</Index>
+			<File>realm2Chars8x8</File>
+			<Index>10</Index>
 		</AnimatedTexture>
 		<HitSound>monster/ghost_god_hit</HitSound>
 		<DeathSound>monster/ghost_god_death</DeathSound>
-		<Size>100</Size>
+		<Size>200</Size>
 		<MaxHitPoints>1000</MaxHitPoints>
 		<Defense>12</Defense>
 		<God />
@@ -1234,12 +1234,12 @@
 		<Enemy />
 		<Group>Realm 2 lost</Group>
 		<AnimatedTexture>
-			<File>realm2Chars16x16</File>
-			<Index>13</Index>
+			<File>realm2Chars8x8</File>
+			<Index>11</Index>
 		</AnimatedTexture>
 		<HitSound>monster/ghost_god_hit</HitSound>
 		<DeathSound>monster/ghost_god_death</DeathSound>
-		<Size>100</Size>
+		<Size>200</Size>
 		<MaxHitPoints>2000</MaxHitPoints>
 		<Defense>20</Defense>
 		<God />
@@ -1263,7 +1263,7 @@
 		<Group>Realm 2 lost</Group>
 		<AnimatedTexture>
 			<File>realm2Chars16x16</File>
-			<Index>14</Index>
+			<Index>4</Index>
 		</AnimatedTexture>
 		<HitSound>monster/ghost_god_hit</HitSound>
 		<DeathSound>monster/ghost_god_death</DeathSound>
@@ -1299,7 +1299,7 @@
 		<Group>Realm 2 lost</Group>
 		<AnimatedTexture>
 			<File>realm2Chars16x16</File>
-			<Index>15</Index>
+			<Index>5</Index>
 		</AnimatedTexture>
 		<HitSound>monster/ghost_god_hit</HitSound>
 		<DeathSound>monster/ghost_god_death</DeathSound>
@@ -1329,12 +1329,12 @@
 		<Enemy />
 		<Group>Realm 2 hermit</Group>
 		<AnimatedTexture>
-			<File>realm2Chars16x16</File>
-			<Index>16</Index>
+			<File>realm2Chars8x8</File>
+			<Index>12</Index>
 		</AnimatedTexture>
 		<HitSound>monster/crab_hit</HitSound>
 		<DeathSound>monster/crab_death</DeathSound>
-		<Size>100</Size>
+		<Size>200</Size>
 		<MaxHitPoints>2000</MaxHitPoints>
 		<Defense>20</Defense>
 		<God />
@@ -1357,12 +1357,12 @@
 		<Enemy />
 		<Group>Realm 2 hermit</Group>
 		<AnimatedTexture>
-			<File>realm2Chars16x16</File>
-			<Index>17</Index>
+			<File>realm2Chars8x8</File>
+			<Index>13</Index>
 		</AnimatedTexture>
 		<HitSound>monster/crab_hit</HitSound>
 		<DeathSound>monster/crab_death</DeathSound>
-		<Size>100</Size>
+		<Size>200</Size>
 		<MaxHitPoints>1000</MaxHitPoints>
 		<Defense>12</Defense>
 		<God />
@@ -1386,12 +1386,12 @@
 		<Enemy />
 		<Group>Realm 2 hermit</Group>
 		<AnimatedTexture>
-			<File>realm2Chars16x16</File>
-			<Index>18</Index>
+			<File>realm2Chars8x8</File>
+			<Index>14</Index>
 		</AnimatedTexture>
 		<HitSound>monster/crab_hit</HitSound>
 		<DeathSound>monster/crab_death</DeathSound>
-		<Size>100</Size>
+		<Size>200</Size>
 		<MaxHitPoints>1000</MaxHitPoints>
 		<Defense>12</Defense>
 		<God />
@@ -1409,12 +1409,12 @@
 		<Enemy />
 		<Group>Realm 2 hermit</Group>
 		<AnimatedTexture>
-			<File>realm2Chars16x16</File>
-			<Index>19</Index>
+			<File>realm2Chars8x8</File>
+			<Index>15</Index>
 		</AnimatedTexture>
 		<HitSound>monster/crab_hit</HitSound>
 		<DeathSound>monster/crab_death</DeathSound>
-		<Size>100</Size>
+		<Size>200</Size>
 		<MaxHitPoints>2000</MaxHitPoints>
 		<Defense>18</Defense>
 		<God />
@@ -1432,7 +1432,7 @@
 		<Group>Realm 2 hermit</Group>
 		<AnimatedTexture>
 			<File>realm2Chars16x16</File>
-			<Index>20</Index>
+			<Index>6</Index>
 		</AnimatedTexture>
 		<HitSound>monster/crab_hit</HitSound>
 		<DeathSound>monster/crab_death</DeathSound>
@@ -1462,7 +1462,7 @@
 		<Group>Realm 2 hermit</Group>
 		<AnimatedTexture>
 			<File>realm2Chars16x16</File>
-			<Index>21</Index>
+			<Index>7</Index>
 		</AnimatedTexture>
 		<HitSound>monster/crab_hit</HitSound>
 		<DeathSound>monster/crab_death</DeathSound>
@@ -1492,12 +1492,12 @@
 		<Enemy />
 		<Group>Realm 2 ship</Group>
 		<AnimatedTexture>
-			<File>realm2Chars16x16</File>
-			<Index>22</Index>
+			<File>realm2Chars8x8</File>
+			<Index>16</Index>
 		</AnimatedTexture>
 		<HitSound>monster/pirates_hit</HitSound>
 		<DeathSound>monster/pirates_death</DeathSound>
-		<Size>100</Size>
+		<Size>200</Size>
 		<MaxHitPoints>1000</MaxHitPoints>
 		<Defense>18</Defense>
 		<God />
@@ -1516,7 +1516,7 @@
 		<Group>Realm 2 ship</Group>
 		<AnimatedTexture>
 			<File>realm2Chars8x8</File>
-			<Index>2</Index>
+			<Index>17</Index>
 		</AnimatedTexture>
 		<HitSound>monster/pirates_hit</HitSound>
 		<DeathSound>monster/pirates_death</DeathSound>
@@ -1538,12 +1538,12 @@
 		<Enemy />
 		<Group>Realm 2 ship</Group>
 		<AnimatedTexture>
-			<File>realm2Chars16x16</File>
-			<Index>23</Index>
+			<File>realm2Chars8x8</File>
+			<Index>18</Index>
 		</AnimatedTexture>
 		<HitSound>monster/pirates_hit</HitSound>
 		<DeathSound>monster/pirates_death</DeathSound>
-		<Size>100</Size>
+		<Size>200</Size>
 		<MaxHitPoints>2000</MaxHitPoints>
 		<Defense>18</Defense>
 		<God />
@@ -1560,12 +1560,12 @@
 		<Enemy />
 		<Group>Realm 2 ship</Group>
 		<AnimatedTexture>
-			<File>realm2Chars16x16</File>
-			<Index>24</Index>
+			<File>realm2Chars8x8</File>
+			<Index>19</Index>
 		</AnimatedTexture>
 		<HitSound>monster/pirates_hit</HitSound>
 		<DeathSound>monster/pirates_death</DeathSound>
-		<Size>100</Size>
+		<Size>200</Size>
 		<MaxHitPoints>1000</MaxHitPoints>
 		<Defense>12</Defense>
 		<God />
@@ -1585,7 +1585,7 @@
 		<Group>Realm 2 ship</Group>
 		<AnimatedTexture>
 			<File>realm2Chars16x16</File>
-			<Index>25</Index>
+			<Index>8</Index>
 		</AnimatedTexture>
 		<HitSound>monster/pirates_hit</HitSound>
 		<DeathSound>monster/pirates_death</DeathSound>
@@ -1616,7 +1616,7 @@
 		<Group>Realm 2 ship</Group>
 		<AnimatedTexture>
 			<File>realm2Chars16x16</File>
-			<Index>26</Index>
+			<Index>9</Index>
 		</AnimatedTexture>
 		<HitSound>monster/pirates_hit</HitSound>
 		<DeathSound>monster/pirates_death</DeathSound>
@@ -1646,7 +1646,7 @@
 		<Group>Realm 2 sphinx</Group>
 		<AnimatedTexture>
 			<File>realm2Chars8x8</File>
-			<Index>3</Index>
+			<Index>20</Index>
 		</AnimatedTexture>
 		<HitSound>monster/mummy_hit</HitSound>
 		<DeathSound>monster/mummy_death</DeathSound>
@@ -1667,12 +1667,12 @@
 		<Enemy />
 		<Group>Realm 2 sphinx</Group>
 		<AnimatedTexture>
-			<File>realm2Chars16x16</File>
-			<Index>27</Index>
+			<File>realm2Chars8x8</File>
+			<Index>21</Index>
 		</AnimatedTexture>
 		<HitSound>monster/mummy_hit</HitSound>
 		<DeathSound>monster/mummy_death</DeathSound>
-		<Size>100</Size>
+		<Size>200</Size>
 		<MaxHitPoints>1000</MaxHitPoints>
 		<Defense>12</Defense>
 		<God />
@@ -1696,12 +1696,12 @@
 		<Enemy />
 		<Group>Realm 2 sphinx</Group>
 		<AnimatedTexture>
-			<File>realm2Chars16x16</File>
-			<Index>28</Index>
+			<File>realm2Chars8x8</File>
+			<Index>22</Index>
 		</AnimatedTexture>
 		<HitSound>monster/mummy_hit</HitSound>
 		<DeathSound>monster/mummy_death</DeathSound>
-		<Size>100</Size>
+		<Size>200</Size>
 		<MaxHitPoints>1000</MaxHitPoints>
 		<Defense>12</Defense>
 		<God />
@@ -1721,12 +1721,12 @@
 		<Enemy />
 		<Group>Realm 2 sphinx</Group>
 		<AnimatedTexture>
-			<File>realm2Chars16x16</File>
-			<Index>29</Index>
+			<File>realm2Chars8x8</File>
+			<Index>23</Index>
 		</AnimatedTexture>
 		<HitSound>monster/mummy_hit</HitSound>
 		<DeathSound>monster/mummy_death</DeathSound>
-		<Size>100</Size>
+		<Size>200</Size>
 		<MaxHitPoints>1000</MaxHitPoints>
 		<Defense>12</Defense>
 		<God />
@@ -1747,7 +1747,7 @@
 		<Group>Realm 2 sphinx</Group>
 		<AnimatedTexture>
 			<File>realm2Chars16x16</File>
-			<Index>30</Index>
+			<Index>10</Index>
 		</AnimatedTexture>
 		<HitSound>monster/mummy_hit</HitSound>
 		<DeathSound>monster/mummy_death</DeathSound>
@@ -1777,7 +1777,7 @@
 		<Group>Realm 2 sphinx</Group>
 		<AnimatedTexture>
 			<File>realm2Chars16x16</File>
-			<Index>31</Index>
+			<Index>11</Index>
 		</AnimatedTexture>
 		<HitSound>monster/mummy_hit</HitSound>
 		<DeathSound>monster/mummy_death</DeathSound>
@@ -1807,12 +1807,12 @@
 		<Enemy />
 		<Group>Realm 2 skull</Group>
 		<AnimatedTexture>
-			<File>realm2Chars16x16</File>
-			<Index>32</Index>
+			<File>realm2Chars8x8</File>
+			<Index>24</Index>
 		</AnimatedTexture>
 		<HitSound>monster/skeletons_hit</HitSound>
 		<DeathSound>monster/skeletons_death</DeathSound>
-		<Size>100</Size>
+		<Size>200</Size>
 		<MaxHitPoints>1000</MaxHitPoints>
 		<Defense>18</Defense>
 		<God />
@@ -1831,7 +1831,7 @@
 		<Group>Realm 2 skull</Group>
 		<AnimatedTexture>
 			<File>realm2Chars8x8</File>
-			<Index>4</Index>
+			<Index>25</Index>
 		</AnimatedTexture>
 		<HitSound>monster/skeletons_hit</HitSound>
 		<DeathSound>monster/skeletons_death</DeathSound>
@@ -1853,12 +1853,12 @@
 		<Enemy />
 		<Group>Realm 2 skull</Group>
 		<AnimatedTexture>
-			<File>realm2Chars16x16</File>
-			<Index>33</Index>
+			<File>realm2Chars8x8</File>
+			<Index>26</Index>
 		</AnimatedTexture>
 		<HitSound>monster/skeletons_hit</HitSound>
 		<DeathSound>monster/skeletons_death</DeathSound>
-		<Size>100</Size>
+		<Size>200</Size>
 		<MaxHitPoints>1000</MaxHitPoints>
 		<Defense>12</Defense>
 		<God />
@@ -1876,12 +1876,12 @@
 		<Enemy />
 		<Group>Realm 2 skull</Group>
 		<AnimatedTexture>
-			<File>realm2Chars16x16</File>
-			<Index>34</Index>
+			<File>realm2Chars8x8</File>
+			<Index>27</Index>
 		</AnimatedTexture>
 		<HitSound>monster/skeletons_hit</HitSound>
 		<DeathSound>monster/skeletons_death</DeathSound>
-		<Size>100</Size>
+		<Size>200</Size>
 		<MaxHitPoints>2000</MaxHitPoints>
 		<Defense>12</Defense>
 		<God />
@@ -1908,7 +1908,7 @@
 		<Group>Realm 2 skull</Group>
 		<AnimatedTexture>
 			<File>realm2Chars16x16</File>
-			<Index>35</Index>
+			<Index>12</Index>
 		</AnimatedTexture>
 		<HitSound>monster/skeletons_hit</HitSound>
 		<DeathSound>monster/skeletons_death</DeathSound>
@@ -1938,7 +1938,7 @@
 		<Group>Realm 2 skull</Group>
 		<AnimatedTexture>
 			<File>realm2Chars16x16</File>
-			<Index>36</Index>
+			<Index>13</Index>
 		</AnimatedTexture>
 		<HitSound>monster/skeletons_hit</HitSound>
 		<DeathSound>monster/skeletons_death</DeathSound>
@@ -1967,12 +1967,12 @@
 		<Enemy />
 		<Group>Realm 2 garden</Group>
 		<AnimatedTexture>
-			<File>realm2Chars16x16</File>
-			<Index>37</Index>
+			<File>realm2Chars8x8</File>
+			<Index>28</Index>
 		</AnimatedTexture>
 		<HitSound>monster/stone_walls_hit</HitSound>
 		<DeathSound>monster/stone_walls_death</DeathSound>
-		<Size>100</Size>
+		<Size>200</Size>
 		<MaxHitPoints>2000</MaxHitPoints>
 		<Defense>18</Defense>
 		<God />
@@ -1989,12 +1989,12 @@
 		<Enemy />
 		<Group>Realm 2 garden</Group>
 		<AnimatedTexture>
-			<File>realm2Chars16x16</File>
-			<Index>38</Index>
+			<File>realm2Chars8x8</File>
+			<Index>29</Index>
 		</AnimatedTexture>
 		<HitSound>monster/stone_walls_hit</HitSound>
 		<DeathSound>monster/stone_walls_death</DeathSound>
-		<Size>100</Size>
+		<Size>200</Size>
 		<MaxHitPoints>1500</MaxHitPoints>
 		<Defense>12</Defense>
 		<God />
@@ -2020,12 +2020,12 @@
 		<Enemy />
 		<Group>Realm 2 garden</Group>
 		<AnimatedTexture>
-			<File>realm2Chars16x16</File>
-			<Index>39</Index>
+			<File>realm2Chars8x8</File>
+			<Index>30</Index>
 		</AnimatedTexture>
 		<HitSound>monster/stone_walls_hit</HitSound>
 		<DeathSound>monster/stone_walls_death</DeathSound>
-		<Size>100</Size>
+		<Size>200</Size>
 		<MaxHitPoints>1000</MaxHitPoints>
 		<Defense>12</Defense>
 		<God />
@@ -2046,7 +2046,7 @@
 		<Group>Realm 2 garden</Group>
 		<AnimatedTexture>
 			<File>realm2Chars8x8</File>
-			<Index>5</Index>
+			<Index>31</Index>
 		</AnimatedTexture>
 		<HitSound>monster/stone_walls_hit</HitSound>
 		<DeathSound>monster/stone_walls_death</DeathSound>
@@ -2069,7 +2069,7 @@
 		<Group>Realm 2 garden</Group>
 		<AnimatedTexture>
 			<File>realm2Chars16x16</File>
-			<Index>40</Index>
+			<Index>14</Index>
 		</AnimatedTexture>
 		<HitSound>monster/stone_walls_hit</HitSound>
 		<DeathSound>monster/stone_walls_death</DeathSound>
@@ -2100,7 +2100,7 @@
 		<Group>Realm 2 garden</Group>
 		<AnimatedTexture>
 			<File>realm2Chars16x16</File>
-			<Index>41</Index>
+			<Index>15</Index>
 		</AnimatedTexture>
 		<HitSound>monster/stone_walls_hit</HitSound>
 		<DeathSound>monster/stone_walls_death</DeathSound>
@@ -2129,12 +2129,12 @@
 		<Enemy />
 		<Group>Realm 2 dragon</Group>
 		<AnimatedTexture>
-			<File>realm2Chars16x16</File>
-			<Index>42</Index>
+			<File>realm2Chars8x8</File>
+			<Index>32</Index>
 		</AnimatedTexture>
 		<HitSound>monster/lizard_god_hit</HitSound>
 		<DeathSound>monster/lizard_god_death</DeathSound>
-		<Size>100</Size>
+		<Size>200</Size>
 		<MaxHitPoints>1000</MaxHitPoints>
 		<Defense>12</Defense>
 		<God />
@@ -2154,12 +2154,12 @@
 		<Enemy />
 		<Group>Realm 2 dragon</Group>
 		<AnimatedTexture>
-			<File>realm2Chars16x16</File>
-			<Index>43</Index>
+			<File>realm2Chars8x8</File>
+			<Index>33</Index>
 		</AnimatedTexture>
 		<HitSound>monster/lizard_god_hit</HitSound>
 		<DeathSound>monster/lizard_god_death</DeathSound>
-		<Size>100</Size>
+		<Size>200</Size>
 		<MaxHitPoints>1000</MaxHitPoints>
 		<Defense>12</Defense>
 		<God />
@@ -2183,12 +2183,12 @@
 		<Enemy />
 		<Group>Realm 2 dragon</Group>
 		<AnimatedTexture>
-			<File>realm2Chars16x16</File>
-			<Index>44</Index>
+			<File>realm2Chars8x8</File>
+			<Index>34</Index>
 		</AnimatedTexture>
 		<HitSound>monster/lizard_god_hit</HitSound>
 		<DeathSound>monster/lizard_god_death</DeathSound>
-		<Size>100</Size>
+		<Size>200</Size>
 		<MaxHitPoints>2000</MaxHitPoints>
 		<Defense>20</Defense>
 		<God />
@@ -2213,12 +2213,12 @@
 		<Enemy />
 		<Group>Realm 2 dragon</Group>
 		<AnimatedTexture>
-			<File>realm2Chars16x16</File>
-			<Index>45</Index>
+			<File>realm2Chars8x8</File>
+			<Index>35</Index>
 		</AnimatedTexture>
 		<HitSound>monster/lizard_god_hit</HitSound>
 		<DeathSound>monster/lizard_god_death</DeathSound>
-		<Size>100</Size>
+		<Size>200</Size>
 		<MaxHitPoints>1000</MaxHitPoints>
 		<Defense>18</Defense>
 		<God />
@@ -2237,7 +2237,7 @@
 		<Group>Realm 2 dragon</Group>
 		<AnimatedTexture>
 			<File>realm2Chars16x16</File>
-			<Index>46</Index>
+			<Index>16</Index>
 		</AnimatedTexture>
 		<HitSound>monster/lizard_god_hit</HitSound>
 		<DeathSound>monster/lizard_god_death</DeathSound>
@@ -2269,7 +2269,7 @@
 		<Group>Realm 2 dragon</Group>
 		<AnimatedTexture>
 			<File>realm2Chars16x16</File>
-			<Index>47</Index>
+			<Index>17</Index>
 		</AnimatedTexture>
 		<HitSound>monster/lizard_god_hit</HitSound>
 		<DeathSound>monster/lizard_god_death</DeathSound>
@@ -2298,12 +2298,12 @@
 		<Enemy />
 		<Group>Realm 2 kingdom</Group>
 		<AnimatedTexture>
-			<File>realm2Chars16x16</File>
-			<Index>48</Index>
+			<File>realm2Chars8x8</File>
+			<Index>36</Index>
 		</AnimatedTexture>
 		<HitSound>monster/knights_hit</HitSound>
 		<DeathSound>monster/knights_death</DeathSound>
-		<Size>100</Size>
+		<Size>200</Size>
 		<MaxHitPoints>2000</MaxHitPoints>
 		<Defense>12</Defense>
 		<God />
@@ -2329,12 +2329,12 @@
 		<Enemy />
 		<Group>Realm 2 kingdom</Group>
 		<AnimatedTexture>
-			<File>realm2Chars16x16</File>
-			<Index>49</Index>
+			<File>realm2Chars8x8</File>
+			<Index>37</Index>
 		</AnimatedTexture>
 		<HitSound>monster/knights_hit</HitSound>
 		<DeathSound>monster/knights_death</DeathSound>
-		<Size>100</Size>
+		<Size>200</Size>
 		<MaxHitPoints>1000</MaxHitPoints>
 		<Defense>12</Defense>
 		<God />
@@ -2353,12 +2353,12 @@
 		<Enemy />
 		<Group>Realm 2 kingdom</Group>
 		<AnimatedTexture>
-			<File>realm2Chars16x16</File>
-			<Index>50</Index>
+			<File>realm2Chars8x8</File>
+			<Index>38</Index>
 		</AnimatedTexture>
 		<HitSound>monster/knights_hit</HitSound>
 		<DeathSound>monster/knights_death</DeathSound>
-		<Size>100</Size>
+		<Size>200</Size>
 		<MaxHitPoints>1500</MaxHitPoints>
 		<Defense>12</Defense>
 		<God />
@@ -2385,7 +2385,7 @@
 		<Group>Realm 2 kingdom</Group>
 		<AnimatedTexture>
 			<File>realm2Chars8x8</File>
-			<Index>6</Index>
+			<Index>39</Index>
 		</AnimatedTexture>
 		<HitSound>monster/knights_hit</HitSound>
 		<DeathSound>monster/knights_death</DeathSound>
@@ -2408,7 +2408,7 @@
 		<Group>Realm 2 kingdom</Group>
 		<AnimatedTexture>
 			<File>realm2Chars16x16</File>
-			<Index>51</Index>
+			<Index>18</Index>
 		</AnimatedTexture>
 		<HitSound>monster/knights_hit</HitSound>
 		<DeathSound>monster/knights_death</DeathSound>
@@ -2439,7 +2439,7 @@
 		<Group>Realm 2 kingdom</Group>
 		<AnimatedTexture>
 			<File>realm2Chars16x16</File>
-			<Index>52</Index>
+			<Index>19</Index>
 		</AnimatedTexture>
 		<HitSound>monster/knights_hit</HitSound>
 		<DeathSound>monster/knights_death</DeathSound>
@@ -2470,7 +2470,7 @@
 		<Group>Realm 2 bees</Group>
 		<AnimatedTexture>
 			<File>realm2Chars8x8</File>
-			<Index>7</Index>
+			<Index>40</Index>
 		</AnimatedTexture>
 		<HitSound>monster/flies_hit</HitSound>
 		<DeathSound>monster/flies_death</DeathSound>
@@ -2492,12 +2492,12 @@
 		<Enemy />
 		<Group>Realm 2 bees</Group>
 		<AnimatedTexture>
-			<File>realm2Chars16x16</File>
-			<Index>53</Index>
+			<File>realm2Chars8x8</File>
+			<Index>41</Index>
 		</AnimatedTexture>
 		<HitSound>monster/flies_hit</HitSound>
 		<DeathSound>monster/flies_death</DeathSound>
-		<Size>100</Size>
+		<Size>200</Size>
 		<MaxHitPoints>1000</MaxHitPoints>
 		<Defense>12</Defense>
 		<God />
@@ -2517,12 +2517,12 @@
 		<Enemy />
 		<Group>Realm 2 bees</Group>
 		<AnimatedTexture>
-			<File>realm2Chars16x16</File>
-			<Index>54</Index>
+			<File>realm2Chars8x8</File>
+			<Index>42</Index>
 		</AnimatedTexture>
 		<HitSound>monster/flies_hit</HitSound>
 		<DeathSound>monster/flies_death</DeathSound>
-		<Size>100</Size>
+		<Size>200</Size>
 		<MaxHitPoints>1000</MaxHitPoints>
 		<Defense>12</Defense>
 		<God />
@@ -2547,7 +2547,7 @@
 		<Group>Realm 2 bees</Group>
 		<AnimatedTexture>
 			<File>realm2Chars8x8</File>
-			<Index>8</Index>
+			<Index>43</Index>
 		</AnimatedTexture>
 		<HitSound>monster/flies_hit</HitSound>
 		<DeathSound>monster/flies_death</DeathSound>
@@ -2571,7 +2571,7 @@
 		<Group>Realm 2 bees</Group>
 		<AnimatedTexture>
 			<File>realm2Chars16x16</File>
-			<Index>55</Index>
+			<Index>20</Index>
 		</AnimatedTexture>
 		<HitSound>monster/flies_hit</HitSound>
 		<DeathSound>monster/flies_death</DeathSound>
@@ -2603,7 +2603,7 @@
 		<Group>Realm 2 bees</Group>
 		<AnimatedTexture>
 			<File>realm2Chars16x16</File>
-			<Index>56</Index>
+			<Index>21</Index>
 		</AnimatedTexture>
 		<HitSound>monster/flies_hit</HitSound>
 		<DeathSound>monster/flies_death</DeathSound>

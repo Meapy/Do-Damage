@@ -518,7 +518,7 @@ MOBS = {
 # The Godlands gods each land's regular monsters stand in for, one for one (BehaviorDb.Realm2.cs
 # gives each the god's movement and shot pattern, Reproduce, potion and dungeon portal): their
 # health, defence and flying from the god's XML, and its shots' damage, speed, range, size and
-# effects, with the monster's own projectiles (the god's where it has fewer).
+# effects, with the monster's own projectiles (the god's where it has fewer); drawn as big as a god.
 # god -> (health, defence, flying, [(damage, speed, lifetime, size, effect, multi, the god's projectile)])
 GODS = {
     "White Demon": (1000, 12, True, [(45, 50, 2000, 60, None, True, "White Demon Shot")]),
@@ -572,29 +572,9 @@ def stand_in(name, entry):
             extra["amplitude"] = shots[i][4]["amplitude"]
             extra["frequency"] = shots[i][4]["frequency"]
         out.append(shot(obj, damage, speed, life, **extra))
-    return (shown, hp, defence, 100, "g" + ("f" if flying else ""), out)
-
-
-def scale2x(img):
-    """Scale2x (EPX): twice the size, with diagonal edges smoothed rather than blocky, so 8x8 art
-    reads as a 16x16 sprite, as the gods are."""
-    w, h = img.size
-    src = img.load()
-    out = Image.new("RGBA", (w * 2, h * 2), (0, 0, 0, 0))
-    dst = out.load()
-
-    def at(x, y):
-        return src[min(max(x, 0), w - 1), min(max(y, 0), h - 1)]
-
-    for y in range(h):
-        for x in range(w):
-            p, a, b, c, d = at(x, y), at(x, y - 1), at(x + 1, y), at(x - 1, y), at(x, y + 1)
-            e0 = a if c == a and c != d and a != b else p
-            e1 = b if a == b and a != c and b != d else p
-            e2 = c if d == c and d != b and c != a else p
-            e3 = d if b == d and b != a and d != c else p
-            dst[x * 2, y * 2], dst[x * 2 + 1, y * 2], dst[x * 2, y * 2 + 1], dst[x * 2 + 1, y * 2 + 1] = e0, e1, e2, e3
-    return out
+    # god-sized: its 8x8 art at Size 200 covers what a god's 16x16 does at 100, pixel for pixel
+    # as it was drawn (the hit box is half a tile whatever the size)
+    return (shown, hp, defence, 200, "g" + ("f" if flying else ""), out)
 
 
 SOUNDS = {
@@ -789,9 +769,6 @@ def build(preview=None):
         pal = art.PALETTES[area]
         s = picture(stand, pal, size)
         a = picture(attack, pal, size) if attack else None
-        if name in STAND_INS:
-            # god-sized: drawn twice as big, on the 16x16 sheet
-            s, a, size = scale2x(s), scale2x(a) if a else None, 16
         pictures[name] = (area, size, s, a)
 
     for name, entry in MOBS.items():
