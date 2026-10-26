@@ -25,11 +25,11 @@ namespace WorldServer.core.worlds
         private const int SpawnClear = 12;              // tiles from any player a monster may appear
         private const int TilesPerMob = 125;            // as the realm's Godlands
         private const double LandRadius = 50;
+        private const double Apart = 90;                // a land's heart at least this far from every other land's
         private const double MaxBack = 15;              // how much nearer the shore than the last a land may come
 
         private Dictionary<ushort, (Realm2Theme Theme, bool Quest)> _areaMobs;
         private readonly Queue<string> _upcoming = new Queue<string>();
-        private IntPoint? _lastSite;
         private double _lastAlong;
         private int _lands;                             // event lands drawn so far
 
@@ -142,7 +142,9 @@ namespace WorldServer.core.worlds
                     if (along < lo || along > hi)
                         continue;
                     var p = new IntPoint(x, y);
-                    if (_lastSite is IntPoint last && Realm2Canvas.Dist(last, x, y) < 55)
+                    // well apart from every land before it: they may touch, not pile up
+                    var apart = pass < 3 ? Apart : pass < 4 ? 75 : 60;
+                    if (Layout.Areas.Any(a => a.Theme != null && Realm2Canvas.Dist(a.Center, x, y) < apart))
                         continue;
                     if (running.Any(r => Realm2Canvas.Dist(r, x, y) < 85))
                         continue;
@@ -229,9 +231,13 @@ namespace WorldServer.core.worlds
                 if (!_partTypes.ContainsKey(enemy.ObjectType) && mine.Contains(new IntPoint((int)enemy.X, (int)enemy.Y)))
                     World.LeaveWorld(enemy);
 
+            // the Godlands it covers have no gods any more: fewer for the rest, at the same density
+            var covered = mine.Count(p => World.Map[p.X, p.Y].Terrain == Shared.resources.TerrainType.Mountains);
+            var gods = (int)Shared.resources.TerrainType.Mountains - 1;
+            EnemyMaxCounts[gods] = Math.Max(0, EnemyMaxCounts[gods] - covered / RegionMobs[Shared.resources.TerrainType.Mountains].Item1);
+
             var c = painter.Canvas;
             SetPieces.RenderFromData(World, new IntPoint(c.X0 + c.W / 2, c.Y0 + c.H / 2), c.Export(), true);
-            _lastSite = at;
             _lastAlong = Math.Max(_lastAlong, Layout.Along(at.X, at.Y));
             _lands++;
             Populate(area);
