@@ -163,7 +163,7 @@ fn inside(r: [f32; 4], (x, y): (f64, f64)) -> bool {
 
 /// Hours until a Unix time.
 fn hours_left(until: i32) -> f64 {
-    let now = std::time::SystemTime::now().duration_since(std::time::UNIX_EPOCH).map_or(0, |d| d.as_secs() as i64);
+    let now = web_time::SystemTime::now().duration_since(web_time::UNIX_EPOCH).map_or(0, |d| d.as_secs() as i64);
     ((until as i64 - now) as f64 / 3600.0).max(0.0)
 }
 

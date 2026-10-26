@@ -28,6 +28,8 @@ details). Add to a group's line when a change adds to it, rather than adding ano
   was hidden and couldn't be entered, and no Realm Portal beside it.
 - The chat name colour you pick in the quest log now stays with you in every world and after
   you log out, instead of going back to the usual colour when you change world.
+- In the browser, opening the Graveyard (and the market's time left on offers) no longer freezes
+  the game until you refresh the page.
 
 ### Wiki
 - A new Loot Simulation page: pick Oryx 3, 4 or 5, set your share of the damage and your loot
