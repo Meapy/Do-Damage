@@ -515,68 +515,6 @@ MOBS = {
         shot("EH Red Glaive", 150, 70, 1800, multi=True), shot("EH Red Stinger Small", 110, 100, 1100)], 19),
 }
 
-# The Godlands gods each land's regular monsters stand in for, one for one (BehaviorDb.Realm2.cs
-# gives each the god's movement and shot pattern, Reproduce, potion and dungeon portal): their
-# health, defence and flying from the god's XML, and its shots' damage, speed, range, size and
-# effects, with the monster's own projectiles (the god's where it has fewer); drawn as big as a god.
-# god -> (health, defence, flying, [(damage, speed, lifetime, size, effect, multi, the god's projectile)])
-GODS = {
-    "White Demon": (1000, 12, True, [(45, 50, 2000, 60, None, True, "White Demon Shot")]),
-    "Sprite God": (2000, 12, True, [(100, 70, 2000, None, None, False, "Purple Magic"),
-                                    (0, 60, 2400, None, ("Quiet", 10), True, "Grey Boomerang")]),
-    "Medusa": (2000, 18, False, [(100, 70, 2000, None, None, False, "Green Bolt")]),
-    "Ent God": (1000, 18, False, [(70, 80, 2000, None, None, True, "Fire Bolt")]),
-    "Beholder": (1500, 12, True, [(120, 50, 2700, 120, None, False, "White Bolt"),
-                                  (0, 70, 3000, None, ("Blind", 5), False, "Purple Star")]),
-    "Flying Brain": (1000, 12, True, [(50, 120, 1800, None, None, False, "Pink Bolt")]),
-    "Slime God": (1000, 12, False, [(80, 100, 1100, None, None, False, "Red Fire"),
-                                    (0, 70, 2000, None, ("Slowed", 6), False, "Green Star")]),
-    "Ghost God": (1000, 12, True, [(120, 50, 2700, 110, None, False, "White Bolt")]),
-    "Djinn": (1000, 12, True, [(60, 60, 1500, 60, None, True, "White Bullet")]),
-    "Leviathan": (2000, 20, False, [(70, 67, 1700, None, None, False, "Aqua Missile"),
-                                    (90, 85, 1800, None, None, False, "Blue Missile")]),
-}
-
-# each land's regular monsters and the god each stands in for (the same table is in BehaviorDb.Realm2.cs)
-STAND_INS = {
-    "R2 Prism Sentinel": "Flying Brain", "R2 Shard Walker": "White Demon", "R2 Cube Overseer": "Sprite God",
-    "R2 Floating Eye": "Ghost God", "R2 Gazer": "Beholder", "R2 Watcher Stalk": "Medusa",
-    "R2 Lost Sentry": "Ent God", "R2 Forsaken Archer": "White Demon", "R2 Wailing Wraith": "Ghost God", "R2 Ruin Golem": "Leviathan",
-    "R2 Hermit Brute": "Leviathan", "R2 Tide Snapper": "Slime God", "R2 Barnacle Turret": "Flying Brain", "R2 Kelp Lurker": "Medusa",
-    "R2 Drowned Buccaneer": "Ent God", "R2 Bone Gunner": "Medusa", "R2 Wreck Wraith": "Ghost God",
-    "R2 Tomb Mummy": "Slime God", "R2 Jackal Guard": "White Demon", "R2 Sun Obelisk": "Djinn",
-    "R2 Bone Flayer": "Ent God", "R2 Blood Imp": "Flying Brain", "R2 Shrine Cultist": "Sprite God",
-    "R2 Komainu": "Medusa", "R2 Oni Mask": "Beholder", "R2 Kitsune Spirit": "Djinn",
-    "R2 Drakeling": "White Demon", "R2 Magma Salamander": "Slime God", "R2 Ember Wyrm": "Leviathan", "R2 Obsidian Golem": "Ent God",
-    "R2 Shattered Knight": "Sprite God", "R2 Forgotten Mage": "Ghost God", "R2 Stone Gargoyle": "Beholder",
-    "R2 Hornet Drone": "Djinn", "R2 Honey Slime": "Slime God",
-}
-
-
-def stand_in(name, entry):
-    """A regular monster as the god it stands in for: the god's numbers, the monster's look."""
-    shown, _, _, _, _, shots = entry[:6]
-    hp, defence, flying, god_shots = GODS[STAND_INS[name]]
-    out = []
-    for i, (damage, speed, life, size, effect, multi, god_obj) in enumerate(god_shots):
-        extra = {}
-        if size:
-            extra["size"] = size
-        if effect:
-            extra["effect"] = effect
-        if multi:
-            extra["multi"] = True
-        # its own projectile's look (with its wave, if it has one); the god's where it has none
-        obj = shots[i][0] if i < len(shots) else god_obj
-        if i < len(shots) and "amplitude" in shots[i][4]:
-            extra["amplitude"] = shots[i][4]["amplitude"]
-            extra["frequency"] = shots[i][4]["frequency"]
-        out.append(shot(obj, damage, speed, life, **extra))
-    # god-sized: its 8x8 art at Size 200 covers what a god's 16x16 does at 100, pixel for pixel
-    # as it was drawn (the hit box is half a tile whatever the size)
-    return (shown, hp, defence, 200, "g" + ("f" if flying else ""), out)
-
-
 SOUNDS = {
     "cube": ("monster/cube_god_hit", "monster/cube_god_death"),
     "penta": ("monster/beholder_hit", "monster/beholder_death"),
@@ -772,8 +710,6 @@ def build(preview=None):
         pictures[name] = (area, size, s, a)
 
     for name, entry in MOBS.items():
-        if name in STAND_INS:
-            entry = stand_in(name, entry)
         shown, hp, defence, size, flags, shots = entry[:6]
         level = entry[6] if len(entry) > 6 else None
         area, cell, s, a = pictures[name]

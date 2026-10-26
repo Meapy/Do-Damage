@@ -18,7 +18,7 @@ namespace WorldServer.core.worlds.realm2
         public (string Id, double Weight)[] Decor;
         public double DecorDensity;
         public string Wall;
-        public (string Id, double Weight)[] Mobs;      // each stands in for a Godlands god (BehaviorDb.Realm2.cs)
+        public (string Id, double Weight)[] Mobs;
         public string[] Quests;             // one of each is kept in the land
     }
 
@@ -46,7 +46,7 @@ namespace WorldServer.core.worlds.realm2
                 Ground = "R2 Dark Soil", Patches = "R2 Ashen Soil", Arena = "R2 Ritual Floor",
                 Decor = new[] { ("R2 Dead Tree", 3.0), ("R2 Dead Sapling", 2.0), ("R2 Eye Stalk", 1.5), ("R2 Bone Pile", 1.5) },
                 DecorDensity = 0.06, Wall = "R2 Dark Wall",
-                Mobs = new[] { ("R2 Floating Eye", 2.0), ("R2 Gazer", 1.5), ("R2 Watcher Stalk", 1.5) },
+                Mobs = new[] { ("R2 Floating Eye", 2.0), ("R2 Gazer", 1.5), ("R2 Watcher Stalk", 1.5), ("Beholder", 1.5) },
                 Quests = new[] { "R2 Eye of the Pentagram", "R2 Elder Watcher" },
             },
             new Realm2Theme

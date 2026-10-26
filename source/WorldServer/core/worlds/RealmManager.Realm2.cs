@@ -16,8 +16,8 @@ namespace WorldServer.core.worlds
     // random order, each bringing its own land, which grows out of one already there (joined by a
     // broad neck of land, now and then a bridge or a pool), further from the shore than the last and
     // well apart from the others, so the realm spreads into one land as it's played. Each land keeps
-    // monsters as the realm's Godlands does, in small groups, its own standing in for the gods
-    // (BehaviorDb.Realm2.cs), and one of each of its two quests. Realm 2 needs every event to close (EventsNeeded), more for a crowd; once
+    // monsters as the realm's Godlands does, its own and the gods, in small groups, and one of each
+    // of its two quests. Realm 2 needs every event to close (EventsNeeded), more for a crowd; once
     // all eleven have come, more come with new lands.
     public sealed partial class RealmManager
     {
@@ -31,6 +31,13 @@ namespace WorldServer.core.worlds
         private const double Apart = 98;                // at least this far from every other land's heart
         private const double Outward = 35;              // ...this much further out than the land it grows from
         private const double ShoreClear = 175;          // ...and this far from the shore's
+        private const double GodShare = 0.35;           // of a land's monsters, how many are the Godlands' gods
+
+        // the realm's Godlands gods, who roam every event land too (with their own drops)
+        private static readonly string[] Gods =
+        {
+            "White Demon", "Sprite God", "Medusa", "Ent God", "Beholder", "Flying Brain", "Slime God", "Ghost God", "Djinn", "Leviathan",
+        };
 
         private Dictionary<ushort, bool> _areaMobs;     // monster -> a quest
         private readonly Queue<string> _upcoming = new Queue<string>();
@@ -40,6 +47,9 @@ namespace WorldServer.core.worlds
         {
             var data = World.GameServer.Resources.GameData;
             _areaMobs = new Dictionary<ushort, bool>();
+            foreach (var id in Gods)
+                if (data.IdToObjectType.TryGetValue(id, out var type))
+                    _areaMobs[type] = false;
             foreach (var theme in Realm2Themes.Events)
             {
                 foreach (var id in theme.Mobs.Select(m => m.Id))
@@ -285,12 +295,13 @@ namespace WorldServer.core.worlds
                     count++;
             }
 
-            // in groups of two to four, as the gods come (its monsters stand in for them one for one)
+            // in groups of two to four, as the gods come: the land's own monsters, and the gods
             var target = area.Tiles / TilesPerMob;
             if (count < target * PopulationLow)
                 while (count < target)
                 {
-                    var placed = SpawnGroup(area, PickMob(area.Theme), 2 + Random.Shared.Next(3));
+                    var id = Random.Shared.NextDouble() < GodShare ? Gods[Random.Shared.Next(Gods.Length)] : PickMob(area.Theme);
+                    var placed = SpawnGroup(area, id, 2 + Random.Shared.Next(3));
                     if (placed == 0)
                         break;
                     count += placed;
