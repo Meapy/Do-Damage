@@ -12,6 +12,13 @@ Keep each version short: changes go under `### ` group headings (Oryx 5, Arena, 
 on), one line per change players notice, summed up rather than item by item (the wiki has the
 details). Add to a group's line when a change adds to it, rather than adding another line.
 
+## Unreleased
+
+### Arena
+- The Arena and the Admin Arena give half as much fame: half the fame after each wave, and at
+  level 20 half the experience (so half the fame) for each kill. Levelling there is as fast as
+  before, and the Arena quests pay the same.
+
 ## 2.2.2 (2026-10-26)
 
 ### Fixes
