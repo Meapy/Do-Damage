@@ -16,6 +16,8 @@
     <PackageReference Include="Newtonsoft.Json" Version="13.0.1" />
     <PackageReference Include="NLog" Version="5.0.4" />
     <PackageReference Include="StackExchange.Redis" Version="2.6.66" />
+    <!-- Pins the version another package pulls in: 5.0.0 has a known vulnerability (GHSA-rxg9-xrhp-64gj). -->
+    <PackageReference Include="System.Drawing.Common" Version="8.0.10" />
   </ItemGroup>
 
   <ItemGroup>

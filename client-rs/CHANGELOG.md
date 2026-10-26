@@ -12,6 +12,14 @@ Keep each version short: changes go under `### ` group headings (Oryx 5, Arena, 
 on), one line per change players notice, summed up rather than item by item (the wiki has the
 details). Add to a group's line when a change adds to it, rather than adding another line.
 
+## Unreleased
+
+### Fixes
+- Closed several ways to cheat items and fame through the market, breaking items down and dropping
+  items. Breaking an item down now works only on your own items or a bag beside you, and a quick
+  second click no longer disconnects you. New accounts are limited to a few an hour from one
+  address.
+
 ## 2.2.3 (2026-10-26)
 
 ### Oryx

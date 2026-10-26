@@ -948,6 +948,13 @@ namespace Shared.database
             return SetGifts(acc, giftBytes, transaction);
         }
 
+        /// <summary>
+        /// Takes the offer off the market, true only for the one caller that did: a buyer, the
+        /// seller taking it back and the expiry sweep (on any world server) can race for an offer,
+        /// and only the one this answers true for may hand its item out.
+        /// </summary>
+        public bool ClaimMarketEntry(int id) => _db.HashDelete("market", id);
+
         public Task RemoveMarketEntrySafety(DbAccount account, int id, Action<string> log = null)
         {
             var trans = _db.CreateTransaction();

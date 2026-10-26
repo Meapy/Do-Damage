@@ -79,6 +79,17 @@ namespace WorldServer.core.net.handlers.market
                 return;
             }
 
+            // someone else bought it, or it was taken back or expired, since it was read
+            if (!db.ClaimMarketEntry(marketData.Id))
+            {
+                client.SendPacket(new MarketBuyResult()
+                {
+                    Code = MarketBuyResult.ERROR,
+                    Description = "That item was just sold or taken off the market."
+                });
+                return;
+            }
+
             StaticLogger.Instance.Warn($"<{player.Name} {player.AccountId}> brought: {item.ObjectId} on market for: {marketData.Price} from: <{sellerAcc.Name} {sellerAcc.AccountId}>");
 
             /* Add fame to the Seller */
