@@ -77,6 +77,10 @@ dotnet build source\WorldServer\WorldServer.csproj -c Debug -o build\wscheck   #
 - **Scheduled restart:** behind the proxy, `restartTime` writes `restart.request` instead of
   kicking; the proxy runs `rolling_restart.py deploy --reuse`. The server asks again every 30
   minutes until it's draining, so a failed restart is retried.
+  Without the proxy (an isolated stack, `start.bat`) it kicks everyone 5 minutes after warning
+  them; on Windows it then starts itself again by full path, the way it was started
+  (`dotnet WorldServer.dll` on an isolated stack, which `iso_stack.py status` and `stop` find).
+  On Linux, systemd starts it again.
 - **Failed starts:** `start_backend` records a new server as `starting` in the state before it
   waits, and stops it (SIGTERM, or Ctrl+Break on Windows) if it doesn't listen in time or the
   tool is interrupted; a deploy stops a `starting` server a dead tool left. Never leave a world

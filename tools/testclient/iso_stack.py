@@ -128,15 +128,19 @@ def start(args):
 
 def strays():
     """Processes still running from this stack's folder that pids.json doesn't list (a world server
-    started by hand from build/iso<N>/ws, or one left by a lost pids.json): (pid, path). They hold
-    its files, so the next build can't replace them. Windows only."""
+    started by hand from build/iso<N>/ws, one that restarted itself as `dotnet WorldServer.dll`, or
+    one left by a lost pids.json): (pid, path). They hold its files, so the next build can't replace
+    them. Windows only."""
     if os.name != "nt":
         return []
-    ps = ("Get-CimInstance Win32_Process | Where-Object { $_.ExecutablePath -and "
-          "$_.ExecutablePath.StartsWith('%s', 'OrdinalIgnoreCase') } | "
-          "ForEach-Object { \"$($_.ProcessId)|$($_.ExecutablePath)\" }" % (os.path.abspath(ISO) + os.sep))
+    ps = ("$d = '%s'; Get-CimInstance Win32_Process | Where-Object { "
+          "($_.ExecutablePath -and $_.ExecutablePath.StartsWith($d, 'OrdinalIgnoreCase')) -or "
+          "($_.Name -eq 'dotnet.exe' -and $_.CommandLine -and $_.CommandLine.IndexOf($d, [StringComparison]::OrdinalIgnoreCase) -ge 0) } | "
+          "ForEach-Object { \"$($_.ProcessId)|$($_.CommandLine)\" }" % (os.path.abspath(ISO) + os.sep))
     out = subprocess.run(["powershell", "-NoProfile", "-Command", ps], capture_output=True, text=True).stdout
-    return [(int(p), path) for p, _, path in (line.partition("|") for line in out.splitlines()) if p.strip().isdigit()]
+    listed = set(json.load(open(PIDS)).values()) if os.path.exists(PIDS) else set()
+    return [(int(p), path.strip()) for p, _, path in (line.partition("|") for line in out.splitlines())
+            if p.strip().isdigit() and int(p) not in listed]
 
 
 def stop(_):
@@ -152,15 +156,17 @@ def stop(_):
         print("not running")
     for pid, path in strays():
         subprocess.run(["taskkill", "/PID", str(pid), "/T", "/F"], capture_output=True)
-        print("stopped", os.path.relpath(path, ROOT), pid, "(not started by this script)")
+        print("stopped", pid, path, "(not started by this script)")
 
 
 def status(_):
     if not os.path.exists(PIDS):
         print("not running")
-        return
-    for name, pid in json.load(open(PIDS)).items():
-        print(name, pid, "running" if running(pid) else "stopped")
+    else:
+        for name, pid in json.load(open(PIDS)).items():
+            print(name, pid, "running" if running(pid) else "stopped")
+    for pid, path in strays():
+        print("also running:", pid, path, "(a world server that restarted itself, or one started by hand)")
 
 
 def main():
