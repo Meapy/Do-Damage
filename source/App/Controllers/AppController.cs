@@ -31,6 +31,15 @@ namespace App.Controllers
             Response.CreateError("No Servers");
         }
 
+        // The website's status block: players now, the 24-hour peak and uptime per day (StatusHistory).
+        [HttpGet("status")]
+        [HttpPost("status")]
+        public IActionResult Status()
+        {
+            Response.Headers["Cache-Control"] = "no-store";
+            return new JsonResult(_core.Status.Report());
+        }
+
         [HttpPost("init")]
         public void Init() => Response.CreateBytes(ReadFile($"{_core.Resources.ResourcePath}/data/init.xml"));
 

@@ -20,6 +20,10 @@ details). Add to a group's line when a change adds to it, rather than adding ano
   arrive on top of a tree or other blocking thing either, and the Cnidarian Reef, which had no
   arrival spot, now lets you in on its floor instead of in the void.
 
+### Website
+- The home page shows the players online, the most there were in the last 24 hours and how much of
+  each of the last 7 days the realm was up.
+
 ## 2.2.1 (2026-10-26)
 
 ### Classes

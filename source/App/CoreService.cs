@@ -22,6 +22,7 @@ namespace App
         public readonly Database Database;
         public readonly ISManager ISManager;
         public readonly ServerConfig Config;
+        public readonly StatusHistory Status;
         private readonly Timer LegendSweeper = new Timer(60000);
 
         public readonly List<ushort> PlayerClasses;
@@ -57,6 +58,8 @@ namespace App
 
             LegendSweeper.Elapsed += (sender, e) => Database.CleanLegends();
             LegendSweeper.Start();
+
+            Status = new StatusHistory(this);
 
             PlayerClasses = Resources.GameData.ObjectDescs.Values.Where(objDesc => objDesc.Player).Select(objDesc => objDesc.ObjectType).ToList();
             _classes = Resources.GameData.ObjectDescs.Values.Where(objDesc => objDesc.Player).ToDictionary(objDesc => objDesc.ObjectType, objDesc => objDesc.IdName);

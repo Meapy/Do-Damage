@@ -42,6 +42,12 @@
           <a class="btn btn-ghost" href="#get" id="download-main">Download the client</a>
         </div>
         <p class="fine" id="play-note">No install. Chrome, Edge, Firefox or Safari, with a keyboard and mouse.</p>
+        <!-- Filled by site.js from api/app/status; stays hidden when that can't be read -->
+        <p class="stats" id="stats" hidden>
+          <span class="stat">Players <b id="stat-players">0</b></span>
+          <span class="stat">24h peak <b id="stat-peak">0</b></span>
+          <span class="stat">Uptime, 7 days <span class="uptime" id="stat-days"></span></span>
+        </p>
       </div>
       <a class="scroll-cue" href="#screens" aria-label="Scroll down"><span></span></a>
     </section>
