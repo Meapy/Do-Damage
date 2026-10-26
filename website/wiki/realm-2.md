@@ -29,7 +29,7 @@ you can roam from end to end like the realm's Godlands. A land stays once its ev
 | Land | Its event | Its monsters | Its quests |
 |---|---|---|---|
 | The Cubic Expanse | Cube God | Prism Sentinel, Shard Walker, Cube Overseer | Tesseract, Hypercube Warden |
-| The Watching Dark | Pentaract | Floating Eye, Gazer, Watcher Stalk, Beholder | Eye of the Pentagram (with Eye Swarmers), Elder Watcher |
+| The Watching Dark | Pentaract | Floating Eye, Gazer, Watcher Stalk | Eye of the Pentagram (with Eye Swarmers), Elder Watcher |
 | The Lost Lands | Lord of the Lost Lands | Lost Sentry, Forsaken Archer, Wailing Wraith, Ruin Golem | Sentry Captain, Forgotten Warlord |
 | The Tidepools | Hermit God | Hermit Brute, Tide Snapper, Barnacle Turret, Kelp Lurker | Shellback Champion, Ancient Snapper |
 | The Wreck Coast | Ghost Ship | Drowned Buccaneer, Bone Gunner, Wreck Wraith | Phantom Quartermaster (with Spectral Gulls), Abyssal Kraken |
@@ -40,11 +40,13 @@ you can roam from end to end like the realm's Godlands. A land stays once its ev
 | The Forgotten Kingdom | Avatar of the Forgotten King | Shattered Knight, Forgotten Mage, Stone Gargoyle | Forgotten Archmage (with Soul Lanterns), King's Champion |
 | The Honey Meadow | Killer Bee Nest | Hornet Drone, Honey Slime | Royal Guard Bee, Hornet Queen (with Worker Bees) |
 
-- **Monsters** roam in small groups, as in the Godlands: each land's own, and the Godlands' gods
-  (White Demons, Medusas, Beholders and the rest) with them. They're about as strong as the gods
-  and drop as they do (tiered gear up to T10 armour, and a stat potion now and then), the gods
-  their dungeon portals too, and they count as gods for your quests. The small ones (Cubelets,
-  Scarabs, Worker Bees...) only come with the quest monsters that bring them.
+- **Monsters** roam in small groups, as in the Godlands, and each stands in for one of the
+  Godlands' gods: as big as the gods, with that god's health, attack pattern and drops (tiered
+  gear up to T10 armour, its stat potion now and then, and its dungeon portal: Abyss of Demons,
+  Snake Pit, Mad Lab, Toxic Sewers, Undead Lair, Treasure Cave, Puppet Theatre and the rest). The
+  Jackal Guard fights like a White Demon, the Gazer like a Beholder, the Hermit Brute like a
+  Leviathan, and so on. They count as gods for your quests. The small ones (Cubelets, Scarabs,
+  Worker Bees...) only come with the quest monsters that bring them.
 - **Quest monsters** have far more health and drop better: T10-T12 gear, T4-T5 abilities and
   rings, two kinds of stat potion and sometimes Life or Mana, and now and then a portal to a dungeon
   that fits their land (Mad Lab, Cursed Library, Haunted Cemetery, Ocean Trench, Davy Jones'

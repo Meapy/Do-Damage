@@ -2,6 +2,8 @@ using Shared.resources;
 using WorldServer.logic.behaviors;
 using WorldServer.logic.loot;
 using WorldServer.logic.transitions;
+using WorldServer.logic.behaviors.@new;
+using WorldServer.logic.behaviors.@new.movements;
 
 namespace WorldServer.logic
 {
@@ -38,40 +40,179 @@ namespace WorldServer.logic
                 new ItemLoot("Potion of Life", 0.02), new ItemLoot("Potion of Mana", 0.02)),
         };
 
+        // Each land's regular monsters stand in for the Godlands' gods one for one
+        // (tools/build_realm2.py STAND_INS gives them the god's numbers): the god's movement and
+        // shot pattern, its Reproduce, its potion and its dungeon portal.
+        private static readonly System.Collections.Generic.Dictionary<string, string> R2StandIns = new System.Collections.Generic.Dictionary<string, string>
+        {
+            { "R2 Prism Sentinel", "Flying Brain" },
+            { "R2 Shard Walker", "White Demon" },
+            { "R2 Cube Overseer", "Sprite God" },
+            { "R2 Floating Eye", "Ghost God" },
+            { "R2 Gazer", "Beholder" },
+            { "R2 Watcher Stalk", "Medusa" },
+            { "R2 Lost Sentry", "Ent God" },
+            { "R2 Forsaken Archer", "White Demon" },
+            { "R2 Wailing Wraith", "Ghost God" },
+            { "R2 Ruin Golem", "Leviathan" },
+            { "R2 Hermit Brute", "Leviathan" },
+            { "R2 Tide Snapper", "Slime God" },
+            { "R2 Barnacle Turret", "Flying Brain" },
+            { "R2 Kelp Lurker", "Medusa" },
+            { "R2 Drowned Buccaneer", "Ent God" },
+            { "R2 Bone Gunner", "Medusa" },
+            { "R2 Wreck Wraith", "Ghost God" },
+            { "R2 Tomb Mummy", "Slime God" },
+            { "R2 Jackal Guard", "White Demon" },
+            { "R2 Sun Obelisk", "Djinn" },
+            { "R2 Bone Flayer", "Ent God" },
+            { "R2 Blood Imp", "Flying Brain" },
+            { "R2 Shrine Cultist", "Sprite God" },
+            { "R2 Komainu", "Medusa" },
+            { "R2 Oni Mask", "Beholder" },
+            { "R2 Kitsune Spirit", "Djinn" },
+            { "R2 Drakeling", "White Demon" },
+            { "R2 Magma Salamander", "Slime God" },
+            { "R2 Ember Wyrm", "Leviathan" },
+            { "R2 Obsidian Golem", "Ent God" },
+            { "R2 Shattered Knight", "Sprite God" },
+            { "R2 Forgotten Mage", "Ghost God" },
+            { "R2 Stone Gargoyle", "Beholder" },
+            { "R2 Hornet Drone", "Djinn" },
+            { "R2 Honey Slime", "Slime God" }
+        };
+
+        // god -> (its behaviour, its potion, its dungeon portal and the chance of it)
+        private static (System.Func<State> State, string Potion, string Portal, double Chance) R2God(string god) => god switch
+        {
+            "White Demon" => (() => new State(
+                new OrderedBehavior(new NewFollow(range: 7, speed: 1.0f), new NewWander(0.4f)),
+                new Shoot(10, count: 3, shootAngle: 20, predictive: 1, coolDown: 500),
+                new Reproduce(densityMax: 3)), "Potion of Attack", "Abyss of Demons Portal", 0.25),
+            "Sprite God" => (() => new State(
+                new OrderedBehavior(new NewWander(0.4f)),
+                new Shoot(12, projectileIndex: 0, count: 4, shootAngle: 10),
+                new Shoot(10, projectileIndex: 1, predictive: 1),
+                new Reproduce(densityMax: 3)), "Potion of Attack", "Glowing Portal", 0.25),
+            "Medusa" => (() => new State(
+                new OrderedBehavior(new NewFollow(range: 7, speed: 1.0f), new NewWander(0.4f)),
+                new Shoot(12, count: 5, shootAngle: 10, coolDown: 1000),
+                new Grenade(4, 150, range: 8, coolDown: 3000),
+                new Reproduce(densityMax: 3)), "Potion of Speed", "Snake Pit Portal", 0.25),
+            "Ent God" => (() => new State(
+                new OrderedBehavior(new NewFollow(range: 7, speed: 1.0f), new NewWander(0.4f)),
+                new Shoot(12, count: 5, shootAngle: 10, predictive: 1, coolDown: 1250),
+                new Reproduce(densityMax: 3)), "Potion of Defense", null, 0),
+            "Beholder" => (() => new State(
+                new OrderedBehavior(new NewFollow(range: 7, speed: 1.0f), new NewWander(0.4f)),
+                new Shoot(12, projectileIndex: 0, count: 5, shootAngle: 72, predictive: 0.5, coolDown: 750),
+                new Shoot(10, projectileIndex: 1, predictive: 1),
+                new Reproduce(densityMax: 3)), "Potion of Defense", null, 0),
+            "Flying Brain" => (() => new State(
+                new OrderedBehavior(new NewFollow(range: 7, speed: 1.0f), new NewWander(0.4f)),
+                new Shoot(12, count: 5, shootAngle: 72, coolDown: 500),
+                new Reproduce(densityMax: 3)), "Potion of Attack", "Mad Lab Portal", 0.17),
+            "Slime God" => (() => new State(
+                new OrderedBehavior(new NewFollow(range: 7, speed: 1.0f), new NewWander(0.4f)),
+                new Shoot(12, projectileIndex: 0, count: 5, shootAngle: 10, predictive: 1, coolDown: 1000),
+                new Shoot(10, projectileIndex: 1, predictive: 1, coolDown: 650),
+                new Reproduce(densityMax: 2)), "Potion of Defense", "Toxic Sewers Portal", 0.3),
+            "Ghost God" => (() => new State(
+                new OrderedBehavior(new NewFollow(range: 7, speed: 1.0f), new NewWander(0.4f)),
+                new Shoot(12, count: 7, shootAngle: 25, predictive: 0.5, coolDown: 900),
+                new Reproduce(densityMax: 3)), "Potion of Speed", "Undead Lair Portal", 0.25),
+            "Djinn" => (R2Djinn, "Potion of Speed", "Treasure Cave Portal", 0.25),
+            "Leviathan" => (R2Leviathan, "Potion of Defense", "Puppet Theatre Portal", 0.25),
+            _ => throw new System.ArgumentException(god),
+        };
+
+        // the Djinn's: idle and untouchable until a player comes near, then its turning bullet
+        // waves, and at half health a last burst as it bursts
+        private static State R2Djinn()
+        {
+            var bullet = new System.Collections.Generic.List<IStateChildren>();
+            for (var i = 0; i < 10; i++)
+                bullet.Add(new Shoot(1, count: 4, coolDown: 10000, fixedAngle: 90 + i * 10, coolDownOffset: i * 200, shootAngle: 90));
+            bullet.Add(new Shoot(1, count: 8, coolDown: 10000, fixedAngle: 180, coolDownOffset: 2000, shootAngle: 45));
+            for (var i = 0; i < 10; i++)
+                bullet.Add(new Shoot(1, count: 4, coolDown: 10000, fixedAngle: 180 - i * 10, coolDownOffset: i * 200, shootAngle: 90));
+            bullet.Add(new Shoot(1, count: 4, coolDown: 10000, fixedAngle: 0, coolDownOffset: 1800, shootAngle: 90));
+            bullet.Add(new Shoot(1, count: 16, coolDown: 10000, fixedAngle: 0, coolDownOffset: 2000, shootAngle: 22.5));
+            bullet.Add(new TimedTransition(2000, "Wait"));
+            return new State(
+                new State("Idle",
+                    new OrderedBehavior(new NewWander(0.4f)),
+                    new ConditionEffectBehavior(ConditionEffectIndex.Invulnerable),
+                    new Reproduce(densityMax: 3, densityRadius: 20),
+                    new PlayerWithinTransition(8, "Attacking")
+                    ),
+                new State("Attacking",
+                    new State("Bullet", bullet.ToArray()),
+                    new State("Wait",
+                        new Follow(0.7, range: 0.5),
+                        new Flash(0xff00ff00, 0.1, 20),
+                        new ConditionEffectBehavior(ConditionEffectIndex.Invulnerable),
+                        new TimedTransition(2000, "Bullet")
+                        ),
+                    new NoPlayerWithinTransition(13, "Idle"),
+                    new HpLessTransition(0.5, "FlashBeforeExplode")
+                    ),
+                new State("FlashBeforeExplode",
+                    new ConditionEffectBehavior(ConditionEffectIndex.Invulnerable),
+                    new Flash(0xff0000, 0.3, 3),
+                    new TimedTransition(1000, "Explode")
+                    ),
+                new State("Explode",
+                    new Shoot(0, count: 10, shootAngle: 36, fixedAngle: 0),
+                    new Suicide()
+                    )
+                );
+        }
+
+        // the Leviathan's: swirling with twin shots, then a triangle run firing its three-way bursts
+        private static State R2Leviathan()
+        {
+            State Leg(string name, double angle, int fire, string next) => new State(name,
+                new MoveLine(.7, angle),
+                new Shoot(1, 3, 120, fixedAngle: fire, coolDown: 300),
+                new Shoot(1, 3, 120, fixedAngle: fire + 4, coolDown: 300),
+                new Shoot(1, 3, 120, fixedAngle: fire + 8, coolDown: 300),
+                new Shoot(1, 3, 120, fixedAngle: fire + 12, coolDown: 300),
+                new TimedTransition(1500, next));
+            return new State(
+                new State("Wander",
+                    new Swirl(),
+                    new Shoot(10, 2, 10, 1, coolDown: 500),
+                    new TimedTransition(5000, "Triangle")
+                    ),
+                new State("Triangle",
+                    Leg("1", 40, 34, "2"),
+                    Leg("2", 160, 94, "3"),
+                    Leg("3", 280, 274, "Wander")
+                    )
+                );
+        }
+
+        private _ Realm2Gods = () =>
+        {
+            var ctor = Behav();
+            foreach (var (mob, god) in R2StandIns)
+            {
+                var (state, potion, portal, chance) = R2God(god);
+                var root = state();
+                if (portal != null)
+                    root = new State(new DropPortalOnDeath(portal, chance), root);
+                ctor = ctor.Init(mob, root, R2Mob(potion));
+            }
+            return ctor;
+        };
+
         private _ Realm2 = () => Behav()
         // ---------------------------------------------------------------- the Cubic Expanse
         .Init("R2 Cubelet",
             new State(
                 new Prioritize(new StayCloseToSpawn(1.2, 16), new Swirl(1.2, 3, 9), new Wander(0.6)),
                 new Shoot(8, 3, shootAngle: 15, coolDown: 900)
-                ),
-            R2Mob("Potion of Wisdom"))
-        .Init("R2 Prism Sentinel",
-            new State(
-                new Prioritize(new StayCloseToSpawn(0.4, 12), new Wander(0.3)),
-                new Shoot(10, 8, projectileIndex: 0, fixedAngle: 0, rotateAngle: 11, coolDown: 1200),
-                new Shoot(9, projectileIndex: 1, predictive: 0.6, coolDown: 1800)
-                ),
-            R2Mob("Potion of Wisdom"))
-        .Init("R2 Shard Walker",
-            new State(
-                new State("Close",
-                    R2Walk(1.0),
-                    new Shoot(8, 3, shootAngle: 12, coolDown: 1000),
-                    new TimedTransition(3500, "Rush")
-                    ),
-                new State("Rush",
-                    new Charge(2.2, 9, coolDown: 400),
-                    new Shoot(6, 5, shootAngle: 20, coolDown: 600),
-                    new TimedTransition(1500, "Close")
-                    )
-                ),
-            R2Mob("Potion of Dexterity"))
-        .Init("R2 Cube Overseer",
-            new State(
-                R2Keep(0.6, 6),
-                new Shoot(11, 4, shootAngle: 90, fixedAngle: 45, rotateAngle: 15, coolDown: 1100),
-                new Shoot(11, predictive: 0.5, coolDown: 1500)
                 ),
             R2Mob("Potion of Wisdom"))
         .Init("R2 Tesseract",
@@ -120,29 +261,10 @@ namespace WorldServer.logic
                 ),
             R2Quest("Potion of Dexterity", "Potion of Wisdom"))
         // ---------------------------------------------------------------- the Watching Dark
-        .Init("R2 Floating Eye",
-            new State(
-                new Prioritize(new StayCloseToSpawn(0.6, 16), new Orbit(0.6, 5, 10), new Wander(0.4)),
-                new Shoot(10, 2, shootAngle: 10, predictive: 0.4, coolDown: 900)
-                ),
-            R2Mob("Potion of Attack"))
         .Init("R2 Eye Swarmer",
             new State(
                 new Prioritize(new StayCloseToSpawn(1.4, 16), new Swirl(1.4, 2.5, 9), new Wander(0.8)),
                 new Shoot(7, coolDown: 500)
-                ),
-            R2Mob("Potion of Attack"))
-        .Init("R2 Gazer",
-            new State(
-                R2Walk(0.6, 10, 6),
-                new Shoot(12, 5, shootAngle: 72, projectileIndex: 0, predictive: 0.5, coolDown: 900),
-                new Shoot(10, projectileIndex: 1, predictive: 1, coolDown: 3000)
-                ),
-            R2Mob("Potion of Wisdom"))
-        .Init("R2 Watcher Stalk",
-            new State(
-                new Shoot(11, projectileIndex: 0, predictive: 0.8, coolDown: 650),
-                new Shoot(9, 3, shootAngle: 25, projectileIndex: 1, coolDown: 2600)
                 ),
             R2Mob("Potion of Attack"))
         .Init("R2 Eye of the Pentagram",
@@ -183,41 +305,6 @@ namespace WorldServer.logic
                 ),
             R2Quest("Potion of Wisdom", "Potion of Attack"))
         // ---------------------------------------------------------------- the Lost Lands
-        .Init("R2 Lost Sentry",
-            new State(
-                new State("March",
-                    R2Walk(0.9, 10, 1.5),
-                    new Shoot(3, 2, shootAngle: 20, projectileIndex: 0, coolDown: 500),
-                    new Shoot(9, 3, shootAngle: 15, projectileIndex: 1, coolDown: 1400),
-                    new TimedTransition(4000, "Lunge")
-                    ),
-                new State("Lunge",
-                    new Charge(2.5, 9, coolDown: 600),
-                    new Shoot(4, 3, shootAngle: 25, projectileIndex: 0, coolDown: 400),
-                    new TimedTransition(1200, "March")
-                    )
-                ),
-            R2Mob("Potion of Defense"))
-        .Init("R2 Forsaken Archer",
-            new State(
-                R2Keep(0.8, 7),
-                new Shoot(13, projectileIndex: 0, predictive: 0.9, coolDown: 800),
-                new Shoot(13, 3, shootAngle: 12, projectileIndex: 0, coolDown: 2400, coolDownOffset: 1200)
-                ),
-            R2Mob("Potion of Defense"))
-        .Init("R2 Wailing Wraith",
-            new State(
-                new Prioritize(new StayCloseToSpawn(0.8, 16), new Orbit(0.9, 4, 10), new Wander(0.5)),
-                new Shoot(9, 4, shootAngle: 90, rotateAngle: 20, coolDown: 700)
-                ),
-            R2Mob("Potion of Vitality"))
-        .Init("R2 Ruin Golem",
-            new State(
-                R2Walk(0.4, 9, 2),
-                new Shoot(10, 6, shootAngle: 60, coolDown: 1800),
-                new Shoot(10, 2, shootAngle: 10, predictive: 0.4, coolDown: 1200)
-                ),
-            R2Mob("Potion of Defense"))
         .Init("R2 Sentry Captain",
             new State(
                 new State("Drill",
@@ -262,39 +349,6 @@ namespace WorldServer.logic
                 ),
             R2Quest("Potion of Vitality", "Potion of Defense"))
         // ---------------------------------------------------------------- the Tidepools
-        .Init("R2 Hermit Brute",
-            new State(
-                R2Walk(0.5, 9, 2),
-                new Shoot(10, 3, shootAngle: 18, predictive: 0.3, coolDown: 1100),
-                new Shoot(10, 6, shootAngle: 60, coolDown: 2400)
-                ),
-            R2Mob("Potion of Defense"))
-        .Init("R2 Tide Snapper",
-            new State(
-                new State("Scuttle",
-                    new Prioritize(new StayCloseToSpawn(1.0, 16), new Follow(1.1, 9, 4), new Wander(0.7)),
-                    new Shoot(9, 2, shootAngle: 30, coolDown: 1200),
-                    new TimedTransition(3000, "Snap")
-                    ),
-                new State("Snap",
-                    new Charge(2.6, 8, coolDown: 500),
-                    new Shoot(6, 4, shootAngle: 90, coolDown: 500),
-                    new TimedTransition(1000, "Scuttle")
-                    )
-                ),
-            R2Mob("Potion of Vitality"))
-        .Init("R2 Barnacle Turret",
-            new State(
-                new Shoot(10, 6, shootAngle: 60, rotateAngle: 15, coolDown: 900),
-                new Shoot(10, predictive: 0.6, coolDown: 1300)
-                ),
-            R2Mob("Potion of Defense"))
-        .Init("R2 Kelp Lurker",
-            new State(
-                R2Keep(0.6, 5),
-                new Shoot(11, 3, shootAngle: 35, predictive: 0.3, coolDown: 1500)
-                ),
-            R2Mob("Potion of Vitality"))
         .Init("R2 Shellback Champion",
             new State(
                 new State("Shell",
@@ -330,30 +384,10 @@ namespace WorldServer.logic
                 ),
             R2Quest("Potion of Vitality", "Potion of Defense"))
         // ---------------------------------------------------------------- the Wreck Coast
-        .Init("R2 Drowned Buccaneer",
-            new State(
-                R2Walk(0.9, 10, 1.5),
-                new Shoot(3, 2, shootAngle: 15, projectileIndex: 0, coolDown: 450),
-                new Shoot(9, projectileIndex: 1, predictive: 0.5, coolDown: 1500)
-                ),
-            R2Mob("Potion of Dexterity"))
         .Init("R2 Spectral Gull",
             new State(
                 new Prioritize(new StayCloseToSpawn(1.4, 16), new Buzz(1.6, 1.5, 300), new Follow(1.4, 10, 2), new Wander(1)),
                 new Shoot(7, 3, shootAngle: 20, coolDown: 800)
-                ),
-            R2Mob("Potion of Speed"))
-        .Init("R2 Bone Gunner",
-            new State(
-                R2Keep(0.6, 7),
-                new Shoot(12, predictive: 0.8, coolDown: 1400),
-                new Grenade(2.5, 110, 8, coolDown: 3000, color: 0x3a3a3a)
-                ),
-            R2Mob("Potion of Dexterity"))
-        .Init("R2 Wreck Wraith",
-            new State(
-                new Prioritize(new StayCloseToSpawn(0.8, 16), new Orbit(0.8, 5, 10), new Wander(0.5)),
-                new Shoot(10, 3, shootAngle: 120, rotateAngle: 17, coolDown: 600)
                 ),
             R2Mob("Potion of Speed"))
         .Init("R2 Phantom Quartermaster",
@@ -407,32 +441,6 @@ namespace WorldServer.logic
                 new Shoot(7, 2, shootAngle: 30, coolDown: 600)
                 ),
             R2Mob("Potion of Speed"))
-        .Init("R2 Tomb Mummy",
-            new State(
-                R2Walk(0.5, 9, 2),
-                new Shoot(10, 3, shootAngle: 20, coolDown: 1200),
-                new Shoot(10, predictive: 0.5, coolDown: 2000)
-                ),
-            R2Mob("Potion of Vitality"))
-        .Init("R2 Jackal Guard",
-            new State(
-                new State("Watch",
-                    R2Walk(0.9, 10, 4),
-                    new Shoot(12, 2, shootAngle: 8, predictive: 0.8, coolDown: 900),
-                    new TimedTransition(3500, "Pounce")
-                    ),
-                new State("Pounce",
-                    new Charge(2.4, 10, coolDown: 500),
-                    new Shoot(6, 3, shootAngle: 20, coolDown: 400),
-                    new TimedTransition(1200, "Watch")
-                    )
-                ),
-            R2Mob("Potion of Speed"))
-        .Init("R2 Sun Obelisk",
-            new State(
-                new Shoot(11, 4, shootAngle: 90, fixedAngle: 0, rotateAngle: 10, coolDown: 400)
-                ),
-            R2Mob("Potion of Vitality"))
         .Init("R2 Tomb Sentinel",
             new State(
                 new State("Rays",
@@ -468,30 +476,10 @@ namespace WorldServer.logic
                 ),
             R2Quest("Potion of Speed", "Potion of Vitality"))
         // ---------------------------------------------------------------- the Bonefields
-        .Init("R2 Bone Flayer",
-            new State(
-                R2Walk(0.9, 10, 2),
-                new Shoot(8, 3, shootAngle: 15, coolDown: 800)
-                ),
-            R2Mob("Potion of Attack"))
         .Init("R2 Skull Wisp",
             new State(
                 new Prioritize(new StayCloseToSpawn(1.1, 16), new Orbit(1.1, 3.5, 10), new Wander(0.6)),
                 new Shoot(10, predictive: 0.5, coolDown: 700)
-                ),
-            R2Mob("Potion of Attack"))
-        .Init("R2 Blood Imp",
-            new State(
-                new Prioritize(new StayCloseToSpawn(1.2, 16), new Buzz(1.4, 1.2, 500), new Follow(1.2, 9, 2), new Wander(0.8)),
-                new Shoot(8, 2, shootAngle: 20, coolDown: 600)
-                ),
-            R2Mob("Potion of Defense"))
-        .Init("R2 Shrine Cultist",
-            new State(
-                R2Keep(0.6, 6),
-                new Shoot(11, 3, shootAngle: 25, predictive: 0.3, coolDown: 1300),
-                new Grenade(2, 90, 7, coolDown: 3200, color: 0xE06010),
-                new HealGroup(8, "Realm 2 skull", coolDown: 4000, healAmount: 300)
                 ),
             R2Mob("Potion of Attack"))
         .Init("R2 Shrine Keeper",
@@ -536,33 +524,6 @@ namespace WorldServer.logic
                 ),
             R2Quest("Potion of Defense", "Potion of Attack"))
         // ---------------------------------------------------------------- the Jade Garden
-        .Init("R2 Komainu",
-            new State(
-                new State("Guard",
-                    new Prioritize(new StayCloseToSpawn(0.6, 10), new Follow(0.7, 8, 3), new Wander(0.3)),
-                    new Shoot(9, 3, shootAngle: 20, coolDown: 1100),
-                    new TimedTransition(4000, "Leap")
-                    ),
-                new State("Leap",
-                    new Charge(2.4, 9, coolDown: 600),
-                    new Shoot(6, 6, shootAngle: 60, coolDown: 600),
-                    new TimedTransition(1200, "Guard")
-                    )
-                ),
-            R2Mob("Potion of Wisdom"))
-        .Init("R2 Oni Mask",
-            new State(
-                new Prioritize(new StayCloseToSpawn(0.8, 16), new Orbit(0.8, 4.5, 10), new Wander(0.5)),
-                new Shoot(10, 5, shootAngle: 14, predictive: 0.2, coolDown: 1400)
-                ),
-            R2Mob("Potion of Speed"))
-        .Init("R2 Kitsune Spirit",
-            new State(
-                R2Keep(1.0, 6),
-                new Shoot(11, 3, shootAngle: 40, projectileIndex: 0, rotateAngle: 20, coolDown: 700),
-                new Shoot(11, projectileIndex: 1, predictive: 0.7, coolDown: 1200)
-                ),
-            R2Mob("Potion of Speed"))
         .Init("R2 Lantern Wisp",
             new State(
                 new Prioritize(new StayCloseToSpawn(0.7, 16), new Follow(0.7, 9, 4), new Wander(0.5)),
@@ -606,32 +567,6 @@ namespace WorldServer.logic
                 ),
             R2Quest("Potion of Wisdom", "Potion of Speed"))
         // ---------------------------------------------------------------- the Ashen Caldera
-        .Init("R2 Drakeling",
-            new State(
-                new Prioritize(new StayCloseToSpawn(1.0, 16), new Orbit(1.0, 4, 10), new Wander(0.6)),
-                new Shoot(10, 2, shootAngle: 12, predictive: 0.5, coolDown: 800)
-                ),
-            R2Mob("Potion of Attack"))
-        .Init("R2 Magma Salamander",
-            new State(
-                R2Walk(0.8, 9, 3),
-                new Shoot(10, 3, shootAngle: 15, coolDown: 1000),
-                new Grenade(2, 100, 7, coolDown: 3500, color: 0xFF7010)
-                ),
-            R2Mob("Potion of Dexterity"))
-        .Init("R2 Ember Wyrm",
-            new State(
-                new Prioritize(new StayCloseToSpawn(0.9, 16), new Orbit(0.9, 6, 11), new Wander(0.6)),
-                new Shoot(12, 3, shootAngle: 25, predictive: 0.3, coolDown: 1200)
-                ),
-            R2Mob("Potion of Attack"))
-        .Init("R2 Obsidian Golem",
-            new State(
-                R2Walk(0.35, 9, 2),
-                new Shoot(10, 8, shootAngle: 45, coolDown: 2000),
-                new Shoot(10, predictive: 0.6, coolDown: 1400)
-                ),
-            R2Mob("Potion of Defense"))
         .Init("R2 Wyrm Matriarch",
             new State(
                 new State("Soar",
@@ -677,34 +612,6 @@ namespace WorldServer.logic
                 ),
             R2Quest("Potion of Dexterity", "Potion of Attack"))
         // ---------------------------------------------------------------- the Forgotten Kingdom
-        .Init("R2 Shattered Knight",
-            new State(
-                R2Walk(0.8, 10, 1.5),
-                new Shoot(5, 3, shootAngle: 25, projectileIndex: 0, coolDown: 900),
-                new Shoot(3, projectileIndex: 1, coolDown: 400)
-                ),
-            R2Mob("Potion of Defense"))
-        .Init("R2 Forgotten Mage",
-            new State(
-                R2Keep(0.7, 7),
-                new Shoot(12, 2, shootAngle: 10, projectileIndex: 0, predictive: 0.6, coolDown: 900),
-                new Shoot(10, 6, shootAngle: 60, projectileIndex: 1, coolDown: 2200)
-                ),
-            R2Mob("Potion of Wisdom"))
-        .Init("R2 Stone Gargoyle",
-            new State(
-                new State("Perch",
-                    new Prioritize(new StayCloseToSpawn(0.5, 10), new Wander(0.2)),
-                    new Shoot(10, 2, shootAngle: 15, coolDown: 1200),
-                    new PlayerWithinTransition(6, "Dive")
-                    ),
-                new State("Dive",
-                    new Charge(2.6, 10, coolDown: 700),
-                    new Shoot(8, 4, shootAngle: 90, rotateAngle: 45, coolDown: 500),
-                    new TimedTransition(3000, "Perch")
-                    )
-                ),
-            R2Mob("Potion of Defense"))
         .Init("R2 Soul Lantern",
             new State(
                 new Prioritize(new StayCloseToSpawn(0.6, 16), new Orbit(0.6, 5, 10), new Wander(0.4)),
@@ -762,26 +669,6 @@ namespace WorldServer.logic
             new State(
                 new Prioritize(new StayCloseToSpawn(1.4, 16), new Buzz(1.6, 1, 400), new Swirl(1.4, 2.5, 9), new Wander(0.9)),
                 new Shoot(7, coolDown: 450)
-                ),
-            R2Mob("Potion of Speed"))
-        .Init("R2 Hornet Drone",
-            new State(
-                new State("Hover",
-                    new Prioritize(new StayCloseToSpawn(1.2, 16), new Orbit(1.2, 4, 10), new Wander(0.8)),
-                    new Shoot(9, 2, shootAngle: 10, predictive: 0.5, coolDown: 700),
-                    new TimedTransition(3000, "Sting")
-                    ),
-                new State("Sting",
-                    new Charge(3, 9, coolDown: 400),
-                    new Shoot(5, 3, shootAngle: 15, coolDown: 300),
-                    new TimedTransition(900, "Hover")
-                    )
-                ),
-            R2Mob("Potion of Dexterity"))
-        .Init("R2 Honey Slime",
-            new State(
-                R2Walk(0.4, 8, 2),
-                new Shoot(9, 5, shootAngle: 72, coolDown: 1600)
                 ),
             R2Mob("Potion of Speed"))
         .Init("R2 Pollen Sprite",
