@@ -322,6 +322,43 @@ namespace WorldServer.core.worlds
         }
 
         public virtual KeyValuePair<IntPoint, TileRegion>[] GetSpawnPoints() => Map.Regions.Where(t => t.Value == TileRegion.Spawn).ToArray();
+
+        // Where an arriving player is placed: the centre of a random spawn tile they can stand on,
+        // one with nothing on it (Oryx's Chamber's Nexus Portals stand on spawn tiles) where there is
+        // one. Not the tile's corner, which on a spawn tile beside a wall (Oryx's Chamber has
+        // several) puts them half inside it, where the client won't let them walk. A map with no
+        // spawn tiles (Cnidarian Reef) gets the open tile nearest its centre rather than (0, 0).
+        public Position GetPlayerSpawnPosition()
+        {
+            var points = GetSpawnPoints();
+            var open = points.Where(t => IsPassable(t.Key.X + 0.5, t.Key.Y + 0.5, true)).ToArray();
+            var free = open.Where(t => Map[t.Key.X, t.Key.Y].ObjType == 0).ToArray();
+            if (free.Length > 0)
+                points = free;
+            else if (open.Length > 0)
+                points = open;
+            if (points.Length > 0)
+            {
+                var at = points[Random.Shared.Next(points.Length)].Key;
+                return new Position(at.X + 0.5f, at.Y + 0.5f);
+            }
+
+            var best = new Position(0f, 0f);
+            var bestDist = double.MaxValue;
+            double cx = Map.Width / 2.0, cy = Map.Height / 2.0;
+            for (var y = 0; y < Map.Height; y++)
+                for (var x = 0; x < Map.Width; x++)
+                {
+                    var dist = (x + 0.5 - cx) * (x + 0.5 - cx) + (y + 0.5 - cy) * (y + 0.5 - cy);
+                    if (dist < bestDist && IsPassable(x + 0.5, y + 0.5, true))
+                    {
+                        best = new Position(x + 0.5f, y + 0.5f);
+                        bestDist = dist;
+                    }
+                }
+            return best;
+        }
+
         public virtual KeyValuePair<IntPoint, TileRegion>[] GetRegionPoints(TileRegion region) => Map.Regions.Where(t => t.Value == region).ToArray();
 
         public Player GetUniqueNamedPlayer(string name)

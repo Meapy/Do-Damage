@@ -12,6 +12,14 @@ Keep each version short: changes go under `### ` group headings (Oryx 5, Arena, 
 on), one line per change players notice, summed up rather than item by item (the wiki has the
 details). Add to a group's line when a change adds to it, rather than adding another line.
 
+## Unreleased
+
+### Fixes
+- Entering a world puts you in the middle of a free spot where you arrive, instead of on the edge
+  of it, where in Oryx's Chamber you could land half inside a wall and be stuck. You no longer
+  arrive on top of a tree or other blocking thing either, and the Cnidarian Reef, which had no
+  arrival spot, now lets you in on its floor instead of in the void.
+
 ## 2.2.1 (2026-10-26)
 
 ### Classes
