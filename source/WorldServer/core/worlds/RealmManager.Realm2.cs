@@ -25,6 +25,8 @@ namespace WorldServer.core.worlds
         private const int SpawnClear = 12;              // tiles from any player a monster may appear
         private const int TilesPerMob = 125;            // as the realm's Godlands
         private const double LandRadius = 50;
+        private const int Realm2StaleMs = 3 * 60000;    // an event nobody has touched lets the next come after this
+        private const int Realm2DroughtMs = 30000;      // with no event running this long, one comes wherever it can
         private const double Apart = 90;                // a land's heart at least this far from every other land's
         private const double MaxBack = 15;              // how much nearer the shore than the last a land may come
 
@@ -81,8 +83,8 @@ namespace WorldServer.core.worlds
             if (_upcoming.Count == 0)
                 QueueLands();
             var next = _upcoming.Peek();
-            if (!SpawnNextLayoutEvent())
-                return $"Nowhere fits {EventTitle(next)} yet (players too close to every spot?).";
+            if (!SpawnNextLayoutEvent(true))
+                return $"Nowhere fits {EventTitle(next)}.";
             _lastEventChange = _now;
             return $"{EventTitle(next)} is coming.";
         }
@@ -90,7 +92,7 @@ namespace WorldServer.core.worlds
         // ---- events
 
         // EnsureQuest's turn for an event: false if none could come now (no spot fits)
-        private bool SpawnNextLayoutEvent()
+        private bool SpawnNextLayoutEvent(bool force = false)
         {
             if (_upcoming.Count == 0)
                 QueueLands();
@@ -105,7 +107,7 @@ namespace WorldServer.core.worlds
                 }
 
             var theme = Realm2Themes.Events.First(t => t.Event == evt);
-            var site = PickSite();
+            var site = PickSite(force) ?? (force ? PickSite(true, true) : null);
             if (site == null)
                 return false;
             _upcoming.Dequeue();
@@ -119,7 +121,9 @@ namespace WorldServer.core.worlds
         // way across; best on the Godlands' edge, sticking out into the void, so its middle stays
         // free (or, a quarter of the time, out in the void beside it, joined by a bridge or pool);
         // out of sight of everyone but not far from someone, and clear of the events still running.
-        private (IntPoint At, IntPoint? LinkTo, bool Pool)? PickSite()
+        // `force` (a drought): players only need to be off the land's heart, not out of it, and
+        // needn't be near; `anywhere`: nor does the way out, and lands need only be 60 apart.
+        private (IntPoint At, IntPoint? LinkTo, bool Pool)? PickSite(bool force = false, bool anywhere = false)
         {
             var players = World.Players.Values.ToArray();
             var running = _parts.Where(p => p.Counted && !p.Enemy.Dead && p.Enemy.World == World)
@@ -139,22 +143,24 @@ namespace WorldServer.core.worlds
                     var x = Random.Shared.Next(edge, Layout.Width - edge);
                     var y = Random.Shared.Next(edge, Layout.Height - edge);
                     var along = Layout.Along(x, y);
-                    if (along < lo || along > hi)
+                    if (!anywhere && (along < lo || along > hi))
                         continue;
                     var p = new IntPoint(x, y);
                     // well apart from every land before it: they may touch, not pile up
-                    var apart = pass < 3 ? Apart : pass < 4 ? 75 : 60;
+                    var apart = anywhere || pass >= 4 ? 60 : pass < 3 ? Apart : 75;
                     if (Layout.Areas.Any(a => a.Theme != null && Realm2Canvas.Dist(a.Center, x, y) < apart))
                         continue;
-                    if (running.Any(r => Realm2Canvas.Dist(r, x, y) < 85))
+                    if (!anywhere && running.Any(r => Realm2Canvas.Dist(r, x, y) < 85))
                         continue;
                     // no one inside the land when it comes; someone within reach of it, if anyone's here
-                    if (players.Any(pl => pl.DistTo(x, y) < LandRadius + 8))
+                    if (players.Any(pl => pl.DistTo(x, y) < (force ? 20 : LandRadius + 8)))
                         continue;
-                    if (pass < 2 && players.Length > 0 && !players.Any(pl => pl.DistTo(x, y) < 150))
+                    if (!force && pass < 2 && players.Length > 0 && !players.Any(pl => pl.DistTo(x, y) < 150))
                         continue;
-                    // nothing of the starter lands or midlands under it
+                    // nothing of the starter lands or midlands under it, nor the Godlands kept as they are
                     if (Covers(p, LandRadius * 1.2, a => a.Kind is Realm2Themes.Starter or Realm2Themes.Midlands))
+                        continue;
+                    if (Layout.Untouched.Any(u => Realm2Canvas.Dist(u.At, x, y) < LandRadius * 1.25 + u.R))
                         continue;
 
                     if (island && pass < 2)
@@ -412,7 +418,7 @@ namespace WorldServer.core.worlds
                 .Where(e => _areaMobs.TryGetValue(e.ObjectType, out var k) && k.Quest && Layout.AreaAt((int)e.X, (int)e.Y) == a)
                 .Select(e => $"{e.ObjectDesc.DisplayId ?? e.ObjectDesc.IdName} ({(int)e.X}, {(int)e.Y})"));
             var lands = Layout.Areas.Where(a => a.Theme != null).Select(a => $"{a.Kind}{(a.Link != null ? " by " + a.Link : "")} ({a.Center.X}, {a.Center.Y}) quests: {Quests(a)}");
-            return $"Realm 2: next {string.Join(", ", _upcoming.Take(3).Select(EventTitle))}; lands: {string.Join(", ", lands)}";
+            return $"Realm 2: next {string.Join(", ", _upcoming.Take(3).Select(EventTitle))}; lands: {string.Join(", ", lands)}; kept: {string.Join(", ", Layout.Untouched.Select(u => $"({u.At.X}, {u.At.Y})"))}";
         }
     }
 }

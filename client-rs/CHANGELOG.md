@@ -17,7 +17,9 @@ details). Add to a group's line when a change adds to it, rather than adding ano
 ### Realm 2
 - Realm 2, a new realm made afresh every time it opens: the shore and lowlands, the midlands and
   a great winding Godlands. Each of the eleven big realm events brings a land of its own when it
-  comes, with its own monsters and quests (66 new ones in all). Beat all its events to close it.
+  comes, with its own monsters and quests (66 new ones in all), well apart from the others and
+  never over the stretches of Godlands kept as they are. An event is never far off. Beat all its
+  events and Oryx closes it and calls you to his Castle, as in the realm.
 
 ### Wiki
 - A new Loot Simulation page: pick Oryx 3, 4 or 5, set your share of the damage and your loot

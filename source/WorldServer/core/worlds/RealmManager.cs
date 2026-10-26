@@ -598,8 +598,9 @@ namespace WorldServer.core.worlds
                     continue;
                 counted.Add(part.Event);
                 alive++;
-                // untouched for 10 minutes (out of the way, or too hard): let another come
-                if (_now - part.Since < StaleEventMs || Touched(part))
+                // untouched for 10 minutes (out of the way, or too hard): let another come; in
+                // Realm 2, whose events are spread over its lands, after 3
+                if (_now - part.Since < (Layout != null ? Realm2StaleMs : StaleEventMs) || Touched(part))
                     fresh++;
             }
             // an event whose counted part has gone while its others fight on (the hive's bees)
@@ -613,10 +614,12 @@ namespace WorldServer.core.worlds
             if (fresh >= EventsAtOnce(RecentPlayers) || alive >= MaxEventsAlive)
                 return;
 
-            // Realm 2: its next event, with its land, until it has as many as it needs
+            // Realm 2: its next event, with its land, until it has as many as it needs; with none
+            // running for 30 s, one comes wherever it can (no drought)
             if (Layout != null)
             {
-                if (_EventCount + alive < EventsNeeded && SpawnNextLayoutEvent())
+                var force = alive == 0 && _now - _lastEventChange >= Realm2DroughtMs;
+                if (_EventCount + alive < EventsNeeded && SpawnNextLayoutEvent(force))
                     _lastEventChange = _now;
                 return;
             }

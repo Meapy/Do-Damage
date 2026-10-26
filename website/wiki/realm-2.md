@@ -16,7 +16,9 @@ then sand, plains and forest, with the realm's lowland monsters and quests. Next
 **the midlands and highlands**, with the realm's mid and high monsters and quests. Beyond those lies
 **the Godlands**, a broad grey land winding away across the void, with branches, chasms and a few
 islands off its edge joined by bridges and pools. The Godlands' gods live there as in the realm
-(White Demons, Medusas, Beholders and the rest), with their potions and dungeon portals.
+(White Demons, Medusas, Beholders and the rest), with their potions and dungeon portals. Three
+stretches of it, near, halfway and far along, always stay as they are: no event's land comes over
+them.
 
 ## Events and their lands
 
@@ -24,8 +26,13 @@ Events come one at a time, as in the realm (more at once when it's busy). First 
 the **Lucky Ent God** and the **Lucky Djinn**, in the midlands. Then come the eleven big events in
 a random order, and each one brings **a land of its own** when it appears: its own ground,
 scenery, ruined walls and monsters, with its boss in an arena at its heart. Every land comes a
-little further from the shore than the last, in any direction. Most rise out of the Godlands' edge,
-some out in the void beside it, joined by a bridge or a pool. A land stays once its event is beaten.
+little further from the shore than the last, in any direction, and well apart from the others.
+Most rise out of the Godlands' edge, some out in the void beside it, joined by a bridge or a pool.
+Where a land rises, its own monsters take the place of the gods. A land stays once its event is
+beaten.
+
+You're never left waiting long: if no event is up for 30 seconds, one comes, and an event nobody
+has touched for 3 minutes no longer holds up the next.
 
 | Land | Its event | Its monsters | Its quests |
 |---|---|---|---|

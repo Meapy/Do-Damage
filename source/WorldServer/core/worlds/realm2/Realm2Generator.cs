@@ -38,6 +38,9 @@ namespace WorldServer.core.worlds.realm2
         public double AxisX, AxisY;
         public IntPoint Start;
         public double GodlandsFrom, GodlandsTo;     // how far along the way out the Godlands reach
+        // stretches of the Godlands no event land is drawn over, so some always stay as they were
+        public List<(IntPoint At, double R)> Untouched = new List<(IntPoint, double)>();
+        public const double UntouchedRadius = 40;
 
         public Realm2Area AreaAt(int x, int y) =>
             x >= 0 && y >= 0 && x < Width && y < Height && AreaOf[x, y] >= 0 ? Areas[AreaOf[x, y]] : null;
@@ -122,6 +125,7 @@ namespace WorldServer.core.worlds.realm2
                         _layout.GodlandsFrom = Math.Min(_layout.GodlandsFrom, along);
                         _layout.GodlandsTo = Math.Max(_layout.GodlandsTo, along);
                     }
+            KeepUntouched();
             return (_c, _layout);
         }
 
@@ -252,6 +256,20 @@ namespace WorldServer.core.worlds.realm2
                         continue;
                     _layout.AreaOf[x, y] = gods.Index;
                 }
+        }
+
+        // Three stretches of the Godlands kept as they are, about a third, two thirds and all the way
+        // along it: the trunk's blobs nearest those points.
+        private void KeepUntouched()
+        {
+            var span = _layout.GodlandsTo - _layout.GodlandsFrom;
+            foreach (var share in new[] { 0.3, 0.6, 0.9 })
+            {
+                var want = _layout.GodlandsFrom + span * share;
+                var (at, _) = _spine.OrderBy(s => Math.Abs(_layout.Along(s.At.X, s.At.Y) - want)).First();
+                if (_layout.Untouched.All(u => Realm2Canvas.Dist(u.At, at.X, at.Y) > Realm2Layout.UntouchedRadius * 2))
+                    _layout.Untouched.Add((at, Realm2Layout.UntouchedRadius));
+            }
         }
 
         // a few islands of the Godlands out in the void, each joined by a bridge or a pool
