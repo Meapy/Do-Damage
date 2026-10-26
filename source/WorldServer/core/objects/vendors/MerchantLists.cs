@@ -69,7 +69,8 @@ namespace WorldServer.core.objects.vendors
             new ShopItem("Mystery Dye (Accessory)", 10)
         };
 
-        // one regular key per dungeon that has a world; guild, test and reusable keys are left out
+        // one regular key per dungeon that has a world; guild, test and reusable keys are left out, and
+        // so are the Wine Cellar's and the Sanctuary's incantations: Oryx 1 and 2 leave those portals open
         private static readonly (string Key, int Price)[] DungeonKeyPrices =
         {
             ("Pirate Cave Key", 10), ("Spider Den Key", 10), ("Totem Key", 10), ("Forest Maze Key", 15),
@@ -80,10 +81,9 @@ namespace WorldServer.core.objects.vendors
             ("Bella's Key", 75), ("Undead Lair Key", 100), ("Lab Key", 100), ("Davy's Key", 100),
             ("Reef Key", 100), ("Ice Cave Key", 100), ("The Crawling Depths Key", 100), ("Secluded Thicket Key", 100),
             ("Fungal Cavern Key", 100), ("Parasite Chambers Key", 100), ("Mountain Temple Key", 100), ("Ancient Ruins Key", 100),
-            ("Wine Cellar Incantation", 125), ("Cult Key", 150), ("Ice Tomb Key", 150), ("Shaitan's Key", 300), ("Draconis Key", 300),
+            ("Cult Key", 150), ("Ice Tomb Key", 150), ("Shaitan's Key", 300), ("Draconis Key", 300),
             ("Puppet Master's Encore Key", 300), ("Oryx's Castle Key", 300), ("Shatters Key", 400), ("Oryx Chamber Key", 400),
             ("Battle Nexus Key", 400), ("Tomb of the Ancients Key", 500), ("Lost Halls Key", 500),
-            ("Oryx Sanctuary Key", 300),  // the Oryx chain's incantation for the Sanctuary
             ("Oryx Chicken Chamber Key", 400)
         };
 
@@ -98,7 +98,7 @@ namespace WorldServer.core.objects.vendors
             ("Elder Tomb Key", 500)
         };
 
-        private static readonly List<ISellableItem> DungeonKeys = DungeonKeyPrices.Select(k => (ISellableItem)new ShopItem(k.Key, (ushort)k.Price)).ToList();
+        private static readonly List<ISellableItem> DungeonKeys = DungeonKeyPrices.Where(k => !SealedDungeons.IsSealedItem(k.Key)).Select(k => (ISellableItem)new ShopItem(k.Key, (ushort)k.Price)).ToList();
         private static readonly List<ISellableItem> DoomedKeys = DoomedKeyPrices.Where(k => !SealedDungeons.IsSealedItem(k.Key)).Select(k => (ISellableItem)new ShopItem(k.Key, (ushort)k.Price)).ToList();
 
         public static void Initialize(GameServer gameServer)

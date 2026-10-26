@@ -82,7 +82,6 @@ namespace WorldServer.logic
                         )
                 ),
                 new Threshold(0.01,
-                    new ItemLoot(item: "Wine Cellar Incantation", probability: 0.02),
                     new ItemLoot(item: "Candy-Coated Armor", probability: 0.005),
                     new ItemLoot(item: "Candy Ring", probability: 0.005),
                     new ItemLoot(item: "Red Gumball", probability: 0.15),
@@ -113,7 +112,6 @@ namespace WorldServer.logic
                     new Wander(speed: 0.4)
                 ),
                 new Threshold(0.01,
-                    new ItemLoot(item: "Wine Cellar Incantation", probability: 0.02),
                     new ItemLoot(item: "Candy-Coated Armor", probability: 0.005),
                     new ItemLoot(item: "Candy Ring", probability: 0.005),
                     new ItemLoot(item: "Red Gumball", probability: 0.15),
@@ -178,7 +176,6 @@ namespace WorldServer.logic
                     new Wander(speed: 0.4)
                 ),
                 new Threshold(0.01,
-                    new ItemLoot(item: "Wine Cellar Incantation", probability: 0.02),
                     new ItemLoot(item: "Candy-Coated Armor", probability: 0.005),
                     new ItemLoot(item: "Candy Ring", probability: 0.005),
                     new ItemLoot(item: "Red Gumball", probability: 0.15),
@@ -265,7 +262,6 @@ namespace WorldServer.logic
                 ),
                 new Threshold(0.01,
                     new ItemLoot(item: "Fairy Ring", probability: 0.005),
-                    new ItemLoot(item: "Wine Cellar Incantation", probability: 0.02),
                     new ItemLoot(item: "Candy-Coated Armor", probability: 0.005),
                     new ItemLoot(item: "Candy Ring", probability: 0.005),
                     new ItemLoot(item: "Red Gumball", probability: 0.15),
@@ -342,7 +338,6 @@ namespace WorldServer.logic
                         )
                 ),
                 new Threshold(0.01,
-                    new ItemLoot(item: "Wine Cellar Incantation", probability: 0.02),
                     new ItemLoot(item: "Candy-Coated Armor", probability: 0.005),
                     new ItemLoot(item: "Candy Ring", probability: 0.005),
                     new ItemLoot(item: "Red Gumball", probability: 0.15),

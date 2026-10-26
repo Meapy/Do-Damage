@@ -5987,7 +5987,7 @@
          <Index>0</Index>
       </Texture>
       <SlotType>10</SlotType>
-      <Description>Unlocks the portal Oryx leaves behind in his Wine Cellar, leading to Oryx's Sanctuary.</Description>
+      <Description>Once unlocked the portal Oryx leaves behind in his Wine Cellar. No longer needed: Oryx now leaves the Sanctuary's portal open.</Description>
       <Sound>use_key</Sound>
       <Consumable/>
       

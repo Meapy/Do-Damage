@@ -14,6 +14,15 @@ details). Add to a group's line when a change adds to it, rather than adding ano
 
 ## Unreleased
 
+### Oryx
+- Oryx 2 and Oryx 3 are always open: Oryx 1 (and the Giant Oryx Chicken) leave an open portal to
+  the Wine Cellar, and Oryx 2 an open portal to Oryx's Sanctuary, so no incantation is needed. The
+  Wine Cellar and Sanctuary Incantations are no longer sold or dropped; any you have are harmless
+  (keep, trade or sell them). The locked Wine Cellar portal in the Nexus is gone.
+- The Chicken Chamber and Oryx's Christmas Chamber only open during special events. Their keys
+  aren't sold or dropped meanwhile, and using one does nothing (it isn't used up), so keep any you
+  have for the next event.
+
 ### Arena
 - The Arena and the Admin Arena give less fame: half the fame after each wave, and at level 20
   three quarters of the experience (so of the fame) for each kill. Levelling there is as fast as

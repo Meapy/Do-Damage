@@ -167,6 +167,14 @@ namespace WorldServer.core.objects
                 return;
             }
 
+            // a closed dungeon's key isn't spent (SealedDungeons)
+            var closedWhy = SealedDungeons.WhyItem(item.ObjectId);
+            if (closedWhy != null && !Client.Account.Admin)
+            {
+                Refuse(closedWhy);
+                return;
+            }
+
             // an incantation is only spent where it works: in its dungeon, beside its locked portal
             foreach (var eff in item.ActivateEffects)
                 if (eff.Effect == ActivateEffects.ChangeObject && ChangeObjectTarget(eff, out var why) == null)

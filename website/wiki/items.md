@@ -138,5 +138,5 @@ item doesn't work yet." and stay in your inventory, instead of being used up for
 
 A **dungeon key** opens a portal to its dungeon where you use it. Every dungeon that has a key
 lists it on the [Dungeons](dungeons.html) page, with where it drops and its price in the Bazaar.
-**Incantations** are different: they open the locked portal an Oryx leaves behind, and only beside
-it ([The Oryx chain](endgame.html#incantations)).
+**Incantations** are different: they open the locked portal Oryx 3 or Oryx 4 leaves behind, and
+only beside it ([The Oryx chain](endgame.html#incantations)).

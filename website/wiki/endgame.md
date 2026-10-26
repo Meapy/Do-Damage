@@ -4,7 +4,7 @@ nav: 4
 parent: getting-started
 sprite: skull
 eyebrow: Endgame
-summary: From a closing realm to Oryx's Elysium: every stage, its boss, and which incantation or key opens the next.
+summary: From a closing realm to Oryx's Elysium: every stage, its boss, and how you get into the next.
 ---
 When a realm closes, Oryx runs. On this server you can follow him a long way: from his Castle
 through his Chamber, his Wine Cellar, the new Oryx's Sanctuary and Oryx's Inferno up to Oryx's
@@ -27,16 +27,21 @@ player, depending on the stage).
    **Suits of Armor**. Then the way opens to **Janus the Doorwarden**, who drops the open portal to
    **Oryx's Chamber**.
 3. From then on, **each Oryx leaves two portals** when he dies, two tiles either side of his loot:
-   a **Realm Portal** back out (open for two minutes) and a **locked portal** to the next stage
-   (open for ten). The locked portal's name says where it leads; Oryx 2's, Oryx 3's and Oryx 4's
-   look like the gateway they open into, still and dark: the Sanctuary's in grey stone, the
-   Inferno's a horned maw of charred rock round a vortex of fire, the Elysium's a marble temple
-   door round a swirl of light. Each stage's incantation is a seal in its colours: a gold crescent
-   on navy for the Sanctuary, a flame for the Inferno, a winged star for the Elysium.
+   a **Realm Portal** back out (open for two minutes) and a portal to the next stage (open for
+   ten). **Oryx 1 and Oryx 2 leave theirs open**: the Wine Cellar and Oryx's Sanctuary need no
+   incantation, so everyone who gets that far can go on. Oryx 3 and Oryx 4 leave a **locked
+   portal**, whose name says where it leads; each looks like the gateway it opens into, still and
+   dark: the Inferno's a horned maw of charred rock round a vortex of fire, the Elysium's a marble
+   temple door round a swirl of light. Each stage's incantation is a seal in its colours: a flame
+   for the Inferno, a winged star for the Elysium.
 4. **To open a locked portal**, someone uses the right **incantation** within 25 tiles of it, in
    that Oryx's dungeon. It turns into the open portal for five minutes, and the dungeon is told who
    opened it. Entering the locked portal without one tells you which incantation it needs. An
    incantation used anywhere else isn't spent.
+
+The **Wine Cellar Incantation** and **Oryx's Sanctuary Incantation** (and the old Wine Cellar Key)
+are no longer needed: no shop sells them and nothing drops them. If you still have one, it's
+harmless: keep it, trade it, or sell the Wine Cellar Incantation at the Divine Forge.
 
 Inside a dungeon, the quest arrow always points at Oryx.
 
@@ -49,12 +54,12 @@ times one plus your share of the damage (so about double, solo), plus loot boost
 
 ## The Chicken Chamber
 
-A side door at stage two. A giant chicken has taken over Oryx's Chamber: fight through a coop full
+A side door at stage two, **open only during special events**. A giant chicken has taken over Oryx's Chamber: fight through a coop full
 of chickens and eggs (break the eggs before they hatch, about 7 seconds after you come close), then
 the **Giant Oryx Chicken** itself. It molts at two thirds of its health, throws eggs and confusing
-star rings, and chases you with its chicks at a third. Like Oryx 1 it leaves a locked Wine Cellar
-portal, so a Wine Cellar Incantation takes you on. Its key, the Oryx Chicken Chamber Key, drops from
-Janus and is sold in the Nexus Bazaar.
+star rings, and chases you with its chicks at a third. Like Oryx 1 it leaves an open Wine Cellar
+portal, so you can go straight on. Its key, the Oryx Chicken Chamber Key, can't be used outside an
+event, and isn't sold or dropped then; if you have one, keep it for the next.
 
 ## Tips for each boss
 

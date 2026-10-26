@@ -20,6 +20,10 @@
 //! packaged beside the bot or the repository's). `--class <type>` is the class a new character
 //! gets (hex as in the XML, `0x0300`, or a name: rogue, archer, wizard...), `--view <tiles>` the
 //! sight radius it asks for, as a large window does (default 15).
+//!
+//! `--enter <portals>` takes portals by object id (split by `;;`, the first that matches in each
+//! world, each once): `"Wine Cellar Portal;;Oryx's Sanctuary Portal"` follows Oryx 1 and 2 down
+//! the chain as their portals appear. It reads the game's XML as `--fight` does.
 
 mod fight;
 
@@ -41,6 +45,7 @@ struct Args {
     fight: bool,
     class: u16,
     view: i32,
+    enter: Vec<String>,
 }
 
 /// The classes' object types, for `--class`.
@@ -59,7 +64,7 @@ fn parse_class(v: &str) -> Result<u16, String> {
 
 fn parse_args() -> Result<Args, String> {
     let mut args =
-        Args { account: String::new(), credentials: String::new(), seconds: 60, char_id: None, gateway: None, say: Vec::new(), wander: 0.0, fight: false, class: 0x030e, view: 15 };
+        Args { account: String::new(), credentials: String::new(), seconds: 60, char_id: None, gateway: None, say: Vec::new(), wander: 0.0, fight: false, class: 0x030e, view: 15, enter: Vec::new() };
     let mut it = std::env::args().skip(1);
     while let Some(a) = it.next() {
         let mut value = || it.next().ok_or(format!("{a} needs a value"));
@@ -74,6 +79,7 @@ fn parse_args() -> Result<Args, String> {
             "--fight" => args.fight = true,
             "--class" => args.class = parse_class(&value()?)?,
             "--view" => args.view = value()?.parse().map_err(|e| format!("--view: {e}"))?,
+            "--enter" => args.enter = value()?.split(";;").map(|l| l.trim().to_owned()).filter(|l| !l.is_empty()).collect(),
             _ => return Err(format!("unknown argument {a}")),
         }
     }
@@ -162,7 +168,9 @@ fn run(args: Args) -> Result<(), String> {
     let mut circle: Option<Instant> = None;
     let mut last_step = Instant::now();
     // --fight: the game's data and the fighting, a frame every 16 ms as the client's
-    let data = if args.fight { Some(load_data()?) } else { None };
+    let data = if args.fight || !args.enter.is_empty() { Some(load_data()?) } else { None };
+    // --enter: the portals not yet taken
+    let mut enter = args.enter.clone();
     let mut fighter = fight::Fighter::new();
     let mut last_frame = Instant::now();
 
@@ -178,7 +186,7 @@ fn run(args: Args) -> Result<(), String> {
                 next_say = Some(Instant::now() + Duration::from_secs(3));
             }
         }
-        if let Some(data) = &data {
+        if let (true, Some(data)) = (args.fight, &data) {
             if last_frame.elapsed() >= Duration::from_millis(16) {
                 let dt = last_frame.elapsed().as_millis() as i32;
                 last_frame = Instant::now();
@@ -244,7 +252,7 @@ fn run(args: Args) -> Result<(), String> {
             SocketEvent::Closed(why) => break Err(format!("disconnected after {} ms: {why}", now())),
             SocketEvent::Message(msg) => {
                 *received.entry(msg.name()).or_default() += 1;
-                if let Some(data) = &data {
+                if let (true, Some(data)) = (args.fight, &data) {
                     fighter.handle(&msg, now(), data);
                 }
                 match &*msg {
@@ -258,6 +266,13 @@ fn run(args: Args) -> Result<(), String> {
                         objects.extend(u.new_objs.iter().map(|o| o.status.object_id));
                         for o in u.new_objs.iter() {
                             log::trace!("object {} type 0x{:04x} at ({}, {})", o.status.object_id, o.object_type, o.status.pos.x, o.status.pos.y);
+                            let id = data.as_ref().and_then(|d| d.objects.get(&(o.object_type as u16))).map(|d| d.id.as_str());
+                            if let Some(i) = id.and_then(|id| enter.iter().position(|e| e == id)) {
+                                log::info!("entering {} (object {} at ({}, {}))", enter[i], o.status.object_id, o.status.pos.x, o.status.pos.y);
+                                enter.remove(i);
+                                socket.send(&bsk_proto::UsePortal { object_id: o.status.object_id }.into());
+                                break;
+                            }
                         }
                         if let Some(me) = u.new_objs.iter().find(|o| Some(o.status.object_id) == session.object_id) {
                             let stats: Vec<String> =
@@ -325,7 +340,7 @@ fn run(args: Args) -> Result<(), String> {
                     *sent.entry(m.name()).or_default() += 1;
                     socket.send(&m);
                 }
-                if let (true, Some(data)) = (moved, &data) {
+                if let (true, true, Some(data)) = (moved, args.fight, &data) {
                     fighter.moved(data);
                 }
             }

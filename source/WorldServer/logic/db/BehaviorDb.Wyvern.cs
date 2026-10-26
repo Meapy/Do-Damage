@@ -389,7 +389,6 @@ namespace WorldServer.logic
                     new TierLoot(13, ItemType.Armor, 0.03125),
                     new ItemLoot("Large Ivory Dragon Scale Cloth", 0.4),
                     new ItemLoot("Small Ivory Dragon Scale Cloth", 0.4),
-                    new ItemLoot("Wine Cellar Incantation", 0.05),
                     new TierLoot(2, ItemType.Potion)
                 )
             )

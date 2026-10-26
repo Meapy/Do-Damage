@@ -79,19 +79,34 @@ LOOT_CHANGES = {
     "Elder Thessal the Mermaid Goddess": {"Raw Fish of Terror": None},
     "April Fools Chicken": {"Anatis Staff": None},
 }
+# Drops gone from every monster: the Wine Cellar Incantation, now that Oryx 1 leaves the Wine Cellar
+# portal open (Doomed Realms also drops it as IncLoot.Instance)
+DROPS_GONE = {"Wine Cellar Incantation": r"IncLoot\.Instance"}
+# Locked portals that are left open instead (the Christmas Oryx's Wine Cellar portal)
+PORTALS_OPENED = {"Locked Wine Cellar Portal": "Wine Cellar Portal"}
+
+
+def open_portals(text):
+    """`text` with each locked portal of PORTALS_OPENED replaced by its open one."""
+    for locked, opened in PORTALS_OPENED.items():
+        text = text.replace("T(%s)" % cs_string(locked), "T(%s)" % cs_string(opened))
+    return text
 
 
 def change_loot(monster, loot):
-    """`loot` (a definition's loot expression) with LOOT_CHANGES applied."""
-    for item, chance in LOOT_CHANGES.get(monster, {}).items():
-        entry = r'Tuple\.Create\(\s*([0-9.]+)\s*,\s*\(ILoot\)\s*new ItemLoot\(%s\)\)' % re.escape(cs_string(item))
+    """`loot` (a definition's loot expression) with LOOT_CHANGES and DROPS_GONE applied."""
+    changes = {**LOOT_CHANGES.get(monster, {}), **{item: None for item in DROPS_GONE}}
+    for item, chance in changes.items():
+        loot_expr = r'new ItemLoot\(%s\)' % re.escape(cs_string(item))
+        if item in DROPS_GONE:
+            loot_expr = r'(?:%s|%s)' % (loot_expr, DROPS_GONE[item])
+        entry = r'Tuple\.Create\(\s*([0-9.]+)\s*,\s*\(ILoot\)\s*%s\)' % loot_expr
         if chance is not None:
             loot = re.sub(entry, lambda m: m.group(0).replace(m.group(1), "%g" % chance, 1), loot)
             continue
         # with the comma after it, or the one before it when it's the last of its list
-        loot, n = re.subn(r'\s*' + entry + r'\s*,', "", loot)
-        if not n:
-            loot = re.sub(r',\s*' + entry, "", loot)
+        loot = re.sub(r'\s*' + entry + r'\s*,', "", loot)
+        loot = re.sub(r',\s*' + entry, "", loot)
     return loot
 
 
@@ -212,6 +227,7 @@ def write_monsters(dr_root, monsters, aliases=None):
         if block is None or "PetBehaves" in block or "PetChasing" in block:
             continue  # pets have their own behaviours (port_doomed_pets.py)
         _, behaviours, cond, loot = definition(block, type_to_id, refs)
+        behaviours, cond = [open_portals(b) for b in behaviours], open_portals(cond)
         loot = change_loot(oid, loot)
         field ="M_" + re.sub(r"\W", "_", oid)
         body = ",\n                ".join(b.strip() for b in behaviours)

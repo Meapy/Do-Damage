@@ -19,6 +19,7 @@ WORLDS = os.path.join(SRC, "Shared", "resources", "worlds")
 LOGIC = os.path.join(SRC, "WorldServer", "logic")
 COMMANDS = os.path.join(SRC, "WorldServer", "core", "commands")
 MERCHANTS = os.path.join(SRC, "WorldServer", "core", "objects", "vendors", "MerchantLists.cs")
+SEALED = os.path.join(SRC, "WorldServer", "core", "worlds", "SealedDungeons.cs")
 
 # SlotType numbers (ItemConstants): what goes where
 WEAPONS = {1: "Sword", 2: "Dagger", 3: "Bow", 8: "Wand", 17: "Staff", 24: "Katana"}
@@ -322,6 +323,8 @@ class Data:
             if monster in spawners:
                 continue
             for kind, oid, chance in self.drops(monster):
+                if kind == "item" and oid in sealed_items():
+                    continue  # a closed dungeon's key doesn't drop (ItemLoot)
                 if kind in ("portal", "item"):
                     lst = idx.setdefault(oid, [])
                     if not any(m == monster for m, _ in lst):
@@ -501,7 +504,8 @@ class Data:
 
     # --- the Nexus Bazaar --------------------------------------------------------------------
     def bazaar(self):
-        """{item id: (price in fame, shop name)} from MerchantLists.cs."""
+        """{item id: (price in fame, shop name)} from MerchantLists.cs, without a closed dungeon's
+        key (MerchantLists leaves those out)."""
         with open(MERCHANTS, encoding="utf-8-sig") as f:
             text = f.read()
         out = {}
@@ -514,7 +518,8 @@ class Data:
             m = re.search(arr + r'\s*=\s*\{(.*?)\};', text, re.S)
             prices = re.findall(r'\("([^"]+)",\s*(\d+)\)', m.group(1) if m else "")
             for name, price in prices:
-                out[name] = (int(price), shop)
+                if name not in sealed_items():
+                    out[name] = (int(price), shop)
         m = re.search(r'petGenerators\.Add\(new ShopItem\(i\.ObjectId,\s*(\d+)\)', text)
         self.pet_generator_price = int(m.group(1)) if m else None
         return out
@@ -627,15 +632,16 @@ class Data:
         o = self.objects.get(monster)
         return o["hp"] if o else 0
 
-    def incantations(self):
+    def incantations(self, dropped=None):
         """{open portal id: [(item id, [dungeons it works in])]}: items that unlock a locked
-        portal (the XML ChangeObject effect on a "Locked ..." portal: the Locked Wine Cellar Portal,
-        or a stage's own, such as the Locked Oryx's Inferno Portal)."""
+        portal (the XML ChangeObject effect on a "Locked ..." portal, such as the Locked Oryx's
+        Inferno Portal). With `dropped` (drops_index()), only those whose locked portal something
+        still drops: Oryx 1 and 2 leave the Wine Cellar's and the Sanctuary's open."""
         out = {}
         for oid, o in self.objects.items():
             for a in o["activate_attrs"]:
                 if (a["effect"] == "ChangeObject" and (a.get("targetId") or "").startswith("Locked ")
-                        and a.get("newId")):
+                        and a.get("newId") and (dropped is None or dropped.get(a["targetId"]))):
                     areas = [x.strip() for x in a.get("onlyInArea", "").split(",") if x.strip()]
                     lst = out.setdefault(a["newId"], [])
                     if not any(i == oid for i, _ in lst):
@@ -741,6 +747,18 @@ class Data:
 def _read(path):
     with open(path, encoding="utf-8-sig") as f:
         return f.read()
+
+
+def sealed_dungeons():
+    """{dungeon: (portal, item, why)}: the dungeons closed for now or kept for special events
+    (SealedDungeons.cs)."""
+    text = re.sub(r"//[^\n]*", "", _read(SEALED))
+    return {d: (p, i, w) for d, p, i, w in
+            re.findall(r'\(\s*"([^"]+)",\s*"([^"]+)",\s*"([^"]+)",\s*"([^"]+)"\s*\)', text)}
+
+
+def sealed_items():
+    return {i for _, i, _ in sealed_dungeons().values()}
 
 
 def name_change_fame():
