@@ -29,6 +29,7 @@ SETUP-LOCAL.md):
 | Account server (`bsk-account`) | 8080 | open for older desktop clients |
 | World proxy and world servers (`bsk-world`) | 2051 (slots 12051 / 22051, VPS only) | rolling deploys, as on Windows |
 | Redis (`bsk-redis`) | 6379, VPS only | data in `/opt/bsk/redis/data` |
+| Discord bot (`bsk-discord`) | none | release posts, server status and slash commands in the Discord server (SETUP-LOCAL.md, "Discord") |
 
 **On this PC:** the old live servers are **stopped** (the game moved to the VPS on 2026-10-16;
 this PC's `source/Redis/data` is the data as it was then, not live). `tools/update_relay.py` may
@@ -70,8 +71,14 @@ it asks first; never run test copies under the live process names (`redis-server
   is merged** (Git, "Release branches"). It holds the signing key
   (`build/client-update.key`) and `dist/client`. Clients only take releases signed with that key,
   so publishing from a worktree or a fresh clone makes a new key and strands every player.
+- **Releases post to Discord.** Once a release is live on the VPS, the bot posts its changelog
+  section to the Discord server's #updates and pings the Updates role, once per version. So name
+  the changelog section as players should read it. Tests must never post: publish test releases
+  with `--publish-to` (they never reach the VPS's `dist/client`), and try the bot with
+  `bot.py --dry-run`, or in a private test channel deleted afterwards (SETUP-LOCAL.md, "Discord").
 - **Secrets** stay in git-ignored files: `*.local.txt` (`test-account.local.txt`),
-  `deploy/*.local.json` (the VPS config), `build/` (signing key) and `~/.ssh/dodmg_ed25519` (the
+  `deploy/*.local.json` (the VPS config), `deploy/discord.local.env` (the Discord bot's token),
+  `build/` (signing key) and `~/.ssh/dodmg_ed25519` (the
   VPS key). Never sign in anywhere with a password pasted into a chat: ask the owner to set up a
   key instead. `build/`, `dist/`, `client/bin/`, `tools/airsdk/` and `source/Redis/data/` are not
   tracked.

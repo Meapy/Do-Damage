@@ -318,6 +318,42 @@ else
     systemctl start bsk-world
 fi
 
+# --- the Discord bot (bsk-discord) ----------------------------------------------------------
+# Only with a discord.env in the bundle (deploy/discord.local.env on the deploying PC); without
+# one the bot is left as it is. It holds no player's connection, so restarting it is safe. Its
+# packages (discord.py) go in a venv of its own; a failure there leaves the game's deploy done.
+if [ -f $IN/discord.env ]; then
+    mkdir -p $ROOT/discord
+    chown bsk:bsk $ROOT/discord
+    bot_restart=0
+    if [ ! -x $ROOT/discord/venv/bin/python ] || ! cmp -s $ROOT/tools/discord/requirements.txt $ROOT/discord/requirements.txt; then
+        say "setting up the Discord bot's Python packages"
+        if { python3 -c 'import ensurepip' 2>/dev/null \
+                || DEBIAN_FRONTEND=noninteractive apt-get -o DPkg::Lock::Timeout=600 install -y -q python3-venv; } \
+            && rm -rf $ROOT/discord/venv && python3 -m venv $ROOT/discord/venv \
+            && $ROOT/discord/venv/bin/pip install -q --disable-pip-version-check -r $ROOT/tools/discord/requirements.txt; then
+            cp $ROOT/tools/discord/requirements.txt $ROOT/discord/requirements.txt
+            bot_restart=1
+        else
+            say "the Discord bot's packages didn't install: the bot isn't updated (the game is)"
+        fi
+    fi
+    if [ -x $ROOT/discord/venv/bin/python ]; then
+        cmp -s $IN/discord.env $ROOT/discord/discord.env || { install -m 600 -o bsk -g bsk $IN/discord.env $ROOT/discord/discord.env; bot_restart=1; }
+        code=$(cat $ROOT/tools/discord/*.py | sha256sum | cut -d' ' -f1)
+        [ "$code" = "$(cat $ROOT/discord/code.sha256 2>/dev/null)" ] || { echo "$code" > $ROOT/discord/code.sha256; bot_restart=1; }
+        unit_changed bsk-discord.service && bot_restart=1
+        systemctl enable --quiet bsk-discord
+        if [ $bot_restart = 1 ]; then
+            say "restarting the Discord bot"
+            systemctl restart bsk-discord
+        else
+            systemctl is-active --quiet bsk-discord || systemctl start bsk-discord
+        fi
+    fi
+fi
+rm -f $IN/discord.env
+
 if grep -q '^BSK_BACKUP_REPO=.' $ROOT/backup/backup.env; then
     systemctl enable --quiet --now bsk-backup.timer
 else

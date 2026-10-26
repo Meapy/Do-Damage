@@ -45,7 +45,9 @@ deploy/remote/install.sh as root:
 - site/         tools/build_site.py: the website at the site's root (the browser client is /play/)
 - bin/          bsk-gateway, built for Linux (in WSL when run on Windows); install.sh copies it and
                 web/ into the gateway slot it starts
-- tools/        world_proxy.py and rolling_restart.py; deploy/: the units, redis.conf, install.sh
+- tools/        world_proxy.py, rolling_restart.py and the Discord bot (tools/discord); deploy/: the
+                units, redis.conf, install.sh
+- discord.env   the Discord bot's settings, from deploy/discord.local.env (when there is one)
 - client/       dist/client, the published desktop client releases (unless --no-releases)
 - redis-data/   with --import-data: dump.rdb and appendonly.aof from that folder
 """
@@ -227,6 +229,8 @@ def build(cfg, args):
 
     for name in ("world_proxy.py", "rolling_restart.py"):
         copy_lf(os.path.join(ROOT, "tools", name), os.path.join(STAGE, "tools", name))
+    for name in ("bot.py", "dodmg.py", "requirements.txt"):
+        copy_lf(os.path.join(ROOT, "tools", "discord", name), os.path.join(STAGE, "tools", "discord", name))
     for name in os.listdir(os.path.join(HERE, "remote")):
         copy_lf(os.path.join(HERE, "remote", name), os.path.join(STAGE, "deploy", name))
     for name in os.listdir(os.path.join(HERE, "systemd")):
@@ -242,6 +246,7 @@ def build(cfg, args):
     write_lf(os.path.join(STAGE, "backup.env"),
              "# Written by deploy/deploy.py from %s: change it there.\nBSK_BACKUP_REPO=%s\n"
              % (os.path.basename(args.config), cfg.get("backup_repo", "")))
+    discord_env(cfg)
     if cfg["site"]:
         # Caddy gets the certificate for the site by itself (ports 80 and 443 must be open);
         # WebSockets pass through reverse_proxy as they are. The website is the site's root. The
@@ -289,6 +294,22 @@ def build(cfg, args):
         shutil.copytree(releases, os.path.join(STAGE, "client"))
 
 
+def discord_env(cfg):
+    """The Discord bot's settings (SETUP-LOCAL.md, "Discord"): deploy/discord.local.env, with where
+    the releases and the site are on the server. Without that file there's no discord.env in the
+    bundle, and install.sh leaves the bot as it is."""
+    local = os.path.join(HERE, "discord.local.env")
+    if not os.path.exists(local):
+        print("discord: no deploy/discord.local.env, leaving the bot as it is")
+        return
+    with open(local, encoding="utf-8-sig") as f:
+        lines = [l.rstrip() for l in f if l.split("=", 1)[0].strip() not in ("BSK_RELEASES", "BSK_SITE", "DISCORD_STATE")]
+    lines += ["BSK_RELEASES=%s/dist/client/windows/latest.json" % REMOTE,
+              "BSK_SITE=%s" % ("https://" + cfg["site"] if cfg["site"] else ""),
+              "DISCORD_STATE=%s/discord/state.json" % REMOTE]
+    write_lf(os.path.join(STAGE, "discord.env"), "\n".join(lines) + "\n")
+
+
 def add_data(folder):
     dest = os.path.join(STAGE, "redis-data")
     if os.path.exists(dest):
@@ -315,7 +336,7 @@ def pack():
             info.mode = 0o755
         else:
             executable = info.name.startswith("bin/") or info.name.endswith(".sh")
-            info.mode = 0o755 if executable else 0o644
+            info.mode = 0o755 if executable else 0o600 if info.name == "discord.env" else 0o644
         return info
     with tarfile.open(BUNDLE, "w:gz", compresslevel=6) as tar:
         for name in sorted(os.listdir(STAGE)):
@@ -354,7 +375,7 @@ def main():
     cfg = load_config(args.config)
 
     if args.status:
-        sys.exit(remote(cfg, "systemctl --no-pager --lines=0 status bsk-redis bsk-account bsk-world 'bsk-gateway@*' caddy"
+        sys.exit(remote(cfg, "systemctl --no-pager --lines=0 status bsk-redis bsk-account bsk-world 'bsk-gateway@*' caddy bsk-discord"
                              " | grep -E '[.]service - |^ *Active'; runuser -u bsk -- python3 %(r)s/tools/rolling_restart.py status;"
                              " . %(r)s/bsk.env; echo \"active gateway slot: $(cat %(r)s/gateway/active 2>/dev/null)\";"
                              " p=$BSK_GATEWAY_PORT; for s in a b c; do"

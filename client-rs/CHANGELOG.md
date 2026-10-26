@@ -24,6 +24,11 @@ details). Add to a group's line when a change adds to it, rather than adding ano
 - The home page shows the players online, the most there were in the last 24 hours and how much of
   each of the last 7 days the realm was up.
 
+### Discord
+- Do Damage has a Discord server: https://discord.gg/FVhqJe8CG. Every update is posted in
+  #updates as soon as it's out (type `/updates` there to get pinged), #server-status shows who's
+  online, and `/status`, `/online`, `/wiki` and `/play` answer in any channel.
+
 ## 2.2.1 (2026-10-26)
 
 ### Classes

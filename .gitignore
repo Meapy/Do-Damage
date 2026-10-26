@@ -8,3 +8,7 @@
 /source/Redis/data/
 *.local.txt
 /tools/__pycache__/
+.env
+*.local.env
+/tools/discord/__pycache__/
+/tools/discord/*-state.json
