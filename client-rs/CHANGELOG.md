@@ -27,7 +27,8 @@ details). Add to a group's line when a change adds to it, rather than adding ano
 ### Discord
 - Do Damage has a Discord server: https://discord.gg/FVhqJe8CG. Every update is posted in
   #updates as soon as it's out (type `/updates` there to get pinged), #server-status shows who's
-  online, and `/status`, `/online`, `/wiki` and `/play` answer in any channel.
+  online, and `/status`, `/online`, `/wiki` and `/play` answer in any channel. The website and the wiki link to it at the
+  top of every page.
 
 ## 2.2.1 (2026-10-26)
 

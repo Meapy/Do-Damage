@@ -968,6 +968,7 @@ TEMPLATE = """<!doctype html>
       <a href="{site}#get">Get the game</a>
       <a href="{home}" aria-current="page">Wiki</a>
       <a href="{site}changelog.html">Changelog</a>
+      <a href="https://discord.gg/FVhqJe8CG">Discord</a>
     </nav>
     <a class="bar-link" href="{home}" aria-current="page">Wiki</a>
     <a class="pill-play" href="{site}play/">Play now</a>
