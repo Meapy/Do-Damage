@@ -25,8 +25,9 @@ The nexus, from the middle out:
 - a market ward behind a colonnade on each side: pavilions whose stalls are shop regions
   (`Store N`, see `MerchantLists.Shops`), as many stalls per shop as the old map had;
 - the south yard: the Arena portal (`ARENA_PORTALS`, which `DoomedWorlds.NexusPortals`
-  must match) west of the road with the Arena Leaderboard east of it, the gatehouse with its portcullis, the class memorial
-  with the Divine Forge in its middle on a floor of gold, and the treasury. The four shared vault chests keep their items in Redis by tile (`DbNexusChest`), so
+  must match) west of the road with the Arena Leaderboard east of it, the gatehouse with its portcullis, the forge
+  hall (the Divine Forge and the Enchanter side by side on floors of gold, a carpet from its door
+  before them), and the treasury. The four shared vault chests keep their items in Redis by tile (`DbNexusChest`), so
   they stay on the tiles they had in the old map (`CHESTS`).
 
 The vault is a cellar under the castle, walled with the tall walls of Oryx's Sanctuary and dark
@@ -322,10 +323,11 @@ GATE = (46, 50)                     # the gate passage, x0 and x1
 # The shared vault chests: their tiles are their Redis keys (items.<x>_<y> in nexusChests).
 CHESTS = [(61, 70), (79, 70), (61, 74), (79, 74)]
 TREASURY = (57, 66, 83, 78)         # its walls
-MEMORIAL = (23, 72)                 # the middle of the class memorial
-FORGE = (23, 73)                    # the Divine Forge (its sprite stands four tiles tall above it)
-CLASSES = ["Warrior", "Assassin", "Sorcerer", "Priest", "Trickster", "Wizard", "Knight", "Rogue",
-           "Mystic", "Necromancer", "Huntress", "Archer", "Paladin"]
+FORGE_HALL = (11, 64, 33, 81)       # the forge hall's walls, x0, y0, x1, y1
+FORGE = (18, 70)                    # the Divine Forge (its sprite stands four tiles tall above it)
+ENCHANTER = (26, 70)                # the Enchanter, which imprints gear (ImprintHandlers.cs)
+FORGE_HALL_DOOR = (74, 76)          # the doors in its east and west walls, y0 and y1
+FORGE_HALL_NORTH = (20, 24)         # the door in its north wall, x0 and x1
 # where DoomedWorlds.AddNexusPortals puts the Arena portal (keep the two in step)
 ARENA_PORTALS = [(45.5, 68.5)]
 # (name, region, x0, y0, columns, rows[, stalls]): see Grid.pavilion. The stall counts are the old map's:
@@ -448,26 +450,43 @@ def build_nexus():
     for x in (GATE[0] - 1, GATE[1] + 1):
         g.brazier(x, 82, PATH)
 
-    # the class memorial: a grave for each class in a ring around the Divine Forge, on gold that
-    # brightens towards the forge's fire
-    mx, my = MEMORIAL
-    fx, fy = FORGE
+    # the forge hall: walled, with doors to the east and west (a carpet between them along the front
+    # of the Divine Forge and the Enchanter) and to the north, between the two; the two on gold
+    # that brightens towards each, braziers in the corners, flames by the forge, crystals by the
+    # Enchanter, banners and candles on the walls. Nothing in it takes a decoration slot, so an
+    # event leaves the hall as it is.
+    hx0, hy0, hx1, hy1 = FORGE_HALL
+    dy0, dy1 = FORGE_HALL_DOOR
+    nx0, nx1 = FORGE_HALL_NORTH
+    doors = {(x, y) for x in (hx0, hx0 + 1, hx1 - 1, hx1) for y in range(dy0, dy1 + 1)}
+    doors |= {(x, y) for x in range(nx0, nx1 + 1) for y in (hy0, hy0 + 1)}
+    g.hall(hx0, hy0, hx1, hy1, STONE, doors=doors)
 
     def gold(x, y):
-        d = math.hypot(x - fx, y - fy + 1.5)
-        return GOLD_FLOOR[max(0, min(6, int(7.2 - d)))]
+        d = min(math.hypot(x - ox, y - oy + 1) for ox, oy in (FORGE, ENCHANTER))
+        return GOLD_FLOOR[max(0, min(6, int(6.4 - d)))] if d < 5.5 else STONE
 
-    for y in range(my - 9, my + 10):
-        for x in range(mx - 9, mx + 10):
-            d = math.hypot(x - mx, y - my)
-            if d <= 8.4 and not g.is_wall(x, y):
-                g.put(x, y, gold(x, y) if d <= 6.6 else PATH)
-    for i, cls in enumerate(CLASSES):
-        a = 2 * math.pi * i / len(CLASSES) - math.pi / 2
-        x, y = int(round(mx + math.cos(a) * 5)), int(round(my + math.sin(a) * 5))
-        g.put(x, y, gold(x, y), f"destnex {cls} Grave")
-    g.put(fx, fy, gold(fx, fy), "Divine Forge")
-    g.path(mx + 8, my - 1, 35, my + 1)
+    for y in range(hy0 + 2, hy1 - 1):
+        for x in range(hx0 + 2, hx1 - 1):
+            g.put(x, y, gold(x, y))
+    g.rect(hx0, dy0, hx1, dy1, CARPET)
+    g.rect(nx0, hy0, nx1, hy0 + 2, CARPET)
+    g.path(hx1 + 1, dy0, 35, dy1)
+    g.path(hx0 - 4, dy0, hx0 - 1, dy1)
+    g.path(nx0, hy0 - 2, nx1, hy0 - 1)
+    g.put(*FORGE, gold(*FORGE), "Divine Forge")
+    g.put(*ENCHANTER, gold(*ENCHANTER), "Enchanter")
+    for x, y in ((hx0 + 2, hy0 + 2), (hx1 - 2, hy0 + 2), (hx0 + 2, hy1 - 2), (hx1 - 2, hy1 - 2)):
+        g.put(x, y, STONE, BRAZIER_OBJ)
+    fx, fy = FORGE
+    ex, ey = ENCHANTER
+    for dx in (-2, 2):
+        g.put(fx + dx, fy, gold(fx + dx, fy), FLAME_OBJ)
+        g.put(ex + dx, ey, gold(ex + dx, ey), CRYSTAL)
+    for x in (hx0 + 5, hx1 - 5):
+        g.put(x, hy0 + 2, STONE, BANNER_OBJ)
+    for x in range(hx0 + 4, hx1 - 2, 3):
+        g.put(x, hy1 - 2, STONE, CANDLES)
 
     # the treasury: walled, its door to the west, the chests where they always were
     hx0, hy0, hx1, hy1 = TREASURY
@@ -502,6 +521,7 @@ def check_nexus(g):
         t = g[int(x), int(y)]
         assert not t["obj"] and t["ground"], (x, y)
     assert g[FORGE]["obj"] == "Divine Forge"
+    assert g[ENCHANTER]["obj"] == "Enchanter"
 
 
 # --- the vault -----------------------------------------------------------------------------------

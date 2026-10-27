@@ -23,7 +23,7 @@ namespace WorldServer.core.worlds
         DoNothing
     }
 
-    public sealed class RealmManager
+    public sealed partial class RealmManager
     {
         public int _EventCount = 0;
         public RealmWorld World;
@@ -477,7 +477,8 @@ namespace WorldServer.core.worlds
             }
         }
 
-        public int EventsNeeded => EventsToClose(RecentPlayers);
+        // Realm 2 needs every one of its events, the Lucky gods and the eleven lands' (RealmManager.Realm2.cs), more for a crowd
+        public int EventsNeeded => Layout != null ? Math.Max(2 + realm2.Realm2Themes.Events.Length, EventsToClose(RecentPlayers)) : EventsToClose(RecentPlayers);
 
         /// <summary>For /realmstatus.</summary>
         public string Status()
@@ -487,7 +488,8 @@ namespace WorldServer.core.worlds
                 .Select(p => $"{p.Enemy.ObjectDesc.IdName} {p.Enemy.Health}/{p.Enemy.MaxHealth} ({(int)p.Enemy.X}, {(int)p.Enemy.Y})"));
             var spawned = World.Enemies.Values.Count(e => e.Spawned);
             return $"{_EventCount}/{EventsNeeded} events defeated; {World.Players.Count} players now, scaled for {players}, " +
-                $"{EventsAtOnce(players)} at once; {World.Enemies.Count} enemies, {spawned} spawned by others; running: {(parts.Length == 0 ? "none" : parts)}";
+                $"{EventsAtOnce(players)} at once; {World.Enemies.Count} enemies, {spawned} spawned by others; running: {(parts.Length == 0 ? "none" : parts)}" +
+                (Layout != null ? "; " + LayoutStatus() : "");
         }
 
         private int[] EnemyCounts = new int[12];
@@ -533,6 +535,8 @@ namespace WorldServer.core.worlds
                         if (time.TotalElapsedMs - LastEnsurePopulationTime >= 60000)
                         {
                             EnsurePopulation();
+                            if (Layout != null)
+                                LayoutPopulation();
                             LastEnsurePopulationTime = time.TotalElapsedMs;
                         }
                     }
@@ -594,8 +598,9 @@ namespace WorldServer.core.worlds
                     continue;
                 counted.Add(part.Event);
                 alive++;
-                // untouched for 10 minutes (out of the way, or too hard): let another come
-                if (_now - part.Since < StaleEventMs || Touched(part))
+                // untouched for 10 minutes (out of the way, or too hard): let another come; in
+                // Realm 2, whose events are spread over its lands, after 3
+                if (_now - part.Since < (Layout != null ? Realm2StaleMs : StaleEventMs) || Touched(part))
                     fresh++;
             }
             // an event whose counted part has gone while its others fight on (the hive's bees)
@@ -608,6 +613,16 @@ namespace WorldServer.core.worlds
 
             if (fresh >= EventsAtOnce(RecentPlayers) || alive >= MaxEventsAlive)
                 return;
+
+            // Realm 2: its next event, with its land, until it has as many as it needs; with none
+            // running for 30 s, one comes wherever it can (no drought)
+            if (Layout != null)
+            {
+                var force = alive == 0 && _now - _lastEventChange >= Realm2DroughtMs;
+                if (_EventCount + alive < EventsNeeded && SpawnNextLayoutEvent(force))
+                    _lastEventChange = _now;
+                return;
+            }
 
             var next = PickEvent();
             if (next == null)
@@ -802,6 +817,8 @@ namespace WorldServer.core.worlds
                         break;
                 }
             }
+            if (Layout != null)
+                InitLayout();
         }
 
         public void OnEnemyKilled(Enemy enemy, Player killer)
@@ -843,6 +860,11 @@ namespace WorldServer.core.worlds
 
         public void OnPlayerEntered(Player player)
         {
+            if (Layout != null)
+            {
+                LayoutWelcome(player);
+                return;
+            }
             player.SendInfo("Welcome to Do Damage");
             player.SendInfo("Use [WASDQE] to move; click to shoot!");
             player.SendInfo("Type \"/commands\" for more help");
@@ -866,7 +888,15 @@ namespace WorldServer.core.worlds
 
         private void BroadcastMsg(string message) => World.GameServer.ChatManager.Oryx(World, message);
 
-        private void RealmBroadcast(string message) => World.GameServer.ChatManager.Realm(message);
+        // Realm 2's news is its own players' only
+        private void RealmBroadcast(string message)
+        {
+            if (Layout == null)
+                World.GameServer.ChatManager.Realm(message);
+            else if (!string.IsNullOrWhiteSpace(message))
+                foreach (var player in World.Players.Values)
+                    player.RealmRecieved(message);
+        }
 
         private void EnsurePopulation()
         {

@@ -117,8 +117,8 @@ you while you stand next to them. Around the spawn:
 - **Both sides**, behind the colonnades: the **market wards**, the Nexus Bazaar's stalls. Everything
   there costs fame.
 - **South yard**: the Arena portal, with the Arena Leaderboard's golden trophy across the road
-  ([The Arena](progression.html#the-arena)), the class memorial with the
-  [Divine Forge](forge.html) in its middle, and four shared vault chests anyone can use.
+  ([The Arena](progression.html#the-arena)), the forge hall with the [Divine Forge](forge.html)
+  and the [Enchanter](imprints.html), and four shared vault chests anyone can use.
 
 `/nexus` or <kbd>R</kbd> brings you back from anywhere.
 

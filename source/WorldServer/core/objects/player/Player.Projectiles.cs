@@ -58,23 +58,34 @@ namespace WorldServer.core.objects
             PendingShootAcknowlegements.Enqueue(list);
         }
 
-        public void PlayerShoot(int time, int newBulletId, Position startingPosition, float angle, int slot)
+        public void PlayerShoot(int time, int newBulletId, Position startingPosition, float angle, int slot, ProjectileDesc projectileDesc)
         {
             var item = Inventory[slot];
-            var projectileDesc = item.Projectiles[0];
+            // the weapon's imprints (never an ability's): on the roll, then the attack multiplier,
+            // as the client works it out
+            var imprints = slot == 0 ? WeaponImprints : ImprintShot.None;
 
-            var damage = (int)(Client.Random.NextIntRange((uint)projectileDesc.MinDamage, (uint)projectileDesc.MaxDamage) * Stats.GetAttackMult());
+            var roll = (int)Client.Random.NextIntRange((uint)projectileDesc.MinDamage, (uint)projectileDesc.MaxDamage);
+            var damage = (int)(imprints.Damage(roll) * Stats.GetAttackMult());
 
             if (!ActiveProjectiles.ContainsKey(Id))
                 ActiveProjectiles[Id] = new Dictionary<int, ValidatedProjectile>();
 
             var proj = new ValidatedProjectile(Id, newBulletId, startingPosition, angle, item.ObjectType, damage, DamageType.Enemy, projectileDesc, false);
             proj.Time = time;
+            proj.FromWeapon = slot == 0;
+            if (slot == 0)
+            {
+                proj.LifetimeMS = imprints.Lifetime(projectileDesc);
+                proj.MultiHit = projectileDesc.MultiHit && !imprints.NoPierce;
+            }
             ActiveProjectiles[Id][newBulletId] = proj;
 
             var allyShoot = new AllyShootMessage(newBulletId, Id, item.ObjectType, angle);
             World.BroadcastIfVisibleExclude(allyShoot, this, this);
             PlayerShootEffects(angle);
+            if (slot == 0)
+                WispCaller();
             FameCounter.Shoot();
         }
 
@@ -189,14 +200,14 @@ namespace WorldServer.core.objects
             var projectileDesc = projectile.ProjectileDesc;
 
             var elapsedSinceStart = time - projectile.Time;
-            if (elapsedSinceStart > projectileDesc.LifetimeMS)
+            if (elapsedSinceStart > projectile.LifetimeMS)
             {
                 projectile.Disabled = true;
                 //Console.WriteLine("[EnemyHit] -> A expired shot tried to hit entity");
                 return;
             }
 
-            projectile.Disabled = !projectileDesc.MultiHit;
+            projectile.Disabled = !projectile.MultiHit;
 
             var e = World.GetEntity(targetId);
             if(e == null)
@@ -231,9 +242,12 @@ namespace WorldServer.core.objects
 
                 entity.DamageCounter.HitBy(this, dmg);
 
+                if (projectile.FromWeapon && Inventory[0]?.ObjectType == projectile.ContainerType)
+                    ImprintHit(entity, dmg, entity.Health <= 0, ref tickTime);
+
                 // At 0 health, as in Enemy.Damage: the client counts a shot that leaves it at 0 as
                 // a kill and stops hitting it.
-                if (entity.Health <= 0)
+                if (entity.Health <= 0 && !entity.Dead)
                 {
                     entity.Death(ref tickTime);
                     if (entity.ObjectDesc.BlocksSight)
@@ -369,7 +383,7 @@ namespace WorldServer.core.objects
                     var projectileDesc = kvp.Value.ProjectileDesc;
 
                     var elapsed = time - kvp.Value.Time;
-                    if (elapsed >= projectileDesc.LifetimeMS)
+                    if (elapsed >= kvp.Value.LifetimeMS)
                         visibleProjectileToRemove.Add(ValueTuple.Create(dict.Key, kvp.Key));
                 }
 

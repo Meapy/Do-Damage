@@ -31,7 +31,7 @@ namespace WorldServer.core.objects
 
             if (LastShootTime == time)
                 return true;
-            var attackPeriod = (int)(1 / Stats.GetAttackFrequency() * 1 / item.RateOfFire);
+            var attackPeriod = (int)(1 / Stats.GetAttackFrequency() * 1 / (item.RateOfFire * WeaponImprints.RateMult));
             if (time < LastShootTime + attackPeriod)
                 return false;
             LastShootTime = time;
@@ -54,12 +54,10 @@ namespace WorldServer.core.objects
         // server takes or refuses the shot, so a refused shot still uses up its roll. Otherwise
         // every roll after it is out of step: the client shows the wrong damage and predicts
         // kills that don't happen.
-        public void SkipShotRoll(Item item)
+        public void SkipShotRoll(ProjectileDesc desc)
         {
-            if (item.Projectiles == null || item.Projectiles.Length == 0)
-                return;
-            var desc = item.Projectiles[0];
-            Client.Random.NextIntRange((uint)desc.MinDamage, (uint)desc.MaxDamage);
+            if (desc != null)
+                Client.Random.NextIntRange((uint)desc.MinDamage, (uint)desc.MaxDamage);
         }
 
     }

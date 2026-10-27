@@ -26,6 +26,39 @@ details). Add to a group's line when a change adds to it, rather than adding ano
 - Gifts in the quest log: until 27 November, every account can claim one free Lil' Oryx
   Generator on the Daily Rewards tab.
 
+### Imprints
+- The Enchanter, beside the Divine Forge, puts imprints on Enthroned gear, carried or in your
+  vault: each piece has an Offensive (red), a Defensive (green) and a Misc (purple) slot. Imprints
+  add damage, health and defense, or an effect of their own for each kind of weapon (wisps for
+  staves, a charged arrow for bows, Battle Mage bolts for wands, a spear's reach for swords,
+  bursting wounds for daggers, and more), and a ring can heal you when you're close to death. Each
+  costs one Ascended shard. An item shows its imprints as small gold-edged squares, and its tooltip
+  shows the imprinted numbers and what changed. Imprints are being tested: for now only admins
+  can imprint gear, but anyone can look.
+
+### The Divine Forge
+- The forge stands in a new forge hall in the Nexus's south yard, redrawn in the Enchanter's stone,
+  with the Enchanter beside it and doors on three sides; the old class memorial is gone. The forge
+  window's locked Enchant tab is gone too.
+- The tier 16 armours can be forged: the tier 15 armour of each kind, an Ascended Armor Shard and
+  2,000 fame.
+- The Enthroned gear is finished: each piece has the numbers of the item it's forged from, and the
+  weapons fire Oryx 5's own shots, their volleys taking turns between a gold and a silver one (the
+  Enthroned Spear: a gold bolt as strong as a tier 15 staff's, then a purple and blue one that
+  pierces).
+  Dropped, Enthroned gear goes in a purple bag only you can see.
+
+### Realm 2
+- Realm 2, a new realm made afresh every time it opens: the shore and lowlands, the midlands and
+  a great winding Godlands. Each of the eleven big realm events brings a land of its own when it
+  comes, with its own monsters and quests (66 new ones in all), well apart from the others and
+  never over the stretches of Godlands kept as they are. An event is never far off. Beat all its
+  events and Oryx closes it and calls you to his Castle, as in the realm.
+
+### Wiki
+- A new Imprints page; the Divine Forge page covers the Enthroned weapons' shots and the tier 16
+  recipes, which are no longer called Doomed Realms items.
+
 ### Fixes
 - Closed several ways to cheat items and fame through the market, breaking items down and dropping
   items. Breaking an item down now works only on your own items or a bag beside you, and a quick

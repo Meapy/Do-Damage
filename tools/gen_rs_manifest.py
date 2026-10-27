@@ -32,8 +32,9 @@ EMOTES = "kabam/rotmg/emotes/Emotes.as"
 EMOTES_XML = "kabam/rotmg/assets/custom/xmls/EmotesXML.xml"
 # (name, file, cell width, cell height): sheets the AIR client doesn't register
 RS_ONLY_SETS = [
-    # the Divine Forge (tools/draw_forge_sprite.py)
+    # the Divine Forge and the Enchanter, and the imprints' wisps and bolt (tools/draw_forge_sprite.py)
     ("customAssets32x32", "kabam/rotmg/assets/custom/images/CustomAssets32x32.png", 32, 32),
+    ("imprintFx8x8", "kabam/rotmg/assets/custom/images/ImprintFx8x8.png", 8, 8),
     # the Tinkerer and the Chronicler, the quest NPCs (tools/draw_quest_npcs.py)
     ("questNpcs16x16", "kabam/rotmg/assets/custom/images/QuestNpcs16x16.png", 16, 16),
     # Oryx's Inferno's burnt sanctuary tiles and portal (tools/build_hash_cellar.py)
@@ -61,6 +62,9 @@ RS_ONLY_SETS = [
     ("oryxUts16x16", "kabam/rotmg/assets/custom/images/OryxUts16x16.png", 16, 16),
     # ability shots recoloured for items of their own (tools/draw_ability_fx.py)
     ("abilityFx8x8", "kabam/rotmg/assets/custom/images/AbilityFx8x8.png", 8, 8),
+    # Realm 2's grounds, scenery, walls, key and portal (tools/build_realm2.py)
+    ("realm2Env8x8", "kabam/rotmg/assets/custom/images/Realm2Env8x8.png", 8, 8),
+    ("realm2Env16x16", "kabam/rotmg/assets/custom/images/Realm2Env16x16.png", 16, 16),
 ]
 # (name, file, frame width, frame height, sheet width, sheet height, direction): characters
 RS_ONLY_CHARS = [
@@ -70,12 +74,17 @@ RS_ONLY_CHARS = [
     # Oryx's Elysium's Ascended Host and guardians, and Oryx 5 (tools/build_elysium.py)
     ("elysiumChars16x16", "kabam/rotmg/assets/custom/images/ElysiumChars16x16.png", 16, 16, 112, 16, "right"),
     ("elysiumOryx16x16", "kabam/rotmg/assets/custom/images/ElysiumOryx16x16.png", 16, 16, 112, 16, "down"),
+    # Realm 2's monsters and quest monsters (tools/build_realm2.py)
+    ("realm2Chars8x8", "kabam/rotmg/assets/custom/images/Realm2Chars8x8.png", 8, 8, 56, 8, "right"),
+    ("realm2Chars16x16", "kabam/rotmg/assets/custom/images/Realm2Chars16x16.png", 16, 16, 112, 16, "right"),
 ]
 # game data only the Rust client loads
 RS_ONLY_GROUND_XML = ["kabam/rotmg/assets/custom/xmls/HashCellarGrounds.xml",
-                      "kabam/rotmg/assets/custom/xmls/ElysiumGrounds.xml"]
+                      "kabam/rotmg/assets/custom/xmls/ElysiumGrounds.xml",
+                      "kabam/rotmg/assets/custom/xmls/Realm2Grounds.xml"]
 RS_ONLY_OBJECT_XML = ["kabam/rotmg/assets/custom/xmls/HashCellarObjects.xml",
-                      "kabam/rotmg/assets/custom/xmls/ElysiumObjects.xml"]
+                      "kabam/rotmg/assets/custom/xmls/ElysiumObjects.xml",
+                      "kabam/rotmg/assets/custom/xmls/Realm2Objects.xml"]
 ADD_EMOTE = re.compile(r'addEmote\("((?:[^"\\]|\\.)*)",\s*AssetLibrary\.getImageFromSet\("(\w+)",\s*(\d+)\)(?:,\s*([\d.]+))?')
 
 EMBED_VAR = re.compile(

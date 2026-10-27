@@ -568,11 +568,11 @@ DESCRIPTIONS = {
     "America Sword": "Rewarded by DODMG: America!",
     "America Shield": "Rewarded by DODMG: America!",
     "Sphinx Leather Armor": "Leather cut from the open sky over Oryx's Elysium, light as a cloud and as hard to strike. "
-                            "Only Oryx the Ascended God drops it.",
+                            "Oryx the Ascended God drops it, and the Divine Forge makes it from a T15 leather armour and an Ascended Armor Shard.",
     "Armor of the Pyramid": "Plate forged for the Ascended God's own guard, purple steel trimmed in gold. "
-                            "Only Oryx the Ascended God drops it.",
+                            "Oryx the Ascended God drops it, and the Divine Forge makes it from a T15 heavy armour and an Ascended Armor Shard.",
     "Robe of the Nile": "Woven for the priests of Oryx's last temple, it hums with the light of the Elysium. "
-                        "Only Oryx the Ascended God drops it.",
+                        "Oryx the Ascended God drops it, and the Divine Forge makes it from a T15 robe and an Ascended Armor Shard.",
 }
 
 

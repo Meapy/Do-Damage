@@ -312,3 +312,54 @@ fn a_kill_the_server_never_confirms_is_taken_back() {
     let hits = shoot(&mut w, 3, 1500);
     assert!(matches!(hits[..], [combat::Hit::Enemy { target_id: 3, .. }]), "{hits:?}");
 }
+
+/// A player holding `weapon` with these imprints in its item data, in the test world.
+fn armed(d: &GameData, weapon: u16, imprints: &str) -> World {
+    let mut w = world(d);
+    let stats = vec![
+        StatData { id: 8, value: StatValue::Int(weapon as i32) },
+        StatData { id: 122, value: StatValue::Str(format!(r#"{{"ObjectId":null,"Stack":0,"MaxStack":0,"Imprints":{imprints}}}"#)) },
+    ];
+    w.apply_update(
+        &Update {
+            tiles: Default::default(),
+            new_objs: vec![ObjectData { object_type: PLAYER as i32, status: ObjectStatus { object_id: 2, pos: WorldPos { x: 5.5, y: 5.5 }, stats: stats.into() } }]
+                .into(),
+            drops: Default::default(),
+        },
+        d,
+        0,
+    );
+    w
+}
+
+#[test]
+fn alternating_weapons_take_turns_and_imprints_change_their_shots() {
+    let mut d = data();
+    d.add_objects(
+        r#"<Objects>
+            <Object type="0x30" id="Turn Staff"><Class>Equipment</Class><Item/><SlotType>17</SlotType><Ascended/><AlternateProjectiles/>
+                <Projectile id="0"><ObjectId>A</ObjectId><Speed>100</Speed><MinDamage>100</MinDamage><MaxDamage>100</MaxDamage><LifetimeMS>500</LifetimeMS></Projectile>
+                <Projectile id="1"><ObjectId>B</ObjectId><Speed>100</Speed><MinDamage>50</MinDamage><MaxDamage>50</MaxDamage><LifetimeMS>500</LifetimeMS><MultiHit/></Projectile>
+                <NumProjectiles>2</NumProjectiles></Object>
+            <Object type="0x31" id="Three Bow"><Class>Equipment</Class><Item/><SlotType>3</SlotType><Ascended/>
+                <Projectile><ObjectId>A</ObjectId><Speed>100</Speed><MinDamage>10</MinDamage><MaxDamage>10</MaxDamage><LifetimeMS>500</LifetimeMS></Projectile>
+                <NumProjectiles>3</NumProjectiles></Object>
+        </Objects>"#,
+    )
+    .unwrap();
+    // Keen Edge: 105% of the roll, then the attack multiplier (0.5 at no attack)
+    let mut w = armed(&d, 0x30, "[1,0,0]");
+    let first = w.shoot(1000, 0.0, 1000, &d);
+    let second = w.shoot(5000, 0.0, 5000, &d);
+    let third = w.shoot(9000, 0.0, 9000, &d);
+    assert_eq!(first.iter().map(|p| (p.bullet_type, p.damage)).collect::<Vec<_>>(), vec![(0, 52), (0, 52)]);
+    assert_eq!(second.iter().map(|p| (p.bullet_type, p.damage)).collect::<Vec<_>>(), vec![(1, 26), (1, 26)]);
+    assert_eq!(third[0].bullet_type, 0);
+    // Gathered Shot: one arrow with all three's damage; Close Quarters on top: 80% of the flight
+    let mut w = armed(&d, 0x31, "[3,0,23]");
+    let shots = w.shoot(1000, 0.0, 1000, &d);
+    assert_eq!(shots.len(), 1);
+    assert_eq!(shots[0].damage, 10 * 108 / 100 * 300 / 100 / 2);
+    assert_eq!(shots[0].life, Some(400));
+}

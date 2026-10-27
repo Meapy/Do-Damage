@@ -1274,6 +1274,12 @@
    "h": 32
   },
   {
+   "name": "imprintFx8x8",
+   "file": "kabam/rotmg/assets/custom/images/ImprintFx8x8.png",
+   "w": 8,
+   "h": 8
+  },
+  {
    "name": "questNpcs16x16",
    "file": "kabam/rotmg/assets/custom/images/QuestNpcs16x16.png",
    "w": 16,
@@ -1368,6 +1374,18 @@
    "file": "kabam/rotmg/assets/custom/images/AbilityFx8x8.png",
    "w": 8,
    "h": 8
+  },
+  {
+   "name": "realm2Env8x8",
+   "file": "kabam/rotmg/assets/custom/images/Realm2Env8x8.png",
+   "w": 8,
+   "h": 8
+  },
+  {
+   "name": "realm2Env16x16",
+   "file": "kabam/rotmg/assets/custom/images/Realm2Env16x16.png",
+   "w": 16,
+   "h": 16
   }
  ],
  "animated_chars": [
@@ -2940,6 +2958,26 @@
    "sheet_w": 112,
    "sheet_h": 16,
    "dir": "down"
+  },
+  {
+   "name": "realm2Chars8x8",
+   "file": "kabam/rotmg/assets/custom/images/Realm2Chars8x8.png",
+   "mask": null,
+   "w": 8,
+   "h": 8,
+   "sheet_w": 56,
+   "sheet_h": 8,
+   "dir": "right"
+  },
+  {
+   "name": "realm2Chars16x16",
+   "file": "kabam/rotmg/assets/custom/images/Realm2Chars16x16.png",
+   "mask": null,
+   "w": 16,
+   "h": 16,
+   "sheet_w": 112,
+   "sheet_h": 16,
+   "dir": "right"
   }
  ],
  "models": [
@@ -3201,7 +3239,8 @@
   "kabam/rotmg/assets/custom/xmls/DoomedRealmsGrounds.xml",
   "kabam/rotmg/assets/custom/xmls/ElderGrounds.xml",
   "kabam/rotmg/assets/custom/xmls/HashCellarGrounds.xml",
-  "kabam/rotmg/assets/custom/xmls/ElysiumGrounds.xml"
+  "kabam/rotmg/assets/custom/xmls/ElysiumGrounds.xml",
+  "kabam/rotmg/assets/custom/xmls/Realm2Grounds.xml"
  ],
  "object_xml": [
   "kabam/rotmg/assets/custom/xmls/CustomItems.xml",
@@ -3314,7 +3353,8 @@
   "kabam/rotmg/assets/prod/xmls/ancientRuinsObjects.xml",
   "kabam/rotmg/assets/prod/xmls/Skins.xml",
   "kabam/rotmg/assets/custom/xmls/HashCellarObjects.xml",
-  "kabam/rotmg/assets/custom/xmls/ElysiumObjects.xml"
+  "kabam/rotmg/assets/custom/xmls/ElysiumObjects.xml",
+  "kabam/rotmg/assets/custom/xmls/Realm2Objects.xml"
  ],
  "region_xml": [
   "kabam/rotmg/assets/prod/xmls/Regions.xml"

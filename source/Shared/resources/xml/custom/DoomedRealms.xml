@@ -4376,7 +4376,7 @@
 		<SlotType>6</SlotType>
 		<Soulbound />
 		<Tier>16</Tier>
-		<Description>Leather cut from the open sky over Oryx's Elysium, light as a cloud and as hard to strike. Only Oryx the Ascended God drops it.</Description>
+		<Description>Leather cut from the open sky over Oryx's Elysium, light as a cloud and as hard to strike. Oryx the Ascended God drops it, and the Divine Forge makes it from a T15 leather armour and an Ascended Armor Shard.</Description>
 		<ActivateOnEquip stat="21" amount="24">IncrementStat</ActivateOnEquip>
 		<ActivateOnEquip stat="28" amount="8">IncrementStat</ActivateOnEquip>
 		<ActivateOnEquip stat="22" amount="5">IncrementStat</ActivateOnEquip>
@@ -4394,7 +4394,7 @@
 		<SlotType>7</SlotType>
 		<Soulbound />
 		<Tier>16</Tier>
-		<Description>Plate forged for the Ascended God's own guard, purple steel trimmed in gold. Only Oryx the Ascended God drops it.</Description>
+		<Description>Plate forged for the Ascended God's own guard, purple steel trimmed in gold. Oryx the Ascended God drops it, and the Divine Forge makes it from a T15 heavy armour and an Ascended Armor Shard.</Description>
 		<ActivateOnEquip stat="21" amount="31">IncrementStat</ActivateOnEquip>
 		<ActivateOnEquip stat="0" amount="85">IncrementStat</ActivateOnEquip>
 		<ActivateOnEquip stat="26" amount="9">IncrementStat</ActivateOnEquip>
@@ -4412,7 +4412,7 @@
 		<SlotType>14</SlotType>
 		<Soulbound />
 		<Tier>16</Tier>
-		<Description>Woven for the priests of Oryx's last temple, it hums with the light of the Elysium. Only Oryx the Ascended God drops it.</Description>
+		<Description>Woven for the priests of Oryx's last temple, it hums with the light of the Elysium. Oryx the Ascended God drops it, and the Divine Forge makes it from a T15 robe and an Ascended Armor Shard.</Description>
 		<ActivateOnEquip stat="20" amount="7">IncrementStat</ActivateOnEquip>
 		<ActivateOnEquip stat="21" amount="19">IncrementStat</ActivateOnEquip>
 		<ActivateOnEquip stat="27" amount="9">IncrementStat</ActivateOnEquip>

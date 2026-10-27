@@ -76,6 +76,9 @@ highlands, up to the grey **Godlands** in the middle.
 Dungeon portals drop from many realm monsters; take them. Each realm portal in the Nexus shows how
 many players are inside, and `/realm` takes you to the busiest one.
 
+[Realm 2](realm-2.html) is another kind of realm, opened with a key and made afresh each time,
+with a land of its own for every realm event.
+
 ### The Godlands
 
 The Godlands are the realm's highest ground and its richest. The gods that live there:

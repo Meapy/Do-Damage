@@ -561,6 +561,21 @@ pub fn slot_stat(slot: u8) -> u8 {
     }
 }
 
+/// The stat holding inventory slot `slot`'s item data (its imprints): `INVDATA0`-`11`, then
+/// `BACKPACKDATA0`-`7`. A bag's slots are 0-7.
+pub fn slot_data_stat(slot: u8) -> u8 {
+    match slot {
+        0..=11 => 122 + slot,
+        12..=19 => 134 + slot - 12,
+        _ => stat::NONE,
+    }
+}
+
+/// The imprints on the item in an object's slot.
+pub fn slot_imprints(o: &GameObj, slot: u8) -> [u8; 3] {
+    bsk_data::imprint::parse(o.stat_str(slot_data_stat(slot)).unwrap_or(""))
+}
+
 /// The health and magic potions kept in stacks (`PotionInventoryModel`): item, slot id.
 pub const POTIONS: [(i32, u8); 2] = [(2594, 254), (2595, 255)];
 
@@ -592,6 +607,8 @@ pub struct Slot {
     pub index: u8,
     pub item: i32,
     pub kind: SlotKind,
+    /// The item's imprints (`bsk_data::imprint`), by kind: 0 for none.
+    pub imprints: [u8; 3],
     rect: [f32; 4],
 }
 
@@ -823,7 +840,8 @@ pub mod merch {
     pub const RANK_REQ: u8 = 45;
 }
 
-/// How near the Divine Forge its window can be opened, in tiles (the server allows 5).
+/// How near the Divine Forge (or the Enchanter) its window can be opened, in tiles (the server
+/// allows 5).
 pub const FORGE_REACH: f64 = 3.0;
 
 /// Whether objects of this description are sold where they stand.
@@ -857,7 +875,8 @@ pub fn interact_target(world: &World, data: &GameData) -> Option<Interact> {
                 return None;
             };
             let dist = (o.x - me.x).hypot(o.y - me.y);
-            let reach = if matches!(kind, InteractKind::Npc { kind: crate::npc::NpcKind::Forge, .. }) { FORGE_REACH } else { 1.0 };
+            let big = matches!(kind, InteractKind::Npc { kind: crate::npc::NpcKind::Forge | crate::npc::NpcKind::Enchanter, .. });
+            let reach = if big { FORGE_REACH } else { 1.0 };
             (dist < reach).then_some((dist, o, d, kind))
         })
         .min_by(|a, b| a.0.total_cmp(&b.0))
@@ -1058,7 +1077,14 @@ impl Panel {
         let equip = lay.equip_box();
         for i in 0..4u8 {
             let t = types.get(i as usize).copied().unwrap_or(0);
-            panel.slots.push(Slot { owner: me.id, index: i, item: item(me, i), kind: SlotKind::Equip(t), rect: grid_slot(equip, s, 4, i as u32) });
+            panel.slots.push(Slot {
+                owner: me.id,
+                index: i,
+                item: item(me, i),
+                kind: SlotKind::Equip(t),
+                imprints: slot_imprints(me, i),
+                rect: grid_slot(equip, s, 4, i as u32),
+            });
         }
         panel.has_backpack = me.stat_int(stat::HAS_BACKPACK).unwrap_or(0) != 0;
         let page = if panel.has_backpack { page } else { Page::Inventory };
@@ -1069,6 +1095,7 @@ impl Panel {
                 index: first + i,
                 item: item(me, first + i),
                 kind: SlotKind::Inventory(i + 1),
+                imprints: slot_imprints(me, first + i),
                 rect: grid_slot(lay.inventory_box(), s, 4, i as u32),
             });
         }
@@ -1082,6 +1109,7 @@ impl Panel {
                 index: *slot_id,
                 item: *potion,
                 kind: SlotKind::Potion(count),
+                imprints: [0; 3],
                 rect: grid_slot(lay.potion_box(), s, 2, k as u32),
             });
         }
@@ -1124,6 +1152,7 @@ impl Panel {
                             index: i,
                             item: item(bag, i),
                             kind: SlotKind::Container,
+                            imprints: slot_imprints(bag, i),
                             rect: grid_slot(ib, s, 4, i as u32),
                         });
                     }
@@ -1798,7 +1827,11 @@ fn draw_slot(ui: &mut Ui, lay: &Layout, slot: &Slot, dragged: bool, target: bool
     let small = lay.font(10.0);
     match slot.kind {
         // The number key, small in the corner.
-        SlotKind::Inventory(key) => ui.label(&key.to_string(), x + 4.0 * s, y + 2.0 * s, small, true, color::TEXT_MUTED),
+        // its imprints take the corner, the number its foot
+        SlotKind::Inventory(key) => {
+            let ky = if slot.imprints != [0; 3] && !empty { y + h - small * 1.3 } else { y + 2.0 * s };
+            ui.label(&key.to_string(), x + 4.0 * s, ky, small, true, color::TEXT_MUTED)
+        }
         SlotKind::Potion(count) => {
             let key = &potion_keys[if slot.index == POTIONS[0].1 { 0 } else { 1 }];
             ui.label(key, x + 4.0 * s, y + 2.0 * s, small, true, color::TEXT_MUTED);
@@ -1811,6 +1844,9 @@ fn draw_slot(ui: &mut Ui, lay: &Layout, slot: &Slot, dragged: bool, target: bool
         }
         _ => {}
     }
+    if !empty {
+        draw_imprint_marks(ui, slot.imprints, x + 4.0 * s, y + 4.0 * s, s);
+    }
     if !empty && !matches!(slot.kind, SlotKind::Potion(_)) {
         let doses = ui.data.objects.get(&(slot.item as u16)).and_then(|d| d.xml.text_of("Doses").or(d.xml.text_of("Quantity")).map(str::to_owned));
         if let Some(n) = doses {
@@ -1818,6 +1854,110 @@ fn draw_slot(ui: &mut Ui, lay: &Layout, slot: &Slot, dragged: bool, target: bool
             ui.label(&n, x + w - nw - 4.0 * s, y + h - small * 1.3, small, true, color::TEXT);
         }
     }
+}
+
+/// An item's imprints as small squares in their colours, an even row from (x, y), packed to the
+/// left in the order Offensive (red), Defensive (green), Misc (purple): a lone purple sits first,
+/// and moves over when a green one comes. Only those it carries show.
+pub(crate) fn draw_imprint_marks(ui: &mut Ui, imprints: [u8; 3], x: f32, y: f32, s: f32) {
+    use bsk_data::imprint::Kind;
+    let size = (5.0 * s).max(3.0);
+    let step = size + 2.0 * s;
+    let carried = Kind::ALL.into_iter().filter(|&k| imprints[k as usize] != 0);
+    for (col, kind) in carried.enumerate() {
+        let r = [x + col as f32 * step, y, size, size];
+        // a thin gold edge round each, apart from the sprite
+        theme::fill(ui.renderer, [r[0] - 1.5 * s, r[1] - 1.5 * s, r[2] + 3.0 * s, r[3] + 3.0 * s], 1.5 * s, color::GOLD, 1.0);
+        theme::fill(ui.renderer, [r[0] - 0.5 * s, r[1] - 0.5 * s, r[2] + s, r[3] + s], s, 0x0a0710, 1.0);
+        theme::fill(ui.renderer, r, s, kind.color(), 1.0);
+    }
+}
+
+/// The Imprints section at the foot of an item's tooltip: a bar with its title, each imprint's
+/// name in its colour and what it does, then a bar with what they change on the item (its numbers
+/// before and after). Imprints only work on Enthroned gear.
+pub fn imprint_lines(data: &GameData, item: i32, imprints: [u8; 3]) -> Vec<Line> {
+    use bsk_data::imprint::{self, Kind};
+    let mut lines = Vec::new();
+    let Some(desc) = data.objects.get(&(item as u16)) else { return lines };
+    let slot_type = desc.xml.int("SlotType", 0);
+    let mut fitting = [0u8; 3];
+    for kind in Kind::ALL {
+        let Some(imp) = imprint::get(imprints[kind as usize] as i32) else { continue };
+        if lines.is_empty() {
+            lines.push(Line::gap());
+            lines.push(Line { band: Some(color::GOLD), ..Line::new("Imprints", 13.0, true, color::GOLD) });
+        }
+        let works = imp.fits(slot_type) && desc.xml.has("Ascended");
+        if works {
+            fitting[kind as usize] = imp.id;
+        }
+        let name = if works { format!("{} ({})", imp.name, kind.name()) } else { format!("{} ({}, does nothing here)", imp.name, kind.name()) };
+        lines.push(Line::new(&name, 12.0, true, if works { kind.color() } else { color::TEXT_MUTED }));
+        lines.push(Line::new(imp.description, 11.0, false, color::TEXT_DIM));
+    }
+    if lines.is_empty() {
+        return lines;
+    }
+    // what they change: the weapon's shots, and the stats
+    let mut diff: Vec<Line> = Vec::new();
+    let arrow = |label: &str, before: String, after: String| Line {
+        pieces: vec![(format!("{label}: "), ATTR), (before, color::TEXT_DIM), ("  ->  ".to_owned(), ATTR), (after, color::GOOD)],
+        size: 12.0,
+        bold: false,
+        centred: false,
+        band: None,
+    };
+    let shot = imprint::Shot::of(fitting, slot_type, desc.num_projectiles());
+    if let Some(p) = desc.projectiles.get(&0) {
+        if !shot.damage_percents.is_empty() {
+            diff.push(arrow(
+                "Damage",
+                format!("{} - {}", p.min_damage, p.max_damage),
+                format!("{} - {}", shot.damage(p.min_damage), shot.damage(p.max_damage)),
+            ));
+        }
+        let life = shot.lifetime(p.speed, p.lifetime);
+        if life != p.lifetime {
+            let range = |l: i32| format!("{}", (p.speed as f64 * l as f64 / 10000.0 * 100.0).round() / 100.0);
+            diff.push(arrow("Range", range(p.lifetime), range(life)));
+        }
+        if shot.num_projectiles(desc.num_projectiles()) != desc.num_projectiles() {
+            diff.push(arrow("Shots", desc.num_projectiles().to_string(), "1".to_owned()));
+        }
+        if shot.rate_mult != 1.0 {
+            let rof = desc.rate_of_fire();
+            diff.push(arrow("Rate of Fire", format!("{:.0}%", rof * 100.0), format!("{:.0}%", rof * shot.rate_mult * 100.0)));
+        }
+        if shot.no_pierce {
+            diff.push(Line::new("Shots no longer pierce", 12.0, false, color::DANGER));
+        }
+    }
+    let (mut def, mut hp) = (0, 0);
+    for &id in &fitting {
+        match id {
+            imprint::VIGOR => hp += 20,
+            imprint::BULWARK => {
+                def += 3;
+                hp += 15;
+            }
+            _ => {}
+        }
+    }
+    if def != 0 {
+        diff.push(Line::new(&format!("+{def} Defense"), 12.0, false, color::GOOD));
+    }
+    if hp != 0 {
+        diff.push(Line::new(&format!("+{hp} Maximum HP"), 12.0, false, color::GOOD));
+    }
+    if fitting.contains(&imprint::BLOOD_PACT) {
+        diff.push(Line::new("-10% Maximum HP", 12.0, false, color::DANGER));
+    }
+    if !diff.is_empty() {
+        lines.push(Line { band: Some(color::ACCENT), ..Line::new("With imprints", 12.0, true, color::TEXT) });
+        lines.extend(diff);
+    }
+    lines
 }
 
 /// The player's portrait (`Player.getPortrait`): the class (or skin) standing, dyed.
@@ -2044,7 +2184,9 @@ pub fn draw_overlay(ui: &mut Ui, lay: &Layout, world: &World, panel: &Panel, sta
     let Some(slot) = panel.slot_at(mouse) else { return };
     let me = world.player();
     let lines = if slot.item > 0 {
-        item_tooltip(ui.data, slot.item, me, slot.kind)
+        let mut lines = item_tooltip_imprinted(ui.data, slot.item, me, slot.kind, slot.imprints);
+        lines.extend(imprint_lines(ui.data, slot.item, slot.imprints));
+        lines
     } else {
         let text = match slot.kind {
             SlotKind::Equip(t) => format!("Empty {} Slot", slot_type_name(t)),
@@ -2149,16 +2291,18 @@ pub struct Line {
     bold: bool,
     /// Centred across the box rather than from its left.
     centred: bool,
+    /// A bar of this colour across the box behind it (the Imprints section's title and sum).
+    band: Option<u32>,
 }
 
 impl Line {
     pub(crate) fn new(text: &str, size: f32, bold: bool, color: u32) -> Self {
-        Line { pieces: vec![(text.to_owned(), color)], size, bold, centred: false }
+        Line { pieces: vec![(text.to_owned(), color)], size, bold, centred: false, band: None }
     }
 
     /// "Label: value", the label in the attribute grey and the value in its own colour.
     fn stat(label: &str, value: &str, color: u32) -> Self {
-        Line { pieces: vec![(format!("{label}: "), ATTR), (value.to_owned(), color)], size: 13.0, bold: false, centred: false }
+        Line { pieces: vec![(format!("{label}: "), ATTR), (value.to_owned(), color)], size: 13.0, bold: false, centred: false, band: None }
     }
 
     /// A little space between the tooltip's parts.
@@ -2402,6 +2546,12 @@ fn ally_shot_rows(a: &bsk_data::xml::Element) -> Option<Vec<(String, String)>> {
 }
 
 pub fn item_tooltip(data: &GameData, item: i32, me: Option<&GameObj>, kind: SlotKind) -> Vec<Line> {
+    item_tooltip_imprinted(data, item, me, kind, [0; 3])
+}
+
+/// `item_tooltip` for an item carrying these imprints: its shots' numbers (damage, shots, range,
+/// rate of fire) are the imprinted ones, in the imprints' green.
+pub fn item_tooltip_imprinted(data: &GameData, item: i32, me: Option<&GameObj>, kind: SlotKind, imprints: [u8; 3]) -> Vec<Line> {
     let Some(desc) = data.objects.get(&(item as u16)) else { return vec![Line::new("Unknown item", 14.0, true, 0xFFFFFF)] };
     let xml = &desc.xml;
     let mut out = Vec::new();
@@ -2499,13 +2649,24 @@ pub fn item_tooltip(data: &GameData, item: i32, me: Option<&GameObj>, kind: Slot
     out.push(Line::gap());
     let mut attr = |label: &str, value: String, color: u32| out.push(Line::stat(label, &value, color));
     if let Some(p) = desc.projectiles.get(&0) {
-        let dmg = if p.min_damage == p.max_damage { p.min_damage.to_string() } else { format!("{} - {}", p.min_damage, p.max_damage) };
-        attr("Damage", dmg, compare(mine.damage, worn.damage, true));
-        attr("Shots", desc.num_projectiles().to_string(), compare(mine.shots, worn.shots, true));
-        let range = p.speed as f64 * p.lifetime as f64 / 10000.0;
-        attr("Range", format!("{}", (range * 100.0).round() / 100.0), compare(mine.range, worn.range, true));
+        // the imprints (Enthroned gear only): what they change shows in green
+        let shot = if xml.has("Ascended") {
+            bsk_data::imprint::Shot::of(imprints, xml.int("SlotType", 0), desc.num_projectiles())
+        } else {
+            bsk_data::imprint::Shot::default()
+        };
+        let pick = |changed: bool, c: u32| if changed { color::GOOD } else { c };
+        let (lo, hi) = (shot.damage(p.min_damage), shot.damage(p.max_damage));
+        let dmg = if lo == hi { lo.to_string() } else { format!("{lo} - {hi}") };
+        attr("Damage", dmg, pick(lo != p.min_damage || hi != p.max_damage, compare(mine.damage, worn.damage, true)));
+        let shots = shot.num_projectiles(desc.num_projectiles());
+        attr("Shots", shots.to_string(), pick(shots != desc.num_projectiles(), compare(mine.shots, worn.shots, true)));
+        let life = shot.lifetime(p.speed, p.lifetime);
+        let range = p.speed as f64 * life as f64 / 10000.0;
+        attr("Range", format!("{}", (range * 100.0).round() / 100.0), pick(life != p.lifetime, compare(mine.range, worn.range, true)));
         if [1, 2, 3, 8, 17, 24, 36, 200].contains(&xml.int("SlotType", 0)) {
-            attr("Rate of Fire", format!("{:.0}%", desc.rate_of_fire() * 100.0), compare(mine.rate_of_fire, worn.rate_of_fire, true));
+            let rof = desc.rate_of_fire() * shot.rate_mult;
+            attr("Rate of Fire", format!("{:.0}%", rof * 100.0), pick(shot.rate_mult != 1.0, compare(mine.rate_of_fire, worn.rate_of_fire, true)));
         }
         for e in &p.effects {
             attr("Shot effect", e.clone(), VALUE);
@@ -2558,7 +2719,7 @@ pub fn item_tooltip(data: &GameData, item: i32, me: Option<&GameObj>, kind: Slot
             } else {
                 vec![(format!("    {amount:+} "), color), (stat_name(stat).to_owned(), ATTR)]
             };
-            out.push(Line { pieces, size: 13.0, bold: false, centred: false });
+            out.push(Line { pieces, size: 13.0, bold: false, centred: false, band: None });
         }
     }
     // Restrictions.
@@ -2721,7 +2882,7 @@ pub(crate) fn draw_tooltip(ui: &mut Ui, lay: &Layout, lines: &[Line], icon: Opti
     let icon_w = if icon.is_some() { 44.0 * s } else { 0.0 };
     // Wrap every line; the first ones (title, tier) sit beside the icon.
     // Each wrapped row: its coloured pieces, size, bold, and where it sits.
-    type Row = (Vec<(String, u32)>, f32, bool, f32, bool);
+    type Row = (Vec<(String, u32)>, f32, bool, f32, bool, Option<u32>);
     let mut rows: Vec<Row> = Vec::new();
     let mut y: f32 = 0.0;
     for (i, line) in lines.iter().enumerate() {
@@ -2733,7 +2894,7 @@ pub(crate) fn draw_tooltip(ui: &mut Ui, lay: &Layout, lines: &[Line], icon: Opti
         // `wrap` measures regular text: bold is wider, so leave it some room.
         let room = (inner - indent) * if line.bold { 0.9 } else { 1.0 };
         for part in wrap(ui, &line.pieces, size, room, 0.0) {
-            rows.push((part, size, line.bold, y, line.centred));
+            rows.push((part, size, line.bold, y, line.centred, line.band));
             y += size * 1.25;
         }
     }
@@ -2756,7 +2917,12 @@ pub(crate) fn draw_tooltip(ui: &mut Ui, lay: &Layout, lines: &[Line], icon: Opti
     if let Some(item) = icon {
         ui.item_icon(item, 60, x0 + pad + icon_w / 2.0 - 2.0 * s, y0 + pad + icon_w / 2.0 - 2.0 * s, s * 0.9);
     }
-    for (i, (pieces, size, bold, ry, centred)) in rows.iter().enumerate() {
+    for (i, (pieces, size, bold, ry, centred, band)) in rows.iter().enumerate() {
+        if let Some(c) = band {
+            let br = [x0 + 3.0 * s, y0 + pad + ry - 2.0 * s, w - 6.0 * s, size * 1.25 + 2.0 * s];
+            theme::fill(ui.renderer, br, 3.0 * s, *c, 0.22);
+            theme::fill(ui.renderer, [br[0], br[1], br[2], s.max(1.0)], 0.0, *c, 0.7);
+        }
         let indent = if i < 2 && icon.is_some() && *ry < icon_w { icon_w } else { 0.0 };
         let mut x = x0 + pad + indent;
         if *centred {

@@ -114,8 +114,9 @@ namespace WorldServer.core.worlds
 
                 from.Post(() =>
                 {
+                    // a realm (Realm 2, from its key) runs on its own thread, as the Nexus's realms do
                     if (world != null)
-                        AttachWorld(world, from);
+                        AttachWorld(world, world is RealmWorld ? null : from);
                     done(world);
                 });
             });
@@ -142,6 +143,9 @@ namespace WorldServer.core.worlds
                     break;
                 case WorldResourceInstanceType.Test:
                     world = new TestWorld(GameServer, nextId, worldResource);
+                    break;
+                case WorldResourceInstanceType.Realm2:
+                    world = new Realm2World(GameServer, nextId, worldResource);
                     break;
                 default:
                     // ported Doomed Realms minigames and shop
@@ -220,7 +224,7 @@ namespace WorldServer.core.worlds
             }
         }
 
-        public List<World> GetRealms() => Worlds.Values.Where(_ => _ is RealmWorld && !(_ as RealmWorld).RealmManager.DisableSpawning).ToList(); // todo mabye not have a tolist
+        public List<World> GetRealms() => Worlds.Values.Where(_ => _ is RealmWorld r && r.ListedInNexus && !r.RealmManager.DisableSpawning).ToList(); // todo mabye not have a tolist
 
         public RealmWorld GetRandomRealm()
         {

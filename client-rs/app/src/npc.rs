@@ -42,8 +42,10 @@ pub enum NpcKind {
     Market,
     /// The Arena Leaderboard trophy in the Nexus's south yard: the best arena runs.
     ArenaLeaderboard,
-    /// The Divine Forge in the Nexus's south yard: forging, and selling items for fame.
+    /// The Divine Forge in the Nexus's forge hall: forging, and selling items for fame.
     Forge,
+    /// The Enchanter beside it: imprinting gear.
+    Enchanter,
     /// The Tinkerer by the Nexus spawn: the quest log's quests.
     QuestMaster,
     /// The Chronicler by the Nexus spawn: the quest log's daily rewards and achievements.
@@ -63,6 +65,7 @@ impl NpcKind {
             "MarketNPC" => Self::Market,
             "ArenaLeaderboard" => Self::ArenaLeaderboard,
             "Forge" => Self::Forge,
+            "Enchanter" => Self::Enchanter,
             "QuestMaster" => Self::QuestMaster,
             "Chronicler" => Self::Chronicler,
             _ => return None,
@@ -120,6 +123,7 @@ pub fn interact_text(kind: NpcKind, me: &GameObj, rank_req: i32) -> (String, Opt
         NpcKind::Market => open("Buy and sell items", "Manage"),
         NpcKind::ArenaLeaderboard => open("The arena's best runs", "View"),
         NpcKind::Forge => open("Forge items, or sell them for fame", "Open"),
+        NpcKind::Enchanter => open("Imprint your gear", "Open"),
         NpcKind::QuestMaster => open("Daily, weekly and monthly quests", "Quests"),
         NpcKind::Chronicler => open("Daily rewards and achievements", "Open"),
     }
@@ -755,6 +759,7 @@ mod tests {
         assert_eq!(rank_name(40), "Founder");
         assert_eq!(NpcKind::of_class("ReskinVendor"), Some(NpcKind::Reskin));
         assert_eq!(NpcKind::of_class("Forge"), Some(NpcKind::Forge));
+        assert_eq!(NpcKind::of_class("Enchanter"), Some(NpcKind::Enchanter));
         assert_eq!(NpcKind::of_class("QuestMaster"), Some(NpcKind::QuestMaster));
         assert_eq!(NpcKind::of_class("Chronicler"), Some(NpcKind::Chronicler));
         assert_eq!(NpcKind::of_class("SkillTree"), None);

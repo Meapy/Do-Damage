@@ -15,6 +15,16 @@
 		</Music>
 		<Persists/>
 	</World>
+	<!-- Realm 2: made afresh each time its key opens one (Realm2Generator), so no map here -->
+	<World id="Realm 2">
+		<Width>1024</Width>
+		<Height>768</Height>
+		<Capacity>85</Capacity>
+		<Instance enum="realm2"/>
+		<Music>
+			<Track>wanderlust</Track>
+		</Music>
+	</World>
 	<World id="Nexus">
 		<Width>97</Width>
 		<Height>92</Height>

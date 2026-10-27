@@ -42,6 +42,7 @@ namespace WorldServer.core
             ApplyEquipBonus();
             ApplyActivateBonus();
             IncrementStatBoost();
+            ApplyImprintHealthLoss();
 
             for (var i = 0; i < _boost.Length; i++)
                 _boostSV[i].SetValue(_boost[i]);
@@ -99,6 +100,18 @@ namespace WorldServer.core
                 foreach (var b in _player.Inventory[i].ActivateOnEquips)
                     IncrementBoost((StatDataType)b.Key, b.Value);
             }
+
+            // the equipped gear's imprints (Player.Imprints.cs)
+            foreach (var (stat, amount) in _player.ImprintStats())
+                IncrementBoost(stat, amount);
+        }
+
+        // Blood Pact's share of maximum health, after everything else
+        private void ApplyImprintHealthLoss()
+        {
+            var percent = _player.ImprintHealthLossPercent;
+            if (percent > 0)
+                _boost[0] -= (_parent.Base[0] + _boost[0]) * percent / 100;
         }
 
         private void FixedStat(StatDataType stat, int value)

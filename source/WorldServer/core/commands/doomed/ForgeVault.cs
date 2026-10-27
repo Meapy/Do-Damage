@@ -129,6 +129,35 @@ namespace WorldServer.core.commands.doomed
             return false;
         }
 
+        // Every item in the chests: (chest, slot, type, its data), for the Enchanter.
+        public IEnumerable<(int Chest, int Slot, ushort Type, ItemData Data)> All()
+        {
+            for (var c = 0; c < _chests.Count; c++)
+                for (var s = 0; s < _chests[c].Items.Length; s++)
+                    if (_chests[c].Items[s] != Empty)
+                        yield return (c, s, _chests[c].Items[s], Data(_chests[c], s));
+        }
+
+        // The item in a chest's slot and its data ((0xffff, null) for none).
+        public (ushort Type, ItemData Data) At(int chest, int slot) =>
+            chest >= 0 && chest < _chests.Count && slot >= 0 && slot < _chests[chest].Items.Length
+                ? (_chests[chest].Items[slot], Data(_chests[chest], slot)) : (Empty, null);
+
+        // Sets an item's data (its imprints). In memory only until Save.
+        public void SetData(int chest, int slot, ItemData data)
+        {
+            var c = _chests[chest];
+            if (c.Datas == null || c.Datas.Length < c.Items.Length)
+            {
+                var datas = new ItemData[c.Items.Length];
+                if (c.Datas != null)
+                    System.Array.Copy(c.Datas, datas, c.Datas.Length);
+                c.Datas = datas;
+            }
+            c.Datas[slot] = data;
+            c.Changed = true;
+        }
+
         // Writes the changed chests, if nothing changed them since Read. False, and nothing
         // written, if something did.
         public bool Save()

@@ -70,9 +70,9 @@ namespace WorldServer.core.commands.doomed
             ("Helm of the Juggernaut", 100, false, new[] { "Helm of the Jack-o'-naut" }),
         };
 
-        // Tiered items only their boss gives, which no recipe makes (the T16 armours, which only Oryx the
-        // Ascended God drops). They still count for their slot's price scale, which they always topped.
-        private static readonly HashSet<string> NeverForged = new HashSet<string>
+        // Tiered items two of the tier below don't make: the T16 armours, forged from a T15 armour and an
+        // Ascended Armor Shard (Ascended below). They still count for their slot's price scale.
+        private static readonly HashSet<string> NotChained = new HashSet<string>
         {
             "Sphinx Leather Armor", "Armor of the Pyramid", "Robe of the Nile"
         };
@@ -81,7 +81,8 @@ namespace WorldServer.core.commands.doomed
         // item of the top tier Oryx the Ascended God drops of its kind and the Ascended shard of that
         // kind, taken from the forge storage (ForgeStorage.cs). A weapon or armour comes from its own
         // slot's item; his own pieces (slot 0) from any of the tier and kind, or (AscendedFrom) from one
-        // item of his. All are named Enthroned. Result, the kind, tier and slot it's forged from, the shard.
+        // item of his. All are named Enthroned, but for the T16 armours, each from its slot's T15 armour.
+        // Result, the kind, tier and slot it's forged from, the shard.
         private const string WeaponShard = "Ascended Weapon Shard", AbilityShard = "Ascended Ability Shard",
             ArmorShard = "Ascended Armor Shard", AccessoryShard = "Ascended Accessory Shard";
         private const int AscendedFame = 2000;
@@ -101,6 +102,9 @@ namespace WorldServer.core.commands.doomed
             ("Enthroned Boots", ItemType.Ring, 8, 0, AccessoryShard),
             ("Enthroned Ring of Wrath", ItemType.Ring, 8, 0, AccessoryShard),
             ("Enthroned Ring of Grace", ItemType.Ring, 8, 0, AccessoryShard),
+            ("Sphinx Leather Armor", ItemType.Armor, 15, 6, ArmorShard),
+            ("Armor of the Pyramid", ItemType.Armor, 15, 7, ArmorShard),
+            ("Robe of the Nile", ItemType.Armor, 15, 14, ArmorShard),
         };
         // Ascended items from one item: result, the item, the shard. His spear from his Elysian Staff.
         private static readonly (string Result, string From, string Shard)[] AscendedFrom =
@@ -130,7 +134,7 @@ namespace WorldServer.core.commands.doomed
                 .Concat(AscendedFrom.Select(a => a.Result)));
             // (the advanced recipes needed the Forge Amulet, which is gone)
             bool Allowed((string Result, int Fame, bool Advanced, string[] Items) r) =>
-                !r.Advanced && items.ContainsKey(r.Result) && !NeverForged.Contains(r.Result)
+                !r.Advanced && items.ContainsKey(r.Result)
                 && (dropped.Contains(r.Result) || forgeOnly.Contains(r.Result))
                 && !seasonal.Contains(r.Result) && r.Items.All(items.ContainsKey);
 
@@ -189,7 +193,7 @@ namespace WorldServer.core.commands.doomed
                     if (!fames.TryGetValue(tier, out var fame))
                         continue;
                     var below = byTier[tier - 1];
-                    foreach (var result in results)
+                    foreach (var result in results.Where(i => !NotChained.Contains(i.ObjectId)))
                     {
                         var from = Below(result, below);
                         var r = (result.ObjectId, fame, false, new[] { from.ObjectId, from.ObjectId });

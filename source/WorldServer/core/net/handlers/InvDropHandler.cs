@@ -94,7 +94,8 @@ namespace WorldServer.core.net.handlers
                 }
             }
 
-            var isSoulbound = item.Untradeable;
+            // admin and OP items, and Oryx 5's own gear (the Enthroned items): in a bag only its owner sees
+            var isSoulbound = item.Untradeable || item.Ascended;
             var container = new Container(player.GameServer, isSoulbound ? soulBag : normBag, 60000, true);
 
             if (isSoulbound) //TODOS LOS ITEMS SE DROPEAN EN SOULBOUND BAG

@@ -165,8 +165,9 @@ the real prizes:
   **Ascended Gem of Tenderness** (each ability use: a 35% chance of +50 Wisdom for 4 seconds), as
   often as Oryx 4's gems. The Burning Amulet is unobtainable.
 - **Tier 7 abilities and rings** come from Oryx 3, 4 and 5; Oryx 5 is the only place for tier 8.
-- **Oryx 5** alone drops the **tier 16 armours**, in his colours: Hide of the Firmament, Armor of
-  Ascension and Robe of Absolution, in white bags. The Divine Forge doesn't make them.
+- **Oryx 5** drops the **tier 16 armours**, in his colours: Hide of the Firmament, Armor of
+  Ascension and Robe of Absolution, in white bags. The Divine Forge also makes each from the tier 15
+  armour of its kind, an Ascended Armor Shard and 2,000 fame.
 - **Forge shards**: Oryx 4 drops the four Infernal shards and Oryx 5 the four Ascended shards, each
   half as often as that Oryx's Potion of Oryx. The Ascended shards forge Oryx 5's Ascended items
   (see [The Divine Forge](forge.html#forge-shards-and-the-forge-storage)).

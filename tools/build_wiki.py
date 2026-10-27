@@ -424,6 +424,20 @@ class Gen:
             used.add("forge-" + slugify(title))
         return "\n".join(out)
 
+    def gen_imprints(self, used):
+        """The imprints the Enchanter puts on gear (Shared/resources/Imprints.cs), a table for each
+        colour: name, what it does, what it fits."""
+        imps = wd.imprints()
+        out = []
+        for kind, colour in (("Offensive", "#d6283a"), ("Defensive", "#2fb44f"), ("Misc", "#9446dc")):
+            rows = "".join('<tr><td><b style="color:%s">%s</b></td><td>%s</td><td>%s</td></tr>' % (
+                colour, esc(i["name"]), esc(i["description"]), esc(i["fits"])) for i in imps if i["kind"] == kind)
+            out.append('<h3 id="imprints-%s">%s</h3><div class="table-wrap"><table><thead><tr><th>Imprint</th>'
+                       '<th>What it does</th><th>Fits</th></tr></thead><tbody>%s</tbody></table></div>' % (
+                           kind.lower(), kind, rows))
+            used.add("imprints-" + kind.lower())
+        return "\n".join(out)
+
     def gen_forge_ascended(self, used):
         """The Ascended items, a row each: an item of his top tier (its slot's, or any of its kind) and
         an Ascended shard."""

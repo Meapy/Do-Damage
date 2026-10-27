@@ -170,6 +170,11 @@ pub struct World {
     pub random: Random,
     /// Our next shot's bullet id (`GameObject.getBulletId`, from 1).
     pub next_bullet_id: i32,
+    /// Our weapon's volleys so far: a weapon with `<AlternateProjectiles/>` fires its projectiles
+    /// in turn, counted as the server counts them (`Player.NoteWeaponShot`).
+    pub weapon_volleys: i32,
+    /// When the last Battle Mage bolts flew (the imprint, `bsk_data::imprint`).
+    pub last_bolts: Option<i32>,
     anim_seed: u32,
     last_ground_damage: HashMap<(i32, i32), i32>,
 }
@@ -196,6 +201,8 @@ impl World {
             impacts: Vec::new(),
             random: Random::new(seed),
             next_bullet_id: 1,
+            weapon_volleys: 0,
+            last_bolts: None,
             anim_seed: 0x9E37_79B9,
             last_ground_damage: HashMap::new(),
         }

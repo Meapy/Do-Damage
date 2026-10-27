@@ -70,6 +70,11 @@ namespace WorldServer.logic
             new AllyShoot(10, 2, 8, projectileIndex: 0, coolDown: 1000),
             new Decay(5000)
             ))
+        // the Wisp Caller imprint's wisps (Player.Imprints.cs gives their effects): each circles its
+        // summoner for 5 s
+        .Init("Wisp of Life", new State(new AllyOrbit(1.5, 140), new Decay(5000)))
+        .Init("Wisp of Warding", new State(new AllyOrbit(1.5, 140), new Decay(5000)))
+        .Init("Wisp of Ruin", new State(new AllyOrbit(1.5, 140), new Decay(5000)))
         // the Hivemaster Helm's bees: for 6 s they stay by their summoner and sting the nearest enemy
         // within 4 tiles for 120 every 0.6 s; the red one's stings curse half the time
         .Init("EH Ability Bee 1", HiveBee(ConditionEffectIndex.Curse))

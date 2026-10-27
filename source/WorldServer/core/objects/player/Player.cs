@@ -478,6 +478,7 @@ namespace WorldServer.core.objects
                 HandleEffects(ref time);
                 HandleRegen(ref time);
                 LowHealthBoosts();
+                LastBreath();
                 GroundEffect(time);
                 TickCooldownTimers(time);
                 TickSlotCooldowns(time);
