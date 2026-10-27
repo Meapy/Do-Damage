@@ -136,6 +136,10 @@ public enum MessageId : byte
     IMPRINT_REQUEST = 109,
     IMPRINT = 110,
     IMPRINT_RESULT = 111,
+    // The Enthroned gear in the account's vault (after IMPRINT_REQUEST and each vault imprint), and
+    // the client imprinting one of them by chest and slot.
+    IMPRINT_VAULT = 112,
+    IMPRINT_VAULT_APPLY = 113,
     // From the world proxy (tools/world_proxy.py), before the client's first message: the
     // client's address. Only taken on a connection from this PC; clients never send it.
     PROXY_INFO = 250

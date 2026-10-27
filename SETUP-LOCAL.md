@@ -682,11 +682,13 @@ The remotes `upstream` (HaloCelsius) and `aurusenth` share no history with `main
 - **Where players arrive** (`World.GetPlayerSpawnPosition`, used by `LoadHandler` and `CreateMessageHandler`): the centre of a random `Spawn` tile, not its corner (on a spawn tile beside a wall, as in Oryx's Chamber's alcoves, the corner left the player half inside the wall, where the client wouldn't let them walk), preferring tiles that are passable (`IsPassable(..., spawning: true)`: no trees or other `OccupySquare` objects) and then ones with nothing on them (Oryx's Chamber has Nexus Portals on spawn tiles). A map with no spawn tiles gets the open tile nearest its centre instead of (0, 0); Cnidarian Reef, which had none, has ten at the south of its arena (`worlds/Dungeons/Cnidarian Reef.jm`).
 - **Imprints and the Enchanter** (`Shared/resources/Imprints.cs`, `core/net/handlers/ImprintHandlers.cs`,
   `core/objects/player/Player.Imprints.cs`; the client's copy `client-rs/crates/data/src/imprint.rs`,
-  its window `client-rs/app/src/forge/imprints.rs`): every weapon, ability, armour and ring has an
+  its window `client-rs/app/src/forge/imprints.rs`): every Enthroned item has an
   Offensive, a Defensive and a Misc imprint slot, kept in the item's data (`ItemData.Imprints`, so
-  they travel with it through bags, the vault, trades and the market). The Enchanter (class
-  `Enchanter`, beside the Divine Forge) imprints an inventory slot for an Ascended shard from the
-  forge storage or the inventory (messages 109-111); while they're tested only rank 6 (admin)
+  they travel with it through bags, the vault, trades and the market); only Enthroned gear
+  (`Item.Ascended`) takes them or feels them. The Enchanter (class `Enchanter`, beside the Divine
+  Forge) imprints an inventory slot, or a vault chest's slot through `ForgeVault` (while the owner
+  isn't in their vault), for an Ascended shard from the forge storage or the inventory (messages
+  109-113); while they're tested only rank 6 (admin)
   accounts can imprint (`ImprintHandler.MinRank`). Imprints work only on the equipped item:
   stats in `BoostStatManager`; the weapon's damage as whole-percent steps on the roll, range as a
   lifetime, piercing, the gathered bow shot and the Battle Mage bolts (an object's projectile,
@@ -704,8 +706,9 @@ The remotes `upstream` (HaloCelsius) and `aurusenth` share no history with `main
   fame (`ForgeRecipes.Ascended`; `NotChained` keeps two T15s from making one). The wiki no longer
   calls them Doomed Realms items (`wiki_data.OWN_IN_DOOMED`).
 - **The forge hall** (`tools/build_castle_maps.py`): the class memorial's ring of graves is gone; the
-  Divine Forge (redrawn: six frames from the owner's art, `tools/draw_forge_sprite.py --forge`) and
-  the Enchanter stand side by side in a walled hall with its door to the east. The forge window lost
+  Divine Forge (redrawn in the Enchanter's stone and dull gold, six frames, `tools/draw_forge_sprite.py`)
+  and the Enchanter stand side by side in a walled hall with doors to the west, north and east. Nothing
+  in it takes a decoration slot, so map events (`decorate`) leave it alone. The forge window lost
   its locked Enchant tab; the Enchanter opens the same window as "Enchanter", with its Imprints tab.
 
 ## Content ported from Doomed Realms

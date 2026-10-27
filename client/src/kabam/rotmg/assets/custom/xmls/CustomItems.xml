@@ -1871,7 +1871,7 @@
 		</Texture>
 		<AngleCorrection>1</AngleCorrection>
 	</Object>
-	<Object type="0x586e" id="Enthroned White Spear">
+	<Object type="0x586e" id="Enthroned Arcane Spear">
 		<Class>Projectile</Class>
 		<Texture>
 			<File>ascendedItems8x8</File>
@@ -1879,7 +1879,7 @@
 		</Texture>
 		<AngleCorrection>1</AngleCorrection>
 	</Object>
-	<Object type="0x586f" id="Enthroned Yellow Spear">
+	<Object type="0x586f" id="Enthroned Radiant Spear">
 		<Class>Projectile</Class>
 		<Texture>
 			<File>ascendedItems8x8</File>
@@ -2161,13 +2161,13 @@
 			<Index>0x00</Index>
 		</Texture>
 		<SlotType>17</SlotType>
-		<Description>Oryx the Ascended God's own spear, borne as a staff. Its volleys take turns: a yellow bolt as strong as a T15 staff's, then a white one that pierces.</Description>
+		<Description>Oryx the Ascended God's own spear, borne as a staff. Its volleys take turns: a gold bolt as strong as a T15 staff's, then a purple and blue one that pierces.</Description>
 		<Ascended/>
 		<AlternateProjectiles/>
 		<RateOfFire>1</RateOfFire>
 		<Sound>weapon/wand_of_death</Sound>
 		<Projectile id="0">
-			<ObjectId>Enthroned Yellow Spear</ObjectId>
+			<ObjectId>Enthroned Radiant Spear</ObjectId>
 			<Speed>180</Speed>
 			<MinDamage>105</MinDamage>
 			<MaxDamage>140</MaxDamage>
@@ -2176,7 +2176,7 @@
 			<Frequency>2</Frequency>
 		</Projectile>
 		<Projectile id="1">
-			<ObjectId>Enthroned White Spear</ObjectId>
+			<ObjectId>Enthroned Arcane Spear</ObjectId>
 			<Speed>180</Speed>
 			<MinDamage>85</MinDamage>
 			<MaxDamage>115</MaxDamage>

@@ -275,6 +275,14 @@ fn imprint_messages_match_imprint_handlers() {
     let body = B::default().u8(0).u8(5).utf("No shard.").0;
     let ServerMessage::ImprintResult(r) = ServerMessage::decode(111, &body).unwrap() else { panic!() };
     assert_eq!((r.success, r.slot, r.message.as_str()), (false, 5, "No shard."));
+    // ImprintVault.Write: a short count of items (chest, slot, item, three imprints);
+    // ImprintVaultHandler reads the chest, the slot and the imprint.
+    let body = B::default().i16(1).i16(3).u8(7).i16(0x5857).u8(1).u8(0).u8(22).0;
+    let ServerMessage::ImprintVault(v) = ServerMessage::decode(112, &body).unwrap() else { panic!() };
+    let g = &v.items[0];
+    assert_eq!((g.chest, g.slot, g.item, g.offensive, g.defensive, g.misc), (3, 7, 0x5857, 1, 0, 22));
+    let frame = ClientMessage::from(ImprintVaultApply { chest: 3, slot: 7, imprint: 11 }).to_frame();
+    assert_eq!(frame, B::default().i16(3).u8(7).u8(11).frame(113));
 }
 
 #[test]

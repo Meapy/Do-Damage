@@ -1,6 +1,6 @@
 //! The imprints the Enchanter puts on gear: the client's copy of the server's list
-//! (`Shared/resources/Imprints.cs`; keep the ids, names and rules in step). Every weapon,
-//! ability, armour and ring has an Offensive (red), a Defensive (green) and a Misc (purple) slot,
+//! (`Shared/resources/Imprints.cs`; keep the ids, names and rules in step). Every Enthroned item
+//! (`<Ascended/>`) has an Offensive (red), a Defensive (green) and a Misc (purple) slot,
 //! stored in the item's data (`"Imprints":[offensive, defensive, misc]`, 0 for none). [`Shot`]
 //! is what the weapon's imprints do to its shots, worked out as the server's `ImprintShot` does.
 

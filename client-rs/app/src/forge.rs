@@ -41,6 +41,8 @@ pub enum Act {
     ImprintShards,
     /// Imprint the item in this inventory slot with this imprint.
     Imprint(u8, u8),
+    /// Imprint the item in this vault chest and slot with this imprint.
+    ImprintVault(u16, u8, u8),
 }
 
 /// What the server said.
@@ -54,6 +56,8 @@ pub enum Event {
     Vault(Vec<ForgeShard>),
     /// The answer to an imprint.
     Imprint { success: bool, message: String },
+    /// The Enthroned gear in the vault.
+    ImprintVault(Vec<bsk_proto::VaultGear>),
 }
 
 #[derive(Clone, Copy, Debug, PartialEq, Eq, Default)]
@@ -143,7 +147,7 @@ enum Hit {
     Sell,
     Withdraw(u16),
     /// The Enchanter: pick the item in this slot, a colour (3: the one coming soon), imprint.
-    ImpItem(u8),
+    ImpItem(imprints::Pick),
     ImpKind(usize),
     ImpApply(u8),
 }
@@ -229,7 +233,8 @@ pub struct Forge {
     /// picked, the colour shown (3: coming soon), whether an imprint is on its way, and the
     /// imprints of the item under the mouse.
     gear: Vec<(u8, i32, [u8; 3])>,
-    imp_pick: Option<u8>,
+    vault_gear: Vec<(u16, u8, i32, [u8; 3])>,
+    imp_pick: Option<imprints::Pick>,
     imp_kind: usize,
     imp_pending: bool,
     hover_imprints: [u8; 3],
@@ -455,6 +460,9 @@ impl Forge {
                 } else {
                     self.message = Some((message, true));
                 }
+            }
+            Event::ImprintVault(items) => {
+                self.vault_gear = items.into_iter().map(|g| (g.chest, g.slot, g.item as i32, [g.offensive, g.defensive, g.misc])).collect();
             }
             Event::Imprint { success, message } => {
                 self.imp_pending = false;
@@ -754,13 +762,13 @@ impl Forge {
             ui.label("Asking the forge for its recipes...", r[0] + 22.0 * s, foot_y, font(13.0), false, color::TEXT_MUTED);
         }
         if let Some(item) = self.hover_item {
-            let mut lines = crate::hud::item_tooltip(ui.data, item, me, SlotKind::Shop);
+            let mut lines = crate::hud::item_tooltip_imprinted(ui.data, item, me, SlotKind::Shop, self.hover_imprints);
             if self.hover_vault {
                 let n = self.vaulted(item as u16);
                 lines.push(crate::hud::Line::gap());
                 lines.push(crate::hud::Line::new(&format!("From your vault ({n} there)"), 12.0, true, color::GOOD));
             }
-            lines.extend(crate::hud::imprint_lines(self.hover_imprints));
+            lines.extend(crate::hud::imprint_lines(ui.data, item, self.hover_imprints));
             crate::hud::draw_tooltip(ui, lay, &lines, Some(item), crate::screens::tier_edge(ui.data, item), mouse);
         }
     }

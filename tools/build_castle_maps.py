@@ -326,7 +326,8 @@ TREASURY = (57, 66, 83, 78)         # its walls
 FORGE_HALL = (11, 64, 33, 81)       # the forge hall's walls, x0, y0, x1, y1
 FORGE = (18, 70)                    # the Divine Forge (its sprite stands four tiles tall above it)
 ENCHANTER = (26, 70)                # the Enchanter, which imprints gear (ImprintHandlers.cs)
-FORGE_HALL_DOOR = (74, 76)          # the door in its east wall, y0 and y1
+FORGE_HALL_DOOR = (74, 76)          # the doors in its east and west walls, y0 and y1
+FORGE_HALL_NORTH = (20, 24)         # the door in its north wall, x0 and x1
 # where DoomedWorlds.AddNexusPortals puts the Arena portal (keep the two in step)
 ARENA_PORTALS = [(45.5, 68.5)]
 # (name, region, x0, y0, columns, rows[, stalls]): see Grid.pavilion. The stall counts are the old map's:
@@ -449,12 +450,17 @@ def build_nexus():
     for x in (GATE[0] - 1, GATE[1] + 1):
         g.brazier(x, 82, PATH)
 
-    # the forge hall: walled, its door to the east; the Divine Forge and the Enchanter on gold that
-    # brightens towards each, a carpet from the door along the front of them, braziers in the
-    # corners, flames by the forge, crystals by the Enchanter, banners and candles on the walls
+    # the forge hall: walled, with doors to the east and west (a carpet between them along the front
+    # of the Divine Forge and the Enchanter) and to the north, between the two; the two on gold
+    # that brightens towards each, braziers in the corners, flames by the forge, crystals by the
+    # Enchanter, banners and candles on the walls. Nothing in it takes a decoration slot, so an
+    # event leaves the hall as it is.
     hx0, hy0, hx1, hy1 = FORGE_HALL
     dy0, dy1 = FORGE_HALL_DOOR
-    g.hall(hx0, hy0, hx1, hy1, STONE, doors={(x, y) for x in (hx1 - 1, hx1) for y in range(dy0, dy1 + 1)})
+    nx0, nx1 = FORGE_HALL_NORTH
+    doors = {(x, y) for x in (hx0, hx0 + 1, hx1 - 1, hx1) for y in range(dy0, dy1 + 1)}
+    doors |= {(x, y) for x in range(nx0, nx1 + 1) for y in (hy0, hy0 + 1)}
+    g.hall(hx0, hy0, hx1, hy1, STONE, doors=doors)
 
     def gold(x, y):
         d = min(math.hypot(x - ox, y - oy + 1) for ox, oy in (FORGE, ENCHANTER))
@@ -463,21 +469,24 @@ def build_nexus():
     for y in range(hy0 + 2, hy1 - 1):
         for x in range(hx0 + 2, hx1 - 1):
             g.put(x, y, gold(x, y))
-    g.rect(hx0 + 3, dy0, hx1, dy1, CARPET)
+    g.rect(hx0, dy0, hx1, dy1, CARPET)
+    g.rect(nx0, hy0, nx1, hy0 + 2, CARPET)
     g.path(hx1 + 1, dy0, 35, dy1)
+    g.path(hx0 - 4, dy0, hx0 - 1, dy1)
+    g.path(nx0, hy0 - 2, nx1, hy0 - 1)
     g.put(*FORGE, gold(*FORGE), "Divine Forge")
     g.put(*ENCHANTER, gold(*ENCHANTER), "Enchanter")
     for x, y in ((hx0 + 2, hy0 + 2), (hx1 - 2, hy0 + 2), (hx0 + 2, hy1 - 2), (hx1 - 2, hy1 - 2)):
-        g.brazier(x, y, STONE)
+        g.put(x, y, STONE, BRAZIER_OBJ)
     fx, fy = FORGE
     ex, ey = ENCHANTER
     for dx in (-2, 2):
-        g.flame(fx + dx, fy, gold(fx + dx, fy))
-        g.put(ex + dx, ey, gold(ex + dx, ey), CRYSTAL, slot=ACCENT)
-    for x in range(hx0 + 5, hx1 - 3, 6):
-        g.banner(x, hy0 + 2, STONE)
+        g.put(fx + dx, fy, gold(fx + dx, fy), FLAME_OBJ)
+        g.put(ex + dx, ey, gold(ex + dx, ey), CRYSTAL)
+    for x in (hx0 + 5, hx1 - 5):
+        g.put(x, hy0 + 2, STONE, BANNER_OBJ)
     for x in range(hx0 + 4, hx1 - 2, 3):
-        g.put(x, hy1 - 2, STONE, CANDLES, slot=ACCENT)
+        g.put(x, hy1 - 2, STONE, CANDLES)
 
     # the treasury: walled, its door to the west, the chests where they always were
     hx0, hy0, hx1, hy1 = TREASURY

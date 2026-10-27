@@ -13,8 +13,8 @@ numbers of the item it's forged from (its stats, its ability, its shots' damage)
 Oryx 5's own shots instead (SHOTS, drawn here in his gold and silver), two kinds whose volleys take
 turns (<AlternateProjectiles/>, Player.NoteWeaponShot): a gold shot with the weapon's own numbers,
 then a silver one that pierces, or a gold one that ignores defense where the weapon pierced
-already. The Enthroned Spear, a staff, takes turns between a yellow shot doing a T15 staff's damage
-and a white one that pierces. The weapons and the leather and heavy armours keep its
+already. The Enthroned Spear, a staff, takes turns between a vivid gold shot doing a T15 staff's
+damage and a purple and light blue one that pierces. The weapons and the leather and heavy armours keep its
 sprite too, with a few purple sparkles added round it (SPARKLE); his helm, boots and robe are
 drawn here at 8 by 8, and his staff and two rings at 16 by 16, on `AscendedItems16x16.png`
 (`ascendedItems16x16`, in the order of SPRITES16): the staff his own sprite holds, gold with a
@@ -233,8 +233,8 @@ DESC = {
     "Enthroned Dual Blades": "Twin blades of Oryx the Ascended God's executioners. Its volleys take turns: Oryx's silver "
                              "shots, then his gold ones, which leave the wound bleeding.",
     "Enthroned Fists": "Gauntlets of the Ascended God's honour guard, gold over silver." + TURNS_AP,
-    "Enthroned Spear": "Oryx the Ascended God's own spear, borne as a staff. Its volleys take turns: a yellow bolt "
-                       "as strong as a T15 staff's, then a white one that pierces.",
+    "Enthroned Spear": "Oryx the Ascended God's own spear, borne as a staff. Its volleys take turns: a gold bolt "
+                       "as strong as a T15 staff's, then a purple and blue one that pierces.",
     "Enthroned Hide": "The hide Oryx the Ascended God wore over his armour, as hard as the sky.",
     "Enthroned Plate": "The plate of Oryx the Ascended God's last stand, purple steel under gold.",
     "Enthroned Robe": "Oryx the Ascended God's own robe.",
@@ -273,9 +273,9 @@ SHOTS = {
     "Enthroned Katana": [("silver", "blade", None, {}), ("gold", "blade", None, {"ArmorPiercing": True})],
     "Enthroned Dual Blades": [("silver", "dagger", None, {}), ("gold", "dagger", None, {"Bleed": (300, 3)})],
     "Enthroned Fists": [("silver", "bolt", None, {}), ("gold", "bolt", None, {"ArmorPiercing": True})],
-    # a yellow shot doing a T15 staff's damage (the Staff of Endless Energy's 100-135, a little over),
-    # then a white one that pierces
-    "Enthroned Spear": [("yellow", "spear", (105, 140), {}), ("white", "spear", (85, 115), {"MultiHit": True})],
+    # a radiant gold shot doing a T15 staff's damage (the Staff of Endless Energy's 100-135, a little
+    # over), then an arcane one, purple and light blue, that pierces
+    "Enthroned Spear": [("radiant", "spear", (105, 140), {}), ("arcane", "spear", (85, 115), {"MultiHit": True})],
 }
 SHOT_LOOKS = sorted({(c, s) for shots in SHOTS.values() for c, s, _, _ in shots},
                     key=lambda cs: (["blade", "dagger", "arrow", "bolt", "spear"].index(cs[1]), cs[0]))
@@ -287,66 +287,72 @@ def shot_id(colour, shape):
     return f"Enthroned {colour.title()} {shape.title()}"
 
 
-# the shots' shapes, pointing up and right: '1' outline, '2' dark, '3' light, '4' the glint
+# the shots' shapes, pointing up and right, as full as they'll go: '1' outline, '2' dark, '3' light,
+# '4' the glint
 SHOT_SHAPES = {
+    # a long blade with a guard and grip
     "blade": [
-        ".....111",
-        "....1341",
-        "...13431",
-        "..13421.",
-        "1.1321..",
-        "1121....",
-        ".21.....",
-        "1.1.....",
+        "......11",
+        ".....143",
+        "....1431",
+        "...14321",
+        "1.14321.",
+        "12121...",
+        ".22.....",
+        "2.1.....",
     ],
+    # a short blade with a guard
     "dagger": [
         "........",
-        "....111.",
-        "...1341.",
-        "..1342..",
-        "1.131...",
-        ".121....",
-        "121.....",
-        "........",
-    ],
-    "arrow": [
-        "....1111",
+        ".....111",
         "....1431",
-        "....1331",
-        "...12111",
-        "..121...",
-        ".121....",
-        "1321....",
-        "111.....",
+        "...14321",
+        "1.1432..",
+        "1211....",
+        ".21.....",
+        "2.......",
     ],
+    # a broad head, the shaft, fletching
+    "arrow": [
+        ".....111",
+        "....1441",
+        "...14431",
+        "....1321",
+        "...131..",
+        "..131...",
+        "2131....",
+        "22......",
+    ],
+    # a burning orb with its trail
     "bolt": [
-        "....11..",
-        "...1341.",
-        "..134431",
-        "..13321.",
-        ".1221...",
-        "121.....",
-        "21......",
-        "........",
+        "....111.",
+        "...14431",
+        "..144331",
+        "..143321",
+        ".13321..",
+        "1321....",
+        "321.....",
+        "2.......",
     ],
     # the Enthroned Spear's: a spear head with a short crossbar, as its shots look in flight
     "spear": [
-        "......11",
-        ".....141",
-        "....1431",
-        "...1331.",
-        "1.1321..",
-        "1121....",
-        ".21.....",
+        ".....111",
+        "....1441",
+        "...14331",
+        "..143321",
+        "1.13321.",
+        "11221...",
+        ".121....",
         "1.1.....",
     ],
 }
-# each colourway, '1' to '4': Oryx 5's gold and silver, and the spear's yellow and white
+# each colourway, '1' to '4': Oryx 5's gold and silver, and the spear's vivid gold and its purple
+# and light blue
 SHOT_RAMPS = {
-    "gold": [(84, 48, 10), GOLD[0], GOLD[1], GOLD[2]],
-    "silver": [SILVER[0], SILVER[1], SILVER[3], SILVER[4]],
-    "yellow": [(96, 66, 24), (196, 150, 70), (238, 206, 118), (255, 244, 196)],
-    "white": [(30, 26, 40), (150, 154, 176), (226, 230, 240), (255, 255, 255)],
+    "gold": [(104, 52, 8), (226, 150, 22), (255, 210, 64), (255, 250, 206)],
+    "silver": [(30, 26, 76), (116, 128, 206), (188, 210, 252), (255, 255, 255)],
+    "radiant": [(110, 56, 6), (236, 158, 18), (255, 214, 58), (255, 252, 200)],
+    "arcane": [(44, 18, 92), (150, 72, 240), (110, 214, 255), (236, 250, 255)],
 }
 
 # what an Ascended item leaves out of the item it copies (a weapon's projectile is SHOTS')

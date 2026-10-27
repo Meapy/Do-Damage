@@ -197,6 +197,9 @@ messages! {
         108 => QuestProgress { changes: List16<QuestChange> },
         // The answer to Imprint: whether it worked, the inventory slot, what went wrong.
         111 => ImprintResult { success: bool, slot: u8, message: String },
+        // The Enthroned gear in the account's vault (after ImprintRequest and each vault imprint;
+        // empty while we're in the vault).
+        112 => ImprintVault { items: List16<VaultGear> },
     }
 }
 
@@ -278,5 +281,7 @@ messages! {
         // and imprint the item in an inventory slot (an older server doesn't know either).
         109 => ImprintRequest {},
         110 => Imprint { slot: u8, imprint: u8 },
+        // Imprint an Enthroned item in the vault, by chest and slot.
+        113 => ImprintVaultApply { chest: u16, slot: u8, imprint: u8 },
     }
 }

@@ -696,6 +696,7 @@ impl Game {
             }),
             ServerMessage::ForgeShards(s) => self.forge_events.push(crate::forge::Event::Shards(s.shards.0.clone())),
             ServerMessage::ForgeVault(v) => self.forge_events.push(crate::forge::Event::Vault(v.items.0.clone())),
+            ServerMessage::ImprintVault(v) => self.forge_events.push(crate::forge::Event::ImprintVault(v.items.0.clone())),
             ServerMessage::ImprintResult(r) => {
                 self.forge_events.push(crate::forge::Event::Imprint { success: r.success, message: r.message.clone() })
             }
@@ -1192,6 +1193,7 @@ impl Game {
             Act::Withdraw(item) => bsk_proto::ForgeWithdraw { item }.into(),
             Act::ImprintShards => bsk_proto::ImprintRequest {}.into(),
             Act::Imprint(slot, imprint) => bsk_proto::Imprint { slot, imprint }.into(),
+            Act::ImprintVault(chest, slot, imprint) => bsk_proto::ImprintVaultApply { chest, slot, imprint }.into(),
         };
         self.send(msg);
     }

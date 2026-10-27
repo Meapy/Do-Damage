@@ -1,12 +1,11 @@
 """Draws the forge yard's sprites: the Divine Forge, its flash, the Enchanter, the Enchanter's wisps
 and bolt.
 
-    python tools/draw_forge_sprite.py [--forge <png>] [--preview <png>]
+    python tools/draw_forge_sprite.py [--preview <png>]
 
 Writes `CustomAssets32x32.png` (client/src/kabam/rotmg/assets/custom/images), 32 by 32 pixels a
-cell: cells 0-5 are the Divine Forge, its fire flickering and smoke rising (drawn by the owner as a
-strip of six frames: `--forge <png>` takes them from one, otherwise they're kept from the sheet as
-it is); cell 6 the flash of a finished forging; cells 7-12 the Enchanter, an altar in the forge's
+cell: cells 0-5 are the Divine Forge, a stone hearth and a steel anvil in the Enchanter's stone and
+dull gold, its fire flickering; cell 6 the flash of a finished forging; cells 7-12 the Enchanter, an altar in the forge's
 stone and gold with a crystal over it and a red, a green and a purple rune circling it, the
 imprints' three colours. The objects (`Divine Forge`, `Enchanter`, CustomObjects.xml) animate
 through their six frames.
@@ -81,6 +80,125 @@ class Canvas:
         return img
 
 
+# the Divine Forge, in the Enchanter's stone and dull gold: its stone hearth and chimney, the fire
+# in a round-topped mouth framed in gold, and a steel anvil before it with a blade glowing on it
+STONE_D, STONE, STONE_L, MORTAR = E_DARK, E_MID, E_LIGHT, E_MORTAR
+F_GOLD_D, F_GOLD, F_GOLD_L, F_GOLD_W = E_GOLD_D, E_GOLD, E_GOLD_L, (255, 232, 160)
+FIRE = [(120, 24, 18), (196, 52, 22), (240, 104, 30), (255, 162, 48), (255, 214, 90), (255, 246, 196)]
+EMBER = (255, 120, 40)
+STEEL_D = (52, 50, 64)
+STEEL = (92, 90, 110)
+STEEL_L = (146, 144, 168)
+HOT = [(200, 60, 20), (255, 140, 40), (255, 220, 120)]
+
+
+def in_arch(x, y):
+    """The hearth's mouth: a round-topped opening."""
+    cx, top, r = 15.5, 10, 6.5
+    if y < top:
+        return math.hypot(x - cx, y - top) <= r
+    return abs(x - cx) <= r and y <= 19
+
+
+def hearth(c):
+    # the chimney stack and its gold crown
+    c.rect(11, 1, 20, 4, STONE)
+    for x in range(11, 21):
+        c.set(x, 1, STONE_L)
+    c.rect(10, 4, 21, 4, F_GOLD)
+    c.set(10, 4, F_GOLD_D)
+    c.set(21, 4, F_GOLD_D)
+    for x in (12, 15, 16, 19):
+        c.set(x, 0, F_GOLD_L)
+    # the body: stone blocks in courses
+    for y in range(5, 22):
+        half = 11 if y >= 8 else 9 + (y - 5)
+        for x in range(16 - half, 16 + half):
+            if in_arch(x, y):
+                continue
+            course = (y - 5) // 3
+            joint = (x + (course % 2) * 3) % 6 == 0 or (y - 5) % 3 == 2
+            col = MORTAR if joint else (STONE_L if (y - 5) % 3 == 0 else STONE)
+            if x <= 16 - half + 1:
+                col = STONE_D if not joint else MORTAR
+            c.set(x, y, col)
+    # the arch's gold frame
+    for y in range(2, 21):
+        for x in range(6, 26):
+            if not in_arch(x, y):
+                near = any(in_arch(x + dx, y + dy) for dx, dy in ((1, 0), (-1, 0), (0, 1), (0, -1)))
+                if near and y <= 19:
+                    c.set(x, y, F_GOLD_L if y < 8 else F_GOLD if x < 16 else F_GOLD_D)
+    # a keystone, and gold bands where the body steps out
+    c.rect(15, 2, 16, 3, F_GOLD_L)
+    c.set(15, 2, F_GOLD_W)
+    for x in range(5, 27):
+        c.set(x, 8, F_GOLD if 6 < x < 25 else F_GOLD_D)
+
+
+def fire(c, frame):
+    rng = random.Random(7 + frame * 31)
+    phase = frame * 2 * math.pi / FORGE_FRAMES
+    for y in range(3, 20):
+        for x in range(9, 23):
+            if not in_arch(x, y):
+                continue
+            # hotter low and in the middle, tongues that move with the frame
+            dx = abs(x - 15.5) / 6.5
+            tongue = 0.5 + 0.5 * math.sin(x * 1.3 + phase) * math.cos(y * 0.7 - phase)
+            heat = (y - 3) / 16 * 1.25 - dx * 0.75 + tongue * 0.35 + rng.uniform(-0.08, 0.08)
+            i = max(0, min(len(FIRE) - 1, int(heat * len(FIRE))))
+            c.set(x, y, FIRE[i])
+    # embers leaping out of the mouth
+    for _ in range(3):
+        x, y = rng.randint(9, 22), rng.randint(3, 8)
+        if in_arch(x, y):
+            c.set(x, y, FIRE[5] if rng.random() < 0.4 else EMBER)
+
+
+def anvil(c, frame):
+    # the base and the plinth's gold trim
+    c.rect(4, 29, 27, 30, STONE_D)
+    c.rect(4, 28, 27, 28, F_GOLD)
+    for x in range(4, 28, 3):
+        c.set(x, 30, MORTAR)
+    c.set(4, 28, F_GOLD_D)
+    c.set(27, 28, F_GOLD_L)
+    # the anvil: dark steel, horn to the left, a heel to the right, its face catching the fire
+    c.rect(11, 25, 20, 27, STEEL_D)     # feet
+    c.rect(10, 27, 21, 27, STEEL)
+    c.rect(13, 23, 18, 25, STEEL)       # waist
+    c.rect(13, 23, 13, 25, STEEL_L)
+    c.rect(18, 23, 18, 25, STEEL_D)
+    c.rect(7, 20, 23, 22, STEEL)        # body
+    for x in range(9, 22):              # the face
+        c.set(x, 20, HOT[2] if x % 6 == frame % 6 else STEEL_L)
+    c.set(7, 20, STEEL_L)
+    c.rect(4, 21, 6, 21, STEEL)         # the horn
+    c.set(3, 21, STEEL_L)
+    c.set(4, 22, STEEL_D)
+    c.set(5, 22, STEEL_D)
+    c.rect(24, 20, 25, 21, STEEL)       # the heel
+    c.rect(7, 22, 23, 22, STEEL_D)
+    # a blade on it, glowing at the tip, a dark edge to part it from the fire behind
+    c.rect(8, 17, 20, 19, OUTLINE)
+    for x in range(9, 17):
+        hot = x < 12
+        c.set(x, 18, (HOT[2] if (x + frame) % 2 else F_GOLD_W) if hot else STEEL_L)
+        c.set(x, 19, HOT[1] if hot else STEEL)
+    c.rect(17, 18, 19, 18, F_GOLD)       # the guard and grip
+    c.rect(17, 19, 19, 19, F_GOLD_D)
+
+
+def forge_frame(frame):
+    c = Canvas()
+    hearth(c)
+    fire(c, frame)
+    anvil(c, frame)
+    c.outline()
+    return c.image()
+
+
 def in_crystal(x, y, top):
     """The Enchanter's crystal: a long diamond, its point at `top`."""
     cx, mid = 15.5, top + 3.5
@@ -152,14 +270,6 @@ def enchanter(frame):
     return c.image()
 
 
-def forge_frames(path):
-    """The Divine Forge's six frames: from a strip of them (--forge), else the sheet's own."""
-    src = Image.open(path).convert("RGBA")
-    if src.size not in ((CELL * FORGE_FRAMES, CELL), (CELL * CELLS, CELL)):
-        sys.exit(f"{path}: expected {FORGE_FRAMES} frames of {CELL} by {CELL} in a row")
-    return [src.crop((f * CELL, 0, (f + 1) * CELL, CELL)) for f in range(FORGE_FRAMES)]
-
-
 # --- the 8 by 8 pieces: the Wisp Caller's wisps and the Battle Mage's bolt -----------------------
 
 WISPS = [
@@ -224,11 +334,9 @@ def flash_image():
 
 
 def main():
-    forge = sys.argv[sys.argv.index("--forge") + 1] if "--forge" in sys.argv else OUT
-    frames = forge_frames(forge)
     sheet = Image.new("RGBA", (CELL * CELLS, CELL), (0, 0, 0, 0))
-    for f, img in enumerate(frames):
-        sheet.paste(img, (f * CELL, 0))
+    for f in range(FORGE_FRAMES):
+        sheet.paste(forge_frame(f), (f * CELL, 0))
     sheet.paste(flash_image(), (FLASH * CELL, 0))
     for f in range(6):
         sheet.paste(enchanter(f), ((ENCHANTER + f) * CELL, 0))

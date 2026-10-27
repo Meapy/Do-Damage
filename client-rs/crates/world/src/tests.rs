@@ -338,11 +338,11 @@ fn alternating_weapons_take_turns_and_imprints_change_their_shots() {
     let mut d = data();
     d.add_objects(
         r#"<Objects>
-            <Object type="0x30" id="Turn Staff"><Class>Equipment</Class><Item/><SlotType>17</SlotType><AlternateProjectiles/>
+            <Object type="0x30" id="Turn Staff"><Class>Equipment</Class><Item/><SlotType>17</SlotType><Ascended/><AlternateProjectiles/>
                 <Projectile id="0"><ObjectId>A</ObjectId><Speed>100</Speed><MinDamage>100</MinDamage><MaxDamage>100</MaxDamage><LifetimeMS>500</LifetimeMS></Projectile>
                 <Projectile id="1"><ObjectId>B</ObjectId><Speed>100</Speed><MinDamage>50</MinDamage><MaxDamage>50</MaxDamage><LifetimeMS>500</LifetimeMS><MultiHit/></Projectile>
                 <NumProjectiles>2</NumProjectiles></Object>
-            <Object type="0x31" id="Three Bow"><Class>Equipment</Class><Item/><SlotType>3</SlotType>
+            <Object type="0x31" id="Three Bow"><Class>Equipment</Class><Item/><SlotType>3</SlotType><Ascended/>
                 <Projectile><ObjectId>A</ObjectId><Speed>100</Speed><MinDamage>10</MinDamage><MaxDamage>10</MaxDamage><LifetimeMS>500</LifetimeMS></Projectile>
                 <NumProjectiles>3</NumProjectiles></Object>
         </Objects>"#,

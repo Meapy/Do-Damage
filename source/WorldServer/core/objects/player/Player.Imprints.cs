@@ -28,7 +28,8 @@ namespace WorldServer.core.objects
         {
             var imprints = ImprintsAt(slot);
             var item = Inventory[slot];
-            if (imprints == null || item == null)
+            // imprints work on Enthroned gear only
+            if (imprints == null || item == null || !item.Ascended)
                 return false;
             foreach (var i in imprints)
                 if (i == id)

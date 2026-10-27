@@ -237,11 +237,12 @@ impl World {
         let Some(weapon) = (weapon_type > 0).then(|| data.objects.get(&(weapon_type as u16))).flatten() else {
             return vec![];
         };
-        let imprints = imprint::Shot::of(
-            imprint::parse(player.stat_str(STAT_INVENTORY_DATA_0).unwrap_or("")),
-            weapon.xml.int("SlotType", 0),
-            weapon.num_projectiles(),
-        );
+        // imprints work on Enthroned gear only, as the server has it
+        let imprints = if weapon.xml.has("Ascended") {
+            imprint::Shot::of(imprint::parse(player.stat_str(STAT_INVENTORY_DATA_0).unwrap_or("")), weapon.xml.int("SlotType", 0), weapon.num_projectiles())
+        } else {
+            imprint::Shot::default()
+        };
         let attack_period = 1.0 / self.attack_frequency(player.stat_int(STAT_DEXTERITY).unwrap_or(0), conditions)
             * (1.0 / (weapon.rate_of_fire() * imprints.rate_mult));
         if (time as f64) < player.attack_start as f64 + attack_period {

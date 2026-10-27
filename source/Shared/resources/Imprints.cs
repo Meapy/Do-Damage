@@ -13,8 +13,8 @@ namespace Shared.resources
     }
 
     // The imprints the Enchanter in the Nexus puts on gear (ImprintHandlers.cs): one Offensive, one
-    // Defensive and one Misc slot on every weapon, ability, armour and ring, each imprint fitting the
-    // items it names. They work only on the item they're on, and only while it's equipped; none of
+    // Defensive and one Misc slot on every Enthroned item (Item.Ascended: weapon, helm, armour or
+    // ring), each imprint fitting the items it names; on anything else they do nothing. They work only on the item they're on, and only while it's equipped; none of
     // them touches an ability's own effects. The client's copy of this list is
     // client-rs/crates/data/src/imprint.rs (keep the ids, names and rules in step); its effects on
     // shooting are worked out on both sides from the same numbers (ImprintShot below,
@@ -106,7 +106,7 @@ namespace Shared.resources
 
         public static ImprintShot Of(int[] imprints, Item weapon)
         {
-            if (imprints == null || weapon == null)
+            if (imprints == null || weapon == null || !weapon.Ascended)
                 return None;
             var damage = new List<int>();
             int rangePercent = 100, rangeTenths = 0;
