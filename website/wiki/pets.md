@@ -24,9 +24,19 @@ looks next to you, and the generator's tooltip says which it is.
 | Medium | 30 each, every 2 seconds | a little shorter than you | monsters, heroes, the named pets, and pets with plain shots of their own (Kythal, Zenco, Shroom, Cerberus Skull) |
 | Large | 45 each, every 1.5 seconds | a little taller than you | the boss pets, and Pancookie and Nightmare |
 
-Lil' Oryx heals 60 each every 1.5 seconds and shoots like Oryx the Mad God. Its generator drops in
-a white bag from Oryx the Infernal Mad God (0.5%) and Oryx the Ascended God (1%), and is used up
-when used. Until 27 November 2026, every account can claim one free from the quest log's Daily
+Every Oryx has a **Lil' Oryx** of his own, drawn as him and shooting his shots. Each Oryx drops
+his generator in a white bag (1%), and the generator is used up when used. They all heal 60 each
+every 1.5 seconds, and grow stronger along the chain:
+
+| Lil' Oryx | Dropped by | Damage a second |
+|---|---|---|
+| Lil' Oryx | Oryx the Mad God, in his Chamber | about 1,000 |
+| Lil' Wine Cellar Oryx | Oryx the Mad God, in his Wine Cellar | about 1,500 |
+| Lil' Celestial Oryx | Oryx the Celestial Mad God | about 2,000 |
+| Lil' Infernal Oryx | Oryx the Infernal Mad God | about 2,500 |
+| Lil' Ascended Oryx | Oryx the Ascended God | about 3,000 |
+
+Until 27 November 2026, every account can claim a free Lil' Oryx from the quest log's Daily
 Rewards tab.
 
 ### What they do

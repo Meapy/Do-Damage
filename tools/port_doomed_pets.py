@@ -82,8 +82,10 @@ LARGE_PETS = {
     # the strongest of the pets with shots of their own
     "Cookiee", "Nightmareee",
 }
-# Oryx 4 and 5's pet, a little above the boss pets (it was an admin pet, 200 every 0.8 s)
-ORYX_PETS = {"Lil' Oryx (Doomed)"}
+# the Lil' Oryxes, one for each Oryx (port_doomed.LIL_ORYXES), a little above the boss pets (the one
+# Lil' Oryx was an admin pet, 200 every 0.8 s)
+ORYX_PETS = {"Lil' Oryx (Doomed)", "Lil' Wine Cellar Oryx", "Lil' Celestial Oryx", "Lil' Infernal Oryx",
+             "Lil' Ascended Oryx"}
 # Set by hand, after the port (apply_pet_changes):
 # A pet's attacks, in place of the ones the port found, as written in BehaviorDb.DoomedPets.cs:
 # PetShoot(range, count, degrees between shots, offset, projectile id, cooldown ms), each volley aimed
@@ -117,11 +119,24 @@ PET_ATTACKS = {
     "Cerberus Skull": ["new PetShoot(10, 3, 10, 0, 0, 1000)"],
     # three shots in an arc, like a bow
     "Nightmareee": ["new PetShoot(10, 3, 8, 0, 0, 1000)"],
-    # Oryx the Mad God 2's attacks (its Attack phase, aimed), without its minions
-    "Lil' Oryx (Doomed)": ["new PetShoot(12, 8, 45, 0, 0, 1500)", "new PetShoot(12, 3, 10, 0, 1, 1000)",
-                           "new PetShoot(5, 3, 10, 0, 2, 1000)", "new PetShoot(12, 2, 10, 0, 3, 1000)",
-                           "new PetShoot(12, 3, 10, 0, 4, 1000)", "new PetShoot(12, 2, 10, 0, 5, 1000)",
-                           "new PetShoot(12, 3, 10, 0, 6, 1000)"],
+    # The Lil' Oryxes: each Oryx's own volleys, aimed, no farther than his shots reach.
+    # Oryx 1: White Bolts, White Flames, Green Stars and White Superblasts
+    "Lil' Oryx (Doomed)": ["new PetShoot(12, 3, 15, 0, 2, 900)", "new PetShoot(8, 3, 12, 0, 1, 1000)",
+                           "new PetShoot(12, 4, 10, 0, 4, 1200)", "new PetShoot(12, 3, 20, 0, 16, 2000)"],
+    # Oryx 2's Attack phase, without its minions
+    "Lil' Wine Cellar Oryx": ["new PetShoot(12, 8, 45, 0, 0, 1500)", "new PetShoot(12, 3, 10, 0, 1, 1000)",
+                              "new PetShoot(5, 3, 10, 0, 2, 1000)", "new PetShoot(12, 2, 10, 0, 3, 1000)",
+                              "new PetShoot(12, 3, 10, 0, 4, 1000)", "new PetShoot(12, 2, 10, 0, 5, 1000)",
+                              "new PetShoot(12, 3, 10, 0, 6, 1000)"],
+    # Oryx 3: White Big Bolts, then his Exalted Big Missiles, Big Spikes and Missiles
+    "Lil' Celestial Oryx": ["new PetShoot(12, 3, 12, 0, 8, 1600)", "new PetShoot(12, 5, 14, 0, 30, 1200)",
+                            "new PetShoot(12, 3, 8, 0, 31, 900)", "new PetShoot(12, 2, 20, 0, 43, 800)"],
+    # Oryx 4: Hellfire Bolts and Stars, White Flames and White Superblasts
+    "Lil' Infernal Oryx": ["new PetShoot(12, 3, 12, 0, 2, 700)", "new PetShoot(12, 3, 10, 0, 4, 1000)",
+                           "new PetShoot(8, 3, 12, 0, 1, 1000)", "new PetShoot(12, 5, 10, 0, 16, 1600)"],
+    # Oryx 5: Azure Lances, Sunfire Missiles, Divine Spikes and his Divine Spear
+    "Lil' Ascended Oryx": ["new PetShoot(12, 3, 12, 0, 0, 1000)", "new PetShoot(12, 3, 10, 0, 1, 900)",
+                           "new PetShoot(9, 5, 8, 0, 2, 1200)", "new PetShoot(12, 1, 0, 0, 7, 2000)"],
 }
 # What a pet does for its owner, besides healing: PetOwnerEffect(condition, ms, cooldown ms) and
 # PetOwnerBoost(stat, amount, ms, cooldown ms)
@@ -135,7 +150,13 @@ PET_ABILITIES = {
 }
 # The pet's projectiles copied from a betterSkillys boss (without their condition effects), in place
 # of its own
-PET_BOSS_PROJECTILES = {"Lil' Oryx (Doomed)": "Oryx the Mad God 2"}
+PET_BOSS_PROJECTILES = {"Lil' Oryx (Doomed)": "Oryx the Mad God 1", "Lil' Wine Cellar Oryx": "Oryx the Mad God 2",
+                        "Lil' Celestial Oryx": "Oryx the Mad God 3", "Lil' Infernal Oryx": "Oryx the Mad God 4",
+                        "Lil' Ascended Oryx": "Oryx the Ascended God"}
+# A boss pet's damage per second on one enemy (behaviour_dps, with its PET_ATTACKS): its boss's
+# projectiles' damage is scaled to it. The Lil' Oryxes rise with their Oryx.
+PET_DPS = {"Lil' Oryx (Doomed)": 1000, "Lil' Wine Cellar Oryx": 1500, "Lil' Celestial Oryx": 2000,
+           "Lil' Infernal Oryx": 2500, "Lil' Ascended Oryx": 3000}
 # Projectiles changed by hand: (pet, projectile id) -> what to set: damage, speed, lifetime (ms),
 # object (its sprite), effects (condition, seconds) on the enemy hit, bleed (damage, seconds), multihit.
 # A projectile the pet doesn't have is made from these.
@@ -549,7 +570,11 @@ def write_pet_projectiles(bs):
             print("  %s: not found" % pet)
             continue
         if pet in PET_BOSS_PROJECTILES:
-            projs = boss_projectiles(bs[PET_BOSS_PROJECTILES[pet]])
+            # a boss the port made (Oryx 4) is in its own XML
+            boss = PET_BOSS_PROJECTILES[pet]
+            projs = boss_projectiles(bs[boss] if boss in bs else objects[boss])
+            if pet in PET_DPS and pet in PET_ATTACKS:
+                scale_damage(projs, PET_ATTACKS[pet], PET_DPS[pet])
         else:
             projs = [copy.deepcopy(p) for p in objects[pet].findall("Projectile")]
         by_id = {int(p.get("id", "0")): p for p in projs}
@@ -566,6 +591,20 @@ def write_pet_projectiles(bs):
                 c.tail = None
         new[pet] = projs
     write_boss_projectiles(new)
+
+
+def scale_damage(projs, attacks, dps):
+    """Scales the projectiles' damage so the attacks deal about `dps` a second on one enemy."""
+    holder = ET.Element("Object")
+    holder.extend(projs)
+    now = behaviour_dps(attacks, holder)
+    if not now:
+        return
+    for p in projs:
+        for tag in ("Damage", "MinDamage", "MaxDamage"):
+            d = p.find(tag)
+            if d is not None and d.text:
+                d.text = str(max(1, round(int(d.text) * dps / now)))
 
 
 def write_pet_textures():

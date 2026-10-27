@@ -97,7 +97,8 @@ namespace WorldServer.logic
                     new ItemLoot("Potion of Dexterity", 0.35),
                     new ItemLoot("Hash Cellar Incantation", 0.04),
                     new ItemLoot("Seal of Blasphemous Prayer", 0.01),
-                    new ItemLoot("Doom Bow", 0.008)
+                    new ItemLoot("Doom Bow", 0.008),
+                    new ItemLoot("Lil' Wine Cellar Oryx Generator", 0.01)
                 ),
                 // 5% of the damage: the gear
                 new Threshold(0.05,
@@ -229,7 +230,9 @@ namespace WorldServer.logic
                     new ItemLoot("Potion of Dexterity", 0.45),
                     new ItemLoot("Potion of Speed", 0.45),
                     new ItemLoot("Potion of Vitality", 0.25),
-                    new ItemLoot("Potion of Wisdom", 0.25)
+                    new ItemLoot("Potion of Wisdom", 0.25),
+                    // his Lil' Oryx, in a white bag (each Oryx drops his own)
+                    new ItemLoot("Lil' Oryx Generator", 0.01)
                 ),
                 // 5% of the damage: the gear
                 new Threshold(0.05,

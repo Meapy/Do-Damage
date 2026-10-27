@@ -129,6 +129,6 @@
     { "points": 2400, "name": "Mythic", "color": "0xFF7A3D" }
   ],
   "gifts": [
-    { "id": "lil_oryx_2026_11", "title": "Lil' Oryx", "text": "One free Lil' Oryx Generator per account, this month only. Oryx 4 and 5 drop it too.", "from": "2026-10-27", "until": "2026-11-27", "rewards": [ { "item": "Lil' Oryx Generator" } ] }
+    { "id": "lil_oryx_2026_11", "title": "Lil' Oryx", "text": "One free Lil' Oryx per account, this month only. Each Oryx drops a Lil' Oryx of his own.", "from": "2026-10-27", "until": "2026-11-27", "rewards": [ { "item": "Lil' Oryx Generator" } ] }
   ]
 }

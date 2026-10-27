@@ -332,8 +332,10 @@ def convert(o, new_type, sheets, remotes):
             use["right"] = use["right"] or child.find("Right") is not None
     # betterSkillys' own sprite in place of the Doomed Realms one
     if o.get("id") in TEXTURE_OVERRIDES:
-        sheet, index = TEXTURE_OVERRIDES[o.get("id")]
+        sheet, index, *tag = TEXTURE_OVERRIDES[o.get("id")]
         tex = next(t for t in o if t.tag in ("AnimatedTexture", "Texture"))
+        if tag:
+            tex.tag = tag[0]
         tex.find("File").text, tex.find("Index").text = sheet, str(index)
     if o.get("id") in DISPLAY_OVERRIDES:
         name = o.find("DisplayId")
@@ -427,7 +429,13 @@ TEXTURE_OVERRIDES = {"Oryx the Mad God 4": ("hashCellarOryx16x16", 0),
                      "Robe of the Nile": ("t16Armors8x8", 2),
                      # Oryx 4's daggers, red in their shading (tools/draw_oryx_uts.py)
                      "Doom Dirk": ("oryxUts8x8", 0),
-                     "Flying Doom Daggers": ("oryxUts8x8", 1)}
+                     "Flying Doom Daggers": ("oryxUts8x8", 1),
+                     # each Lil' Oryx drawn as his Oryx (LIL_ORYXES; Oryx 1's has a sprite of its own,
+                     # like his); a third value changes the sprite's kind (Oryx 2 isn't animated)
+                     "Lil' Wine Cellar Oryx": ("lofiChar16x16", "0x54", "Texture"),
+                     "Lil' Celestial Oryx": ("oryxSanctuaryChars32x32", 0),
+                     "Lil' Infernal Oryx": ("hashCellarOryx16x16", 0),
+                     "Lil' Ascended Oryx": ("elysiumOryx16x16", 0)}
 # projectiles drawn anew: id -> {projectile id: object}. Oryx 4's first phase shoots hellfire.
 PROJECTILE_OVERRIDES = {"Oryx the Mad God 4": {"2": "Hellfire Bolt", "4": "Hellfire Star"},
                         # Oryx 5's weapons (their projectiles have no id; tools/draw_oryx_uts.py): the
@@ -458,9 +466,46 @@ BAG_TYPES = {
     "Potion of Oryx": 7, "Potion of Power": 7,
     "Potion of Max Life": 6,
     "Sphinx Leather Armor": 6, "Armor of the Pyramid": 6, "Robe of the Nile": 6,
-    # Oryx 4 and 5's pet (it had no bag: the donor shop sold it)
+    # the Oryxes' pets (LIL_ORYXES; it had no bag: the donor shop sold it)
     "Lil' Oryx Generator": 6,
 }
+
+
+# A Lil' Oryx for each Oryx, whose generator he drops (1%, in a white bag): Doomed Realms' Lil' Oryx
+# is Oryx 1's, the others copies of it and its generator (add_lil_oryxes), drawn as their Oryx
+# (TEXTURE_OVERRIDES) and shooting his shots (port_doomed_pets: PET_BOSS_PROJECTILES, PET_ATTACKS,
+# PET_DPS). They inherit the generator's bag, soulbound loot and <Consumable/>.
+# pet: (generator, name, who drops it)
+LIL_ORYXES = {
+    "Lil' Oryx (Doomed)": ("Lil' Oryx Generator", "Lil' Oryx", "Oryx the Mad God drops it in his Chamber."),
+    "Lil' Wine Cellar Oryx": ("Lil' Wine Cellar Oryx Generator", "Lil' Wine Cellar Oryx",
+                              "Oryx the Mad God drops it in his Wine Cellar."),
+    "Lil' Celestial Oryx": ("Lil' Celestial Oryx Generator", "Lil' Celestial Oryx", "Oryx the Celestial Mad God drops it."),
+    "Lil' Infernal Oryx": ("Lil' Infernal Oryx Generator", "Lil' Infernal Oryx", "Oryx the Infernal Mad God drops it."),
+    "Lil' Ascended Oryx": ("Lil' Ascended Oryx Generator", "Lil' Ascended Oryx", "Oryx the Ascended God drops it."),
+}
+LIL_ORYX_TEXT = ("Every evil boss creates miniature versions of himself. It's just something they do. "
+                 "Using it gives you {name} for good, and uses it up. {where}")
+
+
+def add_lil_oryxes(chosen):
+    """The Lil' Oryxes of LIL_ORYXES and their generators, copied from Doomed Realms' Lil' Oryx."""
+    pet0, gen0 = chosen.get("Lil' Oryx (Doomed)"), chosen.get("Lil' Oryx Generator")
+    if pet0 is None or gen0 is None:
+        print("  Lil' Oryx not ported: no Lil' Oryxes")
+        return
+    pet0, gen0 = copy.deepcopy(pet0), copy.deepcopy(gen0)
+    for pet_id, (gen_id, name, where) in LIL_ORYXES.items():
+        pet, gen = copy.deepcopy(pet0), copy.deepcopy(gen0)
+        pet.set("id", pet_id)
+        gen.set("id", gen_id)
+        for o in (pet, gen):
+            o.find("DisplayId").text = name
+        gen.find("Description").text = LIL_ORYX_TEXT.format(name=name, where=where)
+        for a in gen.iter("Activate"):
+            if a.text == "PermaPet":
+                a.set("objectId", pet_id)
+        chosen[pet_id], chosen[gen_id] = pet, gen
 
 
 # What an IncrementStat item puts into potion storage when its stat is already at the class
@@ -494,7 +539,7 @@ UNOBTAINABLE_ITEMS = ["Ring of Oryx", "Oryx Hide Armor", "Oryx Hide Robe", "Oryx
                       # the Forge Amulet (the forge no longer takes it) and the Burning Amulet
                       "Shattered Rune of Oryx", "Broken Oryx Armor", "Purified Doom Saliva", "Forge Amulet",
                       "Burning Amulet"]
-# loot in a private bag (the T16 armours, as the T15s they top, and Oryx 4 and 5's pet)
+# loot in a private bag (the T16 armours, as the T15s they top, and the Oryxes' pets)
 SOULBOUND_ITEMS = ["Sphinx Leather Armor", "Armor of the Pyramid", "Robe of the Nile", "Lil' Oryx Generator"]
 DESCRIPTIONS = {
     # the Lair of Draconis's four relics (BehaviorDb.Draconis.cs), the Elder key's recipe
@@ -514,9 +559,6 @@ DESCRIPTIONS = {
                                  "now and then tear loose a small dark orb that zaps whatever is near.",
     "Doom Poison": "Brimstone from the deepest fires of Oryx's Inferno. It curses all it burns, but its fumes "
                    "leave the one who throws it silenced for a moment.",
-    "Lil' Oryx Generator": "Every evil boss creates miniature versions of himself. It's just something they do. "
-                           "Using it gives you Lil' Oryx for good, and uses it up. Oryx the Infernal Mad God and "
-                           "Oryx the Ascended God drop it.",
     "America Sword": "Rewarded by DODMG: America!",
     "America Shield": "Rewarded by DODMG: America!",
     "Sphinx Leather Armor": "Leather cut from the open sky over Oryx's Elysium, light as a cloud and as hard to strike. "
@@ -1237,6 +1279,7 @@ def main():
                  if r in dr_by_type and dr_by_type[r] not in bs}
     chosen, skipped = select(dr, bs, extra=map_objs | set(portal_world), allowed_portals=set(portal_world),
                              behaviour_refs=behaviour_refs)
+    add_lil_oryxes(chosen)
     classes = {}
     for o in chosen.values():
         classes[o.findtext("Class")] = classes.get(o.findtext("Class"), 0) + 1
