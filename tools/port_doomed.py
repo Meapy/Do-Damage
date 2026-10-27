@@ -435,7 +435,13 @@ TEXTURE_OVERRIDES = {"Oryx the Mad God 4": ("hashCellarOryx16x16", 0),
                      "Lil' Wine Cellar Oryx": ("lofiChar16x16", "0x54", "Texture"),
                      "Lil' Celestial Oryx": ("oryxSanctuaryChars32x32", 0),
                      "Lil' Infernal Oryx": ("hashCellarOryx16x16", 0),
-                     "Lil' Ascended Oryx": ("elysiumOryx16x16", 0)}
+                     "Lil' Ascended Oryx": ("elysiumOryx16x16", 0),
+                     # and their generators, his head in each Oryx's colours (tools/draw_oryx_uts.py)
+                     "Lil' Oryx Generator": ("oryxUts8x8", 6),
+                     "Lil' Wine Cellar Oryx Generator": ("oryxUts8x8", 7),
+                     "Lil' Celestial Oryx Generator": ("oryxUts8x8", 8),
+                     "Lil' Infernal Oryx Generator": ("oryxUts8x8", 9),
+                     "Lil' Ascended Oryx Generator": ("oryxUts8x8", 10)}
 # projectiles drawn anew: id -> {projectile id: object}. Oryx 4's first phase shoots hellfire.
 PROJECTILE_OVERRIDES = {"Oryx the Mad God 4": {"2": "Hellfire Bolt", "4": "Hellfire Star"},
                         # Oryx 5's weapons (their projectiles have no id; tools/draw_oryx_uts.py): the

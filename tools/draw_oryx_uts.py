@@ -13,7 +13,9 @@ tools/gen_rs_manifest.py registers for the Rust client), 8 by 8 pixels a cell in
 - the Ascended Gem of Adoration and of Tenderness (CustomItems.xml): Oryx 4's Infernal gems in Oryx 5's
   silver, purple and gold (their RECOLOUR);
 - the Sword of Dark Enchantment's shot, a black blade with a red core and a purple glow, and its
-  small dark orb (CustomObjects.xml), drawn here (DRAWN).
+  small dark orb (CustomObjects.xml), drawn here (DRAWN);
+- the five Lil' Oryx generators (tools/port_doomed.py LIL_ORYXES, TEXTURE_OVERRIDES): Doomed Realms'
+  Lil' Oryx head in each Oryx's colours (LIL_ORYX_HEADS).
 And `OryxUts16x16.png` (`oryxUts16x16`), 16 by 16 a cell in the order of CELLS16: the Elysian Staff's
 shot, Oryx 5's Celestial Bolt in his silver, purple and gold.
 Needs Pillow.
@@ -31,6 +33,7 @@ ELYSIUM16 = "kabam/rotmg/assets/custom/images/Elysium16x16.png"
 CELL = 8
 
 DOOMED5 = "kabam/rotmg/assets/doomed/images/lofiObj5.png"
+DOOMED2 = "kabam/rotmg/assets/doomed/images/lofiObj2.png"
 D2 = "kabam/rotmg/assets/prod/images/d2LofiObj.png"
 
 # Oryx 5's colours (ElysiumOryx16x16.png, as tools/draw_t15_weapons.py has them)
@@ -55,6 +58,29 @@ CELLS = [
     ("Dark Enchantment Slash", None, "slash", "drawn"),
     ("Dark Enchantment Orb", None, "orb", "drawn"),
 ]
+
+
+def head(outline, dark, body, horn_shade, horn, eyes):
+    """The Lil' Oryx head's colours, from its own: black outline, dark and body, grey horn shade and
+    horns, red eyes."""
+    return {(0, 0, 0): outline, (35, 40, 42): dark, (23, 23, 23): body, (102, 102, 102): horn_shade,
+            (201, 201, 201): horn, (162, 33, 35): eyes}
+
+
+# Each Oryx's Lil' Oryx generator: the head as Oryx 2 has it, and in the other Oryxes' colours
+LIL_ORYX_HEADS = [
+    # Oryx 1: a grey helm with red horns
+    ("Lil' Oryx Generator", head((0, 0, 0), (54, 54, 62), (88, 88, 98), (120, 18, 24), (200, 36, 40), (255, 255, 255))),
+    # Oryx 2: as it was drawn
+    ("Lil' Wine Cellar Oryx Generator", head((0, 0, 0), (35, 40, 42), (23, 23, 23), (102, 102, 102), (201, 201, 201), (162, 33, 35))),
+    # Oryx 3: black with white horns, his purple glow in the eyes
+    ("Lil' Celestial Oryx Generator", head((0, 0, 0), (40, 22, 60), (20, 12, 30), PURPLE[1], (255, 255, 255), PURPLE[2])),
+    # Oryx 4: hellfire
+    ("Lil' Infernal Oryx Generator", head((40, 4, 8), RED[0], RED[1], (240, 120, 30), (255, 190, 60), GOLD[2])),
+    # Oryx 5: silver and gold
+    ("Lil' Ascended Oryx Generator", head(SILVER[0], SILVER[1], SILVER[2], GOLD[0], GOLD[1], PURPLE[1])),
+]
+CELLS += [(item, DOOMED2, 0x5e, colours) for item, colours in LIL_ORYX_HEADS]
 # 16 by 16: (object, sheet, index, recolour)
 CELLS16 = [
     ("Elysian Bolt", ELYSIUM16, 8, {                     # Celestial Bolt

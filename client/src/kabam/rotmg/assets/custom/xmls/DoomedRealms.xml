@@ -6321,8 +6321,8 @@
 		<Class>Equipment</Class>
 		<Item />
 		<Texture>
-			<File>drLofiObj2</File>
-			<Index>0x5e</Index>
+			<File>oryxUts8x8</File>
+			<Index>6</Index>
 		</Texture>
 		<SlotType>10</SlotType>
 		<Soulbound />
@@ -21511,8 +21511,8 @@
 		<Class>Equipment</Class>
 		<Item />
 		<Texture>
-			<File>drLofiObj2</File>
-			<Index>0x5e</Index>
+			<File>oryxUts8x8</File>
+			<Index>10</Index>
 		</Texture>
 		<SlotType>10</SlotType>
 		<Soulbound />
@@ -21532,8 +21532,8 @@
 		<Class>Equipment</Class>
 		<Item />
 		<Texture>
-			<File>drLofiObj2</File>
-			<Index>0x5e</Index>
+			<File>oryxUts8x8</File>
+			<Index>8</Index>
 		</Texture>
 		<SlotType>10</SlotType>
 		<Soulbound />
@@ -21553,8 +21553,8 @@
 		<Class>Equipment</Class>
 		<Item />
 		<Texture>
-			<File>drLofiObj2</File>
-			<Index>0x5e</Index>
+			<File>oryxUts8x8</File>
+			<Index>9</Index>
 		</Texture>
 		<SlotType>10</SlotType>
 		<Soulbound />
@@ -21574,8 +21574,8 @@
 		<Class>Equipment</Class>
 		<Item />
 		<Texture>
-			<File>drLofiObj2</File>
-			<Index>0x5e</Index>
+			<File>oryxUts8x8</File>
+			<Index>7</Index>
 		</Texture>
 		<SlotType>10</SlotType>
 		<Soulbound />
