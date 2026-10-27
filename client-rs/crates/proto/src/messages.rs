@@ -195,6 +195,8 @@ messages! {
         107 => QuestNotice { kind: u8, title: String, text: String },
         // Progress that changed since QuestsData, by place in its lists.
         108 => QuestProgress { changes: List16<QuestChange> },
+        // The answer to Imprint: whether it worked, the inventory slot, what went wrong.
+        111 => ImprintResult { success: bool, slot: u8, message: String },
     }
 }
 
@@ -272,5 +274,9 @@ messages! {
         // an achievement's tiers (3, its id), swap a quest (4, its id) or pick a name colour (5,
         // the rank, -1 for none).
         105 => QuestClaim { kind: u8, id: String },
+        // The Enchanter's window: ask for the forge storage's shards (answered with ForgeShards),
+        // and imprint the item in an inventory slot (an older server doesn't know either).
+        109 => ImprintRequest {},
+        110 => Imprint { slot: u8, imprint: u8 },
     }
 }

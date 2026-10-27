@@ -1,18 +1,22 @@
-//! The Divine Forge's window, opened from the forge in the Nexus's south yard.
+//! The Divine Forge's window, opened from the forge in the Nexus's forge hall, and the
+//! Enchanter's beside it (the same window in its other mode, `imprints.rs`).
 //!
 //! Forge: the recipes (`ForgeData`), filtered by what they make (weapons, abilities, armor,
 //! rings and the rest, then by slot type), to untiered gear or each kind's highest tier, or by
 //! name, or to what can be made now; a result
 //! several recipes make is listed once. Picking one shows its ingredients as sockets; the player
 //! puts in items from the inventory (forge shards come from the forge storage, and anything the
-//! inventory lacks from the account's vault chests, `ForgeVault`), forges, and watches the items go into the fire and the forged item come out. Enchant: locked, a teaser
-//! for a later update. Shards: the forge storage (`ForgeShards`), the shards the account has
+//! inventory lacks from the account's vault chests, `ForgeVault`), forges, and watches the items go into the fire and the forged item come out. Shards: the forge storage (`ForgeShards`), the shards the account has
 //! used, which a click takes back out into the inventory. Sell: the inventory with what the
 //! forge pays for each item under it; pick items and sell them for fame.
 //!
 //! The server checks everything (`ForgeHandlers.cs`): the window only says what it asks for, the
 //! inventory slots it uses (the server takes the rest from the forge storage, then the vault). The
 //! forged item takes the first ingredient's inventory slot; with none, a free one, or the vault.
+//!
+//! The Enchanter: Imprints, its only tab, puts imprints on gear (`ImprintHandlers.cs`).
+
+mod imprints;
 
 use crate::hud::{Layout, SlotKind, Ui};
 use crate::theme::{self, color, Kind};
@@ -33,6 +37,10 @@ pub enum Act {
     Sell(Vec<u8>),
     /// Take one of this shard out of the forge storage.
     Withdraw(u16),
+    /// The Enchanter: the forge storage's shards.
+    ImprintShards,
+    /// Imprint the item in this inventory slot with this imprint.
+    Imprint(u8, u8),
 }
 
 /// What the server said.
@@ -44,16 +52,18 @@ pub enum Event {
     Shards(Vec<ForgeShard>),
     /// What the vault holds that the forge can take, by item type (`ForgeVault`).
     Vault(Vec<ForgeShard>),
+    /// The answer to an imprint.
+    Imprint { success: bool, message: String },
 }
 
 #[derive(Clone, Copy, Debug, PartialEq, Eq, Default)]
 enum Tab {
     #[default]
     Forge,
-    /// Locked: a teaser for a later update.
-    Enchant,
     Shards,
     Sell,
+    /// The Enchanter's only tab.
+    Imprints,
 }
 
 /// What a recipe makes, by the slots a class wears it in (`SlotTypes`: weapon, ability, armor,
@@ -132,6 +142,10 @@ enum Hit {
     SellAll,
     Sell,
     Withdraw(u16),
+    /// The Enchanter: pick the item in this slot, a colour (3: the one coming soon), imprint.
+    ImpItem(u8),
+    ImpKind(usize),
+    ImpApply(u8),
 }
 
 /// Where a forging is.
@@ -152,8 +166,13 @@ const NO_ANSWER: i32 = 8000;
 
 /// `FAME_STAT`: the account's fame.
 const FAME_STAT: u8 = 39;
-/// The forge's sprite sheet (`tools/draw_forge_sprite.py`): three frames of fire, then a flash.
+/// The forge's sprite sheet (`tools/draw_forge_sprite.py`): six frames of fire, then a flash,
+/// then the Enchanter's six frames.
 const SHEET: &str = "customAssets32x32";
+const FORGE_FRAMES: i32 = 6;
+const FLASH: u32 = 6;
+const ENCHANTER: u32 = 7;
+const FRAME_MS: i32 = 180;
 /// A socket filled from the forge storage rather than an inventory slot.
 const STORAGE: u8 = 255;
 /// A socket filled from the account's vault.
@@ -204,6 +223,16 @@ pub struct Forge {
     fame: i32,
     backpack: bool,
     now: i32,
+    /// Open as the Enchanter rather than the forge.
+    enchanter: bool,
+    /// The Enchanter: the gear in each slot (equipment and inventory) with its imprints, the slot
+    /// picked, the colour shown (3: coming soon), whether an imprint is on its way, and the
+    /// imprints of the item under the mouse.
+    gear: Vec<(u8, i32, [u8; 3])>,
+    imp_pick: Option<u8>,
+    imp_kind: usize,
+    imp_pending: bool,
+    hover_imprints: [u8; 3],
 }
 
 fn inside(r: [f32; 4], (x, y): (f64, f64)) -> bool {
@@ -217,6 +246,10 @@ impl Forge {
     /// Opens the window; the first time, it asks for the recipes.
     pub fn show(&mut self, data: &GameData) -> Option<Act> {
         self.open = true;
+        self.enchanter = false;
+        if self.tab == Tab::Imprints {
+            self.tab = Tab::Forge;
+        }
         self.message = None;
         self.forging = None;
         self.selling.clear();
@@ -423,6 +456,10 @@ impl Forge {
                     self.message = Some((message, true));
                 }
             }
+            Event::Imprint { success, message } => {
+                self.imp_pending = false;
+                self.message = Some(if success { ("Imprinted.".into(), false) } else { (message, true) });
+            }
             Event::Result { sold: false, success, item, message, .. } => {
                 if let Some(Forging::Going { answer, .. }) = &mut self.forging {
                     *answer = Some(if success { Ok(item) } else { Err(message) });
@@ -438,9 +475,15 @@ impl Forge {
         }
         let hit = self.hits.iter().find(|(_, r)| inside(*r, pos)).map(|(h, _)| *h)?;
         match hit {
-            Hit::Tab(Tab::Enchant) => {
-                self.message = Some(("Enchanting is locked: it comes in a later update.".into(), false));
+            Hit::ImpItem(slot) => {
+                self.imp_pick = Some(slot);
+                self.message = None;
             }
+            Hit::ImpKind(k) => {
+                self.imp_kind = k;
+                self.message = None;
+            }
+            Hit::ImpApply(id) => return self.imprint(id, data),
             Hit::Tab(t) => {
                 if !matches!(self.forging, Some(Forging::Going { .. })) {
                     self.tab = t;
@@ -584,6 +627,13 @@ impl Forge {
             }
         }
         self.fame = me.stat_int(FAME_STAT).unwrap_or(0);
+        self.gear.clear();
+        for slot in 0..if self.backpack { 20 } else { 12 } {
+            let item = me.stat_int(crate::hud::slot_stat(slot)).unwrap_or(-1);
+            if item > 0 {
+                self.gear.push((slot, item, crate::hud::slot_imprints(me, slot)));
+            }
+        }
         if self.forging.is_none() {
             if let Some(r) = self.picked.map(|i| self.recipes[i].clone()) {
                 let mut from_storage: HashMap<u16, i32> = HashMap::new();
@@ -641,6 +691,7 @@ impl Forge {
         self.hits.clear();
         self.hover_item = None;
         self.hover_vault = false;
+        self.hover_imprints = [0; 3];
         if !self.open {
             self.rect = None;
             return;
@@ -658,19 +709,17 @@ impl Forge {
         // button, all centred on one line.
         let mid = r[1] + 32.0 * s;
         let ts = font(22.0);
-        ui.label("Divine Forge", r[0] + 22.0 * s, (mid - ui.digit_middle(ts, true)).round(), ts, true, color::GOLD);
-        let tabs = [(Tab::Forge, "Forge"), (Tab::Enchant, "Enchant"), (Tab::Shards, "Shards"), (Tab::Sell, "Sell for fame")];
+        let title = if self.enchanter { "Enchanter" } else { "Divine Forge" };
+        ui.label(title, r[0] + 22.0 * s, (mid - ui.digit_middle(ts, true)).round(), ts, true, color::GOLD);
+        let tabs: &[(Tab, &str)] =
+            if self.enchanter { &[(Tab::Imprints, "Imprints")] } else { &[(Tab::Forge, "Forge"), (Tab::Shards, "Shards"), (Tab::Sell, "Sell for fame")] };
         let cs = font(13.0);
         let widths: Vec<f32> = tabs.iter().map(|(_, l)| ui.measure(l, cs, true) + 36.0 * s).collect();
         let gap = 8.0 * s;
         let mut x = (r[0] + (r[2] - widths.iter().sum::<f32>() - gap) / 2.0).round();
-        for ((t, label), w) in tabs.into_iter().zip(widths) {
+        for (&(t, label), w) in tabs.iter().zip(widths) {
             let tr = [x, (mid - 14.0 * s).round(), w, 28.0 * s];
-            if t == Tab::Enchant {
-                locked_chip(ui, tr, label, cs, s);
-            } else {
-                self.chip(ui, tr, label, t == self.tab, mouse, cs);
-            }
+            self.chip(ui, tr, label, t == self.tab, mouse, cs);
             self.hits.push((Hit::Tab(t), tr));
             x += w + gap;
         }
@@ -696,12 +745,12 @@ impl Forge {
             Tab::Forge => self.draw_forge(ui, body, s, mouse, now),
             Tab::Sell => self.draw_sell(ui, body, s, mouse),
             Tab::Shards => self.draw_shards(ui, body, s, mouse),
-            Tab::Enchant => {}
+            Tab::Imprints => self.draw_imprints(ui, body, s, mouse, now),
         }
         let foot_y = r[1] + r[3] - 36.0 * s;
         if let Some((m, err)) = &self.message {
             ui.label(m, r[0] + 22.0 * s, foot_y, font(13.0), true, if *err { color::DANGER } else { color::GOOD });
-        } else if !self.loaded {
+        } else if !self.loaded && !self.enchanter {
             ui.label("Asking the forge for its recipes...", r[0] + 22.0 * s, foot_y, font(13.0), false, color::TEXT_MUTED);
         }
         if let Some(item) = self.hover_item {
@@ -711,6 +760,7 @@ impl Forge {
                 lines.push(crate::hud::Line::gap());
                 lines.push(crate::hud::Line::new(&format!("From your vault ({n} there)"), 12.0, true, color::GOOD));
             }
+            lines.extend(crate::hud::imprint_lines(self.hover_imprints));
             crate::hud::draw_tooltip(ui, lay, &lines, Some(item), crate::screens::tier_edge(ui.data, item), mouse);
         }
     }
@@ -820,7 +870,7 @@ impl Forge {
             let rad = (150.0 - k as f32 * 26.0) * s;
             theme::fill(ui.renderer, [fx - rad, fy - rad * 0.8, rad * 2.0, rad * 1.6], rad * 0.8, color::GOLD, 0.025 + k as f32 * 0.012);
         }
-        let frame = ((now / 150).rem_euclid(3)) as u32;
+        let frame = ((now / FRAME_MS).rem_euclid(FORGE_FRAMES)) as u32;
         let Some(i) = self.picked else {
             ui.tile_icon(SHEET, frame, 80, fx, fy, s);
             let t = "Pick a recipe to forge.";
@@ -884,7 +934,7 @@ impl Forge {
         if flare > 0.0 {
             // The flash grows over the forge's mouth, and sparks fly.
             let k = flare * (1.0 + 0.15 * ((now as f32) / 60.0).sin());
-            ui.tile_icon(SHEET, 3, (30.0 + 70.0 * k) as i32, mouth.0, mouth.1, s);
+            ui.tile_icon(SHEET, FLASH, (30.0 + 70.0 * k) as i32, mouth.0, mouth.1, s);
             sparks(ui, mouth, flare, now, s);
         }
 
@@ -959,7 +1009,7 @@ impl Forge {
                 let e = 1.0 - (1.0 - p).powi(2);
                 let (tx, ty) = (result_box[0] + rs / 2.0, result_box[1] + rs / 2.0);
                 let (x, y) = (mouth.0 + (tx - mouth.0) * e, mouth.1 + (ty - mouth.1) * e - (1.0 - (2.0 * p - 1.0).powi(2)) * 50.0 * s);
-                ui.tile_icon(SHEET, 3, (60.0 * (1.0 - p) + 20.0) as i32, x, y, s);
+                ui.tile_icon(SHEET, FLASH, (60.0 * (1.0 - p) + 20.0) as i32, x, y, s);
                 ui.item_icon(item as i32, 160, x, y, s * (0.3 + 0.5 * e));
             }
         }

@@ -29,6 +29,10 @@ ARMORS = {6: "Leather armor", 7: "Heavy armor", 14: "Robe"}
 RING = 9
 SLOT_NAMES = {**WEAPONS, **ABILITIES, **ARMORS}
 SLOT_NAMES[RING] = "Ring"
+# Do Damage's own items that tools/port_doomed.py keeps among the Doomed Realms ones (type codes
+# 0xD000 on): the T16 armours, Oryx the Ascended God's, drawn and balanced here. Not "From Doomed
+# Realms".
+OWN_IN_DOOMED = {"Sphinx Leather Armor", "Armor of the Pyramid", "Robe of the Nile"}
 # the Doomed Realms slot types, named as the clients name them (ItemConstants)
 SLOT_NAMES.update({27: "Wakizashi", 28: "Lute", 30: "Pearl", 32: "Turret", 36: "Dual Blades", 37: "Jacket",
                    126: "Halo", 128: "Summon Scroll", 130: "Fountain", 200: "Martial Art",
@@ -349,10 +353,10 @@ class Data:
             if o["class"] in ("Equipment", "Dye") and oid not in op and self.elements[oid].find("Admin") is None:
                 items[oid] = o
 
-        # tiered items only their boss gives, which no recipe makes (ForgeRecipes.NeverForged); they
-        # still count for their slot's price scale
-        m = re.search(r'NeverForged\s*=\s*new HashSet<string>\s*\{([^}]*)\}', _read(os.path.join(COMMANDS, "doomed", "ForgeRecipes.cs")))
-        never = set(re.findall(r'"([^"]+)"', m.group(1) if m else ""))
+        # tiered items two of the tier below don't make (ForgeRecipes.NotChained: the T16 armours, made
+        # from a T15 and a shard); they still count for their slot's price scale
+        m = re.search(r'NotChained\s*=\s*new HashSet<string>\s*\{([^}]*)\}', _read(os.path.join(COMMANDS, "doomed", "ForgeRecipes.cs")))
+        not_chained = set(re.findall(r'"([^"]+)"', m.group(1) if m else ""))
 
         # what some monster drops: its named loot and every item of the tier pools it rolls
         loot = tier_loot_types()
@@ -452,7 +456,8 @@ class Data:
 
         # the Ascended items (ForgeRecipes.Ascended): an item of a tier, of its slot or (slot 0) of any
         # slot of its kind, and an Ascended shard; `ascended` marks them, with the kind and tier when
-        # any item of them will do, for the forge page
+        # any item of them will do, for the forge page. The T16 armours come the same way (a T15
+        # armour and a shard) but aren't Ascended items: they go with the other recipes.
         forge_src = _read(os.path.join(COMMANDS, "doomed", "ForgeRecipes.cs"))
         consts = dict(re.findall(r'(\w+Shard)\s*=\s*"([^"]+)"', forge_src))
         fame_m = re.search(r'AscendedFame\s*=\s*(\d+)', forge_src)
@@ -463,9 +468,10 @@ class Data:
             forge_only.add(res)
             for oid, o in sorted(items.items(), key=lambda kv: kv[1]["type"]):
                 if o["tier"] == tier and (o["slot"] == slot if slot else loot["types"].get(o["slot"]) == kind):
-                    recipes.append({"result": res, "fame": int(fame_m.group(1)), "advanced": False,
-                                    "items": [oid, consts[shard]],
-                                    "ascended": {"any": (kind, tier) if slot == 0 else None}})
+                    r = {"result": res, "fame": int(fame_m.group(1)), "advanced": False, "items": [oid, consts[shard]]}
+                    if res in self.elements and self.elements[res].find("Ascended") is not None:
+                        r["ascended"] = {"any": (kind, tier) if slot == 0 else None}
+                    recipes.append(r)
         # and the ones from one item (ForgeRecipes.AscendedFrom)
         m = re.search(r'\bAscendedFrom\s*=\s*\{(.*?)\};', forge_src, re.S)
         for res, frm, shard in re.findall(r'\("([^"]+)",\s*"([^"]+)",\s*(\w+)\)', m.group(1) if m else ""):
@@ -482,6 +488,8 @@ class Data:
                     continue
                 below = by_tier[tier - 1]
                 for res in results:
+                    if res in not_chained:
+                        continue
                     last = res.rsplit(" ", 1)[-1]
                     frm = below[0] if len(below) == 1 else next(
                         (b for b in below if b.rsplit(" ", 1)[-1] == last), below[0])
@@ -492,7 +500,7 @@ class Data:
 
         out = []
         for r in recipes:
-            if (r["result"] in items and r["result"] not in never
+            if (r["result"] in items
                     and (r["result"] in dropped or r["result"] in forge_only) and r["result"] not in seasonal
                     and all(i in items for i in r["items"])):
                 res = items[r["result"]]
@@ -674,7 +682,7 @@ class Data:
                 group = next((t.lower() for t in ("Admin", "Reward", "Unobtainable", "Legendary", "Ascended", "Ethereal")
                               if el.find(t) is not None),
                              None) or ("tiered" if o["tier"] >= 0 else "set" if el.get("setType") else "untiered")
-            doomed = 0xD000 <= o["type"] <= 0xDFFF
+            doomed = 0xD000 <= o["type"] <= 0xDFFF and oid not in OWN_IN_DOOMED
             # the random tier drops (Loots.Initialize): no Doomed Realms items but the tiered gear of
             # the Doomed Realms classes' own slots
             drops_as = (loot["types"].get(o["slot"]) if o["tier"] >= 0 and group == "tiered"
@@ -850,6 +858,25 @@ def account():
         "storage_step": const("PotionStoragePerLevel"),
         "storage_cost": const("PotionStorageUpgradeCost"),
     }
+
+
+def imprints():
+    """The imprints (Shared/resources/Imprints.cs), in its order: [{name, kind, description, fits}]."""
+    src = _read(os.path.join(SRC, "Shared", "resources", "Imprints.cs"))
+    slot_names = {"SwordSlot": "Swords", "DaggerSlot": "Daggers", "BowSlot": "Bows", "WandSlot": "Wands",
+                  "RingSlot": "Rings", "StaffSlot": "Staves", "KatanaSlot": "Katanas", "BladesSlot": "Dual Blades",
+                  "FistsSlot": "Fists"}
+    out = []
+    for name, kind, desc, slots in re.findall(
+            r'new Imprint\(\w+, "([^"]+)", ImprintKind\.(\w+), "([^"]+)"(?:, ([^)]*\}|\w+))?\)', src):
+        if not slots:
+            fits = "Any gear"
+        elif slots.strip() == "WeaponSlots":
+            fits = "Weapons"
+        else:
+            fits = ", ".join(slot_names.get(s, s) for s in re.findall(r'\w+Slot', slots))
+        out.append({"name": name, "kind": kind, "description": desc, "fits": fits})
+    return out
 
 
 def tier_loot_types():

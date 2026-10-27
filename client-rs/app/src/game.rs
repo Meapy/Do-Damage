@@ -696,6 +696,9 @@ impl Game {
             }),
             ServerMessage::ForgeShards(s) => self.forge_events.push(crate::forge::Event::Shards(s.shards.0.clone())),
             ServerMessage::ForgeVault(v) => self.forge_events.push(crate::forge::Event::Vault(v.items.0.clone())),
+            ServerMessage::ImprintResult(r) => {
+                self.forge_events.push(crate::forge::Event::Imprint { success: r.success, message: r.message.clone() })
+            }
             ServerMessage::QuestsData(d) => self.quest_events.push(crate::quests::Event::Data(Box::new(d.clone()))),
             ServerMessage::QuestProgress(p) => self.quest_events.push(crate::quests::Event::Progress(p.changes.0.clone())),
             ServerMessage::QuestResult(r) => self.quest_events.push(crate::quests::Event::Result(r.success, r.message.clone())),
@@ -1187,6 +1190,8 @@ impl Game {
             Act::Forge(result, slots) => bsk_proto::Forge { result, slots: bsk_proto::List8(slots) }.into(),
             Act::Sell(slots) => bsk_proto::ForgeSell { slots: bsk_proto::List8(slots) }.into(),
             Act::Withdraw(item) => bsk_proto::ForgeWithdraw { item }.into(),
+            Act::ImprintShards => bsk_proto::ImprintRequest {}.into(),
+            Act::Imprint(slot, imprint) => bsk_proto::Imprint { slot, imprint }.into(),
         };
         self.send(msg);
     }

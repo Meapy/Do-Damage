@@ -680,6 +680,33 @@ The remotes `upstream` (HaloCelsius) and `aurusenth` share no history with `main
 - **Lair of Shaitan on Aurusenth's map** (`worlds/Dungeons/Lair of Shaitan.jm`, `BehaviorDb.Shaitan.cs`, `Dungeons.xml`, both copies of `Portals.xml`): the dungeon's map is Aurusenth's "Lair of Shaitan New Auru" (64 by 64: a rock island in lava, the head over the lava at 32.5, 33.5, the hands at 28 and 36, 32), which was in the Aurusenth merge as a test world nothing opened. The old map was an 18 by 12 room. Added to Aurusenth's map: the three `md1 Governor`s that spawn the Creepy Hands (28, 34; 32, 34; 36, 34) and the `md1 LeftHandSmash` that spawns the loot balloon (31, 36). The head's `MoveTo` points, absolute map positions, moved with it (37.5, 32.5 and 27.5, 36, were 13.5, 8.5 and 3.5, 5). The Lava Makers no longer lay Earth Light when they go (their first state's exit puts back the ground they covered). The loot balloon is spawned with `spawnedByBehav: false` (a behaviour's minions drop no loot, `Loot.Handle`, so it had dropped nothing) and drops the Realm Portal, as the Shatters' chests do; the head's, which died in the lava, is gone. The Skull of Endless Torment is a 1% roll above 1% of the damage (was certain). The "Lair of Shaitan New Auru" world is gone; its portal object (0x5709) opens the Lair of Shaitan. Tested on an isolated stack with `/smite`: both hand phases, the head's 80, 60, 40 and 20% phases, its death, the balloon's loot and the portal.
 - **Avatar of the Forgotten King's arena** (`ShtrsDefenseSystem.cs`, `worlds/Setpieces/Shtrs Defense System.jm`, `RealmManager` events, `ISetPiece.RenderSetPiece`, `BehaviorDb.Avatar.cs`): the Avatar (`shtrs Defense System`) fights in Aurusenth's arena set piece (32 by 32), which every realm gets once and the realm event now places too (it was `null`, so the event Avatar came alone). The Avatar's `PlaceMap(spawn.jm)` and `PlaceMapAtDeath(death.jm)` are gone: the first laid a plain 31 by 25 floor over the arena with four more Killer Pillars beside the arena's own, and the Pillars phase waited for all eight; the second laid it again at its death. The eight blobomb makers its "Blobs, attack!" phase orders are in the arena map now, where `spawn.jm` put them. Map set pieces (this and Kage Kami) were drawn centred on the corner of the square kept for them (`Wmap.ProjectOntoWorld` centres, callers pass the corner); `ISetPiece.RenderSetPiece` now passes the square's middle. `ShtrsDefenseSystem` reads the map from `GetWorldData` like Kage Kami (it read the file itself, with a floor-only fallback, and claimed a 60-tile square). Tablet of the King's Avatar 0.5% (was 5%; the other realm event untiered items are 0.3 to 0.4%). State names with slurs in them are renamed. Tested on an isolated stack with `/setpiece` and `/smite`: every phase, the blobombs, the pillars, its loot and The Shatters portal.
 - **Where players arrive** (`World.GetPlayerSpawnPosition`, used by `LoadHandler` and `CreateMessageHandler`): the centre of a random `Spawn` tile, not its corner (on a spawn tile beside a wall, as in Oryx's Chamber's alcoves, the corner left the player half inside the wall, where the client wouldn't let them walk), preferring tiles that are passable (`IsPassable(..., spawning: true)`: no trees or other `OccupySquare` objects) and then ones with nothing on them (Oryx's Chamber has Nexus Portals on spawn tiles). A map with no spawn tiles gets the open tile nearest its centre instead of (0, 0); Cnidarian Reef, which had none, has ten at the south of its arena (`worlds/Dungeons/Cnidarian Reef.jm`).
+- **Imprints and the Enchanter** (`Shared/resources/Imprints.cs`, `core/net/handlers/ImprintHandlers.cs`,
+  `core/objects/player/Player.Imprints.cs`; the client's copy `client-rs/crates/data/src/imprint.rs`,
+  its window `client-rs/app/src/forge/imprints.rs`): every weapon, ability, armour and ring has an
+  Offensive, a Defensive and a Misc imprint slot, kept in the item's data (`ItemData.Imprints`, so
+  they travel with it through bags, the vault, trades and the market). The Enchanter (class
+  `Enchanter`, beside the Divine Forge) imprints an inventory slot for an Ascended shard from the
+  forge storage or the inventory (messages 109-111); while they're tested only rank 6 (admin)
+  accounts can imprint (`ImprintHandler.MinRank`). Imprints work only on the equipped item:
+  stats in `BoostStatManager`; the weapon's damage as whole-percent steps on the roll, range as a
+  lifetime, piercing, the gathered bow shot and the Battle Mage bolts (an object's projectile,
+  `Battle Mage Bolt`, shot beside the wand's) worked out the same on both sides (`ImprintShot`,
+  `imprint::Shot`); hits, kills, wisps and Last Breath on the server. Keep the two catalogues in
+  step; the wiki reads the server's.
+- **Alternating projectiles** (`<AlternateProjectiles/>`, the Enthroned weapons): a weapon's volleys
+  take its projectiles in turn. Client and server each count the weapon's volleys (the server every
+  PlayerShoot of slot 0 with a new time, taken or not), and both roll the picked projectile's damage.
+- **Enthroned gear** (`tools/build_ascended_items.py`): no longer placeholders; each has the numbers of
+  the item it's forged from, and the weapons fly Oryx 5's own shots (drawn by the script), two kinds
+  taking turns. Dropped (`InvDropHandler`) they go in a soulbound bag only their owner sees, and
+  they only go into loot bags of their owner's alone.
+- **T16 armours in the forge:** each from its slot's T15 armour and an Ascended Armor Shard for 2,000
+  fame (`ForgeRecipes.Ascended`; `NotChained` keeps two T15s from making one). The wiki no longer
+  calls them Doomed Realms items (`wiki_data.OWN_IN_DOOMED`).
+- **The forge hall** (`tools/build_castle_maps.py`): the class memorial's ring of graves is gone; the
+  Divine Forge (redrawn: six frames from the owner's art, `tools/draw_forge_sprite.py --forge`) and
+  the Enchanter stand side by side in a walled hall with its door to the east. The forge window lost
+  its locked Enchant tab; the Enchanter opens the same window as "Enchanter", with its Imprints tab.
 
 ## Content ported from Doomed Realms
 

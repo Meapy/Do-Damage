@@ -561,6 +561,21 @@ pub fn slot_stat(slot: u8) -> u8 {
     }
 }
 
+/// The stat holding inventory slot `slot`'s item data (its imprints): `INVDATA0`-`11`, then
+/// `BACKPACKDATA0`-`7`. A bag's slots are 0-7.
+pub fn slot_data_stat(slot: u8) -> u8 {
+    match slot {
+        0..=11 => 122 + slot,
+        12..=19 => 134 + slot - 12,
+        _ => stat::NONE,
+    }
+}
+
+/// The imprints on the item in an object's slot.
+pub fn slot_imprints(o: &GameObj, slot: u8) -> [u8; 3] {
+    bsk_data::imprint::parse(o.stat_str(slot_data_stat(slot)).unwrap_or(""))
+}
+
 /// The health and magic potions kept in stacks (`PotionInventoryModel`): item, slot id.
 pub const POTIONS: [(i32, u8); 2] = [(2594, 254), (2595, 255)];
 
@@ -592,6 +607,8 @@ pub struct Slot {
     pub index: u8,
     pub item: i32,
     pub kind: SlotKind,
+    /// The item's imprints (`bsk_data::imprint`), by kind: 0 for none.
+    pub imprints: [u8; 3],
     rect: [f32; 4],
 }
 
@@ -823,7 +840,8 @@ pub mod merch {
     pub const RANK_REQ: u8 = 45;
 }
 
-/// How near the Divine Forge its window can be opened, in tiles (the server allows 5).
+/// How near the Divine Forge (or the Enchanter) its window can be opened, in tiles (the server
+/// allows 5).
 pub const FORGE_REACH: f64 = 3.0;
 
 /// Whether objects of this description are sold where they stand.
@@ -857,7 +875,8 @@ pub fn interact_target(world: &World, data: &GameData) -> Option<Interact> {
                 return None;
             };
             let dist = (o.x - me.x).hypot(o.y - me.y);
-            let reach = if matches!(kind, InteractKind::Npc { kind: crate::npc::NpcKind::Forge, .. }) { FORGE_REACH } else { 1.0 };
+            let big = matches!(kind, InteractKind::Npc { kind: crate::npc::NpcKind::Forge | crate::npc::NpcKind::Enchanter, .. });
+            let reach = if big { FORGE_REACH } else { 1.0 };
             (dist < reach).then_some((dist, o, d, kind))
         })
         .min_by(|a, b| a.0.total_cmp(&b.0))
@@ -1058,7 +1077,14 @@ impl Panel {
         let equip = lay.equip_box();
         for i in 0..4u8 {
             let t = types.get(i as usize).copied().unwrap_or(0);
-            panel.slots.push(Slot { owner: me.id, index: i, item: item(me, i), kind: SlotKind::Equip(t), rect: grid_slot(equip, s, 4, i as u32) });
+            panel.slots.push(Slot {
+                owner: me.id,
+                index: i,
+                item: item(me, i),
+                kind: SlotKind::Equip(t),
+                imprints: slot_imprints(me, i),
+                rect: grid_slot(equip, s, 4, i as u32),
+            });
         }
         panel.has_backpack = me.stat_int(stat::HAS_BACKPACK).unwrap_or(0) != 0;
         let page = if panel.has_backpack { page } else { Page::Inventory };
@@ -1069,6 +1095,7 @@ impl Panel {
                 index: first + i,
                 item: item(me, first + i),
                 kind: SlotKind::Inventory(i + 1),
+                imprints: slot_imprints(me, first + i),
                 rect: grid_slot(lay.inventory_box(), s, 4, i as u32),
             });
         }
@@ -1082,6 +1109,7 @@ impl Panel {
                 index: *slot_id,
                 item: *potion,
                 kind: SlotKind::Potion(count),
+                imprints: [0; 3],
                 rect: grid_slot(lay.potion_box(), s, 2, k as u32),
             });
         }
@@ -1124,6 +1152,7 @@ impl Panel {
                             index: i,
                             item: item(bag, i),
                             kind: SlotKind::Container,
+                            imprints: slot_imprints(bag, i),
                             rect: grid_slot(ib, s, 4, i as u32),
                         });
                     }
@@ -1811,6 +1840,11 @@ fn draw_slot(ui: &mut Ui, lay: &Layout, slot: &Slot, dragged: bool, target: bool
         }
         _ => {}
     }
+    if !empty {
+        // past the number key in an inventory slot
+        let key_w = if let SlotKind::Inventory(_) = slot.kind { 10.0 * s } else { 0.0 };
+        draw_imprint_marks(ui, slot.imprints, x + 3.0 * s + key_w, y + 3.0 * s, s);
+    }
     if !empty && !matches!(slot.kind, SlotKind::Potion(_)) {
         let doses = ui.data.objects.get(&(slot.item as u16)).and_then(|d| d.xml.text_of("Doses").or(d.xml.text_of("Quantity")).map(str::to_owned));
         if let Some(n) = doses {
@@ -1818,6 +1852,37 @@ fn draw_slot(ui: &mut Ui, lay: &Layout, slot: &Slot, dragged: bool, target: bool
             ui.label(&n, x + w - nw - 4.0 * s, y + h - small * 1.3, small, true, color::TEXT);
         }
     }
+}
+
+/// An item's imprints as small squares in its colours, from (x, y): Defensive (green) and Misc
+/// (purple) side by side, Offensive (red) under the first. Only those it carries show.
+pub(crate) fn draw_imprint_marks(ui: &mut Ui, imprints: [u8; 3], x: f32, y: f32, s: f32) {
+    use bsk_data::imprint::Kind;
+    let size = (5.0 * s).max(3.0);
+    let step = size + 1.5 * s;
+    for (kind, (col, row)) in [(Kind::Defensive, (0.0, 0.0)), (Kind::Misc, (1.0, 0.0)), (Kind::Offensive, (0.0, 1.0))] {
+        if imprints[kind as usize] == 0 {
+            continue;
+        }
+        let r = [x + col * step, y + row * step, size, size];
+        theme::fill(ui.renderer, [r[0] - s, r[1] - s, r[2] + 2.0 * s, r[3] + 2.0 * s], 1.5 * s, 0x0a0710, 0.9);
+        theme::fill(ui.renderer, r, s, kind.color(), 1.0);
+    }
+}
+
+/// The Imprints section at the foot of an item's tooltip: each imprint's name in its colour and
+/// what it does.
+pub fn imprint_lines(imprints: [u8; 3]) -> Vec<Line> {
+    let mut lines = Vec::new();
+    for kind in bsk_data::imprint::Kind::ALL {
+        let Some(imp) = bsk_data::imprint::get(imprints[kind as usize] as i32) else { continue };
+        if lines.is_empty() {
+            lines.push(Line::new("Imprints", 13.0, true, color::GOLD));
+        }
+        lines.push(Line::new(&format!("{} ({})", imp.name, kind.name()), 12.0, true, kind.color()));
+        lines.push(Line::new(imp.description, 11.0, false, color::TEXT_DIM));
+    }
+    lines
 }
 
 /// The player's portrait (`Player.getPortrait`): the class (or skin) standing, dyed.
@@ -2044,7 +2109,9 @@ pub fn draw_overlay(ui: &mut Ui, lay: &Layout, world: &World, panel: &Panel, sta
     let Some(slot) = panel.slot_at(mouse) else { return };
     let me = world.player();
     let lines = if slot.item > 0 {
-        item_tooltip(ui.data, slot.item, me, slot.kind)
+        let mut lines = item_tooltip(ui.data, slot.item, me, slot.kind);
+        lines.extend(imprint_lines(slot.imprints));
+        lines
     } else {
         let text = match slot.kind {
             SlotKind::Equip(t) => format!("Empty {} Slot", slot_type_name(t)),

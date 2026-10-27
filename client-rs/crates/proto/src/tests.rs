@@ -266,6 +266,18 @@ fn forge_messages_match_forge_handlers() {
 }
 
 #[test]
+fn imprint_messages_match_imprint_handlers() {
+    // ImprintHandler reads the inventory slot, then the imprint's id; ImprintRequestHandler nothing.
+    let frame = ClientMessage::from(Imprint { slot: 4, imprint: 22 }).to_frame();
+    assert_eq!(frame, B::default().u8(4).u8(22).frame(110));
+    assert_eq!(ClientMessage::from(ImprintRequest {}).to_frame(), B::default().frame(109));
+    // ImprintResult.Write: success, slot, message.
+    let body = B::default().u8(0).u8(5).utf("No shard.").0;
+    let ServerMessage::ImprintResult(r) = ServerMessage::decode(111, &body).unwrap() else { panic!() };
+    assert_eq!((r.success, r.slot, r.message.as_str()), (false, 5, "No shard."));
+}
+
+#[test]
 fn quest_messages_match_quest_handlers() {
     // QuestsData.Write: now, rank, points, colour rank, ranks (name, points, colour), periods
     // (period, resets, swaps left, bonus claimed, bonus), quests (period, id, title, text,

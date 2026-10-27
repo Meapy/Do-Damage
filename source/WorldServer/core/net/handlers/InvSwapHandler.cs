@@ -259,6 +259,9 @@ namespace WorldServer.core.net.handlers
                             return false;
                     }
             }
+            // Oryx 5's own gear (Item.Ascended) only into a loot bag its owner alone sees, as it drops
+            if (item != null && item.Ascended && container is Container bag && bag.DbLink == null && !IsSoleContainerOwner(player, container))
+                return false;
             return container == player || item == null || !item.Untradeable || IsSoleContainerOwner(player, container);
         }
 

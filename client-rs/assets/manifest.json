@@ -1274,6 +1274,12 @@
    "h": 32
   },
   {
+   "name": "imprintFx8x8",
+   "file": "kabam/rotmg/assets/custom/images/ImprintFx8x8.png",
+   "w": 8,
+   "h": 8
+  },
+  {
    "name": "questNpcs16x16",
    "file": "kabam/rotmg/assets/custom/images/QuestNpcs16x16.png",
    "w": 16,

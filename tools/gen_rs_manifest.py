@@ -32,8 +32,9 @@ EMOTES = "kabam/rotmg/emotes/Emotes.as"
 EMOTES_XML = "kabam/rotmg/assets/custom/xmls/EmotesXML.xml"
 # (name, file, cell width, cell height): sheets the AIR client doesn't register
 RS_ONLY_SETS = [
-    # the Divine Forge (tools/draw_forge_sprite.py)
+    # the Divine Forge and the Enchanter, and the imprints' wisps and bolt (tools/draw_forge_sprite.py)
     ("customAssets32x32", "kabam/rotmg/assets/custom/images/CustomAssets32x32.png", 32, 32),
+    ("imprintFx8x8", "kabam/rotmg/assets/custom/images/ImprintFx8x8.png", 8, 8),
     # the Tinkerer and the Chronicler, the quest NPCs (tools/draw_quest_npcs.py)
     ("questNpcs16x16", "kabam/rotmg/assets/custom/images/QuestNpcs16x16.png", 16, 16),
     # Oryx's Inferno's burnt sanctuary tiles and portal (tools/build_hash_cellar.py)

@@ -2,6 +2,7 @@
 //! the AIR client reads them. Later files replace earlier entries of the same type, as there.
 
 pub mod animation;
+pub mod imprint;
 pub mod ground;
 pub mod model;
 pub mod object;

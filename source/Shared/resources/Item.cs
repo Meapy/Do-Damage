@@ -25,6 +25,12 @@ namespace Shared.resources
         public ActivateEffect[] OnPlayerPassiveActivateEffects;
         public ActivateEffect[] OnEnemyHitActivateEffects;
         public float ArcGap;
+        // its volleys take turns with its projectiles, in order (the Enthroned weapons): the client
+        // counts its volleys as Player.NoteWeaponShot does
+        public bool AlternateProjectiles;
+        // Oryx 5's own gear, made by the Divine Forge from his top tier and an Ascended shard
+        // (tools/build_ascended_items.py): dropped, it goes in a bag only its owner sees
+        public bool Ascended;
         public bool Backpack;
         public int BagType;
         public string Class;
@@ -114,6 +120,8 @@ namespace Shared.resources
             FameBonus = e.GetValue<int>("FameBonus");
             NumProjectiles = e.GetValue("NumProjectiles", 1);
             ArcGap = e.GetValue("ArcGap", 11.25f);
+            AlternateProjectiles = e.HasElement("AlternateProjectiles");
+            Ascended = e.HasElement("Ascended");
             MpCost = e.GetValue<int>("MpCost");
             Cooldown = e.GetValue("Cooldown", 0.5f);
             Doses = e.GetValue<int>("Doses");

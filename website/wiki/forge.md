@@ -13,8 +13,9 @@ tier below, and the rest are special recipes, most of them from Doomed Realms.
 
 ## Using the forge
 
-1. Go to the Nexus's south yard, west of the Arena portal. The forge stands in the middle of the
-   class memorial, on a floor of gold.
+1. Go to the Nexus's south yard, west of the Arena portal, and through the door of the forge hall.
+   The forge stands on the left on a floor of gold; the Enchanter, which puts imprints on gear,
+   stands beside it (see [Imprints](imprints.html)).
 2. Stand by it: the bottom of your HUD says "Forge items, or sell them for fame". Press **Open**.
 3. Browse the recipes by what they make (weapons, abilities, armor, rings, the rest, then by kind),
    narrow them to **UT** (untiered gear, the Ascended items first) or **Highest tier** (the top tier
@@ -37,7 +38,9 @@ Only your own vault chests count, not the shared chests in the Nexus.
 
 Every tiered item can be forged from **two of the tier below**, of the same kind: two tier 10
 swords make a tier 11 sword, two Rings of Attack a Ring of Greater Attack (rings go by their stat).
-The forge never makes something nothing drops, so the top tiers of some kinds aren't there.
+The forge never makes something nothing drops, so the top tiers of some kinds aren't there. The
+**tier 16 armours** are the exception: each comes from the tier 15 armour of its kind and an
+Ascended Armor Shard, for 2,000 fame (they're under Armor in [Other recipes](#other-recipes)).
 
 {{gen:forge_example}}
 
@@ -70,18 +73,32 @@ Amulet are gone: nothing drops them, and the forge neither takes nor buys them.
 Oryx the Ascended God's own gear, which he never drops: untiered items with a red slot edge, which
 the forge makes from an item of the highest tier he drops and an Ascended shard of its kind. Each
 weapon and armour comes from its own kind's top item (a tier 15 dagger makes the Enthroned Dagger)
-and looks like it, with purple sparkles. All are named **Enthroned**: the Enthroned Sword, Dagger,
+and looks like it, with purple sparkles. Each has the numbers of the item it's forged from: its
+stats, its ability and its shots' damage. All are named **Enthroned**: the Enthroned Sword, Dagger,
 Bow, Wand, Katana, Dual Blades, Fists, Hide and Plate. His own pieces: the **Enthroned Spear**, a
 staff drawn after the one he holds, from his **Elysian Staff**; the **Enthroned Robe** from his
 **Robe of Absolution**, the **Enthroned Helm** from any tier 8 ability, and the **Enthroned Boots** and the
 **Enthroned Rings of Wrath and Grace** from any tier 8 ring.
 
-> These are **placeholders** with no numbers yet: their weapons hit for 0, and they give no stats or
-> ability effects. They'll get their own numbers later.
+The Enthroned weapons fire **Oryx's own shots**, in the same pattern as the weapon they're forged
+from, and their volleys take turns between two of them:
+
+- the **Sword** and **Dagger**: a gold shot with the weapon's own damage, then a silver one that
+  pierces, for a little less;
+- the **Bow**, **Wand**, **Katana** and **Fists**: a silver shot as the weapon's own, then a gold one
+  that ignores defense;
+- the **Dual Blades**: silver shots, then gold ones that leave the enemy bleeding (300 damage over
+  3 seconds);
+- the **Enthroned Spear**, his staff: two shots weaving like a staff's, yellow bolts as strong as a
+  tier 15 staff's (105-140), then white ones that pierce (85-115).
+
+Dropped from your inventory, an Enthroned item goes into a **purple bag only you can see**, and it
+only goes into loot bags that are yours alone.
 
 {{gen:forge_ascended}}
 
-The **Enchant** tab beside Forge is locked: enchanting comes in a later update.
+Enchanting has moved to its own place: the **Enchanter** beside the forge puts **imprints** on gear
+(see [Imprints](imprints.html)).
 
 ## Other recipes
 

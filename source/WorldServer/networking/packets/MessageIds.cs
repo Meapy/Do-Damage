@@ -130,6 +130,12 @@ public enum MessageId : byte
     QUEST_RESULT = 106,
     QUEST_NOTICE = 107,
     QUEST_PROGRESS = 108,
+    // The Enchanter's window (Rust client, ImprintHandlers.cs): the client asks for the forge
+    // storage's shards (answered with FORGE_SHARDS), imprints an inventory slot's item and gets
+    // IMPRINT_RESULT. The AIR client and older Rust clients never send them.
+    IMPRINT_REQUEST = 109,
+    IMPRINT = 110,
+    IMPRINT_RESULT = 111,
     // From the world proxy (tools/world_proxy.py), before the client's first message: the
     // client's address. Only taken on a connection from this PC; clients never send it.
     PROXY_INFO = 250

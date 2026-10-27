@@ -27,6 +27,11 @@ namespace WorldServer.core.objects
             public readonly DamageType DamageType;
             public readonly ProjectileDesc ProjectileDesc;
             public readonly bool Spawned;
+            // how long it flies and whether it pierces: its description's, unless the weapon's
+            // imprints change them (ImprintShot); and whether the weapon (slot 0) fired it
+            public int LifetimeMS;
+            public bool MultiHit;
+            public bool FromWeapon;
 
             public ValidatedProjectile(int objectId, int bulletId, Position startPos, float angle, int containerType, int damage, DamageType damageType, ProjectileDesc projectileDesc, bool spawned)
             {
@@ -43,6 +48,8 @@ namespace WorldServer.core.objects
 
                 ProjectileDesc = projectileDesc;
                 Spawned = spawned;
+                LifetimeMS = (int)projectileDesc.LifetimeMS;
+                MultiHit = projectileDesc.MultiHit;
             }
 
             public bool Disabled { get; set; }

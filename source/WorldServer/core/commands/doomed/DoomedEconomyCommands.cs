@@ -25,14 +25,17 @@ namespace WorldServer.core.commands.doomed
 
         public const string UseTheForge = "Forging and selling for fame have moved to the Divine Forge, in the Nexus's south yard west of the Arena portal: stand by it and open its window.";
 
-        // The map holds the forge as a tile's object (it's static), so look at the tiles around.
-        public static bool NearForge(Player player)
+        public static bool NearForge(Player player) => NearObject(player, ForgeClass);
+
+        // The map holds the forge (and the Enchanter beside it) as a tile's object (it's static), so
+        // look at the tiles around.
+        public static bool NearObject(Player player, string objectClass)
         {
             var map = player.World.Map;
             var r = (int)MathF.Ceiling(ForgeReach);
             for (var y = (int)player.Y - r; y <= (int)player.Y + r; y++)
                 for (var x = (int)player.X - r; x <= (int)player.X + r; x++)
-                    if (map.Contains(x, y) && map[x, y].ObjDesc?.Class == ForgeClass &&
+                    if (map.Contains(x, y) && map[x, y].ObjDesc?.Class == objectClass &&
                         MathF.Sqrt((x + 0.5f - player.X) * (x + 0.5f - player.X) + (y + 0.5f - player.Y) * (y + 0.5f - player.Y)) <= ForgeReach)
                         return true;
             return false;

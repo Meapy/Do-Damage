@@ -3,6 +3,7 @@
 
 use crate::condition::{self, has};
 use crate::{World, NO_TILE};
+use bsk_data::imprint;
 use bsk_data::{GameData, ObjectClass, ProjectileDesc};
 use std::collections::HashSet;
 use std::f64::consts::PI;
@@ -21,6 +22,8 @@ const UNCONFIRMED_KILL_MS: i32 = 1000;
 
 const STAT_HP: u8 = 1;
 const STAT_INVENTORY_0: u8 = 8;
+/// `INVDATA0`: the weapon's item data (its imprints).
+const STAT_INVENTORY_DATA_0: u8 = 122;
 const STAT_ATTACK: u8 = 20;
 const STAT_DEFENSE: u8 = 21;
 const STAT_DEXTERITY: u8 = 28;
@@ -43,6 +46,10 @@ pub struct Projectile {
     pub x: f64,
     pub y: f64,
     pub z: f64,
+    /// How long it flies, when the weapon's imprints change it (else its description's), and
+    /// whether they stop it piercing.
+    pub life: Option<i32>,
+    pub no_pierce: bool,
     hit: HashSet<i32>,
 }
 
@@ -133,6 +140,8 @@ impl Projectile {
             x,
             y,
             z: 0.5,
+            life: None,
+            no_pierce: false,
             hit: HashSet::new(),
         }
     }
@@ -228,17 +237,55 @@ impl World {
         let Some(weapon) = (weapon_type > 0).then(|| data.objects.get(&(weapon_type as u16))).flatten() else {
             return vec![];
         };
-        let attack_period =
-            1.0 / self.attack_frequency(player.stat_int(STAT_DEXTERITY).unwrap_or(0), conditions) * (1.0 / weapon.rate_of_fire());
+        let imprints = imprint::Shot::of(
+            imprint::parse(player.stat_str(STAT_INVENTORY_DATA_0).unwrap_or("")),
+            weapon.xml.int("SlotType", 0),
+            weapon.num_projectiles(),
+        );
+        let attack_period = 1.0 / self.attack_frequency(player.stat_int(STAT_DEXTERITY).unwrap_or(0), conditions)
+            * (1.0 / (weapon.rate_of_fire() * imprints.rate_mult));
         if (time as f64) < player.attack_start as f64 + attack_period {
             return vec![];
         }
         let att_mult = self.attack_multiplier(player.stat_int(STAT_ATTACK).unwrap_or(0), conditions);
-        let shots = self.do_shoot(time, weapon_type, angle, att_mult, last_move, data);
+        // a weapon whose volleys alternate fires its projectiles in turn
+        self.weapon_volleys += 1;
+        let alternate = weapon.xml.has("AlternateProjectiles") && weapon.projectiles.len() > 1;
+        let bullet_type = if alternate { (self.weapon_volleys - 1).rem_euclid(weapon.projectiles.len() as i32) } else { 0 };
+        let mut shots = self.do_shoot_with(time, weapon_type, bullet_type, angle, att_mult, last_move, data, Some(&imprints));
+        // the Battle Mage's bolts: two beside the shot, at 40% of the wand's rate
+        if imprints.battle_mage && self.last_bolts.is_none_or(|t| time as f64 >= t as f64 + attack_period / imprint::BATTLE_MAGE_RATE) {
+            if let Some(&bolt) = data.object_ids.get(imprint::BATTLE_MAGE_BOLT) {
+                self.last_bolts = Some(time);
+                let arc = imprint::BATTLE_MAGE_ARC * PI / 180.0;
+                for a in [angle - arc, angle + arc] {
+                    shots.extend(self.bolt(time, bolt, a, last_move, data));
+                }
+            }
+        }
         if let Some(player) = self.objects.get_mut(&me) {
             player.note_attack(time, angle);
         }
         shots
+    }
+
+    /// A Battle Mage bolt: its object's projectile, its damage rolled as the server rolls it, with
+    /// no attack multiplier.
+    fn bolt(&mut self, time: i32, bolt: u16, angle: f64, last_move: i32, data: &GameData) -> Option<Projectile> {
+        let me = self.me?;
+        let player = self.objects.get(&me)?;
+        let desc = data.objects.get(&bolt)?.projectiles.get(&0)?;
+        let (px, py) = (player.x, player.y);
+        let speed_mult = if has(player.conditions(), condition::INSPIRED) { 1.25 } else { 1.0 };
+        let bullet_id = self.next_bullet_id;
+        self.next_bullet_id += 1;
+        let mut damage = self.random.next_int_range(desc.min_damage as u32, desc.max_damage as u32) as i32;
+        if time > last_move + 600 {
+            damage = 0;
+        }
+        let p = Projectile::new(me, bullet_id, bolt, 0, angle, time, px + angle.cos() * 0.3, py + angle.sin() * 0.3, speed_mult, damage, false);
+        self.projectiles.push(p.clone());
+        Some(p)
     }
 
     /// The shots of an ability that has `<Activate>Shoot</Activate>` (`Player.useAltWeapon`):
@@ -247,33 +294,52 @@ impl World {
     pub fn shoot_ability(&mut self, time: i32, item_type: i32, angle: f64, last_move: i32, data: &GameData) -> Vec<Projectile> {
         let Some(player) = self.player() else { return vec![] };
         let att_mult = self.attack_multiplier(player.stat_int(STAT_ATTACK).unwrap_or(0), player.conditions());
-        self.do_shoot(time, item_type, angle, att_mult, last_move, data)
+        self.do_shoot_with(time, item_type, 0, angle, att_mult, last_move, data, None)
     }
 
     /// `Player.doShoot`: the item's projectiles fanned around `angle`, each rolling its damage.
-    fn do_shoot(&mut self, time: i32, item_type: i32, angle: f64, att_mult: f64, last_move: i32, data: &GameData) -> Vec<Projectile> {
+    /// The weapon's imprints, if any, change their damage (on the roll, as the server does), their
+    /// number, how far they fly and whether they pierce.
+    #[allow(clippy::too_many_arguments)]
+    fn do_shoot_with(
+        &mut self,
+        time: i32,
+        item_type: i32,
+        bullet_type: i32,
+        angle: f64,
+        att_mult: f64,
+        last_move: i32,
+        data: &GameData,
+        imprints: Option<&imprint::Shot>,
+    ) -> Vec<Projectile> {
         let Some(me) = self.me else { return vec![] };
         let Some(player) = self.objects.get(&me) else { return vec![] };
         let Some(item) = data.objects.get(&(item_type as u16)) else { return vec![] };
-        let Some(desc) = item.projectiles.get(&0) else { return vec![] };
+        let Some(desc) = item.projectiles.get(&bullet_type) else { return vec![] };
         let (px, py) = (player.x, player.y);
         let speed_mult = if has(player.conditions(), condition::INSPIRED) { 1.25 } else { 1.0 };
         let (min, max) = (desc.min_damage, desc.max_damage);
-        let num = item.num_projectiles();
+        let num = imprints.map_or(item.num_projectiles(), |i| i.num_projectiles(item.num_projectiles()));
         let arc_gap = item.arc_gap_degrees() * PI / 180.0;
         let mut a = angle - arc_gap * (num - 1) as f64 / 2.0;
         let mut shots = Vec::new();
         for _ in 0..num {
             let bullet_id = self.next_bullet_id;
             self.next_bullet_id += 1;
-            let roll = self.random.next_int_range(min as u32, max as u32);
+            let roll = self.random.next_int_range(min as u32, max as u32) as i32;
+            let roll = imprints.map_or(roll, |i| i.damage(roll));
             // uint × Number assigned to an int: truncated.
             let mut damage = (roll as f64 * att_mult) as i32;
             if time > last_move + 600 {
                 damage = 0;
             }
             let (sx, sy) = (px + angle.cos() * 0.3, py + angle.sin() * 0.3);
-            let p = Projectile::new(me, bullet_id, item_type as u16, 0, a, time, sx, sy, speed_mult, damage, false);
+            let mut p = Projectile::new(me, bullet_id, item_type as u16, bullet_type, a, time, sx, sy, speed_mult, damage, false);
+            if let Some(i) = imprints {
+                let life = i.lifetime(desc.speed, desc.lifetime);
+                p.life = (life != desc.lifetime).then_some(life);
+                p.no_pierce = i.no_pierce;
+            }
             shots.push(p.clone());
             self.projectiles.push(p);
             a += arc_gap;
@@ -300,7 +366,7 @@ impl World {
     fn step_projectile(&mut self, p: &mut Projectile, time: i32, data: &GameData, hits: &mut Vec<Hit>) -> bool {
         let Some(desc) = self.projectile_desc(p, data) else { return false };
         let elapsed = time - p.start_time;
-        if elapsed > desc.lifetime {
+        if elapsed > p.life.unwrap_or(desc.lifetime) {
             return false;
         }
         let (x, y) = p.position_at(desc, elapsed);
@@ -355,11 +421,11 @@ impl World {
                         t.dead_at = time;
                     }
                 }
-            } else if !desc.multi_hit {
+            } else if !desc.multi_hit || p.no_pierce {
                 hits.push(Hit::Other { time, bullet_id: p.bullet_id, owner_id: p.owner_id, target_id });
             }
         }
-        if desc.multi_hit {
+        if desc.multi_hit && !p.no_pierce {
             p.hit.insert(target_id);
             true
         } else {
