@@ -458,6 +458,8 @@ BAG_TYPES = {
     "Potion of Oryx": 7, "Potion of Power": 7,
     "Potion of Max Life": 6,
     "Sphinx Leather Armor": 6, "Armor of the Pyramid": 6, "Robe of the Nile": 6,
+    # Oryx 4 and 5's pet (it had no bag: the donor shop sold it)
+    "Lil' Oryx Generator": 6,
 }
 
 
@@ -492,8 +494,8 @@ UNOBTAINABLE_ITEMS = ["Ring of Oryx", "Oryx Hide Armor", "Oryx Hide Robe", "Oryx
                       # the Forge Amulet (the forge no longer takes it) and the Burning Amulet
                       "Shattered Rune of Oryx", "Broken Oryx Armor", "Purified Doom Saliva", "Forge Amulet",
                       "Burning Amulet"]
-# loot in a private bag (the T16 armours, as the T15s they top)
-SOULBOUND_ITEMS = ["Sphinx Leather Armor", "Armor of the Pyramid", "Robe of the Nile"]
+# loot in a private bag (the T16 armours, as the T15s they top, and Oryx 4 and 5's pet)
+SOULBOUND_ITEMS = ["Sphinx Leather Armor", "Armor of the Pyramid", "Robe of the Nile", "Lil' Oryx Generator"]
 DESCRIPTIONS = {
     # the Lair of Draconis's four relics (BehaviorDb.Draconis.cs), the Elder key's recipe
     "Black Dragon Gods Blade": "A shard of Feargus the Obsidian Dragon, dropped in the Lair of Draconis."
@@ -512,6 +514,9 @@ DESCRIPTIONS = {
                                  "now and then tear loose a small dark orb that zaps whatever is near.",
     "Doom Poison": "Brimstone from the deepest fires of Oryx's Inferno. It curses all it burns, but its fumes "
                    "leave the one who throws it silenced for a moment.",
+    "Lil' Oryx Generator": "Every evil boss creates miniature versions of himself. It's just something they do. "
+                           "Using it gives you Lil' Oryx for good, and uses it up. Oryx the Infernal Mad God and "
+                           "Oryx the Ascended God drop it.",
     "America Sword": "Rewarded by DODMG: America!",
     "America Shield": "Rewarded by DODMG: America!",
     "Sphinx Leather Armor": "Leather cut from the open sky over Oryx's Elysium, light as a cloud and as hard to strike. "
@@ -851,6 +856,8 @@ def fix_doomed_data(dr):
     tune_classes(dr)
     for oid, bag in BAG_TYPES.items():
         o = dr.get(oid)
+        if o is not None and o.find("BagType") is None and o.find("Description") is not None:
+            o.insert(list(o).index(o.find("Description")) + 1, ET.Element("BagType"))
         if o is not None and o.find("BagType") is not None:
             o.find("BagType").text = str(bag)
     for oid, (stat, stored, text) in ITEM_STORE.items():

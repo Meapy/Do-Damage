@@ -47,7 +47,7 @@ MAX_BOSS_ATTACKS = 4
 MIN_COOLDOWN = 300
 # Pet sizes: every sized pet heals its owner's HP and MP by the same amount, replacing Doomed Realms'
 # healing (name: (amount, every how many ms)). Its attacks are as before.
-PET_SIZES = {"Small": (15, 2000), "Medium": (30, 2000), "Large": (45, 1500), "Admin": (200, 800)}
+PET_SIZES = {"Small": (15, 2000), "Medium": (30, 2000), "Large": (45, 1500), "Oryx": (60, 1500)}
 # the pet shop's critters and pets like them
 SMALL_PETS = {
     "Black Cat (Doomed)", "Grey Cat (Doomed)", "Orange Cat (Doomed)", "Tan Cat (Doomed)", "Yellow Cat (Doomed)",
@@ -82,8 +82,8 @@ LARGE_PETS = {
     # the strongest of the pets with shots of their own
     "Cookiee", "Nightmareee",
 }
-# admins' own pets: their generators are marked <Admin/>, so they can't be traded
-ADMIN_PETS = {"Lil' Oryx (Doomed)"}
+# Oryx 4 and 5's pet, a little above the boss pets (it was an admin pet, 200 every 0.8 s)
+ORYX_PETS = {"Lil' Oryx (Doomed)"}
 # Set by hand, after the port (apply_pet_changes):
 # A pet's attacks, in place of the ones the port found, as written in BehaviorDb.DoomedPets.cs:
 # PetShoot(range, count, degrees between shots, offset, projectile id, cooldown ms), each volley aimed
@@ -162,7 +162,7 @@ PET_PROJECTILES = {
 PET_TEXTURES = {"Scootaloo": "Scootaloo Generator"}
 # How big each size is drawn, in a character's heights (a character is an 8x8 sprite at Size 100): a
 # pet's <Size> is set from how much of its sprite's frame the picture covers (pet_draw_sizes).
-SIZE_HEIGHTS = {"Small": 0.6, "Medium": 0.85, "Large": 1.2, "Admin": 1.2}
+SIZE_HEIGHTS = {"Small": 0.6, "Medium": 0.85, "Large": 1.2, "Oryx": 1.2}
 # where pets' <Size> is written: the port's XML and betterSkillys' own pets
 PET_XMLS = ITEM_XMLS + [os.path.join(ROOT, "source", "Shared", "resources", "xml", "prod", "EmbeddedData_PermapetsCXML.xml"),
                         os.path.join(ROOT, "client", "src", "kabam", "rotmg", "assets", "prod", "xmls", "Permapets.xml")]
@@ -485,7 +485,7 @@ def write_pet_behaviors(dr_root, dr, chosen, bs, types):
 
 def pet_size(oid, boss):
     """The pet's size (a PET_SIZES key), or None to keep its Doomed Realms healing."""
-    for size, pets in (("Small", SMALL_PETS), ("Medium", MEDIUM_PETS), ("Large", LARGE_PETS), ("Admin", ADMIN_PETS)):
+    for size, pets in (("Small", SMALL_PETS), ("Medium", MEDIUM_PETS), ("Large", LARGE_PETS), ("Oryx", ORYX_PETS)):
         if oid in pets:
             return size
     return "Large" if boss else None
@@ -684,7 +684,7 @@ def apply_pet_changes(bs=None):
         f.write(text)
     annotate_generators(stats)
     write_pet_draw_sizes({oid: s["size"] for oid, s in stats.items() if s.get("size")})
-    unsized = sorted(oid for oid in stats if oid not in SMALL_PETS | MEDIUM_PETS | LARGE_PETS | ADMIN_PETS and stats[oid].get("size") is None)
+    unsized = sorted(oid for oid in stats if oid not in SMALL_PETS | MEDIUM_PETS | LARGE_PETS | ORYX_PETS and stats[oid].get("size") is None)
     print("%d pets sized; keeping their own healing: %s" % (sized, ", ".join(unsized) or "none"))
 
 
@@ -765,7 +765,7 @@ def annotate_generators(stats):
     """Puts each pet's damage per second (on one enemy) and healing on the PermaPet activates of
     the items that give it, for the item tooltips: petDps, petSize, petEffects (what else it does,
     "; " between), petHp / petMp ("min-max") and
-    petHpMs / petMpMs (every how many milliseconds). Admin pets' generators get <Admin/>."""
+    petHpMs / petMpMs (every how many milliseconds)."""
     for path in ITEM_XMLS:
         text = open(path, encoding="utf-8", newline="").read()
 
@@ -785,13 +785,6 @@ def annotate_generators(stats):
             return '<Activate objectId="%s"%s>PermaPet</Activate>' % (m.group(1), attrs)
 
         text = re.sub(r'<Activate objectId="([^"]*)"([^>]*)>PermaPet</Activate>', annotate, text)
-
-        def admin(m):
-            if 'petSize="Admin"' in m.group(0) and "<Admin" not in m.group(0):
-                return re.sub(r"(<Item\s*/>)(\r?\n)([ \t]*)", r"\1\2\3<Admin />\2\3", m.group(0), count=1)
-            return m.group(0)
-
-        text = re.sub(r"<Object [^>]*>.*?</Object>", admin, text, flags=re.S)
         with open(path, "w", encoding="utf-8", newline="") as f:
             f.write(text)
 

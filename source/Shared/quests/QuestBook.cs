@@ -254,6 +254,11 @@ namespace Shared.quests
             return !ps.BonusClaimed && ps.Quests.Count > 0 && ps.Quests.All(s => s.Claimed) && Data.BonusOf(p).Count > 0;
         }
 
+        // The gifts open now, claimed or not: the window lists them.
+        public IEnumerable<GiftDef> OpenGifts(DateTime now) => Data.Gifts.Where(g => g.Open(now));
+
+        public bool GiftClaimed(GiftDef g) => State.Gifts.Contains(g.Id);
+
         // How many rewards wait to be claimed (the HUD's badge, and the NPCs' greetings).
         public int ReadyCount(DateTime now)
         {
@@ -261,6 +266,7 @@ namespace Shared.quests
             n += Enum.GetValues(typeof(QuestPeriod)).Cast<QuestPeriod>().Count(BonusReady);
             n += LoginReady(now) ? 1 : 0;
             n += Data.Achievements.Count(a => State.Achievements.TryGetValue(a.Id, out var st) && Earned(a, st.Progress) > st.Claimed);
+            n += OpenGifts(now).Count(g => !GiftClaimed(g));
             return n;
         }
 
@@ -330,6 +336,20 @@ namespace Shared.quests
             });
             result.Message = $"{def.Title} ({Data.TierName(earned - 1)}) claimed!";
             return result;
+        }
+
+        // A gift, once per account while it's open.
+        public ClaimResult ClaimGift(string id, DateTime now)
+        {
+            var g = Data.Gift(id);
+            if (g == null || now < g.StartsAt)
+                return ClaimResult.Fail("There's no such gift.");
+            if (GiftClaimed(g))
+                return ClaimResult.Fail("You already claimed this gift.");
+            if (!g.Open(now))
+                return ClaimResult.Fail("That gift has ended.");
+            State.Gifts.Add(g.Id);
+            return new ClaimResult { Ok = true, Message = $"{g.Title} claimed!", Rewards = g.Rewards.ToList() };
         }
 
         // Swaps an unfinished quest for another of its period, a few times a period.

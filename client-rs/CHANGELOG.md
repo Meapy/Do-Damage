@@ -14,6 +14,16 @@ details). Add to a group's line when a change adds to it, rather than adding ano
 
 ## Unreleased
 
+### Items
+- Lil' Oryx now drops in a white bag from Oryx the Infernal Mad God (0.5%) and Oryx the Ascended
+  God (1%) instead of being sold, and can be traded. It heals 60 HP and MP every 1.5 seconds (was 200 every 0.8), and the
+  generator is used up when used; using it while Lil' Oryx is already your pet does nothing and
+  keeps it.
+
+### Quests
+- Gifts in the quest log: until 27 November, every account can claim one free Lil' Oryx
+  Generator on the Daily Rewards tab.
+
 ### Fixes
 - Closed several ways to cheat items and fame through the market, breaking items down and dropping
   items. Breaking an item down now works only on your own items or a bag beside you, and a quick

@@ -87,6 +87,9 @@ as well as its items.
 
 {{gen:quests_login}}
 
+Now and then there's a **gift** above the track for a while: a free item every account can claim
+once, before its countdown runs out. Until 27 November 2026 it's a Lil' Oryx Generator.
+
 ## Achievements
 
 There are {{v:quests_achievements}} achievements, each with {{v:quests_tiers}} tiers: Bronze,

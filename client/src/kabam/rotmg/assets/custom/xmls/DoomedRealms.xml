@@ -6320,16 +6320,17 @@
 		<DisplayId>Lil' Oryx</DisplayId>
 		<Class>Equipment</Class>
 		<Item />
-		<Admin />
 		<Texture>
 			<File>drLofiObj2</File>
 			<Index>0x5e</Index>
 		</Texture>
 		<SlotType>10</SlotType>
-		<Description>Every evil boss creates miniature versions of himself.  It's just something they do.</Description>
+		<Soulbound />
+		<Description>Every evil boss creates miniature versions of himself. It's just something they do. Using it gives you Lil' Oryx for good, and uses it up. Oryx the Infernal Mad God and Oryx the Ascended God drop it.</Description>
+		<BagType>6</BagType>
 		<Sound>spell/light_heal</Sound>
 		<Consumable />
-		<Activate objectId="Lil' Oryx (Doomed)" cooldown="10" petDps="2800" petSize="Admin" petHp="200" petHpMs="800" petMp="200" petMpMs="800">PermaPet</Activate>
+		<Activate objectId="Lil' Oryx (Doomed)" cooldown="10" petDps="2800" petSize="Oryx" petHp="60" petHpMs="1500" petMp="60" petMpMs="1500">PermaPet</Activate>
 		<OldSound>use_potion</OldSound>
 		<Shop>
 			<Name>donor</Name>

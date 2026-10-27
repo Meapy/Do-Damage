@@ -131,6 +131,29 @@ namespace Shared.quests
         public bool Counts(in QuestEvent e) => e.Type == Event && (Filter == null || Filter.Matches(e));
     }
 
+    // A gift for a while: every account can claim it once, from "from" to "until" (UTC days,
+    // "yyyy-MM-dd", both included; no "from" is from now on).
+    public sealed class GiftDef
+    {
+        public string Id { get; set; }
+        public string Title { get; set; }
+        public string Text { get; set; }
+        public string From { get; set; }
+        public string Until { get; set; }
+        public List<RewardDef> Rewards { get; set; } = new List<RewardDef>();
+
+        [JsonIgnore] public DateTime StartsAt => Day(From) ?? DateTime.MinValue;
+        // the midnight after its last day
+        [JsonIgnore] public DateTime EndsAt => Day(Until)?.AddDays(1) ?? DateTime.MinValue;
+
+        public bool Open(DateTime now) => now >= StartsAt && now < EndsAt;
+
+        private static DateTime? Day(string s) =>
+            DateTime.TryParseExact(s, "yyyy-MM-dd", System.Globalization.CultureInfo.InvariantCulture,
+                System.Globalization.DateTimeStyles.AdjustToUniversal | System.Globalization.DateTimeStyles.AssumeUniversal, out var d)
+                ? DateTime.SpecifyKind(d, DateTimeKind.Utc) : null;
+    }
+
     public sealed class RankDef
     {
         public int Points { get; set; }
@@ -156,6 +179,7 @@ namespace Shared.quests
         public List<List<RewardDef>> TierRewards { get; set; } = new List<List<RewardDef>>();
         public string[] TierNames { get; set; } = Array.Empty<string>();
         public List<RankDef> Ranks { get; set; } = new List<RankDef>();
+        public List<GiftDef> Gifts { get; set; } = new List<GiftDef>();
 
         public static readonly string[] PeriodNames = { "daily", "weekly", "monthly" };
 
@@ -174,6 +198,7 @@ namespace Shared.quests
 
         public QuestDef Quest(string id) => Quests.FirstOrDefault(q => q.Id == id);
         public AchievementDef Achievement(string id) => Achievements.FirstOrDefault(a => a.Id == id);
+        public GiftDef Gift(string id) => Gifts.FirstOrDefault(g => g.Id == id);
         public IEnumerable<QuestDef> Pool(QuestPeriod p) => Quests.Where(q => q.PeriodKind == p);
 
         public int TierPointsOf(int tier) => TierPoints.Length == 0 ? 0 : TierPoints[Math.Min(tier, TierPoints.Length - 1)];
@@ -239,6 +264,14 @@ namespace Shared.quests
                 Rewards($"login day {i + 1}", Login[i]);
             for (var i = 0; i < TierRewards.Count; i++)
                 Rewards($"tier {i + 1}", TierRewards[i]);
+            foreach (var g in Gifts)
+            {
+                if (g.EndsAt == DateTime.MinValue || g.From != null && g.StartsAt == DateTime.MinValue)
+                    problems.Add($"gift {g.Id}: its dates aren't yyyy-MM-dd");
+                Rewards($"gift {g.Id}", g.Rewards);
+            }
+            foreach (var dup in Gifts.GroupBy(g => g.Id).Where(g => g.Count() > 1))
+                problems.Add($"gift id {dup.Key} is used twice");
             foreach (QuestPeriod p in Enum.GetValues(typeof(QuestPeriod)))
                 if (Pool(p).Select(q => q.Group ?? q.Id).Distinct().Count() < SlotsOf(p))
                     problems.Add($"{Name(p)}: fewer quest groups than slots");

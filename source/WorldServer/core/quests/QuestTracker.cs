@@ -20,7 +20,7 @@ namespace WorldServer.core.quests
     // nothing else writes the field meanwhile.
     public sealed class QuestTracker
     {
-        public const byte CLAIM_QUEST = 0, CLAIM_BONUS = 1, CLAIM_LOGIN = 2, CLAIM_ACHIEVEMENT = 3, SWAP = 4, COLOR = 5;
+        public const byte CLAIM_QUEST = 0, CLAIM_BONUS = 1, CLAIM_LOGIN = 2, CLAIM_ACHIEVEMENT = 3, SWAP = 4, COLOR = 5, CLAIM_GIFT = 6;
 
         private static QuestData _data;
         private static readonly object DataLock = new object();
@@ -254,6 +254,7 @@ namespace WorldServer.core.quests
                     CLAIM_ACHIEVEMENT => Book.ClaimAchievement(id),
                     SWAP => Book.Reroll(id, now),
                     COLOR => int.TryParse(id, out var rank) ? Book.ChooseColor(rank) : ClaimResult.Fail("No such rank."),
+                    CLAIM_GIFT => Book.ClaimGift(id, now),
                     _ => ClaimResult.Fail("Unknown request."),
                 };
             if (result.Ok)
@@ -282,6 +283,7 @@ namespace WorldServer.core.quests
             CLAIM_LOGIN => "collected the daily reward",
             CLAIM_ACHIEVEMENT => "claimed achievement",
             SWAP => "swapped quest",
+            CLAIM_GIFT => "claimed gift",
             _ => "chose name colour",
         };
 
@@ -389,6 +391,16 @@ namespace WorldServer.core.quests
                     NextRewards = st.Claimed < a.Tiers.Length ? Rewards(data.TierRewardsOf(st.Claimed)) : new List<QuestReward>(),
                 });
             }
+            foreach (var g in Book.OpenGifts(now))
+                msg.Gifts.Add(new QuestGiftInfo
+                {
+                    Id = g.Id,
+                    Title = g.Title,
+                    Text = g.Text ?? "",
+                    EndsAt = QuestPeriods.Unix(g.EndsAt),
+                    Claimed = Book.GiftClaimed(g),
+                    Rewards = Rewards(g.Rewards),
+                });
             _player.Client.SendPacket(msg);
         }
 

@@ -24,8 +24,10 @@ looks next to you, and the generator's tooltip says which it is.
 | Medium | 30 each, every 2 seconds | a little shorter than you | monsters, heroes, the named pets, and pets with plain shots of their own (Kythal, Zenco, Shroom, Cerberus Skull) |
 | Large | 45 each, every 1.5 seconds | a little taller than you | the boss pets, and Pancookie and Nightmare |
 
-Lil' Oryx is an admin pet: it heals 200 each every 0.8 seconds, shoots like Oryx the Mad God and
-can't be traded.
+Lil' Oryx heals 60 each every 1.5 seconds and shoots like Oryx the Mad God. Its generator drops in
+a white bag from Oryx the Infernal Mad God (0.5%) and Oryx the Ascended God (1%), and is used up
+when used. Until 27 November 2026, every account can claim one free from the quest log's Daily
+Rewards tab.
 
 ### What they do
 

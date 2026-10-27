@@ -187,7 +187,9 @@ namespace WorldServer.logic
                     new ItemLoot("Gem of Tenderness", 0.012),
                     new ItemLoot("Corruption Cutter", 0.012),
                     new ItemLoot("Cloak of Bloody Surprises", 0.012),
-                    new ItemLoot("Doom Poison", 0.003)
+                    new ItemLoot("Doom Poison", 0.003),
+                    // his pet, in a white bag (Oryx the Ascended God drops it twice as often)
+                    new ItemLoot("Lil' Oryx Generator", 0.005)
                 ),
                 // 5% of the damage: the gear
                 new Threshold(0.05,

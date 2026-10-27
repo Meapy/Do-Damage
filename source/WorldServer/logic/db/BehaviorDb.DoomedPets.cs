@@ -133,7 +133,7 @@ namespace WorldServer.logic
             .Init("Baby Dragon (Doomed)", new State(new PetFollow(), new PetHeal(false, 15, 15, 2000), new PetHeal(true, 15, 15, 2000), new PetStrike(50, 70, 3000, 10)))
             .Init("Robobuddy (Doomed)", new State(new PetFollow(), new PetHeal(false, 15, 15, 2000), new PetHeal(true, 15, 15, 2000), new PetStrike(50, 70, 3000, 10)))
             .Init("Shroom (Doomed)", new State(new PetFollow(), new PetHeal(false, 30, 30, 2000), new PetHeal(true, 30, 30, 2000), new PetShoot(10, 3, 10, 0, 0, 1000), new PetShoot(10, 1, 0, 0, 1, 2000)))
-            .Init("Lil' Oryx (Doomed)", new State(new PetFollow(), new PetHeal(false, 200, 200, 800), new PetHeal(true, 200, 200, 800), new PetShoot(12, 8, 45, 0, 0, 1500), new PetShoot(12, 3, 10, 0, 1, 1000), new PetShoot(5, 3, 10, 0, 2, 1000), new PetShoot(12, 2, 10, 0, 3, 1000), new PetShoot(12, 3, 10, 0, 4, 1000), new PetShoot(12, 2, 10, 0, 5, 1000), new PetShoot(12, 3, 10, 0, 6, 1000)))
+            .Init("Lil' Oryx (Doomed)", new State(new PetFollow(), new PetHeal(false, 60, 60, 1500), new PetHeal(true, 60, 60, 1500), new PetShoot(12, 8, 45, 0, 0, 1500), new PetShoot(12, 3, 10, 0, 1, 1000), new PetShoot(5, 3, 10, 0, 2, 1000), new PetShoot(12, 2, 10, 0, 3, 1000), new PetShoot(12, 3, 10, 0, 4, 1000), new PetShoot(12, 2, 10, 0, 5, 1000), new PetShoot(12, 3, 10, 0, 6, 1000)))
             .Init("Beach Ball", new State(new PetFollow(), new PetHeal(false, 15, 15, 2000), new PetHeal(true, 15, 15, 2000)))
             .Init("Beer Slurp", new State(new PetFollow(), new PetHeal(false, 15, 15, 2000), new PetHeal(true, 15, 15, 2000)))
             .Init("Snowball Throw", new State(new PetFollow()))

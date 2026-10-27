@@ -164,6 +164,19 @@ wire_struct! {
 }
 
 wire_struct! {
+    /// A gift for a while (`QuestsData`): every account claims it once, until `ends_at` (Unix
+    /// seconds).
+    pub struct QuestGiftInfo {
+        pub id: String,
+        pub title: String,
+        pub text: String,
+        pub ends_at: i32,
+        pub claimed: bool,
+        pub rewards: List8<QuestReward>,
+    }
+}
+
+wire_struct! {
     /// Progress that changed (`QuestProgress`): a quest (kind 0) or an achievement (1) by its
     /// place in `QuestsData`'s lists.
     #[derive(Copy)]
