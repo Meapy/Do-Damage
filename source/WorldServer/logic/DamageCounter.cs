@@ -81,6 +81,9 @@ namespace WorldServer.logic
                 if (xpEvent > 0)
                     playerXp *= (float)(1 + xpEvent);
 
+                // at level 20 experience only makes fame, so a world's KillFameRate (the arenas) cuts it
+                playerXp = FameRates.Experience(playerXp, player.Level, enemy.World?.KillFameRate ?? 1);
+
                 if (enemy.GivesNoXp)
                     playerXp = 0;
 

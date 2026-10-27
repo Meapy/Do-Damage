@@ -2221,12 +2221,6 @@ namespace WorldServer.logic.doomed
         private MpPotionLoot() : base("Magic Potion") { }
     }
 
-    internal class IncLoot : ItemLoot
-    {
-        public static readonly IncLoot Instance = new IncLoot();
-        private IncLoot() : base("Wine Cellar Incantation") { }
-    }
-
     // a health or a magic potion
     internal class PotionLoot : ILoot
     {

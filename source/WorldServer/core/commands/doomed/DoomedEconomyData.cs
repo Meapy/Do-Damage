@@ -622,7 +622,6 @@ namespace WorldServer.core.commands.doomed
             ("keys", "Snake Pit Key", 20, CurrencyType.Fame),
             ("keys", "Tomb of the Ancients Key", 500, CurrencyType.Fame),
             ("keys", "Sprite World Key", 20, CurrencyType.Fame),
-            ("keys", "Wine Cellar Incantation", 125, CurrencyType.Fame),
             ("keys", "Ocean Trench Key", 50, CurrencyType.Fame),
             ("keys", "Totem Key", 10, CurrencyType.Fame),
             ("keys", "Manor Key", 20, CurrencyType.Fame),

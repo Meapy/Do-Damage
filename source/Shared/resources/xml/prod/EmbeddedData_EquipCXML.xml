@@ -7705,7 +7705,7 @@
 		</Texture>
 		<SlotType>10</SlotType>
 		<Ethereal/>
-		<Description>An incantation that unlocks the Wine Cellar. \n\nKeys can only be used once you have 10 or more stars!</Description>
+		<Description>An incantation that once unlocked the Wine Cellar. No longer needed: Oryx now leaves the Wine Cellar's portal open.</Description>
 		<Sound>use_key</Sound>
 		<Consumable/>
 		<BagType>4</BagType>

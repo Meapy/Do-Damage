@@ -24,7 +24,8 @@ raises your stats a little.
 ## Fame, rank stars and class quests
 
 Every 1,000 experience a character earns is one **fame** on that character, and experience keeps
-counting after level 20. When the character dies, its fame, plus bonuses (for your equipment, for
+counting after level 20. At level 20 the Arena and the Admin Arena give three quarters of the usual
+experience for a kill, so three quarters of the fame (levelling there is as fast as anywhere). When the character dies, its fame, plus bonuses (for your equipment, for
 beating your best with that class and so on), is added to your account. Account fame is what you
 spend in the Nexus Bazaar, the shops, the marketplace and on upgrades.
 
@@ -144,7 +145,11 @@ from wave 30 an Elder dungeon boss joins Oryx's. The chat says which wave has be
 - **Where:** the **Arena** portal in the Nexus's south yard, or `/arena` from anywhere: both lead
   to the same game. Everyone who goes in before a game's countdown ends plays that game. Once a
   game has started, the portal (and `/arena`) opens a new one. `/arenas` lists the games running.
-- **Fame:** the Arena pays fame after every wave (ten times the wave, halved in a group).
+- **Less fame** in the Arena and the Admin Arena. The Arena pays fame after every wave: five times
+  the wave alone, or half that in a group (wave 10 pays 50 alone, 25 each in a group), half of
+  what it used to. At level 20 kills there give three quarters of the usual experience, so three
+  quarters of the fame on your character, and of the death bonuses that come from it. Levelling below 20 is as fast as anywhere, and the
+  quest and achievement rewards for Arena waves are unchanged.
 - **Loot is halved** in the Arena and the Admin Arena, since losing there costs nothing. A boss (a
   wave's boss, or Oryx) drops loot as often as anywhere else, but half the items, rounded up: if
   you'd have got 4 items you get 2, and 1 stays 1. Oryx 3, 4 and 5 also drop each item half as

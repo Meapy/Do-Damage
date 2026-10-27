@@ -21,6 +21,59 @@ details). Add to a group's line when a change adds to it, rather than adding ano
   never over the stretches of Godlands kept as they are. An event is never far off. Beat all its
   events and Oryx closes it and calls you to his Castle, as in the realm.
 
+## 2.2.3 (2026-10-26)
+
+### Oryx
+- Oryx 2 and Oryx 3 are always open: Oryx 1 (and the Giant Oryx Chicken) leave an open portal to
+  the Wine Cellar, and Oryx 2 an open portal to Oryx's Sanctuary, so no incantation is needed. The
+  Wine Cellar and Sanctuary Incantations are no longer sold or dropped; any you have are harmless
+  (keep, trade or sell them). The locked Wine Cellar portal in the Nexus is gone.
+- The Chicken Chamber and Oryx's Christmas Chamber only open during special events. Their keys
+  aren't sold or dropped meanwhile, and using one does nothing (it isn't used up), so keep any you
+  have for the next event.
+
+### Arena
+- The Arena and the Admin Arena give less fame: half the fame after each wave, and at level 20
+  three quarters of the experience (so of the fame) for each kill. Levelling there is as fast as
+  before, and the Arena quests pay the same.
+
+## 2.2.2 (2026-10-26)
+
+### Fixes
+- Entering a world puts you in the middle of a free spot where you arrive, instead of on the edge
+  of it, where in Oryx's Chamber you could land half inside a wall and be stuck. You no longer
+  arrive on top of a tree or other blocking thing either, and the Cnidarian Reef, which had no
+  arrival spot, now lets you in on its floor instead of in the void.
+
+### Website
+- The home page shows the players online, the most there were in the last 24 hours and how much of
+  each of the last 7 days the realm was up.
+
+### Discord
+- Do Damage has a Discord server: https://discord.gg/FVhqJe8CG. Every update is posted in
+  #updates as soon as it's out (type `/updates` there to get pinged), #server-status shows who's
+  online, and `/status`, `/online`, `/wiki` and `/play` answer in any channel. The website and the wiki link to it at the
+  top of every page.
+
+## 2.2.1 (2026-10-26)
+
+### Classes
+- Summoner: summons are much smaller, the top tiers most of all (the Dragon and Oryx were three
+  times a player's size, now a little over one), and so are their shots, so six of them no longer
+  hide the boss.
+
+### Divine Forge
+- An ingredient taken from your vault shows a little vault chest in its corner instead of the word
+  "vault", and its tooltip says how many your vault holds.
+
+### Fixes
+- Janus leaves the Oryx's Chamber portal beside his loot bags instead of under them, where it
+  was hidden and couldn't be entered, and no Realm Portal beside it.
+- The chat name colour you pick in the quest log now stays with you in every world and after
+  you log out, instead of going back to the usual colour when you change world.
+- In the browser, opening the Graveyard (and the market's time left on offers) no longer freezes
+  the game until you refresh the page.
+
 ### Wiki
 - A new Loot Simulation page: pick Oryx 3, 4 or 5, set your share of the damage and your loot
   boosts, and see every drop's chance, the bags a kill gives, and roll as many kills as you like.

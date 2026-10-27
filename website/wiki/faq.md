@@ -55,6 +55,13 @@ it as a bug.
 
 Yes. There's nothing to buy, and every shop in the game takes fame, which you earn by playing.
 
+## Is there a Discord?
+
+Yes: [discord.gg/FVhqJe8CG](https://discord.gg/FVhqJe8CG). Every update is posted in #updates when
+it's out (`/updates` there gets you pinged), #server-status shows whether the game is up and who's
+on, and #help and #bug-reports are the quickest way to reach the people running the game. Its bot
+answers `/status`, `/online`, `/wiki <term>` and `/play`.
+
 ## How do I report a bug?
 
 The game's code is open, on GitHub: [github.com/Meapy/Do-Damage](https://github.com/Meapy/Do-Damage).

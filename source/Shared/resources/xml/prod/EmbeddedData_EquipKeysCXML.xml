@@ -664,7 +664,7 @@
          <Index>0x5f</Index>
       </Texture>
       <SlotType>10</SlotType>
-      <Description>Unlocks the portal Oryx leaves behind in his Chamber, leading to the Wine Cellar, like a Wine Cellar Incantation.</Description>
+      <Description>Once unlocked the portal Oryx leaves behind in his Chamber. No longer needed: Oryx now leaves the Wine Cellar's portal open.</Description>
       <Sound>use_key</Sound>
       <Consumable/>
        

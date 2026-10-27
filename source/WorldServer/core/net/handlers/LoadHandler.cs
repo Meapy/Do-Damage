@@ -38,18 +38,8 @@ namespace WorldServer.core.net.handlers
                 client.SendFailure("Class locked", FailureMessage.MessageWithDisconnect);
             else
             {
-                var x = 0;
-                var y = 0;
-
-                var spawnRegions = target.GetSpawnPoints();
-                if (spawnRegions.Length > 0)
-                {
-                    var sRegion = Random.Shared.NextLength(spawnRegions);
-                    x = sRegion.Key.X;
-                    y = sRegion.Key.Y;
-                }
-
-                var player = client.Player = target.CreateNewPlayer(client, client.Character.ObjectType, x, y);
+                var spawn = target.GetPlayerSpawnPosition();
+                var player = client.Player = target.CreateNewPlayer(client, client.Character.ObjectType, spawn.X, spawn.Y);
 
                 client.SendPacket(new CreateSuccessMessage(player.Id, client.Character.CharId));
 

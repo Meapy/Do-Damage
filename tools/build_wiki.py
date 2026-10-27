@@ -304,7 +304,8 @@ class Gen:
         self.bazaar = self.d.bazaar()
         self.portals = self.d.portals()
         self.keys = self.d.keys()
-        self.incant = self.d.incantations()
+        self.incant = self.d.incantations(dropped=self.idx)
+        self.sealed = wd.sealed_dungeons()
         self.bot = wd.support_bot()
         self.realm = wd.realm()
         self.account = wd.account()
@@ -604,6 +605,10 @@ class Gen:
         out = []
         # the bosses that drop a locked portal (the shared one, or a stage's own)
         locked_by = [mc for oid in d.objects if oid.startswith("Locked ") for mc in self.idx.get(oid, [])]
+        # the monsters of the closed dungeons, whose portals nobody finds for now
+        closed = {m for wid in self.sealed if wid in d.worlds for m in d.map_objects(d.worlds[wid]) + self.bosses_of(wid)}
+        closed |= {s for m in list(closed) for b in d.inits.get(m, []) + [d.doomed.get(m) or ""]
+                   for s in re.findall(r'(?:Spawn|SpawnMinionImmediate\.Instance)\(\s*(?:T\()?"([^"]+)"', b)}
         for wid, w in d.worlds.items():
             if wid in SKIP_WORLDS:
                 continue
@@ -611,7 +616,7 @@ class Gen:
             sources = []
             for p in portals:
                 for m, c in self.idx.get(p, []):
-                    if HIDDEN_MONSTER.search(m) or c == 0:
+                    if HIDDEN_MONSTER.search(m) or c == 0 or m in closed:
                         continue
                     if not any(x == m for x, _ in sources):
                         sources.append((m, c))
@@ -633,6 +638,8 @@ class Gen:
                     bosses = [m for m, _ in locked_by if any(m in d.map_objects(d.worlds[a]) or m in self.bosses_of(a)
                                                              for a in areas if a in d.worlds)]
                     unlock.append((item, areas, bosses))
+            if wid in self.sealed:
+                special.append(self.sealed[wid][2])
             if wid == "Oryx's Castle":
                 special.append("Opens for everyone in a realm when it closes, once enough of its events are defeated: %s."
                                % self.realm["close_after"])
@@ -791,7 +798,9 @@ class Gen:
             if not x:
                 continue
             how = []
-            if x["special"]:
+            if x["id"] in self.sealed:
+                how.append("Special events only")
+            elif x["special"]:
                 how.append("A realm closes")
             for item, areas, bosses in x["unlock"]:
                 how.append("%s, in %s" % (esc(d.name(item)), joined([esc(a) for a in areas])))
@@ -831,7 +840,7 @@ class Gen:
         for portal, lst in sorted(self.incant.items(), key=lambda kv: stage(kv[0])):
             for item, areas in lst:
                 if "Incantation" not in d.name(item):
-                    continue  # the Wine Cellar Key: an old key that now works like the incantation
+                    continue  # an old key that works like an incantation
                 src = sorted([(m, c) for m, c in self.idx.get(item, []) if not HIDDEN_MONSTER.search(m) and c],
                              key=lambda s: -(s[1] or 0))
                 price = self.bazaar.get(item)
@@ -968,6 +977,7 @@ TEMPLATE = """<!doctype html>
       <a href="{site}#get">Get the game</a>
       <a href="{home}" aria-current="page">Wiki</a>
       <a href="{site}changelog.html">Changelog</a>
+      <a href="https://discord.gg/FVhqJe8CG">Discord</a>
     </nav>
     <a class="bar-link" href="{home}" aria-current="page">Wiki</a>
     <a class="pill-play" href="{site}play/">Play now</a>

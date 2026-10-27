@@ -207,7 +207,6 @@ namespace WorldServer.logic
                     new ItemLoot("Potion of Attack", 0.8),
                     new ItemLoot("Potion of Wisdom", 0.4),
                     new ItemLoot("Potion of Vitality", 0.3),
-                    new ItemLoot("Wine Cellar Incantation", 0.04),
                     new ItemLoot("Oryx Chicken Chamber Key", 0.03),
                     new ItemLoot("Spiteful Scutum", 0.01)
                 ),

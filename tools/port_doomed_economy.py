@@ -47,7 +47,9 @@ NOT_SOLD = {"Twilight Generator", "Dinosaur's Pet Generator", "Crown", "God Rush
             "Spell of Shielding", "Spell of Teleportation", "Tome of Poison", "Tome of Speed", "Tome of the Dead",
             "Tome of Shining Stars",
             # Oryx 4's alone (the Oryx UT pass)
-            "Doom Poison"}
+            "Doom Poison",
+            # no longer needed: Oryx 1 leaves the Wine Cellar portal open (players keep and can sell theirs)
+            "Wine Cellar Incantation"}
 # items gone from the forge (the Oryx UT pass): the old forge materials, which the forge shards
 # replaced, and the Forge Amulet. No recipe takes or makes them, and the forge doesn't buy them.
 FORGE_GONE = {"Shattered Rune of Oryx", "Broken Oryx Armor", "Purified Doom Saliva", "Forge Amulet"}

@@ -112,6 +112,8 @@ when it has the mana, keeps off ground that hurts, and sends the hits as the cli
 for (a large window asks for about 20). It reads the game's XML from `assets/` beside it (only the
 manifest's ground, object, particle and model files) or the repository's. God mode is lost with
 each world change, so `--say` it after joining: `"/gear;;/arena;;/god"` (one bot `/openarena` first).
+`--enter "Wine Cellar Portal;;Oryx's Sanctuary Portal"` takes the first portal it sees with each
+object id, once each, so with `/tq` and `/smite` in `--say` it walks down the Oryx chain.
 
 The client itself can be scripted for tests (desktop only):
 

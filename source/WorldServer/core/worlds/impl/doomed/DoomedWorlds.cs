@@ -252,6 +252,8 @@ namespace WorldServer.core.worlds.impl.doomed
             // its world XML is generated (port_doomed_worlds.py)
             DefeatToNexus = true;
             LootRate = ArenaPools.LootRate;
+            FameRate = ArenaPools.FameRate;
+            KillFameRate = ArenaPools.KillFameRate;
         }
 
         public override bool Joinable => !_started;
@@ -467,7 +469,7 @@ namespace WorldServer.core.worlds.impl.doomed
                     foreach (var p in Players.Values)
                         p.Quests?.Event(new Shared.quests.QuestEvent(Shared.quests.QuestEvents.ArenaWave) { Value = Wave });
                 Wave++;
-                var pot = Wave * 10 / (Players.Count == 1 ? 1 : 2);
+                var pot = FameRates.Fame(Wave * 10 / (Players.Count == 1 ? 1 : 2), FameRate);
                 foreach (var p in Players.Values)
                 {
                     DoomedWorlds.GiveFame(p, pot);

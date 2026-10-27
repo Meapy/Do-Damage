@@ -7,9 +7,8 @@ namespace WorldServer.logic
 {
     // The Chicken Chamber (tools/build_chicken_chamber.py): RotMG's April Fools take on Oryx's
     // Chamber, a side door into the Oryx chain beside Oryx 1. Players fight through a coop of
-    // chickens and eggs to the Giant Oryx Chicken, which drops the locked portal to the Wine Cellar
-    // (the Wine Cellar Incantation works here: its onlyInArea names the Chicken Chamber) and a Realm
-    // Portal. The objects are the prod XML's OryxChickenChamber.xml, whose ids are still the test
+    // chickens and eggs to the Giant Oryx Chicken, which drops the open portal to the Wine Cellar
+    // and a Realm Portal. The objects are the prod XML's OryxChickenChamber.xml, whose ids are still the test
     // names they were given: "TestChicken 2" is the Giant Oryx Chicken, "TestChicken Small" the
     // Oryx Chicken Minion and "Test Egg" the Egg.
     partial class BehaviorDb
@@ -20,9 +19,8 @@ namespace WorldServer.logic
                     // a little below Oryx 1, whose place in the chain it takes
                     new BossStats(90000, 35, 0.8, 0.3),
                     new DropPortalOnDeath("Realm Portal", 1.0, timeout: 120, xAdjustment: -2),
-                    new DropPortalOnDeath("Locked Wine Cellar Portal", 1.0, timeout: 600, xAdjustment: 2,
-                        name: "Locked: Wine Cellar", lockedHint: "This portal is locked. Use a Wine Cellar Incantation beside it to open it."),
-                    new AnnounceOnDeath("{PL_LIST} plucked the Giant Oryx Chicken in its Chamber! Oryx's Wine Cellar lies beyond, sealed by a Wine Cellar Incantation..."),
+                    new DropPortalOnDeath("Wine Cellar Portal", 1.0, timeout: 600, xAdjustment: 2),
+                    new AnnounceOnDeath("{PL_LIST} plucked the Giant Oryx Chicken in its Chamber! Oryx's Wine Cellar lies open beyond..."),
                     new State("Roost",
                         new ConditionEffectBehavior(ConditionEffectIndex.Invulnerable),
                         new PlayerWithinTransition(11, "Wake")
@@ -111,8 +109,7 @@ namespace WorldServer.logic
                     new ItemLoot("Potion of Vitality", 0.25),
                     new ItemLoot("Potion of Wisdom", 0.25),
                     new ItemLoot("Chicken Leg of Doom", 0.05),
-                    new ItemLoot("Apocalypse Feather", 0.015),
-                    new ItemLoot("Oryx Sanctuary Key", 0.04)
+                    new ItemLoot("Apocalypse Feather", 0.015)
                 ),
                 // 5% of the damage: the gear
                 new Threshold(0.05,

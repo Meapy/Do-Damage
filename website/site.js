@@ -1,4 +1,4 @@
-// The site's live parts: the server status from the account server's server list (through the
+// The site's live parts: the server status from the account server's app/status (through the
 // gateway's /api), the visitor's own download first, a warning when the browser can't run the
 // game, the pixel sprites, and the hero's night sky.
 (function () {
@@ -43,11 +43,56 @@
     statusText.textContent = "Online · " + players + (players === 1 ? " player" : " players") + " in the realm";
   }
 
+  // GET api/app/status answers { online, players, peak24h, days: [{ date, up }] }: the last 7 UTC
+  // days, oldest first, up the fraction of the day the realm was up (null: no data yet).
+  var stats = document.getElementById("stats");
+  var MONTHS = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+
+  function showStats(s) {
+    if (!stats) return;
+    if (!s) {
+      stats.hidden = true;
+      return;
+    }
+    document.getElementById("stat-players").textContent = s.players;
+    document.getElementById("stat-peak").textContent = s.peak24h;
+    var bars = document.getElementById("stat-days");
+    bars.textContent = "";
+    (s.days || []).forEach(function (d) {
+      var bar = document.createElement("span");
+      var p = d.up;
+      bar.className = "day " + (p == null ? "none" : p >= 0.99 ? "up" : p > 0 ? "part" : "down");
+      var parts = String(d.date).split("-");
+      var label = +parts[2] + " " + MONTHS[+parts[1] - 1];
+      var tip = label + ": " + (p == null ? "no data yet" : (Math.floor(p * 1000) / 10) + "% up");
+      bar.setAttribute("data-tip", tip);
+      bar.setAttribute("aria-label", tip);
+      bar.setAttribute("role", "img");
+      bar.tabIndex = 0;
+      bars.appendChild(bar);
+    });
+    stats.hidden = false;
+  }
+
   function refreshStatus() {
-    fetch("api/app/serverList", { method: "POST", headers: { "Content-Type": "application/x-www-form-urlencoded" }, body: "" })
-      .then(function (r) { return r.ok ? r.text() : Promise.reject(r.status); })
-      .then(function (text) { showStatus(parseServers(text)); })
-      .catch(function () { showStatus(null); });
+    fetch("api/app/status", { cache: "no-store" })
+      .then(function (r) { return r.ok ? r.json() : Promise.reject(r.status); })
+      .then(function (s) {
+        showStatus(s.online ? [{ name: "", players: s.players }] : []);
+        showStats(s);
+      })
+      .catch(function (code) {
+        showStats(null);
+        if (code !== 404) {
+          showStatus(null);
+          return;
+        }
+        // An account server without app/status: just the count, from the server list.
+        fetch("api/app/serverList", { method: "POST", headers: { "Content-Type": "application/x-www-form-urlencoded" }, body: "" })
+          .then(function (r) { return r.ok ? r.text() : Promise.reject(r.status); })
+          .then(function (text) { showStatus(parseServers(text)); })
+          .catch(function () { showStatus(null); });
+      });
   }
 
   if (status) {
@@ -543,5 +588,5 @@
   gallery(Array.prototype.slice.call(document.querySelectorAll(".gallery .shot")));
 
   // For tests: window.bskSite.parseServers(xml)
-  window.bskSite = { parseServers: parseServers, showStatus: showStatus };
+  window.bskSite = { parseServers: parseServers, showStatus: showStatus, showStats: showStats };
 })();

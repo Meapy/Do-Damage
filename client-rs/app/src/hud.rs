@@ -2152,7 +2152,7 @@ pub struct Line {
 }
 
 impl Line {
-    fn new(text: &str, size: f32, bold: bool, color: u32) -> Self {
+    pub(crate) fn new(text: &str, size: f32, bold: bool, color: u32) -> Self {
         Line { pieces: vec![(text.to_owned(), color)], size, bold, centred: false }
     }
 
@@ -2162,7 +2162,7 @@ impl Line {
     }
 
     /// A little space between the tooltip's parts.
-    fn gap() -> Self {
+    pub(crate) fn gap() -> Self {
         Line::new("", 5.0, false, ATTR)
     }
 }

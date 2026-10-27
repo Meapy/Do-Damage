@@ -41,7 +41,9 @@ namespace WorldServer.logic.loot
     {
         public ItemLoot(string item, double probability = 1, int numRequired = 0, double threshold = 0)
         {
-            LootDefs.Add(new LootDef(item, probability, threshold));
+            // a closed dungeon's key doesn't drop (SealedDungeons)
+            if (!core.worlds.SealedDungeons.IsSealedItem(item))
+                LootDefs.Add(new LootDef(item, probability, threshold));
         }
     }
 

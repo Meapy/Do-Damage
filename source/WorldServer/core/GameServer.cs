@@ -186,10 +186,32 @@ namespace WorldServer.core
 
             // on Linux the service manager (systemd) starts it again
             if (restart && OperatingSystem.IsWindows())
-                _ = Process.Start($"{AppDomain.CurrentDomain.FriendlyName}.exe");
+                StartAgain();
 
             Log.Info("Program has been terminated.");
             Thread.Sleep(10000);
+        }
+
+        // Starts this server again the way it was started: WorldServer.exe, or `dotnet WorldServer.dll`
+        // (the isolated test stacks, which keep off the live servers' process names), by full path.
+        private static void StartAgain()
+        {
+            try
+            {
+                var exe = Environment.ProcessPath;
+                var args = Environment.GetCommandLineArgs().Skip(1).ToList();
+                if (Path.GetFileNameWithoutExtension(exe).Equals("dotnet", StringComparison.OrdinalIgnoreCase))
+                    args.Insert(0, typeof(GameServer).Assembly.Location);
+                var start = new ProcessStartInfo(exe) { WorkingDirectory = Environment.CurrentDirectory };
+                foreach (var arg in args)
+                    start.ArgumentList.Add(arg);
+                Process.Start(start);
+                Log.Info($"Started again: {exe} {string.Join(" ", args)}");
+            }
+            catch (Exception e)
+            {
+                Log.Error($"Couldn't start the server again: {e.Message}");
+            }
         }
 
         // Files in the working folder, between this server and the world proxy's tools.

@@ -183,6 +183,47 @@ kbd {
 .live.offline .beacon { background: var(--blood); }
 @keyframes beacon { 50% { box-shadow: 0 0 0 6px rgba(91, 227, 160, 0); } }
 
+/* players now, the 24-hour peak and a bar per day of uptime */
+.stats {
+  display: flex; flex-wrap: wrap; justify-content: center; align-items: center;
+  gap: 6px 18px;
+  margin: .7em 0 0;
+  font-size: .88rem; color: var(--text-dim);
+  text-shadow: 0 1px 8px rgba(8, 6, 15, .9);
+}
+.stats[hidden] { display: none; }
+.stat { display: inline-flex; align-items: center; gap: .45em; }
+.stat b { font: 700 .8rem var(--pixel); color: var(--text); }
+.uptime { display: inline-flex; gap: 3px; }
+.day {
+  position: relative;
+  width: 7px; height: 14px;
+  border-radius: 2px;
+  background: var(--line-hi);
+  cursor: default;
+}
+.day.up { background: var(--good); }
+.day.part { background: var(--gold); }
+.day.down { background: var(--blood); }
+.day:focus { outline: none; }
+.day:focus-visible { box-shadow: 0 0 0 2px var(--text); }
+.day::after {
+  /* the date and how much of it the realm was up, on hover or tap */
+  content: attr(data-tip);
+  position: absolute; bottom: calc(100% + 8px); left: 50%;
+  transform: translateX(-50%);
+  padding: 5px 8px;
+  background: var(--bg-deep);
+  border: 1px solid var(--line-hi);
+  color: var(--text);
+  font-size: .78rem; white-space: nowrap;
+  pointer-events: none;
+  opacity: 0; transition: opacity .1s;
+}
+.day:first-child::after { left: 0; transform: none; }
+.day:last-child::after { left: auto; right: 0; transform: none; }
+.day:hover::after, .day:focus::after { opacity: 1; }
+
 .scroll-cue {
   position: absolute; z-index: 1; left: 50%; bottom: 22px;
   width: 26px; height: 40px; margin-left: -13px;

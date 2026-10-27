@@ -1,0 +1,19 @@
+[Unit]
+Description=Do Damage Discord bot (release posts, server status, slash commands)
+After=network-online.target
+Wants=network-online.target
+# installed by install.sh only with deploy/discord.local.env; restarting it disconnects nobody
+ConditionPathExists=/opt/bsk/discord/discord.env
+
+[Service]
+User=bsk
+Group=bsk
+WorkingDirectory=/opt/bsk/discord
+Environment=PYTHONUNBUFFERED=1
+ExecStart=/opt/bsk/discord/venv/bin/python /opt/bsk/tools/discord/bot.py --env /opt/bsk/discord/discord.env
+Restart=always
+RestartSec=15
+Nice=5
+
+[Install]
+WantedBy=multi-user.target

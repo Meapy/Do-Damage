@@ -334,7 +334,7 @@ dependencies = [
 
 [[package]]
 name = "bsk-assets"
-version = "2.2.0"
+version = "2.2.3"
 dependencies = [
  "futures",
  "image",
@@ -350,7 +350,7 @@ dependencies = [
 
 [[package]]
 name = "bsk-bot"
-version = "2.2.0"
+version = "2.2.3"
 dependencies = [
  "bsk-assets",
  "bsk-data",
@@ -365,7 +365,7 @@ dependencies = [
 
 [[package]]
 name = "bsk-client"
-version = "2.2.0"
+version = "2.2.3"
 dependencies = [
  "ab_glyph",
  "bsk-assets",
@@ -400,7 +400,7 @@ dependencies = [
 
 [[package]]
 name = "bsk-data"
-version = "2.2.0"
+version = "2.2.3"
 dependencies = [
  "bsk-assets",
  "futures",
@@ -412,7 +412,7 @@ dependencies = [
 
 [[package]]
 name = "bsk-gateway"
-version = "2.2.0"
+version = "2.2.3"
 dependencies = [
  "axum",
  "env_logger",
@@ -425,7 +425,7 @@ dependencies = [
 
 [[package]]
 name = "bsk-net"
-version = "2.2.0"
+version = "2.2.3"
 dependencies = [
  "base64 0.22.1",
  "bsk-proto",
@@ -446,14 +446,14 @@ dependencies = [
 
 [[package]]
 name = "bsk-proto"
-version = "2.2.0"
+version = "2.2.3"
 dependencies = [
  "thiserror 2.0.21",
 ]
 
 [[package]]
 name = "bsk-publish"
-version = "2.2.0"
+version = "2.2.3"
 dependencies = [
  "bsk-update",
  "flate2",
@@ -463,7 +463,7 @@ dependencies = [
 
 [[package]]
 name = "bsk-render"
-version = "2.2.0"
+version = "2.2.3"
 dependencies = [
  "bytemuck",
  "image",
@@ -473,7 +473,7 @@ dependencies = [
 
 [[package]]
 name = "bsk-session"
-version = "2.2.0"
+version = "2.2.3"
 dependencies = [
  "bsk-proto",
  "log",
@@ -481,7 +481,7 @@ dependencies = [
 
 [[package]]
 name = "bsk-update"
-version = "2.2.0"
+version = "2.2.3"
 dependencies = [
  "ed25519-dalek",
  "serde",
@@ -491,7 +491,7 @@ dependencies = [
 
 [[package]]
 name = "bsk-world"
-version = "2.2.0"
+version = "2.2.3"
 dependencies = [
  "bsk-data",
  "bsk-proto",

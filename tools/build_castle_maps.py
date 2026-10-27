@@ -25,7 +25,7 @@ The nexus, from the middle out:
 - a market ward behind a colonnade on each side: pavilions whose stalls are shop regions
   (`Store N`, see `MerchantLists.Shops`), as many stalls per shop as the old map had;
 - the south yard: the Arena portal (`ARENA_PORTALS`, which `DoomedWorlds.NexusPortals`
-  must match) west of the road with the Arena Leaderboard east of it, the Wine Cellar, the gatehouse with its portcullis, the class memorial
+  must match) west of the road with the Arena Leaderboard east of it, the gatehouse with its portcullis, the class memorial
   with the Divine Forge in its middle on a floor of gold, and the treasury. The four shared vault chests keep their items in Redis by tile (`DbNexusChest`), so
   they stay on the tiles they had in the old map (`CHESTS`).
 
@@ -328,7 +328,6 @@ CLASSES = ["Warrior", "Assassin", "Sorcerer", "Priest", "Trickster", "Wizard", "
            "Mystic", "Necromancer", "Huntress", "Archer", "Paladin"]
 # where DoomedWorlds.AddNexusPortals puts the Arena portal (keep the two in step)
 ARENA_PORTALS = [(45.5, 68.5)]
-WINE_CELLAR = (48, 77)
 # (name, region, x0, y0, columns, rows[, stalls]): see Grid.pavilion. The stall counts are the old map's:
 # one stall per item where a shop has few, so each stall shows something different.
 PAVILIONS = [
@@ -424,14 +423,13 @@ def build_nexus():
     g.put(COLONNADES[1] - 4, cy - 6, FLOOR, "BulletinBoard")
     g.put(COLONNADES[1] - 2, cy - 6, FLOOR, "BulletinBoard")
 
-    # the south yard: the arena portal, the wine cellar, the gate
+    # the south yard: the arena portal, the gate
     g.rect(36, 66, 60, 81, PLAZA)
     g.path(cx - 1, 64, cx + 1, 85)
     for x, y in ARENA_PORTALS:
         g.put(int(x), int(y), PLAZA)
         g.paths.add((int(x), int(y)))
         g.banner(int(x), int(y) - 2, PLAZA)
-    g.put(WINE_CELLAR[0], WINE_CELLAR[1], PATH, "Locked Wine Cellar Portal")
     # the arena leaderboard (its trophy opens the top runs in the Rust client), across the road
     # from the portal
     g.put(2 * cx - int(ARENA_PORTALS[0][0]), int(ARENA_PORTALS[0][1]), PLAZA, "Arena Leaderboard")
