@@ -181,13 +181,13 @@ messages! {
         102 => ForgeVault { items: List16<ForgeShard> },
         // Quests, daily login rewards and achievements, after QuestsRequest, a claim or a reset:
         // the time (Unix seconds), the rank, points and chosen name colour (255: none), the
-        // ranks, each period's reset and bonus, the quests, the daily reward track and the
-        // achievements.
+        // ranks, each period's reset and bonus, the quests, the daily reward track, the
+        // achievements and the gifts open now (which older servers leave out).
         104 => QuestsData {
             now: i32, rank: u8, points: i32, color_rank: u8, ranks: List8<QuestRankInfo>,
             periods: List8<QuestPeriodInfo>, quests: List8<QuestInfo>, login_day: u8, login_ready: bool,
             login_streak: i32, login_total: i32, login_next_at: i32, login_days: List8<LoginDayInfo>,
-            achievements: List8<AchievementInfo>,
+            achievements: List8<AchievementInfo>, gifts: Option<List8<QuestGiftInfo>>,
         },
         // The answer to QuestClaim.
         106 => QuestResult { success: bool, message: String },

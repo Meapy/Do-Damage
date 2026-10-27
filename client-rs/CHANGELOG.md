@@ -14,6 +14,18 @@ details). Add to a group's line when a change adds to it, rather than adding ano
 
 ## Unreleased
 
+### Items
+- Every Oryx has a Lil' Oryx of his own: each drops his generator in a white bag (1%), and his
+  Lil' Oryx (and its generator's icon) looks like him and shoots his shots. They grow stronger along the chain, from Lil' Oryx
+  (Oryx in his Chamber, about 1,000 damage a second) through the Wine Cellar, Celestial and
+  Infernal ones to Lil' Ascended Oryx (about 3,000). All heal 60 HP and MP every 1.5 seconds. Lil'
+  Oryx is no longer sold and can be traded. A generator is used up when used, and using one whose
+  Lil' Oryx is already your pet does nothing and keeps it.
+
+### Quests
+- Gifts in the quest log: until 27 November, every account can claim one free Lil' Oryx
+  Generator on the Daily Rewards tab.
+
 ### Imprints
 - The Enchanter, beside the Divine Forge, puts imprints on Enthroned gear, carried or in your
   vault: each piece has an Offensive (red), a Defensive (green) and a Misc (purple) slot. Imprints
@@ -46,6 +58,12 @@ details). Add to a group's line when a change adds to it, rather than adding ano
 ### Wiki
 - A new Imprints page; the Divine Forge page covers the Enthroned weapons' shots and the tier 16
   recipes, which are no longer called Doomed Realms items.
+
+### Fixes
+- Closed several ways to cheat items and fame through the market, breaking items down and dropping
+  items. Breaking an item down now works only on your own items or a bag beside you, and a quick
+  second click no longer disconnects you. New accounts are limited to a few an hour from one
+  address.
 
 ## 2.2.3 (2026-10-26)
 

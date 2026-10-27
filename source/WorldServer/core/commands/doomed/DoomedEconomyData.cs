@@ -630,7 +630,6 @@ namespace WorldServer.core.commands.doomed
             ("keys", "Beachzone Key", 75, CurrencyType.Fame),
             ("keys", "Lab Key", 100, CurrencyType.Fame),
             ("donorpets", "Pumpkman Generator", 20, CurrencyType.Gold),
-            ("donor", "Lil' Oryx Generator", 20, CurrencyType.Gold),
             ("donorpets", "Kythal the Necromancer Generator", 200, CurrencyType.Gold),
             ("donorpets", "Shroom Generator", 20, CurrencyType.Gold),
             ("donorpets", "Kythal the Skull Generator", 100, CurrencyType.Gold),

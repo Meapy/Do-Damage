@@ -5,7 +5,8 @@
 //! The client asks for everything once in each world (`QuestsRequest`) and keeps it up to date
 //! from `QuestProgress`, so the HUD's badge counts the rewards waiting even while the window is
 //! shut. `QuestNotice`s pop up at the top of the view: a quest done, an achievement earned, a new
-//! rank. The server checks every claim (`QuestClaim`); the window only asks.
+//! rank. Gifts for a while (a free item for every account) sit on the Daily Rewards tab. The
+//! server checks every claim (`QuestClaim`); the window only asks.
 
 use crate::forge::{fame_text, fame_width};
 use crate::hud::{Layout, SlotKind, Ui};
@@ -21,12 +22,15 @@ pub const CLAIM_LOGIN: u8 = 2;
 pub const CLAIM_ACHIEVEMENT: u8 = 3;
 pub const SWAP: u8 = 4;
 pub const COLOR: u8 = 5;
+pub const CLAIM_GIFT: u8 = 6;
 
 /// `QuestNotice` kinds.
 const NOTICE_QUEST: u8 = 0;
 const NOTICE_ACHIEVEMENT: u8 = 1;
 const NOTICE_LOGIN: u8 = 2;
 const NOTICE_RANK: u8 = 3;
+/// The client's own popup for a gift waiting (the server sends none).
+const NOTICE_GIFT: u8 = 200;
 
 /// What the window asks of the server.
 #[derive(Clone, Debug, PartialEq, Eq)]
@@ -95,6 +99,7 @@ enum Hit {
     Swap(usize),
     Bonus(u8),
     Login,
+    Gift(usize),
     Achievement(usize),
     Category(Option<usize>),
     ReadyOnly,
@@ -158,6 +163,8 @@ pub struct Quests {
     hover_item: Option<i32>,
     /// The day (Unix days) we last said the daily reward was ready.
     login_said: i64,
+    /// The gifts we said were waiting, by id.
+    gifts_said: Vec<String>,
     now: i32,
 }
 
@@ -206,9 +213,14 @@ impl Quests {
                 let quests = d.quests.iter().filter(|q| q.period == p && !q.claimed && q.progress >= q.goal).count();
                 quests + usize::from(self.bonus_ready(p))
             }
-            Tab::Login => usize::from(d.login_ready),
+            Tab::Login => usize::from(d.login_ready) + self.gifts().iter().filter(|g| !g.claimed).count(),
             Tab::Achievements => d.achievements.iter().filter(|a| earned(&a.goals, a.progress) > a.claimed as usize).count(),
         }
+    }
+
+    /// The gifts open now (none from an older server).
+    fn gifts(&self) -> &[bsk_proto::QuestGiftInfo] {
+        self.data.as_ref().and_then(|d| d.gifts.as_ref()).map_or(&[], |g| &g[..])
     }
 
     fn bonus_ready(&self, period: u8) -> bool {
@@ -234,6 +246,11 @@ impl Quests {
                     self.login_said = day;
                     let n = d.login_day as usize + 1;
                     self.toast(NOTICE_LOGIN, "Daily reward ready!".into(), format!("Day {n} is waiting: press J, or see the Chronicler."), now);
+                }
+                let new_gifts: Vec<_> = d.gifts.iter().flat_map(|g| g.iter()).filter(|g| !g.claimed && !self.gifts_said.contains(&g.id)).cloned().collect();
+                for g in new_gifts {
+                    self.gifts_said.push(g.id.clone());
+                    self.toast(NOTICE_GIFT, format!("A gift: {}!", g.title), "Claim it on the Daily Rewards tab: press J.".into(), now);
                 }
                 self.data = Some(*d);
                 let max = self.achievement_order().len();
@@ -272,7 +289,7 @@ impl Quests {
     fn toast_tab(&self, kind: u8) -> Tab {
         match kind {
             NOTICE_ACHIEVEMENT | NOTICE_RANK => Tab::Achievements,
-            NOTICE_LOGIN => Tab::Login,
+            NOTICE_LOGIN | NOTICE_GIFT => Tab::Login,
             NOTICE_QUEST => [Tab::Daily, Tab::Weekly, Tab::Monthly].into_iter().find(|&t| self.ready_in(t) > 0).unwrap_or(Tab::Daily),
             _ => self.best_tab(),
         }
@@ -349,6 +366,7 @@ impl Quests {
             Hit::Swap(i) => return d.and_then(|d| d.quests.get(i)).map(|q| Act::Claim(SWAP, q.id.clone())),
             Hit::Bonus(p) => return Some(Act::Claim(CLAIM_BONUS, PERIOD_NAMES[p as usize % 3].to_owned())),
             Hit::Login => return Some(Act::Claim(CLAIM_LOGIN, String::new())),
+            Hit::Gift(i) => return self.gifts().get(i).map(|g| Act::Claim(CLAIM_GIFT, g.id.clone())),
             Hit::Achievement(i) => return d.and_then(|d| d.achievements.get(i)).map(|a| Act::Claim(CLAIM_ACHIEVEMENT, a.id.clone())),
             Hit::Color(rank) => return Some(Act::Claim(COLOR, rank.to_string())),
             Hit::Category(c) => {
@@ -600,10 +618,44 @@ impl Quests {
             let tw = ui.measure(&t, font(14.0), true);
             ui.label(&t, bb[0] + bb[2] - tw, bb[1] + 10.0 * s, font(14.0), true, color::TEXT_DIM);
         }
+        // the gifts open now, each a banner above the track
+        let mut gy = body[1] + 58.0 * s;
+        let gifts = self.gifts().to_vec();
+        for (k, g) in gifts.iter().enumerate() {
+            let gr = [body[0], gy, body[2], 66.0 * s];
+            let ready = !g.claimed;
+            theme::frame(ui.renderer, gr, 8.0 * s, s.max(1.0), (if ready { color::GOLD } else { color::BORDER }, 1.0), ((color::WARM_TOP, 0.95), (color::WARM_BOTTOM, 0.95)));
+            theme::star(ui.renderer, gr[0] + 26.0 * s, gr[1] + gr[3] / 2.0, 11.0 * s, if ready { color::GOLD } else { color::TEXT_MUTED });
+            let title = format!("Gift: {}", g.title);
+            ui.label(&title, gr[0] + 46.0 * s, gr[1] + 10.0 * s, font(15.0), true, color::GOLD);
+            let when = if g.claimed { "Claimed".to_owned() } else { format!("Ends in {}", countdown(g.ends_at as i64 - self.server_now())) };
+            let tw = ui.measure(&title, font(15.0), true);
+            ui.label(&when, gr[0] + 46.0 * s + tw + 12.0 * s, gr[1] + 12.0 * s, font(12.0), true, color::TEXT_MUTED);
+            let mut sub = g.text.clone();
+            let bw = 104.0 * s;
+            let bb = [gr[0] + gr[2] - bw - 16.0 * s, gr[1] + (gr[3] - 34.0 * s) / 2.0, bw, 34.0 * s];
+            let rw = Self::rewards_width(ui, &g.rewards, s);
+            let rx = bb[0] - 18.0 * s - rw;
+            // the text is cut short where the rewards start
+            let room = rx - 12.0 * s - (gr[0] + 46.0 * s);
+            while sub.chars().count() > 4 && ui.measure(&sub, font(12.0), false) > room {
+                let n = sub.chars().count();
+                sub = sub.chars().take(n - 4).collect::<String>() + "...";
+            }
+            ui.label(&sub, gr[0] + 46.0 * s, gr[1] + 36.0 * s, font(12.0), false, color::TEXT_DIM);
+            self.rewards(ui, &g.rewards.clone(), rx, gr[1] + gr[3] / 2.0, s, mouse, g.claimed);
+            if g.claimed {
+                done_chip(ui, bb, "Claimed", s);
+            } else {
+                glow(ui, bb, pulse, s);
+                ui.button(bb, "Claim", Kind::Primary, inside(bb, mouse), s);
+                self.hits.push((Hit::Gift(k), bb));
+            }
+            gy += gr[3] + 10.0 * s;
+        }
         // the track: seven days a row
         let cols = 7;
         let rows = days.div_ceil(cols);
-        let gy = body[1] + 58.0 * s;
         let gap = 8.0 * s;
         let tw = (body[2] - gap * (cols - 1) as f32) / cols as f32;
         let th = ((body[1] + body[3] - gy - gap * (rows - 1) as f32) / rows as f32).min(92.0 * s);
@@ -993,6 +1045,7 @@ mod tests {
                 next_rewards: vec![].into(),
             }]
             .into(),
+            gifts: None,
         }
     }
 
@@ -1018,6 +1071,32 @@ mod tests {
         assert_eq!(q.ready_in(Tab::Daily), 1);
         // the login toast comes once a day
         assert_eq!(q.toasts.iter().filter(|t| t.kind == NOTICE_LOGIN).count(), 1);
+    }
+
+    #[test]
+    fn gifts_wait_on_the_daily_rewards_tab() {
+        let gift = |claimed| bsk_proto::QuestGiftInfo {
+            id: "lil_oryx".into(),
+            title: "Lil' Oryx".into(),
+            text: "x".into(),
+            ends_at: 1_802_000_000,
+            claimed,
+            rewards: vec![QuestReward { kind: 1, item: 0xD16A, amount: 1 }].into(),
+        };
+        let mut q = Quests::default();
+        let mut d = data();
+        d.login_ready = false;
+        d.gifts = Some(vec![gift(false)].into());
+        q.event(Event::Data(Box::new(d.clone())), 0);
+        assert_eq!(q.ready_in(Tab::Login), 1);
+        assert_eq!(q.toasts.iter().filter(|t| t.kind == NOTICE_GIFT).count(), 1);
+        // said once, however often the data comes
+        q.event(Event::Data(Box::new(d.clone())), 10);
+        assert_eq!(q.toasts.iter().filter(|t| t.kind == NOTICE_GIFT).count(), 1);
+        assert_eq!(q.toast_tab(NOTICE_GIFT), Tab::Login);
+        d.gifts = Some(vec![gift(true)].into());
+        q.event(Event::Data(Box::new(d)), 20);
+        assert_eq!(q.ready_in(Tab::Login), 0);
     }
 
     #[test]

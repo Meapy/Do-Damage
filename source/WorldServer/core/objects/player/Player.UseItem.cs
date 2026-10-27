@@ -183,6 +183,23 @@ namespace WorldServer.core.objects
                     return;
                 }
 
+            // a pet generator that's used up (Lil' Oryx's) isn't spent on the pet its user already has
+            foreach (var eff in item.ActivateEffects)
+                if (eff.Effect == ActivateEffects.PermaPet && item.Consumable)
+                {
+                    var gameData = GameServer.Resources.GameData;
+                    if (eff.ObjectId == null || !gameData.IdToObjectType.TryGetValue(eff.ObjectId, out var petType))
+                    {
+                        Refuse("This item doesn't work yet.");
+                        return;
+                    }
+                    if (PetId == petType)
+                    {
+                        Refuse($"You already have {gameData.ObjectDescs[petType].DisplayName}.");
+                        return;
+                    }
+                }
+
             // an item whose effect the server can't carry out isn't spent for nothing
             if (!CanCarryOut(item))
             {

@@ -48,7 +48,7 @@ namespace Shared.database.market
             {
                 var l = JsonConvert.DeserializeObject<DbMarketData>(i.Value);
 
-                if (l.TimeLeft < DateTime.UtcNow.ToUnixTimestamp())
+                if (l.TimeLeft < DateTime.UtcNow.ToUnixTimestamp() && db.ClaimMarketEntry(l.Id))
                 {
                     var owner = db.GetAccount(l.SellerId);
 
@@ -65,6 +65,8 @@ namespace Shared.database.market
             foreach (var i in allOffers)
             {
                 var l = JsonConvert.DeserializeObject<DbMarketData>(i.Value);
+                if (!db.ClaimMarketEntry(l.Id))
+                    continue;
                 var owner = db.GetAccount(l.SellerId);
 
                 db.RemoveMarketEntrySafety(owner, l.Id);

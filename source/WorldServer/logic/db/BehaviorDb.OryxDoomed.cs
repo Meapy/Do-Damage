@@ -187,7 +187,9 @@ namespace WorldServer.logic
                     new ItemLoot("Gem of Tenderness", 0.012),
                     new ItemLoot("Corruption Cutter", 0.012),
                     new ItemLoot("Cloak of Bloody Surprises", 0.012),
-                    new ItemLoot("Doom Poison", 0.003)
+                    new ItemLoot("Doom Poison", 0.003),
+                    // his Lil' Oryx, in a white bag (each Oryx drops his own)
+                    new ItemLoot("Lil' Infernal Oryx Generator", 0.01)
                 ),
                 // 5% of the damage: the gear
                 new Threshold(0.05,

@@ -31,6 +31,17 @@ namespace WorldServer.core.net.handlers.market
 
             var player = client.Player;
 
+            // each slot once: the same slot twice would list its item twice
+            if (slots.Distinct().Count() != slots.Length || slots.Any(s => s >= player.Inventory.Length))
+            {
+                client.SendPacket(new MarketAddResult
+                {
+                    Code = MarketAddResult.SLOT_IS_NULL,
+                    Description = "Pick each item once."
+                });
+                return;
+            }
+
             if (!HandleInvalidUptime(client, hours) || !HandleInvalidPrice(client, price) || !HandleInvalidCurrency(client, currency))
                 return;
 

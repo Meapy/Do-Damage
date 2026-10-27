@@ -15,6 +15,8 @@ namespace Shared.quests
         [JsonProperty("ach")] public Dictionary<string, AchievementState> Achievements { get; set; } = new Dictionary<string, AchievementState>();
         // the rank whose name colour the player chose (-1: none, the default colour)
         [JsonProperty("color")] public int ColorRank { get; set; } = -1;
+        // the gifts claimed (QuestData.Gifts), by id
+        [JsonProperty("gifts")] public List<string> Gifts { get; set; } = new List<string>();
 
         public PeriodState Of(QuestPeriod p) => Periods[(int)p];
 
@@ -33,6 +35,7 @@ namespace Shared.quests
                     s.Periods[i] ??= new PeriodState();
                 s.Login ??= new LoginState();
                 s.Achievements ??= new Dictionary<string, AchievementState>();
+                s.Gifts ??= new List<string>();
                 return s;
             }
             catch (JsonException)

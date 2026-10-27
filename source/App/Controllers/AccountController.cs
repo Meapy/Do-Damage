@@ -248,12 +248,25 @@ namespace App.Controllers
         }
 
         /// <summary>At most 10 new guests an hour from one address, and 300 an hour in all.</summary>
-        private static class GuestLimit
-        {
-            private static readonly Dictionary<string, List<DateTime>> ByIp = new();
-            private static readonly List<DateTime> All = new();
+        private static readonly HourlyLimit GuestLimit = new(10, 300);
 
-            public static bool Allow(string ip)
+        /// <summary>At most 5 registrations an hour from one address, and 100 an hour in all.</summary>
+        private static readonly HourlyLimit RegisterLimit = new(5, 100);
+
+        private sealed class HourlyLimit
+        {
+            private readonly Dictionary<string, List<DateTime>> ByIp = new();
+            private readonly List<DateTime> All = new();
+            private readonly int PerIp;
+            private readonly int Total;
+
+            public HourlyLimit(int perIp, int total)
+            {
+                PerIp = perIp;
+                Total = total;
+            }
+
+            public bool Allow(string ip)
             {
                 var now = DateTime.UtcNow;
                 lock (All)
@@ -268,7 +281,7 @@ namespace App.Controllers
 
                     if (!ByIp.TryGetValue(ip, out var times))
                         ByIp[ip] = times = new List<DateTime>();
-                    if (times.Count >= 10 || All.Count >= 300)
+                    if (times.Count >= PerIp || All.Count >= Total)
                         return false;
                     times.Add(now);
                     All.Add(now);
@@ -322,6 +335,12 @@ namespace App.Controllers
             if (!IsValidPassword(newPassword))
             {
                 Response.CreateError(PasswordRule);
+                return;
+            }
+
+            if (!RegisterLimit.Allow(ClientIp()))
+            {
+                Response.CreateError("Too many new accounts from here. Try again later.");
                 return;
             }
 

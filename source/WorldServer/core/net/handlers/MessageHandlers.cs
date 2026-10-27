@@ -3,6 +3,8 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using Shared;
+using WorldServer.core.objects;
+using WorldServer.core.objects.containers;
 using WorldServer.core.worlds;
 using WorldServer.networking;
 
@@ -30,6 +32,22 @@ namespace WorldServer.core.net.handlers
                 }
             }
             return true;
+        }
+
+        // Whether the player may take items out of this entity's slots: their own inventory, or a
+        // bag or chest within a tile of them that is theirs or everyone's (as InvSwap allows).
+        // Other players, enemies and bags out of reach or soulbound to someone else are not.
+        public static bool CanTakeFrom(Player player, Entity entity)
+        {
+            if (entity == player)
+                return true;
+            if (!(entity is Container container))
+                return false;
+            if (container.BagOwners.Length > 0 && !container.BagOwners.Contains(player.AccountId))
+                return false;
+            var dx = entity.X - player.X;
+            var dy = entity.Y - player.Y;
+            return dx * dx + dy * dy <= 1;
         }
     }
 

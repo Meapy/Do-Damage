@@ -4,7 +4,8 @@
     "Quests: 'period' daily, weekly or monthly; 'event' what counts (QuestEvents in QuestData.cs); 'goal'; 'filter' narrows the event; 'mode' max counts the best single value instead of a sum.",
     "'group' keeps two quests of the same kind out of one period. 'weight' makes a quest more or less likely to be drawn.",
     "Rewards: {\"fame\": n} goes to the account, {\"item\": \"<id>\", \"count\": n} to the inventory or else the vault's gift chest.",
-    "Text: {n} is the goal. Changing a quest's id drops it from everyone's current list at the next reset."
+    "Text: {n} is the goal. Changing a quest's id drops it from everyone's current list at the next reset.",
+    "Gifts: each account can claim one once while it's open, 'from' (optional) to 'until', UTC days (yyyy-MM-dd) both included. A claim is kept by id, so give a new gift a new id."
   ],
   "slots": { "daily": 3, "weekly": 3, "monthly": 3 },
   "rerolls": { "daily": 1, "weekly": 1, "monthly": 1 },
@@ -126,5 +127,8 @@
     { "points": 1000, "name": "Hero", "color": "0x5BE3A0" },
     { "points": 1600, "name": "Legend", "color": "0x77B5F2" },
     { "points": 2400, "name": "Mythic", "color": "0xFF7A3D" }
+  ],
+  "gifts": [
+    { "id": "lil_oryx_2026_11", "title": "Lil' Oryx", "text": "One free Lil' Oryx per account, this month only. Each Oryx drops a Lil' Oryx of his own.", "from": "2026-10-27", "until": "2026-11-27", "rewards": [ { "item": "Lil' Oryx Generator" } ] }
   ]
 }

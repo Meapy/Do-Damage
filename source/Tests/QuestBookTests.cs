@@ -341,6 +341,32 @@ namespace Tests
         }
 
         [Fact]
+        public void AGiftIsClaimedOnceWhileItIsOpen()
+        {
+            var gift = Data.Gift("lil_oryx_2026_11");
+            Assert.NotNull(gift);
+            Assert.Equal("Lil' Oryx Generator", gift.Rewards.Single().Item);
+            var open = new DateTime(2026, 11, 27, 23, 59, 0, DateTimeKind.Utc);
+            var book = NewBook();
+            // not before its first day, nor after its last
+            Assert.Empty(book.OpenGifts(new DateTime(2026, 10, 26, 23, 59, 0, DateTimeKind.Utc)));
+            Assert.Empty(book.OpenGifts(open.AddMinutes(1)));
+            Assert.False(book.ClaimGift(gift.Id, open.AddMinutes(1)).Ok);
+            Assert.False(book.ClaimGift(gift.Id, Wed).Ok);
+            Assert.Contains(gift, book.OpenGifts(open));
+            var ready = book.ReadyCount(open);
+            var claim = book.ClaimGift(gift.Id, open);
+            Assert.True(claim.Ok, claim.Message);
+            Assert.Equal("Lil' Oryx Generator", claim.Rewards.Single().Item);
+            Assert.Equal(ready - 1, book.ReadyCount(open));
+            // once per account, after a reload too
+            var back = new QuestBook(Data, QuestState.FromJson(book.State.ToJson()), 7);
+            Assert.True(back.GiftClaimed(gift));
+            Assert.False(back.ClaimGift(gift.Id, open).Ok);
+            Assert.False(NewBook().ClaimGift("no_such_gift", open).Ok);
+        }
+
+        [Fact]
         public void DifficultyFollowsBossHealth()
         {
             Assert.Equal(0, Data.DifficultyOf(5000));

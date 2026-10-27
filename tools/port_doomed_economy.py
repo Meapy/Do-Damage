@@ -46,8 +46,8 @@ NOT_SOLD = {"Twilight Generator", "Dinosaur's Pet Generator", "Crown", "God Rush
             "America Sword", "Turkey Leg of Doom", "America Shield", "Spell of Invisibility", "Spell of Life",
             "Spell of Shielding", "Spell of Teleportation", "Tome of Poison", "Tome of Speed", "Tome of the Dead",
             "Tome of Shining Stars",
-            # Oryx 4's alone (the Oryx UT pass)
-            "Doom Poison",
+            # Oryx 4's alone (the Oryx UT pass), and Lil' Oryx, which Oryx 4 and 5 drop
+            "Doom Poison", "Lil' Oryx Generator",
             # no longer needed: Oryx 1 leaves the Wine Cellar portal open (players keep and can sell theirs)
             "Wine Cellar Incantation"}
 # items gone from the forge (the Oryx UT pass): the old forge materials, which the forge shards

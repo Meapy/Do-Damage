@@ -438,7 +438,9 @@ namespace WorldServer.logic
                     new ItemLoot("Ascended Gem of Adoration", 0.012),
                     new ItemLoot("Ascended Gem of Tenderness", 0.012),
                     new ItemLoot("Staff of Heavens", 0.004),
-                    new ItemLoot("Eternal Sword", 0.001)
+                    new ItemLoot("Eternal Sword", 0.001),
+                    // his Lil' Oryx, in a white bag (each Oryx drops his own)
+                    new ItemLoot("Lil' Ascended Oryx Generator", 0.01)
                 ),
                 // 5% of the damage: the gear
                 new Threshold(0.05,

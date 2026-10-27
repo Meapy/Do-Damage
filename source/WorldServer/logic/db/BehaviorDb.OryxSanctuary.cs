@@ -248,7 +248,9 @@ namespace WorldServer.logic
                     new ItemLoot("Lumiaire", 0.004),
                     new ItemLoot("Divinity", 0.004),
                     new ItemLoot("Chaotic Scripture", 0.004),
-                    new ItemLoot("Ballistic Star", 0.004)
+                    new ItemLoot("Ballistic Star", 0.004),
+                    // his Lil' Oryx, in a white bag (each Oryx drops his own)
+                    new ItemLoot("Lil' Celestial Oryx Generator", 0.01)
                 ),
                 // 5% of the damage: the gear
                 new Threshold(0.05,

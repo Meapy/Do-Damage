@@ -6320,16 +6320,17 @@
 		<DisplayId>Lil' Oryx</DisplayId>
 		<Class>Equipment</Class>
 		<Item />
-		<Admin />
 		<Texture>
-			<File>drLofiObj2</File>
-			<Index>0x5e</Index>
+			<File>oryxUts8x8</File>
+			<Index>6</Index>
 		</Texture>
 		<SlotType>10</SlotType>
-		<Description>Every evil boss creates miniature versions of himself.  It's just something they do.</Description>
+		<Soulbound />
+		<Description>Every evil boss creates miniature versions of himself. It's just something they do. Using it gives you Lil' Oryx for good, and uses it up. Oryx the Mad God drops it in his Chamber.</Description>
+		<BagType>6</BagType>
 		<Sound>spell/light_heal</Sound>
 		<Consumable />
-		<Activate objectId="Lil' Oryx (Doomed)" cooldown="10" petDps="2800" petSize="Admin" petHp="200" petHpMs="800" petMp="200" petMpMs="800">PermaPet</Activate>
+		<Activate objectId="Lil' Oryx (Doomed)" cooldown="10" petDps="1001" petSize="Oryx" petHp="60" petHpMs="1500" petMp="60" petMpMs="1500">PermaPet</Activate>
 		<OldSound>use_potion</OldSound>
 		<Shop>
 			<Name>donor</Name>
@@ -10422,47 +10423,87 @@
 		</AnimatedTexture>
 		<NoMiniMap />
 		<Projectile id="0">
-			<ObjectId>Fire Bolt</ObjectId>
-			<Damage>135</Damage>
-			<Speed>70</Speed>
-			<LifetimeMS>2500</LifetimeMS>
+			<ObjectId>White Bullet</ObjectId>
+			<Speed>30</Speed>
+			<Damage>111</Damage>
+			<Size>120</Size>
+			<LifetimeMS>700</LifetimeMS>
+			<MultiHit />
 		</Projectile>
 		<Projectile id="1">
-			<ObjectId>Green Star</ObjectId>
-			<Damage>160</Damage>
-			<Speed>70</Speed>
-			<LifetimeMS>2500</LifetimeMS>
+			<ObjectId>White Flame</ObjectId>
+			<Speed>100</Speed>
+			<Damage>194</Damage>
+			<Size>250</Size>
+			<LifetimeMS>800</LifetimeMS>
+			<MultiHit />
 		</Projectile>
 		<Projectile id="2">
-			<ObjectId>Blade</ObjectId>
-			<Damage>240</Damage>
-			<Speed>100</Speed>
-			<LifetimeMS>450</LifetimeMS>
+			<ObjectId>White Bolt</ObjectId>
+			<Speed>80</Speed>
+			<Damage>62</Damage>
+			<LifetimeMS>1600</LifetimeMS>
+			<ArmorPiercing />
+			<MultiHit />
 		</Projectile>
 		<Projectile id="3">
-			<ObjectId>Purple Star</ObjectId>
-			<Damage>160</Damage>
-			<Speed>55</Speed>
-			<LifetimeMS>3000</LifetimeMS>
+			<ObjectId>Fire Bolt</ObjectId>
+			<Speed>100</Speed>
+			<Damage>28</Damage>
+			<LifetimeMS>2000</LifetimeMS>
 		</Projectile>
 		<Projectile id="4">
-			<ObjectId>Blue Star</ObjectId>
-			<Damage>160</Damage>
-			<Speed>105</Speed>
-			<LifetimeMS>1200</LifetimeMS>
+			<ObjectId>Green Star</ObjectId>
+			<Speed>80</Speed>
+			<Damage>42</Damage>
+			<LifetimeMS>2000</LifetimeMS>
 		</Projectile>
 		<Projectile id="5">
-			<ObjectId>Grey Star</ObjectId>
-			<Damage>160</Damage>
-			<Speed>45</Speed>
-			<LifetimeMS>3000</LifetimeMS>
+			<ObjectId>White Blue Bubble</ObjectId>
+			<Speed>30</Speed>
+			<Damage>69</Damage>
+			<Size>90</Size>
+			<LifetimeMS>4000</LifetimeMS>
+			<MultiHit />
 		</Projectile>
 		<Projectile id="6">
-			<ObjectId>Red Star</ObjectId>
-			<Damage>160</Damage>
+			<ObjectId>White Ball</ObjectId>
+			<Speed>30</Speed>
+			<Damage>83</Damage>
+			<Size>100</Size>
+			<LifetimeMS>800</LifetimeMS>
+			<MultiHit />
+		</Projectile>
+		<Projectile id="7">
+			<ObjectId>Silver Shield</ObjectId>
+			<Speed>30</Speed>
+			<Damage>201</Damage>
+			<Size>130</Size>
+			<LifetimeMS>500</LifetimeMS>
+			<MultiHit />
+		</Projectile>
+		<Projectile id="8">
+			<ObjectId>White Bullet</ObjectId>
+			<Speed>40</Speed>
+			<Damage>62</Damage>
+			<Size>90</Size>
+			<LifetimeMS>2500</LifetimeMS>
+			<MultiHit />
+		</Projectile>
+		<Projectile id="9">
+			<ObjectId>White Bullet</ObjectId>
 			<Speed>55</Speed>
-			<LifetimeMS>3000</LifetimeMS>
-			<ArmorPiercing />
+			<Damage>277</Damage>
+			<Size>200</Size>
+			<LifetimeMS>2100</LifetimeMS>
+			<MultiHit />
+		</Projectile>
+		<Projectile id="12">
+			<ObjectId>White Bullet</ObjectId>
+			<Speed>30</Speed>
+			<Damage>83</Damage>
+			<Size>75</Size>
+			<LifetimeMS>1900</LifetimeMS>
 		</Projectile>
 		<Projectile id="13">
 			<ObjectId>Dark Gray Spinner</ObjectId>
@@ -10478,6 +10519,47 @@
 			<Size>100</Size>
 			<Damage>1</Damage>
 			<LifetimeMS>1800</LifetimeMS>
+			<MultiHit />
+		</Projectile>
+		<Projectile id="15">
+			<ObjectId>White Ball</ObjectId>
+			<Speed>10</Speed>
+			<Size>100</Size>
+			<Damage>69</Damage>
+			<LifetimeMS>2000</LifetimeMS>
+			<Parametric />
+			<Magnitude>1</Magnitude>
+			<MultiHit />
+		</Projectile>
+		<Projectile id="16">
+			<ObjectId>White Superblast</ObjectId>
+			<Speed>55</Speed>
+			<Size>240</Size>
+			<Damage>145</Damage>
+			<LifetimeMS>3000</LifetimeMS>
+			<MultiHit />
+		</Projectile>
+		<Projectile id="17">
+			<ObjectId>White Ball Blast</ObjectId>
+			<Speed>85</Speed>
+			<Size>120</Size>
+			<Damage>125</Damage>
+			<LifetimeMS>3000</LifetimeMS>
+		</Projectile>
+		<Projectile id="18">
+			<ObjectId>White Star Stunner</ObjectId>
+			<Speed>40</Speed>
+			<Size>100</Size>
+			<Damage>69</Damage>
+			<LifetimeMS>3000</LifetimeMS>
+			<MultiHit />
+		</Projectile>
+		<Projectile id="19">
+			<ObjectId>White Ball Blast</ObjectId>
+			<Speed>35</Speed>
+			<Size>90</Size>
+			<Damage>69</Damage>
+			<LifetimeMS>3000</LifetimeMS>
 			<MultiHit />
 		</Projectile>
 		<Size>60</Size>
@@ -20702,5 +20784,810 @@
 		<NoMiniMap />
 		<MaxHitPoints>10</MaxHitPoints>
 		<Size>0</Size>
+	</Object>
+	<Object type="0xD3E3" id="Lil' Ascended Oryx">
+		<DisplayId>Lil' Ascended Oryx</DisplayId>
+		<Class>Character</Class>
+		<Group>Hexable</Group>
+		<AnimatedTexture>
+			<File>elysiumOryx16x16</File>
+			<Index>0</Index>
+		</AnimatedTexture>
+		<NoMiniMap />
+		<Projectile id="0">
+			<ObjectId>Azure Lance</ObjectId>
+			<Damage>301</Damage>
+			<Speed>110</Speed>
+			<LifetimeMS>1600</LifetimeMS>
+			<Size>100</Size>
+			<MultiHit />
+		</Projectile>
+		<Projectile id="1">
+			<ObjectId>Sunfire Missile</ObjectId>
+			<Damage>284</Damage>
+			<Speed>90</Speed>
+			<LifetimeMS>1800</LifetimeMS>
+			<Size>100</Size>
+		</Projectile>
+		<Projectile id="2">
+			<ObjectId>Divine Spike</ObjectId>
+			<Damage>334</Damage>
+			<Speed>120</Speed>
+			<LifetimeMS>800</LifetimeMS>
+			<Size>130</Size>
+		</Projectile>
+		<Projectile id="3">
+			<ObjectId>Divine Spike</ObjectId>
+			<Damage>334</Damage>
+			<Speed>95</Speed>
+			<LifetimeMS>950</LifetimeMS>
+			<Size>120</Size>
+		</Projectile>
+		<Projectile id="4">
+			<ObjectId>Divine Spike</ObjectId>
+			<Damage>334</Damage>
+			<Speed>75</Speed>
+			<LifetimeMS>1100</LifetimeMS>
+			<Size>110</Size>
+		</Projectile>
+		<Projectile id="5">
+			<ObjectId>Radiant Beam</ObjectId>
+			<Damage>184</Damage>
+			<Speed>70</Speed>
+			<LifetimeMS>1600</LifetimeMS>
+			<Size>100</Size>
+			<MultiHit />
+		</Projectile>
+		<Projectile id="6">
+			<ObjectId>Holy Wave</ObjectId>
+			<Damage>200</Damage>
+			<Speed>70</Speed>
+			<LifetimeMS>1600</LifetimeMS>
+			<Size>100</Size>
+			<MultiHit />
+		</Projectile>
+		<Projectile id="7">
+			<ObjectId>Divine Spear</ObjectId>
+			<Damage>635</Damage>
+			<Speed>40</Speed>
+			<LifetimeMS>4200</LifetimeMS>
+			<Size>220</Size>
+		</Projectile>
+		<Projectile id="8">
+			<ObjectId>Azure Lance</ObjectId>
+			<Damage>301</Damage>
+			<Speed>30</Speed>
+			<LifetimeMS>6000</LifetimeMS>
+			<Size>100</Size>
+			<MultiHit />
+		</Projectile>
+		<Projectile id="9">
+			<ObjectId>Sunfire Missile</ObjectId>
+			<Damage>284</Damage>
+			<Speed>26</Speed>
+			<LifetimeMS>6500</LifetimeMS>
+			<Size>100</Size>
+		</Projectile>
+		<Size>60</Size>
+		<ShadowSize>70</ShadowSize>
+	</Object>
+	<Object type="0xD3E4" id="Lil' Celestial Oryx">
+		<DisplayId>Lil' Celestial Oryx</DisplayId>
+		<Class>Character</Class>
+		<Group>Hexable</Group>
+		<AnimatedTexture>
+			<File>oryxSanctuaryChars32x32</File>
+			<Index>0</Index>
+		</AnimatedTexture>
+		<NoMiniMap />
+		<Projectile id="0">
+			<ObjectId>O3 White Big Missile</ObjectId>
+			<Damage>166</Damage>
+			<Speed>70</Speed>
+			<LifetimeMS>2500</LifetimeMS>
+			<MultiHit />
+			<Size>140</Size>
+		</Projectile>
+		<Projectile id="1">
+			<ObjectId>O3 White Big Spike</ObjectId>
+			<Damage>166</Damage>
+			<Speed>100</Speed>
+			<LifetimeMS>2500</LifetimeMS>
+			<Size>140</Size>
+			<MultiHit />
+		</Projectile>
+		<Projectile id="30">
+			<ObjectId>O3 Exalted Big Missile</ObjectId>
+			<Damage>199</Damage>
+			<Speed>70</Speed>
+			<LifetimeMS>2500</LifetimeMS>
+			<MultiHit />
+			<Size>140</Size>
+		</Projectile>
+		<Projectile id="31">
+			<ObjectId>O3 Exalted Big Spike</ObjectId>
+			<Damage>199</Damage>
+			<Speed>100</Speed>
+			<LifetimeMS>2500</LifetimeMS>
+			<Size>140</Size>
+			<MultiHit />
+		</Projectile>
+		<Projectile id="2">
+			<ObjectId>O3 White Wheel MRot</ObjectId>
+			<Damage>146</Damage>
+			<Speed>0</Speed>
+			<LifetimeMS>8000</LifetimeMS>
+			<MultiHit />
+		</Projectile>
+		<Projectile id="3">
+			<ObjectId>O3 White Blast</ObjectId>
+			<Damage>162</Damage>
+			<Speed>70</Speed>
+			<Size>140</Size>
+			<LifetimeMS>1500</LifetimeMS>
+			<MultiHit />
+		</Projectile>
+		<Projectile id="7">
+			<ObjectId>O3 White Wave</ObjectId>
+			<Damage>105</Damage>
+			<Speed>160</Speed>
+			<LifetimeMS>500</LifetimeMS>
+			<MultiHit />
+		</Projectile>
+		<Projectile id="32">
+			<ObjectId>O3 Exalted Wheel MRot</ObjectId>
+			<Damage>170</Damage>
+			<Speed>0</Speed>
+			<LifetimeMS>8000</LifetimeMS>
+			<MultiHit />
+		</Projectile>
+		<Projectile id="33">
+			<ObjectId>O3 Exalted Blast</ObjectId>
+			<Damage>195</Damage>
+			<Speed>70</Speed>
+			<LifetimeMS>3000</LifetimeMS>
+			<Size>140</Size>
+			<FaceDir />
+			<Boomerang />
+			<MultiHit />
+		</Projectile>
+		<Projectile id="37">
+			<ObjectId>O3 Exalted Wave</ObjectId>
+			<Damage>114</Damage>
+			<Speed>160</Speed>
+			<LifetimeMS>500</LifetimeMS>
+			<MultiHit />
+		</Projectile>
+		<Projectile id="4">
+			<ObjectId>O3 White Bolt</ObjectId>
+			<Damage>138</Damage>
+			<Speed>60</Speed>
+			<LifetimeMS>1600</LifetimeMS>
+			<MultiHit />
+		</Projectile>
+		<Projectile id="5">
+			<ObjectId>O3 White Bolt</ObjectId>
+			<Damage>138</Damage>
+			<Speed>80</Speed>
+			<LifetimeMS>1600</LifetimeMS>
+			<MultiHit />
+		</Projectile>
+		<Projectile id="6">
+			<ObjectId>O3 White Bolt</ObjectId>
+			<Damage>138</Damage>
+			<Speed>100</Speed>
+			<LifetimeMS>1600</LifetimeMS>
+			<MultiHit />
+		</Projectile>
+		<Projectile id="34">
+			<ObjectId>O3 Exalted Bolt</ObjectId>
+			<Damage>158</Damage>
+			<Speed>60</Speed>
+			<LifetimeMS>1600</LifetimeMS>
+			<MultiHit />
+		</Projectile>
+		<Projectile id="35">
+			<ObjectId>O3 Exalted Bolt</ObjectId>
+			<Damage>158</Damage>
+			<Speed>80</Speed>
+			<LifetimeMS>1600</LifetimeMS>
+			<MultiHit />
+		</Projectile>
+		<Projectile id="36">
+			<ObjectId>O3 Exalted Bolt</ObjectId>
+			<Damage>158</Damage>
+			<Speed>100</Speed>
+			<LifetimeMS>1600</LifetimeMS>
+			<MultiHit />
+		</Projectile>
+		<Projectile id="8">
+			<ObjectId>O3 White Big Bolt</ObjectId>
+			<Damage>146</Damage>
+			<Speed>70</Speed>
+			<LifetimeMS>2500</LifetimeMS>
+			<Size>140</Size>
+			<MultiHit />
+		</Projectile>
+		<Projectile id="9">
+			<ObjectId>O3 White Big Ball MRot</ObjectId>
+			<Damage>105</Damage>
+			<Speed>80</Speed>
+			<LifetimeMS>2500</LifetimeMS>
+			<MultiHit />
+		</Projectile>
+		<Projectile id="38">
+			<ObjectId>O3 Exalted Big Bolt</ObjectId>
+			<Damage>170</Damage>
+			<Speed>80</Speed>
+			<LifetimeMS>2500</LifetimeMS>
+			<Size>140</Size>
+			<MultiHit />
+		</Projectile>
+		<Projectile id="39">
+			<ObjectId>O3 Exalted Big Ball MRot</ObjectId>
+			<Damage>150</Damage>
+			<Speed>140</Speed>
+			<LifetimeMS>2500</LifetimeMS>
+			<MultiHit />
+		</Projectile>
+		<Projectile id="10">
+			<ObjectId>O3 White Big Missile</ObjectId>
+			<Damage>186</Damage>
+			<Speed>90</Speed>
+			<LifetimeMS>2000</LifetimeMS>
+			<Size>160</Size>
+			<MultiHit />
+		</Projectile>
+		<Projectile id="40">
+			<ObjectId>O3 Exalted Big Missile</ObjectId>
+			<Damage>227</Damage>
+			<Speed>110</Speed>
+			<LifetimeMS>1700</LifetimeMS>
+			<Size>160</Size>
+			<MultiHit />
+		</Projectile>
+		<Projectile id="11">
+			<ObjectId>O3 White Bash</ObjectId>
+			<Damage>195</Damage>
+			<Speed>80</Speed>
+			<LifetimeMS>2500</LifetimeMS>
+			<Size>140</Size>
+			<MultiHit />
+		</Projectile>
+		<Projectile id="12">
+			<ObjectId>O3 White Glaive</ObjectId>
+			<Damage>170</Damage>
+			<Speed>110</Speed>
+			<LifetimeMS>3000</LifetimeMS>
+			<Size>140</Size>
+			<MultiHit />
+		</Projectile>
+		<Projectile id="41">
+			<ObjectId>O3 Exalted Bash</ObjectId>
+			<Damage>239</Damage>
+			<Speed>80</Speed>
+			<LifetimeMS>2500</LifetimeMS>
+			<Size>140</Size>
+			<MultiHit />
+		</Projectile>
+		<Projectile id="42">
+			<ObjectId>O3 Exalted Glaive</ObjectId>
+			<Damage>162</Damage>
+			<Speed>110</Speed>
+			<LifetimeMS>3000</LifetimeMS>
+			<Size>140</Size>
+			<MultiHit />
+			<FaceDir />
+			<Boomerang />
+		</Projectile>
+		<Projectile id="13">
+			<ObjectId>O3 White Missile</ObjectId>
+			<Damage>186</Damage>
+			<Speed>110</Speed>
+			<LifetimeMS>2500</LifetimeMS>
+			<Size>140</Size>
+			<MultiHit />
+		</Projectile>
+		<Projectile id="43">
+			<ObjectId>O3 Exalted Missile</ObjectId>
+			<Damage>227</Damage>
+			<Speed>110</Speed>
+			<LifetimeMS>2500</LifetimeMS>
+			<Size>140</Size>
+			<MultiHit />
+		</Projectile>
+		<Projectile id="14">
+			<ObjectId>O3 White Big Spinner MRot</ObjectId>
+			<Damage>146</Damage>
+			<Speed>90</Speed>
+			<LifetimeMS>2500</LifetimeMS>
+			<MultiHit />
+		</Projectile>
+		<Projectile id="15">
+			<ObjectId>O3 White Big Bolt</ObjectId>
+			<Damage>227</Damage>
+			<Speed>120</Speed>
+			<Size>180</Size>
+			<LifetimeMS>2500</LifetimeMS>
+			<MultiHit />
+		</Projectile>
+		<Projectile id="16">
+			<ObjectId>O3 White Spear</ObjectId>
+			<Damage>166</Damage>
+			<Speed>90</Speed>
+			<LifetimeMS>2500</LifetimeMS>
+			<Size>140</Size>
+			<MultiHit />
+		</Projectile>
+		<Projectile id="44">
+			<ObjectId>O3 Exalted Big Spinner MRot</ObjectId>
+			<Damage>170</Damage>
+			<Speed>90</Speed>
+			<LifetimeMS>2500</LifetimeMS>
+			<MultiHit />
+		</Projectile>
+		<Projectile id="45">
+			<ObjectId>O3 Exalted Big Bolt</ObjectId>
+			<Damage>284</Damage>
+			<Speed>120</Speed>
+			<Size>180</Size>
+			<LifetimeMS>2500</LifetimeMS>
+			<MultiHit />
+		</Projectile>
+		<Projectile id="46">
+			<ObjectId>O3 Exalted Spear</ObjectId>
+			<Damage>199</Damage>
+			<Speed>90</Speed>
+			<LifetimeMS>2500</LifetimeMS>
+			<Size>140</Size>
+			<MultiHit />
+		</Projectile>
+		<Projectile id="17">
+			<ObjectId>O3 White Big Wave</ObjectId>
+			<Damage>109</Damage>
+			<Speed>90</Speed>
+			<LifetimeMS>2500</LifetimeMS>
+			<Size>140</Size>
+			<MultiHit />
+			<ArmorPiercing />
+		</Projectile>
+		<Projectile id="18">
+			<ObjectId>O3 White Big Bash</ObjectId>
+			<Damage>109</Damage>
+			<Speed>70</Speed>
+			<LifetimeMS>2500</LifetimeMS>
+			<Size>140</Size>
+			<MultiHit />
+			<ArmorPiercing />
+		</Projectile>
+		<Projectile id="47">
+			<ObjectId>O3 Exalted Big Wave</ObjectId>
+			<Damage>142</Damage>
+			<Speed>90</Speed>
+			<LifetimeMS>2500</LifetimeMS>
+			<Size>140</Size>
+			<MultiHit />
+			<ArmorPiercing />
+		</Projectile>
+		<Projectile id="48">
+			<ObjectId>O3 Exalted Big Bash</ObjectId>
+			<Damage>142</Damage>
+			<Speed>70</Speed>
+			<LifetimeMS>2500</LifetimeMS>
+			<Size>140</Size>
+			<MultiHit />
+			<ArmorPiercing />
+		</Projectile>
+		<Projectile id="19">
+			<ObjectId>O3 White Magic SRot</ObjectId>
+			<Damage>97</Damage>
+			<Speed>80</Speed>
+			<LifetimeMS>10000</LifetimeMS>
+			<MultiHit />
+			<Parametric />
+			<Magnitude>6</Magnitude>
+		</Projectile>
+		<Projectile id="20">
+			<ObjectId>O3 White Magic SRot</ObjectId>
+			<Damage>97</Damage>
+			<Speed>80</Speed>
+			<LifetimeMS>10000</LifetimeMS>
+			<MultiHit />
+			<Parametric />
+			<Magnitude>12</Magnitude>
+		</Projectile>
+		<Projectile id="21">
+			<ObjectId>O3 White Wave</ObjectId>
+			<Damage>186</Damage>
+			<Speed>110</Speed>
+			<Size>140</Size>
+			<LifetimeMS>2500</LifetimeMS>
+			<MultiHit />
+		</Projectile>
+		<Projectile id="22">
+			<ObjectId>O3 White Slash</ObjectId>
+			<Damage>158</Damage>
+			<Speed>70</Speed>
+			<LifetimeMS>2500</LifetimeMS>
+			<MultiHit />
+		</Projectile>
+		<Projectile id="49">
+			<ObjectId>O3 Exalted Magic SRot</ObjectId>
+			<Damage>114</Damage>
+			<Speed>80</Speed>
+			<LifetimeMS>10000</LifetimeMS>
+			<MultiHit />
+			<Parametric />
+			<Magnitude>6</Magnitude>
+		</Projectile>
+		<Projectile id="50">
+			<ObjectId>O3 Exalted Magic SRot</ObjectId>
+			<Damage>114</Damage>
+			<Speed>80</Speed>
+			<LifetimeMS>10000</LifetimeMS>
+			<MultiHit />
+			<Parametric />
+			<Magnitude>12</Magnitude>
+		</Projectile>
+		<Projectile id="51">
+			<ObjectId>O3 Exalted Wave</ObjectId>
+			<Damage>227</Damage>
+			<Speed>110</Speed>
+			<Size>140</Size>
+			<LifetimeMS>2500</LifetimeMS>
+			<MultiHit />
+		</Projectile>
+		<Projectile id="52">
+			<ObjectId>O3 Exalted Slash</ObjectId>
+			<Damage>186</Damage>
+			<Speed>70</Speed>
+			<LifetimeMS>2500</LifetimeMS>
+			<MultiHit />
+		</Projectile>
+		<Projectile id="53">
+			<ObjectId>O3 Exalted Big Wave</ObjectId>
+			<Damage>231</Damage>
+			<Speed>90</Speed>
+			<LifetimeMS>3000</LifetimeMS>
+			<Size>140</Size>
+			<MultiHit />
+			<ArmorPiercing />
+		</Projectile>
+		<Projectile id="54">
+			<ObjectId>O3 Exalted Big Bash</ObjectId>
+			<Damage>170</Damage>
+			<Speed>70</Speed>
+			<LifetimeMS>3000</LifetimeMS>
+			<Size>140</Size>
+			<MultiHit />
+			<ArmorPiercing />
+		</Projectile>
+		<Projectile id="55">
+			<ObjectId>O3 Exalted Big Spear</ObjectId>
+			<Damage>122</Damage>
+			<Speed>50</Speed>
+			<LifetimeMS>3000</LifetimeMS>
+			<Size>140</Size>
+			<MultiHit />
+			<ArmorPiercing />
+		</Projectile>
+		<Projectile id="56">
+			<ObjectId>O3 White Big Spear</ObjectId>
+			<Damage>1</Damage>
+			<Speed>0</Speed>
+			<LifetimeMS>0</LifetimeMS>
+			<Size>0</Size>
+			<MultiHit />
+			<ArmorPiercing />
+		</Projectile>
+		<Size>40</Size>
+		<ShadowSize>70</ShadowSize>
+	</Object>
+	<Object type="0xD3E5" id="Lil' Infernal Oryx">
+		<DisplayId>Lil' Infernal Oryx</DisplayId>
+		<Class>Character</Class>
+		<Group>Hexable</Group>
+		<AnimatedTexture>
+			<File>hashCellarOryx16x16</File>
+			<Index>0</Index>
+		</AnimatedTexture>
+		<NoMiniMap />
+		<Projectile id="0">
+			<ObjectId>White Bullet</ObjectId>
+			<Speed>30</Speed>
+			<Damage>186</Damage>
+			<Size>120</Size>
+			<LifetimeMS>700</LifetimeMS>
+			<MultiHit />
+		</Projectile>
+		<Projectile id="1">
+			<ObjectId>White Flame</ObjectId>
+			<Speed>100</Speed>
+			<Damage>343</Damage>
+			<Size>250</Size>
+			<LifetimeMS>800</LifetimeMS>
+			<MultiHit />
+		</Projectile>
+		<Projectile id="2">
+			<ObjectId>Hellfire Bolt</ObjectId>
+			<Speed>80</Speed>
+			<Damage>136</Damage>
+			<LifetimeMS>1600</LifetimeMS>
+			<ArmorPiercing />
+			<MultiHit />
+		</Projectile>
+		<Projectile id="3">
+			<ObjectId>Fire Bolt</ObjectId>
+			<Speed>100</Speed>
+			<Damage>100</Damage>
+			<LifetimeMS>2000</LifetimeMS>
+		</Projectile>
+		<Projectile id="4">
+			<ObjectId>Hellfire Star</ObjectId>
+			<Speed>80</Speed>
+			<Damage>114</Damage>
+			<LifetimeMS>2000</LifetimeMS>
+		</Projectile>
+		<Projectile id="5">
+			<ObjectId>White Blue Bubble</ObjectId>
+			<Speed>30</Speed>
+			<Damage>143</Damage>
+			<Size>90</Size>
+			<LifetimeMS>4000</LifetimeMS>
+			<MultiHit />
+		</Projectile>
+		<Projectile id="6">
+			<ObjectId>White Ball</ObjectId>
+			<Speed>30</Speed>
+			<Damage>157</Damage>
+			<Size>100</Size>
+			<LifetimeMS>800</LifetimeMS>
+			<MultiHit />
+		</Projectile>
+		<Projectile id="7">
+			<ObjectId>Silver Shield</ObjectId>
+			<Speed>30</Speed>
+			<Damage>278</Damage>
+			<Size>130</Size>
+			<LifetimeMS>500</LifetimeMS>
+			<MultiHit />
+		</Projectile>
+		<Projectile id="8">
+			<ObjectId>White Bullet</ObjectId>
+			<Speed>40</Speed>
+			<Damage>136</Damage>
+			<Size>90</Size>
+			<LifetimeMS>2500</LifetimeMS>
+			<MultiHit />
+		</Projectile>
+		<Projectile id="9">
+			<ObjectId>White Bullet</ObjectId>
+			<Speed>55</Speed>
+			<Damage>321</Damage>
+			<Size>200</Size>
+			<LifetimeMS>2100</LifetimeMS>
+			<MultiHit />
+		</Projectile>
+		<Projectile id="12">
+			<ObjectId>White Bullet</ObjectId>
+			<Speed>30</Speed>
+			<Damage>157</Damage>
+			<Size>75</Size>
+			<LifetimeMS>1900</LifetimeMS>
+		</Projectile>
+		<Projectile id="13">
+			<ObjectId>Dark Gray Spinner</ObjectId>
+			<Speed>90</Speed>
+			<Size>100</Size>
+			<Damage>7</Damage>
+			<LifetimeMS>1800</LifetimeMS>
+			<MultiHit />
+		</Projectile>
+		<Projectile id="14">
+			<ObjectId>Gray Spinner</ObjectId>
+			<Speed>90</Speed>
+			<Size>100</Size>
+			<Damage>7</Damage>
+			<LifetimeMS>1800</LifetimeMS>
+			<MultiHit />
+		</Projectile>
+		<Projectile id="15">
+			<ObjectId>White Ball</ObjectId>
+			<Speed>10</Speed>
+			<Size>100</Size>
+			<Damage>143</Damage>
+			<LifetimeMS>2000</LifetimeMS>
+			<Parametric />
+			<Magnitude>1</Magnitude>
+			<MultiHit />
+		</Projectile>
+		<Projectile id="16">
+			<ObjectId>White Superblast</ObjectId>
+			<Speed>55</Speed>
+			<Size>240</Size>
+			<Damage>293</Damage>
+			<LifetimeMS>3000</LifetimeMS>
+			<MultiHit />
+		</Projectile>
+		<Projectile id="17">
+			<ObjectId>White Ball Blast</ObjectId>
+			<Speed>85</Speed>
+			<Size>120</Size>
+			<Damage>200</Damage>
+			<LifetimeMS>3000</LifetimeMS>
+		</Projectile>
+		<Projectile id="18">
+			<ObjectId>White Star Stunner</ObjectId>
+			<Speed>40</Speed>
+			<Size>100</Size>
+			<Damage>357</Damage>
+			<LifetimeMS>3000</LifetimeMS>
+			<MultiHit />
+		</Projectile>
+		<Projectile id="19">
+			<ObjectId>White Ball Blast</ObjectId>
+			<Speed>35</Speed>
+			<Size>90</Size>
+			<Damage>143</Damage>
+			<LifetimeMS>3000</LifetimeMS>
+			<MultiHit />
+		</Projectile>
+		<Size>60</Size>
+		<ShadowSize>70</ShadowSize>
+	</Object>
+	<Object type="0xD3E6" id="Lil' Wine Cellar Oryx">
+		<DisplayId>Lil' Wine Cellar Oryx</DisplayId>
+		<Class>Character</Class>
+		<Group>Hexable</Group>
+		<Texture>
+			<File>lofiChar16x16</File>
+			<Index>0x54</Index>
+		</Texture>
+		<NoMiniMap />
+		<Projectile id="0">
+			<ObjectId>Fire Bolt</ObjectId>
+			<Damage>72</Damage>
+			<Speed>70</Speed>
+			<LifetimeMS>2500</LifetimeMS>
+		</Projectile>
+		<Projectile id="1">
+			<ObjectId>Green Star</ObjectId>
+			<Damage>86</Damage>
+			<Speed>70</Speed>
+			<LifetimeMS>2500</LifetimeMS>
+		</Projectile>
+		<Projectile id="2">
+			<ObjectId>Blade</ObjectId>
+			<Damage>129</Damage>
+			<Speed>100</Speed>
+			<LifetimeMS>450</LifetimeMS>
+		</Projectile>
+		<Projectile id="3">
+			<ObjectId>Purple Star</ObjectId>
+			<Damage>86</Damage>
+			<Speed>55</Speed>
+			<LifetimeMS>3000</LifetimeMS>
+		</Projectile>
+		<Projectile id="4">
+			<ObjectId>Blue Star</ObjectId>
+			<Damage>86</Damage>
+			<Speed>105</Speed>
+			<LifetimeMS>1200</LifetimeMS>
+		</Projectile>
+		<Projectile id="5">
+			<ObjectId>Grey Star</ObjectId>
+			<Damage>86</Damage>
+			<Speed>45</Speed>
+			<LifetimeMS>3000</LifetimeMS>
+		</Projectile>
+		<Projectile id="6">
+			<ObjectId>Red Star</ObjectId>
+			<Damage>86</Damage>
+			<Speed>55</Speed>
+			<LifetimeMS>3000</LifetimeMS>
+			<ArmorPiercing />
+		</Projectile>
+		<Projectile id="13">
+			<ObjectId>Dark Gray Spinner</ObjectId>
+			<Speed>90</Speed>
+			<Size>100</Size>
+			<Damage>1</Damage>
+			<LifetimeMS>1800</LifetimeMS>
+			<MultiHit />
+		</Projectile>
+		<Projectile id="14">
+			<ObjectId>Gray Spinner</ObjectId>
+			<Speed>90</Speed>
+			<Size>100</Size>
+			<Damage>1</Damage>
+			<LifetimeMS>1800</LifetimeMS>
+			<MultiHit />
+		</Projectile>
+		<Size>60</Size>
+		<ShadowSize>70</ShadowSize>
+	</Object>
+	<Object type="0xD3E7" id="Lil' Ascended Oryx Generator">
+		<DisplayId>Lil' Ascended Oryx</DisplayId>
+		<Class>Equipment</Class>
+		<Item />
+		<Texture>
+			<File>oryxUts8x8</File>
+			<Index>10</Index>
+		</Texture>
+		<SlotType>10</SlotType>
+		<Soulbound />
+		<Description>Every evil boss creates miniature versions of himself. It's just something they do. Using it gives you Lil' Ascended Oryx for good, and uses it up. Oryx the Ascended God drops it.</Description>
+		<BagType>6</BagType>
+		<Sound>spell/light_heal</Sound>
+		<Consumable />
+		<Activate objectId="Lil' Ascended Oryx" cooldown="10" petDps="3002" petSize="Oryx" petHp="60" petHpMs="1500" petMp="60" petMpMs="1500">PermaPet</Activate>
+		<OldSound>use_potion</OldSound>
+		<Shop>
+			<Name>donor</Name>
+			<Price>20</Price>
+		</Shop>
+	</Object>
+	<Object type="0xD3E8" id="Lil' Celestial Oryx Generator">
+		<DisplayId>Lil' Celestial Oryx</DisplayId>
+		<Class>Equipment</Class>
+		<Item />
+		<Texture>
+			<File>oryxUts8x8</File>
+			<Index>8</Index>
+		</Texture>
+		<SlotType>10</SlotType>
+		<Soulbound />
+		<Description>Every evil boss creates miniature versions of himself. It's just something they do. Using it gives you Lil' Celestial Oryx for good, and uses it up. Oryx the Celestial Mad God drops it.</Description>
+		<BagType>6</BagType>
+		<Sound>spell/light_heal</Sound>
+		<Consumable />
+		<Activate objectId="Lil' Celestial Oryx" cooldown="10" petDps="2002" petSize="Oryx" petHp="60" petHpMs="1500" petMp="60" petMpMs="1500">PermaPet</Activate>
+		<OldSound>use_potion</OldSound>
+		<Shop>
+			<Name>donor</Name>
+			<Price>20</Price>
+		</Shop>
+	</Object>
+	<Object type="0xD3E9" id="Lil' Infernal Oryx Generator">
+		<DisplayId>Lil' Infernal Oryx</DisplayId>
+		<Class>Equipment</Class>
+		<Item />
+		<Texture>
+			<File>oryxUts8x8</File>
+			<Index>9</Index>
+		</Texture>
+		<SlotType>10</SlotType>
+		<Soulbound />
+		<Description>Every evil boss creates miniature versions of himself. It's just something they do. Using it gives you Lil' Infernal Oryx for good, and uses it up. Oryx the Infernal Mad God drops it.</Description>
+		<BagType>6</BagType>
+		<Sound>spell/light_heal</Sound>
+		<Consumable />
+		<Activate objectId="Lil' Infernal Oryx" cooldown="10" petDps="2503" petSize="Oryx" petHp="60" petHpMs="1500" petMp="60" petMpMs="1500">PermaPet</Activate>
+		<OldSound>use_potion</OldSound>
+		<Shop>
+			<Name>donor</Name>
+			<Price>20</Price>
+		</Shop>
+	</Object>
+	<Object type="0xD3EA" id="Lil' Wine Cellar Oryx Generator">
+		<DisplayId>Lil' Wine Cellar Oryx</DisplayId>
+		<Class>Equipment</Class>
+		<Item />
+		<Texture>
+			<File>oryxUts8x8</File>
+			<Index>7</Index>
+		</Texture>
+		<SlotType>10</SlotType>
+		<Soulbound />
+		<Description>Every evil boss creates miniature versions of himself. It's just something they do. Using it gives you Lil' Wine Cellar Oryx for good, and uses it up. Oryx the Mad God drops it in his Wine Cellar.</Description>
+		<BagType>6</BagType>
+		<Sound>spell/light_heal</Sound>
+		<Consumable />
+		<Activate objectId="Lil' Wine Cellar Oryx" cooldown="10" petDps="1505" petSize="Oryx" petHp="60" petHpMs="1500" petMp="60" petMpMs="1500">PermaPet</Activate>
+		<OldSound>use_potion</OldSound>
+		<Shop>
+			<Name>donor</Name>
+			<Price>20</Price>
+		</Shop>
 	</Object>
 </Objects>

@@ -27,6 +27,12 @@ namespace WorldServer.core.net.handlers.market
                 return;
 
             var db = client.GameServer.Database;
+            // bought or expired since it was read: its item went elsewhere
+            if (!db.ClaimMarketEntry(data.Id))
+            {
+                HandleData(null, client);
+                return;
+            }
             var task = db.RemoveMarketEntrySafety(client.Account, data.Id);
 
             if (task.IsCanceled)

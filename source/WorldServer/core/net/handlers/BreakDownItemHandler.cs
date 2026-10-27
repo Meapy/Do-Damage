@@ -5,6 +5,7 @@ using System.Security.Cryptography;
 using System.Threading.Tasks;
 using NLog.LayoutRenderers;
 using Shared;
+using Shared.database.character.inventory;
 using Shared.resources;
 using WorldServer.core.net.datas;
 using WorldServer.core.objects;
@@ -29,11 +30,19 @@ namespace WorldServer.core.net.handlers
 
             var player = client.Player;
 
-            var entity = player.World.GetEntity(objectId);
-            if (entity == null)
+            var entity = player?.World?.GetEntity(objectId);
+            if (entity == null || player.TradeTarget != null)
                 return;
-            
-            var container = entity as IContainer;
+
+            // Only the player's own items or a bag beside them. A gift chest's items are gifts in
+            // the database too, which breaking one down here wouldn't remove.
+            if (!CanTakeFrom(player, entity) || entity is GiftChest)
+            {
+                player.SendError("You can only break down items in your inventory or a bag beside you.");
+                return;
+            }
+
+            var container = (IContainer)entity;
 
             if (entity.Id == player.Id && slot < 4 || slot >= 20)
             {
@@ -47,12 +56,10 @@ namespace WorldServer.core.net.handlers
                 return;
             }
 
-            var item = container != null ? container.Inventory[slot] : player.Inventory[slot];
+            // empty: already broken down (a quick second click) or moved
+            var item = container.Inventory[slot];
             if (item == null)
-            {
-                client.Disconnect("Trying to breakdown empty slot");
                 return;
-            }
 
             if (TryFameBreakdown(player, container, slot, item))
                 return;
@@ -69,6 +76,7 @@ namespace WorldServer.core.net.handlers
                 return false;
 
             var fameToGive = item.BreakDownData.Fame;
+            var data = TakeOut(e, slot);
 
             var db = player.GameServer.Database;
             var acc = player.Client.Account;
@@ -80,14 +88,13 @@ namespace WorldServer.core.net.handlers
             {
                 if (t.IsCanceled)
                 {
+                    PutBack(e, slot, item, data);
                     player.SendError("Unable to breakdown item into fame");
                     return;
                 }
 
                 player.CurrentFame = acc.Fame;
                 acc.Reload();
-
-                e.Inventory[slot] = item;
 
                 player.SendInfo($"{item.DisplayName} was broken down into {fameToGive} fame");
             }).ContinueWith(e => StaticLogger.Instance.Error(e.Exception.InnerException.ToString()), TaskContinuationOptions.OnlyOnFaulted);
@@ -111,10 +118,29 @@ namespace WorldServer.core.net.handlers
                 return false;
             }
 
-            e.Inventory[slot] = item;
+            TakeOut(e, slot);
+            e.Inventory[slot] = newItem;
 
             player.SendInfo($"{item.DisplayName} was broken down into {newItem.DisplayName}");
             return true;
+        }
+
+        // The item leaves its slot before the fame is paid, so a second breakdown of the same slot
+        // (in the same tick, before the database answers) finds it empty and pays nothing.
+        private static ItemData TakeOut(IContainer e, int slot)
+        {
+            var data = e.Inventory.Data[slot];
+            e.Inventory[slot] = null;
+            e.Inventory.Data[slot] = null;
+            return data;
+        }
+
+        private static void PutBack(IContainer e, int slot, Item item, ItemData data)
+        {
+            if (e.Inventory[slot] != null)
+                return;
+            e.Inventory[slot] = item;
+            e.Inventory.Data[slot] = data;
         }
 
         private void TryDefaultBreakdown(Player player, IContainer e, int slot, Item item)
@@ -189,6 +215,8 @@ namespace WorldServer.core.net.handlers
                 return;
             }
 
+            var data = TakeOut(e, slot);
+
             var db = player.GameServer.Database;
             var acc = player.Client.Account;
             var trans = db.Conn.CreateTransaction();
@@ -199,6 +227,7 @@ namespace WorldServer.core.net.handlers
             {
                 if (t.IsCanceled)
                 {
+                    PutBack(e, slot, item, data);
                     player.SendError("Unable to breakdown item into fame");
                     return;
                 }
@@ -206,8 +235,6 @@ namespace WorldServer.core.net.handlers
                 player.CurrentFame = acc.Fame;
 
                 acc.Reload();
-
-                e.Inventory[slot] = null;
 
                 player.SendInfo($"Tier {item.Tier} {type} was broken down into {fameToGive} fame");
             }).ContinueWith(e => StaticLogger.Instance.Error(e.Exception.InnerException.ToString()), TaskContinuationOptions.OnlyOnFaulted);

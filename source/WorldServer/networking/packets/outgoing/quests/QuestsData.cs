@@ -67,9 +67,22 @@ namespace WorldServer.networking.packets.outgoing.quests
         public List<QuestReward> NextRewards = new List<QuestReward>();
     }
 
+    // A gift for a while (QuestData.Gifts): until when it can be claimed (Unix seconds), and
+    // whether it has been.
+    public sealed class QuestGiftInfo
+    {
+        public string Id;
+        public string Title;
+        public string Text;
+        public int EndsAt;
+        public bool Claimed;
+        public List<QuestReward> Rewards = new List<QuestReward>();
+    }
+
     // Everything the quest window shows (QuestTracker.BuildData), after QUESTS_REQUEST, a claim,
     // or a reset: the time, the rank and its colours, each period's reset and bonus, the quests,
-    // the daily reward track and the achievements. QUEST_PROGRESS then updates the progress of
+    // the daily reward track, the achievements and the gifts open now (last, so older clients,
+    // which stop reading before them, still work). QUEST_PROGRESS then updates the progress of
     // quests and achievements by their place in these lists.
     public class QuestsData : OutgoingMessage
     {
@@ -87,6 +100,7 @@ namespace WorldServer.networking.packets.outgoing.quests
         public int LoginNextAt;
         public List<(bool Milestone, List<QuestReward> Rewards)> LoginDays = new List<(bool, List<QuestReward>)>();
         public List<AchievementInfo> Achievements = new List<AchievementInfo>();
+        public List<QuestGiftInfo> Gifts = new List<QuestGiftInfo>();
 
         public override MessageId MessageId => MessageId.QUESTS_DATA;
 
@@ -149,6 +163,16 @@ namespace WorldServer.networking.packets.outgoing.quests
                     wtr.Write(g);
                 wtr.Write(a.NextPoints);
                 QuestReward.WriteList(wtr, a.NextRewards);
+            }
+            wtr.Write((byte)Gifts.Count);
+            foreach (var g in Gifts)
+            {
+                wtr.WriteUTF16(g.Id);
+                wtr.WriteUTF16(g.Title);
+                wtr.WriteUTF16(g.Text);
+                wtr.Write(g.EndsAt);
+                wtr.Write(g.Claimed);
+                QuestReward.WriteList(wtr, g.Rewards);
             }
         }
     }
