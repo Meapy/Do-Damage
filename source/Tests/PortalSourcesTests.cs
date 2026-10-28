@@ -18,6 +18,8 @@ namespace Tests
     // ones too) and the set pieces they place: a portal that two of them place at the same time
     // (a DropPortalOnDeath beside a death set piece that holds the same portal, say) shows up twice
     // in the game. Sources in states the monster can't be in together don't count as a pair.
+    // BehaviorDb builds one at a time, so the classes that load it don't run side by side
+    [Collection("BehaviorDb")]
     public class PortalSourcesTests
     {
         private static readonly Lazy<Audit> Data = new Lazy<Audit>(() => new Audit());

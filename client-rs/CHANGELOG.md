@@ -12,6 +12,12 @@ Keep each version short: changes go under `### ` group headings (Oryx 5, Arena, 
 on), one line per change players notice, summed up rather than item by item (the wiki has the
 details). Add to a group's line when a change adds to it, rather than adding another line.
 
+## Unreleased
+
+### Fixes
+- The Shatters' Bridge Sentinel can be beaten again: the bridge's Titanums no longer stay
+  invulnerable for good when a hidden object that switches them was shot down during the fight.
+
 ## 2.3.0 (2026-10-28)
 
 ### Realm 2

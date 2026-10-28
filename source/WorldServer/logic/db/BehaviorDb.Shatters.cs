@@ -1260,9 +1260,9 @@ namespace WorldServer.logic
                     new OrderOnce(60, "shtrs Bridge Obelisk E", "guardiancheck"),
                     new TimedTransition(1, "leavemychecksalone")
                     ),
-                new State("leavemychecksalone",
-                    new ConditionEffectBehavior(ConditionEffectIndex.Invincible)
-                    )
+                // no Invincible of its own: leaving it took the root's off too, and once players
+                // killed the controller the bridge obelisks it orders stayed invulnerable
+                new State("leavemychecksalone")
                 )
             )
         .Init("shtrs obelisk timer",
@@ -2690,9 +2690,7 @@ namespace WorldServer.logic
         .Init("shtrs blobomb maker",
             new State(
                 new ConditionEffectBehavior(ConditionEffectIndex.Invincible, true),
-                new State("Idle",
-                    new ConditionEffectBehavior(ConditionEffectIndex.Invincible)
-                    ),
+                new State("Idle"),
                 new State("Spawn",
                     new Spawn("shtrs Blobomb", coolDown: 1500),
                     new TimedTransition(3000, "Spawn2")
@@ -2706,9 +2704,7 @@ namespace WorldServer.logic
         .Init("shtrs Lava Souls maker",
             new State(
                 new ConditionEffectBehavior(ConditionEffectIndex.Invincible, true),
-                new State("Idle",
-                    new ConditionEffectBehavior(ConditionEffectIndex.Invincible)
-                    ),
+                new State("Idle"),
                 new State("Spawn",
                     new Spawn("shtrs Lava Souls", maxChildren: 1, coolDown: 1500),
                     new TimedTransition(8000, "Spawn2")
