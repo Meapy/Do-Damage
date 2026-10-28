@@ -12,6 +12,12 @@ Keep each version short: changes go under `### ` group headings (Oryx 5, Arena, 
 on), one line per change players notice, summed up rather than item by item (the wiki has the
 details). Add to a group's line when a change adds to it, rather than adding another line.
 
+## Unreleased
+
+### Fixes
+- Players were sometimes disconnected ("An error occurred while processing data from your client")
+  when a kill gave them a level or fame just as another player in the fight left the game.
+
 ## 2.2.4 (2026-10-28)
 
 ### Items

@@ -55,6 +55,10 @@ namespace WorldServer.core.quests
         }
 
         private readonly Player _player;
+        // the player's account, kept here: when the player leaves, the connection lets go of it
+        // (Client.Reset) while the player can still be in its world for a moment, and the pooled
+        // Client is later handed to someone else's connection
+        private readonly Shared.database.account.DbAccount _account;
         public QuestBook Book { get; private set; }
         // the client asked for the quest window's data (QUESTS_REQUEST): it gets the updates
         public bool Subscribed { get; private set; }
@@ -65,7 +69,7 @@ namespace WorldServer.core.quests
         public QuestTracker(Player player)
         {
             _player = player;
-            var acc = player.Client.Account;
+            var acc = _account = player.Client.Account;
             Book = new QuestBook(Data(player.GameServer), QuestState.FromJson(acc.Progress), acc.AccountId);
             if (!Book.State.Seeded)
                 Seed();
@@ -80,14 +84,18 @@ namespace WorldServer.core.quests
             CheckClasses();
         }
 
-        // Can't play the quests: a guest, or the test world.
-        private bool Off => _player.Client.Account.Guest || _player.World is TestWorld;
+        // The player's connection still holds the account: false once they've left (a kill or a
+        // level-up can still reach them before the world lets them go).
+        private bool Connected => _player.Client?.Account == _account;
+
+        // Can't play the quests: a guest, the test world, or a player who has left.
+        private bool Off => !Connected || _account.Guest || _player.World is TestWorld;
 
         // Fills in achievements from the account's earlier play, once: its characters' kills, god
         // and Oryx kills, fame and levels, and its classes at level 20.
         private void Seed()
         {
-            var acc = _player.Client.Account;
+            var acc = _account;
             var db = _player.GameServer.Database;
             long kills = 0, gods = 0, oryx = 0, fame = 0, levels = 0;
             try
@@ -155,6 +163,8 @@ namespace WorldServer.core.quests
 
         private void Notify(QuestNotice n)
         {
+            if (!Connected)
+                return;
             if (Subscribed)
                 _player.Client.SendPacket(new QuestNoticeMessage() { Kind = n.Kind, Title = n.Title, Text = n.Text });
             else
@@ -163,6 +173,9 @@ namespace WorldServer.core.quests
 
         public void Tick(ref TickTime time)
         {
+            // gone: the connection saved the progress as they left (Client.Save)
+            if (!Connected)
+                return;
             var dt = time.DeltaTime;
             _flushIn -= dt;
             if (_flushIn <= 0)
@@ -197,7 +210,7 @@ namespace WorldServer.core.quests
         public void Save()
         {
             Store();
-            _player.Client.Account.FlushAsync();
+            _account.FlushAsync();
         }
 
         // Onto the account only (Client.Save flushes it).
@@ -205,14 +218,14 @@ namespace WorldServer.core.quests
         {
             if (Off && !_dirty)
                 return;
-            _player.Client.Account.Progress = Book.State.ToJson();
+            _account.Progress = Book.State.ToJson();
             _dirty = false;
         }
 
         // Staff testing (/questadmin reset): everything afresh, achievements not seeded again.
         public void ResetState()
         {
-            Book = new QuestBook(Book.Data, new QuestState { Seeded = true }, _player.Client.Account.AccountId);
+            Book = new QuestBook(Book.Data, new QuestState { Seeded = true }, _account.AccountId);
             Book.Refresh(Now);
             _pending.Clear();
             Save();
@@ -241,7 +254,9 @@ namespace WorldServer.core.quests
             _lastClaim = DateTime.UtcNow;
             var now = Now;
             ClaimResult result;
-            if (_player.Client.Account.Guest)
+            if (!Connected)
+                return;
+            if (_account.Guest)
                 result = ClaimResult.Fail("Register your account to collect rewards.");
             else if (_player.World is TestWorld)
                 result = ClaimResult.Fail("Not here.");
@@ -261,7 +276,7 @@ namespace WorldServer.core.quests
             {
                 if (kind == COLOR)
                 {
-                    var acc = _player.Client.Account;
+                    var acc = _account;
                     _player.ColorNameChat = acc.ColorNameChat = Book.NameColor;
                 }
                 // recorded before anything is paid, so a claim is never paid twice
@@ -313,7 +328,7 @@ namespace WorldServer.core.quests
             }
             if (gifts.Count > 0)
             {
-                _player.GameServer.Database.AddGifts(_player.Client.Account, gifts);
+                _player.GameServer.Database.AddGifts(_account, gifts);
                 _player.SendInfo(gifts.Count == 1
                     ? "Your inventory is full, so the reward went to the gift chest in your vault."
                     : $"Your inventory is full, so {gifts.Count} rewards went to the gift chest in your vault.");
@@ -323,6 +338,8 @@ namespace WorldServer.core.quests
         // The quest window's data.
         public void SendData()
         {
+            if (!Connected)
+                return;
             var now = Now;
             var data = Book.Data;
             var types = _player.GameServer.Resources.GameData.IdToObjectType;

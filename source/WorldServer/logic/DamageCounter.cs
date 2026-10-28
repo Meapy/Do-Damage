@@ -53,6 +53,10 @@ namespace WorldServer.logic
             var questKill = QuestTracker.KillCounts(enemy) ? QuestTracker.KillEvent(enemy) : (QuestEvent?)null;
             foreach (var player in enemy.World.Players.Values)
             {
+                // left the game: the connection let go of the account, and the world drops the
+                // player on its next tick (crediting them threw, and cut off whoever made the kill)
+                if (player.Client?.Account == null)
+                    continue;
                 if (player.SqDistTo(enemy) >= World.CULL_RANGE * World.CULL_RANGE)
                     continue;
 
