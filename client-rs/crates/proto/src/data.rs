@@ -110,12 +110,13 @@ wire_struct! {
 }
 
 wire_struct! {
-    /// A vault chest (`VaultContents`): its object id and where it stands, in our own vault (-1
-    /// for all three elsewhere).
+    /// A vault or gift chest (`VaultContents`): its object id and where it stands, in our own
+    /// vault (-1 for all three elsewhere), and whether it's a gift chest.
     pub struct VaultChest {
         pub id: i32,
         pub x: f32,
         pub y: f32,
+        pub gift: bool,
     }
 }
 

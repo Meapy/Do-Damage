@@ -73,10 +73,14 @@ Nexus spawn. In it:
 
 **The vault window:** in your vault, the chest button beside Quests in the side bar, or K (it can
 be rebound in Options), opens every vault chest at once, numbered as they stand from the spawn
-outwards. Drag items between chests, or between a chest and your inventory beside the window; a
-click sends an item across (from a chest to your inventory, or from your inventory into the first
-free chest slot). Type to search by name: chests with no match are hidden and the window says
-which chests hold it. A right-click marks an item's chest with a gold ring and its number.
+outwards, then your gift chests. Drag items between chests, or between a chest and your inventory
+beside the window; a click sends an item across (from a chest to your inventory, or from your
+inventory into the first free chest slot). Gifts only come out, into an empty inventory slot.
+**Sort by** lays everything out chest by chest, or as one grid by type (weapons, abilities,
+armour, rings, then the rest), by tier (Enthroned gear, untiered, then the highest tier down) or
+by name, each item marked with its chest's number (G for a gift chest). Type to search by name:
+the window shows only what matches and says which chests hold it. A right-click marks an item's
+chest with a gold ring and its number.
 
 The Nexus also has four **shared vault chests** in its south yard. Anyone can use them, so treat
 them as a place to hand things to friends, not to store them.

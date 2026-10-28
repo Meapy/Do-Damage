@@ -200,9 +200,9 @@ messages! {
         // The Enthroned gear in the account's vault (after ImprintRequest and each vault imprint;
         // empty while we're in the vault).
         112 => ImprintVault { items: List16<VaultGear> },
-        // Everything in the account's vault chests (after VaultContentsRequest): each chest's
-        // object id and where it stands (-1 unless we're in our vault), then each item by chest
-        // and slot.
+        // Everything in the account's vault chests and then its gift chests (after
+        // VaultContentsRequest): each chest's object id and where it stands (-1 unless we're in
+        // our vault) and whether it's a gift chest, then each item by chest and slot.
         115 => VaultContents { chests: List16<VaultChest>, items: List16<VaultGear> },
         // A realm's events, for clients that asked (RealmEventsSubscribe), whenever they change:
         // how many are defeated and how many close it, the one our quest arrow follows (0: the

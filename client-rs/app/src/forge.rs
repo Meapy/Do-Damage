@@ -1204,7 +1204,7 @@ fn locked_chip(ui: &mut Ui, r: [f32; 4], label: &str, size: f32, s: f32) {
 /// Where a recipe's result goes in the list: Oryx 5's Ascended gear first, then the other
 /// untiered gear (UTs), then tiered gear from the highest tier down, then the rest (potions,
 /// keys, materials).
-fn order(cat: Category, tier: Option<i32>, ascended: bool) -> (u8, i32) {
+pub(crate) fn order(cat: Category, tier: Option<i32>, ascended: bool) -> (u8, i32) {
     match (cat, tier) {
         (Category::Other | Category::All, _) => (3, 0),
         _ if ascended => (0, 0),
@@ -1263,7 +1263,7 @@ fn sparks(ui: &mut Ui, (cx, cy): (f32, f32), flare: f32, now: i32, s: f32) {
 
 /// Which category each slot type belongs to: the classes' `SlotTypes` list the weapon, ability,
 /// armor and ring slots first.
-fn slot_categories(data: &GameData) -> HashMap<i32, Category> {
+pub(crate) fn slot_categories(data: &GameData) -> HashMap<i32, Category> {
     let mut kinds = HashMap::new();
     for d in data.objects.values().filter(|d| d.player) {
         let Some(list) = d.xml.text_of("SlotTypes") else { continue };

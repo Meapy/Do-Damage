@@ -222,10 +222,11 @@ yard): `--walk-to 45.5,68.5 --hold 0:200 --hold -:6000 --hold f:100000 --aim aut
   it. The Tinkerer (`QuestMaster`) and the Chronicler (`Chronicler`) open it at their pages.
 - **Vault window** (`vault.rs`): in a vault (`vault::is_vault`), K or the HUD's chest button beside
   Quests opens it; it asks for `VaultContents` (114/115) on opening and after each move: every
-  vault chest's items, and in our own vault each chest's object id and position. Items move with
-  `InvSwap`s to those ids (drags between chests and the HUD's inventory slots, which the window
-  takes while open; a click sends one across). With no answer in 5 s it stops asking for that game
-  (an older server).
+  vault chest's items and then the gift chests', and in our own vault each chest's object id and
+  position. Items move with `InvSwap`s to those ids (drags between chests and the HUD's inventory
+  slots, which the window takes while open; a click sends one across; gifts only come out). Sort
+  by chest, or as one grid by type, tier or name. With no answer in 5 s it stops asking for that
+  game (an older server).
 - **Boss damage:** the client asks for `QuestDamageFull` (91/92) as well as `QuestDamage`
   (89/90): everyone who hit the quest with their class, its maximum health, and a last message
   marked `dead` when it dies. The client keeps the last 3 bosses it hit

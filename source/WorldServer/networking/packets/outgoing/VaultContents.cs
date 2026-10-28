@@ -2,13 +2,14 @@ using Shared;
 
 namespace WorldServer.networking.packets.outgoing
 {
-    // Everything in the account's vault chests, for the vault window (VaultContentsHandler.cs):
-    // each chest's object id and where it stands (-1 and -1, -1 unless the player is in their
-    // vault), then each item's chest, slot, type and imprints (Offensive, Defensive, Misc). An older
-    // client never asks.
+    // Everything in the account's vault chests and gift chests, for the vault window
+    // (VaultContentsHandler.cs): each chest's object id and where it stands (-1 and -1, -1 unless
+    // the player is in their vault) and whether it's a gift chest (the vault chests come first),
+    // then each item's chest, slot, type and imprints (Offensive, Defensive, Misc). An older client
+    // never asks.
     public class VaultContents : OutgoingMessage
     {
-        public (int Id, float X, float Y)[] Chests { get; set; }
+        public (int Id, float X, float Y, bool Gift)[] Chests { get; set; }
         public (ushort Chest, byte Slot, ushort Item, int[] Imprints)[] Items { get; set; }
 
         public override MessageId MessageId => MessageId.VAULT_CONTENTS;
@@ -16,11 +17,12 @@ namespace WorldServer.networking.packets.outgoing
         public override void Write(NetworkWriter wtr)
         {
             wtr.Write((short)Chests.Length);
-            foreach (var (id, x, y) in Chests)
+            foreach (var (id, x, y, gift) in Chests)
             {
                 wtr.Write(id);
                 wtr.Write(x);
                 wtr.Write(y);
+                wtr.Write(gift);
             }
             wtr.Write((short)Items.Length);
             foreach (var (chest, slot, item, imprints) in Items)

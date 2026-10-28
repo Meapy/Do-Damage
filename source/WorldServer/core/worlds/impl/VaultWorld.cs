@@ -20,6 +20,8 @@ namespace WorldServer.core.worlds.impl
         // The account's vault chests in the world, by chest number (DbVaultSingle's index), for the
         // vault window (VaultContentsHandler).
         public readonly List<Container> VaultChests = new List<Container>();
+        // Its gift chests, in the order they were filled (an emptied one leaves the world).
+        public readonly List<Container> GiftChests = new List<Container>();
 
         public VaultWorld(GameServer gameServer, int id, WorldResource resource, World parent) : base(gameServer, id, resource, parent)
         {
@@ -148,6 +150,7 @@ namespace WorldServer.core.worlds.impl
                 con.Move(giftChestPosition[0].X + 0.5f, giftChestPosition[0].Y + 0.5f);
 
                 EnterWorld(con);
+                GiftChests.Add(con);
 
                 giftChestPosition.RemoveAt(0);
             }

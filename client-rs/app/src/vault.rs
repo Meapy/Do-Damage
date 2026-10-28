@@ -8,13 +8,17 @@
 //! to the first free inventory slot or from the inventory to the first free chest slot.
 //! Moves are ordinary `InvSwap`s to the chests' object ids, which the server allows from anywhere
 //! in the vault for its owner's own chests (`InvSwapHandler.OwnVaultSwap`). A search box dims what
-//! doesn't match and hides chests with no match. A right-click marks an item's chest in the world
-//! (`draw_marker`).
+//! doesn't match and hides chests with no match. The gift chests follow the vault chests: items
+//! only come out of them, into an empty inventory slot. The items can also be laid out as one grid sorted
+//! by type, tier or name, each marked with its chest's number. A right-click marks an item's chest
+//! in the world (`draw_marker`).
 
+use crate::forge::Category;
 use crate::hud::{Layout, SlotKind, Ui};
 use crate::theme::{self, color, Kind};
 use bsk_proto::VaultContents;
 use bsk_world::{GameObj, World};
+use std::collections::HashMap;
 use winit::keyboard::KeyCode;
 
 /// What the window asks of the server.
@@ -33,13 +37,30 @@ enum Place {
     Inv(u8),
 }
 
+/// How the window lays the items out: chest by chest, or as one grid sorted by what they are
+/// (weapons, abilities, armour, rings, the rest; then as `by_tier`), by tier (Enthroned gear,
+/// untiered gear, then the highest tier down, the rest last), or by name.
+#[derive(Clone, Copy, Debug, PartialEq, Eq, Default)]
+enum Sort {
+    #[default]
+    Chest,
+    Type,
+    Tier,
+    Name,
+}
+
+const SORTS: [(Sort, &str); 4] = [(Sort::Chest, "Chest"), (Sort::Type, "Type"), (Sort::Tier, "Tier"), (Sort::Name, "Name")];
+
 #[derive(Clone, Copy, Debug, PartialEq)]
 enum Hit {
     Close,
     Search,
     Up,
     Down,
+    Sort(Sort),
     Slot(Place),
+    /// The sorted grid's space around its items: a drop there goes into the first free chest slot.
+    Grid,
 }
 
 /// The slots of a vault chest.
@@ -73,6 +94,7 @@ struct Marker {
 struct Chest {
     id: i32,
     pos: Option<(f64, f64)>,
+    gift: bool,
 }
 
 /// The vault window.
@@ -88,11 +110,19 @@ pub struct Vault {
     /// The server never answered: it doesn't know the request.
     unsupported: bool,
     query: String,
-    /// The chests shown (by number), the first row drawn, and how many rows and columns fit.
+    sort: Sort,
+    /// The chests shown (by number), and the sorted grid's items (chest, slot), matching the
+    /// search; `sorted` is redone at the next draw when `dirty`.
     shown: Vec<usize>,
+    sorted: Vec<(usize, usize)>,
+    dirty: bool,
+    /// Which category each slot type belongs to (`forge::slot_categories`).
+    kinds: HashMap<i32, Category>,
+    /// The first row drawn, how many rows and columns fit, and how many rows there are.
     row: usize,
     rows: usize,
     cols: usize,
+    total_rows: usize,
     rect: Option<[f32; 4]>,
     hits: Vec<(Hit, [f32; 4])>,
     hover: Option<(Place, i32, [u8; 3])>,
@@ -130,16 +160,17 @@ impl Vault {
         Some(Act::Request)
     }
 
-    /// A new connection: forget the vault and whether the server knows the request.
+    /// A new connection: forget the vault and whether the server knows the request (the sort
+    /// stays as the player chose it).
     pub fn reset(&mut self) {
-        *self = Vault::default();
+        *self = Vault { sort: self.sort, kinds: std::mem::take(&mut self.kinds), ..Vault::default() };
     }
 
     /// The server's answer.
     pub fn contents(&mut self, v: VaultContents, data: &bsk_data::GameData) {
         self.asked = None;
         self.loaded = true;
-        self.chests = v.chests.iter().map(|c| Chest { id: c.id, pos: (c.id >= 0).then_some((c.x as f64, c.y as f64)) }).collect();
+        self.chests = v.chests.iter().map(|c| Chest { id: c.id, pos: (c.id >= 0).then_some((c.x as f64, c.y as f64)), gift: c.gift }).collect();
         self.items = vec![[None; SLOTS]; self.chests.len()];
         for g in v.items.iter() {
             if let Some(slot) = self.items.get_mut(g.chest as usize).and_then(|c| c.get_mut(g.slot as usize)) {
@@ -175,7 +206,42 @@ impl Vault {
         self.shown = (0..self.items.len())
             .filter(|&c| !searching || self.items[c].iter().flatten().any(|&(item, _)| self.matches(data, item)))
             .collect();
+        self.dirty = true;
         self.row = 0;
+    }
+
+    /// The sorted grid's items: those matching the search, in the chosen order, the chest and
+    /// slot breaking ties so the order holds still.
+    fn sort_items(&mut self, data: &bsk_data::GameData) {
+        self.dirty = false;
+        if self.kinds.is_empty() {
+            self.kinds = crate::forge::slot_categories(data);
+        }
+        let mut list: Vec<((i32, i32, i32, i32, String), (usize, usize))> = Vec::new();
+        for (c, chest) in self.items.iter().enumerate() {
+            for (s, slot) in chest.iter().enumerate() {
+                let Some((item, _)) = *slot else { continue };
+                if !self.matches(data, item) {
+                    continue;
+                }
+                let d = data.objects.get(&(item as u16));
+                let slot_type = d.map_or(0, |d| d.xml.int("SlotType", 0));
+                let cat = self.kinds.get(&slot_type).copied().unwrap_or(Category::Other);
+                let tier = d.and_then(|d| d.xml.text_of("Tier")).and_then(|t| t.trim().parse().ok());
+                let rank = crate::forge::order(cat, tier, d.is_some_and(|d| d.xml.has("Ascended")));
+                let name = d.map_or(String::new(), |d| d.display_id.to_lowercase());
+                let (cat, group) = (cat as i32, rank.0 as i32);
+                let key = match self.sort {
+                    Sort::Chest => (0, 0, 0, 0, String::new()),
+                    Sort::Type => (cat, group, rank.1, slot_type, name),
+                    Sort::Tier => (group, rank.1, cat, slot_type, name),
+                    Sort::Name => (0, 0, 0, 0, name),
+                };
+                list.push((key, (c, s)));
+            }
+        }
+        list.sort();
+        self.sorted = list.into_iter().map(|(_, p)| p).collect();
     }
 
     /// The item in a slot (-1 for none) and its owner's object id.
@@ -193,10 +259,33 @@ impl Vault {
         }
     }
 
-    /// Swaps two slots: on the server, and here until its answer comes.
+    fn gift(&self, p: Place) -> bool {
+        matches!(p, Place::Chest(c, _) if self.chests.get(c).is_some_and(|c| c.gift))
+    }
+
+    /// A chest's name: "Chest 3", or "Gift chest 1" (the gift chests come after the vault's).
+    fn name(&self, c: usize) -> String {
+        let vault = self.chests.iter().filter(|c| !c.gift).count();
+        if c >= vault { format!("Gift chest {}", c - vault + 1) } else { format!("Chest {}", c + 1) }
+    }
+
+    /// A chest's mark on the sorted grid's items: its number, or G and its number.
+    fn badge(&self, c: usize) -> String {
+        let vault = self.chests.iter().filter(|c| !c.gift).count();
+        if c >= vault { format!("G{}", c - vault + 1) } else { (c + 1).to_string() }
+    }
+
+    /// Swaps two slots: on the server, and here until its answer comes. A gift chest only gives,
+    /// into an empty inventory slot.
     fn swap(&mut self, a: Place, b: Place) -> Vec<Act> {
         let (Some((ida, ia)), Some((idb, ib))) = (self.at(a), self.at(b)) else { return Vec::new() };
         if a == b || (ia < 0 && ib < 0) || ida < 0 || idb < 0 {
+            return Vec::new();
+        }
+        let gives = |from: Place, to: Place, to_item: i32| !self.gift(from) || (matches!(to, Place::Inv(_)) && to_item < 0);
+        let takes = |p: Place, item: i32| !self.gift(p) || item < 0;
+        if (self.gift(a) || self.gift(b)) && !(gives(a, b, ib) && gives(b, a, ia) && takes(a, ib) && takes(b, ia)) {
+            self.message = Some("Gift chests only give: take their items into an empty inventory slot.".into());
             return Vec::new();
         }
         self.message = None;
@@ -234,7 +323,9 @@ impl Vault {
                 free.map(Place::Inv)
             }
             Place::Inv(_) => {
-                let free = (0..self.items.len()).find_map(|c| self.items[c].iter().position(Option::is_none).map(|s| Place::Chest(c, s)));
+                let free = (0..self.items.len())
+                    .filter(|&c| !self.chests[c].gift)
+                    .find_map(|c| self.items[c].iter().position(Option::is_none).map(|s| Place::Chest(c, s)));
                 if free.is_none() {
                     self.message = Some("Your vault is full.".into());
                 }
@@ -254,6 +345,7 @@ impl Vault {
             let dragged = (pos.0 - start.0).hypot(pos.1 - start.1) > DRAG_PX;
             return match (dragged, hit) {
                 (true, Some(Hit::Slot(to))) => self.swap(from, to),
+                (true, Some(Hit::Grid)) if matches!(from, Place::Inv(_)) => self.send_across(from),
                 (false, Some(Hit::Slot(to))) if to == from => self.send_across(from),
                 _ => Vec::new(),
             };
@@ -273,7 +365,12 @@ impl Vault {
                     self.press = Some((p, pos));
                 }
             }
-            Some(Hit::Search) | None => {}
+            Some(Hit::Sort(k)) => {
+                self.sort = k;
+                self.row = 0;
+                self.dirty = true;
+            }
+            Some(Hit::Search) | Some(Hit::Grid) | None => {}
         }
         Vec::new()
     }
@@ -290,8 +387,7 @@ impl Vault {
     }
 
     pub fn scroll(&mut self, rows: i32) {
-        let total = self.shown.len().div_ceil(self.cols.max(1));
-        let max = total.saturating_sub(self.rows.max(1));
+        let max = self.total_rows.saturating_sub(self.rows.max(1));
         self.row = (self.row as i32 + rows).clamp(0, max as i32) as usize;
     }
 
@@ -385,6 +481,42 @@ impl Vault {
         }
     }
 
+    /// The sorted grid in `r`: the items in order, each with its chest's number in the corner,
+    /// from the first row shown.
+    fn draw_sorted(&mut self, ui: &mut Ui, r: [f32; 4], s: f32) {
+        let (cell, gap) = (40.0 * s, 6.0 * s);
+        let cols = (((r[2] + gap) / (cell + gap)).floor() as usize).max(1);
+        self.rows = (((r[3] + gap) / (cell + gap)).floor() as usize).max(1);
+        self.total_rows = self.sorted.len().div_ceil(cols);
+        self.row = self.row.min(self.total_rows.saturating_sub(self.rows));
+        let x0 = r[0] + (r[2] - (cols as f32 * (cell + gap) - gap)) / 2.0;
+        let dragging = self.press.filter(|(_, start)| (self.mouse.0 - start.0).hypot(self.mouse.1 - start.1) > DRAG_PX).map(|(p, _)| p);
+        let bs = (10.0 * s).round().max(8.0);
+        for (n, &(c, k)) in self.sorted.clone().iter().skip(self.row * cols).take(cols * self.rows).enumerate() {
+            let Some((item, imprints)) = self.items[c][k] else { continue };
+            let p = Place::Chest(c, k);
+            let sr = [x0 + (n % cols) as f32 * (cell + gap), r[1] + (n / cols) as f32 * (cell + gap), cell, cell];
+            let over = inside(sr, self.mouse);
+            let edge = if dragging.is_some() && over { Some(color::ACCENT) } else { crate::screens::tier_edge(ui.data, item) };
+            ui.slot_box(sr, edge, over, s);
+            if dragging != Some(p) {
+                ui.item_icon(item, 80, sr[0] + sr[2] / 2.0, sr[1] + sr[3] / 2.0, s);
+            }
+            // the chest's number, on a dark tab in the corner
+            let t = self.badge(c);
+            let tw = ui.measure(&t, bs, true) + 6.0 * s;
+            let th = bs * 1.22 + 2.0 * s;
+            let br = [sr[0] + sr[2] - tw - 1.0 * s, sr[1] + sr[3] - th - 1.0 * s, tw, th];
+            theme::fill(ui.renderer, br, 4.0 * s, color::BACKGROUND, 0.85);
+            ui.label(&t, br[0] + 3.0 * s, br[1] + 1.0 * s, bs, true, color::TEXT_DIM);
+            if over && dragging.is_none() {
+                self.hover = Some((p, item, imprints));
+            }
+            self.hits.push((Hit::Slot(p), sr));
+        }
+        self.hits.push((Hit::Grid, r));
+    }
+
     /// Draws the window; `hud`: the HUD's inventory slots showing (slot, where), which take drags
     /// and clicks as the window's own.
     pub fn draw(&mut self, ui: &mut Ui, lay: &Layout, me: Option<&GameObj>, hud: &[(u8, [f32; 4])], mouse: (f64, f64), now: i32) {
@@ -397,6 +529,9 @@ impl Vault {
         }
         self.mouse = mouse;
         self.look(me);
+        if self.dirty {
+            self.sort_items(ui.data);
+        }
         // as tall as the chests need (two across), up to 600
         let need = self.items.len().div_ceil(2).max(1) as f32;
         let (dw, dh) = (820.0, (154.0 + need * 96.0).clamp(300.0, 600.0));
@@ -410,10 +545,15 @@ impl Vault {
         let ts = font(22.0);
         ui.label("Vault", r[0] + 22.0 * s, (mid - ui.digit_middle(ts, true)).round(), ts, true, color::GOLD);
         if self.loaded {
-            let n = self.items.iter().flatten().flatten().count();
-            let total = self.items.len() * SLOTS;
-            let chests = self.items.len();
-            let t = format!("{n} of {total} slots filled · {chests} chest{}", if chests == 1 { "" } else { "s" });
+            let vault: Vec<usize> = (0..self.items.len()).filter(|&c| !self.chests[c].gift).collect();
+            let n = vault.iter().map(|&c| self.items[c].iter().flatten().count()).sum::<usize>();
+            let total = vault.len() * SLOTS;
+            let chests = vault.len();
+            let gifts: usize = (0..self.items.len()).filter(|&c| self.chests[c].gift).map(|c| self.items[c].iter().flatten().count()).sum();
+            let mut t = format!("{n} of {total} slots filled · {chests} chest{}", if chests == 1 { "" } else { "s" });
+            if gifts > 0 {
+                t += &format!(" · {gifts} gift{}", if gifts == 1 { "" } else { "s" });
+            }
             let fs = font(13.0);
             let x = r[0] + 22.0 * s + ui.measure("Vault", ts, true) + 16.0 * s;
             ui.label(&t, x, (mid - ui.digit_middle(fs, false)).round(), fs, false, color::TEXT_DIM);
@@ -427,7 +567,7 @@ impl Vault {
         ui.label("×", cb[0] + (cb[2] - xw) / 2.0, cb[1] + (cb[3] - xs * 1.22) / 2.0, xs, true, color::TEXT_DIM);
         self.hits.push((Hit::Close, cb));
 
-        // The search, with a hint beside it.
+        // The search, with the sorting beside it.
         let body = [r[0] + 22.0 * s, r[1] + 62.0 * s, r[2] - 44.0 * s, r[3] - 84.0 * s];
         let fr = [body[0], body[1], 300.0 * s, 32.0 * s];
         ui.field_box(fr, true, s);
@@ -444,10 +584,22 @@ impl Vault {
             ui.rect(cx, fr[1] + 7.0 * s, (1.5 * s).max(1.0), fr[3] - 14.0 * s, color::ACCENT, 1.0);
         }
         self.hits.push((Hit::Search, fr));
-        let hint = if self.movable() { "Drag items to and from your inventory, or click one to send it across." } else { "Only in your own vault can items move." };
         let hs = font(12.5);
-        let hint = clip(ui, hint, hs, body[0] + body[2] - (fr[0] + fr[2] + 16.0 * s));
-        ui.label(&hint, fr[0] + fr[2] + 16.0 * s, ty + (fs - hs) * 0.6, hs, false, color::TEXT_MUTED);
+        let mut x = fr[0] + fr[2] + 18.0 * s;
+        ui.label("Sort by", x, ty + (fs - hs) * 0.6, hs, false, color::TEXT_MUTED);
+        x += ui.measure("Sort by", hs, false) + 10.0 * s;
+        let cs = font(12.0);
+        for (k, label) in SORTS {
+            let w = ui.measure(label, cs, true) + 22.0 * s;
+            let cr = [x, fr[1] + 4.0 * s, w, fr[3] - 8.0 * s];
+            let on = k == self.sort;
+            let fill = if on { color::ACCENT } else if inside(cr, mouse) { color::SECONDARY } else { color::CHIP };
+            theme::fill(ui.renderer, cr, cr[3] / 2.0, fill, 1.0);
+            let lw = ui.measure(label, cs, true);
+            ui.label(label, cr[0] + (cr[2] - lw) / 2.0, cr[1] + (cr[3] - cs * 1.22) / 2.0, cs, true, if on { color::ACCENT_TEXT } else { color::TEXT_DIM });
+            self.hits.push((Hit::Sort(k), cr));
+            x += w + 6.0 * s;
+        }
 
         // The chests, as many across and down as fit.
         let (cell, gap, pad, label_h) = (40.0 * s, 4.0 * s, 8.0 * s, 20.0 * s);
@@ -460,10 +612,16 @@ impl Vault {
         let gy = fr[1] + fr[3] + 14.0 * s;
         self.rows = (((by - 8.0 * s - gy + rgap) / (card_h + rgap)).floor() as usize).max(1);
         let marked = self.marker.as_ref().map(|m| m.chest);
-        for (n, &c) in self.shown.clone().iter().skip(self.row * self.cols).take(self.cols * self.rows).enumerate() {
-            let cr = [gx + (n % self.cols) as f32 * (card_w + cgap), gy + (n / self.cols) as f32 * (card_h + rgap), card_w, card_h];
-            let title_color = if marked == Some(c) { color::GOLD } else { color::TEXT };
-            self.card(ui, cr, &format!("Chest {}", c + 1), title_color, self.items[c], |k| Place::Chest(c, k), s);
+        let right = gx + self.cols as f32 * (card_w + cgap) - cgap;
+        if self.sort == Sort::Chest {
+            self.total_rows = self.shown.len().div_ceil(self.cols);
+            for (n, &c) in self.shown.clone().iter().skip(self.row * self.cols).take(self.cols * self.rows).enumerate() {
+                let cr = [gx + (n % self.cols) as f32 * (card_w + cgap), gy + (n / self.cols) as f32 * (card_h + rgap), card_w, card_h];
+                let title_color = if marked == Some(c) || self.chests[c].gift { color::GOLD } else { color::TEXT };
+                self.card(ui, cr, &self.name(c), title_color, self.items[c], |k| Place::Chest(c, k), s);
+            }
+        } else {
+            self.draw_sorted(ui, [gx, gy, right - gx, by - 8.0 * s - gy], s);
         }
         let msg_size = font(13.0);
         if self.unsupported {
@@ -474,6 +632,8 @@ impl Vault {
             ui.label("You have no vault chests yet.", gx, gy + 6.0 * s, msg_size, false, color::TEXT_MUTED);
         } else if self.shown.is_empty() {
             ui.label("Nothing in your vault matches.", gx, gy + 6.0 * s, msg_size, false, color::TEXT_MUTED);
+        } else if self.sort != Sort::Chest && self.sorted.is_empty() {
+            ui.label("Your vault is empty.", gx, gy + 6.0 * s, msg_size, false, color::TEXT_MUTED);
         }
         // The HUD's inventory: a drag shows where it would land, and the item dragged out of it
         // leaves its slot looking empty.
@@ -488,8 +648,8 @@ impl Vault {
             self.hits.push((Hit::Slot(Place::Inv(slot)), sr));
         }
 
-        // The paging, then what went wrong or where the search found things.
-        let total = self.shown.len().div_ceil(self.cols.max(1));
+        // The paging (or how to move items), then what went wrong or where the search found things.
+        let total = self.total_rows;
         if total > self.rows {
             let (up, down) = ([gx, by, 56.0 * s, 26.0 * s], [gx + 62.0 * s, by, 56.0 * s, 26.0 * s]);
             ui.button(up, "Up", Kind::Secondary, inside(up, mouse), s * 0.8);
@@ -498,13 +658,16 @@ impl Vault {
             self.hits.push((Hit::Down, down));
             let page = format!("Rows {}-{} of {}", self.row + 1, (self.row + self.rows).min(total), total);
             ui.label(&page, gx + 130.0 * s, by + 5.0 * s, font(12.0), false, color::TEXT_MUTED);
+        } else if self.loaded {
+            let hint = if self.movable() { "Drag items to and from your inventory, or click one to send it across." } else { "Only in your own vault can items move." };
+            let hint = clip(ui, hint, font(12.5), (right - gx) * 0.6);
+            ui.label(&hint, gx, by + 5.0 * s, font(12.5), false, color::TEXT_MUTED);
         }
-        let right = gx + self.cols as f32 * (card_w + cgap) - cgap;
         let note = if let Some(m) = &self.message {
             Some((m.clone(), color::DANGER))
         } else if !self.query.trim().is_empty() && !self.shown.is_empty() {
-            let found = self.shown.iter().map(|c| (c + 1).to_string()).collect::<Vec<_>>().join(", ");
-            Some((format!("In chest{} {found}", if self.shown.len() == 1 { "" } else { "s" }), color::GOOD))
+            let found = self.shown.iter().map(|&c| self.name(c).to_lowercase()).collect::<Vec<_>>().join(", ");
+            Some((format!("In {found}"), color::GOOD))
         } else {
             None
         };
@@ -528,8 +691,10 @@ impl Vault {
             lines.extend(crate::hud::imprint_lines(ui.data, item, imprints));
             if let Place::Chest(chest, _) = place {
                 lines.push(crate::hud::Line::gap());
-                lines.push(crate::hud::Line::new(&format!("In chest {}", chest + 1), 12.0, true, color::GOOD));
-                if self.movable() {
+                lines.push(crate::hud::Line::new(&format!("In {}", self.name(chest).to_lowercase()), 12.0, true, color::GOOD));
+                if self.movable() && self.gift(place) {
+                    lines.push(crate::hud::Line::new("Click: to your inventory", 12.0, false, color::TEXT_DIM));
+                } else if self.movable() {
                     lines.push(crate::hud::Line::new("Click: to your inventory · Right-click: mark the chest", 12.0, false, color::TEXT_DIM));
                 }
             } else if self.movable() {
@@ -554,7 +719,7 @@ impl Vault {
         let [px, py] = cam.to_screen(m.x, m.y, 0.0);
         let t = (self.now - m.since) as f32 / 1000.0;
         let pulse = 0.5 + 0.5 * (t * 5.0).sin();
-        let label = format!("Chest {}", m.chest + 1);
+        let label = self.name(m.chest);
         let size = (13.0 * k).round().max(10.0);
         let w = ui.measure(&label, size, true) + 14.0 * k;
         let h = size * 1.22 + 6.0 * k;

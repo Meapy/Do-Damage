@@ -309,13 +309,15 @@ namespace WorldServer.core.net.handlers
         }
 
         // The vault window (VaultContentsHandler): in their own vault, a player can move items
-        // between their inventory and their vault chests, or between the chests, from anywhere in
-        // it. Only the chests the vault made for its owner count; never another account's vault.
+        // between their inventory and their vault chests, or between the chests, and take gifts out
+        // of its gift chests (ValidateEntities still allows a gift chest only with the player),
+        // from anywhere in it. Only the chests the vault made for its owner count; never another
+        // account's vault.
         private static bool OwnVaultSwap(Player player, Entity from, Entity to)
         {
             if (player.World is not VaultWorld v || v.AccountId != player.AccountId)
                 return false;
-            bool ok(Entity e) => e == player || e is Container c && v.VaultChests.Contains(c);
+            bool ok(Entity e) => e == player || e is Container c && (v.VaultChests.Contains(c) || v.GiftChests.Contains(c));
             return ok(from) && ok(to);
         }
 
