@@ -19,8 +19,7 @@ details). Add to a group's line when a change adds to it, rather than adding ano
   hall Malus wakes his four cultists one at a time, summons Molek and three-headed Balaam, then
   takes his cultists' powers for himself. He drops the cult's gear and the Vial of Pure Darkness.
 - The Void is open: use a Vial of Pure Darkness where the Marble Colossus fell in the Lost Halls to
-  face the Void Entity, for the Void's bow, quiver, armour and ring. The Marble Colossus now leaves
-  the way into the Cultist Hideout.
+  face the Void Entity, for the Void's bow, quiver, armour and ring.
 - Quiver of the Shadows fires 3 arrows instead of 5, and the Staff of Unholy Sacrifice hits a
   quarter less hard, in line with the best tiered gear.
 

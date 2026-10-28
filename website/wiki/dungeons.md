@@ -43,8 +43,8 @@ dragon's stat and its Elder armour or bow.
 
 ## The Cultist Hideout and the Void
 
-When the Marble Colossus falls in the Lost Halls it leaves the way into the **Cultist Hideout**
-(a Cult Key opens it too). Malus' followers, one colour for each of his cultists, and his fire,
+A portal in the Lost Halls sometimes leads to the **Cultist Hideout**, and a Cult Key opens it
+too. Malus' followers, one colour for each of his cultists, and his fire,
 ice and lightning demons hold its winding halls. In the ritual hall at the end, Malus raises his
 four cultists on the points of a pentagram and wakes them one at a time: Argus (unstable bolts),
 Gaius (paralysing lightning), Basaran (slowing ice) and Dirge (silencing light). Then he summons

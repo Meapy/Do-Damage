@@ -12,10 +12,6 @@ namespace WorldServer.logic
             .Init("LH Marble Colossus",
                 new State(
                     new DropPortalOnDeath("Realm Portal", 100, 0),
-                    // the ways on: the Cultist Hideout (BehaviorDb.Cult.cs), and the mark where a Vial of Pure
-                    // Darkness, from Malus, opens the Void (BehaviorDb.Void.cs)
-                    new DropPortalOnDeath("LH Cult Portal", 1.0, xAdjustment: -3),
-                    new TossOnDeath("LH Vial Effect", 1, 3),
                     new State("A-P",
                         new ConditionEffectBehavior(ConditionEffectIndex.Invulnerable, true),
                         new SetAltTexture(1),
