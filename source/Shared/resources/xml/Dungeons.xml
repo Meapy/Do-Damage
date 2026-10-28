@@ -39,6 +39,13 @@
 		<DisableTeleport/>
 		<Dungeon/>
 	</World>
+	<World id="The Void">
+		<Width>65</Width>
+		<Height>65</Height>
+		<MapJM>Dungeons/The Void/The Void.jm</MapJM>
+		<VisibilityType>1</VisibilityType>
+		<Dungeon/>
+	</World>
 	<World id="Secluded Thicket">
 		<Width>256</Width>
 		<Height>256</Height>

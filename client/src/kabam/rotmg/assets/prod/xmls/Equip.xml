@@ -15084,8 +15084,8 @@
 			<ObjectId>Cultist Fire Shot</ObjectId>
 			<Size>70</Size>
 			<Speed>115</Speed>
-			<MinDamage>130</MinDamage>
-			<MaxDamage>155</MaxDamage>
+			<MinDamage>100</MinDamage>
+			<MaxDamage>120</MaxDamage>
 			<LifetimeMS>700</LifetimeMS>
 			<MultiHit/>
 		</Projectile>
@@ -15105,13 +15105,13 @@
 			<Index>0x63</Index>
 		</Texture>
 		<SlotType>10</SlotType>
-		<Description>An oddly heavy vial found within the undergrounds of the Lost Halls. It is said to contain the embodiment of Evil itself.</Description>
+		<Description>An oddly heavy vial found within the undergrounds of the Lost Halls. It is said to contain the embodiment of Evil itself. Use it in the Lost Halls, where the Marble Colossus fell, to open the Void.</Description>
 		<Sound>use_key</Sound>
 		<Consumable/>
 		<BagType>4</BagType>
 		<feedPower>500</feedPower>
 		<Soulbound/>
-		<Activate onlyInArea="Lost Halls" targetId="LH Vial Effect" newId="LH Void Portal" radius="25" color="-1">ChangeObject</Activate>
+		<Activate onlyInArea="Lost Halls" targetId="LH Vial Effect" newId="LH Void Portal" radius="25" color="-1" customString="The Void has been opened by">ChangeObject</Activate>
 		<Track/>
 	</Object>
 	<Object type="0x0248" id="Gravel">
@@ -15186,7 +15186,7 @@
 		<FameBonus>6</FameBonus>
 		<MpCost>80</MpCost>
 		<ArcGap>8</ArcGap>
-		<NumProjectiles>5</NumProjectiles>
+		<NumProjectiles>3</NumProjectiles>
 		<Activate>Shoot</Activate>
 		<feedPower>1300</feedPower>
 		<Soulbound/>

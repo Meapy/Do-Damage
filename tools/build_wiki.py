@@ -281,7 +281,8 @@ HIDDEN_MONSTER = re.compile(r"Admin|Test(?!Chicken)|XP\b|Spawner|spawner|Control
 # bosses a script brings in, which the dungeon's map doesn't place
 BOSS_OVERRIDE = {"Tomb of the Ancients": "Tomb Defender", "Elder Tomb of the Ancients": "Elder Tomb Defender",
                  "Ice Cave": "ic Esben the Unwilling", "The Shatters": "shtrs The Forgotten King",
-                 "Haunted Cemetery": "Ghost of Skuld", "Cultist Hideout": "LH Malus",
+                 "Haunted Cemetery": "Ghost of Skuld", "Cultist Hideout": "LH Malus 2",
+                 "The Void": "LH Void Entity",
                  "The Ivory Wyvern": "LOD Ivory Wyvern", "Lair of Shaitan": "md1 Head of Shaitan",
                  "Woodland Labyrinth": "Murderous Megamoth", "Magic Woods": "MW Fountain Spirit",
                  "Cave of A Thousand Treasures": "Golden Oryx Effigy"}
@@ -652,6 +653,22 @@ class Gen:
                     bosses = [m for m, _ in locked_by if any(m in d.map_objects(d.worlds[a]) or m in self.bosses_of(a)
                                                              for a in areas if a in d.worlds)]
                     unlock.append((item, areas, bosses))
+            # an item that turns a mark on a map into this world's portal, where it works (the Vial of
+            # Pure Darkness, from Malus, beside the fallen Marble Colossus: the Void)
+            for p in portals:
+                for item, o in d.objects.items():
+                    for a in o["activate_attrs"]:
+                        if (a["effect"] != "ChangeObject" or a.get("newId") != p
+                                or (a.get("targetId") or "").startswith("Locked ")):
+                            continue
+                        areas = [x.strip() for x in a.get("onlyInArea", "").split(",") if x.strip()]
+                        froms = [who(d, m) for m, c in unique(self.idx.get(item, []), d) if c and not HIDDEN_MONSTER.search(m)]
+                        bosses = [who(d, self.boss(x)[0]) for x in areas if x in d.worlds and self.boss(x)[0]]
+                        places = joined(["the " + x if x == "Lost Halls" else x for x in areas])
+                        special.append("Use %s in %s%s to open it%s." % (
+                            with_article(d.name(item)), places,
+                            ", where the %s fell," % joined(bosses) if bosses else "",
+                            " (it drops from %s)" % joined(froms[:3]) if froms else ""))
             if wid in self.sealed:
                 special.append(self.sealed[wid][2])
             if wid == "Oryx's Castle":

@@ -41,4 +41,20 @@ Key at the Divine Forge. The **Elder Lair** is the same lair with Elder dragons:
 health, harder hits and faster attacks, and better loot, including a potion that maxes the
 dragon's stat and its Elder armour or bow.
 
+## The Cultist Hideout and the Void
+
+When the Marble Colossus falls in the Lost Halls it leaves the way into the **Cultist Hideout**
+(a Cult Key opens it too). Malus' followers, one colour for each of his cultists, and his fire,
+ice and lightning demons hold its winding halls. In the ritual hall at the end, Malus raises his
+four cultists on the points of a pentagram and wakes them one at a time: Argus (unstable bolts),
+Gaius (paralysing lightning), Basaran (slowing ice) and Dirge (silencing light). Then he summons
+the fire demon Molek, then Balaam, who splits into his three heads when slain, and at last takes
+his cultists' powers for himself and fights you with each in turn.
+
+Malus drops the cult's gear and, half the time, a **Vial of Pure Darkness** for one player in the
+group. Use it in the Lost Halls, where the Marble Colossus fell, to open **the Void**: a platform
+in a sea of Pure Evil (stay on the platform: the evil hurts). The Void Entity rises at its centre
+and, at three quarters and at half its health, throws its projections onto the four marks round
+the platform, from where they fire inwards for half a minute. It drops the Void's gear.
+
 {{gen:dungeons}}
