@@ -238,6 +238,10 @@ struct App {
     resume: Option<update::Resume>,
     #[cfg(not(target_arch = "wasm32"))]
     show_window: Option<update::WindowState>,
+    /// The fullscreen setting the window was last put in (desktop): a change in the options or
+    /// from F11 puts it in the other.
+    #[cfg(not(target_arch = "wasm32"))]
+    fullscreen_applied: Option<bool>,
 }
 
 /// Open the window of the NPC we stand by. True for the character changer: back to the
@@ -841,6 +845,12 @@ impl App {
         }
         if ws.fullscreen {
             window.set_fullscreen(Some(winit::window::Fullscreen::Borderless(None)));
+        }
+        // The window as the version before had it, and kept so.
+        self.fullscreen_applied = Some(ws.fullscreen);
+        if self.settings.fullscreen != ws.fullscreen {
+            self.settings.fullscreen = ws.fullscreen;
+            self.settings.save();
         }
         let size = window.inner_size();
         if let Some(loaded) = &mut self.loaded {
@@ -1492,6 +1502,15 @@ impl App {
         let dt = (now - self.last_frame).clamp(0, 200);
         self.last_frame = now;
         prof::start();
+        // Fullscreen changed in the options or by F11. The window keeps its windowed size and
+        // place to go back to; `Resized` follows, which resizes the surface.
+        #[cfg(not(target_arch = "wasm32"))]
+        if self.fullscreen_applied != Some(self.settings.fullscreen) {
+            if let Some(window) = &self.window {
+                window.set_fullscreen(self.settings.fullscreen.then_some(winit::window::Fullscreen::Borderless(None)));
+                self.fullscreen_applied = Some(self.settings.fullscreen);
+            }
+        }
         if let Some(text) = textedit::clipboard::take_pasted() {
             match (&mut self.chat_input, &self.phase) {
                 (Some(input), _) => input.insert(&text),
@@ -2390,6 +2409,10 @@ impl ApplicationHandler<UserEvent> for App {
                 Some((w, h)) => attributes.with_inner_size(winit::dpi::PhysicalSize::new(w, h)),
                 None => attributes.with_inner_size(winit::dpi::LogicalSize::new(1280.0, 800.0)),
             }
+            .with_fullscreen(
+                (self.settings.fullscreen && size.is_none() && self.resume.is_none())
+                    .then_some(winit::window::Fullscreen::Borderless(None)),
+            )
             .with_window_icon(window_icon(false))
             // A scripted test run opens behind the window in use, so it doesn't take the keyboard.
             .with_active(!args.iter().any(|a| matches!(a.as_str(), "--shot" | "--hold" | "--mouse-script")))
@@ -2409,6 +2432,11 @@ impl ApplicationHandler<UserEvent> for App {
         #[cfg(not(target_arch = "wasm32"))]
         let attributes = attributes.with_visible(self.resume.is_none());
         let window = Arc::new(event_loop.create_window(attributes).expect("create window"));
+        // A `--size` test run stays windowed whatever the setting; a change from there on applies.
+        #[cfg(not(target_arch = "wasm32"))]
+        {
+            self.fullscreen_applied = Some(self.settings.fullscreen);
+        }
         self.window = Some(window.clone());
 
         let proxy = self.proxy.clone();
@@ -2481,10 +2509,17 @@ impl ApplicationHandler<UserEvent> for App {
                     a.wake();
                 }
                 let pressed = event.state == ElementState::Pressed;
-                // F11 or Alt+Enter: fullscreen (borderless) and back.
+                // F11 or Alt+Enter: fullscreen (borderless) and back, kept for the next run.
                 if pressed && !event.repeat && (code == KeyCode::F11 || (self.alt_held && code == KeyCode::Enter)) {
                     if let Some(window) = &self.window {
                         let full = window.fullscreen().is_some();
+                        #[cfg(not(target_arch = "wasm32"))]
+                        {
+                            self.settings.fullscreen = !full;
+                            self.settings.save();
+                        }
+                        // The browser's fullscreen needs this key press: not kept.
+                        #[cfg(target_arch = "wasm32")]
                         window.set_fullscreen((!full).then_some(winit::window::Fullscreen::Borderless(None)));
                     }
                     return;
@@ -2835,6 +2870,8 @@ fn main() {
         resume: update::read_resume(),
         #[cfg(not(target_arch = "wasm32"))]
         show_window: None,
+        #[cfg(not(target_arch = "wasm32"))]
+        fullscreen_applied: None,
     };
     #[cfg(not(target_arch = "wasm32"))]
     {

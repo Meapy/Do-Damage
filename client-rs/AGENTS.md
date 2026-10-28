@@ -209,7 +209,8 @@ yard): `--walk-to 45.5,68.5 --hold 0:200 --hold -:6000 --hold f:100000 --aim aut
   it; the boss (or the boss history, behind its menu button) at the top left. The pieces
   (`group`, `hud_box`, `grid_slot`, `burger_button`, `status_bar`, `draw_bars`, `draw_card`, `draw_stats`,
   `draw_records`) take a rectangle, so they can go anywhere. Chat wraps to the space left of
-  the bar. F11 or Alt+Enter toggles fullscreen.
+  the bar. F11 or Alt+Enter toggles borderless fullscreen, as does Options, Graphics
+  (desktop); it's kept in the settings (`fullscreen=1`) and the next run opens that way.
 - **Swap-out row:** held back for a later release. The server already keeps slots 20-23 for it
   (one for each equipment slot, taking the same items, sent as stats 144-147; `hud::SWAP_FIRST`,
   `stat::SWAP_0`, the server's `InventoryConstants`); the client doesn't show them yet.

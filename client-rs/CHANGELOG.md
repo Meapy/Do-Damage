@@ -17,6 +17,9 @@ details). Add to a group's line when a change adds to it, rather than adding ano
 ### Game
 - Being in the Legends (a character in the top 20 of the week, the month or all time) gives a 1%
   loot boost, along with the red glow, from the next time you enter a world. `/boosts` shows it.
+- Borderless fullscreen is in Options, Graphics (desktop), and the game remembers it: it opens
+  the way you left it. F11 or Alt+Enter still switches, and back in a window it's the size and
+  place it was.
 
 ## 2.2.5 (2026-10-28)
 

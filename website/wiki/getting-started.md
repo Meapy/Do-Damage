@@ -68,7 +68,7 @@ Every key can be rebound in Options (<kbd>O</kbd>).
 | <kbd>Enter</kbd> | Chat; <kbd>Tab</kbd> whispers, <kbd>G</kbd> guild chat, <kbd>P</kbd> party chat |
 | <kbd>L</kbd> | Show the frame rate and your ping |
 | <kbd>X</kbd> | Center the view on you |
-| <kbd>F11</kbd> | Fullscreen |
+| <kbd>F11</kbd> or <kbd>Alt</kbd>+<kbd>Enter</kbd> | Borderless fullscreen, and back to a window |
 | <kbd>Esc</kbd> | Menu: characters, options, log out |
 
 Text boxes (chat, sign-in) copy, cut and paste with <kbd>Ctrl</kbd>+<kbd>C</kbd>, <kbd>X</kbd> and
@@ -79,7 +79,10 @@ Text boxes (chat, sign-in) copy, cut and paste with <kbd>Ctrl</kbd>+<kbd>C</kbd>
 **Options** (<kbd>O</kbd>, or from the <kbd>Esc</kbd> menu) has a **Visuals** tab for what you
 see in the world: the crosshair, particles, shadows, health bars, damage numbers, and how much of
 other players and their pets you see. "Pets' shots" there switches between Normal, Subtle (the
-default: smaller, see-through shots) and Hidden. The **Sound** tab has a Master volume.
+default: smaller, see-through shots) and Hidden. The **Graphics** tab has the world zoom, a frame
+rate limit and, on the desktop, **Borderless fullscreen**: the window covers the screen it's on,
+with no border, and alt-tabbing out is instant. The game remembers it for the next time. The
+**Sound** tab has a Master volume.
 
 ## The screen
 
