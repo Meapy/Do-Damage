@@ -21,6 +21,11 @@ details). Add to a group's line when a change adds to it, rather than adding ano
   the way you left it. F11 or Alt+Enter still switches, and back in a window it's the size and
   place it was.
 
+### Fixes
+- Bosses that left a portal twice leave it once: the Ghost Ship's Davy Jones' Locker portal (now
+  only the one on its island), the Royal Cnidarian's Realm Portal, and the Puppet Master's loot
+  chest and Encore portal when he runs out of time.
+
 ## 2.2.5 (2026-10-28)
 
 ### Fixes

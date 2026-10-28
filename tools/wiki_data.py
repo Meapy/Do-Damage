@@ -281,6 +281,9 @@ class Data:
                 o = self.objects.get(m.group(1))
                 if o and o["class"] == "Portal":
                     out.append(("portal", m.group(1), 1.0))
+            # the portals in a set piece it places on death (the Ghost Ship's, on its island)
+            for m in re.finditer(r'PlaceMapAtDeath\(\s*"([^"]+)"', block):
+                out.extend(("portal", p, 1.0) for p in self.map_portals(m.group(1)))
             block += "".join(self._loot_templates().get(t, "")
                              for t in re.findall(r'LootTemplates\.(\w+)\(\)', block))
             for m in self.ITEM_LOOT.finditer(block):
@@ -300,6 +303,16 @@ class Data:
             for m in self.ITEM_LOOT.finditer(self.extra_loot.get(monster, "")):
                 out.append(("item", m.group(1), float(m.group(2))))
         return out
+
+    def map_portals(self, path):
+        """The portals a set piece (a .jm under resources/worlds) holds."""
+        try:
+            with open(os.path.join(WORLDS, path), encoding="utf-8-sig") as f:
+                entries = json.load(f).get("dict", [])
+        except (OSError, ValueError):
+            return []
+        ids = [o["id"] for e in entries for o in e.get("objs") or []]
+        return [i for i in ids if self.objects.get(i, {}).get("class") == "Portal"]
 
     def chest_spawners(self):
         """{boss: [its chest spawners]}: a "Chest Spawner" opens (its loot balloon or chest) once the
