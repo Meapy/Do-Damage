@@ -789,8 +789,7 @@ pub struct Social<'a> {
     pub locked: &'a std::collections::HashSet<String>,
     pub ignored: &'a std::collections::HashSet<String>,
     pub now: i32,
-    /// The quest, and the bosses we hit lately (the history at the top left).
-    pub quest: Option<i32>,
+    /// The bosses we hit lately (the history at the top left).
     pub history: &'a [crate::game::BossFight],
     /// The character's fame records (`Game::fame_stats`).
     pub fame: &'a HashMap<u8, i32>,
@@ -944,8 +943,10 @@ pub struct HudState {
     pub tabs_key: String,
     /// The keys bound to the health and magic potions, for their stacks.
     pub potion_keys: [String; 2],
-    /// The boss history is open, and which boss in it shows everyone who hit it.
+    /// The boss history is open, and which boss in it shows everyone who hit it; how far down the
+    /// top left its button sat when last drawn (under the boss and the realm's events).
     pub history_open: bool,
+    pub history_y: f32,
     pub history_pick: Option<usize>,
     /// The character card's tab: 0 the stats, 1 the fame records.
     pub card_tab: usize,
@@ -1063,6 +1064,11 @@ const DOUBLE_CLICK_MS: i32 = 350;
 const INTERACT_SETTLE_MS: i32 = 500;
 
 impl Panel {
+    /// Where the minimap shows the world this frame (the realm's events are marked on it).
+    pub fn minimap(&self) -> Option<MiniView> {
+        self.minimap
+    }
+
     pub fn new(lay: &Layout, world: &World, data: &GameData, state: &HudState, social: &Social) -> Self {
         let page = state.page;
         let mut panel = Panel {
@@ -1125,9 +1131,9 @@ impl Panel {
         panel.buttons.push((Button::Nexus, lay.nexus_button()));
         panel.buttons.push((Button::Quests, lay.quests_button()));
         panel.buttons.push((Button::Vault, lay.vault_button()));
-        // The boss history, at the top left while no boss shows there.
-        if !boss_showing(world, social.quest) {
-            let hl = history_layout(lay, social.history, state);
+        // The boss history's button, under whatever else is at the top left (where it was drawn).
+        {
+            let hl = history_layout(lay, social.history, state, state.history_y);
             panel.history = hl.areas();
             panel.buttons.extend(hl.buttons);
         }
@@ -1874,18 +1880,20 @@ fn draw_slot(ui: &mut Ui, lay: &Layout, slot: &Slot, dragged: bool, target: bool
 
 /// An item's imprints as small squares in their colours, an even row from (x, y), packed to the
 /// left in the order Offensive (red), Defensive (green), Misc (purple): a lone purple sits first,
-/// and moves over when a green one comes. Only those it carries show.
+/// and moves over when a green one comes. Only those it carries show. Each is its colour filling a
+/// thin gold frame, on whole pixels so the colour meets the frame evenly at every size.
 pub(crate) fn draw_imprint_marks(ui: &mut Ui, imprints: [u8; 3], x: f32, y: f32, s: f32) {
     use bsk_data::imprint::Kind;
-    let size = (5.0 * s).max(3.0);
-    let step = size + 2.0 * s;
+    let edge = s.round().max(1.0);
+    let inner = (7.0 * s).round().max(5.0);
+    let outer = inner + 2.0 * edge;
+    let step = outer + (1.5 * s).round().max(1.0);
+    let (x, y) = ((x - edge).round(), (y - edge).round());
     let carried = Kind::ALL.into_iter().filter(|&k| imprints[k as usize] != 0);
     for (col, kind) in carried.enumerate() {
-        let r = [x + col as f32 * step, y, size, size];
-        // a thin gold edge round each, apart from the sprite
-        theme::fill(ui.renderer, [r[0] - 1.5 * s, r[1] - 1.5 * s, r[2] + 3.0 * s, r[3] + 3.0 * s], 1.5 * s, color::GOLD, 1.0);
-        theme::fill(ui.renderer, [r[0] - 0.5 * s, r[1] - 0.5 * s, r[2] + s, r[3] + s], s, 0x0a0710, 1.0);
-        theme::fill(ui.renderer, r, s, kind.color(), 1.0);
+        let ox = x + col as f32 * step;
+        theme::fill(ui.renderer, [ox, y, outer, outer], edge, color::GOLD, 1.0);
+        theme::fill(ui.renderer, [ox + edge, y + edge, inner, inner], edge * 0.5, kind.color(), 1.0);
     }
 }
 
@@ -2014,7 +2022,10 @@ fn status_bar(ui: &mut Ui, lay: &Layout, x: f32, y: f32, label: &str, value: i32
     let (w, h) = (176.0 * s, 18.0 * s);
     let r = [x, y, w, h];
     theme::frame(ui.renderer, r, 5.0 * s, s.max(1.0), (color::BORDER, 1.0), ((color::TRACK, 1.0), (theme::shade(color::TRACK, 0.08), 1.0)));
-    let frac = if max > 0 { (value as f32 / max as f32).clamp(0.0, 1.0) } else { 0.0 };
+    // no goal left (fame once the class's stars are all earned, the server's next goal 0): full,
+    // and only the count
+    let goal = max > 0;
+    let frac = if goal { (value as f32 / max as f32).clamp(0.0, 1.0) } else { 1.0 };
     let inner = [x + s, y + s, (w - 2.0 * s) * frac, h - 2.0 * s];
     if inner[2] > 1.0 {
         theme::rounded(ui.renderer, inner, 4.0 * s, (theme::shade(c, 0.25), 1.0), (theme::shade(c, -0.2), 1.0));
@@ -2023,7 +2034,7 @@ fn status_bar(ui: &mut Ui, lay: &Layout, x: f32, y: f32, label: &str, value: i32
     let size = lay.font(11.0);
     let ty = y + (h - size * 1.22) / 2.0;
     ui.label(label, x + 6.0 * s, ty, size, true, color::TEXT);
-    let (v, m) = (format!("{value} / "), max.to_string());
+    let (v, m) = if goal { (format!("{value} / "), max.to_string()) } else { (value.to_string(), String::new()) };
     let b = if boost != 0 { format!(" {boost:+}") } else { String::new() };
     let small = lay.font(9.5);
     let (vw, mw, bw) = (ui.measure(&v, size, true), ui.measure(&m, size, true), ui.measure(&b, small, true));
@@ -2145,9 +2156,12 @@ pub fn draw_overlay(ui: &mut Ui, lay: &Layout, world: &World, panel: &Panel, sta
             draw_player_card(ui, lay, p, r, true);
             if inside(r, mouse) {
                 let slots = player_card_slots(lay, p, r);
-                let item = (0..4u8).find(|&i| inside(slots[i as usize], mouse)).map_or(-1, |i| p.stat_int(slot_stat(i)).unwrap_or(-1));
-                if item > 0 {
-                    let lines = item_tooltip(ui.data, item, world.player(), SlotKind::Shop);
+                let slot = (0..4u8).find(|&i| inside(slots[i as usize], mouse));
+                let item = slot.map_or(-1, |i| p.stat_int(slot_stat(i)).unwrap_or(-1));
+                if let (Some(i), true) = (slot, item > 0) {
+                    let imprints = slot_imprints(p, i);
+                    let mut lines = item_tooltip_imprinted(ui.data, item, world.player(), SlotKind::Shop, imprints);
+                    lines.extend(imprint_lines(ui.data, item, imprints));
                     draw_tooltip(ui, lay, &lines, Some(item), crate::screens::tier_edge(ui.data, item), mouse);
                 }
                 return;
@@ -2294,6 +2308,7 @@ fn draw_player_card(ui: &mut Ui, lay: &Layout, p: &GameObj, r: [f32; 4], pinned:
         ui.slot_box(sr, if item > 0 { crate::screens::tier_edge(ui.data, item) } else { None }, false, s);
         if item > 0 {
             ui.item_icon(item, 80, sr[0] + sr[2] / 2.0, sr[1] + sr[3] / 2.0, s);
+            draw_imprint_marks(ui, slot_imprints(p, i), sr[0] + 4.0 * s, sr[1] + 4.0 * s, s);
         }
     }
     let hint = if pinned { "Hover an item to see it, right-click to close" } else { "Right-click to keep open" };
@@ -3013,12 +3028,14 @@ pub fn draw_windows(ui: &mut Ui, lay: &Layout, world: &World, panel: &Panel, soc
                 }
                 if item.item > 0 {
                     let dim = !item.tradeable;
+                    let imprints = bsk_data::imprint::parse(&item.item_data);
                     ui.item_icon(item.item, 80, sr[0] + sr[2] / 2.0, sr[1] + sr[3] / 2.0, s);
+                    draw_imprint_marks(ui, imprints, sr[0] + 4.0 * s, sr[1] + 4.0 * s, s);
                     if dim {
                         theme::fill(ui.renderer, sr, 5.0 * s, 0x000000, 0.5);
                     }
                     if over {
-                        hovered = Some(item.item);
+                        hovered = Some((item.item, imprints));
                     }
                 }
             }
@@ -3037,8 +3054,9 @@ pub fn draw_windows(ui: &mut Ui, lay: &Layout, world: &World, panel: &Panel, soc
                 _ => {}
             }
         }
-        if let Some(item) = hovered {
-            let lines = item_tooltip(ui.data, item, world.player(), SlotKind::Shop);
+        if let Some((item, imprints)) = hovered {
+            let mut lines = item_tooltip_imprinted(ui.data, item, world.player(), SlotKind::Shop, imprints);
+            lines.extend(imprint_lines(ui.data, item, imprints));
             draw_tooltip(ui, lay, &lines, Some(item), crate::screens::tier_edge(ui.data, item), mouse);
         }
     }
@@ -3067,10 +3085,21 @@ pub fn draw_windows(ui: &mut Ui, lay: &Layout, world: &World, panel: &Panel, soc
     }
 }
 
+/// How near the quest has to be (tiles) for the top left to show who hit it rather than the
+/// realm's events.
+pub const QUEST_NEAR: f64 = 100.0;
+
+/// Whether we're within `QUEST_NEAR` of the quest.
+pub fn quest_near(world: &World, quest: Option<i32>) -> bool {
+    let (Some(q), Some(me)) = (quest.and_then(|id| world.objects.get(&id)), world.player()) else { return false };
+    (q.x - me.x).hypot(q.y - me.y) <= QUEST_NEAR
+}
+
 /// `QuestArrow` and `BossHealthBar`: the quest at the top left (its picture, name and health),
-/// the top five who hit it under that (with our share, `DamageCounter`), then the dungeon keys
-/// (`KeysView`); with no quest there, the boss history's button (and list). And an arrow at the
-/// view's edge pointing to the quest when it's off screen.
+/// and when we're near it the top five who hit it under that (with our share, `DamageCounter`).
+/// And an arrow at the view's edge pointing to the quest when it's off screen. Returns how far
+/// down it reaches: the realm's events, then the boss history and the keys go under it
+/// (`draw_history_and_keys`).
 #[allow(clippy::too_many_arguments)]
 pub fn draw_quest(
     ui: &mut Ui,
@@ -3078,31 +3107,31 @@ pub fn draw_quest(
     world: &World,
     camera: &crate::view::Camera,
     quest: Option<i32>,
-    keys: &[u32],
     dealt: &HashMap<i32, i32>,
     top: Option<&crate::game::QuestDamage>,
-    history: &[crate::game::BossFight],
-    state: &HudState,
-    mouse: (f64, f64),
-) {
-    let s = lay.s;
+) -> f32 {
     let q = quest.and_then(|id| world.objects.get(&id));
     let desc = q.and_then(|q| ui.data.objects.get(&q.object_type));
-    // Where the keys go: under the boss's parts, or under the history.
+    let near = quest_near(world, quest);
     let below = match (q, desc) {
         (Some(q), Some(desc)) if boss_showing(world, quest) => {
             let (hp, max) = (q.stat_int(stat::HP).unwrap_or(0), q.stat_int(stat::MAX_HP).unwrap_or(0));
-            draw_boss(ui, lay, world, q, desc, hp, max, dealt, top)
+            draw_boss(ui, lay, world, q, desc, hp, max, dealt, top.filter(|_| near), near) + GAP * lay.s
         }
-        _ => {
-            let hl = history_layout(lay, history, state);
-            draw_history(ui, lay, &hl, history, state, mouse);
-            let r = hl.list.unwrap_or(hl.burger);
-            r[1] + r[3]
-        }
+        _ => 0.0,
     };
-    draw_keys(ui, s, keys, below);
     draw_quest_arrow(ui, lay, camera, q, desc);
+    below
+}
+
+/// The boss history's button (and list) from `y` down the top left, then the dungeon keys
+/// (`KeysView`) under it. Returns where its button went, for the clicks (`HudState::history_y`).
+pub fn draw_history_and_keys(ui: &mut Ui, lay: &Layout, y: f32, keys: &[u32], history: &[crate::game::BossFight], state: &HudState, mouse: (f64, f64)) -> f32 {
+    let hl = history_layout(lay, history, state, y);
+    draw_history(ui, lay, &hl, history, state, mouse);
+    let r = hl.list.unwrap_or(hl.burger);
+    draw_keys(ui, lay.s, keys, r[1] + r[3]);
+    y
 }
 
 /// The dungeon keys we hold (`KeysView`), in a row from `y` down.
@@ -3174,6 +3203,7 @@ fn draw_boss(
     max: i32,
     dealt: &HashMap<i32, i32>,
     top: Option<&crate::game::QuestDamage>,
+    near: bool,
 ) -> f32 {
     let s = lay.s;
     let r = [0.0, 0.0, HISTORY_W * s, 52.0 * s];
@@ -3220,7 +3250,7 @@ fn draw_boss(
     let me = world.player();
     let my_name = me.and_then(|p| p.name()).unwrap_or("");
     let shown: Vec<&crate::game::Hitter> = top.map(|t| t.hitters.iter().take(BOSS_TOP).collect()).unwrap_or_default();
-    let mine = top.map(|t| t.mine).filter(|&d| d > 0).or_else(|| dealt.get(&q.id).copied().filter(|&d| d > 0));
+    let mine = top.map(|t| t.mine).filter(|&d| d > 0).or_else(|| dealt.get(&q.id).copied().filter(|&d| d > 0 && near));
     let me_listed = shown.iter().any(|h| h.name == my_name);
     let rows = shown.len() + usize::from(mine.is_some() && !me_listed);
     if rows > 0 {
@@ -3332,14 +3362,14 @@ impl HistoryLayout {
 
 /// The boss history's layout: the button in the corner; open, the last bosses under it, and
 /// under the one picked everyone who hit it.
-pub fn history_layout(lay: &Layout, history: &[crate::game::BossFight], state: &HudState) -> HistoryLayout {
+pub fn history_layout(lay: &Layout, history: &[crate::game::BossFight], state: &HudState, y0: f32) -> HistoryLayout {
     let s = lay.s;
-    let burger = [0.0, 0.0, BURGER * s, BURGER * s];
+    let burger = [0.0, y0, BURGER * s, BURGER * s];
     let mut hl = HistoryLayout { burger, list: None, buttons: vec![(Button::History, burger)], rows: Vec::new() };
     if !state.history_open {
         return hl;
     }
-    let top = burger[3];
+    let top = burger[1] + burger[3];
     let (x, w) = (4.0 * s, (HISTORY_W - 8.0) * s);
     let mut y = top + 6.0 * s;
     hl.rows.push(HistoryRow::Title([x, y, w, 16.0 * s]));
@@ -3385,7 +3415,9 @@ pub fn draw_history(ui: &mut Ui, lay: &Layout, hl: &HistoryLayout, history: &[cr
         Some(list) => group_shaped(ui, &[([hl.burger[0], hl.burger[1], hl.burger[2], hl.burger[3] + radius], true), (list, false)], s),
         None => group_shaped(ui, &[(hl.burger, true)], s),
     }
-    square_corner(ui, GROUP_FILL, s);
+    if hl.burger[1] <= 0.0 {
+        square_corner(ui, GROUP_FILL, s);
+    }
     burger_button(ui, hl.burger, state.history_open, inside(hl.burger, mouse), s);
     let ds = lay.font(11.0);
     for row in &hl.rows {
@@ -3561,7 +3593,9 @@ pub fn draw_chat(ui: &mut Ui, lay: &Layout, lines: &[ChatLine], me: &str, input:
     let star_k = size / 15.0;
     let star_w = 19.0 * star_k;
     let mut rows: Vec<ChatRow> = Vec::new();
-    for line in lines.iter().rev() {
+    // the rows above those wrapped, a row a line at least: for the scroll bar
+    let mut unwrapped = 0;
+    for (n, line) in lines.iter().rev().enumerate() {
         if input.is_none() && scroll.is_none() && now - line.at > CHAT_SHOW_MS {
             break;
         }
@@ -3571,9 +3605,11 @@ pub fn draw_chat(ui: &mut Ui, lay: &Layout, lines: &[ChatLine], me: &str, input:
             rows.push((if i == 0 { star } else { None }, row));
         }
         if rows.len() >= max_rows + scroll.unwrap_or(0) {
+            unwrapped = lines.len() - n - 1;
             break;
         }
     }
+    let total = rows.len() + unwrapped;
     let skip = scroll.unwrap_or(0).min(rows.len().saturating_sub(max_rows.min(rows.len())));
     rows.drain(..skip);
     rows.truncate(max_rows);
@@ -3587,15 +3623,28 @@ pub fn draw_chat(ui: &mut Ui, lay: &Layout, lines: &[ChatLine], me: &str, input:
         .fold(0.0, f32::max);
     let back_h = rows.len() as f32 * line_h + 10.0 * s;
     let strong = input.is_some() || scroll.is_some();
-    theme::fill(ui.renderer, [margin, bottom - back_h, widest + 16.0 * s, back_h], 6.0 * s, 0x000000, if strong { 0.55 } else { 0.32 });
+    // while typing or scrolled back, the scroll bar on the left (when there's more than fits) and
+    // the box at its full width, so it keeps its place and size from page to page
+    let bar = strong && total > rows.len();
+    let bar_w = if bar { 10.0 * s } else { 0.0 };
+    let back_w = if strong { max_w + 16.0 * s + bar_w } else { widest + 16.0 * s };
+    theme::fill(ui.renderer, [margin, bottom - back_h, back_w, back_h], 6.0 * s, 0x000000, if strong { 0.55 } else { 0.32 });
     if skip > 0 {
         let t = format!("{skip} newer lines below (Page Down)");
         let small = lay.font(11.0);
         ui.label(&t, margin + 8.0 * s, bottom - back_h - small * 1.4, small, true, color::TEXT_DIM);
     }
+    // the scroll bar: where the rows shown are in all of it (Page Up and Down, or the wheel, move it)
+    if bar {
+        let track = [margin + 5.0 * s, bottom - back_h + 5.0 * s, 4.0 * s, back_h - 10.0 * s];
+        theme::fill(ui.renderer, track, 2.0 * s, 0x000000, 0.55);
+        let h = (track[3] * rows.len() as f32 / total as f32).max(10.0 * s);
+        let from_bottom = (track[3] - h) * (skip as f32 / (total - rows.len()).max(1) as f32).min(1.0);
+        theme::fill(ui.renderer, [track[0], track[1] + track[3] - h - from_bottom, track[2], h], 2.0 * s, color::ACCENT, 0.9);
+    }
     for (i, (star, row)) in rows.iter().enumerate() {
         let y = bottom - 5.0 * s - line_h * (i as f32 + 1.0);
-        let mut x = margin + 8.0 * s;
+        let mut x = margin + 8.0 * s + bar_w;
         if let Some(stars) = *star {
             crate::stars::icon(ui.renderer, x + 8.0 * star_k, y + line_h / 2.0, star_k, crate::stars::color(stars, classes));
             x += star_w;
@@ -3784,7 +3833,7 @@ mod tests {
     #[test]
     fn portal_button_waits_for_its_panel() {
         let (locked, fame) = (Default::default(), HashMap::new());
-        let social = Social { trade: None, invite: None, locked: &locked, ignored: &locked, now: 0, quest: None, history: &[], fame: &fame };
+        let social = Social { trade: None, invite: None, locked: &locked, ignored: &locked, now: 0, history: &[], fame: &fame };
         let (lay, data, world) = (Layout::new(1920, 1080), GameData::default(), World::new(10, 10, "test", 1));
         let mut state = HudState::default();
         let mut panel = Panel::new(&lay, &world, &data, &state, &social);

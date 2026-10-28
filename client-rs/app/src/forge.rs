@@ -1,5 +1,6 @@
-//! The Divine Forge's window, opened from the forge in the Nexus's forge hall, and the
-//! Enchanter's beside it (the same window in its other mode, `imprints.rs`).
+//! The Divine Workbench: one window for the Divine Forge in the Nexus's forge hall and the
+//! Enchanter beside it, each opening it at its own tab (the forge at Forge, the Enchanter at
+//! Imprints, `imprints.rs`), every tab a click away from the other.
 //!
 //! Forge: the recipes (`ForgeData`), filtered by what they make (weapons, abilities, armor,
 //! rings and the rest, then by slot type), to untiered gear or each kind's highest tier, or by
@@ -14,7 +15,7 @@
 //! inventory slots it uses (the server takes the rest from the forge storage, then the vault). The
 //! forged item takes the first ingredient's inventory slot; with none, a free one, or the vault.
 //!
-//! The Enchanter: Imprints, its only tab, puts imprints on gear (`ImprintHandlers.cs`).
+//! Imprints: puts imprints on gear (`ImprintHandlers.cs`), or with no gear picked lists them all.
 
 mod imprints;
 
@@ -66,7 +67,7 @@ enum Tab {
     Forge,
     Shards,
     Sell,
-    /// The Enchanter's only tab.
+    /// The Enchanter's tab.
     Imprints,
 }
 
@@ -150,6 +151,8 @@ enum Hit {
     ImpItem(imprints::Pick),
     ImpKind(usize),
     ImpApply(u8),
+    /// Put the picked gear back: every imprint shows again.
+    ImpClear,
 }
 
 /// Where a forging is.
@@ -227,8 +230,12 @@ pub struct Forge {
     fame: i32,
     backpack: bool,
     now: i32,
-    /// Open as the Enchanter rather than the forge.
-    enchanter: bool,
+    /// The Imprints tab's data (the shards, the vault's Enthroned gear) was asked for since the
+    /// window opened.
+    imp_asked: bool,
+    /// The imprints list's first row shown (the wheel scrolls it), and how many it has.
+    imp_scroll: usize,
+    imp_count: usize,
     /// The Enchanter: the gear in each slot (equipment and inventory) with its imprints, the slot
     /// picked, the colour shown (3: coming soon), whether an imprint is on its way, and the
     /// imprints of the item under the mouse.
@@ -251,10 +258,8 @@ impl Forge {
     /// Opens the window; the first time, it asks for the recipes.
     pub fn show(&mut self, data: &GameData) -> Option<Act> {
         self.open = true;
-        self.enchanter = false;
-        if self.tab == Tab::Imprints {
-            self.tab = Tab::Forge;
-        }
+        self.imp_asked = false;
+        self.tab = Tab::Forge;
         self.message = None;
         self.forging = None;
         self.selling.clear();
@@ -484,11 +489,19 @@ impl Forge {
         let hit = self.hits.iter().find(|(_, r)| inside(*r, pos)).map(|(h, _)| *h)?;
         match hit {
             Hit::ImpItem(slot) => {
-                self.imp_pick = Some(slot);
+                // the picked piece again puts it back, to see every imprint
+                self.imp_pick = if self.imp_pick == Some(slot) { None } else { Some(slot) };
+                self.imp_scroll = 0;
+                self.message = None;
+            }
+            Hit::ImpClear => {
+                self.imp_pick = None;
+                self.imp_scroll = 0;
                 self.message = None;
             }
             Hit::ImpKind(k) => {
                 self.imp_kind = k;
+                self.imp_scroll = 0;
                 self.message = None;
             }
             Hit::ImpApply(id) => return self.imprint(id, data),
@@ -496,6 +509,15 @@ impl Forge {
                 if !matches!(self.forging, Some(Forging::Going { .. })) {
                     self.tab = t;
                     self.message = None;
+                    // each side's data, the first time its tabs show
+                    if t == Tab::Imprints && !self.imp_asked {
+                        self.imp_asked = true;
+                        self.imp_pending = false;
+                        return Some(Act::ImprintShards);
+                    }
+                    if t != Tab::Imprints && !self.loaded {
+                        return Some(Act::Data);
+                    }
                 }
             }
             Hit::Close => self.close(),
@@ -596,6 +618,10 @@ impl Forge {
     }
 
     pub fn scroll(&mut self, rows: i32) {
+        if self.tab == Tab::Imprints {
+            self.imp_scroll = (self.imp_scroll as i32 + rows).clamp(0, self.imp_count.saturating_sub(1) as i32) as usize;
+            return;
+        }
         let total = self.shown.len().div_ceil(COLS);
         let max = total.saturating_sub(self.rows.max(1));
         self.row = (self.row as i32 + rows).clamp(0, max as i32) as usize;
@@ -717,10 +743,8 @@ impl Forge {
         // button, all centred on one line.
         let mid = r[1] + 32.0 * s;
         let ts = font(22.0);
-        let title = if self.enchanter { "Enchanter" } else { "Divine Forge" };
-        ui.label(title, r[0] + 22.0 * s, (mid - ui.digit_middle(ts, true)).round(), ts, true, color::GOLD);
-        let tabs: &[(Tab, &str)] =
-            if self.enchanter { &[(Tab::Imprints, "Imprints")] } else { &[(Tab::Forge, "Forge"), (Tab::Shards, "Shards"), (Tab::Sell, "Sell for fame")] };
+        ui.label("Divine Workbench", r[0] + 22.0 * s, (mid - ui.digit_middle(ts, true)).round(), ts, true, color::GOLD);
+        let tabs: &[(Tab, &str)] = &[(Tab::Forge, "Forge"), (Tab::Shards, "Shards"), (Tab::Sell, "Sell for fame"), (Tab::Imprints, "Imprints")];
         let cs = font(13.0);
         let widths: Vec<f32> = tabs.iter().map(|(_, l)| ui.measure(l, cs, true) + 36.0 * s).collect();
         let gap = 8.0 * s;
@@ -758,7 +782,7 @@ impl Forge {
         let foot_y = r[1] + r[3] - 36.0 * s;
         if let Some((m, err)) = &self.message {
             ui.label(m, r[0] + 22.0 * s, foot_y, font(13.0), true, if *err { color::DANGER } else { color::GOOD });
-        } else if !self.loaded && !self.enchanter {
+        } else if !self.loaded && self.tab != Tab::Imprints {
             ui.label("Asking the forge for its recipes...", r[0] + 22.0 * s, foot_y, font(13.0), false, color::TEXT_MUTED);
         }
         if let Some(item) = self.hover_item {

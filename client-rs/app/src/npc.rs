@@ -122,8 +122,8 @@ pub fn interact_text(kind: NpcKind, me: &GameObj, rank_req: i32) -> (String, Opt
         NpcKind::PotionStorage => open("Store stat potions", "Open"),
         NpcKind::Market => open("Buy and sell items", "Manage"),
         NpcKind::ArenaLeaderboard => open("The arena's best runs", "View"),
-        NpcKind::Forge => open("Forge items, or sell them for fame", "Open"),
-        NpcKind::Enchanter => open("Imprint your gear", "Open"),
+        NpcKind::Forge => open("The Divine Workbench: forge, sell or imprint", "Open"),
+        NpcKind::Enchanter => open("The Divine Workbench: imprint your gear", "Open"),
         NpcKind::QuestMaster => open("Daily, weekly and monthly quests", "Quests"),
         NpcKind::Chronicler => open("Daily rewards and achievements", "Open"),
     }

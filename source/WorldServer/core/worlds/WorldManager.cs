@@ -84,6 +84,45 @@ namespace WorldServer.core.worlds
             });
         }
 
+        /// <summary>The Nexus's own Realm 2 (RealmPortalMonitor), built on a pool thread like a realm, its portal beside the realms'.</summary>
+        public void CreateNewRealm2Async(string name, Action<World> failed)
+        {
+            var worldResource = GameServer.Resources.GameData.GetWorld("Realm 2");
+            if (worldResource == null)
+            {
+                failed(null);
+                return;
+            }
+
+            var nextId = Interlocked.Increment(ref NextWorldId);
+            _ = Task.Run(() =>
+            {
+                try
+                {
+                    var world = new Realm2World(GameServer, nextId, worldResource);
+                    world.SetMaxPlayers(RealmPortalMonitor.MAX_PER_REALM);
+                    world.DisplayName = name;
+                    if (!world.LoadMapFromData(worldResource))
+                    {
+                        failed(world);
+                        return;
+                    }
+                    world.Init();
+                    _ = Worlds.TryAdd(world.Id, world);
+                    lock (Threads)
+                    {
+                        Threads.Add(world.Id, new RootWorldThread(this, world));
+                    }
+                    GameServer.WorldManager.Nexus.PortalMonitor.AddPortal(world);
+                }
+                catch (Exception e)
+                {
+                    StaticLogger.Instance.Error($"Building the Nexus's Realm 2: {e}");
+                    failed(null);
+                }
+            });
+        }
+
         public World CreateNewWorld(string dungeonName, int? id = null, World parent = null)
         {
             var world = BuildWorld(dungeonName, id, parent);

@@ -1010,6 +1010,8 @@ impl Front {
             ui.slot_box(sr, edge, false, s);
             if item > 0 {
                 ui.item_icon(item, 80, sr[0] + side / 2.0, sr[1] + side / 2.0, s * 0.64);
+                let imprints = bsk_data::imprint::parse(c.item_datas.get(k).map_or("", String::as_str));
+                crate::hud::draw_imprint_marks(ui, imprints, sr[0] + 3.0 * s, sr[1] + 3.0 * s, s * 0.8);
             }
         }
         // The class quest it's working on (`makeTagline`): its fame of the next one's.
@@ -1333,6 +1335,8 @@ impl Front {
                                 ui.slot_box(sr, if item > 0 { tier_edge(ui.data, item) } else { None }, false, s);
                                 if item > 0 {
                                     ui.item_icon(item, 80, sr[0] + side / 2.0, sr[1] + side / 2.0, s * 0.7);
+                                    let imprints = bsk_data::imprint::parse(l.item_datas.get(k).map_or("", String::as_str));
+                                    crate::hud::draw_imprint_marks(ui, imprints, sr[0] + 3.0 * s, sr[1] + 3.0 * s, s * 0.8);
                                 }
                             }
                             ui.label(&fame, r[0] + r[2] - fw - 14.0 * s, r[1] + (r[3] - fs * 1.22) / 2.0, fs, true, color::ACCENT);
@@ -1581,6 +1585,7 @@ struct LegendRow {
     tex2: i32,
     skin: i32,
     equipment: Vec<i32>,
+    item_datas: Vec<String>,
     total_fame: i32,
     /// A death's level, killer, world and seconds ago.
     death: Option<(i32, String, String, i64)>,
@@ -1596,6 +1601,7 @@ impl LegendRow {
             tex2: l.tex2,
             skin: l.skin,
             equipment: l.equipment.clone(),
+            item_datas: l.item_datas.clone(),
             total_fame: l.total_fame,
             death: None,
             target: None,
@@ -1610,6 +1616,7 @@ impl LegendRow {
             tex2: d.tex2,
             skin: d.skin,
             equipment: Vec::new(),
+            item_datas: Vec::new(),
             total_fame: d.total_fame,
             death: Some((d.level, d.killer.clone(), d.world.clone(), d.ago)),
             target: Some(Target::Fallen(d.account_id, d.char_id)),

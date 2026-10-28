@@ -171,15 +171,12 @@ namespace WorldServer.core.objects
                     WoundsBurst(enemy, ref time);
                 }
                 else
-                {
-                    _wounds[enemy.Id] = n;
-                    if (n % 5 == 0)
-                        World.BroadcastIfVisible(new Notification() { ObjectId = enemy.Id, Color = new ARGB(0xffc81e3c), Message = $"Wounds {n}/25" }, enemy);
-                }
+                    _wounds[enemy.Id] = n;     // counted quietly: only the burst shows, in purple
             }
         }
 
-        // the 25th wound: 4000 that ignores defense to the enemy and every enemy within 4 tiles
+        // the 25th wound: 4000 that ignores defense to the enemy and every enemy within 4 tiles (its
+        // numbers purple, as damage that ignores defense is)
         private void WoundsBurst(Enemy enemy, ref TickTime time)
         {
             World.BroadcastIfVisible(new ShowEffect()

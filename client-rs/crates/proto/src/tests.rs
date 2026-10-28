@@ -336,3 +336,17 @@ fn quest_messages_match_quest_handlers() {
     assert_eq!(frame, B::default().u8(3).utf("oryx").frame(105));
     assert_eq!(ClientMessage::from(QuestsRequest {}).to_frame(), B::default().frame(103));
 }
+
+#[test]
+fn realm_event_messages_match_realm_events() {
+    // RealmEventsSubscribeHandler reads nothing; QuestPickHandler the object id.
+    assert_eq!(ClientMessage::from(RealmEventsSubscribe {}).to_frame(), B::default().frame(116));
+    assert_eq!(ClientMessage::from(QuestPick { object_id: 1234 }).to_frame(), B::default().i32(1234).frame(118));
+    // RealmEvents.Write: defeated, needed, picked, a byte count of entries (kind, object id, type,
+    // name, x, y).
+    let body = B::default().i32(3).i32(13).i32(77).u8(1).u8(1).i32(77).i16(0xb030u16 as i16).utf("Lost Sentry").f32(512.5).f32(300.0).0;
+    let ServerMessage::RealmEvents(r) = ServerMessage::decode(117, &body).unwrap() else { panic!() };
+    assert_eq!((r.defeated, r.needed, r.picked), (3, 13, 77));
+    let e = &r.entries[0];
+    assert_eq!((e.kind, e.object_id, e.object_type, e.name.as_str(), e.x, e.y), (1, 77, 0xb030, "Lost Sentry", 512.5, 300.0));
+}

@@ -145,6 +145,14 @@ public enum MessageId : byte
     // Read-only. The AIR client and older Rust clients never ask.
     VAULT_CONTENTS_REQUEST = 114,
     VAULT_CONTENTS = 115,
+    // A realm's events (Rust client, RealmManager.Events.cs): the client asks for them once in each
+    // world (REALM_EVENTS_SUBSCRIBE), and in a realm gets the running events, its side quests and
+    // Realm 2's beacons with the count to close it (REALM_EVENTS) whenever they change; it picks
+    // the one its quest arrow follows (QUEST_PICK, 0 for the nearest as before). The AIR client
+    // and older Rust clients never ask, so they're never sent REALM_EVENTS.
+    REALM_EVENTS_SUBSCRIBE = 116,
+    REALM_EVENTS = 117,
+    QUEST_PICK = 118,
     // From the world proxy (tools/world_proxy.py), before the client's first message: the
     // client's address. Only taken on a connection from this PC; clients never send it.
     PROXY_INFO = 250

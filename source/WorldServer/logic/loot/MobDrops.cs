@@ -32,7 +32,8 @@ namespace WorldServer.logic.loot
                 lootDefs.Add(new LootDef(
                     lootDef.Item,
                     overrides.Probabilty >= 0 ? overrides.Probabilty : lootDef.Probabilty,
-                    overrides.Threshold >= 0 ? overrides.Threshold : lootDef.Threshold, lootDef.Tier, lootDef.ItemType));
+                    overrides.Threshold >= 0 ? overrides.Threshold : lootDef.Threshold, lootDef.Tier, lootDef.ItemType)
+                { OnePlayer = lootDef.OnePlayer });
             }
         }
     }
@@ -44,6 +45,18 @@ namespace WorldServer.logic.loot
             // a closed dungeon's key doesn't drop (SealedDungeons)
             if (!core.worlds.SealedDungeons.IsSealedItem(item))
                 LootDefs.Add(new LootDef(item, probability, threshold));
+        }
+    }
+
+    // An item one player is sure of at the given chance (rolled once per kill, the player picked at
+    // random among those past the threshold), while everyone else rolls the smaller chance as usual:
+    // Oryx 3's and 4's incantations.
+    public class OnePlayerLoot : MobDrops
+    {
+        public OnePlayerLoot(string item, double onePlayer, double others)
+        {
+            if (!core.worlds.SealedDungeons.IsSealedItem(item))
+                LootDefs.Add(new LootDef(item, others, 0) { OnePlayer = onePlayer });
         }
     }
 

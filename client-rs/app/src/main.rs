@@ -7,6 +7,7 @@ mod audio;
 mod changelog;
 mod connected;
 mod emotes;
+mod events;
 mod game;
 mod ground;
 mod hud;
@@ -150,6 +151,8 @@ struct App {
     chat_send: Vec<String>,
     /// Page Up: the chat's history, so many rows back (`TextBox.showMax_`).
     chat_scroll: Option<usize>,
+    /// The chat log kept from the last game, for the next (`Game::chat`).
+    chat_log: Vec<hud::ChatLine>,
     /// Tab's place in the list of people we've whispered with (`TextBox.currentTeller_`).
     teller: usize,
     /// Players' names in the chat as last drawn, and where (a click opens their menu).
@@ -204,6 +207,8 @@ struct App {
     market: market::Market,
     /// The Divine Forge's window, and what it asked of the server on opening.
     forge: forge::Forge,
+    /// The realm's events list at the top left (`events.rs`).
+    events: events::EventsPanel,
     forge_acts: Vec<forge::Act>,
     /// The vault window: every vault chest's items at once.
     vault: vault::Vault,
@@ -1161,6 +1166,7 @@ impl App {
             key: vec![],
         };
         let mut game = Game::start(endpoint.target(&server.host, server.port), hello, join);
+        game.chat = std::mem::take(&mut self.chat_log);
         // The camera as it was left (Parameters' cameraAngle).
         if let Some(a) = self.settings.camera_angle {
             game.camera_angle = a;
@@ -1184,6 +1190,8 @@ impl App {
                 death = Some(game.char_id);
             }
             game.close();
+            // the chat log stays for the next character played
+            self.chat_log = std::mem::take(&mut game.chat);
         }
         self.phase = Phase::Menu;
         self.game_menu = false;
@@ -1475,6 +1483,14 @@ impl App {
         format!("/tell {} ", game.tellers[self.teller])
     }
 
+    /// Whether the mouse is over the realm's events list (its wheel scrolls it).
+    fn events_under_mouse(&mut self) -> bool {
+        match &self.phase {
+            Phase::Playing(game) => self.events.wheel(game.realm_events.as_ref(), self.mouse, 0),
+            _ => false,
+        }
+    }
+
     /// Page Up: show the whole recent chat, then older pages; Page Down comes back.
     fn scroll_chat(&mut self, up: bool) {
         const PAGE: usize = 7;
@@ -1751,7 +1767,6 @@ impl App {
                 locked: &game.locked,
                 ignored: &game.ignored,
                 now,
-                quest: game.quest,
                 history: &game.boss_history,
                 fame: &game.fame_stats,
             };
@@ -1855,6 +1870,20 @@ impl App {
                 }
                 if let Some(kind) = self.npc_test.take().and_then(|c| npc::NpcKind::of_class(&c)) {
                     to_chars |= npc_open(kind, game, &mut self.npcs, &mut self.market, &mut self.forge, &mut self.forge_acts, (&mut self.quests, &mut self.quest_acts), self.front.list.as_ref(), data);
+                }
+            }
+            // A click anywhere while the chat box is open closes it, and does nothing else (a
+            // player's name in the chat still opens a whisper).
+            if self.chat_input.is_some() {
+                let names = &self.chat_names;
+                let on_name = |(x, y): (f64, f64)| names.iter().any(|(_, r)| {
+                    let (x, y) = (x as f32, y as f32);
+                    x >= r[0] && y >= r[1] && x < r[0] + r[2] && y < r[1] + r[3]
+                });
+                if self.clicks.iter().any(|&(down, pos)| down && !on_name(pos)) {
+                    self.chat_input = None;
+                    self.clicks.clear();
+                    self.mouse_down = false;
                 }
             }
             // The options window takes the mouse while it's open.
@@ -2017,6 +2046,26 @@ impl App {
                     }
                 }
                 for (down, pos) in std::mem::take(&mut self.clicks) {
+                    // The realm's events list: point the quest arrow, teleport to a waystone, fold it.
+                    if down && self.chat_input.is_none() {
+                        let (taken, act) = self.events.click(&lay, game.realm_events.as_ref(), pos);
+                        match act {
+                            Some(events::Act::Pick(id)) => game.pick_quest(id),
+                            Some(events::Act::Teleport(id)) => game.teleport(id, now),
+                            None => {}
+                        }
+                        if taken {
+                            self.mouse_down = false;
+                            continue;
+                        }
+                        // a waystone on the minimap: teleport there
+                        let waystone = p.minimap().and_then(|mini| events::minimap_click(lay.s, &mini, game.realm_events.as_ref(), pos));
+                        if let Some(id) = waystone {
+                            game.teleport(id, now);
+                            self.mouse_down = false;
+                            continue;
+                        }
+                    }
                     // Ctrl+click: to the first free slot of the other page (onCtrlClick).
                     if let (true, true, Some(slot)) = (down, self.ctrl_held, p.slot_at(pos)) {
                         if slot.item > 0 && matches!(slot.kind, hud::SlotKind::Inventory(_)) {
@@ -2204,7 +2253,18 @@ impl App {
                         let mut ui = hud::Ui { renderer: &mut *renderer, sprites, data, redrawer: &mut *redrawer, fonts, text: &mut *text };
                         self.signs.draw(&mut ui, world, &camera);
                         self.vault.draw_marker(&mut ui, world, &camera, (lay.view_w(), lay.h));
-                        hud::draw_quest(&mut ui, &lay, world, &camera, game.quest, &game.keys, &game.dealt, game.quest_damage.as_ref(), &game.boss_history, &self.hud, mouse);
+                        // The top left, down: the quest's health (and who hit it, near it), the
+                        // realm's events (only their count near the quest), then the boss history
+                        // and the keys.
+                        let mut y = hud::draw_quest(&mut ui, &lay, world, &camera, game.quest, &game.dealt, game.quest_damage.as_ref());
+                        let near = hud::boss_showing(world, game.quest) && hud::quest_near(world, game.quest);
+                        match game.realm_events.as_ref() {
+                            Some(info) => {
+                                y = self.events.draw(&mut ui, &lay, y, near, world.player().map(|p| (p.x, p.y)), game.quest, info, mouse) + 4.0 * lay.s;
+                            }
+                            None => self.events.hide(),
+                        }
+                        self.hud.history_y = hud::draw_history_and_keys(&mut ui, &lay, y, &game.keys, &game.boss_history, &self.hud, mouse);
                         prof::mark("quest");
                     }
                     if let Some(p) = &panel {
@@ -2215,7 +2275,6 @@ impl App {
                             locked: &game.locked,
                             ignored: &game.ignored,
                             now,
-                            quest: game.quest,
                             history: &game.boss_history,
                             fame: &game.fame_stats,
                         };
@@ -2230,6 +2289,9 @@ impl App {
                         ];
                         prof::mark("pre-panel");
                         hud::draw_panel(&mut ui, &lay, world, game.camera_angle, &mut self.map_colors, p, &self.hud, &social, mouse);
+                        if let Some(mini) = p.minimap() {
+                            events::draw_minimap_marks(&mut ui, lay.s, &mini, game.realm_events.as_ref(), mouse);
+                        }
                         prof::mark("panel");
                     }
                 }
@@ -2273,7 +2335,6 @@ impl App {
                     locked: &game.locked,
                     ignored: &game.ignored,
                     now,
-                    quest: game.quest,
                     history: &game.boss_history,
                     fame: &game.fame_stats,
                 };
@@ -2774,6 +2835,35 @@ impl ApplicationHandler<UserEvent> for App {
                 self.wheel -= notches;
                 self.vault.scroll(-notches as i32);
             }
+            WindowEvent::MouseWheel { delta, .. }
+                if matches!(&self.phase, Phase::Playing(g) if g.realm_events.is_some()) && self.events_under_mouse() =>
+            {
+                // the realm's events list scrolls a row a notch
+                let lines = match delta {
+                    winit::event::MouseScrollDelta::LineDelta(_, y) => y,
+                    winit::event::MouseScrollDelta::PixelDelta(p) => (p.y / 40.0) as f32,
+                };
+                self.wheel += lines;
+                let notches = self.wheel.trunc();
+                self.wheel -= notches;
+                if let Phase::Playing(game) = &self.phase {
+                    self.events.wheel(game.realm_events.as_ref(), self.mouse, notches as i32);
+                }
+            }
+            WindowEvent::MouseWheel { delta, .. }
+                if (self.chat_input.is_some() || self.chat_scroll.is_some()) && matches!(self.phase, Phase::Playing(_)) =>
+            {
+                // three rows a notch through the chat's history
+                let lines = match delta {
+                    winit::event::MouseScrollDelta::LineDelta(_, y) => y,
+                    winit::event::MouseScrollDelta::PixelDelta(p) => (p.y / 40.0) as f32,
+                };
+                self.wheel += lines;
+                let notches = self.wheel.trunc() as i64;
+                self.wheel -= notches as f32;
+                let at = self.chat_scroll.unwrap_or(0) as i64 + notches * 3;
+                self.chat_scroll = if at <= 0 && self.chat_input.is_some() { Some(0) } else if at <= 0 { None } else { Some(at as usize) };
+            }
             WindowEvent::MouseWheel { delta, .. } if self.forge.open && matches!(self.phase, Phase::Playing(_)) => {
                 // The forge's recipes scroll a row a notch.
                 let lines = match delta {
@@ -2876,6 +2966,7 @@ fn main() {
         pressed: Vec::new(),
         chat_input: None,
         chat_scroll: None,
+        chat_log: Vec::new(),
         teller: 0,
         chat_names: Vec::new(),
         chat_send: Vec::new(),
@@ -2916,6 +3007,7 @@ fn main() {
         options_ui: Default::default(),
         market: Default::default(),
         forge: Default::default(),
+        events: Default::default(),
         quests: Default::default(),
         quest_acts: Vec::new(),
         forge_acts: Vec::new(),

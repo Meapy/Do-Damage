@@ -334,7 +334,7 @@ namespace WorldServer.core.worlds
         // one. Not the tile's corner, which on a spawn tile beside a wall (Oryx's Chamber has
         // several) puts them half inside it, where the client won't let them walk. A map with no
         // spawn tiles (Cnidarian Reef) gets the open tile nearest its centre rather than (0, 0).
-        public Position GetPlayerSpawnPosition()
+        public virtual Position GetPlayerSpawnPosition()
         {
             var points = GetSpawnPoints();
             var open = points.Where(t => IsPassable(t.Key.X + 0.5, t.Key.Y + 0.5, true)).ToArray();

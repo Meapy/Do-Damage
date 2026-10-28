@@ -388,6 +388,105 @@ The remotes `upstream` (HaloCelsius) and `aurusenth` share no history with `main
   world.
 - **One portal per boss** (2026-10-28; `source/Tests/PortalSourcesTests.cs`): three bosses placed the same portal twice. The Ghost Ship's death set piece (`Setpieces/Ghost Ship/Death.jm`, on its spawn point) holds the Davy Jones' Locker portal, and a `DropPortalOnDeath` of the same portal (2026-10-11) put a second where it died: the drop is gone, so the one portal stays on the island, open until the realm closes, as upstream. The Royal Cnidarian had `RealmPortalDrop` and a `DropPortalOnDeath("Realm Portal")` (2026-10-12), two Realm Portals on one spot: its `RealmPortalDrop` is gone (the behaviour is now unused). The Puppet Master's `YepDead` state (he runs out of time and leaves by `Suicide`) had its own `TransformOnDeath("Puppet Loot Chest")` beside the root one, so a timed-out fight left two chests and two Encore portals: the state's is gone. `PortalSourcesTests` loads the real game data and `BehaviorDb` (a `GameServer` with only `Resources`, so `source/Tests` now references `WorldServer`) and walks every monster's behaviours by reflection, the Doomed Realms ones too: `DropPortalOnDeath`, `RealmPortalDrop`, `DeathPortal`, the portals in a `PlaceMapAtDeath` set piece, `TransformOnDeath` into a portal, portals spawned or tossed during the fight, and what a monster turns into or throws out on death (followed down to its own portals). It fails when one portal has two sources that both fire (both on death in states the monster is in together, or either during the fight); 0% drops (the Elder Tomb's shared builder) don't count. Different portals from one boss are left alone: Oryx 2's Realm, Sanctuary and 10% Lost Halls portals, Oryx 3 and 4's locked portal and Realm Portal, the gods with an Elder dungeon and a Realm Portal (Davy Jones, Dreadstump, Septavius, Thessal, Malphas, the Masked Party God, Mixcoatl with Secluded Thicket too), Lord Ruthven's Realm Portal and his Coffin's Elder Manor portal, and the realm events with two dungeons (Dragon Head, Grand Sphinx, Hermit, Lord of the Lost Lands, Encounter Altar). World code was checked too: `World.BossDied` adds a Realm Portal only when none is there, and the only map holding a portal its boss also drops is Oryx's Elysium, whose Nexus Portal on the Landing is where players arrive, not where Oryx 5 dies. The wiki reads `PlaceMapAtDeath` set pieces' portals (`wiki_data.map_portals`), so the Ghost Ship stays the Davy Jones' Locker portal's source. Tested on an isolated stack with `bsk-bot` (a real Realm 2 Wreck Coast event, the Cnidarian Reef and the Puppet Master's time-out: two of the portal before, one after; and Oryx 1 into the Wine Cellar and Oryx 2): Oryx 1 leaves one open Wine Cellar portal, Oryx 2 one Realm, one open Sanctuary and the 10% Lost Halls portal.
 - **A loot boost for legends** (2026-10-28; `Shared/resources/LootBoosts.cs`, `Loots.Handle`, `Player.IsLegend`, `/boosts`): an account with a character on a Legends board (top 20 by fame of the week, the month or all time, the same Redis `legend` hash that gives the red glow, rebuilt by the account server every minute) gets `LootBoosts.Legend` = 0.01 added to its loot boosts, alongside the Loot Drop Potion's, the weekend's and the loot event's (so a drop's chance is times 1 + share + boosts + 0.01, not doubled). It's read when the player enters a world, as the glow is, so it comes and goes with the board at the next world change, and costs nothing per kill. `/boosts` lists it; the wiki's Loot Simulation reads it from `LootBoosts.cs` and has an "In the Legends" box.
+- **Realm 2 in the Nexus, its art redrawn, the Dragon's Roost** (2026-10-28):
+  - *The Nexus's Realm 2* (`RealmPortalMonitor.CreateRealm2IfNone`, `WorldManager.CreateNewRealm2Async`):
+    one public Realm 2 always open (85 players), named from its own list (`Realm2Names`: Zenith,
+    Eclipse...), its `Realm2` portal ("Realm 2: Zenith (n/85)", Size 100) on the free realm portal
+    spot nearest a realm's portal (`NextToRealms`); a new one when it closes; it stays out of
+    `GetRealms` (no Realm Portals or `/realm` to it). `RealmWorld.HasNexusPortal` (set by
+    `AddPortal`) now decides the portal's opening, closing and removal instead of `ListedInNexus`.
+    Three failed builds stop it trying until a restart.
+  - *Pacing* (`RealmManager.cs`, `RealmManager.Realm2.cs`): in a Realm 2 a 6 s gap between events
+    (`Realm2GapMs`, the realm's 15 s), one more running at once (and one more alive at most), a
+    drought after 12 s (was 30) and a stale event after 90 s (was 3 minutes).
+  - *Client* (`events.rs`): the Realm Events list shows only the waystone nearest the event the
+    quest arrow follows (or us); the minimap draws waystones as diamonds, names the one under the
+    mouse and teleports on a click (`minimap_click`, ahead of the HUD's other clicks). The Imprints
+    tab (`forge/imprints.rs`): the colour tabs 94 units under its header (clear of the Enchanter's
+    picture), the list centred between them and the price when it all fits; `hud::draw_imprint_marks`
+    draws each mark as its colour filling a gold frame on whole pixels.
+  - *Art* (`tools/realm2/adapt.py`, `adapted.py`, `art.py`'s `MOBS16`): 42 monsters redrawn 16 by 16,
+    most adapted from the game's own art (a base monster's seven frames recoloured into the land's
+    palette by brightness, rule by rule: `adapted.ADAPTED` names each base), seven drawn new in
+    `art.py` where a recolour stayed too close to its original: the Shard Walker and Hypercube Warden
+    as cube-men, the Sentry Captain, Forgotten Warlord, Phantom Quartermaster, Abyssal Kraken (with colours of its
+    own: a `QUESTS16` entry may carry a fourth item, extra palette letters) and Marrow Fiend; the
+    old 8x8 mobs among them shown at Size 55-85 so they
+    stand about as tall as before. The Sand Scourge is left as it was, at the owner's wish. New
+    display names: Sun Idol, Tomb Pharaoh, Blossom Wisp, Kobold Hoarder, Ember Wyvern, Hoard Mimic.
+  - *The Dragon's Roost* (was the Ashen Caldera; same ids): a crag palette, `R2 Hoard Floor` (new) for
+    its arena, `R2 Dragon Egg`, `R2 Dragon Nest` and `R2 Gold Hoard` scenery, the Rock Dragon's
+    set piece remapped (`Realm2/Setpieces/Rock Dragon.jm`: its moss to scorched earth, its tiles to
+    the hoard floor); the Magma Salamander is a kobold and the Obsidian Golem a mimic that waits as a
+    chest until someone is within 4 tiles.
+  - *Wreck Coast*: `R2 Phantom Sloop` (2,600 health), four kept on the land's `R2 Fog Shallows`
+    (`Realm2Theme.Afloat`, `KeepAfloat`). *Skull Shrine*: 16 flaming skulls placed round it when it
+    rises in a Realm 2 (its `Reproduce` only works with nobody near).
+  - *Drops* (`BehaviorDb.Realm2.cs`): each land's two quests open an easier dungeon of its kind at 30%
+    (Mad Lab, Cursed Library, Haunted Cemetery, Beachzone, Pirate Cave, Ancient Ruins, Undead Lair,
+    Magic Woods, Cave of a Thousand Treasures, Manor of the Immortals, Forest Maze) instead of the
+    land's event's harder one. Needs both sides redeployed: the world server and a client release
+    (the sheets, XML and the client changes).
+
+- **Realm events, Realm 2 lands, Oryx incantations, O5 and the Divine Workbench** (2026-10-28):
+  - *Realm events* (`RealmManager.cs`, `RealmManager.Events.cs`, messages 116-118): every event boss's
+    kill counts (`CountingEvents(name, at)`), whichever the quest arrow follows; `RealmBroadcast`
+    sends a realm's news to its own players only (it used `ChatManager.Realm`, every realm's), with
+    how many are left. `REALM_EVENTS_SUBSCRIBE` (116, the Rust client in each world) gets
+    `REALM_EVENTS` (117: defeated, needed, the player's pick, and each running event's counted part,
+    side quest and waystone: kind, id, type, name, x, y) whenever the list changes (checked every
+    2 s); `QUEST_PICK` (118) sets `Player.PickedQuestId`, which `FindQuest` returns while it lives (0:
+    the nearest, as before). The client's top left (`events.rs`, `hud::draw_quest`,
+    `draw_history_and_keys`): the quest's health; within `QUEST_NEAR` (100 tiles) who hit it; the
+    Realm Events list (five rows, nearest first, the wheel scrolls), folded to its count near the
+    quest (a click on its header shows it anyway); then the boss
+    history's button, always (`HudState::history_y`); the minimap marks the entries. The bee nest:
+    the third guardian bee's death removes the hive's corpse and places The Hive Portal
+    (`OpenHive`; the corpse no longer drops it). The Ghost Ship's behaviour no longer drops a
+    second Davy Jones portal (its death map places one).
+  - *Realm 2* (`RealmManager.Realm2.cs`, `Realm2EventPainter`, `Realm2Canvas`, `tools/build_realm2.py`,
+    `tools/realm2/art16.py`, `tools/realm2/setpieces.py`): waystones (`TryBeacon`: after every two
+    events, at the cleared land's heart if it's 110 tiles from the shore and every other; a
+    `R2 Waystone Floor` disc and rune ring, the `R2 Waystone Beacon`; `Realm2World.GetPlayerSpawnPosition`
+    puts arrivals beside the newest; `Player.Teleport` accepts a waystone; no land monsters spawn
+    within 13 tiles); `SweepAbyss` removes monsters (not event parts or quests) standing on
+    `R2 Abyss` every 2 s; the Lost Sentry (`LH Lost Sentry`, 45,000 health before scaling, now with
+    loot and the Lost Halls portal) at a flagstone shrine the Lost Lands' painter places
+    (`Shrine`), a side quest (`_sideQuests`); ten extra Pentaract Eyes; the mysterious voice and
+    Oryx's answer one event short of the end; sinking sand in the Sunken Tombs, paths and ruins
+    (`R2 Mossy Pillar`, `R2 Toppled Lantern`) in the Jade Garden, the kingdom's grounds the Avatar
+    map's (`HN FG O dk`, `HN Rkpt`, `O3 Dark Tile`, `Crystal Lava`, `Magic Blue Flame`), fences
+    (`R2 Bridge Fence`) on the bridges' rails. Bosses' own maps (`PlaceMap`, `PlaceMapAtDeath`) use
+    `Realm2/<path>` in a Realm 2 when it exists (`SetPieces.MapFor`): the Hermit God's and the Skull
+    Shrine's recoloured, the Grand Sphinx's a new 33-tile court. New grounds `R2 Seagrass`,
+    `R2 Deep Tide`, `R2 Sinking Sand`; `R2 Tide Pool` bluer. A new portal sprite and the Pentaract
+    Tower's (written into the Encounters XML by the script, Realm 1's too). The small monsters
+    quip in speech bubbles only (`Taunt.Chat = false`, sent to `*Bubble*`, which the Rust client
+    keeps out of chat). The realm's set pieces stay out, but their dungeons don't: a Mysterious
+    Crystal (Deadwater Docks) placed when Realm 2 opens, within 60% of a kept stretch's radius
+    (`PlaceCrystal`); out of sight, without their set pieces, a Kage Kami (Manor of the Immortals)
+    and a Red Demon on the Godlands, a Phoenix Lord on mid or high sand, each a 25% chance each
+    minute while fewer than two stand (`Rares`, `MaybeRares`: picked from a list of each one's
+    tiles, made once, as the midlands' sand is too scarce to find by chance; a warning in the log
+    when none fits); and the
+    Jade Garden's `R2 Oni Warlord` drops the Forbidden Jungle (25%) beside its Magic Woods (no
+    Great Coil Snakes without the jungle temples). `/realmstatus` lists them under `rare:`.
+  - *Oryx* (`OnePlayerLoot` in `MobDrops.cs`, `Loots.Handle`): one roll per kill, and the item to a
+    random player past the threshold; Oryx 3 the Inferno Incantation (50%, 1% for each other
+    player), Oryx 4 the Elysium one the same; Oryx 2's 4% Inferno Incantation is gone. Oryx 5
+    (`BehaviorDb.Elysium.cs`, `tools/build_elysium.py`): the Halo Orbs come at 40% (`Ascension`,
+    then the Transcendent patterns as `Ascendant`); the Pillars of Heaven are invisible turrets on
+    the temple floor before 24 `O5 Wall Eye` walls (the arch with a golden eye), dormant until his
+    Last Judgement orders them `Live`; the Gate Watcher counts the Trees of Doom aloud
+    (`AnnounceRemaining`).
+  - *Client*: the Divine Workbench (`forge.rs`: the forge and the Enchanter open one window with
+    all four tabs; the Imprints tab lists only what fits the picked gear, everything with none,
+    and scrolls); imprint marks in the trade window, player cards and the character list
+    (`<ItemDatas>`); damage that ignored defense (`DamageMessage.Pierce`, now set for `noDef`) in
+    purple, and Wounds' count no longer shown; any click closes the chat box, 500 lines kept across
+    characters, wheel scrolling and a scroll bar; the fame bar full with no goal. Ships with a
+    client release; an older client ignores message 117 and keeps working.
+
 - **Proxy and ping under load** (2026-10-28; 50 `bsk-bot --fight` players on the live server while
   it was empty, run from this PC over the internet so the whole network path counts: 60% over
   wss through Caddy and the gateway, 40% on TCP 2051; in the realm's beach and godlands, the Arena

@@ -120,6 +120,18 @@ namespace WorldServer.core.objects
         // ... and its fame records (FAME_STATS_SUBSCRIBE), and what it was last sent.
         public bool WantsFameStats { get; set; }
         private string _fameStatsSent;
+        // ... and its realm's events (REALM_EVENTS_SUBSCRIBE), and what it was last sent.
+        public bool WantsRealmEvents { get; set; }
+        public string RealmEventsSent { get; set; }
+        // The event picked for the quest arrow (QUEST_PICK), or 0 for the nearest.
+        public int PickedQuestId { get; private set; }
+
+        public void PickQuest(int objectId)
+        {
+            PickedQuestId = objectId != 0 && World.GetEntity(objectId) is Enemy e && !e.Dead ? objectId : 0;
+            Quest = null;               // HandleQuest finds it again at once
+            RealmEventsSent = null;     // and the list shows the pick
+        }
 
         public void HandleQuest(TickTime time)
         {
@@ -240,6 +252,15 @@ namespace WorldServer.core.objects
 
         private Entity FindQuest()
         {
+            // the event the player picked, while it lives
+            if (PickedQuestId != 0)
+            {
+                if (World.GetEntity(PickedQuestId) is Enemy picked && !picked.Dead)
+                    return picked;
+                PickedQuestId = 0;
+                RealmEventsSent = null;
+            }
+
             Entity ret = null;
             double bestScore = 0.0;
             foreach (var entry in World.Quests)

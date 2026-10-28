@@ -235,7 +235,9 @@ namespace WorldServer.logic
                     new ItemLoot("Potion of Vitality", 0.55),
                     new ItemLoot("Potion of Wisdom", 0.55),
                     new ItemLoot("Oryx Scroll", 0.02),
-                    new ItemLoot("Doomed Cellar Incantation", 0.05),
+                    // the Inferno Incantation that opens his locked portal: half the time one of
+                    // the players is sure of it, and everyone else has a small chance as well
+                    new OnePlayerLoot("Hash Cellar Incantation", 0.5, 0.01),
                     new ItemLoot("Oryx's Escutcheon", 0.025),
                     new ItemLoot("Tome of Noble Assault", 0.004),
                     new ItemLoot("Battalion Banner", 0.004),

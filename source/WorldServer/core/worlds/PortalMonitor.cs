@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Linq;
 using WorldServer.core.objects;
 using WorldServer.core.structures;
+using WorldServer.core.worlds.impl;
 
 namespace WorldServer.core.worlds
 {
@@ -31,12 +32,21 @@ namespace WorldServer.core.worlds
         };
 
 
+        // the Nexus's Realm 2 is named apart from the realms
+        private static readonly List<string> Realm2Names = new List<string>()
+        {
+            "Zenith", "Eclipse", "Tempest", "Aurora", "Solstice", "Equinox",
+            "Nebula", "Halcyon", "Umbra", "Verdance", "Maelstrom", "Empyrean"
+        };
+
         private readonly object _access = new object();
         private readonly GameServer _gameServer;
         private readonly World _world;
 
         private readonly Dictionary<int, Portal> _portals = new Dictionary<int, Portal>();
         private readonly List<string> _actives = new List<string>();
+        private bool _realm2Building;       // the Nexus's Realm 2 is being built
+        private int _realm2Failures;
 
         public RealmPortalMonitor(GameServer manager, World world)
         {
@@ -61,12 +71,17 @@ namespace WorldServer.core.worlds
                 if (_portals.ContainsKey(world.Id))
                     return;
 
-                var pos = GetRandPosition();
+                var realm2 = world is Realm2World;
+                var pos = realm2 ? NextToRealms() : GetRandPosition();
 
-                var portal = (Portal)_world.CreateNewEntity("Nexus Portal", pos.X + 0.5f, pos.Y + 0.5f);
+                var portal = (Portal)_world.CreateNewEntity(realm2 ? "Realm2" : "Nexus Portal", pos.X + 0.5f, pos.Y + 0.5f);
                 portal.WorldInstance = world;
-                portal.Name = $"{world.GetDisplayName()}(0/{MAX_PER_REALM})";
-                portal.Size = 80;
+                portal.Name = $"{PortalName(world)} (0/{MAX_PER_REALM})";
+                portal.Size = realm2 ? 100 : 80;
+                if (world is RealmWorld realm)
+                    realm.HasNexusPortal = true;
+                if (realm2)
+                    _realm2Building = false;
 
                 _portals.Add(world.Id, portal);
             }
@@ -113,13 +128,14 @@ namespace WorldServer.core.worlds
             lock (_access)
             {
                 CreateRealmIfExists();
+                CreateRealm2IfNone();
 
                 foreach (var p in _portals.Values)
                 {
                     var count = 0;
                     p.WorldInstance.GetPlayerCount(ref count);
 
-                    var updatedCount = $"{p.WorldInstance.GetDisplayName()} ({Math.Min(count, p.WorldInstance.MaxPlayers)}/{p.WorldInstance.MaxPlayers})";
+                    var updatedCount = $"{PortalName(p.WorldInstance)} ({Math.Min(count, p.WorldInstance.MaxPlayers)}/{p.WorldInstance.MaxPlayers})";
 
                     if (p.Name.Equals(updatedCount))
                         continue;
@@ -139,6 +155,27 @@ namespace WorldServer.core.worlds
                 CreateNewRealm();
         }
 
+        private static string PortalName(World world) => world is Realm2World ? $"Realm 2: {world.GetDisplayName()}" : world.GetDisplayName();
+
+        // One Realm 2 always open from the Nexus (beside those its key opens): a new one once it closes
+        private void CreateRealm2IfNone()
+        {
+            if (_realm2Building || _realm2Failures >= 3 || _portals.Values.Any(p => p.WorldInstance is Realm2World))
+                return;
+            var taken = _gameServer.WorldManager.GetWorlds().Select(w => w.DisplayName).ToHashSet();
+            var free = Realm2Names.Where(n => !taken.Contains(n)).ToList();
+            var name = free.Count > 0 ? free[Random.Shared.Next(free.Count)] : Realm2Names[Random.Shared.Next(Realm2Names.Count)];
+            _realm2Building = true;
+            _gameServer.WorldManager.CreateNewRealm2Async(name, _ =>
+            {
+                lock (_access)
+                {
+                    _realm2Building = false;
+                    _realm2Failures++;
+                }
+            });
+        }
+
         public void RemovePortal(int worldId)
         {
             lock (_access)
@@ -146,13 +183,32 @@ namespace WorldServer.core.worlds
                 if (!_portals.TryGetValue(worldId, out var portal))
                     return;
 
-                var name = portal.WorldInstance.DisplayName;
-                _actives.Remove(name);
-                Names.Add(name);
+                if (portal.WorldInstance is not Realm2World)
+                {
+                    var name = portal.WorldInstance.DisplayName;
+                    _actives.Remove(name);
+                    Names.Add(name);
+                }
 
                 _world.LeaveWorld(portal);
                 _portals.Remove(worldId);
             }
+        }
+
+        // the free realm portal spot nearest a realm's portal (beside Realm 1's), or any free one
+        private Position NextToRealms()
+        {
+            var free = _world.Map.Regions.Where(t => t.Value == TileRegion.Realm_Portals)
+                .Select(t => t.Key)
+                .Where(k => !_portals.Values.Any(p => p.X == k.X + 0.5f && p.Y == k.Y + 0.5f))
+                .ToList();
+            if (free.Count == 0)
+                return GetRandPosition();
+            var realms = _portals.Values.Where(p => p.WorldInstance is not Realm2World).ToList();
+            if (realms.Count == 0)
+                return GetRandPosition();
+            var best = free.OrderBy(k => realms.Min(p => Math.Abs(p.X - k.X - 0.5f) + Math.Abs(p.Y - k.Y - 0.5f) * 1.5f)).First();
+            return new Position(best.X, best.Y);
         }
 
         private Position GetRandPosition()

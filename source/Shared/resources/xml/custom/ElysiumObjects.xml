@@ -48,6 +48,18 @@
 		<FullOccupy />
 		<EnemyOccupySquare />
 	</Object>
+	<Object type="0x5436" id="O5 Wall Eye">
+		<Class>GameObject</Class>
+		<Model>Candy Col Whole</Model>
+		<Texture>
+			<File>elysium16x16</File>
+			<Index>0x04</Index>
+		</Texture>
+		<Static />
+		<OccupySquare />
+		<FullOccupy />
+		<EnemyOccupySquare />
+	</Object>
 	<Object type="0x5404" id="Ascended Noble">
 		<Class>Character</Class>
 		<Enemy />
@@ -395,12 +407,12 @@
 		<Class>Character</Class>
 		<Texture>
 			<File>elysium16x16</File>
-			<Index>0x04</Index>
+			<Index>0x05</Index>
 		</Texture>
 		<AltTexture id="1">
 			<Texture>
 				<File>elysium16x16</File>
-				<Index>0x05</Index>
+				<Index>0x06</Index>
 			</Texture>
 		</AltTexture>
 		<HitSound>monster/minion_of_oryx_hit</HitSound>
@@ -464,7 +476,7 @@
 		<AngleCorrection>1</AngleCorrection>
 		<Texture>
 			<File>elysium16x16</File>
-			<Index>0x06</Index>
+			<Index>0x07</Index>
 		</Texture>
 	</Object>
 	<Object type="0x5414" id="Radiant Beam">
@@ -495,7 +507,7 @@
 		<Class>Projectile</Class>
 		<Texture>
 			<File>elysium16x16</File>
-			<Index>0x07</Index>
+			<Index>0x08</Index>
 		</Texture>
 	</Object>
 	<Object type="0x5418" id="Holy Wave">
@@ -510,7 +522,7 @@
 		<AngleCorrection>1</AngleCorrection>
 		<Texture>
 			<File>elysium16x16</File>
-			<Index>0x08</Index>
+			<Index>0x09</Index>
 		</Texture>
 	</Object>
 	<Object type="0x541A" id="Sun Shockwave">
@@ -590,7 +602,7 @@
 		<Model>Candy Col Whole</Model>
 		<Texture>
 			<File>elysium16x16</File>
-			<Index>0x09</Index>
+			<Index>0x0a</Index>
 		</Texture>
 		<Static />
 		<OccupySquare />
@@ -963,17 +975,14 @@
 		</Projectile>
 	</Object>
 	<Object type="0x542F" id="Pillar of Heaven">
-		<Class>Character</Class>
-		<Enemy />
+		<Class>GameObject</Class>
 		<Texture>
-			<File>elysium16x16</File>
-			<Index>0x0a</Index>
+			<File>invisible</File>
+			<Index>0</Index>
 		</Texture>
-		<Size>120</Size>
-		<MaxHitPoints>10000</MaxHitPoints>
-		<Defense>0</Defense>
-		<StasisImmune />
-		<XpMult>0</XpMult>
+		<NoMiniMap />
+		<ShadowSize>0</ShadowSize>
+		<Size>0</Size>
 		<Projectile id="0">
 			<ObjectId>Bleeding Ray</ObjectId>
 			<Damage>170</Damage>

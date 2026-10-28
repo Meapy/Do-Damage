@@ -16,7 +16,9 @@ tier below, and the rest are special recipes, most of them from Doomed Realms.
 1. Type `/forge`, or go to the Nexus's south yard, west of the Arena portal, and through the door of the forge hall.
    The forge stands on the left on a floor of gold; the Enchanter, which puts imprints on gear,
    stands beside it (see [Imprints](imprints.html)).
-2. Stand by it: the bottom of your HUD says "Forge items, or sell them for fame". Press **Open**.
+2. Stand by it: the bottom of your HUD says "The Divine Workbench: forge, sell or imprint". Press
+   **Open**. The **Divine Workbench** opens at its **Forge** tab; its **Shards**, **Sell for fame**
+   and **Imprints** tabs are the same window's (the Enchanter opens it at Imprints).
 3. Browse the recipes by what they make (weapons, abilities, armor, rings, the rest, then by kind),
    narrow them to **UT** (untiered gear, the Ascended items first) or **Highest tier** (the top tier
    the forge makes of each kind), search for one, or turn on **Forge Ready Items** to see only what
@@ -97,8 +99,8 @@ only goes into loot bags that are yours alone.
 
 {{gen:forge_ascended}}
 
-Enchanting has moved to its own place: the **Enchanter** beside the forge puts **imprints** on gear
-(see [Imprints](imprints.html)).
+Imprinting is the workbench's **Imprints** tab, which the **Enchanter** beside the forge opens
+too (see [Imprints](imprints.html)).
 
 ## Other recipes
 

@@ -32,7 +32,7 @@ namespace WorldServer.logic.behaviors
 
             var pos = UseSpawnPoint ? new IntPoint((int)host.SpawnPoint.Value.X, (int)host.SpawnPoint.Value.Y) : new IntPoint((int)host.X, (int)host.Y);
 
-            var data = host.GameServer.Resources.GameData.GetWorldData(jmMap);
+            var data = SetPieces.MapFor(host.World, jmMap);
             if (data == null)
             {
                 Console.WriteLine($"[{GetType().Name}] Invalid RenderSetPiece {jmMap}");

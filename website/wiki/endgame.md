@@ -49,8 +49,13 @@ Inside a dungeon, the quest arrow always points at Oryx.
 
 {{gen:incantations}}
 
-The drop chances are the listed ones. Your real chance is higher: each drop is rolled at its chance
-times one plus your share of the damage (so about double, solo), plus loot boosts.
+Oryx 3 and Oryx 4 each give their incantation to **one player half the time**: once per kill, the
+game rolls 50%, and on a hit one of the players who did at least 3% of the damage gets it. Everyone
+else still has a 1% chance of their own. So after Oryx 3, a group reaches Oryx 4 about half the time,
+and Oryx 5 about a quarter of the time. Oryx 2 no longer drops one.
+
+The other drop chances are the listed ones. Your real chance is higher: each drop is rolled at its
+chance times one plus your share of the damage (so about double, solo), plus loot boosts.
 
 ## The Chicken Chamber
 
@@ -106,7 +111,8 @@ event, and isn't sold or dropped then; if you have one, keep it for the next.
   ring of shockwaves; below half health he moves and fires them all at once. He drops potions
   and top-tier gear (Ascended shards come from Oryx 5 alone), and throws three **Trees of Doom** when he
   dies. With three more Trees on each road, all nine and the Void Entity must fall before the
-  **Holy Gates** to his temple open. Inside, his three **Ascended Wardens** circle him, firing gold
+  **Holy Gates** to his temple open: Oryx says so when you arrive, and how many Trees still stand
+  each time one falls (the Void Entity's three count while he lives). Inside, his three **Ascended Wardens** circle him, firing gold
   missiles at you and slowing halos round them; he wakes when they fall, and the Holy Gates shut
   behind you until he dies. Anyone standing in them is moved inside; anyone left outside has to
   teleport to a player within.
@@ -121,13 +127,15 @@ event, and isn't sold or dropped then; if you have one, keep it for the next.
   - **Transcendence** (60%): he heals everyone to full. The Cross comes faster, the outer stars
     blight (sicken) instead, and while he hunts the whole arena is slowed, the fan behind him
     bleeds and his Host rise beneath him, though he's slower.
-  - **Apotheosis** (20%): he turns gold, and a ring of Halo Orbs circles the edge of the arena,
-    firing in at its middle. He chases without stopping, the Cross (now aimed at you) and the Hunt
-    in turn.
+  - **Ascension** (40%): back to the middle, and a ring of Halo Orbs rises to circle the edge of
+    the arena, firing in at its middle, until his Last Judgement.
+  - **Apotheosis** (20%): he turns gold. He chases without stopping, the Cross (now aimed at you)
+    and the Hunt in turn.
   - **Last Judgement** (10%): he goes to the middle and can't be hurt. Gates fill the corridor
     between the arena and the Holy Gates (anyone hiding there is moved into the arena), lances
-    sweep across the corridor's mouth from its walls, and Pillars of Heaven ring the arena, firing bleeding, blighting and armour-breaking rays straight
-    across it, while he throws his great spear and fires his Radiant Cross again, slowed right
+    sweep across the corridor's mouth from its walls, and the golden eyes in the arena's walls open,
+    the Pillars of Heaven, firing bleeding, blighting and armour-breaking rays straight across it
+    from every side, so no corner is safe, while he throws his great spear and fires his Radiant Cross again, slowed right
     down so it fills the arena, every second volley turned to fall between the last one's lines.
     After 30 seconds he concedes: the corridor opens and he falls back through every Oryx he was, from
     Oryx 4 down to Oryx 1, ending as small as Oryx 1, and only then can he be killed. He leaves a
