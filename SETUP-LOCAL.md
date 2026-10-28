@@ -404,6 +404,18 @@ The remotes `upstream` (HaloCelsius) and `aurusenth` share no history with `main
     30 s (21-24 gen 0 collections, 50-250 ms each). The same realm with 14 bots on this PC: 1.1 ms
     a tick, 2-3 collections per 30 s of 4-5 ms each. The world server is near one core (85%)
     while the VPS as a whole is a third busy, and the shared vCPU stretches every tick and pause.
+  - **Oryx fights** (two groups of 8 bots in god mode, in Oryx's Sanctuary and the Wine Cellar,
+    beside 34 others in the realm, the godlands and the Arena): their own ticks are cheap (Sanctuary
+    1-4 ms on average, Wine Cellar with up to 190 monsters awake 2.4-4.5 ms), yet both had gaps of
+    200-550 ms between ticks 3-11 times in every 30 s. The worst gap of each 30 s is the same in every
+    world at once (388-390 ms in the Nexus, the Arena and the Sanctuary): whole-process stalls, from
+    garbage collection and the shared vCPU, felt most in a boss fight.
+  - **Sign-ins froze for about 4 minutes** when ~30 bots signed in again at once: the account server
+    took requests in bursts (18, 25, 47, 47 per 10 s) with 20-40 s gaps where it did nothing, and
+    its inter-server heartbeats lapsed ("re-joined the network"); https sign-ins timed out meanwhile.
+    Redis wasn't blocked (slowest commands 10-32 ms) and a password check takes ~60 ms there, so it
+    looks like the account server's thread pool starving on synchronous requests. Everyone signing
+    in again after a `bsk-world` restart could set it off.
   - **Not tried on the VPS yet:** a fixed gen 0 budget (`DOTNET_GCgen0size=1000000`, 16 MB, this
     PC's default; the VPS's 8 MB L3 gives a 4 MB minimum). It works (a test program made 30, 122
     and 11 collections per 400 MB at the default, 4 MB and 64 MB), but the collector raises the
