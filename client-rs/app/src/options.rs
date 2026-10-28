@@ -274,6 +274,8 @@ pub struct Settings {
     pub unlock_fps: bool,
     /// How big the world is drawn: 1 is the AIR client's 50 pixels a tile; less shows more.
     pub zoom: f32,
+    /// How big the chat is drawn, its text, width and height together (1: as it was).
+    pub chat_size: f32,
     /// The most frames a second (0: no limit).
     pub max_fps: u32,
     /// The window covers its monitor, with no border (desktop; `Fullscreen::Borderless`).
@@ -297,6 +299,10 @@ pub const MAX_FPS: [u32; 8] = [0, 30, 60, 120, 144, 165, 240, 360];
 pub const ZOOM_MIN: f32 = 0.9;
 pub const ZOOM_MAX: f32 = 1.3;
 
+/// The chat size's range (`Settings::chat_size`).
+pub const CHAT_MIN: f32 = 0.5;
+pub const CHAT_MAX: f32 = 1.5;
+
 impl Default for Settings {
     fn default() -> Self {
         Settings {
@@ -318,6 +324,7 @@ impl Default for Settings {
             centered: true,
             show_fps: false,
             zoom: 1.0,
+            chat_size: 1.0,
             unlock_fps: false,
             max_fps: 0,
             fullscreen: false,
@@ -410,6 +417,7 @@ impl Settings {
         flag("playMusic", self.sound.music);
         out += &format!("masterVolume={}\nsfxVolume={}\nmusicVolume={}\n", self.sound.master_volume, self.sound.sfx_volume, self.sound.music_volume);
         out += &format!("worldZoom={}\n", self.zoom);
+        out += &format!("chatSize={}\n", self.chat_size);
         out += &format!("playerOpacity={}\npetOpacity={}\n", self.player_alpha, self.pet_alpha);
         out += &format!("maxFps={}\n", self.max_fps);
         out += &format!("petShotLook={}\n", self.pet_shot_look.name());
@@ -472,6 +480,7 @@ impl Settings {
                 "sfxVolume" => s.sound.sfx_volume = vol().unwrap_or(s.sound.sfx_volume),
                 "musicVolume" => s.sound.music_volume = vol().unwrap_or(s.sound.music_volume),
                 "worldZoom" => s.zoom = value.parse::<f32>().map_or(1.0, |z| z.clamp(ZOOM_MIN, ZOOM_MAX)),
+                "chatSize" => s.chat_size = value.parse::<f32>().map_or(1.0, |z| z.clamp(CHAT_MIN, CHAT_MAX)),
                 "maxFps" => s.max_fps = value.parse().unwrap_or(0),
                 "cameraAngle" => s.camera_angle = value.parse().ok().filter(|a: &f64| a.is_finite()),
                 "preferredServer" => s.preferred_server = value.to_owned(),
@@ -528,6 +537,7 @@ enum Slider {
     PlayerAlpha,
     PetAlpha,
     PetShots,
+    ChatSize,
 }
 
 #[derive(Clone, Copy, Debug, PartialEq)]
@@ -577,6 +587,7 @@ fn set_slider(slider: Slider, track: [f32; 4], x: f64, settings: &mut Settings) 
         Slider::PetAlpha => settings.pet_alpha = v,
         Slider::MaxFps => settings.max_fps = MAX_FPS[(f * (MAX_FPS.len() - 1) as f32).round() as usize],
         Slider::PetShots => settings.pet_shot_look = PetShots::ALL[(f * (PetShots::ALL.len() - 1) as f32).round() as usize],
+        Slider::ChatSize => settings.chat_size = CHAT_MIN + v * (CHAT_MAX - CHAT_MIN),
     }
 }
 
@@ -757,6 +768,7 @@ impl OptionsUi {
                         (Slider::PlayerAlpha, "Other players", settings.player_alpha, pct(settings.player_alpha)),
                         (Slider::PetAlpha, "Other players' pets", settings.pet_alpha, pct(settings.pet_alpha)),
                         (Slider::PetShots, "Pets' shots", lv, look.name().to_owned()),
+                        (Slider::ChatSize, "Chat size", (settings.chat_size - CHAT_MIN) / (CHAT_MAX - CHAT_MIN), pct(settings.chat_size)),
                     ]
                 } else {
                     // Lower shows more of the world (the mouse wheel over the world does it too).
@@ -846,6 +858,10 @@ mod tests {
         assert_eq!(s.pet_shot_look, PetShots::Hidden);
         set_slider(Slider::PetShots, track, 300.0, &mut s);
         assert_eq!(s.pet_shot_look, PetShots::Normal);
+        set_slider(Slider::ChatSize, track, 100.0, &mut s);
+        assert_eq!(s.chat_size, CHAT_MIN);
+        set_slider(Slider::ChatSize, track, 300.0, &mut s);
+        assert_eq!(s.chat_size, CHAT_MAX);
     }
 
     #[test]
@@ -869,6 +885,7 @@ mod tests {
         s.pet_alpha = 0.0;
         s.pet_shot_look = PetShots::Hidden;
         s.fullscreen = true;
+        s.chat_size = 0.75;
         let back = Settings::from_text(&s.to_text());
         assert_eq!(back, s);
         // Lines another version wrote stay, and its keys don't take a key this one gives.

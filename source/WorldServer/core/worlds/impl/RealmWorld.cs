@@ -12,8 +12,21 @@ namespace WorldServer.core.worlds.impl
         /// <summary>A realm the Nexus lists, opens portals to and sends Realm Portals to: not Realm 2, which a key opens.</summary>
         public virtual bool ListedInNexus => true;
 
-        /// <summary>A portal in the Nexus leads here (every listed realm, and the Nexus's own Realm 2).</summary>
-        public bool HasNexusPortal { get; set; }
+        /// <summary>
+        /// A portal in the Nexus leads here (every listed realm, and the Nexus's own Realm 2), so it
+        /// stays up while nobody is in it, until it closes (Realm 2's resource doesn't persist).
+        /// </summary>
+        public bool HasNexusPortal
+        {
+            get => _hasNexusPortal;
+            set
+            {
+                _hasNexusPortal = value;
+                if (value)
+                    Persist = true;
+            }
+        }
+        private bool _hasNexusPortal;
 
         public RealmWorld(GameServer gameServer, int id, WorldResource resource) : base(gameServer, id, resource)
         {

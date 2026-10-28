@@ -14,6 +14,16 @@ details). Add to a group's line when a change adds to it, rather than adding ano
 
 ## Unreleased
 
+### Realm 2
+- The Nexus's Realm 2 stays open while nobody is in it, instead of vanishing and leaving a portal
+  that led nowhere; when it closes, its portal goes and a new Realm 2 opens.
+- Entering Realm 2 beside a waystone makes you invulnerable for a few seconds, as teleporting to one
+  does.
+
+### Game
+- Options, Visuals has a Chat size: make the chat smaller (or bigger), its text, width and height
+  together.
+
 ### Fixes
 - The Shatters' Bridge Sentinel can be beaten again: the bridge's Titanums no longer stay
   invulnerable for good when a hidden object that switches them was shot down during the fight.

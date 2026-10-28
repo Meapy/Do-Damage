@@ -79,7 +79,8 @@ Text boxes (chat, sign-in) copy, cut and paste with <kbd>Ctrl</kbd>+<kbd>C</kbd>
 
 **Options** (<kbd>O</kbd>, or from the <kbd>Esc</kbd> menu) has a **Visuals** tab for what you
 see in the world: the crosshair, particles, shadows, health bars, damage numbers, and how much of
-other players and their pets you see. "Pets' shots" there switches between Normal, Subtle (the
+other players and their pets you see, and the **Chat size** (50% to 150%: its text, width and
+height together). "Pets' shots" there switches between Normal, Subtle (the
 default: smaller, see-through shots) and Hidden. The **Graphics** tab has the world zoom, a frame
 rate limit and, on the desktop, **Borderless fullscreen**: the window covers the screen it's on,
 with no border, and alt-tabbing out is instant. The game remembers it for the next time. The

@@ -76,6 +76,11 @@ namespace WorldServer.core.worlds
             player.SendInfo($"Its events bring lands of their own as they come: defeat {EventsNeeded} and Oryx must face you.");
             player.SendInfo("Head out from the shore, through the midlands to the Godlands.");
             player.SendEnemy("Oryx the Mad God", "You wander into MY menagerie? Every beast here answers to me!");
+
+            // arriving beside a waystone, out in the lands: a moment to get their bearings, as
+            // teleporting to one gives (Player.Teleport)
+            if (Beacons().Any(b => b.DistTo(player) < BeaconRadius))
+                player.ApplyConditionEffect(ConditionEffectIndex.Invulnerable, ArrivalInvulnerableMs);
         }
 
         /// <summary>For /realm2 next: bring the next event now, whatever is running.</summary>
@@ -488,6 +493,7 @@ namespace WorldServer.core.worlds
         private int _sinceBeacon;
         private const double BeaconApart = 110;
         private const int BeaconRadius = 5;
+        private const int ArrivalInvulnerableMs = 3000;   // arriving beside a waystone (LayoutWelcome)
 
         private IEnumerable<Entity> Beacons() => _beacons.Where(b => b.World == World);
 
