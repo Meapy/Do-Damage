@@ -7,6 +7,7 @@ using Shared.resources;
 using StackExchange.Redis;
 using WorldServer.core.objects;
 using WorldServer.core.objects.inventory;
+using WorldServer.core.structures;
 using WorldServer.core.worlds;
 using WorldServer.core.worlds.impl;
 using WorldServer.core.worlds.impl.doomed;
@@ -225,15 +226,83 @@ namespace WorldServer.core.commands.doomed
 
     #region Everyone
 
-    // /forge, /forgelist and /sellfame point to the Divine Forge's window, which does what they did.
+    // /forge takes the player to the Divine Forge: beside it at once in the Nexus, or from anywhere
+    // else to the Nexus, arriving beside it (LoadHandler asks ArrivalSpot). Like /nexus, it works
+    // from anywhere. /forgelist and /sellfame point to the forge's window, which does what they did.
     internal class ForgeCommand : Command
     {
         public override string CommandName => "forge";
 
+        // accounts on their way to the forge, and until when the trip counts
+        private static readonly System.Collections.Concurrent.ConcurrentDictionary<int, DateTime> PendingArrivals = new System.Collections.Concurrent.ConcurrentDictionary<int, DateTime>();
+
         protected override bool Process(Player player, TickTime time, string args)
         {
-            player.SendInfo(DoomedEconomy.UseTheForge);
+            var nexus = player.GameServer.WorldManager.Nexus;
+            if (player.World != nexus)
+            {
+                PendingArrivals[player.AccountId] = DateTime.UtcNow.AddMinutes(1);
+                player.Reconnect(nexus);
+                return true;
+            }
+
+            var spot = SpotBesideForge(nexus);
+            if (spot == null)
+            {
+                player.SendInfo(DoomedEconomy.UseTheForge);
+                return true;
+            }
+            // no cooldown, as /nexus has none: it's a walk across the Nexus
+            player.TeleportPosition(time, spot.Value, true);
             return true;
+        }
+
+        // where a player arriving in a world is placed if they typed /forge on the way, or null
+        public static Position? ArrivalSpot(int accountId, World target)
+        {
+            if (PendingArrivals.IsEmpty || !PendingArrivals.TryRemove(accountId, out var until) || until < DateTime.UtcNow)
+                return null;
+            return target == target.GameServer.WorldManager.Nexus ? SpotBesideForge(target) : null;
+        }
+
+        // A free tile two in front of the forge (south: its sprite stands above its tile), on the
+        // carpet side of the hall; failing those, the nearest free tile within its reach. The hall
+        // is walled all round it, so the nearest free tiles are always inside.
+        private static Position? SpotBesideForge(World world)
+        {
+            var map = world.Map;
+            int fx = -1, fy = -1;
+            for (var y = 0; y < map.Height && fx < 0; y++)
+                for (var x = 0; x < map.Width; x++)
+                    if (map[x, y].ObjDesc?.Class == DoomedEconomy.ForgeClass)
+                    {
+                        fx = x;
+                        fy = y;
+                        break;
+                    }
+            if (fx < 0)
+                return null;
+
+            bool Free(int x, int y) => map.Contains(x, y) && map[x, y].ObjType == 0 && world.IsPassable(x + 0.5, y + 0.5, true);
+
+            var front = new[] { 0, -1, 1 }.Where(dx => Free(fx + dx, fy + 2)).ToArray();
+            if (front.Length > 0)
+                return new Position(fx + front[Random.Shared.Next(front.Length)] + 0.5f, fy + 2.5f);
+
+            var r = (int)DoomedEconomy.ForgeReach - 1;
+            Position? best = null;
+            var bestDist = double.MaxValue;
+            for (var y = fy - r; y <= fy + r; y++)
+                for (var x = fx - r; x <= fx + r; x++)
+                {
+                    var dist = (x - fx) * (x - fx) + (y - fy) * (y - fy);
+                    if ((x != fx || y != fy) && dist <= r * r && dist < bestDist && Free(x, y))
+                    {
+                        best = new Position(x + 0.5f, y + 0.5f);
+                        bestDist = dist;
+                    }
+                }
+            return best;
         }
     }
 
