@@ -196,6 +196,10 @@
 		<Width>256</Width>
 		<Height>256</Height>
 		<MapJM>Dungeons/Lost Halls.jm</MapJM>
+		<!-- tools/build_lost_halls.py: the marble rooms joined anew each visit, the Colossus room (its controller) at the end of a branch -->
+		<RandomLayout passage="7" corridor="5" minGap="5" maxGap="12" small="0.5" medium="0.75">
+			<Goal>LH Monster Spawner</Goal>
+		</RandomLayout>
 		<VisibilityType>1</VisibilityType>
 		<Dungeon/>
 	</World>

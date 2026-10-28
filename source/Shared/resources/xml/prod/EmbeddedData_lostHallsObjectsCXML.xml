@@ -1125,7 +1125,7 @@
       <DisplayId>Tormented Golem</DisplayId>
       <Size>120</Size>
       <MaxHitPoints>11250</MaxHitPoints>
-      <Defense>1000</Defense>
+      <Defense>35</Defense>
       <Exp>4000</Exp>
       <HitSound>monster/dwarf_god_hit</HitSound>
       <DeathSound>monster/dwarf_god_death</DeathSound>
@@ -1740,7 +1740,7 @@
       </AnimatedTexture>
       <DisplayId>Marble Defender</DisplayId>
       <Size>140</Size>
-      <MaxHitPoints>72500</MaxHitPoints>
+      <MaxHitPoints>20000</MaxHitPoints>
       <Defense>30</Defense>
       <God/>
       <Quest/>
@@ -1895,7 +1895,7 @@
       </AltTexture>
       <DisplayId>Marble Colossus</DisplayId>
       <Size>140</Size>
-      <MaxHitPoints>250000</MaxHitPoints>
+      <MaxHitPoints>150000</MaxHitPoints>
       <Defense>50</Defense>
       <Quest/>
       <HealthBarBoss/>
@@ -3684,7 +3684,7 @@
       </AnimatedTexture>
       <DisplayId>Agonized Titan</DisplayId>
       <Size>140</Size>
-      <MaxHitPoints>72500</MaxHitPoints>
+      <MaxHitPoints>25000</MaxHitPoints>
       <Defense>35</Defense>
       <Exp>10000</Exp>
       <ShadowSize>100</ShadowSize>

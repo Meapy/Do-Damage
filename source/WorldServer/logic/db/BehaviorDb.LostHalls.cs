@@ -9,14 +9,17 @@ namespace WorldServer.logic
     partial class BehaviorDb
     {
         private _ LostHalls = () => Behav()
+            // Spawned by the Colossus room's controller once its Marble Defenders have fallen
+            // (BehaviorDb.LostHallsRooms.cs), where it leaves the tear into the Void when it dies.
             .Init("LH Marble Colossus",
                 new State(
                     new DropPortalOnDeath("Realm Portal", 100, 0),
+                    new ScaleHP2(20),
                     new State("A-P",
                         new ConditionEffectBehavior(ConditionEffectIndex.Invulnerable, true),
                         new SetAltTexture(1),
                         new Spawn("LH Marble Colossus Anchor", 1, 1, 2000000000),
-                        new PlayerWithinTransition(5, "I")
+                        new PlayerWithinTransition(12, "I")
                         ),
                     new State("I",
                         new ConditionEffectBehavior(ConditionEffectIndex.Invulnerable, true),
@@ -338,7 +341,9 @@ namespace WorldServer.logic
 
                         new Timed(3800, new SetAltTexture(3), new Duration(new Shoot(10, 12, 7, 1, rotateAngle: 90, defaultAngle: 0, coolDownOffset: 3800, coolDown: 400), 3800)),
                         new Timed(7600, new SetAltTexture(2), new Duration(new Shoot(10, 4, 90, 8, rotateAngle: 9, defaultAngle: 0, coolDownOffset: 7600, coolDown: 400), 3800)),
-                        new Timed(10600, new SetAltTexture(1), new HealSelf(10000, 5000000)),
+                        // it draws back part of its strength once (a third of its base health),
+                        // rather than all of it
+                        new Timed(10600, new SetAltTexture(1), new HealSelf(60000, 50000)),
                         new Timed(15600, new SetAltTexture(2), new Taunt("...!")),
                         new Timed(17200, new SetAltTexture(3)),
                         new Timed(18800, new SetAltTexture(4)),
@@ -416,7 +421,9 @@ namespace WorldServer.logic
                     new State("PR-21-B",
                         new ConditionEffectBehavior(ConditionEffectIndex.Invulnerable, true),
                         new ReturnToSpawn(0.6, 0),
-                        new NotMovingTransition("P-21-B", 200)
+                        // timed, as the other phases' returns are: it waited to stand still at its
+                        // spawn, which it can fail to reach, invulnerable until then
+                        new TimedTransition(5000, "P-21-B")
                         ),
                     new State("P-21-B",
                         new ConditionEffectBehavior(ConditionEffectIndex.Invulnerable, false, 1000),
@@ -543,24 +550,36 @@ namespace WorldServer.logic
                         new Decay(7400)
                         )
                     ),
-                    new Threshold(0.001,
+                    new Threshold(0.01,
                         new ItemLoot("Potion of Life", 1),
                         new ItemLoot("Potion of Mana", 1),
-                        new ItemLoot("Potion of Mana", 0.25),
-                        new TierLoot(12, ItemType.Weapon, 0.4),
-                        new TierLoot(13, ItemType.Weapon, 0.2),
-                        new TierLoot(14, ItemType.Weapon, 0.05),
-                        new TierLoot(6, ItemType.Ability, 0.2),
-                        new TierLoot(13, ItemType.Armor, 0.2),
-                        new TierLoot(14, ItemType.Armor, 0.05),
-                        new TierLoot(6, ItemType.Ring, 0.2),
-                        new ItemLoot("Ring of Decades", 0.025),
-                        new ItemLoot("Sword of the Colossus", 0.00125),
-                        new ItemLoot("Breastplate of New Life", 0.00125),
-                        new ItemLoot("Marble Seal", 0.00125),
-                        new ItemLoot("Magical Lodestone", 0.02)
+                        new ItemLoot("Potion of Attack", 1),
+                        new ItemLoot("Potion of Defense", 1)
+                    ),
+                    // 3% of the damage: more stat potions and its own items, at Oryx 3's rates
+                    new Threshold(0.03,
+                        new ItemLoot("Potion of Speed", 0.5),
+                        new ItemLoot("Potion of Dexterity", 0.5),
+                        new ItemLoot("Potion of Vitality", 0.5),
+                        new ItemLoot("Potion of Wisdom", 0.5),
+                        new ItemLoot("Ring of Decades", 0.02),
+                        new ItemLoot("Magical Lodestone", 0.015),
+                        new ItemLoot("Sword of the Colossus", 0.004),
+                        new ItemLoot("Breastplate of New Life", 0.004),
+                        new ItemLoot("Marble Seal", 0.004)
+                    ),
+                    // 5% of the damage: the gear
+                    new Threshold(0.05,
+                        new TierLoot(13, ItemType.Weapon, 0.12),
+                        new TierLoot(14, ItemType.Weapon, 0.04),
+                        new TierLoot(13, ItemType.Armor, 0.08),
+                        new TierLoot(14, ItemType.Armor, 0.08),
+                        new TierLoot(15, ItemType.Armor, 0.015),
+                        new TierLoot(6, ItemType.Ability, 0.12),
+                        new TierLoot(6, ItemType.Ring, 0.12),
+                        new TierLoot(7, ItemType.Ability, 0.006),
+                        new TierLoot(7, ItemType.Ring, 0.006)
                     )
-
             )
             .Init("LH Void Rift Spawner",
                 new State(
