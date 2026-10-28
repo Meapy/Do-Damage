@@ -198,7 +198,8 @@ namespace WorldServer.core.miscfile
                 TextColor = textColor
             };
 
-            SendTextPacket(player, tp, p => !p.Client.Account.IgnoreList.Contains(player.AccountId));
+            // a player who is leaving has no account any more: skip them
+            SendTextPacket(player, tp, p => p.Client.Account is { } account && !account.IgnoreList.Contains(player.AccountId));
         }
 
         public bool SendInfo(int target, string text)
@@ -318,7 +319,7 @@ namespace WorldServer.core.miscfile
                         var from = GameServer.Database.ResolveIgn(e.Content.From);
                         var to = GameServer.Database.ResolveIgn(e.Content.To);
                         var dummies = GameServer.ConnectionManager.Clients
-                            .Keys.Where(_ => _.Player != null
+                            .Keys.Where(_ => _.Player != null && _.Account != null
                                 && !_.Account.IgnoreList.Contains(e.Content.From)
                                 && (_.Account.AccountId == e.Content.From || _.Account.AccountId == e.Content.To || _.Account.IP == e.Content.SrcIP));
                         foreach (var dummy in dummies)
@@ -349,7 +350,7 @@ namespace WorldServer.core.miscfile
                     {
                         var from = GameServer.Database.ResolveIgn(e.Content.From);
                         var dummies = GameServer.ConnectionManager.Clients
-                            .Keys.Where(_ => _.Player != null
+                            .Keys.Where(_ => _.Player != null && _.Account != null
                                 && !_.Account.IgnoreList.Contains(e.Content.From)
                                 && _.Account.GuildId > 0
                                 && _.Account.GuildId == e.Content.To);
@@ -369,7 +370,7 @@ namespace WorldServer.core.miscfile
                     {
                         var from = GameServer.Database.ResolveIgn(e.Content.From);
                         var dummies = GameServer.ConnectionManager.Clients
-                            .Keys.Where(_ => _.Player != null
+                            .Keys.Where(_ => _.Player != null && _.Account != null
                                 && !_.Account.IgnoreList.Contains(e.Content.From)
                                 && _.Account.PartyId > 0
                                 && _.Account.PartyId == e.Content.To);

@@ -17,6 +17,7 @@ details). Add to a group's line when a change adds to it, rather than adding ano
 ### Fixes
 - The Shatters' Bridge Sentinel can be beaten again: the bridge's Titanums no longer stay
   invulnerable for good when a hidden object that switches them was shot down during the fight.
+- Chatting no longer disconnects you when someone nearby is leaving the world at that moment.
 
 ## 2.3.0 (2026-10-28)
 
