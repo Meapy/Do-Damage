@@ -15,6 +15,9 @@ NR-CORE/Skilly's 7.0, built on TK-Reborn, with the XMLs of RotMG 1.0.4.0). On to
 - The content of Doomed Realms, another private server: its items, pets, classes, dungeons,
   minigames, commands and economy.
 - Many dungeons made playable, random dungeon layouts, rebuilt Elder dungeons and a Nexus Bazaar.
+- Its own endgame: Realm 2, the Oryx chain up to Oryx 5, the Lost Halls with the Cultist Hideout
+  and the Void, the Divine Forge and Workbench with imprints, quests and achievements, and the
+  Arena.
 - Server networking and AIR client rendering made much faster.
 - The Rust client.
 
@@ -33,6 +36,7 @@ servers run as systemd services.
 | Account server (`source/App`) | 8080 |
 | World proxy and world servers (`source/WorldServer`) | 2051 |
 | Redis | 6379, VPS only |
+| Discord bot (release posts, server status, slash commands) | none |
 
 ```
 python deploy\deploy.py                                                          # deploy; kicks nobody
@@ -69,7 +73,7 @@ Double-click it for a menu of the four, or give one from a terminal:
 
 It needs the [prerequisites](#prerequisites) below (not the AIR SDK). Admin commands on your
 test account: set `admin` on its `account.<id>` in the stack's Redis
-(`source\Redisedis-cli.exe -p 6381`), as in [source/AGENTS.md](source/AGENTS.md).
+(`source\Redis\redis-cli.exe -p 6381`), as in [source/AGENTS.md](source/AGENTS.md).
 
 ## The Rust client
 
@@ -96,8 +100,9 @@ protocol, so it works with these servers unchanged. It does everything the AIR c
 - **Updates itself:** players get the zip once; after that, each version you publish downloads
   in the background and takes over at their next portal. A Changelog window (and
   `client-rs/CHANGELOG.md`) says what changed in each version.
-- **The rest of the game:** the marketplace, trading, guilds, potion storage, NPC windows,
-  emotes, the graveyard, and test flags for scripted runs.
+- **The rest of the game:** the marketplace, trading, guilds, potion storage, the quest log,
+  the vault window, the Divine Workbench, NPC windows, emotes, the graveyard, borderless
+  fullscreen, and test flags for scripted runs.
 
 ```
 cd client-rs; cargo run                                  # desktop, for development
@@ -134,6 +139,21 @@ The highlights; [SETUP-LOCAL.md](SETUP-LOCAL.md) has the rest.
 
 ### Gameplay and content
 
+- **Realm 2:** a second, larger realm always open from the Nexus, with its own lands, redrawn
+  monsters and events, and waystones to travel between cleared lands.
+- **The Oryx chain:** from a realm's close through Oryx's Castle, Chamber, Wine Cellar and
+  Sanctuary to Oryx 4 in Oryx's Inferno and Oryx 5, the Ascended God, in Oryx's Elysium.
+- **The Lost Halls, the Cultist Hideout and the Void:** the halls' marble rooms laid out anew every
+  run up to the Marble Colossus; Malus and his cultists in their hideout; and the Void Entity,
+  reached with Malus' Vial of Pure Darkness.
+- **The Divine Forge and Workbench:** forging, shards, selling and imprints for gear, in one window
+  (`/forge` from anywhere).
+- **Quests and achievements:** daily, weekly and monthly quests, a daily login reward, and 22
+  achievements with tiers, points and chat colours.
+- **The Arena:** waves with group votes to start or skip ahead, shared chests, and half fame and
+  loot; defeats send you to the Nexus.
+- **Legends:** the top characters of the week, month and all time glow red and get a small loot
+  boost.
 - **Doomed Realms port:**
   - 13 classes and about 390 items, dyes and 122 pets;
   - 31 dungeons and its minigames (the Arena, Zombies, Sheep Herding);
@@ -200,6 +220,10 @@ What's finished and what's still to do, upstream's work and this repository's to
   Ghost King, Oasis Giant and more), with loot to match; the Beer God can be seen.
 - [x] Boss pets fire their boss's shots.
 - [x] Arena defeats send you to the Nexus instead of killing you.
+- [x] Realm 2, always open from the Nexus.
+- [x] Quests, achievements and a daily login reward.
+- [x] The Divine Forge and Workbench, with imprints.
+- [x] A Discord server and bot: release posts, server status and slash commands.
 
 ### Dungeons and bosses
 
@@ -213,15 +237,21 @@ What's finished and what's still to do, upstream's work and this repository's to
 - [x] The Oryx chain: Oryx's Castle, Oryx's Chamber, Wine Cellar, Oryx's Sanctuary, Oryx's Inferno
   and Oryx's Elysium, opened with incantations; and the Chicken Chamber.
 - [x] Lair of Draconis and its Elder version ✮.
+- [x] Manor of the Immortals and its Elder version: a whole house laid out anew each visit, and
+  Lord Ruthven's full fight.
+- [x] Lair of Shaitan, with a new arena, and the Avatar of the Forgotten King.
 - [x] Ivory Wyvern ✮, Ice Cave / Inner Sanctum ✮.
 - [x] Battle for the Nexus ✮: four bosses with loot; its key is sold in the Nexus Bazaar.
-- [x] Lost Halls ✮: the Marble Colossus fight, with loot (Oryx 2 drops the portal).
+- [x] Lost Halls ✮: marble rooms laid out anew every run, each with its own monsters, up to the
+  Marble Colossus (the Lost Sentry in Realm 2 and, now and then, Oryx 2 drop the portal).
+- [x] Cultist Hideout ✮: Malus' followers and demons, then Malus, his four cultists, Molek and
+  Balaam; a portal in the Lost Halls or a Cult Key opens it.
+- [x] The Void ✮: the Void Entity, opened with Malus' Vial of Pure Darkness where the Marble
+  Colossus fell.
 
 ### Still to do
 
 - [ ] Every equipment item from RotMG 1.0.4.0 working: some items still can't be used.
-- [ ] Cultist Hideout: a map, but Malus and the cultists have no fight and nothing leads there.
-- [ ] The Void: a map, but no world or monsters.
 - [ ] Court of Oryx: a map, but no world or monsters.
 - [ ] The Nest: no map or world yet.
 
