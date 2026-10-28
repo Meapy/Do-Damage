@@ -228,6 +228,11 @@ namespace WorldServer.core.worlds
 
         public void RemoveWorld(World world)
         {
+            // a realm gone some other way than closing still takes its Nexus portal with it, so the
+            // portal never leads to a world that's gone (and the Nexus opens a new Realm 2)
+            if (world is RealmWorld { HasNexusPortal: true })
+                Nexus?.PortalMonitor.RemovePortal(world.Id);
+
             if (world is RealmWorld)
             {
                 lock (Threads)

@@ -155,6 +155,13 @@ namespace WorldServer.core.worlds
                 CreateNewRealm();
         }
 
+        /// <summary>The Nexus's Realm 2, the one its portal leads to (null while it's being built).</summary>
+        public Realm2World Realm2()
+        {
+            lock (_access)
+                return _portals.Values.Select(p => p.WorldInstance).OfType<Realm2World>().FirstOrDefault(w => !w.Closed);
+        }
+
         private static string PortalName(World world) => world is Realm2World ? $"Realm 2: {world.GetDisplayName()}" : world.GetDisplayName();
 
         // One Realm 2 always open from the Nexus (beside those its key opens): a new one once it closes

@@ -9,9 +9,10 @@ namespace WorldServer.core.commands
 {
     public abstract partial class Command
     {
-        // /realm2: open a new Realm 2 and go in (as its key does). In a Realm 2: list its lands so
-        // far, /realm2 next to bring its next event (and land) now, or /realm2 <land> (its key or a
-        // word of its name: midlands, godlands, cube, penta, garden...; last for the newest) to go there.
+        // /realm2: go into the Nexus's Realm 2, the one its portal leads to (never a new one, so
+        // there's only ever the one). In a Realm 2: list its lands so far, /realm2 next to bring its
+        // next event (and land) now, or /realm2 <land> (its key or a word of its name: midlands,
+        // godlands, cube, penta, garden...; last for the newest) to go there.
         internal class Realm2 : Command
         {
             public override RankingType RankRequirement => RankingType.Admin;
@@ -22,14 +23,13 @@ namespace WorldServer.core.commands
                 args = args.Trim();
                 if (player.World is not Realm2World realm)
                 {
-                    player.SendInfo("Opening a Realm 2...");
-                    player.GameServer.WorldManager.CreateNewWorldAsync("Realm 2", player.World, world =>
+                    var open = player.GameServer.WorldManager.Nexus.PortalMonitor.Realm2();
+                    if (open == null)
                     {
-                        if (world == null)
-                            player.SendError("Couldn't build a Realm 2.");
-                        else if (player.Client != null && !player.Dead)
-                            player.Reconnect(world);
-                    });
+                        player.SendError("The Nexus's Realm 2 is still being built: try again in a moment.");
+                        return false;
+                    }
+                    player.Reconnect(open);
                     return true;
                 }
 

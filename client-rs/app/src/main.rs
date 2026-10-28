@@ -2301,7 +2301,7 @@ impl App {
                 let me = game.world.as_ref().and_then(|w| w.player()).and_then(|p| p.name()).unwrap_or("").to_owned();
                 let mut ui = hud::Ui { renderer: &mut *renderer, sprites, data, redrawer: &mut *redrawer, fonts, text: &mut *text };
                 prof::mark("pre-chat");
-                self.chat_names = hud::draw_chat(&mut ui, &lay, &game.chat, &me, self.chat_input.as_ref(), self.chat_scroll, now);
+                self.chat_names = hud::draw_chat(&mut ui, &lay, &game.chat, &me, self.chat_input.as_ref(), self.chat_scroll, self.settings.chat_size, now);
                 if let Some(p) = game.world.as_ref().and_then(|w| w.player()) {
                     // The frame rate and the ping (L), under the gold and fame.
                     let fps = self.settings.show_fps.then(|| match game.ping {

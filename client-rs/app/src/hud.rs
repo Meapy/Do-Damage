@@ -3582,16 +3582,17 @@ impl HudState {
 }
 
 /// The chat box at the bottom left of the view: the newest lines (all of them, `scroll` rows
-/// back, after Page Up), wrapped to fit, and the line being typed. Returns where the players'
-/// names are, for clicks.
-pub fn draw_chat(ui: &mut Ui, lay: &Layout, lines: &[ChatLine], me: &str, input: Option<&crate::textedit::LineEdit>, scroll: Option<usize>, now: i32) -> Vec<(String, [f32; 4])> {
+/// back, after Page Up), wrapped to fit, and the line being typed, `chat_size` times its usual
+/// text, width and height (Options, Visuals). Returns where the players' names are, for clicks.
+#[allow(clippy::too_many_arguments)]
+pub fn draw_chat(ui: &mut Ui, lay: &Layout, lines: &[ChatLine], me: &str, input: Option<&crate::textedit::LineEdit>, scroll: Option<usize>, chat_size: f32, now: i32) -> Vec<(String, [f32; 4])> {
     let mut names = Vec::new();
     let s = lay.s;
-    let size = lay.font(14.0);
+    let size = lay.font(14.0 * chat_size);
     let line_h = (size * 1.3).round();
     let margin = 10.0 * s;
-    let max_w = (lay.chat_right() - 2.0 * margin - 16.0 * s).min(620.0 * s).max(120.0);
-    let max_rows = ((lay.h * 0.4) / line_h).floor().max(3.0) as usize;
+    let max_w = (lay.chat_right() - 2.0 * margin - 16.0 * s).min(620.0 * s * chat_size).max(120.0);
+    let max_rows = ((lay.h * (0.4 * chat_size).min(0.6)) / line_h).floor().max(3.0) as usize;
     let mut bottom = lay.h - margin;
     if let Some(input) = input {
         let r = [margin, bottom - line_h - 12.0 * s, max_w + 16.0 * s, line_h + 12.0 * s];

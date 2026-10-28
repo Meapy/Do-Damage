@@ -8,7 +8,8 @@ summary: A realm made afresh every time: the shore, the midlands and a great God
 ---
 Realm 2 is a second kind of realm. The Nexus always has one open: its portal stands among the
 realms' portals, beside Realm 1's, named **Realm 2: Zenith** or the like, with how many are in it.
-When that one closes, another opens. A **Realm 2 Key** opens one of your own as well. Every Realm 2
+It stays open while it's empty, so you can come back to it, and when it closes its portal goes and
+another opens. A **Realm 2 Key** opens one of your own as well. Every Realm 2
 is built new when it opens, so no two are the same.
 
 ## How it's laid out
@@ -98,7 +99,8 @@ shore and from any other: a pale obelisk under a floating crystal, on a ring of 
 entering Realm 2 from then on arrives beside the newest one instead of on the shore. The Realm
 Events list shows the waystone nearest your quest, and the map marks every one as a cyan diamond:
 click the one in the list, or any on the map, to teleport there (as teleporting to a player, once
-every 10 seconds). No monsters spawn round a waystone.
+every 10 seconds). Arriving at a waystone, by teleporting or by entering the realm, makes you
+invulnerable for a few seconds. No monsters spawn round a waystone.
 
 ## Closing Realm 2
 
