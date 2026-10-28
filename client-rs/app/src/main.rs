@@ -460,6 +460,8 @@ fn apply_action(game: &mut Game, panel: &hud::Panel, action: hud::Action, now: i
         Action::Button(Button::TradeSlot(i)) => game.trade_toggle(i, now),
         Action::Button(Button::TradeAccept) => game.trade_accept(now),
         Action::Button(Button::TradeCancel) => game.trade_cancel(),
+        Action::Button(Button::ArenaNext) => game.arena_vote(0),
+        Action::Button(Button::ArenaPick(k)) => game.arena_vote(k),
         Action::Button(Button::Member(_)) => {}
         Action::Button(Button::Page(_) | Button::Npc(_) | Button::Quests | Button::Vault | Button::Zoom(_) | Button::CardTab(_) | Button::History | Button::HistoryBoss(_)) => {}
     }
@@ -1768,6 +1770,7 @@ impl App {
                 ignored: &game.ignored,
                 now,
                 history: &game.boss_history,
+                arena_votes: game.arena_votes.as_ref(),
                 fame: &game.fame_stats,
             };
             let built = game.world.as_ref().map(|w| hud::Panel::new(&lay, w, data, &self.hud, &social));
@@ -2278,6 +2281,7 @@ impl App {
                             ignored: &game.ignored,
                             now,
                             history: &game.boss_history,
+                            arena_votes: game.arena_votes.as_ref(),
                             fame: &game.fame_stats,
                         };
                         self.hud.nexus_key = options::key_label(self.settings.key(options::Bind::Nexus));
@@ -2313,6 +2317,10 @@ impl App {
                 if let Some(arena) = game.arena {
                     hud::draw_arena(&mut ui, &lay, arena, now);
                 }
+                if let Some(votes) = &game.arena_votes {
+                    let me = game.world.as_ref().and_then(|w| w.me);
+                    hud::draw_arena_votes(&mut ui, &lay, votes, me, mouse);
+                }
             }
         }
         if let (Some(far), Phase::Playing(game)) = (view_radius, &mut self.phase) {
@@ -2339,6 +2347,7 @@ impl App {
                     ignored: &game.ignored,
                     now,
                     history: &game.boss_history,
+                    arena_votes: game.arena_votes.as_ref(),
                     fame: &game.fame_stats,
                 };
                 hud::draw_windows(&mut ui, &lay, world, p, &social, mouse);

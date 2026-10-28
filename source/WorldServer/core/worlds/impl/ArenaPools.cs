@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using Shared.resources;
 using WorldServer.core.objects;
 using WorldServer.networking.packets.outgoing;
 
@@ -126,6 +127,41 @@ namespace WorldServer.core.worlds.impl
 
         // the chat line the Arena sends as a wave spawns
         public static string WaveMessage(int wave) => $"Wave {wave} has begun ({For(wave).Name}).";
+
+        // and as several combined waves spawn together
+        public static string WavesMessage(int from, int to) =>
+            $"Waves {from}-{to} have begun ({string.Join(", ", Enumerable.Range(from, to - from + 1).Select(w => For(w).Name).Distinct())}).";
+
+        // the fame each player gets for reaching a wave (DoomedBattleArena pays it as the wave
+        // before is beaten): wave * 10, halved with company, at the Arena's FameRate
+        public static int WavePot(int wave, int players, double rate) => FameRates.Fame(wave * 10 / (players == 1 ? 1 : 2), rate);
+
+        // Combining waves (DoomedBattleArena's votes): at most MaxCombine waves in one fight, and
+        // only waves before CombineBeforeWave (the Oryx stage, where two Oryxes would share the middle)
+        public const int MaxCombine = 5;
+        public const int CombineBeforeWave = 30;
+
+        public static int MaxCombineAt(int wave) => Math.Clamp(CombineBeforeWave - wave, 1, MaxCombine);
+
+        // Next starts the wave once at least half the players want it
+        public static int NextVotesNeeded(int players) => Math.Max(1, (players + 1) / 2);
+
+        // a combine needs more than half of them
+        public static int CombineVotesNeeded(int players) => players / 2 + 1;
+
+        // How many waves the next fight combines: the most that more than half the players picked
+        // at least (a pick above `max` counts as `max`; no pick counts as 1). One player decides alone.
+        public static int CombineDecided(IEnumerable<int> picks, int max)
+        {
+            var list = picks.Select(k => Math.Clamp(k, 1, max)).ToList();
+            for (var k = max; k > 1; k--)
+                if (list.Count(p => p >= k) >= CombineVotesNeeded(list.Count))
+                    return k;
+            return 1;
+        }
+
+        // the Arena Chests stand this many tiles south of the arena's middle
+        public const int ChestOffset = 4;
 
         // The wave and time box at the top of the view (both clients' ArenaMenu): a state other than 1
         // sets its time to runtimeMs, and state 1 then starts its clock from there. Send it on

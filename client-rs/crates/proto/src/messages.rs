@@ -208,6 +208,15 @@ messages! {
         // how many are defeated and how many close it, the one our quest arrow follows (0: the
         // nearest), and the running events, side quests and waystones.
         117 => RealmEvents { defeated: i32, needed: i32, picked: i32, entries: List8<RealmEventEntry> },
+        // The Arena's votes, for clients that asked (ArenaVote 255), whenever they change: whether
+        // voting is open (before the first wave and between waves), the wave the next fight starts
+        // at, the most waves it may combine and how many it combines as the votes stand, how many
+        // Next votes start it and how many players a combine needs, whether it's starting, and
+        // each player's votes.
+        120 => ArenaVotes {
+            open: bool, next_wave: i32, max_combine: u8, combine: u8, next_needed: u8, combine_needed: u8,
+            starting: bool, voters: List8<ArenaVoter>,
+        },
     }
 }
 
@@ -298,5 +307,9 @@ messages! {
         // The event our quest arrow should follow (an object id from RealmEvents), 0 for the
         // nearest. Only sent once RealmEvents came, so never to a server without it.
         118 => QuestPick { object_id: i32 },
+        // A vote in the Arena: 0 for the next wave (again to take it back), 1 to 5 to combine that
+        // many waves (1: no combining), 255 for ArenaVotes from now on. An older
+        // server doesn't know it: 255 goes once per Arena, the rest only once ArenaVotes came.
+        119 => ArenaVote { action: u8 },
     }
 }

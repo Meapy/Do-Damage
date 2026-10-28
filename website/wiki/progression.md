@@ -155,9 +155,22 @@ from wave 30 an Elder dungeon boss joins Oryx's. The chat says which wave has be
   you'd have got 4 items you get 2, and 1 stays 1. Oryx 3, 4 and 5 also drop each item half as
   often, so they give about a quarter of their usual loot. Any other monster drops each item half
   as often. Loot boosts (weekend, Loot Drop Potion, events, the Legends) still count on top.
-- **Between waves** you rest for 5 seconds, 15 from wave 10 and 20 from wave 20. Type **GO** in
-  chat to start the next wave (or the game) in 3 seconds instead, once per countdown. Everyone is
+- **Between waves** you rest for 5 seconds, 15 from wave 10 and 20 from wave 20. Everyone is
   invulnerable for the first 2.5 seconds of each wave, 5 when an Oryx comes.
+- **Voting** (the panel under the wave box, before the first wave and between waves):
+  - **Next wave** starts the next wave (or the game) in 3 seconds once at least half of the players
+    have pressed it: 1 of 1 or 2, 2 of 3 or 4. Press it again to take your vote back. Typing **GO**
+    in chat counts as pressing it. If not enough vote, the rest runs out and the wave starts anyway.
+  - **+1, +2, +5** combine waves into one fight: +5 brings the next five waves' monsters all at
+    once. It takes more than half of the players (2 of 2, 2 of 3, 3 of 4), and the fight brings the
+    most waves that many picked at least, so with picks of +5, +2 and none it's 2 waves. Alone, you
+    decide. Your pick stays from break to break until you change it (+1 is no combining).
+  - A combined fight pays each wave's fame and counts each wave for quests and achievements, the
+    same as playing them one by one: it only saves time. Waves combine up to wave 29; from wave 30
+    (Oryx) they come one at a time.
+- **The Arena Chests:** two chests stand just south of the middle. Anyone in that Arena can put
+  items in or take them out, and they don't vanish like loot bags. They're gone with the Arena,
+  though: anything still inside when everyone has left is lost. Soulbound items can't go in.
 - **Losing doesn't kill you.** A hit that would kill you in the Arena sends you to the Nexus at full
   health, with your gear and fame: no grave, and it doesn't count as a death.
 - **The leaderboard:** the golden trophy beside the Arena portal shows the best run (its wave,

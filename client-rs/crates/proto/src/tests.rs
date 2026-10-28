@@ -339,6 +339,19 @@ fn quest_messages_match_quest_handlers() {
 }
 
 #[test]
+fn arena_vote_messages_match_arena_votes() {
+    // ArenaVoteHandler reads a byte.
+    assert_eq!(ClientMessage::from(ArenaVote { action: 5 }).to_frame(), B::default().u8(5).frame(119));
+    // ArenaVotes.Write: open, next wave, max combine, combine, next needed, combine needed,
+    // starting, a byte count of voters (object id, name, next, pick).
+    let body = B::default().u8(1).i32(7).u8(5).u8(2).u8(2).u8(2).u8(0).u8(1).i32(1001).utf("Tester").u8(1).u8(2).0;
+    let ServerMessage::ArenaVotes(v) = ServerMessage::decode(120, &body).unwrap() else { panic!() };
+    assert_eq!((v.open, v.next_wave, v.max_combine, v.combine, v.next_needed, v.combine_needed, v.starting), (true, 7, 5, 2, 2, 2, false));
+    let p = &v.voters[0];
+    assert_eq!((p.object_id, p.name.as_str(), p.next, p.pick), (1001, "Tester", true, 2));
+}
+
+#[test]
 fn realm_event_messages_match_realm_events() {
     // RealmEventsSubscribeHandler reads nothing; QuestPickHandler the object id.
     assert_eq!(ClientMessage::from(RealmEventsSubscribe {}).to_frame(), B::default().frame(116));

@@ -1,6 +1,6 @@
 //! Signs: small information cards that float over objects in the world while the player is
 //! near, like a speech balloon that stays (and never goes to the chat). The Nexus's Arena
-//! Leaderboard trophy shows the best run on one.
+//! Leaderboard trophy shows the best run on one, and the Arena's chests what they're for.
 //!
 //! A sign is a title and a few lines (`Sign`), drawn by `draw` over any object; to give
 //! another object one, fetch what it should say into `Signs` and add it to `Signs::draw`.
@@ -13,6 +13,9 @@ use bsk_world::{GameObj, World};
 
 /// Signs show for objects at most this many tiles from the player.
 pub const RANGE: f64 = 11.0;
+
+/// The Arena Chest's sign shows this close (the Arena is small: farther, it would always show).
+pub const CHEST_RANGE: f64 = 3.0;
 
 /// How often a sign's contents are fetched again while one is in range, ms.
 const REFRESH_MS: i32 = 60_000;
@@ -147,6 +150,25 @@ pub fn arena_sign(best: Option<&ArenaRun>) -> Sign {
     Sign { title: "ARENA RECORD".to_owned(), accent: GOLD, lines }
 }
 
+/// The Arena Chest's sign: shared, kept while the Arena is open, lost when it closes (its XML's
+/// Description says the same).
+pub fn arena_chest_sign() -> Sign {
+    Sign {
+        title: "ARENA CHEST".to_owned(),
+        accent: color::ACCENT_HI,
+        lines: vec![
+            Line::new("Shared with everyone in this Arena", 13.0, true, color::TEXT),
+            Line::new("Items stay until someone takes them.", 11.0, false, color::TEXT_DIM),
+            Line::new("Anything left here is lost when everyone leaves the Arena.", 11.0, true, 0xFFB070).wrapped(2),
+            Line::new("No soulbound items", 11.0, false, color::TEXT_MUTED),
+        ],
+    }
+}
+
+fn is_arena_chest(world_obj: &GameObj, data: &bsk_data::GameData) -> bool {
+    data.objects.get(&world_obj.object_type).is_some_and(|d| d.id == "Arena Chest")
+}
+
 fn is_arena_board(world_obj: &GameObj, data: &bsk_data::GameData) -> bool {
     data.objects.get(&world_obj.object_type).is_some_and(|d| matches!(&d.class, ObjectClass::Other(c) if c == "ArenaLeaderboard"))
 }
@@ -184,8 +206,15 @@ impl Signs {
         self.arena_near = false;
         let Some(me) = world.player() else { return };
         let k = (cam.scale / crate::view::TILE_PX) as f32;
+        // the nearest Arena Chest's sign (they stand side by side: one sign, not two on top of each other)
+        let dist = |o: &GameObj| (o.x - me.x).hypot(o.y - me.y);
+        let chest = world.objects.values().filter(|o| dist(o) <= CHEST_RANGE && is_arena_chest(o, ui.data)).min_by(|a, b| dist(a).total_cmp(&dist(b)));
+        if let Some(o) = chest {
+            let [px, py] = cam.to_screen(o.x, o.y, 0.0);
+            draw(ui, &arena_chest_sign(), px, py, o.stat_int(2).unwrap_or(100) as f32 / 100.0, k);
+        }
         for o in world.objects.values() {
-            if (o.x - me.x).hypot(o.y - me.y) > RANGE || !is_arena_board(o, ui.data) {
+            if dist(o) > RANGE || !is_arena_board(o, ui.data) {
                 continue;
             }
             self.arena_near = true;

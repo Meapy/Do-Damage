@@ -117,6 +117,8 @@ manifest's ground, object, particle and model files) or the repository's. God mo
 each world change, so `--say` it after joining: `"/gear;;/arena;;/god"` (one bot `/openarena` first).
 `--enter "Wine Cellar Portal;;Oryx's Sanctuary Portal"` takes the first portal it sees with each
 object id, once each, so with `/tq` and `/smite` in `--say` it walks down the Oryx chain.
+`--arena-vote "5;0"` votes in the Arena at each break (`ArenaVote`s: 1-5 a combine pick, 0 Next)
+and logs every `ArenaVotes`, so several bots test the vote thresholds.
 
 The client itself can be scripted for tests (desktop only):
 
@@ -137,7 +139,7 @@ The client itself can be scripted for tests (desktop only):
 | `--type <text>` | Type into the first NPC prompt that opens (then Enter), onto the guild board being edited, or into the Divine Forge's or the vault window's search (with `--npc Forge` or `--npc Vault`) |
 | `--size WxH` | Open the window at this size (physical pixels), to check the layout |
 | `--mouse x,y` | Put the mouse there (window pixels) and ignore the real one and its buttons: tooltips, aiming |
-| `--mouse-script "down@ms:x,y;move@ms:x,y;up@ms:x,y;right@ms:x,y"` | Mouse steps after joining: left-button drags and clicks on the HUD, and right-clicks |
+| `--mouse-script "down@ms:x,y;move@ms:x,y;up@ms:x,y;right@ms:x,y"` | Mouse steps after joining: left-button drags and clicks on the HUD, and right-clicks. Their times count from the first world joined, `--shot-after` from the start (a few seconds earlier), so leave the shot some seconds after the last step |
 
 - **Paths and slashes:** from Git Bash, run it with `MSYS_NO_PATHCONV=1` and give
   `--credentials` a Windows path (`C:/Users/...`); a `/c/Users/...` path isn't found and the client

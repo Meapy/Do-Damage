@@ -29,6 +29,16 @@ details). Add to a group's line when a change adds to it, rather than adding ano
 - Entering Realm 2 beside a waystone makes you invulnerable for a few seconds, as teleporting to one
   does.
 
+### Arena
+- Between waves, a panel under the wave box replaces typing GO: press Next wave to start the next
+  wave, which starts once at least half of you have pressed it (GO in chat still counts). Pick +1,
+  +2 or +5 to fight several waves at once and get through the early ones faster: it needs more
+  than half of you, and the panel shows who voted for what. Combined waves pay the same fame as
+  playing them one by one, and from wave 30 waves come one at a time.
+- Two Arena Chests stand just south of the middle: leave items there for the others to take. They
+  stay while the Arena is open, but anything left when everyone has left is lost. Soulbound items
+  can't go in.
+
 ### Game
 - Options, Visuals has a Chat size: make the chat smaller (or bigger), its text, width and height
   together.

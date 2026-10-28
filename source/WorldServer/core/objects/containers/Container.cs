@@ -28,7 +28,7 @@ namespace WorldServer.core.objects.containers
             if (Inventory == null)
                 return;
 
-            if (ObjectType == 0x504)    //Vault chest
+            if (ObjectType == 0x504 || KeepsWhenEmpty)    //Vault chest, or one that stays (ArenaChest)
                 return;
 
             var hasItem = false;
@@ -45,6 +45,9 @@ namespace WorldServer.core.objects.containers
 
             base.Tick(ref time);
         }
+
+        // whether it stays when emptied (loot bags go)
+        protected virtual bool KeepsWhenEmpty => false;
 
         protected override void ExportStats(IDictionary<StatDataType, object> stats, bool isOtherPlayer)
         {

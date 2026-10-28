@@ -328,4 +328,20 @@
 			<ArmorPiercing/>
 		</Projectile>
 	</Object>
+	<!-- the Arena's shared chests (ArenaChest, DoomedBattleArena): everyone in that Arena can put
+	     items in and take them out; it stays while the Arena is open, and what's left in it is
+	     lost when the Arena closes. The Rust client shows a sign over it. -->
+	<Object type="0x4988" id="Arena Chest">
+		<Class>Container</Class>
+		<DisplayId>Arena Chest</DisplayId>
+		<Container/>
+		<CanPutNormalObjects/>
+		<Texture>
+			<File>lofiObj2</File>
+			<Index>0x0e</Index>
+		</Texture>
+		<SlotTypes>0, 0, 0, 0, 0, 0, 0, 0</SlotTypes>
+		<ShadowSize>60</ShadowSize>
+		<Description>Shared by everyone in this Arena. Items stay until someone takes them, but anything left here is lost when everyone leaves the Arena. No soulbound items.</Description>
+	</Object>
 </Objects>

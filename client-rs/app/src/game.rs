@@ -77,6 +77,10 @@ pub struct Game {
     pub tellers: Vec<String>,
     /// The arena's wave and clock (`ArenaMenu`): wave, seconds, since when, running.
     pub arena: Option<(i32, i32, i32, bool)>,
+    /// The Arena's votes (`ArenaVotes`), once asked for in this world (the first `ImminentArenaWave`
+    /// asks).
+    pub arena_votes: Option<bsk_proto::ArenaVotes>,
+    arena_asked: bool,
     /// Staff's `/autoaim`: shots go at the nearest enemy. Only the server turns it on, with a line
     /// from `*AutoAim*` (a name no player can have); `--aim auto` asks for it.
     pub auto_aim: bool,
@@ -261,6 +265,8 @@ impl Game {
             boss_history: Vec::new(),
             fame_stats: Default::default(),
             arena: None,
+            arena_votes: None,
+            arena_asked: false,
             auto_aim: false,
             show_displays: false,
             particles: Default::default(),
@@ -455,6 +461,8 @@ impl Game {
                 self.world = Some(World::new(info.width as i32, info.height as i32, &info.display_name, info.seed));
                 self.particles.clear();
                 self.arena = None;
+                self.arena_votes = None;
+                self.arena_asked = false;
                 self.show_displays = info.show_displays;
                 self.music = Some(info.music.clone());
                 self.last_level = 0;
@@ -759,7 +767,12 @@ impl Game {
                     life: 2000,
                 });
             }
+            ServerMessage::ArenaVotes(v) => self.arena_votes = Some(v.clone()),
             ServerMessage::ImminentArenaWave(w) => {
+                // the Arena's votes, from now on (an older server counts it as one unknown message)
+                if !std::mem::replace(&mut self.arena_asked, true) {
+                    self.send(bsk_proto::ArenaVote { action: 255 }.into());
+                }
                 // ArenaMenu.onWaveInfo: state 1 starts the clock; otherwise it's set.
                 let running = self.arena.is_some_and(|a| a.3);
                 self.arena = Some(match (w.current_state, self.arena) {
@@ -1143,6 +1156,14 @@ impl Game {
         }
         self.next_teleport = now + TELEPORT_COOLDOWN;
         self.send(Teleport { object_id }.into());
+    }
+
+    /// A vote in the Arena (`ArenaVote`): 0 for the next wave, 1 to 5 to combine that many waves;
+    /// only once the server has sent its votes.
+    pub fn arena_vote(&mut self, action: u8) {
+        if self.arena_votes.as_ref().is_some_and(|v| v.open) {
+            self.send(bsk_proto::ArenaVote { action }.into());
+        }
     }
 
     /// The event our quest arrow follows (`QuestPick`): that one, or back to the nearest (0).

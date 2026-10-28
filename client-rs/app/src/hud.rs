@@ -758,6 +758,9 @@ pub enum Button {
     TradeSlot(usize),
     TradeAccept,
     TradeCancel,
+    /// The Arena's votes: start the next wave; combine this many waves into the next fight.
+    ArenaNext,
+    ArenaPick(u8),
 }
 
 /// `PlayerMenu`'s options.
@@ -801,6 +804,8 @@ pub struct Social<'a> {
     pub history: &'a [crate::game::BossFight],
     /// The character's fame records (`Game::fame_stats`).
     pub fame: &'a HashMap<u8, i32>,
+    /// The Arena's votes, in the Arena (`Game::arena_votes`).
+    pub arena_votes: Option<&'a bsk_proto::ArenaVotes>,
 }
 
 /// A player's account id (`ACCOUNT_ID_STAT`), as the account lists hold it.
@@ -1148,6 +1153,20 @@ impl Panel {
             let hl = history_layout(lay, social.history, state, state.history_y);
             panel.history = hl.areas();
             panel.buttons.extend(hl.buttons);
+        }
+        // The Arena's votes under its wave box, while they're open (the box counts as the HUD's,
+        // as the boss history does, so clicks on it don't shoot).
+        if let Some(v) = social.arena_votes.filter(|v| v.open) {
+            let al = arena_vote_layout(lay, v);
+            panel.history.push(al.frame);
+            if !v.starting {
+                panel.buttons.push((Button::ArenaNext, al.next));
+            }
+            for (k, r) in al.picks {
+                if k <= v.max_combine {
+                    panel.buttons.push((Button::ArenaPick(k), r));
+                }
+            }
         }
         for i in 0..2 {
             panel.buttons.push((Button::CardTab(i), lay.card_tab(i)));
@@ -3751,6 +3770,109 @@ pub fn draw_arena(ui: &mut Ui, lay: &Layout, arena: (i32, i32, i32, bool), now: 
     }
 }
 
+/// The Arena's combine picks: the next fight is worth this many waves.
+pub const ARENA_PICKS: [u8; 3] = [1, 2, 5];
+
+/// At most this many voters are listed in the Arena's vote box.
+const ARENA_VOTERS_SHOWN: usize = 6;
+
+/// Where the Arena's vote box and its buttons go: under the wave box, centred.
+pub struct ArenaVoteLayout {
+    pub frame: [f32; 4],
+    pub next: [f32; 4],
+    pub picks: [(u8, [f32; 4]); 3],
+    /// The summary's top, and the voters' list's.
+    pub summary_y: f32,
+    pub voters_y: f32,
+}
+
+pub fn arena_vote_layout(lay: &Layout, v: &bsk_proto::ArenaVotes) -> ArenaVoteLayout {
+    let s = lay.s;
+    let (w, pad) = (232.0, 8.0);
+    let rows = v.voters.len().min(ARENA_VOTERS_SHOWN) as f32;
+    // the Next button, the combine row, two lines of summary, the voters
+    let h = pad + 30.0 + 8.0 + 26.0 + 6.0 + 30.0 + if rows > 0.0 { 4.0 + rows * 15.0 } else { 0.0 } + pad;
+    let frame = [((lay.w - w * s) / 2.0).round(), (62.0 * s).round(), w * s, h * s];
+    let at = |x: f32, y: f32, bw: f32, bh: f32| within(frame, s, x, y, bw, bh);
+    let next = at(pad, pad, w - 2.0 * pad, 30.0);
+    let pick_y = pad + 38.0;
+    let picks = std::array::from_fn(|i| (ARENA_PICKS[i], at(w - pad - (3 - i) as f32 * 44.0 + 4.0, pick_y, 40.0, 26.0)));
+    ArenaVoteLayout { frame, next, picks, summary_y: frame[1] + (pick_y + 32.0) * s, voters_y: frame[1] + (pick_y + 66.0) * s }
+}
+
+/// The Arena's votes between waves, under its wave box (`ArenaVotes`): Next with its count (the
+/// wave starts once enough want it), the combine picks with ours lit (those above what the next
+/// fight may combine dimmed), what the next fight will be, and who voted what.
+pub fn draw_arena_votes(ui: &mut Ui, lay: &Layout, v: &bsk_proto::ArenaVotes, me: Option<i32>, mouse: (f64, f64)) {
+    if !v.open {
+        return;
+    }
+    let s = lay.s;
+    let al = arena_vote_layout(lay, v);
+    hud_box(ui, al.frame, s);
+    let mine = v.voters.iter().find(|p| Some(p.object_id) == me);
+    let voted = mine.is_some_and(|p| p.next);
+    let count = v.voters.iter().filter(|p| p.next).count();
+    let label = if v.starting { "Starting…".to_owned() } else { format!("Next wave  {count}/{}", v.next_needed) };
+    // ember until we've voted, then quiet (a click takes it back)
+    ui.button(al.next, &label, if voted || v.starting { Kind::Secondary } else { Kind::Primary }, !v.starting && inside(al.next, mouse), s);
+
+    let x0 = al.frame[0] + 10.0 * s;
+    let small = lay.font(11.0);
+    let (_, r0) = al.picks[0];
+    ui.label("Combine", x0, (r0[1] + r0[3] / 2.0 - ui.digit_middle(small, true)).round(), small, true, color::TEXT_DIM);
+    let pick = mine.map_or(0, |p| p.pick);
+    for (k, r) in al.picks {
+        let usable = k <= v.max_combine;
+        ui.button(r, &format!("+{k}"), if pick == k { Kind::Primary } else { Kind::Secondary }, usable && inside(r, mouse), s);
+        if !usable {
+            theme::fill(ui.renderer, r, 6.0 * s, 0x000000, 0.55);
+        }
+    }
+
+    // What the next fight is, and what a combine needs.
+    let w = v.next_wave;
+    let fight = if v.combine > 1 { format!("Next fight: waves {w}–{}", w + v.combine as i32 - 1) } else { format!("Next fight: wave {w}") };
+    let size = lay.font(12.0);
+    let fw = ui.measure(&fight, size, true);
+    let cx = al.frame[0] + al.frame[2] / 2.0;
+    ui.label(&fight, (cx - fw / 2.0).round(), al.summary_y, size, true, if v.combine > 1 { color::ACCENT_HI } else { color::TEXT });
+    let note = if v.max_combine <= 1 {
+        "From wave 30, waves come one at a time".to_owned()
+    } else if v.voters.len() > 1 {
+        format!("A combine needs {} of {} players", v.combine_needed, v.voters.len())
+    } else {
+        String::new()
+    };
+    let tiny = lay.font(10.0);
+    let nw = ui.measure(&note, tiny, false);
+    ui.label(&note, (cx - nw / 2.0).round(), al.summary_y + 16.0 * s, tiny, false, color::TEXT_MUTED);
+
+    // Who voted what: Next in green, the pick in ember.
+    let mut y = al.voters_y;
+    let right = al.frame[0] + al.frame[2] - 10.0 * s;
+    for p in v.voters.iter().take(ARENA_VOTERS_SHOWN) {
+        let name_color = if Some(p.object_id) == me { color::GOLD } else { color::TEXT };
+        ui.label(&p.name, x0, y, small, true, name_color);
+        let mut x = right;
+        if p.pick > 0 {
+            let t = format!("+{}", p.pick);
+            x -= ui.measure(&t, small, true);
+            ui.label(&t, x, y, small, true, color::ACCENT_HI);
+            x -= 8.0 * s;
+        }
+        let (t, c) = if p.next { ("Next", color::GOOD) } else { ("waiting", color::TEXT_MUTED) };
+        x -= ui.measure(t, small, !p.next);
+        ui.label(t, x, y, small, p.next, c);
+        y += 15.0 * s;
+    }
+    if v.voters.len() > ARENA_VOTERS_SHOWN {
+        // the rest only counted, under the box's last row
+        let t = format!("and {} more", v.voters.len() - ARENA_VOTERS_SHOWN);
+        ui.label(&t, x0, y - 15.0 * s + small, tiny, false, color::TEXT_MUTED);
+    }
+}
+
 /// Break coloured pieces into rows no wider than `max_w`, at spaces where possible; the first
 /// row starts `indent` in.
 fn wrap(ui: &mut Ui, pieces: &[(String, u32)], size: f32, max_w: f32, indent: f32) -> Vec<Vec<(String, u32)>> {
@@ -3846,7 +3968,7 @@ mod tests {
     #[test]
     fn portal_button_waits_for_its_panel() {
         let (locked, fame) = (Default::default(), HashMap::new());
-        let social = Social { trade: None, invite: None, locked: &locked, ignored: &locked, now: 0, history: &[], fame: &fame };
+        let social = Social { trade: None, invite: None, locked: &locked, ignored: &locked, now: 0, history: &[], fame: &fame, arena_votes: None };
         let (lay, data, world) = (Layout::new(1920, 1080), GameData::default(), World::new(10, 10, "test", 1));
         let mut state = HudState::default();
         let mut panel = Panel::new(&lay, &world, &data, &state, &social);

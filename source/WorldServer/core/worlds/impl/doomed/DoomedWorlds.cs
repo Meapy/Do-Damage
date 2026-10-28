@@ -7,6 +7,7 @@ using StackExchange.Redis;
 using WorldServer.core.commands.doomed;
 using WorldServer.core.net.datas;
 using WorldServer.core.objects;
+using WorldServer.core.objects.containers;
 using WorldServer.core.objects.vendors;
 using WorldServer.core.structures;
 using WorldServer.core.terrain;
@@ -149,6 +150,9 @@ namespace WorldServer.core.worlds.impl.doomed
 
         protected bool CountingDown => _countdown >= 0;
 
+        // whether this countdown was cut already (CutCountdown works once per countdown)
+        protected bool CountdownCut => _goUsed;
+
         // onSecond(n) runs for n = seconds .. 1, then onDone
         protected void Countdown(int seconds, Action<int> onSecond, Action onDone)
         {
@@ -221,6 +225,20 @@ namespace WorldServer.core.worlds.impl.doomed
 
     // The Arena (Doomed Realms' Battle Arena): waves of gods and a boss until everyone is defeated,
     // fame after every wave; the wave reached goes on the /leaderboard.
+    //
+    // Between waves (and in the minute before the first) the players vote (Vote, the Rust client's
+    // Arena panel): Next starts the wave once at least half of them want it (the countdown is cut to
+    // 3 s, as GO in chat did; GO still counts as a Next vote), and they can combine the next waves
+    // into one fight: each picks +1, +2 or +5 waves, and the fight brings the most waves that more
+    // than half of them picked at least (a pick for +5 also backs +2), so a solo player decides
+    // alone and nobody is dragged into more than most want. A combined fight spawns every one of
+    // its waves' monsters at once and pays each wave's fame and quest progress as it would have
+    // one by one, so combining only saves time. From ArenaPools.CombineBeforeWave (Oryx) on,
+    // waves come one at a time.
+    //
+    // Two Arena Chests stand inside the ring (ArenaChest): anyone in the Arena can leave items in
+    // them for the others, and they don't go the way loot bags do. When the Arena closes (everyone
+    // has left), what's still in them is lost.
     public sealed class DoomedBattleArena : DoomedMinigame
     {
         private bool _started, _counting;
@@ -246,6 +264,16 @@ namespace WorldServer.core.worlds.impl.doomed
         private TickTime _time;
         private readonly Dictionary<int, long> _movedAt = new Dictionary<int, long>();
 
+        // the votes, by player object id: Next for this break, and the combine picks, which stay
+        // from break to break until changed; who gets ARENA_VOTES; the first wave of the fight
+        // running; the last wave whose fame was paid; whether the first wave comes straight away
+        private readonly HashSet<int> _nextVotes = new HashSet<int>();
+        private readonly Dictionary<int, int> _combinePicks = new Dictionary<int, int>();
+        private readonly HashSet<int> _voteSubscribers = new HashSet<int>();
+        private int _fightFrom;
+        private int _paidWave;
+        private bool _skipFirstGap;
+
         public DoomedBattleArena(GameServer gameServer, int id, WorldResource resource, World parent)
             : base(gameServer, id, resource, parent)
         {
@@ -263,15 +291,134 @@ namespace WorldServer.core.worlds.impl.doomed
         {
             base.Init();
             FindGates(); // the doors come off before anyone arrives
+            PlaceChests();
+        }
+
+        // the Arena Chests: on the floor nearest a few tiles south of the middle, two tiles apart
+        private void PlaceChests()
+        {
+            if (!GameServer.Resources.GameData.IdToObjectType.TryGetValue(ArenaChest.ObjectId, out var type))
+                return;
+            var taken = new HashSet<IntPoint>();
+            foreach (var dx in new[] { -1, 1 })
+            {
+                var (tx, ty) = (_middle.X + dx + 0.5f, _middle.Y + ArenaPools.ChestOffset + 0.5f);
+                var spot = _floor.Where(f => !taken.Contains(f))
+                    .OrderBy(f => (f.X + 0.5f - tx) * (f.X + 0.5f - tx) + (f.Y + 0.5f - ty) * (f.Y + 0.5f - ty)).First();
+                taken.Add(spot);
+                var chest = new ArenaChest(GameServer, type);
+                chest.Move(spot.X + 0.5f, spot.Y + 0.5f);
+                EnterWorld(chest);
+            }
         }
 
         public override bool AllowedAccess(Client client) => base.AllowedAccess(client) && (Joinable || client.Account.Admin);
 
+        // GO in chat (the old way, and the only one in older clients): a vote for the next wave
         public override void ChatReceived(Player player, string text)
         {
             base.ChatReceived(player, text);
-            if (text.Trim().Equals("GO", StringComparison.OrdinalIgnoreCase) && CutCountdown(3))
-                NotifyAll(0xffff00ff, player.Name + " said GO!");
+            if (text.Trim().Equals("GO", StringComparison.OrdinalIgnoreCase) && VotingOpen && _nextVotes.Add(player.Id))
+            {
+                CheckNext();
+                SendVotes();
+            }
+        }
+
+        // the votes are open in the countdown before the first wave and between waves
+        private bool VotingOpen => _counting && CountingDown && Players.Count > 0;
+
+        // the wave the next fight starts at
+        private int NextWave => _started ? Wave : 1;
+
+        // the most waves the next fight may combine: up to ArenaPools.MaxCombine, never into the Oryx stage
+        private int MaxCombine => ArenaPools.MaxCombineAt(NextWave);
+
+        private int NextNeeded => ArenaPools.NextVotesNeeded(Players.Count);
+
+        // enough want the next wave: it's on its way (the countdown cut, or under 3 s already)
+        private bool Starting => VotingOpen && (CountdownCut || _nextVotes.Count(Players.ContainsKey) >= NextNeeded);
+
+        private int CombineNeeded => ArenaPools.CombineVotesNeeded(Players.Count);
+
+        // how many waves the next fight combines as the votes stand (ArenaPools.CombineDecided)
+        private int Combine => ArenaPools.CombineDecided(Players.Keys.Select(id => _combinePicks.TryGetValue(id, out var k) ? k : 1), MaxCombine);
+
+        // ARENA_VOTE: 0 Next (again to take it back), 1 to 5 a combine pick (+1 is no combining),
+        // 255 to get ARENA_VOTES from now on
+        public void Vote(Player player, byte action)
+        {
+            if (action == 255)
+            {
+                _voteSubscribers.Add(player.Id);
+                SendVotes(player);
+                return;
+            }
+            if (!VotingOpen || !Players.ContainsKey(player.Id))
+                return;
+            if (action == 0)
+            {
+                if (Starting)
+                    return; // enough voted: it's starting
+                if (!_nextVotes.Add(player.Id))
+                    _nextVotes.Remove(player.Id);
+                CheckNext();
+            }
+            else if (action <= ArenaPools.MaxCombine)
+                _combinePicks[player.Id] = action;
+            else
+                return;
+            SendVotes();
+        }
+
+        // enough Next votes: the countdown goes down to its last 3 s
+        private void CheckNext()
+        {
+            if (!VotingOpen || CountdownCut || _nextVotes.Count(Players.ContainsKey) < NextNeeded)
+                return;
+            if (CutCountdown(3))
+                NotifyAll(0xffff00ff, Players.Count == 1 ? "Next wave!" : "Voted: next wave!");
+        }
+
+        // forgets the votes of players who left (and starts the wave if those left now have enough)
+        private void PruneVotes()
+        {
+            _voteSubscribers.RemoveWhere(id => !Players.ContainsKey(id));
+            var gone = _nextVotes.Where(id => !Players.ContainsKey(id))
+                .Concat(_combinePicks.Keys.Where(id => !Players.ContainsKey(id))).ToList();
+            if (gone.Count == 0)
+                return;
+            foreach (var id in gone)
+            {
+                _nextVotes.Remove(id);
+                _combinePicks.Remove(id);
+            }
+            CheckNext();
+            SendVotes();
+        }
+
+        private ArenaVotes VotesMessage() => new ArenaVotes
+        {
+            Open = VotingOpen,
+            NextWave = NextWave,
+            MaxCombine = (byte)MaxCombine,
+            Combine = (byte)Combine,
+            NextNeeded = (byte)Math.Min(255, NextNeeded),
+            CombineNeeded = (byte)Math.Min(255, CombineNeeded),
+            Starting = Starting,
+            Entries = Players.Values.Take(255).Select(p => (p.Id, p.Name, _nextVotes.Contains(p.Id),
+                (byte)(_combinePicks.TryGetValue(p.Id, out var k) ? k : 0))).ToArray(),
+        };
+
+        // ARENA_VOTES to one subscriber, or to every one
+        private void SendVotes(Player only = null)
+        {
+            var to = only != null ? new[] { only } : Players.Values.Where(p => _voteSubscribers.Contains(p.Id)).ToArray();
+            if (to.Length == 0)
+                return;
+            var message = VotesMessage();
+            foreach (var p in to)
+                p.Client?.SendPacket(message);
         }
 
         // the wave and time box: the clock runs from the end of the countdown
@@ -282,7 +429,10 @@ namespace WorldServer.core.worlds.impl.doomed
         {
             base.AddToWorld(entity);
             if (entity is Player p)
+            {
                 SendWaveInfo(p);
+                SendVotes(); // one more player: more votes needed
+            }
         }
 
         private bool OutOfBounds(float x, float y) => !_inside.Contains(new IntPoint((int)x, (int)y));
@@ -401,18 +551,23 @@ namespace WorldServer.core.worlds.impl.doomed
             return (f.X + 0.5f, f.Y + 0.5f);
         }
 
-        private void SpawnWave()
+        // the fight: `count` waves from Wave on (combined by the votes), all of their monsters at once
+        private void SpawnWave(int count)
         {
             // the stages of ArenaPools
-            var bosses = ArenaPools.Bosses(Wave);
+            _fightFrom = Wave;
+            var waves = Enumerable.Range(Wave, Math.Max(1, count)).ToList();
+            Wave = waves.Last();
+            var bosses = waves.SelectMany(ArenaPools.Bosses).ToArray();
+            var minions = waves.SelectMany(w => ArenaPools.Minions(w, Players.Count)).ToList();
             foreach (var p in Players.Values)
             {
-                p.SendInfo(ArenaPools.WaveMessage(Wave));
+                p.SendInfo(waves.Count == 1 ? ArenaPools.WaveMessage(Wave) : ArenaPools.WavesMessage(_fightFrom, Wave));
                 p.ApplyConditionEffect(ConditionEffectIndex.Invulnerable, ArenaPools.StartInvulnerableMs(bosses));
             }
             foreach (var p in Players.Values)
                 SendWaveInfo(p);
-            foreach (var name in ArenaPools.Minions(Wave, Players.Count).Concat(bosses))
+            foreach (var name in minions.Concat(bosses))
             {
                 // an Oryx fights round where he spawns, so he takes the middle
                 if (ArenaPools.IsOryx(name))
@@ -429,7 +584,9 @@ namespace WorldServer.core.worlds.impl.doomed
         {
             _time = time; // for the teleports at the countdown's end, which base.UpdateLogic runs
             FindGates();
+            var wasOpen = VotingOpen;
             base.UpdateLogic(ref time);
+            PruneVotes();
             if (_closed)
                 foreach (var p in Players.Values)
                     MoveInside(p); // someone let in after the start (admins, /summon) spawns outside
@@ -449,6 +606,8 @@ namespace WorldServer.core.worlds.impl.doomed
                 _counting = true;
                 Countdown(60, s => NotifyAll(0xffff00ff, s + " Second" + (s == 1 ? "" : "s")), () =>
                 {
+                    // a Next vote started the game: the first wave comes without another wait
+                    _skipFirstGap = CountdownCut;
                     _started = true;
                     _counting = false;
                     _firstWave = DateTime.UtcNow;
@@ -456,20 +615,29 @@ namespace WorldServer.core.worlds.impl.doomed
                     foreach (var p in Players.Values)
                         SendWaveInfo(p);
                 });
+                _nextVotes.Clear();
+                SendVotes();
                 return;
             }
+
+            if (wasOpen && !VotingOpen)
+                SendVotes(); // the votes have closed: the panel goes
 
             if (!_started || _counting)
                 return;
 
             if (!Hostiles.Any())
             {
-                // the wave just beaten, for quests and achievements (0: the start, nothing beaten)
+                // the waves just beaten, each for quests and achievements (none at the start)
                 if (Wave > 0)
-                    foreach (var p in Players.Values)
-                        p.Quests?.Event(new Shared.quests.QuestEvent(Shared.quests.QuestEvents.ArenaWave) { Value = Wave });
+                    for (var w = Math.Max(1, _fightFrom); w <= Wave; w++)
+                        foreach (var p in Players.Values)
+                            p.Quests?.Event(new Shared.quests.QuestEvent(Shared.quests.QuestEvents.ArenaWave) { Value = w });
                 Wave++;
-                var pot = FameRates.Fame(Wave * 10 / (Players.Count == 1 ? 1 : 2), FameRate);
+                // each wave's fame pot, as one by one: after a combined fight, the waves it took in too
+                var pot = 0;
+                for (; _paidWave < Wave; _paidWave++)
+                    pot += ArenaPools.WavePot(_paidWave + 1, Players.Count, FameRate);
                 foreach (var p in Players.Values)
                 {
                     DoomedWorlds.GiveFame(p, pot);
@@ -484,12 +652,16 @@ namespace WorldServer.core.worlds.impl.doomed
                         _participants.Add(p.Name);
                 }
                 _counting = true;
-                var gap = ArenaPools.WaveGapSeconds(Wave);
+                _nextVotes.Clear();
+                var gap = _skipFirstGap ? 3 : ArenaPools.WaveGapSeconds(Wave);
+                _skipFirstGap = false;
                 Countdown(gap, s => NotifyAll(0xffff00ff, (s == gap ? "Wave " + Wave + " - " : "") + s + " Second" + (s == 1 ? "" : "s")), () =>
                 {
+                    var count = Combine;
                     _counting = false;
-                    SpawnWave();
+                    SpawnWave(count);
                 });
+                SendVotes();
             }
             else
                 foreach (var e in Hostiles.Where(e => OutOfBounds(e.X, e.Y)).ToList())

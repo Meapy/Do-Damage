@@ -121,6 +121,17 @@ namespace WorldServer.core.net.handlers
                 return;
             }
 
+            // the Arena Chest: no soulbound items (ValidateItemSwap refuses them too; this says why)
+            if (to is ArenaChest && !ArenaChest.CanHold(conFrom.Inventory[slotFrom], conFrom.Inventory.Data[slotFrom]) ||
+                from is ArenaChest && !ArenaChest.CanHold(conTo.Inventory[slotTo], conTo.Inventory.Data[slotTo]))
+            {
+                player.SendError(ArenaChest.Refusal);
+                from.ForceUpdate(slotFrom);
+                to.ForceUpdate(slotTo);
+                player.Client.SendPacket(new InvResult() { Result = 1 });
+                return;
+            }
+
             // setup swap
             var queue = new Queue<Action>();
             var conFromTrans = conFrom.Inventory.CreateTransaction();

@@ -24,6 +24,10 @@
 //! `--enter <portals>` takes portals by object id (split by `;;`, the first that matches in each
 //! world, each once): `"Wine Cellar Portal;;Oryx's Sanctuary Portal"` follows Oryx 1 and 2 down
 //! the chain as their portals appear. It reads the game's XML as `--fight` does.
+//!
+//! `--arena-vote <actions>` votes in the Arena (split by `;`): at each break, the actions in
+//! turn as `ArenaVote`s (0 for the next wave, 1 to 5 to combine that many waves), and it logs
+//! every `ArenaVotes` (`"5;0"`: pick +5, then vote Next).
 
 mod fight;
 
@@ -46,6 +50,7 @@ struct Args {
     class: u16,
     view: i32,
     enter: Vec<String>,
+    arena_vote: Vec<u8>,
 }
 
 /// The classes' object types, for `--class`.
@@ -64,7 +69,7 @@ fn parse_class(v: &str) -> Result<u16, String> {
 
 fn parse_args() -> Result<Args, String> {
     let mut args =
-        Args { account: String::new(), credentials: String::new(), seconds: 60, char_id: None, gateway: None, say: Vec::new(), wander: 0.0, fight: false, class: 0x030e, view: 15, enter: Vec::new() };
+        Args { account: String::new(), credentials: String::new(), seconds: 60, char_id: None, gateway: None, say: Vec::new(), wander: 0.0, fight: false, class: 0x030e, view: 15, enter: Vec::new(), arena_vote: Vec::new() };
     let mut it = std::env::args().skip(1);
     while let Some(a) = it.next() {
         let mut value = || it.next().ok_or(format!("{a} needs a value"));
@@ -79,6 +84,9 @@ fn parse_args() -> Result<Args, String> {
             "--fight" => args.fight = true,
             "--class" => args.class = parse_class(&value()?)?,
             "--view" => args.view = value()?.parse().map_err(|e| format!("--view: {e}"))?,
+            "--arena-vote" => {
+                args.arena_vote = value()?.split(';').filter(|v| !v.trim().is_empty()).map(|v| v.trim().parse().map_err(|e| format!("--arena-vote: {e}"))).collect::<Result<_, _>>()?
+            }
             "--enter" => args.enter = value()?.split(";;").map(|l| l.trim().to_owned()).filter(|l| !l.is_empty()).collect(),
             _ => return Err(format!("unknown argument {a}")),
         }
@@ -173,6 +181,9 @@ fn run(args: Args) -> Result<(), String> {
     let mut enter = args.enter.clone();
     let mut fighter = fight::Fighter::new();
     let mut last_frame = Instant::now();
+    // --arena-vote: asked for the Arena's votes in this world; voting was open at the last ArenaVotes
+    let mut arena_asked = false;
+    let mut arena_open = false;
 
     let result = loop {
         if Instant::now() >= deadline {
@@ -283,6 +294,26 @@ fn run(args: Args) -> Result<(), String> {
                     ServerMessage::Text(t) if !t.text.is_empty() => {
                         log::info!("chat <{}> {}", t.name, t.text)
                     }
+                    ServerMessage::ImminentArenaWave(w) => {
+                        log::info!("arena wave {} state {}", w.wave, w.current_state);
+                        if !args.arena_vote.is_empty() && !std::mem::replace(&mut arena_asked, true) {
+                            socket.send(&bsk_proto::ArenaVote { action: 255 }.into());
+                        }
+                    }
+                    ServerMessage::ArenaVotes(v) => {
+                        let voters: Vec<String> = v.voters.iter().map(|p| format!("{}{}{}", p.name, if p.next { " next" } else { "" }, if p.pick > 0 { format!(" +{}", p.pick) } else { String::new() })).collect();
+                        log::info!(
+                            "arena votes: open {} wave {} next {}/{} combine {} (max {}, needs {}) starting {} [{}]",
+                            v.open, v.next_wave, v.voters.iter().filter(|p| p.next).count(), v.next_needed, v.combine, v.max_combine, v.combine_needed, v.starting, voters.join(", ")
+                        );
+                        if v.open && !arena_open {
+                            for &action in &args.arena_vote {
+                                log::info!("arena vote {action}");
+                                socket.send(&bsk_proto::ArenaVote { action }.into());
+                            }
+                        }
+                        arena_open = v.open;
+                    }
                     _ => {}
                 }
                 match session.handle(&msg, now(), &mut out) {
@@ -323,6 +354,8 @@ fn run(args: Args) -> Result<(), String> {
                         }
                         socket = GameSocket::connect(&target);
                         last_tick = None;
+                        arena_asked = false;
+                        arena_open = false;
                         let (s, first) = Session::start(hello(r.game_id, r.key_time, r.key.0.clone()), join(char_id));
                         session = s;
                         out.clear();

@@ -153,6 +153,12 @@ public enum MessageId : byte
     REALM_EVENTS_SUBSCRIBE = 116,
     REALM_EVENTS = 117,
     QUEST_PICK = 118,
+    // The Arena's votes between waves (Rust client, DoomedBattleArena): the client votes to start
+    // the next wave or to combine waves (ARENA_VOTE, 255 to subscribe), and gets everyone's votes
+    // (ARENA_VOTES) whenever they change. The AIR client and older Rust clients never subscribe;
+    // typing GO in chat still counts as a vote to start.
+    ARENA_VOTE = 119,
+    ARENA_VOTES = 120,
     // From the world proxy (tools/world_proxy.py), before the client's first message: the
     // client's address. Only taken on a connection from this PC; clients never send it.
     PROXY_INFO = 250

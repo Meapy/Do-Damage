@@ -97,6 +97,17 @@ wire_struct! {
 }
 
 wire_struct! {
+    /// A player's votes in the Arena between waves (`ArenaVotes`): whether they want the next
+    /// wave now, and how many waves they want the next fight to combine (0 for no pick).
+    pub struct ArenaVoter {
+        pub object_id: i32,
+        pub name: String,
+        pub next: bool,
+        pub pick: u8,
+    }
+}
+
+wire_struct! {
     /// An item in the account's vault (`ImprintVault`, the Enthroned ones; `VaultContents`, all):
     /// its chest and slot, its type and its imprints (Offensive, Defensive, Misc; 0 for none).
     pub struct VaultGear {
