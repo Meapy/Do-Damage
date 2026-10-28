@@ -96,7 +96,7 @@ namespace WorldServer.logic
             )
             // the torn place where the Colossus fell: a Vial of Pure Darkness used within 25
             // tiles turns it into the Void's portal (the vial's ChangeObject); it closes after 5
-            // minutes
+            // minutes of its timers (static objects tick twice while players are near, so about 3)
             .Init("LH Vial Effect",
                 new State(
                     new State("Open",
@@ -452,42 +452,6 @@ namespace WorldServer.logic
                         new ItemLoot("Potion of Mana", 0.1)
                     )
                 )
-            )
-
-            // --- the Void rifts --------------------------------------------------------------
-            .Init("LH Void Fragment",
-                new State(
-                    new Prioritize(
-                        new Follow(0.8, 9, 1),
-                        new Wander(0.5)
-                    ),
-                    new Shoot(5, 4, 90, 0, rotateAngle: 20, coolDown: 900)
-                ),
-                HallsMinion()
-            )
-            .Init("LH Void Shade",
-                new State(
-                    new Prioritize(
-                        new Orbit(0.6, 4, 10, "LH Greater Void Shade"),
-                        new Follow(0.6, 9, 3),
-                        new Wander(0.4)
-                    ),
-                    new Shoot(8, 3, 15, 0, predictive: 0.3, coolDown: 1000)
-                ),
-                HallsMinion()
-            )
-            .Init("LH Greater Void Shade",
-                new State(
-                    new ScaleHP2(15),
-                    new Prioritize(
-                        new StayCloseToSpawn(0.5, 5),
-                        new Follow(0.5, 10, 3)
-                    ),
-                    new Shoot(10, 8, 45, 0, rotateAngle: 11, coolDown: 1600),
-                    new Shoot(10, 2, 10, 0, predictive: 0.5, coolDown: 900, coolDownOffset: 450),
-                    new Spawn("LH Void Fragment", 3, 0, 8000)
-                ),
-                HallsLeader()
             )
 
             // --- the trap halls --------------------------------------------------------------

@@ -282,7 +282,7 @@ HIDDEN_MONSTER = re.compile(r"Admin|Test(?!Chicken)|XP\b|Spawner|spawner|Control
 BOSS_OVERRIDE = {"Tomb of the Ancients": "Tomb Defender", "Elder Tomb of the Ancients": "Elder Tomb Defender",
                  "Ice Cave": "ic Esben the Unwilling", "The Shatters": "shtrs The Forgotten King",
                  "Haunted Cemetery": "Ghost of Skuld", "Cultist Hideout": "LH Malus 2",
-                 "The Void": "LH Void Entity",
+                 "Lost Halls": "LH Marble Colossus", "The Void": "LH Void Entity",
                  "The Ivory Wyvern": "LOD Ivory Wyvern", "Lair of Shaitan": "md1 Head of Shaitan",
                  "Woodland Labyrinth": "Murderous Megamoth", "Magic Woods": "MW Fountain Spirit",
                  "Cave of A Thousand Treasures": "Golden Oryx Effigy"}

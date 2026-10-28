@@ -41,6 +41,29 @@ Key at the Divine Forge. The **Elder Lair** is the same lair with Elder dragons:
 health, harder hits and faster attacks, and better loot, including a potion that maxes the
 dragon's stat and its Elder armour or bow.
 
+## The Lost Halls
+
+The Lost Sentry in Realm 2's Lost Lands opens the Lost Halls when it dies, Oryx 2 now and then
+leaves a portal too, and a Lost Halls Key opens one anywhere. The halls are a maze of marble
+rooms, laid out anew for every run. Each room has its own guards: the Crusade round its
+Commander, Oryx's army round the Champion of Oryx, the Grotto's bats, rats and slimes round the
+Grotto Blob, three golems round the Tormented Golem (who can't be hurt until they fall), ghostly
+sentries floating over a bridge across a pit (they can't be hurt: run past), the Agonized Titan
+and halls of traps: pressure plates that burst a moment after you step
+by and arrow slits along the walls. The pot room holds seven treasure pots full of potions, but
+one in three hides an Evil Spirit.
+
+At the end of the maze is the Colossus room. Four Marble Defenders rise when you come in; once
+they fall, the **Marble Colossus** wakes. He fights in many phases: rocks and pillars that circle
+him, lasers, marble cores you must break before he can be hurt again, and a last stand where he
+draws back part of his strength. One run in four the Colossus doesn't stir and a hidden passage
+to the **Cultist Hideout** opens instead. Where the Colossus falls, a tear into the Void stays
+open for a few minutes: that's where a Vial of Pure Darkness opens the Void.
+
+The Colossus drops like Oryx 3: stat potions, tier 13 to 15 gear, and his own Sword of the
+Colossus, Breastplate of New Life, Marble Seal and Magical Lodestone. The rooms' leaders drop gear
+too, and the Tormented Golem now and then a piece of the Lost Golem set.
+
 ## The Cultist Hideout and the Void
 
 A portal in the Lost Halls sometimes leads to the **Cultist Hideout**, and a Cult Key opens it

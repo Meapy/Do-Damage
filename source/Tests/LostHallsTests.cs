@@ -14,6 +14,7 @@ namespace Tests
 {
     // The Lost Halls (tools/build_lost_halls.py, BehaviorDb.LostHallsRooms.cs): the random layouts
     // its rooms make, and the monsters its map places.
+    [Collection("BehaviorDb")]
     public class LostHallsTests
     {
         private static readonly Lazy<(Resources Res, BehaviorDb Db)> Data = new Lazy<(Resources, BehaviorDb)>(() =>
@@ -41,7 +42,7 @@ namespace Tests
             var map = world.MapJM[0];
             var source = data.GetWorldData(map);
             var leaders = new[] { "LH Commander of the Crusade", "LH Champion of Oryx", "LH Grotto Blob", "LH Tormented Golem",
-                "LH Spectral Sentry S", "LH Agonized Titan", "LH Greater Void Shade", "LH Grenade Trap", "LH Pot 1" };
+                "LH Spectral Sentry S", "LH Agonized Titan", "LH Grenade Trap", "LH Pot 1" };
             for (var seed = 0; seed < 40; seed++)
             {
                 var layout = DungeonGenerator.Generate(data, map, source, world.RandomLayout, new Random(seed));

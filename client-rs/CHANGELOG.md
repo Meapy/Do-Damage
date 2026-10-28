@@ -14,6 +14,17 @@ details). Add to a group's line when a change adds to it, rather than adding ano
 
 ## Unreleased
 
+### Lost Halls
+- The Lost Halls are finished, close to the original: a maze of marble rooms laid out anew every
+  run, held by the Crusade, Oryx's army, the Grotto's bats, rats and slimes, the golems, the ghosts
+  over the bridges, the Agonized Titan and the trap halls, with a room of treasure
+  pots (some hold an evil spirit). At the end four Marble Defenders guard the Marble Colossus, which
+  now fights to its death instead of getting stuck invulnerable; one run in four the way to the
+  Cultist Hideout opens there instead.
+- The Marble Colossus drops like Oryx 3: sure stat potions, tier 13-15 gear, and its sword,
+  breastplate, seal and lodestone more often. The rooms' leaders drop gear too, and the Tormented
+  Golem now and then a piece of the Lost Golem set.
+
 ### Cultist Hideout and the Void
 - The Cultist Hideout is finished: Malus' followers and demons hold its halls, and in his ritual
   hall Malus wakes his four cultists one at a time, summons Molek and three-headed Balaam, then

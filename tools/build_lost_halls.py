@@ -13,7 +13,6 @@ original game:
 - the Golems (Anger, Fear and Sorrow round the Tormented Golem);
 - the Ghost Bridges (a cross of floor over a pit, the Spectral Sentries floating over it);
 - the Agonized Titan's hall;
-- the Void rifts (Void Fragments and Shades round a Greater Void Shade);
 - the trap halls (grenade traps in the floor, arrow traps along the walls);
 - the pot room, the treasure room of seven pots (some hold an Evil Spirit).
 
@@ -187,15 +186,6 @@ def fill_titan(g, room):
         put(g, room, dx, dy, "LH Halls Pillar")
 
 
-def fill_void(g, room):
-    rnd = random.Random(room.x0 * 17 + room.y0)
-    for x, y in room.cells():
-        if rnd.random() < 0.18:
-            g.floor(room.x0 + x, room.y0 + y, BLOODY)
-    put(g, room, 0, 0, "LH Greater Void Shade")
-    ring(g, room, 4, ["LH Void Fragment", "LH Void Shade", "LH Void Fragment", "LH Void Shade", "LH Void Fragment"], 30)
-
-
 def fill_traps(g, room):
     for dx, dy in ((-4, -4), (0, -5), (4, -3), (-5, 1), (0, 0), (5, 2), (-3, 5), (3, 5)):
         put(g, room, dx, dy, "LH Grenade Trap")
@@ -234,13 +224,13 @@ def lost_halls_rooms():
         (1, 0): R("boss", 31, 31, fill_boss, round_=True),
         (0, 1): R("crusade", 17, 17, fill_crusade), (1, 1): R("oryx", 17, 17, fill_oryx),
         (2, 1): R("golem", 17, 17, fill_golem),
-        (0, 2): R("ghost", 25, 25, fill_ghost), (1, 2): R("void", 17, 17, fill_void),
+        (0, 2): R("ghost", 25, 25, fill_ghost), (1, 2): R("titan", 21, 21, fill_titan),
         (2, 2): R("grotto", 19, 19, fill_grotto),
         (0, 3): R("titan", 21, 21, fill_titan), (1, 3): R("traps", 17, 17, fill_traps),
         (2, 3): R("crusade", 17, 17, fill_crusade),
         (0, 4): R("grotto", 19, 19, fill_grotto), (1, 4): R("pots", 13, 13, fill_pots),
         (2, 4): R("oryx", 17, 17, fill_oryx),
-        (0, 5): R("void", 17, 17, fill_void), (1, 5): R("golem", 17, 17, fill_golem),
+        (0, 5): R("ghost", 25, 25, fill_ghost), (1, 5): R("golem", 17, 17, fill_golem),
         (2, 5): R("traps", 17, 17, fill_traps),
         (1, 6): R("spawn", 13, 13, fill_spawn),
     }
