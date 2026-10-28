@@ -57,7 +57,14 @@ namespace Shared.terrain
                     var tiles = new Builder(source, desc, rand, rooms, maxGap).Build();
                     if (tiles != null)
                     {
-                        Log.Info("Random layout for '{0}': {1}, {2} of {3} rooms.", mapName, size.ToString().ToLowerInvariant(), rooms, source.Fillers.Count);
+                        // where the goals ended up, for finding the boss on a test stack (/tppos)
+                        var goals = new List<string>();
+                        for (var x = 0; x < tiles.GetLength(0); x++)
+                            for (var y = 0; y < tiles.GetLength(1); y++)
+                                if (desc.Goals.Contains(tiles[x, y].TileObj ?? "", StringComparer.OrdinalIgnoreCase))
+                                    goals.Add($"{tiles[x, y].TileObj} ({x}, {y})");
+                        Log.Info("Random layout for '{0}': {1}, {2} of {3} rooms{4}.", mapName, size.ToString().ToLowerInvariant(), rooms, source.Fillers.Count,
+                            goals.Count > 0 ? "; " + string.Join(", ", goals) : "");
                         return WorldMapExporter.Export(tiles);
                     }
                 }
