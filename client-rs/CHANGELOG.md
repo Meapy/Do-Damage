@@ -12,13 +12,13 @@ Keep each version short: changes go under `### ` group headings (Oryx 5, Arena, 
 on), one line per change players notice, summed up rather than item by item (the wiki has the
 details). Add to a group's line when a change adds to it, rather than adding another line.
 
-## Unreleased
+## 2.2.4 (2026-10-28)
 
 ### Items
 - Every Oryx has a Lil' Oryx of his own: each drops his generator in a white bag (1%), and his
-  Lil' Oryx (and its generator's icon) looks like him and shoots his shots. They grow stronger along the chain, from Lil' Oryx
-  (Oryx in his Chamber, about 1,000 damage a second) through the Wine Cellar, Celestial and
-  Infernal ones to Lil' Ascended Oryx (about 3,000). All heal 60 HP and MP every 1.5 seconds. Lil'
+  Lil' Oryx (and its generator's icon) looks like him and shoots his shots. They grow stronger
+  along the chain, from Lil' Oryx (Oryx in his Chamber, about 1,000 damage a second) through the
+  Wine Cellar, Celestial and Infernal ones to Lil' Ascended Oryx (about 3,000). All heal 60 HP and MP every 1.5 seconds. Lil'
   Oryx is no longer sold and can be traded. A generator is used up when used, and using one whose
   Lil' Oryx is already your pet does nothing and keeps it.
 
