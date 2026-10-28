@@ -39,6 +39,8 @@ pub enum Bind {
     Options,
     /// The quest log: quests, daily rewards and achievements.
     Quests,
+    /// The vault window: every vault chest's items at once.
+    VaultView,
     /// `switchTabs`: the inventory or the backpack.
     SwitchTabs,
     /// `toggleCentering`: the player in the middle of the view, or a little below.
@@ -54,7 +56,7 @@ pub enum Bind {
 }
 
 /// Every binding: what, its label, its name in the file, its default key.
-pub const BINDS: [(Bind, &str, &str, Option<KeyCode>); 40] = [
+pub const BINDS: [(Bind, &str, &str, Option<KeyCode>); 41] = [
     (Bind::MoveUp, "Move up", "moveUp", Some(KeyCode::KeyW)),
     (Bind::MoveLeft, "Move left", "moveLeft", Some(KeyCode::KeyA)),
     (Bind::MoveDown, "Move down", "moveDown", Some(KeyCode::KeyS)),
@@ -87,6 +89,7 @@ pub const BINDS: [(Bind, &str, &str, Option<KeyCode>); 40] = [
     (Bind::ZoomOut, "Minimap zoom out", "miniMapZoomOut", Some(KeyCode::Minus)),
     (Bind::Options, "Options", "options", Some(KeyCode::KeyO)),
     (Bind::Quests, "Quest log", "questLog", Some(KeyCode::KeyJ)),
+    (Bind::VaultView, "Vault contents", "vaultView", Some(KeyCode::KeyK)),
     (Bind::SwitchTabs, "Inventory / backpack", "switchTabs", Some(KeyCode::KeyB)),
     (Bind::Center, "Center on player", "toggleCentering", Some(KeyCode::KeyX)),
     (Bind::Stats, "Show frame rate", "togglePerformanceStats", Some(KeyCode::KeyL)),

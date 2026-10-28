@@ -71,6 +71,13 @@ Nexus spawn. In it:
   tells you (and only you) your damage and damage a second, your pet's included. It never dies and
   gives no experience. [Gear statistics](gear-statistics.html) has every class's numbers on it.
 
+**Seeing everything at once:** the chest button beside Quests in the side bar, or K (it can be
+rebound in Options), opens the **vault window** from anywhere: every vault chest's items, chest by
+chest and numbered as they stand from the spawn outwards, with the usual tooltips. Type to search
+by name: chests with no match are hidden and the window says which chests hold it. It only shows
+what's there; to move items, go to your vault. In your vault, clicking an item marks its chest
+with a gold ring and its number until you reach it.
+
 The Nexus also has four **shared vault chests** in its south yard. Anyone can use them, so treat
 them as a place to hand things to friends, not to store them.
 

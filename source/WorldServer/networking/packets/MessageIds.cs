@@ -140,6 +140,11 @@ public enum MessageId : byte
     // the client imprinting one of them by chest and slot.
     IMPRINT_VAULT = 112,
     IMPRINT_VAULT_APPLY = 113,
+    // The vault window (Rust client, VaultContentsHandler.cs): every item in the account's vault
+    // chests, by chest and slot, and where the chests stand when the player is in their vault.
+    // Read-only. The AIR client and older Rust clients never ask.
+    VAULT_CONTENTS_REQUEST = 114,
+    VAULT_CONTENTS = 115,
     // From the world proxy (tools/world_proxy.py), before the client's first message: the
     // client's address. Only taken on a connection from this PC; clients never send it.
     PROXY_INFO = 250

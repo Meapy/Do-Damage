@@ -50,6 +50,16 @@ namespace WorldServer.core.commands.doomed
             if (acc.VaultCount <= 0 || player.GameServer.WorldManager.GetWorlds()
                     .Any(w => w is VaultWorld v && v.AccountId == player.AccountId && v.Players.Count > 0))
                 return null;
+            return Load(player);
+        }
+
+        // The vault as Redis holds it, to look at only (the vault window): the vault world saves a
+        // chest on every change, so this is current even with its owner inside. Null with no chests.
+        public static ForgeVault Peek(Player player) => player.Client.Account.VaultCount > 0 ? Load(player) : null;
+
+        private static ForgeVault Load(Player player)
+        {
+            var acc = player.Client.Account;
             var vault = new ForgeVault(player);
             var all = acc.Database.HashGetAll(vault._key).ToDictionary(e => (string)e.Name, e => e.Value);
             for (var i = 0; i < acc.VaultCount; i++)
@@ -70,6 +80,8 @@ namespace WorldServer.core.commands.doomed
             }
             return vault;
         }
+
+        public int ChestCount => _chests.Count;
 
         private ItemData Data(Chest c, int slot) => c.Datas != null && slot < c.Datas.Length ? c.Datas[slot] : null;
 

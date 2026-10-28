@@ -200,6 +200,9 @@ messages! {
         // The Enthroned gear in the account's vault (after ImprintRequest and each vault imprint;
         // empty while we're in the vault).
         112 => ImprintVault { items: List16<VaultGear> },
+        // Everything in the account's vault chests (after VaultContentsRequest): where each chest
+        // stands (-1, -1 unless we're in our vault), then each item by chest and slot.
+        115 => VaultContents { chests: List16<WorldPos>, items: List16<VaultGear> },
     }
 }
 
@@ -283,5 +286,7 @@ messages! {
         110 => Imprint { slot: u8, imprint: u8 },
         // Imprint an Enthroned item in the vault, by chest and slot.
         113 => ImprintVaultApply { chest: u16, slot: u8, imprint: u8 },
+        // The vault window: ask for VaultContents (an older server doesn't know it).
+        114 => VaultContentsRequest {},
     }
 }

@@ -30,6 +30,7 @@ mod textedit;
 mod theme;
 #[cfg(not(target_arch = "wasm32"))]
 mod update;
+mod vault;
 mod version;
 mod view;
 #[cfg(target_arch = "wasm32")]
@@ -204,6 +205,8 @@ struct App {
     /// The Divine Forge's window, and what it asked of the server on opening.
     forge: forge::Forge,
     forge_acts: Vec<forge::Act>,
+    /// The vault window: every vault chest's items at once.
+    vault: vault::Vault,
     /// The quest log (quests, daily rewards, achievements) and its popups, and what it asked of
     /// the server on opening.
     quests: quests::Quests,
@@ -453,7 +456,7 @@ fn apply_action(game: &mut Game, panel: &hud::Panel, action: hud::Action, now: i
         Action::Button(Button::TradeAccept) => game.trade_accept(now),
         Action::Button(Button::TradeCancel) => game.trade_cancel(),
         Action::Button(Button::Member(_)) => {}
-        Action::Button(Button::Page(_) | Button::Npc(_) | Button::Quests | Button::Zoom(_) | Button::CardTab(_) | Button::History | Button::HistoryBoss(_)) => {}
+        Action::Button(Button::Page(_) | Button::Npc(_) | Button::Quests | Button::Vault | Button::Zoom(_) | Button::CardTab(_) | Button::History | Button::HistoryBoss(_)) => {}
     }
     None
 }
@@ -1168,6 +1171,7 @@ impl App {
         self.game_menu = false;
         self.npcs.close();
         self.quests.reset();
+        self.vault.reset();
         self.npc_request = None;
         self.keys.clear();
     }
@@ -1185,6 +1189,7 @@ impl App {
         self.game_menu = false;
         self.npcs.close();
         self.quests.reset();
+        self.vault.reset();
         self.npc_request = None;
         self.mouse_down = false;
         self.front.message = why.map(|w| (w, true));
@@ -1822,6 +1827,12 @@ impl App {
                         self.quest_acts.extend(self.quests.show(Some(tab)));
                         self.keys.clear();
                     }
+                    Some(Bind::VaultView) => {
+                        if let Some(act) = self.vault.show(now) {
+                            game.vault(act);
+                        }
+                        self.keys.clear();
+                    }
                     // Equip or use what's in that inventory slot (MapUserInput.useItem).
                     Some(Bind::Slot(n)) => {
                         if let Some(p) = &built {
@@ -1836,6 +1847,12 @@ impl App {
                 }
             }
             if game.world.as_ref().is_some_and(|w| w.player().is_some()) {
+                if self.npc_test.as_deref() == Some("Vault") {
+                    self.npc_test = None;
+                    if let Some(act) = self.vault.show(now) {
+                        game.vault(act);
+                    }
+                }
                 if let Some(kind) = self.npc_test.take().and_then(|c| npc::NpcKind::of_class(&c)) {
                     to_chars |= npc_open(kind, game, &mut self.npcs, &mut self.market, &mut self.forge, &mut self.forge_acts, (&mut self.quests, &mut self.quest_acts), self.front.list.as_ref(), data);
                 }
@@ -1889,6 +1906,27 @@ impl App {
             }
             for act in forge_acts {
                 game.forge(act);
+            }
+            // The vault window: the same.
+            self.vault.tick(now, game.map_name());
+            if self.vault.open {
+                for (down, pos) in std::mem::take(&mut self.clicks) {
+                    if down {
+                        if let Some(act) = self.vault.click(pos) {
+                            game.vault(act);
+                        }
+                    }
+                }
+                self.mouse_down = false;
+            }
+            if let Some(v) = game.vault_contents.take() {
+                self.vault.contents(v, data);
+            }
+            // --type: into the vault's search once it came.
+            if self.vault.open && self.vault.loaded() {
+                if let Some(t) = self.type_text.take() {
+                    self.vault.key(KeyCode::KeyA, Some(&t), data);
+                }
             }
             // The quest log: a click on a popup opens it; while open it takes the mouse.
             if !self.quests.open && !self.options_ui.open && !self.game_menu {
@@ -2019,6 +2057,12 @@ impl App {
                     if let hud::Action::Button(hud::Button::Quests) = action {
                         let tab = self.quests.best_tab();
                         self.quest_acts.extend(self.quests.show(Some(tab)));
+                        continue;
+                    }
+                    if let hud::Action::Button(hud::Button::Vault) = action {
+                        if let Some(act) = self.vault.show(now) {
+                            game.vault(act);
+                        }
                         continue;
                     }
                     if let hud::Action::Button(hud::Button::Npc(kind)) = action {
@@ -2159,6 +2203,7 @@ impl App {
                         renderer.world_done(filter);
                         let mut ui = hud::Ui { renderer: &mut *renderer, sprites, data, redrawer: &mut *redrawer, fonts, text: &mut *text };
                         self.signs.draw(&mut ui, world, &camera);
+                        self.vault.draw_marker(&mut ui, world, &camera, (lay.view_w(), lay.h));
                         hud::draw_quest(&mut ui, &lay, world, &camera, game.quest, &game.keys, &game.dealt, game.quest_damage.as_ref(), &game.boss_history, &self.hud, mouse);
                         prof::mark("quest");
                     }
@@ -2236,6 +2281,7 @@ impl App {
                 self.npcs.draw(&mut ui, &lay, world.player(), mouse, now);
                 self.market.draw(&mut ui, &lay, world.player(), mouse, now);
                 self.forge.draw(&mut ui, &lay, world.player(), mouse, now);
+                self.vault.draw(&mut ui, &lay, world.player(), mouse, now);
                 self.quests.draw(&mut ui, &lay, world.player(), mouse, now);
                 self.quests.draw_toasts(&mut ui, &lay, now);
                 prof::mark("chat..windows");
@@ -2253,6 +2299,7 @@ impl App {
             && !self.changelog.open
             && !self.market.open
             && !self.forge.open
+            && !self.vault.open
             && !self.quests.open
             && !self.quests.on_toast(mouse)
             && self.npcs.window.is_none()
@@ -2593,6 +2640,15 @@ impl ApplicationHandler<UserEvent> for App {
                     self.keys.remove(&code);
                     return;
                 }
+                if self.vault.open && matches!(self.phase, Phase::Playing(_)) {
+                    if pressed {
+                        if let Some(l) = &self.loaded {
+                            self.vault.key(code, event.text.as_deref(), &l.data);
+                        }
+                    }
+                    self.keys.remove(&code);
+                    return;
+                }
                 if self.quests.open && matches!(self.phase, Phase::Playing(_)) {
                     if pressed {
                         if Some(code) == self.settings.key(options::Bind::Quests) {
@@ -2706,6 +2762,17 @@ impl ApplicationHandler<UserEvent> for App {
                 let notches = self.wheel.trunc();
                 self.wheel -= notches;
                 self.quests.scroll(-notches as i32);
+            }
+            WindowEvent::MouseWheel { delta, .. } if self.vault.open && matches!(self.phase, Phase::Playing(_)) => {
+                // The vault's chests scroll a row a notch.
+                let lines = match delta {
+                    winit::event::MouseScrollDelta::LineDelta(_, y) => y,
+                    winit::event::MouseScrollDelta::PixelDelta(p) => (p.y / 40.0) as f32,
+                };
+                self.wheel += lines;
+                let notches = self.wheel.trunc();
+                self.wheel -= notches;
+                self.vault.scroll(-notches as i32);
             }
             WindowEvent::MouseWheel { delta, .. } if self.forge.open && matches!(self.phase, Phase::Playing(_)) => {
                 // The forge's recipes scroll a row a notch.
@@ -2852,6 +2919,7 @@ fn main() {
         quests: Default::default(),
         quest_acts: Vec::new(),
         forge_acts: Vec::new(),
+        vault: Default::default(),
         type_text: text_arg("--type"),
         npc_test: text_arg("--npc"),
         quests_test: text_arg("--quests"),
