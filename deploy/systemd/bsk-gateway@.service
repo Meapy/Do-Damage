@@ -5,6 +5,8 @@
 # SIGUSR1: it hands over, keeping its players' connections until they close (each world change
 # opens a new one) or for 3 hours at most, then exits by itself. Caddy follows /healthz, so
 # nothing reloads. Stopping or restarting a slot (SIGTERM) disconnects its players.
+# --world-state: players go straight to the world server their Hello belongs to (the world proxy's
+# state in /opt/bsk/build/live), not through world_proxy.py.
 [Unit]
 Description=betterSkillys gateway (browser play), slot %i
 After=network.target bsk-account.service
@@ -14,7 +16,7 @@ User=bsk
 Group=bsk
 EnvironmentFile=/opt/bsk/bsk.env
 EnvironmentFile=/opt/bsk/gateway/%i/slot.env
-ExecStart=/opt/bsk/gateway/%i/bsk-gateway --web /opt/bsk/gateway/%i/web --account http://127.0.0.1:${BSK_ACCOUNT_PORT} --allow ${BSK_PUBLIC_ADDRESS}:${BSK_WORLD_PORT}=127.0.0.1:${BSK_WORLD_PORT} --allow 127.0.0.1:${BSK_WORLD_PORT} --bind 127.0.0.1:${BSK_GATEWAY_SLOT_PORT} --drain-limit 10800 $BSK_GATEWAY_FLAGS
+ExecStart=/opt/bsk/gateway/%i/bsk-gateway --web /opt/bsk/gateway/%i/web --account http://127.0.0.1:${BSK_ACCOUNT_PORT} --allow ${BSK_PUBLIC_ADDRESS}:${BSK_WORLD_PORT}=127.0.0.1:${BSK_WORLD_PORT} --allow 127.0.0.1:${BSK_WORLD_PORT} --bind 127.0.0.1:${BSK_GATEWAY_SLOT_PORT} --world-state /opt/bsk/build/live --drain-limit 10800 $BSK_GATEWAY_FLAGS
 # a handed-over gateway exits with 0 and stays stopped; a crash restarts it
 Restart=on-failure
 RestartSec=2

@@ -71,7 +71,10 @@ python tools\build_client_rs.py --account https://dodmg.com/api --package --publ
 Browsers can't open TCP sockets, so `bsk-gateway` serves the web build and bridges to the servers
 on one port: `/api/<path>` goes to the account server, `/ws/<host>:<port>` is a WebSocket carrying
 the world server's TCP stream. Only `--allow`ed world servers are reachable
-(`--allow <public>:2051=127.0.0.1:2051` takes the first and connects to the second, as on the VPS). It binds 127.0.0.1
+(`--allow <public>:2051=127.0.0.1:2051` takes the first and connects to the second, as on the VPS).
+`--world-state <dir>` (the world proxy's state folder, `build/live`) connects a bridge meant for the
+proxy's port straight to the world server slot the player's Hello belongs to, routed as
+`tools/world_proxy.py` routes (`gateway/src/world.rs`). It binds 127.0.0.1
 unless `--bind` says otherwise; sharing it with players means `--bind 0.0.0.0:<port>` and opening
 that port, which is the owner's call.
 

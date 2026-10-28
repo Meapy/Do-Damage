@@ -10,16 +10,21 @@
 //!   the machine: `--allow play.example.com:2051=127.0.0.1:2051`.
 //!
 //!     bsk-gateway --web build/client-rs/web --account http://127.0.0.1:8080 --allow 127.0.0.1:2051
-//!                 [--bind 127.0.0.1:8095] [--forward-address]
+//!                 [--bind 127.0.0.1:8095] [--forward-address] [--world-state build/live]
 //!
 //! It binds to 127.0.0.1 unless `--bind` says otherwise. The desktop client comes this way too
 //! when its account address is a site's `/api` (https and wss through Caddy).
 //!
 //! `--forward-address`: each bridged connection starts with a PROXY_INFO message (250) carrying
 //! the player's address (from `X-Forwarded-For` when the request comes from this machine, i.e.
-//! Caddy), so the world server doesn't see everyone as 127.0.0.1 (IP bans, mutes). Only for a
-//! world proxy (`tools/world_proxy.py`) that takes it in place of its own: an older one routes
-//! such a connection to the active world server whatever its Hello asks for.
+//! Caddy), so the world server doesn't see everyone as 127.0.0.1 (IP bans, mutes). Only for world
+//! servers behind the world proxy (`tools/world_proxy.py`), which take it as a connection's first
+//! message; an older proxy routes such a connection to the active world server whatever its Hello
+//! asks for.
+//!
+//! `--world-state <dir>`: a bridge to the world proxy's port connects straight to the world
+//! server the player's Hello belongs to, read from the proxy's state in `<dir>` (`world.rs`),
+//! rather than through the proxy.
 //!
 //! Deploys without disconnecting anyone (deploy/remote/install.sh): a new gateway starts beside
 //! the old one, and the old one gets SIGUSR1. From then on `/healthz` answers 503, so Caddy (which
@@ -45,11 +50,15 @@ use std::time::{Duration, Instant};
 use tokio::io::{AsyncReadExt, AsyncWriteExt};
 use tokio::net::TcpStream;
 
+mod world;
+
 struct Config {
     account: String,
     /// Target asked for -> address connected to.
     allowed: HashMap<String, String>,
     forward_address: bool,
+    /// `--world-state`: connect straight to the world servers behind the world proxy.
+    world: Option<world::Router>,
     http: reqwest::Client,
     /// How long a draining gateway keeps its bridges at most.
     #[cfg_attr(not(unix), allow(dead_code))] // handing over is Linux-only (SIGUSR1)
@@ -75,6 +84,7 @@ fn parse_args() -> Result<(String, String, Config), String> {
     let mut account = None;
     let mut allowed = HashMap::new();
     let mut forward_address = false;
+    let mut world = None;
     let mut drain_limit = Duration::from_secs(3 * 3600);
     let mut it = std::env::args().skip(1);
     while let Some(a) = it.next() {
@@ -89,6 +99,7 @@ fn parse_args() -> Result<(String, String, Config), String> {
                 allowed.insert(target.to_owned(), to.to_owned());
             }
             "--forward-address" => forward_address = true,
+            "--world-state" => world = Some(world::Router::new(&value()?)),
             "--drain-limit" => {
                 let v = value()?;
                 drain_limit = Duration::from_secs(v.parse().map_err(|_| format!("--drain-limit {v}: not a number of seconds"))?);
@@ -96,7 +107,7 @@ fn parse_args() -> Result<(String, String, Config), String> {
             _ => return Err(format!("unknown argument {a}")),
         }
     }
-    let usage = "usage: bsk-gateway --web <dir> --account <url> --allow <host:port>[=<host:port>]... [--bind <addr:port>] [--forward-address] [--drain-limit <seconds>]";
+    let usage = "usage: bsk-gateway --web <dir> --account <url> --allow <host:port>[=<host:port>]... [--bind <addr:port>] [--forward-address] [--world-state <dir>] [--drain-limit <seconds>]";
     let (Some(web), Some(account)) = (web, account) else { return Err(usage.into()) };
     if allowed.is_empty() {
         return Err(format!("no --allow world server given\n{usage}"));
@@ -105,6 +116,7 @@ fn parse_args() -> Result<(String, String, Config), String> {
         account,
         allowed,
         forward_address,
+        world,
         http: reqwest::Client::new(),
         drain_limit,
         bridges: AtomicUsize::new(0),
@@ -275,7 +287,7 @@ async fn bridge(
     let address = config.forward_address.then(|| player_address(peer, &headers));
     ws.on_upgrade(move |socket| async move {
         config.bridges.fetch_add(1, Ordering::Relaxed);
-        relay(socket, to, address).await;
+        relay(socket, to, address, config.world.as_ref()).await;
         config.bridges.fetch_sub(1, Ordering::Relaxed);
     })
 }
@@ -290,6 +302,28 @@ fn player_address(peer: SocketAddr, headers: &HeaderMap) -> String {
     }
 }
 
+/// Reads the bridge's first game message into `buf` (with anything after it that came in the same
+/// WebSocket messages) and gives its length, or None if the player left or sent something else
+/// within 30 s. A player's own PROXY_INFO is dropped, as the proxy drops it: the address is ours
+/// to give.
+async fn read_first(socket: &mut WebSocket, buf: &mut Vec<u8>) -> Option<usize> {
+    let deadline = Instant::now() + Duration::from_secs(30);
+    loop {
+        match world::first_len(buf) {
+            Err(()) => return None,
+            Ok(Some(n)) if buf[4] == world::PROXY_INFO => {
+                buf.drain(..n);
+            }
+            Ok(Some(n)) => return Some(n),
+            Ok(None) => match tokio::time::timeout_at(deadline.into(), socket.recv()).await {
+                Ok(Some(Ok(Message::Binary(data)))) => buf.extend_from_slice(&data),
+                Ok(Some(Ok(Message::Close(_)))) | Ok(Some(Err(_))) | Ok(None) | Err(_) => return None,
+                Ok(Some(Ok(_))) => {}
+            },
+        }
+    }
+}
+
 /// PROXY_INFO (250): the world proxy's message telling the world server the player's address.
 fn proxy_info(address: &str) -> Vec<u8> {
     let data = address.as_bytes();
@@ -301,15 +335,24 @@ fn proxy_info(address: &str) -> Vec<u8> {
     frame
 }
 
-async fn relay(socket: WebSocket, target: String, address: Option<String>) {
-    let tcp = match TcpStream::connect(&target).await {
-        Ok(t) => t,
-        Err(e) => {
-            log::warn!("{target}: {e}");
-            let mut socket = socket;
-            let _ = socket.send(Message::Close(None)).await;
-            return;
-        }
+async fn relay(mut socket: WebSocket, target: String, address: Option<String>, world: Option<&world::Router>) {
+    // Straight to a world server: its first message (the Hello) says which.
+    let mut first = Vec::new();
+    let mut direct = None;
+    if let Some(world) = world.filter(|w| w.is_proxy(&target)) {
+        let Some(msg) = read_first(&mut socket, &mut first).await else { return };
+        direct = world.connect(world::hello_game_id(&first[..msg])).await;
+    }
+    let (tcp, target) = match direct {
+        Some((tcp, slot)) => (tcp, format!("world server {slot}")),
+        None => match TcpStream::connect(&target).await {
+            Ok(t) => (t, target),
+            Err(e) => {
+                log::warn!("{target}: {e}");
+                let _ = socket.send(Message::Close(None)).await;
+                return;
+            }
+        },
     };
     let _ = tcp.set_nodelay(true);
     log::info!("bridge open to {target}{}", address.as_deref().map(|a| format!(" for {a}")).unwrap_or_default());
@@ -318,6 +361,9 @@ async fn relay(socket: WebSocket, target: String, address: Option<String>) {
         if tcp_write.write_all(&proxy_info(a)).await.is_err() {
             return;
         }
+    }
+    if !first.is_empty() && tcp_write.write_all(&first).await.is_err() {
+        return;
     }
     let (mut ws_send, mut ws_recv) = socket.split();
 
