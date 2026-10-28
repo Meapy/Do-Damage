@@ -9,8 +9,11 @@ namespace WorldServer.logic
     {
         private _ Sentry = () => Behav()
 
+        // In Realm 2 the Lost Sentry guards its shrine in the Lost Lands, a side quest
+        // (RealmManager.WakeSentry): it opens the Lost Halls, and drops as an event god does.
         .Init("LH Lost Sentry",
                 new State(
+                    new DropPortalOnDeath("Lost Halls Portal", 1.0, xAdjustment: 2),
                     new State("Wait",
                         new ConditionEffectBehavior(ConditionEffectIndex.Invincible, true),
                         new PlayerWithinTransition(10, "Spookyboi")
@@ -169,7 +172,10 @@ namespace WorldServer.logic
                         new Taunt("4"),
                         new TimedTransition(250, "100%")
                     )
-                )
+                ),
+                new Threshold(0.01, LootTemplates.StrongerDrop()),
+                new Threshold(0.01, LootTemplates.StrongerPots()),
+                new Threshold(0.03, new ItemLoot("Lost Halls Key", 0.05))
             )
 
         ;

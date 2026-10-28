@@ -20,6 +20,10 @@ namespace WorldServer.logic.behaviors
         // bubbles hide his attacks)
         public bool Bubble { get; init; } = true;
 
+        // false: a speech bubble only, kept out of chat (the little monsters' quips): sent to
+        // "*Bubble*", which the Rust client shows over the speaker and doesn't write to chat
+        public bool Chat { get; init; } = true;
+
         public Taunt(params string[] text) => this.text = text;
 
         public Taunt(double probability, params string[] text)
@@ -125,7 +129,7 @@ namespace WorldServer.logic.behaviors
                   enemy.IsRare ? $"Rare {name}" :
                   name;
 
-            var packet = new Text() { Name = "#" + displayenemy, ObjectId = host.Id, NumStars = -1, BubbleTime = (byte)(Bubble ? 3 : 0), Recipient = "", Txt = taunt };
+            var packet = new Text() { Name = "#" + displayenemy, ObjectId = host.Id, NumStars = -1, BubbleTime = (byte)(Bubble ? 3 : 0), Recipient = Chat ? "" : "*Bubble*", Txt = taunt };
 
             if (broadcast)
                 host.World.Broadcast(packet);

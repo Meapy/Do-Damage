@@ -31,7 +31,7 @@ BOSSES = [
 BAG_NAMES = ["Brown", "Pink", "Purple", "Egg", "Blue", "Green", "White", "Gold", "Orange", "Red"]
 KINDS = ("Weapon", "Ability", "Armor", "Ring")
 
-ITEM = re.compile(r'new ItemLoot\(\s*(?:item:\s*)?"([^"]+)"(?:\s*,\s*(?:probability:\s*)?([0-9.]+))?')
+ITEM = re.compile(r'new (?:ItemLoot|OnePlayerLoot)\(\s*(?:item:\s*)?"([^"]+)"(?:\s*,\s*(?:probability:\s*)?([0-9.]+))?')
 TIER = re.compile(r'new TierLoot\(\s*(?:tier:\s*)?(\d+)\s*,\s*(?:type:\s*)?ItemType\.(\w+)'
                   r'(?:\s*,\s*(?:probability:\s*)?([0-9.]+))?')
 

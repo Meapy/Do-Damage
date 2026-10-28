@@ -1,10 +1,11 @@
-//! The Enchanter's window: the forge window in its other mode, its one tab, Imprints. The
-//! player's gear (equipped, in the inventory, and the Enthroned gear in the vault) on the left,
-//! with the imprints each carries;
-//! the picked piece on the right, its three imprint slots (red Offensive, green Defensive, purple
-//! Misc, and a fourth colour coming soon), and the imprints of the colour shown, each with what it
-//! does, what it fits and a button to put it on for its shard (`bsk_data::imprint`). The server
-//! checks everything (`ImprintHandlers.cs`).
+//! The Divine Workbench's Imprints tab, where the Enchanter opens it. The player's gear
+//! (equipped, in the inventory, and the Enthroned gear in the vault) on the left, with the
+//! imprints each carries; on the right, the picked piece, its three imprint slots (red Offensive,
+//! green Defensive, purple Misc, and a fourth colour coming soon) and the imprints of the colour
+//! shown that fit it, each with what it does and a button to put it on for its shard
+//! (`bsk_data::imprint`). With nothing picked (or the picked piece clicked again) every imprint of
+//! the colour shows, with what it fits. The list scrolls with the wheel. The server checks
+//! everything (`ImprintHandlers.cs`).
 
 use super::{inside, locked_chip, Act, Category, Forge, Hit, Tab, ENCHANTER, FRAME_MS};
 use crate::hud::Ui;
@@ -26,8 +27,8 @@ impl Forge {
     /// Opens the window as the Enchanter; it asks for the forge storage's shards.
     pub fn show_enchanter(&mut self, data: &GameData) -> Option<Act> {
         self.open = true;
-        self.enchanter = true;
         self.tab = Tab::Imprints;
+        self.imp_asked = true;
         self.message = None;
         self.imp_pending = false;
         if self.kinds.is_empty() {
@@ -167,39 +168,48 @@ impl Forge {
 
         theme::frame(ui.renderer, right, 8.0 * s, s.max(1.0), (color::BORDER, 1.0), ((color::WARM_TOP, 0.95), (color::WARM_BOTTOM, 0.95)));
         let frame = ENCHANTER + ((now / FRAME_MS).rem_euclid(6)) as u32;
-        let Some((pick, (item, current))) = self.imp_pick.and_then(|p| self.picked_gear(p).map(|g| (p, g))) else {
-            let (cx, cy) = (right[0] + right[2] / 2.0, right[1] + right[3] * 0.45);
-            ui.tile_icon(super::SHEET, frame, 110, cx, cy, s);
-            for (k, t) in ["Pick a piece of Enthroned gear to imprint.", "Only Enthroned gear takes imprints, and they work only while it's equipped."]
-                .iter()
-                .enumerate()
-            {
-                let fs = font(if k == 0 { 15.0 } else { 12.0 });
-                let w = ui.measure(t, fs, k == 0);
-                ui.label(t, cx - w / 2.0, right[1] + 24.0 * s + k as f32 * 24.0 * s, fs, k == 0, if k == 0 { color::TEXT } else { color::TEXT_MUTED });
-            }
-            return;
-        };
+        let picked = self.imp_pick.and_then(|p| self.picked_gear(p).map(|g| (p, g)));
         let pad = 16.0 * s;
         let (x0, mut y) = (right[0] + pad, right[1] + pad);
         let inner_w = right[2] - 2.0 * pad;
-        // The item: its icon, name and kind, the Enchanter beside it.
-        let ib = [x0, y, 56.0 * s, 56.0 * s];
-        ui.slot_box(ib, crate::screens::tier_edge(ui.data, item), false, s);
-        ui.item_icon(item, 80, ib[0] + ib[2] / 2.0, ib[1] + ib[3] / 2.0, s);
-        crate::hud::draw_imprint_marks(ui, current, ib[0] + 4.0 * s, ib[1] + 4.0 * s, s);
-        let desc = ui.data.objects.get(&(item as u16));
-        let name = desc.map_or(String::new(), |d| d.display_id.clone());
-        let slot_type = desc.map_or(0, |d| d.xml.int("SlotType", 0));
-        ui.label(&name, ib[0] + ib[2] + 12.0 * s, y + 6.0 * s, font(17.0), true, color::TEXT);
-        let where_ = match pick {
-            Pick::Inv(slot) if slot < 4 => "equipped",
-            Pick::Inv(_) => "in your inventory",
-            Pick::Vault(..) => "in your vault",
+        let (slot_type, current) = match picked {
+            Some((pick, (item, current))) => {
+                // The item: its icon, name and kind, the Enchanter beside it, and the way back to
+                // every imprint.
+                let ib = [x0, y, 56.0 * s, 56.0 * s];
+                ui.slot_box(ib, crate::screens::tier_edge(ui.data, item), false, s);
+                ui.item_icon(item, 80, ib[0] + ib[2] / 2.0, ib[1] + ib[3] / 2.0, s);
+                crate::hud::draw_imprint_marks(ui, current, ib[0] + 4.0 * s, ib[1] + 4.0 * s, s);
+                let desc = ui.data.objects.get(&(item as u16));
+                let name = desc.map_or(String::new(), |d| d.display_id.clone());
+                let slot_type = desc.map_or(0, |d| d.xml.int("SlotType", 0));
+                ui.label(&name, ib[0] + ib[2] + 12.0 * s, y + 6.0 * s, font(17.0), true, color::TEXT);
+                let where_ = match pick {
+                    Pick::Inv(slot) if slot < 4 => "equipped",
+                    Pick::Inv(_) => "in your inventory",
+                    Pick::Vault(..) => "in your vault",
+                };
+                ui.label(&format!("{}, {where_}", super::slot_name(slot_type)), ib[0] + ib[2] + 12.0 * s, y + 30.0 * s, font(12.0), false, color::TEXT_DIM);
+                ui.tile_icon(super::SHEET, frame, 64, right[0] + right[2] - 44.0 * s, y + 20.0 * s, s);
+                let all = "Show all imprints";
+                let cs = font(11.0);
+                let cw = ui.measure(all, cs, true) + 18.0 * s;
+                let cr = [right[0] + right[2] - 84.0 * s - cw, y + 4.0 * s, cw, 22.0 * s];
+                self.chip(ui, cr, all, false, mouse, cs);
+                self.hits.push((Hit::ImpClear, cr));
+                (Some(slot_type), current)
+            }
+            None => {
+                // nothing picked: every imprint, to look them over
+                ui.tile_icon(super::SHEET, frame, 64, x0 + 26.0 * s, y + 24.0 * s, s);
+                ui.label("All imprints", x0 + 62.0 * s, y + 6.0 * s, font(17.0), true, color::TEXT);
+                let hint = "Pick Enthroned gear on the left to imprint it. Imprints work only while it's equipped.";
+                ui.label(hint, x0 + 62.0 * s, y + 30.0 * s, font(11.5), false, color::TEXT_MUTED);
+                (None, [0u8; 3])
+            }
         };
-        ui.label(&format!("{}, {where_}", super::slot_name(slot_type)), ib[0] + ib[2] + 12.0 * s, y + 30.0 * s, font(12.0), false, color::TEXT_DIM);
-        ui.tile_icon(super::SHEET, frame, 64, right[0] + right[2] - 44.0 * s, y + 20.0 * s, s);
-        y += 70.0 * s;
+        // below the Enchanter's picture, which stands taller than the header's text
+        y += 94.0 * s;
 
         // The colours: what each slot holds, and the one coming soon.
         let tw = (inner_w - 3.0 * 8.0 * s) / 4.0;
@@ -218,8 +228,12 @@ impl Forge {
             }
             theme::fill(ui.renderer, [tr[0], tr[1], 6.0 * s, tr[3]], 3.0 * s, kind.color(), 1.0);
             ui.label(kind.name(), tr[0] + 14.0 * s, tr[1] + 7.0 * s, font(12.5), true, kind.color());
-            let holds = imprint::get(held as i32).map_or("Empty", |i| i.name);
-            ui.label(holds, tr[0] + 14.0 * s, tr[1] + 27.0 * s, font(11.5), false, if held > 0 { color::TEXT } else { color::TEXT_MUTED });
+            // what the picked piece holds there, or how many imprints the colour has
+            let holds = match slot_type {
+                Some(_) => imprint::get(held as i32).map_or("Empty".to_owned(), |i| i.name.to_owned()),
+                None => format!("{} imprints", imprint::ALL.iter().filter(|i| i.kind == kind).count()),
+            };
+            ui.label(&holds, tr[0] + 14.0 * s, tr[1] + 27.0 * s, font(11.5), false, if held > 0 || slot_type.is_none() { color::TEXT } else { color::TEXT_MUTED });
             self.hits.push((Hit::ImpKind(k), tr));
         }
         y += 62.0 * s;
@@ -230,42 +244,68 @@ impl Forge {
             return;
         }
         let kind = Kind::ALL[self.imp_kind];
-        // The imprints of this colour: those that fit the item first, with what they do and the
-        // button; then the rest, a line each with what they fit.
+        // The imprints of this colour: with a piece picked only those that fit it, each with what
+        // it does and the button; with none, all of them and what they fit. From the scrolled-to
+        // row, as many as fit, a bar at the side when there are more; when they all fit, centred
+        // in the space between the colours and the price.
         let bw = 96.0 * s;
-        let text_w = inner_w - bw - 16.0 * s;
         let foot = right[1] + right[3] - 34.0 * s;
-        let mut list: Vec<&imprint::Imprint> = imprint::ALL.iter().filter(|i| i.kind == kind).collect();
-        list.sort_by_key(|i| !i.fits(slot_type));
-        for imp in list {
-            let fits = imp.fits(slot_type);
-            let lines = if fits { crate::npc::wrap(ui, imp.description, font(11.5), text_w - 12.0 * s) } else { Vec::new() };
-            let h = if fits { (28.0 + 15.0 * lines.len() as f32) * s } else { 26.0 * s };
-            if y + h > foot {
+        let list: Vec<&imprint::Imprint> =
+            imprint::ALL.iter().filter(|i| i.kind == kind && slot_type.is_none_or(|t| i.fits(t))).collect();
+        self.imp_count = list.len();
+        self.imp_scroll = self.imp_scroll.min(list.len().saturating_sub(1));
+        let text_w = inner_w - if slot_type.is_some() { bw + 16.0 * s } else { 8.0 * s } - 12.0 * s;
+        if list.is_empty() {
+            let t = format!("No {} imprint fits this item.", kind.name());
+            ui.label(&t, x0, y + 8.0 * s, font(13.0), false, color::TEXT_MUTED);
+        }
+        let top = y;
+        let mut rows = Vec::new();
+        let mut used = 0.0;
+        for imp in list.iter().skip(self.imp_scroll) {
+            let lines = crate::npc::wrap(ui, imp.description, font(11.5), text_w);
+            let h = (28.0 + 15.0 * lines.len() as f32) * s;
+            if top + used + h > foot {
                 break;
             }
-            let has = current[kind as usize] == imp.id;
-            let row = [x0, y, inner_w, h];
+            used += h + 6.0 * s;
+            rows.push((imp, lines, h));
+        }
+        let last = self.imp_scroll + rows.len();
+        if self.imp_scroll == 0 && last == list.len() {
+            y += ((foot - top - used) / 2.0).max(0.0);
+        }
+        for (imp, lines, h) in rows {
+            let has = current[kind as usize] == imp.id && slot_type.is_some();
+            let row = [x0, y, inner_w - 10.0 * s, h];
             theme::fill(ui.renderer, row, 6.0 * s, 0x000000, 0.22);
-            theme::fill(ui.renderer, [row[0], row[1], 4.0 * s, row[3]], 2.0 * s, kind.color(), if fits { 1.0 } else { 0.35 });
-            let nc = if fits { kind.color() } else { color::TEXT_MUTED };
-            ui.label(imp.name, x0 + 12.0 * s, y + 6.0 * s, font(13.0), true, nc);
+            theme::fill(ui.renderer, [row[0], row[1], 4.0 * s, row[3]], 2.0 * s, kind.color(), 1.0);
+            ui.label(imp.name, x0 + 12.0 * s, y + 6.0 * s, font(13.0), true, kind.color());
             let fw = ui.measure(imp.name, font(13.0), true);
             ui.label(&format!("·  {}", imp.fits_text()), x0 + 18.0 * s + fw, y + 7.5 * s, font(11.0), false, color::TEXT_MUTED);
             for (k, l) in lines.iter().enumerate() {
-                ui.label(l, x0 + 12.0 * s, y + 25.0 * s + k as f32 * 15.0 * s, font(11.5), false, if fits { color::TEXT_DIM } else { color::TEXT_MUTED });
+                ui.label(l, x0 + 12.0 * s, y + 25.0 * s + k as f32 * 15.0 * s, font(11.5), false, color::TEXT_DIM);
             }
             let br = [row[0] + row[2] - bw - 8.0 * s, y + (h - 28.0 * s) / 2.0, bw, 28.0 * s];
             if has {
                 let t = "Carried";
                 let w = ui.measure(t, font(12.0), true);
                 ui.label(t, br[0] + (bw - w) / 2.0, br[1] + 6.0 * s, font(12.0), true, color::GOOD);
-            } else if fits {
+            } else if slot_type.is_some() {
                 let label = if self.imp_pending { "..." } else if current[kind as usize] > 0 { "Replace" } else { "Imprint" };
                 ui.button(br, label, ButtonKind::Primary, inside(br, mouse), s * 0.8);
                 self.hits.push((Hit::ImpApply(imp.id), br));
             }
             y += h + 6.0 * s;
+        }
+        // the scroll bar: where the rows shown are among them all
+        if self.imp_scroll > 0 || last < list.len() {
+            let track = [right[0] + right[2] - pad + 2.0 * s, top, 4.0 * s, foot - top - 6.0 * s];
+            theme::fill(ui.renderer, track, 2.0 * s, 0x000000, 0.4);
+            let n = list.len().max(1) as f32;
+            let h = (track[3] * (last - self.imp_scroll) as f32 / n).max(12.0 * s);
+            let at = (track[3] - h) * (self.imp_scroll as f32 / (n - (last - self.imp_scroll) as f32).max(1.0)).min(1.0);
+            theme::fill(ui.renderer, [track[0], track[1] + at, track[2], h], 2.0 * s, kind.color(), 0.9);
         }
         // The price, and what can pay it.
         let (stored, held) = self.shards_for(ui.data, kind);

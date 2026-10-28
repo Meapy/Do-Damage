@@ -200,6 +200,10 @@ messages! {
         // The Enthroned gear in the account's vault (after ImprintRequest and each vault imprint;
         // empty while we're in the vault).
         112 => ImprintVault { items: List16<VaultGear> },
+        // A realm's events, for clients that asked (RealmEventsSubscribe), whenever they change:
+        // how many are defeated and how many close it, the one our quest arrow follows (0: the
+        // nearest), and the running events, side quests and waystones.
+        115 => RealmEvents { defeated: i32, needed: i32, picked: i32, entries: List8<RealmEventEntry> },
     }
 }
 
@@ -283,5 +287,10 @@ messages! {
         110 => Imprint { slot: u8, imprint: u8 },
         // Imprint an Enthroned item in the vault, by chest and slot.
         113 => ImprintVaultApply { chest: u16, slot: u8, imprint: u8 },
+        // Ask for RealmEvents in this world (an older server ignores it, and none come).
+        114 => RealmEventsSubscribe {},
+        // The event our quest arrow should follow (an object id from RealmEvents), 0 for the
+        // nearest. Only sent once RealmEvents came, so never to a server without it.
+        116 => QuestPick { object_id: i32 },
     }
 }

@@ -184,7 +184,11 @@ namespace WorldServer.core.worlds.realm2
                     else if (side <= 2.5)
                         Set(x, y, "R2 Bridge");
                     else if (side <= 3.5)
+                    {
+                        // the bridge's edge: its raised rail, a fence of posts over the drop
                         Set(x, y, "R2 Bridge Rail");
+                        At(x, y).TileObj = "R2 Bridge Fence";
+                    }
                     else
                         continue;
                     Reserve(x, y);

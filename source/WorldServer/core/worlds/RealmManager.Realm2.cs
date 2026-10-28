@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using Shared.resources;
 using WorldServer.core.objects;
 using WorldServer.core.setpieces;
 using WorldServer.core.structures;
@@ -25,8 +26,9 @@ namespace WorldServer.core.worlds
         private const int SpawnClear = 12;              // tiles from any player a monster may appear
         private const int TilesPerMob = 125;            // as the realm's Godlands
         private const double LandRadius = 50;
-        private const int Realm2StaleMs = 3 * 60000;    // an event nobody has touched lets the next come after this
-        private const int Realm2DroughtMs = 30000;      // with no event running this long, one comes wherever it can
+        private const int Realm2StaleMs = 90000;        // an event nobody has touched lets the next come after this
+        private const int Realm2DroughtMs = 12000;      // with no event running this long, one comes wherever it can
+        private const int Realm2GapMs = 6000;           // after an event comes or falls, before the next (EventGapMs)
         private const double Apart = 90;                // a land's heart at least this far from every other land's
         private const double MaxBack = 15;              // how much nearer the shore than the last a land may come
 
@@ -59,6 +61,7 @@ namespace WorldServer.core.worlds
                 _upcoming.Enqueue(evt);
             QueueLands();
             _lastAlong = Layout.GodlandsFrom;
+            PlaceCrystal();
         }
 
         private void QueueLands()
@@ -247,6 +250,8 @@ namespace WorldServer.core.worlds
             _lastAlong = Math.Max(_lastAlong, Layout.Along(at.X, at.Y));
             _lands++;
             Populate(area);
+            if (painter.Shrine is IntPoint shrine)
+                WakeSentry(shrine, area);
             return area;
         }
 
@@ -265,12 +270,29 @@ namespace WorldServer.core.worlds
                         var a = Math.PI * 2 * i / 5 - Math.PI / 2;
                         Place("Pentaract Tower", at.X + 0.5f + (float)(Math.Cos(a) * 13), at.Y + 0.5f + (float)(Math.Sin(a) * 13));
                     }
+                    // and a few more eyes than the realm's: two watching beside each tower from the start
+                    for (var i = 0; i < 10; i++)
+                    {
+                        var a = Math.PI * 2 * i / 10 - Math.PI / 2 + Math.PI / 10;
+                        Place("Pentaract Eye", at.X + 0.5f + (float)(Math.Cos(a) * 11), at.Y + 0.5f + (float)(Math.Sin(a) * 11));
+                    }
                     break;
                 case "Garnet Statue":
                     // the two statues either side of the garden's altar, which wakes them
                     Place("Garnet Statue", at.X - 5.5f, at.Y + 0.5f);
                     Place("Jade Statue", at.X + 6.5f, at.Y + 0.5f);
                     Place("Encounter Altar", at.X + 0.5f, at.Y + 0.5f);
+                    break;
+                case "Skull Shrine":
+                    // its flaming skulls, as the realm's shrine has by the time anyone finds it (its
+                    // Reproduce only works with nobody near, and Realm 2's lands come close to players)
+                    Place("Skull Shrine", at.X + 0.5f, at.Y + 0.5f);
+                    for (var i = 0; i < 16; i++)
+                    {
+                        var a = Math.PI * 2 * i / 16 + Random.Shared.NextDouble() * 0.3;
+                        var d = 5 + Random.Shared.NextDouble() * 5;
+                        Place(i % 2 == 0 ? "Red Flaming Skull" : "Blue Flaming Skull", at.X + 0.5f + (float)(Math.Cos(a) * d), at.Y + 0.5f + (float)(Math.Sin(a) * d));
+                    }
                     break;
                 case "shtrs Defense System":
                     // the Avatar comes with its own arena
@@ -319,6 +341,7 @@ namespace WorldServer.core.worlds
             foreach (var area in Layout.Areas)
                 if (area.Theme != null)
                     Populate(area);
+            MaybeRares();
         }
 
         private void Populate(Realm2Area area)
@@ -353,6 +376,30 @@ namespace WorldServer.core.worlds
             foreach (var quest in area.Theme.Quests)
                 if (data.IdToObjectType.TryGetValue(quest, out var type) && !quests.Contains(type))
                     SpawnQuest(area, quest, questsAt);
+            if (area.Theme.Afloat is (string afloat, int wanted))
+                KeepAfloat(area, afloat, wanted);
+        }
+
+        // a land's monsters of the water (the Wreck Coast's ghost sloops), on its pools, out of sight
+        private void KeepAfloat(Realm2Area area, string id, int wanted)
+        {
+            var data = World.GameServer.Resources.GameData;
+            if (area.Theme.Pools == null || !data.IdToObjectType.TryGetValue(id, out var type)
+                || !data.IdToTileType.TryGetValue(area.Theme.Pools, out var water))
+                return;
+            var have = World.Enemies.Values.Count(e => e.ObjectType == type && Layout.AreaAt((int)e.X, (int)e.Y) == area);
+            for (var tries = 0; have < wanted && tries < 400; tries++)
+            {
+                var angle = Random.Shared.NextDouble() * Math.PI * 2;
+                var dist = Random.Shared.NextDouble() * area.Radius;
+                var x = (int)(area.Center.X + Math.Cos(angle) * dist);
+                var y = (int)(area.Center.Y + Math.Sin(angle) * dist);
+                if (x < 0 || y < 0 || x >= Layout.Width || y >= Layout.Height || World.Map[x, y].TileId != water
+                    || Layout.AreaAt(x, y) != area || !World.IsPassable(x, y) || World.AnyPlayerNearby(x, y, SpawnClear))
+                    continue;
+                if (Place(id, x + 0.5f, y + 0.5f) != null)
+                    have++;
+            }
         }
 
         private static string PickMob(Realm2Theme theme)
@@ -397,7 +444,8 @@ namespace WorldServer.core.worlds
                 var dist = Realm2EventPainter.ArenaRadius + 6 + Random.Shared.NextDouble() * area.Radius;
                 var x = (int)(area.Center.X + Math.Cos(angle) * dist);
                 var y = (int)(area.Center.Y + Math.Sin(angle) * dist);
-                if (Layout.AreaAt(x, y) != area || !World.IsPassable(x, y) || World.AnyPlayerNearby(x, y, SpawnClear))
+                if (Layout.AreaAt(x, y) != area || !World.IsPassable(x, y) || World.AnyPlayerNearby(x, y, SpawnClear)
+                    || NearBeacon(x, y, BeaconRadius + 8))
                     continue;
                 var placed = 0;
                 for (var i = 0; i < size; i++)
@@ -412,13 +460,206 @@ namespace WorldServer.core.worlds
             return 0;
         }
 
+        // ---- as events fall
+
+        private bool _voiced;
+
+        private void LayoutEventDefeated(Entity at, int needed)
+        {
+            // one event short of the end, someone who isn't Oryx speaks up
+            if (!_voiced && needed - _EventCount == 1)
+            {
+                _voiced = true;
+                foreach (var player in World.Players.Values)
+                    player.SendEnemy("Mysterious Voice", "This is interesting...");
+                World.StartNewTimer(3500, (w, t) => BroadcastMsg("Wait, who said that?! This is MY realm!"));
+            }
+
+            _sinceBeacon++;
+            if (at != null && _sinceBeacon >= 2)
+                TryBeacon(new IntPoint((int)at.X, (int)at.Y));
+        }
+
+        // ---- beacons: every couple of events, a waystone in the heart of a land just cleared, far
+        // from the shore and every other one. New arrivals come to the newest, so they don't walk the
+        // whole way again, and anyone can teleport to any of them (the events panel).
+
+        private readonly List<Entity> _beacons = new List<Entity>();
+        private int _sinceBeacon;
+        private const double BeaconApart = 110;
+        private const int BeaconRadius = 5;
+
+        private IEnumerable<Entity> Beacons() => _beacons.Where(b => b.World == World);
+
+        public bool IsBeacon(Entity entity) => _beacons.Contains(entity);
+
+        private void TryBeacon(IntPoint fell)
+        {
+            var area = Layout.AreaAt(fell.X, fell.Y);
+            var at = area?.Theme != null ? area.Center : fell;
+            if (Realm2Canvas.Dist(Layout.Start, at.X, at.Y) < BeaconApart
+                || Beacons().Any(b => Realm2Canvas.Dist(at, b.X, b.Y) < BeaconApart))
+                return;
+
+            var data = World.GameServer.Resources.GameData;
+            var half = BeaconRadius + 2;
+            var c = new Realm2Canvas(data, Random.Shared.Next(), at.X - half, at.Y - half, half * 2 + 1, half * 2 + 1, null);
+            c.Disc(at, BeaconRadius, "R2 Waystone Floor", (x, y) => Layout.AreaAt(x, y) != null);
+            c.Circle(at, BeaconRadius - 1.5, "R2 Waystone Rune");
+            SetPieces.RenderFromData(World, new IntPoint(c.X0 + c.W / 2, c.Y0 + c.H / 2), c.Export(), true);
+
+            foreach (var enemy in World.Enemies.Values.ToArray())
+                if (!_partTypes.ContainsKey(enemy.ObjectType) && enemy.DistTo(at.X + 0.5f, at.Y + 0.5f) < BeaconRadius + 6)
+                    World.LeaveWorld(enemy);
+
+            var beacon = Place("R2 Waystone Beacon", at.X + 0.5f, at.Y + 0.5f);
+            if (beacon == null)
+                return;
+            _sinceBeacon = 0;
+            beacon.Name = $"Waystone of {(area?.Name ?? "the Godlands")}";
+            _beacons.Add(beacon);
+            RealmBroadcast($"A waystone now shines in {area?.Name ?? "the Godlands"}! Anyone entering the realm arrives there, and you can teleport to it from the events list.");
+        }
+
+        private bool NearBeacon(int x, int y, double r) => Beacons().Any(b => b.DistTo(x + 0.5f, y + 0.5f) < r);
+
+        /// <summary>Realm2World: where a player arriving now lands, beside the newest waystone (null: the shore).</summary>
+        public Position? ArrivalPoint()
+        {
+            var beacon = Beacons().LastOrDefault();
+            if (beacon == null)
+                return null;
+            for (var tries = 0; tries < 40; tries++)
+            {
+                var a = Random.Shared.NextDouble() * Math.PI * 2;
+                var d = 1.5 + Random.Shared.NextDouble() * 2;
+                var x = beacon.X + (float)(Math.Cos(a) * d);
+                var y = beacon.Y + (float)(Math.Sin(a) * d);
+                if (World.IsPassable(x, y, true))
+                    return new Position(x, y);
+            }
+            return new Position(beacon.X, beacon.Y + 1.5f);
+        }
+
+        // ---- the abyss: what wanders or is spawned out over the void (flying minions, a summon
+        // thrown off the edge) is gone, so no monster floats out there where nobody can follow
+
+        private ushort _abyss;
+
+        private void SweepAbyss()
+        {
+            if (_abyss == 0 && !World.GameServer.Resources.GameData.IdToTileType.TryGetValue("R2 Abyss", out _abyss))
+                return;
+            if (_partTypes.Count == 0)
+                LoadPartTypes();
+            foreach (var enemy in World.Enemies.Values.ToArray())
+            {
+                if (enemy.Dead || _partTypes.ContainsKey(enemy.ObjectType) || enemy.ObjectDesc.Quest)
+                    continue;
+                int x = (int)enemy.X, y = (int)enemy.Y;
+                if (x >= 0 && y >= 0 && x < World.Map.Width && y < World.Map.Height && World.Map[x, y].TileId == _abyss)
+                    World.LeaveWorld(enemy);
+            }
+        }
+
+        // ---- the realm's set-piece monsters, here without their set pieces: the Mysterious Crystal
+        // (the Deadwater Docks) in a stretch of the Godlands no land is drawn over, and now and then
+        // a Kage Kami (the Manor of the Immortals), a Red Demon or a Phoenix Lord (their pets)
+
+        // where each comes, how many may stand at once, and the chance each minute of another while fewer do
+        private static readonly (string Id, TerrainType[] On, int Max, double Chance)[] Rares =
+        {
+            ("Kage Kami", new[] { TerrainType.Mountains }, 2, 0.25),
+            ("Red Demon", new[] { TerrainType.Mountains }, 2, 0.25),
+            ("Phoenix Lord", new[] { TerrainType.MidSand, TerrainType.HighSand }, 2, 0.25),
+        };
+
+        private void PlaceCrystal()
+        {
+            if (DisableSpawning || Layout.Untouched.Count == 0)
+                return;
+            var keep = Layout.Untouched[Random.Shared.Next(Layout.Untouched.Count)];
+            for (var tries = 0; tries < 200; tries++)
+            {
+                var a = Random.Shared.NextDouble() * Math.PI * 2;
+                var d = Random.Shared.NextDouble() * keep.R * 0.6;
+                var x = (int)(keep.At.X + Math.Cos(a) * d);
+                var y = (int)(keep.At.Y + Math.Sin(a) * d);
+                if (OnTerrain(x, y, TerrainType.Mountains))
+                {
+                    Place("Mysterious Crystal", x + 0.5f, y + 0.5f);
+                    return;
+                }
+            }
+        }
+
+        private void MaybeRares()
+        {
+            var data = World.GameServer.Resources.GameData;
+            foreach (var (id, on, max, chance) in Rares)
+            {
+                if (Random.Shared.NextDouble() >= chance || !data.IdToObjectType.TryGetValue(id, out var type)
+                    || World.Enemies.Values.Count(e => e.ObjectType == type) >= max)
+                    continue;
+                // picked from the tiles of its kinds of land (some, such as the midlands' sand, are
+                // too scarce on the map to find by chance), checked again as lands cover some of them
+                if (!_rareTiles.TryGetValue(id, out var tiles))
+                    _rareTiles[id] = tiles = TilesOf(on);
+                var placed = false;
+                for (var tries = 0; tries < 100 && !placed && tiles.Count > 0; tries++)
+                {
+                    var p = tiles[Random.Shared.Next(tiles.Count)];
+                    if (OnTerrain(p.X, p.Y, on) && !World.AnyPlayerNearby(p.X, p.Y) && !NearBeacon(p.X, p.Y, BeaconRadius + 8))
+                        placed = Place(id, p.X + 0.5f, p.Y + 0.5f) != null;
+                }
+                if (!placed)
+                    Log.Warn("Realm 2: nowhere for a {0}", id);
+            }
+        }
+
+        private readonly Dictionary<string, List<IntPoint>> _rareTiles = new Dictionary<string, List<IntPoint>>();
+
+        private List<IntPoint> TilesOf(TerrainType[] on)
+        {
+            var tiles = new List<IntPoint>();
+            for (var x = 0; x < Layout.Width; x++)
+                for (var y = 0; y < Layout.Height; y++)
+                    if (on.Contains(World.Map[x, y].Terrain))
+                        tiles.Add(new IntPoint(x, y));
+            return tiles;
+        }
+
+        // land of one of these kinds as it still is (the Godlands a land covers aren't Godlands any
+        // more), and somewhere to stand
+        private bool OnTerrain(int x, int y, params TerrainType[] on) =>
+            x >= 0 && y >= 0 && x < Layout.Width && y < Layout.Height
+            && on.Contains(World.Map[x, y].Terrain) && World.IsPassable(x, y, true);
+
+        // ---- the Lost Sentry: a side quest at its shrine in the Lost Lands, which opens the Lost
+        // Halls. It doesn't count toward closing the realm; the events list and the map mark it.
+
+        private const int SentryHealth = 45000;     // before the players near it scale it (EventHealthShare)
+
+        private void WakeSentry(IntPoint at, Realm2Area area)
+        {
+            if (DisableSpawning || Entity.Resolve(World.GameServer, "LH Lost Sentry") is not Enemy sentry)
+                return;
+            sentry.MaxHealth = sentry.Health = SentryHealth;
+            sentry.Move(at.X + 0.5f, at.Y + 0.5f);
+            World.EnterWorld(sentry);
+            _sideQuests.Add(sentry);
+            RealmBroadcast($"The Lost Sentry stands guard over its shrine in {area.Name}. Defeat it to open the Lost Halls! (A side quest: light blue on your map.)");
+        }
+
         private string LayoutStatus()
         {
             string Quests(Realm2Area a) => string.Join(" ", World.Enemies.Values
                 .Where(e => _areaMobs.TryGetValue(e.ObjectType, out var k) && k.Quest && Layout.AreaAt((int)e.X, (int)e.Y) == a)
                 .Select(e => $"{e.ObjectDesc.DisplayId ?? e.ObjectDesc.IdName} ({(int)e.X}, {(int)e.Y})"));
             var lands = Layout.Areas.Where(a => a.Theme != null).Select(a => $"{a.Kind}{(a.Link != null ? " by " + a.Link : "")} ({a.Center.X}, {a.Center.Y}) quests: {Quests(a)}");
-            return $"Realm 2: next {string.Join(", ", _upcoming.Take(3).Select(EventTitle))}; lands: {string.Join(", ", lands)}; kept: {string.Join(", ", Layout.Untouched.Select(u => $"({u.At.X}, {u.At.Y})"))}";
+            var rare = World.Enemies.Values.Where(e => e.ObjectDesc.IdName is "Kage Kami" or "Red Demon" or "Phoenix Lord" or "Phoenix Reborn" or "Mysterious Crystal" or "Crystal Prisoner")
+                .Select(e => $"{e.ObjectDesc.IdName} ({(int)e.X}, {(int)e.Y})");
+            return $"Realm 2: next {string.Join(", ", _upcoming.Take(3).Select(EventTitle))}; lands: {string.Join(", ", lands)}; kept: {string.Join(", ", Layout.Untouched.Select(u => $"({u.At.X}, {u.At.Y})"))}; rare: {string.Join(", ", rare)}";
         }
     }
 }

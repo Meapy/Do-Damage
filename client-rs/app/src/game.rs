@@ -84,6 +84,9 @@ pub struct Game {
     pub particles: crate::particles::Particles,
     /// The quest's object (`QuestObjId`), for the arrow and the boss bar.
     pub quest: Option<i32>,
+    /// The realm's events, side quests and waystones with its count to close (`RealmEvents`), for
+    /// the events list at the top left and the minimap; none outside a realm.
+    pub realm_events: Option<bsk_proto::RealmEvents>,
     /// The latest `NameResult` and `GuildResult`, for the window that asked.
     pub name_result: Option<(bool, String)>,
     pub guild_result: Option<(bool, String)>,
@@ -214,7 +217,7 @@ fn hurt_sound(data: &GameData, object_type: u16, dead: bool) -> Option<String> {
 const TELEPORT_COOLDOWN: i32 = 10_000;
 
 /// How many chat lines to keep.
-const CHAT_KEEP: usize = 200;
+const CHAT_KEEP: usize = 500;
 
 impl Game {
     /// Connect and load a character, or create one (`Join::Create`).
@@ -259,6 +262,7 @@ impl Game {
             show_displays: false,
             particles: Default::default(),
             quest: None,
+            realm_events: None,
             name_result: None,
             guild_result: None,
             trade: None,
@@ -470,6 +474,9 @@ impl Game {
                 self.socket.send(&bsk_proto::QuestDamageSubscribe {}.into());
                 self.socket.send(&bsk_proto::QuestDamageFullSubscribe {}.into());
                 self.socket.send(&bsk_proto::FameStatsSubscribe {}.into());
+                // a realm's events, for the events list (a world that isn't a realm sends none)
+                self.realm_events = None;
+                self.socket.send(&bsk_proto::RealmEventsSubscribe {}.into());
                 // quests: the HUD's badge counts what waits, so ask in every world
                 self.socket.send(&bsk_proto::QuestsRequest {}.into());
                 self.status.clear();
@@ -619,12 +626,16 @@ impl Game {
             if self.is_ignored(t.object_id) {
                 return;
             }
-            self.add_chat(&t.name, &t.recipient, &t.text, t.name_color, t.text_color, t.num_stars, now);
+            // a little monster's quip: a balloon over it only, not a chat line
+            let bubble_only = t.recipient == "*Bubble*";
+            if !bubble_only {
+                self.add_chat(&t.name, &t.recipient, &t.text, t.name_color, t.text_color, t.num_stars, now);
+            }
             // GameServerConnection.onText: a balloon over the speaker, coloured by who it is.
             let speaker = self.world.as_ref().and_then(|w| w.objects.get(&t.object_id));
             if let (Some(o), true) = (speaker, t.object_id >= 0 && t.bubble_time > 0) {
                 let enemy = data.objects.get(&o.object_type).is_some_and(|d| d.enemy);
-                let colors = if enemy {
+                let colors = if enemy || bubble_only {
                     [0x561F1C, 0xFC8642, 0xCDC0BF]
                 } else if t.recipient == "*Guild*" {
                     [0x3E8A00, 0xA6FF5D, 0xD3F8CC]
@@ -697,6 +708,7 @@ impl Game {
             ServerMessage::ForgeShards(s) => self.forge_events.push(crate::forge::Event::Shards(s.shards.0.clone())),
             ServerMessage::ForgeVault(v) => self.forge_events.push(crate::forge::Event::Vault(v.items.0.clone())),
             ServerMessage::ImprintVault(v) => self.forge_events.push(crate::forge::Event::ImprintVault(v.items.0.clone())),
+            ServerMessage::RealmEvents(r) => self.realm_events = Some(r.clone()),
             ServerMessage::ImprintResult(r) => {
                 self.forge_events.push(crate::forge::Event::Imprint { success: r.success, message: r.message.clone() })
             }
@@ -763,7 +775,8 @@ impl Game {
                     self.sounds.push((s, 1.0, false));
                 }
                 if d.damage_amount > 0 {
-                    self.floaters.push(crate::view::Floater::damage(d.target_id, d.damage_amount, now));
+                    // purple when it ignored defense (an imprint's burst, poison)
+                    self.floaters.push(crate::view::Floater::hit(d.target_id, d.damage_amount, d.pierce, now));
                 }
             }
             _ => {}
@@ -1126,6 +1139,13 @@ impl Game {
         }
         self.next_teleport = now + TELEPORT_COOLDOWN;
         self.send(Teleport { object_id }.into());
+    }
+
+    /// The event our quest arrow follows (`QuestPick`): that one, or back to the nearest (0).
+    pub fn pick_quest(&mut self, object_id: i32) {
+        if self.realm_events.is_some() {
+            self.send(bsk_proto::QuestPick { object_id }.into());
+        }
     }
 
     pub fn party_invite(&mut self, name: &str) {

@@ -8,8 +8,8 @@ namespace WorldServer.logic
     // Realm 2's monsters (tools/build_realm2.py draws them and writes their XML; the projectile
     // indices here are its MOBS lists). For each event land, two to four monsters as strong as the
     // gods, a few small ones that only come with them (Cubelets, Eye Swarmers, Scarabs, Worker
-    // Bees...), and two quests: the monsters drop as the gods do, the quests better, with a
-    // dungeon of their land's kind now and then.
+    // Bees...), and two quests: the monsters drop as the gods do, the quests better, with one of
+    // the easier dungeons of their land's kind now and then (its event drops the harder one).
     partial class BehaviorDb
     {
         // keeps to its patch, comes for players near it, otherwise wanders
@@ -38,10 +38,14 @@ namespace WorldServer.logic
                 new ItemLoot("Potion of Life", 0.02), new ItemLoot("Potion of Mana", 0.02)),
         };
 
+        // a little monster's quip now and then, over its head only (not in chat), to whoever is near
+        private static Taunt R2Quip(params string[] lines) => new Taunt(0.2, new Cooldown(10000, 5000), lines) { Chat = false };
+
         private _ Realm2 = () => Behav()
         // ---------------------------------------------------------------- the Cubic Expanse
         .Init("R2 Cubelet",
             new State(
+                R2Quip("WE LOVE ICE CUBE!", "Today was a good day!", "It's hip to be square!", "I'm not a box, I'm a lifestyle.", "Cube life!"),
                 new Prioritize(new StayCloseToSpawn(1.2, 16), new Swirl(1.2, 3, 9), new Wander(0.6)),
                 new Shoot(8, 3, shootAngle: 15, coolDown: 900)
                 ),
@@ -100,7 +104,7 @@ namespace WorldServer.logic
                     new Shoot(12, 5, shootAngle: 12, projectileIndex: 2, predictive: 0.5, coolDown: 1100),
                     new Shoot(12, 10, projectileIndex: 1, coolDown: 2600)
                     ),
-                new DropPortalOnDeath("Mad Lab Portal", 0.25)
+                new DropPortalOnDeath("Mad Lab Portal", 0.3)
                 ),
             R2Quest("Potion of Wisdom", "Potion of Dexterity"))
         .Init("R2 Hypercube Warden",
@@ -117,7 +121,7 @@ namespace WorldServer.logic
                     new Shoot(10, 8, projectileIndex: 0, coolDown: 900),
                     new TimedTransition(3000, "Guard")
                     ),
-                new DropPortalOnDeath("Mad Lab Portal", 0.15)
+                new DropPortalOnDeath("Mad Lab Portal", 0.3)
                 ),
             R2Quest("Potion of Dexterity", "Potion of Wisdom"))
         // ---------------------------------------------------------------- the Watching Dark
@@ -129,6 +133,7 @@ namespace WorldServer.logic
             R2Mob("Potion of Attack"))
         .Init("R2 Eye Swarmer",
             new State(
+                R2Quip("I've got my eye on you!", "Don't blink!", "Eye eye, captain!", "Look at me when I'm swarming you!"),
                 new Prioritize(new StayCloseToSpawn(1.4, 16), new Swirl(1.4, 2.5, 9), new Wander(0.8)),
                 new Shoot(7, coolDown: 500)
                 ),
@@ -172,7 +177,7 @@ namespace WorldServer.logic
                     new Shoot(10, 2, shootAngle: 8, projectileIndex: 2, predictive: 0.8, coolDown: 600),
                     new Shoot(12, projectileIndex: 1, predictive: 0.5, coolDown: 2500)
                     ),
-                new DropPortalOnDeath("Cursed Library Portal", 0.2)
+                new DropPortalOnDeath("Cursed Library Portal", 0.3)
                 ),
             R2Quest("Potion of Attack", "Potion of Wisdom"))
         .Init("R2 Elder Watcher",
@@ -181,7 +186,7 @@ namespace WorldServer.logic
                 new Shoot(13, 6, shootAngle: 60, projectileIndex: 0, rotateAngle: 10, predictive: 0.3, coolDown: 800),
                 new Shoot(11, projectileIndex: 1, predictive: 1, coolDown: 3500),
                 new Spawn("R2 Floating Eye", maxChildren: 3, initialSpawn: 0, coolDown: 8000),
-                new DropPortalOnDeath("Cursed Library Portal", 0.15)
+                new DropPortalOnDeath("Cursed Library Portal", 0.3)
                 ),
             R2Quest("Potion of Wisdom", "Potion of Attack"))
         // ---------------------------------------------------------------- the Lost Lands
@@ -235,7 +240,7 @@ namespace WorldServer.logic
                     new Spawn("R2 Lost Sentry", maxChildren: 3, initialSpawn: 0, coolDown: 9000),
                     new TimedTransition(3500, "Drill")
                     ),
-                new DropPortalOnDeath("Haunted Cemetery Portal", 0.15)
+                new DropPortalOnDeath("Haunted Cemetery Portal", 0.3)
                 ),
             R2Quest("Potion of Defense", "Potion of Vitality"))
         .Init("R2 Forgotten Warlord",
@@ -260,7 +265,7 @@ namespace WorldServer.logic
                     new Shoot(8, 5, shootAngle: 24, projectileIndex: 1, coolDown: 1100),
                     new Spawn("R2 Lost Sentry", maxChildren: 2, initialSpawn: 0, coolDown: 12000)
                     ),
-                new DropPortalOnDeath("Haunted Cemetery Portal", 0.25)
+                new DropPortalOnDeath("Haunted Cemetery Portal", 0.3)
                 ),
             R2Quest("Potion of Vitality", "Potion of Defense"))
         // ---------------------------------------------------------------- the Tidepools
@@ -312,7 +317,7 @@ namespace WorldServer.logic
                     new Shoot(12, 12, projectileIndex: 0, coolDown: 1600),
                     new TimedTransition(4500, "Shell")
                     ),
-                new DropPortalOnDeath("Ocean Trench Portal", 0.2)
+                new DropPortalOnDeath("Beachzone Portal", 0.3)
                 ),
             R2Quest("Potion of Defense", "Potion of Vitality"))
         .Init("R2 Ancient Snapper",
@@ -328,7 +333,7 @@ namespace WorldServer.logic
                     new Shoot(8, 6, shootAngle: 60, projectileIndex: 0, coolDown: 700),
                     new TimedTransition(2400, "Circle")
                     ),
-                new DropPortalOnDeath("Ocean Trench Portal", 0.25)
+                new DropPortalOnDeath("Beachzone Portal", 0.3)
                 ),
             R2Quest("Potion of Vitality", "Potion of Defense"))
         // ---------------------------------------------------------------- the Wreck Coast
@@ -341,6 +346,7 @@ namespace WorldServer.logic
             R2Mob("Potion of Dexterity"))
         .Init("R2 Spectral Gull",
             new State(
+                R2Quip("MINE! MINE! MINE!", "Arrr... I mean, CAW!", "Got any chips?", "Seen my body anywhere?"),
                 new Prioritize(new StayCloseToSpawn(1.4, 16), new Buzz(1.6, 1.5, 300), new Follow(1.4, 10, 2), new Wander(1)),
                 new Shoot(7, 3, shootAngle: 20, coolDown: 800)
                 ),
@@ -358,6 +364,17 @@ namespace WorldServer.logic
                 new Shoot(10, 3, shootAngle: 120, rotateAngle: 17, coolDown: 600)
                 ),
             R2Mob("Potion of Speed"))
+        // a little ghost ship in the coast's shallows (RealmManager puts them on its water): drifts
+        // about its patch, a cannon at whoever comes near and now and then a broadside both ways
+        .Init("R2 Phantom Sloop",
+            new State(
+                R2Quip("All hands... no hands!", "Batten down the... wait, where's my hull?", "Yo ho, yo ho, a ghost's life for me!"),
+                new Prioritize(new StayCloseToSpawn(0.4, 4), new Wander(0.3)),
+                new Shoot(11, 2, shootAngle: 10, projectileIndex: 0, predictive: 0.4, coolDown: 1600),
+                new Shoot(9, 3, shootAngle: 12, projectileIndex: 1, fixedAngle: 90, coolDown: 3200, coolDownOffset: 800),
+                new Shoot(9, 3, shootAngle: 12, projectileIndex: 1, fixedAngle: 270, coolDown: 3200, coolDownOffset: 800)
+                ),
+            R2Mob("Potion of Dexterity"))
         .Init("R2 Phantom Quartermaster",
             new State(
                 new State("Orders",
@@ -373,7 +390,7 @@ namespace WorldServer.logic
                     new Spawn("R2 Spectral Gull", maxChildren: 4, initialSpawn: 0, coolDown: 2500),
                     new TimedTransition(3500, "Orders")
                     ),
-                new DropPortalOnDeath("Davy Jones' Locker Portal", 0.2)
+                new DropPortalOnDeath("Pirate Cave Portal", 0.3)
                 ),
             R2Quest("Potion of Dexterity", "Potion of Speed"))
         .Init("R2 Abyssal Kraken",
@@ -399,12 +416,13 @@ namespace WorldServer.logic
                     new Shoot(13, 8, projectileIndex: 1, fixedAngle: 22, rotateAngle: -12, coolDown: 350),
                     new Shoot(13, 3, shootAngle: 15, projectileIndex: 0, predictive: 0.5, coolDown: 1000)
                     ),
-                new DropPortalOnDeath("Davy Jones' Locker Portal", 0.25)
+                new DropPortalOnDeath("Pirate Cave Portal", 0.3)
                 ),
             R2Quest("Potion of Speed", "Potion of Dexterity"))
         // ---------------------------------------------------------------- the Sunken Tombs
         .Init("R2 Scarab",
             new State(
+                R2Quip("Rolling, rolling, rolling...", "I'm a scarab, not a scare-ab!", "Dung it again!", "Have you seen my ball?"),
                 new Prioritize(new StayCloseToSpawn(1.3, 16), new Swirl(1.3, 2, 9), new Wander(0.8)),
                 new Shoot(7, 2, shootAngle: 30, coolDown: 600)
                 ),
@@ -451,7 +469,7 @@ namespace WorldServer.logic
                     new Spawn("R2 Scarab", maxChildren: 5, initialSpawn: 0, coolDown: 3000),
                     new TimedTransition(3200, "Rays")
                     ),
-                new DropPortalOnDeath("Tomb of the Ancients Portal", 0.15)
+                new DropPortalOnDeath("Ancient Ruins Portal", 0.3)
                 ),
             R2Quest("Potion of Vitality", "Potion of Speed"))
         .Init("R2 Sand Scourge",
@@ -466,7 +484,7 @@ namespace WorldServer.logic
                     new Shoot(9, 3, shootAngle: 30, projectileIndex: 1, coolDown: 700),
                     new TimedTransition(2500, "Coil")
                     ),
-                new DropPortalOnDeath("Tomb of the Ancients Portal", 0.25)
+                new DropPortalOnDeath("Ancient Ruins Portal", 0.3)
                 ),
             R2Quest("Potion of Speed", "Potion of Vitality"))
         // ---------------------------------------------------------------- the Bonefields
@@ -478,6 +496,7 @@ namespace WorldServer.logic
             R2Mob("Potion of Attack"))
         .Init("R2 Skull Wisp",
             new State(
+                R2Quip("I've got a bone to pick with you!", "No body loves me...", "Skull-duggery!", "I'm dead serious!"),
                 new Prioritize(new StayCloseToSpawn(1.1, 16), new Orbit(1.1, 3.5, 10), new Wander(0.6)),
                 new Shoot(10, predictive: 0.5, coolDown: 700)
                 ),
@@ -519,7 +538,7 @@ namespace WorldServer.logic
                     new Shoot(13, 5, shootAngle: 12, projectileIndex: 0, predictive: 0.5, coolDown: 900),
                     new Grenade(3, 150, 10, coolDown: 2500, color: 0xE06010)
                     ),
-                new DropPortalOnDeath("Undead Lair Portal", 0.2)
+                new DropPortalOnDeath("Undead Lair Portal", 0.3)
                 ),
             R2Quest("Potion of Attack", "Potion of Defense"))
         .Init("R2 Marrow Fiend",
@@ -534,7 +553,7 @@ namespace WorldServer.logic
                     new Shoot(7, 10, projectileIndex: 1, coolDown: 800),
                     new TimedTransition(2500, "Stalk")
                     ),
-                new DropPortalOnDeath("Undead Lair Portal", 0.15)
+                new DropPortalOnDeath("Undead Lair Portal", 0.3)
                 ),
             R2Quest("Potion of Defense", "Potion of Attack"))
         // ---------------------------------------------------------------- the Jade Garden
@@ -567,6 +586,7 @@ namespace WorldServer.logic
             R2Mob("Potion of Speed"))
         .Init("R2 Lantern Wisp",
             new State(
+                R2Quip("Lighten up!", "Feeling lit!", "Don't blow me out!", "I'm a bright little spirit!"),
                 new Prioritize(new StayCloseToSpawn(0.7, 16), new Follow(0.7, 9, 4), new Wander(0.5)),
                 new Shoot(9, 6, shootAngle: 60, rotateAngle: 10, coolDown: 1000)
                 ),
@@ -586,7 +606,9 @@ namespace WorldServer.logic
                     new Shoot(10, 10, projectileIndex: 0, rotateAngle: 18, coolDown: 500),
                     new TimedTransition(3000, "Rage")
                     ),
-                new DropPortalOnDeath("Magic Woods Portal", 0.2)
+                new DropPortalOnDeath("Magic Woods Portal", 0.3),
+                // the realm's jungle temples (and their Great Coil Snakes) aren't in Realm 2
+                new DropPortalOnDeath("Forbidden Jungle Portal", 0.25, xAdjustment: 2)
                 ),
             R2Quest("Potion of Speed", "Potion of Wisdom"))
         .Init("R2 Jade Golem",
@@ -604,18 +626,20 @@ namespace WorldServer.logic
                     new Spawn("R2 Lantern Wisp", maxChildren: 3, initialSpawn: 0, coolDown: 2000),
                     new TimedTransition(3000, "Stand")
                     ),
-                new DropPortalOnDeath("Magic Woods Portal", 0.15)
+                new DropPortalOnDeath("Magic Woods Portal", 0.3)
                 ),
             R2Quest("Potion of Wisdom", "Potion of Speed"))
-        // ---------------------------------------------------------------- the Ashen Caldera
+        // ---------------------------------------------------------------- the Dragon's Roost
         .Init("R2 Drakeling",
             new State(
                 new Prioritize(new StayCloseToSpawn(1.0, 16), new Orbit(1.0, 4, 10), new Wander(0.6)),
                 new Shoot(10, 2, shootAngle: 12, predictive: 0.5, coolDown: 800)
                 ),
             R2Mob("Potion of Attack"))
+        // a kobold who hoards for the dragons (the id is the caldera's salamander it was)
         .Init("R2 Magma Salamander",
             new State(
+                R2Quip("MINE! All shiny is MINE!", "Big wyrm says no touching!", "You no take gold!", "Kobold count coins. One, two... many!"),
                 R2Walk(0.8, 9, 3),
                 new Shoot(10, 3, shootAngle: 15, coolDown: 1000),
                 new Grenade(2, 100, 7, coolDown: 3500, color: 0xFF7010)
@@ -627,11 +651,19 @@ namespace WorldServer.logic
                 new Shoot(12, 3, shootAngle: 25, predictive: 0.3, coolDown: 1200)
                 ),
             R2Mob("Potion of Attack"))
+        // a mimic among the gold (the id is the caldera's golem it was): a chest until someone
+        // comes close, then it snaps awake and gives chase
         .Init("R2 Obsidian Golem",
             new State(
-                R2Walk(0.35, 9, 2),
-                new Shoot(10, 8, shootAngle: 45, coolDown: 2000),
-                new Shoot(10, predictive: 0.6, coolDown: 1400)
+                new State("Lurk",
+                    new PlayerWithinTransition(4, "Snap")
+                    ),
+                new State("Snap",
+                    new Taunt(0.5, "SURPRISE!", "Not a chest. NOT A CHEST!", "Finders keepers? No: finders EATEN!") { Chat = false },
+                    R2Walk(0.6, 12, 1.5),
+                    new Shoot(10, 8, shootAngle: 45, coolDown: 2000),
+                    new Shoot(10, predictive: 0.6, coolDown: 1400)
+                    )
                 ),
             R2Mob("Potion of Defense"))
         .Init("R2 Wyrm Matriarch",
@@ -658,7 +690,7 @@ namespace WorldServer.logic
                     new Shoot(13, 5, shootAngle: 12, projectileIndex: 0, predictive: 0.4, coolDown: 900),
                     new Grenade(3, 140, 9, coolDown: 2000, color: 0xFF7010)
                     ),
-                new DropPortalOnDeath("Lair of Draconis Portal", 0.2)
+                new DropPortalOnDeath("Treasure Cave Portal", 0.3)
                 ),
             R2Quest("Potion of Attack", "Potion of Dexterity"))
         .Init("R2 Elder Drake",
@@ -675,7 +707,7 @@ namespace WorldServer.logic
                     new Spawn("R2 Drakeling", maxChildren: 2, initialSpawn: 0, coolDown: 9000),
                     new TimedTransition(2500, "Prowl")
                     ),
-                new DropPortalOnDeath("Lair of Draconis Portal", 0.15)
+                new DropPortalOnDeath("Treasure Cave Portal", 0.3)
                 ),
             R2Quest("Potion of Dexterity", "Potion of Attack"))
         // ---------------------------------------------------------------- the Forgotten Kingdom
@@ -709,6 +741,7 @@ namespace WorldServer.logic
             R2Mob("Potion of Defense"))
         .Init("R2 Soul Lantern",
             new State(
+                R2Quip("Long live the king! ...wait.", "Who turned out the lights?", "I used to be somebody.", "This kingdom had a lovely gift shop."),
                 new Prioritize(new StayCloseToSpawn(0.6, 16), new Orbit(0.6, 5, 10), new Wander(0.4)),
                 new Shoot(11, 8, projectileIndex: 0, rotateAngle: 12, coolDown: 1400)
                 ),
@@ -737,7 +770,7 @@ namespace WorldServer.logic
                     new Shoot(14, 3, shootAngle: 120, projectileIndex: 0, fixedAngle: 60, rotateAngle: -14, coolDown: 160),
                     new Shoot(12, 3, shootAngle: 12, projectileIndex: 1, predictive: 0.5, coolDown: 1600)
                     ),
-                new DropPortalOnDeath("The Shatters", 0.1)
+                new DropPortalOnDeath("Manor of the Immortals Portal", 0.3)
                 ),
             R2Quest("Potion of Wisdom", "Potion of Defense"))
         .Init("R2 King's Champion",
@@ -756,12 +789,13 @@ namespace WorldServer.logic
                     new Spawn("R2 Shattered Knight", maxChildren: 2, initialSpawn: 0, coolDown: 10000),
                     new TimedTransition(3000, "Duel")
                     ),
-                new DropPortalOnDeath("The Shatters", 0.1)
+                new DropPortalOnDeath("Manor of the Immortals Portal", 0.3)
                 ),
             R2Quest("Potion of Defense", "Potion of Wisdom"))
         // ---------------------------------------------------------------- the Honey Meadow
         .Init("R2 Worker Bee",
             new State(
+                R2Quip("Mind your own beeswax!", "I work for the Queen and I don't even get dental!", "Bee-ware!", "Buzz off!"),
                 new Prioritize(new StayCloseToSpawn(1.4, 16), new Buzz(1.6, 1, 400), new Swirl(1.4, 2.5, 9), new Wander(0.9)),
                 new Shoot(7, coolDown: 450)
                 ),
@@ -789,6 +823,7 @@ namespace WorldServer.logic
             R2Mob("Potion of Speed"))
         .Init("R2 Pollen Sprite",
             new State(
+                R2Quip("Achoo!", "Sorry about your allergies!", "Flower power!", "Bless me!"),
                 new Prioritize(new StayCloseToSpawn(0.8, 16), new Orbit(0.8, 3, 9), new Wander(0.6)),
                 new Shoot(9, 4, shootAngle: 90, rotateAngle: 25, coolDown: 900)
                 ),
@@ -808,7 +843,7 @@ namespace WorldServer.logic
                     new Spawn("R2 Worker Bee", maxChildren: 4, initialSpawn: 0, coolDown: 5000),
                     new TimedTransition(3500, "Patrol")
                     ),
-                new DropPortalOnDeath("The Hive Portal", 0.15)
+                new DropPortalOnDeath("Forest Maze Portal", 0.3)
                 ),
             R2Quest("Potion of Speed", "Potion of Dexterity"))
         .Init("R2 Hornet Queen",
@@ -834,7 +869,7 @@ namespace WorldServer.logic
                     new Shoot(13, 3, shootAngle: 120, projectileIndex: 0, rotateAngle: 17, coolDown: 350),
                     new Shoot(11, 6, shootAngle: 10, projectileIndex: 1, predictive: 0.5, coolDown: 700)
                     ),
-                new DropPortalOnDeath("The Hive Portal", 0.25)
+                new DropPortalOnDeath("Forest Maze Portal", 0.3)
                 ),
             R2Quest("Potion of Dexterity", "Potion of Speed"))
         ;

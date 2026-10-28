@@ -202,11 +202,14 @@ namespace WorldServer.logic
             // - Transcendence (60%): back to the middle, heals everyone to full, then the same three
             //   patterns, Transcendent: a quicker Cross, blighting stars, and a Hunt that slows the
             //   whole arena, bleeds behind him and brings his Host up beneath him, though he's slower.
-            // - Apotheosis (20%): his sprite turns gold and eight Halo Orbs circle the edge of the
-            //   arena, firing in at its middle. Wrath: the Cross (aimed at you now) and the Hunt in
-            //   turn, chasing all the while.
+            // - Ascension (40%): back to the middle, and eight Halo Orbs rise to circle the edge of
+            //   the arena, firing in at its middle, until his Last Judgement; then the Transcendent
+            //   patterns again.
+            // - Apotheosis (20%): his sprite turns gold. Wrath: the Cross (aimed at you now) and the
+            //   Hunt in turn, chasing all the while.
             // - Last Judgement (10%): invulnerable in the middle. Gates fill the corridor below the
-            //   arena, the Pillars of Heaven ring the arena firing straight across it, and he throws
+            //   arena, the eyes in the arena's walls open, the Pillars of Heaven, firing straight
+            //   across it from every side, and he throws
             //   the Spear of Heaven and fires the Radiant Cross, slowed right down. After 30 s, the
             //   Concession: the corridor opens, he falls back through every Oryx he was, and then he
             //   can be killed.
@@ -294,10 +297,26 @@ namespace WorldServer.logic
                         new TimedPatternTransition(5000, "T Cross", "T Firmament", "T Hunt")
                     ),
                     new State("Transcendent",
-                        new HpLessTransition(0.2, "Apotheosis"),
+                        new HpLessTransition(0.4, "Ascension"),
                         RadiantCross("T Cross", true, new TimedPatternTransition(CrossTime, "T Cross", "T Firmament", "T Hunt")),
                         Firmament("T Firmament", true, new TimedPatternTransition(StarLife, "T Cross", "T Firmament", "T Hunt")),
                         DivineHunt("T Hunt", true, true, ms => new TimedPatternTransition(ms, "T Cross", "T Firmament", "T Hunt"))
+                    ),
+
+                    // ---- Ascension (40%): his halo rises round the arena's edge till his Last Judgement ----
+                    new State("Ascension",
+                        new ConditionEffectBehavior(ConditionEffectIndex.Invulnerable),
+                        new ReturnToSpawn(1.5),
+                        new Flash(0xFFFFE070, 0.25, 10),
+                        new Taunt(true, "My halo rises! Ring this heaven, and let none stand outside its light!") { Bubble = false },
+                        new SpawnRing("Halo Orb", 8, 14, aroundSpawn: true),
+                        new TimedPatternTransition(3500, "A Cross", "A Firmament", "A Hunt")
+                    ),
+                    new State("Ascendant",
+                        new HpLessTransition(0.2, "Apotheosis"),
+                        RadiantCross("A Cross", true, new TimedPatternTransition(CrossTime, "A Cross", "A Firmament", "A Hunt")),
+                        Firmament("A Firmament", true, new TimedPatternTransition(StarLife, "A Cross", "A Firmament", "A Hunt")),
+                        DivineHunt("A Hunt", true, true, ms => new TimedPatternTransition(ms, "A Cross", "A Firmament", "A Hunt"))
                     ),
 
                     // ---- Apotheosis (20% to 10%) ----
@@ -307,7 +326,6 @@ namespace WorldServer.logic
                         new SetAltTexture(1),
                         new Flash(0xFFFFE070, 0.25, 16),
                         new Taunt(true, "Behold my APOTHEOSIS! I am the light, and the light does not die!") { Bubble = false },
-                        new SpawnRing("Halo Orb", 8, 14, aroundSpawn: true),
                         new TimedTransition(4000, "W Cross")
                     ),
                     new State("Wrath",
@@ -337,8 +355,9 @@ namespace WorldServer.logic
                             new Taunt(true, "ENOUGH! The heavens themselves shall be your prison!") { Bubble = false },
                             new TimedTransition(2000, "LJ Fall")
                         ),
+                        // the eyes in the walls open
                         new State("LJ Fall",
-                            new SpawnRing("Pillar of Heaven", 24, 15, 7.5, aroundSpawn: true),
+                            new Order(40, "Pillar of Heaven", "Live"),
                             new TimedTransition(500, "LJ Siege")
                         ),
                         // the spear, and the Radiant Cross as it began, drifting slowly out to crowd the
@@ -361,7 +380,7 @@ namespace WorldServer.logic
                     // he falls back through every Oryx he was (AltTextures 2 to 5: Oryx 4, 3, 2 and 1),
                     // each at that Oryx's own size, ending as small as Oryx 1, and only then can be hurt
                     new State("Concession",
-                        new Order(30, "Pillar of Heaven", "Gone"),
+                        new Order(40, "Pillar of Heaven", "Dormant"),
                         new State("Concession Open",
                             new ConditionEffectBehavior(ConditionEffectIndex.Invulnerable),
                             new Flash(0xFFFFFFFF, 0.5, 6),
@@ -493,15 +512,17 @@ namespace WorldServer.logic
                     new State("Gone", new Suicide())
                 )
             )
-            // the Pillars of Heaven: rays straight across the arena (those at the sides across, those
-            // above and below up or down), bleeding, blighting and breaking armour in turn
+            // the Pillars of Heaven: turrets before the golden eyes in the arena's walls
+            // (tools/build_elysium.py), quiet until his Last Judgement; then rays straight across the
+            // arena (those at the sides across, those above and below up or down), bleeding,
+            // blighting and breaking armour in turn, until his Concession
             .Init("Pillar of Heaven",
                 new State(
-                    new ConditionEffectBehavior(ConditionEffectIndex.Invulnerable),
-                    new ShootFromCenter("Oryx the Ascended God", new[] { 0, 1, 2 }, inward: true, snapToAxis: true,
-                        coolDown: new Cooldown(1600, 500), coolDownOffset: 1000),
-                    new State("Live"),
-                    new State("Gone", new Suicide())
+                    new State("Dormant"),
+                    new State("Live",
+                        new ShootFromCenter("Oryx the Ascended God", new[] { 0, 1, 2 }, inward: true, snapToAxis: true,
+                            coolDown: new Cooldown(1600, 500), coolDownOffset: 1000)
+                    )
                 )
             )
 
@@ -572,13 +593,19 @@ namespace WorldServer.logic
                 ElysianLoot()
             )
 
-            // opens the Holy Gates once no Tree of Doom and no Void Entity is left on the island
+            // opens the Holy Gates once no Tree of Doom and no Void Entity is left on the island; till
+            // then Oryx tells the players so, and how many trees still stand (the Void Entity's three
+            // counted while it lives)
             .Init("O5 Gate Watcher",
                 new State(
                     new State("Wait",
                         new TimedTransition(3000, "Watch")
                     ),
                     new State("Watch",
+                        new AnnounceRemaining("Oryx the Ascended God", "Tree of Doom", "Elysian Void Entity", 3,
+                            "You trespass on MY island? My Holy Gates open for no one while a single Tree of Doom still stands. Destroy them all, if you can!",
+                            "{N} Trees of Doom still stand. My Holy Gates stay shut!",
+                            "One Tree of Doom still stands. My Holy Gates stay shut!"),
                         new EntitiesNotExistsTransition(150, "Open", ElysiumGatekeepers)
                     ),
                     new State("Open",

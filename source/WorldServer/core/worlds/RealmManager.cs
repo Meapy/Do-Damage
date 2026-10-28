@@ -412,7 +412,8 @@ namespace WorldServer.core.worlds
         {
             "Cube God", "Pentaract Tower", "Lord of the Lost Lands", "Ghost Ship", "Grand Sphinx", "Hermit God",
             "Skull Shrine", "Garnet Statue", "Jade Statue", "Lucky Ent God", "Lucky Djinn", "Dragon Head",
-            "shtrs Defense System", "EH Event Hive", "EH Blue Guardian Bee", "EH Yellow Guardian Bee", "EH Red Guardian Bee"
+            "shtrs Defense System", "EH Event Hive", "EH Blue Guardian Bee", "EH Yellow Guardian Bee", "EH Red Guardian Bee",
+            "LH Lost Sentry"
         };
 
         // Events too hard for a small group: they only come once the realm has had this many players.
@@ -459,6 +460,7 @@ namespace WorldServer.core.worlds
         private long _lastEventChange = -EventGapMs;
         private long _lastScale;
         private long _lastSample;
+        private long _lastEventList;
         private int _beesDown;
         private int _spawned;
 
@@ -526,6 +528,14 @@ namespace WorldServer.core.worlds
                             _lastScale = time.TotalElapsedMs;
                         }
 
+                        if (time.TotalElapsedMs - _lastEventList >= 2000)
+                        {
+                            SendEventLists();
+                            if (Layout != null)
+                                SweepAbyss();
+                            _lastEventList = time.TotalElapsedMs;
+                        }
+
                         if (time.TotalElapsedMs - LastAnnouncementTime >= 20000)
                         {
                             HandleAnnouncements();
@@ -584,8 +594,9 @@ namespace WorldServer.core.worlds
                 _lastSample = _now;
             }
 
-            // a gap between events, which also lets the last one's parts reach the world
-            if (_now - _lastEventChange < EventGapMs)
+            // a gap between events, which also lets the last one's parts reach the world (shorter in
+            // Realm 2, whose players have its lands to cross)
+            if (_now - _lastEventChange < (Layout != null ? Realm2GapMs : EventGapMs))
                 return;
 
             _parts.RemoveAll(p => p.Enemy.World != World || p.Enemy.Dead);
@@ -599,7 +610,7 @@ namespace WorldServer.core.worlds
                 counted.Add(part.Event);
                 alive++;
                 // untouched for 10 minutes (out of the way, or too hard): let another come; in
-                // Realm 2, whose events are spread over its lands, after 3
+                // Realm 2, whose events are spread over its lands, after 1.5
                 if (_now - part.Since < (Layout != null ? Realm2StaleMs : StaleEventMs) || Touched(part))
                     fresh++;
             }
@@ -611,11 +622,12 @@ namespace WorldServer.core.worlds
                     fresh++;
                 }
 
-            if (fresh >= EventsAtOnce(RecentPlayers) || alive >= MaxEventsAlive)
+            // Realm 2 keeps one more running than a realm would, so its lands come quicker
+            if (fresh >= EventsAtOnce(RecentPlayers) + (Layout != null ? 1 : 0) || alive >= MaxEventsAlive + (Layout != null ? 1 : 0))
                 return;
 
             // Realm 2: its next event, with its land, until it has as many as it needs; with none
-            // running for 30 s, one comes wherever it can (no drought)
+            // running for 12 s, one comes wherever it can (no drought)
             if (Layout != null)
             {
                 var force = alive == 0 && _now - _lastEventChange >= Realm2DroughtMs;
@@ -762,7 +774,9 @@ namespace WorldServer.core.worlds
             };
             World.Broadcast(text);
         }
-        public void CountingEvents(string eventDead)
+        // One event defeated, wherever it was and whichever the players' quest arrows pointed at:
+        // every event in the realm counts, the ones its own set pieces brought too.
+        public void CountingEvents(string eventDead, Entity at = null)
         {
             if (DisableSpawning)
                 return;
@@ -771,6 +785,11 @@ namespace WorldServer.core.worlds
             _EventCount++;
             var needed = EventsNeeded;
             RealmBroadcast($"{eventDead} has been defeated! [{_EventCount}/{needed}]");
+            if (needed - _EventCount > 0)
+                RealmBroadcast($"{needed - _EventCount} more {(needed - _EventCount == 1 ? "event" : "events")} until Oryx must face you.");
+            if (Layout != null)
+                LayoutEventDefeated(at, needed);
+            SendEventLists();
             if (_EventCount >= needed)
             {
                 // everyone here helped close it (quests and achievements)
@@ -831,17 +850,48 @@ namespace WorldServer.core.worlds
             if (name is "EH Blue Guardian Bee" or "EH Yellow Guardian Bee" or "EH Red Guardian Bee")
             {
                 if (++_beesDown % 3 == 0)
-                    CountingEvents("Killer Bee Nest");
+                {
+                    OpenHive(enemy);
+                    CountingEvents("Killer Bee Nest", enemy);
+                }
                 return;
             }
 
             foreach (var dat in CriticalEnemies)
                 if (enemy.ObjectDesc.IdName == dat.Item1)
                 {
-                    CountingEvents(dat.Item2.NameOfDeath);
+                    CountingEvents(dat.Item2.NameOfDeath, enemy);
                     //AnnounceMVP(enemy, dat.Item2.NameOfDeath);
                     break;
                 }
+        }
+
+        // The third guardian bee is down: the hive's corpse goes, leaving its portal to the Hive. The
+        // corpse used to leave it only once it saw every bee gone within 30 tiles of it, which a bee
+        // chasing a player further away, or two dying together, could stop.
+        private void OpenHive(Enemy lastBee)
+        {
+            var at = (X: lastBee.X, Y: lastBee.Y);
+            var gameData = World.GameServer.Resources.GameData;
+            if (gameData.IdToObjectType.TryGetValue("EH Event Hive Corpse", out var corpseType))
+            {
+                var corpse = World.Enemies.Values.Where(e => e.ObjectType == corpseType && !e.Dead)
+                    .OrderBy(e => e.SqDistTo(lastBee)).FirstOrDefault();
+                if (corpse != null && corpse.DistTo(lastBee) < 60)
+                {
+                    at = (corpse.X, corpse.Y);
+                    World.LeaveWorld(corpse);
+                }
+            }
+            if (!gameData.IdToObjectType.TryGetValue("The Hive Portal", out var portalType))
+                return;
+            var portal = Entity.Resolve(World.GameServer, portalType);
+            portal.Move(at.X, at.Y);
+            World.EnterWorld(portal);
+            var timeout = gameData.Portals.TryGetValue(portalType, out var desc) ? desc.Timeout : 30;
+            if (timeout > 0)
+                World.StartNewTimer(timeout * 1000, (w, t) => w.LeaveWorld(portal));
+            RealmBroadcast("The Killer Bee Nest falls silent, and its hive lies open!");
         }
 
         public void OnProcEvent(string enemy, Player killer)
@@ -888,14 +938,14 @@ namespace WorldServer.core.worlds
 
         private void BroadcastMsg(string message) => World.GameServer.ChatManager.Oryx(World, message);
 
-        // Realm 2's news is its own players' only
+        // A realm's news (events spawned and defeated, the count to close it) is its own players'
+        // only: it went to every realm's, whose counts then read as if kills hadn't counted.
         private void RealmBroadcast(string message)
         {
-            if (Layout == null)
-                World.GameServer.ChatManager.Realm(message);
-            else if (!string.IsNullOrWhiteSpace(message))
-                foreach (var player in World.Players.Values)
-                    player.RealmRecieved(message);
+            if (string.IsNullOrWhiteSpace(message))
+                return;
+            foreach (var player in World.Players.Values)
+                player.RealmRecieved(message);
         }
 
         private void EnsurePopulation()

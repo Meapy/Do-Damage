@@ -37,11 +37,18 @@ weapon that hits for 100 hit for 105. They never change an ability's own effects
 
 ## Imprinting an item
 
-1. Stand by the Enchanter: the bottom of your HUD says "Imprint your gear". Press **Open**.
+1. Stand by the Enchanter: the bottom of your HUD says "The Divine Workbench: imprint your gear".
+   Press **Open**. The **Divine Workbench** opens at its **Imprints** tab (the forge opens the same
+   window; its Imprints tab is here too).
 2. Pick a piece of Enthroned gear: equipped, in your inventory (or backpack), or in your vault
-   (the **Vault** section lists the Enthroned gear in your own vault chests).
+   (the **Vault** section lists the Enthroned gear in your own vault chests). Only the imprints
+   that fit it show. Click it again, or **Show all imprints**, to look over every imprint of each
+   colour and what it fits; the list scrolls with the mouse wheel.
 3. Pick a colour, then press **Imprint** on the imprint you want. A slot that already holds one
    says **Replace**: the new imprint takes the old one's place.
+
+Imprints show wherever the item does: in your inventory and bags, in the trade window, on other
+players' gear in their card (the players near you, bottom right), and on the character list.
 
 Each imprint costs **one Ascended shard**, of the kind for its colour, taken from your forge storage
 (or your inventory when your storage has none):
@@ -60,5 +67,5 @@ Oryx the Ascended God (Oryx 5) drops the Ascended shards (see
 {{gen:imprints}}
 
 > A few details: Gathered Shot's arrow does all three arrows' damage as one hit. Battle Mage's bolts
-> do 450 damage, whatever your attack. Wounds count each of your hits on an enemy, and say so every
-> fifth wound. Bloodrush stacks up to ten kills at once. Sunder can't take an enemy below 0 defense.
+> do 450 damage, whatever your attack. Wounds count each of your hits on an enemy quietly; the
+> 25th's burst shows its damage in purple, as damage that ignores defense does. Bloodrush stacks up to ten kills at once. Sunder can't take an enemy below 0 defense.

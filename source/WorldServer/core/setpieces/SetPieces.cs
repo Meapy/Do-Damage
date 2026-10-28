@@ -8,6 +8,7 @@ using WorldServer.core.setpieces;
 using WorldServer.core.structures;
 using WorldServer.core.terrain;
 using WorldServer.core.worlds;
+using WorldServer.core.worlds.impl;
 
 namespace WorldServer.core.worlds
 {
@@ -127,6 +128,16 @@ namespace WorldServer.core.worlds
             }
 
             //log.InfoFormat("Applied setpieces to: '{0}'. [ID: {1}]", world.DisplayName, world.Id);
+        }
+
+        // A boss's own set piece (PlaceMap): in Realm 2, its version there when it has one, in the
+        // colours of the boss's land (Realm2/Setpieces/..., tools/build_realm2.py)
+        public static byte[] MapFor(World world, string path)
+        {
+            var data = world.GameServer.Resources.GameData;
+            if (world is Realm2World && data.GetWorldData("Realm2/" + path) is byte[] own)
+                return own;
+            return data.GetWorldData(path);
         }
 
         public static void RenderFromData(World world, IntPoint pos, byte[] data, bool keepUnset = false)

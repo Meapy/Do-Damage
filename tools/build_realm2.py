@@ -9,6 +9,10 @@ monsters' behaviours are in BehaviorDb.Realm2.cs; their projectiles (the index o
 behaviours shoot by) are here, in MOBS.
 
 Outputs (generated, don't edit):
+- Realm 2's versions of the realm bosses' own set pieces (realm2/setpieces.py), under
+  source/Shared/resources/worlds/Realm2;
+- the Pentaract Tower's sprite (realm2/art16.py), in its XML in the server's and the client's
+  Encounters;
 - Realm2Grounds.xml and Realm2Objects.xml, in source/Shared/resources/xml/custom and the client's
   custom/xmls;
 - the sheets Realm2Env8x8.png (grounds, scenery, walls, the key), Realm2Env16x16.png (the portal),
@@ -19,13 +23,14 @@ Type codes are kept stable in tools/realm2/types.json. Needs Pillow.
 import json
 import math
 import os
+import re
 import sys
 import xml.etree.ElementTree as ET
 
 from PIL import Image
 
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
-from realm2 import art  # noqa: E402
+from realm2 import adapt, adapted, art, art16, setpieces  # noqa: E402
 
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 XML_DIR = os.path.join(ROOT, "source", "Shared", "resources", "xml")
@@ -227,6 +232,21 @@ def p_runes(base, dark, rune):
     return paint
 
 
+def p_quicksand(base, dark, light):
+    # rings sinking in round a hollow
+    def paint(seed):
+        def px(x, y):
+            r = math.hypot(x - 3.5 + (seed % 3) - 1, y - 3.5 + (seed % 2)) + _hash(x, y, seed) * 0.8
+            v = math.sin(r * 1.3 - seed)
+            if v > 0.9 and _hash(x + 3, y, seed) > 0.35:
+                return _mix(base, light, 0.6)
+            if v < -0.85:
+                return _mix(base, dark, 0.55)
+            return _mix(base, dark, 0.3 * _hash(x, y, seed))
+        return tile(px)
+    return paint
+
+
 def p_stars(base, star, dim):
     def paint(seed):
         def px(x, y):
@@ -253,6 +273,22 @@ def p_dunes(base, light, dark):
     return paint
 
 
+def p_hoard(stone, dark, gold, shine):
+    # flagstones strewn with coins: a few to a tile, some catching the light
+    def paint(seed):
+        def px(x, y):
+            v = _hash(x, y, seed)
+            if v > 0.8:
+                return shine if _hash(y, x, seed) > 0.75 else gold
+            if v > 0.72:
+                return _mix(gold, dark, 0.45)
+            if y in (0, 4) or (x == (seed % 4) * 2 and y < 4) or (x == (seed % 3) * 2 + 1 and y > 4):
+                return _mix(stone, dark, 0.55)
+            return _mix(stone, dark, 0.25 * _hash(x + 5, y, seed))
+        return tile(px)
+    return paint
+
+
 C = art.hexc
 P = art.PALETTES
 
@@ -267,6 +303,11 @@ GROUNDS = {
     "R2 Pool Water": (None, p_water(C("#1a5c8a"), C("#48a6d8"), C("#c8f0ff")), 3,
                       {"Sink": None, "Speed": "0.75", "Animate": ("Wave", {"dx": "0.25", "dy": "0.25"}),
                        "BlendPriority": "15"}, "0x2A78AA"),
+    # the waystones' circles (RealmManager.TryBeacon): pale flagstones, a ring of glowing runes
+    "R2 Waystone Floor": (None, p_flagstones(C("#7c7898"), C("#3a3650"), C("#c8c4e0")), 4,
+                          {"BlendPriority": "22"}, "0x7C7898"),
+    "R2 Waystone Rune": (None, p_runes(C("#6a6490"), C("#46405e"), C("#7ae8ff")), 4,
+                         {"BlendPriority": "23"}, "0x7AE8FF"),
     # the Cubic Expanse
     "R2 Cube Grid": ("cube", p_grid(P["cube"]["1"], P["cube"]["2"]), 4, {"BlendPriority": "5"}, "0x1B2A6B"),
     "R2 Cube Grid Bright": ("cube", p_grid(P["cube"]["2"], P["cube"]["3"], P["cube"]["5"]), 4,
@@ -292,9 +333,15 @@ GROUNDS = {
                      {"BlendPriority": "5"}, "0xC8B480"),
     "R2 Kelp Bed": ("hermit", p_speckle(P["hermit"]["1"], C("#06201e"), P["hermit"]["2"]), 4,
                     {"BlendPriority": "6"}, "0x0E3A3A"),
-    "R2 Tide Pool": ("hermit", p_water(P["hermit"]["1"], P["hermit"]["3"], C("#d8fff0")), 3,
+    "R2 Tide Pool": ("hermit", p_water(C("#0e4458"), C("#3a9cb4"), C("#d8f8ff")), 3,
                      {"Sink": None, "Speed": "0.8", "Animate": ("Wave", {"dx": "0.2", "dy": "0.2"}),
-                      "BlendPriority": "4"}, "0x1E6A5E"),
+                      "BlendPriority": "4"}, "0x1E6A80"),
+    # the Hermit God's lagoon: its deep middle, and the seagrass round his island
+    "R2 Deep Tide": ("hermit", p_water(C("#06263a"), C("#16547a"), C("#7ac4e4")), 3,
+                     {"Sink": None, "Speed": "0.7", "Animate": ("Wave", {"dx": "0.15", "dy": "0.15"}),
+                      "BlendPriority": "3"}, "0x0C3450"),
+    "R2 Seagrass": ("hermit", p_speckle(C("#2a7a5a"), C("#0e3a2a"), C("#62c08a"), 0.2), 4,
+                    {"BlendPriority": "6"}, "0x2A7A5A"),
     # the Wreck Coast
     "R2 Wet Shingle": ("ship", p_speckle(P["ship"]["2"], P["ship"]["1"], P["ship"]["3"]), 4,
                        {"BlendPriority": "5"}, "0x34443A"),
@@ -310,6 +357,10 @@ GROUNDS = {
                      {"BlendPriority": "6"}, "0xB08A40"),
     "R2 Sandstone Tiles": ("sphinx", p_flagstones(C("#d0b070"), P["sphinx"]["1"], P["sphinx"]["8"]), 4,
                            {"BlendPriority": "7"}, "0xD0B070"),
+    # sinking sand, as the Tomb's: slow going, and it pulls you under
+    "R2 Sinking Sand": ("sphinx", p_quicksand(C("#b08c48"), C("#6e5020"), C("#dcc07a")), 3,
+                        {"Sink": None, "Speed": "0.45", "Animate": ("Flow", {"dx": "0.04", "dy": "0.04"}),
+                         "BlendPriority": "4"}, "0xA08040"),
     # the Bonefields
     "R2 Blood Soil": ("skull", p_speckle(P["skull"]["2"], P["skull"]["1"], P["skull"]["3"], 0.18), 4,
                       {"BlendPriority": "5"}, "0x701818"),
@@ -325,11 +376,14 @@ GROUNDS = {
                        {"BlendPriority": "6"}, "0x4C6C44"),
     "R2 Garden Stones": ("garden", p_flagstones(C("#8a8a84"), C("#4a4a44"), C("#c8c8c0")), 4,
                          {"BlendPriority": "7"}, "0x8A8A84"),
-    # the Ashen Caldera
+    # the Dragon's Roost: crag rock, scorched earth, the hoard's gold-strewn floor (the ids are the
+    # Ashen Caldera's it was before)
     "R2 Obsidian Ground": ("dragon", p_speckle(P["dragon"]["2"], P["dragon"]["1"], P["dragon"]["3"], 0.18), 4,
-                           {"BlendPriority": "5"}, "0x302830"),
-    "R2 Ash Ground": ("dragon", p_speckle(C("#5a5250"), C("#3a3434"), C("#847a76"), 0.18), 4,
-                      {"BlendPriority": "6"}, "0x5A5250"),
+                           {"BlendPriority": "5"}, "0x4E3A30"),
+    "R2 Ash Ground": ("dragon", p_speckle(C("#3a2a22"), C("#22160f"), C("#5a4232"), 0.2), 4,
+                      {"BlendPriority": "6"}, "0x3A2A22"),
+    "R2 Hoard Floor": ("dragon", p_hoard(C("#3a2c24"), C("#24180f"), P["dragon"]["7"], P["dragon"]["8"]), 4,
+                       {"BlendPriority": "8"}, "0x8A6A20"),
     "R2 Magma Cracks": ("dragon", p_cracks(P["dragon"]["1"], P["dragon"]["4"], P["dragon"]["6"], 0.18), 4,
                         {"BlendPriority": "7"}, "0x3A1810"),
     "R2 Lava": ("dragon", p_water(P["dragon"]["4"], P["dragon"]["5"], P["dragon"]["8"]), 3,
@@ -380,6 +434,9 @@ DECOR = {
     "R2 Soul Brazier": ("block", 90, 110), "R2 Kingdom Rubble": ("flat", 100, 100),
     "R2 Giant Flower": ("plain", 100, 140), "R2 Sunflower": ("plain", 110, 140),
     "R2 Small Hive": ("block", 90, 110), "R2 Clover Bush": ("plain", 100, 120),
+    "R2 Bridge Fence": ("block", 100, 100),
+    "R2 Mossy Pillar": ("block", 100, 120), "R2 Toppled Lantern": ("block", 100, 110),
+    "R2 Dragon Egg": ("block", 80, 100), "R2 Gold Hoard": ("flat", 100, 100), "R2 Dragon Nest": ("flat", 100, 110),
 }
 
 # braziers, vents and lanterns flicker: their glow letters swap for a second frame
@@ -399,7 +456,7 @@ MOBS = {
     "R2 Cubelet": ("Cubelet", 900, 8, 80, "g", [shot("Blue Bolt", 70, 70, 1100)]),
     "R2 Prism Sentinel": ("Prism Sentinel", 2000, 15, 100, "gf", [
         shot("Crystal Shard", 90, 55, 2000), shot("Blue Star", 60, 80, 1200, effect=("Slowed", 2))]),
-    "R2 Shard Walker": ("Shard Walker", 1800, 12, 100, "g", [shot("Crystal Bolt", 110, 80, 1000)]),
+    "R2 Shard Walker": ("Shard Walker", 1800, 12, 75, "g", [shot("Crystal Bolt", 110, 80, 1000)]),
     "R2 Cube Overseer": ("Cube Overseer", 2400, 18, 110, "gf", [shot("Blue Magic", 100, 60, 2000)]),
     "R2 Tesseract": ("Tesseract", 14000, 22, 120, "f", [
         shot("Crystal Shard", 120, 60, 2500), shot("Blue Star", 90, 45, 3000, effect=("Slowed", 2)),
@@ -419,12 +476,12 @@ MOBS = {
     "R2 Elder Watcher": ("Elder Watcher", 12000, 18, 120, "f", [
         shot("White Bolt", 140, 50, 3000, size=130), shot("Purple Star", 0, 70, 3000, effect=("Blind", 3))], 18),
     # --- the Lost Lands
-    "R2 Lost Sentry": ("Lost Sentry", 2000, 16, 100, "g", [
+    "R2 Lost Sentry": ("Lost Sentry", 2000, 16, 75, "g", [
         shot("Blade", 110, 90, 600), shot("White Shard Bolt", 90, 70, 1500)]),
-    "R2 Forsaken Archer": ("Forsaken Archer", 1700, 8, 100, "g", [shot("Blue Arrow", 110, 120, 1200)]),
-    "R2 Wailing Wraith": ("Wailing Wraith", 1600, 5, 100, "gf", [
+    "R2 Forsaken Archer": ("Forsaken Archer", 1700, 8, 75, "g", [shot("Blue Arrow", 110, 120, 1200)]),
+    "R2 Wailing Wraith": ("Wailing Wraith", 1600, 5, 75, "gf", [
         shot("White Flame", 80, 50, 2000, effect=("Slowed", 2))]),
-    "R2 Ruin Golem": ("Ruin Golem", 2800, 25, 120, "g", [shot("Grey Star", 130, 40, 2500)]),
+    "R2 Ruin Golem": ("Ruin Golem", 2800, 25, 85, "g", [shot("Grey Star", 130, 40, 2500)]),
     "R2 Sentry Captain": ("Sentry Captain", 12000, 22, 120, "", [
         shot("Blade", 140, 90, 700), shot("White Shard Bolt", 110, 70, 1800), shot("Blue Arrow", 120, 120, 1300)], 18),
     "R2 Forgotten Warlord": ("Forgotten Warlord", 15000, 25, 130, "", [
@@ -441,23 +498,25 @@ MOBS = {
     "R2 Ancient Snapper": ("Ancient Snapper", 12000, 20, 130, "", [
         shot("Blue Boomerang", 150, 80, 1600, multi=True), shot("Aqua Missile", 110, 55, 2200)], 19),
     # --- the Wreck Coast
-    "R2 Drowned Buccaneer": ("Drowned Buccaneer", 1900, 12, 100, "g", [
+    "R2 Drowned Buccaneer": ("Drowned Buccaneer", 1900, 12, 75, "g", [
         shot("Blade", 120, 100, 500), shot("Grey Boomerang", 90, 70, 1200)]),
     "R2 Spectral Gull": ("Spectral Gull", 800, 4, 80, "gf", [shot("Feather", 60, 90, 900)]),
-    "R2 Bone Gunner": ("Bone Gunner", 1700, 15, 100, "g", [shot("Black Ball", 140, 50, 2200, size=130)]),
-    "R2 Wreck Wraith": ("Wreck Wraith", 1700, 6, 100, "gf", [
+    "R2 Bone Gunner": ("Bone Gunner", 1700, 15, 75, "g", [shot("Black Ball", 140, 50, 2200, size=130)]),
+    "R2 Wreck Wraith": ("Wreck Wraith", 1700, 6, 70, "gf", [
         shot("Green Magic", 90, 60, 1800, effect=("Slowed", 2))]),
+    "R2 Phantom Sloop": ("Phantom Sloop", 2600, 15, 85, "g", [
+        shot("Black Ball", 120, 55, 2000, size=110), shot("Green Magic", 80, 70, 1400)]),
     "R2 Phantom Quartermaster": ("Phantom Quartermaster", 13000, 20, 120, "", [
         shot("Green Star", 130, 60, 2400), shot("Black Ball", 160, 45, 2500, size=140)], 18),
     "R2 Abyssal Kraken": ("Abyssal Kraken", 15000, 18, 140, "", [
         shot("Deep Sea Blast", 150, 50, 2600), shot("Black Missile", 110, 70, 2000)], 19),
     # --- the Sunken Tombs
     "R2 Scarab": ("Scarab", 700, 15, 70, "g", [shot("Yellow Shard Bolt", 70, 80, 800)]),
-    "R2 Tomb Mummy": ("Tomb Mummy", 2000, 12, 100, "g", [
+    "R2 Tomb Mummy": ("Tomb Mummy", 2000, 12, 75, "g", [
         shot("White Bullet", 100, 60, 1600, effect=("Slowed", 2))]),
-    "R2 Jackal Guard": ("Jackal Guard", 1800, 16, 100, "g", [shot("Yellow Missile", 120, 90, 1200)]),
-    "R2 Sun Obelisk": ("Sun Obelisk", 2200, 30, 120, "gs", [shot("Yellow Energy Shot", 110, 55, 2500)]),
-    "R2 Tomb Sentinel": ("Tomb Sentinel", 14000, 24, 130, "", [
+    "R2 Jackal Guard": ("Jackal Guard", 1800, 16, 75, "g", [shot("Yellow Missile", 120, 90, 1200)]),
+    "R2 Sun Obelisk": ("Sun Idol", 2200, 30, 80, "gs", [shot("Yellow Energy Shot", 110, 55, 2500)]),
+    "R2 Tomb Sentinel": ("Tomb Pharaoh", 14000, 24, 130, "", [
         shot("Yellow Energy Shot", 130, 55, 2600), shot("Yellow Missile", 140, 90, 1400)], 18),
     "R2 Sand Scourge": ("Sand Scourge", 12000, 18, 130, "", [
         shot("Yellow Shard Bolt", 110, 80, 1200), shot("Brown Magic", 100, 50, 2400, effect=("Slowed", 3))], 19),
@@ -465,46 +524,46 @@ MOBS = {
     "R2 Bone Flayer": ("Bone Flayer", 1900, 12, 100, "g", [shot("White Shard Bolt", 110, 90, 900)]),
     "R2 Skull Wisp": ("Skull Wisp", 900, 5, 90, "gf", [shot("Fire Bolt", 90, 70, 1400)]),
     "R2 Blood Imp": ("Blood Imp", 1500, 8, 90, "g", [shot("Red Fire", 90, 80, 1200)]),
-    "R2 Shrine Cultist": ("Shrine Cultist", 1800, 10, 100, "g", [shot("Cultist Fire Shot", 110, 60, 2000)]),
+    "R2 Shrine Cultist": ("Shrine Cultist", 1800, 10, 75, "g", [shot("Cultist Fire Shot", 110, 60, 2000)]),
     "R2 Shrine Keeper": ("Shrine Keeper", 14000, 20, 120, "", [
         shot("Cultist Fire Shot", 140, 60, 2400), shot("Red Star", 110, 70, 1800)], 19),
     "R2 Marrow Fiend": ("Marrow Fiend", 12000, 22, 130, "", [
         shot("White Shard Bolt", 120, 80, 1600), shot("Red Shard Bolt", 150, 100, 1000)], 18),
     # --- the Jade Garden
-    "R2 Komainu": ("Komainu", 2000, 20, 100, "g", [shot("Grey Star", 110, 60, 1400)]),
-    "R2 Oni Mask": ("Oni Mask", 1800, 10, 100, "gf", [shot("Red Fire", 100, 70, 1500)]),
-    "R2 Kitsune Spirit": ("Kitsune Spirit", 1700, 8, 100, "g", [
+    "R2 Komainu": ("Komainu", 2000, 20, 75, "g", [shot("Grey Star", 110, 60, 1400)]),
+    "R2 Oni Mask": ("Oni Mask", 1800, 10, 65, "gf", [shot("Red Fire", 100, 70, 1500)]),
+    "R2 Kitsune Spirit": ("Kitsune Spirit", 1700, 8, 70, "g", [
         shot("Cyan Magic", 90, 80, 1500), shot("Pink Bolt", 80, 60, 2000)]),
-    "R2 Lantern Wisp": ("Lantern Wisp", 900, 5, 90, "gf", [shot("Fire Bullet", 80, 60, 1600)]),
+    "R2 Lantern Wisp": ("Blossom Wisp", 900, 5, 60, "gf", [shot("Fire Bullet", 80, 60, 1600)]),
     "R2 Oni Warlord": ("Oni Warlord", 14000, 24, 130, "", [
         shot("Red Fire", 130, 75, 1700), shot("Silver Shield", 160, 65, 1200, multi=True)], 19),
     "R2 Jade Golem": ("Jade Golem", 15000, 30, 130, "", [
         shot("Crystal Green Shard", 140, 50, 2400), shot("Green Bolt", 110, 80, 1400)], 18),
-    # --- the Ashen Caldera
-    "R2 Drakeling": ("Drakeling", 1700, 10, 100, "gf", [shot("Fire Bolt", 100, 80, 1200)]),
-    "R2 Magma Salamander": ("Magma Salamander", 1800, 14, 100, "g", [shot("Fire Missile", 110, 60, 1600)]),
-    "R2 Ember Wyrm": ("Ember Wyrm", 1600, 10, 110, "gf", [
+    # --- the Dragon's Roost
+    "R2 Drakeling": ("Drakeling", 1700, 10, 70, "gf", [shot("Fire Bolt", 100, 80, 1200)]),
+    "R2 Magma Salamander": ("Kobold Hoarder", 1800, 14, 75, "g", [shot("Fire Missile", 110, 60, 1600)]),
+    "R2 Ember Wyrm": ("Ember Wyvern", 1600, 10, 80, "gf", [
         shot("Dragon Attack Red Spinning Fireball", 100, 50, 2400, amplitude=0.5, frequency=2)]),
-    "R2 Obsidian Golem": ("Obsidian Golem", 3000, 30, 120, "g", [
+    "R2 Obsidian Golem": ("Hoard Mimic", 3000, 30, 80, "g", [
         shot("LOD Red Big Fireball", 150, 40, 2500)]),
     "R2 Wyrm Matriarch": ("Wyrm Matriarch", 15000, 22, 140, "f", [
         shot("Dragon Attack Red Firewave", 160, 60, 1600, multi=True), shot("Fire Bolt", 110, 70, 2000)], 19),
     "R2 Elder Drake": ("Elder Drake", 13000, 24, 130, "", [
         shot("LOD Red Spinning Fireball", 140, 55, 2200), shot("Fire Missile", 120, 70, 1800)], 18),
     # --- the Forgotten Kingdom
-    "R2 Shattered Knight": ("Shattered Knight", 2000, 22, 100, "g", [
+    "R2 Shattered Knight": ("Shattered Knight", 2000, 22, 80, "g", [
         shot("Silver Shield", 120, 70, 800, multi=True), shot("Blade", 110, 90, 600)]),
-    "R2 Forgotten Mage": ("Forgotten Mage", 1700, 8, 100, "g", [
+    "R2 Forgotten Mage": ("Forgotten Mage", 1700, 8, 75, "g", [
         shot("Violet Missile", 100, 80, 1600), shot("Purple Magic", 90, 60, 2000)]),
-    "R2 Stone Gargoyle": ("Stone Gargoyle", 1800, 25, 100, "gf", [shot("Grey Star", 100, 70, 1300)]),
+    "R2 Stone Gargoyle": ("Stone Gargoyle", 1800, 25, 80, "gf", [shot("Grey Star", 100, 70, 1300)]),
     "R2 Soul Lantern": ("Soul Lantern", 1100, 10, 90, "gf", [shot("Cyan Magic", 80, 50, 2400)]),
     "R2 Forgotten Archmage": ("Forgotten Archmage", 13000, 18, 120, "", [
         shot("Violet Missile", 130, 70, 2200), shot("Purple Star", 90, 60, 2000, effect=("Quiet", 2))], 19),
     "R2 King's Champion": ("King's Champion", 15000, 28, 130, "", [
         shot("Silver Shield", 160, 70, 1400, multi=True), shot("Blade", 130, 100, 700)], 18),
     # --- the Honey Meadow
-    "R2 Worker Bee": ("Worker Bee", 700, 4, 70, "gf", [shot("EH Yellow Stinger Small", 70, 90, 800)]),
-    "R2 Hornet Drone": ("Hornet Drone", 1600, 10, 90, "gf", [shot("EH Red Stinger Small", 100, 100, 900)]),
+    "R2 Worker Bee": ("Worker Bee", 700, 4, 55, "gf", [shot("EH Yellow Stinger Small", 70, 90, 800)]),
+    "R2 Hornet Drone": ("Hornet Drone", 1600, 10, 65, "gf", [shot("EH Red Stinger Small", 100, 100, 900)]),
     "R2 Honey Slime": ("Honey Slime", 1900, 12, 100, "g", [
         shot("Yellow Energy Shot", 90, 40, 2000, effect=("Slowed", 3))]),
     "R2 Pollen Sprite": ("Pollen Sprite", 900, 4, 90, "gf", [
@@ -514,6 +573,9 @@ MOBS = {
     "R2 Hornet Queen": ("Hornet Queen", 15000, 18, 140, "f", [
         shot("EH Red Glaive", 150, 70, 1800, multi=True), shot("EH Red Stinger Small", 110, 100, 1100)], 19),
 }
+
+# each monster's land
+AREAS = {n: e[0] for d in (art.MOBS8, art.MOBS16, art.QUESTS16, adapted.ADAPTED) for n, e in d.items()}
 
 SOUNDS = {
     "cube": ("monster/cube_god_hit", "monster/cube_god_death"),
@@ -530,6 +592,11 @@ SOUNDS = {
 }
 
 PORTAL_ID = "Realm2"            # /spawn realm2 finds it by name
+BEACON_ID = "R2 Waystone Beacon"
+TOWER_XML = [os.path.join(XML_DIR, "prod", "EmbeddedData_EncountersCXML.xml"),
+             os.path.join(CLIENT, "prod", "xmls", "Encounters.xml")]
+# the eleven lands, in the order their gems go round the portal's arch
+LANDS = ["cube", "penta", "lost", "hermit", "ship", "sphinx", "skull", "garden", "dragon", "kingdom", "bees"]
 PORTAL_NAME = "Realm 2"
 KEY_ID = "Realm 2 Key"
 
@@ -701,20 +768,27 @@ def build(preview=None):
         objects.append(o)
 
     # monsters
+    # each a strip of seven frames: drawn here (art.py) or adapted from the game's art (adapted.py)
     pictures = {}
-    for name, (area, stand, attack) in list(art.MOBS8.items()) + list(art.QUESTS16.items()):
-        size = 16 if name in art.QUESTS16 else 8
-        pal = art.PALETTES[area]
+    drawn = [(n, e, 8) for n, e in art.MOBS8.items()] + [(n, e, 16) for n, e in list(art.MOBS16.items()) + list(art.QUESTS16.items())]
+    for name, (area, stand, attack, *own), size in drawn:
+        pal = dict(art.PALETTES[area])
+        pal.update({k: art.hexc(v) for k, v in (own[0] if own else {}).items()})
         s = picture(stand, pal, size)
         a = picture(attack, pal, size) if attack else None
-        pictures[name] = (area, size, s, a)
+        pictures[name] = (size, char_strip(s, a, size))
+    for name, (area, spec) in adapted.ADAPTED.items():
+        if name in pictures:
+            raise SystemExit("%s is both drawn and adapted" % name)
+        pictures[name] = (16, adapt.adapt(spec, art.PALETTES[area]))
 
     for name, entry in MOBS.items():
         shown, hp, defence, size, flags, shots = entry[:6]
         level = entry[6] if len(entry) > 6 else None
-        area, cell, s, a = pictures[name]
+        area = AREAS[name]
+        cell, strip = pictures[name]
         sheet, sheet_name = (chars16, CHARS16[0]) if cell == 16 else (chars8, CHARS8[0])
-        index = sheet.add(char_strip(s, a, cell))
+        index = sheet.add(strip)
         o = ET.Element("Object", {"type": types.get("objects", name), "id": name})
         sub(o, "DisplayId", shown)
         sub(o, "Class", "Character")
@@ -758,21 +832,43 @@ def build(preview=None):
     if missing:
         raise SystemExit("drawn but not in MOBS: %s" % sorted(missing))
 
-    # the portal: four frames, the swirl turning a quarter each
-    base = picture(art.PORTAL_FRAMES[0], art.PORTAL_PALETTE, 16)
-    frames = [env16.add(base.rotate(-90 * i)) for i in range(4)]
+    # the portal: a gateway like the realm's, a gem for each land round its arch and a vortex
+    # turning inside (realm2/art16.py), four frames
+    frames = [env16.add(f) for f in art16.portal_frames([art.PALETTES[k]["8"] for k in LANDS])]
     o = ET.Element("Object", {"type": types.get("objects", PORTAL_ID), "id": PORTAL_ID})
     sub(o, "DisplayId", PORTAL_NAME)
     sub(o, "Class", "Portal")
     sub(o, "IntergamePortal")
+    # the client draws a NexusPortal's name under it, as the realms' ("Realm 2: Zenith (3/85)")
+    sub(o, "NexusPortal")
     sub(o, "DungeonName", PORTAL_NAME)
     texture(o, ENV16[0], frames[0])
-    sub(o, "Size", 120)
+    sub(o, "Size", 140)
     anim = sub(o, "Animation", prob="1.0")
     for i in frames:
         fr = sub(anim, "Frame", time="0.15")
         texture(fr, ENV16[0], i)
     objects.append(o)
+
+    # the waystone beacon: where players arrive once the realm has one, and teleport to
+    frames = [env16.add(f) for f in art16.beacon_frames()]
+    o = ET.Element("Object", {"type": types.get("objects", BEACON_ID), "id": BEACON_ID})
+    sub(o, "DisplayId", "Waystone")
+    sub(o, "Class", "GameObject")
+    texture(o, ENV16[0], frames[0])
+    sub(o, "Size", 130)
+    anim = sub(o, "Animation", prob="1.0")
+    for i in frames:
+        fr = sub(anim, "Frame", time="0.3")
+        texture(fr, ENV16[0], i)
+    for tag in ("Static", "OccupySquare", "EnemyOccupySquare"):
+        sub(o, tag)
+    objects.append(o)
+
+    # the Pentaract Tower's frames (dim, lit, blazing, veins) and its corpse, written into its XML
+    tower = [env16.add(f) for f in art16.tower_frames()]
+    corpse = env16.add(art16.tower_corpse())
+    retexture_tower(tower, corpse)
 
     # the key
     o = ET.Element("Object", {"type": types.get("objects", KEY_ID), "id": KEY_ID})
@@ -799,9 +895,42 @@ def build(preview=None):
     for sheet, (_, fname) in ((env8, ENV8), (env16, ENV16), (chars8, CHARS8), (chars16, CHARS16)):
         out[fname] = sheet.save(os.path.join(IMAGES, fname))
     types.save()
-    print("Realm 2: %d grounds, %d objects (%d monsters)" % (len(grounds), len(objects), len(MOBS)))
+    maps = setpieces.build(ROOT)
+    print("Realm 2: %d grounds, %d objects (%d monsters), %d set pieces" % (len(grounds), len(objects), len(MOBS), len(maps)))
     if preview:
         save_preview(out, preview)
+
+
+def retexture_tower(frames, corpse):
+    """The Pentaract Tower's texture and animation, and its corpse's texture, in the realm's
+    Encounters XML (server and client), pointed at these cells of the 16x16 sheet. The frames play as
+    the old tower's did: dim, lit, dim, a blaze, the veins, lit, the veins, a blaze."""
+    dim, lit, blaze, veins = frames
+    order = [(dim, 0.2), (lit, 0.4), (dim, 0.2), (blaze, 0.1), (veins, 0.2), (lit, 0.4), (veins, 0.2), (blaze, 0.1)]
+
+    def tex(indent, index):
+        pad = " " * indent
+        return [pad + "<Texture>", pad + "   <File>%s</File>" % ENV16[0], pad + "   <Index>0x%02x</Index>" % index,
+                pad + "</Texture>"]
+
+    tower = tex(6, dim) + ['      <Animation prob="1.0" period="0.0">']
+    for index, time in order:
+        tower += ['         <Frame time="%s">' % time] + tex(12, index) + ["         </Frame>"]
+    tower += ["      </Animation>"]
+    for path in TOWER_XML:
+        with open(path, encoding="iso-8859-1", newline="") as f:
+            text = f.read()
+        nl = "\r\n" if "\r\n" in text else "\n"
+        for oid, lines in (("Pentaract Tower", tower), ("Pentaract Tower Corpse", tex(6, corpse))):
+            m = re.search(r'(<Object type="[^"]+" id="%s">)(.*?)(\s*</Object>)' % re.escape(oid), text, re.S)
+            if not m:
+                raise SystemExit("%s: no %s" % (path, oid))
+            body = re.sub(r'\s*<Animation\b.*?</Animation>', "", m.group(2), flags=re.S)
+            t = re.search(r'\s*<Texture>.*?</Texture>', body, re.S)
+            body = body[:t.start()] + nl + nl.join(lines) + body[t.end():]
+            text = text[:m.start(2)] + body + text[m.end(2):]
+        with open(path, "w", encoding="iso-8859-1", newline="") as f:
+            f.write(text)
 
 
 def write_xml(paths, root_tag, elements, comment):

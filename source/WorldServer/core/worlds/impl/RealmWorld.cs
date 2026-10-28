@@ -12,6 +12,9 @@ namespace WorldServer.core.worlds.impl
         /// <summary>A realm the Nexus lists, opens portals to and sends Realm Portals to: not Realm 2, which a key opens.</summary>
         public virtual bool ListedInNexus => true;
 
+        /// <summary>A portal in the Nexus leads here (every listed realm, and the Nexus's own Realm 2).</summary>
+        public bool HasNexusPortal { get; set; }
+
         public RealmWorld(GameServer gameServer, int id, WorldResource resource) : base(gameServer, id, resource)
         {
             RealmManager = new RealmManager(this);
@@ -32,7 +35,7 @@ namespace WorldServer.core.worlds.impl
 
         protected override void UpdateLogic(ref TickTime time)
         {
-            if (ListedInNexus)
+            if (HasNexusPortal)
             {
                 if (IsPlayersMax())
                     GameServer.WorldManager.Nexus.PortalMonitor.ClosePortal(Id);
@@ -70,7 +73,7 @@ namespace WorldServer.core.worlds.impl
             Closed = true;
             RealmManager.DisableSpawning = true;
             RealmManager.CurrentState = RealmState.Emptying;
-            if (ListedInNexus)
+            if (HasNexusPortal)
                 GameServer.WorldManager.Nexus.PortalMonitor.RemovePortal(Id);
             FlagForClose();
             return true;

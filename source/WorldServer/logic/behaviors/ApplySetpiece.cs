@@ -32,7 +32,7 @@ namespace WorldServer.logic.behaviors
             if (yOffset != 0)
                 pos.Y -= (int)yOffset;
 
-            var data = host.GameServer.Resources.GameData.GetWorldData(jmMap);
+            var data = SetPieces.MapFor(host.World, jmMap);
             if (data == null)
             {
                 Console.WriteLine($"[{GetType().Name}] Invalid RenderSetPiece {jmMap}");

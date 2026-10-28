@@ -42,7 +42,7 @@ namespace WorldServer.core.objects
                     return;
                 }
 
-                if (obj is not Player)
+                if (obj is not Player && !IsBeacon(obj))
                 {
                     SendError("Can only teleport to players.");
                     return;
@@ -75,8 +75,11 @@ namespace WorldServer.core.objects
 
             ApplyConditionEffect(ConditionEffectIndex.Invulnerable, 2500);
             ApplyConditionEffect(ConditionEffectIndex.Stunned, 2500);
-            TeleportPosition(time, obj.X, obj.Y, ignoreRestrictions);
+            // a Realm 2 waystone stands in the way: beside it
+            TeleportPosition(time, obj.X, IsBeacon(obj) ? obj.Y + 1.5f : obj.Y, ignoreRestrictions);
         }
+
+        private bool IsBeacon(Entity obj) => World is RealmWorld realm && realm.RealmManager.IsBeacon(obj);
 
         public void TeleportPosition(TickTime time, float x, float y, bool ignoreRestrictions = false) => TeleportPosition(time, new Position(x, y), ignoreRestrictions);
         public void TeleportPosition(TickTime time, Position position, bool ignoreRestrictions = false)

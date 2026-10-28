@@ -191,7 +191,8 @@ namespace WorldServer.core.objects
                     DamageAmount = effDmg,
                     Kill = Health <= 0,
                     BulletId = 0,
-                    ObjectId = from.Id
+                    ObjectId = from.Id,
+                    Pierce = noDef          // the client shows damage that ignored defense in purple
                 }, this);
 
                 DamageCounter?.HitBy(from, effDmg);

@@ -188,6 +188,8 @@ namespace WorldServer.logic
                     new ItemLoot("Corruption Cutter", 0.012),
                     new ItemLoot("Cloak of Bloody Surprises", 0.012),
                     new ItemLoot("Doom Poison", 0.003),
+                    // the Elysium Incantation that opens his locked portal, as Oryx 3's Inferno one
+                    new OnePlayerLoot("Doomed Cellar Incantation", 0.5, 0.01),
                     // his Lil' Oryx, in a white bag (each Oryx drops his own)
                     new ItemLoot("Lil' Infernal Oryx Generator", 0.01)
                 ),

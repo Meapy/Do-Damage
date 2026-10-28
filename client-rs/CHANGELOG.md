@@ -12,6 +12,64 @@ Keep each version short: changes go under `### ` group headings (Oryx 5, Arena, 
 on), one line per change players notice, summed up rather than item by item (the wiki has the
 details). Add to a group's line when a change adds to it, rather than adding another line.
 
+## Unreleased
+
+### Realm 2
+- The Nexus always has a Realm 2 open, its portal beside Realm 1's with its name and player count;
+  its events come quicker. Every couple of events a glowing waystone rises in a cleared land: new
+  arrivals come there instead of the shore, the Realm Events list shows the one nearest your quest,
+  and any waystone on the map can be clicked to teleport there.
+- Most lands' monsters and quest bosses are redrawn in finer detail (the Forgotten Kingdom's mages
+  and knights after the Shatters', a pharaoh in the Sunken Tombs, cheerful cube-men in the Cubic
+  Expanse, blossoming bosses in the Jade Garden, a new kraken, ghost quartermaster, sentry captain,
+  warlord and bone fiend, and more). The Ashen Caldera is now the Dragon's Roost, with whelps,
+  wyverns, kobolds and a hoard mimic among nests, eggs and gold, and the Eye of the Dragon's shrine
+  in its colours. Ghost sloops sail the Wreck Coast's water, and the Skull Shrine has its flaming
+  skulls again.
+- The Lost Lands keep the Lost Sentry at its shrine, a side quest (light blue on the map) that opens
+  the Lost Halls. The Godlands keep a Mysterious Crystal (the Deadwater Docks) and now and then a
+  Kage Kami (the Manor of the Immortals) or a Red Demon, and Phoenix Lords come to the midlands'
+  sand. Quest monsters open an easier dungeon that fits their land more often (the Ancient Ruins in
+  the Sunken Tombs, the Pirate Cave on the Wreck Coast...), leaving the harder one to the land's
+  event, and the Jade Garden's Oni Warlord can open the Forbidden Jungle.
+- Bridges have fences, the Sphinx's court is the size of the other arenas with sinking sand round
+  it, the Hermit God's island and the Skull Shrine take their lands' colours, the Forgotten Kingdom
+  is built from the Avatar's own stone, and the Jade Garden has paths and old ruins. A new portal,
+  more eyes for the Pentaract, and the little monsters have a thing or two to say. Monsters out
+  over the void are gone, and a mysterious voice has something to say near the end.
+
+### Realms and events
+- Every event counts toward closing its realm, whichever one your quest arrow points at, and the
+  realm's news (events spawned and beaten, how many are left) goes to that realm's players only, so
+  counts from other realms no longer mix in. The Realm Events list at the top left shows how many
+  are beaten of how many close the realm and every event running, nearest first: click one for your
+  quest arrow to follow it. Near your quest the list folds to its count, under the boss's health
+  and who hit it (click it to see the list anyway). The map marks every event.
+- The Killer Bee Nest's Hive portal always comes when its third guardian bee dies, and the Ghost
+  Ship leaves one Davy Jones' Locker portal, not two.
+
+### Imprints and the Divine Workbench
+- The forge and the Enchanter open one window, the Divine Workbench, with the Forge, Shards, Sell
+  and Imprints tabs together (the Enchanter opens it at Imprints).
+- Imprints show in the trade window, on other players' gear in their card and on the character
+  list. Picking a piece of gear lists only the imprints that fit it; click it again (or Show all
+  imprints) to look over every imprint, and the list scrolls and sits centred, clear of the
+  Enchanter. Imprint marks fill their gold frames. Wounds no longer counts out loud: its burst
+  shows its damage in purple.
+
+### Oryx
+- Oryx 3 gives his Inferno Incantation to one player half the time (everyone else has a 1% chance),
+  and Oryx 4 his Elysium Incantation the same way; Oryx 2 no longer drops one.
+- Oryx 5: his Halo Orbs rise at 40% and circle the arena until his Last Judgement, where the
+  Pillars of Heaven are now golden eyes in the arena's walls, so no corner is safe. He tells you
+  to destroy his Trees of Doom to open his gates, and how many still stand.
+
+### Game
+- Clicking anywhere closes the chat box; the chat keeps more of its history (across characters
+  too), scrolls with the mouse wheel and shows a scroll bar on its left, and the box spans the
+  width while you type or scroll. The fame bar is full once a character's stars are all earned,
+  without the "/ 0".
+
 ## 2.2.5 (2026-10-28)
 
 ### Fixes

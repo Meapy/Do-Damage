@@ -20,6 +20,7 @@ namespace WorldServer.core.worlds.realm2
         public string Wall;
         public (string Id, double Weight)[] Mobs;
         public string[] Quests;             // one of each is kept in the land
+        public (string Id, int Count)? Afloat;  // monsters kept on its pools' water (the Wreck Coast's ghost sloops)
     }
 
     public static class Realm2Themes
@@ -76,6 +77,7 @@ namespace WorldServer.core.worlds.realm2
                 DecorDensity = 0.04, Wall = "R2 Hull Wall",
                 Mobs = new[] { ("R2 Drowned Buccaneer", 2.0), ("R2 Bone Gunner", 1.5), ("R2 Wreck Wraith", 1.5) },
                 Quests = new[] { "R2 Phantom Quartermaster", "R2 Abyssal Kraken" },
+                Afloat = ("R2 Phantom Sloop", 4),
             },
             new Realm2Theme
             {
@@ -106,18 +108,23 @@ namespace WorldServer.core.worlds.realm2
             },
             new Realm2Theme
             {
-                Key = "dragon", Name = "the Ashen Caldera", Event = "Dragon Head",
-                Ground = "R2 Obsidian Ground", Patches = "R2 Ash Ground", Arena = "R2 Magma Cracks", Pools = "R2 Lava",
-                Decor = new[] { ("R2 Dragon Bones", 1.5), ("R2 Obsidian Spire", 2.0), ("R2 Ember Vent", 1.5), ("R2 Charred Tree", 2.0) },
+                // a dragons' roost, as the Eye of the Dragon leads to the Lair of Draconis: crags, nests,
+                // eggs and hoards, whelps and wyverns, kobolds and a mimic among the gold
+                Key = "dragon", Name = "the Dragon's Roost", Event = "Dragon Head",
+                Ground = "R2 Obsidian Ground", Patches = "R2 Ash Ground", Arena = "R2 Hoard Floor", Pools = "R2 Lava",
+                Decor = new[] { ("R2 Dragon Bones", 1.5), ("R2 Obsidian Spire", 2.0), ("R2 Dragon Egg", 1.2), ("R2 Dragon Nest", 1.0),
+                                ("R2 Gold Hoard", 1.0), ("R2 Ember Vent", 0.8), ("R2 Charred Tree", 0.8) },
                 DecorDensity = 0.045, Wall = "R2 Obsidian Wall",
                 Mobs = new[] { ("R2 Drakeling", 1.5), ("R2 Magma Salamander", 2.0), ("R2 Ember Wyrm", 1.5), ("R2 Obsidian Golem", 1.5) },
                 Quests = new[] { "R2 Wyrm Matriarch", "R2 Elder Drake" },
             },
             new Realm2Theme
             {
+                // its grounds are the Avatar's own arena's (the Shatters' dark flagstones and slate, the
+                // crystal lava in its corners and its blue flames), so the land and arena are one
                 Key = "kingdom", Name = "the Forgotten Kingdom", Event = "shtrs Defense System",
-                Ground = "R2 Kingdom Slate", Patches = "R2 Kingdom Rubble Floor", Arena = "R2 Kingdom Mosaic",
-                Decor = new[] { ("R2 Fallen Column", 2.0), ("R2 Forgotten Statue", 1.5), ("R2 Soul Brazier", 1.0), ("R2 Kingdom Rubble", 3.0) },
+                Ground = "HN FG O dk", Patches = "HN Rkpt", Arena = "O3 Dark Tile", Pools = "Crystal Lava",
+                Decor = new[] { ("R2 Fallen Column", 2.0), ("R2 Forgotten Statue", 1.5), ("Magic Blue Flame", 1.5), ("R2 Kingdom Rubble", 3.0) },
                 DecorDensity = 0.045, Wall = "R2 Kingdom Wall",
                 Mobs = new[] { ("R2 Shattered Knight", 2.0), ("R2 Forgotten Mage", 1.5), ("R2 Stone Gargoyle", 1.5) },
                 Quests = new[] { "R2 Forgotten Archmage", "R2 King's Champion" },

@@ -236,9 +236,10 @@ class Data:
         return set(self.inits) | set(self.doomed)
 
     # TierLoot(5, ItemType.Weapon ...) or TierLoot(tier: 5, type: ItemType.Weapon ...)
-    # ItemLoot("x", 0.01) or ItemLoot(item: "x", probability: 0.01)
-    ITEM_LOOT = re.compile(r'ItemLoot\(\s*(?:item:\s*)?"([^"]+)"\s*,\s*(?:probability:\s*)?([0-9.]+)')
-    ITEM_LOOT_ID = re.compile(r'ItemLoot\(\s*(?:item:\s*)?"([^"]+)"')  # with or without a chance
+    # ItemLoot("x", 0.01) or ItemLoot(item: "x", probability: 0.01); OnePlayerLoot("x", 0.5, 0.01)
+    # by its one player's chance
+    ITEM_LOOT = re.compile(r'(?:ItemLoot|OnePlayerLoot)\(\s*(?:item:\s*)?"([^"]+)"\s*,\s*(?:probability:\s*)?([0-9.]+)')
+    ITEM_LOOT_ID = re.compile(r'(?:ItemLoot|OnePlayerLoot)\(\s*(?:item:\s*)?"([^"]+)"')  # with or without a chance
     TIER_LOOT = re.compile(r'TierLoot\(\s*(?:tier:\s*)?(\d+)\s*,\s*(?:type:\s*)?ItemType\.(\w+)')
 
     def _loot_templates(self):

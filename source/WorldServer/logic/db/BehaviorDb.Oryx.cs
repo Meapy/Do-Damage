@@ -95,7 +95,6 @@ namespace WorldServer.logic
                     new ItemLoot("Potion of Wisdom", 0.6),
                     new ItemLoot("Potion of Speed", 0.35),
                     new ItemLoot("Potion of Dexterity", 0.35),
-                    new ItemLoot("Hash Cellar Incantation", 0.04),
                     new ItemLoot("Seal of Blasphemous Prayer", 0.01),
                     new ItemLoot("Doom Bow", 0.008),
                     new ItemLoot("Lil' Wine Cellar Oryx Generator", 0.01)

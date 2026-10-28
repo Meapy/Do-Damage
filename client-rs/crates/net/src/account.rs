@@ -39,6 +39,8 @@ pub struct CharSummary {
     pub fame: i32,
     /// Item types, -1 for empty; the first four are worn.
     pub equipment: Vec<i32>,
+    /// Each slot's item data (`<ItemDatas>`, JSON: its imprints), as `equipment`.
+    pub item_datas: Vec<String>,
     pub tex1: i32,
     pub tex2: i32,
     /// The skin (`<Texture>`), 0 for none.
@@ -134,6 +136,7 @@ pub fn parse_char_list(xml: &str) -> Result<CharList, String> {
             exp: int("Exp") as i32,
             fame: int("CurrentFame") as i32,
             equipment: parse_items(child_text(c, "Equipment")),
+            item_datas: parse_datas(child_text(c, "ItemDatas")),
             tex1: int("Tex1") as i32,
             tex2: int("Tex2") as i32,
             skin: int("Texture") as i32,
@@ -196,7 +199,13 @@ pub struct Legend {
     pub tex2: i32,
     pub skin: i32,
     pub equipment: Vec<i32>,
+    pub item_datas: Vec<String>,
     pub total_fame: i32,
+}
+
+/// `<ItemDatas>`: each slot's data, `;` between (`ToCommaDotSepString`).
+fn parse_datas(s: Option<&str>) -> Vec<String> {
+    s.map(|s| s.split(';').map(str::to_owned).collect()).unwrap_or_default()
 }
 
 /// `/fame/list`.
@@ -220,6 +229,7 @@ pub fn parse_fame_list(xml: &str) -> Result<Vec<Legend>, String> {
                 tex2: int("Tex2") as i32,
                 skin: int("Texture") as i32,
                 equipment: parse_items(child_text(e, "Equipment")),
+                item_datas: parse_datas(child_text(e, "ItemDatas")),
                 total_fame: int("TotalFame") as i32,
             }
         })

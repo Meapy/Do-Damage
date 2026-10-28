@@ -188,15 +188,23 @@ class Sheet:
         self.cells.append((None, pixels, None))
         return len(self.cells) - 1
 
+    def add_overlay(self, cell, overlay):
+        """A copy of one of this sheet's cells with {(x, y): RGBA} painted over it after its tone."""
+        src, index, tone = self.cells[cell][:3]
+        self.cells.append((src, index, tone, overlay))
+        return len(self.cells) - 1
+
     def write(self, path, w=None, h=None):
         cw, ch = (w, h) if w else (self.cell, self.cell)
         rows = max(1, (len(self.cells) + self.per_row - 1) // self.per_row)
         pix = [[(0, 0, 0, 0)] * (self.per_row * cw) for _ in range(rows * ch)]
-        for k, (src, index, tone) in enumerate(self.cells):
+        for k, cell in enumerate(self.cells):
+            src, index, tone = cell[:3]
+            overlay = cell[3] if len(cell) > 3 else {}
             dx, dy = (k % self.per_row) * cw, (k // self.per_row) * ch
             for y, row in enumerate(index if src is None else block(src, index)):
                 for x, p in enumerate(row):
-                    pix[dy + y][dx + x] = p if tone is None else tone(p)
+                    pix[dy + y][dx + x] = overlay.get((x, y)) or (p if tone is None else tone(p))
         write_png(path, self.per_row * cw, rows * ch, pix)
 
 
@@ -862,8 +870,10 @@ def ascended_oryx(types):
 
 # The helpers of his fight, all invulnerable (BehaviorDb.Elysium.cs): the Firmament's stars, one
 # kind for each mote they shoot (the slowing stars nearest him, the swift or, once he has
-# transcended, the blighting ones furthest out), the Halo Orbs of his Apotheosis and the Pillars
-# of Heaven of his Last Judgement. name -> (sprite donor, tone, size, shots)
+# transcended, the blighting ones furthest out), the Halo Orbs of his Ascension and the Pillars
+# of Heaven of his Last Judgement. name -> (sprite donor, tone, size, shots). The Pillars are in the
+# temple's walls: invisible turrets on the floor before the golden eyes in its wall (EYE_WALL),
+# which fire from there (TURRETS).
 FIGHT = {
     "Stilling Star": ("Magic Star", T_AZURE, 150, [shot(0, "Stilling Mote", 90, 55, 2000, multi=False, effects=[("Slowed", 2)])]),
     "Wounding Star": ("Magic Star", T_GOLD, 150, [shot(0, "Wounding Mote", 110, 55, 2000, multi=False, effects=[("Bleeding", 2)])]),
@@ -878,9 +888,30 @@ FIGHT = {
 }
 
 
+TURRETS = {"Pillar of Heaven"}
+
+
+def turret(e, shots):
+    """An invisible, nameless object that isn't an enemy, firing these shots (as Oryx 3's pillar
+    turrets)."""
+    ET.SubElement(e, "Class").text = "GameObject"
+    tex = ET.SubElement(e, "Texture")
+    ET.SubElement(tex, "File").text = "invisible"
+    ET.SubElement(tex, "Index").text = "0"
+    ET.SubElement(e, "NoMiniMap")
+    ET.SubElement(e, "ShadowSize").text = "0"
+    ET.SubElement(e, "Size").text = "0"
+    for p in shots:
+        e.append(copy.deepcopy(p))
+    return e
+
+
 def fight_helpers(types, sheets, everything, tones):
     out = []
     for name, (donor, tone, size, shots) in FIGHT.items():
+        if name in TURRETS:
+            out.append(turret(ET.Element("Object", {"type": types.get(name, OBJECT_TYPES), "id": name}), shots))
+            continue
         tone = tone.fresh()
         tones.append(tone)
         e = ET.Element("Object", {"type": types.get(name, OBJECT_TYPES), "id": name})
@@ -999,6 +1030,12 @@ WALL = o5("O3 Wall 1")
 ARCH = (o5("O3 Wall Arch 1"), o5("O3 Wall Arch 2"))
 COLUMN = o5("O3 Wall Column 1")
 TORCH = "O5C Torch Wall Flame"
+EYE_WALL = "O5 Wall Eye"        # an arch of the temple's wall with a golden eye: a Pillar of Heaven fires from it
+# the eye, painted over the arch's face: gold round a dark pupil, a glint of white
+EYE = {(3, 2): "G", (4, 2): "G", (1, 3): "G", (2, 3): "Y", (3, 3): "w", (4, 3): "Y", (5, 3): "Y", (6, 3): "G",
+       (0, 4): "G", (1, 4): "Y", (2, 4): "Y", (3, 4): "k", (4, 4): "k", (5, 4): "Y", (6, 4): "Y", (7, 4): "G",
+       (1, 5): "G", (2, 5): "Y", (3, 5): "Y", (4, 5): "Y", (5, 5): "Y", (6, 5): "G", (3, 6): "G", (4, 6): "G"}
+EYE_COLOURS = {"G": (168, 112, 26, 255), "Y": (255, 210, 74, 255), "w": (255, 250, 230, 255), "k": (42, 20, 0, 255)}
 FLAME = "O5C Violet Flame"
 GATE = "O5 Holy Gate"
 BANNERS = ["O3 G Banner", "O3 D Banner", "O3 O Banner", "O3 L Banner", "O3 B Banner"]
@@ -1213,6 +1250,23 @@ def build_map():
         x, y = round(tx + math.cos(a) * (TEMPLE_R - 1)), round(ty + math.sin(a) * (TEMPLE_R - 1))
         if g.free(x, y) and g.ground[y][x] == MARBLE_TILE and abs(x - tx) > 3:
             g.place(x, y, TORCH)
+    # the Pillars of Heaven of his Last Judgement are the temple's walls themselves: a golden eye in
+    # the wall's face between each pair of torches, and before it on the floor the turret its rays
+    # come from, so there's no corner out of their reach (not across the corridor's mouth)
+    for k in range(24):
+        a = 2 * math.pi * k / 24
+        x, y = round(tx + math.cos(a) * (TEMPLE_R - 1)), round(ty + math.sin(a) * (TEMPLE_R - 1))
+        if y > ty and abs(x - CX) <= CORRIDOR + 1:
+            continue
+        for r in (TEMPLE_R + 0.5, TEMPLE_R + 1, TEMPLE_R + 1.5):
+            wx, wy = round(tx + math.cos(a) * r), round(ty + math.sin(a) * r)
+            if g.obj[wy][wx] in ARCH:
+                g.obj[wy][wx] = EYE_WALL
+                break
+        else:
+            continue
+        if g.free(x, y):
+            g.place(x, y, "Pillar of Heaven")
     # the Holy Gates, and their watcher just outside
     for gy in GATE_ROWS:
         for x in range(CX - CORRIDOR, CX + CORRIDOR + 1):
@@ -1362,7 +1416,7 @@ def main():
     o3_grounds = load("Ground", "EmbeddedData_oryxSanctuaryGroundCXML.xml")
     o3_objects = load("Object", "EmbeddedData_oryxSanctuaryObjectsCXML.xml", "EmbeddedData_oryxSanctuaryUObjectsCXML.xml")
     used_grounds = sorted({t for row in g.ground for t in row if t and t.startswith("O5")})
-    used_objects = sorted({t for row in g.obj for t in row if t and t.startswith("O5") and t not in COPIES})
+    used_objects = sorted({t for row in g.obj for t in row if t and t.startswith("O5") and t not in COPIES and t != EYE_WALL})
     grounds, objects = [], []
     for name in used_grounds:
         e = copy.deepcopy(o3_grounds["O3" + name[2:]])
@@ -1381,6 +1435,17 @@ def main():
         e.set("id", name)
         retexture(e, sheets, T_STONE)
         objects.append(e)
+    e = copy.deepcopy(o3_objects["O3 Wall Arch 1"])
+    e.set("type", types.get(EYE_WALL, OBJECT_TYPES))
+    e.set("id", EYE_WALL)
+    retexture(e, sheets, T_STONE)
+    face = e.find("Texture")
+    size = next(s for s, (n, _) in SHEETS.items() if n == face.findtext("File"))
+    scale = size // 8
+    overlay = {(x * scale + i, y * scale + j): EYE_COLOURS[c] for (x, y), c in EYE.items()
+               for i in range(scale) for j in range(scale)}
+    face.find("Index").text = "0x%02x" % sheets[size].add_overlay(int(face.findtext("Index"), 0), overlay)
+    objects.append(e)
 
     everything = load("Object", *sorted(f for f in os.listdir(os.path.join(XML_DIR, "prod")) if f.endswith(".xml")))
     tones = [T_MARBLE, T_GILDED, T_RUG, T_STONE]
