@@ -1842,9 +1842,9 @@ impl App {
                         self.quest_acts.extend(self.quests.show(Some(tab)));
                         self.keys.clear();
                     }
-                    Some(Bind::VaultView) => {
+                    Some(Bind::VaultView) if vault::is_vault(game.map_name()) => {
                         if let Some(act) = self.vault.show(now) {
-                            game.vault(act);
+                            game.vault(act, now);
                         }
                         self.keys.clear();
                     }
@@ -1862,13 +1862,14 @@ impl App {
                 }
             }
             if game.world.as_ref().is_some_and(|w| w.player().is_some()) {
-                if self.npc_test.as_deref() == Some("Vault") {
+                // --npc Vault: once in the vault (after a --say "/vault")
+                if self.npc_test.as_deref() == Some("Vault") && vault::is_vault(game.map_name()) {
                     self.npc_test = None;
                     if let Some(act) = self.vault.show(now) {
-                        game.vault(act);
+                        game.vault(act, now);
                     }
                 }
-                if let Some(kind) = self.npc_test.take().and_then(|c| npc::NpcKind::of_class(&c)) {
+                if let Some(kind) = self.npc_test.take_if(|c| c != "Vault").and_then(|c| npc::NpcKind::of_class(&c)) {
                     to_chars |= npc_open(kind, game, &mut self.npcs, &mut self.market, &mut self.forge, &mut self.forge_acts, (&mut self.quests, &mut self.quest_acts), self.front.list.as_ref(), data);
                 }
             }
@@ -1940,11 +1941,12 @@ impl App {
             self.vault.tick(now, game.map_name());
             if self.vault.open {
                 for (down, pos) in std::mem::take(&mut self.clicks) {
-                    if down {
-                        if let Some(act) = self.vault.click(pos) {
-                            game.vault(act);
-                        }
+                    for act in self.vault.click(down, pos, lay.on_panel(pos.0, pos.1)) {
+                        game.vault(act, now);
                     }
+                }
+                for pos in std::mem::take(&mut self.right_clicks) {
+                    self.vault.right_click(pos);
                 }
                 self.mouse_down = false;
             }
@@ -2110,7 +2112,7 @@ impl App {
                     }
                     if let hud::Action::Button(hud::Button::Vault) = action {
                         if let Some(act) = self.vault.show(now) {
-                            game.vault(act);
+                            game.vault(act, now);
                         }
                         continue;
                     }
@@ -2281,6 +2283,7 @@ impl App {
                         self.hud.nexus_key = options::key_label(self.settings.key(options::Bind::Nexus));
                         self.hud.quests_key = options::key_label(self.settings.key(options::Bind::Quests));
                         self.hud.quests_ready = self.quests.ready();
+                        self.hud.in_vault = vault::is_vault(game.map_name());
                         self.hud.interact_key = self.settings.key(options::Bind::Interact).map_or(String::new(), |k| options::key_label(Some(k)));
                         self.hud.tabs_key = self.settings.key(options::Bind::SwitchTabs).map_or(String::new(), |k| options::key_label(Some(k)));
                         self.hud.potion_keys = [
@@ -2342,7 +2345,8 @@ impl App {
                 self.npcs.draw(&mut ui, &lay, world.player(), mouse, now);
                 self.market.draw(&mut ui, &lay, world.player(), mouse, now);
                 self.forge.draw(&mut ui, &lay, world.player(), mouse, now);
-                self.vault.draw(&mut ui, &lay, world.player(), mouse, now);
+                let inv: Vec<(u8, [f32; 4])> = p.slots.iter().filter(|s| matches!(s.kind, hud::SlotKind::Inventory(_))).map(|s| (s.index, s.rect())).collect();
+                self.vault.draw(&mut ui, &lay, world.player(), &inv, mouse, now);
                 self.quests.draw(&mut ui, &lay, world.player(), mouse, now);
                 self.quests.draw_toasts(&mut ui, &lay, now);
                 prof::mark("chat..windows");

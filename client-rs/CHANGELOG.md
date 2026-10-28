@@ -65,9 +65,9 @@ details). Add to a group's line when a change adds to it, rather than adding ano
 
 ### Game
 - `/forge` takes you to the Divine Forge from anywhere, in front of it and ready to forge or sell.
-- The vault window shows everything in your vault chests at once, from anywhere: the chest button
-  beside Quests, or K. Search it by name to see which chest holds an item, and in your vault click
-  the item to mark that chest.
+- In your vault, the vault window (the chest button beside Quests, or K) shows every vault chest
+  at once: drag items between chests and your inventory, or click one to send it across, without
+  walking from chest to chest. Search it by name to find which chest holds an item.
 - Being in the Legends (a character in the top 20 of the week, the month or all time) gives a 1%
   loot boost, along with the red glow, from the next time you enter a world. `/boosts` shows it.
 - Borderless fullscreen is in Options, Graphics (desktop), and the game remembers it: it opens

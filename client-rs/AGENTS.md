@@ -131,7 +131,7 @@ The client itself can be scripted for tests (desktop only):
 | `--hold <key>:<ms>` | Hold keys one after another: `w a s d q e r o z 0 1`-`8 space hp mp`, `f` fires, `i` turns autofire on or off (it fires at the mouse while other keys are held), `-` waits |
 | `--aim <degrees>` / `--aim auto` | Where `f` fires on the screen, or at the nearest enemy. `auto` is staff's `/autoaim`: the client sends it first and aims only once the server agrees, so the account must be an admin on the test stack (`rank` 6 in its Redis) |
 | `--say <text>` | Send a chat line or command once in the game; several lines split by `;;` go out in turn, each once another world is joined or 3 s after the last (`"/dungeon Oryx's Sanctuary;;/god"`) |
-| `--npc <class>` | Open that NPC's window once in the game (`GuildBoard`, `PotionStorage`...), wherever you stand; `Vault` opens the vault window |
+| `--npc <class>` | Open that NPC's window once in the game (`GuildBoard`, `PotionStorage`...), wherever you stand; `Vault` opens the vault window once in the vault (with `--say "/vault"`) |
 | `--quests <tab>` | Open the quest log at a tab once its data has come: `daily`, `weekly`, `monthly`, `login`, `achievements` (with `/questadmin` in `--say` to set up a state) |
 | `--effect <type>` | Show that `ShowEffect` type on you every half second (0: an area attack beside you), to check particles |
 | `--type <text>` | Type into the first NPC prompt that opens (then Enter), onto the guild board being edited, or into the Divine Forge's or the vault window's search (with `--npc Forge` or `--npc Vault`) |
@@ -195,7 +195,7 @@ yard): `--walk-to 45.5,68.5 --hold 0:200 --hold -:6000 --hold f:100000 --aim aut
   uses the ability at the mouse, 1-8 equip or use an inventory slot, F/V drink a stacked potion,
   0 enters a portal (or opens the NPC beside you), R goes to the Nexus, Enter or / chats, Tab
   whispers (again to cycle who to), G and P guild and party chat, Page Up/Down the chat history,
-  - and = zoom the minimap, O opens the options, J the quest log, K the vault window (all of these can be rebound there), Escape opens the menu (character select,
+  - and = zoom the minimap, O opens the options, J the quest log, K the vault window (in a vault) (all of these can be rebound there), Escape opens the menu (character select,
   log out). Items drag between slots, onto the
   world to drop; double-click equips, uses or takes from a bag; shift-click uses; Ctrl+click moves an
   item to the other page (inventory, backpack); Ctrl+right-click breaks it down.
@@ -220,10 +220,12 @@ yard): `--walk-to 45.5,68.5 --hold 0:200 --hold -:6000 --hold f:100000 --aim aut
   `QuestProgress` (108) and pops up `QuestNotice`s (107); claims are `QuestClaim` (105), answered by
   `QuestResult` (106). The quest log (`quests.rs`) and the HUD's Quests button and its badge read
   it. The Tinkerer (`QuestMaster`) and the Chronicler (`Chronicler`) open it at their pages.
-- **Vault window** (`vault.rs`): opened anywhere by K or the HUD's chest button beside Quests, it
-  asks for `VaultContents` (114/115) each time: every vault chest's items, and where the chests
-  stand when we're in our vault (a click then marks one in the world). Read-only. With no answer
-  in 5 s it stops asking for that game (an older server).
+- **Vault window** (`vault.rs`): in a vault (`vault::is_vault`), K or the HUD's chest button beside
+  Quests opens it; it asks for `VaultContents` (114/115) on opening and after each move: every
+  vault chest's items, and in our own vault each chest's object id and position. Items move with
+  `InvSwap`s to those ids (drags between chests and the HUD's inventory slots, which the window
+  takes while open; a click sends one across). With no answer in 5 s it stops asking for that game
+  (an older server).
 - **Boss damage:** the client asks for `QuestDamageFull` (91/92) as well as `QuestDamage`
   (89/90): everyone who hit the quest with their class, its maximum health, and a last message
   marked `dead` when it dies. The client keeps the last 3 bosses it hit

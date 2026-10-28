@@ -110,6 +110,16 @@ wire_struct! {
 }
 
 wire_struct! {
+    /// A vault chest (`VaultContents`): its object id and where it stands, in our own vault (-1
+    /// for all three elsewhere).
+    pub struct VaultChest {
+        pub id: i32,
+        pub x: f32,
+        pub y: f32,
+    }
+}
+
+wire_struct! {
     /// A forge shard in the forge storage (`ForgeShards`), or an item in the vault (`ForgeVault`),
     /// and how many are there.
     pub struct ForgeShard {

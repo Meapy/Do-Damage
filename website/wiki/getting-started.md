@@ -65,7 +65,7 @@ Every key can be rebound in Options (<kbd>O</kbd>).
 | <kbd>0</kbd> | Enter a portal, or talk to the NPC next to you |
 | <kbd>R</kbd> | Back to the Nexus |
 | <kbd>J</kbd> | The quest log: quests, the daily reward and achievements |
-| <kbd>K</kbd> | The vault window: every vault chest's items, from anywhere ([Items](items.html#your-vault)) |
+| <kbd>K</kbd> | In your vault: the vault window, every vault chest at once ([Items](items.html#your-vault)) |
 | <kbd>Enter</kbd> | Chat; <kbd>Tab</kbd> whispers, <kbd>G</kbd> guild chat, <kbd>P</kbd> party chat |
 | <kbd>L</kbd> | Show the frame rate and your ping |
 | <kbd>X</kbd> | Center the view on you |

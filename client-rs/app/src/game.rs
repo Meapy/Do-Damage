@@ -1222,10 +1222,11 @@ impl Game {
         self.send(msg);
     }
 
-    /// Ask for the vault window's contents (`VaultContentsHandler.cs`).
-    pub fn vault(&mut self, act: crate::vault::Act) {
+    /// Ask for the vault window's contents (`VaultContentsHandler.cs`), or move an item for it.
+    pub fn vault(&mut self, act: crate::vault::Act, now: i32) {
         match act {
             crate::vault::Act::Request => self.send(bsk_proto::VaultContentsRequest {}.into()),
+            crate::vault::Act::Swap(a, b) => self.inv_swap(now, a, b),
         }
     }
 

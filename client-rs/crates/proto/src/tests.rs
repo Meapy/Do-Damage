@@ -287,12 +287,12 @@ fn imprint_messages_match_imprint_handlers() {
 
 #[test]
 fn vault_messages_match_vault_contents_handler() {
-    // VaultContentsHandler reads nothing; VaultContents.Write: a short count of chests (x, y),
-    // then a short count of items (chest, slot, item, three imprints).
+    // VaultContentsHandler reads nothing; VaultContents.Write: a short count of chests (id, x,
+    // y), then a short count of items (chest, slot, item, three imprints).
     assert_eq!(ClientMessage::from(VaultContentsRequest {}).to_frame(), B::default().frame(114));
-    let body = B::default().i16(2).f32(10.5).f32(4.5).f32(-1.0).f32(-1.0).i16(1).i16(1).u8(6).i16(0x0a01).u8(0).u8(0).u8(0).0;
+    let body = B::default().i16(2).i32(77).f32(10.5).f32(4.5).i32(-1).f32(-1.0).f32(-1.0).i16(1).i16(1).u8(6).i16(0x0a01).u8(0).u8(0).u8(0).0;
     let ServerMessage::VaultContents(v) = ServerMessage::decode(115, &body).unwrap() else { panic!() };
-    assert_eq!((v.chests.len(), v.chests[0].x, v.chests[0].y, v.chests[1].x), (2, 10.5, 4.5, -1.0));
+    assert_eq!((v.chests.len(), v.chests[0].id, v.chests[0].x, v.chests[0].y, v.chests[1].id), (2, 77, 10.5, 4.5, -1));
     let g = &v.items[0];
     assert_eq!((g.chest, g.slot, g.item), (1, 6, 0x0a01));
 }

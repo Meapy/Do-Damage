@@ -173,11 +173,14 @@ impl Layout {
     }
 
     /// The quest log's button, beside the Nexus button.
-    pub fn quests_button(&self) -> [f32; 4] {
-        self.col_up(GRID_X + NEXUS_W + SLOT_GAP, NEXUS_UP, GRID8.0 - NEXUS_W - VAULT_W - 2.0 * SLOT_GAP, BURGER)
+    /// The Quests button, beside the Nexus button; narrower in the vault, where the vault
+    /// window's button takes the row's end.
+    pub fn quests_button(&self, vault: bool) -> [f32; 4] {
+        let w = GRID8.0 - NEXUS_W - SLOT_GAP - if vault { VAULT_W + SLOT_GAP } else { 0.0 };
+        self.col_up(GRID_X + NEXUS_W + SLOT_GAP, NEXUS_UP, w, BURGER)
     }
 
-    /// The vault window's button, at the right end of the Nexus button's row.
+    /// The vault window's button, at the right end of the Nexus button's row (in the vault).
     pub fn vault_button(&self) -> [f32; 4] {
         self.col_up(GRID_X + GRID8.0 - VAULT_W, NEXUS_UP, VAULT_W, BURGER)
     }
@@ -620,6 +623,11 @@ pub struct Slot {
 }
 
 impl Slot {
+    /// Where the slot is drawn.
+    pub fn rect(&self) -> [f32; 4] {
+        self.rect
+    }
+
     pub fn is(&self, other: &Slot) -> bool {
         self.owner == other.owner && self.index == other.index
     }
@@ -937,6 +945,8 @@ pub struct HudState {
     /// The key bound to the quest log, and how many of its rewards wait, for its button.
     pub quests_key: String,
     pub quests_ready: usize,
+    /// We're in a vault: the vault window's button shows.
+    pub in_vault: bool,
     /// The key bound to Interact, for the portal's Enter button.
     pub interact_key: String,
     /// The key that switches between the inventory and the backpack, shown on their tabs.
@@ -1129,8 +1139,10 @@ impl Panel {
             });
         }
         panel.buttons.push((Button::Nexus, lay.nexus_button()));
-        panel.buttons.push((Button::Quests, lay.quests_button()));
-        panel.buttons.push((Button::Vault, lay.vault_button()));
+        panel.buttons.push((Button::Quests, lay.quests_button(state.in_vault)));
+        if state.in_vault {
+            panel.buttons.push((Button::Vault, lay.vault_button()));
+        }
         // The boss history's button, under whatever else is at the top left (where it was drawn).
         {
             let hl = history_layout(lay, social.history, state, state.history_y);
