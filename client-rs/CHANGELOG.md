@@ -58,6 +58,10 @@ details). Add to a group's line when a change adds to it, rather than adding ano
 - The Shatters' Bridge Sentinel can be beaten again: the bridge's Titanums no longer stay
   invulnerable for good when a hidden object that switches them was shot down during the fight.
 - Chatting no longer disconnects you when someone nearby is leaving the world at that moment.
+- Objects that run on a timer keep their proper pace when players are near, instead of running
+  twice as fast: Battalion Banners, Wisps, the Elysian Halo, the Dark Enchantment Orb and the Eye
+  of Marble last their full time, Shaitan's lava pools stay 5 seconds, Oryx 5's Pillars of Heaven
+  fire half as often, and the Void's portal stays open its full 5 minutes.
 
 ## 2.3.0 (2026-10-28)
 

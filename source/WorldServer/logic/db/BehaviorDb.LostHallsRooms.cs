@@ -96,7 +96,7 @@ namespace WorldServer.logic
             )
             // the torn place where the Colossus fell: a Vial of Pure Darkness used within 25
             // tiles turns it into the Void's portal (the vial's ChangeObject); it closes after 5
-            // minutes of its timers (static objects tick twice while players are near, so about 3)
+            // minutes
             .Init("LH Vial Effect",
                 new State(
                     new State("Open",

@@ -796,6 +796,10 @@ namespace WorldServer.core.worlds
                 var active = WakesBySight ? EnemiesCollision.GetChunksAround(SightCentres()) : EnemiesCollision.GetActiveChunks(PlayersCollision);
                 foreach (var entity in active)
                 {
+                    // static objects share this map for collision but tick in their own loop above:
+                    // ticking them here too ran their behaviour timers twice as fast near players
+                    if (entity is not Enemy)
+                        continue;
                     entity.Tick(ref time);
                     if (entity.Dead)
                         EntitiesToRemove.Add(entity);
