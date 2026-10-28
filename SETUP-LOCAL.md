@@ -413,9 +413,19 @@ The remotes `upstream` (HaloCelsius) and `aurusenth` share no history with `main
   - **Sign-ins froze for about 4 minutes** when ~30 bots signed in again at once: the account server
     took requests in bursts (18, 25, 47, 47 per 10 s) with 20-40 s gaps where it did nothing, and
     its inter-server heartbeats lapsed ("re-joined the network"); https sign-ins timed out meanwhile.
-    Redis wasn't blocked (slowest commands 10-32 ms) and a password check takes ~60 ms there, so it
-    looks like the account server's thread pool starving on synchronous requests. Everyone signing
-    in again after a `bsk-world` restart could set it off.
+    Redis wasn't blocked (slowest commands 10-32 ms) and a password check takes ~60 ms there.
+    Everyone signing in again after a `bsk-world` restart could set it off. **Fixed** (found on a
+    test stack held to 4 CPUs, `DOTNET_PROCESSOR_COUNT=4` and an affinity mask, with
+    `tools/testclient/signin_burst.py`): the account server's thread pool starved. Every request
+    waits for Redis synchronously on a pool thread, and Redis's replies (the socket's completions)
+    are queued on that same pool, behind the new requests; the pool starts with one thread per CPU
+    and grows by about one a second, so a burst took every thread and nothing moved (CPU near 0%,
+    16 threads in `CharController.List` waiting on Redis, 30-60 items queued). A Redis
+    `SocketManager` of its own didn't cure it, since the socket completions still need a pool
+    thread. Now the account server runs at most 16 requests at once (the rest wait without holding
+    a thread, and are dropped if the client gives up) and starts the pool with 64 threads
+    (`Program.cs`). 50 sign-ins at once: a fresh server 17.8 s to 2.1 s for all of them, a warm one
+    9-11 s to 0.15 s (median), and 150 at once 0.30 s (median), 0.50 s at worst.
   - **Not tried on the VPS yet:** a fixed gen 0 budget (`DOTNET_GCgen0size=1000000`, 16 MB, this
     PC's default; the VPS's 8 MB L3 gives a 4 MB minimum). It works (a test program made 30, 122
     and 11 collections per 400 MB at the default, 4 MB and 64 MB), but the collector raises the

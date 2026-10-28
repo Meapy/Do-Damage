@@ -17,6 +17,8 @@ details). Add to a group's line when a change adds to it, rather than adding ano
 ### Fixes
 - Players were sometimes disconnected ("An error occurred while processing data from your client")
   when a kill gave them a level or fame just as another player in the fight left the game.
+- Signing in no longer hangs for minutes when many players sign in at once, as everyone does
+  after a server restart.
 
 ## 2.2.4 (2026-10-28)
 
