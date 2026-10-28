@@ -135,6 +135,10 @@ namespace WorldServer.core.objects
 			set => _fameGoal.SetValue(value);
         }
 
+        // the account has a character on a Legends board, as of entering this world: the legend
+        // glow and its loot boost (LootBoosts.Legend)
+        public bool IsLegend { get; private set; }
+
         private StatTypeValue<int> _glow;
         public int Glow
         {
@@ -314,7 +318,8 @@ namespace WorldServer.core.objects
 
             _ = GameServer.Database.IsLegend(AccountId).ContinueWith(t =>
             {
-                Glow = t.Result && account.GlowColor == 0 ? 0xFF0000 : account.GlowColor;
+                IsLegend = t.IsCompletedSuccessfully && t.Result;
+                Glow = IsLegend && account.GlowColor == 0 ? 0xFF0000 : account.GlowColor;
             });
 
             if (account.Hidden)

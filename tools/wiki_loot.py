@@ -7,8 +7,8 @@ website/wiki/loot.js to show and to roll kills with.
 - Tier rows: the pool Loots.Initialize fills for that kind and tier, every item weighted 1 but the
   untiered ones that join a pool (TierLoot.ExtraPoolItems) at their own weight. A Doomed Realms item
   drops in the best bag of the other items really of its tier, as the server gives it.
-- The boosts: the loot event and weekend boosts from wServer.json, the Loot Drop Potion's from
-  Loots.cs, and the bag ranks (LOOT_BAG_WEIGHTS) that decide a kill's bag colour.
+- The boosts: the loot event and weekend boosts from wServer.json, the Loot Drop Potion's and the
+  Legends' from LootBoosts.cs, and the bag ranks (LOOT_BAG_WEIGHTS) that decide a kill's bag colour.
 
 Run it to print the data: python tools/wiki_loot.py
 """
@@ -21,6 +21,7 @@ import wiki_data as wd
 LOOTS = os.path.join(wd.LOGIC, "loot", "Loots.cs")
 MOBDROPS = os.path.join(wd.LOGIC, "loot", "MobDrops.cs")
 CONFIG = os.path.join(wd.ROOT, "source", "WorldServer", "wServer.json")
+BOOSTS = os.path.join(wd.SRC, "Shared", "resources", "LootBoosts.cs")
 
 # (key, short name, the monster, its dungeon); more bosses can join later
 BOSSES = [
@@ -89,11 +90,15 @@ def bag_ranks():
 
 
 def boosts():
-    """{event, weekend, ld}: what each adds to the chance multiplier."""
+    """{event, weekend, ld, legend}: what each adds to the chance multiplier."""
     cfg = json.loads(wd._read(CONFIG)).get("serverSettings", {})
-    ld = re.search(r'LDBoostTime\s*>\s*0\s*\?\s*([0-9.]+)', wd._read(LOOTS))
+    src = wd._read(BOOSTS)
+
+    def const(name):
+        m = re.search(r'const double ' + name + r'\s*=\s*([0-9.]+)', src)
+        return float(m.group(1)) if m else 0.0
     return {"event": float(cfg.get("lootEvent", 0)), "weekend": float(cfg.get("wkndBoost", 0)),
-            "ld": float(ld.group(1)) if ld else 0.0}
+            "ld": const("LootDrop"), "legend": const("Legend")}
 
 
 def pools(d):

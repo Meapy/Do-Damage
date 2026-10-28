@@ -273,11 +273,11 @@ namespace WorldServer.logic.loot
                 if (enemy.IsLegendary) enemyBoost = .75;
 
                 var dmgBoost = Math.Round(tupPlayer.Item2 / (double)enemy.DamageCounter.TotalDamage, 4);
-                var ldBoost = player.LDBoostTime > 0 ? 0.5 : 0;
                 // only on weekends, as /boosts and the login message say (it applied every day)
                 var wkndBoost = player.World.isWeekend ? player.Client.GameServer.Configuration.serverSettings.wkndBoost : 0;
                 var eventBoost = player.Client.GameServer.Configuration.serverSettings.lootEvent;
-                var totalBoost = 1 + (ldBoost + wkndBoost + dmgBoost + enemyBoost + eventBoost);
+                var boosts = LootBoosts.Total(player.LDBoostTime > 0, player.IsLegend, wkndBoost, eventBoost);
+                var totalBoost = 1 + (boosts + dmgBoost + enemyBoost);
 
                 var gameData = enemy.GameServer.Resources.GameData;
 

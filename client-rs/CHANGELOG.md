@@ -12,6 +12,12 @@ Keep each version short: changes go under `### ` group headings (Oryx 5, Arena, 
 on), one line per change players notice, summed up rather than item by item (the wiki has the
 details). Add to a group's line when a change adds to it, rather than adding another line.
 
+## Unreleased
+
+### Game
+- Being in the Legends (a character in the top 20 of the week, the month or all time) gives a 1%
+  loot boost, along with the red glow, from the next time you enter a world. `/boosts` shows it.
+
 ## 2.2.5 (2026-10-28)
 
 ### Fixes

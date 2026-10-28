@@ -15,7 +15,8 @@
   var BOOSTS = [
     { id: "event", label: "Loot event", v: DATA.boosts.event, on: DATA.boosts.event > 0 },
     { id: "weekend", label: "Weekend", v: DATA.boosts.weekend, on: false },
-    { id: "ld", label: "Loot Drop Potion", v: DATA.boosts.ld, on: false }
+    { id: "ld", label: "Loot Drop Potion", v: DATA.boosts.ld, on: false },
+    { id: "legend", label: "In the Legends", v: DATA.boosts.legend || 0, on: false }
   ].filter(function (b) { return b.v > 0; });
   var KINDS = { Weapon: "weapon", Ability: "ability", Armor: "armor", Ring: "ring" };
   var state = { boss: DATA.bosses[DATA.bosses.length - 1].key, view: "sim", share: 0.2, boosts: {},

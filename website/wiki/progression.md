@@ -154,7 +154,7 @@ from wave 30 an Elder dungeon boss joins Oryx's. The chat says which wave has be
   wave's boss, or Oryx) drops loot as often as anywhere else, but half the items, rounded up: if
   you'd have got 4 items you get 2, and 1 stays 1. Oryx 3, 4 and 5 also drop each item half as
   often, so they give about a quarter of their usual loot. Any other monster drops each item half
-  as often. Loot boosts (weekend, Loot Drop Potion, events) still count on top.
+  as often. Loot boosts (weekend, Loot Drop Potion, events, the Legends) still count on top.
 - **Between waves** you rest for 5 seconds, 15 from wave 10 and 20 from wave 20. Type **GO** in
   chat to start the next wave (or the game) in 3 seconds instead, once per countdown. Everyone is
   invulnerable for the first 2.5 seconds of each wave, 5 when an Oryx comes.
@@ -175,8 +175,9 @@ and a gravestone marks the spot. What you keep:
 
 The Legends screen (on the character screen) has the top characters and a **Recent Deaths** tab:
 the last 20 characters to die, with what killed them and where. A player with a character in the
-top 20 of the week, the month or all time is a legend, and their characters glow red in the game
-(from the next time they enter a world).
+top 20 of the week, the month or all time is a legend: their characters glow red in the game and
+get a 1% loot boost (`/boosts` shows it), from the next time they enter a world. Pushed off every
+top 20, they lose both the same way.
 
 So store what you can't afford to lose before a risky run, and don't take your best gear
 somewhere you aren't ready for.

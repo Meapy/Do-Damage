@@ -375,6 +375,7 @@ The remotes `upstream` (HaloCelsius) and `aurusenth` share no history with `main
 
 ## Changes from upstream
 
+- **A loot boost for legends** (2026-10-28; `Shared/resources/LootBoosts.cs`, `Loots.Handle`, `Player.IsLegend`, `/boosts`): an account with a character on a Legends board (top 20 by fame of the week, the month or all time, the same Redis `legend` hash that gives the red glow, rebuilt by the account server every minute) gets `LootBoosts.Legend` = 0.01 added to its loot boosts, alongside the Loot Drop Potion's, the weekend's and the loot event's (so a drop's chance is times 1 + share + boosts + 0.01, not doubled). It's read when the player enters a world, as the glow is, so it comes and goes with the board at the next world change, and costs nothing per kill. `/boosts` lists it; the wiki's Loot Simulation reads it from `LootBoosts.cs` and has an "In the Legends" box.
 - **Proxy and ping under load** (2026-10-28; 50 `bsk-bot --fight` players on the live server while
   it was empty, run from this PC over the internet so the whole network path counts: 60% over
   wss through Caddy and the gateway, 40% on TCP 2051; in the realm's beach and godlands, the Arena
