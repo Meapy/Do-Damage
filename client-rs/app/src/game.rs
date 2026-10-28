@@ -53,6 +53,8 @@ pub struct Game {
     pub market_events: Vec<crate::market::Event>,
     /// The Divine Forge's answers, for its window.
     pub forge_events: Vec<crate::forge::Event>,
+    /// The vault window's answer (`VaultContents`), for main to hand over.
+    pub vault_contents: Option<bsk_proto::VaultContents>,
     /// Quests, daily rewards and achievements, for the quest log (`quests.rs`).
     pub quest_events: Vec<crate::quests::Event>,
     /// Sound effects to play: (name, volume, is it a weapon's shot).
@@ -250,6 +252,7 @@ impl Game {
             sounds: Vec::new(),
             market_events: Vec::new(),
             forge_events: Vec::new(),
+            vault_contents: None,
             quest_events: Vec::new(),
             music: None,
             last_level: 0,
@@ -707,6 +710,7 @@ impl Game {
             }),
             ServerMessage::ForgeShards(s) => self.forge_events.push(crate::forge::Event::Shards(s.shards.0.clone())),
             ServerMessage::ForgeVault(v) => self.forge_events.push(crate::forge::Event::Vault(v.items.0.clone())),
+            ServerMessage::VaultContents(v) => self.vault_contents = Some(v.clone()),
             ServerMessage::ImprintVault(v) => self.forge_events.push(crate::forge::Event::ImprintVault(v.items.0.clone())),
             ServerMessage::RealmEvents(r) => self.realm_events = Some(r.clone()),
             ServerMessage::ImprintResult(r) => {
@@ -1216,6 +1220,13 @@ impl Game {
             Act::ImprintVault(chest, slot, imprint) => bsk_proto::ImprintVaultApply { chest, slot, imprint }.into(),
         };
         self.send(msg);
+    }
+
+    /// Ask for the vault window's contents (`VaultContentsHandler.cs`).
+    pub fn vault(&mut self, act: crate::vault::Act) {
+        match act {
+            crate::vault::Act::Request => self.send(bsk_proto::VaultContentsRequest {}.into()),
+        }
     }
 
     /// Ask the quest log's server side (`QuestTracker.cs`).

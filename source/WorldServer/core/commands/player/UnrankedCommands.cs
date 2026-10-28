@@ -583,16 +583,17 @@ namespace WorldServer.core.commands.player
         {
             var settings = player.Client.GameServer.Configuration.serverSettings;
 
-            var ldBoost = player.LDBoostTime > 0 ? 0.5 : 0;
             var wkndBoost = player.World.isWeekend ? settings.wkndBoost : 0;
             var lootEvent = settings.lootEvent;
-            var totalLootBoost = ldBoost + wkndBoost + lootEvent;
+            var totalLootBoost = LootBoosts.Total(player.LDBoostTime > 0, player.IsLegend, wkndBoost, lootEvent);
 
             player.SendInfo($"You have a {Math.Round(totalLootBoost * 100, 0)}% loot boost.");
             if (totalLootBoost > 0)
             {
                 if (player.LDBoostTime > 0)
-                    player.SendSubtext($"   Your loot drop potion gives: 50% ({TimeLeft(player.LDBoostTime)})");
+                    player.SendSubtext($"   Your loot drop potion gives: {Math.Round(LootBoosts.LootDrop * 100, 0)}% ({TimeLeft(player.LDBoostTime)})");
+                if (player.IsLegend)
+                    player.SendSubtext($"   Being in the Legends gives: {Math.Round(LootBoosts.Legend * 100, 0)}%");
                 if (player.World.isWeekend)
                     player.SendSubtext($"   It being a weekend gives: {Math.Round(settings.wkndBoost * 100.0, 0)}%");
                 if (settings.lootEvent > 0)

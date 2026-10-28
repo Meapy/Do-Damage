@@ -17,6 +17,8 @@
 
   <ItemGroup>
     <ProjectReference Include="..\Shared\Shared.csproj" />
+    <!-- the behaviours, for PortalSourcesTests -->
+    <ProjectReference Include="..\WorldServer\WorldServer.csproj" />
   </ItemGroup>
 
 </Project>

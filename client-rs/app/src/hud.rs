@@ -52,6 +52,8 @@ const SLOT: f32 = 40.0;
 const SLOT_GAP: f32 = 4.0;
 const GRID_PAD: (f32, f32) = (6.0, 5.0);
 const NEXUS_W: f32 = 56.0;
+/// The vault button, at the right of the Quests button.
+const VAULT_W: f32 = 40.0;
 /// The Nexus button's picture: the Nexus portal.
 const NEXUS_ICON: i32 = 0x0712;
 /// The inventory and backpack tabs: two square buttons in a small box.
@@ -172,7 +174,12 @@ impl Layout {
 
     /// The quest log's button, beside the Nexus button.
     pub fn quests_button(&self) -> [f32; 4] {
-        self.col_up(GRID_X + NEXUS_W + SLOT_GAP, NEXUS_UP, GRID8.0 - NEXUS_W - SLOT_GAP, BURGER)
+        self.col_up(GRID_X + NEXUS_W + SLOT_GAP, NEXUS_UP, GRID8.0 - NEXUS_W - VAULT_W - 2.0 * SLOT_GAP, BURGER)
+    }
+
+    /// The vault window's button, at the right end of the Nexus button's row.
+    pub fn vault_button(&self) -> [f32; 4] {
+        self.col_up(GRID_X + GRID8.0 - VAULT_W, NEXUS_UP, VAULT_W, BURGER)
     }
 
     /// The equipment, over the tabs and potions.
@@ -716,6 +723,8 @@ pub enum Button {
     Nexus,
     /// Open the quest log.
     Quests,
+    /// Open the vault window.
+    Vault,
     Page(Page),
     /// Enter the portal.
     Enter(i32),
@@ -1121,6 +1130,7 @@ impl Panel {
         }
         panel.buttons.push((Button::Nexus, lay.nexus_button()));
         panel.buttons.push((Button::Quests, lay.quests_button()));
+        panel.buttons.push((Button::Vault, lay.vault_button()));
         // The boss history's button, under whatever else is at the top left (where it was drawn).
         {
             let hl = history_layout(lay, social.history, state, state.history_y);
@@ -1631,6 +1641,12 @@ pub fn draw_panel(ui: &mut Ui, lay: &Layout, world: &World, camera_angle: f64, c
                     let tw = ui.measure(&t, ts, true);
                     ui.label(&t, br[0] + (d - tw) / 2.0, (br[1] + d / 2.0 - ui.digit_middle(ts, true)).round(), ts, true, color::ACCENT_TEXT);
                 }
+                continue;
+            }
+            Button::Vault => {
+                // The vault chest's picture.
+                ui.button(*r, "", Kind::Secondary, inside(*r, mouse), s);
+                object_icon(ui, crate::vault::VAULT_CHEST, r[0] + r[2] / 2.0, r[1] + r[3] / 2.0, 20.0 * s);
                 continue;
             }
             Button::Enter(_) if state.interact_key.is_empty() => ("Enter".to_owned(), Kind::Primary),

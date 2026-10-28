@@ -27,7 +27,7 @@ boosters and whatever it replaces go to your inventory, which needs room for the
 The **Divine Forge** in the Nexus's south yard combines items into new ones: two of any tiered
 weapon, ability, armor or ring make one of the next tier, and Doomed Realms' own recipes make
 untiered items and a few potions (a **Potion of Oryx** from one of each of the eight stat
-potions). `/forge` and `/forgelist` just point you there. [The Divine Forge](forge.html) has every
+potions). `/forge` takes you there from anywhere. [The Divine Forge](forge.html) has every
 recipe and what it costs.
 
 ## Shops and selling

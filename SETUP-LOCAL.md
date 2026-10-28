@@ -375,6 +375,19 @@ The remotes `upstream` (HaloCelsius) and `aurusenth` share no history with `main
 
 ## Changes from upstream
 
+- **/forge goes to the forge** (2026-10-28; `ForgeCommand` in `DoomedEconomyCommands.cs`, `LoadHandler`): in the Nexus it teleports the player (no cooldown, as `/nexus` has none) two tiles in front of the Divine Forge (south of its tile, a random one of the three free tiles there; else the nearest free tile within its reach); from anywhere else it reconnects them to the Nexus and `LoadHandler` places them there (`ForgeCommand.ArrivalSpot`, a pending trip good for a minute, as `/godlands` does). Refused nowhere, like `/nexus`. Tested on an isolated stack with `bsk-bot` from the Nexus, a realm, a dungeon (Pirate Cave), the Arena and the vault. Server only.
+- **Vault window** (2026-10-28; `VaultContentsHandler.cs`, `client-rs/app/src/vault.rs`): the Rust
+  client shows every vault chest's items in one read-only window, opened anywhere from the HUD's
+  chest button (beside Quests) or K (`vaultView` in Options). It asks with `VAULT_CONTENTS_REQUEST`
+  (114) each time it opens; the server answers `VAULT_CONTENTS` (115): each chest's position (-1, -1
+  unless the player is in their own vault) and each item's chest, slot, type and imprints. In the
+  vault the chests' live contents are read (`VaultWorld.VaultChests`, by chest number), elsewhere
+  Redis (`ForgeVault.Peek`; the vault saves a chest on every change). Nothing moves an item. A
+  client whose server doesn't answer within 5 s stops asking for that connection, so an older
+  server never counts it as packet spam. Clicking an item in the vault marks its chest in the
+  world.
+- **One portal per boss** (2026-10-28; `source/Tests/PortalSourcesTests.cs`): three bosses placed the same portal twice. The Ghost Ship's death set piece (`Setpieces/Ghost Ship/Death.jm`, on its spawn point) holds the Davy Jones' Locker portal, and a `DropPortalOnDeath` of the same portal (2026-10-11) put a second where it died: the drop is gone, so the one portal stays on the island, open until the realm closes, as upstream. The Royal Cnidarian had `RealmPortalDrop` and a `DropPortalOnDeath("Realm Portal")` (2026-10-12), two Realm Portals on one spot: its `RealmPortalDrop` is gone (the behaviour is now unused). The Puppet Master's `YepDead` state (he runs out of time and leaves by `Suicide`) had its own `TransformOnDeath("Puppet Loot Chest")` beside the root one, so a timed-out fight left two chests and two Encore portals: the state's is gone. `PortalSourcesTests` loads the real game data and `BehaviorDb` (a `GameServer` with only `Resources`, so `source/Tests` now references `WorldServer`) and walks every monster's behaviours by reflection, the Doomed Realms ones too: `DropPortalOnDeath`, `RealmPortalDrop`, `DeathPortal`, the portals in a `PlaceMapAtDeath` set piece, `TransformOnDeath` into a portal, portals spawned or tossed during the fight, and what a monster turns into or throws out on death (followed down to its own portals). It fails when one portal has two sources that both fire (both on death in states the monster is in together, or either during the fight); 0% drops (the Elder Tomb's shared builder) don't count. Different portals from one boss are left alone: Oryx 2's Realm, Sanctuary and 10% Lost Halls portals, Oryx 3 and 4's locked portal and Realm Portal, the gods with an Elder dungeon and a Realm Portal (Davy Jones, Dreadstump, Septavius, Thessal, Malphas, the Masked Party God, Mixcoatl with Secluded Thicket too), Lord Ruthven's Realm Portal and his Coffin's Elder Manor portal, and the realm events with two dungeons (Dragon Head, Grand Sphinx, Hermit, Lord of the Lost Lands, Encounter Altar). World code was checked too: `World.BossDied` adds a Realm Portal only when none is there, and the only map holding a portal its boss also drops is Oryx's Elysium, whose Nexus Portal on the Landing is where players arrive, not where Oryx 5 dies. The wiki reads `PlaceMapAtDeath` set pieces' portals (`wiki_data.map_portals`), so the Ghost Ship stays the Davy Jones' Locker portal's source. Tested on an isolated stack with `bsk-bot` (a real Realm 2 Wreck Coast event, the Cnidarian Reef and the Puppet Master's time-out: two of the portal before, one after; and Oryx 1 into the Wine Cellar and Oryx 2): Oryx 1 leaves one open Wine Cellar portal, Oryx 2 one Realm, one open Sanctuary and the 10% Lost Halls portal.
+- **A loot boost for legends** (2026-10-28; `Shared/resources/LootBoosts.cs`, `Loots.Handle`, `Player.IsLegend`, `/boosts`): an account with a character on a Legends board (top 20 by fame of the week, the month or all time, the same Redis `legend` hash that gives the red glow, rebuilt by the account server every minute) gets `LootBoosts.Legend` = 0.01 added to its loot boosts, alongside the Loot Drop Potion's, the weekend's and the loot event's (so a drop's chance is times 1 + share + boosts + 0.01, not doubled). It's read when the player enters a world, as the glow is, so it comes and goes with the board at the next world change, and costs nothing per kill. `/boosts` lists it; the wiki's Loot Simulation reads it from `LootBoosts.cs` and has an "In the Legends" box.
 - **Realm 2 in the Nexus, its art redrawn, the Dragon's Roost** (2026-10-28):
   - *The Nexus's Realm 2* (`RealmPortalMonitor.CreateRealm2IfNone`, `WorldManager.CreateNewRealm2Async`):
     one public Realm 2 always open (85 players), named from its own list (`Realm2Names`: Zenith,
@@ -416,13 +429,13 @@ The remotes `upstream` (HaloCelsius) and `aurusenth` share no history with `main
     (the sheets, XML and the client changes).
 
 - **Realm events, Realm 2 lands, Oryx incantations, O5 and the Divine Workbench** (2026-10-28):
-  - *Realm events* (`RealmManager.cs`, `RealmManager.Events.cs`, messages 114-116): every event boss's
+  - *Realm events* (`RealmManager.cs`, `RealmManager.Events.cs`, messages 116-118): every event boss's
     kill counts (`CountingEvents(name, at)`), whichever the quest arrow follows; `RealmBroadcast`
     sends a realm's news to its own players only (it used `ChatManager.Realm`, every realm's), with
-    how many are left. `REALM_EVENTS_SUBSCRIBE` (114, the Rust client in each world) gets
-    `REALM_EVENTS` (115: defeated, needed, the player's pick, and each running event's counted part,
+    how many are left. `REALM_EVENTS_SUBSCRIBE` (116, the Rust client in each world) gets
+    `REALM_EVENTS` (117: defeated, needed, the player's pick, and each running event's counted part,
     side quest and waystone: kind, id, type, name, x, y) whenever the list changes (checked every
-    2 s); `QUEST_PICK` (116) sets `Player.PickedQuestId`, which `FindQuest` returns while it lives (0:
+    2 s); `QUEST_PICK` (118) sets `Player.PickedQuestId`, which `FindQuest` returns while it lives (0:
     the nearest, as before). The client's top left (`events.rs`, `hud::draw_quest`,
     `draw_history_and_keys`): the quest's health; within `QUEST_NEAR` (100 tiles) who hit it; the
     Realm Events list (five rows, nearest first, the wheel scrolls), folded to its count near the
@@ -472,7 +485,7 @@ The remotes `upstream` (HaloCelsius) and `aurusenth` share no history with `main
     (`<ItemDatas>`); damage that ignored defense (`DamageMessage.Pierce`, now set for `noDef`) in
     purple, and Wounds' count no longer shown; any click closes the chat box, 500 lines kept across
     characters, wheel scrolling and a scroll bar; the fame bar full with no goal. Ships with a
-    client release; an older client ignores message 115 and keeps working.
+    client release; an older client ignores message 117 and keeps working.
 
 - **Proxy and ping under load** (2026-10-28; 50 `bsk-bot --fight` players on the live server while
   it was empty, run from this PC over the internet so the whole network path counts: 60% over

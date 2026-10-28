@@ -45,8 +45,7 @@ details). Add to a group's line when a change adds to it, rather than adding ano
   are beaten of how many close the realm and every event running, nearest first: click one for your
   quest arrow to follow it. Near your quest the list folds to its count, under the boss's health
   and who hit it (click it to see the list anyway). The map marks every event.
-- The Killer Bee Nest's Hive portal always comes when its third guardian bee dies, and the Ghost
-  Ship leaves one Davy Jones' Locker portal, not two.
+- The Killer Bee Nest's Hive portal always comes when its third guardian bee dies.
 
 ### Imprints and the Divine Workbench
 - The forge and the Enchanter open one window, the Divine Workbench, with the Forge, Shards, Sell
@@ -65,10 +64,24 @@ details). Add to a group's line when a change adds to it, rather than adding ano
   to destroy his Trees of Doom to open his gates, and how many still stand.
 
 ### Game
+- `/forge` takes you to the Divine Forge from anywhere, in front of it and ready to forge or sell.
+- The vault window shows everything in your vault chests at once, from anywhere: the chest button
+  beside Quests, or K. Search it by name to see which chest holds an item, and in your vault click
+  the item to mark that chest.
+- Being in the Legends (a character in the top 20 of the week, the month or all time) gives a 1%
+  loot boost, along with the red glow, from the next time you enter a world. `/boosts` shows it.
+- Borderless fullscreen is in Options, Graphics (desktop), and the game remembers it: it opens
+  the way you left it. F11 or Alt+Enter still switches, and back in a window it's the size and
+  place it was.
 - Clicking anywhere closes the chat box; the chat keeps more of its history (across characters
   too), scrolls with the mouse wheel and shows a scroll bar on its left, and the box spans the
   width while you type or scroll. The fame bar is full once a character's stars are all earned,
   without the "/ 0".
+
+### Fixes
+- Bosses that left a portal twice leave it once: the Ghost Ship's Davy Jones' Locker portal (now
+  only the one on its island), the Royal Cnidarian's Realm Portal, and the Puppet Master's loot
+  chest and Encore portal when he runs out of time.
 
 ## 2.2.5 (2026-10-28)
 

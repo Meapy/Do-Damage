@@ -39,6 +39,8 @@ pub enum Bind {
     Options,
     /// The quest log: quests, daily rewards and achievements.
     Quests,
+    /// The vault window: every vault chest's items at once.
+    VaultView,
     /// `switchTabs`: the inventory or the backpack.
     SwitchTabs,
     /// `toggleCentering`: the player in the middle of the view, or a little below.
@@ -54,7 +56,7 @@ pub enum Bind {
 }
 
 /// Every binding: what, its label, its name in the file, its default key.
-pub const BINDS: [(Bind, &str, &str, Option<KeyCode>); 40] = [
+pub const BINDS: [(Bind, &str, &str, Option<KeyCode>); 41] = [
     (Bind::MoveUp, "Move up", "moveUp", Some(KeyCode::KeyW)),
     (Bind::MoveLeft, "Move left", "moveLeft", Some(KeyCode::KeyA)),
     (Bind::MoveDown, "Move down", "moveDown", Some(KeyCode::KeyS)),
@@ -87,6 +89,7 @@ pub const BINDS: [(Bind, &str, &str, Option<KeyCode>); 40] = [
     (Bind::ZoomOut, "Minimap zoom out", "miniMapZoomOut", Some(KeyCode::Minus)),
     (Bind::Options, "Options", "options", Some(KeyCode::KeyO)),
     (Bind::Quests, "Quest log", "questLog", Some(KeyCode::KeyJ)),
+    (Bind::VaultView, "Vault contents", "vaultView", Some(KeyCode::KeyK)),
     (Bind::SwitchTabs, "Inventory / backpack", "switchTabs", Some(KeyCode::KeyB)),
     (Bind::Center, "Center on player", "toggleCentering", Some(KeyCode::KeyX)),
     (Bind::Stats, "Show frame rate", "togglePerformanceStats", Some(KeyCode::KeyL)),
@@ -171,6 +174,7 @@ pub enum Toggle {
     Centered,
     ShowFps,
     UnlockFps,
+    Fullscreen,
     Sfx,
     Shots,
     Music,
@@ -229,12 +233,13 @@ impl PetShots {
     }
 }
 
-/// The camera and the display.
-const GRAPHICS: [(Toggle, &str); 4] = [
+/// The camera and the display. The browser leaves fullscreen to the page (F11 still asks it).
+const GRAPHICS: [(Toggle, &str); 5] = [
     (Toggle::Rotation, "Camera rotation"),
     (Toggle::Centered, "Center on player"),
     (Toggle::ShowFps, "Show frame rate"),
     (Toggle::UnlockFps, "Unlock frame rate (no vsync)"),
+    (Toggle::Fullscreen, "Borderless fullscreen (F11)"),
 ];
 
 const SOUNDS: [(Toggle, &str); 3] = [(Toggle::Sfx, "Sound effects"), (Toggle::Shots, "Weapon sounds"), (Toggle::Music, "Music")];
@@ -271,6 +276,8 @@ pub struct Settings {
     pub zoom: f32,
     /// The most frames a second (0: no limit).
     pub max_fps: u32,
+    /// The window covers its monitor, with no border (desktop; `Fullscreen::Borderless`).
+    pub fullscreen: bool,
     /// State kept as the AIR client keeps it in its options (`cameraAngle`,
     /// `preferredServer`): the camera's turn, and the server last chosen.
     pub camera_angle: Option<f64>,
@@ -313,6 +320,7 @@ impl Default for Settings {
             zoom: 1.0,
             unlock_fps: false,
             max_fps: 0,
+            fullscreen: false,
             camera_angle: None,
             preferred_server: String::new(),
             seen_version: String::new(),
@@ -363,6 +371,7 @@ impl Settings {
             Toggle::Centered => &mut self.centered,
             Toggle::ShowFps => &mut self.show_fps,
             Toggle::UnlockFps => &mut self.unlock_fps,
+            Toggle::Fullscreen => &mut self.fullscreen,
             Toggle::Sfx => &mut self.sound.sfx,
             Toggle::Shots => &mut self.sound.shots,
             Toggle::Music => &mut self.sound.music,
@@ -395,6 +404,7 @@ impl Settings {
         flag("cameraCentered", self.centered);
         flag("showStatistics", self.show_fps);
         flag("unlockFps", self.unlock_fps);
+        flag("fullscreen", self.fullscreen);
         flag("playSFX", self.sound.sfx);
         flag("playPewPew", self.sound.shots);
         flag("playMusic", self.sound.music);
@@ -454,6 +464,7 @@ impl Settings {
                 "cameraCentered" => s.centered = on,
                 "showStatistics" => s.show_fps = on,
                 "unlockFps" => s.unlock_fps = on,
+                "fullscreen" => s.fullscreen = on,
                 "playSFX" => s.sound.sfx = on,
                 "playPewPew" => s.sound.shots = on,
                 "playMusic" => s.sound.music = on,
@@ -602,7 +613,8 @@ impl OptionsUi {
                 match self.tab {
                     Tab::Controls => settings.keys = d.keys,
                     Tab::Graphics => {
-                        for (t, _) in GRAPHICS {
+                        // The window stays as it is.
+                        for (t, _) in GRAPHICS.into_iter().filter(|(t, _)| *t != Toggle::Fullscreen) {
                             *settings.toggle(t) = *d.clone().toggle(t);
                         }
                         settings.zoom = d.zoom;
@@ -723,10 +735,10 @@ impl OptionsUi {
                 }
             }
             Tab::Graphics | Tab::Visuals | Tab::Sound => {
-                let list: &[(Toggle, &str)] = match self.tab {
-                    Tab::Graphics => &GRAPHICS,
-                    Tab::Visuals => &VISUALS,
-                    _ => &SOUNDS,
+                let list: Vec<(Toggle, &str)> = match self.tab {
+                    Tab::Graphics => GRAPHICS.into_iter().filter(|(t, _)| !cfg!(target_arch = "wasm32") || *t != Toggle::Fullscreen).collect(),
+                    Tab::Visuals => VISUALS.to_vec(),
+                    _ => SOUNDS.to_vec(),
                 };
                 // The sliders first, then the switches under them.
                 let mut y = body[1];
@@ -856,6 +868,7 @@ mod tests {
         s.player_alpha = 0.35;
         s.pet_alpha = 0.0;
         s.pet_shot_look = PetShots::Hidden;
+        s.fullscreen = true;
         let back = Settings::from_text(&s.to_text());
         assert_eq!(back, s);
         // Lines another version wrote stay, and its keys don't take a key this one gives.

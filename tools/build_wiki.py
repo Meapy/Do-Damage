@@ -55,7 +55,7 @@ COMMAND_HELP = {
     "gear": "Free starter gear for your class, and a couple of boosters. See below for its limits.",
     "shop": "Opens a shop: weapons, abilities, armor, rings, consumables, keys and pets for fame. With no name it lists the shops.",
     "sellfame": "Selling items for fame is now done at the Divine Forge in the Nexus; this points you to it.",
-    "forge": "Forging is now done at the Divine Forge in the Nexus; this points you to it.",
+    "forge": "To the Divine Forge in the Nexus, from anywhere: you arrive in front of it, ready to forge or sell.",
     "quests": "Your quests, today's reward and your achievements in the chat (the <kbd>J</kbd> key opens the quest log, where you claim them).",
     "forgelist": "The recipes are in the Divine Forge's window, in the Nexus; this points you to it.",
     "trade": "Asks a player to trade: <code>/trade &lt;name&gt;</code>. Needs 2 rank stars; clicking a player's name and choosing Trade doesn't.",

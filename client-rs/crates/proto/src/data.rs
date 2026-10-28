@@ -97,8 +97,8 @@ wire_struct! {
 }
 
 wire_struct! {
-    /// An Enthroned item in the account's vault (`ImprintVault`): its chest and slot, its type and
-    /// its imprints (Offensive, Defensive, Misc; 0 for none).
+    /// An item in the account's vault (`ImprintVault`, the Enthroned ones; `VaultContents`, all):
+    /// its chest and slot, its type and its imprints (Offensive, Defensive, Misc; 0 for none).
     pub struct VaultGear {
         pub chest: u16,
         pub slot: u8,

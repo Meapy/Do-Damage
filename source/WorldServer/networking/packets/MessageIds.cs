@@ -140,14 +140,19 @@ public enum MessageId : byte
     // the client imprinting one of them by chest and slot.
     IMPRINT_VAULT = 112,
     IMPRINT_VAULT_APPLY = 113,
+    // The vault window (Rust client, VaultContentsHandler.cs): every item in the account's vault
+    // chests, by chest and slot, and where the chests stand when the player is in their vault.
+    // Read-only. The AIR client and older Rust clients never ask.
+    VAULT_CONTENTS_REQUEST = 114,
+    VAULT_CONTENTS = 115,
     // A realm's events (Rust client, RealmManager.Events.cs): the client asks for them once in each
     // world (REALM_EVENTS_SUBSCRIBE), and in a realm gets the running events, its side quests and
     // Realm 2's beacons with the count to close it (REALM_EVENTS) whenever they change; it picks
     // the one its quest arrow follows (QUEST_PICK, 0 for the nearest as before). The AIR client
     // and older Rust clients never ask, so they're never sent REALM_EVENTS.
-    REALM_EVENTS_SUBSCRIBE = 114,
-    REALM_EVENTS = 115,
-    QUEST_PICK = 116,
+    REALM_EVENTS_SUBSCRIBE = 116,
+    REALM_EVENTS = 117,
+    QUEST_PICK = 118,
     // From the world proxy (tools/world_proxy.py), before the client's first message: the
     // client's address. Only taken on a connection from this PC; clients never send it.
     PROXY_INFO = 250

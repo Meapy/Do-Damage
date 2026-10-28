@@ -400,7 +400,6 @@ namespace WorldServer.logic
                     ),
                 new State("YepDead",
                     new ConditionEffectBehavior(ConditionEffectIndex.Invulnerable),
-                    new TransformOnDeath("Puppet Loot Chest", 1, 1, 1),
                     new Shoot(7, count: 8, projectileIndex: 1, coolDown: 5000),
                     new Suicide()
                     )

@@ -16,7 +16,8 @@ which loot boosts you have, then roll.
 - **Every row is its own roll**, for each player, every kill. Rolling a Potion of Life doesn't
   change your chance of a Potion of Defense.
 - **Your damage share counts.** Each chance is multiplied by 1 + your share of the damage + your
-  boosts: the Loot Drop Potion, the weekend boost and any loot event. A 20% share makes every chance
+  boosts: the Loot Drop Potion, the weekend boost, any loot event and 1% for being in the Legends
+  (a character in the top 20 of the week, the month or all time). A 20% share makes every chance
   1.2 times as high. A chance never goes over 100%.
 - **Thresholds:** a row only rolls for you once your share of the damage is over its threshold:
   1% for the sure drops, 3% for the potions and rare items, 5% for the gear.
