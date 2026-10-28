@@ -58,7 +58,8 @@ they fall, the **Marble Colossus** wakes. He fights in many phases: rocks and pi
 him, lasers, marble cores you must break before he can be hurt again, and a last stand where he
 draws back part of his strength. One run in four the Colossus doesn't stir and a hidden passage
 to the **Cultist Hideout** opens instead. Where the Colossus falls, a tear into the Void stays
-open for a few minutes: that's where a Vial of Pure Darkness opens the Void.
+open for five minutes (after four it warns that it's closing): that's where a Vial of Pure
+Darkness opens the Void.
 
 The Colossus drops like Oryx 3: stat potions, tier 13 to 15 gear, and his own Sword of the
 Colossus, Breastplate of New Life, Marble Seal and Magical Lodestone. The rooms' leaders drop gear
