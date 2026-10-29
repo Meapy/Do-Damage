@@ -218,7 +218,12 @@ it running for a while; it doesn't survive a restart of this PC.
 and stops instead when it can't: not the main checkout on `main`, uncommitted client changes, or
 the version not raised; `--no-publish` skips that. `--skip-build` uploads the last build again,
 `--no-releases` leaves `dist\client` out, and `--status` shows the services, the world server slots and the gateway slots (each with
-its open connections).
+its open connections). `--dry-run` builds and packs without touching the VPS, and `--client-only`
+publishes the client and installs only the releases and the website
+(`deploy/remote/install-client.sh`), for after a deploy from GitHub that couldn't sign it. The
+upload and the install hold `/opt/bsk/deploy.lock` on the VPS, so two deploys (this PC and GitHub)
+never overlap: the second waits. Merges to `main` can deploy by themselves: see "Deploying from
+GitHub" below.
 
 **Deploys that kick nobody** (`deploy/remote/install.sh`):
 - **World server:** a rolling deploy, as on this PC: players switch to the new one at their next
@@ -299,6 +304,148 @@ redis-cli -p 6379 hget names MEAPY                    # Redis, as on this PC
   (2026-10-17: a Caddyfile change, a gateway, an account server and a world server in turn; the
   bot stayed in, and its connection after the world deploy went to the new gateway).
 
+## Deploying from GitHub
+
+`.github/workflows/deploy.yml` deploys `main` to the VPS after each merge (a release's squash
+merge), with `deploy/deploy.py` on a GitHub Linux runner: the same build, bundle and `install.sh`
+as from the main checkout, so it kicks nobody (see "Deploys that kick nobody"). It's off until the
+owner turns it on; until then every run is a dry run.
+
+**What runs:**
+- **On a pull request,** and on `main` while deploys are off: `deploy.py --dry-run` builds the
+  whole bundle (servers, gateway, web client, website) and sends nothing. `.github/workflows/ci.yml`
+  checks pull requests and release branches besides: `cargo test`, the wasm build, `dotnet build`
+  and `dotnet test`, the website, and the Docker images.
+- **On a push to `main`** with deploys on (and from the Actions tab: "Run workflow" on `main`, with
+  "dry run" and "publish the client" boxes):
+  1. `client` (Windows, only with the `CLIENT_UPDATE_KEY` secret): fetches the VPS's published
+     releases (`deploy.py --fetch-from-server`) and publishes the desktop client when it changed
+     since the newest one, as the main checkout does (`--publish-only`: the version must be
+     raised, the changelog section named). It first checks the key's public key against the
+     `CLIENT_UPDATE_PUBLIC_KEY` variable, so a wrong key never signs anything.
+  2. `deploy` (Linux): builds and installs everything, with the new release when step 1 made one.
+     Without one, the VPS's releases stay as they are (`--no-releases`), the website keeps its
+     downloads (fetched from the VPS to build it), and when the client changed the run's summary
+     says to publish it from the main checkout: `python deploy\deploy.py --client-only`, once the
+     run is done.
+  3. `deploy.py --status`.
+- **One at a time:** runs share a concurrency group and are never cancelled half way, and on the
+  VPS the upload and install hold `/opt/bsk/deploy.lock` (also taken by deploys from the PC). A
+  failed `client` job stops the deploy before anything reaches the VPS; a failed install stops as
+  `install.sh` always has (a gateway that doesn't start leaves the old one running).
+- **Secrets** stay out of the logs and the repository: `deploy/ci_setup.py` writes them into the
+  git-ignored files `deploy.py` reads (`deploy/vps.local.json`, `deploy/discord.local.env`,
+  `build/client-update.key`) and the runner's `~/.ssh`, and each job deletes them at its end.
+
+**The client signing key.** Clients only take releases signed with `build/client-update.key`;
+whoever holds it can ship code to every player's PC. Two ways:
+- **Keep it on this PC (recommended).** Don't add `CLIENT_UPDATE_KEY`. GitHub deploys the servers,
+  the gateway, the web client and the website; a release that changes the desktop client is then
+  published from the main checkout with `deploy.py --client-only`, which uploads only the releases
+  and the website. The key never leaves this PC, and a compromised GitHub account, workflow or
+  third-party action can't sign a release. The cost is one command per release with client
+  changes (most of them: the changelog is in `client-rs/`), and players' desktop clients updating
+  a few minutes after the servers rather than with them (the old client keeps working with the
+  new server, as the release rules ask).
+- **Store it in GitHub.** Add `CLIENT_UPDATE_KEY` and `CLIENT_UPDATE_PUBLIC_KEY` (below): every
+  merge then publishes by itself. The key sits only in the `production` environment, which only
+  `main` can use, and is on a runner only for the `client` job. If it ever leaks, every player has
+  to download a new client by hand.
+
+**Setting it up** (the owner, once; everything goes in an environment named `production`):
+1. GitHub, the repository's Settings, Environments, New environment: `production`. Deployment
+   branches and tags: "Selected", add `main`. Optionally "Required reviewers" with yourself: each
+   deploy then waits for a click in the Actions tab.
+2. A deploy key for the VPS, just for GitHub (not `~/.ssh/dodmg_ed25519`), so it can be revoked on
+   its own: `ssh-keygen -t ed25519 -N "" -C github-deploy -f $HOME\.ssh\dodmg_github`, then add
+   `dodmg_github.pub` to `/root/.ssh/authorized_keys` on the VPS (the user in `ssh` in the
+   config).
+3. The secrets, in that environment (Settings, Environments, `production`, Add environment
+   secret), or with `gh` from the main checkout in PowerShell (piping, so nothing is on a command
+   line):
+
+   | Secret | What to paste | `gh` |
+   |---|---|---|
+   | `VPS_SSH_KEY` | the private key from step 2, all of it | `Get-Content -Raw $HOME\.ssh\dodmg_github \| gh secret set VPS_SSH_KEY --env production` |
+   | `VPS_KNOWN_HOSTS` | the VPS's host key line(s): ssh refuses any other | `ssh-keygen -F dodmg.com \| Select-String -NotMatch '^#' \| Out-String \| gh secret set VPS_KNOWN_HOSTS --env production` |
+   | `VPS_CONFIG` | `deploy/vps.local.json`, all of it (its `-i` in `ssh_options` is replaced by the key above; `-p` and the rest are kept) | `Get-Content -Raw deploy\vps.local.json \| gh secret set VPS_CONFIG --env production` |
+   | `DISCORD_ENV` | optional: `deploy/discord.local.env`. Without it the bot keeps the settings on the VPS, so only add it to change them from GitHub | `Get-Content -Raw deploy\discord.local.env \| gh secret set DISCORD_ENV --env production` |
+   | `CLIENT_UPDATE_KEY` | only to publish the client from GitHub: `build/client-update.key` | `Get-Content -Raw build\client-update.key \| gh secret set CLIENT_UPDATE_KEY --env production` |
+
+   With `CLIENT_UPDATE_KEY`, also the variable `CLIENT_UPDATE_PUBLIC_KEY`, the key's public half
+   (not secret): `cargo run -q --release -p bsk-publish -- key --key ..\build\client-update.key`
+   in `client-rs` prints it (it only reads the key that's there), then
+   `gh variable set CLIENT_UPDATE_PUBLIC_KEY --env production --body <it>`.
+4. Try it without touching the VPS: Actions, Deploy, Run workflow on `main` with "dry run" ticked.
+5. Turn it on: `gh variable set DEPLOY_ENABLED --body true` (a repository variable). From then on
+   each merge to `main` deploys. To turn it off, set it to anything else (`false`); merges then
+   only dry-run, and the main checkout deploys as before.
+
+## Docker
+
+`docker/Dockerfile` builds an image for each service (targets `account`, `world`, `gateway`,
+`discord`), and `docker-compose.yml` runs them with Redis, for development and testing on one
+machine. The live VPS doesn't use them (below).
+
+```
+docker compose up -d --build        # Redis, account server, world proxy + world servers, gateway
+docker compose logs -f world
+docker compose exec world python3 /opt/bsk/tools/rolling_restart.py status
+docker compose down                 # the world servers save everyone first; -v also deletes the data
+```
+
+- **Ports:** account server 8180, world 2160, gateway (the web client) 8190, all on 127.0.0.1;
+  Redis isn't published. They stay clear of the isolated stacks (6380 / 8081 / 2052 and up),
+  Doomed Realms (8888, 2050, 843) and the old servers' ports. The data is the `redis-data` volume,
+  empty at first: register an account (the client's register screen, or `/account/register`).
+- **Playing:** the desktop client with `--account http://127.0.0.1:8180`, or a browser at
+  `http://127.0.0.1:8190/`.
+- **Settings** come from the environment at each start (`docker/configure.py` writes them into
+  `server.json` / `wServer.json`): `BSK_REDIS_HOST`, `BSK_REDIS_PORT`, `BSK_ACCOUNT_PORT`,
+  `BSK_WORLD_PORT`, `BSK_PUBLIC_ADDRESS`. `BSK_LAN_ADDRESS` tells the account server the address
+  to give clients that reach it from a private network, which inside Docker is every client
+  (unset, it gives them its own LAN address: the container's).
+- **The world container** runs `rolling_restart.py serve` as `bsk-world` does, so a rolling deploy
+  works inside it (copy a new build into `/opt/bsk/worldserver`, then `rolling_restart.py request
+  update`), and `docker stop` runs `rolling_restart.py stop`: each world server saves everyone
+  before it exits (`docker/world.sh`, `stop_grace_period: 240s`).
+- **The gateway** bridges to the world proxy's port (`--allow 127.0.0.1:2160=world:2160`), without
+  `--world-state`, which needs the world servers on its own machine.
+- **The Discord bot** only starts when asked (`docker compose --profile discord up -d discord`),
+  with its settings from `deploy/discord.local.env`, never baked into the image. It posts to the
+  real Discord: try it with `docker run --rm dodmg/discord:dev --dry-run`.
+- **Nothing secret** goes into an image: `.dockerignore` leaves out `build/`, `dist/`, the
+  `*.local.*` files, keys, `deploy/` and `source/Redis/data`.
+- **On Windows:** Docker Desktop, or Docker Engine in a WSL distro (`apt install docker.io
+  docker-compose-v2 docker-buildx`, as root), whose ports Windows reaches at 127.0.0.1. Keep the
+  distro running meanwhile (`wsl -d <distro> -e sleep 7200`), or it shuts down and the containers
+  restart.
+
+**Moving the VPS to Docker** (a recommendation, not done: it's the owner's call, and the switch
+itself disconnects everyone once). What it would take:
+- **The switch:** stop the systemd services (`bsk-world` saves everyone, which kicks them), start
+  the containers on the same ports with Redis's data directory (`/opt/bsk/redis/data`) mounted,
+  and point Caddy at the gateway containers. Caddy and the backups can stay on the host. Pick a
+  quiet moment, as for the first deploy of the gateway slots.
+- **Rolling deploys keep working** if the world container lives as long as the service does now
+  and new builds come to it: mount `/opt/bsk/worldserver` from the host, copy the new build there
+  and run `docker exec <world> python3 /opt/bsk/tools/rolling_restart.py request update`. The new
+  world server starts inside the same container and players move over at their next Nexus trip.
+  Replacing the world container instead (`docker compose up` with a new image) kicks everyone,
+  exactly as restarting `bsk-world` does.
+- **Gateway hand-over** needs two gateway containers side by side: start the new image as
+  another container on the next slot port, wait for its `/healthz`, then `docker kill
+  --signal=SIGUSR1` the old one, which keeps its players until they change worlds (3 hours at
+  most) and exits. Caddy's health checks follow, as now. `--world-state` needs the gateway to
+  read the world proxy's state and reach the world server slots' ports: share
+  `/opt/bsk/build/live` as a volume and run both with host networking (or on one network with the
+  slot ports reachable).
+- **The account server** can be replaced like the systemd one (a few seconds' pause in sign-ins).
+- **What it buys:** the same images in CI, on a PC and on the VPS, and no .NET or Python on the
+  host. **What it costs:** `install.sh`'s logic (slots, the rolling deploy, the lock) rewritten
+  for containers, and real players as the test. Until there's a reason to move, the systemd setup
+  does everything the containers would.
+
 ## Discord
 
 The game's Discord server is https://discord.gg/FVhqJe8CG. Its bot (`tools/discord/`, the application "DiscMod", shown there as Do Damage with the crown icon) runs on the VPS as `bsk-discord` and:
@@ -307,7 +454,7 @@ The game's Discord server is https://discord.gg/FVhqJe8CG. Its bot (`tools/disco
 - keeps one message in #server-status up to date (players online, the 24-hour peak and 7 days' uptime, from `/api/app/status`, or the server list if that isn't there);
 - answers `/status`, `/online`, `/wiki <term>` (the wiki's own search index, with links) and `/play`.
 
-**Settings** are in `deploy/discord.local.env` in the main checkout (git-ignored, never committed): `DISCORD_TOKEN` (the bot's token, from the Discord developer portal), and the server's ids, which `setup_server.py --apply` writes in. `deploy.py` adds where the releases and the site are on the VPS and installs it as `/opt/bsk/discord/discord.env` (mode 600, owned by `bsk`). Without that file a deploy leaves the bot as it is. To change the token, edit the file and deploy. The `.env` in the checkout's root is where the owner first put the token; nothing reads it now.
+**Settings** are in `deploy/discord.local.env` in the main checkout (git-ignored, never committed): `DISCORD_TOKEN` (the bot's token, from the Discord developer portal), and the server's ids, which `setup_server.py --apply` writes in. `deploy.py` adds where the releases and the site are on the VPS and installs it as `/opt/bsk/discord/discord.env` (mode 600, owned by `bsk`). A deploy without that file (one from GitHub without the `DISCORD_ENV` secret) keeps the settings already on the VPS and still updates the bot's code; with neither, the bot is left as it is. To change the token, edit the file and deploy. The `.env` in the checkout's root is where the owner first put the token; nothing reads it now.
 
 **The server's layout** (categories, channels, the Updates role, the read-only info channels that only Owner, Developer and the bot can post in, the bot's name and picture there, and the welcome, getting-started and FAQ messages from `tools/discord/messages/`) comes from `tools/discord/setup_server.py`. It only adds and arranges, never deletes, and reuses channels that are already there (`ALIASES`). Without `--apply` it shows what it would do. After editing a message file, run it with `--apply --refresh-messages`:
 
@@ -375,6 +522,14 @@ The remotes `upstream` (HaloCelsius) and `aurusenth` share no history with `main
 
 ## Changes from upstream
 
+- **Deploys from GitHub, and Docker** (2026-10-29; `.github/workflows/`, `deploy/deploy.py`,
+  `deploy/ci_setup.py`, `deploy/remote/install-client.sh`, `docker/`, `docker-compose.yml`): merges
+  to `main` deploy by themselves once `DEPLOY_ENABLED` is on, and pull requests get CI (see
+  "Deploying from GitHub"); the stack runs in containers for testing (see "Docker"). `deploy.py`
+  gained `--fetch-from-server`, `--publish-only`, `--client-only` and `--dry-run`, and holds a lock
+  on the VPS while it installs. `install.sh` keeps the Discord bot's settings when a deploy brings
+  none. The account server takes `BSK_LAN_ADDRESS`. `client/src/.../miniDungeonHub.xml` is now
+  `MiniDungeonHub.xml`, as the client's manifest names it (a web build on Linux couldn't find it).
 - **The Hall of Champions** (2026-10-29; `Shared/champions/`, `App/ChampionsService.cs`,
   `App/Controllers/ChampionsController.cs`, `WorldServer/core/champions/ChampionCache.cs`,
   `Player.Champions.cs`, `Command.Champions.cs`, the client's `champions.rs`, `source/Tests/ChampionsTests.cs`):

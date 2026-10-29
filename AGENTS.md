@@ -138,9 +138,14 @@ it asks first; never run test copies under the live process names (`redis-server
        `git -C <main checkout> pull --ff-only`). `--delete-branch` removes the release branch on
        origin; delete it locally too (`git -C <main checkout> branch -D release/<version>`), and
        remove any worktrees and branches whose work it carried.
-    4. Only then deploy, from the main checkout (`python deploy\deploy.py`), so what players get is
-       exactly `main`. It publishes the client first when the client changed since the last
-       release (client-rs/AGENTS.md, "Releasing to players").
+    4. Only then deploy, so what players get is exactly `main`. Once deploys from GitHub are on
+       (the `DEPLOY_ENABLED` variable; SETUP-LOCAL.md, "Deploying from GitHub"), the merge
+       deploys by itself (`.github/workflows/deploy.yml`): watch its run (`gh run watch`). When
+       the client changed and the workflow has no signing key, its summary says so: publish it
+       from the main checkout with `python deploy\deploy.py --client-only` once the run is done.
+       Until then, deploy from the main checkout (`python deploy\deploy.py`), which publishes the
+       client first when it changed since the last release (client-rs/AGENTS.md, "Releasing to
+       players").
 - **No merge commits** on `main` or a release branch: if the branch moved while you worked,
   rebase onto it instead of merging it in. Never `git merge` one branch into another, and don't
   rewrite commits already pushed to `origin` unless the owner asks.
