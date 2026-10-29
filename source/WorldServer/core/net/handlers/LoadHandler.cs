@@ -38,8 +38,10 @@ namespace WorldServer.core.net.handlers
                 client.SendFailure("Class locked", FailureMessage.MessageWithDisconnect);
             else
             {
-                // beside the Divine Forge if they typed /forge to come here
-                var spawn = commands.doomed.ForgeCommand.ArrivalSpot(client.Account.AccountId, target) ?? target.GetPlayerSpawnPosition();
+                // beside the Divine Forge or the Market Broker if they typed /forge or /market to come here
+                var spawn = commands.doomed.ForgeCommand.ArrivalSpot(client.Account.AccountId, target)
+                    ?? commands.Command.MarketCommand.ArrivalSpot(client.Account.AccountId, target)
+                    ?? target.GetPlayerSpawnPosition();
                 var player = client.Player = target.CreateNewPlayer(client, client.Character.ObjectType, spawn.X, spawn.Y);
 
                 client.SendPacket(new CreateSuccessMessage(player.Id, client.Character.CharId));
@@ -49,6 +51,10 @@ namespace WorldServer.core.net.handlers
 
                 client.State = ProtocolState.Ready;
                 client.GameServer.ConnectionManager.ClientConnected(client);
+
+                // what sold or ended on the Marketplace while they were away
+                if (target is worlds.impl.NexusWorld)
+                    client.GameServer.Marketplace.OnEnterNexus(player);
             }
         }
     }

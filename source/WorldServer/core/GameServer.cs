@@ -31,6 +31,7 @@ namespace WorldServer.core
         public DamageEvent DamageEvent { get; private set; }
         public Database Database { get; private set; }
         public MarketSweeper MarketSweeper { get; private set; }
+        public core.market.Marketplace Marketplace { get; private set; }
         public ConnectionManager ConnectionManager { get; private set; }
         public ConnectionListener ConnectionListener { get; private set; }
         public ChatManager ChatManager { get; private set; }
@@ -65,7 +66,8 @@ namespace WorldServer.core
             Resources = new Resources(Configuration.serverSettings.resourceFolder, true, true);
             DamageEvent = new DamageEvent(Configuration.serverSettings, Resources.GameData);
             Database = new Database(Resources, Configuration);
-            MarketSweeper = new MarketSweeper(Database);
+            Marketplace = new core.market.Marketplace(this);
+            MarketSweeper = new MarketSweeper(Marketplace);
             ConnectionManager = new ConnectionManager(this);
             ConnectionListener = new ConnectionListener(this);
             ChatManager = new ChatManager(this);
@@ -119,6 +121,7 @@ namespace WorldServer.core
             InterServerManager.Initialize();
             InterServerManager.AddHandler<KickMsg>(Channel.Kick, ConnectionManager.OnKick);
             ChatManager.Initialize();
+            Marketplace.Init();
             ConnectionListener.Initialize();
             MarketSweeper.Start();
             ConnectionListener.Start();

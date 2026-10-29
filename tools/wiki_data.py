@@ -790,6 +790,17 @@ def name_change_fame():
     return int(m.group(1).replace("_", "")) if m else 0
 
 
+def market_rules():
+    """The Marketplace's tax, listing limit and how long a listing lasts (Marketplace.cs)."""
+    src = _read(os.path.join(SRC, "WorldServer", "core", "market", "Marketplace.cs"))
+
+    def const(name):
+        m = re.search(r'const int %s\s*=\s*([\d_]+)' % name, src)
+        return int(m.group(1).replace("_", "")) if m else 0
+    return {"tax": const("TaxPercent"), "limit": const("MaxListings"), "max_price": const("MaxPrice"),
+            "default_days": const("DefaultHours") // 24, "max_days": const("MaxHours") // 24}
+
+
 def gear_rules():
     """/gear's limits, from GearCommand."""
     src = _read(os.path.join(COMMANDS, "doomed", "DoomedEconomyCommands.cs"))

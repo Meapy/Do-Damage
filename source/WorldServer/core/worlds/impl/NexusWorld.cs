@@ -20,6 +20,8 @@ namespace WorldServer.core.worlds.impl
         public ISellableItem SellableItem;
         public CurrencyType CurrencyType;
         public int RankRequired;
+        // the shop has more items than stalls, so its stalls take turns quickly (NexusMerchant)
+        public bool Rotates;
     }
 
     // a world whose merchants go back to it when they sell out or time out
@@ -49,6 +51,8 @@ namespace WorldServer.core.worlds.impl
         private NexusGuide _guide;
         // the Tinkerer and the Chronicler, the quest NPCs beside it
         private quests.QuestGivers _questGivers;
+        // the market square's stalls, showing Marketplace listings
+        private market.MarketStalls _marketStalls;
 
         public NexusWorld(GameServer gameServer, int id, WorldResource resource) 
             : base(gameServer, id, resource)
@@ -59,12 +63,16 @@ namespace WorldServer.core.worlds.impl
         public override void Init()
         {
             foreach (var shop in MerchantLists.Shops)
-                foreach (var data in Map.Regions.Where(r => shop.Key == r.Value))
+            {
+                var stalls = Map.Regions.Where(r => shop.Key == r.Value).ToList();
+                foreach (var data in stalls)
                     _inactiveStorePoints.Add(new MerchantData()
                     {
                         TileRegion = data.Value,
-                        Position = data.Key
+                        Position = data.Key,
+                        Rotates = shop.Value.Item1.Count > stalls.Count
                     });
+            }
 
             base.Init();
             LinkVaultChests();
@@ -73,6 +81,7 @@ namespace WorldServer.core.worlds.impl
             _guide.Init();
             _questGivers = new quests.QuestGivers(this);
             _questGivers.Init();
+            _marketStalls = new market.MarketStalls(this);
         }
 
         // The map's shared vault chests keep their items in Redis, one record per tile.
@@ -92,6 +101,7 @@ namespace WorldServer.core.worlds.impl
             PortalMonitor.Update(ref time);
             _guide?.Update(ref time);
             _questGivers?.Update(ref time);
+            _marketStalls?.Update(ref time);
             base.UpdateLogic(ref time);
         }
 

@@ -15,6 +15,13 @@ namespace Shared.database.account
         public int ColorNameChat { get => GetValue<int>("colornamechat"); set => SetValue("colornamechat", value); }
         public int Credits { get => GetValue<int>("credits"); set => SetValue("credits", value); }
         public int Fame { get => GetValue<int>("fame"); set => SetValue("fame", value); }
+
+        // Fame, gold and their totals as Redis holds them after an increment: kept, not written
+        // back by the next flush (RedisObject.SetStored).
+        public void StoredFame(int fame) => SetStored("fame", fame);
+        public void StoredTotalFame(int totalFame) => SetStored("totalFame", totalFame);
+        public void StoredCredits(int credits) => SetStored("credits", credits);
+        public void StoredTotalCredits(int totalCredits) => SetStored("totalCredits", totalCredits);
         public bool FirstDeath { get => GetValue<bool>("firstDeath"); set => SetValue("firstDeath", value); }
         public ushort[] Gifts { get => GetValue<ushort[]>("gifts") ?? new ushort[0]; set => SetValue("gifts", value); }
         public int GlowColor { get => GetValue<int>("glow"); set => SetValue("glow", value); }

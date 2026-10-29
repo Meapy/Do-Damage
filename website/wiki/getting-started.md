@@ -119,14 +119,19 @@ you while you stand next to them. Around the spawn:
   {{v:name_change}} fame), the Character Changer, the Armoire (skins) and the Support Bot, and
   either side of the rug the **Tinkerer** and the **Chronicler**, who keep your
   [quests, daily reward and achievements](quests.html).
+- **Between the spawn and the keep**, either side of the road: the **forge court** with the
+  [Divine Forge](forge.html) and the [Enchanter](imprints.html) (west), and the **Arena** portal
+  with the Arena Leaderboard's golden trophy ([The Arena](progression.html#the-arena), east).
+- **South of the spawn**: the **market square**, where the **Market Broker** opens the
+  [Marketplace](marketplace.html) and two pavilions of stalls show what players sell.
 - **Both sides**, behind the colonnades: the **market wards**, the Nexus Bazaar's stalls (dungeon
   keys, pet generators, clothing, accessories, stat potions and specials to the west; Elder and
-  Doomed keys and consumables to the east). Everything there costs fame.
+  Doomed keys and consumables to the east, and a garden). The stalls take turns through each
+  shop's items. Everything there costs fame.
 - **East ward, south of the street**: the [Hall of Champions](champions.html), the living's
   leaderboard, its champions on plinths round the Champions Monument.
-- **South yard**: the Arena portal, with the Arena Leaderboard's golden trophy across the road
-  ([The Arena](progression.html#the-arena)), the forge hall with the [Divine Forge](forge.html)
-  and the [Enchanter](imprints.html), and four shared vault chests anyone can use.
+- **South street**: the castle gate, and the treasury with four shared vault chests anyone can
+  use.
 
 `/nexus` or <kbd>R</kbd> brings you back from anywhere.
 

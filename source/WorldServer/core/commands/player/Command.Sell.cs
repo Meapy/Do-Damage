@@ -1,182 +1,97 @@
 ﻿using System;
-using System.Collections.Generic;
+using System.Collections.Concurrent;
 using Shared;
-using Shared.database.character.inventory;
-using Shared.resources;
+using WorldServer.core.market;
 using WorldServer.core.objects;
+using WorldServer.core.structures;
 using WorldServer.core.worlds;
 
 namespace WorldServer.core.commands
 {
     public partial class Command
     {
+        // /sell <slot> <price> [days]: lists an inventory item on the Marketplace, as its window
+        // does. Slots 1-8 are the inventory, 9-16 the backpack's.
         internal class Sell : Command
         {
             public override string CommandName => "sell";
 
             protected override bool Process(Player player, TickTime time, string args)
             {
-                var index = args.IndexOf(" "); //here we search for the space which divides the price and the inventory slot
-
-                //check if the command it's correctly writted
-                if(string.IsNullOrEmpty(args) || index == -1)
+                var parts = (args ?? "").Split(' ', StringSplitOptions.RemoveEmptyEntries);
+                if (parts.Length < 2 || !int.TryParse(parts[0], out var slot) || !int.TryParse(parts[1], out var price)
+                    || slot < 1 || slot > 16)
                 {
-                    player.SendInfo("/Sell <Inventory Slot> <Price>.");
+                    player.SendInfo("/sell <inventory slot 1-16> <price in fame> [days: 1, 3 or 7]: lists an item on the Marketplace.");
                     return false;
                 }
-
-                //if there's an item that can't be sold, just cancel
-                if(!CanSellItem(player))
+                var days = 3;
+                if (parts.Length > 2 && (!int.TryParse(parts[2], out days) || days < 1 || days > 7))
                 {
-                    player.SendError("You're not allowed to use this command.");
+                    player.SendError("A listing lasts 1 to 7 days.");
                     return false;
                 }
+                var (ok, message) = player.GameServer.Marketplace.Sell(player, slot + 3, price, days * 24);
+                if (ok)
+                    player.SendInfo(message);
+                else
+                    player.SendError(message);
+                return ok;
+            }
+        }
 
-                var inventorySlotPosition = Convert.ToInt32(args.Substring(0, index)) + 3; //start from not equipped items.
+        // /market takes the player to the Marketplace's Broker, as /forge does to the Divine Forge:
+        // beside it at once in the Nexus, or from anywhere else to the Nexus, arriving beside it.
+        internal class MarketCommand : Command
+        {
+            public override string CommandName => "market";
 
-                if(inventorySlotPosition > player.Inventory.Length)
+            // accounts on their way to the Marketplace, and until when the trip counts
+            private static readonly ConcurrentDictionary<int, DateTime> PendingArrivals = new ConcurrentDictionary<int, DateTime>();
+
+            protected override bool Process(Player player, TickTime time, string args)
+            {
+                var nexus = player.GameServer.WorldManager.Nexus;
+                if (player.World != nexus)
                 {
-                    player.SendError($"Inventory Slot [{inventorySlotPosition}] doesn't exist.");
-                    return false;
+                    PendingArrivals[player.AccountId] = DateTime.UtcNow.AddMinutes(1);
+                    player.Reconnect(nexus);
+                    return true;
                 }
-
-                var price = Convert.ToInt32(args.Substring(index + 1));
-
-                var inventorySlot = player.Inventory[inventorySlotPosition];
-                var inventoryData = player.Inventory.Data[inventorySlotPosition];
-
-                //Here we will check some things
-                if(inventorySlot == null)
+                var spot = Spot(nexus);
+                if (spot == null)
                 {
-                    player.SendError($"Empty Inventory Slot [{inventorySlotPosition}].");
-                    return false;
+                    player.SendInfo("The Marketplace is just south of the Nexus's spawn.");
+                    return true;
                 }
-
-                if(inventorySlot.Untradeable || !CanSellItem(inventorySlot))
-                {
-                    player.SendError("You cannot sell this item.");
-                    return false;
-                }
-
-                if(price <= 0)
-                {
-                    player.SendError("Price need to be more than 0.");
-                    return false;
-                }
-
-                //we save the name (when we send the message that the item is added to the market, the item will be null, that's why i save it)
-                var itemName = inventorySlot.ObjectId;
-
-                //we create the transactions
-                var inventoryTransaction = player.Inventory.CreateTransaction();
-                var inventoryDataTransaction = player.Inventory.CreateDataTransaction();
-
-                //remove item and data
-                inventoryTransaction[inventorySlotPosition] = null;
-                inventoryDataTransaction[inventorySlotPosition] = null;
-
-                //update player inventory
-                player = OverrideInventory(inventoryTransaction.ChangedItems, inventoryDataTransaction.ChangedItems, player);
-
-                var client = player.Client;
-                //this is something from market, but what we're doing here it's adding to the list the Item Type and the Item Data (if it has a Data)
-                var itemList = new List<(ushort, string)>
-                {
-                    (inventorySlot.ObjectType, inventoryData?.GetData() ?? null)
-                };
-
-                var db = client.GameServer.Database;
-
-                //we create a Task for add it
-                var task = db.AddMarketEntrySafety(
-                    client.Account,
-                    itemList,
-                    client.Player.AccountId,
-                    client.Player.Name,
-                    price,
-                    DateTime.UtcNow.AddHours(24).ToUnixTimestamp(),
-                    CurrencyType.Fame
-                );
-
-                //if something wrong happens, we will give the items back to the player
-                if (task.IsCanceled)
-                {
-                    client.Player = OverrideInventory(inventoryTransaction.OriginalItems, inventoryDataTransaction.OriginalItems, client.Player);
-                    client.Player.SendError("D'oh! Something went wrong, try again later...");
-                    return false;
-                }
-
-                
-                player.SendInfo($"Successfully added [{itemName}] to the Market for [{price}] Fame!");
-
+                player.TeleportPosition(time, spot.Value, true);
                 return true;
             }
-        }
 
-        #region Utilities
-
-        private bool CanSellItem(Player player)
-        {
-            var config = player.GameServer.Configuration;
-
-            if (player.Client.Account.Admin)
-                return true;
-
-            if (config.serverInfo.adminOnly)
+            // where a player arriving in a world is placed if they typed /market on the way, or null
+            public static Position? ArrivalSpot(int accountId, World target)
             {
-                if (!player.GameServer.IsWhitelisted(player.AccountId) || !player.Client.Account.Admin)
-                {
-                    player.SendError("Admin Only, you need to be Whitelisted to use this.");
-                    return false;
-                }
+                if (PendingArrivals.IsEmpty || !PendingArrivals.TryRemove(accountId, out var until) || until < DateTime.UtcNow)
+                    return null;
+                return target == target.GameServer.WorldManager.Nexus ? Spot(target) : null;
             }
-            else
+
+            // A free tile in front of (south of) the Market Broker, or the nearest free one.
+            private static Position? Spot(World world)
             {
-                player.SendError("You can't use this Feature.");
-                return false;
+                var map = world.Map;
+                for (var y = 0; y < map.Height; y++)
+                    for (var x = 0; x < map.Width; x++)
+                        if (map[x, y].ObjDesc?.Class == Marketplace.BrokerClass)
+                        {
+                            for (var r = 2; r <= 4; r++)
+                                foreach (var (dx, dy) in new[] { (0, r), (-1, r), (1, r), (-r, 0), (r, 0) })
+                                    if (map.Contains(x + dx, y + dy) && map[x + dx, y + dy].ObjType == 0 && world.IsPassable(x + dx + 0.5, y + dy + 0.5, true))
+                                        return new Position(x + dx + 0.5f, y + dy + 0.5f);
+                            return null;
+                        }
+                return null;
             }
-            return true;
         }
-
-        private bool CanSellItem(Item item)
-        {
-            if (IsArmor(item.SlotType) && item.Tier < 11)
-                return false;
-            if (IsWeapon(item.SlotType) && item.Tier < 11)
-                return false;
-            if (IsRingOrAbility(item.SlotType) && item.Tier < 4)
-                return false;
-
-            return true;
-        }
-
-        //This expression "=>" it's the same thing as return but we save lines of codes because we don't need to write "{" "}" and "return"
-
-        /* Example:
-         * 
-         *  private bool IsArmor(int type)
-         *  {
-         *      return type == 6 || type == 14 || type == 7;
-         *  }
-         *  
-         *  this is the same thing as below
-         */
-
-        private bool IsArmor(int type) => type == 6 || type == 14 || type == 7;
-
-        private bool IsWeapon(int type) => type == 1 || type == 2 || type == 3 || type == 8 || type == 17 || type == 24;
-
-        private bool IsRingOrAbility(int type) => !IsWeapon(type) && !IsArmor(type); //if the type isn't a weapon or armor, it's a ring or an ability
-
-        private Player OverrideInventory(Item[] items, ItemData[] datas, Player player)
-        {
-            player.Inventory.SetItems(items);
-            player.Inventory.Data.SetDatas(datas);
-            player.SaveToCharacter();
-
-            return player;
-        }
-
-        #endregion
     }
 }

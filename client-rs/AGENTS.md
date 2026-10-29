@@ -139,7 +139,7 @@ The client itself can be scripted for tests (desktop only):
 | `--npc <class>` | Open that NPC's window once in the game (`GuildBoard`, `PotionStorage`...), wherever you stand; `Vault` opens the vault window once in the vault (with `--say "/vault"`) |
 | `--quests <tab>` | Open the quest log at a tab once its data has come: `daily`, `weekly`, `monthly`, `login`, `achievements` (with `/questadmin` in `--say` to set up a state) |
 | `--effect <type>` | Show that `ShowEffect` type on you every half second (0: an area attack beside you), to check particles |
-| `--type <text>` | Type into the first NPC prompt that opens (then Enter), onto the guild board being edited, or into the Divine Forge's or the vault window's search (with `--npc Forge` or `--npc Vault`) |
+| `--type <text>` | Type into the first NPC prompt that opens (then Enter), onto the guild board being edited, into the Divine Forge's or the vault window's search (with `--npc Forge` or `--npc Vault`), or into the Marketplace's price once on its Sell tab (`--npc MarketNPC`) |
 | `--size WxH` | Open the window at this size (physical pixels), to check the layout |
 | `--mouse x,y` | Put the mouse there (window pixels) and ignore the real one and its buttons: tooltips, aiming |
 | `--mouse-script "down@ms:x,y;move@ms:x,y;up@ms:x,y;right@ms:x,y"` | Mouse steps after joining: left-button drags and clicks on the HUD, and right-clicks. Their times count from the first world joined, `--shot-after` from the start (a few seconds earlier), so leave the shot some seconds after the last step |
@@ -158,8 +158,8 @@ The client itself can be scripted for tests (desktop only):
 - **No server needed** for the screens outside the game: `--account http://127.0.0.1:1` with
   `--shot` shows the menu and sign-in screens over the sky, at any `--size`.
 
-For example, the Arena (its monsters come 60 s after you enter; its portal is in the Nexus's south
-yard): `--walk-to 45.5,68.5 --hold 0:200 --hold -:6000 --hold f:100000 --aim auto --shot a.png --shot-after 95`.
+For example, the Arena (its monsters come 60 s after you enter; its portal is in the Nexus's Arena
+court, north-east of the spawn): `--walk-to 54.5,28.5 --hold 0:200 --hold -:6000 --hold f:100000 --aim auto --shot a.png --shot-after 95`.
 
 ## Layout
 

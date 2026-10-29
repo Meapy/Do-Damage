@@ -240,6 +240,12 @@ namespace Shared.database
                 _entries[key] = new KeyValuePair<byte[], bool>(buff, true);
         }
 
+        // Takes a number Redis already holds (the result of an HINCRBY) without marking it to be
+        // written: a later flush would otherwise put it back over a change made since, such as
+        // fame a buyer paid a seller on the Marketplace.
+        protected void SetStored(RedisValue key, int val) =>
+            _entries[key] = new KeyValuePair<byte[], bool>(Encoding.UTF8.GetBytes(val.ToString()), false);
+
         private void ReadyFlush()
         {
             if (_update == null)

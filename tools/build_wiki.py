@@ -60,6 +60,8 @@ COMMAND_HELP = {
     "forge": "To the Divine Forge in the Nexus, from anywhere: you arrive in front of it, ready to forge or sell.",
     "quests": "Your quests, today's reward and your achievements in the chat (the <kbd>J</kbd> key opens the quest log, where you claim them).",
     "champions": "The Hall of Champions in the chat: every board's top three and your own places and rewards. The Champions Monument in the Nexus's east ward shows it all.",
+    "market": "To the Market Broker in the Nexus's market square, from anywhere: the <a href=\"marketplace.html\">Marketplace</a>, where players sell to each other for fame.",
+    "sell": "Lists an item on the <a href=\"marketplace.html\">Marketplace</a> without opening it: <code>/sell &lt;slot&gt; &lt;price&gt; [days]</code>, the slot 1-8 (9-16 for the backpack), for 1 to 7 days (3 if not given).",
     "forgelist": "The recipes are in the Divine Forge's window, in the Nexus; this points you to it.",
     "trade": "Asks a player to trade: <code>/trade &lt;name&gt;</code>. Needs 2 rank stars; clicking a player's name and choosing Trade doesn't.",
     "tell": "Whispers to a player: <code>/tell &lt;name&gt; &lt;message&gt;</code> (or press <kbd>Tab</kbd>).",
@@ -105,7 +107,7 @@ COMMAND_HELP = {
     "nothing": "Does nothing.",
 }
 # commands players see in the list but that don't do anything useful for them
-COMMAND_HIDDEN = {"join", "imnotguest", "deltatime", "sell"}
+COMMAND_HIDDEN = {"join", "imnotguest", "deltatime"}
 
 
 # --- Markdown ------------------------------------------------------------------------------------
@@ -553,6 +555,7 @@ class Gen:
             "class_count": len(self.d.classes()),
             "max_stars": len(self.d.classes()) * len(self.stars),
             "pet_price": self.d.pet_generator_price,
+            **{"market_" + k: "{:,}".format(v) for k, v in wd.market_rules().items()},
             "crate_items": len(crate),
             "dungeon_count": len(self.dungeons()),
             "pet_count": len([p for p in self.d.pets()]),

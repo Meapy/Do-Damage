@@ -24,7 +24,7 @@ boosters and whatever it replaces go to your inventory, which needs room for the
 
 ## Forging
 
-The **Divine Forge** in the Nexus's south yard combines items into new ones: two of any tiered
+The **Divine Forge** in the Nexus's forge court, north-west of the spawn, combines items into new ones: two of any tiered
 weapon, ability, armor or ring make one of the next tier, and Doomed Realms' own recipes make
 untiered items and a few potions (a **Potion of Oryx** from one of each of the eight stat
 potions). `/forge` takes you there from anywhere. [The Divine Forge](forge.html) has every
@@ -36,5 +36,7 @@ recipe and what it costs.
   consumables, dyes, keys and pets, for fame.
 - The Divine Forge's **Sell for fame** tab buys items: it shows your inventory with what it pays
   for each one, and you pick what to sell. (`/sellfame` points you there.)
-- The marketplace (through a portal in your vault) sells to other players for fame.
-  See [Items](items.html#trading-and-the-marketplace).
+- The [Marketplace](marketplace.html) sells to other players for fame, at the Market Broker in the
+  market square south of the spawn. `/market` takes you there from anywhere, and
+  `/sell <slot> <price> [days]` lists an item from your inventory (slots 1-8, 9-16 for the
+  backpack) without opening the window.

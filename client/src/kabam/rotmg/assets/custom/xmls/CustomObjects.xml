@@ -8,13 +8,32 @@
 		<Static />
 		<ShadowSize>75</ShadowSize>
 	</Object>
-	<Object type="0x4970" id="Market Object">
+	<!-- the Market Broker in the Nexus's market square (tools/build_castle_maps.py): walking up to
+	     it opens the Marketplace window in the Rust client (Marketplace.cs); drawn by
+	     tools/draw_quest_npcs.py -->
+	<Object type="0x4970" id="Market Broker">
 		<Class>MarketNPC</Class>
+		<DisplayId>Market Broker</DisplayId>
 		<Texture>
-			<File>invisible</File>
-			<Index>0</Index>
+			<File>questNpcs16x16</File>
+			<Index>0x04</Index>
 		</Texture>
-		<Static />
+		<Animation prob="1.0" period="0.0">
+			<Frame time="1.4">
+				<Texture>
+					<File>questNpcs16x16</File>
+					<Index>0x04</Index>
+				</Texture>
+			</Frame>
+			<Frame time="0.5">
+				<Texture>
+					<File>questNpcs16x16</File>
+					<Index>0x05</Index>
+				</Texture>
+			</Frame>
+		</Animation>
+		<Static/>
+		<ShadowSize>70</ShadowSize>
 	</Object>
 	<Object type="0x4975" id="Arena Leaderboard">
 		<Class>ArenaLeaderboard</Class>

@@ -1,11 +1,11 @@
-"""Draws the quest NPCs of the Nexus: the Tinkerer (quests) and the Chronicler (daily rewards and
-achievements), two frames each.
+"""Draws the NPCs of the Nexus: the Tinkerer (quests), the Chronicler (daily rewards and
+achievements) and the Market Broker (the Marketplace), two frames each.
 
     python tools/draw_quest_npcs.py [--preview <png>]
 
 Writes `QuestNpcs16x16.png` (client/src/kabam/rotmg/assets/custom/images), 16 by 16 pixels a
-cell: cells 0-1 the Tinkerer, 2-3 the Chronicler. The objects (`The Tinkerer`, `The
-Chronicler`, CustomObjects.xml) animate between their two. At Size 100 a 16-pixel cell draws at
+cell: cells 0-1 the Tinkerer, 2-3 the Chronicler, 4-5 the Market Broker. The objects (`The Tinkerer`,
+`The Chronicler`, `Market Broker`, CustomObjects.xml) animate between their two. At Size 100 a 16-pixel cell draws at
 the same pixel size as the 8-pixel characters, so they stand a head taller than players. The art
 is drawn here rather than in an editor so it can be changed and redrawn; it needs Pillow.
 """
@@ -129,6 +129,47 @@ CHRONICLER = [
     ],
 ]
 
+# The Market Broker: a merchant in a broad ember hat with a gold band, a grand moustache and a
+# violet coat with gold buttons, holding up a gold coin. Frame 2: the coin glints.
+BROKER = [
+    [
+        "................",
+        ".....oooooo.....",
+        "....occcccco....",
+        "....occCCcco....",
+        "...ogggggggggo..",
+        ".occcccccccccco.",
+        "...okkkkkkkko...",
+        "...okekkkkeko...",
+        "...oKkwwwwkKo...",
+        "....oKkkkkKo....",
+        "..ovvgvvvvgvvo..",
+        ".ovuvvgvvgvvuvkG",
+        ".ovVvvgvvgvvVvo.",
+        "..ovVvhhhhvVvo..",
+        "...ovVvvvvVvo...",
+        "...offo..offo...",
+    ],
+    [
+        "................",
+        ".....oooooo.....",
+        "....occcccco....",
+        "....occCCcco....",
+        "...ogggggggggo..",
+        ".occcccccccccco.",
+        "...okkkkkkkko...",
+        "...okekkkkeko...",
+        "...oKkwwwwkKo...",
+        "....oKkkkkKo..y.",
+        "..ovvgvvvvgvvo.y",
+        ".ovuvvgvvgvvuvky",
+        ".ovVvvgvvgvvVvoy",
+        "..ovVvhhhhvVvo..",
+        "...ovVvvvvVvo...",
+        "...offo..offo...",
+    ],
+]
+
 
 def cell(rows):
     img = Image.new("RGBA", (CELL, CELL), (0, 0, 0, 0))
@@ -142,7 +183,7 @@ def cell(rows):
 
 
 def main():
-    frames = TINKERER + CHRONICLER
+    frames = TINKERER + CHRONICLER + BROKER
     sheet = Image.new("RGBA", (CELL * len(frames), CELL), (0, 0, 0, 0))
     for i, rows in enumerate(frames):
         sheet.paste(cell(rows), (i * CELL, 0))

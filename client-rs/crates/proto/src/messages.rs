@@ -217,6 +217,15 @@ messages! {
             open: bool, next_wave: i32, max_combine: u8, combine: u8, next_needed: u8, combine_needed: u8,
             starting: bool, voters: List8<ArenaVoter>,
         },
+        // The Marketplace window's contents (after MarketBrowse): the listings' version and the
+        // server's clock, whether the listings are as we have them (then none come), the tax in
+        // percent and the listing limit, then the listings, our Marketplace box and our history.
+        122 => MarketListings {
+            version: i32, now: i32, unchanged: bool, tax: u8, limit: u8,
+            listings: List16<MarketListing>, boxed: List16<MarketBoxItem>, history: List16<MarketHistory>,
+        },
+        // How a Marketplace action went: what to tell the player, and our fame now.
+        125 => MarketResult { ok: bool, message: String, fame: i32 },
     }
 }
 
@@ -311,5 +320,14 @@ messages! {
         // many waves (1: no combining), 255 for ArenaVotes from now on. An older
         // server doesn't know it: 255 goes once per Arena, the rest only once ArenaVotes came.
         119 => ArenaVote { action: u8 },
+        // The Marketplace window: the listings if they changed since this version (-1: we have
+        // none), and our box and history. An older server doesn't know it, and never answers.
+        121 => MarketBrowse { version: i32 },
+        // List an item for this many fame for this many hours: an inventory slot, or (from_vault)
+        // a vault chest's slot.
+        123 => MarketSell { from_vault: bool, chest: i32, slot: u8, price: i32, hours: i32 },
+        // 1 buys listing `id` at the price we saw, 2 takes our listing `id` back, 3 collects box
+        // item `id` (0: all that fit).
+        124 => MarketAct { action: u8, id: i32, price: i32 },
     }
 }

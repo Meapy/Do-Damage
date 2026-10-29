@@ -14,6 +14,20 @@ details). Add to a group's line when a change adds to it, rather than adding ano
 
 ## Unreleased
 
+### Marketplace
+- The Marketplace: sell items to other players for fame, from your inventory or straight from your
+  vault, at the Market Broker in the Nexus's new market square (`/market` takes you there). Browse
+  everything for sale with search, filters by kind and tier and sorting, and buy with a click; the
+  square's stalls show the listings too, and you can buy from them as at a shop. Sales pay you
+  even while you're offline, less a 5% fee, and tell you when they happen. Up to 10 listings for
+  1 to 7 days; what doesn't sell, and what you buy or take back with a full inventory, waits in
+  your Marketplace box, imprints and all. `/sell <slot> <price> [days]` lists from your inventory.
+
+### Nexus
+- A new layout: the Divine Forge and the Arena now stand either side of the road just north of the
+  spawn, the market square fills the courtyard to the south, and a garden the east ward. The shops
+  take less room: their stalls take turns through the items, as the pet generators did.
+
 ### Guilds
 - Guild event: making a guild at the Guild Register is free until the end of 30 November (UTC),
   in place of 1,000 fame. The Nexus reminds you when you arrive.

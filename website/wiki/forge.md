@@ -13,8 +13,8 @@ tier below, and the rest are special recipes, most of them from Doomed Realms.
 
 ## Using the forge
 
-1. Type `/forge`, or go to the Nexus's south yard, west of the Arena portal, and through the door of the forge hall.
-   The forge stands on the left on a floor of gold; the Enchanter, which puts imprints on gear,
+1. Type `/forge`, or walk north from the spawn towards the keep: the forge court is on the left of the road.
+   The forge stands on a floor of gold; the Enchanter, which puts imprints on gear,
    stands beside it (see [Imprints](imprints.html)).
 2. Stand by it: the bottom of your HUD says "The Divine Workbench: forge, sell or imprint". Press
    **Open**. The **Divine Workbench** opens at its **Forge** tab; its **Shards**, **Sell for fame**
@@ -125,4 +125,4 @@ No recipe for an untiered item costs more than 3,000 fame. Click an item for wha
 
 The forge's **Sell for fame** tab buys items: it shows your inventory with what the forge pays for
 each one under it. Pick the items and sell them. `/sellfame` points you there. To sell to other
-players instead, use the marketplace (see [Items](items.html#trading-and-the-marketplace)).
+players instead, use the [Marketplace](marketplace.html).

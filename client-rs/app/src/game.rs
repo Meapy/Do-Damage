@@ -703,11 +703,8 @@ impl Game {
                 }
             }
             ServerMessage::SwitchMusic(m) => self.music = Some(m.music.clone()),
-            ServerMessage::MarketSearchResult(r) => self.market_events.push(crate::market::Event::Search(r.results.0.clone(), r.description.clone())),
-            ServerMessage::MarketBuyResult(r) => self.market_events.push(crate::market::Event::Buy(r.code, r.description.clone(), r.offer_id)),
-            ServerMessage::MarketAddResult(r) => self.market_events.push(crate::market::Event::Add(r.code, r.description.clone())),
-            ServerMessage::MarketRemoveResult(r) => self.market_events.push(crate::market::Event::Remove(r.code, r.description.clone())),
-            ServerMessage::MarketMyOffersResult(r) => self.market_events.push(crate::market::Event::MyOffers(r.results.0.clone())),
+            ServerMessage::MarketListings(m) => self.market_events.push(crate::market::Event::Listings(m.clone())),
+            ServerMessage::MarketResult(r) => self.market_events.push(crate::market::Event::Result(r.clone())),
             ServerMessage::ForgeData(d) => self.forge_events.push(crate::forge::Event::Data(d.recipes.0.clone(), d.prices.0.clone())),
             ServerMessage::ForgeResult(r) => self.forge_events.push(crate::forge::Event::Result {
                 sold: r.sold,
@@ -1218,12 +1215,13 @@ impl Game {
     pub fn market(&mut self, act: crate::market::Act) {
         use crate::market::Act;
         let msg: ClientMessage = match act {
-            Act::Search(item_type) => bsk_proto::MarketSearch { item_type }.into(),
-            Act::Buy(id) => bsk_proto::MarketBuy { id }.into(),
-            // Fame (currency 1), for a day, as MemMarketSellTab sells.
-            Act::Add(slots, price) => bsk_proto::MarketAdd { slots: bsk_proto::List8(slots), price, currency: 1, hours: 24 }.into(),
-            Act::Remove(id) => bsk_proto::MarketRemove { id }.into(),
-            Act::MyOffers => bsk_proto::MarketMyOffers {}.into(),
+            Act::Browse(version) => bsk_proto::MarketBrowse { version }.into(),
+            Act::Sell { from_vault, chest, slot, price, hours } => bsk_proto::MarketSell { from_vault, chest, slot, price, hours }.into(),
+            // MarketActHandler: 1 buy, 2 take back, 3 collect from the box
+            Act::Buy(id, price) => bsk_proto::MarketAct { action: 1, id, price }.into(),
+            Act::Cancel(id) => bsk_proto::MarketAct { action: 2, id, price: 0 }.into(),
+            Act::Collect(id) => bsk_proto::MarketAct { action: 3, id, price: 0 }.into(),
+            Act::Vault => bsk_proto::VaultContentsRequest {}.into(),
         };
         self.send(msg);
     }

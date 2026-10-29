@@ -40,11 +40,12 @@ namespace WorldServer.core.worlds.impl.doomed
         public const string ArenaName = "Arena";
         public const string ArenaPortal = "Battle Arena Portal";
 
-        // the Arena portal in the nexus's south yard, under its banner (tools/build_castle_maps.py,
-        // ARENA_PORTALS; Doomed Realms only opened it for 30 seconds with its /arena command)
+        // the Arena portal in the nexus's Arena court, east of the keep's road, under its banner
+        // (tools/build_castle_maps.py, ARENA_PORTALS; Doomed Realms only opened it for 30 seconds
+        // with its /arena command)
         private static readonly (string Portal, float X, float Y)[] NexusPortals =
         {
-            (ArenaPortal, 45.5f, 68.5f),
+            (ArenaPortal, 54.5f, 28.5f),
         };
 
         public static void AddNexusPortals(World nexus)

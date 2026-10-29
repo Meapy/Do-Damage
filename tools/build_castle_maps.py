@@ -22,6 +22,13 @@ The nexus, from the middle out:
   corner (Guild Hall Portal, Guild Register, notice boards) to the east;
 - the keep to the north, whose great hall holds the realm portals (the `Realm Portals` region,
   one portal per tile) along a red carpet;
+- between the spawn and the keep, either side of the road: the forge court (the Divine Forge and the
+  Enchanter side by side on floors of gold, `FORGE_COURT`) to the west and the Arena (its portal,
+  `ARENA_PORTALS`, which `DoomedWorlds.NexusPortals` must match, and the Arena Leaderboard) to the
+  east;
+- south of the spawn, the market square: the Market Broker (`BROKER`, the Marketplace's window in
+  the Rust client) at its head and two pavilions of stalls (`MARKET_PAVILIONS`, the `Market Stall`
+  region) where the server shows players' listings (`MarketStalls`);
 - a market ward behind a colonnade on each side: pavilions whose stalls are shop regions
   (`Store N`, see `MerchantLists.Shops`; a shop with more items than stalls rotates them). The
   west ward holds the dungeon keys, pet generators, clothing, accessories, stat potions and
@@ -30,11 +37,14 @@ The nexus, from the middle out:
   of gold, the Champions Monument in its middle (the living's leaderboard in the Rust client)
   and a plinth for each board's champion around it (`CHAMPION_STATUES`, in Shared/champions'
   board order);
-- the south yard: the Arena portal (`ARENA_PORTALS`, which `DoomedWorlds.NexusPortals`
-  must match) west of the road with the Arena Leaderboard east of it, the gatehouse with its portcullis, the forge
-  hall (the Divine Forge and the Enchanter side by side on floors of gold, a carpet from its door
-  before them), and the treasury. The four shared vault chests keep their items in Redis by tile (`DbNexusChest`), so
-  they stay on the tiles they had in the old map (`CHESTS`).
+- the south street, with the portcullis of the castle's gate at the road's end, and the treasury
+  in the south-east wing, its door on the street. The four shared vault chests keep their items in
+  Redis by tile (`DbNexusChest`), so they stay on the tiles they had in the old map (`CHESTS`),
+  which is why the castle keeps that wing.
+
+Everything players walk to is within a short walk of the spawn (2.3.3 moved the forge and the
+Arena up from a south yard and a forge hall that are gone, and put the market where the courtyard
+was empty).
 
 The vault is a cellar under the castle, walled with the tall walls of Oryx's Sanctuary and dark
 beyond them (`Grid.underground_walls`): its chest hall (the `Vault` region; `VaultWorld` fills the chests
@@ -282,6 +292,29 @@ class Grid:
                     self.put(x0 + 2 + 2 * i, y0 + 2 + 2 * j, STALL, region=region)
                     n += 1
 
+    def garden(self, rng, x0, y0, x1, y1):
+        """A garden on the castle's floor in this rectangle: grass, a fountain in the middle on a
+        lane of stone across it, blossom trees in staggered rows either side, flowers between and
+        lanterns at the corners. It takes no decoration slot."""
+        mx, my = (x0 + x1) // 2, (y0 + y1) // 2
+        for y in range(y0, y1 + 1):
+            for x in range(x0, x1 + 1):
+                if not self.castle[y][x] or self.is_wall(x, y) or self.t[y][x]["obj"] or self.t[y][x]["region"]:
+                    continue
+                lane = y in (my, my + 1) or x in (mx, mx + 1) and abs(y - my) <= 2
+                self.put(x, y, STONE if lane else rng.choice(GRASS))
+                self.paths.add((x, y))
+                if lane:
+                    continue
+                if (y - y0) % 3 == 1 and (x - x0 + (y - y0) // 3 * 2) % 4 == 1 and abs(x - mx) > 2:
+                    self.put(x, y, None, TREE)
+                elif rng.random() < 0.08:
+                    self.put(x, y, None, FLOWER)
+        self.put(mx, my, STONE, FOUNTAIN)
+        for x, y in ((x0, y0), (x1, y0), (x0, y1), (x1, y1)):
+            if self.castle[y][x] and not self.is_wall(x, y):
+                self.put(x, y, None, LANTERN)
+
     def accents(self, rng, chance=0.045):
         """Crystals and candles here and there on open courtyard floor."""
         for y in range(3, self.h - 3):
@@ -314,26 +347,28 @@ class Grid:
 
 # --- the nexus -----------------------------------------------------------------------------------
 
-NEXUS_SIZE = (97, 92)
-# The castle's outline, clockwise: tiles whose middle is inside are the castle.
+NEXUS_SIZE = (97, 88)
+# The castle's outline, clockwise: tiles whose middle is inside are the castle. The south-east wing
+# is the treasury's.
 NEXUS_OUTLINE = [(12, 16), (34, 16), (34, 3), (63, 3), (63, 16), (84, 16), (92, 24), (92, 64), (89, 67),
-                 (89, 83), (57, 83), (57, 88), (39, 88), (39, 83), (10, 83), (4, 76), (4, 24)]
-NEXUS_TOWERS = NEXUS_OUTLINE + [(34, 20), (63, 20), (4, 50), (92, 44), (24, 83), (73, 83)]
+                 (89, 83), (57, 83), (57, 70), (36, 70), (30, 58), (4, 58), (4, 24)]
+NEXUS_TOWERS = NEXUS_OUTLINE + [(34, 20), (63, 20), (4, 41), (92, 44), (73, 83), (17, 58), (44, 70), (52, 70)]
 CENTRE = (48, 42)                   # the middle of the spawn
 PLAZA_RADIUS = 10.5
 KEEP_RECT = (34, 3, 62, 20)         # the keep's walls, x0, y0, x1, y1
 KEEP_DOOR = (45, 51)                # the great hall's door, x0 and x1
 COLONNADES = (34, 62)               # x of the colonnades between the courtyard and the market wards
 WARD_Y = (23, 62)
-GATE = (46, 50)                     # the gate passage, x0 and x1
+GATE = (47, 49)                     # the portcullis in the south wall, x0 and x1
+SOUTH_STREET = 64                   # its top row (two rows); it runs to the treasury's door
 # The shared vault chests: their tiles are their Redis keys (items.<x>_<y> in nexusChests).
 CHESTS = [(61, 70), (79, 70), (61, 74), (79, 74)]
 TREASURY = (57, 66, 83, 78)         # its walls
-FORGE_HALL = (11, 64, 33, 81)       # the forge hall's walls, x0, y0, x1, y1
-FORGE = (18, 70)                    # the Divine Forge (its sprite stands four tiles tall above it)
-ENCHANTER = (26, 70)                # the Enchanter, which imprints gear (ImprintHandlers.cs)
-FORGE_HALL_DOOR = (74, 76)          # the doors in its east and west walls, y0 and y1
-FORGE_HALL_NORTH = (20, 24)         # the door in its north wall, x0 and x1
+TREASURY_DOOR = (69, 71)            # in its north wall, on the south street: x0 and x1
+FORGE_COURT = (35, 22, 45, 33)      # the forge court, x0, y0, x1, y1, west of the keep's road
+FORGE = (38, 28)                    # the Divine Forge (its sprite stands four tiles tall above it)
+ENCHANTER = (44, 28)                # the Enchanter, which imprints gear (ImprintHandlers.cs)
+ARENA_COURT = (51, 22, 61, 33)      # the Arena's court, east of the road
 # the Hall of Champions, in the east ward south of the street: the monument at its middle, a gold
 # court around it, and the plinths of the boards' champions in a ring open to the north, so the
 # carpet in from the street stays open; each plinth names its board
@@ -343,22 +378,41 @@ CHAMPIONS_RADIUS = 6.8       # the gold inside; a border tile wide round it
 CHAMPION_STATUES = [((-3, -5), "fame"), ((3, -5), "stars"), ((6, -1), "achievements"),
                     ((6, 3), "arenaSolo"), ((3, 6), "arenaGroup"), ((0, 6), "guildLiving"),
                     ((-3, 6), "guildDead"), ((-6, 3), "weeklyDungeons"), ((-6, -1), "weeklyFame")]
-# where DoomedWorlds.AddNexusPortals puts the Arena portal (keep the two in step)
-ARENA_PORTALS = [(45.5, 68.5)]
+# where DoomedWorlds.AddNexusPortals puts the Arena portal (keep the two in step), and its
+# leaderboard (its trophy opens the top runs in the Rust client)
+ARENA_PORTALS = [(54.5, 28.5)]
+ARENA_LEADERBOARD = (58, 28)
+# the market square, south of the spawn: the Market Broker at its head, west of the road, and a
+# pavilion of stalls either side of the road (see Grid.pavilion), 16 stalls in all
+BROKER = (46, 54)
+MARKET_PAVILIONS = [
+    ("Market West", "Market Stall", 35, 56, 4, 2),
+    ("Market East", "Market Stall", 51, 56, 4, 2),
+]
 # (name, region, x0, y0, columns, rows[, stalls]): see Grid.pavilion. One stall per item where a
 # shop has few, so each stall shows something different; the dyes and cloths rotate through theirs.
+# Since 2.3.3 a shop has fewer stalls than items, as the pet generators always had: the stalls
+# take turns with the rest (NexusWorld, a few minutes each), so the wards are half the size. The
+# stat potions keep a stall each.
 PAVILIONS = [
     # the west ward
-    ("Dungeon Keys", "Store 11", 8, 23, 11, 4),
-    ("Pet Generators", "Store 5", 19, 34, 5, 2),
-    ("Accessories", "Store 9", 7, 46, 5, 2),        # small cloths and accessory dyes
-    ("Stat Potions", "Store 1", 22, 46, 4, 2),
-    ("Clothing", "Store 8", 7, 55, 5, 2),           # large cloths and clothing dyes
-    ("Specials", "Store 3", 22, 55, 4, 2),
+    ("Dungeon Keys", "Store 11", 7, 24, 5, 2),
+    ("Stat Potions", "Store 1", 22, 24, 4, 2),
+    ("Pet Generators", "Store 5", 7, 33, 5, 1),
+    ("Specials", "Store 3", 22, 33, 4, 1),
+    ("Accessories", "Store 9", 8, 46, 4, 1),        # small cloths and accessory dyes
+    ("Clothing", "Store 8", 22, 46, 4, 1),          # large cloths and clothing dyes
     # the east ward, north of the street (the Hall of Champions is south of it)
-    ("Elder and Doomed Keys", "Store 12", 65, 24, 10, 2, 19),   # the old map's 20, less the Christmas Key
-    ("Consumables", "Store 2", 66, 32, 9, 2),
+    ("Elder and Doomed Keys", "Store 12", 65, 24, 3, 2),
+    ("Consumables", "Store 2", 78, 24, 3, 2),
 ]
+# Gardens where the wards' shops used to stand: blossom trees on petal grass round a fountain,
+# lanterns at the corners, a lane through (x0, y0, x1, y1)
+GARDENS = [(64, 32, 88, 38)]
+GRASS = ["R2 Petal Grass", "R2 Moss Grass", "R2 Petal Grass"]
+TREE = "Cherry Tree"
+FLOWER = "Crystal Flower"
+LANTERN = "Archbishop Lantern"
 
 
 def build_nexus():
@@ -367,10 +421,11 @@ def build_nexus():
     cx, cy = CENTRE
     g.castle_walls(NEXUS_OUTLINE, NEXUS_TOWERS)
 
-    # streets: from the keep's door to the gate, across the courtyard, along the south yard
-    g.path(cx - 1, KEEP_RECT[3] + 1, cx + 1, 85)
+    # streets: from the keep's door to the gate, across the courtyard, along the south wall to the
+    # treasury's door
+    g.path(cx - 1, KEEP_RECT[3] + 1, cx + 1, SOUTH_STREET + 3)
     g.path(6, cy - 1, 89, cy + 1)
-    g.path(35, 64, 61, 65)
+    g.path(35, SOUTH_STREET, TREASURY_DOOR[1], SOUTH_STREET + 1)
 
     # the keep: the great hall, its carpet from the door to the statue, the realm portals
     kx0, ky0, kx1, ky1 = KEEP_RECT
@@ -437,75 +492,86 @@ def build_nexus():
     g.put(COLONNADES[1] - 4, cy - 6, FLOOR, "BulletinBoard")
     g.put(COLONNADES[1] - 2, cy - 6, FLOOR, "BulletinBoard")
 
-    # the south yard: the arena portal, the gate
-    g.rect(36, 66, 60, 81, PLAZA)
-    g.path(cx - 1, 64, cx + 1, 85)
-    for x, y in ARENA_PORTALS:
-        g.put(int(x), int(y), PLAZA)
-        g.paths.add((int(x), int(y)))
-        g.banner(int(x), int(y) - 2, PLAZA)
-    # the arena leaderboard (its trophy opens the top runs in the Rust client), across the road
-    # from the portal
-    g.put(2 * cx - int(ARENA_PORTALS[0][0]), int(ARENA_PORTALS[0][1]), PLAZA, "Arena Leaderboard")
-    for x in (38, 44, 52, 58):
-        g.brazier(x, 72, PLAZA)
-    for y in range(67, 81, 3):
-        g.put(36, y, PLAZA, CRYSTAL, slot=ACCENT)
-        g.put(60, y, PLAZA, CRYSTAL, slot=ACCENT)
-    # the gatehouse: solid either side of the passage, a portcullis at its end
-    for y in range(83, 88):
-        for x in range(40, 57):
-            if GATE[0] <= x <= GATE[1]:
-                g.put(x, y, PATH, PORTCULLIS if y >= 86 else None)
-            elif g[x, y]["obj"] is None:
-                g.put(x, y, FLOOR, TOWER)
+    # the gate: a portcullis in the south wall at the road's end, braziers either side
+    for y in range(SOUTH_STREET + 4, NEXUS_SIZE[1]):
+        for x in range(GATE[0], GATE[1] + 1):
+            if g.is_wall(x, y):
+                g.put(x, y, PATH, PORTCULLIS)
     for x in (GATE[0] - 1, GATE[1] + 1):
-        g.brazier(x, 82, PATH)
+        g.brazier(x, SOUTH_STREET + 2, FLOOR)
 
-    # the forge hall: walled, with doors to the east and west (a carpet between them along the front
-    # of the Divine Forge and the Enchanter) and to the north, between the two; the two on gold
-    # that brightens towards each, braziers in the corners, flames by the forge, crystals by the
-    # Enchanter, banners and candles on the walls. Nothing in it takes a decoration slot, so an
-    # event leaves the hall as it is.
-    hx0, hy0, hx1, hy1 = FORGE_HALL
-    dy0, dy1 = FORGE_HALL_DOOR
-    nx0, nx1 = FORGE_HALL_NORTH
-    doors = {(x, y) for x in (hx0, hx0 + 1, hx1 - 1, hx1) for y in range(dy0, dy1 + 1)}
-    doors |= {(x, y) for x in range(nx0, nx1 + 1) for y in (hy0, hy0 + 1)}
-    g.hall(hx0, hy0, hx1, hy1, STONE, doors=doors)
+    # the forge court, west of the keep's road: the Divine Forge and the Enchanter side by side on
+    # gold that brightens towards each, inside a border like the pavilions', a carpet from the road
+    # along their front; braziers in its corners, flames by the forge, crystals by the Enchanter,
+    # banners behind them. Nothing in it takes a decoration slot, so an event leaves it as it is.
+    hx0, hy0, hx1, hy1 = FORGE_COURT
 
     def gold(x, y):
         d = min(math.hypot(x - ox, y - oy + 1) for ox, oy in (FORGE, ENCHANTER))
         return GOLD_FLOOR[max(0, min(6, int(6.4 - d)))] if d < 5.5 else STONE
 
-    for y in range(hy0 + 2, hy1 - 1):
-        for x in range(hx0 + 2, hx1 - 1):
-            g.put(x, y, gold(x, y))
-    g.rect(hx0, dy0, hx1, dy1, CARPET)
-    g.rect(nx0, hy0, nx1, hy0 + 2, CARPET)
-    g.path(hx1 + 1, dy0, 35, dy1)
-    g.path(hx0 - 4, dy0, hx0 - 1, dy1)
-    g.path(nx0, hy0 - 2, nx1, hy0 - 1)
-    g.put(*FORGE, gold(*FORGE), "Divine Forge")
-    g.put(*ENCHANTER, gold(*ENCHANTER), "Enchanter")
-    for x, y in ((hx0 + 2, hy0 + 2), (hx1 - 2, hy0 + 2), (hx0 + 2, hy1 - 2), (hx1 - 2, hy1 - 2)):
-        g.put(x, y, STONE, BRAZIER_OBJ)
+    for y in range(hy0, hy1 + 1):
+        for x in range(hx0, hx1 + 1):
+            g.put(x, y, STALL_EDGE if x in (hx0, hx1) or y in (hy0, hy1) else gold(x, y))
+            g.paths.add((x, y))
     fx, fy = FORGE
     ex, ey = ENCHANTER
-    for dx in (-2, 2):
+    g.rect(hx0 + 1, fy + 2, hx1 + 1, fy + 3, CARPET)
+    g.path(hx1 + 1, fy + 2, cx - 2, fy + 3, CARPET)
+    g.put(*FORGE, gold(*FORGE), "Divine Forge")
+    g.put(*ENCHANTER, gold(*ENCHANTER), "Enchanter")
+    for x, y in ((hx0, hy0), (hx1, hy0), (hx0, hy1), (hx1, hy1)):
+        g.put(x, y, STALL_EDGE, BRAZIER_OBJ)
+    for dx in (-3, 3):
         g.put(fx + dx, fy, gold(fx + dx, fy), FLAME_OBJ)
-        g.put(ex + dx, ey, gold(ex + dx, ey), CRYSTAL)
-    for x in (hx0 + 5, hx1 - 5):
-        g.put(x, hy0 + 2, STONE, BANNER_OBJ)
-    for x in range(hx0 + 4, hx1 - 2, 3):
-        g.put(x, hy1 - 2, STONE, CANDLES)
+    g.put(ex - 2, ey, gold(ex - 2, ey), CRYSTAL)
+    g.put(ex, ey - 3, gold(ex, ey - 3), CRYSTAL)
+    for x in (fx, ex):
+        g.put(x, hy0 + 1, gold(x, hy0 + 1), BANNER_OBJ)
+    for x in range(hx0 + 2, hx1 - 1, 3):
+        g.put(x, hy1 - 1, gold(x, hy1 - 1), CANDLES)
 
-    # the treasury: walled, its door to the west, the chests where they always were
+    # the Arena's court, east of the road: the portal under its banner, the leaderboard beside it,
+    # a path in from the road, braziers in the corners
+    hx0, hy0, hx1, hy1 = ARENA_COURT
+    for y in range(hy0, hy1 + 1):
+        for x in range(hx0, hx1 + 1):
+            g.put(x, y, STALL_EDGE if x in (hx0, hx1) or y in (hy0, hy1) else PLAZA)
+            g.paths.add((x, y))
+    for x, y in ((hx0, hy0), (hx1, hy0), (hx0, hy1), (hx1, hy1)):
+        g.put(x, y, STALL_EDGE, BRAZIER_OBJ)
+    ax, ay = int(ARENA_PORTALS[0][0]), int(ARENA_PORTALS[0][1])
+    g.path(cx + 2, ay + 2, hx0, ay + 3, CARPET)
+    g.rect(hx0 + 1, ay + 2, hx1 - 1, ay + 3, CARPET)
+    g.banner(ax, ay - 2, PLAZA)
+    g.put(*ARENA_LEADERBOARD, PLAZA, "Arena Leaderboard")
+    for y in range(hy0 + 2, ay + 1, 3):
+        g.put(hx1 - 1, y, PLAZA, CRYSTAL)
+    for x in (ax - 2, ax + 2):
+        g.put(x, ay, PLAZA, FLAME_OBJ)
+
+    # the market square, south of the spawn: the Market Broker at its head beside the road, flames
+    # and a banner either side, and a pavilion of stalls either side of the road (built with the
+    # shops' below); the stalls show players' listings, so it takes no decoration slot either
+    bx, by = BROKER
+    g.rect(MARKET_PAVILIONS[0][2], by - 1, MARKET_PAVILIONS[1][2] + 10, by + 1, PLAZA)
+    g.paths.update((x, y) for x in range(MARKET_PAVILIONS[0][2], MARKET_PAVILIONS[1][2] + 11) for y in range(by - 1, by + 2))
+    g.path(cx - 1, by - 1, cx + 1, by + 1)
+    g.put(bx, by, PLAZA, "Market Broker")
+    for x in (bx - 2, 2 * cx - bx + 2):
+        g.put(x, by, PLAZA, FLAME_OBJ)
+    g.banner(2 * cx - bx, by, PLAZA)
+    for name, region, x0, y0, cols, rows in MARKET_PAVILIONS:
+        g.pavilion(name, region, x0, y0, cols, rows)
+
+    # the treasury: walled, its door to the south street, the chests where they always were
     hx0, hy0, hx1, hy1 = TREASURY
     for y in range(hy0, hy1 + 1):
         for x in range(hx0, hx1 + 1):
             edge = x in (hx0, hx1) or y in (hy0, hy1)
-            if edge and not (x == hx0 and 71 <= y <= 73):
+            if g.is_wall(x, y) and x == hx0:
+                continue        # the castle's own wall
+            if edge and not (y == hy0 and TREASURY_DOOR[0] <= x <= TREASURY_DOOR[1]):
                 g.put(x, y, FLOOR, WINDOW if (x + y) % 6 == 0 else WALL_IN)
             else:
                 g.put(x, y, STONE)
@@ -554,6 +620,13 @@ def build_nexus():
 
     for p in PAVILIONS:
         g.pavilion(*p)
+    for garden in GARDENS:
+        g.garden(rng, *garden)
+    # lanterns along the road from the keep to the gate, between the courts and the stalls
+    for y in list(range(23, 33, 3)) + list(range(57, 63, 3)):
+        for x in (cx - 2, cx + 2):
+            if not g[x, y]["obj"]:
+                g.put(x, y, None, LANTERN)
     g.accents(rng)
     g.mark_open()
     return g
@@ -566,6 +639,9 @@ def check_nexus(g):
         t = g[int(x), int(y)]
         assert not t["obj"] and t["ground"], (x, y)
     assert g[FORGE]["obj"] == "Divine Forge"
+    assert g[BROKER]["obj"] == "Market Broker"
+    assert g[ARENA_LEADERBOARD]["obj"] == "Arena Leaderboard"
+    assert sum(t["region"] == "Market Stall" for row in g.t for t in row) == 16
     assert g[CHAMPIONS]["obj"] == "Champions Monument"
     for (dx, dy), board in CHAMPION_STATUES:
         t = g[CHAMPIONS[0] + dx, CHAMPIONS[1] + dy]

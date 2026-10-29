@@ -299,6 +299,34 @@ fn vault_messages_match_vault_contents_handler() {
 }
 
 #[test]
+fn marketplace_messages_match_market_handlers() {
+    // MarketBrowseHandler reads an int; MarketSellHandler a bool, an int, a byte and two ints;
+    // MarketActHandler a byte and two ints.
+    assert_eq!(ClientMessage::from(MarketBrowse { version: -1 }).to_frame(), B::default().i32(-1).frame(121));
+    let sell = MarketSell { from_vault: true, chest: 2, slot: 5, price: 1500, hours: 72 };
+    assert_eq!(ClientMessage::from(sell).to_frame(), B::default().u8(1).i32(2).u8(5).i32(1500).i32(72).frame(123));
+    assert_eq!(ClientMessage::from(MarketAct { action: 1, id: 42, price: 900 }).to_frame(), B::default().u8(1).i32(42).i32(900).frame(124));
+    // MarketListings.Write: version, now, unchanged, tax, limit; listings (id, item, price,
+    // seller, start, end, stack, imprints); box (id, item, stack, imprints, why, time); history
+    // (kind, item, price, net, other, time).
+    let body = B::default().i32(7).i32(1_800_000_000).u8(0).u8(5).u8(10)
+        .i16(1).i32(42).i16(0x0a01).i32(900).utf("Meapy").i32(100).i32(200).i16(0).u8(3).u8(0).u8(1)
+        .i16(1).i32(9).i16(0x0a02).i16(4).u8(0).u8(0).u8(0).u8(1).i32(300)
+        .i16(1).u8(2).i16(0x0a03).i32(100).i32(95).utf("Tester").i32(400).0;
+    let ServerMessage::MarketListings(m) = ServerMessage::decode(122, &body).unwrap() else { panic!() };
+    assert_eq!((m.version, m.now, m.unchanged, m.tax, m.limit), (7, 1_800_000_000, false, 5, 10));
+    let l = &m.listings[0];
+    assert_eq!((l.id, l.item_type, l.price, l.seller.as_str(), l.start, l.end, l.offensive, l.misc), (42, 0x0a01, 900, "Meapy", 100, 200, 3, 1));
+    let b = &m.boxed[0];
+    assert_eq!((b.box_id, b.item_type, b.stack, b.why, b.time), (9, 0x0a02, 4, 1, 300));
+    let h = &m.history[0];
+    assert_eq!((h.kind, h.item_type, h.price, h.net, h.other.as_str(), h.time), (2, 0x0a03, 100, 95, "Tester", 400));
+    let body = B::default().u8(1).utf("Bought").i32(1234).0;
+    let ServerMessage::MarketResult(r) = ServerMessage::decode(125, &body).unwrap() else { panic!() };
+    assert_eq!((r.ok, r.message.as_str(), r.fame), (true, "Bought", 1234));
+}
+
+#[test]
 fn quest_messages_match_quest_handlers() {
     // QuestsData.Write: now, rank, points, colour rank, ranks (name, points, colour), periods
     // (period, resets, swaps left, bonus claimed, bonus), quests (period, id, title, text,

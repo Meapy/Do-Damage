@@ -159,6 +159,16 @@ public enum MessageId : byte
     // typing GO in chat still counts as a vote to start.
     ARENA_VOTE = 119,
     ARENA_VOTES = 120,
+    // The Marketplace window (Rust client 2.3.3, MarketHandlers.cs): the client asks for the
+    // listings with the version it has (MARKET_BROWSE), and gets them when they changed, with its
+    // Marketplace box and history every time (MARKET_LISTINGS); it lists an item from the
+    // inventory or the vault (MARKET_SELL), buys, takes back or collects (MARKET_ACT), and each
+    // of those is answered by MARKET_RESULT. Older clients use MARKET_SEARCH to MARKET_MY_OFFERS.
+    MARKET_BROWSE = 121,
+    MARKET_LISTINGS = 122,
+    MARKET_SELL = 123,
+    MARKET_ACT = 124,
+    MARKET_RESULT = 125,
     // From the world proxy (tools/world_proxy.py), before the client's first message: the
     // client's address. Only taken on a connection from this PC; clients never send it.
     PROXY_INFO = 250

@@ -60,6 +60,8 @@
         Store_39,
         Store_40,
         Guild_Shop,
-        Special_Chest
+        Special_Chest,
+        // the Nexus's market square: stalls showing Marketplace listings (MarketStalls)
+        Market_Stall
     }
 }

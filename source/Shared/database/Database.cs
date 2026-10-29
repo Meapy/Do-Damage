@@ -190,54 +190,6 @@ namespace Shared.database
             return DbAddGuildMemberStatus.OK;
         }
 
-        public Task AddMarketEntrySafety(DbAccount account, List<(ushort, string)> itemTypes, int sellerId, string sellerName, int price, int timeLeft, CurrencyType currency, Action<string> log = null)
-        {
-            var trans = _db.CreateTransaction();
-            var ids = itemTypes.Select(itemType =>
-            {
-                var id = _db.StringIncrement("nextMarketId");
-                if (log != null)
-                    log.Invoke($"Added new offer with ID {id} and price {price} to the marketplace.");
-
-                var data = new DbMarketData(_db, (int)id)
-                {
-                    ItemType = itemType.Item1,
-                    SellerName = sellerName,
-                    SellerId = sellerId,
-                    Currency = currency,
-                    Price = price,
-                    StartTime = DateTime.UtcNow.ToUnixTimestamp(),
-                    TimeLeft = timeLeft,
-                    ItemData = itemType.Item2
-                };
-                data.Flush();
-                return (int)id;
-            }).ToList();
-
-            var offers = account.MarketOffers.ToList();
-            offers.AddRange(ids);
-
-            account.MarketOffers = offers.ToArray();
-
-            var task = account.FlushAsync(trans).ContinueWith(t =>
-            {
-                if (!t.IsCanceled && account != null)
-                {
-                    if (log != null)
-                        log.Invoke(
-                            $"[Amount: {account.MarketOffers.Length + ids.Count}] Successfully " +
-                            $"added total of {ids.Count} entr{(ids.Count > 1 ? "ies" : "y")} " +
-                            $"into the marketplace to the account ID {account.AccountId}."
-                        );
-
-                    account.Reload("marketOffers");
-                }
-            });
-
-            trans.Execute();
-            return task;
-        }
-
         public bool AddMemberToParty(IDatabase db, string accname, int AccId, int partyId)
         {
             var party = DbPartySystem.Get(db, partyId);
@@ -949,39 +901,6 @@ namespace Shared.database
             return SetGifts(acc, giftBytes, transaction);
         }
 
-        /// <summary>
-        /// Takes the offer off the market, true only for the one caller that did: a buyer, the
-        /// seller taking it back and the expiry sweep (on any world server) can race for an offer,
-        /// and only the one this answers true for may hand its item out.
-        /// </summary>
-        public bool ClaimMarketEntry(int id) => _db.HashDelete("market", id);
-
-        public Task RemoveMarketEntrySafety(DbAccount account, int id, Action<string> log = null)
-        {
-            var trans = _db.CreateTransaction();
-            trans.HashDeleteAsync("market", id);
-
-            var offers = account.MarketOffers.ToList();
-            offers.Remove(id);
-
-            account.MarketOffers = offers.ToArray();
-
-            var task = account.FlushAsync(trans).ContinueWith(t =>
-            {
-                if (!t.IsCanceled && account != null)
-                {
-                    if (log != null)
-                        log.Invoke($"[Amount: {account.MarketOffers.Length}] Successfully removed 1 entry (ID: {id}) of the marketplace from the account ID {account.AccountId}.");
-
-                    account.Reload("marketOffers");
-                }
-            });
-
-            trans.Execute();
-
-            return task;
-        }
-
         public bool RemoveParty(DbAccount leader, HashSet<DbAccount> members, int partyId)
         {
             var trans = _db.CreateTransaction();
@@ -1180,13 +1099,13 @@ namespace Shared.database
                 trans.HashIncrementAsync(acc.Key, "totalCredits", amount).ContinueWith(t =>
                 {
                     if (!t.IsCanceled)
-                        acc.TotalCredits = (int)t.Result;
+                        acc.StoredTotalCredits((int)t.Result);
                 });
 
             var task = trans.HashIncrementAsync(acc.Key, "credits", amount).ContinueWith(t =>
             {
                 if (!t.IsCanceled)
-                    acc.Credits = (int)t.Result;
+                    acc.StoredCredits((int)t.Result);
             });
 
             if (transaction == null)
@@ -1275,13 +1194,13 @@ namespace Shared.database
                 trans.HashIncrementAsync(acc.Key, "totalFame", amount).ContinueWith(t =>
                 {
                     if (!t.IsCanceled)
-                        acc.TotalFame = (int)t.Result;
+                        acc.StoredTotalFame((int)t.Result);
                 });
 
             var task = trans.HashIncrementAsync(acc.Key, "fame", amount).ContinueWith(t =>
             {
                 if (!t.IsCanceled)
-                    acc.Fame = (int)t.Result;
+                    acc.StoredFame((int)t.Result);
             });
 
             if (transaction == null)
@@ -1423,16 +1342,16 @@ namespace Shared.database
             {
                 case CurrencyType.Gold:
                     if (total)
-                        acc.TotalCredits = value;
+                        acc.StoredTotalCredits(value);
                     else
-                        acc.Credits = value;
+                        acc.StoredCredits(value);
                     break;
 
                 case CurrencyType.Fame:
                     if (total)
-                        acc.TotalFame = value;
+                        acc.StoredTotalFame(value);
                     else
-                        acc.Fame = value;
+                        acc.StoredFame(value);
                     break;
             }
         }

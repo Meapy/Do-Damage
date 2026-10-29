@@ -20,6 +20,11 @@ namespace Shared.isc
         Announce,
 
         [Description("Kick")]
-        Kick
+        Kick,
+
+        // a Marketplace sale or expiry for an account: the server it plays on updates its fame
+        // and tells it (Marketplace.OnMarketMsg)
+        [Description("Market")]
+        Market
     }
 }

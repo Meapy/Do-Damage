@@ -1,17 +1,18 @@
-﻿using Shared.database;
 using System.Timers;
-using Shared.database.market;
+using WorldServer.core.market;
 
 namespace WorldServer.core
 {
+    // Ends the Marketplace's listings whose time is up, every minute (Marketplace.Sweep). A world
+    // server handing over to a new one stops it.
     public sealed class MarketSweeper
     {
-        private Database Database { get; set; }
+        private Marketplace Marketplace { get; set; }
         private Timer Timer { get; set; }
 
-        public MarketSweeper(Database database)
+        public MarketSweeper(Marketplace marketplace)
         {
-            Database = database;
+            Marketplace = marketplace;
             Timer = new Timer(60000);
             Timer.Elapsed += Timer_Elapsed;
         }
@@ -19,6 +20,6 @@ namespace WorldServer.core
         public void Start() => Timer.Start();
         public void Stop() => Timer.Stop();
 
-        private void Timer_Elapsed(object sender, ElapsedEventArgs e) => DbMarketData.CleanMarket(Database);
+        private void Timer_Elapsed(object sender, ElapsedEventArgs e) => Marketplace.Sweep();
     }
 }

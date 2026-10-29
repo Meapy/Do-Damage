@@ -142,7 +142,8 @@ from wave 30 an Elder dungeon boss joins Oryx's. The chat says which wave has be
 - **The ring:** you arrive in the forest outside a walled ring and walk in through one of its four
   gateways while the countdown runs. When the game starts the gates shut, and anyone still outside
   or in a gateway is moved just inside. Mind the lava inside the walls.
-- **Where:** the **Arena** portal in the Nexus's south yard, or `/arena` from anywhere: both lead
+- **Where:** the **Arena** portal in the Nexus's Arena court, on the right of the road from the spawn to
+  the keep, or `/arena` from anywhere: both lead
   to the same game. Everyone who goes in before a game's countdown ends plays that game. Once a
   game has started, the portal (and `/arena`) opens a new one. `/arenas` lists the games running.
 - **Less fame** in the Arena and the Admin Arena. The Arena pays fame after every wave: five times

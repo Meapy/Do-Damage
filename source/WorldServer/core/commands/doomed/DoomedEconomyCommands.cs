@@ -24,7 +24,7 @@ namespace WorldServer.core.commands.doomed
         public const string ForgeClass = "Forge";
         public const float ForgeReach = 5;
 
-        public const string UseTheForge = "Forging and selling for fame have moved to the Divine Forge, in the Nexus's south yard west of the Arena portal: stand by it and open its window.";
+        public const string UseTheForge = "Forging and selling for fame have moved to the Divine Forge, in the Nexus's forge court, between the spawn and the keep, west of the road (or type /forge): stand by it and open its window.";
 
         public static bool NearForge(Player player) => NearObject(player, ForgeClass);
 

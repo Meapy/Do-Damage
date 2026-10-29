@@ -63,10 +63,8 @@ Nexus spawn. In it:
 - **Vault chests**, eight slots each, that keep items safe when a character dies. A new account has
   {{v:vault_chests}}; more cost {{v:vault_chest_price}} fame each (click a closed chest in the
   vault), or use a Vault Chest Unlocker.
-- **Gift chests**, where things sent to you arrive, such as marketplace purchases. You can take
-  items out but not put them in.
+- **Gift chests**, where things sent to you arrive. You can take items out but not put them in.
 - The **Potion Storage**, the Armoire and the Guild Chronicle.
-- A portal to the **marketplace**.
 - A **Training Dummy** beside the spawn. Shoot it and, 5 seconds after your first hit, the chat
   tells you (and only you) your damage and damage a second, your pet's included. It never dies and
   gives no experience. [Gear statistics](gear-statistics.html) has every class's numbers on it.
@@ -82,7 +80,7 @@ by name, each item marked with its chest's number (G for a gift chest). Type to 
 the window shows only what matches and says which chests hold it. A right-click marks an item's
 chest with a gold ring and its number.
 
-The Nexus also has four **shared vault chests** in its south yard. Anyone can use them, so treat
+The Nexus also has four **shared vault chests**, in the treasury off its south street. Anyone can use them, so treat
 them as a place to hand things to friends, not to store them.
 
 A **Backpack** (Nexus Bazaar, 500 fame) gives a character eight more inventory slots; <kbd>B</kbd>
@@ -97,16 +95,11 @@ when your inventory is full. Almost every item can be traded, sold and dropped f
 Soulbound ones included. Only admin items and a few overpowered or test items can't: their
 tooltips say "Untradeable".
 
-**The marketplace** sells items to other players for fame, even when you're offline. Its portal is
-in your vault. Inside, use the market to:
-
-- **search** what's on offer and buy it: what you buy arrives in your vault's gift chests;
-- **sell**: list items for a price in fame, for 1 to 24 hours. When one sells, you get the price
-  less a 5% tax, and a message says so;
-- see **your offers** and take back what hasn't sold.
-
-Untradeable items can't be listed. You can't trade, drop items or go to your vault while you're in
-the marketplace.
+**The [Marketplace](marketplace.html)** sells items to other players for fame, even while you're
+offline. Talk to the **Market Broker** in the market square south of the Nexus spawn (or `/market`
+from anywhere): list items from your inventory or your vault, browse and buy what others sell, and
+collect what you bought. Listings also stand on the market square's stalls, where anyone can walk
+up and buy them. The Broker keeps 5% of each sale. Untradeable items can't be listed.
 
 ## The shops
 
@@ -114,8 +107,9 @@ Every shop here sells for fame; there's no way to earn gold.
 
 - The **Nexus Bazaar**, the market wards either side of the Nexus spawn: stat potions, consumables,
   specials, dungeon keys, Elder and Doomed keys, pet generators
-  ({{v:pet_price}} fame) and clothing and accessories (cloths and dyes). Its stalls rotate through each shop's items. Guests
-  can't buy.
+  ({{v:pet_price}} fame) and clothing and accessories (cloths and dyes). Each shop has fewer stalls
+  than items: the stalls take turns through its items, a few minutes each (a stall says when its
+  item goes). Guests can't buy.
 - `/shop` opens the Doomed Realms shops: weapons, abilities, armor, rings, consumables, dyes, keys
   and pets.
 - The Divine Forge in the Nexus buys items for fame (its Sell for fame tab).

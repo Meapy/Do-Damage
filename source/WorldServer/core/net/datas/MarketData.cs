@@ -1,4 +1,5 @@
 ﻿using Shared;
+using Shared.database.market;
 
 namespace WorldServer.core.net.datas
 {
@@ -13,6 +14,19 @@ namespace WorldServer.core.net.datas
         public int StartTime;
         public int TimeLeft;
         public string ItemData;
+
+        public static MarketData From(DbMarketData l) => new MarketData
+        {
+            Id = l.Id,
+            ItemType = l.ItemType,
+            SellerName = l.SellerName,
+            SellerId = l.SellerId,
+            Currency = (int)l.Currency,
+            Price = l.Price,
+            StartTime = l.StartTime,
+            TimeLeft = l.TimeLeft,
+            ItemData = l.ItemData ?? ""
+        };
 
         public static MarketData Read(NetworkReader rdr) => new MarketData
         {

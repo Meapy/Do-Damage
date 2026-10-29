@@ -259,6 +259,53 @@ wire_struct! {
     }
 }
 
+wire_struct! {
+    /// A Marketplace listing (`MarketListings`): its id, the item, the price in fame, the
+    /// seller, when it started and ends (Unix time), the stack's count (0 for one item) and the
+    /// imprints (Offensive, Defensive, Misc).
+    pub struct MarketListing {
+        pub id: i32,
+        pub item_type: u16,
+        pub price: i32,
+        pub seller: String,
+        pub start: i32,
+        pub end: i32,
+        pub stack: i16,
+        pub offensive: u8,
+        pub defensive: u8,
+        pub misc: u8,
+    }
+}
+
+wire_struct! {
+    /// An item waiting in our Marketplace box: its id there, the item as a listing has it, why
+    /// (1 bought, 2 taken back, 3 ended unsold) and when.
+    pub struct MarketBoxItem {
+        pub box_id: i32,
+        pub item_type: u16,
+        pub stack: i16,
+        pub offensive: u8,
+        pub defensive: u8,
+        pub misc: u8,
+        pub why: u8,
+        pub time: i32,
+    }
+}
+
+wire_struct! {
+    /// A line of our Marketplace history: what happened (1 listed, 2 sold, 3 bought, 4 taken
+    /// back, 5 ended), the item, the price, what we got for a sale after the tax, the buyer or
+    /// seller, and when.
+    pub struct MarketHistory {
+        pub kind: u8,
+        pub item_type: u16,
+        pub price: i32,
+        pub net: i32,
+        pub other: String,
+        pub time: i32,
+    }
+}
+
 /// Stat ids (`StatData.as`, `StatDataType.cs`). Only the ones the protocol itself needs; the
 /// game model names the rest.
 pub mod stat {

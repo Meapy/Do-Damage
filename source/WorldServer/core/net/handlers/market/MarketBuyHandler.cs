@@ -1,142 +1,28 @@
-﻿using Shared;
-using Shared.database.account;
-using Shared.database.market;
-using Shared.database.vault;
-using WorldServer.core.objects;
+using Shared;
 using WorldServer.core.worlds;
 using WorldServer.networking;
 using WorldServer.networking.packets.outgoing.market;
-using WorldServer.utils;
 
 namespace WorldServer.core.net.handlers.market
 {
+    // The first protocol's purchase (Rust clients before 2.3.3): Marketplace.Buy.
     public class MarketBuyHandler : IMessageHandler
     {
         public override MessageId MessageId => MessageId.MARKET_BUY;
 
-        private const int TAX_PERCENTAGE = 5;
-
         public override void Handle(Client client, NetworkReader rdr, ref TickTime time)
         {
             var id = rdr.ReadInt32();
-
-            if (!IsAvailable(client) || !IsEnabledOrAdminOnly(client))
-                return;
-
             var player = client.Player;
-
-            var marketData = DbMarketData.GetSpecificOffer(client?.Account?.Database, id);
-            if (marketData == null)
-            {
-                client.SendPacket(new MarketBuyResult()
-                {
-                    Code = MarketBuyResult.ERROR,
-                    Description = "Something wrong happened, try again. (Item doesn't exist in Market)"
-                });
-                player.SendError("That item doesn't exist.");
+            if (player == null)
                 return;
-            }
-
-            if (!player.GameServer.Resources.GameData.Items.TryGetValue(marketData.ItemType, out var item))
+            var (ok, message) = client.GameServer.Marketplace.Buy(player, id, 0);
+            client.SendPacket(new MarketBuyResult
             {
-                client.SendPacket(new MarketBuyResult()
-                {
-                    Code = MarketBuyResult.ERROR,
-                    Description = "Something wrong happened, try again. (Item not registered in Server)"
-                });
-                client.Player?.SendError("Something wrong happened, try again. (Item not registered in Server)");
-                return;
-            }
-
-            if (player.CurrentFame < marketData.Price)
-            {
-                client.SendPacket(new MarketBuyResult()
-                {
-                    Code = MarketBuyResult.ERROR,
-                    Description = "Your fame is not enough to buy this item!"
-                });
-                client.Player?.SendError("Not enough Fame.");
-                return;
-            }
-
-            var db = player.GameServer.Database;
-            var sellerId = db.ResolveId(marketData.SellerName);
-            var sellerAcc = db.GetAccount(sellerId);
-            if (sellerAcc == null)
-            {
-                player.SendError("Unable to find seller.");
-                return;
-            }
-
-            if (sellerId == 0 || sellerAcc == null)
-            {
-                client.SendPacket(new MarketBuyResult()
-                {
-                    Code = MarketBuyResult.ERROR,
-                    Description = "Something wrong happened, try again. (Seller Account not exist)"
-                });
-                player.SendError("Something wrong happened, try again. (Seller Account not exist)");
-                return;
-            }
-
-            // someone else bought it, or it was taken back or expired, since it was read
-            if (!db.ClaimMarketEntry(marketData.Id))
-            {
-                client.SendPacket(new MarketBuyResult()
-                {
-                    Code = MarketBuyResult.ERROR,
-                    Description = "That item was just sold or taken off the market."
-                });
-                return;
-            }
-
-            StaticLogger.Instance.Warn($"<{player.Name} {player.AccountId}> brought: {item.ObjectId} on market for: {marketData.Price} from: <{sellerAcc.Name} {sellerAcc.AccountId}>");
-
-            /* Add fame to the Seller */
-            AddFameToSeller(client, sellerAcc, marketData.Price, item.ObjectId);
-
-            /* Remove fame to Buyer */
-            RemoveFameToBuyer(player, marketData.Price);
-
-            db.RemoveMarketEntrySafety(sellerAcc, marketData.Id);
-
-            if (!string.IsNullOrEmpty(marketData.ItemData))
-                DbSpecialVault.AddItem(client.Account, marketData.ItemType, marketData.ItemData);
-            else
-                db.AddGift(client.Account, marketData.ItemType);
-
-            client.SendPacket(new MarketBuyResult()
-            {
-                Code = -1,
-                Description = $"You have successfully bought: {item.ObjectId}",
-                OfferId = marketData.Id
+                Code = ok ? MarketBuyResult.BOUGHT : MarketBuyResult.ERROR,
+                Description = message,
+                OfferId = id
             });
         }
-
-        private void AddFameToSeller(Client client, DbAccount acc, int realPrice, string itemId)
-        {
-            var tax = GetTax(realPrice);
-            var resultPrice = realPrice - tax;
-
-            acc.Reload("fame");
-            acc.Reload("totalFame");
-            acc.Fame += resultPrice;
-            acc.TotalFame += resultPrice;
-            acc.FlushAsync();
-            acc.Reload("fame");
-            acc.Reload("totalFame");
-
-            client.Player.GameServer.ChatManager.SendInfoMarket(acc.AccountId, itemId, realPrice, resultPrice, TAX_PERCENTAGE);
-        }
-
-        private void RemoveFameToBuyer(Player player, int price)
-        {
-            player.CurrentFame = player.Client.Account.Fame -= price;
-            player.Client.Account.TotalFame += price;
-            player.GameServer.Database.ReloadAccount(player.Client.Account);
-            player.SendInfo("<Marketplace> The purchase item has been sent to your gift chests at Vault.");
-        }
-
-        private int GetTax(int price) => TAX_PERCENTAGE * price / 100;
     }
 }

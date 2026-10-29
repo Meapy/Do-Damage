@@ -1969,13 +1969,25 @@ impl App {
             if self.market.open {
                 for (down, pos) in std::mem::take(&mut self.clicks) {
                     if down {
-                        market_acts.extend(self.market.click(pos));
+                        market_acts.extend(self.market.click(pos, data));
                     }
                 }
                 self.mouse_down = false;
             }
             for e in std::mem::take(&mut game.market_events) {
                 market_acts.extend(self.market.event(e));
+            }
+            market_acts.extend(self.market.tick(now));
+            if self.market.wants_vault() {
+                if let Some(v) = game.vault_contents.take() {
+                    self.market.vault_contents(v);
+                }
+            }
+            // --type: into the market's price, once on its Sell tab.
+            if self.market.open && self.market.takes_typing() {
+                if let Some(t) = self.type_text.take() {
+                    self.market.key(KeyCode::KeyA, Some(&t), data);
+                }
             }
             for act in market_acts {
                 game.market(act);
@@ -2899,6 +2911,17 @@ impl ApplicationHandler<UserEvent> for App {
                 let notches = self.wheel.trunc();
                 self.wheel -= notches;
                 self.quests.scroll(-notches as i32);
+            }
+            WindowEvent::MouseWheel { delta, .. } if self.market.open && matches!(self.phase, Phase::Playing(_)) => {
+                // The market's lists scroll a row a notch.
+                let lines = match delta {
+                    winit::event::MouseScrollDelta::LineDelta(_, y) => y,
+                    winit::event::MouseScrollDelta::PixelDelta(p) => (p.y / 40.0) as f32,
+                };
+                self.wheel += lines;
+                let notches = self.wheel.trunc();
+                self.wheel -= notches;
+                self.market.scroll(-notches as i32);
             }
             WindowEvent::MouseWheel { delta, .. } if self.vault.open && matches!(self.phase, Phase::Playing(_)) => {
                 // The vault's chests scroll a row a notch.

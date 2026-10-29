@@ -50,6 +50,9 @@ jobs:
           dotnet-version: "8.0.x"
       - name: dotnet build
         run: dotnet build source/betterSkillys.sln -c Debug --nologo
+      # the Marketplace tests start a Redis of their own (MarketStoreTests.cs)
+      - name: Redis for the tests
+        run: sudo apt-get update -q && sudo apt-get install -y -q redis-server
       - name: dotnet test
         run: dotnet test source/Tests/Tests.csproj -c Debug --nologo
 

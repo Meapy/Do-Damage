@@ -186,7 +186,9 @@ namespace WorldServer.core.objects.vendors
 
             if (IsNew && AliveTime > 15.0f)
             {
-                MinsLeft = Random.Shared.Next(10, 30);
+                // a shop with more items than stalls shows each for a few minutes, so its stalls
+                // go through them all often (the Nexus has fewer stalls since 2.3.3)
+                MinsLeft = MerchantData?.Rotates == true ? Random.Shared.Next(3, 7) : Random.Shared.Next(10, 30);
                 IsNew = false;
             }
 
