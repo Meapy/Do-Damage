@@ -294,7 +294,7 @@ class Grid:
 
     def crystal_court(self, rng, x0, y0, x1, y1):
         """A court in this rectangle, in the castle's own stone: violet diamonds framed by the
-        pavilions' border tiles, a fountain where two lanes of stone cross, amethyst crystals on
+        pavilions' border tiles, two lanes of stone crossing in the middle, amethyst crystals on
         stone plinths in staggered rows either side, candles between and ember braziers at the
         corners. It takes no decoration slot."""
         mx, my = (x0 + x1) // 2, (y0 + y1) // 2
@@ -312,7 +312,6 @@ class Grid:
                     self.put(x, y, STONE, CRYSTAL)
                 elif rng.random() < 0.06:
                     self.put(x, y, None, CANDLES)
-        self.put(mx, my, STONE, FOUNTAIN)
         for x, y in ((x0, y0), (x1, y0), (x0, y1), (x1, y1)):
             if self.castle[y][x] and not self.is_wall(x, y):
                 self.put(x, y, None, FLAME_OBJ)
@@ -408,8 +407,8 @@ PAVILIONS = [
     ("Elder and Doomed Keys", "Store 12", 65, 24, 3, 2),
     ("Consumables", "Store 2", 78, 24, 3, 2),
 ]
-# Crystal courts where the wards' shops used to stand: amethysts on plinths round a fountain,
-# braziers at the corners, lanes through (x0, y0, x1, y1)
+# Crystal courts where the wards' shops used to stand: amethysts on plinths either side of a
+# cross of lanes, braziers at the corners (x0, y0, x1, y1)
 CRYSTAL_COURTS = [(64, 32, 88, 38)]
 LANTERN = "Archbishop Lantern"
 

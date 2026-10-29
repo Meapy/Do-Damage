@@ -526,7 +526,7 @@ The remotes `upstream` (HaloCelsius) and `aurusenth` share no history with `main
   `MarketStall.cs`, `MarketHandlers.cs`, `MarketListings.cs`, `/sell`, `/market`; the Rust client's
   `market.rs`): players list items from their inventory or vault for fame at the Market Broker
   (`MarketNPC`, the old invisible "Market Object" 0x4970) in the Nexus's market square, and the
-  square's stalls (the `Market Stall` region, `MarketStalls`) show the listings, newest first, in
+  square's stalls (the `Market Stall` region, `MarketStalls`) show the listings (the Broker, a static map object, greets players who come near: `MarketBroker`), newest first, in
   turns of 30 s. Every change is one Lua script in Redis (`MarketStore`): a listing takes the item
   from the character (only while the account's lock token is the caller's) or from a vault chest
   (only if the chest is as the server read it); a purchase checks the listing, its item type and
@@ -550,7 +550,7 @@ The remotes `upstream` (HaloCelsius) and `aurusenth` share no history with `main
   and Enchanter) and the Arena court (portal, now at 54.5, 28.5, and leaderboard) stand either side
   of the road between the spawn and the keep, the market square (Broker and two pavilions of 8
   stalls) fills the courtyard south of the spawn, the castle lost its south-west corner and south
-  yard (97 by 88 tiles, was 92 high), and a crystal court (amethysts round a fountain, `CRYSTAL_COURTS`) fills the east ward's north side. Every shop has
+  yard (97 by 88 tiles, was 92 high), and a crystal court (amethysts on plinths either side of a cross of lanes, `CRYSTAL_COURTS`) fills the east ward's north side. Every shop has
   fewer stalls than items now and rotates through them (`MerchantData.Rotates`: 3-6 minutes an
   item, as the pet generators did), so the wards are half the size. `/forge` and `/market` put you
   in front of the forge and the Broker.

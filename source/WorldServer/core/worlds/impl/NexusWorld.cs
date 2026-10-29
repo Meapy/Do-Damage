@@ -53,6 +53,7 @@ namespace WorldServer.core.worlds.impl
         private quests.QuestGivers _questGivers;
         // the market square's stalls, showing Marketplace listings
         private market.MarketStalls _marketStalls;
+        private market.MarketBroker _marketBroker;
 
         public NexusWorld(GameServer gameServer, int id, WorldResource resource) 
             : base(gameServer, id, resource)
@@ -82,6 +83,7 @@ namespace WorldServer.core.worlds.impl
             _questGivers = new quests.QuestGivers(this);
             _questGivers.Init();
             _marketStalls = new market.MarketStalls(this);
+            _marketBroker = new market.MarketBroker(this);
         }
 
         // The map's shared vault chests keep their items in Redis, one record per tile.
@@ -102,6 +104,7 @@ namespace WorldServer.core.worlds.impl
             _guide?.Update(ref time);
             _questGivers?.Update(ref time);
             _marketStalls?.Update(ref time);
+            _marketBroker?.Update(ref time);
             base.UpdateLogic(ref time);
         }
 
