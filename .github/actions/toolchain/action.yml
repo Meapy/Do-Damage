@@ -1,0 +1,26 @@
+name: Toolchain
+description: What deploy/deploy.py builds with on Linux - .NET 8, Rust with the wasm target and wasm-bindgen-cli at Cargo.lock's version, Python
+runs:
+  using: composite
+  steps:
+    - uses: actions/setup-dotnet@v4
+      with:
+        dotnet-version: "8.0.x"
+    - uses: dtolnay/rust-toolchain@stable
+      with:
+        targets: wasm32-unknown-unknown
+    - uses: Swatinem/rust-cache@v2
+      with:
+        workspaces: client-rs
+    - name: wasm-bindgen-cli's version
+      shell: bash
+      run: |
+        v=$(tr -d '\r' < client-rs/Cargo.lock | grep -A1 '^name = "wasm-bindgen"$' | sed -n 's/^version = "\(.*\)"$/\1/p')
+        test -n "$v"
+        echo "WASM_BINDGEN=$v" >> "$GITHUB_ENV"
+    - uses: taiki-e/install-action@v2
+      with:
+        tool: wasm-bindgen-cli@${{ env.WASM_BINDGEN }}
+    - uses: actions/setup-python@v5
+      with:
+        python-version: "3.12"

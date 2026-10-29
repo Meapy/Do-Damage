@@ -319,10 +319,12 @@ else
 fi
 
 # --- the Discord bot (bsk-discord) ----------------------------------------------------------
-# Only with a discord.env in the bundle (deploy/discord.local.env on the deploying PC); without
-# one the bot is left as it is. It holds no player's connection, so restarting it is safe. Its
-# packages (discord.py) go in a venv of its own; a failure there leaves the game's deploy done.
-if [ -f $IN/discord.env ]; then
+# With a discord.env in the bundle (deploy/discord.local.env on the deploying PC), or one already
+# installed: a deploy without one (GitHub Actions) updates the bot's code and keeps its settings.
+# Without either the bot is left as it is. It holds no player's connection, so restarting it is
+# safe. Its packages (discord.py) go in a venv of its own; a failure there leaves the game's
+# deploy done.
+if [ -f $IN/discord.env ] || [ -f $ROOT/discord/discord.env ]; then
     mkdir -p $ROOT/discord
     chown bsk:bsk $ROOT/discord
     bot_restart=0
@@ -339,7 +341,7 @@ if [ -f $IN/discord.env ]; then
         fi
     fi
     if [ -x $ROOT/discord/venv/bin/python ]; then
-        cmp -s $IN/discord.env $ROOT/discord/discord.env || { install -m 600 -o bsk -g bsk $IN/discord.env $ROOT/discord/discord.env; bot_restart=1; }
+        [ ! -f $IN/discord.env ] || cmp -s $IN/discord.env $ROOT/discord/discord.env || { install -m 600 -o bsk -g bsk $IN/discord.env $ROOT/discord/discord.env; bot_restart=1; }
         code=$(cat $ROOT/tools/discord/*.py | sha256sum | cut -d' ' -f1)
         [ "$code" = "$(cat $ROOT/discord/code.sha256 2>/dev/null)" ] || { echo "$code" > $ROOT/discord/code.sha256; bot_restart=1; }
         unit_changed bsk-discord.service && bot_restart=1

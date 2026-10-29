@@ -1,0 +1,85 @@
+# Checks every pull request (and the release branches): the Rust client and gateway, the .NET
+# servers, the website and the Docker images. Nothing here needs a secret or touches the VPS.
+name: CI
+
+on:
+  pull_request:
+  push:
+    branches: ["release/**"]
+  workflow_dispatch:
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+defaults:
+  run:
+    shell: bash
+
+jobs:
+  rust:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 45
+    steps:
+      - uses: actions/checkout@v4
+      - name: Linux libraries the desktop client links (audio)
+        run: sudo apt-get update -q && sudo apt-get install -y -q libasound2-dev pkg-config
+      - uses: dtolnay/rust-toolchain@stable
+        with:
+          targets: wasm32-unknown-unknown
+      - uses: Swatinem/rust-cache@v2
+        with:
+          workspaces: client-rs
+      - name: cargo test
+        working-directory: client-rs
+        run: cargo test --workspace --locked
+      - name: The browser build (wasm)
+        working-directory: client-rs
+        run: cargo check -p bsk-client --bin betterskillys --target wasm32-unknown-unknown --locked
+
+  dotnet:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: "8.0.x"
+      - name: dotnet build
+        run: dotnet build source/betterSkillys.sln -c Debug --nologo
+      - name: dotnet test
+        run: dotnet test source/Tests/Tests.csproj -c Debug --nologo
+
+  site:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Build the website and the wiki
+        run: python tools/build_site.py --out build/site
+
+  docker:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 45
+    strategy:
+      fail-fast: false
+      matrix:
+        target: [account, world, gateway, discord]
+    steps:
+      - uses: actions/checkout@v4
+      - uses: docker/setup-buildx-action@v3
+      - name: Build the ${{ matrix.target }} image
+        uses: docker/build-push-action@v6
+        with:
+          context: .
+          file: docker/Dockerfile
+          target: ${{ matrix.target }}
+          push: false
+          cache-from: type=gha,scope=${{ matrix.target }}
+          cache-to: type=gha,mode=max,scope=${{ matrix.target }}

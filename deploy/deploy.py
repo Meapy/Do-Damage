@@ -6,6 +6,19 @@ server (a VPS with Ubuntu 24.04) over ssh. Nothing is built on the server.
     python deploy/deploy.py --skip-build             # upload the last build again
     python deploy/deploy.py --status                 # the services and world servers on the server
     python deploy/deploy.py --no-publish             # deploy without publishing the desktop client
+    python deploy/deploy.py --dry-run --no-publish   # build and pack only: nothing reaches the server
+    python deploy/deploy.py --client-only            # publish the client, upload it and the website only
+
+GitHub Actions (.github/workflows/deploy.yml) deploys each merge to main from a fresh checkout,
+which has no dist/: --fetch-from-server first copies the server's published client releases
+(/opt/bsk/dist/client) into dist/client and its website downloads into dist/, so the client check
+below and the website's download links work as they do on the main checkout. --publish-only
+publishes the desktop client when it changed and stops there (the workflow does that on Windows,
+then deploys from Linux with what it published). When the workflow has no signing key it deploys
+everything but the client; --client-only, from the main checkout, then publishes the client and
+installs only the releases and the website (deploy/remote/install-client.sh), leaving the servers
+as the workflow put them. Upload and install hold a lock on the server (/opt/bsk/deploy.lock),
+so deploys from here and from the workflow never overlap.
 
 Before building, it publishes the desktop client (tools/build_client_rs.py --package --publish,
 with --account https://<site>/api, or http://<public_address>:<account port> without a site) when the
@@ -160,22 +173,35 @@ def player_account(cfg):
     return "http://%s:%d" % (cfg["public_address"], cfg["ports"]["account"])
 
 
-def publish_client(cfg):
-    """Publishes the desktop client when it changed since the newest release (see the top)."""
+CLIENT_PATHS = ["client-rs", "client/src"]
+
+
+def client_change():
+    """(published version, its commit, why) when the client changed since the newest release in
+    dist/client, else None."""
     latest = os.path.join(ROOT, "dist", "client", "windows", "latest.json")
     published, published_commit = None, ""
     if os.path.exists(latest):
         with open(latest, encoding="utf-8") as f:
             data = json.load(f)
         published, published_commit = data["version"], data.get("commit", "")
-    paths = ["client-rs", "client/src"]
     if published:
         known = published_commit and git("cat-file", "-e", published_commit + "^{commit}")[0] == 0
-        if known and git("diff", "--quiet", published_commit, "HEAD", "--", *paths)[0] == 0:
+        if known and git("diff", "--quiet", published_commit, "HEAD", "--", *CLIENT_PATHS)[0] == 0:
             print("client: unchanged since %s (%s), not publishing" % (published, published_commit))
-            return
-    current = client_version()
+            return None
     why = "client: changed since %s (%s)" % (published, published_commit) if published else "client: no release yet"
+    return published, published_commit, why
+
+
+def publish_client(cfg):
+    """Publishes the desktop client when it changed since the newest release (see the top).
+    Returns whether it published."""
+    change = client_change()
+    if not change:
+        return False
+    published, published_commit, why = change
+    current = client_version()
     stop = " Fix it, or deploy with --no-publish to leave the client releases as they are."
     if not os.path.exists(os.path.join(ROOT, "build", "client-update.key")):
         sys.exit(why + ", but this checkout has no build/client-update.key: publish from the main checkout"
@@ -183,15 +209,66 @@ def publish_client(cfg):
     if git("branch", "--show-current")[1] != "main":
         sys.exit(why + ", but this checkout isn't on main: releases are published from main, after the"
                  " release's pull request is merged." + stop)
-    if git("status", "--porcelain", "--", *paths)[1]:
+    if git("status", "--porcelain", "--", *CLIENT_PATHS)[1]:
         sys.exit(why + ", but client-rs/ or client/src/ has uncommitted changes." + stop)
     if published and version_key(current) <= version_key(published):
         sys.exit(why + ", but client-rs/Cargo.toml still says %s: raise the version and name its"
                  " changelog section." % current + stop)
+    expected = os.environ.get("BSK_UPDATE_PUBLIC_KEY", "").strip().lower()
+    if expected:
+        # CI: the key came from a secret; a wrong one would sign a release no client takes
+        out = subprocess.run(["cargo", "run", "-q", "--release", "-p", "bsk-publish", "--", "key", "--key",
+                              os.path.join(ROOT, "build", "client-update.key")],
+                             cwd=os.path.join(ROOT, "client-rs"), check=True, capture_output=True, text=True)
+        if out.stdout.strip().lower() != expected:
+            sys.exit(why + ", but build/client-update.key isn't the key players' clients trust"
+                     " (its public key isn't BSK_UPDATE_PUBLIC_KEY)." + stop)
     print(why + ": publishing %s" % current, flush=True)
     # --package too: the website's download (dist/Do-Damage-<os>.zip) is the same release
     run([sys.executable, os.path.join(ROOT, "tools", "build_client_rs.py"),
          "--account", player_account(cfg), "--package", "--publish"])
+    return True
+
+
+def fetch_from_server(cfg):
+    """Copies the server's published client releases into dist/client and its website downloads
+    (Do-Damage-<os>.zip) into dist/, for a checkout that has none (GitHub Actions). Never replaces
+    what's already in dist/."""
+    dist = os.path.join(ROOT, "dist")
+    if os.path.exists(os.path.join(dist, "client")):
+        sys.exit("--fetch-from-server: dist/client is already here; it's for a checkout without one")
+    os.makedirs(OUT, exist_ok=True)
+    got = os.path.join(OUT, "from-server.tar.gz")
+    with open(got, "wb") as f:
+        code = remote(cfg, "set -e; cd %s; set --; for p in dist/client site/downloads; do [ -d $p ] && set -- \"$@\" $p; done;"
+                           " tar czf - -T /dev/null \"$@\"" % REMOTE, stdout=f)
+    if code:
+        sys.exit("fetching the releases from the server failed")
+    n = 0
+    with tarfile.open(got) as tar:
+        for m in tar.getmembers():
+            if not (m.isfile() or m.isdir()) or m.name.startswith("/") or ".." in m.name.split("/"):
+                continue
+            if m.name.startswith("dist/client"):
+                dest = os.path.join(ROOT, *m.name.split("/"))
+            elif m.isfile() and m.name.startswith("site/downloads/") and m.name.endswith(".zip"):
+                dest = os.path.join(dist, os.path.basename(m.name))
+            else:
+                continue
+            if m.isdir():
+                os.makedirs(dest, exist_ok=True)
+                continue
+            os.makedirs(os.path.dirname(dest), exist_ok=True)
+            with tar.extractfile(m) as src, open(dest, "wb") as out:
+                shutil.copyfileobj(src, out)
+            n += 1
+    os.remove(got)
+    latest = os.path.join(dist, "client", "windows", "latest.json")
+    if os.path.exists(latest):
+        with open(latest, encoding="utf-8") as f:
+            print("fetched %d files from the server; its newest client release is %s" % (n, json.load(f)["version"]))
+    else:
+        print("fetched %d files from the server; it has no client release yet" % n)
 
 
 def build(cfg, args):
@@ -344,7 +421,7 @@ def pack():
     print("bundle: %s (%.1f MB)" % (os.path.relpath(BUNDLE, ROOT), os.path.getsize(BUNDLE) / 1e6))
 
 
-def remote(cfg, script, stdin=None):
+def remote(cfg, script, stdin=None, stdout=None):
     """Runs a bash script as root on the server."""
     if cfg["target"] == "wsl":
         # -e: run bash directly (with --, wsl hands the line to a shell first, which expands $)
@@ -355,9 +432,9 @@ def remote(cfg, script, stdin=None):
         cmd = ["ssh"] + cfg["ssh_options"] + [cfg["ssh"], ("bash -c " if root else "sudo bash -c ") + quoted]
     print(">", script if len(script) < 200 else script[:200] + "...", flush=True)
     if stdin is None:
-        return subprocess.run(cmd).returncode
+        return subprocess.run(cmd, stdout=stdout).returncode
     with open(stdin, "rb") as f:
-        return subprocess.run(cmd, stdin=f).returncode
+        return subprocess.run(cmd, stdin=f, stdout=stdout).returncode
 
 
 def main():
@@ -369,6 +446,15 @@ def main():
     ap.add_argument("--import-data", metavar="DIR", help="also copy this Redis data folder (first install)")
     ap.add_argument("--force-data", action="store_true", help="with --import-data: replace data already there")
     ap.add_argument("--status", action="store_true", help="only show the services' state")
+    ap.add_argument("--fetch-from-server", action="store_true",
+                    help="first copy the server's client releases and website downloads into dist/ (CI)")
+    ap.add_argument("--publish-only", action="store_true",
+                    help="publish the desktop client if it changed, then stop (no build, no upload)")
+    ap.add_argument("--client-only", action="store_true",
+                    help="publish the desktop client if it changed and upload only it and the website")
+    ap.add_argument("--force-client", action="store_true",
+                    help="with --client-only: upload the releases and the website even if nothing was published")
+    ap.add_argument("--dry-run", action="store_true", help="build and pack, but don't touch the server")
     args = ap.parse_args()
     if not os.path.exists(args.config):
         sys.exit("no %s: copy deploy/vps.example.json there and fill it in" % args.config)
@@ -381,9 +467,31 @@ def main():
                              " p=$BSK_GATEWAY_PORT; for s in a b c; do"
                              " h=$(curl -s --max-time 2 http://127.0.0.1:$p/healthz) && echo \"gateway slot $s (port $p): $h\"; p=$((p + 1)); done"
                         % {"r": REMOTE}))
+    if args.fetch_from_server:
+        fetch_from_server(cfg)
+    if args.publish_only or args.client_only:
+        published = publish_client(cfg)
+        if os.environ.get("GITHUB_OUTPUT"):
+            with open(os.environ["GITHUB_OUTPUT"], "a", encoding="utf-8") as f:
+                f.write("published=%s\n" % ("true" if published else "false"))
+        if args.publish_only:
+            return
+        if not published and not args.force_client:
+            print("nothing to upload (--force-client uploads the releases and the website anyway)")
+            return
+        build_client_bundle(cfg)
+        pack()
+        if not args.dry_run:
+            upload_and_install(cfg, "install-client.sh")
+        return
     if not args.skip_build:
         if not (args.no_publish or args.no_releases):
             publish_client(cfg)
+        else:
+            change = os.path.isdir(os.path.join(ROOT, "dist", "client")) and client_change()
+            if change:
+                note = change[2] + ", but it isn't being published: players keep that release until it is"
+                print(("::warning::" if os.environ.get("GITHUB_ACTIONS") else "") + note, flush=True)
         build(cfg, args)
     elif not os.path.isdir(STAGE):
         sys.exit("nothing built yet: run without --skip-build")
@@ -392,12 +500,38 @@ def main():
     elif os.path.exists(os.path.join(STAGE, "redis-data")):
         shutil.rmtree(os.path.join(STAGE, "redis-data"))
     pack()
+    if args.dry_run:
+        print("dry run: nothing sent to the server")
+        return
 
-    incoming = REMOTE + "/incoming"
-    if remote(cfg, "set -e; rm -rf %s; mkdir -p %s; tar xzf - -C %s" % (incoming, incoming, incoming), BUNDLE):
-        sys.exit("upload failed")
     flags = (" --import-data" if args.import_data else "") + (" --force-data" if args.force_data else "")
-    sys.exit(remote(cfg, "bash %s/deploy/install.sh%s" % (incoming, flags)))
+    upload_and_install(cfg, "install.sh" + flags)
+
+
+def upload_and_install(cfg, install):
+    """Unpacks the bundle into /opt/bsk/incoming and runs deploy/<install> from it. One deploy at a
+    time on the server, whoever runs it (a PC or GitHub Actions): the upload and the install hold
+    a lock together, so a second deploy waits for the first to finish."""
+    incoming = REMOTE + "/incoming"
+    script = ("set -e; mkdir -p %(r)s; exec 9>%(r)s/deploy.lock;"
+              " flock -w 1800 9 || { echo 'another deploy is still running' >&2; exit 1; };"
+              " rm -rf %(i)s; mkdir -p %(i)s; tar xzf - -C %(i)s; bash %(i)s/deploy/%(s)s </dev/null"
+              % {"r": REMOTE, "i": incoming, "s": install})
+    code = remote(cfg, script, BUNDLE)
+    if code:
+        sys.exit("the deploy failed (%d): see the output above" % code)
+
+
+def build_client_bundle(cfg):
+    """--client-only: the published client releases and the website (whose download is the new
+    release), for deploy/remote/install-client.sh. The servers and the gateway stay as they are."""
+    if os.path.exists(STAGE):
+        shutil.rmtree(STAGE)
+    os.makedirs(STAGE)
+    shutil.copytree(os.path.join(ROOT, "dist", "client"), os.path.join(STAGE, "client"))
+    run([sys.executable, os.path.join(ROOT, "tools", "build_site.py"),
+         "--name", cfg.get("site_name") or "Do Damage", "--out", os.path.join(STAGE, "site")])
+    copy_lf(os.path.join(HERE, "remote", "install-client.sh"), os.path.join(STAGE, "deploy", "install-client.sh"))
 
 
 if __name__ == "__main__":

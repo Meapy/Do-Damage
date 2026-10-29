@@ -1,0 +1,85 @@
+# The whole game in containers, for development and testing on one machine (SETUP-LOCAL.md,
+# "Docker"). Its own ports and its own data volume: nothing here touches the live servers, this
+# PC's old data (source/Redis/data), the isolated test stacks (6380 / 8081 / 2052 and up) or
+# Doomed Realms (8888, 2050, 843).
+#
+#     docker compose up -d --build        # Redis, account server, world servers, gateway
+#     docker compose logs -f world
+#     docker compose down                 # stops them (the world servers save everyone first)
+#     docker compose down -v              # ...and deletes the database
+#
+# Then play: the desktop client with --account http://127.0.0.1:8180, or a browser at
+# http://127.0.0.1:8190/ (the gateway's web client). The Discord bot is off unless asked for:
+# `docker compose --profile discord up -d discord` with its settings in deploy/discord.local.env.
+name: dodmg-dev
+
+x-ports: &ports
+  BSK_REDIS_HOST: redis
+  BSK_REDIS_PORT: "6379"
+  BSK_ACCOUNT_PORT: "8180"
+  # the world proxy listens on this port inside its container and the server list gives players
+  # BSK_PUBLIC_ADDRESS:BSK_WORLD_PORT, so the port published below must be the same
+  BSK_WORLD_PORT: "2160"
+  BSK_PUBLIC_ADDRESS: 127.0.0.1
+  # clients reach the account server from Docker's network (the host's port forwarding, the
+  # gateway): give them the public address too, not the container's own
+  BSK_LAN_ADDRESS: 127.0.0.1
+
+services:
+  redis:
+    image: redis:7.4-bookworm
+    command: ["redis-server", "--appendonly", "yes", "--save", "900 1", "--save", "300 10", "--save", "60 10000"]
+    volumes:
+      - redis-data:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 2s
+      retries: 30
+    restart: unless-stopped
+
+  account:
+    build: { context: ., dockerfile: docker/Dockerfile, target: account }
+    image: dodmg/account:dev
+    environment: *ports
+    ports:
+      - "127.0.0.1:8180:8180"
+    depends_on:
+      redis: { condition: service_healthy }
+    restart: unless-stopped
+
+  world:
+    build: { context: ., dockerfile: docker/Dockerfile, target: world }
+    image: dodmg/world:dev
+    environment: *ports
+    ports:
+      - "127.0.0.1:2160:2160"
+    depends_on:
+      redis: { condition: service_healthy }
+      account: { condition: service_started }
+    # bsk-world.service's TimeoutStopSec: each world server saves everyone before it exits
+    stop_grace_period: 240s
+    restart: unless-stopped
+
+  gateway:
+    build: { context: ., dockerfile: docker/Dockerfile, target: gateway }
+    image: dodmg/gateway:dev
+    # the server list says 127.0.0.1:2160 (BSK_PUBLIC_ADDRESS): that's the world container here
+    command: ["--account", "http://account:8180", "--allow", "127.0.0.1:2160=world:2160", "--bind", "0.0.0.0:8190"]
+    ports:
+      - "127.0.0.1:8190:8190"
+    depends_on: [account, world]
+    restart: unless-stopped
+
+  discord:
+    build: { context: ., dockerfile: docker/Dockerfile, target: discord }
+    image: dodmg/discord:dev
+    profiles: [discord]
+    env_file:
+      - { path: deploy/discord.local.env, required: false }
+    volumes:
+      - discord-state:/opt/bsk/discord
+    restart: unless-stopped
+
+volumes:
+  redis-data:
+  discord-state:

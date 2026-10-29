@@ -1,0 +1,181 @@
+# Deploys main to the live VPS (dodmg.com) after each merge: a release's squash merge (AGENTS.md,
+# "Git"). It runs deploy/deploy.py as the main checkout does, so the deploy kicks nobody: a
+# rolling world server deploy, a new gateway slot while the old one hands over, an account server
+# restart only when it changed (SETUP-LOCAL.md, "Deploys that kick nobody").
+#
+# It deploys only from main, and only once the repository variable DEPLOY_ENABLED is "true";
+# until then, and on pull requests, it builds the whole bundle as a dry run and touches nothing.
+# The secrets live in the "production" environment, which only main can use. Setting it up:
+# SETUP-LOCAL.md, "Deploying from GitHub".
+#
+# The desktop client: with the CLIENT_UPDATE_KEY secret, a Windows job publishes it first when it
+# changed (as deploy.py does on the main checkout). Without it, everything else is deployed and the
+# run says so; the owner then publishes from the main checkout with deploy.py --client-only.
+name: Deploy
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+    inputs:
+      dry_run:
+        description: Build everything but don't touch the VPS
+        type: boolean
+        default: false
+      publish_client:
+        description: Publish the desktop client if it changed (needs the CLIENT_UPDATE_KEY secret)
+        type: boolean
+        default: true
+
+# One deploy at a time, never cancelled half way: a later one waits for the one running. A pull
+# request's dry run gives way to its next push.
+concurrency:
+  group: ${{ github.event_name == 'pull_request' && format('deploy-check-{0}', github.ref) || 'deploy-vps' }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
+
+permissions:
+  contents: read
+
+defaults:
+  run:
+    shell: bash
+
+jobs:
+  plan:
+    runs-on: ubuntu-24.04
+    outputs:
+      live: ${{ steps.plan.outputs.live }}
+    steps:
+      - id: plan
+        env:
+          ENABLED: ${{ vars.DEPLOY_ENABLED }}
+          DRY_RUN: ${{ inputs.dry_run }}
+        run: |
+          live=false
+          if [ "$GITHUB_EVENT_NAME" = pull_request ] || [ "$GITHUB_REF" != refs/heads/main ]; then
+            echo "Dry run: only main deploys." >> "$GITHUB_STEP_SUMMARY"
+          elif [ "$DRY_RUN" = true ]; then
+            echo "Dry run, as asked." >> "$GITHUB_STEP_SUMMARY"
+          elif [ "$ENABLED" != true ]; then
+            echo "Dry run: deploys from GitHub are off (the repository variable DEPLOY_ENABLED isn't \"true\")." >> "$GITHUB_STEP_SUMMARY"
+          else
+            live=true
+            echo "Deploying $GITHUB_SHA to the VPS." >> "$GITHUB_STEP_SUMMARY"
+          fi
+          echo "live=$live" >> "$GITHUB_OUTPUT"
+
+  # Builds what a deploy would (deploy.py --dry-run) without any secret or the VPS.
+  dry-run:
+    needs: plan
+    if: needs.plan.outputs.live != 'true'
+    runs-on: ubuntu-24.04
+    timeout-minutes: 60
+    steps:
+      - uses: actions/checkout@v4
+      - uses: ./.github/actions/toolchain
+      - name: Build the bundle (nothing is sent)
+        run: python deploy/deploy.py --config deploy/vps.example.json --dry-run --no-publish --no-releases
+      - name: What's in it
+        run: tar tzf build/vps/bundle.tar.gz | cut -d/ -f1 | sort | uniq -c
+
+  # Publishes the desktop client (a Windows build) when it changed since the VPS's newest release,
+  # if the signing key is there. The key exists on this runner only for this job.
+  client:
+    needs: plan
+    if: needs.plan.outputs.live == 'true' && (github.event_name != 'workflow_dispatch' || inputs.publish_client)
+    runs-on: windows-2022
+    environment: production
+    timeout-minutes: 60
+    outputs:
+      published: ${{ steps.publish.outputs.published }}
+    steps:
+      - id: key
+        env:
+          HAS_KEY: ${{ secrets.CLIENT_UPDATE_KEY != '' }}
+        run: |
+          echo "sign=$HAS_KEY" >> "$GITHUB_OUTPUT"
+          [ "$HAS_KEY" = true ] || echo "No CLIENT_UPDATE_KEY secret: the client isn't published here." >> "$GITHUB_STEP_SUMMARY"
+      - uses: actions/checkout@v4
+        if: steps.key.outputs.sign == 'true'
+        with:
+          fetch-depth: 0
+      - uses: Swatinem/rust-cache@v2
+        if: steps.key.outputs.sign == 'true'
+        with:
+          workspaces: client-rs
+      - uses: actions/setup-python@v5
+        if: steps.key.outputs.sign == 'true'
+        with:
+          python-version: "3.12"
+      - name: Publish the client if it changed
+        id: publish
+        if: steps.key.outputs.sign == 'true'
+        env:
+          VPS_SSH_KEY: ${{ secrets.VPS_SSH_KEY }}
+          VPS_KNOWN_HOSTS: ${{ secrets.VPS_KNOWN_HOSTS }}
+          VPS_CONFIG: ${{ secrets.VPS_CONFIG }}
+          CLIENT_UPDATE_KEY: ${{ secrets.CLIENT_UPDATE_KEY }}
+          BSK_UPDATE_PUBLIC_KEY: ${{ vars.CLIENT_UPDATE_PUBLIC_KEY }}
+        run: |
+          if [ -z "$BSK_UPDATE_PUBLIC_KEY" ]; then
+            echo "::error::the CLIENT_UPDATE_PUBLIC_KEY variable is missing: it checks the signing key before anything is signed"
+            exit 1
+          fi
+          python deploy/ci_setup.py --signing
+          python deploy/deploy.py --fetch-from-server --publish-only
+      - name: Forget the secrets
+        if: always()
+        run: rm -f build/client-update.key deploy/vps.local.json deploy/discord.local.env ~/.ssh/dodmg_deploy
+      - uses: actions/upload-artifact@v4
+        if: steps.publish.outputs.published == 'true'
+        with:
+          name: client-releases
+          path: |
+            dist/client
+            dist/*.zip
+          retention-days: 7
+
+  deploy:
+    needs: [plan, client]
+    # after the client job, or without it; never after it failed
+    if: always() && needs.plan.outputs.live == 'true' && (needs.client.result == 'success' || needs.client.result == 'skipped')
+    runs-on: ubuntu-24.04
+    environment: production
+    timeout-minutes: 90
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - uses: ./.github/actions/toolchain
+      - name: Set up the deploy (secrets)
+        env:
+          VPS_SSH_KEY: ${{ secrets.VPS_SSH_KEY }}
+          VPS_KNOWN_HOSTS: ${{ secrets.VPS_KNOWN_HOSTS }}
+          VPS_CONFIG: ${{ secrets.VPS_CONFIG }}
+          DISCORD_ENV: ${{ secrets.DISCORD_ENV }}
+        run: python deploy/ci_setup.py
+      - name: The client releases just published
+        if: needs.client.outputs.published == 'true'
+        uses: actions/download-artifact@v4
+        with:
+          name: client-releases
+          path: dist
+      - name: Deploy
+        run: |
+          if [ -d dist/client ]; then
+            # the client job published: the server's releases plus the new one
+            python deploy/deploy.py --no-publish
+          else
+            # the server's releases stay as they are; the website keeps its downloads
+            python deploy/deploy.py --fetch-from-server --no-publish --no-releases | tee deploy.log
+            if grep -q "but it isn't being published" deploy.log; then
+              echo "The desktop client changed but wasn't published here: publish it from the main checkout" \
+                   "with \`python deploy\\deploy.py --client-only\`." >> "$GITHUB_STEP_SUMMARY"
+            fi
+          fi
+      - name: Status
+        run: python deploy/deploy.py --status
+      - name: Forget the secrets
+        if: always()
+        run: rm -rf deploy/vps.local.json deploy/discord.local.env ~/.ssh/dodmg_deploy build/vps

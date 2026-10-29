@@ -1,2 +1,3 @@
 deploy/remote/* text eol=lf
 deploy/systemd/* text eol=lf
+docker/* text eol=lf

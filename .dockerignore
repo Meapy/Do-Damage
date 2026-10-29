@@ -1,0 +1,24 @@
+# What docker/Dockerfile's builds never see: build output, secrets, data, the old AIR client's
+# build and SDK, and git's own files.
+.git
+.claude
+**/.vs
+**/bin
+**/obj
+build/
+dist/
+client/bin/
+tools/airsdk/
+tools/download/
+client-rs/target/
+source/Redis/data/
+**/__pycache__
+
+# secrets (AGENTS.md, "Secrets")
+*.local.txt
+*.local.json
+*.local.env
+.env
+**/*.key
+**/*.pem
+deploy/
