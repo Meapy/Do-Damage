@@ -12,11 +12,7 @@ IN=$ROOT/incoming
 
 # the same steps as install.sh's
 if [ -d $IN/client ]; then
-    echo "== installing the client releases ($(sed -n 's/.*"version": *"\([^"]*\)".*/\1/p' $IN/client/windows/latest.json 2>/dev/null | head -1))"
-    rm -rf $ROOT/dist/client.new && cp -r $IN/client $ROOT/dist/client.new
-    rm -rf $ROOT/dist/client.old && mv $ROOT/dist/client $ROOT/dist/client.old && mv $ROOT/dist/client.new $ROOT/dist/client
-    rm -rf $ROOT/dist/client.old
-    chown -R bsk:bsk $ROOT/dist/client
+    bash $IN/deploy/add-releases.sh $IN/client $ROOT/dist/client
 fi
 if [ -d $IN/site ]; then
     echo "== installing the website"

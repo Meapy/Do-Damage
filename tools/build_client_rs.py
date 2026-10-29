@@ -22,7 +22,8 @@ Usage:
         switch to it at their next portal. Needs a section for the version (client-rs/Cargo.toml)
         in client-rs/CHANGELOG.md. The release is signed with build/client-update.key (made on
         the first publish; keep it: clients only take releases signed with it). --publish-to DIR
-        publishes somewhere else (an isolated test stack's build/iso<N>/client).
+        publishes somewhere else (an isolated test stack's build/iso<N>/client). --known FILE lists
+        the files the server already has (deploy/deploy.py writes it): only new blobs are written.
         Roll back with: cargo run -p bsk-publish -- rollback --to dist/client --version <x.y.z>
 
 Run tools/gen_rs_manifest.py first if the AIR client's asset lists changed.
@@ -228,6 +229,7 @@ def main():
     parser.add_argument("--package", action="store_true", help="also zip it into dist/ for other players")
     parser.add_argument("--publish", action="store_true", help="also publish it for players' clients to update to")
     parser.add_argument("--publish-to", help="where to publish (default dist/client)")
+    parser.add_argument("--known", help="with --publish: the files the server already has (<path> <size> lines)")
     args = parser.parse_args()
     if args.publish and args.web:
         sys.exit("--publish is for the desktop build (browsers load the newest files when the page loads)")
@@ -246,7 +248,8 @@ def main():
     if args.publish:
         to = os.path.abspath(args.publish_to or os.path.join(ROOT, "dist", "client"))
         print(publish_tool("release", "--key", UPDATE_KEY, "--from", out, "--to", to,
-                           "--changelog", os.path.join(CRATE, "CHANGELOG.md"), "--version", version(), "--commit", commit()))
+                           "--changelog", os.path.join(CRATE, "CHANGELOG.md"), "--version", version(), "--commit", commit(),
+                           *(["--known", os.path.abspath(args.known)] if args.known else [])))
 
 
 if __name__ == "__main__":

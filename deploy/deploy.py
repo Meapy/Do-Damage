@@ -9,16 +9,21 @@ server (a VPS with Ubuntu 24.04) over ssh. Nothing is built on the server.
     python deploy/deploy.py --dry-run --no-publish   # build and pack only: nothing reaches the server
     python deploy/deploy.py --client-only            # publish the client, upload it and the website only
 
-GitHub Actions (.github/workflows/deploy.yml) deploys each merge to main from a fresh checkout,
-which has no dist/: --fetch-from-server first copies the server's published client releases
-(/opt/bsk/dist/client) into dist/client and its website downloads into dist/, so the client check
-below and the website's download links work as they do on the main checkout. --publish-only
+Deploys normally come from GitHub Actions (.github/workflows/deploy.yml), on each merge to main,
+from a fresh checkout with no dist/. --fetch-from-server lists what the server has published
+(/opt/bsk/dist/client) and copies only its latest.json, which the client check below needs, and
+the website's downloads (dist/Do-Damage-<os>.zip) for the site's download links. --publish-only
 publishes the desktop client when it changed and stops there (the workflow does that on Windows,
-then deploys from Linux with what it published). When the workflow has no signing key it deploys
-everything but the client; --client-only, from the main checkout, then publishes the client and
-installs only the releases and the website (deploy/remote/install-client.sh), leaving the servers
-as the workflow put them. Upload and install hold a lock on the server (/opt/bsk/deploy.lock),
-so deploys from here and from the workflow never overlap.
+then deploys from Linux with what it published). --client-only publishes the client and installs
+only the releases and the website (deploy/remote/install-client.sh), leaving the servers as they
+are. Upload and install hold a lock on the server (/opt/bsk/deploy.lock), so deploys from a PC and
+from the workflow never overlap.
+
+Client releases (183 MB by 2.3.2) move only as what's new. Each run lists the server's release
+files: publishing writes only the blobs the server lacks (bsk-publish --known), the bundle carries
+only those and the latest lists, and deploy/remote/add-releases.sh adds them beside the server's
+own. A deploy from a PC whose dist/client is older than the server's (the workflow published
+since) first fetches the files it lacks (sync_releases), so it never puts an older release back.
 
 Before building, it publishes the desktop client (tools/build_client_rs.py --package --publish,
 with --account https://<site>/api, or http://<public_address>:<account port> without a site) when the
@@ -226,50 +231,149 @@ def publish_client(cfg):
                      " (its public key isn't BSK_UPDATE_PUBLIC_KEY)." + stop)
     print(why + ": publishing %s" % current, flush=True)
     # --package too: the website's download (dist/Do-Damage-<os>.zip) is the same release
+    # only new blobs are written when the server's list is known (the rest are there already)
     run([sys.executable, os.path.join(ROOT, "tools", "build_client_rs.py"),
-         "--account", player_account(cfg), "--package", "--publish"])
+         "--account", player_account(cfg), "--package", "--publish"]
+        + (["--known", SERVER_FILES] if server_listing is not None else []))
     return True
 
 
-def fetch_from_server(cfg):
-    """Copies the server's published client releases into dist/client and its website downloads
-    (Do-Damage-<os>.zip) into dist/, for a checkout that has none (GitHub Actions). Never replaces
-    what's already in dist/."""
-    dist = os.path.join(ROOT, "dist")
-    if os.path.exists(os.path.join(dist, "client")):
-        sys.exit("--fetch-from-server: dist/client is already here; it's for a checkout without one")
+def local_release():
+    """The newest client release in this checkout's dist/client, or None."""
+    latest = os.path.join(ROOT, "dist", "client", "windows", "latest.json")
+    if not os.path.exists(latest):
+        return None
+    with open(latest, encoding="utf-8") as f:
+        return json.load(f)["version"]
+
+
+# What the server has published (path under dist/client: size), once listed in this run: only
+# what it lacks is published, uploaded or fetched, never the whole set (183 MB by 2.3.2).
+SERVER_FILES = os.path.join(OUT, "server-files.txt")
+server_listing = None
+
+
+def list_server(cfg, folder, save=None):
+    """{path: size} of the files under <REMOTE>/<folder> on the server ({} when it isn't there)."""
     os.makedirs(OUT, exist_ok=True)
-    got = os.path.join(OUT, "from-server.tar.gz")
-    with open(got, "wb") as f:
-        code = remote(cfg, "set -e; cd %s; set --; for p in dist/client site/downloads; do [ -d $p ] && set -- \"$@\" $p; done;"
-                           " tar czf - -T /dev/null \"$@\"" % REMOTE, stdout=f)
+    out = save or os.path.join(OUT, "listing.txt")
+    with open(out, "wb") as f:
+        code = remote(cfg, "cd %s/%s 2>/dev/null || exit 0; find . -type f -printf '%%P %%s\\n'" % (REMOTE, folder), stdout=f)
     if code:
-        sys.exit("fetching the releases from the server failed")
+        sys.exit("listing %s on the server failed" % folder)
+    files = {}
+    with open(out, encoding="utf-8") as f:
+        for line in f:
+            name, _, size = line.strip().rpartition(" ")
+            if name:
+                files[name] = int(size)
+    if not save:
+        os.remove(out)
+    return files
+
+
+def list_server_releases(cfg):
+    global server_listing
+    server_listing = list_server(cfg, "dist/client", SERVER_FILES)
+    return server_listing
+
+
+def fetch_files(cfg, folder, names, dest):
+    """Copies these files (paths under <REMOTE>/<folder>) from the server into dest."""
+    if not names:
+        return 0
+    os.makedirs(OUT, exist_ok=True)
+    wanted = os.path.join(OUT, "fetch-list.txt")
+    write_lf(wanted, "\n".join(sorted(names)) + "\n")
+    got = os.path.join(OUT, "fetched.tar.gz")
+    with open(got, "wb") as f:
+        code = remote(cfg, "set -e; cd %s/%s; tar czf - -T -" % (REMOTE, folder), stdin=wanted, stdout=f)
+    if code:
+        sys.exit("fetching from %s on the server failed" % folder)
     n = 0
     with tarfile.open(got) as tar:
         for m in tar.getmembers():
-            if not (m.isfile() or m.isdir()) or m.name.startswith("/") or ".." in m.name.split("/"):
+            if not m.isfile() or m.name.startswith("/") or ".." in m.name.split("/"):
                 continue
-            if m.name.startswith("dist/client"):
-                dest = os.path.join(ROOT, *m.name.split("/"))
-            elif m.isfile() and m.name.startswith("site/downloads/") and m.name.endswith(".zip"):
-                dest = os.path.join(dist, os.path.basename(m.name))
-            else:
-                continue
-            if m.isdir():
-                os.makedirs(dest, exist_ok=True)
-                continue
-            os.makedirs(os.path.dirname(dest), exist_ok=True)
-            with tar.extractfile(m) as src, open(dest, "wb") as out:
+            target = os.path.join(dest, *m.name.split("/"))
+            os.makedirs(os.path.dirname(target), exist_ok=True)
+            with tar.extractfile(m) as src, open(target, "wb") as out:
                 shutil.copyfileobj(src, out)
             n += 1
     os.remove(got)
-    latest = os.path.join(dist, "client", "windows", "latest.json")
-    if os.path.exists(latest):
-        with open(latest, encoding="utf-8") as f:
-            print("fetched %d files from the server; its newest client release is %s" % (n, json.load(f)["version"]))
-    else:
-        print("fetched %d files from the server; it has no client release yet" % n)
+    os.remove(wanted)
+    return n
+
+
+def fetch_downloads(cfg):
+    """The website's downloads (Do-Damage-<os>.zip, about 10 MB each) into dist/, so the site built
+    here offers what the server's does."""
+    zips = [n for n in list_server(cfg, "site/downloads") if n.endswith(".zip") and "/" not in n]
+    fetch_files(cfg, "site/downloads", zips, os.path.join(ROOT, "dist"))
+    print("fetched the website's downloads: %s" % (", ".join(zips) or "none"), flush=True)
+
+
+def latest_lists(files):
+    return [n for n in files if os.path.basename(n) in ("latest.json", "latest.json.sig")]
+
+
+def fetch_from_server(cfg, downloads=True):
+    """A checkout without dist/client (GitHub Actions): lists what the server has published and
+    copies only its latest lists (what the client check and publishing need), plus the website's
+    downloads unless it's about to publish new ones."""
+    if os.path.exists(os.path.join(ROOT, "dist", "client")):
+        sys.exit("--fetch-from-server: dist/client is already here; it's for a checkout without one")
+    files = list_server_releases(cfg)
+    fetch_files(cfg, "dist/client", latest_lists(files), os.path.join(ROOT, "dist", "client"))
+    if downloads:
+        fetch_downloads(cfg)
+    print("the server has %d release files (%.0f MB); its newest client release is %s"
+          % (len(files), sum(files.values()) / 1e6, local_release() or "none"), flush=True)
+
+
+def sync_releases(cfg):
+    """Deploys from GitHub publish client releases this checkout doesn't have. When the server's
+    newest release is newer than dist/client's, take the files dist/client lacks and the server's
+    latest lists (and its website downloads) before publishing or uploading, so a deploy from here
+    never puts an older release back."""
+    files = list_server_releases(cfg)
+    if "windows/latest.json" not in files:
+        return
+    tmp = os.path.join(OUT, "server-latest")
+    if os.path.exists(tmp):
+        shutil.rmtree(tmp)
+    fetch_files(cfg, "dist/client", ["windows/latest.json"], tmp)
+    with open(os.path.join(tmp, "windows", "latest.json"), encoding="utf-8") as f:
+        server = json.load(f)["version"]
+    shutil.rmtree(tmp)
+    local = local_release()
+    if local and version_key(server) <= version_key(local):
+        return
+    dist = os.path.join(ROOT, "dist", "client")
+    missing = [n for n in files if not os.path.exists(os.path.join(dist, *n.split("/")))]
+    n = fetch_files(cfg, "dist/client", set(missing) | set(latest_lists(files)), dist)
+    print("client releases: the server has %s, dist/client had %s: fetched the %d files it lacked"
+          % (server, local or "none", n), flush=True)
+    fetch_downloads(cfg)
+
+
+def stage_releases(dest):
+    """Copies dist/client's release files into the bundle: only those the server lacks, and the
+    latest lists (all of them without a listing, for a first install). install.sh adds them beside
+    the server's own."""
+    src = os.path.join(ROOT, "dist", "client")
+    n = size = 0
+    for folder, _, names in os.walk(src):
+        for name in names:
+            full = os.path.join(folder, name)
+            rel = os.path.relpath(full, src).replace(os.sep, "/")
+            if server_listing is not None and rel in server_listing and name not in ("latest.json", "latest.json.sig"):
+                continue
+            os.makedirs(os.path.join(dest, os.path.dirname(rel)), exist_ok=True)
+            shutil.copy2(full, os.path.join(dest, *rel.split("/")))
+            n += 1
+            size += os.path.getsize(full)
+    print("client releases: %d files (%.1f MB) to send" % (n, size / 1e6), flush=True)
 
 
 def build(cfg, args):
@@ -367,9 +471,8 @@ def build(cfg, args):
                  + "".join("%s {\n\tredir https://%s{uri} permanent\n}\n" % (alias, cfg["site"])
                            for alias in cfg.get("site_redirects", [])))
 
-    releases = os.path.join(ROOT, "dist", "client")
-    if not args.no_releases and os.path.isdir(releases):
-        shutil.copytree(releases, os.path.join(STAGE, "client"))
+    if not args.no_releases and os.path.isdir(os.path.join(ROOT, "dist", "client")):
+        stage_releases(os.path.join(STAGE, "client"))
 
 
 def discord_env(cfg):
@@ -469,7 +572,9 @@ def main():
                              " h=$(curl -s --max-time 2 http://127.0.0.1:$p/healthz) && echo \"gateway slot $s (port $p): $h\"; p=$((p + 1)); done"
                         % {"r": REMOTE}))
     if args.fetch_from_server:
-        fetch_from_server(cfg)
+        fetch_from_server(cfg, downloads=not args.publish_only)
+    elif not args.dry_run and not args.skip_build and not args.no_releases:
+        sync_releases(cfg)
     if args.publish_only or args.client_only:
         published = publish_client(cfg)
         if os.environ.get("GITHUB_OUTPUT"):
@@ -529,10 +634,11 @@ def build_client_bundle(cfg):
     if os.path.exists(STAGE):
         shutil.rmtree(STAGE)
     os.makedirs(STAGE)
-    shutil.copytree(os.path.join(ROOT, "dist", "client"), os.path.join(STAGE, "client"))
+    stage_releases(os.path.join(STAGE, "client"))
     run([sys.executable, os.path.join(ROOT, "tools", "build_site.py"),
          "--name", cfg.get("site_name") or "Do Damage", "--out", os.path.join(STAGE, "site")])
-    copy_lf(os.path.join(HERE, "remote", "install-client.sh"), os.path.join(STAGE, "deploy", "install-client.sh"))
+    for name in ("install-client.sh", "add-releases.sh"):
+        copy_lf(os.path.join(HERE, "remote", name), os.path.join(STAGE, "deploy", name))
 
 
 if __name__ == "__main__":

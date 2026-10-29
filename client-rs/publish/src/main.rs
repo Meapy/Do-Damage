@@ -5,9 +5,12 @@
 //! bsk-publish key --key <file>
 //!     Print the public key (hex) for the signing key in <file>, making one if there's none.
 //! bsk-publish release --key <file> --from <build dir> --to <publish dir> --changelog <md>
-//!                     --version <x.y.z> --commit <hash> [--platform windows]
+//!                     --version <x.y.z> --commit <hash> [--platform windows] [--known <file>]
 //!     Publish the build: its files as blobs, then the signed latest.json. The previous
-//!     versions' lists stay beside it as <version>.json, for `rollback`.
+//!     versions' lists stay beside it as <version>.json, for `rollback`. --known lists the
+//!     files the server already has ("<path> <size>" lines, relative to the publish dir, as
+//!     deploy/deploy.py writes them): those blobs aren't written again, so <publish dir> can
+//!     hold only what's new.
 //! bsk-publish rollback --to <publish dir> --version <x.y.z> [--platform windows]
 //!     Make an earlier published version the latest again.
 //! ```
@@ -31,10 +34,22 @@ fn main() {
             &need("--version"),
             &need("--commit"),
             &platform,
+            value("--known").map(|f| known(Path::new(&f))).unwrap_or_default(),
         ),
         Some("rollback") => rollback(Path::new(&need("--to")), &need("--version"), &platform),
         _ => fail("usage: bsk-publish key|release|rollback (see the source for the options)"),
     }
+}
+
+/// `--known`: the files already published elsewhere, with their sizes.
+fn known(path: &Path) -> std::collections::HashMap<String, u64> {
+    let text = std::fs::read_to_string(path).unwrap_or_else(|e| fail(&format!("{}: {e}", path.display())));
+    text.lines()
+        .filter_map(|l| {
+            let (name, size) = l.trim().rsplit_once(' ')?;
+            Some((name.to_owned(), size.parse().ok()?))
+        })
+        .collect()
 }
 
 fn fail(why: &str) -> ! {
@@ -85,7 +100,16 @@ fn write(path: &Path, bytes: &[u8]) {
     std::fs::write(&tmp, bytes).and_then(|_| std::fs::rename(&tmp, path)).unwrap_or_else(|e| fail(&format!("{}: {e}", path.display())));
 }
 
-fn release(seed: &[u8; 32], from: &Path, to: &Path, changelog: &Path, version: &str, commit: &str, platform: &str) {
+fn release(
+    seed: &[u8; 32],
+    from: &Path,
+    to: &Path,
+    changelog: &Path,
+    version: &str,
+    commit: &str,
+    platform: &str,
+    known: std::collections::HashMap<String, u64>,
+) {
     let text = std::fs::read_to_string(changelog).unwrap_or_else(|e| fail(&format!("{}: {e}", changelog.display())));
     let entries = bsk_update::changelog::parse(&text);
     if !entries.iter().any(|e| e.version == version) {
@@ -101,6 +125,11 @@ fn release(seed: &[u8; 32], from: &Path, to: &Path, changelog: &Path, version: &
             let sha256 = bsk_update::sha256_hex(&bytes);
             let mut entry = FileEntry { path: rel, sha256, size: bytes.len() as u64, gz_size: 0 };
             let blob = to.join(entry.blob());
+            if let Some(&size) = known.get(&entry.blob()).filter(|_| !blob.is_file()) {
+                // already on the server: the size its clients download
+                entry.gz_size = size;
+                return entry;
+            }
             if !blob.is_file() {
                 let mut gz = flate2::write::GzEncoder::new(Vec::new(), flate2::Compression::best());
                 gz.write_all(&bytes).unwrap();

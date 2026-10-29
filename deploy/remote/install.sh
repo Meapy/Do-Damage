@@ -179,9 +179,8 @@ fi
 { [ $env_changed = 1 ] || unit_changed bsk-account.service; } && account_restart=1
 if [ -d $IN/client ]; then
     # published client releases, served at /client/ for players' clients to update from
-    rm -rf $ROOT/dist/client.new && cp -r $IN/client $ROOT/dist/client.new
-    rm -rf $ROOT/dist/client.old && mv $ROOT/dist/client $ROOT/dist/client.old && mv $ROOT/dist/client.new $ROOT/dist/client
-    rm -rf $ROOT/dist/client.old
+    # only what's new (deploy.py sends what the server lacks), added beside the rest
+    bash $IN/deploy/add-releases.sh $IN/client $ROOT/dist/client
 fi
 
 # --- website ------------------------------------------------------------------------------
