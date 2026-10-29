@@ -37,6 +37,8 @@ RS_ONLY_SETS = [
     ("imprintFx8x8", "kabam/rotmg/assets/custom/images/ImprintFx8x8.png", 8, 8),
     # the Tinkerer and the Chronicler, the quest NPCs (tools/draw_quest_npcs.py)
     ("questNpcs16x16", "kabam/rotmg/assets/custom/images/QuestNpcs16x16.png", 16, 16),
+    # the Hall of Champions' monument and plinths (tools/draw_champions.py)
+    ("champions32x32", "kabam/rotmg/assets/custom/images/Champions32x32.png", 32, 32),
     # Oryx's Inferno's burnt sanctuary tiles and portal (tools/build_hash_cellar.py)
     ("hashCellar8x8", "kabam/rotmg/assets/custom/images/HashCellar8x8.png", 8, 8),
     ("hashCellar16x16", "kabam/rotmg/assets/custom/images/HashCellar16x16.png", 16, 16),

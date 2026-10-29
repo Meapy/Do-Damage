@@ -119,8 +119,11 @@ you while you stand next to them. Around the spawn:
   {{v:name_change}} fame), the Character Changer, the Armoire (skins) and the Support Bot, and
   either side of the rug the **Tinkerer** and the **Chronicler**, who keep your
   [quests, daily reward and achievements](quests.html).
-- **Both sides**, behind the colonnades: the **market wards**, the Nexus Bazaar's stalls. Everything
-  there costs fame.
+- **Both sides**, behind the colonnades: the **market wards**, the Nexus Bazaar's stalls (dungeon
+  keys, pet generators, clothing, accessories, stat potions and specials to the west; Elder and
+  Doomed keys and consumables to the east). Everything there costs fame.
+- **East ward, south of the street**: the [Hall of Champions](champions.html), the living's
+  leaderboard, its champions on plinths round the Champions Monument.
 - **South yard**: the Arena portal, with the Arena Leaderboard's golden trophy across the road
   ([The Arena](progression.html#the-arena)), the forge hall with the [Divine Forge](forge.html)
   and the [Enchanter](imprints.html), and four shared vault chests anyone can use.

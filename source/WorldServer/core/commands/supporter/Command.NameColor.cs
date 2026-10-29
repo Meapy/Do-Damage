@@ -25,6 +25,7 @@ namespace WorldServer.core.commands
                 var acc = player.Client.Account;
                 acc.ColorNameChat = player.ColorNameChat;
                 acc.FlushAsync();
+                player.UpdateNameColor();
 
                 return true;
             }

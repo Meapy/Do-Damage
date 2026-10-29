@@ -72,6 +72,7 @@ namespace WorldServer.core
             BehaviorDb = new BehaviorDb(this);
             CommandManager = new CommandManager();
             DbEvents = new DbEvents(this);
+            core.champions.ChampionCache.Start(this);
 
             InstanceId = Configuration.serverInfo.instanceId = Guid.NewGuid().ToString();
             Console.WriteLine($"[Set] InstanceId [{InstanceId}]");

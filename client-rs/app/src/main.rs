@@ -4,6 +4,7 @@
 #![cfg_attr(all(windows, not(debug_assertions)), windows_subsystem = "windows")]
 
 mod audio;
+mod champions;
 mod changelog;
 mod connected;
 mod emotes;
@@ -103,6 +104,7 @@ enum NpcRequest {
     Members,
     Potions,
     Leaderboard,
+    Champions,
 }
 
 struct App {
@@ -200,6 +202,8 @@ struct App {
     npc_request: Option<(NpcRequest, Pending<bsk_net::http::Response>)>,
     /// What the signs over objects in the world say (the arena leaderboard's best run).
     signs: signs::Signs,
+    /// The Hall of Champions' statues in the Nexus, and what they show.
+    hall: champions::Hall,
     npc_keys: Vec<(KeyCode, Option<String>)>,
     /// Sound effects and music, once we know the account server.
     audio: Option<audio::Audio>,
@@ -226,6 +230,9 @@ struct App {
     /// `--quests <tab>` (tests): open the quest log at that tab (daily, weekly, monthly, login,
     /// achievements) once its data has come.
     quests_test: Option<String>,
+    /// `--champions <board>` (tests): open the Hall of Champions at that board (its id or name)
+    /// once in the game, wherever we stand.
+    champions_test: Option<String>,
     /// `--effect <type>` (tests): show that effect on us every half second, and when it last did.
     effect_test: Option<(u8, i32)>,
     /// The Changelog window and the "updated" note.
@@ -304,8 +311,21 @@ fn npc_open(kind: npc::NpcKind, game: &Game, npcs: &mut npc::Npcs, market: &mut 
         NpcKind::GuildChronicle => Window::Members { list: None, page: 0, error: None },
         NpcKind::PotionStorage => Window::Potions { counts: None, error: None },
         NpcKind::ArenaLeaderboard => Window::Leaderboard { runs: None, error: None },
+        NpcKind::ChampionsBoard => Window::Champions(Box::default()),
+        // a statue: the Hall at its board (the nearest statue's)
+        NpcKind::ChampionStatue => {
+            let world = game.world.as_ref();
+            let board = world.and_then(|w| {
+                w.objects
+                    .values()
+                    .filter_map(|o| champions::statue_board(o, data).map(|b| ((o.x - me.x).hypot(o.y - me.y), b)))
+                    .min_by(|a, b| a.0.total_cmp(&b.0))
+                    .map(|(_, b)| b.to_owned())
+            });
+            Window::Champions(Box::new(champions::View::at(board.as_deref())))
+        }
     };
-    let fetch = matches!(window, Window::Board { .. } | Window::Members { .. } | Window::Potions { .. } | Window::Leaderboard { .. });
+    let fetch = matches!(window, Window::Board { .. } | Window::Members { .. } | Window::Potions { .. } | Window::Leaderboard { .. } | Window::Champions(_));
     npcs.open(window);
     if fetch {
         npcs.reload_at = Some(0);
@@ -1240,6 +1260,17 @@ impl App {
                 self.signs.set_arena(&runs);
             }
         }
+        // ... and the Hall of Champions' statues
+        if self.hall.want(now) {
+            self.hall.request = Some(endpoint.champions(""));
+        }
+        if let Some(response) = self.hall.request.as_ref().and_then(|p| p.take()) {
+            self.hall.request = None;
+            if let Ok(data) = login::reached(response).and_then(|x| bsk_net::account::parse_champions(&x)) {
+                self.hall.set(&data, now);
+            }
+        }
+        let my_name = game.world.as_ref().and_then(|w| w.player()).and_then(|p| p.name()).unwrap_or("").to_owned();
         if self.npcs.reload_at.is_some_and(|t| now >= t) && self.npc_request.is_none() {
             self.npcs.reload_at = None;
             self.npc_request = match self.npcs.window {
@@ -1247,6 +1278,7 @@ impl App {
                 Some(npc::Window::Members { .. }) => Some((NpcRequest::Members, endpoint.guild_members(email, password))),
                 Some(npc::Window::Potions { .. }) => Some((NpcRequest::Potions, endpoint.potions(email, password))),
                 Some(npc::Window::Leaderboard { .. }) => Some((NpcRequest::Leaderboard, endpoint.arena_leaderboard(npc::LEADERBOARD_RUNS))),
+                Some(npc::Window::Champions(_)) => Some((NpcRequest::Champions, endpoint.champions(&my_name))),
                 _ => None,
             };
         }
@@ -1282,6 +1314,17 @@ impl App {
                 }
                 Err(e) => *error = Some(e),
             },
+            (NpcRequest::Champions, Some(npc::Window::Champions(view))) => {
+                match response.and_then(|x| acc::parse_champions(&x)) {
+                    Ok(data) => {
+                        self.hall.set(&data, now);
+                        // not ranked yet: ask again soon; else keep it current while open
+                        self.npcs.reload_at = Some(now + if data.pending { 5_000 } else { 60_000 });
+                        view.set(data, now);
+                    }
+                    Err(e) => view.error = Some(e),
+                }
+            }
             _ => {}
         }
     }
@@ -1875,6 +1918,10 @@ impl App {
                 if let Some(kind) = self.npc_test.take_if(|c| c != "Vault").and_then(|c| npc::NpcKind::of_class(&c)) {
                     to_chars |= npc_open(kind, game, &mut self.npcs, &mut self.market, &mut self.forge, &mut self.forge_acts, (&mut self.quests, &mut self.quest_acts), self.front.list.as_ref(), data);
                 }
+                if let Some(board) = self.champions_test.take() {
+                    self.npcs.open(npc::Window::Champions(Box::new(champions::View::at(Some(&board)))));
+                    self.npcs.reload_at = Some(0);
+                }
             }
             // A click anywhere while the chat box is open closes it, and does nothing else (a
             // player's name in the chat still opens a whisper).
@@ -2257,6 +2304,7 @@ impl App {
                         renderer.world_done(filter);
                         let mut ui = hud::Ui { renderer: &mut *renderer, sprites, data, redrawer: &mut *redrawer, fonts, text: &mut *text };
                         self.signs.draw(&mut ui, world, &camera);
+                        self.hall.draw(&mut ui, world, &camera);
                         self.vault.draw_marker(&mut ui, world, &camera, (lay.view_w(), lay.h));
                         // The top left, down: the quest's health (and who hit it, near it), the
                         // realm's events (only their count near the quest), then the boss history
@@ -3014,6 +3062,7 @@ fn main() {
         npcs: Default::default(),
         npc_request: None,
         signs: signs::Signs::default(),
+        hall: champions::Hall::default(),
         npc_keys: Vec::new(),
         audio: None,
         settings: options::Settings::load(),
@@ -3028,6 +3077,7 @@ fn main() {
         type_text: text_arg("--type"),
         npc_test: text_arg("--npc"),
         quests_test: text_arg("--quests"),
+        champions_test: text_arg("--champions"),
         effect_test: text_arg("--effect").and_then(|t| t.parse().ok()).map(|t| (t, i32::MIN / 2)),
         changelog: Default::default(),
         noted_version: false,

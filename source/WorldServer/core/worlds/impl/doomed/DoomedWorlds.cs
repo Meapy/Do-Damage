@@ -640,8 +640,10 @@ namespace WorldServer.core.worlds.impl.doomed
                     pot += ArenaPools.WavePot(_paidWave + 1, Players.Count, FameRate);
                 foreach (var p in Players.Values)
                 {
-                    DoomedWorlds.GiveFame(p, pot);
-                    DoomedWorlds.Notify(p, 0xFFFF6600, "+" + pot + " Fame");
+                    // the Hall of Champions' Arena board: more of each wave's fame
+                    var mine = (int)Math.Round(pot * (1 + p.Champion.ArenaFame));
+                    DoomedWorlds.GiveFame(p, mine);
+                    DoomedWorlds.Notify(p, 0xFFFF6600, "+" + mine + " Fame");
                 }
                 var ms = 6000;
                 foreach (var p in Players.Values)

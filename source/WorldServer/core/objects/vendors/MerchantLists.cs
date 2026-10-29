@@ -130,17 +130,19 @@ namespace WorldServer.core.objects.vendors
             { TileRegion.Store_2, new Tuple<List<ISellableItem>, CurrencyType, int>(Consumables, CurrencyType.Fame, 0) },
             { TileRegion.Store_3, new Tuple<List<ISellableItem>, CurrencyType, int>(Specials, CurrencyType.Fame, 0) },
             // Store_4 sold the Enchanted Keys, which also gave a Mystery ST Crate: set (ST) gear has no
-            // source for now (SETUP-LOCAL.md, "Untiered rings")
+            // source for now (SETUP-LOCAL.md, "Untiered rings"), and its empty pavilion made way for
+            // the Hall of Champions
             { TileRegion.Store_11, new Tuple<List<ISellableItem>, CurrencyType, int>(DungeonKeys, CurrencyType.Fame, 0) },
             { TileRegion.Store_12, new Tuple<List<ISellableItem>, CurrencyType, int>(DoomedKeys, CurrencyType.Fame, 0) }
         };
 
         private static void InitDyes(GameServer gameServer)
         {
-            var d1 = new List<ISellableItem>();
-            var d2 = new List<ISellableItem>();
-            var c1 = new List<ISellableItem>();
-            var c2 = new List<ISellableItem>();
+            // the Clothing pavilion sells the large cloths and the clothing dyes, the Accessories
+            // pavilion the small cloths and the accessory dyes (four pavilions before the Hall of
+            // Champions took the east ward's south half); their stalls rotate through them
+            var clothing = new List<ISellableItem>();
+            var accessories = new List<ISellableItem>();
             var petGenerators = new List<ISellableItem>();
             var permaPetGenerators = new List<ISellableItem>();
 
@@ -158,21 +160,16 @@ namespace WorldServer.core.objects.vendors
 
                 if (i.Texture1 != 0)
                 {
-                    if (i.ObjectId.Contains("Cloth") && i.ObjectId.Contains("Large"))
-                        d1.Add(new ShopItem(i.ObjectId, 25));
-
-                    if (i.ObjectId.Contains("Dye") && i.ObjectId.Contains("Clothing"))
-                        c1.Add(new ShopItem(i.ObjectId, 25));
+                    if ((i.ObjectId.Contains("Cloth") && i.ObjectId.Contains("Large")) || (i.ObjectId.Contains("Dye") && i.ObjectId.Contains("Clothing")))
+                        clothing.Add(new ShopItem(i.ObjectId, 25));
 
                     continue;
                 }
 
                 if (i.Texture2 != 0)
                 {
-                    if (i.ObjectId.Contains("Cloth") && i.ObjectId.Contains("Small"))
-                        d2.Add(new ShopItem(i.ObjectId, 10));
-                    if (i.ObjectId.Contains("Dye") && i.ObjectId.Contains("Accessory"))
-                        c2.Add(new ShopItem(i.ObjectId, 10));
+                    if ((i.ObjectId.Contains("Cloth") && i.ObjectId.Contains("Small")) || (i.ObjectId.Contains("Dye") && i.ObjectId.Contains("Accessory")))
+                        accessories.Add(new ShopItem(i.ObjectId, 10));
 
                     continue;
                 }
@@ -181,10 +178,8 @@ namespace WorldServer.core.objects.vendors
             Shops[TileRegion.Store_5] = new Tuple<List<ISellableItem>, CurrencyType, int>(petGenerators, CurrencyType.Fame, 0);
             Shops[TileRegion.Store_10] = new Tuple<List<ISellableItem>, CurrencyType, int>(permaPetGenerators, CurrencyType.Gold, 0);
 
-            Shops[TileRegion.Store_6] = new Tuple<List<ISellableItem>, CurrencyType, int>(d1, CurrencyType.Fame, 0);
-            Shops[TileRegion.Store_7] = new Tuple<List<ISellableItem>, CurrencyType, int>(d2, CurrencyType.Fame, 0);
-            Shops[TileRegion.Store_8] = new Tuple<List<ISellableItem>, CurrencyType, int>(c1, CurrencyType.Fame, 0);
-            Shops[TileRegion.Store_9] = new Tuple<List<ISellableItem>, CurrencyType, int>(c2, CurrencyType.Fame, 0);
+            Shops[TileRegion.Store_8] = new Tuple<List<ISellableItem>, CurrencyType, int>(clothing, CurrencyType.Fame, 0);
+            Shops[TileRegion.Store_9] = new Tuple<List<ISellableItem>, CurrencyType, int>(accessories, CurrencyType.Fame, 0);
 
         }
     }

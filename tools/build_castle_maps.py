@@ -23,7 +23,13 @@ The nexus, from the middle out:
 - the keep to the north, whose great hall holds the realm portals (the `Realm Portals` region,
   one portal per tile) along a red carpet;
 - a market ward behind a colonnade on each side: pavilions whose stalls are shop regions
-  (`Store N`, see `MerchantLists.Shops`), as many stalls per shop as the old map had;
+  (`Store N`, see `MerchantLists.Shops`; a shop with more items than stalls rotates them). The
+  west ward holds the dungeon keys, pet generators, clothing, accessories, stat potions and
+  specials; the east ward the Elder and Doomed keys and the consumables north of the street,
+  and south of it the Hall of Champions (`CHAMPIONS`): a carpet from the street to a round court
+  of gold, the Champions Monument in its middle (the living's leaderboard in the Rust client)
+  and a plinth for each board's champion around it (`CHAMPION_STATUES`, in Shared/champions'
+  board order);
 - the south yard: the Arena portal (`ARENA_PORTALS`, which `DoomedWorlds.NexusPortals`
   must match) west of the road with the Arena Leaderboard east of it, the gatehouse with its portcullis, the forge
   hall (the Divine Forge and the Enchanter side by side on floors of gold, a carpet from its door
@@ -328,24 +334,29 @@ FORGE = (18, 70)                    # the Divine Forge (its sprite stands four t
 ENCHANTER = (26, 70)                # the Enchanter, which imprints gear (ImprintHandlers.cs)
 FORGE_HALL_DOOR = (74, 76)          # the doors in its east and west walls, y0 and y1
 FORGE_HALL_NORTH = (20, 24)         # the door in its north wall, x0 and x1
+# the Hall of Champions, in the east ward south of the street: the monument at its middle, a gold
+# court around it, and the plinths of the boards' champions on a hexagon whose corners point east
+# and west, so the carpet in from the street stays open; each plinth names its board
+# (Shared/champions ChampionBoards, `name:<board id>`)
+CHAMPIONS = (77, 53)
+CHAMPIONS_RADIUS = 6.8       # the gold inside; a border tile wide round it
+CHAMPION_STATUES = [((-3, -5), "fame"), ((3, -5), "stars"), ((6, 0), "achievements"),
+                    ((3, 5), "arena"), ((-3, 5), "weeklyDungeons"), ((-6, 0), "weeklyFame")]
 # where DoomedWorlds.AddNexusPortals puts the Arena portal (keep the two in step)
 ARENA_PORTALS = [(45.5, 68.5)]
-# (name, region, x0, y0, columns, rows[, stalls]): see Grid.pavilion. The stall counts are the old map's:
-# one stall per item where a shop has few, so each stall shows something different.
+# (name, region, x0, y0, columns, rows[, stalls]): see Grid.pavilion. One stall per item where a
+# shop has few, so each stall shows something different; the dyes and cloths rotate through theirs.
 PAVILIONS = [
     # the west ward
     ("Dungeon Keys", "Store 11", 8, 23, 11, 4),
-    ("Accessory Dyes", "Store 9", 19, 34, 5, 2),
-    ("Small Cloths", "Store 7", 7, 46, 5, 2),
+    ("Pet Generators", "Store 5", 19, 34, 5, 2),
+    ("Accessories", "Store 9", 7, 46, 5, 2),        # small cloths and accessory dyes
     ("Stat Potions", "Store 1", 22, 46, 4, 2),
-    ("Clothing Dyes", "Store 8", 7, 55, 5, 2),
+    ("Clothing", "Store 8", 7, 55, 5, 2),           # large cloths and clothing dyes
     ("Specials", "Store 3", 22, 55, 4, 2),
-    # the east ward
+    # the east ward, north of the street (the Hall of Champions is south of it)
     ("Elder and Doomed Keys", "Store 12", 65, 24, 10, 2, 19),   # the old map's 20, less the Christmas Key
-    ("Enchanted Keys", "Store 4", 66, 32, 9, 2),
-    ("Consumables", "Store 2", 66, 45, 9, 2),
-    ("Pet Generators", "Store 5", 66, 53, 9, 1),
-    ("Large Cloths", "Store 6", 66, 59, 9, 1),
+    ("Consumables", "Store 2", 66, 32, 9, 2),
 ]
 
 
@@ -507,6 +518,39 @@ def build_nexus():
         g.put(x, hy0 + 1, STONE, CANDLES, slot=ACCENT)
         g.put(x, hy1 - 1, STONE, CANDLES, slot=ACCENT)
 
+    # the Hall of Champions: a red carpet from the street, as the keep's leads to its statue, to the
+    # Champions Monument in a round court of gold brightening towards it, inside a border like the
+    # pavilions'; the plinths round the monument, flames at the court's entrance and at its foot,
+    # crystals behind the side plinths, a banner behind the monument and candles round the outside.
+    # Nothing in it takes a decoration slot, so an event leaves it as it is.
+    hx, hy = CHAMPIONS
+    outer = CHAMPIONS_RADIUS + 1
+    for y in range(hy - 8, hy + 9):
+        for x in range(hx - 8, hx + 9):
+            d = math.hypot(x - hx, y - hy)
+            if d <= CHAMPIONS_RADIUS:
+                g.put(x, y, GOLD_FLOOR[max(0, min(6, int(7.0 - d * 0.95)))])
+            elif d <= outer:
+                g.put(x, y, STALL_EDGE)
+            else:
+                continue
+            g.paths.add((x, y))
+    for y in range(cy + 2, hy + 1):
+        for x in range(hx - 1, hx + 2):
+            if y > cy + 1 and (y < hy - CHAMPIONS_RADIUS or math.hypot(x - hx, y - hy) <= outer):
+                g.put(x, y, CARPET)
+                g.paths.add((x, y))
+    g.put(hx, hy, CARPET, "Champions Monument")
+    for (dx, dy), board in CHAMPION_STATUES:
+        g.put(hx + dx, hy + dy, None, "Champion Statue", name=f"name:{board}")
+    for dx, dy in ((-3, -7), (3, -7), (-3, 7), (3, 7)):
+        g.put(hx + dx, hy + dy, STALL_EDGE, FLAME_OBJ)
+    for dx in (-8, 8):
+        g.put(hx + dx, hy, FLOOR, CRYSTAL)
+    g.put(hx, hy + 7, STALL_EDGE, BANNER_OBJ)
+    for dx, dy in ((-6, -6), (6, -6), (-6, 6), (6, 6)):
+        g.put(hx + dx, hy + dy, FLOOR, CANDLES)
+
     for p in PAVILIONS:
         g.pavilion(*p)
     g.accents(rng)
@@ -521,6 +565,11 @@ def check_nexus(g):
         t = g[int(x), int(y)]
         assert not t["obj"] and t["ground"], (x, y)
     assert g[FORGE]["obj"] == "Divine Forge"
+    assert g[CHAMPIONS]["obj"] == "Champions Monument"
+    for (dx, dy), board in CHAMPION_STATUES:
+        t = g[CHAMPIONS[0] + dx, CHAMPIONS[1] + dy]
+        assert t["obj"] == "Champion Statue" and t["name"] == f"name:{board}", (dx, dy)
+        assert abs(dx) != 1 and dx != 0, "the road through the hall stays open"
     assert g[ENCHANTER]["obj"] == "Enchanter"
 
 

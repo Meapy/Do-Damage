@@ -111,6 +111,7 @@ namespace WorldServer.networking
 
             Player.SaveToCharacter();
             Player.Quests?.Store();
+            Player.ChampionCounter.Flush(GameServer.Database, acc.AccountId);
             acc.RefreshLastSeen();
             acc.FlushAsync();
 

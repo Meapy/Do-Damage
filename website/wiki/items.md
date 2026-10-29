@@ -114,7 +114,7 @@ Every shop here sells for fame; there's no way to earn gold.
 
 - The **Nexus Bazaar**, the market wards either side of the Nexus spawn: stat potions, consumables,
   specials, dungeon keys, Elder and Doomed keys, pet generators
-  ({{v:pet_price}} fame) and cloth and dyes. Its stalls rotate through each shop's items. Guests
+  ({{v:pet_price}} fame) and clothing and accessories (cloths and dyes). Its stalls rotate through each shop's items. Guests
   can't buy.
 - `/shop` opens the Doomed Realms shops: weapons, abilities, armor, rings, consumables, dyes, keys
   and pets.

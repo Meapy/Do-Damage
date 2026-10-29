@@ -288,7 +288,9 @@ namespace WorldServer.logic.loot
                 // only on weekends, as /boosts and the login message say (it applied every day)
                 var wkndBoost = player.World.isWeekend ? player.Client.GameServer.Configuration.serverSettings.wkndBoost : 0;
                 var eventBoost = player.Client.GameServer.Configuration.serverSettings.lootEvent;
-                var boosts = LootBoosts.Total(player.LDBoostTime > 0, player.IsLegend, wkndBoost, eventBoost);
+                // the Hall of Champions' boards (in dungeons, the Weekly Dungeons board's too)
+                var champion = player.Champion.Loot(!(player.World is RealmWorld));
+                var boosts = LootBoosts.Total(player.LDBoostTime > 0, player.IsLegend, wkndBoost, eventBoost, champion);
                 var totalBoost = 1 + (boosts + dmgBoost + enemyBoost);
 
                 var gameData = enemy.GameServer.Resources.GameData;

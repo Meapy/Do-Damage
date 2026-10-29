@@ -24,6 +24,7 @@ namespace App
         public readonly ServerConfig Config;
         public readonly StatusHistory Status;
         private readonly Timer LegendSweeper = new Timer(60000);
+        public readonly ChampionsService Champions;
 
         public readonly List<ushort> PlayerClasses;
         public readonly Dictionary<ushort, string> _classes;
@@ -58,6 +59,8 @@ namespace App
 
             LegendSweeper.Elapsed += (sender, e) => Database.CleanLegends();
             LegendSweeper.Start();
+
+            Champions = new ChampionsService(this);
 
             Status = new StatusHistory(this);
 

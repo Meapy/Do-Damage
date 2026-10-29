@@ -85,6 +85,11 @@ namespace WorldServer.logic
                 if (xpEvent > 0)
                     playerXp *= (float)(1 + xpEvent);
 
+                // the Hall of Champions' Weekly Fame board: more experience, so more fame at 20
+                var champXp = player.Champion.Experience;
+                if (champXp > 0)
+                    playerXp *= (float)(1 + champXp);
+
                 // at level 20 experience only makes fame, so a world's KillFameRate (the arenas) cuts it
                 playerXp = FameRates.Experience(playerXp, player.Level, enemy.World?.KillFameRate ?? 1);
 

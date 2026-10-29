@@ -57,6 +57,7 @@ COMMAND_HELP = {
     "sellfame": "Selling items for fame is now done at the Divine Forge in the Nexus; this points you to it.",
     "forge": "To the Divine Forge in the Nexus, from anywhere: you arrive in front of it, ready to forge or sell.",
     "quests": "Your quests, today's reward and your achievements in the chat (the <kbd>J</kbd> key opens the quest log, where you claim them).",
+    "champions": "The Hall of Champions in the chat: every board's top three and your own places and rewards. The Champions Monument in the Nexus's east ward shows it all.",
     "forgelist": "The recipes are in the Divine Forge's window, in the Nexus; this points you to it.",
     "trade": "Asks a player to trade: <code>/trade &lt;name&gt;</code>. Needs 2 rank stars; clicking a player's name and choosing Trade doesn't.",
     "tell": "Whispers to a player: <code>/tell &lt;name&gt; &lt;message&gt;</code> (or press <kbd>Tab</kbd>).",

@@ -26,6 +26,7 @@ namespace WorldServer.core.commands
                 var acc = player.Client.Account;
                 acc.GlowColor = player.Glow;
                 acc.FlushAsync();
+                player.UpdateGlow();
 
                 return true;
             }

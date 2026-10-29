@@ -13,8 +13,9 @@ namespace Shared.resources
         public const double Legend = 0.01;
 
         // what the boosts add together; the rare, epic and legendary monsters' and the damage share
-        // come on top in Loots.Handle
-        public static double Total(bool lootDrop, bool legend, double weekend, double lootEvent) =>
-            (lootDrop ? LootDrop : 0) + (legend ? Legend : 0) + weekend + lootEvent;
+        // come on top in Loots.Handle. champion is the Hall of Champions' boards' loot boost
+        // (ChampionPlaces.Loot, already capped at ChampionBoards.LootCap), on top of the Legends'.
+        public static double Total(bool lootDrop, bool legend, double weekend, double lootEvent, double champion = 0) =>
+            (lootDrop ? LootDrop : 0) + (legend ? Legend : 0) + weekend + lootEvent + champion;
     }
 }

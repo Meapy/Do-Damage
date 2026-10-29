@@ -319,7 +319,7 @@ namespace WorldServer.core.objects
             _ = GameServer.Database.IsLegend(AccountId).ContinueWith(t =>
             {
                 IsLegend = t.IsCompletedSuccessfully && t.Result;
-                Glow = IsLegend && account.GlowColor == 0 ? 0xFF0000 : account.GlowColor;
+                UpdateGlow();
             });
 
             if (account.Hidden)
@@ -385,6 +385,7 @@ namespace WorldServer.core.objects
 
             FameCounter = new FameCounter(this);
             Quests = new quests.QuestTracker(this);
+            InitChampion();
             FameGoal = GetFameGoal(FameCounter.ClassStats[ObjectType].BestFame);
             ExperienceGoal = GetExpGoal(Client.Character.Level);
 
@@ -489,6 +490,7 @@ namespace WorldServer.core.objects
                 TickSlotCooldowns(time);
                 FameCounter.Tick(time);
                 Quests?.Tick(ref time);
+                TickChampion(time.DeltaTime);
                 if (TickCount % 5 == 0)
                     PassiveEffects();
                 TickCount++;

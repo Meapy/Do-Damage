@@ -104,6 +104,11 @@ impl Endpoint {
         http::post_form(&format!("{}/arena/leaderboard", self.account), &[("count", &n)])
     }
 
+    /// `/champions/board`: the Hall of Champions, with `name`'s own places (empty: none).
+    pub fn champions(&self, name: &str) -> Pending<http::Response> {
+        http::post_form(&format!("{}/champions/board", self.account), &[("name", name)])
+    }
+
     pub fn potions(&self, email: &str, password: &str) -> Pending<http::Response> {
         http::post_form(&format!("{}/account/grabPotions", self.account), &[("guid", email), ("password", password)])
     }
@@ -300,7 +305,7 @@ pub fn startup() -> Result<Startup, String> {
             "--stay" | "--bench" | "--resume" | "--no-update" => {}
             "--credentials" => credentials = it.next(),
             // Read by main (screenshots, scripted input).
-            "--shot" | "--shot-after" | "--hold" | "--walk-to" | "--aim" | "--say" | "--type" | "--npc" | "--quests" | "--effect" | "--size" | "--mouse" | "--mouse-script" => {
+            "--shot" | "--shot-after" | "--hold" | "--walk-to" | "--aim" | "--say" | "--type" | "--npc" | "--quests" | "--champions" | "--effect" | "--size" | "--mouse" | "--mouse-script" => {
                 it.next();
             }
             _ => return Err(format!("unknown argument {a}")),

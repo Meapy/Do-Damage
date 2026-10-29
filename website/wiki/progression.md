@@ -192,5 +192,8 @@ top 20 of the week, the month or all time is a legend: their characters glow red
 get a 1% loot boost (`/boosts` shows it), from the next time they enter a world. Pushed off every
 top 20, they lose both the same way.
 
+The living have their own boards: the [Hall of Champions](champions.html) in the Nexus, whose top 10s
+hold rewards of their own.
+
 So store what you can't afford to lose before a risky run, and don't take your best gear
 somewhere you aren't ready for.

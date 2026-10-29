@@ -1,7 +1,8 @@
 //! The NPCs of the Nexus and the guild hall, and the windows they open (the AIR client's
 //! `CharacterChangerPanel`, `ReskinPanel`, `NameChangerPanel`, `Guild*Panel` and
 //! `PotionsPanel`, and their frames): the Armoire's skins, choosing a name, creating or leaving
-//! a guild, the guild board and member list, potion storage, and the Nexus's arena leaderboard.
+//! a guild, the guild board and member list, potion storage, the Nexus's arena leaderboard, and
+//! its Hall of Champions (drawn by `champions.rs`).
 //!
 //! One window is open at a time, over the world. It takes the mouse and the keyboard until it
 //! closes (Escape, its close button, or a click outside it).
@@ -50,6 +51,10 @@ pub enum NpcKind {
     QuestMaster,
     /// The Chronicler by the Nexus spawn: the quest log's daily rewards and achievements.
     Chronicler,
+    /// The Champions Monument south of the Nexus spawn: the Hall of Champions' boards.
+    ChampionsBoard,
+    /// A champion's statue round it: the Hall, at its board.
+    ChampionStatue,
 }
 
 impl NpcKind {
@@ -68,6 +73,8 @@ impl NpcKind {
             "Enchanter" => Self::Enchanter,
             "QuestMaster" => Self::QuestMaster,
             "Chronicler" => Self::Chronicler,
+            "ChampionsBoard" => Self::ChampionsBoard,
+            "ChampionStatue" => Self::ChampionStatue,
             _ => return None,
         })
     }
@@ -126,6 +133,8 @@ pub fn interact_text(kind: NpcKind, me: &GameObj, rank_req: i32) -> (String, Opt
         NpcKind::Enchanter => open("The Divine Workbench: imprint your gear", "Open"),
         NpcKind::QuestMaster => open("Daily, weekly and monthly quests", "Quests"),
         NpcKind::Chronicler => open("Daily rewards and achievements", "Open"),
+        NpcKind::ChampionsBoard => open("The living's best, and their rewards", "View"),
+        NpcKind::ChampionStatue => open("A champion of the Hall", "View"),
     }
 }
 
@@ -178,6 +187,8 @@ pub enum Window {
     Potions { counts: Option<(Vec<i32>, i32)>, error: Option<String> },
     /// `/arena/leaderboard`, best first, once it has come.
     Leaderboard { runs: Option<Vec<ArenaRun>>, error: Option<String> },
+    /// `/champions/board`: the Hall of Champions.
+    Champions(Box<crate::champions::View>),
 }
 
 /// What the player did in a window.
@@ -207,6 +218,7 @@ enum Hit {
     Demote(usize),
     Remove(usize),
     Storage(u8, u8),
+    Tab(usize),
 }
 
 /// The open window and its buttons as last drawn.
@@ -292,6 +304,10 @@ impl Npcs {
                 }
             }
             (Hit::Storage(kind, action), _) => Some(Act::Storage(kind, action)),
+            (Hit::Tab(i), Window::Champions(view)) => {
+                view.tab = i;
+                None
+            }
             _ => None,
         }
     }
@@ -302,6 +318,9 @@ impl Npcs {
         match self.window.as_mut()? {
             Window::Board { edit: edit @ Some(_), .. } if code == KeyCode::Escape => *edit = None,
             _ if code == KeyCode::Escape => self.close(),
+            Window::Champions(view) if matches!(code, KeyCode::ArrowLeft | KeyCode::ArrowRight) => {
+                view.step(if code == KeyCode::ArrowLeft { -1 } else { 1 });
+            }
             Window::Renounce if enter => {
                 self.close();
                 return Some(Act::Renounce);
@@ -376,6 +395,7 @@ impl Npcs {
                 let rest = runs.as_ref().map_or(3, |r| r.len().saturating_sub(1)).min(LEADERBOARD_RUNS - 1);
                 (540.0, 74.0 + 118.0 + 30.0 * rest as f32 + 10.0)
             }
+            Window::Champions(_) => crate::champions::SIZE,
         };
         // Never bigger than the view.
         let k = (lay.view_w() * 0.94 / (w * s)).min(lay.h * 0.94 / (h * s)).min(1.0);
@@ -394,8 +414,10 @@ impl Npcs {
             Window::Members { list, .. } => list.as_ref().map_or("Guild members".to_owned(), |l| l.0.clone()),
             Window::Potions { .. } => "Potion storage".to_owned(),
             Window::Leaderboard { .. } => "Arena Leaderboard".to_owned(),
+            Window::Champions(_) => "Hall of Champions".to_owned(),
         };
-        ui.label(&title, r[0] + 20.0 * s, r[1] + 16.0 * s, font(19.0), true, color::TEXT);
+        let title_color = if matches!(window, Window::Champions(_)) { color::GOLD } else { color::TEXT };
+        ui.label(&title, r[0] + 20.0 * s, r[1] + 16.0 * s, font(19.0), true, title_color);
         // The close button, top right.
         let cb = [r[0] + r[2] - 40.0 * s, r[1] + 12.0 * s, 28.0 * s, 28.0 * s];
         if inside(cb, mouse) {
@@ -618,6 +640,12 @@ impl Npcs {
                     Some(runs) => draw_runs(ui, runs, body, s, me.and_then(|m| m.name()).unwrap_or("")),
                 }
             }
+            Window::Champions(view) => {
+                let name = me.and_then(|m| m.name()).unwrap_or("");
+                for (i, tr) in crate::champions::draw(ui, view, r, s, name, mouse, now) {
+                    self.buttons.push((Hit::Tab(i), tr));
+                }
+            }
         }
         // The window's own buttons, right-aligned along the bottom.
         let mut x = r[0] + r[2] - 20.0 * s;
@@ -762,6 +790,8 @@ mod tests {
         assert_eq!(NpcKind::of_class("Enchanter"), Some(NpcKind::Enchanter));
         assert_eq!(NpcKind::of_class("QuestMaster"), Some(NpcKind::QuestMaster));
         assert_eq!(NpcKind::of_class("Chronicler"), Some(NpcKind::Chronicler));
+        assert_eq!(NpcKind::of_class("ChampionsBoard"), Some(NpcKind::ChampionsBoard));
+        assert_eq!(NpcKind::of_class("ChampionStatue"), Some(NpcKind::ChampionStatue));
         assert_eq!(NpcKind::of_class("SkillTree"), None);
     }
 }

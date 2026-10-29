@@ -344,4 +344,44 @@
 		<ShadowSize>60</ShadowSize>
 		<Description>Shared by everyone in this Arena. Items stay until someone takes them, but anything left here is lost when everyone leaves the Arena. No soulbound items.</Description>
 	</Object>
+	<!-- the Hall of Champions in the Nexus, on the road south of the spawn
+	     (tools/build_castle_maps.py): the monument opens the living's leaderboard in the Rust client
+	     (ChampionsController.cs, Shared/champions), and each statue's plinth carries one board's
+	     champion, the board named by the map (name:<board id>); art from tools/draw_champions.py -->
+	<Object type="0x4989" id="Champions Monument">
+		<Class>ChampionsBoard</Class>
+		<DisplayId>Hall of Champions</DisplayId>
+		<Texture>
+			<File>champions32x32</File>
+			<Index>0x00</Index>
+		</Texture>
+		<Animation prob="1.0" period="0.0">
+			<Frame time="0.7">
+				<Texture>
+					<File>champions32x32</File>
+					<Index>0x00</Index>
+				</Texture>
+			</Frame>
+			<Frame time="0.7">
+				<Texture>
+					<File>champions32x32</File>
+					<Index>0x01</Index>
+				</Texture>
+			</Frame>
+		</Animation>
+		<Static/>
+		<OccupySquare/>
+		<ShadowSize>100</ShadowSize>
+	</Object>
+	<Object type="0x498a" id="Champion Statue">
+		<Class>ChampionStatue</Class>
+		<DisplayId>Champion Statue</DisplayId>
+		<Texture>
+			<File>champions32x32</File>
+			<Index>0x02</Index>
+		</Texture>
+		<Static/>
+		<OccupySquare/>
+		<ShadowSize>60</ShadowSize>
+	</Object>
 </Objects>

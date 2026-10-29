@@ -12,6 +12,24 @@ Keep each version short: changes go under `### ` group headings (Oryx 5, Arena, 
 on), one line per change players notice, summed up rather than item by item (the wiki has the
 details). Add to a group's line when a change adds to it, rather than adding another line.
 
+## Unreleased
+
+### Hall of Champions
+- A leaderboard for the living, in the Nexus's east market ward: six boards (Fame, Stars,
+  Achievements, Arena, Weekly Fame and Weekly Dungeons), ranked every few minutes. Each board's #1
+  stands as their character on a plinth round the Champions Monument, which opens the boards: a
+  podium of the top three, the rest of the top 10 and your own place, however far down. `/champions`
+  lists them in the chat.
+- Each board's top 10 hold its reward while they stay there: more loot (Fame), a gold, silver or
+  bronze glow (Stars) or name in chat (Achievements), more fame from Arena waves (Arena), more
+  experience and fame (Weekly Fame) and more loot in dungeons (Weekly Dungeons). The weekly boards
+  start afresh every Monday, and `/boosts` lists what you hold.
+
+### Nexus
+- The market wards are tidier: the empty Enchanted Keys pavilion is gone, the four dye and cloth
+  shops are two (Clothing and Accessories), the pet generators moved to the west ward and the
+  consumables north of the street, making room for the Hall of Champions.
+
 ## 2.3.1 (2026-10-28)
 
 ### Lost Halls

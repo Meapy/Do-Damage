@@ -1286,6 +1286,12 @@
    "h": 16
   },
   {
+   "name": "champions32x32",
+   "file": "kabam/rotmg/assets/custom/images/Champions32x32.png",
+   "w": 32,
+   "h": 32
+  },
+  {
    "name": "hashCellar8x8",
    "file": "kabam/rotmg/assets/custom/images/HashCellar8x8.png",
    "w": 8,

@@ -375,6 +375,53 @@ The remotes `upstream` (HaloCelsius) and `aurusenth` share no history with `main
 
 ## Changes from upstream
 
+- **The Hall of Champions** (2026-10-29; `Shared/champions/`, `App/ChampionsService.cs`,
+  `App/Controllers/ChampionsController.cs`, `WorldServer/core/champions/ChampionCache.cs`,
+  `Player.Champions.cs`, `Command.Champions.cs`, the client's `champions.rs`, `source/Tests/ChampionsTests.cs`):
+  the living's leaderboard, beside the Legends. Six boards (`ChampionBoards.All`, in this order, which
+  Redis and the map keep): Fame (each account's best living character's fame), Stars (class stars from
+  `classStats.<id>`, tiebreak the classes' best fame together), Achievements (`QuestBook.Points` from
+  the account's `progress`), Arena (each account's best run in `doomed.arenaLeaderboard`, by the
+  players' names through `names`; tiebreak the quicker run), Weekly Fame and Weekly Dungeons
+  (`champions:week:<QuestPeriods.WeekKey>:<board>` sorted sets, added to by the world servers from the
+  quest events `fame` and `dungeon`, kept per player and flushed once a minute and on leaving, kept
+  three weeks). Guests, banned and hidden accounts aren't ranked; ties go to the tiebreak, then the
+  lower account id. *Ranking:* the account server (one instance) ranks every 5 minutes on a timer,
+  in pipelined batches of 200 accounts, re-reading only accounts whose `lastSeen` moved (and all of
+  them hourly or when asked); about 45 ms for the test data. It keeps the result in memory for
+  `POST /champions/board` (`name` for the viewer's own places; XML: each board's description,
+  rewards and top 10 with their best living character) and writes `champions:rewards` (account id ->
+  `board:place,...`, replaced with a RENAME) and `champions:board` (the top 10s as JSON) for the
+  world servers. *Rewards* (#1 / #2-3 / #4-10): Fame +3/2/1% loot; Stars a gold/silver/bronze
+  glow (under a `/glow` chosen, over the Legends' red); Achievements a gold/silver/bronze chat name
+  colour (over the quest log's, never written to the account); Arena +15/10/5% of each Arena wave's
+  fame pot; Weekly Fame +10/6/3% experience (`DamageCounter`, so fame at 20); Weekly Dungeons
+  +3/2/1% loot anywhere but a `RealmWorld`. Board loot is capped at +4% together
+  (`ChampionBoards.LootCap`, `LootBoosts.Total`'s new `champion` share), the Legends' 1% on top.
+  `ChampionCache` reads both keys once a minute on a pool thread; players look at it every 5 s and
+  get their glow, colour and a chat line when a place changes, so losing one ends its reward within
+  about a minute. `/boosts` lists them; `/champions` (anyone) shows each top three and your places;
+  `/championsadmin refresh | reload | week <hours> | add <fame|dungeons> <n>` (admins) ranks at once,
+  re-reads, moves the weekly boards' clock for every server (`champions:clockHours`) or counts on
+  you. *The Nexus:* `Champions Monument` (0x4989, class `ChampionsBoard`) and `Champion Statue`
+  (0x498a, class `ChampionStatue`, its board in the map's `name:<board id>`), art from
+  `tools/draw_champions.py` (`Champions32x32.png`, a Rust-only sheet in `gen_rs_manifest.py`),
+  placed by `tools/build_castle_maps.py` (`CHAMPIONS`, `CHAMPION_STATUES`) in the east ward's south
+  half. The client draws each board's #1 on their plinth with a plaque, fetching the board every
+  minute while a statue is within 16 tiles; the monument (and a statue, at its board) opens the
+  window; `--champions <board>` opens it in tests. No game message changed: an old client sees the
+  monument and statues as plain objects and gets every reward (only the window and statues need the
+  new client). Tested: `dotnet test source/Tests`, `cargo test`; on an isolated stack with seeded
+  accounts, every board ranked, the window and statues drawn, rewards in `/boosts`, a place gained
+  while online (notice and glow within about 30 s) and the weekly reset ending a reward. Both
+  servers and the client need redeploying.
+- **The Nexus market wards, compacted** (2026-10-29; `tools/build_castle_maps.py`, `MerchantLists.cs`):
+  the Enchanted Keys pavilion (`Store_4`, empty since its keys were removed) is gone; Large and Small
+  Cloths (`Store_6`, `Store_7`) are folded into Clothing Dyes and Accessory Dyes (`Store_8`
+  "Clothing", `Store_9` "Accessories"), whose stalls rotate through both; the pet generators moved
+  into the west ward and the consumables north of the street, leaving the east ward's south half to
+  the Hall of Champions.
+
 - **Static objects tick once a tick** (2026-10-28; `World.UpdateLogic`): a `StaticObject` (a `GameObject` with a behaviour: dungeon controllers, activators, spawners, ability effects such as `Battalion Banner Effect` or `Wisp of Life`) is in `StaticObjects` and, for collision, in `EnemiesCollision`, and was ticked from both, so its timers, cooldowns, `Decay` and movement ran at double speed while a player was near (once with none). The enemy-chunk loop now skips anything that isn't an `Enemy`; static objects tick only in their own loop, at the speed written. What changes (about 45 behaviours, none found tuned around the bug except the `LH Vial Effect` comment): ability effects last their written time (Battalion Banner 4 s, the wisps 5 s as their effects already did, Elysian Halo 5 s at a volley a second, Dark Enchantment Orb 4 s, Eye of Marble 4.5 s: the same hits over twice the time); `md1 Lava Makers` lava stays 5 s (twice the lava in Shaitan's fight); `Pillar of Heaven` fires every 1.6 s (was 0.8 s); `LH Vial Effect` closes after 5 minutes; dungeon controllers' 1-3 s watch timers, the Shatters' blobomb makers and bridge pieces, the Lost Halls' pillar summoner and rift spawner and the `Parrot Cage` all run at their written pace. Tested: `dotnet test source/Tests`; on an isolated stack a spawned `LH Vial Effect`'s two taunts came 240 s apart. World server only.
 - **The Lost Halls** (2026-10-28; `tools/build_lost_halls.py`, `BehaviorDb.LostHallsRooms.cs`, `BehaviorDb.LostHalls.cs`, `source/Tests/LostHallsTests.cs`): the dungeon had the 2017 original's assets and the Marble Colossus's fight, on a fixed grid of empty rooms. The script builds `Lost Halls.jm` from rooms of the original's kinds on a grid of 7-wide halls, and `Dungeons.xml` gives the world a `<RandomLayout passage="7" corridor="5">` with `LH Monster Spawner` as the goal, so each run joins a share of them (half, three quarters or all 15) in a new tree, the Colossus room at the end of a branch: the Crusade (`LH Commander of the Crusade` and his soldiers, shipwrights and explorers), Oryx's army (`LH Champion of Oryx`, swordsmen, armorbearers that guard him, admirals), the Grotto (pools, bats and rats that leave their still teeth, slimes, the `LH Grotto Blob` that calls slimes), the Golems (Anger, Fear and Sorrow; the `LH Tormented Golem` can't be hurt while one of them stands), the Ghost Bridges (a 9-wide cross over a pit, two pairs of invincible `LH Spectral Sentry S`/`E` pacing over it), the `LH Agonized Titan`, the trap halls (`LH Grenade Trap`s that burst 1.5 s after a player steps by, `LH Wall Trap N`/`S`/`E`/`W` arrow slits firing across while a player is within 9) and the pot room (`LH Pot 1`-`7`, stat potion drops, a third turning into an `LH Evil Spirit 1`). The Colossus room's controller (`LH Monster Spawner`, invisible) orders its four `LH Marble Defender Activator`s to raise their `LH Marble Defender`s when a player comes within 10 tiles; when they have fallen it spawns the Marble Colossus at once (so `World.BossDied` sees a boss and opens no Realm Portal), or one time in four announces and places `LH Cult Portal` instead (the Cultist Hideout, `BehaviorDb.Cult.cs`). When the Colossus is gone it places `LH Vial Effect` (the Void's mark, which the Vial of Pure Darkness turns into the Void's portal), with a broadcast, for 5 minutes. Colossus fixes: `ScaleHP2(20)`, base health 150,000 (was 250,000), its heal at 10% restores 50,000 instead of all of it (`Timed` runs its children at once, so the heal came straight away), and `PR-21-B` leaves on a timer as its sibling phases do (it waited to stand still at its spawn, which it could fail to reach, invulnerable until then). Its loot is laid out as Oryx 3's: sure Life, Mana, Attack and Defense at 1% of the damage; the other stat potions, Ring of Decades 2%, Magical Lodestone 1.5% and Sword of the Colossus, Breastplate of New Life and Marble Seal 0.4% each (were 0.125%) at 3%; T13-14 weapons, T13-15 armour and T6-7 abilities and rings at 5%. The rooms' leaders roll `HallsLeader` (T12-14, T5-6, stat potions) and their monsters `HallsMinion`; the Tormented Golem adds the Lost Golem set (`TricksterST0`-`3`, 1% each, the pots 0.3%). Both copies of the objects XML: Marble Defender 72,500 to 20,000, Agonized Titan 72,500 to 25,000, Tormented Golem's defence 1,000 to 35. `/tq <object id>` (admins) teleports to the nearest object of that id, and the random layout's log line says where its goals landed, for finding the Colossus room on a test stack. Tested: `LostHallsTests` builds 40 layouts (all succeed, 6-9 kinds of room, the Colossus room reachable from the spawn) and checks every monster the map places has a behaviour; on an isolated stack with `bsk-bot`, `/god`, `/tq` and `/smite`, runs through the defenders into both branches: the Colossus fought through every phase to its death, leaving the Void's mark and one Realm Portal, and the Cultist Hideout's portal with the dungeon counted cleared; the pots broke into loot and Evil Spirits. World server only.
 - **The Cultist Hideout and the Void** (2026-10-28; `BehaviorDb.Cult.cs`, `BehaviorDb.Void.cs`, `tools/build_cult.py`): both came with the Lost Halls assets (the 2017 originals' maps, monsters, projectiles and items) but nothing behaved, and the Void had no world.

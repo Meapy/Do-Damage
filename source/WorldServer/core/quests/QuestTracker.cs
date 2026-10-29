@@ -150,6 +150,7 @@ namespace WorldServer.core.quests
         {
             if (Off)
                 return;
+            _player.ChampionCounter.Count(e);
             var notices = new List<QuestNotice>();
             var changes = Book.Apply(e, notices);
             if (changes.Count == 0)
@@ -278,6 +279,7 @@ namespace WorldServer.core.quests
                 {
                     var acc = _account;
                     _player.ColorNameChat = acc.ColorNameChat = Book.NameColor;
+                    _player.UpdateNameColor();
                 }
                 // recorded before anything is paid, so a claim is never paid twice
                 Save();

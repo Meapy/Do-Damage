@@ -896,8 +896,10 @@ pub fn interact_target(world: &World, data: &GameData) -> Option<Interact> {
                 return None;
             };
             let dist = (o.x - me.x).hypot(o.y - me.y);
-            let big = matches!(kind, InteractKind::Npc { kind: crate::npc::NpcKind::Forge | crate::npc::NpcKind::Enchanter, .. });
-            let reach = if big { FORGE_REACH } else { 1.0 };
+            let big = matches!(kind, InteractKind::Npc { kind: crate::npc::NpcKind::Forge | crate::npc::NpcKind::Enchanter | crate::npc::NpcKind::ChampionsBoard, .. });
+            // the statues fill their squares: reach them from beside
+            let statue = matches!(kind, InteractKind::Npc { kind: crate::npc::NpcKind::ChampionStatue, .. });
+            let reach = if big { FORGE_REACH } else if statue { 1.6 } else { 1.0 };
             (dist < reach).then_some((dist, o, d, kind))
         })
         .min_by(|a, b| a.0.total_cmp(&b.0))

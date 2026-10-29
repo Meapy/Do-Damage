@@ -410,6 +410,107 @@ pub fn parse_arena_runs(xml: &str) -> Result<Vec<ArenaRun>, String> {
         .collect())
 }
 
+/// `/champions/board`: the Hall of Champions, the living's leaderboard (the account server's
+/// `ChampionsController`), ranked every few minutes.
+#[derive(Debug, Clone, PartialEq, Default)]
+pub struct Champions {
+    /// Not ranked yet (the account server has just started).
+    pub pending: bool,
+    /// The server's clock, unix seconds, and when it ranked last and will next.
+    pub now: i64,
+    pub updated: i64,
+    pub next: i64,
+    /// When the weekly boards start afresh.
+    pub week_reset: i64,
+    /// What every board's loot boosts add up to at most (0.04 is 4%).
+    pub loot_cap: f64,
+    pub boards: Vec<ChampionBoard>,
+}
+
+/// One board of the Hall of Champions.
+#[derive(Debug, Clone, PartialEq, Default)]
+pub struct ChampionBoard {
+    pub id: String,
+    pub name: String,
+    pub weekly: bool,
+    /// What the value counts: "fame", "stars", "points", "wave", "dungeons".
+    pub unit: String,
+    /// How many are ranked on it.
+    pub count: i32,
+    pub description: String,
+    /// The reward of each tier (#1, #2-3, #4-10): its places, its colour for a colour reward
+    /// (else 0), and what it gives.
+    pub rewards: Vec<(String, u32, String)>,
+    /// The top 10, best first.
+    pub entries: Vec<ChampionEntry>,
+    /// The viewer's own place and value, when ranked (named in the request).
+    pub me: Option<(i32, i64)>,
+}
+
+/// A champion: an account's place, and the character shown for it (its best living one;
+/// `object_type` 0 when it has none).
+#[derive(Debug, Clone, PartialEq, Default)]
+pub struct ChampionEntry {
+    pub rank: i32,
+    pub name: String,
+    pub value: i64,
+    pub object_type: u16,
+    pub skin: i32,
+    pub tex1: i32,
+    pub tex2: i32,
+    pub level: i32,
+}
+
+/// `/champions/board`.
+pub fn parse_champions(xml: &str) -> Result<Champions, String> {
+    if let Some(e) = error_text(xml) {
+        return Err(e);
+    }
+    let doc = roxmltree::Document::parse(xml).map_err(|e| e.to_string())?;
+    let root = doc.root_element();
+    let int = |n: roxmltree::Node, a: &str| n.attribute(a).and_then(parse_int).unwrap_or(0);
+    Ok(Champions {
+        pending: int(root, "pending") != 0,
+        now: int(root, "now"),
+        updated: int(root, "updated"),
+        next: int(root, "next"),
+        week_reset: int(root, "weekReset"),
+        loot_cap: root.attribute("lootCap").and_then(|v| v.parse().ok()).unwrap_or(0.0),
+        boards: root
+            .children()
+            .filter(|c| c.has_tag_name("Board"))
+            .map(|b| ChampionBoard {
+                id: b.attribute("id").unwrap_or("").to_owned(),
+                name: b.attribute("name").unwrap_or("").to_owned(),
+                weekly: int(b, "weekly") != 0,
+                unit: b.attribute("unit").unwrap_or("").to_owned(),
+                count: int(b, "count") as i32,
+                description: b.children().find(|c| c.has_tag_name("Description")).and_then(|d| d.text()).unwrap_or("").to_owned(),
+                rewards: b
+                    .children()
+                    .filter(|c| c.has_tag_name("Reward"))
+                    .map(|r| (r.attribute("places").unwrap_or("").to_owned(), int(r, "color") as u32, r.text().unwrap_or("").to_owned()))
+                    .collect(),
+                entries: b
+                    .children()
+                    .filter(|c| c.has_tag_name("Entry"))
+                    .map(|e| ChampionEntry {
+                        rank: int(e, "rank") as i32,
+                        name: e.attribute("name").unwrap_or("").to_owned(),
+                        value: int(e, "value"),
+                        object_type: int(e, "objectType") as u16,
+                        skin: int(e, "skin") as i32,
+                        tex1: int(e, "tex1") as i32,
+                        tex2: int(e, "tex2") as i32,
+                        level: int(e, "level") as i32,
+                    })
+                    .collect(),
+                me: b.children().find(|c| c.has_tag_name("Me")).map(|m| (int(m, "rank") as i32, int(m, "value"))),
+            })
+            .collect(),
+    })
+}
+
 /// A plain-text answer (the guild board), or the `<Error>`'s text.
 pub fn text_answer(body: &str) -> Result<String, String> {
     match error_text(body) {
@@ -498,6 +599,29 @@ mod tests {
         let (counts, cap) = parse_potions("<StoredPotions>1,2,3,4,5,6,7,8,100</StoredPotions>").unwrap();
         assert_eq!((counts, cap), (vec![1, 2, 3, 4, 5, 6, 7, 8], 100));
         assert_eq!(text_answer("Hello guild"), Ok("Hello guild".into()));
+    }
+
+    #[test]
+    fn champions() {
+        let xml = r##"<Champions now="100" updated="90" next="390" weekReset="5000" lootCap="0.04">
+            <Board id="fame" name="Fame" weekly="0" unit="fame" count="12"><Description>Most fame.</Description>
+                <Reward places="#1" color="0">+3% loot</Reward><Reward places="#2-3" color="0">+2% loot</Reward>
+                <Entry rank="1" name="Meapy" value="1234" objectType="782" skin="0" tex1="5" tex2="0" level="20"/>
+                <Me rank="11" value="40"/></Board>
+            <Board id="stars" name="Stars" weekly="0" unit="stars" count="0"><Description/>
+                <Reward places="#1" color="16765514">Gold glow</Reward></Board></Champions>"##;
+        let c = parse_champions(xml).unwrap();
+        assert!(!c.pending);
+        assert_eq!((c.now, c.week_reset, c.loot_cap), (100, 5000, 0.04));
+        assert_eq!(c.boards.len(), 2);
+        let fame = &c.boards[0];
+        assert_eq!((fame.id.as_str(), fame.count, fame.me), ("fame", 12, Some((11, 40))));
+        assert_eq!(fame.entries[0].name, "Meapy");
+        assert_eq!((fame.entries[0].object_type, fame.entries[0].tex1, fame.entries[0].level), (782, 5, 20));
+        assert_eq!(fame.rewards[1], ("#2-3".to_owned(), 0, "+2% loot".to_owned()));
+        assert_eq!(c.boards[1].rewards[0].1, 0xFFD24A);
+        assert!(c.boards[1].entries.is_empty() && c.boards[1].me.is_none());
+        assert!(parse_champions(r#"<Champions pending="1" now="5"/>"#).unwrap().pending);
     }
 
     #[test]
