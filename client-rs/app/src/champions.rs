@@ -127,7 +127,10 @@ pub fn chip(ui: &mut Ui, r: [f32; 4], label: &str, on: bool, hover: bool, size: 
 }
 
 /// The window's size, in interface units at scale 1.
-pub const SIZE: (f32, f32) = (900.0, 680.0);
+pub const SIZE: (f32, f32) = (900.0, 680.0 + TAB_ROW);
+
+/// A second row of tabs, when there are too many boards for one.
+const TAB_ROW: f32 = 36.0;
 
 /// Draw the window's insides in the panel `r` (the NPC window draws the panel, its title and
 /// the close button); returns the tabs, for clicks.
@@ -149,31 +152,36 @@ pub fn draw(ui: &mut Ui, view: &View, r: [f32; 4], s: f32, me: &str, guild: &str
     };
     let server_now = view.server_now(now);
 
-    // the tabs, a row under the title, smaller if they'd run over
-    let mut cs = font(13.0);
-    let tabs_x0 = x0;
-    let tabs_w = w;
+    // the tabs under the title: one row for a few boards, two (each centred) for more, smaller if
+    // a row would run over the window
     let mine = |b: &ChampionBoard| b.me.map(|m| m.0).filter(|&m| (1..=PLACES).contains(&m));
     let gap = 6.0 * s;
-    let (widths, total) = loop {
-        let widths: Vec<f32> = data.boards.iter().map(|b| ui.measure(&b.name, cs, true) + if mine(b).is_some() { 58.0 } else { 26.0 } * s).collect();
-        let total = widths.iter().sum::<f32>() + gap * (widths.len() - 1) as f32;
-        if total <= tabs_w || cs <= 9.0 {
-            break (widths, total);
-        }
+    let per_row = if data.boards.len() > 6 { data.boards.len().div_ceil(2) } else { data.boards.len() };
+    let rows: Vec<&[ChampionBoard]> = data.boards.chunks(per_row.max(1)).collect();
+    let tab_w = |ui: &mut Ui, b: &ChampionBoard, cs: f32| ui.measure(&b.name, cs, true) + if mine(b).is_some() { 58.0 } else { 26.0 } * s;
+    let mut cs = font(13.0);
+    while cs > 9.0 && rows.iter().any(|row| row.iter().map(|b| tab_w(ui, b, cs)).sum::<f32>() + gap * (row.len() - 1) as f32 > w) {
         cs -= 1.0;
-    };
-    let mut tx = (tabs_x0 + ((tabs_w - total) / 2.0).max(0.0)).round();
-    for (i, (b, bw)) in data.boards.iter().zip(widths).enumerate() {
-        let tr = [tx, r[1] + 52.0 * s, bw, 30.0 * s];
-        chip(ui, tr, &b.name, i == view.tab, inside(tr, mouse), cs, mine(b), s);
-        hits.push((i, tr));
-        tx += bw + gap;
+    }
+    let mut i = 0;
+    for (k, row) in rows.iter().enumerate() {
+        let widths: Vec<f32> = row.iter().map(|b| tab_w(ui, b, cs)).collect();
+        let total = widths.iter().sum::<f32>() + gap * (widths.len() - 1) as f32;
+        // still too wide at the smallest size: the tabs share the row evenly
+        let squeeze = if total > w { (w - gap * (widths.len() - 1) as f32) / (total - gap * (widths.len() - 1) as f32) } else { 1.0 };
+        let mut tx = (x0 + ((w - total * squeeze) / 2.0).max(0.0)).round();
+        for (b, bw) in row.iter().zip(widths) {
+            let tr = [tx, r[1] + (52.0 + TAB_ROW * k as f32) * s, bw * squeeze, 30.0 * s];
+            chip(ui, tr, &b.name, i == view.tab, inside(tr, mouse), cs, mine(b), s);
+            hits.push((i, tr));
+            tx += bw * squeeze + gap;
+            i += 1;
+        }
     }
 
     let board = &data.boards[view.tab.min(data.boards.len() - 1)];
     let me = if board.id.starts_with("guild") { guild } else { me };
-    let mut y = r[1] + 98.0 * s;
+    let mut y = r[1] + (98.0 + TAB_ROW * (rows.len() - 1) as f32) * s;
 
     // what it ranks, and its period
     let period = if board.weekly {
