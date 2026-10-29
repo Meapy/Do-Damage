@@ -94,8 +94,9 @@ python tools\rolling_restart.py status          # which slot is active, and how 
 ## Running on a VPS
 
 The same servers run on a Linux VPS (Ubuntu 24.04, x86_64; 4 GB of RAM is enough, 8 GB is
-comfortable), so this PC doesn't have to stay on. Everything is built on this PC by
-`deploy/deploy.py` and copied over ssh; the VPS only runs it. Players open `https://<site>`, the
+comfortable), so this PC doesn't have to stay on. Merging a release into `main` deploys it: GitHub
+Actions builds everything with `deploy/deploy.py` and copies it over ssh (see "Deploying from
+GitHub"); the VPS only runs it. The same script still deploys from this PC as a fallback. Players open `https://<site>`, the
 website, and play from there in the browser (`https://<site>/play/`), or download the desktop
 client. A desktop client built with `--account https://<site>/api` goes the browser's way too:
 sign-in over https and the game over wss, through Caddy and the gateway, so passwords and game
@@ -212,18 +213,20 @@ it running for a while; it doesn't survive a restart of this PC.
   is the well-known upstream pair, so it hides nothing from anyone who looks it up. Over wss it
   doesn't matter (TLS covers the Hello); it was left as it is so old clients keep working.
 
-**Updating:** `python deploy\deploy.py`. It replaces only what changed, and nobody is disconnected
-(see below). It publishes the desktop client first (`--account https://<site>/api --package
---publish`) when `client-rs/` or `client/src/` changed since the newest release in `dist\client`,
-and stops instead when it can't: not the main checkout on `main`, uncommitted client changes, or
-the version not raised; `--no-publish` skips that. `--skip-build` uploads the last build again,
+**Updating:** merge the release into `main`; GitHub deploys it (see "Deploying from GitHub").
+From this PC, as a fallback: `python deploy\deploy.py`. It replaces only what changed, and nobody
+is disconnected (see below). It first fetches any client release files the VPS has and
+`dist\client` lacks (GitHub publishes releases this PC doesn't have), then publishes the desktop
+client (`--account https://<site>/api --package --publish`) when `client-rs/` or `client/src/`
+changed since the newest release, and stops instead when it can't: not the main checkout on
+`main`, uncommitted client changes, or the version not raised; `--no-publish` skips that. Only
+the release files the VPS lacks are sent. `--skip-build` uploads the last build again,
 `--no-releases` leaves `dist\client` out, and `--status` shows the services, the world server slots and the gateway slots (each with
 its open connections). `--dry-run` builds and packs without touching the VPS, and `--client-only`
 publishes the client and installs only the releases and the website
-(`deploy/remote/install-client.sh`), for after a deploy from GitHub that couldn't sign it. The
-upload and the install hold `/opt/bsk/deploy.lock` on the VPS, so two deploys (this PC and GitHub)
-never overlap: the second waits. Merges to `main` can deploy by themselves: see "Deploying from
-GitHub" below.
+(`deploy/remote/install-client.sh`), for a release GitHub couldn't sign. The upload and the
+install hold `/opt/bsk/deploy.lock` on the VPS, so two deploys (this PC and GitHub) never
+overlap: the second waits.
 
 **Deploys that kick nobody** (`deploy/remote/install.sh`):
 - **World server:** a rolling deploy, as on this PC: players switch to the new one at their next
@@ -306,80 +309,77 @@ redis-cli -p 6379 hget names MEAPY                    # Redis, as on this PC
 
 ## Deploying from GitHub
 
-`.github/workflows/deploy.yml` deploys `main` to the VPS after each merge (a release's squash
-merge), with `deploy/deploy.py` on a GitHub Linux runner: the same build, bundle and `install.sh`
-as from the main checkout, so it kicks nobody (see "Deploys that kick nobody"). It's off until the
-owner turns it on; until then every run is a dry run.
+Merging a release into `main` deploys it: `.github/workflows/deploy.yml` runs `deploy/deploy.py`
+on GitHub's runners, with the same build, bundle and `install.sh` as from the main checkout, so it
+kicks nobody (see "Deploys that kick nobody"). It's on since 2.3.2 (2026-10-29), the first release
+it deployed, desktop client included.
 
 **What runs:**
-- **On a pull request,** and on `main` while deploys are off: `deploy.py --dry-run` builds the
-  whole bundle (servers, gateway, web client, website) and sends nothing. `.github/workflows/ci.yml`
-  checks pull requests and release branches besides: `cargo test`, the wasm build, `dotnet build`
-  and `dotnet test`, the website, and the Docker images.
-- **On a push to `main`** with deploys on (and from the Actions tab: "Run workflow" on `main`, with
-  "dry run" and "publish the client" boxes):
-  1. `client` (Windows, only with the `CLIENT_UPDATE_KEY` secret): fetches the VPS's published
-     releases (`deploy.py --fetch-from-server`) and publishes the desktop client when it changed
-     since the newest one, as the main checkout does (`--publish-only`: the version must be
-     raised, the changelog section named). It first checks the key's public key against the
-     `CLIENT_UPDATE_PUBLIC_KEY` variable, so a wrong key never signs anything.
-  2. `deploy` (Linux): builds and installs everything, with the new release when step 1 made one.
-     Without one, the VPS's releases stay as they are (`--no-releases`), the website keeps its
-     downloads (fetched from the VPS to build it), and when the client changed the run's summary
-     says to publish it from the main checkout: `python deploy\deploy.py --client-only`, once the
-     run is done.
-  3. `deploy.py --status`.
+- **On a push to `main`** (the release's squash merge), or from the Actions tab ("Run workflow"
+  on `main`, with "dry run" and "publish the client" boxes):
+  1. `client` (Windows, since the desktop release is a Windows build): lists what the VPS has
+     published and copies only its `latest.json` (`deploy.py --fetch-from-server`). When
+     `client-rs/` or `client/src/` changed since that release, it publishes the new one
+     (`--publish-only`: the version must be raised and its changelog section named, or the whole
+     deploy stops here). It first checks the key's public half against the
+     `CLIENT_UPDATE_PUBLIC_KEY` variable, so a wrong key never signs anything. Only the blobs
+     the VPS lacks are written (`bsk-publish --known`); they go to the next job as an artifact,
+     with the website's new download.
+  2. `deploy` (Linux): builds the servers, the gateway, the web client and the website, and
+     installs them with the new release's files, which `deploy/remote/add-releases.sh` adds beside
+     the VPS's own. Without a new release, the VPS's releases stay as they are.
+  3. `deploy.py --status`: the services, the world server slots and the gateway slots.
+- **On a pull request** (and on `main` while deploys are off): `deploy.py --dry-run` builds the
+  whole bundle and sends nothing. `.github/workflows/ci.yml` checks pull requests and release
+  branches besides: `cargo test`, the wasm build, `dotnet build` and `dotnet test`, the website,
+  and the Docker images.
+- **Watching it:** `gh run watch --repo Meapy/Do-Damage <run id>` (`gh run list --workflow Deploy`
+  lists them), or the Actions tab. The log shows each step as it happens. The first deploy took
+  about 50 minutes, 37 of them fetching every published release, which it no longer does; a cold
+  build of the client on Windows is about 5 minutes, less once its Rust cache is saved.
+  Afterwards, `https://dodmg.com/api/client/windows/latest.json` names the new version, and the
+  Discord bot posts it.
 - **One at a time:** runs share a concurrency group and are never cancelled half way, and on the
   VPS the upload and install hold `/opt/bsk/deploy.lock` (also taken by deploys from the PC). A
   failed `client` job stops the deploy before anything reaches the VPS; a failed install stops as
   `install.sh` always has (a gateway that doesn't start leaves the old one running).
-- **Secrets** stay out of the logs and the repository: `deploy/ci_setup.py` writes them into the
-  git-ignored files `deploy.py` reads (`deploy/vps.local.json`, `deploy/discord.local.env`,
-  `build/client-update.key`) and the runner's `~/.ssh`, and each job deletes them at its end.
+- **If it fails:** read the run's log, fix the cause on the next release branch, and release
+  again. If players need the release before that, deploy it from the main checkout
+  (`python deploy\deploy.py`, on `main`): it fetches the release files GitHub published that
+  `dist\client` lacks first, so it never puts an older release back.
+- **Turning it off:** `gh variable set DEPLOY_ENABLED --repo Meapy/Do-Damage --body false`. Merges
+  then only dry-run, and the main checkout deploys as before. `true` turns it back on.
 
-**The client signing key.** Clients only take releases signed with `build/client-update.key`;
-whoever holds it can ship code to every player's PC. Two ways:
-- **Keep it on this PC (recommended).** Don't add `CLIENT_UPDATE_KEY`. GitHub deploys the servers,
-  the gateway, the web client and the website; a release that changes the desktop client is then
-  published from the main checkout with `deploy.py --client-only`, which uploads only the releases
-  and the website. The key never leaves this PC, and a compromised GitHub account, workflow or
-  third-party action can't sign a release. The cost is one command per release with client
-  changes (most of them: the changelog is in `client-rs/`), and players' desktop clients updating
-  a few minutes after the servers rather than with them (the old client keeps working with the
-  new server, as the release rules ask).
-- **Store it in GitHub.** Add `CLIENT_UPDATE_KEY` and `CLIENT_UPDATE_PUBLIC_KEY` (below): every
-  merge then publishes by itself. The key sits only in the `production` environment, which only
-  `main` can use, and is on a runner only for the `client` job. If it ever leaks, every player has
-  to download a new client by hand.
+**Secrets and settings** (repository secrets and variables, Settings, Secrets and variables,
+Actions). `deploy/ci_setup.py` writes them into the git-ignored files `deploy.py` reads
+(`deploy/vps.local.json`, `deploy/discord.local.env`, `build/client-update.key`) and the runner's
+`~/.ssh`; nothing prints them, and each job deletes them at its end. The logs are public, so a
+change to the workflows must never print one either.
 
-**Setting it up** (the owner, once; everything goes in an environment named `production`):
-1. GitHub, the repository's Settings, Environments, New environment: `production`. Deployment
-   branches and tags: "Selected", add `main`. Optionally "Required reviewers" with yourself: each
-   deploy then waits for a click in the Actions tab.
-2. A deploy key for the VPS, just for GitHub (not `~/.ssh/dodmg_ed25519`), so it can be revoked on
-   its own: `ssh-keygen -t ed25519 -N "" -C github-deploy -f $HOME\.ssh\dodmg_github`, then add
-   `dodmg_github.pub` to `/root/.ssh/authorized_keys` on the VPS (the user in `ssh` in the
-   config).
-3. The secrets, in that environment (Settings, Environments, `production`, Add environment
-   secret), or with `gh` from the main checkout in PowerShell (piping, so nothing is on a command
-   line):
+| Name | Kind | What it holds |
+|---|---|---|
+| `VPS_SSH_KEY` | secret | a private key just for GitHub (`$HOME\.ssh\dodmg_github` on the PC, `github-deploy` in the VPS's `/root/.ssh/authorized_keys`), so it can be revoked on its own |
+| `VPS_KNOWN_HOSTS` | secret | the VPS's host keys, under both names: `ssh-keygen -F 169.58.244.146` with `dodmg.com,` added before the IP |
+| `VPS_CONFIG` | secret | `deploy/vps.local.json` (its `-i` in `ssh_options` is replaced by the key above; the rest is kept) |
+| `DISCORD_ENV` | secret | `deploy/discord.local.env`; without it the bot keeps the settings it has on the VPS |
+| `CLIENT_UPDATE_KEY` | secret | `build/client-update.key`, the client signing key |
+| `CLIENT_UPDATE_PUBLIC_KEY` | variable | its public half, `f2c62eb2...c9f9` (`cargo run -q --release -p bsk-publish -- key --key ..\build\client-update.key` in `client-rs` prints it) |
+| `DEPLOY_ENABLED` | variable | `true`: merges deploy |
 
-   | Secret | What to paste | `gh` |
-   |---|---|---|
-   | `VPS_SSH_KEY` | the private key from step 2, all of it | `Get-Content -Raw $HOME\.ssh\dodmg_github \| gh secret set VPS_SSH_KEY --env production` |
-   | `VPS_KNOWN_HOSTS` | the VPS's host key lines, under the name the config's `ssh` uses (ssh refuses any other key). This PC's known_hosts has them under the IP only, so the command adds the name | `ssh-keygen -F 169.58.244.146 \| Select-String -NotMatch '^#' \| ForEach-Object { $_ -replace '^169\.58\.244\.146', 'dodmg.com,169.58.244.146' } \| Out-String \| gh secret set VPS_KNOWN_HOSTS --env production` |
-   | `VPS_CONFIG` | `deploy/vps.local.json`, all of it (its `-i` in `ssh_options` is replaced by the key above; `-p` and the rest are kept) | `Get-Content -Raw deploy\vps.local.json \| gh secret set VPS_CONFIG --env production` |
-   | `DISCORD_ENV` | optional: `deploy/discord.local.env`. Without it the bot keeps the settings on the VPS, so only add it to change them from GitHub | `Get-Content -Raw deploy\discord.local.env \| gh secret set DISCORD_ENV --env production` |
-   | `CLIENT_UPDATE_KEY` | only to publish the client from GitHub: `build/client-update.key` | `Get-Content -Raw build\client-update.key \| gh secret set CLIENT_UPDATE_KEY --env production` |
+To replace one, pipe its file to `gh` from the main checkout in PowerShell, so nothing is on a
+command line: `Get-Content -Raw deploy\vps.local.json | gh secret set VPS_CONFIG --repo
+Meapy/Do-Damage`.
 
-   With `CLIENT_UPDATE_KEY`, also the variable `CLIENT_UPDATE_PUBLIC_KEY`, the key's public half
-   (not secret): `cargo run -q --release -p bsk-publish -- key --key ..\build\client-update.key`
-   in `client-rs` prints it (it only reads the key that's there), then
-   `gh variable set CLIENT_UPDATE_PUBLIC_KEY --env production --body <it>`.
-4. Try it without touching the VPS: Actions, Deploy, Run workflow on `main` with "dry run" ticked.
-5. Turn it on: `gh variable set DEPLOY_ENABLED --body true` (a repository variable). From then on
-   each merge to `main` deploys. To turn it off, set it to anything else (`false`); merges then
-   only dry-run, and the main checkout deploys as before.
+**The signing key in GitHub.** Clients only take releases signed with the key; whoever holds it
+can ship code to every player's PC. It's in GitHub so that a merge publishes the client by itself,
+and it's on a runner only for the `client` job. Two steps would narrow who can reach it, both in
+Settings, Environments: create an environment named `production` (the deploy jobs already name it)
+with deployment branches limited to `main`, optionally with yourself as a required reviewer (each
+deploy then waits for a click), and move the secrets into it. As repository secrets, a workflow on
+any branch pushed to this repository can read them. To keep the key on this PC instead, delete
+`CLIENT_UPDATE_KEY`: GitHub then deploys everything but the client, its run's summary says when
+the client changed, and `python deploy\deploy.py --client-only` from the main checkout publishes
+it and installs only the releases and the website (`deploy/remote/install-client.sh`).
 
 ## Docker
 
@@ -463,7 +463,7 @@ python tools\discord\setup_server.py --env deploy\discord.local.env
 python tools\discord\setup_server.py --env deploy\discord.local.env --apply --refresh-messages
 ```
 
-**Release posts happen once per release, and only for real ones.** The bot reads `/opt/bsk/dist/client/windows/latest.json` every minute. Only a deploy changes that file (`deploy.py`, after the release is merged and published from `main`). A version newer than any it has posted gets posted, with the changelog the release was published with. The versions it has posted are kept in `/opt/bsk/discord/state.json`, and before posting it also looks through #updates' recent messages for that version. On its first start it counts everything up to `DISCORD_POSTED_UP_TO` (2.2.1) as already posted. Test publishes (`--publish-to`, the isolated stacks) and runs on this PC never post, because they write elsewhere and have no `BSK_RELEASES`.
+**Release posts happen once per release, and only for real ones.** The bot reads `/opt/bsk/dist/client/windows/latest.json` every minute. Only a deploy changes that file: the one GitHub runs when a release is merged into `main`. A version newer than any it has posted gets posted, with the changelog the release was published with. The versions it has posted are kept in `/opt/bsk/discord/state.json`, and before posting it also looks through #updates' recent messages for that version. On its first start it counts everything up to `DISCORD_POSTED_UP_TO` (2.2.1) as already posted. Test publishes (`--publish-to`, the isolated stacks) and runs on this PC never post, because they write elsewhere and have no `BSK_RELEASES`.
 
 **On the VPS:** the first deploy with `deploy/discord.local.env` makes a venv with discord.py (`tools/discord/requirements.txt`, `/opt/bsk/discord/venv`), then installs and starts `bsk-discord`. Later deploys restart it only when its code, settings or unit changed. It holds no player's connection, so restarting it kicks nobody, and it never touches the game's services.
 
@@ -530,6 +530,9 @@ The remotes `upstream` (HaloCelsius) and `aurusenth` share no history with `main
   on the VPS while it installs. `install.sh` keeps the Discord bot's settings when a deploy brings
   none. The account server takes `BSK_LAN_ADDRESS`. `client/src/.../miniDungeonHub.xml` is now
   `MiniDungeonHub.xml`, as the client's manifest names it (a web build on Linux couldn't find it).
+  Turned on with 2.3.2, which it deployed; since then client releases move only as what's new
+  (`bsk-publish --known`, `deploy/remote/add-releases.sh`), and a PC deploy fetches the release
+  files GitHub published before it uploads.
 - **The Hall of Champions** (2026-10-29; `Shared/champions/`, `App/ChampionsService.cs`,
   `App/Controllers/ChampionsController.cs`, `WorldServer/core/champions/ChampionCache.cs`,
   `Player.Champions.cs`, `Command.Champions.cs`, the client's `champions.rs`, `source/Tests/ChampionsTests.cs`):

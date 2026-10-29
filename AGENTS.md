@@ -48,7 +48,8 @@ it asks first; never run test copies under the live process names (`redis-server
 - **Real people play on the live servers.** Anything that changes what they run (a deploy, a
   publish, a restart) is the owner's call: ask first, every time, unless they just asked for it.
   Test on an isolated stack instead. What disconnects whom:
-  - a deploy (`deploy/deploy.py`) kicks nobody: a new world server is a rolling deploy, a new
+  - a deploy (each merge to `main`, `.github/workflows/deploy.yml` running `deploy/deploy.py`)
+    kicks nobody: a new world server is a rolling deploy, a new
     gateway starts in another slot while the old one hands over, the account server restart only
     pauses sign-ins, and Caddy keeps WebSockets through a reload (SETUP-LOCAL.md, "Deploys that
     kick nobody"). The first deploy onto the gateway slots (from the single `bsk-gateway` of
@@ -67,10 +68,12 @@ it asks first; never run test copies under the live process names (`redis-server
 - **The client and server ship together** when a message changes (ids, fields). An old client
   must keep working with a new server where possible. Note in the commit which side needs
   redeploying.
-- **Client releases are published from the main checkout only, after the release's pull request
-  is merged** (Git, "Release branches"). It holds the signing key
-  (`build/client-update.key`) and `dist/client`. Clients only take releases signed with that key,
-  so publishing from a worktree or a fresh clone makes a new key and strands every player.
+- **Client releases are published by the deploy on merge to `main`** (Git, "Release branches"):
+  GitHub's `client` job signs them with the key in the `CLIENT_UPDATE_KEY` secret, checked
+  against the `CLIENT_UPDATE_PUBLIC_KEY` variable first. The only other copy of that key is the
+  main checkout's `build/client-update.key`, for deploying from the PC when GitHub can't. Clients
+  only take releases signed with it, so publishing from a worktree or a fresh clone makes a new key
+  and strands every player: never publish anywhere else.
 - **Releases post to Discord.** Once a release is live on the VPS, the bot posts its changelog
   section to the Discord server's #updates and pings the Updates role, once per version. So name
   the changelog section as players should read it. Tests must never post: publish test releases
@@ -79,8 +82,10 @@ it asks first; never run test copies under the live process names (`redis-server
 - **Secrets** stay in git-ignored files: `*.local.txt` (`test-account.local.txt`),
   `deploy/*.local.json` (the VPS config), `deploy/discord.local.env` (the Discord bot's token),
   `build/` (signing key) and `~/.ssh/dodmg_ed25519` (the
-  VPS key). Never sign in anywhere with a password pasted into a chat: ask the owner to set up a
-  key instead. `build/`, `dist/`, `client/bin/`, `tools/airsdk/` and `source/Redis/data/` are not
+  VPS key). The deploy from GitHub has its own copies as repository secrets (`VPS_SSH_KEY`, a key
+  of its own, `VPS_KNOWN_HOSTS`, `VPS_CONFIG`, `DISCORD_ENV`, `CLIENT_UPDATE_KEY`; SETUP-LOCAL.md,
+  "Deploying from GitHub"); never print them in a workflow, whose logs are public. Never sign in
+  anywhere with a password pasted into a chat: ask the owner to set up a key instead. `build/`, `dist/`, `client/bin/`, `tools/airsdk/` and `source/Redis/data/` are not
   tracked.
 - **Changelog:** every change players can notice (client, servers, content, website, fixes) gets a
   line in [client-rs/CHANGELOG.md](client-rs/CHANGELOG.md) under `## Unreleased` at the top, in
@@ -138,14 +143,15 @@ it asks first; never run test copies under the live process names (`redis-server
        `git -C <main checkout> pull --ff-only`). `--delete-branch` removes the release branch on
        origin; delete it locally too (`git -C <main checkout> branch -D release/<version>`), and
        remove any worktrees and branches whose work it carried.
-    4. Only then deploy, so what players get is exactly `main`. Once deploys from GitHub are on
-       (the `DEPLOY_ENABLED` variable; SETUP-LOCAL.md, "Deploying from GitHub"), the merge
-       deploys by itself (`.github/workflows/deploy.yml`): watch its run (`gh run watch`). When
-       the client changed and the workflow has no signing key, its summary says so: publish it
-       from the main checkout with `python deploy\deploy.py --client-only` once the run is done.
-       Until then, deploy from the main checkout (`python deploy\deploy.py`), which publishes the
-       client first when it changed since the last release (client-rs/AGENTS.md, "Releasing to
-       players").
+    4. The merge deploys by itself, so what players get is exactly `main`
+       (`.github/workflows/deploy.yml`; SETUP-LOCAL.md, "Deploying from GitHub"). Watch it:
+       `gh run watch --repo Meapy/Do-Damage $(gh run list --repo Meapy/Do-Damage --workflow
+       Deploy --limit 1 --json databaseId --jq '.[0].databaseId')`. The `client` job (Windows)
+       publishes the desktop client when it changed; `deploy` (Linux) installs everything. Then
+       check `https://dodmg.com/api/client/windows/latest.json` names the new version. Don't
+       deploy from the PC as well. If the run fails, read its log, fix it on the next release
+       branch, and only if players need the release now deploy from the main checkout
+       (`python deploy\deploy.py`, which waits for any deploy still running on the VPS).
 - **No merge commits** on `main` or a release branch: if the branch moved while you worked,
   rebase onto it instead of merging it in. Never `git merge` one branch into another, and don't
   rewrite commits already pushed to `origin` unless the owner asks.

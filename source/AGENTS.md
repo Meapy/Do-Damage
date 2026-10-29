@@ -41,8 +41,9 @@ dotnet build source\WorldServer\WorldServer.csproj -c Debug -o build\wscheck   #
   players feel), the time per part of the tick, and the garbage collections; dungeons and vaults log
   their own. A garbage collection that stops every world for over 50 ms is logged as "GC pause"
   (`core/GcPauseLog.cs`). Measure with those.
-- **Deploying a server change:** `python deploy\deploy.py` from the main checkout (ask the owner
-  first: it changes what players run). Nothing it does kicks anyone: a new world server goes in
+- **Deploying a server change:** it goes out with the next release: merging the release's pull
+  request into `main` deploys it (../AGENTS.md, Git, "Releasing"; ask the owner first: it changes
+  what players run). Nothing the deploy does kicks anyone: a new world server goes in
   with a rolling deploy (see "Rolling deploys" below); a changed account server restarts, which
   pauses sign-ins for a few seconds (in-game players are on the world servers, and the gateway
   holds https account requests until it's back); a new gateway starts in a free slot while the old

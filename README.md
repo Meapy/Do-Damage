@@ -39,10 +39,13 @@ servers run as systemd services.
 | Discord bot (release posts, server status, slash commands) | none |
 
 ```
-python deploy\deploy.py                                                          # deploy; kicks nobody
-python tools\build_client_rs.py --account https://dodmg.com/api --publish        # update players' clients
 python tools\build_client_rs.py --account https://dodmg.com/api --package        # dist\Do-Damage-windows.zip
+python deploy\deploy.py --status                                                 # the live services
+python deploy\deploy.py                                                          # deploy from this PC (fallback)
 ```
+
+Merging a release into `main` deploys it, players' desktop client included, from GitHub Actions
+(`.github/workflows/deploy.yml`); nobody is kicked. See SETUP-LOCAL.md, "Deploying from GitHub".
 
 [SETUP-LOCAL.md](SETUP-LOCAL.md) covers the VPS ("Running on a VPS"), deploys that kick nobody, and
 running a copy on a Windows PC (`Run Server.bat`) or an isolated test stack
