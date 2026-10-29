@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 
 namespace Shared.database.guild
 {
@@ -28,8 +29,22 @@ namespace Shared.database.guild
             "a citadel: 8 vault chests and a throne room with the Divine Workbench",
         };
 
-        // being in a guild gives this loot boost (LootBoosts.Guild): the same whatever the hall
+        // being in a guild gives at least this loot boost (the first hall's)
         public const double LootBoost = 0.01;
+
+        // what every member gets while the guild has each hall, by level 1-4, wherever they are:
+        // loot (LootBoosts.Total), experience (DamageCounter) and stats on top of the gear's
+        // (BoostStatManager), read on entering a world and when the guild buys the next hall
+        private static readonly HallBuffs[] Buffs =
+        {
+            new(0.01, 0, 0, 0, 0, 0),
+            new(0.015, 0.05, 20, 20, 0, 0),
+            new(0.02, 0.10, 40, 40, 2, 2),
+            new(0.03, 0.15, 60, 60, 4, 4),
+        };
+
+        // a hall's buffs, or none outside a guild (level 0)
+        public static HallBuffs BuffsOf(int level) => level <= 0 ? default : Buffs[Clamp(level) - 1];
 
         public static int Clamp(int level) => Math.Clamp(level, 1, Levels);
 
@@ -61,5 +76,43 @@ namespace Shared.database.guild
             >= (int)GuildRank.Member => "Member",
             _ => "Initiate",
         };
+    }
+
+    // A guild hall's buffs for every member: shares of loot and experience (0.01 is 1%) and stats.
+    public readonly record struct HallBuffs(double Loot, double Experience, int Health, int Mana, int Vitality, int Wisdom)
+    {
+        public bool HasStats => Health > 0 || Mana > 0 || Vitality > 0 || Wisdom > 0;
+
+        // "+2% loot, +10% experience, +40 health and mana, +2 vitality and wisdom"
+        public override string ToString()
+        {
+            if (Loot <= 0)
+                return "none";
+            var parts = new List<string> { $"+{Math.Round(Loot * 100, 1)}% loot" };
+            if (Experience > 0)
+                parts.Add($"+{Math.Round(Experience * 100, 1)}% experience");
+            if (HasStats)
+                parts.Add(StatsText());
+            return string.Join(", ", parts);
+        }
+
+        // "+40 health and mana, +2 vitality and wisdom"
+        public string StatsText()
+        {
+            var parts = new List<string>();
+            void Pair(int a, int b, string an, string bn)
+            {
+                if (a > 0 && a == b)
+                    parts.Add($"+{a} {an} and {bn}");
+                else
+                {
+                    if (a > 0) parts.Add($"+{a} {an}");
+                    if (b > 0) parts.Add($"+{b} {bn}");
+                }
+            }
+            Pair(Health, Mana, "health", "mana");
+            Pair(Vitality, Wisdom, "vitality", "wisdom");
+            return string.Join(", ", parts);
+        }
     }
 }

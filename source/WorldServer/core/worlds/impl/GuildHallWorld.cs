@@ -114,13 +114,18 @@ namespace WorldServer.core.worlds.impl
         }
 
         // a line to every member online on this world server
-        public static void Announce(GameServer server, int guildId, string text)
+        // A line to the guild's online members; with a hall, the guild has bought it, so they take its
+        // buffs at once (the others do on signing in).
+        public static void Announce(GameServer server, int guildId, string text, int hall = 0)
         {
             foreach (var world in server.WorldManager.GetWorlds())
                 world.ForeachPlayer(p =>
                 {
-                    if (p.Client?.Account?.GuildId == guildId)
-                        p.SendHelp(text);
+                    if (p.Client?.Account?.GuildId != guildId)
+                        return;
+                    if (hall > 0)
+                        p.SetGuildHall(hall);
+                    p.SendHelp(text);
                 });
         }
 

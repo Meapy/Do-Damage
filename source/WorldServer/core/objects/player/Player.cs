@@ -1,5 +1,6 @@
 ﻿using Shared;
 using Shared.database;
+using Shared.database.guild;
 using Shared.database.party;
 using Shared.resources;
 using System;
@@ -153,8 +154,17 @@ namespace WorldServer.core.objects
 			set => _guild?.SetValue(value);
         }
 
-        // in a guild: its loot boost (LootBoosts.Guild)
         public bool InGuild => !string.IsNullOrEmpty(Guild);
+        // the guild's hall (1-4, 0 outside a guild) and so its buffs (GuildHalls.BuffsOf)
+        public int GuildHall { get; private set; }
+        public HallBuffs GuildBuffs => InGuild ? GuildHalls.BuffsOf(GuildHall) : default;
+
+        // on making, joining, leaving or upgrading a guild: its hall's buffs change, stats included
+        public void SetGuildHall(int hall)
+        {
+            GuildHall = hall;
+            Stats?.ReCalculateValues();
+        }
 
         private StatTypeValue<int> _guildRank;
         public int GuildRank
@@ -305,6 +315,7 @@ namespace WorldServer.core.objects
             {
                 Guild = guild.Name;
                 GuildRank = account.GuildRank;
+                GuildHall = GuildHalls.HallOf(guild.Level);
             }
 
             PetId = character.PetId;

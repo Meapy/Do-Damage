@@ -31,7 +31,10 @@ details). Add to a group's line when a change adds to it, rather than adding ano
   Dead every 1 January, and `/boosts` lists what you hold.
 
 ### Guilds
-- Being in a guild gives every member +1% loot.
+- Being in a guild gives every member +1% loot, and each bigger hall gives every member more,
+  wherever they are: Hall 2 +1.5% loot, +5% experience and +20 health and mana, Hall 3 +2% loot, +10% experience, +40
+  health and mana and +2 vitality and wisdom, and Hall 4 +3% loot, +15% experience, +60 health and
+  mana and +4 vitality and wisdom. `/boosts` lists them.
 - Each guild has a shared vault in its hall: any member can put items in, members and up take them
   out, and `/gvault` shows who put in or took out what. It keeps its items through restarts and
   upgrades.
@@ -43,8 +46,8 @@ details). Add to a group's line when a change adds to it, rather than adding ano
 - Two guild boards in the Hall of Champions: Guild Living (the living fame of members who played in
   the last two weeks) and Guild Dead (the fame of every character that died in the guild this year).
 - `/ghall` now takes you to your guild hall from anywhere, `/ginfo` shows the guild at a glance, and
-  the Guild Chronicle shows the hall, the guild's places on the boards, its guild fame, the vault and
-  each member's living fame.
+  the Guild Chronicle shows the hall and its buffs, the guild's places on the boards, its guild fame,
+  the vault and each member's living fame.
 
 ### Arena
 - The Arena Leaderboard keeps solo runs and group runs apart: the window has a tab for each, and

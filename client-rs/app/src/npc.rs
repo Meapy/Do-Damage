@@ -236,7 +236,7 @@ pub struct Npcs {
 const MEMBER_ROWS: usize = 10;
 
 /// The guild window's summary above its members, unscaled.
-const GUILD_HEAD: f32 = 70.0;
+const GUILD_HEAD: f32 = 88.0;
 
 fn thousands(n: i64) -> String {
     crate::hud::group_digits(n.clamp(0, i32::MAX as i64) as i32)
@@ -261,23 +261,35 @@ fn guild_head(ui: &mut Ui, g: &Guild, body: [f32; 4], s: f32, font: impl Fn(f32)
     let pw = (body[2] - hw - 16.0 * s).max(0.0);
     let place = fit(ui, &place, font(11.5), pw);
     ui.label(&place, x + hw + 16.0 * s, y + 2.0 * s, font(11.5), false, color::TEXT_DIM);
+    // the hall's buffs for every member (an older server sends none: it gave 1% loot)
+    let buffs = if g.buffs.is_empty() { "+1% loot".to_owned() } else { short_buffs(&g.buffs) };
+    let buffs = fit(ui, &format!("Every member: {buffs}"), font(11.5), body[2]);
+    ui.label(&buffs, x, y + 22.0 * s, font(11.5), true, color::GOOD);
     let line = format!(
-        "Guild fame {} ({} earned)  ·  Vault {}/{}  ·  +1% loot for every member",
+        "Guild fame {} ({} earned)  ·  Vault {}/{}",
         thousands(g.fame),
         thousands(g.total_fame),
         g.vault_used,
         g.vault_slots
     );
     let line = fit(ui, &line, font(11.5), body[2]);
-    ui.label(&line, x, y + 22.0 * s, font(11.5), false, color::TEXT);
-    let next = if g.next_price > 0 {
-        format!("Next hall: {} guild fame, bought by a leader in the hall.  /ginfo  /gvault", thousands(g.next_price))
-    } else {
-        "The guild has the grandest hall.  /ginfo  /gvault".to_owned()
+    ui.label(&line, x, y + 40.0 * s, font(11.5), false, color::TEXT);
+    let next = match (g.next_price > 0, g.next_buffs.is_empty()) {
+        (true, false) => format!("Next hall, {} guild fame: {}", thousands(g.next_price), short_buffs(&g.next_buffs)),
+        (true, true) => format!("Next hall: {} guild fame, bought by a leader in the hall.  /ginfo  /gvault", thousands(g.next_price)),
+        _ => "The guild has the grandest hall.  /ginfo  /gvault".to_owned(),
     };
     let next = fit(ui, &next, font(11.0), body[2]);
-    ui.label(&next, x, y + 40.0 * s, font(11.0), false, color::TEXT_MUTED);
+    ui.label(&next, x, y + 58.0 * s, font(11.0), false, color::TEXT_MUTED);
     GUILD_HEAD * s
+}
+
+/// A hall's buffs as the server words them, in the stats panel's short names to fit the window:
+/// "+40 health and mana" is "+40 HP and MP".
+fn short_buffs(text: &str) -> String {
+    [("experience", "XP"), ("health", "HP"), ("mana", "MP"), ("vitality", "VIT"), ("wisdom", "WIS")]
+        .iter()
+        .fold(text.to_owned(), |s, (long, short)| s.replace(long, short))
 }
 
 /// Runs the leaderboard shows: the best in its own card, then the rest in rows.

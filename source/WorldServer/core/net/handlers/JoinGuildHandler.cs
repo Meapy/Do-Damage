@@ -46,6 +46,7 @@ namespace WorldServer.core.net.handlers
 
             client.Player.Guild = guild.Name;
             client.Player.GuildRank = 0;
+            client.Player.SetGuildHall(Shared.database.guild.GuildHalls.HallOf(guild.Level));
             client.GameServer.ChatManager.Guild(client.Player, client.Player.Name + " has joined the guild!");
         }
     }

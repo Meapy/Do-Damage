@@ -167,7 +167,10 @@ namespace App
             guild.Add(new XElement("VaultSlots", GuildHalls.VaultSlots(_level)));
             guild.Add(new XElement("VaultUsed", _vaultUsed));
             guild.Add(new XElement("NextPrice", GuildHalls.UpgradePrice(_level)));
-            guild.Add(new XElement("LootBoost", GuildHalls.LootBoost));
+            guild.Add(new XElement("LootBoost", GuildHalls.BuffsOf(_level).Loot));
+            guild.Add(new XElement("Buffs", GuildHalls.BuffsOf(_level).ToString()));
+            if (GuildHalls.UpgradePrice(_level) > 0)
+                guild.Add(new XElement("NextBuffs", GuildHalls.BuffsOf(_level + 1).ToString()));
             if (_living != null)
                 guild.Add(new XElement("LivingBoard", new XAttribute("rank", _living.Rank), new XAttribute("fame", _living.Value)));
             if (_dead != null)

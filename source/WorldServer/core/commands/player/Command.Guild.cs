@@ -45,10 +45,10 @@ namespace WorldServer.core.commands
 
                 var stored = DbGuildVault.Stored(db.Conn, guild.Id);
                 player.SendSubtext($"   Guild vault: {stored} of {GuildHalls.VaultSlots(level)} slots used ({GuildHalls.VaultChests(level)} chests in the hall). {(GuildHalls.MayTake(account.GuildRank) ? "You can put items in and take them out." : "As an Initiate you can put items in; members take them out.")} /gvault shows who moved what.");
-                player.SendSubtext($"   Every member gets +{Math.Round(LootBoosts.Guild * 100, 1)}% loot.");
+                player.SendSubtext($"   Every member gets {GuildHalls.BuffsOf(level)}, wherever they are.");
                 var price = GuildHalls.UpgradePrice(level);
                 if (price > 0)
-                    player.SendSubtext($"   Next: Guild Hall {level + 1} for {price:N0} guild fame ({GuildHalls.Describe(level + 1)}). A leader buys it in the hall.");
+                    player.SendSubtext($"   Next: Guild Hall {level + 1} for {price:N0} guild fame ({GuildHalls.Describe(level + 1)}; every member would get {GuildHalls.BuffsOf(level + 1)}). A leader buys it in the hall.");
                 player.SendSubtext("   /ghall goes to the hall, /g talks to the guild, /gwho lists who's online.");
                 return true;
             }

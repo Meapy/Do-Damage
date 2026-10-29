@@ -61,6 +61,7 @@ namespace WorldServer.core.net.handlers
             client.Player.CurrentFame = acc.Fame;
             client.Player.Guild = guild.Name;
             client.Player.GuildRank = 40;
+            client.Player.SetGuildHall(1);
 
             SendSuccess(client);
         }

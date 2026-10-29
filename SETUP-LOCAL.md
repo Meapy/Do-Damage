@@ -422,8 +422,15 @@ The remotes `upstream` (HaloCelsius) and `aurusenth` share no history with `main
   servers and the client need redeploying.
 - **Guilds** (2026-10-29; `Shared/database/guild/GuildHalls.cs` (the rules), `DbGuildVault.cs`,
   `WorldServer/core/worlds/impl/GuildHallWorld.cs`, `GuildMerchant.cs`, `Command.Guild.cs`,
-  `tools/build_guild_halls.py`, `source/Tests/GuildHallsTests.cs`): *Loot:* being in a guild gives
-  +1% loot (`LootBoosts.Guild`, `Player.InGuild`, in `/boosts`). *Halls:* the four `Guild Hall 1-4`
+  `tools/build_guild_halls.py`, `source/Tests/GuildHallsTests.cs`): *Buffs:* every member gets the
+  guild hall's buffs wherever they are (`GuildHalls.BuffsOf`, a `HallBuffs`): loot +1/1.5/2/3%
+  (`LootBoosts.Total`'s `guild`), experience +0/5/10/15% (`DamageCounter`, after the champions'),
+  health and mana +0/20/40/60 and vitality and wisdom +0/0/2/4 (`BoostStatManager`, beside the
+  imprints). `Player.GuildHall` is read with the guild on entering a world and set by
+  `Player.SetGuildHall` (which recalculates the stats) on making, joining, leaving or being removed
+  from a guild and, for the guild's online members on this world server, when it buys a hall
+  (`GuildHallWorld.Announce`'s `hall`). `/boosts`, `/ginfo`, the upgrade's line and the guild window
+  (`<Buffs>`, `<NextBuffs>`) show them. *Halls:* the four `Guild Hall 1-4`
   maps are drawn by `build_guild_halls.py` in the castle look, each its own shape (an octagon, a
   cross, a hexagon with a bastion on every point, an apse over a bastioned body), with 2/4/6/8 Vault
   Chests, the board and chronicle on a dais, the portals by the spawn, a training yard from 2
@@ -462,7 +469,9 @@ The remotes `upstream` (HaloCelsius) and `aurusenth` share no history with `main
   opens, a Founder puts in, an Initiate is refused taking but can put in, a chest changed in Redis
   behind the server's back is taken from as Redis has it, the upgrade moves both players into Hall 2
   with the vault, a member's death adds to this year's Guild Dead, a member last seen 30 days ago is
-  away and left out of Guild Living, and the window, tabs and halls drawn in the client.
+  away and left out of Guild Living, and the window, tabs and halls drawn in the client. The buffs:
+  `/boosts` lists Hall 2's, buying Hall 3 gives a member in the Nexus its buffs at once, and `/stats`
+  shows +40 health and mana and +2 vitality and wisdom at Hall 3 against Hall 1.
 - **Arena Leaderboard: solo and group runs apart** (2026-10-29; `DbArenaRuns`, `ArenaController`,
   `/leaderboard`, the client's `npc.rs`): a run with one player is solo (`DbArenaRun.Solo`).
   `POST /arena/leaderboard` takes `players=solo|group` (older clients send neither and get every run,

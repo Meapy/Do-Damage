@@ -36,7 +36,7 @@ The rewards come in three steps: **#1**, **#2-3** and **#4-10**.
 | **Guild Dead** | a guild's dead fame: every character that died in it this year (afresh each 1 January, UTC) | +2% loot for every member | +1% | +0.5% |
 
 - **Loot:** the boards' loot boosts add up to **at most +4%** (Fame's, the guild boards' and, in a
-  dungeon, Weekly Dungeons' together). The Legends' +1% and a guild's own +1% come on top of that.
+  dungeon, Weekly Dungeons' together). The Legends' +1% and a guild hall's own (1% to 3%) come on top of that.
   "In dungeons" means anywhere but the realms.
 - **Guilds:** each place on the guild boards is a whole guild, shown as its best member's character,
   and every member (staff aside) holds the reward.

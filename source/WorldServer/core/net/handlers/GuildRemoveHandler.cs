@@ -34,6 +34,7 @@ namespace WorldServer.core.net.handlers
 
                 srcPlayer.Guild = "";
                 srcPlayer.GuildRank = 0;
+                srcPlayer.SetGuildHall(0);
 
                 return;
             }
@@ -67,6 +68,7 @@ namespace WorldServer.core.net.handlers
 
                     targetPlayer.Guild = "";
                     targetPlayer.GuildRank = 0;
+                    targetPlayer.SetGuildHall(0);
 
                     manager.ChatManager.Guild(srcPlayer, targetPlayer.Name + " has been kicked from the guild by " + srcPlayer.Name);
                     targetPlayer.SendInfo("You have been kicked from the guild.");

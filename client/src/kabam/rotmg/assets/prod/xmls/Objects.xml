@@ -195,7 +195,7 @@
       <Price>10000</Price>
       <GuildItem>GuildHallUpgrade</GuildItem>
       <GuildItemParam>Guild Hall 2</GuildItemParam>
-      <Description>Upgrades your guild hall to Guild Hall 2: 4 vault chests and a training yard. A guild leader buys it with guild fame; everyone in the hall moves into the new one at once, with the guild vault.</Description>
+      <Description>Upgrades your guild hall to Guild Hall 2: 4 vault chests and a training yard, and every member gets +1.5% loot, +5% experience and +20 health and mana. A guild leader buys it with guild fame; everyone in the hall moves into the new one at once, with the guild vault.</Description>
       <Texture>
          <File>lofiEnvironment3</File>
          <Index>0x98</Index>
@@ -209,7 +209,7 @@
       <Price>30000</Price>
       <GuildItem>GuildHallUpgrade</GuildItem>
       <GuildItemParam>Guild Hall 3</GuildItemParam>
-      <Description>Upgrades your guild hall to Guild Hall 3: 6 vault chests, the guild's quarters with the Armoire and potion storage, and a fountain garden. A guild leader buys it with guild fame; everyone in the hall moves into the new one at once, with the guild vault.</Description>
+      <Description>Upgrades your guild hall to Guild Hall 3: 6 vault chests, the guild's quarters with the Armoire and potion storage, and a fountain garden, and every member gets +2% loot, +10% experience, +40 health and mana and +2 vitality and wisdom. A guild leader buys it with guild fame; everyone in the hall moves into the new one at once, with the guild vault.</Description>
       <Texture>
          <File>lofiEnvironment3</File>
          <Index>0x98</Index>
@@ -223,7 +223,7 @@
       <Price>75000</Price>
       <GuildItem>GuildHallUpgrade</GuildItem>
       <GuildItemParam>Guild Hall 4</GuildItemParam>
-      <Description>Upgrades your guild hall to Guild Hall 4: 8 vault chests and a throne room with the Divine Workbench. A guild leader buys it with guild fame; everyone in the hall moves into the new one at once, with the guild vault.</Description>
+      <Description>Upgrades your guild hall to Guild Hall 4: 8 vault chests and a throne room with the Divine Workbench, and every member gets +3% loot, +15% experience, +60 health and mana and +4 vitality and wisdom. A guild leader buys it with guild fame; everyone in the hall moves into the new one at once, with the guild vault.</Description>
       <Texture>
          <File>lofiEnvironment3</File>
          <Index>0x98</Index>

@@ -363,6 +363,10 @@ pub struct Guild {
     pub vault_slots: i32,
     /// The next hall's price in guild fame (0 at the last).
     pub next_price: i64,
+    /// What the hall gives every member ("+2% loot, +10% experience, ..."), and what the next
+    /// would; empty from an older server, and the next at the last hall.
+    pub buffs: String,
+    pub next_buffs: String,
     /// Its place and fame on the Hall of Champions' Guild Living and Guild Dead boards.
     pub living: Option<(i32, i64)>,
     pub dead: Option<(i32, i64)>,
@@ -402,6 +406,8 @@ pub fn parse_guild(xml: &str) -> Result<Guild, String> {
         vault_used: num("VaultUsed") as i32,
         vault_slots: num("VaultSlots") as i32,
         next_price: num("NextPrice"),
+        buffs: child_text(root, "Buffs").unwrap_or("").to_owned(),
+        next_buffs: child_text(root, "NextBuffs").unwrap_or("").to_owned(),
         living: board("LivingBoard"),
         dead: board("DeadBoard"),
     })
@@ -669,14 +675,16 @@ mod tests {
         assert_eq!(g.name, "Knights");
         assert_eq!(g.members[0], GuildMember { name: "Bob".into(), rank: 40, fame: 12, last_seen: 100, alive: None, away: false });
         assert_eq!((g.total_fame, g.level, g.living, g.dead), (9, 0, None, None));
+        assert_eq!((g.buffs.as_str(), g.next_buffs.as_str()), ("", ""));
         let g = parse_guild(
             r#"<Guild id="3" name="Knights"><TotalFame>900</TotalFame><CurrentFame>40</CurrentFame><Level>2</Level>
-            <VaultSlots>32</VaultSlots><VaultUsed>5</VaultUsed><NextPrice>30000</NextPrice><LivingBoard rank="1" fame="1500"/><DeadBoard rank="3" fame="900"/>
+            <VaultSlots>32</VaultSlots><VaultUsed>5</VaultUsed><NextPrice>30000</NextPrice><Buffs>+1.5% loot</Buffs><NextBuffs>+2% loot</NextBuffs><LivingBoard rank="1" fame="1500"/><DeadBoard rank="3" fame="900"/>
             <Member><Name>Bob</Name><Rank>40</Rank><Fame>12</Fame><LastSeen>100</LastSeen><Alive>600</Alive></Member></Guild>"#,
         )
         .unwrap();
         assert_eq!((g.level, g.fame, g.vault_used, g.vault_slots, g.next_price), (2, 40, 5, 32, 30000));
         assert_eq!((g.living, g.dead), (Some((1, 1500)), Some((3, 900))));
+        assert_eq!((g.buffs.as_str(), g.next_buffs.as_str()), ("+1.5% loot", "+2% loot"));
         assert_eq!(g.members[0].alive, Some(600));
         let (counts, cap) = parse_potions("<StoredPotions>1,2,3,4,5,6,7,8,100</StoredPotions>").unwrap();
         assert_eq!((counts, cap), (vec![1, 2, 3, 4, 5, 6, 7, 8], 100));

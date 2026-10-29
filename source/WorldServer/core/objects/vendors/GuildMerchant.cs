@@ -67,7 +67,8 @@ namespace WorldServer.core.objects.vendors
                 Result = 0
             });
             GuildHallWorld.Announce(player.GameServer, guild.Id,
-                $"{player.Name} upgraded {guild.Name}'s hall to Guild Hall {level + 1}: {GuildHalls.Describe(level + 1)}.");
+                $"{player.Name} upgraded {guild.Name}'s hall to Guild Hall {level + 1}: {GuildHalls.Describe(level + 1)}. Every member now gets {GuildHalls.BuffsOf(level + 1)}.",
+                level + 1);
             hall.MoveTo(level + 1);
         }
 

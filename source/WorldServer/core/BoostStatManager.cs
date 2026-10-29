@@ -104,6 +104,16 @@ namespace WorldServer.core
             // the equipped gear's imprints (Player.Imprints.cs)
             foreach (var (stat, amount) in _player.ImprintStats())
                 IncrementBoost(stat, amount);
+
+            // the guild hall's (GuildHalls.BuffsOf)
+            var guild = _player.GuildBuffs;
+            if (guild.HasStats)
+            {
+                IncrementBoost(StatDataType.MaximumHealth, guild.Health);
+                IncrementBoost(StatDataType.MaximumMana, guild.Mana);
+                IncrementBoost(StatDataType.Vitality, guild.Vitality);
+                IncrementBoost(StatDataType.Wisdom, guild.Wisdom);
+            }
         }
 
         // Blood Pact's share of maximum health, after everything else

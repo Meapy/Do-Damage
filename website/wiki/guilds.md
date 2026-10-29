@@ -3,10 +3,11 @@ title: Guilds
 nav: 4
 sprite: shield
 eyebrow: Play together
-summary: Guilds: the +1% loot every member gets, the shared guild vault, the four guild halls and their upgrades, the two guild boards in the Hall of Champions, ranks and commands.
+summary: Guilds: the loot, experience and stats every member gets from the guild hall, the shared guild vault, the four guild halls and their upgrades, the two guild boards in the Hall of Champions, ranks and commands.
 ---
 A **guild** is a band of players with its own chat, its own hall and a vault they share. Being in
-one is worth it from the first day: **every member gets +1% loot**, everywhere.
+one is worth it from the first day: **every member gets +1% loot**, everywhere, and each bigger hall
+the guild buys gives every member more (see [the buffs](#the-halls-buffs)).
 
 ## Making or joining one
 
@@ -43,6 +44,21 @@ halls, each bigger than the last and each a shape of its own:
 | **3** | a star-fort keep | 6 chests (48) | the guild's **quarters**, with the **Armoire** and the **Potion Storage**, and a fountain garden | 30,000 guild fame |
 | **4** | a citadel | 8 chests (64) | a **throne room** with the **Divine Workbench** (the Divine Forge and the Enchanter) | 75,000 guild fame |
 
+### The halls' buffs
+
+Whatever hall the guild has, **every member gets its buffs**, wherever they are (not only in the
+hall), from the moment it's bought:
+
+| Hall | Loot | Experience | Stats |
+|---|---|---|---|
+| **1** | +1% | | |
+| **2** | +1.5% | +5% | +20 health and mana |
+| **3** | +2% | +10% | +40 health and mana, +2 vitality and wisdom |
+| **4** | +3% | +15% | +60 health and mana, +4 vitality and wisdom |
+
+The experience counts at level 20 too, where it becomes fame. The stats come on top of your
+gear's, like a ring's, even past your class's maximum. `/boosts` shows what you get.
+
 A **Leader** or the Founder buys the next hall at the **Guild Hall Upgrade** on the dais at the hall's
 north end. Everyone in the hall moves into the new one at once, and the vault comes along: its items
 stay in the same chests, with new empty chests added.
@@ -72,11 +88,13 @@ the top 10 holds its reward**: +2% loot at #1, +1% at #2-3 and +0.5% at #4-10, o
 - **Guild Dead**: the fame of every character that **died** in the guild **this year**. It starts
   afresh on **1 January** (UTC).
 
-The boards' loot boosts count towards the Hall's +4% cap, and the guild's own +1% comes on top.
+The boards' loot boosts count towards the Hall's +4% cap, and the guild hall's own (1% to 3%) comes
+on top.
 
 ## The Guild Chronicle
 
-The **Guild Chronicle** in the hall (and in your vault) opens the guild's window: its hall, its places
+The **Guild Chronicle** in the hall (and in your vault) opens the guild's window: its hall and buffs
+(and the next hall's), its places
 on the two guild boards, its guild fame, how full the vault is, the next hall's price, and every
 member with their rank, the guild fame they've given and their living fame.
 
@@ -86,7 +104,7 @@ member with their rank, the guild fame they've given and their living fame.
 |---|---|
 | `/g <message>` (or <kbd>G</kbd>) | guild chat |
 | `/ghall` | to your guild hall, from anywhere |
-| `/ginfo` | the guild at a glance: hall, guild fame, board places, vault, next hall |
+| `/ginfo` | the guild at a glance: hall, buffs, guild fame, board places, vault, next hall |
 | `/gvault [count]` | the vault's log: who put in or took out what |
 | `/gwho` | the guild's members who are online |
 | `/invite <name>` | invites a player (officers and up) |

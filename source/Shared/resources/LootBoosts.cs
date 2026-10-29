@@ -12,14 +12,11 @@ namespace Shared.resources
         // entering a world like the legend glow
         public const double Legend = 0.01;
 
-        // being in a guild (Player.Guild set), whatever its hall (GuildHalls.LootBoost)
-        public const double Guild = database.guild.GuildHalls.LootBoost;
-
         // what the boosts add together; the rare, epic and legendary monsters' and the damage share
         // come on top in Loots.Handle. champion is the Hall of Champions' boards' loot boost
         // (ChampionPlaces.Loot, already capped at ChampionBoards.LootCap), on top of the Legends'
-        // and the guild's.
-        public static double Total(bool lootDrop, bool legend, double weekend, double lootEvent, double champion = 0, bool guild = false) =>
-            (lootDrop ? LootDrop : 0) + (legend ? Legend : 0) + weekend + lootEvent + champion + (guild ? Guild : 0);
+        // and the guild's (its hall's, GuildHalls.BuffsOf: 1% to 3%).
+        public static double Total(bool lootDrop, bool legend, double weekend, double lootEvent, double champion = 0, double guild = 0) =>
+            (lootDrop ? LootDrop : 0) + (legend ? Legend : 0) + weekend + lootEvent + champion + guild;
     }
 }
