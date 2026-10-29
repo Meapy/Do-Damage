@@ -41,6 +41,10 @@ defaults:
   run:
     shell: bash
 
+# every line shows in the log as it happens (Python holds its output back in a pipe otherwise)
+env:
+  PYTHONUNBUFFERED: "1"
+
 jobs:
   plan:
     runs-on: ubuntu-24.04

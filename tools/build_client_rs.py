@@ -45,7 +45,7 @@ UPDATE_KEY = os.path.join(ROOT, "build", "client-update.key")
 
 
 def run(cmd, **kw):
-    print(">", " ".join(cmd))
+    print(">", " ".join(cmd), flush=True)
     subprocess.run(cmd, check=True, **kw)
 
 
@@ -104,10 +104,11 @@ def commit():
 
 
 def publish_tool(*args):
-    """Run bsk-publish; returns what it printed."""
-    cmd = ["cargo", "run", "-q", "--release", "-p", "bsk-publish", "--"] + list(args)
-    print(">", " ".join(cmd))
-    return subprocess.run(cmd, cwd=CRATE, check=True, capture_output=True, text=True).stdout.strip()
+    """Run bsk-publish; returns what it printed. Cargo's progress (building it the first time)
+    shows as it goes."""
+    cmd = ["cargo", "run", "--release", "-p", "bsk-publish", "--"] + list(args)
+    print(">", " ".join(cmd), flush=True)
+    return subprocess.run(cmd, cwd=CRATE, check=True, stdout=subprocess.PIPE, text=True).stdout.strip()
 
 
 def update_key():

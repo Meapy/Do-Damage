@@ -217,9 +217,10 @@ def publish_client(cfg):
     expected = os.environ.get("BSK_UPDATE_PUBLIC_KEY", "").strip().lower()
     if expected:
         # CI: the key came from a secret; a wrong one would sign a release no client takes
-        out = subprocess.run(["cargo", "run", "-q", "--release", "-p", "bsk-publish", "--", "key", "--key",
+        print("client: checking the signing key against BSK_UPDATE_PUBLIC_KEY (builds bsk-publish)", flush=True)
+        out = subprocess.run(["cargo", "run", "--release", "-p", "bsk-publish", "--", "key", "--key",
                               os.path.join(ROOT, "build", "client-update.key")],
-                             cwd=os.path.join(ROOT, "client-rs"), check=True, capture_output=True, text=True)
+                             cwd=os.path.join(ROOT, "client-rs"), check=True, stdout=subprocess.PIPE, text=True)
         if out.stdout.strip().lower() != expected:
             sys.exit(why + ", but build/client-update.key isn't the key players' clients trust"
                      " (its public key isn't BSK_UPDATE_PUBLIC_KEY)." + stop)
