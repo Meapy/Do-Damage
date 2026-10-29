@@ -367,7 +367,7 @@ whoever holds it can ship code to every player's PC. Two ways:
    | Secret | What to paste | `gh` |
    |---|---|---|
    | `VPS_SSH_KEY` | the private key from step 2, all of it | `Get-Content -Raw $HOME\.ssh\dodmg_github \| gh secret set VPS_SSH_KEY --env production` |
-   | `VPS_KNOWN_HOSTS` | the VPS's host key line(s): ssh refuses any other | `ssh-keygen -F dodmg.com \| Select-String -NotMatch '^#' \| Out-String \| gh secret set VPS_KNOWN_HOSTS --env production` |
+   | `VPS_KNOWN_HOSTS` | the VPS's host key lines, under the name the config's `ssh` uses (ssh refuses any other key). This PC's known_hosts has them under the IP only, so the command adds the name | `ssh-keygen -F 169.58.244.146 \| Select-String -NotMatch '^#' \| ForEach-Object { $_ -replace '^169\.58\.244\.146', 'dodmg.com,169.58.244.146' } \| Out-String \| gh secret set VPS_KNOWN_HOSTS --env production` |
    | `VPS_CONFIG` | `deploy/vps.local.json`, all of it (its `-i` in `ssh_options` is replaced by the key above; `-p` and the rest are kept) | `Get-Content -Raw deploy\vps.local.json \| gh secret set VPS_CONFIG --env production` |
    | `DISCORD_ENV` | optional: `deploy/discord.local.env`. Without it the bot keeps the settings on the VPS, so only add it to change them from GitHub | `Get-Content -Raw deploy\discord.local.env \| gh secret set DISCORD_ENV --env production` |
    | `CLIENT_UPDATE_KEY` | only to publish the client from GitHub: `build/client-update.key` | `Get-Content -Raw build\client-update.key \| gh secret set CLIENT_UPDATE_KEY --env production` |
