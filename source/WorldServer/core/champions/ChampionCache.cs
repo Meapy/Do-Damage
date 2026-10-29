@@ -67,37 +67,49 @@ namespace WorldServer.core.champions
         }
     }
 
-    // What one player did this week for the weekly boards, kept here and added to Redis once a
-    // minute and when they leave the world (Client.Save), rather than at every kill.
+    // What one player did this week for the weekly boards, kept here and added to Redis every few
+    // seconds (a dungeon cleared at once) rather than at every kill, and when they leave the world
+    // (Client.Save: on a deploy's hand-over and when the server stops) waiting until Redis has it.
+    // So a restart or a deploy keeps everything, and a crash loses a few seconds at most. Counts
+    // go to the week they were earned in, even if it ends before they're written.
     public sealed class ChampionCounter
     {
+        private const float Every = 5f;
+
         private long _fame, _dungeons;
-        private float _flushIn = 60f;
+        private int _week;
+        private float _flushIn = Every;
 
         public void Count(QuestEvent e)
         {
+            if (e.Type != QuestEvents.Fame && e.Type != QuestEvents.Dungeon)
+                return;
+            if (_fame == 0 && _dungeons == 0)
+                _week = ChampionCache.Week;
             if (e.Type == QuestEvents.Fame)
                 _fame += e.Amount;
-            else if (e.Type == QuestEvents.Dungeon)
+            else
+            {
                 _dungeons += e.Amount;
+                _flushIn = 0;
+            }
         }
 
         public void Tick(float dt, Shared.database.Database db, int accountId)
         {
             _flushIn -= dt;
-            if (_flushIn > 0)
+            if (_flushIn > 0 && _week == ChampionCache.Week)
                 return;
-            _flushIn = 60f;
+            _flushIn = Every;
             Flush(db, accountId);
         }
 
-        public void Flush(Shared.database.Database db, int accountId)
+        public void Flush(Shared.database.Database db, int accountId, bool wait = false)
         {
             if (_fame == 0 && _dungeons == 0)
                 return;
-            var week = ChampionCache.Week;
-            DbChampions.AddWeekly(db.Conn, week, ChampionTab.WeeklyFame, accountId, _fame);
-            DbChampions.AddWeekly(db.Conn, week, ChampionTab.WeeklyDungeons, accountId, _dungeons);
+            DbChampions.AddWeekly(db.Conn, _week, ChampionTab.WeeklyFame, accountId, _fame, wait);
+            DbChampions.AddWeekly(db.Conn, _week, ChampionTab.WeeklyDungeons, accountId, _dungeons, wait);
             _fame = _dungeons = 0;
         }
     }

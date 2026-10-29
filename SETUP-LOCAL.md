@@ -387,8 +387,10 @@ The remotes `upstream` (HaloCelsius) and `aurusenth` share no history with `main
   isn't ranked doesn't count; every member holds the place, the best one when in several; the
   XML's `<Entry>` then has a `<Member>` per player, the statue and podium show them all), Weekly Fame and Weekly Dungeons
   (`champions:week:<QuestPeriods.WeekKey>:<board>` sorted sets, added to by the world servers from the
-  quest events `fame` and `dungeon`, kept per player and flushed once a minute and on leaving, kept
-  three weeks). Guests, banned, hidden and admin accounts (`rank` 6 or the `admin` flag) aren't ranked; ties go to the tiebreak, then the
+  quest events `fame` and `dungeon`, kept per player and written every 5 s (a dungeon at once) and on
+  leaving, where `Client.Save` waits until Redis has them, so a restart or a deploy's hand-over keeps
+  every count and a crash loses a few seconds at most; counts go to the week they were earned in;
+  kept three weeks). Guests, banned, hidden and admin accounts (`rank` 6 or the `admin` flag) aren't ranked; ties go to the tiebreak, then the
   lower account id. *Ranking:* the account server (one instance) ranks every 5 minutes on a timer,
   in pipelined batches of 200 accounts, re-reading only accounts whose `lastSeen` moved (and all of
   them hourly or when asked); about 45 ms for the test data. It keeps the result in memory for
@@ -406,7 +408,7 @@ The remotes `upstream` (HaloCelsius) and `aurusenth` share no history with `main
   about a minute. `/boosts` lists them; `/champions` (anyone) shows each top three and your places;
   `/championsadmin refresh | reload | week <hours> | add <fame|dungeons> <n>` (admins) ranks at once,
   re-reads, moves the weekly boards' clock for every server (`champions:clockHours`) or counts on
-  you. *The Nexus:* `Champions Monument` (0x4989, class `ChampionsBoard`) and `Champion Statue`
+  you (through the same counter as real fame and dungeons). *The Nexus:* `Champions Monument` (0x4989, class `ChampionsBoard`) and `Champion Statue`
   (0x498a, class `ChampionStatue`, its board in the map's `name:<board id>`), art from
   `tools/draw_champions.py` (`Champions32x32.png`, a Rust-only sheet in `gen_rs_manifest.py`),
   placed by `tools/build_castle_maps.py` (`CHAMPIONS`, `CHAMPION_STATUES`) in the east ward's south

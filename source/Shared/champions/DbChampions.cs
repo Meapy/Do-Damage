@@ -45,11 +45,19 @@ namespace Shared.champions
         }
 
         // What an account did this week, added (fire and forget).
-        public static void AddWeekly(IDatabase db, int week, ChampionTab tab, int accountId, long amount)
+        // Adds to a weekly board. `wait`: until Redis has it (a player leaving, maybe as the
+        // server stops: a fire-and-forget write can be dropped as the process exits).
+        public static void AddWeekly(IDatabase db, int week, ChampionTab tab, int accountId, long amount, bool wait = false)
         {
             if (amount <= 0)
                 return;
             var key = WeekKey(week, tab);
+            if (wait)
+            {
+                db.SortedSetIncrement(key, accountId, amount);
+                db.KeyExpire(key, WeekKept);
+                return;
+            }
             db.SortedSetIncrementAsync(key, accountId, amount, CommandFlags.FireAndForget);
             db.KeyExpireAsync(key, WeekKept, CommandFlags.FireAndForget);
         }

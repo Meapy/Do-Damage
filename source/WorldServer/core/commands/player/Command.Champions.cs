@@ -3,6 +3,7 @@ using System.Globalization;
 using System.Linq;
 using Shared;
 using Shared.champions;
+using Shared.quests;
 using WorldServer.core.champions;
 using WorldServer.core.objects;
 using WorldServer.core.worlds;
@@ -82,7 +83,8 @@ namespace WorldServer.core.commands
                         var tab = parts[1].ToLowerInvariant() switch { "fame" => ChampionTab.WeeklyFame, "dungeons" => ChampionTab.WeeklyDungeons, _ => (ChampionTab?)null };
                         if (tab == null)
                             return false;
-                        DbChampions.AddWeekly(db, ChampionCache.Week, tab.Value, player.AccountId, n);
+                        // counted as the game counts it (written within a few seconds, or on leaving)
+                        player.ChampionCounter.Count(new QuestEvent(tab == ChampionTab.WeeklyFame ? QuestEvents.Fame : QuestEvents.Dungeon) { Amount = (int)Math.Clamp(n, 0, int.MaxValue) });
                         player.SendInfo($"Added {n} to your {ChampionBoards.Of(tab.Value).Name} this week.");
                         return true;
                     default:
