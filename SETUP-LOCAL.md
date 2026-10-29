@@ -550,7 +550,7 @@ The remotes `upstream` (HaloCelsius) and `aurusenth` share no history with `main
   and Enchanter) and the Arena court (portal, now at 54.5, 28.5, and leaderboard) stand either side
   of the road between the spawn and the keep, the market square (Broker and two pavilions of 8
   stalls) fills the courtyard south of the spawn, the castle lost its south-west corner and south
-  yard (97 by 88 tiles, was 92 high), and a garden fills the east ward's north side. Every shop has
+  yard (97 by 88 tiles, was 92 high), and a crystal court (amethysts round a fountain, `CRYSTAL_COURTS`) fills the east ward's north side. Every shop has
   fewer stalls than items now and rotates through them (`MerchantData.Rotates`: 3-6 minutes an
   item, as the pet generators did), so the wards are half the size. `/forge` and `/market` put you
   in front of the forge and the Broker.

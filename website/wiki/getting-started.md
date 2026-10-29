@@ -126,7 +126,7 @@ you while you stand next to them. Around the spawn:
   [Marketplace](marketplace.html) and two pavilions of stalls show what players sell.
 - **Both sides**, behind the colonnades: the **market wards**, the Nexus Bazaar's stalls (dungeon
   keys, pet generators, clothing, accessories, stat potions and specials to the west; Elder and
-  Doomed keys and consumables to the east, and a garden). The stalls take turns through each
+  Doomed keys and consumables to the east, and a crystal court with a fountain). The stalls take turns through each
   shop's items. Everything there costs fame.
 - **East ward, south of the street**: the [Hall of Champions](champions.html), the living's
   leaderboard, its champions on plinths round the Champions Monument.

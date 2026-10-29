@@ -292,28 +292,30 @@ class Grid:
                     self.put(x0 + 2 + 2 * i, y0 + 2 + 2 * j, STALL, region=region)
                     n += 1
 
-    def garden(self, rng, x0, y0, x1, y1):
-        """A garden on the castle's floor in this rectangle: grass, a fountain in the middle on a
-        lane of stone across it, blossom trees in staggered rows either side, flowers between and
-        lanterns at the corners. It takes no decoration slot."""
+    def crystal_court(self, rng, x0, y0, x1, y1):
+        """A court in this rectangle, in the castle's own stone: violet diamonds framed by the
+        pavilions' border tiles, a fountain where two lanes of stone cross, amethyst crystals on
+        stone plinths in staggered rows either side, candles between and ember braziers at the
+        corners. It takes no decoration slot."""
         mx, my = (x0 + x1) // 2, (y0 + y1) // 2
         for y in range(y0, y1 + 1):
             for x in range(x0, x1 + 1):
                 if not self.castle[y][x] or self.is_wall(x, y) or self.t[y][x]["obj"] or self.t[y][x]["region"]:
                     continue
                 lane = y in (my, my + 1) or x in (mx, mx + 1) and abs(y - my) <= 2
-                self.put(x, y, STONE if lane else rng.choice(GRASS))
+                edge = x in (x0, x1) or y in (y0, y1)
+                self.put(x, y, STONE if lane else STALL_EDGE if edge else PLAZA)
                 self.paths.add((x, y))
-                if lane:
+                if lane or edge:
                     continue
                 if (y - y0) % 3 == 1 and (x - x0 + (y - y0) // 3 * 2) % 4 == 1 and abs(x - mx) > 2:
-                    self.put(x, y, None, TREE)
-                elif rng.random() < 0.08:
-                    self.put(x, y, None, FLOWER)
+                    self.put(x, y, STONE, CRYSTAL)
+                elif rng.random() < 0.06:
+                    self.put(x, y, None, CANDLES)
         self.put(mx, my, STONE, FOUNTAIN)
         for x, y in ((x0, y0), (x1, y0), (x0, y1), (x1, y1)):
             if self.castle[y][x] and not self.is_wall(x, y):
-                self.put(x, y, None, LANTERN)
+                self.put(x, y, None, FLAME_OBJ)
 
     def accents(self, rng, chance=0.045):
         """Crystals and candles here and there on open courtyard floor."""
@@ -406,12 +408,9 @@ PAVILIONS = [
     ("Elder and Doomed Keys", "Store 12", 65, 24, 3, 2),
     ("Consumables", "Store 2", 78, 24, 3, 2),
 ]
-# Gardens where the wards' shops used to stand: blossom trees on petal grass round a fountain,
-# lanterns at the corners, a lane through (x0, y0, x1, y1)
-GARDENS = [(64, 32, 88, 38)]
-GRASS = ["R2 Petal Grass", "R2 Moss Grass", "R2 Petal Grass"]
-TREE = "Cherry Tree"
-FLOWER = "Crystal Flower"
+# Crystal courts where the wards' shops used to stand: amethysts on plinths round a fountain,
+# braziers at the corners, lanes through (x0, y0, x1, y1)
+CRYSTAL_COURTS = [(64, 32, 88, 38)]
 LANTERN = "Archbishop Lantern"
 
 
@@ -620,8 +619,8 @@ def build_nexus():
 
     for p in PAVILIONS:
         g.pavilion(*p)
-    for garden in GARDENS:
-        g.garden(rng, *garden)
+    for court in CRYSTAL_COURTS:
+        g.crystal_court(rng, *court)
     # lanterns along the road from the keep to the gate, between the courts and the stalls
     for y in list(range(23, 33, 3)) + list(range(57, 63, 3)):
         for x in (cx - 2, cx + 2):

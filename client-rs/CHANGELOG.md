@@ -25,7 +25,7 @@ details). Add to a group's line when a change adds to it, rather than adding ano
 
 ### Nexus
 - A new layout: the Divine Forge and the Arena now stand either side of the road just north of the
-  spawn, the market square fills the courtyard to the south, and a garden the east ward. The shops
+  spawn, the market square fills the courtyard to the south, and a crystal court with a fountain the east ward. The shops
   take less room: their stalls take turns through the items, as the pet generators did.
 
 ### Guilds
