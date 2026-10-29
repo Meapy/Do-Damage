@@ -22,7 +22,8 @@ pub mod stat {
 }
 
 /// Changing a chosen name (`ChooseNameHandler.NAME_CHANGE_FAME`, fame; the AIR client's was
-/// 100 gold), `GuildRegisterPanel`'s price (fame), and potion storage's upgrade
+/// 100 gold), `GuildRegisterPanel`'s price (fame; the Guild Register sends its own, 0 during a
+/// free guilds event, and older servers none), and potion storage's upgrade
 /// (`DbAccount.PotionStorageUpgradeCost`, fame).
 pub const NAME_CHANGE_PRICE: i32 = 50_000;
 pub const GUILD_PRICE: i32 = 1000;
@@ -99,9 +100,17 @@ fn guild(me: &GameObj) -> &str {
     me.stat_str(stat::GUILD_NAME).unwrap_or("")
 }
 
+/// What making a guild costs, from the price the Guild Register sent: `0` is free.
+pub fn guild_price_text(price: Option<i32>) -> String {
+    match price.unwrap_or(GUILD_PRICE) {
+        0 => "free".to_owned(),
+        p => format!("{} fame", crate::hud::group_digits(p)),
+    }
+}
+
 /// What the interact area shows for an NPC: a line under its name, and the button (its label
-/// and look), if there is one to press.
-pub fn interact_text(kind: NpcKind, me: &GameObj, rank_req: i32) -> (String, Option<(String, Kind)>) {
+/// and look), if there is one to press. `price`: what the NPC sends (the Guild Register's).
+pub fn interact_text(kind: NpcKind, me: &GameObj, rank_req: i32, price: Option<i32>) -> (String, Option<(String, Kind)>) {
     let open = |line: &str, button: &str| (line.to_owned(), Some((button.to_owned(), Kind::Primary)));
     match kind {
         NpcKind::CharacterChanger => open("Change characters", "Change"),
@@ -119,7 +128,7 @@ pub fn interact_text(kind: NpcKind, me: &GameObj, rank_req: i32) -> (String, Opt
         NpcKind::GuildRegister => {
             let g = guild(me);
             if g.is_empty() {
-                (String::from("Create a guild"), Some((format!("Create  ·  {GUILD_PRICE} fame"), Kind::Primary)))
+                (String::from("Create a guild"), Some((format!("Create  ·  {}", guild_price_text(price)), Kind::Primary)))
             } else {
                 (format!("{} of {g}", rank_name(int(me, stat::GUILD_RANK))), Some(("Renounce".to_owned(), Kind::Danger)))
             }
@@ -230,6 +239,8 @@ pub struct Npcs {
     buttons: Vec<(Hit, [f32; 4])>,
     /// When to fetch the stored potions again, after using the storage.
     pub reload_at: Option<i32>,
+    /// The price the Guild Register sent when its window was opened.
+    pub guild_price: Option<i32>,
 }
 
 /// Rows of the member list per page.
@@ -527,7 +538,10 @@ impl Npcs {
                         Some(m) if int(m, stat::NAME_CHOSEN) != 0 => format!("Letters only, at most 10. Costs {} fame.", crate::hud::group_digits(NAME_CHANGE_PRICE)),
                         _ => "Letters only, at most 10. Choose carefully!".to_owned(),
                     },
-                    Prompt::Guild => format!("Letters and spaces, at most 20. Costs {GUILD_PRICE} fame."),
+                    Prompt::Guild => match self.guild_price.unwrap_or(GUILD_PRICE) {
+                        0 => "Letters and spaces, at most 20. Free during the guild event!".to_owned(),
+                        _ => format!("Letters and spaces, at most 20. Costs {}.", guild_price_text(self.guild_price)),
+                    },
                 };
                 ui.label(&hint, body[0], body[1], font(12.0), false, color::TEXT_DIM);
                 let fr = [body[0], body[1] + 30.0 * s, body[2], 40.0 * s];
@@ -839,6 +853,13 @@ pub fn wrap(ui: &mut Ui, text: &str, size: f32, width: f32) -> Vec<String> {
 #[cfg(test)]
 mod tests {
     use super::*;
+
+    #[test]
+    fn guilds_show_the_registers_price() {
+        assert_eq!(guild_price_text(None), "1,000 fame");
+        assert_eq!(guild_price_text(Some(1000)), "1,000 fame");
+        assert_eq!(guild_price_text(Some(0)), "free");
+    }
 
     #[test]
     fn prompts_filter_text() {

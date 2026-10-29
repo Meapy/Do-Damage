@@ -31,6 +31,7 @@
         "wkndBoost": 0.3,
         "damageEvent": 0.2,
         "damageEventEnemies": [ "Oryx the Mad God 4", "Oryx the Ascended God" ],
-        "mapEvent": "Halloween"
+        "mapEvent": "Halloween",
+        "freeGuildsUntil": "2026-12-01T00:00:00Z"
     }
 }

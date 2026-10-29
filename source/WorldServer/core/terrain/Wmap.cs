@@ -106,7 +106,9 @@ namespace WorldServer.core.terrain
 
                         var desc = tile.ObjDesc;
 
-                        if (tile.ObjType != 0 && (desc == null || !desc.Static || desc.Enemy))
+                        // the Guild Register is static, but an entity (GuildRegister) so its price
+                        // can change while the world runs: static objects' stats are sent once
+                        if (tile.ObjType != 0 && (desc == null || !desc.Static || desc.Enemy || desc.Class == "GuildRegister"))
                         {
                             entities.Add(new Tuple<IntPoint, ushort, string>(new IntPoint(x, y), tile.ObjType, tile.ObjCfg));
                             if (desc == null || !(desc.Enemy && desc.Static))

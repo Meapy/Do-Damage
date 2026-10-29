@@ -263,6 +263,15 @@ struct App {
 /// Open the window of the NPC we stand by. True for the character changer: back to the
 /// character list.
 #[allow(clippy::too_many_arguments)]
+/// The price the Guild Register in sight sends (0 during a free guilds event; none from older
+/// servers).
+fn guild_register_price(world: &bsk_world::World, data: &bsk_data::GameData) -> Option<i32> {
+    world.objects.values().find_map(|o| match &data.objects.get(&o.object_type)?.class {
+        bsk_data::ObjectClass::Other(c) if c == "GuildRegister" => o.stat_int(hud::merch::PRICE),
+        _ => None,
+    })
+}
+
 fn npc_open(kind: npc::NpcKind, game: &Game, npcs: &mut npc::Npcs, market: &mut market::Market, forge: &mut forge::Forge, forge_acts: &mut Vec<forge::Act>, quests: (&mut quests::Quests, &mut Vec<quests::Act>), list: Option<&bsk_net::account::CharList>, data: &bsk_data::GameData) -> bool {
     use npc::{NpcKind, Prompt, Window};
     let Some(me) = game.world.as_ref().and_then(|w| w.player()) else { return false };
@@ -302,6 +311,7 @@ fn npc_open(kind: npc::NpcKind, game: &Game, npcs: &mut npc::Npcs, market: &mut 
         }
         NpcKind::NameChanger => Window::Prompt { prompt: Prompt::Name, input: String::new(), error: None, busy: false },
         NpcKind::GuildRegister => {
+            npcs.guild_price = game.world.as_ref().and_then(|w| guild_register_price(w, data));
             if me.stat_str(npc::stat::GUILD_NAME).unwrap_or("").is_empty() {
                 Window::Prompt { prompt: Prompt::Guild, input: String::new(), error: None, busy: false }
             } else {
@@ -2398,6 +2408,12 @@ impl App {
                     fame: &game.fame_stats,
                 };
                 hud::draw_windows(&mut ui, &lay, world, p, &social, mouse);
+                // the guild prompt follows the register's price (an event ending while it's open)
+                if matches!(self.npcs.window, Some(npc::Window::Prompt { prompt: npc::Prompt::Guild, .. })) {
+                    if let Some(price) = guild_register_price(world, data) {
+                        self.npcs.guild_price = Some(price);
+                    }
+                }
                 self.npcs.draw(&mut ui, &lay, world.player(), mouse, now);
                 self.market.draw(&mut ui, &lay, world.player(), mouse, now);
                 self.forge.draw(&mut ui, &lay, world.player(), mouse, now);

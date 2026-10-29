@@ -212,6 +212,8 @@ namespace WorldServer.core.objects
                     return new NexusMerchant(gameServer, objectType);
                 case "GuildMerchant":
                     return new GuildMerchant(gameServer, objectType);
+                case "GuildRegister":
+                    return new GuildRegister(gameServer, objectType);
                 case "ClosedVaultChestGold":
                 case "VaultChest":
                 case "MarketNPC":

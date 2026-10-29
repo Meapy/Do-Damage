@@ -1,4 +1,5 @@
-﻿using Shared;
+﻿using System;
+using Shared;
 using Shared.database.guild;
 using WorldServer.core.worlds;
 using WorldServer.core.worlds.impl;
@@ -23,7 +24,10 @@ namespace WorldServer.core.net.handlers
             acc.Reload("fame");
             acc.Reload("totalFame");
 
-            if (acc.Fame < 1000)
+            // nothing during the free guilds event (GuildPrice)
+            var price = GuildPrice.At(GuildPrice.FreeUntil(client.GameServer.Configuration.serverSettings), DateTime.UtcNow);
+
+            if (acc.Fame < price)
             {
                 SendError(client, "Insufficient funds");
                 return;
@@ -57,7 +61,8 @@ namespace WorldServer.core.net.handlers
                 return;
             }
 
-            client.GameServer.Database.UpdateFame(acc, -1000);
+            if (price > 0)
+                client.GameServer.Database.UpdateFame(acc, -price);
             client.Player.CurrentFame = acc.Fame;
             client.Player.Guild = guild.Name;
             client.Player.GuildRank = 40;

@@ -12,6 +12,12 @@ Keep each version short: changes go under `### ` group headings (Oryx 5, Arena, 
 on), one line per change players notice, summed up rather than item by item (the wiki has the
 details). Add to a group's line when a change adds to it, rather than adding another line.
 
+## Unreleased
+
+### Guilds
+- Guild event: making a guild at the Guild Register is free until the end of 30 November (UTC),
+  in place of 1,000 fame. The Nexus reminds you when you arrive.
+
 ## 2.3.2 (2026-10-29)
 
 ### Hall of Champions

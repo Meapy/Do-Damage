@@ -846,8 +846,9 @@ pub enum InteractKind {
     /// when it sells itself), the price and currency (0 gold, 1 fame, 2 guild fame), the rank
     /// it needs.
     Shop { item: i32, price: i32, currency: i32, rank_req: i32 },
-    /// An NPC with a panel (the Armoire, the guild register...), and the rank it asks for.
-    Npc { kind: crate::npc::NpcKind, rank_req: i32 },
+    /// An NPC with a panel (the Armoire, the guild register...), the rank it asks for, and the
+    /// price it sends (the Guild Register's, 0 during a free guilds event).
+    Npc { kind: crate::npc::NpcKind, rank_req: i32, price: Option<i32> },
 }
 
 /// Merchandise stats (`StatData`).
@@ -891,7 +892,7 @@ pub fn interact_target(world: &World, data: &GameData) -> Option<Interact> {
                 ObjectClass::Other(c) => crate::npc::NpcKind::of_class(c),
                 _ => None,
             } {
-                InteractKind::Npc { kind, rank_req: o.stat_int(merch::RANK_REQ).unwrap_or(0) }
+                InteractKind::Npc { kind, rank_req: o.stat_int(merch::RANK_REQ).unwrap_or(0), price: o.stat_int(merch::PRICE) }
             } else {
                 return None;
             };
@@ -1208,8 +1209,8 @@ impl Panel {
                 }
             } else if target.kind == InteractKind::Portal {
                 panel.buttons.push((Button::Enter(target.id), ia(32.0, 42.0, 120.0, 34.0)));
-            } else if let InteractKind::Npc { kind, rank_req } = target.kind {
-                if crate::npc::interact_text(kind, me, rank_req).1.is_some() {
+            } else if let InteractKind::Npc { kind, rank_req, price } = target.kind {
+                if crate::npc::interact_text(kind, me, rank_req, price).1.is_some() {
                     panel.buttons.push((Button::Npc(kind), ia(8.0, 52.0, 168.0, 34.0)));
                 }
             } else {
@@ -1606,8 +1607,8 @@ pub fn draw_panel(ui: &mut Ui, lay: &Layout, world: &World, camera_angle: f64, c
         let w = ui.measure(&target.name, size, true);
         ui.label(&target.name, centred(w), iy(6.0), size, true, color::ACCENT_HI);
         // An NPC: what it does (or who we are to it).
-        if let InteractKind::Npc { kind, rank_req } = target.kind {
-            let (line, _) = crate::npc::interact_text(kind, me, rank_req);
+        if let InteractKind::Npc { kind, rank_req, price } = target.kind {
+            let (line, _) = crate::npc::interact_text(kind, me, rank_req, price);
             let small = lay.font(11.5);
             let lw = ui.measure(&line, small, false);
             ui.label(&line, centred(lw), iy(26.0), small, false, color::TEXT_DIM);
@@ -1690,7 +1691,7 @@ pub fn draw_panel(ui: &mut Ui, lay: &Layout, world: &World, camera_angle: f64, c
             },
             Button::Npc(_) => match panel.interact.as_ref().map(|i| i.kind) {
                 // with the interact key after it, as Enter has
-                Some(InteractKind::Npc { kind, rank_req }) => match crate::npc::interact_text(kind, me, rank_req).1 {
+                Some(InteractKind::Npc { kind, rank_req, price }) => match crate::npc::interact_text(kind, me, rank_req, price).1 {
                     Some((text, k)) if state.interact_key.is_empty() => (text.to_string(), k),
                     Some((text, k)) => (format!("{text}  {}", state.interact_key), k),
                     None => continue,

@@ -31,6 +31,9 @@ namespace Shared
         // An event's maps, such as "Halloween": a world whose map is "<map>.jm" plays
         // "<map> <mapEvent>.jm" instead where there is one (tools/build_castle_maps.py). Empty: none.
         public string mapEvent { get; set; } = "";
+        // The free guilds event: making a guild costs nothing until this moment, in UTC
+        // ("2026-12-01T00:00:00Z"; Shared/database/guild/GuildPrice.cs). Empty: none.
+        public string freeGuildsUntil { get; set; } = "";
         public int[] whitelist { get; set; } = new int[] { };
     }
 }
