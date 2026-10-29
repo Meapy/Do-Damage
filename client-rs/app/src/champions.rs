@@ -25,9 +25,7 @@ pub const PLACES: i32 = 10;
 /// The plinths' tops, in their sprite's pixels above its foot (tools/draw_champions.py).
 const PLINTH_TOP: f32 = 10.0;
 
-/// Statues show their champions within this many tiles; the board is fetched again this often
-/// while one is near, ms.
-const RANGE: f64 = 16.0;
+/// How often the board is fetched again while a statue is in the world (the Nexus), ms.
 const REFRESH_MS: i32 = 60_000;
 
 /// A place's colour: gold, silver or bronze for the three tiers, muted below.
@@ -111,7 +109,7 @@ impl View {
 
 /// A tab chip: the board's name, and the viewer's place on it while it holds a reward.
 #[allow(clippy::too_many_arguments)]
-fn chip(ui: &mut Ui, r: [f32; 4], label: &str, on: bool, hover: bool, size: f32, mine: Option<i32>, s: f32) {
+pub fn chip(ui: &mut Ui, r: [f32; 4], label: &str, on: bool, hover: bool, size: f32, mine: Option<i32>, s: f32) {
     let fill = if on { color::ACCENT } else if hover { color::SECONDARY } else { color::CHIP };
     theme::fill(ui.renderer, r, r[3] / 2.0, fill, 1.0);
     let lw = ui.measure(label, size, true);
@@ -229,7 +227,7 @@ pub fn draw(ui: &mut Ui, view: &View, r: [f32; 4], s: f32, me: &str, mouse: (f64
         let ry = y + i as f32 * row_h;
         let rr = [x0 - 6.0 * s, ry, w + 12.0 * s, row_h - 2.0 * s];
         let e = entry(rank);
-        let mine = e.is_some_and(|e| e.name.eq_ignore_ascii_case(me));
+        let mine = e.is_some_and(|e| e.has(me));
         if mine {
             theme::fill(ui.renderer, rr, 5.0 * s, color::ACCENT, 0.16);
         } else if i % 2 == 0 {
@@ -241,15 +239,23 @@ pub fn draw(ui: &mut Ui, view: &View, r: [f32; 4], s: f32, me: &str, mouse: (f64
             ui.label("—", x0 + 74.0 * s, ty, rs, false, color::TEXT_MUTED);
             continue;
         };
-        if let Some(desc) = look(ui, e) {
-            crate::screens::portrait(ui, desc, e.tex1, e.tex2, x0 + 52.0 * s, ry + row_h / 2.0, 0.55 * s);
+        // a group's members side by side, then their names
+        let faces = e.faces();
+        for (j, f) in faces.iter().enumerate() {
+            if let Some(desc) = look(ui, f) {
+                crate::screens::portrait(ui, desc, f.tex1, f.tex2, x0 + (52.0 + 20.0 * j as f32) * s, ry + row_h / 2.0, 0.55 * s);
+            }
         }
-        ui.label(&e.name, x0 + 74.0 * s, ty, rs, true, if mine { color::ACCENT_HI } else { color::TEXT });
-        if let Some(c) = class_line(ui, e) {
-            ui.label(&c, x0 + 230.0 * s, ty, font(11.5), false, color::TEXT_MUTED);
-        }
+        let nx = x0 + (74.0 + 20.0 * (faces.len() - 1) as f32) * s;
         let v = value_text(board, e.value);
         let vw = ui.measure(&v, rs, true);
+        let detail = if e.members.is_empty() { class_line(ui, e) } else { None };
+        let name_w = if detail.is_some() { x0 + 222.0 * s - nx } else { x0 + w - vw - 16.0 * s - nx };
+        let name = crate::npc::fit(ui, &e.name, rs, name_w);
+        ui.label(&name, nx, ty, rs, true, if mine { color::ACCENT_HI } else { color::TEXT });
+        if let Some(c) = detail {
+            ui.label(&c, x0 + 230.0 * s, ty, font(11.5), false, color::TEXT_MUTED);
+        }
         ui.label(&v, x0 + w - vw, ty, rs, true, color::TEXT_DIM);
     }
     y += (PLACES - 3) as f32 * row_h + 8.0 * s;
@@ -304,7 +310,8 @@ fn hint(board: &ChampionBoard) -> &'static str {
         "fame" => "Earn fame on a character that stays alive.",
         "stars" => "Each class's best character earns stars at 20, 150, 400, 800 and 2,000 fame.",
         "achievements" => "Claim achievement tiers in the quest log (J).",
-        "arena" => "Survive waves in the Arena (/arena) with your name on the run.",
+        "arenaSolo" => "Survive waves in the Arena (/arena) on your own.",
+        "arenaGroup" => "Survive waves in the Arena (/arena) with others.",
         "weeklyFame" => "Earn fame this week: anything counts.",
         "weeklyDungeons" => "Clear dungeons this week: be near a boss when the last one falls.",
         _ => "",
@@ -323,7 +330,7 @@ fn class_line(ui: &Ui, e: &ChampionEntry) -> Option<String> {
 fn podium(ui: &mut Ui, board: &ChampionBoard, e: Option<&ChampionEntry>, rank: i32, cr: [f32; 4], me: &str, s: f32, now: i32) {
     let font = |size: f32| (size * s).round().max(9.0);
     let edge = tier_color(rank);
-    let mine = e.is_some_and(|e| e.name.eq_ignore_ascii_case(me));
+    let mine = e.is_some_and(|e| e.has(me));
     if rank == 1 && e.is_some() {
         // a slow shimmer behind the champion's card
         let pulse = ((now as f32 / 700.0).sin() + 1.0) / 2.0;
@@ -347,12 +354,19 @@ fn podium(ui: &mut Ui, board: &ChampionBoard, e: Option<&ChampionEntry>, rank: i
         return;
     };
     let big = rank == 1;
-    let fig = if big { 2.0 } else { 1.6 } * s;
-    if let Some(desc) = look(ui, e) {
-        // a soft light under the figure
-        let lw = 70.0 * fig / 2.0;
-        theme::fill(ui.renderer, [mid - lw / 2.0, cr[1] + (if big { 82.0 } else { 70.0 }) * s, lw, 10.0 * s], 5.0 * s, edge, 0.18);
-        crate::screens::portrait(ui, desc, e.tex1, e.tex2, mid, cr[1] + (if big { 54.0 } else { 46.0 }) * s, fig);
+    // a group stands side by side, smaller the more there are
+    let faces = e.faces();
+    let n = faces.len() as f32;
+    let fig = if big { 2.0 } else { 1.6 } * s * if n > 1.0 { (1.5 / n).clamp(0.5, 0.8) } else { 1.0 };
+    let step = (36.0 * fig).min((cr[2] - 40.0 * s) / n);
+    // a soft light under the figures
+    let lw = 70.0 * fig / 2.0 + step * (n - 1.0);
+    theme::fill(ui.renderer, [mid - lw / 2.0, cr[1] + (if big { 82.0 } else { 70.0 }) * s, lw, 10.0 * s], 5.0 * s, edge, 0.18);
+    for (j, f) in faces.iter().enumerate() {
+        if let Some(desc) = look(ui, f) {
+            let fx = mid + (j as f32 - (n - 1.0) / 2.0) * step;
+            crate::screens::portrait(ui, desc, f.tex1, f.tex2, fx, cr[1] + (if big { 54.0 } else { 46.0 }) * s, fig);
+        }
     }
     let ns = font(if big { 17.0 } else { 15.0 });
     let name = crate::npc::fit(ui, &e.name, ns, cr[2] - 20.0 * s);
@@ -365,7 +379,8 @@ fn podium(ui: &mut Ui, board: &ChampionBoard, e: Option<&ChampionEntry>, rank: i
     let vw = ui.measure(&v, vs, true);
     ui.label(&v, mid - vw / 2.0, ty, vs, true, color::TEXT);
     ty += vs * 1.35;
-    if let Some(c) = class_line(ui, e) {
+    let detail = if e.members.is_empty() { class_line(ui, e) } else { Some(format!("A group of {}", e.members.len())) };
+    if let Some(c) = detail {
         let cs = font(11.0);
         let cw = ui.measure(&c, cs, false);
         ui.label(&c, mid - cw / 2.0, ty, cs, false, color::TEXT_MUTED);
@@ -384,8 +399,9 @@ pub fn statue_board<'a>(o: &'a GameObj, data: &bsk_data::GameData) -> Option<&'a
     (class_of(o, data) == Some("ChampionStatue")).then(|| o.name()).flatten()
 }
 
-/// The Hall in the world: what the statues show, fetched from the account server while one is
-/// near (and taken from the window's fetches too).
+/// The Hall in the world: what the statues show, fetched from the account server on entering the
+/// Nexus (long before a statue is in sight, so the champions are on their plinths when they come
+/// into view) and while a statue is in the world, and taken from the window's fetches too.
 #[derive(Default)]
 pub struct Hall {
     pub data: Option<Champions>,
@@ -395,10 +411,10 @@ pub struct Hall {
 }
 
 impl Hall {
-    /// Whether to fetch the boards now (a statue was in range at the last frame and the last
-    /// fetch is stale); marks it fetched.
-    pub fn want(&mut self, now: i32) -> bool {
-        if self.request.is_some() || now < self.next || !self.near {
+    /// Whether to fetch the boards now (in the Nexus, or the world had a statue at the last frame,
+    /// and the last fetch is stale); marks it fetched.
+    pub fn want(&mut self, now: i32, nexus: bool) -> bool {
+        if self.request.is_some() || now < self.next || !(self.near || nexus) {
             return false;
         }
         self.next = now + REFRESH_MS;
@@ -416,12 +432,11 @@ impl Hall {
     /// the board, the champion's name and value.
     pub fn draw(&mut self, ui: &mut Ui, world: &World, cam: &crate::view::Camera) {
         self.near = false;
-        let Some(me) = world.player() else { return };
         let k = (cam.scale / crate::view::TILE_PX) as f32;
         let mut statues: Vec<&GameObj> = world
             .objects
             .values()
-            .filter(|o| (o.x - me.x).hypot(o.y - me.y) <= RANGE && statue_board(o, ui.data).is_some())
+            .filter(|o| statue_board(o, ui.data).is_some())
             .collect();
         if statues.is_empty() {
             return;
@@ -437,8 +452,16 @@ impl Hall {
             let champion = board.and_then(|b| b.entries.first());
             let mut head = top - 12.0 * k;
             if let Some(e) = champion {
-                if let Some(h) = figure(ui, e, px, top, k) {
-                    head = top - h;
+                // a group stands together on the plinth, smaller the more there are
+                let faces = e.faces();
+                let n = faces.len() as f32;
+                let size = if n > 1.0 { (140.0 * (2.2 / n).clamp(0.6, 0.9)) as i32 } else { 140 };
+                let step = size as f32 * 0.42 * k;
+                for (j, f) in faces.iter().enumerate() {
+                    let fx = px + (j as f32 - (n - 1.0) / 2.0) * step;
+                    if let Some(h) = figure(ui, f, fx, top, k, size) {
+                        head = head.min(top - h);
+                    }
                 }
             }
             let Some(board) = board else { continue };
@@ -449,14 +472,14 @@ impl Hall {
 
 /// A champion's character standing at (px, feet), facing out, bigger than life and ringed in
 /// gold; returns its height on the screen.
-fn figure(ui: &mut Ui, e: &ChampionEntry, px: f32, feet: f32, k: f32) -> Option<f32> {
+fn figure(ui: &mut Ui, e: &ChampionEntry, px: f32, feet: f32, k: f32, size: i32) -> Option<f32> {
     let desc = look(ui, e)?;
     let TextureRef::Animated { set, index } = &desc.texture.pick(0).main else { return None };
     // row 2 faces the viewer when the sheet has it (right, left, down, up)
     let src = ui.sprites.char_src(set, *index, 2, 0).or_else(|| ui.sprites.char_src(set, *index, 0, 0))?;
     let mask = ui.sprites.char_mask_src(set, *index, 2, 0).or_else(|| ui.sprites.char_mask_src(set, *index, 0, 0));
     let dye = mask.map(|mask| crate::redraw::Dye { mask, tex1: e.tex1, tex2: e.tex2 });
-    let img = ui.redrawer.get_glowing(ui.sprites, ui.renderer, src, false, 140, dye, GOLD)?;
+    let img = ui.redrawer.get_glowing(ui.sprites, ui.renderer, src, false, size, dye, GOLD)?;
     let (w, h) = (img.w as f32 * k, img.h as f32 * k);
     ui.renderer.sprite(img.rect, Quad::rect((px - w / 2.0).round(), (feet - h).round(), w, h), Tint::NONE);
     // the canvas has room for the outline above the sprite: the head is lower than its top
@@ -470,7 +493,7 @@ fn plaque(ui: &mut Ui, board: &ChampionBoard, champion: Option<&ChampionEntry>, 
     let vs = (10.5 * k).round().max(8.0);
     let title = board.name.to_uppercase();
     let (name, value) = match champion {
-        Some(e) => (e.name.clone(), value_text(board, e.value)),
+        Some(e) => (crate::npc::fit(ui, &e.name, ns, 260.0 * k), value_text(board, e.value)),
         None => ("Unclaimed".to_owned(), "Be the first".to_owned()),
     };
     let w = [ui.measure(&title, ts, true), ui.measure(&name, ns, true), ui.measure(&value, vs, false)].into_iter().fold(0.0, f32::max) + 18.0 * k;
@@ -497,12 +520,12 @@ mod tests {
 
     fn data() -> Champions {
         let board = |id: &str| ChampionBoard { id: id.into(), name: id.into(), ..ChampionBoard::default() };
-        Champions { now: 1000, boards: vec![board("fame"), board("stars"), board("arena")], ..Champions::default() }
+        Champions { now: 1000, boards: vec![board("fame"), board("stars"), board("arenaSolo")], ..Champions::default() }
     }
 
     #[test]
     fn opens_at_the_board_asked_for() {
-        let mut v = View::at(Some("arena"));
+        let mut v = View::at(Some("arenaSolo"));
         v.set(data(), 0);
         assert_eq!(v.tab, 2);
         assert!(v.want.is_none());

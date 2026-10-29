@@ -16,6 +16,8 @@ namespace Shared.database.leaderboard
         /// "Arena"; empty for older runs.
         public string Arena;
         public string[] Players;
+        /// One player alone; the leaderboards keep solo and group runs apart.
+        public bool Solo => Players.Length == 1;
     }
 
     /// The arena leaderboard: a sorted set of runs (the world server's arenas add them; /leaderboard
@@ -40,6 +42,10 @@ namespace Shared.database.leaderboard
         public static List<DbArenaRun> Top(IDatabase db, int count) =>
             db.SortedSetRangeByRankWithScores(Key, 0, Math.Max(1, count) - 1, Order.Descending)
                 .Select(e => Parse(e.Element, e.Score)).ToList();
+
+        /// The best solo (or group) runs, best first, from the top `scan` of all runs.
+        public static List<DbArenaRun> Top(IDatabase db, int count, bool solo, int scan = 1000) =>
+            Top(db, scan).Where(r => r.Solo == solo).Take(Math.Max(1, count)).ToList();
 
         public static DbArenaRun Parse(string member, double score)
         {

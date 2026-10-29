@@ -98,10 +98,15 @@ impl Endpoint {
         http::post_form(&format!("{}/guild/listMembers", self.account), &[("guid", email), ("password", password)])
     }
 
-    /// `/arena/leaderboard`: the best `count` arena runs.
-    pub fn arena_leaderboard(&self, count: usize) -> Pending<http::Response> {
+    /// `/arena/leaderboard`: the best `count` arena runs, only solo or group ones when `solo` says.
+    pub fn arena_leaderboard(&self, count: usize, solo: Option<bool>) -> Pending<http::Response> {
         let n = count.to_string();
-        http::post_form(&format!("{}/arena/leaderboard", self.account), &[("count", &n)])
+        let players = match solo {
+            Some(true) => "solo",
+            Some(false) => "group",
+            None => "",
+        };
+        http::post_form(&format!("{}/arena/leaderboard", self.account), &[("count", &n), ("players", players)])
     }
 
     /// `/champions/board`: the Hall of Champions, with `name`'s own places (empty: none).

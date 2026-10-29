@@ -174,8 +174,9 @@ from wave 30 an Elder dungeon boss joins Oryx's. The chat says which wave has be
 - **Losing doesn't kill you.** A hit that would kill you in the Arena sends you to the Nexus at full
   health, with your gear and fame: no grave, and it doesn't count as a death.
 - **The leaderboard:** the golden trophy beside the Arena portal shows the best run (its wave,
-  how long it took and who took part) as you walk by; stand on it for the top ten. `/leaderboard`
-  lists them too.
+  how long it took and who took part) as you walk by; stand on it for the top ten, solo runs and
+  group runs on their own tabs. `/leaderboard` lists both. The best solo and group players also
+  stand in the [Hall of Champions](champions.html).
 
 ## Dying
 

@@ -385,9 +385,13 @@ namespace WorldServer.core.commands.doomed
 
         protected override bool Process(Player player, TickTime time, string args)
         {
-            var top = DbArenaRuns.Top(player.GameServer.Database.Conn, 10);
-            DoomedEconomy.SendLines(player, "Arena Leaderboard:",
-                top.Count == 0 ? new[] { "None" } : top.Select((t, i) => $"{i + 1}. Wave {t.Wave} in {DbArenaRuns.FormatTime(t.Seconds)} - {string.Join(", ", t.Players)}"));
+            var db = player.GameServer.Database.Conn;
+            foreach (var solo in new[] { true, false })
+            {
+                var top = DbArenaRuns.Top(db, 10, solo);
+                DoomedEconomy.SendLines(player, solo ? "Arena Leaderboard, solo:" : "Arena Leaderboard, groups:",
+                    top.Count == 0 ? new[] { "None" } : top.Select((t, i) => $"{i + 1}. Wave {t.Wave} in {DbArenaRuns.FormatTime(t.Seconds)} - {string.Join(", ", t.Players)}"));
+            }
             return true;
         }
     }

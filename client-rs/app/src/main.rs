@@ -103,7 +103,8 @@ enum NpcRequest {
     SetBoard,
     Members,
     Potions,
-    Leaderboard,
+    /// the Arena Leaderboard's solo (true) or group runs
+    Leaderboard(bool),
     Champions,
 }
 
@@ -310,7 +311,7 @@ fn npc_open(kind: npc::NpcKind, game: &Game, npcs: &mut npc::Npcs, market: &mut 
         NpcKind::GuildBoard => Window::Board { text: None, edit: None, error: None },
         NpcKind::GuildChronicle => Window::Members { list: None, page: 0, error: None },
         NpcKind::PotionStorage => Window::Potions { counts: None, error: None },
-        NpcKind::ArenaLeaderboard => Window::Leaderboard { runs: None, error: None },
+        NpcKind::ArenaLeaderboard => Window::Leaderboard { solo: true, runs: None, error: None },
         NpcKind::ChampionsBoard => Window::Champions(Box::default()),
         // a statue: the Hall at its board (the nearest statue's)
         NpcKind::ChampionStatue => {
@@ -1252,7 +1253,7 @@ impl App {
         let (Some(endpoint), Some((email, password))) = (&self.endpoint, &self.account) else { return };
         // The signs over objects: fetched while one is near, and taken when they come.
         if self.signs.want_arena(now) {
-            self.signs.request = Some(endpoint.arena_leaderboard(1));
+            self.signs.request = Some(endpoint.arena_leaderboard(1, None));
         }
         if let Some(response) = self.signs.request.as_ref().and_then(|p| p.take()) {
             self.signs.request = None;
@@ -1261,7 +1262,7 @@ impl App {
             }
         }
         // ... and the Hall of Champions' statues
-        if self.hall.want(now) {
+        if self.hall.want(now, game.map_name() == "Nexus") {
             self.hall.request = Some(endpoint.champions(""));
         }
         if let Some(response) = self.hall.request.as_ref().and_then(|p| p.take()) {
@@ -1277,7 +1278,7 @@ impl App {
                 Some(npc::Window::Board { .. }) => Some((NpcRequest::Board, endpoint.guild_board(email, password))),
                 Some(npc::Window::Members { .. }) => Some((NpcRequest::Members, endpoint.guild_members(email, password))),
                 Some(npc::Window::Potions { .. }) => Some((NpcRequest::Potions, endpoint.potions(email, password))),
-                Some(npc::Window::Leaderboard { .. }) => Some((NpcRequest::Leaderboard, endpoint.arena_leaderboard(npc::LEADERBOARD_RUNS))),
+                Some(npc::Window::Leaderboard { solo, .. }) => Some((NpcRequest::Leaderboard(solo), endpoint.arena_leaderboard(npc::LEADERBOARD_RUNS, Some(solo)))),
                 Some(npc::Window::Champions(_)) => Some((NpcRequest::Champions, endpoint.champions(&my_name))),
                 _ => None,
             };
@@ -1307,11 +1308,9 @@ impl App {
                 Ok(c) => (*counts, *error) = (Some(c), None),
                 Err(e) => *error = Some(e),
             },
-            (NpcRequest::Leaderboard, Some(npc::Window::Leaderboard { runs, error })) => match response.and_then(|x| acc::parse_arena_runs(&x)) {
-                Ok(r) => {
-                    self.signs.set_arena(&r);
-                    (*runs, *error) = (Some(r), None);
-                }
+            // an answer for the other tab, from before a switch, is dropped (the switch asked again)
+            (NpcRequest::Leaderboard(asked), Some(npc::Window::Leaderboard { solo, runs, error })) if asked == *solo => match response.and_then(|x| acc::parse_arena_runs(&x)) {
+                Ok(r) => (*runs, *error) = (Some(r), None),
                 Err(e) => *error = Some(e),
             },
             (NpcRequest::Champions, Some(npc::Window::Champions(view))) => {

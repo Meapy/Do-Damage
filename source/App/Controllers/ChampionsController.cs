@@ -52,7 +52,7 @@ namespace App.Controllers
                             new XAttribute("color", def.Reward is ChampionReward.Glow or ChampionReward.NameColor ? (int)def.ValueAt(t) : 0),
                             def.RewardText(t))),
                         ranked.Take(ChampionBoards.Places).Select(Entry));
-                    var mine = string.IsNullOrEmpty(name) ? null : ranked.FirstOrDefault(r => string.Equals(r.Name, name, StringComparison.OrdinalIgnoreCase));
+                    var mine = string.IsNullOrEmpty(name) ? null : ranked.FirstOrDefault(r => r.Has(name));
                     if (mine != null)
                         board.Add(new XElement("Me", new XAttribute("rank", mine.Rank), new XAttribute("value", mine.Value)));
                     return board;
@@ -60,14 +60,22 @@ namespace App.Controllers
             Response.CreateXml(xml.ToString());
         }
 
+        // a place: one player, or (Arena Group) a group, its name the members' joined and a
+        // <Member> for each with their character
         private static XElement Entry(ChampionRanked r) => new XElement("Entry",
             new XAttribute("rank", r.Rank),
-            new XAttribute("name", r.Name ?? ""),
             new XAttribute("value", r.Value),
+            Look(r),
+            r.Members?.Select(m => new XElement("Member", Look(m))));
+
+        private static XAttribute[] Look(ChampionRanked r) => new[]
+        {
+            new XAttribute("name", r.Name ?? ""),
             new XAttribute("objectType", r.ObjectType),
             new XAttribute("skin", r.Skin),
             new XAttribute("tex1", r.Tex1),
             new XAttribute("tex2", r.Tex2),
-            new XAttribute("level", r.Level));
+            new XAttribute("level", r.Level),
+        };
     }
 }

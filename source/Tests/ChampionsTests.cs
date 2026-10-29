@@ -44,23 +44,44 @@ namespace Tests
         }
 
         [Fact]
+        public void EveryMemberOfAGroupHoldsItsPlace()
+        {
+            ChampionRanked Group(long wave, params int[] ids) => new ChampionRanked
+            {
+                AccountId = ids.Min(), Name = string.Join(", ", ids.Select(i => $"P{i}")), Value = wave,
+                Members = ids.Select(i => C(i, wave)).ToList(),
+            };
+            var board = ChampionBoards.Rank(new[] { Group(20, 3, 4), Group(31, 1, 2), Group(25, 2, 5) });
+            Assert.Equal(new[] { 31L, 25L, 20L }, board.Select(r => r.Value));
+            Assert.True(board[0].Has("p2") && !board[0].Has("P3"));
+            var boards = ChampionBoards.All.Select((_, i) => i == (int)ChampionTab.ArenaGroup ? board : new List<ChampionRanked>()).ToList();
+            var holders = ChampionBoards.Holders(boards);
+            Assert.Equal(5, holders.Count);
+            Assert.Equal(1, holders[1].RankOn(ChampionTab.ArenaGroup));
+            Assert.Equal(1, holders[2].RankOn(ChampionTab.ArenaGroup)); // in two groups: the better place
+            Assert.Equal(2, holders[5].RankOn(ChampionTab.ArenaGroup));
+            Assert.Equal(3, holders[4].RankOn(ChampionTab.ArenaGroup));
+        }
+
+        [Fact]
         public void PlacesRoundTripThroughRedis()
         {
             var p = ChampionPlaces.None.With(ChampionTab.Fame, 1).With(ChampionTab.WeeklyDungeons, 7);
-            Assert.Equal("0:1,5:7", p.Encode());
+            Assert.Equal("0:1,6:7", p.Encode());
             Assert.Equal(p, ChampionPlaces.Decode(p.Encode()));
             Assert.False(ChampionPlaces.Decode("").Any);
             // nonsense is ignored rather than thrown
-            Assert.Equal(0, ChampionPlaces.Decode("x:1,99:2,3:-1").RankOn(ChampionTab.Arena));
+            Assert.Equal(0, ChampionPlaces.Decode("x:1,99:2,3:-1").RankOn(ChampionTab.ArenaSolo));
         }
 
         [Fact]
         public void EachBoardGivesItsOwnReward()
         {
-            Assert.Equal(ChampionBoards.All.Length, ChampionBoards.All.Select(b => b.Reward).Distinct().Count());
-            var p = ChampionPlaces.None.With(ChampionTab.WeeklyFame, 2).With(ChampionTab.Arena, 1);
+            // every reward but the Arena's, which both Arena boards give, comes from one board
+            Assert.Equal(ChampionBoards.All.Length - 1, ChampionBoards.All.Select(b => b.Reward).Distinct().Count());
+            var p = ChampionPlaces.None.With(ChampionTab.WeeklyFame, 2).With(ChampionTab.ArenaSolo, 1).With(ChampionTab.ArenaGroup, 4);
             Assert.Equal(0.06, p.Experience, 10);
-            Assert.Equal(0.15, p.ArenaFame, 10);
+            Assert.Equal(0.20, p.ArenaFame, 10);
             Assert.Equal(0, p.Loot(true));
             Assert.Equal("+6% experience and fame", ChampionBoards.Of(ChampionTab.WeeklyFame).RewardText(1));
             Assert.Equal("Bronze glow", ChampionBoards.Of(ChampionTab.Stars).RewardText(2));
@@ -98,8 +119,8 @@ namespace Tests
         [Fact]
         public void DescribesEveryBoardHeld()
         {
-            var lines = ChampionPlaces.None.With(ChampionTab.Fame, 4).With(ChampionTab.Arena, 2).Describe().ToList();
-            Assert.Equal(new[] { "#4 on Fame: +1% loot", "#2 on Arena: +10% fame from Arena waves" }, lines);
+            var lines = ChampionPlaces.None.With(ChampionTab.Fame, 4).With(ChampionTab.ArenaGroup, 2).Describe().ToList();
+            Assert.Equal(new[] { "#4 on Fame: +1% loot", "#2 on Arena Group: +10% fame from Arena waves" }, lines);
         }
     }
 }

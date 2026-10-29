@@ -12,7 +12,7 @@ namespace Shared.champions
     // everyone every few minutes (ChampionSweep) and writes who holds what into Redis
     // (DbChampions); the world servers read that and apply it (ChampionCache, Player.Champion).
     // This file is only the rules, so dotnet test source\Tests covers them.
-    public enum ChampionTab : byte { Fame = 0, Stars = 1, Achievements = 2, Arena = 3, WeeklyFame = 4, WeeklyDungeons = 5 }
+    public enum ChampionTab : byte { Fame = 0, Stars = 1, Achievements = 2, ArenaSolo = 3, ArenaGroup = 4, WeeklyFame = 5, WeeklyDungeons = 6 }
 
     public enum ChampionReward : byte
     {
@@ -96,8 +96,14 @@ namespace Shared.champions
             },
             new ChampionBoardDef
             {
-                Tab = ChampionTab.Arena, Id = "arena", Name = "Arena", Unit = "wave",
-                Description = "The best Arena run you took part in: its wave, then the quicker run.",
+                Tab = ChampionTab.ArenaSolo, Id = "arenaSolo", Name = "Arena Solo", Unit = "wave",
+                Description = "The best Arena run you played alone: its wave, then the quicker run.",
+                Reward = ChampionReward.ArenaFame, Values = new[] { 0.15, 0.10, 0.05 },
+            },
+            new ChampionBoardDef
+            {
+                Tab = ChampionTab.ArenaGroup, Id = "arenaGroup", Name = "Arena Group", Unit = "wave",
+                Description = "The best Arena run you played with others: its wave, then the quicker run.",
                 Reward = ChampionReward.ArenaFame, Values = new[] { 0.15, 0.10, 0.05 },
             },
             new ChampionBoardDef
@@ -140,21 +146,26 @@ namespace Shared.champions
                 .Select((c, i) => { c.Rank = i + 1; return c; })
                 .ToList();
 
-        // Who holds a reward on which boards: each account in any top 10, with its places.
+        // Who holds a reward on which boards: each account in any top 10 (every member of a group
+        // place), with its best place on each.
         public static Dictionary<int, ChampionPlaces> Holders(IReadOnlyList<List<ChampionRanked>> boards)
         {
             var places = new Dictionary<int, ChampionPlaces>();
             for (var b = 0; b < boards.Count && b < All.Length; b++)
                 foreach (var r in boards[b].Where(r => r.Rank <= Places))
-                {
-                    places.TryGetValue(r.AccountId, out var p);
-                    places[r.AccountId] = p.With((ChampionTab)b, r.Rank);
-                }
+                    foreach (var id in r.AccountIds)
+                    {
+                        places.TryGetValue(id, out var p);
+                        var held = p.RankOn((ChampionTab)b);
+                        if (held == 0 || r.Rank < held)
+                            places[id] = p.With((ChampionTab)b, r.Rank);
+                    }
             return places;
         }
     }
 
-    // One account on a board.
+    // One account on a board, or one group (Arena Group: Members, the lowest id as AccountId and
+    // their names joined as Name).
     public sealed class ChampionRanked
     {
         public int AccountId;
@@ -165,6 +176,14 @@ namespace Shared.champions
         // the character shown beside the name (the account's best living one; ObjectType 0 if none)
         public ushort ObjectType;
         public int Skin, Tex1, Tex2, Level;
+        public List<ChampionRanked> Members;
+
+        public IEnumerable<int> AccountIds => Members == null ? new[] { AccountId } : Members.Select(m => m.AccountId);
+
+        // whether this place is the named player's (theirs alone, or their group's)
+        public bool Has(string name) => Members == null
+            ? string.Equals(Name, name, StringComparison.OrdinalIgnoreCase)
+            : Members.Any(m => string.Equals(m.Name, name, StringComparison.OrdinalIgnoreCase));
     }
 
     // An account's places on the boards (0 where it isn't in the top 10), and what they give.
@@ -202,6 +221,7 @@ namespace Shared.champions
 
         public double Experience => Sum(ChampionReward.Experience);
 
+        // the two Arena boards' together
         public double ArenaFame => Sum(ChampionReward.ArenaFame);
 
         public int Glow => (int)Best(ChampionReward.Glow);

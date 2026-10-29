@@ -3,9 +3,9 @@ title: Hall of Champions
 nav: 4
 sprite: crown
 eyebrow: The living's leaderboard
-summary: The Hall of Champions in the Nexus: six boards for the living (fame, stars, achievements, the Arena, and weekly fame and dungeons), how each is ranked, and the reward each board's top 10 hold while they stay there.
+summary: The Hall of Champions in the Nexus: seven boards for the living (fame, stars, achievements, the Arena solo and in groups, and weekly fame and dungeons), how each is ranked, and the reward each board's top 10 hold while they stay there.
 ---
-The **Legends** remember the dead. The **Hall of Champions** honours the living: six boards, each
+The **Legends** remember the dead. The **Hall of Champions** honours the living: seven boards, each
 ranking every account by one thing, and each giving its **top 10** a reward of its own while they
 hold the place. Lose the place and the reward goes; win it back and it returns.
 
@@ -28,13 +28,19 @@ The rewards come in three steps: **#1**, **#2-3** and **#4-10**.
 | **Fame** | the most fame on a living character (each account's best) | +3% loot | +2% loot | +1% loot |
 | **Stars** | class stars: up to five per class, from its best character's fame | gold glow | silver glow | bronze glow |
 | **Achievements** | achievement points, from the tiers claimed in the [quest log](quests.html) | gold name in chat | silver name in chat | bronze name in chat |
-| **Arena** | the best [Arena](progression.html#the-arena) run you took part in: its wave, then the quicker run | +15% fame from Arena waves | +10% | +5% |
+| **Arena Solo** | your best [Arena](progression.html#the-arena) run on your own: its wave, then the quicker run | +15% fame from Arena waves | +10% | +5% |
+| **Arena Group** | the best Arena runs with others: each place is a **whole group** (the same players, its best run), and everyone in it holds the place | +15% fame from Arena waves | +10% | +5% |
 | **Weekly Fame** | fame earned this week, on all your characters together | +10% experience and fame | +6% | +3% |
 | **Weekly Dungeons** | dungeons cleared this week (be near a boss when the last one falls) | +3% loot in dungeons | +2% | +1% |
 
 - **Loot:** the boards' loot boosts add up to **at most +4%** (Fame's and, in a dungeon, Weekly
   Dungeons' together). The Legends' +1% comes on top of that, so standing on the boards gives at most
   +5% loot. "In dungeons" means anywhere but the realms.
+- **Groups:** a group only counts while all its players are ranked (not guests or staff). You can
+  be in more than one group on the board; your best place is the one that counts. Its statue shows
+  the whole group.
+- **Arena fame:** the two Arena boards' rewards add up, so #1 on both gives +30% fame from Arena
+  waves.
 - **Experience** at level 20 turns into fame, so Weekly Fame's reward is more fame too.
 - **Glow and name colour:** a glow you chose yourself (`/glow`) shows instead of the Stars glow, and
   the Legends' red glow gives way to it. The Achievements name colour shows over the rank colour you
@@ -52,7 +58,7 @@ The boards are ranked again every **5 minutes**. When a ranking moves you, the g
 chat ("You're #2 on the Weekly Fame board…", or that a reward has ended) and the reward starts or
 stops within a minute or so, wherever you are. Ties go to the higher tiebreak (for Stars, your
 classes' best fame together; for the Arena, the quicker run), then to the older account. Guests
-aren't ranked.
+and staff aren't ranked.
 
 ## The board
 

@@ -29,7 +29,7 @@ namespace Shared.champions
         private sealed class Account
         {
             public long LastSeen;
-            public bool Skip;              // a guest, banned or hidden account, or one without a name
+            public bool Skip;              // a guest, banned, hidden or admin account, or one without a name
             public string Name;
             public int Stars;
             public long StarFame;          // its classes' best fame together (the Stars tiebreak)
@@ -63,37 +63,74 @@ namespace Shared.champions
             boards[(int)ChampionTab.Fame] = Rank(live.Select(a => (a.Key, a.Value.BestFame, 0L)));
             boards[(int)ChampionTab.Stars] = Rank(live.Select(a => (a.Key, (long)a.Value.Stars, a.Value.StarFame)));
             boards[(int)ChampionTab.Achievements] = Rank(live.Select(a => (a.Key, (long)a.Value.Points, 0L)));
-            boards[(int)ChampionTab.Arena] = Rank(ArenaBests(live));
+            var runs = DbArenaRuns.Top(_db, ArenaRuns);
+            boards[(int)ChampionTab.ArenaSolo] = Rank(ArenaBests(live, runs.Where(r => r.Solo).ToList()));
+            boards[(int)ChampionTab.ArenaGroup] = ChampionBoards.Rank(ArenaGroups(live, runs.Where(r => !r.Solo).ToList()));
             foreach (var tab in new[] { ChampionTab.WeeklyFame, ChampionTab.WeeklyDungeons })
                 boards[(int)tab] = Rank(_db.SortedSetRangeByRankWithScores(DbChampions.WeekKey(week, tab), 0, -1, Order.Descending)
                     .Select(e => ((int)e.Element, (long)e.Score, 0L)).Where(e => live.ContainsKey(e.Item1)));
             return new ChampionStandings(DateTime.UtcNow, weekNow, boards);
 
             List<ChampionRanked> Rank(IEnumerable<(int Id, long Value, long Tiebreak)> values) =>
-                ChampionBoards.Rank(values.Select(v =>
-                {
-                    var a = live[v.Id];
-                    return new ChampionRanked
-                    {
-                        AccountId = v.Id, Name = a.Name, Value = v.Value, Tiebreak = v.Tiebreak,
-                        ObjectType = a.ObjectType, Skin = a.Skin, Tex1 = a.Tex1, Tex2 = a.Tex2, Level = a.Level,
-                    };
-                }));
+                ChampionBoards.Rank(values.Select(v => Entry(live, v.Id, v.Value, v.Tiebreak)));
         }
 
-        // Each account's best Arena run (DbArenaRuns, by the players' names): its wave, and the
-        // quicker run of two to the same wave.
-        private IEnumerable<(int, long, long)> ArenaBests(Dictionary<int, Account> live)
+        private static ChampionRanked Entry(Dictionary<int, Account> live, int id, long value, long tiebreak)
         {
-            var runs = DbArenaRuns.Top(_db, ArenaRuns);
+            var a = live[id];
+            return new ChampionRanked
+            {
+                AccountId = id, Name = a.Name, Value = value, Tiebreak = tiebreak,
+                ObjectType = a.ObjectType, Skin = a.Skin, Tex1 = a.Tex1, Tex2 = a.Tex2, Level = a.Level,
+            };
+        }
+
+        // The Arena's group runs, a place for each group (the same players, in whatever order: its
+        // best run), its members in the run's order. A run with a player who isn't ranked (a guest,
+        // an admin, a name no account has now) isn't counted.
+        private IEnumerable<ChampionRanked> ArenaGroups(Dictionary<int, Account> live, List<DbArenaRun> runs)
+        {
+            var byName = AccountsByName(live, runs);
+            var seen = new HashSet<string>();
+            foreach (var run in runs)
+            {
+                var ids = new List<int>();
+                foreach (var p in run.Players)
+                    if (byName.TryGetValue(p.ToUpperInvariant(), out var id) && !ids.Contains(id))
+                        ids.Add(id);
+                if (ids.Count < 2 || ids.Count != run.Players.Length || !seen.Add(string.Join(",", ids.OrderBy(i => i))))
+                    continue;
+                var quick = run.Seconds < 0 ? 0L : 1_000_000L - run.Seconds;
+                var members = ids.Select(i => Entry(live, i, run.Wave, quick)).ToList();
+                var lead = members[0];
+                yield return new ChampionRanked
+                {
+                    AccountId = ids.Min(), Name = string.Join(", ", members.Select(m => m.Name)), Value = run.Wave, Tiebreak = quick,
+                    ObjectType = lead.ObjectType, Skin = lead.Skin, Tex1 = lead.Tex1, Tex2 = lead.Tex2, Level = lead.Level,
+                    Members = members,
+                };
+            }
+        }
+
+        // the ranked accounts among these runs' players, by upper-case name
+        private Dictionary<string, int> AccountsByName(Dictionary<int, Account> live, List<DbArenaRun> runs)
+        {
             var names = runs.SelectMany(r => r.Players).Select(n => n.ToUpperInvariant()).Distinct().ToArray();
-            if (names.Length == 0)
-                return Enumerable.Empty<(int, long, long)>();
-            var ids = _db.HashGet("names", names.Select(n => (RedisValue)n).ToArray());
             var byName = new Dictionary<string, int>();
+            if (names.Length == 0)
+                return byName;
+            var ids = _db.HashGet("names", names.Select(n => (RedisValue)n).ToArray());
             for (var i = 0; i < names.Length; i++)
                 if (ids[i].HasValue && int.TryParse(ids[i].ToString(), out var id) && live.ContainsKey(id))
                     byName[names[i]] = id;
+            return byName;
+        }
+
+        // Each account's best of these (solo) Arena runs (DbArenaRuns, by the players' names): its
+        // wave, and the quicker run of two to the same wave.
+        private IEnumerable<(int, long, long)> ArenaBests(Dictionary<int, Account> live, List<DbArenaRun> runs)
+        {
+            var byName = AccountsByName(live, runs);
             var best = new Dictionary<int, (long Wave, long Quick)>();
             foreach (var run in runs)
                 foreach (var p in run.Players)
@@ -107,7 +144,7 @@ namespace Shared.champions
             return best.Select(b => (b.Key, b.Value.Wave, b.Value.Quick));
         }
 
-        private static readonly RedisValue[] AccountFields = { "lastSeen", "name", "guest", "banned", "hidden" };
+        private static readonly RedisValue[] AccountFields = { "lastSeen", "name", "guest", "banned", "hidden", "rank", "admin" };
         private static readonly RedisValue[] CharFields = { "charType", "fame", "skin", "tex1", "tex2", "level" };
 
         private void ReadAccounts(int from, int to, bool full)
@@ -156,7 +193,8 @@ namespace Shared.champions
                 {
                     LastSeen = (long)Num(head[0]),
                     Name = head[1].ToString(),
-                    Skip = Flag(head[2]) || Flag(head[3]) || Flag(head[4]) || string.IsNullOrEmpty(head[1].ToString()),
+                    Skip = Flag(head[2]) || Flag(head[3]) || Flag(head[4]) || Num(head[5]) >= (int)RankingType.Admin || Flag(head[6])
+                        || string.IsNullOrEmpty(head[1].ToString()),
                 };
                 if (!a.Skip)
                 {

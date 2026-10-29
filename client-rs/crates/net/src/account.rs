@@ -448,7 +448,8 @@ pub struct ChampionBoard {
 }
 
 /// A champion: an account's place, and the character shown for it (its best living one;
-/// `object_type` 0 when it has none).
+/// `object_type` 0 when it has none). A group's place (Arena Group) has its `members`, each with
+/// their own character, and their names joined as `name`.
 #[derive(Debug, Clone, PartialEq, Default)]
 pub struct ChampionEntry {
     pub rank: i32,
@@ -459,6 +460,19 @@ pub struct ChampionEntry {
     pub tex1: i32,
     pub tex2: i32,
     pub level: i32,
+    pub members: Vec<ChampionEntry>,
+}
+
+impl ChampionEntry {
+    /// The characters to show: the group's members, else this one.
+    pub fn faces(&self) -> &[ChampionEntry] {
+        if self.members.is_empty() { std::slice::from_ref(self) } else { &self.members }
+    }
+
+    /// Whether this place is `name`'s (theirs alone, or their group's).
+    pub fn has(&self, name: &str) -> bool {
+        !name.is_empty() && self.faces().iter().any(|f| f.name.eq_ignore_ascii_case(name))
+    }
 }
 
 /// `/champions/board`.
@@ -469,6 +483,17 @@ pub fn parse_champions(xml: &str) -> Result<Champions, String> {
     let doc = roxmltree::Document::parse(xml).map_err(|e| e.to_string())?;
     let root = doc.root_element();
     let int = |n: roxmltree::Node, a: &str| n.attribute(a).and_then(parse_int).unwrap_or(0);
+    let look = |e: roxmltree::Node, rank: i32, value: i64| ChampionEntry {
+        rank,
+        name: e.attribute("name").unwrap_or("").to_owned(),
+        value,
+        object_type: int(e, "objectType") as u16,
+        skin: int(e, "skin") as i32,
+        tex1: int(e, "tex1") as i32,
+        tex2: int(e, "tex2") as i32,
+        level: int(e, "level") as i32,
+        members: Vec::new(),
+    };
     Ok(Champions {
         pending: int(root, "pending") != 0,
         now: int(root, "now"),
@@ -495,14 +520,8 @@ pub fn parse_champions(xml: &str) -> Result<Champions, String> {
                     .children()
                     .filter(|c| c.has_tag_name("Entry"))
                     .map(|e| ChampionEntry {
-                        rank: int(e, "rank") as i32,
-                        name: e.attribute("name").unwrap_or("").to_owned(),
-                        value: int(e, "value"),
-                        object_type: int(e, "objectType") as u16,
-                        skin: int(e, "skin") as i32,
-                        tex1: int(e, "tex1") as i32,
-                        tex2: int(e, "tex2") as i32,
-                        level: int(e, "level") as i32,
+                        members: e.children().filter(|m| m.has_tag_name("Member")).map(|m| look(m, 0, 0)).collect(),
+                        ..look(e, int(e, "rank") as i32, int(e, "value"))
                     })
                     .collect(),
                 me: b.children().find(|c| c.has_tag_name("Me")).map(|m| (int(m, "rank") as i32, int(m, "value"))),
@@ -609,11 +628,20 @@ mod tests {
                 <Entry rank="1" name="Meapy" value="1234" objectType="782" skin="0" tex1="5" tex2="0" level="20"/>
                 <Me rank="11" value="40"/></Board>
             <Board id="stars" name="Stars" weekly="0" unit="stars" count="0"><Description/>
-                <Reward places="#1" color="16765514">Gold glow</Reward></Board></Champions>"##;
+                <Reward places="#1" color="16765514">Gold glow</Reward></Board>
+            <Board id="arenaGroup" name="Arena Group" weekly="0" unit="wave" count="1"><Description/>
+                <Entry rank="1" value="31" name="Ann, Bo" objectType="782" skin="0" tex1="0" tex2="0" level="20">
+                    <Member name="Ann" objectType="782" skin="0" tex1="0" tex2="0" level="20"/>
+                    <Member name="Bo" objectType="775" skin="0" tex1="0" tex2="0" level="12"/></Entry></Board></Champions>"##;
         let c = parse_champions(xml).unwrap();
         assert!(!c.pending);
         assert_eq!((c.now, c.week_reset, c.loot_cap), (100, 5000, 0.04));
-        assert_eq!(c.boards.len(), 2);
+        assert_eq!(c.boards.len(), 3);
+        let group = &c.boards[2].entries[0];
+        assert_eq!((group.rank, group.value, group.members.len()), (1, 31, 2));
+        assert_eq!((group.members[1].name.as_str(), group.members[1].object_type, group.members[1].level), ("Bo", 775, 12));
+        assert!(group.has("bo") && !group.has("Cy") && group.faces().len() == 2);
+        assert_eq!(c.boards[0].entries[0].faces().len(), 1);
         let fame = &c.boards[0];
         assert_eq!((fame.id.as_str(), fame.count, fame.me), ("fame", 12, Some((11, 40))));
         assert_eq!(fame.entries[0].name, "Meapy");

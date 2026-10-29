@@ -378,14 +378,17 @@ The remotes `upstream` (HaloCelsius) and `aurusenth` share no history with `main
 - **The Hall of Champions** (2026-10-29; `Shared/champions/`, `App/ChampionsService.cs`,
   `App/Controllers/ChampionsController.cs`, `WorldServer/core/champions/ChampionCache.cs`,
   `Player.Champions.cs`, `Command.Champions.cs`, the client's `champions.rs`, `source/Tests/ChampionsTests.cs`):
-  the living's leaderboard, beside the Legends. Six boards (`ChampionBoards.All`, in this order, which
-  Redis and the map keep): Fame (each account's best living character's fame), Stars (class stars from
+  the living's leaderboard, beside the Legends. Seven boards (`ChampionBoards.All`, in `ChampionTab`'s
+  order, which Redis keeps): Fame (each account's best living character's fame), Stars (class stars from
   `classStats.<id>`, tiebreak the classes' best fame together), Achievements (`QuestBook.Points` from
-  the account's `progress`), Arena (each account's best run in `doomed.arenaLeaderboard`, by the
-  players' names through `names`; tiebreak the quicker run), Weekly Fame and Weekly Dungeons
+  the account's `progress`), Arena Solo (each account's best run alone in `doomed.arenaLeaderboard`, by the
+  players' names through `names`; tiebreak the quicker run), Arena Group (a place per group, the
+  same players in any order at their best run, `ChampionRanked.Members`; a run with a player who
+  isn't ranked doesn't count; every member holds the place, the best one when in several; the
+  XML's `<Entry>` then has a `<Member>` per player, the statue and podium show them all), Weekly Fame and Weekly Dungeons
   (`champions:week:<QuestPeriods.WeekKey>:<board>` sorted sets, added to by the world servers from the
   quest events `fame` and `dungeon`, kept per player and flushed once a minute and on leaving, kept
-  three weeks). Guests, banned and hidden accounts aren't ranked; ties go to the tiebreak, then the
+  three weeks). Guests, banned, hidden and admin accounts (`rank` 6 or the `admin` flag) aren't ranked; ties go to the tiebreak, then the
   lower account id. *Ranking:* the account server (one instance) ranks every 5 minutes on a timer,
   in pipelined batches of 200 accounts, re-reading only accounts whose `lastSeen` moved (and all of
   them hourly or when asked); about 45 ms for the test data. It keeps the result in memory for
@@ -394,8 +397,8 @@ The remotes `upstream` (HaloCelsius) and `aurusenth` share no history with `main
   `board:place,...`, replaced with a RENAME) and `champions:board` (the top 10s as JSON) for the
   world servers. *Rewards* (#1 / #2-3 / #4-10): Fame +3/2/1% loot; Stars a gold/silver/bronze
   glow (under a `/glow` chosen, over the Legends' red); Achievements a gold/silver/bronze chat name
-  colour (over the quest log's, never written to the account); Arena +15/10/5% of each Arena wave's
-  fame pot; Weekly Fame +10/6/3% experience (`DamageCounter`, so fame at 20); Weekly Dungeons
+  colour (over the quest log's, never written to the account); each Arena board +15/10/5% of each Arena wave's
+  fame pot (the two add up, to +30%); Weekly Fame +10/6/3% experience (`DamageCounter`, so fame at 20); Weekly Dungeons
   +3/2/1% loot anywhere but a `RealmWorld`. Board loot is capped at +4% together
   (`ChampionBoards.LootCap`, `LootBoosts.Total`'s new `champion` share), the Legends' 1% on top.
   `ChampionCache` reads both keys once a minute on a pool thread; players look at it every 5 s and
@@ -407,14 +410,19 @@ The remotes `upstream` (HaloCelsius) and `aurusenth` share no history with `main
   (0x498a, class `ChampionStatue`, its board in the map's `name:<board id>`), art from
   `tools/draw_champions.py` (`Champions32x32.png`, a Rust-only sheet in `gen_rs_manifest.py`),
   placed by `tools/build_castle_maps.py` (`CHAMPIONS`, `CHAMPION_STATUES`) in the east ward's south
-  half. The client draws each board's #1 on their plinth with a plaque, fetching the board every
-  minute while a statue is within 16 tiles; the monument (and a statue, at its board) opens the
+  half. The client draws each board's #1 on their plinth with a plaque, fetching the board on entering
+  the Nexus and every minute there (so the champions stand on their plinths before one is in sight); the monument (and a statue, at its board) opens the
   window; `--champions <board>` opens it in tests. No game message changed: an old client sees the
   monument and statues as plain objects and gets every reward (only the window and statues need the
   new client). Tested: `dotnet test source/Tests`, `cargo test`; on an isolated stack with seeded
   accounts, every board ranked, the window and statues drawn, rewards in `/boosts`, a place gained
   while online (notice and glow within about 30 s) and the weekly reset ending a reward. Both
   servers and the client need redeploying.
+- **Arena Leaderboard: solo and group runs apart** (2026-10-29; `DbArenaRuns`, `ArenaController`,
+  `/leaderboard`, the client's `npc.rs`): a run with one player is solo (`DbArenaRun.Solo`).
+  `POST /arena/leaderboard` takes `players=solo|group` (older clients send neither and get every run,
+  as before); the Nexus trophy's window has Solo and Group tabs, and `/leaderboard` lists both. The
+  trophy's sign still shows the best run of all. Account server, world server and client.
 - **The Nexus market wards, compacted** (2026-10-29; `tools/build_castle_maps.py`, `MerchantLists.cs`):
   the Enchanted Keys pavilion (`Store_4`, empty since its keys were removed) is gone; Large and Small
   Cloths (`Store_6`, `Store_7`) are folded into Clothing Dyes and Accessory Dyes (`Store_8`

@@ -340,8 +340,9 @@ FORGE_HALL_NORTH = (20, 24)         # the door in its north wall, x0 and x1
 # (Shared/champions ChampionBoards, `name:<board id>`)
 CHAMPIONS = (77, 53)
 CHAMPIONS_RADIUS = 6.8       # the gold inside; a border tile wide round it
-CHAMPION_STATUES = [((-3, -5), "fame"), ((3, -5), "stars"), ((6, 0), "achievements"),
-                    ((3, 5), "arena"), ((-3, 5), "weeklyDungeons"), ((-6, 0), "weeklyFame")]
+CHAMPION_STATUES = [((-3, -5), "fame"), ((3, -5), "stars"), ((6, -1), "achievements"),
+                    ((5, 4), "arenaSolo"), ((0, 5), "arenaGroup"), ((-5, 4), "weeklyDungeons"),
+                    ((-6, -1), "weeklyFame")]
 # where DoomedWorlds.AddNexusPortals puts the Arena portal (keep the two in step)
 ARENA_PORTALS = [(45.5, 68.5)]
 # (name, region, x0, y0, columns, rows[, stalls]): see Grid.pavilion. One stall per item where a
@@ -569,7 +570,7 @@ def check_nexus(g):
     for (dx, dy), board in CHAMPION_STATUES:
         t = g[CHAMPIONS[0] + dx, CHAMPIONS[1] + dy]
         assert t["obj"] == "Champion Statue" and t["name"] == f"name:{board}", (dx, dy)
-        assert abs(dx) != 1 and dx != 0, "the road through the hall stays open"
+        assert dy > 0 or (abs(dx) != 1 and dx != 0), "the road to the monument stays open"
     assert g[ENCHANTER]["obj"] == "Enchanter"
 
 

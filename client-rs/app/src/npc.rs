@@ -185,8 +185,8 @@ pub enum Window {
     Board { text: Option<String>, edit: Option<String>, error: Option<String> },
     Members { list: Option<(String, Vec<GuildMember>)>, page: usize, error: Option<String> },
     Potions { counts: Option<(Vec<i32>, i32)>, error: Option<String> },
-    /// `/arena/leaderboard`, best first, once it has come.
-    Leaderboard { runs: Option<Vec<ArenaRun>>, error: Option<String> },
+    /// `/arena/leaderboard`, best first, once it has come: solo runs or group runs.
+    Leaderboard { solo: bool, runs: Option<Vec<ArenaRun>>, error: Option<String> },
     /// `/champions/board`: the Hall of Champions.
     Champions(Box<crate::champions::View>),
 }
@@ -219,6 +219,7 @@ enum Hit {
     Remove(usize),
     Storage(u8, u8),
     Tab(usize),
+    Solo(bool),
 }
 
 /// The open window and its buttons as last drawn.
@@ -308,6 +309,13 @@ impl Npcs {
                 view.tab = i;
                 None
             }
+            (Hit::Solo(on), Window::Leaderboard { solo, runs, error }) => {
+                if *solo != on {
+                    (*solo, *runs, *error) = (on, None, None);
+                    self.reload_at = Some(0);
+                }
+                None
+            }
             _ => None,
         }
     }
@@ -393,7 +401,7 @@ impl Npcs {
             // the best run's card, then a row for each of the rest (room for three while loading)
             Window::Leaderboard { runs, .. } => {
                 let rest = runs.as_ref().map_or(3, |r| r.len().saturating_sub(1)).min(LEADERBOARD_RUNS - 1);
-                (540.0, 74.0 + 118.0 + 30.0 * rest as f32 + 10.0)
+                (540.0, 74.0 + 44.0 + 118.0 + 30.0 * rest as f32 + 10.0)
             }
             Window::Champions(_) => crate::champions::SIZE,
         };
@@ -627,15 +635,26 @@ impl Npcs {
                     }
                 }
             }
-            Window::Leaderboard { runs, error } => {
+            Window::Leaderboard { solo, runs, error } => {
                 let ts = font(12.5);
+                // the Solo and Group tabs, then the runs under them
+                let cs = font(13.0);
+                let mut tx = body[0];
+                for (on, label) in [(true, "Solo"), (false, "Group")] {
+                    let tr = [tx, body[1], ui.measure(label, cs, true) + 36.0 * s, 30.0 * s];
+                    crate::champions::chip(ui, tr, label, *solo == on, inside(tr, mouse), cs, None, s);
+                    self.buttons.push((Hit::Solo(on), tr));
+                    tx += tr[2] + 6.0 * s;
+                }
+                let body = [body[0], body[1] + 44.0 * s, body[2], body[3] - 44.0 * s];
                 match runs {
                     None => {
                         let t = error.as_deref().unwrap_or("Loading…");
                         ui.label(t, body[0], body[1], ts, false, if error.is_some() { color::DANGER } else { color::TEXT_MUTED });
                     }
                     Some(runs) if runs.is_empty() => {
-                        ui.label("No runs yet. Survive waves in the Arena (/arena) to get on the board.", body[0], body[1], ts, false, color::TEXT_MUTED);
+                        let t = if *solo { "No solo runs yet. Survive waves in the Arena (/arena) alone to get on the board." } else { "No group runs yet. Survive waves in the Arena (/arena) with others to get on the board." };
+                        ui.label(t, body[0], body[1], ts, false, color::TEXT_MUTED);
                     }
                     Some(runs) => draw_runs(ui, runs, body, s, me.and_then(|m| m.name()).unwrap_or("")),
                 }

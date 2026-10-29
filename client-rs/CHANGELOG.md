@@ -15,15 +15,21 @@ details). Add to a group's line when a change adds to it, rather than adding ano
 ## Unreleased
 
 ### Hall of Champions
-- A leaderboard for the living, in the Nexus's east market ward: six boards (Fame, Stars,
-  Achievements, Arena, Weekly Fame and Weekly Dungeons), ranked every few minutes. Each board's #1
+- A leaderboard for the living, in the Nexus's east market ward: seven boards (Fame, Stars,
+  Achievements, Arena Solo, Arena Group, Weekly Fame and Weekly Dungeons), ranked every few minutes. Each board's #1
   stands as their character on a plinth round the Champions Monument, which opens the boards: a
   podium of the top three, the rest of the top 10 and your own place, however far down. `/champions`
-  lists them in the chat.
+  lists them in the chat. On Arena Group each place is a whole group, standing together on the
+  plinth, and everyone in it holds the reward. Staff aren't ranked.
 - Each board's top 10 hold its reward while they stay there: more loot (Fame), a gold, silver or
-  bronze glow (Stars) or name in chat (Achievements), more fame from Arena waves (Arena), more
+  bronze glow (Stars) or name in chat (Achievements), more fame from Arena waves (both Arena boards, and
+  they add up), more
   experience and fame (Weekly Fame) and more loot in dungeons (Weekly Dungeons). The weekly boards
   start afresh every Monday, and `/boosts` lists what you hold.
+
+### Arena
+- The Arena Leaderboard keeps solo runs and group runs apart: the window has a tab for each, and
+  `/leaderboard` lists both.
 
 ### Nexus
 - The market wards are tidier: the empty Enchanted Keys pavilion is gone, the four dye and cloth
