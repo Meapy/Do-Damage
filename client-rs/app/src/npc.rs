@@ -9,7 +9,7 @@
 
 use crate::hud::{Layout, Ui};
 use crate::theme::{self, color, Kind};
-use bsk_net::account::{ArenaRun, GuildMember};
+use bsk_net::account::{ArenaRun, Guild};
 use bsk_world::GameObj;
 use winit::keyboard::KeyCode;
 
@@ -183,7 +183,7 @@ pub enum Window {
     Renounce,
     /// The board's text once it has come, and the text being edited.
     Board { text: Option<String>, edit: Option<String>, error: Option<String> },
-    Members { list: Option<(String, Vec<GuildMember>)>, page: usize, error: Option<String> },
+    Members { list: Option<Guild>, page: usize, error: Option<String> },
     Potions { counts: Option<(Vec<i32>, i32)>, error: Option<String> },
     /// `/arena/leaderboard`, best first, once it has come: solo runs or group runs.
     Leaderboard { solo: bool, runs: Option<Vec<ArenaRun>>, error: Option<String> },
@@ -234,6 +234,51 @@ pub struct Npcs {
 
 /// Rows of the member list per page.
 const MEMBER_ROWS: usize = 10;
+
+/// The guild window's summary above its members, unscaled.
+const GUILD_HEAD: f32 = 70.0;
+
+fn thousands(n: i64) -> String {
+    crate::hud::group_digits(n.clamp(0, i32::MAX as i64) as i32)
+}
+
+/// The guild's summary at the top of its window: its hall and place on the Hall of Champions, then
+/// its guild fame, vault and loot boost, and the next hall. Returns its height.
+fn guild_head(ui: &mut Ui, g: &Guild, body: [f32; 4], s: f32, font: impl Fn(f32) -> f32) -> f32 {
+    if g.level == 0 {
+        return 0.0; // an older server: the members only
+    }
+    let (x, y) = (body[0], body[1]);
+    let hall = format!("Guild Hall {} of 4", g.level);
+    ui.label(&hall, x, y, font(14.0), true, color::GOLD);
+    let hw = ui.measure(&hall, font(14.0), true);
+    let on = |board: Option<(i32, i64)>, name: &str| match board {
+        Some((rank, fame)) if rank <= 10 => format!("#{rank} {name} ({})", thousands(fame)),
+        Some((_, fame)) => format!("{name} {}", thousands(fame)),
+        None => format!("{name} -"),
+    };
+    let place = format!("Hall of Champions: {}  ·  {}", on(g.living, "Living"), on(g.dead, "Dead"));
+    let pw = (body[2] - hw - 16.0 * s).max(0.0);
+    let place = fit(ui, &place, font(11.5), pw);
+    ui.label(&place, x + hw + 16.0 * s, y + 2.0 * s, font(11.5), false, color::TEXT_DIM);
+    let line = format!(
+        "Guild fame {} ({} earned)  ·  Vault {}/{}  ·  +1% loot for every member",
+        thousands(g.fame),
+        thousands(g.total_fame),
+        g.vault_used,
+        g.vault_slots
+    );
+    let line = fit(ui, &line, font(11.5), body[2]);
+    ui.label(&line, x, y + 22.0 * s, font(11.5), false, color::TEXT);
+    let next = if g.next_price > 0 {
+        format!("Next hall: {} guild fame, bought by a leader in the hall.  /ginfo  /gvault", thousands(g.next_price))
+    } else {
+        "The guild has the grandest hall.  /ginfo  /gvault".to_owned()
+    };
+    let next = fit(ui, &next, font(11.0), body[2]);
+    ui.label(&next, x, y + 40.0 * s, font(11.0), false, color::TEXT_MUTED);
+    GUILD_HEAD * s
+}
 
 /// Runs the leaderboard shows: the best in its own card, then the rest in rows.
 pub const LEADERBOARD_RUNS: usize = 10;
@@ -291,13 +336,13 @@ impl Npcs {
                 Some(Act::SaveBoard(board))
             }
             (Hit::Page(d), Window::Members { page, list, .. }) => {
-                let n = list.as_ref().map_or(0, |l| l.1.len());
+                let n = list.as_ref().map_or(0, |l| l.members.len());
                 let pages = n.div_ceil(MEMBER_ROWS).max(1) as i32;
                 *page = (*page as i32 + d).clamp(0, pages - 1) as usize;
                 None
             }
-            (Hit::Promote(i) | Hit::Demote(i) | Hit::Remove(i), Window::Members { list: Some((_, members)), .. }) => {
-                let m = members.get(i)?;
+            (Hit::Promote(i) | Hit::Demote(i) | Hit::Remove(i), Window::Members { list: Some(guild), .. }) => {
+                let m = guild.members.get(i)?;
                 match hit {
                     Hit::Promote(_) => Some(Act::ChangeRank(m.name.clone(), (m.rank + 10).min(my_rank))),
                     Hit::Demote(_) => Some(Act::ChangeRank(m.name.clone(), (m.rank - 10).max(0))),
@@ -391,11 +436,11 @@ impl Npcs {
             Window::Prompt { .. } => (360.0, 230.0),
             Window::Renounce => (360.0, 180.0),
             Window::Board { .. } => (440.0, 400.0),
-            // As tall as the list (paged past MEMBER_ROWS).
+            // The guild's summary, then as tall as the list (paged past MEMBER_ROWS).
             Window::Members { list, .. } => {
-                let n = list.as_ref().map_or(0, |l| l.1.len());
+                let n = list.as_ref().map_or(0, |l| l.members.len());
                 let rows = n.clamp(3, MEMBER_ROWS);
-                (440.0, 104.0 + 30.0 * rows as f32 + if n > MEMBER_ROWS { 64.0 } else { 0.0 })
+                (500.0, 104.0 + GUILD_HEAD + 30.0 * rows as f32 + if n > MEMBER_ROWS { 64.0 } else { 0.0 })
             }
             Window::Potions { .. } => (480.0, 112.0 + 38.0 * 8.0 + 56.0),
             // the best run's card, then a row for each of the rest (room for three while loading)
@@ -419,7 +464,7 @@ impl Npcs {
             Window::Prompt { prompt: Prompt::Guild, .. } => "Create a guild".to_owned(),
             Window::Renounce => "Leave the guild".to_owned(),
             Window::Board { .. } => "Guild board".to_owned(),
-            Window::Members { list, .. } => list.as_ref().map_or("Guild members".to_owned(), |l| l.0.clone()),
+            Window::Members { list, .. } => list.as_ref().map_or("Guild members".to_owned(), |l| l.name.clone()),
             Window::Potions { .. } => "Potion storage".to_owned(),
             Window::Leaderboard { .. } => "Arena Leaderboard".to_owned(),
             Window::Champions(_) => "Hall of Champions".to_owned(),
@@ -546,13 +591,15 @@ impl Npcs {
                         let t = error.as_deref().unwrap_or("Loading…");
                         ui.label(t, body[0], body[1], ts, false, if error.is_some() { color::DANGER } else { color::TEXT_MUTED });
                     }
-                    Some((_, members)) => {
+                    Some(guild) => {
+                        let members = &guild.members;
                         let small = font(10.5);
-                        for (x, label) in [(0.0, "NAME"), (150.0, "RANK"), (240.0, "FAME")] {
-                            ui.label(label, body[0] + x * s, body[1], small, true, color::TEXT_MUTED);
+                        let top = body[1] + guild_head(ui, guild, body, s, font);
+                        for (x, label) in [(0.0, "NAME"), (150.0, "RANK"), (230.0, "GAVE"), (300.0, "LIVING")] {
+                            ui.label(label, body[0] + x * s, top, small, true, color::TEXT_MUTED);
                         }
                         for (row, (i, m)) in members.iter().enumerate().skip(page * MEMBER_ROWS).take(MEMBER_ROWS).enumerate() {
-                            let y = body[1] + 20.0 * s + row as f32 * 30.0 * s;
+                            let y = top + 20.0 * s + row as f32 * 30.0 * s;
                             let rr = [body[0] - 6.0 * s, y, body[2] + 12.0 * s, 28.0 * s];
                             if row % 2 == 0 {
                                 theme::fill(ui.renderer, rr, 4.0 * s, 0xFFFFFF, 0.03);
@@ -561,7 +608,9 @@ impl Npcs {
                             let me_row = m.name == my_name;
                             ui.label(&m.name, body[0], ty, ts, true, if me_row { color::ACCENT_HI } else { color::TEXT });
                             ui.label(rank_name(m.rank), body[0] + 150.0 * s, ty, ts, false, color::TEXT_DIM);
-                            ui.label(&m.fame.to_string(), body[0] + 240.0 * s, ty, ts, false, color::TEXT_DIM);
+                            ui.label(&thousands(m.fame as i64), body[0] + 230.0 * s, ty, ts, false, color::TEXT_DIM);
+                            let alive = if m.away { "away".to_owned() } else { m.alive.map_or("-".to_owned(), thousands) };
+                            ui.label(&alive, body[0] + 300.0 * s, ty, ts, false, color::TEXT_DIM);
                             // Officers manage those below them (MemberListLine).
                             if my_rank >= 20 && m.rank < my_rank && !me_row {
                                 let mut x = body[0] + body[2];
@@ -661,7 +710,8 @@ impl Npcs {
             }
             Window::Champions(view) => {
                 let name = me.and_then(|m| m.name()).unwrap_or("");
-                for (i, tr) in crate::champions::draw(ui, view, r, s, name, mouse, now) {
+                let guild = me.and_then(|m| m.stat_str(stat::GUILD_NAME)).unwrap_or("");
+                for (i, tr) in crate::champions::draw(ui, view, r, s, name, guild, mouse, now) {
                     self.buttons.push((Hit::Tab(i), tr));
                 }
             }

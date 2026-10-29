@@ -132,6 +132,32 @@ namespace WorldServer.core.net.handlers
                 return;
             }
 
+            // the guild vault: Initiates put items in but don't take them out, and a chest another
+            // world server changed takes its new items first (GuildHallWorld)
+            var vaultFrom = GuildHallWorld.IsVaultChest(from) ? (Container)from : null;
+            var vaultTo = GuildHallWorld.IsVaultChest(to) ? (Container)to : null;
+            if (vaultFrom != null || vaultTo != null)
+            {
+                var hall = (GuildHallWorld)player.World;
+                var takes = vaultFrom != null && vaultTo == null && conFrom.Inventory[slotFrom] != null
+                    || vaultTo != null && vaultFrom == null && conTo.Inventory[slotTo] != null;
+                string why = null;
+                if (!hall.MayPut(player))
+                    why = "Only the guild's members can use its vault.";
+                else if (takes && !hall.MayTake(player))
+                    why = "Initiates can put items into the guild vault, not take them out. Ask an officer to promote you.";
+                else if ((vaultFrom != null && !hall.Fresh(vaultFrom)) | (vaultTo != null && !hall.Fresh(vaultTo)))
+                    why = "The vault had just changed. Try again.";
+                if (why != null)
+                {
+                    player.SendError(why);
+                    from.ForceUpdate(slotFrom);
+                    to.ForceUpdate(slotTo);
+                    player.Client.SendPacket(new InvResult() { Result = 1 });
+                    return;
+                }
+            }
+
             // setup swap
             var queue = new Queue<Action>();
             var conFromTrans = conFrom.Inventory.CreateTransaction();
@@ -215,6 +241,15 @@ namespace WorldServer.core.net.handlers
                 {
                     while (queue.Count > 0)
                         queue.Dequeue()();
+
+                    // what went in and out of the guild vault, unless it moved inside it
+                    if ((vaultFrom == null) != (vaultTo == null))
+                    {
+                        var hall = (GuildHallWorld)player.World;
+                        var intoVault = vaultTo != null;
+                        hall.Log(player, true, intoVault ? itemFrom : itemTo);
+                        hall.Log(player, false, intoVault ? itemTo : itemFrom);
+                    }
 
                     player.Client.SendPacket(new InvResult() { Result = 0 });
                     return;

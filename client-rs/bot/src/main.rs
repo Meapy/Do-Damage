@@ -28,6 +28,13 @@
 //! `--arena-vote <actions>` votes in the Arena (split by `;`): at each break, the actions in
 //! turn as `ArenaVote`s (0 for the next wave, 1 to 5 to combine that many waves), and it logs
 //! every `ArenaVotes` (`"5;0"`: pick +5, then vote Next).
+//!
+//! `--vault <moves>` moves items to and from the first Vault Chest it has seen, the top one then
+//! the left (the guild vault's first in a guild hall), split by `;`: `put <inventory slot> <chest slot>` or
+//! `take <chest slot> <inventory slot>`. It walks up to the chest, swaps the two slots, logs the
+//! server's InvResult (0 done, 1 refused) and goes on to the next a second later. `upgrade` buys
+//! the Guild Hall Upgrade in the hall instead (and logs the BuyResult), `goto <x> <y>` walks to a
+//! tile (to bring something out of sight into view) and `wait <seconds>` waits.
 
 mod fight;
 
@@ -51,6 +58,19 @@ struct Args {
     view: i32,
     enter: Vec<String>,
     arena_vote: Vec<u8>,
+    vault: Vec<VaultMove>,
+}
+
+/// One of `--vault`'s moves.
+#[derive(Clone, Copy)]
+enum VaultMove {
+    /// inventory slot, chest slot
+    Put(u8, u8),
+    /// chest slot, inventory slot
+    Take(u8, u8),
+    Upgrade,
+    Goto(f32, f32),
+    Wait(u64),
 }
 
 /// The classes' object types, for `--class`.
@@ -69,7 +89,7 @@ fn parse_class(v: &str) -> Result<u16, String> {
 
 fn parse_args() -> Result<Args, String> {
     let mut args =
-        Args { account: String::new(), credentials: String::new(), seconds: 60, char_id: None, gateway: None, say: Vec::new(), wander: 0.0, fight: false, class: 0x030e, view: 15, enter: Vec::new(), arena_vote: Vec::new() };
+        Args { account: String::new(), credentials: String::new(), seconds: 60, char_id: None, gateway: None, say: Vec::new(), wander: 0.0, fight: false, class: 0x030e, view: 15, enter: Vec::new(), arena_vote: Vec::new(), vault: Vec::new() };
     let mut it = std::env::args().skip(1);
     while let Some(a) = it.next() {
         let mut value = || it.next().ok_or(format!("{a} needs a value"));
@@ -86,6 +106,20 @@ fn parse_args() -> Result<Args, String> {
             "--view" => args.view = value()?.parse().map_err(|e| format!("--view: {e}"))?,
             "--arena-vote" => {
                 args.arena_vote = value()?.split(';').filter(|v| !v.trim().is_empty()).map(|v| v.trim().parse().map_err(|e| format!("--arena-vote: {e}"))).collect::<Result<_, _>>()?
+            }
+            "--vault" => {
+                for m in value()?.split(';').map(str::trim).filter(|m| !m.is_empty()) {
+                    let p: Vec<&str> = m.split_whitespace().collect();
+                    let n = |i: usize| p.get(i).and_then(|v| v.parse::<u8>().ok()).ok_or_else(|| format!("--vault: {m}"));
+                    args.vault.push(match p[0] {
+                        "put" => VaultMove::Put(n(1)?, n(2)?),
+                        "take" => VaultMove::Take(n(1)?, n(2)?),
+                        "upgrade" => VaultMove::Upgrade,
+                        "goto" => VaultMove::Goto(n(1)? as f32 + 0.5, n(2)? as f32 + 0.5),
+                        "wait" => VaultMove::Wait(n(1)? as u64),
+                        _ => return Err(format!("--vault: {m}")),
+                    });
+                }
             }
             "--enter" => args.enter = value()?.split(";;").map(|l| l.trim().to_owned()).filter(|l| !l.is_empty()).collect(),
             _ => return Err(format!("unknown argument {a}")),
@@ -184,6 +218,12 @@ fn run(args: Args) -> Result<(), String> {
     // --arena-vote: asked for the Arena's votes in this world; voting was open at the last ArenaVotes
     let mut arena_asked = false;
     let mut arena_open = false;
+    // --vault: the moves left, the chest seen in this world, and when the next move may go
+    let mut vault = args.vault.iter();
+    let mut vault_move = vault.next();
+    let mut chest: Option<(i32, WorldPos)> = None;
+    let mut upgrade: Option<(i32, WorldPos)> = None;
+    let mut vault_at: Option<Instant> = None;
 
     let result = loop {
         if Instant::now() >= deadline {
@@ -209,6 +249,47 @@ fn run(args: Args) -> Result<(), String> {
                 for m in msgs {
                     *sent.entry(m.name()).or_default() += 1;
                     socket.send(&m);
+                }
+            }
+        }
+        // where the move is done: by the chest, the upgrade, or a tile (0 for no object)
+        let goal = match vault_move {
+            Some(VaultMove::Upgrade) => upgrade.map(|(id, at)| (id, WorldPos { x: at.x, y: at.y + 0.8 })),
+            Some(&VaultMove::Goto(x, y)) => Some((0, WorldPos { x, y })),
+            Some(VaultMove::Wait(_)) => Some((0, WorldPos { x: -1.0, y: -1.0 })),
+            _ => chest.map(|(id, at)| (id, WorldPos { x: at.x, y: at.y + 0.8 })),
+        };
+        let due = vault_at.is_some_and(|t| Instant::now() >= t);
+        if let (true, Some(&mv), Some((target, at)), Some(p), Some(me)) = (due, vault_move, goal, session.position, session.object_id) {
+            if let VaultMove::Wait(secs) = mv {
+                log::info!("vault: waiting {secs} s");
+                vault_move = vault.next();
+                vault_at = Some(Instant::now() + Duration::from_secs(secs));
+            } else if last_step.elapsed() >= Duration::from_millis(100) {
+                last_step = Instant::now();
+                let (dx, dy) = (at.x - p.x, at.y - p.y);
+                let d = (dx * dx + dy * dy).sqrt();
+                if d > 0.3 {
+                    let k = (0.4 / d).min(1.0);
+                    session.set_position(WorldPos { x: p.x + dx * k, y: p.y + dy * k }, now());
+                } else {
+                    match mv {
+                        VaultMove::Upgrade => {
+                            log::info!("vault: buying the hall upgrade (object {target})");
+                            socket.send(&bsk_proto::Buy { object_id: target }.into());
+                        }
+                        VaultMove::Put(a, b) | VaultMove::Take(a, b) => {
+                            let put = matches!(mv, VaultMove::Put(..));
+                            let mine = bsk_proto::SlotObject { object_id: me, slot_id: if put { a } else { b }, object_type: 0 };
+                            let theirs = bsk_proto::SlotObject { object_id: target, slot_id: if put { b } else { a }, object_type: 0 };
+                            let (from, to) = if put { (mine, theirs) } else { (theirs, mine) };
+                            log::info!("vault: {} (chest {target})", if put { format!("put inventory {a} into slot {b}") } else { format!("take slot {a} into inventory {b}") });
+                            socket.send(&bsk_proto::InvSwap { time: now(), position: p, slot_object1: from, slot_object2: to }.into());
+                        }
+                        _ => log::info!("vault: at ({}, {})", at.x, at.y),
+                    }
+                    vault_move = vault.next();
+                    vault_at = Some(Instant::now() + Duration::from_secs(1));
                 }
             }
         }
@@ -275,6 +356,18 @@ fn run(args: Args) -> Result<(), String> {
                     }
                     ServerMessage::Update(u) => {
                         objects.extend(u.new_objs.iter().map(|o| o.status.object_id));
+                        if upgrade.is_none() {
+                            if let Some(o) = u.new_objs.iter().find(|o| (0x0736..=0x0738).contains(&o.object_type)) {
+                                upgrade = Some((o.status.object_id, o.status.pos));
+                            }
+                        }
+                        // the guild vault's first chest: the top one, then the left (GuildHallWorld's order)
+                        for o in u.new_objs.iter().filter(|o| o.object_type == 0x0504) {
+                            let key = |p: WorldPos| (p.y as i32, p.x as i32);
+                            if chest.is_none_or(|(_, at)| key(o.status.pos) < key(at)) {
+                                chest = Some((o.status.object_id, o.status.pos));
+                            }
+                        }
                         for o in u.new_objs.iter() {
                             log::trace!("object {} type 0x{:04x} at ({}, {})", o.status.object_id, o.object_type, o.status.pos.x, o.status.pos.y);
                             let id = data.as_ref().and_then(|d| d.objects.get(&(o.object_type as u16))).map(|d| d.id.as_str());
@@ -291,6 +384,8 @@ fn run(args: Args) -> Result<(), String> {
                             log::debug!("our stats: {}", stats.join(" "));
                         }
                     }
+                    ServerMessage::InvResult(r) => log::info!("vault: InvResult {}", r.result),
+                    ServerMessage::BuyResult(r) => log::info!("vault: BuyResult {} {}", r.result, r.result_string),
                     ServerMessage::Text(t) if !t.text.is_empty() => {
                         log::info!("chat <{}> {}", t.name, t.text)
                     }
@@ -319,10 +414,14 @@ fn run(args: Args) -> Result<(), String> {
                 match session.handle(&msg, now(), &mut out) {
                     Some(Event::MapInfo(m)) => {
                         log::info!("map {} ({}×{})", m.name, m.width, m.height);
+                        (chest, upgrade, vault_at) = (None, None, None);
                         fighter.map(m.width as i32, m.height as i32, &m.display_name, m.seed);
                     }
                     Some(Event::Joined { object_id, char_id: id }) => {
                         log::info!("joined as object {object_id}");
+                        if !args.vault.is_empty() {
+                            vault_at = Some(Instant::now() + Duration::from_secs(2));
+                        }
                         if args.fight {
                             fighter.joined(object_id);
                             // what the client asks for once in: the boss's damage, fame, its view

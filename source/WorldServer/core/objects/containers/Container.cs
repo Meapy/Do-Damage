@@ -7,6 +7,7 @@ using WorldServer.core.miscfile;
 using WorldServer.core.objects.inventory;
 using WorldServer.core.worlds;
 using WorldServer.core.net.stats;
+using WorldServer.utils;
 
 namespace WorldServer.core.objects.containers
 {
@@ -75,18 +76,42 @@ namespace WorldServer.core.objects.containers
             base.ExportStats(stats, isOtherPlayer);
         }
 
-        // Backs a container placed by a map with stored items: loads them, then saves every change.
-        public void LinkToDb(RInventory dbLink)
+        // Backs a container placed by a map with stored items: loads them, then saves every change
+        // (wait: before the change goes on, so Redis always has it; the guild vault's chests).
+        public void LinkToDb(RInventory dbLink, bool wait = false)
         {
             DbLink = dbLink;
             Inventory.SetItems(Inventory.ConvertTypeToItemArray(dbLink.Items));
             Inventory.SetDataItems(dbLink.ItemDatas);
             Inventory.InventoryChanged += (sender, e) =>
             {
+                if (_reloading)
+                    return;
                 DbLink.Items = Inventory.GetItemTypes();
                 DbLink.ItemDatas = Inventory.Data.GetDatas();
-                DbLink.FlushAsync();
+                var saved = DbLink.FlushAsync();
+                if (wait)
+                    saved.Wait();
             };
+        }
+
+        private bool _reloading;
+
+        // Takes the items its record holds now (read again by the caller), without saving them back.
+        public void ReloadFromDb()
+        {
+            _reloading = true;
+            try
+            {
+                Inventory.SetDataItems(DbLink.ItemDatas);
+                Inventory.SetItems(Inventory.ConvertTypeToItemArray(DbLink.Items));
+            }
+            finally
+            {
+                _reloading = false;
+            }
+            for (var i = 0; i < BagSize; i++)
+                this.ForceUpdate(i);
         }
 
         private void Initialize(RInventory dbLink)

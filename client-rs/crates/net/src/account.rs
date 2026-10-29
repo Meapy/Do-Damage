@@ -342,10 +342,33 @@ pub struct GuildMember {
     pub fame: i32,
     /// Unix time.
     pub last_seen: i64,
+    /// Their living characters' fame (the Hall of Champions' Guild Living board), when they're
+    /// ranked and have played in the last two weeks.
+    pub alive: Option<i64>,
+    /// They haven't played in the last two weeks, so their living fame doesn't count.
+    pub away: bool,
 }
 
-/// `/guild/listMembers`: the guild's name and members.
-pub fn parse_guild(xml: &str) -> Result<(String, Vec<GuildMember>), String> {
+/// `/guild/listMembers`: the guild, its hall and its members.
+#[derive(Debug, Clone, Default, PartialEq)]
+pub struct Guild {
+    pub name: String,
+    pub members: Vec<GuildMember>,
+    /// Its hall, 1-4 (0 from an older server).
+    pub level: i32,
+    /// Guild fame to spend, and all it has earned.
+    pub fame: i64,
+    pub total_fame: i64,
+    pub vault_used: i32,
+    pub vault_slots: i32,
+    /// The next hall's price in guild fame (0 at the last).
+    pub next_price: i64,
+    /// Its place and fame on the Hall of Champions' Guild Living and Guild Dead boards.
+    pub living: Option<(i32, i64)>,
+    pub dead: Option<(i32, i64)>,
+}
+
+pub fn parse_guild(xml: &str) -> Result<Guild, String> {
     if let Some(e) = error_text(xml) {
         return Err(e);
     }
@@ -359,9 +382,29 @@ pub fn parse_guild(xml: &str) -> Result<(String, Vec<GuildMember>), String> {
             rank: child_text(m, "Rank").and_then(parse_int).unwrap_or(0) as i32,
             fame: child_text(m, "Fame").and_then(parse_int).unwrap_or(0) as i32,
             last_seen: child_text(m, "LastSeen").and_then(parse_int).unwrap_or(0),
+            alive: child_text(m, "Alive").and_then(parse_int),
+            away: child_text(m, "Away").is_some(),
         })
         .collect();
-    Ok((root.attribute("name").unwrap_or("").to_owned(), members))
+    let num = |tag: &str| child_text(root, tag).and_then(parse_int).unwrap_or(0);
+    let board = |tag: &str| {
+        root.children().find(|c| c.has_tag_name(tag)).map(|b| {
+            let a = |n: &str| b.attribute(n).and_then(parse_int).unwrap_or(0);
+            (a("rank") as i32, a("fame"))
+        })
+    };
+    Ok(Guild {
+        name: root.attribute("name").unwrap_or("").to_owned(),
+        members,
+        level: num("Level") as i32,
+        fame: num("CurrentFame"),
+        total_fame: num("TotalFame"),
+        vault_used: num("VaultUsed") as i32,
+        vault_slots: num("VaultSlots") as i32,
+        next_price: num("NextPrice"),
+        living: board("LivingBoard"),
+        dead: board("DeadBoard"),
+    })
 }
 
 /// `/account/grabPotions`: the stored count of each of the eight stat potions, and how many
@@ -422,6 +465,8 @@ pub struct Champions {
     pub next: i64,
     /// When the weekly boards start afresh.
     pub week_reset: i64,
+    /// When the yearly boards start afresh.
+    pub year_reset: i64,
     /// What every board's loot boosts add up to at most (0.04 is 4%).
     pub loot_cap: f64,
     pub boards: Vec<ChampionBoard>,
@@ -433,6 +478,8 @@ pub struct ChampionBoard {
     pub id: String,
     pub name: String,
     pub weekly: bool,
+    /// It starts afresh on 1 January (Guild Dead).
+    pub yearly: bool,
     /// What the value counts: "fame", "stars", "points", "wave", "dungeons".
     pub unit: String,
     /// How many are ranked on it.
@@ -461,6 +508,9 @@ pub struct ChampionEntry {
     pub tex2: i32,
     pub level: i32,
     pub members: Vec<ChampionEntry>,
+    /// A guild's place (Guilds): how many members it has, its name the guild's and its character
+    /// its best member's; 0 for a player or a group.
+    pub guild: i32,
 }
 
 impl ChampionEntry {
@@ -493,6 +543,7 @@ pub fn parse_champions(xml: &str) -> Result<Champions, String> {
         tex2: int(e, "tex2") as i32,
         level: int(e, "level") as i32,
         members: Vec::new(),
+        guild: int(e, "guild") as i32,
     };
     Ok(Champions {
         pending: int(root, "pending") != 0,
@@ -500,6 +551,7 @@ pub fn parse_champions(xml: &str) -> Result<Champions, String> {
         updated: int(root, "updated"),
         next: int(root, "next"),
         week_reset: int(root, "weekReset"),
+        year_reset: int(root, "yearReset"),
         loot_cap: root.attribute("lootCap").and_then(|v| v.parse().ok()).unwrap_or(0.0),
         boards: root
             .children()
@@ -508,6 +560,7 @@ pub fn parse_champions(xml: &str) -> Result<Champions, String> {
                 id: b.attribute("id").unwrap_or("").to_owned(),
                 name: b.attribute("name").unwrap_or("").to_owned(),
                 weekly: int(b, "weekly") != 0,
+                yearly: int(b, "yearly") != 0,
                 unit: b.attribute("unit").unwrap_or("").to_owned(),
                 count: int(b, "count") as i32,
                 description: b.children().find(|c| c.has_tag_name("Description")).and_then(|d| d.text()).unwrap_or("").to_owned(),
@@ -608,13 +661,23 @@ mod tests {
 
     #[test]
     fn guild_and_potions() {
-        let (name, members) = parse_guild(
+        let g = parse_guild(
             r#"<Guild id="3" name="Knights"><TotalFame>9</TotalFame><Member><Name>Bob</Name><Rank>40</Rank>
             <Fame>12</Fame><LastSeen>100</LastSeen></Member></Guild>"#,
         )
         .unwrap();
-        assert_eq!(name, "Knights");
-        assert_eq!(members[0], GuildMember { name: "Bob".into(), rank: 40, fame: 12, last_seen: 100 });
+        assert_eq!(g.name, "Knights");
+        assert_eq!(g.members[0], GuildMember { name: "Bob".into(), rank: 40, fame: 12, last_seen: 100, alive: None, away: false });
+        assert_eq!((g.total_fame, g.level, g.living, g.dead), (9, 0, None, None));
+        let g = parse_guild(
+            r#"<Guild id="3" name="Knights"><TotalFame>900</TotalFame><CurrentFame>40</CurrentFame><Level>2</Level>
+            <VaultSlots>32</VaultSlots><VaultUsed>5</VaultUsed><NextPrice>30000</NextPrice><LivingBoard rank="1" fame="1500"/><DeadBoard rank="3" fame="900"/>
+            <Member><Name>Bob</Name><Rank>40</Rank><Fame>12</Fame><LastSeen>100</LastSeen><Alive>600</Alive></Member></Guild>"#,
+        )
+        .unwrap();
+        assert_eq!((g.level, g.fame, g.vault_used, g.vault_slots, g.next_price), (2, 40, 5, 32, 30000));
+        assert_eq!((g.living, g.dead), (Some((1, 1500)), Some((3, 900))));
+        assert_eq!(g.members[0].alive, Some(600));
         let (counts, cap) = parse_potions("<StoredPotions>1,2,3,4,5,6,7,8,100</StoredPotions>").unwrap();
         assert_eq!((counts, cap), (vec![1, 2, 3, 4, 5, 6, 7, 8], 100));
         assert_eq!(text_answer("Hello guild"), Ok("Hello guild".into()));

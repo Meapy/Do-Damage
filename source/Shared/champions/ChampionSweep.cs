@@ -19,6 +19,8 @@ namespace Shared.champions
         private const int Batch = 200;
         private const int FullEvery = 12;   // rankings between full reads (an hour)
         private const int ArenaRuns = 1000;
+        // a guild member's living fame counts on Guild Living while they've played this recently
+        private static readonly TimeSpan ActiveFor = TimeSpan.FromDays(14);
 
         private readonly IDatabase _db;
         private readonly QuestData _quests;
@@ -35,6 +37,8 @@ namespace Shared.champions
             public long StarFame;          // its classes' best fame together (the Stars tiebreak)
             public int Points;
             public long BestFame;          // its best living character's fame
+            public long AliveFame;         // all its living characters' fame together
+            public int GuildId;
             public ushort ObjectType;
             public int Skin, Tex1, Tex2, Level;
         }
@@ -66,6 +70,10 @@ namespace Shared.champions
             var runs = DbArenaRuns.Top(_db, ArenaRuns);
             boards[(int)ChampionTab.ArenaSolo] = Rank(ArenaBests(live, runs.Where(r => r.Solo).ToList()));
             boards[(int)ChampionTab.ArenaGroup] = ChampionBoards.Rank(ArenaGroups(live, runs.Where(r => !r.Solo).ToList()));
+            DbChampions.SeedGuildDead(_db, weekNow.Year);
+            var guilds = Guilds(live, weekNow).ToList();
+            boards[(int)ChampionTab.GuildLiving] = ChampionBoards.Rank(guilds.Select(g => g.Living));
+            boards[(int)ChampionTab.GuildDead] = ChampionBoards.Rank(guilds.Select(g => g.Dead));
             foreach (var tab in new[] { ChampionTab.WeeklyFame, ChampionTab.WeeklyDungeons })
                 boards[(int)tab] = Rank(_db.SortedSetRangeByRankWithScores(DbChampions.WeekKey(week, tab), 0, -1, Order.Descending)
                     .Select(e => ((int)e.Element, (long)e.Score, 0L)).Where(e => live.ContainsKey(e.Item1)));
@@ -83,6 +91,46 @@ namespace Shared.champions
                 AccountId = id, Name = a.Name, Value = value, Tiebreak = tiebreak,
                 ObjectType = a.ObjectType, Skin = a.Skin, Tex1 = a.Tex1, Tex2 = a.Tex2, Level = a.Level,
             };
+        }
+
+        // Each guild with a ranked member, a place on each guild board: Living, the living characters'
+        // fame of its ranked members who played in the last two weeks (lastSeen; the others are
+        // Away); Dead, the fame of every character that died in it this year (DbChampions.GuildDeadKey,
+        // from Database.Death). Its character is its best member's; a tie goes to the bigger guild.
+        private IEnumerable<(ChampionRanked Living, ChampionRanked Dead)> Guilds(Dictionary<int, Account> live, DateTime now)
+        {
+            var groups = live.Where(a => a.Value.GuildId > 0).GroupBy(a => a.Value.GuildId).ToList();
+            if (groups.Count == 0)
+                yield break;
+            var batch = _db.CreateBatch();
+            var heads = groups.Select(g => batch.HashGetAsync($"guild.{g.Key}", "name")).ToList();
+            var deadFame = groups.Select(g => batch.SortedSetScoreAsync(DbChampions.GuildDeadKey(now.Year), g.Key)).ToList();
+            batch.Execute();
+            Task.WaitAll(heads.Concat<Task>(deadFame).ToArray());
+            var active = new DateTimeOffset(now).ToUnixTimeSeconds() - (long)ActiveFor.TotalSeconds;
+            for (var i = 0; i < groups.Count; i++)
+            {
+                var name = heads[i].Result;
+                if (!name.HasValue || string.IsNullOrEmpty(name.ToString()))
+                    continue;
+                var roster = groups[i].Select(a =>
+                    {
+                        var away = a.Value.LastSeen < active;
+                        var m = Entry(live, a.Key, away ? 0 : a.Value.AliveFame, 0);
+                        m.Away = away;
+                        return m;
+                    })
+                    .OrderByDescending(m => live[m.AccountId].BestFame).ThenBy(m => m.AccountId).ToList();
+                var best = roster[0];
+                ChampionRanked Place(long value) => new ChampionRanked
+                {
+                    AccountId = roster.Min(m => m.AccountId), GuildId = groups[i].Key, Name = name.ToString(),
+                    Value = value, Tiebreak = roster.Count,
+                    ObjectType = best.ObjectType, Skin = best.Skin, Tex1 = best.Tex1, Tex2 = best.Tex2, Level = best.Level,
+                    Roster = roster,
+                };
+                yield return (Place(roster.Sum(m => m.Value)), Place((long)(deadFame[i].Result ?? 0)));
+            }
         }
 
         // The Arena's group runs, a place for each group (the same players, in whatever order: its
@@ -144,7 +192,7 @@ namespace Shared.champions
             return best.Select(b => (b.Key, b.Value.Wave, b.Value.Quick));
         }
 
-        private static readonly RedisValue[] AccountFields = { "lastSeen", "name", "guest", "banned", "hidden", "rank", "admin" };
+        private static readonly RedisValue[] AccountFields = { "lastSeen", "name", "guest", "banned", "hidden", "rank", "admin", "guildId" };
         private static readonly RedisValue[] CharFields = { "charType", "fame", "skin", "tex1", "tex2", "level" };
 
         private void ReadAccounts(int from, int to, bool full)
@@ -198,6 +246,7 @@ namespace Shared.champions
                 };
                 if (!a.Skip)
                 {
+                    a.GuildId = (int)Num(head[7]);
                     (a.Stars, a.StarFame) = Stars(classes.Result);
                     a.Points = new QuestBook(_quests, QuestState.FromJson(progress.Result), id).Points;
                     foreach (var c in chars[i].Select(t => t.Result))
@@ -206,6 +255,7 @@ namespace Shared.champions
                             continue;
                         var fame = (long)Num(c[1]);
                         var level = (int)Num(c[5]);
+                        a.AliveFame += fame;
                         if (a.ObjectType != 0 && (fame < a.BestFame || (fame == a.BestFame && level <= a.Level)))
                             continue;
                         a.BestFame = fame;

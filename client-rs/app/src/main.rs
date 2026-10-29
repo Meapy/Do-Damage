@@ -1299,7 +1299,7 @@ impl App {
             }
             (NpcRequest::Members, Some(npc::Window::Members { list, error, page })) => match response.and_then(|x| acc::parse_guild(&x)) {
                 Ok(l) => {
-                    *page = (*page).min(l.1.len().saturating_sub(1) / 10);
+                    *page = (*page).min(l.members.len().saturating_sub(1) / 10);
                     (*list, *error) = (Some(l), None);
                 }
                 Err(e) => *error = Some(e),

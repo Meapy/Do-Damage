@@ -153,6 +153,9 @@ namespace WorldServer.core.objects
 			set => _guild?.SetValue(value);
         }
 
+        // in a guild: its loot boost (LootBoosts.Guild)
+        public bool InGuild => !string.IsNullOrEmpty(Guild);
+
         private StatTypeValue<int> _guildRank;
         public int GuildRank
         {

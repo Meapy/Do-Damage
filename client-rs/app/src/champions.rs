@@ -131,7 +131,9 @@ pub const SIZE: (f32, f32) = (900.0, 680.0);
 
 /// Draw the window's insides in the panel `r` (the NPC window draws the panel, its title and
 /// the close button); returns the tabs, for clicks.
-pub fn draw(ui: &mut Ui, view: &View, r: [f32; 4], s: f32, me: &str, mouse: (f64, f64), now: i32) -> Vec<(usize, [f32; 4])> {
+/// `me` is the viewer's name, `guild` their guild's (whose place on the Guilds board is theirs).
+#[allow(clippy::too_many_arguments)]
+pub fn draw(ui: &mut Ui, view: &View, r: [f32; 4], s: f32, me: &str, guild: &str, mouse: (f64, f64), now: i32) -> Vec<(usize, [f32; 4])> {
     let font = |size: f32| (size * s).round().max(9.0);
     let mut hits = Vec::new();
     let x0 = r[0] + 22.0 * s;
@@ -170,11 +172,14 @@ pub fn draw(ui: &mut Ui, view: &View, r: [f32; 4], s: f32, me: &str, mouse: (f64
     }
 
     let board = &data.boards[view.tab.min(data.boards.len() - 1)];
+    let me = if board.id.starts_with("guild") { guild } else { me };
     let mut y = r[1] + 98.0 * s;
 
     // what it ranks, and its period
     let period = if board.weekly {
         format!("Starts afresh in {}", crate::quests::countdown(data.week_reset - server_now))
+    } else if board.yearly && data.year_reset > 0 {
+        format!("This year: afresh in {}", crate::quests::countdown(data.year_reset - server_now))
     } else {
         "All time".to_owned()
     };
@@ -249,7 +254,7 @@ pub fn draw(ui: &mut Ui, view: &View, r: [f32; 4], s: f32, me: &str, mouse: (f64
         let nx = x0 + (74.0 + 20.0 * (faces.len() - 1) as f32) * s;
         let v = value_text(board, e.value);
         let vw = ui.measure(&v, rs, true);
-        let detail = if e.members.is_empty() { class_line(ui, e) } else { None };
+        let detail = if e.guild > 0 { Some(guild_line(e)) } else if e.members.is_empty() { class_line(ui, e) } else { None };
         let name_w = if detail.is_some() { x0 + 222.0 * s - nx } else { x0 + w - vw - 16.0 * s - nx };
         let name = crate::npc::fit(ui, &e.name, rs, name_w);
         ui.label(&name, nx, ty, rs, true, if mine { color::ACCENT_HI } else { color::TEXT });
@@ -314,8 +319,15 @@ fn hint(board: &ChampionBoard) -> &'static str {
         "arenaGroup" => "Survive waves in the Arena (/arena) with others.",
         "weeklyFame" => "Earn fame this week: anything counts.",
         "weeklyDungeons" => "Clear dungeons this week: be near a boss when the last one falls.",
+        "guildLiving" => "Join a guild (or make one at the Guild Register): the living fame of members who played in the last two weeks counts.",
+        "guildDead" => "Join a guild: every character that dies in it this year adds its fame here.",
         _ => "",
     }
+}
+
+/// "A guild of 6".
+fn guild_line(e: &ChampionEntry) -> String {
+    format!("A guild of {}", e.guild)
 }
 
 /// "Level 20 Wizard".
@@ -379,7 +391,13 @@ fn podium(ui: &mut Ui, board: &ChampionBoard, e: Option<&ChampionEntry>, rank: i
     let vw = ui.measure(&v, vs, true);
     ui.label(&v, mid - vw / 2.0, ty, vs, true, color::TEXT);
     ty += vs * 1.35;
-    let detail = if e.members.is_empty() { class_line(ui, e) } else { Some(format!("A group of {}", e.members.len())) };
+    let detail = if e.guild > 0 {
+        Some(guild_line(e))
+    } else if e.members.is_empty() {
+        class_line(ui, e)
+    } else {
+        Some(format!("A group of {}", e.members.len()))
+    };
     if let Some(c) = detail {
         let cs = font(11.0);
         let cw = ui.measure(&c, cs, false);

@@ -77,14 +77,40 @@ namespace Tests
         [Fact]
         public void EachBoardGivesItsOwnReward()
         {
-            // every reward but the Arena's, which both Arena boards give, comes from one board
-            Assert.Equal(ChampionBoards.All.Length - 1, ChampionBoards.All.Select(b => b.Reward).Distinct().Count());
+            // every reward comes from one board, but the Arena's (both Arena boards) and the loot boost
+            // (Fame and the two guild boards)
+            Assert.Equal(ChampionBoards.All.Length - 3, ChampionBoards.All.Select(b => b.Reward).Distinct().Count());
             var p = ChampionPlaces.None.With(ChampionTab.WeeklyFame, 2).With(ChampionTab.ArenaSolo, 1).With(ChampionTab.ArenaGroup, 4);
             Assert.Equal(0.06, p.Experience, 10);
             Assert.Equal(0.20, p.ArenaFame, 10);
             Assert.Equal(0, p.Loot(true));
             Assert.Equal("+6% experience and fame", ChampionBoards.Of(ChampionTab.WeeklyFame).RewardText(1));
             Assert.Equal("Bronze glow", ChampionBoards.Of(ChampionTab.Stars).RewardText(2));
+        }
+
+        [Fact]
+        public void EveryMemberOfAGuildHoldsItsPlace()
+        {
+            var roster = new List<ChampionRanked>
+            {
+                new ChampionRanked { AccountId = 4, Name = "Ann" },
+                new ChampionRanked { AccountId = 9, Name = "Bo" },
+            };
+            var guilds = ChampionBoards.Rank(new[]
+            {
+                new ChampionRanked { AccountId = 4, GuildId = 1, Name = "Lol", Value = 500, Roster = roster },
+                new ChampionRanked { AccountId = 2, GuildId = 2, Name = "Other", Value = 900, Roster = new List<ChampionRanked> { new ChampionRanked { AccountId = 2, Name = "Cy" } } },
+            });
+            var boards = ChampionBoards.All.Select(_ => new List<ChampionRanked>()).ToList();
+            boards[(int)ChampionTab.GuildLiving] = guilds;
+            var holders = ChampionBoards.Holders(boards);
+            Assert.Equal(2, holders[4].RankOn(ChampionTab.GuildLiving));
+            Assert.Equal(2, holders[9].RankOn(ChampionTab.GuildLiving));
+            Assert.Equal(1, holders[2].RankOn(ChampionTab.GuildLiving));
+            Assert.Equal(0, holders[2].RankOn(ChampionTab.GuildDead));
+            Assert.Equal(0.01, holders[9].Loot(false), 10);
+            Assert.True(guilds[1].Has("bo"));
+            Assert.False(guilds[1].Has("Lol"));
         }
 
         [Fact]

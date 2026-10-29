@@ -335,14 +335,14 @@ ENCHANTER = (26, 70)                # the Enchanter, which imprints gear (Imprin
 FORGE_HALL_DOOR = (74, 76)          # the doors in its east and west walls, y0 and y1
 FORGE_HALL_NORTH = (20, 24)         # the door in its north wall, x0 and x1
 # the Hall of Champions, in the east ward south of the street: the monument at its middle, a gold
-# court around it, and the plinths of the boards' champions on a hexagon whose corners point east
-# and west, so the carpet in from the street stays open; each plinth names its board
+# court around it, and the plinths of the boards' champions in a ring open to the north, so the
+# carpet in from the street stays open; each plinth names its board
 # (Shared/champions ChampionBoards, `name:<board id>`)
 CHAMPIONS = (77, 53)
 CHAMPIONS_RADIUS = 6.8       # the gold inside; a border tile wide round it
 CHAMPION_STATUES = [((-3, -5), "fame"), ((3, -5), "stars"), ((6, -1), "achievements"),
-                    ((5, 4), "arenaSolo"), ((0, 5), "arenaGroup"), ((-5, 4), "weeklyDungeons"),
-                    ((-6, -1), "weeklyFame")]
+                    ((6, 3), "arenaSolo"), ((3, 6), "arenaGroup"), ((0, 6), "guildLiving"),
+                    ((-3, 6), "guildDead"), ((-6, 3), "weeklyDungeons"), ((-6, -1), "weeklyFame")]
 # where DoomedWorlds.AddNexusPortals puts the Arena portal (keep the two in step)
 ARENA_PORTALS = [(45.5, 68.5)]
 # (name, region, x0, y0, columns, rows[, stalls]): see Grid.pavilion. One stall per item where a

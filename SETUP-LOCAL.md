@@ -378,7 +378,7 @@ The remotes `upstream` (HaloCelsius) and `aurusenth` share no history with `main
 - **The Hall of Champions** (2026-10-29; `Shared/champions/`, `App/ChampionsService.cs`,
   `App/Controllers/ChampionsController.cs`, `WorldServer/core/champions/ChampionCache.cs`,
   `Player.Champions.cs`, `Command.Champions.cs`, the client's `champions.rs`, `source/Tests/ChampionsTests.cs`):
-  the living's leaderboard, beside the Legends. Seven boards (`ChampionBoards.All`, in `ChampionTab`'s
+  the living's leaderboard, beside the Legends. Nine boards (`ChampionBoards.All`, in `ChampionTab`'s
   order, which Redis keeps): Fame (each account's best living character's fame), Stars (class stars from
   `classStats.<id>`, tiebreak the classes' best fame together), Achievements (`QuestBook.Points` from
   the account's `progress`), Arena Solo (each account's best run alone in `doomed.arenaLeaderboard`, by the
@@ -390,7 +390,7 @@ The remotes `upstream` (HaloCelsius) and `aurusenth` share no history with `main
   quest events `fame` and `dungeon`, kept per player and written every 5 s (a dungeon at once) and on
   leaving, where `Client.Save` waits until Redis has them, so a restart or a deploy's hand-over keeps
   every count and a crash loses a few seconds at most; counts go to the week they were earned in;
-  kept three weeks). Guests, banned, hidden and admin accounts (`rank` 6 or the `admin` flag) aren't ranked; ties go to the tiebreak, then the
+  kept three weeks), Guild Living and Guild Dead (see Guilds below). Guests, banned, hidden and admin accounts (`rank` 6 or the `admin` flag) aren't ranked; ties go to the tiebreak, then the
   lower account id. *Ranking:* the account server (one instance) ranks every 5 minutes on a timer,
   in pipelined batches of 200 accounts, re-reading only accounts whose `lastSeen` moved (and all of
   them hourly or when asked); about 45 ms for the test data. It keeps the result in memory for
@@ -420,6 +420,49 @@ The remotes `upstream` (HaloCelsius) and `aurusenth` share no history with `main
   accounts, every board ranked, the window and statues drawn, rewards in `/boosts`, a place gained
   while online (notice and glow within about 30 s) and the weekly reset ending a reward. Both
   servers and the client need redeploying.
+- **Guilds** (2026-10-29; `Shared/database/guild/GuildHalls.cs` (the rules), `DbGuildVault.cs`,
+  `WorldServer/core/worlds/impl/GuildHallWorld.cs`, `GuildMerchant.cs`, `Command.Guild.cs`,
+  `tools/build_guild_halls.py`, `source/Tests/GuildHallsTests.cs`): *Loot:* being in a guild gives
+  +1% loot (`LootBoosts.Guild`, `Player.InGuild`, in `/boosts`). *Halls:* the four `Guild Hall 1-4`
+  maps are drawn by `build_guild_halls.py` in the castle look, each its own shape (an octagon, a
+  cross, a hexagon with a bastion on every point, an apse over a bastioned body), with 2/4/6/8 Vault
+  Chests, the board and chronicle on a dais, the portals by the spawn, a training yard from 2
+  (Training Dummies; `DisableShooting` is off in the halls so they can be shot), the Armoire and
+  Potion Storage from 3, the Divine Forge and Enchanter from 4 (they work by standing near them, as in
+  the Nexus). Guild halls are `GuildHallWorld`s, opened under the Nexus on its thread
+  (`GuildHallWorld.Open`, from the Guild Hall Portal and `/ghall`, which did nothing before) by
+  `WorldManager.CreateGuildHall`; closing an old hall no longer unmaps the guild's newer one.
+  *Upgrades:* the Guild Hall Upgrade (0x0736-0x0738) is `<Static/>`, so the map held it as a tile
+  object nobody could buy from; the hall now swaps it for a `GuildMerchant` entity. A Leader or the
+  Founder buys it for guild fame (10,000 / 30,000 / 75,000, `GuildHalls.UpgradePrice`; was 10k / 100k /
+  250k, and the XML's price and description changed in both copies); everyone in the hall moves into
+  the new one at once (`GuildHallWorld.MoveTo`) and the guild's online members get a line. The old
+  +5% `guildLootBoost` per upgrade was never read and is no longer added. *Vault:* the hall's chests
+  are linked (`Container.LinkToDb(wait: true)`) to the hash `guildVault.<guildId>`, fields
+  `items.<n>`/`datas.<n>`, n counted top to bottom then left to right, so an upgrade keeps every item
+  in the same chest. Initiates (`GuildRank` 0) can put in, Members (10) and up take out
+  (`InvSwapHandler`; `MessageHandlers.CanTakeFrom` for drops and the rest); only the guild's own
+  members may use it. Every move goes on `guildVault.<guildId>.log` (`time|name|+ or -|item`, last
+  100, `/gvault`). During a rolling deploy two world servers may each run the guild's hall, so a
+  chest is checked against Redis before each move (a changed chest takes Redis's items and refuses
+  the move once) and every 2 s while anyone is in, and each change is saved before it's confirmed.
+  *Boards:* Guild Living and Guild Dead in the Hall of Champions (`ChampionTab` 7 and 8, +2/1/0.5% loot
+  for every member, in the loot cap). Living sums the living characters' fame of the guild's ranked
+  members (by the account's `guildId`) whose `lastSeen` is within 14 days (`ChampionRanked.Away` for
+  the rest); Dead is `champions:guildDead:<year>` (guild id -> fame), added to by `Database.Death`
+  beside the guild's `totalFame`, so it starts afresh on 1 January (the champions clock's year); the
+  first ranking seeds the current year with each guild's `totalFame` (`champions:guildDead:seeded`).
+  Each guild place has its members in `ChampionRanked.Roster` (they all hold it; the XML `<Entry>`
+  gets `guild="<members>"`, and `<Champions yearReset>` / `<Board yearly="1">`). *Guild window:*
+  `/guild/listMembers` adds `Level`, `VaultSlots`, `VaultUsed`, `NextPrice`, `LootBoost`,
+  `LivingBoard`/`DeadBoard` (rank, fame) and each member's `Alive` or `Away`; the Rust client shows
+  them above the member list, an older client ignores them. `/ginfo` shows it all in the chat. The
+  Nexus's Hall of Champions has nine plinths. The test bot gained `--vault` (put, take, upgrade, goto,
+  wait). Tested: `dotnet test source/Tests`, `cargo test`; on an isolated stack with bots: the hall
+  opens, a Founder puts in, an Initiate is refused taking but can put in, a chest changed in Redis
+  behind the server's back is taken from as Redis has it, the upgrade moves both players into Hall 2
+  with the vault, a member's death adds to this year's Guild Dead, a member last seen 30 days ago is
+  away and left out of Guild Living, and the window, tabs and halls drawn in the client.
 - **Arena Leaderboard: solo and group runs apart** (2026-10-29; `DbArenaRuns`, `ArenaController`,
   `/leaderboard`, the client's `npc.rs`): a run with one player is solo (`DbArenaRun.Solo`).
   `POST /arena/leaderboard` takes `players=solo|group` (older clients send neither and get every run,

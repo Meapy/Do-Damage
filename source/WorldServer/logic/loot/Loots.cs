@@ -290,7 +290,7 @@ namespace WorldServer.logic.loot
                 var eventBoost = player.Client.GameServer.Configuration.serverSettings.lootEvent;
                 // the Hall of Champions' boards (in dungeons, the Weekly Dungeons board's too)
                 var champion = player.Champion.Loot(!(player.World is RealmWorld));
-                var boosts = LootBoosts.Total(player.LDBoostTime > 0, player.IsLegend, wkndBoost, eventBoost, champion);
+                var boosts = LootBoosts.Total(player.LDBoostTime > 0, player.IsLegend, wkndBoost, eventBoost, champion, player.InGuild);
                 var totalBoost = 1 + (boosts + dmgBoost + enemyBoost);
 
                 var gameData = enemy.GameServer.Resources.GameData;

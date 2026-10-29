@@ -38,32 +38,7 @@ namespace WorldServer.core.net.handlers
 
             if (portal.GuildHallPortal)
             {
-                if (string.IsNullOrEmpty(player.Guild))
-                {
-                    player.SendError("You are not in a guild.");
-                    return;
-                }
-
-                var manager = player.Client.GameServer;
-                var guildId = player.Client.Account.GuildId;
-
-                world = manager.WorldManager.GetGuild(guildId);
-                if (world == null)
-                {
-                    var guild = player.Client.GameServer.Database.GetGuild(guildId);
-
-                    // this is mandatory
-                    dungeonName = $"{portal.PortalDescr.DungeonName} {guild.Level + 1}";
-
-                    world = manager.WorldManager.CreateNewWorld(dungeonName, null, player.World);
-                    if (world != null)
-                        manager.WorldManager.AddGuildInstance(guildId, world);
-                }
-
-                if (world != null)
-                    player.Reconnect(world);
-                else
-                    player.SendInfo("[Bug] Unable to Create Guild.");
+                GuildHallWorld.Open(player);
                 return;
             }
 

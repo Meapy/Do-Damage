@@ -114,7 +114,7 @@ you while you stand next to them. Around the spawn:
 
 - **North**, in the keep's great hall: the **realm portals**, each with its name and how many
   players are inside.
-- **West** of the spawn: the **Vault** portal. **East**: the **Guild Hall** portal and guild board.
+- **West** of the spawn: the **Vault** portal. **East**: the **Guild Hall** portal and guild board (see [Guilds](guilds.html): every member gets +1% loot).
 - **Beside the spawn**: the Name Changer (your first name is free; changing it costs
   {{v:name_change}} fame), the Character Changer, the Armoire (skins) and the Support Bot, and
   either side of the rug the **Tinkerer** and the **Chronicler**, who keep your

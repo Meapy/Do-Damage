@@ -12,7 +12,7 @@ namespace Shared.champions
     // everyone every few minutes (ChampionSweep) and writes who holds what into Redis
     // (DbChampions); the world servers read that and apply it (ChampionCache, Player.Champion).
     // This file is only the rules, so dotnet test source\Tests covers them.
-    public enum ChampionTab : byte { Fame = 0, Stars = 1, Achievements = 2, ArenaSolo = 3, ArenaGroup = 4, WeeklyFame = 5, WeeklyDungeons = 6 }
+    public enum ChampionTab : byte { Fame = 0, Stars = 1, Achievements = 2, ArenaSolo = 3, ArenaGroup = 4, WeeklyFame = 5, WeeklyDungeons = 6, GuildLiving = 7, GuildDead = 8 }
 
     public enum ChampionReward : byte
     {
@@ -30,6 +30,8 @@ namespace Shared.champions
         public string Id;
         public string Name;
         public bool Weekly;
+        // starts afresh on 1 January (UTC)
+        public bool Yearly;
         // what the value counts, after the number: "fame", "stars", "points", "dungeons"
         public string Unit;
         // one line on the board saying what it ranks
@@ -118,6 +120,18 @@ namespace Shared.champions
                 Description = "Dungeons cleared this week: be near a boss when the last one falls.",
                 Reward = ChampionReward.DungeonLoot, Values = new[] { 0.03, 0.02, 0.01 },
             },
+            new ChampionBoardDef
+            {
+                Tab = ChampionTab.GuildLiving, Id = "guildLiving", Name = "Guild Living", Unit = "fame",
+                Description = "A guild's living fame: the living characters' fame of its members who played in the last two weeks.",
+                Reward = ChampionReward.Loot, Values = new[] { 0.02, 0.01, 0.005 },
+            },
+            new ChampionBoardDef
+            {
+                Tab = ChampionTab.GuildDead, Id = "guildDead", Name = "Guild Dead", Yearly = true, Unit = "fame",
+                Description = "A guild's dead fame: the fame of every character that died in it this year.",
+                Reward = ChampionReward.Loot, Values = new[] { 0.02, 0.01, 0.005 },
+            },
         };
 
         public static ChampionBoardDef Of(ChampionTab tab) => All[(int)tab];
@@ -165,7 +179,8 @@ namespace Shared.champions
     }
 
     // One account on a board, or one group (Arena Group: Members, the lowest id as AccountId and
-    // their names joined as Name).
+    // their names joined as Name), or one guild (the guild boards: GuildId, its name as Name, its members in
+    // Roster, who all hold its place but aren't drawn; the character shown is its best one's).
     public sealed class ChampionRanked
     {
         public int AccountId;
@@ -177,13 +192,19 @@ namespace Shared.champions
         public ushort ObjectType;
         public int Skin, Tex1, Tex2, Level;
         public List<ChampionRanked> Members;
+        public int GuildId;
+        public List<ChampionRanked> Roster;
+        // a guild member who hasn't played in the last two weeks: their living fame doesn't count
+        public bool Away;
 
-        public IEnumerable<int> AccountIds => Members == null ? new[] { AccountId } : Members.Select(m => m.AccountId);
+        private List<ChampionRanked> Holding => Members ?? Roster;
 
-        // whether this place is the named player's (theirs alone, or their group's)
-        public bool Has(string name) => Members == null
+        public IEnumerable<int> AccountIds => Holding == null ? new[] { AccountId } : Holding.Select(m => m.AccountId);
+
+        // whether this place is the named player's (theirs alone, or their group's or guild's)
+        public bool Has(string name) => Holding == null
             ? string.Equals(Name, name, StringComparison.OrdinalIgnoreCase)
-            : Members.Any(m => string.Equals(m.Name, name, StringComparison.OrdinalIgnoreCase));
+            : Holding.Any(m => string.Equals(m.Name, name, StringComparison.OrdinalIgnoreCase));
     }
 
     // An account's places on the boards (0 where it isn't in the top 10), and what they give.

@@ -80,15 +80,21 @@ namespace App
         private int _rank;
         private int _guildFame;
         private int _lastSeen;
+        private long _alive = -1;
+        private bool _away;
 
-        public static GuildMember FromDb(DbAccount acc)
+        // alive: its living characters' fame, from the Hall of Champions' Guilds board (-1 when the
+        // account isn't ranked: staff, or not ranked yet)
+        public static GuildMember FromDb(DbAccount acc, long alive = -1, bool away = false)
         {
             return new GuildMember()
             {
                 _name = acc.Name,
                 _rank = acc.GuildRank,
                 _guildFame = acc.GuildFame,
-                _lastSeen = acc.LastSeen
+                _lastSeen = acc.LastSeen,
+                _alive = alive,
+                _away = away
             };
         }
 
@@ -98,7 +104,9 @@ namespace App
                 new XElement("Name", _name),
                 new XElement("Rank", _rank),
                 new XElement("Fame", _guildFame),
-                new XElement("LastSeen", _lastSeen));
+                new XElement("LastSeen", _lastSeen),
+                _alive >= 0 ? new XElement("Alive", _alive) : null,
+                _away ? new XElement("Away", 1) : null);
         }
     }
 
@@ -109,25 +117,40 @@ namespace App
         private int _currentFame;
         private int _totalFame;
         private string _hallType;
+        private int _level;
+        private int _vaultUsed;
+        private Shared.champions.ChampionRanked _living, _dead;
         private List<GuildMember> _members;
 
         public static Guild FromDb(CoreService core, DbGuild guild)
         {
+            // its places on the Hall of Champions' two guild boards, with each ranked member's living fame
+            var boards = core.Champions.Current?.Boards;
+            var living = boards?[(int)Shared.champions.ChampionTab.GuildLiving].FirstOrDefault(r => r.GuildId == guild.Id);
+            var dead = boards?[(int)Shared.champions.ChampionTab.GuildDead].FirstOrDefault(r => r.GuildId == guild.Id);
+            var alive = living?.Roster?.ToDictionary(m => m.AccountId) ?? new Dictionary<int, Shared.champions.ChampionRanked>();
             var members = (from member in guild.Members
                            select core.Database.GetAccount(member) into acc
                            where acc != null
                            orderby acc.GuildRank descending,
                                    acc.GuildFame descending,
                                    acc.Name ascending
-                           select GuildMember.FromDb(acc)).ToList();
+                           select alive.TryGetValue(acc.AccountId, out var m)
+                               ? GuildMember.FromDb(acc, m.Away ? -1 : m.Value, m.Away)
+                               : GuildMember.FromDb(acc)).ToList();
 
+            var level = GuildHalls.HallOf(guild.Level);
             return new Guild()
             {
                 _id = guild.Id,
                 _name = guild.Name,
                 _currentFame = guild.Fame,
                 _totalFame = guild.TotalFame,
-                _hallType = "Guild Hall " + guild.Level,
+                _hallType = GuildHalls.WorldName(level),
+                _level = level,
+                _vaultUsed = DbGuildVault.Stored(core.Database.Conn, guild.Id),
+                _living = living,
+                _dead = dead,
                 _members = members
             };
         }
@@ -140,6 +163,15 @@ namespace App
             guild.Add(new XElement("TotalFame", _totalFame));
             guild.Add(new XElement("CurrentFame", _currentFame));
             guild.Add(new XElement("HallType", _hallType));
+            guild.Add(new XElement("Level", _level));
+            guild.Add(new XElement("VaultSlots", GuildHalls.VaultSlots(_level)));
+            guild.Add(new XElement("VaultUsed", _vaultUsed));
+            guild.Add(new XElement("NextPrice", GuildHalls.UpgradePrice(_level)));
+            guild.Add(new XElement("LootBoost", GuildHalls.LootBoost));
+            if (_living != null)
+                guild.Add(new XElement("LivingBoard", new XAttribute("rank", _living.Rank), new XAttribute("fame", _living.Value)));
+            if (_dead != null)
+                guild.Add(new XElement("DeadBoard", new XAttribute("rank", _dead.Rank), new XAttribute("fame", _dead.Value)));
             foreach (var member in _members)
                 guild.Add(member.ToXml());
 

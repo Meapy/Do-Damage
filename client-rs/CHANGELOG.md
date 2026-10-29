@@ -15,17 +15,36 @@ details). Add to a group's line when a change adds to it, rather than adding ano
 ## Unreleased
 
 ### Hall of Champions
-- A leaderboard for the living, in the Nexus's east market ward: seven boards (Fame, Stars,
-  Achievements, Arena Solo, Arena Group, Weekly Fame and Weekly Dungeons), ranked every few minutes. Each board's #1
+- A leaderboard for the living, in the Nexus's east market ward: nine boards (Fame, Stars,
+  Achievements, Arena Solo, Arena Group, Weekly Fame, Weekly Dungeons, Guild Living and Guild Dead),
+  ranked every few minutes. Each board's #1
   stands as their character on a plinth round the Champions Monument, which opens the boards: a
   podium of the top three, the rest of the top 10 and your own place, however far down. `/champions`
   lists them in the chat. On Arena Group each place is a whole group, standing together on the
-  plinth, and everyone in it holds the reward. Staff aren't ranked.
+  plinth, and everyone in it holds the reward. On the two guild boards each place is a guild, and
+  every member holds its reward. Staff aren't ranked.
 - Each board's top 10 hold its reward while they stay there: more loot (Fame), a gold, silver or
   bronze glow (Stars) or name in chat (Achievements), more fame from Arena waves (both Arena boards, and
   they add up), more
-  experience and fame (Weekly Fame) and more loot in dungeons (Weekly Dungeons). The weekly boards
-  start afresh every Monday, and `/boosts` lists what you hold.
+  experience and fame (Weekly Fame), more loot in dungeons (Weekly Dungeons) and more loot for a
+  whole guild (Guild Living and Guild Dead). The weekly boards start afresh every Monday and Guild
+  Dead every 1 January, and `/boosts` lists what you hold.
+
+### Guilds
+- Being in a guild gives every member +1% loot.
+- Each guild has a shared vault in its hall: any member can put items in, members and up take them
+  out, and `/gvault` shows who put in or took out what. It keeps its items through restarts and
+  upgrades.
+- The four guild halls are rebuilt, each in its own shape: an octagonal lodge (2 vault chests), a
+  cross-shaped hall with a training yard (4), a star-fort keep with the Armoire, Potion Storage and a
+  fountain garden (6) and a citadel with a throne room holding the Divine Workbench (8). A leader
+  buys the next hall with guild fame (10,000, 30,000 and 75,000) and everyone inside moves into it
+  at once. The upgrade could never be bought before.
+- Two guild boards in the Hall of Champions: Guild Living (the living fame of members who played in
+  the last two weeks) and Guild Dead (the fame of every character that died in the guild this year).
+- `/ghall` now takes you to your guild hall from anywhere, `/ginfo` shows the guild at a glance, and
+  the Guild Chronicle shows the hall, the guild's places on the boards, its guild fame, the vault and
+  each member's living fame.
 
 ### Arena
 - The Arena Leaderboard keeps solo runs and group runs apart: the window has a tab for each, and

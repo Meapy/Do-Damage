@@ -6,6 +6,7 @@ using Shared;
 using WorldServer.core.objects;
 using WorldServer.core.objects.containers;
 using WorldServer.core.worlds;
+using WorldServer.core.worlds.impl;
 using WorldServer.networking;
 
 namespace WorldServer.core.net.handlers
@@ -44,6 +45,9 @@ namespace WorldServer.core.net.handlers
             if (!(entity is Container container))
                 return false;
             if (container.BagOwners.Length > 0 && !container.BagOwners.Contains(player.AccountId))
+                return false;
+            // the guild vault: members and up (GuildHallWorld.MayTake)
+            if (GuildHallWorld.IsVaultChest(container) && !((GuildHallWorld)container.World).MayTake(player))
                 return false;
             var dx = entity.X - player.X;
             var dy = entity.Y - player.Y;

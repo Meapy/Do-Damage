@@ -533,6 +533,7 @@ namespace Shared.database
             {
                 UpdateGuildFame(guild, finalFame);
                 UpdatePlayerGuildFame(acc, finalFame);
+                champions.DbChampions.AddGuildDead(_db, guild.Id, finalFame);
             }
 
             if (!acc.Admin)

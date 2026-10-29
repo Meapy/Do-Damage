@@ -186,6 +186,9 @@ namespace WorldServer.core.worlds
                 case WorldResourceInstanceType.Realm2:
                     world = new Realm2World(GameServer, nextId, worldResource);
                     break;
+                case WorldResourceInstanceType.Guild:
+                    world = new GuildHallWorld(GameServer, nextId, worldResource, parent);
+                    break;
                 default:
                     // ported Doomed Realms minigames and shop
                     world = impl.doomed.DoomedWorlds.Create(GameServer, nextId, worldResource, parent)
@@ -216,10 +219,19 @@ namespace WorldServer.core.worlds
             parent?.WorldBranch.AddBranch(world);
         }
 
-        public void AddGuildInstance(int guildId, World world)
+        /// <summary>
+        /// A guild's hall at this level (1-4), its vault linked, under the Nexus: call it on the
+        /// Nexus's thread (GuildHallWorld.Open). It becomes the guild's hall, replacing any older one.
+        /// </summary>
+        public GuildHallWorld CreateGuildHall(int guildId, int level)
         {
-            _ = Guilds.TryAdd(guildId, world);
-            _ = WorldToGuildId.TryAdd(world.Id, guildId);
+            if (BuildWorld(Shared.database.guild.GuildHalls.WorldName(level), null, Nexus) is not GuildHallWorld hall)
+                return null;
+            hall.Link(guildId, level);
+            AttachWorld(hall, Nexus);
+            Guilds[guildId] = hall;
+            WorldToGuildId[hall.Id] = guildId;
+            return hall;
         }
 
         public World GetWorld(int id) => Worlds.TryGetValue(id, out World ret) ? ret : null;
@@ -250,8 +262,9 @@ namespace WorldServer.core.worlds
                 switch (world.InstanceType)
                 {
                     case WorldResourceInstanceType.Guild:
-                        var guildId = GetGuildId(world.Id);
-                        _ = Guilds.TryRemove(guildId, out _);
+                        // only while it's still the guild's hall (an upgrade's old one isn't)
+                        if (WorldToGuildId.TryRemove(world.Id, out var guildId))
+                            _ = Guilds.TryRemove(new KeyValuePair<int, World>(guildId, world));
                         break;
                 }
             }

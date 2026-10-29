@@ -587,7 +587,7 @@ namespace WorldServer.core.commands.player
             var wkndBoost = player.World.isWeekend ? settings.wkndBoost : 0;
             var lootEvent = settings.lootEvent;
             var champLoot = player.Champion.Loot(!(player.World is RealmWorld));
-            var totalLootBoost = LootBoosts.Total(player.LDBoostTime > 0, player.IsLegend, wkndBoost, lootEvent, champLoot);
+            var totalLootBoost = LootBoosts.Total(player.LDBoostTime > 0, player.IsLegend, wkndBoost, lootEvent, champLoot, player.InGuild);
 
             player.SendInfo($"You have a {Math.Round(totalLootBoost * 100, 0)}% loot boost.");
             if (totalLootBoost > 0)
@@ -596,6 +596,8 @@ namespace WorldServer.core.commands.player
                     player.SendSubtext($"   Your loot drop potion gives: {Math.Round(LootBoosts.LootDrop * 100, 0)}% ({TimeLeft(player.LDBoostTime)})");
                 if (player.IsLegend)
                     player.SendSubtext($"   Being in the Legends gives: {Math.Round(LootBoosts.Legend * 100, 0)}%");
+                if (player.InGuild)
+                    player.SendSubtext($"   Being in a guild ({player.Guild}) gives: {Math.Round(LootBoosts.Guild * 100, 0)}%");
                 if (champLoot > 0)
                 {
                     // the Weekly Dungeons board's counts everywhere but the realms
@@ -680,15 +682,8 @@ namespace WorldServer.core.commands.player
 
         protected override bool Process(Player player, TickTime time, string args)
         {
-            if (player.GuildRank < 0)
-            {
-                player.SendError("You need to be in a guild.");
-                return false;
-            }
-
-            //var proto = player.CoreServerManager.Resources.Worlds["GuildHall"];
-            //var world = player.CoreServerManager.WorldManager.GetWorld(proto.id);
-            //player.Reconnect(world.GetInstance(player.Client));
+            // to the guild's hall from anywhere, as /nexus goes to the Nexus
+            GuildHallWorld.Open(player);
             return true;
         }
     }

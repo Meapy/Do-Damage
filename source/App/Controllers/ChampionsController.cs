@@ -36,6 +36,7 @@ namespace App.Controllers
                 new XAttribute("updated", QuestPeriods.Unix(s.Updated)),
                 new XAttribute("next", QuestPeriods.Unix(_core.Champions.Next)),
                 new XAttribute("weekReset", QuestPeriods.Unix(s.WeekReset)),
+                new XAttribute("yearReset", QuestPeriods.Unix(s.YearReset)),
                 new XAttribute("lootCap", ChampionBoards.LootCap),
                 ChampionBoards.All.Select(def =>
                 {
@@ -44,6 +45,7 @@ namespace App.Controllers
                         new XAttribute("id", def.Id),
                         new XAttribute("name", def.Name),
                         new XAttribute("weekly", def.Weekly ? 1 : 0),
+                        def.Yearly ? new XAttribute("yearly", 1) : null,
                         new XAttribute("unit", def.Unit),
                         new XAttribute("count", ranked.Count),
                         new XElement("Description", def.Description),
@@ -61,11 +63,12 @@ namespace App.Controllers
         }
 
         // a place: one player, or (Arena Group) a group, its name the members' joined and a
-        // <Member> for each with their character
+        // <Member> for each with their character, or (Guilds) a guild, its size its members
         private static XElement Entry(ChampionRanked r) => new XElement("Entry",
             new XAttribute("rank", r.Rank),
             new XAttribute("value", r.Value),
             Look(r),
+            r.Roster != null ? new XAttribute("guild", r.Roster.Count) : null,
             r.Members?.Select(m => new XElement("Member", Look(m))));
 
         private static XAttribute[] Look(ChampionRanked r) => new[]
