@@ -59,7 +59,8 @@ python tools\rolling_restart.py status          # which slot is active, and how 
   waiting, and switches at their next trip to the Nexus or a realm. After 60 minutes
   (`--minutes`) whoever is left is moved to the new Nexus, with warnings 5 and 1 minutes before.
   The old server then stops by itself.
-- **The 2-hourly restart** (`restartTime` in `wServer.json`) works the same way: the server asks
+- **The scheduled restart**, every 8 hours (`restartTime` in `wServer.json`; every 2 until
+  2026-10-30), works the same way: the server asks
   the proxy, which runs `rolling_restart.py deploy --reuse` (the same build, copied to the other
   slot). Nobody is kicked any more. A request that comes while another deploy runs waits for it
   (`proxy.log` says so); one from a server that's already being replaced is dropped; a server
@@ -86,8 +87,8 @@ python tools\rolling_restart.py status          # which slot is active, and how 
 ### How often it rolls, and what "uptime" means
 
 Measured on the VPS for 2026-10-27 to 2026-10-30 (`/opt/bsk/build/live/proxy.log`): 57 rolls in
-3½ days, 34 of them the 2-hourly scheduled restart (`restartTime: 2` in `wServer.json`, the
-upstream default) and 23 deploys (`requested command: update`), up to 8 on a busy release day. No
+3½ days, 34 of them the scheduled restart, then every 2 hours (`restartTime: 2` in
+`wServer.json`, the upstream default; every 8 since) and 23 deploys (`requested command: update`), up to 8 on a busy release day. No
 crash, no OOM kill (`journalctl -k`) and no restart of `bsk-world` itself (up since 2026-10-18);
 the last world server crashes were on 2026-10-16 and 2026-10-23. So a world server never runs
 longer than 2 hours, but the game wasn't down: the website's per-day uptime (`/api/app/status`,
@@ -337,7 +338,7 @@ redis-cli -p 6379 hget names MEAPY                    # Redis, as on this PC
 - **Deploys inside the service:** `bsk-world` runs `rolling_restart.py serve`, which starts a
   world server and then becomes the world proxy, so the world servers belong to the service. A
   deploy starts its new world server through the proxy (`rolling_restart.py request update`,
-  `deploy.request` in `/opt/bsk/build/live`); the 2-hourly restart already went that way.
+  `deploy.request` in `/opt/bsk/build/live`); the scheduled restart already went that way.
 - **Ports and address** come from `/opt/bsk/bsk.env`, which `deploy.py` writes from the config.
   `rolling_restart.py` takes them from `BSK_WORLD_PORT`, `BSK_REDIS_PORT` and
   `BSK_PUBLIC_ADDRESS`. Changing the Redis port needs `systemctl restart bsk-redis` by hand.

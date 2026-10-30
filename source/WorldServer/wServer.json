@@ -24,7 +24,7 @@
         "maxPlayers": 300,
         "maxRealms": 2,
         "supporterOnly": false,
-        "restartTime": 2,
+        "restartTime": 8,
         "whitelist": [],
         "lootEvent": 0.25,
         "expEvent": 0.25,
