@@ -9,13 +9,13 @@ namespace WorldServer.core.commands
 {
     public abstract partial class Command
     {
-        // /realm2: go into the Nexus's Realm 2, the one its portal leads to (never a new one, so
-        // there's only ever the one). In a Realm 2: list its lands so far, /realm2 next to bring its
-        // next event (and land) now, or /realm2 <land> (its key or a word of its name: midlands,
-        // godlands, cube, penta, garden...; last for the newest) to go there.
+        // /realm2, for everyone: go into the Nexus's Realm 2, the one its portal leads to (never a new
+        // one, so there's only ever the one; not those a Realm 2 Key opens). In a Realm 2, admins can
+        // list its lands so far, /realm2 next to bring its next event (and land) now, or
+        // /realm2 <land> (its key or a word of its name: midlands, godlands, cube, penta, garden...;
+        // last for the newest) to go there.
         internal class Realm2 : Command
         {
-            public override RankingType RankRequirement => RankingType.Admin;
             public override string CommandName => "realm2";
 
             protected override bool Process(Player player, TickTime time, string args)
@@ -29,7 +29,18 @@ namespace WorldServer.core.commands
                         player.SendError("The Nexus's Realm 2 is still being built: try again in a moment.");
                         return false;
                     }
+                    if (open.IsPlayersMax())
+                    {
+                        player.SendError($"Realm 2 ({open.GetDisplayName()}) is full: try again in a moment.");
+                        return false;
+                    }
                     player.Reconnect(open);
+                    return true;
+                }
+
+                if (!player.Client.Account.Admin && player.Client.Account.Rank < (int)RankingType.Admin)
+                {
+                    player.SendInfo($"You're in Realm 2: {realm.GetDisplayName()}.");
                     return true;
                 }
 

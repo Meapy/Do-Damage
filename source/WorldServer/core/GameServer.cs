@@ -5,6 +5,7 @@ using Shared.isc;
 using Shared.isc.data;
 using Shared.resources;
 using System;
+using System.Collections.Generic;
 using System.Diagnostics;
 using System.Globalization;
 using System.IO;
@@ -172,6 +173,8 @@ namespace WorldServer.core
                 if (restart && DateTime.UtcNow >= restartsIn)
                     break;
 
+                EventsTick();
+
                 var current = watch.ElapsedMilliseconds;
 
                 ConnectionManager.Tick(current);
@@ -234,6 +237,34 @@ namespace WorldServer.core
 
         // Where a draining server sends players to the new one instead (the Nexus there).
         public bool HandsOver(int gameId) => gameId == World.NEXUS_ID || WorldManager.GetWorld(gameId) is RealmWorld;
+
+        // The timed events running at the last look (serverSettings.events, ServerEvents): everyone
+        // online hears when one starts or ends. Not those already on when this server starts (a
+        // restart or deploy), whose players hear of them in the Nexus, nor while handing over.
+        private HashSet<ServerEvent> EventsOn;
+
+        private void EventsTick()
+        {
+            var events = Configuration.serverSettings.events;
+            if (events == null || events.Length == 0)
+                return;
+            var on = ServerEvents.Active(events, DateTime.UtcNow).ToHashSet();
+            if (EventsOn != null && !Draining)
+                foreach (var e in events)
+                {
+                    if (on.Contains(e) && !EventsOn.Contains(e))
+                    {
+                        Log.Info($"Event started: {e.name}");
+                        ChatManager.ServerAnnounce(e.Message());
+                    }
+                    else if (!on.Contains(e) && EventsOn.Contains(e))
+                    {
+                        Log.Info($"Event ended: {e.name}");
+                        ChatManager.ServerAnnounce($"{e.name} has ended. Thanks for playing!");
+                    }
+                }
+            EventsOn = on;
+        }
 
         private static void TryWriteFile(string path, string text)
         {

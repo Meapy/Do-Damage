@@ -34,6 +34,9 @@ namespace Shared
         // The free guilds event: making a guild costs nothing until this moment, in UTC
         // ("2026-12-01T00:00:00Z"; Shared/database/guild/GuildPrice.cs). Empty: none.
         public string freeGuildsUntil { get; set; } = "";
+        // Timed events, each with its name, start, end and effects (Shared/resources/ServerEvents.cs),
+        // such as Halloween Sweet Treats' doubled potion drops. Each runs only between its dates.
+        public resources.ServerEvent[] events { get; set; } = new resources.ServerEvent[] { };
         public int[] whitelist { get; set; } = new int[] { };
     }
 }

@@ -611,6 +611,10 @@ namespace WorldServer.core.commands.player
                     player.SendSubtext($"   A server-wide event gives: {Math.Round(settings.lootEvent * 100.0, 0)}%");
             }
 
+            // timed events (ServerEvents): on the potions themselves, before the boosts above
+            foreach (var e in ServerEvents.Active(settings.events, DateTime.UtcNow))
+                player.SendInfo(e.Message());
+
             // exp boost: a booster's time is -1 when it lasts until level 20 (DamageCounter applies it while it isn't 0)
             var boosterActive = player.XPBoostTime != 0 && player.Level < 20;
             var expBoost = boosterActive ? 0.5 : 0;

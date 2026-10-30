@@ -48,6 +48,7 @@ COMMAND_HELP = {
     "commands": "Lists every command you can use.",
     "nexus": "Back to the Nexus from anywhere (the <kbd>R</kbd> key does the same).",
     "realm": "To the busiest open realm.",
+    "realm2": "Into Realm 2, the one its Nexus portal leads to, from anywhere. See <a href=\"realm-2.html\">Realm 2</a>.",
     "godlands": "To the Godlands, the realm's richest and most dangerous part. Works from anywhere: outside a realm it takes you to the busiest one first.",
     "vault": "To your vault.",
     "guildhall": "To your guild's hall, from anywhere (or <code>/ghall</code>). See <a href=\"guilds.html\">Guilds</a>.",

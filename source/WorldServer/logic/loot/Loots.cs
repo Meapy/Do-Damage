@@ -272,6 +272,10 @@ namespace WorldServer.logic.loot
                     lucky[i] = eligible[Random.Shared.Next(eligible.Length)].Item1;
             }
 
+            var events = enemy.GameServer.Configuration.serverSettings.events;
+            var potionChance = ServerEvents.PotionChance(events, DateTime.UtcNow);
+            var potionAmount = ServerEvents.PotionAmount(events, DateTime.UtcNow);
+
             var privDrops = new Dictionary<Player, IList<Item>>();
             foreach (var tupPlayer in playersAvaliable)
             {
@@ -300,8 +304,6 @@ namespace WorldServer.logic.loot
                 {
                     var c = Random.Shared.NextDouble();
 
-                    var probability = Chance(i.Probabilty, totalBoost, rate);
-
                     if (i.Threshold >= 0 && i.Threshold < Math.Round(tupPlayer.Item2 / (double)enemy.DamageCounter.TotalDamage, 4))
                     {
                         Item item = null;
@@ -325,16 +327,16 @@ namespace WorldServer.logic.loot
                             continue;
                         }
 
+                        // a stat potion during an event (ServerEvents): its own chance and its amount
+                        // multiplied, the boosts on top as for any drop
+                        var potion = ServerEvents.IsStatPotion(item.ObjectId);
+                        var probability = Chance(potion ? i.Probabilty * potionChance : i.Probabilty, totalBoost, rate);
+
                         if (c >= probability && !(lucky.TryGetValue(i, out var luckyOne) && luckyOne == player))
                             continue;
 
-                        if (item == null)
-                        {
-                            player.SendError($"There was a error giving u the item: {i.Item}, please report this [#2]");
-                            continue;
-                        }
-
-                        drops.Add(item);
+                        for (var n = potion ? potionAmount : 1; n > 0; n--)
+                            drops.Add(item);
                     }
                 }
 

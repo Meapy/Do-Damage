@@ -428,6 +428,8 @@ namespace WorldServer.core.objects
                     SendInfo($"It's the weekend! You've been given an additional {Math.Round(settings.wkndBoost * 100, 0)}% loot boost.");
                 if (GameServer.DamageEvent.Active)
                     SendInfo(GameServer.DamageEvent.Message);
+                foreach (var e in ServerEvents.Active(settings.events, DateTime.UtcNow))
+                    SendInfo(e.Message());
                 var freeGuildsUntil = GuildPrice.FreeUntil(settings);
                 if (GuildPrice.Free(freeGuildsUntil, DateTime.UtcNow))
                     SendInfo(GuildPrice.Message(freeGuildsUntil.Value));

@@ -24,6 +24,10 @@ which loot boosts you have, then roll.
 - **Tier rows** (a T14 weapon, a T6 ability) give one item of that tier and kind when they hit,
   each about as likely as the others; the Penetrating Blast Spell is a quarter as likely as a T6
   ability.
+- **Events:** during **Halloween Sweet Treats** (until the end of 6 November, UTC) every stat
+  potion (Life, Mana, Attack, Defense, Speed, Dexterity, Vitality, Wisdom, and their Greater
+  ones) has twice its chance before your share and boosts multiply it, still at most 100%, and
+  drops two at a time. The simulator shows the usual chances. `/boosts` lists any event running.
 - **Bags:** your items from a kill go into bags of 8, and every bag from that kill takes the
   colour of the best item in it, so one white-bag item turns its potions' bag white too.
 - The seasonal drops bosses add in January and May aren't shown, nor the Arena, where Oryx 3, 4

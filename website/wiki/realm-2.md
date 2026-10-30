@@ -8,7 +8,7 @@ summary: A realm made afresh every time: the shore, the midlands and a great God
 ---
 Realm 2 is a second kind of realm. The Nexus always has one open: its portal stands among the
 realms' portals, beside Realm 1's, named **Realm 2: Zenith** or the like, with how many are in it.
-It stays open while it's empty, so you can come back to it, and when it closes its portal goes and
+`/realm2` takes you into it from anywhere. It stays open while it's empty, so you can come back to it, and when it closes its portal goes and
 another opens. A **Realm 2 Key** opens one of your own as well. Every Realm 2
 is built new when it opens, so no two are the same.
 

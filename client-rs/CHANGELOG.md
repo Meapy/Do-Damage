@@ -12,6 +12,16 @@ Keep each version short: changes go under `### ` group headings (Oryx 5, Arena, 
 on), one line per change players notice, summed up rather than item by item (the wiki has the
 details). Add to a group's line when a change adds to it, rather than adding another line.
 
+## Unreleased
+
+### Events
+- Halloween Sweet Treats, until the end of 6 November (UTC): stat potions (Life, Mana, Attack,
+  Defense, Speed, Dexterity, Vitality and Wisdom, Greater ones too) drop twice as often, and two at
+  a time. Your loot boosts still count on top. The Nexus and `/boosts` tell you while it runs.
+
+### Realm 2
+- `/realm2` works for everyone: it takes you into the Nexus's Realm 2 from anywhere.
+
 ## 2.3.3 (2026-10-29)
 
 ### Marketplace

@@ -32,6 +32,15 @@
         "damageEvent": 0.2,
         "damageEventEnemies": [ "Oryx the Mad God 4", "Oryx the Ascended God" ],
         "mapEvent": "Halloween",
-        "freeGuildsUntil": "2026-12-01T00:00:00Z"
+        "freeGuildsUntil": "2026-12-01T00:00:00Z",
+        "events": [
+            {
+                "name": "Halloween Sweet Treats",
+                "start": "2026-10-30T00:00:00Z",
+                "end": "2026-11-07T00:00:00Z",
+                "potionChance": 2,
+                "potionAmount": 2
+            }
+        ]
     }
 }
