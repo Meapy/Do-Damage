@@ -25,7 +25,7 @@ Forge doesn't take starter gear: two of it don't make the next tier.
 
 ## Forging
 
-The **Divine Forge** in the Nexus's forge court, north-west of the spawn, combines items into new ones: two of any tiered
+The **Divine Forge** in the Nexus's forge court, in the village east of the spawn, combines items into new ones: two of any tiered
 weapon, ability, armor or ring make one of the next tier, and Doomed Realms' own recipes make
 untiered items and a few potions (a **Potion of Oryx** from one of each of the eight stat
 potions). `/forge` takes you there from anywhere. [The Divine Forge](forge.html) has every

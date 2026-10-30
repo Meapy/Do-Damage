@@ -422,10 +422,12 @@ pub fn draw(scene: &Scene, renderer: &mut Renderer, redrawer: &mut Redrawer, gro
     // Objects and walls, back to front by the screen y of their ground point.
     let mut items: Vec<(f32, Item)> = Vec::new();
     for obj in world.objects.values() {
-        if (obj.x - cam.x).abs() > radius || (obj.y - cam.y).abs() > radius {
+        let Some(desc) = scene.data.objects.get(&obj.object_type) else { continue };
+        // a big flat object shows while any of it is on the screen
+        let reach = radius + desc.ground_size / 2.0;
+        if (obj.x - cam.x).abs() > reach || (obj.y - cam.y).abs() > reach {
             continue;
         }
-        let Some(desc) = scene.data.objects.get(&obj.object_type) else { continue };
         let depth = cam.to_screen(obj.x, obj.y, 0.0)[1];
         let model = desc.model.as_ref().and_then(|m| scene.data.models.get(m));
         if let Some(model) = model {
@@ -633,7 +635,11 @@ pub fn draw(scene: &Scene, renderer: &mut Renderer, redrawer: &mut Redrawer, gro
             0xFFFFFF
         };
         let style = Style { size: (16.0 * k).round().max(9.0), bold: true, color };
-        let [px, py] = cam.to_screen(obj.x, obj.y, 0.0);
+        let [px, mut py] = cam.to_screen(obj.x, obj.y, 0.0);
+        if desc.ground_size > 1.0 {
+            // under a portal sunk into the floor, not across its middle
+            py += (desc.ground_size / 2.0 * cam.scale) as f32;
+        }
         if !player {
             text.draw_centered(fonts, renderer, name, px, py, style);
             continue;
@@ -670,10 +676,16 @@ fn draw_sprite(scene: &Scene, renderer: &mut Renderer, redrawer: &mut Redrawer, 
     }
     let mut look = scene.look(obj, desc)?;
     if desc.draw_on_ground {
-        // Flat on its square, like a tile.
+        // Flat on its square, like a tile; or, `GroundSize` tiles across, centred on it.
         let rect = scene.sprites.atlas(look.src)?;
-        let (x, y) = (obj.x.floor(), obj.y.floor());
-        renderer.sprite(rect, cam.quad([x, y, 0.0], [x + 1.0, y, 0.0], [x, y + 1.0, 0.0]), Tint::NONE);
+        let quad = if desc.ground_size > 1.0 {
+            let h = desc.ground_size / 2.0;
+            cam.quad([obj.x - h, obj.y - h, 0.0], [obj.x + h, obj.y - h, 0.0], [obj.x - h, obj.y + h, 0.0])
+        } else {
+            let (x, y) = (obj.x.floor(), obj.y.floor());
+            cam.quad([x, y, 0.0], [x + 1.0, y, 0.0], [x, y + 1.0, 0.0])
+        };
+        renderer.sprite(rect, quad, Tint::NONE);
         return None;
     }
     let mut size = obj.stat_int(2).unwrap_or(desc.min_size);

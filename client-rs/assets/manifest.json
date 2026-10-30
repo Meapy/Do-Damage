@@ -1404,6 +1404,36 @@
    "file": "kabam/rotmg/assets/custom/images/Realm2Env16x16.png",
    "w": 16,
    "h": 16
+  },
+  {
+   "name": "nexusGarden8x8",
+   "file": "kabam/rotmg/assets/custom/images/NexusGarden8x8.png",
+   "w": 8,
+   "h": 8
+  },
+  {
+   "name": "nexusGarden16x16",
+   "file": "kabam/rotmg/assets/custom/images/NexusGarden16x16.png",
+   "w": 16,
+   "h": 16
+  },
+  {
+   "name": "nexusGarden32x32",
+   "file": "kabam/rotmg/assets/custom/images/NexusGarden32x32.png",
+   "w": 32,
+   "h": 32
+  },
+  {
+   "name": "nexusGarden48x48",
+   "file": "kabam/rotmg/assets/custom/images/NexusGarden48x48.png",
+   "w": 48,
+   "h": 48
+  },
+  {
+   "name": "nexusGardenModels64x64",
+   "file": "kabam/rotmg/assets/custom/images/NexusGardenModels64x64.png",
+   "w": 64,
+   "h": 64
   }
  ],
  "animated_chars": [
@@ -2996,6 +3026,16 @@
    "sheet_w": 112,
    "sheet_h": 16,
    "dir": "right"
+  },
+  {
+   "name": "nexusGardenChars8x8",
+   "file": "kabam/rotmg/assets/custom/images/NexusGardenChars8x8.png",
+   "mask": null,
+   "w": 8,
+   "h": 8,
+   "sheet_w": 56,
+   "sheet_h": 8,
+   "dir": "right"
   }
  ],
  "models": [
@@ -3222,6 +3262,38 @@
   {
    "name": "Oryx Door",
    "file": "kabam/rotmg/assets/prod/objects/oryxDoor.dat"
+  },
+  {
+   "name": "NG House",
+   "file": "kabam/rotmg/assets/custom/objects/nexusGardenHouse.obj"
+  },
+  {
+   "name": "NG Thatch House",
+   "file": "kabam/rotmg/assets/custom/objects/nexusGardenThatchHouse.obj"
+  },
+  {
+   "name": "NG Storehouse",
+   "file": "kabam/rotmg/assets/custom/objects/nexusGardenStorehouse.obj"
+  },
+  {
+   "name": "NG Pagoda",
+   "file": "kabam/rotmg/assets/custom/objects/nexusGardenPagoda.obj"
+  },
+  {
+   "name": "NG Torii",
+   "file": "kabam/rotmg/assets/custom/objects/nexusGardenTorii.obj"
+  },
+  {
+   "name": "NG Wood Rail",
+   "file": "kabam/rotmg/assets/custom/objects/nexusGardenWoodRail.obj"
+  },
+  {
+   "name": "NG Stone Rail",
+   "file": "kabam/rotmg/assets/custom/objects/nexusGardenStoneRail.obj"
+  },
+  {
+   "name": "NG Bamboo Fence",
+   "file": "kabam/rotmg/assets/custom/objects/nexusGardenBambooFence.obj"
   }
  ],
  "particles": "kabam/rotmg/assets/prod/objects/particles.dat",
@@ -3258,7 +3330,8 @@
   "kabam/rotmg/assets/custom/xmls/ElderGrounds.xml",
   "kabam/rotmg/assets/custom/xmls/HashCellarGrounds.xml",
   "kabam/rotmg/assets/custom/xmls/ElysiumGrounds.xml",
-  "kabam/rotmg/assets/custom/xmls/Realm2Grounds.xml"
+  "kabam/rotmg/assets/custom/xmls/Realm2Grounds.xml",
+  "kabam/rotmg/assets/custom/xmls/NexusGardenGrounds.xml"
  ],
  "object_xml": [
   "kabam/rotmg/assets/custom/xmls/CustomItems.xml",
@@ -3372,7 +3445,8 @@
   "kabam/rotmg/assets/prod/xmls/Skins.xml",
   "kabam/rotmg/assets/custom/xmls/HashCellarObjects.xml",
   "kabam/rotmg/assets/custom/xmls/ElysiumObjects.xml",
-  "kabam/rotmg/assets/custom/xmls/Realm2Objects.xml"
+  "kabam/rotmg/assets/custom/xmls/Realm2Objects.xml",
+  "kabam/rotmg/assets/custom/xmls/NexusGardenObjects.xml"
  ],
  "region_xml": [
   "kabam/rotmg/assets/prod/xmls/Regions.xml"

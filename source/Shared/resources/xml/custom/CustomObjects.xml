@@ -8,7 +8,7 @@
 		<Static />
 		<ShadowSize>75</ShadowSize>
 	</Object>
-	<!-- the Market Broker in the Nexus's market square (tools/build_castle_maps.py): walking up to
+	<!-- the Market Broker in the Nexus's market square (tools/build_nexus.py): walking up to
 	     it opens the Marketplace window in the Rust client (Marketplace.cs); drawn by
 	     tools/draw_quest_npcs.py -->
 	<Object type="0x4970" id="Market Broker">
@@ -45,7 +45,7 @@
 		<Static />
 		<ShadowSize>60</ShadowSize>
 	</Object>
-	<!-- the Divine Forge in the Nexus's forge yard (tools/build_castle_maps.py): its window in the
+	<!-- the Divine Forge in the Nexus's forge court (tools/build_nexus.py): its window in the
 	     Rust client forges items and sells them for fame (ForgeHandlers.cs); its six frames are in
 	     the sheet tools/draw_forge_sprite.py writes -->
 	<Object type="0x497a" id="Divine Forge">
@@ -266,7 +266,7 @@
 			<Size>90</Size>
 		</Projectile>
 	</Object>
-	<!-- the Enchanter beside the Divine Forge (tools/build_castle_maps.py): its window in the Rust
+	<!-- the Enchanter beside the Divine Forge (tools/build_nexus.py): its window in the Rust
 	     client imprints gear (ImprintHandlers.cs); its sprite is drawn by tools/draw_forge_sprite.py -->
 	<Object type="0x497d" id="Enchanter">
 		<Class>Enchanter</Class>
@@ -390,7 +390,7 @@
 		<Description>Shared by everyone in this Arena. Items stay until someone takes them, but anything left here is lost when everyone leaves the Arena. No soulbound items.</Description>
 	</Object>
 	<!-- the Hall of Champions in the Nexus, on the road south of the spawn
-	     (tools/build_castle_maps.py): the monument opens the living's leaderboard in the Rust client
+	     (tools/build_nexus.py): the monument opens the living's leaderboard in the Rust client
 	     (ChampionsController.cs, Shared/champions), and each statue's plinth carries one board's
 	     champion, the board named by the map (name:<board id>); art from tools/draw_champions.py -->
 	<Object type="0x4989" id="Champions Monument">

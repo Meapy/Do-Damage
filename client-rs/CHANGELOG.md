@@ -15,6 +15,14 @@ details). Add to a group's line when a change adds to it, rather than adding ano
 ## Unreleased
 
 ### Nexus
+- A new Nexus: a Japanese garden village on an island, with cherry trees in bloom, lanterns, a
+  koi pond crossed by railed bridges, and houses, a pagoda and torii gates standing in 3D. You
+  arrive on a pink wooden deck in the middle of the pond. The realm portals are sunk into the
+  floor of a shrine to the north-west: a great swirling vortex for Realm 2 and a dark cavern for
+  each realm. Walk onto one to enter. The shops line the village's street to the east, with the
+  Divine Forge, the quest keepers, the guild's house, the Marketplace and the shared vault chests
+  nearby. The Hall of Champions and the Arena are to the west, and a forest to the south where
+  blossom falls around you. Villagers stroll about and chat, and bees drift over the flowers.
 - Standing still in the Nexus for 20 minutes now saves your character and sends you back to the
   character screen, with a message saying why, so idlers don't take up a place. Walking resets
   the clock; realms, dungeons and your vault aren't affected.

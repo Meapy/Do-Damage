@@ -159,7 +159,7 @@ The client itself can be scripted for tests (desktop only):
   `--shot` shows the menu and sign-in screens over the sky, at any `--size`.
 
 For example, the Arena (its monsters come 60 s after you enter; its portal is in the Nexus's Arena
-court, north-east of the spawn): `--walk-to 54.5,28.5 --hold 0:200 --hold -:6000 --hold f:100000 --aim auto --shot a.png --shot-after 95`.
+court, west of the spawn): `--walk-to "56,61.5;37.5,61.5;37.5,48.5;30.5,47.5" --hold 0:200 --hold -:6000 --hold f:100000 --aim auto --shot a.png --shot-after 95`.
 
 ## Layout
 

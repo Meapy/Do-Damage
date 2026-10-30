@@ -30,15 +30,15 @@ namespace WorldServer.core.worlds.impl
         private const float GREET_RANGE = 5f;
         private const float GREET_AGAIN = 300f;     // a player is greeted again after this long
 
-        // beside the spawn rug (tools/build_castle_maps.py, CENTRE (48, 42), the rug 5 tiles
-        // square, the plaza 10.5 tiles round): the bot left of the Armoire, the gifts on the open
-        // plaza tiles around the rug
-        private static readonly (float X, float Y) BotSpot = (46.5f, 46.5f);
-        private static readonly (float X, float Y) Centre = (48.5f, 42.5f);
+        // beside the spawn (tools/build_nexus.py, CENTRE (68, 61), the spawn 5 tiles square on an
+        // island of deck about 11 tiles round): the bot left of the Armoire, the gifts on the open
+        // tiles around the spawn
+        private static readonly (float X, float Y) BotSpot = (66.5f, 65.5f);
+        private static readonly (float X, float Y) Centre = (68.5f, 61.5f);
         private const float GIFT_MIN_RADIUS = 3.5f;
         private const float GIFT_MAX_RADIUS = 10f;
-        // the dungeon portal: on the path south of the rug, past the Armoire
-        private static readonly (float X, float Y) PortalSpot = (48.5f, 49.5f);
+        // the dungeon portal: on the island south of the spawn, past the Armoire
+        private static readonly (float X, float Y) PortalSpot = (68.5f, 68.5f);
 
         // the dungeons it picks from: those realm monsters drop, and a few more of the same kind
         private static readonly string[] DungeonPortals =
@@ -56,11 +56,12 @@ namespace WorldServer.core.worlds.impl
             "New here? Type /gear for free starter gear!",
             "Type /godlands to jump straight to the Godlands, the realm's toughest and richest part. Get some levels first!",
             "Type /realm to go to a realm, and /nexus to come back here from anywhere.",
-            "Stand by the fountains around the spawn to heal.",
+            "Stand by the stone water basins around the spawn to heal.",
             "Type /vault to store items in your vault; they stay safe when a character dies.",
             "Type /shop to see the shops: abilities, weapons, armor, potions and keys for fame.",
-            "The Divine Forge, north-west of the spawn on the way to the realm portals, forges items and buys the ones you don't need for fame.",
-            "The Marketplace is just south of the spawn: talk to the Market Broker to sell your items to other players for fame, or buy theirs. /market takes you there.",
+            "The realm portals are sunk into the floor of the shrine, north-west across the cobbled bridge: walk onto one to enter.",
+            "The Divine Forge, in the village east of the spawn just north of the shopping street, forges items and buys the ones you don't need for fame. /forge takes you there.",
+            "The Marketplace is in the village east of the spawn: talk to the Market Broker to sell your items to other players for fame, or buy theirs. /market takes you there.",
             "Type /tell <name> <message> to whisper, and /trade <name> to trade.",
             "Type /commands to see every command you can use.",
             "Do Damage is open source: github.com/Meapy/Do-Damage",

@@ -1,50 +1,22 @@
-"""Builds the nexus and the vault, castles of the website's night sky, and their event versions.
+"""Builds the vault, a cellar under a castle of the website's night sky, and its event versions;
+the guild halls (build_guild_halls.py) are built from the same parts.
 
     python tools/build_castle_maps.py [--preview <folder>] [--dry-run]
 
-Writes `Exalt/Nexus Castle.jm` and `Exalt/Vault Castle.jm`, and for each event in `EVENTS` a
-decorated copy, `Exalt/Nexus Castle <Event>.jm` and `Exalt/Vault Castle <Event>.jm`. The world
-server plays an event's maps while `serverSettings.mapEvent` in wServer.json names it
-(`World.LoadMapFromData`), and the plain ones otherwise.
+Writes `Exalt/Vault Castle.jm` and, for each event in `EVENTS`, a decorated copy,
+`Exalt/Vault Castle <Event>.jm`. The world server plays an event's maps while
+`serverSettings.mapEvent` in wServer.json names it (`World.LoadMapFromData`), and the plain ones
+otherwise. The Nexus was a castle built here too until 2.3.5; it is now a garden, built by
+tools/build_nexus.py.
 
 The maps are drawn here rather than in a map editor, so change a layout below and run it again.
-Both are built from the same parts (`Grid.castle`, `Grid.pavilion` and the palette), in the look
+They are built from shared parts (`Grid.castle`, `Grid.pavilion` and the palette), in the look
 of the client: dark violet stone, ember light from braziers and lit windows, a dark moat.
 
 An event never moves anything. The layouts mark decoration slots as they go (`ACCENT`, `FLAME`,
 `BRAZIER`, `BANNER`, `CORNER`, `CENTRE`), and the open floor away from paths, regions and anything
 players use is found afterwards (`OPEN`). An event swaps what stands in the slots and scatters
 decorations on the open floor (`decorate`), so regions, portals and NPCs stay where they are.
-
-The nexus, from the middle out:
-- the spawn (the `Spawn` region) on an ember rug, the healing fountains at its corners, the Name
-  Changer, Character Changer and Armoire beside it, the Vault Portal to the west and the guild's
-  corner (Guild Hall Portal, Guild Register, notice boards) to the east;
-- the keep to the north, whose great hall holds the realm portals (the `Realm Portals` region,
-  one portal per tile) along a red carpet;
-- between the spawn and the keep, either side of the road: the forge court (the Divine Forge and the
-  Enchanter side by side on floors of gold, `FORGE_COURT`) to the west and the Arena (its portal,
-  `ARENA_PORTALS`, which `DoomedWorlds.NexusPortals` must match, and the Arena Leaderboard) to the
-  east;
-- south of the spawn, the market square: the Market Broker (`BROKER`, the Marketplace's window in
-  the Rust client) at its head and two pavilions of stalls (`MARKET_PAVILIONS`, the `Market Stall`
-  region) where the server shows players' listings (`MarketStalls`);
-- a market ward behind a colonnade on each side: pavilions whose stalls are shop regions
-  (`Store N`, see `MerchantLists.Shops`; a shop with more items than stalls rotates them). The
-  west ward holds the dungeon keys, pet generators, clothing, accessories, stat potions and
-  specials; the east ward the Elder and Doomed keys and the consumables north of the street,
-  and south of it the Hall of Champions (`CHAMPIONS`): a carpet from the street to a round court
-  of gold, the Champions Monument in its middle (the living's leaderboard in the Rust client)
-  and a plinth for each board's champion around it (`CHAMPION_STATUES`, in Shared/champions'
-  board order);
-- the south street, with the portcullis of the castle's gate at the road's end, and the treasury
-  in the south-east wing, its door on the street. The four shared vault chests keep their items in
-  Redis by tile (`DbNexusChest`), so they stay on the tiles they had in the old map (`CHESTS`),
-  which is why the castle keeps that wing.
-
-Everything players walk to is within a short walk of the spawn (2.3.3 moved the forge and the
-Arena up from a south yard and a forge hall that are gone, and put the market where the courtyard
-was empty).
 
 The vault is a cellar under the castle, walled with the tall walls of Oryx's Sanctuary and dark
 beyond them (`Grid.underground_walls`): its chest hall (the `Vault` region; `VaultWorld` fills the chests
@@ -346,308 +318,6 @@ class Grid:
                     self.t[y][x]["slot"] = OPEN
 
 
-# --- the nexus -----------------------------------------------------------------------------------
-
-NEXUS_SIZE = (97, 88)
-# The castle's outline, clockwise: tiles whose middle is inside are the castle. The south-east wing
-# is the treasury's.
-NEXUS_OUTLINE = [(12, 16), (34, 16), (34, 3), (63, 3), (63, 16), (84, 16), (92, 24), (92, 64), (89, 67),
-                 (89, 83), (57, 83), (57, 70), (36, 70), (30, 58), (4, 58), (4, 24)]
-NEXUS_TOWERS = NEXUS_OUTLINE + [(34, 20), (63, 20), (4, 41), (92, 44), (73, 83), (17, 58), (44, 70), (52, 70)]
-CENTRE = (48, 42)                   # the middle of the spawn
-PLAZA_RADIUS = 10.5
-KEEP_RECT = (34, 3, 62, 20)         # the keep's walls, x0, y0, x1, y1
-KEEP_DOOR = (45, 51)                # the great hall's door, x0 and x1
-COLONNADES = (34, 62)               # x of the colonnades between the courtyard and the market wards
-WARD_Y = (23, 62)
-GATE = (47, 49)                     # the portcullis in the south wall, x0 and x1
-SOUTH_STREET = 64                   # its top row (two rows); it runs to the treasury's door
-# The shared vault chests: their tiles are their Redis keys (items.<x>_<y> in nexusChests).
-CHESTS = [(61, 70), (79, 70), (61, 74), (79, 74)]
-TREASURY = (57, 66, 83, 78)         # its walls
-TREASURY_DOOR = (69, 71)            # in its north wall, on the south street: x0 and x1
-FORGE_COURT = (35, 22, 45, 33)      # the forge court, x0, y0, x1, y1, west of the keep's road
-FORGE = (38, 28)                    # the Divine Forge (its sprite stands four tiles tall above it)
-ENCHANTER = (44, 28)                # the Enchanter, which imprints gear (ImprintHandlers.cs)
-ARENA_COURT = (51, 22, 61, 33)      # the Arena's court, east of the road
-# the Hall of Champions, in the east ward south of the street: the monument at its middle, a gold
-# court around it, and the plinths of the boards' champions in a ring open to the north, so the
-# carpet in from the street stays open; each plinth names its board
-# (Shared/champions ChampionBoards, `name:<board id>`)
-CHAMPIONS = (77, 53)
-CHAMPIONS_RADIUS = 6.8       # the gold inside; a border tile wide round it
-CHAMPION_STATUES = [((-3, -5), "fame"), ((3, -5), "stars"), ((6, -1), "achievements"),
-                    ((6, 3), "arenaSolo"), ((3, 6), "arenaGroup"), ((0, 6), "guildLiving"),
-                    ((-3, 6), "guildDead"), ((-6, 3), "weeklyDungeons"), ((-6, -1), "weeklyFame")]
-# where DoomedWorlds.AddNexusPortals puts the Arena portal (keep the two in step), and its
-# leaderboard (its trophy opens the top runs in the Rust client)
-ARENA_PORTALS = [(54.5, 28.5)]
-ARENA_LEADERBOARD = (58, 28)
-# the market square, south of the spawn: the Market Broker at its head, west of the road, and a
-# pavilion of stalls either side of the road (see Grid.pavilion), 16 stalls in all
-BROKER = (46, 54)
-MARKET_PAVILIONS = [
-    ("Market West", "Market Stall", 35, 56, 4, 2),
-    ("Market East", "Market Stall", 51, 56, 4, 2),
-]
-# (name, region, x0, y0, columns, rows[, stalls]): see Grid.pavilion. One stall per item where a
-# shop has few, so each stall shows something different; the dyes and cloths rotate through theirs.
-# Since 2.3.3 a shop has fewer stalls than items, as the pet generators always had: the stalls
-# take turns with the rest (NexusWorld, a few minutes each), so the wards are half the size. The
-# stat potions keep a stall each.
-PAVILIONS = [
-    # the west ward
-    ("Dungeon Keys", "Store 11", 7, 24, 5, 2),
-    ("Stat Potions", "Store 1", 22, 24, 4, 2),
-    ("Pet Generators", "Store 5", 7, 33, 5, 1),
-    ("Specials", "Store 3", 22, 33, 4, 1),
-    ("Accessories", "Store 9", 8, 46, 4, 1),        # small cloths and accessory dyes
-    ("Clothing", "Store 8", 22, 46, 4, 1),          # large cloths and clothing dyes
-    # the east ward, north of the street (the Hall of Champions is south of it)
-    ("Elder and Doomed Keys", "Store 12", 65, 24, 3, 2),
-    ("Consumables", "Store 2", 78, 24, 3, 2),
-]
-# Crystal courts where the wards' shops used to stand: amethysts on plinths either side of a
-# cross of lanes, braziers at the corners (x0, y0, x1, y1)
-CRYSTAL_COURTS = [(64, 32, 88, 38)]
-LANTERN = "Archbishop Lantern"
-
-
-def build_nexus():
-    g = Grid("Nexus", *NEXUS_SIZE)
-    rng = random.Random(20261016)
-    cx, cy = CENTRE
-    g.castle_walls(NEXUS_OUTLINE, NEXUS_TOWERS)
-
-    # streets: from the keep's door to the gate, across the courtyard, along the south wall to the
-    # treasury's door
-    g.path(cx - 1, KEEP_RECT[3] + 1, cx + 1, SOUTH_STREET + 3)
-    g.path(6, cy - 1, 89, cy + 1)
-    g.path(35, SOUTH_STREET, TREASURY_DOOR[1], SOUTH_STREET + 1)
-
-    # the keep: the great hall, its carpet from the door to the statue, the realm portals
-    kx0, ky0, kx1, ky1 = KEEP_RECT
-    g.hall(kx0, ky0, kx1, ky1, HALL_FLOOR, doors={(x, y) for x in range(KEEP_DOOR[0], KEEP_DOOR[1] + 1) for y in (ky1 - 1, ky1)})
-    g.path(KEEP_DOOR[0], ky1 - 1, KEEP_DOOR[1], ky1)
-    g.rect(cx - 2, ky0 + 2, cx + 2, ky1 - 2, CARPET)
-    g.put(cx, ky0 + 3, CARPET, STATUE)
-    for x in (cx - 2, cx + 2):
-        g.brazier(x, ky0 + 3, CARPET)
-    for y in range(ky0 + 6, ky1 - 2, 3):     # brick posts along the carpet, flames between
-        g.put(cx - 3, y, HALL_FLOOR, WALL_IN)
-        g.put(cx + 3, y, HALL_FLOOR, WALL_IN)
-    for y in range(ky0 + 4, ky1 - 2, 3):
-        g.flame(cx - 3, y, HALL_FLOOR)
-        g.flame(cx + 3, y, HALL_FLOOR)
-    for y in (ky0 + 5, ky0 + 9, ky0 + 13):    # seven to a row
-        for x in (kx0 + 4, kx0 + 6, kx0 + 8, cx, kx1 - 8, kx1 - 6, kx1 - 4):
-            g.put(x, y, CARPET if x == cx else HALL_FLOOR, region="Realm Portals")
-    for x in (kx0 + 2, kx1 - 2):
-        for y in range(ky0 + 3, ky1 - 1, 4):
-            g.banner(x, y, HALL_FLOOR)
-    for x in (KEEP_DOOR[0] - 1, KEEP_DOOR[1] + 1):
-        g.brazier(x, ky1 + 1, FLOOR)
-
-    # the colonnades: brick posts with flames between, open where the street crosses
-    for x in COLONNADES:
-        for y in range(WARD_Y[0], WARD_Y[1] + 1):
-            if cy - 2 <= y <= cy + 2 or g.is_wall(x, y):
-                continue
-            if y % 3 == 0:
-                g.put(x, y, FLOOR, WALL_IN)
-            elif y % 6 == 2:
-                g.flame(x, y, FLOOR)
-
-    # the plaza around the spawn, ringed with flames and crystals
-    for y in range(g.h):
-        for x in range(g.w):
-            if math.hypot(x - cx, y - cy) <= PLAZA_RADIUS and not g[x, y]["obj"]:
-                g.put(x, y, PLAZA)
-                g.paths.add((x, y))
-    for i in range(16):
-        a = 2 * math.pi * (i + 0.5) / 16
-        x, y = int(round(cx + math.cos(a) * PLAZA_RADIUS)), int(round(cy + math.sin(a) * PLAZA_RADIUS))
-        if i % 2 == 0:
-            g.flame(x, y, PLAZA)
-        else:
-            g.put(x, y, PLAZA, CRYSTAL, slot=ACCENT)
-    for y in range(cy - 2, cy + 3):
-        for x in range(cx - 2, cx + 3):
-            g.put(x, y, RUG, region="Spawn")
-    for dx, dy in ((-4, -4), (4, -4), (-4, 4), (4, 4)):
-        g.put(cx + dx, cy + dy, PLAZA, FOUNTAIN)
-    g.put(cx - 2, cy - 4, PLAZA, "Name Changer")
-    g.put(cx + 2, cy - 4, PLAZA, "Character Changer")
-    g.put(cx, cy + 4, PLAZA, "Armoire")
-
-    # the vault to the west, the guild's corner to the east
-    g.put(COLONNADES[0] + 3, cy, PATH, "Vault Portal")
-    g.put(COLONNADES[1] - 3, cy, PATH, "Guild Hall Portal")
-    for x in (COLONNADES[0] + 3, COLONNADES[1] - 3):
-        g.brazier(x, cy - 3, FLOOR)
-        g.brazier(x, cy + 3, FLOOR)
-    g.put(COLONNADES[1] - 2, cy + 6, FLOOR, "Guild Register")
-    g.put(COLONNADES[1] - 4, cy - 6, FLOOR, "BulletinBoard")
-    g.put(COLONNADES[1] - 2, cy - 6, FLOOR, "BulletinBoard")
-
-    # the gate: a portcullis in the south wall at the road's end, braziers either side
-    for y in range(SOUTH_STREET + 4, NEXUS_SIZE[1]):
-        for x in range(GATE[0], GATE[1] + 1):
-            if g.is_wall(x, y):
-                g.put(x, y, PATH, PORTCULLIS)
-    for x in (GATE[0] - 1, GATE[1] + 1):
-        g.brazier(x, SOUTH_STREET + 2, FLOOR)
-
-    # the forge court, west of the keep's road: the Divine Forge and the Enchanter side by side on
-    # gold that brightens towards each, inside a border like the pavilions', a carpet from the road
-    # along their front; braziers in its corners, flames by the forge, crystals by the Enchanter,
-    # banners behind them. Nothing in it takes a decoration slot, so an event leaves it as it is.
-    hx0, hy0, hx1, hy1 = FORGE_COURT
-
-    def gold(x, y):
-        d = min(math.hypot(x - ox, y - oy + 1) for ox, oy in (FORGE, ENCHANTER))
-        return GOLD_FLOOR[max(0, min(6, int(6.4 - d)))] if d < 5.5 else STONE
-
-    for y in range(hy0, hy1 + 1):
-        for x in range(hx0, hx1 + 1):
-            g.put(x, y, STALL_EDGE if x in (hx0, hx1) or y in (hy0, hy1) else gold(x, y))
-            g.paths.add((x, y))
-    fx, fy = FORGE
-    ex, ey = ENCHANTER
-    g.rect(hx0 + 1, fy + 2, hx1 + 1, fy + 3, CARPET)
-    g.path(hx1 + 1, fy + 2, cx - 2, fy + 3, CARPET)
-    g.put(*FORGE, gold(*FORGE), "Divine Forge")
-    g.put(*ENCHANTER, gold(*ENCHANTER), "Enchanter")
-    for x, y in ((hx0, hy0), (hx1, hy0), (hx0, hy1), (hx1, hy1)):
-        g.put(x, y, STALL_EDGE, BRAZIER_OBJ)
-    for dx in (-3, 3):
-        g.put(fx + dx, fy, gold(fx + dx, fy), FLAME_OBJ)
-    g.put(ex - 2, ey, gold(ex - 2, ey), CRYSTAL)
-    g.put(ex, ey - 3, gold(ex, ey - 3), CRYSTAL)
-    for x in (fx, ex):
-        g.put(x, hy0 + 1, gold(x, hy0 + 1), BANNER_OBJ)
-    for x in range(hx0 + 2, hx1 - 1, 3):
-        g.put(x, hy1 - 1, gold(x, hy1 - 1), CANDLES)
-
-    # the Arena's court, east of the road: the portal under its banner, the leaderboard beside it,
-    # a path in from the road, braziers in the corners
-    hx0, hy0, hx1, hy1 = ARENA_COURT
-    for y in range(hy0, hy1 + 1):
-        for x in range(hx0, hx1 + 1):
-            g.put(x, y, STALL_EDGE if x in (hx0, hx1) or y in (hy0, hy1) else PLAZA)
-            g.paths.add((x, y))
-    for x, y in ((hx0, hy0), (hx1, hy0), (hx0, hy1), (hx1, hy1)):
-        g.put(x, y, STALL_EDGE, BRAZIER_OBJ)
-    ax, ay = int(ARENA_PORTALS[0][0]), int(ARENA_PORTALS[0][1])
-    g.path(cx + 2, ay + 2, hx0, ay + 3, CARPET)
-    g.rect(hx0 + 1, ay + 2, hx1 - 1, ay + 3, CARPET)
-    g.banner(ax, ay - 2, PLAZA)
-    g.put(*ARENA_LEADERBOARD, PLAZA, "Arena Leaderboard")
-    for y in range(hy0 + 2, ay + 1, 3):
-        g.put(hx1 - 1, y, PLAZA, CRYSTAL)
-    for x in (ax - 2, ax + 2):
-        g.put(x, ay, PLAZA, FLAME_OBJ)
-
-    # the market square, south of the spawn: the Market Broker at its head beside the road, flames
-    # and a banner either side, and a pavilion of stalls either side of the road (built with the
-    # shops' below); the stalls show players' listings, so it takes no decoration slot either
-    bx, by = BROKER
-    g.rect(MARKET_PAVILIONS[0][2], by - 1, MARKET_PAVILIONS[1][2] + 10, by + 1, PLAZA)
-    g.paths.update((x, y) for x in range(MARKET_PAVILIONS[0][2], MARKET_PAVILIONS[1][2] + 11) for y in range(by - 1, by + 2))
-    g.path(cx - 1, by - 1, cx + 1, by + 1)
-    g.put(bx, by, PLAZA, "Market Broker")
-    for x in (bx - 2, 2 * cx - bx + 2):
-        g.put(x, by, PLAZA, FLAME_OBJ)
-    g.banner(2 * cx - bx, by, PLAZA)
-    for name, region, x0, y0, cols, rows in MARKET_PAVILIONS:
-        g.pavilion(name, region, x0, y0, cols, rows)
-
-    # the treasury: walled, its door to the south street, the chests where they always were
-    hx0, hy0, hx1, hy1 = TREASURY
-    for y in range(hy0, hy1 + 1):
-        for x in range(hx0, hx1 + 1):
-            edge = x in (hx0, hx1) or y in (hy0, hy1)
-            if g.is_wall(x, y) and x == hx0:
-                continue        # the castle's own wall
-            if edge and not (y == hy0 and TREASURY_DOOR[0] <= x <= TREASURY_DOOR[1]):
-                g.put(x, y, FLOOR, WINDOW if (x + y) % 6 == 0 else WALL_IN)
-            else:
-                g.put(x, y, STONE)
-    for x, y in CHESTS:
-        g.put(x, y, STONE, "Vault Chest")
-    for (x, y), cls, who in (((61, 68), "Knight", None), ((79, 68), "Archer", "Aurusenth"),
-                             ((61, 76), "Rogue", None), ((79, 76), "Wizard", None)):
-        g.put(x, y, STONE, f"destnex {cls} Grave", name=who)    # as in the old map's chest room
-    g.put(70, 72, STONE, "Arena Large Monument 3", name="size:300")
-    for x in range(hx0 + 4, hx1 - 1, 4):
-        g.put(x, hy0 + 1, STONE, CANDLES, slot=ACCENT)
-        g.put(x, hy1 - 1, STONE, CANDLES, slot=ACCENT)
-
-    # the Hall of Champions: a red carpet from the street, as the keep's leads to its statue, to the
-    # Champions Monument in a round court of gold brightening towards it, inside a border like the
-    # pavilions'; the plinths round the monument, flames at the court's entrance and at its foot,
-    # crystals behind the side plinths, a banner behind the monument and candles round the outside.
-    # Nothing in it takes a decoration slot, so an event leaves it as it is.
-    hx, hy = CHAMPIONS
-    outer = CHAMPIONS_RADIUS + 1
-    for y in range(hy - 8, hy + 9):
-        for x in range(hx - 8, hx + 9):
-            d = math.hypot(x - hx, y - hy)
-            if d <= CHAMPIONS_RADIUS:
-                g.put(x, y, GOLD_FLOOR[max(0, min(6, int(7.0 - d * 0.95)))])
-            elif d <= outer:
-                g.put(x, y, STALL_EDGE)
-            else:
-                continue
-            g.paths.add((x, y))
-    for y in range(cy + 2, hy + 1):
-        for x in range(hx - 1, hx + 2):
-            if y > cy + 1 and (y < hy - CHAMPIONS_RADIUS or math.hypot(x - hx, y - hy) <= outer):
-                g.put(x, y, CARPET)
-                g.paths.add((x, y))
-    g.put(hx, hy, CARPET, "Champions Monument")
-    for (dx, dy), board in CHAMPION_STATUES:
-        g.put(hx + dx, hy + dy, None, "Champion Statue", name=f"name:{board}")
-    for dx, dy in ((-3, -7), (3, -7), (-3, 7), (3, 7)):
-        g.put(hx + dx, hy + dy, STALL_EDGE, FLAME_OBJ)
-    for dx in (-8, 8):
-        g.put(hx + dx, hy, FLOOR, CRYSTAL)
-    g.put(hx, hy + 7, STALL_EDGE, BANNER_OBJ)
-    for dx, dy in ((-6, -6), (6, -6), (-6, 6), (6, 6)):
-        g.put(hx + dx, hy + dy, FLOOR, CANDLES)
-
-    for p in PAVILIONS:
-        g.pavilion(*p)
-    for court in CRYSTAL_COURTS:
-        g.crystal_court(rng, *court)
-    # lanterns along the road from the keep to the gate, between the courts and the stalls
-    for y in list(range(23, 33, 3)) + list(range(57, 63, 3)):
-        for x in (cx - 2, cx + 2):
-            if not g[x, y]["obj"]:
-                g.put(x, y, None, LANTERN)
-    g.accents(rng)
-    g.mark_open()
-    return g
-
-
-def check_nexus(g):
-    for x, y in CHESTS:
-        assert g[x, y]["obj"] == "Vault Chest", (x, y)
-    for x, y in ARENA_PORTALS:
-        t = g[int(x), int(y)]
-        assert not t["obj"] and t["ground"], (x, y)
-    assert g[FORGE]["obj"] == "Divine Forge"
-    assert g[BROKER]["obj"] == "Market Broker"
-    assert g[ARENA_LEADERBOARD]["obj"] == "Arena Leaderboard"
-    assert sum(t["region"] == "Market Stall" for row in g.t for t in row) == 16
-    assert g[CHAMPIONS]["obj"] == "Champions Monument"
-    for (dx, dy), board in CHAMPION_STATUES:
-        t = g[CHAMPIONS[0] + dx, CHAMPIONS[1] + dy]
-        assert t["obj"] == "Champion Statue" and t["name"] == f"name:{board}", (dx, dy)
-        assert dy > 0 or (abs(dx) != 1 and dx != 0), "the road to the monument stays open"
-    assert g[ENCHANTER]["obj"] == "Enchanter"
-
-
 # --- the vault -----------------------------------------------------------------------------------
 
 VAULT_SIZE = (46, 46)
@@ -846,15 +516,14 @@ def preview(g, path):
 
 def main():
     folder = sys.argv[sys.argv.index("--preview") + 1] if "--preview" in sys.argv else None
-    nexus, vault = build_nexus(), build_vault()
-    check_nexus(nexus)
-    maps = [nexus, vault]
+    vault = build_vault()
+    maps = [vault]
     for event in EVENTS:
-        maps += [decorate(nexus, event, 1), decorate(vault, event, 2)]
+        maps.append(decorate(vault, event, 2))
     for g in maps:
         counts = check(g)
         print(f"{g.name}: " + ", ".join(f"{k} {v}" for k, v in sorted(counts.items())))
-        path = os.path.join(WORLDS, g.name.replace("Nexus", "Nexus Castle", 1).replace("Vault", "Vault Castle", 1) + ".jm")
+        path = os.path.join(WORLDS, g.name.replace("Vault", "Vault Castle", 1) + ".jm")
         if folder:
             preview(g, os.path.join(folder, os.path.basename(path)[:-3] + ".png"))
         if "--dry-run" not in sys.argv:

@@ -11,10 +11,10 @@ namespace WorldServer.core.quests
     // The quest NPCs by the Nexus spawn: the Tinkerer (daily, weekly and monthly quests) and the
     // Chronicler (the daily reward and achievements). The Rust client opens the quest window at
     // their tab when you walk up to them; they greet each player who comes near with what waits
-    // for them, at most every GREET_AGAIN seconds. The Herald stands with them, at the rug's other
-    // corner, and opens the server's week (DbWeeklyStats); he greets no one. Placed here like the Support Bot (NexusGuide),
-    // on either side of the spawn rug (tools/build_castle_maps.py: CENTRE (48, 42), the fountains
-    // four tiles out on the diagonals), so the map needn't change.
+    // for them, at most every GREET_AGAIN seconds. Placed here like the Support Bot (NexusGuide),
+    // before the village's quest house (tools/build_nexus.py: QUEST_NPCS, keep the two in step).
+    // The Herald opens the server's week (DbWeeklyStats) and greets no one; he stands in the west's
+    // leaderboard court beside the Arena Leaderboard (tools/build_nexus.py: ARENA_LEADERBOARD).
     public sealed class QuestGivers
     {
         private const float GREET_RANGE = 4.5f;
@@ -22,9 +22,9 @@ namespace WorldServer.core.quests
 
         private static readonly (string Id, string Name, float X, float Y)[] Npcs =
         {
-            ("The Tinkerer", "#The Tinkerer", 42.5f, 44.5f),
-            ("The Chronicler", "#The Chronicler", 54.5f, 44.5f),
-            ("The Herald", "#The Herald", 42.5f, 40.5f),
+            ("The Tinkerer", "#The Tinkerer", 105.5f, 35.5f),
+            ("The Chronicler", "#The Chronicler", 111.5f, 35.5f),
+            ("The Herald", "#The Herald", 38.5f, 47.5f),
         };
 
         private readonly World _world;

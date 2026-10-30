@@ -39,6 +39,12 @@ namespace WorldServer.core.worlds
             "Nebula", "Halcyon", "Umbra", "Verdance", "Maelstrom", "Empyrean"
         };
 
+        // The portals sink into the Nexus garden's floor (tools/build_nexus_garden.py): a cavern for
+        // each realm on the shrine's `Realm Portals` tiles, Realm 2's vortex on its `Realm2 Portal`
+        // tile. Drawn flat several tiles across by the Rust client (`GroundSize`).
+        private const string REALM_PORTAL = "NG Realm Cavern";
+        private const string REALM2_PORTAL = "NG Realm2 Vortex";
+
         private readonly object _access = new object();
         private readonly GameServer _gameServer;
         private readonly World _world;
@@ -74,12 +80,11 @@ namespace WorldServer.core.worlds
                     return;
 
                 var realm2 = world is Realm2World;
-                var pos = realm2 ? NextToRealms() : GetRandPosition();
+                var pos = realm2 ? Realm2Spot() : GetRandPosition();
 
-                var portal = (Portal)_world.CreateNewEntity(realm2 ? "Realm2" : "Nexus Portal", pos.X + 0.5f, pos.Y + 0.5f);
+                var portal = (Portal)_world.CreateNewEntity(realm2 ? REALM2_PORTAL : REALM_PORTAL, pos.X + 0.5f, pos.Y + 0.5f);
                 portal.WorldInstance = world;
                 portal.Name = $"{PortalName(world)} (0/{MAX_PER_REALM})";
-                portal.Size = realm2 ? 100 : 80;
                 if (world is RealmWorld realm)
                     realm.HasNexusPortal = true;
                 if (realm2)
@@ -205,6 +210,15 @@ namespace WorldServer.core.worlds
             }
         }
 
+        // Realm 2's own tile, else beside the realms' portals
+        private Position Realm2Spot()
+        {
+            foreach (var t in _world.Map.Regions.Where(t => t.Value == TileRegion.Realm2_Portal))
+                if (!_portals.Values.Any(p => p.X == t.Key.X + 0.5f && p.Y == t.Key.Y + 0.5f))
+                    return new Position(t.Key.X, t.Key.Y);
+            return NextToRealms();
+        }
+
         // the free realm portal spot nearest a realm's portal (beside Realm 1's), or any free one
         private Position NextToRealms()
         {
@@ -221,25 +235,15 @@ namespace WorldServer.core.worlds
             return new Position(best.X, best.Y);
         }
 
+        // a free `Realm Portals` tile at random (the realms' caverns), or any of them when all are taken
         private Position GetRandPosition()
         {
-            var x = 0;
-            var y = 0;
-            var realmPortalRegions = _world.Map.Regions.Where(t => t.Value == TileRegion.Realm_Portals).ToArray();
-
-            if (realmPortalRegions.Length > _portals.Count)
-            {
-                KeyValuePair<IntPoint, TileRegion> sRegion;
-                do
-                {
-                    sRegion = realmPortalRegions.ElementAt(Random.Shared.Next(0, realmPortalRegions.Length));
-                }
-                while (_portals.Values.Any(p => p.X == sRegion.Key.X + 0.5f && p.Y == sRegion.Key.Y + 0.5f));
-
-                x = sRegion.Key.X;
-                y = sRegion.Key.Y;
-            }
-            return new Position(x, y);
+            var tiles = _world.Map.Regions.Where(t => t.Value == TileRegion.Realm_Portals).Select(t => t.Key).ToList();
+            if (tiles.Count == 0)
+                return new Position(0, 0);
+            var free = tiles.Where(k => !_portals.Values.Any(p => p.X == k.X + 0.5f && p.Y == k.Y + 0.5f)).ToList();
+            var pick = (free.Count > 0 ? free : tiles)[Random.Shared.Next((free.Count > 0 ? free : tiles).Count)];
+            return new Position(pick.X, pick.Y);
         }
     }
 }

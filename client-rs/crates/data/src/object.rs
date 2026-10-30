@@ -127,6 +127,9 @@ pub struct ObjectDesc {
     pub player: bool,
     pub enemy: bool,
     pub draw_on_ground: bool,
+    /// `<GroundSize>`: how many tiles across a `DrawOnGround` object lies, centred on it (1: its
+    /// own square). The Nexus garden's realm portals are sunk into the floor this way.
+    pub ground_size: f64,
     pub draw_under: bool,
     pub occupy_square: bool,
     pub full_occupy: bool,
@@ -309,6 +312,7 @@ impl ObjectDesc {
             player: xml.has("Player"),
             enemy: xml.has("Enemy"),
             draw_on_ground,
+            ground_size: xml.number("GroundSize", 1.0).max(1.0),
             draw_under: draw_on_ground || xml.has("DrawUnder"),
             occupy_square: xml.has("OccupySquare"),
             full_occupy: xml.has("FullOccupy"),

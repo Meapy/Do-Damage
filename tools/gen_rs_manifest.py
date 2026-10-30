@@ -8,8 +8,9 @@ them in code (AssetLoader.as, DoomedAssets.as, EmbeddedData.as). This script rea
 writes the same registrations as JSON, so the Rust client loads exactly what the AIR client loads,
 from the same files. Run it again whenever those files change; don't edit the JSON by hand.
 
-Sheets, characters and game data only the Rust client uses (`RS_ONLY_SETS`, `RS_ONLY_CHARS`,
-`RS_ONLY_GROUND_XML`, `RS_ONLY_OBJECT_XML`: art made after the AIR client was retired) are added
+Sheets, characters, models and game data only the Rust client uses (`RS_ONLY_SETS`,
+`RS_ONLY_CHARS`, `RS_ONLY_MODELS`, `RS_ONLY_GROUND_XML`, `RS_ONLY_OBJECT_XML`: art made after the
+AIR client was retired) are added
 after the AIR client's.
 
 All paths in the manifest are relative to client/src.
@@ -71,6 +72,13 @@ RS_ONLY_SETS = [
     # Realm 2's grounds, scenery, walls, key and portal (tools/build_realm2.py)
     ("realm2Env8x8", "kabam/rotmg/assets/custom/images/Realm2Env8x8.png", 8, 8),
     ("realm2Env16x16", "kabam/rotmg/assets/custom/images/Realm2Env16x16.png", 16, 16),
+    # the Nexus garden's grounds, scenery, floor portals and models' textures
+    # (tools/build_nexus_garden.py)
+    ("nexusGarden8x8", "kabam/rotmg/assets/custom/images/NexusGarden8x8.png", 8, 8),
+    ("nexusGarden16x16", "kabam/rotmg/assets/custom/images/NexusGarden16x16.png", 16, 16),
+    ("nexusGarden32x32", "kabam/rotmg/assets/custom/images/NexusGarden32x32.png", 32, 32),
+    ("nexusGarden48x48", "kabam/rotmg/assets/custom/images/NexusGarden48x48.png", 48, 48),
+    ("nexusGardenModels64x64", "kabam/rotmg/assets/custom/images/NexusGardenModels64x64.png", 64, 64),
 ]
 # (name, file, frame width, frame height, sheet width, sheet height, direction): characters
 RS_ONLY_CHARS = [
@@ -83,14 +91,25 @@ RS_ONLY_CHARS = [
     # Realm 2's monsters and quest monsters (tools/build_realm2.py)
     ("realm2Chars8x8", "kabam/rotmg/assets/custom/images/Realm2Chars8x8.png", 8, 8, 56, 8, "right"),
     ("realm2Chars16x16", "kabam/rotmg/assets/custom/images/Realm2Chars16x16.png", 16, 16, 112, 16, "right"),
+    # the Nexus's villagers and bees (tools/build_nexus_garden.py)
+    ("nexusGardenChars8x8", "kabam/rotmg/assets/custom/images/NexusGardenChars8x8.png", 8, 8, 56, 8, "right"),
+]
+# (name, file): 3D models only the Rust client draws: the Nexus garden's houses, pagoda, torii,
+# railings and fences (tools/build_nexus_garden.py)
+RS_ONLY_MODELS = [
+    (name, "kabam/rotmg/assets/custom/objects/nexusGarden%s.obj" % name[3:].replace(" ", ""))
+    for name in ("NG House", "NG Thatch House", "NG Storehouse", "NG Pagoda", "NG Torii", "NG Wood Rail",
+                 "NG Stone Rail", "NG Bamboo Fence")
 ]
 # game data only the Rust client loads
 RS_ONLY_GROUND_XML = ["kabam/rotmg/assets/custom/xmls/HashCellarGrounds.xml",
                       "kabam/rotmg/assets/custom/xmls/ElysiumGrounds.xml",
-                      "kabam/rotmg/assets/custom/xmls/Realm2Grounds.xml"]
+                      "kabam/rotmg/assets/custom/xmls/Realm2Grounds.xml",
+                      "kabam/rotmg/assets/custom/xmls/NexusGardenGrounds.xml"]
 RS_ONLY_OBJECT_XML = ["kabam/rotmg/assets/custom/xmls/HashCellarObjects.xml",
                       "kabam/rotmg/assets/custom/xmls/ElysiumObjects.xml",
-                      "kabam/rotmg/assets/custom/xmls/Realm2Objects.xml"]
+                      "kabam/rotmg/assets/custom/xmls/Realm2Objects.xml",
+                      "kabam/rotmg/assets/custom/xmls/NexusGardenObjects.xml"]
 ADD_EMOTE = re.compile(r'addEmote\("((?:[^"\\]|\\.)*)",\s*AssetLibrary\.getImageFromSet\("(\w+)",\s*(\d+)\)(?:,\s*([\d.]+))?')
 
 EMBED_VAR = re.compile(
@@ -231,7 +250,8 @@ def main():
                           + animated_chars(doomed_code, doomed, "DoomedAssets")
                           + [{"name": n, "file": f, "mask": None, "w": w, "h": h, "sheet_w": sw, "sheet_h": sh, "dir": d}
                              for n, f, w, h, sw, sh, d in RS_ONLY_CHARS],
-        "models": [{"name": n, "file": assets.resolve(e, "EmbeddedAssets")} for n, e in MODEL.findall(models_block)],
+        "models": [{"name": n, "file": assets.resolve(e, "EmbeddedAssets")} for n, e in MODEL.findall(models_block)]
+                  + [{"name": n, "file": f} for n, f in RS_ONLY_MODELS],
         "particles": assets.resolve("particlesEmbed", "EmbeddedAssets"),
         "ground_xml": data_files(data_code, data, "groundFiles") + RS_ONLY_GROUND_XML,
         "object_xml": data_files(data_code, data, "objectFiles") + RS_ONLY_OBJECT_XML,

@@ -58,8 +58,8 @@ the Sword of Dark Enchantment drop in white bags; Potions of Oryx and Potions of
 
 ## Your vault
 
-Your vault is a cellar under the castle, yours alone: `/vault` or the Vault portal west of the
-Nexus spawn. In it:
+Your vault is a cellar under a castle, yours alone: `/vault` or the Vault portal on the
+Nexus spawn's island. In it:
 
 - **Vault chests**, eight slots each, that keep items safe when a character dies. A new account has
   {{v:vault_chests}}; more cost {{v:vault_chest_price}} fame each (click a closed chest in the
@@ -81,7 +81,7 @@ by name, each item marked with its chest's number (G for a gift chest). Type to 
 the window shows only what matches and says which chests hold it. A right-click marks an item's
 chest with a gold ring and its number.
 
-The Nexus also has four **shared vault chests**, in the treasury off its south street. Anyone can use them, so treat
+The Nexus also has four **shared vault chests**, in the storehouse yard in its village. Anyone can use them, so treat
 them as a place to hand things to friends, not to store them.
 
 A **Backpack** (Nexus Bazaar, 500 fame) gives a character eight more inventory slots; <kbd>B</kbd>
@@ -97,7 +97,7 @@ Soulbound ones included. Only admin items and a few overpowered or test items ca
 tooltips say "Untradeable".
 
 **The [Marketplace](marketplace.html)** sells items to other players for fame, even while you're
-offline. Talk to the **Market Broker** in the market square south of the Nexus spawn (or `/market`
+offline. Talk to the **Market Broker** in the market square of the Nexus's village, east of the spawn, (or `/market`
 from anywhere): list items from your inventory or your vault, browse and buy what others sell, and
 collect what you bought. Listings also stand on the market square's stalls, where anyone can walk
 up and buy them. The Broker keeps 5% of each sale. Untradeable items can't be listed.
@@ -106,7 +106,7 @@ up and buy them. The Broker keeps 5% of each sale. Untradeable items can't be li
 
 Every shop here sells for fame; there's no way to earn gold.
 
-- The **Nexus Bazaar**, the market wards either side of the Nexus spawn: stat potions, consumables,
+- The **Nexus Bazaar**, the stalls along the shopping street of the Nexus's village: stat potions, consumables,
   specials, dungeon keys, Elder and Doomed keys, pet generators
   ({{v:pet_price}} fame) and clothing and accessories (cloths and dyes). Each shop has fewer stalls
   than items: the stalls take turns through its items, a few minutes each (a stall says when its

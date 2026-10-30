@@ -8,7 +8,7 @@ summary: Daily, weekly and monthly quests, the daily login reward and achievemen
 Do Damage gives you something to aim for every time you log in: **quests** that change every day,
 week and month, a **daily reward** for showing up, and **achievements** that remember everything
 you've done, account-wide. All of it lives in the **quest log**: press <kbd>J</kbd>, click
-**Quests** beside the Nexus button, or talk to the two keepers by the Nexus spawn.
+**Quests** beside the Nexus button, or talk to the two keepers at the quest house in the Nexus's village.
 
 > **Rewards go straight to you.** Fame goes to your account, and items into the gift chest in your
 > vault, so a reward never fills your inventory. Everything is account-wide: progress on one
@@ -16,7 +16,7 @@ you've done, account-wide. All of it lives in the **quest log**: press <kbd>J</k
 
 ## The quest keepers
 
-Two NPCs stand either side of the spawn rug in the Nexus:
+Two NPCs stand before the quest house in the Nexus's village, east of the spawn up the cross street:
 
 - **The Tinkerer**, a gnome tinker with brass goggles, keeps your daily, weekly and monthly quests.
   Walk up to him and he tells you how many are done, or when new ones come.

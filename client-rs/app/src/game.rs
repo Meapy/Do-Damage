@@ -88,6 +88,8 @@ pub struct Game {
     pub show_displays: bool,
     /// Sparks, effects and area attacks.
     pub particles: crate::particles::Particles,
+    /// Cherry blossom falling over the Nexus garden's forest (`<Petals/>` grounds).
+    pub petals: crate::petals::Petals,
     /// The quest's object (`QuestObjId`), for the arrow and the boss bar.
     pub quest: Option<i32>,
     /// The maps seen of the last few worlds left (by game id, name and size; the squares known),
@@ -284,6 +286,7 @@ impl Game {
             auto_aim: false,
             show_displays: false,
             particles: Default::default(),
+            petals: Default::default(),
             quest: None,
             seen_maps: Vec::new(),
             map_key: (0, String::new(), 0, 0),
@@ -693,8 +696,12 @@ impl Game {
             let speaker = self.world.as_ref().and_then(|w| w.objects.get(&t.object_id));
             if let (Some(o), true) = (speaker, t.object_id >= 0 && t.bubble_time > 0) {
                 let enemy = data.objects.get(&o.object_type).is_some_and(|d| d.enemy);
-                let colors = if enemy || bubble_only {
+                // a monster's quip is an enemy's balloon; anyone else's aside (a Nexus villager's,
+                // NexusVillagers) a plain one
+                let colors = if enemy {
                     [0x561F1C, 0xFC8642, 0xCDC0BF]
+                } else if bubble_only {
+                    [0xE1DEDC, 0xFFFFFF, 0x545454]
                 } else if t.recipient == "*Guild*" {
                     [0x3E8A00, 0xA6FF5D, 0xD3F8CC]
                 } else if t.recipient == "*Party*" {
@@ -972,6 +979,7 @@ impl Game {
         if let Some(world) = &mut self.world {
             self.particles.impacts(world);
             self.particles.update(world, now, dt);
+            self.petals.update(world, data, now, dt);
         }
     }
 

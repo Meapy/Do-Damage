@@ -6,8 +6,8 @@ sprite: anvil
 eyebrow: Gear and stuff
 summary: The Enchanter beside the Divine Forge puts imprints on Enthroned gear: an Offensive, a Defensive and a Misc slot on each piece, what each imprint does and what it costs.
 ---
-The **Enchanter** stands beside the [Divine Forge](forge.html), in the forge court on the left of the road
-from the Nexus spawn to the keep. It puts **imprints** on **Enthroned gear** (Oryx the Ascended God's own items, which the
+The **Enchanter** stands beside the [Divine Forge](forge.html), in the forge court of the Nexus's village, north of
+its shopping street. It puts **imprints** on **Enthroned gear** (Oryx the Ascended God's own items, which the
 forge makes; see [The Divine Forge](forge.html#the-ascended-items)): small upgrades that stay on the
 item, through your vault, trades and the [Marketplace](marketplace.html). No other item takes imprints.
 

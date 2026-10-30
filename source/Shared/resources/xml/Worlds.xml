@@ -26,10 +26,10 @@
 		</Music>
 	</World>
 	<World id="Nexus">
-		<Width>97</Width>
-		<Height>92</Height>
+		<Width>136</Width>
+		<Height>108</Height>
 		<Capacity>300</Capacity>
-		<MapJM>Exalt/Nexus Castle.jm</MapJM>
+		<MapJM>Exalt/Nexus Garden.jm</MapJM>
 		<Instance enum="nexus"/>
 		<Music>
 			<Track>wanderlust</Track>

@@ -898,7 +898,8 @@ pub fn interact_target(world: &World, data: &GameData) -> Option<Interact> {
             let big = matches!(kind, InteractKind::Npc { kind: crate::npc::NpcKind::Forge | crate::npc::NpcKind::Enchanter | crate::npc::NpcKind::ChampionsBoard, .. });
             // the statues fill their squares: reach them from beside
             let statue = matches!(kind, InteractKind::Npc { kind: crate::npc::NpcKind::ChampionStatue, .. });
-            let reach = if big { FORGE_REACH } else if statue { 1.6 } else { 1.0 };
+            // a portal sunk into the floor is entered from anywhere on it
+            let reach = if big { FORGE_REACH } else if statue { 1.6 } else { (d.ground_size / 2.0 * 0.9).max(1.0) };
             (dist < reach).then_some((dist, o, d, kind))
         })
         .min_by(|a, b| a.0.total_cmp(&b.0))

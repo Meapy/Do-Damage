@@ -83,8 +83,8 @@ A realm is the big shared map where most of the game happens. You arrive on its 
 monsters get stronger the further inland you go: from the shore, through the lowlands, midlands and
 highlands, up to the grey **Godlands** in the middle.
 
-Dungeon portals drop from many realm monsters; take them. Each realm portal in the Nexus shows how
-many players are inside, and `/realm` takes you to the busiest one.
+Dungeon portals drop from many realm monsters; take them. Each realm portal in the Nexus (the caverns in the shrine's floor, north-west of the spawn) shows
+how many players are inside, and `/realm` takes you to the busiest one.
 
 [Realm 2](realm-2.html) is another kind of realm, always open from the Nexus and made afresh each time,
 with a land of its own for every realm event.
@@ -170,8 +170,8 @@ from wave 30 an Elder dungeon boss joins Oryx's. The chat says which wave has be
 - **The ring:** you arrive in the forest outside a walled ring and walk in through one of its four
   gateways while the countdown runs. When the game starts the gates shut, and anyone still outside
   or in a gateway is moved just inside. Mind the lava inside the walls.
-- **Where:** the **Arena** portal in the Nexus's Arena court, on the right of the road from the spawn to
-  the keep, or `/arena` from anywhere: both lead
+- **Where:** the **Arena** portal in the Nexus's Arena court, under the torii west of the spawn (over
+  the wooden bridge), or `/arena` from anywhere: both lead
   to the same game. Everyone who goes in before a game's countdown ends plays that game. Once a
   game has started, the portal (and `/arena`) opens a new one. `/arenas` lists the games running.
 - **Less fame** in the Arena and the Admin Arena. The Arena pays fame after every wave: five times
