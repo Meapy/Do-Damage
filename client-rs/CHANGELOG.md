@@ -25,6 +25,8 @@ details). Add to a group's line when a change adds to it, rather than adding ano
   World, Puppet Master, Toxic Sewers, Haunted Cemetery, Davy Jones, Mad Lab, Cursed Library, Ocean
   Trench, Ice Cave, Deadwater Docks, Woodland Labyrinth, Beehemoth and Secluded Thicket whites.
 - Quest, daily reward and achievement items go straight to the gift chest in your vault.
+- The Graveyard's gravestones show what each character carried: its equipment, inventory and
+  backpack, with each item's tooltip.
 
 ### Infernal potions
 - Oryx 4's Infernal shards have a use: at the Divine Forge, a shard and 100 of a stat's potions
@@ -32,6 +34,11 @@ details). Add to a group's line when a change adds to it, rather than adding ano
   maximum, up to 5 potions over (5 Defense, or 25 Life). The Weapon shard makes Attack and
   Dexterity, the Ability shard Mana and Wisdom, the Armor shard Defense and Vitality, the Accessory
   shard Life and Speed. A stat past its maximum shows in orange.
+
+### Forge
+- Forging costs half as much, and the low tiers next to nothing: two tier 8 staffs make a tier 9
+  for 60 fame. Every tier upgrade now follows one price scale.
+- The starter gear `/gear` hands out can't be forged up: two of it don't make the next tier.
 
 ### Oryx
 - Oryx's Castle: everyone starts on the two inner lanes, not four. Janus's door opens as soon as
@@ -41,6 +48,10 @@ details). Add to a group's line when a change adds to it, rather than adding ano
 - Oryx 4's Infernal Officers no longer confuse you (the Burning Path's still do).
 - Oryx 5's Last Judgement: his temple floods with lava from its white rim inwards, a step every
   5 seconds, until it has come 7 tiles in. No more safe corners.
+- Oryx 5's Radiant Cross turns a little further with every volley, so the gaps between its lines
+  don't stay safe.
+- Oryx 5's temple walls are redrawn: a marble colonnade under a gold cornice, with his golden eyes
+  set in its niches where the Pillars of Heaven fire from.
 
 ### Fame
 - Kills at level 20 give 10% more fame, and bosses (the Oryx chain, realm events, dungeon bosses)
@@ -59,6 +70,8 @@ details). Add to a group's line when a change adds to it, rather than adding ano
 
 ### Game
 - Hold Left Shift to see what's in the loot bags around you, over each bag (Options to change it).
+- `/gear` uses its XP Booster and Loot Drop Potion for you at once, rather than handing them over.
+- The interact button shows its key on a keycap beside the label ("Choose [V]").
 - Your character keeps facing the way you shot, rather than snapping back to the way you walked.
 - The minimap marks your quest in a red box, draws players bigger and above everything else, and
   remembers the map of a realm you left (Realm 2 too) when you come back to it.

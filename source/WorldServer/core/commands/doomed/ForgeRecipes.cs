@@ -24,14 +24,18 @@ namespace WorldServer.core.commands.doomed
     // ingredients tradeable.
     internal static class ForgeRecipes
     {
-        public const int TieredCap = 2000;
-        public const int UntieredCap = 3000;
+        public const int TieredCap = 1000;
+        public const int UntieredCap = 1500;
+        // every price but the tier chains' (TierFame, cheap on purpose), as forging is meant to be
+        // common: half what the Doomed Realms list and the ForgeOnly recipes ask
+        public const double PriceScale = 0.5;
 
         private static readonly Logger Log = LogManager.GetCurrentClassLogger();
 
-        // The fame for a tiered result by tier, on the weapons' 0-14 scale (Doomed Realms' sword
-        // chain: 10 for a Broad Sword up to 2000 for a Sword of Splendor).
-        private static readonly int[] TierFame = { 0, 10, 30, 50, 70, 90, 100, 200, 300, 400, 500, 800, 1000, 2000, 2000 };
+        // The fame for a tiered result by tier, on the weapons' 0-14 scale: next to nothing low down
+        // (a T9 staff from two T8s is 60), half the old prices at the top (1,000 for a Sword of
+        // Splendor). Starter gear can't be forged up (StarterItems).
+        private static readonly int[] TierFame = { 0, 1, 2, 4, 6, 10, 15, 25, 40, 60, 125, 250, 400, 750, 1000 };
 
         // Items only the forge makes, which no monster drops (so they skip that rule), and items
         // with the same numbers swapping looks (the Dirk of Cronus and Phantasm Dirk; the Doom Bow,
@@ -85,7 +89,7 @@ namespace WorldServer.core.commands.doomed
         // Result, the kind, tier and slot it's forged from, the shard.
         private const string WeaponShard = "Ascended Weapon Shard", AbilityShard = "Ascended Ability Shard",
             ArmorShard = "Ascended Armor Shard", AccessoryShard = "Ascended Accessory Shard";
-        private const int AscendedFame = 2000;
+        private const int AscendedFame = 1000;
         private static readonly (string Result, ItemType Kind, int Tier, int Slot, string Shard)[] Ascended =
         {
             ("Enthroned Sword", ItemType.Weapon, 15, 1, WeaponShard),
@@ -163,6 +167,8 @@ namespace WorldServer.core.commands.doomed
             var data = server.Resources.GameData;
             var items = data.Items.Values.Where(i => !i.Untradeable).GroupBy(i => i.ObjectId).ToDictionary(g => g.Key, g => g.First());
             var dropped = Dropped(server);
+            // what /gear hands out: never an ingredient, so starter gear can't be forged up the tiers
+            var starter = GearCommand.StarterItems(data);
             var seasonal = new HashSet<string>(SeasonalThreshold.Items.Concat(Loot.WinterBossDrops.Select(d => d.Item)));
             bool Tiered(string id) => items.TryGetValue(id, out var i) && i.Tier >= 0;
             var forgeOnly = new HashSet<string>(ForgeOnly.Select(r => r.Result).Concat(Ascended.Select(a => a.Result))
@@ -171,12 +177,10 @@ namespace WorldServer.core.commands.doomed
             bool Allowed((string Result, int Fame, bool Advanced, string[] Items) r) =>
                 !r.Advanced && items.ContainsKey(r.Result)
                 && (dropped.Contains(r.Result) || forgeOnly.Contains(r.Result))
-                && !seasonal.Contains(r.Result) && r.Items.All(items.ContainsKey);
+                && !seasonal.Contains(r.Result) && r.Items.All(items.ContainsKey) && !r.Items.Any(starter.Contains);
 
             var slots = new HashSet<int>(data.Classes.Values.Where(c => c.SlotTypes != null).SelectMany(c => c.SlotTypes.Take(4)));
             slots.Remove(0);
-            var abilitySlots = new HashSet<int>(data.Classes.Values.Where(c => c.SlotTypes != null && c.SlotTypes.Length > 1)
-                .Select(c => c.SlotTypes[1]));
             // each slot's items by tier, and the fame for each tier it can forge: the price scale runs
             // to the top of the unbroken chain from the lowest tier
             var chains = new Dictionary<int, (Dictionary<int, List<Item>> ByTier, Dictionary<int, int> Fame)>();
@@ -201,12 +205,12 @@ namespace WorldServer.core.commands.doomed
                 chains[slot] = (byTier, fames);
             }
 
-            // An ability's two of the tier below costs its tier's price on the scale, as every ability
-            // kind (and ring) has the same eight tiers: the Doomed Realms list's own prices for them
-            // went up and down from tier to tier.
-            int? AbilityChainFame((string Result, int Fame, bool Advanced, string[] Items) r)
+            // Any two of the tier below the Doomed Realms list has costs its tier's price on the scale, as
+            // the chains this file makes do: the list's own prices went up and down from tier to tier,
+            // and were far dearer low down.
+            int? ChainFame((string Result, int Fame, bool Advanced, string[] Items) r)
             {
-                if (!items.TryGetValue(r.Result, out var res) || res.Tier < 1 || !abilitySlots.Contains(res.SlotType)
+                if (!items.TryGetValue(r.Result, out var res) || res.Tier < 1
                     || r.Items.Length != 2 || r.Items[0] != r.Items[1] || !items.TryGetValue(r.Items[0], out var from)
                     || from.SlotType != res.SlotType || from.Tier != res.Tier - 1
                     || !chains.TryGetValue(res.SlotType, out var chain) || !chain.Fame.TryGetValue(res.Tier, out var fame))
@@ -215,9 +219,9 @@ namespace WorldServer.core.commands.doomed
             }
 
             var recipes = DoomedEconomyData.Recipes
-                .Select(r => AbilityChainFame(r) is int fame ? (r.Result, fame, r.Advanced, r.Items)
-                    : (r.Result, Math.Min(r.Fame, Tiered(r.Result) ? TieredCap : UntieredCap), r.Advanced, r.Items))
-                .Concat(ForgeOnly)
+                .Select(r => ChainFame(r) is int fame ? (r.Result, fame, r.Advanced, r.Items)
+                    : (r.Result, Math.Min(Scaled(r.Fame), Tiered(r.Result) ? TieredCap : UntieredCap), r.Advanced, r.Items))
+                .Concat(ForgeOnly.Select(r => (r.Result, Scaled(r.Fame), r.Advanced, r.Items)))
                 .ToList();
             var known = new HashSet<string>(recipes.Select(Key));
 
@@ -267,6 +271,8 @@ namespace WorldServer.core.commands.doomed
             Log.Info($"Forge: {all.Length} recipes; left out {left.Count} results that are OP, seasonal or dropped by nothing: {string.Join(", ", left)}");
             return all;
         }
+
+        private static int Scaled(int fame) => fame <= 0 ? 0 : Math.Max(1, (int)Math.Round(fame * PriceScale));
 
         // Every item some monster can drop: the named drops in its loot and every item of the tier
         // pools it rolls (Loot.GetItems).

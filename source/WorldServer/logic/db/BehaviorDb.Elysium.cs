@@ -625,6 +625,7 @@ namespace WorldServer.logic
 
         // ---- Oryx the Ascended God's patterns ----
         private const int CrossTime = 8000;
+        private const double CrossTurn = 15;
         private const int StarLife = 12000;
         private const int HuntLeg = 10000;
         // the Radiant Cross: twin lances side by side, and arrowheads pointing outward
@@ -633,17 +634,19 @@ namespace WorldServer.logic
 
         // Pattern 1, the Radiant Cross: he follows the nearest player but keeps 6 tiles off, backing
         // away if you close in. Lances along four lines and arrowheads along the four between, then
-        // the same turned 45 degrees, in turn; quicker once he has transcended.
+        // the same turned 45 degrees, in turn; quicker once he has transcended. Every volley turns
+        // CrossTurn degrees further than the last, so the lines sweep round and no angle between
+        // them stays safe for long.
         private static State RadiantCross(string name, bool transcended, Transition then)
         {
             var period = transcended ? 1600 : 2000;
             return new State(name,
                 Splats(),
                 new Prioritize(new StayBack(transcended ? 0.8 : 0.7, 6), new Follow(transcended ? 0.65 : 0.55, 25, 6.5)),
-                new ShootFormation(25, 4, Lanes, 0, fixedAngle: 0, coolDown: period),
-                new ShootFormation(25, 4, Arrowhead, 1, fixedAngle: 45, coolDown: period),
-                new ShootFormation(25, 4, Lanes, 0, fixedAngle: 45, coolDown: period, coolDownOffset: period / 2),
-                new ShootFormation(25, 4, Arrowhead, 1, fixedAngle: 0, coolDown: period, coolDownOffset: period / 2),
+                new ShootFormation(25, 4, Lanes, 0, fixedAngle: 0, rotateAngle: CrossTurn, coolDown: period),
+                new ShootFormation(25, 4, Arrowhead, 1, fixedAngle: 45, rotateAngle: CrossTurn, coolDown: period),
+                new ShootFormation(25, 4, Lanes, 0, fixedAngle: 45, rotateAngle: CrossTurn, coolDown: period, coolDownOffset: period / 2),
+                new ShootFormation(25, 4, Arrowhead, 1, fixedAngle: 0, rotateAngle: CrossTurn, coolDown: period, coolDownOffset: period / 2),
                 then
             );
         }

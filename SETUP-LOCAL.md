@@ -1333,10 +1333,22 @@ The remotes `upstream` (HaloCelsius) and `aurusenth` share no history with `main
   are counted before the quest is let go; every potion counts, potion storage's too. Quest item rewards
   go to the gift chest (`QuestTracker.Pay`). Mid-level dungeons' white-bag drops are up to four times as
   likely (most at 2%).
+- **Forge prices** (2026-10-31; `ForgeRecipes`, mirrored in `tools/wiki_data.py`): `TierFame` runs
+  1 to 1,000 (60 for a T9), every two-of-the-tier-below recipe takes it (`ChainFame`, the Doomed
+  Realms list's ones too), the rest cost `PriceScale` (half) of before, `TieredCap` 1,000,
+  `UntieredCap` 1,500, the Ascended items 1,000. No recipe takes an item `/gear` hands out
+  (`GearCommand.StarterItems`). `/gear` uses its boosters at once (`Player.StartStarterBoosts`).
+- **Oryx 5's temple walls** (2026-10-31; `paint_wall` in `tools/build_elysium.py`): painted 16x16 cells
+  for `O5 Wall 1`, `O5 Wall Arch 1` and `2` and `O5 Wall Eye` (the column model wraps the left half
+  bottom up on its sides, the right half on top). The Radiant Cross turns `CrossTurn` (15) degrees a
+  volley.
+- **Graveyard** (2026-10-31): the death summary shows the character's items from `/char/fame`'s
+  `Char/Equipment` and `ItemDatas`.
 - **Client** (2026-10-30): `BagPreview` (Left Shift, held) shows loot bags' items over them; the
   character keeps facing its last shot while it shoots (`note_attack`, `walk`); the minimap draws the
   quest's red box and the players last (`draw_minimap_top`) and keeps the known squares of the last
-  three worlds left (`Game.seen_maps`, by game id, name and size); the Quests and Nexus buttons are
+  three worlds left (`Game.seen_maps`, by game id, name and size, saved when a Reconnect drops
+  the world); the Quests and Nexus buttons are
   icons; the records shorten values that don't fit and show them on hover.
 
 ## Content ported from Doomed Realms

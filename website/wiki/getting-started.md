@@ -144,9 +144,8 @@ you while you stand next to them. Around the spawn:
 Type `/gear` in the Nexus for a set of starter gear for your class: a weapon, an ability, armor and
 a ring from about half way up the regular tiers (never above tier {{v:gear_max_tier}}). For most
 classes that's a tier 7 weapon, tier 8 armor and a tier 4 ability and ring. The
-[Classes](classes.html) page shows exactly what each class gets. It also puts
-{{v:gear_boosters}} in your backpack, soulbound to you: use them to level faster and find more
-loot.
+[Classes](classes.html) page shows exactly what each class gets. It also uses
+{{v:gear_boosters}} for you there and then: you level faster and find more loot from the start.
 
 Its limits:
 

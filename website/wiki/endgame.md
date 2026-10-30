@@ -117,7 +117,8 @@ event, and isn't sold or dropped then; if you have one, keep it for the next.
   teleport to a player within.
   - **Judgement** (to 60%): three patterns. The **Radiant Cross**: he follows you but keeps about
     six tiles off, firing twin lances along four lines and gold arrowheads along the four between,
-    then the same turned. The **Firmament**: from the middle he raises twelve stars in a cross that
+    then the same turned, the whole cross sweeping round a little further with every volley, so no
+    gap between its lines stays safe. The **Firmament**: from the middle he raises twelve stars in a cross that
     turns slowly round him; touching one slows you, and they shoot slowing, bleeding and swift
     motes. The **Divine Hunt**: he chases the nearest player with a shotgun in front and a slowing
     fan behind, throwing bleeding bombs round the arena; every ten seconds he stops, names a player

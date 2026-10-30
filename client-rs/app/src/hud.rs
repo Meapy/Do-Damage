@@ -1671,8 +1671,10 @@ pub fn draw_panel(ui: &mut Ui, lay: &Layout, world: &World, colors: &mut MapColo
                 object_icon(ui, crate::vault::VAULT_CHEST, r[0] + r[2] / 2.0, r[1] + r[3] / 2.0, 20.0 * s);
                 continue;
             }
-            Button::Enter(_) if state.interact_key.is_empty() => ("Enter".to_owned(), Kind::Primary),
-            Button::Enter(_) => (format!("Enter  {}", state.interact_key), Kind::Primary),
+            Button::Enter(_) => {
+                ui.button_key(*r, "Enter", &state.interact_key, Kind::Primary, inside(*r, mouse), s);
+                continue;
+            }
             Button::Buy(_) => match panel.interact.as_ref().map(|i| i.kind) {
                 Some(InteractKind::Shop { price, currency, .. }) => (format!("Buy  ·  {}", price_text(price, currency)), Kind::Primary),
                 _ => continue,
@@ -1680,8 +1682,10 @@ pub fn draw_panel(ui: &mut Ui, lay: &Layout, world: &World, colors: &mut MapColo
             Button::Npc(_) => match panel.interact.as_ref().map(|i| i.kind) {
                 // with the interact key after it, as Enter has
                 Some(InteractKind::Npc { kind, rank_req, price }) => match crate::npc::interact_text(kind, me, rank_req, price).1 {
-                    Some((text, k)) if state.interact_key.is_empty() => (text.to_string(), k),
-                    Some((text, k)) => (format!("{text}  {}", state.interact_key), k),
+                    Some((text, k)) => {
+                        ui.button_key(*r, &text, &state.interact_key, k, inside(*r, mouse), s);
+                        continue;
+                    }
                     None => continue,
                 },
                 _ => continue,

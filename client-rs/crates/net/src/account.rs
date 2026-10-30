@@ -296,6 +296,10 @@ pub struct FameSummary {
     pub bonuses: Vec<(String, i32)>,
     /// (stat tag, value): shots, kills, dungeons and so on, as the server lists them.
     pub stats: Vec<(String, i64)>,
+    /// What it had when it died, by slot: its four equipment slots, the inventory, then the
+    /// backpack's (-1 empty), and each slot's data (imprints).
+    pub equipment: Vec<i32>,
+    pub item_datas: Vec<String>,
 }
 
 pub fn parse_char_fame(xml: &str) -> Result<FameSummary, String> {
@@ -314,6 +318,8 @@ pub fn parse_char_fame(xml: &str) -> Result<FameSummary, String> {
     if let Some(c) = root.children().find(|c| c.has_tag_name("Char")) {
         out.object_type = child_text(c, "ObjectType").and_then(parse_int).unwrap_or(0) as u16;
         out.level = child_text(c, "Level").and_then(parse_int).unwrap_or(0) as i32;
+        out.equipment = parse_items(child_text(c, "Equipment"));
+        out.item_datas = parse_datas(child_text(c, "ItemDatas"));
     }
     for e in root.children().filter(|c| c.is_element()) {
         let tag = e.tag_name().name();

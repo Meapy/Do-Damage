@@ -1730,17 +1730,45 @@ namespace WorldServer.core.objects
         private void AEXPBoost(TickTime time, Item item, Position target, int slot, int objId, ActivateEffect eff) =>
             StartXPBoost(item, slot, objId, eff.DurationMS);
 
-        // durationMS -1 lasts until level 20 or death. A booster used while one runs is given back.
+        // /gear's boosters, used at once rather than handed over: each that takes effect (the XP
+        // Booster below level 20 and with none running; the Loot Drop Potion always), as if drunk.
+        public List<Item> StartStarterBoosts(IEnumerable<Item> boosters)
+        {
+            // as using them does (UseItem): by their <XpBoost/> or <LDBoosted/> and <Timer>, or their
+            // XPBoost or LDBoost activate
+            var used = new List<Item>();
+            foreach (var item in boosters)
+            {
+                var xp = item.ActivateEffects.FirstOrDefault(e => e.Effect == ActivateEffects.XPBoost)?.DurationMS
+                    ?? (item.XpBoost ? (item.Timer < 0 ? -1 : (int)(item.Timer * 1000)) : (int?)null);
+                var loot = item.ActivateEffects.FirstOrDefault(e => e.Effect == ActivateEffects.LDBoost)?.DurationMS
+                    ?? (item.LDBoosted && item.Timer > 0 ? (int)(item.Timer * 1000) : (int?)null);
+                if (xp is int x && Level < 20 && !(XPBoosted && XPBoostTime != 0))
+                {
+                    StartXPBoost(null, -1, -1, x);
+                    used.Add(item);
+                }
+                else if (loot is int l && LDBoostTime >= 0)
+                {
+                    StartLDBoost(l);
+                    used.Add(item);
+                }
+            }
+            return used;
+        }
+
+        // durationMS -1 lasts until level 20 or death. A booster used while one runs is given back
+        // (none with no item: /gear's, StartStarterBoosts).
         private void StartXPBoost(Item item, int slot, int objId, int durationMS)
         {
-            var containerItem = World.GetEntity(objId) as Container;
+            var containerItem = item == null ? null : World.GetEntity(objId) as Container;
 
             if (XPBoosted && XPBoostTime != 0)
             {
                 SendInfo("You already have an XP Booster activated!");
                 if (containerItem != null)
                     containerItem.Inventory[slot] = item;
-                else
+                else if (item != null)
                     Inventory[slot] = item;
                 return;
             }
@@ -1749,7 +1777,7 @@ namespace WorldServer.core.objects
                 SendInfo("You're level 20!");
                 if (containerItem != null)
                     containerItem.Inventory[slot] = item;
-                else
+                else if (item != null)
                     Inventory[slot] = item;
                 return;
             }

@@ -323,9 +323,20 @@ impl Game {
         let (session, first) = Session::start(clone_hello(&self.hello), Join::Load { char_id: self.char_id });
         self.session = session;
         self.socket.send(&first);
+        self.remember_map();
         self.world = None;
         self.sent_view_radius = MIN_VIEW_RADIUS;
         self.status = format!("Entering {}…", r.name);
+    }
+
+    /// Keeps the map seen of the world being left (`seen_maps`), the oldest let go past SEEN_MAPS.
+    fn remember_map(&mut self) {
+        let Some(old) = &self.world else { return };
+        self.seen_maps.retain(|(k, _)| *k != self.map_key);
+        self.seen_maps.push((self.map_key.clone(), old.known_squares()));
+        if self.seen_maps.len() > SEEN_MAPS {
+            self.seen_maps.remove(0);
+        }
     }
 
     /// Connect again, to the Nexus.
@@ -356,6 +367,7 @@ impl Game {
             return false;
         };
         self.socket.close();
+        self.remember_map();
         self.world = None;
         self.trade = None;
         self.invite = None;
@@ -470,13 +482,7 @@ impl Game {
         }
         match event {
             Some(Event::MapInfo(info)) => {
-                if let Some(old) = &self.world {
-                    self.seen_maps.retain(|(k, _)| *k != self.map_key);
-                    self.seen_maps.push((self.map_key.clone(), old.known_squares()));
-                    if self.seen_maps.len() > SEEN_MAPS {
-                        self.seen_maps.remove(0);
-                    }
-                }
+                self.remember_map();
                 self.map_key = (self.hello.game_id, info.name.clone(), info.width as i32, info.height as i32);
                 let mut world = World::new(info.width as i32, info.height as i32, &info.display_name, info.seed);
                 if let Some((_, squares)) = self.seen_maps.iter().find(|(k, _)| *k == self.map_key) {

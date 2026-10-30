@@ -42,7 +42,11 @@ Every tiered item can be forged from **two of the tier below**, of the same kind
 swords make a tier 11 sword, two Rings of Attack a Ring of Greater Attack (rings go by their stat).
 The forge never makes something nothing drops, so the top tiers of some kinds aren't there. The
 **tier 16 armours** are the exception: each comes from the tier 15 armour of its kind and an
-Ascended Armor Shard, for 2,000 fame (they're under Armor in [Other recipes](#other-recipes)).
+Ascended Armor Shard, for 1,000 fame (they're under Armor in [Other recipes](#other-recipes)).
+
+The low tiers cost next to nothing (two tier 8 staffs make a tier 9 for 60 fame), so forge what you
+find. The **starter gear `/gear` hands out can't go in**: two of a class's starter weapon, ability,
+armor or ring don't make the next tier, so a fresh character can't forge its way up from free gear.
 
 {{gen:forge_example}}
 
@@ -52,8 +56,8 @@ costs more than {{v:forge_cap}} fame.
 {{gen:forge_tiers}}
 
 > Weapons and armor start at tier 0 and 1, so the first upgrade makes a tier 1 weapon or a tier 2
-> armor. Every ability and ring costs the same at each tier. A few weapon and armor tiers keep the
-> Doomed Realms forge's own prices, which is why daggers, wands and the armors differ a little.
+> armor. Every kind's prices run up the same scale to its own top tier. A dash under a low tier is
+> starter gear's next tier, which needs two of the starter item.
 
 ## Forge shards and the forge storage
 
