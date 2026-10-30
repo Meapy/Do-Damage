@@ -1476,16 +1476,16 @@ namespace WorldServer.core.commands.player
     {
         public override string CommandName => "uptime";
 
+        // The game's uptime, which rolling deploys and scheduled restarts don't break (GameUptime),
+        // then this world server's own.
         protected override bool Process(Player player, TickTime time, string args)
         {
-            TimeSpan t = TimeSpan.FromMilliseconds(time.TotalElapsedMs);
-
-            string answer = string.Format("{0:D2}h:{1:D2}m:{2:D2}s",
-                            t.Hours,
-                            t.Minutes,
-                            t.Seconds);
-
-            player.SendInfo("The server has been up for " + answer + ".");
+            var uptime = player.GameServer.Uptime;
+            var now = DateTime.UtcNow;
+            player.SendInfo($"Do Damage has been up for {GameUptime.Format(now - uptime.Since)}.");
+            var every = player.GameServer.Configuration.serverSettings.restartTime;
+            player.SendInfo($"This world server took over {GameUptime.Format(now - uptime.ServerStarted)} ago" +
+                (every > 0 ? $" (a fresh one takes over every {every} hours, and with each update, without kicking anyone)." : "."));
             return true;
         }
     }

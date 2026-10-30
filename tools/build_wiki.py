@@ -100,7 +100,7 @@ COMMAND_HELP = {
     "arenas": "Lists the Arena games running now.",
     "leaderboard": "The best Arena waves, solo runs and group runs apart.",
     "gleaderboard": "The guilds with the most fame.",
-    "uptime": "How long the server has been up.",
+    "uptime": "How long the game has been up (server updates don't stop it), and how long ago the current server took over.",
     "restartwhen": "When the world server next restarts.",
     "removepet": "Sends your pet away.",
     "fixpots": "Repairs your potion storage if it shows nothing.",

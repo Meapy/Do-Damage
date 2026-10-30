@@ -36,8 +36,39 @@ namespace WorldServer.core.worlds
 
         public void Initialize()
         {
+            if (KeepsRealms)
+                Restores = RealmSnapshots.Load(GameServer.Database.Conn);
+            if (Restores.Count > 0)
+                StaticLogger.Instance.Info($"Realm snapshots: opening again {string.Join(", ", Restores.Select(s => s.Name))}");
             CreateNexus();
         }
+
+        // the realms the last world server had open, still to open again here (RealmPortalMonitor)
+        private List<RealmSnapshot> Restores = new List<RealmSnapshot>();
+
+        /// <summary>The next realm (or Realm 2) to open again from its snapshot, or null.</summary>
+        public RealmSnapshot TakeRestore(bool realm2)
+        {
+            lock (Restores)
+            {
+                var s = Restores.FirstOrDefault(r => r.Realm2 == realm2);
+                if (s != null)
+                    Restores.Remove(s);
+                return s;
+            }
+        }
+
+        public bool HasRestore(bool realm2)
+        {
+            lock (Restores)
+                return Restores.Any(r => r.Realm2 == realm2);
+        }
+
+        // an admin-only world server's realms are its own, not the game's
+        private bool KeepsRealms => !GameServer.Configuration.serverInfo.adminOnly;
+
+        // a realm's key in the snapshots: its snapshot's, or a new one
+        private string SnapshotKey(RealmSnapshot restore) => !KeepsRealms ? null : restore?.Key ?? Guid.NewGuid().ToString("N");
 
         public void CreateNexus()
         {
@@ -57,7 +88,7 @@ namespace WorldServer.core.worlds
             }
         }
 
-        public void CreateNewRealmAsync(string name)
+        public void CreateNewRealmAsync(string name, RealmSnapshot restore = null)
         {
             var worldResource = GameServer.Resources.GameData.GetWorld("Realm of the Mad God");
             if (worldResource == null)
@@ -70,6 +101,8 @@ namespace WorldServer.core.worlds
                 var world = new RealmWorld(GameServer, nextId, worldResource);
                 world.SetMaxPlayers(RealmPortalMonitor.MAX_PER_REALM);
                 world.DisplayName = name;
+                world.RealmManager.SnapshotKey = SnapshotKey(restore);
+                world.Restoring = restore;
                 var success = world.LoadMapFromData(worldResource);
                 if (!success)
                     return null;
@@ -85,7 +118,7 @@ namespace WorldServer.core.worlds
         }
 
         /// <summary>The Nexus's own Realm 2 (RealmPortalMonitor), built on a pool thread like a realm, its portal beside the realms'.</summary>
-        public void CreateNewRealm2Async(string name, Action<World> failed)
+        public void CreateNewRealm2Async(string name, Action<World> failed, RealmSnapshot restore = null)
         {
             var worldResource = GameServer.Resources.GameData.GetWorld("Realm 2");
             if (worldResource == null)
@@ -102,6 +135,10 @@ namespace WorldServer.core.worlds
                     var world = new Realm2World(GameServer, nextId, worldResource);
                     world.SetMaxPlayers(RealmPortalMonitor.MAX_PER_REALM);
                     world.DisplayName = name;
+                    world.RealmManager.SnapshotKey = SnapshotKey(restore);
+                    world.Restoring = restore;
+                    if (restore != null && restore.Seed != 0)
+                        world.Seed = restore.Seed;
                     if (!world.LoadMapFromData(worldResource))
                     {
                         failed(world);

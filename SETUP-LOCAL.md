@@ -83,6 +83,63 @@ python tools\rolling_restart.py status          # which slot is active, and how 
 - **Try it on a test stack:** `python tools\testclient\iso_stack.py --slot N start --rolling`,
   then `python tools\rolling_restart.py --iso N deploy`.
 
+### How often it rolls, and what "uptime" means
+
+Measured on the VPS for 2026-10-27 to 2026-10-30 (`/opt/bsk/build/live/proxy.log`): 57 rolls in
+3½ days, 34 of them the 2-hourly scheduled restart (`restartTime: 2` in `wServer.json`, the
+upstream default) and 23 deploys (`requested command: update`), up to 8 on a busy release day. No
+crash, no OOM kill (`journalctl -k`) and no restart of `bsk-world` itself (up since 2026-10-18);
+the last world server crashes were on 2026-10-16 and 2026-10-23. So a world server never runs
+longer than 2 hours, but the game wasn't down: the website's per-day uptime (`/api/app/status`,
+`StatusHistory`: a public world server listed, sampled each minute) and the Discord bot's
+"Uptime (7 days)" read 100%.
+
+The figure under 2 hours was the in-game `/uptime`, which counted the time since *this* world
+server started (and wrapped at 24 hours). It now shows the game's uptime (`core/GameUptime.cs`):
+each public world server refreshes `worlds:alive` in Redis every 15 s (gone 60 s after the last
+one stops, at once on a clean stop that isn't a hand-over), and `worlds:upSince` is set again only
+by a server that starts while `worlds:alive` is gone. A rolling deploy or scheduled restart starts
+the new server before the old one stops, so it keeps the time; stopping `bsk-world`, or a crash
+with nothing beside it, starts it again. `/uptime` also says how long ago the current world server
+took over.
+
+### Realm state across restarts
+
+A rolling deploy or scheduled restart used to give the new world server fresh realms: new names,
+event counts back to 0, a new Realm 2 map without its lands or waystones, and the running events
+gone, while the old server's realms lived on only for the players still in them. Now each realm
+the Nexus opens keeps a snapshot in the Redis hash `realms`, one JSON field per realm by a key
+that stays the same from server to server (`core/worlds/RealmSnapshots.cs`,
+`RealmManager.Snapshot.cs`):
+
+- **What's kept:** the realm's name, the events defeated toward closing, the events running (by
+  name and place, not their health) and a realm's events still to come. For Realm 2 also its
+  map's seed (`Realm2Generator` makes the same map from it), every land drawn (theme, centre, size,
+  its painter's seed, its bridge or pool, whether its Lost Sentry still stands), its waystones and
+  the order of the events to come.
+- **When it's written:** within 2 s of a change (an event spawned or defeated, a land or a
+  waystone) and every 30 s, without waiting for Redis (fire and forget, from the realm's own
+  thread), so saving the players at shutdown isn't held up, and a SIGTERM or Ctrl+C loses at most
+  those seconds.
+- **Opening again:** a new world server reads the hash at start-up (`WorldManager.Initialize`) and
+  the Nexus opens those realms, then Realm 2, from their snapshots (`RealmWorld.Restoring`,
+  `RealmManager.Restore`, after the realm's own set pieces), with the same names on their portals.
+  Snapshots older than 10 minutes, or that can't be read, are removed and the realms start
+  afresh; a snapshot that doesn't fit this version only leaves out what doesn't fit.
+- **During a hand-over** the old server's realm and the new one's are the same realm. A server
+  that's handing over writes only what its players change; every 10 s each realm reads its field
+  and takes up a higher count written by the other server; a realm that closes on either marks its
+  field `Closed`, which closes it on the other and is never written over (a Lua check).
+- **Not kept:** the bosses' health, the ordinary monsters, loot on the ground, the realm's own set
+  pieces (placed afresh), Oryx's Castle, dungeons and their portals, the Nexus's dungeon portals,
+  and a Realm 2 opened with a key. Admin-only world servers keep nothing.
+- **Tested** on isolated stack 7 (2026-10-30). Realm 2 at 4/13, with six lands and a waystone, and
+  a realm at 1/8 came back the same after `rolling_restart.py --iso 7 deploy --reuse`. An event
+  defeated on the old server during the hand-over was taken up by the new one. After the whole
+  stack had been down for 70 s, the realms came back and `/uptime` started again. A closed realm
+  didn't come back. `source/Tests/RealmSnapshotsTests.cs` covers reading, staleness and Realm 2's
+  seeds.
+
 ## Letting other people play
 
 - **World server address:** `source/WorldServer/wServer.json` sets `serverInfo.address` to the public IP (188.141.12.3). The account server sends 127.0.0.1 instead to clients on this PC.
@@ -522,6 +579,9 @@ The remotes `upstream` (HaloCelsius) and `aurusenth` share no history with `main
 
 ## Changes from upstream
 
+- **Realms survive restarts and deploys** (2026-10-30; `RealmSnapshots.cs`, `RealmManager.Snapshot.cs`):
+  see "Realm state across restarts". **`/uptime`** shows the game's uptime rather than the current
+  world server's (`GameUptime.cs`; see "How often it rolls, and what "uptime" means").
 - **The Marketplace** (2026-10-29; `Shared/database/market/MarketStore.cs`, `WorldServer/core/market/`,
   `MarketStall.cs`, `MarketHandlers.cs`, `MarketListings.cs`, `/sell`, `/market`; the Rust client's
   `market.rs`): players list items from their inventory or vault for fame at the Market Broker

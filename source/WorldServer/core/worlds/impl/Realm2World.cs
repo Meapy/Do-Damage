@@ -18,6 +18,9 @@ namespace WorldServer.core.worlds.impl
     {
         public Realm2Layout Layout { get; private set; }
 
+        /// <summary>Its map's seed: set before it loads to make the same map again (a snapshot's, RealmSnapshot).</summary>
+        public int? Seed { get; set; }
+
         public override bool ListedInNexus => false;
 
         public Realm2World(GameServer gameServer, int id, WorldResource resource) : base(gameServer, id, resource)
@@ -26,7 +29,7 @@ namespace WorldServer.core.worlds.impl
 
         public override bool LoadMapFromData(WorldResource worldResource)
         {
-            var seed = Random.Shared.Next();
+            var seed = Seed ??= Random.Shared.Next();
             var started = DateTime.UtcNow;
             var (canvas, layout) = new Realm2Generator(GameServer.Resources.GameData, seed).Generate();
             Layout = layout;

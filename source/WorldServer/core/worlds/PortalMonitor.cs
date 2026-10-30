@@ -58,9 +58,11 @@ namespace WorldServer.core.worlds
         {
             lock (_access)
             {
-                var name = Names[Random.Shared.Next(Names.Count)];
+                // the realms the last world server had come back first, by their names
+                var restore = _gameServer.WorldManager.TakeRestore(false);
+                var name = restore?.Name ?? Names[Random.Shared.Next(Names.Count)];
                 _actives.Add(name);
-                _gameServer.WorldManager.CreateNewRealmAsync(name);
+                _gameServer.WorldManager.CreateNewRealmAsync(name, restore);
             }
         }
 
@@ -151,7 +153,7 @@ namespace WorldServer.core.worlds
 
             var totalPlayers = _world.GameServer.ConnectionManager.GetPlayerCount();
             var realmsNeeded = 1 + totalPlayers / (MAX_PER_REALM + 15);
-            if (_actives.Count < realmsNeeded)
+            if (_actives.Count < realmsNeeded || _gameServer.WorldManager.HasRestore(false))
                 CreateNewRealm();
         }
 
@@ -171,7 +173,8 @@ namespace WorldServer.core.worlds
                 return;
             var taken = _gameServer.WorldManager.GetWorlds().Select(w => w.DisplayName).ToHashSet();
             var free = Realm2Names.Where(n => !taken.Contains(n)).ToList();
-            var name = free.Count > 0 ? free[Random.Shared.Next(free.Count)] : Realm2Names[Random.Shared.Next(Realm2Names.Count)];
+            var restore = _gameServer.WorldManager.TakeRestore(true);
+            var name = restore?.Name ?? (free.Count > 0 ? free[Random.Shared.Next(free.Count)] : Realm2Names[Random.Shared.Next(Realm2Names.Count)]);
             _realm2Building = true;
             _gameServer.WorldManager.CreateNewRealm2Async(name, _ =>
             {
@@ -180,7 +183,7 @@ namespace WorldServer.core.worlds
                     _realm2Building = false;
                     _realm2Failures++;
                 }
-            });
+            }, restore);
         }
 
         public void RemovePortal(int worldId)

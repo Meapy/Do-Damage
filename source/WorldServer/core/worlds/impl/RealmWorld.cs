@@ -1,5 +1,6 @@
 ﻿using Shared.resources;
 using WorldServer.core.objects;
+using WorldServer.core.worlds;
 using WorldServer.networking;
 
 namespace WorldServer.core.worlds.impl
@@ -36,12 +37,27 @@ namespace WorldServer.core.worlds.impl
 
         public void SetMaxPlayers(int capacity) => MaxPlayers = capacity;
 
+        /// <summary>Set before Init: the snapshot it opens again from (RealmSnapshots), null for a new realm.</summary>
+        public RealmSnapshot Restoring;
+
         public override void Init()
         {
             base.Init();
             RealmManager.Init();
             if (ListedInNexus)
                 SetPieces.ApplySetPieces(this);
+            // a snapshot that doesn't fit only leaves the realm as far as it got
+            if (Restoring != null)
+                try
+                {
+                    RealmManager.SetPiecesPlaced(PendingEntities);
+                    RealmManager.Restore(Restoring);
+                }
+                catch (System.Exception e)
+                {
+                    WorldServer.utils.StaticLogger.Instance.Error($"{DisplayName}: couldn't open it again from its snapshot: {e}");
+                }
+            Restoring = null;
         }
 
         public override bool AllowedAccess(Client client) => !Closed || client.Account.Admin;
@@ -84,6 +100,7 @@ namespace WorldServer.core.worlds.impl
             if (Closed)
                 return false;
             Closed = true;
+            RealmManager.SnapshotClosed();
             RealmManager.DisableSpawning = true;
             RealmManager.CurrentState = RealmState.Emptying;
             if (HasNexusPortal)

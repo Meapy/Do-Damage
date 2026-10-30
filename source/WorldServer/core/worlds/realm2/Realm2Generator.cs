@@ -17,6 +17,8 @@ namespace WorldServer.core.worlds.realm2
         public double Radius;
         public int Tiles;
         public string Link;                 // an event land out in the void: how it joins the rest
+        public IntPoint? LinkTo;            // and where (RealmSnapshot)
+        public int PainterSeed;             // an event land's (RealmSnapshot draws it again from it)
         // the midlands' clearings for the Lucky gods; an event land's arena
         public List<(string Event, IntPoint At)> Events = new List<(string, IntPoint)>();
 

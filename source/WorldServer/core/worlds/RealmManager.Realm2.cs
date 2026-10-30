@@ -217,16 +217,19 @@ namespace WorldServer.core.worlds
         }
 
         // Draws the land into the world, clearing the monsters that stood there, and peoples it.
-        private Realm2Area DrawLand(Realm2Theme theme, IntPoint at, IntPoint? linkTo, bool pool)
+        // Its size and painter's seed are given when a snapshot draws it again (Restore), and
+        // whether its Lost Sentry still stands.
+        private Realm2Area DrawLand(Realm2Theme theme, IntPoint at, IntPoint? linkTo, bool pool, double? size = null, int? seed = null, bool sentry = true)
         {
-            var radius = LandRadius + Random.Shared.Next(-3, 7);
-            var painter = new Realm2EventPainter(World.GameServer.Resources.GameData, Random.Shared.Next(), theme, at, radius);
+            var radius = size ?? LandRadius + Random.Shared.Next(-3, 7);
+            var painterSeed = seed ?? Random.Shared.Next();
+            var painter = new Realm2EventPainter(World.GameServer.Resources.GameData, painterSeed, theme, at, radius);
             painter.Paint((x, y) => Layout.AreaAt(x, y) != null, linkTo, pool);
 
             var area = new Realm2Area
             {
                 Index = Layout.Areas.Count, Theme = theme, Kind = theme.Key, Center = at, Radius = radius,
-                Link = linkTo == null ? null : pool ? "pool" : "bridge",
+                Link = linkTo == null ? null : pool ? "pool" : "bridge", LinkTo = linkTo, PainterSeed = painterSeed,
             };
             area.Events.Add((theme.Event, at));
             Layout.Areas.Add(area);
@@ -255,8 +258,9 @@ namespace WorldServer.core.worlds
             _lastAlong = Math.Max(_lastAlong, Layout.Along(at.X, at.Y));
             _lands++;
             Populate(area);
-            if (painter.Shrine is IntPoint shrine)
+            if (painter.Shrine is IntPoint shrine && sentry)
                 WakeSentry(shrine, area);
+            _snapshotDirty = true;
             return area;
         }
 
@@ -265,6 +269,7 @@ namespace WorldServer.core.worlds
             if (DisableSpawning)
                 return;
             _spawned++;
+            _snapshotDirty = true;
             switch (name)
             {
                 case "Pentaract":
@@ -506,7 +511,13 @@ namespace WorldServer.core.worlds
             if (Realm2Canvas.Dist(Layout.Start, at.X, at.Y) < BeaconApart
                 || Beacons().Any(b => Realm2Canvas.Dist(at, b.X, b.Y) < BeaconApart))
                 return;
+            if (PlaceBeacon(at, area, true))
+                _sinceBeacon = 0;
+        }
 
+        // also where a snapshot had one (Restore), without the news
+        private bool PlaceBeacon(IntPoint at, Realm2Area area, bool announce)
+        {
             var data = World.GameServer.Resources.GameData;
             var half = BeaconRadius + 2;
             var c = new Realm2Canvas(data, Random.Shared.Next(), at.X - half, at.Y - half, half * 2 + 1, half * 2 + 1, null);
@@ -520,11 +531,13 @@ namespace WorldServer.core.worlds
 
             var beacon = Place("R2 Waystone Beacon", at.X + 0.5f, at.Y + 0.5f);
             if (beacon == null)
-                return;
-            _sinceBeacon = 0;
+                return false;
             beacon.Name = $"Waystone of {(area?.Name ?? "the Godlands")}";
             _beacons.Add(beacon);
-            RealmBroadcast($"A waystone now shines in {area?.Name ?? "the Godlands"}! Anyone entering the realm arrives there, and you can teleport to it from the events list.");
+            _snapshotDirty = true;
+            if (announce)
+                RealmBroadcast($"A waystone now shines in {area?.Name ?? "the Godlands"}! Anyone entering the realm arrives there, and you can teleport to it from the events list.");
+            return true;
         }
 
         private bool NearBeacon(int x, int y, double r) => Beacons().Any(b => b.DistTo(x + 0.5f, y + 0.5f) < r);

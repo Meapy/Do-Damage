@@ -82,6 +82,11 @@ dotnet build source\WorldServer\WorldServer.csproj -c Debug -o build\wscheck   #
   them; on Windows it then starts itself again by full path, the way it was started
   (`dotnet WorldServer.dll` on an isolated stack, which `iso_stack.py status` and `stop` find).
   On Linux, systemd starts it again.
+- **Realms carry over:** each realm the Nexus opens keeps a snapshot in the Redis hash `realms`
+  (`core/worlds/RealmSnapshots.cs`, `RealmManager.Snapshot.cs`), and a new server opens the same
+  realms from it; `/uptime` reads `worlds:upSince`, which a hand-over keeps (`core/GameUptime.cs`).
+  SETUP-LOCAL.md, "Realm state across restarts". New realm state worth keeping goes in the
+  snapshot, and anything it can't redo leaves the realm as it was rather than failing.
 - **Failed starts:** `start_backend` records a new server as `starting` in the state before it
   waits, and stops it (SIGTERM, or Ctrl+Break on Windows) if it doesn't listen in time or the
   tool is interrupted; a deploy stops a `starting` server a dead tool left. Never leave a world

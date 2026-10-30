@@ -44,6 +44,7 @@ namespace WorldServer.core
         public SignalListener SignalListener { get; private set; }
         private bool Running { get; set; } = true;
         public DateTime RestartCloseTime { get; private set; }
+        public GameUptime Uptime { get; private set; }
 
         public GameServer(string[] appArgs)
         {
@@ -127,6 +128,7 @@ namespace WorldServer.core
             MarketSweeper.Start();
             ConnectionListener.Start();
             InterServerManager.JoinNetwork();
+            Uptime = new GameUptime(Database.Conn, !Configuration.serverInfo.adminOnly);
 
             var timeout = TimeSpan.FromHours(Configuration.serverSettings.restartTime);
 
@@ -178,6 +180,7 @@ namespace WorldServer.core
                 var current = watch.ElapsedMilliseconds;
 
                 ConnectionManager.Tick(current);
+                Uptime.Beat();
 
                 var logicTime = (int)(watch.ElapsedMilliseconds - current);
                 var sleepTime = Math.Max(0, 200 - logicTime);
@@ -189,6 +192,9 @@ namespace WorldServer.core
                 Log.Info("A server restart has been triggered.");
             else
                 Log.Info("A server shutdown has been triggered.");
+            // no new server took over: the game is down until one starts
+            if (!Draining)
+                Uptime.Stopped();
             Dispose();
 
             // on Linux the service manager (systemd) starts it again

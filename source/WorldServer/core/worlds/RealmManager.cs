@@ -533,6 +533,7 @@ namespace WorldServer.core.worlds
                             SendEventLists();
                             if (Layout != null)
                                 SweepAbyss();
+                            SnapshotTick();
                             _lastEventList = time.TotalElapsedMs;
                         }
 
@@ -676,7 +677,7 @@ namespace WorldServer.core.worlds
 
             // before the first event, these come from the realm's own set pieces (the Shatters'
             // Defense System in the mountains): scaled, but they don't hold up the events
-            var part = new EventPart { Enemy = enemy, Event = kind.Event, Counted = kind.Counted, Static = _spawned == 0, Since = _now, Scaled = kind.Scaled && enemy.MaxHealth > 0 };
+            var part = new EventPart { Enemy = enemy, Event = kind.Event, Counted = kind.Counted, Static = _spawned == 0 || _setPieces.Contains(enemy), Since = _now, Scaled = kind.Scaled && enemy.MaxHealth > 0 };
             if (part.Scaled)
             {
                 part.BaseHealth = enemy.MaxHealth;
@@ -783,6 +784,7 @@ namespace WorldServer.core.worlds
             _lastEventChange = _now;
 
             _EventCount++;
+            _snapshotDirty = true;
             var needed = EventsNeeded;
             RealmBroadcast($"{eventDead} has been defeated! [{_EventCount}/{needed}]");
             if (needed - _EventCount > 0)
@@ -1165,10 +1167,11 @@ namespace WorldServer.core.worlds
             });
         }
 
-        private void SpawnEvent(string name, ISetPiece setpiece, int x = 0, int y = 0)
+        private void SpawnEvent(string name, ISetPiece setpiece, int x = 0, int y = 0, bool announce = true)
         {
             if (DisableSpawning)
                 return;
+            _snapshotDirty = true;
 
             bool Unfit(IntPoint p) => World.Map[p.X, p.Y].Terrain < TerrainType.Mountains || World.Map[p.X, p.Y].Terrain > TerrainType.MidForest || !World.IsPassable(p.X, p.Y, true) || World.AnyPlayerNearby(p.X, p.Y);
 
@@ -1196,9 +1199,8 @@ namespace WorldServer.core.worlds
             pt.Y -= (sp.Size - 1) / 2;
             sp.RenderSetPiece(World, pt);
 
-            var taunt = $"{name} has been spawned!";
-
-            RealmBroadcast(taunt);
+            if (announce)
+                RealmBroadcast($"{name} has been spawned!");
         }
 
         private struct TauntData

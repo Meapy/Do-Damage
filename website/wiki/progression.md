@@ -113,7 +113,8 @@ Shatters, only comes as an event to a realm that has had 5 or more players, but 
 waiting from the start in its arena in the mountains, ringed by four Killer Pillars.
 
 Each event killed counts towards closing the realm, which takes {{v:realm_close}}; the chat shows
-the count (for example "[3/8]"). Then Oryx closes
+the count (for example "[3/8]"). The count, the realm's name and the events up carry on through
+server updates and restarts. Then Oryx closes
 the realm, and a little later everyone still inside is sent to **Oryx's Castle**, the start of the
 [Oryx chain](endgame.html).
 

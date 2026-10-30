@@ -10,7 +10,9 @@ Realm 2 is a second kind of realm. The Nexus always has one open: its portal sta
 realms' portals, beside Realm 1's, named **Realm 2: Zenith** or the like, with how many are in it.
 `/realm2` takes you into it from anywhere. It stays open while it's empty, so you can come back to it, and when it closes its portal goes and
 another opens. A **Realm 2 Key** opens one of your own as well. Every Realm 2
-is built new when it opens, so no two are the same.
+is built new when it opens, so no two are the same. The Nexus's Realm 2 carries on through server
+updates and restarts, with its map, its lands, its waystones and the events beaten so far (one
+opened with a key doesn't).
 
 ## How it's laid out
 
