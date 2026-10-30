@@ -310,7 +310,8 @@ namespace WorldServer.core.objects
             player.Health = newHp;
         }
 
-        public static void ActivateHealHp(Player player, int amount, bool broadcastSelf = false)
+        // from: the player whose ability heals, for assist credit (Player.HealedBy)
+        public static void ActivateHealHp(Player player, int amount, bool broadcastSelf = false, Player from = null)
         {
             if (amount <= 0)
                 return;
@@ -319,6 +320,7 @@ namespace WorldServer.core.objects
             var newHp = Math.Min(maxHp, player.Health + amount);
             if (newHp == player.Health)
                 return;
+            player.HealedBy(from, newHp - player.Health, maxHp);
 
             var effect = new ShowEffect()
             {
@@ -349,12 +351,13 @@ namespace WorldServer.core.objects
             player.Health = newHp;
         }
 
-        public static void ActivateHealMp(Player player, int amount, bool broadcastSelf = false)
+        public static void ActivateHealMp(Player player, int amount, bool broadcastSelf = false, Player from = null)
         {
             var maxMp = player.Stats[1];
             var newMp = Math.Min(maxMp, player.Mana + amount);
             if (newMp == player.Mana)
                 return;
+            player.HealedBy(from, newMp - player.Mana, maxMp);
 
             var effect = new ShowEffect()
             {
@@ -916,6 +919,7 @@ namespace WorldServer.core.objects
             this.AOE(range, true, player =>
             {
                 player.ApplyConditionEffect(new ConditionEffect(eff.ConditionEffect.Value, duration));
+                (player as Player)?.BuffedBy(this, duration, eff.ConditionEffect.Value);
             });
 
             var color = 0xffffffff;
@@ -1137,6 +1141,11 @@ namespace WorldServer.core.objects
                     if (!entity.HasConditionEffect(ConditionEffectIndex.Stasis) && !entity.HasConditionEffect(ConditionEffectIndex.Invincible))
                     {
                         entity.ApplyConditionEffect(eff.ConditionEffect.Value, duration);
+                        // a buff on another player, a debuff on an enemy: assist credit
+                        if (entity is Player p)
+                            p.BuffedBy(this, duration, eff.ConditionEffect.Value);
+                        else if (entity is Enemy e)
+                            e.DamageCounter?.DebuffedBy(this, duration);
                     }
                 });
 
@@ -1170,7 +1179,7 @@ namespace WorldServer.core.objects
             this.AOE(range, true, player =>
             {
                 if (!player.HasConditionEffect(ConditionEffectIndex.Sick))
-                    ActivateHealHp(player as Player, amount);
+                    ActivateHealHp(player as Player, amount, from: this);
             });
 
             World.BroadcastIfVisible(new ShowEffect()
@@ -1337,7 +1346,10 @@ namespace WorldServer.core.objects
                 (targets[i] as Enemy).Damage(this, ref time, (int)damage, false);
 
                 if (eff.ConditionEffect != null)
+                {
                     targets[i].ApplyConditionEffect(new ConditionEffect(eff.ConditionEffect.Value, (int)(eff.EffectDuration * 1000)));
+                    (targets[i] as Enemy)?.DamageCounter?.DebuffedBy(this, (int)(eff.EffectDuration * 1000));
+                }
 
                 World.BroadcastIfVisible(new ShowEffect()
                 {
@@ -1362,7 +1374,7 @@ namespace WorldServer.core.objects
         private void AEMagicNova(Item item, Position target, ActivateEffect eff)
         {
             this.AOE(eff.Range, true, player =>
-                ActivateHealMp(player as Player, eff.Amount));
+                ActivateHealMp(player as Player, eff.Amount, from: this));
 
             World.BroadcastIfVisible(new ShowEffect()
             {
@@ -1437,7 +1449,10 @@ namespace WorldServer.core.objects
                         PoisonEnemy(world, (Enemy)entity, eff, eff.UseWisMod);
                     // and its condEffect, for condDuration (the Infernal Brimstone Poison's Curse)
                     if (eff.ConditionEffect is { } cond && eff.EffectDuration > 0)
+                    {
                         entity.ApplyConditionEffect(cond, (int)(eff.EffectDuration * 1000));
+                        ((Enemy)entity).DamageCounter?.DebuffedBy(this, (int)(eff.EffectDuration * 1000));
+                    }
                 });
             });
         }
@@ -1522,6 +1537,7 @@ namespace WorldServer.core.objects
 
                 ((Player)player).Stats.Boost.ActivateBoost[idx].Push(amount, stack);
                 ((Player)player).Stats.ReCalculateValues();
+                ((Player)player).BuffedBy(this, duration);
 
                 World.StartNewTimer(duration, (world, t) =>
                 {
@@ -1631,7 +1647,7 @@ namespace WorldServer.core.objects
                 if (!player.HasConditionEffect(ConditionEffectIndex.Sick))
                 {
                     players.Add(player as Player);
-                    ActivateHealHp(player as Player, totalDmg);
+                    ActivateHealHp(player as Player, totalDmg, from: this);
                 }
             });
 

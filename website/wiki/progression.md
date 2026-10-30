@@ -125,6 +125,20 @@ rarest, which is announced to everyone. Bags of good loot are soulbound: they're
 you need to have done enough of the damage to get one. Doing more of the damage also raises your
 chance at every drop.
 
+**Healers and buffers get loot too.** Healing players with your ability while they fight, or
+buffing them (Berserk, Damaging, a tome's or seal's Healing, a seal's boost and so on), gives you
+**assist credit** on whatever they hit: half of each hit they land while your buff lasts, or for up
+to 5 seconds after a heal. Debuffing a monster yourself (Curse, Slow, Paralyze and the like) gives
+you a quarter of the hits other players land on it while the debuff lasts. Assist credit counts
+like damage for drops and soulbound bags, on top of any damage you do yourself, but:
+
+- it counts for at most a fifth of the monster's damage, and never takes you past its top damage
+  dealer;
+- healing someone at full health, or yourself, gives nothing, and a small heal gives less than a
+  big one (healing a tenth of their health or more gives the full 5 seconds);
+- it only comes while you're actually helping: standing near a group gives nothing;
+- the damage dealers' own shares and loot don't change.
+
 - On weekends every drop is 30% more likely.
 - A **Loot Drop Potion** (Nexus Bazaar) raises your drop chances for a while.
 

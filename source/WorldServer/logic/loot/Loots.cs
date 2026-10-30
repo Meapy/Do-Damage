@@ -256,7 +256,8 @@ namespace WorldServer.logic.loot
             if(pubDrops.Count > 0)
                 ProcessPublic(pubDrops, enemy);
 
-            var playersAvaliable = enemy.DamageCounter.GetPlayerData();
+            // the hitters and the players who helped them (assist credit), each for their part
+            var playersAvaliable = enemy.DamageCounter.GetLootCredit();
             if (playersAvaliable == null)
                 return;
 
@@ -277,6 +278,7 @@ namespace WorldServer.logic.loot
             var potionAmount = ServerEvents.PotionAmount(events, DateTime.UtcNow);
 
             var privDrops = new Dictionary<Player, IList<Item>>();
+            var shares = new Dictionary<Player, double>();
             foreach (var tupPlayer in playersAvaliable)
             {
                 var player = tupPlayer.Item1;
@@ -341,13 +343,14 @@ namespace WorldServer.logic.loot
                 }
 
                 privDrops[player] = share < 1 ? KeepShare(drops, share) : drops;
+                shares[player] = dmgBoost;
             }
 
             foreach (var priv in privDrops)
             {
                 if (priv.Value.Count > 0)
                 {
-                    ProcessSoulbound(enemy, priv.Value, enemy.GameServer, priv.Key);
+                    ProcessSoulbound(enemy, priv.Value, enemy.GameServer, shares[priv.Key], priv.Key);
                 }
             }
         }
@@ -399,12 +402,11 @@ namespace WorldServer.logic.loot
             return bag;
         }
 
-        private static void ProcessSoulbound(Enemy enemy, IEnumerable<Item> loots, GameServer gameServer, params Player[] owners)
+        private static void ProcessSoulbound(Enemy enemy, IEnumerable<Item> loots, GameServer gameServer, double share, params Player[] owners)
         {
             var player = owners[0] ?? null;
             var idx = 0;
 
-            var hitters = enemy.DamageCounter.GetHitters();
             var boosted = owners.Length == 1 && player.LDBoostTime > 0;
             var bag = GetBagType(loots, boosted);
 
@@ -422,7 +424,7 @@ namespace WorldServer.logic.loot
                     if (player != null && i.BagType == 6) // white bag
                     {
                         var msg = new StringBuilder($" {player.Client.Account.Name} has obtained:");
-                        msg.Append($" [{i.DisplayId ?? i.ObjectId}], by doing {Math.Round(100.0 * (hitters[player] / (double)enemy.DamageCounter.TotalDamage), 0)}% damage!");
+                        msg.Append($" [{i.DisplayId ?? i.ObjectId}], by doing {Math.Round(100.0 * share, 0)}% damage{(enemy.DamageCounter.AssistedBy(player) ? " and assists" : "")}!");
                         gameServer.ChatManager.AnnounceLoot(msg.ToString());
                         player.Quests?.Event(new Shared.quests.QuestEvent(Shared.quests.QuestEvents.WhiteBag) { Name = i.ObjectId });
                     }

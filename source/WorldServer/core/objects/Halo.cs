@@ -15,6 +15,7 @@ namespace WorldServer.core.objects
 
         private readonly float radius;
         private readonly int amount;
+        private readonly Player owner;
         private int ring;
         private int heal;
         private int t;
@@ -24,6 +25,7 @@ namespace WorldServer.core.objects
         {
             this.radius = radius;
             this.amount = amount;
+            owner = player;
         }
 
         public override void Tick(ref TickTime time)
@@ -45,7 +47,7 @@ namespace WorldServer.core.objects
                 this.AOE(radius, true, entity =>
                 {
                     if (entity is Player player)
-                        Player.ActivateHealHp(player, amount);
+                        Player.ActivateHealHp(player, amount, from: owner);
                 });
                 World.BroadcastIfVisible(new ShowEffect()
                 {

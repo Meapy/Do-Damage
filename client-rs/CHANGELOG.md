@@ -12,6 +12,15 @@ Keep each version short: changes go under `### ` group headings (Oryx 5, Arena, 
 on), one line per change players notice, summed up rather than item by item (the wiki has the
 details). Add to a group's line when a change adds to it, rather than adding another line.
 
+## Unreleased
+
+### Loot
+- Healing and buffing now earn you loot. Heal players who are fighting a monster (when they've
+  lost health), or buff them with Berserk, Damaging, a seal and the like, and you share
+  in the loot from what they hit, soulbound bags included, even if you never shoot it yourself.
+  Debuffing a monster counts too. Help counts for up to a fifth of a monster's damage, never more
+  than its top damage dealer, and damage dealers get exactly the loot they did before.
+
 ## 2.3.4 (2026-10-30)
 
 ### Events

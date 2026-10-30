@@ -98,7 +98,11 @@ namespace WorldServer.core.objects
                 case 2: effect = ConditionEffectIndex.Berserk; color = 0xffffd800; break;
                 default: effect = ConditionEffectIndex.Healing; color = 0xff00ffff; break;
             }
-            this.AOE(eff.Range, true, player => player.ApplyConditionEffect(effect, eff.DurationMS));
+            this.AOE(eff.Range, true, player =>
+            {
+                player.ApplyConditionEffect(effect, eff.DurationMS);
+                (player as Player)?.BuffedBy(this, eff.DurationMS, effect);
+            });
             World.BroadcastIfVisible(new ShowEffect()
             {
                 EffectType = EffectType.AreaBlast,

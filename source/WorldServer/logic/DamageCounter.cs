@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using Shared;
 using Shared.resources;
 using Shared.quests;
@@ -13,6 +14,11 @@ namespace WorldServer.logic
     public class DamageCounter
     {
         private WeakDictionary<Player, int> Hitters;
+
+        // assist credit (AssistCredit): what healers, buffers and debuffers earned on this enemy,
+        // and who has debuffed it
+        private WeakDictionary<Player, double> Assists;
+        private AssistCover Debuffers;
 
         public Enemy Host;
 
@@ -134,6 +140,59 @@ namespace WorldServer.logic
             return dat.ToArray();
         }
 
+        public WeakDictionary<Player, double> GetAssists()
+        {
+            if (Assists == null)
+                Assists = new WeakDictionary<Player, double>();
+            return Assists;
+        }
+
+        // Who the loot goes to, and for how much (Loots.Handle, as a share of TotalDamage): the
+        // hitters for their damage and assist credit (AssistCredit.Credit), and the helpers who
+        // never hit it for their assist credit alone.
+        public Tuple<Player, int>[] GetLootCredit()
+        {
+            if (Parent != null)
+                return Parent.GetLootCredit();
+            var hitters = GetPlayerData();
+            if (Assists == null || Assists.Count == 0)
+                return hitters;
+
+            var top = hitters.Length == 0 ? 0 : hitters.Max(h => h.Item2);
+            var credit = new Dictionary<Player, int>();
+            foreach (var h in hitters)
+                credit[h.Item1] = h.Item2;
+            foreach (var a in Assists)
+            {
+                var player = a.Key;
+                if (player == null || player.World == null || player.World.GetEntity(player.Id) == null)
+                    continue;
+                credit.TryGetValue(player, out var dmg);
+                credit[player] = AssistCredit.Credit(dmg, a.Value, TotalDamage, top);
+            }
+            return credit.Select(c => Tuple.Create(c.Key, c.Value)).ToArray();
+        }
+
+        public bool AssistedBy(Player player) =>
+            (Parent ?? this).Assists?.TryGetValue(player, out var credit) == true && credit > 0;
+
+        // a player's debuff on this enemy, for durationMs: they earn assist credit on others' hits
+        public void DebuffedBy(Player player, int durationMs)
+        {
+            if (player == null)
+                return;
+            (Debuffers ??= new AssistCover()).Cover(player, AssistCredit.EffectWindow(durationMs));
+        }
+
+        private void Assist(Player helper, double credit)
+        {
+            if (helper.World != Host.World)
+                return;
+            var assists = GetAssists();
+            assists.TryGetValue(helper, out var had);
+            assists[helper] = had + credit;
+        }
+
         public void HitBy(Player player, int dmg)
         {
             // every hit on an enemy comes here, a shot's and an ability's
@@ -148,6 +207,17 @@ namespace WorldServer.logic
             hitters[player] = totalDmg + trueDmg;
 
             LastHitter = player;
+
+            // the hitter's healers and buffers, and this enemy's debuffers, share in the hit
+            if (trueDmg > 0)
+            {
+                player.Helpers.ForEach(helper => Assist(helper, trueDmg * AssistCredit.HelpRate));
+                Debuffers?.ForEach(debuffer =>
+                {
+                    if (debuffer != player)
+                        Assist(debuffer, trueDmg * AssistCredit.DebuffRate);
+                });
+            }
 
             player.FameCounter.Hit();
         }
@@ -167,6 +237,17 @@ namespace WorldServer.logic
                 if (!dch.TryGetValue(plr, out int totalExistingDmg))
                     totalExistingDmg = 0;
                 dch[plr] = totalDmg + totalExistingDmg;
+            }
+
+            if (Assists == null)
+                return;
+            var dca = dc.GetAssists();
+            foreach (var a in Assists)
+            {
+                if (a.Key == null)
+                    continue;
+                dca.TryGetValue(a.Key, out var had);
+                dca[a.Key] = had + a.Value;
             }
         }
     }

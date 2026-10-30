@@ -19,6 +19,9 @@ which loot boosts you have, then roll.
   boosts: the Loot Drop Potion, the weekend boost, any loot event and 1% for being in the Legends
   (a character in the top 20 of the week, the month or all time). A 20% share makes every chance
   1.2 times as high. A chance never goes over 100%.
+- **Assist credit** (healing and buffing the players fighting, or debuffing the boss: see
+  [Progression](progression.html#loot)) counts as damage share, up to 20%. A healer who never
+  shoots but kept a group going can set the share to 20% here.
 - **Thresholds:** a row only rolls for you once your share of the damage is over its threshold:
   1% for the sure drops, 3% for the potions and rare items, 5% for the gear.
 - **Tier rows** (a T14 weapon, a T6 ability) give one item of that tier and kind when they hit,
