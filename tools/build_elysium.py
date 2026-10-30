@@ -384,6 +384,11 @@ ISLAND_GROUNDS = {
                      5, "0xF0DCAA", {}),
     "Elysian Gilded Sand": (lambda: [paint_sand((242, 200, 104), (255, 226, 144), (214, 166, 72), s) for s in range(16, 19)],
                             6, "0xF2C868", {}),
+    # the lava his Last Judgement floods the temple with from its rim inwards (LavaRing in
+    # BehaviorDb.Elysium.cs): molten, rolling and glistening as his sea does, white-hot on its crests
+    "Elysian Lava": (lambda: [paint_water((150, 26, 10), (238, 96, 20), (255, 236, 170), s) for s in range(19, 22)],
+                     7, "0xE04A12", {"Sink": None, "Speed": "0.6", "MinDamage": "110", "MaxDamage": "110",
+                                    "Animate": ("Wave", "0.35")}),
 }
 
 

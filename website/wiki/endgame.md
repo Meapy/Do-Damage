@@ -23,12 +23,11 @@ player, depending on the stage).
 1. **A realm closes** once enough of its events are beaten: {{v:realm_close}}. Oryx shouts, the realm's
    monsters vanish, and about 30 seconds later everyone still in the realm is sent to a new
    **Oryx's Castle**. You can also open the Castle with an Oryx's Castle Key.
-2. **In the Castle**, kill both Stone Guardians and at least a quarter of the castle's haunted
-   **Suits of Armor**. Then the way opens to **Janus the Doorwarden**, who drops the open portal to
-   **Oryx's Chamber**.
-3. From then on, **each Oryx leaves two portals** when he dies, two tiles either side of his loot:
-   a **Realm Portal** back out (open for two minutes) and a portal to the next stage (open for
-   ten). **Oryx 1 and Oryx 2 leave theirs open**: the Wine Cellar and Oryx's Sanctuary need no
+2. **In the Castle**, everyone starts on one of its two lanes. Kill both Stone Guardians and the
+   way opens to **Janus the Doorwarden**, who drops the open portal to **Oryx's Chamber**.
+3. From then on, **each Oryx leaves the portal to the next stage** when he dies (open for ten
+   minutes), and no Realm Portal: the chain leads on, not out, so leave by the Nexus when you're
+   done. **Oryx 1 and Oryx 2 leave theirs open**: the Wine Cellar and Oryx's Sanctuary need no
    incantation, so everyone who gets that far can go on. Oryx 3 and Oryx 4 leave a **locked
    portal**, whose name says where it leads; each looks like the gateway it opens into, still and
    dark: the Inferno's a horned maw of charred rock round a vortex of fire, the Elysium's a marble
@@ -69,8 +68,8 @@ event, and isn't sold or dropped then; if you have one, keep it for the next.
 ## Tips for each boss
 
 - **Stone Guardians and Janus:** the Guardians fire rings; keep moving around them, not through
-  them. Janus's door stays shut until a quarter of the Suits of Armor are broken too (Janus says so
-  if you kill the Guardians first): clear them on your way.
+  them. Janus's door opens as soon as both are dead. The haunted Suits of Armor on the way guard
+  and heal themselves once, at a fifth of their health, then fight on to the end.
 - **Oryx 1** (Chamber) cycles minions, an invulnerable dance with rings and a spiral, his artifacts
   and his gaze. Below 20% he grows and chases you.
 - **Oryx 2** (Wine Cellar) calls his guards at 55% health, with silencing and weakening spinners,
@@ -138,8 +137,10 @@ event, and isn't sold or dropped then; if you have one, keep it for the next.
     from every side, so no corner is safe, while he throws his great spear and fires his Radiant Cross again, slowed right
     down so it fills the arena, every second volley turned to fall between the last one's lines.
     After 30 seconds he concedes: the corridor opens and he falls back through every Oryx he was, from
-    Oryx 4 down to Oryx 1, ending as small as Oryx 1, and only then can he be killed. He leaves a
-    Nexus Portal: the chain ends here.
+    Oryx 4 down to Oryx 1, ending as small as Oryx 1, and only then can he be killed. All the while
+    his temple floods with **lava**, from its white marble rim inwards, a step every 5 seconds, until
+    it has come 7 tiles in: keep to the middle. He leaves no portal: the chain ends here, and the way
+    out is home to the Nexus.
   - Minions he summons can't be hurt and hold their fire for their first two seconds, and the
     Firmament's stars vanish as soon as it ends.
   - Below 90%, every second time he changes pattern he throws two splats of **Divine Ichor**. Each

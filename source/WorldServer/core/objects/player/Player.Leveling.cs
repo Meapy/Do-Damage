@@ -76,6 +76,8 @@ namespace WorldServer.core.objects
 
         public bool EnemyKilled(Enemy enemy, int exp, bool killer)
         {
+            // counted before the quest is let go, which left the records' Quests at 0
+            FameCounter.Killed(enemy, killer);
             if (enemy == Quest)
             {
                 World.BroadcastIfVisible(new Notification()
@@ -92,7 +94,6 @@ namespace WorldServer.core.objects
                 Experience += exp;
             }
 
-            FameCounter.Killed(enemy, killer);
             return CheckLevelUp();
         }
 
@@ -229,8 +230,8 @@ namespace WorldServer.core.objects
                         var max = statInfo[i].MaxIncrease + 1;
 
                         Stats.Base[i] += Random.Shared.Next(min, max);
-                        if (Stats.Base[i] > statInfo[i].MaxValue)
-                            Stats.Base[i] = statInfo[i].MaxValue;
+                        if (Stats.Base[i] > StatCap(i))
+                            Stats.Base[i] = StatCap(i);
                     }
                 }
 

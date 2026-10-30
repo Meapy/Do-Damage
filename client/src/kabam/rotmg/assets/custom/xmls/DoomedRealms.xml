@@ -633,7 +633,8 @@
 		<BagType>4</BagType>
 		<FameBonus>5</FameBonus>
 		<MpCost>90</MpCost>
-		<Activate duration="9">StasisBlast</Activate>
+		<Cooldown>2</Cooldown>
+		<Activate amount="8" duration="12" radius="3">ArmorShred</Activate>
 	</Object>
 	<Object type="0xD029" id="Seal of Mass Power">
 		<Class>Equipment</Class>
@@ -897,7 +898,8 @@
 		<BagType>4</BagType>
 		<FameBonus>6</FameBonus>
 		<MpCost>95</MpCost>
-		<Activate totalDamage="300" duration="9">StasisBlast</Activate>
+		<Cooldown>2</Cooldown>
+		<Activate amount="8" duration="12" radius="3">ArmorShred</Activate>
 	</Object>
 	<Object type="0xD035" id="Bile Poison">
 		<Class>Equipment</Class>
@@ -1044,7 +1046,8 @@
 		<BagType>5</BagType>
 		<FameBonus>6</FameBonus>
 		<MpCost>125</MpCost>
-		<Activate totalDamage="300" duration="1.5">StasisBlast</Activate>
+		<Cooldown>2</Cooldown>
+		<Activate amount="2" duration="5" radius="3">ArmorShred</Activate>
 		<Activate radius="3" totalDamage="500" condEffect="Dazed" condDuration="5" duration="1">PoisonGrenade</Activate>
 	</Object>
 	<Object type="0xD03D" id="Crossbow of Earthen Power">
@@ -4161,10 +4164,10 @@
 		<BagType>4</BagType>
 		<FameBonus>6</FameBonus>
 		<MpCost>110</MpCost>
-		<Activate duration="4.5">StasisBlast</Activate>
+		<Activate amount="4" duration="8" radius="3">ArmorShred</Activate>
 		<Activate effect="Armored" duration="3">ConditionEffectSelf</Activate>
 		<Activate effect="Berserk" duration="3">ConditionEffectSelf</Activate>
-		<Cooldown>5</Cooldown>
+		<Cooldown>2</Cooldown>
 	</Object>
 	<Object type="0xD0F9" id="Sword of Dark Enchantment">
 		<Class>Equipment</Class>

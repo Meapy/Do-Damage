@@ -169,13 +169,16 @@ messages! {
         // seconds while they change.
         94 => FameStats { stats: List8<FameStat> },
         92 => QuestDamageFull { object_id: i32, object_type: u16, max_hp: i32, dead: bool, hitters: List8<DamageHit>, mine: i32 },
-        // The Divine Forge's recipes and what it pays for items (ForgeDataRequest).
-        96 => ForgeData { recipes: List16<ForgeRecipe>, prices: List16<ForgePrice> },
+        // The Divine Forge's recipes and what it pays for items (ForgeDataRequest), then the
+        // recipes that also take stat potions from the potion storage (the Infernal potions; an
+        // older server sends none).
+        96 => ForgeData { recipes: List16<ForgeRecipe>, prices: List16<ForgePrice>, storage_costs: Option<List16<ForgeStorageCost>> },
         // The answer to Forge or ForgeSell: the item forged (0 for a sale), the fame paid or
         // gained, and what went wrong.
         99 => ForgeResult { sold: bool, success: bool, item: u16, fame: i32, message: String },
-        // The forge storage's shards (after ForgeDataRequest, and whenever they change).
-        100 => ForgeShards { shards: List16<ForgeShard> },
+        // The forge storage's shards (after ForgeDataRequest, and whenever they change), then the
+        // potion storage's stat potions (an older server sends none).
+        100 => ForgeShards { shards: List16<ForgeShard>, potions: Option<List16<ForgeShard>> },
         // What the account's vault holds that the forge can take, by item type (after
         // ForgeDataRequest and each forging).
         102 => ForgeVault { items: List16<ForgeShard> },

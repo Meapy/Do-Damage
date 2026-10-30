@@ -311,10 +311,10 @@ namespace WorldServer.logic
                 new Threshold(0.001,
                     new ItemLoot("Potion of Vitality", 1),
                     new ItemLoot("Potion of Wisdom", 1),
-                    new ItemLoot("Resurrected Warrior's Armor", 0.002),
+                    new ItemLoot("Resurrected Warrior's Armor", 0.008),
                     new ItemLoot("Plague Poison", 0.05),
                     new ItemLoot("Amulet of Resurrection", 0.002),
-                    new ItemLoot("Soul's Guidance", 0.002),
+                    new ItemLoot("Soul's Guidance", 0.008),
                     new ItemLoot("Cemetery Key", 0.008)
                     )
             )

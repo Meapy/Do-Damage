@@ -444,7 +444,7 @@
 		<Class>Projectile</Class>
 		<Texture>
 			<File>elysium8x8</File>
-			<Index>0x4b</Index>
+			<Index>0x4e</Index>
 		</Texture>
 		<AngleCorrection>1</AngleCorrection>
 	</Object>
@@ -452,7 +452,7 @@
 		<Class>Projectile</Class>
 		<Texture>
 			<File>elysium8x8</File>
-			<Index>0x4c</Index>
+			<Index>0x4f</Index>
 		</Texture>
 		<AngleCorrection>1</AngleCorrection>
 	</Object>
@@ -460,14 +460,14 @@
 		<Class>Projectile</Class>
 		<Texture>
 			<File>elysium8x8</File>
-			<Index>0x4d</Index>
+			<Index>0x50</Index>
 		</Texture>
 	</Object>
 	<Object type="0x5412" id="Gilded Stake">
 		<Class>Projectile</Class>
 		<Texture>
 			<File>elysium8x8</File>
-			<Index>0x4e</Index>
+			<Index>0x51</Index>
 		</Texture>
 		<AngleCorrection>1</AngleCorrection>
 	</Object>
@@ -483,7 +483,7 @@
 		<Class>Projectile</Class>
 		<Texture>
 			<File>elysium8x8</File>
-			<Index>0x4f</Index>
+			<Index>0x52</Index>
 		</Texture>
 		<AngleCorrection>1</AngleCorrection>
 	</Object>
@@ -491,7 +491,7 @@
 		<Class>Projectile</Class>
 		<Texture>
 			<File>elysium8x8</File>
-			<Index>0x50</Index>
+			<Index>0x53</Index>
 		</Texture>
 		<AngleCorrection>1</AngleCorrection>
 	</Object>
@@ -500,7 +500,7 @@
 		<Rotation>135</Rotation>
 		<Texture>
 			<File>elysium8x8</File>
-			<Index>0x51</Index>
+			<Index>0x54</Index>
 		</Texture>
 	</Object>
 	<Object type="0x5417" id="Divine Spike">
@@ -514,7 +514,7 @@
 		<Class>Projectile</Class>
 		<Texture>
 			<File>elysium8x8</File>
-			<Index>0x52</Index>
+			<Index>0x55</Index>
 		</Texture>
 	</Object>
 	<Object type="0x5419" id="Celestial Bolt">
@@ -529,7 +529,7 @@
 		<Class>Projectile</Class>
 		<Texture>
 			<File>elysium8x8</File>
-			<Index>0x53</Index>
+			<Index>0x56</Index>
 		</Texture>
 		<AngleCorrection>1</AngleCorrection>
 	</Object>
@@ -537,7 +537,7 @@
 		<Class>Projectile</Class>
 		<Texture>
 			<File>elysium8x8</File>
-			<Index>0x54</Index>
+			<Index>0x57</Index>
 		</Texture>
 		<AngleCorrection>1</AngleCorrection>
 	</Object>
@@ -545,7 +545,7 @@
 		<Class>Projectile</Class>
 		<Texture>
 			<File>elysium8x8</File>
-			<Index>0x55</Index>
+			<Index>0x58</Index>
 		</Texture>
 		<Rotation>100</Rotation>
 	</Object>
@@ -553,7 +553,7 @@
 		<Class>Projectile</Class>
 		<Texture>
 			<File>elysium8x8</File>
-			<Index>0x56</Index>
+			<Index>0x59</Index>
 		</Texture>
 		<Rotation>100</Rotation>
 	</Object>
@@ -561,7 +561,7 @@
 		<Class>Projectile</Class>
 		<Texture>
 			<File>elysium8x8</File>
-			<Index>0x57</Index>
+			<Index>0x5a</Index>
 		</Texture>
 		<Rotation>100</Rotation>
 	</Object>
@@ -569,7 +569,7 @@
 		<Class>Projectile</Class>
 		<Texture>
 			<File>elysium8x8</File>
-			<Index>0x58</Index>
+			<Index>0x5b</Index>
 		</Texture>
 		<Rotation>100</Rotation>
 	</Object>
@@ -577,7 +577,7 @@
 		<Class>Projectile</Class>
 		<Texture>
 			<File>elysium8x8</File>
-			<Index>0x59</Index>
+			<Index>0x5c</Index>
 		</Texture>
 		<AngleCorrection>1</AngleCorrection>
 	</Object>
@@ -585,7 +585,7 @@
 		<Class>Projectile</Class>
 		<Texture>
 			<File>elysium8x8</File>
-			<Index>0x5a</Index>
+			<Index>0x5d</Index>
 		</Texture>
 		<AngleCorrection>1</AngleCorrection>
 	</Object>
@@ -593,7 +593,7 @@
 		<Class>Projectile</Class>
 		<Texture>
 			<File>elysium8x8</File>
-			<Index>0x5b</Index>
+			<Index>0x5e</Index>
 		</Texture>
 		<AngleCorrection>1</AngleCorrection>
 	</Object>
@@ -615,52 +615,22 @@
 		<Size>0</Size>
 		<Texture>
 			<File>elysium8x8</File>
-			<Index>0x5c</Index>
+			<Index>0x5f</Index>
 		</Texture>
 	</Object>
 	<Object type="0x541F" id="O5C Torch Wall Flame">
 		<Class>GameObject</Class>
 		<Texture>
 			<File>elysium8x8</File>
-			<Index>0x5d</Index>
+			<Index>0x60</Index>
 		</Texture>
 		<Animation sync="true" prob="1" period="0.6">
-			<Frame time="0.15">
-				<Texture>
-					<File>elysium8x8</File>
-					<Index>0x5d</Index>
-				</Texture>
-			</Frame>
-			<Frame time="0.15">
-				<Texture>
-					<File>elysium8x8</File>
-					<Index>0x5e</Index>
-				</Texture>
-			</Frame>
-			<Frame time="0.15">
-				<Texture>
-					<File>elysium8x8</File>
-					<Index>0x5f</Index>
-				</Texture>
-			</Frame>
 			<Frame time="0.15">
 				<Texture>
 					<File>elysium8x8</File>
 					<Index>0x60</Index>
 				</Texture>
 			</Frame>
-		</Animation>
-		<ShadowSize>0</ShadowSize>
-		<Size>120</Size>
-		<Z>1</Z>
-	</Object>
-	<Object type="0x5420" id="O5C Violet Flame">
-		<Class>GameObject</Class>
-		<Texture>
-			<File>elysium8x8</File>
-			<Index>0x61</Index>
-		</Texture>
-		<Animation sync="true" prob="1" period="0.6">
 			<Frame time="0.15">
 				<Texture>
 					<File>elysium8x8</File>
@@ -679,10 +649,40 @@
 					<Index>0x63</Index>
 				</Texture>
 			</Frame>
+		</Animation>
+		<ShadowSize>0</ShadowSize>
+		<Size>120</Size>
+		<Z>1</Z>
+	</Object>
+	<Object type="0x5420" id="O5C Violet Flame">
+		<Class>GameObject</Class>
+		<Texture>
+			<File>elysium8x8</File>
+			<Index>0x64</Index>
+		</Texture>
+		<Animation sync="true" prob="1" period="0.6">
 			<Frame time="0.15">
 				<Texture>
 					<File>elysium8x8</File>
 					<Index>0x64</Index>
+				</Texture>
+			</Frame>
+			<Frame time="0.15">
+				<Texture>
+					<File>elysium8x8</File>
+					<Index>0x65</Index>
+				</Texture>
+			</Frame>
+			<Frame time="0.15">
+				<Texture>
+					<File>elysium8x8</File>
+					<Index>0x66</Index>
+				</Texture>
+			</Frame>
+			<Frame time="0.15">
+				<Texture>
+					<File>elysium8x8</File>
+					<Index>0x67</Index>
 				</Texture>
 			</Frame>
 		</Animation>
@@ -874,7 +874,7 @@
 		<Enemy />
 		<Texture>
 			<File>elysium8x8</File>
-			<Index>0x65</Index>
+			<Index>0x68</Index>
 		</Texture>
 		<Size>150</Size>
 		<MaxHitPoints>10000</MaxHitPoints>
@@ -895,7 +895,7 @@
 		<Enemy />
 		<Texture>
 			<File>elysium8x8</File>
-			<Index>0x66</Index>
+			<Index>0x69</Index>
 		</Texture>
 		<Size>150</Size>
 		<MaxHitPoints>10000</MaxHitPoints>
@@ -916,7 +916,7 @@
 		<Enemy />
 		<Texture>
 			<File>elysium8x8</File>
-			<Index>0x67</Index>
+			<Index>0x6a</Index>
 		</Texture>
 		<Size>150</Size>
 		<MaxHitPoints>10000</MaxHitPoints>
@@ -936,7 +936,7 @@
 		<Enemy />
 		<Texture>
 			<File>elysium8x8</File>
-			<Index>0x68</Index>
+			<Index>0x6b</Index>
 		</Texture>
 		<Size>150</Size>
 		<MaxHitPoints>10000</MaxHitPoints>
@@ -957,7 +957,7 @@
 		<Enemy />
 		<Texture>
 			<File>elysium8x8</File>
-			<Index>0x69</Index>
+			<Index>0x6c</Index>
 		</Texture>
 		<Size>110</Size>
 		<MaxHitPoints>10000</MaxHitPoints>

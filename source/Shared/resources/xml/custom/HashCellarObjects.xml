@@ -205,6 +205,13 @@
 			<Speed>55</Speed>
 			<LifetimeMS>4000</LifetimeMS>
 		</Projectile>
+		<Projectile id="12">
+			<ObjectId>Blue Shuriken</ObjectId>
+			<Damage>117</Damage>
+			<Speed>70</Speed>
+			<LifetimeMS>4000</LifetimeMS>
+			<Boomerang />
+		</Projectile>
 	</Object>
 	<Object type="0x598B" id="Brimstone Major">
 		<Class>Character</Class>

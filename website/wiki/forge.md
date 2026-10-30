@@ -66,7 +66,11 @@ your whole account shares, wherever you are. The forge's **Shards** tab shows wh
 shard there to take one back out into your inventory, to trade it. When a recipe needs a shard, the
 forge takes it from your storage: you don't need to carry it.
 
-The Infernal shards don't make anything yet: their recipes come in a later update. The old forge
+The Infernal shards make the **Infernal potions**: a shard and 100 of a stat's potions from your
+potion storage (taken from it as you forge; the recipe shows how many it holds) make an Infernal
+potion of that stat. The Weapon shard makes Attack and Dexterity, the Ability shard Mana and
+Wisdom, the Armor shard Defense and Vitality, the Accessory shard Life and Speed. What they do:
+[Progression](progression.html#stat-potions-and-maxing). The old forge
 materials (the Shattered Rune of Oryx, Broken Oryx Armor and Purified Doom Saliva) and the Forge
 Amulet are gone: nothing drops them, and the forge neither takes nor buys them.
 

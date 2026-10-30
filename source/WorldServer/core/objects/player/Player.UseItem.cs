@@ -152,6 +152,13 @@ namespace WorldServer.core.objects
                     Refuse($"Your {PotionNames[stat]} potion storage is full..");
                     return;
                 }
+            // an Infernal potion only for a maxed stat, and up to its five potions' worth past it
+            foreach (var eff in item.ActivateEffects)
+                if (eff.Effect == ActivateEffects.OvercapStat && OvercapRefusal(eff) is string why)
+                {
+                    Refuse(why);
+                    return;
+                }
 
             // no ability while Silenced (the Infernal Brimstone Poison does it to its user)
             if (slot == 1 && entity == this && HasConditionEffect(ConditionEffectIndex.Silenced))
@@ -249,7 +256,8 @@ namespace WorldServer.core.objects
                     }
                     else
                     {
-                        if (item.ActivateEffects.Any(eff => eff.Effect == ActivateEffects.Heal ||
+                        // every potion counts for the records, stat potions as well as health and magic
+                        if (item.Potion || item.ActivateEffects.Any(eff => eff.Effect == ActivateEffects.Heal ||
                                                             eff.Effect == ActivateEffects.HealNova ||
                                                             eff.Effect == ActivateEffects.Magic ||
                                                             eff.Effect == ActivateEffects.MagicNova))
@@ -426,6 +434,9 @@ namespace WorldServer.core.objects
                 case ActivateEffects.StasisBlast:
                     StasisBlast(item, target, eff);
                     break;
+                case ActivateEffects.ArmorShred:
+                    ArmorShred(target, eff);
+                    break;
                 case ActivateEffects.MagicNova:
                     AEMagicNova(item, target, eff);
                     break;
@@ -524,6 +535,9 @@ namespace WorldServer.core.objects
                     case ActivateEffects.IncrementStat:
                         AEIncrementStat(time, item, target, eff, objId, slot);
                         break;
+                    case ActivateEffects.OvercapStat:
+                        AEOvercapStat(item, eff);
+                        break;
                     case ActivateEffects.Heal:
                         AEHeal(item, target, eff);
                         break;
@@ -562,6 +576,9 @@ namespace WorldServer.core.objects
                         break;
                     case ActivateEffects.StasisBlast:
                         StasisBlast(item, target, eff);
+                        break;
+                    case ActivateEffects.ArmorShred:
+                        ArmorShred(target, eff);
                         break;
                     case ActivateEffects.Decoy:
                         AEDecoy(item, target, eff);
@@ -1197,9 +1214,9 @@ namespace WorldServer.core.objects
             var statInfo = GameServer.Resources.GameData.Classes[ObjectType].Stats;
             var amount = eff.Amount;
 
+            // maxed (or past it, with Infernal potions, which stays): into the potion storage
             if (Stats.Base[idx] >= statInfo[idx].MaxValue)
             {
-                Stats.Base[idx] = statInfo[idx].MaxValue;
                 var inc = idx <= 1 ? eff.StoreAmount / 5 : eff.StoreAmount;
                 var before = Client.Account.StoredPotions[idx];
                 var storedAmount = AttemptToAdd(idx, inc);
@@ -1235,6 +1252,47 @@ namespace WorldServer.core.objects
                 Quests?.Event(new Shared.quests.QuestEvent(Shared.quests.QuestEvents.Potion) { Name = item.ObjectId });
                 Quests?.Event(new Shared.quests.QuestEvent(Shared.quests.QuestEvents.MaxedStats) { Value = GetMaxedStats() });
             }
+        }
+
+        // How many Infernal potions a stat takes past its class's maximum.
+        public const int OvercapPotions = 5;
+
+        // The highest a stat goes: its class's maximum, and what Infernal potions added past it.
+        public int StatCap(int idx)
+        {
+            var overcap = Client.Character.Overcap;
+            return GameServer.Resources.GameData.Classes[ObjectType].Stats[idx].MaxValue + (idx < overcap.Length ? overcap[idx] : 0);
+        }
+
+        // Why an Infernal potion can't be drunk now, or null.
+        private string OvercapRefusal(ActivateEffect eff)
+        {
+            var idx = StatsManager.GetStatIndex((StatDataType)eff.Stats);
+            if (idx < 0)
+                return "This potion does nothing.";
+            var max = GameServer.Resources.GameData.Classes[ObjectType].Stats[idx].MaxValue;
+            if (Stats.Base[idx] < max)
+                return $"Max your {PotionNames[idx]} first: an Infernal potion takes it past its maximum.";
+            var overcap = Client.Character.Overcap;
+            if ((idx < overcap.Length ? overcap[idx] : 0) >= OvercapPotions * eff.Amount)
+                return $"Your {PotionNames[idx]} is already {OvercapPotions} potions past its maximum.";
+            return null;
+        }
+
+        // An Infernal potion (OvercapRefusal checked it): the stat goes up by its amount past the
+        // class's maximum, and stays there (DbChar.Overcap keeps it over the cap on load).
+        private void AEOvercapStat(Item item, ActivateEffect eff)
+        {
+            var idx = StatsManager.GetStatIndex((StatDataType)eff.Stats);
+            var overcap = Client.Character.Overcap;
+            if (overcap.Length < 8)
+                Array.Resize(ref overcap, 8);
+            overcap[idx] += eff.Amount;
+            Client.Character.Overcap = overcap;
+            Stats.Base[idx] = GameServer.Resources.GameData.Classes[ObjectType].Stats[idx].MaxValue + overcap[idx];
+            var potions = overcap[idx] / Math.Max(1, eff.Amount);
+            SendInfo($"{item.DisplayName} was consumed: your {PotionNames[idx]} is {potions} of {OvercapPotions} past its maximum.");
+            Quests?.Event(new Shared.quests.QuestEvent(Shared.quests.QuestEvents.Potion) { Name = item.ObjectId });
         }
 
         // the stat potions by stat index, as their names end (Potion of Life...)
@@ -1777,6 +1835,35 @@ namespace WorldServer.core.objects
             }
 
             tmr = world.StartNewTimer(0, poisonTick);
+        }
+
+        // The mystic orbs': enemies near the target lose amount% of their defense for the duration
+        // (Enemy.ShredArmor).
+        private void ArmorShred(Position target, ActivateEffect eff)
+        {
+            var radius = eff.Radius > 0 ? eff.Radius : 3;
+            World.BroadcastIfVisible(new ShowEffect()
+            {
+                EffectType = EffectType.Concentrate,
+                TargetObjectId = Id,
+                Pos1 = target,
+                Pos2 = new Position() { X = target.X + radius, Y = target.Y },
+                Color = new ARGB(0xffb04020)
+            }, ref target);
+
+            World.AOE(target, radius, false, enemy =>
+            {
+                if (enemy is not Enemy e || e.HasConditionEffect(ConditionEffectIndex.Invincible))
+                    return;
+                e.ShredArmor(eff.Amount / 100.0, eff.DurationMS);
+                World.BroadcastIfVisible(new Notification()
+                {
+                    ObjectId = e.Id,
+                    Color = new ARGB(0xffb04020),
+                    Message = $"-{eff.Amount}% Armor",
+                    PlayerId = Id
+                }, e);
+            });
         }
 
         private void StasisBlast(Item item, Position target, ActivateEffect eff)

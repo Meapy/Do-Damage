@@ -1,11 +1,13 @@
 """Draws the NPCs of the Nexus: the Tinkerer (quests), the Chronicler (daily rewards and
-achievements) and the Market Broker (the Marketplace), two frames each.
+achievements), the Market Broker (the Marketplace) and the Herald (the server's week), two frames
+each.
 
     python tools/draw_quest_npcs.py [--preview <png>]
 
 Writes `QuestNpcs16x16.png` (client/src/kabam/rotmg/assets/custom/images), 16 by 16 pixels a
-cell: cells 0-1 the Tinkerer, 2-3 the Chronicler, 4-5 the Market Broker. The objects (`The Tinkerer`,
-`The Chronicler`, `Market Broker`, CustomObjects.xml) animate between their two. At Size 100 a 16-pixel cell draws at
+cell: cells 0-1 the Tinkerer, 2-3 the Chronicler, 4-5 the Market Broker, 6-7 the Herald. The objects
+(`The Tinkerer`, `The Chronicler`, `Market Broker`, `The Herald`, CustomObjects.xml) animate between
+their two. At Size 100 a 16-pixel cell draws at
 the same pixel size as the 8-pixel characters, so they stand a head taller than players. The art
 is drawn here rather than in an editor so it can be changed and redrawn; it needs Pillow.
 """
@@ -170,6 +172,48 @@ BROKER = [
     ],
 ]
 
+# The Herald: a crier in a violet cap with a red plume and a gold-trimmed ember tabard, a long
+# gold horn at his lips with the realm's violet banner hanging from it, who keeps the week's
+# tally. Frame 2: he blows, the bell flares and the call rings out.
+HERALD = [
+    [
+        "................",
+        ".....oooooo..o..",
+        "....ovvuuvvoorr.",
+        "....ovuuvvvVrro.",
+        "...ooVVVVVVVVo..",
+        ".....okkkkko....",
+        ".....okekeko....",
+        ".....okkkkgGGGGo",
+        ".....oKkkKoddGGo",
+        "....occggccovvVo",
+        "...occgcgggcvuVo",
+        "..oCcgcrrcgcvvVo",
+        "..oCcgcrrcgcvuVo",
+        "...oCcgggcCogdgo",
+        "....ovVVVVvo....",
+        "....offo.offo...",
+    ],
+    [
+        "................",
+        ".....oooooo..o..",
+        "....ovvuuvvoorr.",
+        "....ovuuvvvVrro.",
+        "...ooVVVVVVVVo..",
+        ".....okkkkko..y.",
+        ".....okekeko...y",
+        ".....okKkKgGGGGG",
+        ".....oKkkKoddGGG",
+        "....occggccovvVo",
+        "...occgcgggcvuVo",
+        "..oCcgcrrcgcvvVo",
+        "..oCcgcrrcgcvuVo",
+        "...oCcgggcCogdgo",
+        "....ovVVVVvo...y",
+        "....offo.offo.y.",
+    ],
+]
+
 
 def cell(rows):
     img = Image.new("RGBA", (CELL, CELL), (0, 0, 0, 0))
@@ -183,7 +227,7 @@ def cell(rows):
 
 
 def main():
-    frames = TINKERER + CHRONICLER + BROKER
+    frames = TINKERER + CHRONICLER + BROKER + HERALD
     sheet = Image.new("RGBA", (CELL * len(frames), CELL), (0, 0, 0, 0))
     for i, rows in enumerate(frames):
         sheet.paste(cell(rows), (i * CELL, 0))

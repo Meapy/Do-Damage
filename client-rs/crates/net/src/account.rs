@@ -459,6 +459,40 @@ pub fn parse_arena_runs(xml: &str) -> Result<Vec<ArenaRun>, String> {
         .collect())
 }
 
+/// `/stats/weekly`: the server's week so far, which the Herald in the Nexus shows (the account
+/// server's `StatsController`): each count by id, and the monsters killed most (type, kills).
+#[derive(Debug, Clone, PartialEq, Default)]
+pub struct WeeklyStats {
+    /// The server's clock, when the week began and when it starts afresh, unix seconds.
+    pub now: i64,
+    pub start: i64,
+    pub reset: i64,
+    pub stats: Vec<(String, i64)>,
+    pub killed: Vec<(u16, i64)>,
+}
+
+impl WeeklyStats {
+    pub fn get(&self, id: &str) -> i64 {
+        self.stats.iter().find(|(k, _)| k == id).map_or(0, |&(_, v)| v)
+    }
+}
+
+pub fn parse_weekly_stats(xml: &str) -> Result<WeeklyStats, String> {
+    if let Some(e) = error_text(xml) {
+        return Err(e);
+    }
+    let doc = roxmltree::Document::parse(xml).map_err(|e| e.to_string())?;
+    let root = doc.root_element();
+    let num = |n: roxmltree::Node, a: &str| n.attribute(a).and_then(parse_int).unwrap_or(0);
+    Ok(WeeklyStats {
+        now: num(root, "now"),
+        start: num(root, "start"),
+        reset: num(root, "reset"),
+        stats: root.children().filter(|c| c.has_tag_name("Stat")).map(|c| (c.attribute("id").unwrap_or("").to_owned(), num(c, "value"))).collect(),
+        killed: root.children().filter(|c| c.has_tag_name("Killed")).map(|c| (num(c, "type") as u16, num(c, "count"))).filter(|(t, _)| *t != 0).collect(),
+    })
+}
+
 /// `/champions/board`: the Hall of Champions, the living's leaderboard (the account server's
 /// `ChampionsController`), ranked every few minutes.
 #[derive(Debug, Clone, PartialEq, Default)]

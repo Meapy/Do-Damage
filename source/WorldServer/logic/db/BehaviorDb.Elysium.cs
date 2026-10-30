@@ -210,7 +210,9 @@ namespace WorldServer.logic
             // - Last Judgement (10%): invulnerable in the middle. Gates fill the corridor below the
             //   arena, the eyes in the arena's walls open, the Pillars of Heaven, firing straight
             //   across it from every side, and he throws
-            //   the Spear of Heaven and fires the Radiant Cross, slowed right down. After 30 s, the
+            //   the Spear of Heaven and fires the Radiant Cross, slowed right down. The temple floods
+            //   with lava from its white rim inwards, a step every 5 s, until it has come 7 tiles in
+            //   (LavaRing), so there's no safe corner left. After 30 s, the
             //   Concession: the corridor opens, he falls back through every Oryx he was, and then he
             //   can be killed.
             // The Holy Gates shut behind the players as he wakes and open when he dies.
@@ -218,8 +220,6 @@ namespace WorldServer.logic
                 new State(
                     new BossStats(110000, 55, 1.0, 0.35, arena: true),
                     new BossStats(320000, 55, 1.0, 0.35),
-                    // the end of the chain: the way out is home to the Nexus
-                    new DropPortalOnDeath("Nexus Portal", 1.0, timeout: 120, xAdjustment: 2),
                     new AnnounceOnDeath("{PL_LIST} cast down Oryx the Ascended God in his Elysium! The Realm is free... for now."),
                     new RemoveObjectOnDeath("O5 Holy Gate", 30),
                     new State("Where",
@@ -345,6 +345,9 @@ namespace WorldServer.logic
                     new State("Last Judgement",
                         new ConditionEffectBehavior(ConditionEffectIndex.Invulnerable),
                         new Order(30, "Halo Orb", "Gone"),
+                        // the rim (TEMPLE_R 16.5, its last 1.5 tiles white marble: tools/build_elysium.py)
+                        // turns to lava, then the lava comes in a sixth of the way every 5 s, to 9.5
+                        new LavaRing("Elysian Lava", 16.5, 15, 9.5, 6, 30000),
                         // the corridor between the arena and the Holy Gates (rows 17 to 19 below him),
                         // out of the Pillars' reach, fills with gates until the Concession: anyone
                         // sheltering there is moved into the arena

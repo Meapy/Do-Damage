@@ -458,7 +458,7 @@ impl Quests {
         if let Some((m, err, _)) = &self.message {
             ui.label(m, r[0] + 22.0 * s, foot_y, font(13.0), true, if *err { color::DANGER } else { color::GOOD });
         } else {
-            let hint = "Rewards: fame to your account, items to your inventory (or your vault's gift chest).";
+            let hint = "Rewards: fame to your account, items to the gift chest in your vault.";
             ui.label(hint, r[0] + 22.0 * s, foot_y, font(12.0), false, color::TEXT_MUTED);
         }
         if let Some(item) = self.hover_item {

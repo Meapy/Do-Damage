@@ -254,6 +254,11 @@ COURT = {
     "Doom Cardinal": ("Oryx Cardinal", ("Henchman of Oryx", (0,))),
 }
 COURT_DAMAGE = 7 / 6
+# Projectiles copied without a condition: name -> (projectile, new id, condition). The Officers Oryx 4
+# summons throw a shuriken that doesn't confuse (BehaviorDb.HashCellar.cs); the Burning Path's keep it.
+COURT_CALM = {
+    "Infernal Officer": (10, 12, "Confused"),
+}
 
 
 def court(types, chars, sanctuary, cellar):
@@ -275,6 +280,13 @@ def court(types, chars, sanctuary, cellar):
                 p = copy.deepcopy(next(q for q in cellar[minion].iter("Projectile") if q.get("id") == str(pid)))
                 p.set("id", str(10 + k))
                 e.append(p)
+        if name in COURT_CALM:
+            pid, new_id, effect = COURT_CALM[name]
+            p = copy.deepcopy(next(q for q in e.iter("Projectile") if q.get("id") == str(pid)))
+            p.set("id", str(new_id))
+            for c in [c for c in p.findall("ConditionEffect") if c.text == effect]:
+                p.remove(c)
+            e.append(p)
         for d in e.iter("Damage"):
             d.text = str(int(round(int(d.text) * COURT_DAMAGE)))
         exp = e.find("Exp")

@@ -90,6 +90,11 @@ pub struct Game {
     pub particles: crate::particles::Particles,
     /// The quest's object (`QuestObjId`), for the arrow and the boss bar.
     pub quest: Option<i32>,
+    /// The maps seen of the last few worlds left (by game id, name and size; the squares known),
+    /// so going back to one (a realm after the Nexus) shows the map as it was.
+    seen_maps: Vec<(MapKey, Vec<(u32, u16)>)>,
+    /// The current world's key in `seen_maps`.
+    map_key: MapKey,
     /// The realm's events, side quests and waystones with its count to close (`RealmEvents`), for
     /// the events list at the top left and the minimap; none outside a realm.
     pub realm_events: Option<bsk_proto::RealmEvents>,
@@ -225,6 +230,11 @@ const TELEPORT_COOLDOWN: i32 = 10_000;
 /// How many chat lines to keep.
 const CHAT_KEEP: usize = 500;
 
+/// A world's map, to know it again: its game id, name and size.
+type MapKey = (i32, String, i32, i32);
+/// How many worlds' maps are kept after leaving them.
+const SEEN_MAPS: usize = 3;
+
 impl Game {
     /// Connect and load a character, or create one (`Join::Create`).
     pub fn start(target: Target, hello: HelloParams, join: Join) -> Self {
@@ -271,6 +281,8 @@ impl Game {
             show_displays: false,
             particles: Default::default(),
             quest: None,
+            seen_maps: Vec::new(),
+            map_key: (0, String::new(), 0, 0),
             realm_events: None,
             name_result: None,
             guild_result: None,
@@ -458,7 +470,19 @@ impl Game {
         }
         match event {
             Some(Event::MapInfo(info)) => {
-                self.world = Some(World::new(info.width as i32, info.height as i32, &info.display_name, info.seed));
+                if let Some(old) = &self.world {
+                    self.seen_maps.retain(|(k, _)| *k != self.map_key);
+                    self.seen_maps.push((self.map_key.clone(), old.known_squares()));
+                    if self.seen_maps.len() > SEEN_MAPS {
+                        self.seen_maps.remove(0);
+                    }
+                }
+                self.map_key = (self.hello.game_id, info.name.clone(), info.width as i32, info.height as i32);
+                let mut world = World::new(info.width as i32, info.height as i32, &info.display_name, info.seed);
+                if let Some((_, squares)) = self.seen_maps.iter().find(|(k, _)| *k == self.map_key) {
+                    world.restore_squares(squares);
+                }
+                self.world = Some(world);
                 self.particles.clear();
                 self.arena = None;
                 self.arena_votes = None;
@@ -705,7 +729,11 @@ impl Game {
             ServerMessage::SwitchMusic(m) => self.music = Some(m.music.clone()),
             ServerMessage::MarketListings(m) => self.market_events.push(crate::market::Event::Listings(m.clone())),
             ServerMessage::MarketResult(r) => self.market_events.push(crate::market::Event::Result(r.clone())),
-            ServerMessage::ForgeData(d) => self.forge_events.push(crate::forge::Event::Data(d.recipes.0.clone(), d.prices.0.clone())),
+            ServerMessage::ForgeData(d) => self.forge_events.push(crate::forge::Event::Data(
+                d.recipes.0.clone(),
+                d.prices.0.clone(),
+                d.storage_costs.as_ref().map_or_else(Vec::new, |c| c.0.clone()),
+            )),
             ServerMessage::ForgeResult(r) => self.forge_events.push(crate::forge::Event::Result {
                 sold: r.sold,
                 success: r.success,
@@ -713,7 +741,9 @@ impl Game {
                 fame: r.fame,
                 message: r.message.clone(),
             }),
-            ServerMessage::ForgeShards(s) => self.forge_events.push(crate::forge::Event::Shards(s.shards.0.clone())),
+            ServerMessage::ForgeShards(s) => {
+                self.forge_events.push(crate::forge::Event::Shards(s.shards.0.clone(), s.potions.as_ref().map_or_else(Vec::new, |p| p.0.clone())))
+            }
             ServerMessage::ForgeVault(v) => self.forge_events.push(crate::forge::Event::Vault(v.items.0.clone())),
             ServerMessage::VaultContents(v) => self.vault_contents = Some(v.clone()),
             ServerMessage::ImprintVault(v) => self.forge_events.push(crate::forge::Event::ImprintVault(v.items.0.clone())),

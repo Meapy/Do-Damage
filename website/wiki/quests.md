@@ -10,8 +10,8 @@ week and month, a **daily reward** for showing up, and **achievements** that rem
 you've done, account-wide. All of it lives in the **quest log**: press <kbd>J</kbd>, click
 **Quests** beside the Nexus button, or talk to the two keepers by the Nexus spawn.
 
-> **Rewards go straight to you.** Fame goes to your account, and items into your inventory (or, when
-> it's full, into the gift chest in your vault). Everything is account-wide: progress on one
+> **Rewards go straight to you.** Fame goes to your account, and items into the gift chest in your
+> vault, so a reward never fills your inventory. Everything is account-wide: progress on one
 > character counts for all of them, and dying doesn't lose any of it.
 
 ## The quest keepers

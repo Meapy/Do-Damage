@@ -13,16 +13,9 @@ namespace WorldServer.core.commands
 
             protected override bool Process(Player player, TickTime time, string args)
             {
-                var pd = player.GameServer.Resources.GameData.Classes[player.ObjectType];
-
-                player.Stats.Base[0] = pd.Stats[0].MaxValue;
-                player.Stats.Base[1] = pd.Stats[1].MaxValue;
-                player.Stats.Base[2] = pd.Stats[2].MaxValue;
-                player.Stats.Base[3] = pd.Stats[3].MaxValue;
-                player.Stats.Base[4] = pd.Stats[4].MaxValue;
-                player.Stats.Base[5] = pd.Stats[5].MaxValue;
-                player.Stats.Base[6] = pd.Stats[6].MaxValue;
-                player.Stats.Base[7] = pd.Stats[7].MaxValue;
+                // to the cap, with any Infernal potions' share past the class's maximum
+                for (var i = 0; i < 8; i++)
+                    player.Stats.Base[i] = player.StatCap(i);
 
                 player.Level = 20;
                 player.Experience = Player.GetLevelExp(20);

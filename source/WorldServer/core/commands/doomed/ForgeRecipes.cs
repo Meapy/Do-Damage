@@ -112,6 +112,41 @@ namespace WorldServer.core.commands.doomed
             ("Enthroned Spear", "Staff of Heavens", WeaponShard),
         };
 
+        // The Infernal potions (tools/build_infernal_potions.py): an Infernal shard and
+        // InfernalPotionCost of the stat's potion from the potion storage (taken by
+        // DoomedEconomy.Forge, not a socket each) make a potion that raises the stat past its class's
+        // maximum, up to five potions' worth (Player.AEOvercapStat). The weapon shard's are attack
+        // and dexterity, the ability shard's magic and wisdom, the armor shard's defense and vitality,
+        // the accessory shard's life and speed.
+        public const int InfernalPotionCost = 100;
+        public const int InfernalPotionFame = 0;
+        // the stat potions by stat index, as the potion storage keeps them
+        public static readonly string[] StatPotions =
+        {
+            "Potion of Life", "Potion of Mana", "Potion of Attack", "Potion of Defense",
+            "Potion of Speed", "Potion of Dexterity", "Potion of Vitality", "Potion of Wisdom",
+        };
+        public static readonly (string Result, string Shard, int Stat)[] InfernalPotions =
+        {
+            ("Infernal Potion of Life", "Infernal Accessory Shard", 0),
+            ("Infernal Potion of Mana", "Infernal Ability Shard", 1),
+            ("Infernal Potion of Attack", "Infernal Weapon Shard", 2),
+            ("Infernal Potion of Defense", "Infernal Armor Shard", 3),
+            ("Infernal Potion of Speed", "Infernal Accessory Shard", 4),
+            ("Infernal Potion of Dexterity", "Infernal Weapon Shard", 5),
+            ("Infernal Potion of Vitality", "Infernal Armor Shard", 6),
+            ("Infernal Potion of Wisdom", "Infernal Ability Shard", 7),
+        };
+
+        // The potion storage's stat a recipe's result also takes, if any.
+        public static int? StoragePotionStat(string result)
+        {
+            foreach (var p in InfernalPotions)
+                if (p.Result == result)
+                    return p.Stat;
+            return null;
+        }
+
         private static (string Result, int Fame, bool Advanced, string[] Items)[] _all;
         private static readonly object Lock = new object();
 
@@ -131,7 +166,7 @@ namespace WorldServer.core.commands.doomed
             var seasonal = new HashSet<string>(SeasonalThreshold.Items.Concat(Loot.WinterBossDrops.Select(d => d.Item)));
             bool Tiered(string id) => items.TryGetValue(id, out var i) && i.Tier >= 0;
             var forgeOnly = new HashSet<string>(ForgeOnly.Select(r => r.Result).Concat(Ascended.Select(a => a.Result))
-                .Concat(AscendedFrom.Select(a => a.Result)));
+                .Concat(AscendedFrom.Select(a => a.Result)).Concat(InfernalPotions.Select(p => p.Result)));
             // (the advanced recipes needed the Forge Amulet, which is gone)
             bool Allowed((string Result, int Fame, bool Advanced, string[] Items) r) =>
                 !r.Advanced && items.ContainsKey(r.Result)
@@ -217,6 +252,12 @@ namespace WorldServer.core.commands.doomed
             foreach (var (result, from, shard) in AscendedFrom)
             {
                 var r = (result, AscendedFame, false, new[] { from, shard });
+                if (known.Add(Key(r)))
+                    recipes.Add(r);
+            }
+            foreach (var (result, shard, _) in InfernalPotions)
+            {
+                var r = (result, InfernalPotionFame, false, new[] { shard });
                 if (known.Add(Key(r)))
                     recipes.Add(r);
             }

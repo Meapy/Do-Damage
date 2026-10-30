@@ -486,6 +486,16 @@ class Data:
                     if res in self.elements and self.elements[res].find("Ascended") is not None:
                         r["ascended"] = {"any": (kind, tier) if slot == 0 else None}
                     recipes.append(r)
+        # the Infernal potions (ForgeRecipes.InfernalPotions): an Infernal shard, and the stat's
+        # potions from the potion storage (`storage`: the potion and how many), not a socket each
+        potions = re.findall(r'"([^"]+)"', (re.search(r'StatPotions\s*=\s*\{(.*?)\};', forge_src, re.S) or [None, ""])[1])
+        cost = re.search(r'InfernalPotionCost\s*=\s*(\d+)', forge_src)
+        ifame = re.search(r'InfernalPotionFame\s*=\s*(\d+)', forge_src)
+        m = re.search(r'InfernalPotions\s*=\s*\{(.*?)\};', forge_src, re.S)
+        for res, shard, stat in re.findall(r'\("([^"]+)",\s*"([^"]+)",\s*(\d+)\)', m.group(1) if m else ""):
+            forge_only.add(res)
+            recipes.append({"result": res, "fame": int(ifame.group(1)) if ifame else 0, "advanced": False,
+                            "items": [shard], "storage": (potions[int(stat)], int(cost.group(1)) if cost else 100)})
         # and the ones from one item (ForgeRecipes.AscendedFrom)
         m = re.search(r'\bAscendedFrom\s*=\s*\{(.*?)\};', forge_src, re.S)
         for res, frm, shard in re.findall(r'\("([^"]+)",\s*"([^"]+)",\s*(\w+)\)', m.group(1) if m else ""):

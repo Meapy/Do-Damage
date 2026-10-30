@@ -7112,7 +7112,8 @@
 		<Usable/>
 		<BagType>1</BagType>
 		<MpCost>60</MpCost>
-		<Activate duration="3">StasisBlast</Activate>
+		<Cooldown>2</Cooldown>
+		<Activate amount="2" duration="5" radius="3">ArmorShred</Activate>
 		<feedPower>5</feedPower>
 		<DropTradable/>
 	</Object>
@@ -7129,8 +7130,9 @@
 		<Usable/>
 		<BagType>1</BagType>
 		<MpCost>65</MpCost>
+		<Cooldown>2</Cooldown>
 		<Activate effect="Curse" duration="4.5" range="5" color="0x808080" target="enemy" center="mouse" visualEffect="8" useWisMod="true">GenericActivate</Activate>
-		<Activate duration="3.5">StasisBlast</Activate>
+		<Activate amount="3" duration="6" radius="3">ArmorShred</Activate>
 		<feedPower>10</feedPower>
 		<DropTradable/>
 	</Object>
@@ -7147,8 +7149,9 @@
 		<Usable/>
 		<BagType>1</BagType>
 		<MpCost>70</MpCost>
+		<Cooldown>2</Cooldown>
 		<Activate effect="Curse" duration="5" range="5" color="0x808080" target="enemy" center="mouse" visualEffect="8" useWisMod="true">GenericActivate</Activate>
-		<Activate duration="4">StasisBlast</Activate>
+		<Activate amount="4" duration="7" radius="3">ArmorShred</Activate>
 		<feedPower>20</feedPower>
 		<DropTradable/>
 	</Object>
@@ -7166,8 +7169,9 @@
 		<BagType>2</BagType>
 		<FameBonus>1</FameBonus>
 		<MpCost>75</MpCost>
+		<Cooldown>2</Cooldown>
 		<Activate effect="Curse" duration="5.5" range="5" color="0x808080" target="enemy" center="mouse" visualEffect="8" useWisMod="true">GenericActivate</Activate>
-		<Activate duration="4.5">StasisBlast</Activate>
+		<Activate amount="4" duration="8" radius="3">ArmorShred</Activate>
 		<ActivateOnEquip stat="26" amount="1">IncrementStat</ActivateOnEquip>
 		<feedPower>45</feedPower>
 		<DropTradable/>
@@ -7186,9 +7190,10 @@
 		<BagType>2</BagType>
 		<FameBonus>2</FameBonus>
 		<MpCost>80</MpCost>
+		<Cooldown>2</Cooldown>
 		<Activate effect="Curse" duration="6" range="5" color="0x808080" target="enemy" center="mouse" visualEffect="8" useWisMod="true">GenericActivate</Activate>
 		<ActivateOnEquip stat="26" amount="2">IncrementStat</ActivateOnEquip>
-		<Activate duration="5">StasisBlast</Activate>
+		<Activate amount="5" duration="9" radius="3">ArmorShred</Activate>
 		<feedPower>90</feedPower>
 		<DropTradable/>
 	</Object>
@@ -7206,9 +7211,10 @@
 		<BagType>4</BagType>
 		<FameBonus>3</FameBonus>
 		<MpCost>85</MpCost>
+		<Cooldown>2</Cooldown>
 		<Activate effect="Berserk" duration="1.5" useWisMod="true">ConditionEffectSelf</Activate>
 		<Activate effect="Curse" duration="6.5" range="5" color="0x808080" target="enemy" center="mouse" visualEffect="8" useWisMod="true">GenericActivate</Activate>
-		<Activate duration="5.5">StasisBlast</Activate>
+		<Activate amount="6" duration="9" radius="3">ArmorShred</Activate>
 		<ActivateOnEquip stat="26" amount="3">IncrementStat</ActivateOnEquip>
 		<feedPower>185</feedPower>
 	</Object>
@@ -7226,9 +7232,10 @@
 		<BagType>4</BagType>
 		<FameBonus>4</FameBonus>
 		<MpCost>90</MpCost>
+		<Cooldown>2</Cooldown>
 		<Activate effect="Berserk" duration="2" useWisMod="true">ConditionEffectSelf</Activate>
 		<Activate effect="Curse" duration="7" range="5" color="0x808080" target="enemy" center="mouse" visualEffect="8" useWisMod="true">GenericActivate</Activate>
-		<Activate duration="6">StasisBlast</Activate>
+		<Activate amount="7" duration="10" radius="3">ArmorShred</Activate>
 		<ActivateOnEquip stat="26" amount="4">IncrementStat</ActivateOnEquip>
 		<ActivateOnEquip stat="0" amount="20">IncrementStat</ActivateOnEquip>
 		<ActivateOnEquip stat="3" amount="20">IncrementStat</ActivateOnEquip>
@@ -7249,7 +7256,8 @@
 		<BagType>6</BagType>
 		<FameBonus>6</FameBonus>
 		<MpCost>100</MpCost>
-		<Activate duration="7">StasisBlast</Activate>
+		<Cooldown>2</Cooldown>
+		<Activate amount="8" duration="12" radius="3">ArmorShred</Activate>
 		<Activate effect="Speedy" duration="2" useWisMod="true">ConditionEffectSelf</Activate>
 		<Activate effect="Damaging" duration="2" useWisMod="true">ConditionEffectSelf</Activate>
 		<Activate amount="100">Heal</Activate>
@@ -12293,10 +12301,10 @@
 		<ActivateOnEquip stat="20" amount="2">IncrementStat</ActivateOnEquip>
 		<ActivateOnEquip stat="28" amount="1">IncrementStat</ActivateOnEquip>
 		<ActivateOnEquip stat="22" amount="1">IncrementStat</ActivateOnEquip>
-		<Activate duration="6">StasisBlast</Activate>
+		<Activate amount="7" duration="10" radius="3">ArmorShred</Activate>
 		<Activate effect="Speedy" duration="3" useWisMod="true">ConditionEffectSelf</Activate>
 		<Activate effect="Berserk" duration="3" useWisMod="true">ConditionEffectSelf</Activate>
-		<Cooldown>6</Cooldown>
+		<Cooldown>2</Cooldown>
 		<Usable/>
 		<BagType>8</BagType>
 		<FameBonus>4</FameBonus>
@@ -13271,8 +13279,9 @@
 		<BagType>4</BagType>
 		<FameBonus>2</FameBonus>
 		<MpCost>90</MpCost>
+		<Cooldown>2</Cooldown>
 		<Activate effect="Slowed" duration="5" range="2" color="0xffdf00" target="enemy" center="mouse" visualEffect="8" useWisMod="false">GenericActivate</Activate>
-		<Activate duration="3">StasisBlast</Activate>
+		<Activate amount="2" duration="5" radius="3">ArmorShred</Activate>
 		<feedPower>200</feedPower>
 		<DisplayId>Orb of Sweet Demise</DisplayId>
 		<Soulbound/>
@@ -16603,9 +16612,10 @@
 		<BagType>4</BagType>
 		<FameBonus>4</FameBonus>
 		<MpCost>90</MpCost>
+		<Cooldown>2</Cooldown>
 		<Activate effect="Berserk" duration="2" useWisMod="true">ConditionEffectSelf</Activate>
 		<Activate effect="Curse" duration="7" range="5" color="0x808080" target="enemy" center="mouse" visualEffect="8" useWisMod="true">GenericActivate</Activate>
-		<Activate duration="6">StasisBlast</Activate>
+		<Activate amount="7" duration="10" radius="3">ArmorShred</Activate>
 		<ActivateOnEquip stat="26" amount="4">IncrementStat</ActivateOnEquip>
 		<ActivateOnEquip stat="0" amount="20">IncrementStat</ActivateOnEquip>
 		<ActivateOnEquip stat="3" amount="20">IncrementStat</ActivateOnEquip>
@@ -17836,11 +17846,12 @@
 		<BagType>6</BagType>
 		<FameBonus>5</FameBonus>
 		<MpCost>80</MpCost>
+		<Cooldown>2</Cooldown>
 		<ExtraTooltipData>
 			<EffectInfo name="" description="Stasis blast is centered on player"/>
 			<EffectInfo name="Stasis radius" description="4 tiles"/>
 		</ExtraTooltipData>
-		<Activate duration="4" radius="4" center="player">StasisBlast</Activate>
+		<Activate amount="4" duration="7" radius="4">ArmorShred</Activate>
 		<Activate effect="Curse" duration="2.5" range="2.5" color="0x808080" target="enemy" center="mouse" visualEffect="8" useWisMod="true">GenericActivate</Activate>
 		<feedPower>550</feedPower>
 		<Soulbound/>
@@ -19904,7 +19915,8 @@
 		<BagType>6</BagType>
 		<FameBonus>6</FameBonus>
 		<MpCost>100</MpCost>
-		<Activate duration="7">StasisBlast</Activate>
+		<Cooldown>2</Cooldown>
+		<Activate amount="8" duration="12" radius="3">ArmorShred</Activate>
 		<Activate effect="Speedy" duration="2" useWisMod="true">ConditionEffectSelf</Activate>
 		<Activate effect="Damaging" duration="2" useWisMod="true">ConditionEffectSelf</Activate>
 		<feedPower>850</feedPower>
@@ -20617,7 +20629,8 @@
 		<BagType>6</BagType>
 		<FameBonus>5</FameBonus>
 		<MpCost>90</MpCost>
-		<Activate duration="6">StasisBlast</Activate>
+		<Cooldown>2</Cooldown>
+		<Activate amount="7" duration="10" radius="3">ArmorShred</Activate>
 		<Activate duration="6" effect="Petrify">ConditionEffectSelf</Activate>
 		<feedPower>500</feedPower>
 		<Soulbound/>
@@ -23223,10 +23236,10 @@
 		<ActivateOnEquip stat="20" amount="2">IncrementStat</ActivateOnEquip>
 		<ActivateOnEquip stat="28" amount="1">IncrementStat</ActivateOnEquip>
 		<ActivateOnEquip stat="22" amount="1">IncrementStat</ActivateOnEquip>
-		<Activate duration="6">StasisBlast</Activate>
+		<Activate amount="7" duration="10" radius="3">ArmorShred</Activate>
 		<Activate effect="Speedy" duration="3" useWisMod="true">ConditionEffectSelf</Activate>
 		<Activate effect="Berserk" duration="3" useWisMod="true">ConditionEffectSelf</Activate>
-		<Cooldown>6</Cooldown>
+		<Cooldown>2</Cooldown>
 		<Usable/>
 		<BagType>8</BagType>
 		<FameBonus>4</FameBonus>
@@ -24909,6 +24922,7 @@
 		<BagType>8</BagType>
 		<FameBonus>5</FameBonus>
 		<MpCost>120</MpCost>
+		<Cooldown>2</Cooldown>
 		<feedPower>900</feedPower>
 	</Object>
 	<Object type="0x4b42" id="2MysticST0" setType="0x4b4f" setName="Magmatic Mystic Set">
@@ -25846,7 +25860,8 @@
 		<BagType>6</BagType>
 		<FameBonus>6</FameBonus>
 		<MpCost>100</MpCost>
-		<Activate duration="7">StasisBlast</Activate>
+		<Cooldown>2</Cooldown>
+		<Activate amount="8" duration="12" radius="3">ArmorShred</Activate>
 		<Activate effect="Speedy" duration="2" useWisMod="true">ConditionEffectSelf</Activate>
 		<Activate effect="Damaging" duration="2" useWisMod="true">ConditionEffectSelf</Activate>
 		<Activate ignoreOnTooltip="true" center="mouse" visualEffect="32">GenericActivate</Activate>
@@ -26519,9 +26534,10 @@
 		<BagType>9</BagType>
 		<FameBonus>5</FameBonus>
 		<MpCost>95</MpCost>
+		<Cooldown>2</Cooldown>
 		<Activate effect="Berserk" duration="2.5" useWisMod="true">ConditionEffectSelf</Activate>
 		<Activate effect="Curse" duration="7.5" range="5" color="0x808080" target="enemy" center="mouse" visualEffect="8" useWisMod="true">GenericActivate</Activate>
-		<Activate duration="6.5">StasisBlast</Activate>
+		<Activate amount="7" duration="11" radius="3">ArmorShred</Activate>
 		<ActivateOnEquip stat="26" amount="5">IncrementStat</ActivateOnEquip>
 		<ActivateOnEquip stat="0" amount="40">IncrementStat</ActivateOnEquip>
 		<ActivateOnEquip stat="3" amount="40">IncrementStat</ActivateOnEquip>
@@ -26912,9 +26928,10 @@
 		<BagType>9</BagType>
 		<FameBonus>6</FameBonus>
 		<MpCost>100</MpCost>
+		<Cooldown>2</Cooldown>
 		<Activate effect="Berserk" duration="3" useWisMod="true">ConditionEffectSelf</Activate>
 		<Activate effect="Curse" duration="8" range="5" color="0x808080" target="enemy" center="mouse" visualEffect="8" useWisMod="true">GenericActivate</Activate>
-		<Activate duration="7">StasisBlast</Activate>
+		<Activate amount="8" duration="12" radius="3">ArmorShred</Activate>
 		<ActivateOnEquip stat="26" amount="6">IncrementStat</ActivateOnEquip>
 		<ActivateOnEquip stat="0" amount="60">IncrementStat</ActivateOnEquip>
 		<ActivateOnEquip stat="3" amount="60">IncrementStat</ActivateOnEquip>

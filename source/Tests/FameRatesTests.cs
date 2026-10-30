@@ -15,9 +15,17 @@ namespace Tests
         [Fact]
         public void FameExperienceIsCutInTheArenas()
         {
-            Assert.Equal(600f, FameRates.Experience(1200f, 20, 0.5));
-            Assert.Equal(900f, FameRates.Experience(1200f, 20, 0.75));
-            Assert.Equal(1200f, FameRates.Experience(1200f, 20, 1));
+            Assert.Equal(660f, FameRates.Experience(1200f, 20, 0.5), 2);
+            Assert.Equal(990f, FameRates.Experience(1200f, 20, 0.75), 2);
+            Assert.Equal(1320f, FameRates.Experience(1200f, 20, 1), 2);
+        }
+
+        [Fact]
+        public void BossesGiveTheirWholeExperienceTwiceOverUpToTheMost()
+        {
+            Assert.Equal(15000f, FameRates.Boss(7500f));     // Oryx 2: 15 fame
+            Assert.Equal(3200f, FameRates.Boss(1600f));      // the Cube God
+            Assert.Equal(50000f, FameRates.Boss(75000f));    // Oryx 3's 750,000 health: the most
         }
 
         [Fact]

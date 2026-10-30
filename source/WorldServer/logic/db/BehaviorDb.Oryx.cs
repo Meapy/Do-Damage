@@ -15,7 +15,6 @@ namespace WorldServer.logic
                 new State(
                     new BossStats(60000, 40, 1.0, 0.3, arena: true),
                     new BossStats(130000, 40, 1.0, 0.3),
-                    new DropPortalOnDeath("Realm Portal", 1.0, timeout: 120, xAdjustment: -2),
                     // open: Oryx 3 needs no incantation
                     new DropPortalOnDeath("Oryx's Sanctuary Portal", 1.0, timeout: 600, xAdjustment: 2),
                     new DropPortalOnDeath("Lost Halls Portal", 0.1, timeout: 120, yAdjustment: 2),

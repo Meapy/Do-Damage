@@ -422,6 +422,9 @@ class Gen:
                 for i in r["items"]:
                     counts[i] = counts.get(i, 0) + 1
                 ing = "".join(self.forge_item(i, n) for i, n in counts.items())
+                if r.get("storage"):
+                    potion, n = r["storage"]
+                    ing += self.forge_item(potion, n) + '<span class="fr-name"> from your potion storage</span>'
                 note = ' <span class="tag" style="--c:%s">Forge Amulet</span>' % wiki_gear.SPECIAL_EDGE if r["advanced"] else ""
                 rows.append('<tr><td>%s%s</td><td class="fr-ing">%s</td><td class="fr-fame">%s</td></tr>' % (
                     self.forge_item(r["result"]), note, ing, "{:,}".format(r["fame"])))

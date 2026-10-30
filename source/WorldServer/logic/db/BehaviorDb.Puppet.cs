@@ -270,8 +270,8 @@ namespace WorldServer.logic
                     )
                 ),
             new Threshold(0.01,
-                new ItemLoot("Harlequin Armor", 0.0025),
-                new ItemLoot("Prism of Dancing Swords", 0.0025)
+                new ItemLoot("Harlequin Armor", 0.01),
+                new ItemLoot("Prism of Dancing Swords", 0.01)
                 ),
             new Threshold(.005,
                 LootTemplates.BasicDrop()

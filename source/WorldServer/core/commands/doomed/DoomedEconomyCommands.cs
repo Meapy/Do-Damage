@@ -124,6 +124,12 @@ namespace WorldServer.core.commands.doomed
             fame = recipe.Fame;
             if (player.CurrentFame < fame)
                 return "Not enough fame to forge these items!";
+            // an Infernal potion also takes its stat's potions from the potion storage
+            var potionStat = ForgeRecipes.StoragePotionStat(result);
+            var stored = player.Client.Account.StoredPotions;
+            if (potionStat is int ps && (stored == null || ps >= stored.Length || stored[ps] < ForgeRecipes.InfernalPotionCost))
+                return $"This needs {ForgeRecipes.InfernalPotionCost} {ForgeRecipes.StatPotions[ps]} in your potion storage "
+                    + $"(you have {(stored != null && ps < stored.Length ? stored[ps] : 0)}).";
             if (!data.IdToObjectType.TryGetValue(result, out var type) || !data.Items.TryGetValue(type, out var item))
                 return "That item doesn't exist here.";
 
@@ -161,6 +167,14 @@ namespace WorldServer.core.commands.doomed
             if (!toVault)
                 inv[slot] = item;
             ForgeStorage.Take(player, from.Shards);
+            if (potionStat is int taken)
+            {
+                stored[taken] -= ForgeRecipes.InfernalPotionCost;
+                player.Client.Account.StoredPotions = stored;
+                player.Client.Account.FlushAsync();
+                player.SendInfo($"Took {ForgeRecipes.InfernalPotionCost} {ForgeRecipes.StatPotions[taken]} from your potion storage.");
+                ForgeStorage.Send(player);
+            }
             // taken at once, so a second forge before the database answers can't spend it again
             player.CurrentFame -= fame;
             DoomedWorlds.GiveFame(player, -fame);

@@ -114,6 +114,11 @@ impl Endpoint {
         http::post_form(&format!("{}/champions/board", self.account), &[("name", name)])
     }
 
+    /// The server's week so far (the Herald's window).
+    pub fn weekly_stats(&self) -> Pending<http::Response> {
+        http::post_form(&format!("{}/stats/weekly", self.account), &[])
+    }
+
     pub fn potions(&self, email: &str, password: &str) -> Pending<http::Response> {
         http::post_form(&format!("{}/account/grabPotions", self.account), &[("guid", email), ("password", password)])
     }

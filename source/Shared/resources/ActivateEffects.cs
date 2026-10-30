@@ -69,6 +69,8 @@
         TeleportToObject,
         MysteryPortal,
         KillRealmHeroes,
-        BulletCreate 
+        BulletCreate,
+        ArmorShred,
+        OvercapStat
     }
 }

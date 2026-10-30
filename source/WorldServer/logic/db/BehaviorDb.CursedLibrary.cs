@@ -136,7 +136,7 @@ namespace WorldServer.logic
                 new ItemLoot("Potion of Attack", 1),
                 new ItemLoot("Potion of Wisdom", 0.5),
                 new ItemLoot("Mark of the Archivist", 0.02),
-                new ItemLoot("Scholar's Seal", 0.01)
+                new ItemLoot("Scholar's Seal", 0.02)
                 )
             );
 
@@ -192,7 +192,7 @@ namespace WorldServer.logic
                 ),
             new Threshold(0.01,
                 new ItemLoot("Potion of Wisdom", 1),
-                new ItemLoot("Skull of Corrupted Souls", 0.01)
+                new ItemLoot("Skull of Corrupted Souls", 0.02)
                 )
             )
         .Init("Library Corruption Phantom Wisp Charger",

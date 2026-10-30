@@ -106,6 +106,7 @@ enum NpcRequest {
     /// the Arena Leaderboard's solo (true) or group runs
     Leaderboard(bool),
     Champions,
+    Weekly,
 }
 
 struct App {
@@ -323,6 +324,7 @@ fn npc_open(kind: npc::NpcKind, game: &Game, npcs: &mut npc::Npcs, market: &mut 
         NpcKind::PotionStorage => Window::Potions { counts: None, error: None },
         NpcKind::ArenaLeaderboard => Window::Leaderboard { solo: true, runs: None, error: None },
         NpcKind::ChampionsBoard => Window::Champions(Box::default()),
+        NpcKind::Herald => Window::Weekly { stats: None, error: None },
         // a statue: the Hall at its board (the nearest statue's)
         NpcKind::ChampionStatue => {
             let world = game.world.as_ref();
@@ -336,7 +338,7 @@ fn npc_open(kind: npc::NpcKind, game: &Game, npcs: &mut npc::Npcs, market: &mut 
             Window::Champions(Box::new(champions::View::at(board.as_deref())))
         }
     };
-    let fetch = matches!(window, Window::Board { .. } | Window::Members { .. } | Window::Potions { .. } | Window::Leaderboard { .. } | Window::Champions(_));
+    let fetch = matches!(window, Window::Board { .. } | Window::Members { .. } | Window::Potions { .. } | Window::Leaderboard { .. } | Window::Champions(_) | Window::Weekly { .. });
     npcs.open(window);
     if fetch {
         npcs.reload_at = Some(0);
@@ -1290,6 +1292,7 @@ impl App {
                 Some(npc::Window::Potions { .. }) => Some((NpcRequest::Potions, endpoint.potions(email, password))),
                 Some(npc::Window::Leaderboard { solo, .. }) => Some((NpcRequest::Leaderboard(solo), endpoint.arena_leaderboard(npc::LEADERBOARD_RUNS, Some(solo)))),
                 Some(npc::Window::Champions(_)) => Some((NpcRequest::Champions, endpoint.champions(&my_name))),
+                Some(npc::Window::Weekly { .. }) => Some((NpcRequest::Weekly, endpoint.weekly_stats())),
                 _ => None,
             };
         }
@@ -1334,6 +1337,14 @@ impl App {
                     Err(e) => view.error = Some(e),
                 }
             }
+            (NpcRequest::Weekly, Some(npc::Window::Weekly { stats, error })) => match response.and_then(|x| acc::parse_weekly_stats(&x)) {
+                Ok(w) => {
+                    (*stats, *error) = (Some(w), None);
+                    // kept current while open
+                    self.npcs.reload_at = Some(now + 30_000);
+                }
+                Err(e) => *error = Some(e),
+            },
             _ => {}
         }
     }
@@ -1638,6 +1649,7 @@ impl App {
         }
         let rotate = if self.settings.rotation { self.held(&rot_r) as i32 as f64 - self.held(&rot_l) as i32 as f64 } else { 0.0 };
         let reset_angle = self.held(&reset);
+        let bag_preview = self.chat_input.is_none() && self.held(&bound(options::Bind::BagPreview, None));
 
         // Scripted walking (--walk-to), then the --hold script.
         // With --say (a command that may move us, like /shop), walk once we've arrived and every
@@ -2327,6 +2339,9 @@ impl App {
                         self.signs.draw(&mut ui, world, &camera);
                         self.hall.draw(&mut ui, world, &camera);
                         self.vault.draw_marker(&mut ui, world, &camera, (lay.view_w(), lay.h));
+                        if bag_preview {
+                            hud::draw_bag_previews(&mut ui, world, &camera, lay.s);
+                        }
                         // The top left, down: the quest's health (and who hit it, near it), the
                         // realm's events (only their count near the quest), then the boss history
                         // and the keys.
@@ -2364,9 +2379,10 @@ impl App {
                             options::key_label(self.settings.key(options::Bind::MagicPotion)),
                         ];
                         prof::mark("pre-panel");
-                        hud::draw_panel(&mut ui, &lay, world, game.camera_angle, &mut self.map_colors, p, &self.hud, &social, mouse);
+                        hud::draw_panel(&mut ui, &lay, world, &mut self.map_colors, p, &self.hud, &social, mouse);
                         if let Some(mini) = p.minimap() {
                             events::draw_minimap_marks(&mut ui, lay.s, &mini, game.realm_events.as_ref(), mouse);
+                            hud::draw_minimap_top(&mut ui, &lay, world, game.camera_angle, &mini, game.quest);
                         }
                         prof::mark("panel");
                     }

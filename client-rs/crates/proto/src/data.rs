@@ -76,6 +76,16 @@ wire_struct! {
 }
 
 wire_struct! {
+    /// A recipe's stat potions out of the potion storage (`ForgeData`): its result, the potion and
+    /// how many.
+    pub struct ForgeStorageCost {
+        pub result: u16,
+        pub potion: u16,
+        pub count: i16,
+    }
+}
+
+wire_struct! {
     /// What the forge pays for an item (`ForgeData`).
     pub struct ForgePrice {
         pub item: u16,

@@ -280,7 +280,7 @@ namespace WorldServer.logic
                         new TierLoot(5, ItemType.Ring, .07)
                         ),
                     new Threshold(0.01,
-                        new ItemLoot("Demon Blade", 0.007),
+                        new ItemLoot("Demon Blade", 0.02),
                         new ItemLoot(item: "Potion of Vitality", probability: 1),
                         new ItemLoot(item: "Potion of Defense", probability: 1)
                     ), Elder("Archdemon Malphas"));

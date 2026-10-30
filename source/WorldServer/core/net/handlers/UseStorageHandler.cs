@@ -122,6 +122,7 @@ namespace WorldServer.core.net.handlers
                     player.Stats.Base[type] = maxStatValue;
 
                 ModifyStat(player, type, false);
+                player.FameCounter.DrinkPot();
 
                 player.SendInfo($"You consumed a {typeName}!");
                 return;
@@ -151,6 +152,7 @@ namespace WorldServer.core.net.handlers
                     player.Stats.Base[type] = maxStatValue;
 
                 ModifyStat(player, type, false, toMax);
+                player.FameCounter.DrinkPot(toMax);
                 if (newToMax > 0)
                     return;
                 else

@@ -30,6 +30,9 @@ namespace Shared.database.character
         public int Skin { get => GetValue<int>("skin"); set => SetValue("skin", value); }
 
         public int[] Stats { get => GetValue<int[]>("stats"); set => SetValue("stats", value); }
+        // how far past its class's maximum each stat may go, from the Infernal potions drunk
+        // (Player.AEOvercapStat)
+        public int[] Overcap { get => GetValue<int[]>("overcap") ?? new int[8]; set => SetValue("overcap", value); }
         public int Tex1 { get => GetValue<int>("tex1"); set => SetValue("tex1", value); }
         public int Tex2 { get => GetValue<int>("tex2"); set => SetValue("tex2", value); }
         public int XPBoostTime { get => GetValue<int>("xpBoost"); set => SetValue("xpBoost", value); }

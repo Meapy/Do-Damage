@@ -306,6 +306,10 @@ namespace WorldServer.core.worlds
                 }
             }
 
+            // an Oryx chain stage players went into, closing with its boss alive: a chain failed
+            if (OryxChain.IsStage(world) && world.Visited && !world.StageBossDown && !world.IdName.Contains("Arena"))
+                WeeklyStats.Count(Shared.database.leaderboard.DbWeeklyStats.ChainsFailed);
+
             world.OnRemovedFromWorldManager();
         }
 

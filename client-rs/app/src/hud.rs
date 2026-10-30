@@ -54,8 +54,6 @@ const GRID_PAD: (f32, f32) = (6.0, 5.0);
 const NEXUS_W: f32 = 56.0;
 /// The vault button, at the right of the Quests button.
 const VAULT_W: f32 = 40.0;
-/// The Nexus button's picture: the Nexus portal.
-const NEXUS_ICON: i32 = 0x0712;
 /// The inventory and backpack tabs: two square buttons in a small box.
 const TAB: f32 = 28.0;
 const TAB_PAD: f32 = 5.0;
@@ -1463,7 +1461,7 @@ impl Panel {
 /// The bar down the right: the minimap, bars and character card at the top; the Nexus
 /// button, equipment, tabs and potions, inventory and interact area at the foot.
 #[allow(clippy::too_many_arguments)]
-pub fn draw_panel(ui: &mut Ui, lay: &Layout, world: &World, camera_angle: f64, colors: &mut MapColors, panel: &Panel, state: &HudState, social: &Social, mouse: (f64, f64)) {
+pub fn draw_panel(ui: &mut Ui, lay: &Layout, world: &World, colors: &mut MapColors, panel: &Panel, state: &HudState, social: &Social, mouse: (f64, f64)) {
     let s = lay.s;
     let Some(me) = world.player() else { return };
 
@@ -1473,7 +1471,7 @@ pub fn draw_panel(ui: &mut Ui, lay: &Layout, world: &World, camera_angle: f64, c
     let (div_x, div_w) = (mb[0] + 8.0 * s, mb[2] - 16.0 * s);
     divider(ui, div_x, lay.card_box()[1] - GAP * s / 2.0, div_w, 0.0, s);
     let mini = panel.minimap.unwrap_or_else(|| MiniView::new(lay, world, me, state.minimap_zoom));
-    draw_minimap(ui, lay, world, me, camera_angle, colors, &mini);
+    draw_minimap(ui, lay, world, colors, &mini);
     // A square map in the corner, edged where it meets the screen's middle.
     let line = s.max(1.0);
     ui.rect(mini.rect[0], mini.rect[1], line, mini.rect[3], color::BORDER_HI, 1.0);
@@ -1633,7 +1631,7 @@ pub fn draw_panel(ui: &mut Ui, lay: &Layout, world: &World, camera_angle: f64, c
     for (button, r) in &panel.buttons {
         let (label, kind) = match button {
             Button::Nexus => {
-                // The Nexus portal's picture, then the key.
+                // The Nexus's picture (its keep), then the key.
                 let hover = inside(*r, mouse);
                 ui.button(*r, "", Kind::Secondary, hover, s);
                 // Sized as the gold and fame are: a 16-unit picture, the key at 16, each centred
@@ -1643,7 +1641,7 @@ pub fn draw_panel(ui: &mut Ui, lay: &Layout, world: &World, camera_angle: f64, c
                 let (icon_w, gap) = (16.0 * s, 6.0 * s);
                 let x0 = (r[0] + (r[2] - icon_w - gap - kw) / 2.0).round();
                 let cy = r[1] + r[3] / 2.0;
-                object_icon(ui, NEXUS_ICON as u16, x0 + icon_w / 2.0, cy, icon_w);
+                ui_icon(ui, ui_icon::NEXUS, x0 + icon_w / 2.0, cy, icon_w + 4.0 * s);
                 let mid = ui.digit_middle(size, true);
                 ui.label(&state.nexus_key, x0 + icon_w + gap, (cy - mid).round(), size, true, color::TEXT);
                 continue;
@@ -1653,18 +1651,8 @@ pub fn draw_panel(ui: &mut Ui, lay: &Layout, world: &World, camera_angle: f64, c
                 let hover = inside(*r, mouse);
                 let ready = state.quests_ready;
                 ui.button(*r, "", if ready > 0 { Kind::Primary } else { Kind::Secondary }, hover, s);
-                let size = lay.font(14.0);
-                let label = "Quests";
-                let lw = ui.measure(label, size, true);
-                let ks = lay.font(12.0);
-                let kw = if state.quests_key.is_empty() { 0.0 } else { ui.measure(&state.quests_key, ks, true) + 6.0 * s };
-                let x0 = (r[0] + (r[2] - lw - kw) / 2.0).round();
-                let cy = r[1] + r[3] / 2.0;
-                let (text, dim) = if ready > 0 { (color::ACCENT_TEXT, color::ACCENT_TEXT) } else { (color::TEXT, color::TEXT_MUTED) };
-                ui.label(label, x0, (cy - ui.digit_middle(size, true)).round(), size, true, text);
-                if !state.quests_key.is_empty() {
-                    ui.label(&state.quests_key, x0 + lw + 6.0 * s, (cy - ui.digit_middle(ks, true)).round(), ks, true, dim);
-                }
+                // the quest log's scroll (its key is in the tooltip)
+                ui_icon(ui, ui_icon::QUEST, r[0] + r[2] / 2.0, r[1] + r[3] / 2.0, 22.0 * s);
                 if ready > 0 {
                     let d = 17.0 * s;
                     let br = [r[0] + r[2] - d * 0.7, r[1] - d * 0.35, d, d];
@@ -1707,20 +1695,20 @@ pub fn draw_panel(ui: &mut Ui, lay: &Layout, world: &World, camera_angle: f64, c
 }
 
 /// Experience (fame at level 20), HP and MP as bars in `r`: HP and MP with what items add,
-/// and gold when the base is at the class's maximum (as the stats show it).
+/// gold when the base is at the class's maximum and orange past it (as the stats show it).
 pub fn draw_bars(ui: &mut Ui, lay: &Layout, me: &GameObj, r: [f32; 4]) {
     let stat = |id: u8| me.stat_int(id).unwrap_or(0);
     let class_max = |tag: &str| {
         ui.data.objects.get(&me.object_type).and_then(|c| c.xml.child(tag)).and_then(|e| e.attr("max")).and_then(|m| m.parse::<i32>().ok())
     };
     let (hp_boost, mp_boost) = (stat(stat::MAX_HP_BOOST), stat(stat::MAX_MP_BOOST));
-    let hp_maxed = class_max("MaxHitPoints").is_some_and(|m| stat(stat::MAX_HP) - hp_boost >= m);
-    let mp_maxed = class_max("MaxMagicPoints").is_some_and(|m| stat(stat::MAX_MP) - mp_boost >= m);
+    let hp_maxed = max_tone(class_max("MaxHitPoints"), stat(stat::MAX_HP) - hp_boost);
+    let mp_maxed = max_tone(class_max("MaxMagicPoints"), stat(stat::MAX_MP) - mp_boost);
     let bars = [
         if stat(stat::LEVEL) < 20 {
-            ("XP", stat(stat::EXP), stat(stat::NEXT_LEVEL_EXP), 0x6FAF2E, 0, false)
+            ("XP", stat(stat::EXP), stat(stat::NEXT_LEVEL_EXP), 0x6FAF2E, 0, None)
         } else {
-            ("Fame", stat(stat::CURR_FAME), stat(stat::NEXT_CLASS_QUEST_FAME), 0xF07A1E, 0, false)
+            ("Fame", stat(stat::CURR_FAME), stat(stat::NEXT_CLASS_QUEST_FAME), 0xF07A1E, 0, None)
         },
         ("HP", stat(stat::HP), stat(stat::MAX_HP), 0xE0403E, hp_boost, hp_maxed),
         ("MP", stat(stat::MP), stat(stat::MAX_MP), 0x4C7BE8, mp_boost, mp_maxed),
@@ -1755,13 +1743,14 @@ pub fn draw_card(ui: &mut Ui, lay: &Layout, me: &GameObj, tab: usize, fame: &Has
     if tab == 0 {
         draw_stats(ui, lay, me, body);
     } else {
-        draw_records(ui, lay, fame, body);
+        draw_records(ui, lay, fame, body, mouse);
     }
 }
 
 /// The fame records (`FameStats`, as the death screen counts them) in a box `r`: kills, god
-/// and Oryx kills, quests, dungeons, accuracy, potions drunk and time played.
-pub fn draw_records(ui: &mut Ui, lay: &Layout, fame: &HashMap<u8, i32>, r: [f32; 4]) {
+/// and Oryx kills, quests, dungeons, accuracy, potions drunk and time played. A value too wide
+/// for its row is shortened (10.6k, 31h), and the mouse over it shows it in full.
+pub fn draw_records(ui: &mut Ui, lay: &Layout, fame: &HashMap<u8, i32>, r: [f32; 4], mouse: (f64, f64)) {
     let s = lay.s;
     theme::frame(ui.renderer, r, 7.0 * s, s.max(1.0), (color::BORDER, 0.9), ((color::INSET_TOP, 0.9), (color::INSET_BOTTOM, 0.9)));
     if fame.is_empty() {
@@ -1772,19 +1761,21 @@ pub fn draw_records(ui: &mut Ui, lay: &Layout, fame: &HashMap<u8, i32>, r: [f32;
         return;
     }
     let get = |id: u8| fame.get(&id).copied().unwrap_or(0);
-    // The dungeons the records count: the pirate cave to the manor.
-    let dungeons: i32 = [13u8, 14, 15, 16, 17, 18, 21, 22, 23, 24].iter().map(|&id| get(id)).sum();
+    // Every dungeon cleared (25); an older server only counts the pirate cave to the manor.
+    let dungeons: i32 = fame.get(&25).copied().unwrap_or_else(|| [13u8, 14, 15, 16, 17, 18, 21, 22, 23, 24].iter().map(|&id| get(id)).sum());
     let accuracy = if get(0) > 0 { format!("{}%", (get(1) as f64 / get(0) as f64 * 100.0).round() as i32) } else { "-".to_owned() };
     let played = get(20);
-    let rows = [
-        ("Kills", group_digits(get(6))),
-        ("God kills", group_digits(get(8))),
-        ("Oryx kills", group_digits(get(11))),
-        ("Quests", group_digits(get(12))),
-        ("Dungeons", group_digits(dungeons)),
-        ("Accuracy", accuracy),
-        ("Potions", group_digits(get(5))),
-        ("Played", format!("{}h {}m", played / 60, played % 60)),
+    let count = |n: i32| vec![group_digits(n), compact_count(n)];
+    // each row's value, then shorter forms for when it doesn't fit
+    let rows: [(&str, Vec<String>); 8] = [
+        ("Kills", count(get(6))),
+        ("God kills", count(get(8))),
+        ("Oryx kills", count(get(11))),
+        ("Quests", count(get(12))),
+        ("Dungeons", count(dungeons)),
+        ("Accuracy", vec![accuracy]),
+        ("Potions", count(get(5))),
+        ("Played", vec![format!("{}h {}m", played / 60, played % 60), format!("{}h", played / 60), format!("{}d", played / 1440)]),
     ];
     // One column of eight when the page is tall enough for rows 16 units apart, else two
     // columns of four; the rows spread down the page (at most 24 units apart), centred in it.
@@ -1794,18 +1785,53 @@ pub fn draw_records(ui: &mut Ui, lay: &Layout, fame: &HashMap<u8, i32>, r: [f32;
     let (label_size, value_size) = (lay.font(11.0), lay.font(12.0));
     let col_w = (r[2] - 12.0 * s) / cols as f32;
     let top = r[1] + (r[3] - per_col as f32 * row_h) / 2.0;
-    for (i, (label, value)) in rows.iter().enumerate() {
+    let mut full = None;
+    for (i, (label, forms)) in rows.iter().enumerate() {
         let (col, row) = if one_column { (0, i) } else { (i % 2, i / 2) };
         let cx = r[0] + 6.0 * s + col as f32 * col_w;
         let ty = top + row as f32 * row_h + (row_h - value_size * 1.22) / 2.0;
         ui.label(label, cx + 2.0 * s, ty + (value_size - label_size) * 0.6, label_size, true, color::TEXT_MUTED);
+        // the room right of the label, a small gap between them
+        let room = col_w - 6.0 * s - (2.0 * s + ui.measure(label, label_size, true)) - 6.0 * s;
+        let value = forms.iter().find(|v| ui.measure(v, value_size, true) <= room).unwrap_or(&forms[forms.len() - 1]);
         let vw = ui.measure(value, value_size, true);
         ui.label(value, cx + col_w - 6.0 * s - vw, ty, value_size, true, color::TEXT);
+        if *value != forms[0] && inside([cx, top + row as f32 * row_h, col_w, row_h], mouse) {
+            full = Some((*label, forms[0].clone()));
+        }
+    }
+    if let Some((label, value)) = full {
+        let lines = [Line::new(label, 12.0, true, color::TEXT_DIM), Line::new(&value, 14.0, true, color::TEXT)];
+        draw_tooltip(ui, lay, &lines, None, None, mouse);
     }
 }
 
-/// The six stats in a box `r`, two columns of three: gold at the class maximum, the boost
-/// beside in green.
+/// A count in a few characters: 950, 10.6k, 1.2M.
+fn compact_count(n: i32) -> String {
+    let (v, unit) = match n.unsigned_abs() {
+        a if a >= 1_000_000 => (n as f64 / 1_000_000.0, "M"),
+        a if a >= 1_000 => (n as f64 / 1_000.0, "k"),
+        _ => return n.to_string(),
+    };
+    if v.abs() >= 100.0 { format!("{v:.0}{unit}") } else { format!("{:.1}{unit}", (v * 10.0).floor() / 10.0) }
+}
+
+/// A base stat's colour against its class's maximum: gold at it, Do Damage's orange past it (the
+/// Infernal potions), none below.
+pub fn max_tone(max: Option<i32>, base: i32) -> Option<u32> {
+    match max {
+        Some(m) if base > m => Some(MAX_PAST),
+        Some(m) if base >= m => Some(MAX_GOLD),
+        _ => None,
+    }
+}
+
+/// A maxed stat's gold, and a stat past its maximum's orange.
+const MAX_GOLD: u32 = 0xFFD24A;
+const MAX_PAST: u32 = 0xF07A1E;
+
+/// The six stats in a box `r`, two columns of three: gold at the class maximum, orange past it,
+/// the boost beside in green.
 pub fn draw_stats(ui: &mut Ui, lay: &Layout, me: &GameObj, r: [f32; 4]) {
     let s = lay.s;
     theme::frame(ui.renderer, r, 7.0 * s, s.max(1.0), (color::BORDER, 0.9), ((color::INSET_TOP, 0.9), (color::INSET_BOTTOM, 0.9)));
@@ -1828,8 +1854,7 @@ pub fn draw_stats(ui: &mut Ui, lay: &Layout, me: &GameObj, r: [f32; 4]) {
         let (tx, ty) = (r[0] + (8.0 + 90.0 * (i % 2) as f32) * s, top + row_h * (i / 2) as f32);
         let size = lay.font(12.0);
         ui.label(label, tx, ty, size, true, color::TEXT_MUTED);
-        let maxed = max_of(tag).is_some_and(|m| value - boost >= m);
-        let c = if maxed { 0xFFD24A } else { color::TEXT };
+        let c = max_tone(max_of(tag), value - boost).unwrap_or(color::TEXT);
         let room = 50.0 * s;
         let value_s = value.to_string();
         let boost_s = if boost != 0 { format!(" {boost:+}") } else { String::new() };
@@ -2049,9 +2074,9 @@ fn draw_character(ui: &mut Ui, me: &GameObj, cx: f32, cy: f32, size: i32) {
 /// A status bar: a rounded dark track, a shaded fill, the label at the left and the numbers at
 /// the right.
 /// `boost` is what items add to the maximum, shown after it in dark green (red if negative);
-/// `maxed` turns the numbers gold.
+/// `maxed` colours the numbers (`max_tone`).
 #[allow(clippy::too_many_arguments)]
-fn status_bar(ui: &mut Ui, lay: &Layout, x: f32, y: f32, label: &str, value: i32, max: i32, c: u32, boost: i32, maxed: bool) {
+fn status_bar(ui: &mut Ui, lay: &Layout, x: f32, y: f32, label: &str, value: i32, max: i32, c: u32, boost: i32, maxed: Option<u32>) {
     let s = lay.s;
     let (w, h) = (176.0 * s, 18.0 * s);
     let r = [x, y, w, h];
@@ -2073,9 +2098,9 @@ fn status_bar(ui: &mut Ui, lay: &Layout, x: f32, y: f32, label: &str, value: i32
     let small = lay.font(9.5);
     let (vw, mw, bw) = (ui.measure(&v, size, true), ui.measure(&m, size, true), ui.measure(&b, small, true));
     let mut tx = x + w - vw - mw - bw - 6.0 * s;
-    ui.label(&v, tx, ty, size, true, if maxed { 0xFFD24A } else { color::TEXT });
+    ui.label(&v, tx, ty, size, true, maxed.unwrap_or(color::TEXT));
     tx += vw;
-    ui.label(&m, tx, ty, size, true, if maxed { 0xFFD24A } else { color::TEXT });
+    ui.label(&m, tx, ty, size, true, maxed.unwrap_or(color::TEXT));
     tx += mw;
     if boost != 0 {
         // Dark, so it reads over the bar's colour.
@@ -2085,7 +2110,7 @@ fn status_bar(ui: &mut Ui, lay: &Layout, x: f32, y: f32, label: &str, value: i32
 
 /// `MiniMap.draw` at its first zoom (4 units a tile), north up, the player's arrow turned with
 /// the camera. Static objects that fill their square show their colour over the ground.
-fn draw_minimap(ui: &mut Ui, lay: &Layout, world: &World, me: &GameObj, camera_angle: f64, colors: &mut MapColors, mini: &MiniView) {
+fn draw_minimap(ui: &mut Ui, lay: &Layout, world: &World, colors: &mut MapColors, mini: &MiniView) {
     let [x0, y0, side, _] = mini.rect;
     ui.rect(x0, y0, side, side, MINIMAP_FILL, 1.0);
     // Zoomed far out, a cell covers several tiles (each at least two pixels wide).
@@ -2142,19 +2167,17 @@ fn draw_minimap(ui: &mut Ui, lay: &Layout, world: &World, me: &GameObj, camera_a
             ui.rect(l, t, r - l, b - t, color, 1.0);
         }
     }
-    // Players yellow, enemies red, other characters their colour, portals blue; at the box's
-    // edge when out of it.
+    // Enemies red, other characters their colour, portals blue; at the box's edge when out of
+    // it. Players come last, over the realm's marks (draw_minimap_top).
     for o in world.objects.values() {
         if Some(o.id) == world.me {
             continue;
         }
         let Some(d) = ui.data.objects.get(&o.object_type) else { continue };
-        if d.no_mini_map {
+        if d.no_mini_map || d.player {
             continue;
         }
-        let color = if d.player {
-            0xFFFF00
-        } else if d.class == ObjectClass::Character {
+        let color = if d.class == ObjectClass::Character {
             if d.enemy { 0xFF0000 } else { colors.object(ui, o.object_type) }
         } else if matches!(d.class, ObjectClass::Portal | ObjectClass::GuildHallPortal) {
             0x0000FF
@@ -2166,8 +2189,56 @@ fn draw_minimap(ui: &mut Ui, lay: &Layout, world: &World, me: &GameObj, camera_a
         let (px, py) = (px.clamp(x0 + d2, x0 + side - d2), py.clamp(y0 + d2, y0 + side - d2));
         ui.rect(px - d2, py - d2, 2.0 * d2, 2.0 * d2, color, 1.0);
     }
+}
+
+/// While the bag preview key is held: over each loot bag in view, a row of the items in it.
+pub fn draw_bag_previews(ui: &mut Ui, world: &World, camera: &crate::view::Camera, s: f32) {
+    let icon = 26.0 * s;
+    let pad = 3.0 * s;
+    for o in world.objects.values() {
+        if !ui.data.objects.get(&o.object_type).is_some_and(|d| d.class == ObjectClass::Container && d.xml.has("Loot")) {
+            continue;
+        }
+        let items: Vec<i32> = (0..8u8).map(|i| o.stat_int(slot_stat(i)).unwrap_or(-1)).filter(|&t| t > 0).collect();
+        if items.is_empty() {
+            continue;
+        }
+        // above the bag, which stands about a tile tall
+        let [bx, by] = camera.to_screen(o.x, o.y, 1.0);
+        let w = items.len() as f32 * icon + 2.0 * pad;
+        let r = [(bx - w / 2.0).round(), (by - icon - 2.0 * pad - 4.0 * s).round(), w, icon + 2.0 * pad];
+        theme::frame(ui.renderer, r, 4.0 * s, s.max(1.0), (color::BORDER, 0.95), ((0x000000, 0.75), (0x000000, 0.75)));
+        for (i, &item) in items.iter().enumerate() {
+            let cx = r[0] + pad + icon * (i as f32 + 0.5);
+            ui.item_icon(item, 40, cx, r[1] + r[3] / 2.0, s);
+        }
+    }
+}
+
+/// The minimap's top layer, over the realm's marks (events::draw_minimap_marks): the player's
+/// quest in a red box, the other players in yellow, outlined so they stand out, and the player.
+pub fn draw_minimap_top(ui: &mut Ui, lay: &Layout, world: &World, camera_angle: f64, mini: &MiniView, quest: Option<i32>) {
+    let Some(me) = world.player() else { return };
+    let [x0, y0, side, _] = mini.rect;
+    let s = lay.s;
+    let edge = |(px, py): (f32, f32), d: f32| (px.clamp(x0 + d, x0 + side - d), py.clamp(y0 + d, y0 + side - d));
+    if let Some(q) = quest.and_then(|id| world.objects.get(&id)) {
+        let d = 4.5 * s;
+        let (px, py) = edge(mini.to_map(q.x, q.y), d);
+        ui.rect(px - d - s, py - d - s, 2.0 * (d + s), 2.0 * (d + s), 0x000000, 0.85);
+        ui.rect(px - d, py - d, 2.0 * d, 2.0 * d, 0xE02020, 1.0);
+    }
+    for o in world.objects.values() {
+        if Some(o.id) == world.me || !ui.data.objects.get(&o.object_type).is_some_and(|d| d.player && !d.no_mini_map) {
+            continue;
+        }
+        let d = 2.5 * s;
+        let (px, py) = edge(mini.to_map(o.x, o.y), d + s);
+        ui.rect(px - d - s, py - d - s, 2.0 * (d + s), 2.0 * (d + s), 0x000000, 0.9);
+        ui.rect(px - d, py - d, 2.0 * d, 2.0 * d, 0xFFFF00, 1.0);
+    }
     // The player: lofiInterface 54 tinted blue, pointing the way the camera faces.
-    let (px, py) = to_map(me.x, me.y);
+    let (px, py) = mini.to_map(me.x, me.y);
     if let Some(arrow) = ui.sprites.tile("lofiInterface", 54) {
         let (w, h) = (8.0 * lay.s, 32.0 * lay.s);
         let quad = Quad::rotated(px, py, w, h, camera_angle as f32);
@@ -2235,6 +2306,15 @@ pub fn draw_overlay(ui: &mut Ui, lay: &Layout, world: &World, panel: &Panel, sta
         }
     }
     // The inventory and backpack tabs: which is which, and the key that switches, centred.
+    // The Quests button, a picture now: what it is and its key.
+    if let Some(Button::Quests) = panel.button_at(mouse) {
+        let mut lines = vec![Line::new("Quest log", 14.0, true, color::TEXT)];
+        if !state.quests_key.is_empty() {
+            lines.push(Line { centred: true, ..Line::new(&state.quests_key, 14.0, true, color::TEXT_DIM) });
+        }
+        draw_tooltip(ui, lay, &lines, None, None, mouse);
+        return;
+    }
     if let Some(Button::Page(p)) = panel.button_at(mouse) {
         let mut lines = vec![Line::new(if p == Page::Inventory { "Inventory" } else { "Backpack" }, 14.0, true, color::TEXT)];
         if p == Page::Backpack && !panel.has_backpack {
@@ -2553,6 +2633,14 @@ fn activate_rows(a: &bsk_data::xml::Element) -> (String, Vec<(String, String)>) 
         "MagicNova" => ("Magic", vec![row("Restores", format!("{} MP", num("amount"))), row("Range", format!("you and allies within {}", sqrs(num("range"))))]),
         "Halo" => ("Halo", vec![row("Heals", format!("{} HP", num("amount"))), row("Range", sqrs(num("range"))), row("Lasts", secs(num("duration")))]),
         "StasisBlast" => ("Stasis", vec![row("Radius", sqrs(if has("radius") { num("radius") } else { 3.0 })), row("Lasts", secs(num("duration")))]),
+        "ArmorShred" => (
+            "Shred",
+            vec![
+                row("Armor", format!("-{}% to enemies", num("amount"))),
+                row("Radius", sqrs(if has("radius") { num("radius") } else { 3.0 })),
+                row("Lasts", secs(num("duration"))),
+            ],
+        ),
         "StatBoostSelf" => ("Boost", vec![row("Gives", format!("+{} {}", num("amount"), stat_name(a.attr_int("stat", -1)))), row("Lasts", secs(num("duration")))]),
         "StatBoostAura" => (
             "Boost",
@@ -2859,6 +2947,7 @@ fn activate_detail(a: &bsk_data::xml::Element) -> String {
             }
             s
         }
+        "OvercapStat" => format!("+{} {} past its maximum, once maxed (up to 5 of these)", a.attr_int("amount", 0), stat_name(a.attr_int("stat", -1))),
         // Poison ignores defense (the server's `PoisonEnemy`).
         "PoisonGrenade" => {
             let mut s = format!("Poison: {} damage over {} secs, within {} sqrs", num("totalDamage"), num("duration"), num("radius"));
@@ -2883,6 +2972,12 @@ fn activate_detail(a: &bsk_data::xml::Element) -> String {
             s
         }
         "StasisBlast" => format!("Puts enemies within {} sqrs in stasis for {} secs", if has("radius") { num("radius") } else { 3.0 }, num("duration")),
+        "ArmorShred" => format!(
+            "Takes {}% off the armor of enemies within {} sqrs for {} secs",
+            num("amount"),
+            if has("radius") { num("radius") } else { 3.0 },
+            num("duration")
+        ),
         "Decoy" | "MultiDecoy" => format!("A decoy that draws enemies for {} secs", num("duration")),
         "Teleport" => format!("Teleports you up to {} sqrs", num("maxDistance")),
         "StatBoostSelf" => format!("+{} {} for {} secs", num("amount"), stat_name(a.attr_int("stat", -1)), num("duration")),
@@ -3329,6 +3424,34 @@ pub fn group_digits(n: i32) -> String {
 }
 
 /// An object's picture (a class, a boss), about `px` pixels, centred on (cx, cy).
+/// The UI's own icons (`uiIcons16x16`, tools/draw_ui_icons.py), by cell.
+pub mod ui_icon {
+    pub const QUEST: u32 = 0;
+    pub const NEXUS: u32 = 1;
+    pub const DUNGEON: u32 = 2;
+    pub const CROWN: u32 = 3;
+    pub const CROWN_BROKEN: u32 = 4;
+    pub const GRAVE: u32 = 5;
+    pub const SWORDS: u32 = 6;
+    pub const BANNER: u32 = 7;
+    pub const TOWER: u32 = 8;
+    pub const POTION: u32 = 9;
+    pub const ANVIL: u32 = 10;
+    pub const SKULL: u32 = 11;
+    pub const HOURGLASS: u32 = 12;
+}
+
+/// One of the UI's icons (`ui_icon`), as big as fits in `px`, centred on (cx, cy).
+pub fn ui_icon(ui: &mut Ui, cell: u32, cx: f32, cy: f32, px: f32) {
+    let Some(src) = ui.sprites.tile_src("uiIcons16x16", cell) else { return };
+    let side = src.w.max(src.h).max(1) as f32;
+    let size = ((px * 20.0 / side).floor() as i32).max(1);
+    let Some(icon) = ui.redrawer.get(ui.sprites, ui.renderer, src, false, size, None) else { return };
+    let (w, h) = (icon.w as f32, icon.h as f32);
+    let lift = (crate::redraw::PAD as f32 - 1.0) / 2.0;
+    ui.renderer.sprite(icon.rect, Quad::rect((cx - w / 2.0).round(), (cy - h / 2.0 - lift).round(), w, h), Tint::NONE);
+}
+
 pub fn object_icon(ui: &mut Ui, object_type: u16, cx: f32, cy: f32, px: f32) {
     let Some(desc) = ui.data.objects.get(&object_type) else { return };
     let src = match &desc.texture.pick(0).main {

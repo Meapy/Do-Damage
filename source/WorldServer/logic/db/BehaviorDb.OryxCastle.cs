@@ -129,24 +129,17 @@ namespace WorldServer.logic
                 )
             )
             // sits directly above the wall between the guardian room and Janus' room (row 30), and
-            // opens it once the Stone Guardians are dead and a quarter of the castle's haunted Suits
-            // of Armor are broken (it speaks as Janus, its DisplayId)
+            // opens it once the Stone Guardians are dead, whatever else stands (it speaks as Janus,
+            // its DisplayId)
             .Init("md dwGenerator",
                 new State(
                     new State("Shut",
-                        new ShareKilledTransition(0.25, "Armour Broken", "Oryx Suit of Armor"),
                         new State("Init",
                             new TimedTransition(2000, "Idle")
                         ),
                         new State("Idle",
-                            new EntitiesNotExistsTransition(100, "Armour Stands", "Oryx Stone Guardian Right", "Oryx Stone Guardian Left")
-                        ),
-                        new State("Armour Stands",
-                            new Taunt(true, "My door holds while my master's armour stands. Break a quarter of his haunted Suits of Armor, and perhaps it will yield.") { Bubble = false }
+                            new EntitiesNotExistsTransition(100, "Open", "Oryx Stone Guardian Right", "Oryx Stone Guardian Left")
                         )
-                    ),
-                    new State("Armour Broken",
-                        new EntitiesNotExistsTransition(100, "Open", "Oryx Stone Guardian Right", "Oryx Stone Guardian Left")
                     ),
                     new State("Open",
                         new RemoveObject("Castle Brick Wall3", 6),
@@ -317,13 +310,22 @@ namespace WorldServer.logic
                           new Shoot(10, 2, 15, 0, coolDown: 600),
                           new HpLessTransition(0.2, "heal")
                           ),
+                      // once a suit: a moment's guard and a small heal, then it fights on to the end
                       new State("heal",
                           new ConditionEffectBehavior(ConditionEffectIndex.Invulnerable),
                           new SetAltTexture(0),
                           new Shoot(10, 6, projectileIndex: 0, coolDown: 200),
                           new HealSelf(coolDown: 2000, amount: 200),
-                          new TimedTransition(1500, "jordan is stanking")
-                         )
+                          new TimedTransition(1500, "last stand")
+                         ),
+                      new State("last stand",
+                          new Prioritize(
+                               new Wander(0.2),
+                               new Follow(0.4, 10, 2, -1, 0)
+                              ),
+                          new SetAltTexture(1),
+                          new Shoot(10, 2, 15, 0, coolDown: 600)
+                          )
                   )
             )
             .Init("Oryx Eye Warrior",
