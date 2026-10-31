@@ -110,7 +110,8 @@ details). Add to a group's line when a change adds to it, rather than adding ano
   remembers the map of a realm you left (Realm 2 too) when you come back to it.
 - Leaving a dungeon by its Realm Portal or Portal of Cowardice takes you back to the realm you
   came from, Realm 2 included, rather than a random realm or the Nexus.
-- The Quests button is a scroll and the Nexus button the Nexus's keep.
+- The Quests button is a scroll and the Nexus button the Nexus's keep. Hovering over the Quests
+  button or the inventory and backpack tabs shows a small one-line hint with its key ("Quest log [J]").
 - Records: Potions counts every potion you drink, stat potions and potion storage too; Quests and
   Dungeons count again (every dungeon you clear). Numbers too long for their row are shortened,
   and the mouse over them shows them in full.
