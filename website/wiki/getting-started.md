@@ -100,7 +100,9 @@ The world fills the window, with one bar down the right:
   portal, a shop or an invitation. Drag a potion from the potion bar onto an empty inventory
   slot to take it back out.
 - **At the top left:** the boss you're after, with its health and the five players doing the most
-  damage to it, with their class and share. With no boss around, the menu button there opens your
+  damage to it, with their class and share. Healing and buffing count too: a player's assist
+  credit shows in green beside their damage ([Progression](progression.html#loot)). With no boss
+  around, the menu button there opens your
   last 3 bosses: click one to see everyone who hit it.
 
 Hover over any item to see what it does; the numbers that beat what you're wearing show in green.

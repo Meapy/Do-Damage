@@ -164,11 +164,15 @@ messages! {
         90 => QuestDamage { object_id: i32, top: List8<DamageShare>, mine: i32 },
         // For clients that asked (QuestDamageFullSubscribe), instead: everyone who hit the
         // quest, most first, its type and maximum health, whether it has just died, and our
-        // damage.
+        // damage; then everyone's assist credit (healing and buffing, what it counts for in the
+        // loot, most first: the damage field is the assist) and ours, which older servers leave
+        // out.
         // For clients that asked (FameStatsSubscribe): the character's fame records, every few
         // seconds while they change.
         94 => FameStats { stats: List8<FameStat> },
-        92 => QuestDamageFull { object_id: i32, object_type: u16, max_hp: i32, dead: bool, hitters: List8<DamageHit>, mine: i32 },
+        92 => QuestDamageFull { object_id: i32, object_type: u16, max_hp: i32, dead: bool, hitters: List8<DamageHit>, mine: i32,
+            assists: Option<List8<DamageHit>>, mine_assist: Option<i32>,
+        },
         // The Divine Forge's recipes and what it pays for items (ForgeDataRequest), then the
         // recipes that also take stat potions from the potion storage (the Infernal potions; an
         // older server sends none).

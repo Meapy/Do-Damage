@@ -173,7 +173,11 @@ namespace WorldServer.core.objects
             var hitters = enemy.DamageCounter.GetPlayerData().OrderByDescending(h => h.Item2).ToArray();
             var mine = hitters.Where(h => h.Item1 == this).Select(h => h.Item2).FirstOrDefault();
             var shown = WantsFullQuestDamage ? hitters.Take(255) : hitters.Take(3);
-            var key = enemy.Id + ":" + string.Join(",", shown.Select(h => h.Item1.Name + "=" + h.Item2)) + ":" + mine + ":" + dead;
+            // assist credit, for clients that read it (QuestDamageFull)
+            var assists = WantsFullQuestDamage ? enemy.DamageCounter.GetAssistData().OrderByDescending(a => a.Item2).Take(255).ToArray() : [];
+            var mineAssist = assists.Where(a => a.Item1 == this).Select(a => a.Item2).FirstOrDefault();
+            var key = enemy.Id + ":" + string.Join(",", shown.Select(h => h.Item1.Name + "=" + h.Item2)) + ":" + mine + ":" + dead
+                + ":" + string.Join(",", assists.Select(a => a.Item1.Name + "=" + a.Item2));
             if (key == _questDamageSent)
                 return;
             _questDamageSent = key;
@@ -185,7 +189,9 @@ namespace WorldServer.core.objects
                     MaxHp = enemy.MaxHealth,
                     Dead = dead,
                     Hitters = shown.Select(h => (h.Item1.Name, h.Item1.ObjectType, h.Item2)).ToArray(),
-                    Mine = mine
+                    Mine = mine,
+                    Assists = assists.Select(a => (a.Item1.Name, a.Item1.ObjectType, a.Item2)).ToArray(),
+                    MineAssist = mineAssist
                 });
             else
                 Client.SendPacket(new QuestDamage() { ObjectId = enemy.Id, Top = shown.Select(h => (h.Item1.Name, h.Item2)).ToArray(), Mine = mine });

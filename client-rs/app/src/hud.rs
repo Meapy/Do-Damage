@@ -3383,7 +3383,11 @@ fn draw_boss(
     let me = world.player();
     let my_name = me.and_then(|p| p.name()).unwrap_or("");
     let shown: Vec<&crate::game::Hitter> = top.map(|t| t.hitters.iter().take(BOSS_TOP).collect()).unwrap_or_default();
-    let mine = top.map(|t| t.mine).filter(|&d| d > 0).or_else(|| dealt.get(&q.id).copied().filter(|&d| d > 0 && near));
+    // our damage and assist credit
+    let mine = top
+        .map(|t| (t.mine, t.mine_assist))
+        .filter(|&(d, a)| d > 0 || a > 0)
+        .or_else(|| dealt.get(&q.id).copied().filter(|&d| d > 0 && near).map(|d| (d, 0)));
     let me_listed = shown.iter().any(|h| h.name == my_name);
     let rows = shown.len() + usize::from(mine.is_some() && !me_listed);
     if rows > 0 {
@@ -3393,7 +3397,7 @@ fn draw_boss(
         let mut y = box_r[1] + 4.0 * s;
         for (i, h) in shown.iter().enumerate() {
             let c = if h.name == my_name { color::ACCENT_HI } else { color::TEXT };
-            hitter_row(ui, lay, [box_r[0] + 4.0 * s, y, box_r[2] - 8.0 * s, row_h], Some(i + 1), &h.name, h.class, h.damage, max, c);
+            hitter_row(ui, lay, [box_r[0] + 4.0 * s, y, box_r[2] - 8.0 * s, row_h], Some(i + 1), &h.name, h.class, (h.damage, h.assist), max, c);
             y += row_h;
         }
         if let (Some(d), false) = (mine, me_listed) {
@@ -3475,9 +3479,10 @@ pub fn object_icon(ui: &mut Ui, object_type: u16, cx: f32, cy: f32, px: f32) {
 }
 
 /// One row of who hit a boss, in `r`: their class's picture, their place and name, then their
-/// damage and their share of the boss's health.
+/// damage, their assist credit (healing and buffing, in green, when they have some) and the share
+/// of the boss's health the two make.
 #[allow(clippy::too_many_arguments)]
-fn hitter_row(ui: &mut Ui, lay: &Layout, r: [f32; 4], place: Option<usize>, name: &str, class: u16, damage: i32, max: i32, c: u32) {
+fn hitter_row(ui: &mut Ui, lay: &Layout, r: [f32; 4], place: Option<usize>, name: &str, class: u16, (damage, assist): (i32, i32), max: i32, c: u32) {
     let s = lay.s;
     let ds = lay.font(11.0);
     let ty = r[1] + (r[3] - ds * 1.22) / 2.0;
@@ -3486,14 +3491,24 @@ fn hitter_row(ui: &mut Ui, lay: &Layout, r: [f32; 4], place: Option<usize>, name
     }
     let label = place.map_or_else(|| name.to_owned(), |k| format!("{k}. {name}"));
     ui.label(&label, r[0] + 20.0 * s, ty, ds, true, c);
-    let pct = if max > 0 { (damage.clamp(0, max) as f32 / max as f32 * 100.0).floor() as i32 } else { 0 };
+    let pct = if max > 0 { ((damage + assist).clamp(0, max) as f32 / max as f32 * 100.0).floor() as i32 } else { 0 };
     let share = format!("{pct}%");
     let sw = ui.measure(&share, ds, true);
     let right = r[0] + r[2] - 4.0 * s;
     ui.label(&share, right - sw, ty, ds, true, c);
-    let dmg = group_digits(damage);
-    let dw = ui.measure(&dmg, ds, false);
-    ui.label(&dmg, right - 40.0 * s - dw, ty, ds, false, color::TEXT_DIM);
+    // a helper who never hit it shows only their assist
+    let mut x = right - 40.0 * s;
+    if damage > 0 || assist <= 0 {
+        let dmg = group_digits(damage);
+        x -= ui.measure(&dmg, ds, false);
+        ui.label(&dmg, x, ty, ds, false, color::TEXT_DIM);
+        x -= 6.0 * s;
+    }
+    if assist > 0 {
+        let a = format!("+{}", group_digits(assist));
+        x -= ui.measure(&a, ds, false);
+        ui.label(&a, x, ty, ds, false, color::GOOD);
+    }
 }
 
 /// Where the boss history goes at the top left: its button, and when open the list.
@@ -3595,7 +3610,7 @@ pub fn draw_history(ui: &mut Ui, lay: &Layout, hl: &HistoryLayout, history: &[cr
                 object_icon(ui, fight.object_type, r[0] + 13.0 * s, r[1] + r[3] / 2.0, r[3] - 2.0 * s);
                 let ns = lay.font(12.0);
                 ui.label(&fight.name, r[0] + 28.0 * s, r[1] + (r[3] - ns * 1.22) / 2.0, ns, true, color::ACCENT_HI);
-                let pct = if fight.max_hp > 0 { (fight.mine.clamp(0, fight.max_hp) as f32 / fight.max_hp as f32 * 100.0).floor() as i32 } else { 0 };
+                let pct = if fight.max_hp > 0 { ((fight.mine + fight.mine_assist).clamp(0, fight.max_hp) as f32 / fight.max_hp as f32 * 100.0).floor() as i32 } else { 0 };
                 // Our share, then a small arrow: down when open, right when closed.
                 let t = format!("You {pct}%");
                 let tw = ui.measure(&t, ds, true);
@@ -3609,7 +3624,7 @@ pub fn draw_history(ui: &mut Ui, lay: &Layout, hl: &HistoryLayout, history: &[cr
                 let fight = &history[i];
                 let h = &fight.hitters[k];
                 let me = h.name == fight.me;
-                hitter_row(ui, lay, r, Some(k + 1), &h.name, h.class, h.damage, fight.max_hp, if me { color::ACCENT_HI } else { color::TEXT });
+                hitter_row(ui, lay, r, Some(k + 1), &h.name, h.class, (h.damage, h.assist), fight.max_hp, if me { color::ACCENT_HI } else { color::TEXT });
             }
             HistoryRow::More(i, r) => {
                 let more = history[i].hitters.len() - HISTORY_HITTERS;

@@ -154,6 +154,21 @@ fn enemy_shoot_spread_is_optional() {
 }
 
 #[test]
+fn quest_damage_full_assists_are_optional() {
+    // QuestDamageFull.Write: id, type, max hp, dead, the hitters (name, class, damage), ours
+    let old = B::default().i32(7).i16(0x0d5a).i32(9000).u8(1).u8(1).utf("Dpsone").i16(797).i32(8000).i32(8000);
+    let ServerMessage::QuestDamageFull(d) = ServerMessage::decode(92, &old.0).unwrap() else { panic!() };
+    assert_eq!((d.assists, d.mine_assist), (None, None));
+    // then the assists (name, class, assist credit) and ours
+    let new = old.u8(1).utf("Healerone").i16(784).i32(1800).i32(1800);
+    let ServerMessage::QuestDamageFull(d) = ServerMessage::decode(92, &new.0).unwrap() else { panic!() };
+    assert_eq!(d.mine, 8000);
+    let a = d.assists.unwrap();
+    assert_eq!((a[0].name.as_str(), a[0].class, a[0].damage), ("Healerone", 784, 1800));
+    assert_eq!(d.mine_assist, Some(1800));
+}
+
+#[test]
 fn server_player_shoot_bullet_type_is_optional() {
     let short = B::default().i32(1).i32(2).i32(3).f32(4.0).f32(5.0).f32(0.5).i32(60);
     let ServerMessage::ServerPlayerShoot(s) = ServerMessage::decode(7, &short.0).unwrap() else { panic!() };

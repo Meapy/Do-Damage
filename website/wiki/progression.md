@@ -149,6 +149,9 @@ like damage for drops and soulbound bags, on top of any damage you do yourself, 
 - it only comes while you're actually helping: standing near a group gives nothing;
 - the damage dealers' own shares and loot don't change.
 
+The boss panel at the top left shows each player's assist credit in green (+1,850) beside their
+damage, counted as it counts for loot, and their share includes it.
+
 - On weekends every drop is 30% more likely.
 - A **Loot Drop Potion** (Nexus Bazaar) raises your drop chances for a while.
 

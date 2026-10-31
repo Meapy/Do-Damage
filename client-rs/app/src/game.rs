@@ -149,6 +149,8 @@ pub struct Hitter {
     pub name: String,
     pub class: u16,
     pub damage: i32,
+    /// Assist credit: what their healing and buffing counts for in the loot.
+    pub assist: i32,
 }
 
 /// Who hit the quest, as the server last said, with the quest's name and type as we last saw
@@ -160,6 +162,7 @@ pub struct QuestDamage {
     pub object_type: u16,
     pub hitters: Vec<Hitter>,
     pub mine: i32,
+    pub mine_assist: i32,
 }
 
 /// A boss we hit that died, and who hit it.
@@ -171,6 +174,7 @@ pub struct BossFight {
     pub max_hp: i32,
     pub hitters: Vec<Hitter>,
     pub mine: i32,
+    pub mine_assist: i32,
     /// Our name then.
     pub me: String,
 }
@@ -433,7 +437,7 @@ impl Game {
     }
 
     /// The quest's damage as the server sent it, with its name and type while we can see it.
-    fn set_quest_damage(&mut self, object_id: i32, object_type: Option<u16>, hitters: Vec<Hitter>, mine: i32, data: &GameData) {
+    fn set_quest_damage(&mut self, object_id: i32, object_type: Option<u16>, hitters: Vec<Hitter>, mine: (i32, i32), data: &GameData) {
         let seen = self.world.as_ref().and_then(|w| w.objects.get(&object_id)).map(|o| {
             let desc = data.objects.get(&o.object_type);
             let name = o.name().map(str::to_owned).or_else(|| desc.map(|d| d.display_id.clone())).unwrap_or_default();
@@ -444,7 +448,7 @@ impl Game {
         // says it.
         let named = object_type.map(|t| (data.objects.get(&t).map(|d| d.display_id.clone()).unwrap_or_default(), t));
         let (name, object_type) = seen.or(kept).or(named).unwrap_or_default();
-        self.quest_damage = Some(QuestDamage { object_id, name, object_type, hitters, mine });
+        self.quest_damage = Some(QuestDamage { object_id, name, object_type, hitters, mine: mine.0, mine_assist: mine.1 });
     }
 
     fn handle(&mut self, msg: &ServerMessage, now: i32, data: &GameData) {
@@ -557,19 +561,29 @@ impl Game {
         match msg {
             ServerMessage::QuestObjId(q) => self.quest = Some(q.object_id),
             ServerMessage::QuestDamage(d) => {
-                let hitters = d.top.iter().map(|s| Hitter { name: s.name.clone(), class: 0, damage: s.damage }).collect();
-                self.set_quest_damage(d.object_id, None, hitters, d.mine, data);
+                let hitters = d.top.iter().map(|s| Hitter { name: s.name.clone(), class: 0, damage: s.damage, assist: 0 }).collect();
+                self.set_quest_damage(d.object_id, None, hitters, (d.mine, 0), data);
             }
             ServerMessage::FameStats(f) => self.fame_stats = f.stats.iter().map(|s| (s.id, s.value)).collect(),
             ServerMessage::QuestDamageFull(d) => {
-                let hitters = d.hitters.iter().map(|h| Hitter { name: h.name.clone(), class: h.class, damage: h.damage }).collect();
-                self.set_quest_damage(d.object_id, Some(d.object_type), hitters, d.mine, data);
-                // It died: kept if we hit it.
-                if d.dead && d.mine > 0 {
+                let mut hitters: Vec<Hitter> = d.hitters.iter().map(|h| Hitter { name: h.name.clone(), class: h.class, damage: h.damage, assist: 0 }).collect();
+                // assist credit: on the damage dealer's row, or a row of its own for a helper
+                // who never hit it; then most of both first
+                for a in d.assists.iter().flat_map(|a| a.iter()) {
+                    match hitters.iter_mut().find(|h| h.name == a.name) {
+                        Some(h) => h.assist = a.damage,
+                        None => hitters.push(Hitter { name: a.name.clone(), class: a.class, damage: 0, assist: a.damage }),
+                    }
+                }
+                hitters.sort_by_key(|h| std::cmp::Reverse(h.damage + h.assist));
+                let mine_assist = d.mine_assist.unwrap_or(0);
+                self.set_quest_damage(d.object_id, Some(d.object_type), hitters, (d.mine, mine_assist), data);
+                // It died: kept if we hit it or helped.
+                if d.dead && (d.mine > 0 || mine_assist > 0) {
                     if let Some(q) = self.quest_damage.clone().filter(|q| q.object_id == d.object_id) {
                         self.boss_history.retain(|b| b.object_id != q.object_id);
                         let me = self.world.as_ref().and_then(|w| w.player()).and_then(|p| p.name()).unwrap_or("").to_owned();
-                        self.boss_history.insert(0, BossFight { object_id: q.object_id, name: q.name, object_type: q.object_type, max_hp: d.max_hp, hitters: q.hitters, mine: d.mine, me });
+                        self.boss_history.insert(0, BossFight { object_id: q.object_id, name: q.name, object_type: q.object_type, max_hp: d.max_hp, hitters: q.hitters, mine: d.mine, mine_assist, me });
                         self.boss_history.truncate(BOSS_HISTORY);
                     }
                 }

@@ -183,6 +183,21 @@ namespace WorldServer.logic
             return credit.Select(c => Tuple.Create(c.Key, c.Value)).ToArray();
         }
 
+        // What each player's assist credit counts for in the loot (their loot credit less their
+        // damage), for those it counts for: the quest damage list shows it (Player.SendQuestDamage)
+        public Tuple<Player, int>[] GetAssistData()
+        {
+            var counter = Parent ?? this;
+            if (counter.Assists == null || counter.Assists.Count == 0)
+                return Array.Empty<Tuple<Player, int>>();
+            var damage = new Dictionary<Player, int>();
+            foreach (var h in counter.GetPlayerData())
+                damage[h.Item1] = h.Item2;
+            return counter.GetLootCredit()
+                .Select(c => Tuple.Create(c.Item1, c.Item2 - damage.GetValueOrDefault(c.Item1)))
+                .Where(a => a.Item2 > 0).ToArray();
+        }
+
         public bool AssistedBy(Player player) =>
             (Parent ?? this).Assists?.TryGetValue(player, out var credit) == true && credit > 0;
 

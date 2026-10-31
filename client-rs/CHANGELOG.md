@@ -19,7 +19,9 @@ details). Add to a group's line when a change adds to it, rather than adding ano
   lost health), or buff them with Berserk, Damaging, a seal and the like, and you share
   in the loot from what they hit, soulbound bags included, even if you never shoot it yourself.
   Debuffing a monster counts too. Help counts for up to a fifth of a monster's damage, never more
-  than its top damage dealer, and damage dealers get exactly the loot they did before.
+  than its top damage dealer, and damage dealers get exactly the loot they did before. The boss
+  panel at the top left and your recent bosses show it in green beside each player's damage, so
+  healers show up there too.
 - The white bags of mid-level dungeons drop far more often (most to 2% a run, up to four times
   what they were): the Undead Lair's Doom Bow, the Abyss's Demon Blade, the Snake Pit, Sprite
   World, Puppet Master, Toxic Sewers, Haunted Cemetery, Davy Jones, Mad Lab, Cursed Library, Ocean
