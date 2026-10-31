@@ -52,15 +52,24 @@
     return (start > 0 ? "…" : "") + cut + (start + 150 < text.length ? "…" : "");
   }
 
-  function mark(text, terms) {
-    var div = document.createElement("div");
-    div.textContent = text;
-    var safe = div.innerHTML;
-    terms.forEach(function (t) {
-      var re = new RegExp("(" + t.replace(/[.*+?^${}()|[\]\\]/g, "\\$&") + ")", "ig");
-      safe = safe.replace(re, "<mark>$1</mark>");
+  // a span of the text with the words found in <mark>, built as nodes so no text is read as HTML
+  function mark(cls, text, terms) {
+    var span = document.createElement("span");
+    span.className = cls;
+    var found = terms.slice().sort(function (a, b) { return b.length - a.length; })
+      .map(function (t) { return t.replace(/[.*+?^${}()|[\]\\]/g, "\\$&"); });
+    var parts = found.length ? text.split(new RegExp("(" + found.join("|") + ")", "i")) : [text];
+    parts.forEach(function (part, i) {
+      if (!part) return;
+      if (i % 2) {
+        var m = document.createElement("mark");
+        m.textContent = part;
+        span.appendChild(m);
+      } else {
+        span.appendChild(document.createTextNode(part));
+      }
     });
-    return safe;
+    return span;
   }
 
   function show() {
@@ -85,8 +94,9 @@
       var li = document.createElement("li");
       var a = document.createElement("a");
       a.href = root + h.e.u;
-      a.innerHTML = '<span class="r-head">' + mark(h.e.h, terms) + '</span><span class="r-page">' +
-        mark(h.e.p, []) + '</span><span class="r-text">' + mark(snippet(h.e.t, terms), terms) + "</span>";
+      a.appendChild(mark("r-head", h.e.h, terms));
+      a.appendChild(mark("r-page", h.e.p, []));
+      a.appendChild(mark("r-text", snippet(h.e.t, terms), terms));
       li.appendChild(a);
       list.appendChild(li);
     });

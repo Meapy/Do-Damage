@@ -230,7 +230,7 @@ namespace App.Controllers
                     _core.Database.ReleaseLock(nameKey, nameLock);
             }
 
-            _core.Logger.Info($"Guest account {acc.AccountId} ({acc.Name}) for {ClientIp()}");
+            _core.Logger.Info($"Guest account {acc.AccountId} ({acc.Name}) for {ClientIp().ForLog()}");
             Response.CreateXml(new XElement("Guest",
                 new XElement("GUID", guid),
                 new XElement("Password", password),
@@ -419,7 +419,7 @@ namespace App.Controllers
                     db.ChangePassword(email, newPw);
                     acc.Guest = false;
                     while (!db.RenameIGN(acc, newName, nameLock)) ;
-                    _core.Logger.Info($"Guest account {acc.AccountId} registered as {newName}");
+                    _core.Logger.Info($"Guest account {acc.AccountId} registered as {newName.ForLog()}");
                     Response.CreateSuccess();
                 }
             }

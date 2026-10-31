@@ -5,6 +5,7 @@ using Microsoft.Extensions.FileProviders;
 using System;
 using System.IO;
 using System.Threading;
+using Shared;
 
 namespace App
 {
@@ -134,7 +135,7 @@ namespace App
 
             app.Use(async (context, next) =>
             {
-                core.Logger.Info($"Request: \"{context.Request.Path}\" from: {context.Connection.RemoteIpAddress}");
+                core.Logger.Info($"Request: \"{context.Request.Path.ToString().ForLog()}\" from: {context.Connection.RemoteIpAddress}");
                 await next();
             });
             

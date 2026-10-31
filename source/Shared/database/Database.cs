@@ -1239,7 +1239,7 @@ namespace Shared.database
             acc = null;
             if (string.IsNullOrWhiteSpace(uuid))
             {
-                Log.Warn($"Invalid UUID: {uuid}");
+                Log.Warn("Sign-in without an email or guest id");
                 return DbLoginStatus.InvalidCredentials;
             }
 

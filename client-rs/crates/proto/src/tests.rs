@@ -103,7 +103,7 @@ fn update_with_string_and_int_stats() {
         .i32(99) // drop
         .0;
     let msg = ServerMessage::decode(9, &body).unwrap();
-    let ServerMessage::Update(u) = &msg else { panic!("{msg:?}") };
+    let ServerMessage::Update(u) = &msg else { panic!("not an Update") };
     assert_eq!(u.tiles[0], GroundTile { x: 3, y: 4, tile_type: 0x1234 });
     let obj = &u.new_objs[0];
     assert_eq!(obj.object_type, 0x030e);

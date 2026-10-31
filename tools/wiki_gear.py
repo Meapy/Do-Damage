@@ -430,7 +430,16 @@ class Gear:
 
     def sprite(self, texture, edge):
         """A sprite in a slot with the given edge colour; texture is (sheet name, index) or None."""
-        cls = style = ""
+        edge, cls, x, y = self.sprite_parts(texture, edge)
+        if not cls:
+            return '<span class="ico" style="--c:%s"></span>' % edge
+        return ('<span class="ico" style="--c:%s"><i class="%s" style="background-position:-%dpx -%dpx">'
+                '</i></span>' % (edge, cls, x, y))
+
+    def sprite_parts(self, texture, edge):
+        """sprite() as data, [edge, sheet class, x, y] (class "" for none), for a page's script to
+        draw with its text escaped (wiki/loot.js)."""
+        cls, x, y = "", 0, 0
         if texture:
             sheet, index = texture
             s = self.sheets.get(sheet)
@@ -444,11 +453,8 @@ class Gear:
                 cls, _, tw, th, sw, sh, bw, bh = s
                 cols = max(1, sw // bw)
                 scale = max(1, ICON // max(tw, th))
-                style = ' style="background-position:-%dpx -%dpx"' % ((index % cols) * bw * scale,
-                                                                     (index // cols) * bh * scale)
-        if not cls:
-            return '<span class="ico" style="--c:%s"></span>' % edge
-        return '<span class="ico" style="--c:%s"><i class="%s"%s></i></span>' % (edge, cls, style)
+                x, y = (index % cols) * bw * scale, (index // cols) * bh * scale
+        return [edge, cls, x, y]
 
     def card(self, it):
         h = self.h
