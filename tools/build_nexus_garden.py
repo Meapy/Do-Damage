@@ -72,7 +72,6 @@ SMOKE = "NG Chimney Smoke"              # over the smithy's chimney (models.SMIT
 UNSEEN = {
     "NG Divine Forge": ("Divine Forge", "Forge", True, {}),
     "NG Enchanter": ("Enchanter", "Enchanter", True, {}),
-    "NG Guild Register": ("Guild Register", "GuildRegister", False, {}),
     "NG Guild Hall Door": ("Guild Hall", "GuildHallPortal", False, {"IntergamePortal": None, "DungeonName": "Guild Hall"}),
 }
 # the NPCs who walk about the market (NexusVillagers, QuestGivers, MarketBroker): their own
@@ -178,6 +177,9 @@ def scenery():
         "NG Weapon Rack": (16, [extras.weapon_rack()], "block", {}),
         "NG Straw Dummy": (16, [extras.straw_dummy()], "block", {}),
         "NG Taiko": (16, [extras.taiko()], "block", {}),
+        # the Guild Register, beside the Guild Hall's door: its name shows under it
+        "NG Guild Register": (32, [extras.guild_register()], "block",
+                              {"class": "GuildRegister", "shown": "Guild Register", "showname": True, "shadow": 60}),
         SMOKE: (32, [_tall(extras.smoke(f)) for f in range(4)], "block", {"anim": (0.3,) * 4, "z": 6.3, "noshadow": True}),
         "NG Forge Flame": (8, [extras.forge_flame(f) for f in range(3)], "plain", {"anim": (0.12, 0.12, 0.12), "noshadow": True}),
         "NG Anvil": (16, [extras.anvil()], "block", {}),
@@ -250,6 +252,8 @@ def build(preview=None):
             sub(o, "ShadowSize", extra["shadow"])
         if "z" in extra:
             sub(o, "Z", extra["z"])
+        if extra.get("showname"):
+            sub(o, "ShowName")
         sub(o, "Static")
         if kind == "block":
             sub(o, "OccupySquare")
@@ -266,7 +270,9 @@ def build(preview=None):
             sub(o, k, v)
         sub(o, "NoMiniMap")
         sub(o, "ShadowSize", 0)
-        sub(o, "Static")
+        # a portal must be an entity to be used: a static map object isn't one
+        if cls != "GuildHallPortal":
+            sub(o, "Static")
         if blocks:
             sub(o, "OccupySquare")
             sub(o, "EnemyOccupySquare")

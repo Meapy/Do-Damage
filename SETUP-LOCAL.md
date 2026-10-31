@@ -585,7 +585,7 @@ The remotes `upstream` (HaloCelsius) and `aurusenth` share no history with `main
 - **The Nexus garden** (2026-10-30; `tools/build_nexus.py` for the map, `tools/build_nexus_garden.py`
   and `tools/nexus_garden/` for the art, `NexusVillagers`, `RealmPortalMonitor`, the Rust client's
   `petals.rs` and `GroundSize`): the castle Nexus is replaced by a Japanese garden village on an
-  island (`Exalt/Nexus Garden.jm` and its Halloween copy, 136 by 108 tiles), laid out from the
+  island (`Exalt/Nexus Garden.jm`, 136 by 108 tiles; it had a Halloween copy until 2026-10-31), laid out from the
   owner's sketch: a hexagon of land in a deep sea nobody can walk on, the spawn on a hexagonal
   island of deck in a wadeable koi pond with four railed bridges (wooden west and east, cobbled
   from its upper sides), the shrine of the realm portals north-west, the village north-east and
@@ -639,7 +639,10 @@ The remotes `upstream` (HaloCelsius) and `aurusenth` share no history with `main
   altar, their objects invisible (`NG Divine Forge`, `NG Enchanter`, of the classes the client
   and DoomedEconomy/ImprintHandlers look for), so they turn with the camera; Amatsumara stands
   before the smithy. The teahouse is the Guild Hall (GUILD HALL painted on it; `NG Guild
-  Register` and `NG Guild Hall Door`, invisible, on its steps). The market is a courtyard between
+  Register`, a notice board at its west side that shows its name, and `NG Guild Hall Door`,
+  invisible, on its steps; a door must not be `Static`, or the map never makes it an entity and
+  using it does nothing. The Halloween copy of the garden is gone, and the market's stalls take
+  turns: roofed stalls, carts and tea benches under parasols). The market is a courtyard between
   two rows of stalls (`NG Yatai`, the `Market Stall` tiles in front); the Market Broker (`NG
   Market Broker`, made by MarketBroker at its start, found by /market where it is now), the
   Tinkerer and the Chronicler (`NG Tinkerer`, `NG Chronicler`, QuestGivers) walk about it, their

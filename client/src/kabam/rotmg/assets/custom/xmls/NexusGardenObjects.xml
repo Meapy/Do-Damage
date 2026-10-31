@@ -657,19 +657,27 @@
 		<OccupySquare />
 		<EnemyOccupySquare />
 	</Object>
-	<Object type="0x9A33" id="NG Chimney Smoke">
-		<Class>GameObject</Class>
+	<Object type="0x9A49" id="NG Guild Register">
+		<DisplayId>Guild Register</DisplayId>
+		<Class>GuildRegister</Class>
 		<Texture>
 			<File>nexusGarden32x32</File>
 			<Index>0x0f</Index>
 		</Texture>
+		<Size>100</Size>
+		<ShadowSize>60</ShadowSize>
+		<ShowName />
+		<Static />
+		<OccupySquare />
+		<EnemyOccupySquare />
+	</Object>
+	<Object type="0x9A33" id="NG Chimney Smoke">
+		<Class>GameObject</Class>
+		<Texture>
+			<File>nexusGarden32x32</File>
+			<Index>0x10</Index>
+		</Texture>
 		<Animation prob="1.0">
-			<Frame time="0.3">
-				<Texture>
-					<File>nexusGarden32x32</File>
-					<Index>0x0f</Index>
-				</Texture>
-			</Frame>
 			<Frame time="0.3">
 				<Texture>
 					<File>nexusGarden32x32</File>
@@ -686,6 +694,12 @@
 				<Texture>
 					<File>nexusGarden32x32</File>
 					<Index>0x12</Index>
+				</Texture>
+			</Frame>
+			<Frame time="0.3">
+				<Texture>
+					<File>nexusGarden32x32</File>
+					<Index>0x13</Index>
 				</Texture>
 			</Frame>
 		</Animation>
@@ -777,17 +791,6 @@
 		<OccupySquare />
 		<EnemyOccupySquare />
 	</Object>
-	<Object type="0x9A49" id="NG Guild Register">
-		<DisplayId>Guild Register</DisplayId>
-		<Class>GuildRegister</Class>
-		<Texture>
-			<File>nexusGarden8x8</File>
-			<Index>0x64</Index>
-		</Texture>
-		<NoMiniMap />
-		<ShadowSize>0</ShadowSize>
-		<Static />
-	</Object>
 	<Object type="0x9A4A" id="NG Guild Hall Door">
 		<DisplayId>Guild Hall</DisplayId>
 		<Class>GuildHallPortal</Class>
@@ -799,7 +802,6 @@
 		<DungeonName>Guild Hall</DungeonName>
 		<NoMiniMap />
 		<ShadowSize>0</ShadowSize>
-		<Static />
 	</Object>
 	<Object type="0x9A1C" id="NG House">
 		<Class>GameObject</Class>
@@ -913,12 +915,70 @@
 		<OccupySquare />
 		<EnemyOccupySquare />
 	</Object>
+	<Object type="0x9A53" id="NG Cart Stall">
+		<Class>GameObject</Class>
+		<Model>NG Cart Stall</Model>
+		<Texture>
+			<File>nexusGardenModels128x128</File>
+			<Index>0x06</Index>
+		</Texture>
+		<Static />
+		<ShadowSize>0</ShadowSize>
+		<ModelContrast>0.5</ModelContrast>
+		<ModelShadow>0.2</ModelShadow>
+		<OccupySquare />
+		<EnemyOccupySquare />
+	</Object>
+	<Object type="0x9A54" id="NG Cart Stall N">
+		<Class>GameObject</Class>
+		<Model>NG Cart Stall</Model>
+		<Texture>
+			<File>nexusGardenModels128x128</File>
+			<Index>0x06</Index>
+		</Texture>
+		<Rotation>180</Rotation>
+		<Static />
+		<ShadowSize>0</ShadowSize>
+		<ModelContrast>0.5</ModelContrast>
+		<ModelShadow>0.2</ModelShadow>
+		<OccupySquare />
+		<EnemyOccupySquare />
+	</Object>
+	<Object type="0x9A55" id="NG Parasol Stall">
+		<Class>GameObject</Class>
+		<Model>NG Parasol Stall</Model>
+		<Texture>
+			<File>nexusGardenModels128x128</File>
+			<Index>0x07</Index>
+		</Texture>
+		<Static />
+		<ShadowSize>0</ShadowSize>
+		<ModelContrast>0.5</ModelContrast>
+		<ModelShadow>0.2</ModelShadow>
+		<OccupySquare />
+		<EnemyOccupySquare />
+	</Object>
+	<Object type="0x9A56" id="NG Parasol Stall N">
+		<Class>GameObject</Class>
+		<Model>NG Parasol Stall</Model>
+		<Texture>
+			<File>nexusGardenModels128x128</File>
+			<Index>0x07</Index>
+		</Texture>
+		<Rotation>180</Rotation>
+		<Static />
+		<ShadowSize>0</ShadowSize>
+		<ModelContrast>0.5</ModelContrast>
+		<ModelShadow>0.2</ModelShadow>
+		<OccupySquare />
+		<EnemyOccupySquare />
+	</Object>
 	<Object type="0x9A4D" id="NG Arch Bridge">
 		<Class>GameObject</Class>
 		<Model>NG Arch Bridge</Model>
 		<Texture>
 			<File>nexusGardenModels128x128</File>
-			<Index>0x06</Index>
+			<Index>0x08</Index>
 		</Texture>
 		<Static />
 		<ShadowSize>0</ShadowSize>
@@ -930,7 +990,7 @@
 		<Model>NG Stone Arch</Model>
 		<Texture>
 			<File>nexusGardenModels128x128</File>
-			<Index>0x07</Index>
+			<Index>0x09</Index>
 		</Texture>
 		<Static />
 		<ShadowSize>0</ShadowSize>
@@ -942,7 +1002,7 @@
 		<Model>NG Stone Arch</Model>
 		<Texture>
 			<File>nexusGardenModels128x128</File>
-			<Index>0x07</Index>
+			<Index>0x09</Index>
 		</Texture>
 		<Rotation>90</Rotation>
 		<Static />
@@ -955,7 +1015,7 @@
 		<Model>NG Torii</Model>
 		<Texture>
 			<File>nexusGardenModels128x128</File>
-			<Index>0x08</Index>
+			<Index>0x0a</Index>
 		</Texture>
 		<Static />
 		<ShadowSize>0</ShadowSize>
@@ -967,7 +1027,7 @@
 		<Model>NG Torii</Model>
 		<Texture>
 			<File>nexusGardenModels128x128</File>
-			<Index>0x08</Index>
+			<Index>0x0a</Index>
 		</Texture>
 		<Rotation>90</Rotation>
 		<Static />
@@ -980,7 +1040,7 @@
 		<Model>NG Wood Rail</Model>
 		<Texture>
 			<File>nexusGardenModels128x128</File>
-			<Index>0x09</Index>
+			<Index>0x0b</Index>
 		</Texture>
 		<Static />
 		<ShadowSize>0</ShadowSize>
@@ -993,7 +1053,7 @@
 		<Model>NG Wood Rail</Model>
 		<Texture>
 			<File>nexusGardenModels128x128</File>
-			<Index>0x09</Index>
+			<Index>0x0b</Index>
 		</Texture>
 		<Rotation>90</Rotation>
 		<Static />
@@ -1007,7 +1067,7 @@
 		<Model>NG Stone Rail</Model>
 		<Texture>
 			<File>nexusGardenModels128x128</File>
-			<Index>0x0a</Index>
+			<Index>0x0c</Index>
 		</Texture>
 		<Static />
 		<ShadowSize>0</ShadowSize>
@@ -1020,7 +1080,7 @@
 		<Model>NG Stone Rail</Model>
 		<Texture>
 			<File>nexusGardenModels128x128</File>
-			<Index>0x0a</Index>
+			<Index>0x0c</Index>
 		</Texture>
 		<Rotation>90</Rotation>
 		<Static />
@@ -1034,7 +1094,7 @@
 		<Model>NG Bamboo Fence</Model>
 		<Texture>
 			<File>nexusGardenModels128x128</File>
-			<Index>0x0b</Index>
+			<Index>0x0d</Index>
 		</Texture>
 		<Static />
 		<ShadowSize>0</ShadowSize>
@@ -1047,7 +1107,7 @@
 		<Model>NG Bamboo Fence</Model>
 		<Texture>
 			<File>nexusGardenModels128x128</File>
-			<Index>0x0b</Index>
+			<Index>0x0d</Index>
 		</Texture>
 		<Rotation>90</Rotation>
 		<Static />
@@ -1063,15 +1123,9 @@
 		<NexusPortal />
 		<Texture>
 			<File>nexusGarden32x32</File>
-			<Index>0x13</Index>
+			<Index>0x14</Index>
 		</Texture>
 		<Animation prob="1.0">
-			<Frame time="0.25">
-				<Texture>
-					<File>nexusGarden32x32</File>
-					<Index>0x13</Index>
-				</Texture>
-			</Frame>
 			<Frame time="0.25">
 				<Texture>
 					<File>nexusGarden32x32</File>
@@ -1088,6 +1142,12 @@
 				<Texture>
 					<File>nexusGarden32x32</File>
 					<Index>0x16</Index>
+				</Texture>
+			</Frame>
+			<Frame time="0.25">
+				<Texture>
+					<File>nexusGarden32x32</File>
+					<Index>0x17</Index>
 				</Texture>
 			</Frame>
 		</Animation>
@@ -1169,15 +1229,9 @@
 		<ShowName />
 		<Texture>
 			<File>nexusGarden32x32</File>
-			<Index>0x17</Index>
+			<Index>0x18</Index>
 		</Texture>
 		<Animation prob="1.0">
-			<Frame time="0.3">
-				<Texture>
-					<File>nexusGarden32x32</File>
-					<Index>0x17</Index>
-				</Texture>
-			</Frame>
 			<Frame time="0.3">
 				<Texture>
 					<File>nexusGarden32x32</File>
@@ -1194,6 +1248,12 @@
 				<Texture>
 					<File>nexusGarden32x32</File>
 					<Index>0x1a</Index>
+				</Texture>
+			</Frame>
+			<Frame time="0.3">
+				<Texture>
+					<File>nexusGarden32x32</File>
+					<Index>0x1b</Index>
 				</Texture>
 			</Frame>
 		</Animation>

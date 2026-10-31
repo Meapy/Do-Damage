@@ -594,6 +594,84 @@ def yatai():
     return m, img
 
 
+def cart_stall():
+    """A market cart: a wooden body on two big spoked wheels (the near one toward the street),
+    its shafts behind, crates of fruit on it and a striped cloth canopy on a pole. A tile; what it
+    sells stands on the tile in front of it."""
+    img = base_texture()
+    WHEEL, CLOTH, FRUIT = (0, 96, 32, 128), (32, 96, 64, 112), (64, 96, 96, 104)
+
+    def wheel(x, y, w, h):
+        d = math.hypot(x - w / 2 + 0.5, y - h / 2 + 0.5) / (w / 2)
+        if d > 1:
+            return (0, 0, 0, 0)
+        a = math.atan2(y - h / 2 + 0.5, x - w / 2 + 0.5)
+        if d > 0.82:
+            return TIMBER[2] if d < 0.95 else TIMBER[0]
+        if d < 0.2:
+            return GOLD[1]
+        if min(abs(((a / (math.pi / 4)) % 1) - 0.5) for _ in [0]) > 0.38:
+            return dither(WOOD, 0.6, x, y)
+        return (0, 0, 0, 0)
+
+    def put_rgba(img, x, y, c):
+        if len(c) == 4 and c[3] == 0:
+            img.putpixel((x, y), (0, 0, 0, 0))
+        else:
+            put(img, x, y, c)
+    u0, v0, u1, v1 = WHEEL
+    for y in range(v0, v1):
+        for x in range(u0, u1):
+            put_rgba(img, x, y, wheel(x - u0, y - v0, u1 - u0, v1 - v0))
+    fill(img, CLOTH, lambda x, y, w, h: (LACQUER[3] if (x // 4) % 2 == 0 else SHOJI[3]) if y < h - 2 else LACQUER[1])
+    fill(img, FRUIT, lambda x, y, w, h: [C("#f08a2a"), C("#e04040"), C("#8ac040"), C("#f0d040")][(x // 4) % 4])
+    m = Mesh()
+    m.box(-0.45, -0.32, 0.3, 0.45, 0.32, 0.66, R_WALL, top=R_DECK)          # the body
+    for x0 in (-0.38, -0.08, 0.22):                                          # crates of fruit
+        m.box(x0, -0.22, 0.66, x0 + 0.22, 0.2, 0.8, R_DECK, top=FRUIT)
+    for y in (-0.4, 0.4):                                                    # the wheels, front and back
+        m.quad((-0.3, y, 0.62), (0.3, y, 0.62), (0.3, y, 0.0), (-0.3, y, 0.0), WHEEL, (0, -y, 0.3))
+    for y in (-0.22, 0.22):                                                  # the shafts
+        m.beam((-0.45, y, 0.5), (-0.95, y, 0.3), 0.06, R_TIMBER)
+    m.box(0.36, -0.04, 0.66, 0.42, 0.02, 1.45, R_TIMBER)                    # the canopy's pole
+    m.roof((-0.6, -0.5, 0.6, 0.5), (-0.15, -0.05, 0.15, -0.05), 1.3, 1.55, CLOTH, CLOTH, 0.0, 0.0, 4)
+    return m, img
+
+
+def parasol_stall():
+    """A tea stall: a low bench spread with a red mōsen cloth, a tea set on it, and a great red
+    wagasa parasol over it. A tile; what it sells stands in front of it."""
+    img = base_texture()
+    CLOTH, SHADE, TEA = (32, 96, 64, 112), (64, 96, 96, 112), (96, 96, 112, 104)
+    solid(img, CLOTH, LACQUER, 0.7, 0.1)
+
+    def shade(x, y, w, h):
+        if x % 8 == 0:
+            return LACQUER[0]                                                # the ribs
+        if h // 2 - 1 <= y <= h // 2:
+            return SHOJI[3]                                                  # a white ring
+        return dither(LACQUER, 0.75 - 0.3 * y / h, x, y)
+    fill(img, SHADE, shade)
+    solid(img, TEA, [C("#2a3a2a"), C("#4a6a4a"), C("#7aa07a")], 0.5, 0.2)
+    m = Mesh()
+    m.box(-0.45, -0.3, 0.0, 0.45, 0.15, 0.32, R_TIMBER, top=CLOTH)          # the bench
+    m.box(-0.47, -0.32, 0.32, 0.47, 0.17, 0.35, CLOTH)                       # the cloth over it
+    m.box(-0.2, -0.12, 0.35, -0.06, 0.0, 0.45, TEA)                          # a teapot and cups
+    m.box(0.05, -0.1, 0.35, 0.12, -0.03, 0.4, TEA)
+    m.box(0.18, -0.1, 0.35, 0.25, -0.03, 0.4, TEA)
+    px, py = 0.32, -0.36
+    m.box(px - 0.03, py - 0.03, 0.0, px + 0.03, py + 0.03, 1.6, R_TIMBER)  # the parasol's pole
+    n, r, rim, tip = 10, 0.8, 1.3, 1.62
+    centre = (px, py, rim - 1)
+    for k in range(n):
+        a0, a1 = 2 * math.pi * k / n, 2 * math.pi * (k + 1) / n
+        p0 = (px + math.cos(a0) * r, py + math.sin(a0) * r, rim)
+        p1 = (px + math.cos(a1) * r, py + math.sin(a1) * r, rim)
+        u = 64 + 32 * k / n
+        m.face([(px, py, tip), p0, p1], [(u + 1.5, 97), (u + 0.5, 111), (u + 3, 111)], centre)
+    return m, img
+
+
 def arch(stone):
     """An arched bridge, nine tiles long east to west and three across: a deck curving up to half a
     tile over the water, its sides following the curve with the water showing beneath the arch,
@@ -753,7 +831,8 @@ def bamboo_fence():
 UNDER = {"NG Arch Bridge", "NG Stone Arch"}
 # each model's turned copies: suffix and degrees (railings, fences, torii and bridges a quarter for
 # paths that run north, houses and stalls round to face north)
-TURNS = {"NG House": [(" N", 180)], "NG Yatai": [(" N", 180)], "NG Torii": [(" NS", 90)],
+TURNS = {"NG House": [(" N", 180)], "NG Yatai": [(" N", 180)], "NG Cart Stall": [(" N", 180)],
+         "NG Parasol Stall": [(" N", 180)], "NG Torii": [(" NS", 90)],
          "NG Wood Rail": [(" NS", 90)], "NG Stone Rail": [(" NS", 90)], "NG Bamboo Fence": [(" NS", 90)],
          "NG Stone Arch": [(" NS", 90)]}
 
@@ -765,6 +844,8 @@ MODELS = {
     "NG Pagoda": (pagoda, (5, 5), True, 0.32),
     "NG Smithy": (smithy, (9, 6), False, 0.26),
     "NG Yatai": (yatai, (1, 1), True, 0.2),
+    "NG Cart Stall": (cart_stall, (1, 1), True, 0.2),
+    "NG Parasol Stall": (parasol_stall, (1, 1), True, 0.2),
     "NG Arch Bridge": (wood_arch, (9, 1), False, 0.0),
     "NG Stone Arch": (stone_arch, (9, 1), False, 0.0),
     "NG Torii": (torii, (5, 1), False, 0.22),

@@ -2,7 +2,7 @@
 
     python tools/build_nexus.py [--preview <folder>] [--dry-run]
 
-Writes `Exalt/Nexus Garden.jm` and, for each event in build_castle_maps.EVENTS, a decorated copy
+Writes `Exalt/Nexus Garden.jm` and, for each event in `EVENTS` (none now), a decorated copy
 (`Exalt/Nexus Garden <Event>.jm`, played while `serverSettings.mapEvent` names it). The art is
 tools/build_nexus_garden.py's; the vault and the guild halls are still built by
 build_castle_maps.py and build_guild_halls.py.
@@ -93,14 +93,9 @@ TREES = {SAKURA: 2, WEEPING: 2, PINE: 2, MAPLE: 2, GREAT: 3, YOUNG: 1}     # how
 # decoration slots, as the castle's (build_castle_maps): an event swaps what stands in them, and
 # scatters its things on the open ground (`OPEN`)
 ACCENT, FLAME, OPEN = "accent", "flame", "open"
-EVENTS = {
-    "Halloween": {
-        "slots": {FLAME: ["HN Ppk 1", "HN Ppk 2", "HN Ppk 3", "HN Ppk 4"],      # jack-o'-lanterns for paper ones
-                  ACCENT: [LANTERN, LANTERN, "HN Cdl"]},
-        "scatter": [("AN FaLvs O", 0.05), ("AN FaLvs R", 0.04), ("HN Ppk 1", 0.008), ("HN Ppk 3", 0.008),
-                    ("HN Dd Tr", 0.006), ("Spider Silk", 0.008), ("HN Stt Grg dk", 0.003)],
-    },
-}
+# The garden has no event copies (the owner dropped its Halloween one on 2026-10-31); an event
+# would be {"slots": {slot: [objects]}, "scatter": [(object, chance)]}, as the castle's.
+EVENTS = {}
 
 # --- the layout ----------------------------------------------------------------------------------
 
@@ -149,7 +144,7 @@ FORGE = (85, 27)
 ENCHANTER = (89, 27)
 SMITH = (89, 33)                        # Amatsumara, the smith god, at his anvil before the smithy
 GUILD_HALL = (108, 31)                  # the teahouse: GUILD HALL over its door
-GUILD = {"NG Guild Register": (106, 34), "NG Guild Hall Door": (108, 34), "BulletinBoard": [(104, 35), (112, 35)]}
+GUILD = {"NG Guild Register": (103, 33), "NG Guild Hall Door": (108, 34)}
 GUILD_HOUSE = (118, 32)                 # a plain house now
 # the market: a courtyard between two rows of stalls (the `Market Stall` region in front of each),
 # where the Market Broker, the Tinkerer and the Chronicler walk (MarketBroker, QuestGivers,
@@ -157,6 +152,8 @@ GUILD_HOUSE = (118, 32)                 # a plain house now
 MARKET = (101, 50, 121, 73)
 MARKET_ROWS = [(56, False), (67, True)]   # each row's stalls' y, and whether they face north
 MARKET_STALLS_X = list(range(104, 119, 2))
+# the stalls take turns: a roofed stall, a cart, a tea bench under a parasol (models)
+MARKET_STALL_KINDS = ["NG Yatai", "NG Cart Stall", "NG Yatai", "NG Parasol Stall", "NG Cart Stall"]
 BROKER = (110, 61)                      # where the Broker starts (MarketBroker)
 QUEST_NPCS = [(106.5, 61.5), (114.5, 61.5)]  # QuestGivers' spots for the Tinkerer and the Chronicler
 STOREHOUSE = (93, 67)
@@ -480,14 +477,13 @@ def lay_village(g):
     smithy(g)
     g.place(fx1 - 1, fy1 - 4, PAPER, slot=FLAME)
     g.model("NG House N", fx1 - 3, fy0 + 2)
-    # the Guild Hall: the teahouse, GUILD HALL over its door; its register and its door to the
-    # guild's hall stand (unseen) on the steps, the notice boards either side
+    # the Guild Hall: the teahouse, GUILD HALL over its door; the door to the guild's hall stands
+    # (unseen) on its steps, the Guild Register's notice board beside them (create a guild, or
+    # renounce yours)
     g.model("NG Teahouse", *GUILD_HALL)
     g.rect(GUILD_HALL[0] - 5, GUILD_HALL[1] + 3, GUILD_HALL[0] + 5, GUILD_HALL[1] + 6, PATH)
     for name in ("NG Guild Register", "NG Guild Hall Door"):
         g.place(*GUILD[name], name)
-    for x, y in GUILD["BulletinBoard"]:
-        g.place(x, y, "BulletinBoard")
     g.model("NG House", *GUILD_HOUSE)
     g.line([(STREET_B[0], GUILD_HALL[1] + 4), (GUILD_HOUSE[0], GUILD_HALL[1] + 4)], 3, PATH)
     lay_market(g)
@@ -544,9 +540,10 @@ def lay_market(g):
         for x in range(103, 120):
             g.ground(x, y, PATH, keep=True)
     for y, north in MARKET_ROWS:
-        for x in MARKET_STALLS_X:
+        for i, x in enumerate(MARKET_STALLS_X):
             g.put(x, y, SLAB, region="Market Stall", keep=True)
-            g.model("NG Yatai N" if north else "NG Yatai", x, y + (1 if north else -1))
+            stall = MARKET_STALL_KINDS[(i + (3 if north else 0)) % len(MARKET_STALL_KINDS)]
+            g.model(stall + (" N" if north else ""), x, y + (1 if north else -1))
         for x in (MARKET_STALLS_X[0] - 2, MARKET_STALLS_X[-1] + 2):
             g.place(x, y, PAPER, slot=FLAME)
     cx, cy = (x0 + x1) // 2, 61

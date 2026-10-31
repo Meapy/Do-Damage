@@ -11,7 +11,7 @@ the guild buys gives every member more (see [the buffs](#the-halls-buffs)).
 
 ## Making or joining one
 
-- **Make one** at the **Guild Register** on the steps of the Nexus's **Guild Hall**, up the village's cross street, for 1,000 fame: give it a
+- **Make one** at the **Guild Register**, the notice board beside the Nexus's **Guild Hall** up the village's cross street, for 1,000 fame: give it a
   name and you're its Founder. During the **guild event, until the end of 30 November 2026 (UTC)**,
   making one is free; the Guild Register shows the price of the day.
 - **Join one** when someone in it invites you (`/invite <name>`, officers and up): accept the
@@ -34,7 +34,7 @@ promotes them once they're trusted. Officers and up manage ranks in the **Guild 
 
 ## The guild hall
 
-The door of the Nexus's Guild Hall (beside its Guild Register) and in your vault leads to your guild's
+The door of the Nexus's Guild Hall (up its steps; it tells you if you're not in a guild) and in your vault leads to your guild's
 own hall, and `/ghall` takes you there from anywhere. Everyone in the guild shares it. There are four
 halls, each bigger than the last and each a shape of its own:
 

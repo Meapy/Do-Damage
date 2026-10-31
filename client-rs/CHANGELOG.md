@@ -20,8 +20,9 @@ details). Add to a group's line when a change adds to it, rather than adding ano
   arrive on a pink wooden deck in the middle of the pond. The realm portals are sunk into the
   floor of a shrine to the north-west: a great swirling vortex for Realm 2, a dark cavern for
   each realm and a sand pit for the Arena. Walk onto one to enter. The shops line the village's
-  street to the east, with the Guild Hall, the shared vault chests, and a market where the
-  Market Broker, the Tinkerer and the Chronicler stroll among the stalls. The smithy's great
+  street to the east, with the Guild Hall (make a guild at the Guild Register beside it), the
+  shared vault chests, and a market of stalls, carts and tea benches where the Market Broker, the
+  Tinkerer and the Chronicler stroll about. The smithy's great
   furnace is the Divine Forge and its crystal altar the Enchanter, and Amatsumara the smith god
   hammers away at his anvil before it. The bridges arch over the pond, and you climb them. The
   Hall of Champions and a dojo yard are to the west, a giant cherry tree north of the spawn, and

@@ -137,9 +137,9 @@ the pond, by stone water basins that heal you while you stand next to them. From
   each shop's items, and everything there costs fame. North of the street, the **smithy**: its
   great furnace is the [Divine Forge](forge.html) and its crystal altar the
   [Enchanter](imprints.html), and **Amatsumara**, the smith god, works at his anvil before it. Up
-  the cross street, the **Guild Hall** (GUILD HALL over its door): its steps hold the Guild
-  Register and the door to your guild's hall, with the notice boards beside them (see
-  [Guilds](guilds.html): every member gets +1% loot). South-east, the **market**: two rows of
+  the cross street, the **Guild Hall** (GUILD HALL over its door): walk up its steps to go
+  through to your guild's hall, and use the **Guild Register**, the notice board at its west
+  side, to make a guild or leave yours (see [Guilds](guilds.html): every member gets +1% loot). South-east, the **market**: two rows of
   stalls showing what players sell round a courtyard where the **Market Broker** (the
   [Marketplace](marketplace.html)), the **Tinkerer** and the **Chronicler** (your
   [quests, daily reward and achievements](quests.html)) stroll about; and the storehouse, whose

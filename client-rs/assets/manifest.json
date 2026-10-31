@@ -3326,6 +3326,14 @@
    "file": "kabam/rotmg/assets/custom/objects/nexusGardenYatai.obj"
   },
   {
+   "name": "NG Cart Stall",
+   "file": "kabam/rotmg/assets/custom/objects/nexusGardenCartStall.obj"
+  },
+  {
+   "name": "NG Parasol Stall",
+   "file": "kabam/rotmg/assets/custom/objects/nexusGardenParasolStall.obj"
+  },
+  {
    "name": "NG Arch Bridge",
    "file": "kabam/rotmg/assets/custom/objects/nexusGardenArchBridge.obj"
   },

@@ -102,7 +102,8 @@ RS_ONLY_CHARS = [
 RS_ONLY_MODELS = [
     (name, "kabam/rotmg/assets/custom/objects/nexusGarden%s.obj" % name[3:].replace(" ", ""))
     for name in ("NG House", "NG Teahouse", "NG Storehouse", "NG Pagoda", "NG Smithy", "NG Torii", "NG Wood Rail",
-                 "NG Stone Rail", "NG Bamboo Fence", "NG Yatai", "NG Arch Bridge", "NG Stone Arch")
+                 "NG Stone Rail", "NG Bamboo Fence", "NG Yatai", "NG Cart Stall", "NG Parasol Stall", "NG Arch Bridge",
+                 "NG Stone Arch")
 ]
 # game data only the Rust client loads
 RS_ONLY_GROUND_XML = ["kabam/rotmg/assets/custom/xmls/HashCellarGrounds.xml",

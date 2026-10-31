@@ -242,6 +242,38 @@ def changer(index):
     return walk_strip(stand, 8)
 
 
+def guild_register():
+    """The Guild Register: a kōsatsu, a notice board under its own little teal roof on two posts,
+    GUILD painted across its head in gold and its notices below. 32 by 32."""
+    from .models import TEAL, GLYPHS, BLACK as INK
+    img = canvas(32)
+    for x in (6, 25):
+        column(img, x, x + 1, 9, 31, WOOD)
+    board = [C("#6a4a2e"), C("#8a6440"), C("#a87e52"), C("#c49a68")]
+    for y in range(10, 26):
+        for x in range(5, 27):
+            t = 0.6 + (0.25 if y == 10 else 0) - (0.3 if y == 25 or x in (5, 26) else 0) + 0.08 * (hash2(x, y, 3) - 0.5)
+            put(img, x, y, dither(board, t, x, y))
+    x = 7
+    for ch in "GUILD":
+        for j, row in enumerate(GLYPHS[ch]):
+            for i, bit in enumerate(row):
+                if bit == "1":
+                    put(img, x + i, 12 + j, GOLD[3] if j < 2 else GOLD[2])
+        x += 4
+    for y in (19, 22):                                       # its notices: lines of brushed script
+        for x in range(8, 24):
+            if hash2(x, y, 7) > 0.3:
+                put(img, x, y, INK[1])
+    for i, y in enumerate(range(4, 10)):                     # the roof, wider each row
+        for x in range(9 - i * 2 + 1, 23 + i * 2):
+            put(img, x, y, dither(TEAL, 0.75 - 0.35 * (x - 9 + i * 2) / (14 + 4 * i), x, y))
+    put(img, 1, 9, TEAL[4])
+    put(img, 30, 9, TEAL[3])
+    edge(img)
+    return img
+
+
 def walk_strip(stand, size, feet=1):
     """Seven frames from a standing picture: stand, a step with its lowest `feet` rows slid left
     and one with them slid right, then the stand again."""
