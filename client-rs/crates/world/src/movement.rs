@@ -52,7 +52,7 @@ impl World {
             vy = speed * angle.sin();
         }
         let (x, y) = (player.x, player.y);
-        if let Some(ground) = self.tile(x as i32, y as i32).and_then(|t| data.grounds.get(&t)) {
+        if let Some(ground) = self.square_at(x as i32, y as i32, player.z, data).0.and_then(|t| data.grounds.get(&t)) {
             if ground.push {
                 vx -= ground.animate.dx / 1000.0;
                 vy -= ground.animate.dy / 1000.0;
@@ -85,13 +85,32 @@ impl World {
                 p.facing = vy.atan2(vx);
             }
         }
-        (moved && self.place(me, nx, ny, data)).then_some((nx, ny))
+        if !(moved && self.place(me, nx, ny, data)) {
+            return None;
+        }
+        self.climb(nx, ny, data);
+        Some((nx, ny))
+    }
+
+    /// On stacked floors, our height where we now stand: the ground of the floor at our height,
+    /// so a stair's steps take us up or down.
+    fn climb(&mut self, x: f64, y: f64, data: &GameData) {
+        if self.levels.is_none() {
+            return;
+        }
+        let Some(me) = self.me else { return };
+        let z = self.my_z();
+        let Some(level) = self.level_at(x as i32, y as i32, z, data) else { return };
+        let Some(ground) = self.surface(level, x as i32, y as i32, data) else { return };
+        if let Some(p) = self.objects.get_mut(&me) {
+            (p.z, p.level) = (ground, level);
+        }
     }
 
     /// `Player.onMove`, called as each Move goes to the server: the ground's speed, and sinking.
     pub fn on_move(&mut self, data: &GameData) {
         let Some(p) = self.player() else { return };
-        let ground = self.tile(p.x as i32, p.y as i32).and_then(|t| data.grounds.get(&t));
+        let ground = self.square_at(p.x as i32, p.y as i32, p.z, data).0.and_then(|t| data.grounds.get(&t));
         let speed = ground.map_or(1.0, |g| g.speed);
         if ground.is_some_and(|g| g.sinking) {
             self.sink_level = (self.sink_level + 1).min(MAX_SINK_LEVEL);
@@ -179,15 +198,14 @@ impl World {
         (next_x, next_y)
     }
 
-    /// `Square.isWalkable`: no NoWalk ground and no OccupySquare object.
+    /// `Square.isWalkable`: no NoWalk ground and no OccupySquare object. On stacked floors, the
+    /// square of the floor at our height: none there is a wall or a drop.
     fn walkable(&self, sx: i32, sy: i32, data: &GameData) -> bool {
+        let (tile, occupant) = self.square_at(sx, sy, self.my_z(), data);
         // An unsent square gets GroundLibrary.defaultProps_ (type 255).
-        let tile = self.tile(sx, sy).unwrap_or(NO_TILE);
+        let tile = tile.unwrap_or(NO_TILE);
         let no_walk = data.grounds.get(&tile).map_or(true, |g| g.no_walk);
-        let occupied = self
-            .occupant(sx, sy)
-            .and_then(|o| data.objects.get(&o.object_type))
-            .is_some_and(|d| d.occupy_square);
+        let occupied = occupant.and_then(|o| data.objects.get(&o.object_type)).is_some_and(|d| d.occupy_square);
         !no_walk && !occupied
     }
 
@@ -237,10 +255,11 @@ impl World {
     /// The coordinates truncate toward zero, as AS3's int parameters do.
     fn is_full_occupy(&self, x: f64, y: f64, data: &GameData) -> bool {
         let (sx, sy) = (x as i32, y as i32);
-        match self.tile(sx, sy) {
+        let (tile, occupant) = self.square_at(sx, sy, self.my_z(), data);
+        match tile {
             None => true,
             Some(NO_TILE) => true,
-            Some(_) => self.occupant(sx, sy).and_then(|o| data.objects.get(&o.object_type)).is_some_and(|d| d.full_occupy),
+            Some(_) => occupant.and_then(|o| data.objects.get(&o.object_type)).is_some_and(|d| d.full_occupy),
         }
     }
 }

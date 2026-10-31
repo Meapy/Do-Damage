@@ -44,7 +44,7 @@ namespace WorldServer.core.net.handlers
                     return;
                 }
 
-                if (!player.World.IsPassable(newX, newY))
+                if (!player.World.IsPassableAt(newX, newY, player.Z))
                 {
                     // the client only stops a player entering a no-walk square, so it can end up
                     // standing on one; keep the server position, put the client back there, and

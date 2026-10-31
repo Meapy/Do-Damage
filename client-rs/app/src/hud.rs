@@ -2246,7 +2246,7 @@ pub fn draw_bag_previews(ui: &mut Ui, world: &World, camera: &crate::view::Camer
             continue;
         }
         // above the bag, which stands about a tile tall
-        let [bx, by] = camera.to_screen(o.x, o.y, 1.0);
+        let [bx, by] = camera.to_screen(o.x, o.y, o.z + 1.0);
         let w = items.len() as f32 * icon + 2.0 * pad;
         let r = [(bx - w / 2.0).round(), (by - icon - 2.0 * pad - 4.0 * s).round(), w, icon + 2.0 * pad];
         theme::frame(ui.renderer, r, 4.0 * s, s.max(1.0), (color::BORDER, 0.95), ((0x000000, 0.75), (0x000000, 0.75)));
@@ -3363,7 +3363,7 @@ fn draw_quest_arrow(ui: &mut Ui, lay: &Layout, camera: &crate::view::Camera, q: 
     let (Some(q), Some(desc)) = (q, desc) else { return };
     let vw = lay.view_w();
     // The arrow, when it's off screen.
-    let [px, py] = camera.to_screen(q.x, q.y, 0.0);
+    let [px, py] = camera.to_screen(q.x, q.y, q.z);
     let margin = 26.0 * s;
     let (l, t, r, b) = (margin, margin + 60.0 * s, vw - margin, lay.h - margin);
     if px >= l && px <= r && py >= t && py <= b {

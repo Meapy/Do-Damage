@@ -21,6 +21,17 @@ wire_struct! {
 }
 
 wire_struct! {
+    /// A square of a floor above the map, in a world of stacked floors (`Layers`): the floor
+    /// (1 the first above the map), the square and its ground type.
+    pub struct LayerTile {
+        pub level: u8,
+        pub x: i16,
+        pub y: i16,
+        pub tile_type: u16,
+    }
+}
+
+wire_struct! {
     /// An item slot: the container object, the slot index and the item type in it.
     #[derive(Copy)]
     pub struct SlotObject {
@@ -387,6 +398,8 @@ wire_struct! {
 pub mod stat {
     pub const NAME: u8 = 31;
     pub const GUILD_NAME: u8 = 62;
+    /// How high the object stands, in thousandths of a tile: only in a world of stacked floors.
+    pub const HEIGHT: u8 = 148;
     /// `INVDATA0`..`INVDATA11` and `BACKPACKDATA0`..`BACKPACKDATA7`: per-slot item data (JSON).
     pub const ITEM_DATA: std::ops::RangeInclusive<u8> = 122..=141;
 

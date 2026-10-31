@@ -2359,7 +2359,9 @@ impl App {
                         // little below the middle, the map scaled to the space (hud::Layout).
                         let scale = lay.map_scale(self.settings.zoom);
                         let (cx, cy) = lay.camera_point(self.settings.centered);
-                        let camera = view::Camera::new(me.x + jitter.0, me.y + jitter.1, game.camera_angle, scale, cx, cy).snapped();
+                        // on stacked floors, looking at the height we stand at
+                        let z = if world.levels.is_some() { view::height_of(world, data, me) } else { 0.0 };
+                        let camera = view::Camera::new(me.x + jitter.0, me.y + jitter.1, game.camera_angle, scale, cx, cy).at_height(z).snapped();
                         // The farthest corner of the view from us, in tiles.
                         let vw = lay.view_w() as f64;
                         let far = [(0.0, 0.0), (vw, 0.0), (0.0, h as f64), (vw, h as f64)]

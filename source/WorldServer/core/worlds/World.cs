@@ -394,6 +394,92 @@ namespace WorldServer.core.worlds
             return null;
         }
 
+        // --- stacked floors -------------------------------------------------------------------
+        // A world of floors one above another (StairTowerWorld): Levels[0] is Map, each next one
+        // LevelHeight tiles above it, all the same size. A square's floor for an entity is the one
+        // whose ground (its height plus the ground's Lift, so stairs climb) is nearest the
+        // entity's Z, within Step: further than that is a wall or a drop. Null in every other
+        // world, where all of this is Map as before.
+        public List<Wmap> Levels { get; private set; }
+        public float LevelHeight { get; private set; }
+        public const float Step = 0.75f;
+
+        /// <summary>Makes this a world of stacked floors, Map the lowest.</summary>
+        protected void StackLevels(float height)
+        {
+            Levels = new List<Wmap> { Map };
+            LevelHeight = height;
+        }
+
+        /// <summary>A floor above the others, from a map the size of Map, with its monsters and
+        /// objects standing on it.</summary>
+        protected bool AddLevel(string map)
+        {
+            var data = GameServer.Resources.GameData.GetWorldData(map);
+            if (data == null)
+                return false;
+            var level = new Wmap(this) { Z = Levels.Count * LevelHeight };
+            NextEntityId += level.Load(new MemoryStream(data), NextEntityId);
+            Levels.Add(level);
+            level.CreateEntities(z: level.Z);
+            return true;
+        }
+
+        /// <summary>Which floor (index into Levels) holds square (x, y) at height z; -1 for none.</summary>
+        public int LevelAt(int x, int y, float z)
+        {
+            var best = -1;
+            var nearest = Step;
+            for (var i = 0; i < Levels.Count; i++)
+            {
+                var t = Levels[i][x, y];
+                if (!t.Exists || t.TileId == 0xFF)
+                    continue;
+                var d = MathF.Abs(SurfaceOf(i, t) - z);
+                if (d <= nearest)
+                {
+                    best = i;
+                    nearest = d;
+                }
+            }
+            return best;
+        }
+
+        private float SurfaceOf(int level, WmapTile t) =>
+            level * LevelHeight + (GameServer.Resources.GameData.Tiles.TryGetValue(t.TileId, out var desc) ? desc.Lift : 0);
+
+        /// <summary>The square (x, y) for something at height z: Map's, or on stacked floors the
+        /// floor's at that height (none, Exists false, if there is no floor there).</summary>
+        public WmapTile TileFor(int x, int y, float z)
+        {
+            if (Levels == null)
+                return Map[x, y];
+            var level = LevelAt(x, y, z);
+            return level < 0 ? default : Levels[level][x, y];
+        }
+
+        /// <summary>The height of the ground at (x, y) for something at height z (z if there is none).</summary>
+        public float SurfaceZ(float x, float y, float z)
+        {
+            if (Levels == null)
+                return 0;
+            var level = LevelAt((int)x, (int)y, z);
+            return level < 0 ? z : SurfaceOf(level, Levels[level][(int)x, (int)y]);
+        }
+
+        /// <summary>IsPassable for a player at height z.</summary>
+        public bool IsPassableAt(double x, double y, float z)
+        {
+            if (Levels == null)
+                return IsPassable(x, y);
+            if (!Map.Contains((int)x, (int)y))
+                return false;
+            var tile = TileFor((int)x, (int)y, z);
+            if (!tile.Exists || GameServer.Resources.GameData.Tiles[tile.TileId].NoWalk)
+                return false;
+            return !(tile.ObjType != 0 && tile.ObjDesc != null && (tile.ObjDesc.FullOccupy || tile.ObjDesc.EnemyOccupySquare));
+        }
+
         public bool IsPassable(double x, double y, bool spawning = false)
         {
             var x_ = (int)x;

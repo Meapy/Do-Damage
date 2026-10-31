@@ -363,3 +363,81 @@ fn alternating_weapons_take_turns_and_imprints_change_their_shots() {
     assert_eq!(shots[0].damage, 10 * 108 / 100 * 300 / 100 / 2);
     assert_eq!(shots[0].life, Some(400));
 }
+
+/// Stacked floors, 10×10: the map's floor (rows 6 to 9) with three steps up the middle (x 4 and
+/// 5, rows 5 to 3, half a tile each), and a floor 2 tiles above it: rows 0 to 2, and columns 7 to
+/// 9 down to row 7, over the map's floor there. Our player at (x, y), `z` up.
+fn stacked(d: &mut GameData, x: f32, y: f32, z: f64) -> World {
+    d.add_grounds(
+        r#"<Grounds>
+            <Ground type="0x03" id="Step 1"><Lift>0.5</Lift></Ground>
+            <Ground type="0x04" id="Step 2"><Lift>1</Lift></Ground>
+            <Ground type="0x05" id="Step 3"><Lift>1.5</Lift></Ground>
+        </Grounds>"#,
+    )
+    .unwrap();
+    let mut w = World::new(10, 10, "test", 1);
+    let mut tiles = Vec::new();
+    for y in 0..10 {
+        for x in 0..10 {
+            let step = (x == 4 || x == 5) && (3..=5).contains(&y);
+            if y >= 6 || step {
+                tiles.push(GroundTile { x, y, tile_type: if step { 3 + (5 - y) as i32 } else { FLOOR as i32 } });
+            }
+        }
+    }
+    let update = Update { tiles: tiles.into(), new_objs: vec![obj(2, PLAYER, x, y, 75)].into(), drops: Default::default() };
+    w.apply_update(&update, d, 0);
+    w.me = Some(2);
+    let mut upper = Vec::new();
+    for y in 0..10i16 {
+        for x in 0..10i16 {
+            if y <= 2 || (x >= 7 && y <= 7) {
+                upper.push(LayerTile { level: 1, x, y, tile_type: FLOOR });
+            }
+        }
+    }
+    w.set_layers(2.0, &upper);
+    let level = if z > 1.0 { 1 } else { 0 };
+    let me = w.objects.get_mut(&2).unwrap();
+    (me.z, me.level) = (z, level);
+    w
+}
+
+#[test]
+fn stacked_floors_up_the_steps() {
+    let mut d = data();
+    let mut w = stacked(&mut d, 4.5, 8.5, 0.0);
+    let (_, y) = walk(&mut w, &d, 0.0, -1.0, 1500);
+    let me = w.player().unwrap();
+    assert!(y < 3.0, "climbed onto the floor above: {y}");
+    assert_eq!((me.z, me.level), (2.0, 1));
+    // and down again
+    let (_, y) = walk(&mut w, &d, 0.0, 1.0, 1500);
+    assert!(y > 6.0, "{y}");
+    assert_eq!(w.player().unwrap().z, 0.0);
+}
+
+#[test]
+fn stacked_floors_edge_is_a_drop() {
+    // up on the floor over the map's floor: its south edge stops us
+    let mut d = data();
+    let mut w = stacked(&mut d, 8.5, 4.5, 2.0);
+    let (_, y) = walk(&mut w, &d, 0.0, 1.0, 1500);
+    assert!(y < 8.0 && y > 7.0, "stopped at the edge: {y}");
+    assert_eq!(w.player().unwrap().z, 2.0);
+}
+
+#[test]
+fn stacked_floors_under_the_floor_above() {
+    // below, we walk under the floor above as far as our own floor goes
+    let mut d = data();
+    let mut w = stacked(&mut d, 8.5, 9.5, 0.0);
+    let (_, y) = walk(&mut w, &d, 0.0, -1.0, 1500);
+    assert!(y >= 6.0 && y < 7.0, "under the floor above, to our floor's end: {y}");
+    assert_eq!(w.player().unwrap().z, 0.0);
+    // the floor above's square isn't ours
+    assert_eq!(w.level_at(8, 5, 0.0, &d), None);
+    assert_eq!(w.level_at(8, 6, 0.0, &d), Some(0));
+    assert_eq!(w.level_at(8, 6, 2.0, &d), Some(1));
+}
