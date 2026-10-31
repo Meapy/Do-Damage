@@ -33,13 +33,23 @@ details). Add to a group's line when a change adds to it, rather than adding ano
   guild's shrine and teahouse, the vault and the training yard behind bamboo fences, a koi pond,
   and in the greatest hall the guild's own smithy with the Divine Forge and the Enchanter.
 - The portal a dungeon leaves to take you home looks like the Nexus button's icon.
+- Your vault is a garden too: the chests in rows on raked gravel beyond a torii, the gift chests in
+  two fenced yards, and the Potion Storage, the Armoire and the portals in a stone court by the
+  spawn. Cherry blossom falls all over the vault and the guild halls.
 - Standing still in the Nexus for 20 minutes now saves your character and sends you back to the
   character screen, with a message saying why, so idlers don't take up a place. Walking resets
   the clock; realms, dungeons and your vault aren't affected.
 
+### Forge
+- The forge no longer makes the Elder Draconis Key from the Lair of Draconis's four dragon relics
+  (the Bazaar sells the key). The relics are keepsakes now.
+
 ### Game
 - When the server ends your game itself, the character screen now shows its reason rather than
   "the server closed the connection".
+- Hovering over the Quests button or the inventory and backpack tabs shows a small one-line hint
+  with its key ("Quest log [J]").
+- The Name Changer's button shows just the price ("50,000 fame") beside its key.
 
 ## 2.3.5 (2026-10-31)
 
@@ -70,8 +80,6 @@ details). Add to a group's line when a change adds to it, rather than adding ano
 - Forging costs half as much, and the low tiers next to nothing: two tier 8 staffs make a tier 9
   for 60 fame. Every tier upgrade now follows one price scale.
 - The starter gear `/gear` hands out can't be forged up: two of it don't make the next tier.
-- The forge no longer makes the Elder Draconis Key from the Lair of Draconis's four dragon relics
-  (the Bazaar sells the key). The relics are keepsakes now.
 
 ### Oryx
 - Oryx's Castle: everyone starts on the two inner lanes, not four. Janus's door opens as soon as
@@ -110,8 +118,7 @@ details). Add to a group's line when a change adds to it, rather than adding ano
   remembers the map of a realm you left (Realm 2 too) when you come back to it.
 - Leaving a dungeon by its Realm Portal or Portal of Cowardice takes you back to the realm you
   came from, Realm 2 included, rather than a random realm or the Nexus.
-- The Quests button is a scroll and the Nexus button the Nexus's keep. Hovering over the Quests
-  button or the inventory and backpack tabs shows a small one-line hint with its key ("Quest log [J]").
+- The Quests button is a scroll and the Nexus button the Nexus's keep.
 - Records: Potions counts every potion you drink, stat potions and potion storage too; Quests and
   Dungeons count again (every dungeon you clear). Numbers too long for their row are shortened,
   and the mouse over them shows them in full.

@@ -3,7 +3,8 @@
 //! more of that ground is near. A ground can say how thickly (`<Petals>3</Petals>`, round the
 //! elder cherry), and petals there start higher up, as from a tall crown. They fall through the
 //! world, not across the screen, so they turn with the camera and stay put as we walk; each
-//! tumbles as it falls, lands and fades.
+//! tumbles as it falls, lands and fades. The gardens players keep to themselves (the vault and the
+//! guild halls) have blossom falling all over them, whatever the ground (`map_strength`).
 
 use bsk_data::GameData;
 use bsk_render::{Renderer, Tint};
@@ -47,6 +48,16 @@ pub struct Petals {
     seed: u32,
 }
 
+/// How thickly blossom falls all over a map whatever its ground: the vault's and the guild halls'
+/// gardens (tools/build_vault.py, build_guild_halls.py) everywhere, other maps by their ground.
+pub fn map_strength(map: &str) -> f64 {
+    if map == "Vault" || map.starts_with("Guild Hall") {
+        1.0
+    } else {
+        0.0
+    }
+}
+
 impl Petals {
     fn random(&mut self) -> f64 {
         // xorshift: cheap and good enough for petals
@@ -58,8 +69,9 @@ impl Petals {
         s as f64 / u32::MAX as f64
     }
 
-    /// Moves the petals on by `dt` ms and lets new ones fall near the player.
-    pub fn update(&mut self, world: &World, data: &GameData, now: i32, dt: i32) {
+    /// Moves the petals on by `dt` ms and lets new ones fall near the player; at least
+    /// `everywhere`'s worth wherever we stand (`map_strength`).
+    pub fn update(&mut self, world: &World, data: &GameData, now: i32, dt: i32, everywhere: f64) {
         let Some(me) = world.player() else {
             self.petals.clear();
             return;
@@ -84,7 +96,7 @@ impl Petals {
                     }
                 }
             }
-            self.goal = if all == 0 { 0.0 } else { (petal / all as f64 * 1.6).min(STRONGEST) };
+            self.goal = if all == 0 { 0.0 } else { (petal / all as f64 * 1.6).min(STRONGEST) }.max(everywhere);
         }
         let secs = dt as f64 / 1000.0;
         self.strength += (self.goal - self.strength) * (secs * 1.5).min(1.0);

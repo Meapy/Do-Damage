@@ -36,9 +36,9 @@ import random
 import sys
 
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
-import build_castle_maps as cm  # noqa: E402
 import build_nexus as nx  # noqa: E402
-from build_castle_maps import inside  # noqa: E402
+import jm_maps as cm  # noqa: E402
+from jm_maps import inside  # noqa: E402
 from build_nexus import (  # noqa: E402
     SEA, POND, SHALLOWS, SAND, GRASS, MEADOW, PETALS, PATH, SLAB, GRAVEL, TATAMI, DECK, BEAM,
     SAKURA, WEEPING, PINE, MAPLE, GREAT, YOUNG, LANTERN, PAPER, PAPER_L, AZALEA, BOULDER, BAMBOO,

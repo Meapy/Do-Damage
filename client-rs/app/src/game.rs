@@ -979,7 +979,8 @@ impl Game {
         if let Some(world) = &mut self.world {
             self.particles.impacts(world);
             self.particles.update(world, now, dt);
-            self.petals.update(world, data, now, dt);
+            let everywhere = crate::petals::map_strength(self.session.map.as_ref().map_or("", |m| m.name.as_str()));
+            self.petals.update(world, data, now, dt, everywhere);
         }
     }
 

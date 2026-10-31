@@ -123,7 +123,7 @@ pub fn interact_text(kind: NpcKind, me: &GameObj, rank_req: i32, price: Option<i
                 (format!("Rank {rank_req} needed"), None)
             } else if int(me, stat::NAME_CHOSEN) != 0 {
                 let name = me.name().unwrap_or("");
-                (format!("Your name is {name}"), Some((format!("Change  ·  {} fame", crate::hud::group_digits(NAME_CHANGE_PRICE)), Kind::Primary)))
+                (format!("Your name is {name}"), Some((format!("{} fame", crate::hud::group_digits(NAME_CHANGE_PRICE)), Kind::Primary)))
             } else {
                 open("Choose your account name", "Choose")
             }

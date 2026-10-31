@@ -36,7 +36,7 @@ promotes them once they're trusted. Officers and up manage ranks in the **Guild 
 
 The door of the Nexus's Guild Hall (up its steps; it tells you if you're not in a guild) and in your vault leads to your guild's
 own hall, and `/ghall` takes you there from anywhere. Everyone in the guild shares it. Each hall is
-a garden on an island, in the look of the Nexus: you arrive on a wooden deck by the portals to the
+a garden on an island, in the look of the Nexus, with cherry blossom falling all over it: you arrive on a wooden deck by the portals to the
 Nexus and your vault, and a stone path leads north under a torii to the guild's shrine, where the
 teahouse with GUILD HALL over its door stands behind the dais. There are four halls, each bigger
 than the last and each a shape of its own:

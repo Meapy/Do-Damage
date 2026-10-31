@@ -58,13 +58,14 @@ the Sword of Dark Enchantment drop in white bags; Potions of Oryx and Potions of
 
 ## Your vault
 
-Your vault is a cellar under a castle, yours alone: `/vault` or the Vault portal on the
-Nexus spawn's island. In it:
+Your vault is a garden on an island of its own, in the look of the Nexus, with cherry blossom
+falling all over it: `/vault` or the Vault portal on the Nexus spawn's island. In it:
 
-- **Vault chests**, eight slots each, that keep items safe when a character dies. A new account has
+- **Vault chests**, eight slots each, in rows on the raked gravel beyond the torii, that keep
+  items safe when a character dies. A new account has
   {{v:vault_chests}}; more cost {{v:vault_chest_price}} fame each (click a closed chest in the
   vault), or use a Vault Chest Unlocker.
-- **Gift chests**, where things sent to you arrive. You can take items out but not put them in.
+- **Gift chests**, in the two fenced yards either side of the path, where things sent to you arrive. You can take items out but not put them in.
 - The **Potion Storage**, the Armoire and the Guild Chronicle.
 - A **Training Dummy** beside the spawn. Shoot it and, 5 seconds after your first hit, the chat
   tells you (and only you) your damage and damage a second, your pet's included. It never dies and

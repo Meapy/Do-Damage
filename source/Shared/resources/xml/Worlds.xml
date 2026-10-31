@@ -44,7 +44,7 @@
 		<Width>52</Width>
 		<Height>50</Height>
 		<Capacity>1</Capacity>
-		<MapJM>Exalt/Vault Castle.jm</MapJM>
+		<MapJM>Exalt/Vault Garden.jm</MapJM>
 		<Instance enum="vault"/>
 		<CreateInstance/>
 		<Persists/>

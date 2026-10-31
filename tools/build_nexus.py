@@ -4,8 +4,8 @@
 
 Writes `Exalt/Nexus Garden.jm` and, for each event in `EVENTS` (none now), a decorated copy
 (`Exalt/Nexus Garden <Event>.jm`, played while `serverSettings.mapEvent` names it). The art is
-tools/build_nexus_garden.py's; the vault and the guild halls are still built by
-build_castle_maps.py and build_guild_halls.py.
+tools/build_nexus_garden.py's; the vault and the guild halls are gardens too, built by
+build_vault.py and build_guild_halls.py from the same parts.
 
 The land is a hexagon, pointed at the top and the bottom, in a deep sea nobody can walk on; the
 sea comes in over its southern point in two bays either side of a wooded headland. From the middle
@@ -50,7 +50,7 @@ import random
 import sys
 
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
-import build_castle_maps as cm  # noqa: E402
+import jm_maps as cm  # noqa: E402
 import build_nexus_garden as art  # noqa: E402
 from nexus_garden import models as model_art  # noqa: E402
 
@@ -91,11 +91,11 @@ BASIN = art.BASIN
 BLOCKER = art.BLOCKER
 TREES = {SAKURA: 2, WEEPING: 2, PINE: 2, MAPLE: 2, GREAT: 3, YOUNG: 1}     # how far their crowns reach
 
-# decoration slots, as the castle's (build_castle_maps): an event swaps what stands in them, and
+# decoration slots: an event swaps what stands in them, and
 # scatters its things on the open ground (`OPEN`)
 ACCENT, FLAME, OPEN = "accent", "flame", "open"
 # The garden has no event copies (the owner dropped its Halloween one on 2026-10-31); an event
-# would be {"slots": {slot: [objects]}, "scatter": [(object, chance)]}, as the castle's.
+# would be {"slots": {slot: [objects]}, "scatter": [(object, chance)]} (`decorate`).
 EVENTS = {}
 
 # --- the layout ----------------------------------------------------------------------------------
@@ -202,8 +202,6 @@ class Grid:
                   for _ in range(h)]
         self.kept = set()           # tiles nothing may be scattered on: paths, courts, doorsteps
         self.models = []            # (name, x, y) of the 3D models, for the preview
-        # the castle's Grid's fields, so build_castle_maps.decorate and save work on this one
-        self.castle = [[True] * w for _ in range(h)]
         self.paths = self.kept
 
     def __getitem__(self, xy):
