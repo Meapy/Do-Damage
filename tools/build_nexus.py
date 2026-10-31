@@ -33,7 +33,8 @@ out:
   chests. Their items are kept in Redis by the tile they had in the castle (`DbNexusChest`), so
   each chest carries its old tile as its name (`CHESTS`, NexusWorld.LinkVaultChests);
 - west, the Hall of Champions (`CHAMPIONS`: the monument and a plinth for each board, the ring
-  open to the east where the road comes in) and the Arena Leaderboard's court north of it;
+  open to the east where the road comes in) and the Arena Leaderboard's court north of it, where
+  the Herald keeps the server's week (QuestGivers);
 - south, a forest of cherry, pine and maple between the pond and the sea, its floor marked
   `Petals` so blossom falls across the screen there (the Rust client), with a memorial clearing,
   where the twins Hana and Sora run about (NexusVillagers).
@@ -164,6 +165,7 @@ CHAMPION_STATUES = [((5, -3), "fame"), ((5, 3), "stars"), ((1, 6), "achievements
                     ((-6, -3), "guildDead"), ((-3, -6), "weeklyDungeons"), ((1, -6), "weeklyFame")]
 ARENA_COURT = (18, 44, 42, 51)          # its leaderboard's court (the portal is in the shrine)
 ARENA_LEADERBOARD = (34, 47)
+HERALD = (38.5, 47.5)                   # the Herald, beside it (QuestGivers, keep the two in step)
 ARENA_MONUMENT = (24, 47)
 
 # the forest's memorial clearing
@@ -689,7 +691,7 @@ def check_nexus(g):
         t = g[CHAMPIONS[0] + dx, CHAMPIONS[1] + dy]
         assert t["obj"] == "Champion Statue" and t["name"] == "name:%s" % board, (dx, dy)
         assert dx < 5 or abs(dy) > 1, "the road to the monument stays open"
-    for x, y in QUEST_NPCS:
+    for x, y in QUEST_NPCS + [HERALD]:
         assert g.empty(int(x), int(y)) and g.land(int(x), int(y)), (x, y)
     # the portals' floors: nothing standing on a cavern's or the vortex's tiles
     for (cx, cy), r in [(VORTEX, 3)] + [(c, 2) for c in CAVERNS]:

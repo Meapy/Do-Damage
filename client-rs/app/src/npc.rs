@@ -56,7 +56,7 @@ pub enum NpcKind {
     ChampionsBoard,
     /// A champion's statue round it: the Hall, at its board.
     ChampionStatue,
-    /// The Herald by the Nexus spawn: the server's week.
+    /// The Herald in the Nexus's leaderboard court, west of the spawn: the server's week.
     Herald,
 }
 
