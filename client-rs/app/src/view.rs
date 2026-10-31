@@ -91,11 +91,58 @@ impl Camera {
 
 /// `Lighting3D.shadeValue`: 0.75 ambient plus the rest from a light along (1, 3, 2).
 fn shade(normal: [f64; 3]) -> f32 {
+    shade_with(normal, 0.25)
+}
+
+/// The same light, `contrast` of it directional and the rest ambient (`<ModelContrast>`: the
+/// Nexus garden's models take more, so their roofs and walls read as solid).
+fn shade_with(normal: [f64; 3], contrast: f64) -> f32 {
     let len = (1.0f64 + 9.0 + 4.0).sqrt();
     let light = [1.0 / len, 3.0 / len, 2.0 / len];
     let n_len = (normal[0] * normal[0] + normal[1] * normal[1] + normal[2] * normal[2]).sqrt();
     let dot = (normal[0] * light[0] + normal[1] * light[1] + normal[2] * light[2]) / n_len;
-    (0.75 + 0.25 * dot.max(0.0)) as f32
+    (1.0 - contrast + contrast * dot.max(0.0)) as f32
+}
+
+/// The ground under a model in shadow (`<ModelShadow>` its opacity): every corner cast down onto
+/// the ground away from the light, toward the south-west so it shows past the model in this
+/// view, and the outline of all of them filled. Drawn before anything stands on the ground.
+fn draw_model_shadow(scene: &Scene, renderer: &mut Renderer, obj: &GameObj, desc: &ObjectDesc, model: &Model, alpha: f32) {
+    let cam = scene.camera;
+    let (s, c) = desc.rotation.to_radians().sin_cos();
+    let mut pts: Vec<[f64; 2]> = model
+        .vertices
+        .iter()
+        .map(|(p, _)| {
+            let (x, y) = (p[0] * c - p[1] * s, p[0] * s + p[1] * c);
+            [obj.x + x - p[2] * 0.42, obj.y + y + p[2] * 0.3]
+        })
+        .collect();
+    // the convex hull (monotone chain)
+    pts.sort_by(|a, b| a[0].total_cmp(&b[0]).then(a[1].total_cmp(&b[1])));
+    pts.dedup_by(|a, b| (a[0] - b[0]).abs() < 1e-6 && (a[1] - b[1]).abs() < 1e-6);
+    if pts.len() < 3 {
+        return;
+    }
+    let cross = |o: [f64; 2], a: [f64; 2], b: [f64; 2]| (a[0] - o[0]) * (b[1] - o[1]) - (a[1] - o[1]) * (b[0] - o[0]);
+    let mut hull: Vec<[f64; 2]> = Vec::new();
+    for pass in 0..2 {
+        let start = hull.len();
+        let iter: Box<dyn Iterator<Item = &[f64; 2]>> = if pass == 0 { Box::new(pts.iter()) } else { Box::new(pts.iter().rev()) };
+        for &p in iter {
+            while hull.len() >= start + 2 && cross(hull[hull.len() - 2], hull[hull.len() - 1], p) <= 0.0 {
+                hull.pop();
+            }
+            hull.push(p);
+        }
+        hull.pop();
+    }
+    let white = renderer.white();
+    let screen: Vec<[f32; 2]> = hull.iter().map(|p| cam.to_screen(p[0], p[1], 0.0)).collect();
+    let tint = Tint::color(0x0A0612, alpha);
+    for k in 1..screen.len().saturating_sub(1) {
+        renderer.triangle(white, [screen[0], screen[k], screen[k + 1]], [[0.5, 0.5]; 3], tint);
+    }
 }
 
 /// `Plane3D.computeNormalVec` for a face given by its first three corners.
@@ -467,6 +514,16 @@ pub fn draw(scene: &Scene, renderer: &mut Renderer, redrawer: &mut Redrawer, gro
         }
     }
     let k = (cam.scale / TILE_PX) as f32;
+    if scene.show.shadows {
+        for (_, item) in &items {
+            if let Item::Model { obj, desc, model } = item {
+                let alpha = desc.xml.number("ModelShadow", 0.0) as f32;
+                if alpha > 0.0 {
+                    draw_model_shadow(scene, renderer, obj, desc, model, alpha);
+                }
+            }
+        }
+    }
     if let Some(shadow) = redrawer.shadow(renderer).filter(|_| scene.show.shadows) {
         for (_, item) in items.iter().filter(|(_, i)| !under(i)) {
             let Item::Sprite { obj, desc } = item else { continue };
@@ -803,6 +860,7 @@ fn draw_projectile(scene: &Scene, renderer: &mut Renderer, redrawer: &mut Redraw
 fn draw_model(scene: &Scene, renderer: &mut Renderer, obj: &GameObj, desc: &ObjectDesc, model: &Model) {
     let cam = scene.camera;
     let texture = scene.texture_src(&desc.texture, obj.id).and_then(|s| scene.sprites.atlas(s));
+    let contrast = desc.xml.number("ModelContrast", 0.25);
     let (s, c) = desc.rotation.to_radians().sin_cos();
     let world: Vec<[f64; 3]> = model
         .vertices
@@ -817,7 +875,7 @@ fn draw_model(scene: &Scene, renderer: &mut Renderer, obj: &GameObj, desc: &Obje
         if u[0] * v[1] - u[1] * v[0] < 0.0 {
             continue;
         }
-        let shade = shade(normal(world[i0], world[i1], world[il]));
+        let shade = if face.glow { 1.0 } else { shade_with(normal(world[i0], world[i1], world[il]), contrast) };
         let (src, tint) = match (face.textured, texture) {
             (true, Some(t)) => (t, Tint { mul: [shade, shade, shade, 1.0], add: [0.0; 3] }),
             _ => {

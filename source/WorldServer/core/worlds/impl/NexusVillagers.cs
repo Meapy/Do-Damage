@@ -13,7 +13,10 @@ namespace WorldServer.core.worlds.impl
     // another villager waiting near them, in balloons only (`*Bubble*`), never in the chat. Bees
     // hover over the flowers and wander from one bed to the next. Both are characters but not
     // enemies, and invincible, so pets and shots leave them be; they have no behaviours, and are
-    // moved here.
+    // moved here. So are some who keep to their own ground: the Name Changer and the Character
+    // Changer stroll about their corners of the spawn's island (still the NPCs whose windows the
+    // client opens), the twins Hana and Sora run about the forest, Sora at Hana's heels, and
+    // Amatsumara the smith god, at his anvil by the forge, grunts and mutters as he works.
     public sealed class NexusVillagers
     {
         private static readonly string[] Villagers =
@@ -25,6 +28,38 @@ namespace WorldServer.core.worlds.impl
         private const string BEE = "NG Bee";
         private const int BEES = 14;
         private static readonly HashSet<string> Flowers = new HashSet<string> { "NG Azalea", "NG Pink Flowers", "NG Blue Flowers", "NG Lotus" };
+
+        // those who keep to an area: who, its middle and radius, their speed, and who they follow
+        private static readonly (string Id, float X, float Y, float R, float Speed, int Leader)[] Roamers =
+        {
+            ("NG Name Changer", 64.5f, 57.5f, 3.2f, 1.0f, -1),
+            ("NG Character Changer", 72.5f, 57.5f, 3.2f, 1.0f, -1),
+            ("NG Twin Hana", 66.5f, 84.5f, 11f, 2.3f, -1),
+            ("NG Twin Sora", 66.5f, 84.5f, 11f, 2.3f, 2),
+        };
+        private const string SMITH = "NG Smith God";
+
+        private static readonly (string, string)[] TwinTalk =
+        {
+            ("Sora! Catch me if you can!", "Hana, wait for me!"),
+            ("Look, a bee! A fat one!", "Don't poke it again..."),
+            ("Hehehe!", "Hehehe!"),
+            ("The ducks are back on the pond!", "Let's count them! One... two... lots!"),
+            ("I'm going to be a hero one day.", "Me too! A bigger one."),
+            ("Petals! It's snowing petals!", "Catch one and make a wish!"),
+        };
+
+        private static readonly string[] SmithLines =
+        {
+            "Hnnngh!", "Hah!", "*grunts*", "Hrrah!",
+            "The fire hungers. Feed it.",
+            "Steel remembers every blow.",
+            "Too soft. Again!",
+            "Oryx's armies will break on blades I made.",
+            "Bring the Divine Forge your spare gear, mortal. It knows what to do with it.",
+            "Hmph. Not bad... for mortal hands.",
+            "A god's work is never done.",
+        };
 
         private const float WALK_SPEED = 1.8f;      // tiles a second
         private const float CHILD_SPEED = 2.6f;
@@ -55,6 +90,11 @@ namespace WorldServer.core.worlds.impl
             public float Wait;
             public float Speed;
             public bool Talked;
+            // a roamer's own ground, and whom it follows (its leader's trail, a step behind)
+            public (float X, float Y, float R)? Area;
+            public Walker Leader;
+            public readonly Queue<(float At, float X, float Y)> Trail = new Queue<(float At, float X, float Y)>();
+            public bool Chats = true;
         }
 
         private sealed class Bee
@@ -71,6 +111,8 @@ namespace WorldServer.core.worlds.impl
         private List<(float X, float Y)> _flowers = new List<(float X, float Y)>();
         private float _clock;
         private bool _started;
+        private Entity _smith;
+        private float _smithTalk = 8f;
 
         public NexusVillagers(World world) => _world = world;
 
@@ -95,6 +137,24 @@ namespace WorldServer.core.worlds.impl
                     });
                 }
             }
+
+            foreach (var (id, x, y, r, speed, leader) in Roamers)
+            {
+                var (sx, sy) = Near(x, y, r);
+                var e = _world.CreateNewEntity(id, sx, sy);
+                if (e == null)
+                    continue;
+                _walkers.Add(new Walker
+                {
+                    Entity = e,
+                    Wait = 1f + (float)Random.Shared.NextDouble() * 4f,
+                    Speed = speed,
+                    Area = (x, y, r),
+                    Leader = leader >= 0 ? _walkers.FirstOrDefault(w => w.Entity.ObjectDesc.IdName == Roamers[leader].Id) : null,
+                    Chats = false,
+                });
+            }
+            _smith = _world.Enemies.Values.FirstOrDefault(e => e.ObjectDesc.IdName == SMITH);
 
             // the bees: over flower beds, found among the map's objects once they're in
             _flowers = _world.StaticObjects.Values.Where(o => Flowers.Contains(o.ObjectDesc.IdName)).Select(o => (o.X, o.Y)).ToList();
@@ -121,10 +181,19 @@ namespace WorldServer.core.worlds.impl
                 Start();
             }
 
+            SmithTalk(dt);
             foreach (var w in _walkers)
             {
                 if (w.Entity.World == null)
                     continue;
+                w.Trail.Enqueue((_clock, w.Entity.X, w.Entity.Y));
+                while (w.Trail.Count > 0 && _clock - w.Trail.Peek().At > 1.5f)
+                    w.Trail.Dequeue();
+                if (w.Leader != null)
+                {
+                    Follow(w, dt);
+                    continue;
+                }
                 if (w.Path.Count > 0)
                 {
                     Step(w, dt);
@@ -132,7 +201,12 @@ namespace WorldServer.core.worlds.impl
                 }
                 w.Wait -= dt;
                 if (!w.Talked && w.Wait > 2f)
-                    Chat(w);
+                {
+                    if (w.Chats)
+                        Chat(w);
+                    else
+                        TwinChat(w);
+                }
                 if (w.Wait <= 0)
                     SetOff(w);
             }
@@ -189,9 +263,52 @@ namespace WorldServer.core.worlds.impl
             }
         }
 
+        // a step behind the leader, along where it walked
+        private void Follow(Walker w, float dt)
+        {
+            var trail = w.Leader.Trail;
+            if (trail.Count == 0)
+                return;
+            var goal = trail.FirstOrDefault(p => _clock - p.At <= 0.7f);
+            if (goal.At == 0)
+                goal = trail.Last();
+            var (x, y) = (w.Entity.X, w.Entity.Y);
+            var d = Dist((x, y), (goal.X, goal.Y));
+            if (d < 0.35f)
+                return;
+            var step = Math.Min(d, w.Speed * 1.15f * dt);
+            w.Entity.Move(x + (goal.X - x) / d * step, y + (goal.Y - y) / d * step);
+        }
+
+        // a free walkable tile near (x, y), within r
+        private (float X, float Y) Near(float x, float y, float r)
+        {
+            for (var tries = 0; tries < 40; tries++)
+            {
+                var a = Random.Shared.NextDouble() * Math.PI * 2;
+                var d = Random.Shared.NextDouble() * r;
+                var (tx, ty) = ((int)(x + Math.Cos(a) * d), (int)(y + Math.Sin(a) * d));
+                if (Walkable(tx, ty))
+                    return (tx + 0.5f, ty + 0.5f);
+            }
+            return (x, y);
+        }
+
         private void SetOff(Walker w)
         {
             var from = ((int)w.Entity.X, (int)w.Entity.Y);
+            if (w.Area.HasValue)
+            {
+                var (ax, ay, ar) = w.Area.Value;
+                // a short stroll somewhere else on its own ground, then a long wait, so players
+                // can catch the changers
+                var (tx, ty) = Near(ax, ay, ar);
+                var stroll = (int)tx == from.Item1 && (int)ty == from.Item2 ? null : FindPath(from, ((int)tx, (int)ty));
+                w.Path = stroll ?? new List<(float X, float Y)>();
+                w.Wait = w.Chats ? 6f : 5f + (float)Random.Shared.NextDouble() * (w.Speed < 1.5f ? 10f : 4f);
+                w.Talked = false;
+                return;
+            }
             // somewhere not too far, so they're seen about the village rather than always crossing it
             var choices = _waypoints.Where(p => p != from && Dist((p.X, p.Y), from) < 45f).ToList();
             if (choices.Count == 0)
@@ -213,7 +330,7 @@ namespace WorldServer.core.worlds.impl
 
         private void Chat(Walker w)
         {
-            var other = _walkers.FirstOrDefault(o => o != w && o.Path.Count == 0 && !o.Talked && o.Wait > 2f && o.Entity.World != null
+            var other = _walkers.FirstOrDefault(o => o != w && o.Chats && o.Path.Count == 0 && !o.Talked && o.Wait > 2f && o.Entity.World != null
                                                      && Dist((o.Entity.X, o.Entity.Y), (w.Entity.X, w.Entity.Y)) <= TALK_RANGE);
             if (other == null || Random.Shared.NextDouble() > 0.5)
             {
@@ -228,6 +345,35 @@ namespace WorldServer.core.worlds.impl
             // they wait for the end of the conversation
             w.Wait = Math.Max(w.Wait, 5f);
             other.Wait = Math.Max(other.Wait, 5f);
+        }
+
+        // the twins' banter, when they've stopped running about
+        private void TwinChat(Walker w)
+        {
+            w.Talked = true;
+            if (!w.Entity.ObjectDesc.IdName.EndsWith("Hana") || Random.Shared.NextDouble() > 0.4)
+                return;
+            var sora = _walkers.FirstOrDefault(o => o.Leader == w);
+            var (line, answer) = TwinTalk[Random.Shared.Next(TwinTalk.Length)];
+            Say(w.Entity, line);
+            if (sora?.Entity.World != null)
+            {
+                var e = sora.Entity;
+                _world.StartNewTimer(1800, (world, t) => Say(e, answer));
+            }
+        }
+
+        // Amatsumara at his anvil: a grunt or a word now and then while anyone is near
+        private void SmithTalk(float dt)
+        {
+            if (_smith?.World == null)
+                return;
+            _smithTalk -= dt;
+            if (_smithTalk > 0)
+                return;
+            _smithTalk = 14f + (float)Random.Shared.NextDouble() * 22f;
+            if (_world.Players.Values.Any(p => p.SqDistTo(_smith) <= 12f * 12f))
+                Say(_smith, SmithLines[Random.Shared.Next(SmithLines.Length)]);
         }
 
         private void Say(Entity speaker, string text)

@@ -10,18 +10,19 @@ using WorldServer.networking.packets.outgoing;
 namespace WorldServer.core.worlds.impl
 {
     // The Support Bot by the Nexus spawn: it tells new players about /gear (now and then, and to
-    // each player who comes near) and every ten minutes puts out a wave of GIFT_COUNT XP gifts
-    // around the spawn (an admin's "/spawn 100 xp gift"), a new wave only once every gift of the
-    // last one has been shot down. Both are objects the client already knows (Support Bot from
-    // Doomed Realms' pets, XP Gift from the testing objects: 600 HP, no attacks, the usual kill
-    // experience); the bot's pet behaviour is cleared, so it stands still. Halfway between the
+    // each player who comes near) and every ten minutes puts out a wave of GIFT_COUNT XP ducks
+    // on the pond round the spawn's island, a new wave only once every duck of the last one has
+    // been shot down. The bot is Doomed Realms' pet, its pet behaviour cleared so it stands still;
+    // the ducks (`NG XP Duck`, tools/build_nexus_garden.py) have the testing objects' XP Gift's
+    // numbers: 600 HP, no attacks, the usual kill experience. Halfway between the
     // gift checks, every ten minutes too, it opens a portal to a random dungeon south of the
     // spawn, which stays until the next one replaces it or its dungeon is cleared. Players inside
     // stay: a dungeon lives while it has players, whatever happens to its portal.
     public sealed class NexusGuide
     {
         private const string BOT = "Support Bot";
-        private const string GIFT = "XP Gift";
+        // the XP gifts: ducks swimming in the pond round the spawn's island (tools/build_nexus_garden.py)
+        private const string GIFT = "NG XP Duck";
         private const string NAME = "#Support Bot";
         private const int GIFT_COUNT = 100;
         private const float GIFT_INTERVAL = 600f;   // seconds
@@ -31,12 +32,15 @@ namespace WorldServer.core.worlds.impl
         private const float GREET_AGAIN = 300f;     // a player is greeted again after this long
 
         // beside the spawn (tools/build_nexus.py, CENTRE (68, 61), the spawn 5 tiles square on an
-        // island of deck about 11 tiles round): the bot left of the Armoire, the gifts on the open
-        // tiles around the spawn
+        // island of deck about 11 tiles round): the bot left of the Armoire, the ducks on the pond
+        // round the island
         private static readonly (float X, float Y) BotSpot = (66.5f, 65.5f);
         private static readonly (float X, float Y) Centre = (68.5f, 61.5f);
-        private const float GIFT_MIN_RADIUS = 3.5f;
-        private const float GIFT_MAX_RADIUS = 10f;
+        // the pond reaches from the island's edge (about 11 tiles out) to about 18
+        private const float GIFT_MIN_RADIUS = 10f;
+        private const float GIFT_MAX_RADIUS = 19f;
+        // the Support Bot is Doomed Realms' pet, drawn small (Size 40); by the spawn it stands taller
+        private const int BOT_SIZE = 90;
         // the dungeon portal: on the island south of the spawn, past the Armoire
         private static readonly (float X, float Y) PortalSpot = (68.5f, 68.5f);
 
@@ -93,6 +97,7 @@ namespace WorldServer.core.worlds.impl
             if (_bot == null)
                 return;
             _bot.SwitchTo(null);    // not the pet that follows its owner
+            _bot.Size = BOT_SIZE;
             _bot.ApplyPermanentConditionEffect(ConditionEffectIndex.Invincible);
 
             // only portals whose dungeon this server has
@@ -193,9 +198,9 @@ namespace WorldServer.core.worlds.impl
             _gifts.RemoveAll(g => g.Dead);
             var wait = Span(_giftTimer);
             if (_gifts.Count == 0)
-                return $"All the XP gifts are gone! {GIFT_COUNT} new ones come in {wait}. Next dungeon portal in {Span(_dungeonTimer)}.";
-            var left = _gifts.Count == 1 ? "1 XP gift is" : $"{_gifts.Count} XP gifts are";
-            return $"{left} left around the spawn! Shoot them all in the next {wait} and {GIFT_COUNT} new ones come. Next dungeon portal in {Span(_dungeonTimer)}.";
+                return $"All the XP ducks are gone! {GIFT_COUNT} new ones come in {wait}. Next dungeon portal in {Span(_dungeonTimer)}.";
+            var left = _gifts.Count == 1 ? "1 XP duck is" : $"{_gifts.Count} XP ducks are";
+            return $"{left} left on the pond! Shoot them all in the next {wait} and {GIFT_COUNT} new ones come. Next dungeon portal in {Span(_dungeonTimer)}.";
         }
 
         private static string Span(float seconds)
@@ -207,7 +212,7 @@ namespace WorldServer.core.worlds.impl
             return m == 1 ? "1 minute" : $"{m} minutes";
         }
 
-        // GIFT_COUNT gifts, each on its own open plaza tile (no object on it) around the rug
+        // GIFT_COUNT ducks, each on its own open tile of the pond (no object on it) round the island
         private void SpawnGifts()
         {
             var tiles = new List<(int X, int Y)>();
@@ -219,7 +224,7 @@ namespace WorldServer.core.worlds.impl
                         continue;
                     if (((int)BotSpot.X == x && (int)BotSpot.Y == y) || ((int)PortalSpot.X == x && (int)PortalSpot.Y == y))
                         continue;
-                    if (_world.IsPassable(x + 0.5, y + 0.5, true))
+                    if (_world.IsPassable(x + 0.5, y + 0.5, true) && _world.GameServer.Resources.GameData.Tiles[_world.Map[x, y].TileId].Sink)
                         tiles.Add((x, y));
                 }
             foreach (var (x, y) in tiles.OrderBy(_ => Random.Shared.Next()).Take(GIFT_COUNT))
@@ -229,7 +234,7 @@ namespace WorldServer.core.worlds.impl
                     _gifts.Add(gift);
             }
             if (_gifts.Count > 0)
-                SayNear($"{_gifts.Count} XP gifts! Shoot them for experience.");
+                SayNear($"{_gifts.Count} XP ducks on the pond! Shoot them for experience.");
         }
 
         // each player who comes near hears about /gear, at most once every GREET_AGAIN seconds

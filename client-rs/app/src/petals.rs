@@ -13,8 +13,8 @@ use crate::view::{Camera, TILE_PX};
 const LOOK: i32 = 6;
 const SPREAD: f64 = 11.0;
 /// Petals a second at full strength, and at most this many at once.
-const RATE: f64 = 45.0;
-const MAX: usize = 420;
+const RATE: f64 = 32.0;
+const MAX: usize = 320;
 /// How long a landed petal takes to fade, in ms.
 const FADE: f64 = 1500.0;
 
@@ -145,7 +145,7 @@ impl Petals {
             }
             let [sx, sy] = cam.to_screen(p.x, p.y, p.z);
             let wide = p.landed.is_some() || (t * p.sway * 3.0 + p.phase).sin() > -0.2;
-            let (w, h) = if wide { (3.0 * px, 2.0 * px) } else { (2.0 * px, 2.0 * px) };
+            let (w, h) = if wide { (2.0 * px, px) } else { (px, px) };
             let quad = bsk_render::Quad::rect((sx - w / 2.0).round(), (sy - h / 2.0).round(), w, h);
             renderer.sprite(white, quad, Tint::color(p.colour, alpha));
             if wide && p.landed.is_none() {

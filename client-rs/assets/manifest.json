@@ -1430,10 +1430,16 @@
    "h": 48
   },
   {
-   "name": "nexusGardenModels64x64",
-   "file": "kabam/rotmg/assets/custom/images/NexusGardenModels64x64.png",
+   "name": "nexusGarden64x64",
+   "file": "kabam/rotmg/assets/custom/images/NexusGarden64x64.png",
    "w": 64,
    "h": 64
+  },
+  {
+   "name": "nexusGardenModels128x128",
+   "file": "kabam/rotmg/assets/custom/images/NexusGardenModels128x128.png",
+   "w": 128,
+   "h": 128
   }
  ],
  "animated_chars": [
@@ -3268,8 +3274,8 @@
    "file": "kabam/rotmg/assets/custom/objects/nexusGardenHouse.obj"
   },
   {
-   "name": "NG Thatch House",
-   "file": "kabam/rotmg/assets/custom/objects/nexusGardenThatchHouse.obj"
+   "name": "NG Teahouse",
+   "file": "kabam/rotmg/assets/custom/objects/nexusGardenTeahouse.obj"
   },
   {
    "name": "NG Storehouse",
@@ -3278,6 +3284,10 @@
   {
    "name": "NG Pagoda",
    "file": "kabam/rotmg/assets/custom/objects/nexusGardenPagoda.obj"
+  },
+  {
+   "name": "NG Smithy",
+   "file": "kabam/rotmg/assets/custom/objects/nexusGardenSmithy.obj"
   },
   {
    "name": "NG Torii",

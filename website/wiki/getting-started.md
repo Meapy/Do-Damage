@@ -118,18 +118,23 @@ bloom, lanterns, temples and a koi pond. You arrive on a deck of pink-stained wo
 the pond, by stone water basins that heal you while you stand next to them. From there:
 
 - **On the island**: the Name Changer (your first name is free; changing it costs
-  {{v:name_change}} fame), the Character Changer, the Armoire (skins), the Support Bot and the
-  **Vault** portal. Four bridges cross the pond: wooden ones west and east, cobbled ones from the
-  island's two upper sides.
+  {{v:name_change}} fame) strolling about its north-west corner and the Character Changer about
+  its north-east, the Armoire (skins), the Support Bot and the **Vault** portal. Four bridges cross
+  the pond: wooden ones west and east, cobbled ones from the island's two upper sides. Every ten
+  minutes the Support Bot lets a flock of **XP ducks** onto the pond: shoot them for experience.
 - **North-west**, over the cobbled bridge and under the torii: the **shrine of the realm
   portals**. The portals are sunk into its floor: **Realm 2**'s great vortex in the middle, and a
-  dark cavern for each realm round it, each with its name and how many players are inside. Walk
+  dark cavern for each realm round it, each with its name and how many players are inside, and
+  west of the vortex the **Arena**'s sand pit ([The Arena](progression.html#the-arena)). Walk
   onto one to enter. A pagoda stands behind them.
+- **North of the spawn**, between the shrine and the village: a dry garden of raked gravel round
+  a great old cherry tree.
 - **North-east and east**: the **village**. Its shopping street is the Nexus Bazaar: each shop is
   a row of stalls in front of a house (stat potions, dungeon keys, Elder and Doomed keys,
   consumables, specials, pet generators, clothing and accessories). The stalls take turns through
-  each shop's items, and everything there costs fame. North of the street, the **forge court**
-  with the [Divine Forge](forge.html) and the [Enchanter](imprints.html); up the cross street, the
+  each shop's items, and everything there costs fame. North of the street, the **forge court**:
+  the [Divine Forge](forge.html) in an open smithy with its furnace, where **Amatsumara**, the
+  smith god, works at his anvil, and the [Enchanter](imprints.html) beside it; up the cross street, the
   quest house, where the **Tinkerer** and the **Chronicler** keep your
   [quests, daily reward and achievements](quests.html), and the guild's house (the **Guild Hall**
   portal, the Guild Register and the notice boards; see [Guilds](guilds.html): every member gets
@@ -137,11 +142,10 @@ the pond, by stone water basins that heal you while you stand next to them. From
   [Marketplace](marketplace.html) and two pavilions of stalls show what players sell, and the
   storehouse, whose yard holds four shared vault chests anyone can use.
 - **West**, over the wooden bridge: the [Hall of Champions](champions.html), the living's
-  leaderboard, its champions on plinths round the Champions Monument, and north of it the
-  **Arena** portal under its torii, with the Arena Leaderboard's golden trophy
-  ([The Arena](progression.html#the-arena)).
+  leaderboard, its champions on plinths round the Champions Monument, and north of it the Arena
+  Leaderboard's golden trophy.
 - **South**, between the pond and the sea: a forest of cherry, pine and maple where blossom falls
-  around you, and a quiet memorial clearing.
+  around you, a quiet memorial clearing, and the twins Hana and Sora running about.
 
 Villagers walk between the houses and stop to chat, and bees drift over the flowers.
 

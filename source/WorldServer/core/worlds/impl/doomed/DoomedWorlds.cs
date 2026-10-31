@@ -35,17 +35,18 @@ namespace WorldServer.core.worlds.impl.doomed
             }
         }
 
-        // the Arena (Doomed Realms' Battle Arena; port_doomed_worlds.WORLD_NAMES) and its portal, whose
-        // id stays Doomed Realms' (players see "Arena Portal", port_doomed.DISPLAY_OVERRIDES)
+        // the Arena (Doomed Realms' Battle Arena; port_doomed_worlds.WORLD_NAMES) and its portal: the
+        // Nexus garden's, a sand pit sunk into the shrine's floor (tools/build_nexus_garden.py; the
+        // old standing one was Doomed Realms' "Battle Arena Portal")
         public const string ArenaName = "Arena";
-        public const string ArenaPortal = "Battle Arena Portal";
+        public const string ArenaPortal = "NG Arena Portal";
 
-        // the Arena portal in the nexus's Arena court, west of the spawn under its torii
+        // the Arena portal in the shrine of the realm portals, west of Realm 2's vortex
         // (tools/build_nexus.py, ARENA_PORTALS; Doomed Realms only opened it for 30 seconds
         // with its /arena command)
         private static readonly (string Portal, float X, float Y)[] NexusPortals =
         {
-            (ArenaPortal, 30.5f, 47.5f),
+            (ArenaPortal, 34.5f, 31.5f),
         };
 
         public static void AddNexusPortals(World nexus)

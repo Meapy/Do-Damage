@@ -11,27 +11,32 @@ The land is a hexagon, pointed at the top and the bottom, in a deep sea nobody c
 sea comes in over its southern point in two bays either side of a wooded headland. From the middle
 out:
 - the spawn (`Spawn`) on an island of pink-stained deck, itself a hexagon (`ISLAND`), with the
-  healing basins (`NG Garden Basin`, NexusWorld) at its corners, the Name Changer, Character
-  Changer and Armoire beside it, the Vault Portal, and the Support Bot's dungeon portal south of
-  it (NexusGuide);
+  healing basins (`NG Garden Basin`, NexusWorld) at its corners, the Armoire (`NG Armoire`) beside
+  it, the Vault Portal, and the Support Bot's dungeon portal south of it (NexusGuide); the Name
+  Changer and the Character Changer walk about its upper corners (NexusVillagers), and the XP
+  ducks swim round it;
 - a koi pond round the island, shallow enough to wade, crossed by wooden bridges to the west and
   east and cobbled ones from the island's two upper sides, all railed;
 - north-west, the shrine of the realm portals: Realm 2's vortex in the middle of its court
   (`Realm2 Portal`) and four caverns round it where the realms' portals open (`Realm Portals`),
-  all sunk into the floor (RealmPortalMonitor), a pagoda behind them and a torii at the gate;
+  all sunk into the floor (RealmPortalMonitor), the Arena's sand pit west of the vortex
+  (`ARENA_PORTALS`, which DoomedWorlds.NexusPortals must match), a pagoda behind them and a torii
+  at the gate;
+- north of the pond, a dry garden of raked gravel round the elder cherry;
 - north-east and east, the village: a shopping street whose stalls are the shops (`Store N`, see
   MerchantLists.Shops; a shop with more items than stalls rotates them) in front of its houses;
-  the forge court (the Divine Forge and the Enchanter) north of it, the quest house (the Tinkerer
+  the forge court north of it (the Divine Forge in an open smithy, `SMITHY`, with Amatsumara the
+  smith god at his anvil, and the Enchanter), the quest house, a teahouse (the Tinkerer
   and the Chronicler, QuestGivers), the guild's house (Guild Hall Portal, Guild Register, notice
   boards), the market square (the Market Broker, `BROKER`, and its two pavilions of stalls, the
   `Market Stall` region, MarketStalls), and the storehouse whose yard holds the four shared vault
   chests. Their items are kept in Redis by the tile they had in the castle (`DbNexusChest`), so
   each chest carries its old tile as its name (`CHESTS`, NexusWorld.LinkVaultChests);
 - west, the Hall of Champions (`CHAMPIONS`: the monument and a plinth for each board, the ring
-  open to the east where the road comes in) and the Arena's court (its portal, `ARENA_PORTALS`,
-  which DoomedWorlds.NexusPortals must match, and the Arena Leaderboard);
+  open to the east where the road comes in) and the Arena Leaderboard's court north of it;
 - south, a forest of cherry, pine and maple between the pond and the sea, its floor marked
-  `Petals` so blossom falls across the screen there (the Rust client), with a memorial clearing.
+  `Petals` so blossom falls across the screen there (the Rust client), with a memorial clearing,
+  where the twins Hana and Sora run about (NexusVillagers).
 Villagers walk between the waypoints (`Nexus Waypoint`, NexusVillagers) and bees drift over the
 flowers.
 
@@ -111,7 +116,9 @@ BRIDGE_NW, BRIDGE_NE = 62, 74                    # the cobbled bridges' middle c
 
 # the shrine of the realm portals
 VORTEX = (46, 31)                                # Realm 2's portal (6 tiles across)
-CAVERNS = [(36, 27), (56, 27), (36, 36), (56, 37)]   # the realms' portals (4 across)
+CAVERNS = [(36, 25), (56, 26), (36, 37), (56, 37)]   # the realms' portals (4 across)
+# the Arena's portal (4 across), west of the vortex: DoomedWorlds.NexusPortals must match
+ARENA_PORTALS = [(34.5, 31.5)]
 SHRINE = (28, 21, 62, 41)                        # its court, x0, y0, x1, y1
 PAGODA = (46, 21)
 SHRINE_TORII = (BRIDGE_NW, 41)                   # at the court's gate, over the path from the bridge
@@ -134,8 +141,10 @@ SHOPS = [
 ]
 FORGE_COURT = (79, 19, 97, 33)
 FORGE = (85, 28)                        # the Divine Forge (its sprite stands four tiles tall)
+SMITHY = (86, 31)                       # the smithy round it: its model's tile, the front middle
+SMITH = (87, 29)                        # Amatsumara, the smith god, at his anvil east of him
 ENCHANTER = (92, 28)                    # the Enchanter, which imprints gear (ImprintHandlers.cs)
-QUEST_HOUSE = (108, 31)                 # the Tinkerer and the Chronicler stand before it
+QUEST_HOUSE = (108, 31)                 # a teahouse; the Tinkerer and the Chronicler stand before it
 QUEST_NPCS = [(105.5, 35.5), (111.5, 35.5)]  # QuestGivers' spots (keep the two in step)
 GUILD_HOUSE = (118, 32)
 GUILD = {"Guild Register": (116, 36), "BulletinBoard": [(119, 36), (121, 36)], "Guild Hall Portal": (122, 38)}
@@ -153,8 +162,7 @@ CHAMPIONS_RADIUS = 7.2
 CHAMPION_STATUES = [((5, -3), "fame"), ((5, 3), "stars"), ((1, 6), "achievements"),
                     ((-3, 6), "arenaSolo"), ((-6, 3), "arenaGroup"), ((-6, 0), "guildLiving"),
                     ((-6, -3), "guildDead"), ((-3, -6), "weeklyDungeons"), ((1, -6), "weeklyFame")]
-ARENA_COURT = (18, 44, 42, 51)
-ARENA_PORTALS = [(30.5, 47.5)]          # where DoomedWorlds.AddNexusPortals puts the Arena portal
+ARENA_COURT = (18, 44, 42, 51)          # its leaderboard's court (the portal is in the shrine)
 ARENA_LEADERBOARD = (34, 47)
 ARENA_MONUMENT = (24, 47)
 
@@ -227,8 +235,8 @@ class Grid:
     def model(self, name, x, y, ground=None, blockers=None):
         """A 3D model on (x, y), invisible blockers on the rest of its footprint (or on
         `blockers`, offsets from it)."""
-        fw, fh = model_art.MODELS[name.replace(" NS", "")][1]
-        if " NS" in name:
+        fw, fh = model_art.MODELS[name.replace(" NS", "").replace(" N", "") if name.endswith((" NS", " N")) else name][1]
+        if name.endswith(" NS"):
             fw, fh = fh, fw
         if blockers is None:
             blockers = [(dx, dy) for dy in range(-(fh // 2), fh // 2 + 1) for dx in range(-(fw // 2), fw // 2 + 1)
@@ -338,9 +346,8 @@ def lay_island(g):
             g.put(x, y, region="Spawn")
     for dx, dy in ((-4, -4), (4, -4), (-4, 4), (4, 4)):
         g.place(ix + dx, iy + dy, BASIN)
-    g.place(ix - 2, iy - 4, "Name Changer")
-    g.place(ix + 2, iy - 4, "Character Changer")
-    g.place(ix, iy + 4, "Armoire")
+    # the Name Changer and the Character Changer walk about the island (NexusVillagers)
+    g.place(ix, iy + 4, "NG Armoire")
     g.place(ix - 6, iy + 5, "Vault Portal")
     # stone lanterns at the island's corners, a paper lantern either side of each bridge's foot
     for x, y in ((ix, iy - ih + 1), (ix, iy + ih - 1), (ix - iw + 1, iy - ih // 2), (ix + iw - 1, iy - ih // 2),
@@ -397,7 +404,7 @@ def lay_shrine(g):
             d = math.hypot((x - (x0 + x1) / 2) / ((x1 - x0) / 2), (y - (y0 + y1) / 2) / ((y1 - y0) / 2))
             if d <= 1.0:
                 g.ground(x, y, SLAB, keep=True)
-    for (cx, cy), r in [(VORTEX, 4.6)] + [(c, 3.4) for c in CAVERNS]:
+    for (cx, cy), r in [(VORTEX, 4.6)] + [(c, 3.4) for c in CAVERNS] + [((int(ARENA_PORTALS[0][0]), int(ARENA_PORTALS[0][1])), 3.4)]:
         for y in range(int(cy - r) - 1, int(cy + r) + 2):
             for x in range(int(cx - r) - 1, int(cx + r) + 2):
                 if math.hypot(x - cx, y - cy) <= r:
@@ -440,7 +447,7 @@ def lay_village(g):
         hy = y - 4 if north else y + 4
         for hx in range(lo + 2, hi - 1, 6):
             if hi - hx >= 2:
-                g.model("NG House", hx + 1, hy)
+                g.model("NG House" if north else "NG House N", hx + 1, hy)
     # the forge court: slabs, the forge and the Enchanter on them, lanterns at its corners
     fx0, fy0, fx1, fy1 = FORGE_COURT
     g.rect(fx0, fy0, fx1, fy1, SLAB)
@@ -449,14 +456,13 @@ def lay_village(g):
     g.place(*ENCHANTER, "Enchanter")
     for x, y in ((fx0, fy0), (fx1, fy0), (fx0, fy1), (fx1, fy1)):
         g.place(x, y, LANTERN, slot=ACCENT)
-    for x in (FORGE[0] - 3, ENCHANTER[0] + 3):
-        g.place(x, FORGE[1], PAPER, slot=FLAME)
-    g.model("NG Thatch House", fx1 - 3, fy0 + 3)
-    g.model("NG Thatch House", fx0 + 3, fy0 + 3)
+    smithy(g)
+    g.place(ENCHANTER[0] + 3, FORGE[1], PAPER, slot=FLAME)
+    g.model("NG House N", fx1 - 3, fy0 + 2)
     # the quest house and the guild's
-    g.model("NG House", *QUEST_HOUSE)
-    g.rect(QUEST_HOUSE[0] - 4, QUEST_HOUSE[1] + 2, QUEST_HOUSE[0] + 4, QUEST_HOUSE[1] + 6, PATH)
-    g.model("NG Thatch House", *GUILD_HOUSE)
+    g.model("NG Teahouse", *QUEST_HOUSE)
+    g.rect(QUEST_HOUSE[0] - 4, QUEST_HOUSE[1] + 3, QUEST_HOUSE[0] + 4, QUEST_HOUSE[1] + 6, PATH)
+    g.model("NG House", *GUILD_HOUSE)
     g.rect(GUILD_HOUSE[0] - 3, GUILD_HOUSE[1] + 2, GUILD_HOUSE[0] + 4, GUILD_HOUSE[1] + 7, PATH)
     g.place(*GUILD["Guild Register"], "Guild Register")
     for x, y in GUILD["BulletinBoard"]:
@@ -482,6 +488,31 @@ def lay_village(g):
         for y in range(sy2 + 2, sy2 + 7):
             if x == sx - 6 or abs(y - sy2 - 4) > 1:     # the yard's gate faces the cross street
                 g.model("NG Bamboo Fence NS", x, y)
+
+
+def smithy(g):
+    """The smithy round the Divine Forge (models.smithy): its posts, back wall and furnace block
+    their tiles; the smoke stands on the furnace, the flame at its mouth; Amatsumara at his anvil."""
+    sx, sy = SMITHY
+    blocked = set()
+    for dx in (-5, 4):                          # the posts, east and west
+        for dy in (0, -2, -4, -6):
+            blocked.add((sx + dx, sy + dy))
+    for dx in range(-4, 4):                     # the low back wall
+        blocked.add((sx + dx, sy - 6))
+    for x in (sx - 4, sx - 3):                  # the furnace
+        blocked.add((x, sy - 6))
+        blocked.add((x, sy - 5))
+    smoke = (sx - 3, sy - 5)
+    for x, y in sorted(blocked):
+        if (x, y) != smoke:
+            g.place(x, y, BLOCKER)
+    g.place(*smoke, "NG Chimney Smoke")
+    g.place(sx - 3, sy - 4, "NG Forge Flame")
+    g.place(*SMITH, "NG Smith God")
+    g.place(SMITH[0] + 1, SMITH[1], "NG Anvil")
+    g.place(sx, sy, "NG Smithy")
+    g.models.append(("NG Smithy", sx, sy))
 
 
 def pavilion(g, region, x0, y0, cols, rows):
@@ -515,7 +546,7 @@ def lay_west(g):
         g.place(hx + dx, hy + dy, "Champion Statue", name="name:%s" % board)
     for dx, dy in ((7, -5), (7, 5), (-5, -7), (-5, 7)):
         g.place(hx + dx, hy + dy, LANTERN, slot=ACCENT)
-    # the Arena's court, north of it
+    # the Arena Leaderboard's court, north of it
     ax0, ay0, ax1, ay1 = ARENA_COURT
     g.rect(ax0, ay0, ax1, ay1, SLAB)
     g.line([(hx + 8, hy), (hx + 8, ay1)], 3, PATH)
@@ -523,8 +554,7 @@ def lay_west(g):
     g.place(*ARENA_MONUMENT, "Arena Large Monument 3", name="size:220")
     for x, y in ((ax0, ay0), (ax1, ay0), (ax0, ay1), (ax1, ay1)):
         g.place(x, y, PAPER, slot=FLAME)
-    ax, ay = int(ARENA_PORTALS[0][0]), int(ARENA_PORTALS[0][1])
-    g.model("NG Torii", ax, ay - 1, blockers=TORII_POSTS)
+    g.place(ARENA_LEADERBOARD[0] - 4, ARENA_LEADERBOARD[1], LANTERN, slot=ACCENT)
 
 
 def lay_forest(g, rng):
@@ -549,13 +579,16 @@ def lay_forest(g, rng):
 def lay_garden(g, rng):
     """The garden north of the pond between the shrine and the village: the great cherry tree and
     a dry garden of raked gravel and rocks."""
-    g.place(68, 36, GREAT)
-    for y in range(22, 31):
-        for x in range(63, 74):
-            if math.hypot((x - 68) / 5.5, (y - 26) / 4.2) <= 1 and g.land(x, y):
+    g.place(66, 38, GREAT)
+    for y in range(21, 33):
+        for x in range(61, 76):
+            if math.hypot((x - 68) / 7, (y - 27) / 5.2) <= 1 and g.land(x, y):
                 g.ground(x, y, GRAVEL, keep=True)
-    for x, y in ((66, 25), (70, 27), (68, 28)):
+    g.place(68, 28, "NG Elder Sakura")
+    for x, y in ((63, 26), (73, 27), (65, 30), (71, 30)):
         g.place(x, y, BOULDER)
+    for x, y in ((62, 28), (74, 29)):
+        g.place(x, y, LANTERN, slot=ACCENT)
     g.line([(BRIDGE_NW, 44), (BRIDGE_NE, 44)], 2, PATH)
 
 
@@ -615,7 +648,8 @@ def plant(g, rng):
             elif r < 0.062 and all(g.ok(x + dx, y + dy) and g[x + dx, y + dy]["ground"] == POND for dx in (-1, 1) for dy in (-1, 1)):
                 g.place(x, y, "NG Koi", keep=False)
     # waypoints: before each house's door, at the squares and the bridges' feet
-    points = [(x, y + 3) for name, x, y in g.models if name in ("NG House", "NG Thatch House")]
+    points = [(x, y + 3) for name, x, y in g.models if name in ("NG House", "NG Teahouse")]
+    points += [(x, y - 3) for name, x, y in g.models if name == "NG House N"]
     points += [(BROKER[0] + 4, BROKER[1]), (STREET_B[0], 50), (STREET_B[0], 66), (90, STREET_A[2]),
                (114, STREET_A[2]), (BRIDGE_NE, 43), (BRIDGE_NW, 43), (FORGE[0] + 3, FORGE[1] + 3),
                (STOREHOUSE[0], STOREHOUSE[1] + 4), (CHAMPIONS[0] + 8, CENTRE[1]), (MEMORIAL[0], MEMORIAL[1] + 1),
@@ -643,8 +677,9 @@ def check_nexus(g):
     for (x, y), _ in CHESTS:
         assert g[x, y]["obj"] == "Vault Chest", (x, y)
     for x, y in ARENA_PORTALS:
-        t = g[int(x), int(y)]
-        assert not t["obj"] and g.land(int(x), int(y)), (x, y)
+        for yy in range(int(y) - 2, int(y) + 3):
+            for xx in range(int(x) - 2, int(x) + 3):
+                assert not g[xx, yy]["obj"] and g.land(xx, yy), ("the Arena portal's floor", xx, yy)
     assert g[FORGE]["obj"] == "Divine Forge"
     assert g[ENCHANTER]["obj"] == "Enchanter"
     assert g[BROKER]["obj"] == "Market Broker"
@@ -697,7 +732,8 @@ def preview(g, path):
             if t["obj"] in flat and sprite(t["obj"]):
                 out.alpha_composite(sprite(t["obj"]).resize((T, T)), (x * T, y * T))
     # the floor portals, as the server will place them
-    for (cx, cy), name, size in [(VORTEX, art.REALM2_PORTAL, 6)] + [(c, art.REALM_PORTAL, 4) for c in CAVERNS[:2]]:
+    arena = (int(ARENA_PORTALS[0][0]), int(ARENA_PORTALS[0][1]))
+    for (cx, cy), name, size in [(VORTEX, art.REALM2_PORTAL, 6), (arena, art.ARENA_PORTAL, 4)] + [(c, art.REALM_PORTAL, 4) for c in CAVERNS[:2]]:
         img = sprite(name)
         if img:
             px = size * T
@@ -709,11 +745,12 @@ def preview(g, path):
             name = t["obj"]
             if (x, y) in models:
                 base = models[(x, y)]
-                key = base.replace(" NS", "")
+                key = base.replace(" NS", "").replace(" N", "") if base.endswith((" NS", " N")) else base
                 if key not in meshes:
                     meshes[key] = model_art.MODELS[key][0]()
                 mesh, tex = meshes[key]
-                render.draw_model(mesh, tex, out, (x + 0.5) * T, (y + 0.5) * T, T, 0.0, 90 if base.endswith(" NS") else 0)
+                turn = 90 if base.endswith(" NS") else 180 if base.endswith(" N") else 0
+                render.draw_model(mesh, tex, out, (x + 0.5) * T, (y + 0.5) * T, T, 0.0, turn, 0.5)
             elif name and name not in flat and name != BLOCKER and sprite(name):
                 img = sprite(name)
                 w, h = img.width, img.height

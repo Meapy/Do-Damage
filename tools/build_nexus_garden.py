@@ -24,7 +24,7 @@ import xml.etree.ElementTree as ET
 from PIL import Image
 
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
-from nexus_garden import chars, floors, grounds, models, sprites  # noqa: E402
+from nexus_garden import chars, extras, floors, grounds, models, sprites  # noqa: E402
 from realm2 import art as realm2_art  # noqa: E402
 
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
@@ -44,8 +44,9 @@ SHEETS = {
     16: ("nexusGarden16x16", "NexusGarden16x16.png"),
     32: ("nexusGarden32x32", "NexusGarden32x32.png"),
     48: ("nexusGarden48x48", "NexusGarden48x48.png"),
-    64: ("nexusGardenModels64x64", "NexusGardenModels64x64.png"),
+    64: ("nexusGarden64x64", "NexusGarden64x64.png"),
 }
+MODEL_SHEET = ("nexusGardenModels128x128", "NexusGardenModels128x128.png")
 CHARS = ("nexusGardenChars8x8", "NexusGardenChars8x8.png")
 COLS = 16
 
@@ -57,6 +58,12 @@ REALM_PORTAL = "NG Realm Cavern"        # RealmPortalMonitor: a realm's portal i
 REALM2_PORTAL = "NG Realm2 Vortex"      # and Realm 2's
 BASIN = "NG Garden Basin"               # NexusWorld: heals whoever stands by it
 BLOCKER = "NG Blocker"                  # invisible: fills a building's tiles round its model
+ARENA_PORTAL = "NG Arena Portal"        # DoomedWorlds.ArenaPortal: the Arena's, in the shrine
+DUCK = "NG XP Duck"                     # NexusGuide: the XP gifts, swimming round the island
+SMITH = "NG Smith God"                  # NexusVillagers: speaks by the forge
+NAME_CHANGER, CHARACTER_CHANGER = "NG Name Changer", "NG Character Changer"   # NexusVillagers
+TWINS = list(extras.TWINS)              # NexusVillagers: about the forest
+SMOKE = "NG Chimney Smoke"              # over the smithy's chimney (models.SMITHY_CHIMNEY)
 
 
 class Types:
@@ -147,7 +154,20 @@ def scenery():
         "NG Stepping Stone": (8, [s.stepping_stone(k) for k in (1, 2)], "flat", {}),
         "NG Fallen Petals": (8, [s.petals_pile(k) for k in (1, 2, 3)], "flat", {}),
         BLOCKER: (8, [s.blank()], "block", {"hidden": True}),
+        "NG Elder Sakura": (64, [extras.elder_sakura()], "block", {"shadow": 300}),
+        SMOKE: (32, [_tall(extras.smoke(f)) for f in range(4)], "block", {"anim": (0.3,) * 4, "z": 6.3, "noshadow": True}),
+        "NG Forge Flame": (8, [extras.forge_flame(f) for f in range(3)], "plain", {"anim": (0.12, 0.12, 0.12), "noshadow": True}),
+        "NG Anvil": (16, [extras.anvil()], "block", {}),
+        "NG Armoire": (16, [extras.armoire()], "block", {"class": "ReskinVendor", "shown": "Armoire"}),
     }
+
+
+def _tall(img):
+    """A 16 by 32 picture in a 32 cell, standing on its foot."""
+    from PIL import Image
+    out = Image.new("RGBA", (32, 32))
+    out.paste(img, (8, 0))
+    return out
 
 
 VILLAGER_SIZE = 100
@@ -178,7 +198,9 @@ def build(preview=None):
 
     for name, (size, imgs, kind, extra) in scenery().items():
         o = ET.Element("Object", {"type": types.get("objects", name), "id": name})
-        sub(o, "Class", "GameObject")
+        if "shown" in extra:
+            sub(o, "DisplayId", extra["shown"])
+        sub(o, "Class", extra.get("class", "GameObject"))
         file = SHEETS[size][0]
         cells = [sheets[size].add(i) for i in imgs]
         if "anim" in extra:
@@ -195,11 +217,13 @@ def build(preview=None):
         sub(o, "Size", 100)
         if kind == "flat":
             sub(o, "DrawOnGround")
-        if extra.get("hidden") or kind == "flat":
+        if extra.get("hidden") or kind == "flat" or extra.get("noshadow"):
             sub(o, "NoMiniMap")
             sub(o, "ShadowSize", 0)
         elif "shadow" in extra:
             sub(o, "ShadowSize", extra["shadow"])
+        if "z" in extra:
+            sub(o, "Z", extra["z"])
         sub(o, "Static")
         if kind == "block":
             sub(o, "OccupySquare")
@@ -207,23 +231,29 @@ def build(preview=None):
         object_xml.append(o)
 
     # the 3D models; a railing, fence or torii also turned a quarter for paths that run north
-    for name, (builder, footprint, blocks) in models.MODELS.items():
+    model_sheet = Sheet(models.TEX, 8)
+    for name, (builder, footprint, blocks, shadow) in models.MODELS.items():
         mesh, img = builder()
-        cell = sheets[64].add(img)
-        file_name = name[3:].replace(" ", "") + ".obj"
-        with open(os.path.join(MODELS_DIR, "nexusGarden" + file_name), "w", newline="\n") as f:
+        cell = model_sheet.add(img)
+        with open(os.path.join(MODELS_DIR, model_file(name)), "w", newline="\n") as f:
             f.write(mesh.obj(name))
-        turns = [("", 0)] + ([(" NS", 90)] if footprint[1] == 1 else [])
+        # railings, fences and torii turned a quarter for paths that run north; houses turned
+        # round to face a street to their north
+        turns = [("", 0)] + ([(" NS", 90)] if footprint[1] == 1 else []) + ([(" N", 180)] if name == "NG House" else [])
         for suffix, rotation in turns:
             oid = name + suffix
             o = ET.Element("Object", {"type": types.get("objects", oid), "id": oid})
             sub(o, "Class", "GameObject")
             sub(o, "Model", name)
-            texture(o, SHEETS[64][0], cell)
+            texture(o, MODEL_SHEET[0], cell)
             if rotation:
                 sub(o, "Rotation", rotation)
             sub(o, "Static")
             sub(o, "ShadowSize", 0)
+            # the garden's models are lit harder than the old ones, and cast shadows (view.rs)
+            sub(o, "ModelContrast", 0.5)
+            if shadow:
+                sub(o, "ModelShadow", shadow)
             if blocks:
                 sub(o, "OccupySquare")
                 sub(o, "EnemyOccupySquare")
@@ -235,13 +265,16 @@ def build(preview=None):
     vor = [sheets[48].add(floors.vortex(f, gems)) for f in range(8)]
     for oid, shown, file, cells, ground_size, time, extra in (
             (REALM_PORTAL, "Realm Portal", SHEETS[32][0], cav, 4, 0.25, {}),
-            (REALM2_PORTAL, "Realm 2", SHEETS[48][0], vor, 6, 0.12, {"DungeonName": "Realm 2"})):
+            (REALM2_PORTAL, "Realm 2", SHEETS[48][0], vor, 6, 0.12, {"DungeonName": "Realm 2"}),
+            (ARENA_PORTAL, "Arena Portal", SHEETS[32][0], [sheets[32].add(extras.arena_portal(f)) for f in range(4)], 4, 0.3,
+             {"DungeonName": "Arena", "ShowName": None})):
         o = ET.Element("Object", {"type": types.get("objects", oid), "id": oid})
         sub(o, "DisplayId", shown)
         sub(o, "Class", "Portal")
         sub(o, "IntergamePortal")
         # the client writes a NexusPortal's name under it ("Realm 2: Zenith (3/85)")
-        sub(o, "NexusPortal")
+        if oid != ARENA_PORTAL:
+            sub(o, "NexusPortal")
         for k, v in extra.items():
             sub(o, k, v)
         texture(o, file, cells[0])
@@ -260,6 +293,57 @@ def build(preview=None):
         object_xml.append(character(types, name, "Villager", index, VILLAGER_SIZE, False))
     index = char_sheet.add(chars.bee_strip())
     object_xml.append(character(types, BEE_ID, "Bee", index, 70, True))
+    for name, (pal, rows, steps) in extras.TWINS.items():
+        index = char_sheet.add(chars.strip(pal, rows, steps))
+        object_xml.append(character(types, name, name.split()[-1], index, 85, False))
+    # the Name Changer and the Character Changer, walking (their own sprites, lofiChar8x8 0x0a and
+    # 0x08); still their classes, so the client opens their windows
+    for name, shown, cls, cell in ((NAME_CHANGER, "Name Changer", "NameChanger", 0x0a),
+                                   (CHARACTER_CHANGER, "Character Changer", "CharacterChanger", 0x08)):
+        index = char_sheet.add(extras.changer(cell))
+        o = ET.Element("Object", {"type": types.get("objects", name), "id": name})
+        sub(o, "DisplayId", shown)
+        sub(o, "Class", cls)
+        at = sub(o, "AnimatedTexture")
+        sub(at, "File", CHARS[0])
+        sub(at, "Index", index)
+        sub(o, "Size", 100)
+        object_xml.append(o)
+    # the XP ducks: the XP Gift's numbers, swimming
+    frames = [sheets[8].add(extras.duck(f)) for f in range(3)]
+    o = ET.Element("Object", {"type": types.get("objects", DUCK), "id": DUCK})
+    sub(o, "DisplayId", "XP Duck")
+    sub(o, "Group", "Evaluators")
+    sub(o, "Enemy")
+    sub(o, "Class", "Character")
+    texture(o, SHEETS[8][0], frames[0])
+    anim = sub(o, "Animation", prob="1.0", period="1.2", periodJitter="1.0")
+    for c, t in zip(frames + [frames[0]], (0.25, 0.25, 0.25, 0.1)):
+        texture(sub(anim, "Frame", time=str(t)), SHEETS[8][0], c)
+    sub(o, "HitSound", "monster/chicken_hit")
+    sub(o, "DeathSound", "monster/chicken_death")
+    sub(o, "MaxHitPoints", 600)
+    sub(o, "Size", 90)
+    sub(o, "Defense", 0)
+    sub(o, "Exp", 4200)
+    sub(o, "NoMiniMap")
+    object_xml.append(o)
+    # Amatsumara at his anvil: at rest, now and then the hammer up and down in a shower of sparks
+    frames = [sheets[16].add(extras.smith_god(f)) for f in range(3)]
+    o = ET.Element("Object", {"type": types.get("objects", SMITH), "id": SMITH})
+    sub(o, "DisplayId", "Amatsumara")
+    sub(o, "Class", "Character")
+    texture(o, SHEETS[16][0], frames[0])
+    anim = sub(o, "Animation", prob="1.0", period="3.5", periodJitter="2.5")
+    for c, t in ((frames[1], 0.35), (frames[2], 0.25), (frames[1], 0.2), (frames[2], 0.25), (frames[0], 0.1)):
+        texture(sub(anim, "Frame", time=str(t)), SHEETS[16][0], c)
+    sub(o, "Size", 130)
+    sub(o, "MaxHitPoints", 1000)
+    sub(o, "NoMiniMap")
+    sub(o, "Invincible")
+    sub(o, "StasisImmune")
+    sub(o, "ShadowSize", 120)
+    object_xml.append(o)
 
     write_xml(OUT_XML["grounds"], "GroundTypes", ground_xml, "The Nexus garden's grounds: generated by tools/build_nexus_garden.py, don't edit")
     write_xml(OUT_XML["objects"], "Objects", object_xml,
@@ -268,10 +352,16 @@ def build(preview=None):
     for size, (_, fname) in SHEETS.items():
         out[fname] = sheets[size].save(os.path.join(IMAGES, fname))
     out[CHARS[1]] = char_sheet.save(os.path.join(IMAGES, CHARS[1]))
+    out[MODEL_SHEET[1]] = model_sheet.save(os.path.join(IMAGES, MODEL_SHEET[1]))
     types.save()
     print("Nexus garden: %d grounds, %d objects, %d models" % (len(ground_xml), len(object_xml), len(models.MODELS)))
     if preview:
         save_preview(out, preview)
+
+
+def model_file(name):
+    """The OBJ file a model is written to (tools/gen_rs_manifest.py RS_ONLY_MODELS lists them)."""
+    return "nexusGarden" + name[3:].replace(" ", "") + ".obj"
 
 
 def character(types, name, shown, index, size, flying):

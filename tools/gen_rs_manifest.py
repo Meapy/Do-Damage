@@ -78,7 +78,8 @@ RS_ONLY_SETS = [
     ("nexusGarden16x16", "kabam/rotmg/assets/custom/images/NexusGarden16x16.png", 16, 16),
     ("nexusGarden32x32", "kabam/rotmg/assets/custom/images/NexusGarden32x32.png", 32, 32),
     ("nexusGarden48x48", "kabam/rotmg/assets/custom/images/NexusGarden48x48.png", 48, 48),
-    ("nexusGardenModels64x64", "kabam/rotmg/assets/custom/images/NexusGardenModels64x64.png", 64, 64),
+    ("nexusGarden64x64", "kabam/rotmg/assets/custom/images/NexusGarden64x64.png", 64, 64),
+    ("nexusGardenModels128x128", "kabam/rotmg/assets/custom/images/NexusGardenModels128x128.png", 128, 128),
 ]
 # (name, file, frame width, frame height, sheet width, sheet height, direction): characters
 RS_ONLY_CHARS = [
@@ -94,11 +95,11 @@ RS_ONLY_CHARS = [
     # the Nexus's villagers and bees (tools/build_nexus_garden.py)
     ("nexusGardenChars8x8", "kabam/rotmg/assets/custom/images/NexusGardenChars8x8.png", 8, 8, 56, 8, "right"),
 ]
-# (name, file): 3D models only the Rust client draws: the Nexus garden's houses, pagoda, torii,
-# railings and fences (tools/build_nexus_garden.py)
+# (name, file): 3D models only the Rust client draws: the Nexus garden's houses, teahouse,
+# storehouse, pagoda, smithy, torii, railings and fences (tools/build_nexus_garden.py)
 RS_ONLY_MODELS = [
     (name, "kabam/rotmg/assets/custom/objects/nexusGarden%s.obj" % name[3:].replace(" ", ""))
-    for name in ("NG House", "NG Thatch House", "NG Storehouse", "NG Pagoda", "NG Torii", "NG Wood Rail",
+    for name in ("NG House", "NG Teahouse", "NG Storehouse", "NG Pagoda", "NG Smithy", "NG Torii", "NG Wood Rail",
                  "NG Stone Rail", "NG Bamboo Fence")
 ]
 # game data only the Rust client loads

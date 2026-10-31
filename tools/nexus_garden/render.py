@@ -4,14 +4,14 @@ of the models and of the Nexus map without starting the game."""
 import math
 
 
-def shade(n):
+def shade(n, contrast=0.25):
     ln = math.sqrt(14)
     light = (1 / ln, 3 / ln, 2 / ln)
     nl = math.sqrt(sum(c * c for c in n)) or 1
-    return 0.75 + 0.25 * max(0.0, sum(a * b for a, b in zip(n, light)) / nl)
+    return 1 - contrast + contrast * max(0.0, sum(a * b for a, b in zip(n, light)) / nl)
 
 
-def draw_model(mesh, tex, out, ox, oy, scale=8, angle=0.0, rotation=0.0):
+def draw_model(mesh, tex, out, ox, oy, scale=8, angle=0.0, rotation=0.0, contrast=0.25):
     """Draws `mesh` (a models.Mesh) textured with `tex` onto `out`, its origin at pixel (ox, oy),
     `scale` pixels a tile, the camera turned by `angle` and the model by `rotation` degrees."""
     s, c = math.sin(angle), math.cos(angle)
@@ -23,15 +23,15 @@ def draw_model(mesh, tex, out, ox, oy, scale=8, angle=0.0, rotation=0.0):
         return ox + (x * c + y * s) * scale, oy + (-x * s + y * c - z) * scale
 
     faces = []
-    for f in mesh.faces:
+    for f, mat in mesh.faces:
         pts = [mesh.vs[i - 1] for i, _ in f]
         uvs = [mesh.vts[t - 1] for _, t in f]
         zs = [p[2] for p in pts]
-        faces.append(((min(zs), max(zs)), pts, uvs))
+        faces.append(((min(zs), max(zs)), pts, uvs, mat))
     faces.sort(key=lambda k: k[0])
     tw, th = tex.size
     tp, op = tex.load(), out.load()
-    for _, pts, uvs in faces:
+    for _, pts, uvs, mat in faces:
         sp = [screen(p) for p in pts]
         u = (sp[1][0] - sp[0][0], sp[1][1] - sp[0][1])
         v = (sp[-1][0] - sp[0][0], sp[-1][1] - sp[0][1])
@@ -40,7 +40,7 @@ def draw_model(mesh, tex, out, ox, oy, scale=8, angle=0.0, rotation=0.0):
         p0, p1, pl = pts[0], pts[1], pts[-1]
         a = [p1[i] - p0[i] for i in range(3)]
         b = [pl[i] - p0[i] for i in range(3)]
-        sh = shade((a[1] * b[2] - a[2] * b[1], a[2] * b[0] - a[0] * b[2], a[0] * b[1] - a[1] * b[0]))
+        sh = 1.0 if mat == "Glow" else shade((a[1] * b[2] - a[2] * b[1], a[2] * b[0] - a[0] * b[2], a[0] * b[1] - a[1] * b[0]), contrast)
         for k in range(1, len(pts) - 1):
             P = [sp[0], sp[k], sp[k + 1]]
             T = [uvs[0], uvs[k], uvs[k + 1]]
