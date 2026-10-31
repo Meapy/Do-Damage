@@ -47,6 +47,8 @@ pub enum Bind {
     Center,
     /// `togglePerformanceStats`: the frame rate on screen.
     Stats,
+    /// Held: the items in the loot bags nearby, over each bag.
+    BagPreview,
     /// Chat commands: `/vault`, `/realm`, `/ghall`, `/pinviteworld`, `/pjoin`.
     Vault,
     Realm,
@@ -56,7 +58,7 @@ pub enum Bind {
 }
 
 /// Every binding: what, its label, its name in the file, its default key.
-pub const BINDS: [(Bind, &str, &str, Option<KeyCode>); 41] = [
+pub const BINDS: [(Bind, &str, &str, Option<KeyCode>); 42] = [
     (Bind::MoveUp, "Move up", "moveUp", Some(KeyCode::KeyW)),
     (Bind::MoveLeft, "Move left", "moveLeft", Some(KeyCode::KeyA)),
     (Bind::MoveDown, "Move down", "moveDown", Some(KeyCode::KeyS)),
@@ -93,6 +95,7 @@ pub const BINDS: [(Bind, &str, &str, Option<KeyCode>); 41] = [
     (Bind::SwitchTabs, "Inventory / backpack", "switchTabs", Some(KeyCode::KeyB)),
     (Bind::Center, "Center on player", "toggleCentering", Some(KeyCode::KeyX)),
     (Bind::Stats, "Show frame rate", "togglePerformanceStats", Some(KeyCode::KeyL)),
+    (Bind::BagPreview, "Show loot bags' items (hold)", "bagPreview", Some(KeyCode::ShiftLeft)),
     (Bind::Vault, "Go to the vault", "reconVault", None),
     (Bind::Realm, "Go to a realm", "reconRealm", None),
     (Bind::GuildHall, "Go to the guild hall", "reconGuildHall", None),

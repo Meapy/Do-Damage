@@ -56,6 +56,8 @@ pub enum NpcKind {
     ChampionsBoard,
     /// A champion's statue round it: the Hall, at its board.
     ChampionStatue,
+    /// The Herald by the Nexus spawn: the server's week.
+    Herald,
 }
 
 impl NpcKind {
@@ -76,6 +78,7 @@ impl NpcKind {
             "Chronicler" => Self::Chronicler,
             "ChampionsBoard" => Self::ChampionsBoard,
             "ChampionStatue" => Self::ChampionStatue,
+            "Herald" => Self::Herald,
             _ => return None,
         })
     }
@@ -144,6 +147,7 @@ pub fn interact_text(kind: NpcKind, me: &GameObj, rank_req: i32, price: Option<i
         NpcKind::Chronicler => open("Daily rewards and achievements", "Open"),
         NpcKind::ChampionsBoard => open("The living's best, and their rewards", "View"),
         NpcKind::ChampionStatue => open("A champion of the Hall", "View"),
+        NpcKind::Herald => open("This week in the realm", "View"),
     }
 }
 
@@ -198,6 +202,8 @@ pub enum Window {
     Leaderboard { solo: bool, runs: Option<Vec<ArenaRun>>, error: Option<String> },
     /// `/champions/board`: the Hall of Champions.
     Champions(Box<crate::champions::View>),
+    /// `/stats/weekly`: the server's week, once it has come.
+    Weekly { stats: Option<bsk_net::account::WeeklyStats>, error: Option<String> },
 }
 
 /// What the player did in a window.
@@ -472,6 +478,8 @@ impl Npcs {
                 (540.0, 74.0 + 44.0 + 118.0 + 30.0 * rest as f32 + 10.0)
             }
             Window::Champions(_) => crate::champions::SIZE,
+            // three rows of three cards, then the most slain
+            Window::Weekly { .. } => (600.0, 74.0 + 28.0 + 3.0 * 96.0 + 112.0),
         };
         // Never bigger than the view.
         let k = (lay.view_w() * 0.94 / (w * s)).min(lay.h * 0.94 / (h * s)).min(1.0);
@@ -491,8 +499,9 @@ impl Npcs {
             Window::Potions { .. } => "Potion storage".to_owned(),
             Window::Leaderboard { .. } => "Arena Leaderboard".to_owned(),
             Window::Champions(_) => "Hall of Champions".to_owned(),
+            Window::Weekly { .. } => "This week in the realm".to_owned(),
         };
-        let title_color = if matches!(window, Window::Champions(_)) { color::GOLD } else { color::TEXT };
+        let title_color = if matches!(window, Window::Champions(_) | Window::Weekly { .. }) { color::GOLD } else { color::TEXT };
         ui.label(&title, r[0] + 20.0 * s, r[1] + 16.0 * s, font(19.0), true, title_color);
         // The close button, top right.
         let cb = [r[0] + r[2] - 40.0 * s, r[1] + 12.0 * s, 28.0 * s, 28.0 * s];
@@ -741,6 +750,13 @@ impl Npcs {
                     self.buttons.push((Hit::Tab(i), tr));
                 }
             }
+            Window::Weekly { stats, error } => match stats {
+                None => {
+                    let t = error.as_deref().unwrap_or("Loading…");
+                    ui.label(t, body[0], body[1], font(12.5), false, if error.is_some() { color::DANGER } else { color::TEXT_MUTED });
+                }
+                Some(w) => draw_week(ui, w, body, s),
+            },
         }
         // The window's own buttons, right-aligned along the bottom.
         let mut x = r[0] + r[2] - 20.0 * s;
@@ -752,6 +768,70 @@ impl Npcs {
             self.buttons.push((hit, br));
             x -= 10.0 * s;
         }
+    }
+}
+
+/// The Herald's counts (`DbWeeklyStats`, in its order): the id, the card's icon, its label.
+const WEEK_CARDS: [(&str, u32, &str); 9] = [
+    ("dungeons", crate::hud::ui_icon::DUNGEON, "Dungeons cleared"),
+    ("chainsCompleted", crate::hud::ui_icon::CROWN, "Oryx chains completed"),
+    ("chainsFailed", crate::hud::ui_icon::CROWN_BROKEN, "Oryx chains failed"),
+    ("deaths", crate::hud::ui_icon::GRAVE, "Heroes fallen"),
+    ("kills", crate::hud::ui_icon::SWORDS, "Monsters slain"),
+    ("events", crate::hud::ui_icon::BANNER, "Realm events defeated"),
+    ("realmsClosed", crate::hud::ui_icon::TOWER, "Realms conquered"),
+    ("potions", crate::hud::ui_icon::POTION, "Potions drunk"),
+    ("forged", crate::hud::ui_icon::ANVIL, "Items forged"),
+];
+
+/// The server's week in `body`: when it starts afresh, a card for each count (its icon, the
+/// number large, what it counts), then the monsters slain most, the first in a gold-edged card.
+fn draw_week(ui: &mut Ui, w: &bsk_net::account::WeeklyStats, body: [f32; 4], s: f32) {
+    const GOLD: u32 = 0xFFD24A;
+    let font = |size: f32| (size * s).round().max(9.0);
+    // the reset, by the hourglass
+    let left = (w.reset - w.now).max(0);
+    let when = if left >= 86_400 { format!("{}d {}h", left / 86_400, left % 86_400 / 3600) } else { format!("{}h {}m", left / 3600, left % 3600 / 60) };
+    let line = format!("Everyone's deeds together, since Monday. A new week begins in {when}.");
+    crate::hud::ui_icon(ui, crate::hud::ui_icon::HOURGLASS, body[0] + 9.0 * s, body[1] + 9.0 * s, 18.0 * s);
+    ui.label(&line, body[0] + 24.0 * s, body[1] + 1.0 * s, font(12.0), false, color::TEXT_DIM);
+    let top = body[1] + 28.0 * s;
+    let gap = 8.0 * s;
+    let cw = (body[2] - 2.0 * gap) / 3.0;
+    let ch = 88.0 * s;
+    for (i, (id, icon, label)) in WEEK_CARDS.iter().enumerate() {
+        let cr = [body[0] + (i % 3) as f32 * (cw + gap), top + (i / 3) as f32 * (ch + gap), cw, ch];
+        theme::frame(ui.renderer, cr, 8.0 * s, s.max(1.0), (color::BORDER, 1.0), ((color::SLOT_TOP, 1.0), (color::SLOT_BOTTOM, 1.0)));
+        crate::hud::ui_icon(ui, *icon, cr[0] + 26.0 * s, cr[1] + 30.0 * s, 32.0 * s);
+        let value = crate::hud::group_digits(w.get(id).clamp(0, i32::MAX as i64) as i32);
+        let vs = font(22.0);
+        ui.label(&value, cr[0] + 50.0 * s, cr[1] + 14.0 * s, vs, true, color::TEXT);
+        let ls = font(11.0);
+        ui.label(label, cr[0] + 12.0 * s, cr[1] + ch - ls * 1.22 - 10.0 * s, ls, true, color::TEXT_MUTED);
+    }
+    // the most slain: the first big, the next few beside it
+    let y = top + 3.0 * (ch + gap) + 4.0 * s;
+    let card = [body[0], y, body[2], 96.0 * s];
+    theme::frame(ui.renderer, card, 8.0 * s, s.max(1.0), (GOLD, 0.9), ((color::SLOT_TOP, 1.0), (color::SLOT_BOTTOM, 1.0)));
+    crate::hud::ui_icon(ui, crate::hud::ui_icon::SKULL, card[0] + 18.0 * s, card[1] + 18.0 * s, 20.0 * s);
+    ui.label("Most slain", card[0] + 32.0 * s, card[1] + 10.0 * s, font(12.0), true, GOLD);
+    let name = |t: u16| ui.data.objects.get(&t).map_or_else(|| "Unknown".to_owned(), |d| d.display_id.clone());
+    let Some(&(first, kills)) = w.killed.first() else {
+        ui.label("Nothing slain yet this week.", card[0] + 16.0 * s, card[1] + 44.0 * s, font(12.0), false, color::TEXT_MUTED);
+        return;
+    };
+    crate::hud::object_icon(ui, first, card[0] + 44.0 * s, card[1] + 60.0 * s, 44.0 * s);
+    let fname = name(first);
+    ui.label(&fname, card[0] + 76.0 * s, card[1] + 40.0 * s, font(15.0), true, color::TEXT);
+    let k = format!("{} slain", crate::hud::group_digits(kills.clamp(0, i32::MAX as i64) as i32));
+    ui.label(&k, card[0] + 76.0 * s, card[1] + 62.0 * s, font(12.0), true, GOLD);
+    // the runners-up, a row each at the right
+    let rx = card[0] + card[2] * 0.55;
+    for (i, &(t, n)) in w.killed.iter().skip(1).take(4).enumerate() {
+        let ry = card[1] + 12.0 * s + i as f32 * 20.0 * s;
+        crate::hud::object_icon(ui, t, rx + 8.0 * s, ry + 8.0 * s, 16.0 * s);
+        let text = format!("{}  ·  {}", name(t), crate::hud::group_digits(n.clamp(0, i32::MAX as i64) as i32));
+        ui.label(&text, rx + 22.0 * s, ry, font(11.0), false, color::TEXT_DIM);
     }
 }
 

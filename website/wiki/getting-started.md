@@ -91,7 +91,8 @@ with no border, and alt-tabbing out is instant. The game remembers it for the ne
 The world fills the window, with one bar down the right:
 
 - **At the top:** the minimap, your experience, HP and MP. Your rank star, gold and fame sit
-  beside the minimap.
+  beside the minimap. On it, your quest is a red box, realm events orange, and players yellow
+  over everything; a realm you go back to keeps the map you'd uncovered.
 - **Your character card:** your name, class and level, with two tabs: your stats, and your records
   (kills, god and Oryx kills, quests, dungeons, accuracy, potions drunk and time played).
 - **At the foot:** the Nexus button, your equipment, your inventory (two small buttons switch to
@@ -103,6 +104,7 @@ The world fills the window, with one bar down the right:
   last 3 bosses: click one to see everyone who hit it.
 
 Hover over any item to see what it does; the numbers that beat what you're wearing show in green.
+Hold **Left Shift** to see what's in the loot bags around you, over each bag.
 Hover over a nearby player for their rank and gear. Right-click one in the Nearby players list (or
 on the minimap) to keep their card open, then hover the items they wear for each one's tooltip;
 right-click again or click anywhere else to close it.
@@ -118,7 +120,9 @@ you while you stand next to them. Around the spawn:
 - **Beside the spawn**: the Name Changer (your first name is free; changing it costs
   {{v:name_change}} fame), the Character Changer, the Armoire (skins) and the Support Bot, and
   either side of the rug the **Tinkerer** and the **Chronicler**, who keep your
-  [quests, daily reward and achievements](quests.html).
+  [quests, daily reward and achievements](quests.html), and the **Herald**, who keeps everyone's
+  week together: dungeons cleared, Oryx chains completed and failed, heroes fallen, monsters slain,
+  realm events and realms, potions, forging, and the monsters slain most.
 - **Between the spawn and the keep**, either side of the road: the **forge court** with the
   [Divine Forge](forge.html) and the [Enchanter](imprints.html) (west), and the **Arena** portal
   with the Arena Leaderboard's golden trophy ([The Arena](progression.html#the-arena), east).
@@ -140,9 +144,8 @@ you while you stand next to them. Around the spawn:
 Type `/gear` in the Nexus for a set of starter gear for your class: a weapon, an ability, armor and
 a ring from about half way up the regular tiers (never above tier {{v:gear_max_tier}}). For most
 classes that's a tier 7 weapon, tier 8 armor and a tier 4 ability and ring. The
-[Classes](classes.html) page shows exactly what each class gets. It also puts
-{{v:gear_boosters}} in your backpack, soulbound to you: use them to level faster and find more
-loot.
+[Classes](classes.html) page shows exactly what each class gets. It also uses
+{{v:gear_boosters}} for you there and then: you level faster and find more loot from the start.
 
 Its limits:
 

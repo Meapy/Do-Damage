@@ -92,7 +92,7 @@ namespace WorldServer.logic
                     new TierLoot(4, ItemType.Ability, 0.1),
                     new TierLoot(5, ItemType.Ability, 0.07),
                     new ItemLoot("Potion of Wisdom", 1),
-                    new ItemLoot("Doom Bow", 0.005),
+                    new ItemLoot("Doom Bow", 0.02),
                     new ItemLoot("Undead Lair Key", 0.009, 0, 0.03)
                     ), Elder("Septavius the Ghost God"))
             // the map's Doomed Realms helper would drop a second portal when Septavius dies

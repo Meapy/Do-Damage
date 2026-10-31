@@ -75,9 +75,9 @@ namespace WorldServer.core.net.handlers
                     case TOMB_PORTAL_OF_COWARDICE:
                     case PORTAL_OF_COWARDICE:
                     case GLOWING_PORTAL_OF_COWARDICE:
-                        // back the way you came: to a realm from a dungeon opened in a realm, else
-                        // (opened in the Nexus, or in another dungeon) to the Nexus
-                        world = player.World.ParentWorld is RealmWorld ? player.GameServer.WorldManager.GetRandomRealm() : null;
+                        // back the way you came: to the realm a dungeon was opened in (a Realm 2 too),
+                        // else (opened in the Nexus, or in another dungeon) to the Nexus
+                        world = player.World.ParentWorld is RealmWorld ? ReturnRealm(player) : null;
                         if (world == null)
                             world = player.GameServer.WorldManager.Nexus;
                         player.Reconnect(world);
@@ -85,7 +85,7 @@ namespace WorldServer.core.net.handlers
                     case RANDOM_REALM_PORTAL:
                     case REALM_PORTAL:
                     case GLOWING_REALM_PORTAL:
-                        world = player.GameServer.WorldManager.GetRandomRealm();
+                        world = ReturnRealm(player);
                         if (world == null)
                             world = player.GameServer.WorldManager.Nexus;
                         player.Reconnect(world);
@@ -103,9 +103,6 @@ namespace WorldServer.core.net.handlers
                     player.SendError("Dungeon is full.");
                     return;
                 }
-
-                if (world is RealmWorld && !player.GameServer.Resources.GameData.ObjectTypeToId[portal.ObjectDesc.ObjectType].Contains("Cowardice"))
-                    player.FameCounter.CompleteDungeon(player.World.IdName);
 
                 player.Reconnect(world);
                 return;
@@ -152,6 +149,15 @@ namespace WorldServer.core.net.handlers
                 foreach (var p in waiting)
                     Enter(p, built, portal);
             });
+        }
+
+        /// <summary>The realm a dungeon's way out leads to: the one it was opened in while that's still
+        /// open and has room (a Realm 2 as well, which the Nexus doesn't list), else a random realm.</summary>
+        private static World ReturnRealm(Player player)
+        {
+            if (player.World.ParentWorld is RealmWorld realm && !realm.Closed && !realm.Deleted && !realm.IsPlayersMax())
+                return realm;
+            return player.GameServer.WorldManager.GetRandomRealm();
         }
 
         /// <summary>Into a world just built for this portal, if the player is still beside it.</summary>

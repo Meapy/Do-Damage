@@ -125,6 +125,32 @@
 		<Static/>
 		<ShadowSize>70</ShadowSize>
 	</Object>
+	<!-- see The Tinkerer: the Herald, who keeps the server's week (DbWeeklyStats) and opens its
+	     window in the Rust client -->
+	<Object type="0x498b" id="The Herald">
+		<Class>Herald</Class>
+		<DisplayId>The Herald</DisplayId>
+		<Texture>
+			<File>questNpcs16x16</File>
+			<Index>0x06</Index>
+		</Texture>
+		<Animation prob="1.0" period="0.0">
+			<Frame time="2.2">
+				<Texture>
+					<File>questNpcs16x16</File>
+					<Index>0x06</Index>
+				</Texture>
+			</Frame>
+			<Frame time="0.6">
+				<Texture>
+					<File>questNpcs16x16</File>
+					<Index>0x07</Index>
+				</Texture>
+			</Frame>
+		</Animation>
+		<Static/>
+		<ShadowSize>70</ShadowSize>
+	</Object>
 	<!-- see The Tinkerer -->
 	<Object type="0x497c" id="The Chronicler">
 		<Class>Chronicler</Class>

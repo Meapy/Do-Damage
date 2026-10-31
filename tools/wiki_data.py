@@ -351,9 +351,39 @@ class Data:
 
     # --- the Divine Forge ---------------------------------------------------------------------
     # The fame for a tiered result by tier on the weapons' 0-14 scale, and its cap (ForgeRecipes.cs)
-    FORGE_TIER_FAME = [0, 10, 30, 50, 70, 90, 100, 200, 300, 400, 500, 800, 1000, 2000, 2000]
-    FORGE_TIERED_CAP = 2000
-    FORGE_UNTIERED_CAP = 3000  # ForgeRecipes.UntieredCap
+    FORGE_TIER_FAME = [0, 1, 2, 4, 6, 10, 15, 25, 40, 60, 125, 250, 400, 750, 1000]
+    FORGE_TIERED_CAP = 1000
+    FORGE_UNTIERED_CAP = 1500  # ForgeRecipes.UntieredCap
+    FORGE_PRICE_SCALE = 0.5    # ForgeRecipes.PriceScale: the Doomed Realms list's and ForgeOnly's prices
+
+    def starter_items(self):
+        """What /gear hands out, for any class (GearCommand.StarterItems): for each slot a class
+        wears, the highest tier at or below half its unbroken chain's top (at most T8), the oldest
+        of that tier. The forge never takes them."""
+        out = set()
+        slots = set()
+        for oid, o in self.objects.items():
+            if o["class"] == "Player":
+                slots.update(_int(x) for x in (_text(self.elements[oid], "SlotTypes", "") or "").split(",")[:4])
+        for slot in slots:
+            cands = [(oid, o) for oid, o in self.objects.items()
+                     if o["class"] == "Equipment" and o["slot"] == slot and o["tier"] >= 0
+                     and self.elements[oid].find("Consumable") is None]
+            if not cands:
+                continue
+            tiers = {o["tier"] for _, o in cands}
+            top = min(tiers)
+            while top + 1 in tiers:
+                top += 1
+            target = min(top // 2, 8)
+            pick = sorted((c for c in cands if c[1]["tier"] <= target), key=lambda c: (-c[1]["tier"], c[1]["type"]))
+            if pick:
+                out.add(pick[0][0])
+        return out
+
+    @classmethod
+    def _scaled(cls, fame):
+        return 0 if fame <= 0 else max(1, int(round(fame * cls.FORGE_PRICE_SCALE)))
 
     def forge_recipes(self):
         """Every recipe the Divine Forge knows, as ForgeRecipes.Build makes them: [{result, fame,
@@ -439,9 +469,9 @@ class Data:
             chains[slot] = (by_tier, fames)
 
         def ability_chain_fame(res, ing):
-            """An ability's two of the tier below costs its tier's price on the scale."""
+            """Any two of the tier below costs its tier's price on the scale (ForgeRecipes.ChainFame)."""
             r, f = items.get(res), items.get(ing[0]) if ing else None
-            if (not r or r["tier"] < 1 or r["slot"] not in ability_slots or len(ing) != 2 or ing[0] != ing[1]
+            if (not r or r["tier"] < 1 or len(ing) != 2 or ing[0] != ing[1]
                     or not f or f["slot"] != r["slot"] or f["tier"] != r["tier"] - 1 or r["slot"] not in chains):
                 return None
             return chains[r["slot"]][1].get(r["tier"])
@@ -456,9 +486,9 @@ class Data:
             if ability_chain_fame(res, ing) is not None:
                 fame = ability_chain_fame(res, ing)
             elif res in items and items[res]["tier"] >= 0:
-                fame = min(fame, self.FORGE_TIERED_CAP)
+                fame = min(self._scaled(fame), self.FORGE_TIERED_CAP)
             else:
-                fame = min(fame, self.FORGE_UNTIERED_CAP)
+                fame = min(self._scaled(fame), self.FORGE_UNTIERED_CAP)
             recipes.append({"result": res, "fame": fame, "advanced": adv == "true", "items": ing})
         # the items only the forge makes, which no monster drops (ForgeRecipes.ForgeOnly)
         m = re.search(r'ForgeOnly\s*=\s*\{(.*?)\};', _read(os.path.join(COMMANDS, "doomed", "ForgeRecipes.cs")), re.S)
@@ -466,7 +496,8 @@ class Data:
         for res, fame, adv, ing in re.findall(
                 r'\("([^"]+)",\s*(\d+),\s*(true|false),\s*new\[\]\s*\{([^}]*)\}\)', m.group(1) if m else ""):
             forge_only.add(res)
-            recipes.append({"result": res, "fame": int(fame), "advanced": adv == "true", "items": re.findall(r'"([^"]+)"', ing)})
+            recipes.append({"result": res, "fame": self._scaled(int(fame)), "advanced": adv == "true",
+                            "items": re.findall(r'"([^"]+)"', ing)})
 
         # the Ascended items (ForgeRecipes.Ascended): an item of a tier, of its slot or (slot 0) of any
         # slot of its kind, and an Ascended shard; `ascended` marks them, with the kind and tier when
@@ -486,6 +517,16 @@ class Data:
                     if res in self.elements and self.elements[res].find("Ascended") is not None:
                         r["ascended"] = {"any": (kind, tier) if slot == 0 else None}
                     recipes.append(r)
+        # the Infernal potions (ForgeRecipes.InfernalPotions): an Infernal shard, and the stat's
+        # potions from the potion storage (`storage`: the potion and how many), not a socket each
+        potions = re.findall(r'"([^"]+)"', (re.search(r'StatPotions\s*=\s*\{(.*?)\};', forge_src, re.S) or [None, ""])[1])
+        cost = re.search(r'InfernalPotionCost\s*=\s*(\d+)', forge_src)
+        ifame = re.search(r'InfernalPotionFame\s*=\s*(\d+)', forge_src)
+        m = re.search(r'InfernalPotions\s*=\s*\{(.*?)\};', forge_src, re.S)
+        for res, shard, stat in re.findall(r'\("([^"]+)",\s*"([^"]+)",\s*(\d+)\)', m.group(1) if m else ""):
+            forge_only.add(res)
+            recipes.append({"result": res, "fame": int(ifame.group(1)) if ifame else 0, "advanced": False,
+                            "items": [shard], "storage": (potions[int(stat)], int(cost.group(1)) if cost else 100)})
         # and the ones from one item (ForgeRecipes.AscendedFrom)
         m = re.search(r'\bAscendedFrom\s*=\s*\{(.*?)\};', forge_src, re.S)
         for res, frm, shard in re.findall(r'\("([^"]+)",\s*"([^"]+)",\s*(\w+)\)', m.group(1) if m else ""):
@@ -512,11 +553,12 @@ class Data:
                         known.add(key(r))
                         recipes.append(r)
 
+        starter = self.starter_items()
         out = []
         for r in recipes:
             if (r["result"] in items
                     and (r["result"] in dropped or r["result"] in forge_only) and r["result"] not in seasonal
-                    and all(i in items for i in r["items"])):
+                    and all(i in items for i in r["items"]) and not any(i in starter for i in r["items"])):
                 res = items[r["result"]]
                 a, b = (r["items"] + [None, None])[:2]
                 r["chain"] = (len(r["items"]) == 2 and a == b and res["tier"] >= 1

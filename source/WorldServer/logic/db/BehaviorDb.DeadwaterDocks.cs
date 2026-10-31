@@ -139,7 +139,7 @@ namespace WorldServer.logic
                     )
                 ),
                 new Threshold(0.01,
-                    new ItemLoot("Pirate King's Cutlass", 0.003),
+                    new ItemLoot("Pirate King's Cutlass", 0.012),
                     new ItemLoot("Deadwater Docks Key", 0.01, 0, 0.03)
                     ),
                 new Threshold(.005,

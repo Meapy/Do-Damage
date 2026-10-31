@@ -304,7 +304,8 @@ namespace WorldServer.core.quests
             _ => "chose name colour",
         };
 
-        // Fame to the account; items to the inventory, or the vault's gift chest when it's full.
+        // Fame to the account; items to the gift chest in the vault, so a reward never fills the
+        // inventory or drops on the ground.
         private void Pay(List<RewardDef> rewards)
         {
             var fame = rewards.Sum(r => r.Fame);
@@ -317,23 +318,17 @@ namespace WorldServer.core.quests
             var gifts = new List<ushort>();
             foreach (var r in rewards.Where(r => r.Item != null))
             {
-                if (!data.IdToObjectType.TryGetValue(r.Item, out var type) || !data.Items.TryGetValue(type, out var item))
+                if (!data.IdToObjectType.TryGetValue(r.Item, out var type) || !data.Items.ContainsKey(type))
                     continue;
                 for (var i = 0; i < Math.Max(1, r.Count); i++)
-                {
-                    var slot = _player.Inventory.GetAvailableInventorySlot(item);
-                    if (slot != -1)
-                        _player.Inventory[slot] = item;
-                    else
-                        gifts.Add(type);
-                }
+                    gifts.Add(type);
             }
             if (gifts.Count > 0)
             {
                 _player.GameServer.Database.AddGifts(_account, gifts);
                 _player.SendInfo(gifts.Count == 1
-                    ? "Your inventory is full, so the reward went to the gift chest in your vault."
-                    : $"Your inventory is full, so {gifts.Count} rewards went to the gift chest in your vault.");
+                    ? "Your reward went to the gift chest in your vault."
+                    : $"Your {gifts.Count} rewards went to the gift chest in your vault.");
             }
         }
 
@@ -454,6 +449,7 @@ namespace WorldServer.core.quests
             var credited = world.Players.Values.Where(p => world.BossCredit.Contains(p.AccountId)).ToList();
             if (credited.Count == 0)
                 return;
+            WeeklyStats.Count(Shared.database.leaderboard.DbWeeklyStats.Dungeons);
             var e = new QuestEvent(QuestEvents.Dungeon)
             {
                 Name = world.IdName,
@@ -462,7 +458,10 @@ namespace WorldServer.core.quests
                 Group = credited.Count > 1,
             };
             foreach (var p in credited)
+            {
                 p.Quests?.Event(e);
+                p.FameCounter?.CompleteDungeon(world.IdName);
+            }
         }
     }
 }

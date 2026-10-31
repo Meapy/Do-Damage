@@ -59,7 +59,11 @@ namespace Tests
             foreach (var oryx in new[] { "Oryx the Mad God 1", "TestChicken 2", "Christmas Oryx" })
                 Assert.Single(monsters[oryx], s => s.Portal.Contains("Wine Cellar"));
             Assert.Single(monsters["Oryx the Mad God 2"], s => s.Portal.Contains("Sanctuary"));
-            Assert.Single(monsters["Oryx the Mad God 2"], s => s.Portal == "Realm Portal");
+            // the Oryx chain leads on, not out: no stage drops a Realm Portal (OryxChain), and the last
+            // drops nothing, as its way out is home to the Nexus
+            foreach (var oryx in new[] { "Oryx the Mad God 2", "Oryx the Mad God 3", "Oryx the Mad God 4" })
+                Assert.DoesNotContain(monsters[oryx], s => s.Portal == "Realm Portal");
+            Assert.False(monsters.ContainsKey("Oryx the Ascended God"));
         }
 
         // two sources of one portal both fire: both on death in states the monster is in together

@@ -384,6 +384,11 @@ ISLAND_GROUNDS = {
                      5, "0xF0DCAA", {}),
     "Elysian Gilded Sand": (lambda: [paint_sand((242, 200, 104), (255, 226, 144), (214, 166, 72), s) for s in range(16, 19)],
                             6, "0xF2C868", {}),
+    # the lava his Last Judgement floods the temple with from its rim inwards (LavaRing in
+    # BehaviorDb.Elysium.cs): molten, rolling and glistening as his sea does, white-hot on its crests
+    "Elysian Lava": (lambda: [paint_water((150, 26, 10), (238, 96, 20), (255, 236, 170), s) for s in range(19, 22)],
+                     7, "0xE04A12", {"Sink": None, "Speed": "0.6", "MinDamage": "110", "MaxDamage": "110",
+                                    "Animate": ("Wave", "0.35")}),
 }
 
 
@@ -1031,13 +1036,57 @@ ARCH = (o5("O3 Wall Arch 1"), o5("O3 Wall Arch 2"))
 COLUMN = o5("O3 Wall Column 1")
 TORCH = "O5C Torch Wall Flame"
 EYE_WALL = "O5 Wall Eye"        # an arch of the temple's wall with a golden eye: a Pillar of Heaven fires from it
-# the eye, painted over the arch's face: gold round a dark pupil, a glint of white
-EYE = {(3, 2): "G", (4, 2): "G", (1, 3): "G", (2, 3): "Y", (3, 3): "w", (4, 3): "Y", (5, 3): "Y", (6, 3): "G",
-       (0, 4): "G", (1, 4): "Y", (2, 4): "Y", (3, 4): "k", (4, 4): "k", (5, 4): "Y", (6, 4): "Y", (7, 4): "G",
-       (1, 5): "G", (2, 5): "Y", (3, 5): "Y", (4, 5): "Y", (5, 5): "Y", (6, 5): "G", (3, 6): "G", (4, 6): "G"}
-EYE_COLOURS = {"G": (168, 112, 26, 255), "Y": (255, 210, 74, 255), "w": (255, 250, 230, 255), "k": (42, 20, 0, 255)}
 FLAME = "O5C Violet Flame"
 GATE = "O5 Holy Gate"
+
+# The temple's walls, painted here rather than recoloured from Oryx 3's (whose dark blocks turned
+# into a grid of flat blue squares in marble). A wall is a column model wrapped in a 16x16 cell: its
+# left half (8 by 16) is every side face, its right half the top, two 8 by 8 squares. The sides: white
+# marble ashlar under a gold cornice (WALL); an arched niche into the blue (ARCH, its first look); a
+# fluted pilaster (ARCH's second); and the arched niche with Oryx's golden eye in it, where a Pillar
+# of Heaven fires from (EYE_WALL). The tops: smooth veined marble, so the ring reads as one wall.
+WALL_INK = {
+    "w": (246, 248, 255), "m": (226, 230, 244), "n": (206, 212, 234), "s": (176, 184, 216),
+    "d": (132, 142, 188), "G": (255, 234, 150), "g": (232, 186, 72), "o": (160, 108, 26),
+    "b": (58, 78, 150), "B": (92, 118, 196), "e": (255, 250, 232), "i": (96, 196, 244), "k": (30, 16, 4),
+}
+WALL_TOP = [
+    "mmwmmmmn", "mwmmnmmn", "mmmmmsmn", "mmmmmmsn", "nmmmmmmn", "mmsmmmmn", "mmmsmwmn", "nnnnnnnd",
+    "mmmmwmmn", "mwmmmmmn", "mmmnmmmn", "mmmmsmmn", "mmmmmsmn", "mwmmmmmn", "mmmmmmmn", "nnnnnnnd",
+]
+WALL_SIDES = {
+    "wall": [
+        "GGGGGGGG", "gggggggg", "oooooooo", "wwwmwwwm", "mmmnmmmn", "ddddddds", "wmwwwmww",
+        "nmmmnmmm", "sddddddd", "wwwmwwwm", "mmmnmmmn", "ddddddds", "wmwwwmww", "nmmmnmmm",
+        "sddddddd", "dddddddd",
+    ],
+    "arch": [
+        "GGGGGGGG", "gggggggg", "oooggooo", "wwmGGmww", "wmnbbnmw", "wnbbbbnw", "wnbBbbnw",
+        "wnbBbbnw", "wnbBbbnw", "wnbBbbnw", "wnbBbbnw", "wnbBbbnw", "wnbbbbnw", "wnssssnw",
+        "mnddddnm", "dddddddd",
+    ],
+    "pilaster": [
+        "GGGGGGGG", "gggggggg", "oooooooo", "mwGggGwm", "mwssssmm", "mwnwnwnm", "mwnwnwnm",
+        "mwnwnwnm", "mwnwnwnm", "mwnwnwnm", "mwnwnwnm", "mwnwnwnm", "mwssssmm", "mwGggGwm",
+        "mmoooomm", "dddddddd",
+    ],
+    "eye": [
+        "GGGGGGGG", "gggggggg", "oooggooo", "wwmGGmww", "wmnbbnmw", "wnbbbbnw", "wnoggonw",
+        "wogeieow", "wgeikiGw", "wogeieow", "wnoggonw", "wnbBbbnw", "wnbbbbnw", "wnssssnw",
+        "mnddddnm", "dddddddd",
+    ],
+}
+
+
+def paint_wall(side):
+    # the model wraps the side faces bottom up: WALL_SIDES reads top down, so it goes in flipped
+    rows = []
+    for y in range(16):
+        left, top = WALL_SIDES[side][15 - y], WALL_TOP[y]
+        assert len(left) == 8 and len(top) == 8, (side, y)
+        rows.append([WALL_INK[c] + (255,) for c in left + top])
+    return rows
+
 BANNERS = ["O3 G Banner", "O3 D Banner", "O3 O Banner", "O3 L Banner", "O3 B Banner"]
 # the island: the game's own tiles and props, as they are
 SEA = "Elysian Ocean"
@@ -1429,22 +1478,25 @@ def main():
             colour.text = {T_RUG: "0x7A44C0", T_GILDED: "0xE2C070"}.get(tone, "0xDCE0EE")
         grounds.append(e)
     grounds += island_grounds(types, sheets[8])
+    painted = {WALL: "wall", ARCH[0]: "arch", ARCH[1]: "pilaster"}
     for name in used_objects:
         e = copy.deepcopy(o3_objects["O3" + name[2:]])
         e.set("type", types.get(name, OBJECT_TYPES))
         e.set("id", name)
-        retexture(e, sheets, T_STONE)
+        if name in painted:
+            # the temple's walls: painted (paint_wall), on the 16x16 sheet
+            face = e.find("Texture")
+            face.find("File").text = SHEETS[16][0]
+            face.find("Index").text = "0x%02x" % sheets[16].add_painted(paint_wall(painted[name]))
+        else:
+            retexture(e, sheets, T_STONE)
         objects.append(e)
     e = copy.deepcopy(o3_objects["O3 Wall Arch 1"])
     e.set("type", types.get(EYE_WALL, OBJECT_TYPES))
     e.set("id", EYE_WALL)
-    retexture(e, sheets, T_STONE)
     face = e.find("Texture")
-    size = next(s for s, (n, _) in SHEETS.items() if n == face.findtext("File"))
-    scale = size // 8
-    overlay = {(x * scale + i, y * scale + j): EYE_COLOURS[c] for (x, y), c in EYE.items()
-               for i in range(scale) for j in range(scale)}
-    face.find("Index").text = "0x%02x" % sheets[size].add_overlay(int(face.findtext("Index"), 0), overlay)
+    face.find("File").text = SHEETS[16][0]
+    face.find("Index").text = "0x%02x" % sheets[16].add_painted(paint_wall("eye"))
     objects.append(e)
 
     everything = load("Object", *sorted(f for f in os.listdir(os.path.join(XML_DIR, "prod")) if f.endswith(".xml")))

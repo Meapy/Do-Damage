@@ -166,6 +166,8 @@ namespace Shared
         public int TombsCompleted { get; set; }
         public int TrenchesCompleted { get; set; }
         public int UndeadLairsCompleted { get; set; }
+        // every dungeon cleared (FameCounter.CompleteDungeon), which the ones above only count some of
+        public int DungeonsCompleted { get; set; }
 
         public static FameStats Read(byte[] bytes)
         {
@@ -173,6 +175,7 @@ namespace Shared
             var reader = new NetworkReader(new MemoryStream(bytes));
 
             byte id;
+            var hasDungeons = false;
 
             while (reader.PeekChar() != -1)
             {
@@ -205,8 +208,14 @@ namespace Shared
                     case 22: ret.TrenchesCompleted = reader.ReadInt32(); break;
                     case 23: ret.JunglesCompleted = reader.ReadInt32(); break;
                     case 24: ret.ManorsCompleted = reader.ReadInt32(); break;
+                    case 25: ret.DungeonsCompleted = reader.ReadInt32(); hasDungeons = true; break;
                 }
             }
+            // a character from before the count of every dungeon starts from the ones it had
+            if (!hasDungeons)
+                ret.DungeonsCompleted = ret.PirateCavesCompleted + ret.UndeadLairsCompleted + ret.AbyssOfDemonsCompleted
+                    + ret.SnakePitsCompleted + ret.SpiderDensCompleted + ret.SpriteWorldsCompleted + ret.TombsCompleted
+                    + ret.TrenchesCompleted + ret.JunglesCompleted + ret.ManorsCompleted;
             return ret;
         }
 
@@ -318,6 +327,7 @@ namespace Shared
                 new Tuple<byte, int>(22, TrenchesCompleted),
                 new Tuple<byte, int>(23, JunglesCompleted),
                 new Tuple<byte, int>(24, ManorsCompleted),
+                new Tuple<byte, int>(25, DungeonsCompleted),
             };
 
             var ret = new MemoryStream();

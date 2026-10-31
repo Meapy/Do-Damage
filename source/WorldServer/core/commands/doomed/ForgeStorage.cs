@@ -91,15 +91,19 @@ namespace WorldServer.core.commands.doomed
             return null;
         }
 
-        // The stored shards, to the forge window.
+        // The stored shards, to the forge window, and the potion storage's stat potions (for the
+        // Infernal potions' recipes).
         public static void Send(Player player)
         {
             var types = player.GameServer.Resources.GameData.IdToObjectType;
             var counts = Counts(player);
+            var stored = player.Client.Account.StoredPotions ?? Array.Empty<int>();
             player.Client.SendPacket(new ForgeShards()
             {
                 Shards = Shards.Select((id, i) => (id, i)).Where(s => types.ContainsKey(s.id))
-                    .Select(s => (types[s.id], counts[s.i])).ToArray()
+                    .Select(s => (types[s.id], counts[s.i])).ToArray(),
+                Potions = ForgeRecipes.StatPotions.Select((id, i) => (id, i)).Where(p => types.ContainsKey(p.id))
+                    .Select(p => (types[p.id], p.i < stored.Length ? stored[p.i] : 0)).ToArray()
             });
         }
     }

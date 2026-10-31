@@ -1364,6 +1364,18 @@
    "h": 16
   },
   {
+   "name": "uiIcons16x16",
+   "file": "kabam/rotmg/assets/custom/images/UiIcons16x16.png",
+   "w": 16,
+   "h": 16
+  },
+  {
+   "name": "infernalPotions8x8",
+   "file": "kabam/rotmg/assets/custom/images/InfernalPotions8x8.png",
+   "w": 8,
+   "h": 8
+  },
+  {
    "name": "oryxUts8x8",
    "file": "kabam/rotmg/assets/custom/images/OryxUts8x8.png",
    "w": 8,

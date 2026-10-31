@@ -124,6 +124,7 @@ namespace WorldServer.core
             InterServerManager.AddHandler<KickMsg>(Channel.Kick, ConnectionManager.OnKick);
             ChatManager.Initialize();
             Marketplace.Init();
+            WeeklyStats.Start(Database.Conn);
             ConnectionListener.Initialize();
             MarketSweeper.Start();
             ConnectionListener.Start();
@@ -409,6 +410,9 @@ namespace WorldServer.core
 
             Log.Info("Disposed 'Resources'.");
             Resources.Dispose();
+
+            Log.Info("Saved the week's stats.");
+            WeeklyStats.Stop();
 
             Log.Info("Disposed 'Database'.");
             Database.Dispose();

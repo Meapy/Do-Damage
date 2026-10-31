@@ -22,7 +22,7 @@ mod imprints;
 use crate::hud::{Layout, SlotKind, Ui};
 use crate::theme::{self, color, Kind};
 use bsk_data::GameData;
-use bsk_proto::{ForgePrice, ForgeRecipe, ForgeShard};
+use bsk_proto::{ForgePrice, ForgeRecipe, ForgeShard, ForgeStorageCost};
 use bsk_world::GameObj;
 use std::collections::{HashMap, HashSet};
 use winit::keyboard::KeyCode;
@@ -49,10 +49,10 @@ pub enum Act {
 /// What the server said.
 #[derive(Clone, Debug)]
 pub enum Event {
-    Data(Vec<ForgeRecipe>, Vec<ForgePrice>),
+    Data(Vec<ForgeRecipe>, Vec<ForgePrice>, Vec<ForgeStorageCost>),
     Result { sold: bool, success: bool, item: u16, fame: i32, message: String },
-    /// The forge storage's shards and counts.
-    Shards(Vec<ForgeShard>),
+    /// The forge storage's shards and counts, and the potion storage's stat potions.
+    Shards(Vec<ForgeShard>, Vec<ForgeShard>),
     /// What the vault holds that the forge can take, by item type (`ForgeVault`).
     Vault(Vec<ForgeShard>),
     /// The answer to an imprint.
@@ -212,6 +212,11 @@ pub struct Forge {
     sockets: Vec<Option<u8>>,
     /// The forge storage's shards, in the server's order, and how many of each.
     shards: Vec<(u16, i32)>,
+    /// Recipes that also take stat potions from the potion storage (the Infernal potions), by
+    /// result: the potion and how many.
+    storage_costs: HashMap<u16, (u16, i32)>,
+    /// The potion storage's stat potions, and how many of each.
+    potions: HashMap<u16, i32>,
     /// What the vault holds that the forge can take, and how many of each (an older server sends
     /// nothing).
     vault: HashMap<u16, i32>,
@@ -289,8 +294,17 @@ impl Forge {
         self.vault.get(&item).copied().unwrap_or(0)
     }
 
-    /// Whether the inventory, the forge storage and the vault hold all of a recipe's ingredients.
+    /// The stat potions a recipe takes from the potion storage, how many, and whether it holds them.
+    fn storage_cost(&self, result: u16) -> Option<(u16, i32, bool)> {
+        self.storage_costs.get(&result).map(|&(potion, n)| (potion, n, self.potions.get(&potion).copied().unwrap_or(0) >= n))
+    }
+
+    /// Whether the inventory, the forge storage and the vault hold all of a recipe's ingredients
+    /// (and the potion storage its potions).
     fn can_make(&self, r: &ForgeRecipe) -> bool {
+        if self.storage_cost(r.result).is_some_and(|(_, _, have)| !have) {
+            return false;
+        }
         let mut have: Vec<i32> = self.inventory.iter().map(|&(_, t)| t).collect();
         let mut stored = self.shards.clone();
         let mut vault = self.vault.clone();
@@ -437,7 +451,8 @@ impl Forge {
     /// The server's answers.
     pub fn event(&mut self, e: Event, data: &GameData) {
         match e {
-            Event::Data(recipes, prices) => {
+            Event::Data(recipes, prices, costs) => {
+                self.storage_costs = costs.into_iter().map(|c| (c.result, (c.potion, c.count as i32))).collect();
                 log::info!("forge: {} recipes, {} prices", recipes.len(), prices.len());
                 // an older server's advanced recipes, which needed the Forge Amulet, are left out
                 self.recipes = recipes.into_iter().filter(|r| !r.advanced).collect();
@@ -446,8 +461,9 @@ impl Forge {
                 self.picked = None;
                 self.filter(data);
             }
-            Event::Shards(shards) => {
+            Event::Shards(shards, potions) => {
                 self.shards = shards.into_iter().map(|s| (s.item, s.count)).collect();
+                self.potions = potions.into_iter().map(|s| (s.item, s.count)).collect();
                 if self.loaded {
                     self.filter(data);
                 }
@@ -1034,6 +1050,21 @@ impl Forge {
             self.hits.push((Hit::Socket(k), cr));
         }
 
+        // Stat potions from the potion storage (the Infernal potions): beside the sockets, how many
+        // it takes and how many the storage holds.
+        if let (Some((potion, n, have)), None) = (self.storage_cost(rec.result), done) {
+            let held = self.potions.get(&potion).copied().unwrap_or(0);
+            let name = ui.data.objects.get(&potion).map_or(String::new(), |d| d.display_id.clone());
+            let text = format!("+ {n} {name} from your potion storage ({held})");
+            let fs = font(12.0);
+            let tw = ui.measure(&text, fs, true);
+            let icon = 22.0 * s;
+            let x = fx - (icon + 4.0 * s + tw) / 2.0;
+            let y = sy + cell + 10.0 * s;
+            ui.item_icon(potion as i32, 40, x + icon / 2.0, y + icon / 2.0, s);
+            ui.label(&text, x + icon + 4.0 * s, y + (icon - fs * 1.22) / 2.0, fs, true, if have { color::GOOD } else { color::DANGER });
+        }
+
         // The item coming out of the fire into its slot.
         if let Some((t, item)) = done {
             if t < OUT {
@@ -1067,7 +1098,7 @@ impl Forge {
             let ib = [fx - bw - 6.0 * s, by, bw, 36.0 * s];
             let fb = [fx + 6.0 * s, by, bw, 36.0 * s];
             ui.button(ib, "Insert all", Kind::Secondary, inside(ib, mouse), s);
-            let ready = self.sockets.iter().all(Option::is_some) && afford;
+            let ready = self.sockets.iter().all(Option::is_some) && afford && self.storage_cost(rec.result).is_none_or(|(_, _, have)| have);
             let label = format!("Forge  ·  {}", crate::hud::group_digits(price));
             fame_button(ui, fb, &label, if ready { Kind::Primary } else { Kind::Secondary }, inside(fb, mouse), s);
             self.hits.push((Hit::InsertAll, ib));

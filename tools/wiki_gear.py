@@ -373,6 +373,10 @@ class Gear:
             return "poison: %s damage over %ss%s" % (n("totalDamage"), n("duration", "3"), within("radius"))
         if e == "StasisBlast":
             return "stasis for %ss" % n("duration")
+        if e == "ArmorShred":
+            return "-%s%% defense for %ss to enemies%s" % (n("amount"), n("duration"), within("radius"))
+        if e == "OvercapStat":
+            return "%+d %s past your class's highest, once maxed (up to 5 of these)" % (wd._int(g("amount")), stat)
         if e == "Decoy":
             return "a decoy for %ss" % n("duration")
         if e == "MultiDecoy":

@@ -110,8 +110,10 @@ impl GameObj {
 
     /// It attacked toward `angle` at `time`. A shot starts the attack frames over only once the
     /// pass under way is done and back on its first frame, at the pace the shots come; quicker
-    /// shots leave the frames running, so both always show.
+    /// shots leave the frames running, so both always show. It goes on facing the way it shot
+    /// until it next moves, rather than turning back to the way it last walked.
     pub fn note_attack(&mut self, time: i32, angle: f64) {
+        self.facing = angle;
         let interval = time.saturating_sub(self.attack_start);
         let since = time.saturating_sub(self.attack_cycle_start);
         let attacking = interval < ATTACK_PERIOD;
@@ -230,6 +232,24 @@ impl World {
     /// Different for every World made.
     pub fn id(&self) -> u64 {
         self.id
+    }
+
+    /// Every square a tile has been sent for, with its tile: kept when we leave, to give the map
+    /// back if we come again (`restore_squares`).
+    pub fn known_squares(&self) -> Vec<(u32, u16)> {
+        self.known.iter().enumerate().filter(|(_, k)| **k).map(|(i, _)| (i as u32, self.tiles[i])).collect()
+    }
+
+    /// The squares `known_squares` kept, on the same map again; ones sent since stay as sent.
+    pub fn restore_squares(&mut self, squares: &[(u32, u16)]) {
+        for &(i, tile) in squares {
+            let i = i as usize;
+            if i < self.known.len() && !self.known[i] {
+                self.tiles[i] = tile;
+                self.known[i] = true;
+                self.tile_log.push(i as u32);
+            }
+        }
     }
 
     /// The squares (`x + y * width`) whose tile was set or changed, oldest first.

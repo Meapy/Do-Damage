@@ -65,10 +65,10 @@ namespace WorldServer.logic
                         )
                     ),
                 new Threshold(0.03,
-                    new ItemLoot("Spirit Dagger", 0.003),
+                    new ItemLoot("Spirit Dagger", 0.012),
                     new ItemLoot("Spectral Cloth Armor", 0.01),
                     new ItemLoot("Captain's Ring", 0.01),
-                    new ItemLoot("Ghostly Prism", 0.01)
+                    new ItemLoot("Ghostly Prism", 0.02)
                     ),
                 new Threshold(0.005,
                     LootTemplates.BasicDrop()

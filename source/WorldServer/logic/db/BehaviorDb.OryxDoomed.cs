@@ -112,7 +112,6 @@ namespace WorldServer.logic
                     new DropPortalOnDeath("Locked Oryx's Elysium Portal", 1.0, timeout: 600, xAdjustment: 2,
                         name: "Locked: Oryx's Elysium", lockedHint: SealedDungeons.WhyDungeon("Oryx's Elysium")
                             ?? "This portal is locked. Use an Oryx's Elysium Incantation beside it to open it."),
-                    new DropPortalOnDeath("Realm Portal", 1.0, timeout: 120, xAdjustment: -2),
                     new AnnounceOnDeath(SealedDungeons.WhyDungeon("Oryx's Elysium") != null
                         ? "{PL_LIST} burned Oryx the Infernal Mad God out of his Inferno! He rises to his Elysium, sealed for now..."
                         : "{PL_LIST} burned Oryx the Infernal Mad God out of his Inferno! He rises to his Elysium, sealed by an Oryx's Elysium Incantation..."),

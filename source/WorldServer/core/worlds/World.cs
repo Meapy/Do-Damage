@@ -424,6 +424,7 @@ namespace WorldServer.core.worlds
         {
             if (entity is Player)
             {
+                Visited = true;
                 Players.TryAdd(entity.Id, entity as Player);
                 PlayersCollision.Insert(entity, entity.X, entity.Y);
             }
@@ -666,10 +667,19 @@ namespace WorldServer.core.worlds
         public readonly HashSet<int> BossCredit = new HashSet<int>();
         public int StrongestBossHp { get; set; }
         private bool _clearCounted;
+        // for the Herald's week (WeeklyStats): a player came in, and an Oryx chain stage's boss fell
+        public bool Visited { get; private set; }
+        public bool StageBossDown { get; private set; }
 
         public void BossDied(Enemy boss)
         {
             QuestKills++;
+            if (OryxChain.StageBoss.TryGetValue(IdName, out var stageBoss) && boss.ObjectDesc.IdName == stageBoss)
+            {
+                StageBossDown = true;
+                if (stageBoss == OryxChain.LastBoss)
+                    WeeklyStats.Count(Shared.database.leaderboard.DbWeeklyStats.ChainsCompleted);
+            }
             if (IsRealm || InstanceType != WorldResourceInstanceType.Dungeon || IdName.Contains("Arena") || IdName.Contains("Zombies"))
                 return;
             var (x, y) = (boss.X, boss.Y);
@@ -680,8 +690,9 @@ namespace WorldServer.core.worlds
                     world._clearCounted = true;
                     quests.QuestTracker.DungeonCleared(world);
                 }
-                // Oryx's Castle leads on, not out: Janus leaves only the Oryx's Chamber portal
-                if (world.Quests.Count > 0 || world.IdName == "Oryx's Castle"
+                // the Oryx chain leads on, not out: each stage's boss leaves the next one's portal,
+                // and the last leads home to the Nexus
+                if (world.Quests.Count > 0 || OryxChain.IsStage(world)
                     || world.Portals.Values.Any(p => p.ObjectDesc.IdName is "Realm Portal" or "Random Realm Portal"))
                     return;
                 var portal = Entity.Resolve(world.GameServer, "Realm Portal");

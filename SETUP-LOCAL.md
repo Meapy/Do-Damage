@@ -1294,6 +1294,62 @@ The remotes `upstream` (HaloCelsius) and `aurusenth` share no history with `main
   and the Enchanter stand side by side in a walled hall with doors to the west, north and east. Nothing
   in it takes a decoration slot, so map events (`decorate`) leave it alone. The forge window lost
   its locked Enchant tab; the Enchanter opens the same window as "Enchanter", with its Imprints tab.
+- **Infernal potions** (2026-10-30; `tools/build_infernal_potions.py`, types 0x5880-0x5887, sheet
+  `infernalPotions8x8`): forged from an Infernal shard and `ForgeRecipes.InfernalPotionCost` (100) of the
+  stat's potions out of the potion storage (`ForgeRecipes.InfernalPotions`; `DoomedEconomy.Forge` takes
+  them, not a socket each). `ForgeData` and `ForgeShards` append the storage costs and the storage's
+  counts (an older client stops reading before them). Drunk (`OvercapStat`, `Player.AEOvercapStat`),
+  one takes a maxed stat its potion's amount past the class's maximum, up to `Player.OvercapPotions`
+  (5) potions; `DbChar.Overcap` keeps each stat's share, and the cap (`Player.StatCap`) holds it on
+  load (`BaseStatManager`), levelling up, `/max` and drinking a normal potion (which now goes to
+  storage without lowering it). The client shows a stat past its maximum in orange (`hud::max_tone`).
+- **Mystic orbs** (2026-10-30; `tools/rework_orbs.py`, which `port_doomed.py` runs on DoomedRealms.xml):
+  no StasisBlast; `ArmorShred` lowers enemies' `Defense` stat by its amount in percent for its
+  duration (`Enemy.ShredArmor`, so the client's damage numbers follow), 2%/5 s at T0 to 8%/12 s at
+  T8, untiered orbs by their old stasis length; every orb's `Cooldown` at least 2 s.
+- **Fame** (2026-10-30; `FameRates`): at level 20 every kill gives `KillFameBonus` (10%) more
+  experience, and a `<Quest/>` monster `FameRates.Boss` (its whole experience twice, at most 50,000)
+  instead of the per-kill cap. Realm 2's spawned monsters give experience (`Spawn`'s `givesNoXp`
+  defaults to true).
+- **Oryx chain** (2026-10-30; `core/worlds/OryxChain.cs`): no stage gets a Realm Portal (the Oryxes'
+  `DropPortalOnDeath` ones are gone, and `World.BossDied` skips every stage, which had given Oryx 1 one);
+  Oryx 5 drops none. The castle spawns only on its two inner lanes (the outer two Spawn regions removed
+  from `Oryx's Castle.jm`); `md dwGenerator` opens Janus's door once the Stone Guardians are dead; a
+  Suit of Armor's guard-and-heal comes once. Oryx 4's Infernal Officers throw projectile 12, the
+  shuriken without Confused (`COURT_CALM` in `tools/build_hash_cellar.py`), within 30 tiles of him.
+  Oryx 5's Last Judgement floods the temple with `Elysian Lava` (`LavaRing`, from radius 15 to 9.5 in
+  six steps over 30 s; `tools/build_elysium.py` paints it).
+- **Dungeon exits** (2026-10-30; `UsePortalHandler.ReturnRealm`): a Realm Portal or Portal of
+  Cowardice goes back to the realm the dungeon was opened from while it's open (a Realm 2 too), else a
+  random realm.
+- **The Herald's week** (2026-10-30; `DbWeeklyStats`, `core/WeeklyStats.cs`, `StatsController`
+  `/stats/weekly`, `The Herald` 0x498b placed by `QuestGivers`, drawn by `tools/draw_quest_npcs.py`; icons
+  `tools/draw_ui_icons.py`, `uiIcons16x16`): world servers count dungeons cleared, chains completed
+  (Oryx 5's death) and failed (a stage someone entered removed with its boss alive), deaths, kills by
+  monster type, realm events, realms closed, potions and forgings, and add them to Redis every 30 s
+  (`weeklyStats:<week>` and `weeklyKills:<week>`, the week's Monday, kept 35 days).
+- **Records** (2026-10-30): `FameStats` id 25 counts every dungeon cleared (`QuestTracker.DungeonCleared`
+  calls `FameCounter.CompleteDungeon`; older characters start from their per-dungeon counts); quests
+  are counted before the quest is let go; every potion counts, potion storage's too. Quest item rewards
+  go to the gift chest (`QuestTracker.Pay`). Mid-level dungeons' white-bag drops are up to four times as
+  likely (most at 2%).
+- **Forge prices** (2026-10-31; `ForgeRecipes`, mirrored in `tools/wiki_data.py`): `TierFame` runs
+  1 to 1,000 (60 for a T9), every two-of-the-tier-below recipe takes it (`ChainFame`, the Doomed
+  Realms list's ones too), the rest cost `PriceScale` (half) of before, `TieredCap` 1,000,
+  `UntieredCap` 1,500, the Ascended items 1,000. No recipe takes an item `/gear` hands out
+  (`GearCommand.StarterItems`). `/gear` uses its boosters at once (`Player.StartStarterBoosts`).
+- **Oryx 5's temple walls** (2026-10-31; `paint_wall` in `tools/build_elysium.py`): painted 16x16 cells
+  for `O5 Wall 1`, `O5 Wall Arch 1` and `2` and `O5 Wall Eye` (the column model wraps the left half
+  bottom up on its sides, the right half on top). The Radiant Cross turns `CrossTurn` (15) degrees a
+  volley.
+- **Graveyard** (2026-10-31): the death summary shows the character's items from `/char/fame`'s
+  `Char/Equipment` and `ItemDatas`.
+- **Client** (2026-10-30): `BagPreview` (Left Shift, held) shows loot bags' items over them; the
+  character keeps facing its last shot while it shoots (`note_attack`, `walk`); the minimap draws the
+  quest's red box and the players last (`draw_minimap_top`) and keeps the known squares of the last
+  three worlds left (`Game.seen_maps`, by game id, name and size, saved when a Reconnect drops
+  the world); the Quests and Nexus buttons are
+  icons; the records shorten values that don't fit and show them on hover.
 
 ## Content ported from Doomed Realms
 

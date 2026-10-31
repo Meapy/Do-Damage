@@ -57,6 +57,14 @@ namespace WorldServer.logic
             var levelUpAssists = 0;
             // quests and achievements: everyone near counts the kill, as they share its experience
             var questKill = QuestTracker.KillCounts(enemy) ? QuestTracker.KillEvent(enemy) : (QuestEvent?)null;
+            // the Herald's week: the kill, which monster, and a realm event's boss
+            if (questKill.HasValue)
+            {
+                WorldServer.core.WeeklyStats.Count(Shared.database.leaderboard.DbWeeklyStats.Kills);
+                WorldServer.core.WeeklyStats.Killed(enemy.ObjectType);
+                if (questKill.Value.RealmEvent)
+                    WorldServer.core.WeeklyStats.Count(Shared.database.leaderboard.DbWeeklyStats.Events);
+            }
             foreach (var player in enemy.World.Players.Values)
             {
                 // left the game: the connection let go of the account, and the world drops the
@@ -79,7 +87,9 @@ namespace WorldServer.logic
                 upperLimit *= enemy.ObjectDesc.XpBonus;
 
                 float playerXp;
-                if (upperLimit < xp)
+                if (enemy.ObjectDesc.Quest && level >= FameRates.MaxLevel)
+                    playerXp = FameRates.Boss(xp); // a boss's fame isn't held to the per-kill cap
+                else if (upperLimit < xp)
                     playerXp = upperLimit;
                 else
                     playerXp = xp;

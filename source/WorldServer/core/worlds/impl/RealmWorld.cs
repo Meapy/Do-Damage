@@ -100,6 +100,7 @@ namespace WorldServer.core.worlds.impl
             if (Closed)
                 return false;
             Closed = true;
+            WeeklyStats.Count(Shared.database.leaderboard.DbWeeklyStats.RealmsClosed);
             RealmManager.SnapshotClosed();
             RealmManager.DisableSpawning = true;
             RealmManager.CurrentState = RealmState.Emptying;

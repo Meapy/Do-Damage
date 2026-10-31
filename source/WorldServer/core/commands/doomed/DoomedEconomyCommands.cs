@@ -124,6 +124,12 @@ namespace WorldServer.core.commands.doomed
             fame = recipe.Fame;
             if (player.CurrentFame < fame)
                 return "Not enough fame to forge these items!";
+            // an Infernal potion also takes its stat's potions from the potion storage
+            var potionStat = ForgeRecipes.StoragePotionStat(result);
+            var stored = player.Client.Account.StoredPotions;
+            if (potionStat is int ps && (stored == null || ps >= stored.Length || stored[ps] < ForgeRecipes.InfernalPotionCost))
+                return $"This needs {ForgeRecipes.InfernalPotionCost} {ForgeRecipes.StatPotions[ps]} in your potion storage "
+                    + $"(you have {(stored != null && ps < stored.Length ? stored[ps] : 0)}).";
             if (!data.IdToObjectType.TryGetValue(result, out var type) || !data.Items.TryGetValue(type, out var item))
                 return "That item doesn't exist here.";
 
@@ -161,6 +167,14 @@ namespace WorldServer.core.commands.doomed
             if (!toVault)
                 inv[slot] = item;
             ForgeStorage.Take(player, from.Shards);
+            if (potionStat is int taken)
+            {
+                stored[taken] -= ForgeRecipes.InfernalPotionCost;
+                player.Client.Account.StoredPotions = stored;
+                player.Client.Account.FlushAsync();
+                player.SendInfo($"Took {ForgeRecipes.InfernalPotionCost} {ForgeRecipes.StatPotions[taken]} from your potion storage.");
+                ForgeStorage.Send(player);
+            }
             // taken at once, so a second forge before the database answers can't spend it again
             player.CurrentFame -= fame;
             DoomedWorlds.GiveFame(player, -fame);
@@ -512,7 +526,7 @@ namespace WorldServer.core.commands.doomed
             var upgrades = new List<(int Slot, Item Item)>();
             for (var i = 0; i < 4; i++)
             {
-                var best = StarterItem(player, player.SlotTypes[i]);
+                var best = StarterItem(player.GameServer.Resources.GameData, player.SlotTypes[i]);
                 var current = player.Inventory[i];
                 // untiered items (UTs) and items as good or better stay
                 if (best == null || (Limited && current != null && (current.Tier < 0 || current.Tier >= best.Tier)))
@@ -520,6 +534,8 @@ namespace WorldServer.core.commands.doomed
                 upgrades.Add((i, best));
             }
             var items = player.GameServer.Resources.GameData.Items;
+            // the boosters aren't handed over but used at once (Player.StartStarterBoosts), so they
+            // can't be kept, traded or sold
             var boosters = Limited
                 ? BOOSTERS.Select(n => player.GameServer.Resources.GameData.IdToObjectType.TryGetValue(n, out var t) && items.TryGetValue(t, out var it) ? it : null)
                     .Where(it => it != null).ToList()
@@ -530,15 +546,14 @@ namespace WorldServer.core.commands.doomed
                 return false;
             }
 
-            // the replaced items and the boosters go to the backpack
+            // the replaced items go to the backpack
             var replaced = Limited ? upgrades.Select(u => player.Inventory[u.Slot]).Where(it => it != null).ToList() : new List<Item>();
-            replaced.AddRange(boosters);
             var lastSlot = player.HasBackpack ? InventoryConstants.SWAP_FIRST : InventoryConstants.NUM_EQUIPMENT_SLOTS + InventoryConstants.NUM_INVENTORY_SLOTS;
             var free = Enumerable.Range(InventoryConstants.NUM_EQUIPMENT_SLOTS, lastSlot - InventoryConstants.NUM_EQUIPMENT_SLOTS)
                 .Where(s => player.Inventory[s] == null).ToList();
             if (replaced.Count > free.Count)
             {
-                player.SendError($"Make room in your inventory first: /gear needs {replaced.Count} free slots (for its boosters and the items it replaces).");
+                player.SendError($"Make room in your inventory first: /gear needs {replaced.Count} free slots (for the items it replaces).");
                 return false;
             }
             if (Limited && !player.GameServer.Database.Conn.SetAdd(GEAR_CLAIMS, ClaimKey(player)))
@@ -551,6 +566,7 @@ namespace WorldServer.core.commands.doomed
                 player.Inventory[free[r]] = replaced[r];
             foreach (var (slot, item) in upgrades)
                 player.Inventory[slot] = item;
+            var used = player.StartStarterBoosts(boosters);
 
             static string Name(Item it) => string.IsNullOrEmpty(it.DisplayName) ? it.ObjectId : it.DisplayName;
             var names = string.Join(", ", upgrades.Select(u => Name(u.Item)));
@@ -558,18 +574,26 @@ namespace WorldServer.core.commands.doomed
                 player.SendInfo("Equipped: " + names);
             else
             {
-                var gift = string.Join(" and ", boosters.Select(Name));
+                var gift = string.Join(" and ", used.Select(Name));
                 player.SendInfo((upgrades.Count > 0 ? $"Equipped: {names}. " : "Your gear is already as good as the starter gear. ")
-                    + (boosters.Count > 0 ? $"In your backpack: {gift}. " : "") + "Starter gear is once per character.");
+                    + (used.Count > 0 ? $"Used for you: {gift}. " : "") + "Starter gear is once per character.");
             }
             return true;
         }
 
         private static string ClaimKey(Player player) => $"{player.AccountId}.{player.Client.Character.CharId}";
 
-        private static Item StarterItem(Player player, int slotType)
+        // Every item /gear hands out, for any class: the forge won't take them (ForgeRecipes), so
+        // fresh characters' starter gear can't be forged up the tiers.
+        public static HashSet<string> StarterItems(XmlData data)
         {
-            var candidates = player.GameServer.Resources.GameData.Items.Values
+            var slots = data.Classes.Values.Where(c => c.SlotTypes != null).SelectMany(c => c.SlotTypes.Take(4)).Distinct();
+            return new HashSet<string>(slots.Select(s => StarterItem(data, s)).Where(it => it != null).Select(it => it.ObjectId));
+        }
+
+        private static Item StarterItem(XmlData data, int slotType)
+        {
+            var candidates = data.Items.Values
                 .Where(it => it.SlotType == slotType && it.Tier >= 0 && !it.Consumable).ToList();
             if (candidates.Count == 0)
                 return null;

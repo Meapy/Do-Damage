@@ -160,6 +160,35 @@ impl Ui<'_> {
         self.label(label, r[0] + (r[2] - tw) / 2.0, ty, size, true, text);
     }
 
+    /// A button with its key after the label, on a small keycap (Enter, an NPC's button): the key
+    /// a little smaller and set apart, so "Choose" and "V" don't read as one word.
+    pub fn button_key(&mut self, r: [f32; 4], label: &str, key: &str, kind: Kind, hover: bool, s: f32) {
+        if key.is_empty() {
+            self.button(r, label, kind, hover, s);
+            return;
+        }
+        self.button(r, "", kind, hover, s);
+        let text = match kind {
+            Kind::Primary => color::ACCENT_TEXT,
+            Kind::Secondary => color::TEXT,
+            Kind::Danger => 0xFFFFFF,
+        };
+        let size = (15.0 * s).round().max(10.0);
+        let ks = (12.0 * s).round().max(9.0);
+        let tw = self.measure(label, size, true);
+        let kw = self.measure(key, ks, true);
+        let (pad, gap) = (5.0 * s, 8.0 * s);
+        let cap_w = kw + 2.0 * pad;
+        let cap_h = ks * 1.22 + 4.0 * s;
+        let x = r[0] + (r[2] - tw - gap - cap_w) / 2.0;
+        let ty = r[1] + (r[3] - size * 1.22) / 2.0;
+        self.label(label, x, ty, size, true, text);
+        let cap = [x + tw + gap, r[1] + (r[3] - cap_h) / 2.0, cap_w, cap_h];
+        fill(self.renderer, cap, 4.0 * s, 0x000000, 0.28);
+        frame(self.renderer, cap, 4.0 * s, s.max(1.0), (0xFFFFFF, 0.35), ((0x000000, 0.0), (0x000000, 0.0)));
+        self.label(key, cap[0] + pad, cap[1] + 2.0 * s, ks, true, if kind == Kind::Primary { 0xFFF3D6 } else { color::GOLD });
+    }
+
     /// A text field's box; the caller draws the text.
     pub fn field_box(&mut self, r: [f32; 4], focused: bool, s: f32) {
         let radius = 5.0 * s;

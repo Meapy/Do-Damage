@@ -16,10 +16,11 @@ ones you can use. This list is taken from the server's code, so it's the same li
 ## /gear in detail
 
 `/gear` equips starter gear for your class: a weapon, an ability, armor and a ring from about half
-way up the regular tiers, never above tier {{v:gear_max_tier}}, and puts {{v:gear_boosters}} in
-your backpack. It works once per character, only in the Nexus and only below level
-{{v:gear_level}}. It never replaces an untiered item or anything as good or better, and the
-boosters and whatever it replaces go to your inventory, which needs room for them.
+way up the regular tiers, never above tier {{v:gear_max_tier}}, and uses {{v:gear_boosters}} for
+you at once, so they start working straight away. It works once per character, only in the Nexus
+and only below level {{v:gear_level}}. It never replaces an untiered item or anything as good or
+better, and whatever it replaces goes to your inventory, which needs room for it. The Divine
+Forge doesn't take starter gear: two of it don't make the next tier.
 [Classes](classes.html) shows what each class gets.
 
 ## Forging

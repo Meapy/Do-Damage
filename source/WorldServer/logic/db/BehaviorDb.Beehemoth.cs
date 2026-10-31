@@ -149,7 +149,7 @@ namespace WorldServer.logic
                     )
                 ),
                 new Threshold(0.01,
-                    new ItemLoot("EH Blue Quiver", 0.003),
+                    new ItemLoot("EH Blue Quiver", 0.012),
                     new ItemLoot("EH Blue Bee Armor", 0.02)
                     ),
                 new Threshold(.005,
@@ -240,7 +240,7 @@ namespace WorldServer.logic
                     )
                 ),
                 new Threshold(0.01,
-                    new ItemLoot("EH Yellow Quiver", 0.003),
+                    new ItemLoot("EH Yellow Quiver", 0.012),
                     new ItemLoot("EH Yellow Bee Armor", 0.02)
                     ),
                 new Threshold(.005,
@@ -332,7 +332,7 @@ namespace WorldServer.logic
                     )
                 ),
                 new Threshold(0.01,
-                    new ItemLoot("EH Red Quiver", 0.003),
+                    new ItemLoot("EH Red Quiver", 0.012),
                     new ItemLoot("EH Red Bee Armor", 0.02)
                     ),
                 new Threshold(.005,

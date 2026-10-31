@@ -20,10 +20,14 @@ namespace WorldServer.logic
         public DbClassStats ClassStats { get; private set; }
         public FameStats Stats { get; private set; }
 
+        // A dungeon cleared (QuestTracker.DungeonCleared): every one counts for the records'
+        // Dungeons, and these also for the fame bonuses that ask for them.
         public void CompleteDungeon(string name)
         {
+            Stats.DungeonsCompleted++;
             switch (name)
             {
+                case "Pirate Cave":
                 case "PirateCave":
                     Stats.PirateCavesCompleted++;
                     break;
@@ -33,6 +37,7 @@ namespace WorldServer.logic
                     break;
 
                 case "Abyss":
+                case "Abyss of Demons":
                     Stats.AbyssOfDemonsCompleted++;
                     break;
 
@@ -49,10 +54,12 @@ namespace WorldServer.logic
                     break;
 
                 case "Tomb":
+                case "Tomb of the Ancients":
                     Stats.TombsCompleted++;
                     break;
 
                 case "OceanTrench":
+                case "Ocean Trench":
                     Stats.TrenchesCompleted++;
                     break;
 
@@ -66,7 +73,11 @@ namespace WorldServer.logic
             }
         }
 
-        public void DrinkPot() => Stats.PotionsDrunk++;
+        public void DrinkPot(int count = 1)
+        {
+            Stats.PotionsDrunk += count;
+            WorldServer.core.WeeklyStats.Count(Shared.database.leaderboard.DbWeeklyStats.Potions, count);
+        }
 
         public void Hit() => Stats.ShotsThatDamage++;
 

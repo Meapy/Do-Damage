@@ -20,6 +20,67 @@ details). Add to a group's line when a change adds to it, rather than adding ano
   in the loot from what they hit, soulbound bags included, even if you never shoot it yourself.
   Debuffing a monster counts too. Help counts for up to a fifth of a monster's damage, never more
   than its top damage dealer, and damage dealers get exactly the loot they did before.
+- The white bags of mid-level dungeons drop far more often (most to 2% a run, up to four times
+  what they were): the Undead Lair's Doom Bow, the Abyss's Demon Blade, the Snake Pit, Sprite
+  World, Puppet Master, Toxic Sewers, Haunted Cemetery, Davy Jones, Mad Lab, Cursed Library, Ocean
+  Trench, Ice Cave, Deadwater Docks, Woodland Labyrinth, Beehemoth and Secluded Thicket whites.
+- Quest, daily reward and achievement items go straight to the gift chest in your vault.
+- The Graveyard's gravestones show what each character carried: its equipment, inventory and
+  backpack, with each item's tooltip.
+
+### Infernal potions
+- Oryx 4's Infernal shards have a use: at the Divine Forge, a shard and 100 of a stat's potions
+  from your potion storage make an Infernal potion, which takes that stat past your class's
+  maximum, up to 5 potions over (5 Defense, or 25 Life). The Weapon shard makes Attack and
+  Dexterity, the Ability shard Mana and Wisdom, the Armor shard Defense and Vitality, the Accessory
+  shard Life and Speed. A stat past its maximum shows in orange.
+
+### Forge
+- Forging costs half as much, and the low tiers next to nothing: two tier 8 staffs make a tier 9
+  for 60 fame. Every tier upgrade now follows one price scale.
+- The starter gear `/gear` hands out can't be forged up: two of it don't make the next tier.
+
+### Oryx
+- Oryx's Castle: everyone starts on the two inner lanes, not four. Janus's door opens as soon as
+  both Stone Guardians are dead, and the Suits of Armor only guard and heal themselves once.
+- The Oryx chain leads on, not out: no Oryx leaves a Realm Portal any more (Oryx 1's appeared on
+  its own), and Oryx 5 leaves no portal, as the way out is home to the Nexus.
+- Oryx 4's Infernal Officers no longer confuse you (the Burning Path's still do).
+- Oryx 5's Last Judgement: his temple floods with lava from its white rim inwards, a step every
+  5 seconds, until it has come 7 tiles in. No more safe corners.
+- Oryx 5's Radiant Cross turns a little further with every volley, so the gaps between its lines
+  don't stay safe.
+- Oryx 5's temple walls are redrawn: a marble colonnade under a gold cornice, with his golden eyes
+  set in its niches where the Pillars of Heaven fire from.
+
+### Fame
+- Kills at level 20 give 10% more fame, and bosses (the Oryx chain, realm events, dungeon bosses)
+  give far more: their whole experience twice over, no longer held to a tenth of a level. Oryx 2
+  gives about 15 fame where he gave 1.
+- Realm 2's smaller monsters, the ones bigger ones bring along, give experience too.
+
+### Abilities
+- Mystic orbs no longer put enemies in stasis: they take 2% (T0) to 8% (T8) off the defense of
+  enemies where you aim, for 5 to 12 seconds. Every orb has a cooldown of at least 2 seconds.
+
+### Nexus
+- The Herald, by the spawn: everyone's week together, with the dungeons cleared, Oryx chains
+  completed and failed, heroes fallen, monsters slain, realm events defeated, realms conquered,
+  potions drunk, items forged and the monsters slain most.
+
+### Game
+- Hold Left Shift to see what's in the loot bags around you, over each bag (Options to change it).
+- `/gear` uses its XP Booster and Loot Drop Potion for you at once, rather than handing them over.
+- The interact button shows its key on a keycap beside the label ("Choose [V]").
+- Your character keeps facing the way you shot, rather than snapping back to the way you walked.
+- The minimap marks your quest in a red box, draws players bigger and above everything else, and
+  remembers the map of a realm you left (Realm 2 too) when you come back to it.
+- Leaving a dungeon by its Realm Portal or Portal of Cowardice takes you back to the realm you
+  came from, Realm 2 included, rather than a random realm or the Nexus.
+- The Quests button is a scroll and the Nexus button the Nexus's keep.
+- Records: Potions counts every potion you drink, stat potions and potion storage too; Quests and
+  Dungeons count again (every dungeon you clear). Numbers too long for their row are shortened,
+  and the mouse over them shows them in full.
 
 ## 2.3.4 (2026-10-30)
 

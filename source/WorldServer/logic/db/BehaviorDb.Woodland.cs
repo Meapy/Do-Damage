@@ -187,7 +187,7 @@ namespace WorldServer.logic
                 new ItemLoot("Potion of Vitality", 1),
                 new ItemLoot("Potion of Defense", 1),
                 new ItemLoot("Potion of Life", 1),
-                new ItemLoot("Leaf Bow", 0.01),
+                new ItemLoot("Leaf Bow", 0.02),
                 new ItemLoot("Woodland Labyrinth Key", 0.01, 0, 0.03)
                 )
             );

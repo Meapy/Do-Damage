@@ -76,7 +76,7 @@ namespace WorldServer.logic
                     new ItemLoot("Potion of Speed", 1),
                     new ItemLoot("Potion of Speed", 1),
                     new ItemLoot("Snake Pit Key", 0.1),
-                    new ItemLoot("Wand of the Bulwark", 0.00125),
+                    new ItemLoot("Wand of the Bulwark", 0.005),
                     new ItemLoot("Snake Skin Armor", 0.1),
                     new ItemLoot("Snake Skin Shield", 0.1),
                     new ItemLoot("Snake Eye Ring", 0.1),
@@ -211,7 +211,7 @@ namespace WorldServer.logic
                     new ItemLoot("Potion of Speed", 1)
                     ),
                 new Threshold(0.03,
-                    new ItemLoot("Wand of the Bulwark", 0.005),
+                    new ItemLoot("Wand of the Bulwark", 0.02),
                     new ItemLoot("Snake Skin Armor", 0.1),
                     new ItemLoot("Snake Skin Shield", 0.1),
                     new ItemLoot("Snake Eye Ring", 0.1),

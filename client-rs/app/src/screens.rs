@@ -1527,8 +1527,41 @@ impl Front {
         if let Some(d) = class {
             portrait(ui, d, 0, 0, r[0] + r[2] - 70.0 * s, r[1] + 50.0 * s, s * 1.6);
         }
+        // What it carried: its equipment, a gap, its inventory, and under them the backpack when
+        // it had anything there; the mouse over an item shows its tooltip.
+        let mut y = r[1] + 96.0 * s;
+        let mut hovered = None;
+        if !sum.equipment.is_empty() {
+            let side = 34.0 * s;
+            let gap = 4.0 * s;
+            let rows: Vec<Vec<usize>> = {
+                let mut rows = vec![(0..12).collect::<Vec<_>>()];
+                if sum.equipment.iter().skip(12).any(|&t| t > 0) {
+                    rows.push((12..sum.equipment.len().min(20)).collect());
+                }
+                rows
+            };
+            for (n, row) in rows.iter().enumerate() {
+                for (k, &slot) in row.iter().enumerate() {
+                    // the equipment apart from the inventory; the backpack lines up under it
+                    let extra = if n == 0 && k >= 4 { 10.0 * s } else if n > 0 { 4.0 * (side + gap) + 10.0 * s } else { 0.0 };
+                    let sr = [r[0] + pad + extra + k as f32 * (side + gap), y, side, side];
+                    let item = sum.equipment.get(slot).copied().unwrap_or(-1);
+                    ui.slot_box(sr, if item > 0 { tier_edge(ui.data, item) } else { None }, false, s);
+                    if item > 0 {
+                        ui.item_icon(item, 80, sr[0] + side / 2.0, sr[1] + side / 2.0, s * 0.72);
+                        let imprints = bsk_data::imprint::parse(sum.item_datas.get(slot).map_or("", String::as_str));
+                        crate::hud::draw_imprint_marks(ui, imprints, sr[0] + 3.0 * s, sr[1] + 3.0 * s, s * 0.8);
+                        if inside(sr, mouse) {
+                            hovered = Some(item);
+                        }
+                    }
+                }
+                y += side + gap;
+            }
+            y += 8.0 * s;
+        }
         // The fame: base, the bonuses, the total.
-        let mut y = r[1] + 100.0 * s;
         let size = (15.0 * s).round();
         let row = |ui: &mut Ui, label: &str, value: String, c: u32, bold: bool, y: &mut f32| {
             ui.label(label, r[0] + pad, *y, size, bold, color::TEXT_DIM);
@@ -1574,6 +1607,11 @@ impl Front {
             ui.label(value, x + colw - vw - 16.0 * s, yy, small, true, color::TEXT);
         }
         self.button(ui, Target::Back, [r[0] + (r[2] - 180.0 * s) / 2.0, r[1] + r[3] - 60.0 * s, 180.0 * s, 42.0 * s], "Continue", Kind::Primary, s, mouse);
+        if let Some(item) = hovered {
+            let lay = crate::hud::Layout::new(w as u32, h as u32);
+            let lines = crate::hud::item_tooltip(ui.data, item, None, crate::hud::SlotKind::Shop);
+            crate::hud::draw_tooltip(ui, &lay, &lines, Some(item), tier_edge(ui.data, item), mouse);
+        }
     }
 }
 

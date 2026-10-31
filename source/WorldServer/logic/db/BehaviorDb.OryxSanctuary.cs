@@ -84,7 +84,6 @@ namespace WorldServer.logic
                     new BossStats(180000, 45, 1.0, 0.3),
                     new DropPortalOnDeath("Locked Oryx's Inferno Portal", 1.0, timeout: 600, xAdjustment: 2,
                         name: "Locked: Oryx's Inferno", lockedHint: "This portal is locked. Use an Oryx's Inferno Incantation beside it to open it."),
-                    new DropPortalOnDeath("Realm Portal", 1.0, timeout: 120, xAdjustment: -2),
                     new RemoveObjectOnDeath("O3 Wall Gate", 30),
                     new AnnounceOnDeath("{PL_LIST} broke Oryx the Celestial Mad God in his Sanctuary! His spirit sinks into his Inferno, sealed by an Oryx's Inferno Incantation..."),
                     new State("Where",

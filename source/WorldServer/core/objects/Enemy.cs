@@ -46,6 +46,13 @@ namespace WorldServer.core.objects
         // the Training Dummy's: tells each player their damage over 5 seconds
         public DpsMeter DpsMeter { get; private set; }
 
+        // A mystic orb's shred (ShredArmor): the defense it had, the share taken off, and until when.
+        // The Defense stat itself is lowered, so the client's damage numbers follow it.
+        private int _shredFrom;
+        private int _shredTo;
+        private double _shredShare;
+        private long _shredUntil;
+
         public Enemy(GameServer manager, ushort objType)
             : base(manager, objType)
         {
@@ -63,9 +70,34 @@ namespace WorldServer.core.objects
                 ClasifyEnemy();
         }
 
+        /// <summary>Takes this share (0.08 for 8%) off its defense for so long: the strongest shred
+        /// holds, a weaker one only keeps it going for longer.</summary>
+        public void ShredArmor(double share, int durationMs)
+        {
+            var now = Environment.TickCount64;
+            if (_shredUntil == 0)
+                _shredFrom = Defense;
+            _shredShare = Math.Max(_shredShare, share);
+            _shredUntil = Math.Max(_shredUntil, now + durationMs);
+            _shredTo = Math.Max(0, _shredFrom - (int)Math.Ceiling(_shredFrom * _shredShare));
+            Defense = _shredTo;
+        }
+
+        private void ShredTick()
+        {
+            if (_shredUntil == 0 || Environment.TickCount64 < _shredUntil)
+                return;
+            // given back, unless something else set its defense meanwhile (BossStats)
+            if (Defense == _shredTo)
+                Defense = _shredFrom;
+            _shredUntil = 0;
+            _shredShare = 0;
+        }
+
         public override void Tick(ref TickTime time)
         {
             DpsMeter?.Tick();
+            ShredTick();
 
             // objects without MaxHitPoints (anchors, spawners, traps) start at 0 HP; they end
             // through their behaviour instead of dying on their first tick

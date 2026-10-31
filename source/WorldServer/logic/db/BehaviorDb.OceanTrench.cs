@@ -37,8 +37,8 @@ namespace WorldServer.logic
                 new Threshold(0.01,
                     new ItemLoot("Coral Juice", 0.3),
                     new ItemLoot("Potion of Mana", 0.04),
-                    new ItemLoot("Coral Bow", 0.01),
-                    new ItemLoot("Coral Venom Trap", 0.012),
+                    new ItemLoot("Coral Bow", 0.02),
+                    new ItemLoot("Coral Venom Trap", 0.02),
                     new ItemLoot("Coral Silk Armor", 0.04),
                     new ItemLoot("Coral Ring", 0.04)
                     ), Elder("Coral Gift"))
@@ -256,8 +256,8 @@ namespace WorldServer.logic
                         )
                     ),
                 new Threshold(0.01,
-                    new ItemLoot("Coral Bow", 0.01),
-                    new ItemLoot("Coral Venom Trap", 0.00125),
+                    new ItemLoot("Coral Bow", 0.02),
+                    new ItemLoot("Coral Venom Trap", 0.005),
                     new ItemLoot("Coral Silk Armor", 0.01),
                     new ItemLoot("Coral Ring", 0.01),
                     new ItemLoot("Ocean Trench Key", 0.01, 0, 0.03)

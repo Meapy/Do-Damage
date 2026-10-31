@@ -2362,4 +2362,126 @@
 		<feedPower>350</feedPower>
 		<Soulbound/>
 	</Object>
+	<!-- BEGIN Infernal potions (tools/build_infernal_potions.py) -->
+	<Object type="0x5880" id="Infernal Potion of Life">
+		<Class>Equipment</Class>
+		<Item/>
+		<Texture>
+			<File>infernalPotions8x8</File>
+			<Index>0x00</Index>
+		</Texture>
+		<SlotType>10</SlotType>
+		<Description>A Potion of Life set alight in Oryx's fire, forged from an Infernal Accessory Shard and 100 Potions of Life from your potion storage. Drunk with your life maxed, it raises it 5 past your class's maximum, up to 5 of these.</Description>
+		<Sound>use_potion</Sound>
+		<Activate stat="0" amount="5">OvercapStat</Activate>
+		<Consumable/>
+		<Potion/>
+		<BagType>7</BagType>
+	</Object>
+	<Object type="0x5881" id="Infernal Potion of Mana">
+		<Class>Equipment</Class>
+		<Item/>
+		<Texture>
+			<File>infernalPotions8x8</File>
+			<Index>0x01</Index>
+		</Texture>
+		<SlotType>10</SlotType>
+		<Description>A Potion of Mana set alight in Oryx's fire, forged from an Infernal Ability Shard and 100 Potions of Mana from your potion storage. Drunk with your magic maxed, it raises it 5 past your class's maximum, up to 5 of these.</Description>
+		<Sound>use_potion</Sound>
+		<Activate stat="3" amount="5">OvercapStat</Activate>
+		<Consumable/>
+		<Potion/>
+		<BagType>7</BagType>
+	</Object>
+	<Object type="0x5882" id="Infernal Potion of Attack">
+		<Class>Equipment</Class>
+		<Item/>
+		<Texture>
+			<File>infernalPotions8x8</File>
+			<Index>0x02</Index>
+		</Texture>
+		<SlotType>10</SlotType>
+		<Description>A Potion of Attack set alight in Oryx's fire, forged from an Infernal Weapon Shard and 100 Potions of Attack from your potion storage. Drunk with your attack maxed, it raises it 1 past your class's maximum, up to 5 of these.</Description>
+		<Sound>use_potion</Sound>
+		<Activate stat="20" amount="1">OvercapStat</Activate>
+		<Consumable/>
+		<Potion/>
+		<BagType>7</BagType>
+	</Object>
+	<Object type="0x5883" id="Infernal Potion of Defense">
+		<Class>Equipment</Class>
+		<Item/>
+		<Texture>
+			<File>infernalPotions8x8</File>
+			<Index>0x03</Index>
+		</Texture>
+		<SlotType>10</SlotType>
+		<Description>A Potion of Defense set alight in Oryx's fire, forged from an Infernal Armor Shard and 100 Potions of Defense from your potion storage. Drunk with your defense maxed, it raises it 1 past your class's maximum, up to 5 of these.</Description>
+		<Sound>use_potion</Sound>
+		<Activate stat="21" amount="1">OvercapStat</Activate>
+		<Consumable/>
+		<Potion/>
+		<BagType>7</BagType>
+	</Object>
+	<Object type="0x5884" id="Infernal Potion of Speed">
+		<Class>Equipment</Class>
+		<Item/>
+		<Texture>
+			<File>infernalPotions8x8</File>
+			<Index>0x04</Index>
+		</Texture>
+		<SlotType>10</SlotType>
+		<Description>A Potion of Speed set alight in Oryx's fire, forged from an Infernal Accessory Shard and 100 Potions of Speed from your potion storage. Drunk with your speed maxed, it raises it 1 past your class's maximum, up to 5 of these.</Description>
+		<Sound>use_potion</Sound>
+		<Activate stat="22" amount="1">OvercapStat</Activate>
+		<Consumable/>
+		<Potion/>
+		<BagType>7</BagType>
+	</Object>
+	<Object type="0x5885" id="Infernal Potion of Dexterity">
+		<Class>Equipment</Class>
+		<Item/>
+		<Texture>
+			<File>infernalPotions8x8</File>
+			<Index>0x05</Index>
+		</Texture>
+		<SlotType>10</SlotType>
+		<Description>A Potion of Dexterity set alight in Oryx's fire, forged from an Infernal Weapon Shard and 100 Potions of Dexterity from your potion storage. Drunk with your dexterity maxed, it raises it 1 past your class's maximum, up to 5 of these.</Description>
+		<Sound>use_potion</Sound>
+		<Activate stat="28" amount="1">OvercapStat</Activate>
+		<Consumable/>
+		<Potion/>
+		<BagType>7</BagType>
+	</Object>
+	<Object type="0x5886" id="Infernal Potion of Vitality">
+		<Class>Equipment</Class>
+		<Item/>
+		<Texture>
+			<File>infernalPotions8x8</File>
+			<Index>0x06</Index>
+		</Texture>
+		<SlotType>10</SlotType>
+		<Description>A Potion of Vitality set alight in Oryx's fire, forged from an Infernal Armor Shard and 100 Potions of Vitality from your potion storage. Drunk with your vitality maxed, it raises it 1 past your class's maximum, up to 5 of these.</Description>
+		<Sound>use_potion</Sound>
+		<Activate stat="26" amount="1">OvercapStat</Activate>
+		<Consumable/>
+		<Potion/>
+		<BagType>7</BagType>
+	</Object>
+	<Object type="0x5887" id="Infernal Potion of Wisdom">
+		<Class>Equipment</Class>
+		<Item/>
+		<Texture>
+			<File>infernalPotions8x8</File>
+			<Index>0x07</Index>
+		</Texture>
+		<SlotType>10</SlotType>
+		<Description>A Potion of Wisdom set alight in Oryx's fire, forged from an Infernal Ability Shard and 100 Potions of Wisdom from your potion storage. Drunk with your wisdom maxed, it raises it 1 past your class's maximum, up to 5 of these.</Description>
+		<Sound>use_potion</Sound>
+		<Activate stat="27" amount="1">OvercapStat</Activate>
+		<Consumable/>
+		<Potion/>
+		<BagType>7</BagType>
+	</Object>
+	<!-- END Infernal potions -->
 </Objects>

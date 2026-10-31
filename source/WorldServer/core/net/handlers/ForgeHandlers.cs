@@ -29,7 +29,11 @@ namespace WorldServer.core.net.handlers
                 .Where(p => types.ContainsKey(p.Item))
                 .Select(p => (types[p.Item], p.Fame))
                 .ToArray();
-            client.SendPacket(new ForgeData() { Recipes = recipes, Prices = prices });
+            var costs = ForgeRecipes.InfernalPotions
+                .Where(p => types.ContainsKey(p.Result) && types.ContainsKey(ForgeRecipes.StatPotions[p.Stat]))
+                .Select(p => (types[p.Result], types[ForgeRecipes.StatPotions[p.Stat]], (short)ForgeRecipes.InfernalPotionCost))
+                .ToArray();
+            client.SendPacket(new ForgeData() { Recipes = recipes, Prices = prices, StorageCosts = costs });
             ForgeStorage.Send(client.Player);
             ForgeVault.Send(client.Player);
         }
@@ -72,7 +76,10 @@ namespace WorldServer.core.net.handlers
             else
                 error = DoomedEconomy.Forge(player, slots, resultId, out fame);
             if (error == null)
+            {
                 player.Quests?.Event(new Shared.quests.QuestEvent(Shared.quests.QuestEvents.Forge));
+                WeeklyStats.Count(Shared.database.leaderboard.DbWeeklyStats.Forged);
+            }
             client.SendPacket(new ForgeResult() { Success = error == null, Item = result, Fame = fame, Message = error });
         }
     }

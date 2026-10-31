@@ -71,13 +71,17 @@ impl World {
             self.modify_move(x, y, target.0, target.1, data)
         };
         let moved = (nx, ny) != (x, y);
+        let now = self.last_update;
         if let Some(p) = self.objects.get_mut(&me) {
             // Walk frames whenever we're pushed somewhere (`moveVec_`), as the AIR client: also
             // into a wall, and in a frame too short to move in (a 0 ms step at high frame rates,
             // which used to flash the standing frame).
             p.moving = true;
             p.walk_speed = speed;
-            if rel_x != 0.0 || rel_y != 0.0 {
+            // the way we walk, but not while shooting: then the way we shot (note_attack) holds,
+            // and stays when we stop
+            let shooting = now.is_some_and(|t| p.attack_phase(t).is_some());
+            if (rel_x != 0.0 || rel_y != 0.0) && !shooting {
                 p.facing = vy.atan2(vx);
             }
         }
