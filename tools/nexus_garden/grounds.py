@@ -248,7 +248,8 @@ ARCH_LEVELS = [round(ARCH_HEIGHT * math.sin(math.pi * (i + 0.5) / 9), 3) for i i
 
 # name -> (painter, variants, extra XML, minimap colour). Extra: NoWalk, Sink, Speed, Animate and
 # BlendPriority as Realm 2's; `Petals` marks the forest's floor, where the Rust client lets cherry
-# blossom fall across the screen.
+# blossom fall across the screen (its text, when there is one, how thickly: three times under the
+# elder cherry).
 GROUNDS = {
     "NG Deep Sea": (water(SEA), 4, {"NoWalk": None, "Animate": ("Wave", {"dx": "0.15", "dy": "0.1"}),
                                     "BlendPriority": "-1"}, "0x132E54"),
@@ -272,7 +273,7 @@ GROUNDS = {
     "NG Deck Beam": (deck_border, 2, {"BlendPriority": "21"}, "0x603C26"),
     "NG Bridge Planks EW": (planks(PLANK, True), 3, {"BlendPriority": "22"}, "0x7A4E30"),
     "NG Bridge Planks NS": (planks(PLANK, False), 3, {"BlendPriority": "22"}, "0x7A4E30"),
-    "NG Petal Gravel": (petal_gravel, 3, {"BlendPriority": "14", "Petals": None}, "0xE0C8CC"),
+    "NG Petal Gravel": (petal_gravel, 3, {"BlendPriority": "14", "Petals": "3"}, "0xE0C8CC"),
     "NG Dojo Sand": (dojo_sand, 2, {"BlendPriority": "13"}, "0xCEBC98"),
 }
 for _i, _lift in enumerate(ARCH_LEVELS):

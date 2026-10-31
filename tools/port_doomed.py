@@ -550,15 +550,11 @@ UNOBTAINABLE_ITEMS = ["Ring of Oryx", "Oryx Hide Armor", "Oryx Hide Robe", "Oryx
 # loot in a private bag (the T16 armours, as the T15s they top, and the Oryxes' pets)
 SOULBOUND_ITEMS = ["Sphinx Leather Armor", "Armor of the Pyramid", "Robe of the Nile", "Lil' Oryx Generator"]
 DESCRIPTIONS = {
-    # the Lair of Draconis's four relics (BehaviorDb.Draconis.cs), the Elder key's recipe
-    "Black Dragon Gods Blade": "A shard of Feargus the Obsidian Dragon, dropped in the Lair of Draconis."
-        " The Divine Forge melds it with the other three dragons' relics into an Elder Draconis Key.",
-    "Blue Dragon Gods Helm": "A relic of Nikao the Azure Dragon, dropped in the Lair of Draconis."
-        " The Divine Forge melds it with the other three dragons' relics into an Elder Draconis Key.",
-    "Red Dragon Gods Helm": "A relic of Pyyr the Crimson Dragon, dropped in the Lair of Draconis."
-        " The Divine Forge melds it with the other three dragons' relics into an Elder Draconis Key.",
-    "Green Dragon Gods Helm": "A relic of Limoz the Veridian Dragon, dropped in the Lair of Draconis."
-        " The Divine Forge melds it with the other three dragons' relics into an Elder Draconis Key.",
+    # the Lair of Draconis's four relics (BehaviorDb.Draconis.cs)
+    "Black Dragon Gods Blade": "A shard of Feargus the Obsidian Dragon, dropped in the Lair of Draconis.",
+    "Blue Dragon Gods Helm": "A relic of Nikao the Azure Dragon, dropped in the Lair of Draconis.",
+    "Red Dragon Gods Helm": "A relic of Pyyr the Crimson Dragon, dropped in the Lair of Draconis.",
+    "Green Dragon Gods Helm": "A relic of Limoz the Veridian Dragon, dropped in the Lair of Draconis.",
     "Santa's Hat": "A hat that protects Santa from even death itself. A blow that would kill its wearer breaks "
                    "the hat instead, and sends them back to the Nexus.",
     "Staff of Heavens": "Raised over Oryx's Elysium in his last stand, it fires the holy bolts of the Ascended God, "

@@ -12,7 +12,6 @@ namespace WorldServer.core.commands.doomed
         // result, fame, needs a Forge Amulet, ingredients
         public static readonly (string Result, int Fame, bool Advanced, string[] Items)[] Recipes =
         {
-            ("Elder Draconis Key", 100, false, new[] { "Black Dragon Gods Blade", "Blue Dragon Gods Helm", "Red Dragon Gods Helm", "Green Dragon Gods Helm" }),
             ("Chicken Leg of Doom", 500, false, new[] { "Anatis Staff", "Dagger of Dire Hatred" }),
             ("Potion of Oryx", 100, false, new[] { "Potion of Dexterity", "Potion of Speed", "Potion of Wisdom", "Potion of Vitality", "Potion of Defense", "Potion of Attack", "Potion of Life", "Potion of Mana" }),
             ("Spell of Invisibility", 1, false, new[] { "Trapped Soul", "Magical Powder", "Feather", "Scroll of Zeal" }),

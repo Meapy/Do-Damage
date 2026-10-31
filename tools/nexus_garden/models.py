@@ -697,7 +697,8 @@ def arch(stone):
         solid(img, RAIL, LACQUER, 0.65, 0.12)
         solid(img, CAP, GOLD, 0.6, 0.3)
     m = Mesh()
-    L, W, H, n = 4.5, 1.5, ARCH_HEIGHT, 18
+    # eight segments make a smooth enough curve at this size: more only crowd it with seams
+    L, W, H, n = 4.5, 1.5, ARCH_HEIGHT, 8
 
     def z(x):
         return H * math.sin(math.pi * (x + L) / (2 * L))
@@ -712,10 +713,23 @@ def arch(stone):
             m.quad((x0, y, z(x0) + 0.04), (x1, y, z(x1) + 0.04), (x1, y, under[1]), (x0, y, under[0]),
                    (64 + u0, 96, 64 + max(u0 + 1, u1), 112), (0, -side * 5, 0))
             if stone:
-                m.box(x0, side * W - 0.16, z(x0) - 0.02, x1, side * W + 0.16, z(x0) + 0.6, RAIL, top=CAP, lid=True)
+                # the parapet: one wall following the curve, its faces and its coping sloping with
+                # the deck rather than stepping up a box at a time
+                yo, yi, h = side * (W + 0.16), side * (W - 0.16), 0.6
+                b0, b1 = z(x0) - 0.02, z(x1) - 0.02
+                ru = (u0, 112, max(u0 + 1, u1), 120)
+                inside = (x0, side * W, b0 + h / 2)
+                m.quad((x0, yo, b0 + h), (x1, yo, b1 + h), (x1, yo, b1), (x0, yo, b0), ru, inside)
+                m.quad((x1, yi, b1 + h), (x0, yi, b0 + h), (x0, yi, b0), (x1, yi, b1), ru, inside)
+                m.quad((x0, yi, b0 + h), (x1, yi, b1 + h), (x1, yo, b1 + h), (x0, yo, b0 + h), CAP, (x0, side * W, b0))
             else:
                 m.beam((x0, side * (W - 0.05), z(x0) + 0.62), (x1, side * (W - 0.05), z(x1) + 0.62), 0.08, RAIL)
                 m.beam((x0, side * (W - 0.05), z(x0) + 0.3), (x1, side * (W - 0.05), z(x1) + 0.3), 0.05, RAIL)
+    if stone:
+        for x in (-L, L):
+            for side in (-1, 1):
+                yo, yi, b = side * (W + 0.16), side * (W - 0.16), z(x) - 0.02
+                m.quad((x, yi, b + 0.6), (x, yo, b + 0.6), (x, yo, b), (x, yi, b), RAIL, (-x, side * W, b + 0.3))
     if stone:
         # a stone lantern on each end of each parapet, lit
         for x in (-L + 0.2, L - 0.2):
@@ -725,7 +739,7 @@ def arch(stone):
                 m.box(x - 0.14, y - 0.14, z(x) + 0.8, x + 0.14, y + 0.14, z(x) + 1.05, R_LAMP, mat="Glow")
                 m.box(x - 0.24, y - 0.24, z(x) + 1.05, x + 0.24, y + 0.24, z(x) + 1.15, CAP)
     if not stone:
-        for i in range(0, n + 1, 2):
+        for i in range(0, n + 1):
             x = xs[i]
             big = i in (0, n)
             for side in (-1, 1):

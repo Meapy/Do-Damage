@@ -25,10 +25,14 @@ details). Add to a group's line when a change adds to it, rather than adding ano
   Tinkerer and the Chronicler stroll about. The smithy's great
   furnace is the Divine Forge and its crystal altar the Enchanter, and Amatsumara the smith god
   hammers away at his anvil before it. The bridges arch over the pond, and you climb them. The
-  Hall of Champions and a dojo yard are to the west, a giant cherry tree north of the spawn, and
-  a forest to the south where blossom falls around you. Villagers, the twins Hana and Sora, and
-  the Name and Character Changers stroll about, bees drift over the flowers, and the XP gifts
-  are now ducks swimming on the pond.
+  Hall of Champions and a dojo yard are to the west, a giant old cherry tree north of the spawn
+  that sheds blossom all around it, and a forest to the south where blossom falls around you.
+  Villagers, the twins Hana and Sora, and the Name and Character Changers stroll about, bees drift
+  over the flowers, and the XP gifts are now ducks swimming on the pond.
+- Guild halls are gardens too, on islands in the same style: a torii over the path to the
+  guild's shrine and teahouse, the vault and the training yard behind bamboo fences, a koi pond,
+  and in the greatest hall the guild's own smithy with the Divine Forge and the Enchanter.
+- The portal a dungeon leaves to take you home looks like the Nexus button's icon.
 - Standing still in the Nexus for 20 minutes now saves your character and sends you back to the
   character screen, with a message saying why, so idlers don't take up a place. Walking resets
   the clock; realms, dungeons and your vault aren't affected.
@@ -66,6 +70,8 @@ details). Add to a group's line when a change adds to it, rather than adding ano
 - Forging costs half as much, and the low tiers next to nothing: two tier 8 staffs make a tier 9
   for 60 fame. Every tier upgrade now follows one price scale.
 - The starter gear `/gear` hands out can't be forged up: two of it don't make the next tier.
+- The forge no longer makes the Elder Draconis Key from the Lair of Draconis's four dragon relics
+  (the Bazaar sells the key). The relics are keepsakes now.
 
 ### Oryx
 - Oryx's Castle: everyone starts on the two inner lanes, not four. Janus's door opens as soon as

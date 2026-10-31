@@ -54,9 +54,10 @@ NOT_SOLD = {"Twilight Generator", "Dinosaur's Pet Generator", "Crown", "God Rush
 # replaced, and the Forge Amulet. No recipe takes or makes them, and the forge doesn't buy them.
 FORGE_GONE = {"Shattered Rune of Oryx", "Broken Oryx Armor", "Purified Doom Saliva", "Forge Amulet"}
 # results the Divine Forge doesn't make: the admin items, the rewards, and the very rare drops of
-# Oryx 5 its Doomed Realms recipes would make easy (the T16 armours only he drops)
+# Oryx 5 its Doomed Realms recipes would make easy (the T16 armours only he drops), and the Elder
+# Draconis Key (bought at the Bazaar instead of melded from the Lair of Draconis's four relics)
 NOT_FORGED = {"Crown", "Anatis Staff", "Staff of Endless Energy", "Eternal Sword",
-              "Sphinx Leather Armor", "Armor of the Pyramid", "Robe of the Nile"}
+              "Sphinx Leather Armor", "Armor of the Pyramid", "Robe of the Nile", "Elder Draconis Key"}
 
 
 def _num(s):

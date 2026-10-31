@@ -23,10 +23,10 @@ namespace Shared.database.guild
         // what each hall adds, for the upgrade's message and the guild window
         private static readonly string[] Adds =
         {
-            "an octagonal lodge with the guild vault (2 chests), the board and the chronicle",
-            "a cross-shaped hall: 4 vault chests and a training yard",
-            "a star-fort keep: 6 vault chests, the Armoire, potion storage and a fountain garden",
-            "a citadel: 8 vault chests and a throne room with the Divine Workbench",
+            "an octagonal island garden with the guild vault (2 chests), the board and the chronicle",
+            "a cross-shaped garden: 4 vault chests and a training yard",
+            "a star-shaped garden: 6 vault chests, the Armoire, potion storage and a koi pond",
+            "the great garden: 8 vault chests and the guild's own smithy with the Divine Workbench",
         };
 
         // being in a guild gives at least this loot boost (the first hall's)

@@ -141,13 +141,16 @@ def scenery():
     blossom_flowers = [s.BLOSSOM[5], s.WHITE[3], s.BLOSSOM[4]]
     return {
         "NG Sakura Tree": (32, [s.sakura(k) for k in (11, 12, 13, 14)], "block", {"shadow": 140}),
-        "NG Weeping Sakura": (32, [s.sakura(k, weeping=True) for k in (21, 22)], "block", {"shadow": 140}),
+        "NG Weeping Sakura": (32, [s.weeping_sakura(k) for k in (21, 22, 23)], "block", {"shadow": 140}),
         "NG Black Pine": (32, [s.pine(k) for k in (31, 32)], "block", {"shadow": 130}),
         "NG Maple": (32, [s.maple(k) for k in (41, 42)], "block", {"shadow": 130}),
         "NG Great Sakura": (48, [s.sakura(51, size=48)], "block", {"shadow": 200}),
         "NG Young Sakura": (16, [s.young_sakura(k) for k in (1, 2, 3)], "block", {}),
         "NG Stone Lantern": (16, [s.stone_lantern(True), s.stone_lantern(False)], "block", {"anim": (0.6, 0.2)}),
         "NG Paper Lantern": (16, [s.paper_lantern(True), s.paper_lantern(False)], "block", {"anim": (0.7, 0.15)}),
+        # the same, its lantern hanging to the left: at the right-hand end of a row
+        "NG Paper Lantern L": (16, [s.paper_lantern(True, True), s.paper_lantern(False, True)], "block",
+                               {"anim": (0.7, 0.15), "shown": "Paper Lantern"}),
         "NG Bamboo": (16, [s.bamboo(k) for k in (1, 2, 3)], "block", {}),
         "NG Azalea": (16, [s.azalea(k) for k in (1, 2, 3)], "block", {}),
         "NG Boulder": (16, [s.boulder(k) for k in (1, 2, 3)], "block", {}),
@@ -180,6 +183,8 @@ def scenery():
         # the Guild Register, beside the Guild Hall's door: its name shows under it
         "NG Guild Register": (32, [extras.guild_register()], "block",
                               {"class": "GuildRegister", "shown": "Guild Register", "showname": True, "shadow": 60}),
+        # the same board in a guild's hall, where the guild's notices are pinned (build_guild_halls)
+        "NG Guild Board": (32, [extras.guild_register()], "block", {"class": "GuildBoard", "shown": "Guild Board", "shadow": 60}),
         SMOKE: (32, [_tall(extras.smoke(f)) for f in range(4)], "block", {"anim": (0.3,) * 4, "z": 6.3, "noshadow": True}),
         "NG Forge Flame": (8, [extras.forge_flame(f) for f in range(3)], "plain", {"anim": (0.12, 0.12, 0.12), "noshadow": True}),
         "NG Anvil": (16, [extras.anvil()], "block", {}),

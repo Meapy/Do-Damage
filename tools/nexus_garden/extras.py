@@ -8,7 +8,7 @@ import os
 from PIL import Image
 
 from .px import hexc as C, canvas, dither, hash2, mix, picture, put
-from .sprites import BLOSSOM, GLOW, STONE, WOOD, column, edge, sakura, slab
+from .sprites import BARK, BLOSSOM, GLOW, STONE, WOOD, _canopy, column, edge, slab
 from .floors import RIM, EMBER as FIRE
 from .models import GOLD
 
@@ -16,10 +16,124 @@ ROOT = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)
 LOFI_CHAR = os.path.join(ROOT, "client", "src", "kabam", "rotmg", "assets", "prod", "images", "lofiChar.png")
 
 
-def elder_sakura():
+def elder_sakura(seed=61):
     """The great cherry of the dry garden: 192 pixels, twenty-four tiles tall, its crown over the
-    whole garden."""
-    return sakura(61, size=192)
+    whole garden. An old, gnarled trunk on flaring roots splits into limbs that fork again and
+    again; clouds of blossom gather at their ends, with gaps between them where the branches
+    show, a shaded layer of clouds behind for depth, and petals drifting down under it all."""
+    size = 192
+    img = canvas(size)
+    rnd = lambda i, k: hash2(i, k, seed)
+    cx, ground = size // 2, size - 2
+    segments, tips, forks_at = [], [], []
+
+    def grow(x, y, angle, length, width, depth, i):
+        """A branch from (x, y) toward `angle` (radians, 0 up, positive right), then its forks."""
+        bend = (rnd(i, 1) - 0.5) * 0.5
+        mx = x + math.sin(angle) * length * 0.5
+        my = y - math.cos(angle) * length * 0.5
+        a2 = angle + bend
+        ex, ey = mx + math.sin(a2) * length * 0.5, my - math.cos(a2) * length * 0.5
+        w1 = max(1.0, width * 0.62)
+        segments.append((x, y, mx, my, width, (width + w1) / 2))
+        segments.append((mx, my, ex, ey, (width + w1) / 2, w1))
+        if depth == 0:
+            tips.append((ex, ey, i))
+            return
+        if depth <= 2:
+            forks_at.append((ex, ey, i))
+        forks = 2 if depth < 3 or rnd(i, 2) < 0.6 else 3
+        for k in range(forks):
+            spread = 0.42 + 0.25 * rnd(i, 10 + k)
+            da = (k - (forks - 1) / 2) * spread * 1.6 / max(1, forks - 1) * 1.2 + (rnd(i, 20 + k) - 0.5) * 0.3
+            # limbs lean outward and level off rather than climb straight up
+            na = a2 + da + 0.12 * (1 if a2 > 0 else -1)
+            na = max(-1.75, min(1.75, na))
+            grow(ex, ey, na, length * (0.66 + 0.16 * rnd(i, 30 + k)), w1, depth - 1, i * 4 + k + 1)
+
+    # the trunk splits at about two thirds of the way up into five limbs
+    fork_y = 116
+    for k, (a, l) in enumerate(((-1.2, 25), (-0.65, 27), (0.05, 25), (0.7, 27), (1.25, 24))):
+        grow(cx + (k - 2) * 3, fork_y, a, l, 9.0 - abs(k - 2), 4, k + 1)
+
+    def bark(x, y, w, along):
+        """Bark across a limb: lit on its left, dark grooves along its length."""
+        t = 0.78 - 0.62 * w + 0.12 * (rnd(int(x), int(y)) - 0.5)
+        if hash2(int(along * 0.7), int(w * 4), seed + 9) > 0.78:
+            t -= 0.28
+        return dither(BARK, t, int(x), int(y))
+
+    def limb(x0, y0, x1, y1, w0, w1):
+        n = int(math.hypot(x1 - x0, y1 - y0) * 1.5) + 1
+        for s in range(n + 1):
+            f = s / n
+            x, y, w = x0 + (x1 - x0) * f, y0 + (y1 - y0) * f, w0 + (w1 - w0) * f
+            r = w / 2
+            for yy in range(int(y - r) - 1, int(y + r) + 2):
+                for xx in range(int(x - r) - 1, int(x + r) + 2):
+                    d = math.hypot(xx + 0.5 - x, yy + 0.5 - y)
+                    if d <= r + 0.2:
+                        put(img, xx, yy, bark(xx, yy, (xx + 0.5 - x + r) / (2 * r + 0.01), s + yy))
+
+    def cloud(x, y, scale, i, base, holes):
+        """A cloud of blossom round a branch's end: a dozen lumps, lit as one."""
+        x = max(16 * scale + 4, min(size - 16 * scale - 4, x))
+        y = max(10 * scale + 6, y)
+        lumps = []
+        for k in range(int(9 + 7 * scale)):
+            a = rnd(i * 13 + k, 3) * math.tau
+            d = math.sqrt(rnd(i * 13 + k, 4)) * 9 * scale
+            lumps.append((x + math.cos(a) * d * 1.3, y + math.sin(a) * d * 0.8 - 2,
+                          (3.4 + rnd(i * 13 + k, 5) * 3.2) * scale ** 0.5, (3.0 + rnd(i * 13 + k, 6) * 2.4) * scale ** 0.5))
+        lumps.sort(key=lambda c: c[1])
+        before = img.copy()
+        # lit as part of the whole crown, not each cloud on its own
+        _canopy(img, lumps, BLOSSOM, seed + i, crown=(cx - 6, 52, 92, 58), holes=holes)
+        if base:
+            # the clouds at the back sit in the shade of those in front
+            for yy in range(max(0, int(y - 16 * scale)), min(size, int(y + 14 * scale))):
+                for xx in range(max(0, int(x - 20 * scale)), min(size, int(x + 20 * scale))):
+                    c = img.getpixel((xx, yy))
+                    if c != before.getpixel((xx, yy)):
+                        put(img, xx, yy, mix(c, BLOSSOM[0], base))
+
+    # the clouds behind the branches, darker; then the trunk and limbs; then the clouds in front
+    tips.sort(key=lambda t: t[1])
+    for x, y, i in tips[::3] + forks_at[::2]:
+        cloud(x + (rnd(i, 7) - 0.5) * 10, y + 6, 1.15, i + 500, 0.35, 0.0)
+    for k in range(0, 40):
+        # the trunk, broad and twisting, flaring into roots
+        f = k / 39
+        y0 = ground - f * (ground - fork_y)
+        w = 21 - 8 * f + (9 * (1 - f / 0.1) if f < 0.1 else 0)
+        sway = math.sin(f * 3.4 + 0.6) * 4
+        limb(cx + sway, y0, cx + sway, y0 - (ground - fork_y) / 39 - 1, w, w)
+    # roots: bending out over the ground and tapering into it
+    for side, reach, rise in ((-1, 30, 9), (1, 28, 8), (-1, 17, 5), (1, 19, 6), (1, 7, 3)):
+        x0, y0 = cx + side * 6, ground - rise - 4
+        mx, my = cx + side * reach * 0.55, ground - rise * 0.45
+        limb(x0, y0, mx, my, 8, 5)
+        limb(mx, my, cx + side * reach, ground, 5, 2)
+    for seg in segments:
+        limb(*seg)
+    for n, (x, y, i) in enumerate(tips):
+        if rnd(i, 8) < 0.12:
+            continue                      # now and then a bare branch end shows
+        cloud(x, y, 0.85 + 0.35 * rnd(i, 9), i, 0.0, 0.035)
+    # and a few over the inner forks, low on the crown, leaving the limbs to show between them
+    for x, y, i in forks_at:
+        if rnd(i, 11) < 0.4 and y < fork_y - 14:
+            cloud(x, y + 2, 0.7, i + 900, 0.12, 0.035)
+    edge(img, BLOSSOM)
+    # petals drifting down under the crown, some caught mid-tumble two pixels wide
+    for k in range(160):
+        x = int(18 + rnd(k, 70) * (size - 36))
+        y = int(96 + rnd(k, 71) * (ground - 98))
+        if img.getpixel((x, y))[3] == 0:
+            put(img, x, y, BLOSSOM[4 + k % 3])
+            if k % 4 == 0 and img.getpixel((x + 1, y))[3] == 0:
+                put(img, x + 1, y, BLOSSOM[4])
+    return img
 
 
 def smoke(frame, frames=4):

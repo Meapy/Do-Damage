@@ -85,6 +85,7 @@ GREEN = (MEADOW, GRASS, MOSS, PETALS)
 SAKURA, WEEPING, PINE, MAPLE, GREAT = "NG Sakura Tree", "NG Weeping Sakura", "NG Black Pine", "NG Maple", "NG Great Sakura"
 YOUNG = "NG Young Sakura"
 LANTERN, PAPER = "NG Stone Lantern", "NG Paper Lantern"
+PAPER_L = "NG Paper Lantern L"     # hanging to the left: the right-hand one of a pair
 BAMBOO, AZALEA, BOULDER = "NG Bamboo", "NG Azalea", "NG Boulder"
 BASIN = art.BASIN
 BLOCKER = art.BLOCKER
@@ -139,10 +140,13 @@ SHOPS = [
 FORGE_COURT = (79, 19, 97, 33)
 SMITHY = (87, 31)                       # the smithy: its model's tile, the front middle
 # the Divine Forge, the smithy's furnace, and the Enchanter (which imprints gear,
-# ImprintHandlers.cs), its altar: their invisible objects where the model shows them
-FORGE = (85, 27)
-ENCHANTER = (89, 27)
-SMITH = (89, 33)                        # Amatsumara, the smith god, at his anvil before the smithy
+# ImprintHandlers.cs), its altar: their invisible objects where the model shows them; Amatsumara,
+# the smith god, at his anvil before it (offsets from the smithy's tile, as the guild's smithy in
+# Guild Hall 4 has them too)
+FORGE_AT, ENCHANTER_AT, SMITH_AT = (-2, -4), (2, -4), (2, 2)
+FORGE = (SMITHY[0] + FORGE_AT[0], SMITHY[1] + FORGE_AT[1])
+ENCHANTER = (SMITHY[0] + ENCHANTER_AT[0], SMITHY[1] + ENCHANTER_AT[1])
+SMITH = (SMITHY[0] + SMITH_AT[0], SMITHY[1] + SMITH_AT[1])
 GUILD_HALL = (108, 31)                  # the teahouse: GUILD HALL over its door
 GUILD = {"NG Guild Register": (103, 33), "NG Guild Hall Door": (108, 34)}
 GUILD_HOUSE = (118, 32)                 # a plain house now
@@ -237,7 +241,7 @@ class Grid:
     def place(self, x, y, obj, ground=None, name=None, slot=None, keep=True):
         """An object that must stand where it's put: stops the build if the tile is taken."""
         if not self.ok(x, y) or not self.empty(x, y):
-            sys.exit("%s: %s can't stand at %d,%d (%s)" % (MAP_NAME, obj, x, y, self[x, y] if self.ok(x, y) else "off the map"))
+            sys.exit("%s: %s can't stand at %d,%d (%s)" % (self.name, obj, x, y, self[x, y] if self.ok(x, y) else "off the map"))
         self.put(x, y, ground, obj, name=name, slot=slot, keep=keep)
 
     def model(self, name, x, y, ground=None, blockers=None):
@@ -361,9 +365,9 @@ def lay_island(g):
     for x, y in ((ix, iy - ih + 1), (ix, iy + ih - 1), (ix - iw + 1, iy - ih // 2), (ix + iw - 1, iy - ih // 2),
                  (ix - iw + 1, iy + ih // 2), (ix + iw - 1, iy + ih // 2)):
         g.place(x, y, LANTERN, slot=ACCENT)
-    for x in (ix - 7, ix + 7):
-        g.place(x, iy - 2, PAPER, slot=FLAME)
-        g.place(x, iy + 2, PAPER, slot=FLAME)
+    for x, lamp in ((ix - 7, PAPER), (ix + 7, PAPER_L)):
+        g.place(x, iy - 2, lamp, slot=FLAME)
+        g.place(x, iy + 2, lamp, slot=FLAME)
     # saplings off the bridges' lines
     for x, y in ((ix - 9, iy - 4), (ix + 9, iy - 4), (ix - 4, iy + 8), (ix + 4, iy + 8)):
         g.place(x, y, YOUNG)
@@ -458,15 +462,19 @@ def lay_village(g):
                 g.ground(x, yy, TATAMI, keep=True)
         for i in range(n):
             g.put(sx + 2 * i, y, TATAMI, region=region, keep=True)
-        for x in (lo - 1, hi + 1):
+        for x, lamp in ((lo - 1, PAPER), (hi + 1, PAPER_L)):
             if g.empty(x, y):
-                g.place(x, y, PAPER, slot=FLAME)
+                g.place(x, y, lamp, slot=FLAME)
         hy = y - 4 if north else y + 4
         if not north and sx >= MARKET[0]:
             continue                             # the market's courtyard is behind these
-        for hx in range(lo + 2, hi - 1, 6):
-            if hi - hx >= 2:
-                g.model("NG House" if north else "NG House N", hx + 1, hy)
+        xs = [hx + 1 for hx in range(lo + 2, hi - 1, 6) if hi - hx >= 2]
+        if north and any(abs(x - SMITHY[0]) < 5 for x in xs):
+            # the forge court's path comes down to the street between two houses, not under one:
+            # the house on it goes, the others move a tile east to leave it two tiles of grass a side
+            xs = [x + 1 for x in xs if abs(x - SMITHY[0]) >= 5]
+        for x in xs:
+            g.model("NG House" if north else "NG House N", x, hy)
     # the forge court: slabs, the smithy on them (the Divine Forge and the Enchanter inside it),
     # lanterns at its corners
     fx0, fy0, fx1, fy1 = FORGE_COURT
@@ -475,7 +483,7 @@ def lay_village(g):
     for x, y in ((fx0, fy0), (fx1, fy0), (fx0, fy1), (fx1, fy1)):
         g.place(x, y, LANTERN, slot=ACCENT)
     smithy(g)
-    g.place(fx1 - 1, fy1 - 4, PAPER, slot=FLAME)
+    g.place(fx1 - 1, fy1 - 4, PAPER_L, slot=FLAME)
     g.model("NG House N", fx1 - 3, fy0 + 2)
     # the Guild Hall: the teahouse, GUILD HALL over its door; the door to the guild's hall stands
     # (unseen) on its steps, the Guild Register's notice board beside them (create a guild, or
@@ -500,11 +508,12 @@ def lay_village(g):
                 g.model("NG Bamboo Fence NS", x, y)
 
 
-def smithy(g):
-    """The smithy (models.smithy): its posts, back wall, furnace and altar block their tiles; the
-    Divine Forge's and the Enchanter's (invisible) objects stand in the furnace and the altar, the
-    smoke on the chimney; Amatsumara at his anvil before it."""
-    sx, sy = SMITHY
+def smithy(g, at=SMITHY):
+    """The smithy (models.smithy) with its front middle on `at`: its posts, back wall, furnace and
+    altar block their tiles; the Divine Forge's and the Enchanter's (invisible) objects stand in the
+    furnace and the altar, the smoke on the chimney; Amatsumara at his anvil before it."""
+    sx, sy = at
+    forge, enchanter, smith = [(sx + dx, sy + dy) for dx, dy in (FORGE_AT, ENCHANTER_AT, SMITH_AT)]
     blocked = set()
     for dx in (-5, 4):                          # the posts, east and west
         for dy in (0, -2, -4, -6):
@@ -518,14 +527,14 @@ def smithy(g):
         for y in (sy - 5, sy - 4):
             blocked.add((x, y))
     smoke = (sx - 3, sy - 5)
-    special = {smoke, FORGE, ENCHANTER}
+    special = {smoke, forge, enchanter}
     for x, y in sorted(blocked - special):
         g.place(x, y, BLOCKER)
     g.place(*smoke, "NG Chimney Smoke")
-    g.place(*FORGE, "NG Divine Forge")
-    g.place(*ENCHANTER, "NG Enchanter")
-    g.place(*SMITH, "NG Smith God")
-    g.place(SMITH[0] + 1, SMITH[1], "NG Anvil")
+    g.place(*forge, "NG Divine Forge")
+    g.place(*enchanter, "NG Enchanter")
+    g.place(*smith, "NG Smith God")
+    g.place(smith[0] + 1, smith[1], "NG Anvil")
     g.place(sx, sy, "NG Smithy")
     g.models.append(("NG Smithy", sx, sy))
 
@@ -544,10 +553,10 @@ def lay_market(g):
             g.put(x, y, SLAB, region="Market Stall", keep=True)
             stall = MARKET_STALL_KINDS[(i + (3 if north else 0)) % len(MARKET_STALL_KINDS)]
             g.model(stall + (" N" if north else ""), x, y + (1 if north else -1))
-        for x in (MARKET_STALLS_X[0] - 2, MARKET_STALLS_X[-1] + 2):
-            g.place(x, y, PAPER, slot=FLAME)
+        for x, lamp in ((MARKET_STALLS_X[0] - 2, PAPER), (MARKET_STALLS_X[-1] + 2, PAPER_L)):
+            g.place(x, y, lamp, slot=FLAME)
+    # the courtyard's middle stays open: the Broker and the quest givers walk there
     cx, cy = (x0 + x1) // 2, 61
-    g.place(cx, cy, YOUNG)
     for dx in (-5, 5):
         g.place(cx + dx, cy - 2, LANTERN, slot=ACCENT)
         g.place(cx + dx, cy + 2, LANTERN, slot=ACCENT)
@@ -586,8 +595,8 @@ def lay_west(g):
     for i, x in enumerate(range(ax0 + 1, ax1, 3)):
         if g.empty(x, ay0):
             g.place(x, ay0, "NG Nobori Red" if i % 2 == 0 else "NG Nobori Indigo")
-    for x, y in ((ax0, ay1), (ax1, ay1)):
-        g.place(x, y, PAPER, slot=FLAME)
+    for x, y, lamp in ((ax0, ay1, PAPER), (ax1, ay1, PAPER_L)):
+        g.place(x, y, lamp, slot=FLAME)
     for x in (ax0 + 2, ax0 + 3):
         g.place(x, ay1 - 1, "NG Weapon Rack")
     for x in (27, 29, 31):
@@ -738,9 +747,10 @@ def check_nexus(g):
                 assert not g[x, y]["obj"], ("something on a portal's floor", x, y, g[x, y]["obj"])
 
 
-def preview(g, path):
+def preview(g, path, floor_portals=True):
     """The map as the game draws it, from above: grounds, flat things, then everything standing,
-    back to front, the models through the client's own drawing (nexus_garden.render)."""
+    back to front, the models through the client's own drawing (nexus_garden.render); with
+    `floor_portals`, the Nexus's realm portals where the server opens them."""
     from PIL import Image
     from nexus_garden import render
     textures, _ = cm.game_data()
@@ -773,7 +783,8 @@ def preview(g, path):
                 out.alpha_composite(sprite(t["obj"]).resize((T, T)), (x * T, y * T))
     # the floor portals, as the server will place them
     arena = (int(ARENA_PORTALS[0][0]), int(ARENA_PORTALS[0][1]))
-    for (cx, cy), name, size in [(VORTEX, art.REALM2_PORTAL, 6), (arena, art.ARENA_PORTAL, 4)] + [(c, art.REALM_PORTAL, 4) for c in CAVERNS[:2]]:
+    for (cx, cy), name, size in ([(VORTEX, art.REALM2_PORTAL, 6), (arena, art.ARENA_PORTAL, 4)] + [(c, art.REALM_PORTAL, 4) for c in CAVERNS[:2]]
+                                 if floor_portals else []):
         img = sprite(name)
         if img:
             px = size * T

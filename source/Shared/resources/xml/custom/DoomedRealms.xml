@@ -52,7 +52,7 @@
 			<Index>0</Index>
 		</Texture>
 		<SlotType>0</SlotType>
-		<Description>A shard of Feargus the Obsidian Dragon, dropped in the Lair of Draconis. The Divine Forge melds it with the other three dragons' relics into an Elder Draconis Key.</Description>
+		<Description>A shard of Feargus the Obsidian Dragon, dropped in the Lair of Draconis.</Description>
 		<BagType>4</BagType>
 	</Object>
 	<Object type="0xD005" id="Blue Dragon Gods Helm">
@@ -64,7 +64,7 @@
 			<Index>0x160</Index>
 		</Texture>
 		<SlotType>0</SlotType>
-		<Description>A relic of Nikao the Azure Dragon, dropped in the Lair of Draconis. The Divine Forge melds it with the other three dragons' relics into an Elder Draconis Key.</Description>
+		<Description>A relic of Nikao the Azure Dragon, dropped in the Lair of Draconis.</Description>
 		<BagType>4</BagType>
 	</Object>
 	<Object type="0xD006" id="Red Dragon Gods Helm">
@@ -76,7 +76,7 @@
 			<Index>0x161</Index>
 		</Texture>
 		<SlotType>0</SlotType>
-		<Description>A relic of Pyyr the Crimson Dragon, dropped in the Lair of Draconis. The Divine Forge melds it with the other three dragons' relics into an Elder Draconis Key.</Description>
+		<Description>A relic of Pyyr the Crimson Dragon, dropped in the Lair of Draconis.</Description>
 		<BagType>4</BagType>
 	</Object>
 	<Object type="0xD007" id="Green Dragon Gods Helm">
@@ -88,7 +88,7 @@
 			<Index>0x162</Index>
 		</Texture>
 		<SlotType>0</SlotType>
-		<Description>A relic of Limoz the Veridian Dragon, dropped in the Lair of Draconis. The Divine Forge melds it with the other three dragons' relics into an Elder Draconis Key.</Description>
+		<Description>A relic of Limoz the Veridian Dragon, dropped in the Lair of Draconis.</Description>
 		<BagType>4</BagType>
 	</Object>
 	<Object type="0xD008" id="Broken Glass Sword">

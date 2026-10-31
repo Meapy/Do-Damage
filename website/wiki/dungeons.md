@@ -36,10 +36,10 @@ shields that must fall first. At the end each dragon turns into a loot balloon: 
 corridor back to the altar opens. Beat all four in any order and the altar opens the Ivory
 Wyvern's portal, and half the time the Elder Lair's.
 
-Each dragon drops its own stat potions and a relic. The four relics forge into an Elder Draconis
-Key at the Divine Forge. The **Elder Lair** is the same lair with Elder dragons: twice their
-health, harder hits and faster attacks, and better loot, including a potion that maxes the
-dragon's stat and its Elder armour or bow.
+Each dragon drops its own stat potions and, rarely, a relic of itself to keep. An Elder Draconis
+Key, sold for 400 fame at the Bazaar, opens the Elder Lair too. The **Elder Lair** is the same
+lair with Elder dragons: twice their health, harder hits and faster attacks, and better loot,
+including a potion that maxes the dragon's stat and its Elder armour or bow.
 
 ## The Lost Halls
 

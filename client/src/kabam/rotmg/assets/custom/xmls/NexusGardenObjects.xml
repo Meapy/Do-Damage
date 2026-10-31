@@ -37,6 +37,10 @@
 				<File>nexusGarden32x32</File>
 				<Index>0x05</Index>
 			</Texture>
+			<Texture>
+				<File>nexusGarden32x32</File>
+				<Index>0x06</Index>
+			</Texture>
 		</RandomTexture>
 		<Size>100</Size>
 		<ShadowSize>140</ShadowSize>
@@ -49,11 +53,11 @@
 		<RandomTexture>
 			<Texture>
 				<File>nexusGarden32x32</File>
-				<Index>0x06</Index>
+				<Index>0x07</Index>
 			</Texture>
 			<Texture>
 				<File>nexusGarden32x32</File>
-				<Index>0x07</Index>
+				<Index>0x08</Index>
 			</Texture>
 		</RandomTexture>
 		<Size>100</Size>
@@ -67,11 +71,11 @@
 		<RandomTexture>
 			<Texture>
 				<File>nexusGarden32x32</File>
-				<Index>0x08</Index>
+				<Index>0x09</Index>
 			</Texture>
 			<Texture>
 				<File>nexusGarden32x32</File>
-				<Index>0x09</Index>
+				<Index>0x0a</Index>
 			</Texture>
 		</RandomTexture>
 		<Size>100</Size>
@@ -163,20 +167,46 @@
 		<OccupySquare />
 		<EnemyOccupySquare />
 	</Object>
+	<Object type="0x9A57" id="NG Paper Lantern L">
+		<DisplayId>Paper Lantern</DisplayId>
+		<Class>GameObject</Class>
+		<Texture>
+			<File>nexusGarden16x16</File>
+			<Index>0x07</Index>
+		</Texture>
+		<Animation prob="1.0">
+			<Frame time="0.7">
+				<Texture>
+					<File>nexusGarden16x16</File>
+					<Index>0x07</Index>
+				</Texture>
+			</Frame>
+			<Frame time="0.15">
+				<Texture>
+					<File>nexusGarden16x16</File>
+					<Index>0x08</Index>
+				</Texture>
+			</Frame>
+		</Animation>
+		<Size>100</Size>
+		<Static />
+		<OccupySquare />
+		<EnemyOccupySquare />
+	</Object>
 	<Object type="0x9A08" id="NG Bamboo">
 		<Class>GameObject</Class>
 		<RandomTexture>
 			<Texture>
 				<File>nexusGarden16x16</File>
-				<Index>0x07</Index>
-			</Texture>
-			<Texture>
-				<File>nexusGarden16x16</File>
-				<Index>0x08</Index>
-			</Texture>
-			<Texture>
-				<File>nexusGarden16x16</File>
 				<Index>0x09</Index>
+			</Texture>
+			<Texture>
+				<File>nexusGarden16x16</File>
+				<Index>0x0a</Index>
+			</Texture>
+			<Texture>
+				<File>nexusGarden16x16</File>
+				<Index>0x0b</Index>
 			</Texture>
 		</RandomTexture>
 		<Size>100</Size>
@@ -189,15 +219,15 @@
 		<RandomTexture>
 			<Texture>
 				<File>nexusGarden16x16</File>
-				<Index>0x0a</Index>
-			</Texture>
-			<Texture>
-				<File>nexusGarden16x16</File>
-				<Index>0x0b</Index>
-			</Texture>
-			<Texture>
-				<File>nexusGarden16x16</File>
 				<Index>0x0c</Index>
+			</Texture>
+			<Texture>
+				<File>nexusGarden16x16</File>
+				<Index>0x0d</Index>
+			</Texture>
+			<Texture>
+				<File>nexusGarden16x16</File>
+				<Index>0x0e</Index>
 			</Texture>
 		</RandomTexture>
 		<Size>100</Size>
@@ -210,15 +240,15 @@
 		<RandomTexture>
 			<Texture>
 				<File>nexusGarden16x16</File>
-				<Index>0x0d</Index>
-			</Texture>
-			<Texture>
-				<File>nexusGarden16x16</File>
-				<Index>0x0e</Index>
-			</Texture>
-			<Texture>
-				<File>nexusGarden16x16</File>
 				<Index>0x0f</Index>
+			</Texture>
+			<Texture>
+				<File>nexusGarden16x16</File>
+				<Index>0x10</Index>
+			</Texture>
+			<Texture>
+				<File>nexusGarden16x16</File>
+				<Index>0x11</Index>
 			</Texture>
 		</RandomTexture>
 		<Size>100</Size>
@@ -230,25 +260,25 @@
 		<Class>GameObject</Class>
 		<Texture>
 			<File>nexusGarden16x16</File>
-			<Index>0x10</Index>
+			<Index>0x12</Index>
 		</Texture>
 		<Animation prob="1.0">
 			<Frame time="0.35">
 				<Texture>
 					<File>nexusGarden16x16</File>
-					<Index>0x10</Index>
-				</Texture>
-			</Frame>
-			<Frame time="0.35">
-				<Texture>
-					<File>nexusGarden16x16</File>
-					<Index>0x11</Index>
-				</Texture>
-			</Frame>
-			<Frame time="0.35">
-				<Texture>
-					<File>nexusGarden16x16</File>
 					<Index>0x12</Index>
+				</Texture>
+			</Frame>
+			<Frame time="0.35">
+				<Texture>
+					<File>nexusGarden16x16</File>
+					<Index>0x13</Index>
+				</Texture>
+			</Frame>
+			<Frame time="0.35">
+				<Texture>
+					<File>nexusGarden16x16</File>
+					<Index>0x14</Index>
 				</Texture>
 			</Frame>
 		</Animation>
@@ -261,7 +291,7 @@
 		<Class>GameObject</Class>
 		<Texture>
 			<File>nexusGarden16x16</File>
-			<Index>0x13</Index>
+			<Index>0x15</Index>
 		</Texture>
 		<Size>100</Size>
 		<Static />
@@ -272,7 +302,7 @@
 		<Class>GameObject</Class>
 		<Texture>
 			<File>nexusGarden16x16</File>
-			<Index>0x14</Index>
+			<Index>0x16</Index>
 		</Texture>
 		<Size>100</Size>
 		<Static />
@@ -283,7 +313,7 @@
 		<Class>GameObject</Class>
 		<Texture>
 			<File>nexusGarden16x16</File>
-			<Index>0x15</Index>
+			<Index>0x17</Index>
 		</Texture>
 		<Size>100</Size>
 		<Static />
@@ -294,7 +324,7 @@
 		<Class>GameObject</Class>
 		<Texture>
 			<File>nexusGarden16x16</File>
-			<Index>0x16</Index>
+			<Index>0x18</Index>
 		</Texture>
 		<Size>100</Size>
 		<Static />
@@ -305,7 +335,7 @@
 		<Class>GameObject</Class>
 		<Texture>
 			<File>nexusGarden16x16</File>
-			<Index>0x17</Index>
+			<Index>0x19</Index>
 		</Texture>
 		<Size>100</Size>
 		<Static />
@@ -316,7 +346,7 @@
 		<Class>GameObject</Class>
 		<Texture>
 			<File>nexusGarden16x16</File>
-			<Index>0x18</Index>
+			<Index>0x1a</Index>
 		</Texture>
 		<Size>100</Size>
 		<Static />
@@ -327,7 +357,7 @@
 		<Class>GameObject</Class>
 		<Texture>
 			<File>nexusGarden16x16</File>
-			<Index>0x19</Index>
+			<Index>0x1b</Index>
 		</Texture>
 		<Size>100</Size>
 		<Static />
@@ -338,21 +368,9 @@
 		<Class>GameObject</Class>
 		<Texture>
 			<File>nexusGarden16x16</File>
-			<Index>0x1a</Index>
+			<Index>0x1c</Index>
 		</Texture>
 		<Animation prob="1.0">
-			<Frame time="0.25">
-				<Texture>
-					<File>nexusGarden16x16</File>
-					<Index>0x1a</Index>
-				</Texture>
-			</Frame>
-			<Frame time="0.25">
-				<Texture>
-					<File>nexusGarden16x16</File>
-					<Index>0x1b</Index>
-				</Texture>
-			</Frame>
 			<Frame time="0.25">
 				<Texture>
 					<File>nexusGarden16x16</File>
@@ -387,6 +405,18 @@
 				<Texture>
 					<File>nexusGarden16x16</File>
 					<Index>0x21</Index>
+				</Texture>
+			</Frame>
+			<Frame time="0.25">
+				<Texture>
+					<File>nexusGarden16x16</File>
+					<Index>0x22</Index>
+				</Texture>
+			</Frame>
+			<Frame time="0.25">
+				<Texture>
+					<File>nexusGarden16x16</File>
+					<Index>0x23</Index>
 				</Texture>
 			</Frame>
 		</Animation>
@@ -564,7 +594,7 @@
 		<Class>GameObject</Class>
 		<Texture>
 			<File>nexusGarden32x32</File>
-			<Index>0x0a</Index>
+			<Index>0x0b</Index>
 		</Texture>
 		<Size>100</Size>
 		<ShadowSize>160</ShadowSize>
@@ -576,19 +606,19 @@
 		<Class>GameObject</Class>
 		<Texture>
 			<File>nexusGarden32x32</File>
-			<Index>0x0b</Index>
+			<Index>0x0c</Index>
 		</Texture>
 		<Animation prob="1.0">
 			<Frame time="0.5">
 				<Texture>
 					<File>nexusGarden32x32</File>
-					<Index>0x0b</Index>
+					<Index>0x0c</Index>
 				</Texture>
 			</Frame>
 			<Frame time="0.5">
 				<Texture>
 					<File>nexusGarden32x32</File>
-					<Index>0x0c</Index>
+					<Index>0x0d</Index>
 				</Texture>
 			</Frame>
 		</Animation>
@@ -602,19 +632,19 @@
 		<Class>GameObject</Class>
 		<Texture>
 			<File>nexusGarden32x32</File>
-			<Index>0x0d</Index>
+			<Index>0x0e</Index>
 		</Texture>
 		<Animation prob="1.0">
 			<Frame time="0.55">
 				<Texture>
 					<File>nexusGarden32x32</File>
-					<Index>0x0d</Index>
+					<Index>0x0e</Index>
 				</Texture>
 			</Frame>
 			<Frame time="0.55">
 				<Texture>
 					<File>nexusGarden32x32</File>
-					<Index>0x0e</Index>
+					<Index>0x0f</Index>
 				</Texture>
 			</Frame>
 		</Animation>
@@ -628,7 +658,7 @@
 		<Class>GameObject</Class>
 		<Texture>
 			<File>nexusGarden16x16</File>
-			<Index>0x22</Index>
+			<Index>0x24</Index>
 		</Texture>
 		<Size>100</Size>
 		<Static />
@@ -639,7 +669,7 @@
 		<Class>GameObject</Class>
 		<Texture>
 			<File>nexusGarden16x16</File>
-			<Index>0x23</Index>
+			<Index>0x25</Index>
 		</Texture>
 		<Size>100</Size>
 		<Static />
@@ -650,7 +680,7 @@
 		<Class>GameObject</Class>
 		<Texture>
 			<File>nexusGarden16x16</File>
-			<Index>0x24</Index>
+			<Index>0x26</Index>
 		</Texture>
 		<Size>100</Size>
 		<Static />
@@ -662,7 +692,7 @@
 		<Class>GuildRegister</Class>
 		<Texture>
 			<File>nexusGarden32x32</File>
-			<Index>0x0f</Index>
+			<Index>0x10</Index>
 		</Texture>
 		<Size>100</Size>
 		<ShadowSize>60</ShadowSize>
@@ -671,25 +701,26 @@
 		<OccupySquare />
 		<EnemyOccupySquare />
 	</Object>
+	<Object type="0x9A58" id="NG Guild Board">
+		<DisplayId>Guild Board</DisplayId>
+		<Class>GuildBoard</Class>
+		<Texture>
+			<File>nexusGarden32x32</File>
+			<Index>0x11</Index>
+		</Texture>
+		<Size>100</Size>
+		<ShadowSize>60</ShadowSize>
+		<Static />
+		<OccupySquare />
+		<EnemyOccupySquare />
+	</Object>
 	<Object type="0x9A33" id="NG Chimney Smoke">
 		<Class>GameObject</Class>
 		<Texture>
 			<File>nexusGarden32x32</File>
-			<Index>0x10</Index>
+			<Index>0x12</Index>
 		</Texture>
 		<Animation prob="1.0">
-			<Frame time="0.3">
-				<Texture>
-					<File>nexusGarden32x32</File>
-					<Index>0x10</Index>
-				</Texture>
-			</Frame>
-			<Frame time="0.3">
-				<Texture>
-					<File>nexusGarden32x32</File>
-					<Index>0x11</Index>
-				</Texture>
-			</Frame>
 			<Frame time="0.3">
 				<Texture>
 					<File>nexusGarden32x32</File>
@@ -700,6 +731,18 @@
 				<Texture>
 					<File>nexusGarden32x32</File>
 					<Index>0x13</Index>
+				</Texture>
+			</Frame>
+			<Frame time="0.3">
+				<Texture>
+					<File>nexusGarden32x32</File>
+					<Index>0x14</Index>
+				</Texture>
+			</Frame>
+			<Frame time="0.3">
+				<Texture>
+					<File>nexusGarden32x32</File>
+					<Index>0x15</Index>
 				</Texture>
 			</Frame>
 		</Animation>
@@ -746,7 +789,7 @@
 		<Class>GameObject</Class>
 		<Texture>
 			<File>nexusGarden16x16</File>
-			<Index>0x25</Index>
+			<Index>0x27</Index>
 		</Texture>
 		<Size>100</Size>
 		<Static />
@@ -758,7 +801,7 @@
 		<Class>ReskinVendor</Class>
 		<Texture>
 			<File>nexusGarden16x16</File>
-			<Index>0x26</Index>
+			<Index>0x28</Index>
 		</Texture>
 		<Size>100</Size>
 		<Static />
@@ -1123,21 +1166,9 @@
 		<NexusPortal />
 		<Texture>
 			<File>nexusGarden32x32</File>
-			<Index>0x14</Index>
+			<Index>0x16</Index>
 		</Texture>
 		<Animation prob="1.0">
-			<Frame time="0.25">
-				<Texture>
-					<File>nexusGarden32x32</File>
-					<Index>0x14</Index>
-				</Texture>
-			</Frame>
-			<Frame time="0.25">
-				<Texture>
-					<File>nexusGarden32x32</File>
-					<Index>0x15</Index>
-				</Texture>
-			</Frame>
 			<Frame time="0.25">
 				<Texture>
 					<File>nexusGarden32x32</File>
@@ -1148,6 +1179,18 @@
 				<Texture>
 					<File>nexusGarden32x32</File>
 					<Index>0x17</Index>
+				</Texture>
+			</Frame>
+			<Frame time="0.25">
+				<Texture>
+					<File>nexusGarden32x32</File>
+					<Index>0x18</Index>
+				</Texture>
+			</Frame>
+			<Frame time="0.25">
+				<Texture>
+					<File>nexusGarden32x32</File>
+					<Index>0x19</Index>
 				</Texture>
 			</Frame>
 		</Animation>
@@ -1229,21 +1272,9 @@
 		<ShowName />
 		<Texture>
 			<File>nexusGarden32x32</File>
-			<Index>0x18</Index>
+			<Index>0x1a</Index>
 		</Texture>
 		<Animation prob="1.0">
-			<Frame time="0.3">
-				<Texture>
-					<File>nexusGarden32x32</File>
-					<Index>0x18</Index>
-				</Texture>
-			</Frame>
-			<Frame time="0.3">
-				<Texture>
-					<File>nexusGarden32x32</File>
-					<Index>0x19</Index>
-				</Texture>
-			</Frame>
 			<Frame time="0.3">
 				<Texture>
 					<File>nexusGarden32x32</File>
@@ -1254,6 +1285,18 @@
 				<Texture>
 					<File>nexusGarden32x32</File>
 					<Index>0x1b</Index>
+				</Texture>
+			</Frame>
+			<Frame time="0.3">
+				<Texture>
+					<File>nexusGarden32x32</File>
+					<Index>0x1c</Index>
+				</Texture>
+			</Frame>
+			<Frame time="0.3">
+				<Texture>
+					<File>nexusGarden32x32</File>
+					<Index>0x1d</Index>
 				</Texture>
 			</Frame>
 		</Animation>
@@ -1501,37 +1544,37 @@
 		<Class>Character</Class>
 		<Texture>
 			<File>nexusGarden16x16</File>
-			<Index>0x27</Index>
+			<Index>0x29</Index>
 		</Texture>
 		<Animation prob="1.0" period="3.5" periodJitter="2.5">
 			<Frame time="0.35">
 				<Texture>
 					<File>nexusGarden16x16</File>
-					<Index>0x28</Index>
+					<Index>0x2a</Index>
 				</Texture>
 			</Frame>
 			<Frame time="0.25">
 				<Texture>
 					<File>nexusGarden16x16</File>
-					<Index>0x29</Index>
+					<Index>0x2b</Index>
 				</Texture>
 			</Frame>
 			<Frame time="0.2">
 				<Texture>
 					<File>nexusGarden16x16</File>
-					<Index>0x28</Index>
+					<Index>0x2a</Index>
 				</Texture>
 			</Frame>
 			<Frame time="0.25">
 				<Texture>
 					<File>nexusGarden16x16</File>
-					<Index>0x29</Index>
+					<Index>0x2b</Index>
 				</Texture>
 			</Frame>
 			<Frame time="0.1">
 				<Texture>
 					<File>nexusGarden16x16</File>
-					<Index>0x27</Index>
+					<Index>0x29</Index>
 				</Texture>
 			</Frame>
 		</Animation>

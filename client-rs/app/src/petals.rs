@@ -1,7 +1,9 @@
 //! Cherry blossom falling where the ground says so: grounds marked `<Petals/>` (the Nexus
 //! garden's forest floor, tools/build_nexus_garden.py) let petals drift down around us, more the
-//! more of that ground is near. They fall through the world, not across the screen, so they turn
-//! with the camera and stay put as we walk; each tumbles as it falls, lands and fades.
+//! more of that ground is near. A ground can say how thickly (`<Petals>3</Petals>`, round the
+//! elder cherry), and petals there start higher up, as from a tall crown. They fall through the
+//! world, not across the screen, so they turn with the camera and stay put as we walk; each
+//! tumbles as it falls, lands and fades.
 
 use bsk_data::GameData;
 use bsk_render::{Renderer, Tint};
@@ -12,9 +14,10 @@ use crate::view::{Camera, TILE_PX};
 /// How far round us the ground is looked at, in tiles, and how far away petals start.
 const LOOK: i32 = 6;
 const SPREAD: f64 = 11.0;
-/// Petals a second at full strength, and at most this many at once.
+/// Petals a second at full strength (1), at most this strength, and at most this many at once.
 const RATE: f64 = 32.0;
-const MAX: usize = 320;
+const STRONGEST: f64 = 3.0;
+const MAX: usize = 900;
 /// How long a landed petal takes to fade, in ms.
 const FADE: f64 = 1500.0;
 
@@ -68,19 +71,20 @@ impl Petals {
         if now - self.looked >= 250 || now < self.looked {
             self.looked = now;
             let (cx, cy) = (me.x as i32, me.y as i32);
-            let (mut petal, mut all) = (0, 0);
+            let (mut petal, mut all) = (0.0, 0);
             for y in cy - LOOK..=cy + LOOK {
                 for x in cx - LOOK..=cx + LOOK {
                     if (x - cx) * (x - cx) + (y - cy) * (y - cy) > LOOK * LOOK {
                         continue;
                     }
                     all += 1;
-                    if world.tile(x, y).and_then(|t| data.grounds.get(&t)).is_some_and(|g| g.xml.has("Petals")) {
-                        petal += 1;
+                    // `<Petals/>` is 1, `<Petals>3</Petals>` three times as thick
+                    if let Some(g) = world.tile(x, y).and_then(|t| data.grounds.get(&t)).filter(|g| g.xml.has("Petals")) {
+                        petal += g.xml.text_of("Petals").and_then(|s| s.trim().parse::<f64>().ok()).unwrap_or(1.0);
                     }
                 }
             }
-            self.goal = if all == 0 { 0.0 } else { (petal as f64 / all as f64 * 1.6).min(1.0) };
+            self.goal = if all == 0 { 0.0 } else { (petal / all as f64 * 1.6).min(STRONGEST) };
         }
         let secs = dt as f64 / 1000.0;
         self.strength += (self.goal - self.strength) * (secs * 1.5).min(1.0);
@@ -97,7 +101,8 @@ impl Petals {
             let petal = Petal {
                 x: me.x + a.cos() * r - 2.0,
                 y: me.y + a.sin() * r - 1.5,
-                z: 2.5 + self.random() * 3.5,
+                // from higher where the ground is thicker with them: under a great tree's crown
+                z: 2.5 + self.random() * 3.5 * (1.0 + (self.strength - 1.0).max(0.0) * 0.5),
                 fall: 0.45 + self.random() * 0.35,
                 sway: 0.6 + self.random() * 0.8,
                 phase: self.random() * std::f64::consts::TAU,

@@ -407,7 +407,7 @@
 			</Texture>
 		</RandomTexture>
 		<BlendPriority>14</BlendPriority>
-		<Petals />
+		<Petals>3</Petals>
 		<Color>0xE0C8CC</Color>
 	</Ground>
 	<Ground type="0x9B14" id="NG Dojo Sand">

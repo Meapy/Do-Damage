@@ -134,7 +134,7 @@ def _falling(img, ramp, count, seed, region):
             put(img, x, y, ramp[4 + i % 2])
 
 
-def sakura(seed, size=32, weeping=False):
+def sakura(seed, size=32):
     """A cherry tree in full bloom: a dark twisting trunk, its crown in clusters of blossom."""
     img = canvas(size)
     s = size / 32
@@ -144,7 +144,7 @@ def sakura(seed, size=32, weeping=False):
                 (cx, int(19 * s), cx + int(1 * s), int(7 * s), 2)]
     _trunk(img, cx, size - 1, int(17 * s), max(3, int(3 * s)), branches, seed)
     clusters = []
-    n = int(16 * s * s) if not weeping else int(12 * s * s)
+    n = int(16 * s * s)
     for i in range(n):
         a = rnd(i, 1) * math.tau
         d = math.sqrt(rnd(i, 2))
@@ -153,22 +153,80 @@ def sakura(seed, size=32, weeping=False):
         clusters.append((x, y, (3.2 + rnd(i, 3) * 2.6) * s, (2.8 + rnd(i, 4) * 2.0) * s))
     clusters.sort(key=lambda c: c[1])
     _canopy(img, clusters, BLOSSOM, seed, crown=(cx, 11 * s, 14 * s, 10 * s), holes=0.04)
-    if weeping:
-        # strands of blossom falling from the crown's edge in arcs, thinning toward their tips
-        for i in range(int(18 * s)):
-            a = math.pi * (0.05 + 0.9 * i / (18 * s - 1))
-            x = cx - math.cos(a) * 12 * s
-            y = 11 * s + math.sin(a) * 6 * s
-            length = int((5 + rnd(i, 9) * 9) * s)
-            drift = (x - cx) / (12 * s)
-            for k in range(length):
-                px_ = int(round(x + drift * k * 0.35))
-                py_ = int(round(y + k))
-                if py_ >= size - 4 or (k > length * 0.6 and rnd(i, k) > 0.6):
-                    continue
-                put(img, px_, py_, dither(BLOSSOM, 0.85 - 0.6 * k / length, px_, py_))
     edge(img, BLOSSOM)
     _falling(img, BLOSSOM, int(6 * s), seed, (2, int(18 * s), size - 2, size - 2))
+    return img
+
+
+def weeping_sakura(seed):
+    """A shidarezakura, 32 by 32: a dome of blossom on arching limbs, and from its rim a curtain
+    of blossom falling nearly to the ground, longest on the outside, open in the middle where the
+    trunk shows. The curtain is a shaded backing with lit tresses over it, so it reads as one
+    mass of hanging blossom rather than separate lines; their tips break into single flowers."""
+    size = 32
+    img = canvas(size)
+    cx = size // 2
+    rnd = lambda i, k: hash2(i, k, seed)
+    crown_y, crown_rx, crown_ry = 9, 11.5, 6.0
+    _trunk(img, cx, size - 1, 13, 3, [(cx, 17, cx - 7, 9, 2), (cx, 16, cx + 7, 8, 2), (cx, 15, cx, 5, 2)], seed)
+    opening = 3.2          # the gap round the trunk, half its width
+
+    def top_of(x):
+        """Where the curtain hangs from over column x: under the dome, lower toward the trunk."""
+        d = abs(x - cx) / (crown_rx + 1.5)
+        return crown_y + 1 + 4 * math.sqrt(max(0.0, 1 - d * d))
+
+    def hem_of(x):
+        """How far down it reaches: longest on the outside, as a fountain falls."""
+        d = min(1.0, abs(x - cx) / (crown_rx + 1.5))
+        return min(size - 3.0, 19 + 8 * d * d + 1.5 * math.sin(x * 1.3 + seed))
+
+    # the tresses, back ones first: each sways out a little as it falls, lit on the left
+    tresses = []
+    x = cx - crown_rx - 0.5
+    i = 0
+    while x < cx + crown_rx + 1:
+        if abs(x - cx) >= opening:
+            tresses.append((x + (rnd(i, 43) - 0.5) * 0.6, i))
+        x += 1.0 + rnd(i, 44) * 0.8
+        i += 1
+    # the backing: the curtain's shaded inside, so no ground shows between the tresses
+    for x in range(int(cx - crown_rx - 1), int(cx + crown_rx + 2)):
+        if abs(x + 0.5 - cx) < opening:
+            continue
+        top, bottom = top_of(x + 0.5), hem_of(x + 0.5) - 3
+        for y in range(int(top), int(bottom) + 1):
+            f = (y - top) / max(1.0, bottom - top)
+            t = 0.3 - 0.2 * f - 0.08 * (x - cx) / crown_rx + 0.06 * (rnd(x, y) - 0.5)
+            put(img, x, y, dither(BLOSSOM, t, x, y))
+    for x0, i in tresses:
+        out = (x0 - cx) / crown_rx
+        top = top_of(x0)
+        length = hem_of(x0) - top + (rnd(i, 45) - 0.4) * 4
+        lit = rnd(i, 46) > 0.35          # some tresses hang behind, in shade
+        for k in range(int(length) + 1):
+            f = k / max(1.0, length)
+            px_ = int(round(x0 + out * f * f * 2.2))
+            py_ = int(top + k)
+            if py_ >= size - 2:
+                break
+            if f > 0.7 and rnd(i, k + 60) > 1.15 - f:
+                continue                   # the tip breaking into single flowers
+            t = (0.82 if lit else 0.52) - 0.36 * f - 0.14 * out + 0.12 * (rnd(px_, py_ + 9) - 0.5)
+            if rnd(i * 7, k) > 0.84:
+                t += 0.2                   # a flower catching the light
+            put(img, px_, py_, dither(BLOSSOM, t, px_, py_))
+    # the dome over the curtain's top
+    clusters = []
+    for i in range(15):
+        a = rnd(i, 1) * math.tau
+        d = math.sqrt(rnd(i, 2))
+        clusters.append((cx + math.cos(a) * d * 9.5, crown_y - 1 + math.sin(a) * d * 4.5,
+                         3.0 + rnd(i, 3) * 2.4, 2.6 + rnd(i, 4) * 1.6))
+    clusters.sort(key=lambda c: c[1])
+    _canopy(img, clusters, BLOSSOM, seed, crown=(cx, crown_y, crown_rx + 2, crown_ry + 3), holes=0.03)
+    edge(img, BLOSSOM)
+    _falling(img, BLOSSOM, 6, seed, (1, 20, size - 1, size - 2))
     return img
 
 
@@ -243,14 +301,17 @@ def stone_lantern(lit):
     return img
 
 
-def paper_lantern(lit):
-    """A red paper lantern hung from a wooden post's arm."""
+def paper_lantern(lit, left=False):
+    """A red paper lantern hung from a wooden post's arm, to the right of the post, or with
+    `left` to its left (for the right-hand end of a row, hanging in toward it); lit from the
+    upper left either way."""
     img = canvas(16)
-    column(img, 3, 4, 2, 15, WOOD)                        # the post
-    for x in range(3, 12):                                # its arm
+    px0 = 11 if left else 3
+    column(img, px0, px0 + 1, 2, 15, WOOD)                # the post
+    for x in range(4, 13) if left else range(3, 12):      # its arm
         put(img, x, 2, dither(WOOD, 0.75, x, 2))
-    put(img, 10, 3, WOOD[1])
-    cx, cy = 10, 8
+    cx, cy = (6, 8) if left else (10, 8)
+    put(img, cx, 3, WOOD[1])
     for y in range(4, 13):                                # the lantern: ribbed paper
         half = [2, 3, 4, 4, 4, 4, 4, 3, 2][y - 4]
         for x in range(cx - half, cx + half):
@@ -265,7 +326,7 @@ def paper_lantern(lit):
         put(img, x, 13, C("#1e1414"))
     if lit:
         put(img, cx - 1, 8, GLOW[3])
-    column(img, 2, 5, 14, 15, STONE)                      # a stone at the foot
+    column(img, px0 - 1, px0 + 2, 14, 15, STONE)          # a stone at the foot
     edge(img)
     return img
 
