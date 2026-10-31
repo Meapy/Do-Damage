@@ -118,5 +118,17 @@ namespace WorldServer.core.objects
             UpdateTiles();
         }
 
+        /// <summary>Moves the player at once with none of a teleport's show: no flash, no cooldown, not
+        /// counted. For a jump nobody should notice (the Stair Tower's looping stairs, StairTowerWorld).</summary>
+        public void Shift(TickTime time, Position position)
+        {
+            var goTo = new GotoMessage(Id, position);
+            World.ForeachPlayer(_ =>
+            {
+                _.AwaitGotoAck(time.TotalElapsedMs);
+                _.Client.SendPacket(goTo);
+            });
+            UpdateTiles();
+        }
     }
 }
