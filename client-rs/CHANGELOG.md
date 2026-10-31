@@ -12,7 +12,7 @@ Keep each version short: changes go under `### ` group headings (Oryx 5, Arena, 
 on), one line per change players notice, summed up rather than item by item (the wiki has the
 details). Add to a group's line when a change adds to it, rather than adding another line.
 
-## Unreleased
+## 2.3.5 (2026-10-31)
 
 ### Loot
 - Healing and buffing now earn you loot. Heal players who are fighting a monster (when they've
