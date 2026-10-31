@@ -38,6 +38,10 @@ namespace WorldServer.core.worlds.impl
             ("NG Twin Sora", 66.5f, 84.5f, 11f, 2.3f, 2),
         };
         private const string SMITH = "NG Smith God";
+        // the NPCs players use, who stroll about the market's courtyard (made by QuestGivers and
+        // MarketBroker): a few steps at a time, long waits, so they're easy to catch
+        private static readonly string[] MarketWalkers = { "NG Tinkerer", "NG Chronicler", "NG Market Broker" };
+        private static readonly (float X, float Y, float R) MarketArea = (110.5f, 61.5f, 5.5f);
 
         private static readonly (string, string)[] TwinTalk =
         {
@@ -155,6 +159,13 @@ namespace WorldServer.core.worlds.impl
                 });
             }
             _smith = _world.Enemies.Values.FirstOrDefault(e => e.ObjectDesc.IdName == SMITH);
+            var walkers = _world.StaticObjects.Values.Cast<Entity>().Concat(_world.SellableObjects.Values)
+                .Where(e => MarketWalkers.Contains(e.ObjectDesc.IdName)).ToList();
+            foreach (var e in walkers)
+            {
+                e.Walks = true;
+                _walkers.Add(new Walker { Entity = e, Wait = 3f + (float)Random.Shared.NextDouble() * 6f, Speed = 0.9f, Area = MarketArea, Chats = false });
+            }
 
             // the bees: over flower beds, found among the map's objects once they're in
             _flowers = _world.StaticObjects.Values.Where(o => Flowers.Contains(o.ObjectDesc.IdName)).Select(o => (o.X, o.Y)).ToList();

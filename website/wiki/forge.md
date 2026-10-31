@@ -13,9 +13,9 @@ tier below, and the rest are special recipes, most of them from Doomed Realms.
 
 ## Using the forge
 
-1. Type `/forge`, or walk north from the spawn towards the keep: the forge court is on the left of the road.
-   The forge stands on a floor of gold; the Enchanter, which puts imprints on gear,
-   stands beside it (see [Imprints](imprints.html)).
+1. Type `/forge`, or cross the east bridge from the spawn into the village: the smithy is north
+   of the shopping street. The forge is its great furnace; the Enchanter, which puts imprints on
+   gear, is the crystal altar beside it (see [Imprints](imprints.html)).
 2. Stand by it: the bottom of your HUD says "The Divine Workbench: forge, sell or imprint". Press
    **Open**. The **Divine Workbench** opens at its **Forge** tab; its **Shards**, **Sell for fame**
    and **Imprints** tabs are the same window's (the Enchanter opens it at Imprints).

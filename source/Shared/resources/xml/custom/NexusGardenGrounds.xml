@@ -391,4 +391,112 @@
 		<BlendPriority>22</BlendPriority>
 		<Color>0x7A4E30</Color>
 	</Ground>
+	<Ground type="0x9B13" id="NG Petal Gravel">
+		<RandomTexture>
+			<Texture>
+				<File>nexusGarden8x8</File>
+				<Index>0x43</Index>
+			</Texture>
+			<Texture>
+				<File>nexusGarden8x8</File>
+				<Index>0x44</Index>
+			</Texture>
+			<Texture>
+				<File>nexusGarden8x8</File>
+				<Index>0x45</Index>
+			</Texture>
+		</RandomTexture>
+		<BlendPriority>14</BlendPriority>
+		<Petals />
+		<Color>0xE0C8CC</Color>
+	</Ground>
+	<Ground type="0x9B14" id="NG Dojo Sand">
+		<RandomTexture>
+			<Texture>
+				<File>nexusGarden8x8</File>
+				<Index>0x46</Index>
+			</Texture>
+			<Texture>
+				<File>nexusGarden8x8</File>
+				<Index>0x47</Index>
+			</Texture>
+		</RandomTexture>
+		<BlendPriority>13</BlendPriority>
+		<Color>0xCEBC98</Color>
+	</Ground>
+	<Ground type="0x9B15" id="NG Arch Deck 1">
+		<RandomTexture>
+			<Texture>
+				<File>nexusGarden8x8</File>
+				<Index>0x48</Index>
+			</Texture>
+			<Texture>
+				<File>nexusGarden8x8</File>
+				<Index>0x49</Index>
+			</Texture>
+		</RandomTexture>
+		<Lift>0.087</Lift>
+		<BlendPriority>2</BlendPriority>
+		<Color>0x7A4E30</Color>
+	</Ground>
+	<Ground type="0x9B16" id="NG Arch Deck 2">
+		<RandomTexture>
+			<Texture>
+				<File>nexusGarden8x8</File>
+				<Index>0x4a</Index>
+			</Texture>
+			<Texture>
+				<File>nexusGarden8x8</File>
+				<Index>0x4b</Index>
+			</Texture>
+		</RandomTexture>
+		<Lift>0.25</Lift>
+		<BlendPriority>2</BlendPriority>
+		<Color>0x7A4E30</Color>
+	</Ground>
+	<Ground type="0x9B17" id="NG Arch Deck 3">
+		<RandomTexture>
+			<Texture>
+				<File>nexusGarden8x8</File>
+				<Index>0x4c</Index>
+			</Texture>
+			<Texture>
+				<File>nexusGarden8x8</File>
+				<Index>0x4d</Index>
+			</Texture>
+		</RandomTexture>
+		<Lift>0.383</Lift>
+		<BlendPriority>2</BlendPriority>
+		<Color>0x7A4E30</Color>
+	</Ground>
+	<Ground type="0x9B18" id="NG Arch Deck 4">
+		<RandomTexture>
+			<Texture>
+				<File>nexusGarden8x8</File>
+				<Index>0x4e</Index>
+			</Texture>
+			<Texture>
+				<File>nexusGarden8x8</File>
+				<Index>0x4f</Index>
+			</Texture>
+		</RandomTexture>
+		<Lift>0.47</Lift>
+		<BlendPriority>2</BlendPriority>
+		<Color>0x7A4E30</Color>
+	</Ground>
+	<Ground type="0x9B19" id="NG Arch Deck 5">
+		<RandomTexture>
+			<Texture>
+				<File>nexusGarden8x8</File>
+				<Index>0x50</Index>
+			</Texture>
+			<Texture>
+				<File>nexusGarden8x8</File>
+				<Index>0x51</Index>
+			</Texture>
+		</RandomTexture>
+		<Lift>0.5</Lift>
+		<BlendPriority>2</BlendPriority>
+		<Color>0x7A4E30</Color>
+	</Ground>
 </GroundTypes>

@@ -220,6 +220,32 @@ def shallows(seed):
     return tile(px)
 
 
+def petal_gravel(seed):
+    """Raked gravel under the elder cherry, strewn with its blossom."""
+    base = gravel(seed)
+    for y in range(8):
+        for x in range(8):
+            if _n(x, y, seed, 6) > 0.8:
+                base.putpixel((x, y), PETAL[1 + int(_n(y, x, seed, 7) * 3) % 3] + (255,))
+    return base
+
+
+def dojo_sand(seed):
+    """The dojo yard's sand, raked in long straight lines."""
+    def px(x, y):
+        line = (y + seed) % 4
+        v = (0.75 if line == 0 else 0.5 if line == 1 else 0.4) + 0.12 * (_n(x, y, seed) - 0.5)
+        return dither(SAND, v, x, y)
+    return tile(px)
+
+
+# the arched bridges' decks: water under the deck the model draws (models.arch), each tile lifting
+# whoever stands on it as high as the deck is there (`Lift`, the Rust client's view.rs), so they
+# climb the arch; the nine tiles' lifts go up and down again, five kinds
+ARCH_HEIGHT = 0.5
+ARCH_LEVELS = [round(ARCH_HEIGHT * math.sin(math.pi * (i + 0.5) / 9), 3) for i in range(5)]
+
+
 # name -> (painter, variants, extra XML, minimap colour). Extra: NoWalk, Sink, Speed, Animate and
 # BlendPriority as Realm 2's; `Petals` marks the forest's floor, where the Rust client lets cherry
 # blossom fall across the screen.
@@ -246,4 +272,8 @@ GROUNDS = {
     "NG Deck Beam": (deck_border, 2, {"BlendPriority": "21"}, "0x603C26"),
     "NG Bridge Planks EW": (planks(PLANK, True), 3, {"BlendPriority": "22"}, "0x7A4E30"),
     "NG Bridge Planks NS": (planks(PLANK, False), 3, {"BlendPriority": "22"}, "0x7A4E30"),
+    "NG Petal Gravel": (petal_gravel, 3, {"BlendPriority": "14", "Petals": None}, "0xE0C8CC"),
+    "NG Dojo Sand": (dojo_sand, 2, {"BlendPriority": "13"}, "0xCEBC98"),
 }
+for _i, _lift in enumerate(ARCH_LEVELS):
+    GROUNDS["NG Arch Deck %d" % (_i + 1)] = (water(POND), 2, {"Lift": str(_lift), "BlendPriority": "2"}, "0x7A4E30")

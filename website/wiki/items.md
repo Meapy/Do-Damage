@@ -97,9 +97,9 @@ Soulbound ones included. Only admin items and a few overpowered or test items ca
 tooltips say "Untradeable".
 
 **The [Marketplace](marketplace.html)** sells items to other players for fame, even while you're
-offline. Talk to the **Market Broker** in the market square of the Nexus's village, east of the spawn, (or `/market`
+offline. Talk to the **Market Broker** in the market of the Nexus's village, east of the spawn, (or `/market`
 from anywhere): list items from your inventory or your vault, browse and buy what others sell, and
-collect what you bought. Listings also stand on the market square's stalls, where anyone can walk
+collect what you bought. Listings also stand at the market's stalls, where anyone can walk
 up and buy them. The Broker keeps 5% of each sale. Untradeable items can't be listed.
 
 ## The shops

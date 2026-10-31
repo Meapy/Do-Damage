@@ -210,6 +210,28 @@ pub struct Scene<'a> {
     pub hallucinating: bool,
 }
 
+impl Scene<'_> {
+    /// How far the ground lifts what stands at (x, y) (`<Lift>` grounds), eased between the
+    /// middles of the tiles round it so a bridge's arch is climbed smoothly.
+    pub fn lift(&self, x: f64, y: f64) -> f64 {
+        let lift = |tx: i32, ty: i32| self.world.tile(tx, ty).and_then(|t| self.data.grounds.get(&t)).map_or(0.0, |g| g.lift);
+        let (fx, fy) = (x - 0.5, y - 0.5);
+        let (x0, y0) = (fx.floor(), fy.floor());
+        let (ax, ay) = (fx - x0, fy - y0);
+        let (x0, y0) = (x0 as i32, y0 as i32);
+        let (a, b, c, d) = (lift(x0, y0), lift(x0 + 1, y0), lift(x0, y0 + 1), lift(x0 + 1, y0 + 1));
+        if a == 0.0 && b == 0.0 && c == 0.0 && d == 0.0 {
+            return 0.0;
+        }
+        (a * (1.0 - ax) + b * ax) * (1.0 - ay) + (c * (1.0 - ax) + d * ax) * ay
+    }
+
+    /// Where an object stands on the screen: its ground point, raised by the ground's lift.
+    pub fn stand(&self, obj: &GameObj) -> [f32; 2] {
+        self.camera.to_screen(obj.x, obj.y, self.lift(obj.x, obj.y))
+    }
+}
+
 /// What the options let the player hide.
 #[derive(Clone, Copy, Debug)]
 pub struct Show {
@@ -503,14 +525,24 @@ pub fn draw(scene: &Scene, renderer: &mut Renderer, redrawer: &mut Redrawer, gro
     crate::prof::mark("v.sort");
 
     // Map.draw: DrawUnder objects first, then the shadows, then everything else.
-    let under = |item: &Item| matches!(item, Item::Sprite { desc, .. } if desc.draw_under);
+    // ...and models that ask to be drawn under everything (`<DrawUnder>`: a bridge's deck, which
+    // what crosses it is drawn on)
+    let under = |item: &Item| match item {
+        Item::Sprite { desc, .. } => desc.draw_under,
+        Item::Model { desc, .. } => desc.draw_under,
+        _ => false,
+    };
     // Where each sprite's top is drawn (x, y), for its condition icons.
     let mut tops: Vec<(&GameObj, [f32; 2])> = Vec::new();
     for (_, item) in items.iter().filter(|(_, i)| under(i)) {
-        if let Item::Sprite { obj, desc } = item {
-            if let Some(top) = draw_sprite(scene, renderer, redrawer, ground, obj, desc) {
-                tops.push((obj, top));
+        match item {
+            Item::Sprite { obj, desc } => {
+                if let Some(top) = draw_sprite(scene, renderer, redrawer, ground, obj, desc) {
+                    tops.push((obj, top));
+                }
             }
+            Item::Model { obj, desc, model } => draw_model(scene, renderer, obj, desc, model),
+            _ => {}
         }
     }
     let k = (cam.scale / TILE_PX) as f32;
@@ -534,7 +566,7 @@ pub fn draw(scene: &Scene, renderer: &mut Renderer, redrawer: &mut Redrawer, gro
             let size = obj.stat_int(2).unwrap_or(desc.min_size) as f32;
             let s = size / 100.0 * (desc.shadow_size as f32 / 100.0);
             let (sw, sh) = (30.0 * s * k, 15.0 * s * k);
-            let [px, py] = cam.to_screen(obj.x, obj.y, 0.0);
+            let [px, py] = scene.stand(obj);
             let alpha = fade(scene, obj, desc);
             if alpha <= 0.0 {
                 continue;
@@ -605,7 +637,7 @@ pub fn draw(scene: &Scene, renderer: &mut Renderer, redrawer: &mut Redrawer, gro
         let (Some(hp), Some(max)) = (obj.stat_int(1), obj.stat_int(0)) else { continue };
         let max = if desc.player { max } else { max.max(hp) };
         let offset = if desc.player && Some(obj.id) != world.me { 21.0 } else { 5.0 };
-        let [px, py] = cam.to_screen(obj.x, obj.y, 0.0);
+        let [px, py] = scene.stand(obj);
         let (half, tall, border) = (20.0 * k, 5.0 * k, 1.2 * k);
         let top = py + offset * k;
         renderer.fill(px - half - border, top - border, 2.0 * (half + border), tall + 2.0 * border, 0x111111, 1.0);
@@ -622,7 +654,7 @@ pub fn draw(scene: &Scene, renderer: &mut Renderer, redrawer: &mut Redrawer, gro
     for f in scene.floaters.iter().filter(|f| scene.show.damage_numbers || !f.is_damage()) {
         let Some(obj) = world.objects.get(&f.object_id) else { continue };
         let age = (scene.time - f.at) as f32 / 1000.0;
-        let [px, py] = cam.to_screen(obj.x, obj.y, 0.0);
+        let [px, py] = scene.stand(obj);
         let y = py - (55.0 + 40.0 * age) * k;
         text.draw_centered(fonts, renderer, &f.text, px, y, Style { color: f.color, ..style });
     }
@@ -647,7 +679,7 @@ pub fn draw(scene: &Scene, renderer: &mut Renderer, redrawer: &mut Redrawer, gro
         let line_h = size * 1.2;
         let w = lines.iter().map(|l| crate::emotes::measure(scene.sprites, fonts, text, renderer, l, style)).fold(0.0, f32::max);
         let h = line_h * lines.len() as f32;
-        let [px, py] = cam.to_screen(obj.x, obj.y, 0.0);
+        let [px, py] = scene.stand(obj);
         let size_pct = obj.stat_int(2).unwrap_or(100) as f32 / 100.0;
         let bottom = py - 40.0 * size_pct * k - 2.0 * k - 18.0 * k;
         let (bx, by) = (px - w / 2.0 - 6.0 * k, bottom - h - 12.0 * k);
@@ -692,7 +724,7 @@ pub fn draw(scene: &Scene, renderer: &mut Renderer, redrawer: &mut Redrawer, gro
             0xFFFFFF
         };
         let style = Style { size: (16.0 * k).round().max(9.0), bold: true, color };
-        let [px, mut py] = cam.to_screen(obj.x, obj.y, 0.0);
+        let [px, mut py] = scene.stand(obj);
         if desc.ground_size > 1.0 {
             // under a portal sunk into the floor, not across its middle
             py += (desc.ground_size / 2.0 * cam.scale) as f32;
@@ -766,9 +798,10 @@ fn draw_sprite(scene: &Scene, renderer: &mut Renderer, redrawer: &mut Redrawer, 
     // map. On sinking ground (water) the sprite is drawn lower with its bottom cut off, unless it
     // flies.
     let k = (cam.scale / TILE_PX) as f32;
-    let [px, py] = cam.to_screen(obj.x, obj.y, desc.z);
+    let lift = scene.lift(obj.x, obj.y);
+    let [px, py] = cam.to_screen(obj.x, obj.y, desc.z + lift);
     let mut sink = 0.0;
-    if !desc.flying && !desc.protect_from_sink() {
+    if lift == 0.0 && !desc.flying && !desc.protect_from_sink() {
         if let Some(l) = ground.layers(scene.world, scene.data, scene.sprites, renderer, obj.x as i32, obj.y as i32) {
             sink = (l.sink as f32).min(sprite.h as f32);
         }

@@ -30,6 +30,7 @@ GOLD = [C("#6a4a14"), C("#a8781e"), C("#e0b040"), C("#ffe08a")]
 BLACK = [C("#0e0c10"), C("#1c1a20"), C("#2c2a32"), C("#3e3c46")]
 GRANITE = [C("#3a3848"), C("#4e4c60"), C("#646278"), C("#7c7a92"), C("#9a98ae")]
 NAMAKO = [C("#1a1c24"), C("#262a34")]
+PALE = [C("#5e5c6c"), C("#7c7a8c"), C("#9a98a8"), C("#b8b6c4"), C("#d6d4de")]
 
 
 class Mesh:
@@ -358,12 +359,44 @@ def house():
     return m, img
 
 
+GLYPHS = {
+    "G": ["111", "100", "101", "101", "111"], "U": ["101", "101", "101", "101", "111"],
+    "I": ["111", "010", "010", "010", "111"], "L": ["100", "100", "100", "100", "111"],
+    "D": ["110", "101", "101", "101", "110"], "H": ["101", "101", "111", "101", "101"],
+    "A": ["010", "101", "111", "101", "101"], " ": ["000", "000", "000", "000", "000"],
+}
+
+
+def sign(img, rect, text):
+    """A lacquered board with gilded letters (a 3 by 5 pixel font) and a gold edge."""
+    u0, v0, u1, v1 = rect
+    solid(img, rect, BLACK, 0.45, 0.1)
+    for x in range(u0, u1):
+        put(img, x, v0, GOLD[1])
+        put(img, x, v1 - 1, GOLD[0])
+    for y in range(v0, v1):
+        put(img, u0, y, GOLD[1])
+        put(img, u1 - 1, y, GOLD[0])
+    width = len(text) * 4 - 1
+    x = u0 + (u1 - u0 - width) // 2
+    y = v0 + (v1 - v0 - 5) // 2
+    for ch in text:
+        for j, row in enumerate(GLYPHS[ch]):
+            for i, bit in enumerate(row):
+                if bit == "1":
+                    put(img, x + i, y + j, GOLD[3] if j < 2 else GOLD[2])
+        x += 4
+
+
 def teahouse():
-    """The quest house and the guild's: two storeys, a veranda all round the lower one with a
+    """The Guild Hall: two storeys, a veranda all round the lower one with a
     railing and steps, lit shoji everywhere, a skirt of teal roof between the storeys and a tall
     roof over the upper one, both sweeping up at the corners, lanterns hung at every corner and a
-    gilded ornament at each end of the ridge. Seven tiles by five."""
+    gilded ornament at each end of the ridge, and a board reading GUILD HALL over the door. Seven
+    tiles by five."""
     img = base_texture()
+    SIGN = (64, 72, 128, 88)
+    sign(img, SIGN, "GUILD HALL")
     m = Mesh()
     X, Y = 3.35, 2.35
     m.box(-X, -Y, 0, X, Y, 0.3, R_STONE)
@@ -386,6 +419,10 @@ def teahouse():
         m.lantern(cx, cy, 2.2, R_CORD, R_LAMP, 0.24)
     for cx in (-2.3, 2.3):
         m.lantern(cx, 1.5, 4.0, R_CORD, R_LAMP, 0.2)
+    # the sign, hung under the front eave over the steps, on two short posts
+    m.quad((-1.6, Y - 0.02, 2.0), (1.6, Y - 0.02, 2.0), (1.6, Y - 0.02, 1.4), (-1.6, Y - 0.02, 1.4), SIGN, (0, 0, 1.7))
+    for sx in (-1.45, 1.45):
+        m.box(sx - 0.04, Y - 0.08, 2.0, sx + 0.04, Y, 2.1, R_TIMBER)
     return m, img
 
 
@@ -437,19 +474,27 @@ def pagoda():
 
 
 def smithy():
-    """The smithy round the Divine Forge: an open frame of rose timber on stone footings, its
-    rafters bare over the front and tiled over the back, a stone furnace in the back corner glowing
-    through its mouth with its chimney rising through the roof, a low stone wall behind, and a
-    lantern at the front. Nine tiles by six; the forge stands inside, in front of the furnace.
-    The model's tile is its front middle, so whatever stands inside is drawn under its roof."""
+    """The smithy: an open frame of rose timber on stone footings, its rafters bare over the front
+    and tiled over the back. Inside, the Divine Forge itself, a great stone furnace with a glowing
+    mouth and coals and its chimney rising through the roof, and the Enchanter, a lacquered altar
+    with a violet crystal over it. Both are the model, so they turn with the camera; their objects
+    on the map are invisible (`SMITHY_FORGE`, `SMITHY_ALTAR`). Nine tiles by six; the model's tile
+    is its front middle."""
     img = base_texture()
-    FURNACE, MOUTH = (0, 96, 32, 112), (32, 96, 48, 112)
+    FURNACE, MOUTH, CRYSTAL, LACQ, COALS = (0, 96, 32, 112), (32, 96, 48, 112), (48, 96, 64, 112), (64, 96, 80, 112), (80, 96, 96, 112)
     stone_blocks(img, FURNACE, GRANITE)
 
     def mouth(x, y, w, h):
+        # an arched opening: dark round its rim, white-hot at its heart
         d = math.hypot((x - w / 2 + 0.5) / (w / 2), (y - h + 0.5) / h)
-        return dither(EMBER, 1.05 - d * 0.9, x, y)
+        if d > 1.0:
+            return BLACK[1]
+        return dither(EMBER, 1.1 - d * 0.95 + 0.1 * (hash2(x, y, 3) - 0.5), x, y)
     fill(img, MOUTH, mouth)
+    fill(img, CRYSTAL, lambda x, y, w, h: dither([C("#3a1466"), C("#6224a0"), C("#9a3ccc"), C("#d06ae6"), C("#ffd0f8")],
+                                                     0.35 + 0.6 * (1 - abs(x - w / 2) / (w / 2)) * (1 - y / h * 0.5), x, y))
+    solid(img, LACQ, LACQUER, 0.55, 0.15)
+    fill(img, COALS, lambda x, y, w, h: dither(EMBER, 0.45 + 0.5 * hash2(x // 2, y // 2, 9), x, y))
     m = Mesh()
     # the anchor is the front middle (y = 0); the building reaches back (north) to y = B. Its
     # ridge runs north to south, so its A-frames face the street like a gable's.
@@ -482,20 +527,150 @@ def smithy():
     m.quad((0, back, peak + 0.06), (0, B - 0.4, peak + 0.06), (X + 0.45, B - 0.4, eave - 0.2), (X + 0.45, back, eave - 0.2),
            (0, 32, 64, 64), (-2, -2, 0))
     m.box(-X + 0.25, B - 0.15, 0, X - 0.25, B + 0.15, 1.1, R_STONE)   # the low back wall
-    # the furnace in the back left corner, its mouth glowing, its chimney up through the roof
-    fx0, fx1, fy0, fy1 = -X + 0.4, -X + 2.2, B + 0.25, B + 1.65
-    m.box(fx0, fy0, 0, fx1, fy1, 1.5, FURNACE)
-    m.quad((fx0 + 0.45, fy1 + 0.02, 0.95), (fx1 - 0.45, fy1 + 0.02, 0.95), (fx1 - 0.45, fy1 + 0.02, 0.25), (fx0 + 0.45, fy1 + 0.02, 0.25),
-           MOUTH, (0, -9, 0), "Glow")
-    m.box(fx0 + 0.35, fy0 + 0.25, 1.5, fx1 - 0.35, fy1 - 0.25, 6.4, FURNACE)
-    m.box(fx0 + 0.25, fy0 + 0.15, 6.4, fx1 - 0.25, fy1 - 0.15, 6.6, R_STONE)
+    # the Divine Forge: a great stone furnace across the back left, a broad arched mouth glowing
+    # with fire, a gilded band, a hood narrowing into the chimney that rises through the roof
+    fx0, fx1, fy0, fy1 = -X + 0.45, -0.35, B + 0.3, B + 2.25
+    m.box(fx0, fy0, 0, fx1, fy1, 1.9, FURNACE)
+    m.box(fx0 - 0.06, fy0 - 0.06, 1.55, fx1 + 0.06, fy1 + 0.06, 1.7, R_GOLD, lid=False)
+    mx = (fx0 + fx1) / 2
+    m.quad((mx - 0.95, fy1 + 0.03, 1.35), (mx + 0.95, fy1 + 0.03, 1.35), (mx + 0.95, fy1 + 0.03, 0.15), (mx - 0.95, fy1 + 0.03, 0.15),
+           MOUTH, (mx, fy0, 0.8), "Glow")
+    m.quad((fx0 + 0.15, fy0 + 0.15, 1.92), (fx1 - 0.15, fy0 + 0.15, 1.92), (fx1 - 0.15, fy1 - 0.15, 1.92), (fx0 + 0.15, fy1 - 0.15, 1.92),
+           COALS, (mx, (fy0 + fy1) / 2, 0), "Glow")
+    cx0, cx1, cy0, cy1 = mx - 0.55, mx + 0.55, fy0 + 0.35, fy0 + 1.25
+    m.roof((fx0, fy0, fx1, fy1), (cx0, cy0, cx1, cy1), 1.9, 2.9, FURNACE, FURNACE, 0.0, 0.0, 4)
+    m.box(cx0, cy0, 2.9, cx1, cy1, 6.6, FURNACE, lid=False)
+    m.box(cx0 - 0.1, cy0 - 0.1, 6.6, cx1 + 0.1, cy1 + 0.1, 6.85, R_STONE)
+    # the Enchanter: a lacquered altar on a stone step, a violet crystal turning in the air over it
+    # and a lamp at each end
+    ax0, ax1, ay0, ay1 = 1.0, 3.5, B + 0.6, B + 1.9
+    m.box(ax0 - 0.15, ay0 - 0.15, 0, ax1 + 0.15, ay1 + 0.15, 0.2, R_STONE)
+    m.box(ax0, ay0, 0.2, ax1, ay1, 0.95, LACQ, top=LACQ)
+    m.box(ax0 - 0.05, ay0 - 0.05, 0.95, ax1 + 0.05, ay1 + 0.05, 1.03, R_GOLD, lid=False)
+    cx, cy, cz = (ax0 + ax1) / 2, (ay0 + ay1) / 2, 1.85
+    r, h = 0.42, 0.65                                              # an octahedron, lit from within
+    tip, foot = (cx, cy, cz + h), (cx, cy, cz - h)
+    ring = [(cx + r, cy, cz), (cx, cy + r, cz), (cx - r, cy, cz), (cx, cy - r, cz)]
+    for k in range(4):
+        p0, p1 = ring[k], ring[(k + 1) % 4]
+        m.face([tip, p0, p1], [(56, 97), (49, 111), (63, 111)], (cx, cy, cz), "Glow")
+        m.face([foot, p1, p0], [(56, 111), (63, 97), (49, 97)], (cx, cy, cz), "Glow")
+    for lx in (ax0 + 0.2, ax1 - 0.2):
+        m.box(lx - 0.1, cy - 0.1, 1.03, lx + 0.1, cy + 0.1, 1.33, R_LAMP, mat="Glow")
     m.lantern(X + 0.2, F + 0.15, eave - 0.05, R_CORD, R_LAMP, 0.26)
     m.lantern(-X - 0.2, F + 0.15, eave - 0.05, R_CORD, R_LAMP, 0.26)
     return m, img
 
 
+# the smithy's furnace (the Divine Forge) and altar (the Enchanter), from its tile: the map puts
+# their (invisible) objects there, so players use them where they're seen
+SMITHY_FORGE = (-2.3, -4.3)
+SMITHY_ALTAR = (2.25, -4.35)
 # where the smithy's chimney top is, from its tile: the smoke stands there (`NG Chimney Smoke`)
-SMITHY_CHIMNEY = (-4.2 + 1.3, -5.6 + 0.95, 6.6)
+SMITHY_CHIMNEY = (-2.1, -4.6, 6.85)
+
+
+def yatai():
+    """A market stall: a counter of rose wood under a little teal roof on four posts, an indigo
+    noren along its front and a paper lantern at its corner. A tile; what it sells stands on the
+    tile in front of it (south)."""
+    img = base_texture()
+    NOREN = (64, 96, 96, 104)
+
+    def noren(x, y, w, h):
+        if abs(x - w // 2) <= 1 and 2 <= y <= 5:
+            return SHOJI[3]
+        return INDIGO[1 + (x % 4 == 0)]
+    fill(img, NOREN, noren)
+    m = Mesh()
+    m.box(-0.48, -0.48, 0, 0.48, -0.02, 0.62, R_WALL, top=R_DECK)       # the counter
+    m.box(-0.52, -0.5, 0.62, 0.52, 0.02, 0.68, R_DECK)
+    for x in (-0.46, 0.46):
+        for y in (-0.46, 0.3):
+            m.box(x - 0.04, y - 0.04, 0, x + 0.04, y + 0.04, 1.4 if y < 0 else 1.2, R_TIMBER)
+    m.roof((-0.66, -0.62, 0.66, 0.48), (-0.3, -0.12, 0.3, -0.12), 1.15, 1.55, R_SLOPE, R_END, 0.08, 0.06, 4)
+    m.quad((-0.6, 0.46, 1.17), (0.6, 0.46, 1.17), (0.6, 0.46, 0.92), (-0.6, 0.46, 0.92), NOREN, (0, 0, 1))
+    m.lantern(0.6, 0.45, 1.15, R_CORD, R_LAMP, 0.16)
+    return m, img
+
+
+def arch(stone):
+    """An arched bridge, nine tiles long east to west and three across: a deck curving up to half a
+    tile over the water, its sides following the curve with the water showing beneath the arch,
+    and a railing along each side (vermilion posts with brass caps, or a granite parapet). Drawn
+    under what crosses it (`DrawUnder`); the deck's tiles lift whoever walks on them as high
+    (`<Lift>` grounds, ARCH_LIFTS), so they climb it."""
+    img = base_texture()
+    DECK, SIDE, RAIL, CAP = (0, 96, 64, 112), (64, 96, 128, 112), (0, 112, 64, 120), (64, 112, 80, 120)
+    if stone:
+        def cobble(x, y, w, h):
+            return dither(PALE, 0.62 + 0.3 * (hash2(x // 2, y // 2, 4) - 0.5) - (0.3 if (x % 4 == 0 or y % 3 == 0) else 0), x, y)
+        fill(img, DECK, cobble)
+        stone_blocks(img, SIDE, PALE)
+        stone_blocks(img, RAIL, PALE)
+        solid(img, CAP, PALE, 0.9, 0.1)
+    else:
+        def planks_across(x, y, w, h):
+            if x % 4 == 3:
+                return TIMBER[1]
+            return dither(WOOD, 0.6 + 0.2 * (hash2(x // 4, y // 6, 2) - 0.5), x, y)
+        fill(img, DECK, planks_across)
+        solid(img, SIDE, LACQUER, 0.5, 0.12)
+        solid(img, RAIL, LACQUER, 0.65, 0.12)
+        solid(img, CAP, GOLD, 0.6, 0.3)
+    m = Mesh()
+    L, W, H, n = 4.5, 1.5, ARCH_HEIGHT, 18
+
+    def z(x):
+        return H * math.sin(math.pi * (x + L) / (2 * L))
+    xs = [-L + 2 * L * i / n for i in range(n + 1)]
+    for i in range(n):
+        x0, x1 = xs[i], xs[i + 1]
+        u0, u1 = 64 * i / n, 64 * (i + 1) / n
+        m.quad((x0, -W, z(x0)), (x1, -W, z(x1)), (x1, W, z(x1)), (x0, W, z(x0)), (u0, 96, max(u0 + 1, u1), 112), (0, 0, -5))
+        for side in (-1, 1):
+            y = side * (W + 0.02)
+            under = max(0.0, z(x0) - 0.22), max(0.0, z(x1) - 0.22)
+            m.quad((x0, y, z(x0) + 0.04), (x1, y, z(x1) + 0.04), (x1, y, under[1]), (x0, y, under[0]),
+                   (64 + u0, 96, 64 + max(u0 + 1, u1), 112), (0, -side * 5, 0))
+            if stone:
+                m.box(x0, side * W - 0.16, z(x0) - 0.02, x1, side * W + 0.16, z(x0) + 0.6, RAIL, top=CAP, lid=True)
+            else:
+                m.beam((x0, side * (W - 0.05), z(x0) + 0.62), (x1, side * (W - 0.05), z(x1) + 0.62), 0.08, RAIL)
+                m.beam((x0, side * (W - 0.05), z(x0) + 0.3), (x1, side * (W - 0.05), z(x1) + 0.3), 0.05, RAIL)
+    if stone:
+        # a stone lantern on each end of each parapet, lit
+        for x in (-L + 0.2, L - 0.2):
+            for side in (-1, 1):
+                y = side * W
+                m.box(x - 0.2, y - 0.2, z(x), x + 0.2, y + 0.2, z(x) + 0.8, RAIL, top=CAP)
+                m.box(x - 0.14, y - 0.14, z(x) + 0.8, x + 0.14, y + 0.14, z(x) + 1.05, R_LAMP, mat="Glow")
+                m.box(x - 0.24, y - 0.24, z(x) + 1.05, x + 0.24, y + 0.24, z(x) + 1.15, CAP)
+    if not stone:
+        for i in range(0, n + 1, 2):
+            x = xs[i]
+            big = i in (0, n)
+            for side in (-1, 1):
+                y = side * (W - 0.05)
+                r = 0.1 if big else 0.07
+                m.box(x - r, y - r, z(x), x + r, y + r, z(x) + (0.9 if big else 0.74), RAIL)
+                m.box(x - r - 0.02, y - r - 0.02, z(x) + (0.9 if big else 0.74), x + r + 0.02, y + r + 0.02,
+                      z(x) + (1.02 if big else 0.82), CAP)
+    return m, img
+
+
+def wood_arch():
+    return arch(False)
+
+
+def stone_arch():
+    return arch(True)
+
+
+# how high the bridges' arch rises, and the lift of each of its nine tiles (the deck's grounds,
+# `NG Arch Deck 1-5`, nexus_garden.grounds), west to east
+from .grounds import ARCH_HEIGHT  # noqa: E402
+ARCH_LIFTS = [round(ARCH_HEIGHT * math.sin(math.pi * (i + 0.5) / 9), 3) for i in range(9)]
 
 
 def torii():
@@ -574,6 +749,14 @@ def bamboo_fence():
     return m, img
 
 
+# models drawn under what stands on them: the bridges' decks
+UNDER = {"NG Arch Bridge", "NG Stone Arch"}
+# each model's turned copies: suffix and degrees (railings, fences, torii and bridges a quarter for
+# paths that run north, houses and stalls round to face north)
+TURNS = {"NG House": [(" N", 180)], "NG Yatai": [(" N", 180)], "NG Torii": [(" NS", 90)],
+         "NG Wood Rail": [(" NS", 90)], "NG Stone Rail": [(" NS", 90)], "NG Bamboo Fence": [(" NS", 90)],
+         "NG Stone Arch": [(" NS", 90)]}
+
 # name -> (builder, footprint (x, y) in tiles, blocks its tile, shadow opacity)
 MODELS = {
     "NG House": (house, (5, 3), True, 0.3),
@@ -581,6 +764,9 @@ MODELS = {
     "NG Storehouse": (storehouse, (3, 3), True, 0.3),
     "NG Pagoda": (pagoda, (5, 5), True, 0.32),
     "NG Smithy": (smithy, (9, 6), False, 0.26),
+    "NG Yatai": (yatai, (1, 1), True, 0.2),
+    "NG Arch Bridge": (wood_arch, (9, 1), False, 0.0),
+    "NG Stone Arch": (stone_arch, (9, 1), False, 0.0),
     "NG Torii": (torii, (5, 1), False, 0.22),
     "NG Wood Rail": (wood_rail, (1, 1), True, 0.0),
     "NG Stone Rail": (stone_rail, (1, 1), True, 0.0),

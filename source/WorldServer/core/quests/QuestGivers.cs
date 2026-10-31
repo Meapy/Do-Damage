@@ -12,7 +12,8 @@ namespace WorldServer.core.quests
     // Chronicler (the daily reward and achievements). The Rust client opens the quest window at
     // their tab when you walk up to them; they greet each player who comes near with what waits
     // for them, at most every GREET_AGAIN seconds. Placed here like the Support Bot (NexusGuide),
-    // before the village's quest house (tools/build_nexus.py: QUEST_NPCS, keep the two in step).
+    // in the village's market (tools/build_nexus.py: QUEST_NPCS, keep the two in step), where they
+    // walk about the courtyard (NexusVillagers), so they greet from wherever they are.
     // The Herald opens the server's week (DbWeeklyStats) and greets no one; he stands in the west's
     // leaderboard court beside the Arena Leaderboard (tools/build_nexus.py: ARENA_LEADERBOARD).
     public sealed class QuestGivers
@@ -22,8 +23,8 @@ namespace WorldServer.core.quests
 
         private static readonly (string Id, string Name, float X, float Y)[] Npcs =
         {
-            ("The Tinkerer", "#The Tinkerer", 105.5f, 35.5f),
-            ("The Chronicler", "#The Chronicler", 111.5f, 35.5f),
+            ("NG Tinkerer", "#The Tinkerer", 106.5f, 61.5f),
+            ("NG Chronicler", "#The Chronicler", 114.5f, 61.5f),
             ("The Herald", "#The Herald", 38.5f, 47.5f),
         };
 

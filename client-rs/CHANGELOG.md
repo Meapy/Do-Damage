@@ -20,12 +20,14 @@ details). Add to a group's line when a change adds to it, rather than adding ano
   arrive on a pink wooden deck in the middle of the pond. The realm portals are sunk into the
   floor of a shrine to the north-west: a great swirling vortex for Realm 2, a dark cavern for
   each realm and a sand pit for the Arena. Walk onto one to enter. The shops line the village's
-  street to the east, with the quest keepers' teahouse, the guild's house, the Marketplace and
-  the shared vault chests nearby, and the Divine Forge in an open smithy where Amatsumara the
-  smith god hammers away. The Hall of Champions is to the west, a great old cherry in a gravel
-  garden north of the spawn, and a forest to the south where blossom falls around you. Villagers,
-  the twins Hana and Sora, and the Name and Character Changers stroll about, bees drift over
-  the flowers, and the XP gifts are now ducks swimming on the pond.
+  street to the east, with the Guild Hall, the shared vault chests, and a market where the
+  Market Broker, the Tinkerer and the Chronicler stroll among the stalls. The smithy's great
+  furnace is the Divine Forge and its crystal altar the Enchanter, and Amatsumara the smith god
+  hammers away at his anvil before it. The bridges arch over the pond, and you climb them. The
+  Hall of Champions and a dojo yard are to the west, a giant cherry tree north of the spawn, and
+  a forest to the south where blossom falls around you. Villagers, the twins Hana and Sora, and
+  the Name and Character Changers stroll about, bees drift over the flowers, and the XP gifts
+  are now ducks swimming on the pond.
 - Standing still in the Nexus for 20 minutes now saves your character and sends you back to the
   character screen, with a message saying why, so idlers don't take up a place. Walking resets
   the clock; realms, dungeons and your vault aren't affected.

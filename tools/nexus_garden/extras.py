@@ -10,14 +10,16 @@ from PIL import Image
 from .px import hexc as C, canvas, dither, hash2, mix, picture, put
 from .sprites import BLOSSOM, GLOW, STONE, WOOD, column, edge, sakura, slab
 from .floors import RIM, EMBER as FIRE
+from .models import GOLD
 
 ROOT = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 LOFI_CHAR = os.path.join(ROOT, "client", "src", "kabam", "rotmg", "assets", "prod", "images", "lofiChar.png")
 
 
 def elder_sakura():
-    """The great cherry of the dry garden: 64 pixels, eight tiles tall."""
-    return sakura(61, size=64)
+    """The great cherry of the dry garden: 192 pixels, twenty-four tiles tall, its crown over the
+    whole garden."""
+    return sakura(61, size=192)
 
 
 def smoke(frame, frames=4):
@@ -232,20 +234,149 @@ def arena_portal(frame, frames=4, size=32):
 
 def changer(index):
     """The Name Changer's or the Character Changer's own sprite (lofiChar8x8) as a walking strip:
-    stand, two steps (a bob and the feet moved), and the stand again for the rest."""
+    stand, then two steps where only the feet move (the bottom row slides a pixel each way), so
+    nothing above them is cut off."""
     sheet = Image.open(LOFI_CHAR).convert("RGBA")
     cols = sheet.width // 8
     stand = sheet.crop(((index % cols) * 8, (index // cols) * 8, (index % cols) * 8 + 8, (index // cols) * 8 + 8))
-    up = canvas(8)
-    up.paste(stand.crop((0, 0, 8, 7)), (0, -1 + 1 - 1 + 0))
-    up.paste(stand.crop((0, 7, 8, 8)), (0, 7))
-    step2 = canvas(8)
-    step2.paste(stand, (0, 0))
-    bottom = stand.crop((0, 7, 8, 8))
-    for x in range(8):
-        step2.putpixel((x, 7), (0, 0, 0, 0))
-    step2.paste(bottom, (1, 7))
-    out = Image.new("RGBA", (56, 8))
-    for i, f in enumerate([stand, up, step2, stand, stand, stand, canvas(8)]):
-        out.paste(f, (i * 8, 0))
+    return walk_strip(stand, 8)
+
+
+def walk_strip(stand, size, feet=1):
+    """Seven frames from a standing picture: stand, a step with its lowest `feet` rows slid left
+    and one with them slid right, then the stand again."""
+    steps = []
+    for d in (-1, 1):
+        f = stand.copy()
+        for y in range(size - feet, size):
+            row = [stand.getpixel((x, y)) for x in range(size)]
+            for x in range(size):
+                f.putpixel((x, y), row[x - d] if 0 <= x - d < size else (0, 0, 0, 0))
+        steps.append(f)
+    out = Image.new("RGBA", (size * 7, size))
+    for i, f in enumerate([stand, steps[0], steps[1], stand, stand, stand, canvas(size)]):
+        out.paste(f, (i * size, 0))
     return out
+
+
+QUEST_NPCS = os.path.join(ROOT, "client", "src", "kabam", "rotmg", "assets", "custom", "images", "QuestNpcs16x16.png")
+
+
+def quest_npc(index):
+    """The Tinkerer (0), the Chronicler (2) or the Market Broker (4), from their 16 by 16 sprites
+    (tools/draw_quest_npcs.py), as walking strips: their feet step, the rest stays whole."""
+    sheet = Image.open(QUEST_NPCS).convert("RGBA")
+    stand = sheet.crop((index * 16, 0, index * 16 + 16, 16))
+    return walk_strip(stand, 16, 2)
+
+
+def samurai_statue():
+    """A samurai in bronze gone green, his sword raised, on a granite plinth: the dojo yard's
+    monument, where the Arena's champions are honoured. 32 by 32."""
+    img = canvas(32)
+    bronze = [C("#1e3a34"), C("#2a5048"), C("#3a6a5e"), C("#5a8a78"), C("#86b0a0")]
+    granite = [C("#3a3848"), C("#56546a"), C("#74728a"), C("#9896aa")]
+    column(img, 7, 24, 26, 31, granite, top=0.2)
+    column(img, 9, 22, 23, 25, granite, top=0.2)
+    rows = [
+        "......kk........",
+        ".....kHHk.......",
+        "....kHHHHk......",
+        ".....hfFh.......",
+        "....aAAAAa......",
+        "...aAAhAAAa.....",
+        "..aA.aAAa.Aa....",
+        "..aA.aAAa.Aa....",
+        "..Hh.aAAa.hH....",
+        ".....aAAa.......",
+        "....aaAAaa......",
+        "....aA..Aa......",
+        "....aA..Aa......",
+        "...aaA..Aaa.....",
+    ]
+    pal = {"k": bronze[0], "H": bronze[3], "h": bronze[2], "f": bronze[1], "F": bronze[2], "a": bronze[1], "A": bronze[3]}
+    from .px import picture as pic
+    fig = pic(rows, pal, 16, 14)
+    img.alpha_composite(fig.resize((16, 14)), (9, 9))
+    for k in range(9):                                     # the raised katana
+        put(img, 20 + k // 2, 9 - k, bronze[4] if k > 1 else bronze[2])
+    put(img, 19, 10, GLOW[2])
+    edge(img)
+    return img
+
+
+def nobori(frame, colour):
+    """A tall nobori banner on its pole, stirring in the wind (two frames). 16 wide, 32 tall, in a
+    32 cell."""
+    img = canvas(32)
+    pole = [C("#2a1a12"), C("#4a3020"), C("#6a4a30")]
+    for y in range(2, 32):
+        put(img, 12, y, pole[1])
+        put(img, 13, y, pole[2])
+    for x in range(12, 21):
+        put(img, x, 3, pole[1])
+    cloth = colour
+    for y in range(4, 24):
+        sway = int(round(math.sin(y * 0.35 + frame * 1.7) * 0.8))
+        for x in range(14, 20):
+            t = 0.75 - 0.4 * (x - 14) / 5 + (0.1 if y % 6 == 0 else 0)
+            put(img, x + sway, y, dither(cloth, t, x, y))
+        if 8 <= y <= 18 and y % 3 != 2:
+            put(img, 16 + sway, y, C("#fff4ea"))           # the painted characters
+            put(img, 17 + sway, y, C("#fff4ea") if y % 3 == 0 else cloth[2])
+    edge(img)
+    return img
+
+
+def weapon_rack():
+    """A wooden rack of katana and a spear. 16 by 16."""
+    img = canvas(16)
+    for x in (2, 13):
+        column(img, x, x + 1, 4, 15, WOOD)
+    for y in (6, 11):
+        for x in range(2, 15):
+            put(img, x, y, dither(WOOD, 0.7, x, y))
+    steel = [C("#5a5868"), C("#9a98a8"), C("#d8d6e4")]
+    for i, x in enumerate((5, 8, 11)):
+        for y in range(3, 14):
+            put(img, x, y, steel[2] if y < 10 else (C("#1a1418") if y < 13 else C("#a8242a")))
+        put(img, x - 1, 10, GOLD[2] if i != 2 else GOLD[1])
+        put(img, x + 1, 10, GOLD[2])
+    for y in range(0, 15):
+        put(img, 14 + (y < 3), y, steel[1] if y < 3 else WOOD[2])   # the spear
+    edge(img)
+    return img
+
+
+def straw_dummy():
+    """A wara ningyo: a straw training dummy on a post, a cross-bar for arms. 16 by 16."""
+    img = canvas(16)
+    straw = [C("#5a4422"), C("#7a5e30"), C("#9c7c40"), C("#bc9c58"), C("#d8bc78")]
+    column(img, 7, 8, 9, 15, WOOD)
+    for x in range(3, 13):
+        put(img, x, 6, dither(WOOD, 0.6, x, 6))
+    from .sprites import ball
+    ball(img, 8, 9, 3.2, 4.0, straw, noise=0.25, seed=4)
+    ball(img, 8, 3.5, 2.4, 2.4, straw, noise=0.25, seed=5)
+    for x in range(5, 12):
+        put(img, x, 9, C("#a8242a"))                         # a red cord round it
+    edge(img)
+    return img
+
+
+def taiko():
+    """A taiko drum on its stand, its skin pale, its body lacquered red with brass studs. 16 by 16."""
+    img = canvas(16)
+    from .sprites import LACQUER, ball
+    for x, y0 in ((3, 9), (12, 9)):
+        column(img, x, x + 1, y0, 15, WOOD)
+    ball(img, 8, 9, 5.5, 4.5, LACQUER, seed=2)
+    skin = [C("#c8b490"), C("#e0d0b0"), C("#f4ead4")]
+    for y in range(6, 13):
+        for x in range(4, 13):
+            if ((x - 8) / 3.6) ** 2 + ((y - 9) / 3.0) ** 2 <= 1:
+                put(img, x, y, dither(skin, 0.75 - 0.3 * (x - 4) / 8, x, y))
+    for a in range(0, 360, 45):
+        put(img, int(8 + math.cos(math.radians(a)) * 4.6), int(9 + math.sin(math.radians(a)) * 3.8), GOLD[2])
+    edge(img)
+    return img

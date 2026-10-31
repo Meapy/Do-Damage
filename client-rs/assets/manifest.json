@@ -1436,6 +1436,12 @@
    "h": 64
   },
   {
+   "name": "nexusGarden192x192",
+   "file": "kabam/rotmg/assets/custom/images/NexusGarden192x192.png",
+   "w": 192,
+   "h": 192
+  },
+  {
    "name": "nexusGardenModels128x128",
    "file": "kabam/rotmg/assets/custom/images/NexusGardenModels128x128.png",
    "w": 128,
@@ -3042,6 +3048,16 @@
    "sheet_w": 56,
    "sheet_h": 8,
    "dir": "right"
+  },
+  {
+   "name": "nexusGardenChars16x16",
+   "file": "kabam/rotmg/assets/custom/images/NexusGardenChars16x16.png",
+   "mask": null,
+   "w": 16,
+   "h": 16,
+   "sheet_w": 112,
+   "sheet_h": 16,
+   "dir": "right"
   }
  ],
  "models": [
@@ -3304,6 +3320,18 @@
   {
    "name": "NG Bamboo Fence",
    "file": "kabam/rotmg/assets/custom/objects/nexusGardenBambooFence.obj"
+  },
+  {
+   "name": "NG Yatai",
+   "file": "kabam/rotmg/assets/custom/objects/nexusGardenYatai.obj"
+  },
+  {
+   "name": "NG Arch Bridge",
+   "file": "kabam/rotmg/assets/custom/objects/nexusGardenArchBridge.obj"
+  },
+  {
+   "name": "NG Stone Arch",
+   "file": "kabam/rotmg/assets/custom/objects/nexusGardenStoneArch.obj"
   }
  ],
  "particles": "kabam/rotmg/assets/prod/objects/particles.dat",

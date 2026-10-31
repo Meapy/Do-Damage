@@ -76,10 +76,18 @@ namespace WorldServer.core.commands
                 return target == target.GameServer.WorldManager.Nexus ? Spot(target) : null;
             }
 
-            // A free tile in front of (south of) the Market Broker, or the nearest free one.
+            // A free tile in front of (south of) the Market Broker, or the nearest free one; in front
+            // of where the walking Broker is now, in the Nexus garden.
             private static Position? Spot(World world)
             {
                 var map = world.Map;
+                if (market.MarketBroker.Where(world) is var (wx, wy))
+                {
+                    for (var r = 1; r <= 4; r++)
+                        foreach (var (dx, dy) in new[] { (0, r), (-r, 0), (r, 0), (0, -r) })
+                            if (world.IsPassable(wx + dx, wy + dy, true))
+                                return new Position((int)(wx + dx) + 0.5f, (int)(wy + dy) + 0.5f);
+                }
                 for (var y = 0; y < map.Height; y++)
                     for (var x = 0; x < map.Width; x++)
                         if (map[x, y].ObjDesc?.Class == Marketplace.BrokerClass)

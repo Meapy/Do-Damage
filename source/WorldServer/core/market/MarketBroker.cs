@@ -8,16 +8,20 @@ using WorldServer.networking.packets.outgoing;
 
 namespace WorldServer.core.market
 {
-    // The Market Broker (the map's MarketNPC, in the market square) greets each player who comes
-    // near with what the Marketplace is for, at most every GREET_AGAIN seconds, as the Tinkerer and
-    // the Chronicler do (QuestGivers). It's a static object of the map, not an entity, so it's found
-    // on its tile, and speaks with the tile's object id. The lines read the cached listings only,
-    // never Redis.
+    // The Market Broker greets each player who comes near with what the Marketplace is for, at most
+    // every GREET_AGAIN seconds, as the Tinkerer and the Chronicler do (QuestGivers). In the Nexus
+    // garden it walks about the market's courtyard (`NG Market Broker`, NexusVillagers): it's made
+    // here, at START, and greets from wherever it is. A map that has its own Broker (a MarketNPC on
+    // a tile) keeps it there. The lines read the cached listings only, never Redis.
     public sealed class MarketBroker
     {
         private const float GREET_RANGE = 4.5f;
         private const float GREET_AGAIN = 180f;
         private const string NAME = "#Market Broker";
+        private const string WALKER = "NG Market Broker";
+        // where the walking Broker starts (tools/build_nexus.py BROKER)
+        private static readonly (float X, float Y) START = (110.5f, 61.5f);
+        private Entity _walker;
 
         private readonly World _world;
         private readonly Dictionary<int, float> _greeted = new Dictionary<int, float>();
@@ -39,6 +43,8 @@ namespace WorldServer.core.market
                 _looked = true;
                 _broker = Find();
             }
+            if (_walker?.World != null)
+                _broker = (_walker.X, _walker.Y, _walker.Id);
             if (_broker is not var (bx, by, id))
                 return;
             foreach (var k in _greeted.Where(g => g.Value <= _clock).Select(g => g.Key).ToList())
@@ -60,7 +66,16 @@ namespace WorldServer.core.market
                 for (var x = 0; x < map.Width; x++)
                     if (map[x, y].ObjDesc?.Class == Marketplace.BrokerClass)
                         return (x + 0.5f, y + 0.5f, map[x, y].ObjId);
-            return null;
+            if (_world.GameServer.Resources.GameData.IdToObjectType.ContainsKey(WALKER))
+                _walker = _world.CreateNewEntity(WALKER, START.X, START.Y);
+            return _walker == null ? null : (_walker.X, _walker.Y, _walker.Id);
+        }
+
+        /// <summary>Where the Broker is now (on its tile, or walking), for /market.</summary>
+        public static (float X, float Y)? Where(World world)
+        {
+            var walker = world.SellableObjects.Values.FirstOrDefault(o => o.ObjectDesc.IdName == WALKER);
+            return walker == null ? null : (walker.X, walker.Y);
         }
 
         private string Line(Player player)

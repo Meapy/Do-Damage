@@ -26,6 +26,7 @@ from PIL import Image
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 from nexus_garden import chars, extras, floors, grounds, models, sprites  # noqa: E402
 from realm2 import art as realm2_art  # noqa: E402
+from nexus_garden.px import hexc as C  # noqa: E402
 
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 XML_DIR = os.path.join(ROOT, "source", "Shared", "resources", "xml", "custom")
@@ -45,9 +46,11 @@ SHEETS = {
     32: ("nexusGarden32x32", "NexusGarden32x32.png"),
     48: ("nexusGarden48x48", "NexusGarden48x48.png"),
     64: ("nexusGarden64x64", "NexusGarden64x64.png"),
+    192: ("nexusGarden192x192", "NexusGarden192x192.png"),
 }
 MODEL_SHEET = ("nexusGardenModels128x128", "NexusGardenModels128x128.png")
 CHARS = ("nexusGardenChars8x8", "NexusGardenChars8x8.png")
+CHARS16 = ("nexusGardenChars16x16", "NexusGardenChars16x16.png")
 COLS = 16
 
 # Realm 2's eleven lands, round its vortex's ring as round its standing portal's arch
@@ -64,6 +67,18 @@ SMITH = "NG Smith God"                  # NexusVillagers: speaks by the forge
 NAME_CHANGER, CHARACTER_CHANGER = "NG Name Changer", "NG Character Changer"   # NexusVillagers
 TWINS = list(extras.TWINS)              # NexusVillagers: about the forest
 SMOKE = "NG Chimney Smoke"              # over the smithy's chimney (models.SMITHY_CHIMNEY)
+# invisible: what players use where the 3D models show it (the smithy's furnace and altar, the
+# Guild Hall's door), each of the class the client and the server know it by
+UNSEEN = {
+    "NG Divine Forge": ("Divine Forge", "Forge", True, {}),
+    "NG Enchanter": ("Enchanter", "Enchanter", True, {}),
+    "NG Guild Register": ("Guild Register", "GuildRegister", False, {}),
+    "NG Guild Hall Door": ("Guild Hall", "GuildHallPortal", False, {"IntergamePortal": None, "DungeonName": "Guild Hall"}),
+}
+# the NPCs who walk about the market (NexusVillagers, QuestGivers, MarketBroker): their own
+# sprites (QuestNpcs16x16) walking, their classes as before
+WALKING_NPCS = [("NG Tinkerer", "The Tinkerer", "QuestMaster", 0), ("NG Chronicler", "The Chronicler", "Chronicler", 2),
+                ("NG Market Broker", "Market Broker", "MarketNPC", 4)]
 
 
 class Types:
@@ -154,7 +169,15 @@ def scenery():
         "NG Stepping Stone": (8, [s.stepping_stone(k) for k in (1, 2)], "flat", {}),
         "NG Fallen Petals": (8, [s.petals_pile(k) for k in (1, 2, 3)], "flat", {}),
         BLOCKER: (8, [s.blank()], "block", {"hidden": True}),
-        "NG Elder Sakura": (64, [extras.elder_sakura()], "block", {"shadow": 300}),
+        "NG Elder Sakura": (192, [extras.elder_sakura()], "block", {"shadow": 600}),
+        "NG Samurai Statue": (32, [extras.samurai_statue()], "block", {"shadow": 160}),
+        "NG Nobori Red": (32, [extras.nobori(f, [C("#5a1014"), C("#8a1c1e"), C("#c03028"), C("#e4523a")]) for f in range(2)],
+                          "block", {"anim": (0.5, 0.5), "shadow": 40}),
+        "NG Nobori Indigo": (32, [extras.nobori(f, [C("#101a34"), C("#1c2c56"), C("#2c447a"), C("#4a66a4")]) for f in range(2)],
+                             "block", {"anim": (0.55, 0.55), "shadow": 40}),
+        "NG Weapon Rack": (16, [extras.weapon_rack()], "block", {}),
+        "NG Straw Dummy": (16, [extras.straw_dummy()], "block", {}),
+        "NG Taiko": (16, [extras.taiko()], "block", {}),
         SMOKE: (32, [_tall(extras.smoke(f)) for f in range(4)], "block", {"anim": (0.3,) * 4, "z": 6.3, "noshadow": True}),
         "NG Forge Flame": (8, [extras.forge_flame(f) for f in range(3)], "plain", {"anim": (0.12, 0.12, 0.12), "noshadow": True}),
         "NG Anvil": (16, [extras.anvil()], "block", {}),
@@ -196,6 +219,7 @@ def build(preview=None):
         sub(g, "Color", colour)
         ground_xml.append(g)
 
+    blank_cell = None
     for name, (size, imgs, kind, extra) in scenery().items():
         o = ET.Element("Object", {"type": types.get("objects", name), "id": name})
         if "shown" in extra:
@@ -203,6 +227,8 @@ def build(preview=None):
         sub(o, "Class", extra.get("class", "GameObject"))
         file = SHEETS[size][0]
         cells = [sheets[size].add(i) for i in imgs]
+        if name == BLOCKER:
+            blank_cell = cells[0]
         if "anim" in extra:
             texture(o, file, cells[0])
             anim = sub(o, "Animation", prob="1.0")
@@ -231,6 +257,21 @@ def build(preview=None):
         object_xml.append(o)
 
     # the 3D models; a railing, fence or torii also turned a quarter for paths that run north
+    for name, (shown, cls, blocks, extra) in UNSEEN.items():
+        o = ET.Element("Object", {"type": types.get("objects", name), "id": name})
+        sub(o, "DisplayId", shown)
+        sub(o, "Class", cls)
+        texture(o, SHEETS[8][0], blank_cell)
+        for k, v in extra.items():
+            sub(o, k, v)
+        sub(o, "NoMiniMap")
+        sub(o, "ShadowSize", 0)
+        sub(o, "Static")
+        if blocks:
+            sub(o, "OccupySquare")
+            sub(o, "EnemyOccupySquare")
+        object_xml.append(o)
+
     model_sheet = Sheet(models.TEX, 8)
     for name, (builder, footprint, blocks, shadow) in models.MODELS.items():
         mesh, img = builder()
@@ -239,7 +280,7 @@ def build(preview=None):
             f.write(mesh.obj(name))
         # railings, fences and torii turned a quarter for paths that run north; houses turned
         # round to face a street to their north
-        turns = [("", 0)] + ([(" NS", 90)] if footprint[1] == 1 else []) + ([(" N", 180)] if name == "NG House" else [])
+        turns = [("", 0)] + models.TURNS.get(name, [])
         for suffix, rotation in turns:
             oid = name + suffix
             o = ET.Element("Object", {"type": types.get("objects", oid), "id": oid})
@@ -254,6 +295,8 @@ def build(preview=None):
             sub(o, "ModelContrast", 0.5)
             if shadow:
                 sub(o, "ModelShadow", shadow)
+            if name in models.UNDER:
+                sub(o, "DrawUnder")
             if blocks:
                 sub(o, "OccupySquare")
                 sub(o, "EnemyOccupySquare")
@@ -309,6 +352,18 @@ def build(preview=None):
         sub(at, "Index", index)
         sub(o, "Size", 100)
         object_xml.append(o)
+    chars16 = Sheet(112, 4)
+    chars16.h = 16
+    for name, shown, cls, cell in WALKING_NPCS:
+        o = ET.Element("Object", {"type": types.get("objects", name), "id": name})
+        sub(o, "DisplayId", shown)
+        sub(o, "Class", cls)
+        at = sub(o, "AnimatedTexture")
+        sub(at, "File", CHARS16[0])
+        sub(at, "Index", chars16.add(extras.quest_npc(cell)))
+        sub(o, "Size", 100)
+        sub(o, "ShadowSize", 80)
+        object_xml.append(o)
     # the XP ducks: the XP Gift's numbers, swimming
     frames = [sheets[8].add(extras.duck(f)) for f in range(3)]
     o = ET.Element("Object", {"type": types.get("objects", DUCK), "id": DUCK})
@@ -353,6 +408,7 @@ def build(preview=None):
         out[fname] = sheets[size].save(os.path.join(IMAGES, fname))
     out[CHARS[1]] = char_sheet.save(os.path.join(IMAGES, CHARS[1]))
     out[MODEL_SHEET[1]] = model_sheet.save(os.path.join(IMAGES, MODEL_SHEET[1]))
+    out[CHARS16[1]] = chars16.save(os.path.join(IMAGES, CHARS16[1]))
     types.save()
     print("Nexus garden: %d grounds, %d objects, %d models" % (len(ground_xml), len(object_xml), len(models.MODELS)))
     if preview:
