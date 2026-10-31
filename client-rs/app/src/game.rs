@@ -6,7 +6,7 @@ use crate::i18n::{tf, tn, tr};
 use bsk_data::{GameData, ObjectClass};
 use bsk_net::{GameSocket, SocketEvent, Target};
 use bsk_proto::{
-    AcceptTrade, Buy, CancelTrade, ChangeTrade, ClientMessage, EditAccountList, EnemyHit, Escape, GroundDamage, GuildInvite,
+    AcceptTrade, Buy, CancelTrade, ChangeTrade, ClientMessage, EditAccountList, EnemyHit, Escape, GroundDamage, GuildInvite, Height,
     InvDrop, JoinGuild, JoinParty, List16, PartyInvite, RequestTrade, Teleport, TradeItem, InvSwap, OtherHit, PlayerHit, PlayerShoot, PlayerText,
     Reconnect, ServerMessage, SlotObject, SquareHit, UseItem, UsePortal, ViewRadius, WorldPos, ChangeGuildRank, ChooseName,
     CreateGuild, GuildRemove, Reskin, UseStorage,
@@ -504,6 +504,11 @@ impl Game {
             }
         }
         let sent_move = self.out.iter().any(|m| matches!(m, ClientMessage::Move(_)));
+        // on stacked floors, the height we walk at goes just before the Move
+        if let Some(world) = self.world.as_ref().filter(|w| sent_move && w.levels.is_some()) {
+            let at = self.out.iter().position(|m| matches!(m, ClientMessage::Move(_))).unwrap_or(0);
+            self.out.insert(at, Height { z: world.my_z() as f32 }.into());
+        }
         for m in self.out.drain(..) {
             self.socket.send(&m);
         }
@@ -816,6 +821,7 @@ impl Game {
             ServerMessage::CommunityData(d) => self.community_events.push(crate::community::Event::Data(Box::new(d.clone()))),
             ServerMessage::CommunityNotice(n) => self.community_events.push(crate::community::Event::Notice(n.kind, n.title.clone(), n.text.clone())),
             ServerMessage::Goto(g) => world.apply_goto(g.object_id, g.pos.x as f64, g.pos.y as f64, now, data),
+            ServerMessage::Layers(l) => world.set_layers(l.height as f64, &l.tiles),
             ServerMessage::EnemyShoot(e) => {
                 let Some(owner) = world.objects.get(&e.owner_id).filter(|o| !o.dead) else { return };
                 let container = owner.object_type;

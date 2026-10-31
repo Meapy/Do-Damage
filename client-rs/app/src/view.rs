@@ -29,6 +29,8 @@ pub struct Camera {
     /// Where the camera point is on the screen.
     pub cx: f64,
     pub cy: f64,
+    /// The height the camera point is at: ours, on stacked floors.
+    pub z: f64,
     /// The angle's sine and cosine, worked out once (every point drawn uses them).
     sin: f64,
     cos: f64,
@@ -37,7 +39,12 @@ pub struct Camera {
 impl Camera {
     pub fn new(x: f64, y: f64, angle: f64, scale: f64, cx: f64, cy: f64) -> Self {
         let (sin, cos) = angle.sin_cos();
-        Camera { x, y, angle, scale, cx, cy, sin, cos }
+        Camera { x, y, angle, scale, cx, cy, z: 0.0, sin, cos }
+    }
+
+    /// The same view looking at the ground `z` tiles up (ours, on stacked floors).
+    pub fn at_height(self, z: f64) -> Self {
+        Camera { z, ..self }
     }
 
     /// The same view moved by under a pixel so the world's origin is on a whole pixel: the
@@ -45,7 +52,7 @@ impl Camera {
     /// with every fraction of a pixel it moves.
     pub fn snapped(self) -> Self {
         let (o, _, _) = self.affine();
-        let (dx, dy) = ((self.cx - o[0].round()) / self.scale, (self.cy - o[1].round()) / self.scale);
+        let (dx, dy) = ((self.cx - o[0].round()) / self.scale, (self.cy - o[1].round()) / self.scale + self.z);
         let (s, c) = (self.sin, self.cos);
         Camera { x: dx * c - dy * s, y: dx * s + dy * c, ..self }
     }
@@ -54,7 +61,7 @@ impl Camera {
         let (s, c) = (self.sin, self.cos);
         let (dx, dy) = (x - self.x, y - self.y);
         let sx = dx * c + dy * s;
-        let sy = -dx * s + dy * c - z;
+        let sy = -dx * s + dy * c - (z - self.z);
         [(self.cx + sx * self.scale) as f32, (self.cy + sy * self.scale) as f32]
     }
 
@@ -62,11 +69,11 @@ impl Camera {
     /// and along y (z goes straight up the screen by `scale`). Exact, and cheap for many points.
     fn affine(&self) -> ([f64; 2], [f64; 2], [f64; 2]) {
         let (s, c) = (self.sin, self.cos);
-        let o = [self.cx - (self.x * c + self.y * s) * self.scale, self.cy - (-self.x * s + self.y * c) * self.scale];
+        let o = [self.cx - (self.x * c + self.y * s) * self.scale, self.cy - (-self.x * s + self.y * c - self.z) * self.scale];
         (o, [c * self.scale, -s * self.scale], [s * self.scale, c * self.scale])
     }
 
-    /// The ground point under a screen point (`Map.pSTopW`).
+    /// The ground point under a screen point (`Map.pSTopW`), at the camera's height.
     pub fn to_world(&self, px: f64, py: f64) -> (f64, f64) {
         let (s, c) = (self.sin, self.cos);
         let (sx, sy) = ((px - self.cx) / self.scale, (py - self.cy) / self.scale);
@@ -226,9 +233,19 @@ impl Scene<'_> {
         (a * (1.0 - ax) + b * ax) * (1.0 - ay) + (c * (1.0 - ax) + d * ax) * ay
     }
 
-    /// Where an object stands on the screen: its ground point, raised by the ground's lift.
+    /// How high an object stands: on stacked floors its height, eased between squares so a stair
+    /// is climbed smoothly; elsewhere the ground's lift.
+    pub fn height(&self, obj: &GameObj) -> f64 {
+        if self.world.levels.is_some() {
+            height_of(self.world, self.data, obj)
+        } else {
+            self.lift(obj.x, obj.y)
+        }
+    }
+
+    /// Where an object stands on the screen: its ground point, raised by its height.
     pub fn stand(&self, obj: &GameObj) -> [f32; 2] {
-        self.camera.to_screen(obj.x, obj.y, self.lift(obj.x, obj.y))
+        self.camera.to_screen(obj.x, obj.y, self.height(obj))
     }
 }
 
@@ -430,6 +447,103 @@ enum Item<'a> {
     Connected { obj: &'a GameObj, desc: &'a ObjectDesc },
     Model { obj: &'a GameObj, desc: &'a ObjectDesc, model: &'a Model },
     Projectile(&'a Projectile),
+    /// Where the ground drops on stacked floors: part of a floor's edge or a step's side, drawn
+    /// with the floor at its foot.
+    Face { level: u8, plate: Plate },
+}
+
+/// A textured quad, worked out before drawing.
+#[derive(Clone, Copy)]
+struct Plate {
+    rect: bsk_render::AtlasRect,
+    quad: Quad,
+    tint: Tint,
+}
+
+/// On stacked floors, how high an object stands: the ground of its floor round it, eased between
+/// the middles of the squares (as `Scene::lift`), so it climbs a stair smoothly. Squares with no
+/// ground at its height count as its own.
+pub fn height_of(world: &World, data: &GameData, obj: &GameObj) -> f64 {
+    let surface = |tx: i32, ty: i32| {
+        world.surface(obj.level, tx, ty, data).filter(|s| (s - obj.z).abs() <= bsk_world::STEP).unwrap_or(obj.z)
+    };
+    let (fx, fy) = (obj.x - 0.5, obj.y - 0.5);
+    let (x0, y0) = (fx.floor(), fy.floor());
+    let (ax, ay) = (fx - x0, fy - y0);
+    let (x0, y0) = (x0 as i32, y0 as i32);
+    let (a, b, c, d) = (surface(x0, y0), surface(x0 + 1, y0), surface(x0, y0 + 1), surface(x0 + 1, y0 + 1));
+    (a * (1.0 - ax) + b * ax) * (1.0 - ay) + (c * (1.0 - ax) + d * ax) * ay
+}
+
+/// On stacked floors, the lowest floor over an object's head (with ground over its square or
+/// one beside it), if any.
+fn roof_over(world: &World, data: &GameData, obj: &GameObj) -> Option<u8> {
+    (obj.level + 1..world.level_count() as u8)
+        .find(|&l| (-1..=1).any(|dy| (-1..=1).any(|dx| world.surface(l, obj.x as i32 + dx, obj.y as i32 + dy, data).is_some())))
+}
+
+/// On stacked floors: each floor's ground in view at its height (a stair's steps each at theirs),
+/// and the faces where the ground drops beside it (a floor's open edge, a step's side) in pieces a
+/// tile tall, each with the floor at its foot and the depth it sorts at among what stands there.
+/// The floors over our head are see-through.
+#[allow(clippy::type_complexity)]
+fn floors(scene: &Scene, x0: i32, x1: i32, y0: i32, y1: i32) -> (Vec<Vec<Plate>>, Vec<(u8, f32, Plate)>) {
+    let (world, data, cam) = (scene.world, scene.data, scene.camera);
+    let count = world.level_count() as u8;
+    let floor_h = world.levels.as_ref().map_or(1.0, |l| l.height);
+    let level_of = |z: f64| ((z / floor_h).round().max(0.0) as u8).min(count - 1);
+    let roof = world.player().and_then(|p| roof_over(world, data, p));
+    let mut tops = vec![Vec::new(); count as usize];
+    let mut faces = Vec::new();
+    for level in 0..count {
+        let alpha = if roof.is_some_and(|r| level >= r) { 0.35 } else { 1.0 };
+        for y in y0..=y1 {
+            for x in x0..=x1 {
+                let Some(s) = world.surface(level, x, y, data) else { continue };
+                let Some(tile) = world.level_tile(level, x, y) else { continue };
+                let Some(rect) = crate::ground::plain(data, scene.sprites, tile, x, y) else { continue };
+                let (fx, fy) = (x as f64, y as f64);
+                let quad = cam.quad([fx, fy, s], [fx + 1.0, fy, s], [fx, fy + 1.0, s]);
+                tops[level as usize].push(Plate { rect, quad, tint: Tint { mul: [1.0, 1.0, 1.0, alpha], add: [0.0; 3] } });
+                // the sides, in Wall.addWall order: north, east, south, west
+                let sides = [
+                    ([fx, fy], [fx + 1.0, fy], (0, -1)),
+                    ([fx + 1.0, fy], [fx + 1.0, fy + 1.0], (1, 0)),
+                    ([fx + 1.0, fy + 1.0], [fx, fy + 1.0], (0, 1)),
+                    ([fx, fy + 1.0], [fx, fy], (-1, 0)),
+                ];
+                for (a, b, (nx, ny)) in sides {
+                    let beside: Vec<f64> = (0..count).filter_map(|l| world.surface(l, x + nx, y + ny, data)).collect();
+                    // ground as high beside it: no drop
+                    if beside.iter().any(|&v| v >= s - 0.01) {
+                        continue;
+                    }
+                    let bottom = beside.iter().copied().fold(0.0, f64::max);
+                    if s - bottom < 0.01 {
+                        continue;
+                    }
+                    // facing away
+                    let q = cam.quad([a[0], a[1], s], [b[0], b[1], s], [a[0], a[1], s - 1.0]);
+                    if q.x_axis[0] * q.y_axis[1] - q.x_axis[1] * q.y_axis[0] >= 0.0 {
+                        continue;
+                    }
+                    // its stone, lit as a wall's side; else the ground itself, darker
+                    let Some((rect, stone)) = crate::ground::face(data, scene.sprites, tile, x, y) else { continue };
+                    let shade = shade(normal([a[0], a[1], s], [b[0], b[1], s], [b[0], b[1], bottom])) * if stone { 1.0 } else { 0.8 };
+                    let depth = cam.to_screen((a[0] + b[0]) / 2.0, (a[1] + b[1]) / 2.0, cam.z)[1];
+                    let mut top = s;
+                    while top - bottom > 0.01 {
+                        let low = (top - 1.0).max(bottom);
+                        let quad = cam.quad([a[0], a[1], top], [b[0], b[1], top], [a[0], a[1], low]);
+                        let tint = Tint { mul: [shade, shade, shade, alpha], add: [0.0; 3] };
+                        faces.push((level_of(bottom), depth, Plate { rect, quad, tint }));
+                        top = low;
+                    }
+                }
+            }
+        }
+    }
+    (tops, faces)
 }
 
 #[allow(clippy::too_many_arguments)]
@@ -441,59 +555,29 @@ pub fn draw(scene: &Scene, renderer: &mut Renderer, redrawer: &mut Redrawer, gro
     let (x0, x1) = ((cam.x - radius).floor() as i32, (cam.x + radius).ceil() as i32);
     let (y0, y1) = ((cam.y - radius).floor() as i32, (cam.y + radius).ceil() as i32);
 
-    // Ground: all base faces, then the blended overlays (Map.draw's two passes).
-    let mut overlays = Vec::new();
-    let (o, ex, ey) = cam.affine();
-    // Only squares on the screen: a tile's centre within a tile of the window's edges.
-    let (sw, sh, margin) = (w as f64, h as f64, cam.scale);
-    for ty in y0.max(0)..=y1.min(world.height - 1) {
-        let y = ty as f64;
-        // Along a row the tile centres move in a straight line: the columns on screen are
-        // where both screen coordinates are in range.
-        let (mut lo, mut hi) = (x0.max(0) as f64, x1.min(world.width - 1) as f64);
-        for (base, step, max) in [(o[0] + (y + 0.5) * ey[0] + 0.5 * ex[0], ex[0], sw), (o[1] + (y + 0.5) * ey[1] + 0.5 * ex[1], ex[1], sh)] {
-            if step.abs() < 1e-9 {
-                if base < -margin || base > max + margin {
-                    hi = lo - 1.0;
-                }
-                continue;
-            }
-            let (a, b) = ((-margin - base) / step, (max + margin - base) / step);
-            lo = lo.max(a.min(b).floor());
-            hi = hi.min(a.max(b).ceil());
-        }
-        if hi < lo {
-            continue;
-        }
-        for tx in lo as i32..=hi as i32 {
-            let x = tx as f64;
-            let (cx, cy) = (o[0] + (x + 0.5) * ex[0] + (y + 0.5) * ey[0], o[1] + (x + 0.5) * ex[1] + (y + 0.5) * ey[1]);
-            if cx < -margin || cy < -margin || cx > sw + margin || cy > sh + margin {
-                continue;
-            }
-            let Some(layers) = ground.layers(world, scene.data, scene.sprites, renderer, tx, ty) else { continue };
-            let origin = [(o[0] + x * ex[0] + y * ey[0]) as f32, (o[1] + x * ex[1] + y * ey[1]) as f32];
-            let quad = Quad { origin, x_axis: [ex[0] as f32, ex[1] as f32], y_axis: [ey[0] as f32, ey[1] as f32] };
-            if let Some((rect, kind, dx, dy)) = layers.base {
-                let (ox, oy) = crate::ground::scroll(kind, dx, dy, scene.time);
-                crate::ground::draw_scrolled(renderer, rect, quad, ox, oy, Tint::NONE);
-            }
-            if let Some(rect) = layers.overlay {
-                overlays.push((rect, quad));
-            }
-        }
-    }
-    for (rect, quad) in overlays {
-        renderer.sprite(rect, quad, Tint::NONE);
-    }
-    crate::prof::mark("v.ground");
+    // Stacked floors (World.levels): which floor each thing is drawn with, and how far its
+    // height can carry it across the screen.
+    let layered = world.levels.is_some();
+    let floor_h = world.levels.as_ref().map_or(1.0, |l| l.height);
+    let top_level = world.level_count() as u8 - 1;
+    let level_of = |z: f64| ((z / floor_h).round().max(0.0) as u8).min(top_level);
+    let raise = if layered { top_level as f64 * floor_h + 1.0 } else { 0.0 };
+    // something under a floor above it is out of sight (its bars, name and words too), unless
+    // we're under one as well: then the floors over us are see-through (`floors`)
+    let see_through = layered && world.player().is_some_and(|p| roof_over(world, scene.data, p).is_some());
+    let hidden = |obj: &GameObj| {
+        layered && !see_through && Some(obj.id) != world.me
+            && (obj.level + 1..=top_level).any(|l| world.surface(l, obj.x as i32, obj.y as i32, scene.data).is_some())
+    };
+
 
     // Objects and walls, back to front by the screen y of their ground point.
     let mut items: Vec<(f32, Item)> = Vec::new();
     for obj in world.objects.values() {
         let Some(desc) = scene.data.objects.get(&obj.object_type) else { continue };
-        // a big flat object shows while any of it is on the screen
-        let reach = radius + desc.ground_size / 2.0;
+        // a big flat object shows while any of it is on the screen; on stacked floors one on
+        // another floor shows further off
+        let reach = radius + desc.ground_size / 2.0 + raise;
         if (obj.x - cam.x).abs() > reach || (obj.y - cam.y).abs() > reach {
             continue;
         }
@@ -517,13 +601,22 @@ pub fn draw(scene: &Scene, renderer: &mut Renderer, redrawer: &mut Redrawer, gro
         if world.pet_shot(p, scene.data) && ((ally && !scene.show.pet_shots) || scene.show.pet_shot_look == crate::options::PetShots::Hidden) {
             continue;
         }
-        if (p.x - cam.x).abs() <= radius && (p.y - cam.y).abs() <= radius {
+        if (p.x - cam.x).abs() <= radius + raise && (p.y - cam.y).abs() <= radius + raise {
             items.push((cam.to_screen(p.x, p.y, 0.0)[1], Item::Projectile(p)));
         }
     }
+    // the faces where the floors' ground drops, among what stands at their foot
+    let (floor_tops, floor_faces) = if layered { floors(scene, x0, x1, y0 - raise as i32, y1 + raise as i32) } else { Default::default() };
+    for (level, depth, plate) in floor_faces {
+        items.push((depth, Item::Face { level, plate }));
+    }
     items.sort_by(|a, b| a.0.total_cmp(&b.0));
     crate::prof::mark("v.sort");
-
+    let item_level = |item: &Item| match item {
+        Item::Sprite { obj, .. } | Item::Wall { obj, .. } | Item::Connected { obj, .. } | Item::Model { obj, .. } => level_of(obj.z),
+        Item::Projectile(p) => level_of(p.floor),
+        Item::Face { level, .. } => *level,
+    };
     // Map.draw: DrawUnder objects first, then the shadows, then everything else.
     // ...and models that ask to be drawn under everything (`<DrawUnder>`: a bridge's deck, which
     // what crosses it is drawn on)
@@ -534,55 +627,114 @@ pub fn draw(scene: &Scene, renderer: &mut Renderer, redrawer: &mut Redrawer, gro
     };
     // Where each sprite's top is drawn (x, y), for its condition icons.
     let mut tops: Vec<(&GameObj, [f32; 2])> = Vec::new();
-    for (_, item) in items.iter().filter(|(_, i)| under(i)) {
-        match item {
-            Item::Sprite { obj, desc } => {
-                if let Some(top) = draw_sprite(scene, renderer, redrawer, ground, obj, desc) {
-                    tops.push((obj, top));
-                }
-            }
-            Item::Model { obj, desc, model } => draw_model(scene, renderer, obj, desc, model),
-            _ => {}
-        }
-    }
     let k = (cam.scale / TILE_PX) as f32;
-    if scene.show.shadows {
-        for (_, item) in &items {
-            if let Item::Model { obj, desc, model } = item {
-                let alpha = desc.xml.number("ModelShadow", 0.0) as f32;
-                if alpha > 0.0 {
-                    draw_model_shadow(scene, renderer, obj, desc, model, alpha);
+    // On stacked floors (World.levels) each floor in turn from the lowest: its ground at its
+    // height, then what stands on it, with the faces where ground drops to it (a floor's open
+    // edge, a stair's steps). A flat map is the one floor.
+    for level in 0..=top_level {
+        if layered {
+            for p in &floor_tops[level as usize] {
+                renderer.sprite(p.rect, p.quad, p.tint);
+            }
+        } else {
+        // Ground: all base faces, then the blended overlays (Map.draw's two passes).
+        let mut overlays = Vec::new();
+        let (o, ex, ey) = cam.affine();
+        // Only squares on the screen: a tile's centre within a tile of the window's edges.
+        let (sw, sh, margin) = (w as f64, h as f64, cam.scale);
+        for ty in y0.max(0)..=y1.min(world.height - 1) {
+            let y = ty as f64;
+            // Along a row the tile centres move in a straight line: the columns on screen are
+            // where both screen coordinates are in range.
+            let (mut lo, mut hi) = (x0.max(0) as f64, x1.min(world.width - 1) as f64);
+            for (base, step, max) in [(o[0] + (y + 0.5) * ey[0] + 0.5 * ex[0], ex[0], sw), (o[1] + (y + 0.5) * ey[1] + 0.5 * ex[1], ex[1], sh)] {
+                if step.abs() < 1e-9 {
+                    if base < -margin || base > max + margin {
+                        hi = lo - 1.0;
+                    }
+                    continue;
+                }
+                let (a, b) = ((-margin - base) / step, (max + margin - base) / step);
+                lo = lo.max(a.min(b).floor());
+                hi = hi.min(a.max(b).ceil());
+            }
+            if hi < lo {
+                continue;
+            }
+            for tx in lo as i32..=hi as i32 {
+                let x = tx as f64;
+                let (cx, cy) = (o[0] + (x + 0.5) * ex[0] + (y + 0.5) * ey[0], o[1] + (x + 0.5) * ex[1] + (y + 0.5) * ey[1]);
+                if cx < -margin || cy < -margin || cx > sw + margin || cy > sh + margin {
+                    continue;
+                }
+                let Some(layers) = ground.layers(world, scene.data, scene.sprites, renderer, tx, ty) else { continue };
+                let origin = [(o[0] + x * ex[0] + y * ey[0]) as f32, (o[1] + x * ex[1] + y * ey[1]) as f32];
+                let quad = Quad { origin, x_axis: [ex[0] as f32, ex[1] as f32], y_axis: [ey[0] as f32, ey[1] as f32] };
+                if let Some((rect, kind, dx, dy)) = layers.base {
+                    let (ox, oy) = crate::ground::scroll(kind, dx, dy, scene.time);
+                    crate::ground::draw_scrolled(renderer, rect, quad, ox, oy, Tint::NONE);
+                }
+                if let Some(rect) = layers.overlay {
+                    overlays.push((rect, quad));
                 }
             }
         }
-    }
-    if let Some(shadow) = redrawer.shadow(renderer).filter(|_| scene.show.shadows) {
-        for (_, item) in items.iter().filter(|(_, i)| !under(i)) {
-            let Item::Sprite { obj, desc } = item else { continue };
-            if desc.shadow_size <= 0 {
-                continue;
-            }
-            // 30 × 15 px half-axes at size 100, under the object's ground point.
-            let size = obj.stat_int(2).unwrap_or(desc.min_size) as f32;
-            let s = size / 100.0 * (desc.shadow_size as f32 / 100.0);
-            let (sw, sh) = (30.0 * s * k, 15.0 * s * k);
-            let [px, py] = scene.stand(obj);
-            let alpha = fade(scene, obj, desc);
-            if alpha <= 0.0 {
-                continue;
-            }
-            renderer.sprite(shadow, Quad::rect(px - sw, py - sh, 2.0 * sw, 2.0 * sh), Tint::color(desc.shadow_color, alpha));
+        for (rect, quad) in overlays {
+            renderer.sprite(rect, quad, Tint::NONE);
         }
-    }
-    for (_, item) in items.iter().filter(|(_, i)| !under(i)) {
-        match item {
-            Item::Wall { obj, desc } => draw_wall(scene, renderer, obj, desc),
-            Item::Connected { obj, desc } => draw_connected(scene, renderer, ground, obj, desc),
-            Item::Model { obj, desc, model } => draw_model(scene, renderer, obj, desc, model),
-            Item::Projectile(p) => draw_projectile(scene, renderer, redrawer, p),
-            Item::Sprite { obj, desc } => {
-                if let Some(top) = draw_sprite(scene, renderer, redrawer, ground, obj, desc) {
-                    tops.push((obj, top));
+        crate::prof::mark("v.ground");
+        }
+        let here = |item: &Item| item_level(item) == level;
+        for (_, item) in items.iter().filter(|(_, i)| under(i) && here(i)) {
+            match item {
+                Item::Sprite { obj, desc } => {
+                    if let Some(top) = draw_sprite(scene, renderer, redrawer, ground, obj, desc) {
+                        tops.push((obj, top));
+                    }
+                }
+                Item::Model { obj, desc, model } => draw_model(scene, renderer, obj, desc, model),
+                _ => {}
+            }
+        }
+        if scene.show.shadows {
+            for (_, item) in items.iter().filter(|(_, i)| here(i)) {
+                if let Item::Model { obj, desc, model } = item {
+                    let alpha = desc.xml.number("ModelShadow", 0.0) as f32;
+                    if alpha > 0.0 {
+                        draw_model_shadow(scene, renderer, obj, desc, model, alpha);
+                    }
+                }
+            }
+        }
+        if let Some(shadow) = redrawer.shadow(renderer).filter(|_| scene.show.shadows) {
+            for (_, item) in items.iter().filter(|(_, i)| !under(i) && here(i)) {
+                let Item::Sprite { obj, desc } = item else { continue };
+                if desc.shadow_size <= 0 {
+                    continue;
+                }
+                // 30 × 15 px half-axes at size 100, under the object's ground point.
+                let size = obj.stat_int(2).unwrap_or(desc.min_size) as f32;
+                let s = size / 100.0 * (desc.shadow_size as f32 / 100.0);
+                let (sw, sh) = (30.0 * s * k, 15.0 * s * k);
+                let [px, py] = scene.stand(obj);
+                let alpha = fade(scene, obj, desc);
+                if alpha <= 0.0 {
+                    continue;
+                }
+                renderer.sprite(shadow, Quad::rect(px - sw, py - sh, 2.0 * sw, 2.0 * sh), Tint::color(desc.shadow_color, alpha));
+            }
+        }
+        for (_, item) in items.iter().filter(|(_, i)| !under(i) && here(i)) {
+            match item {
+                Item::Wall { obj, desc } => draw_wall(scene, renderer, obj, desc),
+                Item::Connected { obj, desc } => draw_connected(scene, renderer, ground, obj, desc),
+                Item::Model { obj, desc, model } => draw_model(scene, renderer, obj, desc, model),
+                Item::Projectile(p) => draw_projectile(scene, renderer, redrawer, p),
+                Item::Face { plate, .. } => renderer.sprite(plate.rect, plate.quad, plate.tint),
+                Item::Sprite { obj, desc } => {
+                    if let Some(top) = draw_sprite(scene, renderer, redrawer, ground, obj, desc) {
+                        tops.push((obj, top));
+                    }
                 }
             }
         }
@@ -600,7 +752,7 @@ pub fn draw(scene: &Scene, renderer: &mut Renderer, redrawer: &mut Redrawer, gro
     let icon_scale = ((1.5 * k).round() as u32).max(1);
     for (obj, [x, y]) in &tops {
         let c = obj.conditions();
-        if c == [0, 0] || has(c, condition::PAUSED) {
+        if c == [0, 0] || has(c, condition::PAUSED) || hidden(obj) {
             continue;
         }
         // The 16 x 16 icons (the stat boosts) at three quarters of the 8 x 8 ones' scale, so they're
@@ -627,7 +779,7 @@ pub fn draw(scene: &Scene, renderer: &mut Renderer, redrawer: &mut Redrawer, gro
     // HP bars (`GameObject.drawHpBar`) under monsters and players.
     for (_, item) in items.iter().filter(|_| scene.show.hp_bars) {
         let Item::Sprite { obj, desc } = item else { continue };
-        if !(desc.enemy || desc.player) || desc.no_mini_map || fade(scene, obj, desc) <= 0.0 {
+        if !(desc.enemy || desc.player) || desc.no_mini_map || fade(scene, obj, desc) <= 0.0 || hidden(obj) {
             continue;
         }
         let c = obj.conditions();
@@ -654,7 +806,7 @@ pub fn draw(scene: &Scene, renderer: &mut Renderer, redrawer: &mut Redrawer, gro
     // Damage numbers and notifications, rising above the object.
     let style = Style { size: (18.0 * k).round().max(10.0), bold: true, color: 0xFF0000 };
     for f in scene.floaters.iter().filter(|f| scene.show.damage_numbers || !f.is_damage()) {
-        let Some(obj) = world.objects.get(&f.object_id) else { continue };
+        let Some(obj) = world.objects.get(&f.object_id).filter(|o| !hidden(o)) else { continue };
         let age = (scene.time - f.at) as f32 / 1000.0;
         let [px, py] = scene.stand(obj);
         let y = py - (55.0 + 40.0 * age) * k;
@@ -664,7 +816,7 @@ pub fn draw(scene: &Scene, renderer: &mut Renderer, redrawer: &mut Redrawer, gro
     // Speech balloons: the text wrapped to 150 px, in a cut-corner box with a tail, above the
     // speaker.
     for b in scene.bubbles.iter().filter(|_| scene.show.bubbles) {
-        let Some(obj) = world.objects.get(&b.object_id) else { continue };
+        let Some(obj) = world.objects.get(&b.object_id).filter(|o| !hidden(o)) else { continue };
         let size = (14.0 * k).round().max(9.0);
         let style = Style { size, bold: false, color: b.colors[2] };
         let max_w = 150.0 * k;
@@ -710,7 +862,7 @@ pub fn draw(scene: &Scene, renderer: &mut Renderer, redrawer: &mut Redrawer, gro
         let player = desc.player && Some(obj.id) != world.me;
         // Portal.draw: the Nexus's realm portals show their name and player count.
         let realm_portal = desc.class == ObjectClass::Portal && desc.xml.has("NexusPortal");
-        if !(desc.show_name || player || realm_portal) || fade(scene, obj, desc) <= 0.0 {
+        if !(desc.show_name || player || realm_portal) || fade(scene, obj, desc) <= 0.0 || hidden(obj) {
             continue;
         }
         let Some(name) = obj.name() else { continue };
@@ -800,7 +952,7 @@ fn draw_sprite(scene: &Scene, renderer: &mut Renderer, redrawer: &mut Redrawer, 
     // map. On sinking ground (water) the sprite is drawn lower with its bottom cut off, unless it
     // flies.
     let k = (cam.scale / TILE_PX) as f32;
-    let lift = scene.lift(obj.x, obj.y);
+    let lift = scene.height(obj);
     let [px, py] = cam.to_screen(obj.x, obj.y, desc.z + lift);
     let mut sink = 0.0;
     if lift == 0.0 && !desc.flying && !desc.protect_from_sink() {
@@ -884,7 +1036,7 @@ fn draw_projectile(scene: &Scene, renderer: &mut Renderer, redrawer: &mut Redraw
     let spin = if look_desc.rotation == 0.0 { 0.0 } else { scene.time as f64 / look_desc.rotation };
     let angle = p.angle - cam.angle + look_desc.angle_correction + spin;
     let k = (cam.scale / TILE_PX) as f32;
-    let [px, py] = cam.to_screen(p.x, p.y, p.z);
+    let [px, py] = cam.to_screen(p.x, p.y, p.z + p.floor);
     let quad = Quad::rotated(px, py, sprite.w as f32 * k, sprite.h as f32 * k, angle as f32);
     renderer.sprite(sprite.rect, quad, tint);
 }
@@ -897,10 +1049,12 @@ fn draw_model(scene: &Scene, renderer: &mut Renderer, obj: &GameObj, desc: &Obje
     let texture = scene.texture_src(&desc.texture, obj.id).and_then(|s| scene.sprites.atlas(s));
     let contrast = desc.xml.number("ModelContrast", 0.25);
     let (s, c) = desc.rotation.to_radians().sin_cos();
+    // on stacked floors, up on its floor
+    let base = if scene.world.levels.is_some() { obj.z } else { 0.0 };
     let world: Vec<[f64; 3]> = model
         .vertices
         .iter()
-        .map(|(p, _)| [p[0] * c - p[1] * s + obj.x, p[0] * s + p[1] * c + obj.y, p[2]])
+        .map(|(p, _)| [p[0] * c - p[1] * s + obj.x, p[0] * s + p[1] * c + obj.y, p[2] + base])
         .collect();
     let screen: Vec<[f32; 2]> = world.iter().map(|p| cam.to_screen(p[0], p[1], p[2])).collect();
     for face in &model.faces {
@@ -1052,6 +1206,8 @@ fn sub(a: [f32; 2], b: [f32; 2]) -> [f32; 2] {
 fn draw_wall(scene: &Scene, renderer: &mut Renderer, obj: &GameObj, desc: &ObjectDesc) {
     let cam = scene.camera;
     let (xi, yi) = (obj.x.floor(), obj.y.floor());
+    // on stacked floors, up on its floor
+    let z = if scene.world.levels.is_some() { obj.z } else { 0.0 };
     let side = scene.texture_src(&desc.texture, obj.id).and_then(|s| scene.sprites.atlas(s));
     let top = desc
         .top
@@ -1069,9 +1225,9 @@ fn draw_wall(scene: &Scene, renderer: &mut Renderer, obj: &GameObj, desc: &Objec
         ([xi, yi + 1.0], [xi, yi], (-1, 0)),
     ];
     for (a, b, (nx, ny)) in corners {
-        let v0 = [a[0], a[1], 1.0];
-        let v1 = [b[0], b[1], 1.0];
-        let v3 = [a[0], a[1], 0.0];
+        let v0 = [a[0], a[1], z + 1.0];
+        let v1 = [b[0], b[1], z + 1.0];
+        let v3 = [a[0], a[1], z];
         let quad = cam.quad(v0, v1, v3);
         // Back faces: the projected corners wind the other way.
         let cross = quad.x_axis[0] * quad.y_axis[1] - quad.x_axis[1] * quad.y_axis[0];
@@ -1081,20 +1237,20 @@ fn draw_wall(scene: &Scene, renderer: &mut Renderer, obj: &GameObj, desc: &Objec
         let (sx, sy) = (xi as i32 + nx, yi as i32 + ny);
         let neighbour_wall = scene
             .world
-            .occupant(sx, sy)
+            .occupant_at(obj.level, sx, sy)
             .and_then(|o| scene.data.objects.get(&o.object_type))
             .is_some_and(|d| d.class.is_wall());
-        if scene.world.tile(sx, sy).is_none() || neighbour_wall {
+        if scene.world.level_tile(obj.level, sx, sy).is_none() || neighbour_wall {
             renderer.sprite(renderer.white(), quad, Tint::color(0x000000, 1.0));
             continue;
         }
-        let s = shade(normal(v0, v1, [b[0], b[1], 0.0]));
+        let s = shade(normal(v0, v1, [b[0], b[1], z]));
         renderer.sprite(side, quad, Tint { mul: [s, s, s, 1.0], add: [0.0; 3] });
     }
     if let Some(top) = top {
-        let v0 = [xi, yi, 1.0];
-        let s = shade(normal(v0, [xi + 1.0, yi, 1.0], [xi + 1.0, yi + 1.0, 1.0]));
-        let quad = cam.quad(v0, [xi + 1.0, yi, 1.0], [xi, yi + 1.0, 1.0]);
+        let v0 = [xi, yi, z + 1.0];
+        let s = shade(normal(v0, [xi + 1.0, yi, z + 1.0], [xi + 1.0, yi + 1.0, z + 1.0]));
+        let quad = cam.quad(v0, [xi + 1.0, yi, z + 1.0], [xi, yi + 1.0, z + 1.0]);
         renderer.sprite(top, quad, Tint { mul: [s, s, s, 1.0], add: [0.0; 3] });
     }
 }
@@ -1125,6 +1281,16 @@ mod tests {
             // Moved by under a pixel.
             let moved = (snapped.x - cam.x).hypot(snapped.y - cam.y) * cam.scale;
             assert!(moved <= 0.75, "{moved}");
+        }
+    }
+
+    #[test]
+    fn raised_camera_keeps_its_point() {
+        // looking at the ground 6 tiles up: what stands there is drawn at the camera point
+        for angle in [0.0, 0.7] {
+            let cam = Camera::new(10.123, 7.871, angle, 47.3, 400.4, 300.0).at_height(6.0).snapped();
+            let [x, y] = cam.to_screen(10.123, 7.871, 6.0);
+            assert!((x - 400.4).abs() < 1.0 && (y - 300.0).abs() < 1.0, "{x} {y}");
         }
     }
 

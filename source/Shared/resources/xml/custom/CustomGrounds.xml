@@ -1,2 +1,102 @@
 ﻿<GroundTypes>
+	<!-- the Stair Tower's steps (tools/build_stair_tower.py): each half a tile above the last;
+	     on its stacked floors what stands on one walks that high (StairTowerWorld) -->
+	<Ground type="0x9C00" id="ST Step 1">
+		<Texture>
+			<File>oryxSanctuaryObjects8x8</File>
+			<Index>0x4c2</Index>
+		</Texture>
+		<Face>
+			<Texture>
+				<File>lofiEnvironment</File>
+				<Index>0x20</Index>
+			</Texture>
+		</Face>
+		<Lift>0.5</Lift>
+		<Color>0x3A4660</Color>
+	</Ground>
+	<Ground type="0x9C01" id="ST Step 2">
+		<Texture>
+			<File>oryxSanctuaryObjects8x8</File>
+			<Index>0x4c2</Index>
+		</Texture>
+		<Face>
+			<Texture>
+				<File>lofiEnvironment</File>
+				<Index>0x20</Index>
+			</Texture>
+		</Face>
+		<Lift>1.0</Lift>
+		<Color>0x3A4660</Color>
+	</Ground>
+	<Ground type="0x9C02" id="ST Step 3">
+		<Texture>
+			<File>oryxSanctuaryObjects8x8</File>
+			<Index>0x4c2</Index>
+		</Texture>
+		<Face>
+			<Texture>
+				<File>lofiEnvironment</File>
+				<Index>0x20</Index>
+			</Texture>
+		</Face>
+		<Lift>1.5</Lift>
+		<Color>0x3A4660</Color>
+	</Ground>
+	<Ground type="0x9C03" id="ST Step 4">
+		<Texture>
+			<File>oryxSanctuaryObjects8x8</File>
+			<Index>0x4c2</Index>
+		</Texture>
+		<Face>
+			<Texture>
+				<File>lofiEnvironment</File>
+				<Index>0x20</Index>
+			</Texture>
+		</Face>
+		<Lift>2.0</Lift>
+		<Color>0x3A4660</Color>
+	</Ground>
+	<Ground type="0x9C04" id="ST Step 5">
+		<Texture>
+			<File>oryxSanctuaryObjects8x8</File>
+			<Index>0x4c2</Index>
+		</Texture>
+		<Face>
+			<Texture>
+				<File>lofiEnvironment</File>
+				<Index>0x20</Index>
+			</Texture>
+		</Face>
+		<Lift>2.5</Lift>
+		<Color>0x3A4660</Color>
+	</Ground>
+	<!-- the Stair Tower's floors: Blue Quad and Blue Closed, with Blue Wall's stone where a floor's
+	     edge drops to the one below (<Face>, the Rust client's view::floors) -->
+	<Ground type="0x9C05" id="ST Floor">
+		<Texture>
+			<File>lofiEnvironment</File>
+			<Index>0x26</Index>
+		</Texture>
+		<Face>
+			<Texture>
+				<File>lofiEnvironment</File>
+				<Index>0x20</Index>
+			</Texture>
+		</Face>
+		<Color>0x3C5A7A</Color>
+	</Ground>
+	<Ground type="0x9C06" id="ST Floor Edge">
+		<Texture>
+			<File>lofiEnvironment</File>
+			<Index>0x25</Index>
+		</Texture>
+		<Face>
+			<Texture>
+				<File>lofiEnvironment</File>
+				<Index>0x20</Index>
+			</Texture>
+		</Face>
+		<Color>0x46688A</Color>
+	</Ground>
 </GroundTypes>

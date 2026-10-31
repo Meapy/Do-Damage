@@ -421,11 +421,12 @@
 		<Dungeon/>
 	</World>
 	<World id="testadmin1">
-		<!-- tools/build_stair_tower.py: a prototype of floors joined by looping stairs
-		     (StairTowerWorld); admins only, /dungeon testadmin1 -->
+		<!-- tools/build_stair_tower.py: a prototype of real height, floors stacked over the
+		     same ground (StairTowerWorld; "Stair Tower 1.jm" and up are the floors above);
+		     admins only, /dungeon testadmin1 -->
 		<DisplayName>Stair Tower</DisplayName>
-		<Width>48</Width>
-		<Height>204</Height>
+		<Width>56</Width>
+		<Height>72</Height>
 		<MapJM>Dungeons/Stair Tower.jm</MapJM>
 		<VisibilityType>1</VisibilityType>
 		<DisableTeleport/>

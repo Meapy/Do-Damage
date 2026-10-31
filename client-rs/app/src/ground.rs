@@ -107,6 +107,21 @@ fn texture_rect(sprites: &Sprites, tex: &TextureData, pick: i32) -> Option<Atlas
     }
 }
 
+/// A ground's own texture at a square, with no blending or edges (the floors of a world of
+/// stacked floors, `view::floors`).
+pub fn plain(data: &GameData, sprites: &Sprites, tile: u16, x: i32, y: i32) -> Option<AtlasRect> {
+    texture_rect(sprites, &data.grounds.get(&tile)?.texture, bsk_data::ground::tile_hash(x, y))
+}
+
+/// What a ground shows on its sides where it drops, on stacked floors: its `<Face>` (stone under
+/// a floor's edge) and true, or its own texture and false.
+pub fn face(data: &GameData, sprites: &Sprites, tile: u16, x: i32, y: i32) -> Option<(AtlasRect, bool)> {
+    match data.grounds.get(&tile)?.xml.child("Face") {
+        Some(face) => texture_rect(sprites, &TextureData::from_xml(face), bsk_data::ground::tile_hash(x, y)).map(|r| (r, true)),
+        None => plain(data, sprites, tile, x, y).map(|r| (r, false)),
+    }
+}
+
 impl Ground {
     fn masks(&mut self, sprites: &Sprites) -> &Vec<[Vec<RgbaImage>; 6]> {
         self.masks.get_or_insert_with(|| {

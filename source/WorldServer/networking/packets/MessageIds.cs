@@ -185,6 +185,10 @@ public enum MessageId : byte
     COMMUNITY_DATA = 129,
     COMMUNITY_CLAIM = 130,
     COMMUNITY_NOTICE = 131,
+    // A world of stacked floors (StairTowerWorld): the floors above the map, sent on entering
+    // (LAYERS), and the height the client walks at, before each MOVE there (HEIGHT).
+    LAYERS = 132,
+    HEIGHT = 133,
     // From the world proxy (tools/world_proxy.py), before the client's first message: the
     // client's address. Only taken on a connection from this PC; clients never send it.
     PROXY_INFO = 250
