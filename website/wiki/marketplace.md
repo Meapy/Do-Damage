@@ -10,8 +10,8 @@ price; anyone can buy it, even while you're offline, and the fame is yours the m
 
 ## Finding it
 
-Walk south from the Nexus spawn into the **market square**. The **Market Broker** stands at its
-head, and greets you with how much is for sale (or how many of your items are) as you come by: stand by it and press **View** (or <kbd>0</kbd>) to open the Marketplace window. `/market`
+Cross the east bridge from the Nexus spawn into the village; the **market square** is south-east
+of it, past the cross street, two rows of stalls round a courtyard. The **Market Broker** strolls about the courtyard, and greets you with how much is for sale (or how many of your items are) as you come by: stand by it and press **View** (or <kbd>0</kbd>) to open the Marketplace window. `/market`
 takes you to the Broker from anywhere.
 
 Either side of the square, two pavilions of **stalls** show what players are selling, the newest

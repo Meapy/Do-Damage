@@ -15,13 +15,41 @@ details). Add to a group's line when a change adds to it, rather than adding ano
 ## Unreleased
 
 ### Nexus
+- A new Nexus: a Japanese garden village on an island, with cherry trees in bloom, lanterns, a
+  koi pond crossed by railed bridges, and houses, a pagoda and torii gates standing in 3D. You
+  arrive on a pink wooden deck in the middle of the pond. The realm portals are sunk into the
+  floor of a shrine to the north-west: a great swirling vortex for Realm 2, a dark cavern for
+  each realm and a sand pit for the Arena. Walk onto one to enter. The shops line the village's
+  street to the east, with the Guild Hall (make a guild at the Guild Register beside it), the
+  shared vault chests, and a market of stalls, carts and tea benches where the Market Broker, the
+  Tinkerer and the Chronicler stroll about. The smithy's great
+  furnace is the Divine Forge and its crystal altar the Enchanter, and Amatsumara the smith god
+  hammers away at his anvil before it. The bridges arch over the pond, and you climb them. The
+  Hall of Champions and a dojo yard are to the west, a giant old cherry tree north of the spawn
+  that sheds blossom all around it, and a forest to the south where blossom falls around you.
+  Villagers, the twins Hana and Sora, and the Name and Character Changers stroll about, bees drift
+  over the flowers, and the XP gifts are now ducks swimming on the pond.
+- Guild halls are gardens too, on islands in the same style: a torii over the path to the
+  guild's shrine and teahouse, the vault and the training yard behind bamboo fences, a koi pond,
+  and in the greatest hall the guild's own smithy with the Divine Forge and the Enchanter.
+- The portal a dungeon leaves to take you home looks like the Nexus button's icon.
+- Your vault is a garden too: the chests in rows on raked gravel beyond a torii, the gift chests in
+  two fenced yards, and the Potion Storage, the Armoire and the portals in a stone court by the
+  spawn. Cherry blossom falls all over the vault and the guild halls.
 - Standing still in the Nexus for 20 minutes now saves your character and sends you back to the
   character screen, with a message saying why, so idlers don't take up a place. Walking resets
   the clock; realms, dungeons and your vault aren't affected.
 
+### Forge
+- The forge no longer makes the Elder Draconis Key from the Lair of Draconis's four dragon relics
+  (the Bazaar sells the key). The relics are keepsakes now.
+
 ### Game
 - When the server ends your game itself, the character screen now shows its reason rather than
   "the server closed the connection".
+- Hovering over the Quests button or the inventory and backpack tabs shows a small one-line hint
+  with its key ("Quest log [J]").
+- The Name Changer's button shows just the price ("50,000 fame") beside its key.
 
 ## 2.3.5 (2026-10-31)
 

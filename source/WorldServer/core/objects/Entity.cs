@@ -301,10 +301,15 @@ namespace WorldServer.core.objects
         /// <summary>X or Y changed: the players who see this send its position with their next tick.</summary>
         public void InvokeMoved() => StatChanged?.Invoke(this, StatChangedEventArgs.Moved);
 
+        /// <summary>A static object that walks about (the Nexus's walking NPCs, NexusVillagers): its
+        /// moves keep its place in the collision map, as a hittestable one's do, so players it walks
+        /// toward still find it.</summary>
+        public bool Walks { get; set; }
+
         public void Move(float x, float y)
         {
             // pets are in PlayersCollision too (World.EnterWorld); moving them keeps them visible to players near their owner
-            if (World != null && (!(this is StaticObject) || (this as StaticObject).Hittestable))
+            if (World != null && (!(this is StaticObject) || (this as StaticObject).Hittestable || Walks))
                 (this is Enemy || this is StaticObject && !(this is Decoy) ? World.EnemiesCollision : World.PlayersCollision).Move(this, x, y);
 
             var prevX = X;

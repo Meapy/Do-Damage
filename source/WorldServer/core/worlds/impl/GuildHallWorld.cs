@@ -72,7 +72,7 @@ namespace WorldServer.core.worlds.impl
             var account = player.Client?.Account;
             if (account == null || account.GuildId <= 0 || !player.InGuild)
             {
-                player.SendError("You are not in a guild. Make one at the Guild Register in the Nexus, or ask a guild to invite you.");
+                player.SendError("You are not in a guild. Make one at the Guild Register beside the Guild Hall's door in the Nexus's village, or ask a guild to invite you.");
                 return;
             }
             var manager = player.GameServer.WorldManager;

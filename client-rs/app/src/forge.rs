@@ -991,7 +991,9 @@ impl Forge {
         let cell = 50.0 * s;
         let gap = 10.0 * s;
         let row_w = n as f32 * cell + (n.saturating_sub(1)) as f32 * gap;
-        let sy = r[1] + r[3] - 120.0 * s;
+        // a line for the potion storage's potions under them takes room above the buttons
+        let potion_line = if self.storage_cost(rec.result).is_some() && done.is_none() { 32.0 } else { 0.0 };
+        let sy = r[1] + r[3] - (120.0 + potion_line) * s;
         let sx = fx - row_w / 2.0;
         // a result several recipes make: say so (the list shows it once)
         let others = self.recipes.iter().filter(|o| o.result == rec.result).count();

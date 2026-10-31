@@ -56,7 +56,7 @@ pub enum NpcKind {
     ChampionsBoard,
     /// A champion's statue round it: the Hall, at its board.
     ChampionStatue,
-    /// The Herald by the Nexus spawn: the server's week.
+    /// The Herald in the Nexus's leaderboard court, west of the spawn: the server's week.
     Herald,
 }
 
@@ -123,7 +123,7 @@ pub fn interact_text(kind: NpcKind, me: &GameObj, rank_req: i32, price: Option<i
                 (format!("Rank {rank_req} needed"), None)
             } else if int(me, stat::NAME_CHOSEN) != 0 {
                 let name = me.name().unwrap_or("");
-                (format!("Your name is {name}"), Some((format!("Change  ·  {} fame", crate::hud::group_digits(NAME_CHANGE_PRICE)), Kind::Primary)))
+                (format!("Your name is {name}"), Some((format!("{} fame", crate::hud::group_digits(NAME_CHANGE_PRICE)), Kind::Primary)))
             } else {
                 open("Choose your account name", "Choose")
             }
@@ -141,8 +141,7 @@ pub fn interact_text(kind: NpcKind, me: &GameObj, rank_req: i32, price: Option<i
         NpcKind::PotionStorage => open("Store stat potions", "Open"),
         NpcKind::Market => open("Buy and sell items", "Manage"),
         NpcKind::ArenaLeaderboard => open("The arena's best runs", "View"),
-        NpcKind::Forge => open("The Divine Workbench: forge, sell or imprint", "Open"),
-        NpcKind::Enchanter => open("The Divine Workbench: imprint your gear", "Open"),
+        NpcKind::Forge | NpcKind::Enchanter => open("The Divine Workbench", "Open"),
         NpcKind::QuestMaster => open("Daily, weekly and monthly quests", "Quests"),
         NpcKind::Chronicler => open("Daily rewards and achievements", "Open"),
         NpcKind::ChampionsBoard => open("The living's best, and their rewards", "View"),

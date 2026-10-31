@@ -17,6 +17,7 @@ mod forge;
 mod quests;
 mod market;
 mod particles;
+mod petals;
 mod prof;
 mod npc;
 mod options;
@@ -2322,6 +2323,7 @@ impl App {
                         let scene = view::Scene { sprites, data, world, camera, time: now, floaters: &game.floaters, bubbles: &game.bubbles, particles: &game.particles, show, hallucinating };
                         prof::mark("pre-world");
                         view::draw(&scene, renderer, redrawer, ground, fonts, text);
+                        game.petals.draw(&camera, renderer, now);
                         // The world through a filter (Map.getFilterIndex): paused, else blind, else
                         // drunk (a swaying blur).
                         let filter = if has(bsk_world::condition::PAUSED) {

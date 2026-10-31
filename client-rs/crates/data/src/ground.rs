@@ -49,6 +49,9 @@ pub struct Ground {
     pub push: bool,
     pub sink: bool,
     pub sinking: bool,
+    /// `<Lift>`: how high, in tiles, this ground lifts what stands on it (the Nexus garden's
+    /// arched bridges: the deck is drawn by a model, the players walk up and over it).
+    pub lift: f64,
     pub random_offset: bool,
     pub edge: Option<TextureData>,
     pub corner: Option<TextureData>,
@@ -82,6 +85,7 @@ impl Ground {
             push: xml.has("Push"),
             sink: xml.has("Sink"),
             sinking: xml.has("Sinking"),
+            lift: xml.number("Lift", 0.0),
             random_offset: xml.has("RandomOffset"),
             corner: edge.as_ref().and_then(|_| tex("Corner")),
             inner_corner: edge.as_ref().and_then(|_| tex("InnerCorner")),

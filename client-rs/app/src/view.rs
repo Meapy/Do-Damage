@@ -91,11 +91,58 @@ impl Camera {
 
 /// `Lighting3D.shadeValue`: 0.75 ambient plus the rest from a light along (1, 3, 2).
 fn shade(normal: [f64; 3]) -> f32 {
+    shade_with(normal, 0.25)
+}
+
+/// The same light, `contrast` of it directional and the rest ambient (`<ModelContrast>`: the
+/// Nexus garden's models take more, so their roofs and walls read as solid).
+fn shade_with(normal: [f64; 3], contrast: f64) -> f32 {
     let len = (1.0f64 + 9.0 + 4.0).sqrt();
     let light = [1.0 / len, 3.0 / len, 2.0 / len];
     let n_len = (normal[0] * normal[0] + normal[1] * normal[1] + normal[2] * normal[2]).sqrt();
     let dot = (normal[0] * light[0] + normal[1] * light[1] + normal[2] * light[2]) / n_len;
-    (0.75 + 0.25 * dot.max(0.0)) as f32
+    (1.0 - contrast + contrast * dot.max(0.0)) as f32
+}
+
+/// The ground under a model in shadow (`<ModelShadow>` its opacity): every corner cast down onto
+/// the ground away from the light, toward the south-west so it shows past the model in this
+/// view, and the outline of all of them filled. Drawn before anything stands on the ground.
+fn draw_model_shadow(scene: &Scene, renderer: &mut Renderer, obj: &GameObj, desc: &ObjectDesc, model: &Model, alpha: f32) {
+    let cam = scene.camera;
+    let (s, c) = desc.rotation.to_radians().sin_cos();
+    let mut pts: Vec<[f64; 2]> = model
+        .vertices
+        .iter()
+        .map(|(p, _)| {
+            let (x, y) = (p[0] * c - p[1] * s, p[0] * s + p[1] * c);
+            [obj.x + x - p[2] * 0.42, obj.y + y + p[2] * 0.3]
+        })
+        .collect();
+    // the convex hull (monotone chain)
+    pts.sort_by(|a, b| a[0].total_cmp(&b[0]).then(a[1].total_cmp(&b[1])));
+    pts.dedup_by(|a, b| (a[0] - b[0]).abs() < 1e-6 && (a[1] - b[1]).abs() < 1e-6);
+    if pts.len() < 3 {
+        return;
+    }
+    let cross = |o: [f64; 2], a: [f64; 2], b: [f64; 2]| (a[0] - o[0]) * (b[1] - o[1]) - (a[1] - o[1]) * (b[0] - o[0]);
+    let mut hull: Vec<[f64; 2]> = Vec::new();
+    for pass in 0..2 {
+        let start = hull.len();
+        let iter: Box<dyn Iterator<Item = &[f64; 2]>> = if pass == 0 { Box::new(pts.iter()) } else { Box::new(pts.iter().rev()) };
+        for &p in iter {
+            while hull.len() >= start + 2 && cross(hull[hull.len() - 2], hull[hull.len() - 1], p) <= 0.0 {
+                hull.pop();
+            }
+            hull.push(p);
+        }
+        hull.pop();
+    }
+    let white = renderer.white();
+    let screen: Vec<[f32; 2]> = hull.iter().map(|p| cam.to_screen(p[0], p[1], 0.0)).collect();
+    let tint = Tint::color(0x0A0612, alpha);
+    for k in 1..screen.len().saturating_sub(1) {
+        renderer.triangle(white, [screen[0], screen[k], screen[k + 1]], [[0.5, 0.5]; 3], tint);
+    }
 }
 
 /// `Plane3D.computeNormalVec` for a face given by its first three corners.
@@ -161,6 +208,28 @@ pub struct Scene<'a> {
     pub show: Show,
     /// We're hallucinating: everything shows as a random character (`Camera.isHallucinating_`).
     pub hallucinating: bool,
+}
+
+impl Scene<'_> {
+    /// How far the ground lifts what stands at (x, y) (`<Lift>` grounds), eased between the
+    /// middles of the tiles round it so a bridge's arch is climbed smoothly.
+    pub fn lift(&self, x: f64, y: f64) -> f64 {
+        let lift = |tx: i32, ty: i32| self.world.tile(tx, ty).and_then(|t| self.data.grounds.get(&t)).map_or(0.0, |g| g.lift);
+        let (fx, fy) = (x - 0.5, y - 0.5);
+        let (x0, y0) = (fx.floor(), fy.floor());
+        let (ax, ay) = (fx - x0, fy - y0);
+        let (x0, y0) = (x0 as i32, y0 as i32);
+        let (a, b, c, d) = (lift(x0, y0), lift(x0 + 1, y0), lift(x0, y0 + 1), lift(x0 + 1, y0 + 1));
+        if a == 0.0 && b == 0.0 && c == 0.0 && d == 0.0 {
+            return 0.0;
+        }
+        (a * (1.0 - ax) + b * ax) * (1.0 - ay) + (c * (1.0 - ax) + d * ax) * ay
+    }
+
+    /// Where an object stands on the screen: its ground point, raised by the ground's lift.
+    pub fn stand(&self, obj: &GameObj) -> [f32; 2] {
+        self.camera.to_screen(obj.x, obj.y, self.lift(obj.x, obj.y))
+    }
 }
 
 /// What the options let the player hide.
@@ -422,10 +491,12 @@ pub fn draw(scene: &Scene, renderer: &mut Renderer, redrawer: &mut Redrawer, gro
     // Objects and walls, back to front by the screen y of their ground point.
     let mut items: Vec<(f32, Item)> = Vec::new();
     for obj in world.objects.values() {
-        if (obj.x - cam.x).abs() > radius || (obj.y - cam.y).abs() > radius {
+        let Some(desc) = scene.data.objects.get(&obj.object_type) else { continue };
+        // a big flat object shows while any of it is on the screen
+        let reach = radius + desc.ground_size / 2.0;
+        if (obj.x - cam.x).abs() > reach || (obj.y - cam.y).abs() > reach {
             continue;
         }
-        let Some(desc) = scene.data.objects.get(&obj.object_type) else { continue };
         let depth = cam.to_screen(obj.x, obj.y, 0.0)[1];
         let model = desc.model.as_ref().and_then(|m| scene.data.models.get(m));
         if let Some(model) = model {
@@ -454,17 +525,37 @@ pub fn draw(scene: &Scene, renderer: &mut Renderer, redrawer: &mut Redrawer, gro
     crate::prof::mark("v.sort");
 
     // Map.draw: DrawUnder objects first, then the shadows, then everything else.
-    let under = |item: &Item| matches!(item, Item::Sprite { desc, .. } if desc.draw_under);
+    // ...and models that ask to be drawn under everything (`<DrawUnder>`: a bridge's deck, which
+    // what crosses it is drawn on)
+    let under = |item: &Item| match item {
+        Item::Sprite { desc, .. } => desc.draw_under,
+        Item::Model { desc, .. } => desc.draw_under,
+        _ => false,
+    };
     // Where each sprite's top is drawn (x, y), for its condition icons.
     let mut tops: Vec<(&GameObj, [f32; 2])> = Vec::new();
     for (_, item) in items.iter().filter(|(_, i)| under(i)) {
-        if let Item::Sprite { obj, desc } = item {
-            if let Some(top) = draw_sprite(scene, renderer, redrawer, ground, obj, desc) {
-                tops.push((obj, top));
+        match item {
+            Item::Sprite { obj, desc } => {
+                if let Some(top) = draw_sprite(scene, renderer, redrawer, ground, obj, desc) {
+                    tops.push((obj, top));
+                }
             }
+            Item::Model { obj, desc, model } => draw_model(scene, renderer, obj, desc, model),
+            _ => {}
         }
     }
     let k = (cam.scale / TILE_PX) as f32;
+    if scene.show.shadows {
+        for (_, item) in &items {
+            if let Item::Model { obj, desc, model } = item {
+                let alpha = desc.xml.number("ModelShadow", 0.0) as f32;
+                if alpha > 0.0 {
+                    draw_model_shadow(scene, renderer, obj, desc, model, alpha);
+                }
+            }
+        }
+    }
     if let Some(shadow) = redrawer.shadow(renderer).filter(|_| scene.show.shadows) {
         for (_, item) in items.iter().filter(|(_, i)| !under(i)) {
             let Item::Sprite { obj, desc } = item else { continue };
@@ -475,7 +566,7 @@ pub fn draw(scene: &Scene, renderer: &mut Renderer, redrawer: &mut Redrawer, gro
             let size = obj.stat_int(2).unwrap_or(desc.min_size) as f32;
             let s = size / 100.0 * (desc.shadow_size as f32 / 100.0);
             let (sw, sh) = (30.0 * s * k, 15.0 * s * k);
-            let [px, py] = cam.to_screen(obj.x, obj.y, 0.0);
+            let [px, py] = scene.stand(obj);
             let alpha = fade(scene, obj, desc);
             if alpha <= 0.0 {
                 continue;
@@ -546,7 +637,7 @@ pub fn draw(scene: &Scene, renderer: &mut Renderer, redrawer: &mut Redrawer, gro
         let (Some(hp), Some(max)) = (obj.stat_int(1), obj.stat_int(0)) else { continue };
         let max = if desc.player { max } else { max.max(hp) };
         let offset = if desc.player && Some(obj.id) != world.me { 21.0 } else { 5.0 };
-        let [px, py] = cam.to_screen(obj.x, obj.y, 0.0);
+        let [px, py] = scene.stand(obj);
         let (half, tall, border) = (20.0 * k, 5.0 * k, 1.2 * k);
         let top = py + offset * k;
         renderer.fill(px - half - border, top - border, 2.0 * (half + border), tall + 2.0 * border, 0x111111, 1.0);
@@ -563,7 +654,7 @@ pub fn draw(scene: &Scene, renderer: &mut Renderer, redrawer: &mut Redrawer, gro
     for f in scene.floaters.iter().filter(|f| scene.show.damage_numbers || !f.is_damage()) {
         let Some(obj) = world.objects.get(&f.object_id) else { continue };
         let age = (scene.time - f.at) as f32 / 1000.0;
-        let [px, py] = cam.to_screen(obj.x, obj.y, 0.0);
+        let [px, py] = scene.stand(obj);
         let y = py - (55.0 + 40.0 * age) * k;
         text.draw_centered(fonts, renderer, &f.text, px, y, Style { color: f.color, ..style });
     }
@@ -588,7 +679,7 @@ pub fn draw(scene: &Scene, renderer: &mut Renderer, redrawer: &mut Redrawer, gro
         let line_h = size * 1.2;
         let w = lines.iter().map(|l| crate::emotes::measure(scene.sprites, fonts, text, renderer, l, style)).fold(0.0, f32::max);
         let h = line_h * lines.len() as f32;
-        let [px, py] = cam.to_screen(obj.x, obj.y, 0.0);
+        let [px, py] = scene.stand(obj);
         let size_pct = obj.stat_int(2).unwrap_or(100) as f32 / 100.0;
         let bottom = py - 40.0 * size_pct * k - 2.0 * k - 18.0 * k;
         let (bx, by) = (px - w / 2.0 - 6.0 * k, bottom - h - 12.0 * k);
@@ -633,7 +724,11 @@ pub fn draw(scene: &Scene, renderer: &mut Renderer, redrawer: &mut Redrawer, gro
             0xFFFFFF
         };
         let style = Style { size: (16.0 * k).round().max(9.0), bold: true, color };
-        let [px, py] = cam.to_screen(obj.x, obj.y, 0.0);
+        let [px, mut py] = scene.stand(obj);
+        if desc.ground_size > 1.0 {
+            // under a portal sunk into the floor, not across its middle
+            py += (desc.ground_size / 2.0 * cam.scale) as f32;
+        }
         if !player {
             text.draw_centered(fonts, renderer, name, px, py, style);
             continue;
@@ -670,10 +765,16 @@ fn draw_sprite(scene: &Scene, renderer: &mut Renderer, redrawer: &mut Redrawer, 
     }
     let mut look = scene.look(obj, desc)?;
     if desc.draw_on_ground {
-        // Flat on its square, like a tile.
+        // Flat on its square, like a tile; or, `GroundSize` tiles across, centred on it.
         let rect = scene.sprites.atlas(look.src)?;
-        let (x, y) = (obj.x.floor(), obj.y.floor());
-        renderer.sprite(rect, cam.quad([x, y, 0.0], [x + 1.0, y, 0.0], [x, y + 1.0, 0.0]), Tint::NONE);
+        let quad = if desc.ground_size > 1.0 {
+            let h = desc.ground_size / 2.0;
+            cam.quad([obj.x - h, obj.y - h, 0.0], [obj.x + h, obj.y - h, 0.0], [obj.x - h, obj.y + h, 0.0])
+        } else {
+            let (x, y) = (obj.x.floor(), obj.y.floor());
+            cam.quad([x, y, 0.0], [x + 1.0, y, 0.0], [x, y + 1.0, 0.0])
+        };
+        renderer.sprite(rect, quad, Tint::NONE);
         return None;
     }
     let mut size = obj.stat_int(2).unwrap_or(desc.min_size);
@@ -697,9 +798,10 @@ fn draw_sprite(scene: &Scene, renderer: &mut Renderer, redrawer: &mut Redrawer, 
     // map. On sinking ground (water) the sprite is drawn lower with its bottom cut off, unless it
     // flies.
     let k = (cam.scale / TILE_PX) as f32;
-    let [px, py] = cam.to_screen(obj.x, obj.y, desc.z);
+    let lift = scene.lift(obj.x, obj.y);
+    let [px, py] = cam.to_screen(obj.x, obj.y, desc.z + lift);
     let mut sink = 0.0;
-    if !desc.flying && !desc.protect_from_sink() {
+    if lift == 0.0 && !desc.flying && !desc.protect_from_sink() {
         if let Some(l) = ground.layers(scene.world, scene.data, scene.sprites, renderer, obj.x as i32, obj.y as i32) {
             sink = (l.sink as f32).min(sprite.h as f32);
         }
@@ -791,6 +893,7 @@ fn draw_projectile(scene: &Scene, renderer: &mut Renderer, redrawer: &mut Redraw
 fn draw_model(scene: &Scene, renderer: &mut Renderer, obj: &GameObj, desc: &ObjectDesc, model: &Model) {
     let cam = scene.camera;
     let texture = scene.texture_src(&desc.texture, obj.id).and_then(|s| scene.sprites.atlas(s));
+    let contrast = desc.xml.number("ModelContrast", 0.25);
     let (s, c) = desc.rotation.to_radians().sin_cos();
     let world: Vec<[f64; 3]> = model
         .vertices
@@ -805,7 +908,7 @@ fn draw_model(scene: &Scene, renderer: &mut Renderer, obj: &GameObj, desc: &Obje
         if u[0] * v[1] - u[1] * v[0] < 0.0 {
             continue;
         }
-        let shade = shade(normal(world[i0], world[i1], world[il]));
+        let shade = if face.glow { 1.0 } else { shade_with(normal(world[i0], world[i1], world[il]), contrast) };
         let (src, tint) = match (face.textured, texture) {
             (true, Some(t)) => (t, Tint { mul: [shade, shade, shade, 1.0], add: [0.0; 3] }),
             _ => {

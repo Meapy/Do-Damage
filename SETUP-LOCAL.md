@@ -582,6 +582,107 @@ The remotes `upstream` (HaloCelsius) and `aurusenth` share no history with `main
 
 - **Idlers in the Nexus go back to the character screen** (2026-10-31; `Shared/NexusAfk.cs`, `Player.NexusAfk.cs`, `MoveHandler`; `Tests/NexusAfkTests.cs`): a player who stands still in the Nexus for `serverSettings.nexusAfkMinutes` (`wServer.json`, 20; 0 turns it off) gets a Failure (`MessageWithDisconnect`, "You were away for 20 minutes and have been returned to the character screen.") and is disconnected a second later, which saves the character and releases the account lock as any leaving does. Only a position change the client sends (`MoveHandler`, after `player.Move`) resets it; chat, trades, the Marketplace and other windows don't, nor does bumping into a wall. Only time in the `NexusWorld` counts (each world is a new `Player`, so leaving the Nexus starts afresh; the vault, a branch of the Nexus, is a world of its own and doesn't count). Admins (`account.admin`) are never sent away. The Rust client already took a Failure as final (no reconnecting to the Nexus, `game.refused`) and went back to the character list, but the socket's closing then replaced the server's words with "Disconnected: the server closed the connection"; `game.rs` now keeps the Failure's text, for every Failure. Older clients are sent away just the same, with the generic line. Tested on an isolated stack at 0.5 minutes: a still bot in the Nexus was sent away at 30 s and its character was alive and loadable straight after; a `--wander` bot in the Nexus and a still bot in a realm stayed connected for 75 s; the Rust client showed the message and asked for the character list.
 
+- **The Nexus garden** (2026-10-30; `tools/build_nexus.py` for the map, `tools/build_nexus_garden.py`
+  and `tools/nexus_garden/` for the art, `NexusVillagers`, `RealmPortalMonitor`, the Rust client's
+  `petals.rs` and `GroundSize`): the castle Nexus is replaced by a Japanese garden village on an
+  island (`Exalt/Nexus Garden.jm`, 136 by 108 tiles; it had a Halloween copy until 2026-10-31), laid out from the
+  owner's sketch: a hexagon of land in a deep sea nobody can walk on, the spawn on a hexagonal
+  island of deck in a wadeable koi pond with four railed bridges (wooden west and east, cobbled
+  from its upper sides), the shrine of the realm portals north-west, the village north-east and
+  east (shops as stall rows along a street in front of 3D houses, the forge court, the quest
+  house, the guild's house, the market square, a storehouse yard with the shared vault chests),
+  the Hall of Champions and the Arena court west, and a forest with a memorial south. *Art:*
+  19 grounds (`NexusGardenGrounds.xml`), and 50 objects (`NexusGardenObjects.xml`, types 0x9A00 and
+  0x9B00 up, kept in `tools/nexus_garden/types.json`): billboard trees and garden pieces, 3D OBJ
+  models with a 64 by 64 texture each (houses, a storehouse, a pagoda, torii, railings and fences,
+  `RS_ONLY_MODELS`; `nexus_garden/render.py` copies the client's model drawing for previews), the
+  floor portals, seven villagers and a bee. A model's footprint is filled with invisible
+  `NG Blocker`s. *Realm portals* sink into the floor: `NG Realm Cavern` for each realm on the
+  shrine's four `Realm Portals` tiles, `NG Realm2 Vortex` on its `Realm2 Portal` tile (new
+  `TileRegion`s `Realm2_Portal` and `Nexus_Waypoint`); both are `DrawOnGround` with
+  `<GroundSize>` 4 and 6, which the Rust client draws that many tiles across, labels under them
+  and enters from anywhere on them. Older clients don't know the new objects, so they see neither
+  the portals nor the scenery until they update (`/realm` still works). *Villagers* (12) walk
+  between the waypoints by a breadth-first path over walkable, dry tiles, wait, and talk to each
+  other in balloons only (`*Bubble*`, which the Rust client now draws plain for non-enemies); *bees*
+  (14) hover over the flower beds. Both are characters without `<Enemy/>` and `<Invincible/>`, so
+  pets (`PetShoot` skips the invincible) and shots leave them be. *Petals:* grounds marked
+  `<Petals/>` (the forest floor) let blossom fall in the Rust client, more the more of that ground
+  is near. The healing fountains are stone basins (`NG Garden Basin`, also in NexusWorld's list).
+  The shared vault chests carry their castle tiles as their names (`61_70`), which
+  `NexusWorld.LinkVaultChests` uses as their Redis keys, so their items stay. Moved with the map:
+  the Arena portal (30.5, 47.5; `DoomedWorlds.NexusPortals`), the Tinkerer and the Chronicler
+  (`QuestGivers`), the Support Bot, its gifts' centre and its dungeon portal (`NexusGuide`), and
+  the texts that give directions. `build_castle_maps.py` builds only the vault now; the
+  `Nexus Castle` maps are gone. World server and client (the client for the new art, portals and
+  petals).
+  *Second pass, after the owner's reference images* (`..Context-Txts/30102026`): the buildings
+  follow them: rose timber, shoji lit from within (OBJ faces in a `Glow` material, drawn
+  unshaded), dark teal roofs whose eaves sweep up at the corners (`Mesh.roof`), verandas,
+  railings, steps and hanging lanterns, on 128 by 128 textures (`NexusGardenModels128x128.png`).
+  The client lights the garden's models harder (`<ModelContrast>`) and casts their shadows on the
+  ground (`<ModelShadow>`, view.rs `draw_model_shadow`). New: a two-storey teahouse (the quest
+  house), an open smithy round the Divine Forge (a furnace glowing under its chimney's smoke, the
+  rafters bare over the forge; `SMITHY`), Amatsumara the smith god at his anvil (`NG Smith God`,
+  his hammer swinging by the client's own `Animation` period, his grunts and lines from
+  `NexusVillagers`), the elder cherry (64 pixels) in the dry garden north of the spawn, a tansu
+  for the Armoire (`NG Armoire`, a `ReskinVendor`). The Name Changer and the Character Changer
+  walk (`NG Name Changer` and `NG Character Changer`, their own sprites in walking frames, still
+  their classes), each about its corner of the island; the twins Hana and Sora about the forest,
+  Sora on Hana's trail. The XP gifts are XP ducks (`NG XP Duck`, the XP Gift's numbers) on the
+  pond's tiles (`NexusGuide`, any tile whose ground sinks), and the Support Bot stands at size 90
+  (Doomed Realms' pet is 40). The Arena's portal is a sand pit in the shrine's floor west of the
+  vortex (`NG Arena Portal`, `DoomedWorlds.ArenaPortal` and `NexusPortals` at 34.5, 31.5; the old
+  `Battle Arena Portal` is unused). Houses south of the street are turned to face it (` N`
+  variants, `Rotation` 180).
+  *Third pass:* the Divine Forge and the Enchanter are the smithy model's furnace and crystal
+  altar, their objects invisible (`NG Divine Forge`, `NG Enchanter`, of the classes the client
+  and DoomedEconomy/ImprintHandlers look for), so they turn with the camera; Amatsumara stands
+  before the smithy. The teahouse is the Guild Hall (GUILD HALL painted on it; `NG Guild
+  Register`, a notice board at its west side that shows its name, and `NG Guild Hall Door`,
+  invisible, on its steps; a door must not be `Static`, or the map never makes it an entity and
+  using it does nothing. The Halloween copy of the garden is gone, and the market's stalls take
+  turns: roofed stalls, carts and tea benches under parasols). The market is a courtyard between
+  two rows of stalls (`NG Yatai`, the `Market Stall` tiles in front); the Market Broker (`NG
+  Market Broker`, made by MarketBroker at its start, found by /market where it is now), the
+  Tinkerer and the Chronicler (`NG Tinkerer`, `NG Chronicler`, QuestGivers) walk about it, their
+  sprites in walking frames (`NexusGardenChars16x16`); a static object that walks sets
+  `Entity.Walks` so its moves keep its place in the collision map. The bridges are arched
+  (`NG Arch Bridge`, `NG Stone Arch`, drawn under what's on them with the client's new
+  `<DrawUnder>` for models); their deck tiles are `<Lift>` grounds (`NG Arch Deck 1-5`), which
+  the Rust client raises whatever stands on them by (eased between tiles, view.rs `Scene::lift`),
+  so players climb the arch. The west's leaderboard court is a dojo yard (a samurai statue,
+  nobori, racks, straw dummies, a taiko, the dojo). The elder cherry is 192 pixels, its foot on
+  petal-strewn gravel (`NG Petal Gravel`, `Petals`). The forest's gravestones are gone; the
+  changers' walking frames move only their feet.
+  *Fourth pass* (2026-10-31): the elder cherry has its own painter (`extras.elder_sakura`: a
+  gnarled trunk on spreading roots, five limbs forking four times, clouds of blossom at their ends
+  lit as one crown with a shaded layer behind, the branches showing between, 160 petals under it),
+  and a ground's `<Petals>` can carry a strength (`petals.rs`: its text, 1 when empty, up to 3;
+  thicker ground lets petals start higher): `NG Petal Gravel` under the elder is `3`. The weeping
+  cherry is redrawn (`sprites.weeping_sakura`: a dome over a curtain of blossom, a shaded backing
+  under lit tresses, open round the trunk; it read as a broken comb of lines). The paper lantern
+  has a left-hanging twin (`NG Paper Lantern L`) for the right-hand end of each pair. The arched
+  bridges are cut into 8 segments (was 18), the stone one's parapet one wall sloping with the
+  deck rather than a stepped box per segment (136 faces, was 294; the wooden one 396, was 686).
+  The house that stood on the forge court's path is gone (the other two north of the street move
+  a tile east), and the market courtyard's sapling with it, out of the walkers' way. The Nexus
+  Portal that dungeons leave (0x0712) shows the HUD's Nexus icon (`uiIcons16x16` cell 1). The
+  forge's and the Enchanter's interact line is just "The Divine Workbench", and an Infernal
+  recipe's potion-storage line no longer runs into the buttons (`forge.rs`: the sockets move up
+  when there is one). The guild halls are gardens now too (see "Guilds", *Halls*). So is the
+  vault (`tools/build_vault.py`, `Exalt/Vault Garden.jm` in Worlds.xml): an island in the shape
+  of the old cellar, the 60 `Vault` tiles on stone pads in a raked-gravel garden beyond a torii
+  with storehouses at its head, the 26 `Gifting Chest` tiles in two bamboo-fenced tatami yards,
+  the Potion Storage, the Armoire (`NG Armoire`), the Guild Chronicle and the Guild Hall Portal
+  in a stone court, the spawn on a deck with the Glowing Portal of Cowardice, the Daily Quest
+  Portal and the Training Dummy (5 east of the spawn, as before). The castle vault and its
+  Halloween copy are gone, and with them `build_castle_maps.py`: what the builders share (ids,
+  checks, `.jm` writing) is `tools/jm_maps.py`. In the Rust client blossom falls all over the
+  vault and the guild halls whatever the ground (`petals::map_strength`, by map name). The Name
+  Changer's button is just its price ("50,000 fame") beside the key, and the Quests button's and
+  the inventory tabs' hover a one-line hint ("Quest log [J]", `hud::draw_key_hint`).
+
 - **Assist credit: loot for healing and buffing** (2026-10-30; `Shared/resources/AssistCredit.cs` for the numbers, `logic/AssistCover.cs`, `Player.Assist.cs`, `DamageCounter.HitBy`/`GetLootCredit`/`DebuffedBy`, `Loots.Handle`, the hooks in `Player.UseItem.cs`, `Player.UseItem.Doomed.cs` and `Halo.cs`; `Tests/AssistCreditTests.cs`): loot went only to damage, so a healer who never shot got nothing. Now a player's ability heal of another player (HealNova, Vampire Blast, Magic Nova for MP, the Doomed halos; only what it actually restores, so a heal at full health covers nothing, and the window is `HealWindowMs` 5 s times the heal over a tenth of their max, at most 1) or buff on another (ConditionEffectAura, StatBoostAura, GenericActivate on players, Disco Lights; for the effect's duration, at most `MaxEffectWindowMs` 10 s; the Healing effect only on a player who isn't at full health) covers that player: each hit they land on an enemy meanwhile gives the helper `HelpRate` 0.5 of it as assist credit on that enemy. A debuff on an enemy (GenericActivate on enemies, Lightning's and poison grenades' condEffects) gives the debuffer `DebuffRate` 0.25 of the hits others land on it while it lasts. Healing or buffing yourself never counts. In `Loots.Handle` each player counts for `AssistCredit.Credit`: damage + assist credit capped at `MaxShare` 20% of `TotalDamage`, never above the top damage dealer's damage (unless they are that dealer); `TotalDamage` stays damage only, so damage dealers' shares, thresholds, chances and bags are as before, and helpers who never hit are now in the loot list. XP, fame, boss credit and quest kills already went to everyone near the kill. The quest damage list, `/dps`, MVP announcements and `DamageTakenTransition` still read damage only; a white bag's announcement says "damage and assists" when assist credit counted. Not counted: weapons' on-hit conditions, item procs, imprints and pets. **The quest damage list shows it** (`Player.SendQuestDamage`, `DamageCounter.GetAssistData`): `QuestDamageFull` (92) ends with everyone's counted assist credit (their loot credit less their damage, as `DamageHit`s: name, class, assist; most first) and ours, after what older clients read (the Rust client's decoder ignores bytes left over, and `Option` fields read them only when present, so an older client or server works with the other); the hitters list stays damage only. The Rust client (`game.rs`, `hud.rs` `hitter_row`) puts the assist on a player's row, or a row of its own for a helper who never hit, sorts by damage + assist, shows it as a green "+1,850" beside the damage (alone for a helper with no damage) with the share of the boss's health counting both, and keeps a boss in the history when we only helped. Client and server ship together for it (an older server just shows no assists). Tested on an isolated stack with `bsk-bot --fight` bots in a vault (a maxed Warrior with starter gear, a Priest and a Paladin with their weapons taken out of Redis) on spawned Stheno the Snake Queens: the Priest healing a Warrior who was taking damage got 1.7% to 20% (the cap) and its own soulbound bags, the Paladin's seal 20% on each kill; with the Warrior in god mode (never hurt) the Priest, healing only itself, got nothing on three kills; the Warrior's credit equalled its damage every time. The panel was checked in the Rust client (as the Warrior, `/smite`-ing a Stheno while the bots helped): the Paladin showed as "2. Sealone +944 5%".
 
 - **Realms survive restarts and deploys** (2026-10-30; `RealmSnapshots.cs`, `RealmManager.Snapshot.cs`):
@@ -686,12 +787,14 @@ The remotes `upstream` (HaloCelsius) and `aurusenth` share no history with `main
   from a guild and, for the guild's online members on this world server, when it buys a hall
   (`GuildHallWorld.Announce`'s `hall`). `/boosts`, `/ginfo`, the upgrade's line and the guild window
   (`<Buffs>`, `<NextBuffs>`) show them. *Halls:* the four `Guild Hall 1-4`
-  maps are drawn by `build_guild_halls.py` in the castle look, each its own shape (an octagon, a
-  cross, a hexagon with a bastion on every point, an apse over a bastioned body), with 2/4/6/8 Vault
-  Chests, the board and chronicle on a dais, the portals by the spawn, a training yard from 2
-  (Training Dummies; `DisableShooting` is off in the halls so they can be shot), the Armoire and
-  Potion Storage from 3, the Divine Forge and Enchanter from 4 (they work by standing near them, as in
-  the Nexus). Guild halls are `GuildHallWorld`s, opened under the Nexus on its thread
+  maps are drawn by `build_guild_halls.py`, since 2026-10-31 as gardens from the Nexus garden's
+  parts (until then in the castle look), each its own shape (an octagon, a cross, a six-pointed
+  hexagon, a long hall with a round head), with 2/4/6/8 Vault Chests in a bamboo-fenced yard, the
+  board (`NG Guild Board`, class GuildBoard) and chronicle on a dais before the teahouse, the portals
+  by the spawn, a training yard from 2 (Training Dummies; `DisableShooting` is off in the halls so
+  they can be shot), the Armoire (`NG Armoire`) and Potion Storage from 3 with a koi pond, and from
+  4 the Nexus's smithy (`build_nexus.smithy`) with the Divine Forge and Enchanter (they work by
+  standing near them, as in the Nexus). Guild halls are `GuildHallWorld`s, opened under the Nexus on its thread
   (`GuildHallWorld.Open`, from the Guild Hall Portal and `/ghall`, which did nothing before) by
   `WorldManager.CreateGuildHall`; closing an old hall no longer unmaps the guild's newer one.
   *Upgrades:* the Guild Hall Upgrade (0x0736-0x0738) is `<Static/>`, so the map held it as a tile
@@ -958,7 +1061,7 @@ The remotes `upstream` (HaloCelsius) and `aurusenth` share no history with `main
 - **Lair of Draconis** (`BehaviorDb.Draconis.cs`, `Dungeons.xml`, `worlds/Dungeons/Lair of Draconis.jm`, both copies of `LairOfDraconis.xml`; `BehaviorDb.RockDragon.cs`): the dungeon is open. Its map (Gummy's, 119 by 119) was in upstream until 2025 and taken out unused: it was saved little-endian, which the loader can't read, and placed objects nothing defines ("NM ... Opener"). It is back, read correctly and written big-endian, with each corridor's opener swapped for its `NM <colour> Open Wall`, the souls moved to the altar room's four doorways, and the stray Lava Trigger and Ivory Opener taken out. The behaviours are rewritten round the map. The altar greets you; each dragon's soul (Nikao blue, Pyyr red, Limoz green, Feargus black) sends whoever steps on it (within 1 tile) into its dragon's room. The dragon wakes when you come near and fights in its old phases, with these fixes: orbits round spawners the map doesn't place became wandering; Pyyr's lava bombs leave a lava pool for 6 s where they land, instead of ordering a trigger in the map's corner; Pyyr's and Limoz's waits for their hatchlings and shields time out, so a missing one can't leave them invulnerable; Limoz calls 3 hatchlings every 6 s (was 5, refilled at once, endlessly). At 5% it turns into its loot balloon (10,000 health, 10 defense; was 45,000 and 35), and popping that leaves the dead dragon and clears its corridor of rubble (`RemoveTileObject` by name: Ice Cave Wall, Iron Brick, Jungle Temple Walls, Blue Wall). When all four are dead the altar tosses the Ivory Wyvern Portal and, in the regular lair, drops the Elder lair's portal half the time. Before, the altar opened the Ivory Wyvern at once, because the dragon spawners it waited for weren't on the map. The Rock Dragon drops the lair's portal (and the Lair of Shaitan's half the time; Shaitan's Key still opens Shaitan), and the Draconis Key opens it (the Nexus Bazaar's key stalls, `MerchantLists.DungeonKeyPrices`, 300 fame like Shaitan's Key; `/shop keys` still sells it for 50); before, the key made a portal to a world that didn't exist. Monster changes: the minions' health (Nikao's shards 3,000, Pyyr's hatchlings 2,500, Limoz's 3,000, Feargus's shards 4,000; were 5,000 or 7,000), Feargus's two 200-damage shots 150 and Pyyr's 150 one 120, and Nikao gives experience (975, as Pyyr and Limoz). Each balloon drops its stat potions (Nikao Wisdom, Pyyr Vitality and Attack, Limoz Speed and Defense, Feargus Dexterity), the StrongerDrop tiers, its dye cloths, a Draconis Key (1%) and its relic (1%: the Doomed Realms forge materials `<colour> Dragon Gods Helm` or `Black Dragon Gods Blade`, whose recipe makes the Elder Draconis Key; `port_doomed.DESCRIPTIONS` says so now). The set pieces stay out.
 - **The wiki's Loot Simulation** (2026-10-25; `website/wiki/loot-simulation.md`, `website/wiki/loot.js`, `tools/wiki_loot.py`, `{{gen:loot_sim}}` in `build_wiki.py`, the `.ls-` rules in `website/style.css`): Oryx 3, 4 and 5's drops read from their `.Init` blocks (rows, chances and `Threshold`s; tier pools as `Loots.Initialize` fills them, `ExtraPoolItems` weights, Doomed items' raised bags), the boosts from `wServer.json` and `Loots.cs`, rolled in the browser as `Loot.Handle` does. More bosses go in `wiki_loot.BOSSES`.
 - **Lair of Draconis** (`BehaviorDb.Draconis.cs`, `Dungeons.xml`, `worlds/Dungeons/Lair of Draconis.jm`, both copies of `LairOfDraconis.xml`; `BehaviorDb.RockDragon.cs`): the dungeon is open. Its map (Gummy's, 119 by 119) was in upstream until 2025 and taken out unused: it was saved little-endian, which the loader can't read, and placed objects nothing defines ("NM ... Opener"). It is back, read correctly and written big-endian, with each corridor's opener swapped for its `NM <colour> Open Wall`, the souls moved to the altar room's four doorways, and the stray Lava Trigger and Ivory Opener taken out. The behaviours are rewritten round the map. The altar greets you; each dragon's soul (Nikao blue, Pyyr red, Limoz green, Feargus black) sends whoever steps on it (within 1 tile) into its dragon's room. The dragon wakes when you come near and fights in its old phases, with these fixes: orbits round spawners the map doesn't place became wandering; Pyyr's lava bombs leave a lava pool for 6 s where they land, instead of ordering a trigger in the map's corner; Pyyr's and Limoz's waits for their hatchlings and shields time out, so a missing one can't leave them invulnerable; Limoz calls 3 hatchlings every 6 s (was 5, refilled at once, endlessly). At 5% it turns into its loot balloon (10,000 health, 10 defense; was 45,000 and 35), and popping that leaves the dead dragon and clears its corridor of rubble (`RemoveTileObject` by name: Ice Cave Wall, Iron Brick, Jungle Temple Walls, Blue Wall). When all four are dead the altar tosses the Ivory Wyvern Portal and, in the regular lair, drops the Elder lair's portal half the time. Before, the altar opened the Ivory Wyvern at once, because the dragon spawners it waited for weren't on the map. The Rock Dragon drops the lair's portal (and the Lair of Shaitan's half the time; Shaitan's Key still opens Shaitan), and the Draconis Key (`/shop keys`) opens it; before, the key made a portal to a world that didn't exist. Monster changes: the minions' health (Nikao's shards 3,000, Pyyr's hatchlings 2,500, Limoz's 3,000, Feargus's shards 4,000; were 5,000 or 7,000), Feargus's two 200-damage shots 150 and Pyyr's 150 one 120, and Nikao gives experience (975, as Pyyr and Limoz). Each balloon drops its stat potions (Nikao Wisdom, Pyyr Vitality and Attack, Limoz Speed and Defense, Feargus Dexterity), the StrongerDrop tiers, its dye cloths, a Draconis Key (1%) and its relic (1%: the Doomed Realms forge materials `<colour> Dragon Gods Helm` or `Black Dragon Gods Blade`, whose recipe makes the Elder Draconis Key; `port_doomed.DESCRIPTIONS` says so now). The set pieces stay out.
-- **Elder Lair of Draconis** (`tools/make_elder.py` `DUNGEONS`, `port_doomed_worlds.py`; `BehaviorDb.Draconis.cs` builds both): built from the regular map like the other Elder dungeons (darker tiles and walls, braziers, Elder copies of every monster with twice the health, defense + 10, 1.3 times the damage, attacking a quarter more often), instead of Doomed Realms' unfinished map (sprites and palm trees round a beach, where its own Elder dragons and a regular Black Dragon God stood). Doomed Realms' Elder Blue, Black and Red Dragon Gods are no longer ported (nothing places them). Each Elder balloon adds T12-T13 weapons, T13-T14 armour, T6 abilities and rings, an Elder Draconis Key (1%), the potion that maxes its dragon's stat (6%, as Doomed Realms had it) and its Elder item (2%: Robe of Silk Water, Momento of the Fire Dragon, Armor of the Leaf, Lightning Bow). Feargus's also drops what Doomed Realms' Black Dragon God did in the old map (Celestial Blade 1%, Ray Katana, Doku No Ken and Midnight Star 4%). Tested on the isolated stack with the bot (both lairs from the altar to the Ivory Wyvern portal; it fought each dragon for a few seconds, then `/killall` sped it up, and it popped the balloons itself) and the Rust client (screenshots of the altar room and of a cleared corridor). Not yet played through by a group without admin help.
+- **Elder Lair of Draconis** (`tools/make_elder.py` `DUNGEONS`, `port_doomed_worlds.py`; `BehaviorDb.Draconis.cs` builds both): built from the regular map like the other Elder dungeons (darker tiles and walls, braziers, Elder copies of every monster with twice the health, defense + 10, 1.3 times the damage, attacking a quarter more often), instead of Doomed Realms' unfinished map (sprites and palm trees round a beach, where its own Elder dragons and a regular Black Dragon God stood). Doomed Realms' Elder Blue, Black and Red Dragon Gods are no longer ported (nothing places them). Each Elder balloon adds T12-T13 weapons, T13-T14 armour, T6 abilities and rings, an Elder Draconis Key (1%), the potion that maxes its dragon's stat (6%, as Doomed Realms had it) and its Elder item (2%: Robe of Silk Water, Momento of the Fire Dragon, Armor of the Leaf, Lightning Bow). Feargus's also drops what Doomed Realms' Black Dragon God did in the old map (Celestial Blade 1%, Ray Katana, Doku No Ken and Midnight Star 4%). Since 2026-10-31 the Divine Forge no longer makes the Elder Draconis Key from the four relics (`port_doomed_economy.NOT_FORGED`; the Bazaar sells the key for 400 fame and the regular lair's altar opens the Elder lair half the time), so the relics are keepsakes with no use, and their descriptions no longer mention the recipe. Tested on the isolated stack with the bot (both lairs from the altar to the Ivory Wyvern portal; it fought each dragon for a few seconds, then `/killall` sped it up, and it popped the balloons itself) and the Rust client (screenshots of the altar room and of a cleared corridor). Not yet played through by a group without admin help.
 - **Item pass, 2.1.2** (`tools/port_doomed.py` `GEAR_TUNING` and both copies of `DoomedRealms.xml`; both copies of the equipment XML and `CustomItems.xml`): every item that drops (from a monster, a shop or the forge) was compared with the best tiered item of its kind by the wiki's measures (damage a second at 75 Attack and Dexterity against 50 defense, every shot hitting; armour and rings by their stats). Those well above it were brought to a little over it, keeping their own mix of stats. Items players hold change too (in this PC's 2026-10-16 data: an Angel's Hope and a Scaled Robe on the owner's account, a Scaled Robe on account 4, Wings of Natural Bloodlust on the test account).
 
   | Item | Where from | Before | After | Why |

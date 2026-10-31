@@ -25,7 +25,8 @@ namespace WorldServer.core.objects
             PortalDescr = manager.Resources.GameData.Portals[ObjectType];
             Locked = PortalDescr.Locked;
             
-            GuildHallPortal = PortalDescr.IdName == "Guild Hall Portal";
+            // any door to the guild's hall: the old portal, or the Nexus garden's Guild Hall door
+            GuildHallPortal = PortalDescr.IdName == "Guild Hall Portal" || ObjectDesc.Class == "GuildHallPortal";
         }
 
         public bool Locked { get; private set; }

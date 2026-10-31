@@ -898,7 +898,8 @@ pub fn interact_target(world: &World, data: &GameData) -> Option<Interact> {
             let big = matches!(kind, InteractKind::Npc { kind: crate::npc::NpcKind::Forge | crate::npc::NpcKind::Enchanter | crate::npc::NpcKind::ChampionsBoard, .. });
             // the statues fill their squares: reach them from beside
             let statue = matches!(kind, InteractKind::Npc { kind: crate::npc::NpcKind::ChampionStatue, .. });
-            let reach = if big { FORGE_REACH } else if statue { 1.6 } else { 1.0 };
+            // a portal sunk into the floor is entered from anywhere on it
+            let reach = if big { FORGE_REACH } else if statue { 1.6 } else { (d.ground_size / 2.0 * 0.9).max(1.0) };
             (dist < reach).then_some((dist, o, d, kind))
         })
         .min_by(|a, b| a.0.total_cmp(&b.0))
@@ -2312,21 +2313,15 @@ pub fn draw_overlay(ui: &mut Ui, lay: &Layout, world: &World, panel: &Panel, sta
     // The inventory and backpack tabs: which is which, and the key that switches, centred.
     // The Quests button, a picture now: what it is and its key.
     if let Some(Button::Quests) = panel.button_at(mouse) {
-        let mut lines = vec![Line::new("Quest log", 14.0, true, color::TEXT)];
-        if !state.quests_key.is_empty() {
-            lines.push(Line { centred: true, ..Line::new(&state.quests_key, 14.0, true, color::TEXT_DIM) });
-        }
-        draw_tooltip(ui, lay, &lines, None, None, mouse);
+        draw_key_hint(ui, lay, "Quest log", &state.quests_key, mouse);
         return;
     }
     if let Some(Button::Page(p)) = panel.button_at(mouse) {
-        let mut lines = vec![Line::new(if p == Page::Inventory { "Inventory" } else { "Backpack" }, 14.0, true, color::TEXT)];
         if p == Page::Backpack && !panel.has_backpack {
-            lines.push(Line::new("You have no backpack yet", 11.0, false, color::TEXT_MUTED));
-        } else if !state.tabs_key.is_empty() {
-            lines.push(Line { centred: true, ..Line::new(&state.tabs_key, 14.0, true, color::TEXT_DIM) });
+            draw_key_hint(ui, lay, "No backpack yet", "", mouse);
+        } else {
+            draw_key_hint(ui, lay, if p == Page::Inventory { "Inventory" } else { "Backpack" }, &state.tabs_key, mouse);
         }
-        draw_tooltip(ui, lay, &lines, None, None, mouse);
         return;
     }
     let Some(slot) = panel.slot_at(mouse) else { return };
@@ -3038,6 +3033,37 @@ fn activate_detail(a: &bsk_data::xml::Element) -> String {
 
 /// A tooltip box beside the mouse, kept inside the window: the item's icon and title on top,
 /// then the lines wrapped to the box.
+/// A button's hint by the mouse: its name and its key in a key cap, on one line, as the interact
+/// button shows them ("Quest log [J]"); the key cap left out when nothing is bound.
+fn draw_key_hint(ui: &mut Ui, lay: &Layout, label: &str, key: &str, mouse: (f64, f64)) {
+    let s = lay.s;
+    let size = lay.font(13.0);
+    let ks = lay.font(11.0);
+    let (pad, gap, kpad) = (8.0 * s, 7.0 * s, 4.0 * s);
+    let tw = ui.measure(label, size, true);
+    let cap_w = if key.is_empty() { 0.0 } else { ui.measure(key, ks, true) + 2.0 * kpad };
+    let cap_h = ks * 1.22 + 3.0 * s;
+    let h = (size * 1.22).max(cap_h) + 2.0 * 5.0 * s;
+    let w = tw + if key.is_empty() { 0.0 } else { gap + cap_w } + 2.0 * pad;
+    let (mut x0, mut y0) = (mouse.0 as f32 + 14.0 * s, mouse.1 as f32 + 6.0 * s);
+    if x0 + w > lay.w {
+        x0 = mouse.0 as f32 - w - 6.0 * s;
+    }
+    if y0 + h > lay.h {
+        y0 = (lay.h - h).max(0.0);
+    }
+    let r = [x0.max(0.0).round(), y0.round(), w.round(), h.round()];
+    theme::shadow(ui.renderer, r, 6.0 * s, 8.0 * s, 0.45);
+    theme::frame(ui.renderer, r, 6.0 * s, s.max(1.0), (color::BORDER_HI, 0.9), ((color::PANEL_TOP, 0.97), (color::PANEL_BOTTOM, 0.98)));
+    ui.label(label, r[0] + pad, (r[1] + (r[3] - size * 1.22) / 2.0).round(), size, true, color::TEXT);
+    if !key.is_empty() {
+        let cap = [r[0] + pad + tw + gap, (r[1] + (r[3] - cap_h) / 2.0).round(), cap_w, cap_h];
+        theme::fill(ui.renderer, cap, 4.0 * s, 0x000000, 0.28);
+        theme::frame(ui.renderer, cap, 4.0 * s, s.max(1.0), (0xFFFFFF, 0.35), ((0x000000, 0.0), (0x000000, 0.0)));
+        ui.label(key, cap[0] + kpad, cap[1] + 1.5 * s, ks, true, color::GOLD);
+    }
+}
+
 pub(crate) fn draw_tooltip(ui: &mut Ui, lay: &Layout, lines: &[Line], icon: Option<i32>, accent: Option<u32>, mouse: (f64, f64)) {
     let s = lay.s;
     let w = TOOLTIP_W * s;

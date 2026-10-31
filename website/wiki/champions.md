@@ -11,8 +11,8 @@ hold the place. Lose the place and the reward goes; win it back and it returns.
 
 ## Finding it
 
-The Hall stands in the Nexus's **east market ward**, south of the street that runs east from the
-spawn: follow the red carpet off the street to a round court of gold. In its middle is the
+The Hall stands in the west of the Nexus: cross the wooden bridge west from the spawn and follow
+the road to a round court of stone ringed with dark wood. In its middle is the
 **Champions Monument**. Stand by it and press **View** (or <kbd>0</kbd>) to open the boards. Around
 it, each board's **#1 stands on a plinth** as their character, under a plaque with the board, their
 name and their score. Standing by a statue and pressing View opens the Hall at that statue's board.

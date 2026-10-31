@@ -62,6 +62,10 @@
         Guild_Shop,
         Special_Chest,
         // the Nexus's market square: stalls showing Marketplace listings (MarketStalls)
-        Market_Stall
+        Market_Stall,
+        // where the Nexus's Realm 2 portal opens (RealmPortalMonitor)
+        Realm2_Portal,
+        // where the Nexus's villagers walk to and stop (NexusVillagers)
+        Nexus_Waypoint
     }
 }

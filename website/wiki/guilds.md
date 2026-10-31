@@ -11,7 +11,7 @@ the guild buys gives every member more (see [the buffs](#the-halls-buffs)).
 
 ## Making or joining one
 
-- **Make one** at the **Guild Register** in the Nexus, east of the spawn, for 1,000 fame: give it a
+- **Make one** at the **Guild Register**, the notice board beside the Nexus's **Guild Hall** up the village's cross street, for 1,000 fame: give it a
   name and you're its Founder. During the **guild event, until the end of 30 November 2026 (UTC)**,
   making one is free; the Guild Register shows the price of the day.
 - **Join one** when someone in it invites you (`/invite <name>`, officers and up): accept the
@@ -34,16 +34,19 @@ promotes them once they're trusted. Officers and up manage ranks in the **Guild 
 
 ## The guild hall
 
-The **Guild Hall Portal** in the Nexus (east of the spawn) and in your vault leads to your guild's
-own hall, and `/ghall` takes you there from anywhere. Everyone in the guild shares it. There are four
-halls, each bigger than the last and each a shape of its own:
+The door of the Nexus's Guild Hall (up its steps; it tells you if you're not in a guild) and in your vault leads to your guild's
+own hall, and `/ghall` takes you there from anywhere. Everyone in the guild shares it. Each hall is
+a garden on an island, in the look of the Nexus, with cherry blossom falling all over it: you arrive on a wooden deck by the portals to the
+Nexus and your vault, and a stone path leads north under a torii to the guild's shrine, where the
+teahouse with GUILD HALL over its door stands behind the dais. There are four halls, each bigger
+than the last and each a shape of its own:
 
 | Hall | Shape | Vault | What else it has | Upgrade to it |
 |---|---|---|---|---|
-| **1** | an octagonal lodge | 2 chests (16 slots) | the guild board, the Guild Chronicle, portals to the Nexus and your vault | (where every guild starts) |
-| **2** | a cross-shaped hall | 4 chests (32) | a **training yard** of Training Dummies, which show your damage | 10,000 guild fame |
-| **3** | a star-fort keep | 6 chests (48) | the guild's **quarters**, with the **Armoire** and the **Potion Storage**, and a fountain garden | 30,000 guild fame |
-| **4** | a citadel | 8 chests (64) | a **throne room** with the **Divine Workbench** (the Divine Forge and the Enchanter) | 75,000 guild fame |
+| **1** | an octagon | 2 chests (16 slots) | the guild board, the Guild Chronicle, portals to the Nexus and your vault | (where every guild starts) |
+| **2** | a cross | 4 chests (32) | a **training yard** of Training Dummies, which show your damage | 10,000 guild fame |
+| **3** | a six-pointed star | 6 chests (48) | the guild's **quarters**, with the **Armoire** and the **Potion Storage**, and a koi pond | 30,000 guild fame |
+| **4** | the great garden | 8 chests (64) | the guild's own **smithy** with the **Divine Workbench** (the Divine Forge and the Enchanter), as in the Nexus | 75,000 guild fame |
 
 ### The halls' buffs
 

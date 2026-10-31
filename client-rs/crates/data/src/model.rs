@@ -1,6 +1,7 @@
 //! 3D models (`Model3D.parseFromOBJ`): OBJ text with vertices, texture coordinates and faces.
 //! Faces whose material starts with "Solid" are filled with the object's colour instead of its
-//! texture. Faces are kept in `ModelFace3D.compare` order (lowest first), which is the order
+//! texture; those whose material starts with "Glow" give off their own light, so they're drawn
+//! unshaded (lit windows and lanterns: the Nexus garden's models, tools/build_nexus_garden.py). Faces are kept in `ModelFace3D.compare` order (lowest first), which is the order
 //! they're drawn in.
 
 #[derive(Debug, Clone, PartialEq)]
@@ -8,6 +9,8 @@ pub struct ModelFace {
     /// Indices into `Model::vertices`, a polygon.
     pub indices: Vec<usize>,
     pub textured: bool,
+    /// Lit from within: drawn at full brightness whatever way it faces.
+    pub glow: bool,
 }
 
 #[derive(Debug, Clone, PartialEq, Default)]
@@ -67,8 +70,9 @@ impl Model {
         }
         for (keys, mtl) in faces {
             let indices = keys.iter().map(|k| key_index[k]).collect();
-            let textured = mtl.is_none_or(|m| !m.starts_with("Solid"));
-            model.faces.push(ModelFace { indices, textured });
+            let textured = mtl.as_ref().is_none_or(|m| !m.starts_with("Solid"));
+            let glow = mtl.as_ref().is_some_and(|m| m.starts_with("Glow"));
+            model.faces.push(ModelFace { indices, textured, glow });
         }
         // ModelFace3D.compare: by lowest z, then highest z. The sort is stable, as is
         // Array.sort for equal keys in practice.

@@ -39,8 +39,9 @@ namespace WorldServer.core.worlds.impl
         public RealmPortalMonitor PortalMonitor { get; private set; }
         public bool MarketEnabled { get; set; } = true;
 
-        // The fountains heal whoever stands by them: Healing, renewed while they stay.
-        private const string FOUNTAIN = "White Fountain";
+        // The fountains heal whoever stands by them: Healing, renewed while they stay. The garden's
+        // are stone water basins (tools/build_nexus_garden.py); an event's map may keep fountains.
+        private static readonly HashSet<string> Fountains = new HashSet<string> { "White Fountain", "NG Garden Basin" };
         private const float FOUNTAIN_RANGE = 3.5f;
         private List<(float X, float Y)> _fountains;
         private float _fountainCheck;
@@ -54,6 +55,8 @@ namespace WorldServer.core.worlds.impl
         // the market square's stalls, showing Marketplace listings
         private market.MarketStalls _marketStalls;
         private market.MarketBroker _marketBroker;
+        // the villagers walking about and the bees over the flowers
+        private NexusVillagers _villagers;
 
         public NexusWorld(GameServer gameServer, int id, WorldResource resource) 
             : base(gameServer, id, resource)
@@ -84,15 +87,24 @@ namespace WorldServer.core.worlds.impl
             _questGivers.Init();
             _marketStalls = new market.MarketStalls(this);
             _marketBroker = new market.MarketBroker(this);
+            _villagers = new NexusVillagers(this);
         }
 
-        // The map's shared vault chests keep their items in Redis, one record per tile.
+        // The map's shared vault chests keep their items in Redis, one record per tile: the tile a
+        // chest stood on in the castle Nexus, which the garden's chests carry as their names
+        // ("61_70", tools/build_nexus.py CHESTS), so they kept their items when it moved.
         private void LinkVaultChests()
         {
             var db = GameServer.Database.Conn;
             var chests = PendingEntities.OfType<Container>().Where(c => c.ObjectType == VAULT_CHEST && c.DbLink == null).ToList();
             foreach (var chest in chests)
-                chest.LinkToDb(new DbNexusChest(db, (int)chest.X, (int)chest.Y));
+            {
+                var (x, y) = ((int)chest.X, (int)chest.Y);
+                var key = chest.Name?.Split('_');
+                if (key?.Length == 2 && int.TryParse(key[0], out var kx) && int.TryParse(key[1], out var ky))
+                    (x, y) = (kx, ky);
+                chest.LinkToDb(new DbNexusChest(db, x, y));
+            }
             StaticLogger.Instance.Info($"Nexus: {chests.Count} vault chests, {chests.Sum(c => c.Inventory.Count(i => i != null))} stored items");
         }
 
@@ -105,6 +117,7 @@ namespace WorldServer.core.worlds.impl
             _questGivers?.Update(ref time);
             _marketStalls?.Update(ref time);
             _marketBroker?.Update(ref time);
+            _villagers?.Update(ref time);
             base.UpdateLogic(ref time);
         }
 
@@ -117,7 +130,7 @@ namespace WorldServer.core.worlds.impl
 
             // Found once the map's objects are in (the first ticks can come before).
             if (_fountains == null || _fountains.Count == 0)
-                _fountains = StaticObjects.Values.Where(o => o.ObjectDesc.IdName == FOUNTAIN).Select(o => (o.X, o.Y)).ToList();
+                _fountains = StaticObjects.Values.Where(o => Fountains.Contains(o.ObjectDesc.IdName)).Select(o => (o.X, o.Y)).ToList();
             if (_fountains.Count == 0)
                 return;
 
