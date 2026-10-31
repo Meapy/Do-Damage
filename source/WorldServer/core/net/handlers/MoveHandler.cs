@@ -104,6 +104,7 @@ namespace WorldServer.core.net.handlers
                 //}
 
                 player.Move(newX, newY);
+                player.MovedForAfk();
                 player.UpdateTilesIfMoved();
             }
 

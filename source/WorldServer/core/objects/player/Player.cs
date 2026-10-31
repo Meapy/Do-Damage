@@ -510,6 +510,7 @@ namespace WorldServer.core.objects
                 FameCounter.Tick(time);
                 Quests?.Tick(ref time);
                 TickChampion(time.DeltaTime);
+                TickNexusAfk(time);
                 if (TickCount % 5 == 0)
                     PassiveEffects();
                 TickCount++;

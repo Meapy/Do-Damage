@@ -33,6 +33,7 @@
         "damageEventEnemies": [ "Oryx the Mad God 4", "Oryx the Ascended God" ],
         "mapEvent": "Halloween",
         "freeGuildsUntil": "2026-12-01T00:00:00Z",
+        "nexusAfkMinutes": 20,
         "events": [
             {
                 "name": "Halloween Sweet Treats",

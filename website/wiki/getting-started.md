@@ -141,6 +141,12 @@ you while you stand next to them. Around the spawn:
 
 `/nexus` or <kbd>R</kbd> brings you back from anywhere.
 
+**Don't idle in the Nexus.** Stand still there for {{v:nexus_afk}} minutes and your character is
+saved and you're sent back to the character screen, so idlers don't take up a place or count as
+online. Only walking resets the clock: chatting, trading or browsing the Marketplace while standing
+still doesn't. Everywhere else (realms, dungeons, your vault) you can stand still as long as you
+like.
+
 ## Free starter gear: /gear
 
 Type `/gear` in the Nexus for a set of starter gear for your class: a weapon, an ability, armor and

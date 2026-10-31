@@ -12,6 +12,17 @@ Keep each version short: changes go under `### ` group headings (Oryx 5, Arena, 
 on), one line per change players notice, summed up rather than item by item (the wiki has the
 details). Add to a group's line when a change adds to it, rather than adding another line.
 
+## Unreleased
+
+### Nexus
+- Standing still in the Nexus for 20 minutes now saves your character and sends you back to the
+  character screen, with a message saying why, so idlers don't take up a place. Walking resets
+  the clock; realms, dungeons and your vault aren't affected.
+
+### Game
+- When the server ends your game itself, the character screen now shows its reason rather than
+  "the server closed the connection".
+
 ## 2.3.5 (2026-10-31)
 
 ### Loot

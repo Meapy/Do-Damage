@@ -832,6 +832,16 @@ def name_change_fame():
     return int(m.group(1).replace("_", "")) if m else 0
 
 
+def nexus_afk_minutes():
+    """How long standing still in the Nexus sends a player back to the character screen, in
+    minutes (serverSettings.nexusAfkMinutes in wServer.json, Shared/NexusAfk.cs; 0: never)."""
+    try:
+        cfg = json.loads(_read(os.path.join(SRC, "WorldServer", "wServer.json")).lstrip("﻿"))
+        return float(cfg["serverSettings"].get("nexusAfkMinutes", 20))
+    except (OSError, ValueError, KeyError):
+        return 20.0
+
+
 def market_rules():
     """The Marketplace's tax, listing limit and how long a listing lasts (Marketplace.cs)."""
     src = _read(os.path.join(SRC, "WorldServer", "core", "market", "Marketplace.cs"))

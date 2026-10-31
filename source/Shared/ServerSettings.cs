@@ -38,5 +38,8 @@ namespace Shared
         // such as Halloween Sweet Treats' doubled potion drops. Each runs only between its dates.
         public resources.ServerEvent[] events { get; set; } = new resources.ServerEvent[] { };
         public int[] whitelist { get; set; } = new int[] { };
+        // A player who stands still in the Nexus this long is saved and sent back to the
+        // character list (Shared/NexusAfk.cs); admins are exempt. 0: never.
+        public double nexusAfkMinutes { get; set; } = 20;
     }
 }

@@ -419,9 +419,12 @@ impl Game {
                     if self.retry_after_drop(now) {
                         break;
                     }
-                    // A connection that never opened: say so plainly, not with the socket's
-                    // error and address.
-                    self.status = if why.starts_with("can't connect") || why.contains("/ws/") {
+                    // The server said why it ended this connection (a Failure): keep its words,
+                    // not the socket's closing. A connection that never opened: say so plainly,
+                    // not with the socket's error and address.
+                    self.status = if self.refused && !self.status.is_empty() {
+                        std::mem::take(&mut self.status)
+                    } else if why.starts_with("can't connect") || why.contains("/ws/") {
                         "Can't reach the game server. Check your internet connection and try again.".into()
                     } else {
                         format!("Disconnected: {why}")

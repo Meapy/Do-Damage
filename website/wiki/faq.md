@@ -29,6 +29,8 @@ The game needs a keyboard and mouse, so phones and tablets can't really play it.
   updated server the next time you change worlds.
 - If your connection drops while you play, the game takes you back to the Nexus by itself, and
   keeps trying for about two minutes.
+- Standing still in the Nexus for {{v:nexus_afk}} minutes sends you back to the character screen,
+  saved ([The Nexus](getting-started.html#the-nexus)).
 
 The **Changelog** (on the main menu, in the <kbd>Esc</kbd> menu, or [on the site](../changelog.html))
 lists every change.

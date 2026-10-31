@@ -541,6 +541,7 @@ class Gen:
             **self.quests.values(),
             "forge_recipes": "{:,}".format(len(self.forge)), "forge_chains": "{:,}".format(sum(r["chain"] for r in self.forge)),
             "forge_cap": "{:,}".format(wd.Data.FORGE_TIERED_CAP), "name_change": "{:,}".format(wd.name_change_fame()),
+            "nexus_afk": "%g" % wd.nexus_afk_minutes(),
             "char_slots": a["char_slots"], "vault_chests": a["vault_chests"],
             "slot_cost": "%d %s" % (a["slot_cost"], a["slot_currency"]),
             "vault_chest_price": a["vault_chest_price"], "potion_stack": a["potion_stack"],
