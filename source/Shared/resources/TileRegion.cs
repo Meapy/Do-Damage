@@ -66,6 +66,12 @@
         // where the Nexus's Realm 2 portal opens (RealmPortalMonitor)
         Realm2_Portal,
         // where the Nexus's villagers walk to and stop (NexusVillagers)
-        Nexus_Waypoint
+        Nexus_Waypoint,
+        // the Stair Tower's (StairTowerWorld): a floor's boss, the door its death opens, a
+        // stairwell's first row and the row where it loops
+        Tower_Boss,
+        Tower_Door,
+        Stair_Start,
+        Stair_Loop
     }
 }

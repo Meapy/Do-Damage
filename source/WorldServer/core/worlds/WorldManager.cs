@@ -226,6 +226,9 @@ namespace WorldServer.core.worlds
                 case WorldResourceInstanceType.Guild:
                     world = new GuildHallWorld(GameServer, nextId, worldResource, parent);
                     break;
+                case WorldResourceInstanceType.Dungeon when worldResource.IdName == StairTowerWorld.Name:
+                    world = new StairTowerWorld(GameServer, nextId, worldResource, parent);
+                    break;
                 default:
                     // ported Doomed Realms minigames and shop
                     world = impl.doomed.DoomedWorlds.Create(GameServer, nextId, worldResource, parent)
