@@ -99,4 +99,160 @@
 		</Face>
 		<Color>0x46688A</Color>
 	</Ground>
+	<!-- the Stair Tower's spiral staircase (tools/build_stair_tower.py, SPIRAL): its sectors, each a
+	     quarter of a tile above the last, twelve to a floor -->
+	<Ground type="0x9C07" id="ST Spiral 1">
+		<Texture>
+			<File>oryxSanctuaryObjects8x8</File>
+			<Index>0x4c2</Index>
+		</Texture>
+		<Face>
+			<Texture>
+				<File>lofiEnvironment</File>
+				<Index>0x20</Index>
+			</Texture>
+		</Face>
+		<Lift>0.25</Lift>
+		<Color>0x3A4660</Color>
+	</Ground>
+	<Ground type="0x9C08" id="ST Spiral 2">
+		<Texture>
+			<File>oryxSanctuaryObjects8x8</File>
+			<Index>0x4c2</Index>
+		</Texture>
+		<Face>
+			<Texture>
+				<File>lofiEnvironment</File>
+				<Index>0x20</Index>
+			</Texture>
+		</Face>
+		<Lift>0.5</Lift>
+		<Color>0x3A4660</Color>
+	</Ground>
+	<Ground type="0x9C09" id="ST Spiral 3">
+		<Texture>
+			<File>oryxSanctuaryObjects8x8</File>
+			<Index>0x4c2</Index>
+		</Texture>
+		<Face>
+			<Texture>
+				<File>lofiEnvironment</File>
+				<Index>0x20</Index>
+			</Texture>
+		</Face>
+		<Lift>0.75</Lift>
+		<Color>0x3A4660</Color>
+	</Ground>
+	<Ground type="0x9C0A" id="ST Spiral 4">
+		<Texture>
+			<File>oryxSanctuaryObjects8x8</File>
+			<Index>0x4c2</Index>
+		</Texture>
+		<Face>
+			<Texture>
+				<File>lofiEnvironment</File>
+				<Index>0x20</Index>
+			</Texture>
+		</Face>
+		<Lift>1.0</Lift>
+		<Color>0x3A4660</Color>
+	</Ground>
+	<Ground type="0x9C0B" id="ST Spiral 5">
+		<Texture>
+			<File>oryxSanctuaryObjects8x8</File>
+			<Index>0x4c2</Index>
+		</Texture>
+		<Face>
+			<Texture>
+				<File>lofiEnvironment</File>
+				<Index>0x20</Index>
+			</Texture>
+		</Face>
+		<Lift>1.25</Lift>
+		<Color>0x3A4660</Color>
+	</Ground>
+	<Ground type="0x9C0C" id="ST Spiral 6">
+		<Texture>
+			<File>oryxSanctuaryObjects8x8</File>
+			<Index>0x4c2</Index>
+		</Texture>
+		<Face>
+			<Texture>
+				<File>lofiEnvironment</File>
+				<Index>0x20</Index>
+			</Texture>
+		</Face>
+		<Lift>1.5</Lift>
+		<Color>0x3A4660</Color>
+	</Ground>
+	<Ground type="0x9C0D" id="ST Spiral 7">
+		<Texture>
+			<File>oryxSanctuaryObjects8x8</File>
+			<Index>0x4c2</Index>
+		</Texture>
+		<Face>
+			<Texture>
+				<File>lofiEnvironment</File>
+				<Index>0x20</Index>
+			</Texture>
+		</Face>
+		<Lift>1.75</Lift>
+		<Color>0x3A4660</Color>
+	</Ground>
+	<Ground type="0x9C0E" id="ST Spiral 8">
+		<Texture>
+			<File>oryxSanctuaryObjects8x8</File>
+			<Index>0x4c2</Index>
+		</Texture>
+		<Face>
+			<Texture>
+				<File>lofiEnvironment</File>
+				<Index>0x20</Index>
+			</Texture>
+		</Face>
+		<Lift>2.0</Lift>
+		<Color>0x3A4660</Color>
+	</Ground>
+	<Ground type="0x9C0F" id="ST Spiral 9">
+		<Texture>
+			<File>oryxSanctuaryObjects8x8</File>
+			<Index>0x4c2</Index>
+		</Texture>
+		<Face>
+			<Texture>
+				<File>lofiEnvironment</File>
+				<Index>0x20</Index>
+			</Texture>
+		</Face>
+		<Lift>2.25</Lift>
+		<Color>0x3A4660</Color>
+	</Ground>
+	<Ground type="0x9C10" id="ST Spiral 10">
+		<Texture>
+			<File>oryxSanctuaryObjects8x8</File>
+			<Index>0x4c2</Index>
+		</Texture>
+		<Face>
+			<Texture>
+				<File>lofiEnvironment</File>
+				<Index>0x20</Index>
+			</Texture>
+		</Face>
+		<Lift>2.5</Lift>
+		<Color>0x3A4660</Color>
+	</Ground>
+	<Ground type="0x9C11" id="ST Spiral 11">
+		<Texture>
+			<File>oryxSanctuaryObjects8x8</File>
+			<Index>0x4c2</Index>
+		</Texture>
+		<Face>
+			<Texture>
+				<File>lofiEnvironment</File>
+				<Index>0x20</Index>
+			</Texture>
+		</Face>
+		<Lift>2.75</Lift>
+		<Color>0x3A4660</Color>
+	</Ground>
 </GroundTypes>
