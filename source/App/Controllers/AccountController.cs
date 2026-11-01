@@ -422,7 +422,7 @@ namespace App.Controllers
                     var accountIdHash = Convert.ToHexString(
                         SHA256.HashData(System.Text.Encoding.UTF8.GetBytes(acc.AccountId.ToString()))
                     ).Substring(0, 12);
-                    _core.Logger.Info($"Guest account #{accountIdHash} registered as {newName.ForLog()}");
+                    _core.Logger.Info($"Guest account registered as {newName.ForLog()}");
                     Response.CreateSuccess();
                 }
             }
