@@ -403,7 +403,7 @@ fn look_arg() -> Option<(bool, bool)> {
 }
 
 fn look(glow: bool, vivid: bool) -> bsk_render::Look {
-    bsk_render::Look { glow: if glow { 1.6 } else { 0.0 }, vivid: if vivid { 1.0 } else { 0.0 } }
+    bsk_render::Look { glow: if glow { 1.0 } else { 0.0 }, vivid: if vivid { 1.0 } else { 0.0 } }
 }
 
 /// A chat line being typed, starting from `text` (TextBox's limit: 128 characters).

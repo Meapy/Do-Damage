@@ -26,6 +26,15 @@ struct Post {
 @group(0) @binding(1) var scene_sampler: sampler;
 @group(0) @binding(2) var<uniform> post: Post;
 @group(0) @binding(3) var bloom: texture_2d<f32>;
+@group(0) @binding(4) var tight: texture_2d<f32>;
+
+// The glow at a pixel: a tight halo that hugs small bright things (shots, sparks), over a wide
+// soft one that big ones (lava, fire) cast round them.
+fn glow_at(uv: vec2<f32>) -> vec3<f32> {
+    let near = textureSampleLevel(tight, scene_sampler, uv, 0.0).rgb;
+    let wide = textureSampleLevel(bloom, scene_sampler, uv, 0.0).rgb;
+    return (near * 0.9 + wide * 0.7) * post.glow;
+}
 
 struct VertexOut {
     @builtin(position) position: vec4<f32>,
@@ -71,7 +80,7 @@ fn fs_main(in: VertexOut) -> @location(0) vec4<f32> {
     var c = filtered(in.uv);
     if (post.glow > 0.0) {
         // Screen blend: bright light spills onto what's round it without going past white.
-        let b = textureSampleLevel(bloom, scene_sampler, in.uv, 0.0).rgb * post.glow;
+        let b = glow_at(in.uv);
         c = 1.0 - (1.0 - c) * (1.0 - min(b, vec3<f32>(1.0)));
     }
     if (post.vivid > 0.0) {
@@ -99,15 +108,19 @@ fn bright(uv: vec2<f32>) -> vec3<f32> {
     let hi = max(c.r, max(c.g, c.b));
     let key = 0.5 * hi + 0.5 * dot(c, vec3<f32>(0.299, 0.587, 0.114));
     let sat = (hi - min(c.r, min(c.g, c.b))) / max(hi, 0.001);
-    return c * smoothstep(0.72, 1.0, key) * (0.3 + 0.7 * sat);
+    return c * smoothstep(0.7, 0.92, key) * (0.3 + 0.7 * sat);
 }
 
 @fragment
 fn fs_bright(in: VertexOut) -> @location(0) vec4<f32> {
     let t = post.texel;
-    let sum = bright(in.uv + vec2<f32>(-t.x, -t.y)) + bright(in.uv + vec2<f32>(t.x, -t.y))
-        + bright(in.uv + vec2<f32>(-t.x, t.y)) + bright(in.uv + vec2<f32>(t.x, t.y));
-    return vec4<f32>(sum / 4.0, 1.0);
+    let a = bright(in.uv + vec2<f32>(-t.x, -t.y));
+    let b = bright(in.uv + vec2<f32>(t.x, -t.y));
+    let c = bright(in.uv + vec2<f32>(-t.x, t.y));
+    let d = bright(in.uv + vec2<f32>(t.x, t.y));
+    // Half the average, half the brightest: a spark a pixel or two wide keeps its light, where
+    // averaging alone would thin it sixteen times; a wide area (lava) is the same either way.
+    return vec4<f32>((a + b + c + d) / 8.0 + max(max(a, b), max(c, d)) * 0.5, 1.0);
 }
 
 fn tap(uv: vec2<f32>) -> vec3<f32> {
@@ -136,7 +149,7 @@ fn fs_hdr(in: VertexOut) -> @location(0) vec4<f32> {
     let f = textureSampleLevel(scene, scene_sampler, in.uv, 0.0);
     var c = to_linear(f.rgb) * post.paper;
     if (post.glow > 0.0) {
-        let b = textureSampleLevel(bloom, scene_sampler, in.uv, 0.0).rgb * post.glow;
+        let b = glow_at(in.uv);
         c += to_linear(min(b, vec3<f32>(1.0))) * post.paper * post.headroom * (1.0 - f.a);
     }
     return vec4<f32>(c, 1.0);

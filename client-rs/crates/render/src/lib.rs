@@ -173,10 +173,11 @@ struct Offscreen {
     height: u32,
     view: wgpu::TextureView,
     bind_group: wgpu::BindGroup,
+    /// The bright light picked out (the tight glow), spread across into `bloom_b`, then down
+    /// into `bloom_c` (the wide glow).
     bloom_a: wgpu::TextureView,
     bloom_b: wgpu::TextureView,
-    /// Reads the world into `bloom_a`, `bloom_a` into `bloom_b` across, `bloom_b` into `bloom_a`
-    /// down.
+    bloom_c: wgpu::TextureView,
     bright_group: wgpu::BindGroup,
     blur_h_group: wgpu::BindGroup,
     blur_v_group: wgpu::BindGroup,
@@ -414,6 +415,16 @@ impl Renderer {
                 },
                 wgpu::BindGroupLayoutEntry {
                     binding: 3,
+                    visibility: wgpu::ShaderStages::FRAGMENT,
+                    ty: wgpu::BindingType::Texture {
+                        sample_type: wgpu::TextureSampleType::Float { filterable: true },
+                        view_dimension: wgpu::TextureViewDimension::D2,
+                        multisampled: false,
+                    },
+                    count: None,
+                },
+                wgpu::BindGroupLayoutEntry {
+                    binding: 4,
                     visibility: wgpu::ShaderStages::FRAGMENT,
                     ty: wgpu::BindingType::Texture {
                         sample_type: wgpu::TextureSampleType::Float { filterable: true },
@@ -847,7 +858,7 @@ impl Renderer {
                 for (pipeline, group, target) in [
                     (&self.bright_pipeline, &off.bright_group, &off.bloom_a),
                     (&self.blur_pipeline, &off.blur_h_group, &off.bloom_b),
-                    (&self.blur_pipeline, &off.blur_v_group, &off.bloom_a),
+                    (&self.blur_pipeline, &off.blur_v_group, &off.bloom_c),
                 ] {
                     let mut pass = begin_pass(&mut encoder, target, black);
                     pass.set_pipeline(pipeline);
@@ -942,9 +953,10 @@ impl Renderer {
         let view = target("world", width, height).create_view(&Default::default());
         let bloom_a = target("glow", bloom_size(width), bloom_size(height)).create_view(&Default::default());
         let bloom_b = target("glow across", bloom_size(width), bloom_size(height)).create_view(&Default::default());
+        let bloom_c = target("wide glow", bloom_size(width), bloom_size(height)).create_view(&Default::default());
         let frame = target("frame", width, height);
         let frame_view = frame.create_view(&Default::default());
-        let group = |label, scene: &wgpu::TextureView, bloom: &wgpu::TextureView, params: &wgpu::Buffer| {
+        let group = |label, scene: &wgpu::TextureView, bloom: &wgpu::TextureView, tight: &wgpu::TextureView, params: &wgpu::Buffer| {
             self.device.create_bind_group(&wgpu::BindGroupDescriptor {
                 label: Some(label),
                 layout: &self.post_layout,
@@ -953,14 +965,15 @@ impl Renderer {
                     wgpu::BindGroupEntry { binding: 1, resource: wgpu::BindingResource::Sampler(&self.post_sampler) },
                     wgpu::BindGroupEntry { binding: 2, resource: params.as_entire_binding() },
                     wgpu::BindGroupEntry { binding: 3, resource: wgpu::BindingResource::TextureView(bloom) },
+                    wgpu::BindGroupEntry { binding: 4, resource: wgpu::BindingResource::TextureView(tight) },
                 ],
             })
         };
-        let bind_group = group("world", &view, &bloom_a, &self.post_params);
-        let bright_group = group("bright", &view, &view, &self.post_params);
-        let blur_h_group = group("blur across", &bloom_a, &bloom_a, &self.blur_h_params);
-        let blur_v_group = group("blur down", &bloom_b, &bloom_b, &self.blur_v_params);
-        let hdr_group = group("hdr", &frame_view, &bloom_a, &self.post_params);
+        let bind_group = group("world", &view, &bloom_c, &bloom_a, &self.post_params);
+        let bright_group = group("bright", &view, &view, &view, &self.post_params);
+        let blur_h_group = group("blur across", &bloom_a, &bloom_a, &bloom_a, &self.blur_h_params);
+        let blur_v_group = group("blur down", &bloom_b, &bloom_b, &bloom_b, &self.blur_v_params);
+        let hdr_group = group("hdr", &frame_view, &bloom_c, &bloom_a, &self.post_params);
         self.offscreen = Some(Offscreen {
             width,
             height,
@@ -968,6 +981,7 @@ impl Renderer {
             bind_group,
             bloom_a,
             bloom_b,
+            bloom_c,
             bright_group,
             blur_h_group,
             blur_v_group,
