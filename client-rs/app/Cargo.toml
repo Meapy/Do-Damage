@@ -30,8 +30,8 @@ web-time.workspace = true
 winit.workspace = true
 
 [target.'cfg(windows)'.dependencies]
-# The clipboard, for copying and pasting in text fields.
-windows-sys = { version = "0.52", features = ["Win32_Foundation", "Win32_System_DataExchange", "Win32_System_Memory", "Win32_UI_WindowsAndMessaging"] }
+# The clipboard, for copying and pasting in text fields; whether a display is in HDR.
+windows-sys = { version = "0.52", features = ["Win32_Devices_Display", "Win32_Foundation", "Win32_Graphics_Gdi", "Win32_System_DataExchange", "Win32_System_Memory", "Win32_UI_WindowsAndMessaging"] }
 
 [target.'cfg(not(target_arch = "wasm32"))'.dependencies]
 env_logger.workspace = true

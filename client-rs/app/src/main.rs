@@ -20,6 +20,7 @@ mod particles;
 mod petals;
 mod prof;
 mod npc;
+mod hdr;
 mod options;
 mod redraw;
 mod screens;
@@ -133,6 +134,8 @@ struct App {
     last_title: String,
     /// `--shot <file> --shot-after <seconds>`: save one frame as PNG, then quit (desktop).
     shot: Option<(String, f32)>,
+    /// Windows' SDR white level on an HDR display, read once at start (`hdr::windows_hdr`).
+    hdr_paper: Option<f32>,
     quit: bool,
     /// Scripted key holds (`--hold`), and when the first one started.
     holds: Vec<(KeyCode, i32)>,
@@ -388,6 +391,19 @@ fn shot_args() -> Option<(String, f32)> {
 #[cfg(target_arch = "wasm32")]
 fn shot_args() -> Option<(String, f32)> {
     None
+}
+
+/// `--look off|glow|vivid|all`: the glow and colours for this run, whatever the options say
+/// (screenshots to compare; the settings are left alone).
+fn look_arg() -> Option<(bool, bool)> {
+    let args: Vec<String> = std::env::args().collect();
+    let value = args.iter().position(|a| a == "--look").and_then(|i| args.get(i + 1))?;
+    let all = value == "all" || value == "compare";
+    Some((value == "glow" || all, value == "vivid" || all))
+}
+
+fn look(glow: bool, vivid: bool) -> bsk_render::Look {
+    bsk_render::Look { glow: if glow { 1.6 } else { 0.0 }, vivid: if vivid { 1.0 } else { 0.0 } }
 }
 
 /// A chat line being typed, starting from `text` (TextBox's limit: 128 characters).
@@ -1713,6 +1729,11 @@ impl App {
         let Some(loaded) = self.loaded.as_mut() else { return };
         let Loaded { renderer, sprites, data, redrawer, fonts, text, .. } = &mut **loaded;
         renderer.set_vsync(!(self.settings.unlock_fps || self.bench.is_some()));
+        let (glow, vivid) = look_arg().unwrap_or((self.settings.glow, self.settings.vivid));
+        renderer.set_look(look(glow, vivid));
+        // HDR: SDR white where Windows puts it, and the glow up to twice as bright again.
+        let hdr = self.settings.hdr.then(|| bsk_render::Hdr { paper: self.hdr_paper.unwrap_or(1.0), headroom: 2.0 });
+        renderer.set_hdr(hdr);
         #[cfg(not(target_arch = "wasm32"))]
         if self.settings.max_fps > 0 && self.bench.is_none() {
             let frame = std::time::Duration::from_secs_f64(1.0 / self.settings.max_fps as f64);
@@ -2545,6 +2566,19 @@ impl App {
                 Ok(()) => log::info!("saved {path}"),
                 Err(e) => log::error!("{path}: {e}"),
             }
+            // `--look compare`: the same frame again with the look off, beside it.
+            if std::env::args().any(|a| a == "compare") {
+                renderer.set_look(look(false, false));
+                renderer.capture_next_frame();
+                let _ = renderer.present(0x000000);
+                if let Some(plain) = renderer.take_capture() {
+                    let off = path.replace(".png", "-off.png");
+                    match plain.save(&off) {
+                        Ok(()) => log::info!("saved {off}"),
+                        Err(e) => log::error!("{off}: {e}"),
+                    }
+                }
+            }
             self.quit = true;
         }
 
@@ -3076,6 +3110,7 @@ fn main() {
         wheel: 0.0,
         last_title: String::new(),
         shot: shot_args(),
+        hdr_paper: hdr::windows_hdr(),
         quit: false,
         holds: hold_args(),
         holds_from: None,

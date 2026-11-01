@@ -315,7 +315,7 @@ pub fn startup() -> Result<Startup, String> {
             "--stay" | "--bench" | "--resume" | "--no-update" => {}
             "--credentials" => credentials = it.next(),
             // Read by main (screenshots, scripted input).
-            "--shot" | "--shot-after" | "--hold" | "--walk-to" | "--aim" | "--say" | "--type" | "--npc" | "--quests" | "--champions" | "--effect" | "--size" | "--mouse" | "--mouse-script" => {
+            "--shot" | "--shot-after" | "--look" | "--hold" | "--walk-to" | "--aim" | "--say" | "--type" | "--npc" | "--quests" | "--champions" | "--effect" | "--size" | "--mouse" | "--mouse-script" => {
                 it.next();
             }
             _ => return Err(format!("unknown argument {a}")),

@@ -12,6 +12,14 @@ Keep each version short: changes go under `### ` group headings (Oryx 5, Arena, 
 on), one line per change players notice, summed up rather than item by item (the wiki has the
 details). Add to a group's line when a change adds to it, rather than adding another line.
 
+## Unreleased
+
+### Graphics
+- The world looks richer: lava, fire, lanterns and spells cast a soft glow, colours are a little
+  livelier and the screen's corners a touch darker. On a Windows PC with HDR turned on, the game
+  draws in HDR, so that glow shines brighter than white. Each can be turned off in Options,
+  Graphics ("Glow on bright light", "Vivid colours", "HDR").
+
 ## 2.3.6 (2026-10-31)
 
 ### Nexus
