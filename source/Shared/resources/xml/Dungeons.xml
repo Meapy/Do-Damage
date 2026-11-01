@@ -425,7 +425,7 @@
 		     same ground (StairTowerWorld; "Stair Tower 1.jm" and up are the floors above);
 		     admins only, /dungeon testadmin1 -->
 		<DisplayName>Stair Tower</DisplayName>
-		<Width>56</Width>
+		<Width>70</Width>
 		<Height>72</Height>
 		<MapJM>Dungeons/Stair Tower.jm</MapJM>
 		<VisibilityType>1</VisibilityType>

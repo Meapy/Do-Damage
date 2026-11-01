@@ -17,7 +17,10 @@ wall under it, and from above you look down onto the floor below:
   higher, `<Lift>`) from floor 1 up to a landing on floor 2, closed by a door of walls (Tower
   Door) until floor 1's boss (Tower Boss) dies;
 - floor 2, Stheno the Snake Queen's, and the west stairs up to floor 3, Arachna the Spider
-  Queen's, with a Nexus Portal at its far end.
+  Queen's, with a Nexus Portal at its far end;
+- east of floor 1, a spiral staircase round an open well (SPIRAL), two turns from floor 1 to
+  floor 3, each turn over the last: its door opens with floor 1's boss, and a bridge at the top
+  crosses to floor 3.
 
 Walls stand round each floor, except where a lower floor lies beside it: there its edge is open
 and drops to the floor below.
@@ -26,6 +29,7 @@ The output is generated: change this script and run it again rather than editing
 """
 import base64
 import json
+import math
 import os
 import sys
 import zlib
@@ -34,7 +38,7 @@ ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 OUT = os.path.join(ROOT, "source", "Shared", "resources", "worlds", "Dungeons")
 NAME = "Stair Tower"
 
-W, H = 56, 72
+W, H = 70, 72
 FLOOR_HEIGHT = 3            # tiles between floors (StairTowerWorld.FloorHeight)
 STEPS = 5                   # steps per flight, FLOOR_HEIGHT / (STEPS + 1) tiles each
 CX = 28                     # the floors' middle column
@@ -60,6 +64,42 @@ FLIGHTS = [
     ((6, 8), 23),           # floor 2's, at its west end, up to floor 3
 ]
 VESTIBULE = (22, 61, 34, 68)
+
+# The spiral staircase, east of floor 1: a ring two tiles wide round an open well (the 2 x 2
+# middle of a 6 x 6 square from SPIRAL), climbing SPIRAL_RISE a sector, twelve sectors a turn
+# (`ST Spiral 1` to `11`). Two turns take it from floor 1 to floor 3: the second turn runs over the
+# first, on the same squares a floor up. Its first sector is the south-west corner, where a passage
+# comes in from floor 1 through a door (Tower Door, floor 1's); it climbs west, north, east and
+# south round the well, and from the same corner two floors up a bridge crosses to floor 3.
+SPIRAL = (57, 27)
+SPIRAL_SECTORS = 12
+SPIRAL_RISE = FLOOR_HEIGHT / SPIRAL_SECTORS
+SPIRAL_START = 120          # degrees, screen-wise (y down): sector 0 is the south-west corner
+SPIRAL_PASSAGE = [(51, 46, 58, 47), (57, 33, 58, 47)]           # floor 1 to the bottom, x0 y0 x1 y1
+SPIRAL_DOOR = (53, 46, 53, 47)
+SPIRAL_BRIDGE = [(51, 31, 56, 32), (53, 16, 54, 32), (51, 16, 52, 17)]   # the top to floor 3
+
+
+def spiral_squares():
+    """The ring's squares and each one's sector (0 to 11), and the well's squares."""
+    sx, sy = SPIRAL
+    cx, cy = sx + 3, sy + 3
+    ring, well = {}, []
+    for y in range(sy, sy + 6):
+        for x in range(sx, sx + 6):
+            if sx + 2 <= x <= sx + 3 and sy + 2 <= y <= sy + 3:
+                well.append((x, y))
+                continue
+            a = math.degrees(math.atan2(y + 0.5 - cy, x + 0.5 - cx))
+            ring[(x, y)] = int(((a - SPIRAL_START) % 360) / (360 / SPIRAL_SECTORS))
+    return ring, well
+
+
+def rect(g, r, ground):
+    x0, y0, x1, y1 = r
+    for y in range(y0, y1 + 1):
+        for x in range(x0, x1 + 1):
+            g.ground[y][x] = ground
 
 
 class Level:
@@ -110,14 +150,36 @@ def build():
                 g0.region[y][x] = "Spawn"
     g0.place(CX, vy1 - 1, PORTAL)
 
-    # walls two tiles thick round each floor, but none where a lower floor lies: the edge drops
+    # the spiral: a turn on floor 1 and one on floor 2 over it, the landing on floor 3, the well's
+    # floor at the bottom, the passage in and the bridge out
+    ring, well = spiral_squares()
+    for (x, y), sector in ring.items():
+        for n in (0, 1):
+            levels[n].ground[y][x] = "ST Spiral %d" % sector if sector else FLOOR
+        if sector == 0:
+            levels[2].ground[y][x] = FLOOR
+    for x, y in well:
+        levels[0].ground[y][x] = FLOOR
+    for r in SPIRAL_PASSAGE:
+        rect(levels[0], r, FLOOR)
+    x0, y0, x1, y1 = SPIRAL_DOOR
+    for y in range(y0, y1 + 1):
+        for x in range(x0, x1 + 1):
+            levels[0].place(x, y, WALL, "Tower Door")
+    for r in SPIRAL_BRIDGE:
+        rect(levels[2], r, FLOOR)
+
+    # walls two tiles thick round each floor, but none where a lower floor lies: the edge drops.
+    # The spiral's turns above the lowest stand open, so walls go only round the floor's own.
+    open_ = set(ring) | set(well)
     for n, g in enumerate(levels):
         below = levels[:n]
+        walled = (lambda x, y: g.is_floor(x, y)) if n == 0 else (lambda x, y: g.is_floor(x, y) and (x, y) not in open_)
         for y in range(H):
             for x in range(W):
                 if g.is_floor(x, y) or any(b.is_floor(x, y) for b in below):
                     continue
-                near = [(dx, dy) for dx in (-2, -1, 0, 1, 2) for dy in (-2, -1, 0, 1, 2) if g.is_floor(x + dx, y + dy)]
+                near = [(dx, dy) for dx in (-2, -1, 0, 1, 2) for dy in (-2, -1, 0, 1, 2) if walled(x + dx, y + dy)]
                 if not near or g.obj[y][x] is not None:
                     continue
                 face = any(abs(dx) + abs(dy) == 1 for dx, dy in near)
@@ -159,7 +221,7 @@ def save(g, path):
 
 def preview(levels):
     """Each floor as text: # wall, t torch, D door, B boss, N portal, S spawn, 1-5 steps,
-    . floor, ' empty."""
+    a-k the spiral's sectors 1 to 11, . floor, ' empty."""
     for n, g in enumerate(levels):
         print(f"--- floor {n + 1} (height {n * FLOOR_HEIGHT})")
         for y in range(H):
@@ -176,6 +238,8 @@ def preview(levels):
                     row += "S"
                 elif gr and gr.startswith("ST Step"):
                     row += gr[-1]
+                elif gr and gr.startswith("ST Spiral"):
+                    row += "abcdefghijk"[int(gr.split()[-1]) - 1]
                 elif gr:
                     row += "."
                 else:
