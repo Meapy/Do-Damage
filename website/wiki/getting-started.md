@@ -83,7 +83,11 @@ other players and their pets you see, and the **Chat size** (50% to 150%: its te
 height together). "Pets' shots" there switches between Normal, Subtle (the
 default: smaller, see-through shots) and Hidden. The **Graphics** tab has the world zoom, a frame
 rate limit and, on the desktop, **Borderless fullscreen**: the window covers the screen it's on,
-with no border, and alt-tabbing out is instant. The game remembers it for the next time. The
+with no border, and alt-tabbing out is instant. The game remembers it for the next time. It also
+has the world's look: **Glow on bright light** (a soft glow round lava, fire, lanterns and
+spells), **Vivid colours** (livelier colours and slightly darker corners) and, on a Windows PC,
+**HDR**. HDR is on when Windows has HDR turned on for your screen, and then the glow shines
+brighter than white. Turn any of them off if the game runs slowly on your computer. The
 **Sound** tab has a Master volume.
 
 ## The screen
