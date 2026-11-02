@@ -581,23 +581,24 @@ The remotes `upstream` (HaloCelsius) and `aurusenth` share no history with `main
 ## Changes from upstream
 
 - **/visit for everyone, with a Yes/No** (2026-11-02; `Command.Visit` (moved to `player/`),
-  `Player.Visits.cs`, `Shared/VisitBook.cs` and `VisitRules.cs`, `VisitAnswerHandler`, messages
+  `Player.Visits.cs`, `Shared/VisitBook.cs` and `VisitRules.cs`, `VisitAnswerHandler`, `/yes` and `/no` (`Command.VisitAnswer.cs`), messages
   126 `VISIT_ANSWER` and 127 `VISIT_REQUEST`, the Rust client's `hud::draw_visit`;
   `Tests/VisitTests.cs`): any player can `/visit <name>` to ask to join them. Allowed: instances
-  of type Dungeon that don't persist (dungeons, the Arena, Doomed Realms minigames; an Arena game
+  of type Dungeon that don't persist (dungeons, Oryx's chain, the Arena, Doomed Realms minigames; an Arena game
   that has started is let in through `World.Invite`, as `/summon` does). Refused: the Nexus, realms
-  and Realm 2, vaults, guild halls, test worlds, persistent worlds (the Daily Quest Room), Oryx's
-  chain (`OryxChain.IsStage`), full worlds and single-player ones (`MaxPlayers` 1). Each world
+  and Realm 2, vaults, guild halls, test worlds, persistent worlds (the Daily Quest Room), full worlds and single-player ones (`MaxPlayers` 1). Each world
   remembers every account that has had a character in it (`World.HasBeenIn`, set in `AddToWorld`
   and on a Yes), so a visit works once per instance and never back into one the account has been
   in; it lives as long as the world. The player asked gets `VISIT_REQUEST` (id, name, world, 30 s)
   and a box at the top right of the world view, under the gold and fame (its frame counts as the
-  HUD's, so clicks on it never shoot; no keys); a Yes re-checks the rules where they are now and
+  HUD's, so clicks on it never shoot; no keys); `/yes` and `/no` answer
+  the request waiting (`VisitBook.WaitingFor`) and hide the box; a Yes re-checks the rules where they are now and
   sends the visitor there. Limits (`VisitBook`): one request waiting per visitor and per player
   asked, 10 s between a visitor's requests, a minute after a No or a timeout before asking that
   player again; timeouts (30 s) are found from the players' ticks and told to both sides. Clients
   say they can show requests with `VISIT_ANSWER 255` in each world; a target whose client never
-  said so (the AIR client, Rust clients before 2.3.7) is refused with a message. Admins still go
+  said so (the AIR client, Rust clients before 2.3.7) gets the request as a chat line, to answer
+  with `/yes` or `/no`. Admins still go
   straight there, anywhere. The bot answers requests with `--visit-answer yes|no|wait`.
 
 - **Idlers in the Nexus go back to the character screen** (2026-10-31; `Shared/NexusAfk.cs`, `Player.NexusAfk.cs`, `MoveHandler`; `Tests/NexusAfkTests.cs`): a player who stands still in the Nexus for `serverSettings.nexusAfkMinutes` (`wServer.json`, 20; 0 turns it off) gets a Failure (`MessageWithDisconnect`, "You were away for 20 minutes and have been returned to the character screen.") and is disconnected a second later, which saves the character and releases the account lock as any leaving does. Only a position change the client sends (`MoveHandler`, after `player.Move`) resets it; chat, trades, the Marketplace and other windows don't, nor does bumping into a wall. Only time in the `NexusWorld` counts (each world is a new `Player`, so leaving the Nexus starts afresh; the vault, a branch of the Nexus, is a world of its own and doesn't count). Admins (`account.admin`) are never sent away. The Rust client already took a Failure as final (no reconnecting to the Nexus, `game.refused`) and went back to the character list, but the socket's closing then replaced the server's words with "Disconnected: the server closed the connection"; `game.rs` now keeps the Failure's text, for every Failure. Older clients are sent away just the same, with the generic line. Tested on an isolated stack at 0.5 minutes: a still bot in the Nexus was sent away at 30 s and its character was alive and loadable straight after; a `--wander` bot in the Nexus and a still bot in a realm stayed connected for 75 s; the Rust client showed the message and asked for the character list.

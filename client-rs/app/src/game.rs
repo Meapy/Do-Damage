@@ -851,7 +851,7 @@ impl Game {
                 } else {
                     let total = v.seconds as i32 * 1000;
                     self.visit = Some(VisitAsk { id: v.id, name: v.name.clone(), world: v.world.clone(), until: now + total, total });
-                    self.add_chat("", "", &format!("{} wants to visit you: answer Yes or No in the corner.", v.name), 0, 0, -1, now);
+                    self.add_chat("", "", &format!("{} wants to visit you: answer Yes or No in the corner, or type /yes or /no.", v.name), 0, 0, -1, now);
                 }
             }
             ServerMessage::ImminentArenaWave(w) => {

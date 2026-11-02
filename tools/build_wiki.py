@@ -66,6 +66,8 @@ COMMAND_HELP = {
     "forgelist": "The recipes are in the Divine Forge's window, in the Nexus; this points you to it.",
     "trade": "Asks a player to trade: <code>/trade &lt;name&gt;</code>. Needs 2 rank stars; clicking a player's name and choosing Trade doesn't.",
     "visit": "Asks a player to let you join them in their dungeon, the Arena or another instance: <code>/visit &lt;name&gt;</code> (<code>/visit cancel</code> takes it back). See <a href=\"#visiting-a-friend\">Visiting a friend</a>.",
+    "yes": "Lets in the player asking to visit you (the <b>Yes</b> of the box in the corner).",
+    "no": "Turns down the player asking to visit you (the <b>No</b> of the box in the corner).",
     "tell": "Whispers to a player: <code>/tell &lt;name&gt; &lt;message&gt;</code> (or press <kbd>Tab</kbd>).",
     "guild": "Says something in guild chat (or press <kbd>G</kbd>).",
     "party": "Says something in party chat (or press <kbd>P</kbd>).",

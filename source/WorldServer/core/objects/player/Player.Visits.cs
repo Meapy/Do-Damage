@@ -12,7 +12,8 @@ namespace WorldServer.core.objects
     public partial class Player
     {
         // A player's /visit (Command.Visit): the player asked gets a Yes/No in a corner of their
-        // screen (VISIT_REQUEST) for VisitBook.TimeoutMs, and a Yes sends the visitor into the
+        // screen (VISIT_REQUEST) for VisitBook.TimeoutMs, or a chat line on a client that can't
+        // show it, and answers with it or /yes and /no; a Yes sends the visitor into the
         // instance they're in, if VisitRules still allow it. The book (GameServer.Visits) keeps
         // the cooldowns; each world remembers who has been in it (World.HasBeenIn).
 
@@ -39,8 +40,6 @@ namespace WorldServer.core.objects
                 p.Kind = VisitRules.Kind.Test;
             else if (world.Persist)
                 p.Kind = VisitRules.Kind.Shared;
-            else if (OryxChain.IsStage(world))
-                p.Kind = VisitRules.Kind.OryxChain;
             else
                 p.Kind = VisitRules.Kind.Instance;
             p.Same = visitor.World == world;
@@ -69,8 +68,6 @@ namespace WorldServer.core.objects
             var them = target.Player;
             var world = them.World;
             var refusal = VisitRules.Refusal(VisitPlace(world, this), them.Name);
-            if (refusal == null && !them.WantsVisitRequests)
-                refusal = $"{them.Name}'s game can't show visit requests: they need to update it.";
             if (refusal == null && target.Account.IgnoreList.Contains(me.AccountId))
                 refusal = "Player not found!";
             VisitBook.Request request = null;
@@ -87,6 +84,8 @@ namespace WorldServer.core.objects
             {
                 if (p.WantsVisitRequests)
                     p.Client.SendPacket(new VisitRequest { Id = request.Id, Name = Name, World = place, Seconds = VisitBook.TimeoutMs / 1000 });
+                else
+                    p.SendInfo($"{Name} wants to visit you: type /yes or /no ({VisitBook.TimeoutMs / 1000} s).");
             });
             SendInfo($"Asked {them.Name} to let you into their {place}: they have {VisitBook.TimeoutMs / 1000} s to answer. (/visit cancel to take it back)");
             return true;
@@ -109,6 +108,22 @@ namespace WorldServer.core.objects
                 p.SendInfo($"{r.VisitorName} took back their visit request.");
             });
             SendInfo($"Took back your visit request to {r.TargetName}.");
+        }
+
+        // /yes or /no: answer the request waiting, and hide its box.
+        public void AnswerVisitByChat(bool yes)
+        {
+            var r = GameServer.Visits.WaitingFor(Client.Account.AccountId, VisitClock);
+            if (r == null)
+            {
+                SendInfo("Nobody is asking to visit you.");
+                return;
+            }
+            if (WantsVisitRequests)
+                Client.SendPacket(new VisitRequest { Id = r.Id, Name = r.VisitorName });
+            if (!yes)
+                SendInfo($"You didn't let {r.VisitorName} in.");
+            AnswerVisit(r.Id, yes);
         }
 
         // Our answer to request `id`.

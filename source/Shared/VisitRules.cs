@@ -1,7 +1,8 @@
 namespace Shared
 {
-    // Where a player's /visit may take them (Command.Visit): into the dungeons, the Arena and the
-    // other instances made from a portal, once each, and never back into one they've been in.
+    // Where a player's /visit may take them (Command.Visit): into the dungeons, the Arena, Oryx's
+    // chain and the other instances made from a portal, once each, and never back into one
+    // they've been in.
     public static class VisitRules
     {
         public enum Kind
@@ -14,8 +15,6 @@ namespace Shared
             Test,
             // a world everyone shares that the Nexus leads to (the Daily Quest Room)
             Shared,
-            // a stage of Oryx's chain: earned by the fight before it
-            OryxChain,
             // closing, or the player is between worlds
             Gone,
         }
@@ -44,7 +43,6 @@ namespace Shared
                 case Kind.GuildHall: return $"{target} is in their guild hall, which only its guild can enter.";
                 case Kind.Test: return $"{target} can't be visited there.";
                 case Kind.Shared: return $"{target} is in {p.Name}: go there the usual way.";
-                case Kind.OryxChain: return $"{target} is in {p.Name}: Oryx's chain can't be visited, only fought through.";
             }
             if (p.Same)
                 return $"You're already with {target}.";

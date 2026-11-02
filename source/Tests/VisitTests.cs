@@ -23,7 +23,6 @@ namespace Tests
         [InlineData(VisitRules.Kind.GuildHall)]
         [InlineData(VisitRules.Kind.Test)]
         [InlineData(VisitRules.Kind.Shared)]
-        [InlineData(VisitRules.Kind.OryxChain)]
         [InlineData(VisitRules.Kind.Gone)]
         public void OtherPlacesAreRefused(VisitRules.Kind kind)
         {
@@ -113,6 +112,17 @@ namespace Tests
             Assert.True(visitor[0].AsVisitor);
             Assert.False(book.Any);
             Assert.Contains("didn't let you in", Ask(book, 1, 2, VisitBook.TimeoutMs + VisitBook.CooldownMs, out _));
+        }
+
+        [Fact]
+        public void YesAndNoFindTheRequestWaiting()
+        {
+            var book = new VisitBook();
+            Assert.Null(book.WaitingFor(2, 0));
+            Ask(book, 1, 2, 0, out var r);
+            Assert.Same(r, book.WaitingFor(2, 10));
+            Assert.Null(book.WaitingFor(1, 10));
+            Assert.Null(book.WaitingFor(2, VisitBook.TimeoutMs));
         }
 
         [Fact]

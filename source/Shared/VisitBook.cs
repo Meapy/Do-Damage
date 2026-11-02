@@ -147,6 +147,18 @@ namespace Shared
             return told;
         }
 
+        // The request waiting for this player's answer (/yes, /no), or null.
+        public Request WaitingFor(int target, long now)
+        {
+            lock (_lock)
+            {
+                foreach (var r in _byVisitor.Values)
+                    if (r.Target == target && r.Expires > now)
+                        return r;
+                return null;
+            }
+        }
+
         // /visit cancel: drop the request this visitor has waiting, returning it so the target's
         // panel can be cleared.
         public Request Withdraw(int visitor)
