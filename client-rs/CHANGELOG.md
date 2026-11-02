@@ -12,6 +12,12 @@ Keep each version short: changes go under `### ` group headings (Oryx 5, Arena, 
 on), one line per change players notice, summed up rather than item by item (the wiki has the
 details). Add to a group's line when a change adds to it, rather than adding another line.
 
+## Unreleased
+
+### Graphics
+- Everything is sharp again with the glow on: names, damage numbers and health bars no longer
+  glow, the art keeps its crisp edges, and the halo round shots and sparks is tighter.
+
 ## 2.3.7 (2026-11-02)
 
 ### Friends
