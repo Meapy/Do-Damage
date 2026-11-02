@@ -480,22 +480,55 @@ pub fn height_of(world: &World, data: &GameData, obj: &GameObj) -> f64 {
 /// `h` tiles further down the screen than the ground under it, so that is the square `h` tiles
 /// down the screen from the object (less its own height, and half a tile for its middle).
 fn covered_by(world: &World, data: &GameData, cam: &Camera, obj: &GameObj) -> Option<u8> {
-    let floor_h = world.levels.as_ref()?.height;
-    (obj.level + 1..world.level_count() as u8).find(|&l| {
-        let t = l as f64 * floor_h - obj.z - 0.5;
-        let (x, y) = (obj.x - cam.sin * t, obj.y + cam.cos * t);
-        t > 0.0 && world.surface(l, x.floor() as i32, y.floor() as i32, data).is_some()
+    (obj.level + 1..world.level_count() as u8).find(|&l| floor_over(world, data, cam, obj, l, 0.0, 0.5))
+}
+
+/// Points of a sprite to test for cover, as (across the screen, up) in tiles: its middle and
+/// head, at its middle and either side.
+const SPRITE_POINTS: [(f64, f64); 6] = [(0.0, 0.5), (0.0, 1.0), (-0.4, 0.5), (0.4, 0.5), (-0.4, 1.0), (0.4, 1.0)];
+
+/// Whether floor `l` is drawn over any of a sprite's `SPRITE_POINTS`.
+fn floor_over_sprite(world: &World, data: &GameData, cam: &Camera, obj: &GameObj, l: u8) -> bool {
+    SPRITE_POINTS.iter().any(|&(across, up)| floor_over(world, data, cam, obj, l, across, up))
+}
+
+/// Whether floor `l` is drawn over a point of an object, `across` tiles to its right on the screen
+/// and `up` above its feet: whether one of its squares, `s` high, lies `s - h` tiles down the
+/// screen from the point (`h` the point's height), where it is drawn. Its squares are from its own
+/// height to a floor higher (steps), so the distances between are tried a quarter of a tile apart.
+fn floor_over(world: &World, data: &GameData, cam: &Camera, obj: &GameObj, l: u8, across: f64, up: f64) -> bool {
+    let Some(floor_h) = world.levels.as_ref().map(|lv| lv.height) else { return false };
+    let h = obj.z + up;
+    let (px, py) = (obj.x + cam.cos * across, obj.y + cam.sin * across);
+    let square = |t: f64| ((px - cam.sin * t).floor() as i32, (py + cam.cos * t).floor() as i32);
+    let low = l as f64 * floor_h - h;
+    (0..=(floor_h * 4.0) as i32).map(|k| low + k as f64 * 0.25).filter(|&t| t > 0.0).any(|t| {
+        let (x, y) = square(t);
+        world.surface(l, x, y, data).is_some_and(|s| s > h && square(s - h) == (x, y))
     })
 }
 
+/// On stacked floors, the floor an object is drawn with: its own, or higher as long as the floor
+/// above isn't drawn over any of it (`SPRITE_POINTS`). So it stays under a floor over it, but
+/// on a stair's top steps it's drawn over the floor it's climbing to, not under its edge.
+fn draw_level(world: &World, data: &GameData, cam: &Camera, obj: &GameObj) -> u8 {
+    let top = world.level_count() as u8 - 1;
+    let mut level = obj.level.min(top);
+    while level < top && !floor_over_sprite(world, data, cam, obj, level + 1) {
+        level += 1;
+    }
+    level
+}
+
 /// On stacked floors, the floors from which up are drawn see-through: those over us when one is
-/// drawn over us, or every floor above the lowest when the player asked (`/floors`,
+/// drawn over any of us, or every floor above the lowest when the player asked (`/floors`,
 /// `World.see_through`), to see what is under them, ours too.
 fn see_through_from(world: &World, data: &GameData, cam: &Camera) -> Option<u8> {
     if world.see_through {
         return Some(1);
     }
-    covered_by(world, data, cam, world.player()?)
+    let me = world.player()?;
+    (me.level + 1..world.level_count() as u8).find(|&l| floor_over_sprite(world, data, cam, me, l))
 }
 
 /// How thick a floor is where its edge hangs over the floor below (or over nothing): its face
@@ -504,10 +537,12 @@ const SLAB: f64 = 0.35;
 /// A railing (`<Rail>`, its colour): along an edge that drops at least this far.
 const RAIL_DROP: f64 = 0.6;
 const RAIL_HEIGHT: f64 = 0.4;
+/// How bright the ground is under a floor above it.
+const SHADE: f32 = 0.55;
 
 /// On stacked floors: each floor's ground in view at its height (a stair's steps each at theirs),
-/// and what stands at its edges where the ground drops beside it, each with the floor it is drawn
-/// with and the depth it sorts at among what stands there: the faces (a step's riser down to the
+/// and what stands at its edges where the ground drops beside it, each drawn with its floor at the
+/// depth it sorts at among what stands there: the faces (a step's riser down to the
 /// floor it stands on, in pieces a tile tall; a slab `SLAB` thick where the edge hangs over
 /// lower ground or nothing) and the railings of grounds with a `<Rail>`. The floors over our head
 /// are see-through (`see_through_from`).
@@ -516,7 +551,6 @@ fn floors(scene: &Scene, white: bsk_render::AtlasRect, x0: i32, x1: i32, y0: i32
     let (world, data, cam) = (scene.world, scene.data, scene.camera);
     let count = world.level_count() as u8;
     let floor_h = world.levels.as_ref().map_or(1.0, |l| l.height);
-    let level_of = |z: f64| ((z / floor_h).round().max(0.0) as u8).min(count - 1);
     let roof = see_through_from(world, data, &cam);
     let mut tops = vec![Vec::new(); count as usize];
     let mut faces = Vec::new();
@@ -529,7 +563,9 @@ fn floors(scene: &Scene, white: bsk_render::AtlasRect, x0: i32, x1: i32, y0: i32
                 let Some(rect) = crate::ground::plain(data, scene.sprites, tile, x, y) else { continue };
                 let (fx, fy) = (x as f64, y as f64);
                 let quad = cam.quad([fx, fy, s], [fx + 1.0, fy, s], [fx, fy + 1.0, s]);
-                tops[level as usize].push(Plate { rect, quad, tint: Tint { mul: [1.0, 1.0, 1.0, alpha], add: [0.0; 3] } });
+                // in the shade of a floor above it
+                let lit = if (level + 1..count).any(|l| world.surface(l, x, y, data).is_some()) { SHADE } else { 1.0 };
+                tops[level as usize].push(Plate { rect, quad, tint: Tint { mul: [lit, lit, lit, alpha], add: [0.0; 3] } });
                 // the sides, in Wall.addWall order: north, east, south, west
                 let sides = [
                     ([fx, fy], [fx + 1.0, fy], (0, -1)),
@@ -580,7 +616,7 @@ fn floors(scene: &Scene, white: bsk_render::AtlasRect, x0: i32, x1: i32, y0: i32
                         let low = (top - 1.0).max(bottom);
                         let quad = cam.quad([a[0], a[1], top], [b[0], b[1], top], [a[0], a[1], low]);
                         let tint = Tint { mul: [shade, shade, shade, alpha], add: [0.0; 3] };
-                        faces.push((level_of(bottom), depth, Plate { rect, quad, tint }));
+                        faces.push((level, depth, Plate { rect, quad, tint }));
                         top = low;
                     }
                 }
@@ -654,7 +690,11 @@ pub fn draw(scene: &Scene, renderer: &mut Renderer, redrawer: &mut Redrawer, gro
     items.sort_by(|a, b| a.0.total_cmp(&b.0));
     crate::prof::mark("v.sort");
     let item_level = |item: &Item| match item {
-        // with the floor it stands on (a stair's too), not the one its height is nearest
+        // what moves (players, monsters, bags) with the highest floor not drawn over it
+        // (`draw_level`); walls and pillars with their own, so the floor above covers their tops
+        Item::Sprite { obj, desc } if !desc.is_static => {
+            if layered { draw_level(world, scene.data, &cam, obj) } else { 0 }
+        }
         Item::Sprite { obj, .. } | Item::Wall { obj, .. } | Item::Connected { obj, .. } | Item::Model { obj, .. } => obj.level.min(top_level),
         Item::Projectile(p) => level_of(p.floor),
         Item::Face { level, .. } => *level,
@@ -1295,7 +1335,10 @@ fn draw_wall(scene: &Scene, renderer: &mut Renderer, obj: &GameObj, desc: &Objec
             .occupant_at(obj.level, sx, sy)
             .and_then(|o| scene.data.objects.get(&o.object_type))
             .is_some_and(|d| d.class.is_wall());
-        if scene.world.level_tile(obj.level, sx, sy).is_none() || neighbour_wall {
+        // black against another wall, or against ground not yet seen; on stacked floors a side
+        // with nothing beyond faces open air, and shows its stone
+        let unknown = scene.world.levels.is_none() && scene.world.level_tile(obj.level, sx, sy).is_none();
+        if unknown || neighbour_wall {
             renderer.sprite(renderer.white(), quad, Tint::color(0x000000, 1.0));
             continue;
         }
