@@ -395,6 +395,16 @@ fn arena_vote_messages_match_arena_votes() {
 }
 
 #[test]
+fn visit_messages_match_visit_answer_handler() {
+    // VisitAnswerHandler reads the id, then the answer.
+    assert_eq!(ClientMessage::from(VisitAnswer { id: 7, answer: 1 }).to_frame(), B::default().i32(7).u8(1).frame(126));
+    // VisitRequest.Write: id, name, world, seconds.
+    let body = B::default().i32(7).utf("Tester").utf("Snake Pit").u8(30).0;
+    let ServerMessage::VisitRequest(v) = ServerMessage::decode(127, &body).unwrap() else { panic!() };
+    assert_eq!((v.id, v.name.as_str(), v.world.as_str(), v.seconds), (7, "Tester", "Snake Pit", 30));
+}
+
+#[test]
 fn realm_event_messages_match_realm_events() {
     // RealmEventsSubscribeHandler reads nothing; QuestPickHandler the object id.
     assert_eq!(ClientMessage::from(RealmEventsSubscribe {}).to_frame(), B::default().frame(116));

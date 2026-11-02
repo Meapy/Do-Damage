@@ -1,6 +1,4 @@
 ﻿using Shared;
-using System;
-using System.Linq;
 using WorldServer.core.worlds.impl;
 using WorldServer.core.objects;
 using WorldServer.networking.packets.outgoing;
@@ -10,16 +8,25 @@ namespace WorldServer.core.commands
 {
     public abstract partial class Command
     {
+        // /visit <player>, for everyone: ask to join them in the dungeon, Arena or other instance
+        // they're in. They answer Yes or No in a corner of their screen (Player.Visits.cs), once
+        // per instance, never back into one you've been in; /visit cancel takes the request back.
+        // Admins go straight there, anywhere, as before.
         internal class Visit : Command
         {
-            public override RankingType RankRequirement => RankingType.Admin;
             public override string CommandName => "visit";
 
             protected override bool Process(Player player, TickTime time, string name)
             {
+                name = name?.Trim();
                 if (string.IsNullOrWhiteSpace(name))
                 {
-                    player.SendInfo("Usage: /visit <player name>");
+                    player.SendInfo("Usage: /visit <player name> to ask to join them in their dungeon; /visit cancel to take it back");
+                    return true;
+                }
+                if (name.Equals("cancel", System.StringComparison.OrdinalIgnoreCase))
+                {
+                    player.WithdrawVisit();
                     return true;
                 }
 
@@ -29,16 +36,18 @@ namespace WorldServer.core.commands
                     player.SendError("Player not found!");
                     return false;
                 }
-
-                var owner = target.Player.World;
-
-                if ((owner is VaultWorld || owner.IdName.Contains("Vault")) && !player.Client.Account.Admin)
+                if (target == player.Client)
                 {
-                    player.SendError("Only admins can visit other players' vault.");
+                    player.SendError("That's you.");
                     return false;
                 }
 
-                owner.Invite(player.Client.Account.AccountId); // even into an arena game that has started
+                var account = player.Client.Account;
+                if (!account.Admin && account.Rank < (int)RankingType.Admin)
+                    return player.AskToVisit(target);
+
+                var owner = target.Player.World;
+                owner.Invite(account.AccountId); // even into an arena game that has started
                 player.Client.Reconnect(new Reconnect()
                 {
                     Host = "",
