@@ -286,9 +286,14 @@ Do Damage is free software under the [GNU Affero General Public License, version
 any later version. Anyone who runs a changed copy of it for players to connect to must offer those
 players its source code, as the website does for this one.
 
+All of Do Damage's own code is under this license, whenever it was written: that includes the code
+of every release before 2.3.7, which shipped with the MIT License only. (Copies of those releases
+that someone already received under the MIT License stay usable under it; a license already given
+can't be taken back.)
+
 It started from betterSkillys, under the MIT License ([LICENSE-MIT](LICENSE-MIT), "Copyright (c)
-2024 Kevin Budz"); the code taken from it keeps that notice. Releases before 2.3.7 were under the
-MIT License alone.
+2024 Kevin Budz"); the code taken from it keeps that notice, and the project as a whole, that code
+included, is distributed under the AGPL.
 
 The license covers this repository's code. Realm of the Mad God's art, sounds, names and game data
 belong to their owners and aren't licensed by it.
