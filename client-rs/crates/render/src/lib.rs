@@ -236,6 +236,9 @@ pub struct Renderer {
     offscreen: Option<Offscreen>,
     /// Where the world's runs end, and the filter it's drawn through, this frame.
     split: Option<usize>,
+    /// Where the world's runs that can glow end (the rest of the world, names and numbers, is
+    /// drawn after the glow is picked out).
+    glow_split: Option<usize>,
     screen_filter: Option<ScreenFilter>,
 }
 
@@ -551,6 +554,7 @@ impl Renderer {
             hdr: None,
             offscreen: None,
             split: None,
+            glow_split: None,
             screen_filter: None,
         };
         let white = image::RgbaImage::from_pixel(4, 4, image::Rgba([255; 4]));
@@ -674,11 +678,19 @@ impl Renderer {
         self.tri_vertices.clear();
         self.runs.clear();
         self.split = None;
+        self.glow_split = None;
         self.screen_filter = None;
     }
 
     /// Everything drawn so far this frame is the world: draw it through `filter` (if any). What
     /// comes after (the HUD) is drawn plainly.
+    /// Everything drawn so far this frame is the world's light and things: the glow comes from
+    /// these only. What's drawn after, until `world_done`, is still the world (its filter and
+    /// colours) but never glows: names, damage numbers, health bars.
+    pub fn glow_done(&mut self) {
+        self.glow_split = Some(self.runs.len());
+    }
+
     pub fn world_done(&mut self, filter: Option<ScreenFilter>) {
         self.split = Some(self.runs.len());
         self.screen_filter = filter;
@@ -686,7 +698,7 @@ impl Renderer {
 
     fn extend_run(&mut self, kind: Kind, page: u16, start: u32, end: u32) {
         let group = page / GROUP as u16;
-        let at_split = self.split == Some(self.runs.len());
+        let at_split = self.split == Some(self.runs.len()) || self.glow_split == Some(self.runs.len());
         match self.runs.last_mut() {
             Some(run) if !at_split && run.kind == kind && run.group == group && run.end == start => run.end = end,
             _ => self.runs.push(Run { kind, group, start, end }),
@@ -844,9 +856,10 @@ impl Renderer {
         };
         if let Some((split, _)) = filtered {
             let off = self.offscreen.as_ref().expect("prepared");
+            let glowing = if self.look.glow > 0.0 { self.glow_split.map_or(split, |g| g.min(split)) } else { split };
             {
                 let mut pass = begin_pass(&mut encoder, &off.view, wgpu::LoadOp::Clear(clear));
-                self.draw_runs(&mut pass, &self.runs[..split]);
+                self.draw_runs(&mut pass, &self.runs[..glowing]);
             }
             if self.look.glow > 0.0 {
                 let (bw, bh) = (bloom_size(off.width) as f32, bloom_size(off.height) as f32);
@@ -865,6 +878,10 @@ impl Renderer {
                     pass.set_bind_group(0, group, &[]);
                     pass.draw(0..3, 0..1);
                 }
+            }
+            if glowing < split {
+                let mut pass = begin_pass(&mut encoder, &off.view, wgpu::LoadOp::Load);
+                self.draw_runs(&mut pass, &self.runs[glowing..split]);
             }
             let mut pass = begin_pass(&mut encoder, target, wgpu::LoadOp::Clear(clear));
             pass.set_pipeline(&self.post_pipeline);

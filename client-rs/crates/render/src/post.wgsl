@@ -33,7 +33,7 @@ struct Post {
 fn glow_at(uv: vec2<f32>) -> vec3<f32> {
     let near = textureSampleLevel(tight, scene_sampler, uv, 0.0).rgb;
     let wide = textureSampleLevel(bloom, scene_sampler, uv, 0.0).rgb;
-    return (near * 0.9 + wide * 0.7) * post.glow;
+    return (near * 0.4 + wide * 0.7) * post.glow;
 }
 
 struct VertexOut {
@@ -51,7 +51,7 @@ fn vs_main(@builtin(vertex_index) vi: u32) -> VertexOut {
     return out;
 }
 
-fn filtered(uv: vec2<f32>) -> vec3<f32> {
+fn filtered(uv: vec2<f32>, px: vec2<f32>) -> vec3<f32> {
     if (post.mode > 2.5) {
         // A 7 × 7 spread of samples over the radius.
         var sum = vec4<f32>(0.0);
@@ -63,7 +63,8 @@ fn filtered(uv: vec2<f32>) -> vec3<f32> {
         }
         return (sum / 49.0).rgb;
     }
-    let c = textureSampleLevel(scene, scene_sampler, uv, 0.0).rgb;
+    // The pixel itself, read exactly: filtering could soften the art.
+    let c = textureLoad(scene, vec2<i32>(px), 0).rgb;
     if (post.mode > 1.5) {
         // Map.BLIND_FILTER: each channel 0.05 × (r + g + b).
         return vec3<f32>(0.05 * (c.r + c.g + c.b));
@@ -77,7 +78,7 @@ fn filtered(uv: vec2<f32>) -> vec3<f32> {
 
 @fragment
 fn fs_main(in: VertexOut) -> @location(0) vec4<f32> {
-    var c = filtered(in.uv);
+    var c = filtered(in.uv, in.position.xy);
     if (post.glow > 0.0) {
         // Screen blend: bright light spills onto what's round it without going past white.
         let b = glow_at(in.uv);
@@ -146,7 +147,7 @@ fn to_linear(c: vec3<f32>) -> vec3<f32> {
 // and where the world shows, the glow again as light brighter than white.
 @fragment
 fn fs_hdr(in: VertexOut) -> @location(0) vec4<f32> {
-    let f = textureSampleLevel(scene, scene_sampler, in.uv, 0.0);
+    let f = textureLoad(scene, vec2<i32>(in.position.xy), 0);
     var c = to_linear(f.rgb) * post.paper;
     if (post.glow > 0.0) {
         let b = glow_at(in.uv);

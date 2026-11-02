@@ -590,6 +590,8 @@ pub fn draw(scene: &Scene, renderer: &mut Renderer, redrawer: &mut Redrawer, gro
     crate::prof::mark("v.objects");
     scene.particles.draw(&cam, renderer);
     crate::prof::mark("v.particles");
+    // What follows (icons, bars, numbers, balloons, names) is read, not lit: it doesn't glow.
+    renderer.glow_done();
 
     // Condition icons (`GameObject.drawConditionIcons`): in a row centred on the sprite's top,
     // each taking turns through its icons; none while paused.
