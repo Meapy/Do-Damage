@@ -3,6 +3,7 @@ name = "bsk-bot"
 edition.workspace = true
 version.workspace = true
 publish.workspace = true
+license.workspace = true
 description = "Headless client: logs in, joins the nexus and stays connected, for protocol tests"
 
 [dependencies]

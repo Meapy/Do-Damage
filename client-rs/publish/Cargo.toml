@@ -3,6 +3,7 @@ name = "bsk-publish"
 edition.workspace = true
 version.workspace = true
 publish.workspace = true
+license.workspace = true
 description = "Publishes a client build for players' clients to update from (tools/build_client_rs.py --publish)"
 
 [dependencies]

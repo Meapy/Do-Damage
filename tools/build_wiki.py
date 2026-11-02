@@ -1053,7 +1053,7 @@ TEMPLATE = """<!doctype html>
   </div>
 
   <footer class="foot">
-    <p><span class="mono">{{{{NAME}}}} {{{{VERSION}}}}</span> · <a href="{site}play/">Play</a> · <a href="{home}">Wiki</a> · <a href="{site}changelog.html">Changelog</a></p>
+    <p><span class="mono">{{{{NAME}}}} {{{{VERSION}}}}</span> · <a href="{site}play/">Play</a> · <a href="{home}">Wiki</a> · <a href="{site}changelog.html">Changelog</a> · <a href="https://github.com/Meapy/Do-Damage">Source code</a></p>
     <p class="dim">Built from the game's own data on every update. Found a mistake? <a href="https://github.com/Meapy/Do-Damage/issues">Tell us on GitHub</a>.</p>
     <p class="dim">A fan-made private server, not affiliated with DECA Games or Kabam. Realm of the Mad God is a trademark of its owners.</p>
   </footer>

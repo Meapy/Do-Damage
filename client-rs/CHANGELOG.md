@@ -14,6 +14,10 @@ details). Add to a group's line when a change adds to it, rather than adding ano
 
 ## Unreleased
 
+### Website
+- The game's source code is open under the AGPL licence: the website links to it at the bottom of
+  each page.
+
 ### Graphics
 - The world looks richer: lava, fire, lanterns and spells cast a soft glow, colours are a little
   livelier and the screen's corners a touch darker. On a Windows PC with HDR turned on, the game

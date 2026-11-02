@@ -279,3 +279,16 @@ What's finished and what's still to do, upstream's work and this repository's to
 - **Orb, GlassBBQ:** credited on TK-Reborn.
 - **rusjaell, Aaron, TKROfficial, kevin, Comfrog, Dante Tyler:** work on TK-Reborn and
   betterSkillys; the condensed history names them as co-authors of each milestone.
+
+## License
+
+Do Damage is free software under the [GNU Affero General Public License, version 3](LICENSE) or
+any later version. Anyone who runs a changed copy of it for players to connect to must offer those
+players its source code, as the website does for this one.
+
+It started from betterSkillys, under the MIT License ([LICENSE-MIT](LICENSE-MIT), "Copyright (c)
+2024 Kevin Budz"); the code taken from it keeps that notice. Releases before 2.3.7 were under the
+MIT License alone.
+
+The license covers this repository's code. Realm of the Mad God's art, sounds, names and game data
+belong to their owners and aren't licensed by it.

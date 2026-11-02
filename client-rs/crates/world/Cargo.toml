@@ -3,6 +3,7 @@ name = "bsk-world"
 edition.workspace = true
 version.workspace = true
 publish.workspace = true
+license.workspace = true
 
 [dependencies]
 rustc-hash.workspace = true
