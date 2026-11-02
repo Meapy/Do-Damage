@@ -42,6 +42,8 @@ pub struct Game {
     /// How many times we've changed worlds.
     pub reconnects: u32,
     pub camera_angle: f64,
+    /// The time of the last `update`, for what happens between them (`say`).
+    now: i32,
     out: Vec<ClientMessage>,
     /// The sight radius the server uses for us, and when we last changed it.
     sent_view_radius: i32,
@@ -283,6 +285,7 @@ impl Game {
             died: false,
             reconnects: 0,
             camera_angle: DEFAULT_CAMERA_ANGLE,
+            now: 0,
             out: Vec::new(),
             sent_view_radius: MIN_VIEW_RADIUS,
             view_radius_sent_at: i32::MIN / 2,
@@ -944,8 +947,17 @@ impl Game {
     }
 
     /// Send a chat line or command (`PlayerText`); the server echoes what others should see.
+    /// `/floors`, on stacked floors, stays here: it turns every floor above the lowest
+    /// see-through or back, to see what is under them.
     pub fn say(&mut self, text: &str) {
         let text = text.trim();
+        if let Some(world) = self.world.as_mut().filter(|w| w.levels.is_some() && text.eq_ignore_ascii_case("/floors")) {
+            world.see_through = !world.see_through;
+            let line = if world.see_through { "The floors are see-through: you can see what is under them." } else { "The floors are solid again." };
+            let now = self.now;
+            self.add_chat("", "", line, 0, 0, -1, now);
+            return;
+        }
         if !text.is_empty() {
             self.socket.send(&PlayerText { text: text.to_owned() }.into());
         }
@@ -1023,6 +1035,7 @@ impl Game {
 
     /// Advance the world by `dt` ms with the keys held; `rotate` is -1, 0 or 1.
     pub fn update(&mut self, now: i32, dt: i32, keys: (f64, f64), rotate: f64, data: &GameData) {
+        self.now = now;
         self.camera_angle += dt as f64 * ROTATE_SPEED * rotate;
         let Some(world) = &mut self.world else { return };
         let input = MoveInput { x: keys.0, y: keys.1, camera_angle: self.camera_angle };

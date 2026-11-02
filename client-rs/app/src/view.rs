@@ -475,24 +475,49 @@ pub fn height_of(world: &World, data: &GameData, obj: &GameObj) -> f64 {
     (a * (1.0 - ax) + b * ax) * (1.0 - ay) + (c * (1.0 - ax) + d * ax) * ay
 }
 
-/// On stacked floors, the lowest floor over an object's head (with ground over its square or
-/// one beside it), if any.
-fn roof_over(world: &World, data: &GameData, obj: &GameObj) -> Option<u8> {
-    (obj.level + 1..world.level_count() as u8)
-        .find(|&l| (-1..=1).any(|dy| (-1..=1).any(|dx| world.surface(l, obj.x as i32 + dx, obj.y as i32 + dy, data).is_some())))
+/// On stacked floors, the lowest floor above an object that is drawn over it, if any: one with
+/// ground where the screen shows that floor at the object's middle. A floor `h` tiles up is drawn
+/// `h` tiles further down the screen than the ground under it, so that is the square `h` tiles
+/// down the screen from the object (less its own height, and half a tile for its middle).
+fn covered_by(world: &World, data: &GameData, cam: &Camera, obj: &GameObj) -> Option<u8> {
+    let floor_h = world.levels.as_ref()?.height;
+    (obj.level + 1..world.level_count() as u8).find(|&l| {
+        let t = l as f64 * floor_h - obj.z - 0.5;
+        let (x, y) = (obj.x - cam.sin * t, obj.y + cam.cos * t);
+        t > 0.0 && world.surface(l, x.floor() as i32, y.floor() as i32, data).is_some()
+    })
 }
 
+/// On stacked floors, the floors from which up are drawn see-through: those over us when one is
+/// drawn over us, or every floor above the lowest when the player asked (`/floors`,
+/// `World.see_through`), to see what is under them, ours too.
+fn see_through_from(world: &World, data: &GameData, cam: &Camera) -> Option<u8> {
+    if world.see_through {
+        return Some(1);
+    }
+    covered_by(world, data, cam, world.player()?)
+}
+
+/// How thick a floor is where its edge hangs over the floor below (or over nothing): its face
+/// goes this far down, not to the ground, so what is under it shows.
+const SLAB: f64 = 0.35;
+/// A railing (`<Rail>`, its colour): along an edge that drops at least this far.
+const RAIL_DROP: f64 = 0.6;
+const RAIL_HEIGHT: f64 = 0.4;
+
 /// On stacked floors: each floor's ground in view at its height (a stair's steps each at theirs),
-/// and the faces where the ground drops beside it (a floor's open edge, a step's side) in pieces a
-/// tile tall, each with the floor at its foot and the depth it sorts at among what stands there.
-/// The floors over our head are see-through.
+/// and what stands at its edges where the ground drops beside it, each with the floor it is drawn
+/// with and the depth it sorts at among what stands there: the faces (a step's riser down to the
+/// floor it stands on, in pieces a tile tall; a slab `SLAB` thick where the edge hangs over
+/// lower ground or nothing) and the railings of grounds with a `<Rail>`. The floors over our head
+/// are see-through (`see_through_from`).
 #[allow(clippy::type_complexity)]
-fn floors(scene: &Scene, x0: i32, x1: i32, y0: i32, y1: i32) -> (Vec<Vec<Plate>>, Vec<(u8, f32, Plate)>) {
+fn floors(scene: &Scene, white: bsk_render::AtlasRect, x0: i32, x1: i32, y0: i32, y1: i32) -> (Vec<Vec<Plate>>, Vec<(u8, f32, Plate)>) {
     let (world, data, cam) = (scene.world, scene.data, scene.camera);
     let count = world.level_count() as u8;
     let floor_h = world.levels.as_ref().map_or(1.0, |l| l.height);
     let level_of = |z: f64| ((z / floor_h).round().max(0.0) as u8).min(count - 1);
-    let roof = world.player().and_then(|p| roof_over(world, data, p));
+    let roof = see_through_from(world, data, &cam);
     let mut tops = vec![Vec::new(); count as usize];
     let mut faces = Vec::new();
     for level in 0..count {
@@ -512,13 +537,33 @@ fn floors(scene: &Scene, x0: i32, x1: i32, y0: i32, y1: i32) -> (Vec<Vec<Plate>>
                     ([fx + 1.0, fy + 1.0], [fx, fy + 1.0], (0, 1)),
                     ([fx, fy + 1.0], [fx, fy], (-1, 0)),
                 ];
+                let ground = data.grounds.get(&tile);
+                let rail = ground.and_then(|g| g.xml.child("Rail")).map(|r| bsk_data::xml::as3_int(&r.text) as u32);
                 for (a, b, (nx, ny)) in sides {
                     let beside: Vec<f64> = (0..count).filter_map(|l| world.surface(l, x + nx, y + ny, data)).collect();
+                    let depth = cam.to_screen((a[0] + b[0]) / 2.0, (a[1] + b[1]) / 2.0, 0.0)[1];
+                    // a railing where it drops (both sides of it show)
+                    if let Some(color) = rail.filter(|_| !beside.iter().any(|&v| v >= s - RAIL_DROP)) {
+                        let [r, g, bl] = bsk_render::rgb_f32(color);
+                        let tint = Tint { mul: [r, g, bl, alpha], add: [0.0; 3] };
+                        let (ra, rb) = ([a[0], a[1], s + RAIL_HEIGHT], [b[0], b[1], s + RAIL_HEIGHT]);
+                        let bar = cam.quad(ra, rb, [a[0], a[1], s + RAIL_HEIGHT - 0.08]);
+                        faces.push((level, depth, Plate { rect: white, quad: bar, tint }));
+                        for (p, q) in [(a, b), (b, a)] {
+                            let post = [p[0] + (q[0] - p[0]) * 0.12, p[1] + (q[1] - p[1]) * 0.12];
+                            let quad = cam.quad([p[0], p[1], s + RAIL_HEIGHT], [post[0], post[1], s + RAIL_HEIGHT], [p[0], p[1], s]);
+                            faces.push((level, depth, Plate { rect: white, quad, tint }));
+                        }
+                    }
                     // ground as high beside it: no drop
                     if beside.iter().any(|&v| v >= s - 0.01) {
                         continue;
                     }
-                    let bottom = beside.iter().copied().fold(0.0, f64::max);
+                    // a step's riser goes down to the floor it stands on; an edge over lower
+                    // ground, or over nothing, is a slab
+                    let base = level as f64 * floor_h;
+                    let lower = beside.iter().copied().fold(0.0, f64::max);
+                    let bottom = if lower >= base - 0.01 { lower } else { (s - SLAB).max(lower) };
                     if s - bottom < 0.01 {
                         continue;
                     }
@@ -530,7 +575,6 @@ fn floors(scene: &Scene, x0: i32, x1: i32, y0: i32, y1: i32) -> (Vec<Vec<Plate>>
                     // its stone, lit as a wall's side; else the ground itself, darker
                     let Some((rect, stone)) = crate::ground::face(data, scene.sprites, tile, x, y) else { continue };
                     let shade = shade(normal([a[0], a[1], s], [b[0], b[1], s], [b[0], b[1], bottom])) * if stone { 1.0 } else { 0.8 };
-                    let depth = cam.to_screen((a[0] + b[0]) / 2.0, (a[1] + b[1]) / 2.0, cam.z)[1];
                     let mut top = s;
                     while top - bottom > 0.01 {
                         let low = (top - 1.0).max(bottom);
@@ -562,13 +606,10 @@ pub fn draw(scene: &Scene, renderer: &mut Renderer, redrawer: &mut Redrawer, gro
     let top_level = world.level_count() as u8 - 1;
     let level_of = |z: f64| ((z / floor_h).round().max(0.0) as u8).min(top_level);
     let raise = if layered { top_level as f64 * floor_h + 1.0 } else { 0.0 };
-    // something under a floor above it is out of sight (its bars, name and words too), unless
-    // we're under one as well: then the floors over us are see-through (`floors`)
-    let see_through = layered && world.player().is_some_and(|p| roof_over(world, scene.data, p).is_some());
-    let hidden = |obj: &GameObj| {
-        layered && !see_through && Some(obj.id) != world.me
-            && (obj.level + 1..=top_level).any(|l| world.surface(l, obj.x as i32, obj.y as i32, scene.data).is_some())
-    };
+    // something a floor above is drawn over is out of sight (its bars, name and words too),
+    // unless the floors over us are see-through (`see_through_from`)
+    let see_through = layered && see_through_from(world, scene.data, &cam).is_some();
+    let hidden = |obj: &GameObj| layered && !see_through && Some(obj.id) != world.me && covered_by(world, scene.data, &cam, obj).is_some();
 
 
     // Objects and walls, back to front by the screen y of their ground point.
@@ -606,14 +647,15 @@ pub fn draw(scene: &Scene, renderer: &mut Renderer, redrawer: &mut Redrawer, gro
         }
     }
     // the faces where the floors' ground drops, among what stands at their foot
-    let (floor_tops, floor_faces) = if layered { floors(scene, x0, x1, y0 - raise as i32, y1 + raise as i32) } else { Default::default() };
+    let (floor_tops, floor_faces) = if layered { floors(scene, renderer.white(), x0, x1, y0 - raise as i32, y1 + raise as i32) } else { Default::default() };
     for (level, depth, plate) in floor_faces {
         items.push((depth, Item::Face { level, plate }));
     }
     items.sort_by(|a, b| a.0.total_cmp(&b.0));
     crate::prof::mark("v.sort");
     let item_level = |item: &Item| match item {
-        Item::Sprite { obj, .. } | Item::Wall { obj, .. } | Item::Connected { obj, .. } | Item::Model { obj, .. } => level_of(obj.z),
+        // with the floor it stands on (a stair's too), not the one its height is nearest
+        Item::Sprite { obj, .. } | Item::Wall { obj, .. } | Item::Connected { obj, .. } | Item::Model { obj, .. } => obj.level.min(top_level),
         Item::Projectile(p) => level_of(p.floor),
         Item::Face { level, .. } => *level,
     };
@@ -1216,6 +1258,8 @@ fn draw_wall(scene: &Scene, renderer: &mut Renderer, obj: &GameObj, desc: &Objec
         .and_then(|s| scene.sprites.atlas(s))
         .or(side);
     let Some(side) = side else { return };
+    // `<WallHeight>`: a pillar, as tall as a floor, in pieces a tile tall, its sides all stone
+    let tall = desc.xml.number("WallHeight", 1.0);
 
     // Sides, in Wall.addWall order: north, east, south, west; neighbours at sqX/sqY.
     let corners = [
@@ -1234,6 +1278,17 @@ fn draw_wall(scene: &Scene, renderer: &mut Renderer, obj: &GameObj, desc: &Objec
         if cross >= 0.0 {
             continue;
         }
+        if tall != 1.0 {
+            let s = shade(normal(v0, v1, [b[0], b[1], z]));
+            let mut low = z;
+            while low < z + tall - 0.01 {
+                let high = (low + 1.0).min(z + tall);
+                let quad = cam.quad([a[0], a[1], high], [b[0], b[1], high], [a[0], a[1], low]);
+                renderer.sprite(side, quad, Tint { mul: [s, s, s, 1.0], add: [0.0; 3] });
+                low = high;
+            }
+            continue;
+        }
         let (sx, sy) = (xi as i32 + nx, yi as i32 + ny);
         let neighbour_wall = scene
             .world
@@ -1248,9 +1303,10 @@ fn draw_wall(scene: &Scene, renderer: &mut Renderer, obj: &GameObj, desc: &Objec
         renderer.sprite(side, quad, Tint { mul: [s, s, s, 1.0], add: [0.0; 3] });
     }
     if let Some(top) = top {
-        let v0 = [xi, yi, z + 1.0];
-        let s = shade(normal(v0, [xi + 1.0, yi, z + 1.0], [xi + 1.0, yi + 1.0, z + 1.0]));
-        let quad = cam.quad(v0, [xi + 1.0, yi, z + 1.0], [xi, yi + 1.0, z + 1.0]);
+        let z = z + tall;
+        let v0 = [xi, yi, z];
+        let s = shade(normal(v0, [xi + 1.0, yi, z], [xi + 1.0, yi + 1.0, z]));
+        let quad = cam.quad(v0, [xi + 1.0, yi, z], [xi, yi + 1.0, z]);
         renderer.sprite(top, quad, Tint { mul: [s, s, s, 1.0], add: [0.0; 3] });
     }
 }

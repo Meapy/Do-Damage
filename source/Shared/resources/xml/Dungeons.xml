@@ -428,7 +428,8 @@
 		<Width>70</Width>
 		<Height>72</Height>
 		<MapJM>Dungeons/Stair Tower.jm</MapJM>
-		<VisibilityType>1</VisibilityType>
+		<!-- no line of sight: the lowest floor's walls would hide the floors above -->
+		<VisibilityType>0</VisibilityType>
 		<DisableTeleport/>
 		<Dungeon/>
 	</World>

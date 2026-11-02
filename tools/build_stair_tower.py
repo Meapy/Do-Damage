@@ -22,8 +22,10 @@ wall under it, and from above you look down onto the floor below:
   floor 3, each turn over the last: its door opens with floor 1's boss, and a bridge at the top
   crosses to floor 3.
 
-Walls stand round each floor, except where a lower floor lies beside it: there its edge is open
-and drops to the floor below.
+Walls stand round each floor, except where a lower floor lies beside it: there its edge is open,
+railed, and drops to the floor below, and pillars hold it up. Each floor hangs no deeper over the
+one below than it is high, so what is under it always shows past its edge. The spiral and the
+bridge stand open, railed.
 
 The output is generated: change this script and run it again rather than editing the maps.
 """
@@ -50,13 +52,19 @@ WALL = "Blue Wall"
 TORCH = "Blue Torch Wall"
 PORTAL = "Nexus Portal"
 
-# each floor: its rectangle (x0, y0, x1, y1, inclusive) and boss; floor n + 1 overlaps the north
-# end of floor n
+# each floor: its rectangle (x0, y0, x1, y1, inclusive) and boss; floor n + 1 hangs over the north
+# end of floor n, FLOOR_HEIGHT rows deep: no deeper than it is high, so all of what is under it
+# shows past its edge
 FLOORS = [
-    ((6, 34, 50, 56), "Dreadstump the Pirate King"),
-    ((6, 14, 50, 38), "Stheno the Snake Queen"),
+    ((6, 36, 50, 56), "Dreadstump the Pirate King"),
+    ((6, 16, 50, 38), "Stheno the Snake Queen"),
     ((6, 3, 50, 18), "Arachna the Spider Queen"),
 ]
+# pillars holding up each overhang (on the floor below it, under its edge), and the bridge
+PILLAR = "ST Pillar"
+TALL_PILLAR = "ST Tall Pillar"
+PILLARS = [(0, 16, 38), (0, 40, 38), (1, 16, 18), (1, 40, 18)]      # floor index, x, y
+BRIDGE_PILLARS = [(53, 21), (53, 27)]                                # on the ground, two floors tall
 # each flight: on floor n, up to floor n + 1: its columns, and the rows of its steps from the
 # bottom (south) up; the door is the row below the bottom step
 FLIGHTS = [
@@ -155,9 +163,9 @@ def build():
     ring, well = spiral_squares()
     for (x, y), sector in ring.items():
         for n in (0, 1):
-            levels[n].ground[y][x] = "ST Spiral %d" % sector if sector else FLOOR
+            levels[n].ground[y][x] = "ST Spiral %d" % sector
         if sector == 0:
-            levels[2].ground[y][x] = FLOOR
+            levels[2].ground[y][x] = "ST Spiral 0"
     for x, y in well:
         levels[0].ground[y][x] = FLOOR
     for r in SPIRAL_PASSAGE:
@@ -166,15 +174,19 @@ def build():
     for y in range(y0, y1 + 1):
         for x in range(x0, x1 + 1):
             levels[0].place(x, y, WALL, "Tower Door")
+    bridge = set()
     for r in SPIRAL_BRIDGE:
-        rect(levels[2], r, FLOOR)
+        rect(levels[2], r, "ST Bridge")
+        x0, y0, x1, y1 = r
+        bridge |= {(x, y) for x in range(x0, x1 + 1) for y in range(y0, y1 + 1)}
 
     # walls two tiles thick round each floor, but none where a lower floor lies: the edge drops.
-    # The spiral's turns above the lowest stand open, so walls go only round the floor's own.
-    open_ = set(ring) | set(well)
+    # The spiral and the bridge stand open, railed (their grounds' <Rail>), so walls go only round
+    # the rest.
+    open_ = set(ring) | set(well) | bridge
     for n, g in enumerate(levels):
         below = levels[:n]
-        walled = (lambda x, y: g.is_floor(x, y)) if n == 0 else (lambda x, y: g.is_floor(x, y) and (x, y) not in open_)
+        walled = lambda x, y: g.is_floor(x, y) and (x, y) not in open_
         for y in range(H):
             for x in range(W):
                 if g.is_floor(x, y) or any(b.is_floor(x, y) for b in below):
@@ -191,6 +203,10 @@ def build():
         levels[n].place(CX, (top + y1) // 2, boss, "Tower Boss")
     x0, y0, x1, y1 = FLOORS[-1][0]
     levels[-1].place(CX, y0 + 2, PORTAL)
+    for n, x, y in PILLARS:
+        levels[n].place(x, y, PILLAR)
+    for x, y in BRIDGE_PILLARS:
+        levels[0].place(x, y, TALL_PILLAR)
     return levels
 
 
@@ -221,7 +237,7 @@ def save(g, path):
 
 def preview(levels):
     """Each floor as text: # wall, t torch, D door, B boss, N portal, S spawn, 1-5 steps,
-    a-k the spiral's sectors 1 to 11, . floor, ' empty."""
+    - and a-k the spiral's sectors 0 to 11, P pillar, . floor, ' empty."""
     for n, g in enumerate(levels):
         print(f"--- floor {n + 1} (height {n * FLOOR_HEIGHT})")
         for y in range(H):
@@ -233,13 +249,13 @@ def preview(levels):
                 elif r == "Tower Boss":
                     row += "B"
                 elif o:
-                    row += {WALL: "#", TORCH: "t", PORTAL: "N"}.get(o, "?")
+                    row += {WALL: "#", TORCH: "t", PORTAL: "N", PILLAR: "P", TALL_PILLAR: "P"}.get(o, "?")
                 elif r == "Spawn":
                     row += "S"
                 elif gr and gr.startswith("ST Step"):
                     row += gr[-1]
                 elif gr and gr.startswith("ST Spiral"):
-                    row += "abcdefghijk"[int(gr.split()[-1]) - 1]
+                    row += "-abcdefghijk"[int(gr.split()[-1])]
                 elif gr:
                     row += "."
                 else:

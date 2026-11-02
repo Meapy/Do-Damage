@@ -441,3 +441,17 @@ fn stacked_floors_under_the_floor_above() {
     assert_eq!(w.level_at(8, 6, 0.0, &d), Some(0));
     assert_eq!(w.level_at(8, 6, 2.0, &d), Some(1));
 }
+
+#[test]
+fn stacked_floors_goto_lands_on_the_ground_there() {
+    // up on the floor above, put back by the server onto the map's floor where there is nothing
+    // above it: we stand on that floor's ground, not in the air at our old height
+    let mut d = data();
+    let mut w = stacked(&mut d, 8.5, 4.5, 2.0);
+    w.apply_goto(2, 2.5, 8.5, 0, &d);
+    let me = w.player().unwrap();
+    assert_eq!((me.z, me.level), (0.0, 0));
+    // and can walk on from there
+    let (x, _) = walk(&mut w, &d, 1.0, 0.0, 300);
+    assert!(x > 3.0, "{x}");
+}
