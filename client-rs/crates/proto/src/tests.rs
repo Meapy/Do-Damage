@@ -103,7 +103,7 @@ fn update_with_string_and_int_stats() {
         .i32(99) // drop
         .0;
     let msg = ServerMessage::decode(9, &body).unwrap();
-    let ServerMessage::Update(u) = &msg else { panic!("{msg:?}") };
+    let ServerMessage::Update(u) = &msg else { panic!("not an Update") };
     assert_eq!(u.tiles[0], GroundTile { x: 3, y: 4, tile_type: 0x1234 });
     let obj = &u.new_objs[0];
     assert_eq!(obj.object_type, 0x030e);
@@ -392,6 +392,16 @@ fn arena_vote_messages_match_arena_votes() {
     assert_eq!((v.open, v.next_wave, v.max_combine, v.combine, v.next_needed, v.combine_needed, v.starting), (true, 7, 5, 2, 2, 2, false));
     let p = &v.voters[0];
     assert_eq!((p.object_id, p.name.as_str(), p.next, p.pick), (1001, "Tester", true, 2));
+}
+
+#[test]
+fn visit_messages_match_visit_answer_handler() {
+    // VisitAnswerHandler reads the id, then the answer.
+    assert_eq!(ClientMessage::from(VisitAnswer { id: 7, answer: 1 }).to_frame(), B::default().i32(7).u8(1).frame(126));
+    // VisitRequest.Write: id, name, world, seconds.
+    let body = B::default().i32(7).utf("Tester").utf("Snake Pit").u8(30).0;
+    let ServerMessage::VisitRequest(v) = ServerMessage::decode(127, &body).unwrap() else { panic!() };
+    assert_eq!((v.id, v.name.as_str(), v.world.as_str(), v.seconds), (7, "Tester", "Snake Pit", 30));
 }
 
 #[test]

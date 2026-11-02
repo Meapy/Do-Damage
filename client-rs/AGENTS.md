@@ -122,6 +122,8 @@ each world change, so `--say` it after joining: `"/gear;;/arena;;/god"` (one bot
 object id, once each, so with `/tq` and `/smite` in `--say` it walks down the Oryx chain.
 `--arena-vote "5;0"` votes in the Arena at each break (`ArenaVote`s: 1-5 a combine pick, 0 Next)
 and logs every `ArenaVotes`, so several bots test the vote thresholds.
+`--visit-answer yes|no|wait` answers other players' `/visit` requests (`VisitRequest`) at once,
+or never (to let them time out), and logs each, so one bot in a dungeon tests another's `/visit`.
 
 The client itself can be scripted for tests (desktop only):
 

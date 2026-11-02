@@ -45,6 +45,8 @@ namespace WorldServer.core
         private bool Running { get; set; } = true;
         public DateTime RestartCloseTime { get; private set; }
         public GameUptime Uptime { get; private set; }
+        // players' /visit requests waiting for an answer
+        public VisitBook Visits { get; } = new VisitBook();
 
         public GameServer(string[] appArgs)
         {

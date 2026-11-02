@@ -148,7 +148,7 @@ def page_data(gen):
             it = next((i for i in eq.items if i["id"] == oid), None)
             edge = eq.edge(it) if it else "var(--line-hi)"
             items[oid] = {"name": d.name(oid), "bag": doomed_bags.get(oid, o.get("bag", 0)),
-                          "ico": eq.icon(it) if it else eq.sprite(d.texture(oid), edge),
+                          "ico": eq.sprite_parts(it["texture"] if it else d.texture(oid), edge),
                           "href": eq.href.get(oid), "gear": bool(it), "edge": edge}
         return oid
 
@@ -166,9 +166,9 @@ def page_data(gen):
                     rows.append({"kind": "tier", "type": t, "tier": tier, "p": p, "thr": thr,
                                  "pool": [[item(i), w] for i, w in members]})
         bosses.append({"key": key, "short": short, "title": d.name(monster), "world": world,
-                       "hp": d.boss_health(monster), "ico": eq.sprite(d.texture(monster), "var(--line-hi)"),
+                       "hp": d.boss_health(monster), "ico": eq.sprite_parts(d.texture(monster), "var(--line-hi)"),
                        "rows": rows})
-    bag_icons = [eq.sprite(d.texture("Loot Bag %d" % b), "transparent") for b in range(len(BAG_NAMES))]
+    bag_icons = [eq.sprite_parts(d.texture("Loot Bag %d" % b), "transparent") for b in range(len(BAG_NAMES))]
     return {"bosses": bosses, "items": items, "boosts": boosts(), "bagRank": bag_ranks(),
             "bagNames": BAG_NAMES, "bagIcons": bag_icons}
 

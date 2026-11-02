@@ -138,6 +138,14 @@ namespace WorldServer.core.worlds
 
         public void Invite(int accountId) => _invited[accountId] = DateTime.UtcNow.AddSeconds(60);
 
+        // every account that has had a character here (or been let in by a player's /visit), so
+        // /visit never takes anyone back into an instance they've already been in
+        private readonly ConcurrentDictionary<int, byte> _beenIn = new ConcurrentDictionary<int, byte>();
+
+        public bool HasBeenIn(int accountId) => _beenIn.ContainsKey(accountId);
+
+        public void MarkBeenIn(int accountId) => _beenIn[accountId] = 0;
+
         // AllowedAccess, or an invitation that hasn't run out
         public bool CanEnter(Client client)
         {
@@ -425,6 +433,8 @@ namespace WorldServer.core.worlds
             if (entity is Player)
             {
                 Visited = true;
+                if ((entity as Player).Client?.Account != null)
+                    MarkBeenIn((entity as Player).Client.Account.AccountId);
                 Players.TryAdd(entity.Id, entity as Player);
                 PlayersCollision.Insert(entity, entity.X, entity.Y);
             }

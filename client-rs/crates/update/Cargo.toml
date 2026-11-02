@@ -3,6 +3,7 @@ name = "bsk-update"
 edition.workspace = true
 version.workspace = true
 publish.workspace = true
+license.workspace = true
 description = "The client's published releases: the signed file list, versions and the changelog"
 
 [dependencies]

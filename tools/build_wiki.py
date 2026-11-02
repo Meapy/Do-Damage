@@ -65,6 +65,9 @@ COMMAND_HELP = {
     "sell": "Lists an item on the <a href=\"marketplace.html\">Marketplace</a> without opening it: <code>/sell &lt;slot&gt; &lt;price&gt; [days]</code>, the slot 1-8 (9-16 for the backpack), for 1 to 7 days (3 if not given).",
     "forgelist": "The recipes are in the Divine Forge's window, in the Nexus; this points you to it.",
     "trade": "Asks a player to trade: <code>/trade &lt;name&gt;</code>. Needs 2 rank stars; clicking a player's name and choosing Trade doesn't.",
+    "visit": "Asks a player to let you join them in their dungeon, the Arena or another instance: <code>/visit &lt;name&gt;</code> (<code>/visit cancel</code> takes it back). See <a href=\"#visiting-a-friend\">Visiting a friend</a>.",
+    "yes": "Lets in the player asking to visit you (the <b>Yes</b> of the box in the corner).",
+    "no": "Turns down the player asking to visit you (the <b>No</b> of the box in the corner).",
     "tell": "Whispers to a player: <code>/tell &lt;name&gt; &lt;message&gt;</code> (or press <kbd>Tab</kbd>).",
     "guild": "Says something in guild chat (or press <kbd>G</kbd>).",
     "party": "Says something in party chat (or press <kbd>P</kbd>).",
@@ -1053,7 +1056,7 @@ TEMPLATE = """<!doctype html>
   </div>
 
   <footer class="foot">
-    <p><span class="mono">{{{{NAME}}}} {{{{VERSION}}}}</span> · <a href="{site}play/">Play</a> · <a href="{home}">Wiki</a> · <a href="{site}changelog.html">Changelog</a></p>
+    <p><span class="mono">{{{{NAME}}}} {{{{VERSION}}}}</span> · <a href="{site}play/">Play</a> · <a href="{home}">Wiki</a> · <a href="{site}changelog.html">Changelog</a> · <a href="https://github.com/Meapy/Do-Damage">Source code</a></p>
     <p class="dim">Built from the game's own data on every update. Found a mistake? <a href="https://github.com/Meapy/Do-Damage/issues">Tell us on GitHub</a>.</p>
     <p class="dim">A fan-made private server, not affiliated with DECA Games or Kabam. Realm of the Mad God is a trademark of its owners.</p>
   </footer>

@@ -128,20 +128,62 @@ pub enum ScreenFilter {
     Blur(f32),
 }
 
+/// How the world looks over what the art draws (Options, Graphics): 0 is off.
+#[derive(Debug, Clone, Copy, PartialEq, Default)]
+pub struct Look {
+    /// A glow round bright colours (bloom), and how strong.
+    pub glow: f32,
+    /// Livelier colours (vibrance, a little contrast) and darker edges.
+    pub vivid: f32,
+}
+
+impl Look {
+    fn on(&self) -> bool {
+        self.glow > 0.0 || self.vivid > 0.0
+    }
+}
+
 #[repr(C)]
 #[derive(Clone, Copy, bytemuck::Pod, bytemuck::Zeroable)]
 struct PostParams {
     mode: f32,
     radius: f32,
     texel: [f32; 2],
+    dir: [f32; 2],
+    glow: f32,
+    vivid: f32,
+    paper: f32,
+    headroom: f32,
+    _pad: [f32; 2],
 }
 
-/// The texture the world is drawn into when a screen filter is on.
+/// HDR output: SDR white in scRGB units (1.0 is 80 nits) and how many times brighter than that
+/// the glow may reach.
+#[derive(Debug, Clone, Copy, PartialEq)]
+pub struct Hdr {
+    pub paper: f32,
+    pub headroom: f32,
+}
+
+/// The texture the world is drawn into when a screen filter or the look is on, and the
+/// quarter-size pair the glow is spread across. With HDR, `frame` takes the whole frame (world
+/// and interface) before `fs_hdr` puts it on the screen.
 struct Offscreen {
     width: u32,
     height: u32,
     view: wgpu::TextureView,
     bind_group: wgpu::BindGroup,
+    /// The bright light picked out (the tight glow), spread across into `bloom_b`, then down
+    /// into `bloom_c` (the wide glow).
+    bloom_a: wgpu::TextureView,
+    bloom_b: wgpu::TextureView,
+    bloom_c: wgpu::TextureView,
+    bright_group: wgpu::BindGroup,
+    blur_h_group: wgpu::BindGroup,
+    blur_v_group: wgpu::BindGroup,
+    frame: wgpu::Texture,
+    frame_view: wgpu::TextureView,
+    hdr_group: wgpu::BindGroup,
 }
 
 pub fn rgb_f32(rgb: u32) -> [f32; 3] {
@@ -180,6 +222,17 @@ pub struct Renderer {
     post_layout: wgpu::BindGroupLayout,
     post_sampler: wgpu::Sampler,
     post_params: wgpu::Buffer,
+    bright_pipeline: wgpu::RenderPipeline,
+    blur_pipeline: wgpu::RenderPipeline,
+    blur_h_params: wgpu::Buffer,
+    blur_v_params: wgpu::Buffer,
+    look: Look,
+    /// What everything but the HDR pass draws in: the surface's format without HDR.
+    sdr_format: wgpu::TextureFormat,
+    hdr_pipeline: wgpu::RenderPipeline,
+    /// The surface offers `Rgba16Float` (scRGB on DirectX 12 and Vulkan).
+    hdr_supported: bool,
+    hdr: Option<Hdr>,
     offscreen: Option<Offscreen>,
     /// Where the world's runs end, and the filter it's drawn through, this frame.
     split: Option<usize>,
@@ -223,6 +276,8 @@ impl Renderer {
         // Flash blends in gamma space; a non-sRGB target keeps the colours the same.
         let format = caps.formats.iter().copied().find(|f| !f.is_srgb()).unwrap_or(caps.formats[0]);
         let alpha_mode = caps.alpha_modes[0];
+        let hdr_supported = caps.formats.contains(&wgpu::TextureFormat::Rgba16Float);
+        log::info!("surface {format:?}, HDR (Rgba16Float) {}", if hdr_supported { "offered" } else { "not offered" });
         // Copying frames out (screenshots) needs COPY_SRC on the surface, where it's offered.
         let can_capture = caps.usages.contains(wgpu::TextureUsages::COPY_SRC)
             && matches!(format, wgpu::TextureFormat::Bgra8Unorm | wgpu::TextureFormat::Rgba8Unorm);
@@ -358,6 +413,26 @@ impl Renderer {
                     },
                     count: None,
                 },
+                wgpu::BindGroupLayoutEntry {
+                    binding: 3,
+                    visibility: wgpu::ShaderStages::FRAGMENT,
+                    ty: wgpu::BindingType::Texture {
+                        sample_type: wgpu::TextureSampleType::Float { filterable: true },
+                        view_dimension: wgpu::TextureViewDimension::D2,
+                        multisampled: false,
+                    },
+                    count: None,
+                },
+                wgpu::BindGroupLayoutEntry {
+                    binding: 4,
+                    visibility: wgpu::ShaderStages::FRAGMENT,
+                    ty: wgpu::BindingType::Texture {
+                        sample_type: wgpu::TextureSampleType::Float { filterable: true },
+                        view_dimension: wgpu::TextureViewDimension::D2,
+                        multisampled: false,
+                    },
+                    count: None,
+                },
             ],
         });
         let post_pipeline_layout = device.create_pipeline_layout(&wgpu::PipelineLayoutDescriptor {
@@ -365,39 +440,50 @@ impl Renderer {
             bind_group_layouts: &[&post_layout],
             push_constant_ranges: &[],
         });
-        let post_pipeline = device.create_render_pipeline(&wgpu::RenderPipelineDescriptor {
-            label: Some("post"),
-            layout: Some(&post_pipeline_layout),
-            vertex: wgpu::VertexState {
-                module: &post_shader,
-                entry_point: Some("vs_main"),
-                compilation_options: Default::default(),
-                buffers: &[],
-            },
-            fragment: Some(wgpu::FragmentState {
-                module: &post_shader,
-                entry_point: Some("fs_main"),
-                compilation_options: Default::default(),
-                targets: &[Some(wgpu::ColorTargetState { format, blend: None, write_mask: wgpu::ColorWrites::ALL })],
-            }),
-            primitive: wgpu::PrimitiveState::default(),
-            depth_stencil: None,
-            multisample: wgpu::MultisampleState::default(),
-            multiview: None,
-            cache: None,
-        });
+        let post_stage = |entry: &str, format: wgpu::TextureFormat| {
+            device.create_render_pipeline(&wgpu::RenderPipelineDescriptor {
+                label: Some(entry),
+                layout: Some(&post_pipeline_layout),
+                vertex: wgpu::VertexState {
+                    module: &post_shader,
+                    entry_point: Some("vs_main"),
+                    compilation_options: Default::default(),
+                    buffers: &[],
+                },
+                fragment: Some(wgpu::FragmentState {
+                    module: &post_shader,
+                    entry_point: Some(entry),
+                    compilation_options: Default::default(),
+                    targets: &[Some(wgpu::ColorTargetState { format, blend: None, write_mask: wgpu::ColorWrites::ALL })],
+                }),
+                primitive: wgpu::PrimitiveState::default(),
+                depth_stencil: None,
+                multisample: wgpu::MultisampleState::default(),
+                multiview: None,
+                cache: None,
+            })
+        };
+        let post_pipeline = post_stage("fs_main", format);
+        let bright_pipeline = post_stage("fs_bright", format);
+        let blur_pipeline = post_stage("fs_blur", format);
+        let hdr_pipeline = post_stage("fs_hdr", wgpu::TextureFormat::Rgba16Float);
         let post_sampler = device.create_sampler(&wgpu::SamplerDescriptor {
             label: Some("post"),
             mag_filter: wgpu::FilterMode::Linear,
             min_filter: wgpu::FilterMode::Linear,
             ..Default::default()
         });
-        let post_params = device.create_buffer(&wgpu::BufferDescriptor {
-            label: Some("post"),
-            size: std::mem::size_of::<PostParams>() as u64,
-            usage: wgpu::BufferUsages::UNIFORM | wgpu::BufferUsages::COPY_DST,
-            mapped_at_creation: false,
-        });
+        let params_buffer = |label| {
+            device.create_buffer(&wgpu::BufferDescriptor {
+                label: Some(label),
+                size: std::mem::size_of::<PostParams>() as u64,
+                usage: wgpu::BufferUsages::UNIFORM | wgpu::BufferUsages::COPY_DST,
+                mapped_at_creation: false,
+            })
+        };
+        let post_params = params_buffer("post");
+        let blur_h_params = params_buffer("blur across");
+        let blur_v_params = params_buffer("blur down");
 
         let tri_capacity = 3 * 1024;
         let tri_buffer = Self::make_buffer(&device, "triangles", tri_capacity * std::mem::size_of::<TriVertex>());
@@ -454,6 +540,15 @@ impl Renderer {
             post_layout,
             post_sampler,
             post_params,
+            bright_pipeline,
+            blur_pipeline,
+            blur_h_params,
+            blur_v_params,
+            look: Look::default(),
+            sdr_format: format,
+            hdr_pipeline,
+            hdr_supported,
+            hdr: None,
             offscreen: None,
             split: None,
             screen_filter: None,
@@ -493,6 +588,35 @@ impl Renderer {
             self.config.present_mode = mode;
             self.surface.configure(&self.device, &self.config);
         }
+    }
+
+    /// The glow and colours the world is drawn with from the next frame.
+    pub fn set_look(&mut self, look: Look) {
+        self.look = look;
+    }
+
+    /// Whether this display can show HDR (Windows' HDR on, on DirectX 12 or Vulkan).
+    pub fn hdr_supported(&self) -> bool {
+        self.hdr_supported
+    }
+
+    /// Draw in HDR (scRGB) or not, from the next frame. Returns whether it's on: never where
+    /// the surface doesn't offer it.
+    pub fn set_hdr(&mut self, hdr: Option<Hdr>) -> bool {
+        let hdr = hdr.filter(|_| self.hdr_supported);
+        let (format, usage) = match hdr {
+            Some(_) => (wgpu::TextureFormat::Rgba16Float, wgpu::TextureUsages::RENDER_ATTACHMENT),
+            None if self.can_capture => (self.sdr_format, wgpu::TextureUsages::RENDER_ATTACHMENT | wgpu::TextureUsages::COPY_SRC),
+            None => (self.sdr_format, wgpu::TextureUsages::RENDER_ATTACHMENT),
+        };
+        self.hdr = hdr;
+        if self.config.format != format {
+            log::info!("HDR {}", if hdr.is_some() { "on" } else { "off" });
+            self.config.format = format;
+            self.config.usage = usage;
+            self.surface.configure(&self.device, &self.config);
+        }
+        hdr.is_some()
     }
 
     pub fn size(&self) -> (u32, u32) {
@@ -694,34 +818,78 @@ impl Renderer {
         let [r, g, b] = rgb_f32(clear_rgb);
         let clear = wgpu::Color { r: r as f64, g: g as f64, b: b as f64, a: 1.0 };
         let filtered = match (self.split, self.screen_filter) {
-            (Some(split), Some(filter)) => Some((split.min(self.runs.len()), filter)),
+            (Some(split), filter) if filter.is_some() || self.look.on() => Some((split.min(self.runs.len()), filter)),
             _ => None,
         };
-        if let Some((split, filter)) = filtered {
+        if filtered.is_some() || self.hdr.is_some() {
             self.prepare_offscreen();
-            let (mode, radius) = match filter {
-                ScreenFilter::Grey => (1.0, 0.0),
-                ScreenFilter::Blind => (2.0, 0.0),
-                ScreenFilter::Blur(r) => (3.0, r),
-            };
-            let (w, h) = (self.config.width as f32, self.config.height as f32);
-            let params = PostParams { mode, radius, texel: [1.0 / w, 1.0 / h] };
-            self.queue.write_buffer(&self.post_params, 0, bytemuck::bytes_of(&params));
+        }
+        let (mode, radius) = match filtered.and_then(|f| f.1) {
+            None => (0.0, 0.0),
+            Some(ScreenFilter::Grey) => (1.0, 0.0),
+            Some(ScreenFilter::Blind) => (2.0, 0.0),
+            Some(ScreenFilter::Blur(r)) => (3.0, r),
+        };
+        let (w, h) = (self.config.width as f32, self.config.height as f32);
+        let texel = [1.0 / w, 1.0 / h];
+        let (paper, headroom) = self.hdr.map_or((0.0, 0.0), |h| (h.paper, h.headroom));
+        // Without the world (the menus) there's nothing to glow.
+        let glow = if self.split.is_some() { self.look.glow } else { 0.0 };
+        let params = PostParams { mode, radius, texel, dir: [0.0; 2], glow, vivid: self.look.vivid, paper, headroom, _pad: [0.0; 2] };
+        self.queue.write_buffer(&self.post_params, 0, bytemuck::bytes_of(&params));
+        // With HDR the frame goes to `frame` first, then through `fs_hdr` to the screen.
+        let target = match (&self.offscreen, self.hdr) {
+            (Some(off), Some(_)) => &off.frame_view,
+            _ => &view,
+        };
+        if let Some((split, _)) = filtered {
             let off = self.offscreen.as_ref().expect("prepared");
             {
                 let mut pass = begin_pass(&mut encoder, &off.view, wgpu::LoadOp::Clear(clear));
                 self.draw_runs(&mut pass, &self.runs[..split]);
             }
-            let mut pass = begin_pass(&mut encoder, &view, wgpu::LoadOp::Clear(clear));
+            if self.look.glow > 0.0 {
+                let (bw, bh) = (bloom_size(off.width) as f32, bloom_size(off.height) as f32);
+                for (buffer, dir) in [(&self.blur_h_params, [1.0 / bw, 0.0]), (&self.blur_v_params, [0.0, 1.0 / bh])] {
+                    let p = PostParams { dir, ..params };
+                    self.queue.write_buffer(buffer, 0, bytemuck::bytes_of(&p));
+                }
+                let black = wgpu::LoadOp::Clear(wgpu::Color::BLACK);
+                for (pipeline, group, target) in [
+                    (&self.bright_pipeline, &off.bright_group, &off.bloom_a),
+                    (&self.blur_pipeline, &off.blur_h_group, &off.bloom_b),
+                    (&self.blur_pipeline, &off.blur_v_group, &off.bloom_c),
+                ] {
+                    let mut pass = begin_pass(&mut encoder, target, black);
+                    pass.set_pipeline(pipeline);
+                    pass.set_bind_group(0, group, &[]);
+                    pass.draw(0..3, 0..1);
+                }
+            }
+            let mut pass = begin_pass(&mut encoder, target, wgpu::LoadOp::Clear(clear));
             pass.set_pipeline(&self.post_pipeline);
             pass.set_bind_group(0, &off.bind_group, &[]);
             pass.draw(0..3, 0..1);
             self.draw_runs(&mut pass, &self.runs[split..]);
         } else {
-            let mut pass = begin_pass(&mut encoder, &view, wgpu::LoadOp::Clear(clear));
+            let mut pass = begin_pass(&mut encoder, target, wgpu::LoadOp::Clear(clear));
             self.draw_runs(&mut pass, &self.runs);
         }
-        let readback = (self.capture_next && self.can_capture).then(|| self.copy_out(&mut encoder, &frame.texture));
+        let hdr_frame = match (&self.offscreen, self.hdr) {
+            (Some(off), Some(_)) => {
+                let mut pass = begin_pass(&mut encoder, &view, wgpu::LoadOp::Clear(wgpu::Color::BLACK));
+                pass.set_pipeline(&self.hdr_pipeline);
+                pass.set_bind_group(0, &off.hdr_group, &[]);
+                pass.draw(0..3, 0..1);
+                Some(&off.frame)
+            }
+            _ => None,
+        };
+        // Screenshots: the frame as SDR draws it (an HDR surface can't be read back as 8 bits).
+        let readback = match hdr_frame {
+            Some(texture) => self.capture_next.then(|| self.copy_out(&mut encoder, texture)),
+            None => (self.capture_next && self.can_capture).then(|| self.copy_out(&mut encoder, &frame.texture)),
+        };
         self.queue.submit([encoder.finish()]);
         if let Some((buffer, padded_row)) = readback {
             self.captured = self.read_back(&buffer, padded_row);
@@ -767,34 +935,68 @@ impl Renderer {
         if self.offscreen.as_ref().is_some_and(|o| o.width == width && o.height == height) {
             return;
         }
-        let texture = self.device.create_texture(&wgpu::TextureDescriptor {
-            label: Some("world"),
-            size: wgpu::Extent3d { width, height, depth_or_array_layers: 1 },
-            mip_level_count: 1,
-            sample_count: 1,
-            dimension: wgpu::TextureDimension::D2,
-            format: self.config.format,
-            usage: wgpu::TextureUsages::RENDER_ATTACHMENT | wgpu::TextureUsages::TEXTURE_BINDING,
-            view_formats: &[],
+        let target = |label, width, height| {
+            self.device
+                .create_texture(&wgpu::TextureDescriptor {
+                    label: Some(label),
+                    size: wgpu::Extent3d { width, height, depth_or_array_layers: 1 },
+                    mip_level_count: 1,
+                    sample_count: 1,
+                    dimension: wgpu::TextureDimension::D2,
+                    format: self.sdr_format,
+                    usage: wgpu::TextureUsages::RENDER_ATTACHMENT
+                        | wgpu::TextureUsages::TEXTURE_BINDING
+                        | wgpu::TextureUsages::COPY_SRC,
+                    view_formats: &[],
+                })
+        };
+        let view = target("world", width, height).create_view(&Default::default());
+        let bloom_a = target("glow", bloom_size(width), bloom_size(height)).create_view(&Default::default());
+        let bloom_b = target("glow across", bloom_size(width), bloom_size(height)).create_view(&Default::default());
+        let bloom_c = target("wide glow", bloom_size(width), bloom_size(height)).create_view(&Default::default());
+        let frame = target("frame", width, height);
+        let frame_view = frame.create_view(&Default::default());
+        let group = |label, scene: &wgpu::TextureView, bloom: &wgpu::TextureView, tight: &wgpu::TextureView, params: &wgpu::Buffer| {
+            self.device.create_bind_group(&wgpu::BindGroupDescriptor {
+                label: Some(label),
+                layout: &self.post_layout,
+                entries: &[
+                    wgpu::BindGroupEntry { binding: 0, resource: wgpu::BindingResource::TextureView(scene) },
+                    wgpu::BindGroupEntry { binding: 1, resource: wgpu::BindingResource::Sampler(&self.post_sampler) },
+                    wgpu::BindGroupEntry { binding: 2, resource: params.as_entire_binding() },
+                    wgpu::BindGroupEntry { binding: 3, resource: wgpu::BindingResource::TextureView(bloom) },
+                    wgpu::BindGroupEntry { binding: 4, resource: wgpu::BindingResource::TextureView(tight) },
+                ],
+            })
+        };
+        let bind_group = group("world", &view, &bloom_c, &bloom_a, &self.post_params);
+        let bright_group = group("bright", &view, &view, &view, &self.post_params);
+        let blur_h_group = group("blur across", &bloom_a, &bloom_a, &bloom_a, &self.blur_h_params);
+        let blur_v_group = group("blur down", &bloom_b, &bloom_b, &bloom_b, &self.blur_v_params);
+        let hdr_group = group("hdr", &frame_view, &bloom_c, &bloom_a, &self.post_params);
+        self.offscreen = Some(Offscreen {
+            width,
+            height,
+            view,
+            bind_group,
+            bloom_a,
+            bloom_b,
+            bloom_c,
+            bright_group,
+            blur_h_group,
+            blur_v_group,
+            frame,
+            frame_view,
+            hdr_group,
         });
-        let view = texture.create_view(&Default::default());
-        let bind_group = self.device.create_bind_group(&wgpu::BindGroupDescriptor {
-            label: Some("world"),
-            layout: &self.post_layout,
-            entries: &[
-                wgpu::BindGroupEntry { binding: 0, resource: wgpu::BindingResource::TextureView(&view) },
-                wgpu::BindGroupEntry { binding: 1, resource: wgpu::BindingResource::Sampler(&self.post_sampler) },
-                wgpu::BindGroupEntry { binding: 2, resource: self.post_params.as_entire_binding() },
-            ],
-        });
-        self.offscreen = Some(Offscreen { width, height, view, bind_group });
     }
 
     /// Ask for the next frame's pixels (desktop only); `take_capture` returns them after
     /// `present`. Returns false if this surface can't be read back.
     pub fn capture_next_frame(&mut self) -> bool {
-        self.capture_next = self.can_capture;
-        self.can_capture
+        // With HDR the frame is read from `frame`, which always can be.
+        self.capture_next = self.can_capture || self.hdr.is_some();
+        self.capture_next
     }
 
     pub fn take_capture(&mut self) -> Option<image::RgbaImage> {
@@ -828,7 +1030,7 @@ impl Renderer {
         let (w, h) = (self.config.width, self.config.height);
         let data = slice.get_mapped_range();
         let mut out = image::RgbaImage::new(w, h);
-        let bgra = self.config.format == wgpu::TextureFormat::Bgra8Unorm;
+        let bgra = self.sdr_format == wgpu::TextureFormat::Bgra8Unorm;
         for y in 0..h {
             let row = &data[(y * padded_row) as usize..][..(4 * w) as usize];
             for x in 0..w {
@@ -839,6 +1041,11 @@ impl Renderer {
         }
         Some(out)
     }
+}
+
+/// The glow's textures are a quarter of the window's size each way.
+fn bloom_size(n: u32) -> u32 {
+    n.div_ceil(4).max(1)
 }
 
 fn begin_pass<'a>(encoder: &'a mut wgpu::CommandEncoder, view: &'a wgpu::TextureView, load: wgpu::LoadOp<wgpu::Color>) -> wgpu::RenderPass<'a> {

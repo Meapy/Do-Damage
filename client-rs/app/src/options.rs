@@ -178,6 +178,9 @@ pub enum Toggle {
     ShowFps,
     UnlockFps,
     Fullscreen,
+    Glow,
+    Vivid,
+    Hdr,
     Sfx,
     Shots,
     Music,
@@ -237,7 +240,10 @@ impl PetShots {
 }
 
 /// The camera and the display. The browser leaves fullscreen to the page (F11 still asks it).
-const GRAPHICS: [(Toggle, &str); 5] = [
+const GRAPHICS: [(Toggle, &str); 8] = [
+    (Toggle::Glow, "Glow on bright light"),
+    (Toggle::Vivid, "Vivid colours"),
+    (Toggle::Hdr, "HDR (Windows HDR displays)"),
     (Toggle::Rotation, "Camera rotation"),
     (Toggle::Centered, "Center on player"),
     (Toggle::ShowFps, "Show frame rate"),
@@ -283,6 +289,14 @@ pub struct Settings {
     pub max_fps: u32,
     /// The window covers its monitor, with no border (desktop; `Fullscreen::Borderless`).
     pub fullscreen: bool,
+    /// A glow round bright colours in the world (shots, effects, portals, lava).
+    pub glow: bool,
+    /// Livelier colours and a little contrast in the world, its edges darker.
+    pub vivid: bool,
+    /// Draw for an HDR display, the glow brighter than white (desktop). It follows Windows'
+    /// HDR setting until the player picks (`hdr_chosen`), and only the pick is kept.
+    pub hdr: bool,
+    pub hdr_chosen: bool,
     /// State kept as the AIR client keeps it in its options (`cameraAngle`,
     /// `preferredServer`): the camera's turn, and the server last chosen.
     pub camera_angle: Option<f64>,
@@ -331,6 +345,10 @@ impl Default for Settings {
             unlock_fps: false,
             max_fps: 0,
             fullscreen: false,
+            glow: true,
+            vivid: true,
+            hdr: crate::hdr::windows_hdr().is_some(),
+            hdr_chosen: false,
             camera_angle: None,
             preferred_server: String::new(),
             seen_version: String::new(),
@@ -382,6 +400,9 @@ impl Settings {
             Toggle::ShowFps => &mut self.show_fps,
             Toggle::UnlockFps => &mut self.unlock_fps,
             Toggle::Fullscreen => &mut self.fullscreen,
+            Toggle::Glow => &mut self.glow,
+            Toggle::Vivid => &mut self.vivid,
+            Toggle::Hdr => &mut self.hdr,
             Toggle::Sfx => &mut self.sound.sfx,
             Toggle::Shots => &mut self.sound.shots,
             Toggle::Music => &mut self.sound.music,
@@ -415,6 +436,11 @@ impl Settings {
         flag("showStatistics", self.show_fps);
         flag("unlockFps", self.unlock_fps);
         flag("fullscreen", self.fullscreen);
+        flag("glow", self.glow);
+        flag("vividColours", self.vivid);
+        if self.hdr_chosen {
+            flag("hdr", self.hdr);
+        }
         flag("playSFX", self.sound.sfx);
         flag("playPewPew", self.sound.shots);
         flag("playMusic", self.sound.music);
@@ -461,6 +487,9 @@ impl Settings {
             match name {
                 "particles" => s.particles = on,
                 "shadows" => s.shadows = on,
+                "glow" => s.glow = on,
+                "vividColours" => s.vivid = on,
+                "hdr" => (s.hdr, s.hdr_chosen) = (on, true),
                 "hpBars" => s.hp_bars = on,
                 "textBubbles" => s.bubbles = on,
                 "allyShots" => s.ally_shots = on,
@@ -613,6 +642,7 @@ impl OptionsUi {
             Hit::Tab(t) => self.tab = t,
             Hit::Bind(b) => self.listening = Some(b),
             Hit::Toggle(t) => {
+                settings.hdr_chosen |= t == Toggle::Hdr;
                 let v = settings.toggle(t);
                 *v = !*v;
                 return true;
@@ -633,6 +663,7 @@ impl OptionsUi {
                         }
                         settings.zoom = d.zoom;
                         settings.max_fps = d.max_fps;
+                        settings.hdr_chosen = false;
                     }
                     Tab::Visuals => {
                         for (t, _) in VISUALS {
@@ -750,7 +781,10 @@ impl OptionsUi {
             }
             Tab::Graphics | Tab::Visuals | Tab::Sound => {
                 let list: Vec<(Toggle, &str)> = match self.tab {
-                    Tab::Graphics => GRAPHICS.into_iter().filter(|(t, _)| !cfg!(target_arch = "wasm32") || *t != Toggle::Fullscreen).collect(),
+                    Tab::Graphics => GRAPHICS
+                        .into_iter()
+                        .filter(|(t, _)| !cfg!(target_arch = "wasm32") || !matches!(t, Toggle::Fullscreen | Toggle::Hdr))
+                        .collect(),
                     Tab::Visuals => VISUALS.to_vec(),
                     _ => SOUNDS.to_vec(),
                 };

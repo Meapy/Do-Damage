@@ -40,6 +40,8 @@ namespace Shared
                     return input.First().ToString().ToUpper() + input.Substring(1);
             }
         }
+        /// <summary>A value a request sent, safe to log: a line break in it could forge log lines.</summary>
+        public static string ForLog(this string value) => value?.Replace("\r", "").Replace("\n", "");
         public static byte[] Deflate(byte[] src)
         {
             byte[] zipBytes;

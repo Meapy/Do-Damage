@@ -233,6 +233,9 @@ messages! {
         },
         // How a Marketplace action went: what to tell the player, and our fame now.
         125 => MarketResult { ok: bool, message: String, fame: i32 },
+        // Someone's /visit (after VisitAnswer 255): the request's id, who asks, where they'd
+        // join us, and the seconds left to answer (0: the request has gone).
+        127 => VisitRequest { id: i32, name: String, world: String, seconds: u8 },
     }
 }
 
@@ -336,5 +339,9 @@ messages! {
         // 1 buys listing `id` at the price we saw, 2 takes our listing `id` back, 3 collects box
         // item `id` (0: all that fit).
         124 => MarketAct { action: u8, id: i32, price: i32 },
+        // A visit request: 1 lets them in, 0 doesn't; 255 (id unused), once in each world, says
+        // we can show VisitRequests. An older server doesn't know it (one unknown message per
+        // world).
+        126 => VisitAnswer { id: i32, answer: u8 },
     }
 }

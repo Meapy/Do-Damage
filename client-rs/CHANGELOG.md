@@ -12,6 +12,26 @@ Keep each version short: changes go under `### ` group headings (Oryx 5, Arena, 
 on), one line per change players notice, summed up rather than item by item (the wiki has the
 details). Add to a group's line when a change adds to it, rather than adding another line.
 
+## 2.3.7 (2026-11-02)
+
+### Friends
+- `/visit <name>` now works for everyone: it asks a friend to let you join them in their dungeon,
+  Oryx's chain, the Arena or another instance from a portal. They get a small Yes / No box in the
+  top right corner that doesn't stop them moving or shooting (or they type `/yes` or `/no`), and
+  it counts as No after 30 seconds. You can visit each instance once, and never back into one
+  you've already been in (so no dying and visiting straight back). Realms, the Nexus, vaults and
+  guild halls can't be visited.
+
+### Website
+- The game's source code is open under the AGPL licence: the website links to it at the bottom of
+  each page.
+
+### Graphics
+- The world looks richer: lava, fire, lanterns and spells cast a soft glow, colours are a little
+  livelier and the screen's corners a touch darker. On a Windows PC with HDR turned on, the game
+  draws in HDR, so that glow shines brighter than white. Each can be turned off in Options,
+  Graphics ("Glow on bright light", "Vivid colours", "HDR").
+
 ## 2.3.6 (2026-10-31)
 
 ### Nexus

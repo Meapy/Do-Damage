@@ -44,11 +44,19 @@
   function oneIn(p) { return p > 0 && p < 0.1 ? "1 in " + Math.round(1 / p).toLocaleString() : ""; }
   function barW(p) { return p <= 0 ? 0 : Math.max(2, Math.min(100, (Math.log10(p) + 3) / 3 * 100)); }
   function poolTotal(r) { return r.pool.reduce(function (s, x) { return s + x[1]; }, 0); }
-  function label(r) { return "T" + r.tier + " " + (KINDS[r.type] || r.type.toLowerCase()); }
+  function label(r) { return esc("T" + r.tier + " " + (KINDS[r.type] || r.type.toLowerCase())); }
 
+  // an icon, [edge colour, sprite sheet class, x, y] from wiki_gear.sprite_parts
+  function sprite(p) {
+    if (!p) return "";
+    var edge = '<span class="ico" style="--c:' + esc(p[0]) + '">';
+    if (!p[1]) return edge + "</span>";
+    return edge + '<i class="' + esc(p[1]) + '" style="background-position:-' + Number(p[2]) + "px -" + Number(p[3]) +
+      'px"></i></span>';
+  }
   function ico(id, title) {
     var it = ITEMS[id];
-    return '<span class="ls-ico" title="' + esc(title || (it ? it.name : id)) + '">' + (it ? it.ico : "") + "</span>";
+    return '<span class="ls-ico" title="' + esc(title || (it ? it.name : id)) + '">' + (it ? sprite(it.ico) : "") + "</span>";
   }
   function name(id) {
     var it = ITEMS[id];
@@ -56,7 +64,7 @@
     return it.href ? '<a href="' + esc(it.href) + '">' + esc(it.name) + "</a>" : esc(it.name);
   }
   function bagIco(b) {
-    return '<span class="ls-bag" title="' + esc(BAGNAME[b]) + ' bag">' + (BAGICO[b] || "") + "</span>";
+    return '<span class="ls-bag" title="' + esc(BAGNAME[b]) + ' bag">' + sprite(BAGICO[b]) + "</span>";
   }
 
   // --- what a kill gives one player ------------------------------------------------------------
@@ -215,7 +223,7 @@
     }
     var it = ITEMS[r.id];
     return '<td><div class="ls-row">' + ico(r.id) + '<div><div class="ls-nm">' + name(r.id) + '</div><div class="ls-sub">' +
-      bagIco(it.bag) + " " + BAGNAME[it.bag] + " bag</div></div></div></td>";
+      bagIco(it.bag) + " " + esc(BAGNAME[it.bag]) + " bag</div></div></div></td>";
   }
   function dropsView(b) {
     var groups = [], seen = {};
@@ -242,11 +250,11 @@
       line("3 or more bags", pct(s.bags[3])) +
       '<tr class="ls-group"><td colspan="2">The colour of the kill\'s bags<small>every bag of a kill takes its best item\'s colour</small></td></tr>';
     used.filter(function (g) { return s.colour[g] > 0.0005; }).forEach(function (g) {
-      html += line(bagIco(g) + " " + BAGNAME[g], pct(s.colour[g]));
+      html += line(bagIco(g) + " " + esc(BAGNAME[g]), pct(s.colour[g]));
     });
     html += '<tr class="ls-group"><td colspan="2">Items by their own bag<small>how many a kill gives, and the chance of at least one</small></td></tr>';
     used.forEach(function (g) {
-      html += line(bagIco(g) + " " + BAGNAME[g] + " items", s.items[g].toFixed(2) + "<span>" + pct(s.atLeast[g]) + " for at least one</span>");
+      html += line(bagIco(g) + " " + esc(BAGNAME[g]) + " items", s.items[g].toFixed(2) + "<span>" + pct(s.atLeast[g]) + " for at least one</span>");
     });
     return '<div class="table-wrap"><table class="ls-table"><tbody>' + html + "</tbody></table></div>";
   }
@@ -254,14 +262,14 @@
   // --- the page: the controls are drawn once (a slider redrawn under the finger stops dragging),
   // the rest again on every change -------------------------------------------------------------
   root.innerHTML = '<div class="ls-bosses">' + DATA.bosses.map(function (x) {
-    return '<button type="button" class="ls-boss" data-boss="' + x.key + '">' + x.ico + '<span><span class="n">' +
+    return '<button type="button" class="ls-boss" data-boss="' + esc(x.key) + '">' + sprite(x.ico) + '<span><span class="n">' +
       esc(x.short) + '</span><span class="s">' + esc(x.title) + "<br>" + esc(x.world) + "</span></span></button>";
   }).join("") + "</div>" +
     '<div class="ls-controls"><label class="ls-share">Your damage <input type="range" id="ls-share" min="1" max="100" value="' +
     Math.round(state.share * 100) + '"><output id="ls-share-out"></output></label><div class="ls-boosts">' +
     BOOSTS.map(function (x) {
       return '<label class="ls-chk"><input type="checkbox" data-boost="' + x.id + '"' + (state.boosts[x.id] ? " checked" : "") +
-        "><span>" + x.label + " +" + Math.round(x.v * 100) + "%</span></label>";
+        "><span>" + esc(x.label) + " +" + Math.round(x.v * 100) + "%</span></label>";
     }).join("") + '</div><div class="ls-mult" id="ls-mult"></div></div>' +
     '<p class="ls-head" id="ls-head"></p><div class="ls-tabs">' +
     [["sim", "Simulator"], ["drops", "Drop chances"], ["bags", "Bags per kill"]].map(function (t) {

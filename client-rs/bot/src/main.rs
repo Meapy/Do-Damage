@@ -29,6 +29,10 @@
 //! turn as `ArenaVote`s (0 for the next wave, 1 to 5 to combine that many waves), and it logs
 //! every `ArenaVotes` (`"5;0"`: pick +5, then vote Next).
 //!
+//! `--visit-answer <yes|no|wait>` says in each world that it can show visit requests (as the
+//! client does), logs each `VisitRequest` and answers it Yes or No at once, or never (`wait`, to
+//! let it time out).
+//!
 //! `--vault <moves>` moves items to and from the first Vault Chest it has seen, the top one then
 //! the left (the guild vault's first in a guild hall), split by `;`: `put <inventory slot> <chest slot>` or
 //! `take <chest slot> <inventory slot>`. It walks up to the chest, swaps the two slots, logs the
@@ -59,6 +63,8 @@ struct Args {
     enter: Vec<String>,
     arena_vote: Vec<u8>,
     vault: Vec<VaultMove>,
+    /// `--visit-answer`: 1 yes, 0 no, None to leave requests unanswered; unset, no subscribing.
+    visit_answer: Option<Option<u8>>,
 }
 
 /// One of `--vault`'s moves.
@@ -89,7 +95,7 @@ fn parse_class(v: &str) -> Result<u16, String> {
 
 fn parse_args() -> Result<Args, String> {
     let mut args =
-        Args { account: String::new(), credentials: String::new(), seconds: 60, char_id: None, gateway: None, say: Vec::new(), wander: 0.0, fight: false, class: 0x030e, view: 15, enter: Vec::new(), arena_vote: Vec::new(), vault: Vec::new() };
+        Args { account: String::new(), credentials: String::new(), seconds: 60, char_id: None, gateway: None, say: Vec::new(), wander: 0.0, fight: false, class: 0x030e, view: 15, enter: Vec::new(), arena_vote: Vec::new(), vault: Vec::new(), visit_answer: None };
     let mut it = std::env::args().skip(1);
     while let Some(a) = it.next() {
         let mut value = || it.next().ok_or(format!("{a} needs a value"));
@@ -120,6 +126,14 @@ fn parse_args() -> Result<Args, String> {
                         _ => return Err(format!("--vault: {m}")),
                     });
                 }
+            }
+            "--visit-answer" => {
+                args.visit_answer = Some(match value()?.as_str() {
+                    "yes" => Some(1),
+                    "no" => Some(0),
+                    "wait" => None,
+                    v => return Err(format!("--visit-answer: {v} (yes, no or wait)")),
+                })
             }
             "--enter" => args.enter = value()?.split(";;").map(|l| l.trim().to_owned()).filter(|l| !l.is_empty()).collect(),
             _ => return Err(format!("unknown argument {a}")),
@@ -389,6 +403,13 @@ fn run(args: Args) -> Result<(), String> {
                     ServerMessage::Text(t) if !t.text.is_empty() => {
                         log::info!("chat <{}> {}", t.name, t.text)
                     }
+                    ServerMessage::VisitRequest(v) => {
+                        log::info!("visit request {} from {} into {} ({} s)", v.id, v.name, v.world, v.seconds);
+                        if let (true, Some(Some(answer))) = (v.seconds > 0, args.visit_answer) {
+                            log::info!("visit answer {answer}");
+                            socket.send(&bsk_proto::VisitAnswer { id: v.id, answer }.into());
+                        }
+                    }
                     ServerMessage::ImminentArenaWave(w) => {
                         log::info!("arena wave {} state {}", w.wave, w.current_state);
                         if !args.arena_vote.is_empty() && !std::mem::replace(&mut arena_asked, true) {
@@ -419,6 +440,9 @@ fn run(args: Args) -> Result<(), String> {
                     }
                     Some(Event::Joined { object_id, char_id: id }) => {
                         log::info!("joined as object {object_id}");
+                        if args.visit_answer.is_some() {
+                            socket.send(&bsk_proto::VisitAnswer { id: 0, answer: 255 }.into());
+                        }
                         if !args.vault.is_empty() {
                             vault_at = Some(Instant::now() + Duration::from_secs(2));
                         }

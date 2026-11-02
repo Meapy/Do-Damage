@@ -759,6 +759,9 @@ pub enum Button {
     /// The Arena's votes: start the next wave; combine this many waves into the next fight.
     ArenaNext,
     ArenaPick(u8),
+    /// Answer the visit request in the corner.
+    VisitYes,
+    VisitNo,
 }
 
 /// `PlayerMenu`'s options.
@@ -804,6 +807,8 @@ pub struct Social<'a> {
     pub fame: &'a HashMap<u8, i32>,
     /// The Arena's votes, in the Arena (`Game::arena_votes`).
     pub arena_votes: Option<&'a bsk_proto::ArenaVotes>,
+    /// Someone's /visit waiting for our answer (`Game::visit`).
+    pub visit: Option<&'a crate::game::VisitAsk>,
 }
 
 /// A player's account id (`ACCOUNT_ID_STAT`), as the account lists hold it.
@@ -1169,6 +1174,13 @@ impl Panel {
                     panel.buttons.push((Button::ArenaPick(k), r));
                 }
             }
+        }
+        // The visit request in the corner: its box counts as the HUD's, so clicks on it never shoot.
+        if social.visit.is_some() {
+            let vl = visit_layout(lay);
+            panel.history.push(vl.frame);
+            panel.buttons.push((Button::VisitYes, vl.yes));
+            panel.buttons.push((Button::VisitNo, vl.no));
         }
         for i in 0..2 {
             panel.buttons.push((Button::CardTab(i), lay.card_tab(i)));
@@ -4044,6 +4056,50 @@ pub fn draw_arena_votes(ui: &mut Ui, lay: &Layout, v: &bsk_proto::ArenaVotes, me
     }
 }
 
+/// Where the visit request goes: the world's top right corner, under the gold and fame.
+pub struct VisitLayout {
+    pub frame: [f32; 4],
+    pub yes: [f32; 4],
+    pub no: [f32; 4],
+}
+
+pub fn visit_layout(lay: &Layout) -> VisitLayout {
+    let s = lay.s;
+    let (w, h, pad) = (220.0, 84.0, 8.0);
+    let right = lay.credits_right() - 8.0 * s;
+    let frame = [(right - w * s).round(), (lay.minimap_box()[1] + 118.0 * s).round(), w * s, h * s];
+    let bw = (w - 3.0 * pad) / 2.0;
+    let yes = within(frame, s, pad, h - pad - 28.0, bw, 28.0);
+    let no = within(frame, s, 2.0 * pad + bw, h - pad - 28.0, bw, 28.0);
+    VisitLayout { frame, yes, no }
+}
+
+/// Someone's /visit (`VisitRequest`): who wants to join us, where, a bar running down to the
+/// time out, and Yes and No. Only the mouse answers it, so play goes on around it.
+pub fn draw_visit(ui: &mut Ui, lay: &Layout, v: &crate::game::VisitAsk, now: i32, mouse: (f64, f64)) {
+    let s = lay.s;
+    let vl = visit_layout(lay);
+    let f = vl.frame;
+    hud_box(ui, f, s);
+    let x0 = f[0] + 10.0 * s;
+    let size = lay.font(13.0);
+    let name_w = ui.measure(&v.name, size, true);
+    ui.label(&v.name, x0, f[1] + 8.0 * s, size, true, color::ACCENT_HI);
+    ui.label(" wants to visit you", x0 + name_w, f[1] + 8.0 * s, size, false, color::TEXT);
+    let left_ms = (v.until - now).max(0);
+    let small = lay.font(11.0);
+    let secs = (left_ms + 999) / 1000;
+    let detail = if v.world.is_empty() { format!("{secs} s to answer") } else { format!("in your {}  ·  {secs} s", v.world) };
+    ui.label(&detail, x0, f[1] + 27.0 * s, small, false, color::TEXT_DIM);
+    // the time left, as a thin bar over the buttons
+    let full = f[2] - 20.0 * s;
+    let share = (left_ms as f32 / v.total.max(1) as f32).min(1.0);
+    theme::fill(ui.renderer, [x0, f[1] + 43.0 * s, full, 3.0 * s], 1.5 * s, 0xFFFFFF, 0.10);
+    theme::fill(ui.renderer, [x0, f[1] + 43.0 * s, (full * share).max(0.0), 3.0 * s], 1.5 * s, color::ACCENT, 0.9);
+    ui.button(vl.yes, "Yes", Kind::Primary, inside(vl.yes, mouse), s);
+    ui.button(vl.no, "No", Kind::Secondary, inside(vl.no, mouse), s);
+}
+
 /// Break coloured pieces into rows no wider than `max_w`, at spaces where possible; the first
 /// row starts `indent` in.
 fn wrap(ui: &mut Ui, pieces: &[(String, u32)], size: f32, max_w: f32, indent: f32) -> Vec<Vec<(String, u32)>> {
@@ -4139,7 +4195,7 @@ mod tests {
     #[test]
     fn portal_button_waits_for_its_panel() {
         let (locked, fame) = (Default::default(), HashMap::new());
-        let social = Social { trade: None, invite: None, locked: &locked, ignored: &locked, now: 0, history: &[], fame: &fame, arena_votes: None };
+        let social = Social { trade: None, invite: None, locked: &locked, ignored: &locked, now: 0, history: &[], fame: &fame, arena_votes: None, visit: None };
         let (lay, data, world) = (Layout::new(1920, 1080), GameData::default(), World::new(10, 10, "test", 1));
         let mut state = HudState::default();
         let mut panel = Panel::new(&lay, &world, &data, &state, &social);

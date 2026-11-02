@@ -511,6 +511,7 @@ namespace WorldServer.core.objects
                 Quests?.Tick(ref time);
                 TickChampion(time.DeltaTime);
                 TickNexusAfk(time);
+                TickVisits();
                 if (TickCount % 5 == 0)
                     PassiveEffects();
                 TickCount++;

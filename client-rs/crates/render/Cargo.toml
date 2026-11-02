@@ -3,6 +3,7 @@ name = "bsk-render"
 edition.workspace = true
 version.workspace = true
 publish.workspace = true
+license.workspace = true
 
 [dependencies]
 bytemuck.workspace = true

@@ -106,6 +106,8 @@ pub struct Game {
     pub trade: Option<Trade>,
     /// The latest invitation, and when it came.
     pub invite: Option<(Invite, i32)>,
+    /// Someone's /visit waiting for our Yes or No (`VisitRequest`), in the corner.
+    pub visit: Option<VisitAsk>,
     /// `AccountList` 0 and 1: locked (starred) and ignored players' account ids.
     pub locked: std::collections::HashSet<String>,
     pub ignored: std::collections::HashSet<String>,
@@ -220,6 +222,18 @@ pub enum Invite {
     Guild { name: String, guild: String },
 }
 
+/// Someone asking to join us where we are (`VisitRequest`): the request's id, who, where, and
+/// when it runs out (the game's clock, ms). Answered with `VisitAnswer`; it never blocks play.
+#[derive(Clone, Debug, PartialEq, Eq)]
+pub struct VisitAsk {
+    pub id: i32,
+    pub name: String,
+    pub world: String,
+    pub until: i32,
+    /// How long it was given (ms), for the bar running down.
+    pub total: i32,
+}
+
 /// `Character.damage`: a character's hurt sound, or its death sound when it dies of it.
 fn hurt_sound(data: &GameData, object_type: u16, dead: bool) -> Option<String> {
     let d = data.objects.get(&object_type)?;
@@ -295,6 +309,7 @@ impl Game {
             guild_result: None,
             trade: None,
             invite: None,
+            visit: None,
             locked: Default::default(),
             ignored: Default::default(),
             next_teleport: 0,
@@ -530,6 +545,8 @@ impl Game {
                 self.socket.send(&bsk_proto::RealmEventsSubscribe {}.into());
                 // quests: the HUD's badge counts what waits, so ask in every world
                 self.socket.send(&bsk_proto::QuestsRequest {}.into());
+                // we can show visit requests, in the corner
+                self.socket.send(&bsk_proto::VisitAnswer { id: 0, answer: 255 }.into());
                 self.status.clear();
             }
             Some(Event::Failure { description, .. }) => {
@@ -825,6 +842,18 @@ impl Game {
                 });
             }
             ServerMessage::ArenaVotes(v) => self.arena_votes = Some(v.clone()),
+            ServerMessage::VisitRequest(v) => {
+                if v.seconds == 0 {
+                    // taken back or run out
+                    if self.visit.as_ref().is_some_and(|a| a.id == v.id) {
+                        self.visit = None;
+                    }
+                } else {
+                    let total = v.seconds as i32 * 1000;
+                    self.visit = Some(VisitAsk { id: v.id, name: v.name.clone(), world: v.world.clone(), until: now + total, total });
+                    self.add_chat("", "", &format!("{} wants to visit you: answer Yes or No in the corner, or type /yes or /no.", v.name), 0, 0, -1, now);
+                }
+            }
             ServerMessage::ImminentArenaWave(w) => {
                 // the Arena's votes, from now on (an older server counts it as one unknown message)
                 if !std::mem::replace(&mut self.arena_asked, true) {
@@ -1222,6 +1251,20 @@ impl Game {
     pub fn arena_vote(&mut self, action: u8) {
         if self.arena_votes.as_ref().is_some_and(|v| v.open) {
             self.send(bsk_proto::ArenaVote { action }.into());
+        }
+    }
+
+    /// Answer the visit request in the corner (`VisitAnswer`).
+    pub fn answer_visit(&mut self, yes: bool) {
+        if let Some(v) = self.visit.take() {
+            self.send(bsk_proto::VisitAnswer { id: v.id, answer: yes as u8 }.into());
+        }
+    }
+
+    /// Hide the visit request once it has run out (the server tells the visitor then).
+    pub fn expire_visit(&mut self, now: i32) {
+        if self.visit.as_ref().is_some_and(|v| now >= v.until) {
+            self.visit = None;
         }
     }
 
