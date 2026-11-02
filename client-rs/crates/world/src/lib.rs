@@ -184,6 +184,9 @@ pub struct World {
     occupant: rustc_hash::FxHashMap<(i32, i32), i32>,
     /// On stacked floors: the floors above the map, and the static objects standing on them.
     pub levels: Option<Levels>,
+    /// On stacked floors, every floor above the lowest drawn see-through (`/floors`, to test: to
+    /// see what is under them).
+    pub see_through: bool,
     level_occupant: rustc_hash::FxHashMap<(i32, i32, u8), i32>,
     pub objects: rustc_hash::FxHashMap<i32, GameObj>,
     /// Our player's object id.
@@ -223,6 +226,7 @@ impl World {
             known: vec![false; n],
             occupant: Default::default(),
             levels: None,
+            see_through: false,
             level_occupant: Default::default(),
             objects: Default::default(),
             me: None,
@@ -316,6 +320,14 @@ impl World {
             }
         }
         best.map(|(_, level)| level)
+    }
+
+    /// The floor at square (x, y) whose ground is nearest height z, however far.
+    pub fn nearest_level(&self, x: i32, y: i32, z: f64, data: &GameData) -> Option<u8> {
+        (0..self.level_count() as u8)
+            .filter_map(|l| self.surface(l, x, y, data).map(|s| ((s - z).abs(), l)))
+            .min_by(|a, b| a.0.total_cmp(&b.0))
+            .map(|(_, l)| l)
     }
 
     /// The static object standing on a square of a floor.
@@ -556,6 +568,11 @@ impl World {
     /// `Goto`: an object (often us) is moved at once.
     pub fn apply_goto(&mut self, id: i32, x: f64, y: f64, time: i32, data: &GameData) {
         if self.place(id, x, y, data) {
+            // on stacked floors, we stand on the ground where we're put (a move put back by the
+            // server would otherwise leave our height where it went)
+            if Some(id) == self.me {
+                self.climb(x, y, data);
+            }
             if let Some(o) = self.objects.get_mut(&id) {
                 o.last_tick_update_time = time;
                 (o.tick_x, o.tick_y, o.pos_at_tick_x, o.pos_at_tick_y) = (x, y, x, y);

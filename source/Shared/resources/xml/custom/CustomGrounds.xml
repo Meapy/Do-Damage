@@ -97,10 +97,12 @@
 				<Index>0x20</Index>
 			</Texture>
 		</Face>
+		<Rail>0xB89A5E</Rail>
 		<Color>0x46688A</Color>
 	</Ground>
 	<!-- the Stair Tower's spiral staircase (tools/build_stair_tower.py, SPIRAL): its sectors, each a
-	     quarter of a tile above the last, twelve to a floor -->
+	     quarter of a tile above the last, twelve to a floor, railed (Rail, the railing's colour,
+	     where its edge drops: the Rust client's view::floors) -->
 	<Ground type="0x9C07" id="ST Spiral 1">
 		<Texture>
 			<File>oryxSanctuaryObjects8x8</File>
@@ -113,6 +115,7 @@
 			</Texture>
 		</Face>
 		<Lift>0.25</Lift>
+		<Rail>0xB89A5E</Rail>
 		<Color>0x3A4660</Color>
 	</Ground>
 	<Ground type="0x9C08" id="ST Spiral 2">
@@ -127,6 +130,7 @@
 			</Texture>
 		</Face>
 		<Lift>0.5</Lift>
+		<Rail>0xB89A5E</Rail>
 		<Color>0x3A4660</Color>
 	</Ground>
 	<Ground type="0x9C09" id="ST Spiral 3">
@@ -141,6 +145,7 @@
 			</Texture>
 		</Face>
 		<Lift>0.75</Lift>
+		<Rail>0xB89A5E</Rail>
 		<Color>0x3A4660</Color>
 	</Ground>
 	<Ground type="0x9C0A" id="ST Spiral 4">
@@ -155,6 +160,7 @@
 			</Texture>
 		</Face>
 		<Lift>1.0</Lift>
+		<Rail>0xB89A5E</Rail>
 		<Color>0x3A4660</Color>
 	</Ground>
 	<Ground type="0x9C0B" id="ST Spiral 5">
@@ -169,6 +175,7 @@
 			</Texture>
 		</Face>
 		<Lift>1.25</Lift>
+		<Rail>0xB89A5E</Rail>
 		<Color>0x3A4660</Color>
 	</Ground>
 	<Ground type="0x9C0C" id="ST Spiral 6">
@@ -183,6 +190,7 @@
 			</Texture>
 		</Face>
 		<Lift>1.5</Lift>
+		<Rail>0xB89A5E</Rail>
 		<Color>0x3A4660</Color>
 	</Ground>
 	<Ground type="0x9C0D" id="ST Spiral 7">
@@ -197,6 +205,7 @@
 			</Texture>
 		</Face>
 		<Lift>1.75</Lift>
+		<Rail>0xB89A5E</Rail>
 		<Color>0x3A4660</Color>
 	</Ground>
 	<Ground type="0x9C0E" id="ST Spiral 8">
@@ -211,6 +220,7 @@
 			</Texture>
 		</Face>
 		<Lift>2.0</Lift>
+		<Rail>0xB89A5E</Rail>
 		<Color>0x3A4660</Color>
 	</Ground>
 	<Ground type="0x9C0F" id="ST Spiral 9">
@@ -225,6 +235,7 @@
 			</Texture>
 		</Face>
 		<Lift>2.25</Lift>
+		<Rail>0xB89A5E</Rail>
 		<Color>0x3A4660</Color>
 	</Ground>
 	<Ground type="0x9C10" id="ST Spiral 10">
@@ -239,6 +250,7 @@
 			</Texture>
 		</Face>
 		<Lift>2.5</Lift>
+		<Rail>0xB89A5E</Rail>
 		<Color>0x3A4660</Color>
 	</Ground>
 	<Ground type="0x9C11" id="ST Spiral 11">
@@ -253,6 +265,36 @@
 			</Texture>
 		</Face>
 		<Lift>2.75</Lift>
+		<Rail>0xB89A5E</Rail>
 		<Color>0x3A4660</Color>
+	</Ground>
+	<!-- the spiral's first sector (no lift), and the bridge from its top to floor 3: railed -->
+	<Ground type="0x9C12" id="ST Spiral 0">
+		<Texture>
+			<File>oryxSanctuaryObjects8x8</File>
+			<Index>0x4c2</Index>
+		</Texture>
+		<Face>
+			<Texture>
+				<File>lofiEnvironment</File>
+				<Index>0x20</Index>
+			</Texture>
+		</Face>
+		<Rail>0xB89A5E</Rail>
+		<Color>0x3A4660</Color>
+	</Ground>
+	<Ground type="0x9C13" id="ST Bridge">
+		<Texture>
+			<File>lofiEnvironment</File>
+			<Index>0x25</Index>
+		</Texture>
+		<Face>
+			<Texture>
+				<File>lofiEnvironment</File>
+				<Index>0x20</Index>
+			</Texture>
+		</Face>
+		<Rail>0xB89A5E</Rail>
+		<Color>0x46688A</Color>
 	</Ground>
 </GroundTypes>

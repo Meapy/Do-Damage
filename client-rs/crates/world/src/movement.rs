@@ -94,13 +94,15 @@ impl World {
 
     /// On stacked floors, our height where we now stand: the ground of the floor at our height,
     /// so a stair's steps take us up or down.
-    fn climb(&mut self, x: f64, y: f64, data: &GameData) {
+    pub(crate) fn climb(&mut self, x: f64, y: f64, data: &GameData) {
         if self.levels.is_none() {
             return;
         }
         let Some(me) = self.me else { return };
         let z = self.my_z();
-        let Some(level) = self.level_at(x as i32, y as i32, z, data) else { return };
+        // the floor at our height, else (put somewhere our height doesn't fit) the nearest
+        let level = self.level_at(x as i32, y as i32, z, data).or_else(|| self.nearest_level(x as i32, y as i32, z, data));
+        let Some(level) = level else { return };
         let Some(ground) = self.surface(level, x as i32, y as i32, data) else { return };
         if let Some(p) = self.objects.get_mut(&me) {
             (p.z, p.level) = (ground, level);
