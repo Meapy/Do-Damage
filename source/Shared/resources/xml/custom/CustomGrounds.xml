@@ -1,6 +1,7 @@
 ﻿<GroundTypes>
 	<!-- the Stair Tower's steps (tools/build_stair_tower.py): each half a tile above the last;
-	     on its stacked floors what stands on one walks that high (StairTowerWorld) -->
+	     on its stacked floors what stands on one walks that high (StairTowerWorld). StaySolid:
+	     never drawn see-through, when a floor over the player is (the Rust client's view::floors) -->
 	<Ground type="0x9C00" id="ST Step 1">
 		<Texture>
 			<File>oryxSanctuaryObjects8x8</File>
@@ -13,6 +14,7 @@
 			</Texture>
 		</Face>
 		<Lift>0.5</Lift>
+		<StaySolid/>
 		<Color>0x3A4660</Color>
 	</Ground>
 	<Ground type="0x9C01" id="ST Step 2">
@@ -27,6 +29,7 @@
 			</Texture>
 		</Face>
 		<Lift>1.0</Lift>
+		<StaySolid/>
 		<Color>0x3A4660</Color>
 	</Ground>
 	<Ground type="0x9C02" id="ST Step 3">
@@ -41,6 +44,7 @@
 			</Texture>
 		</Face>
 		<Lift>1.5</Lift>
+		<StaySolid/>
 		<Color>0x3A4660</Color>
 	</Ground>
 	<Ground type="0x9C03" id="ST Step 4">
@@ -55,6 +59,7 @@
 			</Texture>
 		</Face>
 		<Lift>2.0</Lift>
+		<StaySolid/>
 		<Color>0x3A4660</Color>
 	</Ground>
 	<Ground type="0x9C04" id="ST Step 5">
@@ -69,6 +74,7 @@
 			</Texture>
 		</Face>
 		<Lift>2.5</Lift>
+		<StaySolid/>
 		<Color>0x3A4660</Color>
 	</Ground>
 	<!-- the Stair Tower's floors: Blue Quad and Blue Closed, with Blue Wall's stone where a floor's
@@ -295,6 +301,7 @@
 			</Texture>
 		</Face>
 		<Rail>0xB89A5E</Rail>
+		<StaySolid/>
 		<Color>0x46688A</Color>
 	</Ground>
 </GroundTypes>

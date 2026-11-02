@@ -545,7 +545,7 @@ const SHADE: f32 = 0.55;
 /// depth it sorts at among what stands there: the faces (a step's riser down to the
 /// floor it stands on, in pieces a tile tall; a slab `SLAB` thick where the edge hangs over
 /// lower ground or nothing) and the railings of grounds with a `<Rail>`. The floors over our head
-/// are see-through (`see_through_from`).
+/// are see-through (`see_through_from`), but for grounds that stay solid (`<StaySolid/>`).
 #[allow(clippy::type_complexity)]
 fn floors(scene: &Scene, white: bsk_render::AtlasRect, x0: i32, x1: i32, y0: i32, y1: i32) -> (Vec<Vec<Plate>>, Vec<(u8, f32, Plate)>) {
     let (world, data, cam) = (scene.world, scene.data, scene.camera);
@@ -555,12 +555,16 @@ fn floors(scene: &Scene, white: bsk_render::AtlasRect, x0: i32, x1: i32, y0: i32
     let mut tops = vec![Vec::new(); count as usize];
     let mut faces = Vec::new();
     for level in 0..count {
-        let alpha = if roof.is_some_and(|r| level >= r) { 0.35 } else { 1.0 };
+        let faded = roof.is_some_and(|r| level >= r);
         for y in y0..=y1 {
             for x in x0..=x1 {
                 let Some(s) = world.surface(level, x, y, data) else { continue };
                 let Some(tile) = world.level_tile(level, x, y) else { continue };
                 let Some(rect) = crate::ground::plain(data, scene.sprites, tile, x, y) else { continue };
+                // see-through over us, unless the ground stays solid (`<StaySolid/>`: stairs);
+                // `/floors` shows through everything
+                let solid = !world.see_through && data.grounds.get(&tile).is_some_and(|g| g.xml.has("StaySolid"));
+                let alpha = if faded && !solid { 0.35 } else { 1.0 };
                 let (fx, fy) = (x as f64, y as f64);
                 let quad = cam.quad([fx, fy, s], [fx + 1.0, fy, s], [fx, fy + 1.0, s]);
                 // in the shade of a floor above it
