@@ -11,19 +11,23 @@ namespace WorldServer.core.objects
 {
     public partial class Player
     {
-        // A player's /visit (Command.Visit): the player asked gets a Yes/No in a corner of their
-        // screen (VISIT_REQUEST) for VisitBook.TimeoutMs, or a chat line on a client that can't
-        // show it, and answers with it or /yes and /no; a Yes sends the visitor into the
-        // instance they're in, if VisitRules still allow it. The book (GameServer.Visits) keeps
-        // the cooldowns; each world remembers who has been in it (World.HasBeenIn).
+        // A player's /visit (Command.Visit) or /summon (SummonCommand): the player asked gets a
+        // Yes/No in a corner of their screen (VISIT_REQUEST) for VisitBook.TimeoutMs, or a chat line
+        // on a client that can't show it, and answers with it or /yes and /no. A Yes to a visit
+        // sends the visitor into the instance the player asked is in; a Yes to a summon sends the
+        // player asked into the summoner's, if VisitRules still allow it. The book
+        // (GameServer.Visits) keeps the cooldowns; each world remembers who has been in it
+        // (World.HasBeenIn).
 
-        // The client can show visit requests (VISIT_ANSWER 255): only the Rust client from 2.3.7.
+        // The client can show visit requests (VISIT_ANSWER 255): the Rust client from 2.3.7.
         public bool WantsVisitRequests { get; set; }
+        // ... and summons, marked by VISIT_REQUEST's last byte (VISIT_ANSWER 254): from 2.3.8.
+        public bool WantsSummonRequests { get; set; }
 
         private static long VisitClock => Environment.TickCount64;
 
-        // Where /visit would take `visitor` to join us.
-        public static VisitRules.Place VisitPlace(World world, Player visitor)
+        // Where /visit or /summon would take `mover` into `world`.
+        public static VisitRules.Place VisitPlace(World world, Player mover)
         {
             var p = new VisitRules.Place { Name = world?.GetDisplayName() ?? "" };
             if (world == null || world.Deleted)
@@ -42,8 +46,8 @@ namespace WorldServer.core.objects
                 p.Kind = VisitRules.Kind.Shared;
             else
                 p.Kind = VisitRules.Kind.Instance;
-            p.Same = visitor.World == world;
-            p.BeenIn = world != null && world.HasBeenIn(visitor.Client.Account.AccountId);
+            p.Same = mover.World == world;
+            p.BeenIn = world != null && world.HasBeenIn(mover.Client.Account.AccountId);
             p.SinglePlayer = world != null && world.MaxPlayers <= 1;
             p.Full = world != null && world.IsPlayersMax();
             return p;
@@ -60,19 +64,33 @@ namespace WorldServer.core.objects
             });
         }
 
-        // This player asks `target` to let them in where they are; false (with the reason told)
-        // when they can't.
-        public bool AskToVisit(Client target)
+        private static string Asking(bool summon) => summon ? "summon" : "visit";
+
+        // Show this player the request, or take it off their screen (seconds 0). A client that
+        // can show visits but not summons (2.3.7) gets summons in chat.
+        private void ShowVisitRequest(VisitBook.Request r, string place, byte seconds)
+        {
+            if (WantsVisitRequests && (!r.Summon || WantsSummonRequests))
+                Client.SendPacket(new VisitRequest { Id = r.Id, Name = r.VisitorName, World = place, Seconds = seconds, Summon = WantsSummonRequests ? r.Summon : null });
+            else if (seconds > 0)
+                SendInfo(r.Summon
+                    ? $"{r.VisitorName} wants to summon you to their {place}: type /yes or /no ({seconds} s)."
+                    : $"{r.VisitorName} wants to visit you: type /yes or /no ({seconds} s).");
+        }
+
+        // This player asks `target` to let them in where they are (a visit), or to come to them
+        // (a summon); false (with the reason told) when they can't.
+        public bool AskToVisit(Client target, bool summon = false)
         {
             var me = Client.Account;
             var them = target.Player;
-            var world = them.World;
-            var refusal = VisitRules.Refusal(VisitPlace(world, this), them.Name);
+            var world = summon ? World : them.World;
+            var refusal = VisitRules.Refusal(VisitPlace(world, summon ? them : this), them.Name, summon);
             if (refusal == null && target.Account.IgnoreList.Contains(me.AccountId))
                 refusal = "Player not found!";
             VisitBook.Request request = null;
             if (refusal == null)
-                refusal = GameServer.Visits.Ask(me.AccountId, Name, target.Account.AccountId, them.Name, world.Id, VisitClock, out request);
+                refusal = GameServer.Visits.Ask(me.AccountId, Name, target.Account.AccountId, them.Name, world.Id, VisitClock, out request, summon);
             if (refusal != null)
             {
                 SendError(refusal);
@@ -80,34 +98,30 @@ namespace WorldServer.core.objects
             }
 
             var place = world.GetDisplayName();
-            OnPlayersThread(target, p =>
-            {
-                if (p.WantsVisitRequests)
-                    p.Client.SendPacket(new VisitRequest { Id = request.Id, Name = Name, World = place, Seconds = VisitBook.TimeoutMs / 1000 });
-                else
-                    p.SendInfo($"{Name} wants to visit you: type /yes or /no ({VisitBook.TimeoutMs / 1000} s).");
-            });
-            SendInfo($"Asked {them.Name} to let you into their {place}: they have {VisitBook.TimeoutMs / 1000} s to answer. (/visit cancel to take it back)");
+            var secs = VisitBook.TimeoutMs / 1000;
+            OnPlayersThread(target, p => p.ShowVisitRequest(request, place, (byte)secs));
+            SendInfo(summon
+                ? $"Asked {them.Name} to come to your {place}: they have {secs} s to answer. (/summon cancel to take it back)"
+                : $"Asked {them.Name} to let you into their {place}: they have {secs} s to answer. (/visit cancel to take it back)");
             return true;
         }
 
-        // /visit cancel: take back the request waiting.
+        // /visit cancel or /summon cancel: take back the request waiting.
         public void WithdrawVisit()
         {
             var r = GameServer.Visits.Withdraw(Client.Account.AccountId);
             if (r == null)
             {
-                SendInfo("You have no visit request waiting.");
+                SendInfo("You have no request waiting.");
                 return;
             }
             var target = GameServer.ConnectionManager.FindClient(r.Target);
             OnPlayersThread(target, p =>
             {
-                if (p.WantsVisitRequests)
-                    p.Client.SendPacket(new VisitRequest { Id = r.Id, Name = r.VisitorName });
-                p.SendInfo($"{r.VisitorName} took back their visit request.");
+                p.ShowVisitRequest(r, "", 0);
+                p.SendInfo($"{r.VisitorName} took back their {Asking(r.Summon)} request.");
             });
-            SendInfo($"Took back your visit request to {r.TargetName}.");
+            SendInfo($"Took back your {Asking(r.Summon)} request to {r.TargetName}.");
         }
 
         // /yes or /no: answer the request waiting, and hide its box.
@@ -116,13 +130,12 @@ namespace WorldServer.core.objects
             var r = GameServer.Visits.WaitingFor(Client.Account.AccountId, VisitClock);
             if (r == null)
             {
-                SendInfo("Nobody is asking to visit you.");
+                SendInfo("Nobody is asking to visit or summon you.");
                 return;
             }
-            if (WantsVisitRequests)
-                Client.SendPacket(new VisitRequest { Id = r.Id, Name = r.VisitorName });
+            ShowVisitRequest(r, "", 0);
             if (!yes)
-                SendInfo($"You didn't let {r.VisitorName} in.");
+                SendInfo(r.Summon ? $"You didn't go to {r.VisitorName}." : $"You didn't let {r.VisitorName} in.");
             AnswerVisit(r.Id, yes);
         }
 
@@ -133,27 +146,34 @@ namespace WorldServer.core.objects
             if (r == null)
             {
                 if (yes)
-                    SendError("That visit request has run out.");
+                    SendError("That request has run out.");
                 return;
             }
-            var visitor = GameServer.ConnectionManager.FindClient(r.Visitor);
+            var asker = GameServer.ConnectionManager.FindClient(r.Visitor);
             if (!yes)
             {
-                OnPlayersThread(visitor, p => p.SendError($"{Name} didn't let you in."));
+                OnPlayersThread(asker, p => p.SendError(r.Summon ? $"{Name} didn't come." : $"{Name} didn't let you in."));
                 return;
             }
-            if (visitor?.Player?.World == null)
+            if (asker?.Player?.World == null)
             {
                 SendError($"{r.VisitorName} has gone.");
                 return;
             }
+            if (r.Summon)
+                GoToSummoner(asker);
+            else
+                LetVisitorIn(asker, r.VisitorName);
+        }
 
-            // where we are now, which may not be where we were asked
+        // A Yes to a visit: the visitor comes to where we are now (which may not be where we were asked).
+        private void LetVisitorIn(Client visitor, string visitorName)
+        {
             var world = World;
             var refusal = VisitRules.Refusal(VisitPlace(world, visitor.Player), Name);
             if (refusal != null)
             {
-                SendError($"{r.VisitorName} can't join you here.");
+                SendError($"{visitorName} can't join you here.");
                 OnPlayersThread(visitor, p => p.SendError(refusal));
                 return;
             }
@@ -170,7 +190,27 @@ namespace WorldServer.core.objects
                 p.SendInfo($"{Name} let you in.");
                 p.Reconnect(world);
             });
-            SendInfo($"{r.VisitorName} is on their way.");
+            SendInfo($"{visitorName} is on their way.");
+        }
+
+        // A Yes to a summon: we go to where the summoner is now.
+        private void GoToSummoner(Client summoner)
+        {
+            var world = summoner.Player.World;
+            var name = summoner.Player.Name;
+            var refusal = VisitRules.Refusal(VisitPlace(world, this), Name, summon: true);
+            if (refusal != null)
+            {
+                SendError($"You can't go to {name} there.");
+                OnPlayersThread(summoner, p => p.SendError(refusal));
+                return;
+            }
+            var myId = Client.Account.AccountId;
+            world.Invite(myId);
+            world.MarkBeenIn(myId);
+            OnPlayersThread(summoner, p => p.SendInfo($"{Name} is on their way."));
+            SendInfo($"Going to {name}.");
+            Reconnect(world);
         }
 
         // Requests that ran out, told to both sides (a No).
@@ -183,12 +223,11 @@ namespace WorldServer.core.objects
             {
                 if (asVisitor)
                 {
-                    SendError($"{r.TargetName} didn't answer your visit request.");
+                    SendError($"{r.TargetName} didn't answer your {Asking(r.Summon)} request.");
                     continue;
                 }
-                if (WantsVisitRequests)
-                    Client.SendPacket(new VisitRequest { Id = r.Id, Name = r.VisitorName });
-                SendInfo($"{r.VisitorName}'s visit request ran out.");
+                ShowVisitRequest(r, "", 0);
+                SendInfo($"{r.VisitorName}'s {Asking(r.Summon)} request ran out.");
             }
         }
     }

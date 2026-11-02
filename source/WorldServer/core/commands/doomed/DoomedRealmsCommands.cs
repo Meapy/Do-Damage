@@ -204,24 +204,35 @@ namespace WorldServer.core.commands.doomed
         }
     }
 
+    // /summon <player>, for everyone: ask a friend to come to the dungeon, Arena or other instance
+    // you're in. They answer Yes or No in a corner of their screen, or /yes and /no
+    // (Player.Visits.cs), with /visit's rules: never into an instance they've been in.
+    // /summon cancel takes it back. Admins bring anyone at once, anywhere, as before.
     internal class SummonCommand : Command
     {
-        public override RankingType RankRequirement => RankingType.Admin;
         public override string CommandName => "summon";
 
         protected override bool Process(Player player, TickTime time, string args)
         {
             if (string.IsNullOrWhiteSpace(args))
             {
-                player.SendInfo("Usage: /summon <player>");
+                player.SendInfo("Usage: /summon <player name> to ask them to come to your dungeon; /summon cancel to take it back");
                 return false;
+            }
+            if (args.Trim().Equals("cancel", StringComparison.OrdinalIgnoreCase))
+            {
+                player.WithdrawVisit();
+                return true;
             }
             var target = DoomedHelpers.FindOnline(player, args);
-            if (target == null || target == player)
+            if (target == null || target == player || !target.CanBeSeenBy(player))
             {
-                player.SendError("Player not found!");
+                player.SendError(target == player ? "That's you." : "Player not found!");
                 return false;
             }
+            var account = player.Client.Account;
+            if (!account.Admin && account.Rank < (int)RankingType.Admin)
+                return player.AskToVisit(target.Client, summon: true);
             if (target.World == player.World)
             {
                 target.TeleportPosition(time, player.X, player.Y, true);

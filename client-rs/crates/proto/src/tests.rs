@@ -401,7 +401,11 @@ fn visit_messages_match_visit_answer_handler() {
     // VisitRequest.Write: id, name, world, seconds.
     let body = B::default().i32(7).utf("Tester").utf("Snake Pit").u8(30).0;
     let ServerMessage::VisitRequest(v) = ServerMessage::decode(127, &body).unwrap() else { panic!() };
-    assert_eq!((v.id, v.name.as_str(), v.world.as_str(), v.seconds), (7, "Tester", "Snake Pit", 30));
+    assert_eq!((v.id, v.name.as_str(), v.world.as_str(), v.seconds, v.summon), (7, "Tester", "Snake Pit", 30, None));
+    // ... then, for a client that sent VisitAnswer 254, whether it's a summon.
+    let body = B::default().i32(8).utf("Tester").utf("Snake Pit").u8(30).u8(1).0;
+    let ServerMessage::VisitRequest(v) = ServerMessage::decode(127, &body).unwrap() else { panic!() };
+    assert_eq!(v.summon, Some(true));
 }
 
 #[test]

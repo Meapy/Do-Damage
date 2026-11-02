@@ -234,8 +234,9 @@ messages! {
         // How a Marketplace action went: what to tell the player, and our fame now.
         125 => MarketResult { ok: bool, message: String, fame: i32 },
         // Someone's /visit (after VisitAnswer 255): the request's id, who asks, where they'd
-        // join us, and the seconds left to answer (0: the request has gone).
-        127 => VisitRequest { id: i32, name: String, world: String, seconds: u8 },
+        // join us, and the seconds left to answer (0: the request has gone); after VisitAnswer
+        // 254, whether it's a /summon (us to their world) instead (a 2.3.7 server leaves it out).
+        127 => VisitRequest { id: i32, name: String, world: String, seconds: u8, summon: Option<bool> },
     }
 }
 

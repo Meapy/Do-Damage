@@ -14,6 +14,11 @@ details). Add to a group's line when a change adds to it, rather than adding ano
 
 ## Unreleased
 
+### Friends
+- `/summon <name>` now works for everyone too: it asks a friend to come to your dungeon, the Arena
+  or another instance from a portal, with the same Yes / No box in their corner (or `/yes` and
+  `/no`) and the same rules as `/visit`: never into an instance they've already been in.
+
 ### Graphics
 - Everything is sharp again with the glow on: names, damage numbers and health bars no longer
   glow, the art keeps its crisp edges, and the halo round shots and sparks is tighter.

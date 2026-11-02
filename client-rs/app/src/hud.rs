@@ -4074,8 +4074,9 @@ pub fn visit_layout(lay: &Layout) -> VisitLayout {
     VisitLayout { frame, yes, no }
 }
 
-/// Someone's /visit (`VisitRequest`): who wants to join us, where, a bar running down to the
-/// time out, and Yes and No. Only the mouse answers it, so play goes on around it.
+/// Someone's /visit or /summon (`VisitRequest`): who wants to join us (or us to join them), where,
+/// a bar running down to the time out, and Yes and No. Only the mouse answers it, so play goes on
+/// around it.
 pub fn draw_visit(ui: &mut Ui, lay: &Layout, v: &crate::game::VisitAsk, now: i32, mouse: (f64, f64)) {
     let s = lay.s;
     let vl = visit_layout(lay);
@@ -4085,11 +4086,16 @@ pub fn draw_visit(ui: &mut Ui, lay: &Layout, v: &crate::game::VisitAsk, now: i32
     let size = lay.font(13.0);
     let name_w = ui.measure(&v.name, size, true);
     ui.label(&v.name, x0, f[1] + 8.0 * s, size, true, color::ACCENT_HI);
-    ui.label(" wants to visit you", x0 + name_w, f[1] + 8.0 * s, size, false, color::TEXT);
+    let asks = if v.summon { " wants to summon you" } else { " wants to visit you" };
+    ui.label(asks, x0 + name_w, f[1] + 8.0 * s, size, false, color::TEXT);
     let left_ms = (v.until - now).max(0);
     let small = lay.font(11.0);
     let secs = (left_ms + 999) / 1000;
-    let detail = if v.world.is_empty() { format!("{secs} s to answer") } else { format!("in your {}  ·  {secs} s", v.world) };
+    let detail = match (v.world.is_empty(), v.summon) {
+        (true, _) => format!("{secs} s to answer"),
+        (false, true) => format!("to their {}  ·  {secs} s", v.world),
+        (false, false) => format!("in your {}  ·  {secs} s", v.world),
+    };
     ui.label(&detail, x0, f[1] + 27.0 * s, small, false, color::TEXT_DIM);
     // the time left, as a thin bar over the buttons
     let full = f[2] - 20.0 * s;

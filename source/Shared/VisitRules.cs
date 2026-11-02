@@ -1,8 +1,8 @@
 namespace Shared
 {
-    // Where a player's /visit may take them (Command.Visit): into the dungeons, the Arena, Oryx's
-    // chain and the other instances made from a portal, once each, and never back into one
-    // they've been in.
+    // Where a player's /visit may take them (Command.Visit), and where /summon may bring a player
+    // (SummonCommand): into the dungeons, the Arena, Oryx's chain and the other instances made from
+    // a portal, once each, and never back into one they've been in.
     public static class VisitRules
     {
         public enum Kind
@@ -31,9 +31,12 @@ namespace Shared
             public bool SinglePlayer;
         }
 
-        // Why the visitor can't join `target` there, or null when they may.
-        public static string Refusal(Place p, string target)
+        // Why the visitor can't join `target` there, or null when they may; with `summon`, why the
+        // summoner can't bring `target` into the summoner's own world, `p`.
+        public static string Refusal(Place p, string target, bool summon = false)
         {
+            if (summon)
+                return SummonRefusal(p, target);
             switch (p.Kind)
             {
                 case Kind.Gone: return $"{target} is between worlds: try again in a moment.";
@@ -52,6 +55,25 @@ namespace Shared
                 return $"{target} is in a {p.Name} made for one.";
             if (p.Full)
                 return $"{target}'s {p.Name} is full.";
+            return null;
+        }
+
+        private static string SummonRefusal(Place p, string target)
+        {
+            switch (p.Kind)
+            {
+                case Kind.Gone: return "You're between worlds: try again in a moment.";
+                case Kind.Instance: break;
+                default: return $"Players can't be summoned into {p.Name}: only into dungeons, the Arena and other instances from a portal.";
+            }
+            if (p.Same)
+                return $"{target} is already with you.";
+            if (p.BeenIn)
+                return $"{target} has already been in this {p.Name}: /summon can't bring them back in.";
+            if (p.SinglePlayer)
+                return $"Your {p.Name} is made for one.";
+            if (p.Full)
+                return $"Your {p.Name} is full.";
             return null;
         }
     }

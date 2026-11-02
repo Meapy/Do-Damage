@@ -580,6 +580,16 @@ The remotes `upstream` (HaloCelsius) and `aurusenth` share no history with `main
 
 ## Changes from upstream
 
+- **/summon for everyone, with a Yes/No** (2026-11-02; `SummonCommand` in
+  `DoomedRealmsCommands.cs`, `Player.Visits.cs`, `VisitBook.Request.Summon`,
+  `VisitRules.Refusal(..., summon)`; `Tests/VisitTests.cs`): `/summon <name>` goes through the
+  same book, box and `/yes`/`/no` as `/visit` (below), the other way round: the summoner's world
+  must pass the same rules, and the player summoned must never have been in it. The two share the
+  limits (one request waiting per asker and per player asked). `VISIT_REQUEST` gets a last byte,
+  1 for a summon, for clients that send `VISIT_ANSWER 254` (Rust client 2.3.8); 2.3.7 clients,
+  which would show it as a visit, get summons as a chat line instead. Admins still summon anyone
+  at once, anywhere.
+
 - **/visit for everyone, with a Yes/No** (2026-11-02; `Command.Visit` (moved to `player/`),
   `Player.Visits.cs`, `Shared/VisitBook.cs` and `VisitRules.cs`, `VisitAnswerHandler`, `/yes` and `/no` (`Command.VisitAnswer.cs`), messages
   126 `VISIT_ANSWER` and 127 `VISIT_REQUEST`, the Rust client's `hud::draw_visit`;

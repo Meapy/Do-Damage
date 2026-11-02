@@ -172,7 +172,8 @@ public enum MessageId : byte
     // A player's /visit (Rust client 2.3.7, Command.Visit): the client says once in each world
     // that it can show visit requests (VISIT_ANSWER 255), is asked whether someone may join it
     // (VISIT_REQUEST, with no seconds when the request has gone), and answers 1 (Yes) or 0 (No).
-    // The AIR client and older Rust clients never say so, and are never asked.
+    // From 2.3.8 it also says it can show /summon requests (VISIT_ANSWER 254), which VISIT_REQUEST
+    // then marks with a last byte. Clients that never said so get the request in chat (/yes, /no).
     VISIT_ANSWER = 126,
     VISIT_REQUEST = 127,
     // From the world proxy (tools/world_proxy.py), before the client's first message: the

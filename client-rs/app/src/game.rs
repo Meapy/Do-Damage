@@ -222,13 +222,16 @@ pub enum Invite {
     Guild { name: String, guild: String },
 }
 
-/// Someone asking to join us where we are (`VisitRequest`): the request's id, who, where, and
-/// when it runs out (the game's clock, ms). Answered with `VisitAnswer`; it never blocks play.
+/// Someone asking to join us where we are, or asking us to come to them (`VisitRequest`): the
+/// request's id, who, where, and when it runs out (the game's clock, ms). Answered with
+/// `VisitAnswer`; it never blocks play.
 #[derive(Clone, Debug, PartialEq, Eq)]
 pub struct VisitAsk {
     pub id: i32,
     pub name: String,
     pub world: String,
+    /// A /summon: we'd go to their `world`, rather than them coming to ours.
+    pub summon: bool,
     pub until: i32,
     /// How long it was given (ms), for the bar running down.
     pub total: i32,
@@ -545,8 +548,9 @@ impl Game {
                 self.socket.send(&bsk_proto::RealmEventsSubscribe {}.into());
                 // quests: the HUD's badge counts what waits, so ask in every world
                 self.socket.send(&bsk_proto::QuestsRequest {}.into());
-                // we can show visit requests, in the corner
+                // we can show visit and summon requests, in the corner
                 self.socket.send(&bsk_proto::VisitAnswer { id: 0, answer: 255 }.into());
+                self.socket.send(&bsk_proto::VisitAnswer { id: 0, answer: 254 }.into());
                 self.status.clear();
             }
             Some(Event::Failure { description, .. }) => {
@@ -850,8 +854,10 @@ impl Game {
                     }
                 } else {
                     let total = v.seconds as i32 * 1000;
-                    self.visit = Some(VisitAsk { id: v.id, name: v.name.clone(), world: v.world.clone(), until: now + total, total });
-                    self.add_chat("", "", &format!("{} wants to visit you: answer Yes or No in the corner, or type /yes or /no.", v.name), 0, 0, -1, now);
+                    let summon = v.summon == Some(true);
+                    self.visit = Some(VisitAsk { id: v.id, name: v.name.clone(), world: v.world.clone(), summon, until: now + total, total });
+                    let asks = if summon { format!("wants to summon you to their {}", v.world) } else { "wants to visit you".to_owned() };
+                    self.add_chat("", "", &format!("{} {asks}: answer Yes or No in the corner, or type /yes or /no.", v.name), 0, 0, -1, now);
                 }
             }
             ServerMessage::ImminentArenaWave(w) => {

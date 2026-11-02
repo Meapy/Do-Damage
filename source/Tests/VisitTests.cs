@@ -71,7 +71,7 @@ namespace Tests
         {
             var book = new VisitBook();
             Assert.Null(Ask(book, 1, 9, 0, out _));
-            Assert.Contains("another visit request", Ask(book, 2, 9, 100, out _));
+            Assert.Contains("another request", Ask(book, 2, 9, 100, out _));
         }
 
         [Fact]
@@ -80,7 +80,7 @@ namespace Tests
             var book = new VisitBook();
             Ask(book, 1, 2, 0, out var r);
             Assert.Same(r, book.Answer(2, r.Id, false, 1000));
-            Assert.Contains("didn't let you in", Ask(book, 1, 2, 1000 + VisitBook.CooldownMs, out _));
+            Assert.Contains("said no", Ask(book, 1, 2, 1000 + VisitBook.CooldownMs, out _));
             Assert.Null(Ask(book, 1, 2, 1000 + VisitBook.DeclinedMs, out _));
         }
 
@@ -111,7 +111,43 @@ namespace Tests
             Assert.Single(visitor);
             Assert.True(visitor[0].AsVisitor);
             Assert.False(book.Any);
-            Assert.Contains("didn't let you in", Ask(book, 1, 2, VisitBook.TimeoutMs + VisitBook.CooldownMs, out _));
+            Assert.Contains("said no", Ask(book, 1, 2, VisitBook.TimeoutMs + VisitBook.CooldownMs, out _));
+        }
+
+        [Theory]
+        [InlineData(VisitRules.Kind.Nexus)]
+        [InlineData(VisitRules.Kind.Realm)]
+        [InlineData(VisitRules.Kind.Vault)]
+        [InlineData(VisitRules.Kind.GuildHall)]
+        [InlineData(VisitRules.Kind.Shared)]
+        [InlineData(VisitRules.Kind.Gone)]
+        public void SummonsOnlyIntoInstances(VisitRules.Kind kind)
+        {
+            var p = Dungeon();
+            Assert.Null(VisitRules.Refusal(p, "Bob", summon: true));
+            p.Kind = kind;
+            Assert.NotNull(VisitRules.Refusal(p, "Bob", summon: true));
+        }
+
+        [Fact]
+        public void NeverSummonedBackIntoAnInstanceTheyveBeenIn()
+        {
+            var p = Dungeon();
+            p.BeenIn = true;
+            Assert.Contains("can't bring them back", VisitRules.Refusal(p, "Bob", summon: true));
+            p = Dungeon();
+            p.Full = true;
+            Assert.Contains("Your Snake Pit is full", VisitRules.Refusal(p, "Bob", summon: true));
+        }
+
+        [Fact]
+        public void SummonsShareTheVisitorsLimits()
+        {
+            var book = new VisitBook();
+            Assert.Null(book.Ask(1, "V1", 2, "T2", 1000, 0, out var r, summon: true));
+            Assert.True(r.Summon);
+            Assert.Contains("already waiting", Ask(book, 1, 3, 100, out _));
+            Assert.Contains("another request", Ask(book, 4, 2, 100, out _));
         }
 
         [Fact]
