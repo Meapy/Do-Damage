@@ -31,9 +31,11 @@ namespace WorldServer.core.worlds.impl
         private const float GREET_RANGE = 5f;
         private const float GREET_AGAIN = 300f;     // a player is greeted again after this long
 
-        // beside the spawn (tools/build_nexus.py, CENTRE (68, 61), the spawn 5 tiles square on an
-        // island of deck about 11 tiles round): the bot left of the Armoire, the ducks on the pond
-        // round the island
+        // beside the spawn: the bot on the map's Nexus_Bot tile, its portal on Nexus_Dungeon, the
+        // ducks on the pond round the spawn (the middle of the Spawn region's tiles, on their
+        // floor). A map without the markers has them where the garden did (tools/build_nexus.py,
+        // CENTRE (68, 61), the spawn 5 tiles square on an island of deck about 11 tiles round):
+        // the bot left of the Armoire, the portal south of it
         private static readonly (float X, float Y) BotSpot = (66.5f, 65.5f);
         private static readonly (float X, float Y) Centre = (68.5f, 61.5f);
         // the pond reaches from the island's edge (about 11 tiles out) to about 18
@@ -41,7 +43,7 @@ namespace WorldServer.core.worlds.impl
         private const float GIFT_MAX_RADIUS = 19f;
         // the Support Bot is Doomed Realms' pet, drawn small (Size 40); by the spawn it stands taller
         private const int BOT_SIZE = 90;
-        // the dungeon portal: on the island south of the spawn, past the Armoire
+        // the dungeon portal (without a marker): on the island south of the spawn, past the Armoire
         private static readonly (float X, float Y) PortalSpot = (68.5f, 68.5f);
 
         // the dungeons it picks from: those realm monsters drop, and a few more of the same kind
@@ -72,6 +74,14 @@ namespace WorldServer.core.worlds.impl
             "Elder dungeons drop much better loot and have a chance of dropping a potion that will max a stat!"
         };
 
+        // the same on the islands (a Nexus of floors), where the places are elsewhere
+        private static readonly string[] IslandLines = Lines.Select(l =>
+            l.StartsWith("Stand by the stone water basins") ? "Stand by the stone water basins around the spawn to heal."
+            : l.StartsWith("The realm portals") ? "The realm portals are sunk into the floor of the shrine on the island below, south-west down the stone bridge: walk onto one to enter."
+            : l.StartsWith("The Divine Forge") ? "The Divine Forge is in the smithy on the north island, up the wooden bridge. It forges items and buys the ones you don't need for fame. /forge takes you there."
+            : l.StartsWith("The Marketplace") ? "The Marketplace is on the market island, west across the bridge: talk to the Market Broker to sell your items to other players for fame, or buy theirs. /market takes you there."
+            : l).Concat(new[] { "The Hall of Champions is on top of the Arena tower, east across the bridge. There's a bar up there too: mind the barman." }).ToArray();
+
         private readonly World _world;
         private Entity _bot;
         private readonly List<Entity> _gifts = new List<Entity>();
@@ -88,11 +98,25 @@ namespace WorldServer.core.worlds.impl
         private readonly Dictionary<int, float> _greeted = new Dictionary<int, float>();   // player id, time left
         private float _clock;
 
+        // where they are on this map (Init)
+        private (float X, float Y) _botSpot = BotSpot, _portalSpot = PortalSpot, _centre = Centre;
+        private int _pondLevel;
+
         public NexusGuide(World world) => _world = world;
 
         public void Init()
         {
-            var (x, y) = FindSpot(BotSpot);
+            if (_world.Marker(TileRegion.Nexus_Bot) is { } bot)
+                _botSpot = (bot.X, bot.Y);
+            if (_world.Marker(TileRegion.Nexus_Dungeon) is { } portal)
+                _portalSpot = (portal.X, portal.Y);
+            var spawn = _world.RegionTiles(TileRegion.Spawn);
+            if (spawn.Count > 0)
+            {
+                _centre = ((float)spawn.Average(s => s.Point.X) + 0.5f, (float)spawn.Average(s => s.Point.Y) + 0.5f);
+                _pondLevel = _world.Levels == null ? 0 : (int)MathF.Round(spawn[0].Z / _world.LevelHeight);
+            }
+            var (x, y) = FindSpot(_botSpot);
             _bot = _world.CreateNewEntity(BOT, x, y);
             if (_bot == null)
                 return;
@@ -141,8 +165,10 @@ namespace WorldServer.core.worlds.impl
                     SayNear(GiftNews());
                 else
                 {
-                    SayNear(Lines[_line]);
-                    _line = (_line + 1) % Lines.Length;
+                    var lines = _world.Levels != null ? IslandLines : Lines;
+                    _line %= lines.Length;
+                    SayNear(lines[_line]);
+                    _line = (_line + 1) % lines.Length;
                 }
                 _giftNewsNext = !_giftNewsNext;
             }
@@ -181,7 +207,7 @@ namespace WorldServer.core.worlds.impl
                 return;
             if (_portal != null && !_portal.Dead)
                 _world.LeaveWorld(_portal);
-            var (x, y) = FindSpot(PortalSpot);
+            var (x, y) = FindSpot(_portalSpot);
             _portal = _world.CreateNewEntity(_dungeons[Random.Shared.Next(_dungeons.Count)], x, y);
             _clearedFor = 0;
             if (_portal == null)
@@ -212,24 +238,29 @@ namespace WorldServer.core.worlds.impl
             return m == 1 ? "1 minute" : $"{m} minutes";
         }
 
-        // GIFT_COUNT ducks, each on its own open tile of the pond (no object on it) round the island
+        // GIFT_COUNT ducks, each on its own open tile of the pond (no object on it) round the island,
+        // on the spawn's floor
         private void SpawnGifts()
         {
             var tiles = new List<(int X, int Y)>();
-            for (var y = (int)(Centre.Y - GIFT_MAX_RADIUS); y <= Centre.Y + GIFT_MAX_RADIUS; y++)
-                for (var x = (int)(Centre.X - GIFT_MAX_RADIUS); x <= Centre.X + GIFT_MAX_RADIUS; x++)
+            var map = _world.Levels?[_pondLevel] ?? _world.Map;
+            var (cx, cy) = _centre;
+            for (var y = (int)(cy - GIFT_MAX_RADIUS); y <= cy + GIFT_MAX_RADIUS; y++)
+                for (var x = (int)(cx - GIFT_MAX_RADIUS); x <= cx + GIFT_MAX_RADIUS; x++)
                 {
-                    var d = MathF.Sqrt((x + 0.5f - Centre.X) * (x + 0.5f - Centre.X) + (y + 0.5f - Centre.Y) * (y + 0.5f - Centre.Y));
-                    if (d < GIFT_MIN_RADIUS || d > GIFT_MAX_RADIUS || !_world.Map.Contains(x, y) || _world.Map[x, y].ObjType != 0)
+                    var d = MathF.Sqrt((x + 0.5f - cx) * (x + 0.5f - cx) + (y + 0.5f - cy) * (y + 0.5f - cy));
+                    if (d < GIFT_MIN_RADIUS || d > GIFT_MAX_RADIUS || !map.Contains(x, y) || map[x, y].ObjType != 0 || map[x, y].TileId == 0xFF)
                         continue;
-                    if (((int)BotSpot.X == x && (int)BotSpot.Y == y) || ((int)PortalSpot.X == x && (int)PortalSpot.Y == y))
+                    if (((int)_botSpot.X == x && (int)_botSpot.Y == y) || ((int)_portalSpot.X == x && (int)_portalSpot.Y == y))
                         continue;
-                    if (_world.IsPassable(x + 0.5, y + 0.5, true) && _world.GameServer.Resources.GameData.Tiles[_world.Map[x, y].TileId].Sink)
+                    var desc = _world.GameServer.Resources.GameData.Tiles[map[x, y].TileId];
+                    if (!desc.NoWalk && desc.Sink)
                         tiles.Add((x, y));
                 }
+            var z = _world.Levels == null ? (float?)null : _pondLevel * _world.LevelHeight;
             foreach (var (x, y) in tiles.OrderBy(_ => Random.Shared.Next()).Take(GIFT_COUNT))
             {
-                var gift = _world.CreateNewEntity(GIFT, x + 0.5f, y + 0.5f);
+                var gift = _world.CreateNewEntity(GIFT, x + 0.5f, y + 0.5f, z);
                 if (gift != null)
                     _gifts.Add(gift);
             }

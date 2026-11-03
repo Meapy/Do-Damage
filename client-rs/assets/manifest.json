@@ -1446,6 +1446,24 @@
    "file": "kabam/rotmg/assets/custom/images/NexusGardenModels128x128.png",
    "w": 128,
    "h": 128
+  },
+  {
+   "name": "nexusIslands8x8",
+   "file": "kabam/rotmg/assets/custom/images/NexusIslands8x8.png",
+   "w": 8,
+   "h": 8
+  },
+  {
+   "name": "nexusIslands16x16",
+   "file": "kabam/rotmg/assets/custom/images/NexusIslands16x16.png",
+   "w": 16,
+   "h": 16
+  },
+  {
+   "name": "nexusIslandsModels128x128",
+   "file": "kabam/rotmg/assets/custom/images/NexusIslandsModels128x128.png",
+   "w": 128,
+   "h": 128
   }
  ],
  "animated_chars": [
@@ -3058,6 +3076,16 @@
    "sheet_w": 112,
    "sheet_h": 16,
    "dir": "right"
+  },
+  {
+   "name": "nexusIslandsChars16x16",
+   "file": "kabam/rotmg/assets/custom/images/NexusIslandsChars16x16.png",
+   "mask": null,
+   "w": 16,
+   "h": 16,
+   "sheet_w": 112,
+   "sheet_h": 16,
+   "dir": "right"
   }
  ],
  "models": [
@@ -3340,6 +3368,10 @@
   {
    "name": "NG Stone Arch",
    "file": "kabam/rotmg/assets/custom/objects/nexusGardenStoneArch.obj"
+  },
+  {
+   "name": "NI Bar",
+   "file": "kabam/rotmg/assets/custom/objects/nexusIslandsBar.obj"
   }
  ],
  "particles": "kabam/rotmg/assets/prod/objects/particles.dat",
@@ -3377,7 +3409,8 @@
   "kabam/rotmg/assets/custom/xmls/HashCellarGrounds.xml",
   "kabam/rotmg/assets/custom/xmls/ElysiumGrounds.xml",
   "kabam/rotmg/assets/custom/xmls/Realm2Grounds.xml",
-  "kabam/rotmg/assets/custom/xmls/NexusGardenGrounds.xml"
+  "kabam/rotmg/assets/custom/xmls/NexusGardenGrounds.xml",
+  "kabam/rotmg/assets/custom/xmls/NexusIslandsGrounds.xml"
  ],
  "object_xml": [
   "kabam/rotmg/assets/custom/xmls/CustomItems.xml",
@@ -3492,7 +3525,8 @@
   "kabam/rotmg/assets/custom/xmls/HashCellarObjects.xml",
   "kabam/rotmg/assets/custom/xmls/ElysiumObjects.xml",
   "kabam/rotmg/assets/custom/xmls/Realm2Objects.xml",
-  "kabam/rotmg/assets/custom/xmls/NexusGardenObjects.xml"
+  "kabam/rotmg/assets/custom/xmls/NexusGardenObjects.xml",
+  "kabam/rotmg/assets/custom/xmls/NexusIslandsObjects.xml"
  ],
  "region_xml": [
   "kabam/rotmg/assets/prod/xmls/Regions.xml"

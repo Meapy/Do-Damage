@@ -480,7 +480,8 @@ impl Hall {
         for o in statues {
             let id = statue_board(o, ui.data).unwrap_or("");
             let board = self.data.as_ref().and_then(|d| d.boards.iter().find(|b| b.id == id));
-            let [px, py] = cam.to_screen(o.x, o.y, 0.0);
+            // on stacked floors, up on its floor (the islands' Arena tower)
+            let [px, py] = cam.to_screen(o.x, o.y, o.z);
             let top = py - PLINTH_TOP * 5.0 * k;
             let champion = board.and_then(|b| b.entries.first());
             let mut head = top - 12.0 * k;

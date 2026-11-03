@@ -18,6 +18,9 @@ namespace WorldServer.core.net.handlers
             var world = player?.World;
             if (world?.Levels == null || !float.IsFinite(z))
                 return;
+            // just teleported: the server's height there stands until the Move gets there (MoveHandler)
+            if (player.TeleportHeight != null)
+                return;
             player.Z = Math.Clamp(z, 0, world.Levels.Count * world.LevelHeight);
         }
     }

@@ -38,6 +38,9 @@ namespace Shared.resources
         public readonly double LootRate;
         public readonly double FameRate;
         public readonly double KillFameRate;
+        // floors stacked over the map (`<Levels height="3"/>`): "<map> 1.jm", "<map> 2.jm"... are
+        // the floors above it, this many tiles apart (World.Levels); 0 for a flat world
+        public readonly float LevelHeight;
 
         public WorldResource(XElement elem)
         {
@@ -49,7 +52,8 @@ namespace Shared.resources
             Instance = elem.Element("Instance") == null ? WorldResourceInstanceType.Dungeon : (WorldResourceInstanceType)Enum.Parse(typeof(WorldResourceInstanceType), elem.Element("Instance").GetAttribute("enum", "dungeon"), true);
             Persists = elem.HasElement("Persists");
             Difficulty = elem.GetValue<byte>("Difficulty");
-            Background = elem.GetValue<byte>("Background");
+            // as an int: GetValue doesn't read bytes (it gave 0 for every world's Background)
+            Background = (byte)elem.GetValue<int>("Background");
             VisibilityType = (byte)elem.GetValue<int>("VisibilityType");
             AllowTeleport = !elem.HasElement("DisableTeleport");
             ShowDisplays = elem.HasElement("ShowDisplays");
@@ -60,6 +64,7 @@ namespace Shared.resources
             LootRate = elem.GetValue("LootRate", 1.0);
             FameRate = elem.GetValue("FameRate", 1.0);
             KillFameRate = elem.GetValue("KillFameRate", 1.0);
+            LevelHeight = elem.Element("Levels") is XElement levels ? levels.GetAttribute("height", 3f) : 0;
 
             MapJM = new List<string>();
             foreach (var map in elem.Elements("MapJM"))

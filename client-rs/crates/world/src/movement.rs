@@ -88,25 +88,35 @@ impl World {
         if !(moved && self.place(me, nx, ny, data)) {
             return None;
         }
-        self.climb(nx, ny, data);
+        let _ = self.climb(nx, ny, data);
         Some((nx, ny))
     }
 
     /// On stacked floors, our height where we now stand: the ground of the floor at our height,
-    /// so a stair's steps take us up or down.
-    pub(crate) fn climb(&mut self, x: f64, y: f64, data: &GameData) {
+    /// so a stair's steps take us up or down. False if no floor's square there is known.
+    pub(crate) fn climb(&mut self, x: f64, y: f64, data: &GameData) -> bool {
         if self.levels.is_none() {
-            return;
+            return true;
         }
-        let Some(me) = self.me else { return };
+        let Some(me) = self.me else { return true };
         let z = self.my_z();
-        // the floor at our height, else (put somewhere our height doesn't fit) the nearest
-        let level = self.level_at(x as i32, y as i32, z, data).or_else(|| self.nearest_level(x as i32, y as i32, z, data));
-        let Some(level) = level else { return };
-        let Some(ground) = self.surface(level, x as i32, y as i32, data) else { return };
+        // the floor at our height, else (put somewhere our height doesn't fit) the nearest we can
+        // walk on (not the inside of a tower under its top)
+        let walkable = |l: u8| self.level_tile(l, x as i32, y as i32).and_then(|t| data.grounds.get(&t)).is_some_and(|g| !g.no_walk);
+        let level = self.level_at(x as i32, y as i32, z, data).filter(|&l| walkable(l)).or_else(|| {
+            (0..self.level_count() as u8)
+                .filter(|&l| walkable(l))
+                .filter_map(|l| self.surface(l, x as i32, y as i32, data).map(|s| ((s - z).abs(), l)))
+                .min_by(|a, b| a.0.total_cmp(&b.0))
+                .map(|(_, l)| l)
+                .or_else(|| self.nearest_level(x as i32, y as i32, z, data))
+        });
+        let Some(level) = level else { return false };
+        let Some(ground) = self.surface(level, x as i32, y as i32, data) else { return false };
         if let Some(p) = self.objects.get_mut(&me) {
             (p.z, p.level) = (ground, level);
         }
+        true
     }
 
     /// `Player.onMove`, called as each Move goes to the server: the ground's speed, and sinking.

@@ -188,6 +188,15 @@ pub struct World {
     /// see what is under them).
     pub see_through: bool,
     level_occupant: rustc_hash::FxHashMap<(i32, i32, u8), i32>,
+    /// How many times the floors above the map have come (`set_layers`): for caches of what's
+    /// drawn on them.
+    layers_gen: u32,
+    /// On stacked floors, put (a Goto) where our squares haven't come yet, so our floor isn't
+    /// known: our height comes from the server's (our `Height` stat) or, once the squares come,
+    /// from the ground (`climb`).
+    lost_height: Option<(f64, f64)>,
+    /// The world's `Background` (MapInfo): what is drawn where there is no ground (`SKY_SUNSET`).
+    pub background: u8,
     pub objects: rustc_hash::FxHashMap<i32, GameObj>,
     /// Our player's object id.
     pub me: Option<i32>,
@@ -228,6 +237,9 @@ impl World {
             levels: None,
             see_through: false,
             level_occupant: Default::default(),
+            layers_gen: 0,
+            lost_height: None,
+            background: 0,
             objects: Default::default(),
             me: None,
             last_tick_id: -1,
@@ -275,11 +287,17 @@ impl World {
             }
         }
         self.levels = Some(Levels { height, upper });
+        self.layers_gen = self.layers_gen.wrapping_add(1);
         // the static objects already here go on their floors
         let ids: Vec<i32> = self.objects.keys().copied().collect();
         for id in ids {
             self.restand(id);
         }
+    }
+
+    /// Changes each time the floors above the map come (`set_layers`).
+    pub fn layers_gen(&self) -> u32 {
+        self.layers_gen
     }
 
     /// How many floors there are (1 on a flat map).
@@ -425,6 +443,12 @@ impl World {
         for t in update.tiles.iter() {
             self.set_tile(t.x as i32, t.y as i32, t.tile_type as u16);
         }
+        // our floor, now its squares have come
+        if let Some((x, y)) = self.lost_height {
+            if !update.tiles.is_empty() && self.player().is_some_and(|p| (p.x - x).abs() < 1e-6 && (p.y - y).abs() < 1e-6) && self.climb(x, y, data) {
+                self.lost_height = None;
+            }
+        }
         for o in update.new_objs.iter() {
             self.add_object(o, data, time);
         }
@@ -561,6 +585,14 @@ impl World {
                 }
             }
             obj.apply_stats(&s.stats);
+            // put somewhere our floor isn't known yet: the server's height for us
+            if is_me && self.lost_height.is_some() && s.stats.iter().any(|st| st.id == stat::HEIGHT) {
+                if let Some(h) = self.levels.as_ref().map(|l| l.height) {
+                    obj.z = obj.stat_height();
+                    obj.level = (obj.z / h).round().max(0.0) as u8;
+                    self.lost_height = None;
+                }
+            }
         }
         self.last_tick_id = tick.tick_id;
     }
@@ -570,8 +602,8 @@ impl World {
         if self.place(id, x, y, data) {
             // on stacked floors, we stand on the ground where we're put (a move put back by the
             // server would otherwise leave our height where it went)
-            if Some(id) == self.me {
-                self.climb(x, y, data);
+            if Some(id) == self.me && !self.climb(x, y, data) && self.levels.is_some() {
+                self.lost_height = Some((x, y));
             }
             if let Some(o) = self.objects.get_mut(&id) {
                 o.last_tick_update_time = time;

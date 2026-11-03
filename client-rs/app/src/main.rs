@@ -14,6 +14,7 @@ mod game;
 mod ground;
 mod hud;
 mod i18n;
+mod islands;
 mod login;
 mod forge;
 mod quests;
@@ -31,6 +32,7 @@ mod signs;
 mod sky;
 mod sprites;
 mod stars;
+mod sunset;
 mod text;
 mod textedit;
 mod theme;
@@ -2711,6 +2713,62 @@ fn draw_crosshair(renderer: &mut bsk_render::Renderer, mouse: (f64, f64), s: f32
     renderer.fill(dot[0], dot[1], dot[2], dot[3], theme::color::ACCENT, 1.0);
 }
 
+/// Where a test run's window opens: a scripted run (`--shot`, `--hold`, `--mouse-script`), or any
+/// run given `--display-of <text>`, opens on the display holding the window whose title has that
+/// text (by default Visual Studio Code's, where the tests are run from), else the window in use;
+/// other runs where the system puts them.
+#[cfg(not(target_arch = "wasm32"))]
+fn test_display(event_loop: &ActiveEventLoop) -> Option<winit::monitor::MonitorHandle> {
+    let args: Vec<String> = std::env::args().collect();
+    let wanted = args.iter().position(|a| a == "--display-of").and_then(|i| args.get(i + 1)).cloned();
+    let scripted = args.iter().any(|a| matches!(a.as_str(), "--shot" | "--hold" | "--mouse-script"));
+    if wanted.is_none() && !scripted {
+        return None;
+    }
+    let (x, y) = window_centre(wanted.as_deref().unwrap_or("Visual Studio Code"))?;
+    event_loop.available_monitors().find(|m| {
+        let (p, s) = (m.position(), m.size());
+        x >= p.x && y >= p.y && x < p.x + s.width as i32 && y < p.y + s.height as i32
+    })
+}
+
+/// The middle of the first shown window whose title has `title` in it, else of the window in use
+/// (on the screen, physical pixels).
+#[cfg(windows)]
+fn window_centre(title: &str) -> Option<(i32, i32)> {
+    use windows_sys::Win32::Foundation::{BOOL, HWND, LPARAM, RECT};
+    use windows_sys::Win32::UI::WindowsAndMessaging::{EnumWindows, GetForegroundWindow, GetWindowRect, GetWindowTextW, IsIconic, IsWindowVisible};
+    struct Search {
+        title: String,
+        found: HWND,
+    }
+    unsafe extern "system" fn each(hwnd: HWND, data: LPARAM) -> BOOL {
+        let search = &mut *(data as *mut Search);
+        if IsWindowVisible(hwnd) == 0 || IsIconic(hwnd) != 0 {
+            return 1;
+        }
+        let mut buf = [0u16; 512];
+        let n = GetWindowTextW(hwnd, buf.as_mut_ptr(), buf.len() as i32);
+        if n > 0 && String::from_utf16_lossy(&buf[..n as usize]).contains(&search.title) {
+            search.found = hwnd;
+            return 0;
+        }
+        1
+    }
+    let mut search = Search { title: title.to_owned(), found: 0 };
+    unsafe {
+        EnumWindows(Some(each), &mut search as *mut Search as LPARAM);
+        let hwnd = if search.found != 0 { search.found } else { GetForegroundWindow() };
+        let mut r = RECT { left: 0, top: 0, right: 0, bottom: 0 };
+        (hwnd != 0 && GetWindowRect(hwnd, &mut r) != 0).then(|| ((r.left + r.right) / 2, (r.top + r.bottom) / 2))
+    }
+}
+
+#[cfg(all(not(windows), not(target_arch = "wasm32")))]
+fn window_centre(_title: &str) -> Option<(i32, i32)> {
+    None
+}
+
 impl ApplicationHandler<UserEvent> for App {
     fn resumed(&mut self, event_loop: &ActiveEventLoop) {
         if self.window.is_some() {
@@ -2736,6 +2794,18 @@ impl ApplicationHandler<UserEvent> for App {
             .with_window_icon(window_icon(false))
             // A scripted test run opens behind the window in use, so it doesn't take the keyboard.
             .with_active(!args.iter().any(|a| matches!(a.as_str(), "--shot" | "--hold" | "--mouse-script")))
+        };
+        // ...and on the display the person works on (`test_display`), in its middle.
+        #[cfg(not(target_arch = "wasm32"))]
+        let attributes = match test_display(event_loop) {
+            Some(monitor) => {
+                let (mp, ms) = (monitor.position(), monitor.size());
+                let size = attributes.inner_size.map_or(winit::dpi::PhysicalSize::new(1280, 800), |s| s.to_physical::<u32>(monitor.scale_factor()));
+                let x = mp.x + (ms.width as i32 - size.width as i32).max(0) / 2;
+                let y = mp.y + (ms.height as i32 - size.height as i32).max(0) / 2;
+                attributes.with_position(winit::dpi::PhysicalPosition::new(x, y))
+            }
+            None => attributes,
         };
         #[cfg(target_os = "windows")]
         let attributes = {

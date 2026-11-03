@@ -14,7 +14,8 @@ namespace WorldServer.core.worlds.impl
     /// stairs. Admins open it with /dungeon testadmin1. Everything here has a height (Entity.Z):
     /// it walks on the floor at its height, climbs the stairs' rising ground, and neither sees
     /// nor reaches what is on another floor. Its map is the lowest floor; "&lt;map&gt; 1.jm",
-    /// "&lt;map&gt; 2.jm" and so on are the ones above, <see cref="FloorHeight"/> tiles apart. Here:
+    /// "&lt;map&gt; 2.jm" and so on are the ones above (its XML's &lt;Levels height="3"/&gt;, which the
+    /// base World stacks). Here:
     /// - a floor's door (Tower_Door tiles on that floor) opens when its boss (the monster that
     ///   stood on its Tower_Boss tile) is gone;
     /// - players are told the floor they reach the first time.
@@ -22,9 +23,6 @@ namespace WorldServer.core.worlds.impl
     public sealed class StairTowerWorld : World
     {
         public const string Name = "testadmin1";
-
-        // build_stair_tower.py, FLOOR_HEIGHT
-        private const float FloorHeight = 3;
 
         private sealed class Floor
         {
@@ -44,18 +42,6 @@ namespace WorldServer.core.worlds.impl
         {
         }
 
-        public override bool LoadMapFromData(WorldResource resource)
-        {
-            if (!base.LoadMapFromData(resource))
-                return false;
-            StackLevels(FloorHeight);
-            var map = resource.MapJM[0][..^".jm".Length];
-            for (var i = 1; AddLevel($"{map} {i}.jm"); i++)
-            {
-            }
-            return true;
-        }
-
         public override void Init()
         {
             base.Init();
@@ -68,30 +54,6 @@ namespace WorldServer.core.worlds.impl
                 foreach (var at in regions.Where(r => r.Value == TileRegion.Tower_Door).Select(r => r.Key))
                     floor?.Door.Add(at);
             }
-        }
-
-        public override void AddToWorld(Entity entity)
-        {
-            base.AddToWorld(entity);
-            if (entity is Player player)
-                player.Client.SendPacket(Layers());
-        }
-
-        private LayersMessage Layers()
-        {
-            var msg = new LayersMessage { Height = LevelHeight };
-            for (var level = 1; level < Levels.Count; level++)
-            {
-                var map = Levels[level];
-                for (var y = 0; y < map.Height; y++)
-                    for (var x = 0; x < map.Width; x++)
-                    {
-                        var tile = map[x, y];
-                        if (tile.TileId != 0xFF)
-                            msg.Tiles.Add(((byte)level, (short)x, (short)y, tile.TileId));
-                    }
-            }
-            return msg;
         }
 
         protected override void UpdateLogic(ref TickTime time)

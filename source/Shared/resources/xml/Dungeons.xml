@@ -430,7 +430,45 @@
 		<MapJM>Dungeons/Stair Tower.jm</MapJM>
 		<!-- no line of sight: the lowest floor's walls would hide the floors above -->
 		<VisibilityType>0</VisibilityType>
+		<Levels height="3"/>
 		<DisableTeleport/>
 		<Dungeon/>
+	</World>
+	<World id="testnexus">
+		<!-- tools/build_nexus_islands.py: the Nexus as floating islands at three heights in a
+		     sunset sky, joined by bridges (NexusWorld on stacked floors; "Nexus Islands 1.jm" and
+		     up are the floors above). A second Nexus for admins (NexusWorld.IsMain), to try before
+		     it replaces the garden: /dungeon testnexus -->
+		<DisplayName>Nexus Islands</DisplayName>
+		<Width>204</Width>
+		<Height>178</Height>
+		<Capacity>300</Capacity>
+		<MapJM>Exalt/Nexus Islands.jm</MapJM>
+		<Instance enum="nexus"/>
+		<!-- the client's sunset sky (sunset.rs SKY_SUNSET) and the islands' undersides -->
+		<Background>7</Background>
+		<!-- no line of sight: the lowest floor's walls would hide the floors above -->
+		<VisibilityType>0</VisibilityType>
+		<Levels height="3"/>
+		<Music>
+			<Track>wanderlust</Track>
+		</Music>
+		<ShowDisplays/>
+		<DisableTeleport/>
+	</World>
+	<World id="oldnexus">
+		<!-- tools/build_nexus.py: the garden Nexus, kept as a second working Nexus for admins
+		     (NexusWorld.IsMain) once the islands replace it: /dungeon oldnexus -->
+		<DisplayName>Nexus Garden</DisplayName>
+		<Width>136</Width>
+		<Height>108</Height>
+		<Capacity>300</Capacity>
+		<MapJM>Exalt/Nexus Garden.jm</MapJM>
+		<Instance enum="nexus"/>
+		<Music>
+			<Track>wanderlust</Track>
+		</Music>
+		<ShowDisplays/>
+		<DisableTeleport/>
 	</World>
 </Worlds>
