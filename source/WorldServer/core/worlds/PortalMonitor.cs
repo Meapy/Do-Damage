@@ -82,6 +82,7 @@ namespace WorldServer.core.worlds
                 var realm2 = world is Realm2World;
                 var pos = realm2 ? Realm2Spot() : GetRandPosition();
 
+                // on the islands, on the portals' floor (the ground there)
                 var portal = (Portal)_world.CreateNewEntity(realm2 ? REALM2_PORTAL : REALM_PORTAL, pos.X + 0.5f, pos.Y + 0.5f);
                 portal.WorldInstance = world;
                 portal.Name = $"{PortalName(world)} (0/{MAX_PER_REALM})";
@@ -130,8 +131,18 @@ namespace WorldServer.core.worlds
             }
         }
 
+        // a second Nexus (an admin's copy, NexusWorld.IsMain) opens no realms: it shows the real
+        // Nexus's, a portal for each, open and shut as theirs are
+        private RealmPortalMonitor Main => _world is NexusWorld { IsMain: false } ? _gameServer.WorldManager.Nexus?.PortalMonitor : null;
+
         public void Update(ref TickTime time)
         {
+            var main = Main;
+            if (main != null && main != this)
+            {
+                Mirror(main);
+                return;
+            }
             lock (_access)
             {
                 CreateRealmIfExists();
@@ -147,6 +158,33 @@ namespace WorldServer.core.worlds
                     if (p.Name.Equals(updatedCount))
                         continue;
                     p.Name = updatedCount;
+                }
+            }
+        }
+
+        private void Mirror(RealmPortalMonitor main)
+        {
+            List<(World World, bool Usable)> theirs;
+            lock (main._access)
+                theirs = main._portals.Values.Where(p => p.WorldInstance != null).Select(p => (p.WorldInstance, p.Usable)).ToList();
+            lock (_access)
+            {
+                foreach (var id in _portals.Keys.Where(id => theirs.All(t => t.World.Id != id)).ToList())
+                {
+                    _world.LeaveWorld(_portals[id]);
+                    _portals.Remove(id);
+                }
+                foreach (var (world, usable) in theirs)
+                {
+                    if (!_portals.ContainsKey(world.Id))
+                        AddPortal(world);
+                    var portal = _portals[world.Id];
+                    portal.Usable = usable;
+                    var count = 0;
+                    world.GetPlayerCount(ref count);
+                    var name = $"{PortalName(world)} ({Math.Min(count, world.MaxPlayers)}/{world.MaxPlayers})";
+                    if (!portal.Name.Equals(name))
+                        portal.Name = name;
                 }
             }
         }
@@ -213,17 +251,17 @@ namespace WorldServer.core.worlds
         // Realm 2's own tile, else beside the realms' portals
         private Position Realm2Spot()
         {
-            foreach (var t in _world.Map.Regions.Where(t => t.Value == TileRegion.Realm2_Portal))
-                if (!_portals.Values.Any(p => p.X == t.Key.X + 0.5f && p.Y == t.Key.Y + 0.5f))
-                    return new Position(t.Key.X, t.Key.Y);
+            foreach (var (t, _) in _world.RegionTiles(TileRegion.Realm2_Portal))
+                if (!_portals.Values.Any(p => p.X == t.X + 0.5f && p.Y == t.Y + 0.5f))
+                    return new Position(t.X, t.Y);
             return NextToRealms();
         }
 
         // the free realm portal spot nearest a realm's portal (beside Realm 1's), or any free one
         private Position NextToRealms()
         {
-            var free = _world.Map.Regions.Where(t => t.Value == TileRegion.Realm_Portals)
-                .Select(t => t.Key)
+            var free = _world.RegionTiles(TileRegion.Realm_Portals)
+                .Select(t => t.Point)
                 .Where(k => !_portals.Values.Any(p => p.X == k.X + 0.5f && p.Y == k.Y + 0.5f))
                 .ToList();
             if (free.Count == 0)
@@ -238,7 +276,7 @@ namespace WorldServer.core.worlds
         // a free `Realm Portals` tile at random (the realms' caverns), or any of them when all are taken
         private Position GetRandPosition()
         {
-            var tiles = _world.Map.Regions.Where(t => t.Value == TileRegion.Realm_Portals).Select(t => t.Key).ToList();
+            var tiles = _world.RegionTiles(TileRegion.Realm_Portals).Select(t => t.Point).ToList();
             if (tiles.Count == 0)
                 return new Position(0, 0);
             var free = tiles.Where(k => !_portals.Values.Any(p => p.X == k.X + 0.5f && p.Y == k.Y + 0.5f)).ToList();

@@ -525,6 +525,8 @@ impl Game {
                 self.remember_map();
                 self.map_key = (self.hello.game_id, info.name.clone(), info.width as i32, info.height as i32);
                 let mut world = World::new(info.width as i32, info.height as i32, &info.display_name, info.seed);
+                world.background = info.background;
+                log::info!("map {} ({}x{}), background {}", info.name, info.width, info.height, info.background);
                 if let Some((_, squares)) = self.seen_maps.iter().find(|(k, _)| *k == self.map_key) {
                     world.restore_squares(squares);
                 }
@@ -824,7 +826,10 @@ impl Game {
             ServerMessage::CommunityData(d) => self.community_events.push(crate::community::Event::Data(Box::new(d.clone()))),
             ServerMessage::CommunityNotice(n) => self.community_events.push(crate::community::Event::Notice(n.kind, n.title.clone(), n.text.clone())),
             ServerMessage::Goto(g) => world.apply_goto(g.object_id, g.pos.x as f64, g.pos.y as f64, now, data),
-            ServerMessage::Layers(l) => world.set_layers(l.height as f64, &l.tiles),
+            ServerMessage::Layers(l) => {
+                log::info!("floors: {} squares above the map, {} tiles apart", l.tiles.len(), l.height);
+                world.set_layers(l.height as f64, &l.tiles)
+            }
             ServerMessage::EnemyShoot(e) => {
                 let Some(owner) = world.objects.get(&e.owner_id).filter(|o| !o.dead) else { return };
                 let container = owner.object_type;

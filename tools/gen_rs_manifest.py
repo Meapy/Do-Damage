@@ -81,6 +81,10 @@ RS_ONLY_SETS = [
     ("nexusGarden64x64", "kabam/rotmg/assets/custom/images/NexusGarden64x64.png", 64, 64),
     ("nexusGarden192x192", "kabam/rotmg/assets/custom/images/NexusGarden192x192.png", 192, 192),
     ("nexusGardenModels128x128", "kabam/rotmg/assets/custom/images/NexusGardenModels128x128.png", 128, 128),
+    # the Nexus islands' own: rims, bridges, the Arena tower, the bar (tools/build_nexus_islands.py)
+    ("nexusIslands8x8", "kabam/rotmg/assets/custom/images/NexusIslands8x8.png", 8, 8),
+    ("nexusIslands16x16", "kabam/rotmg/assets/custom/images/NexusIslands16x16.png", 16, 16),
+    ("nexusIslandsModels128x128", "kabam/rotmg/assets/custom/images/NexusIslandsModels128x128.png", 128, 128),
 ]
 # (name, file, frame width, frame height, sheet width, sheet height, direction): characters
 RS_ONLY_CHARS = [
@@ -96,6 +100,8 @@ RS_ONLY_CHARS = [
     # the Nexus's villagers and bees (tools/build_nexus_garden.py)
     ("nexusGardenChars8x8", "kabam/rotmg/assets/custom/images/NexusGardenChars8x8.png", 8, 8, 56, 8, "right"),
     ("nexusGardenChars16x16", "kabam/rotmg/assets/custom/images/NexusGardenChars16x16.png", 16, 16, 112, 16, "right"),
+    # the Nexus islands' barman (tools/build_nexus_islands.py)
+    ("nexusIslandsChars16x16", "kabam/rotmg/assets/custom/images/NexusIslandsChars16x16.png", 16, 16, 112, 16, "right"),
 ]
 # (name, file): 3D models only the Rust client draws: the Nexus garden's houses, teahouse,
 # storehouse, pagoda, smithy, torii, railings and fences (tools/build_nexus_garden.py)
@@ -104,16 +110,21 @@ RS_ONLY_MODELS = [
     for name in ("NG House", "NG Teahouse", "NG Storehouse", "NG Pagoda", "NG Smithy", "NG Torii", "NG Wood Rail",
                  "NG Stone Rail", "NG Bamboo Fence", "NG Yatai", "NG Cart Stall", "NG Parasol Stall", "NG Arch Bridge",
                  "NG Stone Arch")
+] + [
+    # the Nexus islands' bar (tools/build_nexus_islands.py)
+    ("NI Bar", "kabam/rotmg/assets/custom/objects/nexusIslandsBar.obj"),
 ]
 # game data only the Rust client loads
 RS_ONLY_GROUND_XML = ["kabam/rotmg/assets/custom/xmls/HashCellarGrounds.xml",
                       "kabam/rotmg/assets/custom/xmls/ElysiumGrounds.xml",
                       "kabam/rotmg/assets/custom/xmls/Realm2Grounds.xml",
-                      "kabam/rotmg/assets/custom/xmls/NexusGardenGrounds.xml"]
+                      "kabam/rotmg/assets/custom/xmls/NexusGardenGrounds.xml",
+                      "kabam/rotmg/assets/custom/xmls/NexusIslandsGrounds.xml"]
 RS_ONLY_OBJECT_XML = ["kabam/rotmg/assets/custom/xmls/HashCellarObjects.xml",
                       "kabam/rotmg/assets/custom/xmls/ElysiumObjects.xml",
                       "kabam/rotmg/assets/custom/xmls/Realm2Objects.xml",
-                      "kabam/rotmg/assets/custom/xmls/NexusGardenObjects.xml"]
+                      "kabam/rotmg/assets/custom/xmls/NexusGardenObjects.xml",
+                      "kabam/rotmg/assets/custom/xmls/NexusIslandsObjects.xml"]
 ADD_EMOTE = re.compile(r'addEmote\("((?:[^"\\]|\\.)*)",\s*AssetLibrary\.getImageFromSet\("(\w+)",\s*(\d+)\)(?:,\s*([\d.]+))?')
 
 EMBED_VAR = re.compile(

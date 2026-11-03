@@ -132,6 +132,9 @@ pub struct Particles {
     emitters: HashMap<i32, Emitter>,
     /// On stacked floors, our height: the floor new particles are made on.
     floor: f64,
+    /// Objects thrown (`ShowEffect` 16 naming an object, the islands' barman's bottle) waiting
+    /// for their art (`object_effects`): the object, from, to, flight ms and the trail's colour.
+    thrown: Vec<(u16, (f64, f64), (f64, f64), i32, u32)>,
 }
 
 /// An object's effect at work.
@@ -461,9 +464,14 @@ impl Particles {
                 let flash = Flash { start: now, color, period: ((p1.0 * 1000.0) as i32).max(1), repeats: p1.1 as i32 };
                 self.flashes.insert(e.target_object_id, flash);
             }
-            // ThrowProjectileEffect: an object thrown in an arc; drawn as a throw.
+            // ThrowProjectileEffect: an object thrown in an arc; drawn as a throw, or as the object
+            // itself tumbling over (with its art, in `object_effects`) when one is named
             16 => {
                 let life = if e.duration > 0 { e.duration } else { 1000 };
+                if e.object_type != 0 {
+                    self.thrown.push((e.object_type, p2, p1, life, if color == 0 { 0xFFFFFF } else { color }));
+                    return;
+                }
                 let (vx, vy) = ((p1.0 - p2.0) / life as f64, (p1.1 - p2.1) / life as f64);
                 self.add(Particle::new(p2.0, p2.1, 0.0, 0xFFFFFF, 0.0, life, Motion::Throw).moving(vx, vy, 0.0));
             }
@@ -598,6 +606,17 @@ impl Particles {
         let Some(me) = world.player() else { return };
         let (mx, my) = (me.x, me.y);
         let secs = dt.max(0) as f64 / 1000.0;
+        // what was thrown since, as the thrown object's own picture arcing over, leaving sparks
+        for (object_type, from, to, life, color) in std::mem::take(&mut self.thrown) {
+            let image = data.objects.get(&object_type).and_then(|d| match &d.texture.pick(0).main {
+                bsk_data::TextureRef::Image { set, index } => still(sprites, set, *index, 5.0),
+                _ => None,
+            });
+            let (vx, vy) = ((to.0 - from.0) / life as f64, (to.1 - from.1) / life as f64);
+            let mut p = Particle::new(from.0, from.1, 0.0, color, 0.0, life, Motion::Throw).moving(vx, vy, 0.0);
+            p.image = image;
+            self.add(p);
+        }
         self.emitters.retain(|id, _| world.objects.get(id).is_some_and(|o| (o.x - mx).hypot(o.y - my) <= EFFECT_RANGE + 4.0));
         if self.disabled {
             return;

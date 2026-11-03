@@ -278,8 +278,10 @@ namespace WorldServer.core.worlds
             return entity;
         }
 
-        public Entity CreateNewEntity(string idName, float x, float y) => !GameServer.Resources.GameData.IdToObjectType.TryGetValue(idName, out var type) ? null : CreateNewEntity(type, x, y);
-        public Entity CreateNewEntity(ushort objectType, float x, float y)
+        /// <summary>A new entity at (x, y); on stacked floors at height `z`, or with none given on
+        /// the ground there (PlaceZ, when it joins).</summary>
+        public Entity CreateNewEntity(string idName, float x, float y, float? z = null) => !GameServer.Resources.GameData.IdToObjectType.TryGetValue(idName, out var type) ? null : CreateNewEntity(type, x, y, z);
+        public Entity CreateNewEntity(ushort objectType, float x, float y, float? z = null)
         {
             var entity = Entity.Resolve(GameServer, objectType);
             if (entity == null)
@@ -290,6 +292,8 @@ namespace WorldServer.core.worlds
             entity.Id = GetNextEntityId();
             entity.Init(this);
             entity.Move(x, y);
+            if (Levels != null)
+                entity.Z = z ?? PlaceZ(x, y);
             EntitiesToAdd.Add(entity);
             return entity;
         }
@@ -335,7 +339,9 @@ namespace WorldServer.core.worlds
             return new Position() { X = reg.Key.X, Y = reg.Key.Y };
         }
 
-        public virtual KeyValuePair<IntPoint, TileRegion>[] GetSpawnPoints() => Map.Regions.Where(t => t.Value == TileRegion.Spawn).ToArray();
+        // on stacked floors, those of the floor that has them (its height comes from where they are, AddToWorld)
+        public virtual KeyValuePair<IntPoint, TileRegion>[] GetSpawnPoints() =>
+            (Levels?.FirstOrDefault(l => l.Regions.Values.Contains(TileRegion.Spawn)) ?? Map).Regions.Where(t => t.Value == TileRegion.Spawn).ToArray();
 
         // Where an arriving player is placed: the centre of a random spawn tile they can stand on,
         // one with nothing on it (Oryx's Chamber's Nexus Portals stand on spawn tiles) where there is
@@ -346,7 +352,7 @@ namespace WorldServer.core.worlds
         {
             var points = GetSpawnPoints();
             var open = points.Where(t => IsPassable(t.Key.X + 0.5, t.Key.Y + 0.5, true)).ToArray();
-            var free = open.Where(t => Map[t.Key.X, t.Key.Y].ObjType == 0).ToArray();
+            var free = open.Where(t => GroundTile(t.Key.X, t.Key.Y).ObjType == 0).ToArray();
             if (free.Length > 0)
                 points = free;
             else if (open.Length > 0)
@@ -375,6 +381,30 @@ namespace WorldServer.core.worlds
 
         public virtual KeyValuePair<IntPoint, TileRegion>[] GetRegionPoints(TileRegion region) => Map.Regions.Where(t => t.Value == region).ToArray();
 
+        /// <summary>The region's squares on every floor (Map's alone in a flat world), each with the
+        /// height of the ground there (its floor's, plus a Lift).</summary>
+        public List<(IntPoint Point, float Z)> RegionTiles(TileRegion region)
+        {
+            var found = new List<(IntPoint, float)>();
+            var levels = Levels ?? new List<Wmap> { Map };
+            for (var level = 0; level < levels.Count; level++)
+                foreach (var r in levels[level].Regions)
+                    if (r.Value == region)
+                        found.Add((r.Key, Levels == null ? 0 : SurfaceOf(level, levels[level][r.Key.X, r.Key.Y])));
+            return found;
+        }
+
+        /// <summary>The middle of the region's first square and the ground's height there (a marker
+        /// such as Nexus_Bot), or null if the map has none.</summary>
+        public (float X, float Y, float Z)? Marker(TileRegion region)
+        {
+            var tiles = RegionTiles(region);
+            if (tiles.Count == 0)
+                return null;
+            var (p, z) = tiles[0];
+            return (p.X + 0.5f, p.Y + 0.5f, z);
+        }
+
         public Player GetUniqueNamedPlayer(string name)
         {
             if (Database.GuestNames.Contains(name))
@@ -395,8 +425,9 @@ namespace WorldServer.core.worlds
         }
 
         // --- stacked floors -------------------------------------------------------------------
-        // A world of floors one above another (StairTowerWorld): Levels[0] is Map, each next one
-        // LevelHeight tiles above it, all the same size. A square's floor for an entity is the one
+        // A world of floors one above another (`<Levels height="3"/>` in its XML: the Stair Tower,
+        // the Nexus islands): Levels[0] is Map, each next one LevelHeight tiles above it, all the
+        // same size ("<map> 1.jm", "<map> 2.jm"...). A square's floor for an entity is the one
         // whose ground (its height plus the ground's Lift, so stairs climb) is nearest the
         // entity's Z, within Step: further than that is a wall or a drop. Null in every other
         // world, where all of this is Map as before.
@@ -448,6 +479,90 @@ namespace WorldServer.core.worlds
         private float SurfaceOf(int level, WmapTile t) =>
             level * LevelHeight + (GameServer.Resources.GameData.Tiles.TryGetValue(t.TileId, out var desc) ? desc.Lift : 0);
 
+        private static bool HasGround(WmapTile t) => t.Exists && t.TileId != 0xFF;
+
+        /// <summary>The lowest floor with ground at (x, y) that can be walked on (else the lowest
+        /// with any), -1 for none (Map's, 0, in a flat world).</summary>
+        public int GroundLevel(int x, int y)
+        {
+            if (Levels == null)
+                return 0;
+            if (!Map.Contains(x, y))
+                return -1;
+            var any = -1;
+            for (var i = 0; i < Levels.Count; i++)
+            {
+                var t = Levels[i][x, y];
+                if (!HasGround(t))
+                    continue;
+                if (GameServer.Resources.GameData.Tiles.TryGetValue(t.TileId, out var desc) && !desc.NoWalk)
+                    return i;
+                if (any < 0)
+                    any = i;
+            }
+            return any;
+        }
+
+        /// <summary>The square something placed at (x, y) with no height stands on: Map's, or on
+        /// stacked floors the lowest floor's with ground there.</summary>
+        public WmapTile GroundTile(int x, int y)
+        {
+            if (Levels == null)
+                return Map[x, y];
+            var level = GroundLevel(x, y);
+            return level < 0 ? Map[x, y] : Levels[level][x, y];
+        }
+
+        /// <summary>The height to stand at (x, y) for something put there: on stacked floors the
+        /// ground of the floor within reach of `near` (Step), else of the lowest floor there that
+        /// can be walked on; 0 in a flat world. Where there is no ground at all, `near`.</summary>
+        public float PlaceZ(float x, float y, float near = 0)
+        {
+            if (Levels == null)
+                return 0;
+            var level = LevelAt((int)x, (int)y, near);
+            // not into a floor that can't be walked on (a tower's inside, under its top)
+            if (level < 0 || (GameServer.Resources.GameData.Tiles.TryGetValue(Levels[level][(int)x, (int)y].TileId, out var desc) && desc.NoWalk))
+                level = GroundLevel((int)x, (int)y);
+            return level < 0 ? near : SurfaceOf(level, Levels[level][(int)x, (int)y]);
+        }
+
+        /// <summary>The ground of floor `level` at (x, y), or null where it has none.</summary>
+        public float? FloorZ(int level, int x, int y)
+        {
+            if (Levels == null)
+                return level == 0 && Map.Contains(x, y) ? 0 : null;
+            if (level < 0 || level >= Levels.Count || !Map.Contains(x, y) || !HasGround(Levels[level][x, y]))
+                return null;
+            return SurfaceOf(level, Levels[level][x, y]);
+        }
+
+        // the floors above the map, sent to each player who comes in (LAYERS), worked out once:
+        // they never change their ground
+        private List<(byte, short, short, ushort)> _layerTiles;
+
+        private LayersMessage Layers()
+        {
+            if (_layerTiles == null)
+            {
+                _layerTiles = new List<(byte, short, short, ushort)>();
+                for (var level = 1; level < Levels.Count; level++)
+                {
+                    var map = Levels[level];
+                    for (var y = 0; y < map.Height; y++)
+                        for (var x = 0; x < map.Width; x++)
+                        {
+                            var tile = map[x, y];
+                            if (tile.TileId != 0xFF)
+                                _layerTiles.Add(((byte)level, (short)x, (short)y, tile.TileId));
+                        }
+                }
+                if (_layerTiles.Count > short.MaxValue)
+                    StaticLogger.Instance.Error($"{IdName}: {_layerTiles.Count} squares on the floors above the map, more than LAYERS carries");
+            }
+            return new LayersMessage { Height = LevelHeight, Tiles = _layerTiles };
+        }
+
         /// <summary>The square (x, y) for something at height z: Map's, or on stacked floors the
         /// floor's at that height (none, Exists false, if there is no floor there).</summary>
         public WmapTile TileFor(int x, int y, float z)
@@ -488,7 +603,8 @@ namespace WorldServer.core.worlds
             if (!Map.Contains(x_, y_))
                 return false;
 
-            var tile = Map[x_, y_];
+            // on stacked floors, the lowest floor with ground here (GroundTile)
+            var tile = GroundTile(x_, y_);
 
             var tileDesc = GameServer.Resources.GameData.Tiles[tile.TileId];
             if (tileDesc.NoWalk)
@@ -516,6 +632,14 @@ namespace WorldServer.core.worlds
 
         public virtual void AddToWorld(Entity entity)
         {
+            // on stacked floors, on the ground where it was put: the floor within reach of its
+            // height, else the lowest there (a player arriving at the spawn, a merchant at its stall)
+            if (Levels != null)
+            {
+                entity.Z = PlaceZ(entity.X, entity.Y, entity.Z);
+                if (entity is Player p)
+                    p.Client.SendPacket(Layers());
+            }
             if (entity is Player)
             {
                 Visited = true;
@@ -628,7 +752,9 @@ namespace WorldServer.core.worlds
         {
             var map = worldResource.MapJM[Random.Shared.Next(0, worldResource.MapJM.Count)];
             var mapEvent = GameServer.Configuration.serverSettings.mapEvent;
-            if (!string.IsNullOrEmpty(mapEvent) && map.EndsWith(".jm"))
+            // a world of floors has no event copies (the Nexus islands, for now)
+            var stacked = worldResource.LevelHeight > 0 && map.EndsWith(".jm");
+            if (!string.IsNullOrEmpty(mapEvent) && map.EndsWith(".jm") && !stacked)
             {
                 var eventMap = $"{map[..^3]} {mapEvent}.jm";
                 if (GameServer.Resources.GameData.GetWorldData(eventMap) != null)
@@ -640,6 +766,14 @@ namespace WorldServer.core.worlds
             if (worldResource.RandomLayout != null)
                 data = Shared.terrain.DungeonGenerator.Generate(GameServer.Resources.GameData, map, data, worldResource.RandomLayout, Random.Shared) ?? data;
             FromWorldMap(new MemoryStream(data));
+            // the floors over it (<Levels height="..."/>): "<map> 1.jm", "<map> 2.jm"... while there are more
+            if (stacked)
+            {
+                StackLevels(worldResource.LevelHeight);
+                for (var i = 1; AddLevel($"{map[..^3]} {i}.jm"); i++)
+                {
+                }
+            }
             return true;
         }
 
