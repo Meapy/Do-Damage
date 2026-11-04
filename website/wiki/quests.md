@@ -11,7 +11,7 @@ you've done, account-wide. All of it lives in the **quest log**: press <kbd>J</k
 **Quests** beside the Nexus button, or talk to the two keepers in the market of the Nexus's village.
 
 > **Rewards go straight to you.** Fame goes to your account, and items into the gift chest in your
-> vault, so a reward never fills your inventory. Everything is account-wide: progress on one
+> vault, so a reward never fills your inventory; the chat names the items it sent. Everything is account-wide: progress on one
 > character counts for all of them, and dying doesn't lose any of it.
 
 For goals the whole server works towards together each week, see

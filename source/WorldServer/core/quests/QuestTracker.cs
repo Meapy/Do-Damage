@@ -329,10 +329,24 @@ namespace WorldServer.core.quests
             if (gifts.Count > 0)
             {
                 player.GameServer.Database.AddGifts(account, gifts);
-                player.SendInfo(gifts.Count == 1
-                    ? "Your reward went to the gift chest in your vault."
-                    : $"Your {gifts.Count} rewards went to the gift chest in your vault.");
+                // name what was paid, so nobody has to look through the gift chest to find out
+                player.SendInfo($"{(gifts.Count == 1 ? "Your reward went" : $"Your {gifts.Count} rewards went")} to the gift chest in your vault: {ItemList(player, rewards)}.");
             }
+        }
+
+        // The items among some rewards, by name: "Potion of Life x2, Lil' Oryx Generator".
+        public static string ItemList(Player player, IEnumerable<RewardDef> rewards)
+        {
+            var data = player.GameServer.Resources.GameData;
+            return string.Join(", ", rewards
+                .Where(r => r.Item != null)
+                .GroupBy(r => r.Item)
+                .Select(g =>
+                {
+                    var name = data.IdToObjectType.TryGetValue(g.Key, out var type) && data.Items.TryGetValue(type, out var item) ? item.DisplayName : g.Key;
+                    var count = g.Sum(r => Math.Max(1, r.Count));
+                    return count == 1 ? name : $"{name} x{count}";
+                }));
         }
 
         // The quest window's data.

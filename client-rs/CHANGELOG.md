@@ -26,7 +26,9 @@ details). Add to a group's line when a change adds to it, rather than adding ano
 - Every week the whole server gets 3 goals to reach together, such as defeating Oryx 15 times,
   clearing 40 dungeons or earning 6,000 fame between you. Each has four tiers, Spark to Inferno,
   and everyone who helped claims every tier the realm reaches (fame, potions, keys and more), even
-  while offline; the top 3 contributors claim a prize more when it ends.
+  while offline; the top 3 contributors claim a prize more when it ends. A claim names what you
+  got, in the window and in the chat (as quest rewards now do too), so there's no need to look
+  through the gift chest.
 - Goals don't stop at 100%: every 25% past it is an Overdrive level, up to 300%, each a bonus
   reward for everyone who helped. Each goal gives its own rewards and rolls its own loot table
   (Oryx's incantations and Lil' Oryx pets, the dungeons' keys, the forge's shards and more), and

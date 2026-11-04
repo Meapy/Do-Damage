@@ -61,7 +61,7 @@ says so, and another tells you when a reward of yours is waiting.
    goal), and each pays the goal's bonus again to everyone who helped.
 5. **The top {{v:community_top}}** who added the most claim the top's prize once the goal ends.
 6. **Rewards** go straight to you: fame to your account, items to the gift chest in your vault.
-   Ended goals' rewards wait {{v:community_claim_weeks}} more week, then go.
+   The window and the chat name what each claim gave you. Ended goals' rewards wait {{v:community_claim_weeks}} more week, then go.
 
 {{gen:community_tiers}}
 

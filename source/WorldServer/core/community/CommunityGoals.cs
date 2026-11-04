@@ -670,8 +670,10 @@ namespace WorldServer.core.community
                 QuestTracker.PayRewards(player, account, rewards);
                 Log.Info($"Community goals: {player.Name} claimed {string.Join(", ", names)}: {string.Join(", ", rewards)}");
                 var fame = rewards.Sum(r => r.Fame);
-                var items = rewards.Where(r => r.Item != null).Sum(r => Math.Max(1, r.Count));
-                var paid = string.Join(" and ", new[] { fame > 0 ? $"{fame:N0} fame" : null, items > 0 ? $"{items} item{(items == 1 ? "" : "s")}" : null }.Where(p => p != null));
+                var items = QuestTracker.ItemList(player, rewards);
+                var paid = string.Join(" and ", new[] { fame > 0 ? $"{fame:N0} fame" : null, items.Length > 0 ? items : null }.Where(p => p != null));
+                if (paid.Length == 0)
+                    paid = "nothing this time";
                 // the best roll, by name, for the player; the rarest ones for everyone
                 var top = rolled.OrderByDescending(r => Data.RarityOf(r.Entry)).Select(r => r.Entry).FirstOrDefault();
                 var bestText = top != null && Data.RarityOf(top) >= 2 ? $" Best roll: {top} ({Capital(Data.Rarities[Data.RarityOf(top)])})!" : "";
