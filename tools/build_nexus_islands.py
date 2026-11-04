@@ -1,5 +1,6 @@
-"""Builds the Nexus as floating islands in a sunset sky (world `testnexus` for now; it is to
-replace the garden, tools/build_nexus.py), and the islands' own art.
+"""Builds the Nexus as floating islands in a sunset sky (the world `Nexus`, Worlds.xml; it
+replaced the garden, tools/build_nexus.py, which admins still open as `oldnexus`), and the
+islands' own art.
 
     python tools/build_nexus_islands.py [--preview <folder>] [--dry-run]
 
@@ -18,7 +19,7 @@ heights, joined by bridges; floor 1 is the lowest map (the game's `World.Levels[
   Armoire, the Vault Portal, the Support Bot and its dungeon portal (`Nexus Bot`, `Nexus Dungeon`),
   the XP ducks on the pond (NexusGuide), the Name Changer and the Character Changer about the deck
   (`Nexus Name Changer`, `Nexus Character Changer`), the pond's lobe to the north-east with lily
-  pads and frogs, three little arched bridges over the pond, and on a deck in the pond's
+  pads and frogs, three little flat bridges over the pond, and on a deck in the pond's
   south-east corner the storehouse and the four shared vault chests (`CHESTS`: each keeps its
   castle tile as its name, so its items stay where they are in Redis).
 - MARKET (west, floor 2), across a wooden bridge that dips and rises: the market square (the
@@ -112,6 +113,8 @@ BRIDGES = [
 # the spawn (build_nexus's island, a little smaller): its deck and the pond round it
 SPAWN_DECK = (8, 9)                  # half width and height of the deck's hexagon
 POND_SCALE = (1.55, 1.45)
+# the pond's little bridges: flat, this many quarters of a tile over the water (`NI Pond Deck`)
+POND_DECK_LIFT = 1
 # the pond's lobe to the north-east, with lily pads and frogs: its middle (from the spawn's
 # middle) and half width and height
 POND_LOBE = (10, -9, 6.5, 5)
@@ -378,8 +381,9 @@ def lay_spawn(g):
         g.place(sx + dx, sy + dy, "Vault Chest", name="%d_%d" % (ox, oy))
     g.place(sx + x1, sy + y1, PAPER_L)
     g.place(sx + x0 + 1, sy + y1, PAPER)
-    # three little bridges over the pond, arched (a quarter of a tile a square up to the middle),
-    # railed all along, to the shore at the big bridges' feet
+    # three little bridges over the pond, flat a quarter of a tile over the water (their end
+    # squares sloping down to land flush on the banks), railed all along, to the shore at the big
+    # bridges' feet
     for d in ((-1, 0), (1, 0), (0, 1)):
         x, y = sx, sy
         while g[x, y]["ground"] in (DECK, BEAM):
@@ -396,7 +400,7 @@ def lay_spawn(g):
             ex, ey = ex + d[0], ey + d[1]
         g.line([(x, y), (ex, ey)], 5, PATH)
         for i, (wx, wy) in enumerate(water):
-            k = min(i + 1, n - i, 3)
+            k = POND_DECK_LIFT
             for c in (-1, 0, 1):
                 px, py = (wx, wy + c) if d[1] == 0 else (wx + c, wy)
                 g.ground(px, py, "NI Pond Deck %s %d" % ("EW" if d[1] == 0 else "NS", k), keep=True)

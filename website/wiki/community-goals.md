@@ -3,7 +3,7 @@ title: Community Goals
 nav: 4
 sprite: crown
 eyebrow: Every week, together
-summary: The community goals: what the whole server works towards each week, the Warcaller by the Nexus spawn, how tiers are reached and shared, Overdrive past the goal, how goals grow and shrink with the realm, the top contributors' prize, and every goal that can come up with its own rewards and loot. Built from the game's data.
+summary: The community goals: what the whole server works towards each week, the Warcaller on the Nexus's Arena island, how tiers are reached and shared, Overdrive past the goal, how goals grow and shrink with the realm, the top contributors' prize, and every goal that can come up with its own rewards and loot. Built from the game's data.
 ---
 Quests are yours alone. **Community goals** belong to everyone: each week the realm gets
 **{{v:community_slots}} goals** to reach together, such as defeating Oryx the Mad God a number of
@@ -19,8 +19,9 @@ everyone, up to {{v:community_bonus_max}}%.
 
 ## The Warcaller
 
-The **Warcaller**, a knight in a plumed helm holding up the realm's violet war banner, stands at
-the north point of the Nexus spawn's island, where everyone passes. Walk up to him and he tells you
+The **Warcaller**, a knight in a plumed helm holding up the realm's violet war banner, stands on
+the sand of the Arena island's court in the Nexus, by the Herald and the Arena Leaderboard (east
+across the bridge from the spawn). Walk up to him and he tells you
 what waits for you, or which goal still needs you; every so often he calls out how one of the goals
 stands to everyone nearby. Stand by him and press **Rally** in the bottom of your HUD to open the
 **Community Goals** window.

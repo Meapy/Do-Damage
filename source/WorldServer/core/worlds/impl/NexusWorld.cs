@@ -40,7 +40,7 @@ namespace WorldServer.core.worlds.impl
     /// floors at several heights (World.Levels), the garden (tools/build_nexus.py) one.
     ///
     /// The game's Nexus is WorldManager.Nexus (<see cref="IsMain"/>). An admin can open another with
-    /// /dungeon (worlds `testnexus`, the islands, and `oldnexus`, the garden): a copy shows the
+    /// /dungeon (the world `oldnexus`, the garden the islands replaced): a copy shows the
     /// real Nexus's realm portals (RealmPortalMonitor's mirror), sells from its own stock
     /// (MerchantLists.Stock) and keeps its vault chests' items apart (DbNexusChest's space), its
     /// Arena portal leads to the real Nexus's Arena; everything that sends players "to the Nexus"
