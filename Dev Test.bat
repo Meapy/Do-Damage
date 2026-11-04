@@ -3,8 +3,9 @@ rem Local development: rebuilds and restarts an isolated test stack (slot 1: Red
 rem account 8082, world 2053), then builds and opens the Rust client against it; or builds the
 rem website and its wiki and opens them in your browser. Nothing here touches the live game.
 rem
-rem   Dev Test.bat          a menu of the four below (what a double-click shows)
+rem   Dev Test.bat          a menu of the five below (what a double-click shows)
 rem   Dev Test.bat all      servers and client
+rem   Dev Test.bat garden   servers and client, then straight into the old garden Nexus
 rem   Dev Test.bat server   servers only
 rem   Dev Test.bat client   client only
 rem   Dev Test.bat site     the website and wiki, at http://127.0.0.1:8000/wiki/
@@ -12,6 +13,11 @@ rem
 rem Close your test client window first. The world server is stopped without saving, and the
 rem stack's data (the accounts and characters you made on it) is kept. On a fresh clone the
 rem stack starts empty: register an account in the client.
+rem
+rem The Nexus is the floating islands (tools/build_nexus_islands.py). The garden it replaced is
+rem the world `oldnexus`, which `garden` opens with /dungeon once you're in the game, so the
+rem account you sign in with must be an admin on the test stack (rank 6 and the admin flag in its
+rem Redis).
 
 setlocal
 cd /d "%~dp0"
@@ -31,9 +37,10 @@ if "%MODE%"=="" (
     echo   2  Test servers only ^(restart them^)
     echo   3  The client only
     echo   4  The website and wiki, in your browser
+    echo   5  Test servers and the client, straight into the old garden Nexus
     echo.
-    choice /c 1234 /n /m "Pick 1-4: "
-    if errorlevel 4 (set "MODE=site") else if errorlevel 3 (set "MODE=client") else if errorlevel 2 (set "MODE=server") else (set "MODE=all")
+    choice /c 12345 /n /m "Pick 1-5: "
+    if errorlevel 5 (set "MODE=garden") else if errorlevel 4 (set "MODE=site") else if errorlevel 3 (set "MODE=client") else if errorlevel 2 (set "MODE=server") else (set "MODE=all")
 )
 
 if /i "%MODE%"=="client" goto client
@@ -78,7 +85,12 @@ if /i "%MODE%"=="server" (
 :client
 echo === Building and opening the client (%ACCOUNT%)
 cd client-rs
-cargo run -p bsk-client -- --account %ACCOUNT%
+if /i "%MODE%"=="garden" (
+    echo     Once you're in the game it opens the old garden Nexus ^(/dungeon oldnexus^).
+    cargo run -p bsk-client -- --account %ACCOUNT% --say "/dungeon oldnexus"
+) else (
+    cargo run -p bsk-client -- --account %ACCOUNT%
+)
 if errorlevel 1 (
     echo.
     echo Client build failed or the client exited with an error, see above.

@@ -24,7 +24,10 @@ namespace WorldServer.core.commands.doomed
         public const string ForgeClass = "Forge";
         public const float ForgeReach = 5;
 
-        public const string UseTheForge = "Forging and selling for fame have moved to the Divine Forge, in the Nexus's forge court, in the village east of the spawn just north of the shopping street (or type /forge): stand by it and open its window.";
+        // where the forge is, in the Nexus players have: the garden's village, or the islands' market island
+        public static string UseTheForge(Player player) => player.GameServer.WorldManager.Nexus?.Levels != null
+            ? "Forging and selling for fame have moved to the Divine Forge, in its smithy on the market island, west across the bridge from the Nexus spawn (or type /forge): stand by it and open its window."
+            : "Forging and selling for fame have moved to the Divine Forge, in the Nexus's forge court, in the village east of the spawn just north of the shopping street (or type /forge): stand by it and open its window.";
 
         public static bool NearForge(Player player) => NearObject(player, ForgeClass);
 
@@ -263,7 +266,7 @@ namespace WorldServer.core.commands.doomed
             var spot = SpotBesideForge(nexus);
             if (spot == null)
             {
-                player.SendInfo(DoomedEconomy.UseTheForge);
+                player.SendInfo(DoomedEconomy.UseTheForge(player));
                 return true;
             }
             // no cooldown, as /nexus has none: it's a walk across the Nexus
@@ -281,19 +284,26 @@ namespace WorldServer.core.commands.doomed
 
         // A free tile two in front of the forge (south: its sprite stands above its tile), on the
         // carpet side of the hall; failing those, the nearest free tile within its reach. The hall
-        // is walled all round it, so the nearest free tiles are always inside.
+        // is walled all round it, so the nearest free tiles are always inside. On the islands
+        // (stacked floors) the forge's floor is searched.
         private static Position? SpotBesideForge(World world)
         {
             var map = world.Map;
             int fx = -1, fy = -1;
-            for (var y = 0; y < map.Height && fx < 0; y++)
-                for (var x = 0; x < map.Width; x++)
-                    if (map[x, y].ObjDesc?.Class == DoomedEconomy.ForgeClass)
-                    {
-                        fx = x;
-                        fy = y;
-                        break;
-                    }
+            foreach (var level in world.Levels ?? new System.Collections.Generic.List<terrain.Wmap> { world.Map })
+            {
+                for (var y = 0; y < level.Height && fx < 0; y++)
+                    for (var x = 0; x < level.Width; x++)
+                        if (level[x, y].ObjDesc?.Class == DoomedEconomy.ForgeClass)
+                        {
+                            fx = x;
+                            fy = y;
+                            map = level;
+                            break;
+                        }
+                if (fx >= 0)
+                    break;
+            }
             if (fx < 0)
                 return null;
 
@@ -326,7 +336,7 @@ namespace WorldServer.core.commands.doomed
 
         protected override bool Process(Player player, TickTime time, string args)
         {
-            player.SendInfo(DoomedEconomy.UseTheForge);
+            player.SendInfo(DoomedEconomy.UseTheForge(player));
             return true;
         }
     }
@@ -338,7 +348,7 @@ namespace WorldServer.core.commands.doomed
 
         protected override bool Process(Player player, TickTime time, string args)
         {
-            player.SendInfo(DoomedEconomy.UseTheForge);
+            player.SendInfo(DoomedEconomy.UseTheForge(player));
             return true;
         }
     }

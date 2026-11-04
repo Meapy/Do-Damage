@@ -37,7 +37,7 @@ namespace WorldServer.core.commands
                     var sized = rs.Goal == def.Goal ? "" : rs.Goal > def.Goal ? ", made harder" : ", made easier";
                     player.SendInfo($"  {def.Title}: {def.Describe(rs.Goal)} [{rs.Total:N0}/{rs.Goal:N0}{sized}, {tier}, {rs.Participants:N0} helping, you {mine:N0}]");
                 }
-                player.SendInfo($"Everyone who helps shares each tier's reward, and each {data.BonusName} level past the goal: claim them from the Warcaller by the Nexus spawn.");
+                player.SendInfo($"Everyone who helps shares each tier's reward, and each {data.BonusName} level past the goal: claim them from the Warcaller in the Nexus.");
                 return true;
             }
         }
