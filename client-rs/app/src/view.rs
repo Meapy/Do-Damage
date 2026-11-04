@@ -561,8 +561,10 @@ pub struct FloorCache {
     chunks: rustc_hash::FxHashMap<(u8, i32, i32), std::rc::Rc<Chunk>>,
 }
 
-/// A square of ground on a floor: where, how high, its ground, whether a floor above shades it
-/// and whether it stays solid when the floors over us go see-through (`<StaySolid/>`).
+/// A square of ground on a floor: where, how high, whether a floor above shades it and whether
+/// it stays solid when the floors over us go see-through (`<StaySolid/>`). A ground with
+/// `<Slope/>` (a bridge's deck) slopes from square to square instead of stepping: `corners` its
+/// height at its north-west, north-east, south-east and south-west corners.
 #[derive(Clone, Copy)]
 struct Top {
     x: i32,
@@ -570,38 +572,56 @@ struct Top {
     s: f64,
     shaded: bool,
     solid: bool,
+    corners: Option<[f64; 4]>,
 }
 
-/// Where ground drops: a square's side from `top` down to `bottom`, its texture and light.
+/// Where ground drops: a square's side from its top (at `a`, and at `b` where a sloped deck
+/// leans) down to `bottom` (as far below at `b`), its texture and light. A tower's doorway
+/// (`<Doorway/>`) is dark at its foot.
 #[derive(Clone, Copy)]
 struct Edge {
     a: [f64; 2],
     b: [f64; 2],
     top: f64,
+    top_b: f64,
     bottom: f64,
     rect: bsk_render::AtlasRect,
     shade: f32,
     solid: bool,
+    door: bool,
 }
 
 /// A railing along a drop, from `a` to `b` (its top rail's height at each end: a bridge's rising
-/// deck has it slope with the deck), its colour.
+/// deck has it slope with the deck), its colour; or a stone parapet (`<Parapet/>`) in the ground's
+/// side texture.
 #[derive(Clone, Copy)]
 struct Rail {
     a: [f64; 3],
     b: [f64; 3],
     color: u32,
     solid: bool,
+    parapet: Option<bsk_render::AtlasRect>,
 }
 
-/// A pagoda's roof tier along a tower's wall (`<FaceDown/>`) at a floor's height: from the wall
-/// (a to b, `z` high) sloping down and out along `n`.
+/// A roof tier or a cornice along a tower's wall (`<FaceDown/>`, `<Column/>`) at a floor's height:
+/// from the wall (a to b, `z` high) sloping down and out along `n`, in its `<Eave>` colour.
 #[derive(Clone, Copy)]
 struct Eave {
     a: [f64; 2],
     b: [f64; 2],
     n: [f64; 2],
     z: f64,
+    color: u32,
+    solid: bool,
+}
+
+/// A timber bracket under a balcony, from the tower's wall (`p`, low) out to the balcony's
+/// underside (`q`), `t` the way along the wall.
+#[derive(Clone, Copy)]
+struct Brace {
+    p: [f64; 3],
+    q: [f64; 3],
+    t: [f64; 2],
     solid: bool,
 }
 
@@ -609,7 +629,14 @@ struct Eave {
 const EAVE_OUT: f64 = 0.55;
 const EAVE_DROP: f64 = 0.4;
 const EAVE_TEAL: u32 = 0x2E5852;
-const EAVE_RIM: u32 = 0x18302F;
+/// A stone parapet's height, and a doorway's.
+const PARAPET: f64 = 0.38;
+const DOORWAY: f64 = 1.25;
+/// A balcony's brackets: how far down the wall they start, how far out they reach, how wide.
+const BRACE_DROP: f64 = 1.1;
+const BRACE_OUT: f64 = 1.0;
+const BRACE_WIDTH: f64 = 0.22;
+const BRACE_COLOR: u32 = 0x4A2E22;
 
 #[derive(Default)]
 struct Chunk {
@@ -617,14 +644,31 @@ struct Chunk {
     edges: Vec<Edge>,
     rails: Vec<Rail>,
     eaves: Vec<Eave>,
+    braces: Vec<Brace>,
 }
 
-/// A square of a floor to draw: its ground (scrolling if it flows) and blended corners.
+/// A square of a floor to draw: its ground (scrolling if it flows) and blended corners; a sloped
+/// deck's corners on the screen.
 struct TopDraw {
     base: Option<(bsk_render::AtlasRect, bsk_data::AnimateKind, f64, f64)>,
     overlay: Option<bsk_render::AtlasRect>,
     quad: Quad,
+    corners: Option<[[f32; 2]; 4]>,
     tint: Tint,
+}
+
+impl TopDraw {
+    /// One of its pictures over the square: flat, or as two triangles over a sloped deck.
+    fn draw(&self, renderer: &mut Renderer, rect: bsk_render::AtlasRect, scroll: Option<(f64, f64)>) {
+        match (self.corners, scroll) {
+            (Some(c), _) => {
+                renderer.triangle(rect, [c[0], c[1], c[2]], [[0.0, 0.0], [1.0, 0.0], [1.0, 1.0]], self.tint);
+                renderer.triangle(rect, [c[0], c[2], c[3]], [[0.0, 0.0], [1.0, 1.0], [0.0, 1.0]], self.tint);
+            }
+            (None, Some((ox, oy))) => crate::ground::draw_scrolled(renderer, rect, self.quad, ox, oy, self.tint),
+            (None, None) => renderer.sprite(rect, self.quad, self.tint),
+        }
+    }
 }
 
 impl FloorCache {
@@ -667,6 +711,26 @@ fn drops(world: &World, data: &GameData, x: i32, y: i32, s: f64, nx: i32, ny: i3
     !(0..world.level_count() as u8).filter_map(|l| world.surface(l, x + nx, y + ny, data)).any(|v| v >= s - by)
 }
 
+/// Whether a square's ground (on whichever floor is within `reach` of height `s`) has `tag`, and
+/// that ground's height.
+fn ground_near(world: &World, data: &GameData, x: i32, y: i32, s: f64, reach: f64, tag: &str) -> Option<f64> {
+    (0..world.level_count() as u8).find_map(|l| {
+        let v = world.surface(l, x, y, data).filter(|v| (v - s).abs() <= reach)?;
+        let t = world.level_tile(l, x, y)?;
+        data.grounds.get(&t).filter(|g| tag.is_empty() || g.xml.has(tag)).map(|_| v)
+    })
+}
+
+/// A sloped deck's corner (`<Slope/>`): the mean of the squares round it whose ground is near
+/// this one's height (the deck's next squares, or the bridge head it lands on).
+fn corner(world: &World, data: &GameData, cx: i32, cy: i32, s: f64) -> f64 {
+    let near: Vec<f64> = [(cx - 1, cy - 1), (cx, cy - 1), (cx - 1, cy), (cx, cy)]
+        .iter()
+        .filter_map(|&(x, y)| ground_near(world, data, x, y, s, 0.3, ""))
+        .collect();
+    if near.is_empty() { s } else { near.iter().sum::<f64>() / near.len() as f64 }
+}
+
 /// A chunk's ground, faces and railings (`FloorCache`).
 fn build_chunk(scene: &Scene, level: u8, cx: i32, cy: i32) -> Chunk {
     let (world, data) = (scene.world, scene.data);
@@ -679,51 +743,93 @@ fn build_chunk(scene: &Scene, level: u8, cx: i32, cy: i32) -> Chunk {
             let Some(s) = world.surface(level, x, y, data) else { continue };
             let Some(tile) = world.level_tile(level, x, y) else { continue };
             let ground = data.grounds.get(&tile);
-            let solid = ground.is_some_and(|g| g.xml.has("StaySolid"));
-            let face_down = ground.is_some_and(|g| g.xml.has("FaceDown"));
+            let has = |tag: &str| ground.is_some_and(|g| g.xml.has(tag));
+            let solid = has("StaySolid");
+            let face_down = has("FaceDown");
+            let column = has("Column");
+            let sloped = has("Slope");
+            let eave_color = ground.and_then(|g| g.xml.child("Eave")).map_or(EAVE_TEAL, |e| bsk_data::xml::as3_int(&e.text) as u32);
             let shaded = (level + 1..count).any(|l| world.surface(l, x, y, data).is_some());
-            chunk.tops.push(Top { x, y, s, shaded, solid });
+            let corners = sloped.then(|| [corner(world, data, x, y, s), corner(world, data, x + 1, y, s), corner(world, data, x + 1, y + 1, s), corner(world, data, x, y + 1, s)]);
+            chunk.tops.push(Top { x, y, s, shaded, solid, corners });
             let (fx, fy) = (x as f64, y as f64);
+            // the ground under this square, on the floors below (a tower's walls go down to it)
+            let below = (0..level).filter_map(|l| world.surface(l, x, y, data)).fold(None, |m: Option<f64>, v| Some(m.map_or(v, |m| m.max(v))));
             // the sides, in Wall.addWall order (north, east, south, west), going round the square
-            // clockwise: each from a to b, its normal, and the way along it
+            // clockwise: each from a to b, its normal, the way along it, and its corners' indices
             let sides = [
-                ([fx, fy], [fx + 1.0, fy], (0, -1), (1, 0)),
-                ([fx + 1.0, fy], [fx + 1.0, fy + 1.0], (1, 0), (0, 1)),
-                ([fx + 1.0, fy + 1.0], [fx, fy + 1.0], (0, 1), (-1, 0)),
-                ([fx, fy + 1.0], [fx, fy], (-1, 0), (0, -1)),
+                ([fx, fy], [fx + 1.0, fy], (0, -1), (1, 0), (0, 1)),
+                ([fx + 1.0, fy], [fx + 1.0, fy + 1.0], (1, 0), (0, 1), (1, 2)),
+                ([fx + 1.0, fy + 1.0], [fx, fy + 1.0], (0, 1), (-1, 0), (2, 3)),
+                ([fx, fy + 1.0], [fx, fy], (-1, 0), (0, -1), (3, 0)),
             ];
             let rail = rail_of(tile);
-            for (a, b, (nx, ny), (ax, ay)) in sides {
+            // how far the ground must drop beside it for a railing (`<RailDrop>`: a little bridge
+            // over a pond is railed all along)
+            let rail_drop = ground.map_or(RAIL_DROP, |g| g.xml.number("RailDrop", RAIL_DROP));
+            let parapet = has("Parapet").then(|| crate::ground::face(data, scene.sprites, tile, x, y).map(|f| f.0)).flatten();
+            for (a, b, (nx, ny), (ax, ay), (ca, cb)) in sides {
+                // the height of the deck at this side's ends: a sloped deck's corners, else level
+                let (ha, hb) = corners.map_or((s, s), |c| (c[ca], c[cb]));
                 // a railing where it drops: its top level with the ground here, or at either end
                 // halfway to the next square's where the railing carries on along a rising deck
-                if let Some(color) = rail.filter(|_| drops(world, data, x, y, s, nx, ny, RAIL_DROP)) {
+                if let Some(color) = rail.filter(|_| drops(world, data, x, y, s, nx, ny, rail_drop)) {
                     let end = |dir: i32| {
                         let (px, py) = (x + ax * dir, y + ay * dir);
                         let next = world.level_at(px, py, s, data).and_then(|l| {
                             let t = world.level_tile(l, px, py)?;
                             let h = world.surface(l, px, py, data)?;
-                            (rail_of(t).is_some() && drops(world, data, px, py, h, nx, ny, RAIL_DROP)).then_some(h)
+                            (rail_of(t).is_some() && drops(world, data, px, py, h, nx, ny, rail_drop)).then_some(h)
                         });
                         next.map_or(s, |h| (s + h) / 2.0) + RAIL_HEIGHT
                     };
-                    chunk.rails.push(Rail { a: [a[0], a[1], end(-1)], b: [b[0], b[1], end(1)], color, solid });
+                    let (ra, rb) = if corners.is_some() { (ha + RAIL_HEIGHT, hb + RAIL_HEIGHT) } else { (end(-1), end(1)) };
+                    chunk.rails.push(Rail { a: [a[0], a[1], ra], b: [b[0], b[1], rb], color, solid, parapet });
+                }
+                // a tower's walls (`<Column/>`): every side not on its own kind goes down to the
+                // ground under it, from under the balcony beside it (or its own top's edge), with
+                // a cornice at each floor it passes and a bracket under the balcony
+                if column && !ground_near(world, data, x + nx, y + ny, s, 0.05, "Column").is_some() {
+                    let deck = ground_near(world, data, x + nx, y + ny, s, 0.3, "").is_some();
+                    let top = if deck { s - SLAB } else { s };
+                    let bottom = below.unwrap_or(level as f64 * floor_h - SLAB);
+                    let Some((rect, _)) = crate::ground::face(data, scene.sprites, tile, x, y) else { continue };
+                    let shade = shade(normal([a[0], a[1], top], [b[0], b[1], top], [b[0], b[1], bottom]));
+                    chunk.edges.push(Edge { a, b, top, top_b: top, bottom, rect, shade, solid, door: has("Doorway") });
+                    let mut k = (bottom / floor_h + 0.2).ceil();
+                    while k * floor_h < top - 0.2 {
+                        chunk.eaves.push(Eave { a, b, n: [nx as f64, ny as f64], z: k * floor_h, color: eave_color, solid });
+                        k += 1.0;
+                    }
+                    if deck {
+                        let m = [(a[0] + b[0]) / 2.0, (a[1] + b[1]) / 2.0];
+                        let p = [m[0], m[1], top - BRACE_DROP];
+                        let q = [m[0] + nx as f64 * BRACE_OUT, m[1] + ny as f64 * BRACE_OUT, top];
+                        chunk.braces.push(Brace { p, q, t: [ax as f64, ay as f64], solid });
+                    }
+                    continue;
                 }
                 // ground as high beside it: no drop
                 if !drops(world, data, x, y, s, nx, ny, 0.01) {
                     continue;
                 }
+                // a sloped deck's next square a little lower: the slope covers it, no step
+                if sloped && ground_near(world, data, x + nx, y + ny, s, 0.3, "Slope").is_some() {
+                    continue;
+                }
                 // a step's riser goes down to the floor it stands on; an edge over lower ground,
-                // or over nothing, is a slab; a ground with `<FaceDown/>` (a tower's top, a
-                // column's) has its sides go down to the ground under it, a wall
+                // or over nothing, is a slab; a ground with `<FaceDown/>` (a tower's top) has its
+                // sides go down to the ground under it, a wall
                 let base = level as f64 * floor_h;
-                let lower = (0..count).filter_map(|l| world.surface(l, x + nx, y + ny, data)).filter(|&v| v < s).fold(0.0, f64::max);
-                let below = (0..level).filter_map(|l| world.surface(l, x, y, data)).fold(0.0, f64::max);
+                let lower = (0..count).filter_map(|l| world.surface(l, x + nx, y + ny, data)).filter(|&v| v < s).fold(None, |m: Option<f64>, v| Some(m.map_or(v, |m| m.max(v))));
                 let bottom = if face_down {
-                    lower.max(below)
-                } else if lower >= base - 0.01 {
-                    lower
+                    lower.unwrap_or(0.0).max(below.unwrap_or(0.0))
                 } else {
-                    (s - SLAB).max(lower)
+                    match lower {
+                        Some(l) if l >= base - 0.01 && !sloped => l,
+                        Some(l) => (s - SLAB).max(l),
+                        None => s - SLAB,
+                    }
                 };
                 if s - bottom < 0.01 {
                     continue;
@@ -731,13 +837,15 @@ fn build_chunk(scene: &Scene, level: u8, cx: i32, cy: i32) -> Chunk {
                 // its stone (or soil), lit as a wall's side; else the ground itself, darker
                 let Some((rect, stone)) = crate::ground::face(data, scene.sprites, tile, x, y) else { continue };
                 let shade = shade(normal([a[0], a[1], s], [b[0], b[1], s], [b[0], b[1], bottom])) * if stone { 1.0 } else { 0.8 };
-                chunk.edges.push(Edge { a, b, top: s, bottom, rect, shade, solid });
+                // a sloped deck's slab leans with it, as deep at both ends
+                let (top, top_b, bottom) = if corners.is_some() { (ha, hb, ha - (s - bottom)) } else { (s, s, bottom) };
+                chunk.edges.push(Edge { a, b, top, top_b, bottom, rect, shade, solid, door: false });
                 // a tower's wall: a roof tier at each floor it passes, and under its top
                 if face_down {
                     let mut k = (bottom / floor_h + 0.2).ceil();
                     while k * floor_h <= s + 0.01 {
                         let z = (k * floor_h).min(s - 0.12);
-                        chunk.eaves.push(Eave { a, b, n: [nx as f64, ny as f64], z, solid });
+                        chunk.eaves.push(Eave { a, b, n: [nx as f64, ny as f64], z, color: eave_color, solid });
                         k += 1.0;
                     }
                 }
@@ -747,13 +855,14 @@ fn build_chunk(scene: &Scene, level: u8, cx: i32, cy: i32) -> Chunk {
     chunk
 }
 
-/// On stacked floors: each floor's ground in view at its height (a stair's steps each at theirs),
-/// blended and flowing as the map's is, and what stands at its edges where the ground drops beside
-/// it, each drawn with its floor at the depth it sorts at among what stands there: the faces (a
-/// step's riser down to the floor it stands on, in pieces a tile tall; a slab `SLAB` thick where
-/// the edge hangs over lower ground or nothing) and the railings of grounds with a `<Rail>`, a
-/// post at each corner. The floors over our head are see-through (`see_through_from`), but for
-/// grounds that stay solid (`<StaySolid/>`).
+/// On stacked floors: each floor's ground in view at its height (a stair's steps each at theirs,
+/// a bridge's deck sloping), blended and flowing as the map's is, and what stands at its edges
+/// where the ground drops beside it, each drawn with its floor at the depth it sorts at among what
+/// stands there: the faces (a step's riser down to the floor it stands on, in pieces a tile tall;
+/// a slab `SLAB` thick where the edge hangs over lower ground or nothing; a tower's walls down to
+/// the ground), the railings of grounds with a `<Rail>`, a post at each corner, or a stone
+/// parapet, a tower's cornices and its balcony's brackets. The floors over our head are
+/// see-through (`see_through_from`), but for grounds that stay solid (`<StaySolid/>`).
 #[allow(clippy::type_complexity, clippy::too_many_arguments)]
 fn floors(scene: &Scene, renderer: &mut Renderer, ground: &mut Ground, x0: i32, x1: i32, y0: i32, y1: i32) -> (Vec<Vec<TopDraw>>, Vec<(u8, f32, Plate)>, Vec<(u8, f32, [[f32; 2]; 3], Tint)>) {
     let (world, data, cam) = (scene.world, scene.data, scene.camera);
@@ -766,7 +875,10 @@ fn floors(scene: &Scene, renderer: &mut Renderer, ground: &mut Ground, x0: i32, 
     let mut tops: Vec<Vec<TopDraw>> = (0..count).map(|_| Vec::new()).collect();
     let mut faces = Vec::new();
     let mut posts = rustc_hash::FxHashSet::default();
-    let mut eaves = Vec::new();
+    let mut tris = Vec::new();
+    // the floor a piece from `low` up is drawn with: the one it stands beside, so what is on that
+    // floor in front of it stays in front
+    let piece_of = |low: f64, level: u8| (((low + 0.01) / floor_h).floor().max(0.0) as u8).min(level);
     ground.floors.sync(world);
     let (cx0, cx1) = (x0.max(0).div_euclid(CHUNK), x1.min(world.width - 1).div_euclid(CHUNK));
     let (cy0, cy1) = (y0.max(0).div_euclid(CHUNK), y1.min(world.height - 1).div_euclid(CHUNK));
@@ -775,6 +887,10 @@ fn floors(scene: &Scene, renderer: &mut Renderer, ground: &mut Ground, x0: i32, 
         // see-through over us, unless the ground stays solid (`<StaySolid/>`: stairs, bridges);
         // `/floors` shows through everything
         let alpha = |solid: bool| if faded && !(solid && !world.see_through) { 0.35 } else { 1.0 };
+        let flat = |color: u32, k: f32, solid: bool| {
+            let [r, g, b] = bsk_render::rgb_f32(color);
+            Tint { mul: [r * k, g * k, b * k, alpha(solid)], add: [0.0; 3] }
+        };
         for cy in cy0..=cy1 {
             for cx in cx0..=cx1 {
                 let chunk = ground.floors.chunk(scene, level, cx, cy);
@@ -787,8 +903,11 @@ fn floors(scene: &Scene, renderer: &mut Renderer, ground: &mut Ground, x0: i32, 
                     let Some(layers) = ground.layers_on(world, data, scene.sprites, renderer, level, t.x, t.y) else { continue };
                     let lit = if t.shaded { SHADE } else { 1.0 };
                     let quad = cam.quad([fx, fy, t.s], [fx + 1.0, fy, t.s], [fx, fy + 1.0, t.s]);
+                    let corners = t.corners.map(|c| {
+                        [cam.to_screen(fx, fy, c[0]), cam.to_screen(fx + 1.0, fy, c[1]), cam.to_screen(fx + 1.0, fy + 1.0, c[2]), cam.to_screen(fx, fy + 1.0, c[3])]
+                    });
                     let tint = Tint { mul: [lit, lit, lit, alpha(t.solid)], add: [0.0; 3] };
-                    tops[level as usize].push(TopDraw { base: layers.base, overlay: layers.overlay, quad, tint });
+                    tops[level as usize].push(TopDraw { base: layers.base, overlay: layers.overlay, quad, corners, tint });
                 }
                 for e in &chunk.edges {
                     let (a, b) = (e.a, e.b);
@@ -799,16 +918,26 @@ fn floors(scene: &Scene, renderer: &mut Renderer, ground: &mut Ground, x0: i32, 
                     }
                     let depth = cam.to_screen((a[0] + b[0]) / 2.0, (a[1] + b[1]) / 2.0, 0.0)[1];
                     let tint = Tint { mul: [e.shade, e.shade, e.shade, alpha(e.solid)], add: [0.0; 3] };
+                    if (e.top - e.top_b).abs() > 1e-6 {
+                        // a sloped deck's slab: one piece, leaning with it
+                        let quad = cam.quad([a[0], a[1], e.top], [b[0], b[1], e.top_b], [a[0], a[1], e.bottom]);
+                        faces.push((piece_of(e.bottom, level), depth, Plate { rect: e.rect, quad, tint }));
+                        continue;
+                    }
                     let mut top = e.top;
                     while top - e.bottom > 0.01 {
                         let low = (top - 1.0).max(e.bottom);
                         let quad = cam.quad([a[0], a[1], top], [b[0], b[1], top], [a[0], a[1], low]);
-                        // a wall down past the floors below (`<FaceDown/>`): each piece with the
-                        // floor it stands beside, so what is on that floor in front of it stays
-                        // in front
-                        let piece = (((low + 0.01) / floor_h).floor().max(0.0) as u8).min(level);
-                        faces.push((piece, depth, Plate { rect: e.rect, quad, tint }));
+                        faces.push((piece_of(low, level), depth, Plate { rect: e.rect, quad, tint }));
                         top = low;
+                    }
+                    // a doorway at a tower's foot: dark within, a lintel over it
+                    if e.door {
+                        let (ia, ib) = ([a[0] + (b[0] - a[0]) * 0.18, a[1] + (b[1] - a[1]) * 0.18], [a[0] + (b[0] - a[0]) * 0.82, a[1] + (b[1] - a[1]) * 0.82]);
+                        let dark = cam.quad([ia[0], ia[1], e.bottom + DOORWAY], [ib[0], ib[1], e.bottom + DOORWAY], [ia[0], ia[1], e.bottom]);
+                        faces.push((piece_of(e.bottom, level), depth + 0.01, Plate { rect: white, quad: dark, tint: flat(0x140E14, 1.0, e.solid) }));
+                        let lintel = cam.quad([ia[0], ia[1], e.bottom + DOORWAY + 0.12], [ib[0], ib[1], e.bottom + DOORWAY + 0.12], [ia[0], ia[1], e.bottom + DOORWAY]);
+                        faces.push((piece_of(e.bottom, level), depth + 0.01, Plate { rect: white, quad: lintel, tint: flat(BRACE_COLOR, 1.0, e.solid) }));
                     }
                 }
                 for e in &chunk.eaves {
@@ -818,24 +947,36 @@ fn floors(scene: &Scene, renderer: &mut Renderer, ground: &mut Ground, x0: i32, 
                     let along = [e.b[0] - e.a[0], e.b[1] - e.a[1]];
                     let (oa, ob) = (out([e.a[0] - along[0] * EAVE_OUT, e.a[1] - along[1] * EAVE_OUT]), out([e.b[0] + along[0] * EAVE_OUT, e.b[1] + along[1] * EAVE_OUT]));
                     let lit = shade(normal([e.a[0], e.a[1], e.z], [e.b[0], e.b[1], e.z], [oa[0], oa[1], e.z - EAVE_DROP]));
-                    let piece = (((e.z - 0.2) / floor_h).floor().max(0.0) as u8).min(level);
-                    let [tr, tg, tb] = bsk_render::rgb_f32(EAVE_TEAL);
-                    let tint = Tint { mul: [tr * lit, tg * lit, tb * lit, alpha(e.solid)], add: [0.0; 3] };
+                    let piece = piece_of(e.z - 0.21, level);
+                    let tint = flat(e.color, lit, e.solid);
                     // the slope as two triangles, its outer edge the longer
                     let p = |w: [f64; 3]| cam.to_screen(w[0], w[1], w[2]);
                     let (wa, wb) = (p([e.a[0], e.a[1], e.z + 0.12]), p([e.b[0], e.b[1], e.z + 0.12]));
                     let (xa, xb) = (p([oa[0], oa[1], e.z - EAVE_DROP]), p([ob[0], ob[1], e.z - EAVE_DROP]));
-                    eaves.push((piece, depth, [wa, wb, xb], tint));
-                    eaves.push((piece, depth, [wa, xb, xa], tint));
+                    tris.push((piece, depth, [wa, wb, xb], tint));
+                    tris.push((piece, depth, [wa, xb, xa], tint));
                     // the dark line of its edge
-                    let [rr, rg, rb] = bsk_render::rgb_f32(EAVE_RIM);
                     let rim = cam.quad([oa[0], oa[1], e.z - EAVE_DROP], [ob[0], ob[1], e.z - EAVE_DROP], [oa[0], oa[1], e.z - EAVE_DROP - 0.08]);
-                    faces.push((piece, depth + 0.01, Plate { rect: white, quad: rim, tint: Tint { mul: [rr, rg, rb, alpha(e.solid)], add: [0.0; 3] } }));
+                    faces.push((piece, depth + 0.01, Plate { rect: white, quad: rim, tint: flat(e.color, lit * 0.5, e.solid) }));
+                }
+                for br in &chunk.braces {
+                    let depth = cam.to_screen(br.q[0], br.q[1], 0.0)[1] + 0.03;
+                    let h = [br.t[0] * BRACE_WIDTH / 2.0, br.t[1] * BRACE_WIDTH / 2.0];
+                    let quad = cam.quad([br.p[0] - h[0], br.p[1] - h[1], br.p[2]], [br.p[0] + h[0], br.p[1] + h[1], br.p[2]], [br.q[0] - h[0], br.q[1] - h[1], br.q[2]]);
+                    faces.push((piece_of(br.p[2], level), depth, Plate { rect: white, quad, tint: flat(BRACE_COLOR, 0.9, br.solid) }));
                 }
                 for r in &chunk.rails {
                     let depth = cam.to_screen((r.a[0] + r.b[0]) / 2.0, (r.a[1] + r.b[1]) / 2.0, 0.0)[1];
-                    let [cr, cg, cb] = bsk_render::rgb_f32(r.color);
-                    let tint = |k: f32| Tint { mul: [cr * k, cg * k, cb * k, alpha(r.solid)], add: [0.0; 3] };
+                    let tint = |k: f32| flat(r.color, k, r.solid);
+                    // a stone parapet: a low wall in the ground's side stone, a lighter coping
+                    if let Some(rect) = r.parapet {
+                        let (da, db) = (r.a[2] - RAIL_HEIGHT, r.b[2] - RAIL_HEIGHT);
+                        let wall = cam.quad([r.a[0], r.a[1], da + PARAPET], [r.b[0], r.b[1], db + PARAPET], [r.a[0], r.a[1], da]);
+                        faces.push((level, depth, Plate { rect, quad: wall, tint: tint(1.0) }));
+                        let cap = cam.quad([r.a[0], r.a[1], da + PARAPET + 0.06], [r.b[0], r.b[1], db + PARAPET + 0.06], [r.a[0], r.a[1], da + PARAPET]);
+                        faces.push((level, depth, Plate { rect: white, quad: cap, tint: tint(1.25) }));
+                        continue;
+                    }
                     // the top rail, and a thinner one halfway down
                     let bar = cam.quad(r.a, r.b, [r.a[0], r.a[1], r.a[2] - RAIL_BAR]);
                     faces.push((level, depth, Plate { rect: white, quad: bar, tint: tint(1.0) }));
@@ -859,7 +1000,7 @@ fn floors(scene: &Scene, renderer: &mut Renderer, ground: &mut Ground, x0: i32, 
             }
         }
     }
-    (tops, faces, eaves)
+    (tops, faces, tris)
 }
 
 #[allow(clippy::too_many_arguments)]
@@ -974,13 +1115,12 @@ pub fn draw(scene: &Scene, renderer: &mut Renderer, redrawer: &mut Redrawer, gro
             let tops = &floor_tops[level as usize];
             for t in tops {
                 if let Some((rect, kind, dx, dy)) = t.base {
-                    let (ox, oy) = crate::ground::scroll(kind, dx, dy, scene.time);
-                    crate::ground::draw_scrolled(renderer, rect, t.quad, ox, oy, t.tint);
+                    t.draw(renderer, rect, Some(crate::ground::scroll(kind, dx, dy, scene.time)));
                 }
             }
             for t in tops {
                 if let Some(rect) = t.overlay {
-                    renderer.sprite(rect, t.quad, t.tint);
+                    t.draw(renderer, rect, None);
                 }
             }
         } else {

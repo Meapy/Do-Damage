@@ -24,9 +24,9 @@ namespace WorldServer.core.commands.doomed
         public const string ForgeClass = "Forge";
         public const float ForgeReach = 5;
 
-        // where the forge is, in the Nexus players have: the garden's village, or the islands' north island
+        // where the forge is, in the Nexus players have: the garden's village, or the islands' market island
         public static string UseTheForge(Player player) => player.GameServer.WorldManager.Nexus?.Levels != null
-            ? "Forging and selling for fame have moved to the Divine Forge, in its smithy on the north island, up the bridge from the Nexus spawn (or type /forge): stand by it and open its window."
+            ? "Forging and selling for fame have moved to the Divine Forge, in its smithy on the market island, west across the bridge from the Nexus spawn (or type /forge): stand by it and open its window."
             : "Forging and selling for fame have moved to the Divine Forge, in the Nexus's forge court, in the village east of the spawn just north of the shopping street (or type /forge): stand by it and open its window.";
 
         public static bool NearForge(Player player) => NearObject(player, ForgeClass);
@@ -285,7 +285,7 @@ namespace WorldServer.core.commands.doomed
         // A free tile two in front of the forge (south: its sprite stands above its tile), on the
         // carpet side of the hall; failing those, the nearest free tile within its reach. The hall
         // is walled all round it, so the nearest free tiles are always inside. On the islands
-        // (stacked floors) the forge's floor is searched (the north island's).
+        // (stacked floors) the forge's floor is searched.
         private static Position? SpotBesideForge(World world)
         {
             var map = world.Map;

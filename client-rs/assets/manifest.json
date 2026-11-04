@@ -3372,6 +3372,10 @@
   {
    "name": "NI Bar",
    "file": "kabam/rotmg/assets/custom/objects/nexusIslandsBar.obj"
+  },
+  {
+   "name": "NI Tower Cap",
+   "file": "kabam/rotmg/assets/custom/objects/nexusIslandsTowerCap.obj"
   }
  ],
  "particles": "kabam/rotmg/assets/prod/objects/particles.dat",
