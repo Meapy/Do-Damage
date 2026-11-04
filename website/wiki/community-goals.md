@@ -60,10 +60,24 @@ says so, and another tells you when a reward of yours is waiting.
    {{v:community_bonus_name}} I to {{v:community_bonus_last}} ({{v:community_bonus_max}}% of the
    goal), and each pays the goal's bonus again to everyone who helped.
 5. **The top {{v:community_top}}** who added the most claim the top's prize once the goal ends.
+   A goal finished early (below) ends there, so its top claim their prize straight away.
 6. **Rewards** go straight to you: fame to your account, items to the gift chest in your vault.
    The window and the chat name what each claim gave you. Ended goals' rewards wait {{v:community_claim_weeks}} more week, then go.
 
 {{gen:community_tiers}}
+
+## Finished early: a bonus goal
+
+When the realm takes a goal all the way, through its last {{v:community_bonus_name}} level
+({{v:community_bonus_max}}% of the goal), before the week is out, that goal is **finished**: it
+ends there, its rewards wait to be claimed as an ended goal's do, and a **bonus goal** of another
+kind takes its place at once, with its own tiers, levels and loot. A banner tells everyone.
+
+- The bonus goal runs until the usual **Monday reset**, when the new week's goals come as always.
+- It asks only its share of the week that's left: with half the week to go, half its usual goal.
+- It's never one of the week's other goals, and where it can be, none of last week's or next
+  week's either. Finish the bonus goal too and another follows.
+- None starts in the last {{v:community_early_hours}} hours of the week.
 
 ## Loot rolls
 

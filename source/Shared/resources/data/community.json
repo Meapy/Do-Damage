@@ -6,7 +6,8 @@
     "Tiers: reached at 'tierShares' of the goal and named 'tierNames'. Every account past the minimum claims each tier reached, from the Warcaller by the Nexus spawn; the top 'topCount' contributors claim the 'top' prize too once the goal ends. Past the goal, an Overdrive level ('bonusName') each 'bonusStep' of the goal more, up to 'bonusTiers', each paying the goal's 'bonus'. A goal without 'tiers', 'bonus' or 'top' gives 'defaultTiers', 'defaultBonus' and 'defaultTop'.",
     "Rewards: {\"fame\": n} to the account, {\"item\": \"<id>\", \"count\": n} to the gift chest in the vault, {\"roll\": n} n items drawn from the goal's 'loot' (by 'weight'; each Overdrive level makes the rarer 'rarities' likelier by 'rarityLift', and the top's prize rolls at the highest). A roll of 'announceFrom' or rarer is told to the whole server. Rewards stay claimable 'claimWeeks' weeks after a goal ends. Each goal gives its own (the server warns of two that give the same).",
     "Specials: goals with 'from' and 'until' (UTC days, yyyy-MM-dd, both included) run besides the week's. Give each a new id.",
-    "Sizing: a week's run of a goal is its 'goal' times the goal's scale, fixed when the run begins. When it ends, the scale moves towards the realm ending at 'adapt.target' of the goal: times (done/target)^damping, between 'minStep' and 'maxStep' a run, and within 'minScale' and 'maxScale'. Specials are never scaled."
+    "Sizing: a week's run of a goal is its 'goal' times the goal's scale, fixed when the run begins. When it ends, the scale moves towards the realm ending at 'adapt.target' of the goal: times (done/target)^damping, between 'minStep' and 'maxStep' a run, and within 'minScale' and 'maxScale'. Specials are never scaled.",
+    "Finishing early: a week's goal that reaches its last Overdrive level ends there, and a bonus goal of another group (none of this week's, and if it can, none of last week's or next week's) takes its slot until the weekly reset, as usual. Not with less than 'early.minHours' left. A bonus goal asks its share of the week left (at least 'early.minShare' of a week's goal), and is sized again when it ends, as any. 'early.enabled' false turns it off."
   ],
   "slots": 3,
   "tierShares": [ 0.25, 0.5, 0.75, 1 ],
@@ -20,6 +21,7 @@
   "rarityLift": [ 0, 0.1, 0.25, 0.4, 0.6, 0.8 ],
   "announceFrom": "legendary",
   "adapt": {"enabled": true, "target": 1.2, "damping": 0.5, "minStep": 0.75, "maxStep": 1.35, "minScale": 0.4, "maxScale": 4},
+  "early": {"enabled": true, "minHours": 6, "minShare": 0.15},
   "defaultTiers": [
     [{"fame": 150}],
     [{"fame": 250}, {"item": "Loot Drop Potion"}],

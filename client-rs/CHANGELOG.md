@@ -33,6 +33,12 @@ details). Add to a group's line when a change adds to it, rather than adding ano
   name have their own now (the four Karate Penguins, Robobuddy, the Skeletal Guardian, the Lunar
   and Twilight Phoenixes), and the tooltip shows a pet's size in your language.
 
+### Community goals
+- A goal the realm takes through its last Overdrive level before the week is out now finishes
+  early: its rewards wait as an ended goal's do (the top 3 claim their prize at once), and a bonus
+  goal of another kind takes its place until the Monday reset, asking only its share of the week
+  that's left. The weekly reset comes as always.
+
 ### Wiki
 - Pets have a section of their own, no longer under Characters. The Pets page lists only the pets
   you can get, each with where it drops, and no longer the pet yard's, which isn't open here.

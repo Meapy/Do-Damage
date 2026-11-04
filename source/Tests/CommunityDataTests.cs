@@ -87,6 +87,40 @@ namespace Tests
         }
 
         [Fact]
+        public void AGoalFinishedEarlyMakesWayForABonusGoal()
+        {
+            var drawn = Data.Draw(Monday);
+            // only the last level finishes a goal
+            var oryx = Data.Goal("oryx");
+            Assert.False(Data.Finished(oryx, 15, 44));
+            Assert.True(Data.Finished(oryx, 15, 45));
+            // a bonus goal: none of this week's kinds, nor next week's or last week's, and the same
+            // every time
+            var next = Data.NextGoal(Monday, drawn);
+            Assert.NotNull(next);
+            Assert.Equal(next, Data.NextGoal(Monday, drawn));
+            string GroupOf(string id) => Data.Goal(id).Group ?? id;
+            Assert.DoesNotContain(GroupOf(next), drawn.Select(GroupOf));
+            Assert.DoesNotContain(GroupOf(next), Data.Draw(Monday.AddDays(7)).Select(GroupOf));
+            Assert.DoesNotContain(GroupOf(next), Data.Draw(Monday.AddDays(-7)).Select(GroupOf));
+            // slot 1 finished on Tuesday noon: its goal ended then, the bonus runs to the reset
+            var at = Monday.AddDays(1).AddHours(12);
+            var runs = Data.Runs(Wed, null, week => week == Monday ? new[] { new EarlyStart(1, next, at) } : Array.Empty<EarlyStart>());
+            var running = runs.Where(r => r.Running(Wed)).ToList();
+            Assert.Equal(Data.Slots, running.Count);
+            var bonus = Assert.Single(running, r => r.Bonus);
+            Assert.Equal((next, at, Monday.AddDays(7), 1), (bonus.Def.Id, bonus.Start, bonus.End, bonus.Slot));
+            Assert.Equal(Monday, bonus.Week);
+            var done = Assert.Single(runs, r => r.Week == Monday && r.Slot == 1 && !r.Bonus);
+            Assert.Equal((drawn[1], at), (done.Def.Id, done.End));
+            Assert.False(done.Running(Wed));
+            Assert.Equal(runs.Count, runs.Select(r => r.Key).Distinct().Count());
+            // it asks its share of the week, at least MinShare of it
+            Assert.Equal(5.5 / 7, Data.BonusShare(at, Monday.AddDays(7)), 6);
+            Assert.Equal(Data.Early.MinShare, Data.BonusShare(Monday.AddDays(6.9), Monday.AddDays(7)), 6);
+        }
+
+        [Fact]
         public void SpecialsRunBetweenTheirDays()
         {
             var data = CommunityData.Parse(@"{
