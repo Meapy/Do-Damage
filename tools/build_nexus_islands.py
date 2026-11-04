@@ -159,6 +159,7 @@ COURT = (153, 88, 169, 100)
 SAMURAI = (158, 94)
 HERALD = (166, 92)
 LEADERBOARD = (162, 92)
+WARCALLER = (164, 94)                # the community goals' Warcaller, on the sand by the two
 # The tower: a round stone tower (its squares within TOWER_R of TOWER, a corner point), the
 # spiral stair inside it (build_stair_tower.spiral_squares: a ring two wide round the 2 by 2
 # core, sector 0 its south-west corner) from a door on its west side, two turns up to its top,
@@ -179,8 +180,8 @@ DOOR = (172, 73)
 BAR_DECK = (182, 66, 189, 77)        # the overhang: x0, y0, x1, y1
 BAR = (186, 69)                      # the bar's model: its counter's middle
 BARMAN = (186, 68)
-CHAMPIONS = (176, 75)                # the monument, on the tower's top before the cap room
-TELESCOPE_AT = 330                   # the telescope's bearing round the balcony (degrees, y down)
+CHAMPIONS = (173, 71)                # the monument, on the tower's top west of the cap room (clear of the stairwell)
+TELESCOPE_AT = 200                   # the telescope's bearing round the balcony (degrees, y down): beside the monument
 
 
 # --- the grid ------------------------------------------------------------------------------------
@@ -653,6 +654,7 @@ def lay_arena(levels):
     g.place(*LEADERBOARD, "Arena Leaderboard")
     g.place(ax1 - 2, ay0 + 2, "NG Taiko")
     g.put(*HERALD, region="Nexus Herald")
+    g.put(*WARCALLER, region="Nexus Warcaller")
     # the tower: its foot (stone, not walked through, but its door's square), the spiral inside
     # it, its top two floors up (the cap room on the core), the balcony round it
     body, balcony = tower_squares()
@@ -841,7 +843,8 @@ def check(levels):
     assert regions.get("Realm2 Portal") == 1, regions
     assert regions.get("Nexus Waypoint", 0) >= 16, regions
     for r in ("Nexus Bot", "Nexus Dungeon", "Nexus Tinkerer", "Nexus Chronicler", "Nexus Herald", "Nexus Broker",
-              "Nexus Name Changer", "Nexus Character Changer", "Nexus Twins", "Arena Portal", "Nexus Barman"):
+              "Nexus Name Changer", "Nexus Character Changer", "Nexus Twins", "Arena Portal", "Nexus Barman",
+              "Nexus Warcaller"):
         assert regions.get(r) == 1, (r, regions.get(r))
     assert regions.get("Nexus Bar", 0) >= 12, regions
     for shop, _, n, _ in bn.SHOPS:
