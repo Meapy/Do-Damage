@@ -275,6 +275,9 @@ def grounds():
                        {"BlendPriority": "26", **oak_rail}, "0x74403A", timber_face),
         "NI Tower Base": (lambda s: ashlar(GRANITE, s + 3), 2, {"NoWalk": None, "BlendPriority": "18", "NoUnderside": None},
                           "0x5E5C6E", stone_face),
+        # the chest deck's planks by the land: the garden's deck, blending under everything beside
+        # it, so the grass grows in over its edge
+        "NI Store Deck": (G.planks(G.DECK, False, seam=1, ends=0.88), 4, {"BlendPriority": "-2"}, "0xA8665A", None),
     }
     # the wooden bridges dip in a U, their decks an eighth of a tile apart (`WOOD_LIFTS`); the stone
     # one steps a quarter of a tile a square

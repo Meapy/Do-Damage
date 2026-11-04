@@ -221,11 +221,28 @@ impl World {
         !no_walk && !occupied
     }
 
+    /// On stacked floors, whether a railing stands between our square at (x0, y0) and the one at
+    /// (x, y) beside it: along our ground's side toward it, or its ground's side toward us. A
+    /// railing stops us as it looks it should, though the drop behind it could be stepped (a
+    /// stairwell's edge).
+    fn railing_between(&self, x0: f64, y0: f64, x: f64, y: f64, data: &GameData) -> bool {
+        if self.levels.is_none() {
+            return false;
+        }
+        let Some(me) = self.player() else { return false };
+        let (ax, ay, bx, by) = (x0 as i32, y0 as i32, x as i32, y as i32);
+        let there = self.level_at(bx, by, me.z, data);
+        let (dx, dy) = (bx - ax, by - ay);
+        [(dx, 0), (0, dy)].into_iter().filter(|&(nx, ny)| nx != 0 || ny != 0).any(|(nx, ny)| {
+            self.railed(me.level, ax, ay, nx, ny, data) || there.is_some_and(|l| self.railed(l, bx, by, -nx, -ny, data))
+        })
+    }
+
     /// `Player.isValidPosition`, from our square at (x0, y0).
     fn is_valid_position(&self, x0: f64, y0: f64, x: f64, y: f64, data: &GameData) -> bool {
         let out = x < 0.0 || y < 0.0 || x >= self.width as f64 || y >= self.height as f64;
         let same_square = (x as i32, y as i32) == (x0 as i32, y0 as i32);
-        if !same_square && (out || !self.walkable(x as i32, y as i32, data)) {
+        if !same_square && (out || !self.walkable(x as i32, y as i32, data) || self.railing_between(x0, y0, x, y, data)) {
             return false;
         }
         let full = |fx: f64, fy: f64| self.is_full_occupy(fx, fy, data);

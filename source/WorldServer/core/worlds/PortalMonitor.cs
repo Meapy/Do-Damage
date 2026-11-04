@@ -44,6 +44,9 @@ namespace WorldServer.core.worlds
         // tile. Drawn flat several tiles across by the Rust client (`GroundSize`).
         private const string REALM_PORTAL = "NG Realm Cavern";
         private const string REALM2_PORTAL = "NG Realm2 Vortex";
+        // this Nexus's realm portal north of its Realm 2 portal (its world's `<RealmPortalNorth>`,
+        // a cavern turned round so its steps face away from the shrine's middle), else REALM_PORTAL
+        private readonly string _realmPortalNorth;
 
         private readonly object _access = new object();
         private readonly GameServer _gameServer;
@@ -54,11 +57,16 @@ namespace WorldServer.core.worlds
         private bool _realm2Building;       // the Nexus's Realm 2 is being built
         private int _realm2Failures;
 
-        public RealmPortalMonitor(GameServer manager, World world)
+        public RealmPortalMonitor(GameServer manager, World world, string realmPortalNorth = null)
         {
             _gameServer = manager;
             _world = world;
+            _realmPortalNorth = string.IsNullOrEmpty(realmPortalNorth) ? REALM_PORTAL : realmPortalNorth;
         }
+
+        // the cavern for a spot: turned north of the Realm 2 portal (its steps to the north)
+        private string RealmPortalAt(Position pos) =>
+            _world.Marker(TileRegion.Realm2_Portal) is { } middle && pos.Y < middle.Y ? _realmPortalNorth : REALM_PORTAL;
 
         public void CreateNewRealm()
         {
@@ -83,7 +91,12 @@ namespace WorldServer.core.worlds
                 var pos = realm2 ? Realm2Spot() : GetRandPosition();
 
                 // on the islands, on the portals' floor (the ground there)
-                var portal = (Portal)_world.CreateNewEntity(realm2 ? REALM2_PORTAL : REALM_PORTAL, pos.X + 0.5f, pos.Y + 0.5f);
+                var kind = realm2 ? REALM2_PORTAL : RealmPortalAt(pos);
+                if (_world.CreateNewEntity(kind, pos.X + 0.5f, pos.Y + 0.5f) is not Portal portal)
+                {
+                    WorldServer.utils.StaticLogger.Instance.Error($"{_world.IdName}: no portal {kind} to {PortalName(world)}");
+                    return;
+                }
                 portal.WorldInstance = world;
                 portal.Name = $"{PortalName(world)} (0/{MAX_PER_REALM})";
                 if (world is RealmWorld realm)

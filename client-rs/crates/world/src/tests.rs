@@ -522,3 +522,44 @@ fn spiral_inner_lane_up_the_second_turn() {
         assert!(y < 4.0, "up beside the core from x {x0}: ({x}, {y})");
     }
 }
+
+/// A ledge (x 5 and up) 0.65 up, a step down we could take (`STEP`) but for its railing, and the
+/// same ledge without one (y 5 and up, x 5 and up: `Plain Ledge`). On stacked floors (none above).
+fn ledges(d: &mut GameData, x: f32, y: f32) -> World {
+    d.add_grounds(
+        r#"<Grounds>
+            <Ground type="0x50" id="Railed Ledge"><Lift>0.65</Lift><Rail>0xFF0000</Rail></Ground>
+            <Ground type="0x51" id="Plain Ledge"><Lift>0.65</Lift></Ground>
+        </Grounds>"#,
+    )
+    .unwrap();
+    let mut w = World::new(10, 10, "test", 1);
+    let mut tiles = Vec::new();
+    for ty in 0..10i16 {
+        for tx in 0..10i16 {
+            let t = if tx < 5 { FLOOR } else if ty < 5 { 0x50 } else { 0x51 };
+            tiles.push(GroundTile { x: tx, y: ty, tile_type: t as i32 });
+        }
+    }
+    let update = Update { tiles: tiles.into(), new_objs: vec![obj(2, PLAYER, x, y, 75)].into(), drops: Default::default() };
+    w.apply_update(&update, d, 0);
+    w.me = Some(2);
+    w.set_layers(3.0, &[]);
+    let me = w.objects.get_mut(&2).unwrap();
+    (me.z, me.level) = (0.65, 0);
+    w
+}
+
+#[test]
+fn a_railing_stops_us_at_a_drop_we_could_step() {
+    let mut d = data();
+    let mut w = ledges(&mut d, 7.5, 2.5);
+    assert!(w.railed(0, 5, 2, -1, 0, &d), "the railed ledge's edge is railed");
+    let (x, _) = walk(&mut w, &d, -1.0, 0.0, 1500);
+    assert!(x >= 5.0, "stopped at the railing: {x}");
+    // without a railing the same step down is taken
+    let mut w = ledges(&mut d, 7.5, 7.5);
+    let (x, _) = walk(&mut w, &d, -1.0, 0.0, 1500);
+    assert!(x < 4.0, "stepped down: {x}");
+    assert_eq!(w.player().unwrap().z, 0.0);
+}

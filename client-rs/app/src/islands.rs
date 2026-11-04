@@ -160,22 +160,23 @@ impl Undersides {
                         let (a, b) = (f.a, f.b);
                         let depth = cam.to_screen((a[0] + b[0]) / 2.0, (a[1] + b[1]) / 2.0, 0.0)[1];
                         let lit = shade([b[1] - a[1], a[0] - b[0], 0.0]) * f.tone;
-                        // a tile tall at a time, soil just under the rim, the rest rock, darker and
-                        // hazier the deeper
+                        // facing away (as a floor's sides, `view::floors`): the whole face, once
+                        let (p0, p1, p3) = (cam.to_screen(a[0], a[1], f.top), cam.to_screen(b[0], b[1], f.top), cam.to_screen(a[0], a[1], f.bottom));
+                        if (p1[0] - p0[0]) * (p3[1] - p0[1]) - (p1[1] - p0[1]) * (p3[0] - p0[0]) >= 0.0 {
+                            continue;
+                        }
+                        // a tile tall at a time, the soil band just under the rim first (never a
+                        // sliver of it: a face starting all but at its foot is rock from the top),
+                        // the rest rock, darker and hazier the deeper
                         let mut top = f.top;
                         while top - f.bottom > 0.01 {
                             let under = f.under_rim + (f.top - top);
-                            let low = if under < SOIL { (top - (SOIL - under)).max(f.bottom) } else { (top - 1.0).max(f.bottom) };
+                            let in_soil = under < SOIL - 0.05;
+                            let low = if in_soil { top - (SOIL - under) } else { top - 1.0 }.max(f.bottom);
                             let pts = [cam.to_screen(a[0], a[1], top), cam.to_screen(b[0], b[1], top), cam.to_screen(b[0], b[1], low), cam.to_screen(a[0], a[1], low)];
-                            // facing away (as a floor's sides, `view::floors`)
-                            let (ax, ay) = (pts[1][0] - pts[0][0], pts[1][1] - pts[0][1]);
-                            let (dx, dy) = (pts[3][0] - pts[0][0], pts[3][1] - pts[0][1]);
-                            if ax * dy - ay * dx >= 0.0 {
-                                break;
-                            }
                             let at = |z: f64| (f.deep * ((f.top - z) / (f.top - f.bottom).max(0.01)) as f32).clamp(0.0, 1.0);
                             let (tu, tl) = (hazed(lit * (1.0 - 0.45 * at(top)), at(top), 1.0), hazed(lit * (1.0 - 0.45 * at(low)), at(low), 1.0));
-                            quad(&mut tris, depth, if under < SOIL { soil } else { rock }, pts, (1.0, 1.0), tu, tl);
+                            quad(&mut tris, depth, if in_soil { soil } else { rock }, pts, (1.0, 1.0), tu, tl);
                             top = low;
                         }
                     }

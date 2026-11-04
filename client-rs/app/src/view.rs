@@ -587,8 +587,8 @@ fn see_through_from(world: &World, data: &GameData, cam: &Camera) -> Option<u8> 
 /// How thick a floor is where its edge hangs over the floor below (or over nothing): its face
 /// goes this far down, not to the ground, so what is under it shows.
 const SLAB: f64 = 0.35;
-/// A railing (`<Rail>`, its colour): along an edge that drops at least this far.
-const RAIL_DROP: f64 = 0.6;
+/// A railing (`<Rail>`, its colour): along an edge that drops at least this far (`World::railed`).
+const RAIL_DROP: f64 = bsk_world::RAIL_DROP;
 const RAIL_HEIGHT: f64 = 0.4;
 /// The railing's bars, how thick (tiles), and its posts, how wide.
 const RAIL_BAR: f64 = 0.07;
@@ -707,6 +707,9 @@ struct TopDraw {
     quad: Quad,
     corners: Option<[[f32; 2]; 4]>,
     tint: Tint,
+    /// How far above its floor it is (a bridge's arch, a stair's step): 0 for the floor's own
+    /// ground (and the water under a little bridge).
+    raised: f64,
 }
 
 impl TopDraw {
@@ -760,7 +763,7 @@ impl FloorCache {
 /// beside it as high (within `by`), on any floor.
 #[allow(clippy::too_many_arguments)]
 fn drops(world: &World, data: &GameData, x: i32, y: i32, s: f64, nx: i32, ny: i32, by: f64) -> bool {
-    !(0..world.level_count() as u8).filter_map(|l| world.surface(l, x + nx, y + ny, data)).any(|v| v >= s - by)
+    world.drops(x, y, s, nx, ny, by, data)
 }
 
 /// Whether a square's ground (on whichever floor is within `reach` of height `s`) has `tag`, and
@@ -773,14 +776,32 @@ fn ground_near(world: &World, data: &GameData, x: i32, y: i32, s: f64, reach: f6
     })
 }
 
-/// A sloped deck's corner (`<Slope/>`): the mean of the squares round it whose ground is near
-/// this one's height (the deck's next squares, or the bridge head it lands on).
+/// A sloped deck's corner (`<Slope/>`), from the four squares round it on the floor within a
+/// step of this one's height: where the deck lands on its bank (ground that isn't a deck nor
+/// water), the bank's height, so it lands flush; else the mean of those near the highest of them
+/// (the deck's next squares, water left out where there's deck). Worked out from the four alone,
+/// so every square sharing the corner gives it the same height and the deck has no cracks.
 fn corner(world: &World, data: &GameData, cx: i32, cy: i32, s: f64) -> f64 {
-    let near: Vec<f64> = [(cx - 1, cy - 1), (cx, cy - 1), (cx - 1, cy), (cx, cy)]
+    // (height, water, deck)
+    let squares: Vec<(f64, bool, bool)> = [(cx - 1, cy - 1), (cx, cy - 1), (cx - 1, cy), (cx, cy)]
         .iter()
-        .filter_map(|&(x, y)| ground_near(world, data, x, y, s, 0.3, ""))
+        .filter_map(|&(x, y)| {
+            (0..world.level_count() as u8).find_map(|l| {
+                let v = world.surface(l, x, y, data).filter(|v| (v - s).abs() <= bsk_world::STEP)?;
+                let g = data.grounds.get(&world.level_tile(l, x, y)?)?;
+                Some((v, g.speed < 1.0, g.xml.has("Slope")))
+            })
+        })
         .collect();
-    if near.is_empty() { s } else { near.iter().sum::<f64>() / near.len() as f64 }
+    let bank: Vec<f64> = squares.iter().filter(|&&(_, water, deck)| !water && !deck).map(|&(v, ..)| v).collect();
+    if !bank.is_empty() && squares.iter().any(|&(.., deck)| deck) {
+        return bank.iter().sum::<f64>() / bank.len() as f64;
+    }
+    let land = squares.iter().any(|&(_, water, _)| !water);
+    let round: Vec<f64> = squares.into_iter().filter(|&(_, water, _)| !(land && water)).map(|(v, ..)| v).collect();
+    let Some(top) = round.iter().copied().reduce(f64::max) else { return s };
+    let near: Vec<f64> = round.into_iter().filter(|&v| top - v <= 0.3).collect();
+    near.iter().sum::<f64>() / near.len() as f64
 }
 
 /// A chunk's ground, faces and railings (`FloorCache`).
@@ -828,16 +849,8 @@ fn build_chunk(scene: &Scene, level: u8, cx: i32, cy: i32) -> Chunk {
             // how thick its edge is where it hangs over lower ground (`<Slab>`: a little bridge's
             // deck is thin)
             let slab = ground.map_or(SLAB, |g| g.xml.number("Slab", SLAB));
-            // a railing goes where the ground drops: more than `rail_drop` over water (slow
-            // ground: a pond under a little bridge), else a real drop, `RAIL_DROP` (not at a
-            // bridge's ends, where it steps down to its banks)
-            let railed = |nx: i32, ny: i32| {
-                if drops(world, data, x, y, s, nx, ny, RAIL_DROP) {
-                    return true;
-                }
-                drops(world, data, x, y, s, nx, ny, rail_drop)
-                    && world.level_at(x + nx, y + ny, s, data).and_then(|l| world.level_tile(l, x + nx, y + ny)).and_then(|t| data.grounds.get(&t)).is_some_and(|g| g.speed < 1.0)
-            };
+            // a railing goes where the ground drops (`World::railed`, which also stops us there)
+            let railed = |nx: i32, ny: i32| world.railed(level, x, y, nx, ny, data);
             let parapet = has("Parapet").then(|| crate::ground::face(data, scene.sprites, tile, x, y).map(|f| f.0)).flatten();
             for (a, b, (nx, ny), (ax, ay), (ca, cb)) in sides {
                 // the height of the deck at this side's ends: a sloped deck's corners, else level
@@ -991,7 +1004,8 @@ fn floors(scene: &Scene, renderer: &mut Renderer, ground: &mut Ground, x0: i32, 
                         [cam.to_screen(fx, fy, c[0]), cam.to_screen(fx + 1.0, fy, c[1]), cam.to_screen(fx + 1.0, fy + 1.0, c[2]), cam.to_screen(fx, fy + 1.0, c[3])]
                     });
                     let tint = Tint { mul: [lit, lit, lit, alpha(keep(t.solid, t.s))], add: [0.0; 3] };
-                    tops[level as usize].push(TopDraw { base: layers.base, overlay: layers.overlay, quad, corners, tint });
+                    let raised = t.s - level as f64 * floor_h;
+                    tops[level as usize].push(TopDraw { base: layers.base, overlay: layers.overlay, quad, corners, tint, raised });
                 }
                 for e in &chunk.edges {
                     let (a, b) = (e.a, e.b);
@@ -1196,13 +1210,28 @@ pub fn draw(scene: &Scene, renderer: &mut Renderer, redrawer: &mut Redrawer, gro
     for level in 0..=top_level {
         if layered {
             // the floor's ground, then its blended corners over it (Map.draw's two passes)
+            // the floor's own ground, its blended corners over it, then what is raised above it (a
+            // bridge's arch, a stair's steps) from the lowest up: a higher top is never behind a
+            // lower one, so the water under a little bridge or the pond beside it isn't drawn
+            // over its deck whichever way the camera turns
             let tops = &floor_tops[level as usize];
-            for t in tops {
+            let flat = |t: &&TopDraw| t.raised < 0.01;
+            for t in tops.iter().filter(flat) {
                 if let Some((rect, kind, dx, dy)) = t.base {
                     t.draw(renderer, rect, Some(crate::ground::scroll(kind, dx, dy, scene.time)));
                 }
             }
-            for t in tops {
+            for t in tops.iter().filter(flat) {
+                if let Some(rect) = t.overlay {
+                    t.draw(renderer, rect, None);
+                }
+            }
+            let mut raised: Vec<&TopDraw> = tops.iter().filter(|t| t.raised >= 0.01).collect();
+            raised.sort_by(|a, b| a.raised.total_cmp(&b.raised));
+            for t in raised {
+                if let Some((rect, kind, dx, dy)) = t.base {
+                    t.draw(renderer, rect, Some(crate::ground::scroll(kind, dx, dy, scene.time)));
+                }
                 if let Some(rect) = t.overlay {
                     t.draw(renderer, rect, None);
                 }
@@ -1510,13 +1539,12 @@ fn draw_sprite_faded(scene: &Scene, renderer: &mut Renderer, redrawer: &mut Redr
         // stacked floors, on its floor.
         let rect = scene.sprites.atlas(look.src)?;
         let z = if scene.world.levels.is_some() { obj.z } else { 0.0 };
-        let quad = if desc.ground_size > 1.0 {
-            let h = desc.ground_size / 2.0;
-            cam.quad([obj.x - h, obj.y - h, z], [obj.x + h, obj.y - h, z], [obj.x - h, obj.y + h, z])
-        } else {
-            let (x, y) = (obj.x.floor(), obj.y.floor());
-            cam.quad([x, y, z], [x + 1.0, y, z], [x, y + 1.0, z])
-        };
+        // turned on the ground about its middle by its `<Rotation>` (the islands' realm caverns
+        // north of the shrine's middle, their steps away from it)
+        let (h, (cx, cy)) = if desc.ground_size > 1.0 { (desc.ground_size / 2.0, (obj.x, obj.y)) } else { (0.5, (obj.x.floor() + 0.5, obj.y.floor() + 0.5)) };
+        let (s, c) = desc.rotation.to_radians().sin_cos();
+        let at = |dx: f64, dy: f64| [cx + dx * c - dy * s, cy + dx * s + dy * c, z];
+        let quad = cam.quad(at(-h, -h), at(h, -h), at(-h, h));
         renderer.sprite(rect, quad, Tint::NONE);
         return None;
     }

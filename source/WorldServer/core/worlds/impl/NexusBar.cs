@@ -18,8 +18,8 @@ namespace WorldServer.core.worlds.impl
     /// everyone the splash catches gets the same drink, one picked a throw: Speedy, Hallucinating
     /// or Stasis for EFFECT_MS, with "PARTY!" over their heads. Fun only: no damage, no stats, no
     /// items; a player immune to Stasis just gets the "PARTY!". Nobody in the bar, he waits. It all
-    /// happens on his floor (DistTo between floors is out of reach). A map without the markers has
-    /// no bar.
+    /// happens on his floor (DistTo between floors is out of reach). He talks in his own voice,
+    /// over his head and in the chat as Barman Kenji. A map without the markers has no bar.
     /// </summary>
     public sealed class NexusBar
     {
@@ -57,6 +57,10 @@ namespace WorldServer.core.worlds.impl
             "Mind the railing after the third round.",
             "I aim for the middle. Usually.",
             "Another round coming up!",
+            "No, I don't do refunds. Or cups.",
+            "I pour, I throw, you catch. That's the deal.",
+            "Up here the clouds come to me. Saves on ice.",
+            "Kenji's rule: nobody leaves this tower sober. Or slow.",
         };
 
         private readonly World _world;
@@ -207,7 +211,8 @@ namespace WorldServer.core.worlds.impl
                     p.Client.SendPacket(msg);
         }
 
+        // over his head and in the chat, under his name
         private Text Speech(string text) =>
-            new Text { Name = NAME, ObjectId = _barman.Id, NumStars = -1, BubbleTime = 5, Recipient = "*Bubble*", Txt = text };
+            new Text { Name = NAME, ObjectId = _barman.Id, NumStars = -1, BubbleTime = 5, Recipient = "", Txt = text };
     }
 }
