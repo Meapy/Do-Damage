@@ -25,6 +25,9 @@ namespace Shared.resources
         public readonly int ImpactDamage;
         public readonly float MaximumDistance;
         public readonly int MaxTargets;
+        /// PermaPet: the pet's size (petSize, written by tools/port_doomed_pets.py): Small, Medium,
+        /// Large or Oryx. Only Small pets' generators are sold.
+        public readonly string PetSize;
         public readonly bool NoStack;
         public readonly float Radius;
         public readonly float Range;
@@ -151,6 +154,7 @@ namespace Shared.resources
             Id = e.GetAttribute<string>("id");
             MaximumDistance = e.GetAttribute<float>("maxDistance");
             MaxTargets = e.GetAttribute<int>("maxTargets");
+            PetSize = e.GetAttribute<string>("petSize");
             Stats = e.GetAttribute<int>("stat");
             Cooldown = e.GetAttribute<float>("cooldown");
             RemoveSelf = e.GetAttribute<bool>("removeSelf");

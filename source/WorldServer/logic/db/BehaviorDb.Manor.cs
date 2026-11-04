@@ -97,6 +97,8 @@ namespace WorldServer.logic
                         )
                     ),
                 new Threshold(0.01,
+                    new ItemLoot("Nightmare Generator", elder ? 0.04 : 0.02),
+                    new ItemLoot("Zenco Generator", elder ? 0.06 : 0.03),
                     new ItemLoot("Potion of Dexterity", 0.5),
                     new ItemLoot("Holy Water", 0.5),
                     new ItemLoot("Manor Key", 0.01, 0, 0.03)

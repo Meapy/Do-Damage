@@ -604,6 +604,41 @@ The remotes `upstream` (HaloCelsius) and `aurusenth` share no history with `main
   which would show it as a visit, get summons as a chat line instead. Admins still summon anyone
   at once, anywhere.
 
+- **Pets: single use, drops and attacks** (2026-11-04; `tools/port_doomed_pets.py` `PET_KITS`,
+  `SIZE_DPS`, `PET_DPS`, `GENERATOR_BAG`, `scale_pets`, `base_damages` and
+  `tools/pet_base_damage.json`, `write_generator_rules`; `logic/behaviors/doomed/PetNova.cs`;
+  `Player.UseItem.cs` `AEPermaPet` / `PetGenerator` / `GivePetGeneratorBack`, `/removepet`;
+  `ActivateEffect.PetSize`, `MerchantLists.InitDyes`; `port_doomed_economy.unsold_pet`;
+  `port_doomed_monsters.LOOT_CHANGES`; the bosses' loot in `BehaviorDb.*.cs`; `wiki_data`
+  `bazaar_pets` and `ITEM_LOOT_ELDER`; the Rust client's `particles.rs`). Every sized pet's
+  generator is `<Consumable/>` (used up), `<BagType>6</BagType>` and `<Soulbound/>` (a private
+  white bag), in the port's XML and Permapets (both copies). Using a generator while a pet is out
+  gives back the old pet's generator (`Player.PetGenerator`: the item with a PermaPet for it, a
+  "... Generator" first; `GiveItem`, so the Gift Chest when the inventory is full), as does
+  `/removepet`; using the generator of the pet you have is still refused without spending it. Only
+  Small pets' generators are sold: the Bazaar's pet stalls (an `InvUse` "Generator" with a PermaPet
+  whose `petSize` is Small) and `/shop pets`; `donorpets` keeps only the White Bag. Every other pet
+  drops from where it belongs, in its boss's (or event's) Threshold: a dungeon boss's Large pet
+  2% (4% in its Elder version, `elder ? 0.04 : 0.02`), its Medium pets 3% (6%), realm events'
+  Large pets 1.5% and their Medium ones 2-3%, the godland gods' 0.5%; Phoenix Reborn and the Red
+  Demon 2% (were 1%). Unobtainable on purpose: Dinosaur's Thessal (a donation reward) and the
+  unsized test pets (Snowman, Minotaur, Knight of the Lost Lands, Test Auraa, the snowballs). Every
+  pet that had the plain strike every critter and monster shared (50-70 every 3 s) or no attack
+  has a kit (`PET_KITS`): `shot`s written as its own projectiles 0, 1... (a sprite, count, spread,
+  speed, life, and flags: multihit, armor piercing, wavy, boomerang, amplitude, conditions,
+  bleed), `strike`s and the new `nova`s (`PetNova`: a hit on the nearest enemy and every enemy
+  within its radius, with an optional condition; a line and an AreaBlast, which the client's
+  "Hidden" pets option hides as it hides a strike's burst). Kythal the Skull, Shroom and Cerberus
+  Skull, which shared Kythal the Necromancer's pattern, have kits too. Each sized pet's damage
+  (`behaviour_dps`: shots on target, strikes, novas, bleeds) is then scaled to its size's,
+  `SIZE_DPS` (Small 50, Medium 200, Large 450) or its `PET_DPS` (the Tomb's three 550; Thessal,
+  Horrific Creation, Pancookie and Dinosaur's Thessal 500; the realm events' Cube, Skull Shrine,
+  Sphinx and Grand Coil Snake 400; the Lil' Oryxes as before), from the unscaled numbers kept in
+  `pet_base_damage.json` so a rerun gives the same numbers (Pancookie was 2,165, the Cube 800, the
+  Grand Coil Snake 50 and Nut 173). New abilities: the Companion Priest heals over time (2 s every
+  8) and the Support Bot makes its owner armored (2 s every 10). Ships with a client release (the
+  pets' new projectiles are in the client's XML); an older client draws none of the new shots.
+
 - **/visit for everyone, with a Yes/No** (2026-11-02; `Command.Visit` (moved to `player/`),
   `Player.Visits.cs`, `Shared/VisitBook.cs` and `VisitRules.cs`, `VisitAnswerHandler`, `/yes` and `/no` (`Command.VisitAnswer.cs`), messages
   126 `VISIT_ANSWER` and 127 `VISIT_REQUEST`, the Rust client's `hud::draw_visit`;

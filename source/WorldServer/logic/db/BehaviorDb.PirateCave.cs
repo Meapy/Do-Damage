@@ -44,6 +44,7 @@ namespace WorldServer.logic
                         )
                     ),
                 new Threshold(0.03,
+                    new ItemLoot("Monkey Generator", elder ? 0.06 : 0.03),
                     new ItemLoot("Pirate Cave Key", 0.01)
                     ),
                 new TierLoot(4, ItemType.Weapon, 0.01),

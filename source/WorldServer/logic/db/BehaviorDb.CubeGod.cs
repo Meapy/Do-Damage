@@ -40,6 +40,9 @@ namespace WorldServer.logic
                 LootTemplates.BasicDrop()
                 ),
             new Threshold(.005,
+                new ItemLoot("Cube Generator", 0.015)
+                ),
+            new Threshold(.005,
                 LootTemplates.BasicPots()
                 )
             )

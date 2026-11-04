@@ -1,0 +1,242 @@
+{
+ "Bess": {
+  "0": {
+   "Damage": 240
+  },
+  "1": {
+   "Damage": 150
+  },
+  "2": {
+   "Damage": 160
+  },
+  "3": {
+   "Damage": 30
+  },
+  "4": {
+   "Damage": 60
+  }
+ },
+ "Coill Snake": {
+  "0": {
+   "Damage": 50
+  },
+  "1": {
+   "Damage": 40
+  }
+ },
+ "Cookiee": {
+  "0": {
+   "Damage": 285
+  },
+  "1": {
+   "Damage": 410
+  }
+ },
+ "Cubee": {
+  "0": {
+   "Damage": 100
+  },
+  "1": {
+   "Damage": 150
+  }
+ },
+ "Dinosaur's Pet": {
+  "0": {
+   "Damage": 100
+  },
+  "1": {
+   "Damage": 65
+  },
+  "2": {
+   "Damage": 100
+  },
+  "3": {
+   "Damage": 120
+  }
+ },
+ "Gebb": {
+  "0": {
+   "Damage": 280
+  },
+  "1": {
+   "Damage": 100
+  },
+  "2": {
+   "Damage": 30
+  },
+  "3": {
+   "Damage": 30
+  },
+  "4": {
+   "Damage": 80
+  },
+  "5": {
+   "Damage": 200
+  }
+ },
+ "Horrificc": {
+  "1": {
+   "Damage": 150
+  },
+  "2": {
+   "Damage": 100
+  },
+  "3": {
+   "Damage": 0
+  },
+  "4": {
+   "Damage": 200
+  },
+  "5": {
+   "Damage": 85
+  },
+  "6": {
+   "Damage": 200
+  }
+ },
+ "Kythal the Necromancer": {
+  "0": {
+   "Damage": 70
+  },
+  "1": {
+   "Damage": 120
+  }
+ },
+ "Limonn": {
+  "0": {
+   "Damage": 70
+  }
+ },
+ "Malphass": {
+  "0": {
+   "Damage": 60
+  },
+  "2": {
+   "Damage": 65
+  },
+  "3": {
+   "Damage": 150
+  },
+  "4": {
+   "Damage": 110
+  }
+ },
+ "Nightmareee": {
+  "0": {
+   "Damage": 70
+  }
+ },
+ "Nutt": {
+  "0": {
+   "Damage": 180
+  },
+  "1": {
+   "Damage": 40
+  },
+  "2": {
+   "Damage": 40
+  },
+  "3": {
+   "Damage": 40
+  },
+  "4": {
+   "Damage": 40
+  },
+  "5": {
+   "Damage": 40
+  },
+  "6": {
+   "Damage": 200
+  },
+  "7": {
+   "Damage": 30
+  },
+  "8": {
+   "Damage": 50
+  }
+ },
+ "Scootaloo": {
+  "0": {
+   "Damage": 80
+  },
+  "1": {
+   "Damage": 100
+  }
+ },
+ "Septaviuss": {
+  "0": {
+   "Damage": 75
+  },
+  "1": {
+   "MaxDamage": 45,
+   "MinDamage": 40
+  },
+  "2": {
+   "Damage": 65
+  },
+  "4": {
+   "Damage": 160
+  },
+  "5": {
+   "Damage": 60
+  }
+ },
+ "Skull Shrine P": {
+  "0": {
+   "Damage": 100
+  }
+ },
+ "Sthenos": {
+  "0": {
+   "Damage": 100
+  },
+  "1": {
+   "Damage": 60
+  }
+ },
+ "TestAuraa": {
+  "0": {
+   "Damage": 0
+  }
+ },
+ "Thessal Pet": {
+  "0": {
+   "Damage": 100
+  },
+  "1": {
+   "Damage": 65
+  },
+  "2": {
+   "Damage": 100
+  },
+  "3": {
+   "Damage": 120
+  }
+ },
+ "Twilight Sparkle": {
+  "0": {
+   "MaxDamage": 150,
+   "MinDamage": 50
+  }
+ },
+ "Zenco The Undead God": {
+  "0": {
+   "Damage": 70
+  },
+  "1": {
+   "Bleed": 120,
+   "Damage": 120
+  }
+ },
+ "sphinxxx": {
+  "0": {
+   "Damage": 85
+  },
+  "1": {
+   "Damage": 150
+  },
+  "2": {
+   "Damage": 120
+  }
+ }
+}

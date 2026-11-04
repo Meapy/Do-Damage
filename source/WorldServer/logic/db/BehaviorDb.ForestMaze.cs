@@ -18,6 +18,7 @@ namespace WorldServer.logic
                     )
                 ),
             new Threshold(0.03,
+                new ItemLoot("Scootaloo Generator", 0.02),
                 new ItemLoot("Forest Maze Key", 0.01)
                 )
             )

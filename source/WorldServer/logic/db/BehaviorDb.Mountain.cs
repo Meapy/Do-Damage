@@ -158,6 +158,7 @@ namespace WorldServer.logic
                     LootTemplates.MountainDrop()
                     ),
                 new Threshold(0.01,
+                    new ItemLoot("Beholder Generator", 0.005),
                     new ItemLoot("Potion of Defense", 0.05)
                     )
             )
@@ -370,6 +371,8 @@ namespace WorldServer.logic
                     LootTemplates.MountainDrop()
                     ),
                 new Threshold(0.01,
+                    new ItemLoot("Djinn Generator", 0.005),
+                    new ItemLoot("Tornado Generator", 0.005),
                     new ItemLoot("Potion of Speed", 0.05)
                     )
             )
@@ -509,6 +512,7 @@ namespace WorldServer.logic
                     LootTemplates.MountainDrop()
                     ),
                 new Threshold(0.01,
+                    new ItemLoot("Gyarados Generator", 0.005),
                     new ItemLoot("Potion of Defense", 0.05)
                     )
             )

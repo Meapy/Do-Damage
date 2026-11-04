@@ -264,7 +264,12 @@ def who(d, m):
     if m in WHO:
         return WHO[m]
     st = re.match(r"Oryx the Mad God (\d)$", m)
-    return "Oryx %s" % st.group(1) if st and d.name(m) == "Oryx the Mad God" else d.name(m)
+    if st and d.name(m) == "Oryx the Mad God":
+        return "Oryx %s" % st.group(1)
+    # an Elder boss shown with its regular version's name (the Elder Tomb's Bes, Nut and Geb)
+    if m.startswith("Elder ") and not d.name(m).startswith("Elder ") and d.name(m) == d.name(m[len("Elder "):]):
+        return "Elder " + d.name(m)
+    return d.name(m)
 
 
 def with_article(name):

@@ -67,6 +67,18 @@ details). Add to a group's line when a change adds to it, rather than adding ano
   fame and each one after costs 500 more, up to 10 extra (20 listings at once). The My listings
   tab now pages through them when they don't all fit.
 
+### Pets
+- Pet generators are used up when you use them, but you never lose a pet: using another one, or
+  `/removepet`, gives you back your current pet's generator.
+- Only the Small pets (the critters) are sold now, at the Nexus Bazaar and in `/shop pets`. Every
+  other pet drops from the boss or monster it belongs with, more often than before, in a white bag
+  of your own: Bes, Nut and Geb in the Tomb, Lil' Stheno in the Snake Pit, the Sharkman and Sea
+  Mare from Thessal, the pumpkin pets and Grim Reaper in the Haunted Cemetery and so on, twice as
+  often in Elder dungeons. The wiki's Pets page lists where each one drops.
+- Every pet fights its own way: claws, bones, eggs, feathers, coins, stink clouds, stomps, zaps,
+  ninja stars, scythes and more, some slowing, bleeding or weakening what they hit. Pets are
+  balanced by size: Small ones do about 50 damage a second, Medium about 200 and Large 400 to 550.
+
 ## 2.3.7 (2026-11-02)
 
 ### Friends

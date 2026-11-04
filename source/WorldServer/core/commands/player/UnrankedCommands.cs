@@ -32,11 +32,15 @@ namespace WorldServer.core.commands.player
 
         protected override bool Process(Player player, TickTime time, string args)
         {
-            if (player.Pet != null)
+            if (player.PetId != 0)
             {
+                // the generator was used up: it comes back, so the pet isn't lost
+                var petType = player.PetId;
                 player.PetId = 0;
-                player.World.LeaveWorld(player.Pet);
-                player.SendInfo("You pet runs away");
+                if (player.Pet != null)
+                    player.World.LeaveWorld(player.Pet);
+                if (!player.GivePetGeneratorBack(petType))
+                    player.SendInfo("Your pet runs away.");
             }
             else
                 player.SendError("You do not have a pet");

@@ -85,6 +85,9 @@ namespace WorldServer.logic
                             )
                     ),
                 new Threshold(0.01,
+                    new ItemLoot("Septavius Generator", elder ? 0.04 : 0.02),
+                    new ItemLoot("Kythal the Necromancer Generator", elder ? 0.06 : 0.03),
+                    new ItemLoot("Skeletal Guardian Generator", elder ? 0.06 : 0.03),
                     new TierLoot(11, ItemType.Weapon, 0.07),
                     new TierLoot(11, ItemType.Armor, 0.07),
                     new TierLoot(4, ItemType.Ring, 0.1),

@@ -889,6 +889,7 @@ namespace WorldServer.logic
                     new ItemLoot("Large Heavy Chainmail Cloth", 0.1)
                     ),
                 new Threshold(0.01,
+                    new ItemLoot("Lunar's Phoenix Generator", 0.03),
                     new ItemLoot("Skull of Endless Torment", 0.01)
                     )
                 );

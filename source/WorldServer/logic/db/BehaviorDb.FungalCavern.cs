@@ -148,6 +148,7 @@ namespace WorldServer.logic
                     )
                 ),
             new Threshold(0.01,
+                new ItemLoot("Shroom Generator", 0.03),
                 new ItemLoot("Potion of Speed", 1),
                 new ItemLoot("Potion of Vitality", 0.5),
                 new ItemLoot("Tome of the Mushroom Tribes", 0.005),

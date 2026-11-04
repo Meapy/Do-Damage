@@ -7489,7 +7489,7 @@ namespace WorldServer.logic.doomed
             null,
             new LootBehavior(LootDef.Empty,
                     Tuple.Create(400, new LootDef(0, 1, 0, 8,
-                            Tuple.Create(0.01, (ILoot)new ItemLoot("Phoenix Generator"))
+                            Tuple.Create(0.02, (ILoot)new ItemLoot("Phoenix Generator"))
                         ))
                     ));
 
@@ -7593,7 +7593,7 @@ namespace WorldServer.logic.doomed
                         Tuple.Create(0.02, (ILoot) new ItemLoot("Golden Sword")),
                         Tuple.Create(0.02, (ILoot) new ItemLoot("Ring of Greater Defense")),
                         Tuple.Create(0.02, (ILoot) new ItemLoot("Steel Helm")),
-                            Tuple.Create(0.01, (ILoot)new ItemLoot("Red Demon Generator")),
+                            Tuple.Create(0.02, (ILoot)new ItemLoot("Red Demon Generator")),
                             Tuple.Create(0.01, (ILoot)new ItemLoot("Large Red Diamond Cloth")),
                             Tuple.Create(0.01, (ILoot)new ItemLoot("Small Red Diamond Cloth")),
                         Tuple.Create(0.5, (ILoot) HpPotionLoot.Instance),

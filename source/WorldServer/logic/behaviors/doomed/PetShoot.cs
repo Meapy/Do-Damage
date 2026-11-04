@@ -59,6 +59,10 @@ namespace WorldServer.logic.behaviors.doomed
 
             var count = host.HasConditionEffect(ConditionEffectIndex.Dazed) ? Math.Max(1, _count / 2) : _count;
             var angle = (float)Math.Atan2(target.Y - host.Y, target.X - host.X) - _shootAngle * (count - 1) / 2 + _angleOffset;
+            // a full ring of an even count, centred on the target, has no shot at it: turn it half
+            // a step so that one flies straight at it (tools/port_doomed_pets.shots_on_target)
+            if (count % 2 == 0 && _shootAngle * count >= 2 * Math.PI - 0.01)
+                angle += _shootAngle / 2;
             var bulletId = owner.GetNextBulletId(count, true);
             var damage = Random.Next(desc.MinDamage, desc.MaxDamage + 1);
             for (var i = 0; i < count; i++)

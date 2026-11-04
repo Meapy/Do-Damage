@@ -231,6 +231,7 @@ namespace WorldServer.logic
                 new ItemLoot("Potion of Defense", 1)
                 ),
             new Threshold(0.03,
+                new ItemLoot("KingSlime Generator", 0.03),
                 new ItemLoot("Void Blade", 0.02, threshold: 0.03),
                 new ItemLoot("Murky Toxin", 0.05),
                 new ItemLoot("Toxic Sewers Key", 0.1, 0, 0.03)

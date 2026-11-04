@@ -94,6 +94,9 @@ namespace WorldServer.logic
                     LootTemplates.BasicDrop()
                     ),
                 new Threshold(.005,
+                    new ItemLoot("Cookie Generator", 0.02)
+                    ),
+                new Threshold(.005,
                     LootTemplates.BasicPots()
                     )
             )
@@ -122,6 +125,9 @@ namespace WorldServer.logic
                     ),
                 new Threshold(.005,
                     LootTemplates.BasicDrop()
+                    ),
+                new Threshold(.005,
+                    new ItemLoot("Cookie Generator", 0.02)
                     ),
                 new Threshold(.005,
                     LootTemplates.BasicPots()
@@ -186,6 +192,9 @@ namespace WorldServer.logic
                     ),
                 new Threshold(.005,
                     LootTemplates.BasicDrop()
+                    ),
+                new Threshold(.005,
+                    new ItemLoot("Cookie Generator", 0.02)
                     ),
                 new Threshold(.005,
                     LootTemplates.BasicPots()
@@ -274,6 +283,9 @@ namespace WorldServer.logic
                     LootTemplates.BasicDrop()
                     ),
                 new Threshold(.005,
+                    new ItemLoot("Cookie Generator", 0.02)
+                    ),
+                new Threshold(.005,
                     LootTemplates.BasicPots()
                     )
             )
@@ -348,6 +360,9 @@ namespace WorldServer.logic
                     ),
                 new Threshold(.005,
                     LootTemplates.BasicDrop()
+                    ),
+                new Threshold(.005,
+                    new ItemLoot("Cookie Generator", 0.02)
                     ),
                 new Threshold(.005,
                     LootTemplates.BasicPots()

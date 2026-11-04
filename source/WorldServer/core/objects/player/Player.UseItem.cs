@@ -1481,8 +1481,47 @@ namespace WorldServer.core.objects
             var type = GameServer.Resources.GameData.IdToObjectType[eff.ObjectId];
             var desc = GameServer.Resources.GameData.ObjectDescs[type];
 
+            // generators are used up, so the pet this one replaces goes back into the inventory as
+            // its generator: swapping pets never loses one
+            var old = PetId;
             PetId = desc.ObjectType;
             SpawnPetIfAttached(World);
+            if (old != 0 && old != PetId)
+                GivePetGeneratorBack(old);
+        }
+
+        // The item that gives this pet (a PermaPet activate for it): a "... Generator" before the
+        // others (Doomie Heart, the snowballs), then the lowest type. Null when none does.
+        public Item PetGenerator(int petType)
+        {
+            var gameData = GameServer.Resources.GameData;
+            Item best = null;
+            foreach (var it in gameData.Items.Values)
+            {
+                var gives = false;
+                foreach (var eff in it.ActivateEffects)
+                    if (eff.Effect == ActivateEffects.PermaPet && eff.ObjectId != null &&
+                        gameData.IdToObjectType.TryGetValue(eff.ObjectId, out var t) && t == petType)
+                        gives = true;
+                if (!gives)
+                    continue;
+                var named = it.ObjectId.Contains("Generator");
+                if (best == null || named && !best.ObjectId.Contains("Generator") ||
+                    named == best.ObjectId.Contains("Generator") && it.ObjectType < best.ObjectType)
+                    best = it;
+            }
+            return best;
+        }
+
+        // Puts the pet's generator in the inventory (the gift chest when it's full); false when the
+        // pet has no generator to give back.
+        public bool GivePetGeneratorBack(int petType)
+        {
+            var generator = PetGenerator(petType);
+            if (generator == null)
+                return false;
+            GiveItem(generator);
+            return true;
         }
 
         private void AEPoisonGrenade(TickTime time, Item item, Position target, ActivateEffect eff)
