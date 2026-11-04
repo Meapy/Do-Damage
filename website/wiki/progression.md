@@ -256,19 +256,20 @@ rarity:
 A Legendary or Divine prize is announced to everyone online.
 
 **Getting your items back.** Some of what the character was carrying (equipment, inventory and
-backpack, picked at random) comes back as well. Base fame sets how many are sure to; after
-those, one more comes back a quarter of the time, another an eighth of the time, and so on:
+backpack, picked at random) comes back as well. The first item comes back a quarter of the time,
+each further one at half the chance of the one before, and each step of base fame doubles every
+chance:
 
-| Base fame | Items sure to come back |
-|---|---|
-| Under 400 | none (25% chance of one) |
-| 400 | 1 |
-| 800 | 2 |
-| 1,600 | 3 |
-| 3,000 | 4 |
-| 6,000 | 5 |
-| 12,000 | 6 |
-| 20,000 | 8 |
+| Base fame | Sure to come back | Then |
+|---|---|---|
+| Under 400 | none | 25% chance of one, 12.5% of a second... |
+| 400 | none | 50% chance of one, 25% of a second... |
+| 800 | 1 | 50% chance of a second, 25% of a third... |
+| 1,600 | 2 | 50% chance of a third... |
+| 3,000 | 3 | 50% chance of a fourth... |
+| 6,000 | 4 | 50% chance of a fifth... |
+| 12,000 | 5 | 50% chance of a sixth... |
+| 20,000 | 7 | 50% chance of an eighth... |
 
 The prize and the items go to your **gift chest**, in your vault. Imprints on returned items are
 lost. Deaths that don't count (the Arena, test worlds, a broken resurrection item) don't spin.

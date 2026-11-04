@@ -205,14 +205,15 @@ namespace WorldServer.core.objects
         public const int DeathSpinReelLength = 48;
         public const int DeathSpinStop = 42;
 
-        // Items it gets back: (base fame from, how many are sure to come back). After those, one
-        // more comes back a quarter of the time, another an eighth of the time, and so on.
-        public static readonly (int Fame, int Sure)[] DeathKeepTiers =
+        // Items it gets back, a ladder of chances: the first item at 25%, each further one at half
+        // the chance of the last. Each step of base fame doubles every chance (capped at sure):
+        // step 1 is 50% of one, step 2 one sure and 50% of a second, and so on.
+        public static readonly (int Fame, int Step)[] DeathKeepTiers =
         {
             (0, 0), (400, 1), (800, 2), (1600, 3), (3000, 4), (6000, 5), (12000, 6), (20000, 8)
         };
 
-        public static int DeathKeepSure(int baseFame) => DeathKeepTiers.Last(t => baseFame >= t.Fame).Sure;
+        public static int DeathKeepStep(int baseFame) => DeathKeepTiers.Last(t => baseFame >= t.Fame).Step;
 
         // Picks the items it died with that come back: random slots of its equipment, inventory
         // and backpack.
@@ -222,8 +223,9 @@ namespace WorldServer.core.objects
             for (var i = 0; i < Inventory.Length; i++)
                 if (Inventory[i] != null)
                     carried.Add(Inventory[i]);
-            var count = DeathKeepSure(baseFame);
-            if (rand.Next(4) == 0)
+            var step = DeathKeepStep(baseFame);
+            var count = Math.Max(0, step - 1);
+            if (rand.Next(step == 0 ? 4 : 2) == 0)
             {
                 count++;
                 while (rand.Next(2) == 0)
