@@ -77,7 +77,7 @@ namespace WorldServer.core.worlds.impl
         // the same on the islands (a Nexus of floors), where the places are elsewhere
         private static readonly string[] IslandLines = Lines.Select(l =>
             l.StartsWith("Stand by the stone water basins") ? "Stand by the stone water basins around the spawn to heal."
-            : l.StartsWith("The realm portals") ? "The realm portals are sunk into the floor of the shrine on the island below, south-west down the stone bridge: walk onto one to enter."
+            : l.StartsWith("The realm portals") ? "The realm portals are sunk into the floor of the shrine on the island below, south down the stone bridge: walk onto one to enter."
             : l.StartsWith("The Divine Forge") ? "The Divine Forge is in the smithy at the south-west of the market island, west across the bridge. It forges items and buys the ones you don't need for fame. /forge takes you there."
             : l.StartsWith("The Marketplace") ? "The Marketplace is on the market island, west across the bridge: talk to the Market Broker to sell your items to other players for fame, or buy theirs. /market takes you there."
             : l).Concat(new[] { "The Hall of Champions is on top of the Arena tower, east across the bridge. There's a bar up there too: mind the barman." }).ToArray();

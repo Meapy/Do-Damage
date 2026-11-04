@@ -290,9 +290,9 @@ def grounds():
         out["NI Stone Ramp %d" % k] = (lambda s: ashlar(GRANITE, s + 9), 3,
                                        {"Lift": str(lift), "BlendPriority": "23", **stone_rail, **stone_bridge}, "0x908E98",
                                        stone_face)
-    # the spawn's little bridges over its pond: an arch, railed along its sides over the water (the
-    # drop there is small), the pond on under it (`<Under>`, so it's water under the arch, not
-    # sky), its deck thin (`<Slab>`: no walls down to the water)
+    # the spawn's little bridges over its pond: a deck a little over the water, railed along its
+    # sides (the drop there is small), the pond on under it (`<Under>`, so it's water under the
+    # deck, not sky), its deck thin (`<Slab>`: no walls down to the water)
     for k in range(4):
         for way, across in (("EW", True), ("NS", False)):
             tags = {"BlendPriority": "24", "StaySolid": None, "Slope": None, "RailDrop": "0.1", "Under": "NG Pond",

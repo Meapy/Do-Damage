@@ -213,7 +213,7 @@ namespace WorldServer.core.worlds
             switch (worldResource.Instance)
             {
                 case WorldResourceInstanceType.Nexus:
-                    // a second Nexus (testnexus, oldnexus: NexusWorld.IsMain), on its own thread
+                    // a second Nexus (oldnexus: NexusWorld.IsMain), on its own thread
                     world = new NexusWorld(GameServer, nextId, worldResource);
                     break;
                 case WorldResourceInstanceType.Vault:
