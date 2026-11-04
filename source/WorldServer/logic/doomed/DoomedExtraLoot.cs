@@ -37,7 +37,7 @@ namespace WorldServer.logic.doomed
             ["Totem Spirit"] = () => Minion(3),
             ["Oasis Soldier"] = () => Minion(4), ["Oasis Creature"] = () => Minion(4), ["Oasis Monster"] = () => Minion(4),
             ["Oasis Ruler"] = () => Minion(5),
-            ["Birdman"] = () => Minion(5), ["Birdman Chief"] = () => Plus(Minion(6), Pet("Eagle Generator", 0.02)),
+            ["Birdman"] = () => Minion(5), ["Birdman Chief"] = () => Plus(Minion(6), Pet("Eagle Generator", 0.01)),
             ["Small Ghost"] = () => Minion(4), ["Medium Ghost"] = () => Minion(5), ["Large Ghost"] = () => Minion(6, 0.06),
             ["Ent Sapling"] = () => Minion(4),
             ["Vampire Bat"] = () => Pots(), ["Vampire Bat Swarmer 1"] = () => Pots(),

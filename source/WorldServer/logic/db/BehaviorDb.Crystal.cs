@@ -233,7 +233,7 @@ namespace WorldServer.logic
                 new Threshold(.005,
                     LootTemplates.BasicPots()
                     ),
-            new ItemLoot("Lil' Crystal Prisoner Generator", 0.02)
+            new ItemLoot("Lil' Crystal Prisoner Generator", 0.01)
                 )
         .Init("Crystal Prisoner Clone",
             new State(

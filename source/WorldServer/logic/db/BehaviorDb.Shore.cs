@@ -20,7 +20,7 @@ namespace WorldServer.logic
                 ),
             new TierLoot(1, ItemType.Weapon, 0.2),
             new ItemLoot("Health Potion", 0.03),
-            new ItemLoot("Toucan Generator", 0.003)
+            new ItemLoot("Toucan Generator", 0.0015)
             )
         .Init("Piratess",
             new State(
@@ -34,7 +34,7 @@ namespace WorldServer.logic
                 ),
             new TierLoot(1, ItemType.Armor, 0.2),
             new ItemLoot("Health Potion", 0.03),
-            new ItemLoot("Mallard Generator", 0.003)
+            new ItemLoot("Mallard Generator", 0.0015)
             )
         .Init("Snake",
             new State(
@@ -106,7 +106,7 @@ namespace WorldServer.logic
                     new TimedTransition(15000, "fast_follow")
                     )
                 ),
-            new ItemLoot("Duck Generator", 0.003)
+            new ItemLoot("Duck Generator", 0.0015)
             )
         .Init("Bandit Leader",
             new State(
@@ -176,7 +176,7 @@ namespace WorldServer.logic
                 ),
             new ItemLoot("Health Potion", 0.04),
             new ItemLoot("Magic Potion", 0.04),
-            new ItemLoot("Purple Frog Generator", 0.004)
+            new ItemLoot("Purple Frog Generator", 0.002)
             )
         .Init("Green Gelatinous Cube",
             new State(

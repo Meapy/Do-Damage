@@ -420,7 +420,7 @@ namespace WorldServer.logic
                     ),
                 new DropPortalOnDeath("Pirate Cave Portal", 0.3)
                 ),
-            R2Quest("Potion of Speed", "Potion of Dexterity", new ItemLoot("Abyssal Krakenling Generator", 0.02)))
+            R2Quest("Potion of Speed", "Potion of Dexterity", new ItemLoot("Abyssal Krakenling Generator", 0.01)))
         // ---------------------------------------------------------------- the Sunken Tombs
         .Init("R2 Scarab",
             new State(
@@ -585,14 +585,14 @@ namespace WorldServer.logic
                 new Shoot(11, 3, shootAngle: 40, projectileIndex: 0, rotateAngle: 20, coolDown: 700),
                 new Shoot(11, projectileIndex: 1, predictive: 0.7, coolDown: 1200)
                 ),
-            R2Mob("Potion of Speed", new ItemLoot("Kitsune Spirit Generator", 0.01)))
+            R2Mob("Potion of Speed", new ItemLoot("Kitsune Spirit Generator", 0.005)))
         .Init("R2 Lantern Wisp",
             new State(
                 R2Quip("Lighten up!", "Feeling lit!", "Don't blow me out!", "I'm a bright little spirit!"),
                 new Prioritize(new StayCloseToSpawn(0.7, 16), new Follow(0.7, 9, 4), new Wander(0.5)),
                 new Shoot(9, 6, shootAngle: 60, rotateAngle: 10, coolDown: 1000)
                 ),
-            R2Mob("Potion of Wisdom", new ItemLoot("Lantern Wisp Generator", 0.01)))
+            R2Mob("Potion of Wisdom", new ItemLoot("Lantern Wisp Generator", 0.005)))
         .Init("R2 Oni Warlord",
             new State(
                 new State("Rage",
@@ -612,7 +612,7 @@ namespace WorldServer.logic
                 // the realm's jungle temples (and their Great Coil Snakes) aren't in Realm 2
                 new DropPortalOnDeath("Forbidden Jungle Portal", 0.25, xAdjustment: 2)
                 ),
-            R2Quest("Potion of Speed", "Potion of Wisdom", new ItemLoot("Oni Warlord Generator", 0.01)))
+            R2Quest("Potion of Speed", "Potion of Wisdom", new ItemLoot("Oni Warlord Generator", 0.005)))
         .Init("R2 Jade Golem",
             new State(
                 new State("Stand",
@@ -630,7 +630,7 @@ namespace WorldServer.logic
                     ),
                 new DropPortalOnDeath("Magic Woods Portal", 0.3)
                 ),
-            R2Quest("Potion of Wisdom", "Potion of Speed", new ItemLoot("Jade Golem Generator", 0.01)))
+            R2Quest("Potion of Wisdom", "Potion of Speed", new ItemLoot("Jade Golem Generator", 0.005)))
         // ---------------------------------------------------------------- the Dragon's Roost
         .Init("R2 Drakeling",
             new State(
@@ -652,7 +652,7 @@ namespace WorldServer.logic
                 new Prioritize(new StayCloseToSpawn(0.9, 16), new Orbit(0.9, 6, 11), new Wander(0.6)),
                 new Shoot(12, 3, shootAngle: 25, predictive: 0.3, coolDown: 1200)
                 ),
-            R2Mob("Potion of Attack", new ItemLoot("Ember Wyrmling Generator", 0.01)))
+            R2Mob("Potion of Attack", new ItemLoot("Ember Wyrmling Generator", 0.005)))
         // a mimic among the gold (the id is the caldera's golem it was): a chest until someone
         // comes close, then it snaps awake and gives chase
         .Init("R2 Obsidian Golem",
@@ -694,7 +694,7 @@ namespace WorldServer.logic
                     ),
                 new DropPortalOnDeath("Treasure Cave Portal", 0.3)
                 ),
-            R2Quest("Potion of Attack", "Potion of Dexterity", new ItemLoot("Ember Matriarch Generator", 0.02)))
+            R2Quest("Potion of Attack", "Potion of Dexterity", new ItemLoot("Ember Matriarch Generator", 0.01)))
         .Init("R2 Elder Drake",
             new State(
                 new State("Prowl",
@@ -740,7 +740,7 @@ namespace WorldServer.logic
                     new TimedTransition(3000, "Perch")
                     )
                 ),
-            R2Mob("Potion of Defense", new ItemLoot("Gargoyle Generator", 0.01)))
+            R2Mob("Potion of Defense", new ItemLoot("Gargoyle Generator", 0.005)))
         .Init("R2 Soul Lantern",
             new State(
                 R2Quip("Long live the king! ...wait.", "Who turned out the lights?", "I used to be somebody.", "This kingdom had a lovely gift shop."),

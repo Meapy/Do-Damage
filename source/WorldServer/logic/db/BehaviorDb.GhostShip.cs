@@ -243,7 +243,7 @@ namespace WorldServer.logic
             new Threshold(.005,
                 LootTemplates.BasicPots()
                 ),
-            new ItemLoot("Lil' Ghost Ship Generator", 0.03)
+            new ItemLoot("Lil' Ghost Ship Generator", 0.015)
             )
 
         ;

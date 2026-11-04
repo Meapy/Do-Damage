@@ -115,9 +115,9 @@ namespace WorldServer.logic
                     LootTemplates.BasicPots()
                 ),
                 new Threshold(0.01,
-                    new ItemLoot("Companion Knight Generator", 0.02),
-                    new ItemLoot("Knight Generator", 0.02),
-                    new ItemLoot("Paladin Generator", 0.02),
+                    new ItemLoot("Companion Knight Generator", 0.01),
+                    new ItemLoot("Knight Generator", 0.01),
+                    new ItemLoot("Paladin Generator", 0.01),
                     new ItemLoot("Shield of Ogmur", 0.003)
                 )
             )

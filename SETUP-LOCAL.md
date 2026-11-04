@@ -592,14 +592,19 @@ The remotes `upstream` (HaloCelsius) and `aurusenth` share no history with `main
   down: the old Small became Tiny (the plain critters, the only ones sold: `SOLD_SIZE`, the Bazaar's
   `petSize == "Tiny"`, `/shop pets` without the rest, by hand as the economy port would write it)
   or Small (the rarer and odd critters). Every pet drops: the critters from the realm's and
-  dungeons' monsters they're like, 0.3-1% (regular monsters) or 2-3% (gods and bosses), by name, so
-  in a white bag of the player's own; the five on Doomed monsters (Herding Sheep, Mega Sheep, Evil
+  dungeons' monsters they're like, by name, so in a white bag of the player's own. In dungeons
+  0.3-1% (regular monsters) or 2-3% (bosses); in the realm half that, 0.15-0.5% and 0.5-2.5% (the
+  lands' files, Shore to Mountain, and Realm2, the realm events' and heroes' files, CubeGod,
+  SkullShrine, Sphinx, Pentaract, LotLL, Hermit, RockDragon, GhostShip, Crystal and Cyclops, the
+  Birdman Chief's Eagle, and Phoenix Reborn's and the Red Demon's pets in `port_doomed_monsters`'
+  `LOOT_CHANGES`, back to Doomed Realms' 1%), as every pet the realm drops was halved once the
+  critters went in; the five on Doomed monsters (Herding Sheep, Mega Sheep, Evil
   Chicken, Turkey God, Birdman Chief) in `DoomedExtraLoot` (`Pet`, `Plus`), which the wiki reads
-  (`PET_LOOT`); the godland gods' Medium pets went from 0.5% to 1%. `NEW_PETS` are betterSkillys'
+  (`PET_LOOT`); the godland gods' Medium pets stay at 0.5%. `NEW_PETS` are betterSkillys'
   own (types 0x6c00 on, two each, in list order: only add to its end), written into both copies of
   Permapets between markers and given a follow in `BehaviorDb.DoomedPets.cs` by `write_new_pets`,
   each drawn as a monster (its texture and animation copied) with a kit of that monster's
-  projectiles, and dropped by it (2-3% for the Large, 1-3% for the Medium). A kit's even volley
+  projectiles, and dropped by it (2-3% for a dungeon boss's, 0.5-1% in the realm). A kit's even volley
   wider than `HIT_CONE` either side of the aim is pulled in to it (`shot`): those pairs flew past a
   single enemy, which the tooltip's numbers called 0 (Black Cat measured 48 a second with two
   100-damage shots); they're now scaled like the rest. `GENERATOR_NAMES` names the generators that

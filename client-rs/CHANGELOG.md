@@ -22,8 +22,9 @@ details). Add to a group's line when a change adds to it, rather than adding ano
   over twice as strong, and heal a little more.
 - Every pet drops now, the critters too: the cats from the were-cats, the foxes from the wargs, the
   penguins in the Ice Cave, the Karate Penguins from Kage Kami, the Bee from the Queen Bee and so
-  on. Only the Tiny pets are sold, at the Nexus Bazaar and in `/shop pets`. The godland gods' pets
-  drop twice as often (1%).
+  on. Only the Tiny pets are sold, at the Nexus Bazaar and in `/shop pets`. Pets dropped in the
+  realm, by its monsters, gods, heroes and events (Realm 2's too), drop half as often as before;
+  dungeons' pets drop as they did.
 - 18 new pets, each shooting what the monster it looks like shoots: Large ones from the Puppet
   Master, Davy Jones, the Crystal Prisoner, the Forgotten King, Esben, the Murderous Megamoth,
   and Realm 2's Abyssal Kraken and Wyrm Matriarch; Medium ones from Medusa, the Ent God, the Flying

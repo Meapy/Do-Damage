@@ -66,7 +66,7 @@ namespace WorldServer.logic
                 new Spawn("Cyclops Prince", maxChildren: 5, coolDown: 10000, givesNoXp: false),
                 new Spawn("Cyclops King", maxChildren: 5, coolDown: 10000, givesNoXp: false)
                 ),
-            new ItemLoot("Lil' Cyclops Generator", 0.01)
+            new ItemLoot("Lil' Cyclops Generator", 0.005)
             )
         .Init("Cyclops",
             new State(
