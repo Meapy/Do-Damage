@@ -51,12 +51,8 @@ namespace WorldServer.core.objects
         // of something it brought in: its attacks are softened with theirs (DamageEvent).
         public bool DamageEventSummon { get; private set; }
 
-        public void SummonedBy(Entity host)
-        {
+        public void SummonedBy(Entity host) =>
             DamageEventSummon = host.DamageEventSummon || GameServer.DamageEvent.Names(host.ObjectType);
-            // on the floor of what brought it in (worlds of stacked floors)
-            Z = host.Z;
-        }
 
         public bool Dead { get; protected set; }
 
@@ -159,25 +155,6 @@ namespace WorldServer.core.objects
             get => _y.GetValue();
             set => _y.SetValue(value);
         }
-
-        // How high it stands, in tiles: in a world of stacked floors (World.Levels) the floor it is
-        // on and how far up a stair. The ground it walks on, what it reaches and who it can see go
-        // by it (TileOccupied, DistTo). 0 everywhere else.
-        private float _z;
-        public float Z
-        {
-            get => _z;
-            set
-            {
-                if (_z == value)
-                    return;
-                _z = value;
-                if (World?.Levels != null)
-                    InvokeStatChange(StatDataType.Height, HeightStat);
-            }
-        }
-
-        private int HeightStat => (int)MathF.Round(_z * 1000);
 
         public float PrevX { get; private set; }
         public float PrevY { get; private set; }
@@ -439,9 +416,7 @@ namespace WorldServer.core.objects
             if (!World.Map.Contains(xx, yy))
                 return true;
 
-            var tile = World.TileFor(xx, yy, Z);
-            if (!tile.Exists)
-                return false;
+            var tile = World.Map[xx, yy];
 
             if (tile.ObjType != 0)
             {
@@ -470,11 +445,10 @@ namespace WorldServer.core.objects
             if (!map.Contains(x_, y_))
                 return true;
 
-            var tile = World.TileFor(x_, y_, Z);
+            var tile = map[x_, y_];
 
-            // no floor at this height: a drop (stacked floors), else the edge of the map
             if (!tile.Exists)
-                return World.Levels != null;
+                return false;
 
             var tiles = GameServer.Resources.GameData.Tiles;
 
@@ -517,9 +491,6 @@ namespace WorldServer.core.objects
             var pos = new FPoint();
             ResolveNewLocation(x, y, pos);
             Move(pos.X, pos.Y);
-            // up or down a stair, on stacked floors
-            if (World?.Levels != null)
-                Z = World.SurfaceZ(X, Y, Z);
         }
 
         protected virtual void ExportStats(IDictionary<StatDataType, object> stats, bool isOtherPlayer)
@@ -527,8 +498,6 @@ namespace WorldServer.core.objects
             stats[StatDataType.Name] = Name;
             stats[StatDataType.Size] = Size;
             stats[StatDataType.AltTextureIndex] = AltTextureIndex;
-            if (World?.Levels != null)
-                stats[StatDataType.Height] = HeightStat;
             _conditionEffectManager.ExportStats(stats);
         }
 
@@ -730,18 +699,11 @@ namespace WorldServer.core.objects
         public float AngleTo(ref Position position) => MathF.Atan2(position.Y - Y, position.X - X);
         public float AngleTo(float x, float y) => MathF.Atan2(y - Y, x - X);
 
-        // On stacked floors (World.Levels), what stands on another floor is out of reach: far
-        // further than any monster looks or any attack goes, so the nearest-entity searches, the
-        // area attacks and every behaviour that measures a distance to an entity pass it by.
-        public const float LevelReach = 1.5f;
-        private const float OutOfReach = 1e6f;
-        private bool OnOtherLevel(Entity host) => host._z - _z > LevelReach || _z - host._z > LevelReach;
-
-        public float SqDistTo(Entity host) => OnOtherLevel(host) ? OutOfReach * OutOfReach : (host.X - X) * (host.X - X) + (host.Y - Y) * (host.Y - Y);
+        public float SqDistTo(Entity host) => (host.X - X) * (host.X - X) + (host.Y - Y) * (host.Y - Y);
         public float SqDistTo(ref Position position) => (position.X - X) * (position.X - X) + (position.Y - Y) * (position.Y - Y);
         public float SqDistTo(float x, float y) => (x - X) * (x - X) + (y - Y) * (y - Y);
 
-        public float DistTo(Entity host) => OnOtherLevel(host) ? OutOfReach : MathF.Sqrt((host.X - X) * (host.X - X) + (host.Y - Y) * (host.Y - Y));
+        public float DistTo(Entity host) => MathF.Sqrt((host.X - X) * (host.X - X) + (host.Y - Y) * (host.Y - Y));
         public float DistTo(ref Position position) => MathF.Sqrt((position.X - X) * (position.X - X) + (position.Y - Y) * (position.Y - Y));
         public float DistTo(float x, float y) => MathF.Sqrt((x - X) * (x - X) + (y - Y) * (y - Y));
 

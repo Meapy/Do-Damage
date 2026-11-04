@@ -115,9 +115,6 @@
         SwapSlot1 = 145,
         SwapSlot2 = 146,
         SwapSlot3 = 147,
-        // how high the object stands, in thousandths of a tile; sent only in worlds of stacked
-        // floors (World.Levels)
-        Height = 148,
         None = 255
     }
 }

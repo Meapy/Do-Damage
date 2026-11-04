@@ -244,7 +244,6 @@ fn every_client_message_round_trips() {
         ViewRadius { radius: 22 }.into(),
         Forge { result: 0x497a, slots: vec![4, 13].into() }.into(),
         ForgeSell { slots: vec![6].into() }.into(),
-        Height { z: 4.5 }.into(),
     ];
     for msg in msgs {
         let frame = msg.to_frame();
@@ -469,17 +468,4 @@ fn community_messages_match_community_goals() {
     // CommunityNotice.Write: kind, title, text.
     let ServerMessage::CommunityNotice(n) = ServerMessage::decode(131, &B::default().u8(2).utf("Flame reached!").utf("x").0).unwrap() else { panic!() };
     assert_eq!((n.kind, n.title.as_str()), (2, "Flame reached!"));
-}
-
-#[test]
-fn layers_match_server() {
-    // LayersMessage.Write: the floors' height, then each square of the floors above the map
-    let body = B::default().f32(3.0).i16(1).u8(1).i16(6).i16(14).i16(0x9c05u16 as i16).0;
-    let msg = ServerMessage::decode(132, &body).unwrap();
-    let ServerMessage::Layers(l) = &msg else { panic!("{msg:?}") };
-    assert_eq!(l.height, 3.0);
-    assert_eq!(l.tiles[0], LayerTile { level: 1, x: 6, y: 14, tile_type: 0x9c05 });
-    let mut w = wire::Writer::default();
-    msg.encode_body(&mut w);
-    assert_eq!(w.buf, body);
 }

@@ -52,7 +52,7 @@ impl World {
             vy = speed * angle.sin();
         }
         let (x, y) = (player.x, player.y);
-        if let Some(ground) = self.square_at(x as i32, y as i32, player.z, data).0.and_then(|t| data.grounds.get(&t)) {
+        if let Some(ground) = self.tile(x as i32, y as i32).and_then(|t| data.grounds.get(&t)) {
             if ground.push {
                 vx -= ground.animate.dx / 1000.0;
                 vy -= ground.animate.dy / 1000.0;
@@ -85,44 +85,13 @@ impl World {
                 p.facing = vy.atan2(vx);
             }
         }
-        if !(moved && self.place(me, nx, ny, data)) {
-            return None;
-        }
-        let _ = self.climb(nx, ny, data);
-        Some((nx, ny))
-    }
-
-    /// On stacked floors, our height where we now stand: the ground of the floor at our height,
-    /// so a stair's steps take us up or down. False if no floor's square there is known.
-    pub(crate) fn climb(&mut self, x: f64, y: f64, data: &GameData) -> bool {
-        if self.levels.is_none() {
-            return true;
-        }
-        let Some(me) = self.me else { return true };
-        let z = self.my_z();
-        // the floor at our height, else (put somewhere our height doesn't fit) the nearest we can
-        // walk on (not the inside of a tower under its top)
-        let walkable = |l: u8| self.level_tile(l, x as i32, y as i32).and_then(|t| data.grounds.get(&t)).is_some_and(|g| !g.no_walk);
-        let level = self.level_at(x as i32, y as i32, z, data).filter(|&l| walkable(l)).or_else(|| {
-            (0..self.level_count() as u8)
-                .filter(|&l| walkable(l))
-                .filter_map(|l| self.surface(l, x as i32, y as i32, data).map(|s| ((s - z).abs(), l)))
-                .min_by(|a, b| a.0.total_cmp(&b.0))
-                .map(|(_, l)| l)
-                .or_else(|| self.nearest_level(x as i32, y as i32, z, data))
-        });
-        let Some(level) = level else { return false };
-        let Some(ground) = self.surface(level, x as i32, y as i32, data) else { return false };
-        if let Some(p) = self.objects.get_mut(&me) {
-            (p.z, p.level) = (ground, level);
-        }
-        true
+        (moved && self.place(me, nx, ny, data)).then_some((nx, ny))
     }
 
     /// `Player.onMove`, called as each Move goes to the server: the ground's speed, and sinking.
     pub fn on_move(&mut self, data: &GameData) {
         let Some(p) = self.player() else { return };
-        let ground = self.square_at(p.x as i32, p.y as i32, p.z, data).0.and_then(|t| data.grounds.get(&t));
+        let ground = self.tile(p.x as i32, p.y as i32).and_then(|t| data.grounds.get(&t));
         let speed = ground.map_or(1.0, |g| g.speed);
         if ground.is_some_and(|g| g.sinking) {
             self.sink_level = (self.sink_level + 1).min(MAX_SINK_LEVEL);
@@ -210,39 +179,23 @@ impl World {
         (next_x, next_y)
     }
 
-    /// `Square.isWalkable`: no NoWalk ground and no OccupySquare object. On stacked floors, the
-    /// square of the floor at our height: none there is a wall or a drop.
+    /// `Square.isWalkable`: no NoWalk ground and no OccupySquare object.
     fn walkable(&self, sx: i32, sy: i32, data: &GameData) -> bool {
-        let (tile, occupant) = self.square_at(sx, sy, self.my_z(), data);
         // An unsent square gets GroundLibrary.defaultProps_ (type 255).
-        let tile = tile.unwrap_or(NO_TILE);
+        let tile = self.tile(sx, sy).unwrap_or(NO_TILE);
         let no_walk = data.grounds.get(&tile).map_or(true, |g| g.no_walk);
-        let occupied = occupant.and_then(|o| data.objects.get(&o.object_type)).is_some_and(|d| d.occupy_square);
+        let occupied = self
+            .occupant(sx, sy)
+            .and_then(|o| data.objects.get(&o.object_type))
+            .is_some_and(|d| d.occupy_square);
         !no_walk && !occupied
-    }
-
-    /// On stacked floors, whether a railing stands between our square at (x0, y0) and the one at
-    /// (x, y) beside it: along our ground's side toward it, or its ground's side toward us. A
-    /// railing stops us as it looks it should, though the drop behind it could be stepped (a
-    /// stairwell's edge).
-    fn railing_between(&self, x0: f64, y0: f64, x: f64, y: f64, data: &GameData) -> bool {
-        if self.levels.is_none() {
-            return false;
-        }
-        let Some(me) = self.player() else { return false };
-        let (ax, ay, bx, by) = (x0 as i32, y0 as i32, x as i32, y as i32);
-        let there = self.level_at(bx, by, me.z, data);
-        let (dx, dy) = (bx - ax, by - ay);
-        [(dx, 0), (0, dy)].into_iter().filter(|&(nx, ny)| nx != 0 || ny != 0).any(|(nx, ny)| {
-            self.railed(me.level, ax, ay, nx, ny, data) || there.is_some_and(|l| self.railed(l, bx, by, -nx, -ny, data))
-        })
     }
 
     /// `Player.isValidPosition`, from our square at (x0, y0).
     fn is_valid_position(&self, x0: f64, y0: f64, x: f64, y: f64, data: &GameData) -> bool {
         let out = x < 0.0 || y < 0.0 || x >= self.width as f64 || y >= self.height as f64;
         let same_square = (x as i32, y as i32) == (x0 as i32, y0 as i32);
-        if !same_square && (out || !self.walkable(x as i32, y as i32, data) || self.railing_between(x0, y0, x, y, data)) {
+        if !same_square && (out || !self.walkable(x as i32, y as i32, data)) {
             return false;
         }
         let full = |fx: f64, fy: f64| self.is_full_occupy(fx, fy, data);
@@ -281,20 +234,13 @@ impl World {
     }
 
     /// `Player.isFullOccupy`: outside the map, no tile sent, empty tile, or a FullOccupy object.
-    /// The coordinates truncate toward zero, as AS3's int parameters do. On stacked floors a
-    /// square with no floor at our height but one higher or lower (a drop, a tower's core or
-    /// wall) isn't: it can't be walked onto (`walkable`), but like a wall's ground it doesn't
-    /// catch us at its corners, so we don't snag on a stair's core walking up beside it.
+    /// The coordinates truncate toward zero, as AS3's int parameters do.
     fn is_full_occupy(&self, x: f64, y: f64, data: &GameData) -> bool {
         let (sx, sy) = (x as i32, y as i32);
-        let (tile, occupant) = self.square_at(sx, sy, self.my_z(), data);
-        match tile {
-            None if self.levels.is_some() && x >= 0.0 && y >= 0.0 => {
-                !(0..self.level_count() as u8).any(|l| self.level_tile(l, sx, sy).is_some_and(|t| t != NO_TILE))
-            }
+        match self.tile(sx, sy) {
             None => true,
             Some(NO_TILE) => true,
-            Some(_) => occupant.and_then(|o| data.objects.get(&o.object_type)).is_some_and(|d| d.full_occupy),
+            Some(_) => self.occupant(sx, sy).and_then(|o| data.objects.get(&o.object_type)).is_some_and(|d| d.full_occupy),
         }
     }
 }

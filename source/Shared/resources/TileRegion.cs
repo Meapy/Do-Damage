@@ -66,30 +66,6 @@
         // where the Nexus's Realm 2 portal opens (RealmPortalMonitor)
         Realm2_Portal,
         // where the Nexus's villagers walk to and stop (NexusVillagers)
-        Nexus_Waypoint,
-        // the Stair Tower's (StairTowerWorld): a floor's boss, and the door its death opens
-        Tower_Boss,
-        Tower_Door,
-        // where the Nexus's own people and things stand, one tile each, so every Nexus map
-        // (tools/build_nexus.py, build_nexus_islands.py) places them itself: the Support Bot and
-        // its dungeon portal (NexusGuide), the quest givers (QuestGivers), the Market Broker (and
-        // the middle of the square the market's NPCs walk, NexusVillagers), the changers' and the
-        // twins' grounds (NexusVillagers), the Arena's portal (DoomedWorlds.AddNexusPortals)
-        Nexus_Bot,
-        Nexus_Dungeon,
-        Nexus_Tinkerer,
-        Nexus_Chronicler,
-        Nexus_Herald,
-        Nexus_Broker,
-        Nexus_Name_Changer,
-        Nexus_Character_Changer,
-        Nexus_Twins,
-        Arena_Portal,
-        // the islands' bar (NexusBar): the barman's spot, and the floor of his bar
-        Nexus_Barman,
-        Nexus_Bar,
-        // the Warcaller (community.Warcaller), where a Nexus map puts him (the islands' Arena
-        // court); without it he stands where the garden has him
-        Nexus_Warcaller
+        Nexus_Waypoint
     }
 }

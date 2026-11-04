@@ -2,7 +2,7 @@
 //! with AS3's arithmetic. The world reports what the client must tell the server as [`Hit`]s.
 
 use crate::condition::{self, has};
-use crate::{World, LEVEL_REACH, NO_TILE};
+use crate::{World, NO_TILE};
 use bsk_data::imprint;
 use bsk_data::{GameData, ObjectClass, ProjectileDesc};
 use std::collections::HashSet;
@@ -46,9 +46,6 @@ pub struct Projectile {
     pub x: f64,
     pub y: f64,
     pub z: f64,
-    /// On stacked floors, the height of the floor it flies along (its shooter's when fired): it
-    /// stops where that floor ends and only hits what stands on it.
-    pub floor: f64,
     /// How long it flies, when the weapon's imprints change it (else its description's), and
     /// whether they stop it piercing.
     pub life: Option<i32>,
@@ -143,7 +140,6 @@ impl Projectile {
             x,
             y,
             z: 0.5,
-            floor: 0.0,
             life: None,
             no_pierce: false,
             hit: HashSet::new(),
@@ -199,8 +195,7 @@ impl World {
         !p.damages_players && data.objects.get(&p.container_type).is_some_and(|c| c.class == ObjectClass::Character)
     }
 
-    pub fn add_projectile(&mut self, mut p: Projectile) {
-        p.floor = self.objects.get(&p.owner_id).map_or(0.0, |o| o.z);
+    pub fn add_projectile(&mut self, p: Projectile) {
         self.projectiles.push(p);
     }
 
@@ -289,8 +284,7 @@ impl World {
         if time > last_move + 600 {
             damage = 0;
         }
-        let mut p = Projectile::new(me, bullet_id, bolt, 0, angle, time, px + angle.cos() * 0.3, py + angle.sin() * 0.3, speed_mult, damage, false);
-        p.floor = player.z;
+        let p = Projectile::new(me, bullet_id, bolt, 0, angle, time, px + angle.cos() * 0.3, py + angle.sin() * 0.3, speed_mult, damage, false);
         self.projectiles.push(p.clone());
         Some(p)
     }
@@ -323,7 +317,7 @@ impl World {
         let Some(player) = self.objects.get(&me) else { return vec![] };
         let Some(item) = data.objects.get(&(item_type as u16)) else { return vec![] };
         let Some(desc) = item.projectiles.get(&bullet_type) else { return vec![] };
-        let (px, py, floor) = (player.x, player.y, player.z);
+        let (px, py) = (player.x, player.y);
         let speed_mult = if has(player.conditions(), condition::INSPIRED) { 1.25 } else { 1.0 };
         let (min, max) = (desc.min_damage, desc.max_damage);
         let num = imprints.map_or(item.num_projectiles(), |i| i.num_projectiles(item.num_projectiles()));
@@ -342,7 +336,6 @@ impl World {
             }
             let (sx, sy) = (px + angle.cos() * 0.3, py + angle.sin() * 0.3);
             let mut p = Projectile::new(me, bullet_id, item_type as u16, bullet_type, a, time, sx, sy, speed_mult, damage, false);
-            p.floor = floor;
             if let Some(i) = imprints {
                 let life = i.lifetime(desc.speed, desc.lifetime);
                 p.life = (life != desc.lifetime).then_some(life);
@@ -380,8 +373,7 @@ impl World {
         let (x, y) = p.position_at(desc, elapsed);
         let inside = x >= 0.0 && y >= 0.0 && x < self.width as f64 && y < self.height as f64;
         let (sx, sy) = (x as i32, y as i32);
-        let (tile, obstacle) = self.square_at(sx, sy, p.floor, data);
-        if !inside || tile.unwrap_or(NO_TILE) == NO_TILE {
+        if !inside || self.tile(sx, sy).unwrap_or(NO_TILE) == NO_TILE {
             if p.damages_players {
                 hits.push(Hit::Square { time, bullet_id: p.bullet_id, owner_id: p.owner_id });
             }
@@ -390,7 +382,7 @@ impl World {
         p.x = x;
         p.y = y;
         // Blocked by what stands on the square.
-        if let Some(obstacle) = obstacle {
+        if let Some(obstacle) = self.occupant(sx, sy) {
             if let Some(od) = data.objects.get(&obstacle.object_type) {
                 let damages_enemies = !p.damages_players;
                 if (!od.enemy || !damages_enemies) && (od.enemy_occupy_square || (!desc.passes_cover && od.occupy_square)) {
@@ -453,10 +445,6 @@ impl World {
             if desc.multi_hit && p.hit.contains(&go.id) {
                 continue;
             }
-            // on another floor
-            if (go.z - p.floor).abs() > LEVEL_REACH {
-                continue;
-            }
             let c = go.conditions();
             if go.dead || has(c, condition::INVINCIBLE) || has(c, condition::PAUSED) || has(c, condition::STASIS) {
                 continue;
@@ -481,12 +469,12 @@ impl World {
         let Some(me) = self.player() else { return };
         let (x, y) = (me.x, me.y);
         let (sx, sy) = (x as i32, y as i32);
-        let (tile, occupant) = self.square_at(sx, sy, me.z, data);
-        let Some(ground) = tile.and_then(|t| data.grounds.get(&t)) else { return };
+        let Some(ground) = self.tile(sx, sy).and_then(|t| data.grounds.get(&t)) else { return };
         if ground.max_damage <= 0 || has(me.conditions(), condition::INVINCIBLE) {
             return;
         }
-        let protected = occupant
+        let protected = self
+            .occupant(sx, sy)
             .and_then(|o| data.objects.get(&o.object_type))
             .is_some_and(|d| d.xml.has("ProtectFromGroundDamage"));
         let last = self.last_ground_damage.get(&(sx, sy)).copied().unwrap_or(i32::MIN / 2);

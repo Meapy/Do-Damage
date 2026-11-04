@@ -1,7 +1,6 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using Shared.resources;
 using WorldServer.core.objects;
 using WorldServer.core.quests;
 using WorldServer.core.worlds;
@@ -10,8 +9,7 @@ using WorldServer.networking.packets.outgoing;
 namespace WorldServer.core.community
 {
     // The Warcaller at the north point of the Nexus spawn's island (tools/build_nexus.py:
-    // WARCALLER, keep the two in step), or on the map's Nexus_Warcaller tile (the islands' Arena
-    // court, tools/build_nexus_islands.py): the Rust client opens the community goals at him. He
+    // WARCALLER, keep the two in step): the Rust client opens the community goals at him. He
     // greets each player who comes near with what waits for them (at most every GREET_AGAIN
     // seconds), and every CALL_EVERY seconds rallies everyone in sight with how a goal stands.
     public sealed class Warcaller
@@ -33,12 +31,11 @@ namespace WorldServer.core.community
 
         public void Init()
         {
-            var (x, y) = _world.Marker(TileRegion.Nexus_Warcaller) is { } at ? (at.X, at.Y) : (X, Y);
             for (var r = 0; r <= 3 && _npc == null; r++)
                 for (var dy = -r; dy <= r && _npc == null; dy++)
                     for (var dx = -r; dx <= r && _npc == null; dx++)
-                        if (_world.IsPassable(x + dx, y + dy, true))
-                            _npc = _world.CreateNewEntity(ID, x + dx, y + dy);
+                        if (_world.IsPassable(X + dx, Y + dy, true))
+                            _npc = _world.CreateNewEntity(ID, X + dx, Y + dy);
         }
 
         public void Update(ref TickTime time)

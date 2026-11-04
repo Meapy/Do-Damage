@@ -248,10 +248,6 @@ messages! {
         // server reached (2), a goal completed (3), the week's new goals (4), someone's rare loot
         // (5).
         131 => CommunityNotice { kind: u8, title: String, text: String },
-        // A world of stacked floors (the Stair Tower), on entering: how many tiles each floor is
-        // above the one below, and the ground of the floors above the map (the map's own comes
-        // in Update). From then on we walk at a height and say so before each Move (Height).
-        132 => Layers { height: f32, tiles: List16<LayerTile> },
     }
 }
 
@@ -367,8 +363,5 @@ messages! {
         // 255: its top's prize, 254: all it has waiting); no key claims everything waiting on
         // every goal.
         130 => CommunityClaim { key: String, tier: u8 },
-        // How high we walk, in tiles, just before each Move in a world of stacked floors (only
-        // once Layers came, so never to a server without it).
-        133 => Height { z: f32 },
     }
 }

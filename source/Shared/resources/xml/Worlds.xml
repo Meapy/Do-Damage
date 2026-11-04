@@ -26,22 +26,11 @@
 		</Music>
 	</World>
 	<World id="Nexus">
-		<!-- tools/build_nexus_islands.py: the Nexus as floating islands at two heights in a sunset
-		     sky, joined by bridges ("Nexus Islands 1.jm" and up are the floors above the map). The
-		     garden it replaced is `oldnexus` in Dungeons.xml -->
-		<Width>204</Width>
-		<Height>178</Height>
+		<Width>136</Width>
+		<Height>108</Height>
 		<Capacity>300</Capacity>
-		<MapJM>Exalt/Nexus Islands.jm</MapJM>
+		<MapJM>Exalt/Nexus Garden.jm</MapJM>
 		<Instance enum="nexus"/>
-		<!-- the client's sunset sky (sunset.rs SKY_SUNSET) and the islands' undersides -->
-		<Background>7</Background>
-		<!-- no line of sight: the lowest floor's walls would hide the floors above -->
-		<VisibilityType>0</VisibilityType>
-		<Levels height="3"/>
-		<!-- the realms' caverns north of the vortex turned round, so each faces away from the
-		     shrine's middle (RealmPortalMonitor) -->
-		<RealmPortalNorth>NI Realm Cavern</RealmPortalNorth>
 		<Music>
 			<Track>wanderlust</Track>
 		</Music>

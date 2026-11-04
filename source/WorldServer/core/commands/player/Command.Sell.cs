@@ -61,7 +61,7 @@ namespace WorldServer.core.commands
                 var spot = Spot(nexus);
                 if (spot == null)
                 {
-                    player.SendInfo(nexus.Levels != null ? "The Marketplace is on the market island, west across the bridge from the Nexus spawn." : "The Marketplace is in the village east of the Nexus's spawn.");
+                    player.SendInfo("The Marketplace is just south of the Nexus's spawn.");
                     return true;
                 }
                 player.TeleportPosition(time, spot.Value, true);

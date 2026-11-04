@@ -14,16 +14,6 @@ details). Add to a group's line when a change adds to it, rather than adding ano
 
 ## Unreleased
 
-### Nexus
-- The Nexus is now a cluster of floating islands in a sunset sky, with clouds drifting by and the
-  odd shooting star, joined by bridges and at two heights. The spawn sits in its koi pond with the
-  shared vault chests in one corner; the market island lies west (the shops, the Marketplace, the
-  guild's teahouse, the quest house and the Divine Forge's smithy); the realm portals are in the
-  shrine on the island below, down the stone bridge south; and east is the Arena island, whose
-  tower you climb by its spiral stair to the Hall of Champions, a lookout and the Sky Bar, where
-  Barman Kenji throws a drink at his guests every 20 seconds. Everything works as before, and
-  your vault chests keep what's in them.
-
 ### Languages
 - The game now speaks 11 languages: English, German, Spanish, French, Italian, Dutch, Polish,
   Brazilian Portuguese, Russian, Turkish and Ukrainian. Pick yours in Options, Language: every
@@ -42,7 +32,7 @@ details). Add to a group's line when a change adds to it, rather than adding ano
   (Oryx's incantations and Lil' Oryx pets, the dungeons' keys, the forge's shards and more), and
   Overdrive rolls luckier. Goals resize themselves each time they come back: harder after a week
   the realm sailed past, easier after one it fell short of.
-- Meet the Warcaller, the bannered knight on the Arena island's court in the Nexus: he opens the
+- Meet the Warcaller, the bannered knight at the north end of the Nexus spawn: he opens the
   Community Goals window, with live progress bars, your part and the top contributors. Banners
   and chat lines tell everyone when a tier is reached, and `/goals` shows it all in the chat.
 
@@ -68,8 +58,7 @@ details). Add to a group's line when a change adds to it, rather than adding ano
 ### Abilities
 - A poison (or any other throw) aimed further than 14 tiles away now lands 14 tiles away towards
   your mouse instead of using your mana and doing nothing. A Samurai cut that would land you in a
-  wall no longer uses your mana. Poisons, traps and other thrown items now show the item itself
-  arcing through the air, as the old client did.
+  wall no longer uses your mana.
 
 ### Marketplace
 - Buy more listing slots for fame on the Marketplace's Sell tab: the first extra slot costs 500

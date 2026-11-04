@@ -83,7 +83,7 @@ A realm is the big shared map where most of the game happens. You arrive on its 
 monsters get stronger the further inland you go: from the shore, through the lowlands, midlands and
 highlands, up to the grey **Godlands** in the middle.
 
-Dungeon portals drop from many realm monsters; take them. Each realm portal in the Nexus (the caverns in the shrine's floor, on the island south of the spawn, down the stone bridge) shows
+Dungeon portals drop from many realm monsters; take them. Each realm portal in the Nexus (the caverns in the shrine's floor, north-west of the spawn) shows
 how many players are inside, and `/realm` takes you to the busiest one.
 
 [Realm 2](realm-2.html) is another kind of realm, always open from the Nexus and made afresh each time,

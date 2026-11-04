@@ -209,23 +209,18 @@ impl Signs {
         let k = (cam.scale / crate::view::TILE_PX) as f32;
         // the nearest Arena Chest's sign (they stand side by side: one sign, not two on top of each other)
         let dist = |o: &GameObj| (o.x - me.x).hypot(o.y - me.y);
-        let chest = world
-            .objects
-            .values()
-            .filter(|o| dist(o) <= CHEST_RANGE && is_arena_chest(o, ui.data) && world.on_my_floor(o))
-            .min_by(|a, b| dist(a).total_cmp(&dist(b)));
+        let chest = world.objects.values().filter(|o| dist(o) <= CHEST_RANGE && is_arena_chest(o, ui.data)).min_by(|a, b| dist(a).total_cmp(&dist(b)));
         if let Some(o) = chest {
-            let [px, py] = cam.to_screen(o.x, o.y, o.z);
+            let [px, py] = cam.to_screen(o.x, o.y, 0.0);
             draw(ui, &arena_chest_sign(), px, py, o.stat_int(2).unwrap_or(100) as f32 / 100.0, k);
         }
         for o in world.objects.values() {
-            if dist(o) > RANGE || !is_arena_board(o, ui.data) || !world.on_my_floor(o) {
+            if dist(o) > RANGE || !is_arena_board(o, ui.data) {
                 continue;
             }
             self.arena_near = true;
             let Some(best) = &self.arena else { continue };
-            // on stacked floors, up on its floor (`GameObj.z`, 0 on a flat map)
-            let [px, py] = cam.to_screen(o.x, o.y, o.z);
+            let [px, py] = cam.to_screen(o.x, o.y, 0.0);
             let size_pct = o.stat_int(2).unwrap_or(100) as f32 / 100.0;
             draw(ui, &arena_sign(best.as_ref()), px, py, size_pct, k);
         }

@@ -196,10 +196,6 @@ namespace WorldServer.core.terrain
                     }
                 }
 
-            // a floor above the lowest, in a world of stacked floors
-            if (_map.Z != 0)
-                stats.Add(new KeyValuePair<StatDataType, object>(StatDataType.Height, (int)MathF.Round(_map.Z * 1000)));
-
             var def = new ObjectDef()
             {
                 ObjectType = ObjType,

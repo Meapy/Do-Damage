@@ -470,8 +470,6 @@ impl Hall {
             .objects
             .values()
             .filter(|o| statue_board(o, ui.data).is_some())
-            // on stacked floors only those on our floor (the islands' tower top, not seen from its foot)
-            .filter(|o| world.on_my_floor(o))
             .collect();
         if statues.is_empty() {
             return;
@@ -482,8 +480,7 @@ impl Hall {
         for o in statues {
             let id = statue_board(o, ui.data).unwrap_or("");
             let board = self.data.as_ref().and_then(|d| d.boards.iter().find(|b| b.id == id));
-            // on stacked floors, up on its floor (the islands' Arena tower)
-            let [px, py] = cam.to_screen(o.x, o.y, o.z);
+            let [px, py] = cam.to_screen(o.x, o.y, 0.0);
             let top = py - PLINTH_TOP * 5.0 * k;
             let champion = board.and_then(|b| b.entries.first());
             let mut head = top - 12.0 * k;

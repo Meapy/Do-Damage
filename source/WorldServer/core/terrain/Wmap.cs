@@ -34,8 +34,6 @@ namespace WorldServer.core.terrain
 
         public int Height { get; private set; }
         public int Width { get; private set; }
-        // how high this floor is, in tiles, in a world of stacked floors (World.Levels)
-        public float Z { get; set; }
         // Outside the map, the tile doesn't exist (Exists is false).
         public WmapTile this[int x, int y] => Contains(x, y) ? new WmapTile(this, y * Width + x) : default;
 
@@ -185,13 +183,11 @@ namespace WorldServer.core.terrain
         }
 
 
-        public void CreateEntities(IntPoint offset = new IntPoint(), float z = 0)
+        public void CreateEntities(IntPoint offset = new IntPoint())
         {
             foreach (var i in Entities)
             {
                 var entity = World.CreateNewEntity(i.Item2, i.Item1.X + 0.5f + offset.X, i.Item1.Y + 0.5f + offset.Y);
-                if (entity != null && z != 0)
-                    entity.Z = z;
 
                 if (i.Item3 != null)
                     foreach (var item in i.Item3.Split(';'))

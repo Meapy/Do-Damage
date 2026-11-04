@@ -121,55 +121,46 @@ right-click again or click anywhere else to close it.
 
 ## The Nexus
 
-The Nexus is the safe hub between runs: a cluster of floating islands in a sunset sky, at two
-heights and joined by bridges, in the look of a Japanese garden village: cherry trees in bloom,
-lanterns, temples and a koi pond, with clouds drifting by below and the odd shooting star. Rock
-hangs under every island, and railings run round their edges. You arrive on a deck of
-pink-stained wood in the middle of the spawn's island, by stone water basins that heal you while
-you stand next to them. From there:
+The Nexus is the safe hub between runs: a Japanese garden village on an island, cherry trees in
+bloom, lanterns, temples and a koi pond. You arrive on a deck of pink-stained wood in the middle of
+the pond, by stone water basins that heal you while you stand next to them. From there:
 
-- **On the spawn's island**: the **Support Bot** in the middle of the deck, the Name Changer
-  (your first name is free; changing it costs {{v:name_change}} fame) strolling about its west
-  side and the Character Changer about its east, the Armoire (skins) and the **Vault** portal.
-  Three little bridges cross the koi pond round the deck, west, east and south, to the big
-  bridges. Every ten minutes the Support Bot lets a flock of **XP ducks** onto the pond: shoot
-  them for experience. Frogs sit among the lily pads in the pond's north-east, and in its
-  south-east corner the storehouse stands on a deck with four **shared vault chests** anyone can
-  use.
-- **West**, across the wooden bridge: the **market island**. Its shopping street along the north is
-  the Nexus Bazaar: each shop is a row of stalls in front of a house (stat potions, dungeon keys,
-  Elder and Doomed keys, consumables, specials, pet generators, clothing and accessories). The
-  stalls take turns through each shop's items, and everything there costs fame. Over the bridge
-  you come to the **market square**: two rows of stalls showing what players sell, where the
-  **Market Broker** (the [Marketplace](marketplace.html)), the **Tinkerer** and the **Chronicler**
-  (your [quests, daily reward and achievements](quests.html)) stroll about. Up the cross street,
-  the guild's teahouse, the **Guild Hall** (GUILD HALL over its door): walk up its steps to go
-  through to your guild's hall, and use the **Guild Register**, the notice board at its west side,
-  to make a guild or leave yours (see [Guilds](guilds.html): every member gets +1% loot). Below it
-  stands the quest house, and in the island's south-west the forge court and its **smithy**: its
+- **On the island**: the Name Changer (your first name is free; changing it costs
+  {{v:name_change}} fame) strolling about its north-west corner and the Character Changer about
+  its north-east, the Armoire (skins), the Support Bot and the **Vault** portal. Four arched
+  bridges cross the pond: vermilion ones west and east, stone ones from the island's two upper
+  sides. Every ten
+  minutes the Support Bot lets a flock of **XP ducks** onto the pond: shoot them for experience.
+- **North-west**, over the cobbled bridge and under the torii: the **shrine of the realm
+  portals**. The portals are sunk into its floor: **Realm 2**'s great vortex in the middle, and a
+  dark cavern for each realm round it, each with its name and how many players are inside, and
+  west of the vortex the **Arena**'s sand pit ([The Arena](progression.html#the-arena)). Walk
+  onto one to enter. A pagoda stands behind them.
+- **North of the spawn**, between the shrine and the village: a dry garden of raked gravel round
+  the elder cherry, a giant whose crown towers over the north of the island and whose blossom
+  falls round its foot.
+- **North-east and east**: the **village**. Its shopping street is the Nexus Bazaar: each shop is
+  a row of stalls in front of a house (stat potions, dungeon keys, Elder and Doomed keys,
+  consumables, specials, pet generators, clothing and accessories). The stalls take turns through
+  each shop's items, and everything there costs fame. North of the street, the **smithy**: its
   great furnace is the [Divine Forge](forge.html) and its crystal altar the
-  [Enchanter](imprints.html), and **Amatsumara**, the smith god, works at his anvil before it.
-- **South**, down the stone bridge to the island a floor below and under the torii: the **shrine
-  of the realm portals**. The portals are sunk into its floor: **Realm 2**'s great vortex in the
-  middle, and a dark cavern for each realm round it, each with its name and how many players are
-  inside, and west of the vortex the **Arena**'s sand pit
-  ([The Arena](progression.html#the-arena)). Walk onto one to enter. A pagoda stands behind them,
-  and round the shrine a forest of cherry, pine and maple where blossom falls around you: a dry
-  garden of raked gravel round the elder cherry in its west, and in its east a quiet clearing
-  with a wayside shrine, where the twins Hana and Sora run about.
-- **East**, across the other wooden bridge: the **Arena island**. Its court of raked sand holds a
-  samurai's statue, banners, straw dummies, the Arena Leaderboard's golden trophy, the **Herald**
-  and the **Warcaller** (the [community goals](community-goals.html)). Beside it rises a round
-  stone tower: go in at its door and climb the spiral stair inside to its top, where the
-  [Hall of Champions](champions.html) stands round the cap room, with a telescope to look out
-  over the sky, and on an overhang to the east the **Sky Bar**: every 20 seconds Barman Kenji
-  throws a drink at his guests (15 seconds of Speedy, Hallucinating or Stasis, and a "PARTY!").
+  [Enchanter](imprints.html), and **Amatsumara**, the smith god, works at his anvil before it. Up
+  the cross street, the **Guild Hall** (GUILD HALL over its door): walk up its steps to go
+  through to your guild's hall, and use the **Guild Register**, the notice board at its west
+  side, to make a guild or leave yours (see [Guilds](guilds.html): every member gets +1% loot). South-east, the **market**: two rows of
+  stalls showing what players sell round a courtyard where the **Market Broker** (the
+  [Marketplace](marketplace.html)), the **Tinkerer** and the **Chronicler** (your
+  [quests, daily reward and achievements](quests.html)) stroll about; and the storehouse, whose
+  yard holds four shared vault chests anyone can use.
+- **West**, over the wooden bridge: the [Hall of Champions](champions.html), the living's
+  leaderboard, its champions on plinths round the Champions Monument, and north of it the dojo
+  yard: a samurai's statue, banners and straw dummies, and the Arena Leaderboard's golden trophy.
+- **South**, between the pond and the sea: a forest of cherry, pine and maple where blossom falls
+  around you, a quiet clearing with a wayside shrine, and the twins Hana and Sora running about.
 
-Villagers walk between the islands and stop to chat, and bees drift over the flowers. On the
-islands you only talk to, and see the signs of, the people and things on your own floor: the Hall
-of Champions shows itself once you're up the tower.
+Villagers walk between the houses and stop to chat, and bees drift over the flowers.
 
-The **Herald**, on the Arena island's court by the Arena Leaderboard, keeps
+The **Herald**, in the leaderboard court west of the spawn by the Arena Leaderboard, keeps
 everyone's week together: dungeons cleared, Oryx chains completed and failed, heroes fallen,
 monsters slain, realm events and realms, potions, forging, and the monsters slain most.
 

@@ -11,7 +11,7 @@ the guild buys gives every member more (see [the buffs](#the-halls-buffs)).
 
 ## Making or joining one
 
-- **Make one** at the **Guild Register**, the notice board beside the Nexus's **Guild Hall** on the market island, up its cross street, for 1,000 fame: give it a
+- **Make one** at the **Guild Register**, the notice board beside the Nexus's **Guild Hall** up the village's cross street, for 1,000 fame: give it a
   name and you're its Founder. During the **guild event, until the end of 30 November 2026 (UTC)**,
   making one is free; the Guild Register shows the price of the day.
 - **Join one** when someone in it invites you (`/invite <name>`, officers and up): accept the

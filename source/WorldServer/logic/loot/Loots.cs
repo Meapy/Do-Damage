@@ -461,7 +461,6 @@ namespace WorldServer.logic.loot
 
             container.BagOwners = owners;
             container.Move(enemy.X + (float)((Random.Shared.NextDouble() * 2 - 1) * 0.5), enemy.Y + (float)((Random.Shared.NextDouble() * 2 - 1) * 0.5));
-            container.Z = enemy.Z;
             enemy.World.EnterWorld(container);
         }
     }

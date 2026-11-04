@@ -190,10 +190,9 @@ namespace WorldServer.core.worlds
 
                 from.Post(() =>
                 {
-                    // a realm (Realm 2, from its key) runs on its own thread, as the Nexus's realms
-                    // do, and so does a second Nexus (an admin's copy), busy as the real one can be
+                    // a realm (Realm 2, from its key) runs on its own thread, as the Nexus's realms do
                     if (world != null)
-                        AttachWorld(world, world is RealmWorld or NexusWorld ? null : from);
+                        AttachWorld(world, world is RealmWorld ? null : from);
                     done(world);
                 });
             });
@@ -213,7 +212,6 @@ namespace WorldServer.core.worlds
             switch (worldResource.Instance)
             {
                 case WorldResourceInstanceType.Nexus:
-                    // a second Nexus (oldnexus: NexusWorld.IsMain), on its own thread
                     world = new NexusWorld(GameServer, nextId, worldResource);
                     break;
                 case WorldResourceInstanceType.Vault:
@@ -227,9 +225,6 @@ namespace WorldServer.core.worlds
                     break;
                 case WorldResourceInstanceType.Guild:
                     world = new GuildHallWorld(GameServer, nextId, worldResource, parent);
-                    break;
-                case WorldResourceInstanceType.Dungeon when worldResource.IdName == StairTowerWorld.Name:
-                    world = new StairTowerWorld(GameServer, nextId, worldResource, parent);
                     break;
                 default:
                     // ported Doomed Realms minigames and shop
@@ -287,7 +282,7 @@ namespace WorldServer.core.worlds
             if (world is RealmWorld { HasNexusPortal: true })
                 Nexus?.PortalMonitor.RemovePortal(world.Id);
 
-            if (world is RealmWorld or NexusWorld)
+            if (world is RealmWorld)
             {
                 lock (Threads)
                 {

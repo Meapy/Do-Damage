@@ -122,12 +122,7 @@ namespace WorldServer.core.objects.vendors
                     else
                         shopItem.SetItem(id);
             }
-            Stock = Shops.ToDictionary(s => s.Key, s => (IReadOnlyList<ISellableItem>)s.Value.Item1.ToList());
         }
-
-        // every shop's items as they were at start, before the Nexus put any out on its stalls: a
-        // second Nexus (an admin's copy, NexusWorld.IsMain) sells from its own copy of these
-        public static Dictionary<TileRegion, IReadOnlyList<ISellableItem>> Stock { get; private set; } = new Dictionary<TileRegion, IReadOnlyList<ISellableItem>>();
 
         public static readonly Dictionary<TileRegion, Tuple<List<ISellableItem>, CurrencyType, int>> Shops = new Dictionary<TileRegion, Tuple<List<ISellableItem>, CurrencyType, int>>()
         {

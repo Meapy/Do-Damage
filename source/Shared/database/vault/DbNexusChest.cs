@@ -6,13 +6,10 @@ namespace Shared.database.vault
     // two fields each, named after the chest's tile so they find their items again after a restart.
     public class DbNexusChest : RInventory
     {
-        // `space`: a second Nexus's own chests (an admin's copy of the Nexus, its world's name),
-        // kept apart from the real one's so nothing is in both
-        public DbNexusChest(IDatabase db, int x, int y, string space = null)
+        public DbNexusChest(IDatabase db, int x, int y)
         {
-            var key = space == null ? $"{x}_{y}" : $"{space}.{x}_{y}";
-            Field = $"items.{key}";
-            DataField = $"datas.{key}";
+            Field = $"items.{x}_{y}";
+            DataField = $"datas.{x}_{y}";
 
             InitTwo(db, "nexusChests", new string[] { Field, DataField });
         }
