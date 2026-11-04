@@ -58,7 +58,12 @@ details). Add to a group's line when a change adds to it, rather than adding ano
 ### Abilities
 - A poison (or any other throw) aimed further than 14 tiles away now lands 14 tiles away towards
   your mouse instead of using your mana and doing nothing. A Samurai cut that would land you in a
-  wall no longer uses your mana.
+  wall no longer uses your mana. Poisons, traps and other thrown items now show the item itself
+  arcing through the air, as the old client did.
+
+### Nexus
+- `/champions` and the Marketplace's directions now point the right way: the Hall of Champions is
+  west of the spawn, the Marketplace in the village to the east.
 
 ### Marketplace
 - Buy more listing slots for fame on the Marketplace's Sell tab: the first extra slot costs 500

@@ -87,6 +87,9 @@
         Arena_Portal,
         // the islands' bar (NexusBar): the barman's spot, and the floor of his bar
         Nexus_Barman,
-        Nexus_Bar
+        Nexus_Bar,
+        // the Warcaller (community.Warcaller), where a Nexus map puts him (the islands' Arena
+        // court); without it he stands where the garden has him
+        Nexus_Warcaller
     }
 }
