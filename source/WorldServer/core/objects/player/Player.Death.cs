@@ -117,7 +117,8 @@ namespace WorldServer.core.objects
 
             SaveToCharacter();
             WeeklyStats.Count(Shared.database.leaderboard.DbWeeklyStats.Deaths);
-            GameServer.Database.Death(GameServer.Resources.GameData, Client.Account, Client.Character, FameCounter.Stats, killer, World.GetDisplayName());
+            var rewards = RollDeathRewards();
+            GameServer.Database.Death(GameServer.Resources.GameData, Client.Account, Client.Character, FameCounter.Stats, killer, World.GetDisplayName(), rewards);
 
             GenerateGravestone();
             AnnounceDeath(killer);

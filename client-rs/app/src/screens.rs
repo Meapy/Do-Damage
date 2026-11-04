@@ -34,6 +34,8 @@ pub enum Screen {
     Account,
     /// How a dead character's fame was counted.
     Death,
+    /// The death spin, before the fame summary: the loot reel and what it landed on.
+    Spin,
     /// The world servers to play on (`ServersScreen`).
     Servers,
 }
@@ -168,6 +170,14 @@ pub struct Front {
     pub death_from_graveyard: bool,
     /// The summary was opened from Recent Deaths (Continue goes back to the legends).
     pub death_from_legends: bool,
+    /// The death spin's start (`ui_time`), once drawn, and whether it was skipped to the end.
+    spin_start: Option<i32>,
+    spin_skipped: bool,
+    /// The reel's slot under the marker last frame (for its ticks), and the prize was shown.
+    spin_slot: i32,
+    spin_landed: bool,
+    /// Sounds the screens want played (by `sfx/` name), taken by the app each frame.
+    pub sounds: Vec<&'static str>,
     /// Clickable areas from the last frame.
     targets: Vec<(Target, [f32; 4])>,
     /// Where each field's characters were drawn last frame: (field, first character shown,
@@ -211,6 +221,11 @@ impl Default for Front {
             death: None,
             death_from_graveyard: false,
             death_from_legends: false,
+            spin_start: None,
+            spin_skipped: false,
+            spin_slot: 0,
+            spin_landed: false,
+            sounds: Vec::new(),
             clicked: false,
             targets: Vec::new(),
             field_edges: Vec::new(),
@@ -362,6 +377,12 @@ impl Front {
     }
 
     pub fn show(&mut self, screen: Screen) {
+        if screen == Screen::Spin && self.screen != Screen::Spin {
+            self.spin_start = None;
+            self.spin_skipped = false;
+            self.spin_slot = 0;
+            self.spin_landed = false;
+        }
         self.screen = screen;
         self.confirm = None;
         if screen == Screen::Account {
@@ -422,6 +443,7 @@ impl Front {
                 Screen::Death if self.death_from_graveyard => self.show(Screen::Graveyard),
                 Screen::Death if self.death_from_legends => self.show(Screen::Legends),
                 Screen::Death => self.show(Screen::Chars),
+                Screen::Spin => self.spin_next(),
                 _ => {}
             },
             KeyCode::Escape => match self.screen {
@@ -432,6 +454,7 @@ impl Front {
                 Screen::Death if self.death_from_graveyard => self.show(Screen::Graveyard),
                 Screen::Death if self.death_from_legends => self.show(Screen::Legends),
                 Screen::NewChar | Screen::Legends | Screen::Graveyard | Screen::Account | Screen::Death | Screen::Servers => self.show(Screen::Chars),
+                Screen::Spin => self.spin_next(),
                 Screen::Class(_) => self.show(Screen::NewChar),
                 _ => {}
             },
@@ -475,6 +498,7 @@ impl Front {
             }
             Target::Back => match self.screen {
                 Screen::Class(_) => self.show(Screen::NewChar),
+                Screen::Spin => self.spin_next(),
                 Screen::Death if self.death_from_graveyard => self.show(Screen::Graveyard),
                 Screen::Death if self.death_from_legends => self.show(Screen::Legends),
                 _ => self.show(Screen::Chars),
@@ -604,6 +628,7 @@ impl Front {
             Screen::Graveyard => self.draw_graveyard(ui, w, h, s, mouse),
             Screen::Account => self.draw_account(ui, w, h, s, mouse, now),
             Screen::Death => self.draw_death(ui, w, h, s, mouse),
+            Screen::Spin => self.draw_spin(ui, w, h, s, mouse),
             Screen::Servers => self.draw_servers(ui, w, h, s, mouse),
         }
         // The version, bottom right: opens the changelog.
@@ -1511,6 +1536,184 @@ impl Front {
     }
 
     /// `FameView`: the dead character, how their fame was counted, and some of what they did.
+    /// The death spin's next step: to the end while the reel turns, else on to the fame summary.
+    fn spin_next(&mut self) {
+        if self.spin_start.is_some() && !self.spin_landed {
+            self.spin_skipped = true;
+        } else {
+            self.show(Screen::Death);
+        }
+    }
+
+    /// The death spin: the reel scrolls past the tier's prizes and slows onto what was won (the
+    /// server chose it and put it in the Gift Chest already; this only shows it).
+    fn draw_spin(&mut self, ui: &mut Ui, w: f32, h: f32, s: f32, mouse: (f64, f64)) {
+        let Some(sum) = self.death.clone() else {
+            self.show(Screen::Chars);
+            return;
+        };
+        let Some(spin) = sum.spin.clone() else {
+            self.show(Screen::Death);
+            return;
+        };
+        let now = ui_time();
+        let start = *self.spin_start.get_or_insert(now);
+        let u = if self.spin_skipped { 1.0 } else { ((now - start) as f32 / SPIN_MS).clamp(0.0, 1.0) };
+        let landed = u >= 1.0;
+        let stop = spin.stop as f32;
+        let from = stop.min(2.0);
+        // fast, then a long slow-down onto the prize
+        let pos = from + (stop - from) * (1.0 - (1.0 - u).powi(4));
+        let under = (pos + 0.5).floor() as i32;
+        if under != self.spin_slot && !landed {
+            self.spin_slot = under;
+            self.sounds.push("inventory_move_item");
+        }
+        if landed && !self.spin_landed {
+            self.spin_landed = true;
+            self.sounds.push(if spin.rarity >= 3 { "level_up" } else { "loot_appears" });
+        }
+
+        let pw = (680.0 * s).min(w - 32.0 * s);
+        let ph = (if sum.kept.is_empty() { 470.0 } else { 550.0 } * s).min(h - 32.0 * s);
+        let r = [(w - pw) / 2.0, (h - ph) / 2.0, pw, ph];
+        theme::panel(ui.renderer, r, s);
+        let pad = 28.0 * s;
+        let tier = SPIN_TIERS.get(spin.tier as usize).copied().unwrap_or(SPIN_TIERS[0]);
+        ui.label("Death Spin", r[0] + pad, r[1] + 20.0 * s, (30.0 * s).round(), true, color::GOLD);
+        // the tier, as a pill on the right
+        let size = (14.0 * s).round();
+        let text = format!("{} tier", tier.0);
+        let tw = ui.measure(&text, size, true);
+        let pill = [r[0] + r[2] - pad - tw - 24.0 * s, r[1] + 24.0 * s, tw + 24.0 * s, size * 2.0];
+        theme::fill(ui.renderer, pill, pill[3] / 2.0, tier.3, 0.16);
+        ui.label(&text, pill[0] + 12.0 * s, pill[1] + (pill[3] - size * 1.25) / 2.0, size, true, tier.3);
+        let line = format!("{} base fame earned a {} spin. The more fame, the better the odds.", sum.base_fame, tier.0);
+        ui.label(&line, r[0] + pad, r[1] + 64.0 * s, (14.0 * s).round(), false, color::TEXT_DIM);
+        // the tier's odds of each rarity, as chips smaller when they wouldn't fit
+        let small = (12.0 * s).round();
+        let chips: Vec<(usize, String)> = tier.2.iter().enumerate().filter(|(_, &odds)| odds > 0).map(|(i, &odds)| {
+            // out of 1000: "15%", or "0.2%" for the rare ones
+            let pct = if odds % 10 == 0 { format!("{}", odds / 10) } else { format!("{:.1}", odds as f32 / 10.0) };
+            (i, format!("{} {}%", RARITIES[i].0, pct))
+        }).collect();
+        let wide: f32 = chips.iter().map(|(_, t)| ui.measure(t, small, true) + 36.0 * s).sum();
+        let room = r[2] - 2.0 * pad;
+        let chip_size = if wide > room { (small * room / wide).floor() } else { small };
+        let mut x = r[0] + pad;
+        for (i, text) in chips {
+            let small = chip_size;
+            let tw = ui.measure(&text, small, true);
+            let chip = [x, r[1] + 92.0 * s, tw + 30.0 * s, small * 1.9];
+            theme::fill(ui.renderer, chip, chip[3] / 2.0, color::CHIP, 1.0);
+            let d = 7.0 * s;
+            theme::fill(ui.renderer, [chip[0] + 9.0 * s, chip[1] + (chip[3] - d) / 2.0, d, d], d / 2.0, RARITIES[i].1, 1.0);
+            ui.label(&text, chip[0] + 21.0 * s, chip[1] + (chip[3] - small * 1.25) / 2.0, small, true, color::TEXT);
+            x += chip[2] + 6.0 * s;
+        }
+
+        // The reel: slots fade towards the ends, the marker in the middle.
+        let track = [r[0] + pad, r[1] + 134.0 * s, r[2] - 2.0 * pad, 118.0 * s];
+        theme::rounded(ui.renderer, track, 12.0 * s, (color::INSET_TOP, 1.0), (color::INSET_BOTTOM, 1.0));
+        let side = 84.0 * s;
+        let step = side + 12.0 * s;
+        let (cx, cy) = (track[0] + track[2] / 2.0, track[1] + track[3] / 2.0);
+        let half = track[2] / 2.0 - side / 2.0 - 8.0 * s;
+        let pulse = 0.5 + 0.5 * (now as f32 / 260.0).sin();
+        let mut hovered = None;
+        for (i, &(item, rarity)) in spin.reel.iter().enumerate() {
+            let dx = (i as f32 - pos) * step;
+            if dx.abs() > half {
+                continue;
+            }
+            let k = dx.abs() / half;
+            let won = landed && i == spin.stop;
+            let alpha = if landed && !won { 0.45 * (1.0 - k * k) } else { 1.0 - k * k * 0.85 };
+            let rc = rarity_color(rarity);
+            let sr = [cx + dx - side / 2.0, cy - side / 2.0, side, side];
+            if won {
+                let g = 6.0 * s + 4.0 * s * pulse;
+                theme::fill(ui.renderer, [sr[0] - g, sr[1] - g, side + 2.0 * g, side + 2.0 * g], 12.0 * s + g, rc, 0.22 + 0.18 * pulse);
+            }
+            theme::rounded(ui.renderer, sr, 9.0 * s, (theme::shade(rc, -0.62), alpha), (color::SLOT_BOTTOM, alpha));
+            theme::fill(ui.renderer, [sr[0] + 8.0 * s, sr[1] + side - 7.0 * s, side - 16.0 * s, 3.0 * s], 1.5 * s, rc, alpha);
+            ui.item_icon_faded(item, 80, sr[0] + side / 2.0, sr[1] + side / 2.0 - 3.0 * s, s * 1.4, alpha);
+            if alpha > 0.4 && inside(sr, mouse) {
+                hovered = Some(item);
+            }
+        }
+        for y in [track[1] - 9.0 * s, track[1] + track[3] - 9.0 * s] {
+            theme::fill(ui.renderer, [cx - 2.0 * s, y, 4.0 * s, 18.0 * s], 2.0 * s, color::GOLD, 0.95);
+        }
+
+        // What it landed on.
+        let mut y = track[1] + track[3] + 26.0 * s;
+        if landed {
+            let rc = rarity_color(spin.rarity);
+            let name = RARITIES.get(spin.rarity as usize).map_or("Prize", |r| r.0);
+            if spin.rarity >= 3 {
+                // stars turning round the prize
+                for j in 0..6 {
+                    let a = j as f32 / 6.0 * std::f32::consts::TAU + now as f32 / 900.0;
+                    let rad = side * 0.82;
+                    let twinkle = 3.5 * s + 2.5 * s * (now as f32 / 180.0 + j as f32).sin().abs();
+                    theme::star(ui.renderer, cx + rad * a.cos(), cy + rad * a.sin(), twinkle, rc);
+                }
+            }
+            let big = (24.0 * s).round();
+            let head = format!("{}!", name.to_uppercase());
+            let hw = ui.measure(&head, big, true);
+            ui.label(&head, cx - hw / 2.0, y, big, true, rc);
+            y += big * 1.5;
+            let item = ui.data.objects.get(&(spin.prize as u16)).map_or_else(|| "a prize".to_owned(), |d| d.display_id.clone());
+            let mid = (18.0 * s).round();
+            let iw = ui.measure(&item, mid, true);
+            ui.label(&item, cx - iw / 2.0, y, mid, true, color::TEXT);
+            y += mid * 1.6;
+            let note = "It's in your Gift Chest: collect it from your vault.";
+            let nw = ui.measure(note, small, false);
+            ui.label(note, cx - nw / 2.0, y, small, false, color::TEXT_DIM);
+            // and what it got back of what it died with
+            if !sum.kept.is_empty() {
+                y += small * 2.4;
+                let n = sum.kept.len();
+                let text = format!("Your fame also saved {} of your items:", if n == 1 { "one".to_owned() } else { n.to_string() });
+                let tw = ui.measure(&text, (14.0 * s).round(), true);
+                ui.label(&text, cx - tw / 2.0, y, (14.0 * s).round(), true, color::GOOD);
+                y += 24.0 * s;
+                let gap = 4.0 * s;
+                let side = (34.0 * s).min((r[2] - 2.0 * pad + gap) / n as f32 - gap);
+                let rw = n as f32 * (side + gap) - gap;
+                for (k, &item) in sum.kept.iter().enumerate() {
+                    let sr = [cx - rw / 2.0 + k as f32 * (side + gap), y, side, side];
+                    ui.slot_box(sr, tier_edge(ui.data, item), false, s);
+                    ui.item_icon(item, 80, sr[0] + side / 2.0, sr[1] + side / 2.0, s * 0.72);
+                    if inside(sr, mouse) {
+                        hovered = Some(item);
+                    }
+                }
+            }
+        } else {
+            let text = "Spinning…";
+            let size = (16.0 * s).round();
+            let tw = ui.measure(text, size, true);
+            ui.label(text, cx - tw / 2.0, y + 10.0 * s, size, true, color::TEXT_MUTED);
+        }
+        // the next tier, to aim for
+        if let Some(next) = SPIN_TIERS.get(spin.tier as usize + 1) {
+            let text = format!("Next tier: {} at {} base fame", next.0, next.1);
+            let tw = ui.measure(&text, small, false);
+            ui.label(&text, cx - tw / 2.0, r[1] + r[3] - 92.0 * s, small, false, color::TEXT_MUTED);
+        }
+        let (label, kind) = if landed { ("Continue", Kind::Primary) } else { ("Skip", Kind::Secondary) };
+        self.button(ui, Target::Back, [r[0] + (r[2] - 180.0 * s) / 2.0, r[1] + r[3] - 62.0 * s, 180.0 * s, 42.0 * s], label, kind, s, mouse);
+        if let Some(item) = hovered {
+            let lay = crate::hud::Layout::new(w as u32, h as u32);
+            let lines = crate::hud::item_tooltip(ui.data, item, None, crate::hud::SlotKind::Shop);
+            crate::hud::draw_tooltip(ui, &lay, &lines, Some(item), tier_edge(ui.data, item), mouse);
+        }
+    }
+
     fn draw_death(&mut self, ui: &mut Ui, w: f32, h: f32, s: f32, mouse: (f64, f64)) {
         let Some(sum) = self.death.clone() else {
             self.show(Screen::Chars);
@@ -1560,6 +1763,45 @@ impl Front {
                 y += side + gap;
             }
             y += 8.0 * s;
+        }
+        // What its death spin won.
+        if let Some(spin) = &sum.spin {
+            let side = 30.0 * s;
+            let rc = rarity_color(spin.rarity);
+            let sr = [r[0] + pad, y, side, side];
+            ui.slot_box(sr, Some(rc), false, s);
+            ui.item_icon(spin.prize, 80, sr[0] + side / 2.0, sr[1] + side / 2.0, s * 0.64);
+            if inside(sr, mouse) {
+                hovered = Some(spin.prize);
+            }
+            let item = ui.data.objects.get(&(spin.prize as u16)).map_or_else(|| "a prize".to_owned(), |d| d.display_id.clone());
+            let rarity = RARITIES.get(spin.rarity as usize).map_or("", |r| r.0);
+            let size = (14.0 * s).round();
+            let lead = "Death spin: ";
+            let lw = ui.measure(lead, size, false);
+            let ty = y + (side - size * 1.25) / 2.0;
+            ui.label(lead, sr[0] + side + 10.0 * s, ty, size, false, color::TEXT_DIM);
+            ui.label(&format!("{rarity} {item}"), sr[0] + side + 10.0 * s + lw, ty, size, true, rc);
+            y += side + 10.0 * s;
+        }
+        // What it got back of what it carried.
+        if !sum.kept.is_empty() {
+            let side = 30.0 * s;
+            let size = (14.0 * s).round();
+            let lead = "Got back: ";
+            let lw = ui.measure(lead, size, false);
+            ui.label(lead, r[0] + pad, y + (30.0 * s - size * 1.25) / 2.0, size, false, color::TEXT_DIM);
+            let n = sum.kept.len() as f32;
+            let side = side.min((r[2] - 2.0 * pad - lw + 4.0 * s) / n - 4.0 * s);
+            for (k, &item) in sum.kept.iter().enumerate() {
+                let sr = [r[0] + pad + lw + k as f32 * (side + 4.0 * s), y, side, side];
+                ui.slot_box(sr, tier_edge(ui.data, item), false, s);
+                ui.item_icon(item, 80, sr[0] + side / 2.0, sr[1] + side / 2.0, s * 0.64);
+                if inside(sr, mouse) {
+                    hovered = Some(item);
+                }
+            }
+            y += side + 10.0 * s;
         }
         // The fame: base, the bonuses, the total.
         let size = (15.0 * s).round();
@@ -1677,7 +1919,7 @@ fn time_ago(secs: i64) -> String {
 fn draw_shade(ui: &mut Ui, w: f32, h: f32, screen: Screen) {
     let dark = match screen {
         Screen::Home | Screen::Login | Screen::Register | Screen::Busy => 0.0,
-        Screen::Death => 0.6,
+        Screen::Death | Screen::Spin => 0.6,
         _ => 0.4,
     };
     if dark > 0.0 {
@@ -1737,6 +1979,35 @@ fn wrap(ui: &mut Ui, text: &str, size: f32, max_w: f32) -> Vec<String> {
         lines.push(line);
     }
     lines
+}
+
+/// How long the death spin's reel turns, in ms.
+const SPIN_MS: f32 = 6500.0;
+
+/// The death spin's tiers, as the world server has them (`Player.DeathSpinTiers`): name, base
+/// fame from, the chances of each rarity (out of 1000), colour.
+const SPIN_TIERS: [(&str, i32, [i32; 6], u32); 6] = [
+    ("Bronze", 20, [550, 330, 98, 20, 0, 2], 0xD08A4E),
+    ("Silver", 150, [300, 400, 226, 60, 10, 4], 0xC9CED8),
+    ("Gold", 500, [100, 320, 395, 150, 27, 8], color::GOLD),
+    ("Platinum", 1500, [0, 150, 445, 330, 60, 15], 0x7FE3D8),
+    ("Diamond", 4000, [0, 0, 345, 500, 130, 25], 0x8FD3FF),
+    ("Mythic", 10000, [0, 0, 145, 550, 265, 40], 0xFF5AA0),
+];
+
+/// The prizes' rarities and their colours.
+const RARITIES: [(&str, u32); 6] = [
+    ("Common", color::TEXT_DIM),
+    ("Uncommon", color::GOOD),
+    ("Rare", 0x4FA3FF),
+    ("Epic", 0xB86BFF),
+    ("Legendary", color::GOLD),
+    // white, as a white bag
+    ("Divine", 0xFFFFFF),
+];
+
+fn rarity_color(rarity: i32) -> u32 {
+    RARITIES.get(rarity as usize).map_or(color::TEXT_DIM, |r| r.1)
 }
 
 fn ui_time() -> i32 {

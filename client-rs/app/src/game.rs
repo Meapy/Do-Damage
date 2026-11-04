@@ -694,6 +694,7 @@ impl Game {
         }
         if let ServerMessage::Death(d) = msg {
             if d.char_id == self.char_id {
+                log::info!("died, killed by {}", d.killed_by);
                 self.status = format!("You died, killed by {}.", d.killed_by);
                 self.ended = true;
                 self.died = true;

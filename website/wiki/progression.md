@@ -227,3 +227,48 @@ hold rewards of their own.
 
 So store what you can't afford to lose before a risky run, and don't take your best gear
 somewhere you aren't ready for.
+
+### The death spin
+
+A character that dies with at least 20 **base fame** (its fame before the death bonuses) spins a
+loot reel on the death screen. Its base fame sets the tier, and the tier the chance of each
+rarity:
+
+| Tier | Base fame | Common | Uncommon | Rare | Epic | Legendary | Divine |
+|---|---|---|---|---|---|---|---|
+| Bronze | 20 | 55% | 33% | 9.8% | 2% | - | 0.2% |
+| Silver | 150 | 30% | 40% | 22.6% | 6% | 1% | 0.4% |
+| Gold | 500 | 10% | 32% | 39.5% | 15% | 2.7% | 0.8% |
+| Platinum | 1,500 | - | 15% | 44.5% | 33% | 6% | 1.5% |
+| Diamond | 4,000 | - | - | 34.5% | 50% | 13% | 2.5% |
+| Mythic | 10,000 | - | - | 14.5% | 55% | 26.5% | 4% |
+
+- **Common:** stat potions, Lucky Clovers and loot potions, small pets, T10-T11 weapons and armor.
+- **Uncommon:** Greater stat potions, Potions of Oryx, Superburgers, Golden Lucky Clovers, Mystery
+  ST Shards, medium pets, T12 gear.
+- **Rare:** Potions of Max (one stat), T13 gear, the smaller boss pets, Mystery ST Chests,
+  Ambrosia.
+- **Epic:** Potions of Max, T14 gear, boss pets (Malphas, Geb, Bes, Septavius and more), Character
+  Slot and Vault Chest Unlockers.
+- **Legendary:** Infernal potions, the Sphinx, Cube and Cookie pets, Potions of Maxy, unlockers.
+- **Divine:** a white-bag item, gear of tier 15 and up, a Lil' Oryx or a Potion of Maxy.
+
+A Legendary or Divine prize is announced to everyone online.
+
+**Getting your items back.** Some of what the character was carrying (equipment, inventory and
+backpack, picked at random) comes back as well. Base fame sets how many are sure to; after
+those, one more comes back half the time, another a quarter of the time, and so on:
+
+| Base fame | Items sure to come back |
+|---|---|
+| Under 200 | none (50% chance of one) |
+| 200 | 1 |
+| 400 | 2 |
+| 800 | 3 |
+| 1,500 | 4 |
+| 3,000 | 5 |
+| 6,000 | 6 |
+| 10,000 | 8 |
+
+The prize and the items go to your **gift chest**, in your vault. Imprints on returned items are
+lost. Deaths that don't count (the Arena, test worlds, a broken resurrection item) don't spin.

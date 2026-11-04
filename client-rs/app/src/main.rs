@@ -1371,9 +1371,10 @@ impl App {
     /// Move through the sign-in steps as their answers arrive.
     fn advance(&mut self) {
         self.advance_npcs();
-        // A game that ended (death, disconnect) goes back to the character list.
+        // A game that ended (death, disconnect) goes back to the character list; a scripted shot
+        // stays on the game, unless it died (to show the death spin and summary).
         if let Phase::Playing(game) = &self.phase {
-            if game.ended && self.shot.is_none() {
+            if game.ended && (self.shot.is_none() || game.died) {
                 let why = game.status.clone();
                 self.leave_game(Some(why));
             }
@@ -1512,8 +1513,10 @@ impl App {
             Request::Fame => {
                 match login::reached(response).and_then(|xml| bsk_net::account::parse_char_fame(&xml)) {
                     Ok(summary) => {
+                        // a death spin first, then the summary
+                        let spun = summary.spin.is_some();
                         self.front.death = Some(summary);
-                        self.front.show(Screen::Death);
+                        self.front.show(if spun { Screen::Spin } else { Screen::Death });
                         let now = self.now();
                         if let Some(a) = &mut self.audio {
                             a.play("death_screen", 1.0, false, now);
@@ -1540,6 +1543,9 @@ impl App {
         }
         if std::mem::take(&mut self.front.clicked) {
             audio.play("button_click", 1.0, false, now);
+        }
+        for name in self.front.sounds.drain(..) {
+            audio.play(name, 0.7, false, now);
         }
         match &mut self.phase {
             Phase::Playing(game) => {
