@@ -70,6 +70,12 @@ SIZE = (204, 178)
 FLOOR = 3                # tiles between floors (Dungeons.xml testnexus <Levels height="3"/>)
 LEVELS = 4               # floors: the portals (1), spawn, market and the Arena's foot (2), north (3), the tower's top (4)
 RISE = 0.25              # a bridge rises this much a square (never more than half a tile)
+# The wooden bridges' dip: a U, not a V: down DIP at its middle, easing down over DIP_EASE squares
+# from each end (gently at first, never more than RISE a square) to a level stretch; their decks
+# an eighth of a tile apart (WOOD_STEP, nexus_garden.islands.WOOD_LIFTS), sloping smoothly between
+DIP = 1.0
+DIP_EASE = 5
+WOOD_STEP = 0.125
 
 # the garden's palette (build_nexus)
 MEADOW, GRASS, MOSS, PETALS, EARTH, PATH, MOSSY, SLAB, GRAVEL, COBBLE, TATAMI, DECK, BEAM = (
@@ -95,8 +101,8 @@ ARENA = (1, 172, 84, 26, 24, 3.0, 5)
 
 # the bridges: (name, axis, across (first, last), along (first, last), height at each end,
 # material, shape); the along range runs from the first island to the second, both ends a
-# landing. Five wide, so each runs on the spawn's middle row or column. "dip": down from both
-# ends a quarter of a tile a square to the middle and back up.
+# landing. Five wide, so each runs on the spawn's middle row or column. "dip": a U, easing down
+# from both ends to a level middle `DIP` lower and back up (`DIP`, `DIP_EASE`).
 BRIDGES = [
     ("market", "x", (82, 86), (91, 79), (3, 3), "wood", "dip"),        # spawn west to the market
     ("arena", "x", (82, 86), (133, 145), (3, 3), "wood", "dip"),       # spawn east to the Arena
@@ -129,9 +135,10 @@ QUEST_NPCS = [(50, 77), (58, 77)]
 GUILD_HALL = (32, 71)                # the teahouse: GUILD HALL over its door
 GUILD = {"NG Guild Register": (27, 74), "NG Guild Hall Door": (32, 74)}
 QUEST_HOUSE = (32, 83)
-# the forge court, in the market island's south-west below the quest house
+# the forge court, in the market island's south-west below the quest house; the smithy at its
+# back, facing north to the island's middle (`smithy_north`), its front middle on SMITHY
 FORGE_COURT = (22, 89, 42, 104)
-SMITHY = (32, 100)
+SMITHY = (32, 96)
 
 # the portals island: the shrine round Realm 2's vortex (build_nexus's, its gate to the north),
 # the forest south of it, the elder cherry's dry garden in the forest's west
@@ -163,6 +170,9 @@ PLINTH_R = 5.7                       # the champions' plinths round the balcony,
 SPIRAL = (173, 69)
 SPIRAL_SECTORS = 12
 SPIRAL_START = 120
+# the top is open over the stair's sectors from this one on (the last of its second turn): from the
+# top, the way down, its edge railed; on the way up the stair comes out beside it
+STAIRWELL = 9
 DOOR = (172, 73)
 BAR_DECK = (182, 66, 189, 77)        # the overhang: x0, y0, x1, y1
 BAR = (186, 69)                      # the bar's model: its counter's middle
@@ -207,10 +217,16 @@ def lay_island(g, island, ground=MEADOW):
                 g.ground(x, y, ground)
 
 
+def dip(i, n):
+    """How far down a dipping bridge's square `i` of `n` is: easing down from each end over
+    `DIP_EASE` squares (a half cosine) to `DIP`, level between; to the eighth of a tile."""
+    t = min(i, n - i, DIP_EASE) / DIP_EASE
+    return round(DIP * (1 - math.cos(math.pi * t)) / 2 / WOOD_STEP) * WOOD_STEP
+
+
 def bridge_tiles(b):
     """A bridge's squares from its first end to its last: (x, y, height). Straight from one end's
-    height to the other's a quarter of a tile a square, or for a "dip" down from both ends to its
-    middle and back up."""
+    height to the other's a quarter of a tile a square, or for a "dip" a U (`dip`)."""
     _, axis, (c0, c1), (a0, a1), (h0, h1), _, shape_ = b
     step = 1 if a1 > a0 else -1
     along = list(range(a0, a1 + step, step))
@@ -221,7 +237,7 @@ def bridge_tiles(b):
         assert abs(abs(h1 - h0) / n - RISE) < 1e-9, (b[0], "rises %.3f a square" % (abs(h1 - h0) / n))
     out = []
     for i, a in enumerate(along):
-        h = h0 - RISE * min(i, n - i) if shape_ == "dip" else h0 + (h1 - h0) * i / n
+        h = h0 - dip(i, n) if shape_ == "dip" else h0 + (h1 - h0) * i / n
         for c in range(c0, c1 + 1):
             out.append((a, c, h) if axis == "x" else (c, a, h))
     return out
@@ -235,13 +251,16 @@ def bridge(levels, b):
     for x, y, h in bridge_tiles(b):
         level = min(int(h / FLOOR + 1e-6), LEVELS - 1)
         lift = round(h - level * FLOOR, 4)
-        step = int(round(lift / RISE))
         if material == "wood":
+            step = int(round(lift / WOOD_STEP))
+            assert abs(step * WOOD_STEP - lift) < 1e-6, (name, x, y, lift)
             if step == 0:
                 ground = "NI Bridge Deck EW" if axis == "x" else "NI Bridge Deck NS"
             else:
                 ground = ("NI Wood Ramp EW %d" if axis == "x" else "NI Wood Ramp %d") % step
         else:
+            step = int(round(lift / RISE))
+            assert abs(step * RISE - lift) < 1e-6, (name, x, y, lift)
             ground = "NI Stone Bridge" if step == 0 else "NI Stone Ramp %d" % step
         g = levels[level]
         assert not g.has(x, y), ("bridge %s over ground" % name, x, y)
@@ -306,6 +325,12 @@ def lay_spawn(g):
             if g[x, y]["ground"] == POND and any(g.ok(x + dx, y + dy) and g[x + dx, y + dy]["ground"] == GRASS
                                                  for dx in (-1, 0, 1) for dy in (-1, 0, 1)):
                 g.ground(x, y, SHALLOWS)
+    # a shore of sand between the shallows and the grass, so the water fades into the land
+    shore = [(x, y) for y in range(g.h) for x in range(g.w)
+             if g[x, y]["ground"] == GRASS and any(g.ok(x + dx, y + dy) and g[x + dx, y + dy]["ground"] == SHALLOWS
+                                                   for dx in (-1, 0, 1) for dy in (-1, 0, 1))]
+    for x, y in shore:
+        g.ground(x, y, SAND)
     for y in range(sy - dh - 1, sy + dh + 2):
         for x in range(sx - dw - 1, sx + dw + 2):
             if hex_inside(x + 0.5, y + 0.5, sx + 0.5, sy + 0.5, dw, dh):
@@ -372,10 +397,39 @@ def lay_spawn(g):
     rng.shuffle(spots)
     for i, (x, y) in enumerate(spots[:14]):
         g.place(x, y, "NI Frog" if i < 4 else "NG Lotus" if i < 7 else "NG Lily Pad", keep=False)
-    for x, y in ((sx + lx - 4, int(sy + ly + lh + 1)), (sx + lx + 4, int(sy + ly + lh + 1))):
-        if g.land(x, y) and g.empty(x, y):
-            g.place(x, y, LANTERN)
     return [(sx - 15, sy + 3), (sx + 15, sy + 3), (sx + 3, sy + 15), (sx - 12, sy - 12), (sx + lx, int(sy + ly + lh + 2))]
+
+
+def smithy_north(g, at=SMITHY):
+    """build_nexus.smithy turned round to face north (the model turned, `NI Smithy N`): its
+    posts, back wall, furnace and altar blocking their tiles to the south of its front middle on
+    `at`, the Divine Forge, the Enchanter and the smoke where the turned model has them, and
+    Amatsumara at his anvil before it to the north."""
+    sx, sy = at
+    turn = lambda dx, dy: (sx - dx, sy - dy)
+    forge, enchanter, smith = [turn(dx, dy) for dx, dy in (bn.FORGE_AT, bn.ENCHANTER_AT, bn.SMITH_AT)]
+    blocked = set()
+    for dx in (-5, 4):                          # the posts
+        for dy in (0, -2, -4, -6):
+            blocked.add(turn(dx, dy))
+    for dx in range(-4, 4):                     # the low back wall
+        blocked.add(turn(dx, -6))
+    for dx in range(-4, 0):                     # the furnace
+        for dy in range(-6, -3):
+            blocked.add(turn(dx, dy))
+    for dx in range(1, 4):                      # the altar
+        for dy in (-5, -4):
+            blocked.add(turn(dx, dy))
+    smoke = turn(-3, -5)
+    for x, y in sorted(blocked - {smoke, forge, enchanter}):
+        g.place(x, y, BLOCKER)
+    g.place(*smoke, "NG Chimney Smoke")
+    g.place(*forge, "NG Divine Forge")
+    g.place(*enchanter, "NG Enchanter")
+    g.place(*smith, "NG Smith God")
+    g.place(smith[0] - 1, smith[1], "NG Anvil")
+    g.place(sx, sy, "NI Smithy N")
+    g.models.append(("NI Smithy N", sx, sy))
 
 
 def lay_market(g):
@@ -442,10 +496,10 @@ def lay_market(g):
     g.rect(fx0, fy0, fx1, fy1, SLAB)
     for x, y in ((fx0, fy0), (fx1, fy0), (fx0, fy1), (fx1, fy1)):
         g.place(x, y, LANTERN)
-    bn.smithy(g, SMITHY)
+    smithy_north(g, SMITHY)
     for x in (fx0 + 2, fx0 + 3):
-        g.place(x, fy1 - 1, "NG Weapon Rack")
-    for y in (fy0 + 4, fy0 + 7):
+        g.place(x, fy0 + 1, "NG Weapon Rack")
+    for y in (fy0 + 2, fy0 + 5):
         g.place(fx1 - 2, y, "NG Straw Dummy")
     g.line([(CROSS[0], CROSS[2]), (fx1, CROSS[2])], 3, SLAB)
     # from the square to the bridge head
@@ -454,7 +508,7 @@ def lay_market(g):
         [(x, y - 3) for name, x, y in houses if name == "NG House N"] + \
         [(BROKER[0], BROKER[1] + 4), (CROSS[0], 66), (CROSS[0], 88), (30, sy), (60, sy),
          (GUILD_HALL[0], GUILD_HALL[1] + 4), (QUEST_HOUSE[0], QUEST_HOUSE[1] + 3), (72, 84),
-         (SMITHY[0] + 5, SMITHY[1] + 2), (fx1 - 4, fy0 + 2)]
+         (SMITHY[0] + 5, SMITHY[1] - 3), (fx1 - 4, fy0 + 2)]
 
 
 def lay_portals(g):
@@ -599,6 +653,8 @@ def lay_arena(levels):
             g.ground(x, y, "NI Tower Base" if (x, y) in core else "NI Tower Wall", keep=True)
         if (x, y) in core:
             top.ground(x, y, "NI Tower Core", keep=True)
+        elif ring.get((x, y), -1) >= STAIRWELL:
+            continue                             # open over the stair's last steps: the way down
         else:
             top.ground(x, y, "NI Tower Doorway" if (x, y) == DOOR else "NI Tower Top", keep=True)
     for x, y in balcony:
@@ -900,12 +956,20 @@ def build_art():
     o = scenery("NI Thrown Sake", "Sake", s8, SHEET8[0], s8.add(island_art.thrown_sake()), block=False, shadow=0)
     sub(o, "NoMiniMap")
     # frogs on lily pads in the spawn's pond, their throats puffing now and then
-    frames = [s8.add(island_art.frog(f)) for f in range(2)]
-    o = scenery("NI Frog", "Frog", s8, SHEET8[0], frames[0], block=False, shadow=0)
+    frames = [s16.add(island_art.frog(f)) for f in range(3)]
+    o = scenery("NI Frog", "Frog", s16, SHEET16[0], frames[0], size=55, block=False, shadow=0)
     anim = sub(o, "Animation", prob="1.0", period="2.5", periodJitter="2.0")
-    for c, t in ((frames[1], 0.35), (frames[0], 0.15), (frames[1], 0.3), (frames[0], 0.1)):
-        texture(sub(anim, "Frame", time=str(t)), SHEET8[0], c)
+    for c, t in ((frames[1], 0.35), (frames[0], 0.15), (frames[1], 0.3), (frames[0], 0.25), (frames[2], 0.18), (frames[0], 0.1)):
+        texture(sub(anim, "Frame", time=str(t)), SHEET16[0], c)
     sub(o, "NoMiniMap")
+    # the smithy turned round (`smithy_north`): the garden's model and texture, a half turn
+    garden_objects = ET.parse(os.path.join(ROOT, "source", "Shared", "resources", "xml", "custom", "NexusGardenObjects.xml")).getroot()
+    smithy = next(o for o in garden_objects.iter("Object") if o.get("id") == "NG Smithy")
+    o = ET.Element("Object", {"type": types.get("objects", "NI Smithy N"), "id": "NI Smithy N"})
+    for child in smithy:
+        o.append(child)
+    sub(o, "Rotation", 180)
+    object_xml.append(o)
     # the barman: a character, but not an enemy, so pets and shots leave him be
     o = ET.Element("Object", {"type": types.get("objects", "NI Barman"), "id": "NI Barman"})
     sub(o, "DisplayId", "Barman Kenji")
@@ -994,6 +1058,7 @@ def main():
         build_art()
     for name, model in island_art.MODELS.items():
         model_art.MODELS.setdefault(name, model)
+    model_art.MODELS.setdefault("NI Smithy", model_art.MODELS["NG Smithy"])   # NI Smithy N, the garden's turned
     levels = build()
     check(levels)
     for g in levels:

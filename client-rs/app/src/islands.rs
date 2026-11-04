@@ -2,15 +2,20 @@
 //! islands: `sunset::SKY_SUNSET`), worked out here from the floors' squares, which the client
 //! always has (an object would only come while the player is near it):
 //!
-//! - each island's rocky underside: a cone of rock from under its rim down into the sky, round
-//!   its outline (not square by square, so its sides are smooth whatever the rim's steps), its
-//!   upper band soil and roots, the rest rock, hazier the deeper it hangs;
-//! - under a bridge's deck (grounds with `<Piers/>`): piers every `PIER_EVERY` squares fading
-//!   into the haze below; under a wooden one cross beams, under a stone one (`<Piers>stone</Piers>`)
-//!   arches between its piers.
+//! - each island's rocky underside: under every square of ground with nothing on a floor below
+//!   it, a column of rock as deep as the square is far in from the island's edge (`depth`), so
+//!   the columns step down to a ragged point, square by square as the rim above them (nothing
+//!   between them for the sky to show through). Each column a little deeper or shallower than its
+//!   neighbours, now and then a spur hanging lower, its stone a shade lighter or darker; the top
+//!   band soil and roots under the rim, the rest rock, hazier the deeper it hangs;
+//! - under a bridge's deck (grounds with `<Piers/>`): under wood, piers every `PIER_EVERY`
+//!   squares fading into the haze below and cross beams; under stone (`<Piers>stone</Piers>`)
+//!   arches along its sides, and no piers.
 //!
 //! All of it is drawn before any floor, back to front (`view::draw`), so the islands and
 //! everything on them stand in front of it.
+
+use std::rc::Rc;
 
 use bsk_data::GameData;
 use bsk_render::{AtlasRect, Renderer};
@@ -19,30 +24,40 @@ use bsk_world::World;
 use crate::sprites::Sprites;
 use crate::view::Camera;
 
+/// Squares worked out at a time (as `view::FloorCache`).
+const CHUNK: i32 = 16;
 /// The floors' slab under their edges (`view::SLAB`): the rock starts below it.
 const SLAB: f64 = 0.35;
-/// The cone's rings: how far in from the rim each is, and how far below it, for an island 20
-/// squares across its middle (smaller ones hang less deep). The view shows a tile of height as
-/// a tile up the screen, so the rock only shows below an island's edge where it goes down more
-/// than in.
-const INWARD: [f64; 8] = [0.1, 0.55, 1.5, 2.9, 4.7, 6.9, 9.4, 12.0];
-const DEPTH: [f64; 8] = [0.0, 1.2, 2.9, 5.0, 7.5, 10.2, 12.6, 14.2];
-/// Bridges: a pier every this many squares along, how long, how wide (wood, stone); the stone
-/// arches' depth at their crown and at the piers.
+/// How deep the rock hangs: at the edge, more per square further in, at most. The view shows a
+/// tile of height as a tile up the screen, so the rock only shows below an island's edge where it
+/// deepens more than a tile a square in.
+const EDGE_DEPTH: f64 = 0.6;
+const PER_SQUARE: f64 = 1.55;
+const MAX_DEPTH: f64 = 12.0;
+/// The soil band under the rim, how deep.
+const SOIL: f64 = 0.8;
+/// Bridges: a pier every this many squares along, how long, how wide; the stone arches' depth at
+/// their crown and every `PIER_EVERY` squares.
 const PIER_EVERY: i32 = 4;
 const PIER_LENGTH: f64 = 5.0;
 const PIER_WIDTH: f64 = 0.3;
-const STONE_PIER_WIDTH: f64 = 0.62;
 const ARCH_CROWN: f64 = 0.3;
 const ARCH_SPRING: f64 = 1.7;
 /// The haze the deep rock fades into (the sky's lavender).
 const HAZE: u32 = 0xC6B4D4;
 
-/// One island's underside: its rings of points, each round its outline, from under its rim down.
-struct Island {
-    rings: Vec<Vec<[f64; 3]>>,
-    /// Its extent on the map, for what's in view.
-    bounds: [f64; 4],
+/// A side of a column of rock, from a to b (going round its square clockwise), from `top` down to
+/// `bottom`: `deep` how deep its foot is (0 to 1 of `MAX_DEPTH`, for the haze), `tone` its stone's
+/// shade (about 1), `under_rim` how far below the rim its top is (for the soil band).
+#[derive(Clone, Copy)]
+struct RockFace {
+    a: [f64; 2],
+    b: [f64; 2],
+    top: f64,
+    bottom: f64,
+    deep: f32,
+    tone: f32,
+    under_rim: f64,
 }
 
 /// A bridge's pier (a post fading down into the haze), cross beam (under the deck, from a to b)
@@ -60,9 +75,12 @@ pub struct Undersides {
     layers_gen: u32,
     log_seen: usize,
     /// Draws since the map's squares last changed and were caught up with (a new square redoes
-    /// the islands: not more than every few draws while they stream in).
+    /// every floor's distances: not more than every few draws while they stream in).
     since: u32,
-    islands: Vec<Island>,
+    /// Each floor's squares' distance in from its edge (255: no rock), worked out when the floors
+    /// come or the map's squares change.
+    dist: Vec<Vec<u8>>,
+    chunks: rustc_hash::FxHashMap<(u8, i32, i32), Rc<Vec<RockFace>>>,
     timbers: Vec<Timber>,
 }
 
@@ -100,13 +118,22 @@ impl Undersides {
         self.log_seen = world.tile_log().len();
         let bare: rustc_hash::FxHashSet<u16> =
             data.grounds.iter().filter(|(_, g)| g.xml.has("Piers") || g.xml.has("NoUnderside")).map(|(&t, _)| t).collect();
-        self.islands.clear();
+        self.chunks.clear();
         self.timbers.clear();
+        self.dist = (0..world.level_count() as u8).map(|l| distances(world, &bare, l)).collect();
         for level in 0..world.level_count() as u8 {
-            self.islands.extend(islands(world, &bare, level));
             bridges(world, data, sprites, level, &mut self.timbers);
         }
-        log::debug!("undersides: {} islands, {} bridge pieces", self.islands.len(), self.timbers.len());
+        log::debug!(
+            "undersides: {:?} squares of rock a floor, {} bridge pieces",
+            self.dist.iter().map(|d| d.iter().filter(|&&v| v != 255).count()).collect::<Vec<_>>(),
+            self.timbers.len()
+        );
+    }
+
+    fn chunk(&mut self, world: &World, level: u8, cx: i32, cy: i32) -> Rc<Vec<RockFace>> {
+        let dist = &self.dist;
+        self.chunks.entry((level, cx, cy)).or_insert_with(|| Rc::new(columns(world, dist, level, cx, cy))).clone()
     }
 
     /// The undersides in view, back to front.
@@ -123,29 +150,35 @@ impl Undersides {
         };
         let mut tris: Vec<Tri> = Vec::new();
         let (vx0, vx1, vy0, vy1) = (x0 as f64, x1 as f64, y0 as f64, y1 as f64);
-        let last = (INWARD.len() - 1) as f32;
-        for island in &self.islands {
-            let [bx0, by0, bx1, by1] = island.bounds;
-            if bx1 < vx0 || bx0 > vx1 || by1 < vy0 || by0 > vy1 {
-                continue;
-            }
-            for k in 0..island.rings.len() - 1 {
-                let (upper, lower) = (&island.rings[k], &island.rings[k + 1]);
-                let n = upper.len();
-                for j in 0..n {
-                    let (p, q, r, s) = (upper[j], upper[(j + 1) % n], lower[(j + 1) % n], lower[j]);
-                    let sc = |w: [f64; 3]| cam.to_screen(w[0], w[1], w[2]);
-                    let pts = [sc(p), sc(q), sc(r), sc(s)];
-                    // facing away (as a floor's sides, `view::floors`)
-                    let (ax, ay) = (pts[1][0] - pts[0][0], pts[1][1] - pts[0][1]);
-                    let (dx, dy) = (pts[3][0] - pts[0][0], pts[3][1] - pts[0][1]);
-                    if ax * dy - ay * dx >= 0.0 {
-                        continue;
+        let (cx0, cx1) = (x0.max(0).div_euclid(CHUNK), x1.min(world.width - 1).div_euclid(CHUNK));
+        let (cy0, cy1) = (y0.max(0).div_euclid(CHUNK), y1.min(world.height - 1).div_euclid(CHUNK));
+        for level in 0..world.level_count() as u8 {
+            for cy in cy0..=cy1 {
+                for cx in cx0..=cx1 {
+                    let faces = self.chunk(world, level, cx, cy);
+                    for f in faces.iter() {
+                        let (a, b) = (f.a, f.b);
+                        let depth = cam.to_screen((a[0] + b[0]) / 2.0, (a[1] + b[1]) / 2.0, 0.0)[1];
+                        let lit = shade([b[1] - a[1], a[0] - b[0], 0.0]) * f.tone;
+                        // a tile tall at a time, soil just under the rim, the rest rock, darker and
+                        // hazier the deeper
+                        let mut top = f.top;
+                        while top - f.bottom > 0.01 {
+                            let under = f.under_rim + (f.top - top);
+                            let low = if under < SOIL { (top - (SOIL - under)).max(f.bottom) } else { (top - 1.0).max(f.bottom) };
+                            let pts = [cam.to_screen(a[0], a[1], top), cam.to_screen(b[0], b[1], top), cam.to_screen(b[0], b[1], low), cam.to_screen(a[0], a[1], low)];
+                            // facing away (as a floor's sides, `view::floors`)
+                            let (ax, ay) = (pts[1][0] - pts[0][0], pts[1][1] - pts[0][1]);
+                            let (dx, dy) = (pts[3][0] - pts[0][0], pts[3][1] - pts[0][1]);
+                            if ax * dy - ay * dx >= 0.0 {
+                                break;
+                            }
+                            let at = |z: f64| (f.deep * ((f.top - z) / (f.top - f.bottom).max(0.01)) as f32).clamp(0.0, 1.0);
+                            let (tu, tl) = (hazed(lit * (1.0 - 0.45 * at(top)), at(top), 1.0), hazed(lit * (1.0 - 0.45 * at(low)), at(low), 1.0));
+                            quad(&mut tris, depth, if under < SOIL { soil } else { rock }, pts, (1.0, 1.0), tu, tl);
+                            top = low;
+                        }
                     }
-                    let lit = shade(normal(p, q, s));
-                    let (tu, tl) = (hazed(lit * (1.0 - 0.45 * k as f32 / last), k as f32 / last, 1.0), hazed(lit * (1.0 - 0.45 * (k + 1) as f32 / last), (k + 1) as f32 / last, 1.0));
-                    let depth = cam.to_screen((p[0] + r[0]) / 2.0, (p[1] + r[1]) / 2.0, 0.0)[1];
-                    quad(&mut tris, depth, if k == 0 { soil } else { rock }, pts, (1.0, 1.0), tu, tl);
                 }
             }
         }
@@ -215,12 +248,6 @@ fn shade(n: [f64; 3]) -> f32 {
     (0.62 + 0.38 * dot.max(0.0)) as f32
 }
 
-fn normal(v0: [f64; 3], v1: [f64; 3], v2: [f64; 3]) -> [f64; 3] {
-    let u = [v1[0] - v0[0], v1[1] - v0[1], v1[2] - v0[2]];
-    let v = [v2[0] - v0[0], v2[1] - v0[1], v2[2] - v0[2]];
-    [u[1] * v[2] - u[2] * v[1], u[2] * v[0] - u[0] * v[2], u[0] * v[1] - u[1] * v[0]]
-}
-
 /// Whether rock hangs under a square of a floor: ground with nothing on a floor below it, that
 /// isn't a bridge's deck (`<Piers/>`) nor asks for none (`<NoUnderside/>`).
 fn rocky(world: &World, bare: &rustc_hash::FxHashSet<u16>, level: u8, x: i32, y: i32) -> bool {
@@ -231,101 +258,92 @@ fn rocky(world: &World, bare: &rustc_hash::FxHashSet<u16>, level: u8, x: i32, y:
     !(0..level).any(|l| world.level_tile(l, x, y).is_some())
 }
 
-/// Each island of a floor (its squares of rock, joined side by side) and its underside's rings:
-/// round its middle, a point every square or so of its outline, each ring further in and lower.
-fn islands(world: &World, bare: &rustc_hash::FxHashSet<u16>, level: u8) -> Vec<Island> {
+/// How far each square of a floor's rock is in from its edge (a breadth-first walk in from the
+/// squares beside no rock); 255 where there is none.
+fn distances(world: &World, bare: &rustc_hash::FxHashSet<u16>, level: u8) -> Vec<u8> {
     let (w, h) = (world.width.max(0), world.height.max(0));
-    let floor_h = world.levels.as_ref().map_or(1.0, |l| l.height);
-    let base = level as f64 * floor_h - SLAB;
-    let mut seen = vec![false; (w * h) as usize];
-    let mut out = Vec::new();
-    for sy in 0..h {
-        for sx in 0..w {
-            if seen[(sx + sy * w) as usize] || !rocky(world, bare, level, sx, sy) {
-                continue;
+    let rocky = |x: i32, y: i32| rocky(world, bare, level, x, y);
+    let mut dist = vec![255u8; (w * h) as usize];
+    let mut queue = std::collections::VecDeque::new();
+    for y in 0..h {
+        for x in 0..w {
+            if rocky(x, y) && [(1, 0), (-1, 0), (0, 1), (0, -1)].iter().any(|(dx, dy)| !rocky(x + dx, y + dy)) {
+                dist[(x + y * w) as usize] = 0;
+                queue.push_back((x, y));
             }
-            // the island: every square of rock joined to this one
-            let mut squares = Vec::new();
-            let mut stack = vec![(sx, sy)];
-            seen[(sx + sy * w) as usize] = true;
-            while let Some((x, y)) = stack.pop() {
-                squares.push((x, y));
-                for (dx, dy) in [(1, 0), (-1, 0), (0, 1), (0, -1)] {
-                    let (nx, ny) = (x + dx, y + dy);
-                    if nx < 0 || ny < 0 || nx >= w || ny >= h || seen[(nx + ny * w) as usize] || !rocky(world, bare, level, nx, ny) {
-                        continue;
-                    }
-                    seen[(nx + ny * w) as usize] = true;
-                    stack.push((nx, ny));
-                }
-            }
-            if squares.len() < 6 {
-                continue;
-            }
-            let n = squares.len() as f64;
-            let c = [squares.iter().map(|s| s.0 as f64 + 0.5).sum::<f64>() / n, squares.iter().map(|s| s.1 as f64 + 0.5).sum::<f64>() / n];
-            // the outline: how far out the island reaches at each angle (its edge squares' corners)
-            let inside: rustc_hash::FxHashSet<(i32, i32)> = squares.iter().copied().collect();
-            let mut points = Vec::new();
-            for &(x, y) in &squares {
-                if [(1, 0), (-1, 0), (0, 1), (0, -1)].iter().all(|(dx, dy)| inside.contains(&(x + dx, y + dy))) {
-                    continue;
-                }
-                for (ox, oy) in [(0.0, 0.0), (1.0, 0.0), (0.0, 1.0), (1.0, 1.0)] {
-                    points.push((x as f64 + ox, y as f64 + oy));
-                }
-            }
-            let bins = (points.len() as f64 * 0.22).clamp(40.0, 240.0) as usize;
-            let mut r = vec![-1.0f64; bins];
-            for &(px, py) in &points {
-                let a = (py - c[1]).atan2(px - c[0]).rem_euclid(std::f64::consts::TAU);
-                let j = ((a / std::f64::consts::TAU * bins as f64) as usize).min(bins - 1);
-                r[j] = r[j].max((px - c[0]).hypot(py - c[1]));
-            }
-            // empty angles from their neighbours, then smoothed a little
-            for j in 0..bins {
-                if r[j] < 0.0 {
-                    let (mut lo, mut hi) = ((j + bins - 1) % bins, (j + 1) % bins);
-                    while r[lo] < 0.0 && lo != j {
-                        lo = (lo + bins - 1) % bins;
-                    }
-                    while r[hi] < 0.0 && hi != j {
-                        hi = (hi + 1) % bins;
-                    }
-                    r[j] = (r[lo].max(0.0) + r[hi].max(0.0)) / 2.0;
-                }
-            }
-            let r: Vec<f64> = (0..bins).map(|j| 0.5 * r[j] + 0.25 * (r[(j + bins - 1) % bins] + r[(j + 1) % bins])).collect();
-            let mean = r.iter().sum::<f64>() / bins as f64;
-            let size = (mean / 10.0).clamp(0.35, 1.6);
-            let seed = (sx * 7 + sy * 13) as u32;
-            let rings: Vec<Vec<[f64; 3]>> = (0..INWARD.len())
-                .map(|k| {
-                    (0..bins)
-                        .map(|j| {
-                            let a = (j as f64 + 0.5) / bins as f64 * std::f64::consts::TAU;
-                            // rock is ragged: a little in or out, a little up or down, more lower down
-                            let wob = k as f64 / INWARD.len() as f64;
-                            let jr = (unit(hash(j as i32, k as i32, seed)) - 0.5) * 0.7 * wob;
-                            let jz = (unit(hash(j as i32, k as i32, seed + 1)) - 0.5) * 1.0 * wob;
-                            let rad = (r[j] - INWARD[k] * size.max(0.6) + jr).max(0.4 * (1.0 - wob));
-                            let z = base - if k == 0 { 0.0 } else { DEPTH[k] * size + jz };
-                            [c[0] + a.cos() * rad, c[1] + a.sin() * rad, z]
-                        })
-                        .collect()
-                })
-                .collect();
-            let reach = r.iter().fold(0.0f64, |m, v| m.max(*v)) + 1.0;
-            let depth = DEPTH[DEPTH.len() - 1] * size + 2.0;
-            out.push(Island { rings, bounds: [c[0] - reach, c[1] - reach - floor_h * level as f64, c[0] + reach, c[1] + reach + depth] });
         }
     }
-    out
+    while let Some((x, y)) = queue.pop_front() {
+        let d = dist[(x + y * w) as usize];
+        for (dx, dy) in [(1, 0), (-1, 0), (0, 1), (0, -1)] {
+            let (nx, ny) = (x + dx, y + dy);
+            if nx < 0 || ny < 0 || nx >= w || ny >= h {
+                continue;
+            }
+            let i = (nx + ny * w) as usize;
+            if dist[i] == 255 && rocky(nx, ny) {
+                dist[i] = d.saturating_add(1).min(254);
+                queue.push_back((nx, ny));
+            }
+        }
+    }
+    dist
 }
 
-/// Under a floor's bridges (grounds with `<Piers/>`): on their open sides, every `PIER_EVERY`
-/// squares along, a pier into the haze; under wood a beam across to the far side's, under stone
-/// (`<Piers>stone</Piers>`) an arch along each side from pier to pier.
+/// How far below its floor's slab the rock under a square hangs: deeper the further in, each
+/// column a little more or less than its neighbours, now and then one hanging lower still.
+fn depth(dist: u8, x: i32, y: i32) -> f64 {
+    let d = dist as f64;
+    let spur = if hash(x, y, 11) % 9 == 0 { 0.8 + unit(hash(x, y, 12)) * 1.6 } else { 0.0 };
+    (EDGE_DEPTH + d * PER_SQUARE + (unit(hash(x, y, 7)) - 0.4) * 1.1 + spur).clamp(EDGE_DEPTH * 0.6, MAX_DEPTH - unit(hash(x, y, 8)) * 2.0)
+}
+
+/// A chunk's columns of rock: each square's sides, from its neighbour's foot (or from under the
+/// slab at the edge) down to its own, so the columns meet with nothing between them.
+fn columns(world: &World, dist: &[Vec<u8>], level: u8, cx: i32, cy: i32) -> Vec<RockFace> {
+    let mut faces = Vec::new();
+    let floor_h = world.levels.as_ref().map_or(1.0, |l| l.height);
+    let base = level as f64 * floor_h - SLAB;
+    let (w, h) = (world.width, world.height);
+    let Some(dist) = dist.get(level as usize) else { return faces };
+    let at = |x: i32, y: i32| -> Option<u8> {
+        if x < 0 || y < 0 || x >= w || y >= h {
+            return None;
+        }
+        Some(dist[(x + y * w) as usize]).filter(|&d| d != 255)
+    };
+    for y in cy * CHUNK..(cy + 1) * CHUNK {
+        for x in cx * CHUNK..(cx + 1) * CHUNK {
+            let Some(d) = at(x, y) else { continue };
+            let bottom = base - depth(d, x, y);
+            let (fx, fy) = (x as f64, y as f64);
+            let tone = 0.9 + unit(hash(x, y, 13)) as f32 * 0.2;
+            let sides = [
+                ([fx, fy], [fx + 1.0, fy], (0, -1)),
+                ([fx + 1.0, fy], [fx + 1.0, fy + 1.0], (1, 0)),
+                ([fx + 1.0, fy + 1.0], [fx, fy + 1.0], (0, 1)),
+                ([fx, fy + 1.0], [fx, fy], (-1, 0)),
+            ];
+            let deep = ((base - bottom) / MAX_DEPTH) as f32;
+            for (a, b, (nx, ny)) in sides {
+                // down from the neighbour's foot (or from under the slab at the edge)
+                let top = match at(x + nx, y + ny) {
+                    Some(n) => base - depth(n, x + nx, y + ny),
+                    None => base,
+                };
+                if top - bottom > 0.01 {
+                    faces.push(RockFace { a, b, top, bottom, deep, tone, under_rim: base - top });
+                }
+            }
+        }
+    }
+    faces
+}
+
+/// Under a floor's bridges (grounds with `<Piers/>`): under wood, on their open sides every
+/// `PIER_EVERY` squares along, a pier into the haze and a beam across to the far side's; under
+/// stone (`<Piers>stone</Piers>`) an arch along each side, deepest every `PIER_EVERY` squares, and
+/// no piers.
 fn bridges(world: &World, data: &GameData, sprites: &Sprites, level: u8, out: &mut Vec<Timber>) {
     for y in 0..world.height {
         for x in 0..world.width {
@@ -373,11 +391,11 @@ fn bridges(world: &World, data: &GameData, sprites: &Sprites, level: u8, out: &m
                 if along.rem_euclid(PIER_EVERY) != 0 {
                     continue;
                 }
-                let (px, py) = (x as f64 + 0.5 + nx as f64 * 0.4, y as f64 + 0.5 + ny as f64 * 0.4);
+                // a stone bridge stands on its arches alone: no piers down into the sky
                 if stone {
-                    out.push(Timber::Pier { top: [px, py, top - ARCH_SPRING + 0.05], length: PIER_LENGTH + 1.0, width: STONE_PIER_WIDTH, rect });
                     continue;
                 }
+                let (px, py) = (x as f64 + 0.5 + nx as f64 * 0.4, y as f64 + 0.5 + ny as f64 * 0.4);
                 out.push(Timber::Pier { top: [px, py, top], length: PIER_LENGTH, width: PIER_WIDTH, rect });
                 // the cross beam: to the far side, the way across (drawn once, from the north or west side)
                 if nx > 0 || ny > 0 {

@@ -182,20 +182,49 @@ def tower_floor(seed):
 
 
 def frog(frame):
-    """A green frog on a lily pad, 8 by 8, its throat puffing out now and then."""
-    pal = {"l": C("#2c6a36"), "L": C("#4a8c46"), "g": C("#3e8a2e"), "G": C("#7cc04a"), "e": C("#1c1418"),
-           "w": C("#f0f4e0"), "t": C("#e8e0a0")}
+    """A green tree frog sitting on a notched lily pad, 16 by 16, facing out: domed eyes with a
+    gleam, nostrils, a wide mouth, a darker-spotted back, a cream throat and belly, its front legs
+    at its sides and splayed toes. Frame 0 sits, 1 puffs its throat out, 2 flicks its red tongue
+    out towards you."""
+    pal = {
+        "o": C("#2f6e2a"), "G": C("#5aa83c"), "H": C("#8ad05a"), "s": C("#2a5a22"),  # body: edge, green, light, spots
+        "W": C("#ffffff"), "k": C("#1c1418"), "y": C("#e8c84a"),                     # eyes: gleam, pupil, iris
+        "m": C("#1e3a18"),                                                          # the mouth's line
+        "c": C("#e6e2a6"), "C": C("#f6f2c8"),                                       # throat and belly
+        "r": C("#c8283a"), "R": C("#f0607a"),                                       # tongue
+        "L": C("#2a7468"), "P": C("#46a08a"), "q": C("#86ccb0"),                    # lily pad, bluer than the frog
+    }
     rows = [
-        "........",
-        "..G..G..",
-        ".GeGGeG.",
-        ".gGGGGg.",
-        "lgG" + ("tt" if frame else "GG") + "Ggl",
-        "LgggggL.",
-        "LLLLLLLl",
-        ".LLLLLl.",
+        "................",
+        "..oooo....oooo..",
+        ".oHWyko..oHWyko.",
+        ".oGykkooooGykko.",
+        ".oHGGGGsGGGGGHo.",
+        "oHGGsGGGGGGsGGHo",
+        "oGGGGGkGGkGGGGGo",
+        "oGmGGGGGGGGGGmGo",
+        "oGGmmmmmmmmmmGGo",
+        ".oGGccccccccGGo.",
+        "oGoGccccccccGoGo",
+        "oGGoGccccccGoGGo",
+        "HGHGoGGooGGoGHGH",
+        "LqLLLLqLLLLqLLqL",
+        ".LPPLLLLLLLLPPL.",
+        "..LLLLLL.LLLLL..",
     ]
-    img = picture(rows, pal, 8, 8)
+    if frame == 1:
+        # the throat puffed out, round and pale
+        rows[9] = ".oGCCCCCCCCCCGo."
+        rows[10] = "oGoCCCCCCCCCCoGo"
+        rows[11] = "oGGoCCCCCCCCoGGo"
+    if frame == 2:
+        # the tongue flicked out of the mouth's middle, down towards you, a round pink tip
+        rows[8] = "oGGmmmmrrmmmmGGo"
+        rows[9] = ".oGGcccrrcccGGo."
+        rows[10] = "oGoGcccrrcccGoGo"
+        rows[11] = "oGGoGcRRRRcGoGGo"
+        rows[12] = "HGHGoGRRRRGoGHGH"
+    img = picture(rows, pal, 16, 16)
     outline(img, lambda c: tuple(max(0, int(v * 0.45)) for v in c))
     return img
 
@@ -204,6 +233,7 @@ def frog(frame):
 # Lifts: the bridges climb and fall a quarter of a tile a square (never more), the spiral stair
 # a quarter of a tile a twelfth of a turn (tools/build_stair_tower.py's spiral).
 LIFTS = [k * 0.25 for k in range(1, 12)]
+WOOD_LIFTS = [k * 0.125 for k in range(1, 24)]
 WOOD_RAIL = 0x7A4A2C          # the tower's balcony: dark oak, as its timbers
 
 
@@ -246,18 +276,24 @@ def grounds():
         "NI Tower Base": (lambda s: ashlar(GRANITE, s + 3), 2, {"NoWalk": None, "BlendPriority": "18", "NoUnderside": None},
                           "0x5E5C6E", stone_face),
     }
-    for k, lift in enumerate(LIFTS, 1):
+    # the wooden bridges dip in a U, their decks an eighth of a tile apart (`WOOD_LIFTS`); the stone
+    # one steps a quarter of a tile a square
+    for k, lift in enumerate(WOOD_LIFTS, 1):
         out["NI Wood Ramp %d" % k] = (G.planks(G.PLANK, False), 3,
                                       {"Lift": str(lift), "BlendPriority": "24", **wood_rail, **bridge}, "0x7A4E30", timber_face)
         out["NI Wood Ramp EW %d" % k] = (G.planks(G.PLANK, True), 3,
                                          {"Lift": str(lift), "BlendPriority": "24", **wood_rail, **bridge}, "0x7A4E30", timber_face)
+    for k, lift in enumerate(LIFTS, 1):
         out["NI Stone Ramp %d" % k] = (lambda s: ashlar(GRANITE, s + 9), 3,
                                        {"Lift": str(lift), "BlendPriority": "23", **stone_rail, **stone_bridge}, "0x908E98",
                                        stone_face)
-    # the spawn's little bridges over its pond: an arch, railed all along (over water the drop is small)
+    # the spawn's little bridges over its pond: an arch, railed along its sides over the water (the
+    # drop there is small), the pond on under it (`<Under>`, so it's water under the arch, not
+    # sky), its deck thin (`<Slab>`: no walls down to the water)
     for k in range(4):
         for way, across in (("EW", True), ("NS", False)):
-            tags = {"BlendPriority": "24", "StaySolid": None, "Slope": None, "RailDrop": "0.1", **wood_rail}
+            tags = {"BlendPriority": "24", "StaySolid": None, "Slope": None, "RailDrop": "0.1", "Under": "NG Pond",
+                    "Slab": "0.12", **wood_rail}
             if k:
                 tags["Lift"] = str(k * 0.25)
             out["NI Pond Deck %s %d" % (way, k)] = (G.planks(G.PLANK, across), 3, tags, "0x7A4E30", timber_face)
@@ -430,8 +466,9 @@ def bar():
     """The bar on the overhang at the side of the Arena tower's balcony: an open counter seven
     tiles by three under the sky, no roof, its model's tile the counter's middle (the front row;
     the barman's aisle and the shelves behind it, to the north). At the back, oak shelves of
-    bottles; the aisle; the counter in front, rose panels and a dark top; at the front corners
-    two oak posts and a beam between them with the SKY BAR sign and a string of lit lanterns."""
+    bottles; the aisle; the counter in front, rose panels and a dark top with the SKY BAR sign set
+    in it; at its two ends an oak post with an arm, a pink lantern hanging from each. Nothing
+    across the front, so the barman shows over his counter."""
     img = base_texture()
     _shelves(img, R_SHELF)
     fill(img, R_COUNTER, lambda x, y, w, h: TIMBER[1] if x % 8 == 0 or y in (0, h - 1) else dither(ROSE, 0.5 + 0.2 * (hash2(x, y, 3) - 0.5), x, y))
@@ -448,48 +485,46 @@ def bar():
     # its ends, closing the aisle
     for x in (X0 + 0.25, X1 - 0.55):
         m.box(x, YB + 0.35, 0, x + 0.3, 0.55, 0.62, R_COUNTER, top=R_TOP)
-    # two posts at the front corners and the beam between them, the sign and lanterns on it
-    TOP = 2.3
-    for x in (X0, X1):
-        m.box(x - 0.1, YF - 0.1, 0, x + 0.1, YF + 0.1, TOP, R_TIMBER)
-    m.box(X0 - 0.15, YF - 0.12, TOP - 0.16, X1 + 0.15, YF + 0.12, TOP, R_TIMBER)
-    m.quad((-1.6, YF + 0.14, TOP - 0.18), (1.6, YF + 0.14, TOP - 0.18), (1.6, YF + 0.14, TOP - 0.52), (-1.6, YF + 0.14, TOP - 0.52),
-           R_SIGN, (0, 0, TOP - 0.35))
-    for x in (-3.0, -2.2, 2.2, 3.0):
-        m.lantern(x, YF + 0.2, TOP - 0.16, R_CORD, R_LAMP, 0.22)
+    # the sign set in the counter's top, readable from the front
+    m.quad((-1.7, 0.56, 0.71), (1.7, 0.56, 0.71), (1.7, 1.06, 0.71), (-1.7, 1.06, 0.71), R_SIGN, (0, 0.8, 0.0))
+    # an oak post at each end of the counter, an arm reaching in over it, a pink lantern hung from it
+    TOP = 2.1
+    for x, inward in ((X0 + 0.1, 1), (X1 - 0.1, -1)):
+        m.box(x - 0.1, YF - 0.6, 0, x + 0.1, YF - 0.4, TOP, R_TIMBER)
+        m.box(min(x, x + inward * 0.7) - 0.02, YF - 0.6, TOP - 0.14, max(x, x + inward * 0.7) + 0.02, YF - 0.4, TOP, R_TIMBER)
+        m.lantern(x + inward * 0.6, YF - 0.5, TOP - 0.14, R_CORD, R_LAMP, 0.26)
     # its tile is the counter's middle: all of it a tile north of the middle row
     m.vs = [(x, y - 1.0, z) for x, y, z in m.vs]
     return m, img
 
 
 def tower_cap():
-    """The room on top of the Arena tower, as in a wizard's tower: eight timbered walls of pale
-    plaster with lit windows round the stair's core, a tall cone of teal tiles over them flaring
-    at its eaves, and a gilded spire. Centred on the corner its model's tile shares with the core's
-    other three squares (half a tile north-west of the tile's middle)."""
+    """The shrine on top of the Arena tower, a pagoda's top storeys as the garden's pagoda
+    (models.pagoda): a room of rose timber and lit shoji on the stair's core, two roofs of teal
+    tiles flaring out and sweeping up at their corners, lanterns at the lower eaves, a gilded spire
+    of rings (a sorin) over all. Centred on the corner its model's tile shares with the core's other
+    three squares (half a tile north-west of the tile's middle)."""
     img = base_texture()
     m = Mesh()
-    sides, r, wall, eave, peak = 8, 1.45, 1.55, 1.95, 4.6
-    pts = [(math.cos((k + 0.5) / sides * math.tau) * r, math.sin((k + 0.5) / sides * math.tau) * r) for k in range(sides)]
-    centre = (0, 0, wall / 2)
-    for k in range(sides):
-        (ax, ay), (bx, by) = pts[k], pts[(k + 1) % sides]
-        m.quad((ax, ay, wall), (bx, by, wall), (bx, by, 0), (ax, ay, 0), (0, 0, 64, 16), centre)
-        # a lit window in each wall, and a timber post at each corner
-        mx, my = (ax + bx) / 2, (ay + by) / 2
-        ox, oy = mx * 1.02, my * 1.02
-        tx, ty = (bx - ax) * 0.22, (by - ay) * 0.22
-        m.quad((ox - tx, oy - ty, wall * 0.78), (ox + tx, oy + ty, wall * 0.78), (ox + tx, oy + ty, wall * 0.3), (ox - tx, oy - ty, wall * 0.3),
-               (64, 0, 96, 16), (0, 0, wall / 2), "Glow")
-        m.box(ax * 1.01 - 0.07, ay * 1.01 - 0.07, 0, ax * 1.01 + 0.07, ay * 1.01 + 0.07, wall + 0.05, R_TIMBER)
-    # the cone: from the eaves round the walls up to the peak, in tiles
-    ring = [(math.cos((k + 0.5) / sides * math.tau) * eave, math.sin((k + 0.5) / sides * math.tau) * eave) for k in range(sides)]
-    inside = (0, 0, wall - 1.0)
-    for k in range(sides):
-        (ax, ay), (bx, by) = ring[k], ring[(k + 1) % sides]
-        m.face([(ax, ay, wall - 0.05), (bx, by, wall - 0.05), (0, 0, peak)], [(4, 60), (124, 60), (64, 34)], inside)
-    m.box(-0.06, -0.06, peak - 0.1, 0.06, 0.06, peak + 0.9, R_GOLD)
-    m.box(-0.15, -0.15, peak + 0.25, 0.15, 0.15, peak + 0.35, R_GOLD)
+    z = 0.0
+    for i, (half, height, eave) in enumerate(((1.0, 1.45, 1.85), (0.78, 1.05, 1.45))):
+        M.walls(m, -half, -half, half, half, z, z + height)
+        z += height
+        m.box(-half - 0.08, -half - 0.08, z, half + 0.08, half + 0.08, z + 0.12, R_TIMBER, lid=False)
+        z += 0.12
+        top = (0.7, 0.0)[i]
+        rise = 0.6 if i == 0 else 1.05
+        m.roof((-eave, -eave, eave, eave), (-top, -top, top, top), z - 0.05, z + rise, R_SLOPE, R_END, 0.24, 0.22, 10)
+        if i == 0:
+            for cx, cy in ((-eave, eave), (eave, eave), (-eave, -eave), (eave, -eave)):
+                m.lantern(cx * 0.97, cy * 0.97, z + 0.2, R_CORD, R_LAMP, 0.2)
+        z += rise if i == 1 else rise * 0.62
+    m.box(-0.06, -0.06, z - 0.1, 0.06, 0.06, z + 1.3, R_GOLD)
+    for k in range(5):
+        r = 0.18 - k * 0.02
+        zz = z + 0.15 + k * 0.2
+        m.box(-r, -r, zz, r, r, zz + 0.05, R_GOLD)
+    m.box(-0.11, -0.11, z + 1.3, 0.11, 0.11, z + 1.52, R_GOLD)
     m.vs = [(x - 0.5, y - 0.5, z) for x, y, z in m.vs]
     return m, img
 

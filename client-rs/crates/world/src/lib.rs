@@ -368,6 +368,12 @@ impl World {
         }
     }
 
+    /// Whether an object is on our floor (always, on a flat map): what we can interact with, and
+    /// the signs and boards that show over things, are only those on it.
+    pub fn on_my_floor(&self, obj: &GameObj) -> bool {
+        self.levels.is_none() || self.player().is_none_or(|me| (obj.z - me.z).abs() <= LEVEL_REACH)
+    }
+
     /// Our height (0 on a flat map).
     pub fn my_z(&self) -> f64 {
         self.player().map_or(0.0, |p| p.z)

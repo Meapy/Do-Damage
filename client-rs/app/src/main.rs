@@ -2405,7 +2405,8 @@ impl App {
                             ability_at = Some((x, y, angle));
                         }
                         let hallucinating = has(bsk_world::condition::HALLUCINATING);
-                        let scene = view::Scene { sprites, data, world, camera, time: now, floaters: &game.floaters, bubbles: &game.bubbles, particles: &game.particles, show, hallucinating };
+                        let roof = view::roof(world, data, &camera);
+                        let scene = view::Scene { sprites, data, world, camera, time: now, floaters: &game.floaters, bubbles: &game.bubbles, particles: &game.particles, show, hallucinating, roof };
                         prof::mark("pre-world");
                         view::draw(&scene, renderer, redrawer, ground, fonts, text);
                         game.petals.draw(&camera, renderer, now);

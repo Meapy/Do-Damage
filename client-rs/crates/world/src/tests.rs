@@ -455,3 +455,70 @@ fn stacked_floors_goto_lands_on_the_ground_there() {
     let (x, _) = walk(&mut w, &d, 1.0, 0.0, 300);
     assert!(x > 3.0, "{x}");
 }
+
+/// The Nexus islands' tower stair, 10×10: a ring two squares wide round a core (x and y 4 to 5)
+/// from (2, 2) to (7, 7), each square a step of its sector (a twelfth of the way round, a quarter
+/// of a tile up each), on the map and again on the floor 3 tiles above; the core a wall below.
+/// Our player at (x, y), `z` up, walking with the camera turned `angle` as the scripted walker.
+fn spiral(d: &mut GameData, x: f32, y: f32, z: f64) -> World {
+    let mut grounds = String::from("<Grounds>");
+    for k in 0..12 {
+        grounds += &format!(r#"<Ground type="{}" id="Spiral {k}"><Lift>{}</Lift></Ground>"#, 0x40 + k, k as f64 * 0.25);
+    }
+    grounds += "</Grounds>";
+    d.add_grounds(&grounds).unwrap();
+    let sector = |x: i32, y: i32| -> Option<u16> {
+        if !(2..8).contains(&x) || !(2..8).contains(&y) || ((4..6).contains(&x) && (4..6).contains(&y)) {
+            return None;
+        }
+        let a = (y as f64 + 0.5 - 5.0).atan2(x as f64 + 0.5 - 5.0).to_degrees();
+        Some(((a - 120.0).rem_euclid(360.0) / 30.0) as u16)
+    };
+    let mut w = World::new(10, 10, "test", 1);
+    let mut tiles = Vec::new();
+    let mut upper = Vec::new();
+    for y in 0..10 {
+        for x in 0..10 {
+            let t = sector(x, y).map_or(WALL, |k| 0x40 + k);
+            tiles.push(GroundTile { x: x as i16, y: y as i16, tile_type: t as i32 });
+            if let Some(k) = sector(x, y) {
+                upper.push(LayerTile { level: 1, x: x as i16, y: y as i16, tile_type: 0x40 + k });
+            }
+        }
+    }
+    let update = Update { tiles: tiles.into(), new_objs: vec![obj(2, PLAYER, x, y, 75)].into(), drops: Default::default() };
+    w.apply_update(&update, d, 0);
+    w.me = Some(2);
+    w.set_layers(3.0, &upper);
+    let me = w.objects.get_mut(&2).unwrap();
+    (me.z, me.level) = (z, if z >= 2.9 { 1 } else { 0 });
+    w
+}
+
+/// `walk`, heading for world point (tx, ty) with the camera turned as the scripted walker's.
+fn walk_toward(w: &mut World, d: &GameData, tx: f64, ty: f64, angle: f64, ms: i32) -> (f64, f64) {
+    for t in 0..ms / 10 {
+        let me = w.player().unwrap();
+        let rel = (ty - me.y).atan2(tx - me.x) - angle;
+        if (tx - me.x).hypot(ty - me.y) < 0.05 {
+            break;
+        }
+        let input = MoveInput { x: rel.cos(), y: rel.sin(), camera_angle: angle };
+        w.update(t * 10, 10, &input, d);
+    }
+    let me = w.player().unwrap();
+    (me.x, me.y)
+}
+
+#[test]
+fn spiral_inner_lane_up_the_second_turn() {
+    // on the second turn's first step, on the lane by the core, walking on up beside it
+    let mut d = data();
+    // in the core's half of the square: its corner (no floor at our height there, nor beside us
+    // outside the tower) mustn't catch us, as a wall's would
+    for x0 in [3.5f32, 3.52, 2.48] {
+        let mut w = spiral(&mut d, x0, 6.5, 3.0);
+        let (x, y) = walk_toward(&mut w, &d, x0 as f64, 3.5, 5.497787143782138, 2000);
+        assert!(y < 4.0, "up beside the core from x {x0}: ({x}, {y})");
+    }
+}

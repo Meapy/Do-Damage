@@ -217,6 +217,9 @@ pub struct Scene<'a> {
     pub show: Show,
     /// We're hallucinating: everything shows as a random character (`Camera.isHallucinating_`).
     pub hallucinating: bool,
+    /// On stacked floors, the floors from which up are see-through this frame (`roof`): what
+    /// stands on them fades with them.
+    pub roof: Option<u8>,
 }
 
 impl Scene<'_> {
@@ -524,6 +527,41 @@ fn draw_level(world: &World, data: &GameData, cam: &Camera, obj: &GameObj) -> u8
     level
 }
 
+/// `see_through_from` for a frame's `Scene.roof`: none off stacked floors.
+pub fn roof(world: &World, data: &GameData, cam: &Camera) -> Option<u8> {
+    world.levels.as_ref()?;
+    see_through_from(world, data, cam)
+}
+
+/// How much of a thing on stacked floors shows: faded on a floor that is see-through over us
+/// (`Scene.roof`), so the player under it or inside a tower sees past it; never the player.
+fn under_roof(scene: &Scene, obj: &GameObj) -> f32 {
+    if Some(obj.id) == scene.world.me {
+        return 1.0;
+    }
+    roof_alpha(scene.roof, obj.level)
+}
+
+/// How much of floor `level`, and what is on it, shows under see-through floors from `roof` up:
+/// the lowest of them `ROOF_ALPHA`, those above it fainter still (`HIGH_ROOF_ALPHA`), so the
+/// floors stacked over a tower's stair don't add up to a wall.
+fn roof_alpha(roof: Option<u8>, level: u8) -> f32 {
+    match roof {
+        Some(r) if level == r => ROOF_ALPHA,
+        Some(r) if level > r => HIGH_ROOF_ALPHA,
+        _ => 1.0,
+    }
+}
+
+const ROOF_ALPHA: f32 = 0.35;
+const HIGH_ROOF_ALPHA: f32 = 0.18;
+/// Ground that stays solid (`<StaySolid/>`: a stair's steps, a bridge's deck) does so within
+/// this much of our height: the steps we climb to, not the stair's turn far over our head.
+const NEAR_SOLID: f64 = 1.5;
+/// How much of ourselves shows over the see-through floors drawn over us, so we're never lost
+/// under them.
+const GHOST_ALPHA: f32 = 0.55;
+
 /// On stacked floors, the floors from which up are drawn see-through: those over us when one is
 /// drawn over any of us, or every floor above the lowest when the player asked (`/floors`,
 /// `World.see_through`), to see what is under them, ours too.
@@ -532,7 +570,18 @@ fn see_through_from(world: &World, data: &GameData, cam: &Camera) -> Option<u8> 
         return Some(1);
     }
     let me = world.player()?;
-    (me.level + 1..world.level_count() as u8).find(|&l| floor_over_sprite(world, data, cam, me, l))
+    let over = (me.level + 1..world.level_count() as u8).find(|&l| floor_over_sprite(world, data, cam, me, l));
+    // inside a tower (a floor's `<Column/>` ground over us, or beside us under an opening in
+    // it, as its stairwell): its walls stand round us, so they and the floors from it up are
+    // see-through, to see the stair inside
+    let (x, y) = (me.x.floor() as i32, me.y.floor() as i32);
+    let column = |l: u8, x: i32, y: i32| world.level_tile(l, x, y).and_then(|t| data.grounds.get(&t)).is_some_and(|g| g.xml.has("Column"));
+    let tower = (me.level + 1..world.level_count() as u8)
+        .find(|&l| column(l, x, y) || (world.level_tile(l, x, y).is_none() && (-1..=1).any(|dy| (-1..=1).any(|dx| column(l, x + dx, y + dy)))));
+    match (over, tower) {
+        (Some(a), Some(b)) => Some(a.min(b)),
+        (a, b) => a.or(b),
+    }
 }
 
 /// How thick a floor is where its edge hangs over the floor below (or over nothing): its face
@@ -573,6 +622,9 @@ struct Top {
     shaded: bool,
     solid: bool,
     corners: Option<[f64; 4]>,
+    /// Another ground drawn here instead of the square's own: the water under a little bridge
+    /// (`<Under>`, the deck's ground naming it), level with its floor.
+    under: Option<u16>,
 }
 
 /// Where ground drops: a square's side from its top (at `a`, and at `b` where a sloped deck
@@ -751,7 +803,13 @@ fn build_chunk(scene: &Scene, level: u8, cx: i32, cy: i32) -> Chunk {
             let eave_color = ground.and_then(|g| g.xml.child("Eave")).map_or(EAVE_TEAL, |e| bsk_data::xml::as3_int(&e.text) as u32);
             let shaded = (level + 1..count).any(|l| world.surface(l, x, y, data).is_some());
             let corners = sloped.then(|| [corner(world, data, x, y, s), corner(world, data, x + 1, y, s), corner(world, data, x + 1, y + 1, s), corner(world, data, x, y + 1, s)]);
-            chunk.tops.push(Top { x, y, s, shaded, solid, corners });
+            // a little bridge over a pond: the pond on under it (`<Under>`), so there's water, not
+            // sky, below its arch
+            let under = ground.and_then(|g| g.xml.child("Under")).and_then(|u| data.ground_ids.get(u.text.trim())).copied();
+            if let Some(u) = under {
+                chunk.tops.push(Top { x, y, s: level as f64 * floor_h, shaded, solid, corners: None, under: Some(u) });
+            }
+            chunk.tops.push(Top { x, y, s, shaded, solid, corners, under: None });
             let (fx, fy) = (x as f64, y as f64);
             // the ground under this square, on the floors below (a tower's walls go down to it)
             let below = (0..level).filter_map(|l| world.surface(l, x, y, data)).fold(None, |m: Option<f64>, v| Some(m.map_or(v, |m| m.max(v))));
@@ -767,13 +825,26 @@ fn build_chunk(scene: &Scene, level: u8, cx: i32, cy: i32) -> Chunk {
             // how far the ground must drop beside it for a railing (`<RailDrop>`: a little bridge
             // over a pond is railed all along)
             let rail_drop = ground.map_or(RAIL_DROP, |g| g.xml.number("RailDrop", RAIL_DROP));
+            // how thick its edge is where it hangs over lower ground (`<Slab>`: a little bridge's
+            // deck is thin)
+            let slab = ground.map_or(SLAB, |g| g.xml.number("Slab", SLAB));
+            // a railing goes where the ground drops: more than `rail_drop` over water (slow
+            // ground: a pond under a little bridge), else a real drop, `RAIL_DROP` (not at a
+            // bridge's ends, where it steps down to its banks)
+            let railed = |nx: i32, ny: i32| {
+                if drops(world, data, x, y, s, nx, ny, RAIL_DROP) {
+                    return true;
+                }
+                drops(world, data, x, y, s, nx, ny, rail_drop)
+                    && world.level_at(x + nx, y + ny, s, data).and_then(|l| world.level_tile(l, x + nx, y + ny)).and_then(|t| data.grounds.get(&t)).is_some_and(|g| g.speed < 1.0)
+            };
             let parapet = has("Parapet").then(|| crate::ground::face(data, scene.sprites, tile, x, y).map(|f| f.0)).flatten();
             for (a, b, (nx, ny), (ax, ay), (ca, cb)) in sides {
                 // the height of the deck at this side's ends: a sloped deck's corners, else level
                 let (ha, hb) = corners.map_or((s, s), |c| (c[ca], c[cb]));
                 // a railing where it drops: its top level with the ground here, or at either end
                 // halfway to the next square's where the railing carries on along a rising deck
-                if let Some(color) = rail.filter(|_| drops(world, data, x, y, s, nx, ny, rail_drop)) {
+                if let Some(color) = rail.filter(|_| railed(nx, ny)) {
                     let end = |dir: i32| {
                         let (px, py) = (x + ax * dir, y + ay * dir);
                         let next = world.level_at(px, py, s, data).and_then(|l| {
@@ -827,8 +898,8 @@ fn build_chunk(scene: &Scene, level: u8, cx: i32, cy: i32) -> Chunk {
                 } else {
                     match lower {
                         Some(l) if l >= base - 0.01 && !sloped => l,
-                        Some(l) => (s - SLAB).max(l),
-                        None => s - SLAB,
+                        Some(l) => (s - slab).max(l),
+                        None => s - slab,
                     }
                 };
                 if s - bottom < 0.01 {
@@ -868,7 +939,8 @@ fn floors(scene: &Scene, renderer: &mut Renderer, ground: &mut Ground, x0: i32, 
     let (world, data, cam) = (scene.world, scene.data, scene.camera);
     let count = world.level_count() as u8;
     let floor_h = world.levels.as_ref().map_or(1.0, |l| l.height);
-    let roof = see_through_from(world, data, &cam);
+    let roof = scene.roof;
+    let me_z = world.player().map(|p| p.z);
     let white = renderer.white();
     let (sw, sh) = renderer.size();
     let margin = cam.scale * 1.5;
@@ -883,10 +955,11 @@ fn floors(scene: &Scene, renderer: &mut Renderer, ground: &mut Ground, x0: i32, 
     let (cx0, cx1) = (x0.max(0).div_euclid(CHUNK), x1.min(world.width - 1).div_euclid(CHUNK));
     let (cy0, cy1) = (y0.max(0).div_euclid(CHUNK), y1.min(world.height - 1).div_euclid(CHUNK));
     for level in 0..count {
-        let faded = roof.is_some_and(|r| level >= r);
-        // see-through over us, unless the ground stays solid (`<StaySolid/>`: stairs, bridges);
-        // `/floors` shows through everything
-        let alpha = |solid: bool| if faded && !(solid && !world.see_through) { 0.35 } else { 1.0 };
+        let faded = roof_alpha(roof, level);
+        // see-through over us, unless the ground stays solid (`<StaySolid/>`: stairs, bridges)
+        // near our height (`NEAR_SOLID`); `/floors` shows through everything
+        let keep = |solid: bool, h: f64| solid && me_z.is_none_or(|z| (h - z).abs() <= NEAR_SOLID);
+        let alpha = |solid: bool| if !(solid && !world.see_through) { faded } else { 1.0 };
         let flat = |color: u32, k: f32, solid: bool| {
             let [r, g, b] = bsk_render::rgb_f32(color);
             Tint { mul: [r * k, g * k, b * k, alpha(solid)], add: [0.0; 3] }
@@ -900,13 +973,24 @@ fn floors(scene: &Scene, renderer: &mut Renderer, ground: &mut Ground, x0: i32, 
                     if mid[0] < -margin as f32 || mid[1] < -margin as f32 || mid[0] > sw as f32 + margin as f32 || mid[1] > sh as f32 + margin as f32 {
                         continue;
                     }
-                    let Some(layers) = ground.layers_on(world, data, scene.sprites, renderer, level, t.x, t.y) else { continue };
+                    let layers = match t.under {
+                        // the water under a little bridge: its own texture, flowing as it does
+                        Some(u) => {
+                            let Some(g) = data.grounds.get(&u) else { continue };
+                            let Some(rect) = crate::ground::plain(data, scene.sprites, u, t.x, t.y) else { continue };
+                            crate::ground::TileLayers { base: Some((rect, g.animate.kind, g.animate.dx, g.animate.dy)), overlay: None, sink: 0 }
+                        }
+                        None => {
+                            let Some(layers) = ground.layers_on(world, data, scene.sprites, renderer, level, t.x, t.y) else { continue };
+                            layers
+                        }
+                    };
                     let lit = if t.shaded { SHADE } else { 1.0 };
                     let quad = cam.quad([fx, fy, t.s], [fx + 1.0, fy, t.s], [fx, fy + 1.0, t.s]);
                     let corners = t.corners.map(|c| {
                         [cam.to_screen(fx, fy, c[0]), cam.to_screen(fx + 1.0, fy, c[1]), cam.to_screen(fx + 1.0, fy + 1.0, c[2]), cam.to_screen(fx, fy + 1.0, c[3])]
                     });
-                    let tint = Tint { mul: [lit, lit, lit, alpha(t.solid)], add: [0.0; 3] };
+                    let tint = Tint { mul: [lit, lit, lit, alpha(keep(t.solid, t.s))], add: [0.0; 3] };
                     tops[level as usize].push(TopDraw { base: layers.base, overlay: layers.overlay, quad, corners, tint });
                 }
                 for e in &chunk.edges {
@@ -917,7 +1001,7 @@ fn floors(scene: &Scene, renderer: &mut Renderer, ground: &mut Ground, x0: i32, 
                         continue;
                     }
                     let depth = cam.to_screen((a[0] + b[0]) / 2.0, (a[1] + b[1]) / 2.0, 0.0)[1];
-                    let tint = Tint { mul: [e.shade, e.shade, e.shade, alpha(e.solid)], add: [0.0; 3] };
+                    let tint = Tint { mul: [e.shade, e.shade, e.shade, alpha(keep(e.solid, e.top))], add: [0.0; 3] };
                     if (e.top - e.top_b).abs() > 1e-6 {
                         // a sloped deck's slab: one piece, leaning with it
                         let quad = cam.quad([a[0], a[1], e.top], [b[0], b[1], e.top_b], [a[0], a[1], e.bottom]);
@@ -935,9 +1019,9 @@ fn floors(scene: &Scene, renderer: &mut Renderer, ground: &mut Ground, x0: i32, 
                     if e.door {
                         let (ia, ib) = ([a[0] + (b[0] - a[0]) * 0.18, a[1] + (b[1] - a[1]) * 0.18], [a[0] + (b[0] - a[0]) * 0.82, a[1] + (b[1] - a[1]) * 0.82]);
                         let dark = cam.quad([ia[0], ia[1], e.bottom + DOORWAY], [ib[0], ib[1], e.bottom + DOORWAY], [ia[0], ia[1], e.bottom]);
-                        faces.push((piece_of(e.bottom, level), depth + 0.01, Plate { rect: white, quad: dark, tint: flat(0x140E14, 1.0, e.solid) }));
+                        faces.push((piece_of(e.bottom, level), depth + 0.01, Plate { rect: white, quad: dark, tint: flat(0x140E14, 1.0, keep(e.solid, e.top)) }));
                         let lintel = cam.quad([ia[0], ia[1], e.bottom + DOORWAY + 0.12], [ib[0], ib[1], e.bottom + DOORWAY + 0.12], [ia[0], ia[1], e.bottom + DOORWAY]);
-                        faces.push((piece_of(e.bottom, level), depth + 0.01, Plate { rect: white, quad: lintel, tint: flat(BRACE_COLOR, 1.0, e.solid) }));
+                        faces.push((piece_of(e.bottom, level), depth + 0.01, Plate { rect: white, quad: lintel, tint: flat(BRACE_COLOR, 1.0, keep(e.solid, e.top)) }));
                     }
                 }
                 for e in &chunk.eaves {
@@ -948,7 +1032,7 @@ fn floors(scene: &Scene, renderer: &mut Renderer, ground: &mut Ground, x0: i32, 
                     let (oa, ob) = (out([e.a[0] - along[0] * EAVE_OUT, e.a[1] - along[1] * EAVE_OUT]), out([e.b[0] + along[0] * EAVE_OUT, e.b[1] + along[1] * EAVE_OUT]));
                     let lit = shade(normal([e.a[0], e.a[1], e.z], [e.b[0], e.b[1], e.z], [oa[0], oa[1], e.z - EAVE_DROP]));
                     let piece = piece_of(e.z - 0.21, level);
-                    let tint = flat(e.color, lit, e.solid);
+                    let tint = flat(e.color, lit, keep(e.solid, e.z));
                     // the slope as two triangles, its outer edge the longer
                     let p = |w: [f64; 3]| cam.to_screen(w[0], w[1], w[2]);
                     let (wa, wb) = (p([e.a[0], e.a[1], e.z + 0.12]), p([e.b[0], e.b[1], e.z + 0.12]));
@@ -957,17 +1041,17 @@ fn floors(scene: &Scene, renderer: &mut Renderer, ground: &mut Ground, x0: i32, 
                     tris.push((piece, depth, [wa, xb, xa], tint));
                     // the dark line of its edge
                     let rim = cam.quad([oa[0], oa[1], e.z - EAVE_DROP], [ob[0], ob[1], e.z - EAVE_DROP], [oa[0], oa[1], e.z - EAVE_DROP - 0.08]);
-                    faces.push((piece, depth + 0.01, Plate { rect: white, quad: rim, tint: flat(e.color, lit * 0.5, e.solid) }));
+                    faces.push((piece, depth + 0.01, Plate { rect: white, quad: rim, tint: flat(e.color, lit * 0.5, keep(e.solid, e.z)) }));
                 }
                 for br in &chunk.braces {
                     let depth = cam.to_screen(br.q[0], br.q[1], 0.0)[1] + 0.03;
                     let h = [br.t[0] * BRACE_WIDTH / 2.0, br.t[1] * BRACE_WIDTH / 2.0];
                     let quad = cam.quad([br.p[0] - h[0], br.p[1] - h[1], br.p[2]], [br.p[0] + h[0], br.p[1] + h[1], br.p[2]], [br.q[0] - h[0], br.q[1] - h[1], br.q[2]]);
-                    faces.push((piece_of(br.p[2], level), depth, Plate { rect: white, quad, tint: flat(BRACE_COLOR, 0.9, br.solid) }));
+                    faces.push((piece_of(br.p[2], level), depth, Plate { rect: white, quad, tint: flat(BRACE_COLOR, 0.9, keep(br.solid, br.p[2])) }));
                 }
                 for r in &chunk.rails {
                     let depth = cam.to_screen((r.a[0] + r.b[0]) / 2.0, (r.a[1] + r.b[1]) / 2.0, 0.0)[1];
-                    let tint = |k: f32| flat(r.color, k, r.solid);
+                    let tint = |k: f32| flat(r.color, k, keep(r.solid, r.a[2]));
                     // a stone parapet: a low wall in the ground's side stone, a lighter coping
                     if let Some(rect) = r.parapet {
                         let (da, db) = (r.a[2] - RAIL_HEIGHT, r.b[2] - RAIL_HEIGHT);
@@ -1021,7 +1105,7 @@ pub fn draw(scene: &Scene, renderer: &mut Renderer, redrawer: &mut Redrawer, gro
     let raise = if layered { top_level as f64 * floor_h + 1.0 } else { 0.0 };
     // something a floor above is drawn over is out of sight (its bars, name and words too),
     // unless the floors over us are see-through (`see_through_from`)
-    let see_through = layered && see_through_from(world, scene.data, &cam).is_some();
+    let see_through = layered && scene.roof.is_some();
     let hidden = |obj: &GameObj| layered && !see_through && Some(obj.id) != world.me && covered_by(world, scene.data, &cam, obj).is_some();
 
 
@@ -1227,6 +1311,15 @@ pub fn draw(scene: &Scene, renderer: &mut Renderer, redrawer: &mut Redrawer, gro
             }
         }
     }
+    // under see-through floors drawn over us, ourselves again over them, faint, so we're never
+    // lost under them (inside a tower, under the bar)
+    if let (Some(_), Some(me)) = (scene.roof, world.player()) {
+        if let Some(desc) = scene.data.objects.get(&me.object_type) {
+            if layered && covered_by(world, scene.data, &cam, me).is_some() {
+                draw_sprite_faded(scene, renderer, redrawer, ground, me, desc, GHOST_ALPHA);
+            }
+        }
+    }
     crate::prof::mark("v.objects");
     scene.particles.draw(&cam, renderer);
     crate::prof::mark("v.particles");
@@ -1390,18 +1483,24 @@ pub fn draw(scene: &Scene, renderer: &mut Renderer, redrawer: &mut Redrawer, gro
 /// How opaque the options draw this object: other players and other players' pets can be
 /// faded (1 for everything else).
 fn fade(scene: &Scene, obj: &GameObj, desc: &ObjectDesc) -> f32 {
-    if desc.player && Some(obj.id) != scene.world.me {
+    let own = if desc.player && Some(obj.id) != scene.world.me {
         scene.show.player_alpha
     } else if scene.world.others_pet(obj) {
         scene.show.pet_alpha
     } else {
         1.0
-    }
+    };
+    own * under_roof(scene, obj)
 }
 
 fn draw_sprite(scene: &Scene, renderer: &mut Renderer, redrawer: &mut Redrawer, ground: &mut Ground, obj: &GameObj, desc: &ObjectDesc) -> Option<[f32; 2]> {
+    draw_sprite_faded(scene, renderer, redrawer, ground, obj, desc, 1.0)
+}
+
+/// `draw_sprite`, `faded` as much again.
+fn draw_sprite_faded(scene: &Scene, renderer: &mut Renderer, redrawer: &mut Redrawer, ground: &mut Ground, obj: &GameObj, desc: &ObjectDesc, faded: f32) -> Option<[f32; 2]> {
     let cam = scene.camera;
-    let alpha = fade(scene, obj, desc);
+    let alpha = fade(scene, obj, desc) * faded;
     if alpha <= 0.0 {
         return None;
     }
@@ -1540,6 +1639,9 @@ fn draw_projectile(scene: &Scene, renderer: &mut Renderer, redrawer: &mut Redraw
 /// the object's texture; "Solid" ones its colour.
 fn draw_model(scene: &Scene, renderer: &mut Renderer, obj: &GameObj, desc: &ObjectDesc, model: &Model) {
     let cam = scene.camera;
+    // on stacked floors, see-through with its floor when that floor is over us (the bar, the
+    // tower's cap)
+    let alpha = under_roof(scene, obj);
     let texture = scene.texture_src(&desc.texture, obj.id).and_then(|s| scene.sprites.atlas(s));
     let contrast = desc.xml.number("ModelContrast", 0.25);
     let (s, c) = desc.rotation.to_radians().sin_cos();
@@ -1560,10 +1662,10 @@ fn draw_model(scene: &Scene, renderer: &mut Renderer, obj: &GameObj, desc: &Obje
         }
         let shade = if face.glow { 1.0 } else { shade_with(normal(world[i0], world[i1], world[il]), contrast) };
         let (src, tint) = match (face.textured, texture) {
-            (true, Some(t)) => (t, Tint { mul: [shade, shade, shade, 1.0], add: [0.0; 3] }),
+            (true, Some(t)) => (t, Tint { mul: [shade, shade, shade, alpha], add: [0.0; 3] }),
             _ => {
                 let [r, g, b] = bsk_render::rgb_f32(desc.color.unwrap_or(0));
-                (renderer.white(), Tint { mul: [r * shade, g * shade, b * shade, 1.0], add: [0.0; 3] })
+                (renderer.white(), Tint { mul: [r * shade, g * shade, b * shade, alpha], add: [0.0; 3] })
             }
         };
         let uv = |i: usize| {
