@@ -119,6 +119,7 @@ POND_LOBE = (10, -9, 6.5, 5)
 # the pond's south-east corner, joined to the spawn's: the platform (from the spawn's middle,
 # x0, y0, x1, y1), the storehouse at its back, the chests (offset, castle tile)
 STORE_DECK = (3, 6, 13, 13)
+STORE_DECK_EDGE = "NI Store Deck"    # its planks by the land, the grass blending over them
 STOREHOUSE = (10, 7)
 CHESTS = [((5, 11), (61, 70)), ((7, 11), (79, 70)), ((9, 11), (61, 74)), ((11, 11), (79, 74))]
 
@@ -141,13 +142,14 @@ FORGE_COURT = (22, 89, 42, 104)
 SMITHY = (32, 96)
 
 # the portals island: the shrine round Realm 2's vortex (build_nexus's, its gate to the north),
-# the forest south of it, the elder cherry's dry garden in the forest's west
-VORTEX = (111, 138)
-CAVERNS = [(101, 132), (121, 132), (101, 144), (121, 144)]
-ARENA_PIT = (99, 138)                # the Arena's sand pit (4 across), west of the vortex
+# the forest south of it, the elder cherry's dry garden in the forest's west. The vortex, the
+# torii, the path and the pagoda on the stone bridge's middle column (the spawn's, 112)
+VORTEX = (112, 138)
+CAVERNS = [(102, 132), (122, 132), (102, 144), (122, 144)]
+ARENA_PIT = (100, 138)               # the Arena's sand pit (4 across), west of the vortex
 SHRINE = (17, 10)                    # the court's half width and height round the vortex
-PAGODA = (111, 152)
-TORII = (111, 126)
+PAGODA = (112, 152)
+TORII = (112, 126)
 ELDER = (100, 161)
 MEMORIAL = (124, 162)
 
@@ -345,6 +347,17 @@ def lay_spawn(g):
                 continue
             edge = x in (sx + x0, sx + x1) or y in (sy + y0, sy + y1)
             g.ground(x, y, BEAM if edge and g[x, y]["ground"] in (POND, SHALLOWS) else DECK, keep=True)
+    # where it meets the land, the grass grows in over it: its edge ragged (a square in three
+    # gone to grass, by a hash), the planks by the land under the grass's edge (`NI Store Deck`)
+    land = lambda x, y: g.ok(x, y) and g[x, y]["ground"] in (GRASS, SAND)
+    near_land = [(x, y) for y in range(sy + y0, sy + y1 + 1) for x in range(sx + x0, sx + x1 + 1)
+                 if g[x, y]["ground"] == DECK and any(land(x + dx, y + dy) for dx in (-1, 0, 1) for dy in (-1, 0, 1))]
+    for x, y in near_land:
+        g.ground(x, y, STORE_DECK_EDGE, keep=True)
+    for x, y in near_land:
+        edge = any(land(x + dx, y + dy) for dx, dy in ((1, 0), (-1, 0), (0, 1), (0, -1)))
+        if edge and (x * 7 + y * 13) % 3 == 0 and g.empty(x, y):
+            g.ground(x, y, GRASS, keep=True)
     for y in range(sy - 2, sy + 3):
         for x in range(sx - 2, sx + 3):
             g.put(x, y, region="Spawn")
@@ -352,7 +365,7 @@ def lay_spawn(g):
         g.place(sx + dx, sy + dy, BASIN)
     g.place(sx, sy + 4, "NG Armoire")
     g.place(sx - 6, sy + 5, "Vault Portal")
-    g.put(sx - 2, sy + 4, region="Nexus Bot")
+    g.put(sx, sy, region="Nexus Bot")             # the Support Bot, in the middle of the spawn
     g.put(sx, sy + 7, region="Nexus Dungeon")
     g.put(sx - 5, sy - 2, region="Nexus Name Changer")
     g.put(sx + 5, sy - 2, region="Nexus Character Changer")
@@ -375,16 +388,17 @@ def lay_spawn(g):
             water.append((x, y))
             x, y = x + d[0], y + d[1]
         n = len(water)
+        # a path on to the island's edge, as wide as the big bridge there (first: its round end
+        # reaches back over the water, and the bridge's last squares go over it)
+        ex, ey = x, y
+        while g.has(ex + d[0], ey + d[1]):
+            ex, ey = ex + d[0], ey + d[1]
+        g.line([(x, y), (ex, ey)], 5, PATH)
         for i, (wx, wy) in enumerate(water):
             k = min(i + 1, n - i, 3)
             for c in (-1, 0, 1):
                 px, py = (wx, wy + c) if d[1] == 0 else (wx + c, wy)
                 g.ground(px, py, "NI Pond Deck %s %d" % ("EW" if d[1] == 0 else "NS", k), keep=True)
-        # a path on to the island's edge, as wide as the big bridge there
-        ex, ey = x, y
-        while g.has(ex + d[0], ey + d[1]):
-            ex, ey = ex + d[0], ey + d[1]
-        g.line([(x, y), (ex, ey)], 5, PATH)
         # paper lanterns at each pond bridge's shore end
         for k, lamp in ((-3, PAPER), (3, PAPER_L)):
             px, py = (x, y + k) if d[1] == 0 else (x + k, y)
@@ -598,7 +612,8 @@ def tower_squares():
     for y in range(ty - 9, ty + 10):
         for x in range(tx - 9, tx + 15):
             d = math.hypot(x + 0.5 - tx, y + 0.5 - ty)
-            if d <= TOWER_R:
+            # its face flat at the door: nothing of it west of the door's column to walk round
+            if d <= TOWER_R and x >= DOOR[0]:
                 body.add((x, y))
             elif d <= BALCONY_R or (bx0 <= x <= bx1 and by0 <= y <= by1):
                 balcony.add((x, y))
@@ -820,7 +835,7 @@ def check(levels):
             for t in row:
                 if t["region"]:
                     regions[t["region"]] = regions.get(t["region"], 0) + 1
-    assert regions.get("Spawn") == 25, regions
+    assert regions.get("Spawn") == 24, regions           # five by five round the Support Bot
     assert regions.get("Market Stall") == 16, regions
     assert regions.get("Realm Portals") == len(CAVERNS), regions
     assert regions.get("Realm2 Portal") == 1, regions
@@ -962,8 +977,17 @@ def build_art():
     for c, t in ((frames[1], 0.35), (frames[0], 0.15), (frames[1], 0.3), (frames[0], 0.25), (frames[2], 0.18), (frames[0], 0.1)):
         texture(sub(anim, "Frame", time=str(t)), SHEET16[0], c)
     sub(o, "NoMiniMap")
-    # the smithy turned round (`smithy_north`): the garden's model and texture, a half turn
+    # the realms' caverns north of the vortex turned round, their steps to the north, so each
+    # faces away from the shrine's middle (testnexus's `<RealmPortalNorth>`, RealmPortalMonitor):
+    # the garden's, a half turn
     garden_objects = ET.parse(os.path.join(ROOT, "source", "Shared", "resources", "xml", "custom", "NexusGardenObjects.xml")).getroot()
+    cavern = next(o for o in garden_objects.iter("Object") if o.get("id") == garden.REALM_PORTAL)
+    o = ET.Element("Object", {"type": types.get("objects", "NI Realm Cavern"), "id": "NI Realm Cavern"})
+    for child in cavern:
+        o.append(child)
+    sub(o, "Rotation", 180)
+    object_xml.append(o)
+    # the smithy turned round (`smithy_north`): the garden's model and texture, a half turn
     smithy = next(o for o in garden_objects.iter("Object") if o.get("id") == "NG Smithy")
     o = ET.Element("Object", {"type": types.get("objects", "NI Smithy N"), "id": "NI Smithy N"})
     for child in smithy:

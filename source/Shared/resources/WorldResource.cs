@@ -41,6 +41,10 @@ namespace Shared.resources
         // floors stacked over the map (`<Levels height="3"/>`): "<map> 1.jm", "<map> 2.jm"... are
         // the floors above it, this many tiles apart (World.Levels); 0 for a flat world
         public readonly float LevelHeight;
+        // a Nexus's realm portal north of its Realm 2 portal (`<RealmPortalNorth>`, an object id;
+        // RealmPortalMonitor): the islands' turned, its steps to the north, so every cavern faces
+        // away from the shrine's middle; elsewhere, and by default, the garden's
+        public readonly string RealmPortalNorth;
 
         public WorldResource(XElement elem)
         {
@@ -65,6 +69,7 @@ namespace Shared.resources
             FameRate = elem.GetValue("FameRate", 1.0);
             KillFameRate = elem.GetValue("KillFameRate", 1.0);
             LevelHeight = elem.Element("Levels") is XElement levels ? levels.GetAttribute("height", 3f) : 0;
+            RealmPortalNorth = elem.Element("RealmPortalNorth")?.Value.Trim();
 
             MapJM = new List<string>();
             foreach (var map in elem.Elements("MapJM"))

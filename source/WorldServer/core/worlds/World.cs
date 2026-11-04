@@ -537,8 +537,11 @@ namespace WorldServer.core.worlds
             return SurfaceOf(level, Levels[level][x, y]);
         }
 
-        // the floors above the map, sent to each player who comes in (LAYERS), worked out once:
-        // they never change their ground
+        // every floor's squares, sent to each player who comes in (LAYERS), worked out once: the
+        // floors above the map never change their ground. The map's own come too (level 0), as it
+        // was then (UPDATE sends its changes as ever): the client works out the islands' rock
+        // from all of a floor's squares, and the map's otherwise only come near the player, with
+        // nothing to tell sky (never sent) from squares not sent yet
         private List<(byte, short, short, ushort)> _layerTiles;
 
         private LayersMessage Layers()
@@ -546,7 +549,7 @@ namespace WorldServer.core.worlds
             if (_layerTiles == null)
             {
                 _layerTiles = new List<(byte, short, short, ushort)>();
-                for (var level = 1; level < Levels.Count; level++)
+                for (var level = 0; level < Levels.Count; level++)
                 {
                     var map = Levels[level];
                     for (var y = 0; y < map.Height; y++)
@@ -558,7 +561,7 @@ namespace WorldServer.core.worlds
                         }
                 }
                 if (_layerTiles.Count > short.MaxValue)
-                    StaticLogger.Instance.Error($"{IdName}: {_layerTiles.Count} squares on the floors above the map, more than LAYERS carries");
+                    StaticLogger.Instance.Error($"{IdName}: {_layerTiles.Count} squares on its floors, more than LAYERS carries");
             }
             return new LayersMessage { Height = LevelHeight, Tiles = _layerTiles };
         }

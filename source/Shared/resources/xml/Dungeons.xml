@@ -450,6 +450,9 @@
 		<!-- no line of sight: the lowest floor's walls would hide the floors above -->
 		<VisibilityType>0</VisibilityType>
 		<Levels height="3"/>
+		<!-- the realms' caverns north of the vortex turned round, so each faces away from the
+		     shrine's middle (RealmPortalMonitor) -->
+		<RealmPortalNorth>NI Realm Cavern</RealmPortalNorth>
 		<Music>
 			<Track>wanderlust</Track>
 		</Music>

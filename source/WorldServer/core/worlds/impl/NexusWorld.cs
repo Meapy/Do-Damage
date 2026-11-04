@@ -85,7 +85,7 @@ namespace WorldServer.core.worlds.impl
         public NexusWorld(GameServer gameServer, int id, WorldResource resource, World parent = null)
             : base(gameServer, id, resource, parent)
         {
-            PortalMonitor = new RealmPortalMonitor(gameServer, this);
+            PortalMonitor = new RealmPortalMonitor(gameServer, this, resource.RealmPortalNorth);
         }
 
         public override void Init()

@@ -45,6 +45,9 @@ pub const STEP: f64 = 0.75;
 /// On stacked floors, how far apart in height things can still hit each other
 /// (`Entity.LevelReach`).
 pub const LEVEL_REACH: f64 = 1.5;
+/// A railing (`<Rail>`, its colour) goes along an edge whose ground drops at least this far
+/// (`railed`).
+pub const RAIL_DROP: f64 = 0.6;
 
 /// A world of floors stacked one above another (`Layers`): the map is the lowest, and each floor
 /// above it `height` tiles above the one below. Everything then has a height (`GameObj.z`): it
@@ -282,8 +285,15 @@ impl World {
         let count = tiles.iter().map(|t| t.level as usize).max().unwrap_or(0);
         let mut upper = vec![vec![NO_TILE; n]; count];
         for t in tiles {
-            if let (Some(i), Some(level)) = (self.index(t.x as i32, t.y as i32), (t.level as usize).checked_sub(1)) {
-                upper[level][i] = t.tile_type;
+            match (t.level as usize).checked_sub(1) {
+                Some(level) => {
+                    if let Some(i) = self.index(t.x as i32, t.y as i32) {
+                        upper[level][i] = t.tile_type;
+                    }
+                }
+                // the map's own squares, all of them up front (the islands' rock is worked out
+                // from a floor's every square)
+                None => self.set_tile(t.x as i32, t.y as i32, t.tile_type),
             }
         }
         self.levels = Some(Levels { height, upper });
@@ -366,6 +376,31 @@ impl World {
             Some(level) => (self.level_tile(level, x, y), self.occupant_at(level, x, y)),
             None => (None, None),
         }
+    }
+
+    /// Whether the ground at (x, y), `s` high, drops toward its side (nx, ny): nothing beside it
+    /// as high (within `by`), on any floor.
+    #[allow(clippy::too_many_arguments)]
+    pub fn drops(&self, x: i32, y: i32, s: f64, nx: i32, ny: i32, by: f64, data: &GameData) -> bool {
+        !(0..self.level_count() as u8).filter_map(|l| self.surface(l, x + nx, y + ny, data)).any(|v| v >= s - by)
+    }
+
+    /// Whether the ground of floor `level` at (x, y) has a railing along its side toward (nx, ny):
+    /// it has a `<Rail>` and drops there by `RAIL_DROP`, or over water (slow ground: a pond under a
+    /// little bridge) by its `<RailDrop>`; not at a bridge's ends, where it steps down to its
+    /// banks. The view draws it (`view::floors`), and it stops us (`movement`).
+    pub fn railed(&self, level: u8, x: i32, y: i32, nx: i32, ny: i32, data: &GameData) -> bool {
+        let Some(g) = self.level_tile(level, x, y).and_then(|t| data.grounds.get(&t)) else { return false };
+        if !g.xml.has("Rail") {
+            return false;
+        }
+        let Some(s) = self.surface(level, x, y, data) else { return false };
+        if self.drops(x, y, s, nx, ny, RAIL_DROP, data) {
+            return true;
+        }
+        let rail_drop = g.xml.number("RailDrop", RAIL_DROP);
+        self.drops(x, y, s, nx, ny, rail_drop, data)
+            && self.level_at(x + nx, y + ny, s, data).and_then(|l| self.level_tile(l, x + nx, y + ny)).and_then(|t| data.grounds.get(&t)).is_some_and(|g| g.speed < 1.0)
     }
 
     /// Whether an object is on our floor (always, on a flat map): what we can interact with, and

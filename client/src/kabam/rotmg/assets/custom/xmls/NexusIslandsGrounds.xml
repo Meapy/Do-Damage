@@ -428,7 +428,7 @@
 		<NoUnderside />
 		<Color>0x5E5C6E</Color>
 	</Ground>
-	<Ground type="0x9D0A" id="NI Wood Ramp 1">
+	<Ground type="0x9D5D" id="NI Store Deck">
 		<RandomTexture>
 			<Texture>
 				<File>nexusIslands8x8</File>
@@ -442,16 +442,38 @@
 				<File>nexusIslands8x8</File>
 				<Index>0x46</Index>
 			</Texture>
+			<Texture>
+				<File>nexusIslands8x8</File>
+				<Index>0x47</Index>
+			</Texture>
+		</RandomTexture>
+		<BlendPriority>-2</BlendPriority>
+		<Color>0xA8665A</Color>
+	</Ground>
+	<Ground type="0x9D0A" id="NI Wood Ramp 1">
+		<RandomTexture>
+			<Texture>
+				<File>nexusIslands8x8</File>
+				<Index>0x48</Index>
+			</Texture>
+			<Texture>
+				<File>nexusIslands8x8</File>
+				<Index>0x49</Index>
+			</Texture>
+			<Texture>
+				<File>nexusIslands8x8</File>
+				<Index>0x4a</Index>
+			</Texture>
 		</RandomTexture>
 		<Face>
 			<RandomTexture>
 				<Texture>
 					<File>nexusIslands8x8</File>
-					<Index>0x47</Index>
+					<Index>0x4b</Index>
 				</Texture>
 				<Texture>
 					<File>nexusIslands8x8</File>
-					<Index>0x48</Index>
+					<Index>0x4c</Index>
 				</Texture>
 			</RandomTexture>
 		</Face>
@@ -467,26 +489,26 @@
 		<RandomTexture>
 			<Texture>
 				<File>nexusIslands8x8</File>
-				<Index>0x49</Index>
+				<Index>0x4d</Index>
 			</Texture>
 			<Texture>
 				<File>nexusIslands8x8</File>
-				<Index>0x4a</Index>
+				<Index>0x4e</Index>
 			</Texture>
 			<Texture>
 				<File>nexusIslands8x8</File>
-				<Index>0x4b</Index>
+				<Index>0x4f</Index>
 			</Texture>
 		</RandomTexture>
 		<Face>
 			<RandomTexture>
 				<Texture>
 					<File>nexusIslands8x8</File>
-					<Index>0x4c</Index>
+					<Index>0x50</Index>
 				</Texture>
 				<Texture>
 					<File>nexusIslands8x8</File>
-					<Index>0x4d</Index>
+					<Index>0x51</Index>
 				</Texture>
 			</RandomTexture>
 		</Face>
@@ -502,26 +524,26 @@
 		<RandomTexture>
 			<Texture>
 				<File>nexusIslands8x8</File>
-				<Index>0x4e</Index>
+				<Index>0x52</Index>
 			</Texture>
 			<Texture>
 				<File>nexusIslands8x8</File>
-				<Index>0x4f</Index>
+				<Index>0x53</Index>
 			</Texture>
 			<Texture>
 				<File>nexusIslands8x8</File>
-				<Index>0x50</Index>
+				<Index>0x54</Index>
 			</Texture>
 		</RandomTexture>
 		<Face>
 			<RandomTexture>
 				<Texture>
 					<File>nexusIslands8x8</File>
-					<Index>0x51</Index>
+					<Index>0x55</Index>
 				</Texture>
 				<Texture>
 					<File>nexusIslands8x8</File>
-					<Index>0x52</Index>
+					<Index>0x56</Index>
 				</Texture>
 			</RandomTexture>
 		</Face>
@@ -537,26 +559,26 @@
 		<RandomTexture>
 			<Texture>
 				<File>nexusIslands8x8</File>
-				<Index>0x53</Index>
+				<Index>0x57</Index>
 			</Texture>
 			<Texture>
 				<File>nexusIslands8x8</File>
-				<Index>0x54</Index>
+				<Index>0x58</Index>
 			</Texture>
 			<Texture>
 				<File>nexusIslands8x8</File>
-				<Index>0x55</Index>
+				<Index>0x59</Index>
 			</Texture>
 		</RandomTexture>
 		<Face>
 			<RandomTexture>
 				<Texture>
 					<File>nexusIslands8x8</File>
-					<Index>0x56</Index>
+					<Index>0x5a</Index>
 				</Texture>
 				<Texture>
 					<File>nexusIslands8x8</File>
-					<Index>0x57</Index>
+					<Index>0x5b</Index>
 				</Texture>
 			</RandomTexture>
 		</Face>
@@ -572,26 +594,26 @@
 		<RandomTexture>
 			<Texture>
 				<File>nexusIslands8x8</File>
-				<Index>0x58</Index>
+				<Index>0x5c</Index>
 			</Texture>
 			<Texture>
 				<File>nexusIslands8x8</File>
-				<Index>0x59</Index>
+				<Index>0x5d</Index>
 			</Texture>
 			<Texture>
 				<File>nexusIslands8x8</File>
-				<Index>0x5a</Index>
+				<Index>0x5e</Index>
 			</Texture>
 		</RandomTexture>
 		<Face>
 			<RandomTexture>
 				<Texture>
 					<File>nexusIslands8x8</File>
-					<Index>0x5b</Index>
+					<Index>0x5f</Index>
 				</Texture>
 				<Texture>
 					<File>nexusIslands8x8</File>
-					<Index>0x5c</Index>
+					<Index>0x60</Index>
 				</Texture>
 			</RandomTexture>
 		</Face>
@@ -607,26 +629,26 @@
 		<RandomTexture>
 			<Texture>
 				<File>nexusIslands8x8</File>
-				<Index>0x5d</Index>
+				<Index>0x61</Index>
 			</Texture>
 			<Texture>
 				<File>nexusIslands8x8</File>
-				<Index>0x5e</Index>
+				<Index>0x62</Index>
 			</Texture>
 			<Texture>
 				<File>nexusIslands8x8</File>
-				<Index>0x5f</Index>
+				<Index>0x63</Index>
 			</Texture>
 		</RandomTexture>
 		<Face>
 			<RandomTexture>
 				<Texture>
 					<File>nexusIslands8x8</File>
-					<Index>0x60</Index>
+					<Index>0x64</Index>
 				</Texture>
 				<Texture>
 					<File>nexusIslands8x8</File>
-					<Index>0x61</Index>
+					<Index>0x65</Index>
 				</Texture>
 			</RandomTexture>
 		</Face>
@@ -642,26 +664,26 @@
 		<RandomTexture>
 			<Texture>
 				<File>nexusIslands8x8</File>
-				<Index>0x62</Index>
+				<Index>0x66</Index>
 			</Texture>
 			<Texture>
 				<File>nexusIslands8x8</File>
-				<Index>0x63</Index>
+				<Index>0x67</Index>
 			</Texture>
 			<Texture>
 				<File>nexusIslands8x8</File>
-				<Index>0x64</Index>
+				<Index>0x68</Index>
 			</Texture>
 		</RandomTexture>
 		<Face>
 			<RandomTexture>
 				<Texture>
 					<File>nexusIslands8x8</File>
-					<Index>0x65</Index>
+					<Index>0x69</Index>
 				</Texture>
 				<Texture>
 					<File>nexusIslands8x8</File>
-					<Index>0x66</Index>
+					<Index>0x6a</Index>
 				</Texture>
 			</RandomTexture>
 		</Face>
@@ -677,26 +699,26 @@
 		<RandomTexture>
 			<Texture>
 				<File>nexusIslands8x8</File>
-				<Index>0x67</Index>
+				<Index>0x6b</Index>
 			</Texture>
 			<Texture>
 				<File>nexusIslands8x8</File>
-				<Index>0x68</Index>
+				<Index>0x6c</Index>
 			</Texture>
 			<Texture>
 				<File>nexusIslands8x8</File>
-				<Index>0x69</Index>
+				<Index>0x6d</Index>
 			</Texture>
 		</RandomTexture>
 		<Face>
 			<RandomTexture>
 				<Texture>
 					<File>nexusIslands8x8</File>
-					<Index>0x6a</Index>
+					<Index>0x6e</Index>
 				</Texture>
 				<Texture>
 					<File>nexusIslands8x8</File>
-					<Index>0x6b</Index>
+					<Index>0x6f</Index>
 				</Texture>
 			</RandomTexture>
 		</Face>
@@ -712,26 +734,26 @@
 		<RandomTexture>
 			<Texture>
 				<File>nexusIslands8x8</File>
-				<Index>0x6c</Index>
+				<Index>0x70</Index>
 			</Texture>
 			<Texture>
 				<File>nexusIslands8x8</File>
-				<Index>0x6d</Index>
+				<Index>0x71</Index>
 			</Texture>
 			<Texture>
 				<File>nexusIslands8x8</File>
-				<Index>0x6e</Index>
+				<Index>0x72</Index>
 			</Texture>
 		</RandomTexture>
 		<Face>
 			<RandomTexture>
 				<Texture>
 					<File>nexusIslands8x8</File>
-					<Index>0x6f</Index>
+					<Index>0x73</Index>
 				</Texture>
 				<Texture>
 					<File>nexusIslands8x8</File>
-					<Index>0x70</Index>
+					<Index>0x74</Index>
 				</Texture>
 			</RandomTexture>
 		</Face>
@@ -747,26 +769,26 @@
 		<RandomTexture>
 			<Texture>
 				<File>nexusIslands8x8</File>
-				<Index>0x71</Index>
+				<Index>0x75</Index>
 			</Texture>
 			<Texture>
 				<File>nexusIslands8x8</File>
-				<Index>0x72</Index>
+				<Index>0x76</Index>
 			</Texture>
 			<Texture>
 				<File>nexusIslands8x8</File>
-				<Index>0x73</Index>
+				<Index>0x77</Index>
 			</Texture>
 		</RandomTexture>
 		<Face>
 			<RandomTexture>
 				<Texture>
 					<File>nexusIslands8x8</File>
-					<Index>0x74</Index>
+					<Index>0x78</Index>
 				</Texture>
 				<Texture>
 					<File>nexusIslands8x8</File>
-					<Index>0x75</Index>
+					<Index>0x79</Index>
 				</Texture>
 			</RandomTexture>
 		</Face>
@@ -782,26 +804,26 @@
 		<RandomTexture>
 			<Texture>
 				<File>nexusIslands8x8</File>
-				<Index>0x76</Index>
+				<Index>0x7a</Index>
 			</Texture>
 			<Texture>
 				<File>nexusIslands8x8</File>
-				<Index>0x77</Index>
+				<Index>0x7b</Index>
 			</Texture>
 			<Texture>
 				<File>nexusIslands8x8</File>
-				<Index>0x78</Index>
+				<Index>0x7c</Index>
 			</Texture>
 		</RandomTexture>
 		<Face>
 			<RandomTexture>
 				<Texture>
 					<File>nexusIslands8x8</File>
-					<Index>0x79</Index>
+					<Index>0x7d</Index>
 				</Texture>
 				<Texture>
 					<File>nexusIslands8x8</File>
-					<Index>0x7a</Index>
+					<Index>0x7e</Index>
 				</Texture>
 			</RandomTexture>
 		</Face>
@@ -817,26 +839,26 @@
 		<RandomTexture>
 			<Texture>
 				<File>nexusIslands8x8</File>
-				<Index>0x7b</Index>
+				<Index>0x7f</Index>
 			</Texture>
 			<Texture>
 				<File>nexusIslands8x8</File>
-				<Index>0x7c</Index>
+				<Index>0x80</Index>
 			</Texture>
 			<Texture>
 				<File>nexusIslands8x8</File>
-				<Index>0x7d</Index>
+				<Index>0x81</Index>
 			</Texture>
 		</RandomTexture>
 		<Face>
 			<RandomTexture>
 				<Texture>
 					<File>nexusIslands8x8</File>
-					<Index>0x7e</Index>
+					<Index>0x82</Index>
 				</Texture>
 				<Texture>
 					<File>nexusIslands8x8</File>
-					<Index>0x7f</Index>
+					<Index>0x83</Index>
 				</Texture>
 			</RandomTexture>
 		</Face>
@@ -852,26 +874,26 @@
 		<RandomTexture>
 			<Texture>
 				<File>nexusIslands8x8</File>
-				<Index>0x80</Index>
+				<Index>0x84</Index>
 			</Texture>
 			<Texture>
 				<File>nexusIslands8x8</File>
-				<Index>0x81</Index>
+				<Index>0x85</Index>
 			</Texture>
 			<Texture>
 				<File>nexusIslands8x8</File>
-				<Index>0x82</Index>
+				<Index>0x86</Index>
 			</Texture>
 		</RandomTexture>
 		<Face>
 			<RandomTexture>
 				<Texture>
 					<File>nexusIslands8x8</File>
-					<Index>0x83</Index>
+					<Index>0x87</Index>
 				</Texture>
 				<Texture>
 					<File>nexusIslands8x8</File>
-					<Index>0x84</Index>
+					<Index>0x88</Index>
 				</Texture>
 			</RandomTexture>
 		</Face>
@@ -887,26 +909,26 @@
 		<RandomTexture>
 			<Texture>
 				<File>nexusIslands8x8</File>
-				<Index>0x85</Index>
+				<Index>0x89</Index>
 			</Texture>
 			<Texture>
 				<File>nexusIslands8x8</File>
-				<Index>0x86</Index>
+				<Index>0x8a</Index>
 			</Texture>
 			<Texture>
 				<File>nexusIslands8x8</File>
-				<Index>0x87</Index>
+				<Index>0x8b</Index>
 			</Texture>
 		</RandomTexture>
 		<Face>
 			<RandomTexture>
 				<Texture>
 					<File>nexusIslands8x8</File>
-					<Index>0x88</Index>
+					<Index>0x8c</Index>
 				</Texture>
 				<Texture>
 					<File>nexusIslands8x8</File>
-					<Index>0x89</Index>
+					<Index>0x8d</Index>
 				</Texture>
 			</RandomTexture>
 		</Face>
@@ -922,26 +944,26 @@
 		<RandomTexture>
 			<Texture>
 				<File>nexusIslands8x8</File>
-				<Index>0x8a</Index>
+				<Index>0x8e</Index>
 			</Texture>
 			<Texture>
 				<File>nexusIslands8x8</File>
-				<Index>0x8b</Index>
+				<Index>0x8f</Index>
 			</Texture>
 			<Texture>
 				<File>nexusIslands8x8</File>
-				<Index>0x8c</Index>
+				<Index>0x90</Index>
 			</Texture>
 		</RandomTexture>
 		<Face>
 			<RandomTexture>
 				<Texture>
 					<File>nexusIslands8x8</File>
-					<Index>0x8d</Index>
+					<Index>0x91</Index>
 				</Texture>
 				<Texture>
 					<File>nexusIslands8x8</File>
-					<Index>0x8e</Index>
+					<Index>0x92</Index>
 				</Texture>
 			</RandomTexture>
 		</Face>
@@ -957,26 +979,26 @@
 		<RandomTexture>
 			<Texture>
 				<File>nexusIslands8x8</File>
-				<Index>0x8f</Index>
+				<Index>0x93</Index>
 			</Texture>
 			<Texture>
 				<File>nexusIslands8x8</File>
-				<Index>0x90</Index>
+				<Index>0x94</Index>
 			</Texture>
 			<Texture>
 				<File>nexusIslands8x8</File>
-				<Index>0x91</Index>
+				<Index>0x95</Index>
 			</Texture>
 		</RandomTexture>
 		<Face>
 			<RandomTexture>
 				<Texture>
 					<File>nexusIslands8x8</File>
-					<Index>0x92</Index>
+					<Index>0x96</Index>
 				</Texture>
 				<Texture>
 					<File>nexusIslands8x8</File>
-					<Index>0x93</Index>
+					<Index>0x97</Index>
 				</Texture>
 			</RandomTexture>
 		</Face>
@@ -992,26 +1014,26 @@
 		<RandomTexture>
 			<Texture>
 				<File>nexusIslands8x8</File>
-				<Index>0x94</Index>
+				<Index>0x98</Index>
 			</Texture>
 			<Texture>
 				<File>nexusIslands8x8</File>
-				<Index>0x95</Index>
+				<Index>0x99</Index>
 			</Texture>
 			<Texture>
 				<File>nexusIslands8x8</File>
-				<Index>0x96</Index>
+				<Index>0x9a</Index>
 			</Texture>
 		</RandomTexture>
 		<Face>
 			<RandomTexture>
 				<Texture>
 					<File>nexusIslands8x8</File>
-					<Index>0x97</Index>
+					<Index>0x9b</Index>
 				</Texture>
 				<Texture>
 					<File>nexusIslands8x8</File>
-					<Index>0x98</Index>
+					<Index>0x9c</Index>
 				</Texture>
 			</RandomTexture>
 		</Face>
@@ -1027,26 +1049,26 @@
 		<RandomTexture>
 			<Texture>
 				<File>nexusIslands8x8</File>
-				<Index>0x99</Index>
+				<Index>0x9d</Index>
 			</Texture>
 			<Texture>
 				<File>nexusIslands8x8</File>
-				<Index>0x9a</Index>
+				<Index>0x9e</Index>
 			</Texture>
 			<Texture>
 				<File>nexusIslands8x8</File>
-				<Index>0x9b</Index>
+				<Index>0x9f</Index>
 			</Texture>
 		</RandomTexture>
 		<Face>
 			<RandomTexture>
 				<Texture>
 					<File>nexusIslands8x8</File>
-					<Index>0x9c</Index>
+					<Index>0xa0</Index>
 				</Texture>
 				<Texture>
 					<File>nexusIslands8x8</File>
-					<Index>0x9d</Index>
+					<Index>0xa1</Index>
 				</Texture>
 			</RandomTexture>
 		</Face>
@@ -1062,26 +1084,26 @@
 		<RandomTexture>
 			<Texture>
 				<File>nexusIslands8x8</File>
-				<Index>0x9e</Index>
+				<Index>0xa2</Index>
 			</Texture>
 			<Texture>
 				<File>nexusIslands8x8</File>
-				<Index>0x9f</Index>
+				<Index>0xa3</Index>
 			</Texture>
 			<Texture>
 				<File>nexusIslands8x8</File>
-				<Index>0xa0</Index>
+				<Index>0xa4</Index>
 			</Texture>
 		</RandomTexture>
 		<Face>
 			<RandomTexture>
 				<Texture>
 					<File>nexusIslands8x8</File>
-					<Index>0xa1</Index>
+					<Index>0xa5</Index>
 				</Texture>
 				<Texture>
 					<File>nexusIslands8x8</File>
-					<Index>0xa2</Index>
+					<Index>0xa6</Index>
 				</Texture>
 			</RandomTexture>
 		</Face>
@@ -1097,26 +1119,26 @@
 		<RandomTexture>
 			<Texture>
 				<File>nexusIslands8x8</File>
-				<Index>0xa3</Index>
+				<Index>0xa7</Index>
 			</Texture>
 			<Texture>
 				<File>nexusIslands8x8</File>
-				<Index>0xa4</Index>
+				<Index>0xa8</Index>
 			</Texture>
 			<Texture>
 				<File>nexusIslands8x8</File>
-				<Index>0xa5</Index>
+				<Index>0xa9</Index>
 			</Texture>
 		</RandomTexture>
 		<Face>
 			<RandomTexture>
 				<Texture>
 					<File>nexusIslands8x8</File>
-					<Index>0xa6</Index>
+					<Index>0xaa</Index>
 				</Texture>
 				<Texture>
 					<File>nexusIslands8x8</File>
-					<Index>0xa7</Index>
+					<Index>0xab</Index>
 				</Texture>
 			</RandomTexture>
 		</Face>
@@ -1132,26 +1154,26 @@
 		<RandomTexture>
 			<Texture>
 				<File>nexusIslands8x8</File>
-				<Index>0xa8</Index>
+				<Index>0xac</Index>
 			</Texture>
 			<Texture>
 				<File>nexusIslands8x8</File>
-				<Index>0xa9</Index>
+				<Index>0xad</Index>
 			</Texture>
 			<Texture>
 				<File>nexusIslands8x8</File>
-				<Index>0xaa</Index>
+				<Index>0xae</Index>
 			</Texture>
 		</RandomTexture>
 		<Face>
 			<RandomTexture>
 				<Texture>
 					<File>nexusIslands8x8</File>
-					<Index>0xab</Index>
+					<Index>0xaf</Index>
 				</Texture>
 				<Texture>
 					<File>nexusIslands8x8</File>
-					<Index>0xac</Index>
+					<Index>0xb0</Index>
 				</Texture>
 			</RandomTexture>
 		</Face>
@@ -1167,26 +1189,26 @@
 		<RandomTexture>
 			<Texture>
 				<File>nexusIslands8x8</File>
-				<Index>0xad</Index>
+				<Index>0xb1</Index>
 			</Texture>
 			<Texture>
 				<File>nexusIslands8x8</File>
-				<Index>0xae</Index>
+				<Index>0xb2</Index>
 			</Texture>
 			<Texture>
 				<File>nexusIslands8x8</File>
-				<Index>0xaf</Index>
+				<Index>0xb3</Index>
 			</Texture>
 		</RandomTexture>
 		<Face>
 			<RandomTexture>
 				<Texture>
 					<File>nexusIslands8x8</File>
-					<Index>0xb0</Index>
+					<Index>0xb4</Index>
 				</Texture>
 				<Texture>
 					<File>nexusIslands8x8</File>
-					<Index>0xb1</Index>
+					<Index>0xb5</Index>
 				</Texture>
 			</RandomTexture>
 		</Face>
@@ -1202,26 +1224,26 @@
 		<RandomTexture>
 			<Texture>
 				<File>nexusIslands8x8</File>
-				<Index>0xb2</Index>
+				<Index>0xb6</Index>
 			</Texture>
 			<Texture>
 				<File>nexusIslands8x8</File>
-				<Index>0xb3</Index>
+				<Index>0xb7</Index>
 			</Texture>
 			<Texture>
 				<File>nexusIslands8x8</File>
-				<Index>0xb4</Index>
+				<Index>0xb8</Index>
 			</Texture>
 		</RandomTexture>
 		<Face>
 			<RandomTexture>
 				<Texture>
 					<File>nexusIslands8x8</File>
-					<Index>0xb5</Index>
+					<Index>0xb9</Index>
 				</Texture>
 				<Texture>
 					<File>nexusIslands8x8</File>
-					<Index>0xb6</Index>
+					<Index>0xba</Index>
 				</Texture>
 			</RandomTexture>
 		</Face>
@@ -1237,26 +1259,26 @@
 		<RandomTexture>
 			<Texture>
 				<File>nexusIslands8x8</File>
-				<Index>0xb7</Index>
+				<Index>0xbb</Index>
 			</Texture>
 			<Texture>
 				<File>nexusIslands8x8</File>
-				<Index>0xb8</Index>
+				<Index>0xbc</Index>
 			</Texture>
 			<Texture>
 				<File>nexusIslands8x8</File>
-				<Index>0xb9</Index>
+				<Index>0xbd</Index>
 			</Texture>
 		</RandomTexture>
 		<Face>
 			<RandomTexture>
 				<Texture>
 					<File>nexusIslands8x8</File>
-					<Index>0xba</Index>
+					<Index>0xbe</Index>
 				</Texture>
 				<Texture>
 					<File>nexusIslands8x8</File>
-					<Index>0xbb</Index>
+					<Index>0xbf</Index>
 				</Texture>
 			</RandomTexture>
 		</Face>
@@ -1272,26 +1294,26 @@
 		<RandomTexture>
 			<Texture>
 				<File>nexusIslands8x8</File>
-				<Index>0xbc</Index>
+				<Index>0xc0</Index>
 			</Texture>
 			<Texture>
 				<File>nexusIslands8x8</File>
-				<Index>0xbd</Index>
+				<Index>0xc1</Index>
 			</Texture>
 			<Texture>
 				<File>nexusIslands8x8</File>
-				<Index>0xbe</Index>
+				<Index>0xc2</Index>
 			</Texture>
 		</RandomTexture>
 		<Face>
 			<RandomTexture>
 				<Texture>
 					<File>nexusIslands8x8</File>
-					<Index>0xbf</Index>
+					<Index>0xc3</Index>
 				</Texture>
 				<Texture>
 					<File>nexusIslands8x8</File>
-					<Index>0xc0</Index>
+					<Index>0xc4</Index>
 				</Texture>
 			</RandomTexture>
 		</Face>
@@ -1307,26 +1329,26 @@
 		<RandomTexture>
 			<Texture>
 				<File>nexusIslands8x8</File>
-				<Index>0xc1</Index>
+				<Index>0xc5</Index>
 			</Texture>
 			<Texture>
 				<File>nexusIslands8x8</File>
-				<Index>0xc2</Index>
+				<Index>0xc6</Index>
 			</Texture>
 			<Texture>
 				<File>nexusIslands8x8</File>
-				<Index>0xc3</Index>
+				<Index>0xc7</Index>
 			</Texture>
 		</RandomTexture>
 		<Face>
 			<RandomTexture>
 				<Texture>
 					<File>nexusIslands8x8</File>
-					<Index>0xc4</Index>
+					<Index>0xc8</Index>
 				</Texture>
 				<Texture>
 					<File>nexusIslands8x8</File>
-					<Index>0xc5</Index>
+					<Index>0xc9</Index>
 				</Texture>
 			</RandomTexture>
 		</Face>
@@ -1342,26 +1364,26 @@
 		<RandomTexture>
 			<Texture>
 				<File>nexusIslands8x8</File>
-				<Index>0xc6</Index>
+				<Index>0xca</Index>
 			</Texture>
 			<Texture>
 				<File>nexusIslands8x8</File>
-				<Index>0xc7</Index>
+				<Index>0xcb</Index>
 			</Texture>
 			<Texture>
 				<File>nexusIslands8x8</File>
-				<Index>0xc8</Index>
+				<Index>0xcc</Index>
 			</Texture>
 		</RandomTexture>
 		<Face>
 			<RandomTexture>
 				<Texture>
 					<File>nexusIslands8x8</File>
-					<Index>0xc9</Index>
+					<Index>0xcd</Index>
 				</Texture>
 				<Texture>
 					<File>nexusIslands8x8</File>
-					<Index>0xca</Index>
+					<Index>0xce</Index>
 				</Texture>
 			</RandomTexture>
 		</Face>
@@ -1377,26 +1399,26 @@
 		<RandomTexture>
 			<Texture>
 				<File>nexusIslands8x8</File>
-				<Index>0xcb</Index>
+				<Index>0xcf</Index>
 			</Texture>
 			<Texture>
 				<File>nexusIslands8x8</File>
-				<Index>0xcc</Index>
+				<Index>0xd0</Index>
 			</Texture>
 			<Texture>
 				<File>nexusIslands8x8</File>
-				<Index>0xcd</Index>
+				<Index>0xd1</Index>
 			</Texture>
 		</RandomTexture>
 		<Face>
 			<RandomTexture>
 				<Texture>
 					<File>nexusIslands8x8</File>
-					<Index>0xce</Index>
+					<Index>0xd2</Index>
 				</Texture>
 				<Texture>
 					<File>nexusIslands8x8</File>
-					<Index>0xcf</Index>
+					<Index>0xd3</Index>
 				</Texture>
 			</RandomTexture>
 		</Face>
@@ -1412,26 +1434,26 @@
 		<RandomTexture>
 			<Texture>
 				<File>nexusIslands8x8</File>
-				<Index>0xd0</Index>
+				<Index>0xd4</Index>
 			</Texture>
 			<Texture>
 				<File>nexusIslands8x8</File>
-				<Index>0xd1</Index>
+				<Index>0xd5</Index>
 			</Texture>
 			<Texture>
 				<File>nexusIslands8x8</File>
-				<Index>0xd2</Index>
+				<Index>0xd6</Index>
 			</Texture>
 		</RandomTexture>
 		<Face>
 			<RandomTexture>
 				<Texture>
 					<File>nexusIslands8x8</File>
-					<Index>0xd3</Index>
+					<Index>0xd7</Index>
 				</Texture>
 				<Texture>
 					<File>nexusIslands8x8</File>
-					<Index>0xd4</Index>
+					<Index>0xd8</Index>
 				</Texture>
 			</RandomTexture>
 		</Face>
@@ -1447,26 +1469,26 @@
 		<RandomTexture>
 			<Texture>
 				<File>nexusIslands8x8</File>
-				<Index>0xd5</Index>
+				<Index>0xd9</Index>
 			</Texture>
 			<Texture>
 				<File>nexusIslands8x8</File>
-				<Index>0xd6</Index>
+				<Index>0xda</Index>
 			</Texture>
 			<Texture>
 				<File>nexusIslands8x8</File>
-				<Index>0xd7</Index>
+				<Index>0xdb</Index>
 			</Texture>
 		</RandomTexture>
 		<Face>
 			<RandomTexture>
 				<Texture>
 					<File>nexusIslands8x8</File>
-					<Index>0xd8</Index>
+					<Index>0xdc</Index>
 				</Texture>
 				<Texture>
 					<File>nexusIslands8x8</File>
-					<Index>0xd9</Index>
+					<Index>0xdd</Index>
 				</Texture>
 			</RandomTexture>
 		</Face>
@@ -1482,26 +1504,26 @@
 		<RandomTexture>
 			<Texture>
 				<File>nexusIslands8x8</File>
-				<Index>0xda</Index>
+				<Index>0xde</Index>
 			</Texture>
 			<Texture>
 				<File>nexusIslands8x8</File>
-				<Index>0xdb</Index>
+				<Index>0xdf</Index>
 			</Texture>
 			<Texture>
 				<File>nexusIslands8x8</File>
-				<Index>0xdc</Index>
+				<Index>0xe0</Index>
 			</Texture>
 		</RandomTexture>
 		<Face>
 			<RandomTexture>
 				<Texture>
 					<File>nexusIslands8x8</File>
-					<Index>0xdd</Index>
+					<Index>0xe1</Index>
 				</Texture>
 				<Texture>
 					<File>nexusIslands8x8</File>
-					<Index>0xde</Index>
+					<Index>0xe2</Index>
 				</Texture>
 			</RandomTexture>
 		</Face>
@@ -1517,26 +1539,26 @@
 		<RandomTexture>
 			<Texture>
 				<File>nexusIslands8x8</File>
-				<Index>0xdf</Index>
+				<Index>0xe3</Index>
 			</Texture>
 			<Texture>
 				<File>nexusIslands8x8</File>
-				<Index>0xe0</Index>
+				<Index>0xe4</Index>
 			</Texture>
 			<Texture>
 				<File>nexusIslands8x8</File>
-				<Index>0xe1</Index>
+				<Index>0xe5</Index>
 			</Texture>
 		</RandomTexture>
 		<Face>
 			<RandomTexture>
 				<Texture>
 					<File>nexusIslands8x8</File>
-					<Index>0xe2</Index>
+					<Index>0xe6</Index>
 				</Texture>
 				<Texture>
 					<File>nexusIslands8x8</File>
-					<Index>0xe3</Index>
+					<Index>0xe7</Index>
 				</Texture>
 			</RandomTexture>
 		</Face>
@@ -1552,26 +1574,26 @@
 		<RandomTexture>
 			<Texture>
 				<File>nexusIslands8x8</File>
-				<Index>0xe4</Index>
+				<Index>0xe8</Index>
 			</Texture>
 			<Texture>
 				<File>nexusIslands8x8</File>
-				<Index>0xe5</Index>
+				<Index>0xe9</Index>
 			</Texture>
 			<Texture>
 				<File>nexusIslands8x8</File>
-				<Index>0xe6</Index>
+				<Index>0xea</Index>
 			</Texture>
 		</RandomTexture>
 		<Face>
 			<RandomTexture>
 				<Texture>
 					<File>nexusIslands8x8</File>
-					<Index>0xe7</Index>
+					<Index>0xeb</Index>
 				</Texture>
 				<Texture>
 					<File>nexusIslands8x8</File>
-					<Index>0xe8</Index>
+					<Index>0xec</Index>
 				</Texture>
 			</RandomTexture>
 		</Face>
@@ -1587,26 +1609,26 @@
 		<RandomTexture>
 			<Texture>
 				<File>nexusIslands8x8</File>
-				<Index>0xe9</Index>
+				<Index>0xed</Index>
 			</Texture>
 			<Texture>
 				<File>nexusIslands8x8</File>
-				<Index>0xea</Index>
+				<Index>0xee</Index>
 			</Texture>
 			<Texture>
 				<File>nexusIslands8x8</File>
-				<Index>0xeb</Index>
+				<Index>0xef</Index>
 			</Texture>
 		</RandomTexture>
 		<Face>
 			<RandomTexture>
 				<Texture>
 					<File>nexusIslands8x8</File>
-					<Index>0xec</Index>
+					<Index>0xf0</Index>
 				</Texture>
 				<Texture>
 					<File>nexusIslands8x8</File>
-					<Index>0xed</Index>
+					<Index>0xf1</Index>
 				</Texture>
 			</RandomTexture>
 		</Face>
@@ -1622,26 +1644,26 @@
 		<RandomTexture>
 			<Texture>
 				<File>nexusIslands8x8</File>
-				<Index>0xee</Index>
+				<Index>0xf2</Index>
 			</Texture>
 			<Texture>
 				<File>nexusIslands8x8</File>
-				<Index>0xef</Index>
+				<Index>0xf3</Index>
 			</Texture>
 			<Texture>
 				<File>nexusIslands8x8</File>
-				<Index>0xf0</Index>
+				<Index>0xf4</Index>
 			</Texture>
 		</RandomTexture>
 		<Face>
 			<RandomTexture>
 				<Texture>
 					<File>nexusIslands8x8</File>
-					<Index>0xf1</Index>
+					<Index>0xf5</Index>
 				</Texture>
 				<Texture>
 					<File>nexusIslands8x8</File>
-					<Index>0xf2</Index>
+					<Index>0xf6</Index>
 				</Texture>
 			</RandomTexture>
 		</Face>
@@ -1657,26 +1679,26 @@
 		<RandomTexture>
 			<Texture>
 				<File>nexusIslands8x8</File>
-				<Index>0xf3</Index>
+				<Index>0xf7</Index>
 			</Texture>
 			<Texture>
 				<File>nexusIslands8x8</File>
-				<Index>0xf4</Index>
+				<Index>0xf8</Index>
 			</Texture>
 			<Texture>
 				<File>nexusIslands8x8</File>
-				<Index>0xf5</Index>
+				<Index>0xf9</Index>
 			</Texture>
 		</RandomTexture>
 		<Face>
 			<RandomTexture>
 				<Texture>
 					<File>nexusIslands8x8</File>
-					<Index>0xf6</Index>
+					<Index>0xfa</Index>
 				</Texture>
 				<Texture>
 					<File>nexusIslands8x8</File>
-					<Index>0xf7</Index>
+					<Index>0xfb</Index>
 				</Texture>
 			</RandomTexture>
 		</Face>
@@ -1692,26 +1714,26 @@
 		<RandomTexture>
 			<Texture>
 				<File>nexusIslands8x8</File>
-				<Index>0xf8</Index>
+				<Index>0xfc</Index>
 			</Texture>
 			<Texture>
 				<File>nexusIslands8x8</File>
-				<Index>0xf9</Index>
+				<Index>0xfd</Index>
 			</Texture>
 			<Texture>
 				<File>nexusIslands8x8</File>
-				<Index>0xfa</Index>
+				<Index>0xfe</Index>
 			</Texture>
 		</RandomTexture>
 		<Face>
 			<RandomTexture>
 				<Texture>
 					<File>nexusIslands8x8</File>
-					<Index>0xfb</Index>
+					<Index>0xff</Index>
 				</Texture>
 				<Texture>
 					<File>nexusIslands8x8</File>
-					<Index>0xfc</Index>
+					<Index>0x100</Index>
 				</Texture>
 			</RandomTexture>
 		</Face>
@@ -1727,26 +1749,26 @@
 		<RandomTexture>
 			<Texture>
 				<File>nexusIslands8x8</File>
-				<Index>0xfd</Index>
+				<Index>0x101</Index>
 			</Texture>
 			<Texture>
 				<File>nexusIslands8x8</File>
-				<Index>0xfe</Index>
+				<Index>0x102</Index>
 			</Texture>
 			<Texture>
 				<File>nexusIslands8x8</File>
-				<Index>0xff</Index>
+				<Index>0x103</Index>
 			</Texture>
 		</RandomTexture>
 		<Face>
 			<RandomTexture>
 				<Texture>
 					<File>nexusIslands8x8</File>
-					<Index>0x100</Index>
+					<Index>0x104</Index>
 				</Texture>
 				<Texture>
 					<File>nexusIslands8x8</File>
-					<Index>0x101</Index>
+					<Index>0x105</Index>
 				</Texture>
 			</RandomTexture>
 		</Face>
@@ -1762,26 +1784,26 @@
 		<RandomTexture>
 			<Texture>
 				<File>nexusIslands8x8</File>
-				<Index>0x102</Index>
+				<Index>0x106</Index>
 			</Texture>
 			<Texture>
 				<File>nexusIslands8x8</File>
-				<Index>0x103</Index>
+				<Index>0x107</Index>
 			</Texture>
 			<Texture>
 				<File>nexusIslands8x8</File>
-				<Index>0x104</Index>
+				<Index>0x108</Index>
 			</Texture>
 		</RandomTexture>
 		<Face>
 			<RandomTexture>
 				<Texture>
 					<File>nexusIslands8x8</File>
-					<Index>0x105</Index>
+					<Index>0x109</Index>
 				</Texture>
 				<Texture>
 					<File>nexusIslands8x8</File>
-					<Index>0x106</Index>
+					<Index>0x10a</Index>
 				</Texture>
 			</RandomTexture>
 		</Face>
@@ -1797,26 +1819,26 @@
 		<RandomTexture>
 			<Texture>
 				<File>nexusIslands8x8</File>
-				<Index>0x107</Index>
+				<Index>0x10b</Index>
 			</Texture>
 			<Texture>
 				<File>nexusIslands8x8</File>
-				<Index>0x108</Index>
+				<Index>0x10c</Index>
 			</Texture>
 			<Texture>
 				<File>nexusIslands8x8</File>
-				<Index>0x109</Index>
+				<Index>0x10d</Index>
 			</Texture>
 		</RandomTexture>
 		<Face>
 			<RandomTexture>
 				<Texture>
 					<File>nexusIslands8x8</File>
-					<Index>0x10a</Index>
+					<Index>0x10e</Index>
 				</Texture>
 				<Texture>
 					<File>nexusIslands8x8</File>
-					<Index>0x10b</Index>
+					<Index>0x10f</Index>
 				</Texture>
 			</RandomTexture>
 		</Face>
@@ -1832,26 +1854,26 @@
 		<RandomTexture>
 			<Texture>
 				<File>nexusIslands8x8</File>
-				<Index>0x10c</Index>
+				<Index>0x110</Index>
 			</Texture>
 			<Texture>
 				<File>nexusIslands8x8</File>
-				<Index>0x10d</Index>
+				<Index>0x111</Index>
 			</Texture>
 			<Texture>
 				<File>nexusIslands8x8</File>
-				<Index>0x10e</Index>
+				<Index>0x112</Index>
 			</Texture>
 		</RandomTexture>
 		<Face>
 			<RandomTexture>
 				<Texture>
 					<File>nexusIslands8x8</File>
-					<Index>0x10f</Index>
+					<Index>0x113</Index>
 				</Texture>
 				<Texture>
 					<File>nexusIslands8x8</File>
-					<Index>0x110</Index>
+					<Index>0x114</Index>
 				</Texture>
 			</RandomTexture>
 		</Face>
@@ -1867,26 +1889,26 @@
 		<RandomTexture>
 			<Texture>
 				<File>nexusIslands8x8</File>
-				<Index>0x111</Index>
+				<Index>0x115</Index>
 			</Texture>
 			<Texture>
 				<File>nexusIslands8x8</File>
-				<Index>0x112</Index>
+				<Index>0x116</Index>
 			</Texture>
 			<Texture>
 				<File>nexusIslands8x8</File>
-				<Index>0x113</Index>
+				<Index>0x117</Index>
 			</Texture>
 		</RandomTexture>
 		<Face>
 			<RandomTexture>
 				<Texture>
 					<File>nexusIslands8x8</File>
-					<Index>0x114</Index>
+					<Index>0x118</Index>
 				</Texture>
 				<Texture>
 					<File>nexusIslands8x8</File>
-					<Index>0x115</Index>
+					<Index>0x119</Index>
 				</Texture>
 			</RandomTexture>
 		</Face>
@@ -1902,26 +1924,26 @@
 		<RandomTexture>
 			<Texture>
 				<File>nexusIslands8x8</File>
-				<Index>0x116</Index>
+				<Index>0x11a</Index>
 			</Texture>
 			<Texture>
 				<File>nexusIslands8x8</File>
-				<Index>0x117</Index>
+				<Index>0x11b</Index>
 			</Texture>
 			<Texture>
 				<File>nexusIslands8x8</File>
-				<Index>0x118</Index>
+				<Index>0x11c</Index>
 			</Texture>
 		</RandomTexture>
 		<Face>
 			<RandomTexture>
 				<Texture>
 					<File>nexusIslands8x8</File>
-					<Index>0x119</Index>
+					<Index>0x11d</Index>
 				</Texture>
 				<Texture>
 					<File>nexusIslands8x8</File>
-					<Index>0x11a</Index>
+					<Index>0x11e</Index>
 				</Texture>
 			</RandomTexture>
 		</Face>
@@ -1937,26 +1959,26 @@
 		<RandomTexture>
 			<Texture>
 				<File>nexusIslands8x8</File>
-				<Index>0x11b</Index>
+				<Index>0x11f</Index>
 			</Texture>
 			<Texture>
 				<File>nexusIslands8x8</File>
-				<Index>0x11c</Index>
+				<Index>0x120</Index>
 			</Texture>
 			<Texture>
 				<File>nexusIslands8x8</File>
-				<Index>0x11d</Index>
+				<Index>0x121</Index>
 			</Texture>
 		</RandomTexture>
 		<Face>
 			<RandomTexture>
 				<Texture>
 					<File>nexusIslands8x8</File>
-					<Index>0x11e</Index>
+					<Index>0x122</Index>
 				</Texture>
 				<Texture>
 					<File>nexusIslands8x8</File>
-					<Index>0x11f</Index>
+					<Index>0x123</Index>
 				</Texture>
 			</RandomTexture>
 		</Face>
@@ -1972,26 +1994,26 @@
 		<RandomTexture>
 			<Texture>
 				<File>nexusIslands8x8</File>
-				<Index>0x120</Index>
+				<Index>0x124</Index>
 			</Texture>
 			<Texture>
 				<File>nexusIslands8x8</File>
-				<Index>0x121</Index>
+				<Index>0x125</Index>
 			</Texture>
 			<Texture>
 				<File>nexusIslands8x8</File>
-				<Index>0x122</Index>
+				<Index>0x126</Index>
 			</Texture>
 		</RandomTexture>
 		<Face>
 			<RandomTexture>
 				<Texture>
 					<File>nexusIslands8x8</File>
-					<Index>0x123</Index>
+					<Index>0x127</Index>
 				</Texture>
 				<Texture>
 					<File>nexusIslands8x8</File>
-					<Index>0x124</Index>
+					<Index>0x128</Index>
 				</Texture>
 			</RandomTexture>
 		</Face>
@@ -2007,26 +2029,26 @@
 		<RandomTexture>
 			<Texture>
 				<File>nexusIslands8x8</File>
-				<Index>0x125</Index>
+				<Index>0x129</Index>
 			</Texture>
 			<Texture>
 				<File>nexusIslands8x8</File>
-				<Index>0x126</Index>
+				<Index>0x12a</Index>
 			</Texture>
 			<Texture>
 				<File>nexusIslands8x8</File>
-				<Index>0x127</Index>
+				<Index>0x12b</Index>
 			</Texture>
 		</RandomTexture>
 		<Face>
 			<RandomTexture>
 				<Texture>
 					<File>nexusIslands8x8</File>
-					<Index>0x128</Index>
+					<Index>0x12c</Index>
 				</Texture>
 				<Texture>
 					<File>nexusIslands8x8</File>
-					<Index>0x129</Index>
+					<Index>0x12d</Index>
 				</Texture>
 			</RandomTexture>
 		</Face>
@@ -2042,26 +2064,26 @@
 		<RandomTexture>
 			<Texture>
 				<File>nexusIslands8x8</File>
-				<Index>0x12a</Index>
+				<Index>0x12e</Index>
 			</Texture>
 			<Texture>
 				<File>nexusIslands8x8</File>
-				<Index>0x12b</Index>
+				<Index>0x12f</Index>
 			</Texture>
 			<Texture>
 				<File>nexusIslands8x8</File>
-				<Index>0x12c</Index>
+				<Index>0x130</Index>
 			</Texture>
 		</RandomTexture>
 		<Face>
 			<RandomTexture>
 				<Texture>
 					<File>nexusIslands8x8</File>
-					<Index>0x12d</Index>
+					<Index>0x131</Index>
 				</Texture>
 				<Texture>
 					<File>nexusIslands8x8</File>
-					<Index>0x12e</Index>
+					<Index>0x132</Index>
 				</Texture>
 			</RandomTexture>
 		</Face>
@@ -2078,26 +2100,26 @@
 		<RandomTexture>
 			<Texture>
 				<File>nexusIslands8x8</File>
-				<Index>0x12f</Index>
+				<Index>0x133</Index>
 			</Texture>
 			<Texture>
 				<File>nexusIslands8x8</File>
-				<Index>0x130</Index>
+				<Index>0x134</Index>
 			</Texture>
 			<Texture>
 				<File>nexusIslands8x8</File>
-				<Index>0x131</Index>
+				<Index>0x135</Index>
 			</Texture>
 		</RandomTexture>
 		<Face>
 			<RandomTexture>
 				<Texture>
 					<File>nexusIslands8x8</File>
-					<Index>0x132</Index>
+					<Index>0x136</Index>
 				</Texture>
 				<Texture>
 					<File>nexusIslands8x8</File>
-					<Index>0x133</Index>
+					<Index>0x137</Index>
 				</Texture>
 			</RandomTexture>
 		</Face>
@@ -2114,26 +2136,26 @@
 		<RandomTexture>
 			<Texture>
 				<File>nexusIslands8x8</File>
-				<Index>0x134</Index>
+				<Index>0x138</Index>
 			</Texture>
 			<Texture>
 				<File>nexusIslands8x8</File>
-				<Index>0x135</Index>
+				<Index>0x139</Index>
 			</Texture>
 			<Texture>
 				<File>nexusIslands8x8</File>
-				<Index>0x136</Index>
+				<Index>0x13a</Index>
 			</Texture>
 		</RandomTexture>
 		<Face>
 			<RandomTexture>
 				<Texture>
 					<File>nexusIslands8x8</File>
-					<Index>0x137</Index>
+					<Index>0x13b</Index>
 				</Texture>
 				<Texture>
 					<File>nexusIslands8x8</File>
-					<Index>0x138</Index>
+					<Index>0x13c</Index>
 				</Texture>
 			</RandomTexture>
 		</Face>
@@ -2150,26 +2172,26 @@
 		<RandomTexture>
 			<Texture>
 				<File>nexusIslands8x8</File>
-				<Index>0x139</Index>
+				<Index>0x13d</Index>
 			</Texture>
 			<Texture>
 				<File>nexusIslands8x8</File>
-				<Index>0x13a</Index>
+				<Index>0x13e</Index>
 			</Texture>
 			<Texture>
 				<File>nexusIslands8x8</File>
-				<Index>0x13b</Index>
+				<Index>0x13f</Index>
 			</Texture>
 		</RandomTexture>
 		<Face>
 			<RandomTexture>
 				<Texture>
 					<File>nexusIslands8x8</File>
-					<Index>0x13c</Index>
+					<Index>0x140</Index>
 				</Texture>
 				<Texture>
 					<File>nexusIslands8x8</File>
-					<Index>0x13d</Index>
+					<Index>0x141</Index>
 				</Texture>
 			</RandomTexture>
 		</Face>
@@ -2186,26 +2208,26 @@
 		<RandomTexture>
 			<Texture>
 				<File>nexusIslands8x8</File>
-				<Index>0x13e</Index>
+				<Index>0x142</Index>
 			</Texture>
 			<Texture>
 				<File>nexusIslands8x8</File>
-				<Index>0x13f</Index>
+				<Index>0x143</Index>
 			</Texture>
 			<Texture>
 				<File>nexusIslands8x8</File>
-				<Index>0x140</Index>
+				<Index>0x144</Index>
 			</Texture>
 		</RandomTexture>
 		<Face>
 			<RandomTexture>
 				<Texture>
 					<File>nexusIslands8x8</File>
-					<Index>0x141</Index>
+					<Index>0x145</Index>
 				</Texture>
 				<Texture>
 					<File>nexusIslands8x8</File>
-					<Index>0x142</Index>
+					<Index>0x146</Index>
 				</Texture>
 			</RandomTexture>
 		</Face>
@@ -2222,26 +2244,26 @@
 		<RandomTexture>
 			<Texture>
 				<File>nexusIslands8x8</File>
-				<Index>0x143</Index>
+				<Index>0x147</Index>
 			</Texture>
 			<Texture>
 				<File>nexusIslands8x8</File>
-				<Index>0x144</Index>
+				<Index>0x148</Index>
 			</Texture>
 			<Texture>
 				<File>nexusIslands8x8</File>
-				<Index>0x145</Index>
+				<Index>0x149</Index>
 			</Texture>
 		</RandomTexture>
 		<Face>
 			<RandomTexture>
 				<Texture>
 					<File>nexusIslands8x8</File>
-					<Index>0x146</Index>
+					<Index>0x14a</Index>
 				</Texture>
 				<Texture>
 					<File>nexusIslands8x8</File>
-					<Index>0x147</Index>
+					<Index>0x14b</Index>
 				</Texture>
 			</RandomTexture>
 		</Face>
@@ -2258,26 +2280,26 @@
 		<RandomTexture>
 			<Texture>
 				<File>nexusIslands8x8</File>
-				<Index>0x148</Index>
+				<Index>0x14c</Index>
 			</Texture>
 			<Texture>
 				<File>nexusIslands8x8</File>
-				<Index>0x149</Index>
+				<Index>0x14d</Index>
 			</Texture>
 			<Texture>
 				<File>nexusIslands8x8</File>
-				<Index>0x14a</Index>
+				<Index>0x14e</Index>
 			</Texture>
 		</RandomTexture>
 		<Face>
 			<RandomTexture>
 				<Texture>
 					<File>nexusIslands8x8</File>
-					<Index>0x14b</Index>
+					<Index>0x14f</Index>
 				</Texture>
 				<Texture>
 					<File>nexusIslands8x8</File>
-					<Index>0x14c</Index>
+					<Index>0x150</Index>
 				</Texture>
 			</RandomTexture>
 		</Face>
@@ -2294,26 +2316,26 @@
 		<RandomTexture>
 			<Texture>
 				<File>nexusIslands8x8</File>
-				<Index>0x14d</Index>
+				<Index>0x151</Index>
 			</Texture>
 			<Texture>
 				<File>nexusIslands8x8</File>
-				<Index>0x14e</Index>
+				<Index>0x152</Index>
 			</Texture>
 			<Texture>
 				<File>nexusIslands8x8</File>
-				<Index>0x14f</Index>
+				<Index>0x153</Index>
 			</Texture>
 		</RandomTexture>
 		<Face>
 			<RandomTexture>
 				<Texture>
 					<File>nexusIslands8x8</File>
-					<Index>0x150</Index>
+					<Index>0x154</Index>
 				</Texture>
 				<Texture>
 					<File>nexusIslands8x8</File>
-					<Index>0x151</Index>
+					<Index>0x155</Index>
 				</Texture>
 			</RandomTexture>
 		</Face>
@@ -2330,26 +2352,26 @@
 		<RandomTexture>
 			<Texture>
 				<File>nexusIslands8x8</File>
-				<Index>0x152</Index>
+				<Index>0x156</Index>
 			</Texture>
 			<Texture>
 				<File>nexusIslands8x8</File>
-				<Index>0x153</Index>
+				<Index>0x157</Index>
 			</Texture>
 			<Texture>
 				<File>nexusIslands8x8</File>
-				<Index>0x154</Index>
+				<Index>0x158</Index>
 			</Texture>
 		</RandomTexture>
 		<Face>
 			<RandomTexture>
 				<Texture>
 					<File>nexusIslands8x8</File>
-					<Index>0x155</Index>
+					<Index>0x159</Index>
 				</Texture>
 				<Texture>
 					<File>nexusIslands8x8</File>
-					<Index>0x156</Index>
+					<Index>0x15a</Index>
 				</Texture>
 			</RandomTexture>
 		</Face>
@@ -2366,26 +2388,26 @@
 		<RandomTexture>
 			<Texture>
 				<File>nexusIslands8x8</File>
-				<Index>0x157</Index>
+				<Index>0x15b</Index>
 			</Texture>
 			<Texture>
 				<File>nexusIslands8x8</File>
-				<Index>0x158</Index>
+				<Index>0x15c</Index>
 			</Texture>
 			<Texture>
 				<File>nexusIslands8x8</File>
-				<Index>0x159</Index>
+				<Index>0x15d</Index>
 			</Texture>
 		</RandomTexture>
 		<Face>
 			<RandomTexture>
 				<Texture>
 					<File>nexusIslands8x8</File>
-					<Index>0x15a</Index>
+					<Index>0x15e</Index>
 				</Texture>
 				<Texture>
 					<File>nexusIslands8x8</File>
-					<Index>0x15b</Index>
+					<Index>0x15f</Index>
 				</Texture>
 			</RandomTexture>
 		</Face>
@@ -2402,26 +2424,26 @@
 		<RandomTexture>
 			<Texture>
 				<File>nexusIslands8x8</File>
-				<Index>0x15c</Index>
+				<Index>0x160</Index>
 			</Texture>
 			<Texture>
 				<File>nexusIslands8x8</File>
-				<Index>0x15d</Index>
+				<Index>0x161</Index>
 			</Texture>
 			<Texture>
 				<File>nexusIslands8x8</File>
-				<Index>0x15e</Index>
+				<Index>0x162</Index>
 			</Texture>
 		</RandomTexture>
 		<Face>
 			<RandomTexture>
 				<Texture>
 					<File>nexusIslands8x8</File>
-					<Index>0x15f</Index>
+					<Index>0x163</Index>
 				</Texture>
 				<Texture>
 					<File>nexusIslands8x8</File>
-					<Index>0x160</Index>
+					<Index>0x164</Index>
 				</Texture>
 			</RandomTexture>
 		</Face>
@@ -2438,26 +2460,26 @@
 		<RandomTexture>
 			<Texture>
 				<File>nexusIslands8x8</File>
-				<Index>0x161</Index>
+				<Index>0x165</Index>
 			</Texture>
 			<Texture>
 				<File>nexusIslands8x8</File>
-				<Index>0x162</Index>
+				<Index>0x166</Index>
 			</Texture>
 			<Texture>
 				<File>nexusIslands8x8</File>
-				<Index>0x163</Index>
+				<Index>0x167</Index>
 			</Texture>
 		</RandomTexture>
 		<Face>
 			<RandomTexture>
 				<Texture>
 					<File>nexusIslands8x8</File>
-					<Index>0x164</Index>
+					<Index>0x168</Index>
 				</Texture>
 				<Texture>
 					<File>nexusIslands8x8</File>
-					<Index>0x165</Index>
+					<Index>0x169</Index>
 				</Texture>
 			</RandomTexture>
 		</Face>
@@ -2474,26 +2496,26 @@
 		<RandomTexture>
 			<Texture>
 				<File>nexusIslands8x8</File>
-				<Index>0x166</Index>
+				<Index>0x16a</Index>
 			</Texture>
 			<Texture>
 				<File>nexusIslands8x8</File>
-				<Index>0x167</Index>
+				<Index>0x16b</Index>
 			</Texture>
 			<Texture>
 				<File>nexusIslands8x8</File>
-				<Index>0x168</Index>
+				<Index>0x16c</Index>
 			</Texture>
 		</RandomTexture>
 		<Face>
 			<RandomTexture>
 				<Texture>
 					<File>nexusIslands8x8</File>
-					<Index>0x169</Index>
+					<Index>0x16d</Index>
 				</Texture>
 				<Texture>
 					<File>nexusIslands8x8</File>
-					<Index>0x16a</Index>
+					<Index>0x16e</Index>
 				</Texture>
 			</RandomTexture>
 		</Face>
@@ -2510,26 +2532,26 @@
 		<RandomTexture>
 			<Texture>
 				<File>nexusIslands8x8</File>
-				<Index>0x16b</Index>
+				<Index>0x16f</Index>
 			</Texture>
 			<Texture>
 				<File>nexusIslands8x8</File>
-				<Index>0x16c</Index>
+				<Index>0x170</Index>
 			</Texture>
 			<Texture>
 				<File>nexusIslands8x8</File>
-				<Index>0x16d</Index>
+				<Index>0x171</Index>
 			</Texture>
 		</RandomTexture>
 		<Face>
 			<RandomTexture>
 				<Texture>
 					<File>nexusIslands8x8</File>
-					<Index>0x16e</Index>
+					<Index>0x172</Index>
 				</Texture>
 				<Texture>
 					<File>nexusIslands8x8</File>
-					<Index>0x16f</Index>
+					<Index>0x173</Index>
 				</Texture>
 			</RandomTexture>
 		</Face>
@@ -2547,26 +2569,26 @@
 		<RandomTexture>
 			<Texture>
 				<File>nexusIslands8x8</File>
-				<Index>0x170</Index>
+				<Index>0x174</Index>
 			</Texture>
 			<Texture>
 				<File>nexusIslands8x8</File>
-				<Index>0x171</Index>
+				<Index>0x175</Index>
 			</Texture>
 			<Texture>
 				<File>nexusIslands8x8</File>
-				<Index>0x172</Index>
+				<Index>0x176</Index>
 			</Texture>
 		</RandomTexture>
 		<Face>
 			<RandomTexture>
 				<Texture>
 					<File>nexusIslands8x8</File>
-					<Index>0x173</Index>
+					<Index>0x177</Index>
 				</Texture>
 				<Texture>
 					<File>nexusIslands8x8</File>
-					<Index>0x174</Index>
+					<Index>0x178</Index>
 				</Texture>
 			</RandomTexture>
 		</Face>
@@ -2584,26 +2606,26 @@
 		<RandomTexture>
 			<Texture>
 				<File>nexusIslands8x8</File>
-				<Index>0x175</Index>
+				<Index>0x179</Index>
 			</Texture>
 			<Texture>
 				<File>nexusIslands8x8</File>
-				<Index>0x176</Index>
+				<Index>0x17a</Index>
 			</Texture>
 			<Texture>
 				<File>nexusIslands8x8</File>
-				<Index>0x177</Index>
+				<Index>0x17b</Index>
 			</Texture>
 		</RandomTexture>
 		<Face>
 			<RandomTexture>
 				<Texture>
 					<File>nexusIslands8x8</File>
-					<Index>0x178</Index>
+					<Index>0x17c</Index>
 				</Texture>
 				<Texture>
 					<File>nexusIslands8x8</File>
-					<Index>0x179</Index>
+					<Index>0x17d</Index>
 				</Texture>
 			</RandomTexture>
 		</Face>
@@ -2621,26 +2643,26 @@
 		<RandomTexture>
 			<Texture>
 				<File>nexusIslands8x8</File>
-				<Index>0x17a</Index>
+				<Index>0x17e</Index>
 			</Texture>
 			<Texture>
 				<File>nexusIslands8x8</File>
-				<Index>0x17b</Index>
+				<Index>0x17f</Index>
 			</Texture>
 			<Texture>
 				<File>nexusIslands8x8</File>
-				<Index>0x17c</Index>
+				<Index>0x180</Index>
 			</Texture>
 		</RandomTexture>
 		<Face>
 			<RandomTexture>
 				<Texture>
 					<File>nexusIslands8x8</File>
-					<Index>0x17d</Index>
+					<Index>0x181</Index>
 				</Texture>
 				<Texture>
 					<File>nexusIslands8x8</File>
-					<Index>0x17e</Index>
+					<Index>0x182</Index>
 				</Texture>
 			</RandomTexture>
 		</Face>
@@ -2658,26 +2680,26 @@
 		<RandomTexture>
 			<Texture>
 				<File>nexusIslands8x8</File>
-				<Index>0x17f</Index>
+				<Index>0x183</Index>
 			</Texture>
 			<Texture>
 				<File>nexusIslands8x8</File>
-				<Index>0x180</Index>
+				<Index>0x184</Index>
 			</Texture>
 			<Texture>
 				<File>nexusIslands8x8</File>
-				<Index>0x181</Index>
+				<Index>0x185</Index>
 			</Texture>
 		</RandomTexture>
 		<Face>
 			<RandomTexture>
 				<Texture>
 					<File>nexusIslands8x8</File>
-					<Index>0x182</Index>
+					<Index>0x186</Index>
 				</Texture>
 				<Texture>
 					<File>nexusIslands8x8</File>
-					<Index>0x183</Index>
+					<Index>0x187</Index>
 				</Texture>
 			</RandomTexture>
 		</Face>
@@ -2695,41 +2717,8 @@
 		<RandomTexture>
 			<Texture>
 				<File>nexusIslands8x8</File>
-				<Index>0x184</Index>
+				<Index>0x188</Index>
 			</Texture>
-			<Texture>
-				<File>nexusIslands8x8</File>
-				<Index>0x185</Index>
-			</Texture>
-			<Texture>
-				<File>nexusIslands8x8</File>
-				<Index>0x186</Index>
-			</Texture>
-		</RandomTexture>
-		<Face>
-			<RandomTexture>
-				<Texture>
-					<File>nexusIslands8x8</File>
-					<Index>0x187</Index>
-				</Texture>
-				<Texture>
-					<File>nexusIslands8x8</File>
-					<Index>0x188</Index>
-				</Texture>
-			</RandomTexture>
-		</Face>
-		<BlendPriority>24</BlendPriority>
-		<StaySolid />
-		<Slope />
-		<RailDrop>0.1</RailDrop>
-		<Under>NG Pond</Under>
-		<Slab>0.12</Slab>
-		<Rail>0xC8402E</Rail>
-		<Lift>0.75</Lift>
-		<Color>0x7A4E30</Color>
-	</Ground>
-	<Ground type="0x9D20" id="NI Spiral 0">
-		<RandomTexture>
 			<Texture>
 				<File>nexusIslands8x8</File>
 				<Index>0x189</Index>
@@ -2751,12 +2740,17 @@
 				</Texture>
 			</RandomTexture>
 		</Face>
+		<BlendPriority>24</BlendPriority>
 		<StaySolid />
-		<BlendPriority>25</BlendPriority>
+		<Slope />
+		<RailDrop>0.1</RailDrop>
+		<Under>NG Pond</Under>
+		<Slab>0.12</Slab>
 		<Rail>0xC8402E</Rail>
-		<Color>0x783242</Color>
+		<Lift>0.75</Lift>
+		<Color>0x7A4E30</Color>
 	</Ground>
-	<Ground type="0x9D21" id="NI Spiral 1">
+	<Ground type="0x9D20" id="NI Spiral 0">
 		<RandomTexture>
 			<Texture>
 				<File>nexusIslands8x8</File>
@@ -2782,10 +2776,9 @@
 		<StaySolid />
 		<BlendPriority>25</BlendPriority>
 		<Rail>0xC8402E</Rail>
-		<Lift>0.25</Lift>
 		<Color>0x783242</Color>
 	</Ground>
-	<Ground type="0x9D22" id="NI Spiral 2">
+	<Ground type="0x9D21" id="NI Spiral 1">
 		<RandomTexture>
 			<Texture>
 				<File>nexusIslands8x8</File>
@@ -2811,10 +2804,10 @@
 		<StaySolid />
 		<BlendPriority>25</BlendPriority>
 		<Rail>0xC8402E</Rail>
-		<Lift>0.5</Lift>
+		<Lift>0.25</Lift>
 		<Color>0x783242</Color>
 	</Ground>
-	<Ground type="0x9D23" id="NI Spiral 3">
+	<Ground type="0x9D22" id="NI Spiral 2">
 		<RandomTexture>
 			<Texture>
 				<File>nexusIslands8x8</File>
@@ -2840,10 +2833,10 @@
 		<StaySolid />
 		<BlendPriority>25</BlendPriority>
 		<Rail>0xC8402E</Rail>
-		<Lift>0.75</Lift>
+		<Lift>0.5</Lift>
 		<Color>0x783242</Color>
 	</Ground>
-	<Ground type="0x9D24" id="NI Spiral 4">
+	<Ground type="0x9D23" id="NI Spiral 3">
 		<RandomTexture>
 			<Texture>
 				<File>nexusIslands8x8</File>
@@ -2869,10 +2862,10 @@
 		<StaySolid />
 		<BlendPriority>25</BlendPriority>
 		<Rail>0xC8402E</Rail>
-		<Lift>1.0</Lift>
+		<Lift>0.75</Lift>
 		<Color>0x783242</Color>
 	</Ground>
-	<Ground type="0x9D25" id="NI Spiral 5">
+	<Ground type="0x9D24" id="NI Spiral 4">
 		<RandomTexture>
 			<Texture>
 				<File>nexusIslands8x8</File>
@@ -2898,10 +2891,10 @@
 		<StaySolid />
 		<BlendPriority>25</BlendPriority>
 		<Rail>0xC8402E</Rail>
-		<Lift>1.25</Lift>
+		<Lift>1.0</Lift>
 		<Color>0x783242</Color>
 	</Ground>
-	<Ground type="0x9D26" id="NI Spiral 6">
+	<Ground type="0x9D25" id="NI Spiral 5">
 		<RandomTexture>
 			<Texture>
 				<File>nexusIslands8x8</File>
@@ -2927,10 +2920,10 @@
 		<StaySolid />
 		<BlendPriority>25</BlendPriority>
 		<Rail>0xC8402E</Rail>
-		<Lift>1.5</Lift>
+		<Lift>1.25</Lift>
 		<Color>0x783242</Color>
 	</Ground>
-	<Ground type="0x9D27" id="NI Spiral 7">
+	<Ground type="0x9D26" id="NI Spiral 6">
 		<RandomTexture>
 			<Texture>
 				<File>nexusIslands8x8</File>
@@ -2956,10 +2949,10 @@
 		<StaySolid />
 		<BlendPriority>25</BlendPriority>
 		<Rail>0xC8402E</Rail>
-		<Lift>1.75</Lift>
+		<Lift>1.5</Lift>
 		<Color>0x783242</Color>
 	</Ground>
-	<Ground type="0x9D28" id="NI Spiral 8">
+	<Ground type="0x9D27" id="NI Spiral 7">
 		<RandomTexture>
 			<Texture>
 				<File>nexusIslands8x8</File>
@@ -2985,10 +2978,10 @@
 		<StaySolid />
 		<BlendPriority>25</BlendPriority>
 		<Rail>0xC8402E</Rail>
-		<Lift>2.0</Lift>
+		<Lift>1.75</Lift>
 		<Color>0x783242</Color>
 	</Ground>
-	<Ground type="0x9D29" id="NI Spiral 9">
+	<Ground type="0x9D28" id="NI Spiral 8">
 		<RandomTexture>
 			<Texture>
 				<File>nexusIslands8x8</File>
@@ -3014,10 +3007,10 @@
 		<StaySolid />
 		<BlendPriority>25</BlendPriority>
 		<Rail>0xC8402E</Rail>
-		<Lift>2.25</Lift>
+		<Lift>2.0</Lift>
 		<Color>0x783242</Color>
 	</Ground>
-	<Ground type="0x9D2A" id="NI Spiral 10">
+	<Ground type="0x9D29" id="NI Spiral 9">
 		<RandomTexture>
 			<Texture>
 				<File>nexusIslands8x8</File>
@@ -3043,10 +3036,10 @@
 		<StaySolid />
 		<BlendPriority>25</BlendPriority>
 		<Rail>0xC8402E</Rail>
-		<Lift>2.5</Lift>
+		<Lift>2.25</Lift>
 		<Color>0x783242</Color>
 	</Ground>
-	<Ground type="0x9D2B" id="NI Spiral 11">
+	<Ground type="0x9D2A" id="NI Spiral 10">
 		<RandomTexture>
 			<Texture>
 				<File>nexusIslands8x8</File>
@@ -3066,6 +3059,35 @@
 				<Texture>
 					<File>nexusIslands8x8</File>
 					<Index>0x1b8</Index>
+				</Texture>
+			</RandomTexture>
+		</Face>
+		<StaySolid />
+		<BlendPriority>25</BlendPriority>
+		<Rail>0xC8402E</Rail>
+		<Lift>2.5</Lift>
+		<Color>0x783242</Color>
+	</Ground>
+	<Ground type="0x9D2B" id="NI Spiral 11">
+		<RandomTexture>
+			<Texture>
+				<File>nexusIslands8x8</File>
+				<Index>0x1b9</Index>
+			</Texture>
+			<Texture>
+				<File>nexusIslands8x8</File>
+				<Index>0x1ba</Index>
+			</Texture>
+		</RandomTexture>
+		<Face>
+			<RandomTexture>
+				<Texture>
+					<File>nexusIslands8x8</File>
+					<Index>0x1bb</Index>
+				</Texture>
+				<Texture>
+					<File>nexusIslands8x8</File>
+					<Index>0x1bc</Index>
 				</Texture>
 			</RandomTexture>
 		</Face>

@@ -5,7 +5,7 @@
 		<Class>GameObject</Class>
 		<Texture>
 			<File>nexusIslands8x8</File>
-			<Index>0x1b9</Index>
+			<Index>0x1bd</Index>
 		</Texture>
 		<Size>100</Size>
 		<ShadowSize>60</ShadowSize>
@@ -31,7 +31,7 @@
 		<Class>GameObject</Class>
 		<Texture>
 			<File>nexusIslands8x8</File>
-			<Index>0x1ba</Index>
+			<Index>0x1be</Index>
 		</Texture>
 		<Size>100</Size>
 		<ShadowSize>0</ShadowSize>
@@ -87,6 +87,47 @@
 			</Frame>
 		</Animation>
 		<NoMiniMap />
+	</Object>
+	<Object type="0x9D88" id="NI Realm Cavern">
+		<DisplayId>Realm Portal</DisplayId>
+		<Class>Portal</Class>
+		<IntergamePortal />
+		<NexusPortal />
+		<Texture>
+			<File>nexusGarden32x32</File>
+			<Index>0x16</Index>
+		</Texture>
+		<Animation prob="1.0">
+			<Frame time="0.25">
+				<Texture>
+					<File>nexusGarden32x32</File>
+					<Index>0x16</Index>
+				</Texture>
+			</Frame>
+			<Frame time="0.25">
+				<Texture>
+					<File>nexusGarden32x32</File>
+					<Index>0x17</Index>
+				</Texture>
+			</Frame>
+			<Frame time="0.25">
+				<Texture>
+					<File>nexusGarden32x32</File>
+					<Index>0x18</Index>
+				</Texture>
+			</Frame>
+			<Frame time="0.25">
+				<Texture>
+					<File>nexusGarden32x32</File>
+					<Index>0x19</Index>
+				</Texture>
+			</Frame>
+		</Animation>
+		<Size>100</Size>
+		<DrawOnGround />
+		<GroundSize>4</GroundSize>
+		<ShadowSize>0</ShadowSize>
+		<Rotation>180</Rotation>
 	</Object>
 	<Object type="0x9D87" id="NI Smithy N">
 		<Class>GameObject</Class>
