@@ -38,6 +38,10 @@ namespace Shared.database.account
         public int FuelContributed { get => GetValue<int>("fuelContributed"); set => SetValue("fuelContributed", value); }
         public int[] LockList { get => GetValue<int[]>("lockList") ?? new int[0]; set => SetValue("lockList", value); }
         public int[] MarketOffers { get => GetValue<int[]>("marketOffers") ?? new int[0]; set => SetValue("marketOffers", value); }
+        // Marketplace listing slots bought on top of the usual (MarketStore.BuySlot): only the
+        // script writes it, so it's kept as Redis holds it rather than set and flushed.
+        public int MarketSlots => GetValue<int>("marketSlots");
+        public void StoredMarketSlots(int slots) => SetStored("marketSlots", slots);
         public int MaxCharSlot { get => GetValue<int>("maxCharSlot"); set => SetValue("maxCharSlot", value); }
         public string Name { get => GetValue<string>("name"); set => SetValue("name", value); }
         public bool NameChosen { get => GetValue<bool>("nameChosen"); set => SetValue("nameChosen", value); }

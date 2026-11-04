@@ -628,23 +628,7 @@ namespace WorldServer.core.commands.doomed
             ("keys", "Davy's Key", 100, CurrencyType.Fame),
             ("keys", "Beachzone Key", 75, CurrencyType.Fame),
             ("keys", "Lab Key", 100, CurrencyType.Fame),
-            ("donorpets", "Pumpkman Generator", 20, CurrencyType.Gold),
-            ("donorpets", "Kythal the Necromancer Generator", 200, CurrencyType.Gold),
-            ("donorpets", "Shroom Generator", 20, CurrencyType.Gold),
-            ("donorpets", "Kythal the Skull Generator", 100, CurrencyType.Gold),
             ("donorpets", "White Bag Generator", 20, CurrencyType.Gold),
-            ("donorpets", "Astro's Griffin Generator", 200, CurrencyType.Gold),
-            ("donorpets", "Dallas's Pet Generator", 200, CurrencyType.Gold),
-            ("donorpets", "Scootaloo Generator", 100, CurrencyType.Gold),
-            ("donorpets", "Josh's Pet Generator", 70, CurrencyType.Gold),
-            ("donorpets", "Skeletal Guardian Generator", 70, CurrencyType.Gold),
-            ("donorpets", "Knight Generator", 100, CurrencyType.Gold),
-            ("donorpets", "Lunar's Phoenix Generator", 2, CurrencyType.Gold),
-            ("donorpets", "KingSlime Generator", 100, CurrencyType.Gold),
-            ("donorpets", "Aceaku's Pet Generator", 50, CurrencyType.Gold),
-            ("donorpets", "Cerberus Skull Generator", 100, CurrencyType.Gold),
-            ("donorpets", "Support Bot Generator", 20, CurrencyType.Gold),
-            ("donorpets", "Zenco Generator", 100, CurrencyType.Gold),
         };
     }
 }

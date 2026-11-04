@@ -11,6 +11,7 @@
 use bsk_proto::{RealmEventEntry, RealmEvents};
 
 use crate::hud::{self, Layout, Ui};
+use crate::i18n::{tf, tn, tr};
 use crate::theme::{self, color};
 
 /// The list's width (the boss's box's), its header and a row, HUD units; rows shown at once.
@@ -161,7 +162,7 @@ impl EventsPanel {
                 Part::Header => {
                     // "Realm Events 3 / 13", a bar filling toward the close, and the fold's sign
                     let size = lay.font(12.0);
-                    ui.label("Realm Events", r[0] + 8.0 * s, r[1] + 5.0 * s, size, true, if over { color::TEXT } else { color::ACCENT_HI });
+                    ui.label(tr("Realm Events"), r[0] + 8.0 * s, r[1] + 5.0 * s, size, true, if over { color::TEXT } else { color::ACCENT_HI });
                     let count = format!("{} / {}", info.defeated, info.needed);
                     let cw = ui.measure(&count, size, true);
                     ui.label(&count, r[0] + r[2] - cw - 22.0 * s, r[1] + 5.0 * s, size, true, color::TEXT);
@@ -200,9 +201,9 @@ impl EventsPanel {
                     ui.label(&name, r[0] + 34.0 * s, r[1] + 4.0 * s, size, strong, if strong { color::TEXT } else { color::TEXT_DIM });
                     // how far, or what a click does
                     let right = if e.kind == 2 {
-                        "Teleport".to_owned()
+                        tr("Teleport").to_owned()
                     } else if let Some((x, y)) = me {
-                        format!("{:.0} tiles", (e.x as f64 - x).hypot(e.y as f64 - y))
+                        tn!((e.x as f64 - x).hypot(e.y as f64 - y).round() as i64, "{n} tile|{n} tiles")
                     } else {
                         String::new()
                     };
@@ -299,7 +300,7 @@ pub fn draw_minimap_marks(ui: &mut Ui, s: f32, mini: &hud::MiniView, info: Optio
     if let Some(i) = hover {
         let e = &info.entries.0[i];
         let (px, py, d) = mark_at(s, mini, e);
-        let text = format!("{}: click to teleport", e.name);
+        let text = tf!("{name}: click to teleport", name = e.name);
         let size = 11.0 * s;
         let w = ui.measure(&text, size, true) + 12.0 * s;
         let [x0, _, side, _] = mini.rect;

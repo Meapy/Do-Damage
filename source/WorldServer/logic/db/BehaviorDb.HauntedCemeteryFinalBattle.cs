@@ -34,6 +34,7 @@ namespace WorldServer.logic
                     )
                 ),
                 new Threshold(0.01,
+                    new ItemLoot("Kythal the Skull Generator", 0.03),
                     new TierLoot(5, ItemType.Weapon, 0.4),
                     new TierLoot(6, ItemType.Weapon, 0.4),
                     new TierLoot(5, ItemType.Armor, 0.4),
@@ -309,6 +310,9 @@ namespace WorldServer.logic
                     LootTemplates.BasicDrop()
                     ),
                 new Threshold(0.001,
+                    new ItemLoot("Reaper Generator", 0.03),
+                    new ItemLoot("Pumpkin Head Generator", 0.03),
+                    new ItemLoot("Pumpkman Generator", 0.03),
                     new ItemLoot("Potion of Vitality", 1),
                     new ItemLoot("Potion of Wisdom", 1),
                     new ItemLoot("Resurrected Warrior's Armor", 0.008),

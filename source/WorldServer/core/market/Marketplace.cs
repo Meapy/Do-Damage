@@ -23,7 +23,8 @@ namespace WorldServer.core.market
     // race, a buyer races the seller taking the item back, or two world servers sweep at once.
     //
     // - Listing takes the item out of the inventory (or a vault chest) in the same script that
-    //   writes the listing; each account has at most MaxListings at once.
+    //   writes the listing; each account has at most MaxListings at once, and the slots it has
+    //   bought for fame on top (BuySlot, at most MaxExtraSlots).
     // - Buying moves the fame (the seller gets the price less TaxPercent, as before 2.3.3, even
     //   while away) and puts the item in the buyer's inventory, or their Marketplace box when it's
     //   full. Taking a listing back works the same way for the seller.
@@ -38,6 +39,10 @@ namespace WorldServer.core.market
         public const string BrokerClass = "MarketNPC";
         public const int TaxPercent = 5;
         public const int MaxListings = 10;
+        // Listing slots players can buy on top of MaxListings, for fame: the first SlotPriceStep,
+        // each one after SlotPriceStep more than the last.
+        public const int MaxExtraSlots = 10;
+        public const int SlotPriceStep = 500;
         public const int MinPrice = 1;
         public const int MaxPrice = 10_000_000;
         public const int DefaultHours = 72;
@@ -178,6 +183,13 @@ namespace WorldServer.core.market
             return null;
         }
 
+        // How many listings the account may have at once, with the slots it bought.
+        public static int Limit(Shared.database.account.DbAccount acc) => MaxListings + Math.Clamp(acc.MarketSlots, 0, MaxExtraSlots);
+
+        // What the account's next slot costs, or 0 when it has them all.
+        public static int SlotPrice(Shared.database.account.DbAccount acc) =>
+            acc.MarketSlots >= MaxExtraSlots ? 0 : SlotPriceStep * (Math.Max(acc.MarketSlots, 0) + 1);
+
         // The seller's share of a price.
         public static int Net(int price) => price - price * TaxPercent / 100;
 
@@ -227,7 +239,7 @@ namespace WorldServer.core.market
             MarketStore.Result.NotEnoughFame => "You haven't enough fame.",
             MarketStore.Result.NotYours => "That isn't your listing.",
             MarketStore.Result.NotOwner => "Your character is busy elsewhere: try again in a moment.",
-            MarketStore.Result.TooMany => $"You have {MaxListings} listings already: take one back or wait for a sale.",
+            MarketStore.Result.TooMany => "Your listing slots are all in use: take one back, wait for a sale, or buy another slot on the Sell tab.",
             MarketStore.Result.VaultChanged => "Your vault changed meanwhile: try again.",
             MarketStore.Result.ItemChanged => "That listing isn't what you saw: look again.",
             _ => "Something went wrong: try again."
@@ -256,7 +268,7 @@ namespace WorldServer.core.market
             MarketStore.Result r;
             try
             {
-                r = Store.ListFromInventory(MarketStore.Of(acc, player.Client.Character), items, datas, listing, MaxListings, now);
+                r = Store.ListFromInventory(MarketStore.Of(acc, player.Client.Character), items, datas, listing, Limit(acc), now);
             }
             catch (RedisException e)
             {
@@ -316,7 +328,7 @@ namespace WorldServer.core.market
             MarketStore.Result r;
             try
             {
-                r = Store.ListFromVault(acc.AccountId, itemsField, datasField, bytes, raw[1].IsNull ? null : (byte[])raw[1], newBytes, newDatas, listing, MaxListings, now);
+                r = Store.ListFromVault(acc.AccountId, itemsField, datasField, bytes, raw[1].IsNull ? null : (byte[])raw[1], newBytes, newDatas, listing, Limit(acc), now);
             }
             catch (RedisException e)
             {
@@ -328,6 +340,54 @@ namespace WorldServer.core.market
             Changed();
             StaticLogger.Instance.Info($"Marketplace: <{player.Name} {acc.AccountId}> listed {item.ObjectId} from vault chest {chest} for {price} fame ({listing.Id}, {hours} h)");
             return (true, $"Listed {item.DisplayName} from your vault for {price:N0} fame. You'll get {Net(price):N0} when it sells.");
+        }
+
+        // --- listing slots ------------------------------------------------------------------
+
+        // Buys another listing slot for fame (expectedPrice: what the window showed, 0 for any).
+        public (bool Ok, string Message) BuySlot(Player player, int expectedPrice)
+        {
+            var refusal = Refusal(player);
+            if (refusal != null)
+                return (false, refusal);
+            var acc = player.Client.Account;
+            var have = Math.Max(acc.MarketSlots, 0);
+            var price = SlotPrice(acc);
+            if (price == 0)
+                return (false, $"You have every listing slot there is: {Limit(acc)}.");
+            if (expectedPrice > 0 && expectedPrice != price)
+                return (false, $"Your next listing slot costs {price:N0} fame: look again.");
+            if (player.CurrentFame < price)
+                return (false, $"Another listing slot costs {price:N0} fame, and you have {player.CurrentFame:N0}.");
+            (MarketStore.Result Result, int Fame, int Slots) r;
+            try
+            {
+                r = Store.BuySlot(acc.AccountId, have, MaxExtraSlots, price);
+            }
+            catch (RedisException e)
+            {
+                StaticLogger.Instance.Error($"Marketplace: buying a slot failed: {e.Message}");
+                return (false, "The Marketplace didn't answer: nothing was bought. Try again.");
+            }
+            switch (r.Result)
+            {
+                case MarketStore.Result.Ok:
+                    acc.StoredFame(r.Fame);
+                    player.CurrentFame = r.Fame;
+                    acc.StoredMarketSlots(r.Slots);
+                    StaticLogger.Instance.Info($"Marketplace: <{player.Name} {acc.AccountId}> bought listing slot {r.Slots} for {price} fame");
+                    return (true, $"Bought a listing slot for {price:N0} fame: you can have {Limit(acc)} listings at once.");
+                case MarketStore.Result.NotEnoughFame:
+                    acc.StoredFame(r.Fame);
+                    player.CurrentFame = r.Fame;
+                    return (false, Describe(r.Result));
+                default:
+                    // bought meanwhile (another window): show the new count and price
+                    acc.StoredMarketSlots(r.Slots);
+                    return (false, SlotPrice(acc) == 0
+                        ? $"You have every listing slot there is: {Limit(acc)}."
+                        : $"Your listing slots changed meanwhile: the next costs {SlotPrice(acc):N0} fame.");
+            }
         }
 
         // --- buying, taking back, collecting ---------------------------------------------------

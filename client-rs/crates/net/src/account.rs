@@ -300,6 +300,52 @@ pub struct FameSummary {
     /// backpack's (-1 empty), and each slot's data (imprints).
     pub equipment: Vec<i32>,
     pub item_datas: Vec<String>,
+    /// The death spin it won, when its base fame was enough for one.
+    pub spin: Option<DeathSpin>,
+    /// The items it died with that went back to the Gift Chest (more the more base fame).
+    pub kept: Vec<i32>,
+}
+
+/// A death's loot spin (the world server's `Player.DeathSpin.cs`): the base fame picked the
+/// tier, the tier the odds; the prize went to the account's Gift Chest.
+#[derive(Debug, Clone, PartialEq, Default)]
+pub struct DeathSpin {
+    /// 0 Bronze to 5 Mythic.
+    pub tier: i32,
+    /// 0 Common to 5 Divine.
+    pub rarity: i32,
+    /// The item won.
+    pub prize: i32,
+    /// The reel scrolled past: (item, rarity).
+    pub reel: Vec<(i32, i32)>,
+    /// Where on the reel it stops: the prize (marked `*` by the server).
+    pub stop: usize,
+}
+
+fn parse_death_spin(e: roxmltree::Node) -> Option<DeathSpin> {
+    let attr = |n: &str| e.attribute(n).and_then(parse_int).unwrap_or(0) as i32;
+    let prize = attr("prize");
+    if prize <= 0 {
+        return None;
+    }
+    let rarity = attr("rarity");
+    let mut stop = None;
+    let mut reel = Vec::new();
+    for p in e.text().unwrap_or("").split(',') {
+        let p = p.trim();
+        let marked = p.ends_with('*');
+        let Some((t, r)) = p.trim_end_matches('*').split_once(':') else { continue };
+        let (Some(t), Some(r)) = (parse_int(t), parse_int(r)) else { continue };
+        if marked {
+            stop = Some(reel.len());
+        }
+        reel.push((t as i32, r as i32));
+    }
+    let stop = stop.unwrap_or_else(|| {
+        reel.push((prize, rarity));
+        reel.len() - 1
+    });
+    Some(DeathSpin { tier: attr("tier"), rarity, prize, reel, stop })
 }
 
 pub fn parse_char_fame(xml: &str) -> Result<FameSummary, String> {
@@ -328,6 +374,8 @@ pub fn parse_char_fame(xml: &str) -> Result<FameSummary, String> {
                 e.attribute("desc").or(e.attribute("id")).unwrap_or("").to_owned(),
                 e.text().and_then(parse_int).unwrap_or(0) as i32,
             )),
+            "DeathSpin" => out.spin = parse_death_spin(e),
+            "Kept" => out.kept = e.text().unwrap_or("").split(',').filter_map(parse_int).map(|t| t as i32).collect(),
             "Char" | "BaseFame" | "TotalFame" | "KilledBy" | "CreatedOn" => {}
             _ => {
                 if let Some(v) = e.text().and_then(parse_int) {
@@ -703,6 +751,21 @@ mod tests {
         assert_eq!(fame.bonuses, vec![("First born".to_owned(), 30)]);
         assert_eq!(fame.stats, vec![("Shots".to_owned(), 50)]);
         assert_eq!(fame.killed_by, "Pirate");
+        assert_eq!(fame.spin, None);
+
+        let fame = parse_char_fame(
+            r#"<Fame><BaseFame>600</BaseFame><DeathSpin tier="2" rarity="3" prize="53442">2580:0,53442:3*,2581:1,53442:3</DeathSpin></Fame>"#,
+        )
+        .unwrap();
+        let spin = fame.spin.unwrap();
+        assert_eq!((spin.tier, spin.rarity, spin.prize), (2, 3, 53442));
+        assert_eq!(spin.reel, vec![(2580, 0), (53442, 3), (2581, 1), (53442, 3)]);
+        assert_eq!(spin.stop, 1);
+        assert!(fame.stats.is_empty());
+        assert!(fame.kept.is_empty());
+        let fame = parse_char_fame(r#"<Fame><Kept>2580</Kept></Fame>"#).unwrap();
+        assert_eq!(fame.kept, vec![2580]);
+        assert!(fame.stats.is_empty());
     }
 
     #[test]

@@ -305,7 +305,8 @@ impl Particles {
                 self.pet_line = Some((now, color));
                 return;
             }
-            if e.effect_type == 1 && self.pet_line.take() == Some((now, color)) {
+            // the burst after it: a strike's on whoever it hit, a nova's (PetNova) round its target
+            if (e.effect_type == 1 || e.effect_type == 5) && self.pet_line.take() == Some((now, color)) {
                 return;
             }
         }

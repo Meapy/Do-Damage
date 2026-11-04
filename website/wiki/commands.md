@@ -34,19 +34,25 @@ recipe and what it costs.
 ## Visiting a friend
 
 `/visit <name>` asks a friend to let you join them where they are: a dungeon, a stage of Oryx's
-chain, the Arena or any other instance a portal leads to. They see a small box in the top right corner of their screen,
-"*Name* wants to visit you", with **Yes** and **No**; it doesn't stop them moving, shooting or
-using their ability, and only the mouse answers it, or they type `/yes` or `/no`. If they say Yes you go straight to them; if
-they don't answer in 30 seconds it counts as No. `/visit cancel` takes your request back.
+chain, the Arena or any other instance a portal leads to. `/summon <name>` works the other way
+round: it asks a friend to come to the instance *you're* in. Either way they see a small box in
+the top right corner of their screen, "*Name* wants to visit you" or "*Name* wants to summon
+you", with **Yes** and **No**; it doesn't stop them moving, shooting or using their ability, and
+only the mouse answers it, or they type `/yes` or `/no`. If they say Yes, the one moving goes
+straight there; if they don't answer in 30 seconds it counts as No. `/visit cancel` (or
+`/summon cancel`) takes your request back.
 
-- You can visit each instance **once**, and never back into one you've already been in, on any of
-  your characters: dying in a dungeon and visiting your way back in doesn't work.
-- Realms, the Nexus, vaults, guild halls and the Daily Quest Room can't be visited, and nor can
-  a full instance or one made for a single player. For realms, take a realm portal from the Nexus or use `/realm2`.
-- You can have one request waiting at a time and ask again after 10 seconds; a player is asked by
-  one visitor at a time, and after a No (or no answer) you wait a minute before asking them again.
+- Each player gets into an instance this way **once**, and never back into one they've already
+  been in, on any of their characters: dying in a dungeon and visiting (or being summoned) your
+  way back in doesn't work.
+- Realms, the Nexus, vaults, guild halls and the Daily Quest Room can't be visited or summoned
+  into, and nor can a full instance or one made for a single player. For realms, take a realm
+  portal from the Nexus or use `/realm2`.
+- You can have one request (a visit or a summon) waiting at a time and ask again after 10 seconds;
+  a player is asked by one player at a time, and after a No (or no answer) you wait a minute before
+  asking them again.
 - On a game older than version 2.3.7 there's no box: your friend sees the request in chat and
-  answers with `/yes` or `/no`.
+  answers with `/yes` or `/no` (on 2.3.7 itself, summons come in chat too).
 
 ## Shops and selling
 

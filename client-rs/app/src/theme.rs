@@ -153,7 +153,7 @@ impl Ui<'_> {
         shadow(self.renderer, r, radius, 4.0 * s, 0.35);
         rounded(self.renderer, r, radius, (shade(base, 0.18), 1.0), (shade(base, -0.18), 1.0));
         fill(self.renderer, [r[0] + radius * 0.6, r[1] + s.max(1.0), r[2] - radius * 1.2, s.max(1.0)], 0.0, 0xFFFFFF, 0.25);
-        let size = (15.0 * s).round().max(10.0);
+        let size = self.fit_size(label, r[2] - 12.0 * s, (15.0 * s).round().max(10.0), true);
         let tw = self.measure(label, size, true);
         let ty = r[1] + (r[3] - size * 1.22) / 2.0;
         // Dark text on gold reads better without the glow; draw it twice for weight.
@@ -173,12 +173,12 @@ impl Ui<'_> {
             Kind::Secondary => color::TEXT,
             Kind::Danger => 0xFFFFFF,
         };
-        let size = (15.0 * s).round().max(10.0);
         let ks = (12.0 * s).round().max(9.0);
-        let tw = self.measure(label, size, true);
         let kw = self.measure(key, ks, true);
         let (pad, gap) = (5.0 * s, 8.0 * s);
         let cap_w = kw + 2.0 * pad;
+        let size = self.fit_size(label, r[2] - 12.0 * s - gap - cap_w, (15.0 * s).round().max(10.0), true);
+        let tw = self.measure(label, size, true);
         let cap_h = ks * 1.22 + 4.0 * s;
         let x = r[0] + (r[2] - tw - gap - cap_w) / 2.0;
         let ty = r[1] + (r[3] - size * 1.22) / 2.0;

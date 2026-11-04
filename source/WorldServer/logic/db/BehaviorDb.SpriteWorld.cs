@@ -165,6 +165,8 @@ namespace WorldServer.logic
                         )
                     ),
                 new Threshold(0.01,
+                    new ItemLoot("Limon Generator", elder ? 0.04 : 0.02),
+                    new ItemLoot("Twilight Generator", elder ? 0.06 : 0.03),
                     new ItemLoot("Potion of Dexterity", 1, 1),
                     new ItemLoot("Sprite World Key", 0.1, 0, 0.03),
                     new ItemLoot("Potion of Defense", 1),

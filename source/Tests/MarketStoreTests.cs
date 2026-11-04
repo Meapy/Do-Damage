@@ -161,6 +161,26 @@ namespace Tests
         }
 
         [Fact]
+        public void BuyingASlotTakesTheFameAndCountsItOnceOnly()
+        {
+            Player(1, 1200);
+            var r = _store.BuySlot(1, 0, 2, 500);
+            Assert.Equal((MarketStore.Result.Ok, 700, 1), r);
+            Assert.Equal(700, Fame(1));
+            // priced for the slots before that one: refused, and the count it has comes back
+            Assert.Equal((MarketStore.Result.SlotsChanged, 0, 1), _store.BuySlot(1, 0, 2, 500));
+            // too little fame: nothing changes
+            Assert.Equal((MarketStore.Result.NotEnoughFame, 700, 1), _store.BuySlot(1, 1, 2, 1000));
+            Assert.Equal(700, Fame(1));
+            Assert.Equal(1, (int)_db.HashGet("account.1", "marketSlots"));
+            // all bought
+            _db.HashSet("account.1", "fame", 5000);
+            Assert.Equal(MarketStore.Result.Ok, _store.BuySlot(1, 1, 2, 1000).Result);
+            Assert.Equal((MarketStore.Result.NoMoreSlots, 0, 2), _store.BuySlot(1, 2, 2, 1500));
+            Assert.Equal(4000, Fame(1));
+        }
+
+        [Fact]
         public void BuyingMovesFameLessTheTaxAndDeliversIntoTheInventory()
         {
             var seller = Player(1, 50);

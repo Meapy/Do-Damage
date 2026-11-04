@@ -88,7 +88,11 @@ has the world's look: **Glow on bright light** (a soft glow round lava, fire, la
 spells), **Vivid colours** (livelier colours and slightly darker corners) and, on a Windows PC,
 **HDR**. HDR is on when Windows has HDR turned on for your screen, and then the glow shines
 brighter than white. Turn any of them off if the game runs slowly on your computer. The
-**Sound** tab has a Master volume.
+**Sound** tab has a Master volume. The **Language** tab switches the game between its 11
+languages (English, Deutsch, Español, Français, Italiano, Nederlands, Polski, Português (Brasil),
+Русский, Türkçe and Українська) at once, menus, windows, tooltips and messages alike; the first
+time, it starts in your computer's or browser's language. Item and monster names and what the
+server writes in the chat stay in English.
 
 ## The screen
 

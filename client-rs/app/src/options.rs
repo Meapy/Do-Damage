@@ -6,6 +6,7 @@
 
 use crate::audio::SoundSettings;
 use crate::hud::{Layout, Ui};
+use crate::i18n::{self, mark, tr};
 use crate::theme::{self, color, Kind};
 use winit::keyboard::KeyCode;
 
@@ -59,48 +60,48 @@ pub enum Bind {
 
 /// Every binding: what, its label, its name in the file, its default key.
 pub const BINDS: [(Bind, &str, &str, Option<KeyCode>); 42] = [
-    (Bind::MoveUp, "Move up", "moveUp", Some(KeyCode::KeyW)),
-    (Bind::MoveLeft, "Move left", "moveLeft", Some(KeyCode::KeyA)),
-    (Bind::MoveDown, "Move down", "moveDown", Some(KeyCode::KeyS)),
-    (Bind::MoveRight, "Move right", "moveRight", Some(KeyCode::KeyD)),
-    (Bind::RotateLeft, "Rotate left", "rotateLeft", Some(KeyCode::KeyQ)),
-    (Bind::RotateRight, "Rotate right", "rotateRight", Some(KeyCode::KeyE)),
-    (Bind::ResetCamera, "Reset camera", "resetCamera", Some(KeyCode::KeyZ)),
-    (Bind::Ability, "Use ability", "useSpecial", Some(KeyCode::Space)),
-    (Bind::Interact, "Interact", "interact", Some(KeyCode::Digit0)),
-    (Bind::Nexus, "Nexus", "escapeToNexus", Some(KeyCode::KeyR)),
-    (Bind::Autofire, "Autofire", "autofireToggle", Some(KeyCode::KeyI)),
-    (Bind::HealthPotion, "Health potion", "useHealthPotion", Some(KeyCode::KeyF)),
-    (Bind::MagicPotion, "Magic potion", "useMagicPotion", Some(KeyCode::KeyV)),
-    (Bind::Slot(1), "Item 1", "useInvSlot1", Some(KeyCode::Digit1)),
-    (Bind::Slot(2), "Item 2", "useInvSlot2", Some(KeyCode::Digit2)),
-    (Bind::Slot(3), "Item 3", "useInvSlot3", Some(KeyCode::Digit3)),
-    (Bind::Slot(4), "Item 4", "useInvSlot4", Some(KeyCode::Digit4)),
-    (Bind::Slot(5), "Item 5", "useInvSlot5", Some(KeyCode::Digit5)),
-    (Bind::Slot(6), "Item 6", "useInvSlot6", Some(KeyCode::Digit6)),
-    (Bind::Slot(7), "Item 7", "useInvSlot7", Some(KeyCode::Digit7)),
-    (Bind::Slot(8), "Item 8", "useInvSlot8", Some(KeyCode::Digit8)),
-    (Bind::Chat, "Chat", "chat", Some(KeyCode::Enter)),
-    (Bind::Command, "Command", "chatCommand", Some(KeyCode::Slash)),
-    (Bind::Tell, "Whisper", "tell", Some(KeyCode::Tab)),
-    (Bind::GuildChat, "Guild chat", "guildChat", Some(KeyCode::KeyG)),
-    (Bind::PartyChat, "Party chat", "partyChat", Some(KeyCode::KeyP)),
-    (Bind::ChatUp, "Chat history up", "scrollChatUp", Some(KeyCode::PageUp)),
-    (Bind::ChatDown, "Chat history down", "scrollChatDown", Some(KeyCode::PageDown)),
-    (Bind::ZoomIn, "Minimap zoom in", "miniMapZoomIn", Some(KeyCode::Equal)),
-    (Bind::ZoomOut, "Minimap zoom out", "miniMapZoomOut", Some(KeyCode::Minus)),
-    (Bind::Options, "Options", "options", Some(KeyCode::KeyO)),
-    (Bind::Quests, "Quest log", "questLog", Some(KeyCode::KeyJ)),
-    (Bind::VaultView, "Vault contents", "vaultView", Some(KeyCode::KeyK)),
-    (Bind::SwitchTabs, "Inventory / backpack", "switchTabs", Some(KeyCode::KeyB)),
-    (Bind::Center, "Center on player", "toggleCentering", Some(KeyCode::KeyX)),
-    (Bind::Stats, "Show frame rate", "togglePerformanceStats", Some(KeyCode::KeyL)),
-    (Bind::BagPreview, "Show loot bags' items (hold)", "bagPreview", Some(KeyCode::ShiftLeft)),
-    (Bind::Vault, "Go to the vault", "reconVault", None),
-    (Bind::Realm, "Go to a realm", "reconRealm", None),
-    (Bind::GuildHall, "Go to the guild hall", "reconGuildHall", None),
-    (Bind::PartyInviteWorld, "Invite the world to party", "partyInviteWorld", None),
-    (Bind::PartyJoinWorld, "Join a world party", "partyJoinWorld", None),
+    (Bind::MoveUp, mark("Move up"), "moveUp", Some(KeyCode::KeyW)),
+    (Bind::MoveLeft, mark("Move left"), "moveLeft", Some(KeyCode::KeyA)),
+    (Bind::MoveDown, mark("Move down"), "moveDown", Some(KeyCode::KeyS)),
+    (Bind::MoveRight, mark("Move right"), "moveRight", Some(KeyCode::KeyD)),
+    (Bind::RotateLeft, mark("Rotate left"), "rotateLeft", Some(KeyCode::KeyQ)),
+    (Bind::RotateRight, mark("Rotate right"), "rotateRight", Some(KeyCode::KeyE)),
+    (Bind::ResetCamera, mark("Reset camera"), "resetCamera", Some(KeyCode::KeyZ)),
+    (Bind::Ability, mark("Use ability"), "useSpecial", Some(KeyCode::Space)),
+    (Bind::Interact, mark("Interact"), "interact", Some(KeyCode::Digit0)),
+    (Bind::Nexus, mark("Nexus"), "escapeToNexus", Some(KeyCode::KeyR)),
+    (Bind::Autofire, mark("Autofire"), "autofireToggle", Some(KeyCode::KeyI)),
+    (Bind::HealthPotion, mark("Health potion"), "useHealthPotion", Some(KeyCode::KeyF)),
+    (Bind::MagicPotion, mark("Magic potion"), "useMagicPotion", Some(KeyCode::KeyV)),
+    (Bind::Slot(1), mark("Item 1"), "useInvSlot1", Some(KeyCode::Digit1)),
+    (Bind::Slot(2), mark("Item 2"), "useInvSlot2", Some(KeyCode::Digit2)),
+    (Bind::Slot(3), mark("Item 3"), "useInvSlot3", Some(KeyCode::Digit3)),
+    (Bind::Slot(4), mark("Item 4"), "useInvSlot4", Some(KeyCode::Digit4)),
+    (Bind::Slot(5), mark("Item 5"), "useInvSlot5", Some(KeyCode::Digit5)),
+    (Bind::Slot(6), mark("Item 6"), "useInvSlot6", Some(KeyCode::Digit6)),
+    (Bind::Slot(7), mark("Item 7"), "useInvSlot7", Some(KeyCode::Digit7)),
+    (Bind::Slot(8), mark("Item 8"), "useInvSlot8", Some(KeyCode::Digit8)),
+    (Bind::Chat, mark("Chat"), "chat", Some(KeyCode::Enter)),
+    (Bind::Command, mark("Command"), "chatCommand", Some(KeyCode::Slash)),
+    (Bind::Tell, mark("Whisper"), "tell", Some(KeyCode::Tab)),
+    (Bind::GuildChat, mark("Guild chat"), "guildChat", Some(KeyCode::KeyG)),
+    (Bind::PartyChat, mark("Party chat"), "partyChat", Some(KeyCode::KeyP)),
+    (Bind::ChatUp, mark("Chat history up"), "scrollChatUp", Some(KeyCode::PageUp)),
+    (Bind::ChatDown, mark("Chat history down"), "scrollChatDown", Some(KeyCode::PageDown)),
+    (Bind::ZoomIn, mark("Minimap zoom in"), "miniMapZoomIn", Some(KeyCode::Equal)),
+    (Bind::ZoomOut, mark("Minimap zoom out"), "miniMapZoomOut", Some(KeyCode::Minus)),
+    (Bind::Options, mark("Options"), "options", Some(KeyCode::KeyO)),
+    (Bind::Quests, mark("Quest log"), "questLog", Some(KeyCode::KeyJ)),
+    (Bind::VaultView, mark("Vault contents"), "vaultView", Some(KeyCode::KeyK)),
+    (Bind::SwitchTabs, mark("Inventory / backpack"), "switchTabs", Some(KeyCode::KeyB)),
+    (Bind::Center, mark("Center on player"), "toggleCentering", Some(KeyCode::KeyX)),
+    (Bind::Stats, mark("Show frame rate"), "togglePerformanceStats", Some(KeyCode::KeyL)),
+    (Bind::BagPreview, mark("Show loot bags' items (hold)"), "bagPreview", Some(KeyCode::ShiftLeft)),
+    (Bind::Vault, mark("Go to the vault"), "reconVault", None),
+    (Bind::Realm, mark("Go to a realm"), "reconRealm", None),
+    (Bind::GuildHall, mark("Go to the guild hall"), "reconGuildHall", None),
+    (Bind::PartyInviteWorld, mark("Invite the world to party"), "partyInviteWorld", None),
+    (Bind::PartyJoinWorld, mark("Join a world party"), "partyJoinWorld", None),
 ];
 
 /// The keys that can be bound, for reading the file back.
@@ -134,18 +135,33 @@ fn parse_key(name: &str) -> Option<KeyCode> {
 
 /// A key as the player knows it: "W", "1", "Space", "Page Up".
 pub fn key_label(k: Option<KeyCode>) -> String {
-    let Some(k) = k else { return "None".into() };
+    let Some(k) = k else { return tr("key::None").into() };
     let name = key_name(k);
     if let Some(c) = name.strip_prefix("Key").or_else(|| name.strip_prefix("Digit")) {
         return c.to_owned();
     }
     match k {
-        KeyCode::ArrowUp => "Up".into(),
-        KeyCode::ArrowDown => "Down".into(),
-        KeyCode::ArrowLeft => "Left".into(),
-        KeyCode::ArrowRight => "Right".into(),
-        KeyCode::PageUp => "Page Up".into(),
-        KeyCode::PageDown => "Page Down".into(),
+        KeyCode::ArrowUp => tr("key::Up").into(),
+        KeyCode::ArrowDown => tr("key::Down").into(),
+        KeyCode::ArrowLeft => tr("key::Left").into(),
+        KeyCode::ArrowRight => tr("key::Right").into(),
+        KeyCode::PageUp => tr("key::Page Up").into(),
+        KeyCode::PageDown => tr("key::Page Down").into(),
+        KeyCode::Space => tr("key::Space").into(),
+        KeyCode::Enter => tr("key::Enter").into(),
+        KeyCode::NumpadEnter => tr("key::Num Enter").into(),
+        KeyCode::Tab => tr("key::Tab").into(),
+        KeyCode::CapsLock => tr("key::Caps Lock").into(),
+        KeyCode::Home => tr("key::Home").into(),
+        KeyCode::End => tr("key::End").into(),
+        KeyCode::Insert => tr("key::Insert").into(),
+        KeyCode::Delete => tr("key::Delete").into(),
+        KeyCode::ShiftLeft => tr("key::Shift L").into(),
+        KeyCode::ShiftRight => tr("key::Shift R").into(),
+        KeyCode::ControlLeft => tr("key::Ctrl L").into(),
+        KeyCode::ControlRight => tr("key::Ctrl R").into(),
+        KeyCode::AltLeft => tr("key::Alt L").into(),
+        KeyCode::AltRight => tr("key::Alt R").into(),
         KeyCode::Minus => "-".into(),
         KeyCode::Equal => "=".into(),
         KeyCode::Slash => "/".into(),
@@ -188,15 +204,15 @@ pub enum Toggle {
 
 /// What's shown in the world.
 const VISUALS: [(Toggle, &str); 9] = [
-    (Toggle::Particles, "Particles and effects"),
-    (Toggle::Shadows, "Shadows"),
-    (Toggle::HpBars, "Health bars"),
-    (Toggle::Bubbles, "Speech balloons"),
-    (Toggle::AllyShots, "Other players' shots"),
-    (Toggle::PetShots, "Other players' pets' shots"),
-    (Toggle::PetEffects, "Other players' pets' effects"),
-    (Toggle::Crosshair, "Crosshair"),
-    (Toggle::DamageNumbers, "Damage numbers"),
+    (Toggle::Particles, mark("Particles and effects")),
+    (Toggle::Shadows, mark("Shadows")),
+    (Toggle::HpBars, mark("Health bars")),
+    (Toggle::Bubbles, mark("Speech balloons")),
+    (Toggle::AllyShots, mark("Other players' shots")),
+    (Toggle::PetShots, mark("Other players' pets' shots")),
+    (Toggle::PetEffects, mark("Other players' pets' effects")),
+    (Toggle::Crosshair, mark("Crosshair")),
+    (Toggle::DamageNumbers, mark("Damage numbers")),
 ];
 
 /// How pets' shots (yours and other players') are drawn. Their hits and damage are the same
@@ -223,6 +239,15 @@ impl PetShots {
         }
     }
 
+    /// As the slider shows it.
+    fn label(self) -> &'static str {
+        match self {
+            PetShots::Normal => tr("Normal"),
+            PetShots::Subtle => tr("Subtle"),
+            PetShots::Hidden => tr("Hidden"),
+        }
+    }
+
     fn from_name(name: &str) -> Option<Self> {
         PetShots::ALL.into_iter().find(|p| p.name().eq_ignore_ascii_case(name))
     }
@@ -241,17 +266,17 @@ impl PetShots {
 
 /// The camera and the display. The browser leaves fullscreen to the page (F11 still asks it).
 const GRAPHICS: [(Toggle, &str); 8] = [
-    (Toggle::Glow, "Glow on bright light"),
-    (Toggle::Vivid, "Vivid colours"),
-    (Toggle::Hdr, "HDR (Windows HDR displays)"),
-    (Toggle::Rotation, "Camera rotation"),
-    (Toggle::Centered, "Center on player"),
-    (Toggle::ShowFps, "Show frame rate"),
-    (Toggle::UnlockFps, "Unlock frame rate (no vsync)"),
-    (Toggle::Fullscreen, "Borderless fullscreen (F11)"),
+    (Toggle::Glow, mark("Glow on bright light")),
+    (Toggle::Vivid, mark("Vivid colours")),
+    (Toggle::Hdr, mark("HDR (Windows HDR displays)")),
+    (Toggle::Rotation, mark("Camera rotation")),
+    (Toggle::Centered, mark("Center on player")),
+    (Toggle::ShowFps, mark("Show frame rate")),
+    (Toggle::UnlockFps, mark("Unlock frame rate (no vsync)")),
+    (Toggle::Fullscreen, mark("Borderless fullscreen (F11)")),
 ];
 
-const SOUNDS: [(Toggle, &str); 3] = [(Toggle::Sfx, "Sound effects"), (Toggle::Shots, "Weapon sounds"), (Toggle::Music, "Music")];
+const SOUNDS: [(Toggle, &str); 3] = [(Toggle::Sfx, mark("Sound effects")), (Toggle::Shots, mark("Weapon sounds")), (Toggle::Music, mark("Music"))];
 
 #[derive(Clone, Debug, PartialEq)]
 pub struct Settings {
@@ -303,6 +328,8 @@ pub struct Settings {
     pub preferred_server: String,
     /// The last version the player was told about (the "updated" note shows once a version).
     pub seen_version: String,
+    /// The language picked in Options (`i18n::LANGUAGES`' code), or the system's when empty.
+    pub language: String,
     /// Lines this version doesn't know (from a newer or older one), kept as they were, and
     /// keys it couldn't read, kept as written.
     extra: Vec<String>,
@@ -352,6 +379,7 @@ impl Default for Settings {
             camera_angle: None,
             preferred_server: String::new(),
             seen_version: String::new(),
+            language: String::new(),
             extra: Vec::new(),
             raw_keys: vec![None; BINDS.len()],
         }
@@ -459,6 +487,9 @@ impl Settings {
         if !self.seen_version.is_empty() {
             out += &format!("seenVersion={}\n", self.seen_version);
         }
+        if !self.language.is_empty() {
+            out += &format!("language={}\n", self.language);
+        }
         for line in &self.extra {
             out += line;
             out += "\n";
@@ -517,6 +548,7 @@ impl Settings {
                 "cameraAngle" => s.camera_angle = value.parse().ok().filter(|a: &f64| a.is_finite()),
                 "preferredServer" => s.preferred_server = value.to_owned(),
                 "seenVersion" => s.seen_version = value.to_owned(),
+                "language" => s.language = value.to_owned(),
                 "version" => {}
                 // Not this version's: kept for the version that wrote it.
                 _ => s.extra.push(line.to_owned()),
@@ -534,12 +566,14 @@ impl Settings {
     pub fn load() -> Self {
         let s = crate::login::store::load("settings").map_or_else(Settings::default, |t| Settings::from_text(&t));
         s.note_keys();
+        crate::i18n::apply(Some(&s.language).filter(|l| !l.is_empty()).map(|l| l.as_str()));
         s
     }
 
     pub fn save(&self) {
         crate::login::store::save("settings", Some(&self.to_text()));
         self.note_keys();
+        crate::i18n::apply(Some(&self.language).filter(|l| !l.is_empty()).map(|l| l.as_str()));
     }
 
     /// In the browser, the keys the controls use stay the game's (web.rs).
@@ -556,6 +590,7 @@ pub enum Tab {
     Graphics,
     Visuals,
     Sound,
+    Language,
 }
 
 /// A slider on the Graphics, Visuals or Sound tab.
@@ -577,6 +612,8 @@ enum Hit {
     Tab(Tab),
     Bind(Bind),
     Toggle(Toggle),
+    /// A language (`i18n::LANGUAGES`), or `None` for the system's.
+    Language(Option<usize>),
     /// A slider (a volume, the zoom...) and its track.
     Slider(Slider, [f32; 4]),
     Defaults,
@@ -641,6 +678,10 @@ impl OptionsUi {
         match hit {
             Hit::Tab(t) => self.tab = t,
             Hit::Bind(b) => self.listening = Some(b),
+            Hit::Language(l) => {
+                settings.language = l.map(|i| i18n::LANGUAGES[i].code.to_owned()).unwrap_or_default();
+                return true;
+            }
             Hit::Toggle(t) => {
                 settings.hdr_chosen |= t == Toggle::Hdr;
                 let v = settings.toggle(t);
@@ -674,6 +715,7 @@ impl OptionsUi {
                         settings.pet_shot_look = d.pet_shot_look;
                     }
                     Tab::Sound => settings.sound = d.sound,
+                    Tab::Language => settings.language.clear(),
                 }
                 return true;
             }
@@ -744,19 +786,31 @@ impl OptionsUi {
         self.rect = Some(r);
         theme::panel(ui.renderer, r, s);
         let font = |size: f32| (size * s).round().max(9.0);
-        ui.label("Options", r[0] + 22.0 * s, r[1] + 16.0 * s, font(22.0), true, color::TEXT);
-        // Tabs, as pills.
-        let mut x = r[0] + 150.0 * s;
-        for (tab, label) in [(Tab::Controls, "Controls"), (Tab::Graphics, "Graphics"), (Tab::Visuals, "Visuals"), (Tab::Sound, "Sound")] {
-            let tr = [x, r[1] + 18.0 * s, 104.0 * s, 28.0 * s];
+        let title = tr("Options");
+        ui.label(title, r[0] + 22.0 * s, r[1] + 16.0 * s, font(22.0), true, color::TEXT);
+        // Tabs, as pills as wide as their names; smaller type if a language's names are long.
+        let tabs = [(Tab::Controls, tr("Controls")), (Tab::Graphics, tr("Graphics")), (Tab::Visuals, tr("Visuals")), (Tab::Sound, tr("Sound")), (Tab::Language, tr("Language"))];
+        let start = (r[0] + 22.0 * s + ui.measure(title, font(22.0), true) + 24.0 * s).max(r[0] + 150.0 * s);
+        let gap = 8.0 * s;
+        let room = r[0] + r[2] - 22.0 * s - start - gap * (tabs.len() - 1) as f32;
+        let pad = 14.0 * s;
+        let mut ts = font(13.0);
+        let widths = |ui: &mut Ui, ts: f32| tabs.map(|(_, l)| (ui.measure(l, ts, true) + 2.0 * pad).max(72.0 * s));
+        let mut ws = widths(ui, ts);
+        while ws.iter().sum::<f32>() > room && ts > 8.0 {
+            ts -= 1.0;
+            ws = widths(ui, ts);
+        }
+        let mut x = start;
+        for ((tab, label), tw) in tabs.into_iter().zip(ws) {
+            let tr = [x, r[1] + 18.0 * s, tw, 28.0 * s];
             let on = tab == self.tab;
             let bg = if on { color::ACCENT } else if inside(tr, mouse) { color::SECONDARY } else { color::CHIP };
             theme::fill(ui.renderer, tr, tr[3] / 2.0, bg, 1.0);
-            let ts = font(13.0);
             let lw = ui.measure(label, ts, true);
             ui.label(label, tr[0] + (tr[2] - lw) / 2.0, tr[1] + (tr[3] - ts * 1.22) / 2.0, ts, true, if on { color::ACCENT_TEXT } else { color::TEXT_DIM });
             self.hits.push((Hit::Tab(tab), tr));
-            x += tr[2] + 8.0 * s;
+            x += tr[2] + gap;
         }
         let body = [r[0] + 22.0 * s, r[1] + 66.0 * s, r[2] - 44.0 * s, r[3] - 130.0 * s];
         match self.tab {
@@ -767,16 +821,44 @@ impl OptionsUi {
                     let (col, row) = (i / half, i % half);
                     let y = body[1] + row as f32 * 30.0 * s;
                     let x = body[0] + col as f32 * (colw + 20.0 * s);
-                    ui.label(label, x, y + 5.0 * s, font(13.0), false, color::TEXT_DIM);
+                    ui.label_fit(tr(label), x, y + 5.0 * s, colw - 118.0 * s, font(13.0), false, color::TEXT_DIM);
                     let kr = [x + colw - 110.0 * s, y, 110.0 * s, 26.0 * s];
                     let listening = self.listening == Some(*b);
                     let edge = if listening { color::ACCENT } else if inside(kr, mouse) { color::BORDER_HI } else { color::BORDER };
                     theme::frame(ui.renderer, kr, 5.0 * s, s.max(1.0), (edge, 1.0), ((color::FIELD, 1.0), (color::FIELD, 1.0)));
-                    let text = if listening { "Press a key…".to_owned() } else { key_label(settings.key(*b)) };
+                    let text = if listening { tr("Press a key…").to_owned() } else { key_label(settings.key(*b)) };
                     let ks = font(12.5);
                     let kw = ui.measure(&text, ks, true);
                     ui.label(&text, kr[0] + (kr[2] - kw) / 2.0, kr[1] + (kr[3] - ks * 1.22) / 2.0, ks, true, if listening { color::ACCENT_HI } else { color::TEXT });
                     self.hits.push((Hit::Bind(*b), kr));
+                }
+            }
+            Tab::Language => {
+                // The system's language first, then each language by its own name, with its
+                // name in the language in use beside it.
+                let picked = Some(&settings.language).filter(|l| !l.is_empty()).and_then(|l| i18n::find(l));
+                let system = i18n::system().unwrap_or(0);
+                let mut rows = vec![(None, tr("Same as the system"), i18n::LANGUAGES[system].native.to_owned())];
+                for (i, l) in i18n::LANGUAGES.iter().enumerate() {
+                    let other = tr(l.english);
+                    rows.push((Some(i), l.native, if other == l.native { String::new() } else { other.to_owned() }));
+                }
+                let colw = (body[2] - 20.0 * s) / 2.0;
+                let per_col = rows.len().div_ceil(2);
+                for (n, (lang, name, aside)) in rows.into_iter().enumerate() {
+                    let (col, line) = (n / per_col, n % per_col);
+                    let row = [body[0] + col as f32 * (colw + 20.0 * s), body[1] + line as f32 * 46.0 * s, colw, 40.0 * s];
+                    let on = lang == picked;
+                    let edge = if on { color::ACCENT } else if inside(row, mouse) { color::BORDER_HI } else { color::BORDER };
+                    let bg = if on { color::CHIP } else { color::FIELD };
+                    theme::frame(ui.renderer, row, 7.0 * s, s.max(1.0), (edge, 1.0), ((bg, 1.0), (bg, 1.0)));
+                    let (ns, a) = (font(15.0), font(12.0));
+                    let aw = if aside.is_empty() { 0.0 } else { ui.measure(&aside, a, false) };
+                    ui.label_fit(name, row[0] + 14.0 * s, row[1] + (row[3] - ns * 1.22) / 2.0, row[2] - 40.0 * s - aw, ns, true, if on { color::ACCENT_HI } else { color::TEXT });
+                    if !aside.is_empty() {
+                        ui.label(&aside, row[0] + row[2] - 14.0 * s - aw, row[1] + (row[3] - a * 1.22) / 2.0, a, false, color::TEXT_MUTED);
+                    }
+                    self.hits.push((Hit::Language(lang), row));
                 }
             }
             Tab::Graphics | Tab::Visuals | Tab::Sound => {
@@ -794,29 +876,29 @@ impl OptionsUi {
                 let sliders: Vec<(Slider, &str, f32, String)> = if self.tab == Tab::Sound {
                     let snd = settings.sound;
                     vec![
-                        (Slider::Master, "Master volume", snd.master_volume, pct(snd.master_volume)),
-                        (Slider::Sfx, "Effects volume", snd.sfx_volume, pct(snd.sfx_volume)),
-                        (Slider::Music, "Music volume", snd.music_volume, pct(snd.music_volume)),
+                        (Slider::Master, tr("Master volume"), snd.master_volume, pct(snd.master_volume)),
+                        (Slider::Sfx, tr("Effects volume"), snd.sfx_volume, pct(snd.sfx_volume)),
+                        (Slider::Music, tr("Music volume"), snd.music_volume, pct(snd.music_volume)),
                     ]
                 } else if self.tab == Tab::Visuals {
                     let look = settings.pet_shot_look;
                     let lv = PetShots::ALL.iter().position(|&p| p == look).unwrap_or(1) as f32 / (PetShots::ALL.len() - 1) as f32;
                     vec![
-                        (Slider::PlayerAlpha, "Other players", settings.player_alpha, pct(settings.player_alpha)),
-                        (Slider::PetAlpha, "Other players' pets", settings.pet_alpha, pct(settings.pet_alpha)),
-                        (Slider::PetShots, "Pets' shots", lv, look.name().to_owned()),
-                        (Slider::ChatSize, "Chat size", (settings.chat_size - CHAT_MIN) / (CHAT_MAX - CHAT_MIN), pct(settings.chat_size)),
+                        (Slider::PlayerAlpha, tr("Other players"), settings.player_alpha, pct(settings.player_alpha)),
+                        (Slider::PetAlpha, tr("Other players' pets"), settings.pet_alpha, pct(settings.pet_alpha)),
+                        (Slider::PetShots, tr("Pets' shots"), lv, look.label().to_owned()),
+                        (Slider::ChatSize, tr("Chat size"), (settings.chat_size - CHAT_MIN) / (CHAT_MAX - CHAT_MIN), pct(settings.chat_size)),
                     ]
                 } else {
                     // Lower shows more of the world (the mouse wheel over the world does it too).
                     let v = (settings.zoom - ZOOM_MIN) / (ZOOM_MAX - ZOOM_MIN);
                     let i = MAX_FPS.iter().position(|&f| f == settings.max_fps).unwrap_or(0);
                     let fv = i as f32 / (MAX_FPS.len() - 1) as f32;
-                    let fps = if settings.max_fps == 0 { "No limit".to_owned() } else { settings.max_fps.to_string() };
-                    vec![(Slider::Zoom, "World zoom", v, pct(settings.zoom)), (Slider::MaxFps, "Max frame rate", fv, fps)]
+                    let fps = if settings.max_fps == 0 { tr("No limit").to_owned() } else { settings.max_fps.to_string() };
+                    vec![(Slider::Zoom, tr("World zoom"), v, pct(settings.zoom)), (Slider::MaxFps, tr("Max frame rate"), fv, fps)]
                 };
                 for (slider, label, v, value) in sliders {
-                    ui.label(label, body[0] + 10.0 * s, y + 4.0 * s, font(14.0), false, color::TEXT);
+                    ui.label_fit(label, body[0] + 10.0 * s, y + 4.0 * s, 186.0 * s, font(14.0), false, color::TEXT);
                     let track = [body[0] + 200.0 * s, y + 9.0 * s, body[2] - 280.0 * s, 8.0 * s];
                     theme::fill(ui.renderer, track, 4.0 * s, color::TRACK, 1.0);
                     theme::fill(ui.renderer, [track[0], track[1], track[2] * v, track[3]], 4.0 * s, color::ACCENT, 1.0);
@@ -837,7 +919,7 @@ impl OptionsUi {
                     if inside(row, mouse) {
                         theme::fill(ui.renderer, row, 6.0 * s, 0xFFFFFF, 0.05);
                     }
-                    ui.label(label, row[0] + 10.0 * s, row[1] + 8.0 * s, font(14.0), false, color::TEXT);
+                    ui.label_fit(tr(label), row[0] + 10.0 * s, row[1] + 8.0 * s, row[2] - 76.0 * s, font(14.0), false, color::TEXT);
                     let on = *settings.clone().toggle(*t);
                     // A switch.
                     let sw = [row[0] + row[2] - 56.0 * s, row[1] + 7.0 * s, 44.0 * s, 20.0 * s];
@@ -849,19 +931,19 @@ impl OptionsUi {
                 }
             }
         }
-        let hint = if self.tab == Tab::Controls { "Click a key, then press the new one. Backspace clears it." } else { "Changes apply at once." };
-        ui.label(hint, r[0] + 22.0 * s, r[1] + r[3] - 80.0 * s, font(12.0), false, color::TEXT_MUTED);
+        let hint = if self.tab == Tab::Controls { tr("Click a key, then press the new one. Backspace clears it.") } else { tr("Changes apply at once.") };
+        ui.label_fit(hint, r[0] + 22.0 * s, r[1] + r[3] - 80.0 * s, r[2] - 44.0 * s, font(12.0), false, color::TEXT_MUTED);
         let bw = 120.0 * s;
         let done = [r[0] + r[2] - 22.0 * s - bw, r[1] + r[3] - 56.0 * s, bw, 38.0 * s];
-        ui.button(done, "Done", Kind::Primary, inside(done, mouse), s);
+        ui.button(done, tr("Done"), Kind::Primary, inside(done, mouse), s);
         self.hits.push((Hit::Close, done));
         let reset = [done[0] - 10.0 * s - 150.0 * s, done[1], 150.0 * s, 38.0 * s];
-        ui.button(reset, "Defaults", Kind::Secondary, inside(reset, mouse), s);
+        ui.button(reset, tr("Defaults"), Kind::Secondary, inside(reset, mouse), s);
         self.hits.push((Hit::Defaults, reset));
         // Home: back to the Nexus.
         if self.in_game {
             let home = [r[0] + 22.0 * s, done[1], 150.0 * s, 38.0 * s];
-            ui.button(home, "Return home", Kind::Secondary, inside(home, mouse), s);
+            ui.button(home, tr("Return home"), Kind::Secondary, inside(home, mouse), s);
             self.hits.push((Hit::Home, home));
         }
     }
@@ -923,6 +1005,7 @@ mod tests {
         s.pet_shot_look = PetShots::Hidden;
         s.fullscreen = true;
         s.chat_size = 0.75;
+        s.language = "de".into();
         let back = Settings::from_text(&s.to_text());
         assert_eq!(back, s);
         // Lines another version wrote stay, and its keys don't take a key this one gives.

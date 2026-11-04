@@ -465,6 +465,7 @@ namespace WorldServer.logic
                     LootTemplates.StrongerDrop()
                     ),
                 new Threshold(0.005,
+                    new ItemLoot("Zombie Penguin Generator", 0.03),
                     new ItemLoot("Staff of Esben", 0.02),
                     new ItemLoot("Frosty's Walking Stick", 0.005),
                     new ItemLoot("Winter's Breath Wand", 0.005),

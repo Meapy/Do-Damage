@@ -151,6 +151,7 @@ namespace WorldServer.core.quests
             if (Off)
                 return;
             _player.ChampionCounter.Count(e);
+            community.CommunityGoals.Count(_player, e);
             var notices = new List<QuestNotice>();
             var changes = Book.Apply(e, notices);
             if (changes.Count == 0)
@@ -304,17 +305,19 @@ namespace WorldServer.core.quests
             _ => "chose name colour",
         };
 
+        private void Pay(List<RewardDef> rewards) => PayRewards(_player, _account, rewards);
+
         // Fame to the account; items to the gift chest in the vault, so a reward never fills the
-        // inventory or drops on the ground.
-        private void Pay(List<RewardDef> rewards)
+        // inventory or drops on the ground (community goals pay this way too).
+        public static void PayRewards(Player player, Shared.database.account.DbAccount account, List<RewardDef> rewards)
         {
             var fame = rewards.Sum(r => r.Fame);
             if (fame > 0)
             {
-                DoomedWorlds.GiveFame(_player, fame);
-                DoomedWorlds.Notify(_player, 0xFFFFC65C, $"+{fame} Fame");
+                DoomedWorlds.GiveFame(player, fame);
+                DoomedWorlds.Notify(player, 0xFFFFC65C, $"+{fame} Fame");
             }
-            var data = _player.GameServer.Resources.GameData;
+            var data = player.GameServer.Resources.GameData;
             var gifts = new List<ushort>();
             foreach (var r in rewards.Where(r => r.Item != null))
             {
@@ -325,11 +328,25 @@ namespace WorldServer.core.quests
             }
             if (gifts.Count > 0)
             {
-                _player.GameServer.Database.AddGifts(_account, gifts);
-                _player.SendInfo(gifts.Count == 1
-                    ? "Your reward went to the gift chest in your vault."
-                    : $"Your {gifts.Count} rewards went to the gift chest in your vault.");
+                player.GameServer.Database.AddGifts(account, gifts);
+                // name what was paid, so nobody has to look through the gift chest to find out
+                player.SendInfo($"{(gifts.Count == 1 ? "Your reward went" : $"Your {gifts.Count} rewards went")} to the gift chest in your vault: {ItemList(player, rewards)}.");
             }
+        }
+
+        // The items among some rewards, by name: "Potion of Life x2, Lil' Oryx Generator".
+        public static string ItemList(Player player, IEnumerable<RewardDef> rewards)
+        {
+            var data = player.GameServer.Resources.GameData;
+            return string.Join(", ", rewards
+                .Where(r => r.Item != null)
+                .GroupBy(r => r.Item)
+                .Select(g =>
+                {
+                    var name = data.IdToObjectType.TryGetValue(g.Key, out var type) && data.Items.TryGetValue(type, out var item) ? item.DisplayName : g.Key;
+                    var count = g.Sum(r => Math.Max(1, r.Count));
+                    return count == 1 ? name : $"{name} x{count}";
+                }));
         }
 
         // The quest window's data.
@@ -436,6 +453,7 @@ namespace WorldServer.core.quests
                 Oryx = d.Oryx,
                 Cube = d.Cube,
                 RealmEvent = d.Quest && !d.God && enemy.World is RealmWorld,
+                Occurrence = QuestEvent.NewOccurrence(),
             };
         }
 
@@ -456,6 +474,7 @@ namespace WorldServer.core.quests
                 Difficulty = data.DifficultyOf(world.StrongestBossHp),
                 Elder = world.IdName.Contains("Elder"),
                 Group = credited.Count > 1,
+                Occurrence = QuestEvent.NewOccurrence(),
             };
             foreach (var p in credited)
             {

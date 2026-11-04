@@ -146,6 +146,7 @@ namespace WorldServer.logic
                     LootTemplates.StrongerDrop()
                     ),
                 new Threshold(.005,
+                    new ItemLoot("Dallas's Pet Generator", 0.03),
                     new ItemLoot("Potion of Mana", 0.5),
                     new ItemLoot("Potion of Life", 0.5),
                     new ItemLoot("Potion of Dexterity", 0.25),

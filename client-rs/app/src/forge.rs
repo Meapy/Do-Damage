@@ -20,6 +20,7 @@
 mod imprints;
 
 use crate::hud::{Layout, SlotKind, Ui};
+use crate::i18n::{mark, tf, tr};
 use crate::theme::{self, color, Kind};
 use bsk_data::GameData;
 use bsk_proto::{ForgePrice, ForgeRecipe, ForgeShard, ForgeStorageCost};
@@ -94,35 +95,35 @@ enum Rarity {
 }
 
 const CATEGORIES: [(Category, &str); 6] = [
-    (Category::All, "All"),
-    (Category::Weapons, "Weapons"),
-    (Category::Abilities, "Abilities"),
-    (Category::Armor, "Armor"),
-    (Category::Rings, "Rings"),
-    (Category::Other, "Other"),
+    (Category::All, mark("All")),
+    (Category::Weapons, mark("Weapons")),
+    (Category::Abilities, mark("Abilities")),
+    (Category::Armor, mark("Armor")),
+    (Category::Rings, mark("Rings")),
+    (Category::Other, mark("Other")),
 ];
 
 /// A slot type's name on its filter.
 fn slot_name(t: i32) -> &'static str {
     match t {
-        6 => "Leather",
-        7 => "Heavy",
-        9 => "Ring",
-        24 => "Katana",
-        25 => "Shuriken",
+        6 => tr("Leather"),
+        7 => tr("Heavy"),
+        9 => tr("Ring"),
+        24 => tr("Katana"),
+        25 => tr("Shuriken"),
         // the Doomed Realms classes' slots, which the HUD's names leave as "Item"
-        27 => "Wakizashi",
-        28 => "Lute",
-        30 => "Pearl",
-        32 => "Turret",
-        36 => "Dual Blades",
-        37 => "Jacket",
-        126 => "Halo",
-        128 => "Scroll",
-        130 => "Fountain",
-        200 => "Fists",
-        5000 => "Oceanic Spell",
-        5005 => "Cannon",
+        27 => tr("Wakizashi"),
+        28 => tr("Lute"),
+        30 => tr("Pearl"),
+        32 => tr("Turret"),
+        36 => tr("Dual Blades"),
+        37 => tr("Jacket"),
+        126 => tr("Halo"),
+        128 => tr("Scroll"),
+        130 => tr("Fountain"),
+        200 => tr("Fists"),
+        5000 => tr("Oceanic Spell"),
+        5005 => tr("Cannon"),
         _ => crate::hud::slot_type_name(t),
     }
 }
@@ -477,7 +478,7 @@ impl Forge {
             Event::Result { sold: true, success, fame, message, .. } => {
                 if success {
                     self.selling.clear();
-                    self.message = Some((format!("Sold for {} fame.", crate::hud::group_digits(fame)), false));
+                    self.message = Some((tf!("Sold for {price} fame.", price = crate::hud::group_digits(fame)), false));
                 } else {
                     self.message = Some((message, true));
                 }
@@ -487,7 +488,7 @@ impl Forge {
             }
             Event::Imprint { success, message } => {
                 self.imp_pending = false;
-                self.message = Some(if success { ("Imprinted.".into(), false) } else { (message, true) });
+                self.message = Some(if success { (tr("Imprinted.").into(), false) } else { (message, true) });
             }
             Event::Result { sold: false, success, item, message, .. } => {
                 if let Some(Forging::Going { answer, .. }) = &mut self.forging {
@@ -563,7 +564,7 @@ impl Forge {
                     if self.sockets[k].is_some() {
                         self.sockets[k] = None;
                     } else if !self.insert(k) {
-                        self.message = Some(("You have none of those in your inventory, forge storage or vault.".into(), true));
+                        self.message = Some((tr("You have none of those in your inventory, forge storage or vault.").into(), true));
                     }
                 }
             }
@@ -575,15 +576,15 @@ impl Forge {
                             missing |= !self.insert(k);
                         }
                     }
-                    self.message = missing.then(|| ("Some ingredients aren't in your inventory, forge storage or vault.".into(), true));
+                    self.message = missing.then(|| (tr("Some ingredients aren't in your inventory, forge storage or vault.").into(), true));
                 }
             }
             Hit::Forge => {
                 let r = &self.recipes[self.picked?];
                 if self.sockets.iter().any(Option::is_none) {
-                    self.message = Some(("Put every ingredient in first.".into(), true));
+                    self.message = Some((tr("Put every ingredient in first.").into(), true));
                 } else if self.fame < self.price(r) {
-                    self.message = Some(("Not enough fame.".into(), true));
+                    self.message = Some((tr("Not enough fame.").into(), true));
                 } else {
                     let slots: Vec<u8> = self.sockets.iter().flatten().copied().filter(|&s| s != STORAGE && s != VAULT).collect();
                     self.message = None;
@@ -610,14 +611,14 @@ impl Forge {
             }
             Hit::Sell => {
                 if self.selling.is_empty() {
-                    self.message = Some(("Pick items to sell first.".into(), true));
+                    self.message = Some((tr("Pick items to sell first.").into(), true));
                 } else {
                     return Some(Act::Sell(self.selling.clone()));
                 }
             }
             Hit::Withdraw(item) => {
                 if self.stored(item) <= 0 {
-                    self.message = Some(("None of those in your forge storage.".into(), true));
+                    self.message = Some((tr("None of those in your forge storage.").into(), true));
                 } else {
                     self.message = None;
                     return Some(Act::Withdraw(item));
@@ -726,7 +727,7 @@ impl Forge {
                     self.forging = None;
                 }
                 None if t > NO_ANSWER => {
-                    self.message = Some(("The forge didn't answer. Check your inventory.".into(), true));
+                    self.message = Some((tr("The forge didn't answer. Check your inventory.").into(), true));
                     self.forging = None;
                 }
                 _ => {}
@@ -759,8 +760,8 @@ impl Forge {
         // button, all centred on one line.
         let mid = r[1] + 32.0 * s;
         let ts = font(22.0);
-        ui.label("Divine Workbench", r[0] + 22.0 * s, (mid - ui.digit_middle(ts, true)).round(), ts, true, color::GOLD);
-        let tabs: &[(Tab, &str)] = &[(Tab::Forge, "Forge"), (Tab::Shards, "Shards"), (Tab::Sell, "Sell for fame"), (Tab::Imprints, "Imprints")];
+        ui.label(tr("Divine Workbench"), r[0] + 22.0 * s, (mid - ui.digit_middle(ts, true)).round(), ts, true, color::GOLD);
+        let tabs: &[(Tab, &str)] = &[(Tab::Forge, tr("Forge")), (Tab::Shards, tr("Shards")), (Tab::Sell, tr("Sell for fame")), (Tab::Imprints, tr("Imprints"))];
         let cs = font(13.0);
         let widths: Vec<f32> = tabs.iter().map(|(_, l)| ui.measure(l, cs, true) + 36.0 * s).collect();
         let gap = 8.0 * s;
@@ -799,14 +800,14 @@ impl Forge {
         if let Some((m, err)) = &self.message {
             ui.label(m, r[0] + 22.0 * s, foot_y, font(13.0), true, if *err { color::DANGER } else { color::GOOD });
         } else if !self.loaded && self.tab != Tab::Imprints {
-            ui.label("Asking the forge for its recipes...", r[0] + 22.0 * s, foot_y, font(13.0), false, color::TEXT_MUTED);
+            ui.label(tr("Asking the forge for its recipes..."), r[0] + 22.0 * s, foot_y, font(13.0), false, color::TEXT_MUTED);
         }
         if let Some(item) = self.hover_item {
             let mut lines = crate::hud::item_tooltip_imprinted(ui.data, item, me, SlotKind::Shop, self.hover_imprints);
             if self.hover_vault {
                 let n = self.vaulted(item as u16);
                 lines.push(crate::hud::Line::gap());
-                lines.push(crate::hud::Line::new(&format!("From your vault ({n} there)"), 12.0, true, color::GOOD));
+                lines.push(crate::hud::Line::new(&tf!("From your vault ({n} there)", n), 12.0, true, color::GOOD));
             }
             lines.extend(crate::hud::imprint_lines(ui.data, item, self.hover_imprints));
             crate::hud::draw_tooltip(ui, lay, &lines, Some(item), crate::screens::tier_edge(ui.data, item), mouse);
@@ -849,7 +850,7 @@ impl Forge {
         let fs = font(14.0);
         let ty = fr[1] + (fr[3] - fs * 1.22) / 2.0;
         if self.query.is_empty() {
-            ui.label("Search the Forge...", fr[0] + 10.0 * s, ty, fs, false, color::TEXT_MUTED);
+            ui.label(tr("Search the Forge..."), fr[0] + 10.0 * s, ty, fs, false, color::TEXT_MUTED);
         } else {
             let q = self.query.clone();
             ui.label(&q, fr[0] + 10.0 * s, ty, fs, false, color::TEXT);
@@ -859,14 +860,14 @@ impl Forge {
             ui.rect(cx, fr[1] + 7.0 * s, (1.5 * s).max(1.0), fr[3] - 14.0 * s, color::ACCENT, 1.0);
         }
         self.hits.push((Hit::Search, fr));
-        let mut cats: Vec<(Hit, String, bool)> = CATEGORIES.iter().map(|&(c, l)| (Hit::Category(c), l.to_owned(), c == self.category)).collect();
-        for (k, label) in [(Rarity::Untiered, "UT"), (Rarity::Top, "Highest tier")] {
+        let mut cats: Vec<(Hit, String, bool)> = CATEGORIES.iter().map(|&(c, l)| (Hit::Category(c), tr(l).to_owned(), c == self.category)).collect();
+        for (k, label) in [(Rarity::Untiered, "UT"), (Rarity::Top, tr("Highest tier"))] {
             cats.push((Hit::Rarity(k), label.to_owned(), self.rarity == k));
         }
         let mut y = self.chips(ui, left[0], fr[1] + fr[3] + 10.0 * s, left[0] + left[2], &cats, s, mouse);
         let slots = self.slot_filters(ui.data);
         if !slots.is_empty() {
-            let mut items = vec![(Hit::Slot(None), "Any".to_owned(), self.slot.is_none())];
+            let mut items = vec![(Hit::Slot(None), tr("Any").to_owned(), self.slot.is_none())];
             items.extend(slots.iter().map(|&t| (Hit::Slot(Some(t)), slot_name(t).to_owned(), self.slot == Some(t))));
             y = self.chips(ui, left[0], y, left[0] + left[2], &items, s, mouse);
         }
@@ -893,15 +894,15 @@ impl Forge {
             self.hits.push((Hit::Recipe(i), sr));
         }
         if self.loaded && self.shown.is_empty() {
-            ui.label("No recipes match.", left[0], gy + 6.0 * s, font(13.0), false, color::TEXT_MUTED);
+            ui.label(tr("No recipes match."), left[0], gy + 6.0 * s, font(13.0), false, color::TEXT_MUTED);
         }
         let (up, down) = ([left[0], by, 56.0 * s, 26.0 * s], [left[0] + 62.0 * s, by, 56.0 * s, 26.0 * s]);
-        ui.button(up, "Up", Kind::Secondary, inside(up, mouse), s * 0.8);
-        ui.button(down, "Down", Kind::Secondary, inside(down, mouse), s * 0.8);
+        ui.button(up, tr("Up"), Kind::Secondary, inside(up, mouse), s * 0.8);
+        ui.button(down, tr("Down"), Kind::Secondary, inside(down, mouse), s * 0.8);
         self.hits.push((Hit::Up, up));
         self.hits.push((Hit::Down, down));
         let rb = [left[0] + 126.0 * s, by, left[2] - 126.0 * s, 26.0 * s];
-        self.chip(ui, rb, "Forge Ready Items", self.ready_only, mouse, font(11.5));
+        self.chip(ui, rb, tr("Forge Ready Items"), self.ready_only, mouse, font(11.5));
         self.hits.push((Hit::Ready, rb));
 
         self.draw_stage(ui, right, s, mouse, now);
@@ -921,7 +922,7 @@ impl Forge {
         let frame = ((now / FRAME_MS).rem_euclid(FORGE_FRAMES)) as u32;
         let Some(i) = self.picked else {
             ui.tile_icon(SHEET, frame, 80, fx, fy, s);
-            let t = "Pick a recipe to forge.";
+            let t = tr("Pick a recipe to forge.");
             let w = ui.measure(t, font(14.0), false);
             ui.label(t, fx - w / 2.0, r[1] + 20.0 * s, font(14.0), false, color::TEXT_MUTED);
             return;
@@ -997,7 +998,7 @@ impl Forge {
         let sx = fx - row_w / 2.0;
         // a result several recipes make: say so (the list shows it once)
         let others = self.recipes.iter().filter(|o| o.result == rec.result).count();
-        let label = if others > 1 { format!("Ingredients  ·  one of {others} recipes") } else { "Ingredients".to_owned() };
+        let label = if others > 1 { tf!("Ingredients  ·  one of {others} recipes", others) } else { tr("Ingredients").to_owned() };
         let lw = ui.measure(&label, font(12.0), true);
         ui.label(&label, fx - lw / 2.0, sy - 22.0 * s, font(12.0), true, color::TEXT_DIM);
         for (k, &item) in rec.items.iter().enumerate() {
@@ -1057,7 +1058,7 @@ impl Forge {
         if let (Some((potion, n, have)), None) = (self.storage_cost(rec.result), done) {
             let held = self.potions.get(&potion).copied().unwrap_or(0);
             let name = ui.data.objects.get(&potion).map_or(String::new(), |d| d.display_id.clone());
-            let text = format!("+ {n} {name} from your potion storage ({held})");
+            let text = tf!("+ {n} {name} from your potion storage ({held})", n, name, held);
             let fs = font(12.0);
             let tw = ui.measure(&text, fs, true);
             let icon = 22.0 * s;
@@ -1085,23 +1086,23 @@ impl Forge {
         if let Some((t, item)) = done {
             if t >= OUT {
                 let name = ui.data.objects.get(&item).map_or(String::new(), |d| d.display_id.clone());
-                let msg = format!("Forged {name}!");
+                let msg = tf!("Forged {name}!", name);
                 let w = ui.measure(&msg, font(14.0), true);
                 ui.label(&msg, fx - w / 2.0, sy - 46.0 * s, font(14.0), true, color::GOLD);
             }
             let ab = [fx - bw / 2.0, by, bw, 36.0 * s];
-            ui.button(ab, "Forge another", Kind::Secondary, inside(ab, mouse), s);
+            ui.button(ab, tr("Forge another"), Kind::Secondary, inside(ab, mouse), s);
             self.hits.push((Hit::Again, ab));
         } else if going.is_some() {
-            let t = "Forging...";
+            let t = tr("Forging...");
             let w = ui.measure(t, font(15.0), true);
             ui.label(t, fx - w / 2.0, by + 8.0 * s, font(15.0), true, color::GOLD);
         } else {
             let ib = [fx - bw - 6.0 * s, by, bw, 36.0 * s];
             let fb = [fx + 6.0 * s, by, bw, 36.0 * s];
-            ui.button(ib, "Insert all", Kind::Secondary, inside(ib, mouse), s);
+            ui.button(ib, tr("Insert all"), Kind::Secondary, inside(ib, mouse), s);
             let ready = self.sockets.iter().all(Option::is_some) && afford && self.storage_cost(rec.result).is_none_or(|(_, _, have)| have);
-            let label = format!("Forge  ·  {}", crate::hud::group_digits(price));
+            let label = tf!("Forge  ·  {price}", price = crate::hud::group_digits(price));
             fame_button(ui, fb, &label, if ready { Kind::Primary } else { Kind::Secondary }, inside(fb, mouse), s);
             self.hits.push((Hit::InsertAll, ib));
             self.hits.push((Hit::Forge, fb));
@@ -1112,11 +1113,11 @@ impl Forge {
     /// the next (the server's order, four a row), each with its count; a click takes one out.
     fn draw_shards(&mut self, ui: &mut Ui, body: [f32; 4], s: f32, mouse: (f64, f64)) {
         let font = |size: f32| (size * s).round().max(9.0);
-        ui.label("Forge storage", body[0], body[1], font(14.0), true, color::TEXT_DIM);
-        let help = "Shards you use go here, and the forge takes a recipe's shards from here. Click a shard to take one out.";
+        ui.label(tr("Forge storage"), body[0], body[1], font(14.0), true, color::TEXT_DIM);
+        let help = tr("Shards you use go here, and the forge takes a recipe's shards from here. Click a shard to take one out.");
         ui.label(help, body[0], body[1] + 22.0 * s, font(12.0), false, color::TEXT_MUTED);
         if self.shards.is_empty() {
-            ui.label("This server has no forge storage yet.", body[0], body[1] + 60.0 * s, font(13.0), false, color::TEXT_MUTED);
+            ui.label(tr("This server has no forge storage yet."), body[0], body[1] + 60.0 * s, font(13.0), false, color::TEXT_MUTED);
             return;
         }
         let cell = 64.0 * s;
@@ -1152,7 +1153,7 @@ impl Forge {
     /// The Sell tab: the inventory, each item with the fame the forge pays under it.
     fn draw_sell(&mut self, ui: &mut Ui, body: [f32; 4], s: f32, mouse: (f64, f64)) {
         let font = |size: f32| (size * s).round().max(9.0);
-        ui.label("Pick items to sell to the forge for fame", body[0], body[1], font(14.0), true, color::TEXT_DIM);
+        ui.label(tr("Pick items to sell to the forge for fame"), body[0], body[1], font(14.0), true, color::TEXT_DIM);
         let cell = 64.0 * s;
         let (gx, gy) = (22.0 * s, 34.0 * s);
         let cols = 8;
@@ -1193,8 +1194,8 @@ impl Forge {
                     fame_text(ui, &t, sr[0] + (sr[2] - w) / 2.0, ty, fs, if picked { color::GOOD } else { color::GOLD }, s);
                 }
                 (true, None) => {
-                    let w = ui.measure("Not bought", fs, true);
-                    ui.label("Not bought", sr[0] + (sr[2] - w) / 2.0, ty, fs, true, color::TEXT_MUTED);
+                    let w = ui.measure(tr("Not bought"), fs, true);
+                    ui.label(tr("Not bought"), sr[0] + (sr[2] - w) / 2.0, ty, fs, true, color::TEXT_MUTED);
                 }
                 _ => {}
             }
@@ -1206,11 +1207,11 @@ impl Forge {
         let bw = 220.0 * s;
         let ab = [body[0] + body[2] / 2.0 - bw - 6.0 * s, by, bw, 38.0 * s];
         let sb = [body[0] + body[2] / 2.0 + 6.0 * s, by, bw, 38.0 * s];
-        ui.button(ab, "Pick everything it buys", Kind::Secondary, inside(ab, mouse), s);
+        ui.button(ab, tr("Pick everything it buys"), Kind::Secondary, inside(ab, mouse), s);
         if self.selling.is_empty() {
-            ui.button(sb, "Sell", Kind::Secondary, inside(sb, mouse), s);
+            ui.button(sb, tr("Sell"), Kind::Secondary, inside(sb, mouse), s);
         } else {
-            let label = format!("Sell {}  ·  {}", self.selling.len(), crate::hud::group_digits(total));
+            let label = tf!("Sell {n}  ·  {price}", n = self.selling.len(), price = crate::hud::group_digits(total));
             fame_button(ui, sb, &label, Kind::Primary, inside(sb, mouse), s);
         }
         self.hits.push((Hit::SellAll, ab));

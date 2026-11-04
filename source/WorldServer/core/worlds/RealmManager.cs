@@ -796,8 +796,11 @@ namespace WorldServer.core.worlds
             {
                 // everyone here helped close it (quests and achievements)
                 if (!World.Closed)
+                {
+                    var closed = new Shared.quests.QuestEvent(Shared.quests.QuestEvents.RealmClosed) { Occurrence = Shared.quests.QuestEvent.NewOccurrence() };
                     foreach (var player in World.Players.Values)
-                        player.Quests?.Event(new Shared.quests.QuestEvent(Shared.quests.QuestEvents.RealmClosed));
+                        player.Quests?.Event(closed);
+                }
                 _ = World.CloseRealm();
             }
         }

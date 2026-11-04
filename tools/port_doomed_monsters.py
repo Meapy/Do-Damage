@@ -78,6 +78,9 @@ LOOT_CHANGES = {
     "Elder Coral Gift": {"Raw Fish of Terror": None},
     "Elder Thessal the Mermaid Goddess": {"Raw Fish of Terror": None},
     "April Fools Chicken": {"Anatis Staff": None},
+    # the pets pass: realm monsters' pets drop twice as often (port_doomed_pets.GENERATOR_BAG)
+    "Phoenix Reborn": {"Phoenix Generator": 0.02},
+    "Red Demon": {"Red Demon Generator": 0.02},
 }
 # Drops gone from every monster: the Wine Cellar Incantation, now that Oryx 1 leaves the Wine Cellar
 # portal open (Doomed Realms also drops it as IncLoot.Instance)

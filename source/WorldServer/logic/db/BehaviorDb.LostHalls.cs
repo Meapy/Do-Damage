@@ -570,6 +570,7 @@ namespace WorldServer.logic
                     ),
                     // 5% of the damage: the gear
                     new Threshold(0.05,
+                        new ItemLoot("Angel Generator", 0.02),
                         new TierLoot(13, ItemType.Weapon, 0.12),
                         new TierLoot(14, ItemType.Weapon, 0.04),
                         new TierLoot(13, ItemType.Armor, 0.08),

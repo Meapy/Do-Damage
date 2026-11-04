@@ -75,6 +75,7 @@ namespace WorldServer.logic
                     LootTemplates.BasicDrop()
                     ),
                 new Threshold(0.01,
+                    new ItemLoot("Priest Generator", 0.02),
                     new ItemLoot("Potion of Vitality", 1),
                     new ItemLoot("Potion of Dexterity", 1),
                     new ItemLoot("Helm of the Juggernaut", 0.004)

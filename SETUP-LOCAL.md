@@ -580,6 +580,65 @@ The remotes `upstream` (HaloCelsius) and `aurusenth` share no history with `main
 
 ## Changes from upstream
 
+- **The Rust client in 11 languages** (2026-11-04; `client-rs/app/src/i18n.rs`,
+  `client-rs/app/lang/<code>.json`, Options' Language tab; client-rs/AGENTS.md, "Languages"):
+  English is written in the code, German, Spanish, French, Italian, Dutch, Polish, Brazilian
+  Portuguese, Russian, Turkish and Ukrainian are tables from each English line to the language's
+  own, built into the client. Text the client shows goes through `tr`, `tf!` (named `{values}`,
+  so a language can reorder them) and `tn!` (CLDR plural forms: three for Russian, Ukrainian and
+  Polish); numbers and countdowns follow the language too. The choice is kept in the settings
+  (`language=<code>`), else the system's (Windows' display language, `LANG`, the browser's) is
+  used; `--lang <code>` overrides it for one run. The client's tests fail while a table lacks a
+  line, keeps one no longer used, has different `{names}` or the wrong number of forms, or uses a
+  character the font lacks. The server is unchanged: what it sends (chat, item names, quests'
+  and goals' titles and descriptions) stays in English, except the goals' tier and Overdrive
+  names, which the client knows (`community::SERVER_NAMES`).
+
+- **/summon for everyone, with a Yes/No** (2026-11-02; `SummonCommand` in
+  `DoomedRealmsCommands.cs`, `Player.Visits.cs`, `VisitBook.Request.Summon`,
+  `VisitRules.Refusal(..., summon)`; `Tests/VisitTests.cs`): `/summon <name>` goes through the
+  same book, box and `/yes`/`/no` as `/visit` (below), the other way round: the summoner's world
+  must pass the same rules, and the player summoned must never have been in it. The two share the
+  limits (one request waiting per asker and per player asked). `VISIT_REQUEST` gets a last byte,
+  1 for a summon, for clients that send `VISIT_ANSWER 254` (Rust client 2.3.8); 2.3.7 clients,
+  which would show it as a visit, get summons as a chat line instead. Admins still summon anyone
+  at once, anywhere.
+
+- **Pets: single use, drops and attacks** (2026-11-04; `tools/port_doomed_pets.py` `PET_KITS`,
+  `SIZE_DPS`, `PET_DPS`, `GENERATOR_BAG`, `scale_pets`, `base_damages` and
+  `tools/pet_base_damage.json`, `write_generator_rules`; `logic/behaviors/doomed/PetNova.cs`;
+  `Player.UseItem.cs` `AEPermaPet` / `PetGenerator` / `GivePetGeneratorBack`, `/removepet`;
+  `ActivateEffect.PetSize`, `MerchantLists.InitDyes`; `port_doomed_economy.unsold_pet`;
+  `port_doomed_monsters.LOOT_CHANGES`; the bosses' loot in `BehaviorDb.*.cs`; `wiki_data`
+  `bazaar_pets` and `ITEM_LOOT_ELDER`; the Rust client's `particles.rs`). Every sized pet's
+  generator is `<Consumable/>` (used up), `<BagType>6</BagType>` and `<Soulbound/>` (a private
+  white bag), in the port's XML and Permapets (both copies). Using a generator while a pet is out
+  gives back the old pet's generator (`Player.PetGenerator`: the item with a PermaPet for it, a
+  "... Generator" first; `GiveItem`, so the Gift Chest when the inventory is full), as does
+  `/removepet`; using the generator of the pet you have is still refused without spending it. Only
+  Small pets' generators are sold: the Bazaar's pet stalls (an `InvUse` "Generator" with a PermaPet
+  whose `petSize` is Small) and `/shop pets`; `donorpets` keeps only the White Bag. Every other pet
+  drops from where it belongs, in its boss's (or event's) Threshold: a dungeon boss's Large pet
+  2% (4% in its Elder version, `elder ? 0.04 : 0.02`), its Medium pets 3% (6%), realm events'
+  Large pets 1.5% and their Medium ones 2-3%, the godland gods' 0.5%; Phoenix Reborn and the Red
+  Demon 2% (were 1%). Unobtainable on purpose: Dinosaur's Thessal (a donation reward) and the
+  unsized test pets (Snowman, Minotaur, Knight of the Lost Lands, Test Auraa, the snowballs). Every
+  pet that had the plain strike every critter and monster shared (50-70 every 3 s) or no attack
+  has a kit (`PET_KITS`): `shot`s written as its own projectiles 0, 1... (a sprite, count, spread,
+  speed, life, and flags: multihit, armor piercing, wavy, boomerang, amplitude, conditions,
+  bleed), `strike`s and the new `nova`s (`PetNova`: a hit on the nearest enemy and every enemy
+  within its radius, with an optional condition; a line and an AreaBlast, which the client's
+  "Hidden" pets option hides as it hides a strike's burst). Kythal the Skull, Shroom and Cerberus
+  Skull, which shared Kythal the Necromancer's pattern, have kits too. Each sized pet's damage
+  (`behaviour_dps`: shots on target, strikes, novas, bleeds) is then scaled to its size's,
+  `SIZE_DPS` (Small 50, Medium 200, Large 450) or its `PET_DPS` (the Tomb's three 550; Thessal,
+  Horrific Creation, Pancookie and Dinosaur's Thessal 500; the realm events' Cube, Skull Shrine,
+  Sphinx and Grand Coil Snake 400; the Lil' Oryxes as before), from the unscaled numbers kept in
+  `pet_base_damage.json` so a rerun gives the same numbers (Pancookie was 2,165, the Cube 800, the
+  Grand Coil Snake 50 and Nut 173). New abilities: the Companion Priest heals over time (2 s every
+  8) and the Support Bot makes its owner armored (2 s every 10). Ships with a client release (the
+  pets' new projectiles are in the client's XML); an older client draws none of the new shots.
+
 - **/visit for everyone, with a Yes/No** (2026-11-02; `Command.Visit` (moved to `player/`),
   `Player.Visits.cs`, `Shared/VisitBook.cs` and `VisitRules.cs`, `VisitAnswerHandler`, `/yes` and `/no` (`Command.VisitAnswer.cs`), messages
   126 `VISIT_ANSWER` and 127 `VISIT_REQUEST`, the Rust client's `hud::draw_visit`;
@@ -731,6 +790,20 @@ The remotes `upstream` (HaloCelsius) and `aurusenth` share no history with `main
   the new window's; the old market messages (76-85) still work for older clients, on the same
   service. Tests: `source/Tests/MarketStoreTests.cs` (each starts a Redis of its own; CI installs
   `redis-server`). World server and client.
+- **More Marketplace listing slots for fame** (2026-11-04; `Marketplace.BuySlot`, `MarketStore.BuySlot`,
+  `DbAccount.MarketSlots`; the Rust client's `market.rs`): on top of `Marketplace.MaxListings`
+  (10) an account can buy up to `MaxExtraSlots` (10) more, the first for `SlotPriceStep` (500)
+  fame and each after it 500 more than the last (5,000 for the tenth, 27,500 in all). The count is
+  the `marketSlots` field of `account.<id>`, written only by one Lua script that checks the slots
+  the price was set for and the fame, takes the fame and raises the count together; the server keeps
+  both with `SetStored`, so a save can't write them back stale. The listing scripts get the
+  account's own limit (`Marketplace.Limit`). `MarketListings` sends that limit and, last, the next
+  slot's price (an int, 0 when there are none left; older clients stop reading before it), and
+  `MarketAct` action 4 buys one at the price the window showed (an older server answers "Unknown
+  action."). The Sell tab shows the price beside "listings in use" (two clicks, as Buy), and My
+  listings pages when the listings don't fit. Tested on an isolated stack: a purchase took 500
+  fame and raised the limit to 11 with the next at 1,000; too little fame was refused with the
+  price; at 20 the button is gone. World server and client.
 - **The Nexus reworked around the market** (2026-10-29; `tools/build_castle_maps.py`,
   `MerchantLists.cs`, `NexusWorld`, `NexusMerchant`, `DoomedWorlds.NexusPortals`, `/forge`,
   `/market`, `NexusGuide`): the south yard and the forge hall are gone. The forge court (Divine Forge
@@ -1476,6 +1549,9 @@ The remotes `upstream` (HaloCelsius) and `aurusenth` share no history with `main
   three worlds left (`Game.seen_maps`, by game id, name and size, saved when a Reconnect drops
   the world); the Quests and Nexus buttons are
   icons; the records shorten values that don't fit and show them on hover.
+
+- **Death spin** (2026-11-04; `Player.DeathSpin.cs`, `Player.Death.cs`, `DbDeath` `spinTier` / `spinRarity` / `spinPrize` / `spinReel` / `kept`, `Database.Death`'s `fill`, `App/XmlModels.cs` `Fame`, the Rust client's `screens.rs` `draw_spin` and `bsk-net` `DeathSpin`): a real death (not the Arena, a test world or a resurrection) rolls rewards before the death is saved. Base fame (`Character.Fame`) picks a tier (`DeathSpinTiers`: Bronze 20, Silver 150, Gold 500, Platinum 1500, Diamond 4000, Mythic 10000), each with chances out of 1000 of six rarities (Common to Divine; Divine 0.2% to 4%). Each rarity's pool is weighted groups (`DeathSpinPools`: ids, gear tiers, or a filter: Divine has every `BagType` 6 gear item and every tier 15+ one), resolved from the game data at the first death (unknown ids are logged and skipped). Separately, `RollDeathKeep` gives back random carried items: a ladder of chances: the first at 25%, each further one at half the chance of the last, and each `DeathKeepTiers` step of base fame (1 to 6 from 400/800/1600/3000/6000/12000, 8 from 20000) doubles every chance, capped at sure: under 400 25% of one, 400 50% of one, 800 one sure and 50% of a second, up to 7 sure at 20000. Prize and items go to the Gift Chest in one `AddGifts` (item data such as imprints isn't kept). The death record keeps the result, and `/char/fame` adds `<DeathSpin tier rarity prize>` (the reel: `type:rarity` pairs, the prize marked `*`) and `<Kept>` (types). The Rust client shows a Death Spin screen before the fame summary (a 6.5 s reel, Skip/Continue, the tier's odds, what came back) and a line for each on the summary; older clients ignore both and still get the items. Legendary and Divine prizes are announced. The client's `SPIN_TIERS` copies the server's table. A scripted `--shot` run now follows a death to the death screens (it stayed on the game). World server and account server deploy; client for the screen.
+- **Community goals** (2026-11-04; `Shared/community/`, `resources/data/community.json`, `WorldServer/core/community/`, `client-rs/app/src/community.rs`): goals the whole server shares, tuned in `community.json` (its `_about` says how). Each Monday (UTC, as the weekly quests) 3 goals are drawn from a pool of 15, one per group, the groups in a fixed seeded order so each comes back only after the others (`CommunityData.Draw`); the week's draw is kept in Redis (`community:week:<yyyyMMdd>`), so editing the pool only changes later weeks, and `specials` with `from`/`until` days run besides. Every player's quest event (`QuestTracker.Event`, so not guests, the Nexus, vaults, minigames or spawned monsters) is counted by `CommunityGoals.Count` from any world thread into dictionaries, and sent every 5 s: `community:<goal>@<start>` holds the total (`HINCRBY`, so both world servers of a rolling deploy add safely), `...:who` each account's share (sorted set), `...:claimed` the claims (`<account>:<tier>`, 255 the top's prize). A kill, dungeon clear, realm close or Arena wave carries one `QuestEvent.Occurrence` for everyone it counts for, so the total gets it once and each helper's share once. Tiers at 25/50/75/100% (`tierShares`, `defaultTiers` unless the goal has its own `tiers`); an account at the goal's `minimum` claims each tier reached, the top 3 the `top` prize once it ends; ended goals stay claimable a week (`claimWeeks`). Claims `SADD` before paying (`QuestTracker.PayRewards`: fame, items to the gift chest), so none is paid twice on either server. The server whose add crosses a tier announces it to its players (one line for a jump over several): a chat line from the Warcaller to all, and a `COMMUNITY_NOTICE` banner for clients that asked. Messages 128-131 (`COMMUNITY_REQUEST`, `COMMUNITY_DATA`, `COMMUNITY_CLAIM`, `COMMUNITY_NOTICE`); the Rust client asks once a world (for its "reward waiting" banner) and every 4 s while the window is open, the server answering at most once a second. The Warcaller (`Warcaller.cs`, object 0x498c in both `CustomObjects.xml`, class `CommunityGoals`, cells 8-9 of `QuestNpcs16x16.png` by `tools/draw_quest_npcs.py`) stands at the spawn island's north point (`tools/build_nexus.py` `WARCALLER`, checked passable), greets players with what waits and calls out a goal's standing every 75 s to those near. `/goals` lists them in chat; `/goaladmin list | add <n> [goal] | reset [goal] | scale <id> <x>` (admins, test servers) adds to a goal, starts it afresh or sets a goal's scale (the clock is `/questadmin time`'s). **Overdrive:** past 100%, a level every `bonusStep` (25%) of the goal up to `bonusTiers` (8, so 300%), each paying the goal's `bonus`; claimed as tiers 100+, 253 all of a goal's waiting levels (`CommunityData.BONUS_TIER`, `CommunityGoals.CLAIM_BONUS`). **Loot:** a reward `{"roll": n}` draws n items from the goal's own `loot` (weights, a rarity each), resolved at claim time (`CommunityData.Resolve`, `Random.Shared`); each Overdrive level multiplies an entry's weight by 1 + `rarityLift[rarity]` × level, the top's prize rolls at the highest level, and a roll of `announceFrom` (legendary) or rarer is announced to the server (notice kind 5). `Validate` warns of goals that share their tiers or their loot. **Sizing:** a run's goal is fixed at first sight (`HSETNX community:<run> goal`, the goal as written × `community:scale`[id], `CommunityData.Nice`, two significant digits); when a week's run ends, the first server to see it settles it once (`HSETNX ... settled`) and moves the scale by `NextScale`: × (total/goal ÷ `adapt.target` 1.2)^0.5, held to 0.75-1.35 a run and 0.4-4 in all. A run first seen after it ended (from before this, or a long stop) is marked `settled unseen` and never moves the scale; specials are never scaled. `COMMUNITY_DATA` carries each goal's goal as written, its Overdrive levels and its loot with each entry's chance at a tier and at the highest level (both ten-thousandths). Unit tests: `CommunityDataTests`. The wiki's Community Goals page comes from the data (`tools/wiki_community.py`), loot odds included.
 
 ## Content ported from Doomed Realms
 

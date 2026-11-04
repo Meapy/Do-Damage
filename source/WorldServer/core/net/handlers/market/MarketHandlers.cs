@@ -29,7 +29,8 @@ namespace WorldServer.core.net.handlers.market
                 Now = System.DateTime.UtcNow.ToUnixTimestamp(),
                 Unchanged = known == (int)version && version >= 0,
                 Tax = Marketplace.TaxPercent,
-                Limit = Marketplace.MaxListings,
+                Limit = (byte)Marketplace.Limit(client.Account),
+                SlotPrice = Marketplace.SlotPrice(client.Account),
                 Listings = listings.Take(Marketplace.MaxSent).ToArray(),
                 Box = market.Store.Box(id).Select(b => b.Item).ToArray(),
                 History = market.Store.History(id).ToArray()
@@ -59,12 +60,12 @@ namespace WorldServer.core.net.handlers.market
     }
 
     // 1 buys a listing (at the price the client saw), 2 takes one back, 3 collects a box item
-    // (id 0: all that fit).
+    // (id 0: all that fit), 4 buys another listing slot (at the price the client saw; id unused).
     public class MarketActHandler : IMessageHandler
     {
         public override MessageId MessageId => MessageId.MARKET_ACT;
 
-        public const byte Buy = 1, Cancel = 2, Collect = 3;
+        public const byte Buy = 1, Cancel = 2, Collect = 3, BuySlot = 4;
 
         public override void Handle(Client client, NetworkReader rdr, ref TickTime time)
         {
@@ -80,6 +81,7 @@ namespace WorldServer.core.net.handlers.market
                 Buy => market.Buy(player, id, price),
                 Cancel => market.Cancel(player, id),
                 Collect => market.Collect(player, id),
+                BuySlot => market.BuySlot(player, price),
                 _ => (false, "Unknown action.")
             };
             Answer(client, ok, message);

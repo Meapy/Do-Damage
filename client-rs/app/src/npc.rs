@@ -8,6 +8,7 @@
 //! closes (Escape, its close button, or a click outside it).
 
 use crate::hud::{Layout, Ui};
+use crate::i18n::{mark, tf, tn, tr};
 use crate::theme::{self, color, Kind};
 use bsk_net::account::{ArenaRun, Guild};
 use bsk_world::GameObj;
@@ -58,6 +59,8 @@ pub enum NpcKind {
     ChampionStatue,
     /// The Herald in the Nexus's leaderboard court, west of the spawn: the server's week.
     Herald,
+    /// The Warcaller at the north point of the Nexus spawn: the community goals.
+    CommunityGoals,
 }
 
 impl NpcKind {
@@ -79,6 +82,7 @@ impl NpcKind {
             "ChampionsBoard" => Self::ChampionsBoard,
             "ChampionStatue" => Self::ChampionStatue,
             "Herald" => Self::Herald,
+            "CommunityGoals" => Self::CommunityGoals,
             _ => return None,
         })
     }
@@ -87,11 +91,11 @@ impl NpcKind {
 /// `GuildUtil.rankToString`.
 pub fn rank_name(rank: i32) -> &'static str {
     match rank {
-        r if r >= 40 => "Founder",
-        r if r >= 30 => "Leader",
-        r if r >= 20 => "Officer",
-        r if r >= 10 => "Member",
-        _ => "Initiate",
+        r if r >= 40 => tr("Founder"),
+        r if r >= 30 => tr("Leader"),
+        r if r >= 20 => tr("Officer"),
+        r if r >= 10 => tr("Member"),
+        _ => tr("Initiate"),
     }
 }
 
@@ -106,8 +110,8 @@ fn guild(me: &GameObj) -> &str {
 /// What making a guild costs, from the price the Guild Register sent: `0` is free.
 pub fn guild_price_text(price: Option<i32>) -> String {
     match price.unwrap_or(GUILD_PRICE) {
-        0 => "free".to_owned(),
-        p => format!("{} fame", crate::hud::group_digits(p)),
+        0 => tr("free").to_owned(),
+        p => tn!(p, "{n} fame|{n} fame", n = crate::hud::group_digits(p)),
     }
 }
 
@@ -116,51 +120,52 @@ pub fn guild_price_text(price: Option<i32>) -> String {
 pub fn interact_text(kind: NpcKind, me: &GameObj, rank_req: i32, price: Option<i32>) -> (String, Option<(String, Kind)>) {
     let open = |line: &str, button: &str| (line.to_owned(), Some((button.to_owned(), Kind::Primary)));
     match kind {
-        NpcKind::CharacterChanger => open("Change characters", "Change"),
-        NpcKind::Reskin => open("Change your skin", "Choose"),
+        NpcKind::CharacterChanger => open(tr("Change characters"), tr("Change")),
+        NpcKind::Reskin => open(tr("Change your skin"), tr("Choose")),
         NpcKind::NameChanger => {
             if int(me, stat::NUM_STARS) < rank_req {
-                (format!("Rank {rank_req} needed"), None)
+                (tf!("Rank {rank_req} needed", rank_req), None)
             } else if int(me, stat::NAME_CHOSEN) != 0 {
                 let name = me.name().unwrap_or("");
-                (format!("Your name is {name}"), Some((format!("{} fame", crate::hud::group_digits(NAME_CHANGE_PRICE)), Kind::Primary)))
+                (tf!("Your name is {name}", name), Some((tn!(NAME_CHANGE_PRICE, "{n} fame|{n} fame", n = crate::hud::group_digits(NAME_CHANGE_PRICE)), Kind::Primary)))
             } else {
-                open("Choose your account name", "Choose")
+                open(tr("Choose your account name"), tr("Choose"))
             }
         }
         NpcKind::GuildRegister => {
             let g = guild(me);
             if g.is_empty() {
-                (String::from("Create a guild"), Some((format!("Create  ·  {}", guild_price_text(price)), Kind::Primary)))
+                (String::from(tr("Create a guild")), Some((tf!("Create  ·  {price}", price = guild_price_text(price)), Kind::Primary)))
             } else {
-                (format!("{} of {g}", rank_name(int(me, stat::GUILD_RANK))), Some(("Renounce".to_owned(), Kind::Danger)))
+                (tf!("{rank} of {guild}", rank = rank_name(int(me, stat::GUILD_RANK)), guild = g), Some((tr("Renounce").to_owned(), Kind::Danger)))
             }
         }
-        NpcKind::GuildBoard => open("The guild's notices", "View"),
-        NpcKind::GuildChronicle => open("The guild's members", "View"),
-        NpcKind::PotionStorage => open("Store stat potions", "Open"),
-        NpcKind::Market => open("Buy and sell items", "Manage"),
-        NpcKind::ArenaLeaderboard => open("The arena's best runs", "View"),
-        NpcKind::Forge | NpcKind::Enchanter => open("The Divine Workbench", "Open"),
-        NpcKind::QuestMaster => open("Daily, weekly and monthly quests", "Quests"),
-        NpcKind::Chronicler => open("Daily rewards and achievements", "Open"),
-        NpcKind::ChampionsBoard => open("The living's best, and their rewards", "View"),
-        NpcKind::ChampionStatue => open("A champion of the Hall", "View"),
-        NpcKind::Herald => open("This week in the realm", "View"),
+        NpcKind::GuildBoard => open(tr("The guild's notices"), tr("View")),
+        NpcKind::GuildChronicle => open(tr("The guild's members"), tr("View")),
+        NpcKind::PotionStorage => open(tr("Store stat potions"), tr("Open")),
+        NpcKind::Market => open(tr("Buy and sell items"), tr("Manage")),
+        NpcKind::ArenaLeaderboard => open(tr("The arena's best runs"), tr("View")),
+        NpcKind::Forge | NpcKind::Enchanter => open(tr("The Divine Workbench"), tr("Open")),
+        NpcKind::QuestMaster => open(tr("Daily, weekly and monthly quests"), tr("Quests")),
+        NpcKind::Chronicler => open(tr("Daily rewards and achievements"), tr("Open")),
+        NpcKind::ChampionsBoard => open(tr("The living's best, and their rewards"), tr("View")),
+        NpcKind::ChampionStatue => open(tr("A champion of the Hall"), tr("View")),
+        NpcKind::Herald => open(tr("This week in the realm"), tr("View")),
+        NpcKind::CommunityGoals => open(tr("The realm's goals, together"), tr("Rally")),
     }
 }
 
 /// The eight stat potions storage keeps, in its order (`UseStorage`'s kind): name, the potion
 /// and its greater form, the bar's colour.
 pub const POTIONS: [(&str, i32, i32, u32); 8] = [
-    ("Life", 2793, 9070, 0x5EDDDD),
-    ("Mana", 2794, 9071, 0xFFEA55),
-    ("Attack", 2591, 9064, 0xE87EE8),
-    ("Defense", 2592, 9065, 0x9A9A9A),
-    ("Speed", 2593, 9066, 0x70E08C),
-    ("Dexterity", 2636, 9069, 0xFD9D3E),
-    ("Vitality", 2612, 9067, 0xF53434),
-    ("Wisdom", 2613, 9068, 0x77B5F2),
+    (mark("Life"), 2793, 9070, 0x5EDDDD),
+    (mark("Mana"), 2794, 9071, 0xFFEA55),
+    (mark("Attack"), 2591, 9064, 0xE87EE8),
+    (mark("Defense"), 2592, 9065, 0x9A9A9A),
+    (mark("Speed"), 2593, 9066, 0x70E08C),
+    (mark("Dexterity"), 2636, 9069, 0xFD9D3E),
+    (mark("Vitality"), 2612, 9067, 0xF53434),
+    (mark("Wisdom"), 2613, 9068, 0x77B5F2),
 ];
 
 /// Which text a prompt asks for.
@@ -265,7 +270,7 @@ fn guild_head(ui: &mut Ui, g: &Guild, body: [f32; 4], s: f32, font: impl Fn(f32)
         return 0.0; // an older server: the members only
     }
     let (x, y) = (body[0], body[1]);
-    let hall = format!("Guild Hall {} of 4", g.level);
+    let hall = tf!("Guild Hall {level} of 4", level = g.level);
     ui.label(&hall, x, y, font(14.0), true, color::GOLD);
     let hw = ui.measure(&hall, font(14.0), true);
     let on = |board: Option<(i32, i64)>, name: &str| match board {
@@ -273,27 +278,27 @@ fn guild_head(ui: &mut Ui, g: &Guild, body: [f32; 4], s: f32, font: impl Fn(f32)
         Some((_, fame)) => format!("{name} {}", thousands(fame)),
         None => format!("{name} -"),
     };
-    let place = format!("Hall of Champions: {}  ·  {}", on(g.living, "Living"), on(g.dead, "Dead"));
+    let place = tf!("Hall of Champions: {living}  ·  {dead}", living = on(g.living, tr("Living")), dead = on(g.dead, tr("Dead")));
     let pw = (body[2] - hw - 16.0 * s).max(0.0);
     let place = fit(ui, &place, font(11.5), pw);
     ui.label(&place, x + hw + 16.0 * s, y + 2.0 * s, font(11.5), false, color::TEXT_DIM);
     // the hall's buffs for every member (an older server sends none: it gave 1% loot)
-    let buffs = if g.buffs.is_empty() { "+1% loot".to_owned() } else { short_buffs(&g.buffs) };
-    let buffs = fit(ui, &format!("Every member: {buffs}"), font(11.5), body[2]);
+    let buffs = if g.buffs.is_empty() { tr("+1% loot").to_owned() } else { short_buffs(&g.buffs) };
+    let buffs = fit(ui, &tf!("Every member: {buffs}", buffs), font(11.5), body[2]);
     ui.label(&buffs, x, y + 22.0 * s, font(11.5), true, color::GOOD);
-    let line = format!(
-        "Guild fame {} ({} earned)  ·  Vault {}/{}",
-        thousands(g.fame),
-        thousands(g.total_fame),
-        g.vault_used,
-        g.vault_slots
+    let line = tf!(
+        "Guild fame {fame} ({earned} earned)  ·  Vault {used}/{slots}",
+        fame = thousands(g.fame),
+        earned = thousands(g.total_fame),
+        used = g.vault_used,
+        slots = g.vault_slots
     );
     let line = fit(ui, &line, font(11.5), body[2]);
     ui.label(&line, x, y + 40.0 * s, font(11.5), false, color::TEXT);
     let next = match (g.next_price > 0, g.next_buffs.is_empty()) {
-        (true, false) => format!("Next hall, {} guild fame: {}", thousands(g.next_price), short_buffs(&g.next_buffs)),
-        (true, true) => format!("Next hall: {} guild fame, bought by a leader in the hall.  /ginfo  /gvault", thousands(g.next_price)),
-        _ => "The guild has the grandest hall.  /ginfo  /gvault".to_owned(),
+        (true, false) => tf!("Next hall, {price} guild fame: {buffs}", price = thousands(g.next_price), buffs = short_buffs(&g.next_buffs)),
+        (true, true) => tf!("Next hall: {price} guild fame, bought by a leader in the hall.  /ginfo  /gvault", price = thousands(g.next_price)),
+        _ => tr("The guild has the grandest hall.  /ginfo  /gvault").to_owned(),
     };
     let next = fit(ui, &next, font(11.0), body[2]);
     ui.label(&next, x, y + 58.0 * s, font(11.0), false, color::TEXT_MUTED);
@@ -445,7 +450,7 @@ impl Npcs {
                     self.close();
                 } else {
                     *busy = false;
-                    *error = Some(if why.is_empty() { "That didn't work.".to_owned() } else { why.to_owned() });
+                    *error = Some(if why.is_empty() { tr("That didn't work.").to_owned() } else { why.to_owned() });
                 }
             }
         }
@@ -489,16 +494,16 @@ impl Npcs {
         theme::panel(ui.renderer, r, s);
         let font = |size: f32| (size * s).round().max(9.0);
         let title = match window {
-            Window::Skins { .. } => "The Armoire".to_owned(),
-            Window::Prompt { prompt: Prompt::Name, .. } => "Choose a name".to_owned(),
-            Window::Prompt { prompt: Prompt::Guild, .. } => "Create a guild".to_owned(),
-            Window::Renounce => "Leave the guild".to_owned(),
-            Window::Board { .. } => "Guild board".to_owned(),
-            Window::Members { list, .. } => list.as_ref().map_or("Guild members".to_owned(), |l| l.name.clone()),
-            Window::Potions { .. } => "Potion storage".to_owned(),
-            Window::Leaderboard { .. } => "Arena Leaderboard".to_owned(),
-            Window::Champions(_) => "Hall of Champions".to_owned(),
-            Window::Weekly { .. } => "This week in the realm".to_owned(),
+            Window::Skins { .. } => tr("The Armoire").to_owned(),
+            Window::Prompt { prompt: Prompt::Name, .. } => tr("Choose a name").to_owned(),
+            Window::Prompt { prompt: Prompt::Guild, .. } => tr("Create a guild").to_owned(),
+            Window::Renounce => tr("Leave the guild").to_owned(),
+            Window::Board { .. } => tr("Guild board").to_owned(),
+            Window::Members { list, .. } => list.as_ref().map_or(tr("Guild members").to_owned(), |l| l.name.clone()),
+            Window::Potions { .. } => tr("Potion storage").to_owned(),
+            Window::Leaderboard { .. } => tr("Arena Leaderboard").to_owned(),
+            Window::Champions(_) => tr("Hall of Champions").to_owned(),
+            Window::Weekly { .. } => tr("This week in the realm").to_owned(),
         };
         let title_color = if matches!(window, Window::Champions(_) | Window::Weekly { .. }) { color::GOLD } else { color::TEXT };
         ui.label(&title, r[0] + 20.0 * s, r[1] + 16.0 * s, font(19.0), true, title_color);
@@ -517,7 +522,7 @@ impl Npcs {
         match window {
             Window::Skins { class, skins } => {
                 let current = me.map_or(0, |m| int(m, crate::hud::stat::TEXTURE)) as u16;
-                ui.label("Pick a look for this character.", body[0], body[1], font(12.0), false, color::TEXT_DIM);
+                ui.label(tr("Pick a look for this character."), body[0], body[1], font(12.0), false, color::TEXT_DIM);
                 let cell = (body[2] / 4.0).floor();
                 for (i, &skin) in skins.iter().enumerate() {
                     let cr = [body[0] + (i % 4) as f32 * cell + 3.0 * s, body[1] + 26.0 * s + (i / 4) as f32 * 112.0 * s, cell - 6.0 * s, 104.0 * s];
@@ -529,7 +534,7 @@ impl Npcs {
                     if let Some(desc) = desc {
                         let (t1, t2) = me.map_or((0, 0), |m| (int(m, crate::hud::stat::TEX1), int(m, crate::hud::stat::TEX2)));
                         crate::screens::portrait(ui, desc, t1, t2, cr[0] + cr[2] / 2.0, cr[1] + 42.0 * s, s);
-                        let name = if skin == 0 { "Classic".to_owned() } else { desc.display_id.clone() };
+                        let name = if skin == 0 { tr("Classic").to_owned() } else { desc.display_id.clone() };
                         let ns = font(11.0);
                         let name = fit(ui, &name, ns, cr[2] - 8.0 * s);
                         let nw = ui.measure(&name, ns, true);
@@ -543,12 +548,12 @@ impl Npcs {
             Window::Prompt { prompt, input, error, busy } => {
                 let hint = match prompt {
                     Prompt::Name => match me {
-                        Some(m) if int(m, stat::NAME_CHOSEN) != 0 => format!("Letters only, at most 10. Costs {} fame.", crate::hud::group_digits(NAME_CHANGE_PRICE)),
-                        _ => "Letters only, at most 10. Choose carefully!".to_owned(),
+                        Some(m) if int(m, stat::NAME_CHOSEN) != 0 => tf!("Letters only, at most 10. Costs {price} fame.", price = crate::hud::group_digits(NAME_CHANGE_PRICE)),
+                        _ => tr("Letters only, at most 10. Choose carefully!").to_owned(),
                     },
                     Prompt::Guild => match self.guild_price.unwrap_or(GUILD_PRICE) {
-                        0 => "Letters and spaces, at most 20. Free during the guild event!".to_owned(),
-                        _ => format!("Letters and spaces, at most 20. Costs {}.", guild_price_text(self.guild_price)),
+                        0 => tr("Letters and spaces, at most 20. Free during the guild event!").to_owned(),
+                        _ => tf!("Letters and spaces, at most 20. Costs {price}.", price = guild_price_text(self.guild_price)),
                     },
                 };
                 ui.label(&hint, body[0], body[1], font(12.0), false, color::TEXT_DIM);
@@ -564,17 +569,17 @@ impl Npcs {
                     ui.label(e, body[0], fr[1] + fr[3] + 10.0 * s, font(12.0), true, color::DANGER);
                 }
                 let label = match (prompt, busy) {
-                    (_, true) => "Wait…",
-                    (Prompt::Name, _) => "Choose",
-                    (Prompt::Guild, _) => "Create",
+                    (_, true) => tr("Wait…"),
+                    (Prompt::Name, _) => tr("Choose"),
+                    (Prompt::Guild, _) => tr("Create"),
                 };
                 buttons.push((Hit::Submit, label.to_owned(), Kind::Primary));
             }
             Window::Renounce => {
                 let g = me.map_or("", guild).to_owned();
-                ui.label(&format!("Leave {g}?"), body[0], body[1], font(15.0), true, color::TEXT);
-                ui.label("You'll need an invitation to come back.", body[0], body[1] + 26.0 * s, font(12.0), false, color::TEXT_DIM);
-                buttons.push((Hit::Submit, "Renounce".to_owned(), Kind::Danger));
+                ui.label(&tf!("Leave {guild}?", guild = g), body[0], body[1], font(15.0), true, color::TEXT);
+                ui.label(tr("You'll need an invitation to come back."), body[0], body[1] + 26.0 * s, font(12.0), false, color::TEXT_DIM);
+                buttons.push((Hit::Submit, tr("Renounce").to_owned(), Kind::Danger));
             }
             Window::Board { text, edit, error } => {
                 let box_r = [body[0], body[1], body[2], body[3] - 50.0 * s];
@@ -582,9 +587,9 @@ impl Npcs {
                 let ts = font(13.0);
                 let shown = edit.as_deref().or(text.as_deref());
                 match shown {
-                    None => ui.label("Loading…", box_r[0] + 12.0 * s, box_r[1] + 10.0 * s, ts, false, color::TEXT_MUTED),
+                    None => ui.label(tr("Loading…"), box_r[0] + 12.0 * s, box_r[1] + 10.0 * s, ts, false, color::TEXT_MUTED),
                     Some(t) if t.trim().is_empty() && edit.is_none() => {
-                        ui.label("The board is empty.", box_r[0] + 12.0 * s, box_r[1] + 10.0 * s, ts, false, color::TEXT_MUTED)
+                        ui.label(tr("The board is empty."), box_r[0] + 12.0 * s, box_r[1] + 10.0 * s, ts, false, color::TEXT_MUTED)
                     }
                     Some(t) => {
                         let lines = wrap(ui, t, ts, box_r[2] - 24.0 * s);
@@ -610,9 +615,9 @@ impl Npcs {
                 // Officers and up may write on it.
                 if me.is_some_and(|m| int(m, stat::GUILD_RANK) >= 20) && text.is_some() {
                     if edit.is_some() {
-                        buttons.push((Hit::Submit, "Save".to_owned(), Kind::Primary));
+                        buttons.push((Hit::Submit, tr("Save").to_owned(), Kind::Primary));
                     } else {
-                        buttons.push((Hit::Edit, "Edit".to_owned(), Kind::Secondary));
+                        buttons.push((Hit::Edit, tr("Edit").to_owned(), Kind::Secondary));
                     }
                 }
             }
@@ -622,14 +627,14 @@ impl Npcs {
                 let ts = font(12.5);
                 match list {
                     None => {
-                        let t = error.as_deref().unwrap_or("Loading…");
+                        let t = error.as_deref().unwrap_or(tr("Loading…"));
                         ui.label(t, body[0], body[1], ts, false, if error.is_some() { color::DANGER } else { color::TEXT_MUTED });
                     }
                     Some(guild) => {
                         let members = &guild.members;
                         let small = font(10.5);
                         let top = body[1] + guild_head(ui, guild, body, s, font);
-                        for (x, label) in [(0.0, "NAME"), (150.0, "RANK"), (230.0, "GAVE"), (300.0, "LIVING")] {
+                        for (x, label) in [(0.0, tr("NAME")), (150.0, tr("RANK")), (230.0, tr("GAVE")), (300.0, tr("LIVING"))] {
                             ui.label(label, body[0] + x * s, top, small, true, color::TEXT_MUTED);
                         }
                         for (row, (i, m)) in members.iter().enumerate().skip(page * MEMBER_ROWS).take(MEMBER_ROWS).enumerate() {
@@ -643,7 +648,7 @@ impl Npcs {
                             ui.label(&m.name, body[0], ty, ts, true, if me_row { color::ACCENT_HI } else { color::TEXT });
                             ui.label(rank_name(m.rank), body[0] + 150.0 * s, ty, ts, false, color::TEXT_DIM);
                             ui.label(&thousands(m.fame as i64), body[0] + 230.0 * s, ty, ts, false, color::TEXT_DIM);
-                            let alive = if m.away { "away".to_owned() } else { m.alive.map_or("-".to_owned(), thousands) };
+                            let alive = if m.away { tr("away").to_owned() } else { m.alive.map_or("-".to_owned(), thousands) };
                             ui.label(&alive, body[0] + 300.0 * s, ty, ts, false, color::TEXT_DIM);
                             // Officers manage those below them (MemberListLine).
                             if my_rank >= 20 && m.rank < my_rank && !me_row {
@@ -664,10 +669,10 @@ impl Npcs {
                         }
                         let pages = members.len().div_ceil(MEMBER_ROWS).max(1);
                         if pages > 1 {
-                            let t = format!("Page {} of {pages}", page + 1);
+                            let t = tf!("Page {page} of {pages}", page = page + 1, pages);
                             ui.label(&t, body[0], body[1] + body[3] - 30.0 * s, font(12.0), false, color::TEXT_DIM);
-                            buttons.push((Hit::Page(1), "Next".to_owned(), Kind::Secondary));
-                            buttons.push((Hit::Page(-1), "Back".to_owned(), Kind::Secondary));
+                            buttons.push((Hit::Page(1), tr("Next").to_owned(), Kind::Secondary));
+                            buttons.push((Hit::Page(-1), tr("Back").to_owned(), Kind::Secondary));
                         }
                         if let Some(e) = error {
                             ui.label(e, body[0], body[1] + body[3] - 30.0 * s, font(12.0), true, color::DANGER);
@@ -679,18 +684,18 @@ impl Npcs {
                 let ts = font(12.5);
                 match counts {
                     None => {
-                        let t = error.as_deref().unwrap_or("Loading…");
+                        let t = error.as_deref().unwrap_or(tr("Loading…"));
                         ui.label(t, body[0], body[1], ts, false, if error.is_some() { color::DANGER } else { color::TEXT_MUTED });
                     }
                     Some((counts, capacity)) => {
-                        ui.label(&format!("Holds {capacity} of each"), body[0], body[1], font(12.0), false, color::TEXT_DIM);
+                        ui.label(&tf!("Holds {capacity} of each", capacity), body[0], body[1], font(12.0), false, color::TEXT_DIM);
                         for (k, (name, potion, _, c)) in POTIONS.iter().enumerate() {
                             let y = body[1] + 24.0 * s + k as f32 * 38.0 * s;
                             let count = counts.get(k).copied().unwrap_or(0);
                             let icon = [body[0], y, 34.0 * s, 34.0 * s];
                             ui.slot_box(icon, None, false, s);
                             ui.item_icon(*potion, 80, icon[0] + icon[2] / 2.0, icon[1] + icon[3] / 2.0, s * 0.8);
-                            ui.label(name, body[0] + 42.0 * s, y + 1.0 * s, ts, true, color::TEXT);
+                            ui.label(tr(name), body[0] + 42.0 * s, y + 1.0 * s, ts, true, color::TEXT);
                             // How full, as a bar.
                             let bar = [body[0] + 42.0 * s, y + 21.0 * s, 110.0 * s, 8.0 * s];
                             theme::fill(ui.renderer, bar, 4.0 * s, color::TRACK, 1.0);
@@ -702,7 +707,7 @@ impl Npcs {
                             let small = font(11.0);
                             ui.label(&n, bar[0] + bar[2] + 8.0 * s, y + 16.0 * s, small, true, color::TEXT_DIM);
                             let mut x = body[0] + body[2];
-                            for (action, label) in [(3u8, "Max"), (2, "Drink"), (1, "Take"), (0, "Store")] {
+                            for (action, label) in [(3u8, tr("Max")), (2, tr("Drink")), (1, tr("Take")), (0, tr("Store"))] {
                                 let bw = 50.0 * s;
                                 x -= bw + 4.0 * s;
                                 let br = [x, y + 3.0 * s, bw, 28.0 * s];
@@ -711,7 +716,7 @@ impl Npcs {
                                 self.buttons.push((Hit::Storage(k as u8, action), br));
                             }
                         }
-                        buttons.push((Hit::Storage(0, 4), format!("Upgrade  ·  {STORAGE_UPGRADE_PRICE} fame"), Kind::Secondary));
+                        buttons.push((Hit::Storage(0, 4), tf!("Upgrade  ·  {price} fame", price = STORAGE_UPGRADE_PRICE), Kind::Secondary));
                         if let Some(e) = error {
                             ui.label(e, body[0], body[1] + body[3] - 30.0 * s, font(12.0), true, color::DANGER);
                         }
@@ -723,7 +728,7 @@ impl Npcs {
                 // the Solo and Group tabs, then the runs under them
                 let cs = font(13.0);
                 let mut tx = body[0];
-                for (on, label) in [(true, "Solo"), (false, "Group")] {
+                for (on, label) in [(true, tr("Solo")), (false, tr("Group"))] {
                     let tr = [tx, body[1], ui.measure(label, cs, true) + 36.0 * s, 30.0 * s];
                     crate::champions::chip(ui, tr, label, *solo == on, inside(tr, mouse), cs, None, s);
                     self.buttons.push((Hit::Solo(on), tr));
@@ -732,11 +737,11 @@ impl Npcs {
                 let body = [body[0], body[1] + 44.0 * s, body[2], body[3] - 44.0 * s];
                 match runs {
                     None => {
-                        let t = error.as_deref().unwrap_or("Loading…");
+                        let t = error.as_deref().unwrap_or(tr("Loading…"));
                         ui.label(t, body[0], body[1], ts, false, if error.is_some() { color::DANGER } else { color::TEXT_MUTED });
                     }
                     Some(runs) if runs.is_empty() => {
-                        let t = if *solo { "No solo runs yet. Survive waves in the Arena (/arena) alone to get on the board." } else { "No group runs yet. Survive waves in the Arena (/arena) with others to get on the board." };
+                        let t = if *solo { tr("No solo runs yet. Survive waves in the Arena (/arena) alone to get on the board.") } else { tr("No group runs yet. Survive waves in the Arena (/arena) with others to get on the board.") };
                         ui.label(t, body[0], body[1], ts, false, color::TEXT_MUTED);
                     }
                     Some(runs) => draw_runs(ui, runs, body, s, me.and_then(|m| m.name()).unwrap_or("")),
@@ -751,7 +756,7 @@ impl Npcs {
             }
             Window::Weekly { stats, error } => match stats {
                 None => {
-                    let t = error.as_deref().unwrap_or("Loading…");
+                    let t = error.as_deref().unwrap_or(tr("Loading…"));
                     ui.label(t, body[0], body[1], font(12.5), false, if error.is_some() { color::DANGER } else { color::TEXT_MUTED });
                 }
                 Some(w) => draw_week(ui, w, body, s),
@@ -772,15 +777,15 @@ impl Npcs {
 
 /// The Herald's counts (`DbWeeklyStats`, in its order): the id, the card's icon, its label.
 const WEEK_CARDS: [(&str, u32, &str); 9] = [
-    ("dungeons", crate::hud::ui_icon::DUNGEON, "Dungeons cleared"),
-    ("chainsCompleted", crate::hud::ui_icon::CROWN, "Oryx chains completed"),
-    ("chainsFailed", crate::hud::ui_icon::CROWN_BROKEN, "Oryx chains failed"),
-    ("deaths", crate::hud::ui_icon::GRAVE, "Heroes fallen"),
-    ("kills", crate::hud::ui_icon::SWORDS, "Monsters slain"),
-    ("events", crate::hud::ui_icon::BANNER, "Realm events defeated"),
-    ("realmsClosed", crate::hud::ui_icon::TOWER, "Realms conquered"),
-    ("potions", crate::hud::ui_icon::POTION, "Potions drunk"),
-    ("forged", crate::hud::ui_icon::ANVIL, "Items forged"),
+    ("dungeons", crate::hud::ui_icon::DUNGEON, mark("Dungeons cleared")),
+    ("chainsCompleted", crate::hud::ui_icon::CROWN, mark("Oryx chains completed")),
+    ("chainsFailed", crate::hud::ui_icon::CROWN_BROKEN, mark("Oryx chains failed")),
+    ("deaths", crate::hud::ui_icon::GRAVE, mark("Heroes fallen")),
+    ("kills", crate::hud::ui_icon::SWORDS, mark("Monsters slain")),
+    ("events", crate::hud::ui_icon::BANNER, mark("Realm events defeated")),
+    ("realmsClosed", crate::hud::ui_icon::TOWER, mark("Realms conquered")),
+    ("potions", crate::hud::ui_icon::POTION, mark("Potions drunk")),
+    ("forged", crate::hud::ui_icon::ANVIL, mark("Items forged")),
 ];
 
 /// The server's week in `body`: when it starts afresh, a card for each count (its icon, the
@@ -790,8 +795,8 @@ fn draw_week(ui: &mut Ui, w: &bsk_net::account::WeeklyStats, body: [f32; 4], s: 
     let font = |size: f32| (size * s).round().max(9.0);
     // the reset, by the hourglass
     let left = (w.reset - w.now).max(0);
-    let when = if left >= 86_400 { format!("{}d {}h", left / 86_400, left % 86_400 / 3600) } else { format!("{}h {}m", left / 3600, left % 3600 / 60) };
-    let line = format!("Everyone's deeds together, since Monday. A new week begins in {when}.");
+    let when = if left >= 86_400 { tf!("{d}d {h}h", d = left / 86_400, h = left % 86_400 / 3600) } else { tf!("{h}h {m}m", h = left / 3600, m = left % 3600 / 60) };
+    let line = tf!("Everyone's deeds together, since Monday. A new week begins in {when}.", when);
     crate::hud::ui_icon(ui, crate::hud::ui_icon::HOURGLASS, body[0] + 9.0 * s, body[1] + 9.0 * s, 18.0 * s);
     ui.label(&line, body[0] + 24.0 * s, body[1] + 1.0 * s, font(12.0), false, color::TEXT_DIM);
     let top = body[1] + 28.0 * s;
@@ -806,23 +811,23 @@ fn draw_week(ui: &mut Ui, w: &bsk_net::account::WeeklyStats, body: [f32; 4], s: 
         let vs = font(22.0);
         ui.label(&value, cr[0] + 50.0 * s, cr[1] + 14.0 * s, vs, true, color::TEXT);
         let ls = font(11.0);
-        ui.label(label, cr[0] + 12.0 * s, cr[1] + ch - ls * 1.22 - 10.0 * s, ls, true, color::TEXT_MUTED);
+        ui.label(tr(label), cr[0] + 12.0 * s, cr[1] + ch - ls * 1.22 - 10.0 * s, ls, true, color::TEXT_MUTED);
     }
     // the most slain: the first big, the next few beside it
     let y = top + 3.0 * (ch + gap) + 4.0 * s;
     let card = [body[0], y, body[2], 96.0 * s];
     theme::frame(ui.renderer, card, 8.0 * s, s.max(1.0), (GOLD, 0.9), ((color::SLOT_TOP, 1.0), (color::SLOT_BOTTOM, 1.0)));
     crate::hud::ui_icon(ui, crate::hud::ui_icon::SKULL, card[0] + 18.0 * s, card[1] + 18.0 * s, 20.0 * s);
-    ui.label("Most slain", card[0] + 32.0 * s, card[1] + 10.0 * s, font(12.0), true, GOLD);
-    let name = |t: u16| ui.data.objects.get(&t).map_or_else(|| "Unknown".to_owned(), |d| d.display_id.clone());
+    ui.label(tr("Most slain"), card[0] + 32.0 * s, card[1] + 10.0 * s, font(12.0), true, GOLD);
+    let name = |t: u16| ui.data.objects.get(&t).map_or_else(|| tr("Unknown").to_owned(), |d| d.display_id.clone());
     let Some(&(first, kills)) = w.killed.first() else {
-        ui.label("Nothing slain yet this week.", card[0] + 16.0 * s, card[1] + 44.0 * s, font(12.0), false, color::TEXT_MUTED);
+        ui.label(tr("Nothing slain yet this week."), card[0] + 16.0 * s, card[1] + 44.0 * s, font(12.0), false, color::TEXT_MUTED);
         return;
     };
     crate::hud::object_icon(ui, first, card[0] + 44.0 * s, card[1] + 60.0 * s, 44.0 * s);
     let fname = name(first);
     ui.label(&fname, card[0] + 76.0 * s, card[1] + 40.0 * s, font(15.0), true, color::TEXT);
-    let k = format!("{} slain", crate::hud::group_digits(kills.clamp(0, i32::MAX as i64) as i32));
+    let k = tn!(kills, "{n} slain|{n} slain", n = crate::hud::group_digits(kills.clamp(0, i32::MAX as i64) as i32));
     ui.label(&k, card[0] + 76.0 * s, card[1] + 62.0 * s, font(12.0), true, GOLD);
     // the runners-up, a row each at the right
     let rx = card[0] + card[2] * 0.55;
@@ -849,7 +854,7 @@ fn submit(prompt: Prompt, input: &str, busy: &mut bool, error: &mut Option<Strin
 fn draw_runs(ui: &mut Ui, runs: &[ArenaRun], body: [f32; 4], s: f32, me: &str) {
     const GOLD: u32 = 0xFFD24A;
     let font = |size: f32| (size * s).round().max(9.0);
-    let names = |r: &ArenaRun| if r.players.is_empty() { "Unknown".to_owned() } else { r.players.join(", ") };
+    let names = |r: &ArenaRun| if r.players.is_empty() { tr("Unknown").to_owned() } else { r.players.join(", ") };
     let mine = |r: &ArenaRun| r.players.iter().any(|p| p == me);
 
     // the best run
@@ -859,7 +864,7 @@ fn draw_runs(ui: &mut Ui, runs: &[ArenaRun], body: [f32; 4], s: f32, me: &str) {
     let (x, mut y) = (card[0] + 16.0 * s, card[1] + 12.0 * s);
     let big = font(22.0);
     ui.label("#1", x, y, big, true, GOLD);
-    let wave = format!("Wave {}", best.wave);
+    let wave = tf!("Wave {wave}", wave = best.wave);
     let wx = x + ui.measure("#1", big, true) + 14.0 * s;
     ui.label(&wave, wx, y, big, true, color::TEXT);
     let tx = wx + ui.measure(&wave, big, true) + 14.0 * s;
@@ -867,7 +872,7 @@ fn draw_runs(ui: &mut Ui, runs: &[ArenaRun], body: [f32; 4], s: f32, me: &str) {
     let detail = if best.arena.is_empty() { run_time(best.seconds) } else { format!("{}  ·  {}", run_time(best.seconds), best.arena) };
     ui.label(&detail, tx, y + (big - small) * 0.8, small, false, color::TEXT_DIM);
     y += big * 1.35;
-    ui.label("Time taken and the players who took part", x, y, font(10.5), true, color::TEXT_MUTED);
+    ui.label(tr("Time taken and the players who took part"), x, y, font(10.5), true, color::TEXT_MUTED);
     y += font(10.5) * 1.5;
     let ps = font(12.5);
     let lines = wrap(ui, &names(best), ps, card[2] - 32.0 * s);
@@ -890,7 +895,7 @@ fn draw_runs(ui: &mut Ui, runs: &[ArenaRun], body: [f32; 4], s: f32, me: &str) {
         let ty = ry + (28.0 * s - ts * 1.22) / 2.0;
         let c = if mine(r) { color::ACCENT_HI } else { color::TEXT };
         ui.label(&format!("#{}", i + 1), body[0], ty, ts, true, color::TEXT_DIM);
-        ui.label(&format!("Wave {}", r.wave), body[0] + 40.0 * s, ty, ts, true, c);
+        ui.label(&tf!("Wave {wave}", wave = r.wave), body[0] + 40.0 * s, ty, ts, true, c);
         ui.label(&run_time(r.seconds), body[0] + 122.0 * s, ty, ts, false, color::TEXT_DIM);
         let px = body[0] + 190.0 * s;
         let who = fit(ui, &names(r), ts, body[0] + body[2] - px);

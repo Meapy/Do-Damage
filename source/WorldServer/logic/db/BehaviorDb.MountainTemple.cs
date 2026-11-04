@@ -273,6 +273,10 @@ namespace WorldServer.logic
                     LootTemplates.BasicDrop()
                     ),
                 new Threshold(.005,
+                    new ItemLoot("Astro's Griffin Generator", 0.03),
+                    new ItemLoot("Ninja Generator", 0.03)
+                    ),
+                new Threshold(.005,
                     LootTemplates.BasicPots()
                     )
                 )

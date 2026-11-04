@@ -10,9 +10,11 @@
          <Index>0x14c</Index>
       </Texture>
       <SlotType>10</SlotType>
+      <Soulbound />
+      <Consumable />
       <Description>Give this to someone you care about!</Description>
-      <BagType>2</BagType>
-      <Activate objectId="Valentine" cooldown="1" hideEffect="false">PermaPet</Activate>
+      <BagType>6</BagType>
+      <Activate objectId="Valentine" cooldown="1" hideEffect="false" petSize="Small" petHp="15" petHpMs="2000" petMp="15" petMpMs="2000">PermaPet</Activate>
       <InvUse/>
       <feedPower>250</feedPower>
    </Object>
@@ -39,6 +41,13 @@
       <NoMiniMap/>
       <Z>0.15</Z>
       <Flying/>
+      <Projectile id="0">
+         <ObjectId>Valentine Heart Bullet</ObjectId>
+         <Damage>100</Damage>
+         <Speed>100</Speed>
+         <LifetimeMS>800</LifetimeMS>
+         <Wavy />
+      </Projectile>
       <Size>60</Size>
       <ShadowSize>70</ShadowSize>
    </Object>
@@ -51,14 +60,17 @@
          <Index>0x244</Index>
       </Texture>
       <SlotType>10</SlotType>
+      <Soulbound />
+      <Consumable />
       <Description>This special sea slurp is trained to seek out the elusive Beer God.</Description>
+      <BagType>6</BagType>
       <ExtraTooltipData>
          <EffectInfo name="" description="Helps locate Beer Gods in the Realm"/>
       </ExtraTooltipData>
       <InvUse/>
       <VaultItem/>
 
-      <Activate objectId="Beer Slurp" cooldown="10">PermaPet</Activate>
+      <Activate objectId="Beer Slurp" cooldown="10" petDps="50" petSize="Small" petHp="15" petHpMs="2000" petMp="15" petMpMs="2000">PermaPet</Activate>
       <OldSound>use_potion</OldSound>
       <feedPower>1000</feedPower>
    </Object>
@@ -75,6 +87,12 @@
          </AnimatedTexture>
       </AltTexture>
       <NoMiniMap/>
+      <Projectile id="0">
+         <ObjectId>Beer Bottle</ObjectId>
+         <Damage>55</Damage>
+         <Speed>70</Speed>
+         <LifetimeMS>800</LifetimeMS>
+      </Projectile>
       <Size>95</Size>
       <ShadowSize>50</ShadowSize>
    </Object>
@@ -87,10 +105,12 @@
          <Index>0x193</Index>
       </Texture>
       <SlotType>10</SlotType>
+      <Soulbound />
+      <Consumable />
       <Description>Play with this ball on the beach! (Requires a buddy!)</Description>
-      <BagType>8</BagType>
+      <BagType>6</BagType>
       <InvUse/>
-      <Activate objectId="Beach Ball" cooldown="1" hideEffect="true">PermaPet</Activate>
+      <Activate objectId="Beach Ball" cooldown="1" hideEffect="true" petDps="50" petSize="Small" petHp="15" petHpMs="2000" petMp="15" petMpMs="2000">PermaPet</Activate>
 
       <feedPower>500</feedPower>
    </Object>
@@ -102,6 +122,13 @@
       </Texture>
       <NoMiniMap/>
       <ShadowSize>0</ShadowSize>
+      <Projectile id="0">
+         <ObjectId>Beach Ball Bullet</ObjectId>
+         <Damage>60</Damage>
+         <Speed>60</Speed>
+         <LifetimeMS>1400</LifetimeMS>
+         <Boomerang />
+      </Projectile>
       <Size>0</Size>
    </Object>
    <Object type="0x00ee" id="Beach Ball Bullet">

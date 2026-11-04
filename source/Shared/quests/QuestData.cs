@@ -43,6 +43,12 @@ namespace Shared.quests
         public string Name;
         public bool God, Boss, Oryx, Cube, RealmEvent, Elder, Group;
         public int Difficulty;
+        // one thing several players share (a kill, a dungeon cleared, a realm closed), the same in
+        // each of their events, so a community goal counts it once (0: each player's own)
+        public long Occurrence;
+
+        private static long _occurrences;
+        public static long NewOccurrence() => System.Threading.Interlocked.Increment(ref _occurrences);
 
         public QuestEvent(string type, int amount = 1) : this()
         {
@@ -57,8 +63,10 @@ namespace Shared.quests
         public int Fame { get; set; }
         public string Item { get; set; }
         public int Count { get; set; } = 1;
+        // community goals only: this many rolls of the goal's loot table (CommunityData.Resolve)
+        public int Roll { get; set; }
 
-        public override string ToString() => Fame > 0 ? $"{Fame} fame" : Count > 1 ? $"{Count}x {Item}" : Item;
+        public override string ToString() => Fame > 0 ? $"{Fame} fame" : Roll > 0 ? $"{Roll} loot roll{(Roll == 1 ? "" : "s")}" : Count > 1 ? $"{Count}x {Item}" : Item;
     }
 
     // What an event must be to count (every condition set must hold).

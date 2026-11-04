@@ -133,6 +133,7 @@ namespace WorldServer.logic
                     )
                 ),
             new Threshold(0.01,
+                new ItemLoot("Josh's Pet Generator", 0.03),
                 new ItemLoot("Potion of Attack", 1),
                 new ItemLoot("Potion of Wisdom", 0.5),
                 new ItemLoot("Mark of the Archivist", 0.02),

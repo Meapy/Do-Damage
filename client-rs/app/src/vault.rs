@@ -15,6 +15,7 @@
 
 use crate::forge::Category;
 use crate::hud::{Layout, SlotKind, Ui};
+use crate::i18n::{mark, tf, tn, tr};
 use crate::theme::{self, color, Kind};
 use bsk_proto::VaultContents;
 use bsk_world::{GameObj, World};
@@ -49,7 +50,7 @@ enum Sort {
     Name,
 }
 
-const SORTS: [(Sort, &str); 4] = [(Sort::Chest, "Chest"), (Sort::Type, "Type"), (Sort::Tier, "Tier"), (Sort::Name, "Name")];
+const SORTS: [(Sort, &str); 4] = [(Sort::Chest, mark("Chest")), (Sort::Type, mark("Type")), (Sort::Tier, mark("Tier")), (Sort::Name, mark("Name"))];
 
 #[derive(Clone, Copy, Debug, PartialEq)]
 enum Hit {
@@ -266,7 +267,7 @@ impl Vault {
     /// A chest's name: "Chest 3", or "Gift chest 1" (the gift chests come after the vault's).
     fn name(&self, c: usize) -> String {
         let vault = self.chests.iter().filter(|c| !c.gift).count();
-        if c >= vault { format!("Gift chest {}", c - vault + 1) } else { format!("Chest {}", c + 1) }
+        if c >= vault { tf!("Gift chest {n}", n = c - vault + 1) } else { tf!("Chest {n}", n = c + 1) }
     }
 
     /// A chest's mark on the sorted grid's items: its number, or G and its number.
@@ -285,7 +286,7 @@ impl Vault {
         let gives = |from: Place, to: Place, to_item: i32| !self.gift(from) || (matches!(to, Place::Inv(_)) && to_item < 0);
         let takes = |p: Place, item: i32| !self.gift(p) || item < 0;
         if (self.gift(a) || self.gift(b)) && !(gives(a, b, ib) && gives(b, a, ia) && takes(a, ib) && takes(b, ia)) {
-            self.message = Some("Gift chests only give: take their items into an empty inventory slot.".into());
+            self.message = Some(tr("Gift chests only give: take their items into an empty inventory slot.").into());
             return Vec::new();
         }
         self.message = None;
@@ -318,7 +319,7 @@ impl Vault {
                 let end = if self.backpack { 20 } else { 12 };
                 let free = (4..end).find(|s| !self.inventory.iter().any(|i| i.0 == *s));
                 if free.is_none() {
-                    self.message = Some("Your inventory is full.".into());
+                    self.message = Some(tr("Your inventory is full.").into());
                 }
                 free.map(Place::Inv)
             }
@@ -327,7 +328,7 @@ impl Vault {
                     .filter(|&c| !self.chests[c].gift)
                     .find_map(|c| self.items[c].iter().position(Option::is_none).map(|s| Place::Chest(c, s)));
                 if free.is_none() {
-                    self.message = Some("Your vault is full.".into());
+                    self.message = Some(tr("Your vault is full.").into());
                 }
                 free
             }
@@ -543,19 +544,19 @@ impl Vault {
         // The header: the title, how much the vault holds, the close button.
         let mid = r[1] + 32.0 * s;
         let ts = font(22.0);
-        ui.label("Vault", r[0] + 22.0 * s, (mid - ui.digit_middle(ts, true)).round(), ts, true, color::GOLD);
+        ui.label(tr("Vault"), r[0] + 22.0 * s, (mid - ui.digit_middle(ts, true)).round(), ts, true, color::GOLD);
         if self.loaded {
             let vault: Vec<usize> = (0..self.items.len()).filter(|&c| !self.chests[c].gift).collect();
             let n = vault.iter().map(|&c| self.items[c].iter().flatten().count()).sum::<usize>();
             let total = vault.len() * SLOTS;
             let chests = vault.len();
             let gifts: usize = (0..self.items.len()).filter(|&c| self.chests[c].gift).map(|c| self.items[c].iter().flatten().count()).sum();
-            let mut t = format!("{n} of {total} slots filled · {chests} chest{}", if chests == 1 { "" } else { "s" });
+            let mut t = tf!("{n} of {total} slots filled", n, total) + " · " + &tn!(chests, "{n} chest|{n} chests");
             if gifts > 0 {
-                t += &format!(" · {gifts} gift{}", if gifts == 1 { "" } else { "s" });
+                t += &(" · ".to_owned() + &tn!(gifts, "{n} gift|{n} gifts"));
             }
             let fs = font(13.0);
-            let x = r[0] + 22.0 * s + ui.measure("Vault", ts, true) + 16.0 * s;
+            let x = r[0] + 22.0 * s + ui.measure(tr("Vault"), ts, true) + 16.0 * s;
             ui.label(&t, x, (mid - ui.digit_middle(fs, false)).round(), fs, false, color::TEXT_DIM);
         }
         let cb = [r[0] + r[2] - 42.0 * s, (mid - 14.0 * s).round(), 28.0 * s, 28.0 * s];
@@ -574,7 +575,7 @@ impl Vault {
         let fs = font(14.0);
         let ty = fr[1] + (fr[3] - fs * 1.22) / 2.0;
         if self.query.is_empty() {
-            ui.label("Search your vault...", fr[0] + 10.0 * s, ty, fs, false, color::TEXT_MUTED);
+            ui.label(tr("Search your vault..."), fr[0] + 10.0 * s, ty, fs, false, color::TEXT_MUTED);
         } else {
             let q = self.query.clone();
             ui.label(&q, fr[0] + 10.0 * s, ty, fs, false, color::TEXT);
@@ -586,10 +587,11 @@ impl Vault {
         self.hits.push((Hit::Search, fr));
         let hs = font(12.5);
         let mut x = fr[0] + fr[2] + 18.0 * s;
-        ui.label("Sort by", x, ty + (fs - hs) * 0.6, hs, false, color::TEXT_MUTED);
-        x += ui.measure("Sort by", hs, false) + 10.0 * s;
+        ui.label(tr("Sort by"), x, ty + (fs - hs) * 0.6, hs, false, color::TEXT_MUTED);
+        x += ui.measure(tr("Sort by"), hs, false) + 10.0 * s;
         let cs = font(12.0);
         for (k, label) in SORTS {
+            let label = tr(label);
             let w = ui.measure(label, cs, true) + 22.0 * s;
             let cr = [x, fr[1] + 4.0 * s, w, fr[3] - 8.0 * s];
             let on = k == self.sort;
@@ -625,15 +627,15 @@ impl Vault {
         }
         let msg_size = font(13.0);
         if self.unsupported {
-            ui.label("This server can't show the vault yet.", gx, gy + 6.0 * s, msg_size, false, color::TEXT_MUTED);
+            ui.label(tr("This server can't show the vault yet."), gx, gy + 6.0 * s, msg_size, false, color::TEXT_MUTED);
         } else if !self.loaded {
-            ui.label("Opening your vault...", gx, gy + 6.0 * s, msg_size, false, color::TEXT_MUTED);
+            ui.label(tr("Opening your vault..."), gx, gy + 6.0 * s, msg_size, false, color::TEXT_MUTED);
         } else if self.items.is_empty() {
-            ui.label("You have no vault chests yet.", gx, gy + 6.0 * s, msg_size, false, color::TEXT_MUTED);
+            ui.label(tr("You have no vault chests yet."), gx, gy + 6.0 * s, msg_size, false, color::TEXT_MUTED);
         } else if self.shown.is_empty() {
-            ui.label("Nothing in your vault matches.", gx, gy + 6.0 * s, msg_size, false, color::TEXT_MUTED);
+            ui.label(tr("Nothing in your vault matches."), gx, gy + 6.0 * s, msg_size, false, color::TEXT_MUTED);
         } else if self.sort != Sort::Chest && self.sorted.is_empty() {
-            ui.label("Your vault is empty.", gx, gy + 6.0 * s, msg_size, false, color::TEXT_MUTED);
+            ui.label(tr("Your vault is empty."), gx, gy + 6.0 * s, msg_size, false, color::TEXT_MUTED);
         }
         // The HUD's inventory: a drag shows where it would land, and the item dragged out of it
         // leaves its slot looking empty.
@@ -652,22 +654,22 @@ impl Vault {
         let total = self.total_rows;
         if total > self.rows {
             let (up, down) = ([gx, by, 56.0 * s, 26.0 * s], [gx + 62.0 * s, by, 56.0 * s, 26.0 * s]);
-            ui.button(up, "Up", Kind::Secondary, inside(up, mouse), s * 0.8);
-            ui.button(down, "Down", Kind::Secondary, inside(down, mouse), s * 0.8);
+            ui.button(up, tr("Up"), Kind::Secondary, inside(up, mouse), s * 0.8);
+            ui.button(down, tr("Down"), Kind::Secondary, inside(down, mouse), s * 0.8);
             self.hits.push((Hit::Up, up));
             self.hits.push((Hit::Down, down));
-            let page = format!("Rows {}-{} of {}", self.row + 1, (self.row + self.rows).min(total), total);
+            let page = tf!("Rows {from}-{to} of {all}", from = self.row + 1, to = (self.row + self.rows).min(total), all = total);
             ui.label(&page, gx + 130.0 * s, by + 5.0 * s, font(12.0), false, color::TEXT_MUTED);
         } else if self.loaded {
-            let hint = if self.movable() { "Drag items to and from your inventory, or click one to send it across." } else { "Only in your own vault can items move." };
+            let hint = if self.movable() { tr("Drag items to and from your inventory, or click one to send it across.") } else { tr("Only in your own vault can items move.") };
             let hint = clip(ui, hint, font(12.5), (right - gx) * 0.6);
             ui.label(&hint, gx, by + 5.0 * s, font(12.5), false, color::TEXT_MUTED);
         }
         let note = if let Some(m) = &self.message {
             Some((m.clone(), color::DANGER))
         } else if !self.query.trim().is_empty() && !self.shown.is_empty() {
-            let found = self.shown.iter().map(|&c| self.name(c).to_lowercase()).collect::<Vec<_>>().join(", ");
-            Some((format!("In {found}"), color::GOOD))
+            let found = self.shown.iter().map(|&c| self.name(c)).collect::<Vec<_>>().join(", ");
+            Some((tf!("In {found}", found), color::GOOD))
         } else {
             None
         };
@@ -691,15 +693,15 @@ impl Vault {
             lines.extend(crate::hud::imprint_lines(ui.data, item, imprints));
             if let Place::Chest(chest, _) = place {
                 lines.push(crate::hud::Line::gap());
-                lines.push(crate::hud::Line::new(&format!("In {}", self.name(chest).to_lowercase()), 12.0, true, color::GOOD));
+                lines.push(crate::hud::Line::new(&tf!("In {found}", found = self.name(chest)), 12.0, true, color::GOOD));
                 if self.movable() && self.gift(place) {
-                    lines.push(crate::hud::Line::new("Click: to your inventory", 12.0, false, color::TEXT_DIM));
+                    lines.push(crate::hud::Line::new(tr("Click: to your inventory"), 12.0, false, color::TEXT_DIM));
                 } else if self.movable() {
-                    lines.push(crate::hud::Line::new("Click: to your inventory · Right-click: mark the chest", 12.0, false, color::TEXT_DIM));
+                    lines.push(crate::hud::Line::new(tr("Click: to your inventory · Right-click: mark the chest"), 12.0, false, color::TEXT_DIM));
                 }
             } else if self.movable() {
                 lines.push(crate::hud::Line::gap());
-                lines.push(crate::hud::Line::new("Click: into your vault", 12.0, false, color::TEXT_DIM));
+                lines.push(crate::hud::Line::new(tr("Click: into your vault"), 12.0, false, color::TEXT_DIM));
             }
             crate::hud::draw_tooltip(ui, lay, &lines, Some(item), crate::screens::tier_edge(ui.data, item), mouse);
         }

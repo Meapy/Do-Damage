@@ -6,12 +6,14 @@
 mod audio;
 mod champions;
 mod changelog;
+mod community;
 mod connected;
 mod emotes;
 mod events;
 mod game;
 mod ground;
 mod hud;
+mod i18n;
 mod login;
 mod forge;
 mod quests;
@@ -46,6 +48,7 @@ use bsk_net::Pending;
 use bsk_render::Renderer;
 use bsk_session::{HelloParams, Join, NEXUS_GAME_ID};
 use game::Game;
+use i18n::{tf, tr};
 use sprites::Sprites;
 use std::collections::HashSet;
 use std::sync::Arc;
@@ -226,6 +229,9 @@ struct App {
     /// the server on opening.
     quests: quests::Quests,
     quest_acts: Vec<quests::Act>,
+    /// The community goals window and its banners, and what it asked of the server.
+    community: community::Community,
+    community_acts: Vec<community::Act>,
     /// Key bindings, graphics and sound settings, and their window.
     settings: options::Settings,
     options_ui: options::OptionsUi,
@@ -277,7 +283,7 @@ fn guild_register_price(world: &bsk_world::World, data: &bsk_data::GameData) -> 
     })
 }
 
-fn npc_open(kind: npc::NpcKind, game: &Game, npcs: &mut npc::Npcs, market: &mut market::Market, forge: &mut forge::Forge, forge_acts: &mut Vec<forge::Act>, quests: (&mut quests::Quests, &mut Vec<quests::Act>), list: Option<&bsk_net::account::CharList>, data: &bsk_data::GameData) -> bool {
+fn npc_open(kind: npc::NpcKind, game: &Game, npcs: &mut npc::Npcs, market: &mut market::Market, forge: &mut forge::Forge, forge_acts: &mut Vec<forge::Act>, quests: (&mut quests::Quests, &mut Vec<quests::Act>), community: (&mut community::Community, &mut Vec<community::Act>), list: Option<&bsk_net::account::CharList>, data: &bsk_data::GameData) -> bool {
     use npc::{NpcKind, Prompt, Window};
     let Some(me) = game.world.as_ref().and_then(|w| w.player()) else { return false };
     let window = match kind {
@@ -304,6 +310,13 @@ fn npc_open(kind: npc::NpcKind, game: &Game, npcs: &mut npc::Npcs, market: &mut 
                 _ => quests::Tab::Achievements,
             };
             acts.extend(log.show(Some(tab)));
+            return false;
+        }
+        // the Warcaller: the community goals
+        NpcKind::CommunityGoals => {
+            let (window, acts) = community;
+            quests.0.close();
+            acts.extend(window.show());
             return false;
         }
         NpcKind::Reskin => {
@@ -805,7 +818,7 @@ impl App {
         }
         let Some(endpoint) = &self.endpoint else { return };
         self.request = Some((Request::Guest, endpoint.guest()));
-        self.front.busy = "Making you a guest account…".into();
+        self.front.busy = tr("Making you a guest account…").into();
         self.front.message = None;
         self.front.show(screens::Screen::Busy);
     }
@@ -818,7 +831,7 @@ impl App {
         self.guest = true;
         self.front.message = None;
         if busy {
-            self.front.busy = "Entering as a guest…".into();
+            self.front.busy = tr("Entering as a guest…").into();
             self.front.show(screens::Screen::Busy);
         } else {
             self.front.signing_in = true;
@@ -934,7 +947,7 @@ impl App {
             if self.update_told != version {
                 self.update_told = version.clone();
                 if let Phase::Playing(game) = &mut self.phase {
-                    game.add_chat("", "", &format!("Version {version} is ready: it starts when you next take a portal."), 0, 0, -1, now);
+                    game.add_chat("", "", &tf!("Version {version} is ready: it starts when you next take a portal.", version), 0, 0, -1, now);
                 }
             }
             if self.handover.is_none() && !self.handover_failed {
@@ -978,7 +991,7 @@ impl App {
                         game.fallback_to_nexus = true;
                         game.reconnect(&r);
                     }
-                    game.add_chat("*Error*", "", "The new version couldn't start; it will the next time you open the game.", 0, 0, -1, now);
+                    game.add_chat("*Error*", "", tr("The new version couldn't start; it will the next time you open the game."), 0, 0, -1, now);
                 }
             }
         }
@@ -1063,13 +1076,14 @@ impl App {
         if let Some(updater) = &self.updater {
             return match updater.status() {
                 update::Status::Downloading { version, done, total } => {
-                    format!("{label}  ·  downloading {version} ({}%)", done * 100 / total.max(1))
+                    let pct = done * 100 / total.max(1);
+                    format!("{label}  ·  {}", tf!("downloading {version} ({pct}%)", version, pct))
                 }
-                update::Status::Ready { version } => format!("{label}  ·  {version} is ready"),
-                _ => format!("{label}  ·  Changelog"),
+                update::Status::Ready { version } => format!("{label}  ·  {}", tf!("{version} is ready", version)),
+                _ => format!("{label}  ·  {}", tr("Changelog")),
             };
         }
-        format!("{label}  ·  Changelog")
+        format!("{label}  ·  {}", tr("Changelog"))
     }
 
     /// Once a version, when the screens or the game first show: a note that it's new.
@@ -1089,7 +1103,8 @@ impl App {
             let first = self.settings.seen_version.is_empty();
             self.settings.seen_version = version::VERSION.into();
             self.settings.save();
-            let text = if first { format!("You're playing version {}", version::VERSION) } else { format!("Updated to version {}", version::VERSION) };
+            let version = version::VERSION;
+            let text = if first { tf!("You're playing version {version}", version) } else { tf!("Updated to version {version}", version) };
             self.changelog.note(text, now);
         }
     }
@@ -1115,7 +1130,7 @@ impl App {
                 let Some(endpoint) = &self.endpoint else { return };
                 let guest = self.account.as_ref().filter(|_| self.guest).map(|(g, p)| (g.as_str(), p.as_str()));
                 self.request = Some((Request::Register, endpoint.register(&email, &password, &name, guest)));
-                self.front.busy = if guest.is_some() { "Saving your progress…" } else { "Creating your account…" }.into();
+                self.front.busy = if guest.is_some() { tr("Saving your progress…") } else { tr("Creating your account…") }.into();
                 self.front.message = None;
                 self.front.show(Screen::Busy);
             }
@@ -1133,11 +1148,11 @@ impl App {
                 let f = &self.front.fields;
                 let (current, new) = (f[screens::PASSWORD].text.clone(), f[screens::NEW_PASSWORD].text.clone());
                 let problem = if current.is_empty() || new.is_empty() {
-                    Some("Fill in every field.")
+                    Some(tr("Fill in every field."))
                 } else if new != f[screens::NEW_CONFIRM].text {
-                    Some("The new passwords don't match.")
+                    Some(tr("The new passwords don't match."))
                 } else if new.chars().count() < login::MIN_PASSWORD {
-                    Some("Passwords need at least 6 characters.")
+                    Some(tr("Passwords need at least 6 characters."))
                 } else {
                     None
                 };
@@ -1155,7 +1170,7 @@ impl App {
                     self.request = Some((Request::Fame, endpoint.char_fame(account_id, char_id)));
                     self.front.death_from_graveyard = true;
                     self.front.death_from_legends = false;
-                    self.front.busy = "Reading the gravestone…".into();
+                    self.front.busy = tr("Reading the gravestone…").into();
                     self.front.show(screens::Screen::Busy);
                 }
             }
@@ -1164,7 +1179,7 @@ impl App {
                     self.request = Some((Request::Fame, endpoint.char_fame(account_id, char_id)));
                     self.front.death_from_graveyard = false;
                     self.front.death_from_legends = true;
-                    self.front.busy = "Reading the gravestone…".into();
+                    self.front.busy = tr("Reading the gravestone…").into();
                     self.front.show(screens::Screen::Busy);
                 }
             }
@@ -1207,7 +1222,7 @@ impl App {
     fn play(&mut self, join: Join) {
         let (Some(endpoint), Some((email, password)), Some(list)) = (&self.endpoint, &self.account, &self.front.list) else { return };
         let Some(server) = list.servers.get(self.front.server).or(list.servers.first()) else {
-            self.front.message = Some(("The account server lists no world servers.".into(), true));
+            self.front.message = Some((tr("The account server lists no world servers.").into(), true));
             return;
         };
         log::info!("{join:?} on {} ({}:{})", server.name, server.host, server.port);
@@ -1231,6 +1246,7 @@ impl App {
         self.game_menu = false;
         self.npcs.close();
         self.quests.reset();
+        self.community.reset();
         self.vault.reset();
         self.npc_request = None;
         self.keys.clear();
@@ -1251,6 +1267,7 @@ impl App {
         self.game_menu = false;
         self.npcs.close();
         self.quests.reset();
+        self.community.reset();
         self.vault.reset();
         self.npc_request = None;
         self.mouse_down = false;
@@ -1262,7 +1279,7 @@ impl App {
         self.front.death_from_legends = false;
         if let (Some(char_id), Some(account_id), Some(endpoint)) = (death, account_id, &self.endpoint) {
             self.request = Some((Request::Fame, endpoint.char_fame(account_id, char_id)));
-            self.front.busy = "Counting your fame…".into();
+            self.front.busy = tr("Counting your fame…").into();
             self.front.message = None;
             self.front.show(screens::Screen::Busy);
         } else {
@@ -1371,9 +1388,10 @@ impl App {
     /// Move through the sign-in steps as their answers arrive.
     fn advance(&mut self) {
         self.advance_npcs();
-        // A game that ended (death, disconnect) goes back to the character list.
+        // A game that ended (death, disconnect) goes back to the character list; a scripted shot
+        // stays on the game, unless it died (to show the death spin and summary).
         if let Phase::Playing(game) = &self.phase {
-            if game.ended && self.shot.is_none() {
+            if game.ended && (self.shot.is_none() || game.died) {
                 let why = game.status.clone();
                 self.leave_game(Some(why));
             }
@@ -1389,7 +1407,7 @@ impl App {
                 // (account 0) that couldn't play: that's no sign-in.
                 Ok(list) if list.account_id <= 0 && self.front.list.is_none() => {
                     self.account = None;
-                    self.front.message = Some(("No account uses that email.".into(), true));
+                    self.front.message = Some((tr("No account uses that email.").into(), true));
                     if self.front.screen != Screen::Home {
                         self.front.show(Screen::Login);
                     }
@@ -1458,7 +1476,7 @@ impl App {
             },
             Request::BuySlot => match login::parse_success(response) {
                 Ok(()) => {
-                    self.front.message = Some(("You have a new character slot.".into(), false));
+                    self.front.message = Some((tr("You have a new character slot.").into(), false));
                     self.refresh();
                 }
                 Err(e) => self.front.message = Some((e, true)),
@@ -1466,7 +1484,7 @@ impl App {
             Request::BuySkin(skin) => match login::parse_success(response) {
                 Ok(()) => {
                     self.front.skin = skin;
-                    self.front.message = Some(("Skin bought.".into(), false));
+                    self.front.message = Some((tr("Skin bought.").into(), false));
                     self.refresh();
                 }
                 Err(e) => self.front.message = Some((e, true)),
@@ -1480,7 +1498,7 @@ impl App {
                         }
                     }
                     self.front.set_field(screens::PASSWORD, new);
-                    self.front.message = Some(("Password changed.".into(), false));
+                    self.front.message = Some((tr("Password changed.").into(), false));
                     self.front.show(Screen::Chars);
                 }
                 Err(e) => self.front.message = Some((e, true)),
@@ -1512,15 +1530,17 @@ impl App {
             Request::Fame => {
                 match login::reached(response).and_then(|xml| bsk_net::account::parse_char_fame(&xml)) {
                     Ok(summary) => {
+                        // a death spin first, then the summary
+                        let spun = summary.spin.is_some();
                         self.front.death = Some(summary);
-                        self.front.show(Screen::Death);
+                        self.front.show(if spun { Screen::Spin } else { Screen::Death });
                         let now = self.now();
                         if let Some(a) = &mut self.audio {
                             a.play("death_screen", 1.0, false, now);
                         }
                     }
                     Err(e) => {
-                        self.front.message = Some((format!("You died. ({e})"), true));
+                        self.front.message = Some((tf!("You died. ({e})", e), true));
                         self.front.show(Screen::Chars);
                     }
                 }
@@ -1540,6 +1560,9 @@ impl App {
         }
         if std::mem::take(&mut self.front.clicked) {
             audio.play("button_click", 1.0, false, now);
+        }
+        for name in self.front.sounds.drain(..) {
+            audio.play(name, 0.7, false, now);
         }
         match &mut self.phase {
             Phase::Playing(game) => {
@@ -1882,14 +1905,14 @@ impl App {
                         Some(hud::Interact { id, kind: hud::InteractKind::Portal, .. }) => game.use_portal(id),
                         Some(hud::Interact { id, kind: hud::InteractKind::Shop { .. }, .. }) => game.buy(id),
                         Some(hud::Interact { kind: hud::InteractKind::Npc { kind, .. }, .. }) => {
-                            to_chars |= npc_open(kind, game, &mut self.npcs, &mut self.market, &mut self.forge, &mut self.forge_acts, (&mut self.quests, &mut self.quest_acts), self.front.list.as_ref(), data);
+                            to_chars |= npc_open(kind, game, &mut self.npcs, &mut self.market, &mut self.forge, &mut self.forge_acts, (&mut self.quests, &mut self.quest_acts), (&mut self.community, &mut self.community_acts), self.front.list.as_ref(), data);
                             self.keys.clear();
                         }
                         _ => {}
                     },
                     Some(Bind::Nexus) => {
                         if game.map_name() == "Nexus" {
-                            game.add_chat("*Error*", "", "You're already in the Nexus.", 0, 0, -1, now);
+                            game.add_chat("*Error*", "", tr("You're already in the Nexus."), 0, 0, -1, now);
                         } else {
                             game.escape();
                         }
@@ -1915,7 +1938,12 @@ impl App {
                             _ => ("/pjoin", ""),
                         };
                         if !here.is_empty() && game.map_name() == here {
-                            game.add_chat("*Error*", "", &format!("You're already in the {}.", if here == "GuildHall" { "Guild Hall" } else { here }), 0, 0, -1, now);
+                            let text = match here {
+                                "Vault" => tr("You're already in the Vault."),
+                                "Realm" => tr("You're already in the Realm."),
+                                _ => tr("You're already in the Guild Hall."),
+                            };
+                            game.add_chat("*Error*", "", text, 0, 0, -1, now);
                         } else {
                             game.say(command);
                         }
@@ -1963,7 +1991,7 @@ impl App {
                     }
                 }
                 if let Some(kind) = self.npc_test.take_if(|c| c != "Vault").and_then(|c| npc::NpcKind::of_class(&c)) {
-                    to_chars |= npc_open(kind, game, &mut self.npcs, &mut self.market, &mut self.forge, &mut self.forge_acts, (&mut self.quests, &mut self.quest_acts), self.front.list.as_ref(), data);
+                    to_chars |= npc_open(kind, game, &mut self.npcs, &mut self.market, &mut self.forge, &mut self.forge_acts, (&mut self.quests, &mut self.quest_acts), (&mut self.community, &mut self.community_acts), self.front.list.as_ref(), data);
                 }
                 if let Some(board) = self.champions_test.take() {
                     self.npcs.open(npc::Window::Champions(Box::new(champions::View::at(Some(&board)))));
@@ -2100,6 +2128,34 @@ impl App {
                 log::info!("quests: {act:?}");
                 game.quest(act);
             }
+            // The community goals: a click on a banner opens them; while open they take the mouse.
+            if !self.community.open && !self.quests.open && !self.options_ui.open && !self.game_menu {
+                let (window, acts) = (&mut self.community, &mut self.community_acts);
+                self.clicks.retain(|&(down, pos)| match down.then(|| window.banner_click(pos)).flatten() {
+                    Some(act) => {
+                        acts.extend(act);
+                        false
+                    }
+                    None => true,
+                });
+            }
+            let mut community_acts = std::mem::take(&mut self.community_acts);
+            if self.community.open {
+                for (down, pos) in std::mem::take(&mut self.clicks) {
+                    if down {
+                        community_acts.extend(self.community.click(pos));
+                    }
+                }
+                self.mouse_down = false;
+            }
+            for e in std::mem::take(&mut game.community_events) {
+                self.community.event(e, now);
+            }
+            community_acts.extend(self.community.tick(now));
+            for act in community_acts {
+                log::info!("community: {act:?}");
+                game.community(act);
+            }
             // --type: into the forge's search once its recipes came.
             if self.forge.open && self.forge.loaded() {
                 if let Some(t) = self.type_text.take() {
@@ -2226,7 +2282,7 @@ impl App {
                         continue;
                     }
                     if let hud::Action::Button(hud::Button::Npc(kind)) = action {
-                        to_chars |= npc_open(kind, game, &mut self.npcs, &mut self.market, &mut self.forge, &mut self.forge_acts, (&mut self.quests, &mut self.quest_acts), self.front.list.as_ref(), data);
+                        to_chars |= npc_open(kind, game, &mut self.npcs, &mut self.market, &mut self.forge, &mut self.forge_acts, (&mut self.quests, &mut self.quest_acts), (&mut self.community, &mut self.community_acts), self.front.list.as_ref(), data);
                         self.keys.clear();
                         continue;
                     }
@@ -2481,6 +2537,9 @@ impl App {
                 self.vault.draw(&mut ui, &lay, world.player(), &inv, mouse, now);
                 self.quests.draw(&mut ui, &lay, world.player(), mouse, now);
                 self.quests.draw_toasts(&mut ui, &lay, now);
+                self.community.draw(&mut ui, &lay, world.player(), mouse, now);
+                let below = self.quests.toasts_end(&lay);
+                self.community.draw_banners(&mut ui, &lay, below, now);
                 prof::mark("chat..windows");
                 hud::draw_overlay(&mut ui, &lay, world, p, &self.hud, mouse);
                 prof::mark("overlay");
@@ -2499,6 +2558,8 @@ impl App {
             && !self.vault.open
             && !self.quests.open
             && !self.quests.on_toast(mouse)
+            && !self.community.open
+            && !self.community.on_banner(mouse)
             && self.npcs.window.is_none()
             && self.hud.drag.is_none();
         if crosshair {
@@ -2859,6 +2920,13 @@ impl ApplicationHandler<UserEvent> for App {
                     self.keys.remove(&code);
                     return;
                 }
+                if self.community.open && matches!(self.phase, Phase::Playing(_)) {
+                    if pressed {
+                        self.community.key(code);
+                    }
+                    self.keys.remove(&code);
+                    return;
+                }
                 if self.quests.open && matches!(self.phase, Phase::Playing(_)) {
                     if pressed {
                         if Some(code) == self.settings.key(options::Bind::Quests) {
@@ -3172,6 +3240,8 @@ fn main() {
         events: Default::default(),
         quests: Default::default(),
         quest_acts: Vec::new(),
+        community: Default::default(),
+        community_acts: Vec::new(),
         forge_acts: Vec::new(),
         vault: Default::default(),
         type_text: text_arg("--type"),

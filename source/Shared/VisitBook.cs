@@ -2,8 +2,8 @@ using System.Collections.Generic;
 
 namespace Shared
 {
-    // Players' /visit requests (Command.Visit, VisitAnswerHandler): one waiting per visitor and
-    // one per player asked, each answered Yes or No or running out after TimeoutMs (a No). A
+    // Players' /visit and /summon requests (Command.Visit, SummonCommand, VisitAnswerHandler):
+    // one waiting per player asking (the visitor, or the summoner) and one per player asked, each answered Yes or No or running out after TimeoutMs (a No). A
     // visitor waits CooldownMs between requests, and DeclinedMs after a No before asking that
     // player again. One per world server, used from every world thread, so it locks; times are
     // ms on any steady clock (Environment.TickCount64).
@@ -15,9 +15,12 @@ namespace Shared
         // a timed-out request waits this long for the side that hasn't heard yet to collect it
         private const int KeepTimedOutMs = 120000;
 
+        // Visitor is the player who asked, Target the one asked; a summon brings the target to
+        // the visitor instead of the visitor to the target.
         public sealed class Request
         {
             public int Id;
+            public bool Summon;
             public int Visitor;
             public string VisitorName;
             public int Target;
@@ -43,7 +46,7 @@ namespace Shared
         private static int Seconds(long ms) => (int)((ms + 999) / 1000);
 
         // A new request, or why there can't be one (and request null).
-        public string Ask(int visitor, string visitorName, int target, string targetName, int worldId, long now, out Request request)
+        public string Ask(int visitor, string visitorName, int target, string targetName, int worldId, long now, out Request request, bool summon = false)
         {
             request = null;
             lock (_lock)
@@ -59,16 +62,17 @@ namespace Shared
                 if (_declinedUntil.TryGetValue((visitor, target), out var until))
                 {
                     if (now < until)
-                        return $"{targetName} didn't let you in: try again in {Seconds(until - now)} s.";
+                        return $"{targetName} said no: try again in {Seconds(until - now)} s.";
                     _declinedUntil.Remove((visitor, target));
                 }
                 foreach (var r in _byVisitor.Values)
                     if (r.Target == target && r.Expires > now)
-                        return $"{targetName} is answering another visit request: try again in a moment.";
+                        return $"{targetName} is answering another request: try again in a moment.";
 
                 request = new Request
                 {
                     Id = ++_nextId,
+                    Summon = summon,
                     Visitor = visitor,
                     VisitorName = visitorName,
                     Target = target,

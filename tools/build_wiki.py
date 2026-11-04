@@ -37,6 +37,7 @@ import wiki_data as wd  # noqa: E402
 import wiki_balance  # noqa: E402
 import wiki_gear  # noqa: E402
 import wiki_quests  # noqa: E402
+import wiki_community  # noqa: E402
 import wiki_loot  # noqa: E402
 
 ROOT = wd.ROOT
@@ -60,14 +61,16 @@ COMMAND_HELP = {
     "sellfame": "Selling items for fame is now done at the Divine Forge in the Nexus; this points you to it.",
     "forge": "To the Divine Forge in the Nexus, from anywhere: you arrive in front of it, ready to forge or sell.",
     "quests": "Your quests, today's reward and your achievements in the chat (the <kbd>J</kbd> key opens the quest log, where you claim them).",
+    "goals": "This week's <a href=\"community-goals.html\">community goals</a> in the chat: how far the realm has come, and your part. The Warcaller by the Nexus spawn shows them and pays their rewards.",
     "champions": "The Hall of Champions in the chat: every board's top three and your own places and rewards. The Champions Monument in the Nexus's east ward shows it all.",
     "market": "To the Market Broker in the Nexus's market square, from anywhere: the <a href=\"marketplace.html\">Marketplace</a>, where players sell to each other for fame.",
     "sell": "Lists an item on the <a href=\"marketplace.html\">Marketplace</a> without opening it: <code>/sell &lt;slot&gt; &lt;price&gt; [days]</code>, the slot 1-8 (9-16 for the backpack), for 1 to 7 days (3 if not given).",
     "forgelist": "The recipes are in the Divine Forge's window, in the Nexus; this points you to it.",
     "trade": "Asks a player to trade: <code>/trade &lt;name&gt;</code>. Needs 2 rank stars; clicking a player's name and choosing Trade doesn't.",
     "visit": "Asks a player to let you join them in their dungeon, the Arena or another instance: <code>/visit &lt;name&gt;</code> (<code>/visit cancel</code> takes it back). See <a href=\"#visiting-a-friend\">Visiting a friend</a>.",
-    "yes": "Lets in the player asking to visit you (the <b>Yes</b> of the box in the corner).",
-    "no": "Turns down the player asking to visit you (the <b>No</b> of the box in the corner).",
+    "summon": "Asks a player to come to your dungeon, the Arena or another instance: <code>/summon &lt;name&gt;</code> (<code>/summon cancel</code> takes it back). See <a href=\"#visiting-a-friend\">Visiting a friend</a>.",
+    "yes": "Says yes to the player asking to visit or summon you (the <b>Yes</b> of the box in the corner).",
+    "no": "Says no to the player asking to visit or summon you (the <b>No</b> of the box in the corner).",
     "tell": "Whispers to a player: <code>/tell &lt;name&gt; &lt;message&gt;</code> (or press <kbd>Tab</kbd>).",
     "guild": "Says something in guild chat (or press <kbd>G</kbd>).",
     "party": "Says something in party chat (or press <kbd>P</kbd>).",
@@ -261,7 +264,12 @@ def who(d, m):
     if m in WHO:
         return WHO[m]
     st = re.match(r"Oryx the Mad God (\d)$", m)
-    return "Oryx %s" % st.group(1) if st and d.name(m) == "Oryx the Mad God" else d.name(m)
+    if st and d.name(m) == "Oryx the Mad God":
+        return "Oryx %s" % st.group(1)
+    # an Elder boss shown with its regular version's name (the Elder Tomb's Bes, Nut and Geb)
+    if m.startswith("Elder ") and not d.name(m).startswith("Elder ") and d.name(m) == d.name(m[len("Elder "):]):
+        return "Elder " + d.name(m)
+    return d.name(m)
 
 
 def with_article(name):
@@ -509,6 +517,22 @@ class Gen:
     def gen_quests_ranks(self, used):
         return self.quests.ranks()
 
+    # --- community goals (tools/wiki_community.py) ------------------------------------------------
+    @property
+    def community(self):
+        if getattr(self, "_community", None) is None:
+            self._community = wiki_community.Community(self)
+        return self._community
+
+    def gen_community_goals(self, used):
+        return self.community.goals()
+
+    def gen_community_tiers(self, used):
+        return self.community.tiers()
+
+    def gen_community_loot(self, used):
+        return self.community.loot()
+
     def gen_tier_tables(self, used):
         return self.balance.tier_tables(used)
 
@@ -542,6 +566,7 @@ class Gen:
         crate = wd.mystery_crate()
         return {
             **self.quests.values(),
+            **self.community.values(),
             "forge_recipes": "{:,}".format(len(self.forge)), "forge_chains": "{:,}".format(sum(r["chain"] for r in self.forge)),
             "forge_cap": "{:,}".format(wd.Data.FORGE_TIERED_CAP), "name_change": "{:,}".format(wd.name_change_fame()),
             "nexus_afk": "%g" % wd.nexus_afk_minutes(),

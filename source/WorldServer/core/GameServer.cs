@@ -127,6 +127,7 @@ namespace WorldServer.core
             ChatManager.Initialize();
             Marketplace.Init();
             WeeklyStats.Start(Database.Conn);
+            community.CommunityGoals.Start(this);
             ConnectionListener.Initialize();
             MarketSweeper.Start();
             ConnectionListener.Start();
@@ -415,6 +416,9 @@ namespace WorldServer.core
 
             Log.Info("Saved the week's stats.");
             WeeklyStats.Stop();
+
+            Log.Info("Saved the community goals.");
+            community.CommunityGoals.Stop();
 
             Log.Info("Disposed 'Database'.");
             Database.Dispose();

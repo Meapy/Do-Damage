@@ -227,3 +227,49 @@ hold rewards of their own.
 
 So store what you can't afford to lose before a risky run, and don't take your best gear
 somewhere you aren't ready for.
+
+### The death spin
+
+A character that dies with at least 20 **base fame** (its fame before the death bonuses) spins a
+loot reel on the death screen. Its base fame sets the tier, and the tier the chance of each
+rarity:
+
+| Tier | Base fame | Common | Uncommon | Rare | Epic | Legendary | Divine |
+|---|---|---|---|---|---|---|---|
+| Bronze | 20 | 55% | 33% | 9.8% | 2% | - | 0.2% |
+| Silver | 150 | 30% | 40% | 22.6% | 6% | 1% | 0.4% |
+| Gold | 500 | 10% | 32% | 39.5% | 15% | 2.7% | 0.8% |
+| Platinum | 1,500 | - | 15% | 44.5% | 33% | 6% | 1.5% |
+| Diamond | 4,000 | - | - | 34.5% | 50% | 13% | 2.5% |
+| Mythic | 10,000 | - | - | 14.5% | 55% | 26.5% | 4% |
+
+- **Common:** stat potions, Lucky Clovers and loot potions, small pets, T10-T11 weapons and armor.
+- **Uncommon:** Greater stat potions, Potions of Oryx, Superburgers, Golden Lucky Clovers, Mystery
+  ST Shards, medium pets, T12 gear.
+- **Rare:** Potions of Max (one stat), T13 gear, the smaller boss pets, Mystery ST Chests,
+  Ambrosia.
+- **Epic:** Potions of Max, T14 gear, boss pets (Malphas, Geb, Bes, Septavius and more), Character
+  Slot and Vault Chest Unlockers.
+- **Legendary:** Infernal potions, the Sphinx, Cube and Cookie pets, Potions of Maxy, unlockers.
+- **Divine:** a white-bag item, gear of tier 15 and up, a Lil' Oryx or a Potion of Maxy.
+
+A Legendary or Divine prize is announced to everyone online.
+
+**Getting your items back.** Some of what the character was carrying (equipment, inventory and
+backpack, picked at random) comes back as well. The first item comes back a quarter of the time,
+each further one at half the chance of the one before, and each step of base fame doubles every
+chance:
+
+| Base fame | Sure to come back | Then |
+|---|---|---|
+| Under 400 | none | 25% chance of one, 12.5% of a second... |
+| 400 | none | 50% chance of one, 25% of a second... |
+| 800 | 1 | 50% chance of a second, 25% of a third... |
+| 1,600 | 2 | 50% chance of a third... |
+| 3,000 | 3 | 50% chance of a fourth... |
+| 6,000 | 4 | 50% chance of a fifth... |
+| 12,000 | 5 | 50% chance of a sixth... |
+| 20,000 | 7 | 50% chance of an eighth... |
+
+The prize and the items go to your **gift chest**, in your vault. Imprints on returned items are
+lost. Deaths that don't count (the Arena, test worlds, a broken resurrection item) don't spin.

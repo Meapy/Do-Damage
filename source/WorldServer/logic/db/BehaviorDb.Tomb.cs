@@ -152,6 +152,8 @@ namespace WorldServer.logic
                     new ItemLoot("Tomb of the Ancients Key", 0.01, 0, 0.03)
                     ),
                 new Threshold(0.02,
+                    new ItemLoot("Bes Generator", elder ? 0.04 : 0.02),
+                    new ItemLoot("Pyramid Artifact Generator", elder ? 0.06 : 0.03),
                     new ItemLoot("Ring of the Pyramid", 0.009),
                     new ItemLoot("Tome of Holy Protection", 0.009)
                     ),
@@ -159,7 +161,6 @@ namespace WorldServer.logic
                     new ItemLoot("Jade Beetle", 0.009),
                     new ItemLoot("Potion of Max Life", 0.01),
                     new ItemLoot("Angel's Hope", 0.01),
-                    new ItemLoot("Pyramid Artifact Generator", 0.03),
                     new ItemLoot("Large Egyptian Cloth", 0.5),
                     new ItemLoot("Small Egyptian Cloth", 0.5)
                     )
@@ -285,6 +286,7 @@ namespace WorldServer.logic
                     new ItemLoot("Enchanted Ice Shard", 0.009)
                     ),
                 new Threshold(0.01,
+                    new ItemLoot("Nut Generator", elder ? 0.04 : 0.02),
                     new ItemLoot("Potion of Life", 1),
                     new ItemLoot("Tomb of the Ancients Key", 0.01, 0, 0.03),
                     new ItemLoot("Ring of the Sphinx", 0.009)
@@ -492,6 +494,7 @@ namespace WorldServer.logic
                     new ItemLoot("Ring of the Northern Light", 0.009)
                     ),
                 new Threshold(0.01,
+                    new ItemLoot("Geb Generator", elder ? 0.04 : 0.02),
                     new ItemLoot("Tomb of the Ancients Key", 0.01, 0, 0.03),
                     new ItemLoot("Potion of Life", 1),
                     new ItemLoot("Potion of Life", 1),

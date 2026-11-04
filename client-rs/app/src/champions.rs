@@ -9,6 +9,7 @@
 //! board's champion standing on their plinth round the monument (`Hall::draw`).
 
 use crate::hud::Ui;
+use crate::i18n::{tf, tn, tr};
 use crate::theme::{self, color};
 use bsk_data::{ObjectClass, ObjectDesc, TextureRef};
 use bsk_net::account::{ChampionBoard, ChampionEntry, Champions};
@@ -41,15 +42,21 @@ pub fn tier_color(rank: i32) -> u32 {
 /// A board's value as it reads: "Wave 31", "12,402 fame".
 pub fn value_text(board: &ChampionBoard, value: i64) -> String {
     let n = crate::hud::group_digits(value.clamp(0, i32::MAX as i64) as i32);
-    if board.unit == "wave" { format!("Wave {n}") } else { format!("{n} {}", board.unit) }
+    match board.unit.as_str() {
+        "wave" => tf!("Wave {n}", n),
+        "fame" => tn!(value, "{n} fame|{n} fame", n),
+        "stars" => tn!(value, "{n} star|{n} stars", n),
+        "tiers" => tn!(value, "{n} tier|{n} tiers", n),
+        unit => format!("{n} {unit}"),
+    }
 }
 
 /// "just now", "4 min ago", "2 h ago".
 pub fn ago(seconds: i64) -> String {
     match seconds.max(0) {
-        s if s < 60 => "just now".to_owned(),
-        s if s < 3600 => format!("{} min ago", s / 60),
-        s => format!("{} h ago", s / 3600),
+        s if s < 60 => tr("just now").to_owned(),
+        s if s < 3600 => tf!("{n} min ago", n = s / 60),
+        s => tf!("{n} h ago", n = s / 3600),
     }
 }
 
@@ -144,8 +151,8 @@ pub fn draw(ui: &mut Ui, view: &View, r: [f32; 4], s: f32, me: &str, guild: &str
     let Some(data) = view.data.as_ref().filter(|d| !d.pending && !d.boards.is_empty()) else {
         let (t, c) = match (&view.error, &view.data) {
             (Some(e), _) => (e.clone(), color::DANGER),
-            (None, Some(_)) => ("The boards are being ranked. Look again in a minute.".to_owned(), color::TEXT_MUTED),
-            (None, None) => ("Reading the names on the monument…".to_owned(), color::TEXT_MUTED),
+            (None, Some(_)) => (tr("The boards are being ranked. Look again in a minute.").to_owned(), color::TEXT_MUTED),
+            (None, None) => (tr("Reading the names on the monument…").to_owned(), color::TEXT_MUTED),
         };
         ui.label(&t, x0, r[1] + 70.0 * s, font(14.0), false, c);
         return hits;
@@ -185,11 +192,11 @@ pub fn draw(ui: &mut Ui, view: &View, r: [f32; 4], s: f32, me: &str, guild: &str
 
     // what it ranks, and its period
     let period = if board.weekly {
-        format!("Starts afresh in {}", crate::quests::countdown(data.week_reset - server_now))
+        tf!("Starts afresh in {time}", time = crate::quests::countdown(data.week_reset - server_now))
     } else if board.yearly && data.year_reset > 0 {
-        format!("This year: afresh in {}", crate::quests::countdown(data.year_reset - server_now))
+        tf!("This year: afresh in {time}", time = crate::quests::countdown(data.year_reset - server_now))
     } else {
-        "All time".to_owned()
+        tr("All time").to_owned()
     };
     let ps = font(12.5);
     let pw = ui.measure(&period, ps, true);
@@ -286,30 +293,30 @@ pub fn draw(ui: &mut Ui, view: &View, r: [f32; 4], s: f32, me: &str, guild: &str
     );
     let bs = font(13.5);
     let by = bar[1] + (bar[3] - bs * 1.22) / 2.0;
-    let you = "You";
+    let you = tr("You");
     ui.label(you, bar[0] + 14.0 * s, by, bs, true, color::ACCENT_HI);
     let tx = bar[0] + 14.0 * s + ui.measure(you, bs, true) + 14.0 * s;
     let (text, c) = match board.me {
         Some((rank, value)) if rank <= PLACES => {
             let tier = if rank == 1 { 0 } else if rank <= 3 { 1 } else { 2 };
             let reward = board.rewards.get(tier).map_or("", |r| r.2.as_str());
-            (format!("#{rank}  ·  {}  ·  {reward}: yours while you hold the place", value_text(board, value)), color::GOOD)
+            (tf!("#{rank}  ·  {value}  ·  {reward}: yours while you hold the place", rank, value = value_text(board, value), reward), color::GOOD)
         }
         Some((rank, value)) => {
-            let goal = entry(PLACES).map(|e| format!(" Reach {} for a reward.", value_text(board, e.value + 1))).unwrap_or_default();
-            (format!("#{rank} of {}  ·  {}.{goal}", board.count, value_text(board, value)), color::TEXT)
+            let goal = entry(PLACES).map(|e| tf!(" Reach {value} for a reward.", value = value_text(board, e.value + 1))).unwrap_or_default();
+            (tf!("#{rank} of {count}  ·  {value}.{goal}", rank, count = board.count, value = value_text(board, value), goal), color::TEXT)
         }
-        None => (format!("Not on this board yet. {}", hint(board)), color::TEXT_DIM),
+        None => (tf!("Not on this board yet. {hint}", hint = hint(board)), color::TEXT_DIM),
     };
     let text = crate::npc::fit(ui, &text, bs, bar[0] + bar[2] - tx - 12.0 * s);
     ui.label(&text, tx, by, bs, true, c);
 
     // the small print
-    let foot = format!(
-        "Rewards last while you hold the place. Board loot boosts add up to at most +{}%, the Legends' +1% on top.  ·  Ranked {}, again in {}.",
-        (data.loot_cap * 100.0).round(),
-        ago(server_now - data.updated),
-        crate::quests::countdown(data.next - server_now)
+    let foot = tf!(
+        "Rewards last while you hold the place. Board loot boosts add up to at most +{cap}%, the Legends' +1% on top.  ·  Ranked {ago}, again in {next}.",
+        cap = (data.loot_cap * 100.0).round(),
+        ago = ago(server_now - data.updated),
+        next = crate::quests::countdown(data.next - server_now)
     );
     let fs = font(11.0);
     let foot = crate::npc::fit(ui, &foot, fs, w);
@@ -320,28 +327,28 @@ pub fn draw(ui: &mut Ui, view: &View, r: [f32; 4], s: f32, me: &str, guild: &str
 /// How to get on a board, for the viewer who isn't.
 fn hint(board: &ChampionBoard) -> &'static str {
     match board.id.as_str() {
-        "fame" => "Earn fame on a character that stays alive.",
-        "stars" => "Each class's best character earns stars at 20, 150, 400, 800 and 2,000 fame.",
-        "achievements" => "Claim achievement tiers in the quest log (J).",
-        "arenaSolo" => "Survive waves in the Arena (/arena) on your own.",
-        "arenaGroup" => "Survive waves in the Arena (/arena) with others.",
-        "weeklyFame" => "Earn fame this week: anything counts.",
-        "weeklyDungeons" => "Clear dungeons this week: be near a boss when the last one falls.",
-        "guildLiving" => "Join a guild (or make one at the Guild Register): the living fame of members who played in the last two weeks counts.",
-        "guildDead" => "Join a guild: every character that dies in it this year adds its fame here.",
+        "fame" => tr("Earn fame on a character that stays alive."),
+        "stars" => tr("Each class's best character earns stars at 20, 150, 400, 800 and 2,000 fame."),
+        "achievements" => tr("Claim achievement tiers in the quest log (J)."),
+        "arenaSolo" => tr("Survive waves in the Arena (/arena) on your own."),
+        "arenaGroup" => tr("Survive waves in the Arena (/arena) with others."),
+        "weeklyFame" => tr("Earn fame this week: anything counts."),
+        "weeklyDungeons" => tr("Clear dungeons this week: be near a boss when the last one falls."),
+        "guildLiving" => tr("Join a guild (or make one at the Guild Register): the living fame of members who played in the last two weeks counts."),
+        "guildDead" => tr("Join a guild: every character that dies in it this year adds its fame here."),
         _ => "",
     }
 }
 
 /// "A guild of 6".
 fn guild_line(e: &ChampionEntry) -> String {
-    format!("A guild of {}", e.guild)
+    tn!(e.guild, "A guild of {n}|A guild of {n}")
 }
 
 /// "Level 20 Wizard".
 fn class_line(ui: &Ui, e: &ChampionEntry) -> Option<String> {
     let class = ui.data.objects.get(&e.object_type)?;
-    Some(format!("Level {} {}", e.level.max(1), class.display_id))
+    Some(tf!("Level {level} {class}", level = e.level.max(1), class = class.display_id))
 }
 
 /// One place on the podium: its card edged in the tier's colour, the champion's character, name
@@ -367,7 +374,7 @@ fn podium(ui: &mut Ui, board: &ChampionBoard, e: Option<&ChampionEntry>, rank: i
     ui.label(&t, badge[0] + (badge[2] - bw) / 2.0, badge[1] + (badge[3] - bs * 1.22) / 2.0, bs, true, color::ACCENT_TEXT);
     let mid = cr[0] + cr[2] / 2.0;
     let Some(e) = e else {
-        let t = "Unclaimed";
+        let t = tr("Unclaimed");
         let ts = font(13.0);
         let tw = ui.measure(t, ts, true);
         ui.label(t, mid - tw / 2.0, cr[1] + cr[3] / 2.0 - ts / 2.0, ts, true, color::TEXT_MUTED);
@@ -404,7 +411,7 @@ fn podium(ui: &mut Ui, board: &ChampionBoard, e: Option<&ChampionEntry>, rank: i
     } else if e.members.is_empty() {
         class_line(ui, e)
     } else {
-        Some(format!("A group of {}", e.members.len()))
+        Some(tn!(e.members.len(), "A group of {n}|A group of {n}"))
     };
     if let Some(c) = detail {
         let cs = font(11.0);
@@ -520,7 +527,7 @@ fn plaque(ui: &mut Ui, board: &ChampionBoard, champion: Option<&ChampionEntry>, 
     let title = board.name.to_uppercase();
     let (name, value) = match champion {
         Some(e) => (crate::npc::fit(ui, &e.name, ns, 260.0 * k), value_text(board, e.value)),
-        None => ("Unclaimed".to_owned(), "Be the first".to_owned()),
+        None => (tr("Unclaimed").to_owned(), tr("Be the first").to_owned()),
     };
     let w = [ui.measure(&title, ts, true), ui.measure(&name, ns, true), ui.measure(&value, vs, false)].into_iter().fold(0.0, f32::max) + 18.0 * k;
     let h = ts * 1.25 + ns * 1.25 + vs * 1.25 + 10.0 * k;

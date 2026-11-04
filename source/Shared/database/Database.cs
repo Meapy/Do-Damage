@@ -450,7 +450,7 @@ namespace Shared.database
             return DbGuildCreateStatus.OK;
         }
 
-        public void Death(XmlData dat, DbAccount acc, DbChar character, FameStats stats, string killer, string world = null)
+        public void Death(XmlData dat, DbAccount acc, DbChar character, FameStats stats, string killer, string world = null, Action<DbDeath> fill = null)
         {
             character.Dead = true;
 
@@ -470,6 +470,7 @@ namespace Shared.database
                 FirstBorn = firstBorn,
                 DeathTime = DateTime.UtcNow
             };
+            fill?.Invoke(death);
             death.FlushAsync();
 
             var idBuff = BitConverter.GetBytes(character.CharId);

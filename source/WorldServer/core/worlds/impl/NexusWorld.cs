@@ -52,6 +52,7 @@ namespace WorldServer.core.worlds.impl
         private NexusGuide _guide;
         // the Tinkerer and the Chronicler, the quest NPCs beside it
         private quests.QuestGivers _questGivers;
+        private community.Warcaller _warcaller;
         // the market square's stalls, showing Marketplace listings
         private market.MarketStalls _marketStalls;
         private market.MarketBroker _marketBroker;
@@ -85,6 +86,8 @@ namespace WorldServer.core.worlds.impl
             _guide.Init();
             _questGivers = new quests.QuestGivers(this);
             _questGivers.Init();
+            _warcaller = new community.Warcaller(this);
+            _warcaller.Init();
             _marketStalls = new market.MarketStalls(this);
             _marketBroker = new market.MarketBroker(this);
             _villagers = new NexusVillagers(this);
@@ -115,6 +118,7 @@ namespace WorldServer.core.worlds.impl
             PortalMonitor.Update(ref time);
             _guide?.Update(ref time);
             _questGivers?.Update(ref time);
+            _warcaller?.Update(ref time);
             _marketStalls?.Update(ref time);
             _marketBroker?.Update(ref time);
             _villagers?.Update(ref time);

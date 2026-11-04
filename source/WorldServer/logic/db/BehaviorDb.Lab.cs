@@ -183,6 +183,7 @@ namespace WorldServer.logic
                     LootTemplates.BasicDrop()
                 ),
                 new Threshold(0.005,
+                    new ItemLoot("Support Bot Generator", 0.03),
                     new ItemLoot("Potion of Wisdom", 1),
                     new ItemLoot("Conducting Wand", 0.05),
                     new ItemLoot("Scepter of Fulmination", 0.02),
@@ -498,6 +499,7 @@ namespace WorldServer.logic
                     )
                 ),
             new Threshold(0.01,
+                new ItemLoot("Horrific Creation Generator", 0.02),
                 new ItemLoot("Potion of Wisdom", 1)
                 )
             );

@@ -239,6 +239,8 @@ class Data:
     # ItemLoot("x", 0.01) or ItemLoot(item: "x", probability: 0.01); OnePlayerLoot("x", 0.5, 0.01)
     # by its one player's chance
     ITEM_LOOT = re.compile(r'(?:ItemLoot|OnePlayerLoot)\(\s*(?:item:\s*)?"([^"]+)"\s*,\s*(?:probability:\s*)?([0-9.]+)')
+    ITEM_LOOT_ELDER = re.compile(r'(?:ItemLoot|OnePlayerLoot)\(\s*(?:item:\s*)?"([^"]+)"\s*,\s*(?:probability:\s*)?'
+                                 r'elder\s*\?\s*([0-9.]+)\s*:\s*([0-9.]+)')
     ITEM_LOOT_ID = re.compile(r'(?:ItemLoot|OnePlayerLoot)\(\s*(?:item:\s*)?"([^"]+)"')  # with or without a chance
     TIER_LOOT = re.compile(r'TierLoot\(\s*(?:tier:\s*)?(\d+)\s*,\s*(?:type:\s*)?ItemType\.(\w+)')
 
@@ -289,6 +291,9 @@ class Data:
                              for t in re.findall(r'LootTemplates\.(\w+)\(\)', block))
             for m in self.ITEM_LOOT.finditer(block):
                 out.append(("item", m.group(1), float(m.group(2))))
+            # a chance written for both versions of an E("x") block: elder ? <Elder's> : <regular's>
+            for m in self.ITEM_LOOT_ELDER.finditer(block):
+                out.append(("item", m.group(1), float(m.group(2) if monster.startswith("Elder ") else m.group(3))))
             for m in self.TIER_LOOT.finditer(block):
                 out.append(("tier", (m.group(2), int(m.group(1))), None))
         block = self.doomed.get(monster) or self.elder_loot.get(monster)
@@ -787,9 +792,11 @@ class Data:
 
     def bazaar_pets(self):
         """The pet generators the Nexus Bazaar sells (MerchantLists.InitDyes: usable items named
-        "...Generator...")."""
+        "...Generator..." whose pet is Small)."""
         return {oid for oid, el in self.elements.items()
-                if self.objects[oid]["item"] and "Generator" in oid and el.find("InvUse") is not None}
+                if self.objects[oid]["item"] and "Generator" in oid and el.find("InvUse") is not None
+                and any(a["effect"] == "PermaPet" and a.get("petSize") == "Small"
+                        for a in self.objects[oid]["activate_attrs"])}
 
     def gear_items(self, slot_type):
         """What /gear equips in a slot of this type (GearCommand.StarterItem)."""
@@ -850,7 +857,9 @@ def market_rules():
         m = re.search(r'const int %s\s*=\s*([\d_]+)' % name, src)
         return int(m.group(1).replace("_", "")) if m else 0
     return {"tax": const("TaxPercent"), "limit": const("MaxListings"), "max_price": const("MaxPrice"),
-            "default_days": const("DefaultHours") // 24, "max_days": const("MaxHours") // 24}
+            "default_days": const("DefaultHours") // 24, "max_days": const("MaxHours") // 24,
+            "slot_step": const("SlotPriceStep"), "max_extra": const("MaxExtraSlots"),
+            "max_slots": const("MaxListings") + const("MaxExtraSlots")}
 
 
 def gear_rules():

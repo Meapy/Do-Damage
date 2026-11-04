@@ -230,12 +230,24 @@ messages! {
         122 => MarketListings {
             version: i32, now: i32, unchanged: bool, tax: u8, limit: u8,
             listings: List16<MarketListing>, boxed: List16<MarketBoxItem>, history: List16<MarketHistory>,
+            // what our next listing slot costs in fame (0: we have them all); an older server
+            // leaves it out, and sells none
+            slot_price: Option<i32>,
         },
         // How a Marketplace action went: what to tell the player, and our fame now.
         125 => MarketResult { ok: bool, message: String, fame: i32 },
         // Someone's /visit (after VisitAnswer 255): the request's id, who asks, where they'd
-        // join us, and the seconds left to answer (0: the request has gone).
-        127 => VisitRequest { id: i32, name: String, world: String, seconds: u8 },
+        // join us, and the seconds left to answer (0: the request has gone); after VisitAnswer
+        // 254, whether it's a /summon (us to their world) instead (a 2.3.7 server leaves it out).
+        127 => VisitRequest { id: i32, name: String, world: String, seconds: u8, summon: Option<bool> },
+        // The community goals (after CommunityRequest and each claim): the server's time and when
+        // the week's goals end (Unix seconds), the tiers' names, the Overdrive levels' name, the
+        // loot's rarities, and the goals running or ended lately.
+        129 => CommunityData { now: i32, week_ends_at: i32, tier_names: List8<String>, bonus_name: String, rarities: List8<String>, goals: List8<CommunityGoal> },
+        // A claim's answer (kind 0 paid, 1 refused) or a popup: a tier or Overdrive level the
+        // server reached (2), a goal completed (3), the week's new goals (4), someone's rare loot
+        // (5).
+        131 => CommunityNotice { kind: u8, title: String, text: String },
     }
 }
 
@@ -337,11 +349,19 @@ messages! {
         // a vault chest's slot.
         123 => MarketSell { from_vault: bool, chest: i32, slot: u8, price: i32, hours: i32 },
         // 1 buys listing `id` at the price we saw, 2 takes our listing `id` back, 3 collects box
-        // item `id` (0: all that fit).
+        // item `id` (0: all that fit), 4 buys another listing slot at the price we saw (id 0; an
+        // older server answers that it doesn't know it).
         124 => MarketAct { action: u8, id: i32, price: i32 },
         // A visit request: 1 lets them in, 0 doesn't; 255 (id unused), once in each world, says
         // we can show VisitRequests. An older server doesn't know it (one unknown message per
         // world).
         126 => VisitAnswer { id: i32, answer: u8 },
+        // Ask for CommunityData, and from then on CommunityNotices (an older server doesn't know
+        // it: one unknown message per world).
+        128 => CommunityRequest {},
+        // Claim a community goal's tier (100 on: its Overdrive levels, 253: all those waiting,
+        // 255: its top's prize, 254: all it has waiting); no key claims everything waiting on
+        // every goal.
+        130 => CommunityClaim { key: String, tier: u8 },
     }
 }

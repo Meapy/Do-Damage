@@ -12,6 +12,73 @@ Keep each version short: changes go under `### ` group headings (Oryx 5, Arena, 
 on), one line per change players notice, summed up rather than item by item (the wiki has the
 details). Add to a group's line when a change adds to it, rather than adding another line.
 
+## 2.3.8 (2026-11-04)
+
+### Languages
+- The game now speaks 11 languages: English, German, Spanish, French, Italian, Dutch, Polish,
+  Brazilian Portuguese, Russian, Turkish and Ukrainian. Pick yours in Options, Language: every
+  menu, window, tooltip and message switches at once, written the way players of that language
+  say it, numbers and times included. The first time, the game starts in your computer's or
+  browser's language. Item and monster names, and what the server writes (chat, quests' and
+  goals' descriptions), stay in English.
+
+### Community goals
+- Every week the whole server gets 3 goals to reach together, such as defeating Oryx 15 times,
+  clearing 40 dungeons or earning 6,000 fame between you. Each has four tiers, Spark to Inferno,
+  and everyone who helped claims every tier the realm reaches (fame, potions, keys and more), even
+  while offline; the top 3 contributors claim a prize more when it ends. A claim names what you
+  got, in the window and in the chat (as quest rewards now do too), so there's no need to look
+  through the gift chest.
+- Goals don't stop at 100%: every 25% past it is an Overdrive level, up to 300%, each a bonus
+  reward for everyone who helped. Each goal gives its own rewards and rolls its own loot table
+  (Oryx's incantations and Lil' Oryx pets, the dungeons' keys, the forge's shards and more), and
+  Overdrive rolls luckier. Goals resize themselves each time they come back: harder after a week
+  the realm sailed past, easier after one it fell short of.
+- Meet the Warcaller, the bannered knight at the north end of the Nexus spawn: he opens the
+  Community Goals window, with live progress bars, your part and the top contributors. Banners
+  and chat lines tell everyone when a tier is reached, and `/goals` shows it all in the chat.
+
+### Death spin
+- Dying spins a loot reel on the death screen. The more base fame the character had, the better
+  its tier (Bronze from 20 fame up to Mythic at 10,000) and its odds: stat potions, pets and gear
+  at the bottom, Potions of Max, boss pets and Infernal potions higher up, and, rarely, white-bag
+  items, the very best gear, Lil' Oryxes and Potions of Maxy.
+- Some of what you died with comes back too: a 25% chance of one item under 400 base fame, 50%
+  from 400, one for sure from 800 and more the more fame, each extra item at half the chance of
+  the one before.
+  The prize and the items go to your Gift Chest (imprints on them are lost).
+
+### Friends
+- `/summon <name>` now works for everyone too: it asks a friend to come to your dungeon, the Arena
+  or another instance from a portal, with the same Yes / No box in their corner (or `/yes` and
+  `/no`) and the same rules as `/visit`: never into an instance they've already been in.
+
+### Graphics
+- Everything is sharp again with the glow on: names, damage numbers and health bars no longer
+  glow, the art keeps its crisp edges, and the halo round shots and sparks is tighter.
+
+### Abilities
+- A poison (or any other throw) aimed further than 14 tiles away now lands 14 tiles away towards
+  your mouse instead of using your mana and doing nothing. A Samurai cut that would land you in a
+  wall no longer uses your mana.
+
+### Marketplace
+- Buy more listing slots for fame on the Marketplace's Sell tab: the first extra slot costs 500
+  fame and each one after costs 500 more, up to 10 extra (20 listings at once). The My listings
+  tab now pages through them when they don't all fit.
+
+### Pets
+- Pet generators are used up when you use them, but you never lose a pet: using another one, or
+  `/removepet`, gives you back your current pet's generator.
+- Only the Small pets (the critters) are sold now, at the Nexus Bazaar and in `/shop pets`. Every
+  other pet drops from the boss or monster it belongs with, more often than before, in a white bag
+  of your own: Bes, Nut and Geb in the Tomb, Lil' Stheno in the Snake Pit, the Sharkman and Sea
+  Mare from Thessal, the pumpkin pets and Grim Reaper in the Haunted Cemetery and so on, twice as
+  often in Elder dungeons. The wiki's Pets page lists where each one drops.
+- Every pet fights its own way: claws, bones, eggs, feathers, coins, stink clouds, stomps, zaps,
+  ninja stars, scythes and more, some slowing, bleeding or weakening what they hit. Pets are
+  balanced by size: Small ones do about 50 damage a second, Medium about 200 and Large 400 to 550.
+
 ## 2.3.7 (2026-11-02)
 
 ### Friends

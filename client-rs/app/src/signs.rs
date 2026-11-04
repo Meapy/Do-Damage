@@ -6,6 +6,7 @@
 //! another object one, fetch what it should say into `Signs` and add it to `Signs::draw`.
 
 use crate::hud::Ui;
+use crate::i18n::{tf, tr};
 use crate::theme::{self, color};
 use bsk_data::ObjectClass;
 use bsk_net::account::ArenaRun;
@@ -132,13 +133,13 @@ pub fn arena_sign(best: Option<&ArenaRun>) -> Sign {
     const GOLD: u32 = 0xFFD24A;
     let lines = match best {
         None => vec![
-            Line::new("No runs yet", 15.0, true, color::TEXT),
-            Line::new("Be the first: type /arena", 12.0, false, color::TEXT_DIM),
+            Line::new(tr("No runs yet"), 15.0, true, color::TEXT),
+            Line::new(tr("Be the first: type /arena"), 12.0, false, color::TEXT_DIM),
         ],
         Some(run) => {
-            let names = if run.players.is_empty() { "Unknown".to_owned() } else { run.players.join(", ") };
+            let names = if run.players.is_empty() { tr("Unknown").to_owned() } else { run.players.join(", ") };
             let mut lines = vec![
-                Line::new(format!("Wave {}  ·  {}", run.wave, crate::npc::run_time(run.seconds)), 17.0, true, color::TEXT),
+                Line::new(tf!("Wave {wave}  ·  {time}", wave = run.wave, time = crate::npc::run_time(run.seconds)), 17.0, true, color::TEXT),
                 Line::new(names, 13.0, true, GOLD).wrapped(2),
             ];
             if !run.arena.is_empty() {
@@ -147,20 +148,20 @@ pub fn arena_sign(best: Option<&ArenaRun>) -> Sign {
             lines
         }
     };
-    Sign { title: "ARENA RECORD".to_owned(), accent: GOLD, lines }
+    Sign { title: tr("ARENA RECORD").to_owned(), accent: GOLD, lines }
 }
 
 /// The Arena Chest's sign: shared, kept while the Arena is open, lost when it closes (its XML's
 /// Description says the same).
 pub fn arena_chest_sign() -> Sign {
     Sign {
-        title: "ARENA CHEST".to_owned(),
+        title: tr("ARENA CHEST").to_owned(),
         accent: color::ACCENT_HI,
         lines: vec![
-            Line::new("Shared with everyone in this Arena", 13.0, true, color::TEXT),
-            Line::new("Items stay until someone takes them.", 11.0, false, color::TEXT_DIM),
-            Line::new("Anything left here is lost when everyone leaves the Arena.", 11.0, true, 0xFFB070).wrapped(2),
-            Line::new("No soulbound items", 11.0, false, color::TEXT_MUTED),
+            Line::new(tr("Shared with everyone in this Arena"), 13.0, true, color::TEXT),
+            Line::new(tr("Items stay until someone takes them."), 11.0, false, color::TEXT_DIM),
+            Line::new(tr("Anything left here is lost when everyone leaves the Arena."), 11.0, true, 0xFFB070).wrapped(2),
+            Line::new(tr("No soulbound items"), 11.0, false, color::TEXT_MUTED),
         ],
     }
 }

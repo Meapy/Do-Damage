@@ -6,7 +6,8 @@
 //!   before it buys.
 //! - Sell: pick an item from the inventory or the vault, set a price and how long it lasts
 //!   (1, 3 or 7 days); the window shows what you get after the tax.
-//! - My listings, with a button to take each back; the Box, where bought, taken-back and
+//! - My listings, with a button to take each back (and, on the Sell tab, more listing slots
+//!   bought for fame, asking once more first); the Box, where bought, taken-back and
 //!   unsold items wait when the inventory is full (imprints and all); and the History.
 //!
 //! The window asks for everything when it opens and every few seconds while open
@@ -16,6 +17,7 @@
 
 use crate::forge::Category;
 use crate::hud::{Layout, SlotKind, Ui};
+use crate::i18n::{mark, tf, tn, tr};
 use crate::theme::{self, color, Kind};
 use bsk_data::GameData;
 use bsk_proto::{MarketBoxItem, MarketHistory, MarketListing, MarketListings, MarketResult, VaultContents};
@@ -36,6 +38,8 @@ pub enum Act {
     Collect(i32),
     /// The vault's contents (`VaultContentsRequest`), for selling from it.
     Vault,
+    /// Buy another listing slot at the price we saw.
+    BuySlot(i32),
 }
 
 /// What the server said.
@@ -64,7 +68,7 @@ enum Sort {
     EndingSoon,
 }
 
-const SORTS: [(Sort, &str); 4] = [(Sort::Newest, "Newest"), (Sort::Cheapest, "Cheapest"), (Sort::Dearest, "Dearest"), (Sort::EndingSoon, "Ending soon")];
+const SORTS: [(Sort, &str); 4] = [(Sort::Newest, mark("Newest")), (Sort::Cheapest, mark("Cheapest")), (Sort::Dearest, mark("Dearest")), (Sort::EndingSoon, mark("Ending soon"))];
 
 /// The tier filter: untiered gear (UT and set pieces), or a band of tiers.
 #[derive(Clone, Copy, Debug, PartialEq, Eq, Default)]
@@ -77,15 +81,15 @@ enum Tier {
     Low,
 }
 
-const TIERS: [(Tier, &str); 5] = [(Tier::Any, "Any tier"), (Tier::Untiered, "UT"), (Tier::High, "T12+"), (Tier::Mid, "T8-11"), (Tier::Low, "T7 and below")];
+const TIERS: [(Tier, &str); 5] = [(Tier::Any, mark("Any tier")), (Tier::Untiered, "UT"), (Tier::High, "T12+"), (Tier::Mid, "T8-11"), (Tier::Low, mark("T7 and below"))];
 
 const CATEGORIES: [(Category, &str); 6] = [
-    (Category::All, "All"),
-    (Category::Weapons, "Weapons"),
-    (Category::Abilities, "Abilities"),
-    (Category::Armor, "Armor"),
-    (Category::Rings, "Rings"),
-    (Category::Other, "Other"),
+    (Category::All, mark("All")),
+    (Category::Weapons, mark("Weapons")),
+    (Category::Abilities, mark("Abilities")),
+    (Category::Armor, mark("Armor")),
+    (Category::Rings, mark("Rings")),
+    (Category::Other, mark("Other")),
 ];
 
 /// How long a listing lasts: the server takes 1 hour to 7 days.
@@ -96,6 +100,8 @@ const REFRESH: i32 = 3000;
 const NO_ANSWER: i32 = 5000;
 /// How long a Buy waits for its second click.
 const CONFIRM_MS: i32 = 3000;
+/// `confirm`'s listing id while buying a listing slot (listing ids start at 1).
+const SLOT_CONFIRM: i32 = -1;
 /// `FAME_STAT`: the account's fame.
 const FAME_STAT: u8 = 39;
 
@@ -123,6 +129,7 @@ enum Hit {
     Pick(Pick),
     Days(u8),
     List,
+    BuySlot,
     Up,
     Down,
 }
@@ -140,6 +147,8 @@ pub struct Market {
     offset: i64,
     tax: u8,
     limit: u8,
+    /// What our next listing slot costs, 0 when we have them all or the server doesn't sell them.
+    slot_price: i32,
     boxed: Vec<MarketBoxItem>,
     history: Vec<MarketHistory>,
     loaded: bool,
@@ -193,9 +202,10 @@ fn unix_now() -> i64 {
 pub fn fame(n: i32) -> String {
     let digits = n.unsigned_abs().to_string();
     let mut out = String::new();
+    let sep = crate::i18n::current().thousands;
     for (i, c) in digits.chars().enumerate() {
         if i > 0 && (digits.len() - i).is_multiple_of(3) {
-            out.push(',');
+            out.push_str(sep);
         }
         out.push(c);
     }
@@ -209,26 +219,26 @@ pub fn fame(n: i32) -> String {
 /// Time left as players read it: "2d 4h", "5h 20m", "12m", "ended".
 fn left(seconds: i64) -> String {
     if seconds <= 0 {
-        "ended".into()
+        tr("ended").into()
     } else if seconds >= 86400 {
-        format!("{}d {}h", seconds / 86400, seconds % 86400 / 3600)
+        tf!("{d}d {h}h", d = seconds / 86400, h = seconds % 86400 / 3600)
     } else if seconds >= 3600 {
-        format!("{}h {}m", seconds / 3600, seconds % 3600 / 60)
+        tf!("{h}h {m}m", h = seconds / 3600, m = seconds % 3600 / 60)
     } else {
-        format!("{}m", (seconds / 60).max(1))
+        tf!("{m}m", m = (seconds / 60).max(1))
     }
 }
 
 /// How long ago, as the history shows it.
 fn ago(seconds: i64) -> String {
     if seconds < 60 {
-        "just now".into()
+        tr("just now").into()
     } else if seconds < 3600 {
-        format!("{}m ago", seconds / 60)
+        tf!("{n} min ago", n = seconds / 60)
     } else if seconds < 86400 {
-        format!("{}h ago", seconds / 3600)
+        tf!("{n} h ago", n = seconds / 3600)
     } else {
-        format!("{}d ago", seconds / 86400)
+        tn!(seconds / 86400, "{n} day ago|{n} days ago")
     }
 }
 
@@ -246,7 +256,7 @@ fn tier_label(data: &GameData, item: i32) -> String {
 }
 
 fn name_of(data: &GameData, item: i32) -> String {
-    data.objects.get(&(item as u16)).map_or_else(|| "Unknown item".into(), |d| d.display_id.clone())
+    data.objects.get(&(item as u16)).map_or_else(|| tr("Unknown item").into(), |d| d.display_id.clone())
 }
 
 impl Market {
@@ -291,7 +301,7 @@ impl Market {
             self.waiting = false;
             if !self.loaded {
                 self.unsupported = true;
-                self.message = Some(("This server's Marketplace is out of date: it can't be used from here.".into(), true));
+                self.message = Some((tr("This server's Marketplace is out of date: it can't be used from here.").into(), true));
             }
             return Vec::new();
         }
@@ -330,6 +340,7 @@ impl Market {
                 self.offset = m.now as i64 - unix_now();
                 self.tax = m.tax;
                 self.limit = m.limit;
+                self.slot_price = m.slot_price.unwrap_or(0);
                 if !m.unchanged || !self.loaded {
                     self.listings = m.listings.0;
                     self.version = m.version;
@@ -441,7 +452,7 @@ impl Market {
                 let Some(l) = self.listings.iter().find(|l| l.id == id) else { return Vec::new() };
                 if self.confirm.is_some_and(|(c, _)| c == id) {
                     self.confirm = None;
-                    self.message = Some((format!("Buying {}...", name_of(data, l.item_type as i32)), false));
+                    self.message = Some((tf!("Buying {item}...", item = name_of(data, l.item_type as i32)), false));
                     return vec![Act::Buy(id, l.price)];
                 }
                 self.confirm = Some((id, self.now));
@@ -469,11 +480,11 @@ impl Market {
             Hit::List => {
                 let price: i32 = self.price.parse().unwrap_or(0);
                 let Some((p, _)) = self.pick else {
-                    self.message = Some(("Pick an item to sell first.".into(), true));
+                    self.message = Some((tr("Pick an item to sell first.").into(), true));
                     return Vec::new();
                 };
                 if price <= 0 {
-                    self.message = Some(("Set a price in fame.".into(), true));
+                    self.message = Some((tr("Set a price in fame.").into(), true));
                     return Vec::new();
                 }
                 let hours = self.days as i32 * 24;
@@ -481,6 +492,17 @@ impl Market {
                     Pick::Inv(slot) => Act::Sell { from_vault: false, chest: 0, slot, price, hours },
                     Pick::Vault(chest, slot) => Act::Sell { from_vault: true, chest, slot, price, hours },
                 }];
+            }
+            Hit::BuySlot => {
+                if self.slot_price <= 0 {
+                    return Vec::new();
+                }
+                if self.confirm.is_some_and(|(c, _)| c == SLOT_CONFIRM) {
+                    self.confirm = None;
+                    self.message = Some((tr("Buying a listing slot...").to_owned(), false));
+                    return vec![Act::BuySlot(self.slot_price)];
+                }
+                self.confirm = Some((SLOT_CONFIRM, self.now));
             }
             Hit::Up => self.row = self.row.saturating_sub(self.rows.max(1)),
             Hit::Down => self.row += self.rows.max(1),
@@ -601,9 +623,9 @@ impl Market {
         let font = |size: f32| (size * s).round().max(9.0);
 
         // The title, our fame and the close button.
-        ui.label("Marketplace", r[0] + 22.0 * s, r[1] + 14.0 * s, font(22.0), true, color::TEXT);
+        ui.label(tr("Marketplace"), r[0] + 22.0 * s, r[1] + 14.0 * s, font(22.0), true, color::TEXT);
         let fame_now = me.map_or(0, |m| m.stat_int(FAME_STAT).unwrap_or(0));
-        let ft = format!("{} fame", fame(fame_now));
+        let ft = tn!(fame_now, "{n} fame|{n} fame", n = fame(fame_now));
         let fw = ui.measure(&ft, font(15.0), true);
         ui.label(&ft, r[0] + r[2] - fw - 62.0 * s, r[1] + 19.0 * s, font(15.0), true, color::ACCENT);
         let cb = [r[0] + r[2] - 42.0 * s, r[1] + 14.0 * s, 28.0 * s, 28.0 * s];
@@ -618,11 +640,11 @@ impl Market {
         // The tabs, with counts.
         let mine = self.listings.iter().filter(|l| self.mine(l)).count();
         let tabs = [
-            (Tab::Browse, format!("Browse ({})", self.listings.len())),
-            (Tab::Sell, "Sell".to_owned()),
-            (Tab::Mine, format!("My listings ({mine}/{})", self.limit.max(1))),
-            (Tab::Box, if self.boxed.is_empty() { "Box".to_owned() } else { format!("Box ({})", self.boxed.len()) }),
-            (Tab::History, "History".to_owned()),
+            (Tab::Browse, tf!("Browse ({n})", n = self.listings.len())),
+            (Tab::Sell, tr("Sell").to_owned()),
+            (Tab::Mine, tf!("My listings ({mine}/{limit})", mine, limit = self.limit.max(1))),
+            (Tab::Box, if self.boxed.is_empty() { tr("Box").to_owned() } else { tf!("Box ({n})", n = self.boxed.len()) }),
+            (Tab::History, tr("History").to_owned()),
         ];
         let mut x = r[0] + 180.0 * s;
         for (t, label) in tabs {
@@ -639,7 +661,7 @@ impl Market {
 
         let body = [r[0] + 22.0 * s, r[1] + 58.0 * s, r[2] - 44.0 * s, r[3] - 104.0 * s];
         if !self.loaded {
-            let t = if self.unsupported { "" } else { "Asking the Market Broker..." };
+            let t = if self.unsupported { "" } else { tr("Asking the Market Broker...") };
             ui.label(t, body[0], body[1] + 10.0 * s, font(14.0), false, color::TEXT_MUTED);
         } else {
             match self.tab {
@@ -658,11 +680,11 @@ impl Market {
             Some((m, err)) => (m.clone(), if *err { color::DANGER } else { color::GOOD }),
             None => (
                 match self.tab {
-                    Tab::Browse => "Click Buy, then again to confirm. Items go to your inventory, or your box when it's full.".to_owned(),
-                    Tab::Sell => format!("The Market Broker keeps {}% of each sale. Unsold items come back to your box.", self.tax),
-                    Tab::Mine => "Taking a listing back returns it to your inventory, or your box when it's full.".to_owned(),
-                    Tab::Box => "Items wait here, imprints and all, until you collect them.".to_owned(),
-                    Tab::History => "Your last 50 Marketplace events.".to_owned(),
+                    Tab::Browse => tr("Click Buy, then again to confirm. Items go to your inventory, or your box when it's full.").to_owned(),
+                    Tab::Sell => tf!("The Market Broker keeps {tax}% of each sale. Unsold items come back to your box.", tax = self.tax),
+                    Tab::Mine => tr("Taking a listing back returns it to your inventory, or your box when it's full.").to_owned(),
+                    Tab::Box => tr("Items wait here, imprints and all, until you collect them.").to_owned(),
+                    Tab::History => tr("Your last 50 Marketplace events.").to_owned(),
                 },
                 color::TEXT_MUTED,
             ),
@@ -686,12 +708,12 @@ impl Market {
             return;
         }
         let (up, down) = ([x, y, 56.0 * s, 24.0 * s], [x + 62.0 * s, y, 56.0 * s, 24.0 * s]);
-        ui.button(up, "Up", Kind::Secondary, inside(up, mouse), s * 0.75);
-        ui.button(down, "Down", Kind::Secondary, inside(down, mouse), s * 0.75);
+        ui.button(up, tr("Up"), Kind::Secondary, inside(up, mouse), s * 0.75);
+        ui.button(down, tr("Down"), Kind::Secondary, inside(down, mouse), s * 0.75);
         self.hits.push((Hit::Up, up));
         self.hits.push((Hit::Down, down));
         let end = (self.row + self.rows).min(total);
-        let t = format!("{}-{} of {}", self.row + 1, end, total);
+        let t = tf!("{from}-{to} of {all}", from = self.row + 1, to = end, all = total);
         ui.label(&t, x + 128.0 * s, y + 4.0 * s, (12.0 * s).round().max(9.0), false, color::TEXT_MUTED);
     }
 
@@ -700,14 +722,14 @@ impl Market {
         // The search and the filters.
         let fr = [b[0], b[1], 260.0 * s, 32.0 * s];
         let q = self.query.clone();
-        Self::field(ui, fr, &q, "Search items or sellers", !self.typing_price, s, self.now);
+        Self::field(ui, fr, &q, tr("Search items or sellers"), !self.typing_price, s, self.now);
         self.hits.push((Hit::Search, fr));
-        let cats: Vec<(Hit, &str, bool)> = CATEGORIES.iter().map(|&(c, l)| (Hit::Category(c), l, c == self.category)).collect();
+        let cats: Vec<(Hit, &str, bool)> = CATEGORIES.iter().map(|&(c, l)| (Hit::Category(c), tr(l), c == self.category)).collect();
         self.chips(ui, fr[0] + fr[2] + 12.0 * s, b[1] + 4.0 * s, &cats, s, mouse);
-        let tiers: Vec<(Hit, &str, bool)> = TIERS.iter().map(|&(t, l)| (Hit::Tier(t), l, t == self.tier)).collect();
+        let tiers: Vec<(Hit, &str, bool)> = TIERS.iter().map(|&(t, l)| (Hit::Tier(t), tr(l), t == self.tier)).collect();
         let x = self.chips(ui, b[0], b[1] + 42.0 * s, &tiers, s, mouse);
-        ui.label("Sort", x + 10.0 * s, b[1] + 46.0 * s, font(12.0), true, color::TEXT_MUTED);
-        let sorts: Vec<(Hit, &str, bool)> = SORTS.iter().map(|&(t, l)| (Hit::Sort(t), l, t == self.sort)).collect();
+        ui.label(tr("Sort"), x + 10.0 * s, b[1] + 46.0 * s, font(12.0), true, color::TEXT_MUTED);
+        let sorts: Vec<(Hit, &str, bool)> = SORTS.iter().map(|&(t, l)| (Hit::Sort(t), tr(l), t == self.sort)).collect();
         self.chips(ui, x + 44.0 * s, b[1] + 42.0 * s, &sorts, s, mouse);
 
         // The listings.
@@ -718,7 +740,7 @@ impl Market {
         self.rows = (((list[3] - 12.0 * s) / row_h).floor() as usize).max(1);
         self.row = self.row.min(self.shown.len().saturating_sub(self.rows));
         if self.shown.is_empty() {
-            let t = if self.listings.is_empty() { "Nothing is for sale yet. Be the first: list an item on the Sell tab." } else { "Nothing matches: try another search or filter." };
+            let t = if self.listings.is_empty() { tr("Nothing is for sale yet. Be the first: list an item on the Sell tab.") } else { tr("Nothing matches: try another search or filter.") };
             ui.label(t, list[0] + 16.0 * s, list[1] + 16.0 * s, font(14.0), false, color::TEXT_MUTED);
         }
         let now = self.server_now();
@@ -732,24 +754,28 @@ impl Market {
             }
             let ir = [rr[0] + 4.0 * s, rr[1] + 2.0 * s, rr[3] - 4.0 * s, rr[3] - 4.0 * s];
             let imprints = [l.offensive, l.defensive, l.misc];
-            let note = format!("Sold by {}", l.seller);
+            let note = tf!("Sold by {seller}", seller = l.seller);
             self.item(ui, ir, l.item_type as i32, l.stack, imprints, None, mouse, s, &note);
             let name = name_of(ui.data, l.item_type as i32);
             let name = if l.stack > 1 { format!("{name} ×{}", l.stack) } else { name };
             let tx = ir[0] + ir[2] + 12.0 * s;
             ui.label(&name, tx, rr[1] + 6.0 * s, font(14.0), true, color::TEXT);
             let tier = tier_label(ui.data, l.item_type as i32);
-            let sub = if tier.is_empty() { format!("{} · {} left", l.seller, left(l.end as i64 - now)) } else { format!("{tier} · {} · {} left", l.seller, left(l.end as i64 - now)) };
+            let sub = if tier.is_empty() {
+                tf!("{seller} · {time} left", seller = l.seller, time = left(l.end as i64 - now))
+            } else {
+                tf!("{tier} · {seller} · {time} left", tier, seller = l.seller, time = left(l.end as i64 - now))
+            };
             ui.label(&sub, tx, rr[1] + 26.0 * s, font(12.0), false, color::TEXT_MUTED);
-            let price = format!("{} fame", fame(l.price));
+            let price = tn!(l.price, "{n} fame|{n} fame", n = fame(l.price));
             let pw = ui.measure(&price, font(15.0), true);
             ui.label(&price, rr[0] + rr[2] - 132.0 * s - pw, rr[1] + (rr[3] - font(15.0) * 1.22) / 2.0, font(15.0), true, color::ACCENT);
             let bb = [rr[0] + rr[2] - 118.0 * s, rr[1] + 8.0 * s, 112.0 * s, rr[3] - 16.0 * s];
             if self.mine(l) {
-                ui.label("Yours", bb[0] + 36.0 * s, bb[1] + 6.0 * s, font(13.0), true, color::TEXT_MUTED);
+                ui.label(tr("Yours"), bb[0] + 36.0 * s, bb[1] + 6.0 * s, font(13.0), true, color::TEXT_MUTED);
             } else {
                 let confirming = self.confirm.is_some_and(|(c, _)| c == l.id);
-                ui.button(bb, if confirming { "Confirm" } else { "Buy" }, if confirming { Kind::Danger } else { Kind::Primary }, inside(bb, mouse), s * 0.85);
+                ui.button(bb, if confirming { tr("Confirm") } else { tr("Buy") }, if confirming { Kind::Danger } else { Kind::Primary }, inside(bb, mouse), s * 0.85);
                 self.hits.push((Hit::Buy(l.id), bb));
             }
         }
@@ -761,28 +787,34 @@ impl Market {
         let font = |size: f32| (size * s).round().max(9.0);
         let left_w = 420.0 * s;
         // Where from: the inventory or the vault.
-        self.chips(ui, b[0], b[1], &[(Hit::Source(false), "Inventory", !self.from_vault), (Hit::Source(true), "Vault", self.from_vault)], s, mouse);
+        self.chips(ui, b[0], b[1], &[(Hit::Source(false), tr("Inventory"), !self.from_vault), (Hit::Source(true), tr("Vault"), self.from_vault)], s, mouse);
         let cell = 48.0 * s;
         let gap = 6.0 * s;
         let gy = b[1] + 36.0 * s;
         let mut items: Vec<(Pick, i32, [u8; 3], String)> = Vec::new();
         if self.from_vault {
             for &(chest, slot, item, imprints) in &self.vault {
-                items.push((Pick::Vault(chest, slot), item, imprints, format!("In vault chest {}", chest + 1)));
+                items.push((Pick::Vault(chest, slot), item, imprints, tf!("In vault chest {n}", n = chest + 1)));
             }
         } else if let Some(me) = me {
             let backpack = me.stat_int(crate::hud::stat::HAS_BACKPACK).unwrap_or(0) != 0;
             for slot in 4..if backpack { 20 } else { 12 } {
                 let item = me.stat_int(crate::hud::slot_stat(slot)).unwrap_or(-1);
                 if item > 0 {
-                    items.push((Pick::Inv(slot), item, [0; 3], if slot < 12 { format!("Inventory slot {}", slot - 3) } else { format!("Backpack slot {}", slot - 11) }));
+                    items.push((Pick::Inv(slot), item, [0; 3], if slot < 12 { tf!("Inventory slot {n}", n = slot - 3) } else { tf!("Backpack slot {n}", n = slot - 11) }));
                 }
             }
         }
         let cols = ((left_w + gap) / (cell + gap)).floor().max(1.0) as usize;
         let max_rows = ((b[3] - 36.0 * s - 30.0 * s) / (cell + gap)).floor().max(1.0) as usize;
         if items.is_empty() {
-            let t = if self.from_vault && self.vault_asked { "Looking in your vault..." } else if self.from_vault { "Your vault is empty, or open: list from it once you've left it." } else { "Your inventory is empty." };
+            let t = if self.from_vault && self.vault_asked {
+                tr("Looking in your vault...")
+            } else if self.from_vault {
+                tr("Your vault is empty, or open: list from it once you've left it.")
+            } else {
+                tr("Your inventory is empty.")
+            };
             ui.label(t, b[0], gy + 6.0 * s, font(13.0), false, color::TEXT_MUTED);
         }
         let start = if self.from_vault { self.row * cols } else { 0 };
@@ -827,34 +859,43 @@ impl Market {
                 self.item(ui, ir, item, 0, [0; 3], Some(color::ACCENT), mouse, s, "");
                 ui.label(&name_of(ui.data, item), ix + 68.0 * s, y + 8.0 * s, font(16.0), true, color::TEXT);
                 let tier = tier_label(ui.data, item);
-                let sub = if self.from_vault { format!("{tier} · from your vault") } else { format!("{tier} · from your inventory") };
+                let sub = if self.from_vault { tf!("{tier} · from your vault", tier) } else { tf!("{tier} · from your inventory", tier) };
                 ui.label(sub.trim_start_matches(" · "), ix + 68.0 * s, y + 32.0 * s, font(12.0), false, color::TEXT_MUTED);
             }
-            _ => ui.label("Pick an item on the left to sell it.", ix, y + 18.0 * s, font(14.0), false, color::TEXT_MUTED),
+            _ => ui.label(tr("Pick an item on the left to sell it."), ix, y + 18.0 * s, font(14.0), false, color::TEXT_MUTED),
         }
         y += 76.0 * s;
-        ui.label("Price in fame", ix, y, font(12.0), true, color::TEXT_DIM);
+        ui.label(tr("Price in fame"), ix, y, font(12.0), true, color::TEXT_DIM);
         let fr = [ix, y + 20.0 * s, pr[2] - 36.0 * s, 34.0 * s];
         let price = self.price.clone();
         let shown = price.parse::<i32>().map_or(String::new(), fame);
-        Self::field(ui, fr, &shown, "How much fame?", self.typing_price, s, now);
+        Self::field(ui, fr, &shown, tr("How much fame?"), self.typing_price, s, now);
         self.hits.push((Hit::Price, fr));
         y += 66.0 * s;
-        ui.label("Lasts", ix, y, font(12.0), true, color::TEXT_DIM);
-        let days: Vec<(Hit, String, bool)> = DAYS.iter().map(|&d| (Hit::Days(d), if d == 1 { "1 day".to_owned() } else { format!("{d} days") }, d == self.days)).collect();
+        ui.label(tr("Lasts"), ix, y, font(12.0), true, color::TEXT_DIM);
+        let days: Vec<(Hit, String, bool)> = DAYS.iter().map(|&d| (Hit::Days(d), tn!(d, "{n} day|{n} days"), d == self.days)).collect();
         let days_ref: Vec<(Hit, &str, bool)> = days.iter().map(|(h, l, on)| (*h, l.as_str(), *on)).collect();
         self.chips(ui, ix, y + 20.0 * s, &days_ref, s, mouse);
         y += 60.0 * s;
         let p: i32 = self.price.parse().unwrap_or(0);
         if p > 0 {
             let net = p - p * self.tax as i32 / 100;
-            ui.label(&format!("Buyers pay {} fame", fame(p)), ix, y, font(13.0), false, color::TEXT_DIM);
-            ui.label(&format!("You get {} fame ({}% tax)", fame(net), self.tax), ix, y + 20.0 * s, font(14.0), true, color::ACCENT);
+            ui.label(&tf!("Buyers pay {price} fame", price = fame(p)), ix, y, font(13.0), false, color::TEXT_DIM);
+            ui.label(&tf!("You get {net} fame ({tax}% tax)", net = fame(net), tax = self.tax), ix, y + 20.0 * s, font(14.0), true, color::ACCENT);
         }
         let mine = self.listings.iter().filter(|l| self.mine(l)).count();
-        ui.label(&format!("{mine} of {} listings in use", self.limit), ix, pr[1] + pr[3] - 92.0 * s, font(12.0), false, color::TEXT_MUTED);
+        let sy = pr[1] + pr[3] - 92.0 * s;
+        ui.label(&tf!("{mine} of {limit} listings in use", mine, limit = self.limit), ix, sy, font(12.0), false, color::TEXT_MUTED);
+        if self.slot_price > 0 {
+            let confirming = self.confirm.is_some_and(|(c, _)| c == SLOT_CONFIRM);
+            let label = if confirming { tf!("Confirm: {price} fame", price = fame(self.slot_price)) } else { tf!("+1 slot: {price} fame", price = fame(self.slot_price)) };
+            let bw = ui.measure(&label, font(12.0), true) + 24.0 * s;
+            let sb = [pr[0] + pr[2] - 18.0 * s - bw, sy - 6.0 * s, bw, 26.0 * s];
+            ui.button(sb, &label, if confirming { Kind::Danger } else { Kind::Secondary }, inside(sb, mouse), s * 0.75);
+            self.hits.push((Hit::BuySlot, sb));
+        }
         let lb = [ix, pr[1] + pr[3] - 66.0 * s, pr[2] - 36.0 * s, 44.0 * s];
-        ui.button(lb, "List on the Marketplace", Kind::Primary, inside(lb, mouse), s);
+        ui.button(lb, tr("List on the Marketplace"), Kind::Primary, inside(lb, mouse), s);
         self.hits.push((Hit::List, lb));
     }
 
@@ -864,14 +905,19 @@ impl Market {
         let mine: Vec<MarketListing> = self.listings.iter().filter(|l| self.mine(l)).cloned().collect();
         theme::frame(ui.renderer, b, 8.0 * s, s.max(1.0), (color::BORDER, 1.0), ((color::INSET_TOP, 0.9), (color::INSET_BOTTOM, 0.9)));
         if mine.is_empty() {
-            ui.label("You're not selling anything. List an item on the Sell tab.", b[0] + 16.0 * s, b[1] + 16.0 * s, font(14.0), false, color::TEXT_MUTED);
+            ui.label(tr("You're not selling anything. List an item on the Sell tab."), b[0] + 16.0 * s, b[1] + 16.0 * s, font(14.0), false, color::TEXT_MUTED);
         }
         let row_h = 52.0 * s;
-        for (i, l) in mine.iter().enumerate() {
+        // as many rows as fit, less a line for the pager when they don't all
+        let mut fit = ((b[3] - 6.0 * s) / row_h).floor().max(1.0) as usize;
+        if mine.len() > fit {
+            fit = ((b[3] - 40.0 * s) / row_h).floor().max(1.0) as usize;
+        }
+        self.rows = fit;
+        self.row = self.row.min(mine.len().saturating_sub(1) / fit * fit);
+        for (i, l) in mine.iter().enumerate().skip(self.row).take(fit) {
+            let i = i - self.row;
             let rr = [b[0] + 6.0 * s, b[1] + 6.0 * s + i as f32 * row_h, b[2] - 12.0 * s, row_h - 4.0 * s];
-            if rr[1] + rr[3] > b[1] + b[3] {
-                break;
-            }
             if i % 2 == 0 {
                 theme::fill(ui.renderer, rr, 6.0 * s, 0xFFFFFF, 0.025);
             }
@@ -880,11 +926,12 @@ impl Market {
             let tx = ir[0] + ir[2] + 12.0 * s;
             ui.label(&name_of(ui.data, l.item_type as i32), tx, rr[1] + 6.0 * s, font(14.0), true, color::TEXT);
             let net = l.price - l.price * self.tax as i32 / 100;
-            ui.label(&format!("{} fame · you get {} · {} left", fame(l.price), fame(net), left(l.end as i64 - now)), tx, rr[1] + 26.0 * s, font(12.0), false, color::TEXT_MUTED);
+            ui.label(&tf!("{price} fame · you get {net} · {time} left", price = fame(l.price), net = fame(net), time = left(l.end as i64 - now)), tx, rr[1] + 26.0 * s, font(12.0), false, color::TEXT_MUTED);
             let bb = [rr[0] + rr[2] - 118.0 * s, rr[1] + 8.0 * s, 112.0 * s, rr[3] - 16.0 * s];
-            ui.button(bb, "Take back", Kind::Danger, inside(bb, mouse), s * 0.85);
+            ui.button(bb, tr("Take back"), Kind::Danger, inside(bb, mouse), s * 0.85);
             self.hits.push((Hit::Cancel(l.id), bb));
         }
+        self.pager(ui, b[0] + 10.0 * s, b[1] + b[3] - 30.0 * s, mine.len(), s, mouse);
     }
 
     fn draw_box(&mut self, ui: &mut Ui, b: [f32; 4], s: f32, mouse: (f64, f64)) {
@@ -893,7 +940,7 @@ impl Market {
         let list = [b[0], b[1], b[2], b[3] - 50.0 * s];
         theme::frame(ui.renderer, list, 8.0 * s, s.max(1.0), (color::BORDER, 1.0), ((color::INSET_TOP, 0.9), (color::INSET_BOTTOM, 0.9)));
         if self.boxed.is_empty() {
-            ui.label("Your box is empty.", list[0] + 16.0 * s, list[1] + 16.0 * s, font(14.0), false, color::TEXT_MUTED);
+            ui.label(tr("Your box is empty."), list[0] + 16.0 * s, list[1] + 16.0 * s, font(14.0), false, color::TEXT_MUTED);
         }
         let row_h = 52.0 * s;
         let boxed = self.boxed.clone();
@@ -910,19 +957,19 @@ impl Market {
             let tx = ir[0] + ir[2] + 12.0 * s;
             ui.label(&name_of(ui.data, it.item_type as i32), tx, rr[1] + 6.0 * s, font(14.0), true, color::TEXT);
             let why = match it.why {
-                1 => "Bought",
-                2 => "Taken back",
-                3 => "Didn't sell in time",
-                _ => "Waiting",
+                1 => tr("Bought"),
+                2 => tr("Taken back"),
+                3 => tr("Didn't sell in time"),
+                _ => tr("Waiting"),
             };
             ui.label(&format!("{why} · {}", ago(now - it.time as i64)), tx, rr[1] + 26.0 * s, font(12.0), false, color::TEXT_MUTED);
             let bb = [rr[0] + rr[2] - 118.0 * s, rr[1] + 8.0 * s, 112.0 * s, rr[3] - 16.0 * s];
-            ui.button(bb, "Collect", Kind::Primary, inside(bb, mouse), s * 0.85);
+            ui.button(bb, tr("Collect"), Kind::Primary, inside(bb, mouse), s * 0.85);
             self.hits.push((Hit::Collect(it.box_id), bb));
         }
         if !self.boxed.is_empty() {
             let ab = [b[0] + b[2] - 200.0 * s, b[1] + b[3] - 40.0 * s, 200.0 * s, 36.0 * s];
-            ui.button(ab, "Collect all that fit", Kind::Primary, inside(ab, mouse), s * 0.9);
+            ui.button(ab, tr("Collect all that fit"), Kind::Primary, inside(ab, mouse), s * 0.9);
             self.hits.push((Hit::CollectAll, ab));
         }
     }
@@ -932,7 +979,7 @@ impl Market {
         let now = self.server_now();
         theme::frame(ui.renderer, b, 8.0 * s, s.max(1.0), (color::BORDER, 1.0), ((color::INSET_TOP, 0.9), (color::INSET_BOTTOM, 0.9)));
         if self.history.is_empty() {
-            ui.label("Nothing yet.", b[0] + 16.0 * s, b[1] + 16.0 * s, font(14.0), false, color::TEXT_MUTED);
+            ui.label(tr("Nothing yet."), b[0] + 16.0 * s, b[1] + 16.0 * s, font(14.0), false, color::TEXT_MUTED);
         }
         let row_h = 40.0 * s;
         self.rows = (((b[3] - 40.0 * s) / row_h).floor() as usize).max(1);
@@ -947,11 +994,11 @@ impl Market {
             self.item(ui, ir, h.item_type as i32, 0, [0; 3], None, mouse, s, "");
             let name = name_of(ui.data, h.item_type as i32);
             let (text, col) = match h.kind {
-                1 => (format!("Listed {name} for {} fame", fame(h.price)), color::TEXT_DIM),
-                2 => (format!("Sold {name} to {} for {} fame: you got {}", h.other, fame(h.price), fame(h.net)), color::GOOD),
-                3 => (format!("Bought {name} from {} for {} fame", h.other, fame(h.price)), color::ACCENT),
-                4 => (format!("Took back {name}"), color::TEXT_DIM),
-                5 => (format!("{name} didn't sell in time"), color::TEXT_MUTED),
+                1 => (tf!("Listed {name} for {price} fame", name, price = fame(h.price)), color::TEXT_DIM),
+                2 => (tf!("Sold {name} to {buyer} for {price} fame: you got {net}", name, buyer = h.other, price = fame(h.price), net = fame(h.net)), color::GOOD),
+                3 => (tf!("Bought {name} from {seller} for {price} fame", name, seller = h.other, price = fame(h.price)), color::ACCENT),
+                4 => (tf!("Took back {name}", name), color::TEXT_DIM),
+                5 => (tf!("{name} didn't sell in time", name), color::TEXT_MUTED),
                 _ => (name, color::TEXT_DIM),
             };
             let tx = ir[0] + ir[2] + 10.0 * s;
@@ -974,7 +1021,7 @@ mod tests {
     }
 
     fn answer(listings: Vec<MarketListing>, version: i32, unchanged: bool) -> Event {
-        Event::Listings(MarketListings { version, now: 1000, unchanged, tax: 5, limit: 10, listings: List16(listings), boxed: List16(Vec::new()), history: List16(Vec::new()) })
+        Event::Listings(MarketListings { version, now: 1000, unchanged, tax: 5, limit: 10, slot_price: Some(500), listings: List16(listings), boxed: List16(Vec::new()), history: List16(Vec::new()) })
     }
 
     #[test]
@@ -1010,6 +1057,29 @@ mod tests {
         let data = GameData::default();
         assert!(m.click((5.0, 5.0), &data).is_empty());
         assert_eq!(m.click((5.0, 5.0), &data), vec![Act::Buy(2, 10)]);
+    }
+
+    #[test]
+    fn a_listing_slot_is_bought_on_the_second_click_at_the_price_shown() {
+        let mut m = Market { open: true, ..Default::default() };
+        m.event(answer(Vec::new(), 1, false));
+        assert_eq!(m.slot_price, 500);
+        let data = GameData::default();
+        m.hits = vec![(Hit::BuySlot, [0.0, 0.0, 10.0, 10.0])];
+        assert!(m.click((5.0, 5.0), &data).is_empty());
+        assert_eq!(m.click((5.0, 5.0), &data), vec![Act::BuySlot(500)]);
+        // the confirmation lapses
+        m.now = 0;
+        assert!(m.click((5.0, 5.0), &data).is_empty());
+        m.tick(CONFIRM_MS + 1);
+        assert!(m.click((5.0, 5.0), &data).is_empty());
+        // an older server sends no price: nothing to buy
+        let Event::Listings(mut old) = answer(Vec::new(), 1, false) else { unreachable!() };
+        old.slot_price = None;
+        m.event(Event::Listings(old));
+        m.confirm = None;
+        assert!(m.click((5.0, 5.0), &data).is_empty());
+        assert!(m.click((5.0, 5.0), &data).is_empty());
     }
 
     #[test]

@@ -73,6 +73,8 @@ namespace WorldServer.logic
                         )
                     ),
                 new Threshold(0.01,
+                    new ItemLoot("Stheno Generator", elder ? 0.04 : 0.02),
+                    new ItemLoot("Great Coil Snake Generator", elder ? 0.02 : 0.01),
                     new ItemLoot("Potion of Speed", 1),
                     new ItemLoot("Potion of Speed", 1),
                     new ItemLoot("Snake Pit Key", 0.1),

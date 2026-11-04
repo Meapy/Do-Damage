@@ -14,6 +14,7 @@
 //! Items move the AIR client's way (`ItemGridMediator`): drag between slots to swap, onto the
 //! world to drop, double-click to equip or use (or take from a bag), shift-click to use.
 
+use crate::i18n::{tf, tn, tr};
 use crate::redraw::{Dye, Redrawer};
 use crate::sprites::{SrcRect, Sprites};
 use crate::theme::{self, color, Kind};
@@ -375,6 +376,23 @@ impl Ui<'_> {
         self.text.draw_ui(self.fonts, self.renderer, s, x, y, Style { size, bold, color });
     }
 
+    /// The size a line is drawn at to fit `width`: `size`, or smaller (to 70%) for a longer line,
+    /// as a language's words may be.
+    pub(crate) fn fit_size(&mut self, s: &str, width: f32, size: f32, bold: bool) -> f32 {
+        let w = self.measure(s, size, bold);
+        if w <= width || w <= 0.0 {
+            return size;
+        }
+        (size * width / w).floor().max((size * 0.7).round())
+    }
+
+    /// `label`, smaller if it's wider than `width`; centred on the line's height still.
+    #[allow(clippy::too_many_arguments)]
+    pub(crate) fn label_fit(&mut self, s: &str, x: f32, y: f32, width: f32, size: f32, bold: bool, color: u32) {
+        let fit = self.fit_size(s, width, size, bold);
+        self.label(s, x, y + (size - fit) * 0.61, fit, bold, color);
+    }
+
     /// See `Text::digit_middle`.
     pub(crate) fn digit_middle(&self, size: f32, bold: bool) -> f32 {
         self.text.digit_middle(self.fonts, size, bold)
@@ -408,6 +426,11 @@ impl Ui<'_> {
     /// the sprite itself: the canvas has room for the outline above and beside the sprite but
     /// hardly any below.
     pub(crate) fn item_icon(&mut self, item: i32, size: i32, cx: f32, cy: f32, scale: f32) {
+        self.item_icon_faded(item, size, cx, cy, scale, 1.0);
+    }
+
+    /// `item_icon`, see-through (alpha 0-1).
+    pub(crate) fn item_icon_faded(&mut self, item: i32, size: i32, cx: f32, cy: f32, scale: f32, alpha: f32) {
         let Some(desc) = self.data.objects.get(&(item as u16)) else { return };
         let Some(src) = self.src(&desc.texture) else { return };
         let size = if src.h == 16 { size / 2 } else { size };
@@ -416,7 +439,9 @@ impl Ui<'_> {
         let Some(icon) = self.redrawer.get(self.sprites, self.renderer, src, false, size, dye) else { return };
         let (w, h) = (icon.w as f32, icon.h as f32);
         let lift = (crate::redraw::PAD as f32 - 1.0) / 2.0;
-        self.renderer.sprite(icon.rect, Quad::rect((cx - w / 2.0).round(), (cy - h / 2.0 - lift).round(), w, h), Tint::NONE);
+        // the atlas is premultiplied, so every channel fades
+        let tint = if alpha >= 1.0 { Tint::NONE } else { Tint { mul: [alpha; 4], add: [0.0; 3] } };
+        self.renderer.sprite(icon.rect, Quad::rect((cx - w / 2.0).round(), (cy - h / 2.0 - lift).round(), w, h), tint);
     }
 
     /// A sheet's tile redrawn with its outline at `size` (100 = normal), centred on (cx, cy):
@@ -634,32 +659,32 @@ impl Slot {
 /// `Slot` types (`SlotType` in item XML).
 pub fn slot_type_name(t: i32) -> &'static str {
     match t {
-        0 => "Any",
-        1 => "Sword",
-        2 => "Dagger",
-        3 => "Bow",
-        4 => "Tome",
-        5 => "Shield",
-        6 => "Leather Armor",
-        7 => "Armor",
-        8 => "Wand",
-        9 => "Accessory",
-        10 => "Potion",
-        11 => "Spell",
-        12 => "Holy Seal",
-        13 => "Cloak",
-        14 => "Robe",
-        15 => "Quiver",
-        16 => "Helm",
-        17 => "Staff",
-        18 => "Poison",
-        19 => "Skull",
-        20 => "Trap",
-        21 => "Orb",
-        22 => "Prism",
-        23 => "Scepter",
-        24 => "Shuriken",
-        _ => "Item",
+        0 => tr("Any"),
+        1 => tr("Sword"),
+        2 => tr("Dagger"),
+        3 => tr("Bow"),
+        4 => tr("Tome"),
+        5 => tr("Shield"),
+        6 => tr("Leather Armor"),
+        7 => tr("Armor"),
+        8 => tr("Wand"),
+        9 => tr("Accessory"),
+        10 => tr("Potion"),
+        11 => tr("Spell"),
+        12 => tr("Holy Seal"),
+        13 => tr("Cloak"),
+        14 => tr("Robe"),
+        15 => tr("Quiver"),
+        16 => tr("Helm"),
+        17 => tr("Staff"),
+        18 => tr("Poison"),
+        19 => tr("Skull"),
+        20 => tr("Trap"),
+        21 => tr("Orb"),
+        22 => tr("Prism"),
+        23 => tr("Scepter"),
+        24 => tr("Shuriken"),
+        _ => tr("Item"),
     }
 }
 
@@ -781,15 +806,15 @@ pub enum MenuOpt {
 impl MenuOpt {
     fn label(self) -> &'static str {
         match self {
-            MenuOpt::Teleport => "Teleport",
-            MenuOpt::GuildInvite => "Invite to guild",
-            MenuOpt::Lock => "Lock",
-            MenuOpt::Unlock => "Unlock",
-            MenuOpt::Whisper => "Whisper",
-            MenuOpt::Trade => "Trade",
-            MenuOpt::Party => "Invite to party",
-            MenuOpt::Ignore => "Ignore",
-            MenuOpt::Unignore => "Unignore",
+            MenuOpt::Teleport => tr("Teleport"),
+            MenuOpt::GuildInvite => tr("Invite to guild"),
+            MenuOpt::Lock => tr("Lock"),
+            MenuOpt::Unlock => tr("Unlock"),
+            MenuOpt::Whisper => tr("Whisper"),
+            MenuOpt::Trade => tr("Trade"),
+            MenuOpt::Party => tr("Invite to party"),
+            MenuOpt::Ignore => tr("Ignore"),
+            MenuOpt::Unignore => tr("Unignore"),
         }
     }
 }
@@ -927,12 +952,11 @@ pub fn interact_target(world: &World, data: &GameData) -> Option<Interact> {
 
 /// A price as text: "120 gold".
 pub fn price_text(price: i32, currency: i32) -> String {
-    let what = match currency {
-        1 => "fame",
-        2 => "guild fame",
-        _ => "gold",
-    };
-    format!("{price} {what}")
+    match currency {
+        1 => tn!(price, "{n} fame|{n} fame"),
+        2 => tn!(price, "{n} guild fame|{n} guild fame"),
+        _ => tn!(price, "{n} gold|{n} gold"),
+    }
 }
 
 /// HUD state kept between frames.
@@ -1558,9 +1582,9 @@ pub fn draw_panel(ui: &mut Ui, lay: &Layout, world: &World, colors: &mut MapColo
         if let Some(invite) = social.invite {
             warm_box(ui, 0.7);
             let (title, detail) = match invite {
-                crate::game::Invite::Trade { name } => (name.clone(), "wants to trade with you".to_owned()),
-                crate::game::Invite::Party { name, .. } => (name.clone(), "invites you to a party".to_owned()),
-                crate::game::Invite::Guild { name, guild } => (name.clone(), format!("invites you to {guild}")),
+                crate::game::Invite::Trade { name } => (name.clone(), tr("wants to trade with you").to_owned()),
+                crate::game::Invite::Party { name, .. } => (name.clone(), tr("invites you to a party").to_owned()),
+                crate::game::Invite::Guild { name, guild } => (name.clone(), tf!("invites you to {guild}", guild)),
             };
             let size = lay.font(14.0);
             let tw = ui.measure(&title, size, true);
@@ -1569,7 +1593,7 @@ pub fn draw_panel(ui: &mut Ui, lay: &Layout, world: &World, colors: &mut MapColo
             let dw = ui.measure(&detail, small, false);
             ui.label(&detail, centred(dw), iy(34.0), small, false, color::TEXT_DIM);
         } else if !panel.members.is_empty() {
-            ui.label("Nearby players", ib[0] + 6.0 * s, iy(3.0), lay.font(11.0), true, color::TEXT_MUTED);
+            ui.label(tr("Nearby players"), ib[0] + 6.0 * s, iy(3.0), lay.font(11.0), true, color::TEXT_MUTED);
             let classes = crate::stars::class_count(ui.data);
             for (id, name, level, starred) in &panel.members {
                 let br = panel.buttons.iter().find(|(b, _)| *b == Button::Member(*id)).map(|(_, r)| *r).unwrap_or([0.0; 4]);
@@ -1632,7 +1656,7 @@ pub fn draw_panel(ui: &mut Ui, lay: &Layout, world: &World, colors: &mut MapColo
                 ui.item_icon(if item > 0 { item } else { shop_type }, 80, r[0] + r[2] / 2.0, r[1] + r[3] / 2.0, s);
             }
             if rank_req > 0 {
-                let t = format!("Rank {rank_req} needed");
+                let t = tf!("Rank {rank_req} needed", rank_req);
                 let small = lay.font(10.0);
                 let tw = ui.measure(&t, small, true);
                 ui.label(&t, centred(tw), iy(32.0), small, true, 0xFFB070);
@@ -1685,11 +1709,11 @@ pub fn draw_panel(ui: &mut Ui, lay: &Layout, world: &World, colors: &mut MapColo
                 continue;
             }
             Button::Enter(_) => {
-                ui.button_key(*r, "Enter", &state.interact_key, Kind::Primary, inside(*r, mouse), s);
+                ui.button_key(*r, tr("Enter"), &state.interact_key, Kind::Primary, inside(*r, mouse), s);
                 continue;
             }
             Button::Buy(_) => match panel.interact.as_ref().map(|i| i.kind) {
-                Some(InteractKind::Shop { price, currency, .. }) => (format!("Buy  ·  {}", price_text(price, currency)), Kind::Primary),
+                Some(InteractKind::Shop { price, currency, .. }) => (tf!("Buy  ·  {price}", price = price_text(price, currency)), Kind::Primary),
                 _ => continue,
             },
             Button::Npc(_) => match panel.interact.as_ref().map(|i| i.kind) {
@@ -1703,8 +1727,8 @@ pub fn draw_panel(ui: &mut Ui, lay: &Layout, world: &World, colors: &mut MapColo
                 },
                 _ => continue,
             },
-            Button::InviteYes => (if matches!(social.invite, Some(crate::game::Invite::Trade { .. })) { "Trade" } else { "Join" }.to_owned(), Kind::Primary),
-            Button::InviteNo => ("Decline".to_owned(), Kind::Secondary),
+            Button::InviteYes => (if matches!(social.invite, Some(crate::game::Invite::Trade { .. })) { tr("Trade") } else { tr("Join") }.to_owned(), Kind::Primary),
+            Button::InviteNo => (tr("Decline").to_owned(), Kind::Secondary),
             _ => continue,
         };
         ui.button(*r, &label, kind, inside(*r, mouse), s);
@@ -1723,12 +1747,12 @@ pub fn draw_bars(ui: &mut Ui, lay: &Layout, me: &GameObj, r: [f32; 4]) {
     let mp_maxed = max_tone(class_max("MaxMagicPoints"), stat(stat::MAX_MP) - mp_boost);
     let bars = [
         if stat(stat::LEVEL) < 20 {
-            ("XP", stat(stat::EXP), stat(stat::NEXT_LEVEL_EXP), 0x6FAF2E, 0, None)
+            (tr("XP"), stat(stat::EXP), stat(stat::NEXT_LEVEL_EXP), 0x6FAF2E, 0, None)
         } else {
-            ("Fame", stat(stat::CURR_FAME), stat(stat::NEXT_CLASS_QUEST_FAME), 0xF07A1E, 0, None)
+            (tr("Fame"), stat(stat::CURR_FAME), stat(stat::NEXT_CLASS_QUEST_FAME), 0xF07A1E, 0, None)
         },
-        ("HP", stat(stat::HP), stat(stat::MAX_HP), 0xE0403E, hp_boost, hp_maxed),
-        ("MP", stat(stat::MP), stat(stat::MAX_MP), 0x4C7BE8, mp_boost, mp_maxed),
+        (tr("HP"), stat(stat::HP), stat(stat::MAX_HP), 0xE0403E, hp_boost, hp_maxed),
+        (tr("MP"), stat(stat::MP), stat(stat::MAX_MP), 0x4C7BE8, mp_boost, mp_maxed),
     ];
     for (i, (label, value, max, c, boost, maxed)) in bars.into_iter().enumerate() {
         let b = within(r, lay.s, 12.0, 6.0 + 22.0 * i as f32, 0.0, 0.0);
@@ -1746,8 +1770,8 @@ pub fn draw_card(ui: &mut Ui, lay: &Layout, me: &GameObj, tab: usize, fame: &Has
     ui.label(&name, r[0] + 44.0 * s, r[1] + 6.0 * s, lay.font(17.0), true, color::TEXT);
     let level = me.stat_int(stat::LEVEL).unwrap_or(0);
     let class = ui.data.objects.get(&me.object_type).map_or("", |d| d.display_id.as_str()).to_owned();
-    ui.label(&format!("{class}  ·  Level {level}"), r[0] + 44.0 * s, r[1] + 26.0 * s, lay.font(11.0), false, color::TEXT_DIM);
-    for (i, label) in ["Stats", "Records"].into_iter().enumerate() {
+    ui.label_fit(&tf!("{class}  ·  Level {level}", class, level), r[0] + 44.0 * s, r[1] + 26.0 * s, r[2] - 50.0 * s, lay.font(11.0), false, color::TEXT_DIM);
+    for (i, label) in [tr("Stats"), tr("Records")].into_iter().enumerate() {
         let tr = lay.card_tab(i);
         let on = i == tab;
         let bg = if on { color::ACCENT } else if inside(tr, mouse) { color::SECONDARY } else { color::CHIP };
@@ -1772,7 +1796,7 @@ pub fn draw_records(ui: &mut Ui, lay: &Layout, fame: &HashMap<u8, i32>, r: [f32;
     theme::frame(ui.renderer, r, 7.0 * s, s.max(1.0), (color::BORDER, 0.9), ((color::INSET_TOP, 0.9), (color::INSET_BOTTOM, 0.9)));
     if fame.is_empty() {
         let size = lay.font(11.0);
-        let t = "No records yet";
+        let t = tr("No records yet");
         let w = ui.measure(t, size, false);
         ui.label(t, r[0] + (r[2] - w) / 2.0, r[1] + (r[3] - size * 1.22) / 2.0, size, false, color::TEXT_DIM);
         return;
@@ -1785,14 +1809,14 @@ pub fn draw_records(ui: &mut Ui, lay: &Layout, fame: &HashMap<u8, i32>, r: [f32;
     let count = |n: i32| vec![group_digits(n), compact_count(n)];
     // each row's value, then shorter forms for when it doesn't fit
     let rows: [(&str, Vec<String>); 8] = [
-        ("Kills", count(get(6))),
-        ("God kills", count(get(8))),
-        ("Oryx kills", count(get(11))),
-        ("Quests", count(get(12))),
-        ("Dungeons", count(dungeons)),
-        ("Accuracy", vec![accuracy]),
-        ("Potions", count(get(5))),
-        ("Played", vec![format!("{}h {}m", played / 60, played % 60), format!("{}h", played / 60), format!("{}d", played / 1440)]),
+        (tr("Kills"), count(get(6))),
+        (tr("God kills"), count(get(8))),
+        (tr("Oryx kills"), count(get(11))),
+        (tr("Quests"), count(get(12))),
+        (tr("Dungeons"), count(dungeons)),
+        (tr("Accuracy"), vec![accuracy]),
+        (tr("Potions"), count(get(5))),
+        (tr("Played"), vec![tf!("{h}h {m}m", h = played / 60, m = played % 60), tf!("{h}h", h = played / 60), tf!("{d}d", d = played / 1440)]),
     ];
     // One column of eight when the page is tall enough for rows 16 units apart, else two
     // columns of four; the rows spread down the page (at most 24 units apart), centred in it.
@@ -1856,12 +1880,12 @@ pub fn draw_stats(ui: &mut Ui, lay: &Layout, me: &GameObj, r: [f32; 4]) {
     let class_desc = ui.data.objects.get(&me.object_type);
     let max_of = |tag: &str| class_desc.and_then(|c| c.xml.child(tag)).and_then(|e| e.attr("max")).and_then(|m| m.parse::<i32>().ok());
     let stats = [
-        ("ATT", stat::ATTACK, stat::ATTACK_BOOST, "Attack"),
-        ("DEF", stat::DEFENSE, stat::DEFENSE_BOOST, "Defense"),
-        ("SPD", stat::SPEED, stat::SPEED_BOOST, "Speed"),
-        ("DEX", stat::DEXTERITY, stat::DEXTERITY_BOOST, "Dexterity"),
-        ("VIT", stat::VITALITY, stat::VITALITY_BOOST, "HpRegen"),
-        ("WIS", stat::WISDOM, stat::WISDOM_BOOST, "MpRegen"),
+        (tr("ATT"), stat::ATTACK, stat::ATTACK_BOOST, "Attack"),
+        (tr("DEF"), stat::DEFENSE, stat::DEFENSE_BOOST, "Defense"),
+        (tr("SPD"), stat::SPEED, stat::SPEED_BOOST, "Speed"),
+        (tr("DEX"), stat::DEXTERITY, stat::DEXTERITY_BOOST, "Dexterity"),
+        (tr("VIT"), stat::VITALITY, stat::VITALITY_BOOST, "HpRegen"),
+        (tr("WIS"), stat::WISDOM, stat::WISDOM_BOOST, "MpRegen"),
     ];
     for (i, (label, id, boost_id, tag)) in stats.into_iter().enumerate() {
         let (value, boost) = (stat(id), stat(boost_id));
@@ -1986,13 +2010,14 @@ pub fn imprint_lines(data: &GameData, item: i32, imprints: [u8; 3]) -> Vec<Line>
         let Some(imp) = imprint::get(imprints[kind as usize] as i32) else { continue };
         if lines.is_empty() {
             lines.push(Line::gap());
-            lines.push(Line { band: Some(color::GOLD), ..Line::new("Imprints", 13.0, true, color::GOLD) });
+            lines.push(Line { band: Some(color::GOLD), ..Line::new(tr("Imprints"), 13.0, true, color::GOLD) });
         }
         let works = imp.fits(slot_type) && desc.xml.has("Ascended");
         if works {
             fitting[kind as usize] = imp.id;
         }
-        let name = if works { format!("{} ({})", imp.name, kind.name()) } else { format!("{} ({}, does nothing here)", imp.name, kind.name()) };
+        let kind_name = tr(kind.name());
+        let name = if works { format!("{} ({kind_name})", imp.name) } else { tf!("{imprint} ({kind}, does nothing here)", imprint = imp.name, kind = kind_name) };
         lines.push(Line::new(&name, 12.0, true, if works { kind.color() } else { color::TEXT_MUTED }));
         lines.push(Line::new(imp.description, 11.0, false, color::TEXT_DIM));
     }
@@ -2012,7 +2037,7 @@ pub fn imprint_lines(data: &GameData, item: i32, imprints: [u8; 3]) -> Vec<Line>
     if let Some(p) = desc.projectiles.get(&0) {
         if !shot.damage_percents.is_empty() {
             diff.push(arrow(
-                "Damage",
+                tr("Damage"),
                 format!("{} - {}", p.min_damage, p.max_damage),
                 format!("{} - {}", shot.damage(p.min_damage), shot.damage(p.max_damage)),
             ));
@@ -2020,17 +2045,17 @@ pub fn imprint_lines(data: &GameData, item: i32, imprints: [u8; 3]) -> Vec<Line>
         let life = shot.lifetime(p.speed, p.lifetime);
         if life != p.lifetime {
             let range = |l: i32| format!("{}", (p.speed as f64 * l as f64 / 10000.0 * 100.0).round() / 100.0);
-            diff.push(arrow("Range", range(p.lifetime), range(life)));
+            diff.push(arrow(tr("Range"), range(p.lifetime), range(life)));
         }
         if shot.num_projectiles(desc.num_projectiles()) != desc.num_projectiles() {
-            diff.push(arrow("Shots", desc.num_projectiles().to_string(), "1".to_owned()));
+            diff.push(arrow(tr("Shots"), desc.num_projectiles().to_string(), "1".to_owned()));
         }
         if shot.rate_mult != 1.0 {
             let rof = desc.rate_of_fire();
-            diff.push(arrow("Rate of Fire", format!("{:.0}%", rof * 100.0), format!("{:.0}%", rof * shot.rate_mult * 100.0)));
+            diff.push(arrow(tr("Rate of Fire"), format!("{:.0}%", rof * 100.0), format!("{:.0}%", rof * shot.rate_mult * 100.0)));
         }
         if shot.no_pierce {
-            diff.push(Line::new("Shots no longer pierce", 12.0, false, color::DANGER));
+            diff.push(Line::new(tr("Shots no longer pierce"), 12.0, false, color::DANGER));
         }
     }
     let (mut def, mut hp) = (0, 0);
@@ -2045,16 +2070,16 @@ pub fn imprint_lines(data: &GameData, item: i32, imprints: [u8; 3]) -> Vec<Line>
         }
     }
     if def != 0 {
-        diff.push(Line::new(&format!("+{def} Defense"), 12.0, false, color::GOOD));
+        diff.push(Line::new(&tf!("+{def} Defense", def), 12.0, false, color::GOOD));
     }
     if hp != 0 {
-        diff.push(Line::new(&format!("+{hp} Maximum HP"), 12.0, false, color::GOOD));
+        diff.push(Line::new(&tf!("+{hp} Maximum HP", hp), 12.0, false, color::GOOD));
     }
     if fitting.contains(&imprint::BLOOD_PACT) {
-        diff.push(Line::new("-10% Maximum HP", 12.0, false, color::DANGER));
+        diff.push(Line::new(tr("-10% Maximum HP"), 12.0, false, color::DANGER));
     }
     if !diff.is_empty() {
-        lines.push(Line { band: Some(color::ACCENT), ..Line::new("With imprints", 12.0, true, color::TEXT) });
+        lines.push(Line { band: Some(color::ACCENT), ..Line::new(tr("With imprints"), 12.0, true, color::TEXT) });
         lines.extend(diff);
     }
     lines
@@ -2309,9 +2334,9 @@ pub fn draw_overlay(ui: &mut Ui, lay: &Layout, world: &World, panel: &Panel, sta
         }
     }
     if !near.is_empty() {
-        let mut lines = vec![Line::new("Players", 12.0, true, color::TEXT_DIM)];
+        let mut lines = vec![Line::new(tr("Players"), 12.0, true, color::TEXT_DIM)];
         lines.extend(near.iter().map(|(_, name, _)| Line::new(name, 14.0, true, 0xFFFF00)));
-        lines.push(Line::new("Click for options", 11.0, false, color::TEXT_MUTED));
+        lines.push(Line::new(tr("Click for options"), 11.0, false, color::TEXT_MUTED));
         draw_tooltip(ui, lay, &lines, None, None, mouse);
         return;
     }
@@ -2325,14 +2350,14 @@ pub fn draw_overlay(ui: &mut Ui, lay: &Layout, world: &World, panel: &Panel, sta
     // The inventory and backpack tabs: which is which, and the key that switches, centred.
     // The Quests button, a picture now: what it is and its key.
     if let Some(Button::Quests) = panel.button_at(mouse) {
-        draw_key_hint(ui, lay, "Quest log", &state.quests_key, mouse);
+        draw_key_hint(ui, lay, tr("Quest log"), &state.quests_key, mouse);
         return;
     }
     if let Some(Button::Page(p)) = panel.button_at(mouse) {
         if p == Page::Backpack && !panel.has_backpack {
-            draw_key_hint(ui, lay, "No backpack yet", "", mouse);
+            draw_key_hint(ui, lay, tr("No backpack yet"), "", mouse);
         } else {
-            draw_key_hint(ui, lay, if p == Page::Inventory { "Inventory" } else { "Backpack" }, &state.tabs_key, mouse);
+            draw_key_hint(ui, lay, if p == Page::Inventory { tr("Inventory") } else { tr("Backpack") }, &state.tabs_key, mouse);
         }
         return;
     }
@@ -2344,8 +2369,8 @@ pub fn draw_overlay(ui: &mut Ui, lay: &Layout, world: &World, panel: &Panel, sta
         lines
     } else {
         let text = match slot.kind {
-            SlotKind::Equip(t) => format!("Empty {} Slot", slot_type_name(t)),
-            _ => "Empty item Slot".to_owned(),
+            SlotKind::Equip(t) => tf!("Empty {slot} Slot", slot = slot_type_name(t)),
+            _ => tr("Empty item Slot").to_owned(),
         };
         vec![Line::new(&text, 14.0, false, 0x9B9B9B)]
     };
@@ -2402,7 +2427,7 @@ fn draw_player_card(ui: &mut Ui, lay: &Layout, p: &GameObj, r: [f32; 4], pinned:
         ui.label(&t, sx - 12.0 * s - tw, y + 1.0 * s, size, true, crate::stars::GREY);
     }
     let class = ui.data.objects.get(&p.object_type).map_or("", |d| d.display_id.as_str()).to_owned();
-    let info = format!("Level {} {class}", stat(stat::LEVEL));
+    let info = tf!("Level {level} {class}", level = stat(stat::LEVEL), class);
     ui.label(&info, x, y + 20.0 * s, lay.font(11.5), false, color::TEXT_DIM);
     let mut by = y + 36.0 * s;
     if let Some(guild) = p.stat_str(62).filter(|_| has_guild(p)) {
@@ -2423,8 +2448,8 @@ fn draw_player_card(ui: &mut Ui, lay: &Layout, p: &GameObj, r: [f32; 4], pinned:
         let tw = ui.measure(&t, size, true);
         ui.label(&t, br[0] + br[2] - tw - 5.0 * s, ty, size, true, color::TEXT);
     };
-    bar(ui, by, "HP", stat(stat::HP), stat(stat::MAX_HP), 0xE03434);
-    bar(ui, by + 18.0 * s, "MP", stat(stat::MP), stat(stat::MAX_MP), 0x3A6FE0);
+    bar(ui, by, tr("HP"), stat(stat::HP), stat(stat::MAX_HP), 0xE03434);
+    bar(ui, by + 18.0 * s, tr("MP"), stat(stat::MP), stat(stat::MAX_MP), 0x3A6FE0);
     // The equipment, in slots.
     let slots = player_card_slots(lay, p, r);
     for i in 0..4u8 {
@@ -2436,7 +2461,7 @@ fn draw_player_card(ui: &mut Ui, lay: &Layout, p: &GameObj, r: [f32; 4], pinned:
             draw_imprint_marks(ui, slot_imprints(p, i), sr[0] + 4.0 * s, sr[1] + 4.0 * s, s);
         }
     }
-    let hint = if pinned { "Hover an item to see it, right-click to close" } else { "Right-click to keep open" };
+    let hint = if pinned { tr("Hover an item to see it, right-click to close") } else { tr("Right-click to keep open") };
     ui.label(hint, x, slots[0][1] + 44.0 * s, lay.font(10.0), false, color::TEXT_MUTED);
 }
 
@@ -2496,15 +2521,15 @@ fn tier_tag(xml: &bsk_data::xml::Element) -> Option<(String, u32)> {
 
 fn stat_name(id: i32) -> &'static str {
     match id {
-        0 => "Maximum HP",
-        3 => "Maximum MP",
-        20 => "Attack",
-        21 => "Defense",
-        22 => "Speed",
-        26 => "Vitality",
-        27 => "Wisdom",
-        28 => "Dexterity",
-        _ => "Stat",
+        0 => tr("Maximum HP"),
+        3 => tr("Maximum MP"),
+        20 => tr("Attack"),
+        21 => tr("Defense"),
+        22 => tr("Speed"),
+        26 => tr("Vitality"),
+        27 => tr("Wisdom"),
+        28 => tr("Dexterity"),
+        _ => tr("Stat"),
     }
 }
 
@@ -2589,97 +2614,97 @@ fn activate_rows(a: &bsk_data::xml::Element) -> (String, Vec<(String, String)>) 
     let has = |k: &str| a.attr(k).is_some();
     let text = |k: &str| a.attr(k).unwrap_or("").to_owned();
     let area = || if has("radius") { num("radius") } else { num("range") };
-    let secs = |v: f64| format!("{v} secs");
-    let sqrs = |v: f64| format!("{v} sqrs");
+    let secs = |v: f64| tf!("{v} secs", v);
+    let sqrs = |v: f64| tf!("{v} sqrs", v);
     let row = |l: &str, v: String| (l.to_owned(), v);
     let (name, mut rows): (&str, Vec<(String, String)>) = match effect {
         // Poison ignores defense (the server's `PoisonEnemy`).
         "PoisonGrenade" => {
             let mut r = Vec::new();
             if num("impactDamage") > 0.0 {
-                r.push(row("Impact damage", num("impactDamage").to_string()));
+                r.push(row(tr("Impact damage"), num("impactDamage").to_string()));
             }
             if num("totalDamage") > 0.0 {
-                r.push(row("Poison damage", format!("{} over {}", num("totalDamage"), secs(num("duration")))));
+                r.push(row(tr("Poison damage"), tf!("{damage} over {time}", damage = num("totalDamage"), time = secs(num("duration")))));
             }
-            r.push(row("Radius", sqrs(num("radius"))));
-            r.push(row("", "Ignores defense".into()));
-            ("Poison", r)
+            r.push(row(tr("Radius"), sqrs(num("radius"))));
+            r.push(row("", tr("Ignores defense").into()));
+            (tr("Poison"), r)
         }
         "VampireBlast" => (
-            "Vampire Blast",
-            vec![row("Damage", num("totalDamage").to_string()), row("Radius", sqrs(num("radius"))), row("", "Heals you and allies nearby".into())],
+            tr("Vampire Blast"),
+            vec![row(tr("Damage"), num("totalDamage").to_string()), row(tr("Radius"), sqrs(num("radius"))), row("", tr("Heals you and allies nearby").into())],
         ),
         "Trap" => (
-            "Trap",
+            tr("Trap"),
             vec![
-                row("Damage", num("totalDamage").to_string()),
-                row("Radius", sqrs(num("radius"))),
-                row("Inflicts", format!("{} for {}", a.attr("condEffect").unwrap_or("Slowed"), secs(if has("condDuration") { num("condDuration") } else { 5.0 }))),
+                row(tr("Damage"), num("totalDamage").to_string()),
+                row(tr("Radius"), sqrs(num("radius"))),
+                row(tr("Inflicts"), tf!("{effect} for {time}", effect = a.attr("condEffect").unwrap_or("Slowed"), time = secs(if has("condDuration") { num("condDuration") } else { 5.0 }))),
             ],
         ),
         "Lightning" => {
-            let mut r = vec![row("Damage", num("totalDamage").to_string()), row("Targets", format!("up to {}", num("maxTargets")))];
+            let mut r = vec![row(tr("Damage"), num("totalDamage").to_string()), row(tr("Targets"), tf!("up to {n}", n = num("maxTargets")))];
             if num("decrDamage") > 0.0 {
-                r.push(row("Each next target", format!("{} less", num("decrDamage"))));
+                r.push(row(tr("Each next target"), tf!("{n} less", n = num("decrDamage"))));
             }
-            ("Lightning", r)
+            (tr("Lightning"), r)
         }
-        "SamuraiAbility" | "DazeBlast" | "TomeDamage" => ("Blast", vec![row("Damage", num("totalDamage").to_string()), row("Radius", sqrs(area()))]),
+        "SamuraiAbility" | "DazeBlast" | "TomeDamage" => (tr("Blast"), vec![row(tr("Damage"), num("totalDamage").to_string()), row(tr("Radius"), sqrs(area()))]),
         "BuildTower" => {
-            let mut r = ally_shot_rows(a).unwrap_or_else(|| vec![row("Damage", num("totalDamage").to_string())]);
-            r.push(row("Builds", text("objectId")));
-            r.push(row("Lasts", secs(num("duration"))));
-            ("Tower", r)
+            let mut r = ally_shot_rows(a).unwrap_or_else(|| vec![row(tr("Damage"), num("totalDamage").to_string())]);
+            r.push(row(tr("Builds"), text("objectId")));
+            r.push(row(tr("Lasts"), secs(num("duration"))));
+            (tr("Tower"), r)
         }
         "Summon" => {
-            let mut r = vec![row("Summons", format!("{} for {}", text("objectId"), secs(num("duration"))))];
+            let mut r = vec![row(tr("Summons"), tf!("{effect} for {time}", effect = text("objectId"), time = secs(num("duration"))))];
             r.extend(ally_shot_rows(a).unwrap_or_default());
-            r.push(row("", format!("Up to {MAX_SUMMONS} out at once")));
-            ("Summon", r)
+            r.push(row("", tf!("Up to {n} out at once", n = MAX_SUMMONS)));
+            (tr("Summon"), r)
         }
-        "Heal" => ("Heal", vec![row("Heals", format!("{} HP", num("amount")))]),
-        "Magic" => ("Magic", vec![row("Restores", format!("{} MP", num("amount")))]),
-        "HealNova" => ("Heal", vec![row("Heals", format!("{} HP", num("amount"))), row("Range", format!("you and allies within {}", sqrs(num("range"))))]),
-        "MagicNova" => ("Magic", vec![row("Restores", format!("{} MP", num("amount"))), row("Range", format!("you and allies within {}", sqrs(num("range"))))]),
-        "Halo" => ("Halo", vec![row("Heals", format!("{} HP", num("amount"))), row("Range", sqrs(num("range"))), row("Lasts", secs(num("duration")))]),
-        "StasisBlast" => ("Stasis", vec![row("Radius", sqrs(if has("radius") { num("radius") } else { 3.0 })), row("Lasts", secs(num("duration")))]),
+        "Heal" => (tr("Heal"), vec![row(tr("Heals"), tf!("{n} HP", n = num("amount")))]),
+        "Magic" => (tr("Magic"), vec![row(tr("Restores"), tf!("{n} MP", n = num("amount")))]),
+        "HealNova" => (tr("Heal"), vec![row(tr("Heals"), tf!("{n} HP", n = num("amount"))), row(tr("Range"), tf!("you and allies within {range}", range = sqrs(num("range"))))]),
+        "MagicNova" => (tr("Magic"), vec![row(tr("Restores"), tf!("{n} MP", n = num("amount"))), row(tr("Range"), tf!("you and allies within {range}", range = sqrs(num("range"))))]),
+        "Halo" => (tr("Halo"), vec![row(tr("Heals"), tf!("{n} HP", n = num("amount"))), row(tr("Range"), sqrs(num("range"))), row(tr("Lasts"), secs(num("duration")))]),
+        "StasisBlast" => (tr("Stasis"), vec![row(tr("Radius"), sqrs(if has("radius") { num("radius") } else { 3.0 })), row(tr("Lasts"), secs(num("duration")))]),
         "ArmorShred" => (
-            "Shred",
+            tr("Shred"),
             vec![
-                row("Armor", format!("-{}% to enemies", num("amount"))),
-                row("Radius", sqrs(if has("radius") { num("radius") } else { 3.0 })),
-                row("Lasts", secs(num("duration"))),
+                row(tr("Armor"), tf!("-{n}% to enemies", n = num("amount"))),
+                row(tr("Radius"), sqrs(if has("radius") { num("radius") } else { 3.0 })),
+                row(tr("Lasts"), secs(num("duration"))),
             ],
         ),
-        "StatBoostSelf" => ("Boost", vec![row("Gives", format!("+{} {}", num("amount"), stat_name(a.attr_int("stat", -1)))), row("Lasts", secs(num("duration")))]),
+        "StatBoostSelf" => (tr("Boost"), vec![row(tr("Gives"), format!("+{} {}", num("amount"), stat_name(a.attr_int("stat", -1)))), row(tr("Lasts"), secs(num("duration")))]),
         "StatBoostAura" => (
-            "Boost",
+            tr("Boost"),
             vec![
-                row("Gives", format!("+{} {}", num("amount"), stat_name(a.attr_int("stat", -1)))),
-                row("Range", format!("you and allies within {}", sqrs(num("range")))),
-                row("Lasts", secs(num("duration"))),
+                row(tr("Gives"), format!("+{} {}", num("amount"), stat_name(a.attr_int("stat", -1)))),
+                row(tr("Range"), tf!("you and allies within {range}", range = sqrs(num("range")))),
+                row(tr("Lasts"), secs(num("duration"))),
             ],
         ),
-        "ConditionEffectSelf" => ("Effect", vec![row("Gives", text("effect")), row("Lasts", secs(num("duration")))]),
+        "ConditionEffectSelf" => (tr("Effect"), vec![row(tr("Gives"), text("effect")), row(tr("Lasts"), secs(num("duration")))]),
         "ConditionEffectAura" => (
-            "Effect",
-            vec![row("Gives", text("effect")), row("Range", format!("you and allies within {}", sqrs(num("range")))), row("Lasts", secs(num("duration")))],
+            tr("Effect"),
+            vec![row(tr("Gives"), text("effect")), row(tr("Range"), tf!("you and allies within {range}", range = sqrs(num("range")))), row(tr("Lasts"), secs(num("duration")))],
         ),
         "GenericActivate" => {
-            let who = if a.attr("target") == Some("enemy") { "enemies" } else { "allies" };
-            ("Effect", vec![row("Gives", format!("{} to {who}", text("effect"))), row("Range", sqrs(num("range"))), row("Lasts", secs(num("duration")))])
+            let gives = if a.attr("target") == Some("enemy") { tf!("{effect} to enemies", effect = text("effect")) } else { tf!("{effect} to allies", effect = text("effect")) };
+            (tr("Effect"), vec![row(tr("Gives"), gives), row(tr("Range"), sqrs(num("range"))), row(tr("Lasts"), secs(num("duration")))])
         }
-        "Teleport" => ("Teleport", vec![row("Distance", format!("up to {}", sqrs(num("maxDistance"))))]),
-        "Decoy" | "MultiDecoy" => ("Decoy", vec![row("Lasts", secs(num("duration")))]),
+        "Teleport" => (tr("Teleport"), vec![row(tr("Distance"), tf!("up to {n}", n = sqrs(num("maxDistance"))))]),
+        "Decoy" | "MultiDecoy" => (tr("Decoy"), vec![row(tr("Lasts"), secs(num("duration")))]),
         _ => ("", vec![row("", activate_detail(a))]),
     };
     if !rows.is_empty() && !name.is_empty() {
         if let (Some(cond), false) = (a.attr("condEffect"), effect == "Trap") {
-            rows.push(row("Inflicts", format!("{cond} for {}", secs(num("condDuration")))));
+            rows.push(row(tr("Inflicts"), tf!("{effect} for {time}", effect = cond, time = secs(num("condDuration")))));
         }
         if a.attr("useWisMod") == Some("true") {
-            rows.push(row("", "Raised by Wisdom".into()));
+            rows.push(row("", tr("Raised by Wisdom").into()));
         }
     }
     (name.to_owned(), rows)
@@ -2704,8 +2729,8 @@ fn ally_shot_rows(a: &bsk_data::xml::Element) -> Option<Vec<(String, String)>> {
     };
     let volley = if shots > 1.0 { format!("{damage} x{shots}") } else { damage.to_owned() };
     Some(vec![
-        ("Damage".to_owned(), format!("{volley} every {} secs", ms / 1000.0)),
-        ("Per second".to_owned(), format!("{:.0}", mean * shots * 1000.0 / ms)),
+        (tr("Damage").to_owned(), tf!("{volley} every {n} secs", volley, n = ms / 1000.0)),
+        (tr("Per second").to_owned(), format!("{:.0}", mean * shots * 1000.0 / ms)),
     ])
 }
 
@@ -2716,7 +2741,7 @@ pub fn item_tooltip(data: &GameData, item: i32, me: Option<&GameObj>, kind: Slot
 /// `item_tooltip` for an item carrying these imprints: its shots' numbers (damage, shots, range,
 /// rate of fire) are the imprinted ones, in the imprints' green.
 pub fn item_tooltip_imprinted(data: &GameData, item: i32, me: Option<&GameObj>, kind: SlotKind, imprints: [u8; 3]) -> Vec<Line> {
-    let Some(desc) = data.objects.get(&(item as u16)) else { return vec![Line::new("Unknown item", 14.0, true, 0xFFFFFF)] };
+    let Some(desc) = data.objects.get(&(item as u16)) else { return vec![Line::new(tr("Unknown item"), 14.0, true, 0xFFFFFF)] };
     let xml = &desc.xml;
     let mut out = Vec::new();
     // Compared with what's worn in its slot.
@@ -2767,23 +2792,23 @@ pub fn item_tooltip_imprinted(data: &GameData, item: i32, me: Option<&GameObj>, 
         if effect == "PermaPet" {
             // The port writes the pet's damage on one enemy and its healing here.
             out.push(Line::gap());
-            out.push(Line::new("Permanent pet", 13.0, true, ABILITY));
+            out.push(Line::new(tr("Permanent pet"), 13.0, true, ABILITY));
             if let Some(size) = a.attr("petSize") {
-                out.push(Line::stat("    Size", size, VALUE));
+                out.push(Line::stat(&format!("    {}", tr("Size")), size, VALUE));
             }
             if let Some(dps) = a.attr("petDps") {
-                out.push(Line::stat("    Damage", &format!("{dps} per second"), VALUE));
+                out.push(Line::stat(&format!("    {}", tr("Damage")), &tf!("{dps} per second", dps), VALUE));
             }
-            for (key, verb, what) in [("petHp", "Heals", "HP"), ("petMp", "Restores", "MP")] {
+            for (key, verb, what) in [("petHp", tr("Heals"), tr("HP")), ("petMp", tr("Restores"), tr("MP"))] {
                 if let Some(amount) = a.attr(key) {
                     let secs = a.attr_number(&format!("{key}Ms"), 0.0) / 1000.0;
-                    out.push(Line::stat(&format!("    {verb}"), &format!("{amount} {what} every {secs}s"), VALUE));
+                    out.push(Line::stat(&format!("    {verb}"), &tf!("{amount} {what} every {secs}s", amount, what, secs), VALUE));
                 }
             }
             // What else it does (its abilities, and what its hits do), "; " between.
             if let Some(effects) = a.attr("petEffects") {
                 for effect in effects.split("; ").filter(|e| !e.is_empty()) {
-                    out.push(Line::stat("    Also", effect, VALUE));
+                    out.push(Line::stat(&format!("    {}", tr("Also")), effect, VALUE));
                 }
             }
             continue;
@@ -2822,34 +2847,34 @@ pub fn item_tooltip_imprinted(data: &GameData, item: i32, me: Option<&GameObj>, 
         let pick = |changed: bool, c: u32| if changed { color::GOOD } else { c };
         let (lo, hi) = (shot.damage(p.min_damage), shot.damage(p.max_damage));
         let dmg = if lo == hi { lo.to_string() } else { format!("{lo} - {hi}") };
-        attr("Damage", dmg, pick(lo != p.min_damage || hi != p.max_damage, compare(mine.damage, worn.damage, true)));
+        attr(tr("Damage"), dmg, pick(lo != p.min_damage || hi != p.max_damage, compare(mine.damage, worn.damage, true)));
         let shots = shot.num_projectiles(desc.num_projectiles());
-        attr("Shots", shots.to_string(), pick(shots != desc.num_projectiles(), compare(mine.shots, worn.shots, true)));
+        attr(tr("Shots"), shots.to_string(), pick(shots != desc.num_projectiles(), compare(mine.shots, worn.shots, true)));
         let life = shot.lifetime(p.speed, p.lifetime);
         let range = p.speed as f64 * life as f64 / 10000.0;
-        attr("Range", format!("{}", (range * 100.0).round() / 100.0), pick(life != p.lifetime, compare(mine.range, worn.range, true)));
+        attr(tr("Range"), format!("{}", (range * 100.0).round() / 100.0), pick(life != p.lifetime, compare(mine.range, worn.range, true)));
         if [1, 2, 3, 8, 17, 24, 36, 200].contains(&xml.int("SlotType", 0)) {
             let rof = desc.rate_of_fire() * shot.rate_mult;
-            attr("Rate of Fire", format!("{:.0}%", rof * 100.0), pick(shot.rate_mult != 1.0, compare(mine.rate_of_fire, worn.rate_of_fire, true)));
+            attr(tr("Rate of Fire"), format!("{:.0}%", rof * 100.0), pick(shot.rate_mult != 1.0, compare(mine.rate_of_fire, worn.rate_of_fire, true)));
         }
         for e in &p.effects {
-            attr("Shot effect", e.clone(), VALUE);
+            attr(tr("Shot effect"), e.clone(), VALUE);
         }
         if p.armor_piercing {
-            attr("Shot effect", "Ignores defense".to_owned(), crate::view::PIERCED_COLOR);
+            attr(tr("Shot effect"), tr("Ignores defense").to_owned(), crate::view::PIERCED_COLOR);
         }
     }
     if xml.has("Usable") {
         if let Some(cost) = xml.text_of("MpCost") {
-            attr("MP Cost", cost.trim().to_owned(), compare(mine.mp_cost, worn.mp_cost, false));
+            attr(tr("MP Cost"), cost.trim().to_owned(), compare(mine.mp_cost, worn.mp_cost, false));
         }
-        attr("Cooldown", format!("{} secs", xml.number("Cooldown", 0.5)), compare(mine.cooldown, worn.cooldown, false));
+        attr(tr("Cooldown"), tf!("{v} secs", v = xml.number("Cooldown", 0.5)), compare(mine.cooldown, worn.cooldown, false));
     }
     if let Some(doses) = xml.text_of("Doses") {
-        attr("Doses", doses.trim().to_owned(), VALUE);
+        attr(tr("Doses"), doses.trim().to_owned(), VALUE);
     }
     if let Some(fame) = xml.text_of("FameBonus") {
-        attr("Fame Bonus", format!("{}%", fame.trim()), compare(mine.fame_bonus, worn.present.then(|| worn.fame_bonus.unwrap_or(0.0)), true));
+        attr(tr("Fame Bonus"), format!("{}%", fame.trim()), compare(mine.fame_bonus, worn.present.then(|| worn.fame_bonus.unwrap_or(0.0)), true));
     }
     // The stat bonuses: compared with what the worn item gives (green better, red worse); with
     // nothing to compare (it's the one worn), all plain. Bonuses the worn item has and this one
@@ -2863,7 +2888,7 @@ pub fn item_tooltip_imprinted(data: &GameData, item: i32, me: Option<&GameObj>, 
         }
     }
     if !stats.is_empty() {
-        out.push(Line::new("On Equip:", 13.0, false, ATTR));
+        out.push(Line::new(tr("On Equip:"), 13.0, false, ATTR));
         for stat in stats {
             let (amount, other) = (total(&mine.boosts, stat), total(&worn.boosts, stat));
             let color = if !comparing {
@@ -2877,7 +2902,7 @@ pub fn item_tooltip_imprinted(data: &GameData, item: i32, me: Option<&GameObj>, 
             };
             let pieces = if amount == 0 {
                 // Only the worn item gives it: what equipping this would lose.
-                vec![(format!("    {:+} ", -other), color), (stat_name(stat).to_owned(), ATTR), (" (lost)".to_owned(), color)]
+                vec![(format!("    {:+} ", -other), color), (stat_name(stat).to_owned(), ATTR), (tr(" (lost)").to_owned(), color)]
             } else if comparing && amount != other {
                 vec![(format!("    {amount:+} "), color), (stat_name(stat).to_owned(), ATTR), (format!(" ({:+})", amount - other), color)]
             } else {
@@ -2889,25 +2914,25 @@ pub fn item_tooltip_imprinted(data: &GameData, item: i32, me: Option<&GameObj>, 
     // Restrictions.
     let mut note = |t: &str, c: u32| out.push(Line::new(t, 13.0, false, c));
     if xml.has("Consumable") {
-        note("Consumed with use", ATTR);
+        note(tr("Consumed with use"), ATTR);
     }
     if kind == SlotKind::Shop {
         // Nothing to do with it until it's bought.
     } else if xml.has("Usable") && matches!(kind, SlotKind::Equip(_)) {
-        note("Press [Space] in the world to use", 0xFFFFFF);
+        note(tr("Press [Space] in the world to use"), 0xFFFFFF);
     } else if xml.has("Consumable") || xml.has("InvUse") {
-        note("Double-click or shift-click to use", 0xFFFFFF);
+        note(tr("Double-click or shift-click to use"), 0xFFFFFF);
     } else if kind == SlotKind::Container {
-        note("Double-click to take", ATTR);
+        note(tr("Double-click to take"), ATTR);
     } else if !matches!(kind, SlotKind::Equip(_)) && xml.has("SlotType") && xml.int("SlotType", 0) != 10 {
-        note("Double-click to equip", ATTR);
+        note(tr("Double-click to equip"), ATTR);
     }
     if desc.untradeable() {
-        note("Untradeable", ATTR);
+        note(tr("Untradeable"), ATTR);
     }
     // taken out of the game's drops (tools/port_doomed.py UNOBTAINABLE_ITEMS)
     if xml.has("Unobtainable") {
-        note("Unobtainable: nothing drops it any more", ATTR);
+        note(tr("Unobtainable: nothing drops it any more"), ATTR);
     }
     // Who can equip it: the classes with its slot type among their four equipment slots (10 is
     // potions and other inventory items).
@@ -2919,16 +2944,16 @@ pub fn item_tooltip_imprinted(data: &GameData, item: i32, me: Option<&GameObj>, 
     };
     if !users.is_empty() {
         if users.len() == data.classes.len() {
-            note("Usable by every class", ATTR);
+            note(tr("Usable by every class"), ATTR);
         } else {
             let names: Vec<&str> = users.iter().map(|c| c.display_id.as_str()).collect();
-            note(&format!("Usable by {}", names.join(", ")), ATTR);
+            note(&tf!("Usable by {classes}", classes = names.join(", ")), ATTR);
         }
         if let Some(me) = me {
             // (an admin-only class, which holds anything, isn't listed)
             if data.classes.contains(&me.object_type) && !users.iter().any(|c| c.object_type == me.object_type) {
-                let class = data.objects.get(&me.object_type).map_or("you", |c| c.display_id.as_str());
-                note(&format!("Not usable by {class}"), 0xFC8642);
+                let class = data.objects.get(&me.object_type).map_or(tr("you"), |c| c.display_id.as_str());
+                note(&tf!("Not usable by {class}", class), 0xFC8642);
             }
         }
     }
@@ -2945,83 +2970,93 @@ fn activate_detail(a: &bsk_data::xml::Element) -> String {
     // Most abilities have a radius in "radius", some in "range".
     let area = || if has("radius") { num("radius") } else { num("range") };
     let mut s = match effect {
-        "Heal" => format!("Heals {} HP", num("amount")),
-        "Magic" => format!("Restores {} MP", num("amount")),
-        "HealNova" => format!("Heals {} HP to you and allies within {} sqrs", num("amount"), num("range")),
-        "MagicNova" => format!("Restores {} MP to you and allies within {} sqrs", num("amount"), num("range")),
+        "Heal" => tf!("Heals {n} HP", n = num("amount")),
+        "Magic" => tf!("Restores {n} MP", n = num("amount")),
+        "HealNova" => tf!("Heals {n} HP to you and allies within {range} sqrs", n = num("amount"), range = num("range")),
+        "MagicNova" => tf!("Restores {n} MP to you and allies within {range} sqrs", n = num("amount"), range = num("range")),
         "IncrementStat" => {
-            let mut s = format!("Permanently +{} {}", a.attr_int("amount", 0), stat_name(a.attr_int("stat", -1)));
+            let mut s = tf!("Permanently +{n} {stat}", n = a.attr_int("amount", 0), stat = stat_name(a.attr_int("stat", -1)));
             // what it stores when the stat is already maxed, when that isn't the whole amount
             let store = a.attr_int("storeAmount", 0);
             if store > 0 {
-                s += &format!(" (+{store} to potion storage when maxed)");
+                s += &tf!(" (+{store} to potion storage when maxed)", store);
             }
             s
         }
-        "OvercapStat" => format!("+{} {} past its maximum, once maxed (up to 5 of these)", a.attr_int("amount", 0), stat_name(a.attr_int("stat", -1))),
+        "OvercapStat" => tf!("+{n} {stat} past its maximum, once maxed (up to 5 of these)", n = a.attr_int("amount", 0), stat = stat_name(a.attr_int("stat", -1))),
         // Poison ignores defense (the server's `PoisonEnemy`).
         "PoisonGrenade" => {
-            let mut s = format!("Poison: {} damage over {} secs, within {} sqrs", num("totalDamage"), num("duration"), num("radius"));
+            let mut s = tf!("Poison: {damage} damage over {time} secs, within {range} sqrs", damage = num("totalDamage"), time = num("duration"), range = num("radius"));
             if num("impactDamage") > 0.0 {
-                s += &format!(", plus {} on impact", num("impactDamage"));
+                s += &tf!(", plus {n} on impact", n = num("impactDamage"));
             }
             s
         }
-        "VampireBlast" => format!("Steals {} HP from each enemy within {} sqrs, healing you and allies nearby", num("totalDamage"), num("radius")),
-        "Trap" => format!(
-            "Trap: {} damage within {} sqrs, and {} for {} secs",
-            num("totalDamage"),
-            num("radius"),
-            a.attr("condEffect").unwrap_or("Slowed"),
-            if has("condDuration") { num("condDuration") } else { 5.0 }
+        "VampireBlast" => tf!("Steals {n} HP from each enemy within {range} sqrs, healing you and allies nearby", n = num("totalDamage"), range = num("radius")),
+        "Trap" => tf!(
+            "Trap: {damage} damage within {range} sqrs, and {effect} for {time} secs",
+            damage = num("totalDamage"),
+            range = num("radius"),
+            effect = a.attr("condEffect").unwrap_or("Slowed"),
+            time = if has("condDuration") { num("condDuration") } else { 5.0 }
         ),
         "Lightning" => {
-            let mut s = format!("Lightning: {} damage, to up to {} enemies", num("totalDamage"), num("maxTargets"));
+            let mut s = tf!("Lightning: {damage} damage, to up to {n} enemies", damage = num("totalDamage"), n = num("maxTargets"));
             if num("decrDamage") > 0.0 {
-                s += &format!(", {} less for each after the first", num("decrDamage"));
+                s += &tf!(", {n} less for each after the first", n = num("decrDamage"));
             }
             s
         }
-        "StasisBlast" => format!("Puts enemies within {} sqrs in stasis for {} secs", if has("radius") { num("radius") } else { 3.0 }, num("duration")),
-        "ArmorShred" => format!(
-            "Takes {}% off the armor of enemies within {} sqrs for {} secs",
-            num("amount"),
-            if has("radius") { num("radius") } else { 3.0 },
-            num("duration")
+        "StasisBlast" => tf!("Puts enemies within {range} sqrs in stasis for {time} secs", range = if has("radius") { num("radius") } else { 3.0 }, time = num("duration")),
+        "ArmorShred" => tf!(
+            "Takes {n}% off the armor of enemies within {range} sqrs for {time} secs",
+            n = num("amount"),
+            range = if has("radius") { num("radius") } else { 3.0 },
+            time = num("duration")
         ),
-        "Decoy" | "MultiDecoy" => format!("A decoy that draws enemies for {} secs", num("duration")),
-        "Teleport" => format!("Teleports you up to {} sqrs", num("maxDistance")),
-        "StatBoostSelf" => format!("+{} {} for {} secs", num("amount"), stat_name(a.attr_int("stat", -1)), num("duration")),
-        "StatBoostAura" => format!("+{} {} to you and allies within {} sqrs for {} secs", num("amount"), stat_name(a.attr_int("stat", -1)), num("range"), num("duration")),
-        "ConditionEffectSelf" => format!("{} for {} secs", text("effect"), num("duration")),
-        "ConditionEffectAura" => format!("{} to you and allies within {} sqrs for {} secs", text("effect"), num("range"), num("duration")),
+        "Decoy" | "MultiDecoy" => tf!("A decoy that draws enemies for {time} secs", time = num("duration")),
+        "Teleport" => tf!("Teleports you up to {range} sqrs", range = num("maxDistance")),
+        "StatBoostSelf" => tf!("+{n} {stat} for {time} secs", n = num("amount"), stat = stat_name(a.attr_int("stat", -1)), time = num("duration")),
+        "StatBoostAura" => tf!(
+            "+{n} {stat} to you and allies within {range} sqrs for {time} secs",
+            n = num("amount"),
+            stat = stat_name(a.attr_int("stat", -1)),
+            range = num("range"),
+            time = num("duration")
+        ),
+        "ConditionEffectSelf" => tf!("{effect} for {time} secs", effect = text("effect"), time = num("duration")),
+        "ConditionEffectAura" => tf!("{effect} to you and allies within {range} sqrs for {time} secs", effect = text("effect"), range = num("range"), time = num("duration")),
         "GenericActivate" => {
-            let who = if a.attr("target") == Some("enemy") { "enemies" } else { "allies" };
-            format!("{} to {who} within {} sqrs for {} secs", text("effect"), num("range"), num("duration"))
+            let (effect, range, time) = (text("effect"), num("range"), num("duration"));
+            if a.attr("target") == Some("enemy") {
+                tf!("{effect} to enemies within {range} sqrs for {time} secs", effect, range, time)
+            } else {
+                tf!("{effect} to allies within {range} sqrs for {time} secs", effect, range, time)
+            }
         }
-        "Halo" => format!("Heals {} HP to allies within {} sqrs, for {} secs", num("amount"), num("range"), num("duration")),
-        "BulletNova" => format!("Fires a ring of {} shots", if has("numShots") { num("numShots") } else { 20.0 }),
-        "BulletCreate" => format!("Fires {} shots", num("numShots")),
-        "Shoot" => "Fires its shots".to_owned(),
-        "SamuraiAbility" | "DazeBlast" | "TomeDamage" => format!("{} damage within {} sqrs", num("totalDamage"), area()),
-        "ObjectToss" => format!("Throws a {}", text("objectId")),
-        "MonsterToss" => format!("Throws a {} to fight for you", text("objectId")),
-        "Summon" => format!("Summons a {} for {} secs", text("objectId"), num("duration")),
-        "BuildTower" => format!("Builds a {} for {} secs ({} damage)", text("objectId"), num("duration"), num("totalDamage")),
-        "PearlAbility" => format!("Summons a {}", text("objectId")),
-        "Pet" => format!("Summons the pet {}", text("objectId")),
-        "RemoveNegativeConditions" => format!("Removes negative conditions from allies within {} sqrs", num("range")),
-        "RemoveNegativeConditionsSelf" => "Removes your negative conditions".to_owned(),
-        "ClearConditionEffectAura" => format!("Removes {} from allies within {} sqrs", text("effect"), num("range")),
-        "ClearConditionEffectSelf" => format!("Removes {}", text("effect")),
-        "Fame" => format!("+{} fame", num("amount")),
-        "Gold" => format!("+{} gold", num("amount")),
-        "CreatePortal" | "Create" => format!("Opens {}", text("id")),
-        "Exchange" => format!("Gives you a {}", text("id")),
-        "MysteryDyes" => "Gives you one of the items listed".to_owned(),
-        "Backpack" => "Gives you a backpack".to_owned(),
-        "UnlockSkin" => "Unlocks a skin".to_owned(),
-        "UnlockPetSkin" => "Unlocks a pet skin".to_owned(),
+        "Halo" => tf!("Heals {n} HP to allies within {range} sqrs, for {time} secs", n = num("amount"), range = num("range"), time = num("duration")),
+        "BulletNova" => tf!("Fires a ring of {n} shots", n = if has("numShots") { num("numShots") } else { 20.0 }),
+        "BulletCreate" => tf!("Fires {n} shots", n = num("numShots")),
+        "Shoot" => tr("Fires its shots").to_owned(),
+        "SamuraiAbility" | "DazeBlast" | "TomeDamage" => tf!("{damage} damage within {range} sqrs", damage = num("totalDamage"), range = area()),
+        "ObjectToss" => tf!("Throws a {object}", object = text("objectId")),
+        "MonsterToss" => tf!("Throws a {object} to fight for you", object = text("objectId")),
+        "Summon" => tf!("Summons a {object} for {time} secs", object = text("objectId"), time = num("duration")),
+        "BuildTower" => tf!("Builds a {object} for {time} secs ({damage} damage)", object = text("objectId"), time = num("duration"), damage = num("totalDamage")),
+        "PearlAbility" => tf!("Summons a {object}", object = text("objectId")),
+        "Pet" => tf!("Summons the pet {object}", object = text("objectId")),
+        "RemoveNegativeConditions" => tf!("Removes negative conditions from allies within {range} sqrs", range = num("range")),
+        "RemoveNegativeConditionsSelf" => tr("Removes your negative conditions").to_owned(),
+        "ClearConditionEffectAura" => tf!("Removes {effect} from allies within {range} sqrs", effect = text("effect"), range = num("range")),
+        "ClearConditionEffectSelf" => tf!("Removes {effect}", effect = text("effect")),
+        "Fame" => tf!("+{n} fame", n = num("amount")),
+        "Gold" => tf!("+{n} gold", n = num("amount")),
+        "CreatePortal" | "Create" => tf!("Opens {object}", object = text("id")),
+        "Exchange" => tf!("Gives you a {object}", object = text("id")),
+        "MysteryDyes" => tr("Gives you one of the items listed").to_owned(),
+        "Backpack" => tr("Gives you a backpack").to_owned(),
+        "UnlockSkin" => tr("Unlocks a skin").to_owned(),
+        "UnlockPetSkin" => tr("Unlocks a pet skin").to_owned(),
         _ => {
             // "VampireBlast" -> "Vampire Blast"
             let mut words = String::new();
@@ -3035,10 +3070,10 @@ fn activate_detail(a: &bsk_data::xml::Element) -> String {
         }
     };
     if let (Some(cond), false) = (a.attr("condEffect"), effect == "Trap") {
-        s += &format!(", and {cond} for {} secs", num("condDuration"));
+        s += &tf!(", and {effect} for {time} secs", effect = cond, time = num("condDuration"));
     }
     if a.attr("useWisMod") == Some("true") {
-        s += " (raised by Wisdom)";
+        s += tr(" (raised by Wisdom)");
     }
     s
 }
@@ -3162,29 +3197,29 @@ pub fn draw_windows(ui: &mut Ui, lay: &Layout, world: &World, panel: &Panel, soc
     let s = lay.s;
     if let (Some(r), Some(trade)) = (panel.trade_rect, social.trade) {
         theme::panel(ui.renderer, r, s);
-        let title = format!("Trading with {}", trade.partner);
+        let title = tf!("Trading with {name}", name = trade.partner);
         ui.label(&title, r[0] + 20.0 * s, r[1] + 16.0 * s, lay.font(18.0), true, color::TEXT);
         let (my_room, their_room) = trade.space_ok();
         let mut hovered = None;
         for (items, offer, x0, mine) in [(&trade.mine, &trade.my_offer, r[0] + 20.0 * s, true), (&trade.theirs, &trade.their_offer, r[0] + 230.0 * s, false)] {
             let (label, note, note_c) = if mine {
                 let (n, c) = if !my_room {
-                    ("Not enough space!", color::DANGER)
+                    (tr("Not enough space!"), color::DANGER)
                 } else if trade.i_accepted {
-                    ("Trade accepted!", color::GOOD)
+                    (tr("Trade accepted!"), color::GOOD)
                 } else {
-                    ("Click the items to offer", color::TEXT_DIM)
+                    (tr("Click the items to offer"), color::TEXT_DIM)
                 };
-                ("Your offer", n, c)
+                (tr("Your offer"), n, c)
             } else {
                 let (n, c) = if !their_room {
-                    ("Not enough space!", color::DANGER)
+                    (tr("Not enough space!"), color::DANGER)
                 } else if trade.they_accepted {
-                    ("Trade accepted!", color::GOOD)
+                    (tr("Trade accepted!"), color::GOOD)
                 } else {
-                    ("Choosing items…", color::TEXT_DIM)
+                    (tr("Choosing items…"), color::TEXT_DIM)
                 };
-                ("Their offer", n, c)
+                (tr("Their offer"), n, c)
             };
             ui.label(label, x0, r[1] + 48.0 * s, lay.font(13.0), true, color::TEXT_DIM);
             for (i, item) in items.iter().take(TRADE_SLOTS).enumerate() {
@@ -3216,10 +3251,10 @@ pub fn draw_windows(ui: &mut Ui, lay: &Layout, world: &World, panel: &Panel, soc
         let wait = (crate::game::TRADE_ACCEPT_DELAY - (social.now - trade.changed_at)).max(0);
         for (b, br) in &panel.buttons {
             match b {
-                Button::TradeCancel => ui.button(*br, "Cancel", Kind::Secondary, inside(*br, mouse), s),
+                Button::TradeCancel => ui.button(*br, tr("Cancel"), Kind::Secondary, inside(*br, mouse), s),
                 Button::TradeAccept => {
                     let ready = wait == 0 && my_room && their_room && !trade.i_accepted;
-                    let label = if trade.i_accepted { "Accepted".to_owned() } else if wait > 0 { format!("Accept ({})", (wait + 999) / 1000) } else { "Accept".to_owned() };
+                    let label = if trade.i_accepted { tr("Accepted").to_owned() } else if wait > 0 { tf!("Accept ({n})", n = (wait + 999) / 1000) } else { tr("Accept").to_owned() };
                     ui.button(*br, &label, if ready { Kind::Primary } else { Kind::Secondary }, ready && inside(*br, mouse), s);
                 }
                 _ => {}
@@ -3391,9 +3426,9 @@ fn draw_boss(
     let mut nx = r[0] + 52.0 * s;
     // A rare, epic or legendary enemy's rank before its name, in its glow colour (stat 115).
     let rank = match q.stat_int(115) {
-        Some(0xD865A5) => Some(("Legendary ", 0xD865A5)),
-        Some(0xC183AF) => Some(("Epic ", 0xC183AF)),
-        Some(0x82D9BC) => Some(("Rare ", 0x82D9BC)),
+        Some(0xD865A5) => Some((tr("Legendary "), 0xD865A5)),
+        Some(0xC183AF) => Some((tr("Epic "), 0xC183AF)),
+        Some(0x82D9BC) => Some((tr("Rare "), 0x82D9BC)),
         _ => None,
     };
     if let Some((rank, c)) = rank {
@@ -3440,7 +3475,7 @@ fn draw_boss(
         }
         if let (Some(d), false) = (mine, me_listed) {
             let class = me.map_or(0, |p| p.object_type);
-            hitter_row(ui, lay, [box_r[0] + 4.0 * s, y, box_r[2] - 8.0 * s, row_h], None, "You", class, d, max, color::ACCENT_HI);
+            hitter_row(ui, lay, [box_r[0] + 4.0 * s, y, box_r[2] - 8.0 * s, row_h], None, tr("You"), class, d, max, color::ACCENT_HI);
         }
         bottom = box_r[1] + box_r[3];
     }
@@ -3460,9 +3495,10 @@ const HISTORY_HITTERS: usize = 12;
 pub fn group_digits(n: i32) -> String {
     let digits = n.unsigned_abs().to_string();
     let mut out = String::new();
+    let sep = crate::i18n::current().thousands;
     for (i, c) in digits.chars().enumerate() {
         if i > 0 && (digits.len() - i) % 3 == 0 {
-            out.push(',');
+            out.push_str(sep);
         }
         out.push(c);
     }
@@ -3637,8 +3673,8 @@ pub fn draw_history(ui: &mut Ui, lay: &Layout, hl: &HistoryLayout, history: &[cr
     for row in &hl.rows {
         match *row {
             HistoryRow::Backing(r) => theme::fill(ui.renderer, r, 4.0 * s, 0xFFFFFF, 0.04),
-            HistoryRow::Title(r) => ui.label("Recent bosses", r[0] + 6.0 * s, r[1], ds, true, color::TEXT_MUTED),
-            HistoryRow::Empty(r) => ui.label("Empty", r[0] + 6.0 * s, r[1], ds, false, color::TEXT_DIM),
+            HistoryRow::Title(r) => ui.label(tr("Recent bosses"), r[0] + 6.0 * s, r[1], ds, true, color::TEXT_MUTED),
+            HistoryRow::Empty(r) => ui.label(tr("Empty"), r[0] + 6.0 * s, r[1], ds, false, color::TEXT_DIM),
             HistoryRow::Boss(i, r) => {
                 let fight = &history[i];
                 let open = state.history_pick == Some(i);
@@ -3650,7 +3686,7 @@ pub fn draw_history(ui: &mut Ui, lay: &Layout, hl: &HistoryLayout, history: &[cr
                 ui.label(&fight.name, r[0] + 28.0 * s, r[1] + (r[3] - ns * 1.22) / 2.0, ns, true, color::ACCENT_HI);
                 let pct = if fight.max_hp > 0 { ((fight.mine + fight.mine_assist).clamp(0, fight.max_hp) as f32 / fight.max_hp as f32 * 100.0).floor() as i32 } else { 0 };
                 // Our share, then a small arrow: down when open, right when closed.
-                let t = format!("You {pct}%");
+                let t = tf!("You {pct}%", pct);
                 let tw = ui.measure(&t, ds, true);
                 let (ax, ay, k) = (r[0] + r[2] - 10.0 * s, r[1] + r[3] / 2.0, 3.5 * s);
                 ui.label(&t, ax - k - 6.0 * s - tw, r[1] + (r[3] - ds * 1.22) / 2.0, ds, true, color::TEXT_DIM);
@@ -3666,7 +3702,7 @@ pub fn draw_history(ui: &mut Ui, lay: &Layout, hl: &HistoryLayout, history: &[cr
             }
             HistoryRow::More(i, r) => {
                 let more = history[i].hitters.len() - HISTORY_HITTERS;
-                ui.label(&format!("and {more} more"), r[0] + 20.0 * s, r[1], ds, false, color::TEXT_MUTED);
+                ui.label(&tf!("and {n} more", n = more), r[0] + 20.0 * s, r[1], ds, false, color::TEXT_MUTED);
             }
         }
     }
@@ -3799,7 +3835,7 @@ pub fn draw_chat(ui: &mut Ui, lay: &Layout, lines: &[ChatLine], me: &str, input:
     if let Some(input) = input {
         let r = [margin, bottom - line_h - 12.0 * s, max_w + 16.0 * s, line_h + 12.0 * s];
         ui.field_box(r, true, s);
-        draw_line_edit(ui, input, [r[0] + 8.0 * s, r[1], max_w, r[3]], size, "Say something, or /help", now);
+        draw_line_edit(ui, input, [r[0] + 8.0 * s, r[1], max_w, r[3]], size, tr("Say something, or /help"), now);
         bottom = r[1] - 6.0 * s;
     }
     // Wrap the newest lines into rows, newest at the bottom. A speaker's rank star leads the
@@ -3845,7 +3881,7 @@ pub fn draw_chat(ui: &mut Ui, lay: &Layout, lines: &[ChatLine], me: &str, input:
     let back_w = if strong { max_w + 16.0 * s + bar_w } else { widest + 16.0 * s };
     theme::fill(ui.renderer, [margin, bottom - back_h, back_w, back_h], 6.0 * s, 0x000000, if strong { 0.55 } else { 0.32 });
     if skip > 0 {
-        let t = format!("{skip} newer lines below (Page Down)");
+        let t = tn!(skip, "{n} newer line below (Page Down)|{n} newer lines below (Page Down)");
         let small = lay.font(11.0);
         ui.label(&t, margin + 8.0 * s, bottom - back_h - small * 1.4, small, true, color::TEXT_DIM);
     }
@@ -3943,7 +3979,7 @@ pub fn draw_arena(ui: &mut Ui, lay: &Layout, arena: (i32, i32, i32, bool), now: 
     hud_box(ui, r, s);
     let small = lay.font(10.5);
     let big = lay.font(19.0);
-    let cols = [("WAVE", wave.to_string()), ("TIME", format!("{:02}:{:02}", secs / 60, secs % 60))];
+    let cols = [(tr("WAVE"), wave.to_string()), (tr("TIME"), format!("{:02}:{:02}", secs / 60, secs % 60))];
     for (i, (label, value)) in cols.iter().enumerate() {
         let cx = r[0] + r[2] * (i as f32 + 0.5) / 2.0;
         let lw = ui.measure(label, small, true);
@@ -3996,14 +4032,14 @@ pub fn draw_arena_votes(ui: &mut Ui, lay: &Layout, v: &bsk_proto::ArenaVotes, me
     let mine = v.voters.iter().find(|p| Some(p.object_id) == me);
     let voted = mine.is_some_and(|p| p.next);
     let count = v.voters.iter().filter(|p| p.next).count();
-    let label = if v.starting { "Starting…".to_owned() } else { format!("Next wave  {count}/{}", v.next_needed) };
+    let label = if v.starting { tr("Starting…").to_owned() } else { tf!("Next wave  {count}/{needed}", count, needed = v.next_needed) };
     // ember until we've voted, then quiet (a click takes it back)
     ui.button(al.next, &label, if voted || v.starting { Kind::Secondary } else { Kind::Primary }, !v.starting && inside(al.next, mouse), s);
 
     let x0 = al.frame[0] + 10.0 * s;
     let small = lay.font(11.0);
     let (_, r0) = al.picks[0];
-    ui.label("Combine", x0, (r0[1] + r0[3] / 2.0 - ui.digit_middle(small, true)).round(), small, true, color::TEXT_DIM);
+    ui.label(tr("Combine"), x0, (r0[1] + r0[3] / 2.0 - ui.digit_middle(small, true)).round(), small, true, color::TEXT_DIM);
     let pick = mine.map_or(0, |p| p.pick);
     for (k, r) in al.picks {
         let usable = k <= v.max_combine;
@@ -4015,15 +4051,15 @@ pub fn draw_arena_votes(ui: &mut Ui, lay: &Layout, v: &bsk_proto::ArenaVotes, me
 
     // What the next fight is, and what a combine needs.
     let w = v.next_wave;
-    let fight = if v.combine > 1 { format!("Next fight: waves {w}–{}", w + v.combine as i32 - 1) } else { format!("Next fight: wave {w}") };
+    let fight = if v.combine > 1 { tf!("Next fight: waves {w}–{last}", w, last = w + v.combine as i32 - 1) } else { tf!("Next fight: wave {w}", w) };
     let size = lay.font(12.0);
     let fw = ui.measure(&fight, size, true);
     let cx = al.frame[0] + al.frame[2] / 2.0;
     ui.label(&fight, (cx - fw / 2.0).round(), al.summary_y, size, true, if v.combine > 1 { color::ACCENT_HI } else { color::TEXT });
     let note = if v.max_combine <= 1 {
-        "From wave 30, waves come one at a time".to_owned()
+        tr("From wave 30, waves come one at a time").to_owned()
     } else if v.voters.len() > 1 {
-        format!("A combine needs {} of {} players", v.combine_needed, v.voters.len())
+        tf!("A combine needs {needed} of {all} players", needed = v.combine_needed, all = v.voters.len())
     } else {
         String::new()
     };
@@ -4044,14 +4080,14 @@ pub fn draw_arena_votes(ui: &mut Ui, lay: &Layout, v: &bsk_proto::ArenaVotes, me
             ui.label(&t, x, y, small, true, color::ACCENT_HI);
             x -= 8.0 * s;
         }
-        let (t, c) = if p.next { ("Next", color::GOOD) } else { ("waiting", color::TEXT_MUTED) };
+        let (t, c) = if p.next { (tr("Next"), color::GOOD) } else { (tr("waiting"), color::TEXT_MUTED) };
         x -= ui.measure(t, small, !p.next);
         ui.label(t, x, y, small, p.next, c);
         y += 15.0 * s;
     }
     if v.voters.len() > ARENA_VOTERS_SHOWN {
         // the rest only counted, under the box's last row
-        let t = format!("and {} more", v.voters.len() - ARENA_VOTERS_SHOWN);
+        let t = tf!("and {n} more", n = v.voters.len() - ARENA_VOTERS_SHOWN);
         ui.label(&t, x0, y - 15.0 * s + small, tiny, false, color::TEXT_MUTED);
     }
 }
@@ -4074,8 +4110,9 @@ pub fn visit_layout(lay: &Layout) -> VisitLayout {
     VisitLayout { frame, yes, no }
 }
 
-/// Someone's /visit (`VisitRequest`): who wants to join us, where, a bar running down to the
-/// time out, and Yes and No. Only the mouse answers it, so play goes on around it.
+/// Someone's /visit or /summon (`VisitRequest`): who wants to join us (or us to join them), where,
+/// a bar running down to the time out, and Yes and No. Only the mouse answers it, so play goes on
+/// around it.
 pub fn draw_visit(ui: &mut Ui, lay: &Layout, v: &crate::game::VisitAsk, now: i32, mouse: (f64, f64)) {
     let s = lay.s;
     let vl = visit_layout(lay);
@@ -4083,21 +4120,30 @@ pub fn draw_visit(ui: &mut Ui, lay: &Layout, v: &crate::game::VisitAsk, now: i32
     hud_box(ui, f, s);
     let x0 = f[0] + 10.0 * s;
     let size = lay.font(13.0);
+    // the name stands out wherever the language puts it in the line
+    let line = if v.summon { tr("{name} wants to summon you") } else { tr("{name} wants to visit you") };
+    let (before, after) = line.split_once("{name}").unwrap_or(("", line));
+    let bw = ui.measure(before, size, false);
     let name_w = ui.measure(&v.name, size, true);
-    ui.label(&v.name, x0, f[1] + 8.0 * s, size, true, color::ACCENT_HI);
-    ui.label(" wants to visit you", x0 + name_w, f[1] + 8.0 * s, size, false, color::TEXT);
+    ui.label(before, x0, f[1] + 8.0 * s, size, false, color::TEXT);
+    ui.label(&v.name, x0 + bw, f[1] + 8.0 * s, size, true, color::ACCENT_HI);
+    ui.label(after, x0 + bw + name_w, f[1] + 8.0 * s, size, false, color::TEXT);
     let left_ms = (v.until - now).max(0);
     let small = lay.font(11.0);
     let secs = (left_ms + 999) / 1000;
-    let detail = if v.world.is_empty() { format!("{secs} s to answer") } else { format!("in your {}  ·  {secs} s", v.world) };
+    let detail = match (v.world.is_empty(), v.summon) {
+        (true, _) => tf!("{secs} s to answer", secs),
+        (false, true) => tf!("to their {world}  ·  {secs} s", world = v.world, secs),
+        (false, false) => tf!("in your {world}  ·  {secs} s", world = v.world, secs),
+    };
     ui.label(&detail, x0, f[1] + 27.0 * s, small, false, color::TEXT_DIM);
     // the time left, as a thin bar over the buttons
     let full = f[2] - 20.0 * s;
     let share = (left_ms as f32 / v.total.max(1) as f32).min(1.0);
     theme::fill(ui.renderer, [x0, f[1] + 43.0 * s, full, 3.0 * s], 1.5 * s, 0xFFFFFF, 0.10);
     theme::fill(ui.renderer, [x0, f[1] + 43.0 * s, (full * share).max(0.0), 3.0 * s], 1.5 * s, color::ACCENT, 0.9);
-    ui.button(vl.yes, "Yes", Kind::Primary, inside(vl.yes, mouse), s);
-    ui.button(vl.no, "No", Kind::Secondary, inside(vl.no, mouse), s);
+    ui.button(vl.yes, tr("Yes"), Kind::Primary, inside(vl.yes, mouse), s);
+    ui.button(vl.no, tr("No"), Kind::Secondary, inside(vl.no, mouse), s);
 }
 
 /// Break coloured pieces into rows no wider than `max_w`, at spaces where possible; the first

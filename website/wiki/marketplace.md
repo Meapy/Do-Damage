@@ -50,6 +50,12 @@ ends or you take it back. The window shows what you'll get: the Broker keeps
 **{{v:market_tax}}%** of each sale as its fee. You can have **{{v:market_limit}} listings** at a
 time.
 
+**More listing slots:** the button beside "listings in use" on the Sell tab buys another slot for
+fame (click it, then again to confirm). The first extra slot costs **{{v:market_slot_step}}
+fame**, and each one after it {{v:market_slot_step}} more than the last, up to
+**{{v:market_max_extra}} extra** ({{v:market_max_slots}} listings at once). Slots are for your
+whole account and stay yours for good.
+
 `/sell <slot> <price> [days]` lists from your inventory without opening the window: slots 1-8,
 9-16 for the backpack, for {{v:market_default_days}} days unless you say (1 to
 {{v:market_max_days}}).

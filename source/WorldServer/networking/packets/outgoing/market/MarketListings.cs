@@ -6,8 +6,9 @@ namespace WorldServer.networking.packets.outgoing.market
 {
     // The Marketplace window's contents (MARKET_LISTINGS): the listings' version and the server's
     // clock; whether the listings are as the client already has them (then none follow); the tax
-    // and listing limit; then the listings, the account's box and its history. Each item comes
-    // with its stack count and imprints (Offensive, Defensive, Misc), read from its data.
+    // and listing limit; then the listings, the account's box and its history; last, the next
+    // listing slot's price. Each item comes with its stack count and imprints (Offensive,
+    // Defensive, Misc), read from its data.
     public class MarketListings : OutgoingMessage
     {
         public override MessageId MessageId => MessageId.MARKET_LISTINGS;
@@ -20,6 +21,9 @@ namespace WorldServer.networking.packets.outgoing.market
         public DbMarketData[] Listings;
         public MarketBoxItem[] Box;
         public MarketHistoryEntry[] History;
+        // What the account's next listing slot costs in fame, 0 when it has them all: last, so
+        // older clients, which stop before it, are unaffected.
+        public int SlotPrice;
 
         public override void Write(NetworkWriter wtr)
         {
@@ -59,6 +63,7 @@ namespace WorldServer.networking.packets.outgoing.market
                 wtr.WriteUTF16(h.Other ?? "");
                 wtr.Write(h.Time);
             }
+            wtr.Write(SlotPrice);
         }
 
         // The stack's count (0 for a single item) and the three imprints.

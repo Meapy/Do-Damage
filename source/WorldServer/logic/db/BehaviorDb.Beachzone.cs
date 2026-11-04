@@ -35,6 +35,7 @@ namespace WorldServer.logic
                         )
                     ),
                 new Threshold(0.01,
+                    new ItemLoot("Aceaku's Pet Generator", elder ? 0.06 : 0.03),
                     new ItemLoot("Potion of Speed", 1),
                     new ItemLoot("Potion of Dexterity", 0.5)
                     ), Elder("Masked Party God"));

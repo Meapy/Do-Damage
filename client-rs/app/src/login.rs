@@ -11,6 +11,7 @@
 //! may set `window.bskLogin = {email, password}` to sign in straight away.
 
 use bsk_net::account::CharList;
+use crate::i18n::tr;
 use bsk_net::{account, http, Pending, Target};
 
 /// Where the account server and world servers are reached.
@@ -150,8 +151,8 @@ pub fn unreachable_text(e: &str) -> String {
     // ureq says "<url>: status code 503", the browser "HTTP 503".
     let code = e.rsplit_once("status code ").or_else(|| e.rsplit_once("HTTP ")).map(|(_, c)| c.trim());
     match code {
-        Some(c) => format!("The server couldn't do that right now (error {c}). Try again in a minute."),
-        None => "Can't reach the server. Check your internet connection and try again.".into(),
+        Some(c) => crate::i18n::tf!("The server couldn't do that right now (error {c}). Try again in a minute.", c),
+        None => tr("Can't reach the server. Check your internet connection and try again.").into(),
     }
 }
 
@@ -159,16 +160,16 @@ pub fn unreachable_text(e: &str) -> String {
 pub fn explain(e: &str) -> String {
     let l = e.trim().trim_end_matches('.').to_ascii_lowercase();
     let text = match l.as_str() {
-        "no account uses that email" => "No account uses that email. Check it, or create an account.",
-        "wrong password" => "Wrong password. Check it and try again.",
-        "bad login" | "account credentials not valid" | "email or password is incorrect" => "Wrong email or password.",
-        "duplicated name" => "That name is taken. Choose another.",
-        "duplicate email" => "An account already uses that email. Sign in instead.",
-        "invalid email" => "That isn't a valid email address.",
-        "invalid name" => "That name can't be used. Names are up to 10 letters, A to Z.",
-        "account in use" => "That account is in the game right now. Try again in a moment.",
-        "account banned" => "This account is banned.",
-        "" => "Something went wrong. Try again.",
+        "no account uses that email" => tr("No account uses that email. Check it, or create an account."),
+        "wrong password" => tr("Wrong password. Check it and try again."),
+        "bad login" | "account credentials not valid" | "email or password is incorrect" => tr("Wrong email or password."),
+        "duplicated name" => tr("That name is taken. Choose another."),
+        "duplicate email" => tr("An account already uses that email. Sign in instead."),
+        "invalid email" => tr("That isn't a valid email address."),
+        "invalid name" => tr("That name can't be used. Names are up to 10 letters, A to Z."),
+        "account in use" => tr("That account is in the game right now. Try again in a moment."),
+        "account banned" => tr("This account is banned."),
+        "" => tr("Something went wrong. Try again."),
         _ => return e.trim().to_owned(),
     };
     text.to_owned()
@@ -188,7 +189,7 @@ pub fn parse_guest(response: http::Response) -> Result<(String, String), String>
     };
     match (field("GUID"), field("Password")) {
         (Some(g), Some(p)) if !g.is_empty() && !p.is_empty() => Ok((g, p)),
-        _ => Err("The server didn't make a guest account. Try again, or register.".into()),
+        _ => Err(tr("The server didn't make a guest account. Try again, or register.").into()),
     }
 }
 
@@ -211,11 +212,11 @@ pub fn keep_guest(login: Option<(&str, &str)>) {
 /// What's wrong with a sign-in form, before asking the server.
 pub fn check_sign_in(email: &str, password: &str) -> Option<&'static str> {
     if email.is_empty() && password.is_empty() {
-        Some("Enter your email and password.")
+        Some(tr("Enter your email and password."))
     } else if email.is_empty() {
-        Some("Enter your email.")
+        Some(tr("Enter your email."))
     } else if password.is_empty() {
-        Some("Enter your password.")
+        Some(tr("Enter your password."))
     } else {
         None
     }
@@ -227,17 +228,17 @@ pub const MIN_PASSWORD: usize = 6;
 /// What's wrong with a registration form, before asking the server (which checks the same).
 pub fn check_register(name: &str, email: &str, password: &str, confirm: &str) -> Option<&'static str> {
     if name.is_empty() {
-        Some("Choose a name.")
+        Some(tr("Choose a name."))
     } else if name.len() > 10 || !name.chars().all(|c| c.is_ascii_alphabetic()) {
-        Some("Names are up to 10 letters, A to Z, with no spaces.")
+        Some(tr("Names are up to 10 letters, A to Z, with no spaces."))
     } else if email.is_empty() {
-        Some("Enter your email.")
+        Some(tr("Enter your email."))
     } else if !valid_email(email) {
-        Some("That isn't a valid email address.")
+        Some(tr("That isn't a valid email address."))
     } else if password.chars().count() < MIN_PASSWORD {
-        Some("Passwords need at least 6 characters.")
+        Some(tr("Passwords need at least 6 characters."))
     } else if password != confirm {
-        Some("The passwords don't match.")
+        Some(tr("The passwords don't match."))
     } else {
         None
     }
@@ -316,6 +317,10 @@ pub fn startup() -> Result<Startup, String> {
             "--credentials" => credentials = it.next(),
             // Read by main (screenshots, scripted input).
             "--shot" | "--shot-after" | "--look" | "--hold" | "--walk-to" | "--aim" | "--say" | "--type" | "--npc" | "--quests" | "--champions" | "--effect" | "--size" | "--mouse" | "--mouse-script" => {
+                it.next();
+            }
+            // Read by i18n (the language for this run).
+            "--lang" => {
                 it.next();
             }
             _ => return Err(format!("unknown argument {a}")),

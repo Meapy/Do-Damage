@@ -652,6 +652,7 @@ namespace App
         public bool FirstBorn { get; private set; }
         public DateTime DeathTime { get; private set; }
         public string Killer { get; private set; }
+        public DbDeath Death { get; private set; }
 
         public static Fame FromDb(CoreService core, DbChar character)
         {
@@ -668,7 +669,8 @@ namespace App
 
                 FirstBorn = death.FirstBorn,
                 DeathTime = death.DeathTime,
-                Killer = death.Killer
+                Killer = death.Killer,
+                Death = death
             };
         }
 
@@ -722,8 +724,22 @@ namespace App
                         )
                     ),
                     new XElement("CreatedOn", DeathTime.ToUnixTimestamp()),
-                    new XElement("KilledBy", Killer)
+                    new XElement("KilledBy", Killer),
+                    SpinXml(),
+                    string.IsNullOrEmpty(Death.Kept) ? null : new XElement("Kept", Death.Kept)
                 );
+        }
+
+        // the death spin (WorldServer Player.DeathSpin.cs): the prize, and the reel the client plays
+        private XElement SpinXml()
+        {
+            if (Death.SpinPrize <= 0)
+                return null;
+            return new XElement("DeathSpin",
+                new XAttribute("tier", Death.SpinTier),
+                new XAttribute("rarity", Death.SpinRarity),
+                new XAttribute("prize", Death.SpinPrize),
+                Death.SpinReel ?? "");
         }
     }
 

@@ -68,6 +68,35 @@ python tools\build_client_rs.py --account https://dodmg.com/api --package --publ
 - **Window title** is "Do Damage", the game's name for players, never "betterSkillys" (that's
   the AIR client's). Settings and the saved login stay in `betterSkillys-rs` folders, so the
   rename didn't lose anyone's.
+- **Languages** (`app/src/i18n.rs`): English is written in the code; German, Spanish, French,
+  Italian, Dutch, Polish, Brazilian Portuguese, Russian, Turkish and Ukrainian are tables in
+  `app/lang/<code>.json`, from the English line to the language's own, built into the client.
+  The player picks one in Options, Language (kept as `language=<code>`), else the system's is
+  used (Windows' display language, `LANG`, the browser's). When you add or change text players
+  see:
+  - wrap it where it's drawn: `tr("Play")`; `tf!("Level {level}", level)` for a line with
+    values in it (named, so a language can reorder them); `tn!(count, "{n} day|{n} days")` for
+    one that depends on a number (Russian and Ukrainian give three forms, one|few|many, Polish
+    too, the rest two, Turkish may give one); `mark("Move up")` in a `const` table, with `tr` where
+    it's drawn. Never build a sentence from pieces (`"New " + name + " quests"`): give each
+    whole line its own key, as the quest log's daily, weekly and monthly lines are. The test
+    finds lines by the literal inside `tr(`, `tf!(`, `tn!(` and `mark(`, so put it right there:
+    `if a { tr("Yes") } else { tr("No") }`, not `tr(if a { "Yes" } else { "No" })`, which it
+    can't see.
+  - add the English line as the key in **every** table, with a translation a native player
+    would write: the game's own words for the language (Russian «Убежище», not a calque), its
+    quotes and spacing (French « … » and a no-break space before `!?:;`, German „…“), short
+    enough for the button it sits on. Keep `{name}`s, `/commands`, key names and numbers as they
+    are. `cargo test -p bsk-client i18n` fails on a missing or unused line, a `{name}` that
+    differs, the wrong number of forms, or a character Myriad Pro lacks (no CJK, Arabic or
+    Vietnamese in bold: those need a font first).
+  - room: German and Russian lines run a third longer. `Ui::label_fit` and `button` shrink a
+    line to fit; check a new window with `--lang de` and `--lang ru` (`--lang <code>` overrides
+    the setting for one run) and a `--shot`.
+  - not translated: what the server sends (chat, item and monster names, NPC speech, quest
+    titles, board names), player names, and the logs. A name the server sends that the client
+    shows as a label of its own (a community goal's tier names and `bonusName`) is looked up in a
+    `server::` list, as `community::SERVER_NAMES` does, and shown as sent when it isn't there.
 
 ## Gateway (browser play)
 

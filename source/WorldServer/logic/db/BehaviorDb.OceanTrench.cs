@@ -267,6 +267,11 @@ namespace WorldServer.logic
                     new ItemLoot("Potion of Wisdom", 0.5)
                     ),
                 new Threshold(.005,
+                    new ItemLoot("Lil' Thessal Generator", elder ? 0.04 : 0.02),
+                    new ItemLoot("Sea Mare Generator", elder ? 0.06 : 0.03),
+                    new ItemLoot("Shark Generator", elder ? 0.06 : 0.03)
+                    ),
+                new Threshold(.005,
                     LootTemplates.BasicDrop()
                 ), Elder("Thessal the Mermaid Goddess"))
             .Init(E("Thessal Dropper"),

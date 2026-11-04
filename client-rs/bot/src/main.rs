@@ -404,7 +404,8 @@ fn run(args: Args) -> Result<(), String> {
                         log::info!("chat <{}> {}", t.name, t.text)
                     }
                     ServerMessage::VisitRequest(v) => {
-                        log::info!("visit request {} from {} into {} ({} s)", v.id, v.name, v.world, v.seconds);
+                        let what = if v.summon == Some(true) { "summon" } else { "visit" };
+                        log::info!("{what} request {} from {} into {} ({} s)", v.id, v.name, v.world, v.seconds);
                         if let (true, Some(Some(answer))) = (v.seconds > 0, args.visit_answer) {
                             log::info!("visit answer {answer}");
                             socket.send(&bsk_proto::VisitAnswer { id: v.id, answer }.into());
@@ -442,6 +443,7 @@ fn run(args: Args) -> Result<(), String> {
                         log::info!("joined as object {object_id}");
                         if args.visit_answer.is_some() {
                             socket.send(&bsk_proto::VisitAnswer { id: 0, answer: 255 }.into());
+                            socket.send(&bsk_proto::VisitAnswer { id: 0, answer: 254 }.into());
                         }
                         if !args.vault.is_empty() {
                             vault_at = Some(Instant::now() + Duration::from_secs(2));

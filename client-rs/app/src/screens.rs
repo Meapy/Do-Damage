@@ -5,6 +5,7 @@
 //! menu Escape opens in the game.
 
 use crate::hud::Ui;
+use crate::i18n::{mark, tf, tn, tr};
 use crate::redraw::Dye;
 use crate::sky;
 use crate::stars;
@@ -34,6 +35,8 @@ pub enum Screen {
     Account,
     /// How a dead character's fame was counted.
     Death,
+    /// The death spin, before the fame summary: the loot reel and what it landed on.
+    Spin,
     /// The world servers to play on (`ServersScreen`).
     Servers,
 }
@@ -48,7 +51,7 @@ pub const NEW_CONFIRM: usize = 5;
 
 /// The legends' time spans: (id for the server, label). The last, "recent", is the server's
 /// latest deaths (`/fame/recent`) rather than a time span of `/fame/list`.
-pub const TIMESPANS: [(&str, &str); 4] = [("week", "This week"), ("month", "This month"), ("all", "All time"), ("recent", "Recent Deaths")];
+pub const TIMESPANS: [(&str, &str); 4] = [("week", mark("This week")), ("month", mark("This month")), ("all", mark("All time")), ("recent", mark("Recent Deaths"))];
 /// The Recent Deaths tab's place in `TIMESPANS`.
 pub const RECENT: usize = 3;
 
@@ -168,6 +171,14 @@ pub struct Front {
     pub death_from_graveyard: bool,
     /// The summary was opened from Recent Deaths (Continue goes back to the legends).
     pub death_from_legends: bool,
+    /// The death spin's start (`ui_time`), once drawn, and whether it was skipped to the end.
+    spin_start: Option<i32>,
+    spin_skipped: bool,
+    /// The reel's slot under the marker last frame (for its ticks), and the prize was shown.
+    spin_slot: i32,
+    spin_landed: bool,
+    /// Sounds the screens want played (by `sfx/` name), taken by the app each frame.
+    pub sounds: Vec<&'static str>,
     /// Clickable areas from the last frame.
     targets: Vec<(Target, [f32; 4])>,
     /// Where each field's characters were drawn last frame: (field, first character shown,
@@ -211,6 +222,11 @@ impl Default for Front {
             death: None,
             death_from_graveyard: false,
             death_from_legends: false,
+            spin_start: None,
+            spin_skipped: false,
+            spin_slot: 0,
+            spin_landed: false,
+            sounds: Vec::new(),
             clicked: false,
             targets: Vec::new(),
             field_edges: Vec::new(),
@@ -362,6 +378,12 @@ impl Front {
     }
 
     pub fn show(&mut self, screen: Screen) {
+        if screen == Screen::Spin && self.screen != Screen::Spin {
+            self.spin_start = None;
+            self.spin_skipped = false;
+            self.spin_slot = 0;
+            self.spin_landed = false;
+        }
         self.screen = screen;
         self.confirm = None;
         if screen == Screen::Account {
@@ -422,6 +444,7 @@ impl Front {
                 Screen::Death if self.death_from_graveyard => self.show(Screen::Graveyard),
                 Screen::Death if self.death_from_legends => self.show(Screen::Legends),
                 Screen::Death => self.show(Screen::Chars),
+                Screen::Spin => self.spin_next(),
                 _ => {}
             },
             KeyCode::Escape => match self.screen {
@@ -432,6 +455,7 @@ impl Front {
                 Screen::Death if self.death_from_graveyard => self.show(Screen::Graveyard),
                 Screen::Death if self.death_from_legends => self.show(Screen::Legends),
                 Screen::NewChar | Screen::Legends | Screen::Graveyard | Screen::Account | Screen::Death | Screen::Servers => self.show(Screen::Chars),
+                Screen::Spin => self.spin_next(),
                 Screen::Class(_) => self.show(Screen::NewChar),
                 _ => {}
             },
@@ -475,6 +499,7 @@ impl Front {
             }
             Target::Back => match self.screen {
                 Screen::Class(_) => self.show(Screen::NewChar),
+                Screen::Spin => self.spin_next(),
                 Screen::Death if self.death_from_graveyard => self.show(Screen::Graveyard),
                 Screen::Death if self.death_from_legends => self.show(Screen::Legends),
                 _ => self.show(Screen::Chars),
@@ -604,6 +629,7 @@ impl Front {
             Screen::Graveyard => self.draw_graveyard(ui, w, h, s, mouse),
             Screen::Account => self.draw_account(ui, w, h, s, mouse, now),
             Screen::Death => self.draw_death(ui, w, h, s, mouse),
+            Screen::Spin => self.draw_spin(ui, w, h, s, mouse),
             Screen::Servers => self.draw_servers(ui, w, h, s, mouse),
         }
         // The version, bottom right: opens the changelog.
@@ -719,7 +745,7 @@ impl Front {
         let top = (h * 0.12).max(16.0 * s);
         let lh = sky::logo(ui, name, w / 2.0, top, cell);
         let size = (16.0 * s).round().max(10.0);
-        let tagline = "A Realm of the Mad God private server";
+        let tagline = tr("A Realm of the Mad God private server");
         let tw = ui.measure(tagline, size, false);
         ui.label(tagline, (w - tw) / 2.0, top + lh + 8.0 * s, size, false, color::TEXT);
         let bw = 320.0 * s;
@@ -728,9 +754,9 @@ impl Front {
         let mut y = top + lh + 56.0 * s;
         // Who's signed in, if anyone.
         let who = match (&self.list, self.signing_in) {
-            (Some(list), _) if self.guest => Some(format!("Playing as a guest ({})", list.name)),
-            (Some(list), _) => Some(format!("Signed in as {}", list.name)),
-            (None, true) => Some("Signing in\u{2026}".to_owned()),
+            (Some(list), _) if self.guest => Some(tf!("Playing as a guest ({name})", name = list.name)),
+            (Some(list), _) => Some(tf!("Signed in as {name}", name = list.name)),
+            (None, true) => Some(tr("Signing in\u{2026}").to_owned()),
             _ => None,
         };
         let ws = (14.0 * s).round().max(9.0);
@@ -740,28 +766,28 @@ impl Front {
         }
         y += ws * 1.6 + 6.0 * s;
         let half = (bw - gap) / 2.0;
-        self.button(ui, Target::Play, [x, y, bw, bh + 6.0 * s], "Play", Kind::Primary, s, mouse);
+        self.button(ui, Target::Play, [x, y, bw, bh + 6.0 * s], tr("Play"), Kind::Primary, s, mouse);
         y += bh + 6.0 * s + gap;
         if self.list.is_some() && self.guest {
-            self.button(ui, Target::ToRegister, [x, y, half, bh], "Save progress", Kind::Secondary, s, mouse);
-            self.button(ui, Target::ToLogin, [x + half + gap, y, half, bh], "Sign in", Kind::Secondary, s, mouse);
+            self.button(ui, Target::ToRegister, [x, y, half, bh], tr("Save progress"), Kind::Secondary, s, mouse);
+            self.button(ui, Target::ToLogin, [x + half + gap, y, half, bh], tr("Sign in"), Kind::Secondary, s, mouse);
         } else if self.list.is_some() {
-            self.button(ui, Target::Logout, [x, y, bw, bh], "Log out", Kind::Secondary, s, mouse);
+            self.button(ui, Target::Logout, [x, y, bw, bh], tr("Log out"), Kind::Secondary, s, mouse);
         } else {
-            self.button(ui, Target::ToLogin, [x, y, half, bh], "Sign in", Kind::Secondary, s, mouse);
-            self.button(ui, Target::ToRegister, [x + half + gap, y, half, bh], "Register", Kind::Secondary, s, mouse);
+            self.button(ui, Target::ToLogin, [x, y, half, bh], tr("Sign in"), Kind::Secondary, s, mouse);
+            self.button(ui, Target::ToRegister, [x + half + gap, y, half, bh], tr("Register"), Kind::Secondary, s, mouse);
         }
         y += bh + gap;
-        self.button(ui, Target::ToOptions, [x, y, half, bh], "Options", Kind::Secondary, s, mouse);
-        self.button(ui, Target::Changelog, [x + half + gap, y, half, bh], "Changelog", Kind::Secondary, s, mouse);
+        self.button(ui, Target::ToOptions, [x, y, half, bh], tr("Options"), Kind::Secondary, s, mouse);
+        self.button(ui, Target::Changelog, [x + half + gap, y, half, bh], tr("Changelog"), Kind::Secondary, s, mouse);
         y += bh + gap;
         // A browser tab is closed by the browser.
         if cfg!(not(target_arch = "wasm32")) {
-            self.button(ui, Target::Quit, [x, y, bw, bh], "Quit", Kind::Secondary, s, mouse);
+            self.button(ui, Target::Quit, [x, y, bw, bh], tr("Quit"), Kind::Secondary, s, mouse);
             y += bh + gap;
         }
         if self.list.is_none() && self.message.is_none() {
-            let hint = "No account needed: Play starts you as a guest. Register any time to keep your progress.";
+            let hint = tr("No account needed: Play starts you as a guest. Register any time to keep your progress.");
             let hs = (13.0 * s).round().max(9.0);
             let hw = ui.measure(hint, hs, false).min(w - 32.0);
             ui.label(hint, (w - hw) / 2.0, y + 4.0 * s, hs, false, color::TEXT_DIM);
@@ -783,22 +809,22 @@ impl Front {
         let [x, y, bw, bh] = r;
         theme::panel(ui.renderer, r, s);
         let pad = 28.0 * s;
-        ui.label("Welcome back", x + pad, y + 24.0 * s, (26.0 * s).round(), true, color::TEXT);
-        ui.label("Sign in to continue your adventure", x + pad, y + 60.0 * s, (14.0 * s).round(), false, color::TEXT_DIM);
+        ui.label(tr("Welcome back"), x + pad, y + 24.0 * s, (26.0 * s).round(), true, color::TEXT);
+        ui.label(tr("Sign in to continue your adventure"), x + pad, y + 60.0 * s, (14.0 * s).round(), false, color::TEXT_DIM);
         let mut fy = y + 96.0 * s;
-        fy = self.field(ui, EMAIL, "Email", "you@example.com", x + pad, fy, bw - 2.0 * pad, s, now);
-        fy = self.field(ui, PASSWORD, "Password", "Your password", x + pad, fy, bw - 2.0 * pad, s, now);
+        fy = self.field(ui, EMAIL, tr("Email"), tr("you@example.com"), x + pad, fy, bw - 2.0 * pad, s, now);
+        fy = self.field(ui, PASSWORD, tr("Password"), tr("Your password"), x + pad, fy, bw - 2.0 * pad, s, now);
         // Remember me, as a switch.
         let size = (14.0 * s).round().max(9.0);
         let sw = [x + pad, fy + 2.0 * s, 36.0 * s, 20.0 * s];
         theme::fill(ui.renderer, sw, sw[3] / 2.0, if self.remember { color::ACCENT } else { color::SECONDARY }, 1.0);
         let knob_x = if self.remember { sw[0] + sw[2] - sw[3] } else { sw[0] };
         theme::fill(ui.renderer, [knob_x + 2.0 * s, sw[1] + 2.0 * s, sw[3] - 4.0 * s, sw[3] - 4.0 * s], sw[3], 0xFFFFFF, 1.0);
-        ui.label("Remember me", sw[0] + sw[2] + 10.0 * s, sw[1] + 1.0 * s, size, false, color::TEXT_DIM);
+        ui.label(tr("Remember me"), sw[0] + sw[2] + 10.0 * s, sw[1] + 1.0 * s, size, false, color::TEXT_DIM);
         self.targets.push((Target::Remember, [sw[0], sw[1], 160.0 * s, sw[3]]));
-        self.button(ui, Target::SignIn, [x + pad, fy + 40.0 * s, bw - 2.0 * pad, 44.0 * s], "Sign in", Kind::Primary, s, mouse);
+        self.button(ui, Target::SignIn, [x + pad, fy + 40.0 * s, bw - 2.0 * pad, 44.0 * s], tr("Sign in"), Kind::Primary, s, mouse);
         theme::fill(ui.renderer, [x + pad, y + bh - 54.0 * s, bw - 2.0 * pad, s.max(1.0)], 0.0, color::BORDER, 1.0);
-        self.link(ui, Target::ToRegister, x + bw / 2.0, y + bh - 40.0 * s, "New here?  ", "Create an account", size, mouse);
+        self.link(ui, Target::ToRegister, x + bw / 2.0, y + bh - 40.0 * s, tr("New here?  "), tr("Create an account"), size, mouse);
         self.message_line(ui, x + bw / 2.0, y + bh + 16.0 * s, bw, s);
         let small = (12.0 * s).round().max(9.0);
         ui.label(&self.endpoint_label, 12.0 * s, h - small * 1.7, small, false, color::TEXT_MUTED);
@@ -810,20 +836,20 @@ impl Front {
         let [x, y, bw, bh] = r;
         theme::panel(ui.renderer, r, s);
         let pad = 28.0 * s;
-        let title = if self.guest && self.list.is_some() { "Save your progress" } else { "Create your account" };
+        let title = if self.guest && self.list.is_some() { tr("Save your progress") } else { tr("Create your account") };
         ui.label(title, x + pad, y + 24.0 * s, (24.0 * s).round(), true, color::TEXT);
         let mut fy = y + 66.0 * s;
         for (i, label, hint) in [
-            (NAME, "Name", "Up to 10 letters"),
-            (EMAIL, "Email", "you@example.com"),
-            (PASSWORD, "Password", "Choose a password"),
-            (CONFIRM, "Confirm password", "Type it again"),
+            (NAME, tr("Name"), tr("Up to 10 letters")),
+            (EMAIL, tr("Email"), tr("you@example.com")),
+            (PASSWORD, tr("Password"), tr("Choose a password")),
+            (CONFIRM, tr("Confirm password"), tr("Type it again")),
         ] {
             fy = self.field(ui, i, label, hint, x + pad, fy, bw - 2.0 * pad, s, now);
         }
-        self.button(ui, Target::Register, [x + pad, fy + 4.0 * s, bw - 2.0 * pad, 44.0 * s], "Create account", Kind::Primary, s, mouse);
+        self.button(ui, Target::Register, [x + pad, fy + 4.0 * s, bw - 2.0 * pad, 44.0 * s], tr("Create account"), Kind::Primary, s, mouse);
         let size = (14.0 * s).round().max(9.0);
-        self.link(ui, Target::ToLogin, x + bw / 2.0, y + bh - 36.0 * s, "Have an account?  ", "Sign in", size, mouse);
+        self.link(ui, Target::ToLogin, x + bw / 2.0, y + bh - 36.0 * s, tr("Have an account?  "), tr("Sign in"), size, mouse);
         self.message_line(ui, x + bw / 2.0, y + bh + 16.0 * s, bw, s);
     }
 
@@ -840,8 +866,8 @@ impl Front {
         // The rank (`AccountScreen.rankText`): the class quests done, and its star.
         let classes = stars::class_count(ui.data);
         let rank = stars::account_stars(&list);
-        ui.label("Rank", x, 42.0 * s, size, false, color::TEXT_DIM);
-        let rx = x + ui.measure("Rank", size, false) + 6.0 * s;
+        ui.label(tr("Rank"), x, 42.0 * s, size, false, color::TEXT_DIM);
+        let rx = x + ui.measure(tr("Rank"), size, false) + 6.0 * s;
         let v = rank.to_string();
         ui.label(&v, rx, 42.0 * s, size, true, color::TEXT);
         let vw = ui.measure(&v, size, true);
@@ -850,7 +876,7 @@ impl Front {
         // Fame and gold (`CreditDisplay`), one above the other, right-aligned in the corner.
         let money = (16.0 * s).round();
         let mut money_w: f32 = 0.0;
-        for (i, (label, value, c)) in [("Fame", list.fame, color::ACCENT), ("Gold", list.credits, 0xFFE27A)].into_iter().enumerate() {
+        for (i, (label, value, c)) in [(tr("Fame"), list.fame, color::ACCENT), (tr("Gold"), list.credits, 0xFFE27A)].into_iter().enumerate() {
             let v = value.to_string();
             let vw = ui.measure(&v, money, true);
             let lw = ui.measure(label, size, false);
@@ -862,12 +888,12 @@ impl Front {
         let bw = 104.0 * s;
         let right = w - pad - money_w - 22.0 * s;
         let buttons = [
-            (Target::ToHome, "Main menu"),
-            if self.guest { (Target::ToRegister, "Register") } else { (Target::ToAccount, "Account") },
-            (Target::ToServers, "Servers"),
-            (Target::ToLegends, "Legends"),
-            (Target::ToGraveyard, "Graveyard"),
-            (Target::Changelog, "Changelog"),
+            (Target::ToHome, tr("Main menu")),
+            if self.guest { (Target::ToRegister, tr("Register")) } else { (Target::ToAccount, tr("Account")) },
+            (Target::ToServers, tr("Servers")),
+            (Target::ToLegends, tr("Legends")),
+            (Target::ToGraveyard, tr("Graveyard")),
+            (Target::Changelog, tr("Changelog")),
         ];
         for (i, (target, label)) in buttons.into_iter().enumerate() {
             let bx = right - (i + 1) as f32 * bw - i as f32 * 8.0 * s;
@@ -889,7 +915,7 @@ impl Front {
         self.chars_row = self.chars_row.min(rows - visible);
         let first = self.chars_row;
         let y0 = area_top.max(area_top + (area_h - visible as f32 * (ch + gap) + gap) / 2.0);
-        let title = "Choose your character";
+        let title = tr("Choose your character");
         let ts = (22.0 * s).round();
         let tw = ui.measure(title, ts, true);
         ui.label(title, (w - tw) / 2.0, y0 - 40.0 * s, ts, true, color::TEXT);
@@ -914,11 +940,12 @@ impl Front {
             let edge = if over { color::ACCENT } else { color::BORDER };
             theme::frame(ui.renderer, r, 10.0 * s, s.max(1.0), (edge, 0.9), ((color::INSET_TOP, 0.6), (color::INSET_BOTTOM, 0.6)));
             let (price, fame) = (list.next_slot_price, list.next_slot_currency == 1);
-            let label = "Buy another character slot";
+            let label = tr("Buy another character slot");
             let size = (17.0 * s).round();
+            let label = tr(label);
             let lw = ui.measure(label, size, true);
             ui.label(label, r[0] + (r[2] - lw) / 2.0, r[1] + r[3] / 2.0 - size * 1.25, size, true, if over { color::ACCENT_HI } else { color::TEXT });
-            let cost = format!("{price} {}", if fame { "fame" } else { "gold" });
+            let cost = if fame { tf!("{price} fame", price) } else { tf!("{price} gold", price) };
             let cs = (15.0 * s).round();
             let cw = ui.measure(&cost, cs, true);
             let afford = if fame { list.fame >= price } else { list.credits >= price };
@@ -931,8 +958,9 @@ impl Front {
             let edge = if over { color::ACCENT } else { color::BORDER };
             theme::frame(ui.renderer, r, 10.0 * s, s.max(1.0), (edge, 0.9), ((color::INSET_TOP, 0.6), (color::INSET_BOTTOM, 0.6)));
             let plus = (30.0 * s).round();
-            let label = "New character";
+            let label = tr("New character");
             let size = (17.0 * s).round();
+            let label = tr(label);
             let lw = ui.measure(label, size, true);
             let pw = ui.measure("+", plus, true);
             let total = pw + 12.0 * s + lw;
@@ -946,7 +974,7 @@ impl Front {
         // The server: arrows to switch when there's a choice; the pill opens the Servers screen.
         if let Some(server) = list.servers.get(self.server.min(list.servers.len().saturating_sub(1))) {
             let size = (15.0 * s).round();
-            let label = format!("Server: {}", server.name);
+            let label = tf!("Server: {name}", name = server.name);
             let lw = ui.measure(&label, size, true);
             let pill_w = lw + if list.servers.len() > 1 { 90.0 * s } else { 36.0 * s };
             let pill = [(w - pill_w) / 2.0, bottom + 10.0 * s, pill_w, 34.0 * s];
@@ -964,7 +992,7 @@ impl Front {
             }
         }
         self.message_line(ui, w / 2.0, bottom + 60.0 * s, w * 0.8, s);
-        let hint = if visible < rows { "Click a character to play; scroll for more" } else { "Click a character to play" };
+        let hint = if visible < rows { tr("Click a character to play; scroll for more") } else { tr("Click a character to play") };
         let hs = (13.0 * s).round();
         let hw = ui.measure(hint, hs, false);
         ui.label(hint, (w - hw) / 2.0, h - hs * 2.2, hs, false, color::TEXT_MUTED);
@@ -990,11 +1018,11 @@ impl Front {
             portrait(ui, d, c.tex1, c.tex2, well[0] + well[2] / 2.0, well[1] + well[3] / 2.0, s * 0.85);
         }
         let tx = well[0] + well[2] + 12.0 * s;
-        let name = class.map_or("Unknown", |d| d.display_id.as_str());
+        let name = class.map_or(tr("Unknown"), |d| d.display_id.as_str());
         ui.label(name, tx, r[1] + 9.0 * s, (18.0 * s).round(), true, color::TEXT);
         let size = (13.0 * s).round();
         let mut x = tx;
-        for (label, value, col) in [("Level", c.level, color::TEXT), ("Fame", c.fame, color::ACCENT)] {
+        for (label, value, col) in [(tr("Level"), c.level, color::TEXT), (tr("Fame"), c.fame, color::ACCENT)] {
             ui.label(label, x, r[1] + 35.0 * s, size, false, color::TEXT_DIM);
             x += ui.measure(label, size, false) + 5.0 * s;
             let v = value.to_string();
@@ -1018,8 +1046,8 @@ impl Front {
         let size = (12.0 * s).round();
         let qy = r[1] + r[3] - 24.0 * s;
         let quest = match stars::next_star_fame(best, c.fame) {
-            Some(next) => format!("Class Quest: {} of {next} Fame", c.fame),
-            None => "Class Quests completed".to_owned(),
+            Some(next) => tf!("Class Quest: {fame} of {next} Fame", fame = c.fame, next),
+            None => tr("Class Quests completed").to_owned(),
         };
         theme::star(ui.renderer, tx + 7.0 * s, qy + size * 0.6, 7.0 * s, stars::GREY);
         ui.label(&quest, tx + 18.0 * s, qy, size, false, stars::GREY);
@@ -1037,13 +1065,13 @@ impl Front {
         let Some(list) = self.list.clone() else { return };
         let classes = player_classes(ui.data);
         let pad = 24.0 * s;
-        let title = "Choose a class";
+        let title = tr("Choose a class");
         let ts = (26.0 * s).round();
         let tw = ui.measure(title, ts, true);
         ui.label(title, (w - tw) / 2.0, pad, ts, true, color::TEXT);
         // `CreateNewCharacterRect`'s tagline: the class quests still to do.
         let left = stars::max_stars(classes.len() as i32) - stars::account_stars(&list);
-        let sub = if left > 0 { format!("{left} class quests not yet completed") } else { "Every class quest completed".to_owned() };
+        let sub = if left > 0 { tn!(left, "{n} class quest not yet completed|{n} class quests not yet completed") } else { tr("Every class quest completed").to_owned() };
         let subs = (13.0 * s).round();
         let sw = ui.measure(&sub, subs, false);
         ui.label(&sub, (w - sw) / 2.0, pad + 34.0 * s, subs, false, color::TEXT_DIM);
@@ -1089,12 +1117,12 @@ impl Front {
             self.targets.push((Target::Class(d.object_type), r));
             let n = class_skins(ui.data, d.object_type, &list).len();
             if n > 0 {
-                let t = format!("{} skin{}", n, if n == 1 { "" } else { "s" });
+                let t = tn!(n, "{n} skin|{n} skins");
                 let tw = ui.measure(&t, small, false);
                 ui.label(&t, r[0] + (tw_ - tw) / 2.0, ly, small, false, color::TEXT_MUTED);
             }
         }
-        self.button(ui, Target::Back, [(w - 140.0 * s) / 2.0, h - 58.0 * s, 140.0 * s, 40.0 * s], "Back", Kind::Secondary, s, mouse);
+        self.button(ui, Target::Back, [(w - 140.0 * s) / 2.0, h - 58.0 * s, 140.0 * s, 40.0 * s], tr("Back"), Kind::Secondary, s, mouse);
         self.message_line(ui, w / 2.0, h - 92.0 * s, w * 0.8, s);
     }
 
@@ -1107,19 +1135,20 @@ impl Front {
                     .chars
                     .iter()
                     .find(|c| c.id == id)
-                    .map(|c| format!("{} (level {})", ui.data.objects.get(&c.object_type).map_or("character", |d| d.display_id.as_str()), c.level))
-                    .unwrap_or_else(|| "this character".into());
-                (format!("Delete {what}?"), "Its items and fame are gone for good.".to_owned(), "Delete", Kind::Danger)
+                    .map(|c| tf!("{class} (level {level})", class = ui.data.objects.get(&c.object_type).map_or(tr("character"), |d| d.display_id.as_str()), level = c.level))
+                    .unwrap_or_else(|| tr("this character").into());
+                (tf!("Delete {what}?", what), tr("Its items and fame are gone for good.").to_owned(), tr("Delete"), Kind::Danger)
             }
             Confirm::BuySlot => {
-                let cur = if list.next_slot_currency == 1 { "fame" } else { "gold" };
-                (format!("Buy a character slot for {} {cur}?", list.next_slot_price), "You'll have room for one more character.".to_owned(), "Buy", Kind::Primary)
+                let price = list.next_slot_price;
+                let title = if list.next_slot_currency == 1 { tf!("Buy a character slot for {price} fame?", price) } else { tf!("Buy a character slot for {price} gold?", price) };
+                (title, tr("You'll have room for one more character.").to_owned(), tr("Buy"), Kind::Primary)
             }
             Confirm::BuySkin(t) => {
                 let skin = ui.data.objects.get(&t);
-                let name = skin.map_or("this skin", |d| d.display_id.as_str());
+                let name = skin.map_or(tr("this skin"), |d| d.display_id.as_str());
                 let cost = skin.map_or(300, |d| d.xml.int("Cost", 300));
-                (format!("Buy {name} for {cost} gold?"), format!("You have {} gold.", list.credits), "Buy", Kind::Primary)
+                (tf!("Buy {name} for {cost} gold?", name, cost), tf!("You have {gold} gold.", gold = list.credits), tr("Buy"), Kind::Primary)
             }
         };
         // Only the dialog's buttons answer while it's up.
@@ -1132,7 +1161,7 @@ impl Front {
         ui.label(&title, r[0] + 26.0 * s, r[1] + 24.0 * s, tsize, true, color::TEXT);
         ui.label(&detail, r[0] + 26.0 * s, r[1] + 58.0 * s, (14.0 * s).round(), false, color::TEXT_DIM);
         let by = r[1] + r[3] - 62.0 * s;
-        self.button(ui, Target::ConfirmNo, [r[0] + r[2] - 290.0 * s, by, 128.0 * s, 40.0 * s], "Cancel", Kind::Secondary, s, mouse);
+        self.button(ui, Target::ConfirmNo, [r[0] + r[2] - 290.0 * s, by, 128.0 * s, 40.0 * s], tr("Cancel"), Kind::Secondary, s, mouse);
         self.button(ui, Target::ConfirmYes, [r[0] + r[2] - 152.0 * s, by, 128.0 * s, 40.0 * s], yes, kind, s, mouse);
     }
 
@@ -1151,7 +1180,7 @@ impl Front {
         let well = [left[0] + 22.0 * s, left[1] + 64.0 * s, left[2] - 44.0 * s, left[2] - 44.0 * s];
         theme::rounded(ui.renderer, well, 10.0 * s, (color::FIELD, 0.9), (color::INSET_TOP, 0.9));
         portrait(ui, shown, 0, 0, well[0] + well[2] / 2.0, well[1] + well[3] / 2.0, s * 3.0);
-        let skin_name = if self.skin != 0 { shown.display_id.clone() } else { "Classic".to_owned() };
+        let skin_name = if self.skin != 0 { shown.display_id.clone() } else { tr("Classic").to_owned() };
         let ss = (16.0 * s).round();
         let sw = ui.measure(&skin_name, ss, true);
         ui.label(&skin_name, well[0] + (well[2] - sw) / 2.0, well[1] + well[3] + 10.0 * s, ss, true, color::ACCENT);
@@ -1162,11 +1191,11 @@ impl Front {
         stars::row(ui.renderer, left[0] + 22.0 * s, qy + 8.0 * s, s, done);
         let size = (13.0 * s).round();
         let qx = left[0] + 22.0 * s + stars::row_width(s) + 10.0 * s;
-        ui.label(&format!("{done} of {} Class Quests", stars::STARS.len()), qx, qy, size, true, color::TEXT);
-        ui.label(&format!("Best level {best_level}, best fame {best_fame}"), left[0] + 22.0 * s, qy + 22.0 * s, size, false, 0x5EB531);
+        ui.label(&tf!("{done} of {all} Class Quests", done, all = stars::STARS.len()), qx, qy, size, true, color::TEXT);
+        ui.label(&tf!("Best level {best_level}, best fame {best_fame}", best_level, best_fame), left[0] + 22.0 * s, qy + 22.0 * s, size, false, 0x5EB531);
         let mut dy = qy + 40.0 * s;
         if let Some(next) = stars::next_star_fame(best_fame, 0) {
-            ui.label(&format!("Next goal: earn {next} fame with a {}", desc.display_id), left[0] + 22.0 * s, dy, size, false, 0xFC8642);
+            ui.label(&tf!("Next goal: earn {next} fame with a {class}", next, class = desc.display_id), left[0] + 22.0 * s, dy, size, false, 0xFC8642);
             dy += 18.0 * s;
         }
         if let Some(d) = desc.xml.lines_of("Description") {
@@ -1174,7 +1203,7 @@ impl Front {
             // Each of its lines wrapped on its own; an empty one is a gap between paragraphs.
             for para in d.lines() {
                 let mut line = String::new();
-                for word in para.split_whitespace() {
+                for word in para.split_ascii_whitespace() {
                     let next = if line.is_empty() { word.to_owned() } else { format!("{line} {word}") };
                     if ui.measure(&next, size, false) > left[2] - 44.0 * s && !line.is_empty() {
                         ui.label(&line, left[0] + 22.0 * s, y, size, false, color::TEXT_DIM);
@@ -1188,15 +1217,15 @@ impl Front {
                 y += size * 1.3;
             }
         }
-        self.button(ui, Target::Create, [left[0] + 22.0 * s, left[1] + left[3] - 62.0 * s, left[2] - 44.0 * s, 44.0 * s], "Create character", Kind::Primary, s, mouse);
+        self.button(ui, Target::Create, [left[0] + 22.0 * s, left[1] + left[3] - 62.0 * s, left[2] - 44.0 * s, 44.0 * s], tr("Create character"), Kind::Primary, s, mouse);
 
         // The skins: the class's own look, then each skin.
         let x0 = left[0] + left[2] + 24.0 * s;
         let ts2 = (20.0 * s).round();
-        ui.label("Skins", x0, left[1] + 4.0 * s, ts2, true, color::TEXT);
-        let gold = format!("{} gold", list.credits);
+        ui.label(tr("Skins"), x0, left[1] + 4.0 * s, ts2, true, color::TEXT);
+        let gold = tf!("{price} gold", price = list.credits);
         let gs = (14.0 * s).round();
-        let skins_w = ui.measure("Skins", ts2, true);
+        let skins_w = ui.measure(tr("Skins"), ts2, true);
         ui.label(&gold, x0 + skins_w + 16.0 * s, left[1] + 9.0 * s, gs, true, 0xFFE27A);
         let (tw_, th_, gap) = (104.0 * s, 128.0 * s, 10.0 * s);
         let cols = (((w - x0 - pad + gap) / (tw_ + gap)).floor() as usize).max(1);
@@ -1205,11 +1234,11 @@ impl Front {
             let note = if k.owned {
                 None
             } else if let Some(level) = k.needs_level {
-                Some(format!("Level {level}"))
+                Some(tf!("Level {level}", level))
             } else if k.special {
-                Some("Special".to_owned())
+                Some(tr("Special").to_owned())
             } else {
-                Some(format!("{} gold", k.cost))
+                Some(tf!("{price} gold", price = k.cost))
             };
             entries.push((k.desc.object_type, k.desc, k.owned, note));
         }
@@ -1223,7 +1252,7 @@ impl Front {
             let edge = if selected { color::ACCENT } else if over { color::ACCENT_HI } else { color::BORDER };
             theme::frame(ui.renderer, r, 8.0 * s, s.max(1.0), (edge, 1.0), ((color::PANEL_TOP, 0.95), (color::PANEL_BOTTOM, 0.97)));
             portrait(ui, d, 0, 0, r[0] + r[2] / 2.0, r[1] + 46.0 * s, s * 1.3);
-            let name = if *t == 0 { "Classic" } else { d.display_id.as_str() };
+            let name = if *t == 0 { tr("Classic") } else { d.display_id.as_str() };
             let size = (12.0 * s).round().max(8.0);
             let mut label = name.to_owned();
             while ui.measure(&label, size, true) > r[2] - 8.0 * s && label.len() > 3 {
@@ -1241,7 +1270,7 @@ impl Front {
                 self.targets.push((Target::Skin(*t), r));
             }
         }
-        self.button(ui, Target::Back, [x0, h - 70.0 * s, 120.0 * s, 40.0 * s], "Back", Kind::Secondary, s, mouse);
+        self.button(ui, Target::Back, [x0, h - 70.0 * s, 120.0 * s, 40.0 * s], tr("Back"), Kind::Secondary, s, mouse);
         self.message_line(ui, w / 2.0, h - 26.0 * s, w * 0.8, s);
     }
 
@@ -1251,8 +1280,8 @@ impl Front {
         self.legends_bar = None;
         let pad = 24.0 * s;
         let ts = (26.0 * s).round();
-        let tw = ui.measure("Legends", ts, true);
-        ui.label("Legends", (w - tw) / 2.0, pad, ts, true, color::TEXT);
+        let tw = ui.measure(tr("Legends"), ts, true);
+        ui.label(tr("Legends"), (w - tw) / 2.0, pad, ts, true, color::TEXT);
         // The time spans, as pills.
         let n = TIMESPANS.len() as f32;
         let pw = (130.0 * s).min((w - 32.0 - (n - 1.0) * 10.0 * s) / n);
@@ -1263,6 +1292,7 @@ impl Front {
             let over = inside(r, mouse);
             theme::fill(ui.renderer, r, r[3] / 2.0, if on { color::ACCENT } else if over { color::SECONDARY } else { color::CHIP }, 0.95);
             let size = (14.0 * s).round();
+            let label = tr(label);
             let lw = ui.measure(label, size, true);
             ui.label(label, r[0] + (r[2] - lw) / 2.0, r[1] + (r[3] - size * 1.22) / 2.0, size, true, if on { color::ACCENT_TEXT } else { color::TEXT_DIM });
             self.targets.push((Target::Timespan(i), r));
@@ -1278,7 +1308,7 @@ impl Front {
         match &rows {
             None => spinner(ui, list_r[0] + list_r[2] / 2.0, list_r[1] + list_r[3] / 2.0, 16.0 * s, ui_time(), s),
             Some(rows) if rows.is_empty() => {
-                let t = if deaths { "No one has died yet." } else { "No legends yet. Be the first!" };
+                let t = if deaths { tr("No one has died yet.") } else { tr("No legends yet. Be the first!") };
                 let size = (16.0 * s).round();
                 let tw = ui.measure(t, size, true);
                 ui.label(t, list_r[0] + (list_r[2] - tw) / 2.0, list_r[1] + list_r[3] / 2.0, size, true, color::TEXT_DIM);
@@ -1346,12 +1376,13 @@ impl Front {
                             // where; on the right the fame, and how long ago.
                             let lx = r[0] + 60.0 * s + left + ui.measure(&l.name, ns, true) + 8.0 * s;
                             let ls = (13.0 * s).round();
-                            ui.label(&format!("Lv {level}"), lx, r[1] + 4.0 * s + (ns - ls) * 0.9, ls, false, color::TEXT_MUTED);
-                            let by = if killer.is_empty() { "something" } else { killer.as_str() };
-                            let mut how = format!("{class_name} · killed by {by}");
-                            if !world.is_empty() {
-                                how.push_str(&format!(" in {world}"));
-                            }
+                            ui.label(&tf!("Lv {level}", level), lx, r[1] + 4.0 * s + (ns - ls) * 0.9, ls, false, color::TEXT_MUTED);
+                            let by = if killer.is_empty() { tr("something") } else { killer.as_str() };
+                            let mut how = if world.is_empty() {
+                                tf!("{class} · killed by {by}", class = class_name, by)
+                            } else {
+                                tf!("{class} · killed by {by} in {world}", class = class_name, by, world)
+                            };
                             let hs = (12.0 * s).round();
                             let room = r[2] - 60.0 * s - left - 120.0 * s;
                             if ui.measure(&how, hs, false) > room {
@@ -1376,9 +1407,9 @@ impl Front {
                     // Under the list, which rows these are and that there's more below.
                     let below = rows.len() - first - fit;
                     let hint = if below > 0 {
-                        format!("{} to {} of {} · scroll for {below} more", first + 1, first + fit, rows.len())
+                        tf!("{from} to {to} of {all} · scroll for {below} more", from = first + 1, to = first + fit, all = rows.len(), below)
                     } else {
-                        format!("{} to {} of {}", first + 1, first + fit, rows.len())
+                        tf!("{from} to {to} of {all}", from = first + 1, to = first + fit, all = rows.len())
                     };
                     let hs = (12.0 * s).round().max(9.0);
                     let hw = ui.measure(&hint, hs, false);
@@ -1399,20 +1430,20 @@ impl Front {
                 }
             }
         }
-        self.button(ui, Target::Back, [(w - 140.0 * s) / 2.0, h - 66.0 * s, 140.0 * s, 40.0 * s], "Back", Kind::Secondary, s, mouse);
+        self.button(ui, Target::Back, [(w - 140.0 * s) / 2.0, h - 66.0 * s, 140.0 * s, 40.0 * s], tr("Back"), Kind::Secondary, s, mouse);
     }
 
     /// `Graveyard`: the account's dead characters, newest first; each opens its fame summary.
     fn draw_graveyard(&mut self, ui: &mut Ui, w: f32, h: f32, s: f32, mouse: (f64, f64)) {
         let pad = 24.0 * s;
         let ts = (26.0 * s).round();
-        let tw = ui.measure("Graveyard", ts, true);
-        ui.label("Graveyard", (w - tw) / 2.0, pad, ts, true, color::TEXT);
+        let tw = ui.measure(tr("Graveyard"), ts, true);
+        ui.label(tr("Graveyard"), (w - tw) / 2.0, pad, ts, true, color::TEXT);
         let graves: Vec<_> = self.list.as_ref().map_or_else(Vec::new, |l| l.news.iter().filter(|n| n.death_char_id().is_some()).cloned().collect());
         let list_r = [(w - 640.0 * s).max(16.0) / 2.0, pad + 56.0 * s, (640.0 * s).min(w - 32.0), h - pad * 2.0 - 124.0 * s];
         theme::panel(ui.renderer, list_r, s);
         if graves.is_empty() {
-            let t = "No one has fallen yet.";
+            let t = tr("No one has fallen yet.");
             let size = (16.0 * s).round();
             let tw = ui.measure(t, size, true);
             ui.label(t, list_r[0] + (list_r[2] - tw) / 2.0, list_r[1] + list_r[3] / 2.0, size, true, color::TEXT_DIM);
@@ -1433,9 +1464,9 @@ impl Front {
             ui.label(&g.tagline, r[0] + 56.0 * s, r[1] + 29.0 * s, (13.0 * s).round(), false, color::ACCENT);
             let days = (now - g.date).max(0) / 86_400;
             let when = match days {
-                0 => "today".to_owned(),
-                1 => "yesterday".to_owned(),
-                d => format!("{d} days ago"),
+                0 => tr("today").to_owned(),
+                1 => tr("yesterday").to_owned(),
+                d => tn!(d, "{n} day ago|{n} days ago"),
             };
             let ws = (12.0 * s).round();
             let ww = ui.measure(&when, ws, false);
@@ -1444,7 +1475,7 @@ impl Front {
                 self.targets.push((Target::Grave(id), r));
             }
         }
-        self.button(ui, Target::Back, [(w - 140.0 * s) / 2.0, h - 66.0 * s, 140.0 * s, 40.0 * s], "Back", Kind::Secondary, s, mouse);
+        self.button(ui, Target::Back, [(w - 140.0 * s) / 2.0, h - 66.0 * s, 140.0 * s, 40.0 * s], tr("Back"), Kind::Secondary, s, mouse);
     }
 
     /// `ServersScreen`: the world servers with how full each is; a click picks one and goes back
@@ -1452,13 +1483,13 @@ impl Front {
     fn draw_servers(&mut self, ui: &mut Ui, w: f32, h: f32, s: f32, mouse: (f64, f64)) {
         let pad = 24.0 * s;
         let ts = (26.0 * s).round();
-        let tw = ui.measure("Servers", ts, true);
-        ui.label("Servers", (w - tw) / 2.0, pad, ts, true, color::TEXT);
+        let tw = ui.measure(tr("Servers"), ts, true);
+        ui.label(tr("Servers"), (w - tw) / 2.0, pad, ts, true, color::TEXT);
         let servers = self.list.as_ref().map_or_else(Vec::new, |l| l.servers.clone());
         let list_r = [(w - 640.0 * s).max(16.0) / 2.0, pad + 56.0 * s, (640.0 * s).min(w - 32.0), h - pad * 2.0 - 124.0 * s];
         theme::panel(ui.renderer, list_r, s);
         if servers.is_empty() {
-            let t = "The account server lists no world servers.";
+            let t = tr("The account server lists no world servers.");
             let size = (16.0 * s).round();
             let tw = ui.measure(t, size, true);
             ui.label(t, list_r[0] + (list_r[2] - tw) / 2.0, list_r[1] + list_r[3] / 2.0, size, true, color::TEXT_DIM);
@@ -1472,15 +1503,15 @@ impl Front {
             let edge = if i == chosen { color::ACCENT } else if over { color::BORDER_HI } else { color::BORDER };
             theme::frame(ui.renderer, r, 8.0 * s, s.max(1.0), (edge, 1.0), ((color::SLOT_TOP, if over { 0.95 } else { 0.8 }), (color::SLOT_BOTTOM, 0.9)));
             let ns = (18.0 * s).round();
-            let name = if server.admin_only { format!("{} (admin)", server.name) } else { server.name.clone() };
+            let name = if server.admin_only { tf!("{name} (admin)", name = server.name) } else { server.name.clone() };
             ui.label(&name, r[0] + 18.0 * s, r[1] + (r[3] - ns * 1.22) / 2.0, ns, true, color::TEXT);
             // As `ServerBox`: Full at 100%, Crowded from 66%, with the player count.
             let (status, c) = if server.usage >= 1.0 {
-                ("Full", color::DANGER)
+                (tr("server::Full"), color::DANGER)
             } else if server.usage >= 0.66 {
-                ("Crowded", 0xFC8642)
+                (tr("server::Crowded"), 0xFC8642)
             } else {
-                ("Normal", color::GOOD)
+                (tr("server::Normal"), color::GOOD)
             };
             let status = if server.usage_text.is_empty() { status.to_owned() } else { format!("{status} {}", server.usage_text) };
             let ss = (16.0 * s).round();
@@ -1488,7 +1519,7 @@ impl Front {
             ui.label(&status, r[0] + r[2] - sw - 18.0 * s, r[1] + (r[3] - ss * 1.22) / 2.0, ss, true, c);
             self.targets.push((Target::Server(i), r));
         }
-        self.button(ui, Target::Back, [(w - 140.0 * s) / 2.0, h - 66.0 * s, 140.0 * s, 40.0 * s], "Back", Kind::Secondary, s, mouse);
+        self.button(ui, Target::Back, [(w - 140.0 * s) / 2.0, h - 66.0 * s, 140.0 * s, 40.0 * s], tr("Back"), Kind::Secondary, s, mouse);
     }
 
     /// Account settings: change the password.
@@ -1497,20 +1528,198 @@ impl Front {
         let [x, y, bw, bh] = r;
         theme::panel(ui.renderer, r, s);
         let pad = 28.0 * s;
-        ui.label("Account", x + pad, y + 24.0 * s, (24.0 * s).round(), true, color::TEXT);
+        ui.label(tr("Account"), x + pad, y + 24.0 * s, (24.0 * s).round(), true, color::TEXT);
         let email = self.fields[EMAIL].text.clone();
         ui.label(&email, x + pad, y + 58.0 * s, (14.0 * s).round(), false, color::TEXT_DIM);
         let mut fy = y + 90.0 * s;
-        fy = self.field(ui, PASSWORD, "Current password", "Your password", x + pad, fy, bw - 2.0 * pad, s, now);
-        fy = self.field(ui, NEW_PASSWORD, "New password", "At least 6 characters", x + pad, fy, bw - 2.0 * pad, s, now);
-        fy = self.field(ui, NEW_CONFIRM, "Confirm new password", "Type it again", x + pad, fy, bw - 2.0 * pad, s, now);
+        fy = self.field(ui, PASSWORD, tr("Current password"), tr("Your password"), x + pad, fy, bw - 2.0 * pad, s, now);
+        fy = self.field(ui, NEW_PASSWORD, tr("New password"), tr("At least 6 characters"), x + pad, fy, bw - 2.0 * pad, s, now);
+        fy = self.field(ui, NEW_CONFIRM, tr("Confirm new password"), tr("Type it again"), x + pad, fy, bw - 2.0 * pad, s, now);
         let half = (bw - 2.0 * pad - 10.0 * s) / 2.0;
-        self.button(ui, Target::Back, [x + pad, fy + 4.0 * s, half, 42.0 * s], "Back", Kind::Secondary, s, mouse);
-        self.button(ui, Target::SavePassword, [x + pad + half + 10.0 * s, fy + 4.0 * s, half, 42.0 * s], "Change password", Kind::Primary, s, mouse);
+        self.button(ui, Target::Back, [x + pad, fy + 4.0 * s, half, 42.0 * s], tr("Back"), Kind::Secondary, s, mouse);
+        self.button(ui, Target::SavePassword, [x + pad + half + 10.0 * s, fy + 4.0 * s, half, 42.0 * s], tr("Change password"), Kind::Primary, s, mouse);
         self.message_line(ui, x + bw / 2.0, y + bh + 16.0 * s, bw, s);
     }
 
     /// `FameView`: the dead character, how their fame was counted, and some of what they did.
+    /// The death spin's next step: to the end while the reel turns, else on to the fame summary.
+    fn spin_next(&mut self) {
+        if self.spin_start.is_some() && !self.spin_landed {
+            self.spin_skipped = true;
+        } else {
+            self.show(Screen::Death);
+        }
+    }
+
+    /// The death spin: the reel scrolls past the tier's prizes and slows onto what was won (the
+    /// server chose it and put it in the Gift Chest already; this only shows it).
+    fn draw_spin(&mut self, ui: &mut Ui, w: f32, h: f32, s: f32, mouse: (f64, f64)) {
+        let Some(sum) = self.death.clone() else {
+            self.show(Screen::Chars);
+            return;
+        };
+        let Some(spin) = sum.spin.clone() else {
+            self.show(Screen::Death);
+            return;
+        };
+        let now = ui_time();
+        let start = *self.spin_start.get_or_insert(now);
+        let u = if self.spin_skipped { 1.0 } else { ((now - start) as f32 / SPIN_MS).clamp(0.0, 1.0) };
+        let landed = u >= 1.0;
+        let stop = spin.stop as f32;
+        let from = stop.min(2.0);
+        // fast, then a long slow-down onto the prize
+        let pos = from + (stop - from) * (1.0 - (1.0 - u).powi(4));
+        let under = (pos + 0.5).floor() as i32;
+        if under != self.spin_slot && !landed {
+            self.spin_slot = under;
+            self.sounds.push("inventory_move_item");
+        }
+        if landed && !self.spin_landed {
+            self.spin_landed = true;
+            self.sounds.push(if spin.rarity >= 3 { "level_up" } else { "loot_appears" });
+        }
+
+        let pw = (680.0 * s).min(w - 32.0 * s);
+        let ph = (if sum.kept.is_empty() { 470.0 } else { 550.0 } * s).min(h - 32.0 * s);
+        let r = [(w - pw) / 2.0, (h - ph) / 2.0, pw, ph];
+        theme::panel(ui.renderer, r, s);
+        let pad = 28.0 * s;
+        let tier = SPIN_TIERS.get(spin.tier as usize).copied().unwrap_or(SPIN_TIERS[0]);
+        ui.label(tr("Death Spin"), r[0] + pad, r[1] + 20.0 * s, (30.0 * s).round(), true, color::GOLD);
+        // the tier, as a pill on the right
+        let size = (14.0 * s).round();
+        let text = tf!("{tier} tier", tier = tr(tier.0));
+        let tw = ui.measure(&text, size, true);
+        let pill = [r[0] + r[2] - pad - tw - 24.0 * s, r[1] + 24.0 * s, tw + 24.0 * s, size * 2.0];
+        theme::fill(ui.renderer, pill, pill[3] / 2.0, tier.3, 0.16);
+        ui.label(&text, pill[0] + 12.0 * s, pill[1] + (pill[3] - size * 1.25) / 2.0, size, true, tier.3);
+        let line = tf!("{fame} base fame earned a {tier} spin. The more fame, the better the odds.", fame = sum.base_fame, tier = tr(tier.0));
+        ui.label(&line, r[0] + pad, r[1] + 64.0 * s, (14.0 * s).round(), false, color::TEXT_DIM);
+        // the tier's odds of each rarity, as chips smaller when they wouldn't fit
+        let small = (12.0 * s).round();
+        let chips: Vec<(usize, String)> = tier.2.iter().enumerate().filter(|(_, &odds)| odds > 0).map(|(i, &odds)| {
+            // out of 1000: "15%", or "0.2%" for the rare ones
+            let pct = if odds % 10 == 0 { format!("{}", odds / 10) } else { format!("{:.1}", odds as f32 / 10.0) };
+            (i, tf!("{rarity} {pct}%", rarity = tr(RARITIES[i].0), pct))
+        }).collect();
+        let wide: f32 = chips.iter().map(|(_, t)| ui.measure(t, small, true) + 36.0 * s).sum();
+        let room = r[2] - 2.0 * pad;
+        let chip_size = if wide > room { (small * room / wide).floor() } else { small };
+        let mut x = r[0] + pad;
+        for (i, text) in chips {
+            let small = chip_size;
+            let tw = ui.measure(&text, small, true);
+            let chip = [x, r[1] + 92.0 * s, tw + 30.0 * s, small * 1.9];
+            theme::fill(ui.renderer, chip, chip[3] / 2.0, color::CHIP, 1.0);
+            let d = 7.0 * s;
+            theme::fill(ui.renderer, [chip[0] + 9.0 * s, chip[1] + (chip[3] - d) / 2.0, d, d], d / 2.0, RARITIES[i].1, 1.0);
+            ui.label(&text, chip[0] + 21.0 * s, chip[1] + (chip[3] - small * 1.25) / 2.0, small, true, color::TEXT);
+            x += chip[2] + 6.0 * s;
+        }
+
+        // The reel: slots fade towards the ends, the marker in the middle.
+        let track = [r[0] + pad, r[1] + 134.0 * s, r[2] - 2.0 * pad, 118.0 * s];
+        theme::rounded(ui.renderer, track, 12.0 * s, (color::INSET_TOP, 1.0), (color::INSET_BOTTOM, 1.0));
+        let side = 84.0 * s;
+        let step = side + 12.0 * s;
+        let (cx, cy) = (track[0] + track[2] / 2.0, track[1] + track[3] / 2.0);
+        let half = track[2] / 2.0 - side / 2.0 - 8.0 * s;
+        let pulse = 0.5 + 0.5 * (now as f32 / 260.0).sin();
+        let mut hovered = None;
+        for (i, &(item, rarity)) in spin.reel.iter().enumerate() {
+            let dx = (i as f32 - pos) * step;
+            if dx.abs() > half {
+                continue;
+            }
+            let k = dx.abs() / half;
+            let won = landed && i == spin.stop;
+            let alpha = if landed && !won { 0.45 * (1.0 - k * k) } else { 1.0 - k * k * 0.85 };
+            let rc = rarity_color(rarity);
+            let sr = [cx + dx - side / 2.0, cy - side / 2.0, side, side];
+            if won {
+                let g = 6.0 * s + 4.0 * s * pulse;
+                theme::fill(ui.renderer, [sr[0] - g, sr[1] - g, side + 2.0 * g, side + 2.0 * g], 12.0 * s + g, rc, 0.22 + 0.18 * pulse);
+            }
+            theme::rounded(ui.renderer, sr, 9.0 * s, (theme::shade(rc, -0.62), alpha), (color::SLOT_BOTTOM, alpha));
+            theme::fill(ui.renderer, [sr[0] + 8.0 * s, sr[1] + side - 7.0 * s, side - 16.0 * s, 3.0 * s], 1.5 * s, rc, alpha);
+            ui.item_icon_faded(item, 80, sr[0] + side / 2.0, sr[1] + side / 2.0 - 3.0 * s, s * 1.4, alpha);
+            if alpha > 0.4 && inside(sr, mouse) {
+                hovered = Some(item);
+            }
+        }
+        for y in [track[1] - 9.0 * s, track[1] + track[3] - 9.0 * s] {
+            theme::fill(ui.renderer, [cx - 2.0 * s, y, 4.0 * s, 18.0 * s], 2.0 * s, color::GOLD, 0.95);
+        }
+
+        // What it landed on.
+        let mut y = track[1] + track[3] + 26.0 * s;
+        if landed {
+            let rc = rarity_color(spin.rarity);
+            let name = tr(RARITIES.get(spin.rarity as usize).map_or(mark("Prize"), |r| r.0));
+            if spin.rarity >= 3 {
+                // stars turning round the prize
+                for j in 0..6 {
+                    let a = j as f32 / 6.0 * std::f32::consts::TAU + now as f32 / 900.0;
+                    let rad = side * 0.82;
+                    let twinkle = 3.5 * s + 2.5 * s * (now as f32 / 180.0 + j as f32).sin().abs();
+                    theme::star(ui.renderer, cx + rad * a.cos(), cy + rad * a.sin(), twinkle, rc);
+                }
+            }
+            let big = (24.0 * s).round();
+            let head = tf!("{rarity}!", rarity = name.to_uppercase());
+            let hw = ui.measure(&head, big, true);
+            ui.label(&head, cx - hw / 2.0, y, big, true, rc);
+            y += big * 1.5;
+            let item = ui.data.objects.get(&(spin.prize as u16)).map_or_else(|| tr("a prize").to_owned(), |d| d.display_id.clone());
+            let mid = (18.0 * s).round();
+            let iw = ui.measure(&item, mid, true);
+            ui.label(&item, cx - iw / 2.0, y, mid, true, color::TEXT);
+            y += mid * 1.6;
+            let note = tr("It's in your Gift Chest: collect it from your vault.");
+            let nw = ui.measure(note, small, false);
+            ui.label(note, cx - nw / 2.0, y, small, false, color::TEXT_DIM);
+            // and what it got back of what it died with
+            if !sum.kept.is_empty() {
+                y += small * 2.4;
+                let n = sum.kept.len();
+                let text = tn!(n, "Your fame also saved one of your items:|Your fame also saved {n} of your items:");
+                let tw = ui.measure(&text, (14.0 * s).round(), true);
+                ui.label(&text, cx - tw / 2.0, y, (14.0 * s).round(), true, color::GOOD);
+                y += 24.0 * s;
+                let gap = 4.0 * s;
+                let side = (34.0 * s).min((r[2] - 2.0 * pad + gap) / n as f32 - gap);
+                let rw = n as f32 * (side + gap) - gap;
+                for (k, &item) in sum.kept.iter().enumerate() {
+                    let sr = [cx - rw / 2.0 + k as f32 * (side + gap), y, side, side];
+                    ui.slot_box(sr, tier_edge(ui.data, item), false, s);
+                    ui.item_icon(item, 80, sr[0] + side / 2.0, sr[1] + side / 2.0, s * 0.72);
+                    if inside(sr, mouse) {
+                        hovered = Some(item);
+                    }
+                }
+            }
+        } else {
+            let text = tr("Spinning…");
+            let size = (16.0 * s).round();
+            let tw = ui.measure(text, size, true);
+            ui.label(text, cx - tw / 2.0, y + 10.0 * s, size, true, color::TEXT_MUTED);
+        }
+        // the next tier, to aim for
+        if let Some(next) = SPIN_TIERS.get(spin.tier as usize + 1) {
+            let text = tf!("Next tier: {tier} at {fame} base fame", tier = tr(next.0), fame = next.1);
+            let tw = ui.measure(&text, small, false);
+            ui.label(&text, cx - tw / 2.0, r[1] + r[3] - 92.0 * s, small, false, color::TEXT_MUTED);
+        }
+        let (label, kind) = if landed { (tr("Continue"), Kind::Primary) } else { (tr("Skip"), Kind::Secondary) };
+        self.button(ui, Target::Back, [r[0] + (r[2] - 180.0 * s) / 2.0, r[1] + r[3] - 62.0 * s, 180.0 * s, 42.0 * s], label, kind, s, mouse);
+        if let Some(item) = hovered {
+            let lay = crate::hud::Layout::new(w as u32, h as u32);
+            let lines = crate::hud::item_tooltip(ui.data, item, None, crate::hud::SlotKind::Shop);
+            crate::hud::draw_tooltip(ui, &lay, &lines, Some(item), tier_edge(ui.data, item), mouse);
+        }
+    }
+
     fn draw_death(&mut self, ui: &mut Ui, w: f32, h: f32, s: f32, mouse: (f64, f64)) {
         let Some(sum) = self.death.clone() else {
             self.show(Screen::Chars);
@@ -1520,9 +1729,14 @@ impl Front {
         theme::panel(ui.renderer, r, s);
         let class = ui.data.objects.get(&sum.object_type);
         let pad = 28.0 * s;
-        let head = if self.death_from_graveyard || self.death_from_legends { "In memory" } else { "You died" };
+        let head = if self.death_from_graveyard || self.death_from_legends { tr("In memory") } else { tr("You died") };
         ui.label(head, r[0] + pad, r[1] + 20.0 * s, (30.0 * s).round(), true, color::DANGER);
-        let who = format!("{}, level {}, killed by {}", class.map_or("Your character", |d| d.display_id.as_str()), sum.level, if sum.killed_by.is_empty() { "something" } else { &sum.killed_by });
+        let who = tf!(
+            "{class}, level {level}, killed by {by}",
+            class = class.map_or(tr("Your character"), |d| d.display_id.as_str()),
+            level = sum.level,
+            by = if sum.killed_by.is_empty() { tr("something") } else { &sum.killed_by }
+        );
         ui.label(&who, r[0] + pad, r[1] + 62.0 * s, (15.0 * s).round(), false, color::TEXT_DIM);
         if let Some(d) = class {
             portrait(ui, d, 0, 0, r[0] + r[2] - 70.0 * s, r[1] + 50.0 * s, s * 1.6);
@@ -1561,6 +1775,45 @@ impl Front {
             }
             y += 8.0 * s;
         }
+        // What its death spin won.
+        if let Some(spin) = &sum.spin {
+            let side = 30.0 * s;
+            let rc = rarity_color(spin.rarity);
+            let sr = [r[0] + pad, y, side, side];
+            ui.slot_box(sr, Some(rc), false, s);
+            ui.item_icon(spin.prize, 80, sr[0] + side / 2.0, sr[1] + side / 2.0, s * 0.64);
+            if inside(sr, mouse) {
+                hovered = Some(spin.prize);
+            }
+            let item = ui.data.objects.get(&(spin.prize as u16)).map_or_else(|| tr("a prize").to_owned(), |d| d.display_id.clone());
+            let rarity = RARITIES.get(spin.rarity as usize).map_or("", |r| tr(r.0));
+            let size = (14.0 * s).round();
+            let lead = tr("Death spin: ");
+            let lw = ui.measure(lead, size, false);
+            let ty = y + (side - size * 1.25) / 2.0;
+            ui.label(lead, sr[0] + side + 10.0 * s, ty, size, false, color::TEXT_DIM);
+            ui.label(&tf!("{rarity} {item}", rarity, item), sr[0] + side + 10.0 * s + lw, ty, size, true, rc);
+            y += side + 10.0 * s;
+        }
+        // What it got back of what it carried.
+        if !sum.kept.is_empty() {
+            let side = 30.0 * s;
+            let size = (14.0 * s).round();
+            let lead = tr("Got back: ");
+            let lw = ui.measure(lead, size, false);
+            ui.label(lead, r[0] + pad, y + (30.0 * s - size * 1.25) / 2.0, size, false, color::TEXT_DIM);
+            let n = sum.kept.len() as f32;
+            let side = side.min((r[2] - 2.0 * pad - lw + 4.0 * s) / n - 4.0 * s);
+            for (k, &item) in sum.kept.iter().enumerate() {
+                let sr = [r[0] + pad + lw + k as f32 * (side + 4.0 * s), y, side, side];
+                ui.slot_box(sr, tier_edge(ui.data, item), false, s);
+                ui.item_icon(item, 80, sr[0] + side / 2.0, sr[1] + side / 2.0, s * 0.64);
+                if inside(sr, mouse) {
+                    hovered = Some(item);
+                }
+            }
+            y += side + 10.0 * s;
+        }
         // The fame: base, the bonuses, the total.
         let size = (15.0 * s).round();
         let row = |ui: &mut Ui, label: &str, value: String, c: u32, bold: bool, y: &mut f32| {
@@ -1569,7 +1822,7 @@ impl Front {
             ui.label(&value, r[0] + r[2] - pad - vw, *y, size, true, c);
             *y += size * 1.45;
         };
-        row(ui, "Base fame", sum.base_fame.to_string(), color::TEXT, false, &mut y);
+        row(ui, tr("Base fame"), sum.base_fame.to_string(), color::TEXT, false, &mut y);
         let room = ((r[1] + r[3] - 230.0 * s - y) / (size * 1.45)).floor().max(0.0) as usize;
         for (desc, fame) in sum.bonuses.iter().take(room.min(12)) {
             row(ui, desc, format!("+{fame}"), color::GOOD, false, &mut y);
@@ -1577,7 +1830,7 @@ impl Front {
         theme::fill(ui.renderer, [r[0] + pad, y + 2.0 * s, r[2] - 2.0 * pad, s.max(1.0)], 0.0, color::BORDER, 1.0);
         y += 10.0 * s;
         let big = (20.0 * s).round();
-        ui.label("Total fame", r[0] + pad, y, big, true, color::TEXT);
+        ui.label(tr("Total fame"), r[0] + pad, y, big, true, color::TEXT);
         let total = sum.total_fame.to_string();
         let tw = ui.measure(&total, big, true);
         ui.label(&total, r[0] + r[2] - pad - tw, y, big, true, color::ACCENT);
@@ -1587,12 +1840,12 @@ impl Front {
         let shots = stat("Shots");
         let accuracy = if shots > 0 { format!("{}%", stat("ShotsThatDamage") * 100 / shots) } else { "-".into() };
         let stats = [
-            ("Monsters killed", stat("MonsterKills").to_string()),
-            ("Gods killed", stat("GodKills").to_string()),
-            ("Accuracy", accuracy),
-            ("Quests completed", stat("QuestsCompleted").to_string()),
-            ("Tiles uncovered", stat("TilesUncovered").to_string()),
-            ("Minutes played", stat("MinutesActive").to_string()),
+            (tr("Monsters killed"), stat("MonsterKills").to_string()),
+            (tr("Gods killed"), stat("GodKills").to_string()),
+            (tr("Accuracy"), accuracy),
+            (tr("Quests completed"), stat("QuestsCompleted").to_string()),
+            (tr("Tiles uncovered"), stat("TilesUncovered").to_string()),
+            (tr("Minutes played"), stat("MinutesActive").to_string()),
         ];
         let small = (13.0 * s).round();
         let colw = (r[2] - 2.0 * pad) / 2.0;
@@ -1606,7 +1859,7 @@ impl Front {
             let vw = ui.measure(value, small, true);
             ui.label(value, x + colw - vw - 16.0 * s, yy, small, true, color::TEXT);
         }
-        self.button(ui, Target::Back, [r[0] + (r[2] - 180.0 * s) / 2.0, r[1] + r[3] - 60.0 * s, 180.0 * s, 42.0 * s], "Continue", Kind::Primary, s, mouse);
+        self.button(ui, Target::Back, [r[0] + (r[2] - 180.0 * s) / 2.0, r[1] + r[3] - 60.0 * s, 180.0 * s, 42.0 * s], tr("Continue"), Kind::Primary, s, mouse);
         if let Some(item) = hovered {
             let lay = crate::hud::Layout::new(w as u32, h as u32);
             let lines = crate::hud::item_tooltip(ui.data, item, None, crate::hud::SlotKind::Shop);
@@ -1665,11 +1918,11 @@ impl LegendRow {
 /// How long ago, from seconds: "just now", "5 min ago", "3 h ago", "2 days ago".
 fn time_ago(secs: i64) -> String {
     match secs.max(0) {
-        0..=59 => "just now".into(),
-        s @ 60..=3599 => format!("{} min ago", s / 60),
-        s @ 3600..=86_399 => format!("{} h ago", s / 3600),
-        s if s < 2 * 86_400 => "yesterday".into(),
-        s => format!("{} days ago", s / 86_400),
+        0..=59 => tr("just now").into(),
+        s @ 60..=3599 => tf!("{n} min ago", n = s / 60),
+        s @ 3600..=86_399 => tf!("{n} h ago", n = s / 3600),
+        s if s < 2 * 86_400 => tr("yesterday").into(),
+        s => tn!(s / 86_400, "{n} day ago|{n} days ago"),
     }
 }
 
@@ -1677,7 +1930,7 @@ fn time_ago(secs: i64) -> String {
 fn draw_shade(ui: &mut Ui, w: f32, h: f32, screen: Screen) {
     let dark = match screen {
         Screen::Home | Screen::Login | Screen::Register | Screen::Busy => 0.0,
-        Screen::Death => 0.6,
+        Screen::Death | Screen::Spin => 0.6,
         _ => 0.4,
     };
     if dark > 0.0 {
@@ -1690,7 +1943,7 @@ fn draw_shade(ui: &mut Ui, w: f32, h: f32, screen: Screen) {
 /// space left of `card_x` (the sign-in card) on a wide window, else across the top.
 fn draw_logo(ui: &mut Ui, w: f32, h: f32, s: f32, card_x: f32) {
     let name = crate::TITLE;
-    let tagline = "A Realm of the Mad God private server";
+    let tagline = tr("A Realm of the Mad God private server");
     let wide = w >= 1.3 * h && card_x < w;
     let (cx, room, top) = if wide {
         (card_x / 2.0, card_x - 64.0 * s, h * 0.3)
@@ -1701,7 +1954,7 @@ fn draw_logo(ui: &mut Ui, w: f32, h: f32, s: f32, card_x: f32) {
     };
     let cell = (room / sky::logo_width(name, 1.0)).min(10.0 * s).floor().max(2.0);
     let small = (11.0 * s).round().max(9.0);
-    let over = "ENTER";
+    let over = tr("ENTER");
     let ow = ui.measure(over, small, true);
     ui.label(over, cx - ow / 2.0, top - small * 2.0, small, true, color::TEXT_DIM);
     let lh = sky::logo(ui, name, cx, top, cell);
@@ -1715,7 +1968,7 @@ fn draw_logo(ui: &mut Ui, w: f32, h: f32, s: f32, card_x: f32) {
 fn wrap(ui: &mut Ui, text: &str, size: f32, max_w: f32) -> Vec<String> {
     let mut lines = Vec::new();
     let mut line = String::new();
-    for word in text.split_whitespace() {
+    for word in text.split_ascii_whitespace() {
         let next = if line.is_empty() { word.to_owned() } else { format!("{line} {word}") };
         if ui.measure(&next, size, true) <= max_w || line.is_empty() && ui.measure(word, size, true) <= max_w {
             line = next;
@@ -1737,6 +1990,35 @@ fn wrap(ui: &mut Ui, text: &str, size: f32, max_w: f32) -> Vec<String> {
         lines.push(line);
     }
     lines
+}
+
+/// How long the death spin's reel turns, in ms.
+const SPIN_MS: f32 = 6500.0;
+
+/// The death spin's tiers, as the world server has them (`Player.DeathSpinTiers`): name, base
+/// fame from, the chances of each rarity (out of 1000), colour.
+const SPIN_TIERS: [(&str, i32, [i32; 6], u32); 6] = [
+    (mark("Bronze"), 20, [550, 330, 98, 20, 0, 2], 0xD08A4E),
+    (mark("Silver"), 150, [300, 400, 226, 60, 10, 4], 0xC9CED8),
+    (mark("Gold"), 500, [100, 320, 395, 150, 27, 8], color::GOLD),
+    (mark("Platinum"), 1500, [0, 150, 445, 330, 60, 15], 0x7FE3D8),
+    (mark("Diamond"), 4000, [0, 0, 345, 500, 130, 25], 0x8FD3FF),
+    (mark("Mythic"), 10000, [0, 0, 145, 550, 265, 40], 0xFF5AA0),
+];
+
+/// The prizes' rarities and their colours.
+pub(crate) const RARITIES: [(&str, u32); 6] = [
+    (mark("Common"), color::TEXT_DIM),
+    (mark("Uncommon"), color::GOOD),
+    (mark("Rare"), 0x4FA3FF),
+    (mark("Epic"), 0xB86BFF),
+    (mark("Legendary"), color::GOLD),
+    // white, as a white bag
+    (mark("Divine"), 0xFFFFFF),
+];
+
+pub(crate) fn rarity_color(rarity: i32) -> u32 {
+    RARITIES.get(rarity as usize).map_or(color::TEXT_DIM, |r| r.1)
 }
 
 fn ui_time() -> i32 {
@@ -1768,11 +2050,11 @@ pub fn rank_tooltip(ui: &mut Ui, rank: i32, classes: i32, at: (f32, f32), s: f32
     theme::shadow(ui.renderer, r, 8.0 * s, 12.0 * s, 0.5);
     theme::frame(ui.renderer, r, 8.0 * s, s.max(1.0), (color::BORDER_HI, 0.9), ((color::PANEL_TOP, 0.97), (color::PANEL_BOTTOM, 0.98)));
     let (x, y) = (r[0] + 10.0 * s, r[1] + 8.0 * s);
-    let earned = format!("You have earned {rank}");
+    let earned = tf!("You have earned {rank}", rank);
     ui.label(&earned, x, y, size, true, stars::GREY);
     let ew = ui.measure(&earned, size, true);
     theme::star(ui.renderer, x + ew + 10.0 * s, y + size * 0.62, 6.5 * s, stars::GREY);
-    ui.label("You can earn more by completing Class Quests.", x, y + 22.0 * s, (11.5 * s).round(), false, color::TEXT_DIM);
+    ui.label(tr("You can earn more by completing Class Quests."), x, y + 22.0 * s, (11.5 * s).round(), false, color::TEXT_DIM);
     let ly = y + 46.0 * s;
     theme::fill(ui.renderer, [x, ly - 4.0 * s, w - 20.0 * s, s.max(1.0)], 0.0, color::BORDER, 1.0);
     // LegendLine: a coloured star, the range, then a grey star.
@@ -1827,20 +2109,20 @@ pub fn draw_game_menu(ui: &mut Ui, w: f32, h: f32, mouse: (f64, f64)) -> Vec<(Me
     let r = [(w - 320.0 * s) / 2.0, (h - 420.0 * s) / 2.0, 320.0 * s, 420.0 * s];
     theme::panel(ui.renderer, r, s);
     let size = (22.0 * s).round();
-    let tw = ui.measure("Paused", size, true);
-    ui.label("Paused", r[0] + (r[2] - tw) / 2.0, r[1] + 20.0 * s, size, true, color::TEXT);
-    let hint = "Esc to close";
+    let tw = ui.measure(tr("Paused"), size, true);
+    ui.label(tr("Paused"), r[0] + (r[2] - tw) / 2.0, r[1] + 20.0 * s, size, true, color::TEXT);
+    let hint = tr("Esc to close");
     let hs = (12.0 * s).round();
     let hw = ui.measure(hint, hs, false);
     ui.label(hint, r[0] + (r[2] - hw) / 2.0, r[1] + 50.0 * s, hs, false, color::TEXT_MUTED);
     let mut out = Vec::new();
     for (i, (choice, label, kind)) in [
-        (MenuChoice::Resume, "Back to the game", Kind::Primary),
-        (MenuChoice::Nexus, "Nexus", Kind::Secondary),
-        (MenuChoice::Options, "Options", Kind::Secondary),
-        (MenuChoice::Changelog, "Changelog", Kind::Secondary),
-        (MenuChoice::Home, "Return home", Kind::Secondary),
-        (MenuChoice::Logout, "Log out", Kind::Danger),
+        (MenuChoice::Resume, tr("Back to the game"), Kind::Primary),
+        (MenuChoice::Nexus, tr("Nexus"), Kind::Secondary),
+        (MenuChoice::Options, tr("Options"), Kind::Secondary),
+        (MenuChoice::Changelog, tr("Changelog"), Kind::Secondary),
+        (MenuChoice::Home, tr("Return home"), Kind::Secondary),
+        (MenuChoice::Logout, tr("Log out"), Kind::Danger),
     ]
     .into_iter()
     .enumerate()
