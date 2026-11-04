@@ -206,7 +206,7 @@ namespace WorldServer.core.objects
         public const int DeathSpinStop = 42;
 
         // Items it gets back: (base fame from, how many are sure to come back). After those, one
-        // more comes back half the time, another a quarter of the time, and so on.
+        // more comes back a quarter of the time, another an eighth of the time, and so on.
         public static readonly (int Fame, int Sure)[] DeathKeepTiers =
         {
             (0, 0), (400, 1), (800, 2), (1600, 3), (3000, 4), (6000, 5), (12000, 6), (20000, 8)
@@ -223,8 +223,12 @@ namespace WorldServer.core.objects
                 if (Inventory[i] != null)
                     carried.Add(Inventory[i]);
             var count = DeathKeepSure(baseFame);
-            while (rand.Next(2) == 0)
+            if (rand.Next(4) == 0)
+            {
                 count++;
+                while (rand.Next(2) == 0)
+                    count++;
+            }
             count = Math.Min(count, carried.Count);
             return carried.OrderBy(_ => rand.Next()).Take(count).ToList();
         }

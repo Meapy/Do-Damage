@@ -257,11 +257,11 @@ A Legendary or Divine prize is announced to everyone online.
 
 **Getting your items back.** Some of what the character was carrying (equipment, inventory and
 backpack, picked at random) comes back as well. Base fame sets how many are sure to; after
-those, one more comes back half the time, another a quarter of the time, and so on:
+those, one more comes back a quarter of the time, another an eighth of the time, and so on:
 
 | Base fame | Items sure to come back |
 |---|---|
-| Under 400 | none (50% chance of one) |
+| Under 400 | none (25% chance of one) |
 | 400 | 1 |
 | 800 | 2 |
 | 1,600 | 3 |
