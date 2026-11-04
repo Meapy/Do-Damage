@@ -74,7 +74,8 @@ ends there, its rewards wait to be claimed as an ended goal's do, and a **bonus 
 kind takes its place at once, with its own tiers, levels and loot. A banner tells everyone.
 
 - The bonus goal runs until the usual **Monday reset**, when the new week's goals come as always.
-- It asks only its share of the week that's left: with half the week to go, half its usual goal.
+- It asks as much as it would in a whole week, however much of the week is left. Falling short of
+  it never makes that goal easier next time; going well past it can make it harder.
 - It's never one of the week's other goals, and where it can be, none of last week's or next
   week's either. Finish the bonus goal too and another follows.
 - None starts in the last {{v:community_early_hours}} hours of the week.

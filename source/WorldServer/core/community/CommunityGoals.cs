@@ -302,11 +302,7 @@ namespace WorldServer.core.community
                 var fixing = new List<(CommunityRun Run, Task<bool> First, Task<RedisValue> Goal)>();
                 foreach (var run in unfixed)
                 {
-                    var scale = scales.TryGetValue(run.Def.Id, out var sc) ? sc : 1;
-                    // a bonus goal asks its share of the week it has
-                    if (run.Bonus)
-                        scale *= Data.BonusShare(run.Start, run.End);
-                    var goal = run.Special ? run.Def.Goal : CommunityData.GoalOf(run.Def, scale);
+                    var goal = run.Special ? run.Def.Goal : CommunityData.GoalOf(run.Def, scales.TryGetValue(run.Def.Id, out var sc) ? sc : 1);
                     var first = batch.HashSetAsync(TotalKey(run.Key), "goal", goal, When.NotExists);
                     tasks.Add(first);
                     tasks.Add(batch.KeyExpireAsync(TotalKey(run.Key), KeepFor(run)));
@@ -460,6 +456,9 @@ namespace WorldServer.core.community
                 var scales = Scales();
                 var old = scales.TryGetValue(id, out var sc) ? sc : 1;
                 var next = Data.NextScale(old, rs.Total, rs.Goal);
+                // a bonus run had less than a week: falling short says nothing of the goal
+                if (run.Bonus)
+                    next = Math.Max(old, next);
                 SetScale(id, next);
                 Settled[run.Key] = 0;
                 Log.Info($"Community goals: {run.Key} ended at {rs.Total:N0} of {rs.Goal:N0}; {id}'s scale {old:0.###} -> {next:0.###} (next goal {CommunityData.GoalOf(run.Def, next):N0})");

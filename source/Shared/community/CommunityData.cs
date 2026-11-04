@@ -85,13 +85,12 @@ namespace Shared.community
 
     // Finishing a goal early (CommunityData.Early): once a week's goal has reached its last
     // Overdrive level, it ends there and a bonus goal takes its place until the weekly reset,
-    // unless less than `minHours` are left. A bonus goal asks its share of the week that's left
-    // (at least `minShare` of a week's), so it's as reachable as a whole week's.
+    // unless less than `minHours` are left. A bonus goal asks as much as a whole week's run of it
+    // would, and never makes its goal's next run easier (it had less than a week).
     public sealed class CommunityEarly
     {
         public bool Enabled { get; set; } = true;
         public double MinHours { get; set; } = 6;
-        public double MinShare { get; set; } = 0.15;
     }
 
     // A bonus goal started in a week (CommunityData.Runs): in place of the slot's goal, from
@@ -215,10 +214,6 @@ namespace Shared.community
 
         // Every tier and Overdrive level reached: nothing more to earn.
         public bool Finished(CommunityGoalDef def, int goal, long total) => Stage(def, goal, total) >= Tiers(def) + BonusLevels(def);
-
-        // The share of a week's goal a bonus run from `start` to `end` asks (CommunityEarly).
-        public double BonusShare(DateTime start, DateTime end) =>
-            Math.Clamp((end - start).TotalDays / 7, Math.Clamp(Early.MinShare, 0.01, 1), 1);
 
         // A bonus goal for a week that has `used` (its goals so far): by weight, one of a group in
         // neither this week, next week's draw nor last week's (`lastWeek`, as kept; drawn when not

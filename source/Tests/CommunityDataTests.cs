@@ -115,9 +115,6 @@ namespace Tests
             Assert.Equal((drawn[1], at), (done.Def.Id, done.End));
             Assert.False(done.Running(Wed));
             Assert.Equal(runs.Count, runs.Select(r => r.Key).Distinct().Count());
-            // it asks its share of the week, at least MinShare of it
-            Assert.Equal(5.5 / 7, Data.BonusShare(at, Monday.AddDays(7)), 6);
-            Assert.Equal(Data.Early.MinShare, Data.BonusShare(Monday.AddDays(6.9), Monday.AddDays(7)), 6);
         }
 
         [Fact]
