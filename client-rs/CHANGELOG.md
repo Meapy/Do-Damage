@@ -14,6 +14,14 @@ details). Add to a group's line when a change adds to it, rather than adding ano
 
 ## Unreleased
 
+### Languages
+- The game now speaks 11 languages: English, German, Spanish, French, Italian, Dutch, Polish,
+  Brazilian Portuguese, Russian, Turkish and Ukrainian. Pick yours in Options, Language: every
+  menu, window, tooltip and message switches at once, written the way players of that language
+  say it, numbers and times included. The first time, the game starts in your computer's or
+  browser's language. Item and monster names, and what the server writes (chat, quests' and
+  goals' descriptions), stay in English.
+
 ### Community goals
 - Every week the whole server gets 3 goals to reach together, such as defeating Oryx 15 times,
   clearing 40 dungeons or earning 6,000 fame between you. Each has four tiers, Spark to Inferno,

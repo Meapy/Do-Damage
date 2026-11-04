@@ -1586,22 +1586,22 @@ impl Front {
         theme::panel(ui.renderer, r, s);
         let pad = 28.0 * s;
         let tier = SPIN_TIERS.get(spin.tier as usize).copied().unwrap_or(SPIN_TIERS[0]);
-        ui.label("Death Spin", r[0] + pad, r[1] + 20.0 * s, (30.0 * s).round(), true, color::GOLD);
+        ui.label(tr("Death Spin"), r[0] + pad, r[1] + 20.0 * s, (30.0 * s).round(), true, color::GOLD);
         // the tier, as a pill on the right
         let size = (14.0 * s).round();
-        let text = format!("{} tier", tier.0);
+        let text = tf!("{tier} tier", tier = tr(tier.0));
         let tw = ui.measure(&text, size, true);
         let pill = [r[0] + r[2] - pad - tw - 24.0 * s, r[1] + 24.0 * s, tw + 24.0 * s, size * 2.0];
         theme::fill(ui.renderer, pill, pill[3] / 2.0, tier.3, 0.16);
         ui.label(&text, pill[0] + 12.0 * s, pill[1] + (pill[3] - size * 1.25) / 2.0, size, true, tier.3);
-        let line = format!("{} base fame earned a {} spin. The more fame, the better the odds.", sum.base_fame, tier.0);
+        let line = tf!("{fame} base fame earned a {tier} spin. The more fame, the better the odds.", fame = sum.base_fame, tier = tr(tier.0));
         ui.label(&line, r[0] + pad, r[1] + 64.0 * s, (14.0 * s).round(), false, color::TEXT_DIM);
         // the tier's odds of each rarity, as chips smaller when they wouldn't fit
         let small = (12.0 * s).round();
         let chips: Vec<(usize, String)> = tier.2.iter().enumerate().filter(|(_, &odds)| odds > 0).map(|(i, &odds)| {
             // out of 1000: "15%", or "0.2%" for the rare ones
             let pct = if odds % 10 == 0 { format!("{}", odds / 10) } else { format!("{:.1}", odds as f32 / 10.0) };
-            (i, format!("{} {}%", RARITIES[i].0, pct))
+            (i, tf!("{rarity} {pct}%", rarity = tr(RARITIES[i].0), pct))
         }).collect();
         let wide: f32 = chips.iter().map(|(_, t)| ui.measure(t, small, true) + 36.0 * s).sum();
         let room = r[2] - 2.0 * pad;
@@ -1656,7 +1656,7 @@ impl Front {
         let mut y = track[1] + track[3] + 26.0 * s;
         if landed {
             let rc = rarity_color(spin.rarity);
-            let name = RARITIES.get(spin.rarity as usize).map_or("Prize", |r| r.0);
+            let name = tr(RARITIES.get(spin.rarity as usize).map_or(mark("Prize"), |r| r.0));
             if spin.rarity >= 3 {
                 // stars turning round the prize
                 for j in 0..6 {
@@ -1667,23 +1667,23 @@ impl Front {
                 }
             }
             let big = (24.0 * s).round();
-            let head = format!("{}!", name.to_uppercase());
+            let head = tf!("{rarity}!", rarity = name.to_uppercase());
             let hw = ui.measure(&head, big, true);
             ui.label(&head, cx - hw / 2.0, y, big, true, rc);
             y += big * 1.5;
-            let item = ui.data.objects.get(&(spin.prize as u16)).map_or_else(|| "a prize".to_owned(), |d| d.display_id.clone());
+            let item = ui.data.objects.get(&(spin.prize as u16)).map_or_else(|| tr("a prize").to_owned(), |d| d.display_id.clone());
             let mid = (18.0 * s).round();
             let iw = ui.measure(&item, mid, true);
             ui.label(&item, cx - iw / 2.0, y, mid, true, color::TEXT);
             y += mid * 1.6;
-            let note = "It's in your Gift Chest: collect it from your vault.";
+            let note = tr("It's in your Gift Chest: collect it from your vault.");
             let nw = ui.measure(note, small, false);
             ui.label(note, cx - nw / 2.0, y, small, false, color::TEXT_DIM);
             // and what it got back of what it died with
             if !sum.kept.is_empty() {
                 y += small * 2.4;
                 let n = sum.kept.len();
-                let text = format!("Your fame also saved {} of your items:", if n == 1 { "one".to_owned() } else { n.to_string() });
+                let text = tn!(n, "Your fame also saved one of your items:|Your fame also saved {n} of your items:");
                 let tw = ui.measure(&text, (14.0 * s).round(), true);
                 ui.label(&text, cx - tw / 2.0, y, (14.0 * s).round(), true, color::GOOD);
                 y += 24.0 * s;
@@ -1700,18 +1700,18 @@ impl Front {
                 }
             }
         } else {
-            let text = "Spinning…";
+            let text = tr("Spinning…");
             let size = (16.0 * s).round();
             let tw = ui.measure(text, size, true);
             ui.label(text, cx - tw / 2.0, y + 10.0 * s, size, true, color::TEXT_MUTED);
         }
         // the next tier, to aim for
         if let Some(next) = SPIN_TIERS.get(spin.tier as usize + 1) {
-            let text = format!("Next tier: {} at {} base fame", next.0, next.1);
+            let text = tf!("Next tier: {tier} at {fame} base fame", tier = tr(next.0), fame = next.1);
             let tw = ui.measure(&text, small, false);
             ui.label(&text, cx - tw / 2.0, r[1] + r[3] - 92.0 * s, small, false, color::TEXT_MUTED);
         }
-        let (label, kind) = if landed { ("Continue", Kind::Primary) } else { ("Skip", Kind::Secondary) };
+        let (label, kind) = if landed { (tr("Continue"), Kind::Primary) } else { (tr("Skip"), Kind::Secondary) };
         self.button(ui, Target::Back, [r[0] + (r[2] - 180.0 * s) / 2.0, r[1] + r[3] - 62.0 * s, 180.0 * s, 42.0 * s], label, kind, s, mouse);
         if let Some(item) = hovered {
             let lay = crate::hud::Layout::new(w as u32, h as u32);
@@ -1785,21 +1785,21 @@ impl Front {
             if inside(sr, mouse) {
                 hovered = Some(spin.prize);
             }
-            let item = ui.data.objects.get(&(spin.prize as u16)).map_or_else(|| "a prize".to_owned(), |d| d.display_id.clone());
-            let rarity = RARITIES.get(spin.rarity as usize).map_or("", |r| r.0);
+            let item = ui.data.objects.get(&(spin.prize as u16)).map_or_else(|| tr("a prize").to_owned(), |d| d.display_id.clone());
+            let rarity = RARITIES.get(spin.rarity as usize).map_or("", |r| tr(r.0));
             let size = (14.0 * s).round();
-            let lead = "Death spin: ";
+            let lead = tr("Death spin: ");
             let lw = ui.measure(lead, size, false);
             let ty = y + (side - size * 1.25) / 2.0;
             ui.label(lead, sr[0] + side + 10.0 * s, ty, size, false, color::TEXT_DIM);
-            ui.label(&format!("{rarity} {item}"), sr[0] + side + 10.0 * s + lw, ty, size, true, rc);
+            ui.label(&tf!("{rarity} {item}", rarity, item), sr[0] + side + 10.0 * s + lw, ty, size, true, rc);
             y += side + 10.0 * s;
         }
         // What it got back of what it carried.
         if !sum.kept.is_empty() {
             let side = 30.0 * s;
             let size = (14.0 * s).round();
-            let lead = "Got back: ";
+            let lead = tr("Got back: ");
             let lw = ui.measure(lead, size, false);
             ui.label(lead, r[0] + pad, y + (30.0 * s - size * 1.25) / 2.0, size, false, color::TEXT_DIM);
             let n = sum.kept.len() as f32;
@@ -1998,23 +1998,23 @@ const SPIN_MS: f32 = 6500.0;
 /// The death spin's tiers, as the world server has them (`Player.DeathSpinTiers`): name, base
 /// fame from, the chances of each rarity (out of 1000), colour.
 const SPIN_TIERS: [(&str, i32, [i32; 6], u32); 6] = [
-    ("Bronze", 20, [550, 330, 98, 20, 0, 2], 0xD08A4E),
-    ("Silver", 150, [300, 400, 226, 60, 10, 4], 0xC9CED8),
-    ("Gold", 500, [100, 320, 395, 150, 27, 8], color::GOLD),
-    ("Platinum", 1500, [0, 150, 445, 330, 60, 15], 0x7FE3D8),
-    ("Diamond", 4000, [0, 0, 345, 500, 130, 25], 0x8FD3FF),
-    ("Mythic", 10000, [0, 0, 145, 550, 265, 40], 0xFF5AA0),
+    (mark("Bronze"), 20, [550, 330, 98, 20, 0, 2], 0xD08A4E),
+    (mark("Silver"), 150, [300, 400, 226, 60, 10, 4], 0xC9CED8),
+    (mark("Gold"), 500, [100, 320, 395, 150, 27, 8], color::GOLD),
+    (mark("Platinum"), 1500, [0, 150, 445, 330, 60, 15], 0x7FE3D8),
+    (mark("Diamond"), 4000, [0, 0, 345, 500, 130, 25], 0x8FD3FF),
+    (mark("Mythic"), 10000, [0, 0, 145, 550, 265, 40], 0xFF5AA0),
 ];
 
 /// The prizes' rarities and their colours.
 pub(crate) const RARITIES: [(&str, u32); 6] = [
-    ("Common", color::TEXT_DIM),
-    ("Uncommon", color::GOOD),
-    ("Rare", 0x4FA3FF),
-    ("Epic", 0xB86BFF),
-    ("Legendary", color::GOLD),
+    (mark("Common"), color::TEXT_DIM),
+    (mark("Uncommon"), color::GOOD),
+    (mark("Rare"), 0x4FA3FF),
+    (mark("Epic"), 0xB86BFF),
+    (mark("Legendary"), color::GOLD),
     // white, as a white bag
-    ("Divine", 0xFFFFFF),
+    (mark("Divine"), 0xFFFFFF),
 ];
 
 pub(crate) fn rarity_color(rarity: i32) -> u32 {

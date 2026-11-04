@@ -580,6 +580,20 @@ The remotes `upstream` (HaloCelsius) and `aurusenth` share no history with `main
 
 ## Changes from upstream
 
+- **The Rust client in 11 languages** (2026-11-04; `client-rs/app/src/i18n.rs`,
+  `client-rs/app/lang/<code>.json`, Options' Language tab; client-rs/AGENTS.md, "Languages"):
+  English is written in the code, German, Spanish, French, Italian, Dutch, Polish, Brazilian
+  Portuguese, Russian, Turkish and Ukrainian are tables from each English line to the language's
+  own, built into the client. Text the client shows goes through `tr`, `tf!` (named `{values}`,
+  so a language can reorder them) and `tn!` (CLDR plural forms: three for Russian, Ukrainian and
+  Polish); numbers and countdowns follow the language too. The choice is kept in the settings
+  (`language=<code>`), else the system's (Windows' display language, `LANG`, the browser's) is
+  used; `--lang <code>` overrides it for one run. The client's tests fail while a table lacks a
+  line, keeps one no longer used, has different `{names}` or the wrong number of forms, or uses a
+  character the font lacks. The server is unchanged: what it sends (chat, item names, quests'
+  and goals' titles and descriptions) stays in English, except the goals' tier and Overdrive
+  names, which the client knows (`community::SERVER_NAMES`).
+
 - **/summon for everyone, with a Yes/No** (2026-11-02; `SummonCommand` in
   `DoomedRealmsCommands.cs`, `Player.Visits.cs`, `VisitBook.Request.Summon`,
   `VisitRules.Refusal(..., summon)`; `Tests/VisitTests.cs`): `/summon <name>` goes through the
