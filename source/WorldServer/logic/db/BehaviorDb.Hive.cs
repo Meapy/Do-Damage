@@ -39,7 +39,8 @@ namespace WorldServer.logic
                 ),
                 new Threshold(0.05,
                     LootTemplates.MountainDrop()
-                )
+                ),
+            new ItemLoot("Bee Generator", 0.03)
             )
         .Init("TH Maggots",
             new State(

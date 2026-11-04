@@ -269,7 +269,8 @@ namespace WorldServer.logic
                 new Threshold(.005,
                     new ItemLoot("Lil' Thessal Generator", elder ? 0.04 : 0.02),
                     new ItemLoot("Sea Mare Generator", elder ? 0.06 : 0.03),
-                    new ItemLoot("Shark Generator", elder ? 0.06 : 0.03)
+                    new ItemLoot("Shark Generator", elder ? 0.06 : 0.03),
+                    new ItemLoot("Sea Horse Generator", elder ? 0.06 : 0.03)
                     ),
                 new Threshold(.005,
                     LootTemplates.BasicDrop()
@@ -407,7 +408,7 @@ namespace WorldServer.logic
                         new Shoot(8, 6, projectileIndex: 1, fixedAngle: 2, coolDown: Cd(750)),
                         new TimedTransition(1500, "Shoot and Move")
                         )
-                    ), Elder("Grey Sea Slurp"));
+                    ), new ItemLoot("Sea Slurp Generator", elder ? 0.02 : 0.01), Elder("Grey Sea Slurp"));
         }
         //.Init("Ocean Vent", new State(new RestoresBreathBehavior()));
     }

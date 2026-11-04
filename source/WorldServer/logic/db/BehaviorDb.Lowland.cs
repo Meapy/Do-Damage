@@ -76,7 +76,8 @@ namespace WorldServer.logic
                     new Wander(0.4)
                     )
                 ),
-            new ItemLoot("Health Potion", 0.04)
+            new ItemLoot("Health Potion", 0.04),
+            new ItemLoot("Brown Pup Generator", 0.003)
             )
         .Init("Undead Hobbit Mage",
             new State(
@@ -137,7 +138,8 @@ namespace WorldServer.logic
                     new TimedTransition(400, "run1")
                     )
                 ),
-            new ItemLoot("Magic Potion", 0.03)
+            new ItemLoot("Magic Potion", 0.03),
+            new ItemLoot("Raven Generator", 0.003)
             )
         .Init("Undead Hobbit Rogue",
             new State(
@@ -193,7 +195,8 @@ namespace WorldServer.logic
                     )
                 ),
             new ItemLoot("Health Potion", 0.05),
-            new ItemLoot("Magic Potion", 0.05)
+            new ItemLoot("Magic Potion", 0.05),
+            new ItemLoot("Baby Generator", 0.02)
             )
         .Init("Lil Sumo",
             new State(
@@ -204,7 +207,8 @@ namespace WorldServer.logic
                     )
                 ),
             new ItemLoot("Health Potion", 0.02),
-            new ItemLoot("Magic Potion", 0.02)
+            new ItemLoot("Magic Potion", 0.02),
+            new ItemLoot("Panda Generator", 0.005)
             )
         .Init("Elf Wizard",
             new State(
@@ -257,7 +261,8 @@ namespace WorldServer.logic
                     new Wander(0.4)
                     )
                 ),
-            new ItemLoot("Health Potion", 0.04)
+            new ItemLoot("Health Potion", 0.04),
+            new ItemLoot("Bluebird Generator", 0.003)
             )
         .Init("Elf Swordsman",
             new State(
@@ -319,7 +324,8 @@ namespace WorldServer.logic
                     ),
                 new DropPortalOnDeath("Pirate Cave Portal", .01)
                 ),
-            new ItemLoot("Health Potion", 0.04)
+            new ItemLoot("Health Potion", 0.04),
+            new ItemLoot("Grey Pup Generator", 0.003)
             )
         .Init("Goblin Mage",
             new State(
@@ -385,7 +391,8 @@ namespace WorldServer.logic
                     )
                 ),
             new ItemLoot("Health Potion", 0.01),
-            new ItemLoot("Magic Potion", 0.02)
+            new ItemLoot("Magic Potion", 0.02),
+            new ItemLoot("Bunny Generator", 0.005)
             )
         .Init("Forest Nymph",
             new State(
@@ -407,7 +414,8 @@ namespace WorldServer.logic
                 new DropPortalOnDeath("Pirate Cave Portal", .01)
                 ),
             new ItemLoot("Health Potion", 0.03),
-            new ItemLoot("Magic Potion", 0.02)
+            new ItemLoot("Magic Potion", 0.02),
+            new ItemLoot("Grass Penguin Generator", 0.005)
             )
         .Init("Sandsman King",
             new State(
@@ -424,7 +432,8 @@ namespace WorldServer.logic
             new TierLoot(3, ItemType.Armor, 0.3),
             new TierLoot(1, ItemType.Ring, 0.11),
             new TierLoot(1, ItemType.Ability, 0.39),
-            new ItemLoot("Health Potion", 0.04)
+            new ItemLoot("Health Potion", 0.04),
+            new ItemLoot("Tan Cat Generator", 0.01)
             )
         .Init("Sandsman Sorcerer",
             new State(
@@ -498,7 +507,8 @@ namespace WorldServer.logic
             new TierLoot(1, ItemType.Ring, 0.05),
             new TierLoot(1, ItemType.Ability, 0.28),
             new ItemLoot("Health Potion", 0.02),
-            new ItemLoot("Magic Potion", 0.02)
+            new ItemLoot("Magic Potion", 0.02),
+            new ItemLoot("Crab Generator", 0.005)
             )
         .Init("Sand Devil",
             new State(

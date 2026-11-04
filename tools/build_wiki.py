@@ -591,13 +591,10 @@ class Gen:
             **{"market_" + k: "{:,}".format(v) for k, v in wd.market_rules().items()},
             "crate_items": len(crate),
             "dungeon_count": len(self.dungeons()),
-            "pet_count": len([p for p in self.d.pets()]),
+            # the pets players can get (the Pets page leaves out the rest)
+            "pet_count": len([p for p in self.d.pets() if self.idx.get(p["item"]) or p["item"] in self.d.bazaar_pets()]),
             "pet_bazaar": len(self.d.bazaar_pets() & {p["item"] for p in self.d.pets()}),
             "summon_count": len([s for s in self.d.summons() if "Test" not in self.d.objects[s["item"]]["file"]]),
-            "yard_count": len(self.d.yard_pets()),
-            "yard_families": len({p["family"] for p in self.d.yard_pets()}),
-            "skin_unlockers": len([o for o in self.d.objects.values() if o["item"]
-                                   and any(a["effect"] == "UnlockPetSkin" for a in o["activate_attrs"])]),
         }
 
     def __call__(self, name, used):
@@ -983,8 +980,6 @@ class Gen:
     def gen_pet_summons(self, used):
         return self.equip.pet_summons(used)
 
-    def gen_pet_yard(self, used):
-        return self.equip.pet_yard(used)
 
     # --- classes -----------------------------------------------------------------------------
     def gen_classes(self, used):
@@ -1113,13 +1108,10 @@ def sections(page_title, url, body):
             continue
         # a dungeon card or a class card makes its own entry
         cards = re.findall(r'<article class="(?:dg|cls|it)" id="([^"]+)".*?<h3>(.*?)</h3>(.*?)</article>', part, re.S)
-        # a pet yard card has no heading: its name is its first span
-        cards += [(cid, name, rest) for cid, name, rest in re.findall(
-            r'<article class="pet" id="([^"]+)".*?<span class="kind-name">(.*?)</span>(.*?)</article>', part, re.S)]
         for cid, name, rest in cards:
             out.append({"p": page_title, "h": plain(name), "u": url + "#" + cid, "t": plain(rest)[:500]})
         if cards:
-            part = re.sub(r'<article class="(?:dg|cls|it|pet)".*?</article>', " ", part, flags=re.S)
+            part = re.sub(r'<article class="(?:dg|cls|it)".*?</article>', " ", part, flags=re.S)
         out.append({"p": page_title, "h": head, "u": url + "#" + anchor, "t": plain(part)[:900]})
     return [e for e in out if e["t"] or e["h"]]
 

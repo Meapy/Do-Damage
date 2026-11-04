@@ -241,6 +241,8 @@ class Data:
     ITEM_LOOT = re.compile(r'(?:ItemLoot|OnePlayerLoot)\(\s*(?:item:\s*)?"([^"]+)"\s*,\s*(?:probability:\s*)?([0-9.]+)')
     ITEM_LOOT_ELDER = re.compile(r'(?:ItemLoot|OnePlayerLoot)\(\s*(?:item:\s*)?"([^"]+)"\s*,\s*(?:probability:\s*)?'
                                  r'elder\s*\?\s*([0-9.]+)\s*:\s*([0-9.]+)')
+    # DoomedExtraLoot.Pet("x Generator", 0.02): a pet's generator
+    PET_LOOT = re.compile(r'(?<![\w.])Pet\(\s*"([^"]+)"\s*,\s*([0-9.]+)')
     ITEM_LOOT_ID = re.compile(r'(?:ItemLoot|OnePlayerLoot)\(\s*(?:item:\s*)?"([^"]+)"')  # with or without a chance
     TIER_LOOT = re.compile(r'TierLoot\(\s*(?:tier:\s*)?(\d+)\s*,\s*(?:type:\s*)?ItemType\.(\w+)')
 
@@ -306,7 +308,8 @@ class Data:
             for m in re.finditer(r'new TierLoot\(\s*(\d+)\s*,\s*ItemType\.(\w+)', block):
                 out.append(("tier", (m.group(2), int(m.group(1))), None))
         if monster in self.doomed or monster in self.elder_loot:  # DoomedSetup.Drops, as ElderDrops is too
-            for m in self.ITEM_LOOT.finditer(self.extra_loot.get(monster, "")):
+            extra = self.extra_loot.get(monster, "")
+            for m in list(self.ITEM_LOOT.finditer(extra)) + list(self.PET_LOOT.finditer(extra)):
                 out.append(("item", m.group(1), float(m.group(2))))
         return out
 
@@ -674,7 +677,7 @@ class Data:
     def pets(self):
         """Pet generators with their PermaPet numbers: [(item, pet, dps, hp, hpms, mp, mpms, size,
         effects)]; hp and mp are what one heal restores, as written ("10-60" or "76"), empty for
-        none; size is Small, Medium, Large or Admin (empty for none) and effects what else it does."""
+        none; size is Tiny, Small, Medium, Large or Oryx (empty for none) and effects what else it does."""
         out = []
         for oid, o in self.objects.items():
             for a in o["activate_attrs"]:
@@ -778,24 +781,12 @@ class Data:
                         break
         return out
 
-    def yard_pets(self):
-        """The pet yard's pets (EmbeddedData_PetsCXML): [{id, name, family, rarity, ability, skin}]. The
-        pet's own Texture is a stand-in: what it looks like is its DefaultSkin's sprite."""
-        out = []
-        for oid, o in self.objects.items():
-            if o["class"] == "Pet":
-                el = self.elements[oid]
-                out.append({"id": oid, "name": o["name"], "family": _text(el, "Family", ""),
-                            "rarity": _text(el, "Rarity", ""), "ability": _text(el, "FirstAbility", ""),
-                            "skin": _text(el, "DefaultSkin")})
-        return out
-
     def bazaar_pets(self):
         """The pet generators the Nexus Bazaar sells (MerchantLists.InitDyes: usable items named
-        "...Generator..." whose pet is Small)."""
+        "...Generator..." whose pet is Tiny)."""
         return {oid for oid, el in self.elements.items()
                 if self.objects[oid]["item"] and "Generator" in oid and el.find("InvUse") is not None
-                and any(a["effect"] == "PermaPet" and a.get("petSize") == "Small"
+                and any(a["effect"] == "PermaPet" and a.get("petSize") == "Tiny"
                         for a in self.objects[oid]["activate_attrs"])}
 
     def gear_items(self, slot_type):

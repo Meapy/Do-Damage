@@ -69,7 +69,8 @@ namespace WorldServer.logic
                     ),
                 new Threshold(0.01,
                     new ItemLoot("Potion of Attack", 0.05)
-                    )
+                    ),
+            new ItemLoot("Demon Frog Generator", 0.01)
         )
         .Init("Sprite God",
             new State(
@@ -116,7 +117,8 @@ namespace WorldServer.logic
                     ),
                 new Threshold(0.01,
                     new ItemLoot("Potion of Speed", 0.05)
-                    )
+                    ),
+            new ItemLoot("Lil' Medusa Generator", 0.01)
         )
         .Init("Ent God",
             new State(
@@ -137,7 +139,8 @@ namespace WorldServer.logic
                     ),
                 new Threshold(0.01,
                     new ItemLoot("Potion of Defense", 0.05)
-                    )
+                    ),
+            new ItemLoot("Lil' Ent Generator", 0.01)
             )
         .Init("Beholder",
             new State(
@@ -158,7 +161,7 @@ namespace WorldServer.logic
                     LootTemplates.MountainDrop()
                     ),
                 new Threshold(0.01,
-                    new ItemLoot("Beholder Generator", 0.005),
+                    new ItemLoot("Beholder Generator", 0.01),
                     new ItemLoot("Potion of Defense", 0.05)
                     )
             )
@@ -182,7 +185,8 @@ namespace WorldServer.logic
                     ),
                 new Threshold(0.01,
                     new ItemLoot("Potion of Attack", 0.05)
-                    )
+                    ),
+            new ItemLoot("Lil' Flying Brain Generator", 0.01)
         )
         .Init("Slime God",
             new State(
@@ -227,7 +231,8 @@ namespace WorldServer.logic
                     ),
                 new Threshold(0.01,
                     new ItemLoot("Potion of Speed", 0.05)
-                    )
+                    ),
+            new ItemLoot("Lil' Ghost Generator", 0.01)
         )
         .Init("Rock Bot",
             new State(
@@ -305,7 +310,8 @@ namespace WorldServer.logic
                     ),
                 new Threshold(0.01,
                     new ItemLoot("Potion of Speed", 0.05)
-                    )           
+                    ),
+            new ItemLoot("Robobuddy Generator", 0.01)           
             )
         .Init("Djinn",
             new State(
@@ -371,8 +377,8 @@ namespace WorldServer.logic
                     LootTemplates.MountainDrop()
                     ),
                 new Threshold(0.01,
-                    new ItemLoot("Djinn Generator", 0.005),
-                    new ItemLoot("Tornado Generator", 0.005),
+                    new ItemLoot("Djinn Generator", 0.01),
+                    new ItemLoot("Tornado Generator", 0.01),
                     new ItemLoot("Potion of Speed", 0.05)
                     )
             )
@@ -472,7 +478,8 @@ namespace WorldServer.logic
             new TierLoot(4, ItemType.Ring, 0.025),
             new TierLoot(3, ItemType.Ability, 0.08),
             new TierLoot(4, ItemType.Ability, 0.04),
-            new Threshold(.18, new ItemLoot("Potion of Defense", 0.025))
+            new Threshold(.18, new ItemLoot("Potion of Defense", 0.025)),
+            new ItemLoot("Leprechaun Generator", 0.05)
             )
         .Init("Leviathan",
             new State(
@@ -512,7 +519,7 @@ namespace WorldServer.logic
                     LootTemplates.MountainDrop()
                     ),
                 new Threshold(0.01,
-                    new ItemLoot("Gyarados Generator", 0.005),
+                    new ItemLoot("Gyarados Generator", 0.01),
                     new ItemLoot("Potion of Defense", 0.05)
                     )
             )

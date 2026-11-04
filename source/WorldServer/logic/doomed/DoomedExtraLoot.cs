@@ -37,10 +37,16 @@ namespace WorldServer.logic.doomed
             ["Totem Spirit"] = () => Minion(3),
             ["Oasis Soldier"] = () => Minion(4), ["Oasis Creature"] = () => Minion(4), ["Oasis Monster"] = () => Minion(4),
             ["Oasis Ruler"] = () => Minion(5),
-            ["Birdman"] = () => Minion(5), ["Birdman Chief"] = () => Minion(6),
+            ["Birdman"] = () => Minion(5), ["Birdman Chief"] = () => Plus(Minion(6), Pet("Eagle Generator", 0.02)),
             ["Small Ghost"] = () => Minion(4), ["Medium Ghost"] = () => Minion(5), ["Large Ghost"] = () => Minion(6, 0.06),
             ["Ent Sapling"] = () => Minion(4),
             ["Vampire Bat"] = () => Pots(), ["Vampire Bat Swarmer 1"] = () => Pots(),
+
+            // pets, each from the monster it belongs with (SETUP-LOCAL.md, "Pets: single use, drops and attacks")
+            ["Herding Sheep"] = () => Pet("Sheepdog Generator", 0.005),
+            ["Mega Sheep"] = () => Pet("Golden Sheepdog Generator", 0.02),
+            ["Evil Chicken"] = () => Pet("Chick Generator", 0.005),
+            ["Turkey God"] = () => Pet("Turkey Generator", 0.02),
 
             // untiered rings given a source (SETUP-LOCAL.md, "Untiered rings"), as rare as each boss's own
             ["Christmas Oryx"] = () => new BL.MobDrops[]
@@ -81,6 +87,17 @@ namespace WorldServer.logic.doomed
             new BL.ItemLoot("Health Potion", 0.05),
             new BL.ItemLoot("Magic Potion", 0.05)
         };
+
+        // a pet's generator, in a white bag of the player's own (an item by name)
+        private static BL.MobDrops[] Pet(string generator, double chance) => new BL.MobDrops[] { new BL.ItemLoot(generator, chance) };
+
+        private static BL.MobDrops[] Plus(BL.MobDrops[] a, BL.MobDrops[] b)
+        {
+            var all = new BL.MobDrops[a.Length + b.Length];
+            a.CopyTo(all, 0);
+            b.CopyTo(all, a.Length);
+            return all;
+        }
 
         private static BL.MobDrops[] Pots() => new BL.MobDrops[] { new BL.ItemLoot("Health Potion", 0.05), new BL.ItemLoot("Magic Potion", 0.05) };
     }

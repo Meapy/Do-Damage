@@ -118,14 +118,14 @@ def xml_shops(dr_root):
 
 
 def unsold_pet(oid, dr, bs, final_id):
-    """True for a pet generator whose pet isn't one of the Small pets (port_doomed_pets.SMALL_PETS):
-    only those are sold, the others drop."""
+    """True for a pet generator whose pet isn't the sold size (port_doomed_pets.SOLD_SIZE, the Tiny
+    pets): only those are sold, the others only drop."""
     import port_doomed_pets
     o = dr.get(oid) if dr.get(oid) is not None else bs.get(oid)
     if o is None:
         return False
     pets = [final_id(a.get("objectId")) for a in o.iter("Activate") if a.text == "PermaPet" and a.get("objectId")]
-    return bool(pets) and not any(p in port_doomed_pets.SMALL_PETS for p in pets)
+    return bool(pets) and not any(port_doomed_pets.pet_size(p, None) == port_doomed_pets.SOLD_SIZE for p in pets)
 
 
 def write_economy(dr_root, dr, bs, final_id, known):

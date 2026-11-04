@@ -95,7 +95,8 @@ namespace WorldServer.logic
                 new Threshold(0.03,
                     new ItemLoot("Sphinx Generator", 0.015),
                     new ItemLoot("Helm of the Juggernaut", 0.0015)
-                    )
+                    ),
+                new ItemLoot("White Lion Generator", 0.02)
             )
             .Init("Horrid Reaper",
                 new State(

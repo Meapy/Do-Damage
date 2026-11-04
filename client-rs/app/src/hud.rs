@@ -2794,6 +2794,15 @@ pub fn item_tooltip_imprinted(data: &GameData, item: i32, me: Option<&GameObj>, 
             out.push(Line::gap());
             out.push(Line::new(tr("Permanent pet"), 13.0, true, ABILITY));
             if let Some(size) = a.attr("petSize") {
+                // the sizes the server's pets come in (tools/port_doomed_pets.py); the Lil' Oryxes'
+                // own size is a name, shown as sent
+                let size = match size {
+                    "Tiny" => tr("Tiny"),
+                    "Small" => tr("Small"),
+                    "Medium" => tr("Medium"),
+                    "Large" => tr("Large"),
+                    other => other,
+                };
                 out.push(Line::stat(&format!("    {}", tr("Size")), size, VALUE));
             }
             if let Some(dps) = a.attr("petDps") {

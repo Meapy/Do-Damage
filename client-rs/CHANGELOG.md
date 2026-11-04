@@ -12,6 +12,31 @@ Keep each version short: changes go under `### ` group headings (Oryx 5, Arena, 
 on), one line per change players notice, summed up rather than item by item (the wiki has the
 details). Add to a group's line when a change adds to it, rather than adding another line.
 
+## Unreleased
+
+### Pets
+- Pets now come in four sizes, Tiny, Small, Medium and Large, each hitting about twice as hard as
+  the one below: Tiny pets do about 50 damage a second, Small 125, Medium 250 and Large 500 (the
+  Tomb's Bes, Nut and Geb 600). No pet got weaker: Medium and Large pets hit harder than before, and
+  the rarer critters (wolves, lions, the Karate Penguins, the Leprechaun and others) are now Small,
+  over twice as strong, and heal a little more.
+- Every pet drops now, the critters too: the cats from the were-cats, the foxes from the wargs, the
+  penguins in the Ice Cave, the Karate Penguins from Kage Kami, the Bee from the Queen Bee and so
+  on. Only the Tiny pets are sold, at the Nexus Bazaar and in `/shop pets`. The godland gods' pets
+  drop twice as often (1%).
+- 18 new pets, each shooting what the monster it looks like shoots: Large ones from the Puppet
+  Master, Davy Jones, the Crystal Prisoner, the Forgotten King, Esben, the Murderous Megamoth,
+  and Realm 2's Abyssal Kraken and Wyrm Matriarch; Medium ones from Medusa, the Ent God, the Flying
+  Brain, the Ghost Ship, the Werewolf, and Realm 2's Kitsune Spirit, Jade Golem, Ember Wyrm, Oni
+  Warlord and Lantern Wisp. Each drops from that monster, and the death spin can give them too.
+- Pets that fired a pair of shots either side of their target now hit with both. Pets that shared a
+  name have their own now (the four Karate Penguins, Robobuddy, the Skeletal Guardian, the Lunar
+  and Twilight Phoenixes), and the tooltip shows a pet's size in your language.
+
+### Wiki
+- Pets have a section of their own, no longer under Characters. The Pets page lists only the pets
+  you can get, each with where it drops, and no longer the pet yard's, which isn't open here.
+
 ## 2.3.8 (2026-11-04)
 
 ### Languages

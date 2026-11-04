@@ -1,10 +1,9 @@
 ---
 title: Pets
 nav: 10
-parent: classes
 sprite: potion
-eyebrow: Gear and stuff
-summary: Every pet in the game: the pet generators and what each pet does, the items that summon a helper for a while, and the pet yard's pets.
+eyebrow: Companions
+summary: Every pet you can get, its size, how hard it hits, what else it does and where it drops, and the items that summon a helper for a while.
 ---
 ## How pets work
 
@@ -18,14 +17,19 @@ Using the generator of the pet you already have does nothing, and keeps the gene
 
 ### Sizes
 
-Every pet is **Small**, **Medium** or **Large**. The size decides how much it heals, how hard it
-hits and how big it looks next to you, and the generator's tooltip says which it is.
+Every pet is **Tiny**, **Small**, **Medium** or **Large**, and each size hits about twice as hard as
+the one below it. The size decides how much it heals, how hard it hits and how big it looks next to
+you, and the generator's tooltip says which it is.
 
 | Size | Heals HP and MP | Damage a second | Looks | Which pets |
 |---|---|---|---|---|
-| Small | 15 each, every 2 seconds | about 50 | about half your height | the pet shop's critters (cats, pups, penguins, frogs...) and pets like them |
-| Medium | 30 each, every 2 seconds | about 200 | a little shorter than you | monsters, heroes and the named pets |
-| Large | 45 each, every 1.5 seconds | 400 to 550 | a little taller than you | the boss pets, and Pancookie, Nightmare and the Doomed Nature Beast |
+| Tiny | 15 each, every 2 seconds | about 50 | about half your height | the plain critters: cats, pups, foxes, frogs, snails, penguins, birds... |
+| Small | 20 each, every 2 seconds | about 125 | a little over half your height | the rarer critters and the odd ones: wolves, lions, the Karate Penguins, the Leprechaun, Lil' Ghost... |
+| Medium | 30 each, every 2 seconds | about 250 | a little shorter than you | monsters, heroes and gods' look-alikes, and the named pets |
+| Large | 45 each, every 1.5 seconds | 500 to 600 | a little taller than you | the boss pets |
+
+The Tomb of the Ancients' Bes, Nut and Geb hit hardest of the Large pets (about 600 a second), then
+Lil' Thessal, Horrific Creation and Pancookie (about 550).
 
 Every Oryx has a **Lil' Oryx** of his own, drawn as him and shooting his shots. Each Oryx drops
 his generator in a white bag (1%), and the generator is used up when used. They all heal 60 each
@@ -51,21 +55,24 @@ Rewards tab.
   heal) and the Jelly's zap (it stops them for a moment). The monsters and heroes have their own
   shots too: the Companion Ninja's stars, the Beholder's ring of eye beams, the Grim Reaper's
   scythe that comes back, King Slime's slowing splash, Shroom's sickening spores and more.
+- **Boss pets and monster pets** shoot what the monster they look like shoots: Bes, Nut and Geb,
+  Lil' Thessal, the Grand Sphinx and the other boss pets fire their boss's projectiles in its
+  patterns, the Lil' Puppet Master throws jester bolts and zombie blasts, Lil' Davy Jones slashes
+  and spins slowing ghost blades, Lil' Esben freezes everything round its target, Lil' Medusa's
+  gaze stops enemies for a moment, Lil' Werewolf's bite bleeds them, and so on.
 - **Pets that shoot** fire real projectiles, sent as your own shots: their hits count as yours for
   loot, experience and quests. So do their melee hits, area hits and bleeds.
-- **Boss pets**, pets that look like a boss (Bes, Nut, Geb, the Cube God, Limon, Malphas,
-  Septavius, Stheno, Thessal, the Grand Sphinx, Horrific Creation and others), shoot that boss's
-  projectiles in its patterns. They're the strongest and most unusual pets.
 - **Some pets help you** besides healing: Geb heals you over time for 2 seconds every 5, the
   Companion Priest for 2 seconds every 8, Limon makes you speedy for 2 seconds every 5, the Support
   Bot armored for 2 seconds every 10, Horrific Creation makes you invulnerable for 1 second every
   10, and Lil' Malphas, Lil' Cube and Skull Shrine give you +15 Vitality, Wisdom and Attack for 5
   seconds of every 10.
-- **Some pets' hits do more**: Bes's orange boomerangs break armor, as does Cerberus Skull's big
-  skull, Nut's small ice shots paralyze for a moment, the Kythal pets' and Nightmare's shots weaken,
-  Scootaloo's waves slow, and Zenco, the Sharkman, the Grim Reaper and the Doomed Nature Beast make
-  enemies **bleed**: damage every second for a few seconds, ignoring defense. A new bleed from your
-  pet starts the old one again rather than adding to it.
+- **Some pets' hits do more**: they break armor (Bes, Cerberus Skull, Lil' Crystal Prisoner, Oni
+  Warlord), slow (Scootaloo, Lil' Forgotten King, Lil' Ent), weaken (the Kythal pets, Nightmare,
+  Abyssal Krakenling, Kitsune Spirit), paralyze for a moment (Nut, Lil' Medusa) or make enemies
+  **bleed**: damage every second for a few seconds, ignoring defense (Zenco, the Sharkman, the Grim
+  Reaper, the Doomed Nature Beast, Ember Matriarch, Ember Wyrmling...). A new bleed from your pet
+  starts the old one again rather than adding to it.
 
 The generator's tooltip shows the pet's size, its damage a second on one enemy, how much it heals
 and how often, and anything else it does ("Also").
@@ -75,23 +82,22 @@ Santa's reindeer, a firecracker. They're listed under [Summoned helpers](#summon
 
 ## Where to get one
 
-- The **Nexus Bazaar** sells the {{v:pet_bazaar}} Small pets' generators, for {{v:pet_price}}
-  fame each, and `/shop pets` has them too. No other pet is sold.
-- **Every other pet drops**, from the monster it belongs with, in a **white bag** of your own:
-  each boss's look-alike from that boss (Bes, Nut and Geb in the Tomb of the Ancients, Lil'
-  Septavius in the Undead Lair, Lil' Stheno in the Snake Pit, Limon in Sprite World, Lil' Thessal
-  in the Ocean Trench, Horrific Creation in the Mad Lab, the Lil' Cube, Skull Shrine and Sphinx
-  from their realm events...), and the monsters and heroes from where they live (the Lil' Beholder
-  and Lil' Djinn from the godlands' gods, the Sharkman and Sea Mare from Thessal, the Grim Reaper
-  and the pumpkin pets from the Haunted Cemetery, the companions from the Lord of the Lost Lands,
-  the Hermit God and Daichi...). A dungeon boss's pet drops twice as often in its Elder dungeon.
-  Each pet below says what drops it and how often.
+- **Every pet drops**, from the monster it belongs with, in a **white bag** of your own: the
+  critters from the realm's animals and beasts (the cats from the were-cats, the foxes from the
+  wargs, the penguins in the Ice Cave...), the Small pets from the gods, heroes and dungeon monsters
+  they're like (the Karate Penguins from Kage Kami, the Leprechaun from the Lucky Ent God, the Bee
+  from the Hive's Queen Bee...), and the Medium and Large pets from the god, boss or event they
+  look like. A dungeon boss's pet drops twice as often in its Elder dungeon. Each pet below says
+  what drops it and how often.
+- The **Nexus Bazaar** sells the {{v:pet_bazaar}} Tiny pets' generators, for {{v:pet_price}} fame
+  each, and `/shop pets` has them too. No other pet is sold.
 
 Other players' pets, and their shots, can be faded or hidden in Options, Visuals.
 
 ## Pet generators
 
-{{v:pet_count}} pets, by size (Large first), then strongest first. "Damage a second" is on one enemy.
+{{v:pet_count}} pets, by size (the Lil' Oryxes first, then Large to Tiny), then strongest first.
+"Damage a second" is on one enemy.
 
 {{gen:pets}}
 
@@ -101,14 +107,3 @@ Other players' pets, and their shots, can be faded or hidden in Options, Visuals
 a pet that stays. Some are abilities a class wears, and their gear page has their numbers.
 
 {{gen:pet_summons}}
-
-## The pet yard's pets
-
-The game's data also has the classic pet yard's {{v:yard_count}} pets, in {{v:yard_families}}
-families, and {{v:skin_unlockers}} items that unlock their skins.
-
-> **The pet yard isn't open on this server.** These pets can't be hatched or fed, and using a
-> skin unlocker says "This item doesn't work yet." without using it up. They're listed here so
-> you know what they are.
-
-{{gen:pet_yard}}

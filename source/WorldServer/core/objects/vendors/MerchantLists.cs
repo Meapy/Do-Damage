@@ -150,9 +150,9 @@ namespace WorldServer.core.objects.vendors
             {
                 if (i.InvUse && i.ObjectId.Contains("Generator"))
                 {
-                    // only the Small pets' generators are sold: the others drop, each where its
+                    // only the Tiny pets' generators are sold: every pet drops, each where its
                     // pet belongs (SETUP-LOCAL.md, "Pets: single use, drops and attacks")
-                    if (Array.Exists(i.ActivateEffects, e => e.Effect == ActivateEffects.PermaPet && e.PetSize == "Small"))
+                    if (Array.Exists(i.ActivateEffects, e => e.Effect == ActivateEffects.PermaPet && e.PetSize == "Tiny"))
                     {
                         permaPetGenerators.Add(new ShopItem(i.ObjectId, 1000));
                         petGenerators.Add(new ShopItem(i.ObjectId, 1250));
