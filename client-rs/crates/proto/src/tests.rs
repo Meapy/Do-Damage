@@ -421,3 +421,36 @@ fn realm_event_messages_match_realm_events() {
     let e = &r.entries[0];
     assert_eq!((e.kind, e.object_id, e.object_type, e.name.as_str(), e.x, e.y), (1, 77, 0xb030, "Lost Sentry", 512.5, 300.0));
 }
+
+#[test]
+fn community_messages_match_community_goals() {
+    // CommunityRequestHandler reads nothing; CommunityClaimHandler the key, then the tier.
+    assert_eq!(ClientMessage::from(CommunityRequest {}).to_frame(), B::default().frame(128));
+    assert_eq!(ClientMessage::from(CommunityClaim { key: "oryx@20261019".into(), tier: 255 }).to_frame(), B::default().utf("oryx@20261019").u8(255).frame(130));
+    // CommunityDataMessage.Write: now, week end, a byte count of tier names, then a byte count of
+    // goals: key, title, text, icon, special, starts, ends, running, goal, total, participants,
+    // minimum, mine, rank, a byte count of tiers (at, claimed, rewards), the top's size, whether
+    // claimed, its rewards, and a byte count of contributors (name, amount).
+    let body = B::default()
+        .i32(1_800_000_000).i32(1_800_300_000)
+        .u8(2).utf("Spark").utf("Flame")
+        .u8(1)
+        .utf("oryx@20261019").utf("Down with the Mad God").utf("Defeat Oryx.").i16(0x0932).u8(0).i32(10).i32(20).u8(1)
+        .i32(15).i32(9).i32(4).i32(1).i32(5).i32(2)
+        .u8(2).i32(4).u8(1).u8(1).u8(0).i16(0).i32(200).i32(8).u8(0).u8(0)
+        .u8(3).u8(0).u8(1).u8(1).i16(0x0a1b).i32(1)
+        .u8(1).utf("Tester").i32(7)
+        .0;
+    let ServerMessage::CommunityData(d) = ServerMessage::decode(129, &body).unwrap() else { panic!() };
+    assert_eq!((d.now, d.week_ends_at, &*d.tier_names), (1_800_000_000, 1_800_300_000, &vec!["Spark".to_owned(), "Flame".to_owned()]));
+    let g = &d.goals[0];
+    assert_eq!((g.key.as_str(), g.icon, g.special, g.running), ("oryx@20261019", 0x0932, false, true));
+    assert_eq!((g.goal, g.total, g.participants, g.minimum, g.mine, g.rank), (15, 9, 4, 1, 5, 2));
+    assert_eq!((g.tiers[0].at, g.tiers[0].claimed, g.tiers[0].rewards[0].amount), (4, true, 200));
+    assert_eq!((g.tiers[1].at, g.tiers[1].claimed, g.tiers[1].rewards.len()), (8, false, 0));
+    assert_eq!((g.top_count, g.top_claimed, g.top_rewards[0].item), (3, false, 0x0a1b));
+    assert_eq!((g.top[0].name.as_str(), g.top[0].amount), ("Tester", 7));
+    // CommunityNotice.Write: kind, title, text.
+    let ServerMessage::CommunityNotice(n) = ServerMessage::decode(131, &B::default().u8(2).utf("Flame reached!").utf("x").0).unwrap() else { panic!() };
+    assert_eq!((n.kind, n.title.as_str()), (2, "Flame reached!"));
+}

@@ -151,6 +151,33 @@
 		<Static/>
 		<ShadowSize>70</ShadowSize>
 	</Object>
+	<!-- see The Tinkerer: the Warcaller at the north point of the spawn's island (Warcaller.cs
+	     places him), who opens the community goals in the Rust client -->
+	<Object type="0x498c" id="The Warcaller">
+		<Class>CommunityGoals</Class>
+		<DisplayId>The Warcaller</DisplayId>
+		<Texture>
+			<File>questNpcs16x16</File>
+			<Index>0x08</Index>
+		</Texture>
+		<Animation prob="1.0" period="0.0">
+			<Frame time="1.8">
+				<Texture>
+					<File>questNpcs16x16</File>
+					<Index>0x08</Index>
+				</Texture>
+			</Frame>
+			<Frame time="0.5">
+				<Texture>
+					<File>questNpcs16x16</File>
+					<Index>0x09</Index>
+				</Texture>
+			</Frame>
+		</Animation>
+		<Size>115</Size>
+		<Static/>
+		<ShadowSize>80</ShadowSize>
+	</Object>
 	<!-- see The Tinkerer -->
 	<Object type="0x497c" id="The Chronicler">
 		<Class>Chronicler</Class>

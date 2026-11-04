@@ -6,6 +6,7 @@
 mod audio;
 mod champions;
 mod changelog;
+mod community;
 mod connected;
 mod emotes;
 mod events;
@@ -226,6 +227,9 @@ struct App {
     /// the server on opening.
     quests: quests::Quests,
     quest_acts: Vec<quests::Act>,
+    /// The community goals window and its banners, and what it asked of the server.
+    community: community::Community,
+    community_acts: Vec<community::Act>,
     /// Key bindings, graphics and sound settings, and their window.
     settings: options::Settings,
     options_ui: options::OptionsUi,
@@ -277,7 +281,7 @@ fn guild_register_price(world: &bsk_world::World, data: &bsk_data::GameData) -> 
     })
 }
 
-fn npc_open(kind: npc::NpcKind, game: &Game, npcs: &mut npc::Npcs, market: &mut market::Market, forge: &mut forge::Forge, forge_acts: &mut Vec<forge::Act>, quests: (&mut quests::Quests, &mut Vec<quests::Act>), list: Option<&bsk_net::account::CharList>, data: &bsk_data::GameData) -> bool {
+fn npc_open(kind: npc::NpcKind, game: &Game, npcs: &mut npc::Npcs, market: &mut market::Market, forge: &mut forge::Forge, forge_acts: &mut Vec<forge::Act>, quests: (&mut quests::Quests, &mut Vec<quests::Act>), community: (&mut community::Community, &mut Vec<community::Act>), list: Option<&bsk_net::account::CharList>, data: &bsk_data::GameData) -> bool {
     use npc::{NpcKind, Prompt, Window};
     let Some(me) = game.world.as_ref().and_then(|w| w.player()) else { return false };
     let window = match kind {
@@ -304,6 +308,13 @@ fn npc_open(kind: npc::NpcKind, game: &Game, npcs: &mut npc::Npcs, market: &mut 
                 _ => quests::Tab::Achievements,
             };
             acts.extend(log.show(Some(tab)));
+            return false;
+        }
+        // the Warcaller: the community goals
+        NpcKind::CommunityGoals => {
+            let (window, acts) = community;
+            quests.0.close();
+            acts.extend(window.show());
             return false;
         }
         NpcKind::Reskin => {
@@ -1231,6 +1242,7 @@ impl App {
         self.game_menu = false;
         self.npcs.close();
         self.quests.reset();
+        self.community.reset();
         self.vault.reset();
         self.npc_request = None;
         self.keys.clear();
@@ -1251,6 +1263,7 @@ impl App {
         self.game_menu = false;
         self.npcs.close();
         self.quests.reset();
+        self.community.reset();
         self.vault.reset();
         self.npc_request = None;
         self.mouse_down = false;
@@ -1888,7 +1901,7 @@ impl App {
                         Some(hud::Interact { id, kind: hud::InteractKind::Portal, .. }) => game.use_portal(id),
                         Some(hud::Interact { id, kind: hud::InteractKind::Shop { .. }, .. }) => game.buy(id),
                         Some(hud::Interact { kind: hud::InteractKind::Npc { kind, .. }, .. }) => {
-                            to_chars |= npc_open(kind, game, &mut self.npcs, &mut self.market, &mut self.forge, &mut self.forge_acts, (&mut self.quests, &mut self.quest_acts), self.front.list.as_ref(), data);
+                            to_chars |= npc_open(kind, game, &mut self.npcs, &mut self.market, &mut self.forge, &mut self.forge_acts, (&mut self.quests, &mut self.quest_acts), (&mut self.community, &mut self.community_acts), self.front.list.as_ref(), data);
                             self.keys.clear();
                         }
                         _ => {}
@@ -1969,7 +1982,7 @@ impl App {
                     }
                 }
                 if let Some(kind) = self.npc_test.take_if(|c| c != "Vault").and_then(|c| npc::NpcKind::of_class(&c)) {
-                    to_chars |= npc_open(kind, game, &mut self.npcs, &mut self.market, &mut self.forge, &mut self.forge_acts, (&mut self.quests, &mut self.quest_acts), self.front.list.as_ref(), data);
+                    to_chars |= npc_open(kind, game, &mut self.npcs, &mut self.market, &mut self.forge, &mut self.forge_acts, (&mut self.quests, &mut self.quest_acts), (&mut self.community, &mut self.community_acts), self.front.list.as_ref(), data);
                 }
                 if let Some(board) = self.champions_test.take() {
                     self.npcs.open(npc::Window::Champions(Box::new(champions::View::at(Some(&board)))));
@@ -2106,6 +2119,34 @@ impl App {
                 log::info!("quests: {act:?}");
                 game.quest(act);
             }
+            // The community goals: a click on a banner opens them; while open they take the mouse.
+            if !self.community.open && !self.quests.open && !self.options_ui.open && !self.game_menu {
+                let (window, acts) = (&mut self.community, &mut self.community_acts);
+                self.clicks.retain(|&(down, pos)| match down.then(|| window.banner_click(pos)).flatten() {
+                    Some(act) => {
+                        acts.extend(act);
+                        false
+                    }
+                    None => true,
+                });
+            }
+            let mut community_acts = std::mem::take(&mut self.community_acts);
+            if self.community.open {
+                for (down, pos) in std::mem::take(&mut self.clicks) {
+                    if down {
+                        community_acts.extend(self.community.click(pos));
+                    }
+                }
+                self.mouse_down = false;
+            }
+            for e in std::mem::take(&mut game.community_events) {
+                self.community.event(e, now);
+            }
+            community_acts.extend(self.community.tick(now));
+            for act in community_acts {
+                log::info!("community: {act:?}");
+                game.community(act);
+            }
             // --type: into the forge's search once its recipes came.
             if self.forge.open && self.forge.loaded() {
                 if let Some(t) = self.type_text.take() {
@@ -2232,7 +2273,7 @@ impl App {
                         continue;
                     }
                     if let hud::Action::Button(hud::Button::Npc(kind)) = action {
-                        to_chars |= npc_open(kind, game, &mut self.npcs, &mut self.market, &mut self.forge, &mut self.forge_acts, (&mut self.quests, &mut self.quest_acts), self.front.list.as_ref(), data);
+                        to_chars |= npc_open(kind, game, &mut self.npcs, &mut self.market, &mut self.forge, &mut self.forge_acts, (&mut self.quests, &mut self.quest_acts), (&mut self.community, &mut self.community_acts), self.front.list.as_ref(), data);
                         self.keys.clear();
                         continue;
                     }
@@ -2487,6 +2528,9 @@ impl App {
                 self.vault.draw(&mut ui, &lay, world.player(), &inv, mouse, now);
                 self.quests.draw(&mut ui, &lay, world.player(), mouse, now);
                 self.quests.draw_toasts(&mut ui, &lay, now);
+                self.community.draw(&mut ui, &lay, world.player(), mouse, now);
+                let below = self.quests.toasts_end(&lay);
+                self.community.draw_banners(&mut ui, &lay, below, now);
                 prof::mark("chat..windows");
                 hud::draw_overlay(&mut ui, &lay, world, p, &self.hud, mouse);
                 prof::mark("overlay");
@@ -2505,6 +2549,8 @@ impl App {
             && !self.vault.open
             && !self.quests.open
             && !self.quests.on_toast(mouse)
+            && !self.community.open
+            && !self.community.on_banner(mouse)
             && self.npcs.window.is_none()
             && self.hud.drag.is_none();
         if crosshair {
@@ -2865,6 +2911,13 @@ impl ApplicationHandler<UserEvent> for App {
                     self.keys.remove(&code);
                     return;
                 }
+                if self.community.open && matches!(self.phase, Phase::Playing(_)) {
+                    if pressed {
+                        self.community.key(code);
+                    }
+                    self.keys.remove(&code);
+                    return;
+                }
                 if self.quests.open && matches!(self.phase, Phase::Playing(_)) {
                     if pressed {
                         if Some(code) == self.settings.key(options::Bind::Quests) {
@@ -3178,6 +3231,8 @@ fn main() {
         events: Default::default(),
         quests: Default::default(),
         quest_acts: Vec::new(),
+        community: Default::default(),
+        community_acts: Vec::new(),
         forge_acts: Vec::new(),
         vault: Default::default(),
         type_text: text_arg("--type"),

@@ -633,8 +633,11 @@ namespace WorldServer.core.worlds.impl.doomed
                 // the waves just beaten, each for quests and achievements (none at the start)
                 if (Wave > 0)
                     for (var w = Math.Max(1, _fightFrom); w <= Wave; w++)
+                    {
+                        var wave = new Shared.quests.QuestEvent(Shared.quests.QuestEvents.ArenaWave) { Value = w, Occurrence = Shared.quests.QuestEvent.NewOccurrence() };
                         foreach (var p in Players.Values)
-                            p.Quests?.Event(new Shared.quests.QuestEvent(Shared.quests.QuestEvents.ArenaWave) { Value = w });
+                            p.Quests?.Event(wave);
+                    }
                 Wave++;
                 // each wave's fame pot, as one by one: after a combined fight, the waves it took in too
                 var pot = 0;

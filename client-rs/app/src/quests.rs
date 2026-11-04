@@ -83,7 +83,7 @@ const TABS: [(Tab, &str); 5] = [
 const PERIOD_NAMES: [&str; 3] = ["daily", "weekly", "monthly"];
 
 /// The achievement tiers' colours: bronze, silver, gold, ember.
-const TIER_COLORS: [u32; 4] = [0xCD8A4E, 0xC9D2E3, color::GOLD, color::ACCENT];
+pub(crate) const TIER_COLORS: [u32; 4] = [0xCD8A4E, 0xC9D2E3, color::GOLD, color::ACCENT];
 const TIER_NAMES: [&str; 4] = ["Bronze", "Silver", "Gold", "Ember"];
 
 /// How long a popup shows, and how long it takes to come and go (ms).
@@ -135,7 +135,7 @@ pub fn countdown(seconds: i64) -> String {
     }
 }
 
-fn inside(r: [f32; 4], (x, y): (f64, f64)) -> bool {
+pub(crate) fn inside(r: [f32; 4], (x, y): (f64, f64)) -> bool {
     let (x, y) = (x as f32, y as f32);
     x >= r[0] && y >= r[1] && x < r[0] + r[2] && y < r[1] + r[3]
 }
@@ -467,47 +467,13 @@ impl Quests {
         }
     }
 
-    /// Rewards in a row from `x`, centred on `cy`: fame as its number and icon, items in small
-    /// slots (with a count when more than one). Returns where the row ends.
     #[allow(clippy::too_many_arguments)]
     fn rewards(&mut self, ui: &mut Ui, rewards: &[QuestReward], x: f32, cy: f32, s: f32, mouse: (f64, f64), dim: bool) -> f32 {
-        let size = (14.0 * s).round().max(9.0);
-        let mut x = x;
-        for r in rewards {
-            if r.kind == 0 {
-                let t = crate::hud::group_digits(r.amount);
-                let w = fame_text(ui, &t, x, (cy - ui.digit_middle(size, true)).round(), size, if dim { color::TEXT_MUTED } else { color::GOLD }, s);
-                x += w + 12.0 * s;
-            } else {
-                let side = 34.0 * s;
-                let sr = [x, (cy - side / 2.0).round(), side, side];
-                let over = inside(sr, mouse);
-                ui.slot_box(sr, crate::screens::tier_edge(ui.data, r.item as i32), over, s);
-                ui.item_icon(r.item as i32, 60, sr[0] + side / 2.0, sr[1] + side / 2.0, s);
-                if dim {
-                    theme::fill(ui.renderer, sr, 5.0 * s, 0x000000, 0.45);
-                }
-                if r.amount > 1 {
-                    let cs = (11.0 * s).round().max(9.0);
-                    let t = format!("{}", r.amount);
-                    let tw = ui.measure(&t, cs, true);
-                    ui.label(&t, sr[0] + side - tw - 3.0 * s, sr[1] + side - cs * 1.2, cs, true, color::TEXT);
-                }
-                if over {
-                    self.hover_item = Some(r.item as i32);
-                }
-                x += side + 8.0 * s;
-            }
-        }
-        x
+        reward_row(ui, rewards, x, cy, s, mouse, dim, &mut self.hover_item)
     }
 
     fn rewards_width(ui: &mut Ui, rewards: &[QuestReward], s: f32) -> f32 {
-        let size = (14.0 * s).round().max(9.0);
-        rewards
-            .iter()
-            .map(|r| if r.kind == 0 { fame_width(ui, &crate::hud::group_digits(r.amount), size, s) + 12.0 * s } else { 42.0 * s })
-            .sum::<f32>()
+        rewards_width(ui, rewards, s)
     }
 
     fn draw_period(&mut self, ui: &mut Ui, body: [f32; 4], period: u8, s: f32, mouse: (f64, f64), now: i32) {
@@ -831,6 +797,11 @@ impl Quests {
         }
     }
 
+    /// Where the popups end, for what shows below them (the community goals' banners).
+    pub fn toasts_end(&self, lay: &Layout) -> f32 {
+        self.toast_hits.last().map_or(70.0 * lay.s, |(_, r)| r[1] + r[3] + 8.0 * lay.s)
+    }
+
     /// The popups, at the top middle of the view: they slide in, wait, and fade out.
     pub fn draw_toasts(&mut self, ui: &mut Ui, lay: &Layout, now: i32) {
         self.toasts.retain(|t| now - t.since < TOAST_MS);
@@ -876,6 +847,51 @@ impl Quests {
     }
 }
 
+/// Rewards in a row from `x`, centred on `cy`: fame as its number and icon, items in small
+/// slots (with a count when more than one). Returns where the row ends; `hover` is the item under
+/// the mouse, for its tooltip.
+#[allow(clippy::too_many_arguments)]
+pub(crate) fn reward_row(ui: &mut Ui, rewards: &[QuestReward], x: f32, cy: f32, s: f32, mouse: (f64, f64), dim: bool, hover: &mut Option<i32>) -> f32 {
+    let size = (14.0 * s).round().max(9.0);
+    let mut x = x;
+    for r in rewards {
+        if r.kind == 0 {
+            let t = crate::hud::group_digits(r.amount);
+            let w = fame_text(ui, &t, x, (cy - ui.digit_middle(size, true)).round(), size, if dim { color::TEXT_MUTED } else { color::GOLD }, s);
+            x += w + 12.0 * s;
+        } else {
+            let side = 34.0 * s;
+            let sr = [x, (cy - side / 2.0).round(), side, side];
+            let over = inside(sr, mouse);
+            ui.slot_box(sr, crate::screens::tier_edge(ui.data, r.item as i32), over, s);
+            ui.item_icon(r.item as i32, 60, sr[0] + side / 2.0, sr[1] + side / 2.0, s);
+            if dim {
+                theme::fill(ui.renderer, sr, 5.0 * s, 0x000000, 0.45);
+            }
+            if r.amount > 1 {
+                let cs = (11.0 * s).round().max(9.0);
+                let t = format!("{}", r.amount);
+                let tw = ui.measure(&t, cs, true);
+                ui.label(&t, sr[0] + side - tw - 3.0 * s, sr[1] + side - cs * 1.2, cs, true, color::TEXT);
+            }
+            if over {
+                *hover = Some(r.item as i32);
+            }
+            x += side + 8.0 * s;
+        }
+    }
+    x
+}
+
+/// How wide `reward_row` draws these rewards.
+pub(crate) fn rewards_width(ui: &mut Ui, rewards: &[QuestReward], s: f32) -> f32 {
+    let size = (14.0 * s).round().max(9.0);
+    rewards
+        .iter()
+        .map(|r| if r.kind == 0 { fame_width(ui, &crate::hud::group_digits(r.amount), size, s) + 12.0 * s } else { 42.0 * s })
+        .sum::<f32>()
+}
+
 fn capital(s: &str) -> String {
     let mut c = s.chars();
     c.next().map_or(String::new(), |f| f.to_uppercase().collect::<String>() + c.as_str())
@@ -883,7 +899,7 @@ fn capital(s: &str) -> String {
 
 /// A tab or filter chip, with a count of what waits on it.
 #[allow(clippy::too_many_arguments)]
-fn chip(ui: &mut Ui, r: [f32; 4], label: &str, on: bool, hover: bool, size: f32, badge: Option<usize>, s: f32) {
+pub(crate) fn chip(ui: &mut Ui, r: [f32; 4], label: &str, on: bool, hover: bool, size: f32, badge: Option<usize>, s: f32) {
     let fill = if on { color::ACCENT } else if hover { color::SECONDARY } else { color::CHIP };
     theme::fill(ui.renderer, r, r[3] / 2.0, fill, 1.0);
     let n = badge.unwrap_or(0);
@@ -904,7 +920,7 @@ fn chip(ui: &mut Ui, r: [f32; 4], label: &str, on: bool, hover: bool, size: f32,
 
 /// A quest's or achievement's box: warm and edged in gold (pulsing) when its reward waits,
 /// quieter when done.
-fn card(ui: &mut Ui, r: [f32; 4], ready: bool, done: bool, pulse: f32, s: f32) {
+pub(crate) fn card(ui: &mut Ui, r: [f32; 4], ready: bool, done: bool, pulse: f32, s: f32) {
     if ready {
         let g = 2.0 * s + pulse * 3.0 * s;
         theme::fill(ui.renderer, [r[0] - g, r[1] - g, r[2] + 2.0 * g, r[3] + 2.0 * g], 10.0 * s + g, color::GOLD, 0.14);
@@ -915,7 +931,7 @@ fn card(ui: &mut Ui, r: [f32; 4], ready: bool, done: bool, pulse: f32, s: f32) {
 }
 
 /// A bar filling with progress towards a goal, the numbers on it.
-fn progress_bar(ui: &mut Ui, r: [f32; 4], progress: i32, goal: i32, done: bool, s: f32) {
+pub(crate) fn progress_bar(ui: &mut Ui, r: [f32; 4], progress: i32, goal: i32, done: bool, s: f32) {
     let k = if goal <= 0 { 1.0 } else { (progress as f32 / goal as f32).clamp(0.0, 1.0) };
     theme::fill(ui.renderer, r, r[3] / 2.0, color::TRACK, 1.0);
     let full = k >= 1.0;
@@ -929,13 +945,13 @@ fn progress_bar(ui: &mut Ui, r: [f32; 4], progress: i32, goal: i32, done: bool, 
 }
 
 /// A soft gold glow behind a button whose reward waits.
-fn glow(ui: &mut Ui, r: [f32; 4], pulse: f32, s: f32) {
+pub(crate) fn glow(ui: &mut Ui, r: [f32; 4], pulse: f32, s: f32) {
     let g = 3.0 * s + pulse * 4.0 * s;
     theme::fill(ui.renderer, [r[0] - g, r[1] - g, r[2] + 2.0 * g, r[3] + 2.0 * g], 8.0 * s + g, color::ACCENT, 0.18 + 0.12 * pulse);
 }
 
 /// "Claimed" or "Complete": a quiet chip with a tick.
-fn done_chip(ui: &mut Ui, r: [f32; 4], label: &str, s: f32) {
+pub(crate) fn done_chip(ui: &mut Ui, r: [f32; 4], label: &str, s: f32) {
     theme::fill(ui.renderer, r, r[3] / 2.0, color::CHIP, 0.8);
     let size = (13.0 * s).round().max(9.0);
     let lw = ui.measure(label, size, true);
@@ -945,7 +961,7 @@ fn done_chip(ui: &mut Ui, r: [f32; 4], label: &str, s: f32) {
 }
 
 /// A padlock on a quiet chip (the bonus before its quests are claimed).
-fn locked(ui: &mut Ui, r: [f32; 4], s: f32) {
+pub(crate) fn locked(ui: &mut Ui, r: [f32; 4], s: f32) {
     theme::fill(ui.renderer, r, r[3] / 2.0, color::CHIP, 0.5);
     let lock = 10.0 * s;
     let (x, ly) = (r[0] + (r[2] - lock) / 2.0, r[1] + r[3] / 2.0 - lock * 0.1);
@@ -957,7 +973,7 @@ fn locked(ui: &mut Ui, r: [f32; 4], s: f32) {
 }
 
 /// A tick, centred on (cx, cy), `half` across each way.
-fn check(ui: &mut Ui, cx: f32, cy: f32, half: f32, s: f32) {
+pub(crate) fn check(ui: &mut Ui, cx: f32, cy: f32, half: f32, s: f32) {
     let white = ui.renderer.white();
     let t = (2.2 * s).max(1.5);
     let tint = bsk_render::Tint::color(color::GOOD, 1.0);
@@ -974,7 +990,7 @@ fn check(ui: &mut Ui, cx: f32, cy: f32, half: f32, s: f32) {
 
 /// An achievement tier's medal: filled when claimed, a pulsing ring when earned, faint when not.
 #[allow(clippy::too_many_arguments)]
-fn medal(ui: &mut Ui, (cx, cy): (f32, f32), rad: f32, rgb: u32, claimed: bool, got: bool, pulse: f32, s: f32) {
+pub(crate) fn medal(ui: &mut Ui, (cx, cy): (f32, f32), rad: f32, rgb: u32, claimed: bool, got: bool, pulse: f32, s: f32) {
     let r = [cx - rad, cy - rad, rad * 2.0, rad * 2.0];
     if claimed {
         theme::rounded(ui.renderer, r, rad, (theme::shade(rgb, 0.25), 1.0), (theme::shade(rgb, -0.25), 1.0));

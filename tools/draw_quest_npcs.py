@@ -1,13 +1,13 @@
 """Draws the NPCs of the Nexus: the Tinkerer (quests), the Chronicler (daily rewards and
-achievements), the Market Broker (the Marketplace) and the Herald (the server's week), two frames
-each.
+achievements), the Market Broker (the Marketplace), the Herald (the server's week) and the
+Warcaller (community goals), two frames each.
 
     python tools/draw_quest_npcs.py [--preview <png>]
 
 Writes `QuestNpcs16x16.png` (client/src/kabam/rotmg/assets/custom/images), 16 by 16 pixels a
-cell: cells 0-1 the Tinkerer, 2-3 the Chronicler, 4-5 the Market Broker, 6-7 the Herald. The objects
-(`The Tinkerer`, `The Chronicler`, `Market Broker`, `The Herald`, CustomObjects.xml) animate between
-their two. At Size 100 a 16-pixel cell draws at
+cell: cells 0-1 the Tinkerer, 2-3 the Chronicler, 4-5 the Market Broker, 6-7 the Herald, 8-9 the
+Warcaller. The objects (`The Tinkerer`, `The Chronicler`, `Market Broker`, `The Herald`,
+`The Warcaller`, CustomObjects.xml) animate between their two. At Size 100 a 16-pixel cell draws at
 the same pixel size as the 8-pixel characters, so they stand a head taller than players. The art
 is drawn here rather than in an editor so it can be changed and redrawn; it needs Pillow.
 """
@@ -47,6 +47,9 @@ PALETTE = {
     "p": (255, 246, 214),    # glowing page
     "y": (255, 214, 90),     # glow
     "f": (46, 38, 66),       # boots
+    "n": (214, 222, 240),    # steel, lit
+    "m": (150, 160, 186),    # steel
+    "M": (92, 100, 128),     # steel in shade
 }
 
 # The Tinkerer: a gnome tinker in a leather cap with brass goggles, an ember coat and a leather
@@ -215,6 +218,49 @@ HERALD = [
 ]
 
 
+# The Warcaller: a knight in a plumed steel helm and an ember surcoat, who holds up the realm's
+# violet war banner with its gold star, rallying everyone to the week's goals. Frame 2: the banner
+# streams out in the wind and the star flares.
+WARCALLER = [
+    [
+        ".G.......rr.....",
+        ".gooo...orro....",
+        ".gvvvo.onnnmo...",
+        ".gvGvoonnmmmMo..",
+        ".gGyGoonmmmmMo..",
+        ".gvGvoomyoyomMo.",
+        ".gvvvoomMmmmMMo.",
+        ".gvovo.occgcco..",
+        ".g..oommcgggcmmo",
+        ".gkkomcgrrgcmMo.",
+        ".gkoomccrrccmMo.",
+        ".g...occggccCo..",
+        ".g...oCccccCCo..",
+        ".g....oCCCCCo...",
+        ".g....oMMoMMo...",
+        ".o....offoffo...",
+    ],
+    [
+        ".G......rr.....y",
+        ".gooo..orro.....",
+        ".gvvvo.onnnmo...",
+        ".gvyvoonnmmmMo..",
+        ".gyyyoonmmmmMo.y",
+        ".gvyvoomyoyomMo.",
+        ".gvvvoomMmmmMMo.",
+        ".gvovo.occgcco..",
+        ".g..oommcgggcmmo",
+        ".gkkomcgrrgcmMo.",
+        ".gkoomccrrccmMo.",
+        ".g...occggccCo..",
+        ".g...oCccccCCo..",
+        ".g....oCCCCCo...",
+        ".g....oMMoMMo...",
+        ".o....offoffo...",
+    ],
+]
+
+
 def cell(rows):
     img = Image.new("RGBA", (CELL, CELL), (0, 0, 0, 0))
     assert len(rows) == CELL, len(rows)
@@ -227,7 +273,7 @@ def cell(rows):
 
 
 def main():
-    frames = TINKERER + CHRONICLER + BROKER + HERALD
+    frames = TINKERER + CHRONICLER + BROKER + HERALD + WARCALLER
     sheet = Image.new("RGBA", (CELL * len(frames), CELL), (0, 0, 0, 0))
     for i, rows in enumerate(frames):
         sheet.paste(cell(rows), (i * CELL, 0))

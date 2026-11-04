@@ -37,6 +37,7 @@ import wiki_data as wd  # noqa: E402
 import wiki_balance  # noqa: E402
 import wiki_gear  # noqa: E402
 import wiki_quests  # noqa: E402
+import wiki_community  # noqa: E402
 import wiki_loot  # noqa: E402
 
 ROOT = wd.ROOT
@@ -60,6 +61,7 @@ COMMAND_HELP = {
     "sellfame": "Selling items for fame is now done at the Divine Forge in the Nexus; this points you to it.",
     "forge": "To the Divine Forge in the Nexus, from anywhere: you arrive in front of it, ready to forge or sell.",
     "quests": "Your quests, today's reward and your achievements in the chat (the <kbd>J</kbd> key opens the quest log, where you claim them).",
+    "goals": "This week's <a href=\"community-goals.html\">community goals</a> in the chat: how far the realm has come, and your part. The Warcaller by the Nexus spawn shows them and pays their rewards.",
     "champions": "The Hall of Champions in the chat: every board's top three and your own places and rewards. The Champions Monument in the Nexus's east ward shows it all.",
     "market": "To the Market Broker in the Nexus's market square, from anywhere: the <a href=\"marketplace.html\">Marketplace</a>, where players sell to each other for fame.",
     "sell": "Lists an item on the <a href=\"marketplace.html\">Marketplace</a> without opening it: <code>/sell &lt;slot&gt; &lt;price&gt; [days]</code>, the slot 1-8 (9-16 for the backpack), for 1 to 7 days (3 if not given).",
@@ -510,6 +512,19 @@ class Gen:
     def gen_quests_ranks(self, used):
         return self.quests.ranks()
 
+    # --- community goals (tools/wiki_community.py) ------------------------------------------------
+    @property
+    def community(self):
+        if getattr(self, "_community", None) is None:
+            self._community = wiki_community.Community(self)
+        return self._community
+
+    def gen_community_goals(self, used):
+        return self.community.goals()
+
+    def gen_community_tiers(self, used):
+        return self.community.tiers()
+
     def gen_tier_tables(self, used):
         return self.balance.tier_tables(used)
 
@@ -543,6 +558,7 @@ class Gen:
         crate = wd.mystery_crate()
         return {
             **self.quests.values(),
+            **self.community.values(),
             "forge_recipes": "{:,}".format(len(self.forge)), "forge_chains": "{:,}".format(sum(r["chain"] for r in self.forge)),
             "forge_cap": "{:,}".format(wd.Data.FORGE_TIERED_CAP), "name_change": "{:,}".format(wd.name_change_fame()),
             "nexus_afk": "%g" % wd.nexus_afk_minutes(),

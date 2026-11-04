@@ -43,6 +43,12 @@ namespace Shared.quests
         public string Name;
         public bool God, Boss, Oryx, Cube, RealmEvent, Elder, Group;
         public int Difficulty;
+        // one thing several players share (a kill, a dungeon cleared, a realm closed), the same in
+        // each of their events, so a community goal counts it once (0: each player's own)
+        public long Occurrence;
+
+        private static long _occurrences;
+        public static long NewOccurrence() => System.Threading.Interlocked.Increment(ref _occurrences);
 
         public QuestEvent(string type, int amount = 1) : this()
         {

@@ -57,6 +57,8 @@ pub struct Game {
     pub vault_contents: Option<bsk_proto::VaultContents>,
     /// Quests, daily rewards and achievements, for the quest log (`quests.rs`).
     pub quest_events: Vec<crate::quests::Event>,
+    /// The community goals and their banners, for their window (`community.rs`).
+    pub community_events: Vec<crate::community::Event>,
     /// Sound effects to play: (name, volume, is it a weapon's shot).
     pub sounds: Vec<(String, f32, bool)>,
     /// The map's music (`MapInfo.music`, `SwitchMusic`).
@@ -291,6 +293,7 @@ impl Game {
             forge_events: Vec::new(),
             vault_contents: None,
             quest_events: Vec::new(),
+            community_events: Vec::new(),
             music: None,
             last_level: 0,
             dealt: Default::default(),
@@ -548,6 +551,8 @@ impl Game {
                 self.socket.send(&bsk_proto::RealmEventsSubscribe {}.into());
                 // quests: the HUD's badge counts what waits, so ask in every world
                 self.socket.send(&bsk_proto::QuestsRequest {}.into());
+                // community goals: to say when one of their rewards waits, and for their banners
+                self.socket.send(&bsk_proto::CommunityRequest {}.into());
                 // we can show visit and summon requests, in the corner
                 self.socket.send(&bsk_proto::VisitAnswer { id: 0, answer: 255 }.into());
                 self.socket.send(&bsk_proto::VisitAnswer { id: 0, answer: 254 }.into());
@@ -807,6 +812,8 @@ impl Game {
             ServerMessage::QuestProgress(p) => self.quest_events.push(crate::quests::Event::Progress(p.changes.0.clone())),
             ServerMessage::QuestResult(r) => self.quest_events.push(crate::quests::Event::Result(r.success, r.message.clone())),
             ServerMessage::QuestNotice(n) => self.quest_events.push(crate::quests::Event::Notice(n.kind, n.title.clone(), n.text.clone())),
+            ServerMessage::CommunityData(d) => self.community_events.push(crate::community::Event::Data(Box::new(d.clone()))),
+            ServerMessage::CommunityNotice(n) => self.community_events.push(crate::community::Event::Notice(n.kind, n.title.clone(), n.text.clone())),
             ServerMessage::Goto(g) => world.apply_goto(g.object_id, g.pos.x as f64, g.pos.y as f64, now, data),
             ServerMessage::EnemyShoot(e) => {
                 let Some(owner) = world.objects.get(&e.owner_id).filter(|o| !o.dead) else { return };
@@ -1367,6 +1374,16 @@ impl Game {
         let msg: ClientMessage = match act {
             Act::Request => bsk_proto::QuestsRequest {}.into(),
             Act::Claim(kind, id) => bsk_proto::QuestClaim { kind, id }.into(),
+        };
+        self.send(msg);
+    }
+
+    /// Ask the community goals' server side (`CommunityGoals.cs`).
+    pub fn community(&mut self, act: crate::community::Act) {
+        use crate::community::Act;
+        let msg: ClientMessage = match act {
+            Act::Request => bsk_proto::CommunityRequest {}.into(),
+            Act::Claim(key, tier) => bsk_proto::CommunityClaim { key, tier }.into(),
         };
         self.send(msg);
     }

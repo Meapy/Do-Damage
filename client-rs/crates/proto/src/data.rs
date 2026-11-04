@@ -235,6 +235,53 @@ wire_struct! {
 }
 
 wire_struct! {
+    /// A community goal's tier (`CommunityData`): the total it's reached at, whether we've
+    /// claimed it, and what everyone who helped gets.
+    pub struct CommunityTier {
+        pub at: i32,
+        pub claimed: bool,
+        pub rewards: List8<QuestReward>,
+    }
+}
+
+wire_struct! {
+    /// One of a community goal's top contributors, and how much they added.
+    pub struct CommunityContributor {
+        pub name: String,
+        pub amount: i32,
+    }
+}
+
+wire_struct! {
+    /// A community goal running or ended lately (`CommunityData`): its run's key, what it is and
+    /// the object it shows (0: none), whether it's a special, its dates (Unix seconds), the
+    /// total, how many helped, the share that counts for its rewards, ours and our place (0:
+    /// none), its tiers, then how many make its top, the top's prize and whether we've claimed it,
+    /// and the top contributors.
+    pub struct CommunityGoal {
+        pub key: String,
+        pub title: String,
+        pub text: String,
+        pub icon: u16,
+        pub special: bool,
+        pub starts_at: i32,
+        pub ends_at: i32,
+        pub running: bool,
+        pub goal: i32,
+        pub total: i32,
+        pub participants: i32,
+        pub minimum: i32,
+        pub mine: i32,
+        pub rank: i32,
+        pub tiers: List8<CommunityTier>,
+        pub top_count: u8,
+        pub top_claimed: bool,
+        pub top_rewards: List8<QuestReward>,
+        pub top: List8<CommunityContributor>,
+    }
+}
+
+wire_struct! {
     /// Progress that changed (`QuestProgress`): a quest (kind 0) or an achievement (1) by its
     /// place in `QuestsData`'s lists.
     #[derive(Copy)]

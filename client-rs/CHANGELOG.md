@@ -14,6 +14,15 @@ details). Add to a group's line when a change adds to it, rather than adding ano
 
 ## Unreleased
 
+### Community goals
+- Every week the whole server gets 3 goals to reach together, such as defeating Oryx 15 times,
+  clearing 40 dungeons or earning 6,000 fame between you. Each has four tiers, Spark to Inferno,
+  and everyone who helped claims every tier the realm reaches (fame, potions, keys and more), even
+  while offline; the top 3 contributors claim a prize more when it ends.
+- Meet the Warcaller, the bannered knight at the north end of the Nexus spawn: he opens the
+  Community Goals window, with live progress bars, your part and the top contributors. Banners
+  and chat lines tell everyone when a tier is reached, and `/goals` shows it all in the chat.
+
 ### Death spin
 - Dying spins a loot reel on the death screen. The more base fame the character had, the better
   its tier (Bronze from 20 fame up to Mythic at 10,000) and its odds: stat potions, pets and gear

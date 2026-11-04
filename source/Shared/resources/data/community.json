@@ -1,0 +1,79 @@
+{
+  "_about": [
+    "Community goals (Shared/community/CommunityData.cs reads this; the world server's CommunityGoals counts them; tools/wiki_community.py builds the wiki's Community Goals page from it).",
+    "Each week (Monday 00:00 UTC) 'slots' goals are drawn from 'goals', one per 'group', the groups in turn so each comes back only after the others; 'weight' picks between a group's goals. The week's draw is kept in Redis when it starts, so changes here only change the weeks to come.",
+    "A goal: 'event' what counts and 'filter' what narrows it (as in quests.json), 'goal' the whole server's target, 'minimum' what an account must add to share the rewards, 'icon' an object id the window shows. A kill, a dungeon cleared, a realm closed or an Arena wave counts once towards the total however many share it, and once for each of them.",
+    "Tiers: reached at 'tierShares' of the goal and named 'tierNames'. Every account past the minimum claims each tier reached, from the Warcaller by the Nexus spawn; the top 'topCount' contributors claim the 'top' prize too once the goal ends. A goal without 'tiers' or 'top' gives 'defaultTiers' and 'defaultTop'.",
+    "Rewards: {\"fame\": n} to the account, {\"item\": \"<id>\", \"count\": n} to the gift chest in the vault. They stay claimable 'claimWeeks' weeks after a goal ends.",
+    "Specials: goals with 'from' and 'until' (UTC days, yyyy-MM-dd, both included) run besides the week's. Give each a new id."
+  ],
+  "slots": 3,
+  "tierShares": [ 0.25, 0.5, 0.75, 1 ],
+  "tierNames": [ "Spark", "Flame", "Blaze", "Inferno" ],
+  "topCount": 3,
+  "claimWeeks": 1,
+  "defaultTiers": [
+    [ { "fame": 150 } ],
+    [ { "fame": 250 }, { "item": "Loot Drop Potion" } ],
+    [ { "fame": 400 }, { "item": "Lucky Clover" } ],
+    [ { "fame": 750 }, { "item": "Potion of Life" } ]
+  ],
+  "defaultTop": [ { "fame": 1000 }, { "item": "Greater Potion of Life" } ],
+  "goals": [
+    { "id": "oryx", "group": "oryx", "title": "Down with the Mad God", "text": "Defeat Oryx the Mad God {n} times as a realm, in any of his forms.", "icon": "Oryx the Mad God 2",
+      "event": "kill", "filter": { "oryx": true }, "goal": 15,
+      "tiers": [
+        [ { "fame": 200 } ],
+        [ { "fame": 300 }, { "item": "Wine Cellar Incantation" } ],
+        [ { "fame": 450 }, { "item": "Lucky Clover" } ],
+        [ { "fame": 800 }, { "item": "Greater Potion of Attack" } ]
+      ] },
+    { "id": "gods", "group": "gods", "title": "Twilight of the Gods", "text": "Defeat {n} gods in the Godlands together.", "icon": "Medusa",
+      "event": "kill", "filter": { "god": true }, "goal": 1000, "minimum": 20,
+      "tiers": [
+        [ { "fame": 150 } ],
+        [ { "fame": 250 }, { "item": "Potion of Defense" } ],
+        [ { "fame": 400 }, { "item": "Lucky Clover" } ],
+        [ { "fame": 750 }, { "item": "Greater Potion of Defense" } ]
+      ] },
+    { "id": "events", "group": "events", "title": "Defenders of the Realm", "text": "Defeat {n} realm event bosses together.", "icon": "Lord of the Lost Lands",
+      "event": "kill", "filter": { "realmEvent": true }, "goal": 50, "minimum": 2 },
+    { "id": "realms", "group": "realms", "title": "The Realm Breakers", "text": "Close {n} realms, driving Oryx to his castle each time.", "icon": "Wine Cellar Portal",
+      "event": "realmClosed", "goal": 6 },
+    { "id": "dungeons", "group": "dungeons", "title": "Delve Together", "text": "Clear {n} dungeons together.", "icon": "Tomb of the Ancients Portal",
+      "event": "dungeon", "goal": 40, "minimum": 2,
+      "tiers": [
+        [ { "fame": 150 } ],
+        [ { "fame": 250 }, { "item": "Davy's Key" } ],
+        [ { "fame": 400 }, { "item": "Tomb of the Ancients Key" } ],
+        [ { "fame": 750 }, { "item": "Potion of Life" } ]
+      ] },
+    { "id": "hard_dungeons", "group": "dungeons", "weight": 0.7, "title": "No Easy Way Out", "text": "Clear {n} Hard or harder dungeons together.", "icon": "Malphas Protector",
+      "event": "dungeon", "filter": { "minDifficulty": 3 }, "goal": 12 },
+    { "id": "elder", "group": "elder", "title": "Elder Blood", "text": "Clear {n} Elder dungeons together.", "icon": "Elder Tomb Key",
+      "event": "dungeon", "filter": { "elder": true }, "goal": 6,
+      "tiers": [
+        [ { "fame": 200 } ],
+        [ { "fame": 300 }, { "item": "Loot Tier Potion" } ],
+        [ { "fame": 450 }, { "item": "Elder Tomb Key" } ],
+        [ { "fame": 800 }, { "item": "Greater Potion of Vitality" } ]
+      ] },
+    { "id": "monsters", "group": "kill", "title": "Legion's End", "text": "Defeat {n} monsters in realms and dungeons.", "icon": "Skull Shrine",
+      "event": "kill", "goal": 12000, "minimum": 100 },
+    { "id": "bosses", "group": "kill", "title": "Trophy Hunters", "text": "Help defeat {n} bosses.", "icon": "Grand Sphinx",
+      "event": "kill", "filter": { "boss": true }, "goal": 150, "minimum": 3 },
+    { "id": "cubes", "group": "kill", "weight": 0.6, "title": "Cube Crushers", "text": "Defeat {n} cube monsters.", "icon": "Cube God",
+      "event": "kill", "filter": { "cube": true }, "goal": 150, "minimum": 10 },
+    { "id": "fame", "group": "fame", "title": "Legends of the Realm", "text": "Earn {n} fame on your characters, all of you together.", "icon": "Champions Monument",
+      "event": "fame", "goal": 6000, "minimum": 100 },
+    { "id": "potions", "group": "potions", "title": "Strength in Numbers", "text": "Drink {n} stat potions on stats that aren't maxed yet.", "icon": "Potion of Life",
+      "event": "potion", "goal": 60, "minimum": 2 },
+    { "id": "arena", "group": "arena", "title": "Roar of the Crowd", "text": "Clear {n} Arena waves.", "icon": "Arena Leaderboard",
+      "event": "arenaWave", "goal": 60, "minimum": 3 },
+    { "id": "forge", "group": "forge", "weight": 0.8, "title": "Fires of the Forge", "text": "Forge {n} items at the Divine Forge.", "icon": "Divine Forge",
+      "event": "forge", "goal": 12 },
+    { "id": "levels", "group": "levels", "weight": 0.6, "title": "Fresh Blood", "text": "Gain {n} character levels.", "icon": "XP Booster 1 hr",
+      "event": "level", "goal": 100, "minimum": 3 }
+  ],
+  "specials": []
+}

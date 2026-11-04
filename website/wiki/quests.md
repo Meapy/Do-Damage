@@ -14,6 +14,9 @@ you've done, account-wide. All of it lives in the **quest log**: press <kbd>J</k
 > vault, so a reward never fills your inventory. Everything is account-wide: progress on one
 > character counts for all of them, and dying doesn't lose any of it.
 
+For goals the whole server works towards together each week, see
+[Community Goals](community-goals.html).
+
 ## The quest keepers
 
 Two NPCs stroll about the courtyard of the market in the Nexus's village, south-east of the spawn:

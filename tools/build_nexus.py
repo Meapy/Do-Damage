@@ -12,7 +12,8 @@ sea comes in over its southern point in two bays either side of a wooded headlan
 out:
 - the spawn (`Spawn`) on an island of pink-stained deck, itself a hexagon (`ISLAND`), with the
   healing basins (`NG Garden Basin`, NexusWorld) at its corners, the Armoire (`NG Armoire`) beside
-  it, the Vault Portal, and the Support Bot's dungeon portal south of it (NexusGuide); the Name
+  it, the Warcaller with the community goals at its north point (`WARCALLER`, Warcaller.cs), the
+  Vault Portal, and the Support Bot's dungeon portal south of it (NexusGuide); the Name
   Changer and the Character Changer walk about its upper corners (NexusVillagers), and the XP
   ducks swim round it;
 - a koi pond round the island, shallow enough to wade, crossed by wooden bridges to the west and
@@ -108,6 +109,7 @@ COAST = [(8, 82), (18, 78), (30, 73), (38, 77), (46, 84), (55, 89), (68, 92), (8
 ISLAND = (68, 61, 11, 12)       # the spawn's island: middle x and y, half its width and height
 POND_SCALE = (1.6, 1.5)         # the pond round it, as the island's hexagon made this much bigger
 CENTRE = ISLAND[:2]
+WARCALLER = (68.5, 53.5)        # the Warcaller (community goals), the island's north point (Warcaller.cs, keep the two in step)
 BRIDGE_W, BRIDGE_E = (49, 57), (79, 87)          # the wooden bridges' x spans, at the spawn's row
 BRIDGE_NW, BRIDGE_NE = 62, 74                    # the cobbled bridges' middle columns
 
@@ -736,7 +738,7 @@ def check_nexus(g):
         t = g[CHAMPIONS[0] + dx, CHAMPIONS[1] + dy]
         assert t["obj"] == "Champion Statue" and t["name"] == "name:%s" % board, (dx, dy)
         assert dx < 5 or abs(dy) > 1, "the road to the monument stays open"
-    for x, y in QUEST_NPCS + [HERALD]:
+    for x, y in QUEST_NPCS + [HERALD, WARCALLER]:
         assert g.empty(int(x), int(y)) and g.land(int(x), int(y)), (x, y)
     # the portals' floors: nothing standing on a cavern's or the vortex's tiles
     for (cx, cy), r in [(VORTEX, 3)] + [(c, 2) for c in CAVERNS]:

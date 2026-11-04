@@ -58,6 +58,8 @@ pub enum NpcKind {
     ChampionStatue,
     /// The Herald in the Nexus's leaderboard court, west of the spawn: the server's week.
     Herald,
+    /// The Warcaller at the north point of the Nexus spawn: the community goals.
+    CommunityGoals,
 }
 
 impl NpcKind {
@@ -79,6 +81,7 @@ impl NpcKind {
             "ChampionsBoard" => Self::ChampionsBoard,
             "ChampionStatue" => Self::ChampionStatue,
             "Herald" => Self::Herald,
+            "CommunityGoals" => Self::CommunityGoals,
             _ => return None,
         })
     }
@@ -147,6 +150,7 @@ pub fn interact_text(kind: NpcKind, me: &GameObj, rank_req: i32, price: Option<i
         NpcKind::ChampionsBoard => open("The living's best, and their rewards", "View"),
         NpcKind::ChampionStatue => open("A champion of the Hall", "View"),
         NpcKind::Herald => open("This week in the realm", "View"),
+        NpcKind::CommunityGoals => open("The realm's goals, together", "Rally"),
     }
 }
 

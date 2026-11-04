@@ -176,6 +176,15 @@ public enum MessageId : byte
     // then marks with a last byte. Clients that never said so get the request in chat (/yes, /no).
     VISIT_ANSWER = 126,
     VISIT_REQUEST = 127,
+    // Community goals (Rust client, core/community/CommunityGoals.cs): the client asks for them
+    // once in each world and every few seconds while their window is open (COMMUNITY_REQUEST),
+    // gets them all (COMMUNITY_DATA), claims a tier or the top prize (COMMUNITY_CLAIM), and gets
+    // popups (COMMUNITY_NOTICE): a claim's answer, a tier the server reached, the week's goals.
+    // The AIR client and older Rust clients never ask, and get the news in the chat instead.
+    COMMUNITY_REQUEST = 128,
+    COMMUNITY_DATA = 129,
+    COMMUNITY_CLAIM = 130,
+    COMMUNITY_NOTICE = 131,
     // From the world proxy (tools/world_proxy.py), before the client's first message: the
     // client's address. Only taken on a connection from this PC; clients never send it.
     PROXY_INFO = 250
