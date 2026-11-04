@@ -5,7 +5,7 @@
 		<Class>GameObject</Class>
 		<Texture>
 			<File>nexusIslands8x8</File>
-			<Index>0x141</Index>
+			<Index>0x1b9</Index>
 		</Texture>
 		<Size>100</Size>
 		<ShadowSize>60</ShadowSize>
@@ -31,7 +31,7 @@
 		<Class>GameObject</Class>
 		<Texture>
 			<File>nexusIslands8x8</File>
-			<Index>0x142</Index>
+			<Index>0x1ba</Index>
 		</Texture>
 		<Size>100</Size>
 		<ShadowSize>0</ShadowSize>
@@ -42,39 +42,64 @@
 		<DisplayId>Frog</DisplayId>
 		<Class>GameObject</Class>
 		<Texture>
-			<File>nexusIslands8x8</File>
-			<Index>0x143</Index>
+			<File>nexusIslands16x16</File>
+			<Index>0x01</Index>
 		</Texture>
-		<Size>100</Size>
+		<Size>55</Size>
 		<ShadowSize>0</ShadowSize>
 		<Static />
 		<Animation prob="1.0" period="2.5" periodJitter="2.0">
 			<Frame time="0.35">
 				<Texture>
-					<File>nexusIslands8x8</File>
-					<Index>0x144</Index>
+					<File>nexusIslands16x16</File>
+					<Index>0x02</Index>
 				</Texture>
 			</Frame>
 			<Frame time="0.15">
 				<Texture>
-					<File>nexusIslands8x8</File>
-					<Index>0x143</Index>
+					<File>nexusIslands16x16</File>
+					<Index>0x01</Index>
 				</Texture>
 			</Frame>
 			<Frame time="0.3">
 				<Texture>
-					<File>nexusIslands8x8</File>
-					<Index>0x144</Index>
+					<File>nexusIslands16x16</File>
+					<Index>0x02</Index>
+				</Texture>
+			</Frame>
+			<Frame time="0.25">
+				<Texture>
+					<File>nexusIslands16x16</File>
+					<Index>0x01</Index>
+				</Texture>
+			</Frame>
+			<Frame time="0.18">
+				<Texture>
+					<File>nexusIslands16x16</File>
+					<Index>0x03</Index>
 				</Texture>
 			</Frame>
 			<Frame time="0.1">
 				<Texture>
-					<File>nexusIslands8x8</File>
-					<Index>0x143</Index>
+					<File>nexusIslands16x16</File>
+					<Index>0x01</Index>
 				</Texture>
 			</Frame>
 		</Animation>
 		<NoMiniMap />
+	</Object>
+	<Object type="0x9D87" id="NI Smithy N">
+		<Class>GameObject</Class>
+		<Model>NG Smithy</Model>
+		<Texture>
+			<File>nexusGardenModels128x128</File>
+			<Index>0x04</Index>
+		</Texture>
+		<Static />
+		<ShadowSize>0</ShadowSize>
+		<ModelContrast>0.5</ModelContrast>
+		<ModelShadow>0.26</ModelShadow>
+		<Rotation>180</Rotation>
 	</Object>
 	<Object type="0x9D83" id="NI Barman">
 		<DisplayId>Barman Kenji</DisplayId>

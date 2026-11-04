@@ -455,7 +455,7 @@
 				</Texture>
 			</RandomTexture>
 		</Face>
-		<Lift>0.25</Lift>
+		<Lift>0.125</Lift>
 		<BlendPriority>24</BlendPriority>
 		<Rail>0xC8402E</Rail>
 		<StaySolid />
@@ -490,7 +490,7 @@
 				</Texture>
 			</RandomTexture>
 		</Face>
-		<Lift>0.25</Lift>
+		<Lift>0.125</Lift>
 		<BlendPriority>24</BlendPriority>
 		<Rail>0xC8402E</Rail>
 		<StaySolid />
@@ -498,7 +498,7 @@
 		<Slope />
 		<Color>0x7A4E30</Color>
 	</Ground>
-	<Ground type="0x9D0B" id="NI Stone Ramp 1">
+	<Ground type="0x9D0C" id="NI Wood Ramp 2">
 		<RandomTexture>
 			<Texture>
 				<File>nexusIslands8x8</File>
@@ -526,15 +526,14 @@
 			</RandomTexture>
 		</Face>
 		<Lift>0.25</Lift>
-		<BlendPriority>23</BlendPriority>
-		<Rail>0x8C8A9E</Rail>
+		<BlendPriority>24</BlendPriority>
+		<Rail>0xC8402E</Rail>
 		<StaySolid />
-		<Piers>stone</Piers>
+		<Piers />
 		<Slope />
-		<Parapet />
-		<Color>0x908E98</Color>
+		<Color>0x7A4E30</Color>
 	</Ground>
-	<Ground type="0x9D0C" id="NI Wood Ramp 2">
+	<Ground type="0x9D33" id="NI Wood Ramp EW 2">
 		<RandomTexture>
 			<Texture>
 				<File>nexusIslands8x8</File>
@@ -561,7 +560,7 @@
 				</Texture>
 			</RandomTexture>
 		</Face>
-		<Lift>0.5</Lift>
+		<Lift>0.25</Lift>
 		<BlendPriority>24</BlendPriority>
 		<Rail>0xC8402E</Rail>
 		<StaySolid />
@@ -569,7 +568,7 @@
 		<Slope />
 		<Color>0x7A4E30</Color>
 	</Ground>
-	<Ground type="0x9D33" id="NI Wood Ramp EW 2">
+	<Ground type="0x9D0E" id="NI Wood Ramp 3">
 		<RandomTexture>
 			<Texture>
 				<File>nexusIslands8x8</File>
@@ -596,7 +595,7 @@
 				</Texture>
 			</RandomTexture>
 		</Face>
-		<Lift>0.5</Lift>
+		<Lift>0.375</Lift>
 		<BlendPriority>24</BlendPriority>
 		<Rail>0xC8402E</Rail>
 		<StaySolid />
@@ -604,7 +603,7 @@
 		<Slope />
 		<Color>0x7A4E30</Color>
 	</Ground>
-	<Ground type="0x9D0D" id="NI Stone Ramp 2">
+	<Ground type="0x9D34" id="NI Wood Ramp EW 3">
 		<RandomTexture>
 			<Texture>
 				<File>nexusIslands8x8</File>
@@ -631,16 +630,15 @@
 				</Texture>
 			</RandomTexture>
 		</Face>
-		<Lift>0.5</Lift>
-		<BlendPriority>23</BlendPriority>
-		<Rail>0x8C8A9E</Rail>
+		<Lift>0.375</Lift>
+		<BlendPriority>24</BlendPriority>
+		<Rail>0xC8402E</Rail>
 		<StaySolid />
-		<Piers>stone</Piers>
+		<Piers />
 		<Slope />
-		<Parapet />
-		<Color>0x908E98</Color>
+		<Color>0x7A4E30</Color>
 	</Ground>
-	<Ground type="0x9D0E" id="NI Wood Ramp 3">
+	<Ground type="0x9D10" id="NI Wood Ramp 4">
 		<RandomTexture>
 			<Texture>
 				<File>nexusIslands8x8</File>
@@ -667,7 +665,7 @@
 				</Texture>
 			</RandomTexture>
 		</Face>
-		<Lift>0.75</Lift>
+		<Lift>0.5</Lift>
 		<BlendPriority>24</BlendPriority>
 		<Rail>0xC8402E</Rail>
 		<StaySolid />
@@ -675,7 +673,7 @@
 		<Slope />
 		<Color>0x7A4E30</Color>
 	</Ground>
-	<Ground type="0x9D34" id="NI Wood Ramp EW 3">
+	<Ground type="0x9D35" id="NI Wood Ramp EW 4">
 		<RandomTexture>
 			<Texture>
 				<File>nexusIslands8x8</File>
@@ -702,7 +700,7 @@
 				</Texture>
 			</RandomTexture>
 		</Face>
-		<Lift>0.75</Lift>
+		<Lift>0.5</Lift>
 		<BlendPriority>24</BlendPriority>
 		<Rail>0xC8402E</Rail>
 		<StaySolid />
@@ -710,7 +708,7 @@
 		<Slope />
 		<Color>0x7A4E30</Color>
 	</Ground>
-	<Ground type="0x9D0F" id="NI Stone Ramp 3">
+	<Ground type="0x9D12" id="NI Wood Ramp 5">
 		<RandomTexture>
 			<Texture>
 				<File>nexusIslands8x8</File>
@@ -737,16 +735,15 @@
 				</Texture>
 			</RandomTexture>
 		</Face>
-		<Lift>0.75</Lift>
-		<BlendPriority>23</BlendPriority>
-		<Rail>0x8C8A9E</Rail>
+		<Lift>0.625</Lift>
+		<BlendPriority>24</BlendPriority>
+		<Rail>0xC8402E</Rail>
 		<StaySolid />
-		<Piers>stone</Piers>
+		<Piers />
 		<Slope />
-		<Parapet />
-		<Color>0x908E98</Color>
+		<Color>0x7A4E30</Color>
 	</Ground>
-	<Ground type="0x9D10" id="NI Wood Ramp 4">
+	<Ground type="0x9D36" id="NI Wood Ramp EW 5">
 		<RandomTexture>
 			<Texture>
 				<File>nexusIslands8x8</File>
@@ -773,7 +770,7 @@
 				</Texture>
 			</RandomTexture>
 		</Face>
-		<Lift>1.0</Lift>
+		<Lift>0.625</Lift>
 		<BlendPriority>24</BlendPriority>
 		<Rail>0xC8402E</Rail>
 		<StaySolid />
@@ -781,7 +778,7 @@
 		<Slope />
 		<Color>0x7A4E30</Color>
 	</Ground>
-	<Ground type="0x9D35" id="NI Wood Ramp EW 4">
+	<Ground type="0x9D14" id="NI Wood Ramp 6">
 		<RandomTexture>
 			<Texture>
 				<File>nexusIslands8x8</File>
@@ -808,7 +805,7 @@
 				</Texture>
 			</RandomTexture>
 		</Face>
-		<Lift>1.0</Lift>
+		<Lift>0.75</Lift>
 		<BlendPriority>24</BlendPriority>
 		<Rail>0xC8402E</Rail>
 		<StaySolid />
@@ -816,7 +813,7 @@
 		<Slope />
 		<Color>0x7A4E30</Color>
 	</Ground>
-	<Ground type="0x9D11" id="NI Stone Ramp 4">
+	<Ground type="0x9D37" id="NI Wood Ramp EW 6">
 		<RandomTexture>
 			<Texture>
 				<File>nexusIslands8x8</File>
@@ -843,16 +840,15 @@
 				</Texture>
 			</RandomTexture>
 		</Face>
-		<Lift>1.0</Lift>
-		<BlendPriority>23</BlendPriority>
-		<Rail>0x8C8A9E</Rail>
+		<Lift>0.75</Lift>
+		<BlendPriority>24</BlendPriority>
+		<Rail>0xC8402E</Rail>
 		<StaySolid />
-		<Piers>stone</Piers>
+		<Piers />
 		<Slope />
-		<Parapet />
-		<Color>0x908E98</Color>
+		<Color>0x7A4E30</Color>
 	</Ground>
-	<Ground type="0x9D12" id="NI Wood Ramp 5">
+	<Ground type="0x9D16" id="NI Wood Ramp 7">
 		<RandomTexture>
 			<Texture>
 				<File>nexusIslands8x8</File>
@@ -879,7 +875,7 @@
 				</Texture>
 			</RandomTexture>
 		</Face>
-		<Lift>1.25</Lift>
+		<Lift>0.875</Lift>
 		<BlendPriority>24</BlendPriority>
 		<Rail>0xC8402E</Rail>
 		<StaySolid />
@@ -887,7 +883,7 @@
 		<Slope />
 		<Color>0x7A4E30</Color>
 	</Ground>
-	<Ground type="0x9D36" id="NI Wood Ramp EW 5">
+	<Ground type="0x9D38" id="NI Wood Ramp EW 7">
 		<RandomTexture>
 			<Texture>
 				<File>nexusIslands8x8</File>
@@ -914,7 +910,7 @@
 				</Texture>
 			</RandomTexture>
 		</Face>
-		<Lift>1.25</Lift>
+		<Lift>0.875</Lift>
 		<BlendPriority>24</BlendPriority>
 		<Rail>0xC8402E</Rail>
 		<StaySolid />
@@ -922,7 +918,7 @@
 		<Slope />
 		<Color>0x7A4E30</Color>
 	</Ground>
-	<Ground type="0x9D13" id="NI Stone Ramp 5">
+	<Ground type="0x9D18" id="NI Wood Ramp 8">
 		<RandomTexture>
 			<Texture>
 				<File>nexusIslands8x8</File>
@@ -949,16 +945,15 @@
 				</Texture>
 			</RandomTexture>
 		</Face>
-		<Lift>1.25</Lift>
-		<BlendPriority>23</BlendPriority>
-		<Rail>0x8C8A9E</Rail>
+		<Lift>1.0</Lift>
+		<BlendPriority>24</BlendPriority>
+		<Rail>0xC8402E</Rail>
 		<StaySolid />
-		<Piers>stone</Piers>
+		<Piers />
 		<Slope />
-		<Parapet />
-		<Color>0x908E98</Color>
+		<Color>0x7A4E30</Color>
 	</Ground>
-	<Ground type="0x9D14" id="NI Wood Ramp 6">
+	<Ground type="0x9D39" id="NI Wood Ramp EW 8">
 		<RandomTexture>
 			<Texture>
 				<File>nexusIslands8x8</File>
@@ -985,7 +980,7 @@
 				</Texture>
 			</RandomTexture>
 		</Face>
-		<Lift>1.5</Lift>
+		<Lift>1.0</Lift>
 		<BlendPriority>24</BlendPriority>
 		<Rail>0xC8402E</Rail>
 		<StaySolid />
@@ -993,7 +988,7 @@
 		<Slope />
 		<Color>0x7A4E30</Color>
 	</Ground>
-	<Ground type="0x9D37" id="NI Wood Ramp EW 6">
+	<Ground type="0x9D1A" id="NI Wood Ramp 9">
 		<RandomTexture>
 			<Texture>
 				<File>nexusIslands8x8</File>
@@ -1020,7 +1015,7 @@
 				</Texture>
 			</RandomTexture>
 		</Face>
-		<Lift>1.5</Lift>
+		<Lift>1.125</Lift>
 		<BlendPriority>24</BlendPriority>
 		<Rail>0xC8402E</Rail>
 		<StaySolid />
@@ -1028,7 +1023,7 @@
 		<Slope />
 		<Color>0x7A4E30</Color>
 	</Ground>
-	<Ground type="0x9D15" id="NI Stone Ramp 6">
+	<Ground type="0x9D3A" id="NI Wood Ramp EW 9">
 		<RandomTexture>
 			<Texture>
 				<File>nexusIslands8x8</File>
@@ -1055,16 +1050,15 @@
 				</Texture>
 			</RandomTexture>
 		</Face>
-		<Lift>1.5</Lift>
-		<BlendPriority>23</BlendPriority>
-		<Rail>0x8C8A9E</Rail>
+		<Lift>1.125</Lift>
+		<BlendPriority>24</BlendPriority>
+		<Rail>0xC8402E</Rail>
 		<StaySolid />
-		<Piers>stone</Piers>
+		<Piers />
 		<Slope />
-		<Parapet />
-		<Color>0x908E98</Color>
+		<Color>0x7A4E30</Color>
 	</Ground>
-	<Ground type="0x9D16" id="NI Wood Ramp 7">
+	<Ground type="0x9D1C" id="NI Wood Ramp 10">
 		<RandomTexture>
 			<Texture>
 				<File>nexusIslands8x8</File>
@@ -1091,7 +1085,7 @@
 				</Texture>
 			</RandomTexture>
 		</Face>
-		<Lift>1.75</Lift>
+		<Lift>1.25</Lift>
 		<BlendPriority>24</BlendPriority>
 		<Rail>0xC8402E</Rail>
 		<StaySolid />
@@ -1099,7 +1093,7 @@
 		<Slope />
 		<Color>0x7A4E30</Color>
 	</Ground>
-	<Ground type="0x9D38" id="NI Wood Ramp EW 7">
+	<Ground type="0x9D3B" id="NI Wood Ramp EW 10">
 		<RandomTexture>
 			<Texture>
 				<File>nexusIslands8x8</File>
@@ -1126,7 +1120,7 @@
 				</Texture>
 			</RandomTexture>
 		</Face>
-		<Lift>1.75</Lift>
+		<Lift>1.25</Lift>
 		<BlendPriority>24</BlendPriority>
 		<Rail>0xC8402E</Rail>
 		<StaySolid />
@@ -1134,7 +1128,7 @@
 		<Slope />
 		<Color>0x7A4E30</Color>
 	</Ground>
-	<Ground type="0x9D17" id="NI Stone Ramp 7">
+	<Ground type="0x9D1E" id="NI Wood Ramp 11">
 		<RandomTexture>
 			<Texture>
 				<File>nexusIslands8x8</File>
@@ -1161,16 +1155,15 @@
 				</Texture>
 			</RandomTexture>
 		</Face>
-		<Lift>1.75</Lift>
-		<BlendPriority>23</BlendPriority>
-		<Rail>0x8C8A9E</Rail>
+		<Lift>1.375</Lift>
+		<BlendPriority>24</BlendPriority>
+		<Rail>0xC8402E</Rail>
 		<StaySolid />
-		<Piers>stone</Piers>
+		<Piers />
 		<Slope />
-		<Parapet />
-		<Color>0x908E98</Color>
+		<Color>0x7A4E30</Color>
 	</Ground>
-	<Ground type="0x9D18" id="NI Wood Ramp 8">
+	<Ground type="0x9D3C" id="NI Wood Ramp EW 11">
 		<RandomTexture>
 			<Texture>
 				<File>nexusIslands8x8</File>
@@ -1197,7 +1190,7 @@
 				</Texture>
 			</RandomTexture>
 		</Face>
-		<Lift>2.0</Lift>
+		<Lift>1.375</Lift>
 		<BlendPriority>24</BlendPriority>
 		<Rail>0xC8402E</Rail>
 		<StaySolid />
@@ -1205,7 +1198,7 @@
 		<Slope />
 		<Color>0x7A4E30</Color>
 	</Ground>
-	<Ground type="0x9D39" id="NI Wood Ramp EW 8">
+	<Ground type="0x9D45" id="NI Wood Ramp 12">
 		<RandomTexture>
 			<Texture>
 				<File>nexusIslands8x8</File>
@@ -1232,7 +1225,7 @@
 				</Texture>
 			</RandomTexture>
 		</Face>
-		<Lift>2.0</Lift>
+		<Lift>1.5</Lift>
 		<BlendPriority>24</BlendPriority>
 		<Rail>0xC8402E</Rail>
 		<StaySolid />
@@ -1240,7 +1233,7 @@
 		<Slope />
 		<Color>0x7A4E30</Color>
 	</Ground>
-	<Ground type="0x9D19" id="NI Stone Ramp 8">
+	<Ground type="0x9D46" id="NI Wood Ramp EW 12">
 		<RandomTexture>
 			<Texture>
 				<File>nexusIslands8x8</File>
@@ -1267,16 +1260,15 @@
 				</Texture>
 			</RandomTexture>
 		</Face>
-		<Lift>2.0</Lift>
-		<BlendPriority>23</BlendPriority>
-		<Rail>0x8C8A9E</Rail>
+		<Lift>1.5</Lift>
+		<BlendPriority>24</BlendPriority>
+		<Rail>0xC8402E</Rail>
 		<StaySolid />
-		<Piers>stone</Piers>
+		<Piers />
 		<Slope />
-		<Parapet />
-		<Color>0x908E98</Color>
+		<Color>0x7A4E30</Color>
 	</Ground>
-	<Ground type="0x9D1A" id="NI Wood Ramp 9">
+	<Ground type="0x9D47" id="NI Wood Ramp 13">
 		<RandomTexture>
 			<Texture>
 				<File>nexusIslands8x8</File>
@@ -1303,7 +1295,7 @@
 				</Texture>
 			</RandomTexture>
 		</Face>
-		<Lift>2.25</Lift>
+		<Lift>1.625</Lift>
 		<BlendPriority>24</BlendPriority>
 		<Rail>0xC8402E</Rail>
 		<StaySolid />
@@ -1311,7 +1303,7 @@
 		<Slope />
 		<Color>0x7A4E30</Color>
 	</Ground>
-	<Ground type="0x9D3A" id="NI Wood Ramp EW 9">
+	<Ground type="0x9D48" id="NI Wood Ramp EW 13">
 		<RandomTexture>
 			<Texture>
 				<File>nexusIslands8x8</File>
@@ -1338,7 +1330,7 @@
 				</Texture>
 			</RandomTexture>
 		</Face>
-		<Lift>2.25</Lift>
+		<Lift>1.625</Lift>
 		<BlendPriority>24</BlendPriority>
 		<Rail>0xC8402E</Rail>
 		<StaySolid />
@@ -1346,7 +1338,7 @@
 		<Slope />
 		<Color>0x7A4E30</Color>
 	</Ground>
-	<Ground type="0x9D1B" id="NI Stone Ramp 9">
+	<Ground type="0x9D49" id="NI Wood Ramp 14">
 		<RandomTexture>
 			<Texture>
 				<File>nexusIslands8x8</File>
@@ -1373,16 +1365,15 @@
 				</Texture>
 			</RandomTexture>
 		</Face>
-		<Lift>2.25</Lift>
-		<BlendPriority>23</BlendPriority>
-		<Rail>0x8C8A9E</Rail>
+		<Lift>1.75</Lift>
+		<BlendPriority>24</BlendPriority>
+		<Rail>0xC8402E</Rail>
 		<StaySolid />
-		<Piers>stone</Piers>
+		<Piers />
 		<Slope />
-		<Parapet />
-		<Color>0x908E98</Color>
+		<Color>0x7A4E30</Color>
 	</Ground>
-	<Ground type="0x9D1C" id="NI Wood Ramp 10">
+	<Ground type="0x9D4A" id="NI Wood Ramp EW 14">
 		<RandomTexture>
 			<Texture>
 				<File>nexusIslands8x8</File>
@@ -1409,7 +1400,7 @@
 				</Texture>
 			</RandomTexture>
 		</Face>
-		<Lift>2.5</Lift>
+		<Lift>1.75</Lift>
 		<BlendPriority>24</BlendPriority>
 		<Rail>0xC8402E</Rail>
 		<StaySolid />
@@ -1417,7 +1408,7 @@
 		<Slope />
 		<Color>0x7A4E30</Color>
 	</Ground>
-	<Ground type="0x9D3B" id="NI Wood Ramp EW 10">
+	<Ground type="0x9D4B" id="NI Wood Ramp 15">
 		<RandomTexture>
 			<Texture>
 				<File>nexusIslands8x8</File>
@@ -1444,7 +1435,7 @@
 				</Texture>
 			</RandomTexture>
 		</Face>
-		<Lift>2.5</Lift>
+		<Lift>1.875</Lift>
 		<BlendPriority>24</BlendPriority>
 		<Rail>0xC8402E</Rail>
 		<StaySolid />
@@ -1452,7 +1443,7 @@
 		<Slope />
 		<Color>0x7A4E30</Color>
 	</Ground>
-	<Ground type="0x9D1D" id="NI Stone Ramp 10">
+	<Ground type="0x9D4C" id="NI Wood Ramp EW 15">
 		<RandomTexture>
 			<Texture>
 				<File>nexusIslands8x8</File>
@@ -1479,16 +1470,15 @@
 				</Texture>
 			</RandomTexture>
 		</Face>
-		<Lift>2.5</Lift>
-		<BlendPriority>23</BlendPriority>
-		<Rail>0x8C8A9E</Rail>
+		<Lift>1.875</Lift>
+		<BlendPriority>24</BlendPriority>
+		<Rail>0xC8402E</Rail>
 		<StaySolid />
-		<Piers>stone</Piers>
+		<Piers />
 		<Slope />
-		<Parapet />
-		<Color>0x908E98</Color>
+		<Color>0x7A4E30</Color>
 	</Ground>
-	<Ground type="0x9D1E" id="NI Wood Ramp 11">
+	<Ground type="0x9D4D" id="NI Wood Ramp 16">
 		<RandomTexture>
 			<Texture>
 				<File>nexusIslands8x8</File>
@@ -1515,7 +1505,7 @@
 				</Texture>
 			</RandomTexture>
 		</Face>
-		<Lift>2.75</Lift>
+		<Lift>2.0</Lift>
 		<BlendPriority>24</BlendPriority>
 		<Rail>0xC8402E</Rail>
 		<StaySolid />
@@ -1523,7 +1513,7 @@
 		<Slope />
 		<Color>0x7A4E30</Color>
 	</Ground>
-	<Ground type="0x9D3C" id="NI Wood Ramp EW 11">
+	<Ground type="0x9D4E" id="NI Wood Ramp EW 16">
 		<RandomTexture>
 			<Texture>
 				<File>nexusIslands8x8</File>
@@ -1550,7 +1540,7 @@
 				</Texture>
 			</RandomTexture>
 		</Face>
-		<Lift>2.75</Lift>
+		<Lift>2.0</Lift>
 		<BlendPriority>24</BlendPriority>
 		<Rail>0xC8402E</Rail>
 		<StaySolid />
@@ -1558,7 +1548,7 @@
 		<Slope />
 		<Color>0x7A4E30</Color>
 	</Ground>
-	<Ground type="0x9D1F" id="NI Stone Ramp 11">
+	<Ground type="0x9D4F" id="NI Wood Ramp 17">
 		<RandomTexture>
 			<Texture>
 				<File>nexusIslands8x8</File>
@@ -1585,16 +1575,15 @@
 				</Texture>
 			</RandomTexture>
 		</Face>
-		<Lift>2.75</Lift>
-		<BlendPriority>23</BlendPriority>
-		<Rail>0x8C8A9E</Rail>
+		<Lift>2.125</Lift>
+		<BlendPriority>24</BlendPriority>
+		<Rail>0xC8402E</Rail>
 		<StaySolid />
-		<Piers>stone</Piers>
+		<Piers />
 		<Slope />
-		<Parapet />
-		<Color>0x908E98</Color>
+		<Color>0x7A4E30</Color>
 	</Ground>
-	<Ground type="0x9D3D" id="NI Pond Deck EW 0">
+	<Ground type="0x9D50" id="NI Wood Ramp EW 17">
 		<RandomTexture>
 			<Texture>
 				<File>nexusIslands8x8</File>
@@ -1621,14 +1610,15 @@
 				</Texture>
 			</RandomTexture>
 		</Face>
+		<Lift>2.125</Lift>
 		<BlendPriority>24</BlendPriority>
-		<StaySolid />
-		<Slope />
-		<RailDrop>0.1</RailDrop>
 		<Rail>0xC8402E</Rail>
+		<StaySolid />
+		<Piers />
+		<Slope />
 		<Color>0x7A4E30</Color>
 	</Ground>
-	<Ground type="0x9D3E" id="NI Pond Deck NS 0">
+	<Ground type="0x9D51" id="NI Wood Ramp 18">
 		<RandomTexture>
 			<Texture>
 				<File>nexusIslands8x8</File>
@@ -1655,14 +1645,15 @@
 				</Texture>
 			</RandomTexture>
 		</Face>
+		<Lift>2.25</Lift>
 		<BlendPriority>24</BlendPriority>
-		<StaySolid />
-		<Slope />
-		<RailDrop>0.1</RailDrop>
 		<Rail>0xC8402E</Rail>
+		<StaySolid />
+		<Piers />
+		<Slope />
 		<Color>0x7A4E30</Color>
 	</Ground>
-	<Ground type="0x9D3F" id="NI Pond Deck EW 1">
+	<Ground type="0x9D52" id="NI Wood Ramp EW 18">
 		<RandomTexture>
 			<Texture>
 				<File>nexusIslands8x8</File>
@@ -1689,15 +1680,15 @@
 				</Texture>
 			</RandomTexture>
 		</Face>
+		<Lift>2.25</Lift>
 		<BlendPriority>24</BlendPriority>
-		<StaySolid />
-		<Slope />
-		<RailDrop>0.1</RailDrop>
 		<Rail>0xC8402E</Rail>
-		<Lift>0.25</Lift>
+		<StaySolid />
+		<Piers />
+		<Slope />
 		<Color>0x7A4E30</Color>
 	</Ground>
-	<Ground type="0x9D40" id="NI Pond Deck NS 1">
+	<Ground type="0x9D53" id="NI Wood Ramp 19">
 		<RandomTexture>
 			<Texture>
 				<File>nexusIslands8x8</File>
@@ -1724,15 +1715,15 @@
 				</Texture>
 			</RandomTexture>
 		</Face>
+		<Lift>2.375</Lift>
 		<BlendPriority>24</BlendPriority>
-		<StaySolid />
-		<Slope />
-		<RailDrop>0.1</RailDrop>
 		<Rail>0xC8402E</Rail>
-		<Lift>0.25</Lift>
+		<StaySolid />
+		<Piers />
+		<Slope />
 		<Color>0x7A4E30</Color>
 	</Ground>
-	<Ground type="0x9D41" id="NI Pond Deck EW 2">
+	<Ground type="0x9D54" id="NI Wood Ramp EW 19">
 		<RandomTexture>
 			<Texture>
 				<File>nexusIslands8x8</File>
@@ -1759,15 +1750,15 @@
 				</Texture>
 			</RandomTexture>
 		</Face>
+		<Lift>2.375</Lift>
 		<BlendPriority>24</BlendPriority>
-		<StaySolid />
-		<Slope />
-		<RailDrop>0.1</RailDrop>
 		<Rail>0xC8402E</Rail>
-		<Lift>0.5</Lift>
+		<StaySolid />
+		<Piers />
+		<Slope />
 		<Color>0x7A4E30</Color>
 	</Ground>
-	<Ground type="0x9D42" id="NI Pond Deck NS 2">
+	<Ground type="0x9D55" id="NI Wood Ramp 20">
 		<RandomTexture>
 			<Texture>
 				<File>nexusIslands8x8</File>
@@ -1794,15 +1785,15 @@
 				</Texture>
 			</RandomTexture>
 		</Face>
+		<Lift>2.5</Lift>
 		<BlendPriority>24</BlendPriority>
-		<StaySolid />
-		<Slope />
-		<RailDrop>0.1</RailDrop>
 		<Rail>0xC8402E</Rail>
-		<Lift>0.5</Lift>
+		<StaySolid />
+		<Piers />
+		<Slope />
 		<Color>0x7A4E30</Color>
 	</Ground>
-	<Ground type="0x9D43" id="NI Pond Deck EW 3">
+	<Ground type="0x9D56" id="NI Wood Ramp EW 20">
 		<RandomTexture>
 			<Texture>
 				<File>nexusIslands8x8</File>
@@ -1829,15 +1820,15 @@
 				</Texture>
 			</RandomTexture>
 		</Face>
+		<Lift>2.5</Lift>
 		<BlendPriority>24</BlendPriority>
-		<StaySolid />
-		<Slope />
-		<RailDrop>0.1</RailDrop>
 		<Rail>0xC8402E</Rail>
-		<Lift>0.75</Lift>
+		<StaySolid />
+		<Piers />
+		<Slope />
 		<Color>0x7A4E30</Color>
 	</Ground>
-	<Ground type="0x9D44" id="NI Pond Deck NS 3">
+	<Ground type="0x9D57" id="NI Wood Ramp 21">
 		<RandomTexture>
 			<Texture>
 				<File>nexusIslands8x8</File>
@@ -1864,15 +1855,15 @@
 				</Texture>
 			</RandomTexture>
 		</Face>
+		<Lift>2.625</Lift>
 		<BlendPriority>24</BlendPriority>
-		<StaySolid />
-		<Slope />
-		<RailDrop>0.1</RailDrop>
 		<Rail>0xC8402E</Rail>
-		<Lift>0.75</Lift>
+		<StaySolid />
+		<Piers />
+		<Slope />
 		<Color>0x7A4E30</Color>
 	</Ground>
-	<Ground type="0x9D20" id="NI Spiral 0">
+	<Ground type="0x9D58" id="NI Wood Ramp EW 21">
 		<RandomTexture>
 			<Texture>
 				<File>nexusIslands8x8</File>
@@ -1882,113 +1873,107 @@
 				<File>nexusIslands8x8</File>
 				<Index>0x112</Index>
 			</Texture>
+			<Texture>
+				<File>nexusIslands8x8</File>
+				<Index>0x113</Index>
+			</Texture>
 		</RandomTexture>
 		<Face>
 			<RandomTexture>
-				<Texture>
-					<File>nexusIslands8x8</File>
-					<Index>0x113</Index>
-				</Texture>
 				<Texture>
 					<File>nexusIslands8x8</File>
 					<Index>0x114</Index>
 				</Texture>
+				<Texture>
+					<File>nexusIslands8x8</File>
+					<Index>0x115</Index>
+				</Texture>
 			</RandomTexture>
 		</Face>
-		<StaySolid />
-		<BlendPriority>25</BlendPriority>
+		<Lift>2.625</Lift>
+		<BlendPriority>24</BlendPriority>
 		<Rail>0xC8402E</Rail>
-		<Color>0x783242</Color>
+		<StaySolid />
+		<Piers />
+		<Slope />
+		<Color>0x7A4E30</Color>
 	</Ground>
-	<Ground type="0x9D21" id="NI Spiral 1">
+	<Ground type="0x9D59" id="NI Wood Ramp 22">
 		<RandomTexture>
-			<Texture>
-				<File>nexusIslands8x8</File>
-				<Index>0x115</Index>
-			</Texture>
 			<Texture>
 				<File>nexusIslands8x8</File>
 				<Index>0x116</Index>
 			</Texture>
-		</RandomTexture>
-		<Face>
-			<RandomTexture>
-				<Texture>
-					<File>nexusIslands8x8</File>
-					<Index>0x117</Index>
-				</Texture>
-				<Texture>
-					<File>nexusIslands8x8</File>
-					<Index>0x118</Index>
-				</Texture>
-			</RandomTexture>
-		</Face>
-		<StaySolid />
-		<BlendPriority>25</BlendPriority>
-		<Rail>0xC8402E</Rail>
-		<Lift>0.25</Lift>
-		<Color>0x783242</Color>
-	</Ground>
-	<Ground type="0x9D22" id="NI Spiral 2">
-		<RandomTexture>
 			<Texture>
 				<File>nexusIslands8x8</File>
-				<Index>0x119</Index>
+				<Index>0x117</Index>
 			</Texture>
 			<Texture>
 				<File>nexusIslands8x8</File>
-				<Index>0x11a</Index>
+				<Index>0x118</Index>
 			</Texture>
 		</RandomTexture>
 		<Face>
 			<RandomTexture>
 				<Texture>
 					<File>nexusIslands8x8</File>
-					<Index>0x11b</Index>
+					<Index>0x119</Index>
 				</Texture>
 				<Texture>
 					<File>nexusIslands8x8</File>
-					<Index>0x11c</Index>
+					<Index>0x11a</Index>
 				</Texture>
 			</RandomTexture>
 		</Face>
-		<StaySolid />
-		<BlendPriority>25</BlendPriority>
+		<Lift>2.75</Lift>
+		<BlendPriority>24</BlendPriority>
 		<Rail>0xC8402E</Rail>
-		<Lift>0.5</Lift>
-		<Color>0x783242</Color>
+		<StaySolid />
+		<Piers />
+		<Slope />
+		<Color>0x7A4E30</Color>
 	</Ground>
-	<Ground type="0x9D23" id="NI Spiral 3">
+	<Ground type="0x9D5A" id="NI Wood Ramp EW 22">
 		<RandomTexture>
+			<Texture>
+				<File>nexusIslands8x8</File>
+				<Index>0x11b</Index>
+			</Texture>
+			<Texture>
+				<File>nexusIslands8x8</File>
+				<Index>0x11c</Index>
+			</Texture>
 			<Texture>
 				<File>nexusIslands8x8</File>
 				<Index>0x11d</Index>
 			</Texture>
-			<Texture>
-				<File>nexusIslands8x8</File>
-				<Index>0x11e</Index>
-			</Texture>
 		</RandomTexture>
 		<Face>
 			<RandomTexture>
 				<Texture>
 					<File>nexusIslands8x8</File>
-					<Index>0x11f</Index>
+					<Index>0x11e</Index>
 				</Texture>
 				<Texture>
 					<File>nexusIslands8x8</File>
-					<Index>0x120</Index>
+					<Index>0x11f</Index>
 				</Texture>
 			</RandomTexture>
 		</Face>
-		<StaySolid />
-		<BlendPriority>25</BlendPriority>
+		<Lift>2.75</Lift>
+		<BlendPriority>24</BlendPriority>
 		<Rail>0xC8402E</Rail>
-		<Lift>0.75</Lift>
-		<Color>0x783242</Color>
+		<StaySolid />
+		<Piers />
+		<Slope />
+		<Color>0x7A4E30</Color>
 	</Ground>
-	<Ground type="0x9D24" id="NI Spiral 4">
+	<Ground type="0x9D5B" id="NI Wood Ramp 23">
 		<RandomTexture>
+			<Texture>
+				<File>nexusIslands8x8</File>
+				<Index>0x120</Index>
+			</Texture>
 			<Texture>
 				<File>nexusIslands8x8</File>
 				<Index>0x121</Index>
@@ -2010,13 +1995,15 @@
 				</Texture>
 			</RandomTexture>
 		</Face>
-		<StaySolid />
-		<BlendPriority>25</BlendPriority>
+		<Lift>2.875</Lift>
+		<BlendPriority>24</BlendPriority>
 		<Rail>0xC8402E</Rail>
-		<Lift>1.0</Lift>
-		<Color>0x783242</Color>
+		<StaySolid />
+		<Piers />
+		<Slope />
+		<Color>0x7A4E30</Color>
 	</Ground>
-	<Ground type="0x9D25" id="NI Spiral 5">
+	<Ground type="0x9D5C" id="NI Wood Ramp EW 23">
 		<RandomTexture>
 			<Texture>
 				<File>nexusIslands8x8</File>
@@ -2026,114 +2013,109 @@
 				<File>nexusIslands8x8</File>
 				<Index>0x126</Index>
 			</Texture>
+			<Texture>
+				<File>nexusIslands8x8</File>
+				<Index>0x127</Index>
+			</Texture>
 		</RandomTexture>
 		<Face>
 			<RandomTexture>
-				<Texture>
-					<File>nexusIslands8x8</File>
-					<Index>0x127</Index>
-				</Texture>
 				<Texture>
 					<File>nexusIslands8x8</File>
 					<Index>0x128</Index>
 				</Texture>
+				<Texture>
+					<File>nexusIslands8x8</File>
+					<Index>0x129</Index>
+				</Texture>
 			</RandomTexture>
 		</Face>
-		<StaySolid />
-		<BlendPriority>25</BlendPriority>
+		<Lift>2.875</Lift>
+		<BlendPriority>24</BlendPriority>
 		<Rail>0xC8402E</Rail>
-		<Lift>1.25</Lift>
-		<Color>0x783242</Color>
+		<StaySolid />
+		<Piers />
+		<Slope />
+		<Color>0x7A4E30</Color>
 	</Ground>
-	<Ground type="0x9D26" id="NI Spiral 6">
+	<Ground type="0x9D0B" id="NI Stone Ramp 1">
 		<RandomTexture>
-			<Texture>
-				<File>nexusIslands8x8</File>
-				<Index>0x129</Index>
-			</Texture>
 			<Texture>
 				<File>nexusIslands8x8</File>
 				<Index>0x12a</Index>
 			</Texture>
-		</RandomTexture>
-		<Face>
-			<RandomTexture>
-				<Texture>
-					<File>nexusIslands8x8</File>
-					<Index>0x12b</Index>
-				</Texture>
-				<Texture>
-					<File>nexusIslands8x8</File>
-					<Index>0x12c</Index>
-				</Texture>
-			</RandomTexture>
-		</Face>
-		<StaySolid />
-		<BlendPriority>25</BlendPriority>
-		<Rail>0xC8402E</Rail>
-		<Lift>1.5</Lift>
-		<Color>0x783242</Color>
-	</Ground>
-	<Ground type="0x9D27" id="NI Spiral 7">
-		<RandomTexture>
 			<Texture>
 				<File>nexusIslands8x8</File>
-				<Index>0x12d</Index>
+				<Index>0x12b</Index>
 			</Texture>
 			<Texture>
 				<File>nexusIslands8x8</File>
-				<Index>0x12e</Index>
+				<Index>0x12c</Index>
 			</Texture>
 		</RandomTexture>
 		<Face>
 			<RandomTexture>
 				<Texture>
 					<File>nexusIslands8x8</File>
-					<Index>0x12f</Index>
+					<Index>0x12d</Index>
 				</Texture>
 				<Texture>
 					<File>nexusIslands8x8</File>
-					<Index>0x130</Index>
+					<Index>0x12e</Index>
 				</Texture>
 			</RandomTexture>
 		</Face>
+		<Lift>0.25</Lift>
+		<BlendPriority>23</BlendPriority>
+		<Rail>0x8C8A9E</Rail>
 		<StaySolid />
-		<BlendPriority>25</BlendPriority>
-		<Rail>0xC8402E</Rail>
-		<Lift>1.75</Lift>
-		<Color>0x783242</Color>
+		<Piers>stone</Piers>
+		<Slope />
+		<Parapet />
+		<Color>0x908E98</Color>
 	</Ground>
-	<Ground type="0x9D28" id="NI Spiral 8">
+	<Ground type="0x9D0D" id="NI Stone Ramp 2">
 		<RandomTexture>
+			<Texture>
+				<File>nexusIslands8x8</File>
+				<Index>0x12f</Index>
+			</Texture>
+			<Texture>
+				<File>nexusIslands8x8</File>
+				<Index>0x130</Index>
+			</Texture>
 			<Texture>
 				<File>nexusIslands8x8</File>
 				<Index>0x131</Index>
 			</Texture>
-			<Texture>
-				<File>nexusIslands8x8</File>
-				<Index>0x132</Index>
-			</Texture>
 		</RandomTexture>
 		<Face>
 			<RandomTexture>
 				<Texture>
 					<File>nexusIslands8x8</File>
-					<Index>0x133</Index>
+					<Index>0x132</Index>
 				</Texture>
 				<Texture>
 					<File>nexusIslands8x8</File>
-					<Index>0x134</Index>
+					<Index>0x133</Index>
 				</Texture>
 			</RandomTexture>
 		</Face>
+		<Lift>0.5</Lift>
+		<BlendPriority>23</BlendPriority>
+		<Rail>0x8C8A9E</Rail>
 		<StaySolid />
-		<BlendPriority>25</BlendPriority>
-		<Rail>0xC8402E</Rail>
-		<Lift>2.0</Lift>
-		<Color>0x783242</Color>
+		<Piers>stone</Piers>
+		<Slope />
+		<Parapet />
+		<Color>0x908E98</Color>
 	</Ground>
-	<Ground type="0x9D29" id="NI Spiral 9">
+	<Ground type="0x9D0F" id="NI Stone Ramp 3">
 		<RandomTexture>
+			<Texture>
+				<File>nexusIslands8x8</File>
+				<Index>0x134</Index>
+			</Texture>
 			<Texture>
 				<File>nexusIslands8x8</File>
 				<Index>0x135</Index>
@@ -2155,6 +2137,880 @@
 				</Texture>
 			</RandomTexture>
 		</Face>
+		<Lift>0.75</Lift>
+		<BlendPriority>23</BlendPriority>
+		<Rail>0x8C8A9E</Rail>
+		<StaySolid />
+		<Piers>stone</Piers>
+		<Slope />
+		<Parapet />
+		<Color>0x908E98</Color>
+	</Ground>
+	<Ground type="0x9D11" id="NI Stone Ramp 4">
+		<RandomTexture>
+			<Texture>
+				<File>nexusIslands8x8</File>
+				<Index>0x139</Index>
+			</Texture>
+			<Texture>
+				<File>nexusIslands8x8</File>
+				<Index>0x13a</Index>
+			</Texture>
+			<Texture>
+				<File>nexusIslands8x8</File>
+				<Index>0x13b</Index>
+			</Texture>
+		</RandomTexture>
+		<Face>
+			<RandomTexture>
+				<Texture>
+					<File>nexusIslands8x8</File>
+					<Index>0x13c</Index>
+				</Texture>
+				<Texture>
+					<File>nexusIslands8x8</File>
+					<Index>0x13d</Index>
+				</Texture>
+			</RandomTexture>
+		</Face>
+		<Lift>1.0</Lift>
+		<BlendPriority>23</BlendPriority>
+		<Rail>0x8C8A9E</Rail>
+		<StaySolid />
+		<Piers>stone</Piers>
+		<Slope />
+		<Parapet />
+		<Color>0x908E98</Color>
+	</Ground>
+	<Ground type="0x9D13" id="NI Stone Ramp 5">
+		<RandomTexture>
+			<Texture>
+				<File>nexusIslands8x8</File>
+				<Index>0x13e</Index>
+			</Texture>
+			<Texture>
+				<File>nexusIslands8x8</File>
+				<Index>0x13f</Index>
+			</Texture>
+			<Texture>
+				<File>nexusIslands8x8</File>
+				<Index>0x140</Index>
+			</Texture>
+		</RandomTexture>
+		<Face>
+			<RandomTexture>
+				<Texture>
+					<File>nexusIslands8x8</File>
+					<Index>0x141</Index>
+				</Texture>
+				<Texture>
+					<File>nexusIslands8x8</File>
+					<Index>0x142</Index>
+				</Texture>
+			</RandomTexture>
+		</Face>
+		<Lift>1.25</Lift>
+		<BlendPriority>23</BlendPriority>
+		<Rail>0x8C8A9E</Rail>
+		<StaySolid />
+		<Piers>stone</Piers>
+		<Slope />
+		<Parapet />
+		<Color>0x908E98</Color>
+	</Ground>
+	<Ground type="0x9D15" id="NI Stone Ramp 6">
+		<RandomTexture>
+			<Texture>
+				<File>nexusIslands8x8</File>
+				<Index>0x143</Index>
+			</Texture>
+			<Texture>
+				<File>nexusIslands8x8</File>
+				<Index>0x144</Index>
+			</Texture>
+			<Texture>
+				<File>nexusIslands8x8</File>
+				<Index>0x145</Index>
+			</Texture>
+		</RandomTexture>
+		<Face>
+			<RandomTexture>
+				<Texture>
+					<File>nexusIslands8x8</File>
+					<Index>0x146</Index>
+				</Texture>
+				<Texture>
+					<File>nexusIslands8x8</File>
+					<Index>0x147</Index>
+				</Texture>
+			</RandomTexture>
+		</Face>
+		<Lift>1.5</Lift>
+		<BlendPriority>23</BlendPriority>
+		<Rail>0x8C8A9E</Rail>
+		<StaySolid />
+		<Piers>stone</Piers>
+		<Slope />
+		<Parapet />
+		<Color>0x908E98</Color>
+	</Ground>
+	<Ground type="0x9D17" id="NI Stone Ramp 7">
+		<RandomTexture>
+			<Texture>
+				<File>nexusIslands8x8</File>
+				<Index>0x148</Index>
+			</Texture>
+			<Texture>
+				<File>nexusIslands8x8</File>
+				<Index>0x149</Index>
+			</Texture>
+			<Texture>
+				<File>nexusIslands8x8</File>
+				<Index>0x14a</Index>
+			</Texture>
+		</RandomTexture>
+		<Face>
+			<RandomTexture>
+				<Texture>
+					<File>nexusIslands8x8</File>
+					<Index>0x14b</Index>
+				</Texture>
+				<Texture>
+					<File>nexusIslands8x8</File>
+					<Index>0x14c</Index>
+				</Texture>
+			</RandomTexture>
+		</Face>
+		<Lift>1.75</Lift>
+		<BlendPriority>23</BlendPriority>
+		<Rail>0x8C8A9E</Rail>
+		<StaySolid />
+		<Piers>stone</Piers>
+		<Slope />
+		<Parapet />
+		<Color>0x908E98</Color>
+	</Ground>
+	<Ground type="0x9D19" id="NI Stone Ramp 8">
+		<RandomTexture>
+			<Texture>
+				<File>nexusIslands8x8</File>
+				<Index>0x14d</Index>
+			</Texture>
+			<Texture>
+				<File>nexusIslands8x8</File>
+				<Index>0x14e</Index>
+			</Texture>
+			<Texture>
+				<File>nexusIslands8x8</File>
+				<Index>0x14f</Index>
+			</Texture>
+		</RandomTexture>
+		<Face>
+			<RandomTexture>
+				<Texture>
+					<File>nexusIslands8x8</File>
+					<Index>0x150</Index>
+				</Texture>
+				<Texture>
+					<File>nexusIslands8x8</File>
+					<Index>0x151</Index>
+				</Texture>
+			</RandomTexture>
+		</Face>
+		<Lift>2.0</Lift>
+		<BlendPriority>23</BlendPriority>
+		<Rail>0x8C8A9E</Rail>
+		<StaySolid />
+		<Piers>stone</Piers>
+		<Slope />
+		<Parapet />
+		<Color>0x908E98</Color>
+	</Ground>
+	<Ground type="0x9D1B" id="NI Stone Ramp 9">
+		<RandomTexture>
+			<Texture>
+				<File>nexusIslands8x8</File>
+				<Index>0x152</Index>
+			</Texture>
+			<Texture>
+				<File>nexusIslands8x8</File>
+				<Index>0x153</Index>
+			</Texture>
+			<Texture>
+				<File>nexusIslands8x8</File>
+				<Index>0x154</Index>
+			</Texture>
+		</RandomTexture>
+		<Face>
+			<RandomTexture>
+				<Texture>
+					<File>nexusIslands8x8</File>
+					<Index>0x155</Index>
+				</Texture>
+				<Texture>
+					<File>nexusIslands8x8</File>
+					<Index>0x156</Index>
+				</Texture>
+			</RandomTexture>
+		</Face>
+		<Lift>2.25</Lift>
+		<BlendPriority>23</BlendPriority>
+		<Rail>0x8C8A9E</Rail>
+		<StaySolid />
+		<Piers>stone</Piers>
+		<Slope />
+		<Parapet />
+		<Color>0x908E98</Color>
+	</Ground>
+	<Ground type="0x9D1D" id="NI Stone Ramp 10">
+		<RandomTexture>
+			<Texture>
+				<File>nexusIslands8x8</File>
+				<Index>0x157</Index>
+			</Texture>
+			<Texture>
+				<File>nexusIslands8x8</File>
+				<Index>0x158</Index>
+			</Texture>
+			<Texture>
+				<File>nexusIslands8x8</File>
+				<Index>0x159</Index>
+			</Texture>
+		</RandomTexture>
+		<Face>
+			<RandomTexture>
+				<Texture>
+					<File>nexusIslands8x8</File>
+					<Index>0x15a</Index>
+				</Texture>
+				<Texture>
+					<File>nexusIslands8x8</File>
+					<Index>0x15b</Index>
+				</Texture>
+			</RandomTexture>
+		</Face>
+		<Lift>2.5</Lift>
+		<BlendPriority>23</BlendPriority>
+		<Rail>0x8C8A9E</Rail>
+		<StaySolid />
+		<Piers>stone</Piers>
+		<Slope />
+		<Parapet />
+		<Color>0x908E98</Color>
+	</Ground>
+	<Ground type="0x9D1F" id="NI Stone Ramp 11">
+		<RandomTexture>
+			<Texture>
+				<File>nexusIslands8x8</File>
+				<Index>0x15c</Index>
+			</Texture>
+			<Texture>
+				<File>nexusIslands8x8</File>
+				<Index>0x15d</Index>
+			</Texture>
+			<Texture>
+				<File>nexusIslands8x8</File>
+				<Index>0x15e</Index>
+			</Texture>
+		</RandomTexture>
+		<Face>
+			<RandomTexture>
+				<Texture>
+					<File>nexusIslands8x8</File>
+					<Index>0x15f</Index>
+				</Texture>
+				<Texture>
+					<File>nexusIslands8x8</File>
+					<Index>0x160</Index>
+				</Texture>
+			</RandomTexture>
+		</Face>
+		<Lift>2.75</Lift>
+		<BlendPriority>23</BlendPriority>
+		<Rail>0x8C8A9E</Rail>
+		<StaySolid />
+		<Piers>stone</Piers>
+		<Slope />
+		<Parapet />
+		<Color>0x908E98</Color>
+	</Ground>
+	<Ground type="0x9D3D" id="NI Pond Deck EW 0">
+		<RandomTexture>
+			<Texture>
+				<File>nexusIslands8x8</File>
+				<Index>0x161</Index>
+			</Texture>
+			<Texture>
+				<File>nexusIslands8x8</File>
+				<Index>0x162</Index>
+			</Texture>
+			<Texture>
+				<File>nexusIslands8x8</File>
+				<Index>0x163</Index>
+			</Texture>
+		</RandomTexture>
+		<Face>
+			<RandomTexture>
+				<Texture>
+					<File>nexusIslands8x8</File>
+					<Index>0x164</Index>
+				</Texture>
+				<Texture>
+					<File>nexusIslands8x8</File>
+					<Index>0x165</Index>
+				</Texture>
+			</RandomTexture>
+		</Face>
+		<BlendPriority>24</BlendPriority>
+		<StaySolid />
+		<Slope />
+		<RailDrop>0.1</RailDrop>
+		<Under>NG Pond</Under>
+		<Slab>0.12</Slab>
+		<Rail>0xC8402E</Rail>
+		<Color>0x7A4E30</Color>
+	</Ground>
+	<Ground type="0x9D3E" id="NI Pond Deck NS 0">
+		<RandomTexture>
+			<Texture>
+				<File>nexusIslands8x8</File>
+				<Index>0x166</Index>
+			</Texture>
+			<Texture>
+				<File>nexusIslands8x8</File>
+				<Index>0x167</Index>
+			</Texture>
+			<Texture>
+				<File>nexusIslands8x8</File>
+				<Index>0x168</Index>
+			</Texture>
+		</RandomTexture>
+		<Face>
+			<RandomTexture>
+				<Texture>
+					<File>nexusIslands8x8</File>
+					<Index>0x169</Index>
+				</Texture>
+				<Texture>
+					<File>nexusIslands8x8</File>
+					<Index>0x16a</Index>
+				</Texture>
+			</RandomTexture>
+		</Face>
+		<BlendPriority>24</BlendPriority>
+		<StaySolid />
+		<Slope />
+		<RailDrop>0.1</RailDrop>
+		<Under>NG Pond</Under>
+		<Slab>0.12</Slab>
+		<Rail>0xC8402E</Rail>
+		<Color>0x7A4E30</Color>
+	</Ground>
+	<Ground type="0x9D3F" id="NI Pond Deck EW 1">
+		<RandomTexture>
+			<Texture>
+				<File>nexusIslands8x8</File>
+				<Index>0x16b</Index>
+			</Texture>
+			<Texture>
+				<File>nexusIslands8x8</File>
+				<Index>0x16c</Index>
+			</Texture>
+			<Texture>
+				<File>nexusIslands8x8</File>
+				<Index>0x16d</Index>
+			</Texture>
+		</RandomTexture>
+		<Face>
+			<RandomTexture>
+				<Texture>
+					<File>nexusIslands8x8</File>
+					<Index>0x16e</Index>
+				</Texture>
+				<Texture>
+					<File>nexusIslands8x8</File>
+					<Index>0x16f</Index>
+				</Texture>
+			</RandomTexture>
+		</Face>
+		<BlendPriority>24</BlendPriority>
+		<StaySolid />
+		<Slope />
+		<RailDrop>0.1</RailDrop>
+		<Under>NG Pond</Under>
+		<Slab>0.12</Slab>
+		<Rail>0xC8402E</Rail>
+		<Lift>0.25</Lift>
+		<Color>0x7A4E30</Color>
+	</Ground>
+	<Ground type="0x9D40" id="NI Pond Deck NS 1">
+		<RandomTexture>
+			<Texture>
+				<File>nexusIslands8x8</File>
+				<Index>0x170</Index>
+			</Texture>
+			<Texture>
+				<File>nexusIslands8x8</File>
+				<Index>0x171</Index>
+			</Texture>
+			<Texture>
+				<File>nexusIslands8x8</File>
+				<Index>0x172</Index>
+			</Texture>
+		</RandomTexture>
+		<Face>
+			<RandomTexture>
+				<Texture>
+					<File>nexusIslands8x8</File>
+					<Index>0x173</Index>
+				</Texture>
+				<Texture>
+					<File>nexusIslands8x8</File>
+					<Index>0x174</Index>
+				</Texture>
+			</RandomTexture>
+		</Face>
+		<BlendPriority>24</BlendPriority>
+		<StaySolid />
+		<Slope />
+		<RailDrop>0.1</RailDrop>
+		<Under>NG Pond</Under>
+		<Slab>0.12</Slab>
+		<Rail>0xC8402E</Rail>
+		<Lift>0.25</Lift>
+		<Color>0x7A4E30</Color>
+	</Ground>
+	<Ground type="0x9D41" id="NI Pond Deck EW 2">
+		<RandomTexture>
+			<Texture>
+				<File>nexusIslands8x8</File>
+				<Index>0x175</Index>
+			</Texture>
+			<Texture>
+				<File>nexusIslands8x8</File>
+				<Index>0x176</Index>
+			</Texture>
+			<Texture>
+				<File>nexusIslands8x8</File>
+				<Index>0x177</Index>
+			</Texture>
+		</RandomTexture>
+		<Face>
+			<RandomTexture>
+				<Texture>
+					<File>nexusIslands8x8</File>
+					<Index>0x178</Index>
+				</Texture>
+				<Texture>
+					<File>nexusIslands8x8</File>
+					<Index>0x179</Index>
+				</Texture>
+			</RandomTexture>
+		</Face>
+		<BlendPriority>24</BlendPriority>
+		<StaySolid />
+		<Slope />
+		<RailDrop>0.1</RailDrop>
+		<Under>NG Pond</Under>
+		<Slab>0.12</Slab>
+		<Rail>0xC8402E</Rail>
+		<Lift>0.5</Lift>
+		<Color>0x7A4E30</Color>
+	</Ground>
+	<Ground type="0x9D42" id="NI Pond Deck NS 2">
+		<RandomTexture>
+			<Texture>
+				<File>nexusIslands8x8</File>
+				<Index>0x17a</Index>
+			</Texture>
+			<Texture>
+				<File>nexusIslands8x8</File>
+				<Index>0x17b</Index>
+			</Texture>
+			<Texture>
+				<File>nexusIslands8x8</File>
+				<Index>0x17c</Index>
+			</Texture>
+		</RandomTexture>
+		<Face>
+			<RandomTexture>
+				<Texture>
+					<File>nexusIslands8x8</File>
+					<Index>0x17d</Index>
+				</Texture>
+				<Texture>
+					<File>nexusIslands8x8</File>
+					<Index>0x17e</Index>
+				</Texture>
+			</RandomTexture>
+		</Face>
+		<BlendPriority>24</BlendPriority>
+		<StaySolid />
+		<Slope />
+		<RailDrop>0.1</RailDrop>
+		<Under>NG Pond</Under>
+		<Slab>0.12</Slab>
+		<Rail>0xC8402E</Rail>
+		<Lift>0.5</Lift>
+		<Color>0x7A4E30</Color>
+	</Ground>
+	<Ground type="0x9D43" id="NI Pond Deck EW 3">
+		<RandomTexture>
+			<Texture>
+				<File>nexusIslands8x8</File>
+				<Index>0x17f</Index>
+			</Texture>
+			<Texture>
+				<File>nexusIslands8x8</File>
+				<Index>0x180</Index>
+			</Texture>
+			<Texture>
+				<File>nexusIslands8x8</File>
+				<Index>0x181</Index>
+			</Texture>
+		</RandomTexture>
+		<Face>
+			<RandomTexture>
+				<Texture>
+					<File>nexusIslands8x8</File>
+					<Index>0x182</Index>
+				</Texture>
+				<Texture>
+					<File>nexusIslands8x8</File>
+					<Index>0x183</Index>
+				</Texture>
+			</RandomTexture>
+		</Face>
+		<BlendPriority>24</BlendPriority>
+		<StaySolid />
+		<Slope />
+		<RailDrop>0.1</RailDrop>
+		<Under>NG Pond</Under>
+		<Slab>0.12</Slab>
+		<Rail>0xC8402E</Rail>
+		<Lift>0.75</Lift>
+		<Color>0x7A4E30</Color>
+	</Ground>
+	<Ground type="0x9D44" id="NI Pond Deck NS 3">
+		<RandomTexture>
+			<Texture>
+				<File>nexusIslands8x8</File>
+				<Index>0x184</Index>
+			</Texture>
+			<Texture>
+				<File>nexusIslands8x8</File>
+				<Index>0x185</Index>
+			</Texture>
+			<Texture>
+				<File>nexusIslands8x8</File>
+				<Index>0x186</Index>
+			</Texture>
+		</RandomTexture>
+		<Face>
+			<RandomTexture>
+				<Texture>
+					<File>nexusIslands8x8</File>
+					<Index>0x187</Index>
+				</Texture>
+				<Texture>
+					<File>nexusIslands8x8</File>
+					<Index>0x188</Index>
+				</Texture>
+			</RandomTexture>
+		</Face>
+		<BlendPriority>24</BlendPriority>
+		<StaySolid />
+		<Slope />
+		<RailDrop>0.1</RailDrop>
+		<Under>NG Pond</Under>
+		<Slab>0.12</Slab>
+		<Rail>0xC8402E</Rail>
+		<Lift>0.75</Lift>
+		<Color>0x7A4E30</Color>
+	</Ground>
+	<Ground type="0x9D20" id="NI Spiral 0">
+		<RandomTexture>
+			<Texture>
+				<File>nexusIslands8x8</File>
+				<Index>0x189</Index>
+			</Texture>
+			<Texture>
+				<File>nexusIslands8x8</File>
+				<Index>0x18a</Index>
+			</Texture>
+		</RandomTexture>
+		<Face>
+			<RandomTexture>
+				<Texture>
+					<File>nexusIslands8x8</File>
+					<Index>0x18b</Index>
+				</Texture>
+				<Texture>
+					<File>nexusIslands8x8</File>
+					<Index>0x18c</Index>
+				</Texture>
+			</RandomTexture>
+		</Face>
+		<StaySolid />
+		<BlendPriority>25</BlendPriority>
+		<Rail>0xC8402E</Rail>
+		<Color>0x783242</Color>
+	</Ground>
+	<Ground type="0x9D21" id="NI Spiral 1">
+		<RandomTexture>
+			<Texture>
+				<File>nexusIslands8x8</File>
+				<Index>0x18d</Index>
+			</Texture>
+			<Texture>
+				<File>nexusIslands8x8</File>
+				<Index>0x18e</Index>
+			</Texture>
+		</RandomTexture>
+		<Face>
+			<RandomTexture>
+				<Texture>
+					<File>nexusIslands8x8</File>
+					<Index>0x18f</Index>
+				</Texture>
+				<Texture>
+					<File>nexusIslands8x8</File>
+					<Index>0x190</Index>
+				</Texture>
+			</RandomTexture>
+		</Face>
+		<StaySolid />
+		<BlendPriority>25</BlendPriority>
+		<Rail>0xC8402E</Rail>
+		<Lift>0.25</Lift>
+		<Color>0x783242</Color>
+	</Ground>
+	<Ground type="0x9D22" id="NI Spiral 2">
+		<RandomTexture>
+			<Texture>
+				<File>nexusIslands8x8</File>
+				<Index>0x191</Index>
+			</Texture>
+			<Texture>
+				<File>nexusIslands8x8</File>
+				<Index>0x192</Index>
+			</Texture>
+		</RandomTexture>
+		<Face>
+			<RandomTexture>
+				<Texture>
+					<File>nexusIslands8x8</File>
+					<Index>0x193</Index>
+				</Texture>
+				<Texture>
+					<File>nexusIslands8x8</File>
+					<Index>0x194</Index>
+				</Texture>
+			</RandomTexture>
+		</Face>
+		<StaySolid />
+		<BlendPriority>25</BlendPriority>
+		<Rail>0xC8402E</Rail>
+		<Lift>0.5</Lift>
+		<Color>0x783242</Color>
+	</Ground>
+	<Ground type="0x9D23" id="NI Spiral 3">
+		<RandomTexture>
+			<Texture>
+				<File>nexusIslands8x8</File>
+				<Index>0x195</Index>
+			</Texture>
+			<Texture>
+				<File>nexusIslands8x8</File>
+				<Index>0x196</Index>
+			</Texture>
+		</RandomTexture>
+		<Face>
+			<RandomTexture>
+				<Texture>
+					<File>nexusIslands8x8</File>
+					<Index>0x197</Index>
+				</Texture>
+				<Texture>
+					<File>nexusIslands8x8</File>
+					<Index>0x198</Index>
+				</Texture>
+			</RandomTexture>
+		</Face>
+		<StaySolid />
+		<BlendPriority>25</BlendPriority>
+		<Rail>0xC8402E</Rail>
+		<Lift>0.75</Lift>
+		<Color>0x783242</Color>
+	</Ground>
+	<Ground type="0x9D24" id="NI Spiral 4">
+		<RandomTexture>
+			<Texture>
+				<File>nexusIslands8x8</File>
+				<Index>0x199</Index>
+			</Texture>
+			<Texture>
+				<File>nexusIslands8x8</File>
+				<Index>0x19a</Index>
+			</Texture>
+		</RandomTexture>
+		<Face>
+			<RandomTexture>
+				<Texture>
+					<File>nexusIslands8x8</File>
+					<Index>0x19b</Index>
+				</Texture>
+				<Texture>
+					<File>nexusIslands8x8</File>
+					<Index>0x19c</Index>
+				</Texture>
+			</RandomTexture>
+		</Face>
+		<StaySolid />
+		<BlendPriority>25</BlendPriority>
+		<Rail>0xC8402E</Rail>
+		<Lift>1.0</Lift>
+		<Color>0x783242</Color>
+	</Ground>
+	<Ground type="0x9D25" id="NI Spiral 5">
+		<RandomTexture>
+			<Texture>
+				<File>nexusIslands8x8</File>
+				<Index>0x19d</Index>
+			</Texture>
+			<Texture>
+				<File>nexusIslands8x8</File>
+				<Index>0x19e</Index>
+			</Texture>
+		</RandomTexture>
+		<Face>
+			<RandomTexture>
+				<Texture>
+					<File>nexusIslands8x8</File>
+					<Index>0x19f</Index>
+				</Texture>
+				<Texture>
+					<File>nexusIslands8x8</File>
+					<Index>0x1a0</Index>
+				</Texture>
+			</RandomTexture>
+		</Face>
+		<StaySolid />
+		<BlendPriority>25</BlendPriority>
+		<Rail>0xC8402E</Rail>
+		<Lift>1.25</Lift>
+		<Color>0x783242</Color>
+	</Ground>
+	<Ground type="0x9D26" id="NI Spiral 6">
+		<RandomTexture>
+			<Texture>
+				<File>nexusIslands8x8</File>
+				<Index>0x1a1</Index>
+			</Texture>
+			<Texture>
+				<File>nexusIslands8x8</File>
+				<Index>0x1a2</Index>
+			</Texture>
+		</RandomTexture>
+		<Face>
+			<RandomTexture>
+				<Texture>
+					<File>nexusIslands8x8</File>
+					<Index>0x1a3</Index>
+				</Texture>
+				<Texture>
+					<File>nexusIslands8x8</File>
+					<Index>0x1a4</Index>
+				</Texture>
+			</RandomTexture>
+		</Face>
+		<StaySolid />
+		<BlendPriority>25</BlendPriority>
+		<Rail>0xC8402E</Rail>
+		<Lift>1.5</Lift>
+		<Color>0x783242</Color>
+	</Ground>
+	<Ground type="0x9D27" id="NI Spiral 7">
+		<RandomTexture>
+			<Texture>
+				<File>nexusIslands8x8</File>
+				<Index>0x1a5</Index>
+			</Texture>
+			<Texture>
+				<File>nexusIslands8x8</File>
+				<Index>0x1a6</Index>
+			</Texture>
+		</RandomTexture>
+		<Face>
+			<RandomTexture>
+				<Texture>
+					<File>nexusIslands8x8</File>
+					<Index>0x1a7</Index>
+				</Texture>
+				<Texture>
+					<File>nexusIslands8x8</File>
+					<Index>0x1a8</Index>
+				</Texture>
+			</RandomTexture>
+		</Face>
+		<StaySolid />
+		<BlendPriority>25</BlendPriority>
+		<Rail>0xC8402E</Rail>
+		<Lift>1.75</Lift>
+		<Color>0x783242</Color>
+	</Ground>
+	<Ground type="0x9D28" id="NI Spiral 8">
+		<RandomTexture>
+			<Texture>
+				<File>nexusIslands8x8</File>
+				<Index>0x1a9</Index>
+			</Texture>
+			<Texture>
+				<File>nexusIslands8x8</File>
+				<Index>0x1aa</Index>
+			</Texture>
+		</RandomTexture>
+		<Face>
+			<RandomTexture>
+				<Texture>
+					<File>nexusIslands8x8</File>
+					<Index>0x1ab</Index>
+				</Texture>
+				<Texture>
+					<File>nexusIslands8x8</File>
+					<Index>0x1ac</Index>
+				</Texture>
+			</RandomTexture>
+		</Face>
+		<StaySolid />
+		<BlendPriority>25</BlendPriority>
+		<Rail>0xC8402E</Rail>
+		<Lift>2.0</Lift>
+		<Color>0x783242</Color>
+	</Ground>
+	<Ground type="0x9D29" id="NI Spiral 9">
+		<RandomTexture>
+			<Texture>
+				<File>nexusIslands8x8</File>
+				<Index>0x1ad</Index>
+			</Texture>
+			<Texture>
+				<File>nexusIslands8x8</File>
+				<Index>0x1ae</Index>
+			</Texture>
+		</RandomTexture>
+		<Face>
+			<RandomTexture>
+				<Texture>
+					<File>nexusIslands8x8</File>
+					<Index>0x1af</Index>
+				</Texture>
+				<Texture>
+					<File>nexusIslands8x8</File>
+					<Index>0x1b0</Index>
+				</Texture>
+			</RandomTexture>
+		</Face>
 		<StaySolid />
 		<BlendPriority>25</BlendPriority>
 		<Rail>0xC8402E</Rail>
@@ -2165,22 +3021,22 @@
 		<RandomTexture>
 			<Texture>
 				<File>nexusIslands8x8</File>
-				<Index>0x139</Index>
+				<Index>0x1b1</Index>
 			</Texture>
 			<Texture>
 				<File>nexusIslands8x8</File>
-				<Index>0x13a</Index>
+				<Index>0x1b2</Index>
 			</Texture>
 		</RandomTexture>
 		<Face>
 			<RandomTexture>
 				<Texture>
 					<File>nexusIslands8x8</File>
-					<Index>0x13b</Index>
+					<Index>0x1b3</Index>
 				</Texture>
 				<Texture>
 					<File>nexusIslands8x8</File>
-					<Index>0x13c</Index>
+					<Index>0x1b4</Index>
 				</Texture>
 			</RandomTexture>
 		</Face>
@@ -2194,22 +3050,22 @@
 		<RandomTexture>
 			<Texture>
 				<File>nexusIslands8x8</File>
-				<Index>0x13d</Index>
+				<Index>0x1b5</Index>
 			</Texture>
 			<Texture>
 				<File>nexusIslands8x8</File>
-				<Index>0x13e</Index>
+				<Index>0x1b6</Index>
 			</Texture>
 		</RandomTexture>
 		<Face>
 			<RandomTexture>
 				<Texture>
 					<File>nexusIslands8x8</File>
-					<Index>0x13f</Index>
+					<Index>0x1b7</Index>
 				</Texture>
 				<Texture>
 					<File>nexusIslands8x8</File>
-					<Index>0x140</Index>
+					<Index>0x1b8</Index>
 				</Texture>
 			</RandomTexture>
 		</Face>

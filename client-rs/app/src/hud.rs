@@ -924,6 +924,10 @@ pub fn interact_target(world: &World, data: &GameData) -> Option<Interact> {
             } else {
                 return None;
             };
+            // only on our floor (stacked floors)
+            if !world.on_my_floor(o) {
+                return None;
+            }
             let dist = (o.x - me.x).hypot(o.y - me.y);
             let big = matches!(kind, InteractKind::Npc { kind: crate::npc::NpcKind::Forge | crate::npc::NpcKind::Enchanter | crate::npc::NpcKind::ChampionsBoard, .. });
             // the statues fill their squares: reach them from beside

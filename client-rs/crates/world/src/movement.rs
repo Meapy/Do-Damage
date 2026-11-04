@@ -264,11 +264,17 @@ impl World {
     }
 
     /// `Player.isFullOccupy`: outside the map, no tile sent, empty tile, or a FullOccupy object.
-    /// The coordinates truncate toward zero, as AS3's int parameters do.
+    /// The coordinates truncate toward zero, as AS3's int parameters do. On stacked floors a
+    /// square with no floor at our height but one higher or lower (a drop, a tower's core or
+    /// wall) isn't: it can't be walked onto (`walkable`), but like a wall's ground it doesn't
+    /// catch us at its corners, so we don't snag on a stair's core walking up beside it.
     fn is_full_occupy(&self, x: f64, y: f64, data: &GameData) -> bool {
         let (sx, sy) = (x as i32, y as i32);
         let (tile, occupant) = self.square_at(sx, sy, self.my_z(), data);
         match tile {
+            None if self.levels.is_some() && x >= 0.0 && y >= 0.0 => {
+                !(0..self.level_count() as u8).any(|l| self.level_tile(l, sx, sy).is_some_and(|t| t != NO_TILE))
+            }
             None => true,
             Some(NO_TILE) => true,
             Some(_) => occupant.and_then(|o| data.objects.get(&o.object_type)).is_some_and(|d| d.full_occupy),
