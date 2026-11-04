@@ -115,6 +115,26 @@ namespace Tests
             Assert.Equal((drawn[1], at), (done.Def.Id, done.End));
             Assert.False(done.Running(Wed));
             Assert.Equal(runs.Count, runs.Select(r => r.Key).Distinct().Count());
+            Assert.True(done.Cut);
+            Assert.False(bonus.Cut);
+            Assert.Equal(1, bonus.Heat);
+            // the faster it's finished, the harder: the target's pace (120% a week) or slower moves
+            // nothing, 300% in a day and a half makes the bonus goal twice as hard or more, and
+            // the heat builds
+            Assert.Equal(1, Data.PaceStep(18, 15, 1), 6);
+            Assert.Equal(1, Data.PaceStep(5, 15, 1), 6);
+            Assert.InRange(Data.PaceStep(45, 15, 1.5 / 7), 2, Data.Early.MaxStep);
+            Assert.Equal(Data.Early.MaxStep, Data.PaceStep(45, 15, 1.0 / 168), 6);
+            var hot = Data.Heat(done, 45, 15, at);
+            Assert.InRange(hot, 2, Data.Early.MaxStep);
+            var hotter = Data.Runs(Wed, null, week => week == Monday ? new[] { new EarlyStart(1, next, at, hot) } : Array.Empty<EarlyStart>()).Single(r => r.Bonus);
+            Assert.Equal(hot, hotter.Heat);
+            Assert.Equal(Data.Early.MaxHeat, Data.Heat(hotter, 1000, 15, at.AddHours(1)), 6);
+            // its goal's next run grows by the pace too, past adapt's usual step
+            Assert.True(Data.NextScale(1, 45, 15, 1.5 / 7, true) > Data.Adapt.MaxStep);
+            Assert.Equal(Data.Adapt.MaxStep, Data.NextScale(1, 45, 15, 1.5 / 7), 6);
+            // a bonus run that fell short counts by its pace: 10 of 15 in 2 days is ahead of the target
+            Assert.True(Data.NextScale(1, 10, 15, 2.0 / 7) > 1);
         }
 
         [Fact]

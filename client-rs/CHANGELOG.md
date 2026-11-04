@@ -37,8 +37,9 @@ details). Add to a group's line when a change adds to it, rather than adding ano
 ### Community goals
 - A goal the realm takes through its last Overdrive level before the week is out now finishes
   early: its rewards wait as an ended goal's do (the top 3 claim their prize at once), and a bonus
-  goal of another kind, at its full size, takes its place until the Monday reset. The weekly reset
-  comes as always.
+  goal of another kind takes its place until the Monday reset. The faster a goal is finished, the
+  bigger the next one and the harder that goal comes back, so quick finishes in a row get harder
+  each time. The weekly reset comes as always.
 
 ### Wiki
 - Pets have a section of their own, no longer under Characters. The Pets page lists only the pets

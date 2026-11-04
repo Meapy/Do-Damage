@@ -85,17 +85,22 @@ namespace Shared.community
 
     // Finishing a goal early (CommunityData.Early): once a week's goal has reached its last
     // Overdrive level, it ends there and a bonus goal takes its place until the weekly reset,
-    // unless less than `minHours` are left. A bonus goal asks as much as a whole week's run of it
-    // would, and never makes its goal's next run easier (it had less than a week).
+    // unless less than `minHours` are left. The faster it was finished, the harder things get
+    // (CommunityData.Heat): its goal's next run grows by its pace, up to `maxStep` at once, and the
+    // bonus goal is that much harder than its usual size, on top of the heat of the run it
+    // replaced, up to `maxHeat`. So a chain of quick finishes gets harder each time, until the
+    // weekly reset.
     public sealed class CommunityEarly
     {
         public bool Enabled { get; set; } = true;
         public double MinHours { get; set; } = 6;
+        public double MaxStep { get; set; } = 3;
+        public double MaxHeat { get; set; } = 8;
     }
 
     // A bonus goal started in a week (CommunityData.Runs): in place of the slot's goal, from
-    // `Start` on.
-    public readonly record struct EarlyStart(int Slot, string Id, DateTime Start);
+    // `Start` on, `Heat` times its usual size.
+    public readonly record struct EarlyStart(int Slot, string Id, DateTime Start, double Heat = 1);
 
     // One run of a goal: a week's (or a special's) start and end. Its key names its counts in
     // Redis, so each run starts from nothing. A bonus run (CommunityEarly) starts in the middle of
@@ -108,8 +113,10 @@ namespace Shared.community
         public bool Special { get; }
         public bool Bonus { get; }
         public int Slot { get; }
+        // how much harder than its usual size (a bonus run after quick finishes; 1 otherwise)
+        public double Heat { get; }
 
-        public CommunityRun(CommunityGoalDef def, DateTime start, DateTime end, bool special, bool bonus = false, int slot = -1)
+        public CommunityRun(CommunityGoalDef def, DateTime start, DateTime end, bool special, bool bonus = false, int slot = -1, double heat = 1)
         {
             Def = def;
             Start = start;
@@ -117,7 +124,13 @@ namespace Shared.community
             Special = special;
             Bonus = bonus;
             Slot = slot;
+            Heat = heat > 0 ? heat : 1;
         }
+
+        // its length in weeks
+        public double Weeks => Math.Max(1.0 / 168, (End - Start).TotalDays / 7);
+        // ended before its week did: finished early
+        public bool Cut => !Special && End < Week.AddDays(7);
 
         public string Key => Bonus ? $"{Def.Id}@{Start:yyyyMMddHHmmss}" : $"{Def.Id}@{Start:yyyyMMdd}";
         // the week it belongs to (its first day)
@@ -214,6 +227,22 @@ namespace Shared.community
 
         // Every tier and Overdrive level reached: nothing more to earn.
         public bool Finished(CommunityGoalDef def, int goal, long total) => Stage(def, goal, total) >= Tiers(def) + BonusLevels(def);
+
+        // How much harder a run finished early makes things: its pace over a whole week (`total`
+        // of `goal` in `weeks`) against the target, as NextScale moves a goal, from 1 to
+        // Early.MaxStep.
+        public double PaceStep(long total, int goal, double weeks)
+        {
+            if (goal <= 0)
+                return 1;
+            var pace = (double)total / goal / Math.Max(1.0 / 168, weeks);
+            return Math.Clamp(Math.Pow(pace / Math.Max(0.01, Adapt.Target), Adapt.Damping), 1, Math.Max(1, Early.MaxStep));
+        }
+
+        // The heat of the bonus goal after `run` was finished at `total` of `goal` at `now`: the
+        // run's own heat times its pace (PaceStep), at most Early.MaxHeat.
+        public double Heat(CommunityRun run, long total, int goal, DateTime now) =>
+            Math.Clamp(run.Heat * PaceStep(total, goal, (now - run.Start).TotalDays / 7), 1, Math.Max(1, Early.MaxHeat));
 
         // A bonus goal for a week that has `used` (its goals so far): by weight, one of a group in
         // neither this week, next week's draw nor last week's (`lastWeek`, as kept; drawn when not
@@ -353,14 +382,16 @@ namespace Shared.community
 
         // The goal's next scale after a run that ended at `total` of `goal`, from `scale`: a run
         // done well past `Adapt.Target` makes the next harder, one that fell short easier.
-        public double NextScale(double scale, long total, int goal)
+        // A run shorter than a week (`weeks`: finished early, or a bonus run) counts by its pace
+        // over a whole week, and one finished early (`cut`) can grow by up to Early.MaxStep.
+        public double NextScale(double scale, long total, int goal, double weeks = 1, bool cut = false)
         {
             var a = Adapt;
             if (!a.Enabled || goal <= 0)
                 return scale;
             scale = scale > 0 ? scale : 1;
-            var done = Math.Max(0.02, (double)total / goal);
-            var step = Math.Clamp(Math.Pow(done / Math.Max(0.01, a.Target), a.Damping), a.MinStep, a.MaxStep);
+            var done = Math.Max(0.02, (double)total / goal / Math.Clamp(weeks, 1.0 / 168, 1));
+            var step = Math.Clamp(Math.Pow(done / Math.Max(0.01, a.Target), a.Damping), a.MinStep, cut ? Math.Max(a.MaxStep, Early.MaxStep) : a.MaxStep);
             return Math.Clamp(scale * step, a.MinScale, a.MaxScale);
         }
 
@@ -419,13 +450,13 @@ namespace Shared.community
                 for (var slot = 0; slot < drawn.Count; slot++)
                 {
                     // the slot's goals in turn: the drawn one, then each bonus goal
-                    var chain = new List<(string Id, DateTime Start)> { (drawn[slot], start) };
-                    chain.AddRange(early.Where(e => e.Slot == slot && e.Start > start && e.Start < end).OrderBy(e => e.Start).Select(e => (e.Id, e.Start)));
+                    var chain = new List<(string Id, DateTime Start, double Heat)> { (drawn[slot], start, 1) };
+                    chain.AddRange(early.Where(e => e.Slot == slot && e.Start > start && e.Start < end).OrderBy(e => e.Start).Select(e => (e.Id, e.Start, e.Heat)));
                     for (var k = 0; k < chain.Count; k++)
                     {
                         var def = Goals.FirstOrDefault(g => g.Id == chain[k].Id);
                         if (def != null)
-                            runs.Add(new CommunityRun(def, chain[k].Start, k + 1 < chain.Count ? chain[k + 1].Start : end, false, k > 0, slot));
+                            runs.Add(new CommunityRun(def, chain[k].Start, k + 1 < chain.Count ? chain[k + 1].Start : end, false, k > 0, slot, chain[k].Heat));
                     }
                 }
             }

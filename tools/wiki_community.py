@@ -172,7 +172,8 @@ class Community:
         return {
             "community_slots": c.get("slots", 3), "community_top": c.get("topCount", 3),
             "community_claim_weeks": c.get("claimWeeks", 1),
-            "community_early_hours": "{:g}".format(c.get("early", {}).get("minHours", 6)), "community_goals": len(c["goals"]),
+            "community_early_hours": "{:g}".format(c.get("early", {}).get("minHours", 6)),
+            "community_early_heat": "{:g}".format(c.get("early", {}).get("maxHeat", 8)), "community_goals": len(c["goals"]),
             "community_bonus_name": self.bonus_name(), "community_bonus_levels": self.bonus_tiers(),
             "community_bonus_step": round(self.bonus_step() * 100),
             "community_bonus_max": round((1 + self.bonus_step() * self.bonus_tiers()) * 100),

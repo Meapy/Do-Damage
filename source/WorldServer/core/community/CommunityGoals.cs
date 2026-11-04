@@ -234,8 +234,11 @@ namespace WorldServer.core.community
                 foreach (var v in _db.ListRange(EarlyKey(week)))
                 {
                     var parts = ((string)v ?? "").Split(',');
-                    if (parts.Length == 3 && int.TryParse(parts[0], out var slot) && long.TryParse(parts[2], out var unix))
-                        list.Add(new EarlyStart(slot, parts[1], DateTimeOffset.FromUnixTimeSeconds(unix).UtcDateTime));
+                    if (parts.Length >= 3 && int.TryParse(parts[0], out var slot) && long.TryParse(parts[2], out var unix))
+                    {
+                        var heat = parts.Length > 3 && double.TryParse(parts[3], System.Globalization.NumberStyles.Float, System.Globalization.CultureInfo.InvariantCulture, out var h) ? h : 1;
+                        list.Add(new EarlyStart(slot, parts[1], DateTimeOffset.FromUnixTimeSeconds(unix).UtcDateTime, heat));
+                    }
                 }
                 EarlyStarts[week] = list;
                 return list;
@@ -268,10 +271,12 @@ namespace WorldServer.core.community
                     Log.Info($"Community goals: {run.Key} finished early, and no goal is left for a bonus");
                     return;
                 }
-                _db.ListRightPush(EarlyKey(week), $"{run.Slot},{next},{at}");
+                // the faster it went, the harder the bonus goal
+                var heat = Data.Heat(run, rs.Total, rs.Goal, now);
+                _db.ListRightPush(EarlyKey(week), $"{run.Slot},{next},{at},{heat.ToString("0.###", System.Globalization.CultureInfo.InvariantCulture)}");
                 _db.KeyExpire(EarlyKey(week), WeekKeptFor);
                 EarlyStarts.TryRemove(week, out _);
-                Log.Info($"Community goals: {run.Key} finished early at {rs.Total:N0} of {rs.Goal:N0}; {next} starts as a bonus");
+                Log.Info($"Community goals: {run.Key} finished early at {rs.Total:N0} of {rs.Goal:N0}; {next} starts as a bonus, {heat:0.##} times its size");
             }
             catch (Exception e)
             {
@@ -302,7 +307,8 @@ namespace WorldServer.core.community
                 var fixing = new List<(CommunityRun Run, Task<bool> First, Task<RedisValue> Goal)>();
                 foreach (var run in unfixed)
                 {
-                    var goal = run.Special ? run.Def.Goal : CommunityData.GoalOf(run.Def, scales.TryGetValue(run.Def.Id, out var sc) ? sc : 1);
+                    // a bonus goal after quick finishes is harder by their heat
+                    var goal = run.Special ? run.Def.Goal : CommunityData.GoalOf(run.Def, (scales.TryGetValue(run.Def.Id, out var sc) ? sc : 1) * run.Heat);
                     var first = batch.HashSetAsync(TotalKey(run.Key), "goal", goal, When.NotExists);
                     tasks.Add(first);
                     tasks.Add(batch.KeyExpireAsync(TotalKey(run.Key), KeepFor(run)));
@@ -455,10 +461,9 @@ namespace WorldServer.core.community
                 var id = run.Def.Id;
                 var scales = Scales();
                 var old = scales.TryGetValue(id, out var sc) ? sc : 1;
-                var next = Data.NextScale(old, rs.Total, rs.Goal);
-                // a bonus run had less than a week: falling short says nothing of the goal
-                if (run.Bonus)
-                    next = Math.Max(old, next);
+                // by its pace over a week (a run finished early or a bonus run is shorter), against
+                // its goal without the heat
+                var next = Data.NextScale(old, rs.Total, Math.Max(1, (int)Math.Round(rs.Goal / run.Heat)), run.Weeks, run.Cut);
                 SetScale(id, next);
                 Settled[run.Key] = 0;
                 Log.Info($"Community goals: {run.Key} ended at {rs.Total:N0} of {rs.Goal:N0}; {id}'s scale {old:0.###} -> {next:0.###} (next goal {CommunityData.GoalOf(run.Def, next):N0})");
