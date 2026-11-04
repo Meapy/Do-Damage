@@ -10,6 +10,7 @@
 
 use crate::forge::{fame_text, fame_width};
 use crate::hud::{Layout, SlotKind, Ui};
+use crate::i18n::{mark, tf, tn, tr};
 use crate::theme::{self, color, Kind};
 use bsk_proto::{QuestChange, QuestReward, QuestsData};
 use bsk_world::GameObj;
@@ -73,18 +74,18 @@ impl Tab {
 }
 
 const TABS: [(Tab, &str); 5] = [
-    (Tab::Daily, "Daily"),
-    (Tab::Weekly, "Weekly"),
-    (Tab::Monthly, "Monthly"),
-    (Tab::Login, "Daily Rewards"),
-    (Tab::Achievements, "Achievements"),
+    (Tab::Daily, mark("Daily")),
+    (Tab::Weekly, mark("Weekly")),
+    (Tab::Monthly, mark("Monthly")),
+    (Tab::Login, mark("Daily Rewards")),
+    (Tab::Achievements, mark("Achievements")),
 ];
 
 const PERIOD_NAMES: [&str; 3] = ["daily", "weekly", "monthly"];
 
 /// The achievement tiers' colours: bronze, silver, gold, ember.
 pub(crate) const TIER_COLORS: [u32; 4] = [0xCD8A4E, 0xC9D2E3, color::GOLD, color::ACCENT];
-const TIER_NAMES: [&str; 4] = ["Bronze", "Silver", "Gold", "Ember"];
+const TIER_NAMES: [&str; 4] = [mark("Bronze"), mark("Silver"), mark("Gold"), mark("Ember")];
 
 /// How long a popup shows, and how long it takes to come and go (ms).
 const TOAST_MS: i32 = 6000;
@@ -125,13 +126,13 @@ pub fn countdown(seconds: i64) -> String {
     let s = seconds.max(0);
     let (d, h, m, sec) = (s / 86400, s / 3600 % 24, s / 60 % 60, s % 60);
     if d > 0 {
-        format!("{d}d {h}h")
+        tf!("{d}d {h}h", d, h)
     } else if h > 0 {
-        format!("{h}h {m}m")
+        tf!("{h}h {m}m", h, m)
     } else if m > 0 {
-        format!("{m}m {sec}s")
+        tf!("{m}m {sec}s", m, sec)
     } else {
-        format!("{sec}s")
+        tf!("{sec}s", sec)
     }
 }
 
@@ -245,12 +246,12 @@ impl Quests {
                 if d.login_ready && self.login_said != day {
                     self.login_said = day;
                     let n = d.login_day as usize + 1;
-                    self.toast(NOTICE_LOGIN, "Daily reward ready!".into(), format!("Day {n} is waiting: press J, or see the Chronicler."), now);
+                    self.toast(NOTICE_LOGIN, tr("Daily reward ready!").into(), tf!("Day {n} is waiting: press J, or see the Chronicler.", n), now);
                 }
                 let new_gifts: Vec<_> = d.gifts.iter().flat_map(|g| g.iter()).filter(|g| !g.claimed && !self.gifts_said.contains(&g.id)).cloned().collect();
                 for g in new_gifts {
                     self.gifts_said.push(g.id.clone());
-                    self.toast(NOTICE_GIFT, format!("A gift: {}!", g.title), "Claim it on the Daily Rewards tab: press J.".into(), now);
+                    self.toast(NOTICE_GIFT, tf!("A gift: {title}!", title = g.title), tr("Claim it on the Daily Rewards tab: press J.").into(), now);
                 }
                 self.data = Some(*d);
                 let max = self.achievement_order().len();
@@ -421,18 +422,18 @@ impl Quests {
         let font = |size: f32| (size * s).round().max(9.0);
         let mid = r[1] + 32.0 * s;
         let ts = font(22.0);
-        ui.label("Quest Log", r[0] + 22.0 * s, (mid - ui.digit_middle(ts, true)).round(), ts, true, color::GOLD);
+        ui.label(tr("Quest Log"), r[0] + 22.0 * s, (mid - ui.digit_middle(ts, true)).round(), ts, true, color::GOLD);
 
         // The tabs, each with a count of what waits on it.
         let cs = font(13.0);
-        let widths: Vec<f32> = TABS.iter().map(|(t, l)| ui.measure(l, cs, true) + if self.ready_in(*t) > 0 { 46.0 } else { 28.0 } * s).collect();
+        let widths: Vec<f32> = TABS.iter().map(|(t, l)| ui.measure(tr(l), cs, true) + if self.ready_in(*t) > 0 { 46.0 } else { 28.0 } * s).collect();
         let gap = 6.0 * s;
         let total = widths.iter().sum::<f32>() + gap * (TABS.len() - 1) as f32;
         let mut x = (r[0] + 170.0 * s + (r[2] - 170.0 * s - 56.0 * s - total) / 2.0).round();
         for ((t, label), w) in TABS.into_iter().zip(widths) {
             let tr = [x, (mid - 14.0 * s).round(), w, 28.0 * s];
             let on = t == self.tab;
-            chip(ui, tr, label, on, inside(tr, mouse), cs, Some(self.ready_in(t)), s);
+            chip(ui, tr, crate::i18n::tr(label), on, inside(tr, mouse), cs, Some(self.ready_in(t)), s);
             self.hits.push((Hit::Tab(t), tr));
             x += w + gap;
         }
@@ -445,7 +446,7 @@ impl Quests {
 
         let body = [r[0] + 22.0 * s, r[1] + 62.0 * s, r[2] - 44.0 * s, r[3] - 104.0 * s];
         if self.data.is_none() {
-            let t = "Asking the Tinkerer for your quests...";
+            let t = tr("Asking the Tinkerer for your quests...");
             ui.label(t, body[0], body[1] + 10.0 * s, font(14.0), false, color::TEXT_MUTED);
         } else {
             match self.tab {
@@ -458,7 +459,7 @@ impl Quests {
         if let Some((m, err, _)) = &self.message {
             ui.label(m, r[0] + 22.0 * s, foot_y, font(13.0), true, if *err { color::DANGER } else { color::GOOD });
         } else {
-            let hint = "Rewards: fame to your account, items to the gift chest in your vault.";
+            let hint = tr("Rewards: fame to your account, items to the gift chest in your vault.");
             ui.label(hint, r[0] + 22.0 * s, foot_y, font(12.0), false, color::TEXT_MUTED);
         }
         if let Some(item) = self.hover_item {
@@ -481,10 +482,15 @@ impl Quests {
         let Some(d) = self.data.clone() else { return };
         let info = d.periods.iter().find(|p| p.period == period);
         let left = info.map_or(0, |p| p.resets_at as i64 - self.server_now());
-        let name = PERIOD_NAMES[period as usize % 3];
-        ui.label(&format!("New {name} quests in {}", countdown(left)), body[0], body[1], font(14.0), true, color::TEXT_DIM);
+        let time = countdown(left);
+        let new = match period % 3 {
+            0 => tf!("New daily quests in {time}", time),
+            1 => tf!("New weekly quests in {time}", time),
+            _ => tf!("New monthly quests in {time}", time),
+        };
+        ui.label(&new, body[0], body[1], font(14.0), true, color::TEXT_DIM);
         let swaps = info.map_or(0, |p| p.rerolls_left);
-        let st = if swaps == 0 { "No swaps left".to_owned() } else { format!("{swaps} swap{} left: trade a quest you don't like for another", if swaps == 1 { "" } else { "s" }) };
+        let st = if swaps == 0 { tr("No swaps left").to_owned() } else { tn!(swaps, "{n} swap left: trade a quest you don't like for another|{n} swaps left: trade a quest you don't like for another") };
         let sw = ui.measure(&st, font(12.0), false);
         ui.label(&st, body[0] + body[2] - sw, body[1] + 2.0 * s, font(12.0), false, color::TEXT_MUTED);
 
@@ -510,23 +516,23 @@ impl Quests {
             let br = [cr[0] + cr[2] - bw - 16.0 * s, cr[1] + (card_h - 36.0 * s) / 2.0, bw, 36.0 * s];
             let rw = Self::rewards_width(ui, &q.rewards, s);
             let rx = br[0] - 18.0 * s - rw;
-            ui.label("Reward", rx, cr[1] + 12.0 * s, font(11.0), true, color::TEXT_MUTED);
+            ui.label(tr("Reward"), rx, cr[1] + 12.0 * s, font(11.0), true, color::TEXT_MUTED);
             self.rewards(ui, &q.rewards.clone(), rx, cr[1] + 52.0 * s, s, mouse, q.claimed);
             if q.claimed {
-                done_chip(ui, br, "Claimed", s);
+                done_chip(ui, br, tr("Claimed"), s);
             } else if ready {
                 glow(ui, br, pulse, s);
-                ui.button(br, "Claim", Kind::Primary, inside(br, mouse), s);
+                ui.button(br, tr("Claim"), Kind::Primary, inside(br, mouse), s);
                 self.hits.push((Hit::Claim(*i), br));
             } else if swaps > 0 {
                 let sr = [br[0] + 14.0 * s, br[1] + 4.0 * s, br[2] - 28.0 * s, br[3] - 8.0 * s];
-                ui.button(sr, "Swap", Kind::Secondary, inside(sr, mouse), s * 0.85);
+                ui.button(sr, tr("Swap"), Kind::Secondary, inside(sr, mouse), s * 0.85);
                 self.hits.push((Hit::Swap(*i), sr));
             }
             y += card_h + gap;
         }
         if quests.is_empty() {
-            ui.label("No quests right now.", body[0], y, font(14.0), false, color::TEXT_MUTED);
+            ui.label(tr("No quests right now."), body[0], y, font(14.0), false, color::TEXT_MUTED);
         }
 
         // The bonus for claiming them all.
@@ -536,12 +542,21 @@ impl Quests {
         let claimed_n = quests.iter().filter(|(_, q)| q.claimed).count();
         theme::frame(ui.renderer, br, 8.0 * s, s.max(1.0), (if ready { color::GOLD } else { color::BORDER }, 1.0), ((color::WARM_TOP, 0.9), (color::WARM_BOTTOM, 0.9)));
         theme::star(ui.renderer, br[0] + 26.0 * s, br[1] + br[3] / 2.0, 11.0 * s, if info.bonus_claimed || ready { color::GOLD } else { color::TEXT_MUTED });
-        let title = format!("{} bonus", capital(name));
-        ui.label(&title, br[0] + 46.0 * s, br[1] + 12.0 * s, font(15.0), true, color::GOLD);
+        let title = match period % 3 {
+            0 => tr("Daily bonus"),
+            1 => tr("Weekly bonus"),
+            _ => tr("Monthly bonus"),
+        };
+        ui.label(title, br[0] + 46.0 * s, br[1] + 12.0 * s, font(15.0), true, color::GOLD);
+        let all = quests.len();
         let sub = if info.bonus_claimed {
-            "Claimed: well done!".to_owned()
+            tr("Claimed: well done!").to_owned()
         } else {
-            format!("Claim all {} {name} quests ({claimed_n}/{})", quests.len(), quests.len())
+            match period % 3 {
+                0 => tf!("Claim all {all} daily quests ({claimed_n}/{all})", all, claimed_n),
+                1 => tf!("Claim all {all} weekly quests ({claimed_n}/{all})", all, claimed_n),
+                _ => tf!("Claim all {all} monthly quests ({claimed_n}/{all})", all, claimed_n),
+            }
         };
         ui.label(&sub, br[0] + 46.0 * s, br[1] + 36.0 * s, font(12.0), false, color::TEXT_DIM);
         let bw = 104.0 * s;
@@ -549,10 +564,10 @@ impl Quests {
         let rw = Self::rewards_width(ui, &info.bonus, s);
         self.rewards(ui, &info.bonus.clone(), bb[0] - 18.0 * s - rw, br[1] + br[3] / 2.0, s, mouse, info.bonus_claimed);
         if info.bonus_claimed {
-            done_chip(ui, bb, "Claimed", s);
+            done_chip(ui, bb, tr("Claimed"), s);
         } else if ready {
             glow(ui, bb, pulse, s);
-            ui.button(bb, "Claim", Kind::Primary, inside(bb, mouse), s);
+            ui.button(bb, tr("Claim"), Kind::Primary, inside(bb, mouse), s);
             self.hits.push((Hit::Bonus(period), bb));
         } else {
             locked(ui, bb, s);
@@ -566,21 +581,22 @@ impl Quests {
         let pulse = 0.5 + 0.5 * ((now as f32) / 260.0).sin();
         // the header: which day, the streak, and the button or when the next comes
         let today = d.login_day as usize % days;
-        let head = if d.login_ready { format!("Day {} of {days} is ready!", today + 1) } else { format!("Day {} of {days} comes tomorrow", today + 1) };
+        let day = today + 1;
+        let head = if d.login_ready { tf!("Day {day} of {days} is ready!", day, days) } else { tf!("Day {day} of {days} comes tomorrow", day, days) };
         ui.label(&head, body[0], body[1], font(18.0), true, if d.login_ready { color::GOLD } else { color::TEXT });
-        let streak = if d.login_streak > 1 { format!("{} days in a row", d.login_streak) } else { "Come back every day".to_owned() };
-        let total = if d.login_total == 1 { "1 reward collected".to_owned() } else { format!("{} rewards collected", d.login_total) };
-        let sub = format!("{streak}  ·  {total}  ·  Missing a day never loses your place.");
+        let streak = if d.login_streak > 1 { tn!(d.login_streak, "{n} day in a row|{n} days in a row") } else { tr("Come back every day").to_owned() };
+        let total = tn!(d.login_total, "{n} reward collected|{n} rewards collected");
+        let sub = tf!("{streak}  ·  {total}  ·  Missing a day never loses your place.", streak, total);
         ui.label(&sub, body[0], body[1] + 28.0 * s, font(12.0), false, color::TEXT_DIM);
         let bw = 170.0 * s;
         let bb = [body[0] + body[2] - bw, body[1], bw, 40.0 * s];
         if d.login_ready {
             glow(ui, bb, pulse, s);
-            ui.button(bb, &format!("Collect day {}", today + 1), Kind::Primary, inside(bb, mouse), s);
+            ui.button(bb, &tf!("Collect day {day}", day), Kind::Primary, inside(bb, mouse), s);
             self.hits.push((Hit::Login, bb));
         } else {
             let left = d.login_next_at as i64 - self.server_now();
-            let t = format!("Next in {}", countdown(left));
+            let t = tf!("Next in {time}", time = countdown(left));
             let tw = ui.measure(&t, font(14.0), true);
             ui.label(&t, bb[0] + bb[2] - tw, bb[1] + 10.0 * s, font(14.0), true, color::TEXT_DIM);
         }
@@ -592,9 +608,9 @@ impl Quests {
             let ready = !g.claimed;
             theme::frame(ui.renderer, gr, 8.0 * s, s.max(1.0), (if ready { color::GOLD } else { color::BORDER }, 1.0), ((color::WARM_TOP, 0.95), (color::WARM_BOTTOM, 0.95)));
             theme::star(ui.renderer, gr[0] + 26.0 * s, gr[1] + gr[3] / 2.0, 11.0 * s, if ready { color::GOLD } else { color::TEXT_MUTED });
-            let title = format!("Gift: {}", g.title);
+            let title = tf!("Gift: {title}", title = g.title);
             ui.label(&title, gr[0] + 46.0 * s, gr[1] + 10.0 * s, font(15.0), true, color::GOLD);
-            let when = if g.claimed { "Claimed".to_owned() } else { format!("Ends in {}", countdown(g.ends_at as i64 - self.server_now())) };
+            let when = if g.claimed { tr("Claimed").to_owned() } else { tf!("Ends in {time}", time = countdown(g.ends_at as i64 - self.server_now())) };
             let tw = ui.measure(&title, font(15.0), true);
             ui.label(&when, gr[0] + 46.0 * s + tw + 12.0 * s, gr[1] + 12.0 * s, font(12.0), true, color::TEXT_MUTED);
             let mut sub = g.text.clone();
@@ -611,10 +627,10 @@ impl Quests {
             ui.label(&sub, gr[0] + 46.0 * s, gr[1] + 36.0 * s, font(12.0), false, color::TEXT_DIM);
             self.rewards(ui, &g.rewards.clone(), rx, gr[1] + gr[3] / 2.0, s, mouse, g.claimed);
             if g.claimed {
-                done_chip(ui, bb, "Claimed", s);
+                done_chip(ui, bb, tr("Claimed"), s);
             } else {
                 glow(ui, bb, pulse, s);
-                ui.button(bb, "Claim", Kind::Primary, inside(bb, mouse), s);
+                ui.button(bb, tr("Claim"), Kind::Primary, inside(bb, mouse), s);
                 self.hits.push((Hit::Gift(k), bb));
             }
             gy += gr[3] + 10.0 * s;
@@ -636,7 +652,7 @@ impl Quests {
                 theme::fill(ui.renderer, [tr[0] - g, tr[1] - g, tr[2] + 2.0 * g, tr[3] + 2.0 * g], 10.0 * s, color::GOLD, 0.18);
             }
             theme::frame(ui.renderer, tr, 7.0 * s, s.max(1.0), (border, 1.0), ((top, 0.95), (bottom, 0.95)));
-            let label = format!("Day {}", k + 1);
+            let label = tf!("Day {day}", day = k + 1);
             ui.label(&label, tr[0] + 7.0 * s, tr[1] + 5.0 * s, font(11.0), true, if is_today { color::GOLD } else { color::TEXT_MUTED });
             if day.milestone {
                 theme::star(ui.renderer, tr[0] + tr[2] - 11.0 * s, tr[1] + 11.0 * s, 6.0 * s, color::GOLD);
@@ -650,7 +666,7 @@ impl Quests {
             if claimed {
                 check(ui, tr[0] + tr[2] - 14.0 * s, tr[1] + tr[3] - 14.0 * s, 7.0 * s, s);
             } else if is_today && !d.login_ready {
-                let t = "Tomorrow";
+                let t = crate::i18n::tr("Tomorrow");
                 let w = ui.measure(t, font(10.0), true);
                 ui.label(t, tr[0] + tr[2] - w - 6.0 * s, tr[1] + tr[3] - font(10.0) * 1.4, font(10.0), true, color::TEXT_DIM);
             }
@@ -669,20 +685,20 @@ impl Quests {
         theme::frame(ui.renderer, rr, 8.0 * s, s.max(1.0), (color::BORDER_HI, 1.0), ((color::WARM_TOP, 0.95), (color::WARM_BOTTOM, 0.95)));
         let rank_color = rank.map(|r| r.color as u32).filter(|&c| c != 0).unwrap_or(color::TEXT);
         ui.label(rank.map_or("", |r| r.name.as_str()), rr[0] + 14.0 * s, rr[1] + 10.0 * s, font(20.0), true, rank_color);
-        ui.label(&format!("{} points", crate::hud::group_digits(d.points)), rr[0] + 14.0 * s, rr[1] + 38.0 * s, font(13.0), true, color::GOLD);
+        ui.label(&tn!(d.points, "{n} point|{n} points", n = crate::hud::group_digits(d.points)), rr[0] + 14.0 * s, rr[1] + 38.0 * s, font(13.0), true, color::GOLD);
         let bar = [rr[0] + 14.0 * s, rr[1] + 62.0 * s, lw - 28.0 * s, 10.0 * s];
         match (rank, next) {
             (Some(r), Some(n)) => {
                 let k = ((d.points - r.points) as f32 / (n.points - r.points).max(1) as f32).clamp(0.0, 1.0);
                 theme::fill(ui.renderer, bar, bar[3] / 2.0, color::TRACK, 1.0);
                 theme::fill(ui.renderer, [bar[0], bar[1], bar[2] * k, bar[3]], bar[3] / 2.0, color::GOLD, 1.0);
-                ui.label(&format!("{} at {}", n.name, n.points), bar[0], bar[1] + 12.0 * s, font(10.0), false, color::TEXT_MUTED);
+                ui.label(&tf!("{name} at {points}", name = n.name, points = n.points), bar[0], bar[1] + 12.0 * s, font(10.0), false, color::TEXT_MUTED);
             }
-            _ => ui.label("The highest rank!", bar[0], bar[1] - 2.0 * s, font(11.0), true, color::GOOD),
+            _ => ui.label(tr("The highest rank!"), bar[0], bar[1] - 2.0 * s, font(11.0), true, color::GOOD),
         }
         // name colours: one chip per rank that has one (locked until reached)
         let mut y = rr[1] + rr[3] + 12.0 * s;
-        ui.label("Chat name colour", body[0], y, font(12.0), true, color::TEXT_DIM);
+        ui.label(tr("Chat name colour"), body[0], y, font(12.0), true, color::TEXT_DIM);
         y += 20.0 * s;
         let sw = 26.0 * s;
         let mut x = body[0];
@@ -706,7 +722,7 @@ impl Quests {
         y += sw + 16.0 * s;
         // the filters
         let cats = self.categories();
-        let mut items: Vec<(Hit, String, bool)> = vec![(Hit::Category(None), "All".into(), self.category.is_none())];
+        let mut items: Vec<(Hit, String, bool)> = vec![(Hit::Category(None), tr("All").into(), self.category.is_none())];
         for (k, c) in cats.iter().enumerate() {
             items.push((Hit::Category(Some(k)), c.clone(), self.category == Some(k)));
         }
@@ -727,7 +743,7 @@ impl Quests {
         cy += ch + cg + 4.0 * s;
         let ready_n = self.ready_in(Tab::Achievements);
         let rr2 = [body[0], cy, lw, ch];
-        chip(ui, rr2, &format!("Ready to claim ({ready_n})"), self.ready_only, inside(rr2, mouse), csz, None, s);
+        chip(ui, rr2, &tf!("Ready to claim ({ready_n})", ready_n), self.ready_only, inside(rr2, mouse), csz, None, s);
         self.hits.push((Hit::ReadyOnly, rr2));
 
         // The list.
@@ -755,7 +771,7 @@ impl Quests {
             let tx = mx + 4.0 * 15.0 * s + 8.0 * s;
             ui.label(&a.title, tx, ar[1] + 8.0 * s, font(15.0), true, if finished { color::TEXT_DIM } else { color::TEXT });
             let tier = (a.claimed as usize).min(a.goals.len().saturating_sub(1));
-            let tag = if finished { format!("{}  ·  complete", a.category) } else { format!("{}  ·  {}", a.category, TIER_NAMES[tier.min(3)]) };
+            let tag = if finished { tf!("{category}  ·  complete", category = a.category) } else { format!("{}  ·  {}", a.category, tr(TIER_NAMES[tier.min(3)])) };
             let tw = ui.measure(&a.title, font(15.0), true);
             ui.label(&tag, tx + tw + 10.0 * s, ar[1] + 11.0 * s, font(11.0), false, color::TEXT_MUTED);
             ui.label(&a.text, mx, ar[1] + 30.0 * s, font(12.0), false, color::TEXT_DIM);
@@ -766,7 +782,7 @@ impl Quests {
             let bw = 96.0 * s;
             let bb = [ar[0] + ar[2] - bw - 12.0 * s, ar[1] + (row_h - 32.0 * s) / 2.0, bw, 32.0 * s];
             if !finished {
-                let pts = format!("+{} pts", a.next_points);
+                let pts = tf!("+{n} pts", n = a.next_points);
                 let pw = ui.measure(&pts, font(12.0), true);
                 let rw = Self::rewards_width(ui, &a.next_rewards, s);
                 let rx = bb[0] - 14.0 * s - rw - pw - 10.0 * s;
@@ -775,24 +791,24 @@ impl Quests {
             }
             if ready {
                 glow(ui, bb, pulse, s);
-                ui.button(bb, "Claim", Kind::Primary, inside(bb, mouse), s * 0.9);
+                ui.button(bb, tr("Claim"), Kind::Primary, inside(bb, mouse), s * 0.9);
                 self.hits.push((Hit::Achievement(i), bb));
             } else if finished {
-                done_chip(ui, bb, "Complete", s);
+                done_chip(ui, bb, tr("Complete"), s);
             }
         }
         if order.is_empty() {
-            ui.label("Nothing here yet.", list[0], list[1] + 8.0 * s, font(13.0), false, color::TEXT_MUTED);
+            ui.label(tr("Nothing here yet."), list[0], list[1] + 8.0 * s, font(13.0), false, color::TEXT_MUTED);
         }
         // paging
         let py = list[1] + list[3] - 26.0 * s;
         let (up, down) = ([list[0], py, 56.0 * s, 26.0 * s], [list[0] + 62.0 * s, py, 56.0 * s, 26.0 * s]);
-        ui.button(up, "Up", Kind::Secondary, inside(up, mouse), s * 0.8);
-        ui.button(down, "Down", Kind::Secondary, inside(down, mouse), s * 0.8);
+        ui.button(up, tr("Up"), Kind::Secondary, inside(up, mouse), s * 0.8);
+        ui.button(down, tr("Down"), Kind::Secondary, inside(down, mouse), s * 0.8);
         self.hits.push((Hit::Up, up));
         self.hits.push((Hit::Down, down));
         if !order.is_empty() {
-            let t = format!("{}-{} of {}", self.row + 1, (self.row + self.rows).min(order.len()), order.len());
+            let t = tf!("{from}-{to} of {all}", from = self.row + 1, to = (self.row + self.rows).min(order.len()), all = order.len());
             ui.label(&t, list[0] + 130.0 * s, py + 6.0 * s, font(12.0), false, color::TEXT_MUTED);
         }
     }
@@ -919,12 +935,6 @@ pub(crate) fn rewards_width(ui: &mut Ui, rewards: &[QuestReward], s: f32) -> f32
         .map(|r| if r.kind == 0 { fame_width(ui, &crate::hud::group_digits(r.amount), size, s) + 12.0 * s } else { 42.0 * s })
         .sum::<f32>()
 }
-
-fn capital(s: &str) -> String {
-    let mut c = s.chars();
-    c.next().map_or(String::new(), |f| f.to_uppercase().collect::<String>() + c.as_str())
-}
-
 /// A tab or filter chip, with a count of what waits on it.
 #[allow(clippy::too_many_arguments)]
 pub(crate) fn chip(ui: &mut Ui, r: [f32; 4], label: &str, on: bool, hover: bool, size: f32, badge: Option<usize>, s: f32) {

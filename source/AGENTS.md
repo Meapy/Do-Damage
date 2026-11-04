@@ -118,6 +118,11 @@ dotnet build source\WorldServer\WorldServer.csproj -c Debug -o build\wscheck   #
   reflection, so a new handler needs no registration (see `ViewRadiusHandler.cs`). An unknown id
   is logged and counted as packet spam, and more than 32 disconnect the player. The client's ids
   are in its `GameServerConnection.as`, so keep the two in step and deploy them together.
+- **Text players read:** the Rust client is translated into 11 languages, but whatever the server
+  sends as text (notifications, errors, NPC lines) reaches every player in English. For a new
+  feature, send what happened as ids and numbers and let the client word it (its `tr`/`tf!`
+  lines and the tables in `client-rs/app/lang/`; client-rs/AGENTS.md, "Languages"), keeping the
+  English text as a fallback for older clients.
 - **Players:** `Player` is split into partial classes in `core/objects/player/`
   (`Player.Update.cs`, `Player.UseItem.cs`, and so on).
 - **What a player sees:** `Player.SightRadius`, 15 tiles by default and up to 40 when the client

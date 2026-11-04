@@ -2,6 +2,7 @@
 //! world it describes. Changing worlds (portals, escaping to the nexus) is a Reconnect: a new
 //! connection with the key the server handed out.
 
+use crate::i18n::{tf, tn, tr};
 use bsk_data::{GameData, ObjectClass};
 use bsk_net::{GameSocket, SocketEvent, Target};
 use bsk_proto::{
@@ -272,7 +273,7 @@ impl Game {
         let mut game = Self {
             socket,
             session,
-            status: format!("Connecting to {}:{}…", target.host, target.port),
+            status: tf!("Connecting to {host}:{port}…", host = target.host, port = target.port),
             ping: None,
             target,
             hello,
@@ -399,7 +400,7 @@ impl Game {
         self.world = None;
         self.trade = None;
         self.invite = None;
-        self.status = "Connection lost: getting you back in…".into();
+        self.status = tr("Connection lost: getting you back in…").into();
         self.lost = Some(Lost { tries: tries + 1, next_at: Some(now + delay) });
         true
     }
@@ -428,14 +429,14 @@ impl Game {
             let tries = *tries;
             log::info!("reconnecting to the Nexus (try {tries})");
             self.go_to_nexus();
-            self.status = "Connection lost: getting you back in…".into();
+            self.status = tr("Connection lost: getting you back in…").into();
             self.lost = Some(Lost { tries, next_at: None });
         }
         while let Some(event) = self.socket.poll() {
             match event {
                 SocketEvent::Connected => {
                     if self.lost.is_none() {
-                        self.status = "Connected, entering the game…".into();
+                        self.status = tr("Connected, entering the game…").into();
                     }
                 }
                 SocketEvent::Closed(why) => {
@@ -449,9 +450,9 @@ impl Game {
                     self.status = if self.refused && !self.status.is_empty() {
                         std::mem::take(&mut self.status)
                     } else if why.starts_with("can't connect") || why.contains("/ws/") {
-                        "Can't reach the game server. Check your internet connection and try again.".into()
+                        tr("Can't reach the game server. Check your internet connection and try again.").into()
                     } else {
-                        format!("Disconnected: {why}")
+                        tf!("Disconnected: {why}", why)
                     };
                     self.ended = true;
                 }
@@ -528,12 +529,12 @@ impl Game {
                 self.music = Some(info.music.clone());
                 self.last_level = 0;
                 self.dealt.clear();
-                self.status = format!("Entering {}…", info.display_name);
+                self.status = tf!("Entering {world}…", world = info.display_name);
             }
             Some(Event::Joined { object_id, char_id }) => {
                 if let Some(lost) = self.lost.take() {
                     log::info!("back in after a dropped connection ({} tries)", lost.tries);
-                    self.add_chat("", "", "The connection dropped: you're back in the Nexus.", 0, 0, -1, now);
+                    self.add_chat("", "", tr("The connection dropped: you're back in the Nexus."), 0, 0, -1, now);
                 }
                 // A new character has its id now; reconnects load it.
                 self.char_id = char_id;
@@ -622,7 +623,7 @@ impl Game {
             }
             ServerMessage::TradeRequested(t) => {
                 self.invite = Some((Invite::Trade { name: t.name.clone() }, now));
-                self.add_chat("", "", &format!("{} wants to trade with you.", t.name), 0, 0, -1, now);
+                self.add_chat("", "", &tf!("{name} wants to trade with you.", name = t.name), 0, 0, -1, now);
             }
             ServerMessage::TradeStart(t) => {
                 self.invite = None;
@@ -659,7 +660,7 @@ impl Game {
             }
             ServerMessage::NameResult(n) => {
                 if n.success {
-                    self.add_chat("", "", "Your name has been changed.", 0, 0, -1, now);
+                    self.add_chat("", "", tr("Your name has been changed."), 0, 0, -1, now);
                 }
                 self.name_result = Some((n.success, n.error_text.clone()));
             }
@@ -700,7 +701,7 @@ impl Game {
         if let ServerMessage::Death(d) = msg {
             if d.char_id == self.char_id {
                 log::info!("died, killed by {}", d.killed_by);
-                self.status = format!("You died, killed by {}.", d.killed_by);
+                self.status = tf!("You died, killed by {by}.", by = d.killed_by);
                 self.ended = true;
                 self.died = true;
                 return;
@@ -864,8 +865,12 @@ impl Game {
                     let total = v.seconds as i32 * 1000;
                     let summon = v.summon == Some(true);
                     self.visit = Some(VisitAsk { id: v.id, name: v.name.clone(), world: v.world.clone(), summon, until: now + total, total });
-                    let asks = if summon { format!("wants to summon you to their {}", v.world) } else { "wants to visit you".to_owned() };
-                    self.add_chat("", "", &format!("{} {asks}: answer Yes or No in the corner, or type /yes or /no.", v.name), 0, 0, -1, now);
+                    let line = if summon {
+                        tf!("{name} wants to summon you to their {world}: answer Yes or No in the corner, or type /yes or /no.", name = v.name, world = v.world)
+                    } else {
+                        tf!("{name} wants to visit you: answer Yes or No in the corner, or type /yes or /no.", name = v.name)
+                    };
+                    self.add_chat("", "", &line, 0, 0, -1, now);
                 }
             }
             ServerMessage::ImminentArenaWave(w) => {
@@ -1253,7 +1258,7 @@ impl Game {
     pub fn teleport(&mut self, object_id: i32, now: i32) {
         if now < self.next_teleport {
             let secs = (self.next_teleport - now + 999) / 1000;
-            self.add_chat("*Error*", "", &format!("You can't teleport for {secs} more seconds."), 0, 0, -1, now);
+            self.add_chat("*Error*", "", &tn!(secs, "You can't teleport for {n} more second.|You can't teleport for {n} more seconds."), 0, 0, -1, now);
             return;
         }
         self.next_teleport = now + TELEPORT_COOLDOWN;
@@ -1433,22 +1438,21 @@ impl Game {
             let stat = |id: u8| o.stat_int(id);
             let mut lines: Vec<(String, [u32; 3])> = Vec::new();
             match stat(crate::hud::merch::MINS_LEFT) {
-                Some(i32::MAX) => lines.push(("New!".into(), [0xE6E6E6, 0xFFFFFF, 0x5A8025])),
+                Some(i32::MAX) => lines.push((tr("New!").into(), [0xE6E6E6, 0xFFFFFF, 0x5A8025])),
                 Some(m @ 0..=5) => {
                     let t = match m {
-                        0 => "Going soon!".to_owned(),
-                        1 => "Going in 1 min!".to_owned(),
-                        m => format!("Going in {m} mins!"),
+                        0 => tr("Going soon!").to_owned(),
+                        m => tn!(m, "Going in {n} min!|Going in {n} mins!"),
                     };
                     lines.push((t, [0x5B2626, 0xFC8642, 0xFC8642]));
                 }
                 _ => {}
             }
             if let Some(c @ 1..=2) = stat(crate::hud::merch::COUNT) {
-                lines.push((format!("{c} left!"), [0x5B2626, 0xFC8642, 0xFC8642]));
+                lines.push((tn!(c, "{n} left!|{n} left!"), [0x5B2626, 0xFC8642, 0xFC8642]));
             }
             if let Some(dsc) = stat(crate::hud::merch::DISCOUNT).filter(|&d| d > 0) {
-                lines.push((format!("{dsc}% off!"), [0x608033, 0xFFFF8F, 0xFFFF8F]));
+                lines.push((tf!("{dsc}% off!", dsc), [0x608033, 0xFFFF8F, 0xFFFF8F]));
             }
             if lines.is_empty() {
                 continue;

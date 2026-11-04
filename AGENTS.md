@@ -102,6 +102,11 @@ it asks first; never run test copies under the live process names (`redis-server
   doesn't pick the change up, and edit the hand-written guides (`website/wiki/*.md`) where they
   describe it. Measured tables (Gear statistics) stay as measured: add a note when one goes out of
   date.
+- **Languages:** the Rust client speaks 11 languages (Options, Language). Any text it shows
+  players, new or changed, goes through `tr` / `tf!` / `tn!` and gets its translation in every
+  table, `client-rs/app/lang/*.json`, in the same commit: written as a native player of that
+  language would say it, not word for word (client-rs/AGENTS.md, "Languages"). The client's
+  tests fail while a table lacks a line or keeps one no longer used.
 - **Generated files** come from the `tools/port_doomed*.py` scripts (see source/AGENTS.md). Change
   the script and regenerate rather than editing the output by hand.
 - **DNS:** dodmg.com's records live at Register365 with a TTL of a day, so a change can take that

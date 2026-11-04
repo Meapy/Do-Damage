@@ -9,6 +9,7 @@
 
 use super::{inside, locked_chip, Act, Category, Forge, Hit, Tab, ENCHANTER, FRAME_MS};
 use crate::hud::Ui;
+use crate::i18n::{tf, tn, tr};
 use crate::theme::{self, color, Kind as ButtonKind};
 use bsk_data::imprint::{self, Kind};
 use bsk_data::GameData;
@@ -62,11 +63,11 @@ impl Forge {
         self.message = Some(if self.imp_pending {
             return None;
         } else if !imp.fits(slot_type) {
-            (format!("{} doesn't fit this item.", imp.name), true)
+            (tf!("{imprint} doesn't fit this item.", imprint = imp.name), true)
         } else if current[imp.kind as usize] == id {
-            (format!("It already carries {}.", imp.name), true)
+            (tf!("It already carries {imprint}.", imprint = imp.name), true)
         } else if stored + held <= 0 {
-            (format!("You need an {}.", imp.kind.cost().join(" or an ")), true)
+            (tf!("You need an {shard}.", shard = imp.kind.cost().join(tr(" or an "))), true)
         } else {
             self.imp_pending = true;
             self.message = None;
@@ -128,8 +129,8 @@ impl Forge {
         let mut y = left[1];
         let gear = self.gear.clone();
         let groups: [(&str, Vec<u8>); 2] = [
-            ("Equipped", (0..4).collect()),
-            ("Inventory", (4..if self.backpack { 20 } else { 12 }).collect()),
+            (tr("Equipped"), (0..4).collect()),
+            (tr("Inventory"), (4..if self.backpack { 20 } else { 12 }).collect()),
         ];
         for (label, slots) in groups {
             ui.label(label, left[0], y, font(13.0), true, color::TEXT_DIM);
@@ -142,11 +143,11 @@ impl Forge {
             y += slots.len().div_ceil(cols) as f32 * (cell + gap) + 8.0 * s;
         }
         // the vault: its Enthroned gear only, as many rows as fit
-        ui.label("Vault", left[0], y, font(13.0), true, color::TEXT_DIM);
+        ui.label(tr("Vault"), left[0], y, font(13.0), true, color::TEXT_DIM);
         y += 20.0 * s;
         let vault = self.vault_gear.clone();
         if vault.is_empty() {
-            ui.label("No Enthroned gear in your vault.", left[0], y, font(11.5), false, color::TEXT_MUTED);
+            ui.label(tr("No Enthroned gear in your vault."), left[0], y, font(11.5), false, color::TEXT_MUTED);
         }
         let vcols = 5;
         let vcell = 46.0 * s;
@@ -185,13 +186,13 @@ impl Forge {
                 let slot_type = desc.map_or(0, |d| d.xml.int("SlotType", 0));
                 ui.label(&name, ib[0] + ib[2] + 12.0 * s, y + 6.0 * s, font(17.0), true, color::TEXT);
                 let where_ = match pick {
-                    Pick::Inv(slot) if slot < 4 => "equipped",
-                    Pick::Inv(_) => "in your inventory",
-                    Pick::Vault(..) => "in your vault",
+                    Pick::Inv(slot) if slot < 4 => tr("equipped"),
+                    Pick::Inv(_) => tr("in your inventory"),
+                    Pick::Vault(..) => tr("in your vault"),
                 };
-                ui.label(&format!("{}, {where_}", super::slot_name(slot_type)), ib[0] + ib[2] + 12.0 * s, y + 30.0 * s, font(12.0), false, color::TEXT_DIM);
+                ui.label(&tf!("{slot}, {where_}", slot = super::slot_name(slot_type), where_), ib[0] + ib[2] + 12.0 * s, y + 30.0 * s, font(12.0), false, color::TEXT_DIM);
                 ui.tile_icon(super::SHEET, frame, 64, right[0] + right[2] - 44.0 * s, y + 20.0 * s, s);
-                let all = "Show all imprints";
+                let all = tr("Show all imprints");
                 let cs = font(11.0);
                 let cw = ui.measure(all, cs, true) + 18.0 * s;
                 let cr = [right[0] + right[2] - 84.0 * s - cw, y + 4.0 * s, cw, 22.0 * s];
@@ -202,8 +203,8 @@ impl Forge {
             None => {
                 // nothing picked: every imprint, to look them over
                 ui.tile_icon(super::SHEET, frame, 64, x0 + 26.0 * s, y + 24.0 * s, s);
-                ui.label("All imprints", x0 + 62.0 * s, y + 6.0 * s, font(17.0), true, color::TEXT);
-                let hint = "Pick Enthroned gear on the left to imprint it. Imprints work only while it's equipped.";
+                ui.label(tr("All imprints"), x0 + 62.0 * s, y + 6.0 * s, font(17.0), true, color::TEXT);
+                let hint = tr("Pick Enthroned gear on the left to imprint it. Imprints work only while it's equipped.");
                 ui.label(hint, x0 + 62.0 * s, y + 30.0 * s, font(11.5), false, color::TEXT_MUTED);
                 (None, [0u8; 3])
             }
@@ -216,7 +217,7 @@ impl Forge {
         for (k, held) in current.iter().copied().chain([0]).enumerate() {
             let tr = [x0 + k as f32 * (tw + 8.0 * s), y, tw, 50.0 * s];
             if k == COMING_SOON {
-                locked_chip(ui, [tr[0], tr[1] + 11.0 * s, tr[2], 28.0 * s], "Coming soon", font(11.5), s);
+                locked_chip(ui, [tr[0], tr[1] + 11.0 * s, tr[2], 28.0 * s], crate::i18n::tr("Coming soon"), font(11.5), s);
                 self.hits.push((Hit::ImpKind(k), tr));
                 continue;
             }
@@ -227,11 +228,11 @@ impl Forge {
                 theme::fill(ui.renderer, tr, 8.0 * s, 0xFFFFFF, 0.06);
             }
             theme::fill(ui.renderer, [tr[0], tr[1], 6.0 * s, tr[3]], 3.0 * s, kind.color(), 1.0);
-            ui.label(kind.name(), tr[0] + 14.0 * s, tr[1] + 7.0 * s, font(12.5), true, kind.color());
+            ui.label(crate::i18n::tr(kind.name()), tr[0] + 14.0 * s, tr[1] + 7.0 * s, font(12.5), true, kind.color());
             // what the picked piece holds there, or how many imprints the colour has
             let holds = match slot_type {
-                Some(_) => imprint::get(held as i32).map_or("Empty".to_owned(), |i| i.name.to_owned()),
-                None => format!("{} imprints", imprint::ALL.iter().filter(|i| i.kind == kind).count()),
+                Some(_) => imprint::get(held as i32).map_or(crate::i18n::tr("Empty").to_owned(), |i| i.name.to_owned()),
+                None => tn!(imprint::ALL.iter().filter(|i| i.kind == kind).count(), "{n} imprint|{n} imprints"),
             };
             ui.label(&holds, tr[0] + 14.0 * s, tr[1] + 27.0 * s, font(11.5), false, if held > 0 || slot_type.is_none() { color::TEXT } else { color::TEXT_MUTED });
             self.hits.push((Hit::ImpKind(k), tr));
@@ -239,7 +240,7 @@ impl Forge {
         y += 62.0 * s;
 
         if self.imp_kind == COMING_SOON {
-            let t = "More imprints are coming in a later update.";
+            let t = tr("More imprints are coming in a later update.");
             ui.label(t, x0, y + 8.0 * s, font(13.0), false, color::TEXT_MUTED);
             return;
         }
@@ -256,7 +257,11 @@ impl Forge {
         self.imp_scroll = self.imp_scroll.min(list.len().saturating_sub(1));
         let text_w = inner_w - if slot_type.is_some() { bw + 16.0 * s } else { 8.0 * s } - 12.0 * s;
         if list.is_empty() {
-            let t = format!("No {} imprint fits this item.", kind.name());
+            let t = match kind {
+                Kind::Offensive => tr("No Offensive imprint fits this item."),
+                Kind::Defensive => tr("No Defensive imprint fits this item."),
+                Kind::Misc => tr("No Misc imprint fits this item."),
+            };
             ui.label(&t, x0, y + 8.0 * s, font(13.0), false, color::TEXT_MUTED);
         }
         let top = y;
@@ -288,11 +293,11 @@ impl Forge {
             }
             let br = [row[0] + row[2] - bw - 8.0 * s, y + (h - 28.0 * s) / 2.0, bw, 28.0 * s];
             if has {
-                let t = "Carried";
+                let t = tr("Carried");
                 let w = ui.measure(t, font(12.0), true);
                 ui.label(t, br[0] + (bw - w) / 2.0, br[1] + 6.0 * s, font(12.0), true, color::GOOD);
             } else if slot_type.is_some() {
-                let label = if self.imp_pending { "..." } else if current[kind as usize] > 0 { "Replace" } else { "Imprint" };
+                let label = if self.imp_pending { "..." } else if current[kind as usize] > 0 { tr("Replace") } else { tr("Imprint") };
                 ui.button(br, label, ButtonKind::Primary, inside(br, mouse), s * 0.8);
                 self.hits.push((Hit::ImpApply(imp.id), br));
             }
@@ -309,9 +314,9 @@ impl Forge {
         }
         // The price, and what can pay it.
         let (stored, held) = self.shards_for(ui.data, kind);
-        let cost = format!(
-            "Costs 1 {}  ·  you have {} in forge storage, {} in your inventory",
-            kind.cost().join(" or "),
+        let cost = tf!(
+            "Costs 1 {shard}  ·  you have {stored} in forge storage, {held} in your inventory",
+            shard = kind.cost().join(tr(" or ")),
             stored,
             held
         );

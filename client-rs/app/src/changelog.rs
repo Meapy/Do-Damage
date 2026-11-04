@@ -2,6 +2,7 @@
 //! was updated. Both go over everything else, on the screens and in the game.
 
 use crate::hud::Ui;
+use crate::i18n::{tf, tr};
 use crate::theme::{self, color};
 use bsk_update::Entry;
 use winit::keyboard::KeyCode;
@@ -101,8 +102,8 @@ impl ChangelogUi {
         self.panel = r;
         theme::panel(ui.renderer, r, s);
         let pad = 26.0 * s;
-        ui.label("What's new", r[0] + pad, r[1] + 20.0 * s, (24.0 * s).round(), true, color::TEXT);
-        let sub = format!("You're playing version {current}");
+        ui.label(tr("What's new"), r[0] + pad, r[1] + 20.0 * s, (24.0 * s).round(), true, color::TEXT);
+        let sub = tf!("You're playing version {version}", version = current);
         ui.label(&sub, r[0] + pad, r[1] + 54.0 * s, (13.0 * s).round(), false, color::TEXT_DIM);
         // Close, top right.
         let c = [r[0] + r[2] - 44.0 * s, r[1] + 16.0 * s, 28.0 * s, 28.0 * s];
@@ -120,11 +121,11 @@ impl ChangelogUi {
         for e in entries {
             let newer = bsk_update::compare_versions(&e.version, current) == std::cmp::Ordering::Greater;
             let tag = if e.version == current {
-                Some("Installed")
+                Some(tr("Installed"))
             } else if newer && coming.is_some_and(|v| bsk_update::compare_versions(&e.version, v) != std::cmp::Ordering::Greater) {
-                Some("Starts at your next portal")
+                Some(tr("Starts at your next portal"))
             } else if newer {
-                Some("Coming soon")
+                Some(tr("Coming soon"))
             } else {
                 None
             };
@@ -164,14 +165,14 @@ impl ChangelogUi {
             }
             match row {
                 Row::Heading { version, date, tag } => {
-                    let label = format!("Version {version}");
+                    let label = tf!("Version {version}", version);
                     ui.label(&label, r[0] + pad, y + 2.0 * s, head, true, color::ACCENT);
                     let x = r[0] + pad + ui.measure(&label, head, true) + 12.0 * s;
                     if let Some(tag) = tag {
                         let ts = (12.0 * s).round().max(8.0);
                         let tw = ui.measure(tag, ts, true);
                         let pill = [x, y + 3.0 * s, tw + 16.0 * s, ts * 1.5];
-                        let (bg, fg) = if *tag == "Installed" { (color::SECONDARY, color::TEXT_DIM) } else { (color::GOOD, 0x0B2414) };
+                        let (bg, fg) = if *tag == tr("Installed") { (color::SECONDARY, color::TEXT_DIM) } else { (color::GOOD, 0x0B2414) };
                         theme::fill(ui.renderer, pill, pill[3] / 2.0, bg, 0.95);
                         ui.label(tag, pill[0] + 8.0 * s, pill[1] + ts * 0.18, ts, true, fg);
                     }
@@ -217,7 +218,7 @@ impl ChangelogUi {
         // Fades out over its last second.
         let alpha = ((*until - now) as f32 / 1000.0).min(1.0);
         let size = (14.0 * s).round().max(9.0);
-        let link = "See what's new";
+        let link = tr("See what's new");
         let tw = ui.measure(text, size, true);
         let lw = ui.measure(link, size, true);
         let r = [x, y, tw.max(lw) + 28.0 * s, size * 2.9 + 14.0 * s];
