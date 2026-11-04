@@ -23,6 +23,11 @@ details). Add to a group's line when a change adds to it, rather than adding ano
 - Everything is sharp again with the glow on: names, damage numbers and health bars no longer
   glow, the art keeps its crisp edges, and the halo round shots and sparks is tighter.
 
+### Abilities
+- A poison (or any other throw) aimed further than 14 tiles away now lands 14 tiles away towards
+  your mouse instead of using your mana and doing nothing. A Samurai cut that would land you in a
+  wall no longer uses your mana.
+
 ## 2.3.7 (2026-11-02)
 
 ### Friends

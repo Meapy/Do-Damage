@@ -27,6 +27,19 @@ namespace WorldServer.core.objects
         public const int MAX_ABILITY_DIST = 14;
         public const int MAX_ABILITY_DIST_SQR = MAX_ABILITY_DIST * MAX_ABILITY_DIST;
 
+        // A throw aimed past MAX_ABILITY_DIST lands at MAX_ABILITY_DIST towards it: the mana is
+        // already spent by then, so it mustn't fizzle (the client lets you aim as far as you can see).
+        private Position ClampAbilityTarget(Position target)
+        {
+            var dx = target.X - X;
+            var dy = target.Y - Y;
+            var distSqr = dx * dx + dy * dy;
+            if (distSqr <= MAX_ABILITY_DIST_SQR)
+                return target;
+            var scale = MAX_ABILITY_DIST / Math.Sqrt(distSqr);
+            return new Position(X + dx * scale, Y + dy * scale);
+        }
+
         public const int DEFAULT_USE = 0;
         public const int START_USE = 1;
         public const int END_USE = 2;
@@ -205,6 +218,14 @@ namespace WorldServer.core.objects
                         Refuse($"You already have {gameData.ObjectDescs[petType].DisplayName}.");
                         return;
                     }
+                }
+
+            // a Samurai cut whose dash would end in a wall isn't spent for nothing
+            foreach (var eff in item.ActivateEffects)
+                if (eff.Effect == ActivateEffects.SamuraiAbility && SamuraiDest(pos) is var dest && !World.IsPassable(dest.X, dest.Y))
+                {
+                    Refuse("You can't dash there.");
+                    return;
                 }
 
             // an item whose effect the server can't carry out isn't spent for nothing
@@ -1466,7 +1487,7 @@ namespace WorldServer.core.objects
 
         private void AEPoisonGrenade(TickTime time, Item item, Position target, ActivateEffect eff)
         {
-            if (MathsUtils.DistSqr(target.X, target.Y, X, Y) > MAX_ABILITY_DIST_SQR) return;
+            target = ClampAbilityTarget(target);
             var impDamage = eff.ImpactDamage;
             if (eff.UseWisMod)
                 impDamage = (int)UseWisMod(eff.ImpactDamage);

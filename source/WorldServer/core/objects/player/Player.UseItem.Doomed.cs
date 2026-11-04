@@ -67,8 +67,7 @@ namespace WorldServer.core.objects
         // Throws a monster (hostile, as in Doomed Realms) that appears at the target after 1.5 s.
         private void AEMonsterToss(TickTime time, Item item, Position target, ActivateEffect eff)
         {
-            if (MathsUtils.DistSqr(target.X, target.Y, X, Y) > MAX_ABILITY_DIST_SQR)
-                return;
+            target = ClampAbilityTarget(target);
             World.BroadcastIfVisible(new ShowEffect()
             {
                 EffectType = EffectType.Throw,
@@ -159,11 +158,18 @@ namespace WorldServer.core.objects
 
         // Samurai cuts: dash through the target (landing half the distance beyond it), damaging and
         // bleeding enemies around the target, then being paralyzed for duration2.
+        // Where a cut aimed at target lands (UseItem refuses one that would land in a wall, before
+        // the mana is spent).
+        private Position SamuraiDest(Position target)
+        {
+            target = ClampAbilityTarget(target);
+            return new Position(target.X + (target.X - X) / 2, target.Y + (target.Y - Y) / 2);
+        }
+
         private void AESamuraiAbility(TickTime time, Item item, Position target, ActivateEffect eff)
         {
-            if (MathsUtils.DistSqr(target.X, target.Y, X, Y) > MAX_ABILITY_DIST_SQR)
-                return;
-            var dest = new Position(target.X + (target.X - X) / 2, target.Y + (target.Y - Y) / 2);
+            var dest = SamuraiDest(target);
+            target = ClampAbilityTarget(target);
             if (!World.IsPassable(dest.X, dest.Y))
                 return;
 
