@@ -1341,11 +1341,12 @@ impl Game {
         let msg: ClientMessage = match act {
             Act::Browse(version) => bsk_proto::MarketBrowse { version }.into(),
             Act::Sell { from_vault, chest, slot, price, hours } => bsk_proto::MarketSell { from_vault, chest, slot, price, hours }.into(),
-            // MarketActHandler: 1 buy, 2 take back, 3 collect from the box
+            // MarketActHandler: 1 buy, 2 take back, 3 collect from the box, 4 buy a listing slot
             Act::Buy(id, price) => bsk_proto::MarketAct { action: 1, id, price }.into(),
             Act::Cancel(id) => bsk_proto::MarketAct { action: 2, id, price: 0 }.into(),
             Act::Collect(id) => bsk_proto::MarketAct { action: 3, id, price: 0 }.into(),
             Act::Vault => bsk_proto::VaultContentsRequest {}.into(),
+            Act::BuySlot(price) => bsk_proto::MarketAct { action: 4, id: 0, price }.into(),
         };
         self.send(msg);
     }

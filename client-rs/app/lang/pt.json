@@ -994,5 +994,8 @@
 "{tier} tier": "Patamar {tier}",
 "You're in it: hold on!": "Você está lá: aguente firme!",
 "Climb into the top": "Suba para o top",
-"Not in the top this time": "Fora do top desta vez"
+"Not in the top this time": "Fora do top desta vez",
+"Buying a listing slot...": "Comprando um espaço de anúncio…",
+"+1 slot: {price} fame": "+1 espaço: {price} de fama",
+"Confirm: {price} fame": "Confirmar: {price} de fama"
 }

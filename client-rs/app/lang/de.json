@@ -994,5 +994,8 @@
 "{tier} tier": "Stufe {tier}",
 "You're in it: hold on!": "Du bist dabei: Halte durch!",
 "Climb into the top": "Kämpf dich nach oben",
-"Not in the top this time": "Diesmal nicht ganz oben"
+"Not in the top this time": "Diesmal nicht ganz oben",
+"Buying a listing slot...": "Kaufe einen Angebotsplatz …",
+"+1 slot: {price} fame": "+1 Platz: {price} Ruhm",
+"Confirm: {price} fame": "Bestätigen: {price} Ruhm"
 }

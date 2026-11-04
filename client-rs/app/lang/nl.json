@@ -994,5 +994,8 @@
 "{tier} tier": "Rang {tier}",
 "You're in it: hold on!": "Je zit erbij: hou vol!",
 "Climb into the top": "Klim naar de top",
-"Not in the top this time": "Deze keer niet in de top"
+"Not in the top this time": "Deze keer niet in de top",
+"Buying a listing slot...": "Aanbiedingsplek kopen…",
+"+1 slot: {price} fame": "+1 plek: {price} roem",
+"Confirm: {price} fame": "Bevestigen: {price} roem"
 }

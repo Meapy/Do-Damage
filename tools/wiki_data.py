@@ -850,7 +850,9 @@ def market_rules():
         m = re.search(r'const int %s\s*=\s*([\d_]+)' % name, src)
         return int(m.group(1).replace("_", "")) if m else 0
     return {"tax": const("TaxPercent"), "limit": const("MaxListings"), "max_price": const("MaxPrice"),
-            "default_days": const("DefaultHours") // 24, "max_days": const("MaxHours") // 24}
+            "default_days": const("DefaultHours") // 24, "max_days": const("MaxHours") // 24,
+            "slot_step": const("SlotPriceStep"), "max_extra": const("MaxExtraSlots"),
+            "max_slots": const("MaxListings") + const("MaxExtraSlots")}
 
 
 def gear_rules():

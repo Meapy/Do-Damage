@@ -6,7 +6,8 @@
 //!   before it buys.
 //! - Sell: pick an item from the inventory or the vault, set a price and how long it lasts
 //!   (1, 3 or 7 days); the window shows what you get after the tax.
-//! - My listings, with a button to take each back; the Box, where bought, taken-back and
+//! - My listings, with a button to take each back (and, on the Sell tab, more listing slots
+//!   bought for fame, asking once more first); the Box, where bought, taken-back and
 //!   unsold items wait when the inventory is full (imprints and all); and the History.
 //!
 //! The window asks for everything when it opens and every few seconds while open
@@ -37,6 +38,8 @@ pub enum Act {
     Collect(i32),
     /// The vault's contents (`VaultContentsRequest`), for selling from it.
     Vault,
+    /// Buy another listing slot at the price we saw.
+    BuySlot(i32),
 }
 
 /// What the server said.
@@ -97,6 +100,8 @@ const REFRESH: i32 = 3000;
 const NO_ANSWER: i32 = 5000;
 /// How long a Buy waits for its second click.
 const CONFIRM_MS: i32 = 3000;
+/// `confirm`'s listing id while buying a listing slot (listing ids start at 1).
+const SLOT_CONFIRM: i32 = -1;
 /// `FAME_STAT`: the account's fame.
 const FAME_STAT: u8 = 39;
 
@@ -124,6 +129,7 @@ enum Hit {
     Pick(Pick),
     Days(u8),
     List,
+    BuySlot,
     Up,
     Down,
 }
@@ -141,6 +147,8 @@ pub struct Market {
     offset: i64,
     tax: u8,
     limit: u8,
+    /// What our next listing slot costs, 0 when we have them all or the server doesn't sell them.
+    slot_price: i32,
     boxed: Vec<MarketBoxItem>,
     history: Vec<MarketHistory>,
     loaded: bool,
@@ -332,6 +340,7 @@ impl Market {
                 self.offset = m.now as i64 - unix_now();
                 self.tax = m.tax;
                 self.limit = m.limit;
+                self.slot_price = m.slot_price.unwrap_or(0);
                 if !m.unchanged || !self.loaded {
                     self.listings = m.listings.0;
                     self.version = m.version;
@@ -483,6 +492,17 @@ impl Market {
                     Pick::Inv(slot) => Act::Sell { from_vault: false, chest: 0, slot, price, hours },
                     Pick::Vault(chest, slot) => Act::Sell { from_vault: true, chest, slot, price, hours },
                 }];
+            }
+            Hit::BuySlot => {
+                if self.slot_price <= 0 {
+                    return Vec::new();
+                }
+                if self.confirm.is_some_and(|(c, _)| c == SLOT_CONFIRM) {
+                    self.confirm = None;
+                    self.message = Some((tr("Buying a listing slot...").to_owned(), false));
+                    return vec![Act::BuySlot(self.slot_price)];
+                }
+                self.confirm = Some((SLOT_CONFIRM, self.now));
             }
             Hit::Up => self.row = self.row.saturating_sub(self.rows.max(1)),
             Hit::Down => self.row += self.rows.max(1),
@@ -864,7 +884,16 @@ impl Market {
             ui.label(&tf!("You get {net} fame ({tax}% tax)", net = fame(net), tax = self.tax), ix, y + 20.0 * s, font(14.0), true, color::ACCENT);
         }
         let mine = self.listings.iter().filter(|l| self.mine(l)).count();
-        ui.label(&tf!("{mine} of {limit} listings in use", mine, limit = self.limit), ix, pr[1] + pr[3] - 92.0 * s, font(12.0), false, color::TEXT_MUTED);
+        let sy = pr[1] + pr[3] - 92.0 * s;
+        ui.label(&tf!("{mine} of {limit} listings in use", mine, limit = self.limit), ix, sy, font(12.0), false, color::TEXT_MUTED);
+        if self.slot_price > 0 {
+            let confirming = self.confirm.is_some_and(|(c, _)| c == SLOT_CONFIRM);
+            let label = if confirming { tf!("Confirm: {price} fame", price = fame(self.slot_price)) } else { tf!("+1 slot: {price} fame", price = fame(self.slot_price)) };
+            let bw = ui.measure(&label, font(12.0), true) + 24.0 * s;
+            let sb = [pr[0] + pr[2] - 18.0 * s - bw, sy - 6.0 * s, bw, 26.0 * s];
+            ui.button(sb, &label, if confirming { Kind::Danger } else { Kind::Secondary }, inside(sb, mouse), s * 0.75);
+            self.hits.push((Hit::BuySlot, sb));
+        }
         let lb = [ix, pr[1] + pr[3] - 66.0 * s, pr[2] - 36.0 * s, 44.0 * s];
         ui.button(lb, tr("List on the Marketplace"), Kind::Primary, inside(lb, mouse), s);
         self.hits.push((Hit::List, lb));
@@ -879,11 +908,16 @@ impl Market {
             ui.label(tr("You're not selling anything. List an item on the Sell tab."), b[0] + 16.0 * s, b[1] + 16.0 * s, font(14.0), false, color::TEXT_MUTED);
         }
         let row_h = 52.0 * s;
-        for (i, l) in mine.iter().enumerate() {
+        // as many rows as fit, less a line for the pager when they don't all
+        let mut fit = ((b[3] - 6.0 * s) / row_h).floor().max(1.0) as usize;
+        if mine.len() > fit {
+            fit = ((b[3] - 40.0 * s) / row_h).floor().max(1.0) as usize;
+        }
+        self.rows = fit;
+        self.row = self.row.min(mine.len().saturating_sub(1) / fit * fit);
+        for (i, l) in mine.iter().enumerate().skip(self.row).take(fit) {
+            let i = i - self.row;
             let rr = [b[0] + 6.0 * s, b[1] + 6.0 * s + i as f32 * row_h, b[2] - 12.0 * s, row_h - 4.0 * s];
-            if rr[1] + rr[3] > b[1] + b[3] {
-                break;
-            }
             if i % 2 == 0 {
                 theme::fill(ui.renderer, rr, 6.0 * s, 0xFFFFFF, 0.025);
             }
@@ -897,6 +931,7 @@ impl Market {
             ui.button(bb, tr("Take back"), Kind::Danger, inside(bb, mouse), s * 0.85);
             self.hits.push((Hit::Cancel(l.id), bb));
         }
+        self.pager(ui, b[0] + 10.0 * s, b[1] + b[3] - 30.0 * s, mine.len(), s, mouse);
     }
 
     fn draw_box(&mut self, ui: &mut Ui, b: [f32; 4], s: f32, mouse: (f64, f64)) {
@@ -986,7 +1021,7 @@ mod tests {
     }
 
     fn answer(listings: Vec<MarketListing>, version: i32, unchanged: bool) -> Event {
-        Event::Listings(MarketListings { version, now: 1000, unchanged, tax: 5, limit: 10, listings: List16(listings), boxed: List16(Vec::new()), history: List16(Vec::new()) })
+        Event::Listings(MarketListings { version, now: 1000, unchanged, tax: 5, limit: 10, slot_price: Some(500), listings: List16(listings), boxed: List16(Vec::new()), history: List16(Vec::new()) })
     }
 
     #[test]
@@ -1022,6 +1057,29 @@ mod tests {
         let data = GameData::default();
         assert!(m.click((5.0, 5.0), &data).is_empty());
         assert_eq!(m.click((5.0, 5.0), &data), vec![Act::Buy(2, 10)]);
+    }
+
+    #[test]
+    fn a_listing_slot_is_bought_on_the_second_click_at_the_price_shown() {
+        let mut m = Market { open: true, ..Default::default() };
+        m.event(answer(Vec::new(), 1, false));
+        assert_eq!(m.slot_price, 500);
+        let data = GameData::default();
+        m.hits = vec![(Hit::BuySlot, [0.0, 0.0, 10.0, 10.0])];
+        assert!(m.click((5.0, 5.0), &data).is_empty());
+        assert_eq!(m.click((5.0, 5.0), &data), vec![Act::BuySlot(500)]);
+        // the confirmation lapses
+        m.now = 0;
+        assert!(m.click((5.0, 5.0), &data).is_empty());
+        m.tick(CONFIRM_MS + 1);
+        assert!(m.click((5.0, 5.0), &data).is_empty());
+        // an older server sends no price: nothing to buy
+        let Event::Listings(mut old) = answer(Vec::new(), 1, false) else { unreachable!() };
+        old.slot_price = None;
+        m.event(Event::Listings(old));
+        m.confirm = None;
+        assert!(m.click((5.0, 5.0), &data).is_empty());
+        assert!(m.click((5.0, 5.0), &data).is_empty());
     }
 
     #[test]

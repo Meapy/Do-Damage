@@ -994,5 +994,8 @@
 "{tier} tier": "Ступень: {tier}",
 "You're in it: hold on!": "Вы в топе: держитесь!",
 "Climb into the top": "Пробейтесь в топ",
-"Not in the top this time": "В этот раз не в топе"
+"Not in the top this time": "В этот раз не в топе",
+"Buying a listing slot...": "Покупаем место для лота…",
+"+1 slot: {price} fame": "+1 место: {price} славы",
+"Confirm: {price} fame": "Подтвердить: {price} славы"
 }

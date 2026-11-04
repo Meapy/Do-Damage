@@ -994,5 +994,8 @@
 "{tier} tier": "Grado {tier}",
 "You're in it: hold on!": "Ci sei: tieni duro!",
 "Climb into the top": "Scala la classifica",
-"Not in the top this time": "Fuori classifica stavolta"
+"Not in the top this time": "Fuori classifica stavolta",
+"Buying a listing slot...": "Acquisto di uno spazio annuncio…",
+"+1 slot: {price} fame": "+1 spazio: {price} fama",
+"Confirm: {price} fame": "Conferma: {price} fama"
 }

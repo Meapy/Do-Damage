@@ -994,5 +994,8 @@
 "{tier} tier": "Щабель: {tier}",
 "You're in it: hold on!": "Ви в топі: тримайтеся!",
 "Climb into the top": "Пробийтеся в топ",
-"Not in the top this time": "Цього разу не в топі"
+"Not in the top this time": "Цього разу не в топі",
+"Buying a listing slot...": "Купуємо місце для лота…",
+"+1 slot: {price} fame": "+1 місце: {price} слави",
+"Confirm: {price} fame": "Підтвердити: {price} слави"
 }

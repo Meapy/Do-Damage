@@ -59,6 +59,8 @@ namespace Shared.database.market
             TooMany = -8,       // the listing limit
             VaultChanged = -9,  // the chest changed since it was read
             ItemChanged = -10,  // the listing holds another item than the one expected
+            SlotsChanged = -11, // the account has another number of bought slots than expected
+            NoMoreSlots = -12,  // every slot there is has been bought
         }
 
         // Shared by the scripts: a history line for an account, kept to the last 50.
@@ -193,6 +195,20 @@ if redis.call('LREM', @boxKey, 1, @entry) == 0 then return -1 end
 redis.call('HSET', @charKey, 'items', @items)
 redis.call('HSET', @charKey, 'datas', @datas)
 return 1
+");
+
+        // Another listing slot: the fame goes and `marketSlots` rises together, if the account
+        // still has the slots it was priced for.
+        private static readonly LuaScript BuySlotScript = LuaScript.Prepare(@"
+local have = tonumber(redis.call('HGET', @accKey, 'marketSlots') or '0') or 0
+if have ~= tonumber(@have) then return {-11, have} end
+if have >= tonumber(@max) then return {-12, have} end
+local price = tonumber(@price)
+local fame = tonumber(redis.call('HGET', @accKey, 'fame') or '0') or 0
+if fame < price then return {-5, fame} end
+local left = redis.call('HINCRBY', @accKey, 'fame', -price)
+local slots = redis.call('HINCRBY', @accKey, 'marketSlots', 1)
+return {1, left, slots}
 ");
 
         private static readonly LuaScript DrainScript = LuaScript.Prepare(@"
@@ -428,6 +444,27 @@ return all
         }
 
         public long ListingCount(int accountId) => _db.SetLength(SellerKey(accountId));
+
+        // Buys the account's next listing slot for `price` fame, if it has bought `have` so far
+        // and fewer than `max`. Answers the result, the fame left (or the fame it has, when that's
+        // too little) and the slots bought now (or so far, when they changed).
+        public (Result Result, int Fame, int Slots) BuySlot(int accountId, int have, int max, int price)
+        {
+            var r = (RedisResult[])_db.ScriptEvaluate(BuySlotScript, new
+            {
+                accKey = (RedisKey)("account." + accountId),
+                have,
+                max,
+                price
+            });
+            var result = (Result)(int)r[0];
+            return result switch
+            {
+                Result.Ok => (result, (int)r[1], (int)r[2]),
+                Result.NotEnoughFame => (result, (int)r[1], have),
+                _ => (result, 0, (int)r[1])
+            };
+        }
 
         // The sellers' sets for listings made before they existed (once, as a server starts).
         public void IndexSellers(IEnumerable<DbMarketData> listings)

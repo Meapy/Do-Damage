@@ -994,5 +994,8 @@
 "{tier} tier": "Próg: {tier}",
 "You're in it: hold on!": "Jesteś w czołówce: trzymaj się!",
 "Climb into the top": "Wejdź do czołówki",
-"Not in the top this time": "Tym razem poza czołówką"
+"Not in the top this time": "Tym razem poza czołówką",
+"Buying a listing slot...": "Kupuję miejsce na ofertę…",
+"+1 slot: {price} fame": "+1 miejsce: {price} sławy",
+"Confirm: {price} fame": "Potwierdź: {price} sławy"
 }

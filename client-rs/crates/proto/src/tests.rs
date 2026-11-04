@@ -336,6 +336,13 @@ fn marketplace_messages_match_market_handlers() {
     assert_eq!((b.box_id, b.item_type, b.stack, b.why, b.time), (9, 0x0a02, 4, 1, 300));
     let h = &m.history[0];
     assert_eq!((h.kind, h.item_type, h.price, h.net, h.other.as_str(), h.time), (2, 0x0a03, 100, 95, "Tester", 400));
+    // an older server stops there; a newer one sends the next listing slot's price last
+    assert_eq!(m.slot_price, None);
+    let mut newer = body.clone();
+    newer.extend_from_slice(&1500i32.to_be_bytes());
+    let ServerMessage::MarketListings(m) = ServerMessage::decode(122, &newer).unwrap() else { panic!() };
+    assert_eq!(m.slot_price, Some(1500));
+    assert_eq!(ClientMessage::from(MarketAct { action: 4, id: 0, price: 1500 }).to_frame(), B::default().u8(4).i32(0).i32(1500).frame(124));
     let body = B::default().u8(1).utf("Bought").i32(1234).0;
     let ServerMessage::MarketResult(r) = ServerMessage::decode(125, &body).unwrap() else { panic!() };
     assert_eq!((r.ok, r.message.as_str(), r.fame), (true, "Bought", 1234));

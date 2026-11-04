@@ -755,6 +755,20 @@ The remotes `upstream` (HaloCelsius) and `aurusenth` share no history with `main
   the new window's; the old market messages (76-85) still work for older clients, on the same
   service. Tests: `source/Tests/MarketStoreTests.cs` (each starts a Redis of its own; CI installs
   `redis-server`). World server and client.
+- **More Marketplace listing slots for fame** (2026-11-04; `Marketplace.BuySlot`, `MarketStore.BuySlot`,
+  `DbAccount.MarketSlots`; the Rust client's `market.rs`): on top of `Marketplace.MaxListings`
+  (10) an account can buy up to `MaxExtraSlots` (10) more, the first for `SlotPriceStep` (500)
+  fame and each after it 500 more than the last (5,000 for the tenth, 27,500 in all). The count is
+  the `marketSlots` field of `account.<id>`, written only by one Lua script that checks the slots
+  the price was set for and the fame, takes the fame and raises the count together; the server keeps
+  both with `SetStored`, so a save can't write them back stale. The listing scripts get the
+  account's own limit (`Marketplace.Limit`). `MarketListings` sends that limit and, last, the next
+  slot's price (an int, 0 when there are none left; older clients stop reading before it), and
+  `MarketAct` action 4 buys one at the price the window showed (an older server answers "Unknown
+  action."). The Sell tab shows the price beside "listings in use" (two clicks, as Buy), and My
+  listings pages when the listings don't fit. Tested on an isolated stack: a purchase took 500
+  fame and raised the limit to 11 with the next at 1,000; too little fame was refused with the
+  price; at 20 the button is gone. World server and client.
 - **The Nexus reworked around the market** (2026-10-29; `tools/build_castle_maps.py`,
   `MerchantLists.cs`, `NexusWorld`, `NexusMerchant`, `DoomedWorlds.NexusPortals`, `/forge`,
   `/market`, `NexusGuide`): the south yard and the forge hall are gone. The forge court (Divine Forge

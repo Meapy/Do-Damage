@@ -60,6 +60,11 @@ details). Add to a group's line when a change adds to it, rather than adding ano
   your mouse instead of using your mana and doing nothing. A Samurai cut that would land you in a
   wall no longer uses your mana.
 
+### Marketplace
+- Buy more listing slots for fame on the Marketplace's Sell tab: the first extra slot costs 500
+  fame and each one after costs 500 more, up to 10 extra (20 listings at once). The My listings
+  tab now pages through them when they don't all fit.
+
 ## 2.3.7 (2026-11-02)
 
 ### Friends

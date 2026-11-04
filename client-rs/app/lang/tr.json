@@ -994,5 +994,8 @@
 "{tier} tier": "{tier} Kademe",
 "You're in it: hold on!": "Zirvedesin: dayan!",
 "Climb into the top": "Zirveye tırman",
-"Not in the top this time": "Bu sefer zirvede değilsin"
+"Not in the top this time": "Bu sefer zirvede değilsin",
+"Buying a listing slot...": "İlan yeri satın alınıyor…",
+"+1 slot: {price} fame": "+1 yer: {price} şöhret",
+"Confirm: {price} fame": "Onayla: {price} şöhret"
 }

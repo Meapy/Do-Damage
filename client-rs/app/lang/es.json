@@ -994,5 +994,8 @@
 "{tier} tier": "Rango {tier}",
 "You're in it: hold on!": "Estás dentro: ¡aguanta!",
 "Climb into the top": "Entra en el top",
-"Not in the top this time": "Esta vez fuera del top"
+"Not in the top this time": "Esta vez fuera del top",
+"Buying a listing slot...": "Comprando un espacio de anuncio…",
+"+1 slot: {price} fame": "+1 espacio: {price} de fama",
+"Confirm: {price} fame": "Confirmar: {price} de fama"
 }

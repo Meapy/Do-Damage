@@ -230,6 +230,9 @@ messages! {
         122 => MarketListings {
             version: i32, now: i32, unchanged: bool, tax: u8, limit: u8,
             listings: List16<MarketListing>, boxed: List16<MarketBoxItem>, history: List16<MarketHistory>,
+            // what our next listing slot costs in fame (0: we have them all); an older server
+            // leaves it out, and sells none
+            slot_price: Option<i32>,
         },
         // How a Marketplace action went: what to tell the player, and our fame now.
         125 => MarketResult { ok: bool, message: String, fame: i32 },
@@ -346,7 +349,8 @@ messages! {
         // a vault chest's slot.
         123 => MarketSell { from_vault: bool, chest: i32, slot: u8, price: i32, hours: i32 },
         // 1 buys listing `id` at the price we saw, 2 takes our listing `id` back, 3 collects box
-        // item `id` (0: all that fit).
+        // item `id` (0: all that fit), 4 buys another listing slot at the price we saw (id 0; an
+        // older server answers that it doesn't know it).
         124 => MarketAct { action: u8, id: i32, price: i32 },
         // A visit request: 1 lets them in, 0 doesn't; 255 (id unused), once in each world, says
         // we can show VisitRequests. An older server doesn't know it (one unknown message per

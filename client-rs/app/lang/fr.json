@@ -994,5 +994,8 @@
 "{tier} tier": "Palier {tier}",
 "You're in it: hold on!": "Vous y êtes : tenez bon !",
 "Climb into the top": "Grimpez dans le top",
-"Not in the top this time": "Pas dans le top cette fois"
+"Not in the top this time": "Pas dans le top cette fois",
+"Buying a listing slot...": "Achat d’un emplacement d’annonce…",
+"+1 slot: {price} fame": "+1 emplacement : {price} de renommée",
+"Confirm: {price} fame": "Confirmer : {price} de renommée"
 }
