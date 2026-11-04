@@ -1,7 +1,8 @@
 //! The sky behind a world of floating islands (the Nexus islands, `Background` `SKY_SUNSET`):
 //! a daytime sunset, blue high up fading through lavender into pink and peach low down, soft
-//! clouds drifting across it in two layers that slide a little as the camera moves (the far
-//! ones less), and now and then a shooting star in the game's pinks. Drawn first, under
+//! clouds drifting slowly across it in two layers (the far ones slower, fainter), and now and then
+//! a shooting star in the game's pinks. It stays put as the camera moves and climbs (a background
+//! that followed the camera jittered as the camera's height changed). Drawn first, under
 //! everything, so it shows wherever there is no ground (and the islands' undersides hang into
 //! it). Like the screens' night sky (`sky.rs`) it is drawn in cells the size of the art's pixels,
 //! so it reads as pixel art.
@@ -20,9 +21,9 @@ const BANDS: [u32; 20] = [
 ];
 
 /// Clouds: far (small, pale, faint, slow) and near; their tones (shadow, body, light) and how
-/// much they slide with the camera.
-const FAR: ([u32; 3], f32, f32) = ([0xC6A9D2, 0xDCC3E2, 0xEEDDF0], 0.55, 0.12);
-const NEAR: ([u32; 3], f32, f32) = ([0xE6A8C2, 0xF8D7E2, 0xFFF1F1], 0.8, 0.3);
+/// opaque they are.
+const FAR: ([u32; 3], f32) = ([0xC6A9D2, 0xDCC3E2, 0xEEDDF0], 0.55);
+const NEAR: ([u32; 3], f32) = ([0xE6A8C2, 0xF8D7E2, 0xFFF1F1], 0.8);
 
 /// A shooting star in a window of `STAR_EVERY` ms, most windows (so one every 10 to 30 s or so).
 const STAR_EVERY: i64 = 20_000;
@@ -146,21 +147,18 @@ impl Sunset {
 
         self.shooting_star(renderer, w as f32, h as f32, px, time);
 
-        // how the world has slid across the screen: the clouds slide less (far ones least)
-        let [ox, oy] = cam.to_screen(0.0, 0.0, cam.z);
-        let secs = time as f32 / 1000.0;
+        // drifting with time only, a whole pixel at a time (not a cell: smooth)
+        let secs = (time as f64 / 1000.0) as f32;
         for c in &self.clouds {
-            let (tones, alpha, slide) = if c.near { NEAR } else { FAR };
+            let (tones, alpha) = if c.near { NEAR } else { FAR };
             let drift = c.x + secs * c.speed;
-            let sx = ((drift * px + ox * slide).rem_euclid(self.wrap * px)) - c.w * px - 30.0 * px;
-            let sy = (c.y * px + oy * slide * 0.6).rem_euclid(h as f32 + 24.0 * px) - 12.0 * px;
+            let sx = ((drift * px).rem_euclid(self.wrap * px) - c.w * px - 30.0 * px).round();
+            let sy = (c.y * px).round();
             if sx > w as f32 || sx + c.w * px < 0.0 {
                 continue;
             }
             for &(row, a, b, tone) in &c.runs {
-                let x0 = (sx / px).round() * px + a as f32 * px;
-                let y0 = (sy / px).round() * px + row as f32 * px;
-                renderer.fill(x0, y0, (b - a + 1) as f32 * px, px, tones[tone as usize], alpha);
+                renderer.fill(sx + a as f32 * px, sy + row as f32 * px, (b - a + 1) as f32 * px, px, tones[tone as usize], alpha);
             }
         }
     }
@@ -202,41 +200,3 @@ impl Sunset {
     }
 }
 
-/// A small cloud, `r` screen pixels round, centred at (cx, cy): a few puffs in cells of `cell`
-/// pixels, shadowed along the bottom and lit along the top (under the islands' rims, at the foot
-/// of a bridge's piers).
-pub fn puff(renderer: &mut Renderer, cx: f32, cy: f32, r: f32, cell: f32, seed: u32, alpha: f32) {
-    let mut rng = Lcg(seed | 1);
-    let n = 3 + (rng.next() * 2.0) as usize;
-    let mut circles = Vec::with_capacity(n);
-    for i in 0..n {
-        let t = (i as f32 + 0.5) / n as f32 - 0.5;
-        let rad = r * (0.42 + 0.22 * (1.0 - t.abs() * 2.0)) * (0.85 + rng.next() * 0.3);
-        circles.push((cx + t * r * 1.5, cy - rad * 0.25 + (rng.next() - 0.5) * r * 0.15, rad));
-    }
-    let (top, bottom) = (circles.iter().map(|c| c.1 - c.2).fold(f32::MAX, f32::min), cy + r * 0.3);
-    let rows = ((bottom - top) / cell).ceil().max(1.0) as i32;
-    let y0 = (top / cell).floor() * cell;
-    for row in 0..rows {
-        let y = y0 + row as f32 * cell + cell / 2.0;
-        if y > bottom {
-            break;
-        }
-        let (mut lo, mut hi) = (f32::MAX, f32::MIN);
-        for &(x, cy2, rad) in &circles {
-            let dy = y - cy2;
-            if dy.abs() <= rad {
-                let dx = (rad * rad - dy * dy).sqrt();
-                lo = lo.min(x - dx);
-                hi = hi.max(x + dx);
-            }
-        }
-        if lo > hi {
-            continue;
-        }
-        let (a, b) = ((lo / cell).round() * cell, (hi / cell).round() * cell);
-        let f = (y - top) / (bottom - top).max(1.0);
-        let tone = if f > 0.78 { NEAR.0[0] } else if f < 0.22 { NEAR.0[2] } else { NEAR.0[1] };
-        renderer.fill(a, y - cell / 2.0, (b - a).max(cell), cell, tone, alpha);
-    }
-}

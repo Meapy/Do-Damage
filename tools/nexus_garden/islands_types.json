@@ -1,11 +1,20 @@
 {
  "grounds": {
+  "NI Balcony": "0x9D31",
   "NI Bar Floor": "0x9D07",
   "NI Bridge Deck EW": "0x9D03",
   "NI Bridge Deck NS": "0x9D04",
   "NI Column": "0x9D08",
   "NI Island Rim": "0x9D01",
   "NI Paved Rim": "0x9D02",
+  "NI Pond Deck EW 0": "0x9D3D",
+  "NI Pond Deck EW 1": "0x9D3F",
+  "NI Pond Deck EW 2": "0x9D41",
+  "NI Pond Deck EW 3": "0x9D43",
+  "NI Pond Deck NS 0": "0x9D3E",
+  "NI Pond Deck NS 1": "0x9D40",
+  "NI Pond Deck NS 2": "0x9D42",
+  "NI Pond Deck NS 3": "0x9D44",
   "NI Sky Rock": "0x9D00",
   "NI Spiral 0": "0x9D20",
   "NI Spiral 1": "0x9D21",
@@ -32,7 +41,12 @@
   "NI Stone Ramp 8": "0x9D19",
   "NI Stone Ramp 9": "0x9D1B",
   "NI Tower Base": "0x9D09",
+  "NI Tower Core": "0x9D30",
   "NI Tower Deck": "0x9D06",
+  "NI Tower Doorway": "0x9D2F",
+  "NI Tower Floor": "0x9D2D",
+  "NI Tower Top": "0x9D2E",
+  "NI Tower Wall": "0x9D2C",
   "NI Wood Ramp 1": "0x9D0A",
   "NI Wood Ramp 10": "0x9D1C",
   "NI Wood Ramp 11": "0x9D1E",
@@ -43,13 +57,26 @@
   "NI Wood Ramp 6": "0x9D14",
   "NI Wood Ramp 7": "0x9D16",
   "NI Wood Ramp 8": "0x9D18",
-  "NI Wood Ramp 9": "0x9D1A"
+  "NI Wood Ramp 9": "0x9D1A",
+  "NI Wood Ramp EW 1": "0x9D32",
+  "NI Wood Ramp EW 10": "0x9D3B",
+  "NI Wood Ramp EW 11": "0x9D3C",
+  "NI Wood Ramp EW 2": "0x9D33",
+  "NI Wood Ramp EW 3": "0x9D34",
+  "NI Wood Ramp EW 4": "0x9D35",
+  "NI Wood Ramp EW 5": "0x9D36",
+  "NI Wood Ramp EW 6": "0x9D37",
+  "NI Wood Ramp EW 7": "0x9D38",
+  "NI Wood Ramp EW 8": "0x9D39",
+  "NI Wood Ramp EW 9": "0x9D3A"
  },
  "objects": {
   "NI Bar": "0x9D84",
   "NI Bar Stool": "0x9D80",
   "NI Barman": "0x9D83",
+  "NI Frog": "0x9D85",
   "NI Telescope": "0x9D81",
-  "NI Thrown Sake": "0x9D82"
+  "NI Thrown Sake": "0x9D82",
+  "NI Tower Cap": "0x9D86"
  }
 }

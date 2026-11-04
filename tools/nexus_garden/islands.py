@@ -22,9 +22,9 @@ from PIL import Image
 from . import grounds as G
 from .extras import walk_strip
 from . import models as M
-from .models import (Mesh, R_CORD, R_END, R_LAMP, R_SLOPE, R_TIMBER, base_texture, fill, solid, GOLD, INDIGO, ROSE,
+from .models import (Mesh, R_CORD, R_END, R_GOLD, R_LAMP, R_SLOPE, R_TIMBER, base_texture, fill, solid, GOLD, INDIGO, ROSE,
                      TIMBER)
-from .px import canvas, dither, hash2, hexc as C, outline, picture, put, tile
+from .px import canvas, dither, hash2, hexc as C, outline, picture, put, tile  # noqa: F401
 from .sprites import LACQUER, WOOD
 
 # --- palettes ------------------------------------------------------------------------------------
@@ -161,10 +161,63 @@ GROUNDS_DIR = None   # filled by build_art
 LIFTS = [k * 0.25 for k in range(1, 12)]
 
 
+def tower_stone(seed):
+    """A round stone tower's wall, a square of it: rough-dressed granite in uneven courses, some
+    squares with a narrow arched window, dark within, a warm light in it (one floor's in four)."""
+    img = ashlar(GRANITE, seed)
+    if seed % 4 == 0:
+        dark, lit, frame = C("#1c1826"), C("#f0a040"), GRANITE[4]
+        for y in range(1, 7):
+            for x in range(2, 6):
+                if y == 1 and x in (2, 5):
+                    continue                 # the arch's corners
+                edge = x in (2, 5) or y in (1, 6)
+                put(img, x, y, frame if edge else (lit if (x + y) % 3 == 0 and y < 5 else dark))
+    return img
+
+
+def tower_floor(seed):
+    """Flagstones on the tower's top and inside its door."""
+    return G.flagstones(G.SLAB)(seed)
+
+
+def frog(frame):
+    """A green frog on a lily pad, 8 by 8, its throat puffing out now and then."""
+    pal = {"l": C("#2c6a36"), "L": C("#4a8c46"), "g": C("#3e8a2e"), "G": C("#7cc04a"), "e": C("#1c1418"),
+           "w": C("#f0f4e0"), "t": C("#e8e0a0")}
+    rows = [
+        "........",
+        "..G..G..",
+        ".GeGGeG.",
+        ".gGGGGg.",
+        "lgG" + ("tt" if frame else "GG") + "Ggl",
+        "LgggggL.",
+        "LLLLLLLl",
+        ".LLLLLl.",
+    ]
+    img = picture(rows, pal, 8, 8)
+    outline(img, lambda c: tuple(max(0, int(v * 0.45)) for v in c))
+    return img
+
+
+# name -> (painter, variants, {xml tag: value}, minimap colour, face painter or None[, face variants])
+# Lifts: the bridges climb and fall a quarter of a tile a square (never more), the spiral stair
+# a quarter of a tile a twelfth of a turn (tools/build_stair_tower.py's spiral).
+LIFTS = [k * 0.25 for k in range(1, 12)]
+WOOD_RAIL = 0x7A4A2C          # the tower's balcony: dark oak, as its timbers
+
+
+balcony_planks = G.planks(BEAM[2:] + [C("#8a5a3a"), C("#a8724a")], True, seam=0, ends=0.8)
+
+
 def grounds():
     wood_rail = {"Rail": "0x%06X" % VERMILION}
     stone_rail = {"Rail": "0x%06X" % GRANITE_RAIL}
-    bridge = {"StaySolid": None, "Piers": None}
+    oak_rail = {"Rail": "0x%06X" % WOOD_RAIL}
+    # a bridge's deck slopes from square to square (no steps) and stays solid; piers under it
+    bridge = {"StaySolid": None, "Piers": None, "Slope": None}
+    stone_bridge = {"StaySolid": None, "Piers": "stone", "Slope": None, "Parapet": None}
+    stone_face = lambda s: ashlar(GRANITE, s + 2)
     out = {
         "NI Sky Rock": (sky_rock, 4, {"NoWalk": None, "BlendPriority": "-1"}, "0x4D4459", None),
         "NI Island Rim": (island_rim, 4, {"BlendPriority": "5", **stone_rail}, "0x46603E", rim_face),
@@ -174,24 +227,40 @@ def grounds():
                               timber_face),
         "NI Bridge Deck NS": (G.planks(G.PLANK, False), 3, {"BlendPriority": "24", **wood_rail, **bridge}, "0x7A4E30",
                               timber_face),
-        "NI Stone Bridge": (lambda s: ashlar(GRANITE, s + 9), 3, {"BlendPriority": "23", **stone_rail, **bridge}, "0x908E98",
-                            lambda s: ashlar(GRANITE, s + 2)),
-        # the Arena tower's top and the column in its stair's well: walls down to the ground
-        "NI Tower Deck": (lacquer_planks(G.DECK), 4, {"BlendPriority": "25", "FaceDown": None, **wood_rail}, "0xA8665A",
-                          tower_wall),
-        "NI Bar Floor": (G.planks(G.PLANK, False, seam=0, ends=0.9), 2,
-                         {"BlendPriority": "26", "FaceDown": None, **wood_rail}, "0x5A2C2E", tower_wall),
-        "NI Column": (lambda s: tile(lambda x, y: dither(GOLD, 0.35 + 0.4 * ((x + y) % 4 == 0), x, y)), 1,
-                      {"NoWalk": None, "FaceDown": None, "BlendPriority": "27"}, "0xC8402E", column_wall),
+        "NI Stone Bridge": (lambda s: ashlar(GRANITE, s + 9), 3, {"BlendPriority": "23", **stone_rail, **stone_bridge},
+                            "0x908E98", stone_face),
+        # the Arena's round stone tower: its foot (walls not walked through, the door's floor),
+        # its top inside the balcony (its sides go down to the ground as the tower's walls, a
+        # cornice at each floor: <Column/>; over the door a doorway), the core under its cap, and
+        # the oak balcony round it, hanging over the court
+        "NI Tower Wall": (lambda s: ashlar(GRANITE, s + 3), 2, {"NoWalk": None, "BlendPriority": "18"}, "0x5E5C6E", stone_face),
+        "NI Tower Floor": (tower_floor, 3, {"BlendPriority": "18"}, "0xAEA49E", stone_face),
+        "NI Tower Top": (balcony_planks, 3, {"BlendPriority": "26", "Column": None, "Eave": "0x9A98AE", **oak_rail},
+                         "0x74403A", tower_stone, 4),
+        "NI Tower Doorway": (balcony_planks, 3, {"BlendPriority": "26", "Column": None, "Doorway": None, "Eave": "0x9A98AE",
+                                                 **oak_rail}, "0x74403A", tower_stone, 4),
+        "NI Tower Core": (lambda s: ashlar(GRANITE, s + 4), 2, {"NoWalk": None, "BlendPriority": "25", "Column": None,
+                                                                "Eave": "0x9A98AE"}, "0x5E5C6E", tower_stone, 4),
+        "NI Balcony": (balcony_planks, 3,
+                       {"BlendPriority": "26", **oak_rail}, "0x74403A", timber_face),
         "NI Tower Base": (lambda s: ashlar(GRANITE, s + 3), 2, {"NoWalk": None, "BlendPriority": "18", "NoUnderside": None},
-                          "0x5E5C6E", lambda s: ashlar(GRANITE, s + 7)),
+                          "0x5E5C6E", stone_face),
     }
     for k, lift in enumerate(LIFTS, 1):
         out["NI Wood Ramp %d" % k] = (G.planks(G.PLANK, False), 3,
                                       {"Lift": str(lift), "BlendPriority": "24", **wood_rail, **bridge}, "0x7A4E30", timber_face)
+        out["NI Wood Ramp EW %d" % k] = (G.planks(G.PLANK, True), 3,
+                                         {"Lift": str(lift), "BlendPriority": "24", **wood_rail, **bridge}, "0x7A4E30", timber_face)
         out["NI Stone Ramp %d" % k] = (lambda s: ashlar(GRANITE, s + 9), 3,
-                                       {"Lift": str(lift), "BlendPriority": "23", **stone_rail, **bridge}, "0x908E98",
-                                       lambda s: ashlar(GRANITE, s + 2))
+                                       {"Lift": str(lift), "BlendPriority": "23", **stone_rail, **stone_bridge}, "0x908E98",
+                                       stone_face)
+    # the spawn's little bridges over its pond: an arch, railed all along (over water the drop is small)
+    for k in range(4):
+        for way, across in (("EW", True), ("NS", False)):
+            tags = {"BlendPriority": "24", "StaySolid": None, "Slope": None, "RailDrop": "0.1", **wood_rail}
+            if k:
+                tags["Lift"] = str(k * 0.25)
+            out["NI Pond Deck %s %d" % (way, k)] = (G.planks(G.PLANK, across), 3, tags, "0x7A4E30", timber_face)
     for k in range(12):
         tags = {"StaySolid": None, "BlendPriority": "25", **wood_rail}
         if k:
@@ -358,51 +427,71 @@ def _shelves(img, rect):
 
 
 def bar():
-    """The bar on the Arena tower's top: an open counter pavilion seven tiles by three, its model's
-    tile the counter's middle (the front row; the barman's aisle and the shelves behind it, to
-    the north). At the back, shelves of bottles; the aisle; the counter in front, rose panels and
-    a dark top; posts at the corners; a teal roof high enough that the barman shows under it,
-    sweeping up at its corners, a sign over the front, indigo noren curtains hung from the front
-    eave and a string of lit lanterns along it."""
+    """The bar on the overhang at the side of the Arena tower's balcony: an open counter seven
+    tiles by three under the sky, no roof, its model's tile the counter's middle (the front row;
+    the barman's aisle and the shelves behind it, to the north). At the back, oak shelves of
+    bottles; the aisle; the counter in front, rose panels and a dark top; at the front corners
+    two oak posts and a beam between them with the SKY BAR sign and a string of lit lanterns."""
     img = base_texture()
     _shelves(img, R_SHELF)
     fill(img, R_COUNTER, lambda x, y, w, h: TIMBER[1] if x % 8 == 0 or y in (0, h - 1) else dither(ROSE, 0.5 + 0.2 * (hash2(x, y, 3) - 0.5), x, y))
     solid(img, R_TOP, TIMBER, 0.75, 0.1)
-    fill(img, R_NOREN, lambda x, y, w, h: C("#f2f0f0") if (x - w / 2) ** 2 + (y - 7) ** 2 < 9 and not (x - w / 2) ** 2 + (y - 7) ** 2 < 4 else dither(INDIGO, 0.5 + 0.2 * (y / h), x, y))
     sign(img, R_SIGN, "SKY BAR")
     m = Mesh()
     X0, X1, YB, YF = -3.45, 3.45, -1.45, 1.45
-    # the shelves along the back
+    # the shelves along the back, a cornice on top
     m.box(X0 + 0.1, YB, 0, X1 - 0.1, YB + 0.35, 1.7, R_TIMBER, front=R_SHELF)
+    m.box(X0, YB - 0.05, 1.7, X1, YB + 0.45, 1.82, R_TIMBER)
     # the counter along the front
     m.box(X0 + 0.25, 0.55, 0, X1 - 0.25, 1.05, 0.62, R_COUNTER, top=R_TOP)
     m.box(X0 + 0.15, 0.5, 0.62, X1 - 0.15, 1.12, 0.7, R_TOP)
     # its ends, closing the aisle
     for x in (X0 + 0.25, X1 - 0.55):
         m.box(x, YB + 0.35, 0, x + 0.3, 0.55, 0.62, R_COUNTER, top=R_TOP)
-    # posts at the corners
-    EAVE = 3.0
+    # two posts at the front corners and the beam between them, the sign and lanterns on it
+    TOP = 2.3
     for x in (X0, X1):
-        for y in (YB, YF):
-            m.box(x - 0.09, y - 0.09, 0, x + 0.09, y + 0.09, EAVE, R_TIMBER)
-    # the roof
-    m.roof((X0 - 0.45, YB - 0.4, X1 + 0.45, YF + 0.45), (X0 + 0.6, -0.15, X1 - 0.6, 0.15), EAVE, EAVE + 0.7, R_SLOPE, R_END, 0.22, 0.2, 10)
-    # the sign over the front, under the eave
-    m.quad((-1.6, YF + 0.42, EAVE - 0.03), (1.6, YF + 0.42, EAVE - 0.03), (1.6, YF + 0.42, EAVE - 0.37), (-1.6, YF + 0.42, EAVE - 0.37),
-           R_SIGN, (0, 0, EAVE - 0.2))
-    # noren: short curtains hung from the front eave either side of the sign
-    for k in range(5):
-        a = X0 + 0.35 + k * 1.37
-        if abs(a + 0.55) < 1.7:
-            continue        # not over the sign
-        m.quad((a, YF + 0.4, EAVE - 0.2), (a + 1.1, YF + 0.4, EAVE - 0.2), (a + 1.1, YF + 0.4, EAVE - 0.65), (a, YF + 0.4, EAVE - 0.65),
-               R_NOREN, (a, 0, EAVE - 0.4))
-    # the lanterns along the eave
-    for x in (-3.2, -2.1, 2.1, 3.2):
-        m.lantern(x, YF + 0.5, EAVE - 0.1, R_CORD, R_LAMP, 0.22)
+        m.box(x - 0.1, YF - 0.1, 0, x + 0.1, YF + 0.1, TOP, R_TIMBER)
+    m.box(X0 - 0.15, YF - 0.12, TOP - 0.16, X1 + 0.15, YF + 0.12, TOP, R_TIMBER)
+    m.quad((-1.6, YF + 0.14, TOP - 0.18), (1.6, YF + 0.14, TOP - 0.18), (1.6, YF + 0.14, TOP - 0.52), (-1.6, YF + 0.14, TOP - 0.52),
+           R_SIGN, (0, 0, TOP - 0.35))
+    for x in (-3.0, -2.2, 2.2, 3.0):
+        m.lantern(x, YF + 0.2, TOP - 0.16, R_CORD, R_LAMP, 0.22)
     # its tile is the counter's middle: all of it a tile north of the middle row
     m.vs = [(x, y - 1.0, z) for x, y, z in m.vs]
     return m, img
 
 
-MODELS = {"NI Bar": (bar, (7, 3), True, 0.14)}
+def tower_cap():
+    """The room on top of the Arena tower, as in a wizard's tower: eight timbered walls of pale
+    plaster with lit windows round the stair's core, a tall cone of teal tiles over them flaring
+    at its eaves, and a gilded spire. Centred on the corner its model's tile shares with the core's
+    other three squares (half a tile north-west of the tile's middle)."""
+    img = base_texture()
+    m = Mesh()
+    sides, r, wall, eave, peak = 8, 1.45, 1.55, 1.95, 4.6
+    pts = [(math.cos((k + 0.5) / sides * math.tau) * r, math.sin((k + 0.5) / sides * math.tau) * r) for k in range(sides)]
+    centre = (0, 0, wall / 2)
+    for k in range(sides):
+        (ax, ay), (bx, by) = pts[k], pts[(k + 1) % sides]
+        m.quad((ax, ay, wall), (bx, by, wall), (bx, by, 0), (ax, ay, 0), (0, 0, 64, 16), centre)
+        # a lit window in each wall, and a timber post at each corner
+        mx, my = (ax + bx) / 2, (ay + by) / 2
+        ox, oy = mx * 1.02, my * 1.02
+        tx, ty = (bx - ax) * 0.22, (by - ay) * 0.22
+        m.quad((ox - tx, oy - ty, wall * 0.78), (ox + tx, oy + ty, wall * 0.78), (ox + tx, oy + ty, wall * 0.3), (ox - tx, oy - ty, wall * 0.3),
+               (64, 0, 96, 16), (0, 0, wall / 2), "Glow")
+        m.box(ax * 1.01 - 0.07, ay * 1.01 - 0.07, 0, ax * 1.01 + 0.07, ay * 1.01 + 0.07, wall + 0.05, R_TIMBER)
+    # the cone: from the eaves round the walls up to the peak, in tiles
+    ring = [(math.cos((k + 0.5) / sides * math.tau) * eave, math.sin((k + 0.5) / sides * math.tau) * eave) for k in range(sides)]
+    inside = (0, 0, wall - 1.0)
+    for k in range(sides):
+        (ax, ay), (bx, by) = ring[k], ring[(k + 1) % sides]
+        m.face([(ax, ay, wall - 0.05), (bx, by, wall - 0.05), (0, 0, peak)], [(4, 60), (124, 60), (64, 34)], inside)
+    m.box(-0.06, -0.06, peak - 0.1, 0.06, 0.06, peak + 0.9, R_GOLD)
+    m.box(-0.15, -0.15, peak + 0.25, 0.15, 0.15, peak + 0.35, R_GOLD)
+    m.vs = [(x - 0.5, y - 0.5, z) for x, y, z in m.vs]
+    return m, img
+
+
+MODELS = {"NI Bar": (bar, (7, 3), True, 0.14), "NI Tower Cap": (tower_cap, (2, 2), False, 0.0)}

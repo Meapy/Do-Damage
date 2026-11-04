@@ -113,6 +113,7 @@ RS_ONLY_MODELS = [
 ] + [
     # the Nexus islands' bar (tools/build_nexus_islands.py)
     ("NI Bar", "kabam/rotmg/assets/custom/objects/nexusIslandsBar.obj"),
+    ("NI Tower Cap", "kabam/rotmg/assets/custom/objects/nexusIslandsTowerCap.obj"),
 ]
 # game data only the Rust client loads
 RS_ONLY_GROUND_XML = ["kabam/rotmg/assets/custom/xmls/HashCellarGrounds.xml",

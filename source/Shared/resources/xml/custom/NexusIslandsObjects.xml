@@ -5,7 +5,7 @@
 		<Class>GameObject</Class>
 		<Texture>
 			<File>nexusIslands8x8</File>
-			<Index>0xcd</Index>
+			<Index>0x141</Index>
 		</Texture>
 		<Size>100</Size>
 		<ShadowSize>60</ShadowSize>
@@ -31,11 +31,49 @@
 		<Class>GameObject</Class>
 		<Texture>
 			<File>nexusIslands8x8</File>
-			<Index>0xce</Index>
+			<Index>0x142</Index>
 		</Texture>
 		<Size>100</Size>
 		<ShadowSize>0</ShadowSize>
 		<Static />
+		<NoMiniMap />
+	</Object>
+	<Object type="0x9D85" id="NI Frog">
+		<DisplayId>Frog</DisplayId>
+		<Class>GameObject</Class>
+		<Texture>
+			<File>nexusIslands8x8</File>
+			<Index>0x143</Index>
+		</Texture>
+		<Size>100</Size>
+		<ShadowSize>0</ShadowSize>
+		<Static />
+		<Animation prob="1.0" period="2.5" periodJitter="2.0">
+			<Frame time="0.35">
+				<Texture>
+					<File>nexusIslands8x8</File>
+					<Index>0x144</Index>
+				</Texture>
+			</Frame>
+			<Frame time="0.15">
+				<Texture>
+					<File>nexusIslands8x8</File>
+					<Index>0x143</Index>
+				</Texture>
+			</Frame>
+			<Frame time="0.3">
+				<Texture>
+					<File>nexusIslands8x8</File>
+					<Index>0x144</Index>
+				</Texture>
+			</Frame>
+			<Frame time="0.1">
+				<Texture>
+					<File>nexusIslands8x8</File>
+					<Index>0x143</Index>
+				</Texture>
+			</Frame>
+		</Animation>
 		<NoMiniMap />
 	</Object>
 	<Object type="0x9D83" id="NI Barman">
@@ -66,5 +104,17 @@
 		<ModelShadow>0.14</ModelShadow>
 		<OccupySquare />
 		<EnemyOccupySquare />
+	</Object>
+	<Object type="0x9D86" id="NI Tower Cap">
+		<Class>GameObject</Class>
+		<Model>NI Tower Cap</Model>
+		<Texture>
+			<File>nexusIslandsModels128x128</File>
+			<Index>0x01</Index>
+		</Texture>
+		<Static />
+		<ShadowSize>0</ShadowSize>
+		<ModelContrast>0.5</ModelContrast>
+		<ModelShadow>0.0</ModelShadow>
 	</Object>
 </Objects>

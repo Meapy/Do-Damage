@@ -11,35 +11,37 @@ NexusIslandsModels128x128.png, and the bar's model (custom/objects/nexusIslandsB
 registered for the Rust client by tools/gen_rs_manifest.py. Type codes are kept stable in
 tools/nexus_garden/islands_types.json (grounds from 0x9D00, objects from 0x9D80).
 
-The garden's theme and art (tools/build_nexus_garden.py), rebuilt as five islands at three
+The garden's theme and art (tools/build_nexus_garden.py), rebuilt as four islands at two
 heights, joined by bridges; floor 1 is the lowest map (the game's `World.Levels[0]`):
 
 - SPAWN (middle, floor 2): the spawn deck in its koi-pond ring (`Spawn`), the healing basins, the
   Armoire, the Vault Portal, the Support Bot and its dungeon portal (`Nexus Bot`, `Nexus Dungeon`),
   the XP ducks on the pond (NexusGuide), the Name Changer and the Character Changer about the deck
-  (`Nexus Name Changer`, `Nexus Character Changer`), and in the pond's south-east corner the
-  storehouse yard with the four shared vault chests (`CHESTS`: each keeps its castle tile as its
-  name, so its items stay where they are in Redis).
-- MARKET (west, floor 2), across a flat wooden bridge: the market square (the Broker on
-  `Nexus Broker`, the stalls' `Market Stall` tiles, the Tinkerer and the Chronicler on their
-  markers), the shop street (`Store N`, MerchantLists.Shops), the guild's teahouse (Guild Hall
-  door, Guild Register) and the quest house beside the square.
-- NORTH (floor 3, a floor above the spawn), up a wooden bridge that climbs: the forge court (the
-  Divine Forge in its smithy, Amatsumara at his anvil, the Enchanter, a weapon rack and straw
-  dummies) and the dry garden of raked gravel round the elder cherry.
-- PORTALS (south-west, floor 1, a floor below the spawn), down a stone stair-bridge: the shrine
+  (`Nexus Name Changer`, `Nexus Character Changer`), the pond's lobe to the north-east with lily
+  pads and frogs, three little arched bridges over the pond, and on a deck in the pond's
+  south-east corner the storehouse and the four shared vault chests (`CHESTS`: each keeps its
+  castle tile as its name, so its items stay where they are in Redis).
+- MARKET (west, floor 2), across a wooden bridge that dips and rises: the market square (the
+  Broker on `Nexus Broker`, the stalls' `Market Stall` tiles, the Tinkerer and the Chronicler on
+  their markers), the shop street (`Store N`, MerchantLists.Shops), the guild's teahouse (Guild
+  Hall door, Guild Register), the quest house, and in its south-west the forge court (the Divine
+  Forge in its smithy, Amatsumara at his anvil, the Enchanter, weapon racks and straw dummies).
+- PORTALS (south, floor 1, a floor below the spawn), down a stone bridge on arches: the shrine
   of the realm portals (Realm 2's vortex on `Realm2 Portal`, four caverns on `Realm Portals`, the
-  Arena's sand pit on `Arena Portal`), the pagoda and the torii, and the forest south of it on
-  petal ground (blossom falls there), with the memorial clearing and the twins (`Nexus Twins`).
-- ARENA (east, floor 2), across a flat wooden bridge: the Arena court (the dojo yard, the samurai
-  statue, the Herald on `Nexus Herald`), and the tower: a spiral stair round a lacquered column,
-  two turns (`SPIRAL`, a quarter of a tile a twelfth of a turn, as the Stair Tower's), up to the
-  top deck two floors up, whose sides go down to the court as the tower's walls (`<FaceDown/>`):
-  the Hall of Champions (the monument and a plinth for each board), the Arena Leaderboard, the
-  lookout and the bar (`Nexus Barman`, `Nexus Bar`: NexusBar).
+  Arena's sand pit on `Arena Portal`), the torii and the pagoda, and the forest round it on petal
+  ground (blossom falls there): the elder cherry's dry garden in its west, the memorial clearing
+  and the twins (`Nexus Twins`) in its east.
+- ARENA (east, floor 2), across a wooden bridge that dips and rises: the Arena court (the dojo
+  yard, the samurai statue, the Herald on `Nexus Herald` and the Arena Leaderboard beside him),
+  and a round stone tower: a spiral stair inside it (two turns round its core, `SPIRAL`, a
+  quarter of a tile a twelfth of a turn, as the Stair Tower's) from its door up to its top two
+  floors up, where a cap room stands on the core; round the top an oak balcony on brackets over
+  the court (`<Column/>` walls below it), the Hall of Champions' plinths round it, the lookout's
+  telescope and, on an overhang to the east, the bar (`Nexus Barman`, `Nexus Bar`: NexusBar).
 
-Every bridge is made by `bridge` (straight, its width square to the islands' straight bridge
-heads, `jetty`; level landings at both ends, a quarter of a tile a square between) and every
+Every bridge is made by `bridge` (straight, five wide on the spawn's middle row or column, square
+to the islands' straight bridge heads, `jetty`; a quarter of a tile a square between its level
+ends, its deck sloping smoothly) and every
 island's edge is a rim of rock (or dressed stone where paved) with a railing, whose side drops
 into the sky in soil and strata. The Rust client hangs the islands' rocky undersides, the rim's
 clouds and the bridges' piers under them (islands.rs) and draws the sky (sunset.rs).
@@ -87,34 +89,37 @@ RIM, PAVED_RIM = "NI Island Rim", "NI Paved Rim"
 # each island: its floor (0 the lowest), middle, half width and height, squareness (2 an
 # ellipse, more a rounded rectangle), seed for its wobble
 SPAWN = (1, 112, 84, 23, 23, 2.0, 1)
-MARKET = (1, 46, 74, 30, 26, 4.0, 2)
-NORTH = (2, 112, 31, 24, 19, 2.4, 3)
-PORTALS = (0, 104, 146, 34, 26, 2.2, 4)
+MARKET = (1, 44, 76, 34, 30, 4.0, 2)
+PORTALS = (0, 114, 146, 28, 26, 2.2, 4)
 ARENA = (1, 172, 84, 26, 24, 3.0, 5)
 
 # the bridges: (name, axis, across (first, last), along (first, last), height at each end,
-# material); the along range runs from the first island to the second, both ends a landing
+# material, shape); the along range runs from the first island to the second, both ends a
+# landing. Five wide, so each runs on the spawn's middle row or column. "dip": down from both
+# ends a quarter of a tile a square to the middle and back up.
 BRIDGES = [
-    ("market", "x", (82, 85), (91, 79), (3, 3), "wood"),         # spawn west to the market
-    ("arena", "x", (82, 85), (133, 145), (3, 3), "wood"),        # spawn east to the Arena
-    ("north", "y", (110, 113), (63, 51), (3, 6), "wood"),        # spawn north, up to the north island
-    ("portals", "y", (110, 113), (105, 117), (3, 0), "stone"),   # spawn south, down to the portals
+    ("market", "x", (82, 86), (91, 79), (3, 3), "wood", "dip"),        # spawn west to the market
+    ("arena", "x", (82, 86), (133, 145), (3, 3), "wood", "dip"),       # spawn east to the Arena
+    ("portals", "y", (110, 114), (105, 117), (3, 0), "stone", None),   # spawn south, down to the portals
 ]
-# each bridge head: the straight edge an island meets its bridge with, a paved jetty out to it
-# (bridge name, which end: 0 its first, 1 its last)
 
 # the spawn (build_nexus's island, a little smaller): its deck and the pond round it
 SPAWN_DECK = (8, 9)                  # half width and height of the deck's hexagon
 POND_SCALE = (1.55, 1.45)
-# The shared vault chests (build_nexus.CHESTS's castle tiles, their Redis records), in the
-# storehouse yard at the pond's south-east corner: (offset from the spawn's middle, castle tile)
+# the pond's lobe to the north-east, with lily pads and frogs: its middle (from the spawn's
+# middle) and half width and height
+POND_LOBE = (10, -9, 6.5, 5)
+# The shared vault chests (build_nexus.CHESTS's castle tiles, their Redis records), on a deck in
+# the pond's south-east corner, joined to the spawn's: the platform (from the spawn's middle,
+# x0, y0, x1, y1), the storehouse at its back, the chests (offset, castle tile)
+STORE_DECK = (3, 6, 13, 13)
 STOREHOUSE = (10, 7)
-CHESTS = [((7, 10), (61, 70)), ((9, 10), (79, 70)), ((11, 10), (61, 74)), ((13, 10), (79, 74))]
+CHESTS = [((5, 11), (61, 70)), ((7, 11), (79, 70)), ((9, 11), (61, 74)), ((11, 11), (79, 74))]
 
 # the market: build_nexus's village moved here (its coordinates less MARKET_SHIFT)
 MARKET_SHIFT = (56, -16)
 STREET = (20, 67, 60)                # x0, x1, row
-CROSS = (44, 60, 91)                 # the cross street: column, y0, y1
+CROSS = (44, 60, 97)                 # the cross street: column, y0, y1
 SHOPS = [(r, x - MARKET_SHIFT[0], n, north) for r, x, n, north in bn.SHOPS]
 SQUARE = (45, 66, 65, 89)            # the market square
 SQUARE_ROWS = [(72, False), (83, True)]
@@ -124,38 +129,46 @@ QUEST_NPCS = [(50, 77), (58, 77)]
 GUILD_HALL = (32, 71)                # the teahouse: GUILD HALL over its door
 GUILD = {"NG Guild Register": (27, 74), "NG Guild Hall Door": (32, 74)}
 QUEST_HOUSE = (32, 83)
+# the forge court, in the market island's south-west below the quest house
+FORGE_COURT = (22, 89, 42, 104)
+SMITHY = (32, 100)
 
-# the north island
-FORGE_COURT = (113, 17, 131, 39)
-SMITHY = (122, 35)
-ELDER = (99, 28)
-
-# the portals island: the shrine round Realm 2's vortex (build_nexus's, its gate to the north)
+# the portals island: the shrine round Realm 2's vortex (build_nexus's, its gate to the north),
+# the forest south of it, the elder cherry's dry garden in the forest's west
 VORTEX = (111, 138)
 CAVERNS = [(101, 132), (121, 132), (101, 144), (121, 144)]
 ARENA_PIT = (99, 138)                # the Arena's sand pit (4 across), west of the vortex
 SHRINE = (17, 10)                    # the court's half width and height round the vortex
 PAGODA = (111, 152)
 TORII = (111, 126)
-MEMORIAL = (104, 164)
+ELDER = (100, 161)
+MEMORIAL = (124, 162)
 
-# the Arena island: the court, and the tower east of it
+# the Arena island: the court (the Arena Leaderboard beside the Herald, as in the garden), and
+# the round stone tower north-east of it
 COURT = (153, 88, 169, 100)
 SAMURAI = (158, 94)
 HERALD = (166, 92)
-# the tower: its top deck two floors up (whose sides go down to the court as its walls), the
-# spiral stair round its column north-west of it (build_stair_tower.spiral_squares: a ring two
-# wide round the 2 by 2 column, sector 0 its south-west corner, where the stair starts from the
-# court and, two turns up, steps out onto the deck)
-DECK_RECT = (168, 68, 191, 81)
-SPIRAL = (168, 62)
+LEADERBOARD = (162, 92)
+# The tower: a round stone tower (its squares within TOWER_R of TOWER, a corner point), the
+# spiral stair inside it (build_stair_tower.spiral_squares: a ring two wide round the 2 by 2
+# core, sector 0 its south-west corner) from a door on its west side, two turns up to its top,
+# two floors above the court, where the core carries the cap room; round the top an oak balcony
+# hanging over the court (out to BALCONY_R), the Hall of Champions' plinths round it, and an
+# overhang to the east with the bar.
+TOWER = (176, 72)
+TOWER_R = 4.6
+BALCONY_R = 6.6
+PLINTH_R = 5.7                       # the champions' plinths round the balcony, open to the east
+SPIRAL = (173, 69)
 SPIRAL_SECTORS = 12
 SPIRAL_START = 120
-CHAMPIONS = (177, 74)
-LEADERBOARD = (186, 70)
-BAR = (187, 76)                      # the bar's model: its counter's middle
-BARMAN = (187, 75)
-TELESCOPE = (169, 80)
+DOOR = (172, 73)
+BAR_DECK = (182, 66, 189, 77)        # the overhang: x0, y0, x1, y1
+BAR = (186, 69)                      # the bar's model: its counter's middle
+BARMAN = (186, 68)
+CHAMPIONS = (176, 75)                # the monument, on the tower's top before the cap room
+TELESCOPE_AT = 330                   # the telescope's bearing round the balcony (degrees, y down)
 
 
 # --- the grid ------------------------------------------------------------------------------------
@@ -195,16 +208,20 @@ def lay_island(g, island, ground=MEADOW):
 
 
 def bridge_tiles(b):
-    """A bridge's squares from its first end to its last: (x, y, height)."""
-    _, axis, (c0, c1), (a0, a1), (h0, h1), _ = b
+    """A bridge's squares from its first end to its last: (x, y, height). Straight from one end's
+    height to the other's a quarter of a tile a square, or for a "dip" down from both ends to its
+    middle and back up."""
+    _, axis, (c0, c1), (a0, a1), (h0, h1), _, shape_ = b
     step = 1 if a1 > a0 else -1
     along = list(range(a0, a1 + step, step))
     n = len(along) - 1
-    if h0 != h1:
+    if shape_ == "dip":
+        assert h0 == h1, b[0]
+    elif h0 != h1:
         assert abs(abs(h1 - h0) / n - RISE) < 1e-9, (b[0], "rises %.3f a square" % (abs(h1 - h0) / n))
     out = []
     for i, a in enumerate(along):
-        h = h0 + (h1 - h0) * i / n
+        h = h0 - RISE * min(i, n - i) if shape_ == "dip" else h0 + (h1 - h0) * i / n
         for c in range(c0, c1 + 1):
             out.append((a, c, h) if axis == "x" else (c, a, h))
     return out
@@ -212,14 +229,18 @@ def bridge_tiles(b):
 
 def bridge(levels, b):
     """A straight bridge: its squares on the floor at each one's height, the deck's ground lifting
-    what crosses it a quarter of a tile a square between its two level landings."""
-    name, axis, _, _, _, material = b
+    what crosses it a quarter of a tile a square between its two level landings, sloping smoothly
+    from square to square (`<Slope/>`)."""
+    name, axis, _, _, _, material, _ = b
     for x, y, h in bridge_tiles(b):
         level = min(int(h / FLOOR + 1e-6), LEVELS - 1)
         lift = round(h - level * FLOOR, 4)
         step = int(round(lift / RISE))
         if material == "wood":
-            ground = ("NI Bridge Deck EW" if axis == "x" else "NI Bridge Deck NS") if step == 0 else "NI Wood Ramp %d" % step
+            if step == 0:
+                ground = "NI Bridge Deck EW" if axis == "x" else "NI Bridge Deck NS"
+            else:
+                ground = ("NI Wood Ramp EW %d" if axis == "x" else "NI Wood Ramp %d") % step
         else:
             ground = "NI Stone Bridge" if step == 0 else "NI Stone Ramp %d" % step
         g = levels[level]
@@ -230,7 +251,7 @@ def bridge(levels, b):
 def carve(levels, b, wide=7):
     """Clears the way for a bridge on every floor: no island reaches into the gap it spans, for
     `wide` squares either side of it, so each island meets it with a straight edge."""
-    _, axis, (c0, c1), (a0, a1), _, _ = b
+    _, axis, (c0, c1), (a0, a1), _, _, _ = b
     for a in range(min(a0, a1), max(a0, a1) + 1):
         for c in range(c0 - wide, c1 + wide + 1):
             x, y = (a, c) if axis == "x" else (c, a)
@@ -243,7 +264,7 @@ def carve(levels, b, wide=7):
 def jetty(levels, b, end, ground=COBBLE):
     """The bridge head at one end of a bridge: a paved jetty, two squares wider each side than the
     bridge, out from its island to a straight edge square to the bridge, flush with its end."""
-    _, axis, (c0, c1), (a0, a1), (h0, h1), _ = b
+    _, axis, (c0, c1), (a0, a1), (h0, h1), _, _ = b
     a, h = (a0, h0) if end == 0 else (a1, h1)
     away = (1 if a1 > a0 else -1) * (-1 if end == 0 else 1)        # from the bridge into the island
     g = levels[int(h / FLOOR + 1e-6)]
@@ -271,12 +292,14 @@ def lay_spawn(g):
     lay_island(g, SPAWN, GRASS)
     dw, dh = SPAWN_DECK
     pw, ph = dw * POND_SCALE[0], dh * POND_SCALE[1]
+    lx, ly, lw, lh = POND_LOBE
     for y in range(g.h):
         for x in range(g.w):
             if not g.has(x, y):
                 continue
             wob = 0.6 * math.sin(x * 0.45 + y * 0.2) + 0.4 * math.sin(y * 0.7 - x * 0.3)
-            if hex_inside(x + 0.5, y + 0.5, sx + 0.5, sy + 0.5, pw + wob, ph + wob * 0.6):
+            lobe = math.hypot((x + 0.5 - sx - lx) / (lw + wob * 0.5), (y + 0.5 - sy - ly) / (lh + wob * 0.4)) <= 1
+            if hex_inside(x + 0.5, y + 0.5, sx + 0.5, sy + 0.5, pw + wob, ph + wob * 0.6) or lobe:
                 g.ground(x, y, POND)
     for y in range(g.h):
         for x in range(g.w):
@@ -289,6 +312,14 @@ def lay_spawn(g):
                 edge = not all(hex_inside(x + 0.5 + ddx, y + 0.5 + ddy, sx + 0.5, sy + 0.5, dw, dh)
                                for ddx in (-1, 0, 1) for ddy in (-1, 0, 1))
                 g.ground(x, y, BEAM if edge else DECK, keep=True)
+    # the storehouse's deck in the pond's south-east corner, joined to the spawn's
+    x0, y0, x1, y1 = STORE_DECK
+    for y in range(sy + y0, sy + y1 + 1):
+        for x in range(sx + x0, sx + x1 + 1):
+            if g[x, y]["ground"] in (DECK, BEAM):
+                continue
+            edge = x in (sx + x0, sx + x1) or y in (sy + y0, sy + y1)
+            g.ground(x, y, BEAM if edge and g[x, y]["ground"] in (POND, SHALLOWS) else DECK, keep=True)
     for y in range(sy - 2, sy + 3):
         for x in range(sx - 2, sx + 3):
             g.put(x, y, region="Spawn")
@@ -303,46 +334,48 @@ def lay_spawn(g):
     for x, y in ((sx, sy - dh + 1), (sx - dw + 1, sy - dh // 2), (sx + dw - 1, sy - dh // 2),
                  (sx - dw + 1, sy + dh // 2), (sx + dw - 1, sy + dh // 2)):
         g.place(x, y, LANTERN)
-    # four plank bridges over the pond, to the shore at the big bridges' feet, railed
-    for d in ((-1, 0), (1, 0), (0, -1), (0, 1)):
+    g.model("NG Storehouse", sx + STOREHOUSE[0], sy + STOREHOUSE[1])
+    for (dx, dy), (ox, oy) in CHESTS:
+        g.place(sx + dx, sy + dy, "Vault Chest", name="%d_%d" % (ox, oy))
+    g.place(sx + x1, sy + y1, PAPER_L)
+    g.place(sx + x0 + 1, sy + y1, PAPER)
+    # three little bridges over the pond, arched (a quarter of a tile a square up to the middle),
+    # railed all along, to the shore at the big bridges' feet
+    for d in ((-1, 0), (1, 0), (0, 1)):
         x, y = sx, sy
         while g[x, y]["ground"] in (DECK, BEAM):
             x, y = x + d[0], y + d[1]
+        water = []
         while g[x, y]["ground"] in (POND, SHALLOWS):
-            for k in (-1, 0, 1):
-                px, py = (x, y + k) if d[1] == 0 else (x + k, y)
-                g.ground(px, py, "NG Bridge Planks EW" if d[1] == 0 else "NG Bridge Planks NS", keep=True)
-            for k in (-2, 2):
-                px, py = (x, y + k) if d[1] == 0 else (x + k, y)
-                if g[px, py]["ground"] in (POND, SHALLOWS) and g.empty(px, py):
-                    g.model("NG Wood Rail" if d[1] == 0 else "NG Wood Rail NS", px, py, blockers=[])
+            water.append((x, y))
             x, y = x + d[0], y + d[1]
-        # a path on to the island's edge
+        n = len(water)
+        for i, (wx, wy) in enumerate(water):
+            k = min(i + 1, n - i, 3)
+            for c in (-1, 0, 1):
+                px, py = (wx, wy + c) if d[1] == 0 else (wx + c, wy)
+                g.ground(px, py, "NI Pond Deck %s %d" % ("EW" if d[1] == 0 else "NS", k), keep=True)
+        # a path on to the island's edge, as wide as the big bridge there
         ex, ey = x, y
         while g.has(ex + d[0], ey + d[1]):
             ex, ey = ex + d[0], ey + d[1]
-        g.line([(x, y), (ex, ey)], 4, PATH)
+        g.line([(x, y), (ex, ey)], 5, PATH)
         # paper lanterns at each pond bridge's shore end
-        for k, lamp in ((-2, PAPER), (2, PAPER_L)):
+        for k, lamp in ((-3, PAPER), (3, PAPER_L)):
             px, py = (x, y + k) if d[1] == 0 else (x + k, y)
             if g.land(px, py) and g.empty(px, py):
                 g.place(px, py, lamp)
-    # the storehouse yard in the pond's south-east corner, fenced, its gate to the north
-    yx, yy = sx + STOREHOUSE[0], sy + STOREHOUSE[1]
-    g.rect(yx - 3, yy - 1, yx + 3, yy + 4, PATH)
-    g.model("NG Storehouse", yx, yy)
-    for (dx, dy), (ox, oy) in CHESTS:
-        g.place(sx + dx, sy + dy, "Vault Chest", name="%d_%d" % (ox, oy))
-    for y in range(yy - 1, yy + 5):
-        for x in (yx - 4, yx + 4):
-            if g.has(x, y) and g.empty(x, y):
-                g.model("NG Bamboo Fence NS", x, y)
-    for x in range(yx - 3, yx + 4):
-        if g.has(x, yy + 5) and g.empty(x, yy + 5):
-            g.model("NG Bamboo Fence", x, yy + 5)
-    # a path to the yard's gate from the east pond bridge's shore
-    g.line([(sx + 13, sy + 2), (yx, yy - 2)], 2, PATH, only=(GRASS, SHALLOWS, POND))
-    return [(sx - 15, sy + 3), (sx + 15, sy + 3), (sx + 3, sy - 15), (sx + 3, sy + 15), (yx, yy - 2)]
+    # the pond's lobe to the north-east: lily pads, lotus and frogs on it
+    rng = random.Random(7)
+    spots = [(x, y) for y in range(int(sy + ly - lh - 1), int(sy + ly + lh + 2)) for x in range(int(sx + lx - lw - 1), int(sx + lx + lw + 2))
+             if g.ok(x, y) and g[x, y]["ground"] == POND and g.empty(x, y)]
+    rng.shuffle(spots)
+    for i, (x, y) in enumerate(spots[:14]):
+        g.place(x, y, "NI Frog" if i < 4 else "NG Lotus" if i < 7 else "NG Lily Pad", keep=False)
+    for x, y in ((sx + lx - 4, int(sy + ly + lh + 1)), (sx + lx + 4, int(sy + ly + lh + 1))):
+        if g.land(x, y) and g.empty(x, y):
+            g.place(x, y, LANTERN)
+    return [(sx - 15, sy + 3), (sx + 15, sy + 3), (sx + 3, sy + 15), (sx - 12, sy - 12), (sx + lx, int(sy + ly + lh + 2))]
 
 
 def lay_market(g):
@@ -403,16 +436,8 @@ def lay_market(g):
     g.model("NG House", *QUEST_HOUSE)
     g.line([(CROSS[0], GUILD_HALL[1] + 4), (GUILD_HALL[0] + 6, GUILD_HALL[1] + 4)], 3, PATH)
     g.line([(CROSS[0], QUEST_HOUSE[1] + 3), (QUEST_HOUSE[0], QUEST_HOUSE[1] + 3)], 3, PATH)
-    # from the square to the bridge head
-    g.line([(qx1, 83.5), (79, 83.5)], 4, PATH)
-    return [(x, y + 3) for name, x, y in houses if name == "NG House"] + \
-        [(x, y - 3) for name, x, y in houses if name == "NG House N"] + \
-        [(BROKER[0], BROKER[1] + 4), (CROSS[0], 66), (CROSS[0], 88), (30, sy), (60, sy),
-         (GUILD_HALL[0], GUILD_HALL[1] + 4), (QUEST_HOUSE[0], QUEST_HOUSE[1] + 3), (72, 83)]
-
-
-def lay_north(g):
-    lay_island(g, NORTH, GRASS)
+    # the forge court below the quest house: the Divine Forge in its smithy, Amatsumara at his
+    # anvil, the Enchanter; weapon racks and straw dummies; in from the cross street
     fx0, fy0, fx1, fy1 = FORGE_COURT
     g.rect(fx0, fy0, fx1, fy1, SLAB)
     for x, y in ((fx0, fy0), (fx1, fy0), (fx0, fy1), (fx1, fy1)):
@@ -420,36 +445,26 @@ def lay_north(g):
     bn.smithy(g, SMITHY)
     for x in (fx0 + 2, fx0 + 3):
         g.place(x, fy1 - 1, "NG Weapon Rack")
-    for y in (fy1 - 7, fy1 - 4):
+    for y in (fy0 + 4, fy0 + 7):
         g.place(fx1 - 2, y, "NG Straw Dummy")
-    g.model("NG House N", fx1 - 4, fy0 + 2)
-    # the dry garden round the elder cherry
-    tx, ty = ELDER
-    for y in range(ty - 8, ty + 8):
-        for x in range(tx - 9, tx + 10):
-            d = math.hypot((x - tx) / 8.5, (y - ty) / 6.5)
-            if d <= 1 and g.has(x, y):
-                g.ground(x, y, "NG Petal Gravel" if d < 0.75 else GRAVEL, keep=True)
-    g.place(tx, ty, "NG Elder Sakura")
-    for x, y in ((tx - 6, ty - 1), (tx + 6, ty + 1), (tx - 4, ty + 3), (tx + 4, ty + 3)):
-        g.place(x, y, BOULDER)
-    for x, y in ((tx - 8, ty + 1), (tx + 8, ty + 2)):
-        g.place(x, y, LANTERN)
-    # from the bridge head north, then to the forge court and the garden
-    g.line([(111.5, 49), (111.5, 40)], 4, SLAB)
-    g.line([(111.5, 38.5), (fx0, 38.5)], 3, SLAB)
-    g.line([(110, 36), (tx + 9, ty + 3)], 2, PATH)
-    return [(111, 41), (fx0 + 4, fy1 - 2), (SMITHY[0] + 3, SMITHY[1] + 2), (tx + 9, ty + 4), (tx, ty + 8)]
+    g.line([(CROSS[0], CROSS[2]), (fx1, CROSS[2])], 3, SLAB)
+    # from the square to the bridge head
+    g.line([(qx1, 84), (79, 84)], 5, PATH)
+    return [(x, y + 3) for name, x, y in houses if name == "NG House"] + \
+        [(x, y - 3) for name, x, y in houses if name == "NG House N"] + \
+        [(BROKER[0], BROKER[1] + 4), (CROSS[0], 66), (CROSS[0], 88), (30, sy), (60, sy),
+         (GUILD_HALL[0], GUILD_HALL[1] + 4), (QUEST_HOUSE[0], QUEST_HOUSE[1] + 3), (72, 84),
+         (SMITHY[0] + 5, SMITHY[1] + 2), (fx1 - 4, fy0 + 2)]
 
 
 def lay_portals(g):
     lay_island(g, PORTALS, MEADOW)
     vx, vy = VORTEX
     rx, ry = SHRINE
-    # the forest south of the shrine, on moss
+    # the forest south of the shrine and down its sides, on moss
     for y in range(g.h):
         for x in range(g.w):
-            if g.has(x, y) and y > vy + ry - 2:
+            if g.has(x, y) and (y > vy + 4 or (y > vy - 4 and abs(x - vx) > rx - 2)):
                 g.ground(x, y, MOSS)
     for y in range(vy - ry - 1, vy + ry + 2):
         for x in range(vx - rx - 1, vx + rx + 2):
@@ -477,10 +492,19 @@ def lay_portals(g):
     tx, ty = TORII
     g.line([(tx, 121), (tx, vy - 6)], 3, PATH)
     g.model("NG Torii", tx, ty, blockers=bn.TORII_POSTS)
-    # round the pagoda into the forest, to the memorial clearing
+    # the elder cherry in the forest's west: raked gravel strewn with its blossom round it
+    ex, ey = ELDER
+    for y in range(ey - 8, ey + 8):
+        for x in range(ex - 9, ex + 10):
+            d = math.hypot((x - ex) / 8.5, (y - ey) / 6.5)
+            if d <= 1 and g.has(x, y):
+                g.ground(x, y, "NG Petal Gravel" if d < 0.75 else GRAVEL, keep=True)
+    g.place(ex, ey, "NG Elder Sakura")
+    for x, y in ((ex - 6, ey - 1), (ex + 6, ey + 1), (ex - 4, ey + 3), (ex + 4, ey + 3)):
+        if g.has(x, y):
+            g.place(x, y, BOULDER)
+    # the memorial clearing in the forest's east
     mx, my = MEMORIAL
-    g.line([(vx - rx + 3, vy + 4), (mx - 10, my - 4), (mx - 4, my), (mx + 4, my), (vx + rx - 2, vy + 6)], 2, MOSSY,
-           only=GREEN)
     for y in range(my - 3, my + 4):
         for x in range(mx - 5, mx + 6):
             if math.hypot((x - mx) / 1.5, y - my) <= 3.6 and g.has(x, y):
@@ -488,15 +512,16 @@ def lay_portals(g):
     g.place(mx, my - 2, "NG Wayside Shrine")
     for dx in (-3, 3):
         g.place(mx + dx, my + 2, "NG Bench")
-    g.place(mx - 6, my, LANTERN)
-    g.place(mx + 6, my, LANTERN)
     g.put(mx, my - 4, region="Nexus Twins")
-    return [(tx, 123), (vx + 6, vy + 7), (vx - 8, vy + 6), (mx, my + 1), (mx - 10, my - 4)]
+    # a mossy path round the pagoda, west to the elder cherry and east to the memorial
+    g.line([(vx - 9, vy + 7), (ex + 6, ey - 5)], 2, MOSSY, only=GREEN)
+    g.line([(vx + 9, vy + 7), (mx - 2, my - 3)], 2, MOSSY, only=GREEN)
+    return [(tx, 123), (vx + 6, vy + 7), (vx - 8, vy + 6), (mx, my + 1), (ex + 9, ey - 2)]
 
 
 def spiral_squares():
     """build_stair_tower.spiral_squares, here: the ring's squares and each one's sector (0 to
-    11, sector 0 the south-west corner), and the column's."""
+    11, sector 0 the south-west corner), and the core's."""
     sx, sy = SPIRAL
     cx, cy = sx + 3, sy + 3
     ring, core = {}, []
@@ -510,10 +535,39 @@ def spiral_squares():
     return ring, core
 
 
+def tower_squares():
+    """The tower's squares (within TOWER_R of its middle) and its balcony's (out to BALCONY_R,
+    and the bar's overhang)."""
+    tx, ty = TOWER
+    body, balcony = set(), set()
+    bx0, by0, bx1, by1 = BAR_DECK
+    for y in range(ty - 9, ty + 10):
+        for x in range(tx - 9, tx + 15):
+            d = math.hypot(x + 0.5 - tx, y + 0.5 - ty)
+            if d <= TOWER_R:
+                body.add((x, y))
+            elif d <= BALCONY_R or (bx0 <= x <= bx1 and by0 <= y <= by1):
+                balcony.add((x, y))
+    return body, balcony
+
+
+def round_spot(bearing, r):
+    """The square `r` from the tower's middle at a bearing (degrees, clockwise from east)."""
+    a = math.radians(bearing)
+    return int(math.floor(TOWER[0] + r * math.cos(a))), int(math.floor(TOWER[1] + r * math.sin(a)))
+
+
+def plinths():
+    """The Hall of Champions' plinths, one a board, evenly round the balcony from the south-east
+    to the north-east, leaving its east side to the bar."""
+    return [round_spot(60 + 30 * i, PLINTH_R) for i in range(len(bn.CHAMPION_STATUES))]
+
+
 def lay_arena(levels):
     g = levels[1]
     lay_island(g, ARENA, MEADOW)
-    # the court: raked sand in a border of slabs, the samurai statue, banners, racks, dummies
+    # the court: raked sand in a border of slabs, the samurai statue, banners, racks, dummies, and
+    # the Arena Leaderboard beside the Herald
     ax0, ay0, ax1, ay1 = COURT
     g.rect(ax0, ay0, ax1, ay1, SLAB)
     g.rect(ax0 + 1, ay0 + 1, ax1 - 1, ay1 - 1, "NG Dojo Sand")
@@ -527,59 +581,56 @@ def lay_arena(levels):
         g.place(x, ay1 - 1, "NG Weapon Rack")
     for x in (ax1 - 6, ax1 - 4, ax1 - 2):
         g.place(x, ay1 - 2, "NG Straw Dummy")
+    g.place(*LEADERBOARD, "Arena Leaderboard")
     g.place(ax1 - 2, ay0 + 2, "NG Taiko")
     g.put(*HERALD, region="Nexus Herald")
-    # the tower's foot: stone, not walked on (its walls stand on it), and the spiral's
-    dx0, dy0, dx1, dy1 = DECK_RECT
+    # the tower: its foot (stone, not walked through, but its door's square), the spiral inside
+    # it, its top two floors up (the cap room on the core), the balcony round it
+    body, balcony = tower_squares()
     ring, core = spiral_squares()
-    for y in range(dy0, dy1 + 1):
-        for x in range(dx0, dx1 + 1):
-            g.ground(x, y, "NI Tower Base", keep=True)
-    for x, y in core:
-        g.ground(x, y, "NI Tower Base", keep=True)
-    for (x, y), k in ring.items():
-        levels[1].ground(x, y, "NI Spiral %d" % k, keep=True)
-        levels[2].ground(x, y, "NI Spiral %d" % k, keep=True)
-        if k == 0:
-            levels[3].ground(x, y, "NI Spiral 0", keep=True)
-    for x, y in core:
-        levels[3].ground(x, y, "NI Column", keep=True)
-    # paths: from the bridge head to the court and to the stair's foot
-    g.line([(147, 83.5), (160, 83.5), (160, 66.5), (167, 66.5)], 3, PATH)
-    g.line([(161, 85), (161, ay0)], 3, PATH)
-    # the top deck
     top = levels[3]
-    for y in range(dy0, dy1 + 1):
-        for x in range(dx0, dx1 + 1):
-            top.ground(x, y, "NI Tower Deck", keep=True)
-    # the Hall of Champions: the monument and a plinth for each board (build_nexus), its ring of
-    # slabs open to the stair's landing
-    hx, hy = CHAMPIONS
-    top.place(hx, hy, "Champions Monument")
-    for (dx, dy), board in bn.CHAMPION_STATUES:
-        top.place(hx + dx, hy + dy, "Champion Statue", name="name:%s" % board)
-    top.place(*LEADERBOARD, "Arena Leaderboard")
-    # the bar: its pavilion, the barman behind the counter, stools before it, its floor
+    for x, y in body:
+        if (x, y) in ring:
+            g.ground(x, y, "NI Spiral %d" % ring[(x, y)], keep=True)
+            levels[2].ground(x, y, "NI Spiral %d" % ring[(x, y)], keep=True)
+        elif (x, y) == DOOR:
+            g.ground(x, y, "NI Tower Floor", keep=True)
+        else:
+            g.ground(x, y, "NI Tower Base" if (x, y) in core else "NI Tower Wall", keep=True)
+        if (x, y) in core:
+            top.ground(x, y, "NI Tower Core", keep=True)
+        else:
+            top.ground(x, y, "NI Tower Doorway" if (x, y) == DOOR else "NI Tower Top", keep=True)
+    for x, y in balcony:
+        top.ground(x, y, "NI Balcony", keep=True)
+    top.place(TOWER[0], TOWER[1], "NI Tower Cap")
+    top.models.append(("NI Tower Cap", TOWER[0], TOWER[1]))
+    # paths: from the bridge head to the court and to the tower's door
+    g.line([(147, 84), (160, 84), (160, DOOR[1]), (DOOR[0] - 1, DOOR[1])], 3, PATH)
+    g.line([(161, 85), (161, ay0)], 3, PATH)
+    # on the balcony: the Hall of Champions' plinths round the tower (build_nexus's ring, open
+    # to the east where the bar is), its monument, the telescope; lanterns
+    tx, ty = TOWER
+    for (x, y), (_, board) in zip(plinths(), bn.CHAMPION_STATUES):
+        top.place(x, y, "Champion Statue", name="name:%s" % board)
+    top.place(*CHAMPIONS, "Champions Monument")
+    top.place(*round_spot(TELESCOPE_AT, PLINTH_R), "NI Telescope")
+    # the bar on the overhang: the barman behind the counter, stools before it, its floor
     bx, by = BAR
-    for x in range(bx - 4, bx + 5):
-        for y in range(by - 2, by + 5):
-            top.ground(x, y, "NI Bar Floor", keep=True)
     blockers = [(dx, 0) for dx in range(-3, 4) if dx] + [(-3, -1), (3, -1)] + [(dx, -2) for dx in range(-3, 4)]
     top.model("NI Bar", bx, by, blockers=blockers)
     top.put(*BARMAN, region="Nexus Barman")
-    stools = [(bx - 2, by + 1), (bx, by + 1), (bx + 2, by + 1)]
-    for x, y in stools:
-        top.place(x, y, "NI Bar Stool")
-    for y in range(by + 1, by + 5):
-        for x in range(bx - 4, bx + 5):
+    for x in (bx - 2, bx, bx + 2):
+        top.place(x, by + 1, "NI Bar Stool")
+    bx0, by0, bx1, by1 = BAR_DECK
+    for y in range(by + 1, by1):
+        for x in range(bx0 + 1, bx1 + 1):
             if top.empty(x, y) and top.has(x, y):
                 top.put(x, y, region="Nexus Bar")
-    # the lookout, and lanterns at the deck's corners
-    top.place(*TELESCOPE, "NI Telescope")
-    for x, y in ((dx0, dy1), (dx1, dy0), (dx0 + 4, dy0)):
+    for x, y in ((bx1, by1), (bx0 + 1, by1)):
         if top.empty(x, y):
             top.place(x, y, LANTERN)
-    return [(150, 83), (158, ay0 - 2), (166, 66), (ax0 + 6, ay1 + 2)]
+    return [(150, 83), (158, ay0 - 2), (DOOR[0] - 2, DOOR[1]), (ax0 + 6, ay1 + 2)]
 
 
 # --- the rims, trees and waypoints ---------------------------------------------------------------
@@ -642,7 +693,7 @@ def plant(g, rng, waypoints):
         forest = ground in (MOSS, PETALS)
         edge = near_rim(x, y, 5)
         r = rng.random()
-        chance = 0.3 if forest else 0.14 if edge else 0.04
+        chance = 0.42 if forest else 0.14 if edge else 0.04
         if r < chance and g.free(x, y, 1, GREEN) and not near_kept(x, y, 2) and not near_rim(x, y, 1):
             if forest:
                 tree = rng.choice([SAKURA, SAKURA, SAKURA, SAKURA, WEEPING, WEEPING, PINE, MAPLE, BAMBOO])
@@ -687,7 +738,6 @@ def build():
     points = {0: [], 1: [], 2: [], 3: []}
     points[1] += lay_spawn(levels[1])
     points[1] += lay_market(levels[1])
-    points[2] += lay_north(levels[2])
     points[0] += lay_portals(levels[0])
     points[1] += lay_arena(levels)
     # the bridges: the gaps they span cleared, a jetty at each end, the bridge between
@@ -742,20 +792,23 @@ def check(levels):
         for (x, y, h) in tiles:
             level = min(int(h / FLOOR + 1e-6), LEVELS - 1)
             assert levels[level][x, y]["ground"].startswith("NI "), (b[0], x, y)
-        _, axis, (c0, c1), (a0, a1), (h0, h1), _ = b
+        _, axis, (c0, c1), (a0, a1), (h0, h1), _, _ = b
         for a, h, away in ((a0, h0, -1 if a1 > a0 else 1), (a1, h1, 1 if a1 > a0 else -1)):
             g = levels[int(h / FLOOR + 1e-6)]
             for c in range(c0, c1 + 1):
                 x, y = (a + away, c) if axis == "x" else (c, a + away)
                 assert g.has(x, y), ("a bridge's end with no island", b[0], x, y)
-    # nothing floating: islands don't overlap each other's floors except the tower
+    # the forge court's pieces where players use them
+    market = levels[1]
+    for name in ("NG Divine Forge", "NG Enchanter", "NG Smith God"):
+        assert any(market[x, y]["obj"] == name for y in range(market.h) for x in range(market.w)), name
+    # nothing floating: islands don't overlap each other's floors but at the tower and its balcony
+    body, balcony = tower_squares()
     for y in range(SIZE[1]):
         for x in range(SIZE[0]):
             on = [n for n, g in enumerate(levels) if g.has(x, y)]
             if len(on) > 1:
-                dx0, dy0, dx1, dy1 = DECK_RECT
-                sx0, sy0 = SPIRAL
-                assert (dx0 <= x <= dx1 and dy0 <= y <= dy1) or (sx0 <= x < sx0 + 6 and sy0 <= y < sy0 + 6), ("floors overlap", x, y, on)
+                assert (x, y) in body or (x, y) in balcony, ("floors overlap", x, y, on)
 
 
 # --- the islands' art ------------------------------------------------------------------------------
@@ -804,7 +857,9 @@ def build_art():
     chars.h = 16
     models = garden.Sheet(model_art.TEX, 8)
     ground_xml, object_xml = [], []
-    for name, (painter, variants, tags, colour, face) in island_art.grounds().items():
+    for name, entry in island_art.grounds().items():
+        painter, variants, tags, colour, face = entry[:5]
+        face_variants = entry[5] if len(entry) > 5 else 2
         g = ET.Element("Ground", {"type": types.get("grounds", name), "id": name})
         cells = [s8.add(painter(i * 7 + 3)) for i in range(variants)]
         if len(cells) == 1:
@@ -815,7 +870,7 @@ def build_art():
                 texture(rt, SHEET8[0], c)
         if face:
             f = sub(g, "Face")
-            faces = [s8.add(face(i * 5 + 1)) for i in range(2)]
+            faces = [s8.add(face(i * 5 + 1)) for i in range(face_variants)]
             rt = sub(f, "RandomTexture")
             for c in faces:
                 texture(rt, SHEET8[0], c)
@@ -843,6 +898,13 @@ def build_art():
     scenery("NI Telescope", "Telescope", s16, SHEET16[0], s16.add(island_art.telescope()), shadow=60)
     # the bottle the barman throws: art for the throw only (ShowEffect), never on the map
     o = scenery("NI Thrown Sake", "Sake", s8, SHEET8[0], s8.add(island_art.thrown_sake()), block=False, shadow=0)
+    sub(o, "NoMiniMap")
+    # frogs on lily pads in the spawn's pond, their throats puffing now and then
+    frames = [s8.add(island_art.frog(f)) for f in range(2)]
+    o = scenery("NI Frog", "Frog", s8, SHEET8[0], frames[0], block=False, shadow=0)
+    anim = sub(o, "Animation", prob="1.0", period="2.5", periodJitter="2.0")
+    for c, t in ((frames[1], 0.35), (frames[0], 0.15), (frames[1], 0.3), (frames[0], 0.1)):
+        texture(sub(anim, "Frame", time=str(t)), SHEET8[0], c)
     sub(o, "NoMiniMap")
     # the barman: a character, but not an enemy, so pets and shots leave him be
     o = ET.Element("Object", {"type": types.get("objects", "NI Barman"), "id": "NI Barman"})
@@ -930,7 +992,8 @@ def main():
     dry = "--dry-run" in sys.argv
     if not dry:
         build_art()
-    model_art.MODELS.setdefault("NI Bar", island_art.MODELS["NI Bar"])
+    for name, model in island_art.MODELS.items():
+        model_art.MODELS.setdefault(name, model)
     levels = build()
     check(levels)
     for g in levels:
