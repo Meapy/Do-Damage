@@ -31,12 +31,13 @@ namespace WorldServer.core.commands
                 foreach (var rs in running)
                 {
                     var def = rs.Run.Def;
-                    var reached = data.Reached(def, rs.Total);
-                    var tier = reached == 0 ? "no tier yet" : $"{data.TierName(reached - 1)} reached";
+                    var stage = data.Stage(def, rs.Goal, rs.Total);
+                    var tier = stage == 0 ? "no tier yet" : $"{data.StageName(def, stage - 1)} reached";
                     var mine = CommunityGoals.ShareOf(player, rs);
-                    player.SendInfo($"  {def.Title}: {def.Describe()} [{rs.Total:N0}/{def.Goal:N0}, {tier}, {rs.Participants:N0} helping, you {mine:N0}]");
+                    var sized = rs.Goal == def.Goal ? "" : rs.Goal > def.Goal ? ", made harder" : ", made easier";
+                    player.SendInfo($"  {def.Title}: {def.Describe(rs.Goal)} [{rs.Total:N0}/{rs.Goal:N0}{sized}, {tier}, {rs.Participants:N0} helping, you {mine:N0}]");
                 }
-                player.SendInfo("Everyone who helps shares each tier's reward: claim them from the Warcaller by the Nexus spawn.");
+                player.SendInfo($"Everyone who helps shares each tier's reward, and each {data.BonusName} level past the goal: claim them from the Warcaller by the Nexus spawn.");
                 return true;
             }
         }

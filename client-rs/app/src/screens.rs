@@ -1996,7 +1996,7 @@ const SPIN_TIERS: [(&str, i32, [i32; 6], u32); 6] = [
 ];
 
 /// The prizes' rarities and their colours.
-const RARITIES: [(&str, u32); 6] = [
+pub(crate) const RARITIES: [(&str, u32); 6] = [
     ("Common", color::TEXT_DIM),
     ("Uncommon", color::GOOD),
     ("Rare", 0x4FA3FF),
@@ -2006,7 +2006,7 @@ const RARITIES: [(&str, u32); 6] = [
     ("Divine", 0xFFFFFF),
 ];
 
-fn rarity_color(rarity: i32) -> u32 {
+pub(crate) fn rarity_color(rarity: i32) -> u32 {
     RARITIES.get(rarity as usize).map_or(color::TEXT_DIM, |r| r.1)
 }
 

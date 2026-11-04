@@ -84,15 +84,19 @@ namespace WorldServer.core.community
         {
             var data = CommunityGoals.Data;
             var def = rs.Run.Def;
-            var reached = data.Reached(def, rs.Total);
-            if (reached >= data.Tiers(def))
-                return $"\"{def.Title}\" is done: {rs.Total:N0} of {def.Goal:N0}! Glory to all {rs.Participants:N0} who fought for it!";
-            var next = data.Threshold(def, reached);
+            var goal = rs.Goal;
+            var stage = data.Stage(def, goal, rs.Total);
+            var next = data.NextAt(def, goal, stage);
+            if (next < 0)
+                return $"\"{def.Title}\": {rs.Total:N0} of {goal:N0}, every {data.BonusName} level taken! Songs will be sung of all {rs.Participants:N0} of you!";
             var left = next - rs.Total;
+            var nextName = data.StageName(def, stage);
+            if (stage >= data.Tiers(def))
+                return $"\"{def.Title}\" is done, {rs.Total * 100 / Math.Max(1, goal)}% and rising! {left:N0} more for {nextName}. Don't stop now!";
             var cry = rs.Participants == 0
                 ? "Who will be first to answer the call?"
                 : $"{rs.Participants:N0} have answered the call.";
-            return $"\"{def.Title}\": {rs.Total:N0} of {def.Goal:N0}! {left:N0} more for {data.TierName(reached)}. {cry}";
+            return $"\"{def.Title}\": {rs.Total:N0} of {goal:N0}! {left:N0} more for {nextName}. {cry}";
         }
 
         private static string Greeting(Player player)
@@ -109,7 +113,7 @@ namespace WorldServer.core.community
                     : $"{player.Name}! The realm's victories are yours too: {waiting} rewards wait. Claim them!";
             var rs = running.FirstOrDefault(r => CommunityGoals.ShareOf(player, r) == 0);
             if (rs != null)
-                return $"{player.Name}, the realm needs you: {rs.Run.Def.Describe()} Do your part and share the spoils!";
+                return $"{player.Name}, the realm needs you: {rs.Run.Def.Describe(rs.Goal)} Do your part and share the spoils!";
             var left = EndsIn(running[0]);
             return $"Well fought, {player.Name}! You've done your part in every goal this week. {left}";
         }

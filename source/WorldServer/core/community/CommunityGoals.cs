@@ -25,7 +25,14 @@ namespace WorldServer.core.community
     // a goal's total over a tier's line says so to its players. Claims check and record in Redis
     // before paying, so a tier is never paid twice, whichever server is asked.
     //
+    // Each run's goal is fixed the first time a server sees it: the goal as written times the
+    // goal's scale (`community:scale`, goal id to scale). When a week's run ends, the first server
+    // to see it so settles it once, moving the scale by how far the realm got (NextScale), so the
+    // goal's next run is harder after a week that sailed past it and easier after one that fell
+    // short.
+    //
     // Redis, for a run (CommunityRun.Key, "<goal>@<yyyyMMdd>"): `community:<run>` holds its total,
+    // its goal and whether it's settled,
     // `community:<run>:who` each account's share (a sorted set), `community:<run>:claimed` the
     // claims ("<account>:<tier>", 255 the top's prize). `community:week:<yyyyMMdd>` keeps the
     // week's goals as they were drawn, so changing the pool only changes the weeks to come.
@@ -53,10 +60,16 @@ namespace WorldServer.core.community
         private static readonly ConcurrentDictionary<(string, long), byte> Seen = new ConcurrentDictionary<(string, long), byte>();
         private static readonly ConcurrentDictionary<int, string> Names = new ConcurrentDictionary<int, string>();
         private static readonly ConcurrentDictionary<DateTime, List<string>> Weeks = new ConcurrentDictionary<DateTime, List<string>>();
+        // each run's goal, once fixed in Redis, and the runs settled (or found settled)
+        private static readonly ConcurrentDictionary<string, int> RunGoals = new ConcurrentDictionary<string, int>();
+        private static readonly ConcurrentDictionary<string, byte> Settled = new ConcurrentDictionary<string, byte>();
+        private const string ScaleKey = "community:scale";
 
         public sealed class RunState
         {
             public CommunityRun Run;
+            // this run's goal (the goal as written times its scale when it began)
+            public int Goal;
             public long Total;
             public long Participants;
             public List<(int Account, string Name, long Amount)> Top = new List<(int, string, long)>();
@@ -137,7 +150,8 @@ namespace WorldServer.core.community
             PendingTotals.AddOrUpdate(key, amount, (_, v) => v + amount);
         }
 
-        // Staff testing (/goaladmin reset): a run starts again from nothing.
+        // Staff testing (/goaladmin reset): a run starts again from nothing, its goal fixed again
+        // at the goal's scale now.
         public static void Reset(RunState rs)
         {
             var key = rs.Run.Key;
@@ -145,7 +159,23 @@ namespace WorldServer.core.community
             foreach (var k in PendingShares.Keys.Where(k => k.Run == key).ToList())
                 PendingShares.TryRemove(k, out _);
             _db.KeyDelete(new RedisKey[] { TotalKey(key), WhoKey(key), ClaimedKey(key) });
+            RunGoals.TryRemove(key, out _);
+            Settled.TryRemove(key, out _);
         }
+
+        // The goals' scales (1 for a goal never settled).
+        public static Dictionary<string, double> Scales()
+        {
+            var scales = new Dictionary<string, double>();
+            foreach (var e in _db.HashGetAll(ScaleKey))
+                if (double.TryParse(e.Value, System.Globalization.NumberStyles.Float, System.Globalization.CultureInfo.InvariantCulture, out var v) && v > 0)
+                    scales[e.Name] = v;
+            return scales;
+        }
+
+        // Staff testing (/goaladmin scale): a goal's runs from now on are `scale` times its goal.
+        public static void SetScale(string id, double scale) =>
+            _db.HashSet(ScaleKey, id, scale.ToString("0.####", System.Globalization.CultureInfo.InvariantCulture));
 
         // A week's goals: as drawn and kept when the week began, else drawn now and kept.
         private static List<string> WeekGoals(DateTime week)
@@ -193,9 +223,24 @@ namespace WorldServer.core.community
                 Seen.Clear();
                 var totals = Take(PendingTotals);
                 var shares = Take(PendingShares);
+                // runs not seen yet: their goal is fixed now, at the goal's scale, unless another
+                // server (or an earlier run of this one) already did
+                var unfixed = runs.Where(r => !RunGoals.ContainsKey(r.Key)).ToList();
+                var scales = unfixed.Count > 0 ? Scales() : new Dictionary<string, double>();
 
                 var batch = _db.CreateBatch();
                 var tasks = new List<Task>();
+                var fixing = new List<(CommunityRun Run, Task<bool> First, Task<RedisValue> Goal)>();
+                foreach (var run in unfixed)
+                {
+                    var goal = run.Special ? run.Def.Goal : CommunityData.GoalOf(run.Def, scales.TryGetValue(run.Def.Id, out var sc) ? sc : 1);
+                    var first = batch.HashSetAsync(TotalKey(run.Key), "goal", goal, When.NotExists);
+                    tasks.Add(first);
+                    tasks.Add(batch.KeyExpireAsync(TotalKey(run.Key), KeepFor(run)));
+                    var t = batch.HashGetAsync(TotalKey(run.Key), "goal");
+                    fixing.Add((run, first, t));
+                    tasks.Add(t);
+                }
                 var added = new List<(CommunityRun Run, long Delta, Task<long> After)>();
                 foreach (var (key, n) in totals)
                 {
@@ -223,12 +268,27 @@ namespace WorldServer.core.community
                 if (!Task.WaitAll(tasks.ToArray(), TimeSpan.FromSeconds(10)))
                     Log.Warn("Community goals: Redis was slow to answer");
 
+                foreach (var (run, first, goal) in fixing)
+                    if (goal.IsCompletedSuccessfully && goal.Result.TryParse(out int g) && g > 0)
+                    {
+                        RunGoals[run.Key] = g;
+                        // a run no server saw while it ran (one from before community goals, or
+                        // before a long stop) says nothing of the goal: it's never settled
+                        if (first.IsCompletedSuccessfully && first.Result && !run.Running(now))
+                        {
+                            _db.HashSet(TotalKey(run.Key), "settled", "unseen", When.NotExists);
+                            Settled[run.Key] = 0;
+                        }
+                        Log.Info($"Community goals: {run.Key} is {g:N0} ({run.Def.Goal:N0} as written)");
+                    }
+
                 var states = new List<RunState>();
                 foreach (var (run, total, count, top) in reads)
                 {
                     var rs = new RunState
                     {
                         Run = run,
+                        Goal = RunGoals.TryGetValue(run.Key, out var fixedGoal) ? fixedGoal : run.Def.Goal,
                         Total = total.IsCompletedSuccessfully && total.Result.TryParse(out long t) ? t : 0,
                         Participants = count.IsCompletedSuccessfully ? count.Result : 0,
                     };
@@ -244,7 +304,10 @@ namespace WorldServer.core.community
 
                 foreach (var (run, delta, after) in added)
                     if (after.IsCompletedSuccessfully)
-                        Crossed(run, after.Result - delta, after.Result);
+                        Crossed(states.First(st => st.Run == run), after.Result - delta, after.Result);
+                foreach (var rs in states)
+                    if (!rs.Run.Running(now) && !rs.Run.Special && RunGoals.ContainsKey(rs.Run.Key) && !Settled.ContainsKey(rs.Run.Key))
+                        Settle(rs);
                 // a new week: a server that was running last week says so
                 var weekly = _running.Where(r => !r.Run.Special).Select(r => r.Run.Key).ToList();
                 if (weekly.Count > 0 && before.Any(b => !b.Run.Special) && !before.Any(b => weekly.Contains(b.Run.Key)))
@@ -261,25 +324,62 @@ namespace WorldServer.core.community
             }
         }
 
-        // A total went from `from` to `to`: the highest tier it passed is announced (one line for
-        // a jump over several), here only (the other server's players hear it from theirs, if it
-        // was that one's add).
-        private static void Crossed(CommunityRun run, long from, long to)
+        // A total went from `from` to `to`: the highest tier or Overdrive level it passed is
+        // announced (one line for a jump over several), here only (the other server's players hear
+        // it from theirs, if it was that one's add).
+        private static void Crossed(RunState rs, long from, long to)
         {
-            var def = run.Def;
-            var had = Data.Reached(def, from);
-            var has = Data.Reached(def, to);
+            var def = rs.Run.Def;
+            var goal = rs.Goal;
+            var had = Data.Stage(def, goal, from);
+            var has = Data.Stage(def, goal, to);
             if (has <= had)
                 return;
-            var tier = has - 1;
-            var name = Data.TierName(tier);
-            Log.Info($"Community goals: {def.Id} reached tier {has} ({to}/{def.Goal})");
-            if (has == Data.Tiers(def))
+            var tiers = Data.Tiers(def);
+            var name = Data.StageName(def, has - 1);
+            Log.Info($"Community goals: {def.Id} reached {name} ({to}/{goal})");
+            if (has > tiers)
+            {
+                var pct = (int)(to * 100 / Math.Max(1, goal));
+                var last = has - tiers >= Data.BonusLevels(def);
+                Broadcast(CommunityNotice.TIER, $"{def.Title}: {name}!",
+                    last
+                        ? $"{to:N0} of {goal:N0}, {pct}%: the realm has gone as far as it goes! Everyone who helped can claim every bonus from the Warcaller."
+                        : $"{to:N0} of {goal:N0}, {pct}% and climbing! Everyone who helped can claim a bonus reward from the Warcaller.");
+            }
+            else if (has == tiers)
                 Broadcast(CommunityNotice.COMPLETE, $"{def.Title}: complete!",
-                    $"Together we did it: {to:N0} of {def.Goal:N0}! Everyone who helped can claim every reward from the Warcaller.");
+                    $"Together we did it: {to:N0} of {goal:N0}! Everyone who helped can claim every reward from the Warcaller. Keep going for {Data.BonusName}!");
             else
                 Broadcast(CommunityNotice.TIER, $"{def.Title}: {name} reached!",
-                    $"{to:N0} of {def.Goal:N0} so far. Everyone who helped can claim {(has - had > 1 ? "its rewards" : $"the {name} reward")} from the Warcaller.");
+                    $"{to:N0} of {goal:N0} so far. Everyone who helped can claim {(has - had > 1 ? "its rewards" : $"the {name} reward")} from the Warcaller.");
+        }
+
+        // A week's run has ended: the first server to see it so moves the goal's scale by how far
+        // the realm got, once.
+        private static void Settle(RunState rs)
+        {
+            var run = rs.Run;
+            try
+            {
+                if (!_db.HashSet(TotalKey(run.Key), "settled", rs.Total, When.NotExists))
+                {
+                    Settled[run.Key] = 0;
+                    return;
+                }
+                var id = run.Def.Id;
+                var scales = Scales();
+                var old = scales.TryGetValue(id, out var sc) ? sc : 1;
+                var next = Data.NextScale(old, rs.Total, rs.Goal);
+                SetScale(id, next);
+                Settled[run.Key] = 0;
+                Log.Info($"Community goals: {run.Key} ended at {rs.Total:N0} of {rs.Goal:N0}; {id}'s scale {old:0.###} -> {next:0.###} (next goal {CommunityData.GoalOf(run.Def, next):N0})");
+            }
+            catch (Exception e)
+            {
+                // tried again next refresh
+                Log.Warn($"Community goals: couldn't settle {run.Key}: {e.Message}");
+            }
         }
 
         // To everyone on this server: a popup for the clients that show them, a chat line for all.
@@ -336,7 +436,9 @@ namespace WorldServer.core.community
             var reads = runs.Select(rs =>
             {
                 var key = rs.Run.Key;
-                var tiers = Enumerable.Range(0, Data.Tiers(rs.Run.Def)).Append(CommunityData.TOP_TIER)
+                var tiers = Enumerable.Range(0, Data.Tiers(rs.Run.Def))
+                    .Concat(Enumerable.Range(CommunityData.BONUS_TIER, Data.BonusLevels(rs.Run.Def)))
+                    .Append(CommunityData.TOP_TIER)
                     .Select(t => (Tier: t, Task: batch.SetContainsAsync(ClaimedKey(key), ClaimId(account, t)))).ToList();
                 return (Key: key, Score: batch.SortedSetScoreAsync(WhoKey(key), account), Rank: batch.SortedSetRankAsync(WhoKey(key), account, Order.Descending), Tiers: tiers);
             }).ToList();
@@ -375,14 +477,20 @@ namespace WorldServer.core.community
             var def = rs.Run.Def;
             if (me.Share < Math.Max(1, def.Minimum))
                 return list;
-            var total = rs.Total + (PendingTotals.TryGetValue(rs.Run.Key, out var p) ? p : 0);
-            for (var t = 0; t < Data.Reached(def, total); t++)
+            var total = TotalOf(rs);
+            for (var t = 0; t < Data.Reached(def, rs.Goal, total); t++)
                 if (!me.Claimed.Contains(t))
                     list.Add((rs, t));
+            for (var k = 0; k < Data.BonusReached(def, rs.Goal, total); k++)
+                if (!me.Claimed.Contains(CommunityData.BONUS_TIER + k))
+                    list.Add((rs, CommunityData.BONUS_TIER + k));
             if (!rs.Run.Running(now) && def.Top.Count > 0 && me.Rank > 0 && me.Rank <= Data.TopCount && !me.Claimed.Contains(CommunityData.TOP_TIER))
                 list.Add((rs, CommunityData.TOP_TIER));
             return list;
         }
+
+        // A run's total with what's counted here and not sent yet.
+        public static long TotalOf(RunState rs) => rs.Total + (PendingTotals.TryGetValue(rs.Run.Key, out var p) ? p : 0);
 
         // How many rewards wait for the player in all (the Warcaller's greeting).
         public static int WaitingFor(Player player)
@@ -425,23 +533,26 @@ namespace WorldServer.core.community
                 Now = QuestPeriods.Unix(now),
                 WeekEndsAt = QuestPeriods.Unix(CommunityData.WeekStart(now).AddDays(7)),
                 TierNames = Enumerable.Range(0, Data.TierShares.Length).Select(Data.TierName).ToList(),
+                BonusName = Data.BonusName,
+                Rarities = Data.Rarities.ToList(),
             };
             foreach (var rs in runs)
             {
                 var def = rs.Run.Def;
                 var me = mine.TryGetValue(rs.Run.Key, out var m) ? m : (0, 0, new HashSet<int>());
-                var total = rs.Total + (PendingTotals.TryGetValue(rs.Run.Key, out var p) ? p : 0);
+                var total = TotalOf(rs);
                 var info = new CommunityGoalInfo
                 {
                     Key = rs.Run.Key,
                     Title = def.Title,
-                    Text = def.Describe(),
+                    Text = def.Describe(rs.Goal),
                     Icon = def.Icon != null && types.TryGetValue(def.Icon, out var icon) ? icon : (ushort)0,
                     Special = rs.Run.Special,
                     StartsAt = QuestPeriods.Unix(rs.Run.Start),
                     EndsAt = QuestPeriods.Unix(rs.Run.End),
                     Running = rs.Run.Running(now),
-                    Goal = def.Goal,
+                    Goal = rs.Goal,
+                    BaseGoal = def.Goal,
                     Total = (int)Math.Min(total, int.MaxValue),
                     Participants = (int)Math.Min(rs.Participants, int.MaxValue),
                     Minimum = Math.Max(1, def.Minimum),
@@ -453,23 +564,51 @@ namespace WorldServer.core.community
                     Top = rs.Top.Select(t => (t.Name, (int)Math.Min(t.Amount, int.MaxValue))).ToList(),
                 };
                 for (var t = 0; t < Data.Tiers(def); t++)
-                    info.Tiers.Add(new CommunityTierInfo { At = Data.Threshold(def, t), Claimed = me.Claimed.Contains(t), Rewards = Rewards(def.Tiers[t], types) });
+                    info.Tiers.Add(new CommunityTierInfo { At = Data.Threshold(rs.Goal, t), Claimed = me.Claimed.Contains(t), Rewards = Rewards(def.Tiers[t], types) });
+                var bonus = Rewards(def.Bonus, types);
+                for (var k = 1; k <= Data.BonusLevels(def); k++)
+                    info.Bonus.Add(new CommunityTierInfo { At = Data.BonusThreshold(rs.Goal, k), Claimed = me.Claimed.Contains(CommunityData.BONUS_TIER + k - 1), Rewards = bonus });
+                var best = Data.Odds(def, Math.Max(1, Data.BonusTiers)).ToDictionary(o => o.Entry, o => o.Chance);
+                foreach (var (e, chance) in Data.Odds(def, 0))
+                    if (types.TryGetValue(e.Item, out var item))
+                        info.Loot.Add(new CommunityLootInfo
+                        {
+                            Item = item,
+                            Count = (byte)Math.Clamp(e.Count, 1, 255),
+                            Rarity = (byte)Data.RarityOf(e),
+                            Chance = PerTenThousand(chance),
+                            Best = PerTenThousand(best.TryGetValue(e, out var b) ? b : chance),
+                        });
                 msg.Goals.Add(info);
             }
             client.SendPacket(msg);
         }
 
+        private static ushort PerTenThousand(double chance) => (ushort)Math.Clamp((int)Math.Round(chance * 10000), chance > 0 ? 1 : 0, 10000);
+
+        // As the window shows them: fame (0), an item (1), or rolls of the goal's loot (2).
         private static List<QuestReward> Rewards(IEnumerable<RewardDef> defs, IDictionary<string, ushort> types) => defs
-            .Select(r => r.Item == null
+            .Select(r => r.Roll > 0
+                ? new QuestReward { Kind = 2, Amount = r.Roll }
+                : r.Item == null
                 ? new QuestReward { Kind = 0, Amount = r.Fame }
                 : new QuestReward { Kind = 1, Item = types.TryGetValue(r.Item, out var t) ? t : (ushort)0, Amount = Math.Max(1, r.Count) })
-            .Where(r => r.Kind == 0 || r.Item != 0)
+            .Where(r => r.Kind != 1 || r.Item != 0)
             .ToList();
 
         public const byte CLAIM_ALL = 254;
+        // every Overdrive level a goal has waiting
+        public const byte CLAIM_BONUS = 253;
 
-        // A claim from the window: a tier of a run, its top's prize, or everything waiting
-        // (CLAIM_ALL, with no run for every goal). Each is recorded in Redis before it's paid.
+        private static string ClaimName(CommunityGoalDef def, int tier) =>
+            tier == CommunityData.TOP_TIER ? $"{def.Title} (top {Data.TopCount})"
+            : tier >= CommunityData.BONUS_TIER ? $"{def.Title} ({Data.BonusLevelName(tier - CommunityData.BONUS_TIER + 1)})"
+            : $"{def.Title} ({Data.TierName(tier)})";
+
+        // A claim from the window: a tier of a run, an Overdrive level (or all it has waiting,
+        // CLAIM_BONUS), its top's prize, or everything waiting (CLAIM_ALL, with no run for every
+        // goal). Each is recorded in Redis
+        // before it's paid; loot is rolled as it's paid, and a rare enough roll is told to all.
         public static void Claim(Player player, string key, byte tier)
         {
             var client = player.Client;
@@ -498,7 +637,7 @@ namespace WorldServer.core.community
             }
             var mine = Mine(player.AccountId, runs);
             var wanted = runs.SelectMany(rs => Claimable(rs, mine[rs.Run.Key], now))
-                .Where(c => tier == CLAIM_ALL || c.Tier == tier)
+                .Where(c => tier == CLAIM_ALL || c.Tier == tier || tier == CLAIM_BONUS && c.Tier >= CommunityData.BONUS_TIER && c.Tier < CommunityData.TOP_TIER)
                 .ToList();
             if (wanted.Count == 0)
             {
@@ -512,6 +651,7 @@ namespace WorldServer.core.community
             }
             var rewards = new List<RewardDef>();
             var names = new List<string>();
+            var rolled = new List<(CommunityGoalDef Def, LootEntry Entry)>();
             foreach (var (rs, t) in wanted)
             {
                 // the claim is kept first: only one claim of it ever pays
@@ -519,8 +659,11 @@ namespace WorldServer.core.community
                     continue;
                 _db.KeyExpire(ClaimedKey(rs.Run.Key), KeepFor(rs.Run));
                 var def = rs.Run.Def;
-                rewards.AddRange(t == CommunityData.TOP_TIER ? def.Top : def.Tiers[t]);
-                names.Add(t == CommunityData.TOP_TIER ? $"{def.Title} (top {Data.TopCount})" : $"{def.Title} ({Data.TierName(t)})");
+                var (defs, level) = Data.ClaimRewards(def, t);
+                var rolls = new List<LootEntry>();
+                rewards.AddRange(Data.Resolve(def, defs, level, Random.Shared, rolls));
+                rolled.AddRange(rolls.Select(e => (def, e)));
+                names.Add(ClaimName(def, t));
             }
             if (names.Count > 0)
             {
@@ -529,11 +672,19 @@ namespace WorldServer.core.community
                 var fame = rewards.Sum(r => r.Fame);
                 var items = rewards.Where(r => r.Item != null).Sum(r => Math.Max(1, r.Count));
                 var paid = string.Join(" and ", new[] { fame > 0 ? $"{fame:N0} fame" : null, items > 0 ? $"{items} item{(items == 1 ? "" : "s")}" : null }.Where(p => p != null));
-                Answer(true, names.Count == 1 ? $"{names[0]}: {paid}." : $"{names.Count} rewards: {paid}.");
+                // the best roll, by name, for the player; the rarest ones for everyone
+                var top = rolled.OrderByDescending(r => Data.RarityOf(r.Entry)).Select(r => r.Entry).FirstOrDefault();
+                var bestText = top != null && Data.RarityOf(top) >= 2 ? $" Best roll: {top} ({Capital(Data.Rarities[Data.RarityOf(top)])})!" : "";
+                Answer(true, (names.Count == 1 ? $"{names[0]}: {paid}." : $"{names.Count} rewards: {paid}.") + bestText);
+                foreach (var (def, e) in rolled.Where(r => Data.Announced(r.Entry)))
+                    Broadcast(CommunityNotice.LOOT, $"{player.Name} struck it lucky!",
+                        $"{Capital(Data.Rarities[Data.RarityOf(e)])} loot from \"{def.Title}\": {e}!");
             }
             else
                 Answer(false, "Already claimed.");
             SendData(player);
         }
+
+        private static string Capital(string s) => string.IsNullOrEmpty(s) ? s : char.ToUpperInvariant(s[0]) + s.Substring(1);
     }
 }

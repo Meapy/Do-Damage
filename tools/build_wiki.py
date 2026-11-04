@@ -525,6 +525,9 @@ class Gen:
     def gen_community_tiers(self, used):
         return self.community.tiers()
 
+    def gen_community_loot(self, used):
+        return self.community.loot()
+
     def gen_tier_tables(self, used):
         return self.balance.tier_tables(used)
 

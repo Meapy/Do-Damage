@@ -7,7 +7,8 @@ using Xunit;
 
 namespace Tests
 {
-    // CommunityData's rules: the weekly draw, the runs open at a time, tiers, and the real data file
+    // CommunityData's rules: the weekly draw, the runs open at a time, tiers and Overdrive, loot
+    // rolls, how a goal is resized after a run, and the real data file
     // (resources/data/community.json, copied beside the tests by the Shared project).
     public class CommunityDataTests
     {
@@ -22,14 +23,22 @@ namespace Tests
         {
             Assert.Empty(Data.Validate(_ => true));
             Assert.True(Data.Goals.Count >= Data.Slots * 2);
-            // every goal has a tier for each share, and a top prize, its own or the default
+            // every goal has its own tier for each share, Overdrive rewards, a top prize and loot
+            // with a rare enough prize to tell everyone of
             foreach (var g in Data.Goals)
             {
                 Assert.Equal(Data.TierShares.Length, Data.Tiers(g));
-                Assert.NotEmpty(g.Top);
+                Assert.NotSame(Data.DefaultTiers, g.Tiers);
+                Assert.NotSame(Data.DefaultBonus, g.Bonus);
+                Assert.NotSame(Data.DefaultTop, g.Top);
+                Assert.True(g.Loot.Count >= 8, g.Id);
+                Assert.Contains(g.Loot, e => Data.Announced(e));
                 Assert.True(g.Minimum >= 1, g.Id);
                 Assert.NotNull(g.Icon);
             }
+            // no two goals give the same top prize's item
+            var prizes = Data.Goals.Select(g => string.Join(",", g.Top.Where(r => r.Item != null).Select(r => r.Item))).ToList();
+            Assert.Equal(prizes.Count, prizes.Distinct().Count());
         }
 
         [Fact]
@@ -101,15 +110,100 @@ namespace Tests
         {
             var oryx = Data.Goal("oryx");
             Assert.Equal(15, oryx.Goal);
-            Assert.Equal(new[] { 4, 8, 12, 15 }, Enumerable.Range(0, 4).Select(t => Data.Threshold(oryx, t)));
-            Assert.Equal(0, Data.Reached(oryx, 3));
-            Assert.Equal(1, Data.Reached(oryx, 4));
-            Assert.Equal(3, Data.Reached(oryx, 14));
-            Assert.Equal(4, Data.Reached(oryx, 999));
+            Assert.Equal(new[] { 4, 8, 12, 15 }, Enumerable.Range(0, 4).Select(t => Data.Threshold(15, t)));
+            Assert.Equal(0, Data.Reached(oryx, 15, 3));
+            Assert.Equal(1, Data.Reached(oryx, 15, 4));
+            Assert.Equal(3, Data.Reached(oryx, 15, 14));
+            Assert.Equal(4, Data.Reached(oryx, 15, 999));
+            // a run made harder moves every tier with it
+            Assert.Equal(new[] { 5, 10, 15, 20 }, Enumerable.Range(0, 4).Select(t => Data.Threshold(20, t)));
+            Assert.Equal(3, Data.Reached(oryx, 20, 15));
             // what counts: any form of Oryx, not another boss
             Assert.True(oryx.Counts(new QuestEvent(QuestEvents.Kill) { Oryx = true, Boss = true }));
             Assert.False(oryx.Counts(new QuestEvent(QuestEvents.Kill) { Boss = true }));
             Assert.Equal("Defeat Oryx the Mad God 15 times as a realm, in any of his forms.", oryx.Describe());
+            Assert.Equal("Defeat Oryx the Mad God 20 times as a realm, in any of his forms.", oryx.Describe(20));
+        }
+
+        [Fact]
+        public void OverdriveGoesPastTheGoal()
+        {
+            var oryx = Data.Goal("oryx");
+            Assert.Equal(8, Data.BonusLevels(oryx));
+            // a quarter of the goal more each: 19, 23, 27, 30 ... 45 for 300%
+            Assert.Equal(new[] { 19, 23, 27, 30, 34, 38, 42, 45 }, Enumerable.Range(1, 8).Select(k => Data.BonusThreshold(15, k)));
+            Assert.Equal(0, Data.BonusReached(oryx, 15, 18));
+            Assert.Equal(1, Data.BonusReached(oryx, 15, 19));
+            Assert.Equal(8, Data.BonusReached(oryx, 15, 10_000));
+            // the stages: four tiers, then the levels, and nothing past the last
+            Assert.Equal(4, Data.Stage(oryx, 15, 15));
+            Assert.Equal(6, Data.Stage(oryx, 15, 23));
+            Assert.Equal(19, Data.NextAt(oryx, 15, 4));
+            Assert.Equal(-1, Data.NextAt(oryx, 15, 12));
+            Assert.Equal("Blaze", Data.StageName(oryx, 2));
+            Assert.Equal("Overdrive III", Data.StageName(oryx, 6));
+            // a small goal's levels never share a total
+            var tiny = Enumerable.Range(1, 8).Select(k => Data.BonusThreshold(1, k)).ToList();
+            Assert.Equal(tiny.Count, tiny.Distinct().Count());
+            // claims: a level's rewards roll at that level, the top's at the highest
+            Assert.Equal(3, Data.ClaimRewards(oryx, CommunityData.BONUS_TIER + 2).Level);
+            Assert.Same(oryx.Bonus, Data.ClaimRewards(oryx, CommunityData.BONUS_TIER).Rewards);
+            Assert.Equal(8, Data.ClaimRewards(oryx, CommunityData.TOP_TIER).Level);
+            Assert.Equal(0, Data.ClaimRewards(oryx, 1).Level);
+        }
+
+        [Fact]
+        public void LootRollsByWeightAndOverdriveLiftsTheRare()
+        {
+            var oryx = Data.Goal("oryx");
+            var base0 = Data.Odds(oryx, 0);
+            Assert.Equal(1, base0.Sum(o => o.Chance), 6);
+            double Rare(int level) => Data.Odds(oryx, level).Where(o => Data.RarityOf(o.Entry) >= 2).Sum(o => o.Chance);
+            // each level makes the rare likelier
+            for (var k = 1; k <= 8; k++)
+                Assert.True(Rare(k) > Rare(k - 1), $"level {k}");
+            // rolls: each {"roll": n} becomes n items of the goal's loot; the rest is paid as written
+            var rng = new Random(7);
+            var rolled = new System.Collections.Generic.List<LootEntry>();
+            var paid = Data.Resolve(oryx, new[] { new RewardDef { Fame = 100 }, new RewardDef { Roll = 3 } }, 0, rng, rolled);
+            Assert.Equal(4, paid.Count);
+            Assert.Equal(100, paid[0].Fame);
+            Assert.Equal(3, rolled.Count);
+            Assert.All(paid.Skip(1), r => Assert.Contains(oryx.Loot, e => e.Item == r.Item));
+            // many rolls land close to the odds
+            var counts = Enumerable.Range(0, 20000).Select(_ => Data.Roll(oryx, 0, rng)).GroupBy(e => e).ToDictionary(g => g.Key, g => g.Count());
+            foreach (var (e, chance) in base0)
+                Assert.InRange((counts.TryGetValue(e, out var n) ? n : 0) / 20000.0, chance * 0.8 - 0.002, chance * 1.2 + 0.002);
+        }
+
+        [Fact]
+        public void GoalsGrowAfterAnEasyWeekAndShrinkAfterAHardOne()
+        {
+            var oryx = Data.Goal("oryx");
+            Assert.Equal(15, CommunityData.GoalOf(oryx, 1));
+            Assert.Equal(20, CommunityData.GoalOf(oryx, 1.333));
+            // round numbers: whole below 100, two digits above
+            Assert.Equal(1100, CommunityData.Nice(1130));
+            Assert.Equal(12000, CommunityData.Nice(11_960));
+            Assert.Equal(1, CommunityData.Nice(0.2));
+            // done right at the target: unchanged; well past it: harder; short of it: easier
+            Assert.Equal(1, Data.NextScale(1, 18, 15), 6);
+            Assert.True(Data.NextScale(1, 30, 15) > 1.2);
+            Assert.True(Data.NextScale(1, 9, 15) < 0.9);
+            // a step is held to a bound, and the scale to its range
+            Assert.Equal(Data.Adapt.MaxStep, Data.NextScale(1, 1000, 15), 6);
+            Assert.Equal(Data.Adapt.MinStep, Data.NextScale(1, 0, 15), 6);
+            Assert.Equal(Data.Adapt.MaxScale, Data.NextScale(Data.Adapt.MaxScale, 1000, 15), 6);
+            Assert.Equal(Data.Adapt.MinScale, Data.NextScale(Data.Adapt.MinScale, 0, 15), 6);
+            // weeks of the same result settle on a goal the realm ends near the target of
+            var scale = 1.0;
+            for (var w = 0; w < 30; w++)
+            {
+                var goal = CommunityData.GoalOf(oryx, scale);
+                scale = Data.NextScale(scale, 33, goal);
+            }
+            var settled = CommunityData.GoalOf(oryx, scale);
+            Assert.InRange(33.0 / settled, 1.05, 1.35);
         }
     }
 }

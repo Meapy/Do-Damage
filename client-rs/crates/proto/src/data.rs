@@ -152,7 +152,8 @@ wire_struct! {
 
 wire_struct! {
     /// A quest's, bonus's, daily reward's or achievement tier's reward (`QuestsData`): fame (kind
-    /// 0, `amount`) or an item (kind 1, its type and how many).
+    /// 0, `amount`) or an item (kind 1, its type and how many); a community goal's may also be
+    /// `amount` rolls of its loot (kind 2).
     #[derive(Copy)]
     pub struct QuestReward {
         pub kind: u8,
@@ -245,6 +246,20 @@ wire_struct! {
 }
 
 wire_struct! {
+    /// A line of a community goal's loot: the item, how many, its rarity (an index into
+    /// `CommunityData::rarities`), and its chance a roll in ten-thousandths, at a tier and at the
+    /// highest Overdrive level.
+    #[derive(Copy)]
+    pub struct CommunityLoot {
+        pub item: u16,
+        pub count: u8,
+        pub rarity: u8,
+        pub chance: u16,
+        pub best: u16,
+    }
+}
+
+wire_struct! {
     /// One of a community goal's top contributors, and how much they added.
     pub struct CommunityContributor {
         pub name: String,
@@ -254,10 +269,11 @@ wire_struct! {
 
 wire_struct! {
     /// A community goal running or ended lately (`CommunityData`): its run's key, what it is and
-    /// the object it shows (0: none), whether it's a special, its dates (Unix seconds), the
-    /// total, how many helped, the share that counts for its rewards, ours and our place (0:
-    /// none), its tiers, then how many make its top, the top's prize and whether we've claimed it,
-    /// and the top contributors.
+    /// the object it shows (0: none), whether it's a special, its dates (Unix seconds), this run's
+    /// goal and the goal as written (the server sizes each run by how the last went), the total,
+    /// how many helped, the share that counts for its rewards, ours and our place (0: none), its
+    /// tiers, its Overdrive levels past the goal, its loot, then how many make its top, the top's
+    /// prize and whether we've claimed it, and the top contributors.
     pub struct CommunityGoal {
         pub key: String,
         pub title: String,
@@ -268,12 +284,15 @@ wire_struct! {
         pub ends_at: i32,
         pub running: bool,
         pub goal: i32,
+        pub base_goal: i32,
         pub total: i32,
         pub participants: i32,
         pub minimum: i32,
         pub mine: i32,
         pub rank: i32,
         pub tiers: List8<CommunityTier>,
+        pub bonus: List8<CommunityTier>,
+        pub loot: List8<CommunityLoot>,
         pub top_count: u8,
         pub top_claimed: bool,
         pub top_rewards: List8<QuestReward>,

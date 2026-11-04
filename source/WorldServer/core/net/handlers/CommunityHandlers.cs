@@ -27,8 +27,8 @@ namespace WorldServer.core.net.handlers
         }
     }
 
-    // Claim a goal's tier (255 its top's prize, 254 all it has waiting); no key claims everything
-    // waiting on every goal. The server checks it all.
+    // Claim a goal's tier (100 on its Overdrive levels, 253 all those waiting, 255 its top's prize,
+    // 254 all it has waiting); no key claims everything waiting on every goal. The server checks it all.
     public class CommunityClaimHandler : IMessageHandler
     {
         public override MessageId MessageId => MessageId.COMMUNITY_CLAIM;

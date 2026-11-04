@@ -63,8 +63,10 @@ namespace Shared.quests
         public int Fame { get; set; }
         public string Item { get; set; }
         public int Count { get; set; } = 1;
+        // community goals only: this many rolls of the goal's loot table (CommunityData.Resolve)
+        public int Roll { get; set; }
 
-        public override string ToString() => Fame > 0 ? $"{Fame} fame" : Count > 1 ? $"{Count}x {Item}" : Item;
+        public override string ToString() => Fame > 0 ? $"{Fame} fame" : Roll > 0 ? $"{Roll} loot roll{(Roll == 1 ? "" : "s")}" : Count > 1 ? $"{Count}x {Item}" : Item;
     }
 
     // What an event must be to count (every condition set must hold).

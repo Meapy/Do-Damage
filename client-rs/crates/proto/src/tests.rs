@@ -427,25 +427,33 @@ fn community_messages_match_community_goals() {
     // CommunityRequestHandler reads nothing; CommunityClaimHandler the key, then the tier.
     assert_eq!(ClientMessage::from(CommunityRequest {}).to_frame(), B::default().frame(128));
     assert_eq!(ClientMessage::from(CommunityClaim { key: "oryx@20261019".into(), tier: 255 }).to_frame(), B::default().utf("oryx@20261019").u8(255).frame(130));
-    // CommunityDataMessage.Write: now, week end, a byte count of tier names, then a byte count of
-    // goals: key, title, text, icon, special, starts, ends, running, goal, total, participants,
-    // minimum, mine, rank, a byte count of tiers (at, claimed, rewards), the top's size, whether
-    // claimed, its rewards, and a byte count of contributors (name, amount).
+    // CommunityDataMessage.Write: now, week end, a byte count of tier names, the Overdrive name, a
+    // byte count of rarities, then a byte count of goals: key, title, text, icon, special,
+    // starts, ends, running, goal, goal as written, total, participants, minimum, mine, rank, a
+    // byte count of tiers (at, claimed, rewards), the same of Overdrive levels, a byte count of
+    // loot (item, count, rarity, chance, best), the top's size, whether claimed, its rewards, and
+    // a byte count of contributors (name, amount).
     let body = B::default()
         .i32(1_800_000_000).i32(1_800_300_000)
         .u8(2).utf("Spark").utf("Flame")
+        .utf("Overdrive").u8(2).utf("common").utf("rare")
         .u8(1)
         .utf("oryx@20261019").utf("Down with the Mad God").utf("Defeat Oryx.").i16(0x0932).u8(0).i32(10).i32(20).u8(1)
-        .i32(15).i32(9).i32(4).i32(1).i32(5).i32(2)
+        .i32(20).i32(15).i32(9).i32(4).i32(1).i32(5).i32(2)
         .u8(2).i32(4).u8(1).u8(1).u8(0).i16(0).i32(200).i32(8).u8(0).u8(0)
+        .u8(1).i32(25).u8(0).u8(1).u8(2).i16(0).i32(1)
+        .u8(1).i16(0x0b2c).u8(3).u8(1).i16(250).i16(900)
         .u8(3).u8(0).u8(1).u8(1).i16(0x0a1b).i32(1)
         .u8(1).utf("Tester").i32(7)
         .0;
     let ServerMessage::CommunityData(d) = ServerMessage::decode(129, &body).unwrap() else { panic!() };
     assert_eq!((d.now, d.week_ends_at, &*d.tier_names), (1_800_000_000, 1_800_300_000, &vec!["Spark".to_owned(), "Flame".to_owned()]));
+    assert_eq!((d.bonus_name.as_str(), d.rarities.len()), ("Overdrive", 2));
     let g = &d.goals[0];
     assert_eq!((g.key.as_str(), g.icon, g.special, g.running), ("oryx@20261019", 0x0932, false, true));
-    assert_eq!((g.goal, g.total, g.participants, g.minimum, g.mine, g.rank), (15, 9, 4, 1, 5, 2));
+    assert_eq!((g.goal, g.base_goal, g.total, g.participants, g.minimum, g.mine, g.rank), (20, 15, 9, 4, 1, 5, 2));
+    assert_eq!((g.bonus[0].at, g.bonus[0].claimed, g.bonus[0].rewards[0].kind, g.bonus[0].rewards[0].amount), (25, false, 2, 1));
+    assert_eq!((g.loot[0].item, g.loot[0].count, g.loot[0].rarity, g.loot[0].chance, g.loot[0].best), (0x0b2c, 3, 1, 250, 900));
     assert_eq!((g.tiers[0].at, g.tiers[0].claimed, g.tiers[0].rewards[0].amount), (4, true, 200));
     assert_eq!((g.tiers[1].at, g.tiers[1].claimed, g.tiers[1].rewards.len()), (8, false, 0));
     assert_eq!((g.top_count, g.top_claimed, g.top_rewards[0].item), (3, false, 0x0a1b));

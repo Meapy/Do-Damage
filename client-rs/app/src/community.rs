@@ -1,30 +1,38 @@
 //! Community goals (the world server's `CommunityGoals.cs`): what the whole server does together
 //! each week, such as defeating Oryx 15 times. Each goal has four tiers along the way; everyone
 //! who helped enough claims each tier the server reaches, and the top contributors claim a prize
-//! more once it ends. The Warcaller at the north point of the Nexus spawn opens the window.
+//! more once it ends. Past the goal come the Overdrive levels, each a bonus more; many rewards
+//! are rolls of the goal's own loot, luckier at each level. The server sizes each run by how the
+//! last went (a goal's `goal` against its `base_goal`). The Warcaller at the north point of the
+//! Nexus spawn opens the window.
 //!
 //! The client asks for the goals once in each world (`CommunityRequest`), so it can say when a
 //! reward waits, and every few seconds while the window is open, so the bars move as the realm
 //! plays. `CommunityNotice`s pop up as banners at the top of the view: a tier the server reached,
-//! a goal completed, the week's new goals. The server checks every claim (`CommunityClaim`).
+//! a goal completed, the week's new goals, someone's rare roll. The server checks every claim
+//! (`CommunityClaim`).
 
 use crate::hud::{Layout, SlotKind, Ui};
-use crate::quests::{card, check, countdown, done_chip, glow, inside, locked, reward_row, rewards_width, TIER_COLORS};
+use crate::quests::{card, check, countdown, done_chip, glow, inside, locked, reward_row, rewards_width, LOOT_ROLL, TIER_COLORS};
 use crate::theme::{self, color, Kind};
 use bsk_proto::{CommunityData, CommunityGoal};
 use bsk_world::GameObj;
 use std::collections::HashMap;
 use winit::keyboard::KeyCode;
 
-/// `CommunityClaim`'s tiers beyond the goal's own: the top's prize, and all a goal has waiting.
+/// `CommunityClaim`'s tiers beyond the goal's own: the top's prize, all a goal has waiting, all
+/// its Overdrive levels waiting, and the first level (the next are after it).
 pub const TOP: u8 = 255;
 pub const ALL: u8 = 254;
+pub const BONUS_ALL: u8 = 253;
+pub const BONUS: u8 = 100;
 
 /// `CommunityNotice` kinds.
 const CLAIMED: u8 = 0;
 const REFUSED: u8 = 1;
 const COMPLETE: u8 = 3;
 const NEW_WEEK: u8 = 4;
+const LOOT: u8 = 5;
 /// The client's own banner for a reward waiting (the server sends none).
 const WAITING: u8 = 200;
 
@@ -76,12 +84,14 @@ fn qualifies(g: &CommunityGoal) -> bool {
     g.mine >= g.minimum.max(1)
 }
 
-/// The tiers of a goal we can claim now, and the top's prize (`TOP`) if it's ours.
+/// The tiers of a goal we can claim now, its Overdrive levels (`BONUS` on), and the top's prize
+/// (`TOP`) if it's ours.
 pub fn claimable(g: &CommunityGoal) -> Vec<u8> {
     if !qualifies(g) {
         return Vec::new();
     }
     let mut out: Vec<u8> = g.tiers.iter().enumerate().filter(|(_, t)| g.total >= t.at && !t.claimed).map(|(i, _)| i as u8).collect();
+    out.extend(g.bonus.iter().enumerate().filter(|(_, b)| g.total >= b.at && !b.claimed).map(|(k, _)| BONUS + k as u8));
     if !g.running && g.rank > 0 && g.rank <= g.top_count as i32 && !g.top_claimed && !g.top_rewards.is_empty() {
         out.push(TOP);
     }
@@ -91,6 +101,94 @@ pub fn claimable(g: &CommunityGoal) -> Vec<u8> {
 /// Tiers the server has reached on a goal.
 fn reached(g: &CommunityGoal) -> usize {
     g.tiers.iter().take_while(|t| g.total >= t.at).count()
+}
+
+/// Overdrive levels the server has reached on a goal.
+fn bonus_reached(g: &CommunityGoal) -> usize {
+    g.bonus.iter().take_while(|b| g.total >= b.at).count()
+}
+
+/// How far the realm has got, in percent of the goal (past 100 in Overdrive).
+fn percent(g: &CommunityGoal) -> i64 {
+    g.total as i64 * 100 / g.goal.max(1) as i64
+}
+
+/// How much more each Overdrive level asks, in percent of the goal.
+fn bonus_step(g: &CommunityGoal) -> i64 {
+    g.bonus.last().map_or(25, |b| ((b.at as f64 / g.goal.max(1) as f64 - 1.0) * 100.0 / g.bonus.len() as f64).round() as i64)
+}
+
+/// Where the realm is along the Overdrive track, 0 at the goal to 1 at the last level, each
+/// level an equal part of it.
+fn overdrive_k(g: &CommunityGoal, shown: f32) -> f32 {
+    let n = g.bonus.len();
+    if n == 0 || shown <= g.goal as f32 {
+        return 0.0;
+    }
+    let mut prev = g.goal as f32;
+    for (i, b) in g.bonus.iter().enumerate() {
+        let at = b.at as f32;
+        if shown < at {
+            return (i as f32 + (shown - prev) / (at - prev).max(1.0)) / n as f32;
+        }
+        prev = at;
+    }
+    1.0
+}
+
+/// The run made harder or easier than the goal as written: its tag and colour.
+fn sizing(g: &CommunityGoal) -> Option<(String, u32)> {
+    if g.base_goal <= 0 || g.goal == g.base_goal {
+        return None;
+    }
+    let pct = ((g.goal as f64 / g.base_goal as f64 - 1.0) * 100.0).round() as i64;
+    match pct {
+        0 => None,
+        p if p > 0 => Some((format!("Harder +{p}%"), color::ACCENT_HI)),
+        p => Some((format!("Easier {p}%"), color::GOOD)),
+    }
+}
+
+/// A chance in ten-thousandths, as a player reads it: 12%, 2.5%, 0.4%.
+fn chance_text(c: u16) -> String {
+    let pct = c as f64 / 100.0;
+    if pct >= 10.0 {
+        format!("{}%", pct.round() as i64)
+    } else if pct >= 0.1 {
+        let t = format!("{pct:.1}");
+        format!("{}%", t.strip_suffix(".0").unwrap_or(&t))
+    } else {
+        "<0.1%".to_owned()
+    }
+}
+
+fn roman(n: usize) -> String {
+    if n == 0 || n >= 40 {
+        return n.to_string();
+    }
+    let mut n = n;
+    let mut s = String::new();
+    for (v, r) in [(10, "X"), (9, "IX"), (5, "V"), (4, "IV"), (1, "I")] {
+        while n >= v {
+            s.push_str(r);
+            n -= v;
+        }
+    }
+    s
+}
+
+fn capital(s: &str) -> String {
+    let mut c = s.chars();
+    c.next().map_or(String::new(), |f| f.to_uppercase().collect::<String>() + c.as_str())
+}
+
+/// A quiet chip in place of a button, saying why there's nothing to press.
+fn note(ui: &mut Ui, r: [f32; 4], text: &str, rgb: u32, s: f32) {
+    let size = (11.0 * s).round().max(9.0);
+    let text = crate::npc::fit(ui, text, size, r[2] - 10.0 * s);
+    let w = ui.measure(&text, size, true);
+    theme::fill(ui.renderer, r, r[3] / 2.0, color::CHIP, 0.6);
+    ui.label(&text, r[0] + (r[2] - w) / 2.0, r[1] + (r[3] - size * 1.22) / 2.0, size, true, rgb);
 }
 
 /// The community goals window, and its banners.
@@ -116,6 +214,8 @@ pub struct Community {
     /// The rewards we said were waiting ("<key>:<tier>").
     said: Vec<String>,
     hover_item: Option<i32>,
+    /// A line for the foot about what the mouse is on (the loot's odds, the goal's size).
+    hint: Option<String>,
     now: i32,
 }
 
@@ -274,13 +374,14 @@ impl Community {
         self.now = now;
         self.hits.clear();
         self.hover_item = None;
+        self.hint = None;
         let dt = ((now - self.drawn).clamp(0, 200) as f32) / 1000.0;
         self.drawn = now;
         if !self.open {
             self.rect = None;
             return;
         }
-        let (dw, dh) = (900.0, 600.0);
+        let (dw, dh) = (1000.0, 680.0);
         let s = lay.s * (lay.view_w() * 0.96 / (dw * lay.s)).min(lay.h * 0.96 / (dh * lay.s)).min(1.0);
         let r = [((lay.view_w() - dw * s) / 2.0).round(), ((lay.h - dh * s) / 2.0).round(), dw * s, dh * s];
         self.rect = Some(r);
@@ -294,7 +395,7 @@ impl Community {
         theme::star(ui.renderer, r[0] + 34.0 * s, r[1] + 36.0 * s, 13.0 * s, color::GOLD);
         let ts = font(24.0);
         ui.label("Community Goals", r[0] + 56.0 * s, r[1] + 16.0 * s, ts, true, color::GOLD);
-        ui.label("The whole realm, one goal. Everyone who helps shares every tier it reaches.", r[0] + 56.0 * s, r[1] + 46.0 * s, font(12.0), false, color::TEXT_DIM);
+        ui.label("The whole realm, one goal. Everyone who helps shares every tier it reaches, and every level past it.", r[0] + 56.0 * s, r[1] + 46.0 * s, font(12.0), false, color::TEXT_DIM);
         let cb = [r[0] + r[2] - 44.0 * s, r[1] + 20.0 * s, 28.0 * s, 28.0 * s];
         if inside(cb, mouse) {
             theme::fill(ui.renderer, cb, 6.0 * s, 0xFFFFFF, 0.1);
@@ -348,11 +449,12 @@ impl Community {
             let tx = cr[0] + 54.0 * s;
             let title = crate::npc::fit(ui, &g.title, font(13.0), lw - 54.0 * s - if ready > 0 { 30.0 } else { 10.0 } * s);
             ui.label(&title, tx, cr[1] + 10.0 * s, font(13.0), true, if g.running { color::TEXT } else { color::TEXT_DIM });
-            let bar = [tx, cr[1] + 36.0 * s, lw - 54.0 * s - 46.0 * s, 8.0 * s];
+            let bar = [tx, cr[1] + 36.0 * s, lw - 54.0 * s - 52.0 * s, 8.0 * s];
             let shown = self.shown_total(g, dt);
             mini_bar(ui, bar, shown, g, s);
-            let pct = format!("{}%", ((g.total as f32 / g.goal.max(1) as f32) * 100.0).floor().min(100.0) as i32);
-            ui.label(&pct, bar[0] + bar[2] + 8.0 * s, bar[1] - 4.0 * s, font(11.0), true, if g.total >= g.goal { color::GOOD } else { color::TEXT_DIM });
+            let pct = format!("{}%", percent(g));
+            let pc = if bonus_reached(g) > 0 { color::GOLD } else if g.total >= g.goal { color::GOOD } else { color::TEXT_DIM };
+            ui.label(&pct, bar[0] + bar[2] + 8.0 * s, bar[1] - 4.0 * s, font(11.0), true, pc);
             if ready > 0 {
                 let rd = 18.0 * s;
                 let br = [cr[0] + lw - rd - 8.0 * s, cr[1] + 8.0 * s, rd, rd];
@@ -371,7 +473,7 @@ impl Community {
         let Some(g) = d.goals.iter().find(|g| self.selected.as_ref() == Some(&g.key)).or(d.goals.first()).cloned() else { return };
         let px = body[0] + lw + 18.0 * s;
         let panel = [px, body[1], body[0] + body[2] - px, body[3]];
-        self.draw_goal(ui, panel, &g, &d.tier_names, s, mouse, now, dt);
+        self.draw_goal(ui, panel, &g, &d, s, mouse, now, dt);
 
         // The foot: the last word on a claim, or what rewards are; and Claim all.
         let foot_y = r[1] + r[3] - 40.0 * s;
@@ -383,29 +485,40 @@ impl Community {
             ui.button(ab, &format!("Claim all ({all})"), Kind::Primary, inside(ab, mouse), s);
             self.hits.push((Hit::All, ab));
         }
-        if let Some((m, err, _)) = &self.message {
-            ui.label(m, r[0] + 22.0 * s, foot_y, font(13.0), true, if *err { color::DANGER } else { color::GOOD });
+        let room = ab[0] - 16.0 * s - (r[0] + 22.0 * s);
+        if self.hover_item == Some(LOOT_ROLL) {
+            self.hint = Some("A roll of this goal's loot (Loot rolls, below): luckier at each Overdrive level, luckiest for the top.".into());
+        }
+        if let Some(h) = &self.hint {
+            let h = crate::npc::fit(ui, h, font(12.0), room);
+            ui.label(&h, r[0] + 22.0 * s, foot_y, font(12.0), true, color::GOLD);
+        } else if let Some((m, err, _)) = &self.message {
+            let m = crate::npc::fit(ui, m, font(13.0), room);
+            ui.label(&m, r[0] + 22.0 * s, foot_y, font(13.0), true, if *err { color::DANGER } else { color::GOOD });
         } else {
             let hint = "Rewards: fame to your account, items to the gift chest in your vault.";
             ui.label(hint, r[0] + 22.0 * s, foot_y, font(12.0), false, color::TEXT_MUTED);
         }
-        if let Some(item) = self.hover_item {
+        if let Some(item) = self.hover_item.filter(|&i| i >= 0) {
             let lines = crate::hud::item_tooltip(ui.data, item, me, SlotKind::Shop);
             crate::hud::draw_tooltip(ui, lay, &lines, Some(item), crate::screens::tier_edge(ui.data, item), mouse);
         }
     }
 
     #[allow(clippy::too_many_arguments)]
-    fn draw_goal(&mut self, ui: &mut Ui, p: [f32; 4], g: &CommunityGoal, tier_names: &[String], s: f32, mouse: (f64, f64), now: i32, dt: f32) {
+    fn draw_goal(&mut self, ui: &mut Ui, p: [f32; 4], g: &CommunityGoal, d: &CommunityData, s: f32, mouse: (f64, f64), now: i32, dt: f32) {
         let font = |size: f32| (size * s).round().max(9.0);
         let pulse = 0.5 + 0.5 * ((now as f32) / 260.0).sin();
         let done = g.total >= g.goal;
+        let levels = bonus_reached(g);
+        let bonus_name = if d.bonus_name.is_empty() { "Overdrive" } else { d.bonus_name.as_str() };
         theme::frame(ui.renderer, p, 10.0 * s, s.max(1.0), (color::BORDER_HI, 1.0), ((color::INSET_TOP, 0.95), (color::INSET_BOTTOM, 0.95)));
 
         // The hero: the goal's picture in a glow, what it is, and the count.
         let (ix, iy) = (p[0] + 52.0 * s, p[1] + 50.0 * s);
         let halo = 34.0 * s + pulse * 3.0 * s;
-        theme::fill(ui.renderer, [ix - halo, iy - halo, halo * 2.0, halo * 2.0], halo, if done { color::GOOD } else { color::ACCENT }, 0.10 + 0.06 * pulse);
+        let glow_c = if levels > 0 { color::GOLD } else if done { color::GOOD } else { color::ACCENT };
+        theme::fill(ui.renderer, [ix - halo, iy - halo, halo * 2.0, halo * 2.0], halo, glow_c, 0.10 + 0.06 * pulse + 0.02 * levels as f32);
         theme::fill(ui.renderer, [ix - 28.0 * s, iy - 28.0 * s, 56.0 * s, 56.0 * s], 28.0 * s, color::TRACK, 0.8);
         crate::hud::object_icon(ui, g.icon, ix, iy, 64.0 * s);
         let tx = p[0] + 100.0 * s;
@@ -416,9 +529,10 @@ impl Community {
         let ow = ui.measure(&of, font(15.0), true);
         let bw = ui.measure(&total, big, true);
         let right = p[0] + p[2] - 20.0 * s;
-        ui.label(&total, right - ow - bw, p[1] + 12.0 * s, big, true, if done { color::GOOD } else { color::GOLD });
+        ui.label(&total, right - ow - bw, p[1] + 12.0 * s, big, true, if levels > 0 { color::GOLD } else if done { color::GOOD } else { color::GOLD });
         ui.label(&of, right - ow, p[1] + 25.0 * s, font(15.0), true, color::TEXT_DIM);
         let helping = if g.participants == 1 { "1 helping".to_owned() } else { format!("{} helping", crate::hud::group_digits(g.participants)) };
+        let helping = format!("{helping} · {}%", percent(g));
         let hw = ui.measure(&helping, font(12.0), false);
         ui.label(&helping, right - hw, p[1] + 52.0 * s, font(12.0), false, color::TEXT_MUTED);
         // the title, its tags, the text, the time
@@ -427,16 +541,35 @@ impl Community {
         ui.label(&title, tx, p[1] + 14.0 * s, font(20.0), true, color::TEXT);
         let mut tag_x = tx;
         let tag_y = p[1] + 44.0 * s;
-        let tags: Vec<(&str, u32)> = [(g.special, ("Special", color::ACCENT)), (!g.running, ("Ended", color::TEXT_MUTED)), (done, ("Complete", color::GOOD))]
-            .into_iter()
-            .filter(|(on, _)| *on)
-            .map(|(_, t)| t)
-            .collect();
-        for (t, c) in tags {
-            let w = ui.measure(t, font(10.5), true) + 14.0 * s;
+        let level_tag = format!("{bonus_name} {}", roman(levels));
+        let sized = sizing(g);
+        let mut tags: Vec<(String, u32, bool)> = Vec::new();
+        if g.special {
+            tags.push(("Special".into(), color::ACCENT, false));
+        }
+        if !g.running {
+            tags.push(("Ended".into(), color::TEXT_MUTED, false));
+        }
+        if levels > 0 {
+            tags.push((level_tag, color::GOLD, false));
+        } else if done {
+            tags.push(("Complete".into(), color::GOOD, false));
+        }
+        if let Some((t, c)) = &sized {
+            tags.push((t.clone(), *c, true));
+        }
+        for (t, c, sizing_tag) in tags {
+            let w = ui.measure(&t, font(10.5), true) + 14.0 * s;
             let tr = [tag_x, tag_y, w, 18.0 * s];
             theme::fill(ui.renderer, tr, 9.0 * s, c, 0.22);
-            ui.label(t, tr[0] + 7.0 * s, tr[1] + (tr[3] - font(10.5) * 1.22) / 2.0, font(10.5), true, c);
+            ui.label(&t, tr[0] + 7.0 * s, tr[1] + (tr[3] - font(10.5) * 1.22) / 2.0, font(10.5), true, c);
+            if sizing_tag && inside(tr, mouse) {
+                self.hint = Some(if g.goal > g.base_goal {
+                    format!("The realm sailed past this goal last time, so it asks more: {} (it was {}).", crate::hud::group_digits(g.goal), crate::hud::group_digits(g.base_goal))
+                } else {
+                    format!("This goal was a struggle last time, so it asks less: {} (it was {}).", crate::hud::group_digits(g.goal), crate::hud::group_digits(g.base_goal))
+                });
+            }
             tag_x += w + 6.0 * s;
         }
         let when = if g.running {
@@ -444,15 +577,17 @@ impl Community {
         } else {
             "Its rewards can still be claimed for a while".to_owned()
         };
+        let when = crate::npc::fit(ui, &when, font(12.0), (right - tag_x).max(10.0 * s));
         ui.label(&when, tag_x, tag_y + 2.0 * s, font(12.0), true, color::TEXT_DIM);
         let text = crate::npc::fit(ui, &g.text, font(13.0), p[0] + p[2] - 20.0 * s - tx);
         ui.label(&text, tx, p[1] + 70.0 * s, font(13.0), false, color::TEXT_DIM);
 
-        // The bar, with each tier's marker on it.
+        // The bar, with each tier's marker on it, and the Overdrive track past the goal.
         let shown = self.shown_total(g, dt);
-        let bar = [p[0] + 24.0 * s, p[1] + 112.0 * s, p[2] - 48.0 * s, 24.0 * s];
+        let full = [p[0] + 24.0 * s, p[1] + 112.0 * s, p[2] - 48.0 * s, 24.0 * s];
+        let od_w = if g.bonus.is_empty() { 0.0 } else { (full[2] * 0.27).round() };
+        let bar = [full[0], full[1], full[2] - if od_w > 0.0 { od_w + 12.0 * s } else { 0.0 }, full[3]];
         big_bar(ui, bar, shown, g, now, s);
-        let n = g.tiers.len();
         for (t, tier) in g.tiers.iter().enumerate() {
             let k = (tier.at as f32 / g.goal.max(1) as f32).clamp(0.0, 1.0);
             let mx = bar[0] + bar[2] * k;
@@ -466,31 +601,51 @@ impl Community {
             let ax = (mx - aw / 2.0).min(bar[0] + bar[2] - aw).max(bar[0]);
             ui.label(&at, ax, bar[1] + bar[3] + 4.0 * s, font(10.5), true, if on { c } else { color::TEXT_MUTED });
         }
+        if od_w > 0.0 {
+            let od = [bar[0] + bar[2] + 12.0 * s, full[1], od_w, full[3]];
+            overdrive_bar(ui, od, shown, g, now, s);
+            let n = g.bonus.len();
+            for (k, b) in g.bonus.iter().enumerate() {
+                let mx = od[0] + od[2] * (k + 1) as f32 / n as f32;
+                let on = shown >= b.at as f32;
+                if k + 1 < n {
+                    ui.rect(mx - 0.5 * s, od[1] + 3.0 * s, (1.0 * s).max(1.0), od[3] - 6.0 * s, color::BACKGROUND, if on { 0.35 } else { 0.7 });
+                }
+                gem(ui, mx - od[2] / n as f32 / 2.0, od[1] - 7.0 * s, 4.0 * s, color::GOLD, on, pulse, s);
+            }
+            let label = format!("{} +{}%", bonus_name.to_uppercase(), bonus_step(g));
+            let lw = ui.measure(&label, font(9.5), true);
+            ui.label(&label, od[0], od[1] + od[3] + 4.0 * s, font(9.5), true, if levels > 0 { color::GOLD } else { color::TEXT_MUTED });
+            if let Some(last) = g.bonus.last() {
+                let end = format!("{}%", (last.at as i64 * 100 / g.goal.max(1) as i64));
+                let ew = ui.measure(&end, font(9.5), true);
+                if od[2] - lw - ew > 6.0 * s {
+                    ui.label(&end, od[0] + od[2] - ew, od[1] + od[3] + 4.0 * s, font(9.5), true, color::TEXT_MUTED);
+                }
+            }
+        }
 
-        // The tiers: what each gives, and claiming it.
+        // The tiers, and the Overdrive card: what each gives, and claiming it.
         let mine_ok = qualifies(g);
-        let ty = bar[1] + bar[3] + 26.0 * s;
+        let ty = full[1] + full[3] + 26.0 * s;
         let gap = 10.0 * s;
-        let cw = (bar[2] - gap * (n.max(1) - 1) as f32) / n.max(1) as f32;
+        let cols = g.tiers.len() + usize::from(!g.bonus.is_empty());
+        let cw = (full[2] - gap * (cols.max(1) - 1) as f32) / cols.max(1) as f32;
         let ch = 122.0 * s;
         for (t, tier) in g.tiers.iter().enumerate() {
-            let cr = [bar[0] + t as f32 * (cw + gap), ty, cw, ch];
+            let cr = [full[0] + t as f32 * (cw + gap), ty, cw, ch];
             let got = g.total >= tier.at;
             let ready = got && !tier.claimed && mine_ok;
             card(ui, cr, ready, tier.claimed, pulse, s);
             let c = tier_color(t);
             // a band of the tier's colour along the top
             theme::rounded(ui.renderer, [cr[0] + 1.0 * s, cr[1] + 1.0 * s, cr[2] - 2.0 * s, 26.0 * s], 7.0 * s, (c, if got { 0.32 } else { 0.10 }), (c, 0.0));
-            let name = tier_names.get(t).cloned().unwrap_or_else(|| format!("Tier {}", t + 1));
+            let name = d.tier_names.get(t).cloned().unwrap_or_else(|| format!("Tier {}", t + 1));
             ui.label(&name, cr[0] + 10.0 * s, cr[1] + 7.0 * s, font(13.0), true, if got { c } else { color::TEXT_DIM });
             let pct = format!("{}%", ((tier.at as f32 / g.goal.max(1) as f32) * 100.0).round() as i32);
             let pw = ui.measure(&pct, font(10.5), true);
             ui.label(&pct, cr[0] + cw - pw - 10.0 * s, cr[1] + 9.0 * s, font(10.5), true, color::TEXT_MUTED);
-            // the rewards, centred (smaller when they wouldn't fit)
-            let fit = (cw - 14.0 * s) / rewards_width(ui, &tier.rewards, s).max(1.0);
-            let k = s * fit.min(1.0);
-            let rw = rewards_width(ui, &tier.rewards, k);
-            reward_row(ui, &tier.rewards, cr[0] + (cw - rw) / 2.0 + 6.0 * k, cr[1] + 58.0 * s, k, mouse, tier.claimed, &mut self.hover_item);
+            self.card_rewards(ui, cr, &tier.rewards, s, mouse, tier.claimed);
             let bb = [cr[0] + 10.0 * s, cr[1] + ch - 38.0 * s, cw - 20.0 * s, 28.0 * s];
             if tier.claimed {
                 done_chip(ui, bb, "Claimed", s * 0.9);
@@ -500,10 +655,7 @@ impl Community {
                 self.hits.push((Hit::Tier(g.key.clone(), t as u8), bb));
             } else if got {
                 // reached, but we haven't helped enough
-                let l = "Help to claim";
-                let lw = ui.measure(l, font(11.0), true);
-                theme::fill(ui.renderer, bb, bb[3] / 2.0, color::CHIP, 0.6);
-                ui.label(l, bb[0] + (bb[2] - lw) / 2.0, bb[1] + (bb[3] - font(11.0) * 1.22) / 2.0, font(11.0), true, color::TEXT_DIM);
+                note(ui, bb, "Help to claim", color::TEXT_DIM, s);
             } else {
                 let left = format!("{} to go", crate::hud::group_digits(tier.at - g.total));
                 let lw = ui.measure(&left, font(11.0), true);
@@ -511,29 +663,71 @@ impl Community {
                 ui.label(&left, bb[0] + (bb[2] - lw) / 2.0 + 8.0 * s, bb[1] + (bb[3] - font(11.0) * 1.22) / 2.0, font(11.0), true, color::TEXT_MUTED);
             }
         }
+        if let Some(first) = g.bonus.first() {
+            let cr = [full[0] + g.tiers.len() as f32 * (cw + gap), ty, cw, ch];
+            let waiting = if mine_ok { g.bonus.iter().filter(|b| g.total >= b.at && !b.claimed).count() } else { 0 };
+            let all_claimed = levels > 0 && g.bonus.iter().take(levels).all(|b| b.claimed);
+            card(ui, cr, waiting > 0, all_claimed && levels == g.bonus.len(), pulse, s);
+            // a band of shimmering gold, brighter for each level reached
+            let shimmer = 0.5 + 0.5 * ((now as f32) / 420.0).sin();
+            let lit = if levels > 0 { 0.30 + 0.10 * shimmer } else { 0.10 };
+            theme::rounded(ui.renderer, [cr[0] + 1.0 * s, cr[1] + 1.0 * s, cr[2] - 2.0 * s, 26.0 * s], 7.0 * s, (color::GOLD, lit), (0xB86BFF, 0.0));
+            ui.label(bonus_name, cr[0] + 10.0 * s, cr[1] + 7.0 * s, font(13.0), true, if levels > 0 { color::GOLD } else { color::TEXT_DIM });
+            let count = format!("{}/{}", levels, g.bonus.len());
+            let cwid = ui.measure(&count, font(10.5), true);
+            ui.label(&count, cr[0] + cw - cwid - 10.0 * s, cr[1] + 9.0 * s, font(10.5), true, if levels > 0 { color::GOLD } else { color::TEXT_MUTED });
+            self.card_rewards(ui, cr, &first.rewards, s, mouse, all_claimed && levels == g.bonus.len());
+            if inside(cr, mouse) && self.hover_item.is_none() {
+                self.hint = Some(format!("Each {bonus_name} level, every {}% past the goal, pays this again to everyone who helped.", bonus_step(g)));
+            }
+            let bb = [cr[0] + 10.0 * s, cr[1] + ch - 38.0 * s, cw - 20.0 * s, 28.0 * s];
+            if waiting > 0 {
+                glow(ui, bb, pulse, s);
+                let label = if waiting == 1 { "Claim".to_owned() } else { format!("Claim x{waiting}") };
+                ui.button(bb, &label, Kind::Primary, inside(bb, mouse), s * 0.9);
+                self.hits.push((Hit::Tier(g.key.clone(), BONUS_ALL), bb));
+            } else if !done {
+                note(ui, bb, "Past the goal", color::TEXT_MUTED, s);
+            } else if levels > 0 && !mine_ok {
+                note(ui, bb, "Help to claim", color::TEXT_DIM, s);
+            } else if let Some(next) = g.bonus.get(levels) {
+                let left = format!("{} to go", crate::hud::group_digits(next.at - g.total));
+                if all_claimed {
+                    done_chip(ui, [bb[0], bb[1], bb[2], bb[3]], &left, s * 0.9);
+                } else {
+                    note(ui, bb, &left, color::TEXT_MUTED, s);
+                }
+            } else {
+                done_chip(ui, bb, "All claimed", s * 0.9);
+            }
+        }
 
-        // Our part, and the top contributors with their prize.
+        // Our part, the loot the rolls draw from, and the top contributors with their prize.
         let by = ty + ch + 14.0 * s;
         let bh = p[1] + p[3] - 14.0 * s - by;
-        let yw = (bar[2] - gap) * 0.42;
-        let yr = [bar[0], by, yw, bh];
+        let inner = full[2] - 2.0 * gap;
+        let (yw, lw) = ((inner * 0.27).round(), (inner * 0.37).round());
+        let yr = [full[0], by, yw, bh];
         theme::frame(ui.renderer, yr, 8.0 * s, s.max(1.0), (color::BORDER, 1.0), ((color::PANEL_TOP, 0.7), (color::PANEL_BOTTOM, 0.7)));
         ui.label("Your part", yr[0] + 14.0 * s, yr[1] + 10.0 * s, font(12.0), true, color::TEXT_MUTED);
         let mine = crate::hud::group_digits(g.mine);
         ui.label(&mine, yr[0] + 14.0 * s, yr[1] + 30.0 * s, font(26.0), true, if mine_ok { color::GOLD } else { color::TEXT });
-        let mw = ui.measure(&mine, font(26.0), true);
         if g.rank > 0 {
             let rank = format!("#{} of {}", g.rank, crate::hud::group_digits(g.participants));
-            ui.label(&rank, yr[0] + 22.0 * s + mw, yr[1] + 40.0 * s, font(13.0), true, color::TEXT_DIM);
+            ui.label(&rank, yr[0] + 14.0 * s, yr[1] + 66.0 * s, font(13.0), true, color::TEXT_DIM);
         }
-        let ly = yr[1] + 72.0 * s;
+        let ly = yr[1] + 94.0 * s;
         if mine_ok {
             check(ui, yr[0] + 20.0 * s, ly + 7.0 * s, 6.0 * s, s);
-            let l = crate::npc::fit(ui, "You share every tier reached.", font(12.0), yw - 44.0 * s);
+            let l = crate::npc::fit(ui, "You share it all.", font(12.0), yw - 44.0 * s);
             ui.label(&l, yr[0] + 32.0 * s, ly, font(12.0), true, color::GOOD);
+            let more = crate::npc::wrap(ui, "Every tier and level the realm reaches is yours to claim.", font(11.0), yw - 28.0 * s);
+            for (i, line) in more.iter().take(3).enumerate() {
+                ui.label(line, yr[0] + 14.0 * s, ly + 22.0 * s + i as f32 * font(11.0) * 1.3, font(11.0), false, color::TEXT_MUTED);
+            }
         } else {
             let need = g.minimum.max(1);
-            let l = if g.mine == 0 { format!("Add {} to share the rewards.", crate::hud::group_digits(need)) } else { format!("{} more to share the rewards.", crate::hud::group_digits(need - g.mine)) };
+            let l = if g.mine == 0 { format!("Add {} to share.", crate::hud::group_digits(need)) } else { format!("{} more to share.", crate::hud::group_digits(need - g.mine)) };
             let l = crate::npc::fit(ui, &l, font(12.0), yw - 28.0 * s);
             ui.label(&l, yr[0] + 14.0 * s, ly, font(12.0), true, color::ACCENT_HI);
             let mb = [yr[0] + 14.0 * s, ly + 22.0 * s, yw - 28.0 * s, 8.0 * s];
@@ -544,15 +738,18 @@ impl Community {
             }
         }
 
-        let tr = [bar[0] + yw + gap, by, bar[2] - yw - gap, bh];
+        let lr = [yr[0] + yw + gap, by, lw, bh];
+        self.draw_loot(ui, lr, g, d, s, mouse, pulse);
+
+        let tr = [lr[0] + lw + gap, by, full[0] + full[2] - lr[0] - lw - gap, bh];
         theme::frame(ui.renderer, tr, 8.0 * s, s.max(1.0), (color::BORDER, 1.0), ((color::PANEL_TOP, 0.7), (color::PANEL_BOTTOM, 0.7)));
         ui.label("Top contributors", tr[0] + 14.0 * s, tr[1] + 10.0 * s, font(12.0), true, color::TEXT_MUTED);
         let row_h = 19.0 * s;
         let podium = [TIER_COLORS[2], TIER_COLORS[1], TIER_COLORS[0]];
-        let list_w = tr[2] * 0.5;
+        let list_bottom = tr[1] + bh - 92.0 * s;
         for (i, c) in g.top.iter().enumerate() {
             let ry = tr[1] + 30.0 * s + i as f32 * row_h;
-            if ry + row_h > tr[1] + bh - 4.0 * s {
+            if ry + row_h > list_bottom {
                 break;
             }
             let mc = podium.get(i).copied().unwrap_or(color::BORDER_HI);
@@ -562,39 +759,105 @@ impl Community {
             let nw = ui.measure(&num, font(9.5), true);
             ui.label(&num, cx - nw / 2.0, cy - font(9.5) * 0.61, font(9.5), true, color::ACCENT_TEXT);
             let is_me = g.rank == i as i32 + 1;
-            let name = crate::npc::fit(ui, &c.name, font(12.0), list_w - 90.0 * s);
-            ui.label(&name, tr[0] + 36.0 * s, ry + 2.0 * s, font(12.0), true, if is_me { color::GOLD } else { color::TEXT });
             let amt = crate::hud::group_digits(c.amount);
             let aw = ui.measure(&amt, font(12.0), true);
-            ui.label(&amt, tr[0] + list_w - aw, ry + 2.0 * s, font(12.0), true, color::TEXT_DIM);
+            let name = crate::npc::fit(ui, &c.name, font(12.0), tr[2] - 60.0 * s - aw);
+            ui.label(&name, tr[0] + 36.0 * s, ry + 2.0 * s, font(12.0), true, if is_me { color::GOLD } else { color::TEXT });
+            ui.label(&amt, tr[0] + tr[2] - 14.0 * s - aw, ry + 2.0 * s, font(12.0), true, color::TEXT_DIM);
         }
         if g.top.is_empty() {
             ui.label("Nobody yet: be the first!", tr[0] + 14.0 * s, tr[1] + 32.0 * s, font(12.0), false, color::TEXT_MUTED);
         }
-        // the top's prize, beside the list
-        let zx = tr[0] + list_w + 16.0 * s;
-        let zw = tr[0] + tr[2] - 12.0 * s - zx;
+        // the top's prize, under the list
+        let zx = tr[0] + 12.0 * s;
+        let zw = tr[2] - 24.0 * s;
+        let zy = list_bottom + 2.0 * s;
+        theme::fill(ui.renderer, [zx, zy, zw, (1.0 * s).max(1.0)], 0.0, color::BORDER, 1.0);
         let head = format!("Top {} when it ends", g.top_count);
         let head = crate::npc::fit(ui, &head, font(11.0), zw - 18.0 * s);
-        ui.label(&head, zx, tr[1] + 10.0 * s, font(11.0), true, color::GOLD);
-        theme::star(ui.renderer, zx + zw - 8.0 * s, tr[1] + 16.0 * s, 6.0 * s, color::GOLD);
+        ui.label(&head, zx, zy + 6.0 * s, font(11.0), true, color::GOLD);
+        theme::star(ui.renderer, zx + zw - 6.0 * s, zy + 12.0 * s, 6.0 * s, color::GOLD);
         let fit = zw / rewards_width(ui, &g.top_rewards, s).max(1.0);
         let k = s * fit.min(1.0);
         let rw = rewards_width(ui, &g.top_rewards, k);
-        reward_row(ui, &g.top_rewards, zx + (zw - rw) / 2.0 + 6.0 * k, tr[1] + 50.0 * s, k, mouse, g.top_claimed, &mut self.hover_item);
-        let zb = [zx, tr[1] + bh - 40.0 * s, zw, 28.0 * s];
+        reward_row(ui, &g.top_rewards, zx + (zw - rw) / 2.0 + 6.0 * k, zy + 42.0 * s, k, mouse, g.top_claimed, &mut self.hover_item);
+        let zb = [zx, tr[1] + bh - 32.0 * s, zw, 24.0 * s];
         let ours = g.rank > 0 && g.rank <= g.top_count as i32 && mine_ok;
         if g.top_claimed {
-            done_chip(ui, zb, "Claimed", s * 0.9);
+            done_chip(ui, zb, "Claimed", s * 0.85);
         } else if !g.running && ours {
             glow(ui, zb, pulse, s);
-            ui.button(zb, "Claim", Kind::Primary, inside(zb, mouse), s * 0.9);
+            ui.button(zb, "Claim", Kind::Primary, inside(zb, mouse), s * 0.85);
             self.hits.push((Hit::Tier(g.key.clone(), TOP), zb));
         } else {
             let l = if g.running && ours { "You're in it: hold on!" } else if g.running { "Climb into the top" } else { "Not in the top this time" };
-            let l = crate::npc::fit(ui, l, font(11.0), zb[2] - 10.0 * s);
-            let lw = ui.measure(&l, font(11.0), true);
-            ui.label(&l, zb[0] + (zb[2] - lw) / 2.0, zb[1] + (zb[3] - font(11.0) * 1.22) / 2.0, font(11.0), true, if ours { color::GOOD } else { color::TEXT_MUTED });
+            note(ui, zb, l, if ours { color::GOOD } else { color::TEXT_MUTED }, s);
+        }
+    }
+
+    /// A tier card's rewards, centred under its band (smaller when they wouldn't fit).
+    fn card_rewards(&mut self, ui: &mut Ui, cr: [f32; 4], rewards: &[bsk_proto::QuestReward], s: f32, mouse: (f64, f64), dim: bool) {
+        let cw = cr[2];
+        let fit = (cw - 14.0 * s) / rewards_width(ui, rewards, s).max(1.0);
+        let k = s * fit.min(1.0);
+        let rw = rewards_width(ui, rewards, k);
+        reward_row(ui, rewards, cr[0] + (cw - rw) / 2.0 + 6.0 * k, cr[1] + 56.0 * s, k, mouse, dim, &mut self.hover_item);
+    }
+
+    /// The goal's loot: what its rolls draw from, rarest first, each edged in its rarity's colour
+    /// with its chance a roll. Hovering one says its odds in Overdrive.
+    #[allow(clippy::too_many_arguments)]
+    fn draw_loot(&mut self, ui: &mut Ui, r: [f32; 4], g: &CommunityGoal, d: &CommunityData, s: f32, mouse: (f64, f64), pulse: f32) {
+        let font = |size: f32| (size * s).round().max(9.0);
+        theme::frame(ui.renderer, r, 8.0 * s, s.max(1.0), (color::BORDER, 1.0), ((color::PANEL_TOP, 0.7), (color::PANEL_BOTTOM, 0.7)));
+        ui.label("Loot rolls", r[0] + 14.0 * s, r[1] + 10.0 * s, font(12.0), true, color::TEXT_MUTED);
+        let sub = "Overdrive rolls luckier";
+        let sw = ui.measure(sub, font(10.0), false);
+        if r[2] - sw > 110.0 * s {
+            ui.label(sub, r[0] + r[2] - 12.0 * s - sw, r[1] + 12.0 * s, font(10.0), false, color::GOLD);
+        }
+        if g.loot.is_empty() {
+            ui.label("No loot to roll on this goal.", r[0] + 14.0 * s, r[1] + 34.0 * s, font(12.0), false, color::TEXT_MUTED);
+            return;
+        }
+        let mut loot: Vec<&bsk_proto::CommunityLoot> = g.loot.iter().collect();
+        loot.sort_by(|a, b| b.rarity.cmp(&a.rarity).then(a.chance.cmp(&b.chance)));
+        let side = 30.0 * s;
+        let cell_w = side + 9.0 * s;
+        let cell_h = side + 17.0 * s;
+        let cols = (((r[2] - 20.0 * s) / cell_w).floor() as usize).max(1);
+        let x0 = r[0] + (r[2] - cols as f32 * cell_w + 9.0 * s) / 2.0;
+        let y0 = r[1] + 32.0 * s;
+        for (i, e) in loot.iter().enumerate() {
+            let (cx, cy) = (x0 + (i % cols) as f32 * cell_w, y0 + (i / cols) as f32 * cell_h);
+            if cy + cell_h > r[1] + r[3] - 2.0 * s {
+                break;
+            }
+            let sr = [cx, cy, side, side];
+            let rc = crate::screens::rarity_color(e.rarity as i32);
+            let over = inside(sr, mouse);
+            if e.rarity >= 4 {
+                // the rarest shine
+                let g2 = (1.5 + pulse * 2.0) * s;
+                theme::fill(ui.renderer, [sr[0] - g2, sr[1] - g2, side + 2.0 * g2, side + 2.0 * g2], 6.0 * s + g2, rc, 0.22);
+            }
+            ui.slot_box(sr, Some(rc), over, s);
+            ui.item_icon(e.item as i32, 60, sr[0] + side / 2.0, sr[1] + side / 2.0, s * 0.9);
+            if e.count > 1 {
+                let cs = font(10.0);
+                let t = e.count.to_string();
+                let tw = ui.measure(&t, cs, true);
+                ui.label(&t, sr[0] + side - tw - 2.0 * s, sr[1] + side - cs * 1.2, cs, true, color::TEXT);
+            }
+            let chance = chance_text(e.chance);
+            let cs = font(9.5);
+            let cw = ui.measure(&chance, cs, true);
+            ui.label(&chance, sr[0] + (side - cw) / 2.0, sr[1] + side + 2.0 * s, cs, true, rc);
+            if over {
+                self.hover_item = Some(e.item as i32);
+                let rarity = d.rarities.get(e.rarity as usize).map_or(String::new(), |n| capital(n));
+                self.hint = Some(format!("{rarity}: {} a roll at a tier, {} at {} {}.", chance_text(e.chance), chance_text(e.best), if d.bonus_name.is_empty() { "Overdrive" } else { &d.bonus_name }, roman(g.bonus.len())));
+            }
         }
     }
 
@@ -619,6 +882,7 @@ impl Community {
             let accent = match b.kind {
                 COMPLETE => color::GOOD,
                 NEW_WEEK => color::ACCENT,
+                LOOT => 0xB86BFF,
                 _ => color::GOLD,
             };
             theme::shadow(ui.renderer, r, 10.0 * s, 12.0 * s, 0.45 * fade);
@@ -664,6 +928,34 @@ fn mini_bar(ui: &mut Ui, r: [f32; 4], shown: f32, g: &CommunityGoal, s: f32) {
         let x = r[0] + r[2] * (t.at as f32 / g.goal.max(1) as f32).clamp(0.0, 1.0);
         ui.rect(x - 0.5 * s, r[1], (1.0 * s).max(1.0), r[3], color::BACKGROUND, 0.6);
     }
+    // in Overdrive, a band of gold creeps back over it
+    let od = overdrive_k(g, shown);
+    if od > 0.0 {
+        theme::rounded(ui.renderer, [r[0], r[1], (r[2] * od).max(r[3]), r[3] * 0.55], r[3] * 0.27, (color::GOLD, 0.95), (theme::shade(color::GOLD, -0.2), 0.95));
+    }
+}
+
+/// The Overdrive track past the goal: gold, with a quicker shine, filling level by level.
+fn overdrive_bar(ui: &mut Ui, r: [f32; 4], shown: f32, g: &CommunityGoal, now: i32, s: f32) {
+    let on = shown >= g.goal as f32;
+    theme::frame(ui.renderer, [r[0] - 2.0 * s, r[1] - 2.0 * s, r[2] + 4.0 * s, r[3] + 4.0 * s], r[3] / 2.0 + 2.0 * s, s.max(1.0), (if on { color::GOLD } else { color::BORDER_HI }, if on { 0.8 } else { 1.0 }), ((color::TRACK, 1.0), (color::TRACK, 1.0)));
+    let k = overdrive_k(g, shown);
+    if k <= 0.0 {
+        return;
+    }
+    let fw = (r[2] * k).max(r[3]);
+    theme::rounded(ui.renderer, [r[0], r[1], fw, r[3]], r[3] / 2.0, (theme::shade(color::GOLD, 0.35), 1.0), (0xB86BFF, 1.0));
+    theme::rounded(ui.renderer, [r[0] + 2.0 * s, r[1] + 2.0 * s, fw - 4.0 * s, r[3] * 0.4], r[3] * 0.2, (0xFFFFFF, 0.3), (0xFFFFFF, 0.05));
+    let band = 26.0 * s;
+    let t = (now.rem_euclid(1300) as f32) / 1300.0;
+    let bx = r[0] - band + (fw + band * 2.0) * t;
+    let x0 = bx.max(r[0] + 2.0 * s);
+    let x1 = (bx + band).min(r[0] + fw - 2.0 * s);
+    if x1 > x0 {
+        theme::fill(ui.renderer, [x0, r[1] + 2.0 * s, x1 - x0, r[3] - 4.0 * s], (r[3] - 4.0 * s) / 2.0, 0xFFFFFF, 0.28);
+    }
+    let ex = r[0] + fw;
+    theme::fill(ui.renderer, [ex - 5.0 * s, r[1] - 3.0 * s, 8.0 * s, r[3] + 6.0 * s], 4.0 * s, color::GOLD, 0.6);
 }
 
 /// The chosen goal's bar: it fills from ember to gold through the tiers it has passed (green
@@ -711,7 +1003,7 @@ fn gem(ui: &mut Ui, cx: f32, cy: f32, half: f32, rgb: u32, on: bool, pulse: f32,
 #[cfg(test)]
 mod tests {
     use super::*;
-    use bsk_proto::{CommunityContributor, CommunityTier, QuestReward};
+    use bsk_proto::{CommunityContributor, CommunityLoot, CommunityTier, QuestReward};
 
     fn goal(total: i32, mine: i32, claimed: &[bool], running: bool, rank: i32) -> CommunityGoal {
         CommunityGoal {
@@ -724,12 +1016,15 @@ mod tests {
             ends_at: 0,
             running,
             goal: 16,
+            base_goal: 16,
             total,
             participants: 3,
             minimum: 2,
             mine,
             rank,
             tiers: [4, 8, 12, 16].iter().zip(claimed).map(|(&at, &c)| CommunityTier { at, claimed: c, rewards: vec![QuestReward { kind: 0, item: 0, amount: 100 }].into() }).collect::<Vec<_>>().into(),
+            bonus: [20, 24, 28, 32].iter().map(|&at| CommunityTier { at, claimed: false, rewards: vec![QuestReward { kind: 2, item: 0, amount: 1 }].into() }).collect::<Vec<_>>().into(),
+            loot: vec![CommunityLoot { item: 0x0a1b, count: 1, rarity: 4, chance: 40, best: 90 }].into(),
             top_count: 3,
             top_claimed: false,
             top_rewards: vec![QuestReward { kind: 0, item: 0, amount: 1000 }].into(),
@@ -738,7 +1033,14 @@ mod tests {
     }
 
     fn data(goals: Vec<CommunityGoal>) -> CommunityData {
-        CommunityData { now: 1_800_000_000, week_ends_at: 1_800_300_000, tier_names: vec!["Spark".to_owned(); 4].into(), goals: goals.into() }
+        CommunityData {
+            now: 1_800_000_000,
+            week_ends_at: 1_800_300_000,
+            tier_names: vec!["Spark".to_owned(); 4].into(),
+            bonus_name: "Overdrive".into(),
+            rarities: vec!["common".to_owned(); 6].into(),
+            goals: goals.into(),
+        }
     }
 
     #[test]
@@ -752,6 +1054,28 @@ mod tests {
         // ended, but fourth
         assert_eq!(claimable(&goal(4, 5, &[false; 4], false, 4)), vec![0]);
         assert_eq!(reached(&goal(12, 0, &[false; 4], true, 0)), 3);
+    }
+
+    #[test]
+    fn overdrive_goes_past_the_goal() {
+        // all four tiers claimed, two levels reached past the goal: those two wait
+        let g = goal(25, 5, &[true; 4], true, 1);
+        assert_eq!(claimable(&g), vec![BONUS, BONUS + 1]);
+        assert_eq!((bonus_reached(&g), percent(&g), bonus_step(&g)), (2, 156, 25));
+        // the track: nothing at the goal, half way at the second level's line, full at the last
+        assert_eq!(overdrive_k(&g, 16.0), 0.0);
+        assert!((overdrive_k(&g, 24.0) - 0.5).abs() < 1e-6);
+        assert!((overdrive_k(&g, 22.0) - 0.375).abs() < 1e-6);
+        assert_eq!(overdrive_k(&g, 99.0), 1.0);
+        // a run sized by the last
+        let mut h = g.clone();
+        h.goal = 20;
+        assert_eq!(sizing(&h), Some(("Harder +25%".into(), color::ACCENT_HI)));
+        h.goal = 12;
+        assert_eq!(sizing(&h).map(|t| t.0), Some("Easier -25%".into()));
+        assert_eq!(sizing(&g), None);
+        assert_eq!((chance_text(1234), chance_text(250), chance_text(40), chance_text(5)), ("12%".into(), "2.5%".into(), "0.4%".into(), "<0.1%".into()));
+        assert_eq!((roman(3), roman(8)), ("III".into(), "VIII".into()));
     }
 
     #[test]

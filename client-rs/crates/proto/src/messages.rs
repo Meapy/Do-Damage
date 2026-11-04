@@ -238,11 +238,12 @@ messages! {
         // 254, whether it's a /summon (us to their world) instead (a 2.3.7 server leaves it out).
         127 => VisitRequest { id: i32, name: String, world: String, seconds: u8, summon: Option<bool> },
         // The community goals (after CommunityRequest and each claim): the server's time and when
-        // the week's goals end (Unix seconds), the tiers' names, and the goals running or ended
-        // lately.
-        129 => CommunityData { now: i32, week_ends_at: i32, tier_names: List8<String>, goals: List8<CommunityGoal> },
-        // A claim's answer (kind 0 paid, 1 refused) or a popup: a tier the server reached (2), a
-        // goal completed (3), the week's new goals (4).
+        // the week's goals end (Unix seconds), the tiers' names, the Overdrive levels' name, the
+        // loot's rarities, and the goals running or ended lately.
+        129 => CommunityData { now: i32, week_ends_at: i32, tier_names: List8<String>, bonus_name: String, rarities: List8<String>, goals: List8<CommunityGoal> },
+        // A claim's answer (kind 0 paid, 1 refused) or a popup: a tier or Overdrive level the
+        // server reached (2), a goal completed (3), the week's new goals (4), someone's rare loot
+        // (5).
         131 => CommunityNotice { kind: u8, title: String, text: String },
     }
 }
@@ -354,8 +355,9 @@ messages! {
         // Ask for CommunityData, and from then on CommunityNotices (an older server doesn't know
         // it: one unknown message per world).
         128 => CommunityRequest {},
-        // Claim a community goal's tier (255: its top's prize, 254: all it has waiting); no key
-        // claims everything waiting on every goal.
+        // Claim a community goal's tier (100 on: its Overdrive levels, 253: all those waiting,
+        // 255: its top's prize, 254: all it has waiting); no key claims everything waiting on
+        // every goal.
         130 => CommunityClaim { key: String, tier: u8 },
     }
 }

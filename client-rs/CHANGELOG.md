@@ -19,6 +19,11 @@ details). Add to a group's line when a change adds to it, rather than adding ano
   clearing 40 dungeons or earning 6,000 fame between you. Each has four tiers, Spark to Inferno,
   and everyone who helped claims every tier the realm reaches (fame, potions, keys and more), even
   while offline; the top 3 contributors claim a prize more when it ends.
+- Goals don't stop at 100%: every 25% past it is an Overdrive level, up to 300%, each a bonus
+  reward for everyone who helped. Each goal gives its own rewards and rolls its own loot table
+  (Oryx's incantations and Lil' Oryx pets, the dungeons' keys, the forge's shards and more), and
+  Overdrive rolls luckier. Goals resize themselves each time they come back: harder after a week
+  the realm sailed past, easier after one it fell short of.
 - Meet the Warcaller, the bannered knight at the north end of the Nexus spawn: he opens the
   Community Goals window, with live progress bars, your part and the top contributors. Banners
   and chat lines tell everyone when a tier is reached, and `/goals` shows it all in the chat.

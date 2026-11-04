@@ -859,6 +859,31 @@ pub(crate) fn reward_row(ui: &mut Ui, rewards: &[QuestReward], x: f32, cy: f32, 
             let t = crate::hud::group_digits(r.amount);
             let w = fame_text(ui, &t, x, (cy - ui.digit_middle(size, true)).round(), size, if dim { color::TEXT_MUTED } else { color::GOLD }, s);
             x += w + 12.0 * s;
+        } else if r.kind == 2 {
+            // rolls of a community goal's loot: a prize box edged in the rarer colours
+            let side = 34.0 * s;
+            let sr = [x, (cy - side / 2.0).round(), side, side];
+            let over = inside(sr, mouse);
+            ui.slot_box(sr, Some(0xB86BFF), over, s);
+            theme::rounded(ui.renderer, [sr[0] + 2.0 * s, sr[1] + 2.0 * s, side - 4.0 * s, side - 4.0 * s], 4.0 * s, (0xB86BFF, 0.35), (0x4FA3FF, 0.15));
+            theme::star(ui.renderer, sr[0] + side / 2.0, sr[1] + side / 2.0 - 2.0 * s, 8.0 * s, color::GOLD);
+            let qs = (10.0 * s).round().max(8.0);
+            let q = "?";
+            let qw = ui.measure(q, qs, true);
+            ui.label(q, sr[0] + (side - qw) / 2.0, sr[1] + side / 2.0 - qs * 0.62 - 2.0 * s, qs, true, color::ACCENT_TEXT);
+            if dim {
+                theme::fill(ui.renderer, sr, 5.0 * s, 0x000000, 0.45);
+            }
+            if r.amount > 1 {
+                let cs = (11.0 * s).round().max(9.0);
+                let t = format!("x{}", r.amount);
+                let tw = ui.measure(&t, cs, true);
+                ui.label(&t, sr[0] + side - tw - 3.0 * s, sr[1] + side - cs * 1.2, cs, true, color::TEXT);
+            }
+            if over {
+                *hover = Some(LOOT_ROLL);
+            }
+            x += side + 8.0 * s;
         } else {
             let side = 34.0 * s;
             let sr = [x, (cy - side / 2.0).round(), side, side];
@@ -882,6 +907,9 @@ pub(crate) fn reward_row(ui: &mut Ui, rewards: &[QuestReward], x: f32, cy: f32, 
     }
     x
 }
+
+/// What `reward_row` hovers for a roll of a community goal's loot (kind 2), in place of an item.
+pub(crate) const LOOT_ROLL: i32 = -2;
 
 /// How wide `reward_row` draws these rewards.
 pub(crate) fn rewards_width(ui: &mut Ui, rewards: &[QuestReward], s: f32) -> f32 {
