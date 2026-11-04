@@ -209,7 +209,7 @@ namespace WorldServer.core.objects
         // more comes back half the time, another a quarter of the time, and so on.
         public static readonly (int Fame, int Sure)[] DeathKeepTiers =
         {
-            (0, 0), (200, 1), (400, 2), (800, 3), (1500, 4), (3000, 5), (6000, 6), (10000, 8)
+            (0, 0), (400, 1), (800, 2), (1600, 3), (3000, 4), (6000, 5), (12000, 6), (20000, 8)
         };
 
         public static int DeathKeepSure(int baseFame) => DeathKeepTiers.Last(t => baseFame >= t.Fame).Sure;

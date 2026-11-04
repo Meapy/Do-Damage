@@ -261,14 +261,14 @@ those, one more comes back half the time, another a quarter of the time, and so 
 
 | Base fame | Items sure to come back |
 |---|---|
-| Under 200 | none (50% chance of one) |
-| 200 | 1 |
-| 400 | 2 |
-| 800 | 3 |
-| 1,500 | 4 |
-| 3,000 | 5 |
-| 6,000 | 6 |
-| 10,000 | 8 |
+| Under 400 | none (50% chance of one) |
+| 400 | 1 |
+| 800 | 2 |
+| 1,600 | 3 |
+| 3,000 | 4 |
+| 6,000 | 5 |
+| 12,000 | 6 |
+| 20,000 | 8 |
 
 The prize and the items go to your **gift chest**, in your vault. Imprints on returned items are
 lost. Deaths that don't count (the Arena, test worlds, a broken resurrection item) don't spin.

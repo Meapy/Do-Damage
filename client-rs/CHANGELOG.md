@@ -19,8 +19,8 @@ details). Add to a group's line when a change adds to it, rather than adding ano
   its tier (Bronze from 20 fame up to Mythic at 10,000) and its odds: stat potions, pets and gear
   at the bottom, Potions of Max, boss pets and Infernal potions higher up, and, rarely, white-bag
   items, the very best gear, Lil' Oryxes and Potions of Maxy.
-- Some of what you died with comes back too: a 50% chance of one item under 200 base fame, one
-  for sure from 200 and more the more fame, each extra item at half the chance of the one before.
+- Some of what you died with comes back too: a 50% chance of one item under 400 base fame, one
+  for sure from 400 and more the more fame, each extra item at half the chance of the one before.
   The prize and the items go to your Gift Chest (imprints on them are lost).
 
 ### Friends
