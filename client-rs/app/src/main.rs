@@ -8,6 +8,7 @@ mod champions;
 mod changelog;
 mod community;
 mod connected;
+mod crosshair;
 mod emotes;
 mod events;
 mod game;
@@ -2630,7 +2631,8 @@ impl App {
             && self.hud.drag.is_none()
             && !self.pings.wheel_open(mouse, lay.s, now);
         if crosshair {
-            draw_crosshair(renderer, mouse, lay.s);
+            let look = &self.settings.crosshair_look;
+            crosshair::draw(renderer, (mouse.0 as f32, mouse.1 as f32), lay.s.max(0.75) * look.size, look);
         }
         hide_pointer(&self.window, &mut self.cursor_hidden, crosshair, "game");
         if self.game_menu {
@@ -2751,29 +2753,6 @@ fn hide_pointer(window: &Option<Arc<Window>>, hidden: &mut bool, hide: bool, pla
             window.set_cursor_visible(!hide);
         }
     }
-}
-
-/// The crosshair at the mouse: four short arms around a gap and a dot in the accent colour, each
-/// edged in black so it shows on any ground. Whole pixels, so it stays sharp.
-fn draw_crosshair(renderer: &mut bsk_render::Renderer, mouse: (f64, f64), s: f32) {
-    let (cx, cy) = (mouse.0.round() as f32, mouse.1.round() as f32);
-    let u = s.max(0.75);
-    let (gap, len, t) = ((4.0 * u).round(), (7.0 * u).round(), (2.0 * u).round().max(2.0));
-    let half = (t / 2.0).floor();
-    let arms = [
-        [cx - gap - len, cy - half, len, t],
-        [cx + gap, cy - half, len, t],
-        [cx - half, cy - gap - len, t, len],
-        [cx - half, cy + gap, t, len],
-    ];
-    let dot = [cx - half, cy - half, t, t];
-    for r in arms.iter().chain([&dot]) {
-        renderer.fill(r[0] - 1.0, r[1] - 1.0, r[2] + 2.0, r[3] + 2.0, 0x000000, 0.75);
-    }
-    for r in arms {
-        renderer.fill(r[0], r[1], r[2], r[3], 0xFFFFFF, 0.95);
-    }
-    renderer.fill(dot[0], dot[1], dot[2], dot[3], theme::color::ACCENT, 1.0);
 }
 
 /// Where a test run's window opens: a scripted run (`--shot`, `--hold`, `--mouse-script`), or any
@@ -3376,7 +3355,7 @@ fn main() {
         npc_keys: Vec::new(),
         audio: None,
         settings: options::Settings::load(),
-        options_ui: Default::default(),
+        options_ui: options::OptionsUi::opened_at(text_arg("--options")),
         market: Default::default(),
         forge: Default::default(),
         events: Default::default(),

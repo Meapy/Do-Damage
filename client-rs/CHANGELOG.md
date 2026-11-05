@@ -22,6 +22,11 @@ details). Add to a group's line when a change adds to it, rather than adding ano
   button for the ping wheel to pick one. Options choose whose pings you see and whether they make a
   sound.
 
+### Crosshair
+- The crosshair comes in nine styles (Classic, Cross, Dot, Circle, Circle and dot, Plus,
+  Diagonal, Chevron, and your own), eight colours and sizes from 50% to 200%, on the new
+  Crosshair tab in Options. Draw your own there on a 15 by 15 grid: click or drag to fill squares.
+
 ### Abilities
 - Summoner: summons fire three times as fast (the Bunny, Snake, Wasp, Wolf, Wisp, Dragon and
   Oryx every second, was every 3 seconds; the Drake every 1.2 seconds, was 3.6).

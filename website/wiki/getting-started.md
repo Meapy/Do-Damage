@@ -82,7 +82,11 @@ Text boxes (chat, sign-in) copy, cut and paste with <kbd>Ctrl</kbd>+<kbd>C</kbd>
 see in the world: the crosshair, particles, shadows, health bars, damage numbers, and how much of
 other players and their pets you see, and the **Chat size** (50% to 150%: its text, width and
 height together). "Pets' shots" there switches between Normal, Subtle (the
-default: smaller, see-through shots) and Hidden. The **Graphics** tab has the world zoom, a frame
+default: smaller, see-through shots) and Hidden. The **Crosshair** tab picks the crosshair's
+style (Classic, Cross, Dot, Circle, Circle and dot, Plus, Diagonal, Chevron or your own), its
+colour and its size (50% to 200%), with a preview over dark and light ground. To make your own,
+click or drag on its 15 by 15 grid to fill or empty squares; **Clear** starts again from nothing,
+and **Defaults** puts back the Classic crosshair but keeps your drawing. The **Graphics** tab has the world zoom, a frame
 rate limit and, on the desktop, **Borderless fullscreen**: the window covers the screen it's on,
 with no border, and alt-tabbing out is instant. The game remembers it for the next time. It also
 has the world's look: **Glow on bright light** (a soft glow round lava, fire, lanterns and

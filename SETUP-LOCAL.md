@@ -580,6 +580,15 @@ The remotes `upstream` (HaloCelsius) and `aurusenth` share no history with `main
 
 ## Changes from upstream
 
+- **Crosshair styles and your own** (2026-11-05; the Rust client's `crosshair.rs`, `options.rs`
+  `Tab::Crosshair`). Options has a Crosshair tab: nine styles (`crosshairStyle`), eight colours
+  (`crosshairColour`, an index into `crosshair::COLOURS`), a size from 50% to 200%
+  (`crosshairSize`) and the player's own on a 15×15 grid (`crosshairCustom`, four hex digits a
+  row), painted by clicking or dragging. Every style is worked out pixel by pixel round the mouse
+  and drawn as runs along each row, edged in black. Client only; older clients keep the new lines
+  in the settings file as they were. The client's `--options <tab>` opens Options at a tab, for
+  screenshots.
+
 - **Pings** (2026-11-05; `PING_MARK` 134 / `PING_SHOW` 135, `Player.Pings.cs`, `PingMarkHandler`,
   `PingShow`; the Rust client's `pings.rs`, `options.rs` `PingsFrom`; the sounds from
   `tools/make_ping_sounds.py`, `resources/web/sfx/ping*.mp3`). The middle mouse button pings: a click
