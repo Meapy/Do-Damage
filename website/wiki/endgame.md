@@ -131,7 +131,8 @@ event, and isn't sold or dropped then; if you have one, keep it for the next.
     the arena, firing in at its middle, until his Last Judgement.
   - **Apotheosis** (20%): he turns gold. He chases without stopping, the Cross (now aimed at you)
     and the Hunt in turn.
-  - **Last Judgement** (10%): he goes to the middle and can't be hurt. Gates fill the corridor
+  - **Last Judgement** (10%): he goes to the middle and can't be hurt, and silences everyone in the
+    arena until he concedes: no abilities, only dodging. Gates fill the corridor
     between the arena and the Holy Gates (anyone hiding there is moved into the arena), lances
     sweep across the corridor's mouth from its walls, and the golden eyes in the arena's walls open,
     the Pillars of Heaven, firing bleeding, blighting and armour-breaking rays straight across it

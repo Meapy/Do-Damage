@@ -1,12 +1,12 @@
 """Draws the NPCs of the Nexus: the Tinkerer (quests), the Chronicler (daily rewards and
 achievements), the Market Broker (the Marketplace), the Herald (the server's week) and the
-Warcaller (community goals), two frames each.
+Warcaller (community goals) and the Pen Keeper (pet upgrades), two frames each.
 
     python tools/draw_quest_npcs.py [--preview <png>]
 
 Writes `QuestNpcs16x16.png` (client/src/kabam/rotmg/assets/custom/images), 16 by 16 pixels a
 cell: cells 0-1 the Tinkerer, 2-3 the Chronicler, 4-5 the Market Broker, 6-7 the Herald, 8-9 the
-Warcaller. The objects (`The Tinkerer`, `The Chronicler`, `Market Broker`, `The Herald`,
+Warcaller, 10-11 the Pen Keeper (the pet pen by the Arena court). The objects (`The Tinkerer`, `The Chronicler`, `Market Broker`, `The Herald`,
 `The Warcaller`, CustomObjects.xml) animate between their two. At Size 100 a 16-pixel cell draws at
 the same pixel size as the 8-pixel characters, so they stand a head taller than players. The art
 is drawn here rather than in an editor so it can be changed and redrawn; it needs Pillow.
@@ -50,6 +50,10 @@ PALETTE = {
     "n": (214, 222, 240),    # steel, lit
     "m": (150, 160, 186),    # steel
     "M": (92, 100, 128),     # steel in shade
+    "t": (232, 196, 106),    # straw
+    "T": (184, 146, 72),     # straw in shade
+    "q": (88, 146, 76),      # green vest
+    "Q": (58, 100, 54),      # green in shade
 }
 
 # The Tinkerer: a gnome tinker in a leather cap with brass goggles, an ember coat and a leather
@@ -261,6 +265,49 @@ WARCALLER = [
 ]
 
 
+# The Pen Keeper: a beastkeeper in a red-banded straw hat, a green vest over his shirt and leather
+# breeches, leaning on a shepherd's crook by the pet pen. Frame 2: he blinks, smiling, and a chick
+# hops onto his hat brim.
+PEN_KEEPER = [
+    [
+        "................",
+        ".....oooooo..hh.",
+        ".....ottttTo.h.h",
+        "...oottrrttToo.h",
+        "..otttttttttTToh",
+        "....okkkkkKo...h",
+        "....okekekKo...h",
+        "....okkkKkKo...h",
+        "...oqqkkkkqqo..h",
+        "..oqqHqqqqHqqokh",
+        "..oQqHqgqqHqQokh",
+        "..okQhhhhhhQoo.h",
+        "...oQqqqqqqQo..h",
+        "....oHHjHHjo...h",
+        "....ojjojjjo...h",
+        "....offoffo....o",
+    ],
+    [
+        "................",
+        ".....oooooo..hh.",
+        ".yy..ottttTo.h.h",
+        ".yGoottrrttToo.h",
+        "..otttttttttTToh",
+        "....okkkkkKo...h",
+        "....okKkKkKo...h",
+        "....okkkKkKo...h",
+        "...oqqkkkkqqo..h",
+        "..oqqHqqqqHqqokh",
+        "..oQqHqgqqHqQokh",
+        "..okQhhhhhhQoo.h",
+        "...oQqqqqqqQo..h",
+        "....oHHjHHjo...h",
+        "....ojjojjjo...h",
+        "....offoffo....o",
+    ],
+]
+
+
 def cell(rows):
     img = Image.new("RGBA", (CELL, CELL), (0, 0, 0, 0))
     assert len(rows) == CELL, len(rows)
@@ -273,7 +320,7 @@ def cell(rows):
 
 
 def main():
-    frames = TINKERER + CHRONICLER + BROKER + HERALD + WARCALLER
+    frames = TINKERER + CHRONICLER + BROKER + HERALD + WARCALLER + PEN_KEEPER
     sheet = Image.new("RGBA", (CELL * len(frames), CELL), (0, 0, 0, 0))
     for i, rows in enumerate(frames):
         sheet.paste(cell(rows), (i * CELL, 0))

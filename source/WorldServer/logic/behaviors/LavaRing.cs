@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using WorldServer.core.objects;
 using WorldServer.core.worlds;
 
@@ -7,8 +8,9 @@ namespace WorldServer.logic.behaviors
     // A round arena flooding from its rim inwards: on entering the state, the floor within `outer`
     // tiles of the host's spawn and further than `start` turns to `tileId`; then `steps` times over
     // `durationMs`, evenly, the edge moves in, until only the floor within `end` is left. Walls,
-    // and grounds nobody walks on, are left as they are. The lava stays when the state ends.
-    // Oryx 5's Last Judgement (BehaviorDb.Elysium.cs) leaves no safe corner this way.
+    // and grounds nobody walks on, are left as they are. When the state ends the floor comes back.
+    // Oryx 5's Last Judgement (BehaviorDb.Elysium.cs) leaves no safe corner this way, and once it's
+    // survived (the Concession) the temple is walkable again.
     internal class LavaRing : Behavior
     {
         private readonly string _tileId;
@@ -32,12 +34,32 @@ namespace WorldServer.logic.behaviors
         {
             public int Step;
             public int Elapsed;
+            // the squares turned to lava, and their ground before
+            public readonly List<(int X, int Y, ushort Ground)> Painted = new();
         }
 
         protected override void OnStateEntry(Entity host, TickTime time, ref object state)
         {
-            state = new Flood();
-            Paint(host, _start);
+            var f = new Flood();
+            state = f;
+            Paint(host, _start, f);
+        }
+
+        protected override void OnStateExit(Entity host, TickTime time, ref object state)
+        {
+            var map = host.World?.Map;
+            if (state is not Flood f || map == null)
+                return;
+            foreach (var (x, y, ground) in f.Painted)
+            {
+                var tile = map[x, y];
+                tile.TileId = ground;
+                tile.UpdateCount++;
+            }
+            f.Painted.Clear();
+            // players work out their tiles again only when they step onto another one
+            foreach (var player in host.World.Players.Values)
+                player.UpdateTiles();
         }
 
         protected override void TickCore(Entity host, TickTime time, ref object state)
@@ -48,11 +70,14 @@ namespace WorldServer.logic.behaviors
             if (f.Elapsed < (f.Step + 1) * _durationMs / _steps)
                 return;
             f.Step++;
-            Paint(host, _start - (_start - _end) * f.Step / _steps);
+            Paint(host, _start - (_start - _end) * f.Step / _steps, f);
         }
 
-        private void Paint(Entity host, double inner)
+        private void Paint(Entity host, double inner, Flood f)
         {
+            // only in the boss's own temple: never in an Arena game, whatever brings him there
+            if (WorldServer.logic.transitions.ArenaTransition.InArena(host))
+                return;
             var map = host.World?.Map;
             var data = host.GameServer.Resources.GameData;
             if (map == null || !data.IdToTileType.TryGetValue(_tileId, out var lava))
@@ -72,6 +97,7 @@ namespace WorldServer.logic.behaviors
                         continue;
                     if (tile.ObjType != 0 && tile.ObjDesc != null && tile.ObjDesc.FullOccupy)
                         continue;
+                    f.Painted.Add((x, y, tile.TileId));
                     tile.TileId = lava;
                     tile.UpdateCount++;
                 }

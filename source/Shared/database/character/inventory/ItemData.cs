@@ -21,6 +21,11 @@ namespace Shared.database.character.inventory
         [JsonProperty(NullValueHandling = NullValueHandling.Ignore)]
         public int[] Imprints { get; set; }
 
+        // a pet generator given back by the Pen Keeper or /removepet: the sizes the Pen Keeper raised
+        // the pet by (Player.PetPen.cs); left out when there are none
+        [JsonProperty(NullValueHandling = NullValueHandling.Ignore)]
+        public int? PetUpgrade { get; set; }
+
         public int Imprint(ImprintKind kind) => Imprints != null && (int)kind < Imprints.Length ? Imprints[(int)kind] : 0;
 
         public string GetData() => JsonConvert.SerializeObject(this);

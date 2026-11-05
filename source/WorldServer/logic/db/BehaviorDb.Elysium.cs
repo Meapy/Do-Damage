@@ -272,10 +272,13 @@ namespace WorldServer.logic
                         new ReturnToSpawn(1.5),
                         new Flash(0xFFFFE070, 0.3, 10),
                         new Taunt(true, "Ascended Host! Descend, and defend your god!") { Bubble = false },
-                        new TossObject("Ascended Officer", 7, 45, 90000000),
-                        new TossObject("Ascended Cleric", 7, 135, 90000000),
-                        new TossObject("Ascended Aristocrat", 7, 225, 90000000),
-                        new TossObject("Ascended Sergeant", 7, 315, 90000000),
+                        // fewer for a small party: one alone, two for two or three, all four for four
+                        // and more
+                        new ByPlayers(HostReach,
+                            (1, new TossObject("Ascended Officer", 7, 45, 90000000)),
+                            (2, new TossObject("Ascended Cleric", 7, 135, 90000000)),
+                            (4, new TossObject("Ascended Aristocrat", 7, 225, 90000000)),
+                            (4, new TossObject("Ascended Sergeant", 7, 315, 90000000))),
                         new TimedPatternTransition(4000, "J Cross", "J Firmament", "J Hunt")
                     ),
                     // ---- Judgement (80% to 60%): a pattern at random each time, never one a third time
@@ -344,10 +347,14 @@ namespace WorldServer.logic
                     // ---- Last Judgement (10%) ----
                     new State("Last Judgement",
                         new ConditionEffectBehavior(ConditionEffectIndex.Invulnerable),
+                        // the survival phase: no abilities until he concedes, everyone in the arena
+                        // silenced (a second at a time, renewed while it lasts)
+                        new ConditionAura(30, ConditionEffectIndex.Silenced, 1000, 500),
                         new Order(30, "Halo Orb", "Gone"),
                         // the rim (TEMPLE_R 16.5, its last 1.5 tiles white marble: tools/build_elysium.py)
-                        // turns to lava, then the lava comes in a sixth of the way every 5 s, to 9.5
-                        new LavaRing("Elysian Lava", 16.5, 15, 9.5, 6, 30000),
+                        // and a tile more turn to lava, then the lava comes in a sixth of the way
+                        // every 5 s, to 9.5; once he concedes, the floor comes back
+                        new LavaRing("Elysian Lava", 16.5, 14, 9.5, 6, 30000),
                         // the corridor between the arena and the Holy Gates (rows 17 to 19 below him),
                         // out of the Pillars' reach, fills with gates until the Concession: anyone
                         // sheltering there is moved into the arena
@@ -365,7 +372,9 @@ namespace WorldServer.logic
                         ),
                         // the spear, and the Radiant Cross as it began, drifting slowly out to crowd the
                         // arena: every second volley turned half a step (22.5 degrees), so its lines
-                        // fall between the last ones' and there's no standing still
+                        // fall between the last ones', and every volley a further SiegeTurn, so the
+                        // gaps move too: over eight volleys every angle is crossed (a gap just east of
+                        // north stayed safe the whole time before)
                         new State("LJ Siege",
                             // the corridor's mouth (rows 14 to 16 below him, behind the lowest Pillars):
                             // lances straight across it from the walls, a side and its rows in turn
@@ -373,10 +382,10 @@ namespace WorldServer.logic
                                 new[] { (-4, 14, 0.0), (-4, 16, 0.0), (4, 15, 180.0) },
                                 new[] { (4, 14, 180.0), (4, 16, 180.0), (-4, 15, 0.0) }),
                             new Shoot(25, projectileIndex: 7, predictive: 0.4, coolDown: 2800, coolDownOffset: 1500),
-                            new ShootFormation(25, 4, Lanes, 8, fixedAngle: 0, coolDown: 2600),
-                            new ShootFormation(25, 4, Arrowhead, 9, fixedAngle: 45, coolDown: 2600),
-                            new ShootFormation(25, 4, Lanes, 8, fixedAngle: 22.5, coolDown: 2600, coolDownOffset: 1300),
-                            new ShootFormation(25, 4, Arrowhead, 9, fixedAngle: 67.5, coolDown: 2600, coolDownOffset: 1300),
+                            new ShootFormation(25, 4, Lanes, 8, fixedAngle: 0, rotateAngle: SiegeTurn, coolDown: 2600),
+                            new ShootFormation(25, 4, Arrowhead, 9, fixedAngle: 45, rotateAngle: SiegeTurn, coolDown: 2600),
+                            new ShootFormation(25, 4, Lanes, 8, fixedAngle: 22.5, rotateAngle: SiegeTurn, coolDown: 2600, coolDownOffset: 1300),
+                            new ShootFormation(25, 4, Arrowhead, 9, fixedAngle: 67.5, rotateAngle: SiegeTurn, coolDown: 2600, coolDownOffset: 1300),
                             new TimedTransition(30000, "Concession")
                         )
                     ),
@@ -626,8 +635,13 @@ namespace WorldServer.logic
         // ---- Oryx the Ascended God's patterns ----
         private const int CrossTime = 8000;
         private const double CrossTurn = 15;
+        // the Last Judgement's volleys: each a little further round than the last (a quarter of the
+        // 45 degrees between a lane and an arrowhead)
+        private const double SiegeTurn = 11.25;
         private const int StarLife = 12000;
         private const int HuntLeg = 10000;
+        // the players counted for the size of his Host (ByPlayers): those in the temple
+        private const double HostReach = 30;
         // the Radiant Cross: twin lances side by side, and arrowheads pointing outward
         private static readonly double[] Lanes = { 0, -0.55, 0, 0.55 };
         private static readonly double[] Arrowhead = { 0.7, 0, 0, -0.5, 0, 0.5, -0.7, -1.0, -0.7, 1.0 };
@@ -690,8 +704,9 @@ namespace WorldServer.logic
             }.Concat(transcended
                 ? new IStateChildren[] { new ConditionAura(20, ConditionEffectIndex.Slowed, 1200, 1000) }
                 : new IStateChildren[0]).ToArray();
+            // one of the two for a player alone
             IStateChildren[] Rise() => minions
-                ? new IStateChildren[] { new Spawn("Ascended Noble", 1, 1), new Spawn("Ascended Cardinal", 1, 1) }
+                ? new IStateChildren[] { new ByPlayers(HostReach, (1, new Spawn("Ascended Noble", 1, 1)), (2, new Spawn("Ascended Cardinal", 1, 1))) }
                 : new IStateChildren[0];
 
             return new State(name,

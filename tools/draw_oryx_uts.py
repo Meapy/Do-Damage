@@ -17,7 +17,8 @@ tools/gen_rs_manifest.py registers for the Rust client), 8 by 8 pixels a cell in
 - the five Lil' Oryx generators (tools/port_doomed.py LIL_ORYXES, TEXTURE_OVERRIDES): Doomed Realms'
   Lil' Oryx head in each Oryx's colours (LIL_ORYX_HEADS).
 And `OryxUts16x16.png` (`oryxUts16x16`), 16 by 16 a cell in the order of CELLS16: the Elysian Staff's
-shot, Oryx 5's Celestial Bolt in his silver, purple and gold.
+shots, Oryx 5's Celestial Bolt in his silver, purple and gold (its weaving pair) and in his staff's
+light blues (the one flying straight).
 Needs Pillow.
 """
 import os
@@ -83,8 +84,12 @@ LIL_ORYX_HEADS = [
 CELLS += [(item, DOOMED2, 0x5e, colours) for item, colours in LIL_ORYX_HEADS]
 # 16 by 16: (object, sheet, index, recolour)
 CELLS16 = [
-    ("Elysian Bolt", ELYSIUM16, 8, {                     # Celestial Bolt
+    ("Elysian Bolt", ELYSIUM16, 9, {                     # Celestial Bolt
         (238, 216, 255): SILVER[2], (123, 70, 195): GOLD[1], (70, 33, 128): PURPLE[1]}),
+    # the Elysian Staff's third shot, flying straight between the two: the same bolt in the light
+    # blues of the crystal his staff holds (ElysiumOryx16x16.png), with a white heart
+    ("Elysian Ray", ELYSIUM16, 9, {
+        (238, 216, 255): (196, 240, 255), (123, 70, 195): (255, 255, 255), (70, 33, 128): (60, 120, 200)}),
 ]
 # drawn cells: k black, R red, r dark red, v P p purples, W white
 INK = {"k": (22, 12, 32), "R": (214, 40, 36), "r": RED[0], "v": PURPLE[2], "P": PURPLE[1], "p": PURPLE[0],

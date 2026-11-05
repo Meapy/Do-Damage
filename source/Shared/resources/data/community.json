@@ -107,7 +107,7 @@
     { "id": "realms", "group": "realms", "title": "The Realm Breakers", "text": "Close {n} realms, driving Oryx to his castle each time.", "icon": "Wine Cellar Portal",
       "event": "realmClosed", "goal": 6,
       "tiers": [
-        [{"fame": 200}, {"item": "XP Booster 20 min"}],
+        [{"fame": 200}, {"item": "Lucky Clover"}],
         [{"fame": 300}, {"item": "Loot Drop Potion"}, {"roll": 1}],
         [{"fame": 450}, {"item": "Ambrosia"}],
         [{"fame": 800}, {"item": "Backpack"}, {"roll": 2}]
@@ -118,7 +118,7 @@
         {"item": "Potion of Life", "weight": 18, "rarity": "common"},
         {"item": "Potion of Mana", "weight": 18, "rarity": "common"},
         {"item": "Loot Drop Potion", "weight": 14, "rarity": "common"},
-        {"item": "XP Booster 20 min", "weight": 10, "rarity": "common"},
+        {"item": "Lucky Clover", "weight": 10, "rarity": "common"},
         {"item": "Potion of Oryx", "weight": 9, "rarity": "uncommon"},
         {"item": "Mystery Key (Silver)", "weight": 7, "rarity": "uncommon"},
         {"item": "Ambrosia", "weight": 6, "rarity": "rare"},
@@ -207,7 +207,7 @@
       "event": "kill", "goal": 12000, "minimum": 100,
       "tiers": [
         [{"fame": 150}, {"item": "Potion of Vitality"}],
-        [{"fame": 250}, {"item": "XP Booster 20 min"}, {"roll": 1}],
+        [{"fame": 250}, {"item": "Lucky Clover"}, {"roll": 1}],
         [{"fame": 400}, {"item": "Superburger"}],
         [{"fame": 700}, {"item": "Mystery Pet Stone (Silver)"}, {"roll": 2}]
       ],
@@ -282,14 +282,14 @@
       "tiers": [
         [{"fame": 300}],
         [{"fame": 450}, {"item": "Golden Lucky Clover"}, {"roll": 1}],
-        [{"fame": 650}, {"item": "XP Booster 1 hr"}],
+        [{"fame": 650}, {"item": "Golden Lucky Clover"}],
         [{"fame": 1100}, {"item": "Vault Chest Unlocker"}, {"roll": 2}]
       ],
       "bonus": [{"fame": 300}, {"roll": 1}],
       "top": [{"fame": 2500}, {"item": "Lil' Celestial Oryx Generator"}, {"roll": 3}],
       "loot": [
         {"item": "Golden Lucky Clover", "weight": 16, "rarity": "common"},
-        {"item": "XP Booster 1 hr", "weight": 14, "rarity": "common"},
+        {"item": "Lucky Clover", "weight": 14, "rarity": "common"},
         {"item": "Mystery Dye (Clothing)", "weight": 12, "rarity": "common"},
         {"item": "Mystery Cloth (Small)", "weight": 12, "rarity": "common"},
         {"item": "Mystery Dye (Accessory)", "weight": 10, "rarity": "uncommon"},
@@ -379,20 +379,20 @@
     { "id": "levels", "group": "levels", "weight": 0.6, "title": "Fresh Blood", "text": "Gain {n} character levels.", "icon": "XP Booster 1 hr",
       "event": "level", "goal": 100, "minimum": 3,
       "tiers": [
-        [{"fame": 125}, {"item": "XP Booster 20 min"}],
+        [{"fame": 125}, {"item": "Lucky Clover"}],
         [{"fame": 200}, {"item": "Potion of Max Level 1"}, {"roll": 1}],
-        [{"fame": 325}, {"item": "XP Booster 1 hr"}],
+        [{"fame": 325}, {"item": "Golden Lucky Clover"}],
         [{"fame": 600}, {"item": "Potion of Max Level 3"}, {"roll": 2}]
       ],
       "bonus": [{"fame": 125}, {"roll": 1}],
       "top": [{"fame": 1000}, {"item": "Potion of Max Level 5"}, {"roll": 3}],
       "loot": [
-        {"item": "XP Booster 20 min", "weight": 18, "rarity": "common"},
+        {"item": "Lucky Clover", "weight": 18, "rarity": "common"},
         {"item": "Potion of Max Level 1", "weight": 14, "rarity": "common"},
         {"item": "Black Cat Generator", "weight": 8, "rarity": "common"},
         {"item": "Bunny Generator", "weight": 8, "rarity": "common"},
         {"item": "Potion of Max Level 2", "weight": 10, "rarity": "uncommon"},
-        {"item": "XP Booster 1 hr", "weight": 9, "rarity": "uncommon"},
+        {"item": "Golden Lucky Clover", "weight": 9, "rarity": "uncommon"},
         {"item": "Baby Dragon Generator", "weight": 6, "rarity": "uncommon"},
         {"item": "Potion of Max Level 3", "weight": 6, "rarity": "rare"},
         {"item": "Potion of Max Level 4", "weight": 3, "rarity": "epic"},

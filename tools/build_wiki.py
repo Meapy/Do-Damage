@@ -448,21 +448,23 @@ class Gen:
 
     def gen_imprints(self, used):
         """The imprints the Enchanter puts on gear (Shared/resources/Imprints.cs), a table for each
-        colour: name, what it does, what it fits."""
+        colour: name, what it does, what it fits, its price in shards."""
         imps = wd.imprints()
         out = []
-        for kind, colour in (("Offensive", "#d6283a"), ("Defensive", "#2fb44f"), ("Misc", "#9446dc")):
-            rows = "".join('<tr><td><b style="color:%s">%s</b></td><td>%s</td><td>%s</td></tr>' % (
-                colour, esc(i["name"]), esc(i["description"]), esc(i["fits"])) for i in imps if i["kind"] == kind)
+        for kind, colour in (("Offensive", "#d6283a"), ("Defensive", "#2fb44f"), ("Misc", "#9446dc"),
+                             ("Apotheosis", "#5ec8f2")):
+            rows = "".join('<tr><td><b style="color:%s">%s</b></td><td>%s</td><td>%s</td><td>%d</td></tr>' % (
+                colour, esc(i["name"]), esc(i["description"]), esc(i["fits"]), i["cost"]) for i in imps if i["kind"] == kind)
             out.append('<h3 id="imprints-%s">%s</h3><div class="table-wrap"><table><thead><tr><th>Imprint</th>'
-                       '<th>What it does</th><th>Fits</th></tr></thead><tbody>%s</tbody></table></div>' % (
+                       '<th>What it does</th><th>Fits</th><th>Shards</th></tr></thead><tbody>%s</tbody></table></div>' % (
                            kind.lower(), kind, rows))
             used.add("imprints-" + kind.lower())
         return "\n".join(out)
 
     def gen_forge_ascended(self, used):
         """The Ascended items, a row each: an item of his top tier (its slot's, or any of its kind) and
-        an Ascended shard."""
+        an Ascended shard, or the items it's made from (the Ring of Grace: both his gems and three
+        shards)."""
         rows, seen = [], set()
         for r in self.forge:
             a = r.get("ascended")
@@ -476,7 +478,8 @@ class Gen:
             else:
                 frm = self.forge_item(r["items"][0])
             rows.append('<tr><td>%s</td><td class="fr-ing">%s%s</td><td class="fr-fame">%s</td></tr>' % (
-                self.forge_item(r["result"]), frm, self.forge_item(r["items"][1]), "{:,}".format(r["fame"])))
+                self.forge_item(r["result"]), frm, "".join(self.forge_item(i) for i in r["items"][1:]),
+                "{:,}".format(r["fame"])))
         return ('<div class="table-wrap fr-list"><table><thead><tr><th>Makes</th><th>From</th><th>Fame</th></tr>'
                 '</thead><tbody>%s</tbody></table></div>' % "".join(rows))
 
@@ -973,6 +976,14 @@ class Gen:
         return '<ul class="price-list">%s</ul>' % "".join(
             "<li><span>%s</span><span>%s</span></li>" % (esc(n), ("%.1f%%" % (100 * w / total)).replace(".0%", "%"))
             for n, w in sorted(merged.items(), key=lambda x: -x[1]))
+
+    def gen_mystery_keys(self, used):
+        out = []
+        for key, portals in wd.mystery_keys():
+            names = sorted({self.d.objects[p]["dungeon"] or self.d.name(p) for p in portals if p in self.d.objects},
+                           key=str.lower)
+            out.append("<li><strong>%s</strong>: %s</li>" % (esc(self.d.name(key)), esc(", ".join(names))))
+        return "<ul>%s</ul>" % "".join(out)
 
     # the pets: their cards have sprites, so they're built with the gear pages (tools/wiki_gear.py)
     def gen_pets(self, used):

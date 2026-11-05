@@ -39,31 +39,43 @@ namespace WorldServer.logic.behaviors
 
         protected override void TickCore(Entity host, TickTime time, ref object state)
         {
+            // the squares' objects go with their ground back (Wmap.ClearObject), and the players are
+            // told: with the object only cleared on the server, the Shatters' gates stayed shut for
+            // everyone after its first boss
+            var map = host.World.Map;
+            var opened = false;
             if (usearea)
             {
+                var type = host.GameServer.Resources.GameData.IdToObjectType[target];
                 for (int x = (int)host.X - area; x <= (int)host.X + area; x++)
                 {
                     for (int y = (int)host.Y - area; y <= (int)host.Y + area; y++)
                     {
-                        var tile = host.World.Map[x, y];
-                        if (tile.ObjType == host.GameServer.Resources.GameData.IdToObjectType[target])
+                        if (map.Contains(x, y) && map[x, y].ObjType == type)
                         {
-                            tile.ObjType = 0;
+                            map.ClearObject(x, y);
+                            opened = true;
                         }
                     }
                 }
             }
             else
             {
-                for (int x = xMax; x <= xMax; x++)
+                for (int x = xMin; x <= xMax; x++)
                 {
                     for (int y = yMin; y <= yMax; y++)
                     {
-                        var tile = host.World.Map[x, y];
-                        tile.ObjType = 0;
+                        if (map.Contains(x, y) && map[x, y].ObjType != 0)
+                        {
+                            map.ClearObject(x, y);
+                            opened = true;
+                        }
                     }
                 }
             }
+            if (opened)
+                foreach (var player in host.World.Players.Values)
+                    player.UpdateTiles();
         }
     }
 }

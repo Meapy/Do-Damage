@@ -118,6 +118,11 @@
         // how high the object stands, in thousandths of a tile; sent only in worlds of stacked
         // floors (World.Levels)
         Height = 148,
+        // how far each of a player's eight base stats is maxed, two bits a stat by StatsManager's
+        // index (HP first): 0 below its class's maximum, 1 at it, 2 past it (Infernal potions),
+        // 3 as far past it as the Infernal potions go (Player.StatTones); sent to everyone, so the
+        // client colours anyone's stats. An older client ignores it.
+        StatTones = 149,
         None = 255
     }
 }

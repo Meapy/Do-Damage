@@ -16,7 +16,11 @@ namespace WorldServer.core.objects
         {
             character.Datas ??= new ItemData[28];
             Inventory = new Inventory(this, Utils.ResizeArray(character.Items.Select(_ => (_ == 0xffff || !gameData.Items.ContainsKey(_)) ? null : gameData.Items[_]).ToArray(), 28), Utils.ResizeArray(Client.Character.Datas, 28));
-            Inventory.InventoryChanged += (sender, e) => Stats.ReCalculateValues();
+            Inventory.InventoryChanged += (sender, e) =>
+            {
+                Stats.ReCalculateValues();
+                Collect(e.NewItems);
+            };
             SlotTypes = Utils.ResizeArray(gameData.Classes[ObjectType].SlotTypes, 28);
             // the swap-out row takes what its equipment slot takes
             for (var i = 0; i < InventoryConstants.NUM_SWAP_SLOTS; i++)

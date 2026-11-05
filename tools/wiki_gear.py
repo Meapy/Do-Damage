@@ -335,6 +335,13 @@ class Gear:
             t = self.effect(a)
             if t and t not in out:
                 out.append(t)
+        # what a thrown helper does, as its tooltip says (the Cave Dweller Trap's sentry, the Trap of
+        # the Vile Spirit's ships)
+        if any((a.text or "").strip() == "ObjectToss" for a in it["el"].findall("Activate")):
+            for info in it["el"].iter("EffectInfo"):
+                name, desc = (info.get("name") or "").strip(), (info.get("description") or "").strip()
+                if name and desc and name not in ("Trap",):
+                    out.append("%s: %s" % (name, desc[0].lower() + desc[1:]))
         return "; ".join(out)
 
     def effect(self, a):
@@ -419,6 +426,9 @@ class Gear:
             return "builds a turret" + (" for %ss" % n("duration") if g("duration") else "") + ally_shots()
         if e in ("Summon", "Pet", "ObjectToss", "MonsterToss") and name:
             verb = "throws" if "Toss" in e else "summons"
+            many = int(g("amount") or 1) if e == "ObjectToss" else 1
+            if many > 1:
+                name = "%d %ss" % (many, name)
             return "%s %s" % (verb, name) + (" for %ss" % n("duration") if g("duration") else "") + ally_shots()
         if e == "SelfTransform":
             return "changes your look for %ss" % n("duration")

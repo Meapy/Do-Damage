@@ -1,5 +1,6 @@
 ﻿using Shared.resources;
 using WorldServer.core.net.datas;
+using WorldServer.core.net.stats;
 using WorldServer.core.structures;
 using WorldServer.core.worlds.impl;
 using WorldServer.core.worlds;
@@ -75,8 +76,9 @@ namespace WorldServer.core.objects
 
             ApplyConditionEffect(ConditionEffectIndex.Invulnerable, 2500);
             ApplyConditionEffect(ConditionEffectIndex.Stunned, 2500);
-            // a Realm 2 waystone stands in the way: beside it
-            TeleportPosition(time, obj.X, IsBeacon(obj) ? obj.Y + 1.5f : obj.Y, ignoreRestrictions);
+            // a Realm 2 waystone stands in the way: beside it; on stacked floors, on their floor (at the
+            // Sky Bar, not under it)
+            TeleportPosition(time, new Position(obj.X, IsBeacon(obj) ? obj.Y + 1.5f : obj.Y), ignoreRestrictions, obj.Z);
         }
 
         private bool IsBeacon(Entity obj) => World is RealmWorld realm && realm.RealmManager.IsBeacon(obj);
@@ -85,8 +87,10 @@ namespace WorldServer.core.objects
         /// Move arrives there: its Height before then is the one it had before (HeightHandler).</summary>
         public (float X, float Y, float Z)? TeleportHeight { get; set; }
 
-        public void TeleportPosition(TickTime time, float x, float y, bool ignoreRestrictions = false) => TeleportPosition(time, new Position(x, y), ignoreRestrictions);
-        public void TeleportPosition(TickTime time, Position position, bool ignoreRestrictions = false)
+        public void TeleportPosition(TickTime time, float x, float y, bool ignoreRestrictions = false, float? z = null) => TeleportPosition(time, new Position(x, y), ignoreRestrictions, z);
+        /// <summary>On stacked floors, `z` is the height to land near (whoever we go to's), else our
+        /// own: the ground of the floor there within reach of it.</summary>
+        public void TeleportPosition(TickTime time, Position position, bool ignoreRestrictions = false, float? z = null)
         {
             if (!ignoreRestrictions)
             {
@@ -102,11 +106,13 @@ namespace WorldServer.core.objects
             }
 
             // on stacked floors, onto the ground there: kept until the client's Move gets there
-            // (HeightHandler), as the client may not know that floor's squares yet
+            // (HeightHandler), as the client may not know that floor's squares yet. Our height goes to
+            // the client even when it hasn't changed: after a Goto it takes the server's (World.apply_goto)
             if (World.Levels != null)
             {
-                Z = World.PlaceZ(position.X, position.Y, Z);
+                Z = World.PlaceZ(position.X, position.Y, z ?? Z);
                 TeleportHeight = (position.X, position.Y, Z);
+                InvokeStatChange(StatDataType.Height, HeightStat);
             }
 
             var tpPkts = new OutgoingMessage[]

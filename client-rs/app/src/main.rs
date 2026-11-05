@@ -6,6 +6,7 @@
 mod audio;
 mod champions;
 mod changelog;
+mod collection;
 mod community;
 mod connected;
 mod crosshair;
@@ -21,6 +22,7 @@ mod forge;
 mod quests;
 mod market;
 mod particles;
+mod petpen;
 mod petals;
 mod pings;
 mod prof;
@@ -238,6 +240,11 @@ struct App {
     /// The community goals window and its banners, and what it asked of the server.
     community: community::Community,
     community_acts: Vec<community::Act>,
+    /// The Collection (the vault's stand) and the Pen Keeper's window, and what they ask of the
+    /// server: a Collection request, the Pen Keeper's acts (act, inventory slot).
+    collection: collection::Collection,
+    pet_pen: petpen::PetPen,
+    keeper_acts: Vec<KeeperAct>,
     /// Key bindings, graphics and sound settings, and their window.
     settings: options::Settings,
     options_ui: options::OptionsUi,
@@ -289,11 +296,30 @@ fn guild_register_price(world: &bsk_world::World, data: &bsk_data::GameData) -> 
     })
 }
 
-fn npc_open(kind: npc::NpcKind, game: &Game, npcs: &mut npc::Npcs, market: &mut market::Market, forge: &mut forge::Forge, forge_acts: &mut Vec<forge::Act>, quests: (&mut quests::Quests, &mut Vec<quests::Act>), community: (&mut community::Community, &mut Vec<community::Act>), list: Option<&bsk_net::account::CharList>, data: &bsk_data::GameData) -> bool {
+/// What the Collection's and the Pen Keeper's windows ask of the server.
+#[derive(Debug, Clone, Copy)]
+enum KeeperAct {
+    Collection,
+    PetPen(u8, u8),
+}
+
+fn npc_open(kind: npc::NpcKind, game: &Game, npcs: &mut npc::Npcs, market: &mut market::Market, forge: &mut forge::Forge, forge_acts: &mut Vec<forge::Act>, quests: (&mut quests::Quests, &mut Vec<quests::Act>), community: (&mut community::Community, &mut Vec<community::Act>), keepers: (&mut collection::Collection, &mut petpen::PetPen, &mut Vec<KeeperAct>), list: Option<&bsk_net::account::CharList>, data: &bsk_data::GameData) -> bool {
     use npc::{NpcKind, Prompt, Window};
     let Some(me) = game.world.as_ref().and_then(|w| w.player()) else { return false };
     let window = match kind {
         NpcKind::CharacterChanger => return true,
+        NpcKind::Collection => {
+            let (window, _, acts) = keepers;
+            if window.show() {
+                acts.push(KeeperAct::Collection);
+            }
+            return false;
+        }
+        NpcKind::PetPen => {
+            let (_, window, acts) = keepers;
+            acts.push(KeeperAct::PetPen(window.show(), 0));
+            return false;
+        }
         NpcKind::Market => {
             market.show(data);
             return false;
@@ -1262,6 +1288,8 @@ impl App {
         self.quests.reset();
         self.community.reset();
         self.vault.reset();
+        self.collection.reset();
+        self.pet_pen.reset();
         self.npc_request = None;
         self.keys.clear();
     }
@@ -1283,6 +1311,8 @@ impl App {
         self.quests.reset();
         self.community.reset();
         self.vault.reset();
+        self.collection.reset();
+        self.pet_pen.reset();
         self.npc_request = None;
         self.mouse_down = false;
         self.front.message = why.map(|w| (w, true));
@@ -1938,7 +1968,7 @@ impl App {
                         Some(hud::Interact { id, kind: hud::InteractKind::Portal, .. }) => game.use_portal(id),
                         Some(hud::Interact { id, kind: hud::InteractKind::Shop { .. }, .. }) => game.buy(id),
                         Some(hud::Interact { kind: hud::InteractKind::Npc { kind, .. }, .. }) => {
-                            to_chars |= npc_open(kind, game, &mut self.npcs, &mut self.market, &mut self.forge, &mut self.forge_acts, (&mut self.quests, &mut self.quest_acts), (&mut self.community, &mut self.community_acts), self.front.list.as_ref(), data);
+                            to_chars |= npc_open(kind, game, &mut self.npcs, &mut self.market, &mut self.forge, &mut self.forge_acts, (&mut self.quests, &mut self.quest_acts), (&mut self.community, &mut self.community_acts), (&mut self.collection, &mut self.pet_pen, &mut self.keeper_acts), self.front.list.as_ref(), data);
                             self.keys.clear();
                         }
                         _ => {}
@@ -2024,7 +2054,7 @@ impl App {
                     }
                 }
                 if let Some(kind) = self.npc_test.take_if(|c| c != "Vault").and_then(|c| npc::NpcKind::of_class(&c)) {
-                    to_chars |= npc_open(kind, game, &mut self.npcs, &mut self.market, &mut self.forge, &mut self.forge_acts, (&mut self.quests, &mut self.quest_acts), (&mut self.community, &mut self.community_acts), self.front.list.as_ref(), data);
+                    to_chars |= npc_open(kind, game, &mut self.npcs, &mut self.market, &mut self.forge, &mut self.forge_acts, (&mut self.quests, &mut self.quest_acts), (&mut self.community, &mut self.community_acts), (&mut self.collection, &mut self.pet_pen, &mut self.keeper_acts), self.front.list.as_ref(), data);
                 }
                 if let Some(board) = self.champions_test.take() {
                     self.npcs.open(npc::Window::Champions(Box::new(champions::View::at(Some(&board)))));
@@ -2111,6 +2141,19 @@ impl App {
             self.vault.tick(now, game.map_name());
             if self.vault.open {
                 for (down, pos) in std::mem::take(&mut self.clicks) {
+                    // the HUD's Inventory and Backpack tabs still turn the page, so the backpack's
+                    // items go in and out of the vault too
+                    let tab = (0..2).find(|&i| {
+                        let r = lay.tab(i);
+                        let (x, y) = (pos.0 as f32, pos.1 as f32);
+                        x >= r[0] && y >= r[1] && x < r[0] + r[2] && y < r[1] + r[3]
+                    });
+                    if let Some(i) = tab {
+                        if down {
+                            self.hud.page = if i == 0 { hud::Page::Inventory } else { hud::Page::Backpack };
+                        }
+                        continue;
+                    }
                     for act in self.vault.click(down, pos, lay.on_panel(pos.0, pos.1)) {
                         game.vault(act, now);
                     }
@@ -2171,6 +2214,41 @@ impl App {
                     }
                     None => true,
                 });
+            }
+            // the Collection and the Pen Keeper: while open they take the mouse
+            if self.collection.open {
+                for (down, pos) in std::mem::take(&mut self.clicks) {
+                    if down {
+                        self.collection.click(pos);
+                    }
+                }
+                self.mouse_down = false;
+            }
+            if self.pet_pen.open {
+                for (down, pos) in std::mem::take(&mut self.clicks) {
+                    // a press only: a release outside the window (after the press that opened it)
+                    // closed it
+                    if !down {
+                        continue;
+                    }
+                    if let Some((act, slot)) = self.pet_pen.click(pos) {
+                        self.keeper_acts.push(KeeperAct::PetPen(act, slot));
+                    }
+                }
+                self.mouse_down = false;
+            }
+            if let Some(c) = game.collection.take() {
+                self.collection.contents(c, data);
+            }
+            if let Some(p) = game.pet_pen.take() {
+                self.pet_pen.answer(p);
+            }
+            for act in std::mem::take(&mut self.keeper_acts) {
+                log::info!("keeper: {act:?}");
+                match act {
+                    KeeperAct::Collection => game.collection_request(),
+                    KeeperAct::PetPen(action, slot) => game.pet_pen(action, slot),
+                }
             }
             let mut community_acts = std::mem::take(&mut self.community_acts);
             if self.community.open {
@@ -2315,7 +2393,7 @@ impl App {
                         continue;
                     }
                     if let hud::Action::Button(hud::Button::Npc(kind)) = action {
-                        to_chars |= npc_open(kind, game, &mut self.npcs, &mut self.market, &mut self.forge, &mut self.forge_acts, (&mut self.quests, &mut self.quest_acts), (&mut self.community, &mut self.community_acts), self.front.list.as_ref(), data);
+                        to_chars |= npc_open(kind, game, &mut self.npcs, &mut self.market, &mut self.forge, &mut self.forge_acts, (&mut self.quests, &mut self.quest_acts), (&mut self.community, &mut self.community_acts), (&mut self.collection, &mut self.pet_pen, &mut self.keeper_acts), self.front.list.as_ref(), data);
                         self.keys.clear();
                         continue;
                     }
@@ -2532,6 +2610,7 @@ impl App {
                         hud::draw_panel(&mut ui, &lay, world, &mut self.map_colors, p, &self.hud, &social, mouse);
                         if let Some(mini) = p.minimap() {
                             events::draw_minimap_marks(&mut ui, lay.s, &mini, game.realm_events.as_ref(), mouse);
+                            events::draw_nexus_places(&mut ui, lay.s, &mini, &game.nexus_places, mouse);
                             hud::draw_minimap_top(&mut ui, &lay, world, game.camera_angle, &mini, game.quest);
                             game.pings.draw_minimap(&mut ui, &mini, lay.s, self.settings.pings_from, now);
                         }
@@ -2611,6 +2690,8 @@ impl App {
                 self.quests.draw(&mut ui, &lay, world.player(), mouse, now);
                 self.quests.draw_toasts(&mut ui, &lay, now);
                 self.community.draw(&mut ui, &lay, world.player(), mouse, now);
+                self.collection.draw(&mut ui, &lay, world.player(), mouse, now);
+                self.pet_pen.draw(&mut ui, &lay, world.player(), mouse);
                 let below = self.quests.toasts_end(&lay);
                 self.community.draw_banners(&mut ui, &lay, below, now);
                 prof::mark("chat..windows");
@@ -2634,6 +2715,8 @@ impl App {
             && !self.quests.on_toast(mouse)
             && !self.community.open
             && !self.community.on_banner(mouse)
+            && !self.collection.open
+            && !self.pet_pen.open
             && self.npcs.window.is_none()
             && self.hud.drag.is_none()
             && !self.pings.wheel_open(mouse, lay.s, now);
@@ -3033,7 +3116,11 @@ impl ApplicationHandler<UserEvent> for App {
                     return;
                 }
                 if self.vault.open && matches!(self.phase, Phase::Playing(_)) {
-                    if pressed {
+                    // Ctrl and the Inventory / backpack key turns the HUD's page (the key alone
+                    // types into the search)
+                    if pressed && self.ctrl_held && self.settings.bind_of(code) == Some(options::Bind::SwitchTabs) {
+                        self.hud.page = if self.hud.page == hud::Page::Inventory { hud::Page::Backpack } else { hud::Page::Inventory };
+                    } else if pressed {
                         if let Some(l) = &self.loaded {
                             self.vault.key(code, event.text.as_deref(), &l.data);
                         }
@@ -3044,6 +3131,14 @@ impl ApplicationHandler<UserEvent> for App {
                 if self.community.open && matches!(self.phase, Phase::Playing(_)) {
                     if pressed {
                         self.community.key(code);
+                    }
+                    self.keys.remove(&code);
+                    return;
+                }
+                if (self.collection.open || self.pet_pen.open) && matches!(self.phase, Phase::Playing(_)) {
+                    if pressed {
+                        self.collection.key(code);
+                        self.pet_pen.key(code);
                     }
                     self.keys.remove(&code);
                     return;
@@ -3172,6 +3267,17 @@ impl ApplicationHandler<UserEvent> for App {
                 let notches = self.wheel.trunc();
                 self.wheel -= notches;
                 self.market.scroll(-notches as i32);
+            }
+            WindowEvent::MouseWheel { delta, .. } if self.collection.open && matches!(self.phase, Phase::Playing(_)) => {
+                // the Collection scrolls a row a notch
+                let lines = match delta {
+                    winit::event::MouseScrollDelta::LineDelta(_, y) => y,
+                    winit::event::MouseScrollDelta::PixelDelta(p) => (p.y / 40.0) as f32,
+                };
+                self.wheel += lines;
+                let notches = self.wheel.trunc();
+                self.wheel -= notches;
+                self.collection.scroll(-notches as i32);
             }
             WindowEvent::MouseWheel { delta, .. } if self.vault.open && matches!(self.phase, Phase::Playing(_)) => {
                 // The vault's chests scroll a row a notch.
@@ -3370,6 +3476,9 @@ fn main() {
         quest_acts: Vec::new(),
         community: Default::default(),
         community_acts: Vec::new(),
+        collection: Default::default(),
+        pet_pen: Default::default(),
+        keeper_acts: Vec::new(),
         forge_acts: Vec::new(),
         vault: Default::default(),
         pings: Default::default(),

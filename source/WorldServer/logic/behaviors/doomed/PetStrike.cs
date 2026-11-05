@@ -66,7 +66,7 @@ namespace WorldServer.logic.behaviors.doomed
                 Color = color
             }, host);
             host.World.BroadcastIfVisible(new ShowEffect() { EffectType = EffectType.Potion, TargetObjectId = target.Id, Color = color }, target);
-            target.Damage(owner, ref time, Random.Next(_min, _max + 1), false);
+            target.Damage(owner, ref time, (int)(Random.Next(_min, _max + 1) * ((host as Pet)?.DamageScale ?? 1)), false);
             if (_bleedDamage > 0 && !target.Dead)
                 target.Bleed(owner, _bleedDamage, _bleedMs);
         }

@@ -94,7 +94,7 @@ namespace WorldServer.logic.behaviors.doomed
                 : Array.Empty<ConditionEffect>();
             foreach (var enemy in hit)
                 if (!enemy.Dead && enemy.World != null)
-                    enemy.Damage(owner, ref time, Random.Next(_min, _max + 1), false, false, effs);
+                    enemy.Damage(owner, ref time, (int)(Random.Next(_min, _max + 1) * ((host as Pet)?.DamageScale ?? 1)), false, false, effs);
         }
     }
 }

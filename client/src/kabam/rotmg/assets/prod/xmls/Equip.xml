@@ -1779,8 +1779,8 @@
 		<Projectile>
 			<ObjectId>Blade</ObjectId>
 			<Speed>140</Speed>
-			<MinDamage>20</MinDamage>
-			<MaxDamage>60</MaxDamage>
+			<MinDamage>22</MinDamage>
+			<MaxDamage>66</MaxDamage>
 			<LifetimeMS>400</LifetimeMS>
 		</Projectile>
 		<BagType>1</BagType>
@@ -1803,8 +1803,8 @@
 		<Projectile>
 			<ObjectId>Blade</ObjectId>
 			<Speed>140</Speed>
-			<MinDamage>20</MinDamage>
-			<MaxDamage>70</MaxDamage>
+			<MinDamage>22</MinDamage>
+			<MaxDamage>77</MaxDamage>
 			<LifetimeMS>400</LifetimeMS>
 		</Projectile>
 		<BagType>1</BagType>
@@ -1827,8 +1827,8 @@
 		<Projectile>
 			<ObjectId>Blade</ObjectId>
 			<Speed>140</Speed>
-			<MinDamage>20</MinDamage>
-			<MaxDamage>75</MaxDamage>
+			<MinDamage>22</MinDamage>
+			<MaxDamage>83</MaxDamage>
 			<LifetimeMS>400</LifetimeMS>
 		</Projectile>
 		<BagType>1</BagType>
@@ -1851,8 +1851,8 @@
 		<Projectile>
 			<ObjectId>Blade</ObjectId>
 			<Speed>140</Speed>
-			<MinDamage>25</MinDamage>
-			<MaxDamage>80</MaxDamage>
+			<MinDamage>28</MinDamage>
+			<MaxDamage>88</MaxDamage>
 			<LifetimeMS>400</LifetimeMS>
 		</Projectile>
 		<BagType>1</BagType>
@@ -1875,8 +1875,8 @@
 		<Projectile>
 			<ObjectId>Blade</ObjectId>
 			<Speed>140</Speed>
-			<MinDamage>30</MinDamage>
-			<MaxDamage>80</MaxDamage>
+			<MinDamage>33</MinDamage>
+			<MaxDamage>88</MaxDamage>
 			<LifetimeMS>400</LifetimeMS>
 		</Projectile>
 		<BagType>1</BagType>
@@ -1899,8 +1899,8 @@
 		<Projectile>
 			<ObjectId>Blade</ObjectId>
 			<Speed>140</Speed>
-			<MinDamage>30</MinDamage>
-			<MaxDamage>90</MaxDamage>
+			<MinDamage>33</MinDamage>
+			<MaxDamage>99</MaxDamage>
 			<LifetimeMS>400</LifetimeMS>
 		</Projectile>
 		<BagType>1</BagType>
@@ -1923,8 +1923,8 @@
 		<Projectile>
 			<ObjectId>Blade</ObjectId>
 			<Speed>140</Speed>
-			<MinDamage>35</MinDamage>
-			<MaxDamage>65</MaxDamage>
+			<MinDamage>39</MinDamage>
+			<MaxDamage>72</MaxDamage>
 			<LifetimeMS>400</LifetimeMS>
 		</Projectile>
 		<BagType>1</BagType>
@@ -1946,8 +1946,8 @@
 		<Projectile>
 			<ObjectId>Green Bolt</ObjectId>
 			<Speed>140</Speed>
-			<MinDamage>55</MinDamage>
-			<MaxDamage>120</MaxDamage>
+			<MinDamage>61</MinDamage>
+			<MaxDamage>132</MaxDamage>
 			<LifetimeMS>400</LifetimeMS>
 		</Projectile>
 		<BagType>4</BagType>
@@ -1970,8 +1970,8 @@
 		<Projectile>
 			<ObjectId>Blade</ObjectId>
 			<Speed>140</Speed>
-			<MinDamage>60</MinDamage>
-			<MaxDamage>140</MaxDamage>
+			<MinDamage>66</MinDamage>
+			<MaxDamage>154</MaxDamage>
 			<LifetimeMS>400</LifetimeMS>
 		</Projectile>
 		<BagType>2</BagType>
@@ -1994,8 +1994,8 @@
 		<Projectile>
 			<ObjectId>Red Fire</ObjectId>
 			<Speed>140</Speed>
-			<MinDamage>80</MinDamage>
-			<MaxDamage>160</MaxDamage>
+			<MinDamage>88</MinDamage>
+			<MaxDamage>176</MaxDamage>
 			<LifetimeMS>400</LifetimeMS>
 		</Projectile>
 		<BagType>2</BagType>
@@ -2019,8 +2019,8 @@
 		<Projectile>
 			<ObjectId>White Bolt</ObjectId>
 			<Speed>140</Speed>
-			<MinDamage>85</MinDamage>
-			<MaxDamage>165</MaxDamage>
+			<MinDamage>94</MinDamage>
+			<MaxDamage>182</MaxDamage>
 			<LifetimeMS>400</LifetimeMS>
 		</Projectile>
 		<BagType>2</BagType>
@@ -2044,8 +2044,8 @@
 		<Projectile>
 			<ObjectId>Green Bolt</ObjectId>
 			<Speed>140</Speed>
-			<MinDamage>90</MinDamage>
-			<MaxDamage>170</MaxDamage>
+			<MinDamage>99</MinDamage>
+			<MaxDamage>187</MaxDamage>
 			<LifetimeMS>400</LifetimeMS>
 		</Projectile>
 		<BagType>4</BagType>
@@ -2068,8 +2068,8 @@
 		<Projectile>
 			<ObjectId>Blue Magic</ObjectId>
 			<Speed>140</Speed>
-			<MinDamage>90</MinDamage>
-			<MaxDamage>175</MaxDamage>
+			<MinDamage>99</MinDamage>
+			<MaxDamage>193</MaxDamage>
 			<LifetimeMS>400</LifetimeMS>
 		</Projectile>
 		<ActivateOnEquip stat="28" amount="2">IncrementStat</ActivateOnEquip>
@@ -2093,8 +2093,8 @@
 		<Projectile>
 			<ObjectId>Purple Magic</ObjectId>
 			<Speed>140</Speed>
-			<MinDamage>95</MinDamage>
-			<MaxDamage>175</MaxDamage>
+			<MinDamage>105</MinDamage>
+			<MaxDamage>193</MaxDamage>
 			<LifetimeMS>400</LifetimeMS>
 		</Projectile>
 		<ActivateOnEquip stat="20" amount="2">IncrementStat</ActivateOnEquip>
@@ -2119,8 +2119,8 @@
 		<Projectile>
 			<ObjectId>Orange Magic</ObjectId>
 			<Speed>150</Speed>
-			<MinDamage>110</MinDamage>
-			<MaxDamage>190</MaxDamage>
+			<MinDamage>121</MinDamage>
+			<MaxDamage>209</MaxDamage>
 			<LifetimeMS>400</LifetimeMS>
 		</Projectile>
 		<ActivateOnEquip stat="20" amount="4">IncrementStat</ActivateOnEquip>
@@ -2146,8 +2146,8 @@
 		<Projectile>
 			<ObjectId>Black Magic</ObjectId>
 			<Speed>150</Speed>
-			<MinDamage>125</MinDamage>
-			<MaxDamage>205</MaxDamage>
+			<MinDamage>138</MinDamage>
+			<MaxDamage>226</MaxDamage>
 			<LifetimeMS>400</LifetimeMS>
 		</Projectile>
 		<ActivateOnEquip stat="20" amount="6">IncrementStat</ActivateOnEquip>
@@ -2172,8 +2172,8 @@
 		<Projectile>
 			<ObjectId>Rainbow Magic</ObjectId>
 			<Speed>180</Speed>
-			<MinDamage>130</MinDamage>
-			<MaxDamage>250</MaxDamage>
+			<MinDamage>143</MinDamage>
+			<MaxDamage>275</MaxDamage>
 			<LifetimeMS>250</LifetimeMS>
 		</Projectile>
 		<ActivateOnEquip stat="27" amount="6">IncrementStat</ActivateOnEquip>
@@ -2198,8 +2198,8 @@
 		<Projectile>
 			<ObjectId>Green Arrow</ObjectId>
 			<Speed>160</Speed>
-			<MinDamage>15</MinDamage>
-			<MaxDamage>45</MaxDamage>
+			<MinDamage>17</MinDamage>
+			<MaxDamage>50</MaxDamage>
 			<LifetimeMS>440</LifetimeMS>
 			<MultiHit/>
 		</Projectile>
@@ -2223,8 +2223,8 @@
 		<Projectile>
 			<ObjectId>Green Arrow</ObjectId>
 			<Speed>160</Speed>
-			<MinDamage>20</MinDamage>
-			<MaxDamage>50</MaxDamage>
+			<MinDamage>22</MinDamage>
+			<MaxDamage>55</MaxDamage>
 			<LifetimeMS>440</LifetimeMS>
 			<MultiHit/>
 		</Projectile>
@@ -2248,8 +2248,8 @@
 		<Projectile>
 			<ObjectId>Crossbow Bolt</ObjectId>
 			<Speed>200</Speed>
-			<MinDamage>25</MinDamage>
-			<MaxDamage>60</MaxDamage>
+			<MinDamage>28</MinDamage>
+			<MaxDamage>66</MaxDamage>
 			<LifetimeMS>375</LifetimeMS>
 			<MultiHit/>
 		</Projectile>
@@ -2273,8 +2273,8 @@
 		<Projectile>
 			<ObjectId>Green Arrow</ObjectId>
 			<Speed>160</Speed>
-			<MinDamage>30</MinDamage>
-			<MaxDamage>65</MaxDamage>
+			<MinDamage>33</MinDamage>
+			<MaxDamage>72</MaxDamage>
 			<LifetimeMS>440</LifetimeMS>
 			<MultiHit/>
 		</Projectile>
@@ -2298,8 +2298,8 @@
 		<Projectile>
 			<ObjectId>Green Arrow</ObjectId>
 			<Speed>160</Speed>
-			<MinDamage>40</MinDamage>
-			<MaxDamage>70</MaxDamage>
+			<MinDamage>44</MinDamage>
+			<MaxDamage>77</MaxDamage>
 			<LifetimeMS>440</LifetimeMS>
 			<MultiHit/>
 		</Projectile>
@@ -2323,8 +2323,8 @@
 		<Projectile>
 			<ObjectId>Red Fire</ObjectId>
 			<Speed>160</Speed>
-			<MinDamage>50</MinDamage>
-			<MaxDamage>75</MaxDamage>
+			<MinDamage>55</MinDamage>
+			<MaxDamage>83</MaxDamage>
 			<LifetimeMS>440</LifetimeMS>
 			<MultiHit/>
 		</Projectile>
@@ -2348,8 +2348,8 @@
 		<Projectile>
 			<ObjectId>Blue Arrow</ObjectId>
 			<Speed>160</Speed>
-			<MinDamage>30</MinDamage>
-			<MaxDamage>55</MaxDamage>
+			<MinDamage>33</MinDamage>
+			<MaxDamage>61</MaxDamage>
 			<LifetimeMS>440</LifetimeMS>
 			<MultiHit/>
 		</Projectile>
@@ -2375,8 +2375,8 @@
 		<Projectile>
 			<ObjectId>Heavy Crossbow Bolt</ObjectId>
 			<Speed>150</Speed>
-			<MinDamage>55</MinDamage>
-			<MaxDamage>80</MaxDamage>
+			<MinDamage>61</MinDamage>
+			<MaxDamage>88</MaxDamage>
 			<LifetimeMS>500</LifetimeMS>
 			<MultiHit/>
 		</Projectile>
@@ -2400,8 +2400,8 @@
 		<Projectile>
 			<ObjectId>Gold Arrow</ObjectId>
 			<Speed>160</Speed>
-			<MinDamage>40</MinDamage>
-			<MaxDamage>61</MaxDamage>
+			<MinDamage>44</MinDamage>
+			<MaxDamage>67</MaxDamage>
 			<LifetimeMS>440</LifetimeMS>
 			<MultiHit/>
 		</Projectile>
@@ -2428,8 +2428,8 @@
 		<Projectile>
 			<ObjectId>Green Arrow</ObjectId>
 			<Speed>160</Speed>
-			<MinDamage>40</MinDamage>
-			<MaxDamage>67</MaxDamage>
+			<MinDamage>44</MinDamage>
+			<MaxDamage>74</MaxDamage>
 			<LifetimeMS>440</LifetimeMS>
 			<MultiHit/>
 		</Projectile>
@@ -2456,8 +2456,8 @@
 		<Projectile>
 			<ObjectId>Purple Arrow</ObjectId>
 			<Speed>160</Speed>
-			<MinDamage>48</MinDamage>
-			<MaxDamage>65</MaxDamage>
+			<MinDamage>53</MinDamage>
+			<MaxDamage>72</MaxDamage>
 			<LifetimeMS>440</LifetimeMS>
 			<MultiHit/>
 		</Projectile>
@@ -2483,8 +2483,8 @@
 		<Projectile>
 			<ObjectId>Red Arrow</ObjectId>
 			<Speed>160</Speed>
-			<MinDamage>49</MinDamage>
-			<MaxDamage>70</MaxDamage>
+			<MinDamage>54</MinDamage>
+			<MaxDamage>77</MaxDamage>
 			<LifetimeMS>440</LifetimeMS>
 			<MultiHit/>
 		</Projectile>
@@ -2511,8 +2511,8 @@
 		<Projectile>
 			<ObjectId>Blue Arrow</ObjectId>
 			<Speed>160</Speed>
-			<MinDamage>50</MinDamage>
-			<MaxDamage>75</MaxDamage>
+			<MinDamage>55</MinDamage>
+			<MaxDamage>83</MaxDamage>
 			<LifetimeMS>440</LifetimeMS>
 			<MultiHit/>
 		</Projectile>
@@ -2540,8 +2540,8 @@
 		<Projectile>
 			<ObjectId>Mystical Energy Arrow</ObjectId>
 			<Speed>160</Speed>
-			<MinDamage>60</MinDamage>
-			<MaxDamage>80</MaxDamage>
+			<MinDamage>66</MinDamage>
+			<MaxDamage>88</MaxDamage>
 			<LifetimeMS>450</LifetimeMS>
 			<MultiHit/>
 		</Projectile>
@@ -2570,8 +2570,8 @@
 		<Projectile>
 			<ObjectId>Deep Enchantment Arrow</ObjectId>
 			<Speed>160</Speed>
-			<MinDamage>70</MinDamage>
-			<MaxDamage>85</MaxDamage>
+			<MinDamage>77</MinDamage>
+			<MaxDamage>94</MaxDamage>
 			<LifetimeMS>450</LifetimeMS>
 			<MultiHit/>
 		</Projectile>
@@ -2599,8 +2599,8 @@
 		<Projectile>
 			<ObjectId>Black Arrow</ObjectId>
 			<Speed>140</Speed>
-			<MinDamage>400</MinDamage>
-			<MaxDamage>500</MaxDamage>
+			<MinDamage>440</MinDamage>
+			<MaxDamage>550</MaxDamage>
 			<LifetimeMS>503</LifetimeMS>
 			<MultiHit/>
 		</Projectile>
@@ -2625,8 +2625,8 @@
 		<Projectile>
 			<ObjectId>Coral Arrow</ObjectId>
 			<Speed>185</Speed>
-			<MinDamage>60</MinDamage>
-			<MaxDamage>80</MaxDamage>
+			<MinDamage>66</MinDamage>
+			<MaxDamage>88</MaxDamage>
 			<LifetimeMS>420</LifetimeMS>
 			<MultiHit/>
 		</Projectile>
@@ -7537,8 +7537,8 @@
 		<Projectile>
 			<ObjectId>Chicken Leg</ObjectId>
 			<Speed>100</Speed>
-			<MinDamage>65</MinDamage>
-			<MaxDamage>105</MaxDamage>
+			<MinDamage>72</MinDamage>
+			<MaxDamage>116</MaxDamage>
 			<LifetimeMS>600</LifetimeMS>
 			<Size>80</Size>
 		</Projectile>
@@ -7881,8 +7881,8 @@
 		<Projectile>
 			<ObjectId>Thousand Shot Arrow</ObjectId>
 			<Speed>165</Speed>
-			<MinDamage>40</MinDamage>
-			<MaxDamage>130</MaxDamage>
+			<MinDamage>44</MinDamage>
+			<MaxDamage>143</MaxDamage>
 			<LifetimeMS>460</LifetimeMS>
 			<MultiHit/>
 		</Projectile>
@@ -7923,6 +7923,10 @@
 		</Texture>
 		<SlotType>20</SlotType>
 		<Description>A long lost artifact recovered by Davy Jones, believed to have been cursed by the gods of the seven seas themselves.</Description>
+		<ExtraTooltipData>
+			<EffectInfo name="Trap" description="Raises 3 ghost ships for 4 seconds"/>
+			<EffectInfo name="Ghost Ship" description="Fires at the nearest enemy within 7 sqrs every 0.5 seconds for 120-160, slowing it for 2 seconds"/>
+		</ExtraTooltipData>
 		<ActivateOnEquip stat="3" amount="20">IncrementStat</ActivateOnEquip>
 		<ActivateOnEquip stat="20" amount="3">IncrementStat</ActivateOnEquip>
 		<ActivateOnEquip stat="22" amount="3">IncrementStat</ActivateOnEquip>
@@ -7930,7 +7934,8 @@
 		<BagType>6</BagType>
 		<FameBonus>6</FameBonus>
 		<MpCost>90</MpCost>
-		<Activate radius="3" totalDamage="650" condEffect="Nothing" throwTime="0.75" sensitivity="0.65" duration="10" color="0x5c6bb8">Trap</Activate>
+		<Activate objectId="Vile Spirit Ship" amount="3" throwTime="0.75" color="0x7dff9a">ObjectToss</Activate>
+		<Cooldown>6</Cooldown>
 		<feedPower>900</feedPower>
 		<Soulbound/>
 	</Object>
@@ -8071,8 +8076,8 @@
 		<Projectile>
 			<ObjectId>Bone Dagger Shot</ObjectId>
 			<Speed>140</Speed>
-			<MinDamage>70</MinDamage>
-			<MaxDamage>130</MaxDamage>
+			<MinDamage>77</MinDamage>
+			<MaxDamage>143</MaxDamage>
 			<LifetimeMS>320</LifetimeMS>
 			<MultiHit/>
 		</Projectile>
@@ -8196,8 +8201,8 @@
 		<Projectile>
 			<ObjectId>Spirit Dagger Slash</ObjectId>
 			<Speed>130</Speed>
-			<MinDamage>45</MinDamage>
-			<MaxDamage>245</MaxDamage>
+			<MinDamage>50</MinDamage>
+			<MaxDamage>270</MaxDamage>
 			<LifetimeMS>400</LifetimeMS>
 			<Amplitude>0.2</Amplitude>
 			<Frequency>0.2</Frequency>
@@ -10783,8 +10788,8 @@
 		<Projectile>
 			<ObjectId>Leaf Arrow</ObjectId>
 			<Speed>120</Speed>
-			<MinDamage>115</MinDamage>
-			<MaxDamage>170</MaxDamage>
+			<MinDamage>127</MinDamage>
+			<MaxDamage>187</MaxDamage>
 			<LifetimeMS>600</LifetimeMS>
 			<Size>60</Size>
 			<Wavy/>
@@ -10887,8 +10892,8 @@
 		<Projectile>
 			<ObjectId>binary</ObjectId>
 			<Speed>75</Speed>
-			<MinDamage>110</MinDamage>
-			<MaxDamage>140</MaxDamage>
+			<MinDamage>121</MinDamage>
+			<MaxDamage>154</MaxDamage>
 			<LifetimeMS>1000</LifetimeMS>
 			<MultiHit/>
 		</Projectile>
@@ -10912,8 +10917,8 @@
 		<Projectile>
 			<ObjectId>happy magic</ObjectId>
 			<Speed>55</Speed>
-			<MinDamage>150</MinDamage>
-			<MaxDamage>275</MaxDamage>
+			<MinDamage>165</MinDamage>
+			<MaxDamage>303</MaxDamage>
 			<LifetimeMS>1500</LifetimeMS>
 		</Projectile>
 		<BagType>6</BagType>
@@ -11187,8 +11192,8 @@
 		<Projectile>
 			<ObjectId>Heartfinder Slash</ObjectId>
 			<Speed>140</Speed>
-			<MinDamage>85</MinDamage>
-			<MaxDamage>165</MaxDamage>
+			<MinDamage>94</MinDamage>
+			<MaxDamage>182</MaxDamage>
 			<LifetimeMS>400</LifetimeMS>
 		</Projectile>
 		<BagType>2</BagType>
@@ -11235,8 +11240,8 @@
 		<Projectile>
 			<ObjectId>Cupid's Arrow</ObjectId>
 			<Speed>160</Speed>
-			<MinDamage>40</MinDamage>
-			<MaxDamage>67</MaxDamage>
+			<MinDamage>44</MinDamage>
+			<MaxDamage>74</MaxDamage>
 			<LifetimeMS>440</LifetimeMS>
 			<MultiHit/>
 		</Projectile>
@@ -11385,8 +11390,8 @@
 		<Projectile>
 			<ObjectId>Morning Star</ObjectId>
 			<Speed>140</Speed>
-			<MinDamage>400</MinDamage>
-			<MaxDamage>500</MaxDamage>
+			<MinDamage>440</MinDamage>
+			<MaxDamage>550</MaxDamage>
 			<LifetimeMS>503</LifetimeMS>
 			<MultiHit/>
 			<ParticleTrail>0xf7941d</ParticleTrail>
@@ -11439,8 +11444,8 @@
 		<Projectile>
 			<ObjectId>Amethyst Shift</ObjectId>
 			<Speed>140</Speed>
-			<MinDamage>125</MinDamage>
-			<MaxDamage>195</MaxDamage>
+			<MinDamage>138</MinDamage>
+			<MaxDamage>215</MaxDamage>
 			<LifetimeMS>400</LifetimeMS>
 		</Projectile>
 		<BagType>4</BagType>
@@ -11490,8 +11495,8 @@
 			<ObjectId>Cat Cavalcade</ObjectId>
 			<Speed>45</Speed>
 			<LifetimeMS>2000</LifetimeMS>
-			<MinDamage>100</MinDamage>
-			<MaxDamage>150</MaxDamage>
+			<MinDamage>110</MinDamage>
+			<MaxDamage>165</MaxDamage>
 			<Amplitude>2</Amplitude>
 			<Frequency>2</Frequency>
 		</Projectile>
@@ -11566,8 +11571,8 @@
 			<ObjectId>Toy Attack</ObjectId>
 			<Speed>50</Speed>
 			<LifetimeMS>1000</LifetimeMS>
-			<MinDamage>250</MinDamage>
-			<MaxDamage>350</MaxDamage>
+			<MinDamage>275</MinDamage>
+			<MaxDamage>385</MaxDamage>
 		</Projectile>
 		<BagType>4</BagType>
 		<OldSound>daggerSwing</OldSound>
@@ -11860,8 +11865,8 @@
 		<Projectile>
 			<ObjectId>Obsidian Vortex</ObjectId>
 			<Speed>140</Speed>
-			<MinDamage>90</MinDamage>
-			<MaxDamage>175</MaxDamage>
+			<MinDamage>99</MinDamage>
+			<MaxDamage>193</MaxDamage>
 			<LifetimeMS>400</LifetimeMS>
 		</Projectile>
 		<BagType>4</BagType>
@@ -11883,8 +11888,8 @@
 		<Projectile>
 			<ObjectId>Purple Batshot</ObjectId>
 			<Speed>160</Speed>
-			<MinDamage>49</MinDamage>
-			<MaxDamage>70</MaxDamage>
+			<MinDamage>54</MinDamage>
+			<MaxDamage>77</MaxDamage>
 			<LifetimeMS>440</LifetimeMS>
 			<MultiHit/>
 			<ParticleTrail intensity="0.1" lifetimeMS="200">0x97357f</ParticleTrail>
@@ -12440,8 +12445,8 @@
 		<Projectile>
 			<ObjectId>Spooky Sparkle</ObjectId>
 			<Speed>160</Speed>
-			<MinDamage>110</MinDamage>
-			<MaxDamage>215</MaxDamage>
+			<MinDamage>121</MinDamage>
+			<MaxDamage>237</MaxDamage>
 			<LifetimeMS>240</LifetimeMS>
 			<Amplitude>0.2</Amplitude>
 			<Frequency>0.2</Frequency>
@@ -12522,8 +12527,8 @@
 		<Projectile>
 			<ObjectId>Spooky Sparkle</ObjectId>
 			<Speed>160</Speed>
-			<MinDamage>110</MinDamage>
-			<MaxDamage>215</MaxDamage>
+			<MinDamage>121</MinDamage>
+			<MaxDamage>237</MaxDamage>
 			<LifetimeMS>240</LifetimeMS>
 			<Amplitude>0.2</Amplitude>
 			<Frequency>0.2</Frequency>
@@ -12998,8 +13003,8 @@
 			<ObjectId>snow flakes</ObjectId>
 			<Size>80</Size>
 			<Speed>160</Speed>
-			<MinDamage>70</MinDamage>
-			<MaxDamage>70</MaxDamage>
+			<MinDamage>77</MinDamage>
+			<MaxDamage>77</MaxDamage>
 			<LifetimeMS>440</LifetimeMS>
 			<MultiHit/>
 			<ArmorPiercing/>
@@ -13073,8 +13078,8 @@
 		<Projectile>
 			<ObjectId>Icicle Shot</ObjectId>
 			<Speed>140</Speed>
-			<MinDamage>90</MinDamage>
-			<MaxDamage>175</MaxDamage>
+			<MinDamage>99</MinDamage>
+			<MaxDamage>193</MaxDamage>
 			<LifetimeMS>400</LifetimeMS>
 			<ParticleTrail intensity="0.3" lifetimeMS="200">0x1ba38f</ParticleTrail>
 		</Projectile>
@@ -13729,8 +13734,8 @@
 		<Projectile>
 			<ObjectId>Artic Arrow</ObjectId>
 			<Speed>185</Speed>
-			<MinDamage>60</MinDamage>
-			<MaxDamage>80</MaxDamage>
+			<MinDamage>66</MinDamage>
+			<MaxDamage>88</MaxDamage>
 			<LifetimeMS>420</LifetimeMS>
 			<MultiHit/>
 		</Projectile>
@@ -14380,8 +14385,8 @@
 		<Projectile>
 			<ObjectId>BB Bunny Bullet 1</ObjectId>
 			<Speed>140</Speed>
-			<MinDamage>90</MinDamage>
-			<MaxDamage>175</MaxDamage>
+			<MinDamage>99</MinDamage>
+			<MaxDamage>193</MaxDamage>
 			<LifetimeMS>400</LifetimeMS>
 			<Frequency>1</Frequency>
 			<Size>100</Size>
@@ -14458,8 +14463,8 @@
 		<Projectile>
 			<ObjectId>4-Leaf Clover</ObjectId>
 			<Speed>90</Speed>
-			<MinDamage>10</MinDamage>
-			<MaxDamage>30</MaxDamage>
+			<MinDamage>11</MinDamage>
+			<MaxDamage>33</MaxDamage>
 			<LifetimeMS>500</LifetimeMS>
 			<Amplitude>3.59</Amplitude>
 			<Frequency>0.42</Frequency>
@@ -14607,8 +14612,8 @@
 		<Projectile>
 			<ObjectId>EH Dagger Shot</ObjectId>
 			<Speed>140</Speed>
-			<MinDamage>65</MinDamage>
-			<MaxDamage>155</MaxDamage>
+			<MinDamage>72</MinDamage>
+			<MaxDamage>171</MaxDamage>
 			<LifetimeMS>357.142857</LifetimeMS>
 			<Size>100</Size>
 			<MultiHit/>
@@ -14824,8 +14829,8 @@
 		<Projectile>
 			<ObjectId>BeeArrow</ObjectId>
 			<Speed>150</Speed>
-			<MinDamage>35</MinDamage>
-			<MaxDamage>60</MaxDamage>
+			<MinDamage>39</MinDamage>
+			<MaxDamage>66</MaxDamage>
 			<LifetimeMS>468</LifetimeMS>
 			<Frequency>0.5</Frequency>
 			<Amplitude>0.5</Amplitude>
@@ -14985,8 +14990,8 @@
 		<Projectile>
 			<ObjectId>Golem Magic</ObjectId>
 			<Speed>140</Speed>
-			<MinDamage>120</MinDamage>
-			<MaxDamage>130</MaxDamage>
+			<MinDamage>132</MinDamage>
+			<MaxDamage>143</MaxDamage>
 			<LifetimeMS>450</LifetimeMS>
 		</Projectile>
 		<BagType>8</BagType>
@@ -15153,8 +15158,8 @@
 		<Projectile>
 			<ObjectId>Void Arrow</ObjectId>
 			<Speed>160</Speed>
-			<MinDamage>165</MinDamage>
-			<MaxDamage>235</MaxDamage>
+			<MinDamage>182</MinDamage>
+			<MaxDamage>259</MaxDamage>
 			<LifetimeMS>350</LifetimeMS>
 			<MultiHit/>
 			<Amplitude>0.35</Amplitude>
@@ -17092,8 +17097,8 @@
 		<Projectile>
 			<ObjectId>XMAS Frozen Arrow</ObjectId>
 			<Speed>160</Speed>
-			<MinDamage>50</MinDamage>
-			<MaxDamage>75</MaxDamage>
+			<MinDamage>55</MinDamage>
+			<MaxDamage>83</MaxDamage>
 			<LifetimeMS>440</LifetimeMS>
 			<MultiHit/>
 			<ConditionEffect duration="1">Slowed</ConditionEffect>
@@ -17120,8 +17125,8 @@
 		<Projectile>
 			<ObjectId>XMAS Dark Blue Magic</ObjectId>
 			<Speed>140</Speed>
-			<MinDamage>95</MinDamage>
-			<MaxDamage>175</MaxDamage>
+			<MinDamage>105</MinDamage>
+			<MaxDamage>193</MaxDamage>
 			<LifetimeMS>400</LifetimeMS>
 		</Projectile>
 		<BagType>9</BagType>
@@ -17660,8 +17665,8 @@
 		<Projectile>
 			<ObjectId>Love Arrow</ObjectId>
 			<Speed>120</Speed>
-			<MinDamage>115</MinDamage>
-			<MaxDamage>170</MaxDamage>
+			<MinDamage>127</MinDamage>
+			<MaxDamage>187</MaxDamage>
 			<LifetimeMS>600</LifetimeMS>
 			<Size>60</Size>
 			<Wavy/>
@@ -17974,8 +17979,8 @@
 		<Projectile>
 			<ObjectId>Egg Bow missiles</ObjectId>
 			<Speed>165</Speed>
-			<MinDamage>40</MinDamage>
-			<MaxDamage>130</MaxDamage>
+			<MinDamage>44</MinDamage>
+			<MaxDamage>143</MaxDamage>
 			<LifetimeMS>460</LifetimeMS>
 			<MultiHit/>
 		</Projectile>
@@ -19060,8 +19065,8 @@
 		<Projectile>
 			<ObjectId>Parasitic Stab</ObjectId>
 			<Speed>75</Speed>
-			<MinDamage>117</MinDamage>
-			<MaxDamage>190</MaxDamage>
+			<MinDamage>129</MinDamage>
+			<MaxDamage>209</MaxDamage>
 			<LifetimeMS>747</LifetimeMS>
 		</Projectile>
 		<RateOfFire>1.2</RateOfFire>
@@ -20109,7 +20114,7 @@
 			<ObjectId>Gilded Arrow</ObjectId>
 			<Speed>159</Speed>
 			<MinDamage>1</MinDamage>
-			<MaxDamage>10</MaxDamage>
+			<MaxDamage>11</MaxDamage>
 			<LifetimeMS>440</LifetimeMS>
 			<MultiHit/>
 		</Projectile>
@@ -20261,8 +20266,8 @@
 		<Projectile>
 			<ObjectId>Mango</ObjectId>
 			<Speed>75</Speed>
-			<MinDamage>250</MinDamage>
-			<MaxDamage>300</MaxDamage>
+			<MinDamage>275</MinDamage>
+			<MaxDamage>330</MaxDamage>
 			<LifetimeMS>800</LifetimeMS>
 		</Projectile>
 		<RateOfFire>0.45</RateOfFire>
@@ -20289,8 +20294,8 @@
 		<Projectile>
 			<ObjectId>Toast</ObjectId>
 			<Speed>160</Speed>
-			<MinDamage>15</MinDamage>
-			<MaxDamage>50</MaxDamage>
+			<MinDamage>17</MinDamage>
+			<MaxDamage>55</MaxDamage>
 			<LifetimeMS>600</LifetimeMS>
 			<Size>100</Size>
 			<MultiHit/>
@@ -20898,8 +20903,8 @@
 		<Projectile>
 			<ObjectId>Archer ST Arrow</ObjectId>
 			<Speed>280</Speed>
-			<MinDamage>160</MinDamage>
-			<MaxDamage>200</MaxDamage>
+			<MinDamage>176</MinDamage>
+			<MaxDamage>220</MaxDamage>
 			<LifetimeMS>200</LifetimeMS>
 			<MultiHit/>
 		</Projectile>
@@ -21331,8 +21336,8 @@
 		<Projectile>
 			<ObjectId>Corruption Cut</ObjectId>
 			<Speed>140</Speed>
-			<MinDamage>100</MinDamage>
-			<MaxDamage>135</MaxDamage>
+			<MinDamage>110</MinDamage>
+			<MaxDamage>149</MaxDamage>
 			<LifetimeMS>400</LifetimeMS>
 			<Amplitude>1.5</Amplitude>
 			<Frequency>0.7</Frequency>
@@ -21952,8 +21957,8 @@
 		<Projectile>
 			<ObjectId>Thousand Reskin Missile</ObjectId>
 			<Speed>165</Speed>
-			<MinDamage>40</MinDamage>
-			<MaxDamage>130</MaxDamage>
+			<MinDamage>44</MinDamage>
+			<MaxDamage>143</MaxDamage>
 			<LifetimeMS>460</LifetimeMS>
 			<MultiHit/>
 		</Projectile>
@@ -21983,8 +21988,8 @@
 		<Projectile>
 			<ObjectId>Doom Reskin Missile</ObjectId>
 			<Speed>140</Speed>
-			<MinDamage>400</MinDamage>
-			<MaxDamage>500</MaxDamage>
+			<MinDamage>440</MinDamage>
+			<MaxDamage>550</MaxDamage>
 			<LifetimeMS>503</LifetimeMS>
 			<MultiHit/>
 		</Projectile>
@@ -22013,8 +22018,8 @@
 		<Projectile>
 			<ObjectId>Queen Reskin Missile</ObjectId>
 			<Speed>140</Speed>
-			<MinDamage>65</MinDamage>
-			<MaxDamage>155</MaxDamage>
+			<MinDamage>72</MinDamage>
+			<MaxDamage>171</MaxDamage>
 			<LifetimeMS>357.142857</LifetimeMS>
 			<Size>100</Size>
 			<MultiHit/>
@@ -22042,8 +22047,8 @@
 		<Projectile>
 			<ObjectId>Cutter Reskin Missile</ObjectId>
 			<Speed>140</Speed>
-			<MinDamage>75</MinDamage>
-			<MaxDamage>85</MaxDamage>
+			<MinDamage>83</MinDamage>
+			<MaxDamage>94</MaxDamage>
 			<LifetimeMS>400</LifetimeMS>
 			<Amplitude>1.5</Amplitude>
 			<Frequency>0.7</Frequency>
@@ -22834,8 +22839,8 @@
 		<Projectile>
 			<ObjectId>Realm Arrow</ObjectId>
 			<Speed>160</Speed>
-			<MinDamage>95</MinDamage>
-			<MaxDamage>140</MaxDamage>
+			<MinDamage>105</MinDamage>
+			<MaxDamage>154</MaxDamage>
 			<LifetimeMS>400</LifetimeMS>
 			<MultiHit/>
 		</Projectile>
@@ -22860,8 +22865,8 @@
 		<Projectile>
 			<ObjectId>Realm Stab</ObjectId>
 			<Speed>140</Speed>
-			<MinDamage>120</MinDamage>
-			<MaxDamage>170</MaxDamage>
+			<MinDamage>132</MinDamage>
+			<MaxDamage>187</MaxDamage>
 			<LifetimeMS>380</LifetimeMS>
 			<PassesCover/>
 		</Projectile>
@@ -22937,8 +22942,8 @@
 		<Projectile>
 			<ObjectId>HGolem Magic</ObjectId>
 			<Speed>140</Speed>
-			<MinDamage>120</MinDamage>
-			<MaxDamage>130</MaxDamage>
+			<MinDamage>132</MinDamage>
+			<MaxDamage>143</MaxDamage>
 			<LifetimeMS>450</LifetimeMS>
 		</Projectile>
 		<BagType>8</BagType>
@@ -23019,8 +23024,8 @@
 		<Projectile>
 			<ObjectId>HArcher ST Arrow</ObjectId>
 			<Speed>280</Speed>
-			<MinDamage>160</MinDamage>
-			<MaxDamage>200</MaxDamage>
+			<MinDamage>176</MinDamage>
+			<MaxDamage>220</MaxDamage>
 			<LifetimeMS>200</LifetimeMS>
 			<MultiHit/>
 		</Projectile>
@@ -23764,8 +23769,8 @@
 		<Projectile>
 			<ObjectId>Phantasm Magic</ObjectId>
 			<Speed>180</Speed>
-			<MinDamage>130</MinDamage>
-			<MaxDamage>250</MaxDamage>
+			<MinDamage>143</MinDamage>
+			<MaxDamage>275</MaxDamage>
 			<LifetimeMS>250</LifetimeMS>
 		</Projectile>
 		<ActivateOnEquip stat="27" amount="6">IncrementStat</ActivateOnEquip>
@@ -24045,8 +24050,8 @@
 		<Projectile>
 			<ObjectId>Laser Lily</ObjectId>
 			<Speed>150</Speed>
-			<MinDamage>160</MinDamage>
-			<MaxDamage>195</MaxDamage>
+			<MinDamage>176</MinDamage>
+			<MaxDamage>215</MaxDamage>
 			<LifetimeMS>533</LifetimeMS>
 			<ArmorPiercing/>
 		</Projectile>
@@ -25139,8 +25144,8 @@
 		<Projectile>
 			<ObjectId>Acid Bubble</ObjectId>
 			<Speed>100</Speed>
-			<MinDamage>230</MinDamage>
-			<MaxDamage>280</MaxDamage>
+			<MinDamage>253</MinDamage>
+			<MaxDamage>308</MaxDamage>
 			<LifetimeMS>350</LifetimeMS>
 			<Amplitude>0</Amplitude>
 			<Frequency>1</Frequency>
@@ -25484,8 +25489,8 @@
 		<Projectile>
 			<ObjectId>Razorlight</ObjectId>
 			<Speed>100</Speed>
-			<MinDamage>10</MinDamage>
-			<MaxDamage>10</MaxDamage>
+			<MinDamage>11</MinDamage>
+			<MaxDamage>11</MaxDamage>
 			<LifetimeMS>400</LifetimeMS>
 			<Amplitude>1.5</Amplitude>
 			<Frequency>0.61</Frequency>
@@ -27292,8 +27297,8 @@
 			<ObjectId>Harp Notes Small</ObjectId>
 			<Size>100</Size>
 			<Speed>50</Speed>
-			<MinDamage>110</MinDamage>
-			<MaxDamage>140</MaxDamage>
+			<MinDamage>121</MinDamage>
+			<MaxDamage>154</MaxDamage>
 			<LifetimeMS>1200</LifetimeMS>
 			<MultiHit/>
 			<Amplitude>0.5</Amplitude>
@@ -28086,8 +28091,8 @@
 		<Projectile>
 			<ObjectId>Avarice Projectile</ObjectId>
 			<Speed>133</Speed>
-			<MinDamage>165</MinDamage>
-			<MaxDamage>185</MaxDamage>
+			<MinDamage>182</MinDamage>
+			<MaxDamage>204</MaxDamage>
 			<LifetimeMS>450</LifetimeMS>
 			<Amplitude>0.55</Amplitude>
 			<Frequency>0.5</Frequency>
@@ -28977,8 +28982,8 @@
 		<Projectile>
 			<ObjectId>Scythe Dagger</ObjectId>
 			<Speed>100</Speed>
-			<MinDamage>300</MinDamage>
-			<MaxDamage>400</MaxDamage>
+			<MinDamage>330</MinDamage>
+			<MaxDamage>440</MaxDamage>
 			<LifetimeMS>400</LifetimeMS>
 			<Size>100</Size>
 		</Projectile>
@@ -29074,8 +29079,8 @@
 		<Projectile>
 			<ObjectId>Resplendent Arrow</ObjectId>
 			<Speed>150</Speed>
-			<MinDamage>200</MinDamage>
-			<MaxDamage>300</MaxDamage>
+			<MinDamage>220</MinDamage>
+			<MaxDamage>330</MaxDamage>
 			<LifetimeMS>500</LifetimeMS>
 			<Amplitude>0.25</Amplitude>
 			<Frequency>0.75</Frequency>

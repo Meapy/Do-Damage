@@ -33,15 +33,8 @@ namespace WorldServer.core.commands.player
         protected override bool Process(Player player, TickTime time, string args)
         {
             if (player.PetId != 0)
-            {
-                // the generator was used up: it comes back, so the pet isn't lost
-                var petType = player.PetId;
-                player.PetId = 0;
-                if (player.Pet != null)
-                    player.World.LeaveWorld(player.Pet);
-                if (!player.GivePetGeneratorBack(petType))
-                    player.SendInfo("Your pet runs away.");
-            }
+                // the generator was used up: it comes back (with the Pen Keeper's raise), so the pet isn't lost
+                player.RemovePet();
             else
                 player.SendError("You do not have a pet");
             return true;

@@ -558,7 +558,8 @@ DESCRIPTIONS = {
     "Santa's Hat": "A hat that protects Santa from even death itself. A blow that would kill its wearer breaks "
                    "the hat instead, and sends them back to the Nexus.",
     "Staff of Heavens": "Raised over Oryx's Elysium in his last stand, it fires the holy bolts of the Ascended God, "
-                        "and now and then calls one of his halos to circle its bearer.",
+                        "two weaving about a third that flies straight, all ignoring defense, and now and then "
+                        "calls one of his halos to circle its bearer.",
     "Sword of Dark Enchantment": "A fatal sword enchanted with the black magic of the dark mages. Its strikes "
                                  "now and then tear loose a small dark orb that zaps whatever is near.",
     "Doom Poison": "Brimstone from the deepest fires of Oryx's Inferno. It curses all it burns, but its fumes "
@@ -643,6 +644,9 @@ DOOMED_ABILITY_SLOTS = {30, 32, 37, 126, 128, 130, 5000, 5005}
 # The Blademaster: every Dual Blades shot ignores defense (<ArmorPiercing/>), and its T3-T8 jackets
 # also give it Attack for a while (StatBoostSelf, which shows the Att Boost status): (amount, seconds).
 DUAL_BLADES_SLOT = "36"
+JACKET_SLOT = "37"  # the Blademaster's ability
+HALO_COOLDOWN = "4"  # seconds between a halo's uses
+BOW_DAGGER_DAMAGE = 1.1  # bows' and daggers' damage, rounded to whole numbers
 JACKET_BOOSTS = {"Lightweight Jacket": (3, 3), "Murderous Jacket": (5, 4), "Invincibility Jacket": (7, 5),
                  "Jacket of Sorrows": (10, 6), "Skyfall Jacket": (12, 7), "Jacket of Bloodrut Nature": (15, 8)}
 ABILITY_BAGS = [1, 1, 1, 2, 2, 4, 4, 9, 9]
@@ -682,8 +686,10 @@ GEAR_TUNING = {
         "<OnPlayerShootActivate cooldown=\"2\" objectId=\"Dark Enchantment Orb\" proc=\"0.15\">Pet</OnPlayerShootActivate>",
         "<ExtraTooltipData><EffectInfo name=\"Dark Orb\" description=\"Each shot: a 15% chance (at most every 2 seconds) of a dark orb that zaps the nearest enemy for 220-280 every 0.5 seconds for 4 seconds\" /></ExtraTooltipData>",
     ]},
-    # its shots weave twice, as the other staves' do (they weaved five times: jittery)
-    "Staff of Heavens": {"wave": ("0.5", "2"), "add_xml": [
+    # its shots weave twice, as the other staves' do (they weaved five times: jittery); and (the owner,
+    # 2026-11-05) a third bolt between them flying straight, the Elysian Ray, with the same damage,
+    # every shot ignoring defense, and 45% faster (was 0.35)
+    "Staff of Heavens": {"wave": ("0.5", "2"), "rof": "0.5075", "pierce": True, "straight_shot": "Elysian Ray", "add_xml": [
         "<OnPlayerShootActivate cooldown=\"6\" objectId=\"Elysian Halo\" proc=\"0.1\">Pet</OnPlayerShootActivate>",
         "<ExtraTooltipData><EffectInfo name=\"Halo\" description=\"Each shot: a 10% chance (at most every 6 seconds) of a halo that circles you for 5 seconds, firing two Holy Orbs at the nearest enemy every second for 120-150 each\" /></ExtraTooltipData>",
     ]},
@@ -807,6 +813,25 @@ def tune_gear(dr):
             ET.SubElement(p, "ArmorPiercing")
         if "wave" in t:  # the shots weave side to side: (amplitude in tiles, frequency)
             p.find("Amplitude").text, p.find("Frequency").text = t["wave"]
+        # one more shot each volley, flying straight down the middle: a copy of the projectile
+        # (as id 1) without its weave, in this object's look, the volley's last
+        # (<VolleyProjectiles>, Item.VolleyProjectiles)
+        if "straight_shot" in t and o.find("VolleyProjectiles") is None:
+            straight = copy.deepcopy(p)
+            straight.set("id", "1")
+            for tag in ("Amplitude", "Frequency"):
+                if straight.find(tag) is not None:
+                    straight.remove(straight.find(tag))
+            straight.find("ObjectId").text = t["straight_shot"]
+            o.insert(list(o).index(p) + 1, straight)
+            num = o.find("NumProjectiles")
+            shots = int(num.text) if num is not None else 1
+            if num is None:
+                num = ET.SubElement(o, "NumProjectiles")
+            num.text = str(shots + 1)
+            volley = ET.Element("VolleyProjectiles")
+            volley.text = ",".join(["0"] * shots + ["1"])
+            o.insert(list(o).index(num) + 1, volley)
         if "mp" in t:
             o.find("MpCost").text = str(t["mp"])
         if t.get("untier") and o.find("Tier") is not None:
@@ -866,9 +891,31 @@ def tune_gear(dr):
             e.text = "IncrementStat"
             o.insert(at, e)
             at += 1
+    # the halos can be used again only after HALO_COOLDOWN seconds (the owner, 2026-11-05; they had
+    # the usual half a second): a <Cooldown> before their Halo, which the server holds them to too
+    for o in dr.values():
+        acts = [a for a in o.findall("Activate") if (a.text or "").strip() == "Halo"]
+        if acts and o.find("Cooldown") is None:
+            e = ET.Element("Cooldown")
+            e.text = HALO_COOLDOWN
+            o.insert(list(o).index(acts[0]), e)
+    # the Blademaster's jackets have no cooldown of their own (the owner, 2026-11-05): the usual half
+    # a second between uses, their mana the only limit
+    for o in dr.values():
+        if o.findtext("SlotType") == JACKET_SLOT and o.find("Cooldown") is not None:
+            o.remove(o.find("Cooldown"))
     for o in dr.values():
         if o.findtext("SlotType") == DUAL_BLADES_SLOT and o.find("Projectile") is not None                 and o.find("Projectile").find("ArmorPiercing") is None:
             ET.SubElement(o.find("Projectile"), "ArmorPiercing")
+    # bows and daggers do BOW_DAGGER_DAMAGE times as much (the owner, 2026-11-05: they fell behind),
+    # after GEAR_TUNING's numbers, as every tiered and untiered one in the other item XML does
+    for oid, o in dr.items():
+        if o.findtext("SlotType") in ("2", "3") and oid not in ADMIN_ITEMS:
+            for p in o.findall("Projectile"):
+                for tag in ("MinDamage", "MaxDamage", "Damage"):
+                    e = p.find(tag)
+                    if e is not None and (e.text or "").strip().isdigit():
+                        e.text = str(int(int(e.text) * BOW_DAGGER_DAMAGE + 0.5))
     for o in dr.values():
         slot = SLOT_TYPE_REMAP.get(o.findtext("SlotType") or "", o.findtext("SlotType") or "")
         tier = o.findtext("Tier")

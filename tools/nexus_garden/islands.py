@@ -266,10 +266,11 @@ def grounds():
     stone_rail = {"Rail": "0x%06X" % GRANITE_RAIL}
     oak_rail = {"Rail": "0x%06X" % WOOD_RAIL}
     # a bridge's deck slopes from square to square (no steps) and stays solid; piers under it
-    bridge = {"StaySolid": None, "Piers": None, "Slope": None}
+    bridge = {"StaySolid": None, "Piers": None, "Slope": None, "Speed": G.PATH_SPEED}
     # the stone bridge's walls as the garden's stone bridges' (models.arch): thick granite with a
     # coping, as high as theirs (`<RailHeight>`)
-    stone_bridge = {"StaySolid": None, "Piers": "stone", "Slope": None, "Parapet": None, "RailHeight": "0.6"}
+    stone_bridge = {"StaySolid": None, "Piers": "stone", "Slope": None, "Parapet": None, "RailHeight": "0.6",
+                    "Speed": G.PATH_SPEED}
     stone_face = lambda s: ashlar(GRANITE, s + 2)
     out = {
         "NI Sky Rock": (sky_rock, 4, {"NoWalk": None, "BlendPriority": "-1"}, "0x4D4459", None),
@@ -302,7 +303,7 @@ def grounds():
     # the wooden bridges arch, east to west (`ARCH_LIFTS`); the stone one steps a quarter of a
     # tile a square
     arch = {"BlendPriority": "24", **wood_rail, "RailHeight": str(ARCH_RAIL_HEIGHT), "RailCap": "0x%06X" % BRASS,
-            "StaySolid": None, "Slope": None, "NoUnderside": None, "Slab": "0.26"}
+            "StaySolid": None, "Slope": None, "NoUnderside": None, "Slab": "0.26", "Speed": G.PATH_SPEED}
     for k, lift in enumerate(ARCH_LIFTS):
         tags = dict(arch, Lift=str(lift)) if lift else arch
         out["NI Arch Deck EW %d" % k] = (G.planks(ARCH_PLANK, True), 3, tags, "0x70482E", lacquer_face)

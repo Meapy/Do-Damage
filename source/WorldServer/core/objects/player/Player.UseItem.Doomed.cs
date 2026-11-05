@@ -26,6 +26,7 @@ namespace WorldServer.core.objects
             ally.GivesNoXp = true;
             ally.ApplyConditionEffect(ConditionEffectIndex.Invincible, -1);
             ally.Move(at.X, at.Y);
+            ally.Z = Z;
             World.EnterWorld(ally);
             if (lifetimeMs > 0)
                 World.StartNewTimer(lifetimeMs, (world, t) => world.LeaveWorld(ally));
@@ -81,6 +82,7 @@ namespace WorldServer.core.objects
                 if (monster == null)
                     return;
                 monster.Move(target.X, target.Y);
+                monster.Z = Z;
                 world.EnterWorld(monster);
             });
         }
@@ -124,6 +126,7 @@ namespace WorldServer.core.objects
         {
             var halo = new Halo(this, eff.Range, eff.Amount, eff.DurationMS > 0 ? eff.DurationMS : 8000);
             halo.Move(X, Y);
+            halo.Z = Z;
             World.EnterWorld(halo);
         }
 
@@ -152,6 +155,7 @@ namespace WorldServer.core.objects
                 var angle = (float)(Random.Shared.NextDouble() * Math.PI * 2);
                 var decoy = new Decoy(this, eff.DurationMS, angle, new Position(X, Y), 4.5f, 7);
                 decoy.Move(X, Y);
+                decoy.Z = Z;
                 World.EnterWorld(decoy);
             }
         }

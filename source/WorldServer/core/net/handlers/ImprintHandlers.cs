@@ -14,10 +14,13 @@ namespace WorldServer.core.net.handlers
 {
     // The Enchanter's window (the Rust client), beside the Divine Forge in the Nexus: it imprints
     // Enthroned gear (Shared/resources/Imprints.cs), in the inventory or in the account's vault
-    // chests (ForgeVault, while its owner isn't in the vault), for an Ascended shard from the forge
-    // storage, or from the inventory when the storage has none. The window asks for the storage's
-    // shards and the vault's Enthroned gear when it opens. While imprints are tested, only admins
-    // (rank 6, MinRank) can imprint; anyone can look.
+    // chests (ForgeVault, while its owner isn't in the vault), for Ascended shards from the forge
+    // storage, then from the inventory (Imprint.Cost of them: 1 for Offensive and Defensive, 3 for
+    // Misc, 5 for Apotheosis, 20 for Guardian Angel). The window asks for the storage's shards and
+    // the vault's Enthroned gear when it opens. Anyone can imprint (only admins could while imprints
+    // were tested). The Apotheosis imprints go on gear in the inventory only (the vault's list
+    // carries three colours), the Apotheosis of Balance with the stats picked for it, three bytes
+    // after the imprint (an older client sends none, and can't pick it).
     public class ImprintRequestHandler : IMessageHandler
     {
         public override MessageId MessageId => MessageId.IMPRINT_REQUEST;
@@ -34,7 +37,6 @@ namespace WorldServer.core.net.handlers
     public class ImprintHandler : IMessageHandler
     {
         public const string EnchanterClass = "Enchanter";
-        public const int MinRank = (int)RankingType.Admin;
         // ImprintResult's slot for an item in the vault
         public const byte VaultSlot = 255;
 
@@ -44,18 +46,24 @@ namespace WorldServer.core.net.handlers
         {
             var slot = rdr.ReadByte();
             var id = rdr.ReadByte();
+            // the stats picked for the Apotheosis of Balance, when the client sends them
+            int raised = -1, low1 = -1, low2 = -1;
+            if (rdr.BaseStream.Length - rdr.BaseStream.Position >= 3)
+            {
+                raised = rdr.ReadByte();
+                low1 = rdr.ReadByte();
+                low2 = rdr.ReadByte();
+            }
             var player = client.Player;
             if (player == null)
                 return;
-            var error = Allowed(player) ?? ApplyInventory(player, slot, id);
+            var error = Allowed(player) ?? ApplyInventory(player, slot, id, raised, low1, low2);
             client.SendPacket(new ImprintResult() { Success = error == null, Slot = slot, Message = error });
         }
 
         // Why this player can't imprint now, or null.
         public static string Allowed(Player player)
         {
-            if (player.Client.Account.Rank < MinRank)
-                return "Imprints are being tested: only admins can imprint gear for now.";
             if (!DoomedEconomy.NearObject(player, EnchanterClass))
                 return "Stand by the Enchanter to imprint gear.";
             return null;
@@ -71,7 +79,7 @@ namespace WorldServer.core.net.handlers
             item != null && item.Ascended && !item.Consumable && GearSlots(server).Contains(item.SlotType);
 
         // Imprints the item in this inventory slot. Returns what went wrong, or null.
-        private static string ApplyInventory(Player player, byte slot, byte id)
+        private static string ApplyInventory(Player player, byte slot, byte id, int raised, int low1, int low2)
         {
             var end = player.HasBackpack ? InventoryConstants.SWAP_FIRST : 12;
             if (slot >= end || player.Inventory[slot] == null)
@@ -80,9 +88,18 @@ namespace WorldServer.core.net.handlers
             var error = Check(player, item, player.Inventory.Data[slot], id, out var imprint);
             if (error != null)
                 return error;
-            if ((error = Pay(player, imprint.Kind, slot)) != null)
+            var value = (int)imprint.Id;
+            if (imprint.Picks)
+            {
+                if (!Imprint.ValidChoice(raised, low1, low2))
+                    return $"Pick a stat to raise and two others to lower for {imprint.Name}.";
+                value = Imprint.WithChoice(imprint.Id, raised, low1, low2);
+                if (player.Inventory.Data[slot]?.Imprint(imprint.Kind) == value)
+                    return $"{item.DisplayName} already carries {imprint.Name} with those stats.";
+            }
+            if ((error = Pay(player, imprint, slot)) != null)
                 return error;
-            player.Inventory.Data[slot] = WithImprint(item, player.Inventory.Data[slot], imprint);
+            player.Inventory.Data[slot] = WithImprint(item, player.Inventory.Data[slot], imprint, value);
             player.Stats.ReCalculateValues();
             player.SendInfo($"{item.DisplayName} now carries {imprint.Name}.");
             return null;
@@ -100,13 +117,15 @@ namespace WorldServer.core.net.handlers
             var error = Check(player, item, data, id, out var imprint);
             if (error != null)
                 return error;
-            // the vault first (nothing taken if it changed meanwhile), then the shard
-            if (!Afford(player, imprint.Kind))
-                return CostText(imprint.Kind);
-            vault.SetData(chest, slot, WithImprint(item, data, imprint));
+            if (imprint.Kind == ImprintKind.Apotheosis)
+                return $"Take {item.DisplayName} out of your vault first: Apotheosis imprints go on gear in your inventory.";
+            // the vault first (nothing taken if it changed meanwhile), then the shards
+            if (!Afford(player, imprint, -1))
+                return CostText(imprint);
+            vault.SetData(chest, slot, WithImprint(item, data, imprint, imprint.Id));
             if (!vault.Save())
                 return "Your vault changed meanwhile: try again.";
-            Pay(player, imprint.Kind, -1);
+            Pay(player, imprint, -1);
             player.SendInfo($"{item.DisplayName} in your vault now carries {imprint.Name}.");
             return null;
         }
@@ -120,58 +139,77 @@ namespace WorldServer.core.net.handlers
                 return "That imprint isn't known here.";
             if (!imprint.Fits(item))
                 return $"{imprint.Name} doesn't fit {item.DisplayName}.";
-            if (data?.Imprint(imprint.Kind) == imprint.Id)
+            if (((data?.Imprint(imprint.Kind) ?? 0) & 0xFF) == imprint.Id && !imprint.Picks)
                 return $"{item.DisplayName} already carries {imprint.Name}.";
+            // Guardian Angel takes the ring's other imprints, and it takes no more while it's on
+            if (imprint.Kind != ImprintKind.Misc && ((data?.Imprint(ImprintKind.Misc) ?? 0) & 0xFF) == Imprint.GuardianAngel)
+                return $"{item.DisplayName} carries Guardian Angel, which takes no other imprints.";
             return null;
         }
 
-        private static string CostText(ImprintKind kind) =>
-            $"It costs an {string.Join(" or an ", Imprint.Cost(kind))}, in your forge storage or inventory.";
+        private static string CostText(Imprint imprint) =>
+            imprint.Cost == 1
+                ? $"It costs an {string.Join(" or an ", Imprint.Shards(imprint.Kind))}, in your forge storage or inventory."
+                : $"It costs {imprint.Cost} shards ({string.Join(", ", Imprint.Shards(imprint.Kind))}), in your forge storage or inventory.";
 
-        // The shard in the forge storage, or the inventory slot holding one (not `skip`): (stored id, held slot).
-        private static (string Stored, int Held) FindShard(Player player, ImprintKind kind, int skip)
+        // The shards that would pay for an imprint: from the forge storage first, then inventory
+        // slots (not `skip`); null if there aren't enough.
+        private static (Dictionary<string, int> Stored, List<int> Held)? FindShards(Player player, Imprint imprint, int skip)
         {
-            var cost = Imprint.Cost(kind);
+            var cost = Imprint.Shards(imprint.Kind);
+            var left = imprint.Cost;
+            var stored = new Dictionary<string, int>();
             var counts = ForgeStorage.Counts(player);
-            var stored = cost.FirstOrDefault(s => ForgeStorage.Index(s) >= 0 && counts[ForgeStorage.Index(s)] > 0);
-            if (stored != null)
-                return (stored, -1);
-            var end = player.HasBackpack ? InventoryConstants.SWAP_FIRST : 12;
-            for (var i = 4; i < end; i++)
-                if (i != skip && player.Inventory[i] != null && cost.Contains(player.Inventory[i].ObjectId))
-                    return (null, i);
-            return (null, -1);
-        }
-
-        private static bool Afford(Player player, ImprintKind kind)
-        {
-            var (stored, held) = FindShard(player, kind, -1);
-            return stored != null || held >= 0;
-        }
-
-        // Takes the shard: from the forge storage, else the inventory. Returns what went wrong, or null.
-        private static string Pay(Player player, ImprintKind kind, int skip)
-        {
-            var (stored, held) = FindShard(player, kind, skip);
-            if (stored != null)
-                ForgeStorage.Take(player, new Dictionary<string, int> { [stored] = 1 });
-            else if (held >= 0)
+            foreach (var s in cost)
             {
-                player.Inventory[held] = null;
-                player.Inventory.Data[held] = null;
+                var i = ForgeStorage.Index(s);
+                if (i < 0 || left == 0)
+                    continue;
+                var n = System.Math.Min(counts[i], left);
+                if (n > 0)
+                {
+                    stored[s] = n;
+                    left -= n;
+                }
             }
-            else
-                return CostText(kind);
+            var held = new List<int>();
+            var end = player.HasBackpack ? InventoryConstants.SWAP_FIRST : 12;
+            for (var i = 4; i < end && left > 0; i++)
+                if (i != skip && player.Inventory[i] != null && cost.Contains(player.Inventory[i].ObjectId))
+                {
+                    held.Add(i);
+                    left--;
+                }
+            return left > 0 ? null : (stored, held);
+        }
+
+        private static bool Afford(Player player, Imprint imprint, int skip) => FindShards(player, imprint, skip) != null;
+
+        // Takes the shards: from the forge storage, then the inventory. Returns what went wrong, or null.
+        private static string Pay(Player player, Imprint imprint, int skip)
+        {
+            var found = FindShards(player, imprint, skip);
+            if (found == null)
+                return CostText(imprint);
+            var (stored, held) = found.Value;
+            ForgeStorage.Take(player, stored);
+            foreach (var i in held)
+            {
+                player.Inventory[i] = null;
+                player.Inventory.Data[i] = null;
+            }
             return null;
         }
 
-        private static ItemData WithImprint(Item item, ItemData data, Imprint imprint)
+        // The item's data with the imprint on (its value: the id, with any stats picked). Guardian
+        // Angel takes the other imprints off.
+        private static ItemData WithImprint(Item item, ItemData data, Imprint imprint, int value)
         {
-            var imprints = new int[3];
-            if (data?.Imprints != null)
+            var imprints = new int[4];
+            if (data?.Imprints != null && imprint.Id != Imprint.GuardianAngel)
                 for (var i = 0; i < imprints.Length && i < data.Imprints.Length; i++)
                     imprints[i] = data.Imprints[i];
-            imprints[(int)imprint.Kind] = imprint.Id;
+            imprints[(int)imprint.Kind] = value;
             return new ItemData()
             {
                 ObjectId = data?.ObjectId ?? item.ObjectId,

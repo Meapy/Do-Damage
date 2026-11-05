@@ -9,7 +9,7 @@ using WorldServer.networking.packets.outgoing;
 namespace WorldServer.logic.behaviors.doomed
 {
     // Doomed Realms pet healing (PetsHealingHP / PetsHealingMP): every cooldown, restores a random
-    // amount between min and max of the owner's HP or MP while the owner is within range.
+    // amount between min and max of the owner's HP or MP, wherever the owner is in the pet's world.
     internal class PetHeal : Behavior
     {
         private readonly bool _mana;
@@ -37,15 +37,17 @@ namespace WorldServer.logic.behaviors.doomed
                 state = cool - time.ElapsedMsDelta;
                 return;
             }
-            state = _coolDown.Next(Random);
+            var raised = (host as Pet)?.Heal;
+            state = raised?.Ms ?? _coolDown.Next(Random);
 
+            // from any distance: a pet left behind by a fast character, or stuck on a wall, still heals
             var owner = (host as Pet)?.PlayerOwner;
-            if (owner?.World == null || owner.World != host.World || owner.Dead || host.DistTo(owner) > _range)
+            if (owner?.World == null || owner.World != host.World || owner.Dead)
                 return;
             if (owner.HasConditionEffect(ConditionEffectIndex.Sick))
                 return;
 
-            var amount = Random.Next(_min, _max + 1);
+            var amount = raised?.Amount ?? Random.Next(_min, _max + 1);
             int gained;
             if (_mana)
             {

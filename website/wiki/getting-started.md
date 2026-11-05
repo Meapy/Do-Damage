@@ -136,7 +136,10 @@ The world fills the window, with one bar down the right:
 
 - **At the top:** the minimap, your experience, HP and MP. Your rank star, gold and fame sit
   beside the minimap. On it, your quest is a red box, realm events orange, and players yellow
-  over everything; a realm you go back to keeps the map you'd uncovered.
+  over everything; a realm you go back to keeps the map you'd uncovered. In the Nexus it also shows
+  its places with their pictures (the Divine Forge, the Warcaller, the Pen Keeper, the portals...),
+  ringed gold for those you talk to and violet for portals, even before you've been there, at the
+  map's edge when they're out of view: hover one for its name.
 - **Your character card:** your name, class and level, with two tabs: your stats, and your records
   (kills, god and Oryx kills, quests, dungeons, accuracy, potions drunk and time played).
 - **At the foot:** the Nexus button, your equipment, your inventory (two small buttons switch to
@@ -194,7 +197,9 @@ the stone water basins at its corners do. From there:
   wayside shrine, where the twins Hana and Sora run about.
 - **East**, over the other arched bridge: the **Arena island**. Its court of raked sand holds a
   samurai's statue, banners, straw dummies, the Arena Leaderboard's golden trophy, the **Herald**
-  and the **Warcaller** (the [community goals](community-goals.html)). Beside it rises a round
+  and the **Warcaller** (the [community goals](community-goals.html)); east of them, the pet pen,
+  where pets of every kind come and go, and the **Pen Keeper** at its gate, who
+  [raises and swaps pets](pets.html#the-pen-keeper-raising-a-pet). Beside it rises a round
   stone tower: go in at its door and climb the spiral stair inside to its top, where the
   [Hall of Champions](champions.html) stands round the cap room, with a telescope to look out
   over the sky, and on an overhang to the east the **Sky Bar**: every 20 seconds Barman Kenji

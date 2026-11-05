@@ -28,6 +28,14 @@ namespace WorldServer.logic.behaviors
             var player = host.World.Players.GetValueOrDefault(host.AllyOwnerId);
             if (player == null)
                 return;
+            // on stacked floors, its owner went up or down (a teleport, the Sky Bar's stair): it
+            // comes onto their floor rather than walking about under it
+            if (MathF.Abs(player.Z - host.Z) > Entity.LevelReach)
+            {
+                host.Move(player.X, player.Y);
+                host.Z = player.Z;
+                return;
+            }
             var vect = new Vector2(player.X - host.X, player.Y - host.Y);
             if (vect.Length() > range)
             {

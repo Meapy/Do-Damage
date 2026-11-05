@@ -84,23 +84,23 @@ Oryx the Ascended God's own gear, which he never drops: untiered items with a re
 the forge makes from an item of the highest tier he drops and an Ascended shard of its kind. Each
 weapon and armour comes from its own kind's top item (a tier 15 dagger makes the Enthroned Dagger)
 and looks like it, with purple sparkles. Each has the numbers of the item it's forged from: its
-stats, its ability and its shots' damage. All are named **Enthroned**: the Enthroned Sword, Dagger,
-Bow, Wand, Katana, Dual Blades, Fists, Hide and Plate. His own pieces: the **Enthroned Spear**, a
-staff drawn after the one he holds, from his **Elysian Staff**; the **Enthroned Robe** from his
-**Robe of Absolution**, the **Enthroned Helm** from any tier 8 ability, and the **Enthroned Boots** and the
-**Enthroned Rings of Wrath and Grace** from any tier 8 ring.
+stats, its ability and its shots' damage and what they do (an Enthroned Katana's shots still
+pierce, an Enthroned Dual Blades' still ignore defense). All are named **Enthroned**: the Enthroned
+Sword, Dagger, Bow, Wand, Katana, Dual Blades, Fists, Hide and Plate, and the **Enthroned Staff**, a
+staff drawn after the one he holds, from a tier 15 staff (it was the Enthroned Spear, made from his
+Elysian Staff). His own pieces: the **Enthroned Robe** from his **Robe of Absolution**, the
+**Enthroned Boots** from any tier 8 ring, and the **Enthroned Ring of Grace** from both of his
+gems, the **Ascended Gem of Adoration** and the **Ascended Gem of Tenderness**, and three Ascended
+Accessory Shards. The Ring of Grace gives +200 health and magic and +10 to every other stat. Every
+Enthroned item gives a **10% fame bonus**.
 
-The Enthroned weapons fire **Oryx's own shots**, in the same pattern as the weapon they're forged
-from, and their volleys take turns between two of them:
+The forge doesn't make the Enthroned Helm (for now) or the Enthroned Ring of Wrath any more; ones
+already made keep working.
 
-- the **Sword** and **Dagger**: a gold shot with the weapon's own damage, then a silver one that
-  pierces, for a little less;
-- the **Bow**, **Wand**, **Katana** and **Fists**: a silver shot as the weapon's own, then a gold one
-  that ignores defense;
-- the **Dual Blades**: silver shots, then gold ones that leave the enemy bleeding (300 damage over
-  3 seconds);
-- the **Enthroned Spear**, his staff: two shots weaving like a staff's, yellow bolts as strong as a
-  tier 15 staff's (105-140), then white ones that pierce (85-115).
+Every Enthroned weapon fires **Oryx's own shots**, the same two for all of them, in the same pattern
+as the weapon they're forged from, and their volleys take turns: his gold **Radiance**, with the
+weapon's own damage and what its shots do, then his violet **Rift**, the same but piercing and
+ignoring defense.
 
 Dropped from your inventory, an Enthroned item goes into a **purple bag only you can see**, and it
 only goes into loot bags that are yours alone.

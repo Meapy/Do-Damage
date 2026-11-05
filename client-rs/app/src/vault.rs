@@ -104,7 +104,7 @@ pub struct Vault {
     pub open: bool,
     chests: Vec<Chest>,
     /// Each chest's slots: the item and its imprints.
-    items: Vec<[Option<(i32, [u8; 3])>; SLOTS]>,
+    items: Vec<[Option<(i32, [u32; 4])>; SLOTS]>,
     loaded: bool,
     /// When we last asked, while no answer has come.
     asked: Option<i32>,
@@ -126,11 +126,11 @@ pub struct Vault {
     total_rows: usize,
     rect: Option<[f32; 4]>,
     hits: Vec<(Hit, [f32; 4])>,
-    hover: Option<(Place, i32, [u8; 3])>,
+    hover: Option<(Place, i32, [u32; 4])>,
     /// Our id and inventory when last drawn: (slot, item, imprints) for slots 4-11, and the
     /// backpack's 12-19 when we have one.
     me: i32,
-    inventory: Vec<(u8, i32, [u8; 3])>,
+    inventory: Vec<(u8, i32, [u32; 4])>,
     backpack: bool,
     /// A press on an item: where, and from which slot; a drag once the mouse moves.
     press: Option<(Place, (f64, f64))>,
@@ -175,7 +175,7 @@ impl Vault {
         self.items = vec![[None; SLOTS]; self.chests.len()];
         for g in v.items.iter() {
             if let Some(slot) = self.items.get_mut(g.chest as usize).and_then(|c| c.get_mut(g.slot as usize)) {
-                *slot = Some((g.item as i32, [g.offensive, g.defensive, g.misc]));
+                *slot = Some((g.item as i32, [g.offensive as u32, g.defensive as u32, g.misc as u32, 0]));
             }
         }
         log::info!("vault: {} chests, {} items", self.chests.len(), v.items.len());
@@ -296,9 +296,9 @@ impl Vault {
             Place::Inv(_) => None,
         };
         let (da, db) = (take(self, a), take(self, b));
-        let put = |v: &mut Self, p: Place, item: i32, other: Option<(i32, [u8; 3])>| {
+        let put = |v: &mut Self, p: Place, item: i32, other: Option<(i32, [u32; 4])>| {
             if let Place::Chest(c, s) = p {
-                v.items[c][s] = (item >= 0).then(|| other.unwrap_or((item, [0; 3])));
+                v.items[c][s] = (item >= 0).then(|| other.unwrap_or((item, [0; 4])));
             }
         };
         let inv_imprints = |v: &Self, p: Place| match p {
@@ -445,7 +445,7 @@ impl Vault {
 
     /// A card: its title and count over a row of eight slots, each `Place` from `place`.
     #[allow(clippy::too_many_arguments)]
-    fn card(&mut self, ui: &mut Ui, cr: [f32; 4], title: &str, title_color: u32, slots: [Option<(i32, [u8; 3])>; SLOTS], place: impl Fn(usize) -> Place, s: f32) {
+    fn card(&mut self, ui: &mut Ui, cr: [f32; 4], title: &str, title_color: u32, slots: [Option<(i32, [u32; 4])>; SLOTS], place: impl Fn(usize) -> Place, s: f32) {
         let font = |size: f32| (size * s).round().max(9.0);
         let (cell, gap, pad, label_h) = (40.0 * s, 4.0 * s, 8.0 * s, 20.0 * s);
         theme::frame(ui.renderer, cr, 8.0 * s, s.max(1.0), (color::BORDER, 1.0), ((color::INSET_TOP, 1.0), (color::INSET_BOTTOM, 1.0)));

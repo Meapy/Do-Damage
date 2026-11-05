@@ -6186,12 +6186,14 @@
          <Index>0x15e</Index>
       </Texture>
       <SlotType>10</SlotType>
-      <Description>A chipped fragment from one of Oryx&#8217;s countless shattered breastplates, lost over years of battle. High ranking minions of the Mad God are gifted these shards as a badge of honor. Collect 25 to exchange for a weapon from the Agents of Oryx series!\n\nSprite Credits: Aurum</Description>
+      <Description>A chipped fragment from one of Oryx&#8217;s countless shattered breastplates, lost over years of battle. High ranking minions of the Mad God are gifted these shards as a badge of honor. Use them, or give them to the Pen Keeper in the Nexus: 25 raise a Medium pet to Large.\n\nSprite Credits: Aurum</Description>
       <Quantity>1</Quantity>
       <ExtraTooltipData>
          <EffectInfo name="Stack limit" description="25"/>
          <EffectInfo name="Event" description="Agents of Oryx"/>
       </ExtraTooltipData>
+       
+      <InvUse/>
        
       <BagType>7</BagType>
       <Treasure/>
@@ -6204,12 +6206,14 @@
          <Index>0x15e</Index>
       </Texture>
       <SlotType>10</SlotType>
-      <Description>A chipped fragment from one of Oryx&#8217;s countless shattered breastplates, lost over years of battle. High ranking minions of the Mad God are gifted these shards as a badge of honor. Collect 25 to exchange for a weapon from the Agents of Oryx series!\n\nSprite Credits: Aurum</Description>
+      <Description>A chipped fragment from one of Oryx&#8217;s countless shattered breastplates, lost over years of battle. High ranking minions of the Mad God are gifted these shards as a badge of honor. Use them, or give them to the Pen Keeper in the Nexus: 25 raise a Medium pet to Large.\n\nSprite Credits: Aurum</Description>
       <Quantity>2</Quantity>
       <ExtraTooltipData>
          <EffectInfo name="Stack limit" description="25"/>
          <EffectInfo name="Event" description="Agents of Oryx"/>
       </ExtraTooltipData>
+       
+      <InvUse/>
        
       <BagType>7</BagType>
       <Treasure/>
@@ -6222,12 +6226,14 @@
          <Index>0x15e</Index>
       </Texture>
       <SlotType>10</SlotType>
-      <Description>A chipped fragment from one of Oryx&#8217;s countless shattered breastplates, lost over years of battle. High ranking minions of the Mad God are gifted these shards as a badge of honor. Collect 25 to exchange for a weapon from the Agents of Oryx series!\n\nSprite Credits: Aurum</Description>
+      <Description>A chipped fragment from one of Oryx&#8217;s countless shattered breastplates, lost over years of battle. High ranking minions of the Mad God are gifted these shards as a badge of honor. Use them, or give them to the Pen Keeper in the Nexus: 25 raise a Medium pet to Large.\n\nSprite Credits: Aurum</Description>
       <Quantity>3</Quantity>
       <ExtraTooltipData>
          <EffectInfo name="Stack limit" description="25"/>
          <EffectInfo name="Event" description="Agents of Oryx"/>
       </ExtraTooltipData>
+       
+      <InvUse/>
        
       <BagType>7</BagType>
       <Treasure/>
@@ -6240,12 +6246,14 @@
          <Index>0x15e</Index>
       </Texture>
       <SlotType>10</SlotType>
-      <Description>A chipped fragment from one of Oryx&#8217;s countless shattered breastplates, lost over years of battle. High ranking minions of the Mad God are gifted these shards as a badge of honor. Collect 25 to exchange for a weapon from the Agents of Oryx series!\n\nSprite Credits: Aurum</Description>
+      <Description>A chipped fragment from one of Oryx&#8217;s countless shattered breastplates, lost over years of battle. High ranking minions of the Mad God are gifted these shards as a badge of honor. Use them, or give them to the Pen Keeper in the Nexus: 25 raise a Medium pet to Large.\n\nSprite Credits: Aurum</Description>
       <Quantity>4</Quantity>
       <ExtraTooltipData>
          <EffectInfo name="Stack limit" description="25"/>
          <EffectInfo name="Event" description="Agents of Oryx"/>
       </ExtraTooltipData>
+       
+      <InvUse/>
        
       <BagType>7</BagType>
       <Treasure/>
@@ -6258,12 +6266,14 @@
          <Index>0x15e</Index>
       </Texture>
       <SlotType>10</SlotType>
-      <Description>A chipped fragment from one of Oryx&#8217;s countless shattered breastplates, lost over years of battle. High ranking minions of the Mad God are gifted these shards as a badge of honor. Collect 25 to exchange for a weapon from the Agents of Oryx series!\n\nSprite Credits: Aurum</Description>
+      <Description>A chipped fragment from one of Oryx&#8217;s countless shattered breastplates, lost over years of battle. High ranking minions of the Mad God are gifted these shards as a badge of honor. Use them, or give them to the Pen Keeper in the Nexus: 25 raise a Medium pet to Large.\n\nSprite Credits: Aurum</Description>
       <Quantity>5</Quantity>
       <ExtraTooltipData>
          <EffectInfo name="Stack limit" description="25"/>
          <EffectInfo name="Event" description="Agents of Oryx"/>
       </ExtraTooltipData>
+       
+      <InvUse/>
        
       <BagType>7</BagType>
       <Treasure/>
@@ -6276,12 +6286,14 @@
          <Index>0x15e</Index>
       </Texture>
       <SlotType>10</SlotType>
-      <Description>A chipped fragment from one of Oryx&#8217;s countless shattered breastplates, lost over years of battle. High ranking minions of the Mad God are gifted these shards as a badge of honor. Collect 25 to exchange for a weapon from the Agents of Oryx series!\n\nSprite Credits: Aurum</Description>
+      <Description>A chipped fragment from one of Oryx&#8217;s countless shattered breastplates, lost over years of battle. High ranking minions of the Mad God are gifted these shards as a badge of honor. Use them, or give them to the Pen Keeper in the Nexus: 25 raise a Medium pet to Large.\n\nSprite Credits: Aurum</Description>
       <Quantity>6</Quantity>
       <ExtraTooltipData>
          <EffectInfo name="Stack limit" description="25"/>
          <EffectInfo name="Event" description="Agents of Oryx"/>
       </ExtraTooltipData>
+       
+      <InvUse/>
        
       <BagType>7</BagType>
       <Treasure/>
@@ -6294,12 +6306,14 @@
          <Index>0x15e</Index>
       </Texture>
       <SlotType>10</SlotType>
-      <Description>A chipped fragment from one of Oryx&#8217;s countless shattered breastplates, lost over years of battle. High ranking minions of the Mad God are gifted these shards as a badge of honor. Collect 25 to exchange for a weapon from the Agents of Oryx series!\n\nSprite Credits: Aurum</Description>
+      <Description>A chipped fragment from one of Oryx&#8217;s countless shattered breastplates, lost over years of battle. High ranking minions of the Mad God are gifted these shards as a badge of honor. Use them, or give them to the Pen Keeper in the Nexus: 25 raise a Medium pet to Large.\n\nSprite Credits: Aurum</Description>
       <Quantity>7</Quantity>
       <ExtraTooltipData>
          <EffectInfo name="Stack limit" description="25"/>
          <EffectInfo name="Event" description="Agents of Oryx"/>
       </ExtraTooltipData>
+       
+      <InvUse/>
        
       <BagType>7</BagType>
       <Treasure/>
@@ -6312,12 +6326,14 @@
          <Index>0x15e</Index>
       </Texture>
       <SlotType>10</SlotType>
-      <Description>A chipped fragment from one of Oryx&#8217;s countless shattered breastplates, lost over years of battle. High ranking minions of the Mad God are gifted these shards as a badge of honor. Collect 25 to exchange for a weapon from the Agents of Oryx series!\n\nSprite Credits: Aurum</Description>
+      <Description>A chipped fragment from one of Oryx&#8217;s countless shattered breastplates, lost over years of battle. High ranking minions of the Mad God are gifted these shards as a badge of honor. Use them, or give them to the Pen Keeper in the Nexus: 25 raise a Medium pet to Large.\n\nSprite Credits: Aurum</Description>
       <Quantity>8</Quantity>
       <ExtraTooltipData>
          <EffectInfo name="Stack limit" description="25"/>
          <EffectInfo name="Event" description="Agents of Oryx"/>
       </ExtraTooltipData>
+       
+      <InvUse/>
        
       <BagType>7</BagType>
       <Treasure/>
@@ -6330,12 +6346,14 @@
          <Index>0x15e</Index>
       </Texture>
       <SlotType>10</SlotType>
-      <Description>A chipped fragment from one of Oryx&#8217;s countless shattered breastplates, lost over years of battle. High ranking minions of the Mad God are gifted these shards as a badge of honor. Collect 25 to exchange for a weapon from the Agents of Oryx series!\n\nSprite Credits: Aurum</Description>
+      <Description>A chipped fragment from one of Oryx&#8217;s countless shattered breastplates, lost over years of battle. High ranking minions of the Mad God are gifted these shards as a badge of honor. Use them, or give them to the Pen Keeper in the Nexus: 25 raise a Medium pet to Large.\n\nSprite Credits: Aurum</Description>
       <Quantity>9</Quantity>
       <ExtraTooltipData>
          <EffectInfo name="Stack limit" description="25"/>
          <EffectInfo name="Event" description="Agents of Oryx"/>
       </ExtraTooltipData>
+       
+      <InvUse/>
        
       <BagType>7</BagType>
       <Treasure/>
@@ -6348,12 +6366,14 @@
          <Index>0x15e</Index>
       </Texture>
       <SlotType>10</SlotType>
-      <Description>A chipped fragment from one of Oryx&#8217;s countless shattered breastplates, lost over years of battle. High ranking minions of the Mad God are gifted these shards as a badge of honor. Collect 25 to exchange for a weapon from the Agents of Oryx series!\n\nSprite Credits: Aurum</Description>
+      <Description>A chipped fragment from one of Oryx&#8217;s countless shattered breastplates, lost over years of battle. High ranking minions of the Mad God are gifted these shards as a badge of honor. Use them, or give them to the Pen Keeper in the Nexus: 25 raise a Medium pet to Large.\n\nSprite Credits: Aurum</Description>
       <Quantity>10</Quantity>
       <ExtraTooltipData>
          <EffectInfo name="Stack limit" description="25"/>
          <EffectInfo name="Event" description="Agents of Oryx"/>
       </ExtraTooltipData>
+       
+      <InvUse/>
        
       <BagType>7</BagType>
       <Treasure/>
@@ -6366,12 +6386,14 @@
          <Index>0x15e</Index>
       </Texture>
       <SlotType>10</SlotType>
-      <Description>A chipped fragment from one of Oryx&#8217;s countless shattered breastplates, lost over years of battle. High ranking minions of the Mad God are gifted these shards as a badge of honor. Collect 25 to exchange for a weapon from the Agents of Oryx series!\n\nSprite Credits: Aurum</Description>
+      <Description>A chipped fragment from one of Oryx&#8217;s countless shattered breastplates, lost over years of battle. High ranking minions of the Mad God are gifted these shards as a badge of honor. Use them, or give them to the Pen Keeper in the Nexus: 25 raise a Medium pet to Large.\n\nSprite Credits: Aurum</Description>
       <Quantity>11</Quantity>
       <ExtraTooltipData>
          <EffectInfo name="Stack limit" description="25"/>
          <EffectInfo name="Event" description="Agents of Oryx"/>
       </ExtraTooltipData>
+       
+      <InvUse/>
        
       <BagType>7</BagType>
       <Treasure/>
@@ -6384,12 +6406,14 @@
          <Index>0x15e</Index>
       </Texture>
       <SlotType>10</SlotType>
-      <Description>A chipped fragment from one of Oryx&#8217;s countless shattered breastplates, lost over years of battle. High ranking minions of the Mad God are gifted these shards as a badge of honor. Collect 25 to exchange for a weapon from the Agents of Oryx series!\n\nSprite Credits: Aurum</Description>
+      <Description>A chipped fragment from one of Oryx&#8217;s countless shattered breastplates, lost over years of battle. High ranking minions of the Mad God are gifted these shards as a badge of honor. Use them, or give them to the Pen Keeper in the Nexus: 25 raise a Medium pet to Large.\n\nSprite Credits: Aurum</Description>
       <Quantity>12</Quantity>
       <ExtraTooltipData>
          <EffectInfo name="Stack limit" description="25"/>
          <EffectInfo name="Event" description="Agents of Oryx"/>
       </ExtraTooltipData>
+       
+      <InvUse/>
        
       <BagType>7</BagType>
       <Treasure/>
@@ -6402,12 +6426,14 @@
          <Index>0x15e</Index>
       </Texture>
       <SlotType>10</SlotType>
-      <Description>A chipped fragment from one of Oryx&#8217;s countless shattered breastplates, lost over years of battle. High ranking minions of the Mad God are gifted these shards as a badge of honor. Collect 25 to exchange for a weapon from the Agents of Oryx series!\n\nSprite Credits: Aurum</Description>
+      <Description>A chipped fragment from one of Oryx&#8217;s countless shattered breastplates, lost over years of battle. High ranking minions of the Mad God are gifted these shards as a badge of honor. Use them, or give them to the Pen Keeper in the Nexus: 25 raise a Medium pet to Large.\n\nSprite Credits: Aurum</Description>
       <Quantity>13</Quantity>
       <ExtraTooltipData>
          <EffectInfo name="Stack limit" description="25"/>
          <EffectInfo name="Event" description="Agents of Oryx"/>
       </ExtraTooltipData>
+       
+      <InvUse/>
        
       <BagType>7</BagType>
       <Treasure/>
@@ -6420,12 +6446,14 @@
          <Index>0x15e</Index>
       </Texture>
       <SlotType>10</SlotType>
-      <Description>A chipped fragment from one of Oryx&#8217;s countless shattered breastplates, lost over years of battle. High ranking minions of the Mad God are gifted these shards as a badge of honor. Collect 25 to exchange for a weapon from the Agents of Oryx series!\n\nSprite Credits: Aurum</Description>
+      <Description>A chipped fragment from one of Oryx&#8217;s countless shattered breastplates, lost over years of battle. High ranking minions of the Mad God are gifted these shards as a badge of honor. Use them, or give them to the Pen Keeper in the Nexus: 25 raise a Medium pet to Large.\n\nSprite Credits: Aurum</Description>
       <Quantity>14</Quantity>
       <ExtraTooltipData>
          <EffectInfo name="Stack limit" description="25"/>
          <EffectInfo name="Event" description="Agents of Oryx"/>
       </ExtraTooltipData>
+       
+      <InvUse/>
        
       <BagType>7</BagType>
       <Treasure/>
@@ -6438,12 +6466,14 @@
          <Index>0x15e</Index>
       </Texture>
       <SlotType>10</SlotType>
-      <Description>A chipped fragment from one of Oryx&#8217;s countless shattered breastplates, lost over years of battle. High ranking minions of the Mad God are gifted these shards as a badge of honor. Collect 25 to exchange for a weapon from the Agents of Oryx series!\n\nSprite Credits: Aurum</Description>
+      <Description>A chipped fragment from one of Oryx&#8217;s countless shattered breastplates, lost over years of battle. High ranking minions of the Mad God are gifted these shards as a badge of honor. Use them, or give them to the Pen Keeper in the Nexus: 25 raise a Medium pet to Large.\n\nSprite Credits: Aurum</Description>
       <Quantity>15</Quantity>
       <ExtraTooltipData>
          <EffectInfo name="Stack limit" description="25"/>
          <EffectInfo name="Event" description="Agents of Oryx"/>
       </ExtraTooltipData>
+       
+      <InvUse/>
        
       <BagType>7</BagType>
       <Treasure/>
@@ -6456,12 +6486,14 @@
          <Index>0x15e</Index>
       </Texture>
       <SlotType>10</SlotType>
-      <Description>A chipped fragment from one of Oryx&#8217;s countless shattered breastplates, lost over years of battle. High ranking minions of the Mad God are gifted these shards as a badge of honor. Collect 25 to exchange for a weapon from the Agents of Oryx series!\n\nSprite Credits: Aurum</Description>
+      <Description>A chipped fragment from one of Oryx&#8217;s countless shattered breastplates, lost over years of battle. High ranking minions of the Mad God are gifted these shards as a badge of honor. Use them, or give them to the Pen Keeper in the Nexus: 25 raise a Medium pet to Large.\n\nSprite Credits: Aurum</Description>
       <Quantity>16</Quantity>
       <ExtraTooltipData>
          <EffectInfo name="Stack limit" description="25"/>
          <EffectInfo name="Event" description="Agents of Oryx"/>
       </ExtraTooltipData>
+       
+      <InvUse/>
        
       <BagType>7</BagType>
       <Treasure/>
@@ -6474,12 +6506,14 @@
          <Index>0x15e</Index>
       </Texture>
       <SlotType>10</SlotType>
-      <Description>A chipped fragment from one of Oryx&#8217;s countless shattered breastplates, lost over years of battle. High ranking minions of the Mad God are gifted these shards as a badge of honor. Collect 25 to exchange for a weapon from the Agents of Oryx series!\n\nSprite Credits: Aurum</Description>
+      <Description>A chipped fragment from one of Oryx&#8217;s countless shattered breastplates, lost over years of battle. High ranking minions of the Mad God are gifted these shards as a badge of honor. Use them, or give them to the Pen Keeper in the Nexus: 25 raise a Medium pet to Large.\n\nSprite Credits: Aurum</Description>
       <Quantity>17</Quantity>
       <ExtraTooltipData>
          <EffectInfo name="Stack limit" description="25"/>
          <EffectInfo name="Event" description="Agents of Oryx"/>
       </ExtraTooltipData>
+       
+      <InvUse/>
        
       <BagType>7</BagType>
       <Treasure/>
@@ -6492,12 +6526,14 @@
          <Index>0x15e</Index>
       </Texture>
       <SlotType>10</SlotType>
-      <Description>A chipped fragment from one of Oryx&#8217;s countless shattered breastplates, lost over years of battle. High ranking minions of the Mad God are gifted these shards as a badge of honor. Collect 25 to exchange for a weapon from the Agents of Oryx series!\n\nSprite Credits: Aurum</Description>
+      <Description>A chipped fragment from one of Oryx&#8217;s countless shattered breastplates, lost over years of battle. High ranking minions of the Mad God are gifted these shards as a badge of honor. Use them, or give them to the Pen Keeper in the Nexus: 25 raise a Medium pet to Large.\n\nSprite Credits: Aurum</Description>
       <Quantity>18</Quantity>
       <ExtraTooltipData>
          <EffectInfo name="Stack limit" description="25"/>
          <EffectInfo name="Event" description="Agents of Oryx"/>
       </ExtraTooltipData>
+       
+      <InvUse/>
        
       <BagType>7</BagType>
       <Treasure/>
@@ -6510,12 +6546,14 @@
          <Index>0x15e</Index>
       </Texture>
       <SlotType>10</SlotType>
-      <Description>A chipped fragment from one of Oryx&#8217;s countless shattered breastplates, lost over years of battle. High ranking minions of the Mad God are gifted these shards as a badge of honor. Collect 25 to exchange for a weapon from the Agents of Oryx series!\n\nSprite Credits: Aurum</Description>
+      <Description>A chipped fragment from one of Oryx&#8217;s countless shattered breastplates, lost over years of battle. High ranking minions of the Mad God are gifted these shards as a badge of honor. Use them, or give them to the Pen Keeper in the Nexus: 25 raise a Medium pet to Large.\n\nSprite Credits: Aurum</Description>
       <Quantity>19</Quantity>
       <ExtraTooltipData>
          <EffectInfo name="Stack limit" description="25"/>
          <EffectInfo name="Event" description="Agents of Oryx"/>
       </ExtraTooltipData>
+       
+      <InvUse/>
        
       <BagType>7</BagType>
       <Treasure/>
@@ -6528,12 +6566,14 @@
          <Index>0x15e</Index>
       </Texture>
       <SlotType>10</SlotType>
-      <Description>A chipped fragment from one of Oryx&#8217;s countless shattered breastplates, lost over years of battle. High ranking minions of the Mad God are gifted these shards as a badge of honor. Collect 25 to exchange for a weapon from the Agents of Oryx series!\n\nSprite Credits: Aurum</Description>
+      <Description>A chipped fragment from one of Oryx&#8217;s countless shattered breastplates, lost over years of battle. High ranking minions of the Mad God are gifted these shards as a badge of honor. Use them, or give them to the Pen Keeper in the Nexus: 25 raise a Medium pet to Large.\n\nSprite Credits: Aurum</Description>
       <Quantity>20</Quantity>
       <ExtraTooltipData>
          <EffectInfo name="Stack limit" description="25"/>
          <EffectInfo name="Event" description="Agents of Oryx"/>
       </ExtraTooltipData>
+       
+      <InvUse/>
        
       <BagType>7</BagType>
       <Treasure/>
@@ -6546,12 +6586,14 @@
          <Index>0x15e</Index>
       </Texture>
       <SlotType>10</SlotType>
-      <Description>A chipped fragment from one of Oryx&#8217;s countless shattered breastplates, lost over years of battle. High ranking minions of the Mad God are gifted these shards as a badge of honor. Collect 25 to exchange for a weapon from the Agents of Oryx series!\n\nSprite Credits: Aurum</Description>
+      <Description>A chipped fragment from one of Oryx&#8217;s countless shattered breastplates, lost over years of battle. High ranking minions of the Mad God are gifted these shards as a badge of honor. Use them, or give them to the Pen Keeper in the Nexus: 25 raise a Medium pet to Large.\n\nSprite Credits: Aurum</Description>
       <Quantity>21</Quantity>
       <ExtraTooltipData>
          <EffectInfo name="Stack limit" description="25"/>
          <EffectInfo name="Event" description="Agents of Oryx"/>
       </ExtraTooltipData>
+       
+      <InvUse/>
        
       <BagType>7</BagType>
       <Treasure/>
@@ -6564,12 +6606,14 @@
          <Index>0x15e</Index>
       </Texture>
       <SlotType>10</SlotType>
-      <Description>A chipped fragment from one of Oryx&#8217;s countless shattered breastplates, lost over years of battle. High ranking minions of the Mad God are gifted these shards as a badge of honor. Collect 25 to exchange for a weapon from the Agents of Oryx series!\n\nSprite Credits: Aurum</Description>
+      <Description>A chipped fragment from one of Oryx&#8217;s countless shattered breastplates, lost over years of battle. High ranking minions of the Mad God are gifted these shards as a badge of honor. Use them, or give them to the Pen Keeper in the Nexus: 25 raise a Medium pet to Large.\n\nSprite Credits: Aurum</Description>
       <Quantity>22</Quantity>
       <ExtraTooltipData>
          <EffectInfo name="Stack limit" description="25"/>
          <EffectInfo name="Event" description="Agents of Oryx"/>
       </ExtraTooltipData>
+       
+      <InvUse/>
        
       <BagType>7</BagType>
       <Treasure/>
@@ -6582,12 +6626,14 @@
          <Index>0x15e</Index>
       </Texture>
       <SlotType>10</SlotType>
-      <Description>A chipped fragment from one of Oryx&#8217;s countless shattered breastplates, lost over years of battle. High ranking minions of the Mad God are gifted these shards as a badge of honor. Collect 25 to exchange for a weapon from the Agents of Oryx series!\n\nSprite Credits: Aurum</Description>
+      <Description>A chipped fragment from one of Oryx&#8217;s countless shattered breastplates, lost over years of battle. High ranking minions of the Mad God are gifted these shards as a badge of honor. Use them, or give them to the Pen Keeper in the Nexus: 25 raise a Medium pet to Large.\n\nSprite Credits: Aurum</Description>
       <Quantity>23</Quantity>
       <ExtraTooltipData>
          <EffectInfo name="Stack limit" description="25"/>
          <EffectInfo name="Event" description="Agents of Oryx"/>
       </ExtraTooltipData>
+       
+      <InvUse/>
        
       <BagType>7</BagType>
       <Treasure/>
@@ -6600,12 +6646,14 @@
          <Index>0x15e</Index>
       </Texture>
       <SlotType>10</SlotType>
-      <Description>A chipped fragment from one of Oryx&#8217;s countless shattered breastplates, lost over years of battle. High ranking minions of the Mad God are gifted these shards as a badge of honor. Collect 25 to exchange for a weapon from the Agents of Oryx series!\n\nSprite Credits: Aurum</Description>
+      <Description>A chipped fragment from one of Oryx&#8217;s countless shattered breastplates, lost over years of battle. High ranking minions of the Mad God are gifted these shards as a badge of honor. Use them, or give them to the Pen Keeper in the Nexus: 25 raise a Medium pet to Large.\n\nSprite Credits: Aurum</Description>
       <Quantity>24</Quantity>
       <ExtraTooltipData>
          <EffectInfo name="Stack limit" description="25"/>
          <EffectInfo name="Event" description="Agents of Oryx"/>
       </ExtraTooltipData>
+       
+      <InvUse/>
        
       <BagType>7</BagType>
       <Treasure/>
@@ -6618,7 +6666,7 @@
          <Index>0x15e</Index>
       </Texture>
       <SlotType>10</SlotType>
-      <Description>A chipped fragment from one of Oryx&#8217;s countless shattered breastplates, lost over years of battle. High ranking minions of the Mad God are gifted these shards as a badge of honor. Collect 25 to exchange for a weapon from the Agents of Oryx series!\n\nSprite Credits: Aurum</Description>
+      <Description>A chipped fragment from one of Oryx&#8217;s countless shattered breastplates, lost over years of battle. High ranking minions of the Mad God are gifted these shards as a badge of honor. Use them, or give them to the Pen Keeper in the Nexus: 25 raise a Medium pet to Large.\n\nSprite Credits: Aurum</Description>
       <Quantity>25</Quantity>
       <Activate>MysteryDyes</Activate>
       <ExtraTooltipData>
@@ -6626,6 +6674,8 @@
          <EffectInfo name="Event" description="Agents of Oryx"/>
          <EffectInfo name="Status" description="Ready to use!"/>
       </ExtraTooltipData>
+       
+      <InvUse/>
        
       <BagType>7</BagType>
       <Consumable/>

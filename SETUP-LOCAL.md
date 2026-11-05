@@ -580,6 +580,68 @@ The remotes `upstream` (HaloCelsius) and `aurusenth` share no history with `main
 
 ## Changes from upstream
 
+- **Enthroned gear, imprints and the item pass of 5 November** (2026-11-05; ships with a client
+  release, message 110 grew and stat 149 is new):
+  - **Imprints** (`Shared/resources/Imprints.cs`, its copy `client-rs/crates/data/src/imprint.rs`,
+    `ImprintHandlers.cs`, `Player.Imprints.cs`, `BoostStatManager.ApplyImprintScaling`,
+    `Player.Death.TryResurrect`, `Player.UseItem.Activate`; the Enchanter's window
+    `client-rs/app/src/forge/imprints.rs`): anyone imprints (the admin rank check is gone). Each
+    imprint has a cost in Ascended shards (`Imprint.Cost`: 1 Offensive and Defensive, 3 Misc, 5
+    Apotheosis, 20 Guardian Angel), paid from the forge storage first and then inventory shards,
+    kinds mixed (`FindShards`). A fourth slot, **Apotheosis** (`ImprintKind.Apotheosis`, the
+    item data's `Imprints` now four long, the client's `imprint::Set = [u32; 4]`): of Might on
+    weapons (+10% of the gear's and boosts' Attack and Dexterity), of Ward on armour (Defense and
+    Vitality), of Balance on rings (+10% of a picked stat's additions, -20% of all of two other
+    picked stats); Balance stores its picks above the id byte (`Imprint.WithChoice`/`Choice`), sent
+    as three optional bytes after `IMPRINT`'s (an older server reads only the slot and imprint).
+    Apotheosis imprints go on inventory gear only: the vault's `ImprintVault`/`VaultContents` items
+    carry three imprint bytes, unchanged. New ring imprints: Ascendant Might and Ward (+50% of the
+    ring's own Att/Spd/Dex, Def/Vit/Wis), Wellspring (300 MP below 15%, every 180 s), Unbound Will
+    (a 20% chance an ability costs no MP), Benediction (Healing, Speedy, Berserk, Armored or
+    Damaging for 4 s on each ability use, never one the ability gives), Guardian Angel (clears the
+    ring's other imprints and takes no more; the ring's own stats become +20 HP and +1 to the rest;
+    a death sends the player to the Nexus and the ring is lost). Vigor and Bulwark no longer fit
+    rings (`NotSlots`). Blood Pact (id 2) is gone, so an item carrying it carries nothing there.
+    Changed: Close Quarters +10% / -25% range, Vigor +25 HP, Bulwark +5 Def, Wounds 6,000, Wisp
+    Caller 2% and 8 s back, Gathered Shot 95% rate, Battle Mage range 5 with bolts at 60% and +20
+    Def, Spearform 70% damage, Sunder range 4 and 110% rate. The window lost its Coming soon tab;
+    each row shows its price, and Balance its three picks (a click on one moves it to the next
+    stat). Shots an imprint changes (Gathered, Spearform) are drawn as the Sigil
+    (`Projectile.look`), as the Battle Mage Bolt Shot now is (`CustomObjects.xml`, both copies).
+  - **Enthroned gear** (`tools/build_ascended_items.py`, both `CustomItems.xml`, `ForgeRecipes.cs`):
+    every Enthroned weapon flies the same two Oryx 5 shots, the gold Enthroned Radiance (the
+    weapon's own projectile) and the violet Enthroned Rift (the same plus `MultiHit` and
+    `ArmorPiercing`), 16×16 on `AscendedItems16x16.png` (`SHOT_OBJECTS`, 0x5870-0x5872; the old
+    per-weapon shots 0x5866-0x586f are gone), with a third, the Enthroned Sigil, for the imprints.
+    Each keeps its source's flags (a katana's pierce, dual blades' armour piercing). The Enthroned
+    Spear is the Enthroned Staff (same type 0x5857), forged from a T15 staff and a weapon shard;
+    the Ring of Grace from both Ascended gems and three accessory shards (`AscendedFrom` now takes
+    a list), with 200 HP/MP and +10 to the rest (`STATS`). Every Ascended item has
+    `<FameBonus>10</FameBonus>`. The forge no longer makes the Enthroned Helm (a to-do) or the
+    Ring of Wrath. `tools/wiki_data.py` and `build_wiki.py` read the new shapes.
+  - **Shots point where they fly** (`client-rs/crates/world/src/combat.rs` `Projectile::heading_at`,
+    `view.rs`): a shot with `Wavy`, `Parametric`, `Boomerang` or an `Amplitude` is drawn along its
+    path's direction, not the one it was fired in.
+  - **Per-shot projectiles in a volley** (`Item.VolleyProjectiles`, `Player.NoteWeaponShot`/
+    `ShotProjectile`, the client's `do_shoot_with`): `<VolleyProjectiles>0,0,1</VolleyProjectiles>`
+    gives each shot of a volley its projectile by its place. The Elysian Staff (`port_doomed.py`
+    `GEAR_TUNING` `straight_shot`, both `DoomedRealms.xml` by hand) fires its two weaving bolts and
+    a straight Elysian Ray (`CustomProj.xml` 0x5878, `tools/draw_oryx_uts.py`, whose Celestial
+    Bolt cell is 9 now), rate 0.5075 (was 0.35), all `ArmorPiercing`. Other players see each
+    shot as the first projectile (AllyShoot names none).
+  - **Stats in colour** (`StatDataType.StatTones` 149, `Player.StatTones`/`UpdateStatTones`; the
+    client's `hud::stat_tone`): two bits a stat, 0 below the class maximum, 1 at it, 2 past it, 3
+    at the Infernal potions' end (`OvercapPotions` of them), sent to everyone; the HUD shows the
+    last in deep red (0xA8121C, darker than the HP bar) and the player card a row of the six
+    stats in their tones. Infernal potions were already refused below the maximum.
+  - **Balance**: bows and daggers do 10% more (item XML, both copies; `port_doomed.py`
+    `BOW_DAGGER_DAMAGE`, both `DoomedRealms.xml` by hand), not the admin items or the generated
+    Ascended block (rebuilt from the T15s); the Reforged Doom Bow 400-500 (was 320-475). Halos
+    have `<Cooldown>4</Cooldown>` (`port_doomed.py` `HALO_COOLDOWN`, both `DoomedRealms.xml` and
+    `CustomItems.xml`), which the server holds them to too (`Player.UseItem`, halos only). Oryx 5
+    silences everyone within 30 tiles through his Last Judgement (`ConditionAura`). The Potion of
+    Max Level (`LevelTwenty`) went to `AEChangeObject`, which did nothing: `AELevelTwenty` levels
+    the character to 20 through `CheckLevelUp`, with each level's stat gains.
 - **Crosshair styles and your own** (2026-11-05; the Rust client's `crosshair.rs`, `options.rs`
   `Tab::Crosshair`). Options has a Crosshair tab: nine styles (`crosshairStyle`), eight colours
   (`crosshairColour`, an index into `crosshair::COLOURS`), a size from 50% to 200%
@@ -612,6 +674,44 @@ The remotes `upstream` (HaloCelsius) and `aurusenth` share no history with `main
   client's `--mouse-script` takes `middle`, `mdown` and `mup`. Client and servers ship together; an
   older client gets no pings, an older server ignores the client's hello (one unknown message per
   world).
+
+- **The Collection, the pet pen, the Nexus's places, mystery keys and floor fixes** (2026-11-05;
+  messages 136-141, after the pings' 134-135, so client and servers ship together; an older client never asks for any of
+  them).
+  - The Collection (`Player.Collection.cs`, `CollectionHandler.cs`, the Rust client's
+    `collection.rs`): `tools/build_collection.py` writes `resources/data/collection.json` from the
+    wiki's data (every obtainable piece of gear, and each dungeon's untiered gear; run it after
+    adding gear, drops or dungeons, `--check` to see it's current). The account's pieces are
+    `account.<id>` `collection` (ushort array), seeded once from its characters, vault and gift
+    chest, then added to as items enter a character's slots (`Inventory.InventoryChanged`). The
+    stand, `The Collection`, is placed by `VaultWorld.PlaceCollection`.
+  - The pet pen (`tools/build_nexus_islands.py` `PEN`, `lay_pen`; `PetPen.cs`; `Player.PetPen.cs`,
+    `PetPenActHandler.cs`, the client's `petpen.rs`; the Pen Keeper's sprite in
+    `tools/draw_quest_npcs.py`): a raise is `char` `petUpgrade`, and a generator's
+    `ItemData.PetUpgrade` once given back (the client names the stone with its size,
+    `hud::raised_pet_size`); `Pet.DamageScale` and `Pet.Heal` apply it in `PetShoot`, `PetStrike`,
+    `PetNova` and `PetHeal`. The shards he keeps are the account's `penShards`; a Shard of the Mad
+    God is `<InvUse/>`, and using one gives the stack to him (`UseItem`, `GiveShards`).
+  - The Nexus's places (`NexusPlaces.cs`, `NexusPlacesHandler.cs`, the client's
+    `events::draw_nexus_places`): entities and the map's static objects of the classes it lists,
+    on every floor, each with an object to draw (`Icons` for the invisible markers), places within
+    3 tiles sharing a mark.
+  - Mystery Keys and Pet Stones (`Player.MysteryBoxes.cs` `MysteryKeys`, `MysteryPetSizes`; the wiki
+    reads the keys' lists, `wiki_data.mystery_keys`). `/give` finds items by loose names.
+  - Floors: teleports land on the target's floor (`TeleportPosition`'s `z`, the height sent again,
+    the client's `await_height`); what a player spawns is put on their floor; pets and followers
+    join their owner's floor (`PetFollow`, `AllyFollow`).
+  - Walls and gates: `Wmap.ClearObject` brings the ground back (the loader's 0xFD under connected
+    walls, or a neighbour's where the map has none) for every way a wall goes (`Enemy.Death`,
+    `StaticObject.CheckHP`, `OpenGate`, which never told the clients before, `RemoveObject*`).
+  - Oryx 5: `ByPlayers` (the Host by party size), `LavaRing` restores the floor on leaving its
+    state and never paints in an Arena world, `SiegeTurn`.
+  - Smaller ones: the Nexus's paths' `Speed` 1.5 (`nexus_garden/grounds.py` `PATH_SPEED`), the
+    client's sinking floor (`SINK_FLOOR_SPEED`), Realm 2's arrivals always on the shore, the
+    Blademaster's jackets without `<Cooldown>` (`port_doomed.py` `JACKET_SLOT`; applied to the
+    output by hand, as the Doomed Realms repository isn't on this PC), the Vile Spirit's ships
+    (`AllyCircle`, ObjectToss `amount`), the Crystal Sentry's and Bottled Lightning's behaviours,
+    and the Warcaller's clovers.
 
 - **Pets in four sizes, all dropping, 18 new** (2026-11-04; `tools/port_doomed_pets.py`
   `TINY_PETS` / `SMALL_PETS`, `SIZE_DPS`, `PET_DPS`, `SOLD_SIZE`, `GENERATOR_NAMES`, `NEW_PETS`,

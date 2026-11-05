@@ -32,7 +32,7 @@ namespace WorldServer.core.commands
                         return false;
                     }
                     player.ResetNewbiePeriod();
-                    player.TeleportPosition(time, target.X, target.Y);
+                    player.TeleportPosition(time, target.X, target.Y, z: target.Z);
                     player.SendInfo($"Teleported to {target.ObjectDesc.IdName}: ({target.X}, {target.Y})");
                     return true;
                 }
