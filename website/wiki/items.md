@@ -82,9 +82,6 @@ by name, each item marked with its chest's number (G for a gift chest). Type to 
 the window shows only what matches and says which chests hold it. A right-click marks an item's
 chest with a gold ring and its number.
 
-The Nexus also has four **shared vault chests**, by the storehouse in the south-east corner of the spawn's pond. Anyone can use them, so treat
-them as a place to hand things to friends, not to store them.
-
 A **Backpack** (Nexus Bazaar, 500 fame) gives a character eight more inventory slots; <kbd>B</kbd>
 switches between them. Like everything a character carries, it's lost when the character dies.
 

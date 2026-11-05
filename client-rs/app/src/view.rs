@@ -648,16 +648,19 @@ struct Edge {
 /// A railing along a drop, from `a` to `b` (its top rail's height at each end: a bridge's rising
 /// deck has it slope with the deck), `height` over the deck (`<RailHeight>`, else `RAIL_HEIGHT`),
 /// its colour and its posts' caps' (`<RailCap>`: the arched bridges' brass); or a stone parapet
-/// (`<Parapet/>`) in the ground's side texture.
+/// (`<Parapet/>`) in the ground's side texture, standing in from the drop (`n` the way out to
+/// it), its ends where it stops (`ends`, at `a` and at `b`) closed.
 #[derive(Clone, Copy)]
 struct Rail {
     a: [f64; 3],
     b: [f64; 3],
+    n: [f64; 2],
     height: f64,
     color: u32,
     cap: Option<u32>,
     solid: bool,
     parapet: Option<bsk_render::AtlasRect>,
+    ends: [bool; 2],
 }
 
 /// A roof tier or a cornice along a tower's wall (`<FaceDown/>`, `<Column/>`) at a floor's height:
@@ -686,8 +689,10 @@ struct Brace {
 const EAVE_OUT: f64 = 0.55;
 const EAVE_DROP: f64 = 0.4;
 const EAVE_TEAL: u32 = 0x2E5852;
-/// A stone parapet's height, and a doorway's.
-const PARAPET: f64 = 0.38;
+/// How thick a stone parapet is (as the garden's stone bridges' walls), and how much paler its
+/// stone is than the ground's side (theirs is pale granite, over a darker deck); a doorway's height.
+const PARAPET_THICK: f64 = 0.34;
+const PARAPET_PALE: f32 = 1.3;
 const DOORWAY: f64 = 1.25;
 /// A balcony's brackets: how far down the wall they start, how far out they reach, how wide.
 const BRACE_DROP: f64 = 1.1;
@@ -875,7 +880,26 @@ fn build_chunk(scene: &Scene, level: u8, cx: i32, cy: i32) -> Chunk {
                         next.map_or(s, |h| (s + h) / 2.0) + rail_height
                     };
                     let (ra, rb) = if corners.is_some() { (ha + rail_height, hb + rail_height) } else { (end(-1), end(1)) };
-                    chunk.rails.push(Rail { a: [a[0], a[1], ra], b: [b[0], b[1], rb], height: rail_height, color, cap: rail_cap, solid, parapet });
+                    // a parapet's end is closed where the next square along has none on this side
+                    let open = |dir: i32| {
+                        let (px, py) = (x + ax * dir, y + ay * dir);
+                        !world.level_at(px, py, s, data).is_some_and(|l| {
+                            world.level_tile(l, px, py).and_then(|t| data.grounds.get(&t)).is_some_and(|g| g.xml.has("Parapet"))
+                                && world.railed(l, px, py, nx, ny, data)
+                        })
+                    };
+                    let ends = if parapet.is_some() { [open(-1), open(1)] } else { [false; 2] };
+                    chunk.rails.push(Rail {
+                        a: [a[0], a[1], ra],
+                        b: [b[0], b[1], rb],
+                        n: [nx as f64, ny as f64],
+                        height: rail_height,
+                        color,
+                        cap: rail_cap,
+                        solid,
+                        parapet,
+                        ends,
+                    });
                 }
                 // a tower's walls (`<Column/>`): every side not on its own kind goes down to the
                 // ground under it, from under the balcony beside it (or its own top's edge), with
@@ -1073,13 +1097,32 @@ fn floors(scene: &Scene, renderer: &mut Renderer, ground: &mut Ground, x0: i32, 
                 for r in &chunk.rails {
                     let depth = cam.to_screen((r.a[0] + r.b[0]) / 2.0, (r.a[1] + r.b[1]) / 2.0, 0.0)[1];
                     let tint = |k: f32| flat(r.color, k, keep(r.solid, r.a[2]));
-                    // a stone parapet: a low wall in the ground's side stone, a lighter coping
+                    // a stone parapet, as the garden's stone bridges' walls: `PARAPET_THICK` of
+                    // the ground's side stone standing in from the drop, its faces that face us lit
+                    // as walls, its ends closed where it stops, a lighter coping along its top
                     if let Some(rect) = r.parapet {
-                        let (da, db) = (r.a[2] - r.height, r.b[2] - r.height);
-                        let wall = cam.quad([r.a[0], r.a[1], da + PARAPET], [r.b[0], r.b[1], db + PARAPET], [r.a[0], r.a[1], da]);
-                        faces.push((level, depth, Plate { rect, quad: wall, tint: tint(1.0) }));
-                        let cap = cam.quad([r.a[0], r.a[1], da + PARAPET + 0.06], [r.b[0], r.b[1], db + PARAPET + 0.06], [r.a[0], r.a[1], da + PARAPET]);
-                        faces.push((level, depth, Plate { rect: white, quad: cap, tint: tint(1.25) }));
+                        let h = r.height;
+                        let at = |p: [f64; 3], inward: f64, down: f64| [p[0] - r.n[0] * inward, p[1] - r.n[1] * inward, p[2] - down];
+                        let stone = |k: f32| Tint { mul: [k, k, k, alpha(keep(r.solid, r.a[2]))], add: [0.0; 3] };
+                        // a wall's side from p to q (each at its top), down to the deck, if it faces us
+                        let mut side = |p: [f64; 3], q: [f64; 3]| {
+                            let quad = cam.quad(p, q, [p[0], p[1], p[2] - h]);
+                            if quad.x_axis[0] * quad.y_axis[1] - quad.x_axis[1] * quad.y_axis[0] < 0.0 {
+                                let lit = shade(normal(p, q, [q[0], q[1], q[2] - h]));
+                                faces.push((level, depth, Plate { rect, quad, tint: stone(lit * PARAPET_PALE) }));
+                            }
+                        };
+                        let t = PARAPET_THICK;
+                        side(at(r.a, 0.0, 0.0), at(r.b, 0.0, 0.0));
+                        side(at(r.b, t, 0.0), at(r.a, t, 0.0));
+                        if r.ends[0] {
+                            side(at(r.a, t, 0.0), at(r.a, 0.0, 0.0));
+                        }
+                        if r.ends[1] {
+                            side(at(r.b, 0.0, 0.0), at(r.b, t, 0.0));
+                        }
+                        let coping = cam.quad(at(r.a, -0.03, 0.0), at(r.b, -0.03, 0.0), at(r.a, t + 0.03, 0.0));
+                        faces.push((level, depth + 0.001, Plate { rect, quad: coping, tint: stone(PARAPET_PALE * 1.2) }));
                         continue;
                     }
                     // the top rail, and a thinner one halfway down

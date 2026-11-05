@@ -267,7 +267,9 @@ def grounds():
     oak_rail = {"Rail": "0x%06X" % WOOD_RAIL}
     # a bridge's deck slopes from square to square (no steps) and stays solid; piers under it
     bridge = {"StaySolid": None, "Piers": None, "Slope": None}
-    stone_bridge = {"StaySolid": None, "Piers": "stone", "Slope": None, "Parapet": None}
+    # the stone bridge's walls as the garden's stone bridges' (models.arch): thick granite with a
+    # coping, as high as theirs (`<RailHeight>`)
+    stone_bridge = {"StaySolid": None, "Piers": "stone", "Slope": None, "Parapet": None, "RailHeight": "0.6"}
     stone_face = lambda s: ashlar(GRANITE, s + 2)
     out = {
         "NI Sky Rock": (sky_rock, 4, {"NoWalk": None, "BlendPriority": "-1"}, "0x4D4459", None),
@@ -296,9 +298,6 @@ def grounds():
                        {"BlendPriority": "26", **oak_rail}, "0x74403A", timber_face),
         "NI Tower Base": (lambda s: ashlar(GRANITE, s + 3), 2, {"NoWalk": None, "BlendPriority": "18", "NoUnderside": None},
                           "0x5E5C6E", stone_face),
-        # the chest deck's planks by the land: the garden's deck, blending under everything beside
-        # it, so the grass grows in over its edge
-        "NI Store Deck": (G.planks(G.DECK, False, seam=1, ends=0.88), 4, {"BlendPriority": "-2"}, "0xA8665A", None),
     }
     # the wooden bridges arch, east to west (`ARCH_LIFTS`); the stone one steps a quarter of a
     # tile a square
@@ -311,16 +310,6 @@ def grounds():
         out["NI Stone Ramp %d" % k] = (lambda s: ashlar(GRANITE, s + 9), 3,
                                        {"Lift": str(lift), "BlendPriority": "23", **stone_rail, **stone_bridge}, "0x908E98",
                                        stone_face)
-    # the spawn's little bridges over its pond: a deck a little over the water, railed along its
-    # sides (the drop there is small), the pond on under it (`<Under>`, so it's water under the
-    # deck, not sky), its deck thin (`<Slab>`: no walls down to the water)
-    for k in range(4):
-        for way, across in (("EW", True), ("NS", False)):
-            tags = {"BlendPriority": "24", "StaySolid": None, "Slope": None, "RailDrop": "0.1", "Under": "NG Pond",
-                    "Slab": "0.12", **wood_rail}
-            if k:
-                tags["Lift"] = str(k * 0.25)
-            out["NI Pond Deck %s %d" % (way, k)] = (G.planks(G.PLANK, across), 3, tags, "0x7A4E30", timber_face)
     for k in range(12):
         tags = {"StaySolid": None, "BlendPriority": "25", **wood_rail}
         if k:

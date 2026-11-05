@@ -15,30 +15,32 @@ tools/nexus_garden/islands_types.json (grounds from 0x9D00, objects from 0x9D80)
 The garden's theme and art (tools/build_nexus_garden.py), rebuilt as four islands at two
 heights, joined by bridges; floor 1 is the lowest map (the game's `World.Levels[0]`):
 
-- SPAWN (middle, floor 2): the spawn deck in its koi-pond ring (`Spawn`), the healing basins, the
-  Armoire, the Vault Portal, the Support Bot and its dungeon portal (`Nexus Bot`, `Nexus Dungeon`),
-  the XP ducks on the pond (NexusGuide), the Name Changer and the Character Changer about the deck
-  (`Nexus Name Changer`, `Nexus Character Changer`), the pond's lobe to the north-east with lily
-  pads and frogs, three little flat bridges over the pond, and on a deck in the pond's
-  south-east corner the storehouse and the four shared vault chests (`CHESTS`: each keeps its
-  castle tile as its name, so its items stay where they are in Redis).
-- MARKET (west, floor 2), across an arched wooden bridge (as the garden's over its pond): the market square (the
-  Broker on `Nexus Broker`, the stalls' `Market Stall` tiles, the Tinkerer and the Chronicler on
-  their markers), the shop street (`Store N`, MerchantLists.Shops), the guild's teahouse (Guild
-  Hall door, Guild Register), the quest house, and in its south-west the forge court (the Divine
-  Forge in its smithy, Amatsumara at his anvil, the Enchanter, weapon racks and straw dummies).
+- SPAWN (middle, floor 2): the spawn deck in its koi pond (`Spawn`, which heals: NexusWorld), the
+  healing basins, the Armoire, the Vault Portal, the Support Bot and its dungeon portal (`Nexus
+  Bot`, `Nexus Dungeon`), the XP ducks on the pond (NexusGuide), the Name Changer and the
+  Character Changer about the deck (`Nexus Name Changer`, `Nexus Character Changer`), the pond's
+  lobe to the north-east with lily pads and frogs; the pond is waded (no bridges over it) to the
+  paths west, east and south to the big bridges, and its south-east quarter mirrors its
+  south-west (`mirror_spawn`).
+- MARKET (west, floor 2), across an arched wooden bridge (as the garden's over its pond): the
+  market square (the Broker on `Nexus Broker`, the stalls' `Market Stall` tiles, the Tinkerer and
+  the Chronicler on their markers), the shop street (`Store N`, MerchantLists.Shops), the guild's
+  teahouse (Guild Hall door, Guild Register), the quest house, and in its south-west the forge
+  court (the Divine Forge in its smithy, Amatsumara at his anvil, the Enchanter, weapon racks and
+  straw dummies).
 - PORTALS (south, floor 1, a floor below the spawn), down a stone bridge on arches: the shrine
   of the realm portals (Realm 2's vortex on `Realm2 Portal`, four caverns on `Realm Portals`, the
   Arena's sand pit on `Arena Portal`), the torii and the pagoda, and the forest round it on petal
   ground (blossom falls there): the elder cherry's dry garden in its west, the memorial clearing
   and the twins (`Nexus Twins`) in its east.
-- ARENA (east, floor 2), across an arched wooden bridge (as the garden's over its pond): the Arena court (the dojo
-  yard, the samurai statue, the Herald on `Nexus Herald` and the Arena Leaderboard beside him),
-  and a round stone tower: a spiral stair inside it (two turns round its core, `SPIRAL`, a
-  quarter of a tile a twelfth of a turn, as the Stair Tower's) from its door up to its top two
-  floors up, where a cap room stands on the core; round the top an oak balcony on brackets over
-  the court (`<Column/>` walls below it), the Hall of Champions' plinths round it, the lookout's
-  telescope and, on an overhang to the east, the bar (`Nexus Barman`, `Nexus Bar`: NexusBar).
+- ARENA (east, floor 2), across an arched wooden bridge (as the garden's over its pond): the Arena
+  court (the dojo yard, the samurai statue, the Herald on `Nexus Herald` and the Arena Leaderboard
+  beside him), and a round stone tower: a spiral stair inside it (two turns round its core,
+  `SPIRAL`, a quarter of a tile a twelfth of a turn, as the Stair Tower's) from its door up to its
+  top two floors up, where a cap room stands on the core; round the top an oak balcony on brackets
+  over the court (`<Column/>` walls below it), the Hall of Champions' plinths round it and its
+  monument east of the cap room, the lookout's telescope and, on an overhang to the east, the bar
+  (`Nexus Barman`, `Nexus Bar`: NexusBar).
 
 Every bridge is made by `bridge` (straight, five wide on the spawn's middle row or column, square
 to the islands' straight bridge heads, `jetty`; a quarter of a tile a square between its level
@@ -112,19 +114,17 @@ BRIDGES = [
 
 # the spawn (build_nexus's island, a little smaller): its deck and the pond round it
 SPAWN_DECK = (8, 9)                  # half width and height of the deck's hexagon
-POND_SCALE = (1.55, 1.45)
-# the pond's little bridges: flat, this many quarters of a tile over the water (`NI Pond Deck`)
-POND_DECK_LIFT = 1
+# the pond round it, wide enough to be a pond rather than a moat: no bridges cross it (it's
+# shallow, players wade it; its little bridges went on 2026-11-05)
+POND_SCALE = (1.75, 1.62)
 # the pond's lobe to the north-east, with lily pads and frogs: its middle (from the spawn's
 # middle) and half width and height
 POND_LOBE = (10, -9, 6.5, 5)
-# The shared vault chests (build_nexus.CHESTS's castle tiles, their Redis records), on a deck in
-# the pond's south-east corner, joined to the spawn's: the platform (from the spawn's middle,
-# x0, y0, x1, y1), the storehouse at its back, the chests (offset, castle tile)
-STORE_DECK = (3, 6, 13, 13)
-STORE_DECK_EDGE = "NI Store Deck"    # its planks by the land, the grass blending over them
-STOREHOUSE = (10, 7)
-CHESTS = [((5, 11), (61, 70)), ((7, 11), (79, 70)), ((9, 11), (61, 74)), ((11, 11), (79, 74))]
+# The south-east quarter of the spawn's island, below the bridge east, is the south-west's
+# mirrored (`mirror_spawn`): the pond's corner, its bank and the grove beyond (the storehouse and
+# the shared vault chests stood there until 2026-11-05)
+NATURE = (SAKURA, WEEPING, PINE, MAPLE, YOUNG, BAMBOO, AZALEA, BOULDER, "NG Grass Tuft", "NG Pink Flowers",
+          "NG Blue Flowers", "NG Fallen Petals", "NG Lily Pad", "NG Lotus", "NG Koi")
 
 # the market: build_nexus's village moved here (its coordinates less MARKET_SHIFT)
 MARKET_SHIFT = (56, -16)
@@ -183,7 +183,7 @@ DOOR = (172, 73)
 BAR_DECK = (182, 66, 189, 77)        # the overhang: x0, y0, x1, y1
 BAR = (186, 69)                      # the bar's model: its counter's middle
 BARMAN = (186, 68)
-CHAMPIONS = (173, 71)                # the monument, on the tower's top west of the cap room (clear of the stairwell)
+CHAMPIONS = (179, 71)                # the monument, on the tower's top east of the cap room, north of the stairwell
 TELESCOPE_AT = 200                   # the telescope's bearing round the balcony (degrees, y down): beside the monument
 
 
@@ -277,6 +277,21 @@ def bridge(levels, b):
         g.ground(x, y, ground, keep=True)
 
 
+def bridge_lanterns(levels, b):
+    """A stone bridge's ends, as the garden's stone bridges have them: a lit stone lantern at each
+    end of each parapet, on the bridge head beside it."""
+    _, axis, (c0, c1), (a0, a1), (h0, h1), material, _ = b
+    if material != "stone":
+        return
+    step = 1 if a1 > a0 else -1
+    for a, h in ((a0 - step, h0), (a1 + step, h1)):
+        g = levels[int(h / FLOOR + 1e-6)]
+        for c in (c0 - 1, c1 + 1):
+            x, y = (a, c) if axis == "x" else (c, a)
+            assert g.has(x, y) and g.empty(x, y), ("a stone bridge's lantern off its bridge head", b[0], x, y)
+            g.place(x, y, LANTERN)
+
+
 def carve(levels, b, wide=7):
     """Clears the way for a bridge on every floor: no island reaches into the gap it spans, for
     `wide` squares either side of it, so each island meets it with a straight edge."""
@@ -347,25 +362,6 @@ def lay_spawn(g):
                 edge = not all(hex_inside(x + 0.5 + ddx, y + 0.5 + ddy, sx + 0.5, sy + 0.5, dw, dh)
                                for ddx in (-1, 0, 1) for ddy in (-1, 0, 1))
                 g.ground(x, y, BEAM if edge else DECK, keep=True)
-    # the storehouse's deck in the pond's south-east corner, joined to the spawn's
-    x0, y0, x1, y1 = STORE_DECK
-    for y in range(sy + y0, sy + y1 + 1):
-        for x in range(sx + x0, sx + x1 + 1):
-            if g[x, y]["ground"] in (DECK, BEAM):
-                continue
-            edge = x in (sx + x0, sx + x1) or y in (sy + y0, sy + y1)
-            g.ground(x, y, BEAM if edge and g[x, y]["ground"] in (POND, SHALLOWS) else DECK, keep=True)
-    # where it meets the land, the grass grows in over it: its edge ragged (a square in three
-    # gone to grass, by a hash), the planks by the land under the grass's edge (`NI Store Deck`)
-    land = lambda x, y: g.ok(x, y) and g[x, y]["ground"] in (GRASS, SAND)
-    near_land = [(x, y) for y in range(sy + y0, sy + y1 + 1) for x in range(sx + x0, sx + x1 + 1)
-                 if g[x, y]["ground"] == DECK and any(land(x + dx, y + dy) for dx in (-1, 0, 1) for dy in (-1, 0, 1))]
-    for x, y in near_land:
-        g.ground(x, y, STORE_DECK_EDGE, keep=True)
-    for x, y in near_land:
-        edge = any(land(x + dx, y + dy) for dx, dy in ((1, 0), (-1, 0), (0, 1), (0, -1)))
-        if edge and (x * 7 + y * 13) % 3 == 0 and g.empty(x, y):
-            g.ground(x, y, GRASS, keep=True)
     for y in range(sy - 2, sy + 3):
         for x in range(sx - 2, sx + 3):
             g.put(x, y, region="Spawn")
@@ -380,14 +376,7 @@ def lay_spawn(g):
     for x, y in ((sx, sy - dh + 1), (sx - dw + 1, sy - dh // 2), (sx + dw - 1, sy - dh // 2),
                  (sx - dw + 1, sy + dh // 2), (sx + dw - 1, sy + dh // 2)):
         g.place(x, y, LANTERN)
-    g.model("NG Storehouse", sx + STOREHOUSE[0], sy + STOREHOUSE[1])
-    for (dx, dy), (ox, oy) in CHESTS:
-        g.place(sx + dx, sy + dy, "Vault Chest", name="%d_%d" % (ox, oy))
-    g.place(sx + x1, sy + y1, PAPER_L)
-    g.place(sx + x0 + 1, sy + y1, PAPER)
-    # three little bridges over the pond, flat a quarter of a tile over the water (their end
-    # squares sloping down to land flush on the banks), railed all along, to the shore at the big
-    # bridges' feet
+    # west, east and south, from the pond's shore (waded to: no bridges) to the big bridges
     for d in ((-1, 0), (1, 0), (0, 1)):
         x, y = sx, sy
         while g[x, y]["ground"] in (DECK, BEAM):
@@ -396,19 +385,12 @@ def lay_spawn(g):
         while g[x, y]["ground"] in (POND, SHALLOWS):
             water.append((x, y))
             x, y = x + d[0], y + d[1]
-        n = len(water)
-        # a path on to the island's edge, as wide as the big bridge there (first: its round end
-        # reaches back over the water, and the bridge's last squares go over it)
+        # a path on to the island's edge, as wide as the big bridge there
         ex, ey = x, y
         while g.has(ex + d[0], ey + d[1]):
             ex, ey = ex + d[0], ey + d[1]
         g.line([(x, y), (ex, ey)], 5, PATH)
-        for i, (wx, wy) in enumerate(water):
-            k = POND_DECK_LIFT
-            for c in (-1, 0, 1):
-                px, py = (wx, wy + c) if d[1] == 0 else (wx + c, wy)
-                g.ground(px, py, "NI Pond Deck %s %d" % ("EW" if d[1] == 0 else "NS", k), keep=True)
-        # paper lanterns at each pond bridge's shore end
+        # paper lanterns at the path's shore end
         for k, lamp in ((-3, PAPER), (3, PAPER_L)):
             px, py = (x, y + k) if d[1] == 0 else (x + k, y)
             if g.land(px, py) and g.empty(px, py):
@@ -420,7 +402,29 @@ def lay_spawn(g):
     rng.shuffle(spots)
     for i, (x, y) in enumerate(spots[:14]):
         g.place(x, y, "NI Frog" if i < 4 else "NG Lotus" if i < 7 else "NG Lily Pad", keep=False)
-    return [(sx - 15, sy + 3), (sx + 15, sy + 3), (sx + 3, sy + 15), (sx - 12, sy - 12), (sx + lx, int(sy + ly + lh + 2))]
+    return [(sx - 18, sy + 3), (sx + 18, sy + 3), (sx + 3, sy + 18), (sx - 14, sy - 14), (sx + lx, int(sy + ly + lh + 2))]
+
+
+def mirror_spawn(g):
+    """The spawn island's south-east quarter, below the path east and beside the path south, as
+    the south-west's mirrored across the spawn's middle column: the pond's corner, its shallows and
+    sand, the grass and the grove, their trees and flowers, lily pads and koi. The deck, the paths,
+    the lanterns, the rims and the markers stay as they are on both sides."""
+    _, sx, sy, *_ = SPAWN
+    for y in range(sy + 3, g.h):
+        for x in range(sx + 3, g.w):
+            mx = 2 * sx - x
+            if not g.ok(mx, y):
+                continue
+            src, dst = g[mx, y], g[x, y]
+            fixed = (None, RIM, PAVED_RIM, DECK, BEAM, PATH, COBBLE)
+            if src["ground"] in fixed or dst["ground"] in fixed or src["region"] or dst["region"]:
+                continue
+            if (src["obj"] and src["obj"] not in NATURE) or (dst["obj"] and dst["obj"] not in NATURE):
+                continue
+            dst["ground"] = src["ground"]
+            dst["obj"] = src["obj"]
+            dst["name"] = None
 
 
 def smithy_north(g, at=SMITHY):
@@ -828,11 +832,13 @@ def build():
         for end in (0, 1):
             jetty(levels, b, end)
         bridge(levels, b)
+        bridge_lanterns(levels, b)
     # the rims last: the jetties' sides are rim too
     smooth(levels)
     lay_rims(levels)
     for n, g in enumerate(levels):
         plant(g, rng, points[n])
+    mirror_spawn(levels[SPAWN[0]])
     return levels
 
 
@@ -857,10 +863,7 @@ def check(levels):
     assert regions.get("Nexus Bar", 0) >= 12, regions
     for shop, _, n, _ in bn.SHOPS:
         assert regions.get(shop) == n, (shop, regions.get(shop))
-    spawn = levels[1]
-    sx, sy = SPAWN[1:3]
-    for (dx, dy), _ in CHESTS:
-        assert spawn[sx + dx, sy + dy]["obj"] == "Vault Chest", (dx, dy)
+    assert not any(t["obj"] == "Vault Chest" for g in levels for row in g.t for t in row), "the Nexus has no shared chests"
     # the Arena's pit and the portals' floors clear
     g0 = levels[0]
     for (cx, cy), r in [(VORTEX, 3), (ARENA_PIT, 2)] + [(c, 2) for c in CAVERNS]:

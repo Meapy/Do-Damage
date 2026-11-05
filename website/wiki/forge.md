@@ -32,7 +32,7 @@ tier below, and the rest are special recipes, most of them from Doomed Realms.
    your inventory. If every ingredient came from your vault or forge storage, it goes into a free
    inventory slot, or into your vault when your inventory is full.
 
-Only your own vault chests count, not the shared chests in the Nexus.
+Only your own vault chests count.
 
 `/forge` and `/forgelist` only point you to the forge now.
 

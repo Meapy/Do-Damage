@@ -131,11 +131,10 @@ the stone water basins at its corners do. From there:
 - **On the spawn's island**: the **Support Bot** in the middle of the deck, the Name Changer
   (your first name is free; changing it costs {{v:name_change}} fame) strolling about its west
   side and the Character Changer about its east, the Armoire (skins) and the **Vault** portal.
-  Three little bridges cross the koi pond round the deck, west, east and south, to the big
-  bridges. Every ten minutes the Support Bot lets a flock of **XP ducks** onto the pond: shoot
-  them for experience. Frogs sit among the lily pads in the pond's north-east, and in its
-  south-east corner the storehouse stands on a deck with four **shared vault chests** anyone can
-  use.
+  The koi pond round the deck is shallow: wade across it, west, east or south, to the paths to
+  the big bridges. Every ten minutes the Support Bot lets a flock of **XP ducks** onto the pond:
+  shoot them for experience. Frogs sit among the lily pads in the pond's north-east, and cherry
+  trees bloom on its banks.
 - **West**, over the arched wooden bridge: the **market island**. Its shopping street along the
   north is the Nexus Bazaar: each shop is a row of stalls in front of a house (stat potions, dungeon keys,
   Elder and Doomed keys, consumables, specials, pet generators, clothing and accessories). The
@@ -149,14 +148,14 @@ the stone water basins at its corners do. From there:
   stands the quest house, and in the island's south-west the forge court and its **smithy**: its
   great furnace is the [Divine Forge](forge.html) and its crystal altar the
   [Enchanter](imprints.html), and **Amatsumara**, the smith god, works at his anvil before it.
-- **South**, down the stone bridge to the island a floor below and under the torii: the **shrine
-  of the realm portals**. The portals are sunk into its floor: **Realm 2**'s great vortex in the
-  middle, and a dark cavern for each realm round it, each with its name and how many players are
-  inside, and west of the vortex the **Arena**'s sand pit
-  ([The Arena](progression.html#the-arena)). Walk onto one to enter. A pagoda stands behind them,
-  and round the shrine a forest of cherry, pine and maple where blossom falls around you: a dry
-  garden of raked gravel round the elder cherry in its west, and in its east a quiet clearing
-  with a wayside shrine, where the twins Hana and Sora run about.
+- **South**, between stone lanterns and down the walled stone bridge to the island a floor below
+  and under the torii: the **shrine of the realm portals**. The portals are sunk into its floor:
+  **Realm 2**'s great vortex in the middle, and a dark cavern for each realm round it, each with
+  its name and how many players are inside, and west of the vortex the **Arena**'s sand pit ([The
+  Arena](progression.html#the-arena)). Walk onto one to enter. A pagoda stands behind them, and
+  round the shrine a forest of cherry, pine and maple where blossom falls around you: a dry garden
+  of raked gravel round the elder cherry in its west, and in its east a quiet clearing with a
+  wayside shrine, where the twins Hana and Sora run about.
 - **East**, over the other arched bridge: the **Arena island**. Its court of raked sand holds a
   samurai's statue, banners, straw dummies, the Arena Leaderboard's golden trophy, the **Herald**
   and the **Warcaller** (the [community goals](community-goals.html)). Beside it rises a round
