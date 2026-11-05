@@ -483,7 +483,7 @@ fn layers_match_server() {
     // LayersMessage.Write: the floors' height, then each square of the floors above the map
     let body = B::default().f32(3.0).i16(1).u8(1).i16(6).i16(14).i16(0x9c05u16 as i16).0;
     let msg = ServerMessage::decode(132, &body).unwrap();
-    let ServerMessage::Layers(l) = &msg else { panic!("{msg:?}") };
+    let ServerMessage::Layers(l) = &msg else { panic!("expected ServerMessage::Layers") };
     assert_eq!(l.height, 3.0);
     assert_eq!(l.tiles[0], LayerTile { level: 1, x: 6, y: 14, tile_type: 0x9c05 });
     let mut w = wire::Writer::default();
