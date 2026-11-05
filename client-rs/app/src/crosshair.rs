@@ -6,7 +6,6 @@
 //! size and no edge is drawn twice.
 
 use crate::i18n::mark;
-use crate::theme::color;
 
 /// The player's own crosshair is this many cells square, the middle one on the mouse.
 pub const GRID: usize = 15;
@@ -58,21 +57,32 @@ impl Style {
     }
 }
 
+/// The crosshair's colours: as strong as they go (full brightness, little or no white in them),
+/// so they stand out from the ground rather than the softer colours of the interface.
+const EMBER: u32 = 0xFF5A00;
+const RED: u32 = 0xFF1A1A;
+const YELLOW: u32 = 0xFFEE00;
+const GREEN: u32 = 0x1AFF3C;
+const CYAN: u32 = 0x00E5FF;
+const BLUE: u32 = 0x2A62FF;
+const PURPLE: u32 = 0xA22BFF;
+const PINK: u32 = 0xFF1FC8;
+
 /// The colours offered: the arms' and the dot's. The first is the game's own, white with an
 /// ember dot.
 pub const COLOURS: [(u32, u32); 8] = [
-    (0xFFFFFF, color::ACCENT),
+    (0xFFFFFF, EMBER),
     (0xFFFFFF, 0xFFFFFF),
-    (color::ACCENT, color::ACCENT),
-    (0x5BFF7A, 0x5BFF7A),
-    (0x45E8FF, 0x45E8FF),
-    (0xFFE14C, 0xFFE14C),
-    (0xFF5CD6, 0xFF5CD6),
-    (0xFF3D3D, 0xFF3D3D),
+    (EMBER, EMBER),
+    (GREEN, GREEN),
+    (CYAN, CYAN),
+    (YELLOW, YELLOW),
+    (PINK, PINK),
+    (RED, RED),
 ];
 
 /// The colours the player's own is painted in, each square its own (`Look::custom`).
-pub const PALETTE: [u32; 10] = [0xFFFFFF, color::ACCENT, 0xFF3D3D, 0xFFE14C, 0x5BFF7A, 0x45E8FF, 0x4C7DFF, 0xA45CFF, 0xFF5CD6, 0x101010];
+pub const PALETTE: [u32; 10] = [0xFFFFFF, EMBER, RED, YELLOW, GREEN, CYAN, BLUE, PURPLE, PINK, 0x000000];
 
 /// The player's own drawing: each square empty (0) or a `PALETTE` colour (its index plus one).
 pub type Drawing = [[u8; GRID]; GRID];
@@ -257,6 +267,11 @@ fn shape(look: &Look, k: f32, x: i32, y: i32) -> Px {
     }
 }
 
+/// How thick the black edge is at `k`: a pixel, two from twice the usual size.
+fn edge_width(k: f32) -> usize {
+    if k >= 1.75 { 2 } else { 1 }
+}
+
 /// How far from the mouse any style reaches, in pixels, at `k`.
 fn reach(k: f32) -> i32 {
     (16.0 * k).ceil() as i32 + 3
@@ -274,15 +289,25 @@ pub fn draw(renderer: &mut bsk_render::Renderer, at: (f32, f32), k: f32, look: &
             px[(y + n) as usize * side + (x + n) as usize] = shape(look, k, x, y);
         }
     }
-    // The black edge: every empty pixel beside a drawn one, corners too.
-    let filled = |x: i32, y: i32| x >= -n && y >= -n && x <= n && y <= n && !matches!(px[(y + n) as usize * side + (x + n) as usize], Px::None | Px::Edge);
-    let mut edged = px.clone();
-    for y in -n..=n {
-        for x in -n..=n {
-            let i = (y + n) as usize * side + (x + n) as usize;
-            if px[i] == Px::None && (-1..=1).any(|dy| (-1..=1).any(|dx| filled(x + dx, y + dy))) {
-                edged[i] = Px::Edge;
+    // The black edge, solid: every empty pixel within `e` of a drawn one, corners too (a
+    // square round each, spread along the rows and then the columns). Thicker as it grows.
+    let e = edge_width(k);
+    let mut near: Vec<bool> = px.iter().map(|p| *p != Px::None).collect();
+    for pass in 0..2 {
+        let from = near.clone();
+        for a in 0..side {
+            for b in 0..side {
+                let at = |c: usize| if pass == 0 { a * side + c } else { c * side + a };
+                let lo = b.saturating_sub(e);
+                let hi = (b + e).min(side - 1);
+                near[at(b)] = (lo..=hi).any(|c| from[at(c)]);
             }
+        }
+    }
+    let mut edged = px.clone();
+    for (i, p) in edged.iter_mut().enumerate() {
+        if *p == Px::None && near[i] {
+            *p = Px::Edge;
         }
     }
     let (arm, dot) = COLOURS[look.colour.min(COLOURS.len() - 1)];
@@ -297,8 +322,8 @@ pub fn draw(renderer: &mut bsk_render::Renderer, at: (f32, f32), k: f32, look: &
             }
             let (rgb, alpha) = match kind {
                 Px::None => continue,
-                Px::Edge => (0x000000, 0.75),
-                Px::Arm => (arm, 0.95),
+                Px::Edge => (0x000000, 1.0),
+                Px::Arm => (arm, 1.0),
                 Px::Dot => (dot, 1.0),
                 Px::Paint(rgb) => (rgb, 1.0),
             };
@@ -366,10 +391,13 @@ mod tests {
                 let n = reach(k);
                 let drawn = (-n..=n).flat_map(|y| (-n..=n).map(move |x| (x, y))).filter(|&(x, y)| shape(&look, k, x, y) != Px::None).count();
                 assert!(drawn > 0, "{style:?} at {k}");
-                // Nothing reaches the edge, where its black edge would be cut off.
-                for i in -n..=n {
-                    for (x, y) in [(i, -n), (i, n), (-n, i), (n, i)] {
-                        assert!(shape(&look, k, x, y) == Px::None, "{style:?} at {k} reaches {x},{y}");
+                // Nothing comes so near the edge that its black edge would be cut off.
+                let e = edge_width(k) as i32;
+                for d in 0..e {
+                    for i in -n..=n {
+                        for (x, y) in [(i, -n + d), (i, n - d), (-n + d, i), (n - d, i)] {
+                            assert!(shape(&look, k, x, y) == Px::None, "{style:?} at {k} reaches {x},{y}");
+                        }
                     }
                 }
             }
