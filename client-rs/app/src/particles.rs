@@ -66,11 +66,14 @@ struct Particle {
     image: Option<Image>,
     /// How opaque it's drawn (a pet's shot's sparks are as faint as the shot).
     alpha: f32,
+    /// On stacked floors, the height of the floor it was made on (ours then), which its own
+    /// height is above.
+    floor: f64,
 }
 
 impl Particle {
     fn new(x: f64, y: f64, z: f64, color: u32, size: f64, life: i32, motion: Motion) -> Self {
-        Particle { x, y, z, vx: 0.0, vy: 0.0, vz: 0.0, color, size, life, left: life, motion, image: None, alpha: 1.0 }
+        Particle { x, y, z, vx: 0.0, vy: 0.0, vz: 0.0, color, size, life, left: life, motion, image: None, alpha: 1.0, floor: 0.0 }
     }
 
     fn with_image(mut self, image: Option<Image>) -> Self {
@@ -127,6 +130,11 @@ pub struct Particles {
     pet_line: Option<(i32, u32)>,
     /// Objects' own effects (`<Effect>`), by object id.
     emitters: HashMap<i32, Emitter>,
+    /// On stacked floors, our height: the floor new particles are made on.
+    floor: f64,
+    /// Objects thrown (`ShowEffect` 16 naming an object, the islands' barman's bottle) waiting
+    /// for their art (`object_effects`): the object, from, to, flight ms and the trail's colour.
+    thrown: Vec<(u16, (f64, f64), (f64, f64), i32, u32)>,
 }
 
 /// An object's effect at work.
@@ -166,8 +174,9 @@ impl Particles {
         self.random() * range * 2.0 - range
     }
 
-    fn add(&mut self, p: Particle) {
+    fn add(&mut self, mut p: Particle) {
         if !self.disabled && self.list.len() < MAX_PARTICLES {
+            p.floor = self.floor;
             self.list.push(p);
         }
     }
@@ -210,6 +219,7 @@ impl Particles {
 
     /// Projectiles struck something (the world's `impacts`): sparks once the colours are known.
     pub fn impacts(&mut self, world: &mut World) {
+        self.floor = world.my_z();
         for impact in world.impacts.drain(..) {
             let target = impact.target.and_then(|id| world.objects.get(&id)).map(|o| (o.object_type, o.stat_int(2).unwrap_or(100)));
             if impact.target.is_some() && target.is_none() {
@@ -289,6 +299,7 @@ impl Particles {
 
     /// `GameServerConnection.onShowEffect`.
     pub fn show_effect(&mut self, e: &ShowEffect, world: &World, now: i32) {
+        self.floor = world.my_z();
         let color = e.color & 0xFF_FFFF;
         let at = |id: i32| world.objects.get(&id).map(|o| (o.x, o.y));
         let (p1, p2) = ((e.pos1.x as f64, e.pos1.y as f64), (e.pos2.x as f64, e.pos2.y as f64));
@@ -454,9 +465,14 @@ impl Particles {
                 let flash = Flash { start: now, color, period: ((p1.0 * 1000.0) as i32).max(1), repeats: p1.1 as i32 };
                 self.flashes.insert(e.target_object_id, flash);
             }
-            // ThrowProjectileEffect: an object thrown in an arc; drawn as a throw.
+            // ThrowProjectileEffect: an object thrown in an arc; drawn as a throw, or as the object
+            // itself tumbling over (with its art, in `object_effects`) when one is named
             16 => {
                 let life = if e.duration > 0 { e.duration } else { 1000 };
+                if e.object_type != 0 {
+                    self.thrown.push((e.object_type, p2, p1, life, if color == 0 { 0xFFFFFF } else { color }));
+                    return;
+                }
                 let (vx, vy) = ((p1.0 - p2.0) / life as f64, (p1.1 - p2.1) / life as f64);
                 self.add(Particle::new(p2.0, p2.1, 0.0, 0xFFFFFF, 0.0, life, Motion::Throw).moving(vx, vy, 0.0));
             }
@@ -497,6 +513,7 @@ impl Particles {
 
     /// Move every particle `dt` ms on; drop the finished ones.
     pub fn update(&mut self, world: &World, now: i32, dt: i32) {
+        self.floor = world.my_z();
         let dt = dt.max(0);
         let mut spawned = Vec::new();
         let mut list = std::mem::take(&mut self.list);
@@ -590,6 +607,17 @@ impl Particles {
         let Some(me) = world.player() else { return };
         let (mx, my) = (me.x, me.y);
         let secs = dt.max(0) as f64 / 1000.0;
+        // what was thrown since, as the thrown object's own picture arcing over, leaving sparks
+        for (object_type, from, to, life, color) in std::mem::take(&mut self.thrown) {
+            let image = data.objects.get(&object_type).and_then(|d| match &d.texture.pick(0).main {
+                bsk_data::TextureRef::Image { set, index } => still(sprites, set, *index, 5.0),
+                _ => None,
+            });
+            let (vx, vy) = ((to.0 - from.0) / life as f64, (to.1 - from.1) / life as f64);
+            let mut p = Particle::new(from.0, from.1, 0.0, color, 0.0, life, Motion::Throw).moving(vx, vy, 0.0);
+            p.image = image;
+            self.add(p);
+        }
         self.emitters.retain(|id, _| world.objects.get(id).is_some_and(|o| (o.x - mx).hypot(o.y - my) <= EFFECT_RANGE + 4.0));
         if self.disabled {
             return;
@@ -811,7 +839,7 @@ impl Particles {
                     false
                 });
                 if let Some(&(Some(rect), w, h, _)) = frame.or(img.frames.last()) {
-                    let [sx, sy] = cam.to_screen(p.x, p.y, p.z);
+                    let [sx, sy] = cam.to_screen(p.x, p.y, p.z + p.floor);
                     let (w, h) = (w * k as f32, h * k as f32);
                     let top = if img.standing { sy - h } else { sy - h / 2.0 };
                     renderer.sprite(rect, Quad::rect((sx - w / 2.0).round(), top.round(), w, h), Tint::NONE);
@@ -824,7 +852,7 @@ impl Particles {
                 _ => p.size,
             };
             let side = (size / 100.0 * 5.0).floor() * k;
-            let [sx, sy] = cam.to_screen(p.x, p.y, p.z);
+            let [sx, sy] = cam.to_screen(p.x, p.y, p.z + p.floor);
             let edge = (1.0 * k).max(1.0) as f32;
             let half = (side / 2.0) as f32;
             renderer.fill(sx - half - edge, sy - half - edge, 2.0 * (half + edge), 2.0 * (half + edge), 0x000000, 0.6 * p.alpha);

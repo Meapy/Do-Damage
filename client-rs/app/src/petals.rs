@@ -28,6 +28,8 @@ struct Petal {
     x: f64,
     y: f64,
     z: f64,
+    /// The ground it lands on: ours when it started falling (on stacked floors, our floor's).
+    floor: f64,
     fall: f64,
     sway: f64,
     phase: f64,
@@ -91,7 +93,8 @@ impl Petals {
                     }
                     all += 1;
                     // `<Petals/>` is 1, `<Petals>3</Petals>` three times as thick
-                    if let Some(g) = world.tile(x, y).and_then(|t| data.grounds.get(&t)).filter(|g| g.xml.has("Petals")) {
+                    // on stacked floors, the ground of our floor (`square_at`)
+                    if let Some(g) = world.square_at(x, y, me.z, data).0.and_then(|t| data.grounds.get(&t)).filter(|g| g.xml.has("Petals")) {
                         petal += g.xml.text_of("Petals").and_then(|s| s.trim().parse::<f64>().ok()).unwrap_or(1.0);
                     }
                 }
@@ -114,7 +117,8 @@ impl Petals {
                 x: me.x + a.cos() * r - 2.0,
                 y: me.y + a.sin() * r - 1.5,
                 // from higher where the ground is thicker with them: under a great tree's crown
-                z: 2.5 + self.random() * 3.5 * (1.0 + (self.strength - 1.0).max(0.0) * 0.5),
+                z: me.z + 2.5 + self.random() * 3.5 * (1.0 + (self.strength - 1.0).max(0.0) * 0.5),
+                floor: me.z,
                 fall: 0.45 + self.random() * 0.35,
                 sway: 0.6 + self.random() * 0.8,
                 phase: self.random() * std::f64::consts::TAU,
@@ -134,8 +138,8 @@ impl Petals {
             p.x += (0.55 + flutter * 0.35) * secs;
             p.y += (0.3 - flutter * 0.2) * secs;
             p.z -= p.fall * (0.75 + 0.25 * (t * 3.1 + p.phase).cos().abs()) * secs;
-            if p.z <= 0.0 {
-                p.z = 0.0;
+            if p.z <= p.floor {
+                p.z = p.floor;
                 p.landed = Some(now as f64);
             }
         }

@@ -17,7 +17,7 @@ namespace WorldServer.core.market
         private const float TURN = 30f;
 
         private readonly World _world;
-        private readonly List<(float X, float Y)> _spots;
+        private readonly List<(float X, float Y, float Z)> _spots;
         private readonly MarketStall[] _stalls;
         private float _check, _turn;
         private int _page;
@@ -26,8 +26,9 @@ namespace WorldServer.core.market
         public MarketStalls(World world)
         {
             _world = world;
-            _spots = world.Map.Regions.Where(r => r.Value == TileRegion.Market_Stall)
-                .Select(r => (r.Key.X + 0.5f, r.Key.Y + 0.5f))
+            // on every floor (the islands' market is a floor up)
+            _spots = world.RegionTiles(TileRegion.Market_Stall)
+                .Select(r => (r.Point.X + 0.5f, r.Point.Y + 0.5f, r.Z))
                 .OrderBy(p => p.Item2).ThenBy(p => p.Item1).ToList();
             _stalls = new MarketStall[_spots.Count];
         }
@@ -67,6 +68,7 @@ namespace WorldServer.core.market
                     {
                         var stall = new MarketStall(_world.GameServer);
                         stall.Move(_spots[i].X, _spots[i].Y);
+                        stall.Z = _spots[i].Z;
                         stall.Show(shown[i], now);
                         _world.EnterWorld(stall);
                         _stalls[i] = stall;

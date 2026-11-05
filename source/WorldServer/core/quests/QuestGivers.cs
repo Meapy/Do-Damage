@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using Shared.quests;
+using Shared.resources;
 using WorldServer.core.objects;
 using WorldServer.core.worlds;
 using WorldServer.networking.packets.outgoing;
@@ -12,20 +13,21 @@ namespace WorldServer.core.quests
     // Chronicler (the daily reward and achievements). The Rust client opens the quest window at
     // their tab when you walk up to them; they greet each player who comes near with what waits
     // for them, at most every GREET_AGAIN seconds. Placed here like the Support Bot (NexusGuide),
-    // in the village's market (tools/build_nexus.py: QUEST_NPCS, keep the two in step), where they
-    // walk about the courtyard (NexusVillagers), so they greet from wherever they are.
-    // The Herald opens the server's week (DbWeeklyStats) and greets no one; he stands in the west's
-    // leaderboard court beside the Arena Leaderboard (tools/build_nexus.py: ARENA_LEADERBOARD).
+    // on their map's marker tiles (Nexus_Tinkerer, Nexus_Chronicler: the market square, in the
+    // garden and on the islands), where they walk about the square (NexusVillagers), so they greet
+    // from wherever they are. The Herald opens the server's week (DbWeeklyStats) and greets no one;
+    // he stands by the Arena Leaderboard's court (Nexus_Herald). A map without the markers has them
+    // where the garden did.
     public sealed class QuestGivers
     {
         private const float GREET_RANGE = 4.5f;
         private const float GREET_AGAIN = 180f;
 
-        private static readonly (string Id, string Name, float X, float Y)[] Npcs =
+        private static readonly (string Id, string Name, TileRegion Marker, float X, float Y)[] Npcs =
         {
-            ("NG Tinkerer", "#The Tinkerer", 106.5f, 61.5f),
-            ("NG Chronicler", "#The Chronicler", 114.5f, 61.5f),
-            ("The Herald", "#The Herald", 38.5f, 47.5f),
+            ("NG Tinkerer", "#The Tinkerer", TileRegion.Nexus_Tinkerer, 106.5f, 61.5f),
+            ("NG Chronicler", "#The Chronicler", TileRegion.Nexus_Chronicler, 114.5f, 61.5f),
+            ("The Herald", "#The Herald", TileRegion.Nexus_Herald, 38.5f, 47.5f),
         };
 
         private readonly World _world;
@@ -37,10 +39,11 @@ namespace WorldServer.core.quests
 
         public void Init()
         {
-            foreach (var (id, name, x, y) in Npcs)
+            foreach (var (id, name, marker, x, y) in Npcs)
             {
-                var (sx, sy) = FindSpot(x, y);
-                var npc = _world.CreateNewEntity(id, sx, sy);
+                var (mx, my, mz) = _world.Marker(marker) ?? (x, y, 0f);
+                var (sx, sy) = FindSpot(mx, my);
+                var npc = _world.CreateNewEntity(id, sx, sy, _world.Levels == null ? (float?)null : mz);
                 if (npc != null)
                     _npcs.Add((npc, name));
             }

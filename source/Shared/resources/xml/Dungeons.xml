@@ -420,4 +420,33 @@
 		<KillFameRate>0.75</KillFameRate>
 		<Dungeon/>
 	</World>
+	<World id="testadmin1">
+		<!-- tools/build_stair_tower.py: a prototype of real height, floors stacked over the
+		     same ground (StairTowerWorld; "Stair Tower 1.jm" and up are the floors above);
+		     admins only, /dungeon testadmin1 -->
+		<DisplayName>Stair Tower</DisplayName>
+		<Width>70</Width>
+		<Height>72</Height>
+		<MapJM>Dungeons/Stair Tower.jm</MapJM>
+		<!-- no line of sight: the lowest floor's walls would hide the floors above -->
+		<VisibilityType>0</VisibilityType>
+		<Levels height="3"/>
+		<DisableTeleport/>
+		<Dungeon/>
+	</World>
+	<World id="oldnexus">
+		<!-- tools/build_nexus.py: the garden Nexus, kept as a second working Nexus for admins
+		     (NexusWorld.IsMain) now that the islands replaced it: /dungeon oldnexus -->
+		<DisplayName>Nexus Garden</DisplayName>
+		<Width>136</Width>
+		<Height>108</Height>
+		<Capacity>300</Capacity>
+		<MapJM>Exalt/Nexus Garden.jm</MapJM>
+		<Instance enum="nexus"/>
+		<Music>
+			<Track>wanderlust</Track>
+		</Music>
+		<ShowDisplays/>
+		<DisableTeleport/>
+	</World>
 </Worlds>

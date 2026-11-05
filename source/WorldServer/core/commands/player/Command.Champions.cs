@@ -26,7 +26,8 @@ namespace WorldServer.core.commands
                     player.SendInfo("The Hall of Champions hasn't been ranked yet. Try again in a few minutes.");
                     return true;
                 }
-                player.SendInfo("The Hall of Champions (the monument south of the Nexus spawn):");
+                var islands = player.GameServer.WorldManager.Nexus?.Levels != null;
+                player.SendInfo(islands ? "The Hall of Champions (on top of the Arena tower, east of the Nexus spawn):" : "The Hall of Champions (the monument west of the Nexus spawn):");
                 for (var i = 0; i < ChampionBoards.All.Length && i < board.Boards.Count; i++)
                 {
                     var def = ChampionBoards.All[i];

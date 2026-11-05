@@ -318,6 +318,14 @@ namespace WorldServer.core.objects
 
                 if (tile.ObjId != 0 && tile.ObjType != 0 && _newStaticObjects.Add(tile))
                     update.NewObjs.Add(tile.ToObjectDef(pointX, pointY));
+
+                // and those of the floors above, in a world of stacked floors
+                for (var i = 1; i < (World.Levels?.Count ?? 0); i++)
+                {
+                    var upper = World.Levels[i][pointX, pointY];
+                    if (upper.ObjId != 0 && upper.ObjType != 0 && _newStaticObjects.Add(upper))
+                        update.NewObjs.Add(upper.ToObjectDef(pointX, pointY));
+                }
             }
         }
 

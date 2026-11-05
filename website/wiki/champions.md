@@ -11,11 +11,13 @@ hold the place. Lose the place and the reward goes; win it back and it returns.
 
 ## Finding it
 
-The Hall stands in the west of the Nexus: cross the wooden bridge west from the spawn and follow
-the road to a round court of stone ringed with dark wood. In its middle is the
-**Champions Monument**. Stand by it and press **View** (or <kbd>0</kbd>) to open the boards. Around
-it, each board's **#1 stands on a plinth** as their character, under a plaque with the board, their
-name and their score. Standing by a statue and pressing View opens the Hall at that statue's board.
+The Hall stands on top of the Arena island's tower: cross the arched bridge east from the Nexus
+spawn, go in at the tower's door and climb the spiral stair inside it. At the top, east of the cap
+room beside the stairwell, is the **Champions Monument**. Stand by it and press **View** (or <kbd>0</kbd>) to open the
+boards. Round the tower's balcony, each board's **#1 stands on a plinth** as their character, under
+a plaque with the board, their name and their score, seen from anywhere about the tower: the
+court, the bridge, the stair. Standing by a statue and pressing View opens the Hall at that
+statue's board.
 
 `/champions` lists every board's top three and your own places in the chat, from anywhere.
 

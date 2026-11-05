@@ -35,15 +35,23 @@ pub struct Ground {
     composites: rustc_hash::FxHashMap<[u16; 4], Option<AtlasRect>>,
     /// Edged tiles by (type, which of the eight neighbours need no edge).
     edges: rustc_hash::FxHashMap<(u16, u8), Option<AtlasRect>>,
-    /// Each square's layers once worked out (outer None: not yet), for the World `world_id`,
-    /// up to `log_seen` of its tile log. A square is worked out again when it or a neighbour
+    /// Each square's layers once worked out (outer None: not yet), a list per floor (one on a
+    /// flat map), for the World `world_id`, up to `log_seen` of its tile log and `layers_seen`
+    /// of its floors (`World::layers_gen`). A square is worked out again when it or a neighbour
     /// changes.
-    squares: Vec<Option<Option<TileLayers>>>,
+    squares: Vec<Vec<Option<Option<TileLayers>>>>,
     world_id: u64,
     log_seen: usize,
+    layers_seen: u32,
     /// Connected walls' faces and top texture by object id, with the CONNECT stat and type
     /// they were worked out for (they only change if those do).
     pub walls: rustc_hash::FxHashMap<i32, (i32, u16, std::rc::Rc<WallLook>)>,
+    /// On stacked floors, each floor's ground, faces and railings (`view::floors`).
+    pub floors: crate::view::FloorCache,
+    /// The sunset sky behind the islands (`sunset`), built for the window's size.
+    pub sky: crate::sunset::Sunset,
+    /// What hangs under the islands into that sky (`islands`).
+    pub undersides: crate::islands::Undersides,
 }
 
 /// What a connected wall draws: its faces, its side and top textures.
@@ -52,6 +60,19 @@ pub struct WallLook {
     pub rotation: i32,
     pub side: Option<AtlasRect>,
     pub top: Option<AtlasRect>,
+}
+
+/// One floor's squares (the map's on a flat map): what the blending looks at.
+#[derive(Clone, Copy)]
+struct Floor<'a> {
+    world: &'a World,
+    level: u8,
+}
+
+impl Floor<'_> {
+    fn tile(&self, x: i32, y: i32) -> Option<u16> {
+        self.world.level_tile(self.level, x, y)
+    }
 }
 
 /// The tile type of a composite square (`TileRedrawer`'s 253).
@@ -107,6 +128,21 @@ fn texture_rect(sprites: &Sprites, tex: &TextureData, pick: i32) -> Option<Atlas
     }
 }
 
+/// A ground's own texture at a square, with no blending or edges (the floors of a world of
+/// stacked floors, `view::floors`).
+pub fn plain(data: &GameData, sprites: &Sprites, tile: u16, x: i32, y: i32) -> Option<AtlasRect> {
+    texture_rect(sprites, &data.grounds.get(&tile)?.texture, bsk_data::ground::tile_hash(x, y))
+}
+
+/// What a ground shows on its sides where it drops, on stacked floors: its `<Face>` (stone under
+/// a floor's edge) and true, or its own texture and false.
+pub fn face(data: &GameData, sprites: &Sprites, tile: u16, x: i32, y: i32) -> Option<(AtlasRect, bool)> {
+    match data.grounds.get(&tile)?.xml.child("Face") {
+        Some(face) => texture_rect(sprites, &TextureData::from_xml(face), bsk_data::ground::tile_hash(x, y)).map(|r| (r, true)),
+        None => plain(data, sprites, tile, x, y).map(|r| (r, false)),
+    }
+}
+
 impl Ground {
     fn masks(&mut self, sprites: &Sprites) -> &Vec<[Vec<RgbaImage>; 6]> {
         self.masks.get_or_insert_with(|| {
@@ -128,11 +164,22 @@ impl Ground {
     /// new map).
     fn sync(&mut self, world: &World) {
         let n = (world.width.max(0) * world.height.max(0)) as usize;
-        if self.world_id != world.id() || self.squares.len() != n {
+        let floors = world.level_count();
+        if self.world_id != world.id() || self.squares.first().map_or(0, |s| s.len()) != n {
             self.world_id = world.id();
-            self.squares = vec![None; n];
+            self.squares = vec![vec![None; n]; floors];
             self.log_seen = 0;
+            self.layers_seen = world.layers_gen();
             self.walls.clear();
+        }
+        // the floors above the map came (or came again): work them out afresh
+        if self.layers_seen != world.layers_gen() || self.squares.len() != floors {
+            self.layers_seen = world.layers_gen();
+            self.squares.truncate(1);
+            self.squares.resize(floors, vec![None; n]);
+            for s in self.squares.iter_mut().skip(1) {
+                s.iter_mut().for_each(|c| *c = None);
+            }
         }
         let log = world.tile_log();
         if self.log_seen == log.len() {
@@ -145,7 +192,7 @@ impl Ground {
                 for dx in -1..=1 {
                     let (nx, ny) = (x + dx, y + dy);
                     if nx >= 0 && ny >= 0 && nx < w && ny < world.height {
-                        self.squares[(nx + ny * w) as usize] = None;
+                        self.squares[0][(nx + ny * w) as usize] = None;
                     }
                 }
             }
@@ -153,22 +200,31 @@ impl Ground {
         self.log_seen = log.len();
     }
 
-    /// The layers for square (x, y).
+    /// The layers for square (x, y) (of the map: the lowest floor).
     pub fn layers(&mut self, world: &World, data: &GameData, sprites: &Sprites, renderer: &mut Renderer, x: i32, y: i32) -> Option<TileLayers> {
+        self.layers_on(world, data, sprites, renderer, 0, x, y)
+    }
+
+    /// The layers for square (x, y) of a floor (stacked floors: each blends with its own
+    /// neighbours, its water flows, as the map's does).
+    #[allow(clippy::too_many_arguments)]
+    pub fn layers_on(&mut self, world: &World, data: &GameData, sprites: &Sprites, renderer: &mut Renderer, level: u8, x: i32, y: i32) -> Option<TileLayers> {
         self.sync(world);
         if x < 0 || y < 0 || x >= world.width || y >= world.height {
             return None;
         }
         let i = (x + y * world.width) as usize;
-        if let Some(cached) = self.squares[i] {
+        let cached = *self.squares.get(level as usize)?.get(i)?;
+        if let Some(cached) = cached {
             return cached;
         }
-        let layers = self.work_out(world, data, sprites, renderer, x, y);
-        self.squares[i] = Some(layers);
+        let at = Floor { world, level };
+        let layers = self.work_out(at, data, sprites, renderer, x, y);
+        self.squares[level as usize][i] = Some(layers);
         layers
     }
 
-    fn work_out(&mut self, world: &World, data: &GameData, sprites: &Sprites, renderer: &mut Renderer, x: i32, y: i32) -> Option<TileLayers> {
+    fn work_out(&mut self, world: Floor, data: &GameData, sprites: &Sprites, renderer: &mut Renderer, x: i32, y: i32) -> Option<TileLayers> {
         let tile = world.tile(x, y)?;
         let ground = data.grounds.get(&tile)?;
         let animated = ground.animate.kind != AnimateKind::None;
@@ -195,7 +251,7 @@ impl Ground {
 
     /// `getCompositeSig` and `buildComposite`: each quarter shows the neighbour beside it with
     /// the higher composite priority, or the diagonal one if neither side takes part.
-    fn composite(&mut self, world: &World, data: &GameData, sprites: &Sprites, renderer: &mut Renderer, x: i32, y: i32) -> Option<AtlasRect> {
+    fn composite(&mut self, world: Floor, data: &GameData, sprites: &Sprites, renderer: &mut Renderer, x: i32, y: i32) -> Option<AtlasRect> {
         let priority = |t: Option<u16>| t.and_then(|t| data.grounds.get(&t)).map_or(-1, |g| g.composite_priority);
         let at = |dx: i32, dy: i32| world.tile(x + dx, y + dy);
         let (n1, n3, n5, n7) = (at(0, -1), at(-1, 0), at(1, 0), at(0, 1));
@@ -238,7 +294,7 @@ impl Ground {
 
     /// `getEdgeSig` and `drawEdges`: the tile with its edge drawn on each side that borders an
     /// empty square (or, in SameTypeEdgeMode, any other type), and corners to match.
-    fn edged(&mut self, world: &World, data: &GameData, sprites: &Sprites, renderer: &mut Renderer, x: i32, y: i32) -> Option<AtlasRect> {
+    fn edged(&mut self, world: Floor, data: &GameData, sprites: &Sprites, renderer: &mut Renderer, x: i32, y: i32) -> Option<AtlasRect> {
         let tile = world.tile(x, y)?;
         let ground = data.grounds.get(&tile)?;
         // Bit i set: neighbour i (row by row, 4 = the tile) needs no edge.
@@ -324,7 +380,8 @@ impl Ground {
     }
 
     /// `TileRedrawer.redraw` for plain tiles (`getSig` and `redrawRect`).
-    fn blended(&mut self, world: &World, data: &GameData, sprites: &Sprites, renderer: &mut Renderer, x: i32, y: i32, with_background: bool) -> Option<AtlasRect> {
+    #[allow(clippy::too_many_arguments)]
+    fn blended(&mut self, world: Floor, data: &GameData, sprites: &Sprites, renderer: &mut Renderer, x: i32, y: i32, with_background: bool) -> Option<AtlasRect> {
         let tile = world.tile(x, y)?;
         let priority = data.grounds.get(&tile).map_or(-1, |g| g.blend_priority);
         let mut sig = [tile; 9];

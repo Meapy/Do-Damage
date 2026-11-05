@@ -16,6 +16,9 @@ namespace Shared.resources
         public readonly bool Sink;
         public readonly bool Sinking;
         public readonly float Speed;
+        // how high the ground lifts what stands on it, in tiles (the Nexus garden's bridges, the
+        // Stair Tower's steps): in a world of stacked floors it is the height walked at
+        public readonly float Lift;
 
         public string ObjectId;
 
@@ -41,6 +44,7 @@ namespace Shared.resources
             Sinking = e.HasElement("Sinking");
 
             Speed = e.GetValue("Speed", 1.0f);
+            Lift = e.GetValue("Lift", 0f);
             Push = e.HasElement("Push");
             if (Push)
             {
