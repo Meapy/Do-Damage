@@ -446,12 +446,19 @@ namespace Shared.community
                 var start = week.AddDays(-7 * w);
                 var end = start.AddDays(7);
                 var drawn = weekGoals(start);
-                var early = earlyStarts?.Invoke(start) ?? Array.Empty<EarlyStart>();
+                // the week's bonus goals in the order they began, each goal once a week: a second
+                // start of a goal already in the week is left out (its slot carries on as it was)
+                var seen = drawn.ToHashSet();
+                var early = (earlyStarts?.Invoke(start) ?? Array.Empty<EarlyStart>())
+                    .Where(e => e.Slot >= 0 && e.Slot < drawn.Count && e.Start > start && e.Start < end)
+                    .OrderBy(e => e.Start).ThenBy(e => e.Slot)
+                    .Where(e => seen.Add(e.Id))
+                    .ToList();
                 for (var slot = 0; slot < drawn.Count; slot++)
                 {
                     // the slot's goals in turn: the drawn one, then each bonus goal
                     var chain = new List<(string Id, DateTime Start, double Heat)> { (drawn[slot], start, 1) };
-                    chain.AddRange(early.Where(e => e.Slot == slot && e.Start > start && e.Start < end).OrderBy(e => e.Start).Select(e => (e.Id, e.Start, e.Heat)));
+                    chain.AddRange(early.Where(e => e.Slot == slot).Select(e => (e.Id, e.Start, e.Heat)));
                     for (var k = 0; k < chain.Count; k++)
                     {
                         var def = Goals.FirstOrDefault(g => g.Id == chain[k].Id);

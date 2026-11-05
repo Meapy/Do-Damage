@@ -138,6 +138,29 @@ namespace Tests
         }
 
         [Fact]
+        public void AGoalStartedTwiceInAWeekRunsOnce()
+        {
+            // two goals finished at once, both given the same bonus goal in the same second (as
+            // happened on 2026-11-05): the first slot keeps it, the second carries on as it was
+            var drawn = Data.Draw(Monday);
+            var next = Data.NextGoal(Monday, drawn);
+            var at = Monday.AddDays(2);
+            var twice = new[] { new EarlyStart(0, next, at, 3), new EarlyStart(1, next, at, 2.71) };
+            var runs = Data.Runs(Wed, null, week => week == Monday ? twice : Array.Empty<EarlyStart>());
+            Assert.Equal(runs.Count, runs.Select(r => r.Key).Distinct().Count());
+            var bonus = Assert.Single(runs, r => r.Bonus);
+            Assert.Equal((0, 3.0), (bonus.Slot, bonus.Heat));
+            var second = Assert.Single(runs, r => r.Week == Monday && r.Slot == 1);
+            Assert.Equal((drawn[1], Monday.AddDays(7)), (second.Def.Id, second.End));
+            // a later bonus goal of its own for that slot then takes its place
+            var other = Data.NextGoal(Monday, drawn.Append(next).ToList());
+            Assert.NotEqual(next, other);
+            var fixedRuns = Data.Runs(Wed, null, week => week == Monday ? twice.Append(new EarlyStart(1, other, at.AddMinutes(1))).ToArray() : Array.Empty<EarlyStart>());
+            Assert.Equal(2, fixedRuns.Count(r => r.Bonus));
+            Assert.Equal(at.AddMinutes(1), fixedRuns.Single(r => r.Week == Monday && r.Slot == 1 && !r.Bonus).End);
+        }
+
+        [Fact]
         public void SpecialsRunBetweenTheirDays()
         {
             var data = CommunityData.Parse(@"{
