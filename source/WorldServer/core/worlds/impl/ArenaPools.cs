@@ -79,6 +79,10 @@ namespace WorldServer.core.worlds.impl
         // no one dies there, so it's safe to farm. Loot.Handle applies it (LootHalvesItems says how).
         public const double LootRate = 0.5;
 
+        // and pets (an item with a PermaPet activate, its generator) drop at this much of that again:
+        // half as often as the arena's other loot (Loot.Handle)
+        public const double PetRate = 0.5;
+
         // and the share of the usual fame (FameRates): the waves' fame (World.FameRate), and the
         // experience, so fame, from kills at level 20 (World.KillFameRate)
         public const double FameRate = 0.5;

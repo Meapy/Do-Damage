@@ -31,6 +31,9 @@ details). Add to a group's line when a change adds to it, rather than adding ano
   Share one with a code: Copy code puts it on the clipboard (`DD0064` is the usual crosshair),
   and Paste code there takes a friend's.
 
+### Arena
+- Pets drop half as often in the Arena and the Admin Arena as they did there.
+
 ### Abilities
 - Summoner: summons fire three times as fast (the Bunny, Snake, Wasp, Wolf, Wisp, Dragon and
   Oryx every second, was every 3 seconds; the Drake every 1.2 seconds, was 3.6).

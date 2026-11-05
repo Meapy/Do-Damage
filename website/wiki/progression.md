@@ -183,7 +183,8 @@ from wave 30 an Elder dungeon boss joins Oryx's. The chat says which wave has be
   wave's boss, or Oryx) drops loot as often as anywhere else, but half the items, rounded up: if
   you'd have got 4 items you get 2, and 1 stays 1. Oryx 3, 4 and 5 also drop each item half as
   often, so they give about a quarter of their usual loot. Any other monster drops each item half
-  as often. Loot boosts (weekend, Loot Drop Potion, events, the Legends) still count on top.
+  as often. Pets are halved again on top of that: each pet drops half as often as the rest of
+  the loot there. Loot boosts (weekend, Loot Drop Potion, events, the Legends) still count on top.
 - **Between waves** you rest for 5 seconds, 15 from wave 10 and 20 from wave 20. Everyone is
   invulnerable for the first 2.5 seconds of each wave, 5 when an Oryx comes.
 - **Voting** (the panel under the wave box, before the first wave and between waves):
