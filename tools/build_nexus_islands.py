@@ -414,7 +414,9 @@ def mirror_spawn(g):
     for y in range(sy + 3, g.h):
         for x in range(sx + 3, g.w):
             mx = 2 * sx - x
-            if not g.ok(mx, y):
+            # the spawn's island alone: the market island lies west of it on the same floor, the
+            # Arena island east, and neither is mirrored onto the other
+            if not g.ok(mx, y) or not shape(x, y, SPAWN) or not shape(mx, y, SPAWN):
                 continue
             src, dst = g[mx, y], g[x, y]
             fixed = (None, RIM, PAVED_RIM, DECK, BEAM, PATH, COBBLE)
