@@ -12,7 +12,7 @@ Keep each version short: changes go under `### ` group headings (Oryx 5, Arena, 
 on), one line per change players notice, summed up rather than item by item (the wiki has the
 details). Add to a group's line when a change adds to it, rather than adding another line.
 
-## Unreleased
+## 2.3.9 (2026-11-05)
 
 ### Nexus
 - The Nexus is now a cluster of floating islands in a sunset sky, with clouds drifting by and the
