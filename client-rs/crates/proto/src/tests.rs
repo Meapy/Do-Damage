@@ -244,6 +244,7 @@ fn every_client_message_round_trips() {
         ViewRadius { radius: 22 }.into(),
         Forge { result: 0x497a, slots: vec![4, 13].into() }.into(),
         ForgeSell { slots: vec![6].into() }.into(),
+        Height { z: 4.5 }.into(),
     ];
     for msg in msgs {
         let frame = msg.to_frame();
@@ -367,6 +368,13 @@ fn quest_messages_match_quest_handlers() {
     b = b.u8(1).utf("oryx").utf("Combat").utf("Oryx's Bane").utf("Help defeat Oryx 10 times.").u8(1).i32(3).u8(2).i32(1).i32(10).i32(20).u8(1);
     b = reward(b, 0, 0, 100);
     let ServerMessage::QuestsData(d) = ServerMessage::decode(104, &b.0).unwrap() else { panic!() };
+    assert_eq!((d.gifts.as_ref(), d.looks), (None, None));
+    // then the gifts (none here) and the Customize window's choices: champion colour, champion
+    // glow, legend, own glow, name from, glow from
+    let b = b.u8(0).i32(0xFFD24A).i32(0).u8(1).i32(0).u8(1).u8(2);
+    let ServerMessage::QuestsData(d) = ServerMessage::decode(104, &b.0).unwrap() else { panic!() };
+    let looks = d.looks.unwrap();
+    assert_eq!((looks.champion_color, looks.champion_glow, looks.legend, looks.own_glow, looks.name_from, looks.glow_from), (0xFFD24A, 0, true, 0, 1, 2));
     assert_eq!((d.now, d.rank, d.points, d.color_rank), (1_800_000_000, 1, 120, 255));
     assert_eq!((d.ranks[0].name.as_str(), d.ranks[0].color), ("Adventurer", 0xCD8A4E));
     assert_eq!((d.periods[0].rerolls_left, d.periods[0].bonus[0].item), (1, 0x0c69));
@@ -468,4 +476,17 @@ fn community_messages_match_community_goals() {
     // CommunityNotice.Write: kind, title, text.
     let ServerMessage::CommunityNotice(n) = ServerMessage::decode(131, &B::default().u8(2).utf("Flame reached!").utf("x").0).unwrap() else { panic!() };
     assert_eq!((n.kind, n.title.as_str()), (2, "Flame reached!"));
+}
+
+#[test]
+fn layers_match_server() {
+    // LayersMessage.Write: the floors' height, then each square of the floors above the map
+    let body = B::default().f32(3.0).i16(1).u8(1).i16(6).i16(14).i16(0x9c05u16 as i16).0;
+    let msg = ServerMessage::decode(132, &body).unwrap();
+    let ServerMessage::Layers(l) = &msg else { panic!("expected ServerMessage::Layers") };
+    assert_eq!(l.height, 3.0);
+    assert_eq!(l.tiles[0], LayerTile { level: 1, x: 6, y: 14, tile_type: 0x9c05 });
+    let mut w = wire::Writer::default();
+    msg.encode_body(&mut w);
+    assert_eq!(w.buf, body);
 }

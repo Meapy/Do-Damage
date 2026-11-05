@@ -363,3 +363,203 @@ fn alternating_weapons_take_turns_and_imprints_change_their_shots() {
     assert_eq!(shots[0].damage, 10 * 108 / 100 * 300 / 100 / 2);
     assert_eq!(shots[0].life, Some(400));
 }
+
+/// Stacked floors, 10×10: the map's floor (rows 6 to 9) with three steps up the middle (x 4 and
+/// 5, rows 5 to 3, half a tile each), and a floor 2 tiles above it: rows 0 to 2, and columns 7 to
+/// 9 down to row 7, over the map's floor there. Our player at (x, y), `z` up.
+fn stacked(d: &mut GameData, x: f32, y: f32, z: f64) -> World {
+    d.add_grounds(
+        r#"<Grounds>
+            <Ground type="0x03" id="Step 1"><Lift>0.5</Lift></Ground>
+            <Ground type="0x04" id="Step 2"><Lift>1</Lift></Ground>
+            <Ground type="0x05" id="Step 3"><Lift>1.5</Lift></Ground>
+        </Grounds>"#,
+    )
+    .unwrap();
+    let mut w = World::new(10, 10, "test", 1);
+    let mut tiles = Vec::new();
+    for y in 0..10 {
+        for x in 0..10 {
+            let step = (x == 4 || x == 5) && (3..=5).contains(&y);
+            if y >= 6 || step {
+                tiles.push(GroundTile { x, y, tile_type: if step { 3 + (5 - y) as i32 } else { FLOOR as i32 } });
+            }
+        }
+    }
+    let update = Update { tiles: tiles.into(), new_objs: vec![obj(2, PLAYER, x, y, 75)].into(), drops: Default::default() };
+    w.apply_update(&update, d, 0);
+    w.me = Some(2);
+    let mut upper = Vec::new();
+    for y in 0..10i16 {
+        for x in 0..10i16 {
+            if y <= 2 || (x >= 7 && y <= 7) {
+                upper.push(LayerTile { level: 1, x, y, tile_type: FLOOR });
+            }
+        }
+    }
+    w.set_layers(2.0, &upper);
+    let level = if z > 1.0 { 1 } else { 0 };
+    let me = w.objects.get_mut(&2).unwrap();
+    (me.z, me.level) = (z, level);
+    w
+}
+
+#[test]
+fn stacked_floors_up_the_steps() {
+    let mut d = data();
+    let mut w = stacked(&mut d, 4.5, 8.5, 0.0);
+    let (_, y) = walk(&mut w, &d, 0.0, -1.0, 1500);
+    let me = w.player().unwrap();
+    assert!(y < 3.0, "climbed onto the floor above: {y}");
+    assert_eq!((me.z, me.level), (2.0, 1));
+    // and down again
+    let (_, y) = walk(&mut w, &d, 0.0, 1.0, 1500);
+    assert!(y > 6.0, "{y}");
+    assert_eq!(w.player().unwrap().z, 0.0);
+}
+
+#[test]
+fn stacked_floors_edge_is_a_drop() {
+    // up on the floor over the map's floor: its south edge stops us
+    let mut d = data();
+    let mut w = stacked(&mut d, 8.5, 4.5, 2.0);
+    let (_, y) = walk(&mut w, &d, 0.0, 1.0, 1500);
+    assert!(y < 8.0 && y > 7.0, "stopped at the edge: {y}");
+    assert_eq!(w.player().unwrap().z, 2.0);
+}
+
+#[test]
+fn stacked_floors_under_the_floor_above() {
+    // below, we walk under the floor above as far as our own floor goes
+    let mut d = data();
+    let mut w = stacked(&mut d, 8.5, 9.5, 0.0);
+    let (_, y) = walk(&mut w, &d, 0.0, -1.0, 1500);
+    assert!(y >= 6.0 && y < 7.0, "under the floor above, to our floor's end: {y}");
+    assert_eq!(w.player().unwrap().z, 0.0);
+    // the floor above's square isn't ours
+    assert_eq!(w.level_at(8, 5, 0.0, &d), None);
+    assert_eq!(w.level_at(8, 6, 0.0, &d), Some(0));
+    assert_eq!(w.level_at(8, 6, 2.0, &d), Some(1));
+}
+
+#[test]
+fn stacked_floors_goto_lands_on_the_ground_there() {
+    // up on the floor above, put back by the server onto the map's floor where there is nothing
+    // above it: we stand on that floor's ground, not in the air at our old height
+    let mut d = data();
+    let mut w = stacked(&mut d, 8.5, 4.5, 2.0);
+    w.apply_goto(2, 2.5, 8.5, 0, &d);
+    let me = w.player().unwrap();
+    assert_eq!((me.z, me.level), (0.0, 0));
+    // and can walk on from there
+    let (x, _) = walk(&mut w, &d, 1.0, 0.0, 300);
+    assert!(x > 3.0, "{x}");
+}
+
+/// The Nexus islands' tower stair, 10×10: a ring two squares wide round a core (x and y 4 to 5)
+/// from (2, 2) to (7, 7), each square a step of its sector (a twelfth of the way round, a quarter
+/// of a tile up each), on the map and again on the floor 3 tiles above; the core a wall below.
+/// Our player at (x, y), `z` up, walking with the camera turned `angle` as the scripted walker.
+fn spiral(d: &mut GameData, x: f32, y: f32, z: f64) -> World {
+    let mut grounds = String::from("<Grounds>");
+    for k in 0..12 {
+        grounds += &format!(r#"<Ground type="{}" id="Spiral {k}"><Lift>{}</Lift></Ground>"#, 0x40 + k, k as f64 * 0.25);
+    }
+    grounds += "</Grounds>";
+    d.add_grounds(&grounds).unwrap();
+    let sector = |x: i32, y: i32| -> Option<u16> {
+        if !(2..8).contains(&x) || !(2..8).contains(&y) || ((4..6).contains(&x) && (4..6).contains(&y)) {
+            return None;
+        }
+        let a = (y as f64 + 0.5 - 5.0).atan2(x as f64 + 0.5 - 5.0).to_degrees();
+        Some(((a - 120.0).rem_euclid(360.0) / 30.0) as u16)
+    };
+    let mut w = World::new(10, 10, "test", 1);
+    let mut tiles = Vec::new();
+    let mut upper = Vec::new();
+    for y in 0..10 {
+        for x in 0..10 {
+            let t = sector(x, y).map_or(WALL, |k| 0x40 + k);
+            tiles.push(GroundTile { x: x as i16, y: y as i16, tile_type: t as i32 });
+            if let Some(k) = sector(x, y) {
+                upper.push(LayerTile { level: 1, x: x as i16, y: y as i16, tile_type: 0x40 + k });
+            }
+        }
+    }
+    let update = Update { tiles: tiles.into(), new_objs: vec![obj(2, PLAYER, x, y, 75)].into(), drops: Default::default() };
+    w.apply_update(&update, d, 0);
+    w.me = Some(2);
+    w.set_layers(3.0, &upper);
+    let me = w.objects.get_mut(&2).unwrap();
+    (me.z, me.level) = (z, if z >= 2.9 { 1 } else { 0 });
+    w
+}
+
+/// `walk`, heading for world point (tx, ty) with the camera turned as the scripted walker's.
+fn walk_toward(w: &mut World, d: &GameData, tx: f64, ty: f64, angle: f64, ms: i32) -> (f64, f64) {
+    for t in 0..ms / 10 {
+        let me = w.player().unwrap();
+        let rel = (ty - me.y).atan2(tx - me.x) - angle;
+        if (tx - me.x).hypot(ty - me.y) < 0.05 {
+            break;
+        }
+        let input = MoveInput { x: rel.cos(), y: rel.sin(), camera_angle: angle };
+        w.update(t * 10, 10, &input, d);
+    }
+    let me = w.player().unwrap();
+    (me.x, me.y)
+}
+
+#[test]
+fn spiral_inner_lane_up_the_second_turn() {
+    // on the second turn's first step, on the lane by the core, walking on up beside it
+    let mut d = data();
+    // in the core's half of the square: its corner (no floor at our height there, nor beside us
+    // outside the tower) mustn't catch us, as a wall's would
+    for x0 in [3.5f32, 3.52, 2.48] {
+        let mut w = spiral(&mut d, x0, 6.5, 3.0);
+        let (x, y) = walk_toward(&mut w, &d, x0 as f64, 3.5, 5.497787143782138, 2000);
+        assert!(y < 4.0, "up beside the core from x {x0}: ({x}, {y})");
+    }
+}
+
+/// A ledge (x 5 and up) 0.65 up, a step down we could take (`STEP`) but for its railing, and the
+/// same ledge without one (y 5 and up, x 5 and up: `Plain Ledge`). On stacked floors (none above).
+fn ledges(d: &mut GameData, x: f32, y: f32) -> World {
+    d.add_grounds(
+        r#"<Grounds>
+            <Ground type="0x50" id="Railed Ledge"><Lift>0.65</Lift><Rail>0xFF0000</Rail></Ground>
+            <Ground type="0x51" id="Plain Ledge"><Lift>0.65</Lift></Ground>
+        </Grounds>"#,
+    )
+    .unwrap();
+    let mut w = World::new(10, 10, "test", 1);
+    let mut tiles = Vec::new();
+    for ty in 0..10i16 {
+        for tx in 0..10i16 {
+            let t = if tx < 5 { FLOOR } else if ty < 5 { 0x50 } else { 0x51 };
+            tiles.push(GroundTile { x: tx, y: ty, tile_type: t as i32 });
+        }
+    }
+    let update = Update { tiles: tiles.into(), new_objs: vec![obj(2, PLAYER, x, y, 75)].into(), drops: Default::default() };
+    w.apply_update(&update, d, 0);
+    w.me = Some(2);
+    w.set_layers(3.0, &[]);
+    let me = w.objects.get_mut(&2).unwrap();
+    (me.z, me.level) = (0.65, 0);
+    w
+}
+
+#[test]
+fn a_railing_stops_us_at_a_drop_we_could_step() {
+    let mut d = data();
+    let mut w = ledges(&mut d, 7.5, 2.5);
+    assert!(w.railed(0, 5, 2, -1, 0, &d), "the railed ledge's edge is railed");
+    let (x, _) = walk(&mut w, &d, -1.0, 0.0, 1500);
+    assert!(x >= 5.0, "stopped at the railing: {x}");
+    // without a railing the same step down is taken
+    let mut w = ledges(&mut d, 7.5, 7.5);
+    let (x, _) = walk(&mut w, &d, -1.0, 0.0, 1500);
+    assert!(x < 4.0, "stepped down: {x}");
+    assert_eq!(w.player().unwrap().z, 0.0);
+}

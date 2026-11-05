@@ -403,7 +403,8 @@ namespace WorldServer.logic
                     new Shoot(7, count: 8, projectileIndex: 1, coolDown: 5000),
                     new Suicide()
                     )
-                )
+                ),
+            new ItemLoot("Lil' Puppet Master Generator", 0.02)
             );
 
         private _ PuppetWizard2 = () => Behav()

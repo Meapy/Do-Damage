@@ -83,24 +83,58 @@ namespace Shared.community
         public double MaxScale { get; set; } = 4;
     }
 
+    // Finishing a goal early (CommunityData.Early): once a week's goal has reached its last
+    // Overdrive level, it ends there and a bonus goal takes its place until the weekly reset,
+    // unless less than `minHours` are left. The faster it was finished, the harder things get
+    // (CommunityData.Heat): its goal's next run grows by its pace, up to `maxStep` at once, and the
+    // bonus goal is that much harder than its usual size, on top of the heat of the run it
+    // replaced, up to `maxHeat`. So a chain of quick finishes gets harder each time, until the
+    // weekly reset.
+    public sealed class CommunityEarly
+    {
+        public bool Enabled { get; set; } = true;
+        public double MinHours { get; set; } = 6;
+        public double MaxStep { get; set; } = 3;
+        public double MaxHeat { get; set; } = 8;
+    }
+
+    // A bonus goal started in a week (CommunityData.Runs): in place of the slot's goal, from
+    // `Start` on, `Heat` times its usual size.
+    public readonly record struct EarlyStart(int Slot, string Id, DateTime Start, double Heat = 1);
+
     // One run of a goal: a week's (or a special's) start and end. Its key names its counts in
-    // Redis, so each run starts from nothing.
+    // Redis, so each run starts from nothing. A bonus run (CommunityEarly) starts in the middle of
+    // its week, in its slot (the place among the week's goals; -1 for a special).
     public sealed class CommunityRun
     {
         public CommunityGoalDef Def { get; }
         public DateTime Start { get; }
         public DateTime End { get; }
         public bool Special { get; }
+        public bool Bonus { get; }
+        public int Slot { get; }
+        // how much harder than its usual size (a bonus run after quick finishes; 1 otherwise)
+        public double Heat { get; }
 
-        public CommunityRun(CommunityGoalDef def, DateTime start, DateTime end, bool special)
+        public CommunityRun(CommunityGoalDef def, DateTime start, DateTime end, bool special, bool bonus = false, int slot = -1, double heat = 1)
         {
             Def = def;
             Start = start;
             End = end;
             Special = special;
+            Bonus = bonus;
+            Slot = slot;
+            Heat = heat > 0 ? heat : 1;
         }
 
-        public string Key => $"{Def.Id}@{Start:yyyyMMdd}";
+        // its length in weeks
+        public double Weeks => Math.Max(1.0 / 168, (End - Start).TotalDays / 7);
+        // ended before its week did: finished early
+        public bool Cut => !Special && End < Week.AddDays(7);
+
+        public string Key => Bonus ? $"{Def.Id}@{Start:yyyyMMddHHmmss}" : $"{Def.Id}@{Start:yyyyMMdd}";
+        // the week it belongs to (its first day)
+        public DateTime Week => CommunityData.WeekStart(Start);
         public bool Running(DateTime now) => now >= Start && now < End;
     }
 
@@ -125,6 +159,7 @@ namespace Shared.community
         // rolls of this rarity or rarer are told to the whole server
         public string AnnounceFrom { get; set; } = "legendary";
         public CommunityAdapt Adapt { get; set; } = new CommunityAdapt();
+        public CommunityEarly Early { get; set; } = new CommunityEarly();
         // the tiers', the Overdrive levels' and the top's rewards of goals that don't give their own
         public List<List<RewardDef>> DefaultTiers { get; set; } = new List<List<RewardDef>>();
         public List<RewardDef> DefaultBonus { get; set; } = new List<RewardDef>();
@@ -189,6 +224,59 @@ namespace Shared.community
 
         // The tiers and Overdrive levels reached, in one count (Crossed).
         public int Stage(CommunityGoalDef def, int goal, long total) => Reached(def, goal, total) + BonusReached(def, goal, total);
+
+        // Every tier and Overdrive level reached: nothing more to earn.
+        public bool Finished(CommunityGoalDef def, int goal, long total) => Stage(def, goal, total) >= Tiers(def) + BonusLevels(def);
+
+        // How much harder a run finished early makes things: its pace over a whole week (`total`
+        // of `goal` in `weeks`) against the target, as NextScale moves a goal, from 1 to
+        // Early.MaxStep.
+        public double PaceStep(long total, int goal, double weeks)
+        {
+            if (goal <= 0)
+                return 1;
+            var pace = (double)total / goal / Math.Max(1.0 / 168, weeks);
+            return Math.Clamp(Math.Pow(pace / Math.Max(0.01, Adapt.Target), Adapt.Damping), 1, Math.Max(1, Early.MaxStep));
+        }
+
+        // The heat of the bonus goal after `run` was finished at `total` of `goal` at `now`: the
+        // run's own heat times its pace (PaceStep), at most Early.MaxHeat.
+        public double Heat(CommunityRun run, long total, int goal, DateTime now) =>
+            Math.Clamp(run.Heat * PaceStep(total, goal, (now - run.Start).TotalDays / 7), 1, Math.Max(1, Early.MaxHeat));
+
+        // A bonus goal for a week that has `used` (its goals so far): by weight, one of a group in
+        // neither this week, next week's draw nor last week's (`lastWeek`, as kept; drawn when not
+        // given); else in neither this week nor next; else not in this week; else none. The same
+        // on every server.
+        public string NextGoal(DateTime week, ICollection<string> used, List<string> lastWeek = null)
+        {
+            HashSet<string> GroupsOf(IEnumerable<string> ids) => Goals.Where(g => ids.Contains(g.Id)).Select(GroupOf).ToHashSet();
+            var usedGroups = GroupsOf(used);
+            var nextGroups = GroupsOf(Draw(week.AddDays(7)));
+            var lastGroups = GroupsOf(lastWeek ?? Draw(week.AddDays(-7)));
+            var pool = Goals.Where(g => g.Weight > 0 && !usedGroups.Contains(GroupOf(g))).ToList();
+            foreach (var avoid in new[] { nextGroups.Union(lastGroups).ToHashSet(), nextGroups })
+                if (pool.Any(g => !avoid.Contains(GroupOf(g))))
+                {
+                    pool = pool.Where(g => !avoid.Contains(GroupOf(g))).ToList();
+                    break;
+                }
+            if (pool.Count == 0)
+                return null;
+            var rng = new Random(Mix(QuestPeriods.WeekKey(week), used.Count, 15485863));
+            // a group, then one of its goals by weight
+            var groups = pool.Select(GroupOf).Distinct().OrderBy(g => g, StringComparer.Ordinal).ToList();
+            var group = groups[rng.Next(groups.Count)];
+            var goals = pool.Where(g => GroupOf(g) == group).ToList();
+            var roll = rng.NextDouble() * goals.Sum(g => g.Weight);
+            foreach (var g in goals)
+            {
+                roll -= g.Weight;
+                if (roll < 0)
+                    return g.Id;
+            }
+            return goals[^1].Id;
+        }
 
         // The total of the next stage after `stage` (none past the last: -1).
         public int NextAt(CommunityGoalDef def, int goal, int stage)
@@ -294,14 +382,16 @@ namespace Shared.community
 
         // The goal's next scale after a run that ended at `total` of `goal`, from `scale`: a run
         // done well past `Adapt.Target` makes the next harder, one that fell short easier.
-        public double NextScale(double scale, long total, int goal)
+        // A run shorter than a week (`weeks`: finished early, or a bonus run) counts by its pace
+        // over a whole week, and one finished early (`cut`) can grow by up to Early.MaxStep.
+        public double NextScale(double scale, long total, int goal, double weeks = 1, bool cut = false)
         {
             var a = Adapt;
             if (!a.Enabled || goal <= 0)
                 return scale;
             scale = scale > 0 ? scale : 1;
-            var done = Math.Max(0.02, (double)total / goal);
-            var step = Math.Clamp(Math.Pow(done / Math.Max(0.01, a.Target), a.Damping), a.MinStep, a.MaxStep);
+            var done = Math.Max(0.02, (double)total / goal / Math.Clamp(weeks, 1.0 / 168, 1));
+            var step = Math.Clamp(Math.Pow(done / Math.Max(0.01, a.Target), a.Damping), a.MinStep, cut ? Math.Max(a.MaxStep, Early.MaxStep) : a.MaxStep);
             return Math.Clamp(scale * step, a.MinScale, a.MaxScale);
         }
 
@@ -343,8 +433,10 @@ namespace Shared.community
 
         // The runs at `now`: this week's goals and the specials open, then those ended no more
         // than ClaimWeeks ago, whose rewards can still be claimed. `weekGoals` gives a week's
-        // goals by its first day (as they were drawn then, kept by the server; Draw when not).
-        public List<CommunityRun> Runs(DateTime now, Func<DateTime, List<string>> weekGoals = null)
+        // goals by its first day (as they were drawn then, kept by the server; Draw when not),
+        // and `earlyStarts` the bonus goals started in it (CommunityEarly): each ends the run
+        // before it in its slot.
+        public List<CommunityRun> Runs(DateTime now, Func<DateTime, List<string>> weekGoals = null, Func<DateTime, IReadOnlyList<EarlyStart>> earlyStarts = null)
         {
             weekGoals ??= Draw;
             var runs = new List<CommunityRun>();
@@ -352,11 +444,27 @@ namespace Shared.community
             for (var w = 0; w <= ClaimWeeks; w++)
             {
                 var start = week.AddDays(-7 * w);
-                foreach (var id in weekGoals(start))
+                var end = start.AddDays(7);
+                var drawn = weekGoals(start);
+                // the week's bonus goals in the order they began, each goal once a week: a second
+                // start of a goal already in the week is left out (its slot carries on as it was)
+                var seen = drawn.ToHashSet();
+                var early = (earlyStarts?.Invoke(start) ?? Array.Empty<EarlyStart>())
+                    .Where(e => e.Slot >= 0 && e.Slot < drawn.Count && e.Start > start && e.Start < end)
+                    .OrderBy(e => e.Start).ThenBy(e => e.Slot)
+                    .Where(e => seen.Add(e.Id))
+                    .ToList();
+                for (var slot = 0; slot < drawn.Count; slot++)
                 {
-                    var def = Goals.FirstOrDefault(g => g.Id == id);
-                    if (def != null)
-                        runs.Add(new CommunityRun(def, start, start.AddDays(7), false));
+                    // the slot's goals in turn: the drawn one, then each bonus goal
+                    var chain = new List<(string Id, DateTime Start, double Heat)> { (drawn[slot], start, 1) };
+                    chain.AddRange(early.Where(e => e.Slot == slot).Select(e => (e.Id, e.Start, e.Heat)));
+                    for (var k = 0; k < chain.Count; k++)
+                    {
+                        var def = Goals.FirstOrDefault(g => g.Id == chain[k].Id);
+                        if (def != null)
+                            runs.Add(new CommunityRun(def, chain[k].Start, k + 1 < chain.Count ? chain[k + 1].Start : end, false, k > 0, slot, chain[k].Heat));
+                    }
                 }
             }
             foreach (var s in Specials)
@@ -367,7 +475,7 @@ namespace Shared.community
                     runs.Add(new CommunityRun(s, from, until, true));
             }
             // the running ones first, specials before the week's, then the ended, newest first
-            return runs.OrderBy(r => r.Running(now) ? 0 : 1).ThenBy(r => r.Special ? 0 : 1).ThenByDescending(r => r.End).ToList();
+            return runs.OrderBy(r => r.Running(now) ? 0 : 1).ThenBy(r => r.Special ? 0 : 1).ThenByDescending(r => r.End).ThenBy(r => r.Slot).ToList();
         }
 
         public static CommunityData Parse(string json)
@@ -375,6 +483,7 @@ namespace Shared.community
             var data = JsonConvert.DeserializeObject<CommunityData>(json, new JsonSerializerSettings { MissingMemberHandling = MissingMemberHandling.Ignore })
                 ?? new CommunityData();
             data.Adapt ??= new CommunityAdapt();
+            data.Early ??= new CommunityEarly();
             foreach (var g in data.Goals.Concat(data.Specials))
             {
                 if (g.Tiers == null || g.Tiers.Count == 0)

@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using Shared.champions;
 using Shared.quests;
 using Shared.resources;
 using WorldServer.core.objects;
@@ -20,7 +21,7 @@ namespace WorldServer.core.quests
     // nothing else writes the field meanwhile.
     public sealed class QuestTracker
     {
-        public const byte CLAIM_QUEST = 0, CLAIM_BONUS = 1, CLAIM_LOGIN = 2, CLAIM_ACHIEVEMENT = 3, SWAP = 4, COLOR = 5, CLAIM_GIFT = 6;
+        public const byte CLAIM_QUEST = 0, CLAIM_BONUS = 1, CLAIM_LOGIN = 2, CLAIM_ACHIEVEMENT = 3, SWAP = 4, COLOR = 5, CLAIM_GIFT = 6, GLOW = 7;
 
         private static QuestData _data;
         private static readonly object DataLock = new object();
@@ -77,8 +78,11 @@ namespace WorldServer.core.quests
                 _dirty = true;
             // the rank colour chosen in the quest log, in every world (the account holds it too, but
             // a rank's colour can change in the data)
-            if (Book.NameColor != 0 && Book.NameColor != player.ColorNameChat)
-                player.ColorNameChat = acc.ColorNameChat = Book.NameColor;
+            if (Book.NameColor != 0 && Book.NameColor != acc.ColorNameChat)
+            {
+                acc.ColorNameChat = Book.NameColor;
+                player.UpdateNameColor();
+            }
             // what the character already has counts (a maxed character, classes at 20)
             Event(new QuestEvent(QuestEvents.MaxedStats) { Value = player.GetMaxedStats() });
             CheckClasses();
@@ -270,18 +274,21 @@ namespace WorldServer.core.quests
                     CLAIM_LOGIN => Book.ClaimLogin(now),
                     CLAIM_ACHIEVEMENT => Book.ClaimAchievement(id),
                     SWAP => Book.Reroll(id, now),
-                    COLOR => int.TryParse(id, out var rank) ? Book.ChooseColor(rank) : ClaimResult.Fail("No such rank."),
+                    COLOR => ChooseColor(id),
                     CLAIM_GIFT => Book.ClaimGift(id, now),
+                    GLOW => ChooseGlow(id),
                     _ => ClaimResult.Fail("Unknown request."),
                 };
             if (result.Ok)
             {
                 if (kind == COLOR)
                 {
-                    var acc = _account;
-                    _player.ColorNameChat = acc.ColorNameChat = Book.NameColor;
+                    if (id != "champion")
+                        _account.ColorNameChat = Book.NameColor;
                     _player.UpdateNameColor();
                 }
+                if (kind == GLOW)
+                    _player.UpdateGlow();
                 // recorded before anything is paid, so a claim is never paid twice
                 Save();
                 Pay(result.Rewards);
@@ -302,8 +309,52 @@ namespace WorldServer.core.quests
             CLAIM_ACHIEVEMENT => "claimed achievement",
             SWAP => "swapped quest",
             CLAIM_GIFT => "claimed gift",
+            GLOW => "chose glow",
             _ => "chose name colour",
         };
+
+        // The Customize window's name colour: "champion" (the Hall of Champions' while the place
+        // is held), or an achievement rank's colour (-1: the usual) over a champion's.
+        private ClaimResult ChooseColor(string id)
+        {
+            if (id == "champion")
+            {
+                if (_player.Champion.NameColor == 0)
+                    return ClaimResult.Fail("Reach the top 10 of the Achievements board in the Hall of Champions first.");
+                _account.NameFrom = LookChoice.NameAuto;
+                return new ClaimResult { Ok = true, Message = "Your name shows in your Hall of Champions colour." };
+            }
+            if (!int.TryParse(id, out var rank))
+                return ClaimResult.Fail("No such rank.");
+            var result = Book.ChooseColor(rank);
+            if (result.Ok)
+                _account.NameFrom = LookChoice.NameChosen;
+            return result;
+        }
+
+        // The Customize window's glow (LookChoice.GlowNamed).
+        private ClaimResult ChooseGlow(string id)
+        {
+            var from = LookChoice.GlowNamed(id);
+            if (from < 0)
+                return ClaimResult.Fail("No such glow.");
+            if (from == LookChoice.GlowChampion && _player.Champion.Glow == 0)
+                return ClaimResult.Fail("Reach the top 10 of the Stars board in the Hall of Champions first.");
+            if (from == LookChoice.GlowLegend && !_player.IsLegend)
+                return ClaimResult.Fail("Get a character onto the Legends board first.");
+            if (from == LookChoice.GlowOwn && _account.GlowColor == 0)
+                return ClaimResult.Fail("You have no glow of your own.");
+            _account.GlowFrom = from;
+            var message = from switch
+            {
+                LookChoice.GlowChampion => "You glow in your Hall of Champions colour.",
+                LookChoice.GlowLegend => "You glow in the Legends' red.",
+                LookChoice.GlowOwn => "You glow in your own colour.",
+                LookChoice.GlowNone => "You don't glow any more.",
+                _ => "Your glow is picked for you again.",
+            };
+            return new ClaimResult { Ok = true, Message = message };
+        }
 
         private void Pay(List<RewardDef> rewards) => PayRewards(_player, _account, rewards);
 
@@ -432,6 +483,12 @@ namespace WorldServer.core.quests
                     Claimed = Book.GiftClaimed(g),
                     Rewards = Rewards(g.Rewards),
                 });
+            msg.ChampionColor = _player.Champion.NameColor;
+            msg.ChampionGlow = _player.Champion.Glow;
+            msg.Legend = _player.IsLegend;
+            msg.OwnGlow = _account.GlowColor;
+            msg.NameFrom = (byte)_account.NameFrom;
+            msg.GlowFrom = (byte)_account.GlowFrom;
             _player.Client.SendPacket(msg);
         }
 

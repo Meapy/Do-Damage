@@ -92,7 +92,7 @@ namespace WorldServer.logic
                     LootTemplates.BasicPots()
                     ),
                 new Threshold(0.01,
-                    new ItemLoot("Drake Generator", 0.02),
+                    new ItemLoot("Drake Generator", 0.01),
                     new ItemLoot("Ray Katana", .01)
                 )
             )

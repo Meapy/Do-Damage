@@ -7,6 +7,10 @@
 //! shut. `QuestNotice`s pop up at the top of the view: a quest done, an achievement earned, a new
 //! rank. Gifts for a while (a free item for every account) sit on the Daily Rewards tab. The
 //! server checks every claim (`QuestClaim`); the window only asks.
+//!
+//! The same data drives the Customize window (the Escape menu's Customize): where the chat name
+//! colour comes from (an achievement rank's, or the Hall of Champions' while a place is held) and
+//! the glow (the Hall of Champions' Stars board, the Legends', the player's own `/glow`, or none).
 
 use crate::forge::{fame_text, fame_width};
 use crate::hud::{Layout, SlotKind, Ui};
@@ -24,6 +28,13 @@ pub const CLAIM_ACHIEVEMENT: u8 = 3;
 pub const SWAP: u8 = 4;
 pub const COLOR: u8 = 5;
 pub const CLAIM_GIFT: u8 = 6;
+pub const GLOW: u8 = 7;
+
+/// The glow sources, by their number in `QuestLooks::glow_from` (`LookChoice.GlowNamed`).
+const GLOW_NAMES: [&str; 5] = ["auto", "champion", "legend", "own", "none"];
+/// The Hall of Champions' gold, and the Legends' red (`ChampionBoards.Gold`, `LookChoice`).
+const CHAMPION_GOLD: u32 = 0xFFD24A;
+const LEGEND_RED: u32 = 0xFF0000;
 
 /// `QuestNotice` kinds.
 const NOTICE_QUEST: u8 = 0;
@@ -105,6 +116,8 @@ enum Hit {
     Category(Option<usize>),
     ReadyOnly,
     Color(i32),
+    ChampionColor,
+    Glow(u8),
     Up,
     Down,
 }
@@ -145,6 +158,8 @@ pub(crate) fn inside(r: [f32; 4], (x, y): (f64, f64)) -> bool {
 #[derive(Default)]
 pub struct Quests {
     pub open: bool,
+    /// The window open is the Customize window, not the quest log.
+    customize: bool,
     tab: Tab,
     data: Option<QuestsData>,
     /// When (game ms) `data` came: the countdowns run on from its `now`.
@@ -173,11 +188,29 @@ impl Quests {
     /// Opens the window at a tab; the first time, it asks for the data.
     pub fn show(&mut self, tab: Option<Tab>) -> Option<Act> {
         self.open = true;
+        self.customize = false;
         self.message = None;
         if let Some(t) = tab {
             self.tab = t;
         }
         self.data.is_none().then_some(Act::Request)
+    }
+
+    /// Opens the Customize window; the first time, it asks for the data.
+    pub fn show_customize(&mut self) -> Option<Act> {
+        self.open = true;
+        self.customize = true;
+        self.message = None;
+        self.data.is_none().then_some(Act::Request)
+    }
+
+    /// Opens what `--quests <name>` names: a tab, or `customize`.
+    pub fn show_named(&mut self, name: &str) -> Option<Act> {
+        if name.eq_ignore_ascii_case("customize") {
+            self.show_customize()
+        } else {
+            self.show(Tab::named(name))
+        }
     }
 
     /// The tab to open at by default: one with something to claim, else the dailies.
@@ -370,6 +403,8 @@ impl Quests {
             Hit::Gift(i) => return self.gifts().get(i).map(|g| Act::Claim(CLAIM_GIFT, g.id.clone())),
             Hit::Achievement(i) => return d.and_then(|d| d.achievements.get(i)).map(|a| Act::Claim(CLAIM_ACHIEVEMENT, a.id.clone())),
             Hit::Color(rank) => return Some(Act::Claim(COLOR, rank.to_string())),
+            Hit::ChampionColor => return Some(Act::Claim(COLOR, "champion".into())),
+            Hit::Glow(k) => return GLOW_NAMES.get(k as usize).map(|n| Act::Claim(GLOW, (*n).into())),
             Hit::Category(c) => {
                 self.category = c;
                 self.row = 0;
@@ -385,7 +420,7 @@ impl Quests {
     }
 
     pub fn scroll(&mut self, rows: i32) {
-        if self.tab != Tab::Achievements {
+        if self.customize || self.tab != Tab::Achievements {
             return;
         }
         let max = self.achievement_order().len().saturating_sub(self.rows.max(1));
@@ -398,6 +433,7 @@ impl Quests {
         let at = TABS.iter().position(|&(t, _)| t == self.tab).unwrap_or(0);
         match code {
             KeyCode::Escape => self.close(),
+            _ if self.customize => {}
             KeyCode::ArrowLeft => self.tab = TABS[(at + TABS.len() - 1) % TABS.len()].0,
             KeyCode::ArrowRight => self.tab = TABS[(at + 1) % TABS.len()].0,
             KeyCode::ArrowUp => self.scroll(-1),
@@ -412,6 +448,10 @@ impl Quests {
         self.hover_item = None;
         if !self.open {
             self.rect = None;
+            return;
+        }
+        if self.customize {
+            self.draw_customize(ui, lay, mouse);
             return;
         }
         let (dw, dh) = (860.0, 580.0);
@@ -677,7 +717,7 @@ impl Quests {
         let font = |size: f32| (size * s).round().max(9.0);
         let Some(d) = self.data.clone() else { return };
         let pulse = 0.5 + 0.5 * ((now as f32) / 260.0).sin();
-        // The left column: the rank, the name colours, the filters.
+        // The left column: the rank and the filters (the name colours are in Customize).
         let lw = 210.0 * s;
         let rank = d.ranks.get(d.rank as usize);
         let next = d.ranks.get(d.rank as usize + 1);
@@ -696,31 +736,8 @@ impl Quests {
             }
             _ => ui.label(tr("The highest rank!"), bar[0], bar[1] - 2.0 * s, font(11.0), true, color::GOOD),
         }
-        // name colours: one chip per rank that has one (locked until reached)
-        let mut y = rr[1] + rr[3] + 12.0 * s;
-        ui.label(tr("Chat name colour"), body[0], y, font(12.0), true, color::TEXT_DIM);
-        y += 20.0 * s;
-        let sw = 26.0 * s;
-        let mut x = body[0];
-        let def = [x, y, sw, sw];
-        swatch(ui, def, None, d.color_rank == 255, false, inside(def, mouse), s);
-        self.hits.push((Hit::Color(-1), def));
-        x += sw + 6.0 * s;
-        for (k, rk) in d.ranks.iter().enumerate().filter(|(_, r)| r.color != 0) {
-            if x + sw > body[0] + lw {
-                x = body[0];
-                y += sw + 6.0 * s;
-            }
-            let sr = [x, y, sw, sw];
-            let locked = k > d.rank as usize;
-            swatch(ui, sr, Some(rk.color as u32), d.color_rank as usize == k, locked, inside(sr, mouse), s);
-            if !locked {
-                self.hits.push((Hit::Color(k as i32), sr));
-            }
-            x += sw + 6.0 * s;
-        }
-        y += sw + 16.0 * s;
         // the filters
+        let y = rr[1] + rr[3] + 14.0 * s;
         let cats = self.categories();
         let mut items: Vec<(Hit, String, bool)> = vec![(Hit::Category(None), tr("All").into(), self.category.is_none())];
         for (k, c) in cats.iter().enumerate() {
@@ -1043,9 +1060,165 @@ pub(crate) fn medal(ui: &mut Ui, (cx, cy): (f32, f32), rad: f32, rgb: u32, claim
 
 /// A name colour to pick: its colour (or the default's "A"), edged when chosen, locked when not
 /// reached.
+/// The glow the server picks when the player leaves it to it (`LookChoice.Glow`, automatic):
+/// their own, then a champion's, then a legend's.
+fn auto_glow(l: &bsk_proto::QuestLooks) -> u32 {
+    [l.own_glow as u32, l.champion_glow as u32, if l.legend { LEGEND_RED } else { 0 }].into_iter().find(|&c| c != 0).unwrap_or(0)
+}
+
+impl Quests {
+    /// The Customize window: the chat name colour and the glow, and where each comes from.
+    fn draw_customize(&mut self, ui: &mut Ui, lay: &Layout, mouse: (f64, f64)) {
+        let (dw, dh) = (640.0, 480.0);
+        let s = lay.s * (lay.view_w() * 0.96 / (dw * lay.s)).min(lay.h * 0.96 / (dh * lay.s)).min(1.0);
+        let r = [((lay.view_w() - dw * s) / 2.0).round(), ((lay.h - dh * s) / 2.0).round(), dw * s, dh * s];
+        self.rect = Some(r);
+        theme::panel(ui.renderer, r, s);
+        let font = |size: f32| (size * s).round().max(9.0);
+        let mid = r[1] + 32.0 * s;
+        let ts = font(22.0);
+        ui.label(tr("Customize"), r[0] + 22.0 * s, (mid - ui.digit_middle(ts, true)).round(), ts, true, color::GOLD);
+        let cb = [r[0] + r[2] - 42.0 * s, (mid - 14.0 * s).round(), 28.0 * s, 28.0 * s];
+        if inside(cb, mouse) {
+            theme::fill(ui.renderer, cb, 6.0 * s, 0xFFFFFF, 0.1);
+        }
+        theme::cross(ui.renderer, cb[0] + cb[2] / 2.0, cb[1] + cb[3] / 2.0, 6.0 * s, (2.0 * s).max(1.0), color::TEXT_DIM);
+        self.hits.push((Hit::Close, cb));
+
+        let body = [r[0] + 22.0 * s, r[1] + 62.0 * s, r[2] - 44.0 * s, r[3] - 104.0 * s];
+        let foot_y = r[1] + r[3] - 34.0 * s;
+        if let Some((m, err, _)) = &self.message {
+            ui.label_fit(m, r[0] + 22.0 * s, foot_y, r[2] - 44.0 * s, font(13.0), true, if *err { color::DANGER } else { color::GOOD });
+        } else {
+            ui.label_fit(tr("Your choices stay with your account, on every character."), r[0] + 22.0 * s, foot_y, r[2] - 44.0 * s, font(12.0), false, color::TEXT_MUTED);
+        }
+        let Some(d) = self.data.clone() else {
+            ui.label(tr("Asking the Tinkerer for your quests..."), body[0], body[1] + 10.0 * s, font(14.0), false, color::TEXT_MUTED);
+            return;
+        };
+        let looks = d.looks;
+        let note = |ui: &mut Ui, t: &str, y: f32| ui.label_fit(t, body[0], y, body[2], font(12.0), false, color::TEXT_MUTED);
+
+        // The chat name colour: the ranks' (locked until reached), then the Hall of Champions'.
+        let mut y = body[1];
+        ui.label(tr("Chat name colour"), body[0], y, font(16.0), true, color::GOLD);
+        y += 24.0 * s;
+        note(ui, tr("Your name in chat: an achievement rank's colour, or the Hall of Champions' while you hold a place there."), y);
+        y += 26.0 * s;
+        let champ = looks.map_or(0, |l| l.champion_color as u32);
+        let champ_on = champ != 0 && looks.is_some_and(|l| l.name_from == 0);
+        ui.label(tr("Achievement ranks"), body[0], y, font(12.0), true, color::TEXT_DIM);
+        y += 20.0 * s;
+        let sw = 28.0 * s;
+        let mut x = body[0];
+        let def = [x, y, sw, sw];
+        swatch(ui, def, None, !champ_on && d.color_rank == 255, false, inside(def, mouse), s);
+        self.hits.push((Hit::Color(-1), def));
+        x += sw + 8.0 * s;
+        for (k, rk) in d.ranks.iter().enumerate().filter(|(_, r)| r.color != 0) {
+            if x + sw > body[0] + body[2] {
+                x = body[0];
+                y += sw + 8.0 * s;
+            }
+            let sr = [x, y, sw, sw];
+            let locked = k > d.rank as usize;
+            swatch(ui, sr, Some(rk.color as u32), !champ_on && d.color_rank as usize == k, locked, inside(sr, mouse), s);
+            if !locked {
+                self.hits.push((Hit::Color(k as i32), sr));
+            }
+            x += sw + 8.0 * s;
+        }
+        y += sw + 16.0 * s;
+        if looks.is_some() {
+            ui.label(tr("Hall of Champions"), body[0], y, font(12.0), true, color::TEXT_DIM);
+            y += 20.0 * s;
+            let sr = [body[0], y, sw, sw];
+            swatch(ui, sr, Some(if champ != 0 { champ } else { CHAMPION_GOLD }), champ_on, champ == 0, inside(sr, mouse), s);
+            if champ != 0 {
+                self.hits.push((Hit::ChampionColor, sr));
+            }
+            let t = if champ != 0 { tr("Yours while you hold your place on the Achievements board.") } else { tr("Reach the top 10 of the Achievements board to unlock it.") };
+            let tx = sr[0] + sw + 12.0 * s;
+            ui.label_fit(t, tx, sr[1] + (sw - font(12.0) * 1.22) / 2.0, body[0] + body[2] - tx, font(12.0), false, color::TEXT_MUTED);
+            y += sw + 22.0 * s;
+        }
+
+        // The glow: a card for each source.
+        ui.label(tr("Glow"), body[0], y, font(16.0), true, color::GOLD);
+        y += 24.0 * s;
+        note(ui, tr("The coloured outline around your character."), y);
+        y += 26.0 * s;
+        let Some(l) = looks else {
+            note(ui, tr("This server can't change your glow yet."), y);
+            return;
+        };
+        let auto = auto_glow(&l);
+        let mut cards: Vec<(u8, &str, Option<u32>, bool)> = vec![
+            (0, tr("Automatic"), (auto != 0).then_some(auto), false),
+            (1, tr("Hall of Champions"), Some(if l.champion_glow != 0 { l.champion_glow as u32 } else { CHAMPION_GOLD }), l.champion_glow == 0),
+            (2, tr("Legends"), Some(LEGEND_RED), !l.legend),
+        ];
+        if l.own_glow != 0 {
+            cards.push((3, tr("Your own"), Some(l.own_glow as u32), false));
+        }
+        cards.push((4, tr("None"), None, false));
+        let gap = 10.0 * s;
+        let n = cards.len() as f32;
+        let cw = ((body[2] - gap * (n - 1.0)) / n).min(130.0 * s);
+        let ch = 88.0 * s;
+        let mut hovered = None;
+        for (i, &(k, label, rgb, locked_)) in cards.iter().enumerate() {
+            let cr = [body[0] + i as f32 * (cw + gap), y, cw, ch];
+            let hover = inside(cr, mouse);
+            if hover {
+                hovered = Some(k);
+            }
+            let on = k == l.glow_from;
+            let edge = if on { color::GOLD } else if hover && !locked_ { color::BORDER_HI } else { color::BORDER };
+            theme::frame(ui.renderer, cr, 8.0 * s, s.max(1.0), (edge, 1.0), ((color::WARM_TOP, 0.95), (color::WARM_BOTTOM, 0.95)));
+            let (cx, cy) = (cr[0] + cw / 2.0, cr[1] + 32.0 * s);
+            let dim = if locked_ { 0.3 } else { 1.0 };
+            match rgb {
+                Some(c) => {
+                    let (outer, inner) = (19.0 * s, 12.0 * s);
+                    theme::fill(ui.renderer, [cx - outer, cy - outer, 2.0 * outer, 2.0 * outer], outer, c, 0.3 * dim);
+                    theme::fill(ui.renderer, [cx - inner, cy - inner, 2.0 * inner, 2.0 * inner], inner, c, dim);
+                }
+                // Automatic with nothing to show yet: an A, as the name's usual colour has
+                None if k == 0 => swatch(ui, [cx - 12.0 * s, cy - 12.0 * s, 24.0 * s, 24.0 * s], None, false, false, false, s),
+                None => {
+                    let inner = 12.0 * s;
+                    theme::fill(ui.renderer, [cx - inner, cy - inner, 2.0 * inner, 2.0 * inner], inner, color::TRACK, 1.0);
+                    theme::cross(ui.renderer, cx, cy, 5.0 * s, (2.0 * s).max(1.0), color::TEXT_MUTED);
+                }
+            }
+            if locked_ {
+                locked(ui, [cx - 12.0 * s, cy - 12.0 * s, 24.0 * s, 24.0 * s], s * 0.8);
+            }
+            let size = font(12.0);
+            let w = ui.measure(label, size, true).min(cw - 10.0 * s);
+            ui.label_fit(label, cr[0] + (cw - w) / 2.0, cr[1] + ch - 28.0 * s, cw - 10.0 * s, size, true, if on { color::GOLD } else if locked_ { color::TEXT_MUTED } else { color::TEXT });
+            if !locked_ {
+                self.hits.push((Hit::Glow(k), cr));
+            }
+        }
+        y += ch + 12.0 * s;
+        let hint = match hovered.unwrap_or(l.glow_from) {
+            0 => tr("Picked for you: your own glow first, then the Hall of Champions', then the Legends'."),
+            1 => tr("From a place in the top 10 of the Stars board in the Hall of Champions."),
+            2 => tr("From a character on the Legends board, the dead's fame."),
+            3 => tr("The colour you set with /glow."),
+            _ => tr("No glow at all."),
+        };
+        note(ui, hint, y);
+    }
+}
+
 fn swatch(ui: &mut Ui, r: [f32; 4], rgb: Option<u32>, chosen: bool, locked_: bool, hover: bool, s: f32) {
     if chosen {
-        theme::fill(ui.renderer, [r[0] - 3.0 * s, r[1] - 3.0 * s, r[2] + 6.0 * s, r[3] + 6.0 * s], r[3] / 2.0 + 3.0 * s, color::TEXT, 0.9);
+        // a ring with a dark gap, so it shows round the pale colours too
+        theme::fill(ui.renderer, [r[0] - 5.0 * s, r[1] - 5.0 * s, r[2] + 10.0 * s, r[3] + 10.0 * s], r[3] / 2.0 + 5.0 * s, color::GOLD, 1.0);
+        theme::fill(ui.renderer, [r[0] - 2.5 * s, r[1] - 2.5 * s, r[2] + 5.0 * s, r[3] + 5.0 * s], r[3] / 2.0 + 2.5 * s, color::TRACK, 1.0);
     } else if hover {
         theme::fill(ui.renderer, [r[0] - 2.0 * s, r[1] - 2.0 * s, r[2] + 4.0 * s, r[3] + 4.0 * s], r[3] / 2.0 + 2.0 * s, color::TEXT, 0.35);
     }
@@ -1100,6 +1273,7 @@ mod tests {
             }]
             .into(),
             gifts: None,
+            looks: None,
         }
     }
 
@@ -1151,6 +1325,24 @@ mod tests {
         d.gifts = Some(vec![gift(true)].into());
         q.event(Event::Data(Box::new(d)), 20);
         assert_eq!(q.ready_in(Tab::Login), 0);
+    }
+
+    #[test]
+    fn customize_asks_for_the_sources() {
+        let mut q = Quests::default();
+        assert_eq!(q.show_named("customize"), Some(Act::Request));
+        assert!(q.open && q.customize);
+        q.event(Event::Data(Box::new(data())), 0);
+        q.hits = vec![(Hit::Glow(2), [0.0, 0.0, 10.0, 10.0]), (Hit::ChampionColor, [20.0, 0.0, 10.0, 10.0])];
+        assert_eq!(q.click((5.0, 5.0)), Some(Act::Claim(GLOW, "legend".into())));
+        assert_eq!(q.click((25.0, 5.0)), Some(Act::Claim(COLOR, "champion".into())));
+        // the quest log's tabs open the log again
+        q.show(Some(Tab::Achievements));
+        assert!(!q.customize);
+        let l = bsk_proto::QuestLooks { champion_glow: 0xD3DEEA, legend: true, ..Default::default() };
+        assert_eq!(auto_glow(&l), 0xD3DEEA);
+        assert_eq!(auto_glow(&bsk_proto::QuestLooks { own_glow: 0x00FF00, ..l }), 0x00FF00);
+        assert_eq!(auto_glow(&bsk_proto::QuestLooks { champion_glow: 0, ..l }), LEGEND_RED);
     }
 
     #[test]

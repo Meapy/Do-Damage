@@ -222,7 +222,8 @@ namespace WorldServer.logic
                     new ItemLoot("Potion of Mana", 1),
                     new ItemLoot("Potion of Wisdom", 1),
                     new ItemLoot("Potion of Vitality", 0.08)
-                )
+                ),
+                new ItemLoot("Jelly Generator", 0.03)
             )
             .Init("CR Blue Cnidarian",
                 new State(

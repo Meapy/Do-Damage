@@ -98,7 +98,8 @@ namespace WorldServer.logic
                     ),
                 new Threshold(.005,
                     LootTemplates.BasicPots()
-                    )
+                    ),
+                new ItemLoot("Gummy Bear Generator", 0.02)
             )
             .Init("Spoiled Creampuff",
                 new State(
@@ -131,7 +132,8 @@ namespace WorldServer.logic
                     ),
                 new Threshold(.005,
                     LootTemplates.BasicPots()
-                    )
+                    ),
+                new ItemLoot("Gummy Bear Generator", 0.02)
             )
             .Init("Desire Troll",
                 new State(
@@ -198,7 +200,8 @@ namespace WorldServer.logic
                     ),
                 new Threshold(.005,
                     LootTemplates.BasicPots()
-                    )
+                    ),
+                new ItemLoot("Gummy Bear Generator", 0.02)
             )
 
         .Init("Wishing Troll",
@@ -287,7 +290,9 @@ namespace WorldServer.logic
                     ),
                 new Threshold(.005,
                     LootTemplates.BasicPots()
-                    )
+                    ),
+                new ItemLoot("Valentine Generator", 0.005),
+                new ItemLoot("Gummy Bear Generator", 0.02)
             )
         .Init("Unicorn",
              new State(
@@ -366,7 +371,8 @@ namespace WorldServer.logic
                     ),
                 new Threshold(.005,
                     LootTemplates.BasicPots()
-                    )
+                    ),
+                new ItemLoot("Gummy Bear Generator", 0.02)
             )
             .Init("Candyland Boss Spawner",
                 new State(
@@ -444,7 +450,8 @@ namespace WorldServer.logic
                         ),
                     new StayCloseToSpawn(speed: 1.35, range: 13),
                     new Wander(speed: 0.4)
-                )
+                ),
+                new ItemLoot("Kirby Generator", 0.01)
             )
             .Init("Small Creampuff",
                 new State(

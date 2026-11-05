@@ -87,6 +87,80 @@ namespace Tests
         }
 
         [Fact]
+        public void AGoalFinishedEarlyMakesWayForABonusGoal()
+        {
+            var drawn = Data.Draw(Monday);
+            // only the last level finishes a goal
+            var oryx = Data.Goal("oryx");
+            Assert.False(Data.Finished(oryx, 15, 44));
+            Assert.True(Data.Finished(oryx, 15, 45));
+            // a bonus goal: none of this week's kinds, nor next week's or last week's, and the same
+            // every time
+            var next = Data.NextGoal(Monday, drawn);
+            Assert.NotNull(next);
+            Assert.Equal(next, Data.NextGoal(Monday, drawn));
+            string GroupOf(string id) => Data.Goal(id).Group ?? id;
+            Assert.DoesNotContain(GroupOf(next), drawn.Select(GroupOf));
+            Assert.DoesNotContain(GroupOf(next), Data.Draw(Monday.AddDays(7)).Select(GroupOf));
+            Assert.DoesNotContain(GroupOf(next), Data.Draw(Monday.AddDays(-7)).Select(GroupOf));
+            // slot 1 finished on Tuesday noon: its goal ended then, the bonus runs to the reset
+            var at = Monday.AddDays(1).AddHours(12);
+            var runs = Data.Runs(Wed, null, week => week == Monday ? new[] { new EarlyStart(1, next, at) } : Array.Empty<EarlyStart>());
+            var running = runs.Where(r => r.Running(Wed)).ToList();
+            Assert.Equal(Data.Slots, running.Count);
+            var bonus = Assert.Single(running, r => r.Bonus);
+            Assert.Equal((next, at, Monday.AddDays(7), 1), (bonus.Def.Id, bonus.Start, bonus.End, bonus.Slot));
+            Assert.Equal(Monday, bonus.Week);
+            var done = Assert.Single(runs, r => r.Week == Monday && r.Slot == 1 && !r.Bonus);
+            Assert.Equal((drawn[1], at), (done.Def.Id, done.End));
+            Assert.False(done.Running(Wed));
+            Assert.Equal(runs.Count, runs.Select(r => r.Key).Distinct().Count());
+            Assert.True(done.Cut);
+            Assert.False(bonus.Cut);
+            Assert.Equal(1, bonus.Heat);
+            // the faster it's finished, the harder: the target's pace (120% a week) or slower moves
+            // nothing, 300% in a day and a half makes the bonus goal twice as hard or more, and
+            // the heat builds
+            Assert.Equal(1, Data.PaceStep(18, 15, 1), 6);
+            Assert.Equal(1, Data.PaceStep(5, 15, 1), 6);
+            Assert.InRange(Data.PaceStep(45, 15, 1.5 / 7), 2, Data.Early.MaxStep);
+            Assert.Equal(Data.Early.MaxStep, Data.PaceStep(45, 15, 1.0 / 168), 6);
+            var hot = Data.Heat(done, 45, 15, at);
+            Assert.InRange(hot, 2, Data.Early.MaxStep);
+            var hotter = Data.Runs(Wed, null, week => week == Monday ? new[] { new EarlyStart(1, next, at, hot) } : Array.Empty<EarlyStart>()).Single(r => r.Bonus);
+            Assert.Equal(hot, hotter.Heat);
+            Assert.Equal(Data.Early.MaxHeat, Data.Heat(hotter, 1000, 15, at.AddHours(1)), 6);
+            // its goal's next run grows by the pace too, past adapt's usual step
+            Assert.True(Data.NextScale(1, 45, 15, 1.5 / 7, true) > Data.Adapt.MaxStep);
+            Assert.Equal(Data.Adapt.MaxStep, Data.NextScale(1, 45, 15, 1.5 / 7), 6);
+            // a bonus run that fell short counts by its pace: 10 of 15 in 2 days is ahead of the target
+            Assert.True(Data.NextScale(1, 10, 15, 2.0 / 7) > 1);
+        }
+
+        [Fact]
+        public void AGoalStartedTwiceInAWeekRunsOnce()
+        {
+            // two goals finished at once, both given the same bonus goal in the same second (as
+            // happened on 2026-11-05): the first slot keeps it, the second carries on as it was
+            var drawn = Data.Draw(Monday);
+            var next = Data.NextGoal(Monday, drawn);
+            var at = Monday.AddDays(2);
+            var twice = new[] { new EarlyStart(0, next, at, 3), new EarlyStart(1, next, at, 2.71) };
+            var runs = Data.Runs(Wed, null, week => week == Monday ? twice : Array.Empty<EarlyStart>());
+            Assert.Equal(runs.Count, runs.Select(r => r.Key).Distinct().Count());
+            var bonus = Assert.Single(runs, r => r.Bonus);
+            Assert.Equal((0, 3.0), (bonus.Slot, bonus.Heat));
+            var second = Assert.Single(runs, r => r.Week == Monday && r.Slot == 1);
+            Assert.Equal((drawn[1], Monday.AddDays(7)), (second.Def.Id, second.End));
+            // a later bonus goal of its own for that slot then takes its place
+            var other = Data.NextGoal(Monday, drawn.Append(next).ToList());
+            Assert.NotEqual(next, other);
+            var fixedRuns = Data.Runs(Wed, null, week => week == Monday ? twice.Append(new EarlyStart(1, other, at.AddMinutes(1))).ToArray() : Array.Empty<EarlyStart>());
+            Assert.Equal(2, fixedRuns.Count(r => r.Bonus));
+            Assert.Equal(at.AddMinutes(1), fixedRuns.Single(r => r.Week == Monday && r.Slot == 1 && !r.Bonus).End);
+        }
+
+        [Fact]
         public void SpecialsRunBetweenTheirDays()
         {
             var data = CommunityData.Parse(@"{

@@ -14,7 +14,7 @@ and ring in the game's XML, with its sprite, its numbers and where it comes from
   client's manifest) and a class per sheet, so each icon is a crop of its sheet.
 - The landing page is the guide website/wiki/gear.md, whose {{gen:gear}} is `overview()`.
 - The Pets guide (website/wiki/pets.md) takes its lists from here too, for the sprites:
-  `pet_generators()`, `pet_summons()` and `pet_yard()`.
+  `pet_generators()` and `pet_summons()`.
 
 A category is where the classes wear the slot type (a class's slots are weapon, ability, armor,
 ring), so a Wakizashi is an ability, as it is for the Samurai.
@@ -639,7 +639,7 @@ class Gear:
         ids = set()
         cards = []
         # by size, the biggest first, then the strongest
-        order = {"Admin": 0, "Large": 1, "Medium": 2, "Small": 3}
+        order = {"Oryx": 0, "Large": 1, "Medium": 2, "Small": 3, "Tiny": 4}
         for p in sorted(d.pets(), key=lambda p: (order.get(p["size"], 4), -p["dps"], p["name"].lower())):
             oid = p["item"]
             lines = ['<p class="it-nums">Damage a second <b>%d</b></p>' % p["dps"]] if p["dps"] else []
@@ -654,8 +654,13 @@ class Gear:
             for effect in p["effects"]:
                 lines.append('<p class="it-line"><span>Also</span> %s</p>' % h.esc(effect))
             src = self._item_sources(oid)
-            if oid in sold and price and not any("Nexus Bazaar" in v for _, v in src):
-                src.append(("Shop", "Nexus Bazaar (pets), %d fame" % price))
+            if oid in sold and price:
+                # the Bazaar's pet stalls and /shop pets sell the same pets at the same price: one line
+                src = [(k, v) for k, v in src if not (k == "Shop" and ("Nexus Bazaar" in v or "/shop pets" in v))]
+                src.append(("Shop", "Nexus Bazaar or <code>/shop pets</code>, %d fame" % price))
+            if not src:
+                # nothing gives it (test pets, an old donation reward): not something players can get
+                continue
             flags = [x for x, on in (("Soulbound", d.objects[oid]["soulbound"]), ("From Doomed Realms", p["doomed"])) if on]
             search = " ".join([p["name"], pet, "pet generator", p["size"]] + p["effects"] + [re.sub(r"<[^>]+>", "", v) for _, v in src])
             tag = " · ".join(x for x in (p["size"], "%d DPS" % p["dps"] if p["dps"] else "") if x) or "Pet"
@@ -694,42 +699,6 @@ class Gear:
                                         flags, search))
         return (self._filter_box("summon-filter", "Item or what it summons", "#summon-list .it")
                 + '<div class="its" id="summon-list">%s</div>' % "".join(cards))
-
-    def pet_yard(self, used):
-        """The pet yard's pets (EmbeddedData_PetsCXML), by family."""
-        h = self.h
-        tiers = self._edges["tiers"]
-        rarity_edge = {"Common": tiers[0][2] if tiers else SPECIAL_EDGE,
-                       "Rare": tiers[2][2] if len(tiers) > 2 else SPECIAL_EDGE,
-                       "Divine": self._edges.get("special", SPECIAL_EDGE)}
-        order = ["Common", "Rare", "Divine"]
-        fams = {}
-        for p in self.d.yard_pets():
-            fams.setdefault(p["family"] or "? ? ? ?", []).append(p)
-        parts = [self._filter_box("yard-filter", "Pet, family, rarity or ability", "#yard .pet"), '<div id="yard">']
-        ids = set()
-        for fam in sorted(fams, key=lambda f: (not re.search(r"\w", f), f)):
-            lst = sorted(fams[fam], key=lambda p: (order.index(p["rarity"]) if p["rarity"] in order else 9,
-                                                   p["name"].lower()))
-            title = fam if re.search(r"\w", fam) else "Mystery family (? ? ? ?)"
-            ident = "family-" + h.slugify(title)
-            used.add(ident)
-            cards = []
-            for p in lst:
-                edge = rarity_edge.get(p["rarity"], SPECIAL_EDGE)
-                search = " ".join([p["name"], fam, p["rarity"], p["ability"]])
-                cards.append('<article class="pet" id="%s" data-search="%s">%s<span class="kind-name">%s</span>'
-                             '<span class="kind-n"><span class="tag" style="--c:%s">%s</span></span>'
-                             '<span class="kind-who">%s</span></article>' % (
-                                 self._anchor("yard-" + p["id"], ids), h.esc(search.lower()),
-                                 self.sprite(self.d.texture(p["skin"]) or self.d.texture(p["id"]), edge),
-                                 h.esc(p["name"]), edge,
-                                 h.esc(p["rarity"] or "?"), h.esc(p["ability"])))
-            parts.append('<section class="its-group"><h3 id="%s"><a class="anchor" href="#%s" aria-hidden="true">#</a>'
-                         '%s <span class="count">%d</span></h3><div class="kinds">%s</div></section>' % (
-                             ident, ident, h.esc(title), len(lst), "".join(cards)))
-        parts.append("</div>")
-        return "\n".join(parts)
 
     # --- the pages ----------------------------------------------------------------------------
     def pages(self):

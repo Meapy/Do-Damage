@@ -168,7 +168,7 @@ The client itself can be scripted for tests (desktop only):
 | `--aim <degrees>` / `--aim auto` | Where `f` fires on the screen, or at the nearest enemy. `auto` is staff's `/autoaim`: the client sends it first and aims only once the server agrees, so the account must be an admin on the test stack (`rank` 6 in its Redis) |
 | `--say <text>` | Send a chat line or command once in the game; several lines split by `;;` go out in turn, each once another world is joined or 3 s after the last (`"/dungeon Oryx's Sanctuary;;/god"`) |
 | `--npc <class>` | Open that NPC's window once in the game (`GuildBoard`, `PotionStorage`...), wherever you stand; `Vault` opens the vault window once in the vault (with `--say "/vault"`) |
-| `--quests <tab>` | Open the quest log at a tab once its data has come: `daily`, `weekly`, `monthly`, `login`, `achievements` (with `/questadmin` in `--say` to set up a state) |
+| `--quests <tab>` | Open the quest log at a tab once its data has come: `daily`, `weekly`, `monthly`, `login`, `achievements`, or `customize` for the Customize window (with `/questadmin` in `--say` to set up a state) |
 | `--effect <type>` | Show that `ShowEffect` type on you every half second (0: an area attack beside you), to check particles |
 | `--type <text>` | Type into the first NPC prompt that opens (then Enter), onto the guild board being edited, into the Divine Forge's or the vault window's search (with `--npc Forge` or `--npc Vault`), or into the Marketplace's price once on its Sell tab (`--npc MarketNPC`) |
 | `--size WxH` | Open the window at this size (physical pixels), to check the layout |
@@ -183,7 +183,9 @@ The client itself can be scripted for tests (desktop only):
   which is the owner's own: its sign-in screen shows their email. Don't share those shots.
 - **In the background:** a run with `--shot`, `--hold` or `--mouse-script` opens its window
   without taking focus, so the keyboard stays with the window in use; `--mouse` also ignores
-  clicks on it.
+  clicks on it. It opens in the middle of the display Visual Studio Code is on (else the display
+  of the window in use); `--display-of <text>` picks the display of the first window whose title
+  has that text instead (Windows only).
 - **Chat in the log:** with `RUST_LOG=info,betterskillys=debug` every chat line is logged
   (`chat <name>: <text>`), for reading results such as the vault Training Dummy's.
 - **No server needed** for the screens outside the game: `--account http://127.0.0.1:1` with

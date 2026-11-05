@@ -127,7 +127,8 @@ namespace WorldServer.logic
                 new TierLoot(6, ItemType.Armor, 0.10),
                 new TierLoot(2, ItemType.Ring, 0.15),
                 new TierLoot(2, ItemType.Ability, 0.18)
-                )
+                ),
+            new ItemLoot("Elephant Generator", 0.005)
             )
         .Init("Ogre Warrior",
             new State(
@@ -197,7 +198,8 @@ namespace WorldServer.logic
                 new TierLoot(7, ItemType.Armor, 0.10),
                 new TierLoot(3, ItemType.Ring, 0.15),
                 new TierLoot(3, ItemType.Ability, 0.15)
-                )
+                ),
+            new ItemLoot("Dino Generator", 0.005)
             )
         // a realm event in the high forest: it had object data but no behaviour, so it stood still
         .Init("Beer God",
@@ -256,7 +258,8 @@ namespace WorldServer.logic
                 new TierLoot(3, ItemType.Ability, 0.15),
                 new ItemLoot("Mighty Stein", 0.05),
                 new ItemLoot("Mini Beer God Pet Stone", 0.02)
-                )
+                ),
+            new ItemLoot("Beer Slurp Generator", 0.01)
             )
         .Init("Night Elf Archer",
             new State(
@@ -306,7 +309,8 @@ namespace WorldServer.logic
                     new Follow(1.5, range: 7),
                     new Wander(0.4)
                     )
-                )
+                ),
+            new ItemLoot("Elf Generator", 0.005)
             )
         .Init("Undead Dwarf God",
             new State(
@@ -568,7 +572,8 @@ namespace WorldServer.logic
                 new TierLoot(7, ItemType.Weapon, 0.01),
                 new TierLoot(7, ItemType.Armor, 0.02),
                 new TierLoot(6, ItemType.Armor, 0.07)
-                )
+                ),
+            new ItemLoot("Baby Dragon Generator", 0.005)
             )
         .Init("Adult White Dragon",
             new State(
@@ -835,7 +840,11 @@ namespace WorldServer.logic
                 new ItemLoot("Potion of Dexterity", 1),
                 new ItemLoot("Potion of Defense", 1),
                 new ItemLoot("Potion of Speed", 1)
-                )
+                ),
+            new ItemLoot("Karate Penguin Red Generator", 0.005),
+            new ItemLoot("Karate Penguin Blue Generator", 0.005),
+            new ItemLoot("Karate Penguin Yellow Generator", 0.005),
+            new ItemLoot("Karate Penguin Purple Generator", 0.005)
             )
         .Init("Specter Mine",
             new State(

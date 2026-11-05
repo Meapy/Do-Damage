@@ -112,7 +112,9 @@ your characters, alive and dead, so veterans start with tiers to claim.
 
 Achievement points raise your **rank**, shown at the top of the Achievements page (all
 {{v:quests_max_points}} points make you Mythic). Each rank from Adventurer up unlocks a **name
-colour** for the chat: pick it under "Chat name colour" (the **A** puts your usual colour back).
+colour** for the chat: pick it in the **Customize** window (Escape, then Customize), under
+"Achievement ranks" (the **A** puts your usual colour back). The same window picks your glow; see
+[Hall of Champions](champions.md).
 
 {{gen:quests_ranks}}
 

@@ -12,6 +12,65 @@ Keep each version short: changes go under `### ` group headings (Oryx 5, Arena, 
 on), one line per change players notice, summed up rather than item by item (the wiki has the
 details). Add to a group's line when a change adds to it, rather than adding another line.
 
+## 2.3.9 (2026-11-05)
+
+### Nexus
+- The Nexus is now a cluster of floating islands in a sunset sky, with clouds drifting by and the
+  odd shooting star, joined by bridges and at two heights. The spawn sits in a koi pond you wade
+  across, and heals you as you arrive; the market island lies west over an arched bridge like the
+  old Nexus's (the shops, the Marketplace, the guild's teahouse, the quest house and the Divine
+  Forge's smithy); the realm portals are in the shrine on the island below, down the walled stone
+  bridge south; and east, over another arched bridge, is the Arena island, whose tower you climb
+  by its spiral stair to the Hall of Champions (its champions seen from all round the tower), a
+  lookout and the Sky Bar, where Barman Kenji throws a drink at his guests every 20 seconds. The
+  Warcaller and the Herald stand on the Arena island's court. Everything works as before, but the
+  Nexus's shared vault chests are gone.
+
+### Abilities
+- Poisons, traps and other thrown items now show the item itself arcing through the air, as the
+  old client did.
+
+### Pets
+- Pets now come in four sizes, Tiny, Small, Medium and Large, each hitting about twice as hard as
+  the one below: Tiny pets do about 50 damage a second, Small 125, Medium 250 and Large 500 (the
+  Tomb's Bes, Nut and Geb 600). No pet got weaker: Medium and Large pets hit harder than before, and
+  the rarer critters (wolves, lions, the Karate Penguins, the Leprechaun and others) are now Small,
+  over twice as strong, and heal a little more.
+- Every pet drops now, the critters too: the cats from the were-cats, the foxes from the wargs, the
+  penguins in the Ice Cave, the Karate Penguins from Kage Kami, the Bee from the Queen Bee and so
+  on. Only the Tiny pets are sold, at the Nexus Bazaar and in `/shop pets`. Pets dropped in the
+  realm, by its monsters, gods, heroes and events (Realm 2's too), drop half as often as before;
+  dungeons' pets drop as they did.
+- 18 new pets, each shooting what the monster it looks like shoots: Large ones from the Puppet
+  Master, Davy Jones, the Crystal Prisoner, the Forgotten King, Esben, the Murderous Megamoth,
+  and Realm 2's Abyssal Kraken and Wyrm Matriarch; Medium ones from Medusa, the Ent God, the Flying
+  Brain, the Ghost Ship, the Werewolf, and Realm 2's Kitsune Spirit, Jade Golem, Ember Wyrm, Oni
+  Warlord and Lantern Wisp. Each drops from that monster, and the death spin can give them too.
+- Pets that fired a pair of shots either side of their target now hit with both. Pets that shared a
+  name have their own now (the four Karate Penguins, Robobuddy, the Skeletal Guardian, the Lunar
+  and Twilight Phoenixes), and the tooltip shows a pet's size in your language.
+
+### Community goals
+- A goal the realm takes through its last Overdrive level before the week is out now finishes
+  early: its rewards wait as an ended goal's do (the top 3 claim their prize at once), and a bonus
+  goal of another kind takes its place until the Monday reset. The faster a goal is finished, the
+  bigger the next one and the harder that goal comes back, so quick finishes in a row get harder
+  each time. The weekly reset comes as always.
+- `/warcaller` takes you to the Warcaller from anywhere, to check the goals and claim your
+  rewards.
+
+### Customize
+- A new Customize window, in the Escape menu, holds your chat name colour and your glow, the
+  coloured outline around your character. Pick your name colour from your achievement ranks or
+  the Hall of Champions' Achievements board, and your glow from the Hall of Champions' Stars
+  board, the Legends' red, your own `/glow` or none at all. A source you lose (a place in the top
+  10) falls back to the usual order and comes back with it. The name colours are no longer on the
+  quest log's Achievements tab.
+
+### Wiki
+- Pets have a section of their own, no longer under Characters. The Pets page lists only the pets
+  you can get, each with where it drops, and no longer the pet yard's, which isn't open here.
+
 ## 2.3.8 (2026-11-04)
 
 ### Languages

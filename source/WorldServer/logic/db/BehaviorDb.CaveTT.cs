@@ -227,7 +227,8 @@ namespace WorldServer.logic
                     )
                 ),
             new ItemLoot("Health Potion", 0.3),
-            new ItemLoot("Magic Potion", 0.3)
+            new ItemLoot("Magic Potion", 0.3),
+            new ItemLoot("White Bag Generator", 0.02)
             )
         .Init("Golden Oryx Effigy",
             new State(

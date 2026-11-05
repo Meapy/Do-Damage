@@ -122,7 +122,12 @@ namespace WorldServer.core.objects.vendors
                     else
                         shopItem.SetItem(id);
             }
+            Stock = Shops.ToDictionary(s => s.Key, s => (IReadOnlyList<ISellableItem>)s.Value.Item1.ToList());
         }
+
+        // every shop's items as they were at start, before the Nexus put any out on its stalls: a
+        // second Nexus (an admin's copy, NexusWorld.IsMain) sells from its own copy of these
+        public static Dictionary<TileRegion, IReadOnlyList<ISellableItem>> Stock { get; private set; } = new Dictionary<TileRegion, IReadOnlyList<ISellableItem>>();
 
         public static readonly Dictionary<TileRegion, Tuple<List<ISellableItem>, CurrencyType, int>> Shops = new Dictionary<TileRegion, Tuple<List<ISellableItem>, CurrencyType, int>>()
         {
@@ -150,9 +155,9 @@ namespace WorldServer.core.objects.vendors
             {
                 if (i.InvUse && i.ObjectId.Contains("Generator"))
                 {
-                    // only the Small pets' generators are sold: the others drop, each where its
+                    // only the Tiny pets' generators are sold: every pet drops, each where its
                     // pet belongs (SETUP-LOCAL.md, "Pets: single use, drops and attacks")
-                    if (Array.Exists(i.ActivateEffects, e => e.Effect == ActivateEffects.PermaPet && e.PetSize == "Small"))
+                    if (Array.Exists(i.ActivateEffects, e => e.Effect == ActivateEffects.PermaPet && e.PetSize == "Tiny"))
                     {
                         permaPetGenerators.Add(new ShopItem(i.ObjectId, 1000));
                         petGenerators.Add(new ShopItem(i.ObjectId, 1250));

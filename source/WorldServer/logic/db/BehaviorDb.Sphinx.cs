@@ -93,9 +93,10 @@ namespace WorldServer.logic
                     LootTemplates.BasicPots()
                     ),
                 new Threshold(0.03,
-                    new ItemLoot("Sphinx Generator", 0.015),
+                    new ItemLoot("Sphinx Generator", 0.0075),
                     new ItemLoot("Helm of the Juggernaut", 0.0015)
-                    )
+                    ),
+                new ItemLoot("White Lion Generator", 0.01)
             )
             .Init("Horrid Reaper",
                 new State(

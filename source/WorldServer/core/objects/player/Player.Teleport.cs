@@ -81,6 +81,10 @@ namespace WorldServer.core.objects
 
         private bool IsBeacon(Entity obj) => World is RealmWorld realm && realm.RealmManager.IsBeacon(obj);
 
+        /// <summary>On stacked floors, where a teleport put us and the height there, until the client's
+        /// Move arrives there: its Height before then is the one it had before (HeightHandler).</summary>
+        public (float X, float Y, float Z)? TeleportHeight { get; set; }
+
         public void TeleportPosition(TickTime time, float x, float y, bool ignoreRestrictions = false) => TeleportPosition(time, new Position(x, y), ignoreRestrictions);
         public void TeleportPosition(TickTime time, Position position, bool ignoreRestrictions = false)
         {
@@ -95,6 +99,14 @@ namespace WorldServer.core.objects
                 _canTpCooldownTime = 10000;
                 ResetNewbiePeriod();
                 FameCounter.Teleport();
+            }
+
+            // on stacked floors, onto the ground there: kept until the client's Move gets there
+            // (HeightHandler), as the client may not know that floor's squares yet
+            if (World.Levels != null)
+            {
+                Z = World.PlaceZ(position.X, position.Y, Z);
+                TeleportHeight = (position.X, position.Y, Z);
             }
 
             var tpPkts = new OutgoingMessage[]
@@ -118,5 +130,17 @@ namespace WorldServer.core.objects
             UpdateTiles();
         }
 
+        /// <summary>Moves the player at once with none of a teleport's show: no flash, no cooldown, not
+        /// counted. For a jump nobody should notice (the Stair Tower's looping stairs, StairTowerWorld).</summary>
+        public void Shift(TickTime time, Position position)
+        {
+            var goTo = new GotoMessage(Id, position);
+            World.ForeachPlayer(_ =>
+            {
+                _.AwaitGotoAck(time.TotalElapsedMs);
+                _.Client.SendPacket(goTo);
+            });
+            UpdateTiles();
+        }
     }
 }

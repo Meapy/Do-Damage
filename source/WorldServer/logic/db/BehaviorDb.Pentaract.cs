@@ -55,7 +55,7 @@ namespace WorldServer.logic
                     )
                 ),
             new Threshold(0.01,
-                new ItemLoot("Pentaract Eye Generator", 0.03),
+                new ItemLoot("Pentaract Eye Generator", 0.015),
                 new ItemLoot("Seal of Blasphemous Prayer", 0.003)
                 ),
             new Threshold(.005,

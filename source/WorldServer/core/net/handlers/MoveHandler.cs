@@ -44,7 +44,14 @@ namespace WorldServer.core.net.handlers
                     return;
                 }
 
-                if (!player.World.IsPassable(newX, newY))
+                // arrived where a teleport put us: its height, and the client's from now on
+                if (player.TeleportHeight is { } to && MathF.Abs(newX - to.X) < 1 && MathF.Abs(newY - to.Y) < 1)
+                {
+                    player.Z = to.Z;
+                    player.TeleportHeight = null;
+                }
+
+                if (!player.World.IsPassableAt(newX, newY, player.Z))
                 {
                     // the client only stops a player entering a no-walk square, so it can end up
                     // standing on one; keep the server position, put the client back there, and

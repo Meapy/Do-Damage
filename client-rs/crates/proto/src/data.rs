@@ -21,6 +21,17 @@ wire_struct! {
 }
 
 wire_struct! {
+    /// A square of a floor above the map, in a world of stacked floors (`Layers`): the floor
+    /// (1 the first above the map), the square and its ground type.
+    pub struct LayerTile {
+        pub level: u8,
+        pub x: i16,
+        pub y: i16,
+        pub tile_type: u16,
+    }
+}
+
+wire_struct! {
     /// An item slot: the container object, the slot index and the item type in it.
     #[derive(Copy)]
     pub struct SlotObject {
@@ -301,6 +312,23 @@ wire_struct! {
 }
 
 wire_struct! {
+    /// The Customize window's choices (`QuestsData`, last): the chat name colour and glow the
+    /// Hall of Champions gives now (0: no place), whether the account is a legend (the red
+    /// glow), the player's own glow (`/glow`, 0: none), and the sources chosen
+    /// (`Shared.champions.LookChoice`): the name 0 the champion's while held, 1 the rank colour
+    /// picked; the glow 0 automatic, 1 the champion's, 2 the legend's, 3 their own, 4 none.
+    #[derive(Copy, Eq)]
+    pub struct QuestLooks {
+        pub champion_color: i32,
+        pub champion_glow: i32,
+        pub legend: bool,
+        pub own_glow: i32,
+        pub name_from: u8,
+        pub glow_from: u8,
+    }
+}
+
+wire_struct! {
     /// Progress that changed (`QuestProgress`): a quest (kind 0) or an achievement (1) by its
     /// place in `QuestsData`'s lists.
     #[derive(Copy)]
@@ -387,6 +415,8 @@ wire_struct! {
 pub mod stat {
     pub const NAME: u8 = 31;
     pub const GUILD_NAME: u8 = 62;
+    /// How high the object stands, in thousandths of a tile: only in a world of stacked floors.
+    pub const HEIGHT: u8 = 148;
     /// `INVDATA0`..`INVDATA11` and `BACKPACKDATA0`..`BACKPACKDATA7`: per-slot item data (JSON).
     pub const ITEM_DATA: std::ops::RangeInclusive<u8> = 122..=141;
 

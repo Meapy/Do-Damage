@@ -3,7 +3,7 @@ title: Community Goals
 nav: 4
 sprite: crown
 eyebrow: Every week, together
-summary: The community goals: what the whole server works towards each week, the Warcaller by the Nexus spawn, how tiers are reached and shared, Overdrive past the goal, how goals grow and shrink with the realm, the top contributors' prize, and every goal that can come up with its own rewards and loot. Built from the game's data.
+summary: The community goals: what the whole server works towards each week, the Warcaller on the Nexus's Arena island, how tiers are reached and shared, Overdrive past the goal, how goals grow and shrink with the realm, the top contributors' prize, and every goal that can come up with its own rewards and loot. Built from the game's data.
 ---
 Quests are yours alone. **Community goals** belong to everyone: each week the realm gets
 **{{v:community_slots}} goals** to reach together, such as defeating Oryx the Mad God a number of
@@ -19,10 +19,11 @@ everyone, up to {{v:community_bonus_max}}%.
 
 ## The Warcaller
 
-The **Warcaller**, a knight in a plumed helm holding up the realm's violet war banner, stands at
-the north point of the Nexus spawn's island, where everyone passes. Walk up to him and he tells you
+The **Warcaller**, a knight in a plumed helm holding up the realm's violet war banner, stands on
+the sand of the Arena island's court in the Nexus, by the Herald and the Arena Leaderboard (east
+across the bridge from the spawn). Walk up to him and he tells you
 what waits for you, or which goal still needs you; every so often he calls out how one of the goals
-stands to everyone nearby. Stand by him and press **Rally** in the bottom of your HUD to open the
+stands to everyone nearby. Type `/warcaller` to go to him from anywhere. Stand by him and press **Rally** in the bottom of your HUD to open the
 **Community Goals** window.
 
 The window lists the week's goals on the left, with a bar for each, and the goals that ended last
@@ -60,10 +61,28 @@ says so, and another tells you when a reward of yours is waiting.
    {{v:community_bonus_name}} I to {{v:community_bonus_last}} ({{v:community_bonus_max}}% of the
    goal), and each pays the goal's bonus again to everyone who helped.
 5. **The top {{v:community_top}}** who added the most claim the top's prize once the goal ends.
+   A goal finished early (below) ends there, so its top claim their prize straight away.
 6. **Rewards** go straight to you: fame to your account, items to the gift chest in your vault.
    The window and the chat name what each claim gave you. Ended goals' rewards wait {{v:community_claim_weeks}} more week, then go.
 
 {{gen:community_tiers}}
+
+## Finished early: a bonus goal
+
+When the realm takes a goal all the way, through its last {{v:community_bonus_name}} level
+({{v:community_bonus_max}}% of the goal), before the week is out, that goal is **finished**: it
+ends there, its rewards wait to be claimed as an ended goal's do, and a **bonus goal** of another
+kind takes its place at once, with its own tiers, levels and loot. A banner tells everyone.
+
+- The bonus goal runs until the usual **Monday reset**, when the new week's goals come as always.
+- **The faster a goal is finished, the harder things get.** The bonus goal is bigger than usual by
+  how quickly the last one went (finish one in a day and a half and the next asks over twice as
+  much), and each quick finish in a row builds on the last, up to {{v:community_early_heat}} times
+  the usual size. It all cools off at the Monday reset.
+- The finished goal comes back harder too, by the same pace, the next time it's drawn.
+- It's never one of the week's other goals, and where it can be, none of last week's or next
+  week's either. Finish the bonus goal too and another follows.
+- None starts in the last {{v:community_early_hours}} hours of the week.
 
 ## Loot rolls
 

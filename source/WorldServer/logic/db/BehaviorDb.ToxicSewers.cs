@@ -397,7 +397,8 @@ namespace WorldServer.logic
             new Threshold(0.3,
                 new ItemLoot("Potion of Defense", 1),
                 new ItemLoot("Murky Toxin", 0.05)
-                )
+                ),
+            new ItemLoot("Golden Pup Generator", 0.02)
             )
         .Init("DS Natural Slime God",
             new State(
@@ -429,7 +430,8 @@ namespace WorldServer.logic
                 ),
             new Threshold(0.01,
                 new TierLoot(7, ItemType.Weapon, 0.05)
-                )
+                ),
+            new ItemLoot("Hamster Generator", 0.004)
             )
         .Init("DS Yellow Slime",
             new State(
@@ -525,7 +527,8 @@ namespace WorldServer.logic
                     new Shoot(20, 16, projectileIndex: 0, fixedAngle: 0, coolDown: 100000),
                     new Suicide()
                     )
-                )
+                ),
+            new ItemLoot("Skunk Generator", 0.02)
             )
         .Init("DS Blue Turtle",
             new State(
@@ -536,7 +539,8 @@ namespace WorldServer.logic
                 new ItemLoot("Potion of Defense", 0.09),
                 new ItemLoot("Void Blade", 0.02, threshold: 0.03),
                 new ItemLoot("Murky Toxin", 0.05)
-                )
+                ),
+            new ItemLoot("Turtle Generator", 0.005)
             )
         .Init("DS Orange Turtle",
             new State(

@@ -12,7 +12,8 @@ or one in EXTRA_BOSSES) shoots like that boss instead: the boss's projectiles re
 DoomedRealms.xml, and each distinct Shoot of the boss's behaviour becomes a PetShoot (count,
 spread, offset, projectile and cooldown; aimed at the nearest enemy, as every pet shot is).
 betterSkillys' own permanent pets, which had no behaviour, get the follow.
-Pets are sorted into sizes (SMALL_PETS, MEDIUM_PETS, LARGE_PETS), which set their healing.
+Pets are sorted into sizes (TINY_PETS, SMALL_PETS, MEDIUM_PETS, LARGE_PETS, ORYX_PETS), which set
+their healing and damage.
 
 Run on its own (python tools/port_doomed_pets.py), it applies what's set by hand (apply_pet_changes:
 sizes, PET_ATTACKS, PET_ABILITIES, PET_PROJECTILES...) to the files the last port wrote, without the
@@ -48,22 +49,27 @@ MAX_BOSS_ATTACKS = 4
 MIN_COOLDOWN = 300
 # Pet sizes: every sized pet heals its owner's HP and MP by the same amount, replacing Doomed Realms'
 # healing (name: (amount, every how many ms)). Its attacks are as before.
-PET_SIZES = {"Small": (15, 2000), "Medium": (30, 2000), "Large": (45, 1500), "Oryx": (60, 1500)}
-# the pet shop's critters and pets like them
-SMALL_PETS = {
+PET_SIZES = {"Tiny": (15, 2000), "Small": (20, 2000), "Medium": (30, 2000), "Large": (45, 1500),
+             "Oryx": (60, 1500)}
+# the pet shop's critters: the plain animals, the only pets sold (SOLD_SIZE); each drops too
+TINY_PETS = {
     "Black Cat (Doomed)", "Grey Cat (Doomed)", "Orange Cat (Doomed)", "Tan Cat (Doomed)", "Yellow Cat (Doomed)",
-    "White Cat (Doomed)", "Brown Pup (Doomed)", "Grey Pup (Doomed)", "Golden Pup (Doomed)", "Blue Snail (Doomed)",
-    "Purple Snail (Doomed)", "Grey Wolf (Doomed)", "Black Wolf (Doomed)", "Brown Fox (Doomed)", "Grey Fox (Doomed)",
-    "Green Frog (Doomed)", "Purple Frog (Doomed)", "Lion (Doomed)", "White Lion (Doomed)", "Penguin (Doomed)",
-    "Green Penguin (Doomed)", "Grass Penguin (Doomed)", "Purple Penguin", "Karate Penguin Red", "Karate Penguin Blue",
-    "Karate Penguin Yellow", "Karate Penguin Purple", "Sheepdog (Doomed)", "Golden Sheepdog (Doomed)", "Panda (Doomed)",
-    "Bluebird (Doomed)", "Chick (Doomed)", "Pig (Doomed)", "Sea Slurp (Doomed)", "Squirrel (Doomed)", "Bat (Doomed)",
-    "Lil' Ghost (Doomed)", "Leprechaun (Doomed)", "Toucan (Doomed)", "Skunk (Doomed)", "Mallard (Doomed)",
-    "Duck (Doomed)", "Eagle (Doomed)", "Turtle (Doomed)", "Jelly (Doomed)", "Bee (Doomed)", "Raven (Doomed)",
-    "Elf (Doomed)", "Crab (Doomed)", "Hamster (Doomed)", "Dino (Doomed)", "Elephant (Doomed)", "Demon Frog (Doomed)",
-    "Gargoyle (Doomed)", "Gummy Bear (Doomed)", "Dragonfly (Doomed)", "Lil' Cyclops (Doomed)", "Snowy Owl (Doomed)",
-    "Turkey (Doomed)", "Baby (Doomed)", "Baby Dragon (Doomed)", "Robobuddy (Doomed)", "Beach Ball",
-    "Beer Slurp", "Valentine", "Bunnyy", "White Bag Pet", "Monkeyn", "Sea Horsee", "Kirbyy", "Pentaract Eyee",
+    "White Cat (Doomed)", "Brown Pup (Doomed)", "Grey Pup (Doomed)", "Blue Snail (Doomed)", "Purple Snail (Doomed)",
+    "Brown Fox (Doomed)", "Grey Fox (Doomed)", "Green Frog (Doomed)", "Purple Frog (Doomed)", "Penguin (Doomed)",
+    "Green Penguin (Doomed)", "Grass Penguin (Doomed)", "Purple Penguin", "Sheepdog (Doomed)", "Panda (Doomed)",
+    "Bluebird (Doomed)", "Chick (Doomed)", "Pig (Doomed)", "Squirrel (Doomed)", "Bat (Doomed)", "Toucan (Doomed)",
+    "Mallard (Doomed)", "Duck (Doomed)", "Turtle (Doomed)", "Raven (Doomed)", "Crab (Doomed)", "Hamster (Doomed)",
+    "Dragonfly (Doomed)", "Turkey (Doomed)", "Bunnyy", "Beach Ball", "Valentine", "White Bag Pet",
+}
+# the rarer critters, the fighters and the odd ones: drops only
+SMALL_PETS = {
+    "Golden Pup (Doomed)", "Golden Sheepdog (Doomed)", "Grey Wolf (Doomed)", "Black Wolf (Doomed)", "Lion (Doomed)",
+    "White Lion (Doomed)", "Karate Penguin Red", "Karate Penguin Blue", "Karate Penguin Yellow",
+    "Karate Penguin Purple", "Robobuddy (Doomed)", "Sea Slurp (Doomed)", "Beer Slurp", "Lil' Ghost (Doomed)",
+    "Leprechaun (Doomed)", "Skunk (Doomed)", "Eagle (Doomed)", "Jelly (Doomed)", "Bee (Doomed)", "Elf (Doomed)",
+    "Dino (Doomed)", "Elephant (Doomed)", "Demon Frog (Doomed)", "Gargoyle (Doomed)", "Gummy Bear (Doomed)",
+    "Lil' Cyclops (Doomed)", "Snowy Owl (Doomed)", "Baby (Doomed)", "Baby Dragon (Doomed)", "Monkeyn",
+    "Sea Horsee", "Kirbyy", "Pentaract Eyee",
 }
 # godland and dungeon monsters, heroes, the players' own named pets and other striking sprites
 MEDIUM_PETS = {
@@ -176,13 +182,11 @@ PET_PROJECTILES = {
 
 # Each size's damage a second on one enemy (behaviour_dps): every sized pet's damage (its shots', its
 # strikes' and novas', and their bleeds) is scaled to it (scale_pets), unless PET_DPS gives its own.
-SIZE_DPS = {"Small": 50, "Medium": 200, "Large": 450}
+SIZE_DPS = {"Tiny": 50, "Small": 125, "Medium": 250, "Large": 500}
 PET_DPS.update({
     # the Tomb's three gods, the hardest of the boss pets to get
-    "Bess": 550, "Gebb": 550, "Nutt": 550,
-    "Thessal Pet": 500, "Horrificc": 500, "Cookiee": 500, "Dinosaur's Pet": 500,
-    # the realm events' pets, which drop more often
-    "Cubee": 400, "Skull Shrine P": 400, "sphinxxx": 400, "Coill Snake": 400,
+    "Bess": 600, "Gebb": 600, "Nutt": 600,
+    "Thessal Pet": 550, "Horrificc": 550, "Cookiee": 550, "Dinosaur's Pet": 550,
 })
 
 
@@ -191,6 +195,10 @@ def shot(sprite, count=1, spread=0, cooldown=1000, weight=1.0, speed=100, life=8
     weight is a shot's damage against the kit's others (scale_pets sets the real numbers); flags:
     size, multihit, pierce (armor piercing), wavy, boomerang, amplitude, frequency, effects
     [(condition, seconds)], bleed (weight, seconds)."""
+    # an even volley spread wide either side of the aim flies past a single enemy: keep it within
+    # HIT_CONE of the aim, so every shot of it hits
+    if count % 2 == 0 and spread * count < 360 and spread / 2 > HIT_CONE:
+        spread = 2 * HIT_CONE - 2
     return dict(kind="shoot", sprite=sprite, count=count, spread=spread, cooldown=cooldown, weight=weight,
                 speed=speed, life=life, **flags)
 
@@ -352,14 +360,94 @@ GENERATOR_BAG = 6
 # written the first time a pet is scaled, so that scaling again gives the same numbers. Kits and the
 # Lil' Oryxes are made afresh on every run and aren't kept here.
 BASE_DAMAGE_JSON = os.path.join(ROOT, "tools", "pet_base_damage.json")
-# Only the Small pets' generators are sold (MerchantLists, DoomedEconomy): the rest drop (SETUP-LOCAL.md,
-# "Pets: single use, drops and attacks").
-SOLD_SIZE = "Small"
+# Only the Tiny pets' generators are sold (MerchantLists, port_doomed_economy.unsold_pet); every pet
+# drops (SETUP-LOCAL.md, "Pets: single use, drops and attacks").
+SOLD_SIZE = "Tiny"
+# Generators' names, where several shared one
+GENERATOR_NAMES = {
+    "Karate Penguin Red Generator": "Red Karate Penguin", "Karate Penguin Blue Generator": "Blue Karate Penguin",
+    "Karate Penguin Yellow Generator": "Yellow Karate Penguin",
+    "Karate Penguin Purple Generator": "Purple Karate Penguin", "Robobuddy Generator": "Robobuddy",
+    "Snowman Generator": "Snowman", "Skeletal Guardian Generator": "Skeletal Guardian",
+    "Lunar's Phoenix Generator": "Lunar Phoenix", "Twilight Generator": "Twilight Phoenix",
+    "Kythal the Necromancer Generator": "Kythal the Necromancer", "Kythal the Skull Generator": "Kythal the Skull",
+}
+# betterSkillys' own pets, added by write_new_pets to both copies of Permapets (the pet and its
+# "... Generator") and to BehaviorDb.DoomedPets.cs: (pet id, size, drawn as this object, the
+# generator's description). Their type ids follow from their place in the list (NEW_PET_TYPE + 2 *
+# place for the pet, one more for its generator), so only ever add to the end. Each drops from the
+# monster it's drawn as (the bosses' loot in BehaviorDb.*.cs).
+NEW_PET_TYPE = 0x6c00
+NEW_PETS = [
+    ("Lil' Puppet Master", "Large", "The Puppet Master", "Pulls the strings of a little theatre of its own."),
+    ("Lil' Davy Jones", "Large", "Davy Jones", "Still owes the sea a soul or two."),
+    ("Lil' Crystal Prisoner", "Large", "Crystal Prisoner", "Out of its crystal at last, and in no mood to go back."),
+    ("Lil' Forgotten King", "Large", "shtrs The Forgotten King", "Remembers every one of your enemies."),
+    ("Lil' Esben", "Large", "ic Esben the Unwilling", "Unwilling to do anything but freeze your foes."),
+    ("Lil' Megamoth", "Large", "Murderous Megamoth", "The murderous kind, drawn to the light of battle."),
+    ("Abyssal Krakenling", "Large", "R2 Abyssal Kraken", "Brought up from the deep, still dripping ink."),
+    ("Ember Matriarch", "Large", "R2 Wyrm Matriarch", "Mother of wyrms, and fiercely protective."),
+    ("Lil' Medusa", "Medium", "Medusa", "Don't look it in the eyes. Your enemies will."),
+    ("Lil' Ent", "Medium", "Ent God", "Slow to anger, slower to forgive."),
+    ("Lil' Flying Brain", "Medium", "Flying Brain", "Thinks for you, and fights for you too."),
+    ("Lil' Ghost Ship", "Medium", "Ghost Ship", "Sails the air with its cannons loaded."),
+    ("Lil' Werewolf", "Medium", "Werewolf", "Every night is a full moon for this one."),
+    ("Kitsune Spirit", "Medium", "R2 Kitsune Spirit", "A fox spirit of the eastern shrines, sly and quick."),
+    ("Jade Golem", "Medium", "R2 Jade Golem", "Carved from a single jade, and just as hard."),
+    ("Ember Wyrmling", "Medium", "R2 Ember Wyrm", "A young wyrm, all fire and no patience."),
+    ("Oni Warlord", "Medium", "R2 Oni Warlord", "A demon general, sworn to your banner."),
+    ("Lantern Wisp", "Medium", "R2 Lantern Wisp", "Lights the way, and burns what's in it."),
+]
+for _pet, _size, _look, _desc in NEW_PETS:
+    {"Large": LARGE_PETS, "Medium": MEDIUM_PETS}[_size].add(_pet)
+# their attacks, with the shots of the monster each is drawn as
+PET_KITS.update({
+    "Lil' Puppet Master": [shot("Jester Bolt", 3, 15, 1000, speed=120, life=900),
+                           shot("Lightning Spiral", 2, 8, 1400, weight=1.2, wavy=True),
+                           shot("Big Zombie Blast", cooldown=2500, weight=3, speed=90, life=1100, multihit=True)],
+    "Lil' Davy Jones": [shot("Ghost Boss Slash", 3, 15, 1000, speed=110, life=700),
+                        shot("Ghost Boss Spinner", cooldown=1800, weight=2, life=1200, boomerang=True,
+                             effects=[("Slowed", 1)])],
+    "Lil' Crystal Prisoner": [shot("Purple Star", 8, 45, 1500, weight=0.5), shot("Blue Star", cooldown=800),
+                              shot("Silver Shield", cooldown=2500, weight=2.5, effects=[("Armor Broken", 1.5)])],
+    "Lil' Forgotten King": [shot("White Bullet", cooldown=700, speed=140, life=700),
+                            shot("Fire Bullet", 3, 15, 1200, bleed=(0.5, 3)),
+                            shot("Ice Bullet", 3, 15, 1600, effects=[("Slowed", 1.5)])],
+    "Lil' Esben": [shot("Ice Burst", 5, 18, 1200, speed=90),
+                   shot("Grey Boomerang", cooldown=1600, weight=2, life=1100, boomerang=True),
+                   nova(4000, 2, radius=3, effect="Slowed", ms=1500, color=0xff88ccff)],
+    "Lil' Megamoth": [shot("Fire Boomerang", 2, 8, 1000, life=1000, boomerang=True),
+                      shot("Yellow Energy Shot", cooldown=600, speed=130, life=650, pierce=True)],
+    "Abyssal Krakenling": [shot("Deep Sea Blast", 3, 15, 1100, wavy=True),
+                           shot("Black Missile", cooldown=1800, weight=2, speed=140),
+                           nova(5000, 2.5, radius=3.5, effect="Weak", ms=2000, color=0xff302050)],
+    "Ember Matriarch": [shot("Dragon Attack Red Firewave", 3, 15, 1200, speed=90, life=1000, multihit=True),
+                        shot("Fire Bolt", cooldown=700, speed=140, life=700, bleed=(0.4, 3))],
+    "Lil' Medusa": [shot("Green Bolt", 3, 15, 1000),
+                    nova(4500, 1.5, radius=2.5, effect="Paralyzed", ms=500, color=0xff44aa44)],
+    "Lil' Ent": [shot("Fire Bolt", 2, 6, 1000, speed=80, life=1000),
+                 nova(3500, 1.5, radius=2, effect="Slowed", ms=1000, color=0xff2a7a2a)],
+    "Lil' Flying Brain": [shot("Pink Bolt", 5, 72, 1000), strike(2500, weight=1.5)],
+    "Lil' Ghost Ship": [shot("Cannonball", 2, 6, 1000, speed=90, life=900),
+                        shot("Giant Cannonball", cooldown=3000, weight=3, speed=70, life=1200, multihit=True)],
+    "Lil' Werewolf": [shot("Wereblast", 3, 15, 1100), strike(2000, weight=1.5, range=5, bleed=(0.6, 3000))],
+    "Kitsune Spirit": [shot("Cyan Magic", 3, 15, 1000, wavy=True),
+                       shot("Pink Bolt", cooldown=1500, weight=1.5, speed=90, life=1300, boomerang=True,
+                            effects=[("Weak", 1)])],
+    "Jade Golem": [shot("Crystal Green Shard", cooldown=900, pierce=True, multihit=True),
+                   shot("Green Bolt", 3, 15, 1600, weight=0.8)],
+    "Ember Wyrmling": [shot("Dragon Attack Red Spinning Fireball", 2, 8, 1000, bleed=(0.3, 2)),
+                       nova(4000, 1.5, radius=2, color=0xffff6600)],
+    "Oni Warlord": [shot("Red Fire", 3, 15, 900),
+                    shot("Silver Shield", cooldown=2200, weight=2, effects=[("Armor Broken", 1)])],
+    "Lantern Wisp": [shot("Fire Bullet", 3, 15, 1000, wavy=True),
+                     nova(5000, 2, radius=3, color=0xffffaa33)],
+})
 # The pet drawn as another object's sprite (its generator's)
 PET_TEXTURES = {"Scootaloo": "Scootaloo Generator"}
 # How big each size is drawn, in a character's heights (a character is an 8x8 sprite at Size 100): a
 # pet's <Size> is set from how much of its sprite's frame the picture covers (pet_draw_sizes).
-SIZE_HEIGHTS = {"Small": 0.6, "Medium": 0.85, "Large": 1.2, "Oryx": 1.2}
+SIZE_HEIGHTS = {"Tiny": 0.6, "Small": 0.7, "Medium": 0.85, "Large": 1.2, "Oryx": 1.2}
 # where pets' <Size> is written: the port's XML and betterSkillys' own pets
 PET_XMLS = ITEM_XMLS + [os.path.join(ROOT, "source", "Shared", "resources", "xml", "prod", "EmbeddedData_PermapetsCXML.xml"),
                         os.path.join(ROOT, "client", "src", "kabam", "rotmg", "assets", "prod", "xmls", "Permapets.xml")]
@@ -697,7 +785,8 @@ def write_pet_behaviors(dr_root, dr, chosen, bs, types):
 
 def pet_size(oid, boss):
     """The pet's size (a PET_SIZES key), or None to keep its Doomed Realms healing."""
-    for size, pets in (("Small", SMALL_PETS), ("Medium", MEDIUM_PETS), ("Large", LARGE_PETS), ("Oryx", ORYX_PETS)):
+    for size, pets in (("Tiny", TINY_PETS), ("Small", SMALL_PETS), ("Medium", MEDIUM_PETS), ("Large", LARGE_PETS),
+                       ("Oryx", ORYX_PETS)):
         if oid in pets:
             return size
     return "Large" if boss else None
@@ -940,6 +1029,94 @@ def pet_effects(parts, obj):
     return list(dict.fromkeys(out))
 
 
+NEW_PETS_START = "<!-- betterSkillys' new pets: written by tools/port_doomed_pets.py (NEW_PETS) -->"
+NEW_PETS_END = "<!-- the end of the new pets -->"
+
+
+def write_new_pets():
+    """NEW_PETS' pets and generators into both copies of Permapets (between NEW_PETS_START and
+    NEW_PETS_END, written afresh each time: apply_pet_changes then adds their shots, numbers and
+    sizes), each drawn as the monster it's named for, and a follow for each pet in
+    BehaviorDb.DoomedPets.cs (apply_pet_changes gives it its kit)."""
+    looks, taken = {}, set()
+    own = os.path.normcase(os.path.abspath(PET_XMLS[2]))
+    for path in glob.glob(os.path.join(ROOT, "source", "Shared", "resources", "xml", "**", "*.xml"), recursive=True):
+        try:
+            for o in ET.parse(path).getroot().iter("Object"):
+                looks.setdefault(o.get("id"), o)
+                if os.path.normcase(os.path.abspath(path)) != own:
+                    taken.add(o.get("id"))
+        except ET.ParseError:
+            continue
+    # an id is the object's name everywhere (behaviours, loot): a pet named as a monster would take its place
+    for pet, _, _, _ in NEW_PETS:
+        if pet in taken or pet + " Generator" in taken:
+            raise SystemExit("NEW_PETS: %s is already the id of another object; name it otherwise" % pet)
+    for path in PET_XMLS[2:]:
+        text = open(path, encoding="utf-8", newline="").read()
+        nl = "\r\n" if "\r\n" in text else "\n"
+        outer, child = "   ", "      "
+        empty = "/>" if "<Item/>" in text else " />"
+
+        def written(el):
+            el = copy.deepcopy(el)
+            for e in el.iter():
+                e.tail = None
+                if e.text and not e.text.strip():
+                    e.text = None
+            ET.indent(el, space="   ", level=0)
+            return child + ET.tostring(el, encoding="unicode").replace("\n", nl + child)
+
+        block = [outer + NEW_PETS_START]
+        for place, (pet, size, look, desc) in enumerate(NEW_PETS):
+            src = looks.get(look)
+            if src is None:
+                raise SystemExit("NEW_PETS: %s is drawn as %s, which isn't in the game's XML" % (pet, look))
+            sprite = [e for e in src if e.tag in ("Texture", "AnimatedTexture", "RandomTexture", "Animation")]
+            icon = [e for e in sprite if e.tag != "Animation"][:1]
+            attr = saxutils.quoteattr(pet)
+            block += [outer + '<Object type="0x%04x" id=%s>' % (NEW_PET_TYPE + 2 * place, attr),
+                      child + "<Class>Character</Class>"]
+            block += [written(e) for e in sprite]
+            block += [child + "<NoMiniMap%s" % empty, child + "<Size>100</Size>",
+                      child + "<ShadowSize>100</ShadowSize>", outer + "</Object>"]
+            gen = saxutils.quoteattr(pet + " Generator")
+            block += [outer + '<Object type="0x%04x" id=%s>' % (NEW_PET_TYPE + 2 * place + 1, gen),
+                      child + "<DisplayId>%s</DisplayId>" % saxutils.escape(pet),
+                      child + "<Class>Equipment</Class>", child + "<Item%s" % empty]
+            block += [written(e) for e in icon]
+            block += [child + "<SlotType>10</SlotType>", child + "<Soulbound%s" % empty,
+                      child + "<Consumable%s" % empty,
+                      child + "<Description>%s</Description>" % saxutils.escape(desc),
+                      child + "<BagType>%d</BagType>" % GENERATOR_BAG, child + "<Sound>spell/light_heal</Sound>",
+                      child + '<Activate objectId=%s cooldown="10">PermaPet</Activate>' % attr,
+                      child + "<InvUse%s" % empty, outer + "</Object>"]
+        block.append(outer + NEW_PETS_END)
+        block = nl.join(block)
+        if NEW_PETS_START in text:
+            start = text.rindex(nl, 0, text.index(NEW_PETS_START)) + len(nl)
+            end = text.index(NEW_PETS_END) + len(NEW_PETS_END)
+            text = text[:start] + block + text[end:]
+        else:
+            close = text.rindex("</Objects>")
+            text = text[:close] + block + nl + text[close:]
+        with open(path, "w", encoding="utf-8", newline="") as f:
+            f.write(text)
+
+    with open(PET_BEHAVIORS_CS, encoding="utf-8", newline="") as f:
+        cs = f.read()
+    nl = "\r\n" if "\r\n" in cs else "\n"
+    missing = [pet for pet, _, _, _ in NEW_PETS if '.Init(%s,' % cs_string(pet) not in cs]
+    if missing:
+        last = cs.rindex(".Init(")
+        end = cs.index(";", cs.index(nl, last) - 2)
+        indent = cs[cs.rindex(nl, 0, last) + len(nl):last]
+        cs = cs[:end] + "".join(nl + indent + '.Init(%s, new State(new PetFollow()))' % cs_string(pet)
+                                for pet in missing) + cs[end:]
+        with open(PET_BEHAVIORS_CS, "w", encoding="utf-8", newline="") as f:
+            f.write(cs)
+
+
 def apply_pet_changes(bs=None):
     """What's set by hand, after the port: the sizes' healing, PET_ATTACKS, PET_KITS, PET_ABILITIES and
     the pets' projectiles and sprites, into BehaviorDb.DoomedPets.cs and the XML defining each pet;
@@ -947,6 +1124,7 @@ def apply_pet_changes(bs=None):
     (write_generator_rules), each pet's tooltip numbers (annotate_generators) and drawn size. It runs
     at the end of the port, and on its own (without the Doomed Realms repo) on the files the last
     port wrote."""
+    write_new_pets()
     write_pet_projectiles(bs or load_bs())
     write_pet_textures()
     objects = load_pet_objects()
@@ -1113,6 +1291,11 @@ def write_generator_rules(stats):
 
         def rules(m):
             obj = m.group(0)
+            oid = re.match(r'<Object [^>]*id="([^"]*)"', obj)
+            name = GENERATOR_NAMES.get(saxutils.unescape(oid.group(1), {"&apos;": "'"})) if oid else None
+            if name:
+                obj = re.sub(r"<DisplayId>[^<]*</DisplayId>", lambda _: "<DisplayId>%s</DisplayId>" % saxutils.escape(name),
+                             obj, count=1)
             a = re.search(r'<Activate objectId="([^"]*)"[^>]*>PermaPet</Activate>', obj)
             if not a or saxutils.unescape(a.group(1), {"&quot;": '"', "&apos;": "'"}) not in pets:
                 return obj

@@ -1633,7 +1633,7 @@
 		<Sound>spell/light_heal</Sound>
 		<InvUse />
 		<VaultItem />
-		<Activate objectId="Black Cat (Doomed)" cooldown="10" petSize="Small" petHp="15" petHpMs="2000" petMp="15" petMpMs="2000">PermaPet</Activate>
+		<Activate objectId="Black Cat (Doomed)" cooldown="10" petDps="50" petSize="Tiny" petHp="15" petHpMs="2000" petMp="15" petMpMs="2000">PermaPet</Activate>
 		<OldSound>use_potion</OldSound>
 	</Object>
 	<Object type="0xD067" id="Grey Cat Generator">
@@ -1652,7 +1652,7 @@
 		<Sound>spell/light_heal</Sound>
 		<InvUse />
 		<VaultItem />
-		<Activate objectId="Grey Cat (Doomed)" cooldown="10" petDps="50" petSize="Small" petHp="15" petHpMs="2000" petMp="15" petMpMs="2000">PermaPet</Activate>
+		<Activate objectId="Grey Cat (Doomed)" cooldown="10" petDps="50" petSize="Tiny" petHp="15" petHpMs="2000" petMp="15" petMpMs="2000">PermaPet</Activate>
 		<OldSound>use_potion</OldSound>
 	</Object>
 	<Object type="0xD068" id="Orange Cat Generator">
@@ -1671,7 +1671,7 @@
 		<Sound>spell/light_heal</Sound>
 		<InvUse />
 		<VaultItem />
-		<Activate objectId="Orange Cat (Doomed)" cooldown="10" petDps="50" petSize="Small" petHp="15" petHpMs="2000" petMp="15" petMpMs="2000">PermaPet</Activate>
+		<Activate objectId="Orange Cat (Doomed)" cooldown="10" petDps="50" petSize="Tiny" petHp="15" petHpMs="2000" petMp="15" petMpMs="2000">PermaPet</Activate>
 		<OldSound>use_potion</OldSound>
 	</Object>
 	<Object type="0xD069" id="Tan Cat Generator">
@@ -1691,7 +1691,7 @@
 		<Sound>spell/light_heal</Sound>
 		<InvUse />
 		<VaultItem />
-		<Activate objectId="Tan Cat (Doomed)" cooldown="10" petDps="50" petSize="Small" petHp="15" petHpMs="2000" petMp="15" petMpMs="2000">PermaPet</Activate>
+		<Activate objectId="Tan Cat (Doomed)" cooldown="10" petDps="50" petSize="Tiny" petHp="15" petHpMs="2000" petMp="15" petMpMs="2000">PermaPet</Activate>
 		<OldSound>use_potion</OldSound>
 	</Object>
 	<Object type="0xD06A" id="Yellow Cat Generator">
@@ -1711,7 +1711,7 @@
 		<Sound>spell/light_heal</Sound>
 		<InvUse />
 		<VaultItem />
-		<Activate objectId="Yellow Cat (Doomed)" cooldown="10" petDps="50" petSize="Small" petHp="15" petHpMs="2000" petMp="15" petMpMs="2000">PermaPet</Activate>
+		<Activate objectId="Yellow Cat (Doomed)" cooldown="10" petDps="50" petSize="Tiny" petHp="15" petHpMs="2000" petMp="15" petMpMs="2000">PermaPet</Activate>
 		<OldSound>use_potion</OldSound>
 	</Object>
 	<Object type="0xD06B" id="Brown Pup Generator">
@@ -1730,7 +1730,7 @@
 		<Sound>spell/light_heal</Sound>
 		<InvUse />
 		<VaultItem />
-		<Activate objectId="Brown Pup (Doomed)" cooldown="10" petDps="50" petSize="Small" petHp="15" petHpMs="2000" petMp="15" petMpMs="2000">PermaPet</Activate>
+		<Activate objectId="Brown Pup (Doomed)" cooldown="10" petDps="50" petSize="Tiny" petHp="15" petHpMs="2000" petMp="15" petMpMs="2000">PermaPet</Activate>
 		<OldSound>use_potion</OldSound>
 	</Object>
 	<Object type="0xD06C" id="Grey Pup Generator">
@@ -1750,7 +1750,7 @@
 		<Sound>spell/light_heal</Sound>
 		<InvUse />
 		<VaultItem />
-		<Activate objectId="Grey Pup (Doomed)" cooldown="10" petDps="50" petSize="Small" petEffects="Bleeds 35 over 3s" petHp="15" petHpMs="2000" petMp="15" petMpMs="2000">PermaPet</Activate>
+		<Activate objectId="Grey Pup (Doomed)" cooldown="10" petDps="50" petSize="Tiny" petEffects="Bleeds 35 over 3s" petHp="15" petHpMs="2000" petMp="15" petMpMs="2000">PermaPet</Activate>
 		<OldSound>use_potion</OldSound>
 	</Object>
 	<Object type="0xD06D" id="Golden Pup Generator">
@@ -1770,7 +1770,7 @@
 		<Sound>spell/light_heal</Sound>
 		<InvUse />
 		<VaultItem />
-		<Activate objectId="Golden Pup (Doomed)" cooldown="10" petDps="49" petSize="Small" petHp="15" petHpMs="2000" petMp="15" petMpMs="2000">PermaPet</Activate>
+		<Activate objectId="Golden Pup (Doomed)" cooldown="10" petDps="124" petSize="Small" petHp="20" petHpMs="2000" petMp="20" petMpMs="2000">PermaPet</Activate>
 		<OldSound>use_potion</OldSound>
 	</Object>
 	<Object type="0xD06E" id="White Cat Generator">
@@ -1790,7 +1790,7 @@
 		<Sound>spell/light_heal</Sound>
 		<InvUse />
 		<VaultItem />
-		<Activate objectId="White Cat (Doomed)" cooldown="10" petDps="50" petSize="Small" petHp="15" petHpMs="2000" petMp="15" petMpMs="2000">PermaPet</Activate>
+		<Activate objectId="White Cat (Doomed)" cooldown="10" petDps="50" petSize="Tiny" petHp="15" petHpMs="2000" petMp="15" petMpMs="2000">PermaPet</Activate>
 		<OldSound>use_potion</OldSound>
 	</Object>
 	<Object type="0xD06F" id="Blue Snail Generator">
@@ -1809,7 +1809,7 @@
 		<Sound>spell/light_heal</Sound>
 		<InvUse />
 		<VaultItem />
-		<Activate objectId="Blue Snail (Doomed)" cooldown="10" petDps="50" petSize="Small" petEffects="Slowed on hit for 1s" petHp="15" petHpMs="2000" petMp="15" petMpMs="2000">PermaPet</Activate>
+		<Activate objectId="Blue Snail (Doomed)" cooldown="10" petDps="50" petSize="Tiny" petEffects="Slowed on hit for 1s" petHp="15" petHpMs="2000" petMp="15" petMpMs="2000">PermaPet</Activate>
 		<OldSound>use_potion</OldSound>
 	</Object>
 	<Object type="0xD070" id="Grey Wolf Generator">
@@ -1828,7 +1828,7 @@
 		<Sound>spell/light_heal</Sound>
 		<InvUse />
 		<VaultItem />
-		<Activate objectId="Grey Wolf (Doomed)" cooldown="10" petSize="Small" petHp="15" petHpMs="2000" petMp="15" petMpMs="2000">PermaPet</Activate>
+		<Activate objectId="Grey Wolf (Doomed)" cooldown="10" petDps="124" petSize="Small" petHp="20" petHpMs="2000" petMp="20" petMpMs="2000">PermaPet</Activate>
 		<OldSound>use_potion</OldSound>
 	</Object>
 	<Object type="0xD071" id="Brown Fox Generator">
@@ -1847,7 +1847,7 @@
 		<Sound>spell/light_heal</Sound>
 		<InvUse />
 		<VaultItem />
-		<Activate objectId="Brown Fox (Doomed)" cooldown="10" petDps="50" petSize="Small" petHp="15" petHpMs="2000" petMp="15" petMpMs="2000">PermaPet</Activate>
+		<Activate objectId="Brown Fox (Doomed)" cooldown="10" petDps="50" petSize="Tiny" petHp="15" petHpMs="2000" petMp="15" petMpMs="2000">PermaPet</Activate>
 		<OldSound>use_potion</OldSound>
 	</Object>
 	<Object type="0xD072" id="Green Frog Generator">
@@ -1866,7 +1866,7 @@
 		<Sound>spell/light_heal</Sound>
 		<InvUse />
 		<VaultItem />
-		<Activate objectId="Green Frog (Doomed)" cooldown="10" petDps="50" petSize="Small" petHp="15" petHpMs="2000" petMp="15" petMpMs="2000">PermaPet</Activate>
+		<Activate objectId="Green Frog (Doomed)" cooldown="10" petDps="50" petSize="Tiny" petHp="15" petHpMs="2000" petMp="15" petMpMs="2000">PermaPet</Activate>
 		<OldSound>use_potion</OldSound>
 	</Object>
 	<Object type="0xD073" id="Lion Generator">
@@ -1885,7 +1885,7 @@
 		<Sound>spell/light_heal</Sound>
 		<InvUse />
 		<VaultItem />
-		<Activate objectId="Lion (Doomed)" cooldown="10" petDps="50" petSize="Small" petEffects="Hits all enemies within 2.5 tiles of its target" petHp="15" petHpMs="2000" petMp="15" petMpMs="2000">PermaPet</Activate>
+		<Activate objectId="Lion (Doomed)" cooldown="10" petDps="125" petSize="Small" petEffects="Hits all enemies within 2.5 tiles of its target" petHp="20" petHpMs="2000" petMp="20" petMpMs="2000">PermaPet</Activate>
 		<OldSound>use_potion</OldSound>
 	</Object>
 	<Object type="0xD074" id="Penguin Generator">
@@ -1904,7 +1904,7 @@
 		<Sound>spell/light_heal</Sound>
 		<InvUse />
 		<VaultItem />
-		<Activate objectId="Penguin (Doomed)" cooldown="10" petDps="50" petSize="Small" petHp="15" petHpMs="2000" petMp="15" petMpMs="2000">PermaPet</Activate>
+		<Activate objectId="Penguin (Doomed)" cooldown="10" petDps="50" petSize="Tiny" petHp="15" petHpMs="2000" petMp="15" petMpMs="2000">PermaPet</Activate>
 		<OldSound>use_potion</OldSound>
 	</Object>
 	<Object type="0xD075" id="Sheepdog Generator">
@@ -1923,7 +1923,7 @@
 		<Sound>spell/light_heal</Sound>
 		<InvUse />
 		<VaultItem />
-		<Activate objectId="Sheepdog (Doomed)" cooldown="10" petDps="50" petSize="Small" petHp="15" petHpMs="2000" petMp="15" petMpMs="2000">PermaPet</Activate>
+		<Activate objectId="Sheepdog (Doomed)" cooldown="10" petDps="50" petSize="Tiny" petHp="15" petHpMs="2000" petMp="15" petMpMs="2000">PermaPet</Activate>
 		<OldSound>use_potion</OldSound>
 	</Object>
 	<Object type="0xD076" id="Panda Generator">
@@ -1942,7 +1942,7 @@
 		<Sound>spell/light_heal</Sound>
 		<InvUse />
 		<VaultItem />
-		<Activate objectId="Panda (Doomed)" cooldown="10" petDps="50" petSize="Small" petHp="15" petHpMs="2000" petMp="15" petMpMs="2000">PermaPet</Activate>
+		<Activate objectId="Panda (Doomed)" cooldown="10" petDps="50" petSize="Tiny" petHp="15" petHpMs="2000" petMp="15" petMpMs="2000">PermaPet</Activate>
 		<OldSound>use_potion</OldSound>
 	</Object>
 	<Object type="0xD077" id="Purple Snail Generator">
@@ -1962,7 +1962,7 @@
 		<Sound>spell/light_heal</Sound>
 		<InvUse />
 		<VaultItem />
-		<Activate objectId="Purple Snail (Doomed)" cooldown="10" petDps="50" petSize="Small" petEffects="Slowed on hit for 1s" petHp="15" petHpMs="2000" petMp="15" petMpMs="2000">PermaPet</Activate>
+		<Activate objectId="Purple Snail (Doomed)" cooldown="10" petDps="50" petSize="Tiny" petEffects="Slowed on hit for 1s" petHp="15" petHpMs="2000" petMp="15" petMpMs="2000">PermaPet</Activate>
 		<OldSound>use_potion</OldSound>
 	</Object>
 	<Object type="0xD078" id="Black Wolf Generator">
@@ -1983,7 +1983,7 @@
 		<Sound>spell/light_heal</Sound>
 		<InvUse />
 		<VaultItem />
-		<Activate objectId="Black Wolf (Doomed)" cooldown="10" petDps="50" petSize="Small" petHp="15" petHpMs="2000" petMp="15" petMpMs="2000">PermaPet</Activate>
+		<Activate objectId="Black Wolf (Doomed)" cooldown="10" petDps="125" petSize="Small" petHp="20" petHpMs="2000" petMp="20" petMpMs="2000">PermaPet</Activate>
 		<OldSound>use_potion</OldSound>
 	</Object>
 	<Object type="0xD079" id="Grey Fox Generator">
@@ -2003,7 +2003,7 @@
 		<Sound>spell/light_heal</Sound>
 		<InvUse />
 		<VaultItem />
-		<Activate objectId="Grey Fox (Doomed)" cooldown="10" petDps="50" petSize="Small" petEffects="Bleeds 22 over 2s" petHp="15" petHpMs="2000" petMp="15" petMpMs="2000">PermaPet</Activate>
+		<Activate objectId="Grey Fox (Doomed)" cooldown="10" petDps="50" petSize="Tiny" petEffects="Bleeds 22 over 2s" petHp="15" petHpMs="2000" petMp="15" petMpMs="2000">PermaPet</Activate>
 		<OldSound>use_potion</OldSound>
 	</Object>
 	<Object type="0xD07A" id="Purple Frog Generator">
@@ -2023,7 +2023,7 @@
 		<Sound>spell/light_heal</Sound>
 		<InvUse />
 		<VaultItem />
-		<Activate objectId="Purple Frog (Doomed)" cooldown="10" petSize="Small" petHp="15" petHpMs="2000" petMp="15" petMpMs="2000">PermaPet</Activate>
+		<Activate objectId="Purple Frog (Doomed)" cooldown="10" petDps="50" petSize="Tiny" petHp="15" petHpMs="2000" petMp="15" petMpMs="2000">PermaPet</Activate>
 		<OldSound>use_potion</OldSound>
 	</Object>
 	<Object type="0xD07B" id="White Lion Generator">
@@ -2043,7 +2043,7 @@
 		<Sound>spell/light_heal</Sound>
 		<InvUse />
 		<VaultItem />
-		<Activate objectId="White Lion (Doomed)" cooldown="10" petDps="50" petSize="Small" petHp="15" petHpMs="2000" petMp="15" petMpMs="2000">PermaPet</Activate>
+		<Activate objectId="White Lion (Doomed)" cooldown="10" petDps="125" petSize="Small" petHp="20" petHpMs="2000" petMp="20" petMpMs="2000">PermaPet</Activate>
 		<OldSound>use_potion</OldSound>
 	</Object>
 	<Object type="0xD07C" id="Green Penguin Generator">
@@ -2063,7 +2063,7 @@
 		<Sound>spell/light_heal</Sound>
 		<InvUse />
 		<VaultItem />
-		<Activate objectId="Green Penguin (Doomed)" cooldown="10" petDps="49" petSize="Small" petHp="15" petHpMs="2000" petMp="15" petMpMs="2000">PermaPet</Activate>
+		<Activate objectId="Green Penguin (Doomed)" cooldown="10" petDps="49" petSize="Tiny" petHp="15" petHpMs="2000" petMp="15" petMpMs="2000">PermaPet</Activate>
 		<OldSound>use_potion</OldSound>
 	</Object>
 	<Object type="0xD07D" id="Golden Sheepdog Generator">
@@ -2083,7 +2083,7 @@
 		<Sound>spell/light_heal</Sound>
 		<InvUse />
 		<VaultItem />
-		<Activate objectId="Golden Sheepdog (Doomed)" cooldown="10" petDps="50" petSize="Small" petHp="15" petHpMs="2000" petMp="15" petMpMs="2000">PermaPet</Activate>
+		<Activate objectId="Golden Sheepdog (Doomed)" cooldown="10" petDps="125" petSize="Small" petHp="20" petHpMs="2000" petMp="20" petMpMs="2000">PermaPet</Activate>
 		<OldSound>use_potion</OldSound>
 	</Object>
 	<Object type="0xD07E" id="Bluebird Generator">
@@ -2102,7 +2102,7 @@
 		<Sound>spell/light_heal</Sound>
 		<InvUse />
 		<VaultItem />
-		<Activate objectId="Bluebird (Doomed)" cooldown="10" petDps="50" petSize="Small" petHp="15" petHpMs="2000" petMp="15" petMpMs="2000">PermaPet</Activate>
+		<Activate objectId="Bluebird (Doomed)" cooldown="10" petDps="50" petSize="Tiny" petHp="15" petHpMs="2000" petMp="15" petMpMs="2000">PermaPet</Activate>
 		<OldSound>use_potion</OldSound>
 	</Object>
 	<Object type="0xD07F" id="Chick Generator">
@@ -2121,7 +2121,7 @@
 		<Sound>spell/light_heal</Sound>
 		<InvUse />
 		<VaultItem />
-		<Activate objectId="Chick (Doomed)" cooldown="10" petDps="50" petSize="Small" petHp="15" petHpMs="2000" petMp="15" petMpMs="2000">PermaPet</Activate>
+		<Activate objectId="Chick (Doomed)" cooldown="10" petDps="50" petSize="Tiny" petHp="15" petHpMs="2000" petMp="15" petMpMs="2000">PermaPet</Activate>
 		<OldSound>use_potion</OldSound>
 	</Object>
 	<Object type="0xD080" id="Pig Generator">
@@ -2140,7 +2140,7 @@
 		<Sound>spell/light_heal</Sound>
 		<InvUse />
 		<VaultItem />
-		<Activate objectId="Pig (Doomed)" cooldown="10" petDps="50" petSize="Small" petHp="15" petHpMs="2000" petMp="15" petMpMs="2000">PermaPet</Activate>
+		<Activate objectId="Pig (Doomed)" cooldown="10" petDps="50" petSize="Tiny" petHp="15" petHpMs="2000" petMp="15" petMpMs="2000">PermaPet</Activate>
 		<OldSound>use_potion</OldSound>
 	</Object>
 	<Object type="0xD081" id="Sea Slurp Generator">
@@ -2159,7 +2159,7 @@
 		<Sound>spell/light_heal</Sound>
 		<InvUse />
 		<VaultItem />
-		<Activate objectId="Sea Slurp (Doomed)" cooldown="10" petDps="50" petSize="Small" petHp="15" petHpMs="2000" petMp="15" petMpMs="2000">PermaPet</Activate>
+		<Activate objectId="Sea Slurp (Doomed)" cooldown="10" petDps="124" petSize="Small" petHp="20" petHpMs="2000" petMp="20" petMpMs="2000">PermaPet</Activate>
 		<OldSound>use_potion</OldSound>
 	</Object>
 	<Object type="0xD082" id="Squirrel Generator">
@@ -2178,7 +2178,7 @@
 		<Sound>spell/light_heal</Sound>
 		<InvUse />
 		<VaultItem />
-		<Activate objectId="Squirrel (Doomed)" cooldown="10" petSize="Small" petHp="15" petHpMs="2000" petMp="15" petMpMs="2000">PermaPet</Activate>
+		<Activate objectId="Squirrel (Doomed)" cooldown="10" petDps="49" petSize="Tiny" petHp="15" petHpMs="2000" petMp="15" petMpMs="2000">PermaPet</Activate>
 		<OldSound>use_potion</OldSound>
 	</Object>
 	<Object type="0xD083" id="Bat Generator">
@@ -2197,7 +2197,7 @@
 		<Sound>spell/light_heal</Sound>
 		<InvUse />
 		<VaultItem />
-		<Activate objectId="Bat (Doomed)" cooldown="10" petDps="50" petSize="Small" petHp="15" petHpMs="2000" petMp="15" petMpMs="2000">PermaPet</Activate>
+		<Activate objectId="Bat (Doomed)" cooldown="10" petDps="50" petSize="Tiny" petHp="15" petHpMs="2000" petMp="15" petMpMs="2000">PermaPet</Activate>
 		<OldSound>use_potion</OldSound>
 	</Object>
 	<Object type="0xD084" id="Lil' Ghost Generator">
@@ -2216,7 +2216,7 @@
 		<Sound>spell/light_heal</Sound>
 		<InvUse />
 		<VaultItem />
-		<Activate objectId="Lil' Ghost (Doomed)" cooldown="10" petDps="50" petSize="Small" petHp="15" petHpMs="2000" petMp="15" petMpMs="2000">PermaPet</Activate>
+		<Activate objectId="Lil' Ghost (Doomed)" cooldown="10" petDps="125" petSize="Small" petHp="20" petHpMs="2000" petMp="20" petMpMs="2000">PermaPet</Activate>
 		<OldSound>use_potion</OldSound>
 	</Object>
 	<Object type="0xD085" id="Doomie Heart">
@@ -2233,7 +2233,7 @@
 		<BagType>6</BagType>
 		<Sound>spell/light_heal</Sound>
 		<Consumable />
-		<Activate objectId="Valentine" cooldown="10" removeSelf="false" petSize="Small" petHp="15" petHpMs="2000" petMp="15" petMpMs="2000">PermaPet</Activate>
+		<Activate objectId="Valentine" cooldown="10" removeSelf="false" petDps="51" petSize="Tiny" petHp="15" petHpMs="2000" petMp="15" petMpMs="2000">PermaPet</Activate>
 		<OldSound>use_potion</OldSound>
 	</Object>
 	<Object type="0xD086" id="Leprechaun Generator">
@@ -2252,7 +2252,7 @@
 		<Sound>spell/light_heal</Sound>
 		<InvUse />
 		<VaultItem />
-		<Activate objectId="Leprechaun (Doomed)" cooldown="10" petDps="50" petSize="Small" petHp="15" petHpMs="2000" petMp="15" petMpMs="2000">PermaPet</Activate>
+		<Activate objectId="Leprechaun (Doomed)" cooldown="10" petDps="127" petSize="Small" petHp="20" petHpMs="2000" petMp="20" petMpMs="2000">PermaPet</Activate>
 		<OldSound>use_potion</OldSound>
 	</Object>
 	<Object type="0xD087" id="Toucan Generator">
@@ -2271,7 +2271,7 @@
 		<Sound>spell/light_heal</Sound>
 		<InvUse />
 		<VaultItem />
-		<Activate objectId="Toucan (Doomed)" cooldown="10" petDps="50" petSize="Small" petHp="15" petHpMs="2000" petMp="15" petMpMs="2000">PermaPet</Activate>
+		<Activate objectId="Toucan (Doomed)" cooldown="10" petDps="50" petSize="Tiny" petHp="15" petHpMs="2000" petMp="15" petMpMs="2000">PermaPet</Activate>
 		<OldSound>use_potion</OldSound>
 	</Object>
 	<Object type="0xD088" id="Skunk Generator">
@@ -2290,7 +2290,7 @@
 		<Sound>spell/light_heal</Sound>
 		<InvUse />
 		<VaultItem />
-		<Activate objectId="Skunk (Doomed)" cooldown="10" petDps="50" petSize="Small" petEffects="Hits all enemies within 2.5 tiles of its target, Sick for 2s" petHp="15" petHpMs="2000" petMp="15" petMpMs="2000">PermaPet</Activate>
+		<Activate objectId="Skunk (Doomed)" cooldown="10" petDps="125" petSize="Small" petEffects="Hits all enemies within 2.5 tiles of its target, Sick for 2s" petHp="20" petHpMs="2000" petMp="20" petMpMs="2000">PermaPet</Activate>
 		<OldSound>use_potion</OldSound>
 	</Object>
 	<Object type="0xD089" id="Mallard Generator">
@@ -2309,7 +2309,7 @@
 		<Sound>spell/light_heal</Sound>
 		<InvUse />
 		<VaultItem />
-		<Activate objectId="Mallard (Doomed)" cooldown="10" petDps="50" petSize="Small" petHp="15" petHpMs="2000" petMp="15" petMpMs="2000">PermaPet</Activate>
+		<Activate objectId="Mallard (Doomed)" cooldown="10" petDps="50" petSize="Tiny" petHp="15" petHpMs="2000" petMp="15" petMpMs="2000">PermaPet</Activate>
 		<OldSound>use_potion</OldSound>
 	</Object>
 	<Object type="0xD08A" id="Duck Generator">
@@ -2328,7 +2328,7 @@
 		<Sound>spell/light_heal</Sound>
 		<InvUse />
 		<VaultItem />
-		<Activate objectId="Duck (Doomed)" cooldown="10" petSize="Small" petHp="15" petHpMs="2000" petMp="15" petMpMs="2000">PermaPet</Activate>
+		<Activate objectId="Duck (Doomed)" cooldown="10" petDps="50" petSize="Tiny" petHp="15" petHpMs="2000" petMp="15" petMpMs="2000">PermaPet</Activate>
 		<OldSound>use_potion</OldSound>
 	</Object>
 	<Object type="0xD08B" id="Eagle Generator">
@@ -2347,7 +2347,7 @@
 		<Sound>spell/light_heal</Sound>
 		<InvUse />
 		<VaultItem />
-		<Activate objectId="Eagle (Doomed)" cooldown="10" petDps="50" petSize="Small" petHp="15" petHpMs="2000" petMp="15" petMpMs="2000">PermaPet</Activate>
+		<Activate objectId="Eagle (Doomed)" cooldown="10" petDps="125" petSize="Small" petHp="20" petHpMs="2000" petMp="20" petMpMs="2000">PermaPet</Activate>
 		<OldSound>use_potion</OldSound>
 	</Object>
 	<Object type="0xD08C" id="Turtle Generator">
@@ -2366,7 +2366,7 @@
 		<Sound>spell/light_heal</Sound>
 		<InvUse />
 		<VaultItem />
-		<Activate objectId="Turtle (Doomed)" cooldown="10" petDps="50" petSize="Small" petHp="15" petHpMs="2000" petMp="15" petMpMs="2000">PermaPet</Activate>
+		<Activate objectId="Turtle (Doomed)" cooldown="10" petDps="50" petSize="Tiny" petHp="15" petHpMs="2000" petMp="15" petMpMs="2000">PermaPet</Activate>
 		<OldSound>use_potion</OldSound>
 	</Object>
 	<Object type="0xD08D" id="Jelly Generator">
@@ -2385,7 +2385,7 @@
 		<Sound>spell/light_heal</Sound>
 		<InvUse />
 		<VaultItem />
-		<Activate objectId="Jelly (Doomed)" cooldown="10" petDps="50" petSize="Small" petEffects="Hits all enemies within 2 tiles of its target, Paralyzed for 0.2s" petHp="15" petHpMs="2000" petMp="15" petMpMs="2000">PermaPet</Activate>
+		<Activate objectId="Jelly (Doomed)" cooldown="10" petDps="125" petSize="Small" petEffects="Hits all enemies within 2 tiles of its target, Paralyzed for 0.2s" petHp="20" petHpMs="2000" petMp="20" petMpMs="2000">PermaPet</Activate>
 		<OldSound>use_potion</OldSound>
 	</Object>
 	<Object type="0xD08E" id="Bee Generator">
@@ -2404,7 +2404,7 @@
 		<Sound>spell/light_heal</Sound>
 		<InvUse />
 		<VaultItem />
-		<Activate objectId="Bee (Doomed)" cooldown="10" petDps="50" petSize="Small" petEffects="Bleeds 12 over 2s" petHp="15" petHpMs="2000" petMp="15" petMpMs="2000">PermaPet</Activate>
+		<Activate objectId="Bee (Doomed)" cooldown="10" petDps="126" petSize="Small" petEffects="Bleeds 31 over 2s" petHp="20" petHpMs="2000" petMp="20" petMpMs="2000">PermaPet</Activate>
 		<OldSound>use_potion</OldSound>
 	</Object>
 	<Object type="0xD08F" id="Raven Generator">
@@ -2423,7 +2423,7 @@
 		<Sound>spell/light_heal</Sound>
 		<InvUse />
 		<VaultItem />
-		<Activate objectId="Raven (Doomed)" cooldown="10" petSize="Small" petHp="15" petHpMs="2000" petMp="15" petMpMs="2000">PermaPet</Activate>
+		<Activate objectId="Raven (Doomed)" cooldown="10" petDps="50" petSize="Tiny" petHp="15" petHpMs="2000" petMp="15" petMpMs="2000">PermaPet</Activate>
 		<OldSound>use_potion</OldSound>
 	</Object>
 	<Object type="0xD090" id="Purple Penguin Generator">
@@ -2442,7 +2442,7 @@
 		<Sound>spell/light_heal</Sound>
 		<InvUse />
 		<VaultItem />
-		<Activate objectId="Purple Penguin" cooldown="10" petDps="50" petSize="Small" petHp="15" petHpMs="2000" petMp="15" petMpMs="2000">PermaPet</Activate>
+		<Activate objectId="Purple Penguin" cooldown="10" petDps="50" petSize="Tiny" petHp="15" petHpMs="2000" petMp="15" petMpMs="2000">PermaPet</Activate>
 		<OldSound>use_potion</OldSound>
 	</Object>
 	<Object type="0xD091" id="Grass Penguin Generator">
@@ -2461,7 +2461,7 @@
 		<Sound>spell/light_heal</Sound>
 		<InvUse />
 		<VaultItem />
-		<Activate objectId="Grass Penguin (Doomed)" cooldown="10" petSize="Small" petHp="15" petHpMs="2000" petMp="15" petMpMs="2000">PermaPet</Activate>
+		<Activate objectId="Grass Penguin (Doomed)" cooldown="10" petDps="50" petSize="Tiny" petHp="15" petHpMs="2000" petMp="15" petMpMs="2000">PermaPet</Activate>
 		<OldSound>use_potion</OldSound>
 	</Object>
 	<Object type="0xD092" id="Elf Generator">
@@ -2480,7 +2480,7 @@
 		<Sound>spell/light_heal</Sound>
 		<InvUse />
 		<VaultItem />
-		<Activate objectId="Elf (Doomed)" cooldown="10" petDps="50" petSize="Small" petHp="15" petHpMs="2000" petMp="15" petMpMs="2000">PermaPet</Activate>
+		<Activate objectId="Elf (Doomed)" cooldown="10" petDps="125" petSize="Small" petHp="20" petHpMs="2000" petMp="20" petMpMs="2000">PermaPet</Activate>
 		<OldSound>use_potion</OldSound>
 	</Object>
 	<Object type="0xD093" id="Crab Generator">
@@ -2499,7 +2499,7 @@
 		<Sound>spell/light_heal</Sound>
 		<InvUse />
 		<VaultItem />
-		<Activate objectId="Crab (Doomed)" cooldown="10" petSize="Small" petHp="15" petHpMs="2000" petMp="15" petMpMs="2000">PermaPet</Activate>
+		<Activate objectId="Crab (Doomed)" cooldown="10" petDps="49" petSize="Tiny" petHp="15" petHpMs="2000" petMp="15" petMpMs="2000">PermaPet</Activate>
 		<OldSound>use_potion</OldSound>
 	</Object>
 	<Object type="0xD094" id="Hamster Generator">
@@ -2518,7 +2518,7 @@
 		<Sound>spell/light_heal</Sound>
 		<InvUse />
 		<VaultItem />
-		<Activate objectId="Hamster (Doomed)" cooldown="10" petDps="50" petSize="Small" petHp="15" petHpMs="2000" petMp="15" petMpMs="2000">PermaPet</Activate>
+		<Activate objectId="Hamster (Doomed)" cooldown="10" petDps="50" petSize="Tiny" petHp="15" petHpMs="2000" petMp="15" petMpMs="2000">PermaPet</Activate>
 		<OldSound>use_potion</OldSound>
 	</Object>
 	<Object type="0xD095" id="Dino Generator">
@@ -2537,7 +2537,7 @@
 		<Sound>spell/light_heal</Sound>
 		<InvUse />
 		<VaultItem />
-		<Activate objectId="Dino (Doomed)" cooldown="10" petDps="50" petSize="Small" petHp="15" petHpMs="2000" petMp="15" petMpMs="2000">PermaPet</Activate>
+		<Activate objectId="Dino (Doomed)" cooldown="10" petDps="125" petSize="Small" petHp="20" petHpMs="2000" petMp="20" petMpMs="2000">PermaPet</Activate>
 		<OldSound>use_potion</OldSound>
 	</Object>
 	<Object type="0xD096" id="Elephant Generator">
@@ -2556,7 +2556,7 @@
 		<Sound>spell/light_heal</Sound>
 		<InvUse />
 		<VaultItem />
-		<Activate objectId="Elephant (Doomed)" cooldown="10" petDps="50" petSize="Small" petEffects="Hits all enemies within 3 tiles of its target, Slowed for 1s" petHp="15" petHpMs="2000" petMp="15" petMpMs="2000">PermaPet</Activate>
+		<Activate objectId="Elephant (Doomed)" cooldown="10" petDps="125" petSize="Small" petEffects="Hits all enemies within 3 tiles of its target, Slowed for 1s" petHp="20" petHpMs="2000" petMp="20" petMpMs="2000">PermaPet</Activate>
 		<OldSound>use_potion</OldSound>
 	</Object>
 	<Object type="0xD097" id="Demon Frog Generator">
@@ -2575,7 +2575,7 @@
 		<Sound>spell/light_heal</Sound>
 		<InvUse />
 		<VaultItem />
-		<Activate objectId="Demon Frog (Doomed)" cooldown="10" petDps="50" petSize="Small" petHp="15" petHpMs="2000" petMp="15" petMpMs="2000">PermaPet</Activate>
+		<Activate objectId="Demon Frog (Doomed)" cooldown="10" petDps="125" petSize="Small" petHp="20" petHpMs="2000" petMp="20" petMpMs="2000">PermaPet</Activate>
 		<OldSound>use_potion</OldSound>
 	</Object>
 	<Object type="0xD098" id="Gargoyle Generator">
@@ -2594,7 +2594,7 @@
 		<Sound>spell/light_heal</Sound>
 		<InvUse />
 		<VaultItem />
-		<Activate objectId="Gargoyle (Doomed)" cooldown="10" petDps="50" petSize="Small" petHp="15" petHpMs="2000" petMp="15" petMpMs="2000">PermaPet</Activate>
+		<Activate objectId="Gargoyle (Doomed)" cooldown="10" petDps="125" petSize="Small" petHp="20" petHpMs="2000" petMp="20" petMpMs="2000">PermaPet</Activate>
 		<OldSound>use_potion</OldSound>
 	</Object>
 	<Object type="0xD099" id="Gummy Bear Generator">
@@ -2613,7 +2613,7 @@
 		<Sound>spell/light_heal</Sound>
 		<InvUse />
 		<VaultItem />
-		<Activate objectId="Gummy Bear (Doomed)" cooldown="10" petSize="Small" petHp="15" petHpMs="2000" petMp="15" petMpMs="2000">PermaPet</Activate>
+		<Activate objectId="Gummy Bear (Doomed)" cooldown="10" petDps="124" petSize="Small" petHp="20" petHpMs="2000" petMp="20" petMpMs="2000">PermaPet</Activate>
 		<OldSound>use_potion</OldSound>
 	</Object>
 	<Object type="0xD09A" id="Dragonfly Generator">
@@ -2632,7 +2632,7 @@
 		<Sound>spell/light_heal</Sound>
 		<InvUse />
 		<VaultItem />
-		<Activate objectId="Dragonfly (Doomed)" cooldown="10" petDps="50" petSize="Small" petHp="15" petHpMs="2000" petMp="15" petMpMs="2000">PermaPet</Activate>
+		<Activate objectId="Dragonfly (Doomed)" cooldown="10" petDps="50" petSize="Tiny" petHp="15" petHpMs="2000" petMp="15" petMpMs="2000">PermaPet</Activate>
 		<OldSound>use_potion</OldSound>
 	</Object>
 	<Object type="0xD09B" id="Lil' Cyclops Generator">
@@ -2651,7 +2651,7 @@
 		<Sound>spell/light_heal</Sound>
 		<InvUse />
 		<VaultItem />
-		<Activate objectId="Lil' Cyclops (Doomed)" cooldown="10" petDps="50" petSize="Small" petHp="15" petHpMs="2000" petMp="15" petMpMs="2000">PermaPet</Activate>
+		<Activate objectId="Lil' Cyclops (Doomed)" cooldown="10" petDps="125" petSize="Small" petHp="20" petHpMs="2000" petMp="20" petMpMs="2000">PermaPet</Activate>
 		<OldSound>use_potion</OldSound>
 	</Object>
 	<Object type="0xD09C" id="Snowy Owl Generator">
@@ -2670,7 +2670,7 @@
 		<Sound>spell/light_heal</Sound>
 		<InvUse />
 		<VaultItem />
-		<Activate objectId="Snowy Owl (Doomed)" cooldown="10" petDps="50" petSize="Small" petEffects="Slowed on hit for 1s" petHp="15" petHpMs="2000" petMp="15" petMpMs="2000">PermaPet</Activate>
+		<Activate objectId="Snowy Owl (Doomed)" cooldown="10" petDps="125" petSize="Small" petEffects="Slowed on hit for 1s" petHp="20" petHpMs="2000" petMp="20" petMpMs="2000">PermaPet</Activate>
 		<OldSound>use_potion</OldSound>
 	</Object>
 	<Object type="0xD09D" id="Turkey Generator">
@@ -2689,7 +2689,7 @@
 		<Sound>spell/light_heal</Sound>
 		<InvUse />
 		<VaultItem />
-		<Activate objectId="Turkey (Doomed)" cooldown="10" petDps="50" petSize="Small" petHp="15" petHpMs="2000" petMp="15" petMpMs="2000">PermaPet</Activate>
+		<Activate objectId="Turkey (Doomed)" cooldown="10" petDps="50" petSize="Tiny" petHp="15" petHpMs="2000" petMp="15" petMpMs="2000">PermaPet</Activate>
 		<OldSound>use_potion</OldSound>
 	</Object>
 	<Object type="0xD09E" id="Baby Generator">
@@ -2708,7 +2708,7 @@
 		<Sound>spell/light_heal</Sound>
 		<InvUse />
 		<VaultItem />
-		<Activate objectId="Baby (Doomed)" cooldown="10" petDps="50" petSize="Small" petHp="15" petHpMs="2000" petMp="15" petMpMs="2000">PermaPet</Activate>
+		<Activate objectId="Baby (Doomed)" cooldown="10" petDps="124" petSize="Small" petHp="20" petHpMs="2000" petMp="20" petMpMs="2000">PermaPet</Activate>
 		<OldSound>use_potion</OldSound>
 	</Object>
 	<Object type="0xD09F" id="Baby Dragon Generator">
@@ -2727,11 +2727,11 @@
 		<Sound>spell/light_heal</Sound>
 		<InvUse />
 		<VaultItem />
-		<Activate objectId="Baby Dragon (Doomed)" cooldown="10" petDps="50" petSize="Small" petHp="15" petHpMs="2000" petMp="15" petMpMs="2000">PermaPet</Activate>
+		<Activate objectId="Baby Dragon (Doomed)" cooldown="10" petDps="124" petSize="Small" petHp="20" petHpMs="2000" petMp="20" petMpMs="2000">PermaPet</Activate>
 		<OldSound>use_potion</OldSound>
 	</Object>
 	<Object type="0xD0A0" id="Karate Penguin Red Generator">
-		<DisplayId>Karate Penguin</DisplayId>
+		<DisplayId>Red Karate Penguin</DisplayId>
 		<Class>Equipment</Class>
 		<Item />
 		<AnimatedTexture>
@@ -2746,11 +2746,11 @@
 		<Sound>spell/light_heal</Sound>
 		<InvUse />
 		<VaultItem />
-		<Activate objectId="Karate Penguin Red" cooldown="10" petDps="50" petSize="Small" petHp="15" petHpMs="2000" petMp="15" petMpMs="2000">PermaPet</Activate>
+		<Activate objectId="Karate Penguin Red" cooldown="10" petDps="126" petSize="Small" petHp="20" petHpMs="2000" petMp="20" petMpMs="2000">PermaPet</Activate>
 		<OldSound>use_potion</OldSound>
 	</Object>
 	<Object type="0xD0A1" id="Karate Penguin Blue Generator">
-		<DisplayId>Karate Penguin</DisplayId>
+		<DisplayId>Blue Karate Penguin</DisplayId>
 		<Class>Equipment</Class>
 		<Item />
 		<AnimatedTexture>
@@ -2765,11 +2765,11 @@
 		<Sound>spell/light_heal</Sound>
 		<InvUse />
 		<VaultItem />
-		<Activate objectId="Karate Penguin Blue" cooldown="10" petDps="50" petSize="Small" petHp="15" petHpMs="2000" petMp="15" petMpMs="2000">PermaPet</Activate>
+		<Activate objectId="Karate Penguin Blue" cooldown="10" petDps="125" petSize="Small" petHp="20" petHpMs="2000" petMp="20" petMpMs="2000">PermaPet</Activate>
 		<OldSound>use_potion</OldSound>
 	</Object>
 	<Object type="0xD0A2" id="Karate Penguin Yellow Generator">
-		<DisplayId>Karate Penguin</DisplayId>
+		<DisplayId>Yellow Karate Penguin</DisplayId>
 		<Class>Equipment</Class>
 		<Item />
 		<AnimatedTexture>
@@ -2784,11 +2784,11 @@
 		<Sound>spell/light_heal</Sound>
 		<InvUse />
 		<VaultItem />
-		<Activate objectId="Karate Penguin Yellow" cooldown="10" petSize="Small" petHp="15" petHpMs="2000" petMp="15" petMpMs="2000">PermaPet</Activate>
+		<Activate objectId="Karate Penguin Yellow" cooldown="10" petDps="124" petSize="Small" petHp="20" petHpMs="2000" petMp="20" petMpMs="2000">PermaPet</Activate>
 		<OldSound>use_potion</OldSound>
 	</Object>
 	<Object type="0xD0A3" id="Karate Penguin Purple Generator">
-		<DisplayId>Karate Penguin</DisplayId>
+		<DisplayId>Purple Karate Penguin</DisplayId>
 		<Class>Equipment</Class>
 		<Item />
 		<AnimatedTexture>
@@ -2803,11 +2803,11 @@
 		<Sound>spell/light_heal</Sound>
 		<InvUse />
 		<VaultItem />
-		<Activate objectId="Karate Penguin Purple" cooldown="10" petDps="50" petSize="Small" petHp="15" petHpMs="2000" petMp="15" petMpMs="2000">PermaPet</Activate>
+		<Activate objectId="Karate Penguin Purple" cooldown="10" petDps="125" petSize="Small" petHp="20" petHpMs="2000" petMp="20" petMpMs="2000">PermaPet</Activate>
 		<OldSound>use_potion</OldSound>
 	</Object>
 	<Object type="0xD0A4" id="Robobuddy Generator">
-		<DisplayId>Karate Penguin</DisplayId>
+		<DisplayId>Robobuddy</DisplayId>
 		<Class>Equipment</Class>
 		<Item />
 		<AnimatedTexture>
@@ -2822,11 +2822,11 @@
 		<Sound>spell/light_heal</Sound>
 		<InvUse />
 		<VaultItem />
-		<Activate objectId="Robobuddy (Doomed)" cooldown="10" petDps="50" petSize="Small" petHp="15" petHpMs="2000" petMp="15" petMpMs="2000">PermaPet</Activate>
+		<Activate objectId="Robobuddy (Doomed)" cooldown="10" petDps="125" petSize="Small" petHp="20" petHpMs="2000" petMp="20" petMpMs="2000">PermaPet</Activate>
 		<OldSound>use_potion</OldSound>
 	</Object>
 	<Object type="0xD0A5" id="Snowman Generator">
-		<DisplayId>Karate Penguin</DisplayId>
+		<DisplayId>Snowman</DisplayId>
 		<Class>Equipment</Class>
 		<Item />
 		<AnimatedTexture>
@@ -2856,7 +2856,7 @@
 		<BagType>6</BagType>
 		<Sound>spell/light_heal</Sound>
 		<Consumable />
-		<Activate objectId="Thessal Pet" cooldown="10" petDps="500" petSize="Large" petHp="45" petHpMs="1500" petMp="45" petMpMs="1500">PermaPet</Activate>
+		<Activate objectId="Thessal Pet" cooldown="10" petDps="550" petSize="Large" petHp="45" petHpMs="1500" petMp="45" petMpMs="1500">PermaPet</Activate>
 		<OldSound>use_potion</OldSound>
 	</Object>
 	<Object type="0xD0A7" id="White Bag Generator">
@@ -2874,7 +2874,7 @@
 		<BagType>6</BagType>
 		<Sound>spell/light_heal</Sound>
 		<Consumable />
-		<Activate objectId="White Bag Pet" cooldown="10" petDps="50" petSize="Small" petHp="15" petHpMs="2000" petMp="15" petMpMs="2000">PermaPet</Activate>
+		<Activate objectId="White Bag Pet" cooldown="10" petDps="50" petSize="Tiny" petHp="15" petHpMs="2000" petMp="15" petMpMs="2000">PermaPet</Activate>
 		<OldSound>use_potion</OldSound>
 		<Shop>
 			<Name>donorpets</Name>
@@ -2898,7 +2898,7 @@
 		<InvUse />
 		<VaultItem />
 		<Soulbound />
-		<Activate objectId="KingSlime" cooldown="10" petDps="200" petSize="Medium" petEffects="Hits all enemies within 2.5 tiles of its target, Slowed for 1s" petHp="30" petHpMs="2000" petMp="30" petMpMs="2000">PermaPet</Activate>
+		<Activate objectId="KingSlime" cooldown="10" petDps="250" petSize="Medium" petEffects="Hits all enemies within 2.5 tiles of its target, Slowed for 1s" petHp="30" petHpMs="2000" petMp="30" petMpMs="2000">PermaPet</Activate>
 		<OldSound>use_potion</OldSound>
 		<Shop>
 			<Name>donorpets</Name>
@@ -2922,7 +2922,7 @@
 		<Sound>spell/light_heal</Sound>
 		<InvUse />
 		<VaultItem />
-		<Activate objectId="Dallas's Pet" cooldown="10" petSize="Medium" petHp="30" petHpMs="2000" petMp="30" petMpMs="2000">PermaPet</Activate>
+		<Activate objectId="Dallas's Pet" cooldown="10" petDps="249" petSize="Medium" petHp="30" petHpMs="2000" petMp="30" petMpMs="2000">PermaPet</Activate>
 		<OldSound>use_potion</OldSound>
 		<Shop>
 			<Name>donorpets</Name>
@@ -2946,7 +2946,7 @@
 		<Sound>spell/light_heal</Sound>
 		<InvUse />
 		<VaultItem />
-		<Activate objectId="Astro's Griffin" cooldown="10" petDps="200" petSize="Medium" petHp="30" petHpMs="2000" petMp="30" petMpMs="2000">PermaPet</Activate>
+		<Activate objectId="Astro's Griffin" cooldown="10" petDps="250" petSize="Medium" petHp="30" petHpMs="2000" petMp="30" petMpMs="2000">PermaPet</Activate>
 		<OldSound>use_potion</OldSound>
 		<Shop>
 			<Name>donorpets</Name>
@@ -2970,7 +2970,7 @@
 		<Sound>spell/light_heal</Sound>
 		<InvUse />
 		<VaultItem />
-		<Activate objectId="Scootaloo" cooldown="10" petDps="450" petSize="Large" petEffects="Slowed on hit for 1s" petHp="45" petHpMs="1500" petMp="45" petMpMs="1500">PermaPet</Activate>
+		<Activate objectId="Scootaloo" cooldown="10" petDps="500" petSize="Large" petEffects="Slowed on hit for 1s" petHp="45" petHpMs="1500" petMp="45" petMpMs="1500">PermaPet</Activate>
 		<OldSound>use_potion</OldSound>
 		<Shop>
 			<Name>donorpets</Name>
@@ -2994,7 +2994,7 @@
 		<Sound>spell/light_heal</Sound>
 		<InvUse />
 		<VaultItem />
-		<Activate objectId="Josh's Pet" cooldown="10" petDps="200" petSize="Medium" petHp="30" petHpMs="2000" petMp="30" petMpMs="2000">PermaPet</Activate>
+		<Activate objectId="Josh's Pet" cooldown="10" petDps="250" petSize="Medium" petHp="30" petHpMs="2000" petMp="30" petMpMs="2000">PermaPet</Activate>
 		<OldSound>use_potion</OldSound>
 		<Shop>
 			<Name>donorpets</Name>
@@ -3002,7 +3002,7 @@
 		</Shop>
 	</Object>
 	<Object type="0xD0AD" id="Skeletal Guardian Generator">
-		<DisplayId>ProHack's Pet Generator</DisplayId>
+		<DisplayId>Skeletal Guardian</DisplayId>
 		<Class>Equipment</Class>
 		<Item />
 		<AnimatedTexture>
@@ -3017,7 +3017,7 @@
 		<Sound>spell/light_heal</Sound>
 		<InvUse />
 		<VaultItem />
-		<Activate objectId="Skeletal Guardian Pet" cooldown="10" petDps="200" petSize="Medium" petHp="30" petHpMs="2000" petMp="30" petMpMs="2000">PermaPet</Activate>
+		<Activate objectId="Skeletal Guardian Pet" cooldown="10" petDps="249" petSize="Medium" petHp="30" petHpMs="2000" petMp="30" petMpMs="2000">PermaPet</Activate>
 		<OldSound>use_potion</OldSound>
 		<Shop>
 			<Name>donorpets</Name>
@@ -3040,7 +3040,7 @@
 		<Sound>spell/light_heal</Sound>
 		<InvUse />
 		<VaultItem />
-		<Activate objectId="Knight Pet" cooldown="10" petDps="200" petSize="Medium" petHp="30" petHpMs="2000" petMp="30" petMpMs="2000">PermaPet</Activate>
+		<Activate objectId="Knight Pet" cooldown="10" petDps="250" petSize="Medium" petHp="30" petHpMs="2000" petMp="30" petMpMs="2000">PermaPet</Activate>
 		<OldSound>use_potion</OldSound>
 		<Shop>
 			<Name>donorpets</Name>
@@ -3048,7 +3048,7 @@
 		</Shop>
 	</Object>
 	<Object type="0xD0AF" id="Lunar's Phoenix Generator">
-		<DisplayId>Phoenix</DisplayId>
+		<DisplayId>Lunar Phoenix</DisplayId>
 		<Class>Equipment</Class>
 		<Item />
 		<Texture>
@@ -3064,7 +3064,7 @@
 		<Sound>spell/light_heal</Sound>
 		<InvUse />
 		<VaultItem />
-		<Activate objectId="Lunar's Phoenix" cooldown="10" petSize="Medium" petHp="30" petHpMs="2000" petMp="30" petMpMs="2000">PermaPet</Activate>
+		<Activate objectId="Lunar's Phoenix" cooldown="10" petDps="250" petSize="Medium" petHp="30" petHpMs="2000" petMp="30" petMpMs="2000">PermaPet</Activate>
 		<OldSound>use_potion</OldSound>
 		<Shop>
 			<Name>donorpets</Name>
@@ -3072,7 +3072,7 @@
 		</Shop>
 	</Object>
 	<Object type="0xD0B0" id="Twilight Generator">
-		<DisplayId>Phoenix</DisplayId>
+		<DisplayId>Twilight Phoenix</DisplayId>
 		<Class>Equipment</Class>
 		<Item />
 		<Texture>
@@ -3087,7 +3087,7 @@
 		<Sound>spell/light_heal</Sound>
 		<InvUse />
 		<VaultItem />
-		<Activate objectId="Twilight Sparkle" cooldown="10" petDps="200" petSize="Medium" petHp="30" petHpMs="2000" petMp="30" petMpMs="2000">PermaPet</Activate>
+		<Activate objectId="Twilight Sparkle" cooldown="10" petDps="250" petSize="Medium" petHp="30" petHpMs="2000" petMp="30" petMpMs="2000">PermaPet</Activate>
 		<OldSound>use_potion</OldSound>
 		<Shop>
 			<Name>donorpets</Name>
@@ -3095,7 +3095,7 @@
 		</Shop>
 	</Object>
 	<Object type="0xD0B1" id="Kythal the Necromancer Generator">
-		<DisplayId>Kythal The Necromancer</DisplayId>
+		<DisplayId>Kythal the Necromancer</DisplayId>
 		<Class>Equipment</Class>
 		<Item />
 		<AnimatedTexture>
@@ -3111,7 +3111,7 @@
 		<ScaleValue>3</ScaleValue>
 		<InvUse />
 		<VaultItem />
-		<Activate objectId="Kythal the Necromancer" cooldown="10" petDps="200" petSize="Medium" petEffects="Weak on hit for 2s" petHp="30" petHpMs="2000" petMp="30" petMpMs="2000">PermaPet</Activate>
+		<Activate objectId="Kythal the Necromancer" cooldown="10" petDps="250" petSize="Medium" petEffects="Weak on hit for 2s" petHp="30" petHpMs="2000" petMp="30" petMpMs="2000">PermaPet</Activate>
 		<OldSound>use_potion</OldSound>
 		<Shop>
 			<Name>donorpets</Name>
@@ -3145,11 +3145,11 @@
 		<NoMiniMap />
 		<Projectile id="0">
 			<ObjectId>Katana Slash</ObjectId>
-			<Damage>35</Damage>
+			<Damage>88</Damage>
 			<Speed>120</Speed>
 			<LifetimeMS>450</LifetimeMS>
 		</Projectile>
-		<Size>60</Size>
+		<Size>70</Size>
 	</Object>
 	<Object type="0xD0B4" id="Karate Penguin Blue">
 		<Class>Character</Class>
@@ -3161,11 +3161,11 @@
 		<NoMiniMap />
 		<Projectile id="0">
 			<ObjectId>Small Blue Shuriken</ObjectId>
-			<Damage>55</Damage>
+			<Damage>138</Damage>
 			<Speed>100</Speed>
 			<LifetimeMS>800</LifetimeMS>
 		</Projectile>
-		<Size>60</Size>
+		<Size>70</Size>
 	</Object>
 	<Object type="0xD0B5" id="Karate Penguin Yellow">
 		<Class>Character</Class>
@@ -3177,11 +3177,11 @@
 		<NoMiniMap />
 		<Projectile id="0">
 			<ObjectId>Yellow Swipe</ObjectId>
-			<Damage>100</Damage>
+			<Damage>56</Damage>
 			<Speed>110</Speed>
 			<LifetimeMS>450</LifetimeMS>
 		</Projectile>
-		<Size>60</Size>
+		<Size>70</Size>
 	</Object>
 	<Object type="0xD0B6" id="Karate Penguin Purple">
 		<Class>Character</Class>
@@ -3193,11 +3193,11 @@
 		<NoMiniMap />
 		<Projectile id="0">
 			<ObjectId>Purple Shuriken</ObjectId>
-			<Damage>30</Damage>
+			<Damage>75</Damage>
 			<Speed>130</Speed>
 			<LifetimeMS>800</LifetimeMS>
 		</Projectile>
-		<Size>60</Size>
+		<Size>70</Size>
 	</Object>
 	<Object type="0xD0B7" id="Sea Horsee">
 		<Class>Character</Class>
@@ -3208,12 +3208,12 @@
 		<NoMiniMap />
 		<Projectile id="0">
 			<ObjectId>Sea Horse Spinner</ObjectId>
-			<Damage>55</Damage>
+			<Damage>138</Damage>
 			<Speed>100</Speed>
 			<LifetimeMS>800</LifetimeMS>
 			<MultiHit />
 		</Projectile>
-		<Size>60</Size>
+		<Size>70</Size>
 	</Object>
 	<Object type="0xD0B8" id="Sea Maree">
 		<Class>Character</Class>
@@ -3224,7 +3224,7 @@
 		<NoMiniMap />
 		<Projectile id="0">
 			<ObjectId>Wavess</ObjectId>
-			<Damage>114</Damage>
+			<Damage>143</Damage>
 			<Speed>100</Speed>
 			<LifetimeMS>800</LifetimeMS>
 			<MultiHit />
@@ -3232,7 +3232,7 @@
 		</Projectile>
 		<Projectile id="1">
 			<ObjectId>Trident</ObjectId>
-			<Damage>171</Damage>
+			<Damage>214</Damage>
 			<Speed>100</Speed>
 			<LifetimeMS>800</LifetimeMS>
 		</Projectile>
@@ -3247,11 +3247,11 @@
 		<NoMiniMap />
 		<Projectile id="0">
 			<ObjectId>Black Eye</ObjectId>
-			<Damage>50</Damage>
+			<Damage>125</Damage>
 			<Speed>110</Speed>
 			<LifetimeMS>800</LifetimeMS>
 		</Projectile>
-		<Size>60</Size>
+		<Size>70</Size>
 	</Object>
 	<Object type="0xD0BA" id="Gebb">
 		<Class>Character</Class>
@@ -3262,7 +3262,7 @@
 		<NoMiniMap />
 		<Projectile id="0">
 			<ObjectId>Darkness Bolt</ObjectId>
-			<Damage>385</Damage>
+			<Damage>420</Damage>
 			<Speed>80</Speed>
 			<LifetimeMS>2000</LifetimeMS>
 			<Size>140</Size>
@@ -3270,7 +3270,7 @@
 		</Projectile>
 		<Projectile id="1">
 			<ObjectId>Green Boomerang</ObjectId>
-			<Damage>138</Damage>
+			<Damage>150</Damage>
 			<Speed>40</Speed>
 			<LifetimeMS>3600</LifetimeMS>
 			<Boomerang />
@@ -3278,7 +3278,7 @@
 		</Projectile>
 		<Projectile id="2">
 			<ObjectId>Fire Magic</ObjectId>
-			<Damage>41</Damage>
+			<Damage>45</Damage>
 			<Speed>100</Speed>
 			<LifetimeMS>2000</LifetimeMS>
 			<ArmorPiercing />
@@ -3286,7 +3286,7 @@
 		</Projectile>
 		<Projectile id="3">
 			<ObjectId>Dark Gray Spinner</ObjectId>
-			<Damage>41</Damage>
+			<Damage>45</Damage>
 			<Speed>120</Speed>
 			<LifetimeMS>5000</LifetimeMS>
 			<MultiHit />
@@ -3294,7 +3294,7 @@
 		</Projectile>
 		<Projectile id="4">
 			<ObjectId>Fireball</ObjectId>
-			<Damage>110</Damage>
+			<Damage>120</Damage>
 			<Speed>60</Speed>
 			<LifetimeMS>2000</LifetimeMS>
 			<Size>140</Size>
@@ -3302,7 +3302,7 @@
 		</Projectile>
 		<Projectile id="5">
 			<ObjectId>Darkness Bolt</ObjectId>
-			<Damage>275</Damage>
+			<Damage>300</Damage>
 			<Speed>50</Speed>
 			<LifetimeMS>4000</LifetimeMS>
 			<Size>140</Size>
@@ -3336,28 +3336,28 @@
 		<Projectile id="0">
 			<ObjectId>Thunder Swirl</ObjectId>
 			<Speed>55</Speed>
-			<Damage>250</Damage>
+			<Damage>275</Damage>
 			<Size>110</Size>
 			<LifetimeMS>1600</LifetimeMS>
 		</Projectile>
 		<Projectile id="1">
 			<ObjectId>Trident</ObjectId>
 			<Speed>70</Speed>
-			<Damage>162</Damage>
+			<Damage>179</Damage>
 			<Size>100</Size>
 			<LifetimeMS>3000</LifetimeMS>
 		</Projectile>
 		<Projectile id="2">
 			<ObjectId>Super Trident</ObjectId>
 			<Speed>60</Speed>
-			<Damage>250</Damage>
+			<Damage>275</Damage>
 			<Size>110</Size>
 			<LifetimeMS>3000</LifetimeMS>
 		</Projectile>
 		<Projectile id="3">
 			<ObjectId>Yellow Wall</ObjectId>
 			<Speed>60</Speed>
-			<Damage>300</Damage>
+			<Damage>330</Damage>
 			<Size>160</Size>
 			<LifetimeMS>3000</LifetimeMS>
 		</Projectile>
@@ -3372,7 +3372,7 @@
 		<NoMiniMap />
 		<Projectile id="0">
 			<ObjectId>Ancient Magic</ObjectId>
-			<Damage>220</Damage>
+			<Damage>275</Damage>
 			<Speed>100</Speed>
 			<LifetimeMS>800</LifetimeMS>
 		</Projectile>
@@ -3388,7 +3388,7 @@
 		<Projectile>
 			<ObjectId>Purple Magic</ObjectId>
 			<Speed>100</Speed>
-			<Damage>240</Damage>
+			<Damage>300</Damage>
 			<LifetimeMS>2400</LifetimeMS>
 		</Projectile>
 		<Size>60</Size>
@@ -3452,13 +3452,13 @@
 		<Projectile id="0">
 			<ObjectId>Dark Blue Magic</ObjectId>
 			<Speed>100</Speed>
-			<Damage>120</Damage>
+			<Damage>150</Damage>
 			<LifetimeMS>2400</LifetimeMS>
 		</Projectile>
 		<Projectile id="1">
 			<ObjectId>Blue Bolt</ObjectId>
 			<Speed>80</Speed>
-			<Damage>180</Damage>
+			<Damage>225</Damage>
 			<LifetimeMS>2500</LifetimeMS>
 		</Projectile>
 		<Size>60</Size>
@@ -3472,7 +3472,7 @@
 		<NoMiniMap />
 		<Projectile id="0">
 			<ObjectId>Angelic Bolt</ObjectId>
-			<Damage>200</Damage>
+			<Damage>250</Damage>
 			<Speed>140</Speed>
 			<LifetimeMS>650</LifetimeMS>
 		</Projectile>
@@ -3487,13 +3487,13 @@
 		<NoMiniMap />
 		<Projectile id="0">
 			<ObjectId>Ninja Star Basic</ObjectId>
-			<Damage>103</Damage>
+			<Damage>129</Damage>
 			<Speed>150</Speed>
 			<LifetimeMS>550</LifetimeMS>
 		</Projectile>
 		<Projectile id="1">
 			<ObjectId>Ninja Star Doom</ObjectId>
-			<Damage>257</Damage>
+			<Damage>321</Damage>
 			<Speed>150</Speed>
 			<LifetimeMS>600</LifetimeMS>
 		</Projectile>
@@ -3509,7 +3509,7 @@
 		<Projectile id="0">
 			<ObjectId>White Bullet</ObjectId>
 			<Speed>80</Speed>
-			<Damage>96</Damage>
+			<Damage>106</Damage>
 			<Size>25</Size>
 			<LifetimeMS>1500</LifetimeMS>
 			<ArmorPiercing />
@@ -3518,8 +3518,8 @@
 		<Projectile id="1">
 			<ObjectId>Brown Magic</ObjectId>
 			<Speed>90</Speed>
-			<MinDamage>51</MinDamage>
-			<MaxDamage>57</MaxDamage>
+			<MinDamage>57</MinDamage>
+			<MaxDamage>64</MaxDamage>
 			<Size>40</Size>
 			<LifetimeMS>2600</LifetimeMS>
 			<MultiHit />
@@ -3530,7 +3530,7 @@
 		<Projectile id="2">
 			<ObjectId>Yellow Star</ObjectId>
 			<Speed>57</Speed>
-			<Damage>83</Damage>
+			<Damage>92</Damage>
 			<Size>80</Size>
 			<LifetimeMS>3000</LifetimeMS>
 			<MultiHit />
@@ -3538,7 +3538,7 @@
 		<Projectile id="4">
 			<ObjectId>White Bullet</ObjectId>
 			<Speed>40</Speed>
-			<Damage>204</Damage>
+			<Damage>227</Damage>
 			<Size>80</Size>
 			<LifetimeMS>4000</LifetimeMS>
 			<MultiHit />
@@ -3546,7 +3546,7 @@
 		<Projectile id="5">
 			<ObjectId>White Bullet</ObjectId>
 			<Speed>70</Speed>
-			<Damage>77</Damage>
+			<Damage>85</Damage>
 			<Size>60</Size>
 			<LifetimeMS>2000</LifetimeMS>
 			<MultiHit />
@@ -3563,7 +3563,7 @@
 		<Projectile id="0">
 			<ObjectId>White Bullet</ObjectId>
 			<Speed>75</Speed>
-			<Damage>88</Damage>
+			<Damage>98</Damage>
 			<Size>60</Size>
 			<LifetimeMS>1500</LifetimeMS>
 			<ArmorPiercing />
@@ -3572,7 +3572,7 @@
 		<Projectile id="2">
 			<ObjectId>Silver Shield</ObjectId>
 			<Speed>42</Speed>
-			<Damage>95</Damage>
+			<Damage>106</Damage>
 			<Size>65</Size>
 			<LifetimeMS>3000</LifetimeMS>
 			<MultiHit />
@@ -3580,7 +3580,7 @@
 		<Projectile id="3">
 			<ObjectId>White Bullet</ObjectId>
 			<Speed>40</Speed>
-			<Damage>220</Damage>
+			<Damage>245</Damage>
 			<Size>150</Size>
 			<LifetimeMS>4000</LifetimeMS>
 			<MultiHit />
@@ -3588,7 +3588,7 @@
 		<Projectile id="4">
 			<ObjectId>Silver Shield</ObjectId>
 			<Speed>60</Speed>
-			<Damage>161</Damage>
+			<Damage>179</Damage>
 			<Size>120</Size>
 			<LifetimeMS>3000</LifetimeMS>
 			<MultiHit />
@@ -3605,7 +3605,7 @@
 		<Projectile id="0">
 			<ObjectId>Blade</ObjectId>
 			<Speed>70</Speed>
-			<Damage>281</Damage>
+			<Damage>312</Damage>
 			<Size>100</Size>
 			<LifetimeMS>1500</LifetimeMS>
 			<MultiHit />
@@ -3613,7 +3613,7 @@
 		<Projectile id="1">
 			<ObjectId>White Bullet</ObjectId>
 			<Speed>62</Speed>
-			<Damage>169</Damage>
+			<Damage>188</Damage>
 			<Size>60</Size>
 			<LifetimeMS>2000</LifetimeMS>
 			<MultiHit />
@@ -3631,12 +3631,12 @@
 		<Flying />
 		<Projectile id="0">
 			<ObjectId>Student Scythe</ObjectId>
-			<Damage>206</Damage>
+			<Damage>258</Damage>
 			<Speed>100</Speed>
 			<LifetimeMS>800</LifetimeMS>
 			<MultiHit />
 			<Boomerang />
-			<Bleed duration="3">124</Bleed>
+			<Bleed duration="3">155</Bleed>
 		</Projectile>
 		<Size>40</Size>
 		<ShadowSize>100</ShadowSize>
@@ -3650,11 +3650,11 @@
 		<NoMiniMap />
 		<Projectile id="0">
 			<ObjectId>Pink Star</ObjectId>
-			<Damage>35</Damage>
+			<Damage>88</Damage>
 			<Speed>120</Speed>
 			<LifetimeMS>800</LifetimeMS>
 		</Projectile>
-		<Size>30</Size>
+		<Size>35</Size>
 	</Object>
 	<Object type="0xD0C8" id="Djinnn">
 		<Class>Character</Class>
@@ -3665,7 +3665,7 @@
 		<NoMiniMap />
 		<Projectile id="0">
 			<ObjectId>Lightning Spiral</ObjectId>
-			<Damage>100</Damage>
+			<Damage>112</Damage>
 			<Speed>100</Speed>
 			<LifetimeMS>800</LifetimeMS>
 			<Wavy />
@@ -3681,7 +3681,7 @@
 		<NoMiniMap />
 		<Projectile id="0">
 			<ObjectId>Knight DPS Bolt</ObjectId>
-			<Damage>150</Damage>
+			<Damage>188</Damage>
 			<Speed>100</Speed>
 			<LifetimeMS>800</LifetimeMS>
 			<MultiHit />
@@ -3697,7 +3697,7 @@
 		<NoMiniMap />
 		<Projectile id="0">
 			<ObjectId>Holy Wave</ObjectId>
-			<Damage>120</Damage>
+			<Damage>150</Damage>
 			<Speed>100</Speed>
 			<LifetimeMS>800</LifetimeMS>
 			<MultiHit />
@@ -3714,7 +3714,7 @@
 		<NoMiniMap />
 		<Projectile id="0">
 			<ObjectId>Cultist Light Shot</ObjectId>
-			<Damage>100</Damage>
+			<Damage>125</Damage>
 			<Speed>100</Speed>
 			<LifetimeMS>800</LifetimeMS>
 		</Projectile>
@@ -3729,7 +3729,7 @@
 		<NoMiniMap />
 		<Projectile id="0">
 			<ObjectId>Storm Swirl</ObjectId>
-			<Damage>110</Damage>
+			<Damage>138</Damage>
 			<Speed>80</Speed>
 			<LifetimeMS>1000</LifetimeMS>
 			<MultiHit />
@@ -3747,10 +3747,10 @@
 		<NoMiniMap />
 		<Projectile id="0">
 			<ObjectId>Fishman Spear</ObjectId>
-			<Damage>92</Damage>
+			<Damage>115</Damage>
 			<Speed>130</Speed>
 			<LifetimeMS>650</LifetimeMS>
-			<Bleed duration="3">46</Bleed>
+			<Bleed duration="3">58</Bleed>
 		</Projectile>
 		<Size>85</Size>
 	</Object>
@@ -3763,7 +3763,7 @@
 		<NoMiniMap />
 		<Projectile id="0">
 			<ObjectId>Pumpkin Wave</ObjectId>
-			<Damage>240</Damage>
+			<Damage>300</Damage>
 			<Speed>100</Speed>
 			<LifetimeMS>800</LifetimeMS>
 			<Wavy />
@@ -3779,7 +3779,7 @@
 		<NoMiniMap />
 		<Projectile id="0">
 			<ObjectId>Fireball</ObjectId>
-			<Damage>145</Damage>
+			<Damage>182</Damage>
 			<Speed>100</Speed>
 			<LifetimeMS>800</LifetimeMS>
 		</Projectile>
@@ -3795,14 +3795,14 @@
 		<Projectile id="1">
 			<ObjectId>H Creation Wave</ObjectId>
 			<Speed>75</Speed>
-			<Damage>198</Damage>
+			<Damage>218</Damage>
 			<LifetimeMS>1500</LifetimeMS>
 			<Size>160</Size>
 		</Projectile>
 		<Projectile id="2">
 			<ObjectId>White Ball</ObjectId>
 			<Speed>50</Speed>
-			<Damage>132</Damage>
+			<Damage>145</Damage>
 			<LifetimeMS>20000</LifetimeMS>
 			<Size>200</Size>
 		</Projectile>
@@ -3817,21 +3817,21 @@
 			<ObjectId>H Creation Energy</ObjectId>
 			<Size>280</Size>
 			<Speed>55</Speed>
-			<Damage>264</Damage>
+			<Damage>291</Damage>
 			<LifetimeMS>3000</LifetimeMS>
 		</Projectile>
 		<Projectile id="5">
 			<ObjectId>H Creation Shockwave</ObjectId>
 			<Size>180</Size>
 			<Speed>50</Speed>
-			<Damage>112</Damage>
+			<Damage>124</Damage>
 			<LifetimeMS>400</LifetimeMS>
 		</Projectile>
 		<Projectile id="6">
 			<ObjectId>H Creation Blast</ObjectId>
 			<Size>280</Size>
 			<Speed>85</Speed>
-			<Damage>264</Damage>
+			<Damage>291</Damage>
 			<LifetimeMS>1000</LifetimeMS>
 		</Projectile>
 		<Size>60</Size>
@@ -3846,7 +3846,7 @@
 		<Projectile id="0">
 			<ObjectId>Red Fire</ObjectId>
 			<Speed>80</Speed>
-			<Damage>112</Damage>
+			<Damage>125</Damage>
 			<Size>110</Size>
 			<LifetimeMS>2300</LifetimeMS>
 			<MultiHit />
@@ -3862,7 +3862,7 @@
 		<NoMiniMap />
 		<Projectile id="0">
 			<ObjectId>Demonic Wave</ObjectId>
-			<Damage>220</Damage>
+			<Damage>275</Damage>
 			<Speed>100</Speed>
 			<LifetimeMS>800</LifetimeMS>
 			<MultiHit />
@@ -3879,11 +3879,11 @@
 		<NoMiniMap />
 		<Projectile id="0">
 			<ObjectId>Fruitpocalypse</ObjectId>
-			<Damage>50</Damage>
+			<Damage>125</Damage>
 			<Speed>80</Speed>
 			<LifetimeMS>800</LifetimeMS>
 		</Projectile>
-		<Size>60</Size>
+		<Size>70</Size>
 	</Object>
 	<Object type="0xD0D4" id="Beholderr">
 		<Class>Character</Class>
@@ -3894,14 +3894,14 @@
 		<NoMiniMap />
 		<Projectile id="0">
 			<ObjectId>Dragon Eye Laser</ObjectId>
-			<Damage>120</Damage>
+			<Damage>150</Damage>
 			<Speed>140</Speed>
 			<LifetimeMS>600</LifetimeMS>
 			<MultiHit />
 		</Projectile>
 		<Projectile id="1">
 			<ObjectId>Eye Laser</ObjectId>
-			<Damage>120</Damage>
+			<Damage>150</Damage>
 			<Speed>160</Speed>
 			<LifetimeMS>550</LifetimeMS>
 		</Projectile>
@@ -3916,14 +3916,14 @@
 		<NoMiniMap />
 		<Projectile id="0">
 			<ObjectId>Snake Shot</ObjectId>
-			<Damage>222</Damage>
+			<Damage>278</Damage>
 			<Speed>65</Speed>
 			<Size>100</Size>
 			<LifetimeMS>16000</LifetimeMS>
 		</Projectile>
 		<Projectile id="1">
 			<ObjectId>Ghost Shot</ObjectId>
-			<Damage>178</Damage>
+			<Damage>222</Damage>
 			<Speed>45</Speed>
 			<Size>90</Size>
 			<LifetimeMS>1000</LifetimeMS>
@@ -3939,7 +3939,7 @@
 		<NoMiniMap />
 		<Projectile id="0">
 			<ObjectId>Dragon Attack Red Firewave</ObjectId>
-			<Damage>100</Damage>
+			<Damage>138</Damage>
 			<Speed>100</Speed>
 			<LifetimeMS>800</LifetimeMS>
 		</Projectile>
@@ -3955,7 +3955,7 @@
 		<NoMiniMap />
 		<Projectile id="0">
 			<ObjectId>binary</ObjectId>
-			<Damage>200</Damage>
+			<Damage>250</Damage>
 			<Speed>140</Speed>
 			<LifetimeMS>800</LifetimeMS>
 		</Projectile>
@@ -3971,7 +3971,7 @@
 		<NoMiniMap />
 		<Projectile id="0">
 			<ObjectId>Skeleton Attack</ObjectId>
-			<Damage>90</Damage>
+			<Damage>112</Damage>
 			<Speed>100</Speed>
 			<LifetimeMS>800</LifetimeMS>
 		</Projectile>
@@ -3987,7 +3987,7 @@
 		<NoMiniMap />
 		<Projectile id="0">
 			<ObjectId>Sword Bullet</ObjectId>
-			<Damage>140</Damage>
+			<Damage>175</Damage>
 			<Speed>130</Speed>
 			<LifetimeMS>800</LifetimeMS>
 		</Projectile>
@@ -4003,7 +4003,7 @@
 		<NoMiniMap />
 		<Projectile id="0">
 			<ObjectId>Gold Fireball</ObjectId>
-			<Damage>100</Damage>
+			<Damage>125</Damage>
 			<Speed>100</Speed>
 			<LifetimeMS>800</LifetimeMS>
 		</Projectile>
@@ -4019,7 +4019,7 @@
 		<NoMiniMap />
 		<Projectile id="0">
 			<ObjectId>Fish Shot</ObjectId>
-			<Damage>100</Damage>
+			<Damage>112</Damage>
 			<Speed>100</Speed>
 			<LifetimeMS>800</LifetimeMS>
 		</Projectile>
@@ -4035,7 +4035,7 @@
 		<NoMiniMap />
 		<Projectile id="0">
 			<ObjectId>Feather Bolt</ObjectId>
-			<Damage>200</Damage>
+			<Damage>250</Damage>
 			<Speed>150</Speed>
 			<LifetimeMS>800</LifetimeMS>
 		</Projectile>
@@ -4051,14 +4051,14 @@
 		<NoMiniMap />
 		<Projectile id="0">
 			<ObjectId>Moth Dust</ObjectId>
-			<Damage>108</Damage>
+			<Damage>120</Damage>
 			<Speed>50</Speed>
 			<LifetimeMS>1600</LifetimeMS>
 			<Size>90</Size>
 		</Projectile>
 		<Projectile id="1">
 			<ObjectId>Cyan Fairy Wave</ObjectId>
-			<Damage>135</Damage>
+			<Damage>150</Damage>
 			<Speed>120</Speed>
 			<LifetimeMS>900</LifetimeMS>
 			<ConditionEffect duration="1">Slowed</ConditionEffect>
@@ -4077,8 +4077,8 @@
 		<Projectile id="0">
 			<ObjectId>Rainbow Magic Star</ObjectId>
 			<Speed>130</Speed>
-			<MinDamage>75</MinDamage>
-			<MaxDamage>225</MaxDamage>
+			<MinDamage>94</MinDamage>
+			<MaxDamage>281</MaxDamage>
 			<LifetimeMS>700</LifetimeMS>
 		</Projectile>
 		<ShadowSize>75</ShadowSize>
@@ -4093,14 +4093,14 @@
 		<Projectile id="0">
 			<ObjectId>Kythal Proj 1</ObjectId>
 			<Speed>150</Speed>
-			<Damage>108</Damage>
+			<Damage>135</Damage>
 			<LifetimeMS>1800</LifetimeMS>
 			<MultiHit />
 		</Projectile>
 		<Projectile id="1">
 			<ObjectId>Kythal Proj 2</ObjectId>
 			<Speed>150</Speed>
-			<Damage>185</Damage>
+			<Damage>231</Damage>
 			<LifetimeMS>1800</LifetimeMS>
 			<MultiHit />
 			<ConditionEffect duration="2">Weak</ConditionEffect>
@@ -4127,7 +4127,7 @@
 		</Tag>
 		<Projectile id="0">
 			<ObjectId>Green Blob</ObjectId>
-			<Damage>171</Damage>
+			<Damage>214</Damage>
 			<Speed>70</Speed>
 			<LifetimeMS>800</LifetimeMS>
 		</Projectile>
@@ -4143,7 +4143,7 @@
 		<NoMiniMap />
 		<Projectile id="0">
 			<ObjectId>Orange Pumpkin Blast</ObjectId>
-			<Damage>260</Damage>
+			<Damage>325</Damage>
 			<Speed>100</Speed>
 			<LifetimeMS>800</LifetimeMS>
 			<MultiHit />
@@ -4161,7 +4161,7 @@
 		<Projectile id="0">
 			<ObjectId>Fire Bolt</ObjectId>
 			<Speed>67</Speed>
-			<Damage>450</Damage>
+			<Damage>500</Damage>
 			<Size>90</Size>
 			<LifetimeMS>2000</LifetimeMS>
 			<ConditionEffect duration="2">Weak</ConditionEffect>
@@ -4177,7 +4177,7 @@
 		<NoMiniMap />
 		<Projectile id="0">
 			<ObjectId>Zombie Shot</ObjectId>
-			<Damage>100</Damage>
+			<Damage>125</Damage>
 			<Speed>100</Speed>
 			<LifetimeMS>800</LifetimeMS>
 			<ConditionEffect duration="2">Sick</ConditionEffect>
@@ -5427,7 +5427,7 @@
 		<InvUse />
 		<VaultItem />
 		<ScaleValue>3</ScaleValue>
-		<Activate objectId="Sea Horsee" cooldown="10" petDps="50" petSize="Small" petHp="15" petHpMs="2000" petMp="15" petMpMs="2000">PermaPet</Activate>
+		<Activate objectId="Sea Horsee" cooldown="10" petDps="125" petSize="Small" petHp="20" petHpMs="2000" petMp="20" petMpMs="2000">PermaPet</Activate>
 		<OldSound>use_potion</OldSound>
 	</Object>
 	<Object type="0xD11F" id="Sea Mare Generator">
@@ -5447,7 +5447,7 @@
 		<InvUse />
 		<VaultItem />
 		<ScaleValue>3</ScaleValue>
-		<Activate objectId="Sea Maree" cooldown="10" petDps="200" petSize="Medium" petHp="30" petHpMs="2000" petMp="30" petMpMs="2000">PermaPet</Activate>
+		<Activate objectId="Sea Maree" cooldown="10" petDps="250" petSize="Medium" petHp="30" petHpMs="2000" petMp="30" petMpMs="2000">PermaPet</Activate>
 		<OldSound>use_potion</OldSound>
 	</Object>
 	<Object type="0xD120" id="Pentaract Eye Generator">
@@ -5467,7 +5467,7 @@
 		<InvUse />
 		<VaultItem />
 		<ScaleValue>3</ScaleValue>
-		<Activate objectId="Pentaract Eyee" cooldown="10" petDps="50" petSize="Small" petHp="15" petHpMs="2000" petMp="15" petMpMs="2000">PermaPet</Activate>
+		<Activate objectId="Pentaract Eyee" cooldown="10" petDps="125" petSize="Small" petHp="20" petHpMs="2000" petMp="20" petMpMs="2000">PermaPet</Activate>
 		<OldSound>use_potion</OldSound>
 	</Object>
 	<Object type="0xD121" id="Bes Generator">
@@ -5487,7 +5487,7 @@
 		<InvUse />
 		<VaultItem />
 		<ScaleValue>3</ScaleValue>
-		<Activate objectId="Bess" cooldown="10" petDps="550" petSize="Large" petEffects="Armor Broken on hit for 2s" petHp="45" petHpMs="1500" petMp="45" petMpMs="1500">PermaPet</Activate>
+		<Activate objectId="Bess" cooldown="10" petDps="600" petSize="Large" petEffects="Armor Broken on hit for 2s" petHp="45" petHpMs="1500" petMp="45" petMpMs="1500">PermaPet</Activate>
 		<OldSound>use_potion</OldSound>
 	</Object>
 	<Object type="0xD122" id="Geb Generator">
@@ -5507,7 +5507,7 @@
 		<InvUse />
 		<VaultItem />
 		<ScaleValue>3</ScaleValue>
-		<Activate objectId="Gebb" cooldown="10" petDps="549" petSize="Large" petEffects="Healing on you for 2s every 5s" petHp="45" petHpMs="1500" petMp="45" petMpMs="1500">PermaPet</Activate>
+		<Activate objectId="Gebb" cooldown="10" petDps="600" petSize="Large" petEffects="Healing on you for 2s every 5s" petHp="45" petHpMs="1500" petMp="45" petMpMs="1500">PermaPet</Activate>
 		<OldSound>use_potion</OldSound>
 	</Object>
 	<Object type="0xD123" id="Nut Generator">
@@ -5527,7 +5527,7 @@
 		<InvUse />
 		<VaultItem />
 		<ScaleValue>3</ScaleValue>
-		<Activate objectId="Nutt" cooldown="10" petDps="550" petSize="Large" petEffects="Paralyzed on hit for 0.25s" petHp="45" petHpMs="1500" petMp="45" petMpMs="1500">PermaPet</Activate>
+		<Activate objectId="Nutt" cooldown="10" petDps="600" petSize="Large" petEffects="Paralyzed on hit for 0.25s" petHp="45" petHpMs="1500" petMp="45" petMpMs="1500">PermaPet</Activate>
 		<OldSound>use_potion</OldSound>
 	</Object>
 	<Object type="0xD124" id="Pyramid Artifact Generator">
@@ -5547,7 +5547,7 @@
 		<InvUse />
 		<VaultItem />
 		<ScaleValue>3</ScaleValue>
-		<Activate objectId="Pyramid Artifact P" cooldown="10" petDps="200" petSize="Medium" petHp="30" petHpMs="2000" petMp="30" petMpMs="2000">PermaPet</Activate>
+		<Activate objectId="Pyramid Artifact P" cooldown="10" petDps="250" petSize="Medium" petHp="30" petHpMs="2000" petMp="30" petMpMs="2000">PermaPet</Activate>
 		<OldSound>use_potion</OldSound>
 	</Object>
 	<Object type="0xD125" id="Skull Shrine Generator">
@@ -5567,7 +5567,7 @@
 		<InvUse />
 		<VaultItem />
 		<ScaleValue>3</ScaleValue>
-		<Activate objectId="Skull Shrine P" cooldown="10" petDps="400" petSize="Large" petEffects="+15 Attack for 5s every 10s" petHp="45" petHpMs="1500" petMp="45" petMpMs="1500">PermaPet</Activate>
+		<Activate objectId="Skull Shrine P" cooldown="10" petDps="500" petSize="Large" petEffects="+15 Attack for 5s every 10s" petHp="45" petHpMs="1500" petMp="45" petMpMs="1500">PermaPet</Activate>
 		<OldSound>use_potion</OldSound>
 	</Object>
 	<Object type="0xD126" id="Bunny Generator">
@@ -5587,7 +5587,7 @@
 		<InvUse />
 		<VaultItem />
 		<ScaleValue>3</ScaleValue>
-		<Activate objectId="Bunnyy" cooldown="10" petDps="49" petSize="Small" petHp="15" petHpMs="2000" petMp="15" petMpMs="2000">PermaPet</Activate>
+		<Activate objectId="Bunnyy" cooldown="10" petDps="49" petSize="Tiny" petHp="15" petHpMs="2000" petMp="15" petMpMs="2000">PermaPet</Activate>
 		<OldSound>use_potion</OldSound>
 	</Object>
 	<Object type="0xD127" id="Beholder Generator">
@@ -5607,7 +5607,7 @@
 		<InvUse />
 		<VaultItem />
 		<ScaleValue>3</ScaleValue>
-		<Activate objectId="Beholderr" cooldown="10" petDps="200" petSize="Medium" petHp="30" petHpMs="2000" petMp="30" petMpMs="2000">PermaPet</Activate>
+		<Activate objectId="Beholderr" cooldown="10" petDps="250" petSize="Medium" petHp="30" petHpMs="2000" petMp="30" petMpMs="2000">PermaPet</Activate>
 		<OldSound>use_potion</OldSound>
 	</Object>
 	<Object type="0xD128" id="Cube Generator">
@@ -5627,7 +5627,7 @@
 		<InvUse />
 		<VaultItem />
 		<ScaleValue>3</ScaleValue>
-		<Activate objectId="Cubee" cooldown="10" petDps="400" petSize="Large" petEffects="+15 Wisdom for 5s every 10s" petHp="45" petHpMs="1500" petMp="45" petMpMs="1500">PermaPet</Activate>
+		<Activate objectId="Cubee" cooldown="10" petDps="500" petSize="Large" petEffects="+15 Wisdom for 5s every 10s" petHp="45" petHpMs="1500" petMp="45" petMpMs="1500">PermaPet</Activate>
 		<OldSound>use_potion</OldSound>
 	</Object>
 	<Object type="0xD129" id="Angel Generator">
@@ -5647,7 +5647,7 @@
 		<InvUse />
 		<VaultItem />
 		<ScaleValue>3</ScaleValue>
-		<Activate objectId="Angell" cooldown="10" petDps="200" petSize="Medium" petHp="30" petHpMs="2000" petMp="30" petMpMs="2000">PermaPet</Activate>
+		<Activate objectId="Angell" cooldown="10" petDps="250" petSize="Medium" petHp="30" petHpMs="2000" petMp="30" petMpMs="2000">PermaPet</Activate>
 		<OldSound>use_potion</OldSound>
 	</Object>
 	<Object type="0xD12A" id="Ninja Generator">
@@ -5667,7 +5667,7 @@
 		<InvUse />
 		<VaultItem />
 		<ScaleValue>3</ScaleValue>
-		<Activate objectId="Ninjaa" cooldown="10" petDps="200" petSize="Medium" petHp="30" petHpMs="2000" petMp="30" petMpMs="2000">PermaPet</Activate>
+		<Activate objectId="Ninjaa" cooldown="10" petDps="250" petSize="Medium" petHp="30" petHpMs="2000" petMp="30" petMpMs="2000">PermaPet</Activate>
 		<OldSound>use_potion</OldSound>
 	</Object>
 	<Object type="0xD12B" id="Septavius Generator">
@@ -5687,7 +5687,7 @@
 		<InvUse />
 		<VaultItem />
 		<ScaleValue>3</ScaleValue>
-		<Activate objectId="Septaviuss" cooldown="10" petDps="450" petSize="Large" petHp="45" petHpMs="1500" petMp="45" petMpMs="1500">PermaPet</Activate>
+		<Activate objectId="Septaviuss" cooldown="10" petDps="500" petSize="Large" petHp="45" petHpMs="1500" petMp="45" petMpMs="1500">PermaPet</Activate>
 		<OldSound>use_potion</OldSound>
 	</Object>
 	<Object type="0xD12C" id="Malphas Generator">
@@ -5707,7 +5707,7 @@
 		<InvUse />
 		<VaultItem />
 		<ScaleValue>3</ScaleValue>
-		<Activate objectId="Malphass" cooldown="10" petDps="449" petSize="Large" petEffects="+15 Vitality for 5s every 10s" petHp="45" petHpMs="1500" petMp="45" petMpMs="1500">PermaPet</Activate>
+		<Activate objectId="Malphass" cooldown="10" petDps="500" petSize="Large" petEffects="+15 Vitality for 5s every 10s" petHp="45" petHpMs="1500" petMp="45" petMpMs="1500">PermaPet</Activate>
 		<OldSound>use_potion</OldSound>
 	</Object>
 	<Object type="0xD12D" id="Stheno Generator">
@@ -5727,7 +5727,7 @@
 		<InvUse />
 		<VaultItem />
 		<ScaleValue>3</ScaleValue>
-		<Activate objectId="Sthenos" cooldown="10" petDps="450" petSize="Large" petHp="45" petHpMs="1500" petMp="45" petMpMs="1500">PermaPet</Activate>
+		<Activate objectId="Sthenos" cooldown="10" petDps="500" petSize="Large" petHp="45" petHpMs="1500" petMp="45" petMpMs="1500">PermaPet</Activate>
 		<OldSound>use_potion</OldSound>
 	</Object>
 	<Object type="0xD12E" id="Reaper Generator">
@@ -5747,7 +5747,7 @@
 		<InvUse />
 		<VaultItem />
 		<ScaleValue>3</ScaleValue>
-		<Activate objectId="Reaperr" cooldown="10" petDps="200" petSize="Medium" petEffects="Bleeds 124 over 3s" petHp="30" petHpMs="2000" petMp="30" petMpMs="2000">PermaPet</Activate>
+		<Activate objectId="Reaperr" cooldown="10" petDps="250" petSize="Medium" petEffects="Bleeds 155 over 3s" petHp="30" petHpMs="2000" petMp="30" petMpMs="2000">PermaPet</Activate>
 		<OldSound>use_potion</OldSound>
 	</Object>
 	<Object type="0xD12F" id="Kirby Generator">
@@ -5767,7 +5767,7 @@
 		<InvUse />
 		<VaultItem />
 		<ScaleValue>3</ScaleValue>
-		<Activate objectId="Kirbyy" cooldown="10" petDps="50" petSize="Small" petHp="15" petHpMs="2000" petMp="15" petMpMs="2000">PermaPet</Activate>
+		<Activate objectId="Kirbyy" cooldown="10" petDps="126" petSize="Small" petHp="20" petHpMs="2000" petMp="20" petMpMs="2000">PermaPet</Activate>
 		<OldSound>use_potion</OldSound>
 	</Object>
 	<Object type="0xD130" id="Djinn Generator">
@@ -5787,7 +5787,7 @@
 		<InvUse />
 		<VaultItem />
 		<ScaleValue>3</ScaleValue>
-		<Activate objectId="Djinnn" cooldown="10" petSize="Medium" petHp="30" petHpMs="2000" petMp="30" petMpMs="2000">PermaPet</Activate>
+		<Activate objectId="Djinnn" cooldown="10" petDps="249" petSize="Medium" petHp="30" petHpMs="2000" petMp="30" petMpMs="2000">PermaPet</Activate>
 		<OldSound>use_potion</OldSound>
 	</Object>
 	<Object type="0xD131" id="Companion Knight Generator">
@@ -5807,7 +5807,7 @@
 		<InvUse />
 		<VaultItem />
 		<ScaleValue>3</ScaleValue>
-		<Activate objectId="Knightt" cooldown="10" petDps="200" petSize="Medium" petHp="30" petHpMs="2000" petMp="30" petMpMs="2000">PermaPet</Activate>
+		<Activate objectId="Knightt" cooldown="10" petDps="250" petSize="Medium" petHp="30" petHpMs="2000" petMp="30" petMpMs="2000">PermaPet</Activate>
 		<OldSound>use_potion</OldSound>
 	</Object>
 	<Object type="0xD132" id="Paladin Generator">
@@ -5827,7 +5827,7 @@
 		<InvUse />
 		<VaultItem />
 		<ScaleValue>3</ScaleValue>
-		<Activate objectId="Paladinn" cooldown="10" petDps="200" petSize="Medium" petHp="30" petHpMs="2000" petMp="30" petMpMs="2000">PermaPet</Activate>
+		<Activate objectId="Paladinn" cooldown="10" petDps="250" petSize="Medium" petHp="30" petHpMs="2000" petMp="30" petMpMs="2000">PermaPet</Activate>
 		<OldSound>use_potion</OldSound>
 	</Object>
 	<Object type="0xD133" id="Priest Generator">
@@ -5847,7 +5847,7 @@
 		<InvUse />
 		<VaultItem />
 		<ScaleValue>3</ScaleValue>
-		<Activate objectId="Priestt" cooldown="10" petDps="200" petSize="Medium" petEffects="Healing on you for 2s every 8s" petHp="30" petHpMs="2000" petMp="30" petMpMs="2000">PermaPet</Activate>
+		<Activate objectId="Priestt" cooldown="10" petDps="250" petSize="Medium" petEffects="Healing on you for 2s every 8s" petHp="30" petHpMs="2000" petMp="30" petMpMs="2000">PermaPet</Activate>
 		<OldSound>use_potion</OldSound>
 	</Object>
 	<Object type="0xD134" id="Gyarados Generator">
@@ -5867,7 +5867,7 @@
 		<InvUse />
 		<VaultItem />
 		<ScaleValue>3</ScaleValue>
-		<Activate objectId="Gyaradoss" cooldown="10" petDps="200" petSize="Medium" petEffects="Hits all enemies within 2.5 tiles of its target" petHp="30" petHpMs="2000" petMp="30" petMpMs="2000">PermaPet</Activate>
+		<Activate objectId="Gyaradoss" cooldown="10" petDps="250" petSize="Medium" petEffects="Hits all enemies within 2.5 tiles of its target" petHp="30" petHpMs="2000" petMp="30" petMpMs="2000">PermaPet</Activate>
 		<OldSound>use_potion</OldSound>
 	</Object>
 	<Object type="0xD135" id="Tornado Generator">
@@ -5887,7 +5887,7 @@
 		<InvUse />
 		<VaultItem />
 		<ScaleValue>3</ScaleValue>
-		<Activate objectId="Tornadoo" cooldown="10" petDps="200" petSize="Medium" petHp="30" petHpMs="2000" petMp="30" petMpMs="2000">PermaPet</Activate>
+		<Activate objectId="Tornadoo" cooldown="10" petDps="251" petSize="Medium" petHp="30" petHpMs="2000" petMp="30" petMpMs="2000">PermaPet</Activate>
 		<OldSound>use_potion</OldSound>
 	</Object>
 	<Object type="0xD136" id="Shark Generator">
@@ -5907,7 +5907,7 @@
 		<InvUse />
 		<VaultItem />
 		<ScaleValue>3</ScaleValue>
-		<Activate objectId="sharkmann" cooldown="10" petDps="199" petSize="Medium" petEffects="Bleeds 46 over 3s" petHp="30" petHpMs="2000" petMp="30" petMpMs="2000">PermaPet</Activate>
+		<Activate objectId="sharkmann" cooldown="10" petDps="249" petSize="Medium" petEffects="Bleeds 58 over 3s" petHp="30" petHpMs="2000" petMp="30" petMpMs="2000">PermaPet</Activate>
 		<OldSound>use_potion</OldSound>
 	</Object>
 	<Object type="0xD137" id="Pumpkman Generator">
@@ -5927,7 +5927,7 @@
 		<InvUse />
 		<VaultItem />
 		<ScaleValue>3</ScaleValue>
-		<Activate objectId="pumpkmann" cooldown="10" petDps="200" petSize="Medium" petHp="30" petHpMs="2000" petMp="30" petMpMs="2000">PermaPet</Activate>
+		<Activate objectId="pumpkmann" cooldown="10" petDps="250" petSize="Medium" petHp="30" petHpMs="2000" petMp="30" petMpMs="2000">PermaPet</Activate>
 		<OldSound>use_potion</OldSound>
 		<Shop>
 			<Name>donorpets</Name>
@@ -5951,7 +5951,7 @@
 		<InvUse />
 		<VaultItem />
 		<ScaleValue>3</ScaleValue>
-		<Activate objectId="sphinxxx" cooldown="10" petDps="401" petSize="Large" petHp="45" petHpMs="1500" petMp="45" petMpMs="1500">PermaPet</Activate>
+		<Activate objectId="sphinxxx" cooldown="10" petDps="501" petSize="Large" petHp="45" petHpMs="1500" petMp="45" petMpMs="1500">PermaPet</Activate>
 		<OldSound>use_potion</OldSound>
 	</Object>
 	<Object type="0xD139" id="Phoenix Generator">
@@ -5971,7 +5971,7 @@
 		<InvUse />
 		<VaultItem />
 		<ScaleValue>3</ScaleValue>
-		<Activate objectId="Phoenixx" cooldown="10" petDps="200" petSize="Medium" petEffects="Hits all enemies within 2.5 tiles of its target" petHp="30" petHpMs="2000" petMp="30" petMpMs="2000">PermaPet</Activate>
+		<Activate objectId="Phoenixx" cooldown="10" petDps="250" petSize="Medium" petEffects="Hits all enemies within 2.5 tiles of its target" petHp="30" petHpMs="2000" petMp="30" petMpMs="2000">PermaPet</Activate>
 		<OldSound>use_potion</OldSound>
 	</Object>
 	<Object type="0xD13A" id="Horrific Creation Generator">
@@ -5991,7 +5991,7 @@
 		<InvUse />
 		<VaultItem />
 		<ScaleValue>3</ScaleValue>
-		<Activate objectId="Horrificc" cooldown="10" petDps="499" petSize="Large" petEffects="Invulnerable on you for 1s every 10s" petHp="45" petHpMs="1500" petMp="45" petMpMs="1500">PermaPet</Activate>
+		<Activate objectId="Horrificc" cooldown="10" petDps="550" petSize="Large" petEffects="Invulnerable on you for 1s every 10s" petHp="45" petHpMs="1500" petMp="45" petMpMs="1500">PermaPet</Activate>
 		<OldSound>use_potion</OldSound>
 	</Object>
 	<Object type="0xD13B" id="Limon Generator">
@@ -6011,7 +6011,7 @@
 		<InvUse />
 		<VaultItem />
 		<ScaleValue>3</ScaleValue>
-		<Activate objectId="Limonn" cooldown="10" petDps="448" petSize="Large" petEffects="Speedy on you for 2s every 5s" petHp="45" petHpMs="1500" petMp="45" petMpMs="1500">PermaPet</Activate>
+		<Activate objectId="Limonn" cooldown="10" petDps="500" petSize="Large" petEffects="Speedy on you for 2s every 5s" petHp="45" petHpMs="1500" petMp="45" petMpMs="1500">PermaPet</Activate>
 		<OldSound>use_potion</OldSound>
 	</Object>
 	<Object type="0xD13C" id="Red Demon Generator">
@@ -6031,7 +6031,7 @@
 		<InvUse />
 		<VaultItem />
 		<ScaleValue>3</ScaleValue>
-		<Activate objectId="Reddemonn" cooldown="10" petDps="200" petSize="Medium" petHp="30" petHpMs="2000" petMp="30" petMpMs="2000">PermaPet</Activate>
+		<Activate objectId="Reddemonn" cooldown="10" petDps="250" petSize="Medium" petHp="30" petHpMs="2000" petMp="30" petMpMs="2000">PermaPet</Activate>
 		<OldSound>use_potion</OldSound>
 	</Object>
 	<Object type="0xD13D" id="Monkey Generator">
@@ -6051,7 +6051,7 @@
 		<InvUse />
 		<VaultItem />
 		<ScaleValue>3</ScaleValue>
-		<Activate objectId="Monkeyn" cooldown="10" petDps="50" petSize="Small" petHp="15" petHpMs="2000" petMp="15" petMpMs="2000">PermaPet</Activate>
+		<Activate objectId="Monkeyn" cooldown="10" petDps="125" petSize="Small" petHp="20" petHpMs="2000" petMp="20" petMpMs="2000">PermaPet</Activate>
 		<OldSound>use_potion</OldSound>
 	</Object>
 	<Object type="0xD13F" id="Test Auraa Generator">
@@ -6087,11 +6087,11 @@
 		<InvUse />
 		<VaultItem />
 		<ScaleValue>3</ScaleValue>
-		<Activate objectId="Coill Snake" cooldown="10" petDps="400" petSize="Large" petHp="45" petHpMs="1500" petMp="45" petMpMs="1500">PermaPet</Activate>
+		<Activate objectId="Coill Snake" cooldown="10" petDps="500" petSize="Large" petHp="45" petHpMs="1500" petMp="45" petMpMs="1500">PermaPet</Activate>
 		<OldSound>use_potion</OldSound>
 	</Object>
 	<Object type="0xD142" id="Kythal the Skull Generator">
-		<DisplayId>Kythal The Skull</DisplayId>
+		<DisplayId>Kythal the Skull</DisplayId>
 		<Class>Equipment</Class>
 		<Item />
 		<AnimatedTexture>
@@ -6107,7 +6107,7 @@
 		<ScaleValue>3</ScaleValue>
 		<InvUse />
 		<VaultItem />
-		<Activate objectId="Kythal the Skull" cooldown="10" petDps="200" petSize="Medium" petEffects="Weak on hit for 2s" petHp="30" petHpMs="2000" petMp="30" petMpMs="2000">PermaPet</Activate>
+		<Activate objectId="Kythal the Skull" cooldown="10" petDps="250" petSize="Medium" petEffects="Weak on hit for 2s" petHp="30" petHpMs="2000" petMp="30" petMpMs="2000">PermaPet</Activate>
 		<OldSound>use_potion</OldSound>
 		<Shop>
 			<Name>donorpets</Name>
@@ -6131,7 +6131,7 @@
 		<ScaleValue>3</ScaleValue>
 		<InvUse />
 		<VaultItem />
-		<Activate objectId="Shroom (Doomed)" cooldown="10" petDps="200" petSize="Medium" petEffects="Hits all enemies within 2.5 tiles of its target, Sick for 2s" petHp="30" petHpMs="2000" petMp="30" petMpMs="2000">PermaPet</Activate>
+		<Activate objectId="Shroom (Doomed)" cooldown="10" petDps="250" petSize="Medium" petEffects="Hits all enemies within 2.5 tiles of its target, Sick for 2s" petHp="30" petHpMs="2000" petMp="30" petMpMs="2000">PermaPet</Activate>
 		<OldSound>use_potion</OldSound>
 		<Shop>
 			<Name>donorpets</Name>
@@ -6155,7 +6155,7 @@
 		<ScaleValue>3</ScaleValue>
 		<InvUse />
 		<VaultItem />
-		<Activate objectId="Drakee" cooldown="10" petSize="Medium" petHp="30" petHpMs="2000" petMp="30" petMpMs="2000">PermaPet</Activate>
+		<Activate objectId="Drakee" cooldown="10" petDps="251" petSize="Medium" petHp="30" petHpMs="2000" petMp="30" petMpMs="2000">PermaPet</Activate>
 		<OldSound>use_potion</OldSound>
 	</Object>
 	<Object type="0xD145" id="Turkey Leg Projectile">
@@ -6184,7 +6184,7 @@
 		<ScaleValue>3</ScaleValue>
 		<InvUse />
 		<VaultItem />
-		<Activate objectId="Cookiee" cooldown="10" petDps="501" petSize="Large" petHp="45" petHpMs="1500" petMp="45" petMpMs="1500">PermaPet</Activate>
+		<Activate objectId="Cookiee" cooldown="10" petDps="551" petSize="Large" petHp="45" petHpMs="1500" petMp="45" petMpMs="1500">PermaPet</Activate>
 		<OldSound>use_potion</OldSound>
 	</Object>
 	<Object type="0xD147" id="Nightmare Generator">
@@ -6204,7 +6204,7 @@
 		<InvUse />
 		<VaultItem />
 		<ScaleValue>3</ScaleValue>
-		<Activate objectId="Nightmareee" cooldown="10" petDps="450" petSize="Large" petEffects="Weak on hit for 2s" petHp="45" petHpMs="1500" petMp="45" petMpMs="1500">PermaPet</Activate>
+		<Activate objectId="Nightmareee" cooldown="10" petDps="500" petSize="Large" petEffects="Weak on hit for 2s" petHp="45" petHpMs="1500" petMp="45" petMpMs="1500">PermaPet</Activate>
 		<OldSound>use_potion</OldSound>
 	</Object>
 	<Object type="0xD148" id="Lil' Oryx 2">
@@ -6362,7 +6362,7 @@
 		<InvUse />
 		<VaultItem />
 		<ScaleValue>3</ScaleValue>
-		<Activate objectId="Zombie Penguin" cooldown="10" petDps="200" petSize="Medium" petEffects="Sick on hit for 2s" petHp="30" petHpMs="2000" petMp="30" petMpMs="2000">PermaPet</Activate>
+		<Activate objectId="Zombie Penguin" cooldown="10" petDps="250" petSize="Medium" petEffects="Sick on hit for 2s" petHp="30" petHpMs="2000" petMp="30" petMpMs="2000">PermaPet</Activate>
 		<OldSound>use_potion</OldSound>
 	</Object>
 	<Object type="0xD14C" id="Pumpkin Head Generator">
@@ -6382,7 +6382,7 @@
 		<InvUse />
 		<VaultItem />
 		<ScaleValue>3</ScaleValue>
-		<Activate objectId="Pumpkinnnnn" cooldown="10" petDps="200" petSize="Medium" petHp="30" petHpMs="2000" petMp="30" petMpMs="2000">PermaPet</Activate>
+		<Activate objectId="Pumpkinnnnn" cooldown="10" petDps="250" petSize="Medium" petHp="30" petHpMs="2000" petMp="30" petMpMs="2000">PermaPet</Activate>
 		<OldSound>use_potion</OldSound>
 	</Object>
 	<Object type="0xD14D" id="Oryx Hide Armor">
@@ -6573,13 +6573,13 @@
 		<NoMiniMap />
 		<Projectile id="0">
 			<ObjectId>Skull Proj 1</ObjectId>
-			<Damage>119</Damage>
+			<Damage>149</Damage>
 			<Speed>100</Speed>
 			<LifetimeMS>800</LifetimeMS>
 		</Projectile>
 		<Projectile id="1">
 			<ObjectId>Skull Proj 2</ObjectId>
-			<Damage>202</Damage>
+			<Damage>252</Damage>
 			<Speed>100</Speed>
 			<LifetimeMS>800</LifetimeMS>
 			<ConditionEffect duration="2">Weak</ConditionEffect>
@@ -6596,7 +6596,7 @@
 		<NoMiniMap />
 		<Projectile id="0">
 			<ObjectId>Darkness Bolt</ObjectId>
-			<Damage>228</Damage>
+			<Damage>248</Damage>
 			<Speed>60</Speed>
 			<LifetimeMS>2000</LifetimeMS>
 			<Size>180</Size>
@@ -6604,7 +6604,7 @@
 		</Projectile>
 		<Projectile id="1">
 			<ObjectId>Fire Boomerang</ObjectId>
-			<Damage>142</Damage>
+			<Damage>155</Damage>
 			<Speed>60</Speed>
 			<LifetimeMS>5000</LifetimeMS>
 			<Boomerang />
@@ -6613,14 +6613,14 @@
 		</Projectile>
 		<Projectile id="2">
 			<ObjectId>Silver Shield</ObjectId>
-			<Damage>152</Damage>
+			<Damage>166</Damage>
 			<Speed>70</Speed>
 			<LifetimeMS>540</LifetimeMS>
 			<Size>200</Size>
 		</Projectile>
 		<Projectile id="3">
 			<ObjectId>Dark Gray Spinner</ObjectId>
-			<Damage>28</Damage>
+			<Damage>31</Damage>
 			<Speed>120</Speed>
 			<LifetimeMS>5000</LifetimeMS>
 			<MultiHit />
@@ -6628,7 +6628,7 @@
 		</Projectile>
 		<Projectile id="4">
 			<ObjectId>Silver Shield</ObjectId>
-			<Damage>57</Damage>
+			<Damage>62</Damage>
 			<Speed>80</Speed>
 			<LifetimeMS>1200</LifetimeMS>
 			<Size>200</Size>
@@ -6645,7 +6645,7 @@
 		<NoMiniMap />
 		<Projectile id="0">
 			<ObjectId>Darkness Bolt</ObjectId>
-			<Damage>540</Damage>
+			<Damage>589</Damage>
 			<Speed>100</Speed>
 			<LifetimeMS>2000</LifetimeMS>
 			<Size>120</Size>
@@ -6653,7 +6653,7 @@
 		</Projectile>
 		<Projectile id="1">
 			<ObjectId>Grey Boomerang</ObjectId>
-			<Damage>120</Damage>
+			<Damage>131</Damage>
 			<Speed>40</Speed>
 			<LifetimeMS>4000</LifetimeMS>
 			<Boomerang />
@@ -6661,7 +6661,7 @@
 		</Projectile>
 		<Projectile id="2">
 			<ObjectId>Blue Boomerang</ObjectId>
-			<Damage>120</Damage>
+			<Damage>131</Damage>
 			<Speed>40</Speed>
 			<LifetimeMS>4000</LifetimeMS>
 			<Boomerang />
@@ -6669,7 +6669,7 @@
 		</Projectile>
 		<Projectile id="3">
 			<ObjectId>Green Boomerang</ObjectId>
-			<Damage>120</Damage>
+			<Damage>131</Damage>
 			<Speed>20</Speed>
 			<LifetimeMS>4000</LifetimeMS>
 			<Boomerang />
@@ -6677,7 +6677,7 @@
 		</Projectile>
 		<Projectile id="4">
 			<ObjectId>Purple Boomerang</ObjectId>
-			<Damage>120</Damage>
+			<Damage>131</Damage>
 			<Speed>40</Speed>
 			<LifetimeMS>4000</LifetimeMS>
 			<Boomerang />
@@ -6685,14 +6685,14 @@
 		</Projectile>
 		<Projectile id="5">
 			<ObjectId>Black Arrow</ObjectId>
-			<Damage>120</Damage>
+			<Damage>131</Damage>
 			<Speed>80</Speed>
 			<LifetimeMS>4000</LifetimeMS>
 			<Size>100</Size>
 		</Projectile>
 		<Projectile id="6">
 			<ObjectId>Spring Green Arrow</ObjectId>
-			<Damage>600</Damage>
+			<Damage>655</Damage>
 			<Speed>40</Speed>
 			<LifetimeMS>4000</LifetimeMS>
 			<MultiHit />
@@ -6700,7 +6700,7 @@
 		</Projectile>
 		<Projectile id="7">
 			<ObjectId>Dark Gray Spinner</ObjectId>
-			<Damage>90</Damage>
+			<Damage>98</Damage>
 			<Speed>120</Speed>
 			<LifetimeMS>5000</LifetimeMS>
 			<MultiHit />
@@ -6708,7 +6708,7 @@
 		</Projectile>
 		<Projectile id="8">
 			<ObjectId>Ice Magic</ObjectId>
-			<Damage>150</Damage>
+			<Damage>164</Damage>
 			<Speed>100</Speed>
 			<LifetimeMS>4000</LifetimeMS>
 			<Size>120</Size>
@@ -6726,7 +6726,7 @@
 		<Projectile id="0">
 			<ObjectId>Fireball</ObjectId>
 			<Speed>80</Speed>
-			<Damage>80</Damage>
+			<Damage>100</Damage>
 			<Size>110</Size>
 			<LifetimeMS>1350</LifetimeMS>
 			<MultiHit />
@@ -6735,7 +6735,7 @@
 		<Projectile id="1">
 			<ObjectId>Zedshot</ObjectId>
 			<Speed>55</Speed>
-			<Damage>141</Damage>
+			<Damage>176</Damage>
 			<Size>130</Size>
 			<LifetimeMS>1900</LifetimeMS>
 			<MultiHit />
@@ -6744,7 +6744,7 @@
 		<Projectile id="2">
 			<ObjectId>Hellfire</ObjectId>
 			<Speed>67</Speed>
-			<Damage>113</Damage>
+			<Damage>141</Damage>
 			<Size>125</Size>
 			<LifetimeMS>1600</LifetimeMS>
 			<MultiHit />
@@ -6881,7 +6881,7 @@
 		<Soulbound />
 		<VaultItem />
 		<ScaleValue>3</ScaleValue>
-		<Activate objectId="Doomed Nature Beast" cooldown="10" petDps="450" petSize="Large" petEffects="Bleeds 1213 over 4s" petHp="45" petHpMs="1500" petMp="45" petMpMs="1500">PermaPet</Activate>
+		<Activate objectId="Doomed Nature Beast" cooldown="10" petDps="500" petSize="Large" petEffects="Bleeds 1348 over 4s" petHp="45" petHpMs="1500" petMp="45" petMpMs="1500">PermaPet</Activate>
 		<OldSound>use_potion</OldSound>
 	</Object>
 	<Object type="0xD168" id="Small skul Proj 1">
@@ -7194,7 +7194,7 @@
 		<NoMiniMap />
 		<Projectile id="0">
 			<ObjectId>Water Storm</ObjectId>
-			<Damage>149</Damage>
+			<Damage>186</Damage>
 			<Speed>100</Speed>
 			<LifetimeMS>800</LifetimeMS>
 		</Projectile>
@@ -7214,14 +7214,14 @@
 		<Projectile id="0">
 			<ObjectId>Small Cookie Proj 1</ObjectId>
 			<Speed>150</Speed>
-			<Damage>160</Damage>
+			<Damage>176</Damage>
 			<LifetimeMS>1800</LifetimeMS>
 			<MultiHit />
 		</Projectile>
 		<Projectile id="1">
 			<ObjectId>Large Cookie Proj 1</ObjectId>
 			<Speed>150</Speed>
-			<Damage>230</Damage>
+			<Damage>253</Damage>
 			<LifetimeMS>1800</LifetimeMS>
 			<MultiHit />
 		</Projectile>
@@ -8163,7 +8163,7 @@
 		<Sound>spell/light_heal</Sound>
 		<InvUse />
 		<VaultItem />
-		<Activate objectId="Dinosaur's Pet" cooldown="10" petDps="500" petSize="Large" petHp="45" petHpMs="1500" petMp="45" petMpMs="1500">PermaPet</Activate>
+		<Activate objectId="Dinosaur's Pet" cooldown="10" petDps="550" petSize="Large" petHp="45" petHpMs="1500" petMp="45" petMpMs="1500">PermaPet</Activate>
 		<OldSound>use_potion</OldSound>
 		<Shop>
 			<Name>donorpets</Name>
@@ -8186,7 +8186,7 @@
 		<Sound>spell/light_heal</Sound>
 		<InvUse />
 		<VaultItem />
-		<Activate objectId="Aceaku's Pet" cooldown="10" petDps="200" petSize="Medium" petEffects="Paralyzed on hit for 0.2s" petHp="30" petHpMs="2000" petMp="30" petMpMs="2000">PermaPet</Activate>
+		<Activate objectId="Aceaku's Pet" cooldown="10" petDps="250" petSize="Medium" petEffects="Paralyzed on hit for 0.2s" petHp="30" petHpMs="2000" petMp="30" petMpMs="2000">PermaPet</Activate>
 		<OldSound>use_potion</OldSound>
 		<Shop>
 			<Name>donorpets</Name>
@@ -8213,28 +8213,28 @@
 		<Projectile id="0">
 			<ObjectId>Thunder Swirl</ObjectId>
 			<Speed>55</Speed>
-			<Damage>250</Damage>
+			<Damage>275</Damage>
 			<Size>110</Size>
 			<LifetimeMS>1600</LifetimeMS>
 		</Projectile>
 		<Projectile id="1">
 			<ObjectId>Trident</ObjectId>
 			<Speed>70</Speed>
-			<Damage>162</Damage>
+			<Damage>179</Damage>
 			<Size>100</Size>
 			<LifetimeMS>3000</LifetimeMS>
 		</Projectile>
 		<Projectile id="2">
 			<ObjectId>Super Trident</ObjectId>
 			<Speed>60</Speed>
-			<Damage>250</Damage>
+			<Damage>275</Damage>
 			<Size>110</Size>
 			<LifetimeMS>3000</LifetimeMS>
 		</Projectile>
 		<Projectile id="3">
 			<ObjectId>Yellow Wall</ObjectId>
 			<Speed>60</Speed>
-			<Damage>300</Damage>
+			<Damage>330</Damage>
 			<Size>160</Size>
 			<LifetimeMS>3000</LifetimeMS>
 		</Projectile>
@@ -8259,7 +8259,7 @@
 		</Tag>
 		<Projectile id="0">
 			<ObjectId>Static Star</ObjectId>
-			<Damage>220</Damage>
+			<Damage>275</Damage>
 			<Speed>100</Speed>
 			<LifetimeMS>800</LifetimeMS>
 			<ConditionEffect duration="0.2">Paralyzed</ConditionEffect>
@@ -8948,7 +8948,7 @@
 		<ScaleValue>3</ScaleValue>
 		<InvUse />
 		<VaultItem />
-		<Activate objectId="Support Bot" cooldown="10" petDps="200" petSize="Medium" petEffects="Armored on you for 2s every 10s" petHp="30" petHpMs="2000" petMp="30" petMpMs="2000">PermaPet</Activate>
+		<Activate objectId="Support Bot" cooldown="10" petDps="250" petSize="Medium" petEffects="Armored on you for 2s every 10s" petHp="30" petHpMs="2000" petMp="30" petMpMs="2000">PermaPet</Activate>
 		<OldSound>use_potion</OldSound>
 		<Shop>
 			<Name>donorpets</Name>
@@ -8972,7 +8972,7 @@
 		<ScaleValue>3</ScaleValue>
 		<InvUse />
 		<VaultItem />
-		<Activate objectId="Zenco The Undead God" cooldown="10" petDps="200" petSize="Medium" petEffects="Bleeds 141 over 3s" petHp="30" petHpMs="2000" petMp="30" petMpMs="2000">PermaPet</Activate>
+		<Activate objectId="Zenco The Undead God" cooldown="10" petDps="250" petSize="Medium" petEffects="Bleeds 176 over 3s" petHp="30" petHpMs="2000" petMp="30" petMpMs="2000">PermaPet</Activate>
 		<OldSound>use_potion</OldSound>
 		<Shop>
 			<Name>donorpets</Name>
@@ -8996,7 +8996,7 @@
 		<ScaleValue>3</ScaleValue>
 		<InvUse />
 		<VaultItem />
-		<Activate objectId="Cerberus Skull" cooldown="10" petDps="200" petSize="Medium" petEffects="Armor Broken on hit for 1s" petHp="30" petHpMs="2000" petMp="30" petMpMs="2000">PermaPet</Activate>
+		<Activate objectId="Cerberus Skull" cooldown="10" petDps="250" petSize="Medium" petEffects="Armor Broken on hit for 1s" petHp="30" petHpMs="2000" petMp="30" petMpMs="2000">PermaPet</Activate>
 		<OldSound>use_potion</OldSound>
 		<Shop>
 			<Name>donorpets</Name>
@@ -9011,7 +9011,7 @@
 		</AnimatedTexture>
 		<Projectile id="0">
 			<ObjectId>K.I.D.D. Force Energy 1.0</ObjectId>
-			<Damage>200</Damage>
+			<Damage>250</Damage>
 			<Speed>100</Speed>
 			<LifetimeMS>800</LifetimeMS>
 		</Projectile>
@@ -9028,17 +9028,17 @@
 		<Projectile id="0">
 			<ObjectId>Small skul Proj 1</ObjectId>
 			<Speed>150</Speed>
-			<Damage>82</Damage>
+			<Damage>103</Damage>
 			<LifetimeMS>1800</LifetimeMS>
 			<MultiHit />
 		</Projectile>
 		<Projectile id="1">
 			<ObjectId>Large skul Proj 1</ObjectId>
 			<Speed>150</Speed>
-			<Damage>141</Damage>
+			<Damage>176</Damage>
 			<LifetimeMS>1800</LifetimeMS>
 			<MultiHit />
-			<Bleed duration="3">141</Bleed>
+			<Bleed duration="3">176</Bleed>
 		</Projectile>
 		<Size>40</Size>
 		<ShadowSize>120</ShadowSize>
@@ -9052,13 +9052,13 @@
 		</AnimatedTexture>
 		<Projectile id="0">
 			<ObjectId>Small skul Proj 1</ObjectId>
-			<Damage>100</Damage>
+			<Damage>125</Damage>
 			<Speed>100</Speed>
 			<LifetimeMS>800</LifetimeMS>
 		</Projectile>
 		<Projectile id="1">
 			<ObjectId>Large skul Proj 1</ObjectId>
-			<Damage>250</Damage>
+			<Damage>312</Damage>
 			<Speed>100</Speed>
 			<LifetimeMS>800</LifetimeMS>
 			<ConditionEffect duration="1">Armor Broken</ConditionEffect>
@@ -10331,7 +10331,7 @@
 		<NoMiniMap />
 		<Projectile id="0">
 			<ObjectId>Violet Claw</ObjectId>
-			<Damage>100</Damage>
+			<Damage>20</Damage>
 			<Speed>110</Speed>
 			<LifetimeMS>600</LifetimeMS>
 		</Projectile>
@@ -10450,11 +10450,11 @@
 		<NoMiniMap />
 		<Projectile id="0">
 			<ObjectId>Gold Bullet</ObjectId>
-			<Damage>22</Damage>
+			<Damage>56</Damage>
 			<Speed>100</Speed>
 			<LifetimeMS>800</LifetimeMS>
 		</Projectile>
-		<Size>60</Size>
+		<Size>70</Size>
 	</Object>
 	<Object type="0xD213" id="White Cat (Doomed)">
 		<DisplayId>White Cat</DisplayId>
@@ -10504,11 +10504,11 @@
 		<NoMiniMap />
 		<Projectile id="0">
 			<ObjectId>Wereshot</ObjectId>
-			<Damage>100</Damage>
+			<Damage>62</Damage>
 			<Speed>100</Speed>
 			<LifetimeMS>800</LifetimeMS>
 		</Projectile>
-		<Size>60</Size>
+		<Size>70</Size>
 	</Object>
 	<Object type="0xD216" id="Brown Fox (Doomed)">
 		<DisplayId>Brown Fox</DisplayId>
@@ -10553,7 +10553,7 @@
 			<Index>0x08</Index>
 		</AnimatedTexture>
 		<NoMiniMap />
-		<Size>60</Size>
+		<Size>70</Size>
 	</Object>
 	<Object type="0xD219" id="Penguin (Doomed)">
 		<DisplayId>Penguin</DisplayId>
@@ -10639,12 +10639,12 @@
 		<NoMiniMap />
 		<Projectile id="0">
 			<ObjectId>Wereblast</ObjectId>
-			<Damage>65</Damage>
+			<Damage>162</Damage>
 			<Speed>100</Speed>
 			<LifetimeMS>900</LifetimeMS>
 			<MultiHit />
 		</Projectile>
-		<Size>60</Size>
+		<Size>70</Size>
 	</Object>
 	<Object type="0xD21E" id="Grey Fox (Doomed)">
 		<DisplayId>Grey Fox</DisplayId>
@@ -10677,7 +10677,7 @@
 		<NoMiniMap />
 		<Projectile id="0">
 			<ObjectId>Purple Spit</ObjectId>
-			<Damage>100</Damage>
+			<Damage>25</Damage>
 			<Speed>80</Speed>
 			<LifetimeMS>800</LifetimeMS>
 		</Projectile>
@@ -10695,13 +10695,13 @@
 		<NoMiniMap />
 		<Projectile id="0">
 			<ObjectId>Holy Wave</ObjectId>
-			<Damage>65</Damage>
+			<Damage>162</Damage>
 			<Speed>100</Speed>
 			<LifetimeMS>800</LifetimeMS>
 			<MultiHit />
 			<ArmorPiercing />
 		</Projectile>
-		<Size>60</Size>
+		<Size>70</Size>
 	</Object>
 	<Object type="0xD221" id="Green Penguin (Doomed)">
 		<DisplayId>Green Penguin</DisplayId>
@@ -10733,11 +10733,11 @@
 		<NoMiniMap />
 		<Projectile id="0">
 			<ObjectId>SheepProj</ObjectId>
-			<Damage>80</Damage>
+			<Damage>200</Damage>
 			<Speed>70</Speed>
 			<LifetimeMS>1200</LifetimeMS>
 		</Projectile>
-		<Size>60</Size>
+		<Size>70</Size>
 	</Object>
 	<Object type="0xD223" id="Bluebird (Doomed)">
 		<DisplayId>Bluebird</DisplayId>
@@ -10799,12 +10799,12 @@
 		<NoMiniMap />
 		<Projectile id="0">
 			<ObjectId>Slurp Magic</ObjectId>
-			<Damage>45</Damage>
+			<Damage>112</Damage>
 			<Speed>100</Speed>
 			<LifetimeMS>800</LifetimeMS>
 			<Wavy />
 		</Projectile>
-		<Size>95</Size>
+		<Size>110</Size>
 	</Object>
 	<Object type="0xD227" id="Squirrel (Doomed)">
 		<DisplayId>Squirrel</DisplayId>
@@ -10818,7 +10818,7 @@
 		<Flying />
 		<Projectile id="0">
 			<ObjectId>Acorn</ObjectId>
-			<Damage>100</Damage>
+			<Damage>22</Damage>
 			<Speed>90</Speed>
 			<LifetimeMS>800</LifetimeMS>
 		</Projectile>
@@ -10870,13 +10870,13 @@
 		<Flying />
 		<Projectile id="0">
 			<ObjectId>Ghost Proj</ObjectId>
-			<Damage>50</Damage>
+			<Damage>125</Damage>
 			<Speed>70</Speed>
 			<LifetimeMS>1300</LifetimeMS>
 			<MultiHit />
 			<Wavy />
 		</Projectile>
-		<Size>80</Size>
+		<Size>95</Size>
 		<ShadowSize>80</ShadowSize>
 	</Object>
 	<Object type="0xD22A" id="Leprechaun (Doomed)">
@@ -10889,17 +10889,17 @@
 		<NoMiniMap />
 		<Projectile id="0">
 			<ObjectId>Golden Coin</ObjectId>
-			<Damage>39</Damage>
+			<Damage>100</Damage>
 			<Speed>100</Speed>
 			<LifetimeMS>800</LifetimeMS>
 		</Projectile>
 		<Projectile id="1">
 			<ObjectId>4-Leaf Clover</ObjectId>
-			<Damage>79</Damage>
+			<Damage>200</Damage>
 			<Speed>100</Speed>
 			<LifetimeMS>800</LifetimeMS>
 		</Projectile>
-		<Size>60</Size>
+		<Size>70</Size>
 	</Object>
 	<Object type="0xD22B" id="Toucan (Doomed)">
 		<DisplayId>Toucan</DisplayId>
@@ -10930,7 +10930,7 @@
 			<Index>20</Index>
 		</AnimatedTexture>
 		<NoMiniMap />
-		<Size>60</Size>
+		<Size>70</Size>
 	</Object>
 	<Object type="0xD22D" id="Mallard (Doomed)">
 		<DisplayId>Mallard</DisplayId>
@@ -10960,7 +10960,7 @@
 		<NoMiniMap />
 		<Projectile id="0">
 			<ObjectId>Bubble</ObjectId>
-			<Damage>100</Damage>
+			<Damage>25</Damage>
 			<Speed>70</Speed>
 			<LifetimeMS>1100</LifetimeMS>
 			<Wavy />
@@ -10977,12 +10977,12 @@
 		<NoMiniMap />
 		<Projectile id="0">
 			<ObjectId>Apo Feather</ObjectId>
-			<Damage>50</Damage>
+			<Damage>125</Damage>
 			<Speed>200</Speed>
 			<LifetimeMS>500</LifetimeMS>
 			<ArmorPiercing />
 		</Projectile>
-		<Size>60</Size>
+		<Size>70</Size>
 		<WhileMoving>
 			<Z>0.35</Z>
 			<Flying />
@@ -11015,7 +11015,7 @@
 			<Index>25</Index>
 		</AnimatedTexture>
 		<NoMiniMap />
-		<Size>70</Size>
+		<Size>80</Size>
 		<ShadowSize>80</ShadowSize>
 	</Object>
 	<Object type="0xD232" id="Bee (Doomed)">
@@ -11037,12 +11037,12 @@
 		<ShadowSize>60</ShadowSize>
 		<Projectile id="0">
 			<ObjectId>Stinger</ObjectId>
-			<Damage>31</Damage>
+			<Damage>77</Damage>
 			<Speed>150</Speed>
 			<LifetimeMS>500</LifetimeMS>
-			<Bleed duration="2">12</Bleed>
+			<Bleed duration="2">31</Bleed>
 		</Projectile>
-		<Size>80</Size>
+		<Size>95</Size>
 	</Object>
 	<Object type="0xD233" id="Raven (Doomed)">
 		<DisplayId>Raven</DisplayId>
@@ -11054,7 +11054,7 @@
 		<NoMiniMap />
 		<Projectile id="0">
 			<ObjectId>Avian Bolt</ObjectId>
-			<Damage>100</Damage>
+			<Damage>25</Damage>
 			<Speed>100</Speed>
 			<LifetimeMS>800</LifetimeMS>
 		</Projectile>
@@ -11075,7 +11075,7 @@
 		<NoMiniMap />
 		<Projectile id="0">
 			<ObjectId>Leaf Bolt</ObjectId>
-			<Damage>100</Damage>
+			<Damage>25</Damage>
 			<Speed>100</Speed>
 			<LifetimeMS>800</LifetimeMS>
 			<Wavy />
@@ -11093,12 +11093,12 @@
 		<NoMiniMap />
 		<Projectile id="0">
 			<ObjectId>Leaf Arrow</ObjectId>
-			<Damage>40</Damage>
+			<Damage>100</Damage>
 			<Speed>150</Speed>
 			<LifetimeMS>650</LifetimeMS>
 			<ArmorPiercing />
 		</Projectile>
-		<Size>70</Size>
+		<Size>80</Size>
 		<ShadowSize>80</ShadowSize>
 	</Object>
 	<Object type="0xD236" id="Crab (Doomed)">
@@ -11112,7 +11112,7 @@
 		<NoMiniMap />
 		<Projectile id="0">
 			<ObjectId>Coral Spike</ObjectId>
-			<Damage>100</Damage>
+			<Damage>22</Damage>
 			<Speed>100</Speed>
 			<LifetimeMS>500</LifetimeMS>
 		</Projectile>
@@ -11147,11 +11147,11 @@
 		<NoMiniMap />
 		<Projectile id="0">
 			<ObjectId>Flame Breath</ObjectId>
-			<Damage>65</Damage>
+			<Damage>162</Damage>
 			<Speed>90</Speed>
 			<LifetimeMS>450</LifetimeMS>
 		</Projectile>
-		<Size>60</Size>
+		<Size>70</Size>
 	</Object>
 	<Object type="0xD239" id="Elephant (Doomed)">
 		<DisplayId>Elephant</DisplayId>
@@ -11162,7 +11162,7 @@
 			<Index>35</Index>
 		</AnimatedTexture>
 		<NoMiniMap />
-		<Size>60</Size>
+		<Size>70</Size>
 	</Object>
 	<Object type="0xD23A" id="Demon Frog (Doomed)">
 		<DisplayId>Demon Frog</DisplayId>
@@ -11175,11 +11175,11 @@
 		<NoMiniMap />
 		<Projectile id="0">
 			<ObjectId>Demon Fire Blast</ObjectId>
-			<Damage>60</Damage>
+			<Damage>150</Damage>
 			<Speed>100</Speed>
 			<LifetimeMS>900</LifetimeMS>
 		</Projectile>
-		<Size>80</Size>
+		<Size>95</Size>
 	</Object>
 	<Object type="0xD23B" id="Gargoyle (Doomed)">
 		<DisplayId>Gargoyle</DisplayId>
@@ -11191,11 +11191,11 @@
 		<NoMiniMap />
 		<Projectile id="0">
 			<ObjectId>Big Stone bolt</ObjectId>
-			<Damage>80</Damage>
+			<Damage>200</Damage>
 			<Speed>60</Speed>
 			<LifetimeMS>1300</LifetimeMS>
 		</Projectile>
-		<Size>80</Size>
+		<Size>95</Size>
 		<WhileMoving>
 			<Z>0.25</Z>
 			<Flying />
@@ -11212,11 +11212,11 @@
 		<NoMiniMap />
 		<Projectile id="0">
 			<ObjectId>Hard Candy Stake</ObjectId>
-			<Damage>100</Damage>
+			<Damage>62</Damage>
 			<Speed>100</Speed>
 			<LifetimeMS>800</LifetimeMS>
 		</Projectile>
-		<Size>60</Size>
+		<Size>70</Size>
 	</Object>
 	<Object type="0xD23D" id="Dragonfly (Doomed)">
 		<DisplayId>Dragonfly</DisplayId>
@@ -11253,12 +11253,12 @@
 		<NoMiniMap />
 		<Projectile id="0">
 			<ObjectId>Eye Laser</ObjectId>
-			<Damage>55</Damage>
+			<Damage>138</Damage>
 			<Speed>160</Speed>
 			<LifetimeMS>550</LifetimeMS>
 			<MultiHit />
 		</Projectile>
-		<Size>70</Size>
+		<Size>80</Size>
 	</Object>
 	<Object type="0xD23F" id="Snowy Owl (Doomed)">
 		<DisplayId>Snowy Owl</DisplayId>
@@ -11270,12 +11270,12 @@
 		<NoMiniMap />
 		<Projectile id="0">
 			<ObjectId>Eternal Snowflake Shot</ObjectId>
-			<Damage>60</Damage>
+			<Damage>150</Damage>
 			<Speed>100</Speed>
 			<LifetimeMS>800</LifetimeMS>
 			<ConditionEffect duration="1">Slowed</ConditionEffect>
 		</Projectile>
-		<Size>70</Size>
+		<Size>80</Size>
 		<ShadowSize>80</ShadowSize>
 		<WhileMoving>
 			<Z>0.24</Z>
@@ -11308,11 +11308,11 @@
 		<NoMiniMap />
 		<Projectile id="0">
 			<ObjectId>Toy Attack</ObjectId>
-			<Damage>45</Damage>
+			<Damage>112</Damage>
 			<Speed>80</Speed>
 			<LifetimeMS>800</LifetimeMS>
 		</Projectile>
-		<Size>60</Size>
+		<Size>70</Size>
 	</Object>
 	<Object type="0xD242" id="Baby Dragon (Doomed)">
 		<DisplayId>Baby Dragon</DisplayId>
@@ -11324,11 +11324,11 @@
 		<NoMiniMap />
 		<Projectile id="0">
 			<ObjectId>Dragon Attack Red Small Fireball</ObjectId>
-			<Damage>45</Damage>
+			<Damage>112</Damage>
 			<Speed>100</Speed>
 			<LifetimeMS>800</LifetimeMS>
 		</Projectile>
-		<Size>60</Size>
+		<Size>70</Size>
 	</Object>
 	<Object type="0xD243" id="Robobuddy (Doomed)">
 		<DisplayId>Robobuddy</DisplayId>
@@ -11340,11 +11340,11 @@
 		<NoMiniMap />
 		<Projectile id="0">
 			<ObjectId>Robot Attack</ObjectId>
-			<Damage>20</Damage>
+			<Damage>50</Damage>
 			<Speed>140</Speed>
 			<LifetimeMS>500</LifetimeMS>
 		</Projectile>
-		<Size>60</Size>
+		<Size>70</Size>
 	</Object>
 	<Object type="0xD244" id="Shroom (Doomed)">
 		<DisplayId>Shroom</DisplayId>
@@ -11355,7 +11355,7 @@
 		</AnimatedTexture>
 		<Projectile id="0">
 			<ObjectId>Small Mush Proj 1</ObjectId>
-			<Damage>143</Damage>
+			<Damage>179</Damage>
 			<Speed>100</Speed>
 			<LifetimeMS>800</LifetimeMS>
 		</Projectile>

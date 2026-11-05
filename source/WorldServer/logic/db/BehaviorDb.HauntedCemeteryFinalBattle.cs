@@ -69,7 +69,9 @@ namespace WorldServer.logic
                         new TimedTransition(time: 2600, targetState: "Circling")
 
                     )
-                )
+                ),
+                new ItemLoot("Black Wolf Generator", 0.01),
+                new ItemLoot("Lil' Werewolf Generator", 0.01)
             )
             .Init("Mini Werewolf",
                 new State(
@@ -79,7 +81,8 @@ namespace WorldServer.logic
                             new Protect(speed: 0.8, protectee: "Werewolf", acquireRange: 15, protectionRange: 6, reprotectRange: 3),
                             new Wander(speed: 0.4)
                     )
-                )
+                ),
+                new ItemLoot("Grey Wolf Generator", 0.005)
             )
             .Init("Ghost of Skuld",
                 new State(

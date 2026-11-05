@@ -669,7 +669,8 @@ namespace WorldServer.logic
                 ),
             new Threshold(0.02,
                 LootTemplates.StrongerDrop()
-                )
+                ),
+            new ItemLoot("Lil' Puppet Master Generator", 0.03)
             );
     }
 }

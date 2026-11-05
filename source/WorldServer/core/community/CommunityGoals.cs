@@ -36,6 +36,11 @@ namespace WorldServer.core.community
     // `community:<run>:who` each account's share (a sorted set), `community:<run>:claimed` the
     // claims ("<account>:<tier>", 255 the top's prize). `community:week:<yyyyMMdd>` keeps the
     // week's goals as they were drawn, so changing the pool only changes the weeks to come.
+    //
+    // A week's goal that reaches its last Overdrive level finishes early (CommunityEarly): the
+    // first server to see it so marks it `finished` and adds a bonus goal for its slot to
+    // `community:week:<yyyyMMdd>:early` ("<slot>,<goal>,<unix start>"), which ends that run and
+    // runs until the weekly reset as usual. Each server announces the bonus goals it sees start.
     public static class CommunityGoals
     {
         private const int RefreshSeconds = 5;
@@ -63,6 +68,11 @@ namespace WorldServer.core.community
         // each run's goal, once fixed in Redis, and the runs settled (or found settled)
         private static readonly ConcurrentDictionary<string, int> RunGoals = new ConcurrentDictionary<string, int>();
         private static readonly ConcurrentDictionary<string, byte> Settled = new ConcurrentDictionary<string, byte>();
+        // the runs seen finished and still running, and when this server last tried to start their
+        // bonus goal (tried again a minute later while the run still runs)
+        private static readonly ConcurrentDictionary<string, DateTime> Finished = new ConcurrentDictionary<string, DateTime>();
+        // each week's bonus goals, as last read
+        private static readonly ConcurrentDictionary<DateTime, IReadOnlyList<EarlyStart>> EarlyStarts = new ConcurrentDictionary<DateTime, IReadOnlyList<EarlyStart>>();
         private const string ScaleKey = "community:scale";
 
         public sealed class RunState
@@ -118,6 +128,8 @@ namespace WorldServer.core.community
         private static string WhoKey(string run) => $"community:{run}:who";
         private static string ClaimedKey(string run) => $"community:{run}:claimed";
         private static string WeekKey(DateTime week) => $"community:week:{week:yyyyMMdd}";
+        private static string EarlyKey(DateTime week) => $"community:week:{week:yyyyMMdd}:early";
+        private static TimeSpan WeekKeptFor => TimeSpan.FromDays(7 * (Data.ClaimWeeks + 6));
         private static string ClaimId(int account, int tier) => $"{account}:{tier}";
         // a run's keys outlive the claims by some weeks
         private static TimeSpan KeepFor(CommunityRun run) => run.End.AddDays(7 * (Data.ClaimWeeks + 4)) - DateTime.UtcNow;
@@ -161,6 +173,7 @@ namespace WorldServer.core.community
             _db.KeyDelete(new RedisKey[] { TotalKey(key), WhoKey(key), ClaimedKey(key) });
             RunGoals.TryRemove(key, out _);
             Settled.TryRemove(key, out _);
+            Finished.TryRemove(key, out _);
         }
 
         // The goals' scales (1 for a goal never settled).
@@ -196,7 +209,7 @@ namespace WorldServer.core.community
                     drawn = kept;
                 else
                 {
-                    _db.StringSet(key, string.Join(",", drawn), TimeSpan.FromDays(7 * (Data.ClaimWeeks + 6)));
+                    _db.StringSet(key, string.Join(",", drawn), WeekKeptFor);
                     Log.Info($"Community goals: the week of {week:yyyy-MM-dd} has {string.Join(", ", drawn)}");
                 }
             }
@@ -210,6 +223,82 @@ namespace WorldServer.core.community
             return drawn;
         }
 
+        // A week's bonus goals (CommunityEarly): read again each refresh until an hour after the
+        // week ends (when no more can start), then kept.
+        private static IReadOnlyList<EarlyStart> WeekEarly(DateTime week, DateTime now)
+        {
+            if (EarlyStarts.TryGetValue(week, out var kept) && now > week.AddDays(7).AddHours(1))
+                return kept;
+            try
+            {
+                var list = new List<EarlyStart>();
+                foreach (var v in _db.ListRange(EarlyKey(week)))
+                {
+                    var parts = ((string)v ?? "").Split(',');
+                    if (parts.Length >= 3 && int.TryParse(parts[0], out var slot) && long.TryParse(parts[2], out var unix))
+                    {
+                        var heat = parts.Length > 3 && double.TryParse(parts[3], System.Globalization.NumberStyles.Float, System.Globalization.CultureInfo.InvariantCulture, out var h) ? h : 1;
+                        list.Add(new EarlyStart(slot, parts[1], DateTimeOffset.FromUnixTimeSeconds(unix).UtcDateTime, heat));
+                    }
+                }
+                EarlyStarts[week] = list;
+                return list;
+            }
+            catch (Exception e)
+            {
+                Log.Warn($"Community goals: couldn't read the week's bonus goals: {e.Message}");
+                return kept ?? Array.Empty<EarlyStart>();
+            }
+        }
+
+        // A week's goal reached its last level: one server at a time (a lock for a minute) ends it
+        // now and starts a bonus goal in its slot until the weekly reset (unless too little is
+        // left). A run that still runs a minute later (its bonus goal lost, or left out as a second
+        // start of a goal) is tried again. `picked` holds the goals started this pass, so several
+        // finished at once each get their own.
+        private static void FinishEarly(RunState rs, List<CommunityRun> runs, DateTime now, HashSet<string> picked)
+        {
+            var run = rs.Run;
+            Finished[run.Key] = DateTime.UtcNow;
+            // too late in the week: none this week (not tried again)
+            if ((run.End - now).TotalHours < Data.Early.MinHours)
+            {
+                Finished[run.Key] = DateTime.MaxValue;
+                return;
+            }
+            try
+            {
+                var at = QuestPeriods.Unix(now);
+                if (!_db.StringSet($"{TotalKey(run.Key)}:finishing", at, TimeSpan.FromMinutes(1), When.NotExists))
+                    return;
+                _db.HashSet(TotalKey(run.Key), "finished", at);
+                var week = run.Week;
+                // every goal of the week, with the bonus goals as Redis has them now and those just
+                // picked
+                EarlyStarts.TryRemove(week, out _);
+                var used = runs.Where(r => !r.Special && r.Week == week).Select(r => r.Def.Id)
+                    .Concat(WeekEarly(week, now).Select(e => e.Id)).Concat(picked).ToHashSet();
+                var next = Data.NextGoal(week, used, WeekGoals(week.AddDays(-7)));
+                if (next == null)
+                {
+                    Finished[run.Key] = DateTime.MaxValue;
+                    Log.Info($"Community goals: {run.Key} finished early, and no goal is left for a bonus");
+                    return;
+                }
+                // the faster it went, the harder the bonus goal
+                var heat = Data.Heat(run, rs.Total, rs.Goal, now);
+                picked.Add(next);
+                _db.ListRightPush(EarlyKey(week), $"{run.Slot},{next},{at},{heat.ToString("0.###", System.Globalization.CultureInfo.InvariantCulture)}");
+                _db.KeyExpire(EarlyKey(week), WeekKeptFor);
+                EarlyStarts.TryRemove(week, out _);
+                Log.Info($"Community goals: {run.Key} finished early at {rs.Total:N0} of {rs.Goal:N0}; {next} starts as a bonus, {heat:0.##} times its size");
+            }
+            catch (Exception e)
+            {
+                Log.Warn($"Community goals: couldn't finish {run.Key} early: {e.Message}");
+            }
+        }
+
         // Sends what's counted, reads the totals back, and says which tiers were reached.
         private static void Refresh()
         {
@@ -218,7 +307,9 @@ namespace WorldServer.core.community
             try
             {
                 var now = QuestTracker.Now;
-                var runs = Data.Runs(now, WeekGoals);
+                var runs = Data.Runs(now, WeekGoals, week => WeekEarly(week, now));
+                // one run a key (a key twice would be bad data: the first is kept)
+                runs = runs.GroupBy(r => r.Key).Select(g => g.First()).ToList();
                 var byKey = runs.ToDictionary(r => r.Key);
                 Seen.Clear();
                 var totals = Take(PendingTotals);
@@ -233,7 +324,8 @@ namespace WorldServer.core.community
                 var fixing = new List<(CommunityRun Run, Task<bool> First, Task<RedisValue> Goal)>();
                 foreach (var run in unfixed)
                 {
-                    var goal = run.Special ? run.Def.Goal : CommunityData.GoalOf(run.Def, scales.TryGetValue(run.Def.Id, out var sc) ? sc : 1);
+                    // a bonus goal after quick finishes is harder by their heat
+                    var goal = run.Special ? run.Def.Goal : CommunityData.GoalOf(run.Def, (scales.TryGetValue(run.Def.Id, out var sc) ? sc : 1) * run.Heat);
                     var first = batch.HashSetAsync(TotalKey(run.Key), "goal", goal, When.NotExists);
                     tasks.Add(first);
                     tasks.Add(batch.KeyExpireAsync(TotalKey(run.Key), KeepFor(run)));
@@ -308,11 +400,31 @@ namespace WorldServer.core.community
                 foreach (var rs in states)
                     if (!rs.Run.Running(now) && !rs.Run.Special && RunGoals.ContainsKey(rs.Run.Key) && !Settled.ContainsKey(rs.Run.Key))
                         Settle(rs);
-                // a new week: a server that was running last week says so
-                var weekly = _running.Where(r => !r.Run.Special).Select(r => r.Run.Key).ToList();
-                if (weekly.Count > 0 && before.Any(b => !b.Run.Special) && !before.Any(b => weekly.Contains(b.Run.Key)))
-                    Broadcast(CommunityNotice.NEW_WEEK, "New community goals!",
-                        $"This week: {string.Join(", ", _running.Select(r => r.Run.Def.Title))}. See the Warcaller in the Nexus.");
+                if (Data.Early.Enabled)
+                {
+                    var picked = new HashSet<string>();
+                    foreach (var rs in _running)
+                        if (!rs.Run.Special && RunGoals.ContainsKey(rs.Run.Key) && Data.Finished(rs.Run.Def, rs.Goal, rs.Total)
+                            && (!Finished.TryGetValue(rs.Run.Key, out var tried) || DateTime.UtcNow - tried > TimeSpan.FromMinutes(1)))
+                            FinishEarly(rs, runs, now, picked);
+                }
+                // a new week, or a bonus goal begun: a server that was running before says so
+                var weekly = _running.Where(r => !r.Run.Special).ToList();
+                var had = before.Select(b => b.Run.Key).ToHashSet();
+                var fresh = weekly.Where(r => !had.Contains(r.Run.Key)).ToList();
+                if (fresh.Count > 0 && before.Any(b => !b.Run.Special))
+                {
+                    if (fresh.Any(r => !r.Run.Bonus))
+                        Broadcast(CommunityNotice.NEW_WEEK, "New community goals!",
+                            $"This week: {string.Join(", ", _running.Select(r => r.Run.Def.Title))}. See the Warcaller in the Nexus.");
+                    else
+                        foreach (var rs in fresh)
+                        {
+                            var done = states.FirstOrDefault(s => !s.Run.Special && s.Run.Slot == rs.Run.Slot && s.Run.End == rs.Run.Start);
+                            Broadcast(CommunityNotice.NEW_WEEK, $"Bonus goal: {rs.Run.Def.Title}!",
+                                $"{(done != null ? $"\"{done.Run.Def.Title}\" was finished early" : "A goal was finished early")}, so a new one takes its place until the weekly reset. See the Warcaller in the Nexus.");
+                        }
+                }
             }
             catch (Exception e)
             {
@@ -370,7 +482,9 @@ namespace WorldServer.core.community
                 var id = run.Def.Id;
                 var scales = Scales();
                 var old = scales.TryGetValue(id, out var sc) ? sc : 1;
-                var next = Data.NextScale(old, rs.Total, rs.Goal);
+                // by its pace over a week (a run finished early or a bonus run is shorter), against
+                // its goal without the heat
+                var next = Data.NextScale(old, rs.Total, Math.Max(1, (int)Math.Round(rs.Goal / run.Heat)), run.Weeks, run.Cut);
                 SetScale(id, next);
                 Settled[run.Key] = 0;
                 Log.Info($"Community goals: {run.Key} ended at {rs.Total:N0} of {rs.Goal:N0}; {id}'s scale {old:0.###} -> {next:0.###} (next goal {CommunityData.GoalOf(run.Def, next):N0})");

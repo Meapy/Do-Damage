@@ -2390,7 +2390,8 @@ namespace WorldServer.logic
                     new OrderOnce(46, "shtrs Spawn Bridge", "Open"),
                     new Suicide()
                    )
-                )
+                ),
+            new ItemLoot("Lil' Forgotten King Generator", 0.02)
             )
         .Init("shtrs Royal Guardian J",
             new State(

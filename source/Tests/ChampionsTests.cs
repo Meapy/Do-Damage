@@ -148,5 +148,31 @@ namespace Tests
             var lines = ChampionPlaces.None.With(ChampionTab.Fame, 4).With(ChampionTab.ArenaGroup, 2).Describe().ToList();
             Assert.Equal(new[] { "#4 on Fame: +1% loot", "#2 on Arena Group: +10% fame from Arena waves" }, lines);
         }
+
+        [Fact]
+        public void NameColourIsTheChampionsUnlessTheChosenOneIsPicked()
+        {
+            Assert.Equal(ChampionBoards.Gold, LookChoice.NameColor(LookChoice.NameAuto, ChampionBoards.Gold, 0x123456));
+            Assert.Equal(0x123456, LookChoice.NameColor(LookChoice.NameAuto, 0, 0x123456));
+            Assert.Equal(0x123456, LookChoice.NameColor(LookChoice.NameChosen, ChampionBoards.Gold, 0x123456));
+            Assert.Equal(0, LookChoice.NameColor(LookChoice.NameChosen, ChampionBoards.Gold, 0));
+        }
+
+        [Fact]
+        public void GlowFollowsTheChoiceAndFallsBackWhenItsSourceIsGone()
+        {
+            const int own = 0x00FF00, champ = ChampionBoards.Silver;
+            Assert.Equal(own, LookChoice.Glow(LookChoice.GlowAuto, own, champ, true));
+            Assert.Equal(champ, LookChoice.Glow(LookChoice.GlowAuto, 0, champ, true));
+            Assert.Equal(LookChoice.LegendGlow, LookChoice.Glow(LookChoice.GlowAuto, 0, 0, true));
+            Assert.Equal(champ, LookChoice.Glow(LookChoice.GlowChampion, own, champ, true));
+            Assert.Equal(LookChoice.LegendGlow, LookChoice.Glow(LookChoice.GlowLegend, own, champ, true));
+            Assert.Equal(0, LookChoice.Glow(LookChoice.GlowNone, own, champ, true));
+            // the champion's place lost: the usual order
+            Assert.Equal(LookChoice.LegendGlow, LookChoice.Glow(LookChoice.GlowChampion, 0, 0, true));
+            Assert.Equal(champ, LookChoice.Glow(LookChoice.GlowLegend, 0, champ, false));
+            Assert.Equal(LookChoice.GlowLegend, LookChoice.GlowNamed("legend"));
+            Assert.Equal(-1, LookChoice.GlowNamed("rainbow"));
+        }
     }
 }

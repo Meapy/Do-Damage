@@ -56,23 +56,25 @@ namespace WorldServer.core.objects
             }
         }
 
-        // The glow: one the player chose (/glow) first, then a champion's, then a legend's red.
+        // The glow: the source chosen in the Customize window, else the player's own (/glow), then
+        // a champion's, then a legend's red (LookChoice).
         public void UpdateGlow()
         {
             var acc = Client?.Account;
             if (acc == null)
                 return;
-            Glow = acc.GlowColor != 0 ? acc.GlowColor : Champion.Glow != 0 ? Champion.Glow : IsLegend ? 0xFF0000 : 0;
+            Glow = LookChoice.Glow(acc.GlowFrom, acc.GlowColor, Champion.Glow, IsLegend);
         }
 
-        // The name's colour in chat: a champion's over the one chosen (the quest log's rank colour,
-        // /namecolor), which stays on the account for when the place is lost.
+        // The name's colour in chat: a champion's over the one chosen (an achievement rank's
+        // colour, /namecolor), which stays on the account for when the place is lost, unless the
+        // player picked the chosen one in the Customize window (LookChoice).
         public void UpdateNameColor()
         {
             var acc = Client?.Account;
             if (acc == null)
                 return;
-            ColorNameChat = Champion.NameColor != 0 ? Champion.NameColor : acc.ColorNameChat;
+            ColorNameChat = LookChoice.NameColor(acc.NameFrom, Champion.NameColor, acc.ColorNameChat);
         }
     }
 }

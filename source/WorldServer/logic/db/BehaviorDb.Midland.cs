@@ -32,7 +32,8 @@ namespace WorldServer.logic
                     )
                 ),
             new TierLoot(2, ItemType.Ability, 0.04),
-            new ItemLoot("Magic Potion", 0.05)
+            new ItemLoot("Magic Potion", 0.05),
+            new ItemLoot("White Cat Generator", 0.0025)
             )
         .Init("Magic Sprite",
             new State(
@@ -44,7 +45,8 @@ namespace WorldServer.logic
                     )
                 ),
             new TierLoot(6, ItemType.Armor, 0.01),
-            new ItemLoot("Magic Potion", 0.05)
+            new ItemLoot("Magic Potion", 0.05),
+            new ItemLoot("Purple Penguin Generator", 0.0025)
             )
         .Init("Orc King",
             new State(
@@ -110,7 +112,8 @@ namespace WorldServer.logic
                         radiusVariance: 0.1)
                     )
                 ),
-            new ItemLoot("Health Potion", 0.03)
+            new ItemLoot("Health Potion", 0.03),
+            new ItemLoot("Pig Generator", 0.0015)
             )
         .Init("Pink Blob",
             new State(
@@ -123,7 +126,8 @@ namespace WorldServer.logic
                 new Reproduce(densityMax: 5, densityRadius: 10)
                 ),
             new ItemLoot("Health Potion", 0.03),
-            new ItemLoot("Magic Potion", 0.03)
+            new ItemLoot("Magic Potion", 0.03),
+            new ItemLoot("Purple Snail Generator", 0.0025)
             )
         .Init("Gray Blob",
             new State(
@@ -165,7 +169,8 @@ namespace WorldServer.logic
                 new Protect(0.4, "Big Green Slime")
                 ),
             new ItemLoot("Health Potion", 0.03),
-            new ItemLoot("Magic Potion", 0.03)
+            new ItemLoot("Magic Potion", 0.03),
+            new ItemLoot("Green Frog Generator", 0.0015)
             )
         .Init("Wasp Queen",
             new State(
@@ -202,7 +207,8 @@ namespace WorldServer.logic
                     new Orbit(1, 2, target: "Wasp Queen", radiusVariance: 0.5),
                     new Wander(0.75)
                     )
-                )
+                ),
+            new ItemLoot("Dragonfly Generator", 0.0015)
             )
         .Init("Warrior Wasp",
             new State(
@@ -258,7 +264,8 @@ namespace WorldServer.logic
             new TierLoot(2, ItemType.Ring, 0.07),
             new TierLoot(2, ItemType.Ability, 0.27),
             new ItemLoot("Health Potion", 0.15),
-            new ItemLoot("Magic Potion", 0.10)
+            new ItemLoot("Magic Potion", 0.10),
+            new ItemLoot("Blue Snail Generator", 0.0025)
             )
         .Init("Sludget",
             new State(
@@ -341,7 +348,8 @@ namespace WorldServer.logic
                 ),
             new ItemLoot("Health Potion", 0.01),
             new ItemLoot("Magic Potion", 0.01),
-            new TierLoot(2, ItemType.Armor, 0.01)
+            new TierLoot(2, ItemType.Armor, 0.01),
+            new ItemLoot("Bat Generator", 0.002)
             )
         .Init("Red Spider",
             new State(
@@ -531,7 +539,8 @@ namespace WorldServer.logic
             new TierLoot(2, ItemType.Ring, 0.07),
             new TierLoot(2, ItemType.Ability, 0.2),
             new ItemLoot("Health Potion", 0.04),
-            new ItemLoot("Magic Potion", 0.05)
+            new ItemLoot("Magic Potion", 0.05),
+            new ItemLoot("Lion Generator", 0.005)
             )
         .Init("Weretiger",
             new State(
@@ -543,7 +552,8 @@ namespace WorldServer.logic
                     new Wander(0.6)
                     )
                 ),
-            new ItemLoot("Health Potion", 0.03)
+            new ItemLoot("Health Potion", 0.03),
+            new ItemLoot("Orange Cat Generator", 0.0025)
             )
         .Init("Wereleopard",
             new State(
@@ -554,7 +564,8 @@ namespace WorldServer.logic
                     new Wander(1)
                     )
                 ),
-            new ItemLoot("Health Potion", 0.03)
+            new ItemLoot("Health Potion", 0.03),
+            new ItemLoot("Yellow Cat Generator", 0.0025)
             )
         .Init("Werepanther",
             new State(
@@ -588,7 +599,8 @@ namespace WorldServer.logic
                     new TimedTransition(4000, "idle")
                     )
                 ),
-            new ItemLoot("Magic Potion", 0.03)
+            new ItemLoot("Magic Potion", 0.03),
+            new ItemLoot("Black Cat Generator", 0.0025)
             )
         .Init("Horned Drake",
             new State(
@@ -796,7 +808,8 @@ namespace WorldServer.logic
                     new Wander(0.4)
                     )
                 ),
-            new ItemLoot("Health Potion", 0.04)
+            new ItemLoot("Health Potion", 0.04),
+            new ItemLoot("Brown Fox Generator", 0.0025)
             )
         .Init("Demon Warg",
             new State(
@@ -806,7 +819,8 @@ namespace WorldServer.logic
                     new Wander(0.4)
                     )
                 ),
-            new ItemLoot("Health Potion", 0.04)
+            new ItemLoot("Health Potion", 0.04),
+            new ItemLoot("Grey Fox Generator", 0.0025)
             )
         .Init("Desert Werewolf",
             new State(
@@ -837,7 +851,8 @@ namespace WorldServer.logic
             new TierLoot(5, ItemType.Armor, 0.02),
             new TierLoot(1, ItemType.Ring, 0.11),
             new TierLoot(1, ItemType.Ability, 0.38),
-            new ItemLoot("Magic Potion", 0.03)
+            new ItemLoot("Magic Potion", 0.03),
+            new ItemLoot("Grey Cat Generator", 0.0025)
             );
     }
 }

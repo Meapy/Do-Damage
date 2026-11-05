@@ -60,14 +60,22 @@ namespace WorldServer.core.objects
             "Beholder Generator", "Angel Generator", "Ninja Generator", "Reaper Generator", "Djinn Generator",
             "Companion Knight Generator", "Paladin Generator", "Priest Generator", "Gyarados Generator",
             "Tornado Generator", "Shark Generator", "Pumpkman Generator", "Phoenix Generator", "Red Demon Generator",
-            "Drake Generator", "Zombie Penguin Generator", "Pumpkin Head Generator", "Skeletal Guardian Generator"
+            "Drake Generator", "Zombie Penguin Generator", "Pumpkin Head Generator", "Skeletal Guardian Generator",
+            // betterSkillys' own (port_doomed_pets.NEW_PETS)
+            "Lil' Medusa Generator", "Lil' Ent Generator", "Lil' Flying Brain Generator", "Lil' Ghost Ship Generator",
+            "Lil' Werewolf Generator", "Kitsune Spirit Generator", "Jade Golem Generator", "Ember Wyrmling Generator",
+            "Oni Warlord Generator", "Lantern Wisp Generator"
         };
 
         // the boss pets, weakest to strongest (by damage a second)
         private static readonly string[] LargePets =
         {
             "Great Coil Snake Generator", "Doomed Nature Generator", "Nut Generator", "Nightmare Generator",
-            "Stheno Generator", "Scootaloo Generator", "Limon Generator", "Lil' Thessal Generator"
+            "Stheno Generator", "Scootaloo Generator", "Limon Generator", "Lil' Thessal Generator",
+            // betterSkillys' own (port_doomed_pets.NEW_PETS)
+            "Lil' Puppet Master Generator", "Lil' Davy Jones Generator", "Lil' Crystal Prisoner Generator",
+            "Lil' Forgotten King Generator", "Lil' Esben Generator", "Lil' Megamoth Generator",
+            "Abyssal Krakenling Generator", "Ember Matriarch Generator"
         };
 
         private static readonly string[] BigBossPets =

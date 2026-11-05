@@ -76,6 +76,7 @@ namespace WorldServer.logic
                 new Threshold(0.005,
                     new ItemLoot("Potion of Wisdom", 1),
                     new ItemLoot("Potion of Attack", 1),
+                    new ItemLoot("Lil' Davy Jones Generator", elder ? 0.04 : 0.02),
                     new ItemLoot("Davy's Key", 0.009, 0, 0.03),
                     new ItemLoot("Ruby Gemstone", 0.02),
                     new ItemLoot("Golden Chalice", 0.025),

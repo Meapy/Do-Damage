@@ -24,7 +24,7 @@ namespace WorldServer.logic
                     LootTemplates.BasicPots()
                     ),
             new Threshold(0.01,
-                new ItemLoot("Skull Shrine Generator", 0.015),
+                new ItemLoot("Skull Shrine Generator", 0.0075),
                 new ItemLoot("Orb of Conflict", 0.02, threshold: 0.03)
                 )
             )

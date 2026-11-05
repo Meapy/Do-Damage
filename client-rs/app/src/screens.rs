@@ -2096,6 +2096,8 @@ pub enum MenuChoice {
     /// Back to the Nexus.
     Nexus,
     Options,
+    /// The Customize window: chat name colour and glow.
+    Customize,
     Changelog,
     /// Out of the game, to the main menu (the character list).
     Home,
@@ -2106,7 +2108,7 @@ pub enum MenuChoice {
 pub fn draw_game_menu(ui: &mut Ui, w: f32, h: f32, mouse: (f64, f64)) -> Vec<(MenuChoice, [f32; 4])> {
     let s = scale(w, h);
     ui.rect(0.0, 0.0, w, h, 0x000000, 0.5);
-    let r = [(w - 320.0 * s) / 2.0, (h - 420.0 * s) / 2.0, 320.0 * s, 420.0 * s];
+    let r = [(w - 320.0 * s) / 2.0, (h - 474.0 * s) / 2.0, 320.0 * s, 474.0 * s];
     theme::panel(ui.renderer, r, s);
     let size = (22.0 * s).round();
     let tw = ui.measure(tr("Paused"), size, true);
@@ -2120,6 +2122,7 @@ pub fn draw_game_menu(ui: &mut Ui, w: f32, h: f32, mouse: (f64, f64)) -> Vec<(Me
         (MenuChoice::Resume, tr("Back to the game"), Kind::Primary),
         (MenuChoice::Nexus, tr("Nexus"), Kind::Secondary),
         (MenuChoice::Options, tr("Options"), Kind::Secondary),
+        (MenuChoice::Customize, tr("Customize"), Kind::Secondary),
         (MenuChoice::Changelog, tr("Changelog"), Kind::Secondary),
         (MenuChoice::Home, tr("Return home"), Kind::Secondary),
         (MenuChoice::Logout, tr("Log out"), Kind::Danger),

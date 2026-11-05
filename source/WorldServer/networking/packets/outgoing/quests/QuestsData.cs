@@ -81,8 +81,8 @@ namespace WorldServer.networking.packets.outgoing.quests
 
     // Everything the quest window shows (QuestTracker.BuildData), after QUESTS_REQUEST, a claim,
     // or a reset: the time, the rank and its colours, each period's reset and bonus, the quests,
-    // the daily reward track, the achievements and the gifts open now (last, so older clients,
-    // which stop reading before them, still work). QUEST_PROGRESS then updates the progress of
+    // the daily reward track, the achievements and the gifts open now, and the Customize window's
+    // choices (last, so older clients, which stop reading before them, still work). QUEST_PROGRESS then updates the progress of
     // quests and achievements by their place in these lists.
     public class QuestsData : OutgoingMessage
     {
@@ -101,6 +101,16 @@ namespace WorldServer.networking.packets.outgoing.quests
         public List<(bool Milestone, List<QuestReward> Rewards)> LoginDays = new List<(bool, List<QuestReward>)>();
         public List<AchievementInfo> Achievements = new List<AchievementInfo>();
         public List<QuestGiftInfo> Gifts = new List<QuestGiftInfo>();
+        // The Customize window's choices, after the gifts (older clients stop before them): the
+        // name colour and glow the Hall of Champions gives now (0: no place), whether the account
+        // is a legend, the player's own glow (/glow, 0: none), and the sources chosen
+        // (Shared.champions.LookChoice).
+        public int ChampionColor;
+        public int ChampionGlow;
+        public bool Legend;
+        public int OwnGlow;
+        public byte NameFrom;
+        public byte GlowFrom;
 
         public override MessageId MessageId => MessageId.QUESTS_DATA;
 
@@ -174,6 +184,12 @@ namespace WorldServer.networking.packets.outgoing.quests
                 wtr.Write(g.Claimed);
                 QuestReward.WriteList(wtr, g.Rewards);
             }
+            wtr.Write(ChampionColor);
+            wtr.Write(ChampionGlow);
+            wtr.Write(Legend);
+            wtr.Write(OwnGlow);
+            wtr.Write(NameFrom);
+            wtr.Write(GlowFrom);
         }
     }
 }

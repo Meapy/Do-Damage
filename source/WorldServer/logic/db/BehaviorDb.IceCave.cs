@@ -32,7 +32,8 @@ namespace WorldServer.logic
                      new Orbit(0.3, 3, 20, "Big Yeti", speedVariance: 0.1),
                      new Shoot(8.4, count: 1, projectileIndex: 0, predictive: 1, coolDown: 1750),
                      new Shoot(8.4, count: 1, projectileIndex: 0, coolDown: 1200)
-                    )
+                    ),
+                new ItemLoot("Penguin Generator", 0.01)
             )
            .Init("Snow Bat Mama",
              new State(
@@ -47,13 +48,15 @@ namespace WorldServer.logic
                       new Shoot(8.4, count: 1, projectileIndex: 2, coolDown: 1000),
                       new Shoot(8.4, count: 1, projectileIndex: 3, coolDown: 1250),
                        new Spawn("Snow Bat", 1, 4, coolDown: 10000)
-                        ))
+                        )),
+               new ItemLoot("Snowy Owl Generator", 0.03)
             )
             .Init("Snow Bat",
                 new State(
                      new Wander(0.4),
                      new Shoot(8.4, count: 6, projectileIndex: 0, coolDown: 25)
-                    )
+                    ),
+                new ItemLoot("Green Penguin Generator", 0.005)
             )
         // a game object, not an enemy, so it can't die: it opens the Inner Sanctum portal itself
         // once every Big Yeti and Snow Bat Mama is dead
@@ -474,7 +477,8 @@ namespace WorldServer.logic
                     new ItemLoot("Esben's Shaman Attire", 0.016),
                     new ItemLoot("An Icicle", 0.004),
                     new ItemLoot("Potion of Mana", 1)
-                )
+                ),
+            new ItemLoot("Lil' Esben Generator", 0.02)
             );
     }
 }

@@ -41,19 +41,23 @@ namespace WorldServer.core.worlds.impl.doomed
         public const string ArenaName = "Arena";
         public const string ArenaPortal = "NG Arena Portal";
 
-        // the Arena portal in the shrine of the realm portals, west of Realm 2's vortex
-        // (tools/build_nexus.py, ARENA_PORTALS; Doomed Realms only opened it for 30 seconds
-        // with its /arena command)
-        private static readonly (string Portal, float X, float Y)[] NexusPortals =
+        // the Arena portal in the shrine of the realm portals, on the map's Arena_Portal tile
+        // (tools/build_nexus.py ARENA_PORTALS, build_nexus_islands.py), else where the garden had
+        // it, west of Realm 2's vortex (Doomed Realms only opened it for 30 seconds with its /arena
+        // command)
+        private static readonly (string Portal, TileRegion Marker, float X, float Y)[] NexusPortals =
         {
-            (ArenaPortal, 34.5f, 31.5f),
+            (ArenaPortal, TileRegion.Arena_Portal, 34.5f, 31.5f),
         };
 
         public static void AddNexusPortals(World nexus)
         {
-            foreach (var (portal, x, y) in NexusPortals)
-                if (nexus.IsPassable(x, y, true))
-                    nexus.CreateNewEntity(portal, x, y);
+            foreach (var (portal, marker, x, y) in NexusPortals)
+            {
+                var (px, py, pz) = nexus.Marker(marker) ?? (x, y, 0f);
+                if (nexus.IsPassable(px, py, true))
+                    nexus.CreateNewEntity(portal, px, py, nexus.Levels == null ? (float?)null : pz);
+            }
         }
 
         // A portal keeps the world it opened; once that minigame has started or closed, it opens a new one.

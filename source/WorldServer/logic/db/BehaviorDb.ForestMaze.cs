@@ -55,7 +55,8 @@ namespace WorldServer.logic
                     new Wander(1),
                     new Shoot(radius: 7, count: 2, projectileIndex: 0, predictive: 1, coolDown: 1000, shootAngle: 15)
                     )
-                )
+                ),
+            new ItemLoot("Squirrel Generator", 0.005)
             )
         .Init("Ultimate Squirrel",
             new State(

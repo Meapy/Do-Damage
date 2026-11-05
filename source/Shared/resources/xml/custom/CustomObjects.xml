@@ -456,4 +456,43 @@
 		<OccupySquare/>
 		<ShadowSize>60</ShadowSize>
 	</Object>
+	<!-- the Stair Tower's pillars (tools/build_stair_tower.py): Gothic Pillar's stone, as tall as a floor
+	     (WallHeight, the Rust client's draw_wall), holding up the floor above -->
+	<Object type="0x9C40" id="ST Pillar">
+		<Class>Wall</Class>
+		<Texture>
+			<File>lofiEnvironment3</File>
+			<Index>0x9b</Index>
+		</Texture>
+		<Top>
+			<Texture>
+				<File>lofiEnvironment</File>
+				<Index>0x24</Index>
+			</Texture>
+		</Top>
+		<Static/>
+		<FullOccupy/>
+		<OccupySquare/>
+		<EnemyOccupySquare/>
+		<WallHeight>3</WallHeight>
+	</Object>
+	<!-- two floors tall, under the bridge from the spiral's top -->
+	<Object type="0x9C41" id="ST Tall Pillar">
+		<Class>Wall</Class>
+		<Texture>
+			<File>lofiEnvironment3</File>
+			<Index>0x9b</Index>
+		</Texture>
+		<Top>
+			<Texture>
+				<File>lofiEnvironment</File>
+				<Index>0x24</Index>
+			</Texture>
+		</Top>
+		<Static/>
+		<FullOccupy/>
+		<OccupySquare/>
+		<EnemyOccupySquare/>
+		<WallHeight>6</WallHeight>
+	</Object>
 </Objects>
