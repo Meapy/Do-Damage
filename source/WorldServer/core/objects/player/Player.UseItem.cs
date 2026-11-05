@@ -197,6 +197,19 @@ namespace WorldServer.core.objects
                 return;
             }
 
+            // a halo not again before its cooldown (4 s) is over, as the client waits it out; a little
+            // slack for the trip (other abilities' cooldowns are still the client's alone)
+            if (slot == 1 && entity == this && item.Cooldown >= 1 && item.ActivateEffects.Any(e => e.Effect == ActivateEffects.Halo))
+            {
+                var now = Environment.TickCount64;
+                if (now < _abilityReadyAt - AbilityCooldownSlackMs)
+                {
+                    Refuse(null);
+                    return;
+                }
+                _abilityReadyAt = now + (long)(item.Cooldown * 1000);
+            }
+
             // a forge shard goes to the forge storage, so with that full it isn't spent
             if (ForgeStorage.Full(this, item.ObjectId))
             {
@@ -513,7 +526,11 @@ namespace WorldServer.core.objects
 
         private void Activate(int clientTime, TickTime time, Item item, int slot, Position target, int objId, int useType)
         {
-            Mana -= item.MpCost;
+            // the ring's Unbound Will: now and then the ability costs nothing; its Benediction: a
+            // blessing with each use (Player.Imprints.cs)
+            if (!FreeCast(slot))
+                Mana -= item.MpCost;
+            Benediction(item, slot);
 
             // OBSŁUGA NOWEGO POLA EXP
             if (item.Exp > 0)
@@ -709,6 +726,8 @@ namespace WorldServer.core.objects
                         AEMultiDecoy(time, item, target, eff);
                         break;
                     case ActivateEffects.LevelTwenty:
+                        AELevelTwenty(item);
+                        break;
                     case ActivateEffects.MarkAndTeleport:
                     case ActivateEffects.SelfTransform:
                     case ActivateEffects.GroupTransform:
@@ -1316,6 +1335,29 @@ namespace WorldServer.core.objects
             }
         }
 
+        // The Potion of Max Level: the character goes up to level 20 a level at a time, each with
+        // its stat gains, as if it had earned the experience (it went to AEChangeObject before,
+        // which did nothing with it). At 20 already, it's used up for nothing, as it says.
+        private void AELevelTwenty(Item item)
+        {
+            if (Level >= 20)
+            {
+                SendInfo($"{item.DisplayName} was consumed, but you were level 20 already.");
+                return;
+            }
+            while (Level < 20)
+            {
+                Experience = Math.Max(Experience, GetLevelExp(Level) + ExperienceGoal);
+                if (!CheckLevelUp())
+                    break;
+            }
+            SendInfo($"{item.DisplayName} was consumed: you are level {Level}.");
+        }
+
+        // when an ability with a cooldown of a second or more can be used again (Environment.TickCount64)
+        private long _abilityReadyAt;
+        private const int AbilityCooldownSlackMs = 300;
+
         // How many Infernal potions a stat takes past its class's maximum.
         public const int OvercapPotions = 5;
 
@@ -1324,6 +1366,55 @@ namespace WorldServer.core.objects
         {
             var overcap = Client.Character.Overcap;
             return GameServer.Resources.GameData.Classes[ObjectType].Stats[idx].MaxValue + (idx < overcap.Length ? overcap[idx] : 0);
+        }
+
+        // What one Infernal potion adds to each stat (StatsManager's order), from their items
+        // (tools/build_infernal_potions.py): 5 health or magic, 1 of the others.
+        private static int[] _overcapSteps;
+
+        private int[] OvercapSteps()
+        {
+            if (_overcapSteps != null)
+                return _overcapSteps;
+            var steps = new int[8];
+            var data = GameServer.Resources.GameData;
+            foreach (var (result, _, stat) in ForgeRecipes.InfernalPotions)
+                if (data.IdToObjectType.TryGetValue(result, out var type) && data.Items.TryGetValue(type, out var potion))
+                    foreach (var eff in potion.ActivateEffects)
+                        if (eff.Effect == ActivateEffects.OvercapStat && stat < steps.Length)
+                            steps[stat] = eff.Amount;
+            return _overcapSteps = steps;
+        }
+
+        // StatDataType.StatTones: each stat's two bits, 0 below its class's maximum, 1 at it, 2 past
+        // it, 3 all the Infernal potions' way past it.
+        public int StatTones()
+        {
+            var classStats = GameServer.Resources.GameData.Classes[ObjectType].Stats;
+            var steps = OvercapSteps();
+            var tones = 0;
+            for (var i = 0; i < 8 && i < classStats.Length; i++)
+            {
+                var max = classStats[i].MaxValue;
+                var b = Stats.Base[i];
+                var tone = b < max ? 0 : b == max ? 1 : steps[i] > 0 && b >= max + OvercapPotions * steps[i] ? 3 : 2;
+                tones |= tone << (2 * i);
+            }
+            return tones;
+        }
+
+        // the StatTones last sent, so a change (a potion, a level) goes out to everyone who sees us
+        private int _sentStatTones = -1;
+
+        private void UpdateStatTones()
+        {
+            var tones = StatTones();
+            if (tones == _sentStatTones)
+                return;
+            // the first time too: the stats may have changed between our arrival being sent and
+            // our first tick (a command, a potion)
+            InvokeStatChange(StatDataType.StatTones, tones);
+            _sentStatTones = tones;
         }
 
         // Why an Infernal potion can't be drunk now, or null.

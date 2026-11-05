@@ -379,9 +379,10 @@
 	</Object>
 	<Object type="0x4986" id="Battle Mage Bolt Shot">
 		<Class>Projectile</Class>
+		<!-- the imprints' own shots look like Oryx 5's crystal Sigil (tools/build_ascended_items.py) -->
 		<Texture>
-			<File>imprintFx8x8</File>
-			<Index>3</Index>
+			<File>ascendedItems16x16</File>
+			<Index>5</Index>
 		</Texture>
 		<AngleCorrection>1</AngleCorrection>
 	</Object>

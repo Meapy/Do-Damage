@@ -301,7 +301,6 @@
     "Enchanted Ice Shard",
     "Enthroned Boots",
     "Enthroned Ring of Grace",
-    "Enthroned Ring of Wrath",
     "Esben's Wedding Ring",
     "Experimental Ring",
     "Fairy Ring",
@@ -432,7 +431,6 @@
     "Helm of the Tribune",
     "Helm of Imperial Right",
     "Amber Encrusted Helmet",
-    "Enthroned Helm",
     "Helm of the Jack-o'-naut",
     "Helm of the Juggernaut",
     "Soul Mask",
@@ -453,7 +451,7 @@
     "Staff of the Fundamental Core",
     "Staff of Endless Energy",
     "Staff of Heavens",
-    "Enthroned Spear",
+    "Enthroned Staff",
     "Eternal Sword",
     "Frosty's Walking Stick",
     "KoalaPOW",
@@ -763,6 +761,6 @@
     {"name": "Spider Den", "icon": "Spider Den Portal", "level": 1, "items": ["Spider's Eye Ring", "Poison Fang Dagger"]},
     {"name": "The Hive", "icon": "The Hive Portal", "level": 1, "items": ["HoneyScepter", "Orb of Sweet Demise"]},
     {"name": "Realm", "icon": "Realm Portal", "level": 0, "items": ["America Armor", "Arctic Bow", "Armor of the Leaf", "EH Blue Bee Armor", "EH Red Bee Armor", "EH Yellow Bee Armor", "EH Blue Quiver", "EH Red Quiver", "EH Yellow Quiver", "Bone Dagger", "Bounty Hunter's Dagger", "Bow of Eternal Frost", "TricksterST1", "Candy Cane Sword", "Candy Ring", "Candy-Coated Armor", "TricksterST0", "Chasuble of Holy Light", "Chicken Leg of Doom", "Coral Bow", "Coral Ring", "Coral Silk Armor", "Coral Venom Trap", "Crystal Dagger", "Crystal Sword", "Crystal Wand", "Dirk of Cronus", "Doom Bow", "Doom Dirk", "Enchanted Ice Shard", "Ent Ancient Sword", "Eternal Snowflake Wand", "Fairy Ring", "Flying Doom Daggers", "Freezing Quiver", "Frimarra", "Frosty's Walking Stick", "Frozen Wand", "TricksterST2", "Helm of the Juggernaut", "Ice Crown", "Idol of the Fish", "Jade Beetle", "Kageboshi", "Leaf Bow", "Leaf Dragon Hide Armor", "Mask of Anubis", "Mighty Stein", "Murky Toxin", "Oceanic Nova", "Oceans Gift", "Orb of Conflict", "Oryxmas Ornament: Energized", "Oryxmas Ornament: Exposed", "Oryxmas Ornament: Weak", "Pirate King's Cutlass", "Platinum Sword", "Quiver of Thunder", "Raw Hope", "Ray Katana", "Ring of Divine Faith", "Ring of the Nile", "Ring of the Northern Light", "Ring of the Sphinx", "TricksterST3", "Santa's Hat", "Scaled Robe", "Seal of Blasphemous Prayer", "Shield of Ogmur", "Skull of Corrupted Souls", "Snake Eye Ring", "Snake Skin Armor", "Snake Skin Shield", "Snowblind Wand", "Spirit Dagger", "St. Abraham's Wand", "Staff of Iceblast", "Staff of Natural Essence", "Tablet of the King's Avatar", "The Agressive Caroller", "The Snowball", "Tome of Frigid Protection", "Tome of Purification", "Trap of the Vile Spirit", "Void Blade", "Wand of the Bulwark", "Will-o-Wisp Spell", "Wings of Natural Bloodlust"]},
-    {"name": "Divine Forge", "icon": "Divine Forge", "level": 0, "items": ["Ancient Stone Sword", "Bow of the Morning Star", "Chicken Leg of Doom", "Cloak of the Phantom", "Cloak of the Planewalker", "Coral Bow", "Crystal Sword", "Crystal Wand", "Dagger of the Terrible Talon", "Demon Blade", "Dirk of Cronus", "Doom Bow", "Doom Dirk", "Enthroned Boots", "Enthroned Bow", "Enthroned Dagger", "Enthroned Dual Blades", "Enthroned Fists", "Enthroned Helm", "Enthroned Hide", "Enthroned Katana", "Enthroned Plate", "Enthroned Ring of Grace", "Enthroned Ring of Wrath", "Enthroned Robe", "Enthroned Spear", "Enthroned Sword", "Enthroned Wand", "Eternal Snowflake Wand", "Helm of the Jack-o'-naut", "Helm of the Juggernaut", "Orb of Conflict", "ST Spell", "Phantasm Dirk", "Poison Fang Dagger", "Prism of Dancing Swords", "Reforged Crystal Wand", "Quiver of Thunder", "Reforged Dirk of Cronus", "Reforged Doom Bow", "Reforged Forgotten Crown", "Scepter of Fulmination", "Seal of Blasphemous Prayer", "Shield of Ogmur", "Skull of Endless Torment", "Snake Skin Shield", "Staff of Extreme Prejudice", "Staff of Iceblast", "Sun's Judgement", "Sunny Side Bow", "Sword of Illumination", "Thousand Shot", "Tome of Holy Protection", "Tome of Purification", "Wand of Evil Power", "Wand of the Bulwark"]}
+    {"name": "Divine Forge", "icon": "Divine Forge", "level": 0, "items": ["Ancient Stone Sword", "Bow of the Morning Star", "Chicken Leg of Doom", "Cloak of the Phantom", "Cloak of the Planewalker", "Coral Bow", "Crystal Sword", "Crystal Wand", "Dagger of the Terrible Talon", "Demon Blade", "Dirk of Cronus", "Doom Bow", "Doom Dirk", "Enthroned Boots", "Enthroned Bow", "Enthroned Dagger", "Enthroned Dual Blades", "Enthroned Fists", "Enthroned Hide", "Enthroned Katana", "Enthroned Plate", "Enthroned Ring of Grace", "Enthroned Robe", "Enthroned Staff", "Enthroned Sword", "Enthroned Wand", "Eternal Snowflake Wand", "Helm of the Jack-o'-naut", "Helm of the Juggernaut", "Orb of Conflict", "ST Spell", "Phantasm Dirk", "Poison Fang Dagger", "Prism of Dancing Swords", "Reforged Crystal Wand", "Quiver of Thunder", "Reforged Dirk of Cronus", "Reforged Doom Bow", "Reforged Forgotten Crown", "Scepter of Fulmination", "Seal of Blasphemous Prayer", "Shield of Ogmur", "Skull of Endless Torment", "Snake Skin Shield", "Staff of Extreme Prejudice", "Staff of Iceblast", "Sun's Judgement", "Sunny Side Bow", "Sword of Illumination", "Thousand Shot", "Tome of Holy Protection", "Tome of Purification", "Wand of Evil Power", "Wand of the Bulwark"]}
   ]
 }

@@ -231,7 +231,7 @@ impl PetPen {
             ui.label_fit(m, x0, r[1] + r[3] - 34.0 * s, w, font(13.0), true, if *ok { color::GOOD } else { color::DANGER });
         }
         if let Some(item) = self.hover {
-            let mut lines = crate::hud::item_tooltip_imprinted(ui.data, item, me, crate::hud::SlotKind::Shop, [0; 3]);
+            let mut lines = crate::hud::item_tooltip_imprinted(ui.data, item, me, crate::hud::SlotKind::Shop, [0; 4]);
             if let (Some(size), Some(title)) = (self.hover_size, lines.first_mut()) {
                 title.append(&format!(" ({size})"));
             }

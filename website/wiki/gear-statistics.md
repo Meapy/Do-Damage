@@ -110,6 +110,9 @@ Things to know when reading it:
   are low.
 - Pirate had no tiered cannon then, so it used the Doom Cannon. The cannons were tiered on
   21 October 2026; the best one now is the Fragment Cannon (T8).
+- Bows and daggers do 10% more damage since 5 November 2026 (every tier and untiered one), so the
+  rows of the classes that use them (Rogue, Archer, Assassin, Huntress, Trickster, Bard, Mechanic,
+  Ascendant, Snowman and Adept) are about a tenth low; the tables above have the new numbers.
 - The runs used the T14 weapons. The T15 weapons, from Oryx the Ascended God, came on 23 October
   2026 and do about a quarter more, so "Weapon only" is low for every class now. The Staff of
   Endless Energy (the staves' T15) does 100-135 since then too.

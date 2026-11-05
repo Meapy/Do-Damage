@@ -28,6 +28,10 @@ namespace Shared.resources
         // its volleys take turns with its projectiles, in order (the Enthroned weapons): the client
         // counts its volleys as Player.NoteWeaponShot does
         public bool AlternateProjectiles;
+        // the projectile each shot of a volley fires, by its place in the volley
+        // (<VolleyProjectiles>0,0,1</VolleyProjectiles>: the Elysian Staff's two weaving bolts and
+        // a straight one), the last again for any after; null for its first every time
+        public int[] VolleyProjectiles;
         // Oryx 5's own gear, made by the Divine Forge from his top tier and an Ascended shard
         // (tools/build_ascended_items.py): dropped, it goes in a bag only its owner sees
         public bool Ascended;
@@ -121,6 +125,9 @@ namespace Shared.resources
             NumProjectiles = e.GetValue("NumProjectiles", 1);
             ArcGap = e.GetValue("ArcGap", 11.25f);
             AlternateProjectiles = e.HasElement("AlternateProjectiles");
+            if (e.HasElement("VolleyProjectiles"))
+                VolleyProjectiles = e.GetValue<string>("VolleyProjectiles").Split(',')
+                    .Select(s => int.TryParse(s.Trim(), out var n) ? n : 0).ToArray();
             Ascended = e.HasElement("Ascended");
             MpCost = e.GetValue<int>("MpCost");
             Cooldown = e.GetValue("Cooldown", 0.5f);

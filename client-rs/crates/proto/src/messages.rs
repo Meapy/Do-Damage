@@ -349,7 +349,9 @@ messages! {
         // The Enchanter's window: ask for the forge storage's shards (answered with ForgeShards),
         // and imprint the item in an inventory slot (an older server doesn't know either).
         109 => ImprintRequest {},
-        110 => Imprint { slot: u8, imprint: u8 },
+        // The stats picked for the Apotheosis of Balance follow (raised, lowered, lowered, by stat
+        // index; 255 for none): an older server reads only the slot and the imprint.
+        110 => Imprint { slot: u8, imprint: u8, raised: u8, lowered: u8, lowered2: u8 },
         // Imprint an Enthroned item in the vault, by chest and slot.
         113 => ImprintVaultApply { chest: u16, slot: u8, imprint: u8 },
         // The vault window: ask for VaultContents (an older server doesn't know it).

@@ -580,6 +580,68 @@ The remotes `upstream` (HaloCelsius) and `aurusenth` share no history with `main
 
 ## Changes from upstream
 
+- **Enthroned gear, imprints and the item pass of 5 November** (2026-11-05; ships with a client
+  release, message 110 grew and stat 149 is new):
+  - **Imprints** (`Shared/resources/Imprints.cs`, its copy `client-rs/crates/data/src/imprint.rs`,
+    `ImprintHandlers.cs`, `Player.Imprints.cs`, `BoostStatManager.ApplyImprintScaling`,
+    `Player.Death.TryResurrect`, `Player.UseItem.Activate`; the Enchanter's window
+    `client-rs/app/src/forge/imprints.rs`): anyone imprints (the admin rank check is gone). Each
+    imprint has a cost in Ascended shards (`Imprint.Cost`: 1 Offensive and Defensive, 3 Misc, 5
+    Apotheosis, 20 Guardian Angel), paid from the forge storage first and then inventory shards,
+    kinds mixed (`FindShards`). A fourth slot, **Apotheosis** (`ImprintKind.Apotheosis`, the
+    item data's `Imprints` now four long, the client's `imprint::Set = [u32; 4]`): of Might on
+    weapons (+10% of the gear's and boosts' Attack and Dexterity), of Ward on armour (Defense and
+    Vitality), of Balance on rings (+10% of a picked stat's additions, -20% of all of two other
+    picked stats); Balance stores its picks above the id byte (`Imprint.WithChoice`/`Choice`), sent
+    as three optional bytes after `IMPRINT`'s (an older server reads only the slot and imprint).
+    Apotheosis imprints go on inventory gear only: the vault's `ImprintVault`/`VaultContents` items
+    carry three imprint bytes, unchanged. New ring imprints: Ascendant Might and Ward (+50% of the
+    ring's own Att/Spd/Dex, Def/Vit/Wis), Wellspring (300 MP below 15%, every 180 s), Unbound Will
+    (a 20% chance an ability costs no MP), Benediction (Healing, Speedy, Berserk, Armored or
+    Damaging for 4 s on each ability use, never one the ability gives), Guardian Angel (clears the
+    ring's other imprints and takes no more; the ring's own stats become +20 HP and +1 to the rest;
+    a death sends the player to the Nexus and the ring is lost). Vigor and Bulwark no longer fit
+    rings (`NotSlots`). Blood Pact (id 2) is gone, so an item carrying it carries nothing there.
+    Changed: Close Quarters +10% / -25% range, Vigor +25 HP, Bulwark +5 Def, Wounds 6,000, Wisp
+    Caller 2% and 8 s back, Gathered Shot 95% rate, Battle Mage range 5 with bolts at 60% and +20
+    Def, Spearform 70% damage, Sunder range 4 and 110% rate. The window lost its Coming soon tab;
+    each row shows its price, and Balance its three picks (a click on one moves it to the next
+    stat). Shots an imprint changes (Gathered, Spearform) are drawn as the Sigil
+    (`Projectile.look`), as the Battle Mage Bolt Shot now is (`CustomObjects.xml`, both copies).
+  - **Enthroned gear** (`tools/build_ascended_items.py`, both `CustomItems.xml`, `ForgeRecipes.cs`):
+    every Enthroned weapon flies the same two Oryx 5 shots, the gold Enthroned Radiance (the
+    weapon's own projectile) and the violet Enthroned Rift (the same plus `MultiHit` and
+    `ArmorPiercing`), 16×16 on `AscendedItems16x16.png` (`SHOT_OBJECTS`, 0x5870-0x5872; the old
+    per-weapon shots 0x5866-0x586f are gone), with a third, the Enthroned Sigil, for the imprints.
+    Each keeps its source's flags (a katana's pierce, dual blades' armour piercing). The Enthroned
+    Spear is the Enthroned Staff (same type 0x5857), forged from a T15 staff and a weapon shard;
+    the Ring of Grace from both Ascended gems and three accessory shards (`AscendedFrom` now takes
+    a list), with 200 HP/MP and +10 to the rest (`STATS`). Every Ascended item has
+    `<FameBonus>10</FameBonus>`. The forge no longer makes the Enthroned Helm (a to-do) or the
+    Ring of Wrath. `tools/wiki_data.py` and `build_wiki.py` read the new shapes.
+  - **Shots point where they fly** (`client-rs/crates/world/src/combat.rs` `Projectile::heading_at`,
+    `view.rs`): a shot with `Wavy`, `Parametric`, `Boomerang` or an `Amplitude` is drawn along its
+    path's direction, not the one it was fired in.
+  - **Per-shot projectiles in a volley** (`Item.VolleyProjectiles`, `Player.NoteWeaponShot`/
+    `ShotProjectile`, the client's `do_shoot_with`): `<VolleyProjectiles>0,0,1</VolleyProjectiles>`
+    gives each shot of a volley its projectile by its place. The Elysian Staff (`port_doomed.py`
+    `GEAR_TUNING` `straight_shot`, both `DoomedRealms.xml` by hand) fires its two weaving bolts and
+    a straight Elysian Ray (`CustomProj.xml` 0x5878, `tools/draw_oryx_uts.py`, whose Celestial
+    Bolt cell is 9 now), rate 0.5075 (was 0.35), all `ArmorPiercing`. Other players see each
+    shot as the first projectile (AllyShoot names none).
+  - **Stats in colour** (`StatDataType.StatTones` 149, `Player.StatTones`/`UpdateStatTones`; the
+    client's `hud::stat_tone`): two bits a stat, 0 below the class maximum, 1 at it, 2 past it, 3
+    at the Infernal potions' end (`OvercapPotions` of them), sent to everyone; the HUD shows the
+    last in deep red (0xA8121C, darker than the HP bar) and the player card a row of the six
+    stats in their tones. Infernal potions were already refused below the maximum.
+  - **Balance**: bows and daggers do 10% more (item XML, both copies; `port_doomed.py`
+    `BOW_DAGGER_DAMAGE`, both `DoomedRealms.xml` by hand), not the admin items or the generated
+    Ascended block (rebuilt from the T15s); the Reforged Doom Bow 400-500 (was 320-475). Halos
+    have `<Cooldown>4</Cooldown>` (`port_doomed.py` `HALO_COOLDOWN`, both `DoomedRealms.xml` and
+    `CustomItems.xml`), which the server holds them to too (`Player.UseItem`, halos only). Oryx 5
+    silences everyone within 30 tiles through his Last Judgement (`ConditionAura`). The Potion of
+    Max Level (`LevelTwenty`) went to `AEChangeObject`, which did nothing: `AELevelTwenty` levels
+    the character to 20 through `CheckLevelUp`, with each level's stat gains.
 - **Crosshair styles and your own** (2026-11-05; the Rust client's `crosshair.rs`, `options.rs`
   `Tab::Crosshair`). Options has a Crosshair tab: nine styles (`crosshairStyle`), eight colours
   (`crosshairColour`, an index into `crosshair::COLOURS`), a size from 50% to 200%

@@ -67,13 +67,46 @@ details). Add to a group's line when a change adds to it, rather than adding ano
   Bottle's bolt now attack, and go, as their tooltips say.
 - The Blademaster's jackets have no cooldown of their own, and pets heal you from any distance.
 - The Warcaller's rewards give Lucky Clovers and Golden Lucky Clovers instead of XP Boosters.
+- Bows and daggers do 10% more damage, every tier and every untiered one. The Reforged Doom Bow
+  hits for 400-500 a shot.
+- The Elysian Staff fires a third, light blue bolt straight between its two weaving ones, for the
+  same damage, fires 45% faster, and all its shots ignore defense.
+- Halos have a 4 second cooldown.
+- The Potion of Max Level takes your character to level 20, as it says (it did nothing).
+
+### Enthroned gear and imprints
+- Anyone can imprint their Enthroned gear at the Enchanter now. Imprints cost 1 shard for Offensive
+  and Defensive, 3 for Misc. A fourth colour, Apotheosis, is open: one for weapons (more of the
+  Attack and Dexterity your gear gives), one for armour (Defense and Vitality) and one for rings
+  (more of a stat you pick, less of two others), for 5 shards each.
+- Rings have imprints of their own: half again of the ring's own attack stats or defense stats, a
+  wellspring of 300 magic when you run low, abilities that now and then cost no magic, a blessing
+  with each ability, and Guardian Angel, which sends you to the Nexus instead of dying, at the cost
+  of the ring (20 shards). Vigor and Bulwark no longer go on rings.
+- Imprints rebalanced: Blood Pact is gone; Close Quarters +10% damage and -25% range; Vigor +25
+  health; Bulwark +5 defense; Wounds burst for 6,000; Wisp Caller 2% a shot, back after 8 seconds;
+  Gathered Shot 95% rate of fire; Battle Mage range 5, its bolts at 60% of the rate of fire and +20
+  defense; Spearform 30% less damage; Sunder range 4 and 10% faster.
+- Every Enthroned weapon fires the same two shots of Oryx's, his gold Radiance with the weapon's
+  own numbers and effects (an Enthroned Katana still pierces), then his violet Rift, which pierces
+  and ignores defense. Shots that bend, like a staff's, point the way they're flying.
+- The Enthroned Spear is the Enthroned Staff, forged from a tier 15 staff like the other weapons.
+  The Enthroned Ring of Grace comes from both of Oryx's Ascended gems and three Ascended Accessory
+  Shards, and gives +200 health and magic and +10 to every other stat. The forge no longer makes the
+  Enthroned Helm (for now) or the Enthroned Ring of Wrath. Every Enthroned item gives a 10% fame
+  bonus.
+
+### Stats
+- A stat the Infernal potions have taken as far as they go shows in deep red, and the cards of the
+  players near you (bottom right) now show which of their stats are maxed, past their maximum or
+  at the Infernal potions' end.
 
 ### Oryx 5
 - A smaller party faces a smaller Host: one of them for a player alone, two for two or three
   players, all four from four players on.
 - His Last Judgement's lava starts a tile further in, his volleys turn a little each time so no gap
   between them stays safe, and once you've survived it the temple's floor comes back. The lava only
-  ever floods his own temple.
+  ever floods his own temple. Everyone in it is silenced until he concedes.
 
 ### Realms and dungeons
 - Realm 2 always puts you on its shore; its waystones are a teleport away in the events list.

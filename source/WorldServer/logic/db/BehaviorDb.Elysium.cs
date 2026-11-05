@@ -347,6 +347,9 @@ namespace WorldServer.logic
                     // ---- Last Judgement (10%) ----
                     new State("Last Judgement",
                         new ConditionEffectBehavior(ConditionEffectIndex.Invulnerable),
+                        // the survival phase: no abilities until he concedes, everyone in the arena
+                        // silenced (a second at a time, renewed while it lasts)
+                        new ConditionAura(30, ConditionEffectIndex.Silenced, 1000, 500),
                         new Order(30, "Halo Orb", "Gone"),
                         // the rim (TEMPLE_R 16.5, its last 1.5 tiles white marble: tools/build_elysium.py)
                         // and a tile more turn to lava, then the lava comes in a sixth of the way

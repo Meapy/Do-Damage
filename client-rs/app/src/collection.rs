@@ -232,7 +232,7 @@ impl Collection {
             ui.label(&page, body[0] + 130.0 * s, by + 5.0 * s, font(12.0), false, color::TEXT_MUTED);
         }
         if let Some(item) = self.hover {
-            let mut lines = crate::hud::item_tooltip_imprinted(ui.data, item as i32, me, SlotKind::Shop, [0; 3]);
+            let mut lines = crate::hud::item_tooltip_imprinted(ui.data, item as i32, me, SlotKind::Shop, [0; 4]);
             lines.push(crate::hud::Line::gap());
             if self.have.contains(&item) {
                 lines.push(crate::hud::Line::new(tr("Collected"), 12.0, true, color::GOOD));

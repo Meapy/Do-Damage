@@ -535,12 +535,14 @@ class Data:
             forge_only.add(res)
             recipes.append({"result": res, "fame": int(ifame.group(1)) if ifame else 0, "advanced": False,
                             "items": [shard], "storage": (potions[int(stat)], int(cost.group(1)) if cost else 100)})
-        # and the ones from one item (ForgeRecipes.AscendedFrom)
-        m = re.search(r'\bAscendedFrom\s*=\s*\{(.*?)\};', forge_src, re.S)
-        for res, frm, shard in re.findall(r'\("([^"]+)",\s*"([^"]+)",\s*(\w+)\)', m.group(1) if m else ""):
+        # and the ones from the items named (ForgeRecipes.AscendedFrom: the Ring of Grace from both of
+        # Oryx 5's gems and three shards), a shard by its constant or an item by its id
+        m = re.search(r'\bAscendedFrom\s*=.*?\{(.*?)\n\s*\};', forge_src, re.S)
+        for res, ing in re.findall(r'\("([^"]+)",\s*new\[\]\s*\{([^}]*)\}\)', m.group(1) if m else ""):
             forge_only.add(res)
+            names = [consts.get(t.strip(), t.strip().strip('"')) for t in ing.split(",") if t.strip()]
             recipes.append({"result": res, "fame": int(fame_m.group(1)), "advanced": False,
-                            "items": [frm, consts[shard]], "ascended": {"any": None}})
+                            "items": names, "ascended": {"any": None}})
 
         def key(r):
             return r["result"] + "=" + "+".join(sorted(r["items"]))
@@ -938,21 +940,30 @@ def account():
 
 
 def imprints():
-    """The imprints (Shared/resources/Imprints.cs), in its order: [{name, kind, description, fits}]."""
+    """The imprints (Shared/resources/Imprints.cs), in its order: [{name, kind, description, fits,
+    cost}], the cost in shards (Imprint.DefaultCost for its colour unless it names one)."""
     src = _read(os.path.join(SRC, "Shared", "resources", "Imprints.cs"))
     slot_names = {"SwordSlot": "Swords", "DaggerSlot": "Daggers", "BowSlot": "Bows", "WandSlot": "Wands",
                   "RingSlot": "Rings", "StaffSlot": "Staves", "KatanaSlot": "Katanas", "BladesSlot": "Dual Blades",
                   "FistsSlot": "Fists"}
+    lists = {"WeaponSlots": "Weapons", "ArmorSlots": "Armor", "Rings": "Rings"}
+    consts = {k: int(v) for k, v in re.findall(r'\b(\w+) = (\d+)\b', src)}
+    defaults = {"Misc": 3, "Apotheosis": 5}
     out = []
-    for name, kind, desc, slots in re.findall(
-            r'new Imprint\(\w+, "([^"]+)", ImprintKind\.(\w+), "([^"]+)"(?:, ([^)]*\}|\w+))?\)', src):
-        if not slots:
-            fits = "Any gear"
-        elif slots.strip() == "WeaponSlots":
-            fits = "Weapons"
+    for name, kind, desc, rest in re.findall(
+            r'new Imprint\(\w+, "([^"]+)", ImprintKind\.(\w+), "([^"]+)"((?:, (?:new\[\] \{[^}]*\}|\w+))*)\)', src):
+        args = re.findall(r'new\[\] \{[^}]*\}|\w+', rest)
+        slots = args[0] if args else "null"
+        not_slots = args[1] if len(args) > 1 else "null"
+        if slots == "null":
+            fits = "Any gear" if not_slots == "null" else "Any gear but " + lists.get(not_slots, not_slots).lower()
+        elif slots in lists:
+            fits = lists[slots]
         else:
             fits = ", ".join(slot_names.get(s, s) for s in re.findall(r'\w+Slot', slots))
-        out.append({"name": name, "kind": kind, "description": desc, "fits": fits})
+        cost = consts.get(args[2], int(args[2]) if args[2].isdigit() else 0) if len(args) > 2 else 0
+        out.append({"name": name, "kind": kind, "description": desc, "fits": fits,
+                    "cost": cost or defaults.get(kind, 1)})
     return out
 
 

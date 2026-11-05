@@ -1421,7 +1421,10 @@ impl Game {
             Act::Sell(slots) => bsk_proto::ForgeSell { slots: bsk_proto::List8(slots) }.into(),
             Act::Withdraw(item) => bsk_proto::ForgeWithdraw { item }.into(),
             Act::ImprintShards => bsk_proto::ImprintRequest {}.into(),
-            Act::Imprint(slot, imprint) => bsk_proto::Imprint { slot, imprint }.into(),
+            Act::Imprint(slot, imprint, choice) => {
+                let [raised, lowered, lowered2] = choice.unwrap_or([255; 3]);
+                bsk_proto::Imprint { slot, imprint, raised, lowered, lowered2 }.into()
+            }
             Act::ImprintVault(chest, slot, imprint) => bsk_proto::ImprintVaultApply { chest, slot, imprint }.into(),
         };
         self.send(msg);

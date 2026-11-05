@@ -305,9 +305,10 @@ fn collection_and_pet_pen_match_their_handlers() {
 
 #[test]
 fn imprint_messages_match_imprint_handlers() {
-    // ImprintHandler reads the inventory slot, then the imprint's id; ImprintRequestHandler nothing.
-    let frame = ClientMessage::from(Imprint { slot: 4, imprint: 22 }).to_frame();
-    assert_eq!(frame, B::default().u8(4).u8(22).frame(110));
+    // ImprintHandler reads the inventory slot, then the imprint's id, then any stats picked;
+    // ImprintRequestHandler nothing.
+    let frame = ClientMessage::from(Imprint { slot: 4, imprint: 43, raised: 2, lowered: 4, lowered2: 7 }).to_frame();
+    assert_eq!(frame, B::default().u8(4).u8(43).u8(2).u8(4).u8(7).frame(110));
     assert_eq!(ClientMessage::from(ImprintRequest {}).to_frame(), B::default().frame(109));
     // ImprintResult.Write: success, slot, message.
     let body = B::default().u8(0).u8(5).utf("No shard.").0;

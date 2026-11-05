@@ -178,6 +178,15 @@ namespace WorldServer.core.objects
                 World.ForeachPlayer(_ => _.SendInfo($"{Name}'s {item.DisplayName} breaks and he disappears"));
                 return true;
             }
+            // a ring with Guardian Angel (Player.Imprints.cs) saves its wearer the same way, and is lost
+            if (HasImprint(3, Imprint.GuardianAngel))
+            {
+                var ring = Inventory[3];
+                Inventory[3] = null;
+                Inventory.Data[3] = null;
+                World.ForeachPlayer(_ => _.SendInfo($"{Name}'s guardian angel carries them away, and their {ring.DisplayName} is lost"));
+                return true;
+            }
             return false;
         }
     }

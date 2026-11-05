@@ -506,6 +506,7 @@ namespace WorldServer.core.objects
                 HandleRegen(ref time);
                 LowHealthBoosts();
                 LastBreath();
+                UpdateStatTones();
                 GroundEffect(time);
                 TickCooldownTimers(time);
                 TickSlotCooldowns(time);
@@ -638,6 +639,7 @@ namespace WorldServer.core.objects
             stats[StatDataType.ColorNameChat] = ColorNameChat;
             stats[StatDataType.ColorChat] = ColorChat;
             stats[StatDataType.PartyId] = Client.Account?.PartyId ?? -1;
+            stats[StatDataType.StatTones] = StatTones();
             stats[StatDataType.InventoryData0] = Inventory.Data[0]?.GetData() ?? "{}";
             stats[StatDataType.InventoryData1] = Inventory.Data[1]?.GetData() ?? "{}";
             stats[StatDataType.InventoryData2] = Inventory.Data[2]?.GetData() ?? "{}";
