@@ -580,6 +580,18 @@ The remotes `upstream` (HaloCelsius) and `aurusenth` share no history with `main
 
 ## Changes from upstream
 
+- **Tomes buff the players around the priest** (2026-11-05; `Player.UseItem.cs`
+  `TomeShareRange`, `ShareTomeCondition`, `ShareTomeStatBoost`; `tools/wiki_gear.py`): a tome's
+  (slot type 4) `ConditionEffectSelf` and `StatBoostSelf` reached only the user, so the other
+  players got the heal and the Healing aura but not the Armored, Speedy, Invisible or stat boosts.
+  Used as the ability, a tome now also gives each of them to the players within its widest
+  HealNova, ConditionEffectAura, ClearConditionEffectAura or RemoveNegativeConditions range (with
+  the wisdom bonus where that activate has it), for the same time, with assist credit
+  (`BuffedBy`). Drawbacks stay on the user: a condition in `NegativeEffs` (the Tome of Forbidden
+  Knowledge's Curse) and a negative stat boost (2PriestST1's -5 Defense). The caster's own effect
+  is unchanged; item procs (`OnOtherActivate`) are not shared. The wiki says "to you and allies
+  within N tiles" on those effects. World server only.
+
 - **Enthroned gear, imprints and the item pass of 5 November** (2026-11-05; ships with a client
   release, message 110 grew and stat 149 is new):
   - **Imprints** (`Shared/resources/Imprints.cs`, its copy `client-rs/crates/data/src/imprint.rs`,

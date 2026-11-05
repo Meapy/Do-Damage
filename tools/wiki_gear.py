@@ -329,10 +329,24 @@ class Gear:
                     stats[s] = stats.get(s, 0) + wd._int(a.get("amount"), 0)
         return ", ".join("%+d %s" % (stats[s], s) for s in STAT_ORDER if stats.get(s))
 
+    # a tome's own buffs reach the players around the priest too, as far as its heal reaches
+    # (Player.UseItem.cs, ShareTomeCondition); its drawbacks stay on the priest
+    NEGATIVE = {"Slowed", "Paralyzed", "Weak", "Stunned", "Confused", "Blind", "Quiet", "ArmorBroken",
+                "Bleeding", "Dazed", "Sick", "Drunk", "Hallucinating", "Hexed", "Curse", "Unstable"}
+
+    def tome_share_range(self, it):
+        if wd._text(it["el"], "SlotType") != "4":
+            return 0
+        return max([float(a.get("range") or 0) for a in it["el"].findall("Activate")
+                    if (a.text or "").strip() in ("HealNova", "ConditionEffectAura",
+                                                 "ClearConditionEffectAura", "RemoveNegativeConditions")]
+                   or [0])
+
     def effects(self, it):
         out = []
+        share = self.tome_share_range(it)
         for a in it["el"].findall("Activate"):
-            t = self.effect(a)
+            t = self.effect(a, share)
             if t and t not in out:
                 out.append(t)
         # what a thrown helper does, as its tooltip says (the Cave Dweller Trap's sentry, the Trap of
@@ -344,7 +358,7 @@ class Gear:
                     out.append("%s: %s" % (name, desc[0].lower() + desc[1:]))
         return "; ".join(out)
 
-    def effect(self, a):
+    def effect(self, a, share=0):
         e = (a.text or "").strip()
         g = a.get
         if g("ignoreOnTooltip") in ("true", "True"):
@@ -360,15 +374,19 @@ class Gear:
         stat = STAT.get(wd._int(g("stat"), -1), "stat")
         if e == "HealNova":
             return "heals %s HP%s" % (n("amount"), within())
+        shared = " to you and allies within %s tiles" % num(share) if share else ""
         if e == "ConditionEffectSelf":
-            return "%s for %ss" % (g("effect") or "an effect", n("duration"))
+            if g("effect") in self.NEGATIVE:
+                shared = ""
+            return "%s for %ss%s" % (g("effect") or "an effect", n("duration"), shared)
         if e == "ConditionEffectAura":
             return "%s for %ss to allies%s" % (g("effect") or "an effect", n("duration"), within())
         if e == "GenericActivate":
             who = "enemies" if (g("target") or "").lower().startswith("enem") else "allies"
             return "%s for %ss to %s%s" % (g("effect") or "an effect", n("duration"), who, within())
         if e == "StatBoostSelf":
-            return "%+d %s for %ss" % (wd._int(g("amount")), stat, n("duration"))
+            amount = wd._int(g("amount"))
+            return "%+d %s for %ss%s" % (amount, stat, n("duration"), shared if amount > 0 else "")
         if e == "StatBoostAura":
             return "%+d %s for %ss to allies%s" % (wd._int(g("amount")), stat, n("duration"), within())
         if e == "VampireBlast":
