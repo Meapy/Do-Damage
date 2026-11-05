@@ -32,16 +32,24 @@ namespace WorldServer.core.commands.doomed
         public static bool NearForge(Player player) => NearObject(player, ForgeClass);
 
         // The map holds the forge (and the Enchanter beside it) as a tile's object (it's static), so
-        // look at the tiles around.
+        // look at the tiles around. On stacked floors (the islands, whose forge is on the market
+        // island over the lowest floor) the tiles of every floor, the forge's within reach of our
+        // height (Entity.LevelReach, as DistTo goes).
         public static bool NearObject(Player player, string objectClass)
         {
-            var map = player.World.Map;
+            var world = player.World;
+            var levels = world.Levels ?? new List<terrain.Wmap> { world.Map };
             var r = (int)MathF.Ceiling(ForgeReach);
-            for (var y = (int)player.Y - r; y <= (int)player.Y + r; y++)
-                for (var x = (int)player.X - r; x <= (int)player.X + r; x++)
-                    if (map.Contains(x, y) && map[x, y].ObjDesc?.Class == objectClass &&
-                        MathF.Sqrt((x + 0.5f - player.X) * (x + 0.5f - player.X) + (y + 0.5f - player.Y) * (y + 0.5f - player.Y)) <= ForgeReach)
-                        return true;
+            for (var level = 0; level < levels.Count; level++)
+            {
+                var map = levels[level];
+                for (var y = (int)player.Y - r; y <= (int)player.Y + r; y++)
+                    for (var x = (int)player.X - r; x <= (int)player.X + r; x++)
+                        if (map.Contains(x, y) && map[x, y].ObjDesc?.Class == objectClass &&
+                            MathF.Sqrt((x + 0.5f - player.X) * (x + 0.5f - player.X) + (y + 0.5f - player.Y) * (y + 0.5f - player.Y)) <= ForgeReach &&
+                            (world.Levels == null || world.FloorZ(level, x, y) is float z && MathF.Abs(z - player.Z) <= Entity.LevelReach))
+                            return true;
+            }
             return false;
         }
 

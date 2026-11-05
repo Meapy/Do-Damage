@@ -177,7 +177,7 @@ namespace WorldServer.core.objects
             }
         }
 
-        private int HeightStat => (int)MathF.Round(_z * 1000);
+        protected int HeightStat => (int)MathF.Round(_z * 1000);
 
         public float PrevX { get; private set; }
         public float PrevY { get; private set; }

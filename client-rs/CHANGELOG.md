@@ -17,12 +17,13 @@ details). Add to a group's line when a change adds to it, rather than adding ano
 ### Nexus
 - The Nexus is now a cluster of floating islands in a sunset sky, with clouds drifting by and the
   odd shooting star, joined by bridges and at two heights. The spawn sits in its koi pond with the
-  shared vault chests in one corner; the market island lies west (the shops, the Marketplace, the
-  guild's teahouse, the quest house and the Divine Forge's smithy); the realm portals are in the
-  shrine on the island below, down the stone bridge south; and east is the Arena island, whose
-  tower you climb by its spiral stair to the Hall of Champions, a lookout and the Sky Bar, where
-  Barman Kenji throws a drink at his guests every 20 seconds. Everything works as before, and
-  your vault chests keep what's in them.
+  shared vault chests in one corner, and heals you as you arrive; the market island lies west over
+  an arched bridge like the old Nexus's (the shops, the Marketplace, the guild's teahouse, the
+  quest house and the Divine Forge's smithy); the realm portals are in the shrine on the island
+  below, down the stone bridge south; and east, over another arched bridge, is the Arena island,
+  whose tower you climb by its spiral stair to the Hall of Champions (its champions seen from all
+  round the tower), a lookout and the Sky Bar, where Barman Kenji throws a drink at his guests
+  every 20 seconds. Everything works as before, and your vault chests keep what's in them.
 
 ### Pets
 - Pets now come in four sizes, Tiny, Small, Medium and Large, each hitting about twice as hard as

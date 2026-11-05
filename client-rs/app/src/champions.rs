@@ -469,9 +469,9 @@ impl Hall {
         let mut statues: Vec<&GameObj> = world
             .objects
             .values()
+            // on stacked floors from any floor: the islands' tower top shows its champions to the
+            // court and the bridges below it too
             .filter(|o| statue_board(o, ui.data).is_some())
-            // on stacked floors only those on our floor (the islands' tower top, not seen from its foot)
-            .filter(|o| world.on_my_floor(o))
             .collect();
         if statues.is_empty() {
             return;

@@ -5,7 +5,8 @@ built from the garden's grounds, scenery and models): what only floating islands
   where the island's edge drops into the sky, shows soil over rock strata; the rock the undersides
   hang in (`NI Sky Rock`, drawn by the Rust client, islands.rs); the bridges' decks (planks across
   the way, a dark timber edge beam, vermilion railings, piers under them: `<Piers/>`) and their
-  rising decks a quarter of a tile a square (`<Lift>`), in wood and in stone; the Arena tower's top
+  rising decks (`<Lift>`): the wooden ones arching as the garden's over its pond do, the stone one
+  a quarter of a tile a square; the Arena tower's top
   deck and the column in its stair's well, whose sides go down to the ground as walls
   (`<FaceDown/>`: rose timber and lit shoji, a pagoda's); the spiral stair's steps.
 - The bar on the tower's top: its counter pavilion (a 3D model: shelves of bottles, a counter,
@@ -123,6 +124,18 @@ def timber_face(seed):
     return tile(px)
 
 
+def lacquer_face(seed):
+    """An arched bridge's side, as the garden's over its pond (models.arch): vermilion lacquer,
+    lit along its top, dark at its foot."""
+    def px(x, y):
+        if y == 0:
+            return LACQUER[4]
+        if y == 7:
+            return LACQUER[0]
+        return dither(LACQUER, 0.5 + 0.12 * (_n(x // 4, y, seed, 1) - 0.5), x, y)
+    return tile(px)
+
+
 def tower_wall(seed):
     """A tower's side, a square of it: rose timber posts and rails round a lit shoji panel, a
     pagoda's walls (the tiers' roofs are drawn by the client at each floor)."""
@@ -233,7 +246,15 @@ def frog(frame):
 # Lifts: the bridges climb and fall a quarter of a tile a square (never more), the spiral stair
 # a quarter of a tile a twelfth of a turn (tools/build_stair_tower.py's spiral).
 LIFTS = [k * 0.25 for k in range(1, 12)]
-WOOD_LIFTS = [k * 0.125 for k in range(1, 24)]
+# The wooden bridges between the islands arch as the garden's over its pond do (models.arch): their
+# decks up to a tile over their ends, an eighth of a tile apart (`ARCH_LIFTS`, the first level),
+# in that bridge's dark planks laid across the way, with its vermilion lacquered sides and its
+# taller railings, the posts capped in brass (`<RailHeight>`, `<RailCap>`); no piers under them
+# (`<NoUnderside/>`): the arch carries itself.
+ARCH_LIFTS = [k * 0.125 for k in range(0, 9)]
+ARCH_PLANK = [TIMBER[1]] + WOOD[1:]
+ARCH_RAIL_HEIGHT = 0.62       # models.arch's top rail over its deck
+BRASS = 0xE0B040              # its posts' caps (models.GOLD)
 WOOD_RAIL = 0x7A4A2C          # the tower's balcony: dark oak, as its timbers
 
 
@@ -279,13 +300,13 @@ def grounds():
         # it, so the grass grows in over its edge
         "NI Store Deck": (G.planks(G.DECK, False, seam=1, ends=0.88), 4, {"BlendPriority": "-2"}, "0xA8665A", None),
     }
-    # the wooden bridges dip in a U, their decks an eighth of a tile apart (`WOOD_LIFTS`); the stone
-    # one steps a quarter of a tile a square
-    for k, lift in enumerate(WOOD_LIFTS, 1):
-        out["NI Wood Ramp %d" % k] = (G.planks(G.PLANK, False), 3,
-                                      {"Lift": str(lift), "BlendPriority": "24", **wood_rail, **bridge}, "0x7A4E30", timber_face)
-        out["NI Wood Ramp EW %d" % k] = (G.planks(G.PLANK, True), 3,
-                                         {"Lift": str(lift), "BlendPriority": "24", **wood_rail, **bridge}, "0x7A4E30", timber_face)
+    # the wooden bridges arch, east to west (`ARCH_LIFTS`); the stone one steps a quarter of a
+    # tile a square
+    arch = {"BlendPriority": "24", **wood_rail, "RailHeight": str(ARCH_RAIL_HEIGHT), "RailCap": "0x%06X" % BRASS,
+            "StaySolid": None, "Slope": None, "NoUnderside": None, "Slab": "0.26"}
+    for k, lift in enumerate(ARCH_LIFTS):
+        tags = dict(arch, Lift=str(lift)) if lift else arch
+        out["NI Arch Deck EW %d" % k] = (G.planks(ARCH_PLANK, True), 3, tags, "0x70482E", lacquer_face)
     for k, lift in enumerate(LIFTS, 1):
         out["NI Stone Ramp %d" % k] = (lambda s: ashlar(GRANITE, s + 9), 3,
                                        {"Lift": str(lift), "BlendPriority": "23", **stone_rail, **stone_bridge}, "0x908E98",

@@ -66,6 +66,12 @@ namespace WorldServer.core.worlds.impl
         private const float FOUNTAIN_RANGE = 3.5f;
         private List<objects.Entity> _fountains;
         private float _fountainCheck;
+        // The spawn heals too, as if an invisible fountain stood over it: whoever arrives in the
+        // Nexus is healed where they land, on its squares (TileRegion.Spawn) or a step beside them,
+        // on their floor. The basins round the islands' spawn stand at its deck's corners, out of
+        // reach of its middle.
+        private const float SPAWN_HEAL_RANGE = 1.5f;
+        private List<(float X, float Y, float Z)> _spawnHeal;
 
         private const ushort VAULT_CHEST = 0x0504;
 
@@ -167,14 +173,18 @@ namespace WorldServer.core.worlds.impl
             // Found once the map's objects are in (the first ticks can come before).
             if (_fountains == null || _fountains.Count == 0)
                 _fountains = StaticObjects.Values.Where(o => Fountains.Contains(o.ObjectDesc.IdName)).Cast<objects.Entity>().ToList();
-            if (_fountains.Count == 0)
+            _spawnHeal ??= RegionTiles(TileRegion.Spawn).Select(t => (t.Point.X + 0.5f, t.Point.Y + 0.5f, t.Z)).ToList();
+            if (_fountains.Count == 0 && _spawnHeal.Count == 0)
                 return;
 
             // DistTo: on stacked floors only a basin on the player's own floor
             foreach (var player in Players.Values)
-                if (_fountains.Any(f => player.DistTo(f) <= FOUNTAIN_RANGE))
+                if (_fountains.Any(f => player.DistTo(f) <= FOUNTAIN_RANGE) || OnSpawn(player))
                     player.ApplyConditionEffect(ConditionEffectIndex.Healing, 1000);
         }
+
+        private bool OnSpawn(objects.Player player) => _spawnHeal.Any(s =>
+            player.DistTo(s.X, s.Y) <= SPAWN_HEAL_RANGE && MathF.Abs(player.Z - s.Z) <= objects.Entity.LevelReach);
 
         public void SendOutMerchant(MerchantData merchantData)
         {

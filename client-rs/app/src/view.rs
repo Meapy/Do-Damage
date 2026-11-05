@@ -593,6 +593,8 @@ const RAIL_HEIGHT: f64 = 0.4;
 /// The railing's bars, how thick (tiles), and its posts, how wide.
 const RAIL_BAR: f64 = 0.07;
 const RAIL_POST: f64 = 0.09;
+/// How far a post's cap (`<RailCap>`) stands over its rail.
+const RAIL_CAP: f64 = 0.12;
 /// How bright the ground is under a floor above it.
 const SHADE: f32 = 0.55;
 /// Stacked floors' ground and edges are worked out this many squares square at a time.
@@ -644,13 +646,16 @@ struct Edge {
 }
 
 /// A railing along a drop, from `a` to `b` (its top rail's height at each end: a bridge's rising
-/// deck has it slope with the deck), its colour; or a stone parapet (`<Parapet/>`) in the ground's
-/// side texture.
+/// deck has it slope with the deck), `height` over the deck (`<RailHeight>`, else `RAIL_HEIGHT`),
+/// its colour and its posts' caps' (`<RailCap>`: the arched bridges' brass); or a stone parapet
+/// (`<Parapet/>`) in the ground's side texture.
 #[derive(Clone, Copy)]
 struct Rail {
     a: [f64; 3],
     b: [f64; 3],
+    height: f64,
     color: u32,
+    cap: Option<u32>,
     solid: bool,
     parapet: Option<bsk_render::AtlasRect>,
 }
@@ -843,6 +848,8 @@ fn build_chunk(scene: &Scene, level: u8, cx: i32, cy: i32) -> Chunk {
                 ([fx, fy + 1.0], [fx, fy], (-1, 0), (0, -1), (3, 0)),
             ];
             let rail = rail_of(tile);
+            let rail_height = ground.map_or(RAIL_HEIGHT, |g| g.xml.number("RailHeight", RAIL_HEIGHT));
+            let rail_cap = ground.and_then(|g| g.xml.child("RailCap")).map(|c| bsk_data::xml::as3_int(&c.text) as u32);
             // how far the ground must drop beside it for a railing (`<RailDrop>`: a little bridge
             // over a pond is railed all along)
             let rail_drop = ground.map_or(RAIL_DROP, |g| g.xml.number("RailDrop", RAIL_DROP));
@@ -865,10 +872,10 @@ fn build_chunk(scene: &Scene, level: u8, cx: i32, cy: i32) -> Chunk {
                             let h = world.surface(l, px, py, data)?;
                             (rail_of(t).is_some() && drops(world, data, px, py, h, nx, ny, rail_drop)).then_some(h)
                         });
-                        next.map_or(s, |h| (s + h) / 2.0) + RAIL_HEIGHT
+                        next.map_or(s, |h| (s + h) / 2.0) + rail_height
                     };
-                    let (ra, rb) = if corners.is_some() { (ha + RAIL_HEIGHT, hb + RAIL_HEIGHT) } else { (end(-1), end(1)) };
-                    chunk.rails.push(Rail { a: [a[0], a[1], ra], b: [b[0], b[1], rb], color, solid, parapet });
+                    let (ra, rb) = if corners.is_some() { (ha + rail_height, hb + rail_height) } else { (end(-1), end(1)) };
+                    chunk.rails.push(Rail { a: [a[0], a[1], ra], b: [b[0], b[1], rb], height: rail_height, color, cap: rail_cap, solid, parapet });
                 }
                 // a tower's walls (`<Column/>`): every side not on its own kind goes down to the
                 // ground under it, from under the balcony beside it (or its own top's edge), with
@@ -1068,7 +1075,7 @@ fn floors(scene: &Scene, renderer: &mut Renderer, ground: &mut Ground, x0: i32, 
                     let tint = |k: f32| flat(r.color, k, keep(r.solid, r.a[2]));
                     // a stone parapet: a low wall in the ground's side stone, a lighter coping
                     if let Some(rect) = r.parapet {
-                        let (da, db) = (r.a[2] - RAIL_HEIGHT, r.b[2] - RAIL_HEIGHT);
+                        let (da, db) = (r.a[2] - r.height, r.b[2] - r.height);
                         let wall = cam.quad([r.a[0], r.a[1], da + PARAPET], [r.b[0], r.b[1], db + PARAPET], [r.a[0], r.a[1], da]);
                         faces.push((level, depth, Plate { rect, quad: wall, tint: tint(1.0) }));
                         let cap = cam.quad([r.a[0], r.a[1], da + PARAPET + 0.06], [r.b[0], r.b[1], db + PARAPET + 0.06], [r.a[0], r.a[1], da + PARAPET]);
@@ -1078,21 +1085,27 @@ fn floors(scene: &Scene, renderer: &mut Renderer, ground: &mut Ground, x0: i32, 
                     // the top rail, and a thinner one halfway down
                     let bar = cam.quad(r.a, r.b, [r.a[0], r.a[1], r.a[2] - RAIL_BAR]);
                     faces.push((level, depth, Plate { rect: white, quad: bar, tint: tint(1.0) }));
-                    let mid = |p: [f64; 3]| [p[0], p[1], p[2] - RAIL_HEIGHT * 0.5];
+                    let mid = |p: [f64; 3]| [p[0], p[1], p[2] - r.height * 0.5];
                     let (ma, mb) = (mid(r.a), mid(r.b));
                     let bar = cam.quad(ma, mb, [ma[0], ma[1], ma[2] - RAIL_BAR * 0.6]);
                     faces.push((level, depth, Plate { rect: white, quad: bar, tint: tint(0.8) }));
-                    // a post at each corner, once
+                    // a post at each corner, once, with its cap (`<RailCap>`) a little over the rail
                     for p in [r.a, r.b] {
                         if !posts.insert(((p[0] * 2.0) as i32, (p[1] * 2.0) as i32, level)) {
                             continue;
                         }
                         let top = cam.to_screen(p[0], p[1], p[2] + 0.02);
-                        let foot = cam.to_screen(p[0], p[1], p[2] - RAIL_HEIGHT - 0.02);
+                        let foot = cam.to_screen(p[0], p[1], p[2] - r.height - 0.02);
                         let w = (RAIL_POST * cam.scale) as f32;
                         let quad = Quad { origin: [top[0] - w / 2.0, top[1]], x_axis: [w, 0.0], y_axis: [foot[0] - top[0], foot[1] - top[1]] };
                         let depth = cam.to_screen(p[0], p[1], 0.0)[1] + 0.01;
                         faces.push((level, depth, Plate { rect: white, quad, tint: tint(0.7) }));
+                        if let Some(cap) = r.cap {
+                            let crown = cam.to_screen(p[0], p[1], p[2] + RAIL_CAP);
+                            let cw = w * 1.6;
+                            let quad = Quad { origin: [crown[0] - cw / 2.0, crown[1]], x_axis: [cw, 0.0], y_axis: [top[0] - crown[0], top[1] - crown[1]] };
+                            faces.push((level, depth + 0.001, Plate { rect: white, quad, tint: flat(cap, 1.0, keep(r.solid, r.a[2])) }));
+                        }
                     }
                 }
             }

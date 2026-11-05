@@ -125,8 +125,8 @@ The Nexus is the safe hub between runs: a cluster of floating islands in a sunse
 heights and joined by bridges, in the look of a Japanese garden village: cherry trees in bloom,
 lanterns, temples and a koi pond, with clouds drifting by below and the odd shooting star. Rock
 hangs under every island, and railings run round their edges. You arrive on a deck of
-pink-stained wood in the middle of the spawn's island, by stone water basins that heal you while
-you stand next to them. From there:
+pink-stained wood in the middle of the spawn's island, which heals you while you stand on it, as
+the stone water basins at its corners do. From there:
 
 - **On the spawn's island**: the **Support Bot** in the middle of the deck, the Name Changer
   (your first name is free; changing it costs {{v:name_change}} fame) strolling about its west
@@ -136,8 +136,8 @@ you stand next to them. From there:
   them for experience. Frogs sit among the lily pads in the pond's north-east, and in its
   south-east corner the storehouse stands on a deck with four **shared vault chests** anyone can
   use.
-- **West**, across the wooden bridge: the **market island**. Its shopping street along the north is
-  the Nexus Bazaar: each shop is a row of stalls in front of a house (stat potions, dungeon keys,
+- **West**, over the arched wooden bridge: the **market island**. Its shopping street along the
+  north is the Nexus Bazaar: each shop is a row of stalls in front of a house (stat potions, dungeon keys,
   Elder and Doomed keys, consumables, specials, pet generators, clothing and accessories). The
   stalls take turns through each shop's items, and everything there costs fame. Over the bridge
   you come to the **market square**: two rows of stalls showing what players sell, where the
@@ -157,7 +157,7 @@ you stand next to them. From there:
   and round the shrine a forest of cherry, pine and maple where blossom falls around you: a dry
   garden of raked gravel round the elder cherry in its west, and in its east a quiet clearing
   with a wayside shrine, where the twins Hana and Sora run about.
-- **East**, across the other wooden bridge: the **Arena island**. Its court of raked sand holds a
+- **East**, over the other arched bridge: the **Arena island**. Its court of raked sand holds a
   samurai's statue, banners, straw dummies, the Arena Leaderboard's golden trophy, the **Herald**
   and the **Warcaller** (the [community goals](community-goals.html)). Beside it rises a round
   stone tower: go in at its door and climb the spiral stair inside to its top, where the
@@ -166,8 +166,8 @@ you stand next to them. From there:
   throws a drink at his guests (15 seconds of Speedy, Hallucinating or Stasis, and a "PARTY!").
 
 Villagers walk between the islands and stop to chat, and bees drift over the flowers. On the
-islands you only talk to, and see the signs of, the people and things on your own floor: the Hall
-of Champions shows itself once you're up the tower.
+islands you only talk to, and see the signs of, the people and things on your own floor, but the
+Hall of Champions' champions show from anywhere, high on the tower.
 
 The **Herald**, on the Arena island's court by the Arena Leaderboard, keeps
 everyone's week together: dungeons cleared, Oryx chains completed and failed, heroes fallen,

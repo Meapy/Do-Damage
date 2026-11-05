@@ -212,6 +212,10 @@ namespace WorldServer.core.objects.vendors
             stats[StatDataType.MerchandiseMinsLeft] = MinsLeft;
             stats[StatDataType.MerchandiseDiscount] = Discount;
             stats[StatDataType.MerchandiseRankReq] = base.RankRequired;
+            // on stacked floors its height, as Entity.ExportStats sends it (this doesn't call it):
+            // without it the client puts the islands' shop stalls on the lowest floor, out of sight
+            if (World?.Levels != null)
+                stats[StatDataType.Height] = HeightStat;
         }
 
         protected virtual void SendNotifications(Player player, bool gift)

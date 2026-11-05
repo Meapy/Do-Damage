@@ -22,7 +22,7 @@ heights, joined by bridges; floor 1 is the lowest map (the game's `World.Levels[
   pads and frogs, three little flat bridges over the pond, and on a deck in the pond's
   south-east corner the storehouse and the four shared vault chests (`CHESTS`: each keeps its
   castle tile as its name, so its items stay where they are in Redis).
-- MARKET (west, floor 2), across a wooden bridge that dips and rises: the market square (the
+- MARKET (west, floor 2), across an arched wooden bridge (as the garden's over its pond): the market square (the
   Broker on `Nexus Broker`, the stalls' `Market Stall` tiles, the Tinkerer and the Chronicler on
   their markers), the shop street (`Store N`, MerchantLists.Shops), the guild's teahouse (Guild
   Hall door, Guild Register), the quest house, and in its south-west the forge court (the Divine
@@ -32,7 +32,7 @@ heights, joined by bridges; floor 1 is the lowest map (the game's `World.Levels[
   Arena's sand pit on `Arena Portal`), the torii and the pagoda, and the forest round it on petal
   ground (blossom falls there): the elder cherry's dry garden in its west, the memorial clearing
   and the twins (`Nexus Twins`) in its east.
-- ARENA (east, floor 2), across a wooden bridge that dips and rises: the Arena court (the dojo
+- ARENA (east, floor 2), across an arched wooden bridge (as the garden's over its pond): the Arena court (the dojo
   yard, the samurai statue, the Herald on `Nexus Herald` and the Arena Leaderboard beside him),
   and a round stone tower: a spiral stair inside it (two turns round its core, `SPIRAL`, a
   quarter of a tile a twelfth of a turn, as the Stair Tower's) from its door up to its top two
@@ -42,7 +42,7 @@ heights, joined by bridges; floor 1 is the lowest map (the game's `World.Levels[
 
 Every bridge is made by `bridge` (straight, five wide on the spawn's middle row or column, square
 to the islands' straight bridge heads, `jetty`; a quarter of a tile a square between its level
-ends, its deck sloping smoothly) and every
+ends, or arching up and over as the garden's bridges over its pond, its deck sloping smoothly) and every
 island's edge is a rim of rock (or dressed stone where paved) with a railing, whose side drops
 into the sky in soil and strata. The Rust client hangs the islands' rocky undersides, the rim's
 clouds and the bridges' piers under them (islands.rs) and draws the sky (sunset.rs).
@@ -71,11 +71,10 @@ SIZE = (204, 178)
 FLOOR = 3                # tiles between floors (Dungeons.xml testnexus <Levels height="3"/>)
 LEVELS = 4               # floors: the portals (1), spawn, market and the Arena's foot (2), north (3), the tower's top (4)
 RISE = 0.25              # a bridge rises this much a square (never more than half a tile)
-# The wooden bridges' dip: a U, not a V: down DIP at its middle, easing down over DIP_EASE squares
-# from each end (gently at first, never more than RISE a square) to a level stretch; their decks
-# an eighth of a tile apart (WOOD_STEP, nexus_garden.islands.WOOD_LIFTS), sloping smoothly between
-DIP = 1.0
-DIP_EASE = 5
+# The wooden bridges arch as the garden's over its pond do (nexus_garden.models.arch): up ARCH_RISE
+# at their middle along half a sine, never more than RISE a square; their decks an eighth of a tile
+# apart (WOOD_STEP, nexus_garden.islands.ARCH_LIFTS), sloping smoothly between
+ARCH_RISE = 1.0
 WOOD_STEP = 0.125
 
 # the garden's palette (build_nexus)
@@ -102,11 +101,12 @@ ARENA = (1, 172, 84, 26, 24, 3.0, 5)
 
 # the bridges: (name, axis, across (first, last), along (first, last), height at each end,
 # material, shape); the along range runs from the first island to the second, both ends a
-# landing. Five wide, so each runs on the spawn's middle row or column. "dip": a U, easing down
-# from both ends to a level middle `DIP` lower and back up (`DIP`, `DIP_EASE`).
+# landing. Five wide, so each runs on the spawn's middle row or column. "arch": up from both ends
+# to `ARCH_RISE` over them at the middle, as the garden's arched bridges over its pond (the
+# wooden ones dipped in a U until 2026-11-04).
 BRIDGES = [
-    ("market", "x", (82, 86), (91, 79), (3, 3), "wood", "dip"),        # spawn west to the market
-    ("arena", "x", (82, 86), (133, 145), (3, 3), "wood", "dip"),       # spawn east to the Arena
+    ("market", "x", (82, 86), (91, 79), (3, 3), "wood", "arch"),       # spawn west to the market
+    ("arena", "x", (82, 86), (133, 145), (3, 3), "wood", "arch"),      # spawn east to the Arena
     ("portals", "y", (110, 114), (105, 117), (3, 0), "stone", None),   # spawn south, down to the portals
 ]
 
@@ -223,27 +223,29 @@ def lay_island(g, island, ground=MEADOW):
                 g.ground(x, y, ground)
 
 
-def dip(i, n):
-    """How far down a dipping bridge's square `i` of `n` is: easing down from each end over
-    `DIP_EASE` squares (a half cosine) to `DIP`, level between; to the eighth of a tile."""
-    t = min(i, n - i, DIP_EASE) / DIP_EASE
-    return round(DIP * (1 - math.cos(math.pi * t)) / 2 / WOOD_STEP) * WOOD_STEP
+def arch(i, n):
+    """How far up an arched bridge's square `i` of `n` is: half a sine from its ends to
+    `ARCH_RISE` at its middle, as the garden's arch (nexus_garden.models.arch); to the eighth of a
+    tile."""
+    return round(ARCH_RISE * math.sin(math.pi * i / n) / WOOD_STEP) * WOOD_STEP
 
 
 def bridge_tiles(b):
     """A bridge's squares from its first end to its last: (x, y, height). Straight from one end's
-    height to the other's a quarter of a tile a square, or for a "dip" a U (`dip`)."""
+    height to the other's a quarter of a tile a square, or for an "arch" up and over (`arch`)."""
     _, axis, (c0, c1), (a0, a1), (h0, h1), _, shape_ = b
     step = 1 if a1 > a0 else -1
     along = list(range(a0, a1 + step, step))
     n = len(along) - 1
-    if shape_ == "dip":
+    if shape_ == "arch":
         assert h0 == h1, b[0]
+        rises = [abs(arch(i + 1, n) - arch(i, n)) for i in range(n)]
+        assert max(rises) <= RISE + 1e-9, (b[0], "rises %.3f a square" % max(rises))
     elif h0 != h1:
         assert abs(abs(h1 - h0) / n - RISE) < 1e-9, (b[0], "rises %.3f a square" % (abs(h1 - h0) / n))
     out = []
     for i, a in enumerate(along):
-        h = h0 - dip(i, n) if shape_ == "dip" else h0 + (h1 - h0) * i / n
+        h = h0 + arch(i, n) if shape_ == "arch" else h0 + (h1 - h0) * i / n
         for c in range(c0, c1 + 1):
             out.append((a, c, h) if axis == "x" else (c, a, h))
     return out
@@ -253,17 +255,19 @@ def bridge(levels, b):
     """A straight bridge: its squares on the floor at each one's height, the deck's ground lifting
     what crosses it a quarter of a tile a square between its two level landings, sloping smoothly
     from square to square (`<Slope/>`)."""
-    name, axis, _, _, _, material, _ = b
+    name, axis, _, _, _, material, shape_ = b
     for x, y, h in bridge_tiles(b):
         level = min(int(h / FLOOR + 1e-6), LEVELS - 1)
         lift = round(h - level * FLOOR, 4)
-        if material == "wood":
+        if material == "wood" and shape_ == "arch":
+            # the arch's decks: the garden bridge's planks, lacquered sides and railings
             step = int(round(lift / WOOD_STEP))
             assert abs(step * WOOD_STEP - lift) < 1e-6, (name, x, y, lift)
-            if step == 0:
-                ground = "NI Bridge Deck EW" if axis == "x" else "NI Bridge Deck NS"
-            else:
-                ground = ("NI Wood Ramp EW %d" if axis == "x" else "NI Wood Ramp %d") % step
+            assert axis == "x", ("the arched bridges' decks run east to west", name)
+            ground = "NI Arch Deck EW %d" % step
+        elif material == "wood":
+            assert lift == 0, ("a wooden bridge rises only as an arch", name, x, y, lift)
+            ground = "NI Bridge Deck EW" if axis == "x" else "NI Bridge Deck NS"
         else:
             step = int(round(lift / RISE))
             assert abs(step * RISE - lift) < 1e-6, (name, x, y, lift)

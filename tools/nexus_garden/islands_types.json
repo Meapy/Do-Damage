@@ -1,5 +1,14 @@
 {
  "grounds": {
+  "NI Arch Deck EW 0": "0x9D5E",
+  "NI Arch Deck EW 1": "0x9D5F",
+  "NI Arch Deck EW 2": "0x9D60",
+  "NI Arch Deck EW 3": "0x9D61",
+  "NI Arch Deck EW 4": "0x9D62",
+  "NI Arch Deck EW 5": "0x9D63",
+  "NI Arch Deck EW 6": "0x9D64",
+  "NI Arch Deck EW 7": "0x9D65",
+  "NI Arch Deck EW 8": "0x9D66",
   "NI Balcony": "0x9D31",
   "NI Bar Floor": "0x9D07",
   "NI Bridge Deck EW": "0x9D03",
