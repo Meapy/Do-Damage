@@ -695,6 +695,9 @@ enum Hit {
     Colour(usize),
     Cell(usize, usize, [f32; 4]),
     ClearCustom,
+    /// The crosshair's share code to the clipboard, and a code from it.
+    CopyCode,
+    PasteCode,
     /// A language (`i18n::LANGUAGES`), or `None` for the system's.
     Language(Option<usize>),
     /// A slider (a volume, the zoom...) and its track.
@@ -702,6 +705,16 @@ enum Hit {
     Defaults,
     Close,
     Home,
+}
+
+/// What sharing a crosshair last did.
+#[derive(Clone, Copy, Debug, PartialEq, Eq)]
+enum ShareNote {
+    Copied,
+    /// The browser is still handing the clipboard over.
+    Waiting,
+    Pasted,
+    NotACode,
 }
 
 /// The Options window.
@@ -715,6 +728,8 @@ pub struct OptionsUi {
     dragging: Option<(Slider, [f32; 4])>,
     /// Painting the player's own crosshair: what the cells dragged over become, and the grid.
     painting: Option<(bool, [f32; 4])>,
+    /// What the last Copy code or Paste code did, shown under them.
+    share_note: Option<ShareNote>,
     rect: Option<[f32; 4]>,
     hits: Vec<(Hit, [f32; 4])>,
     /// "Return home" was pressed: back to the Nexus.
@@ -773,6 +788,26 @@ impl OptionsUi {
         self.listening = None;
     }
 
+    /// Text pasted while the window is open (Paste code, or Ctrl+V in the browser): on the
+    /// Crosshair tab, a shared crosshair's code. True if the settings changed.
+    pub fn paste(&mut self, text: &str, settings: &mut Settings) -> bool {
+        if !self.open || self.tab != Tab::Crosshair {
+            return false;
+        }
+        match settings.crosshair_look.from_code(text) {
+            Some(look) => {
+                self.share_note = Some(ShareNote::Pasted);
+                let changed = look != settings.crosshair_look;
+                settings.crosshair_look = look;
+                changed
+            }
+            None => {
+                self.share_note = Some(ShareNote::NotACode);
+                false
+            }
+        }
+    }
+
     /// `--options <tab>` (tests): the window open at that tab (`controls`, `graphics`,
     /// `visuals`, `crosshair`, `sound`, `language`) from the start.
     pub fn opened_at(tab: Option<String>) -> Self {
@@ -795,7 +830,10 @@ impl OptionsUi {
         let Some((hit, _)) = self.hits.iter().find(|(_, r)| inside(*r, pos)).copied() else { return false };
         self.listening = None;
         match hit {
-            Hit::Tab(t) => self.tab = t,
+            Hit::Tab(t) => {
+                self.tab = t;
+                self.share_note = None;
+            }
             Hit::Bind(b) => self.listening = Some(b),
             Hit::Language(l) => {
                 settings.language = l.map(|i| i18n::LANGUAGES[i].code.to_owned()).unwrap_or_default();
@@ -831,6 +869,18 @@ impl OptionsUi {
                 settings.crosshair_look.custom = [0; crosshair::GRID];
                 settings.crosshair_look.style = Style::Custom;
                 return true;
+            }
+            Hit::CopyCode => {
+                crate::textedit::clipboard::set(&settings.crosshair_look.code());
+                self.share_note = Some(ShareNote::Copied);
+            }
+            Hit::PasteCode => {
+                // On the desktop the clipboard is read at once; the browser hands it over in a
+                // frame or two (`paste`, from the frame's pasted text).
+                self.share_note = Some(if cfg!(target_arch = "wasm32") { ShareNote::Waiting } else { ShareNote::NotACode });
+                if let Some(text) = crate::textedit::clipboard::get() {
+                    return self.paste(&text, settings);
+                }
             }
             Hit::Defaults => {
                 let d = Settings::default();
@@ -1146,6 +1196,37 @@ impl OptionsUi {
         let clear = [grid[0], grid[1] + grid[3] + 14.0 * s, 130.0 * s, 34.0 * s];
         ui.button(clear, tr("Clear"), Kind::Secondary, inside(clear, mouse), s);
         self.hits.push((Hit::ClearCustom, clear));
+        // Sharing: the code of the crosshair in use, to copy, and pasting one from a friend.
+        let mut y = clear[1] + clear[3] + 26.0 * s;
+        ui.label_fit(tr("Share"), grid[0], y, grid[2], font(15.0), true, color::TEXT);
+        y += 26.0 * s;
+        let bw = (grid[2] - 10.0 * s) / 2.0;
+        let copy = [grid[0], y, bw, 34.0 * s];
+        let paste = [grid[0] + bw + 10.0 * s, y, bw, 34.0 * s];
+        ui.button(copy, tr("Copy code"), Kind::Secondary, inside(copy, mouse), s);
+        ui.button(paste, tr("Paste code"), Kind::Secondary, inside(paste, mouse), s);
+        self.hits.push((Hit::CopyCode, copy));
+        self.hits.push((Hit::PasteCode, paste));
+        y += 34.0 * s + 10.0 * s;
+        // The code itself, so it can be read out or typed where there's no clipboard; a long
+        // one (the player's own) over two lines.
+        let code = look.code();
+        let cs = font(11.0);
+        let half = code.len().div_ceil(2);
+        let lines: Vec<&str> = if code.len() > 24 { vec![&code[..half], &code[half..]] } else { vec![&code] };
+        for line in lines {
+            ui.label_fit(line, grid[0], y, grid[2], cs, true, color::TEXT_DIM);
+            y += cs * 1.3;
+        }
+        if let Some(note) = self.share_note {
+            let (text, rgb) = match note {
+                ShareNote::Copied => (tr("Code copied: paste it to a friend."), color::GOOD),
+                ShareNote::Waiting => (tr("Reading the clipboard…"), color::TEXT_MUTED),
+                ShareNote::Pasted => (tr("Crosshair pasted."), color::GOOD),
+                ShareNote::NotACode => (tr("The clipboard has no crosshair code."), color::DANGER),
+            };
+            ui.label_fit(text, grid[0], y + 4.0 * s, grid[2], font(12.0), false, rgb);
+        }
 
         let rx = grid[0] + grid[2] + 26.0 * s;
         let rw = body[0] + body[2] - rx;
@@ -1314,6 +1395,22 @@ mod tests {
         assert!(!s.crosshair_look.cell(0, 0));
         ui.drag((125.0, 105.0), &mut s);
         assert_eq!(s.crosshair_look.custom, [0; crosshair::GRID]);
+    }
+
+    #[test]
+    fn pasting_a_shared_crosshair() {
+        let mut ui = OptionsUi::opened_at(Some("visuals".into()));
+        let mut s = Settings::default();
+        // Only the Crosshair tab takes codes.
+        assert!(!ui.paste("DD27C8", &mut s));
+        assert_eq!(ui.share_note, None);
+        ui.tab = Tab::Crosshair;
+        assert!(ui.paste("DD27C8", &mut s));
+        assert_eq!((s.crosshair_look.style, s.crosshair_look.colour, s.crosshair_look.size), (Style::Dot, 7, 2.0));
+        assert_eq!(ui.share_note, Some(ShareNote::Pasted));
+        assert!(!ui.paste("hello there", &mut s));
+        assert_eq!(ui.share_note, Some(ShareNote::NotACode));
+        assert_eq!(s.crosshair_look.style, Style::Dot, "unchanged");
     }
 
     #[test]

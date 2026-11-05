@@ -584,7 +584,11 @@ The remotes `upstream` (HaloCelsius) and `aurusenth` share no history with `main
   `Tab::Crosshair`). Options has a Crosshair tab: nine styles (`crosshairStyle`), eight colours
   (`crosshairColour`, an index into `crosshair::COLOURS`), a size from 50% to 200%
   (`crosshairSize`) and the player's own on a 15×15 grid (`crosshairCustom`, four hex digits a
-  row), painted by clicking or dragging. Every style is worked out pixel by pixel round the mouse
+  row), painted by clicking or dragging. Copy code and Paste code share it as `Look::code`: `DD`,
+  the style and colour digits, the size in percent as two hex digits, then the drawing for the
+  player's own (`DD0064` is the default); the browser's paste comes through `take_pasted`, which
+  Options takes while it's open. Linux and macOS desktops have no clipboard in the client yet, so
+  there the code is only shown. Every style is worked out pixel by pixel round the mouse
   and drawn as runs along each row, edged in black. Client only; older clients keep the new lines
   in the settings file as they were. The client's `--options <tab>` opens Options at a tab, for
   screenshots.

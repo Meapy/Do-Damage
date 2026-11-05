@@ -86,7 +86,10 @@ default: smaller, see-through shots) and Hidden. The **Crosshair** tab picks the
 style (Classic, Cross, Dot, Circle, Circle and dot, Plus, Diagonal, Chevron or your own), its
 colour and its size (50% to 200%), with a preview over dark and light ground. To make your own,
 click or drag on its 15 by 15 grid to fill or empty squares; **Clear** starts again from nothing,
-and **Defaults** puts back the Classic crosshair but keeps your drawing. The **Graphics** tab has the world zoom, a frame
+and **Defaults** puts back the Classic crosshair but keeps your drawing. To share a crosshair,
+**Copy code** puts its code on the clipboard (the code also shows under the button: `DD0064` is
+the usual crosshair, and your own drawing makes it longer); a friend copies it and presses
+**Paste code**, or presses <kbd>Ctrl</kbd>+<kbd>V</kbd> on the tab in the browser. The **Graphics** tab has the world zoom, a frame
 rate limit and, on the desktop, **Borderless fullscreen**: the window covers the screen it's on,
 with no border, and alt-tabbing out is instant. The game remembers it for the next time. It also
 has the world's look: **Glow on bright light** (a soft glow round lava, fire, lanterns and

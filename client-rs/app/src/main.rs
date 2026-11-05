@@ -1659,10 +1659,17 @@ impl App {
             }
         }
         if let Some(text) = textedit::clipboard::take_pasted() {
-            match (&mut self.chat_input, &self.phase) {
-                (Some(input), _) => input.insert(&text),
-                (None, Phase::Menu) => self.front.paste(&text),
-                _ => {}
+            // The Options window's Crosshair tab takes a shared crosshair's code.
+            if self.options_ui.open {
+                if self.options_ui.paste(&text, &mut self.settings) {
+                    self.settings.save();
+                }
+            } else {
+                match (&mut self.chat_input, &self.phase) {
+                    (Some(input), _) => input.insert(&text),
+                    (None, Phase::Menu) => self.front.paste(&text),
+                    _ => {}
+                }
             }
         }
         self.advance();

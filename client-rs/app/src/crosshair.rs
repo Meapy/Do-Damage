@@ -129,6 +129,38 @@ impl Look {
         self.custom.iter().map(|r| format!("{r:04X}")).collect()
     }
 
+    /// A code to share it by: `DD`, the style and the colour (a digit each), the size in percent
+    /// (two hex digits) and, for the player's own, the drawing (`custom_text`). The game's own
+    /// crosshair is `DD0064`.
+    pub fn code(&self) -> String {
+        let style = STYLES.iter().position(|s| s.0 == self.style).unwrap_or(0);
+        let size = (self.size * 100.0).round().clamp(0.0, 255.0) as u8;
+        let mut code = format!("DD{style}{}{size:02X}", self.colour.min(COLOURS.len() - 1));
+        if self.style == Style::Custom {
+            code += &self.custom_text();
+        }
+        code
+    }
+
+    /// The look a shared code gives, or `None` if it isn't one. Spaces and dashes in it don't
+    /// matter, nor does case. A code for one of the styles keeps `self`'s own drawing.
+    pub fn from_code(&self, text: &str) -> Option<Look> {
+        let code: String = text.chars().filter(|c| !c.is_whitespace() && *c != '-').collect::<String>().to_ascii_uppercase();
+        let rest = code.strip_prefix("DD")?;
+        if rest.len() < 4 || !rest.is_ascii() {
+            return None;
+        }
+        let style = STYLES.get(rest[..1].parse::<usize>().ok()?)?.0;
+        let colour = rest[1..2].parse::<usize>().ok().filter(|&c| c < COLOURS.len())?;
+        let size = u8::from_str_radix(&rest[2..4], 16).ok()? as f32 / 100.0;
+        let custom = match (style, &rest[4..]) {
+            (Style::Custom, grid) => Look::parse_custom(grid)?,
+            (_, "") => self.custom,
+            _ => return None,
+        };
+        Some(Look { style, colour, size: size.clamp(SIZE_MIN, SIZE_MAX), custom })
+    }
+
     /// Read back; `None` for anything but `GRID` rows of four hex digits.
     pub fn parse_custom(text: &str) -> Option<[u16; GRID]> {
         if text.len() != GRID * 4 || !text.is_ascii() {
@@ -266,6 +298,27 @@ mod tests {
         for (s, name, _) in STYLES {
             assert_eq!(Style::from_name(name), Some(s));
         }
+    }
+
+    #[test]
+    fn share_codes() {
+        let mine = Look::default();
+        assert_eq!(mine.code(), "DD0064");
+        // A style's code keeps the drawing already there; the player's own brings its own.
+        let mut theirs = Look { style: Style::Custom, colour: 3, size: 1.5, custom: [0; GRID] };
+        theirs.set_cell(7, 7, true);
+        let code = theirs.code();
+        assert_eq!(code.len(), 6 + GRID * 4);
+        assert_eq!(mine.from_code(&code), Some(theirs));
+        assert_eq!(mine.from_code(&format!(" {}-{} ", &code[..6], &code[6..].to_lowercase())), Some(theirs));
+        let dot = Look { style: Style::Dot, colour: 7, size: 2.0, ..theirs };
+        assert_eq!(dot.code(), "DD27C8");
+        assert_eq!(mine.from_code("DD27C8"), Some(Look { custom: mine.custom, ..dot }));
+        for bad in ["", "DD", "XX0064", "DD9064", "DD0864", "DD00ZZ", "DD0064FFFF", "DD8064", "DD80641234"] {
+            assert_eq!(mine.from_code(bad), None, "{bad}");
+        }
+        // Out of range sizes are brought into range.
+        assert_eq!(mine.from_code("DD00FF").unwrap().size, SIZE_MAX);
     }
 
     #[test]
