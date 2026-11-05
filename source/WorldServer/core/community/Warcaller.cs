@@ -4,6 +4,7 @@ using System.Linq;
 using Shared.resources;
 using WorldServer.core.objects;
 using WorldServer.core.quests;
+using WorldServer.core.structures;
 using WorldServer.core.worlds;
 using WorldServer.networking.packets.outgoing;
 
@@ -30,6 +31,18 @@ namespace WorldServer.core.community
         private int _calls;
 
         public Warcaller(World world) => _world = world;
+
+        // where /warcaller lands a player: a step or two in front of him (south, facing the spawn),
+        // in his greeting range, or on his own tile if those are blocked; null before he's placed
+        public Position? Spot()
+        {
+            if (_npc == null)
+                return null;
+            foreach (var (dx, dy) in new[] { (0, 2), (0, 1), (1, 2), (-1, 2), (1, 1), (-1, 1) })
+                if (_world.IsPassable(_npc.X + dx, _npc.Y + dy, true))
+                    return new Position((int)_npc.X + dx + 0.5f, (int)_npc.Y + dy + 0.5f);
+            return new Position(_npc.X, _npc.Y);
+        }
 
         public void Init()
         {

@@ -80,6 +80,7 @@ namespace WorldServer.core.worlds.impl
         // the Tinkerer and the Chronicler, the quest NPCs beside it
         private quests.QuestGivers _questGivers;
         private community.Warcaller _warcaller;
+        public community.Warcaller Warcaller => _warcaller;
         // the market square's stalls, showing Marketplace listings
         private market.MarketStalls _marketStalls;
         private market.MarketBroker _marketBroker;

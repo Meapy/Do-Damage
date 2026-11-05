@@ -56,6 +56,8 @@ details). Add to a group's line when a change adds to it, rather than adding ano
   goal of another kind takes its place until the Monday reset. The faster a goal is finished, the
   bigger the next one and the harder that goal comes back, so quick finishes in a row get harder
   each time. The weekly reset comes as always.
+- `/warcaller` takes you to the Warcaller from anywhere, to check the goals and claim your
+  rewards.
 
 ### Customize
 - A new Customize window, in the Escape menu, holds your chat name colour and your glow, the

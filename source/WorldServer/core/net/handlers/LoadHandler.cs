@@ -38,9 +38,11 @@ namespace WorldServer.core.net.handlers
                 client.SendFailure("Class locked", FailureMessage.MessageWithDisconnect);
             else
             {
-                // beside the Divine Forge or the Market Broker if they typed /forge or /market to come here
+                // beside the Divine Forge, the Market Broker or the Warcaller if they typed /forge,
+                // /market or /warcaller to come here
                 var spawn = commands.doomed.ForgeCommand.ArrivalSpot(client.Account.AccountId, target)
                     ?? commands.Command.MarketCommand.ArrivalSpot(client.Account.AccountId, target)
+                    ?? commands.Command.WarcallerCommand.ArrivalSpot(client.Account.AccountId, target)
                     ?? target.GetPlayerSpawnPosition();
                 var player = client.Player = target.CreateNewPlayer(client, client.Character.ObjectType, spawn.X, spawn.Y);
 

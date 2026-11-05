@@ -23,7 +23,7 @@ The **Warcaller**, a knight in a plumed helm holding up the realm's violet war b
 the sand of the Arena island's court in the Nexus, by the Herald and the Arena Leaderboard (east
 across the bridge from the spawn). Walk up to him and he tells you
 what waits for you, or which goal still needs you; every so often he calls out how one of the goals
-stands to everyone nearby. Stand by him and press **Rally** in the bottom of your HUD to open the
+stands to everyone nearby. Type `/warcaller` to go to him from anywhere. Stand by him and press **Rally** in the bottom of your HUD to open the
 **Community Goals** window.
 
 The window lists the week's goals on the left, with a bar for each, and the goals that ended last
