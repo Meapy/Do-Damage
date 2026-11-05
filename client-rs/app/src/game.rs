@@ -113,6 +113,8 @@ pub struct Game {
     pub invite: Option<(Invite, i32)>,
     /// Someone's /visit waiting for our Yes or No (`VisitRequest`), in the corner.
     pub visit: Option<VisitAsk>,
+    /// The pings showing in this world (`PingShow`), and whether the server knows pings.
+    pub pings: crate::pings::Marks,
     /// `AccountList` 0 and 1: locked (starred) and ignored players' account ids.
     pub locked: std::collections::HashSet<String>,
     pub ignored: std::collections::HashSet<String>,
@@ -320,6 +322,7 @@ impl Game {
             trade: None,
             invite: None,
             visit: None,
+            pings: Default::default(),
             locked: Default::default(),
             ignored: Default::default(),
             next_teleport: 0,
@@ -535,6 +538,7 @@ impl Game {
                 self.arena = None;
                 self.arena_votes = None;
                 self.arena_asked = false;
+                self.pings.clear();
                 self.show_displays = info.show_displays;
                 self.music = Some(info.music.clone());
                 self.last_level = 0;
@@ -567,6 +571,8 @@ impl Game {
                 // we can show visit and summon requests, in the corner
                 self.socket.send(&bsk_proto::VisitAnswer { id: 0, answer: 255 }.into());
                 self.socket.send(&bsk_proto::VisitAnswer { id: 0, answer: 254 }.into());
+                // we can show pings (a server that knows them answers, and only then do we ping)
+                self.socket.send(&bsk_proto::PingMark { kind: crate::pings::HELLO, x: 0.0, y: 0.0, z: 0.0, target_id: 0 }.into());
                 self.status.clear();
             }
             Some(Event::Failure { description, .. }) => {
@@ -869,6 +875,7 @@ impl Game {
                 });
             }
             ServerMessage::ArenaVotes(v) => self.arena_votes = Some(v.clone()),
+            ServerMessage::PingShow(p) => self.pings.show(p, now),
             ServerMessage::VisitRequest(v) => {
                 if v.seconds == 0 {
                     // taken back or run out
@@ -1071,6 +1078,17 @@ impl Game {
     fn send(&mut self, msg: ClientMessage) {
         *self.counts.entry(msg.name()).or_default() += 1;
         self.socket.send(&msg);
+    }
+
+    /// Ping (the middle mouse button), if the server knows pings and its limits allow one now.
+    /// False when it didn't go.
+    pub fn ping(&mut self, mark: bsk_proto::PingMark, now: i32) -> bool {
+        if !self.pings.ready || self.world.as_ref().is_none_or(|w| w.me.is_none()) || !self.pings.take(now) {
+            return false;
+        }
+        log::info!("ping {} at ({:.1}, {:.1}) on {}", mark.kind, mark.x, mark.y, mark.target_id);
+        self.send(mark.into());
+        true
     }
 
     /// Set an inventory slot locally until the server's update arrives (the AIR client changes

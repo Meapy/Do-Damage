@@ -1064,6 +1064,12 @@ impl MiniView {
         let [x0, y0, side, _] = self.rect;
         (x0 + side / 2.0 + ((x - self.cx) as f32) * self.zoom, y0 + side / 2.0 + ((y - self.cy) as f32) * self.zoom)
     }
+
+    /// The world point a point on the minimap shows (`to_map` backwards).
+    pub fn from_map(self, px: f32, py: f32) -> (f64, f64) {
+        let [x0, y0, side, _] = self.rect;
+        (self.cx + ((px - x0 - side / 2.0) / self.zoom) as f64, self.cy + ((py - y0 - side / 2.0) / self.zoom) as f64)
+    }
 }
 
 /// What the player did on the HUD.

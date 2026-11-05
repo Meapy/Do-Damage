@@ -254,6 +254,11 @@ messages! {
         // above the one below, and the ground of the floors above the map (the map's own comes
         // in Update). From then on we walk at a height and say so before each Move (Height).
         132 => Layers { height: f32, tiles: List16<LayerTile> },
+        // Someone's ping (for a client that sent PingMark 255 in this world): who (their object
+        // id and name), what (PingMark's kinds), where (a world position and the height of its
+        // floor) and the object it marks (0: none, else the ping follows it while we see it), and
+        // who they are to us: 0 someone nearby, 1 our guild, 2 our party, 3 ourselves.
+        135 => PingShow { player_id: i32, name: String, kind: u8, x: f32, y: f32, z: f32, target_id: i32, relation: u8 },
     }
 }
 
@@ -372,5 +377,10 @@ messages! {
         // How high we walk, in tiles, just before each Move in a world of stacked floors (only
         // once Layers came, so never to a server without it).
         133 => Height { z: f32 },
+        // A ping (the middle mouse button): 0 look here, 1 danger, 2 go here, 3 loot, 4 help; at a
+        // world position and the height of its floor, marking an object (0: none). 255, once in
+        // each world, says we can show PingShows. An older server doesn't know it (one unknown
+        // message per world, and pings that go nowhere).
+        134 => PingMark { kind: u8, x: f32, y: f32, z: f32, target_id: i32 },
     }
 }

@@ -12,6 +12,16 @@ Keep each version short: changes go under `### ` group headings (Oryx 5, Arena, 
 on), one line per change players notice, summed up rather than item by item (the wiki has the
 details). Add to a group's line when a change adds to it, rather than adding another line.
 
+## Unreleased
+
+### Pings
+- Click the middle mouse button to ping: your party and guild in the world, and the players near
+  you, see a marker with a ring, a pin and a sound, at the screen's edge when it's out of view and
+  on the minimap. It pings what's under the mouse (Danger on an enemy, which it follows, Loot on a
+  bag, Go here on a portal or the minimap, Help on yourself, Look here anywhere else); hold the
+  button for the ping wheel to pick one. Options choose whose pings you see and whether they make a
+  sound.
+
 ## 2.3.9 (2026-11-05)
 
 ### Nexus

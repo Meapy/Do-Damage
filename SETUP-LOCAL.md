@@ -580,6 +580,24 @@ The remotes `upstream` (HaloCelsius) and `aurusenth` share no history with `main
 
 ## Changes from upstream
 
+- **Pings** (2026-11-05; `PING_MARK` 134 / `PING_SHOW` 135, `Player.Pings.cs`, `PingMarkHandler`,
+  `PingShow`; the Rust client's `pings.rs`, `options.rs` `PingsFrom`; the sounds from
+  `tools/make_ping_sounds.py`, `resources/web/sfx/ping*.mp3`). The middle mouse button pings: a click
+  pings what's under the mouse (an enemy Danger, a loot bag Loot, a portal or the minimap Go here,
+  yourself Help, else Look here at the ground), held it opens a wheel of the five. A ping on an
+  object follows it. The server checks the kind, the map's bounds and the limits (4 in 5 s, 250 ms
+  apart: `TakePing`) and sends `PING_SHOW` to everyone in the world who said they can show pings
+  (`PING_MARK` 255, once a world) and is in the sender's party or guild, or within 20 tiles
+  (`PingNear`) of the sender or the ping, leaving out those ignoring the sender (a hidden staff
+  member's pings go to their party only), with who the sender is to them (0 nearby, 1 guild, 2
+  party, 3 themselves). It answers `PING_MARK` 255 with a `PING_SHOW` 255, and the client only
+  pings once that came, so it never sends a server without pings unknown messages (32 of those
+  disconnect). Options, Visuals has "Others' pings" (Everyone, Party and guild, Nobody; `pingsFrom`)
+  and Sound "Ping sounds" (`pingSounds`). The bot's `--ping <kinds>` pings and logs pings; the
+  client's `--mouse-script` takes `middle`, `mdown` and `mup`. Client and servers ship together; an
+  older client gets no pings, an older server ignores the client's hello (one unknown message per
+  world).
+
 - **Pets in four sizes, all dropping, 18 new** (2026-11-04; `tools/port_doomed_pets.py`
   `TINY_PETS` / `SMALL_PETS`, `SIZE_DPS`, `PET_DPS`, `SOLD_SIZE`, `GENERATOR_NAMES`, `NEW_PETS`,
   `write_new_pets`, `shot`; `MerchantLists.InitDyes`, `port_doomed_economy.unsold_pet`,

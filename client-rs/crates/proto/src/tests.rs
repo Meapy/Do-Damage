@@ -490,3 +490,18 @@ fn layers_match_server() {
     msg.encode_body(&mut w);
     assert_eq!(w.buf, body);
 }
+
+#[test]
+fn ping_messages_match_ping_handler() {
+    // PingMarkHandler reads the kind, the position, the height and the object marked.
+    let frame = ClientMessage::from(PingMark { kind: 1, x: 10.5, y: 20.25, z: 0.0, target_id: 99 }).to_frame();
+    assert_eq!(frame, B::default().u8(1).f32(10.5).f32(20.25).f32(0.0).i32(99).frame(134));
+    // PingShow.Write: player, name, kind, x, y, z, target, relation.
+    let body = B::default().i32(1001).utf("Tester").u8(3).f32(1.5).f32(2.5).f32(3.0).i32(0).u8(2).0;
+    let msg = ServerMessage::decode(135, &body).unwrap();
+    let ServerMessage::PingShow(p) = &msg else { panic!("expected ServerMessage::PingShow") };
+    assert_eq!((p.player_id, p.name.as_str(), p.kind, p.x, p.y, p.z, p.target_id, p.relation), (1001, "Tester", 3, 1.5, 2.5, 3.0, 0, 2));
+    let mut w = wire::Writer::default();
+    msg.encode_body(&mut w);
+    assert_eq!(w.buf, body);
+}

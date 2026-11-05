@@ -189,6 +189,13 @@ public enum MessageId : byte
     // (LAYERS), and the height the client walks at, before each MOVE there (HEIGHT).
     LAYERS = 132,
     HEIGHT = 133,
+    // Pings (Rust client, the middle mouse button; Player.Pings.cs): the client says once in each
+    // world that it can show them (PING_MARK 255), which the server answers with a PING_SHOW of
+    // kind 255, so the client only pings a server that knows pings. A ping (PING_MARK 0-4) goes to
+    // the player's party and guild in the world and the players near them or the ping
+    // (PING_SHOW). The AIR client and older Rust clients never say so, and get none.
+    PING_MARK = 134,
+    PING_SHOW = 135,
     // From the world proxy (tools/world_proxy.py), before the client's first message: the
     // client's address. Only taken on a connection from this PC; clients never send it.
     PROXY_INFO = 250

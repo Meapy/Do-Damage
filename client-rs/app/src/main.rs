@@ -21,6 +21,7 @@ mod quests;
 mod market;
 mod particles;
 mod petals;
+mod pings;
 mod prof;
 mod npc;
 mod hdr;
@@ -227,6 +228,8 @@ struct App {
     forge_acts: Vec<forge::Act>,
     /// The vault window: every vault chest's items at once.
     vault: vault::Vault,
+    /// The middle mouse button's pings, and the ping wheel.
+    pings: pings::Input,
     /// The quest log (quests, daily rewards, achievements) and its popups, and what it asked of
     /// the server on opening.
     quests: quests::Quests,
@@ -543,10 +546,15 @@ enum MouseStep {
     Move,
     /// A right-click.
     Right,
+    /// The middle button: down, up, or a click (both at once).
+    MiddleDown,
+    MiddleUp,
+    Middle,
 }
 
 /// `--mouse-script "down@1500:x,y;move@1600:x,y;up@1700:x,y"` (desktop tests): left-button
-/// steps at times (ms) after joining, for drags and clicks on the HUD; `right` right-clicks.
+/// steps at times (ms) after joining, for drags and clicks on the HUD; `right` right-clicks;
+/// `middle` clicks the middle button (a ping), `mdown` and `mup` hold it (the ping wheel).
 fn mouse_script_arg() -> Vec<(i32, MouseStep, (f64, f64))> {
     #[cfg(not(target_arch = "wasm32"))]
     {
@@ -563,6 +571,9 @@ fn mouse_script_arg() -> Vec<(i32, MouseStep, (f64, f64))> {
                     "up" => MouseStep::Up,
                     "move" => MouseStep::Move,
                     "right" => MouseStep::Right,
+                    "middle" => MouseStep::Middle,
+                    "mdown" => MouseStep::MiddleDown,
+                    "mup" => MouseStep::MiddleUp,
                     _ => return None,
                 };
                 Some((ms.parse().ok()?, kind, (x.parse().ok()?, y.parse().ok()?)))
@@ -1571,6 +1582,11 @@ impl App {
                 for (name, volume, shot) in game.sounds.drain(..) {
                     audio.play(&name, volume, shot, now);
                 }
+                for (kind, relation) in game.pings.arrived() {
+                    if self.settings.ping_sounds && (relation == 3 || self.settings.pings_from.shows(relation)) {
+                        audio.play(pings::sound(kind), if relation == 3 { 0.6 } else { 0.8 }, false, now);
+                    }
+                }
                 if let Some(m) = game.music.take() {
                     audio.music(&m);
                 }
@@ -1733,6 +1749,9 @@ impl App {
                     MouseStep::Up => self.clicks.push((false, pos)),
                     MouseStep::Move => {}
                     MouseStep::Right => self.right_clicks.push(pos),
+                    MouseStep::MiddleDown => self.pings.events.push((true, pos)),
+                    MouseStep::MiddleUp => self.pings.events.push((false, pos)),
+                    MouseStep::Middle => self.pings.events.extend([(true, pos), (false, pos)]),
                 }
             }
         }
@@ -2322,6 +2341,7 @@ impl App {
                 game.camera_angle = game::RESET_CAMERA_ANGLE;
             }
             game.update(now, dt, keys, rotate, data);
+            game.pings.tick(game.world.as_ref(), now);
             prof::mark("update");
             // Keep the camera's turn once it stops turning (cameraAngle).
             if rotate == 0.0 && self.settings.camera_angle != Some(game.camera_angle) {
@@ -2355,6 +2375,21 @@ impl App {
         let mut view_radius = None;
         let mut fire = None;
         let mut ability_at = None;
+        let mut ping = None;
+        // Pings wait while a window has the mouse.
+        let windows_open = self.game_menu
+            || self.options_ui.open
+            || self.changelog.open
+            || self.market.open
+            || self.forge.open
+            || self.vault.open
+            || self.quests.open
+            || self.community.open
+            || self.npcs.window.is_some()
+            || self.hud.drag.is_some();
+        if windows_open || !matches!(&self.phase, Phase::Playing(g) if g.world.as_ref().is_some_and(|w| w.player().is_some())) {
+            self.pings.cancel();
+        }
         match &self.phase {
             Phase::Menu => {}
             Phase::Playing(game) => {
@@ -2408,6 +2443,19 @@ impl App {
                             let angle = game.camera_angle + (my - camera.cy).atan2(mx - camera.cx);
                             ability_at = Some((x, y, angle));
                         }
+                        // The middle button: a ping, or the ping wheel.
+                        if !self.pings.events.is_empty() {
+                            let frame = pings::Frame {
+                                world,
+                                data,
+                                cam: &camera,
+                                mini: panel.as_ref().and_then(|p| p.minimap()),
+                                on_hud: &on_hud,
+                                s: lay.s,
+                                now,
+                            };
+                            ping = self.pings.update(&frame);
+                        }
                         let hallucinating = has(bsk_world::condition::HALLUCINATING);
                         let roof = view::roof(world, data, &camera);
                         let scene = view::Scene { sprites, data, world, camera, time: now, floaters: &game.floaters, bubbles: &game.bubbles, particles: &game.particles, show, hallucinating, roof };
@@ -2434,6 +2482,7 @@ impl App {
                         if bag_preview {
                             hud::draw_bag_previews(&mut ui, world, &camera, lay.s);
                         }
+                        game.pings.draw(&mut ui, &camera, (lay.view_w(), lay.h), self.settings.pings_from, now);
                         // The top left, down: the quest's health (and who hit it, near it), the
                         // realm's events (only their count near the quest), then the boss history
                         // and the keys.
@@ -2476,6 +2525,7 @@ impl App {
                         if let Some(mini) = p.minimap() {
                             events::draw_minimap_marks(&mut ui, lay.s, &mini, game.realm_events.as_ref(), mouse);
                             hud::draw_minimap_top(&mut ui, &lay, world, game.camera_angle, &mini, game.quest);
+                            game.pings.draw_minimap(&mut ui, &mini, lay.s, self.settings.pings_from, now);
                         }
                         prof::mark("panel");
                     }
@@ -2511,6 +2561,12 @@ impl App {
             }
             if let Some((x, y, angle)) = ability_at {
                 game.use_ability(now, x, y, angle, data);
+            }
+            // a ping too soon after the last few (or to a server without pings) doesn't go
+            if let Some(mark) = ping {
+                if !game.ping(mark, now) {
+                    game.sounds.push(("error".into(), 0.5, false));
+                }
             }
         }
         if !status.is_empty() {
@@ -2551,6 +2607,7 @@ impl App {
                 self.community.draw_banners(&mut ui, &lay, below, now);
                 prof::mark("chat..windows");
                 hud::draw_overlay(&mut ui, &lay, world, p, &self.hud, mouse);
+                self.pings.draw(&mut ui, mouse, lay.s, now);
                 prof::mark("overlay");
             }
         }
@@ -2570,7 +2627,8 @@ impl App {
             && !self.community.open
             && !self.community.on_banner(mouse)
             && self.npcs.window.is_none()
-            && self.hud.drag.is_none();
+            && self.hud.drag.is_none()
+            && !self.pings.wheel_open(mouse, lay.s, now);
         if crosshair {
             draw_crosshair(renderer, mouse, lay.s);
         }
@@ -3203,6 +3261,13 @@ impl ApplicationHandler<UserEvent> for App {
             WindowEvent::MouseInput { state: ElementState::Pressed, button: winit::event::MouseButton::Right, .. } => {
                 self.right_clicks.push(self.mouse);
             }
+            WindowEvent::MouseInput { state, button: winit::event::MouseButton::Middle, .. } => {
+                if let Some(a) = &mut self.audio {
+                    a.wake();
+                }
+                // A ping, or the ping wheel: handled in the frame, where the camera is known.
+                self.pings.events.push((state == ElementState::Pressed, self.mouse));
+            }
             WindowEvent::MouseInput { state, button: winit::event::MouseButton::Left, .. } => {
                 if let Some(a) = &mut self.audio {
                     a.wake();
@@ -3321,6 +3386,7 @@ fn main() {
         community_acts: Vec::new(),
         forge_acts: Vec::new(),
         vault: Default::default(),
+        pings: Default::default(),
         type_text: text_arg("--type"),
         npc_test: text_arg("--npc"),
         quests_test: text_arg("--quests"),

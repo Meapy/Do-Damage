@@ -200,6 +200,7 @@ pub enum Toggle {
     Sfx,
     Shots,
     Music,
+    PingSounds,
 }
 
 /// What's shown in the world.
@@ -276,7 +277,55 @@ const GRAPHICS: [(Toggle, &str); 8] = [
     (Toggle::Fullscreen, mark("Borderless fullscreen (F11)")),
 ];
 
-const SOUNDS: [(Toggle, &str); 3] = [(Toggle::Sfx, mark("Sound effects")), (Toggle::Shots, mark("Weapon sounds")), (Toggle::Music, mark("Music"))];
+const SOUNDS: [(Toggle, &str); 4] =
+    [(Toggle::Sfx, mark("Sound effects")), (Toggle::Shots, mark("Weapon sounds")), (Toggle::Music, mark("Music")), (Toggle::PingSounds, mark("Ping sounds"))];
+
+/// Whose pings show (pings.rs): our own always do.
+#[derive(Clone, Copy, Debug, PartialEq, Eq, Default)]
+pub enum PingsFrom {
+    Nobody,
+    /// Our party's and our guild's.
+    Friends,
+    /// Everyone's the server sends: those near us or the ping, and our party and guild.
+    #[default]
+    Everyone,
+}
+
+impl PingsFrom {
+    /// In the slider's order, left to right.
+    const ALL: [PingsFrom; 3] = [PingsFrom::Nobody, PingsFrom::Friends, PingsFrom::Everyone];
+
+    fn name(self) -> &'static str {
+        match self {
+            PingsFrom::Nobody => "Nobody",
+            PingsFrom::Friends => "Friends",
+            PingsFrom::Everyone => "Everyone",
+        }
+    }
+
+    /// As the slider shows it.
+    fn label(self) -> &'static str {
+        match self {
+            PingsFrom::Nobody => tr("Nobody"),
+            PingsFrom::Friends => tr("Party and guild"),
+            PingsFrom::Everyone => tr("Everyone"),
+        }
+    }
+
+    fn from_name(name: &str) -> Option<Self> {
+        PingsFrom::ALL.into_iter().find(|p| p.name().eq_ignore_ascii_case(name))
+    }
+
+    /// Whether a ping from someone who is this to us shows (`PingShow.relation`: 0 someone
+    /// nearby, 1 our guild, 2 our party, 3 ourselves).
+    pub fn shows(self, relation: u8) -> bool {
+        match self {
+            PingsFrom::Nobody => relation == 3,
+            PingsFrom::Friends => relation >= 1,
+            PingsFrom::Everyone => true,
+        }
+    }
+}
 
 #[derive(Clone, Debug, PartialEq)]
 pub struct Settings {
@@ -292,6 +341,9 @@ pub struct Settings {
     pub pet_effects: bool,
     /// How every pet's shots look.
     pub pet_shot_look: PetShots,
+    /// Whose pings show, and whether they make a sound.
+    pub pings_from: PingsFrom,
+    pub ping_sounds: bool,
     /// A crosshair at the mouse over the world, instead of the pointer.
     pub crosshair: bool,
     /// How opaque other players, and other players' pets, are drawn (0 to 1).
@@ -360,6 +412,8 @@ impl Default for Settings {
             pet_shots: true,
             pet_effects: true,
             pet_shot_look: PetShots::Subtle,
+            pings_from: PingsFrom::Everyone,
+            ping_sounds: true,
             crosshair: true,
             player_alpha: 1.0,
             pet_alpha: 1.0,
@@ -434,6 +488,7 @@ impl Settings {
             Toggle::Sfx => &mut self.sound.sfx,
             Toggle::Shots => &mut self.sound.shots,
             Toggle::Music => &mut self.sound.music,
+            Toggle::PingSounds => &mut self.ping_sounds,
         }
     }
 
@@ -472,12 +527,14 @@ impl Settings {
         flag("playSFX", self.sound.sfx);
         flag("playPewPew", self.sound.shots);
         flag("playMusic", self.sound.music);
+        flag("pingSounds", self.ping_sounds);
         out += &format!("masterVolume={}\nsfxVolume={}\nmusicVolume={}\n", self.sound.master_volume, self.sound.sfx_volume, self.sound.music_volume);
         out += &format!("worldZoom={}\n", self.zoom);
         out += &format!("chatSize={}\n", self.chat_size);
         out += &format!("playerOpacity={}\npetOpacity={}\n", self.player_alpha, self.pet_alpha);
         out += &format!("maxFps={}\n", self.max_fps);
         out += &format!("petShotLook={}\n", self.pet_shot_look.name());
+        out += &format!("pingsFrom={}\n", self.pings_from.name());
         if let Some(a) = self.camera_angle {
             out += &format!("cameraAngle={a}\n");
         }
@@ -539,6 +596,8 @@ impl Settings {
                 "playSFX" => s.sound.sfx = on,
                 "playPewPew" => s.sound.shots = on,
                 "playMusic" => s.sound.music = on,
+                "pingSounds" => s.ping_sounds = on,
+                "pingsFrom" => s.pings_from = PingsFrom::from_name(value).unwrap_or_default(),
                 "masterVolume" => s.sound.master_volume = vol().unwrap_or(s.sound.master_volume),
                 "sfxVolume" => s.sound.sfx_volume = vol().unwrap_or(s.sound.sfx_volume),
                 "musicVolume" => s.sound.music_volume = vol().unwrap_or(s.sound.music_volume),
@@ -605,6 +664,7 @@ enum Slider {
     PetAlpha,
     PetShots,
     ChatSize,
+    Pings,
 }
 
 #[derive(Clone, Copy, Debug, PartialEq)]
@@ -657,6 +717,7 @@ fn set_slider(slider: Slider, track: [f32; 4], x: f64, settings: &mut Settings) 
         Slider::MaxFps => settings.max_fps = MAX_FPS[(f * (MAX_FPS.len() - 1) as f32).round() as usize],
         Slider::PetShots => settings.pet_shot_look = PetShots::ALL[(f * (PetShots::ALL.len() - 1) as f32).round() as usize],
         Slider::ChatSize => settings.chat_size = CHAT_MIN + v * (CHAT_MAX - CHAT_MIN),
+        Slider::Pings => settings.pings_from = PingsFrom::ALL[(f * (PingsFrom::ALL.len() - 1) as f32).round() as usize],
     }
 }
 
@@ -713,8 +774,12 @@ impl OptionsUi {
                         settings.player_alpha = d.player_alpha;
                         settings.pet_alpha = d.pet_alpha;
                         settings.pet_shot_look = d.pet_shot_look;
+                        settings.pings_from = d.pings_from;
                     }
-                    Tab::Sound => settings.sound = d.sound,
+                    Tab::Sound => {
+                        settings.sound = d.sound;
+                        settings.ping_sounds = d.ping_sounds;
+                    }
                     Tab::Language => settings.language.clear(),
                 }
                 return true;
@@ -883,11 +948,14 @@ impl OptionsUi {
                 } else if self.tab == Tab::Visuals {
                     let look = settings.pet_shot_look;
                     let lv = PetShots::ALL.iter().position(|&p| p == look).unwrap_or(1) as f32 / (PetShots::ALL.len() - 1) as f32;
+                    let from = settings.pings_from;
+                    let pv = PingsFrom::ALL.iter().position(|&p| p == from).unwrap_or(2) as f32 / (PingsFrom::ALL.len() - 1) as f32;
                     vec![
                         (Slider::PlayerAlpha, tr("Other players"), settings.player_alpha, pct(settings.player_alpha)),
                         (Slider::PetAlpha, tr("Other players' pets"), settings.pet_alpha, pct(settings.pet_alpha)),
                         (Slider::PetShots, tr("Pets' shots"), lv, look.label().to_owned()),
                         (Slider::ChatSize, tr("Chat size"), (settings.chat_size - CHAT_MIN) / (CHAT_MAX - CHAT_MIN), pct(settings.chat_size)),
+                        (Slider::Pings, tr("Others' pings"), pv, from.label().to_owned()),
                     ]
                 } else {
                     // Lower shows more of the world (the mouse wheel over the world does it too).
@@ -981,6 +1049,11 @@ mod tests {
         assert_eq!(s.chat_size, CHAT_MIN);
         set_slider(Slider::ChatSize, track, 300.0, &mut s);
         assert_eq!(s.chat_size, CHAT_MAX);
+        set_slider(Slider::Pings, track, 200.0, &mut s);
+        assert_eq!(s.pings_from, PingsFrom::Friends);
+        assert!(s.pings_from.shows(2) && s.pings_from.shows(1) && !s.pings_from.shows(0));
+        set_slider(Slider::Pings, track, 100.0, &mut s);
+        assert!(s.pings_from.shows(3) && !s.pings_from.shows(2), "our own always show");
     }
 
     #[test]
@@ -1006,6 +1079,8 @@ mod tests {
         s.fullscreen = true;
         s.chat_size = 0.75;
         s.language = "de".into();
+        s.pings_from = PingsFrom::Nobody;
+        s.ping_sounds = false;
         let back = Settings::from_text(&s.to_text());
         assert_eq!(back, s);
         // Lines another version wrote stay, and its keys don't take a key this one gives.

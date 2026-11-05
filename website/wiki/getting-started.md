@@ -58,6 +58,7 @@ Every key can be rebound in Options (<kbd>O</kbd>).
 | <kbd>W</kbd><kbd>A</kbd><kbd>S</kbd><kbd>D</kbd> | Move |
 | Mouse | Aim and shoot. <kbd>I</kbd> turns autofire on and off |
 | <kbd>Space</kbd> | Use your ability at the mouse |
+| Middle mouse button | Ping: mark a spot for your party, guild and the players near you ([Pings](#pings)) |
 | <kbd>Q</kbd> <kbd>E</kbd> | Turn the view; <kbd>Z</kbd> resets it |
 | <kbd>1</kbd> to <kbd>8</kbd> | Use or equip an inventory slot |
 | <kbd>F</kbd> <kbd>V</kbd> | Drink a health or magic potion |
@@ -88,11 +89,35 @@ has the world's look: **Glow on bright light** (a soft glow round lava, fire, la
 spells), **Vivid colours** (livelier colours and slightly darker corners) and, on a Windows PC,
 **HDR**. HDR is on when Windows has HDR turned on for your screen, and then the glow shines
 brighter than white. Turn any of them off if the game runs slowly on your computer. The
-**Sound** tab has a Master volume. The **Language** tab switches the game between its 11
+**Sound** tab has a Master volume, and **Ping sounds** to hear pings or not. The **Language** tab switches the game between its 11
 languages (English, Deutsch, Español, Français, Italiano, Nederlands, Polski, Português (Brasil),
 Русский, Türkçe and Українська) at once, menus, windows, tooltips and messages alike; the first
 time, it starts in your computer's or browser's language. Item and monster names and what the
 server writes in the chat stay in English.
+
+## Pings
+
+Click the **middle mouse button** to ping: a marker everyone in your party and your guild in the
+same world sees, wherever they are, and so do the other players within about 20 tiles of you or the
+ping. What it says depends on what's under the mouse:
+
+| Under the mouse | Ping |
+|---|---|
+| An enemy | **Danger**, which follows the enemy as it moves |
+| A loot bag | **Loot** |
+| A portal | **Go here** |
+| You | **Help** |
+| Anything else, or the ground | **Look here** |
+| The minimap | **Go here**, at that spot on the map |
+
+**Hold** the middle button (or drag a little) for the ping wheel: move toward Look here, Danger, Go
+here, Loot or Help and let go to ping it there; let go in the middle to cancel.
+
+A ping shows for six seconds: a ring on the ground with a pin over it, saying what it is and who
+sent it (green for your party, blue for your guild), a marker at the edge of the screen pointing to
+it when it's out of view, and a dot on the minimap. Danger has a sound of its own. You can ping four
+times in five seconds. In Options, **Visuals**, "Others' pings" shows everyone's, only your party's
+and guild's, or nobody's (yours always show), and **Sound** has Ping sounds.
 
 ## The screen
 
