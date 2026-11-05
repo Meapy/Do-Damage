@@ -300,6 +300,24 @@ namespace WorldServer.core.objects
 
         public event EventHandler<BehaviorEventArgs> OnDeath;
 
+        /// <summary>A wall of the map's (its square holds it: the Shatters' dirt walls, the Lab's) killed by
+        /// anything, a shot, a trap, an area attack, an ally: its square is cleared with its ground
+        /// back under it (Wmap.ClearObject), and the players near see it go.</summary>
+        private void ClearOwnSquare()
+        {
+            var map = World?.Map;
+            int x = (int)X, y = (int)Y;
+            if (map == null || !map.Contains(x, y))
+                return;
+            // its own square, or one left on the loader's black ground under a connected wall
+            var tile = map[x, y];
+            if (tile.ObjType != ObjectType && !(tile.ObjType == 0 && tile.TileId == 0xFD))
+                return;
+            map.ClearObject(x, y);
+            foreach (var player in World.Players.Values)
+                player.UpdateTiles();
+        }
+
         public void Death(ref TickTime time)
         {
             if (!Dead)
@@ -311,6 +329,7 @@ namespace WorldServer.core.objects
                     loot.Item2?.Handle(this, time);
                 if (ObjectDesc.Quest)
                     World?.BossDied(this);
+                ClearOwnSquare();
             }
             Dead = true;
             World.LeaveWorld(this);

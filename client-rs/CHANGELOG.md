@@ -12,6 +12,109 @@ Keep each version short: changes go under `### ` group headings (Oryx 5, Arena, 
 on), one line per change players notice, summed up rather than item by item (the wiki has the
 details). Add to a group's line when a change adds to it, rather than adding another line.
 
+## 2.4.0 (2026-11-05)
+
+### Pings
+- Click the middle mouse button to ping: your party and guild in the world, and the players near
+  you, see a marker with a ring, a pin and a sound, at the screen's edge when it's out of view and
+  on the minimap. It pings what's under the mouse (Danger on an enemy, which it follows, Loot on a
+  bag, Go here on a portal or the minimap, Help on yourself, Look here anywhere else); hold the
+  button for the ping wheel to pick one. Options choose whose pings you see and whether they make a
+  sound.
+
+### Crosshair
+- The crosshair comes in nine styles (Classic, Cross, Dot, Circle, Circle and dot, Plus,
+  Diagonal, Chevron, and your own), eight strong colours edged in solid black so they stand out
+  on any ground, and sizes from 50% to 200%, on the new
+  Crosshair tab in Options. Draw your own there on a 15 by 15 grid in as many of ten
+  colours as you like: pick a colour under the grid, then click or drag to fill squares.
+  Share one with a code: Copy code puts it on the clipboard (`DD0064` is the usual crosshair),
+  and Paste code there takes a friend's.
+
+### Arena
+- Pets drop half as often in the Arena and the Admin Arena as they did there.
+
+### Abilities
+- Summoner: summons fire three times as fast (the Bunny, Snake, Wasp, Wolf, Wisp, Dragon and
+  Oryx every second, was every 3 seconds; the Drake every 1.2 seconds, was 3.6).
+
+### Nexus
+- The Nexus's paths and bridges are half as quick again to walk, and the minimap shows its places
+  before you've been there, each with its picture (the Divine Forge's fire, the Warcaller, the
+  portals...), ringed gold for those you talk to and violet for portals: hover one for its name.
+- A pet pen east of the Herald and the Warcaller, down a path curving off the main path, where
+  pets of every kind come and go. Its Pen
+  Keeper takes your pet back, puts in another from its stone, and raises a Small pet to Medium for a
+  Superburger, or a Medium one to Large for 25 Shards of the Mad God: it keeps its look and its
+  shots, and hits and heals as the bigger size (its stone says so, as "Grey Wolf (Large)"). He
+  keeps the shards you give him, or use anywhere, for your whole account.
+- On the Sky Bar and the other upper floors, teleporting to a player brings you onto their floor
+  instead of under it, and your pet, summons, traps, allies and the bags you drop stay on your floor
+  too.
+
+### Vault
+- The Collection, a golden trophy by the vault's spawn: every piece of gear there is, in colour once
+  your account has had it, all of it by kind or the untiered gear by the dungeon it drops in.
+- The side bar's Inventory and Backpack tabs work while the vault window is open (Ctrl+B too), so
+  your backpack's items go in and out of the vault.
+
+### Items
+- Mystery Keys open a random dungeon: Bronze an easy one, Silver a middling one, Gold one of the
+  hardest or, now and then, Oryx's Castle. Mystery Pet Stones give a random pet: Bronze a Tiny or
+  Small one, Silver a Medium one, Gold a Large one.
+- The Trap of the Vile Spirit raises three ghost ships for 4 seconds that fire slowing bolts at
+  nearby enemies (6 second cooldown). The Cave Dweller Trap's Crystal Sentry and Lightning in a
+  Bottle's bolt now attack, and go, as their tooltips say.
+- The Blademaster's jackets have no cooldown of their own, and pets heal you from any distance.
+- The Warcaller's rewards give Lucky Clovers and Golden Lucky Clovers instead of XP Boosters.
+- Bows and daggers do 10% more damage, every tier and every untiered one. The Reforged Doom Bow
+  hits for 400-500 a shot.
+- The Elysian Staff fires a third, light blue bolt straight between its two weaving ones, for the
+  same damage, fires 45% faster, and all its shots ignore defense.
+- Halos have a 4 second cooldown.
+- The Potion of Max Level takes your character to level 20, as it says (it did nothing).
+
+### Enthroned gear and imprints
+- Anyone can imprint their Enthroned gear at the Enchanter now. Imprints cost 1 shard for Offensive
+  and Defensive, 3 for Misc. A fourth colour, Apotheosis, is open: one for weapons (more of the
+  Attack and Dexterity your gear gives), one for armour (Defense and Vitality) and one for rings
+  (more of a stat you pick, less of two others), for 5 shards each.
+- Rings have imprints of their own: half again of the ring's own attack stats or defense stats, a
+  wellspring of 300 magic when you run low, abilities that now and then cost no magic, a blessing
+  with each ability, and Guardian Angel, which sends you to the Nexus instead of dying, at the cost
+  of the ring (20 shards). Vigor and Bulwark no longer go on rings.
+- Imprints rebalanced: Blood Pact is gone; Close Quarters +10% damage and -25% range; Vigor +25
+  health; Bulwark +5 defense; Wounds burst for 6,000; Wisp Caller 2% a shot, back after 8 seconds;
+  Gathered Shot 95% rate of fire; Battle Mage range 5, its bolts at 60% of the rate of fire and +20
+  defense; Spearform 30% less damage; Sunder range 4 and 10% faster.
+- Every Enthroned weapon fires the same two shots of Oryx's, his gold Radiance with the weapon's
+  own numbers and effects (an Enthroned Katana still pierces), then his violet Rift, which pierces
+  and ignores defense. Shots that bend, like a staff's, point the way they're flying.
+- The Enthroned Spear is the Enthroned Staff, forged from a tier 15 staff like the other weapons.
+  The Enthroned Ring of Grace comes from both of Oryx's Ascended gems and three Ascended Accessory
+  Shards, and gives +200 health and magic and +10 to every other stat. The forge no longer makes the
+  Enthroned Helm (for now) or the Enthroned Ring of Wrath. Every Enthroned item gives a 10% fame
+  bonus.
+
+### Stats
+- A stat the Infernal potions have taken as far as they go shows in deep red, and the cards of the
+  players near you (bottom right) now show which of their stats are maxed, past their maximum or
+  at the Infernal potions' end.
+
+### Oryx 5
+- A smaller party faces a smaller Host: one of them for a player alone, two for two or three
+  players, all four from four players on.
+- His Last Judgement's lava starts a tile further in, his volleys turn a little each time so no gap
+  between them stays safe, and once you've survived it the temple's floor comes back. The lava only
+  ever floods his own temple. Everyone in it is silenced until he concedes.
+
+### Realms and dungeons
+- Realm 2 always puts you on its shore; its waystones are a teleport away in the events list.
+- Walls broken by any attack (shots, traps, area attacks, allies) and gates that open leave floor
+  behind them instead of a black hole, and the Shatters' gates after its first boss open for
+  everyone.
+- Honey and other ground you sink into never slow you below the pace of a 20 Speed character.
+
 ## 2.3.9 (2026-11-05)
 
 ### Nexus

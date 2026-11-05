@@ -8,18 +8,20 @@ storage (ForgeStorage.cs), which the Divine Forge takes them from.
 
 The Ascended items: what nothing drops, forged from an item of Oryx the Ascended God's top tier
 and an Ascended shard (ForgeRecipes.Ascended), marked <Ascended/> (the red slot edge, the wiki's
-Ascended group, and a drop bag only their owner sees); all are named Enthroned. Each has the
-numbers of the item it's forged from (its stats, its ability, its shots' damage). The weapons fly
-Oryx 5's own shots instead (SHOTS, drawn here in his gold and silver), two kinds whose volleys take
-turns (<AlternateProjectiles/>, Player.NoteWeaponShot): a gold shot with the weapon's own numbers,
-then a silver one that pierces, or a gold one that ignores defense where the weapon pierced
-already. The Enthroned Spear, a staff, takes turns between a vivid gold shot doing a T15 staff's
-damage and a purple and light blue one that pierces. The weapons and the leather and heavy armours keep its
-sprite too, with a few purple sparkles added round it (SPARKLE); his helm, boots and robe are
-drawn here at 8 by 8, and his staff and two rings at 16 by 16, on `AscendedItems16x16.png`
-(`ascendedItems16x16`, in the order of SPRITES16): the staff his own sprite holds, gold with a
-crystal head, sideways as items lie (STAFF_HALF), and the rings gold at the bottom, light blue up
-the sides and purple at the top, under a gem in its setting (ring).
+Ascended group, and a drop bag only their owner sees); all are named Enthroned, and each gives a
+10% fame bonus (FAME_BONUS). Each has the numbers of the item it's forged from (its stats, its
+ability, its shots' damage and what they do: a katana's still pierce, dual blades' still ignore
+defense), but for STATS. Every Enthroned weapon flies the same two shots of Oryx 5's (SHOTS, drawn
+here at 16 by 16), whose volleys take turns (<AlternateProjectiles/>, Player.NoteWeaponShot): his
+gold Radiance with the weapon's own numbers, then his violet Rift, the same but piercing and
+ignoring defense. A third, his crystal Sigil, is what the imprints' own shots look like (the
+Battle Mage's bolts, the Gathered Shot's arrow, the Spearform thrust). The weapons and the leather
+and heavy armours keep its sprite too, with a few purple sparkles added round it (SPARKLE); his
+helm, boots and robe are drawn here at 8 by 8, and his staff, two rings and the three shots at 16
+by 16, on `AscendedItems16x16.png` (`ascendedItems16x16`, in the order of SPRITES16): the staff his
+own sprite holds, gold with a crystal head, sideways as items lie (STAFF_HALF), the rings gold at
+the bottom, light blue up the sides and purple at the top, under a gem in its setting (ring), and
+the shots pointing up and right as projectiles lie (draw_shot).
 
 Writes `AscendedItems8x8.png` (client/src/kabam/rotmg/assets/custom/images, `ascendedItems8x8`,
 which tools/gen_rs_manifest.py registers for the Rust client), 8 by 8 pixels a cell in the order
@@ -165,7 +167,7 @@ BIG = {"W": (255, 255, 255), "C": (196, 240, 255), "K": (120, 228, 255), "B": (1
 DARKER = {"W": "C", "C": "K", "K": "B", "B": "b", "b": "b", "y": "G", "G": "g", "g": "g",
           "V": "v", "v": "P", "P": "p", "p": "p"}
 
-# The Enthroned Spear (a staff), lying from bottom left to top right: its upper-left half and its middle
+# The Enthroned Staff, lying from bottom left to top right: its upper-left half and its middle
 # line (x + y <= 15), {(x, y): colour}; the other half is the mirror of it across the middle line,
 # a shade darker. A crystal head in a gold cradle, a purple crossbar with a jewel, a gold shaft
 # three pixels across with purple grip bands, and a pommel.
@@ -192,8 +194,8 @@ RINGS = {
     "wrath": ([PURPLE[0], PURPLE[1], PURPLE[2], (214, 160, 255)], [GOLD[0], GOLD[1], GOLD[2]]),
     "grace": ([GOLD[0], GOLD[1], GOLD[2], (255, 250, 220)], [PURPLE[0], PURPLE[1], (214, 160, 255)]),
 }
-# The 16 by 16 sheet's cells, in order
-SPRITES16 = ["staff", "ring wrath", "ring grace"]
+# The 16 by 16 sheet's cells, in order (only ever add to the end)
+SPRITES16 = ["staff", "ring wrath", "ring grace", "shot radiance", "shot rift", "shot sigil"]
 
 # The sheets the Ascended weapons and armours copy their sprites from
 SOURCE_SHEETS = {
@@ -222,26 +224,24 @@ SHARDS = [
     (0x5844, "Ascended", "Weapon"), (0x5845, "Ascended", "Ability"),
     (0x5846, "Ascended", "Armor"), (0x5847, "Ascended", "Accessory"),
 ]
-TURNS = " Its volleys take turns: Oryx's gold shot, then his silver one, which pierces."
-TURNS_AP = " Its volleys take turns: Oryx's silver shot, then his gold one, which ignores defense."
+TURNS = " Every second volley is Oryx's Rift, which pierces and ignores defense."
+TURNS_AP = TURNS
 DESC = {
     "Enthroned Sword": "The blade Oryx the Ascended God carried up the steps of his throne." + TURNS,
     "Enthroned Dagger": "A knife from Oryx the Ascended God's own belt, never once drawn in mercy." + TURNS,
     "Enthroned Bow": "The bow of Oryx the Ascended God's sky guard, strung with light." + TURNS_AP,
     "Enthroned Wand": "A sceptre of Oryx the Ascended God's court, humming with judgement." + TURNS_AP,
     "Enthroned Katana": "A blade folded in the Elysium for Oryx the Ascended God's champion." + TURNS_AP,
-    "Enthroned Dual Blades": "Twin blades of Oryx the Ascended God's executioners. Its volleys take turns: Oryx's silver "
-                             "shots, then his gold ones, which leave the wound bleeding.",
+    "Enthroned Dual Blades": "Twin blades of Oryx the Ascended God's executioners." + TURNS,
     "Enthroned Fists": "Gauntlets of the Ascended God's honour guard, gold over silver." + TURNS_AP,
-    "Enthroned Spear": "Oryx the Ascended God's own spear, borne as a staff. Its volleys take turns: a gold bolt "
-                       "as strong as a T15 staff's, then a purple and blue one that pierces.",
+    "Enthroned Staff": "The staff Oryx the Ascended God raised over his Elysium." + TURNS,
     "Enthroned Hide": "The hide Oryx the Ascended God wore over his armour, as hard as the sky.",
     "Enthroned Plate": "The plate of Oryx the Ascended God's last stand, purple steel under gold.",
     "Enthroned Robe": "Oryx the Ascended God's own robe.",
     "Enthroned Helm": "Oryx the Ascended God's own helm.",
     "Enthroned Boots": "Oryx the Ascended God's own boots, worn as a ring.",
     "Enthroned Ring of Wrath": "Oryx the Ascended God's own ring of wrath.",
-    "Enthroned Ring of Grace": "Oryx the Ascended God's own ring of grace.",
+    "Enthroned Ring of Grace": "Oryx the Ascended God's own ring of grace, forged from both his gems.",
 }
 ASCENDED = [
     (0x5850, "Enthroned Sword", "Sword of Ascension", None, None),
@@ -251,7 +251,8 @@ ASCENDED = [
     (0x5854, "Enthroned Katana", "Ame-no-Habakiri", None, None),
     (0x5855, "Enthroned Dual Blades", "Seraphic Blades", None, None),
     (0x5856, "Enthroned Fists", "Fists of the Ascended", None, None),
-    (0x5857, "Enthroned Spear", "Staff of Endless Energy", (SHEET16, SPRITES16.index("staff")), None),
+    # was the Enthroned Spear: a staff like the others now
+    (0x5857, "Enthroned Staff", "Staff of Endless Energy", (SHEET16, SPRITES16.index("staff")), None),
     (0x5858, "Enthroned Hide", "Sphinx Leather Armor", None, None),
     (0x5859, "Enthroned Plate", "Armor of the Pyramid", None, None),
     (0x585a, "Enthroned Robe", "Robe of the Nile", (SHEET, cell_of("piece", "robe")), None),
@@ -261,102 +262,42 @@ ASCENDED = [
     (0x585e, "Enthroned Ring of Grace", "Ring of Absolute Defense", (SHEET16, SPRITES16.index("ring grace")), None),
 ]
 
-# The weapons' shots, in the order their volleys fire them: (projectile object, colour, shape),
-# then what changes from the weapon's own projectile: damage ((min, max), or None for its own),
-# and the flags to add or take away. The projectile objects (type codes from SHOT_TYPES, in order
-# of SHOT_LOOKS) are drawn here, pointing up and right as projectiles lie (AngleCorrection 1).
-SHOTS = {
-    "Enthroned Sword": [("gold", "blade", None, {}), ("silver", "blade", (300, 322), {"MultiHit": True})],
-    "Enthroned Dagger": [("gold", "dagger", None, {}), ("silver", "dagger", (150, 217), {"MultiHit": True})],
-    "Enthroned Bow": [("silver", "arrow", None, {}), ("gold", "arrow", None, {"ArmorPiercing": True})],
-    "Enthroned Wand": [("silver", "bolt", None, {}), ("gold", "bolt", None, {"ArmorPiercing": True})],
-    "Enthroned Katana": [("silver", "blade", None, {}), ("gold", "blade", None, {"ArmorPiercing": True})],
-    "Enthroned Dual Blades": [("silver", "dagger", None, {}), ("gold", "dagger", None, {"Bleed": (300, 3)})],
-    "Enthroned Fists": [("silver", "bolt", None, {}), ("gold", "bolt", None, {"ArmorPiercing": True})],
-    # a radiant gold shot doing a T15 staff's damage (the Staff of Endless Energy's 100-135, a little
-    # over), then an arcane one, purple and light blue, that pierces
-    "Enthroned Spear": [("radiant", "spear", (105, 140), {}), ("arcane", "spear", (85, 115), {"MultiHit": True})],
+# Oryx 5's shots for the Enthroned weapons, every one of them the same: (projectile object, type
+# code, 16 by 16 cell). A weapon's volleys take turns with the first two (SHOTS); the third is the
+# imprints' (Imprints.cs: the Battle Mage Bolt Shot in CustomObjects.xml, and the client's look for
+# the Gathered Shot's arrow and the Spearform thrust). The codes 0x5866-0x586f were the shots of
+# before (a gold and a silver one for each kind of weapon): projectiles, which nothing stores.
+SHOT_OBJECTS = [
+    ("Enthroned Radiance", 0x5870, "shot radiance"),
+    ("Enthroned Rift", 0x5871, "shot rift"),
+    ("Enthroned Sigil", 0x5872, "shot sigil"),
+]
+# what the second shot adds to the weapon's own projectile
+RIFT_FLAGS = {"MultiHit": True, "ArmorPiercing": True}
+# each Enthroned weapon's shots, in the order its volleys fire them: (projectile object, flags added)
+SHOTS = {name: [("Enthroned Radiance", {}), ("Enthroned Rift", RIFT_FLAGS)]
+         for name in ("Enthroned Sword", "Enthroned Dagger", "Enthroned Bow", "Enthroned Wand", "Enthroned Katana",
+                      "Enthroned Dual Blades", "Enthroned Fists", "Enthroned Staff")}
+
+# The stats of an Ascended item where they aren't its source's: (stat, amount) in place of all of
+# them. The Ring of Grace: 200 health and magic, 10 of every other stat.
+STATS = {
+    "Enthroned Ring of Grace": [("0", 200), ("3", 200), ("20", 10), ("21", 10), ("22", 10), ("28", 10),
+                                ("26", 10), ("27", 10)],
 }
-SHOT_LOOKS = sorted({(c, s) for shots in SHOTS.values() for c, s, _, _ in shots},
-                    key=lambda cs: (["blade", "dagger", "arrow", "bolt", "spear"].index(cs[1]), cs[0]))
-SHOT_TYPES = range(0x5866, 0x5866 + 16)  # only ever add to the end of SHOT_LOOKS' order
-assert len(SHOT_LOOKS) <= len(SHOT_TYPES)
+FAME_BONUS = 10  # every Ascended item's, in place of its source's
 
+# Oryx 5's colours for the shots: his gold, the violet of his void, his silver and his staff's
+# crystal blues, dark to light
+SHOT_GOLD = [(104, 52, 8), (196, 124, 18), (240, 192, 64), (255, 232, 140), (255, 252, 226)]
+SHOT_VIOLET = [(38, 14, 74), (88, 36, 160), (150, 84, 232), (206, 160, 255)]
+SHOT_SILVER = [(104, 112, 170), (188, 206, 246), (255, 255, 255)]
+SHOT_BLUE = [(40, 96, 176), (110, 200, 245), (196, 240, 255)]
 
-def shot_id(colour, shape):
-    return f"Enthroned {colour.title()} {shape.title()}"
-
-
-# the shots' shapes, pointing up and right, as full as they'll go: '1' outline, '2' dark, '3' light,
-# '4' the glint
-SHOT_SHAPES = {
-    # a long blade with a guard and grip
-    "blade": [
-        "......11",
-        ".....143",
-        "....1431",
-        "...14321",
-        "1.14321.",
-        "12121...",
-        ".22.....",
-        "2.1.....",
-    ],
-    # a short blade with a guard
-    "dagger": [
-        "........",
-        ".....111",
-        "....1431",
-        "...14321",
-        "1.1432..",
-        "1211....",
-        ".21.....",
-        "2.......",
-    ],
-    # a broad head, the shaft, fletching
-    "arrow": [
-        ".....111",
-        "....1441",
-        "...14431",
-        "....1321",
-        "...131..",
-        "..131...",
-        "2131....",
-        "22......",
-    ],
-    # a burning orb with its trail
-    "bolt": [
-        "....111.",
-        "...14431",
-        "..144331",
-        "..143321",
-        ".13321..",
-        "1321....",
-        "321.....",
-        "2.......",
-    ],
-    # the Enthroned Spear's: a spear head with a short crossbar, as its shots look in flight
-    "spear": [
-        ".....111",
-        "....1441",
-        "...14331",
-        "..143321",
-        "1.13321.",
-        "11221...",
-        ".121....",
-        "1.1.....",
-    ],
-}
-# each colourway, '1' to '4': Oryx 5's gold and silver, and the spear's vivid gold and its purple
-# and light blue
-SHOT_RAMPS = {
-    "gold": [(104, 52, 8), (226, 150, 22), (255, 210, 64), (255, 250, 206)],
-    "silver": [(30, 26, 76), (116, 128, 206), (188, 210, 252), (255, 255, 255)],
-    "radiant": [(110, 56, 6), (236, 158, 18), (255, 214, 58), (255, 252, 200)],
-    "arcane": [(44, 18, 92), (150, 72, 240), (110, 214, 255), (236, 250, 255)],
-}
 
 # what an Ascended item leaves out of the item it copies (a weapon's projectile is SHOTS')
-DROPPED = {"Texture", "Tier", "Description", "DisplayId", "Shop", "SlotType", "Class", "Item", "Soulbound", "BagType"}
+DROPPED = {"Texture", "Tier", "Description", "DisplayId", "Shop", "SlotType", "Class", "Item", "Soulbound", "BagType",
+           "FameBonus"}
 
 
 def sparkled(sheet, index):
@@ -388,8 +329,6 @@ def draw():
             continue
         if kind == "shard":
             grid, colours = SHAPES[b], {str(i + 1): c for i, c in enumerate(RAMPS[a][b])}
-        elif kind == "shot":
-            grid, colours = SHOT_SHAPES[b], {str(i + 1): c for i, c in enumerate(SHOT_RAMPS[a])}
         else:
             grid, colours = PIECES[a], O5
         ox, oy = (n % COLS) * CELL, (n // COLS) * CELL
@@ -454,13 +393,13 @@ def block(items):
             f"\t\t<BagType>{7 if set_ == 'Infernal' else 9}</BagType>",
             "\t</Object>",
         ]
-    for (colour, shape), code in zip(SHOT_LOOKS, SHOT_TYPES):
+    for shot, code, cell in SHOT_OBJECTS:
         out += [
-            f'\t<Object type="0x{code:04x}" id="{shot_id(colour, shape)}">',
+            f'\t<Object type="0x{code:04x}" id="{shot}">',
             "\t\t<Class>Projectile</Class>",
             "\t\t<Texture>",
-            f"\t\t\t<File>{SHEET}</File>",
-            f"\t\t\t<Index>0x{cell_of('shot', colour, shape):02x}</Index>",
+            f"\t\t\t<File>{SHEET16}</File>",
+            f"\t\t\t<Index>0x{SPRITES16.index(cell):02x}</Index>",
             "\t\t</Texture>",
             "\t\t<AngleCorrection>1</AngleCorrection>",
             "\t</Object>",
@@ -486,36 +425,32 @@ def block(items):
         if name in SHOTS:
             out.append("\t\t<AlternateProjectiles/>")
         for child in src:
-            if child.tag in DROPPED:
+            if child.tag in DROPPED or (name in STATS and child.tag == "ActivateOnEquip"):
                 continue
             if child.tag == "Projectile" and name in SHOTS:
                 for i, shot in enumerate(SHOTS[name]):
                     out += element_lines(shot_projectile(child, i, *shot), 2)
                 continue
             out += element_lines(child, 2)
-        out += ["\t\t<BagType>9</BagType>", "\t\t<Soulbound/>", "\t</Object>"]
+        for stat, amount in STATS.get(name, []):
+            out.append(f'\t\t<ActivateOnEquip stat="{stat}" amount="{amount}">IncrementStat</ActivateOnEquip>')
+        out += [f"\t\t<FameBonus>{FAME_BONUS}</FameBonus>", "\t\t<BagType>9</BagType>", "\t\t<Soulbound/>", "\t</Object>"]
     out.append("\t" + END)
     return out
 
 
-def shot_projectile(src, i, colour, shape, damage, flags):
-    """The weapon's projectile as its i-th shot: Oryx's look, its damage and flags changed."""
+def shot_projectile(src, i, shot, flags):
+    """The weapon's projectile as its i-th shot: Oryx's look, with the flags it adds (its own kept)."""
     p = ET.Element("Projectile", {"id": str(i)})
     for child in src:
-        if child.tag in flags or child.tag in ("Damage",) and damage:
+        if child.tag in flags:
             continue
         c = copy.deepcopy(child)
         if c.tag == "ObjectId":
-            c.text = shot_id(colour, shape)
-        elif damage and c.tag == "MinDamage":
-            c.text = str(damage[0])
-        elif damage and c.tag == "MaxDamage":
-            c.text = str(damage[1])
+            c.text = shot
         p.append(c)
     for tag, value in flags.items():
-        if tag == "Bleed":
-            ET.SubElement(p, "Bleed", {"duration": str(value[1])}).text = str(value[0])
-        elif value:
+        if value:
             ET.SubElement(p, tag)
     return p
 
@@ -539,7 +474,7 @@ def source_texture(src):
 
 
 def draw_staff():
-    """The Enthroned Spear: STAFF_HALF and its darker mirror."""
+    """The Enthroned Staff: STAFF_HALF and its darker mirror."""
     img = Image.new("RGBA", (16, 16), (0, 0, 0, 0))
     for (x, y), c in STAFF_HALF.items():
         img.putpixel((x, y), BIG[c] + (255,))
@@ -579,10 +514,103 @@ def draw_ring(gem, claw):
     return img
 
 
+def shot_axes(x, y):
+    """A pixel's place along a shot pointing up and right (its tip at +8) and across it."""
+    px, py = x + 0.5 - 8, y + 0.5 - 8
+    return (px - py) / math.sqrt(2), (px + py) / math.sqrt(2)
+
+
+def shot_dot(img, along, across, colour):
+    x = 8 + (along + across) / math.sqrt(2) - 0.5
+    y = 8 + (across - along) / math.sqrt(2) - 0.5
+    img.putpixel((round(x), round(y)), colour + (255,))
+
+
+def draw_shot(kind):
+    """One of Oryx's shots for the Enthroned weapons, 16 by 16, pointing up and right."""
+    img = Image.new("RGBA", (16, 16), (0, 0, 0, 0))
+    g, v, s, b = SHOT_GOLD, SHOT_VIOLET, SHOT_SILVER, SHOT_BLUE
+    for y in range(16):
+        for x in range(16):
+            a, c = shot_axes(x, y)
+            ac = abs(c)
+            if kind == "radiance":
+                # his gold Radiance: a lance head of light with a white heart, a crossguard where it
+                # meets its trail, and the trail fading to deep gold
+                if 3.6 <= a <= 7.9:
+                    w, part = 3.0 * (7.9 - a) / 4.3, "head"
+                elif 2.0 <= a < 3.6:
+                    w, part = 3.0 - 2.2 * (3.6 - a) / 1.6, "head"
+                elif 0.9 <= a < 2.0:
+                    w, part = 0.8, "trail"
+                elif 0.0 <= a < 0.9:
+                    w, part = 3.4, "guard"
+                elif -7.2 <= a < 0.0:
+                    w, part = 0.9 * (a + 7.2) / 7.2 + 0.1, "trail"
+                else:
+                    continue
+                if ac > w + 0.3:
+                    continue
+                t = ac / (w + 0.3)
+                if part == "head":
+                    colour = g[4] if ac < 0.75 else g[3] if t < 0.6 else g[2] if t < 0.85 else g[1]
+                elif part == "guard":
+                    colour = g[3] if ac < 0.75 else g[2] if t < 0.7 else g[1]
+                else:
+                    colour = g[3] if ac < 0.75 and a > -2.5 else g[2] if a > -4.5 else g[1] if a > -6 else g[0]
+            elif kind == "rift":
+                # his violet Rift: a slim blade of void, silver along both edges and white at the
+                # point, a light blue glint in its dark, shedding violet behind
+                if 1.0 <= a <= 7.7:
+                    w = 1.9 * (7.7 - a) / 6.7 + 0.2
+                elif -2.0 <= a < 1.0:
+                    w = 2.1 - 0.9 * (1.0 - a) / 3.0
+                elif -7.3 <= a < -2.0:
+                    w = 1.2 * (a + 7.3) / 5.3
+                else:
+                    continue
+                if ac > w + 0.3:
+                    continue
+                t = ac / (w + 0.3)
+                if a >= -2.0:
+                    colour = v[0] if t < 0.25 else v[1] if t < 0.5 else s[1] if t < 0.8 else s[0]
+                    if a > 5.5 and t < 0.6:
+                        colour = s[2]
+                else:
+                    colour = v[2] if t < 0.4 else v[1] if a > -5 else v[0]
+            else:
+                # his crystal Sigil: a four-pointed star of his staff's crystal, longest to the
+                # front, round a gold heart, in a thin ring of gold
+                ang, r = math.atan2(c, a), math.hypot(a, c)
+                k = abs(math.cos(2 * ang)) ** 3
+                reach = 2.0 + (5.6 if abs(ang) < 0.4 else 4.3) * k
+                if r <= reach:
+                    colour = (g[4] if r < 1.1 else g[2] if r < 2.0 else b[2] if r < reach * 0.55
+                              else b[1] if r < reach * 0.85 else b[0])
+                elif abs(r - 4.6) < 0.45:
+                    colour = g[1]
+                else:
+                    continue
+            img.putpixel((x, y), colour + (255,))
+    # the sparks each sheds
+    sparks = {
+        "radiance": [(-3.6, 1.8, g[3]), (-5.4, -1.7, g[2]), (-6.9, 1.0, g[1]), (6.0, 0.0, s[2])],
+        "rift": [(3.2, 0.0, b[2]), (2.2, 0.0, b[1]), (-3.6, 1.9, v[3]), (-5.6, -1.6, v[2]), (-6.8, 1.2, v[1])],
+    }
+    for along, across, colour in sparks.get(kind, []):
+        shot_dot(img, along, across, colour)
+    return img
+
+
 def draw16():
     img = Image.new("RGBA", (16 * len(SPRITES16), 16), (0, 0, 0, 0))
     for n, name in enumerate(SPRITES16):
-        cell = draw_staff() if name == "staff" else draw_ring(*RINGS[name.split()[1]])
+        if name == "staff":
+            cell = draw_staff()
+        elif name.startswith("shot "):
+            cell = draw_shot(name.split()[1])
+        else:
+            cell = draw_ring(*RINGS[name.split()[1]])
         img.paste(cell, (16 * n, 0))
     return img
 
@@ -593,7 +621,6 @@ def main():
     for _, name, source, texture, _ in ASCENDED:
         if texture is None and source in items:
             SPRITES.append(("sparkle",) + source_texture(items[source]))
-    SPRITES.extend(("shot", c, s) for c, s in SHOT_LOOKS)
     img = draw()
     img.save(OUT)
     if "--preview" in sys.argv:

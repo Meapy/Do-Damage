@@ -254,6 +254,21 @@ messages! {
         // above the one below, and the ground of the floors above the map (the map's own comes
         // in Update). From then on we walk at a height and say so before each Move (Height).
         132 => Layers { height: f32, tiles: List16<LayerTile> },
+        // Someone's ping (for a client that sent PingMark 255 in this world): who (their object
+        // id and name), what (PingMark's kinds), where (a world position and the height of its
+        // floor) and the object it marks (0: none, else the ping follows it while we see it), and
+        // who they are to us: 0 someone nearby, 1 our guild, 2 our party, 3 ourselves.
+        135 => PingShow { player_id: i32, name: String, kind: u8, x: f32, y: f32, z: f32, target_id: i32, relation: u8 },
+        // The Collection (after CollectionRequest): every piece of gear there is to collect, the ones
+        // the account has had, and where the untiered gear comes from.
+        137 => Collection { all: List16<u16>, have: List16<u16>, groups: List16<CollectionGroup> },
+        // The Pen Keeper's answer (after PetPenAct): the pet (0 for none), its size as it hatched
+        // and now (0 Tiny to 3 Large, 255 unknown), the shards he keeps for the account and how many
+        // a raise to Large takes, whether the act worked and what to say about it (empty for a plain
+        // ask).
+        139 => PetPen { pet: u16, base_size: u8, size: u8, shards: i32, shards_needed: u8, ok: bool, message: String },
+        // The Nexus's places for the minimap (after NexusPlacesRequest): its NPCs and portals.
+        141 => NexusPlaces { places: List16<NexusPlace> },
     }
 }
 
@@ -334,7 +349,9 @@ messages! {
         // The Enchanter's window: ask for the forge storage's shards (answered with ForgeShards),
         // and imprint the item in an inventory slot (an older server doesn't know either).
         109 => ImprintRequest {},
-        110 => Imprint { slot: u8, imprint: u8 },
+        // The stats picked for the Apotheosis of Balance follow (raised, lowered, lowered, by stat
+        // index; 255 for none): an older server reads only the slot and the imprint.
+        110 => Imprint { slot: u8, imprint: u8, raised: u8, lowered: u8, lowered2: u8 },
         // Imprint an Enthroned item in the vault, by chest and slot.
         113 => ImprintVaultApply { chest: u16, slot: u8, imprint: u8 },
         // The vault window: ask for VaultContents (an older server doesn't know it).
@@ -372,5 +389,19 @@ messages! {
         // How high we walk, in tiles, just before each Move in a world of stacked floors (only
         // once Layers came, so never to a server without it).
         133 => Height { z: f32 },
+        // A ping (the middle mouse button): 0 look here, 1 danger, 2 go here, 3 loot, 4 help; at a
+        // world position and the height of its floor, marking an object (0: none). 255, once in
+        // each world, says we can show PingShows. An older server doesn't know it (one unknown
+        // message per world, and pings that go nowhere).
+        134 => PingMark { kind: u8, x: f32, y: f32, z: f32, target_id: i32 },
+        // The Collection in the vault: ask for Collection (an older server doesn't know it).
+        136 => CollectionRequest {},
+        // The Pen Keeper: 0 asks, 1 takes the pet back, 2 puts in the pet of the generator in
+        // inventory slot `slot`, 3 raises it Small to Medium (a Superburger), 4 gives him the
+        // inventory's Shards of the Mad God (he keeps them for the account), 5 raises it Medium to
+        // Large with 25 of them. Answered by PetPen.
+        138 => PetPenAct { action: u8, slot: u8 },
+        // Ask for NexusPlaces, in the Nexus (an older server doesn't know it).
+        140 => NexusPlacesRequest {},
     }
 }

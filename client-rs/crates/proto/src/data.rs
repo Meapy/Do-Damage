@@ -153,6 +153,29 @@ wire_struct! {
 }
 
 wire_struct! {
+    /// One of the Nexus's places on the minimap (`NexusPlaces`): its name, its kind (0 someone to
+    /// talk to, 1 a portal), where it stands and the object drawn for it (0: a dot).
+    pub struct NexusPlace {
+        pub name: String,
+        pub kind: u8,
+        pub x: f32,
+        pub y: f32,
+        pub icon: u16,
+    }
+}
+
+wire_struct! {
+    /// A place the Collection groups untiered gear by (`Collection`): its name, the object drawn
+    /// for it (its portal, 0 for none), its difficulty (0 for none) and its items.
+    pub struct CollectionGroup {
+        pub name: String,
+        pub icon: u16,
+        pub level: u8,
+        pub items: List16<u16>,
+    }
+}
+
+wire_struct! {
     /// A forge shard in the forge storage (`ForgeShards`), or an item in the vault (`ForgeVault`),
     /// and how many are there.
     pub struct ForgeShard {

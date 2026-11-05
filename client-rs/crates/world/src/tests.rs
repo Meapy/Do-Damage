@@ -356,12 +356,32 @@ fn alternating_weapons_take_turns_and_imprints_change_their_shots() {
     assert_eq!(first.iter().map(|p| (p.bullet_type, p.damage)).collect::<Vec<_>>(), vec![(0, 52), (0, 52)]);
     assert_eq!(second.iter().map(|p| (p.bullet_type, p.damage)).collect::<Vec<_>>(), vec![(1, 26), (1, 26)]);
     assert_eq!(third[0].bullet_type, 0);
-    // Gathered Shot: one arrow with all three's damage; Close Quarters on top: 80% of the flight
+    // Gathered Shot: one arrow with all three's damage; Close Quarters on top: 75% of the flight
     let mut w = armed(&d, 0x31, "[3,0,23]");
     let shots = w.shoot(1000, 0.0, 1000, &d);
     assert_eq!(shots.len(), 1);
-    assert_eq!(shots[0].damage, 10 * 108 / 100 * 300 / 100 / 2);
-    assert_eq!(shots[0].life, Some(400));
+    assert_eq!(shots[0].damage, 10 * 110 / 100 * 300 / 100 / 2);
+    assert_eq!(shots[0].life, Some(375));
+}
+
+#[test]
+fn a_volley_gives_each_shot_its_projectile() {
+    // the Elysian Staff's <VolleyProjectiles>: two weaving bolts, then a straight one
+    let mut d = data();
+    d.add_objects(
+        r#"<Objects>
+            <Object type="0x32" id="Volley Staff"><Class>Equipment</Class><Item/><SlotType>17</SlotType>
+                <Projectile><ObjectId>A</ObjectId><Speed>100</Speed><MinDamage>200</MinDamage><MaxDamage>200</MaxDamage><LifetimeMS>500</LifetimeMS><Amplitude>0.5</Amplitude><Frequency>2</Frequency></Projectile>
+                <Projectile id="1"><ObjectId>B</ObjectId><Speed>100</Speed><MinDamage>200</MinDamage><MaxDamage>200</MaxDamage><LifetimeMS>500</LifetimeMS></Projectile>
+                <NumProjectiles>3</NumProjectiles><VolleyProjectiles>0,0,1</VolleyProjectiles><ArcGap>0</ArcGap></Object>
+        </Objects>"#,
+    )
+    .unwrap();
+    let mut w = armed(&d, 0x32, "{}");
+    let shots = w.shoot(1000, 0.0, 1000, &d);
+    assert_eq!(shots.iter().map(|p| p.bullet_type).collect::<Vec<_>>(), vec![0, 0, 1]);
+    // an imprinted shot of the Gathered kind looks like the Sigil when the game has it
+    assert!(shots.iter().all(|p| p.look.is_none()));
 }
 
 /// Stacked floors, 10×10: the map's floor (rows 6 to 9) with three steps up the middle (x 4 and

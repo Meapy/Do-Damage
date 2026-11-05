@@ -19,9 +19,6 @@ from port_doomed_pets import balanced, cs_string
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 ALLY_BEHAVIOR_FILES = ["BehaviorDb.Towers.cs", "BehaviorDb.PearlSubstitutes.cs", "BehaviorDb.Summons.cs"]
 ALLY_BEHAVIORS_CS = os.path.join(ROOT, "source", "WorldServer", "logic", "db", "BehaviorDb.DoomedAllies.cs")
-# Summons fire this many times slower than in Doomed Realms: a Summoner keeps up to six out
-# (Player.UseItem.Doomed.cs), and six at the Doomed Realms rate doubled its damage.
-SUMMON_FIRE_SLOWDOWN = 3
 # The item XMLs whose Summon and BuildTower activates get their helper's shots, for the tooltips.
 ITEM_XMLS = [os.path.join(ROOT, "source", "Shared", "resources", "xml", "custom", "DoomedRealms.xml"),
              os.path.join(ROOT, "client", "src", "kabam", "rotmg", "assets", "custom", "xmls", "DoomedRealms.xml")]
@@ -103,14 +100,13 @@ def write_ally_behaviors(dr_root, chosen):
             state = ('new State(new State("fire", %s, new TimedTransition(500, "die")), new State("die", new Suicide()))'
                      % shoot(radius, count, 10, index, 10000))
         elif d["chase"]:
-            slow = SUMMON_FIRE_SLOWDOWN if oid.endswith(" Summon") else 1
-            shots = ", ".join(shoot(r, c, a, i, ms * slow) for ms, r, c, a, i in d["shots"])
-            shots_of[oid] = volley(o, d["shots"], slow)
+            shots = ", ".join(shoot(r, c, a, i, ms) for ms, r, c, a, i in d["shots"])
+            shots_of[oid] = volley(o, d["shots"])
             state = ('new State(new State("attack", new AllyCharge(1, 10, 1), %s, new NoEntityWithinAllyTransition(10, false, "follow")), '
                      'new State("follow", new AllyFollow(1, 10, 1.5), new EntityWithinAllyTransition(10, "attack")))' % shots)
         else:
             state = "new State(%s)" % ", ".join(shoot(r, c, a, i, ms) for ms, r, c, a, i in d["shots"])
-            shots_of[oid] = volley(o, d["shots"], 1)
+            shots_of[oid] = volley(o, d["shots"])
         lines.append("            .Init(%s, %s)" % (cs_string(oid), state))
 
     with open(ALLY_BEHAVIORS_CS, "w", encoding="utf-8", newline="\r\n") as f:
@@ -126,7 +122,7 @@ def write_ally_behaviors(dr_root, chosen):
     return len(lines)
 
 
-def volley(o, shots, slow):
+def volley(o, shots):
     """(damage a shot, shots a volley, ms between volleys) of an ally that keeps firing, or None:
     its shots (all aimed at its target, which they hit) from the projectile of its first attack,
     every attack at the shortest cooldown counted as one volley."""
@@ -142,7 +138,7 @@ def volley(o, shots, slow):
     if lo is None:
         return None
     damage = lo.strip() if lo.strip() == hi.strip() else "%s-%s" % (lo.strip(), hi.strip())
-    return damage, sum(s[2] for s in shots if s[0] == ms), ms * slow
+    return damage, sum(s[2] for s in shots if s[0] == ms), ms
 
 
 def annotate_items(shots_of):

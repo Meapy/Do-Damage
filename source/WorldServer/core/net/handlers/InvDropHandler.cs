@@ -106,6 +106,7 @@ namespace WorldServer.core.net.handlers
             container.Inventory.Data[0] = data;
             container.Move(player.X + (float)((Random.Shared.NextDouble() * 2 - 1) * 0.5), player.Y + (float)((Random.Shared.NextDouble() * 2 - 1) * 0.5));
             container.Size = 75;
+            container.Z = player.Z;
 
             player.World.EnterWorld(container);
 

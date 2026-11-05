@@ -265,7 +265,7 @@ namespace WorldServer.logic.loot
             var lucky = new Dictionary<LootDef, Player>();
             foreach (var i in possDrops)
             {
-                if (i.OnePlayer <= 0 || Random.Shared.NextDouble() >= Chance(i.OnePlayer, 1, rate))
+                if (i.OnePlayer <= 0 || Random.Shared.NextDouble() >= Chance(i.OnePlayer, 1, rate * PetRate(enemy, i, worldRate)))
                     continue;
                 var eligible = playersAvaliable.Where(t => t.Item1?.World != null && t.Item1.Client != null
                     && i.Threshold < Math.Round(t.Item2 / (double)enemy.DamageCounter.TotalDamage, 4)).ToArray();
@@ -332,7 +332,7 @@ namespace WorldServer.logic.loot
                         // a stat potion during an event (ServerEvents): its own chance and its amount
                         // multiplied, the boosts on top as for any drop
                         var potion = ServerEvents.IsStatPotion(item.ObjectId);
-                        var probability = Chance(potion ? i.Probabilty * potionChance : i.Probabilty, totalBoost, rate);
+                        var probability = Chance(potion ? i.Probabilty * potionChance : i.Probabilty, totalBoost, rate * PetRate(enemy, i, worldRate));
 
                         if (c >= probability && !(lucky.TryGetValue(i, out var luckyOne) && luckyOne == player))
                             continue;
@@ -353,6 +353,18 @@ namespace WorldServer.logic.loot
                     ProcessSoulbound(enemy, priv.Value, enemy.GameServer, shares[priv.Key], priv.Key);
                 }
             }
+        }
+
+        // under a LootRate (the arenas), a pet's generator drops at ArenaPools.PetRate of the rest's
+        // chance; 1 for anything else, and anywhere else
+        private static double PetRate(Enemy enemy, LootDef def, double worldRate)
+        {
+            if (worldRate >= 1 || def.ItemType != ItemType.None || def.Item == null)
+                return 1;
+            var gameData = enemy.GameServer.Resources.GameData;
+            if (!gameData.IdToObjectType.TryGetValue(def.Item, out var type) || !gameData.Items.TryGetValue(type, out var item))
+                return 1;
+            return Array.Exists(item.ActivateEffects, e => e.Effect == ActivateEffects.PermaPet) ? ArenaPools.PetRate : 1;
         }
 
         private static void ProcessPublic(IEnumerable<Item> drops, Enemy enemy)

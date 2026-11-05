@@ -175,7 +175,7 @@ pub struct Market {
     /// (chest, slot, item, imprints), whether we asked for them, the item picked, the price and
     /// the days.
     from_vault: bool,
-    vault: Vec<(i32, u8, i32, [u8; 3])>,
+    vault: Vec<(i32, u8, i32, [u32; 4])>,
     vault_asked: bool,
     pick: Option<(Pick, i32)>,
     price: String,
@@ -185,7 +185,7 @@ pub struct Market {
     message: Option<(String, bool)>,
     rect: Option<[f32; 4]>,
     hits: Vec<(Hit, [f32; 4])>,
-    hover: Option<(i32, [u8; 3], String)>,
+    hover: Option<(i32, [u32; 4], String)>,
     now: i32,
 }
 
@@ -328,7 +328,7 @@ impl Market {
             .0
             .iter()
             .filter(|g| (g.chest as usize) < v.chests.len() && !v.chests[g.chest as usize].gift)
-            .map(|g| (g.chest as i32, g.slot, g.item as i32, [g.offensive, g.defensive, g.misc]))
+            .map(|g| (g.chest as i32, g.slot, g.item as i32, [g.offensive as u32, g.defensive as u32, g.misc as u32, 0]))
             .collect();
     }
 
@@ -582,7 +582,7 @@ impl Market {
 
     /// An item's slot: its icon, stack count and the hover tooltip.
     #[allow(clippy::too_many_arguments)]
-    fn item(&mut self, ui: &mut Ui, r: [f32; 4], item: i32, stack: i16, imprints: [u8; 3], edge: Option<u32>, mouse: (f64, f64), s: f32, note: &str) {
+    fn item(&mut self, ui: &mut Ui, r: [f32; 4], item: i32, stack: i16, imprints: [u32; 4], edge: Option<u32>, mouse: (f64, f64), s: f32, note: &str) {
         let over = inside(r, mouse);
         ui.slot_box(r, edge.or_else(|| crate::screens::tier_edge(ui.data, item)), over, s);
         ui.item_icon(item, 80, r[0] + r[2] / 2.0, r[1] + r[3] / 2.0, s * r[2] / (56.0 * s));
@@ -753,7 +753,7 @@ impl Market {
                 theme::fill(ui.renderer, rr, 6.0 * s, 0xFFFFFF, 0.025);
             }
             let ir = [rr[0] + 4.0 * s, rr[1] + 2.0 * s, rr[3] - 4.0 * s, rr[3] - 4.0 * s];
-            let imprints = [l.offensive, l.defensive, l.misc];
+            let imprints = [l.offensive as u32, l.defensive as u32, l.misc as u32, 0];
             let note = tf!("Sold by {seller}", seller = l.seller);
             self.item(ui, ir, l.item_type as i32, l.stack, imprints, None, mouse, s, &note);
             let name = name_of(ui.data, l.item_type as i32);
@@ -791,7 +791,7 @@ impl Market {
         let cell = 48.0 * s;
         let gap = 6.0 * s;
         let gy = b[1] + 36.0 * s;
-        let mut items: Vec<(Pick, i32, [u8; 3], String)> = Vec::new();
+        let mut items: Vec<(Pick, i32, [u32; 4], String)> = Vec::new();
         if self.from_vault {
             for &(chest, slot, item, imprints) in &self.vault {
                 items.push((Pick::Vault(chest, slot), item, imprints, tf!("In vault chest {n}", n = chest + 1)));
@@ -801,7 +801,7 @@ impl Market {
             for slot in 4..if backpack { 20 } else { 12 } {
                 let item = me.stat_int(crate::hud::slot_stat(slot)).unwrap_or(-1);
                 if item > 0 {
-                    items.push((Pick::Inv(slot), item, [0; 3], if slot < 12 { tf!("Inventory slot {n}", n = slot - 3) } else { tf!("Backpack slot {n}", n = slot - 11) }));
+                    items.push((Pick::Inv(slot), item, [0; 4], if slot < 12 { tf!("Inventory slot {n}", n = slot - 3) } else { tf!("Backpack slot {n}", n = slot - 11) }));
                 }
             }
         }
@@ -856,7 +856,7 @@ impl Market {
         match self.pick {
             Some((_, item)) if item > 0 => {
                 let ir = [ix, y, 56.0 * s, 56.0 * s];
-                self.item(ui, ir, item, 0, [0; 3], Some(color::ACCENT), mouse, s, "");
+                self.item(ui, ir, item, 0, [0; 4], Some(color::ACCENT), mouse, s, "");
                 ui.label(&name_of(ui.data, item), ix + 68.0 * s, y + 8.0 * s, font(16.0), true, color::TEXT);
                 let tier = tier_label(ui.data, item);
                 let sub = if self.from_vault { tf!("{tier} · from your vault", tier) } else { tf!("{tier} · from your inventory", tier) };
@@ -922,7 +922,7 @@ impl Market {
                 theme::fill(ui.renderer, rr, 6.0 * s, 0xFFFFFF, 0.025);
             }
             let ir = [rr[0] + 4.0 * s, rr[1] + 2.0 * s, rr[3] - 4.0 * s, rr[3] - 4.0 * s];
-            self.item(ui, ir, l.item_type as i32, l.stack, [l.offensive, l.defensive, l.misc], None, mouse, s, "");
+            self.item(ui, ir, l.item_type as i32, l.stack, [l.offensive as u32, l.defensive as u32, l.misc as u32, 0], None, mouse, s, "");
             let tx = ir[0] + ir[2] + 12.0 * s;
             ui.label(&name_of(ui.data, l.item_type as i32), tx, rr[1] + 6.0 * s, font(14.0), true, color::TEXT);
             let net = l.price - l.price * self.tax as i32 / 100;
@@ -953,7 +953,7 @@ impl Market {
                 theme::fill(ui.renderer, rr, 6.0 * s, 0xFFFFFF, 0.025);
             }
             let ir = [rr[0] + 4.0 * s, rr[1] + 2.0 * s, rr[3] - 4.0 * s, rr[3] - 4.0 * s];
-            self.item(ui, ir, it.item_type as i32, it.stack, [it.offensive, it.defensive, it.misc], None, mouse, s, "");
+            self.item(ui, ir, it.item_type as i32, it.stack, [it.offensive as u32, it.defensive as u32, it.misc as u32, 0], None, mouse, s, "");
             let tx = ir[0] + ir[2] + 12.0 * s;
             ui.label(&name_of(ui.data, it.item_type as i32), tx, rr[1] + 6.0 * s, font(14.0), true, color::TEXT);
             let why = match it.why {
@@ -991,7 +991,7 @@ impl Market {
                 theme::fill(ui.renderer, rr, 6.0 * s, 0xFFFFFF, 0.025);
             }
             let ir = [rr[0] + 4.0 * s, rr[1] + 2.0 * s, rr[3] - 4.0 * s, rr[3] - 4.0 * s];
-            self.item(ui, ir, h.item_type as i32, 0, [0; 3], None, mouse, s, "");
+            self.item(ui, ir, h.item_type as i32, 0, [0; 4], None, mouse, s, "");
             let name = name_of(ui.data, h.item_type as i32);
             let (text, col) = match h.kind {
                 1 => (tf!("Listed {name} for {price} fame", name, price = fame(h.price)), color::TEXT_DIM),

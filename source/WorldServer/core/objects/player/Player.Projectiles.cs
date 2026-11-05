@@ -250,12 +250,14 @@ namespace WorldServer.core.objects
                 if (entity.Health <= 0 && !entity.Dead)
                 {
                     entity.Death(ref tickTime);
+                    // a wall that blocks sight goes with its ground back (Enemy.Death clears the
+                    // square of a wall it holds, whatever killed it)
+                    int tx = (int)entity.X, ty = (int)entity.Y;
                     if (entity.ObjectDesc.BlocksSight)
                     {
-                        var tile = World.Map[(int)entity.X, (int)entity.Y];
-                        tile.ObjType = 0;
-                        tile.UpdateCount++;
-                        player.UpdateTiles();
+                        World.Map.ClearObject(tx, ty);
+                        foreach (var p in World.Players.Values)
+                            p.UpdateTiles();
                     }
                 }
             }

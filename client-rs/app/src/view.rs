@@ -1684,12 +1684,13 @@ fn draw_sprite_faded(scene: &Scene, renderer: &mut Renderer, redrawer: &mut Redr
 }
 
 /// `Projectile.draw` with projOutline (the AIR client's default): the outlined texture centred
-/// on the projectile (half a tile up), turned to its direction (plus the object's
+/// on the projectile (half a tile up), turned the way it's moving (plus the object's
 /// AngleCorrection, and its spin if it has a Rotation).
 fn draw_projectile(scene: &Scene, renderer: &mut Renderer, redrawer: &mut Redrawer, p: &Projectile) {
     let cam = scene.camera;
     let Some(desc) = scene.world.projectile_desc(p, scene.data) else { return };
-    let Some(look_desc) = scene.data.object_ids.get(&desc.object_id).and_then(|t| scene.data.objects.get(t)) else {
+    let look = p.look.or_else(|| scene.data.object_ids.get(&desc.object_id).copied());
+    let Some(look_desc) = look.and_then(|t| scene.data.objects.get(&t)) else {
         return;
     };
     let Some(src) = scene.texture_src(&look_desc.texture, p.bullet_id) else { return };
@@ -1711,7 +1712,7 @@ fn draw_projectile(scene: &Scene, renderer: &mut Renderer, redrawer: &mut Redraw
     }
     let Some(sprite) = redrawer.get_padded(scene.sprites, renderer, src, false, size, None, true) else { return };
     let spin = if look_desc.rotation == 0.0 { 0.0 } else { scene.time as f64 / look_desc.rotation };
-    let angle = p.angle - cam.angle + look_desc.angle_correction + spin;
+    let angle = p.heading - cam.angle + look_desc.angle_correction + spin;
     let k = (cam.scale / TILE_PX) as f32;
     let [px, py] = cam.to_screen(p.x, p.y, p.z + p.floor);
     let quad = Quad::rotated(px, py, sprite.w as f32 * k, sprite.h as f32 * k, angle as f32);

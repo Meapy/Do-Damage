@@ -86,6 +86,19 @@ namespace WorldServer.core.worlds.impl
         private market.MarketBroker _marketBroker;
         // the villagers walking about and the bees over the flowers
         private NexusVillagers _villagers;
+        private PetPen _petPen;
+        private (string, byte, float, float, ushort)[] _places;
+
+        /// <summary>Its places for the minimap (NexusPlaces), worked out once its objects are in.</summary>
+        public (string Name, byte Kind, float X, float Y, ushort Icon)[] Places()
+        {
+            if (_places != null)
+                return _places;
+            var places = NexusPlaces.Of(this);
+            if (places.Length >= 3)
+                _places = places;
+            return places;
+        }
         // the islands' bar on the Arena tower, and its barman
         private NexusBar _bar;
 
@@ -124,6 +137,7 @@ namespace WorldServer.core.worlds.impl
             _marketStalls = new market.MarketStalls(this);
             _marketBroker = new market.MarketBroker(this);
             _villagers = new NexusVillagers(this);
+            _petPen = new PetPen(this);
             _bar = NexusBar.Find(this);
         }
 
@@ -160,6 +174,7 @@ namespace WorldServer.core.worlds.impl
             _marketStalls?.Update(ref time);
             _marketBroker?.Update(ref time);
             _villagers?.Update(ref time);
+            _petPen?.Update(ref time);
             _bar?.Update(ref time);
             base.UpdateLogic(ref time);
         }

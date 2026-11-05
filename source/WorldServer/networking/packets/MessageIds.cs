@@ -189,6 +189,30 @@ public enum MessageId : byte
     // (LAYERS), and the height the client walks at, before each MOVE there (HEIGHT).
     LAYERS = 132,
     HEIGHT = 133,
+    // Pings (Rust client, the middle mouse button; Player.Pings.cs): the client says once in each
+    // world that it can show them (PING_MARK 255), which the server answers with a PING_SHOW of
+    // kind 255, so the client only pings a server that knows pings. A ping (PING_MARK 0-4) goes to
+    // the player's party and guild in the world and the players near them or the ping
+    // (PING_SHOW). The AIR client and older Rust clients never say so, and get none.
+    PING_MARK = 134,
+    PING_SHOW = 135,
+    // The Collection in the vault (Rust client 2.3.10, CollectionHandler.cs): the client asks
+    // (COLLECTION_REQUEST) and gets every piece of gear there is to collect, what the account has
+    // had, and where the untiered gear comes from (COLLECTION).
+    COLLECTION_REQUEST = 136,
+    COLLECTION = 137,
+    // The Pen Keeper by the Arena court (Rust client 2.3.10, PetPen.cs): the client asks or acts
+    // (PET_PEN_ACT: 0 asks, 1 takes the pet back, 2 puts in the pet of an inventory slot's
+    // generator, 3 raises it Small to Medium with a Superburger, 4 gives him the inventory's Shards
+    // of the Mad God, which he keeps for the account, 5 raises it Medium to Large with 25 of them)
+    // and gets the pet as it is now, with the shards he keeps and what happened (PET_PEN).
+    PET_PEN_ACT = 138,
+    PET_PEN = 139,
+    // The Nexus's places on the minimap (Rust client 2.3.10, NexusPlaces.cs): the client asks on
+    // entering the Nexus (NEXUS_PLACES_REQUEST) and gets where its NPCs and portals stand, so the
+    // map shows the way to them before anyone has walked there (NEXUS_PLACES).
+    NEXUS_PLACES_REQUEST = 140,
+    NEXUS_PLACES = 141,
     // From the world proxy (tools/world_proxy.py), before the client's first message: the
     // client's address. Only taken on a connection from this PC; clients never send it.
     PROXY_INFO = 250

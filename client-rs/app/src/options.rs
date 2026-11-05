@@ -5,6 +5,7 @@
 //! and press the key to use instead (Escape cancels, Backspace clears it).
 
 use crate::audio::SoundSettings;
+use crate::crosshair::{self, Look, Style};
 use crate::hud::{Layout, Ui};
 use crate::i18n::{self, mark, tr};
 use crate::theme::{self, color, Kind};
@@ -200,6 +201,7 @@ pub enum Toggle {
     Sfx,
     Shots,
     Music,
+    PingSounds,
 }
 
 /// What's shown in the world.
@@ -276,7 +278,55 @@ const GRAPHICS: [(Toggle, &str); 8] = [
     (Toggle::Fullscreen, mark("Borderless fullscreen (F11)")),
 ];
 
-const SOUNDS: [(Toggle, &str); 3] = [(Toggle::Sfx, mark("Sound effects")), (Toggle::Shots, mark("Weapon sounds")), (Toggle::Music, mark("Music"))];
+const SOUNDS: [(Toggle, &str); 4] =
+    [(Toggle::Sfx, mark("Sound effects")), (Toggle::Shots, mark("Weapon sounds")), (Toggle::Music, mark("Music")), (Toggle::PingSounds, mark("Ping sounds"))];
+
+/// Whose pings show (pings.rs): our own always do.
+#[derive(Clone, Copy, Debug, PartialEq, Eq, Default)]
+pub enum PingsFrom {
+    Nobody,
+    /// Our party's and our guild's.
+    Friends,
+    /// Everyone's the server sends: those near us or the ping, and our party and guild.
+    #[default]
+    Everyone,
+}
+
+impl PingsFrom {
+    /// In the slider's order, left to right.
+    const ALL: [PingsFrom; 3] = [PingsFrom::Nobody, PingsFrom::Friends, PingsFrom::Everyone];
+
+    fn name(self) -> &'static str {
+        match self {
+            PingsFrom::Nobody => "Nobody",
+            PingsFrom::Friends => "Friends",
+            PingsFrom::Everyone => "Everyone",
+        }
+    }
+
+    /// As the slider shows it.
+    fn label(self) -> &'static str {
+        match self {
+            PingsFrom::Nobody => tr("Nobody"),
+            PingsFrom::Friends => tr("Party and guild"),
+            PingsFrom::Everyone => tr("Everyone"),
+        }
+    }
+
+    fn from_name(name: &str) -> Option<Self> {
+        PingsFrom::ALL.into_iter().find(|p| p.name().eq_ignore_ascii_case(name))
+    }
+
+    /// Whether a ping from someone who is this to us shows (`PingShow.relation`: 0 someone
+    /// nearby, 1 our guild, 2 our party, 3 ourselves).
+    pub fn shows(self, relation: u8) -> bool {
+        match self {
+            PingsFrom::Nobody => relation == 3,
+            PingsFrom::Friends => relation >= 1,
+            PingsFrom::Everyone => true,
+        }
+    }
+}
 
 #[derive(Clone, Debug, PartialEq)]
 pub struct Settings {
@@ -292,8 +342,13 @@ pub struct Settings {
     pub pet_effects: bool,
     /// How every pet's shots look.
     pub pet_shot_look: PetShots,
+    /// Whose pings show, and whether they make a sound.
+    pub pings_from: PingsFrom,
+    pub ping_sounds: bool,
     /// A crosshair at the mouse over the world, instead of the pointer.
     pub crosshair: bool,
+    /// Its style, colour and size, and the player's own (the Crosshair tab).
+    pub crosshair_look: Look,
     /// How opaque other players, and other players' pets, are drawn (0 to 1).
     pub player_alpha: f32,
     pub pet_alpha: f32,
@@ -360,7 +415,10 @@ impl Default for Settings {
             pet_shots: true,
             pet_effects: true,
             pet_shot_look: PetShots::Subtle,
+            pings_from: PingsFrom::Everyone,
+            ping_sounds: true,
             crosshair: true,
+            crosshair_look: Look::default(),
             player_alpha: 1.0,
             pet_alpha: 1.0,
             damage_numbers: true,
@@ -434,6 +492,7 @@ impl Settings {
             Toggle::Sfx => &mut self.sound.sfx,
             Toggle::Shots => &mut self.sound.shots,
             Toggle::Music => &mut self.sound.music,
+            Toggle::PingSounds => &mut self.ping_sounds,
         }
     }
 
@@ -472,12 +531,17 @@ impl Settings {
         flag("playSFX", self.sound.sfx);
         flag("playPewPew", self.sound.shots);
         flag("playMusic", self.sound.music);
+        flag("pingSounds", self.ping_sounds);
         out += &format!("masterVolume={}\nsfxVolume={}\nmusicVolume={}\n", self.sound.master_volume, self.sound.sfx_volume, self.sound.music_volume);
         out += &format!("worldZoom={}\n", self.zoom);
         out += &format!("chatSize={}\n", self.chat_size);
         out += &format!("playerOpacity={}\npetOpacity={}\n", self.player_alpha, self.pet_alpha);
         out += &format!("maxFps={}\n", self.max_fps);
         out += &format!("petShotLook={}\n", self.pet_shot_look.name());
+        out += &format!("pingsFrom={}\n", self.pings_from.name());
+        let look = &self.crosshair_look;
+        out += &format!("crosshairStyle={}\ncrosshairColour={}\ncrosshairSize={}\n", look.style.name(), look.colour, look.size);
+        out += &format!("crosshairCustom={}\n", look.custom_text());
         if let Some(a) = self.camera_angle {
             out += &format!("cameraAngle={a}\n");
         }
@@ -527,6 +591,14 @@ impl Settings {
                 "petShots" => s.pet_shots = on,
                 "petEffects" => s.pet_effects = on,
                 "crosshair" => s.crosshair = on,
+                "crosshairStyle" => s.crosshair_look.style = Style::from_name(value).unwrap_or_default(),
+                "crosshairColour" => s.crosshair_look.colour = value.parse().ok().filter(|&c| c < crosshair::COLOURS.len()).unwrap_or(0),
+                "crosshairSize" => s.crosshair_look.size = value.parse::<f32>().map_or(1.0, |z| z.clamp(crosshair::SIZE_MIN, crosshair::SIZE_MAX)),
+                "crosshairCustom" => {
+                    if let Some(g) = Look::parse_custom(value) {
+                        s.crosshair_look.custom = g;
+                    }
+                }
                 "playerOpacity" => s.player_alpha = vol().unwrap_or(1.0),
                 "petOpacity" => s.pet_alpha = vol().unwrap_or(1.0),
                 "petShotLook" => s.pet_shot_look = PetShots::from_name(value).unwrap_or_default(),
@@ -539,6 +611,8 @@ impl Settings {
                 "playSFX" => s.sound.sfx = on,
                 "playPewPew" => s.sound.shots = on,
                 "playMusic" => s.sound.music = on,
+                "pingSounds" => s.ping_sounds = on,
+                "pingsFrom" => s.pings_from = PingsFrom::from_name(value).unwrap_or_default(),
                 "masterVolume" => s.sound.master_volume = vol().unwrap_or(s.sound.master_volume),
                 "sfxVolume" => s.sound.sfx_volume = vol().unwrap_or(s.sound.sfx_volume),
                 "musicVolume" => s.sound.music_volume = vol().unwrap_or(s.sound.music_volume),
@@ -589,6 +663,7 @@ pub enum Tab {
     Controls,
     Graphics,
     Visuals,
+    Crosshair,
     Sound,
     Language,
 }
@@ -605,6 +680,8 @@ enum Slider {
     PetAlpha,
     PetShots,
     ChatSize,
+    Pings,
+    CrosshairSize,
 }
 
 #[derive(Clone, Copy, Debug, PartialEq)]
@@ -612,6 +689,17 @@ enum Hit {
     Tab(Tab),
     Bind(Bind),
     Toggle(Toggle),
+    /// The Crosshair tab: a style, a colour (`crosshair::COLOURS`), a cell of the player's own
+    /// (row, column) on the grid drawn in the rectangle, and clearing it.
+    Style(Style),
+    Colour(usize),
+    /// The colour to paint the player's own in (`crosshair::PALETTE`).
+    Brush(usize),
+    Cell(usize, usize, [f32; 4]),
+    ClearCustom,
+    /// The crosshair's share code to the clipboard, and a code from it.
+    CopyCode,
+    PasteCode,
     /// A language (`i18n::LANGUAGES`), or `None` for the system's.
     Language(Option<usize>),
     /// A slider (a volume, the zoom...) and its track.
@@ -619,6 +707,16 @@ enum Hit {
     Defaults,
     Close,
     Home,
+}
+
+/// What sharing a crosshair last did.
+#[derive(Clone, Copy, Debug, PartialEq, Eq)]
+enum ShareNote {
+    Copied,
+    /// The browser is still handing the clipboard over.
+    Waiting,
+    Pasted,
+    NotACode,
 }
 
 /// The Options window.
@@ -630,6 +728,12 @@ pub struct OptionsUi {
     listening: Option<Bind>,
     /// The slider held down, and its track: it follows the mouse until the button comes up.
     dragging: Option<(Slider, [f32; 4])>,
+    /// Painting the player's own crosshair: what the cells dragged over become, and the grid.
+    painting: Option<(Option<usize>, [f32; 4])>,
+    /// The colour the player's own is painted in (`crosshair::PALETTE`).
+    brush: usize,
+    /// What the last Copy code or Paste code did, shown under them.
+    share_note: Option<ShareNote>,
     rect: Option<[f32; 4]>,
     hits: Vec<(Hit, [f32; 4])>,
     /// "Return home" was pressed: back to the Nexus.
@@ -657,13 +761,84 @@ fn set_slider(slider: Slider, track: [f32; 4], x: f64, settings: &mut Settings) 
         Slider::MaxFps => settings.max_fps = MAX_FPS[(f * (MAX_FPS.len() - 1) as f32).round() as usize],
         Slider::PetShots => settings.pet_shot_look = PetShots::ALL[(f * (PetShots::ALL.len() - 1) as f32).round() as usize],
         Slider::ChatSize => settings.chat_size = CHAT_MIN + v * (CHAT_MAX - CHAT_MIN),
+        Slider::Pings => settings.pings_from = PingsFrom::ALL[(f * (PingsFrom::ALL.len() - 1) as f32).round() as usize],
+        Slider::CrosshairSize => settings.crosshair_look.size = crosshair::SIZE_MIN + v * (crosshair::SIZE_MAX - crosshair::SIZE_MIN),
     }
+}
+
+/// A round colour swatch (`pair`: its colour and its middle's), ringed when picked.
+fn swatch(ui: &mut Ui, r: [f32; 4], s: f32, (a, d): (u32, u32), picked: bool, hover: bool) {
+    let rad = r[2] / 2.0;
+    if picked {
+        theme::fill(ui.renderer, [r[0] - 4.0 * s, r[1] - 4.0 * s, r[2] + 8.0 * s, r[3] + 8.0 * s], rad + 4.0 * s, color::ACCENT, 1.0);
+    } else if hover {
+        theme::fill(ui.renderer, [r[0] - 3.0 * s, r[1] - 3.0 * s, r[2] + 6.0 * s, r[3] + 6.0 * s], rad + 3.0 * s, color::BORDER_HI, 1.0);
+    }
+    // Edged so black and white both show on the panel.
+    theme::fill(ui.renderer, [r[0] - 1.0, r[1] - 1.0, r[2] + 2.0, r[3] + 2.0], rad + 1.0, if a < 0x202020 { 0x7A7096 } else { 0x000000 }, 1.0);
+    theme::fill(ui.renderer, r, rad, a, 1.0);
+    if d != a {
+        let dot = r[2] * 0.4;
+        theme::fill(ui.renderer, [r[0] + (r[2] - dot) / 2.0, r[1] + (r[3] - dot) / 2.0, dot, dot], dot / 2.0, d, 1.0);
+    }
+}
+
+/// The cell of the player's own crosshair under `pos`, on the grid drawn in `grid`.
+fn grid_cell(grid: [f32; 4], pos: (f64, f64)) -> Option<(usize, usize)> {
+    if !inside(grid, pos) {
+        return None;
+    }
+    let n = crosshair::GRID as f32;
+    let col = ((pos.0 as f32 - grid[0]) / grid[2] * n) as usize;
+    let row = ((pos.1 as f32 - grid[1]) / grid[3] * n) as usize;
+    Some((row.min(crosshair::GRID - 1), col.min(crosshair::GRID - 1)))
+}
+
+/// Paint a cell of the player's own crosshair, which then shows. True if anything changed.
+fn paint(settings: &mut Settings, (row, col): (usize, usize), paint: Option<usize>) -> bool {
+    let look = &mut settings.crosshair_look;
+    let before = *look;
+    look.set_cell(row, col, paint);
+    look.style = Style::Custom;
+    *look != before
 }
 
 impl OptionsUi {
     pub fn show(&mut self) {
         self.open = true;
         self.listening = None;
+    }
+
+    /// Text pasted while the window is open (Paste code, or Ctrl+V in the browser): on the
+    /// Crosshair tab, a shared crosshair's code. True if the settings changed.
+    pub fn paste(&mut self, text: &str, settings: &mut Settings) -> bool {
+        if !self.open || self.tab != Tab::Crosshair {
+            return false;
+        }
+        match settings.crosshair_look.from_code(text) {
+            Some(look) => {
+                self.share_note = Some(ShareNote::Pasted);
+                let changed = look != settings.crosshair_look;
+                settings.crosshair_look = look;
+                changed
+            }
+            None => {
+                self.share_note = Some(ShareNote::NotACode);
+                false
+            }
+        }
+    }
+
+    /// `--options <tab>` (tests): the window open at that tab (`controls`, `graphics`,
+    /// `visuals`, `crosshair`, `sound`, `language`) from the start.
+    pub fn opened_at(tab: Option<String>) -> Self {
+        let mut ui = OptionsUi::default();
+        let tabs = [Tab::Controls, Tab::Graphics, Tab::Visuals, Tab::Crosshair, Tab::Sound, Tab::Language];
+        if let Some(t) = tab.and_then(|name| tabs.into_iter().find(|t| format!("{t:?}").eq_ignore_ascii_case(&name))) {
+            ui.tab = t;
+            ui.show();
+        }
+        ui
     }
 
     /// A click. True if the settings changed (save them).
@@ -676,7 +851,10 @@ impl OptionsUi {
         let Some((hit, _)) = self.hits.iter().find(|(_, r)| inside(*r, pos)).copied() else { return false };
         self.listening = None;
         match hit {
-            Hit::Tab(t) => self.tab = t,
+            Hit::Tab(t) => {
+                self.tab = t;
+                self.share_note = None;
+            }
             Hit::Bind(b) => self.listening = Some(b),
             Hit::Language(l) => {
                 settings.language = l.map(|i| i18n::LANGUAGES[i].code.to_owned()).unwrap_or_default();
@@ -692,6 +870,40 @@ impl OptionsUi {
                 set_slider(slider, track, pos.0, settings);
                 self.dragging = Some((slider, track));
                 return true;
+            }
+            Hit::Style(style) => {
+                settings.crosshair_look.style = style;
+                return true;
+            }
+            Hit::Brush(b) => self.brush = b,
+            Hit::Colour(c) => {
+                settings.crosshair_look.colour = c;
+                return true;
+            }
+            Hit::Cell(row, col, grid) => {
+                // A drag paints what the first cell became.
+                // A square already in the brush's colour is emptied; any other takes the colour.
+                let brush = Some(self.brush).filter(|&b| settings.crosshair_look.cell(row, col) != Some(b));
+                paint(settings, (row, col), brush);
+                self.painting = Some((brush, grid));
+                return true;
+            }
+            Hit::ClearCustom => {
+                settings.crosshair_look.custom = [[0; crosshair::GRID]; crosshair::GRID];
+                settings.crosshair_look.style = Style::Custom;
+                return true;
+            }
+            Hit::CopyCode => {
+                crate::textedit::clipboard::set(&settings.crosshair_look.code());
+                self.share_note = Some(ShareNote::Copied);
+            }
+            Hit::PasteCode => {
+                // On the desktop the clipboard is read at once; the browser hands it over in a
+                // frame or two (`paste`, from the frame's pasted text).
+                self.share_note = Some(if cfg!(target_arch = "wasm32") { ShareNote::Waiting } else { ShareNote::NotACode });
+                if let Some(text) = crate::textedit::clipboard::get() {
+                    return self.paste(&text, settings);
+                }
             }
             Hit::Defaults => {
                 let d = Settings::default();
@@ -713,8 +925,14 @@ impl OptionsUi {
                         settings.player_alpha = d.player_alpha;
                         settings.pet_alpha = d.pet_alpha;
                         settings.pet_shot_look = d.pet_shot_look;
+                        settings.pings_from = d.pings_from;
                     }
-                    Tab::Sound => settings.sound = d.sound,
+                    Tab::Sound => {
+                        settings.sound = d.sound;
+                        settings.ping_sounds = d.ping_sounds;
+                    }
+                    // The player's own drawing stays.
+                    Tab::Crosshair => settings.crosshair_look = Look { custom: settings.crosshair_look.custom, ..d.crosshair_look },
                     Tab::Language => settings.language.clear(),
                 }
                 return true;
@@ -731,15 +949,19 @@ impl OptionsUi {
     /// The mouse while the button is down: a held slider follows it. True if the settings
     /// changed (they're saved when the button comes up).
     pub fn drag(&mut self, pos: (f64, f64), settings: &mut Settings) -> bool {
+        if let Some((on, grid)) = self.painting.filter(|_| self.open) {
+            return grid_cell(grid, pos).is_some_and(|cell| paint(settings, cell, on));
+        }
         let Some((slider, track)) = self.dragging.filter(|_| self.open) else { return false };
         let before = settings.clone();
         set_slider(slider, track, pos.0, settings);
         *settings != before
     }
 
-    /// The button came up. True if a slider was let go (save the settings).
+    /// The button came up. True if a slider or the painting was let go (save the settings).
     pub fn release(&mut self) -> bool {
-        self.dragging.take().is_some()
+        let painted = self.painting.take().is_some();
+        self.dragging.take().is_some() || painted
     }
 
     /// A key while the window is open. True if the settings changed.
@@ -775,6 +997,7 @@ impl OptionsUi {
         if !self.open {
             self.rect = None;
             self.dragging = None;
+            self.painting = None;
             return;
         }
         let (w, h) = (lay.w, lay.h);
@@ -789,17 +1012,22 @@ impl OptionsUi {
         let title = tr("Options");
         ui.label(title, r[0] + 22.0 * s, r[1] + 16.0 * s, font(22.0), true, color::TEXT);
         // Tabs, as pills as wide as their names; smaller type if a language's names are long.
-        let tabs = [(Tab::Controls, tr("Controls")), (Tab::Graphics, tr("Graphics")), (Tab::Visuals, tr("Visuals")), (Tab::Sound, tr("Sound")), (Tab::Language, tr("Language"))];
+        let tabs = [(Tab::Controls, tr("Controls")), (Tab::Graphics, tr("Graphics")), (Tab::Visuals, tr("Visuals")), (Tab::Crosshair, tr("Crosshair")), (Tab::Sound, tr("Sound")), (Tab::Language, tr("Language"))];
         let start = (r[0] + 22.0 * s + ui.measure(title, font(22.0), true) + 24.0 * s).max(r[0] + 150.0 * s);
         let gap = 8.0 * s;
         let room = r[0] + r[2] - 22.0 * s - start - gap * (tabs.len() - 1) as f32;
-        let pad = 14.0 * s;
+        // Narrower pills first, then smaller type.
+        let mut pad = 14.0 * s;
         let mut ts = font(13.0);
-        let widths = |ui: &mut Ui, ts: f32| tabs.map(|(_, l)| (ui.measure(l, ts, true) + 2.0 * pad).max(72.0 * s));
-        let mut ws = widths(ui, ts);
+        let widths = |ui: &mut Ui, ts: f32, pad: f32| tabs.map(|(_, l)| (ui.measure(l, ts, true) + 2.0 * pad).max(60.0 * s));
+        let mut ws = widths(ui, ts, pad);
         while ws.iter().sum::<f32>() > room && ts > 8.0 {
-            ts -= 1.0;
-            ws = widths(ui, ts);
+            if pad > 8.0 * s {
+                pad -= s;
+            } else {
+                ts -= 1.0;
+            }
+            ws = widths(ui, ts, pad);
         }
         let mut x = start;
         for ((tab, label), tw) in tabs.into_iter().zip(ws) {
@@ -861,6 +1089,7 @@ impl OptionsUi {
                     self.hits.push((Hit::Language(lang), row));
                 }
             }
+            Tab::Crosshair => self.draw_crosshair_tab(ui, lay, body, s, settings, mouse),
             Tab::Graphics | Tab::Visuals | Tab::Sound => {
                 let list: Vec<(Toggle, &str)> = match self.tab {
                     Tab::Graphics => GRAPHICS
@@ -883,11 +1112,14 @@ impl OptionsUi {
                 } else if self.tab == Tab::Visuals {
                     let look = settings.pet_shot_look;
                     let lv = PetShots::ALL.iter().position(|&p| p == look).unwrap_or(1) as f32 / (PetShots::ALL.len() - 1) as f32;
+                    let from = settings.pings_from;
+                    let pv = PingsFrom::ALL.iter().position(|&p| p == from).unwrap_or(2) as f32 / (PingsFrom::ALL.len() - 1) as f32;
                     vec![
                         (Slider::PlayerAlpha, tr("Other players"), settings.player_alpha, pct(settings.player_alpha)),
                         (Slider::PetAlpha, tr("Other players' pets"), settings.pet_alpha, pct(settings.pet_alpha)),
                         (Slider::PetShots, tr("Pets' shots"), lv, look.label().to_owned()),
                         (Slider::ChatSize, tr("Chat size"), (settings.chat_size - CHAT_MIN) / (CHAT_MAX - CHAT_MIN), pct(settings.chat_size)),
+                        (Slider::Pings, tr("Others' pings"), pv, from.label().to_owned()),
                     ]
                 } else {
                     // Lower shows more of the world (the mouse wheel over the world does it too).
@@ -931,7 +1163,11 @@ impl OptionsUi {
                 }
             }
         }
-        let hint = if self.tab == Tab::Controls { tr("Click a key, then press the new one. Backspace clears it.") } else { tr("Changes apply at once.") };
+        let hint = match self.tab {
+            Tab::Controls => tr("Click a key, then press the new one. Backspace clears it."),
+            Tab::Crosshair => tr("Pick a colour under the grid, then click or drag on it. Click a square of that colour to empty it."),
+            _ => tr("Changes apply at once."),
+        };
         ui.label_fit(hint, r[0] + 22.0 * s, r[1] + r[3] - 80.0 * s, r[2] - 44.0 * s, font(12.0), false, color::TEXT_MUTED);
         let bw = 120.0 * s;
         let done = [r[0] + r[2] - 22.0 * s - bw, r[1] + r[3] - 56.0 * s, bw, 38.0 * s];
@@ -946,6 +1182,139 @@ impl OptionsUi {
             ui.button(home, tr("Return home"), Kind::Secondary, inside(home, mouse), s);
             self.hits.push((Hit::Home, home));
         }
+    }
+
+    /// The Crosshair tab: the grid for the player's own on the left; on the right how it looks
+    /// over the ground, the styles, the colours and the size.
+    fn draw_crosshair_tab(&mut self, ui: &mut Ui, lay: &Layout, body: [f32; 4], s: f32, settings: &Settings, mouse: (f64, f64)) {
+        let look = settings.crosshair_look;
+        let font = |size: f32| (size * s).round().max(9.0);
+        // The player's own.
+        let n = crosshair::GRID;
+        let cell = (17.0 * s).floor().max(6.0);
+        ui.label_fit(tr("crosshair::Your own"), body[0], body[1], cell * n as f32, font(15.0), true, color::TEXT);
+        let grid = [body[0], body[1] + 28.0 * s, cell * n as f32, cell * n as f32];
+        theme::frame(ui.renderer, [grid[0] - 4.0 * s, grid[1] - 4.0 * s, grid[2] + 8.0 * s, grid[3] + 8.0 * s], 6.0 * s, s.max(1.0), (if look.style == Style::Custom { color::ACCENT } else { color::BORDER }, 1.0), ((color::FIELD, 1.0), (color::FIELD, 1.0)));
+        let hover = grid_cell(grid, mouse);
+        let mid = n / 2;
+        for row in 0..n {
+            for col in 0..n {
+                let r = [grid[0] + col as f32 * cell + 1.0, grid[1] + row as f32 * cell + 1.0, cell - 2.0, cell - 2.0];
+                let (rgb, alpha) = if let Some(p) = look.cell(row, col) {
+                    (crosshair::PALETTE[p], 1.0)
+                } else if row == mid || col == mid {
+                    // The middle lines, so it's clear where the mouse will be.
+                    (color::CHIP_HI, 0.55)
+                } else {
+                    (color::SECONDARY, 0.6)
+                };
+                ui.renderer.fill(r[0], r[1], r[2], r[3], rgb, alpha);
+                if hover == Some((row, col)) {
+                    ui.renderer.fill(r[0], r[1], r[2], r[3], 0xFFFFFF, 0.25);
+                }
+                self.hits.push((Hit::Cell(row, col, grid), [grid[0] + col as f32 * cell, grid[1] + row as f32 * cell, cell, cell]));
+            }
+        }
+        // The brush: the colour the squares clicked take.
+        let bs = 20.0 * s;
+        let by = grid[1] + grid[3] + 16.0 * s;
+        let step = (grid[2] - bs) / (crosshair::PALETTE.len() - 1) as f32;
+        for (i, rgb) in crosshair::PALETTE.into_iter().enumerate() {
+            let r = [grid[0] + i as f32 * step, by, bs, bs];
+            swatch(ui, r, s, (rgb, rgb), self.brush == i, inside(r, mouse));
+            self.hits.push((Hit::Brush(i), [r[0] - 3.0 * s, r[1] - 3.0 * s, r[2] + 6.0 * s, r[3] + 6.0 * s]));
+        }
+        let clear = [grid[0], by + bs + 16.0 * s, 130.0 * s, 34.0 * s];
+        ui.button(clear, tr("Clear"), Kind::Secondary, inside(clear, mouse), s);
+        self.hits.push((Hit::ClearCustom, clear));
+        // Sharing: the code of the crosshair in use, to copy, and pasting one from a friend.
+        let mut y = clear[1] + clear[3] + 26.0 * s;
+        ui.label_fit(tr("Share"), grid[0], y, grid[2], font(15.0), true, color::TEXT);
+        y += 26.0 * s;
+        let bw = (grid[2] - 10.0 * s) / 2.0;
+        let copy = [grid[0], y, bw, 34.0 * s];
+        let paste = [grid[0] + bw + 10.0 * s, y, bw, 34.0 * s];
+        ui.button(copy, tr("Copy code"), Kind::Secondary, inside(copy, mouse), s);
+        ui.button(paste, tr("Paste code"), Kind::Secondary, inside(paste, mouse), s);
+        self.hits.push((Hit::CopyCode, copy));
+        self.hits.push((Hit::PasteCode, paste));
+        y += 34.0 * s + 10.0 * s;
+        // The code itself, so it can be read out or typed where there's no clipboard; a long
+        // one (the player's own) over several lines.
+        let code = look.code();
+        let cs = font(11.0);
+        let per = code.len().div_ceil(code.len().div_ceil(36));
+        for line in code.as_bytes().chunks(per).filter_map(|c| std::str::from_utf8(c).ok()) {
+            ui.label_fit(line, grid[0], y, grid[2], cs, true, color::TEXT_DIM);
+            y += cs * 1.3;
+        }
+        if let Some(note) = self.share_note {
+            let (text, rgb) = match note {
+                ShareNote::Copied => (tr("Code copied: paste it to a friend."), color::GOOD),
+                ShareNote::Waiting => (tr("Reading the clipboard…"), color::TEXT_MUTED),
+                ShareNote::Pasted => (tr("Crosshair pasted."), color::GOOD),
+                ShareNote::NotACode => (tr("The clipboard has no crosshair code."), color::DANGER),
+            };
+            ui.label_fit(text, grid[0], y + 4.0 * s, grid[2], font(12.0), false, rgb);
+        }
+
+        let rx = grid[0] + grid[2] + 26.0 * s;
+        let rw = body[0] + body[2] - rx;
+        // How it looks in the game, over dark ground and light.
+        let shown = [rx, body[1], rw, 112.0 * s];
+        theme::fill(ui.renderer, shown, 8.0 * s, 0x27331F, 1.0);
+        theme::fill(ui.renderer, [shown[0] + shown[2] / 2.0, shown[1], shown[2] / 2.0, shown[3]], 8.0 * s, 0x9C9478, 1.0);
+        ui.renderer.fill(shown[0] + shown[2] / 2.0, shown[1], 8.0 * s, shown[3], 0x9C9478, 1.0);
+        let k = lay.s.max(0.75) * look.size;
+        for x in [0.25, 0.75] {
+            crosshair::draw(ui.renderer, (shown[0] + shown[2] * x, shown[1] + shown[3] / 2.0), k, &look);
+        }
+        // The styles, each with a small picture of itself.
+        let (cols, gap) = (3, 8.0 * s);
+        let cw = (rw - gap * (cols - 1) as f32) / cols as f32;
+        let ch = 58.0 * s;
+        let top = shown[1] + shown[3] + 14.0 * s;
+        for (i, (style, _, label)) in crosshair::STYLES.into_iter().enumerate() {
+            let c = [rx + (i % cols) as f32 * (cw + gap), top + (i / cols) as f32 * (ch + gap), cw, ch];
+            let on = look.style == style;
+            let edge = if on { color::ACCENT } else if inside(c, mouse) { color::BORDER_HI } else { color::BORDER };
+            theme::frame(ui.renderer, c, 7.0 * s, s.max(1.0), (edge, 1.0), ((if on { color::CHIP } else { color::FIELD }, 1.0), (color::FIELD, 1.0)));
+            let small = Look { style, ..look };
+            crosshair::draw(ui.renderer, (c[0] + c[2] / 2.0, c[1] + 21.0 * s), (0.9 * s).max(0.6), &small);
+            let ls = font(11.5);
+            let text = tr(label);
+            let lw = ui.measure(text, ls, false).min(c[2] - 8.0 * s);
+            ui.label_fit(text, c[0] + (c[2] - lw) / 2.0, c[1] + c[3] - ls * 1.22 - 6.0 * s, c[2] - 8.0 * s, ls, false, if on { color::ACCENT_HI } else { color::TEXT_DIM });
+            self.hits.push((Hit::Style(style), c));
+        }
+        // The styles' colour; the player's own keeps the colours it was painted in.
+        let rows = crosshair::STYLES.len().div_ceil(cols) as f32;
+        let mut y = top + rows * (ch + gap) + 6.0 * s;
+        let sw = 26.0 * s;
+        if look.style == Style::Custom {
+            ui.label_fit(tr("Your own keeps the colours you paint it in."), rx, y + 24.0 * s, rw, font(12.0), false, color::TEXT_MUTED);
+            y += 24.0 * s;
+        } else {
+            ui.label(tr("Colour"), rx, y, font(14.0), false, color::TEXT);
+            y += 24.0 * s;
+            let step = ((rw - sw) / (crosshair::COLOURS.len() - 1) as f32).min(sw + 12.0 * s);
+            for (i, pair) in crosshair::COLOURS.into_iter().enumerate() {
+                let r = [rx + 4.0 * s + i as f32 * step, y, sw, sw];
+                swatch(ui, r, s, pair, look.colour == i, inside(r, mouse));
+                self.hits.push((Hit::Colour(i), [r[0] - 4.0 * s, r[1] - 4.0 * s, r[2] + 8.0 * s, r[3] + 8.0 * s]));
+            }
+        }
+        // The size.
+        y += sw + 18.0 * s;
+        ui.label_fit(tr("Size"), rx, y + 4.0 * s, 70.0 * s, font(14.0), false, color::TEXT);
+        let track = [rx + 80.0 * s, y + 9.0 * s, rw - 140.0 * s, 8.0 * s];
+        let v = (look.size - crosshair::SIZE_MIN) / (crosshair::SIZE_MAX - crosshair::SIZE_MIN);
+        theme::fill(ui.renderer, track, 4.0 * s, color::TRACK, 1.0);
+        theme::fill(ui.renderer, [track[0], track[1], track[2] * v, track[3]], 4.0 * s, color::ACCENT, 1.0);
+        let knob = 16.0 * s;
+        theme::fill(ui.renderer, [track[0] + track[2] * v - knob / 2.0, track[1] - 4.0 * s, knob, knob], knob / 2.0, 0xFFFFFF, 1.0);
+        ui.label(&format!("{}%", (look.size * 100.0).round() as i32), track[0] + track[2] + 14.0 * s, y + 4.0 * s, font(13.0), true, color::TEXT_DIM);
+        self.hits.push((Hit::Slider(Slider::CrosshairSize, track), [track[0] - 8.0 * s, y, track[2] + 16.0 * s, 26.0 * s]));
     }
 }
 
@@ -981,6 +1350,11 @@ mod tests {
         assert_eq!(s.chat_size, CHAT_MIN);
         set_slider(Slider::ChatSize, track, 300.0, &mut s);
         assert_eq!(s.chat_size, CHAT_MAX);
+        set_slider(Slider::Pings, track, 200.0, &mut s);
+        assert_eq!(s.pings_from, PingsFrom::Friends);
+        assert!(s.pings_from.shows(2) && s.pings_from.shows(1) && !s.pings_from.shows(0));
+        set_slider(Slider::Pings, track, 100.0, &mut s);
+        assert!(s.pings_from.shows(3) && !s.pings_from.shows(2), "our own always show");
     }
 
     #[test]
@@ -1000,12 +1374,16 @@ mod tests {
         s.preferred_server = "Europe".into();
         s.pet_shots = false;
         s.crosshair = false;
+        s.crosshair_look = Look { style: Style::Custom, colour: 4, size: 1.75, ..Look::default() };
+        s.crosshair_look.set_cell(0, 0, Some(3));
         s.player_alpha = 0.35;
         s.pet_alpha = 0.0;
         s.pet_shot_look = PetShots::Hidden;
         s.fullscreen = true;
         s.chat_size = 0.75;
         s.language = "de".into();
+        s.pings_from = PingsFrom::Nobody;
+        s.ping_sounds = false;
         let back = Settings::from_text(&s.to_text());
         assert_eq!(back, s);
         // Lines another version wrote stay, and its keys don't take a key this one gives.
@@ -1017,6 +1395,57 @@ mod tests {
         assert_eq!(key_label(Some(KeyCode::KeyW)), "W");
         assert_eq!(key_label(Some(KeyCode::Digit0)), "0");
         assert_eq!(key_label(Some(KeyCode::PageUp)), "Page Up");
+    }
+
+    #[test]
+    fn painting_a_crosshair() {
+        let mut ui = OptionsUi { open: true, ..Default::default() };
+        let mut s = Settings::default();
+        s.crosshair_look.custom = [[0; crosshair::GRID]; crosshair::GRID];
+        // A grid of 10-pixel cells at (100, 100), and the brush's colours beside it.
+        let grid = [100.0, 100.0, 150.0, 150.0];
+        ui.hits = vec![(Hit::Cell(0, 0, grid), [100.0, 100.0, 10.0, 10.0]), (Hit::Brush(4), [0.0, 0.0, 10.0, 10.0]), (Hit::Brush(2), [0.0, 20.0, 10.0, 10.0])];
+        // A click paints a square in the brush's colour (white at first), a drag carries on.
+        assert!(ui.click((105.0, 105.0), &mut s));
+        assert_eq!(s.crosshair_look.style, Style::Custom);
+        assert_eq!(s.crosshair_look.cell(0, 0), Some(0));
+        assert!(ui.drag((125.0, 105.0), &mut s));
+        assert_eq!(s.crosshair_look.cell(0, 2), Some(0));
+        assert!(!ui.drag((125.0, 105.0), &mut s), "already painted");
+        assert!(!ui.drag((400.0, 105.0), &mut s), "off the grid");
+        assert!(ui.release());
+        assert!(!ui.drag((135.0, 105.0), &mut s), "let go");
+        // Another colour paints over one square without touching the rest.
+        assert!(!ui.click((5.0, 5.0), &mut s), "picking a colour changes nothing");
+        assert!(ui.click((105.0, 105.0), &mut s));
+        ui.release();
+        assert_eq!((s.crosshair_look.cell(0, 0), s.crosshair_look.cell(0, 2)), (Some(4), Some(0)));
+        // A square already in the brush's colour is emptied, and so is what the drag passes in
+        // any colour.
+        assert!(ui.click((105.0, 105.0), &mut s));
+        assert_eq!(s.crosshair_look.cell(0, 0), None);
+        ui.drag((125.0, 105.0), &mut s);
+        ui.release();
+        assert_eq!(s.crosshair_look.custom, [[0; crosshair::GRID]; crosshair::GRID]);
+        ui.click((5.0, 25.0), &mut s);
+        ui.click((105.0, 105.0), &mut s);
+        assert_eq!(s.crosshair_look.cell(0, 0), Some(2));
+    }
+
+    #[test]
+    fn pasting_a_shared_crosshair() {
+        let mut ui = OptionsUi::opened_at(Some("visuals".into()));
+        let mut s = Settings::default();
+        // Only the Crosshair tab takes codes.
+        assert!(!ui.paste("DD27C8", &mut s));
+        assert_eq!(ui.share_note, None);
+        ui.tab = Tab::Crosshair;
+        assert!(ui.paste("DD27C8", &mut s));
+        assert_eq!((s.crosshair_look.style, s.crosshair_look.colour, s.crosshair_look.size), (Style::Dot, 7, 2.0));
+        assert_eq!(ui.share_note, Some(ShareNote::Pasted));
+        assert!(!ui.paste("hello there", &mut s));
+        assert_eq!(ui.share_note, Some(ShareNote::NotACode));
+        assert_eq!(s.crosshair_look.style, Style::Dot, "unchanged");
     }
 
     #[test]

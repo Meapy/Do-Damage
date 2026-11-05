@@ -6,8 +6,10 @@
 mod audio;
 mod champions;
 mod changelog;
+mod collection;
 mod community;
 mod connected;
+mod crosshair;
 mod emotes;
 mod events;
 mod game;
@@ -20,7 +22,9 @@ mod forge;
 mod quests;
 mod market;
 mod particles;
+mod petpen;
 mod petals;
+mod pings;
 mod prof;
 mod npc;
 mod hdr;
@@ -227,6 +231,8 @@ struct App {
     forge_acts: Vec<forge::Act>,
     /// The vault window: every vault chest's items at once.
     vault: vault::Vault,
+    /// The middle mouse button's pings, and the ping wheel.
+    pings: pings::Input,
     /// The quest log (quests, daily rewards, achievements) and its popups, and what it asked of
     /// the server on opening.
     quests: quests::Quests,
@@ -234,6 +240,11 @@ struct App {
     /// The community goals window and its banners, and what it asked of the server.
     community: community::Community,
     community_acts: Vec<community::Act>,
+    /// The Collection (the vault's stand) and the Pen Keeper's window, and what they ask of the
+    /// server: a Collection request, the Pen Keeper's acts (act, inventory slot).
+    collection: collection::Collection,
+    pet_pen: petpen::PetPen,
+    keeper_acts: Vec<KeeperAct>,
     /// Key bindings, graphics and sound settings, and their window.
     settings: options::Settings,
     options_ui: options::OptionsUi,
@@ -285,11 +296,30 @@ fn guild_register_price(world: &bsk_world::World, data: &bsk_data::GameData) -> 
     })
 }
 
-fn npc_open(kind: npc::NpcKind, game: &Game, npcs: &mut npc::Npcs, market: &mut market::Market, forge: &mut forge::Forge, forge_acts: &mut Vec<forge::Act>, quests: (&mut quests::Quests, &mut Vec<quests::Act>), community: (&mut community::Community, &mut Vec<community::Act>), list: Option<&bsk_net::account::CharList>, data: &bsk_data::GameData) -> bool {
+/// What the Collection's and the Pen Keeper's windows ask of the server.
+#[derive(Debug, Clone, Copy)]
+enum KeeperAct {
+    Collection,
+    PetPen(u8, u8),
+}
+
+fn npc_open(kind: npc::NpcKind, game: &Game, npcs: &mut npc::Npcs, market: &mut market::Market, forge: &mut forge::Forge, forge_acts: &mut Vec<forge::Act>, quests: (&mut quests::Quests, &mut Vec<quests::Act>), community: (&mut community::Community, &mut Vec<community::Act>), keepers: (&mut collection::Collection, &mut petpen::PetPen, &mut Vec<KeeperAct>), list: Option<&bsk_net::account::CharList>, data: &bsk_data::GameData) -> bool {
     use npc::{NpcKind, Prompt, Window};
     let Some(me) = game.world.as_ref().and_then(|w| w.player()) else { return false };
     let window = match kind {
         NpcKind::CharacterChanger => return true,
+        NpcKind::Collection => {
+            let (window, _, acts) = keepers;
+            if window.show() {
+                acts.push(KeeperAct::Collection);
+            }
+            return false;
+        }
+        NpcKind::PetPen => {
+            let (_, window, acts) = keepers;
+            acts.push(KeeperAct::PetPen(window.show(), 0));
+            return false;
+        }
         NpcKind::Market => {
             market.show(data);
             return false;
@@ -543,10 +573,15 @@ enum MouseStep {
     Move,
     /// A right-click.
     Right,
+    /// The middle button: down, up, or a click (both at once).
+    MiddleDown,
+    MiddleUp,
+    Middle,
 }
 
 /// `--mouse-script "down@1500:x,y;move@1600:x,y;up@1700:x,y"` (desktop tests): left-button
-/// steps at times (ms) after joining, for drags and clicks on the HUD; `right` right-clicks.
+/// steps at times (ms) after joining, for drags and clicks on the HUD; `right` right-clicks;
+/// `middle` clicks the middle button (a ping), `mdown` and `mup` hold it (the ping wheel).
 fn mouse_script_arg() -> Vec<(i32, MouseStep, (f64, f64))> {
     #[cfg(not(target_arch = "wasm32"))]
     {
@@ -563,6 +598,9 @@ fn mouse_script_arg() -> Vec<(i32, MouseStep, (f64, f64))> {
                     "up" => MouseStep::Up,
                     "move" => MouseStep::Move,
                     "right" => MouseStep::Right,
+                    "middle" => MouseStep::Middle,
+                    "mdown" => MouseStep::MiddleDown,
+                    "mup" => MouseStep::MiddleUp,
                     _ => return None,
                 };
                 Some((ms.parse().ok()?, kind, (x.parse().ok()?, y.parse().ok()?)))
@@ -1250,6 +1288,8 @@ impl App {
         self.quests.reset();
         self.community.reset();
         self.vault.reset();
+        self.collection.reset();
+        self.pet_pen.reset();
         self.npc_request = None;
         self.keys.clear();
     }
@@ -1271,6 +1311,8 @@ impl App {
         self.quests.reset();
         self.community.reset();
         self.vault.reset();
+        self.collection.reset();
+        self.pet_pen.reset();
         self.npc_request = None;
         self.mouse_down = false;
         self.front.message = why.map(|w| (w, true));
@@ -1571,6 +1613,11 @@ impl App {
                 for (name, volume, shot) in game.sounds.drain(..) {
                     audio.play(&name, volume, shot, now);
                 }
+                for (kind, relation) in game.pings.arrived() {
+                    if self.settings.ping_sounds && (relation == 3 || self.settings.pings_from.shows(relation)) {
+                        audio.play(pings::sound(kind), if relation == 3 { 0.6 } else { 0.8 }, false, now);
+                    }
+                }
                 if let Some(m) = game.music.take() {
                     audio.music(&m);
                 }
@@ -1642,10 +1689,17 @@ impl App {
             }
         }
         if let Some(text) = textedit::clipboard::take_pasted() {
-            match (&mut self.chat_input, &self.phase) {
-                (Some(input), _) => input.insert(&text),
-                (None, Phase::Menu) => self.front.paste(&text),
-                _ => {}
+            // The Options window's Crosshair tab takes a shared crosshair's code.
+            if self.options_ui.open {
+                if self.options_ui.paste(&text, &mut self.settings) {
+                    self.settings.save();
+                }
+            } else {
+                match (&mut self.chat_input, &self.phase) {
+                    (Some(input), _) => input.insert(&text),
+                    (None, Phase::Menu) => self.front.paste(&text),
+                    _ => {}
+                }
             }
         }
         self.advance();
@@ -1733,6 +1787,9 @@ impl App {
                     MouseStep::Up => self.clicks.push((false, pos)),
                     MouseStep::Move => {}
                     MouseStep::Right => self.right_clicks.push(pos),
+                    MouseStep::MiddleDown => self.pings.events.push((true, pos)),
+                    MouseStep::MiddleUp => self.pings.events.push((false, pos)),
+                    MouseStep::Middle => self.pings.events.extend([(true, pos), (false, pos)]),
                 }
             }
         }
@@ -1911,7 +1968,7 @@ impl App {
                         Some(hud::Interact { id, kind: hud::InteractKind::Portal, .. }) => game.use_portal(id),
                         Some(hud::Interact { id, kind: hud::InteractKind::Shop { .. }, .. }) => game.buy(id),
                         Some(hud::Interact { kind: hud::InteractKind::Npc { kind, .. }, .. }) => {
-                            to_chars |= npc_open(kind, game, &mut self.npcs, &mut self.market, &mut self.forge, &mut self.forge_acts, (&mut self.quests, &mut self.quest_acts), (&mut self.community, &mut self.community_acts), self.front.list.as_ref(), data);
+                            to_chars |= npc_open(kind, game, &mut self.npcs, &mut self.market, &mut self.forge, &mut self.forge_acts, (&mut self.quests, &mut self.quest_acts), (&mut self.community, &mut self.community_acts), (&mut self.collection, &mut self.pet_pen, &mut self.keeper_acts), self.front.list.as_ref(), data);
                             self.keys.clear();
                         }
                         _ => {}
@@ -1997,7 +2054,7 @@ impl App {
                     }
                 }
                 if let Some(kind) = self.npc_test.take_if(|c| c != "Vault").and_then(|c| npc::NpcKind::of_class(&c)) {
-                    to_chars |= npc_open(kind, game, &mut self.npcs, &mut self.market, &mut self.forge, &mut self.forge_acts, (&mut self.quests, &mut self.quest_acts), (&mut self.community, &mut self.community_acts), self.front.list.as_ref(), data);
+                    to_chars |= npc_open(kind, game, &mut self.npcs, &mut self.market, &mut self.forge, &mut self.forge_acts, (&mut self.quests, &mut self.quest_acts), (&mut self.community, &mut self.community_acts), (&mut self.collection, &mut self.pet_pen, &mut self.keeper_acts), self.front.list.as_ref(), data);
                 }
                 if let Some(board) = self.champions_test.take() {
                     self.npcs.open(npc::Window::Champions(Box::new(champions::View::at(Some(&board)))));
@@ -2084,6 +2141,19 @@ impl App {
             self.vault.tick(now, game.map_name());
             if self.vault.open {
                 for (down, pos) in std::mem::take(&mut self.clicks) {
+                    // the HUD's Inventory and Backpack tabs still turn the page, so the backpack's
+                    // items go in and out of the vault too
+                    let tab = (0..2).find(|&i| {
+                        let r = lay.tab(i);
+                        let (x, y) = (pos.0 as f32, pos.1 as f32);
+                        x >= r[0] && y >= r[1] && x < r[0] + r[2] && y < r[1] + r[3]
+                    });
+                    if let Some(i) = tab {
+                        if down {
+                            self.hud.page = if i == 0 { hud::Page::Inventory } else { hud::Page::Backpack };
+                        }
+                        continue;
+                    }
                     for act in self.vault.click(down, pos, lay.on_panel(pos.0, pos.1)) {
                         game.vault(act, now);
                     }
@@ -2144,6 +2214,41 @@ impl App {
                     }
                     None => true,
                 });
+            }
+            // the Collection and the Pen Keeper: while open they take the mouse
+            if self.collection.open {
+                for (down, pos) in std::mem::take(&mut self.clicks) {
+                    if down {
+                        self.collection.click(pos);
+                    }
+                }
+                self.mouse_down = false;
+            }
+            if self.pet_pen.open {
+                for (down, pos) in std::mem::take(&mut self.clicks) {
+                    // a press only: a release outside the window (after the press that opened it)
+                    // closed it
+                    if !down {
+                        continue;
+                    }
+                    if let Some((act, slot)) = self.pet_pen.click(pos) {
+                        self.keeper_acts.push(KeeperAct::PetPen(act, slot));
+                    }
+                }
+                self.mouse_down = false;
+            }
+            if let Some(c) = game.collection.take() {
+                self.collection.contents(c, data);
+            }
+            if let Some(p) = game.pet_pen.take() {
+                self.pet_pen.answer(p);
+            }
+            for act in std::mem::take(&mut self.keeper_acts) {
+                log::info!("keeper: {act:?}");
+                match act {
+                    KeeperAct::Collection => game.collection_request(),
+                    KeeperAct::PetPen(action, slot) => game.pet_pen(action, slot),
+                }
             }
             let mut community_acts = std::mem::take(&mut self.community_acts);
             if self.community.open {
@@ -2288,7 +2393,7 @@ impl App {
                         continue;
                     }
                     if let hud::Action::Button(hud::Button::Npc(kind)) = action {
-                        to_chars |= npc_open(kind, game, &mut self.npcs, &mut self.market, &mut self.forge, &mut self.forge_acts, (&mut self.quests, &mut self.quest_acts), (&mut self.community, &mut self.community_acts), self.front.list.as_ref(), data);
+                        to_chars |= npc_open(kind, game, &mut self.npcs, &mut self.market, &mut self.forge, &mut self.forge_acts, (&mut self.quests, &mut self.quest_acts), (&mut self.community, &mut self.community_acts), (&mut self.collection, &mut self.pet_pen, &mut self.keeper_acts), self.front.list.as_ref(), data);
                         self.keys.clear();
                         continue;
                     }
@@ -2322,6 +2427,7 @@ impl App {
                 game.camera_angle = game::RESET_CAMERA_ANGLE;
             }
             game.update(now, dt, keys, rotate, data);
+            game.pings.tick(game.world.as_ref(), now);
             prof::mark("update");
             // Keep the camera's turn once it stops turning (cameraAngle).
             if rotate == 0.0 && self.settings.camera_angle != Some(game.camera_angle) {
@@ -2355,6 +2461,21 @@ impl App {
         let mut view_radius = None;
         let mut fire = None;
         let mut ability_at = None;
+        let mut ping = None;
+        // Pings wait while a window has the mouse.
+        let windows_open = self.game_menu
+            || self.options_ui.open
+            || self.changelog.open
+            || self.market.open
+            || self.forge.open
+            || self.vault.open
+            || self.quests.open
+            || self.community.open
+            || self.npcs.window.is_some()
+            || self.hud.drag.is_some();
+        if windows_open || !matches!(&self.phase, Phase::Playing(g) if g.world.as_ref().is_some_and(|w| w.player().is_some())) {
+            self.pings.cancel();
+        }
         match &self.phase {
             Phase::Menu => {}
             Phase::Playing(game) => {
@@ -2408,6 +2529,19 @@ impl App {
                             let angle = game.camera_angle + (my - camera.cy).atan2(mx - camera.cx);
                             ability_at = Some((x, y, angle));
                         }
+                        // The middle button: a ping, or the ping wheel.
+                        if !self.pings.events.is_empty() {
+                            let frame = pings::Frame {
+                                world,
+                                data,
+                                cam: &camera,
+                                mini: panel.as_ref().and_then(|p| p.minimap()),
+                                on_hud: &on_hud,
+                                s: lay.s,
+                                now,
+                            };
+                            ping = self.pings.update(&frame);
+                        }
                         let hallucinating = has(bsk_world::condition::HALLUCINATING);
                         let roof = view::roof(world, data, &camera);
                         let scene = view::Scene { sprites, data, world, camera, time: now, floaters: &game.floaters, bubbles: &game.bubbles, particles: &game.particles, show, hallucinating, roof };
@@ -2434,6 +2568,7 @@ impl App {
                         if bag_preview {
                             hud::draw_bag_previews(&mut ui, world, &camera, lay.s);
                         }
+                        game.pings.draw(&mut ui, &camera, (lay.view_w(), lay.h), self.settings.pings_from, now);
                         // The top left, down: the quest's health (and who hit it, near it), the
                         // realm's events (only their count near the quest), then the boss history
                         // and the keys.
@@ -2475,7 +2610,9 @@ impl App {
                         hud::draw_panel(&mut ui, &lay, world, &mut self.map_colors, p, &self.hud, &social, mouse);
                         if let Some(mini) = p.minimap() {
                             events::draw_minimap_marks(&mut ui, lay.s, &mini, game.realm_events.as_ref(), mouse);
+                            events::draw_nexus_places(&mut ui, lay.s, &mini, &game.nexus_places, mouse);
                             hud::draw_minimap_top(&mut ui, &lay, world, game.camera_angle, &mini, game.quest);
+                            game.pings.draw_minimap(&mut ui, &mini, lay.s, self.settings.pings_from, now);
                         }
                         prof::mark("panel");
                     }
@@ -2512,6 +2649,12 @@ impl App {
             if let Some((x, y, angle)) = ability_at {
                 game.use_ability(now, x, y, angle, data);
             }
+            // a ping too soon after the last few (or to a server without pings) doesn't go
+            if let Some(mark) = ping {
+                if !game.ping(mark, now) {
+                    game.sounds.push(("error".into(), 0.5, false));
+                }
+            }
         }
         if !status.is_empty() {
             let style = text::Style { size: 18.0, bold: true, color: 0xFFFFFF };
@@ -2547,10 +2690,13 @@ impl App {
                 self.quests.draw(&mut ui, &lay, world.player(), mouse, now);
                 self.quests.draw_toasts(&mut ui, &lay, now);
                 self.community.draw(&mut ui, &lay, world.player(), mouse, now);
+                self.collection.draw(&mut ui, &lay, world.player(), mouse, now);
+                self.pet_pen.draw(&mut ui, &lay, world.player(), mouse);
                 let below = self.quests.toasts_end(&lay);
                 self.community.draw_banners(&mut ui, &lay, below, now);
                 prof::mark("chat..windows");
                 hud::draw_overlay(&mut ui, &lay, world, p, &self.hud, mouse);
+                self.pings.draw(&mut ui, mouse, lay.s, now);
                 prof::mark("overlay");
             }
         }
@@ -2569,10 +2715,14 @@ impl App {
             && !self.quests.on_toast(mouse)
             && !self.community.open
             && !self.community.on_banner(mouse)
+            && !self.collection.open
+            && !self.pet_pen.open
             && self.npcs.window.is_none()
-            && self.hud.drag.is_none();
+            && self.hud.drag.is_none()
+            && !self.pings.wheel_open(mouse, lay.s, now);
         if crosshair {
-            draw_crosshair(renderer, mouse, lay.s);
+            let look = &self.settings.crosshair_look;
+            crosshair::draw(renderer, (mouse.0 as f32, mouse.1 as f32), lay.s.max(0.75) * look.size, look);
         }
         hide_pointer(&self.window, &mut self.cursor_hidden, crosshair, "game");
         if self.game_menu {
@@ -2693,29 +2843,6 @@ fn hide_pointer(window: &Option<Arc<Window>>, hidden: &mut bool, hide: bool, pla
             window.set_cursor_visible(!hide);
         }
     }
-}
-
-/// The crosshair at the mouse: four short arms around a gap and a dot in the accent colour, each
-/// edged in black so it shows on any ground. Whole pixels, so it stays sharp.
-fn draw_crosshair(renderer: &mut bsk_render::Renderer, mouse: (f64, f64), s: f32) {
-    let (cx, cy) = (mouse.0.round() as f32, mouse.1.round() as f32);
-    let u = s.max(0.75);
-    let (gap, len, t) = ((4.0 * u).round(), (7.0 * u).round(), (2.0 * u).round().max(2.0));
-    let half = (t / 2.0).floor();
-    let arms = [
-        [cx - gap - len, cy - half, len, t],
-        [cx + gap, cy - half, len, t],
-        [cx - half, cy - gap - len, t, len],
-        [cx - half, cy + gap, t, len],
-    ];
-    let dot = [cx - half, cy - half, t, t];
-    for r in arms.iter().chain([&dot]) {
-        renderer.fill(r[0] - 1.0, r[1] - 1.0, r[2] + 2.0, r[3] + 2.0, 0x000000, 0.75);
-    }
-    for r in arms {
-        renderer.fill(r[0], r[1], r[2], r[3], 0xFFFFFF, 0.95);
-    }
-    renderer.fill(dot[0], dot[1], dot[2], dot[3], theme::color::ACCENT, 1.0);
 }
 
 /// Where a test run's window opens: a scripted run (`--shot`, `--hold`, `--mouse-script`), or any
@@ -2989,7 +3116,11 @@ impl ApplicationHandler<UserEvent> for App {
                     return;
                 }
                 if self.vault.open && matches!(self.phase, Phase::Playing(_)) {
-                    if pressed {
+                    // Ctrl and the Inventory / backpack key turns the HUD's page (the key alone
+                    // types into the search)
+                    if pressed && self.ctrl_held && self.settings.bind_of(code) == Some(options::Bind::SwitchTabs) {
+                        self.hud.page = if self.hud.page == hud::Page::Inventory { hud::Page::Backpack } else { hud::Page::Inventory };
+                    } else if pressed {
                         if let Some(l) = &self.loaded {
                             self.vault.key(code, event.text.as_deref(), &l.data);
                         }
@@ -3000,6 +3131,14 @@ impl ApplicationHandler<UserEvent> for App {
                 if self.community.open && matches!(self.phase, Phase::Playing(_)) {
                     if pressed {
                         self.community.key(code);
+                    }
+                    self.keys.remove(&code);
+                    return;
+                }
+                if (self.collection.open || self.pet_pen.open) && matches!(self.phase, Phase::Playing(_)) {
+                    if pressed {
+                        self.collection.key(code);
+                        self.pet_pen.key(code);
                     }
                     self.keys.remove(&code);
                     return;
@@ -3129,6 +3268,17 @@ impl ApplicationHandler<UserEvent> for App {
                 self.wheel -= notches;
                 self.market.scroll(-notches as i32);
             }
+            WindowEvent::MouseWheel { delta, .. } if self.collection.open && matches!(self.phase, Phase::Playing(_)) => {
+                // the Collection scrolls a row a notch
+                let lines = match delta {
+                    winit::event::MouseScrollDelta::LineDelta(_, y) => y,
+                    winit::event::MouseScrollDelta::PixelDelta(p) => (p.y / 40.0) as f32,
+                };
+                self.wheel += lines;
+                let notches = self.wheel.trunc();
+                self.wheel -= notches;
+                self.collection.scroll(-notches as i32);
+            }
             WindowEvent::MouseWheel { delta, .. } if self.vault.open && matches!(self.phase, Phase::Playing(_)) => {
                 // The vault's chests scroll a row a notch.
                 let lines = match delta {
@@ -3202,6 +3352,13 @@ impl ApplicationHandler<UserEvent> for App {
             WindowEvent::MouseInput { .. } if self.mouse_fixed => {}
             WindowEvent::MouseInput { state: ElementState::Pressed, button: winit::event::MouseButton::Right, .. } => {
                 self.right_clicks.push(self.mouse);
+            }
+            WindowEvent::MouseInput { state, button: winit::event::MouseButton::Middle, .. } => {
+                if let Some(a) = &mut self.audio {
+                    a.wake();
+                }
+                // A ping, or the ping wheel: handled in the frame, where the camera is known.
+                self.pings.events.push((state == ElementState::Pressed, self.mouse));
             }
             WindowEvent::MouseInput { state, button: winit::event::MouseButton::Left, .. } => {
                 if let Some(a) = &mut self.audio {
@@ -3311,7 +3468,7 @@ fn main() {
         npc_keys: Vec::new(),
         audio: None,
         settings: options::Settings::load(),
-        options_ui: Default::default(),
+        options_ui: options::OptionsUi::opened_at(text_arg("--options")),
         market: Default::default(),
         forge: Default::default(),
         events: Default::default(),
@@ -3319,8 +3476,12 @@ fn main() {
         quest_acts: Vec::new(),
         community: Default::default(),
         community_acts: Vec::new(),
+        collection: Default::default(),
+        pet_pen: Default::default(),
+        keeper_acts: Vec::new(),
         forge_acts: Vec::new(),
         vault: Default::default(),
+        pings: Default::default(),
         type_text: text_arg("--type"),
         npc_test: text_arg("--npc"),
         quests_test: text_arg("--quests"),

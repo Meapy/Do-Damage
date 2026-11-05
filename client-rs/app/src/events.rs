@@ -310,6 +310,60 @@ pub fn draw_minimap_marks(ui: &mut Ui, s: f32, mini: &hud::MiniView, info: Optio
     }
 }
 
+/// The Nexus's places on the minimap (`NexusPlaces`): each one's picture (the Divine Forge's fire,
+/// the Warcaller, a portal) on a disc ringed gold for those you talk to and violet for the portals
+/// (a dot when there's no picture), at the box's edge when they're out of it, so the way to each
+/// shows before you've been there; the one under the mouse is named.
+pub fn draw_nexus_places(ui: &mut Ui, s: f32, mini: &hud::MiniView, places: &[bsk_proto::NexusPlace], mouse: (f64, f64)) {
+    if places.is_empty() {
+        return;
+    }
+    let [x0, y0, side, _] = mini.rect;
+    let (mx, my) = (mouse.0 as f32, mouse.1 as f32);
+    let d = 6.0 * s;
+    let at = |p: &bsk_proto::NexusPlace| {
+        let (px, py) = mini.to_map(p.x as f64, p.y as f64);
+        (px.clamp(x0 + d, x0 + side - d), py.clamp(y0 + d, y0 + side - d))
+    };
+    let hover = places
+        .iter()
+        .enumerate()
+        .map(|(i, p)| {
+            let (px, py) = at(p);
+            (i, (px - mx).abs().max((py - my).abs()))
+        })
+        .filter(|(_, off)| *off <= d + 2.0 * s)
+        .min_by(|a, b| a.1.total_cmp(&b.1))
+        .map(|(i, _)| i);
+    for (i, p) in places.iter().enumerate() {
+        let (px, py) = at(p);
+        let lit = hover == Some(i);
+        let c = if p.kind == 1 { PORTAL_COLOR } else { PLACE_COLOR };
+        // a dark disc ringed in the place's colour (white under the mouse), its picture on it
+        let ring = (2.0 * s).max(1.0);
+        theme::fill(ui.renderer, [px - d - ring, py - d - ring, 2.0 * (d + ring), 2.0 * (d + ring)], d + ring, if lit { 0xFFFFFF } else { c }, 1.0);
+        theme::fill(ui.renderer, [px - d, py - d, 2.0 * d, 2.0 * d], d, 0x14101E, 0.92);
+        if p.icon != 0 && ui.data.objects.contains_key(&p.icon) {
+            hud::object_icon(ui, p.icon, px, py, 1.9 * d);
+        } else {
+            theme::fill(ui.renderer, [px - d / 2.0, py - d / 2.0, d, d], d / 2.0, c, 1.0);
+        }
+    }
+    if let Some(i) = hover {
+        let p = &places[i];
+        let (px, py) = at(p);
+        let size = 11.0 * s;
+        let w = ui.measure(&p.name, size, true) + 12.0 * s;
+        let r = [(px - w / 2.0).clamp(x0 + side - w.max(side), x0 + side - w), py + d + 4.0 * s, w, 18.0 * s];
+        theme::fill(ui.renderer, r, 4.0 * s, 0x000000, 0.85);
+        ui.label(&p.name, r[0] + 6.0 * s, r[1] + 3.0 * s, size, true, if p.kind == 1 { PORTAL_COLOR } else { PLACE_COLOR });
+    }
+}
+
+/// The Nexus's places' colours: those you talk to gold, portals violet.
+const PLACE_COLOR: u32 = 0xFFD45A;
+const PORTAL_COLOR: u32 = 0xB48CFF;
+
 /// A click on the minimap: the waystone under it, to teleport to.
 pub fn minimap_click(s: f32, mini: &hud::MiniView, info: Option<&RealmEvents>, pos: (f64, f64)) -> Option<i32> {
     let info = info?;

@@ -64,7 +64,7 @@ namespace WorldServer.logic.behaviors.doomed
             if (count % 2 == 0 && _shootAngle * count >= 2 * Math.PI - 0.01)
                 angle += _shootAngle / 2;
             var bulletId = owner.GetNextBulletId(count, true);
-            var damage = Random.Next(desc.MinDamage, desc.MaxDamage + 1);
+            var damage = (int)(Random.Next(desc.MinDamage, desc.MaxDamage + 1) * ((host as Pet)?.DamageScale ?? 1));
             for (var i = 0; i < count; i++)
                 host.World.BroadcastServerPlayerShoot(new ServerPlayerShoot(owner.Id, bulletId + i, host.ObjectType, host.Position, angle + _shootAngle * i, damage, desc), host);
         }

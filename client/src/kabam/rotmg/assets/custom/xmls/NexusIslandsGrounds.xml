@@ -121,6 +121,7 @@
 		<StaySolid />
 		<Piers />
 		<Slope />
+		<Speed>1.5</Speed>
 		<Color>0x7A4E30</Color>
 	</Ground>
 	<Ground type="0x9D04" id="NI Bridge Deck NS">
@@ -155,6 +156,7 @@
 		<StaySolid />
 		<Piers />
 		<Slope />
+		<Speed>1.5</Speed>
 		<Color>0x7A4E30</Color>
 	</Ground>
 	<Ground type="0x9D05" id="NI Stone Bridge">
@@ -191,6 +193,7 @@
 		<Slope />
 		<Parapet />
 		<RailHeight>0.6</RailHeight>
+		<Speed>1.5</Speed>
 		<Color>0x908E98</Color>
 	</Ground>
 	<Ground type="0x9D2C" id="NI Tower Wall">
@@ -464,6 +467,7 @@
 		<Slope />
 		<NoUnderside />
 		<Slab>0.26</Slab>
+		<Speed>1.5</Speed>
 		<Color>0x70482E</Color>
 	</Ground>
 	<Ground type="0x9D5F" id="NI Arch Deck EW 1">
@@ -501,6 +505,7 @@
 		<Slope />
 		<NoUnderside />
 		<Slab>0.26</Slab>
+		<Speed>1.5</Speed>
 		<Lift>0.125</Lift>
 		<Color>0x70482E</Color>
 	</Ground>
@@ -539,6 +544,7 @@
 		<Slope />
 		<NoUnderside />
 		<Slab>0.26</Slab>
+		<Speed>1.5</Speed>
 		<Lift>0.25</Lift>
 		<Color>0x70482E</Color>
 	</Ground>
@@ -577,6 +583,7 @@
 		<Slope />
 		<NoUnderside />
 		<Slab>0.26</Slab>
+		<Speed>1.5</Speed>
 		<Lift>0.375</Lift>
 		<Color>0x70482E</Color>
 	</Ground>
@@ -615,6 +622,7 @@
 		<Slope />
 		<NoUnderside />
 		<Slab>0.26</Slab>
+		<Speed>1.5</Speed>
 		<Lift>0.5</Lift>
 		<Color>0x70482E</Color>
 	</Ground>
@@ -653,6 +661,7 @@
 		<Slope />
 		<NoUnderside />
 		<Slab>0.26</Slab>
+		<Speed>1.5</Speed>
 		<Lift>0.625</Lift>
 		<Color>0x70482E</Color>
 	</Ground>
@@ -691,6 +700,7 @@
 		<Slope />
 		<NoUnderside />
 		<Slab>0.26</Slab>
+		<Speed>1.5</Speed>
 		<Lift>0.75</Lift>
 		<Color>0x70482E</Color>
 	</Ground>
@@ -729,6 +739,7 @@
 		<Slope />
 		<NoUnderside />
 		<Slab>0.26</Slab>
+		<Speed>1.5</Speed>
 		<Lift>0.875</Lift>
 		<Color>0x70482E</Color>
 	</Ground>
@@ -767,6 +778,7 @@
 		<Slope />
 		<NoUnderside />
 		<Slab>0.26</Slab>
+		<Speed>1.5</Speed>
 		<Lift>1.0</Lift>
 		<Color>0x70482E</Color>
 	</Ground>
@@ -805,6 +817,7 @@
 		<Slope />
 		<Parapet />
 		<RailHeight>0.6</RailHeight>
+		<Speed>1.5</Speed>
 		<Color>0x908E98</Color>
 	</Ground>
 	<Ground type="0x9D0D" id="NI Stone Ramp 2">
@@ -842,6 +855,7 @@
 		<Slope />
 		<Parapet />
 		<RailHeight>0.6</RailHeight>
+		<Speed>1.5</Speed>
 		<Color>0x908E98</Color>
 	</Ground>
 	<Ground type="0x9D0F" id="NI Stone Ramp 3">
@@ -879,6 +893,7 @@
 		<Slope />
 		<Parapet />
 		<RailHeight>0.6</RailHeight>
+		<Speed>1.5</Speed>
 		<Color>0x908E98</Color>
 	</Ground>
 	<Ground type="0x9D11" id="NI Stone Ramp 4">
@@ -916,6 +931,7 @@
 		<Slope />
 		<Parapet />
 		<RailHeight>0.6</RailHeight>
+		<Speed>1.5</Speed>
 		<Color>0x908E98</Color>
 	</Ground>
 	<Ground type="0x9D13" id="NI Stone Ramp 5">
@@ -953,6 +969,7 @@
 		<Slope />
 		<Parapet />
 		<RailHeight>0.6</RailHeight>
+		<Speed>1.5</Speed>
 		<Color>0x908E98</Color>
 	</Ground>
 	<Ground type="0x9D15" id="NI Stone Ramp 6">
@@ -990,6 +1007,7 @@
 		<Slope />
 		<Parapet />
 		<RailHeight>0.6</RailHeight>
+		<Speed>1.5</Speed>
 		<Color>0x908E98</Color>
 	</Ground>
 	<Ground type="0x9D17" id="NI Stone Ramp 7">
@@ -1027,6 +1045,7 @@
 		<Slope />
 		<Parapet />
 		<RailHeight>0.6</RailHeight>
+		<Speed>1.5</Speed>
 		<Color>0x908E98</Color>
 	</Ground>
 	<Ground type="0x9D19" id="NI Stone Ramp 8">
@@ -1064,6 +1083,7 @@
 		<Slope />
 		<Parapet />
 		<RailHeight>0.6</RailHeight>
+		<Speed>1.5</Speed>
 		<Color>0x908E98</Color>
 	</Ground>
 	<Ground type="0x9D1B" id="NI Stone Ramp 9">
@@ -1101,6 +1121,7 @@
 		<Slope />
 		<Parapet />
 		<RailHeight>0.6</RailHeight>
+		<Speed>1.5</Speed>
 		<Color>0x908E98</Color>
 	</Ground>
 	<Ground type="0x9D1D" id="NI Stone Ramp 10">
@@ -1138,6 +1159,7 @@
 		<Slope />
 		<Parapet />
 		<RailHeight>0.6</RailHeight>
+		<Speed>1.5</Speed>
 		<Color>0x908E98</Color>
 	</Ground>
 	<Ground type="0x9D1F" id="NI Stone Ramp 11">
@@ -1175,6 +1197,7 @@
 		<Slope />
 		<Parapet />
 		<RailHeight>0.6</RailHeight>
+		<Speed>1.5</Speed>
 		<Color>0x908E98</Color>
 	</Ground>
 	<Ground type="0x9D20" id="NI Spiral 0">

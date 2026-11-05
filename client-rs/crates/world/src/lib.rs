@@ -198,6 +198,9 @@ pub struct World {
     /// known: our height comes from the server's (our `Height` stat) or, once the squares come,
     /// from the ground (`climb`).
     lost_height: Option<(f64, f64)>,
+    /// On stacked floors, the ticks left to take our height from the server after a Goto (a teleport
+    /// to someone on another floor, a summon): the server sends it with the Goto's next tick.
+    await_height: u8,
     /// The world's `Background` (MapInfo): what is drawn where there is no ground (`SKY_SUNSET`).
     pub background: u8,
     pub objects: rustc_hash::FxHashMap<i32, GameObj>,
@@ -208,6 +211,8 @@ pub struct World {
     last_update: Option<i32>,
     /// The ground's effect on our speed (`Player.moveMultiplier_`), and sinking.
     move_multiplier: f64,
+    /// The speed of the ground under us, before sinking (`on_move`).
+    ground_speed: f64,
     sink_level: i32,
     pub projectiles: Vec<Projectile>,
     /// Where projectiles struck since the app last took them (for the sparks).
@@ -242,12 +247,14 @@ impl World {
             level_occupant: Default::default(),
             layers_gen: 0,
             lost_height: None,
+            await_height: 0,
             background: 0,
             objects: Default::default(),
             me: None,
             last_tick_id: -1,
             last_update: None,
             move_multiplier: 1.0,
+            ground_speed: 1.0,
             sink_level: 0,
             projectiles: Vec::new(),
             impacts: Vec::new(),
@@ -626,15 +633,18 @@ impl World {
                 }
             }
             obj.apply_stats(&s.stats);
-            // put somewhere our floor isn't known yet: the server's height for us
-            if is_me && self.lost_height.is_some() && s.stats.iter().any(|st| st.id == stat::HEIGHT) {
+            // put somewhere our floor isn't known yet, or just moved there by the server: the
+            // server's height for us
+            if is_me && (self.lost_height.is_some() || self.await_height > 0) && s.stats.iter().any(|st| st.id == stat::HEIGHT) {
                 if let Some(h) = self.levels.as_ref().map(|l| l.height) {
                     obj.z = obj.stat_height();
                     obj.level = (obj.z / h).round().max(0.0) as u8;
                     self.lost_height = None;
+                    self.await_height = 0;
                 }
             }
         }
+        self.await_height = self.await_height.saturating_sub(1);
         self.last_tick_id = tick.tick_id;
     }
 
@@ -645,6 +655,11 @@ impl World {
             // server would otherwise leave our height where it went)
             if Some(id) == self.me && !self.climb(x, y, data) && self.levels.is_some() {
                 self.lost_height = Some((x, y));
+            }
+            // the floor we were put on is the server's (a teleport to someone at the Sky Bar lands
+            // there, not under it): its height comes with the next tick or two
+            if Some(id) == self.me && self.levels.is_some() {
+                self.await_height = 3;
             }
             if let Some(o) = self.objects.get_mut(&id) {
                 o.last_tick_update_time = time;

@@ -162,6 +162,13 @@ COURT = (153, 88, 169, 100)
 SAMURAI = (158, 94)
 HERALD = (166, 92)
 LEADERBOARD = (162, 92)
+# the pet pen east of the court (PetPen.cs): packed earth in a bamboo fence, its gate west towards
+# the Warcaller and the Herald, the Pen Keeper outside it; pets come and go on its floor
+PEN = (174, 89, 188, 99)
+PEN_KEEPER = (172, 96)               # beside the gate, south of the path's end
+# the pen's path: off the main path north of the court, curving east and down to the gate (a
+# quadratic curve through its control point), stone edged with moss
+PEN_PATH = ((162.5, 84.0), (176.5, 83.5), (172.0, 94.0))
 WARCALLER = (164, 94)                # the community goals' Warcaller, on the sand by the two
 # The tower: a round stone tower (its squares within TOWER_R of TOWER, a corner point), the
 # spiral stair inside it (build_stair_tower.spiral_squares: a ring two wide round the 2 by 2
@@ -647,6 +654,32 @@ def plinths():
     return [round_spot(60 + 30 * i, PLINTH_R) for i in range(len(bn.CHAMPION_STATUES))]
 
 
+def lay_pen(g):
+    px0, py0, px1, py1 = PEN
+    gate = (py0 + py1) // 2
+    for y in range(py0, py1 + 1):
+        for x in range(px0, px1 + 1):
+            if x in (px0, px1) or y in (py0, py1):
+                g.ground(x, y, "NG Packed Earth", keep=True)
+                if x == px0 and y == gate:
+                    continue
+                side = x in (px0, px1) and y not in (py0, py1)
+                g.model("NG Bamboo Fence NS" if side else "NG Bamboo Fence", x, y)
+            else:
+                g.put(x, y, ground="NG Packed Earth", region="Nexus Pet Pen", keep=True)
+    # the path: off the main path, curving round the court's north-east corner to the gate
+    (x0, y0), (cx, cy), (x1, y1) = PEN_PATH
+    curve = []
+    for i in range(17):
+        t = i / 16
+        curve.append(((1 - t) ** 2 * x0 + 2 * (1 - t) * t * cx + t * t * x1,
+                      (1 - t) ** 2 * y0 + 2 * (1 - t) * t * cy + t * t * y1))
+    curve.append((px0, gate))
+    g.line(curve, 3, MOSSY, only=(MEADOW,))
+    g.line(curve, 2, PATH)
+    g.put(*PEN_KEEPER, region="Nexus Pen Keeper")
+
+
 def lay_arena(levels):
     g = levels[1]
     lay_island(g, ARENA, MEADOW)
@@ -669,6 +702,7 @@ def lay_arena(levels):
     g.place(ax1 - 2, ay0 + 2, "NG Taiko")
     g.put(*HERALD, region="Nexus Herald")
     g.put(*WARCALLER, region="Nexus Warcaller")
+    lay_pen(g)
     # the tower: its foot (stone, not walked through, but its door's square), the spiral inside
     # it, its top two floors up (the cap room on the core), the balcony round it
     body, balcony = tower_squares()
@@ -860,8 +894,9 @@ def check(levels):
     assert regions.get("Nexus Waypoint", 0) >= 16, regions
     for r in ("Nexus Bot", "Nexus Dungeon", "Nexus Tinkerer", "Nexus Chronicler", "Nexus Herald", "Nexus Broker",
               "Nexus Name Changer", "Nexus Character Changer", "Nexus Twins", "Arena Portal", "Nexus Barman",
-              "Nexus Warcaller"):
+              "Nexus Warcaller", "Nexus Pen Keeper"):
         assert regions.get(r) == 1, (r, regions.get(r))
+    assert regions.get("Nexus Pet Pen", 0) >= 60, regions
     assert regions.get("Nexus Bar", 0) >= 12, regions
     for shop, _, n, _ in bn.SHOPS:
         assert regions.get(shop) == n, (shop, regions.get(shop))

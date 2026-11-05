@@ -1,7 +1,8 @@
 //! The browser's own keys. winit cancels every key press on the canvas, so the page's scrolling,
 //! Tab and the browser's menu keys stay out of the game; but that also stops the clipboard keys
 //! from making the page's paste, copy and cut events, and takes Ctrl+R, F5 and the like from the
-//! player. Those few keys are handed back to the browser here; the game still sees them.
+//! player. Those few keys are handed back to the browser here; the game still sees them. The
+//! middle button's autoscroll is kept off the game's canvas, where it pings.
 
 use std::cell::RefCell;
 use wasm_bindgen::closure::Closure;
@@ -59,4 +60,14 @@ pub fn listen() {
     // In the capture phase on the window, so it runs before the canvas's own listeners.
     let _ = window.add_event_listener_with_callback_and_bool("keydown", on_key.as_ref().unchecked_ref(), true);
     on_key.forget();
+    // The middle button pings (pings.rs): on the game's canvas it mustn't start the browser's
+    // autoscroll.
+    let on_mouse = Closure::<dyn FnMut(web_sys::MouseEvent)>::new(move |e: web_sys::MouseEvent| {
+        let on_canvas = e.target().and_then(|t| t.dyn_into::<web_sys::Element>().ok()).is_some_and(|el| el.tag_name().eq_ignore_ascii_case("canvas"));
+        if e.button() == 1 && on_canvas {
+            e.prevent_default();
+        }
+    });
+    let _ = window.add_event_listener_with_callback_and_bool("mousedown", on_mouse.as_ref().unchecked_ref(), true);
+    on_mouse.forget();
 }

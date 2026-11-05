@@ -426,8 +426,8 @@
 		<Projectile>
 			<ObjectId>Turkey Leg Projectile</ObjectId>
 			<Speed>100</Speed>
-			<MinDamage>45</MinDamage>
-			<MaxDamage>95</MaxDamage>
+			<MinDamage>50</MinDamage>
+			<MaxDamage>105</MaxDamage>
 			<LifetimeMS>600</LifetimeMS>
 			<Size>110</Size>
 		</Projectile>
@@ -1066,8 +1066,8 @@
 		<Projectile>
 			<ObjectId>Earthen Crossbow Bolt</ObjectId>
 			<Speed>180</Speed>
-			<MinDamage>150</MinDamage>
-			<MaxDamage>250</MaxDamage>
+			<MinDamage>165</MinDamage>
+			<MaxDamage>275</MaxDamage>
 			<LifetimeMS>400</LifetimeMS>
 			<MultiHit />
 		</Projectile>
@@ -1336,8 +1336,8 @@
 		<Projectile>
 			<ObjectId>Crystal Proj</ObjectId>
 			<Speed>160</Speed>
-			<MinDamage>175</MinDamage>
-			<MaxDamage>195</MaxDamage>
+			<MinDamage>193</MinDamage>
+			<MaxDamage>215</MaxDamage>
 			<LifetimeMS>400</LifetimeMS>
 			<MultiHit />
 		</Projectile>
@@ -1360,8 +1360,8 @@
 		<Projectile>
 			<ObjectId>Ghost Proj2</ObjectId>
 			<Speed>140</Speed>
-			<MinDamage>125</MinDamage>
-			<MaxDamage>205</MaxDamage>
+			<MinDamage>138</MinDamage>
+			<MaxDamage>226</MaxDamage>
 			<LifetimeMS>375</LifetimeMS>
 			<MultiHit />
 		</Projectile>
@@ -4538,8 +4538,8 @@
 		<Projectile>
 			<ObjectId>Aqua Missile</ObjectId>
 			<Speed>100</Speed>
-			<MinDamage>90</MinDamage>
-			<MaxDamage>155</MaxDamage>
+			<MinDamage>99</MinDamage>
+			<MaxDamage>171</MaxDamage>
 			<LifetimeMS>400</LifetimeMS>
 			<MultiHit />
 		</Projectile>
@@ -4931,8 +4931,8 @@
 		<Projectile>
 			<ObjectId>DoomDaggerss</ObjectId>
 			<Speed>67</Speed>
-			<MinDamage>125</MinDamage>
-			<MaxDamage>200</MaxDamage>
+			<MinDamage>138</MinDamage>
+			<MaxDamage>220</MaxDamage>
 			<LifetimeMS>1200</LifetimeMS>
 			<Size>50</Size>
 			<Wavy />
@@ -5043,8 +5043,8 @@
 		<Projectile>
 			<ObjectId>Spectrum Arrow</ObjectId>
 			<Speed>185</Speed>
-			<MinDamage>80</MinDamage>
-			<MaxDamage>110</MaxDamage>
+			<MinDamage>88</MinDamage>
+			<MaxDamage>121</MaxDamage>
 			<LifetimeMS>490</LifetimeMS>
 			<MultiHit />
 			<Wavy />
@@ -5092,8 +5092,8 @@
 		<Projectile>
 			<ObjectId>Black Magic</ObjectId>
 			<Speed>140</Speed>
-			<MinDamage>350</MinDamage>
-			<MaxDamage>420</MaxDamage>
+			<MinDamage>385</MinDamage>
+			<MaxDamage>462</MaxDamage>
 			<LifetimeMS>420</LifetimeMS>
 			<Size>150</Size>
 			<MultiHit />
@@ -6999,8 +6999,8 @@
 		<Projectile>
 			<ObjectId>Christmas Theme Arrow</ObjectId>
 			<Speed>70</Speed>
-			<MinDamage>150</MinDamage>
-			<MaxDamage>185</MaxDamage>
+			<MinDamage>165</MinDamage>
+			<MaxDamage>204</MaxDamage>
 			<LifetimeMS>900</LifetimeMS>
 			<Size>50</Size>
 		</Projectile>
@@ -7989,7 +7989,6 @@
 		<BagType>1</BagType>
 		<MpCost>60</MpCost>
 		<Activate effect="Armored" duration="3" range="4">ConditionEffectAura</Activate>
-		<Cooldown>3.5</Cooldown>
 	</Object>
 	<Object type="0xD1A0" id="Darkness Jacket">
 		<Class>Equipment</Class>
@@ -8006,7 +8005,6 @@
 		<BagType>1</BagType>
 		<MpCost>65</MpCost>
 		<Activate effect="Armored" duration="3.5" range="4">ConditionEffectAura</Activate>
-		<Cooldown>4</Cooldown>
 	</Object>
 	<Object type="0xD1A1" id="Iron Jacket">
 		<Class>Equipment</Class>
@@ -8023,7 +8021,6 @@
 		<BagType>1</BagType>
 		<MpCost>70</MpCost>
 		<Activate effect="Armored" duration="4" range="4">ConditionEffectAura</Activate>
-		<Cooldown>4.5</Cooldown>
 	</Object>
 	<Object type="0xD1A2" id="Lightweight Jacket">
 		<Class>Equipment</Class>
@@ -8041,7 +8038,6 @@
 		<MpCost>75</MpCost>
 		<Activate effect="Armored" duration="4.5" range="4">ConditionEffectAura</Activate>
 		<Activate stat="20" amount="3" duration="3">StatBoostSelf</Activate>
-		<Cooldown>5</Cooldown>
 	</Object>
 	<Object type="0xD1A3" id="Murderous Jacket">
 		<Class>Equipment</Class>
@@ -8059,7 +8055,6 @@
 		<MpCost>80</MpCost>
 		<Activate effect="Armored" duration="5" range="4">ConditionEffectAura</Activate>
 		<Activate stat="20" amount="5" duration="4">StatBoostSelf</Activate>
-		<Cooldown>5.5</Cooldown>
 	</Object>
 	<Object type="0xD1A4" id="Invincibility Jacket">
 		<Class>Equipment</Class>
@@ -8077,7 +8072,6 @@
 		<MpCost>85</MpCost>
 		<Activate effect="Armored" duration="5.5" range="4">ConditionEffectAura</Activate>
 		<Activate stat="20" amount="7" duration="5">StatBoostSelf</Activate>
-		<Cooldown>6</Cooldown>
 	</Object>
 	<Object type="0xD1A5" id="Jacket of Sorrows">
 		<Class>Equipment</Class>
@@ -8099,7 +8093,6 @@
 		<ActivateOnEquip stat="27" amount="2">IncrementStat</ActivateOnEquip>
 		<Activate effect="Armored" duration="5.5" range="4">ConditionEffectAura</Activate>
 		<Activate stat="20" amount="10" duration="6">StatBoostSelf</Activate>
-		<Cooldown>6</Cooldown>
 	</Object>
 	<Object type="0xD1A6" id="Skyfall Jacket">
 		<Class>Equipment</Class>
@@ -8121,7 +8114,6 @@
 		<ActivateOnEquip stat="27" amount="3">IncrementStat</ActivateOnEquip>
 		<Activate effect="Armored" duration="6" range="4">ConditionEffectAura</Activate>
 		<Activate stat="20" amount="12" duration="7">StatBoostSelf</Activate>
-		<Cooldown>6.5</Cooldown>
 		<Soulbound />
 	</Object>
 	<Object type="0xD1A7" id="Jacket of Balance">
@@ -8142,7 +8134,6 @@
 		<Activate duration="3">Decoy</Activate>
 		<Activate maxDistance="20">Teleport</Activate>
 		<Activate effect="Damaging" duration="6">ConditionEffectSelf</Activate>
-		<Cooldown>7</Cooldown>
 	</Object>
 
   --&gt;
@@ -8350,8 +8341,8 @@
 		<Projectile>
 			<ObjectId>Mallard Proj</ObjectId>
 			<Speed>100</Speed>
-			<MinDamage>70</MinDamage>
-			<MaxDamage>100</MaxDamage>
+			<MinDamage>77</MinDamage>
+			<MaxDamage>110</MaxDamage>
 			<LifetimeMS>600</LifetimeMS>
 			<Amplitude>1</Amplitude>
 			<Frequency>3</Frequency>
@@ -9104,8 +9095,8 @@
 			<Index>0x142</Index>
 		</Texture>
 		<SlotType>17</SlotType>
-		<Description>Raised over Oryx&apos;s Elysium in his last stand, it fires the holy bolts of the Ascended God, and now and then calls one of his halos to circle its bearer.</Description>
-		<RateOfFire>0.35</RateOfFire>
+		<Description>Raised over Oryx&apos;s Elysium in his last stand, it fires the holy bolts of the Ascended God, two weaving about a third that flies straight, all ignoring defense, and now and then calls one of his halos to circle its bearer.</Description>
+		<RateOfFire>0.5075</RateOfFire>
 		<Sound>weapon/wand_of_death</Sound>
 		<Projectile>
 			<ObjectId>Elysian Bolt</ObjectId>
@@ -9116,6 +9107,16 @@
 			<Amplitude>0.5</Amplitude>
 			<Frequency>2</Frequency>
 			<MultiHit />
+			<ArmorPiercing />
+		</Projectile>
+		<Projectile id="1">
+			<ObjectId>Elysian Ray</ObjectId>
+			<Speed>100</Speed>
+			<MinDamage>200</MinDamage>
+			<MaxDamage>250</MaxDamage>
+			<LifetimeMS>500</LifetimeMS>
+			<MultiHit />
+			<ArmorPiercing />
 		</Projectile>
 		<OnPlayerShootActivate cooldown="6" objectId="Elysian Halo" proc="0.1">Pet</OnPlayerShootActivate>
 		<ExtraTooltipData>
@@ -9123,7 +9124,8 @@
 		</ExtraTooltipData>
 		<BagType>6</BagType>
 		<FameBonus>5</FameBonus>
-		<NumProjectiles>2</NumProjectiles>
+		<NumProjectiles>3</NumProjectiles>
+		<VolleyProjectiles>0,0,1</VolleyProjectiles>
 		<ArcGap>0</ArcGap>
 		<OldSound>magicShoot</OldSound>
 	</Object>
@@ -9569,8 +9571,8 @@
 		<Projectile>
 			<ObjectId>Bone Proj</ObjectId>
 			<Speed>140</Speed>
-			<MinDamage>115</MinDamage>
-			<MaxDamage>195</MaxDamage>
+			<MinDamage>127</MinDamage>
+			<MaxDamage>215</MaxDamage>
 			<LifetimeMS>375</LifetimeMS>
 			<MultiHit />
 		</Projectile>
@@ -9592,8 +9594,8 @@
 		<Projectile>
 			<ObjectId>Undead Proj</ObjectId>
 			<Speed>160</Speed>
-			<MinDamage>165</MinDamage>
-			<MaxDamage>185</MaxDamage>
+			<MinDamage>182</MinDamage>
+			<MaxDamage>204</MaxDamage>
 			<LifetimeMS>400</LifetimeMS>
 			<MultiHit />
 		</Projectile>
@@ -10077,8 +10079,8 @@
 		<Projectile>
 			<ObjectId>Ghost Proj</ObjectId>
 			<Speed>130</Speed>
-			<MinDamage>120</MinDamage>
-			<MaxDamage>230</MaxDamage>
+			<MinDamage>132</MinDamage>
+			<MaxDamage>253</MaxDamage>
 			<LifetimeMS>385</LifetimeMS>
 			<Amplitude>0.6</Amplitude>
 			<Frequency>1</Frequency>
@@ -10172,8 +10174,8 @@
 		<Projectile>
 			<ObjectId>Lightning Arrow</ObjectId>
 			<Speed>70</Speed>
-			<MinDamage>60</MinDamage>
-			<MaxDamage>190</MaxDamage>
+			<MinDamage>66</MinDamage>
+			<MaxDamage>209</MaxDamage>
 			<LifetimeMS>900</LifetimeMS>
 			<Size>50</Size>
 			<Wavy />
@@ -10317,7 +10319,6 @@
 		<Activate effect="Armored" duration="6" range="4">ConditionEffectAura</Activate>
 		<Activate effect="Damaging" duration="6">ConditionEffectSelf</Activate>
 		<Activate stat="20" amount="15" duration="8">StatBoostSelf</Activate>
-		<Cooldown>7</Cooldown>
 		<Soulbound />
 	</Object>
 	<Object type="0xD20B" id="Black Cat (Doomed)">
@@ -11967,6 +11968,7 @@
 		<Usable />
 		<BagType>1</BagType>
 		<MpCost>60</MpCost>
+		<Cooldown>4</Cooldown>
 		<Activate range="5" amount="25" duration="8">Halo</Activate>
 	</Object>
 	<Object type="0xD254" id="Lizard Cut">
@@ -11998,6 +12000,7 @@
 		<Usable />
 		<BagType>1</BagType>
 		<MpCost>70</MpCost>
+		<Cooldown>4</Cooldown>
 		<Activate range="5.5" amount="30" duration="10">Halo</Activate>
 	</Object>
 	<Object type="0xD256" id="Bronze Halo">
@@ -12014,6 +12017,7 @@
 		<Usable />
 		<BagType>1</BagType>
 		<MpCost>80</MpCost>
+		<Cooldown>4</Cooldown>
 		<Activate range="6" amount="35" duration="10">Halo</Activate>
 	</Object>
 	<Object type="0xD257" id="Silver Halo">
@@ -12031,6 +12035,7 @@
 		<BagType>2</BagType>
 		<MpCost>85</MpCost>
 		<FameBonus>1</FameBonus>
+		<Cooldown>4</Cooldown>
 		<Activate range="7" amount="40" duration="12">Halo</Activate>
 	</Object>
 	<Object type="0xD258" id="Golden Halo">
@@ -12048,6 +12053,7 @@
 		<Usable />
 		<BagType>2</BagType>
 		<MpCost>95</MpCost>
+		<Cooldown>4</Cooldown>
 		<Activate range="8" amount="50" duration="14">Halo</Activate>
 	</Object>
 	<Object type="0xD259" id="Halo of Eternal Peace">
@@ -12065,6 +12071,7 @@
 		<BagType>4</BagType>
 		<MpCost>100</MpCost>
 		<FameBonus>3</FameBonus>
+		<Cooldown>4</Cooldown>
 		<Activate range="8" amount="50" duration="18">Halo</Activate>
 	</Object>
 	<Object type="0xD25A" id="Halo of God's Blessing">
@@ -12086,6 +12093,7 @@
 		<FameBonus>4</FameBonus>
 		<ActivateOnEquip stat="26" amount="2">IncrementStat</ActivateOnEquip>
 		<ActivateOnEquip stat="27" amount="2">IncrementStat</ActivateOnEquip>
+		<Cooldown>4</Cooldown>
 		<Activate range="8" amount="60" duration="20">Halo</Activate>
 	</Object>
 	<Object type="0xD25B" id="Snake's Fang">
@@ -12162,7 +12170,7 @@
 		<Usable />
 		<BagType>1</BagType>
 		<MpCost>60</MpCost>
-		<Activate objectId="Bunny" duration="30" allyDamage="70" allyShots="1" allyMs="3000">Summon</Activate>
+		<Activate objectId="Bunny" duration="30" allyDamage="70" allyShots="1" allyMs="1000">Summon</Activate>
 	</Object>
 	<Object type="0xD260" id="Bunny Summon">
 		<Class>Character</Class>
@@ -12194,7 +12202,7 @@
 		<Usable />
 		<BagType>1</BagType>
 		<MpCost>65</MpCost>
-		<Activate objectId="Snake" duration="40" allyDamage="100" allyShots="1" allyMs="3000">Summon</Activate>
+		<Activate objectId="Snake" duration="40" allyDamage="100" allyShots="1" allyMs="1000">Summon</Activate>
 	</Object>
 	<Object type="0xD262" id="Snake Summon">
 		<Class>Character</Class>
@@ -12226,7 +12234,7 @@
 		<Usable />
 		<BagType>1</BagType>
 		<MpCost>75</MpCost>
-		<Activate objectId="Wasp" duration="50" allyDamage="140" allyShots="1" allyMs="3000">Summon</Activate>
+		<Activate objectId="Wasp" duration="50" allyDamage="140" allyShots="1" allyMs="1000">Summon</Activate>
 	</Object>
 	<Object type="0xD264" id="Wasp Summon">
 		<Class>Character</Class>
@@ -12258,7 +12266,7 @@
 		<Usable />
 		<BagType>2</BagType>
 		<MpCost>80</MpCost>
-		<Activate objectId="Wolf" duration="60" allyDamage="180" allyShots="1" allyMs="3000">Summon</Activate>
+		<Activate objectId="Wolf" duration="60" allyDamage="180" allyShots="1" allyMs="1000">Summon</Activate>
 	</Object>
 	<Object type="0xD266" id="Wolf Summon">
 		<Class>Character</Class>
@@ -12290,7 +12298,7 @@
 		<Usable />
 		<BagType>2</BagType>
 		<MpCost>85</MpCost>
-		<Activate objectId="Drake" duration="70" allyDamage="100" allyShots="3" allyMs="3600">Summon</Activate>
+		<Activate objectId="Drake" duration="70" allyDamage="100" allyShots="3" allyMs="1200">Summon</Activate>
 	</Object>
 	<Object type="0xD268" id="Drake Summon">
 		<Class>Character</Class>
@@ -12322,7 +12330,7 @@
 		<Usable />
 		<BagType>4</BagType>
 		<MpCost>90</MpCost>
-		<Activate objectId="Wisp" duration="80" allyDamage="100" allyShots="3" allyMs="3000">Summon</Activate>
+		<Activate objectId="Wisp" duration="80" allyDamage="100" allyShots="3" allyMs="1000">Summon</Activate>
 	</Object>
 	<Object type="0xD26A" id="Wisp Summon">
 		<Class>Character</Class>
@@ -12372,7 +12380,7 @@
 		<ActivateOnEquip stat="3" amount="20">IncrementStat</ActivateOnEquip>
 		<BagType>4</BagType>
 		<MpCost>100</MpCost>
-		<Activate objectId="Dragon" duration="90" allyDamage="75" allyShots="5" allyMs="3000">Summon</Activate>
+		<Activate objectId="Dragon" duration="90" allyDamage="75" allyShots="5" allyMs="1000">Summon</Activate>
 	</Object>
 	<Object type="0xD26C" id="Dragon Summon">
 		<Class>Character</Class>
@@ -12403,7 +12411,7 @@
 		<Usable />
 		<BagType>2</BagType>
 		<MpCost>85</MpCost>
-		<Activate objectId="Sheep" duration="30" allyDamage="10" allyShots="1" allyMs="3000">Summon</Activate>
+		<Activate objectId="Sheep" duration="30" allyDamage="10" allyShots="1" allyMs="1000">Summon</Activate>
 	</Object>
 	<Object type="0xD26E" id="Sheep Summon">
 		<Class>Character</Class>
@@ -12440,7 +12448,7 @@
 		<ActivateOnEquip stat="3" amount="40">IncrementStat</ActivateOnEquip>
 		<BagType>9</BagType>
 		<MpCost>100</MpCost>
-		<Activate objectId="Oryx" duration="90" allyDamage="95" allyShots="5" allyMs="3000">Summon</Activate>
+		<Activate objectId="Oryx" duration="90" allyDamage="95" allyShots="5" allyMs="1000">Summon</Activate>
 		<Soulbound />
 	</Object>
 	<Object type="0xD270" id="Oryx Summon">

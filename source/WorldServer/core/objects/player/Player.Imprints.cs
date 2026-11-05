@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using Shared.resources;
 using WorldServer.core.net.datas;
 using WorldServer.core.net.stats;
@@ -19,43 +20,104 @@ namespace WorldServer.core.objects
         // the Wand's Battle Mage bolts: the object whose projectile they are (CustomObjects.xml)
         public const string BattleMageBoltId = "Battle Mage Bolt";
         private const int BattleMageDamage = 450;
-        private const double BattleMageRate = 0.4;
+        private const double BattleMageRate = 0.6;
 
         public int[] ImprintsAt(int slot) => slot >= 0 && slot < Inventory.Length ? Inventory.Data[slot]?.Imprints : null;
 
         // Whether the item in this slot carries this imprint, and it fits the item.
-        public bool HasImprint(int slot, byte id)
+        public bool HasImprint(int slot, byte id) => ImprintValue(slot, id) != 0;
+
+        // The value stored for this imprint on the item in this slot (its id, and for the Apotheosis
+        // of Balance the stats picked), or 0 when it doesn't carry it or it doesn't fit.
+        public int ImprintValue(int slot, byte id)
         {
             var imprints = ImprintsAt(slot);
             var item = Inventory[slot];
             // imprints work on Enthroned gear only
             if (imprints == null || item == null || !item.Ascended)
-                return false;
+                return 0;
             foreach (var i in imprints)
-                if (i == id)
-                    return Imprint.Get(id)?.Fits(item) == true;
-            return false;
+                if ((i & 0xFF) == id)
+                    return Imprint.Get(id)?.Fits(item) == true ? i : 0;
+            return 0;
         }
 
         public ImprintShot WeaponImprints => ImprintShot.Of(ImprintsAt(0), Inventory[0]);
 
-        // The equipped items' imprinted stats, for BoostStatManager: (stat, amount) each, then the
-        // share of maximum health lost (Blood Pact).
+        // the stats the ring's Ascendant Might and Ascendant Ward raise by half
+        private static readonly StatDataType[] MightStats = { StatDataType.Attack, StatDataType.Speed, StatDataType.Dexterity };
+        private static readonly StatDataType[] WardStats = { StatDataType.Defense, StatDataType.Vitality, StatDataType.Wisdom };
+
+        // Whether the ring carries Guardian Angel: its own stats count for nothing then (BoostStatManager),
+        // ImprintStats giving its +20 health and +1 to the rest instead.
+        public bool RingGuarded => HasImprint(3, Imprint.GuardianAngel);
+
+        // The equipped items' imprinted stats, for BoostStatManager: (stat, amount) each.
         public IEnumerable<(StatDataType Stat, int Amount)> ImprintStats()
         {
             for (var slot = 0; slot < 4; slot++)
             {
                 if (HasImprint(slot, Imprint.Vigor))
-                    yield return (StatDataType.MaximumHealth, 20);
+                    yield return (StatDataType.MaximumHealth, 25);
                 if (HasImprint(slot, Imprint.Bulwark))
                 {
-                    yield return (StatDataType.Defense, 3);
+                    yield return (StatDataType.Defense, 5);
                     yield return (StatDataType.MaximumHealth, 15);
                 }
             }
+            if (HasImprint(0, Imprint.BattleMage))
+                yield return (StatDataType.Defense, Imprint.BattleMageDefense);
+            // the ring: half again of its own stats, or Guardian Angel's in place of them
+            var ring = Inventory[3];
+            if (ring == null)
+                yield break;
+            if (RingGuarded)
+            {
+                yield return (StatDataType.MaximumHealth, 20);
+                foreach (var stat in new[] { StatDataType.MaximumMana, StatDataType.Attack, StatDataType.Defense, StatDataType.Speed,
+                    StatDataType.Dexterity, StatDataType.Vitality, StatDataType.Wisdom })
+                    yield return (stat, 1);
+                yield break;
+            }
+            foreach (var (stats, id) in new[] { (MightStats, Imprint.AscendantMight), (WardStats, Imprint.AscendantWard) })
+            {
+                if (!HasImprint(3, id))
+                    continue;
+                foreach (var b in ring.ActivateOnEquips)
+                    if (stats.Contains((StatDataType)b.Key) && b.Value > 0)
+                        yield return ((StatDataType)b.Key, b.Value / 2);
+            }
         }
 
-        public int ImprintHealthLossPercent => HasImprint(0, Imprint.BloodPact) ? 10 : 0;
+        // The Apotheosis imprints, after every other boost: for each stat (StatsManager's order),
+        // the percent of what gear and boosts add that it adds, and whether it loses a fifth of all
+        // of it (the Apotheosis of Balance's two picked stats).
+        public (int[] AddedPercent, bool[] Lowered) ImprintScaling()
+        {
+            var added = new int[8];
+            var lowered = new bool[8];
+            if (HasImprint(0, Imprint.ApotheosisOfMight))
+            {
+                added[StatsManager.GetStatIndex(StatDataType.Attack)] += 10;
+                added[StatsManager.GetStatIndex(StatDataType.Dexterity)] += 10;
+            }
+            if (HasImprint(2, Imprint.ApotheosisOfWard))
+            {
+                added[StatsManager.GetStatIndex(StatDataType.Defense)] += 10;
+                added[StatsManager.GetStatIndex(StatDataType.Vitality)] += 10;
+            }
+            var balance = ImprintValue(3, Imprint.ApotheosisOfBalance);
+            if (balance != 0)
+            {
+                var (raised, low1, low2) = Imprint.Choice(balance);
+                if (Imprint.ValidChoice(raised, low1, low2))
+                {
+                    added[raised] += 10;
+                    lowered[low1] = lowered[low2] = true;
+                }
+            }
+            return (added, lowered);
+        }
 
         // --- shooting ---
 
@@ -63,21 +125,35 @@ namespace WorldServer.core.objects
         // way, so both pick the same projectile of a weapon whose volleys alternate
         private int _weaponVolleys;
         private int _lastVolleyTime = int.MinValue;
+        // the place in its volley of the weapon shot being handled (0 for the first), for a weapon
+        // with <VolleyProjectiles>: the client sends a volley's shots in order, with one time
+        private int _volleyShot;
 
         public void NoteWeaponShot(int time)
         {
             if (time == _lastVolleyTime)
+            {
+                _volleyShot++;
                 return;
+            }
             _lastVolleyTime = time;
+            _volleyShot = 0;
             _weaponVolleys++;
         }
 
         // The projectile a shot of this item fires: a weapon whose volleys alternate takes its
-        // projectiles in turn, everything else its first.
+        // projectiles in turn, one with <VolleyProjectiles> the one for the shot's place in the
+        // volley, everything else its first.
         public ProjectileDesc ShotProjectile(Item item, int slot)
         {
             if (slot == 0 && item.AlternateProjectiles && item.Projectiles.Length > 1)
                 return item.Projectiles[(_weaponVolleys - 1 + item.Projectiles.Length) % item.Projectiles.Length];
+            if (slot == 0 && item.VolleyProjectiles is { Length: > 0 } volley)
+            {
+                var index = volley[System.Math.Min(_volleyShot, volley.Length - 1)];
+                if (index >= 0 && index < item.Projectiles.Length)
+                    return item.Projectiles[index];
+            }
             return item.Projectiles[0];
         }
 
@@ -175,7 +251,7 @@ namespace WorldServer.core.objects
             }
         }
 
-        // the 25th wound: 4000 that ignores defense to the enemy and every enemy within 4 tiles (its
+        // the 25th wound: 6000 that ignores defense to the enemy and every enemy within 4 tiles (its
         // numbers purple, as damage that ignores defense is)
         private void WoundsBurst(Enemy enemy, ref TickTime time)
         {
@@ -195,7 +271,7 @@ namespace WorldServer.core.objects
             hit.Insert(0, enemy);
             foreach (var e in hit)
                 if (!e.Dead && e.World != null)
-                    e.Damage(this, ref time, 4000, true);
+                    e.Damage(this, ref time, Imprint.WoundsBurst, true);
         }
 
         // a kill with Bloodrush: +4 attack, dexterity and speed for 20 s, each kill's on its own time
@@ -221,11 +297,47 @@ namespace WorldServer.core.objects
 
         // --- the rest ---
 
-        // when Last Breath can heal again (Environment.TickCount64)
-        private long _lastBreathReady;
+        // when Last Breath can heal again, and Wellspring give magic again (Environment.TickCount64)
+        private long _lastBreathReady, _wellspringReady;
+
+        // Wellspring on the ring: 300 magic below 15% of it, every 180 s at most
+        private void Wellspring()
+        {
+            if (Health <= 0 || Mana >= Stats[1] * 0.15 || Environment.TickCount64 < _wellspringReady || !HasImprint(3, Imprint.Wellspring))
+                return;
+            _wellspringReady = Environment.TickCount64 + 180000;
+            Mana = Math.Min(Stats[1], Mana + 300);
+            World.BroadcastIfVisible(new ShowEffect() { EffectType = EffectType.Potion, TargetObjectId = Id, Color = new ARGB(0xff6084ff) }, this);
+            World.BroadcastIfVisible(new Notification() { ObjectId = Id, Color = new ARGB(0xff6084ff), Message = "+300 Wellspring" }, this);
+        }
+
+        // Unbound Will on the ring: whether this use of the ability costs no magic (a 20% chance)
+        public bool FreeCast(int slot) => slot == 1 && HasImprint(3, Imprint.UnboundWill) && Random.Shared.NextDouble() < 0.2;
+
+        // Benediction on the ring: each use of the ability, one of these for 4 s that the ability
+        // itself doesn't give
+        private static readonly ConditionEffectIndex[] Blessings =
+        {
+            ConditionEffectIndex.Healing, ConditionEffectIndex.Speedy, ConditionEffectIndex.Berserk,
+            ConditionEffectIndex.Armored, ConditionEffectIndex.Damaging
+        };
+
+        public void Benediction(Item ability, int slot)
+        {
+            if (slot != 1 || !HasImprint(3, Imprint.Benediction))
+                return;
+            var gives = new HashSet<ConditionEffectIndex>(ability.ActivateEffects
+                .Where(e => e.Effect is ActivateEffects.ConditionEffectSelf or ActivateEffects.ConditionEffectAura && e.ConditionEffect != null)
+                .Select(e => e.ConditionEffect.Value));
+            var left = Blessings.Where(b => !gives.Contains(b)).ToArray();
+            if (left.Length == 0)
+                return;
+            ApplyConditionEffect(left[Random.Shared.Next(left.Length)], 4000);
+        }
 
         private void LastBreath()
         {
+            Wellspring();
             if (Health <= 0 || Health >= Stats[0] * 0.15 || Environment.TickCount64 < _lastBreathReady)
                 return;
             for (var slot = 0; slot < 4; slot++)
@@ -242,7 +354,7 @@ namespace WorldServer.core.objects
 
         // the Wisp Caller's wisps: object, chance a shot, then when each can come again
         private static readonly string[] Wisps = { "Wisp of Life", "Wisp of Warding", "Wisp of Ruin" };
-        private const int WispMs = 5000, WispCooldownMs = 10000;
+        private const int WispMs = 5000, WispCooldownMs = Imprint.WispCooldownMs;
         private readonly long[] _wispReady = new long[3];
 
         // after each shot of the weapon
@@ -253,7 +365,7 @@ namespace WorldServer.core.objects
             var now = Environment.TickCount64;
             for (var i = 0; i < Wisps.Length; i++)
             {
-                if (now < _wispReady[i] || Random.Shared.NextDouble() >= 0.1)
+                if (now < _wispReady[i] || Random.Shared.NextDouble() >= Imprint.WispChance)
                     continue;
                 _wispReady[i] = now + WispMs + WispCooldownMs;
                 var wisp = Resolve(GameServer, Wisps[i]);
@@ -263,6 +375,7 @@ namespace WorldServer.core.objects
                     wisp.GivesNoXp = true;
                     wisp.ApplyConditionEffect(ConditionEffectIndex.Invincible, -1);
                     wisp.Move(X, Y);
+                    wisp.Z = Z;
                     World.EnterWorld(wisp);
                 }
                 switch (i)

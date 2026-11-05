@@ -41,8 +41,9 @@ pub enum Act {
     Withdraw(u16),
     /// The Enchanter: the forge storage's shards.
     ImprintShards,
-    /// Imprint the item in this inventory slot with this imprint.
-    Imprint(u8, u8),
+    /// Imprint the item in this inventory slot with this imprint, and for the Apotheosis of
+    /// Balance the stats picked (raised, lowered, lowered; by stat index).
+    Imprint(u8, u8, Option<[u8; 3]>),
     /// Imprint the item in this vault chest and slot with this imprint.
     ImprintVault(u16, u8, u8),
 }
@@ -104,7 +105,7 @@ const CATEGORIES: [(Category, &str); 6] = [
 ];
 
 /// A slot type's name on its filter.
-fn slot_name(t: i32) -> &'static str {
+pub(crate) fn slot_name(t: i32) -> &'static str {
     match t {
         6 => tr("Leather"),
         7 => tr("Heavy"),
@@ -148,10 +149,12 @@ enum Hit {
     SellAll,
     Sell,
     Withdraw(u16),
-    /// The Enchanter: pick the item in this slot, a colour (3: the one coming soon), imprint.
+    /// The Enchanter: pick the item in this slot, a colour (3: Apotheosis), imprint, and for the
+    /// Apotheosis of Balance the next stat for one of its three picks (0 raised, 1 and 2 lowered).
     ImpItem(imprints::Pick),
     ImpKind(usize),
     ImpApply(u8),
+    ImpChoice(usize),
     /// Put the picked gear back: every imprint shows again.
     ImpClear,
 }
@@ -243,14 +246,16 @@ pub struct Forge {
     imp_scroll: usize,
     imp_count: usize,
     /// The Enchanter: the gear in each slot (equipment and inventory) with its imprints, the slot
-    /// picked, the colour shown (3: coming soon), whether an imprint is on its way, and the
-    /// imprints of the item under the mouse.
-    gear: Vec<(u8, i32, [u8; 3])>,
-    vault_gear: Vec<(u16, u8, i32, [u8; 3])>,
+    /// picked, the colour shown (3: Apotheosis), whether an imprint is on its way, the stats
+    /// picked for the Apotheosis of Balance (raised, lowered, lowered), and the imprints of the
+    /// item under the mouse.
+    gear: Vec<(u8, i32, [u32; 4])>,
+    vault_gear: Vec<(u16, u8, i32, [u32; 4])>,
     imp_pick: Option<imprints::Pick>,
     imp_kind: usize,
     imp_pending: bool,
-    hover_imprints: [u8; 3],
+    imp_choice: [u8; 3],
+    hover_imprints: [u32; 4],
 }
 
 fn inside(r: [f32; 4], (x, y): (f64, f64)) -> bool {
@@ -484,7 +489,7 @@ impl Forge {
                 }
             }
             Event::ImprintVault(items) => {
-                self.vault_gear = items.into_iter().map(|g| (g.chest, g.slot, g.item as i32, [g.offensive, g.defensive, g.misc])).collect();
+                self.vault_gear = items.into_iter().map(|g| (g.chest, g.slot, g.item as i32, [g.offensive as u32, g.defensive as u32, g.misc as u32, 0])).collect();
             }
             Event::Imprint { success, message } => {
                 self.imp_pending = false;
@@ -522,6 +527,7 @@ impl Forge {
                 self.message = None;
             }
             Hit::ImpApply(id) => return self.imprint(id, data),
+            Hit::ImpChoice(k) => self.next_choice(k),
             Hit::Tab(t) => {
                 if !matches!(self.forging, Some(Forging::Going { .. })) {
                     self.tab = t;
@@ -742,7 +748,7 @@ impl Forge {
         self.hits.clear();
         self.hover_item = None;
         self.hover_vault = false;
-        self.hover_imprints = [0; 3];
+        self.hover_imprints = [0; 4];
         if !self.open {
             self.rect = None;
             return;
@@ -1217,22 +1223,6 @@ impl Forge {
         self.hits.push((Hit::SellAll, ab));
         self.hits.push((Hit::Sell, sb));
     }
-}
-
-/// A tab that can't be opened yet: dimmed, with a padlock before its label.
-fn locked_chip(ui: &mut Ui, r: [f32; 4], label: &str, size: f32, s: f32) {
-    theme::fill(ui.renderer, r, r[3] / 2.0, color::CHIP, 0.5);
-    let lock = 10.0 * s;
-    let lw = ui.measure(label, size, true);
-    let x = r[0] + (r[2] - lw - lock - 5.0 * s) / 2.0;
-    let ly = r[1] + r[3] / 2.0 - lock * 0.15;
-    // the shackle, then the body
-    let t = (1.5 * s).max(1.0);
-    ui.rect(x + lock * 0.2, ly - lock * 0.45, t, lock * 0.45, color::TEXT_MUTED, 1.0);
-    ui.rect(x + lock * 0.8 - t, ly - lock * 0.45, t, lock * 0.45, color::TEXT_MUTED, 1.0);
-    ui.rect(x + lock * 0.2, ly - lock * 0.45, lock * 0.6, t, color::TEXT_MUTED, 1.0);
-    ui.rect(x, ly, lock, lock * 0.6, color::TEXT_MUTED, 1.0);
-    ui.label(label, x + lock + 5.0 * s, r[1] + (r[3] - size * 1.22) / 2.0, size, true, color::TEXT_MUTED);
 }
 
 /// Where a recipe's result goes in the list: Oryx 5's Ascended gear first, then the other

@@ -153,6 +153,9 @@ object id, once each, so with `/tq` and `/smite` in `--say` it walks down the Or
 and logs every `ArenaVotes`, so several bots test the vote thresholds.
 `--visit-answer yes|no|wait` answers other players' `/visit` requests (`VisitRequest`) at once,
 or never (to let them time out), and logs each, so one bot in a dungeon tests another's `/visit`.
+`--ping "1;3"` pings those kinds (0 look, 1 danger, 2 go, 3 loot, 4 help) a second apart two tiles
+east of itself once the server says it knows pings, and logs every `PingShow`; `--ping ""` only
+listens, so a second bot shows who gets a ping (and its relation).
 
 The client itself can be scripted for tests (desktop only):
 
@@ -169,11 +172,12 @@ The client itself can be scripted for tests (desktop only):
 | `--say <text>` | Send a chat line or command once in the game; several lines split by `;;` go out in turn, each once another world is joined or 3 s after the last (`"/dungeon Oryx's Sanctuary;;/god"`) |
 | `--npc <class>` | Open that NPC's window once in the game (`GuildBoard`, `PotionStorage`...), wherever you stand; `Vault` opens the vault window once in the vault (with `--say "/vault"`) |
 | `--quests <tab>` | Open the quest log at a tab once its data has come: `daily`, `weekly`, `monthly`, `login`, `achievements`, or `customize` for the Customize window (with `/questadmin` in `--say` to set up a state) |
+| `--options <tab>` | Open Options at a tab from the start (`controls`, `graphics`, `visuals`, `crosshair`, `sound`, `language`), on the menu too (with `--account http://127.0.0.1:1` no server is needed) |
 | `--effect <type>` | Show that `ShowEffect` type on you every half second (0: an area attack beside you), to check particles |
 | `--type <text>` | Type into the first NPC prompt that opens (then Enter), onto the guild board being edited, into the Divine Forge's or the vault window's search (with `--npc Forge` or `--npc Vault`), or into the Marketplace's price once on its Sell tab (`--npc MarketNPC`) |
 | `--size WxH` | Open the window at this size (physical pixels), to check the layout |
 | `--mouse x,y` | Put the mouse there (window pixels) and ignore the real one and its buttons: tooltips, aiming |
-| `--mouse-script "down@ms:x,y;move@ms:x,y;up@ms:x,y;right@ms:x,y"` | Mouse steps after joining: left-button drags and clicks on the HUD, and right-clicks. Their times count from the first world joined, `--shot-after` from the start (a few seconds earlier), so leave the shot some seconds after the last step |
+| `--mouse-script "down@ms:x,y;move@ms:x,y;up@ms:x,y;right@ms:x,y"` | Mouse steps after joining: left-button drags and clicks on the HUD, and right-clicks; `middle` clicks the middle button (a ping), `mdown` and `mup` hold it (the ping wheel). Their times count from the first world joined, `--shot-after` from the start (a few seconds earlier), so leave the shot some seconds after the last step. The positions are the window's pixels, which may differ from `--size` (the window fits the display): read them off a `--shot` first |
 
 - **Paths and slashes:** from Git Bash, run it with `MSYS_NO_PATHCONV=1` and give
   `--credentials` a Windows path (`C:/Users/...`); a `/c/Users/...` path isn't found and the client
@@ -231,7 +235,8 @@ floor in the shrine, north-west of the spawn): `--walk-to "62.5,56;62.5,40;52,40
   hero) and the game's name in a 5×7 pixel font.
 - **Controls:** WASD move, Q/E turn, Z resets the view, mouse fires (I toggles autofire), Space
   uses the ability at the mouse, 1-8 equip or use an inventory slot, F/V drink a stacked potion,
-  0 enters a portal (or opens the NPC beside you), R goes to the Nexus, Enter or / chats, Tab
+  0 enters a portal (or opens the NPC beside you), the middle mouse button pings (held: the ping
+  wheel, `pings.rs`), R goes to the Nexus, Enter or / chats, Tab
   whispers (again to cycle who to), G and P guild and party chat, Page Up/Down the chat history,
   - and = zoom the minimap, O opens the options, J the quest log, K the vault window (in a vault) (all of these can be rebound there), Escape opens the menu (character select,
   log out). Items drag between slots, onto the

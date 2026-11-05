@@ -90,6 +90,10 @@
         Nexus_Bar,
         // the Warcaller (community.Warcaller), where a Nexus map puts him (the islands' Arena
         // court); without it he stands where the garden has him
-        Nexus_Warcaller
+        Nexus_Warcaller,
+        // the pet pen east of the Arena court (PetPen): the Pen Keeper's spot, and the pen's floor,
+        // where pets wander
+        Nexus_Pen_Keeper,
+        Nexus_Pet_Pen
     }
 }

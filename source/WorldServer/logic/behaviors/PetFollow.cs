@@ -1,4 +1,5 @@
-﻿using WorldServer.core.objects;
+﻿using System;
+using WorldServer.core.objects;
 using WorldServer.core.worlds;
 using WorldServer.utils;
 
@@ -52,8 +53,13 @@ namespace WorldServer.logic.behaviors
 
                     var vect = new Vector2(player.X - host.X, player.Y - host.Y);
 
-                    if (vect.Length() > 20)
+                    // far behind, or on another floor (stacked floors: up at the Sky Bar while the
+                    // pet walks below): it comes to its owner, onto their floor
+                    if (vect.Length() > 20 || MathF.Abs(player.Z - host.Z) > Entity.LevelReach)
+                    {
                         host.Move(player.X, player.Y);
+                        host.Z = player.Z;
+                    }
                     else if (vect.Length() > 1)
                     {
                         var dist = host.GetSpeed(0.5f) * time.BehaviourTickTime;

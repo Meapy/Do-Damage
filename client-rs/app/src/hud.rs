@@ -431,6 +431,13 @@ impl Ui<'_> {
 
     /// `item_icon`, see-through (alpha 0-1).
     pub(crate) fn item_icon_faded(&mut self, item: i32, size: i32, cx: f32, cy: f32, scale: f32, alpha: f32) {
+        // the atlas is premultiplied, so every channel fades
+        let tint = if alpha >= 1.0 { Tint::NONE } else { Tint { mul: [alpha; 4], add: [0.0; 3] } };
+        self.item_icon_tinted(item, size, cx, cy, scale, tint);
+    }
+
+    /// `item_icon` in a tint (the Collection's dark pieces, its kinds' outlines).
+    pub(crate) fn item_icon_tinted(&mut self, item: i32, size: i32, cx: f32, cy: f32, scale: f32, tint: Tint) {
         let Some(desc) = self.data.objects.get(&(item as u16)) else { return };
         let Some(src) = self.src(&desc.texture) else { return };
         let size = if src.h == 16 { size / 2 } else { size };
@@ -439,8 +446,6 @@ impl Ui<'_> {
         let Some(icon) = self.redrawer.get(self.sprites, self.renderer, src, false, size, dye) else { return };
         let (w, h) = (icon.w as f32, icon.h as f32);
         let lift = (crate::redraw::PAD as f32 - 1.0) / 2.0;
-        // the atlas is premultiplied, so every channel fades
-        let tint = if alpha >= 1.0 { Tint::NONE } else { Tint { mul: [alpha; 4], add: [0.0; 3] } };
         self.renderer.sprite(icon.rect, Quad::rect((cx - w / 2.0).round(), (cy - h / 2.0 - lift).round(), w, h), tint);
     }
 
@@ -576,6 +581,10 @@ pub mod stat {
     pub const TEXTURE: u8 = 76;
     /// The swap-out slots (slots 20-23).
     pub const SWAP_0: u8 = 144;
+    /// How far each of a player's eight base stats is maxed, two bits a stat (HP first): 0 below
+    /// the class's maximum, 1 at it, 2 past it, 3 all the Infernal potions' way past it. Anyone's,
+    /// so the player card shows it; an older server doesn't send it.
+    pub const STAT_TONES: u8 = 149;
     /// No stat (`StatDataType.None`).
     pub const NONE: u8 = 255;
 }
@@ -605,7 +614,33 @@ pub fn slot_data_stat(slot: u8) -> u8 {
 }
 
 /// The imprints on the item in an object's slot.
-pub fn slot_imprints(o: &GameObj, slot: u8) -> [u8; 3] {
+/// A pet generator the Pen Keeper raised (`ItemData.PetUpgrade` in its slot's data): the size it
+/// raises its pet to, to name after the item, as "Grey Wolf (Large)".
+pub fn raised_pet_size(data: &GameData, item: i32, o: &GameObj, slot: u8) -> Option<&'static str> {
+    let json = o.stat_str(slot_data_stat(slot))?;
+    let i = json.find("\"PetUpgrade\":")?;
+    let up: usize = json[i + 13..].chars().take_while(|c| c.is_ascii_digit()).collect::<String>().parse().ok()?;
+    let size = data.objects.get(&(item as u16))?.xml.children_named("Activate").find(|a| a.text.trim() == "PermaPet")?.attr("petSize")?;
+    let base = ["Tiny", "Small", "Medium", "Large"].iter().position(|&s| s == size)?;
+    match (base + up).min(3) {
+        0 => Some(tr("Tiny")),
+        1 => Some(tr("Small")),
+        2 => Some(tr("Medium")),
+        _ => Some(tr("Large")),
+    }
+    .filter(|_| up > 0)
+}
+
+impl Line {
+    /// The first piece's text with `more` after it (an item's title, raised pet's size).
+    pub fn append(&mut self, more: &str) {
+        if let Some(first) = self.pieces.first_mut() {
+            first.0.push_str(more);
+        }
+    }
+}
+
+pub fn slot_imprints(o: &GameObj, slot: u8) -> [u32; 4] {
     bsk_data::imprint::parse(o.stat_str(slot_data_stat(slot)).unwrap_or(""))
 }
 
@@ -641,7 +676,7 @@ pub struct Slot {
     pub item: i32,
     pub kind: SlotKind,
     /// The item's imprints (`bsk_data::imprint`), by kind: 0 for none.
-    pub imprints: [u8; 3],
+    pub imprints: [u32; 4],
     rect: [f32; 4],
 }
 
@@ -1064,6 +1099,12 @@ impl MiniView {
         let [x0, y0, side, _] = self.rect;
         (x0 + side / 2.0 + ((x - self.cx) as f32) * self.zoom, y0 + side / 2.0 + ((y - self.cy) as f32) * self.zoom)
     }
+
+    /// The world point a point on the minimap shows (`to_map` backwards).
+    pub fn from_map(self, px: f32, py: f32) -> (f64, f64) {
+        let [x0, y0, side, _] = self.rect;
+        (self.cx + ((px - x0 - side / 2.0) / self.zoom) as f64, self.cy + ((py - y0 - side / 2.0) / self.zoom) as f64)
+    }
 }
 
 /// What the player did on the HUD.
@@ -1174,7 +1215,7 @@ impl Panel {
                 index: *slot_id,
                 item: *potion,
                 kind: SlotKind::Potion(count),
-                imprints: [0; 3],
+                imprints: [0; 4],
                 rect: grid_slot(lay.potion_box(), s, 2, k as u32),
             });
         }
@@ -1740,15 +1781,16 @@ pub fn draw_panel(ui: &mut Ui, lay: &Layout, world: &World, colors: &mut MapColo
 }
 
 /// Experience (fame at level 20), HP and MP as bars in `r`: HP and MP with what items add,
-/// gold when the base is at the class's maximum and orange past it (as the stats show it).
+/// gold when the base is at the class's maximum, orange past it and deep red as far past it as the
+/// Infernal potions go (as the stats show it).
 pub fn draw_bars(ui: &mut Ui, lay: &Layout, me: &GameObj, r: [f32; 4]) {
     let stat = |id: u8| me.stat_int(id).unwrap_or(0);
     let class_max = |tag: &str| {
         ui.data.objects.get(&me.object_type).and_then(|c| c.xml.child(tag)).and_then(|e| e.attr("max")).and_then(|m| m.parse::<i32>().ok())
     };
     let (hp_boost, mp_boost) = (stat(stat::MAX_HP_BOOST), stat(stat::MAX_MP_BOOST));
-    let hp_maxed = max_tone(class_max("MaxHitPoints"), stat(stat::MAX_HP) - hp_boost);
-    let mp_maxed = max_tone(class_max("MaxMagicPoints"), stat(stat::MAX_MP) - mp_boost);
+    let hp_maxed = stat_tone(me, 0).unwrap_or_else(|| max_tone(class_max("MaxHitPoints"), stat(stat::MAX_HP) - hp_boost));
+    let mp_maxed = stat_tone(me, 1).unwrap_or_else(|| max_tone(class_max("MaxMagicPoints"), stat(stat::MAX_MP) - mp_boost));
     let bars = [
         if stat(stat::LEVEL) < 20 {
             (tr("XP"), stat(stat::EXP), stat(stat::NEXT_LEVEL_EXP), 0x6FAF2E, 0, None)
@@ -1871,12 +1913,27 @@ pub fn max_tone(max: Option<i32>, base: i32) -> Option<u32> {
     }
 }
 
-/// A maxed stat's gold, and a stat past its maximum's orange.
+/// The colour of a player's stat `index` (HP, MP, Att, Def, Spd, Dex, Vit, Wis) by the server's
+/// `STAT_TONES`: gold maxed, orange past it, a deep red once the Infernal potions take it as far as
+/// they go; none below. `None` when the server doesn't send it.
+pub fn stat_tone(o: &GameObj, index: usize) -> Option<Option<u32>> {
+    let tones = o.stat_int(stat::STAT_TONES)?;
+    Some(match (tones >> (2 * index)) & 3 {
+        1 => Some(MAX_GOLD),
+        2 => Some(MAX_PAST),
+        3 => Some(MAX_INFERNAL),
+        _ => None,
+    })
+}
+
+/// A maxed stat's gold, a stat past its maximum's orange, and one the Infernal potions have taken
+/// as far as they go: a red darker than the HP bar's, so it reads on it and beside it.
 const MAX_GOLD: u32 = 0xFFD24A;
 const MAX_PAST: u32 = 0xF07A1E;
+const MAX_INFERNAL: u32 = 0xA8121C;
 
 /// The six stats in a box `r`, two columns of three: gold at the class maximum, orange past it,
-/// the boost beside in green.
+/// deep red all the Infernal potions' way past it, the boost beside in green.
 pub fn draw_stats(ui: &mut Ui, lay: &Layout, me: &GameObj, r: [f32; 4]) {
     let s = lay.s;
     theme::frame(ui.renderer, r, 7.0 * s, s.max(1.0), (color::BORDER, 0.9), ((color::INSET_TOP, 0.9), (color::INSET_BOTTOM, 0.9)));
@@ -1884,14 +1941,14 @@ pub fn draw_stats(ui: &mut Ui, lay: &Layout, me: &GameObj, r: [f32; 4]) {
     let class_desc = ui.data.objects.get(&me.object_type);
     let max_of = |tag: &str| class_desc.and_then(|c| c.xml.child(tag)).and_then(|e| e.attr("max")).and_then(|m| m.parse::<i32>().ok());
     let stats = [
-        (tr("ATT"), stat::ATTACK, stat::ATTACK_BOOST, "Attack"),
-        (tr("DEF"), stat::DEFENSE, stat::DEFENSE_BOOST, "Defense"),
-        (tr("SPD"), stat::SPEED, stat::SPEED_BOOST, "Speed"),
-        (tr("DEX"), stat::DEXTERITY, stat::DEXTERITY_BOOST, "Dexterity"),
-        (tr("VIT"), stat::VITALITY, stat::VITALITY_BOOST, "HpRegen"),
-        (tr("WIS"), stat::WISDOM, stat::WISDOM_BOOST, "MpRegen"),
+        (tr("ATT"), stat::ATTACK, stat::ATTACK_BOOST, "Attack", 2),
+        (tr("DEF"), stat::DEFENSE, stat::DEFENSE_BOOST, "Defense", 3),
+        (tr("SPD"), stat::SPEED, stat::SPEED_BOOST, "Speed", 4),
+        (tr("DEX"), stat::DEXTERITY, stat::DEXTERITY_BOOST, "Dexterity", 5),
+        (tr("VIT"), stat::VITALITY, stat::VITALITY_BOOST, "HpRegen", 6),
+        (tr("WIS"), stat::WISDOM, stat::WISDOM_BOOST, "MpRegen", 7),
     ];
-    for (i, (label, id, boost_id, tag)) in stats.into_iter().enumerate() {
+    for (i, (label, id, boost_id, tag, index)) in stats.into_iter().enumerate() {
         let (value, boost) = (stat(id), stat(boost_id));
         // Three rows spread down the page (at most 28 units apart), centred in it.
         let row_h = ((r[3] - 10.0 * s) / 3.0).min(28.0 * s);
@@ -1899,7 +1956,7 @@ pub fn draw_stats(ui: &mut Ui, lay: &Layout, me: &GameObj, r: [f32; 4]) {
         let (tx, ty) = (r[0] + (8.0 + 90.0 * (i % 2) as f32) * s, top + row_h * (i / 2) as f32);
         let size = lay.font(12.0);
         ui.label(label, tx, ty, size, true, color::TEXT_MUTED);
-        let c = max_tone(max_of(tag), value - boost).unwrap_or(color::TEXT);
+        let c = stat_tone(me, index).unwrap_or_else(|| max_tone(max_of(tag), value - boost)).unwrap_or(color::TEXT);
         let room = 50.0 * s;
         let value_s = value.to_string();
         let boost_s = if boost != 0 { format!(" {boost:+}") } else { String::new() };
@@ -1955,7 +2012,7 @@ fn draw_slot(ui: &mut Ui, lay: &Layout, slot: &Slot, dragged: bool, target: bool
         // The number key, small in the corner.
         // its imprints take the corner, the number its foot
         SlotKind::Inventory(key) => {
-            let ky = if slot.imprints != [0; 3] && !empty { y + h - small * 1.3 } else { y + 2.0 * s };
+            let ky = if slot.imprints != [0; 4] && !empty { y + h - small * 1.3 } else { y + 2.0 * s };
             ui.label(&key.to_string(), x + 4.0 * s, ky, small, true, color::TEXT_MUTED)
         }
         SlotKind::Potion(count) => {
@@ -1983,10 +2040,10 @@ fn draw_slot(ui: &mut Ui, lay: &Layout, slot: &Slot, dragged: bool, target: bool
 }
 
 /// An item's imprints as small squares in their colours, an even row from (x, y), packed to the
-/// left in the order Offensive (red), Defensive (green), Misc (purple): a lone purple sits first,
-/// and moves over when a green one comes. Only those it carries show. Each is its colour filling a
+/// left in the order Offensive (red), Defensive (green), Misc (purple), Apotheosis (light blue): a
+/// lone purple sits first, and moves over when a green one comes. Only those it carries show. Each is its colour filling a
 /// thin gold frame, on whole pixels so the colour meets the frame evenly at every size.
-pub(crate) fn draw_imprint_marks(ui: &mut Ui, imprints: [u8; 3], x: f32, y: f32, s: f32) {
+pub(crate) fn draw_imprint_marks(ui: &mut Ui, imprints: [u32; 4], x: f32, y: f32, s: f32) {
     use bsk_data::imprint::Kind;
     let edge = s.round().max(1.0);
     let inner = (7.0 * s).round().max(5.0);
@@ -2004,26 +2061,32 @@ pub(crate) fn draw_imprint_marks(ui: &mut Ui, imprints: [u8; 3], x: f32, y: f32,
 /// The Imprints section at the foot of an item's tooltip: a bar with its title, each imprint's
 /// name in its colour and what it does, then a bar with what they change on the item (its numbers
 /// before and after). Imprints only work on Enthroned gear.
-pub fn imprint_lines(data: &GameData, item: i32, imprints: [u8; 3]) -> Vec<Line> {
+pub fn imprint_lines(data: &GameData, item: i32, imprints: [u32; 4]) -> Vec<Line> {
     use bsk_data::imprint::{self, Kind};
     let mut lines = Vec::new();
     let Some(desc) = data.objects.get(&(item as u16)) else { return lines };
     let slot_type = desc.xml.int("SlotType", 0);
-    let mut fitting = [0u8; 3];
+    let mut fitting = [0u32; 4];
     for kind in Kind::ALL {
-        let Some(imp) = imprint::get(imprints[kind as usize] as i32) else { continue };
+        let value = imprints[kind as usize];
+        let Some(imp) = imprint::get(value as i64) else { continue };
         if lines.is_empty() {
             lines.push(Line::gap());
             lines.push(Line { band: Some(color::GOLD), ..Line::new(tr("Imprints"), 13.0, true, color::GOLD) });
         }
         let works = imp.fits(slot_type) && desc.xml.has("Ascended");
         if works {
-            fitting[kind as usize] = imp.id;
+            fitting[kind as usize] = value;
         }
         let kind_name = tr(kind.name());
         let name = if works { format!("{} ({kind_name})", imp.name) } else { tf!("{imprint} ({kind}, does nothing here)", imprint = imp.name, kind = kind_name) };
         lines.push(Line::new(&name, 12.0, true, if works { kind.color() } else { color::TEXT_MUTED }));
         lines.push(Line::new(imp.description, 11.0, false, color::TEXT_DIM));
+        // the Apotheosis of Balance's stats
+        if let Some((up, [a, b])) = imp.picks().then(|| imprint::choice(value)).flatten() {
+            let name = |i: u8| stat_name(STAT_IDS[i as usize]);
+            lines.push(Line::new(&tf!("Raises {stat}; lowers {a} and {b}", stat = name(up), a = name(a), b = name(b)), 11.0, true, kind.color()));
+        }
     }
     if lines.is_empty() {
         return lines;
@@ -2062,25 +2125,33 @@ pub fn imprint_lines(data: &GameData, item: i32, imprints: [u8; 3]) -> Vec<Line>
             diff.push(Line::new(tr("Shots no longer pierce"), 12.0, false, color::DANGER));
         }
     }
-    let (mut def, mut hp) = (0, 0);
-    for &id in &fitting {
-        match id {
-            imprint::VIGOR => hp += 20,
+    // the stats they add, by stat id, in the order they're first added
+    let mut added: Vec<(i32, i32)> = Vec::new();
+    let mut add = |stat: i32, n: i32| match added.iter_mut().find(|(s, _)| *s == stat) {
+        Some((_, v)) => *v += n,
+        None => added.push((stat, n)),
+    };
+    let own = |stat: i32| desc.xml.children_named("ActivateOnEquip").filter(|e| e.attr_int("stat", -1) == stat).map(|e| e.attr_int("amount", 0)).sum::<i32>();
+    let guarded = fitting.iter().any(|&v| imprint::id_of(v) == imprint::GUARDIAN_ANGEL);
+    for &value in &fitting {
+        match imprint::id_of(value) {
+            imprint::VIGOR => add(0, 25),
             imprint::BULWARK => {
-                def += 3;
-                hp += 15;
+                add(21, 5);
+                add(0, 15);
             }
+            imprint::BATTLE_MAGE => add(21, imprint::BATTLE_MAGE_DEFENSE),
+            // half again of the ring's own
+            imprint::ASCENDANT_MIGHT if !guarded => [20, 22, 28].into_iter().for_each(|st| add(st, own(st).max(0) / 2)),
+            imprint::ASCENDANT_WARD if !guarded => [21, 26, 27].into_iter().for_each(|st| add(st, own(st).max(0) / 2)),
             _ => {}
         }
     }
-    if def != 0 {
-        diff.push(Line::new(&tf!("+{def} Defense", def), 12.0, false, color::GOOD));
+    for (stat, n) in added.into_iter().filter(|&(_, n)| n != 0) {
+        diff.push(Line::new(&tf!("+{n} {stat}", n, stat = stat_name(stat)), 12.0, false, color::GOOD));
     }
-    if hp != 0 {
-        diff.push(Line::new(&tf!("+{hp} Maximum HP", hp), 12.0, false, color::GOOD));
-    }
-    if fitting.contains(&imprint::BLOOD_PACT) {
-        diff.push(Line::new(tr("-10% Maximum HP"), 12.0, false, color::DANGER));
+    if guarded {
+        diff.push(Line::new(tr("Its own stats become +20 Maximum HP and +1 to every other stat"), 12.0, false, color::DANGER));
     }
     if !diff.is_empty() {
         lines.push(Line { band: Some(color::ACCENT), ..Line::new(tr("With imprints"), 12.0, true, color::TEXT) });
@@ -2401,6 +2472,11 @@ pub fn draw_overlay(ui: &mut Ui, lay: &Layout, world: &World, panel: &Panel, sta
     let me = world.player();
     let lines = if slot.item > 0 {
         let mut lines = item_tooltip_imprinted(ui.data, slot.item, me, slot.kind, slot.imprints);
+        if let Some(size) = me.filter(|m| m.id == slot.owner).and_then(|m| raised_pet_size(ui.data, slot.item, m, slot.index)) {
+            if let Some(title) = lines.first_mut() {
+                title.append(&format!(" ({size})"));
+            }
+        }
         lines.extend(imprint_lines(ui.data, slot.item, slot.imprints));
         lines
     } else {
@@ -2422,7 +2498,7 @@ fn has_guild(p: &GameObj) -> bool {
 /// Where a player's card sits, beside the mouse at `mouse`.
 fn player_card_rect(lay: &Layout, p: &GameObj, mouse: (f64, f64)) -> [f32; 4] {
     let s = lay.s;
-    let (w, h) = (230.0 * s, if has_guild(p) { 169.0 } else { 154.0 } * s);
+    let (w, h) = (230.0 * s, if has_guild(p) { 189.0 } else { 174.0 } * s);
     let (mut x0, mut y0) = (mouse.0 as f32 + 16.0 * s, mouse.1 as f32 + 8.0 * s);
     if x0 + w > lay.w {
         x0 = mouse.0 as f32 - w - 8.0 * s;
@@ -2436,11 +2512,12 @@ fn player_card_rect(lay: &Layout, p: &GameObj, mouse: (f64, f64)) -> [f32; 4] {
 /// The four equipment slots on a player's card at `r`.
 fn player_card_slots(lay: &Layout, p: &GameObj, r: [f32; 4]) -> [[f32; 4]; 4] {
     let s = lay.s;
-    let sy = r[1] + if has_guild(p) { 101.0 } else { 86.0 } * s;
+    let sy = r[1] + if has_guild(p) { 121.0 } else { 106.0 } * s;
     std::array::from_fn(|i| [r[0] + 10.0 * s + i as f32 * 44.0 * s, sy, 40.0 * s, 40.0 * s])
 }
 
-/// `PlayerToolTip`: a player's name, guild, level and class, health and magic, and the four
+/// `PlayerToolTip`: a player's name, guild, level and class, health and magic, how far their
+/// stats are maxed (gold, orange past it, deep red at the Infernal potions' end), and the four
 /// items they wear, in a box at `r`; `pinned` when a right-click keeps it open.
 fn draw_player_card(ui: &mut Ui, lay: &Layout, p: &GameObj, r: [f32; 4], pinned: bool) {
     let s = lay.s;
@@ -2470,7 +2547,7 @@ fn draw_player_card(ui: &mut Ui, lay: &Layout, p: &GameObj, r: [f32; 4], pinned:
         ui.label(guild, x, by, lay.font(11.0), true, 0xA6FF5D);
         by += 15.0 * s;
     }
-    let bar = |ui: &mut Ui, y: f32, label: &str, value: i32, max: i32, c: u32| {
+    let bar = |ui: &mut Ui, y: f32, label: &str, value: i32, max: i32, c: u32, tone: Option<u32>| {
         let br = [x, y, w - 2.0 * pad, 14.0 * s];
         theme::fill(ui.renderer, br, 4.0 * s, color::TRACK, 1.0);
         let frac = if max > 0 { (value as f32 / max as f32).clamp(0.0, 1.0) } else { 0.0 };
@@ -2482,10 +2559,23 @@ fn draw_player_card(ui: &mut Ui, lay: &Layout, p: &GameObj, r: [f32; 4], pinned:
         ui.label(label, br[0] + 5.0 * s, ty, size, true, color::TEXT);
         let t = format!("{value} / {max}");
         let tw = ui.measure(&t, size, true);
-        ui.label(&t, br[0] + br[2] - tw - 5.0 * s, ty, size, true, color::TEXT);
+        ui.label(&t, br[0] + br[2] - tw - 5.0 * s, ty, size, true, tone.unwrap_or(color::TEXT));
     };
-    bar(ui, by, tr("HP"), stat(stat::HP), stat(stat::MAX_HP), 0xE03434);
-    bar(ui, by + 18.0 * s, tr("MP"), stat(stat::MP), stat(stat::MAX_MP), 0x3A6FE0);
+    let tone = |i: usize| stat_tone(p, i).flatten();
+    bar(ui, by, tr("HP"), stat(stat::HP), stat(stat::MAX_HP), 0xE03434, tone(0));
+    bar(ui, by + 18.0 * s, tr("MP"), stat(stat::MP), stat(stat::MAX_MP), 0x3A6FE0, tone(1));
+    // the six other stats, each lit in its tone (dim below its maximum)
+    let labels = [tr("ATT"), tr("DEF"), tr("SPD"), tr("DEX"), tr("VIT"), tr("WIS")];
+    let cw = (w - 2.0 * pad - 5.0 * 4.0 * s) / 6.0;
+    let cy = by + 38.0 * s;
+    for (k, label) in labels.into_iter().enumerate() {
+        let cr = [x + k as f32 * (cw + 4.0 * s), cy, cw, 15.0 * s];
+        let t = tone(k + 2);
+        theme::fill(ui.renderer, cr, 4.0 * s, t.unwrap_or(color::CHIP), if t.is_some() { 0.22 } else { 1.0 });
+        let size = lay.font(9.5);
+        let lw = ui.measure(label, size, true);
+        ui.label(label, cr[0] + (cw - lw) / 2.0, cr[1] + (cr[3] - size * 1.22) / 2.0, size, true, t.unwrap_or(color::TEXT_MUTED));
+    }
     // The equipment, in slots.
     let slots = player_card_slots(lay, p, r);
     for i in 0..4u8 {
@@ -2555,7 +2645,11 @@ fn tier_tag(xml: &bsk_data::xml::Element) -> Option<(String, u32)> {
     }
 }
 
-fn stat_name(id: i32) -> &'static str {
+/// The stat ids (`ActivateOnEquip`'s) of the stats by index, as the server counts them: HP, MP,
+/// Attack, Defense, Speed, Dexterity, Vitality, Wisdom.
+pub const STAT_IDS: [i32; 8] = [0, 3, 20, 21, 22, 28, 26, 27];
+
+pub(crate) fn stat_name(id: i32) -> &'static str {
     match id {
         0 => tr("Maximum HP"),
         3 => tr("Maximum MP"),
@@ -2771,12 +2865,12 @@ fn ally_shot_rows(a: &bsk_data::xml::Element) -> Option<Vec<(String, String)>> {
 }
 
 pub fn item_tooltip(data: &GameData, item: i32, me: Option<&GameObj>, kind: SlotKind) -> Vec<Line> {
-    item_tooltip_imprinted(data, item, me, kind, [0; 3])
+    item_tooltip_imprinted(data, item, me, kind, [0; 4])
 }
 
 /// `item_tooltip` for an item carrying these imprints: its shots' numbers (damage, shots, range,
 /// rate of fire) are the imprinted ones, in the imprints' green.
-pub fn item_tooltip_imprinted(data: &GameData, item: i32, me: Option<&GameObj>, kind: SlotKind, imprints: [u8; 3]) -> Vec<Line> {
+pub fn item_tooltip_imprinted(data: &GameData, item: i32, me: Option<&GameObj>, kind: SlotKind, imprints: [u32; 4]) -> Vec<Line> {
     let Some(desc) = data.objects.get(&(item as u16)) else { return vec![Line::new(tr("Unknown item"), 14.0, true, 0xFFFFFF)] };
     let xml = &desc.xml;
     let mut out = Vec::new();

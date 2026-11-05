@@ -9,6 +9,9 @@ const MOVE_THRESHOLD: f64 = 0.4;
 const MIN_MOVE_SPEED: f64 = 0.004;
 const MAX_MOVE_SPEED: f64 = 0.0096;
 const MAX_SINK_LEVEL: i32 = 18;
+/// Sinking (honey, swamp, lava) never slows us below a character of this Speed walking on that
+/// ground: deep in it, a fast character was down to a tenth of its speed.
+const SINK_FLOOR_SPEED: i32 = 20;
 pub const SPEED_STAT: u8 = 22;
 
 /// The keys held: a direction relative to the screen (x right, y down; each -1, 0 or 1) and
@@ -45,7 +48,10 @@ impl World {
             (rel_x, rel_y) = (-rel_y, -rel_x);
         }
         let (mut vx, mut vy) = (0.0, 0.0);
-        let speed = move_speed(player.stat_int(SPEED_STAT).unwrap_or(0), conditions, self.move_multiplier);
+        let mut speed = move_speed(player.stat_int(SPEED_STAT).unwrap_or(0), conditions, self.move_multiplier);
+        if self.sink_level > 0 && !has(conditions, condition::SLOWED) {
+            speed = speed.max(move_speed(SINK_FLOOR_SPEED, conditions, self.ground_speed));
+        }
         if rel_x != 0.0 || rel_y != 0.0 {
             let angle = input.camera_angle + rel_y.atan2(rel_x);
             vx = speed * angle.cos();
@@ -124,6 +130,7 @@ impl World {
         let Some(p) = self.player() else { return };
         let ground = self.square_at(p.x as i32, p.y as i32, p.z, data).0.and_then(|t| data.grounds.get(&t));
         let speed = ground.map_or(1.0, |g| g.speed);
+        self.ground_speed = speed;
         if ground.is_some_and(|g| g.sinking) {
             self.sink_level = (self.sink_level + 1).min(MAX_SINK_LEVEL);
             self.move_multiplier = 0.1 + (1.0 - self.sink_level as f64 / MAX_SINK_LEVEL as f64) * (speed - 0.1);

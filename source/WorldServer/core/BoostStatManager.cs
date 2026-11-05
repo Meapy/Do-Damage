@@ -42,7 +42,7 @@ namespace WorldServer.core
             ApplyEquipBonus();
             ApplyActivateBonus();
             IncrementStatBoost();
-            ApplyImprintHealthLoss();
+            ApplyImprintScaling();
 
             for (var i = 0; i < _boost.Length; i++)
                 _boostSV[i].SetValue(_boost[i]);
@@ -88,6 +88,9 @@ namespace WorldServer.core
             {
                 if (_player.Inventory[i] == null)
                     continue;
+                // a ring with Guardian Angel gives its imprint's stats in place of its own
+                if (i == 3 && _player.RingGuarded)
+                    continue;
 
                 foreach (var b in _player.Inventory[i].ActivateOnEquips)
                     IncrementBoost((StatDataType)b.Key, b.Value);
@@ -116,12 +119,25 @@ namespace WorldServer.core
             }
         }
 
-        // Blood Pact's share of maximum health, after everything else
-        private void ApplyImprintHealthLoss()
+        // The Apotheosis imprints, after everything else: a share more of what gear and boosts add to
+        // a stat, and the Apotheosis of Balance's fifth off all of two (never below 1, as the rest)
+        private void ApplyImprintScaling()
         {
-            var percent = _player.ImprintHealthLossPercent;
-            if (percent > 0)
-                _boost[0] -= (_parent.Base[0] + _boost[0]) * percent / 100;
+            var (added, lowered) = _player.ImprintScaling();
+            for (var i = 0; i < 8 && i < _boost.Length; i++)
+            {
+                if (added[i] > 0 && _boost[i] > 0)
+                    _boost[i] += _boost[i] * added[i] / 100;
+                if (lowered[i])
+                {
+                    var total = _parent.Base[i] + _boost[i];
+                    var cut = total * 20 / 100;
+                    if (total - cut < 1)
+                        cut = total - 1;
+                    if (cut > 0)
+                        _boost[i] -= cut;
+                }
+            }
         }
 
         private void FixedStat(StatDataType stat, int value)

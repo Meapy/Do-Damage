@@ -58,6 +58,9 @@ pub struct Game {
     pub forge_events: Vec<crate::forge::Event>,
     /// The vault window's answer (`VaultContents`), for main to hand over.
     pub vault_contents: Option<bsk_proto::VaultContents>,
+    /// The Collection's (`Collection`) and the Pen Keeper's (`PetPen`) answers, likewise.
+    pub collection: Option<bsk_proto::Collection>,
+    pub pet_pen: Option<bsk_proto::PetPen>,
     /// Quests, daily rewards and achievements, for the quest log (`quests.rs`).
     pub quest_events: Vec<crate::quests::Event>,
     /// The community goals and their banners, for their window (`community.rs`).
@@ -105,6 +108,8 @@ pub struct Game {
     /// The realm's events, side quests and waystones with its count to close (`RealmEvents`), for
     /// the events list at the top left and the minimap; none outside a realm.
     pub realm_events: Option<bsk_proto::RealmEvents>,
+    /// The Nexus's places, for the minimap (`NexusPlaces`; none elsewhere).
+    pub nexus_places: Vec<bsk_proto::NexusPlace>,
     /// The latest `NameResult` and `GuildResult`, for the window that asked.
     pub name_result: Option<(bool, String)>,
     pub guild_result: Option<(bool, String)>,
@@ -113,6 +118,8 @@ pub struct Game {
     pub invite: Option<(Invite, i32)>,
     /// Someone's /visit waiting for our Yes or No (`VisitRequest`), in the corner.
     pub visit: Option<VisitAsk>,
+    /// The pings showing in this world (`PingShow`), and whether the server knows pings.
+    pub pings: crate::pings::Marks,
     /// `AccountList` 0 and 1: locked (starred) and ignored players' account ids.
     pub locked: std::collections::HashSet<String>,
     pub ignored: std::collections::HashSet<String>,
@@ -296,6 +303,8 @@ impl Game {
             market_events: Vec::new(),
             forge_events: Vec::new(),
             vault_contents: None,
+            collection: None,
+            pet_pen: None,
             quest_events: Vec::new(),
             community_events: Vec::new(),
             music: None,
@@ -315,11 +324,13 @@ impl Game {
             seen_maps: Vec::new(),
             map_key: (0, String::new(), 0, 0),
             realm_events: None,
+            nexus_places: Vec::new(),
             name_result: None,
             guild_result: None,
             trade: None,
             invite: None,
             visit: None,
+            pings: Default::default(),
             locked: Default::default(),
             ignored: Default::default(),
             next_teleport: 0,
@@ -535,6 +546,7 @@ impl Game {
                 self.arena = None;
                 self.arena_votes = None;
                 self.arena_asked = false;
+                self.pings.clear();
                 self.show_displays = info.show_displays;
                 self.music = Some(info.music.clone());
                 self.last_level = 0;
@@ -560,6 +572,11 @@ impl Game {
                 // a realm's events, for the events list (a world that isn't a realm sends none)
                 self.realm_events = None;
                 self.socket.send(&bsk_proto::RealmEventsSubscribe {}.into());
+                // the Nexus's places, for the minimap
+                self.nexus_places.clear();
+                if self.map_name() == "Nexus" {
+                    self.socket.send(&bsk_proto::NexusPlacesRequest {}.into());
+                }
                 // quests: the HUD's badge counts what waits, so ask in every world
                 self.socket.send(&bsk_proto::QuestsRequest {}.into());
                 // community goals: to say when one of their rewards waits, and for their banners
@@ -567,6 +584,8 @@ impl Game {
                 // we can show visit and summon requests, in the corner
                 self.socket.send(&bsk_proto::VisitAnswer { id: 0, answer: 255 }.into());
                 self.socket.send(&bsk_proto::VisitAnswer { id: 0, answer: 254 }.into());
+                // we can show pings (a server that knows them answers, and only then do we ping)
+                self.socket.send(&bsk_proto::PingMark { kind: crate::pings::HELLO, x: 0.0, y: 0.0, z: 0.0, target_id: 0 }.into());
                 self.status.clear();
             }
             Some(Event::Failure { description, .. }) => {
@@ -814,8 +833,14 @@ impl Game {
             }
             ServerMessage::ForgeVault(v) => self.forge_events.push(crate::forge::Event::Vault(v.items.0.clone())),
             ServerMessage::VaultContents(v) => self.vault_contents = Some(v.clone()),
+            ServerMessage::Collection(c) => self.collection = Some(c.clone()),
+            ServerMessage::PetPen(p) => self.pet_pen = Some(p.clone()),
             ServerMessage::ImprintVault(v) => self.forge_events.push(crate::forge::Event::ImprintVault(v.items.0.clone())),
             ServerMessage::RealmEvents(r) => self.realm_events = Some(r.clone()),
+            ServerMessage::NexusPlaces(n) => {
+                log::debug!("nexus places: {:?}", n.places.iter().map(|p| (p.name.as_str(), p.x as i32, p.y as i32, p.icon)).collect::<Vec<_>>());
+                self.nexus_places = n.places.0.clone();
+            }
             ServerMessage::ImprintResult(r) => {
                 self.forge_events.push(crate::forge::Event::Imprint { success: r.success, message: r.message.clone() })
             }
@@ -869,6 +894,7 @@ impl Game {
                 });
             }
             ServerMessage::ArenaVotes(v) => self.arena_votes = Some(v.clone()),
+            ServerMessage::PingShow(p) => self.pings.show(p, now),
             ServerMessage::VisitRequest(v) => {
                 if v.seconds == 0 {
                     // taken back or run out
@@ -1071,6 +1097,17 @@ impl Game {
     fn send(&mut self, msg: ClientMessage) {
         *self.counts.entry(msg.name()).or_default() += 1;
         self.socket.send(&msg);
+    }
+
+    /// Ping (the middle mouse button), if the server knows pings and its limits allow one now.
+    /// False when it didn't go.
+    pub fn ping(&mut self, mark: bsk_proto::PingMark, now: i32) -> bool {
+        if !self.pings.ready || self.world.as_ref().is_none_or(|w| w.me.is_none()) || !self.pings.take(now) {
+            return false;
+        }
+        log::info!("ping {} at ({:.1}, {:.1}) on {}", mark.kind, mark.x, mark.y, mark.target_id);
+        self.send(mark.into());
+        true
     }
 
     /// Set an inventory slot locally until the server's update arrives (the AIR client changes
@@ -1384,10 +1421,23 @@ impl Game {
             Act::Sell(slots) => bsk_proto::ForgeSell { slots: bsk_proto::List8(slots) }.into(),
             Act::Withdraw(item) => bsk_proto::ForgeWithdraw { item }.into(),
             Act::ImprintShards => bsk_proto::ImprintRequest {}.into(),
-            Act::Imprint(slot, imprint) => bsk_proto::Imprint { slot, imprint }.into(),
+            Act::Imprint(slot, imprint, choice) => {
+                let [raised, lowered, lowered2] = choice.unwrap_or([255; 3]);
+                bsk_proto::Imprint { slot, imprint, raised, lowered, lowered2 }.into()
+            }
             Act::ImprintVault(chest, slot, imprint) => bsk_proto::ImprintVaultApply { chest, slot, imprint }.into(),
         };
         self.send(msg);
+    }
+
+    /// Ask for the Collection (`CollectionHandler.cs`).
+    pub fn collection_request(&mut self) {
+        self.send(bsk_proto::CollectionRequest {}.into());
+    }
+
+    /// Ask the Pen Keeper, or have him act (`PetPenActHandler.cs`).
+    pub fn pet_pen(&mut self, action: u8, slot: u8) {
+        self.send(bsk_proto::PetPenAct { action, slot }.into());
     }
 
     /// Ask for the vault window's contents (`VaultContentsHandler.cs`), or move an item for it.

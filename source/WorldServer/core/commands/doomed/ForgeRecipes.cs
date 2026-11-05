@@ -84,8 +84,11 @@ namespace WorldServer.core.commands.doomed
         // The Ascended items (tools/build_ascended_items.py), placeholders nothing drops: each from an
         // item of the top tier Oryx the Ascended God drops of its kind and the Ascended shard of that
         // kind, taken from the forge storage (ForgeStorage.cs). A weapon or armour comes from its own
-        // slot's item; his own pieces (slot 0) from any of the tier and kind, or (AscendedFrom) from one
-        // item of his. All are named Enthroned, but for the T16 armours, each from its slot's T15 armour.
+        // slot's item (the Enthroned Staff from a T15 staff, as the other weapons; it was the Enthroned
+        // Spear, from his Elysian Staff); his own pieces (slot 0) from any of the tier and kind, or
+        // (AscendedFrom) from the items named. All are named Enthroned, but for the T16 armours, each
+        // from its slot's T15 armour. Not forged (the owner, 2026-11-05): the Enthroned Helm, for now,
+        // and the Enthroned Ring of Wrath, the Ring of Grace now coming from his two gems instead.
         // Result, the kind, tier and slot it's forged from, the shard.
         private const string WeaponShard = "Ascended Weapon Shard", AbilityShard = "Ascended Ability Shard",
             ArmorShard = "Ascended Armor Shard", AccessoryShard = "Ascended Accessory Shard";
@@ -99,21 +102,21 @@ namespace WorldServer.core.commands.doomed
             ("Enthroned Katana", ItemType.Weapon, 15, 24, WeaponShard),
             ("Enthroned Dual Blades", ItemType.Weapon, 15, 36, WeaponShard),
             ("Enthroned Fists", ItemType.Weapon, 15, 200, WeaponShard),
+            ("Enthroned Staff", ItemType.Weapon, 15, 17, WeaponShard),
             ("Enthroned Hide", ItemType.Armor, 16, 6, ArmorShard),
             ("Enthroned Plate", ItemType.Armor, 16, 7, ArmorShard),
             ("Enthroned Robe", ItemType.Armor, 16, 14, ArmorShard),
-            ("Enthroned Helm", ItemType.Ability, 8, 0, AbilityShard),
             ("Enthroned Boots", ItemType.Ring, 8, 0, AccessoryShard),
-            ("Enthroned Ring of Wrath", ItemType.Ring, 8, 0, AccessoryShard),
-            ("Enthroned Ring of Grace", ItemType.Ring, 8, 0, AccessoryShard),
             ("Sphinx Leather Armor", ItemType.Armor, 15, 6, ArmorShard),
             ("Armor of the Pyramid", ItemType.Armor, 15, 7, ArmorShard),
             ("Robe of the Nile", ItemType.Armor, 15, 14, ArmorShard),
         };
-        // Ascended items from one item: result, the item, the shard. His spear from his Elysian Staff.
-        private static readonly (string Result, string From, string Shard)[] AscendedFrom =
+        // Ascended items from the items named: result, the ingredients (a shard as many times as it
+        // takes). The Ring of Grace from both of his Ascended gems and three Ascended Accessory Shards.
+        private static readonly (string Result, string[] Items)[] AscendedFrom =
         {
-            ("Enthroned Spear", "Staff of Heavens", WeaponShard),
+            ("Enthroned Ring of Grace", new[] { "Ascended Gem of Adoration", "Ascended Gem of Tenderness",
+                AccessoryShard, AccessoryShard, AccessoryShard }),
         };
 
         // The Infernal potions (tools/build_infernal_potions.py): an Infernal shard and
@@ -253,9 +256,9 @@ namespace WorldServer.core.commands.doomed
                         recipes.Add(r);
                 }
             }
-            foreach (var (result, from, shard) in AscendedFrom)
+            foreach (var (result, ingredients) in AscendedFrom)
             {
-                var r = (result, AscendedFame, false, new[] { from, shard });
+                var r = (result, AscendedFame, false, ingredients);
                 if (known.Add(Key(r)))
                     recipes.Add(r);
             }

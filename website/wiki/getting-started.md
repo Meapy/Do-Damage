@@ -58,6 +58,7 @@ Every key can be rebound in Options (<kbd>O</kbd>).
 | <kbd>W</kbd><kbd>A</kbd><kbd>S</kbd><kbd>D</kbd> | Move |
 | Mouse | Aim and shoot. <kbd>I</kbd> turns autofire on and off |
 | <kbd>Space</kbd> | Use your ability at the mouse |
+| Middle mouse button | Ping: mark a spot for your party, guild and the players near you ([Pings](#pings)) |
 | <kbd>Q</kbd> <kbd>E</kbd> | Turn the view; <kbd>Z</kbd> resets it |
 | <kbd>1</kbd> to <kbd>8</kbd> | Use or equip an inventory slot |
 | <kbd>F</kbd> <kbd>V</kbd> | Drink a health or magic potion |
@@ -81,18 +82,53 @@ Text boxes (chat, sign-in) copy, cut and paste with <kbd>Ctrl</kbd>+<kbd>C</kbd>
 see in the world: the crosshair, particles, shadows, health bars, damage numbers, and how much of
 other players and their pets you see, and the **Chat size** (50% to 150%: its text, width and
 height together). "Pets' shots" there switches between Normal, Subtle (the
-default: smaller, see-through shots) and Hidden. The **Graphics** tab has the world zoom, a frame
+default: smaller, see-through shots) and Hidden. The **Crosshair** tab picks the crosshair's
+style (Classic, Cross, Dot, Circle, Circle and dot, Plus, Diagonal, Chevron or your own), its
+colour and its size (50% to 200%), with a preview over dark and light ground. To make your own,
+pick one of the ten colours under its 15 by 15 grid and click or drag on the grid: each square
+takes the colour picked, so your crosshair can have as many colours as you like, and clicking a
+square already in that colour empties it. The colours under the grid only paint new squares; the
+**Colour** row beside them is for the other styles, and your own keeps the colours you painted.
+**Clear** starts again from nothing,
+and **Defaults** puts back the Classic crosshair but keeps your drawing. To share a crosshair,
+**Copy code** puts its code on the clipboard (the code also shows under the button: `DD0064` is
+the usual crosshair, and your own drawing makes it longer); a friend copies it and presses
+**Paste code**, or presses <kbd>Ctrl</kbd>+<kbd>V</kbd> on the tab in the browser. The **Graphics** tab has the world zoom, a frame
 rate limit and, on the desktop, **Borderless fullscreen**: the window covers the screen it's on,
 with no border, and alt-tabbing out is instant. The game remembers it for the next time. It also
 has the world's look: **Glow on bright light** (a soft glow round lava, fire, lanterns and
 spells), **Vivid colours** (livelier colours and slightly darker corners) and, on a Windows PC,
 **HDR**. HDR is on when Windows has HDR turned on for your screen, and then the glow shines
 brighter than white. Turn any of them off if the game runs slowly on your computer. The
-**Sound** tab has a Master volume. The **Language** tab switches the game between its 11
+**Sound** tab has a Master volume, and **Ping sounds** to hear pings or not. The **Language** tab switches the game between its 11
 languages (English, Deutsch, Español, Français, Italiano, Nederlands, Polski, Português (Brasil),
 Русский, Türkçe and Українська) at once, menus, windows, tooltips and messages alike; the first
 time, it starts in your computer's or browser's language. Item and monster names and what the
 server writes in the chat stay in English.
+
+## Pings
+
+Click the **middle mouse button** to ping: a marker everyone in your party and your guild in the
+same world sees, wherever they are, and so do the other players within about 20 tiles of you or the
+ping. What it says depends on what's under the mouse:
+
+| Under the mouse | Ping |
+|---|---|
+| An enemy | **Danger**, which follows the enemy as it moves |
+| A loot bag | **Loot** |
+| A portal | **Go here** |
+| You | **Help** |
+| Anything else, or the ground | **Look here** |
+| The minimap | **Go here**, at that spot on the map |
+
+**Hold** the middle button (or drag a little) for the ping wheel: move toward Look here, Danger, Go
+here, Loot or Help and let go to ping it there; let go in the middle to cancel.
+
+A ping shows for six seconds: a ring on the ground with a pin over it, saying what it is and who
+sent it (green for your party, blue for your guild), a marker at the edge of the screen pointing to
+it when it's out of view, and a dot on the minimap. Danger has a sound of its own. You can ping four
+times in five seconds. In Options, **Visuals**, "Others' pings" shows everyone's, only your party's
+and guild's, or nobody's (yours always show), and **Sound** has Ping sounds.
 
 ## The screen
 
@@ -100,7 +136,10 @@ The world fills the window, with one bar down the right:
 
 - **At the top:** the minimap, your experience, HP and MP. Your rank star, gold and fame sit
   beside the minimap. On it, your quest is a red box, realm events orange, and players yellow
-  over everything; a realm you go back to keeps the map you'd uncovered.
+  over everything; a realm you go back to keeps the map you'd uncovered. In the Nexus it also shows
+  its places with their pictures (the Divine Forge, the Warcaller, the Pen Keeper, the portals...),
+  ringed gold for those you talk to and violet for portals, even before you've been there, at the
+  map's edge when they're out of view: hover one for its name.
 - **Your character card:** your name, class and level, with two tabs: your stats, and your records
   (kills, god and Oryx kills, quests, dungeons, accuracy, potions drunk and time played).
 - **At the foot:** the Nexus button, your equipment, your inventory (two small buttons switch to
@@ -158,7 +197,9 @@ the stone water basins at its corners do. From there:
   wayside shrine, where the twins Hana and Sora run about.
 - **East**, over the other arched bridge: the **Arena island**. Its court of raked sand holds a
   samurai's statue, banners, straw dummies, the Arena Leaderboard's golden trophy, the **Herald**
-  and the **Warcaller** (the [community goals](community-goals.html)). Beside it rises a round
+  and the **Warcaller** (the [community goals](community-goals.html)); east of them, the pet pen,
+  where pets of every kind come and go, and the **Pen Keeper** at its gate, who
+  [raises and swaps pets](pets.html#the-pen-keeper-raising-a-pet). Beside it rises a round
   stone tower: go in at its door and climb the spiral stair inside to its top, where the
   [Hall of Champions](champions.html) stands round the cap room, with a telescope to look out
   over the sky, and on an overhang to the east the **Sky Bar**: every 20 seconds Barman Kenji

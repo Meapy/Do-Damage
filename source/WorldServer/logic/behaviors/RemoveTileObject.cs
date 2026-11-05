@@ -49,10 +49,7 @@ namespace WorldServer.logic.behaviors
                     if (dx > _range || dy > _range)
                         continue;
 
-                    tile.ObjType = 0;
-                    if (tile.TileId == 0xFD)
-                        tile.RestoreGround();
-                    tile.UpdateCount++;
+                    map.ClearObject(x, y);
                 }
 
             // players work out their tiles again only when they step onto another one: without this

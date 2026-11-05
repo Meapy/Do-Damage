@@ -36,6 +36,9 @@ pub struct Projectile {
     pub container_type: u16,
     pub bullet_type: i32,
     pub angle: f64,
+    /// Where it points as it flies: its angle, or for a shot that weaves, swerves, loops or comes
+    /// back, the way it's moving now, so its sprite leads with its tip ([`Projectile::heading_at`]).
+    pub heading: f64,
     pub start_time: i32,
     pub start_x: f64,
     pub start_y: f64,
@@ -53,6 +56,9 @@ pub struct Projectile {
     /// whether they stop it piercing.
     pub life: Option<i32>,
     pub no_pierce: bool,
+    /// The object it looks like when not its projectile's own: the imprints' Sigil for a shot
+    /// they change (`imprint::Shot::sigil`). Our own shots only; others see the weapon's.
+    pub look: Option<u16>,
     hit: HashSet<i32>,
 }
 
@@ -134,6 +140,7 @@ impl Projectile {
             container_type,
             bullet_type,
             angle: bound_to_pi(angle),
+            heading: bound_to_pi(angle),
             start_time,
             start_x: x,
             start_y: y,
@@ -146,8 +153,24 @@ impl Projectile {
             floor: 0.0,
             life: None,
             no_pierce: false,
+            look: None,
             hit: HashSet::new(),
         }
+    }
+
+    /// The way it's moving `elapsed` ms after it was fired: its angle, unless its path bends
+    /// (`Wavy`, `Parametric`, `Boomerang` or an `Amplitude`), then the direction between where it
+    /// is a moment before and where it is.
+    pub fn heading_at(&self, desc: &ProjectileDesc, elapsed: i32) -> f64 {
+        if !(desc.wavy || desc.parametric || desc.boomerang || desc.amplitude != 0.0) {
+            return self.angle;
+        }
+        let (a, b) = if elapsed >= 8 { (elapsed - 8, elapsed) } else { (elapsed, elapsed + 8) };
+        let ((x0, y0), (x1, y1)) = (self.position_at(desc, a), self.position_at(desc, b));
+        if (x1 - x0).hypot(y1 - y0) < 1e-9 {
+            return self.heading;
+        }
+        (y1 - y0).atan2(x1 - x0)
     }
 
     /// `Projectile.positionAt`.
@@ -325,12 +348,25 @@ impl World {
         let Some(desc) = item.projectiles.get(&bullet_type) else { return vec![] };
         let (px, py, floor) = (player.x, player.y, player.z);
         let speed_mult = if has(player.conditions(), condition::INSPIRED) { 1.25 } else { 1.0 };
-        let (min, max) = (desc.min_damage, desc.max_damage);
         let num = imprints.map_or(item.num_projectiles(), |i| i.num_projectiles(item.num_projectiles()));
         let arc_gap = item.arc_gap_degrees() * PI / 180.0;
         let mut a = angle - arc_gap * (num - 1) as f64 / 2.0;
+        // a weapon's volley may give each shot its own projectile, by its place in the volley (the
+        // Elysian Staff's `<VolleyProjectiles>0,0,1</VolleyProjectiles>`), as the server picks them
+        let volley: Vec<i32> = match imprints.and(item.xml.text_of("VolleyProjectiles")) {
+            Some(v) => v.split(',').map(|n| n.trim().parse().unwrap_or(0)).collect(),
+            None => Vec::new(),
+        };
         let mut shots = Vec::new();
-        for _ in 0..num {
+        for n in 0..num {
+            let (bullet_type, desc) = match volley.get((n as usize).min(volley.len().saturating_sub(1))) {
+                Some(&t) if !volley.is_empty() => match item.projectiles.get(&t) {
+                    Some(d) => (t, d),
+                    None => (bullet_type, desc),
+                },
+                _ => (bullet_type, desc),
+            };
+            let (min, max) = (desc.min_damage, desc.max_damage);
             let bullet_id = self.next_bullet_id;
             self.next_bullet_id += 1;
             let roll = self.random.next_int_range(min as u32, max as u32) as i32;
@@ -347,6 +383,9 @@ impl World {
                 let life = i.lifetime(desc.speed, desc.lifetime);
                 p.life = (life != desc.lifetime).then_some(life);
                 p.no_pierce = i.no_pierce;
+                if i.sigil {
+                    p.look = data.object_ids.get(imprint::SIGIL).copied();
+                }
             }
             shots.push(p.clone());
             self.projectiles.push(p);
@@ -387,6 +426,7 @@ impl World {
             }
             return false;
         }
+        p.heading = p.heading_at(desc, elapsed);
         p.x = x;
         p.y = y;
         // Blocked by what stands on the square.
@@ -568,6 +608,19 @@ mod tests {
         // At a quarter of the lifetime the sine peaks: one tile to the side.
         let p = proj(2, 0.0).position_at(&d, 250);
         assert!(close(p, (12.5, 11.0)), "{p:?}");
+    }
+
+    #[test]
+    fn a_bending_shot_points_the_way_it_moves() {
+        // straight: its angle; weaving: at the start it swerves to the side, at the sine's peak it
+        // runs straight on, and a boomerang points back on its way home
+        assert_eq!(proj(2, 0.5).heading_at(&desc(), 300), 0.5);
+        let d = ProjectileDesc { amplitude: 1.0, frequency: 1.0, ..desc() };
+        let p = proj(2, 0.0);
+        assert!(p.heading_at(&d, 0) > 0.5, "{}", p.heading_at(&d, 0));
+        assert!(p.heading_at(&d, 254).abs() < 0.05, "{}", p.heading_at(&d, 254));
+        let b = ProjectileDesc { boomerang: true, ..desc() };
+        assert!((proj(1, 0.0).heading_at(&b, 750).abs() - PI).abs() < 1e-6);
     }
 
     #[test]

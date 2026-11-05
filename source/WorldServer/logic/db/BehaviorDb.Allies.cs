@@ -89,6 +89,48 @@ namespace WorldServer.logic
                 new Decay(4500)
                 )
             )
+        // the Cave Dweller Trap's sentry: for 5 s it zaps the nearest enemy within 8 tiles for 350 every
+        // 0.8 s, its crystal glinting
+        .Init("Crystal Sentry",
+            new State(
+                new AllyZap(8, 350, 350, 800, 0xff68a0b0),
+                new Decay(5000),
+                new State("1",
+                    new SetAltTexture(1),
+                    new TimedTransition(200, "2")
+                    ),
+                new State("2",
+                    new SetAltTexture(2),
+                    new TimedTransition(200, "3")
+                    ),
+                new State("3",
+                    new SetAltTexture(3),
+                    new TimedTransition(200, "4")
+                    ),
+                new State("4",
+                    new SetAltTexture(4),
+                    new TimedTransition(200, "1")
+                    )
+                )
+            )
+        // Lightning in a Bottle's bolt: falls on the spot for 300 within 2.5 tiles, ignoring defense,
+        // and holds what it hits in Stasis for 1.8 s; the flash is gone a moment later
+        .Init("Bottled Lightning",
+            new State(
+                new AllyAOE(300, 300, 2.5f, 0xffffff00, 1000000, effect: ConditionEffectIndex.Stasis, effectMs: 1800, beam: true),
+                new Decay(700)
+                )
+            )
+        // the Trap of the Vile Spirit's three ghost ships: for 4 s they sail round where it landed,
+        // 1.5 tiles out, each firing a ghostly bolt at the nearest enemy within 7 tiles every 0.5 s,
+        // 120-160 and Slowed for 2 s
+        .Init("Vile Spirit Ship",
+            new State(
+                new AllyCircle(1.5, 90),
+                new AllyZap(7, 120, 160, 500, 0xff7dff9a, ConditionEffectIndex.Slowed, 2000),
+                new Decay(4000)
+                )
+            )
         // the Fool's Prism's (and Trick White Bag's) fake bag goes after 40 s
         .Init("Fake White Bag", new State(new Decay(40000)))
         .Init("Divinity Effect",

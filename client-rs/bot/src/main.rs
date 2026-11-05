@@ -33,6 +33,11 @@
 //! client does), logs each `VisitRequest` and answers it Yes or No at once, or never (`wait`, to
 //! let it time out).
 //!
+//! `--ping <kinds>` says in each world that it can show pings (as the client does), logs each
+//! `PingShow`, and once the server has answered sends the kinds (split by `;`: 0 look, 1 danger,
+//! 2 go, 3 loot, 4 help) a second apart, two tiles east of where it stands; `--ping ""` only
+//! listens.
+//!
 //! `--vault <moves>` moves items to and from the first Vault Chest it has seen, the top one then
 //! the left (the guild vault's first in a guild hall), split by `;`: `put <inventory slot> <chest slot>` or
 //! `take <chest slot> <inventory slot>`. It walks up to the chest, swaps the two slots, logs the
@@ -65,6 +70,8 @@ struct Args {
     vault: Vec<VaultMove>,
     /// `--visit-answer`: 1 yes, 0 no, None to leave requests unanswered; unset, no subscribing.
     visit_answer: Option<Option<u8>>,
+    /// `--ping`: the kinds to ping in each world; unset, no pings.
+    ping: Option<Vec<u8>>,
 }
 
 /// One of `--vault`'s moves.
@@ -95,7 +102,7 @@ fn parse_class(v: &str) -> Result<u16, String> {
 
 fn parse_args() -> Result<Args, String> {
     let mut args =
-        Args { account: String::new(), credentials: String::new(), seconds: 60, char_id: None, gateway: None, say: Vec::new(), wander: 0.0, fight: false, class: 0x030e, view: 15, enter: Vec::new(), arena_vote: Vec::new(), vault: Vec::new(), visit_answer: None };
+        Args { account: String::new(), credentials: String::new(), seconds: 60, char_id: None, gateway: None, say: Vec::new(), wander: 0.0, fight: false, class: 0x030e, view: 15, enter: Vec::new(), arena_vote: Vec::new(), vault: Vec::new(), visit_answer: None, ping: None };
     let mut it = std::env::args().skip(1);
     while let Some(a) = it.next() {
         let mut value = || it.next().ok_or(format!("{a} needs a value"));
@@ -134,6 +141,9 @@ fn parse_args() -> Result<Args, String> {
                     "wait" => None,
                     v => return Err(format!("--visit-answer: {v} (yes, no or wait)")),
                 })
+            }
+            "--ping" => {
+                args.ping = Some(value()?.split(';').filter(|v| !v.trim().is_empty()).map(|v| v.trim().parse().map_err(|e| format!("--ping: {e}"))).collect::<Result<_, _>>()?)
             }
             "--enter" => args.enter = value()?.split(";;").map(|l| l.trim().to_owned()).filter(|l| !l.is_empty()).collect(),
             _ => return Err(format!("unknown argument {a}")),
@@ -238,6 +248,9 @@ fn run(args: Args) -> Result<(), String> {
     let mut chest: Option<(i32, WorldPos)> = None;
     let mut upgrade: Option<(i32, WorldPos)> = None;
     let mut vault_at: Option<Instant> = None;
+    // --ping: the kinds still to send in this world, and when the next may go (once the server answered)
+    let mut pings: Vec<u8> = Vec::new();
+    let mut next_ping: Option<Instant> = None;
 
     let result = loop {
         if Instant::now() >= deadline {
@@ -249,6 +262,15 @@ fn run(args: Args) -> Result<(), String> {
                 log::info!("saying {line}");
                 socket.send(&PlayerText { text: line.clone() }.into());
                 next_say = Some(Instant::now() + Duration::from_secs(3));
+            }
+        }
+        if next_ping.is_some_and(|t| Instant::now() >= t) {
+            next_ping = None;
+            if let (false, Some(pos)) = (pings.is_empty(), session.position) {
+                let kind = pings.remove(0);
+                log::info!("pinging {kind} at ({:.1}, {:.1})", pos.x + 2.0, pos.y);
+                socket.send(&bsk_proto::PingMark { kind, x: pos.x + 2.0, y: pos.y, z: 0.0, target_id: 0 }.into());
+                next_ping = Some(Instant::now() + Duration::from_secs(1));
             }
         }
         if let (true, Some(data)) = (args.fight, &data) {
@@ -411,6 +433,13 @@ fn run(args: Args) -> Result<(), String> {
                             socket.send(&bsk_proto::VisitAnswer { id: v.id, answer }.into());
                         }
                     }
+                    ServerMessage::PingShow(p) => {
+                        log::info!("ping {} from {} (object {}, relation {}) at ({:.1}, {:.1}, {:.1}) on {}", p.kind, p.name, p.player_id, p.relation, p.x, p.y, p.z, p.target_id);
+                        if p.kind == 255 {
+                            pings = args.ping.clone().unwrap_or_default();
+                            next_ping = Some(Instant::now() + Duration::from_secs(1));
+                        }
+                    }
                     ServerMessage::ImminentArenaWave(w) => {
                         log::info!("arena wave {} state {}", w.wave, w.current_state);
                         if !args.arena_vote.is_empty() && !std::mem::replace(&mut arena_asked, true) {
@@ -447,6 +476,10 @@ fn run(args: Args) -> Result<(), String> {
                         }
                         if !args.vault.is_empty() {
                             vault_at = Some(Instant::now() + Duration::from_secs(2));
+                        }
+                        if args.ping.is_some() {
+                            (pings, next_ping) = (Vec::new(), None);
+                            socket.send(&bsk_proto::PingMark { kind: 255, x: 0.0, y: 0.0, z: 0.0, target_id: 0 }.into());
                         }
                         if args.fight {
                             fighter.joined(object_id);

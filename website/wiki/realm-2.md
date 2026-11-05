@@ -97,12 +97,12 @@ touched for a minute and a half no longer holds up the next.
 ## Waystones
 
 Every couple of events, a **waystone** rises in the heart of a land just cleared, far from the
-shore and from any other: a pale obelisk under a floating crystal, on a ring of glowing runes. Anyone
-entering Realm 2 from then on arrives beside the newest one instead of on the shore. The Realm
-Events list shows the waystone nearest your quest, and the map marks every one as a cyan diamond:
-click the one in the list, or any on the map, to teleport there (as teleporting to a player, once
-every 10 seconds). Arriving at a waystone, by teleporting or by entering the realm, makes you
-invulnerable for a few seconds. No monsters spawn round a waystone.
+shore and from any other: a pale obelisk under a floating crystal, on a ring of glowing runes. You
+always enter Realm 2 on the shore, however far the realm has come, so low-level characters start
+somewhere safe; the waystones are a teleport away. The Realm Events list shows the waystone nearest
+your quest, and the map marks every one as a cyan diamond: click the one in the list, or any on the
+map, to teleport there (as teleporting to a player, once every 10 seconds). Arriving at a waystone
+makes you invulnerable for a few seconds. No monsters spawn round a waystone.
 
 ## Closing Realm 2
 

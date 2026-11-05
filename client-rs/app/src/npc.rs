@@ -61,6 +61,10 @@ pub enum NpcKind {
     Herald,
     /// The Warcaller at the north point of the Nexus spawn: the community goals.
     CommunityGoals,
+    /// The Collection stand in the vault: every piece of gear the account has had.
+    Collection,
+    /// The Pen Keeper at the pet pen east of the Arena court: pets in and out, and raised.
+    PetPen,
 }
 
 impl NpcKind {
@@ -83,6 +87,8 @@ impl NpcKind {
             "ChampionStatue" => Self::ChampionStatue,
             "Herald" => Self::Herald,
             "CommunityGoals" => Self::CommunityGoals,
+            "Collection" => Self::Collection,
+            "PetPen" => Self::PetPen,
             _ => return None,
         })
     }
@@ -152,6 +158,8 @@ pub fn interact_text(kind: NpcKind, me: &GameObj, rank_req: i32, price: Option<i
         NpcKind::ChampionStatue => open(tr("A champion of the Hall"), tr("View")),
         NpcKind::Herald => open(tr("This week in the realm"), tr("View")),
         NpcKind::CommunityGoals => open(tr("The realm's goals, together"), tr("Rally")),
+        NpcKind::Collection => open(tr("Every piece of gear you've had"), tr("View")),
+        NpcKind::PetPen => open(tr("Raise and swap your pets"), tr("Open")),
     }
 }
 
