@@ -22,6 +22,10 @@ details). Add to a group's line when a change adds to it, rather than adding ano
   button for the ping wheel to pick one. Options choose whose pings you see and whether they make a
   sound.
 
+### Abilities
+- Summoner: summons fire three times as fast (the Bunny, Snake, Wasp, Wolf, Wisp, Dragon and
+  Oryx every second, was every 3 seconds; the Drake every 1.2 seconds, was 3.6).
+
 ## 2.3.9 (2026-11-05)
 
 ### Nexus

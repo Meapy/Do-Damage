@@ -12162,7 +12162,7 @@
 		<Usable />
 		<BagType>1</BagType>
 		<MpCost>60</MpCost>
-		<Activate objectId="Bunny" duration="30" allyDamage="70" allyShots="1" allyMs="3000">Summon</Activate>
+		<Activate objectId="Bunny" duration="30" allyDamage="70" allyShots="1" allyMs="1000">Summon</Activate>
 	</Object>
 	<Object type="0xD260" id="Bunny Summon">
 		<Class>Character</Class>
@@ -12194,7 +12194,7 @@
 		<Usable />
 		<BagType>1</BagType>
 		<MpCost>65</MpCost>
-		<Activate objectId="Snake" duration="40" allyDamage="100" allyShots="1" allyMs="3000">Summon</Activate>
+		<Activate objectId="Snake" duration="40" allyDamage="100" allyShots="1" allyMs="1000">Summon</Activate>
 	</Object>
 	<Object type="0xD262" id="Snake Summon">
 		<Class>Character</Class>
@@ -12226,7 +12226,7 @@
 		<Usable />
 		<BagType>1</BagType>
 		<MpCost>75</MpCost>
-		<Activate objectId="Wasp" duration="50" allyDamage="140" allyShots="1" allyMs="3000">Summon</Activate>
+		<Activate objectId="Wasp" duration="50" allyDamage="140" allyShots="1" allyMs="1000">Summon</Activate>
 	</Object>
 	<Object type="0xD264" id="Wasp Summon">
 		<Class>Character</Class>
@@ -12258,7 +12258,7 @@
 		<Usable />
 		<BagType>2</BagType>
 		<MpCost>80</MpCost>
-		<Activate objectId="Wolf" duration="60" allyDamage="180" allyShots="1" allyMs="3000">Summon</Activate>
+		<Activate objectId="Wolf" duration="60" allyDamage="180" allyShots="1" allyMs="1000">Summon</Activate>
 	</Object>
 	<Object type="0xD266" id="Wolf Summon">
 		<Class>Character</Class>
@@ -12290,7 +12290,7 @@
 		<Usable />
 		<BagType>2</BagType>
 		<MpCost>85</MpCost>
-		<Activate objectId="Drake" duration="70" allyDamage="100" allyShots="3" allyMs="3600">Summon</Activate>
+		<Activate objectId="Drake" duration="70" allyDamage="100" allyShots="3" allyMs="1200">Summon</Activate>
 	</Object>
 	<Object type="0xD268" id="Drake Summon">
 		<Class>Character</Class>
@@ -12322,7 +12322,7 @@
 		<Usable />
 		<BagType>4</BagType>
 		<MpCost>90</MpCost>
-		<Activate objectId="Wisp" duration="80" allyDamage="100" allyShots="3" allyMs="3000">Summon</Activate>
+		<Activate objectId="Wisp" duration="80" allyDamage="100" allyShots="3" allyMs="1000">Summon</Activate>
 	</Object>
 	<Object type="0xD26A" id="Wisp Summon">
 		<Class>Character</Class>
@@ -12372,7 +12372,7 @@
 		<ActivateOnEquip stat="3" amount="20">IncrementStat</ActivateOnEquip>
 		<BagType>4</BagType>
 		<MpCost>100</MpCost>
-		<Activate objectId="Dragon" duration="90" allyDamage="75" allyShots="5" allyMs="3000">Summon</Activate>
+		<Activate objectId="Dragon" duration="90" allyDamage="75" allyShots="5" allyMs="1000">Summon</Activate>
 	</Object>
 	<Object type="0xD26C" id="Dragon Summon">
 		<Class>Character</Class>
@@ -12403,7 +12403,7 @@
 		<Usable />
 		<BagType>2</BagType>
 		<MpCost>85</MpCost>
-		<Activate objectId="Sheep" duration="30" allyDamage="10" allyShots="1" allyMs="3000">Summon</Activate>
+		<Activate objectId="Sheep" duration="30" allyDamage="10" allyShots="1" allyMs="1000">Summon</Activate>
 	</Object>
 	<Object type="0xD26E" id="Sheep Summon">
 		<Class>Character</Class>
@@ -12440,7 +12440,7 @@
 		<ActivateOnEquip stat="3" amount="40">IncrementStat</ActivateOnEquip>
 		<BagType>9</BagType>
 		<MpCost>100</MpCost>
-		<Activate objectId="Oryx" duration="90" allyDamage="95" allyShots="5" allyMs="3000">Summon</Activate>
+		<Activate objectId="Oryx" duration="90" allyDamage="95" allyShots="5" allyMs="1000">Summon</Activate>
 		<Soulbound />
 	</Object>
 	<Object type="0xD270" id="Oryx Summon">
