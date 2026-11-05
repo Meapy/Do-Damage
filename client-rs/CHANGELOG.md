@@ -38,6 +38,50 @@ details). Add to a group's line when a change adds to it, rather than adding ano
 - Summoner: summons fire three times as fast (the Bunny, Snake, Wasp, Wolf, Wisp, Dragon and
   Oryx every second, was every 3 seconds; the Drake every 1.2 seconds, was 3.6).
 
+### Nexus
+- The Nexus's paths and bridges are half as quick again to walk, and the minimap shows its places
+  before you've been there, each with its picture (the Divine Forge's fire, the Warcaller, the
+  portals...), ringed gold for those you talk to and violet for portals: hover one for its name.
+- A pet pen east of the Herald and the Warcaller, down a path curving off the main path, where
+  pets of every kind come and go. Its Pen
+  Keeper takes your pet back, puts in another from its stone, and raises a Small pet to Medium for a
+  Superburger, or a Medium one to Large for 25 Shards of the Mad God: it keeps its look and its
+  shots, and hits and heals as the bigger size (its stone says so, as "Grey Wolf (Large)"). He
+  keeps the shards you give him, or use anywhere, for your whole account.
+- On the Sky Bar and the other upper floors, teleporting to a player brings you onto their floor
+  instead of under it, and your pet, summons, traps, allies and the bags you drop stay on your floor
+  too.
+
+### Vault
+- The Collection, a golden trophy by the vault's spawn: every piece of gear there is, in colour once
+  your account has had it, all of it by kind or the untiered gear by the dungeon it drops in.
+- The side bar's Inventory and Backpack tabs work while the vault window is open (Ctrl+B too), so
+  your backpack's items go in and out of the vault.
+
+### Items
+- Mystery Keys open a random dungeon: Bronze an easy one, Silver a middling one, Gold one of the
+  hardest or, now and then, Oryx's Castle. Mystery Pet Stones give a random pet: Bronze a Tiny or
+  Small one, Silver a Medium one, Gold a Large one.
+- The Trap of the Vile Spirit raises three ghost ships for 4 seconds that fire slowing bolts at
+  nearby enemies (6 second cooldown). The Cave Dweller Trap's Crystal Sentry and Lightning in a
+  Bottle's bolt now attack, and go, as their tooltips say.
+- The Blademaster's jackets have no cooldown of their own, and pets heal you from any distance.
+- The Warcaller's rewards give Lucky Clovers and Golden Lucky Clovers instead of XP Boosters.
+
+### Oryx 5
+- A smaller party faces a smaller Host: one of them for a player alone, two for two or three
+  players, all four from four players on.
+- His Last Judgement's lava starts a tile further in, his volleys turn a little each time so no gap
+  between them stays safe, and once you've survived it the temple's floor comes back. The lava only
+  ever floods his own temple.
+
+### Realms and dungeons
+- Realm 2 always puts you on its shore; its waystones are a teleport away in the events list.
+- Walls broken by any attack (shots, traps, area attacks, allies) and gates that open leave floor
+  behind them instead of a black hole, and the Shatters' gates after its first boss open for
+  everyone.
+- Honey and other ground you sink into never slow you below the pace of a 20 Speed character.
+
 ## 2.3.9 (2026-11-05)
 
 ### Nexus

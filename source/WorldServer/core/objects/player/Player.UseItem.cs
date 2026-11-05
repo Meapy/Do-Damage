@@ -144,6 +144,23 @@ namespace WorldServer.core.objects
                 Client.SendPacket(new InvResult() { Result = 1 });
             }
 
+            // a Shard of the Mad God used from the inventory goes to the Pen Keeper, who keeps it for the
+            // account towards raising a pet to Large (Player.PetPen.cs), wherever you are
+            if (container == this && item.ObjectId.StartsWith(PetShardPrefix))
+            {
+                var answer = TradeTarget != null ? null : GiveShards(new[] { slot });
+                if (answer == null)
+                    Refuse("You can't use that while trading.");
+                else
+                {
+                    entity.ForceUpdate(slot);
+                    (answer.Ok ? (Action<string>)SendInfo : SendError)(answer.Message);
+                    if (answer.Ok)
+                        Client.SendPacket(answer);
+                }
+                return;
+            }
+
             // make sure not trading and trying to cunsume item
             if (TradeTarget != null && item.Consumable)
             {
@@ -248,6 +265,12 @@ namespace WorldServer.core.objects
 
                     if (item.Consumable)
                     {
+                        // a pet generator's raise (Player.PetPen.cs), read before its slot is emptied
+                        if (container == this && item.ActivateEffects.Any(e => e.Effect == ActivateEffects.PermaPet) && slot < Inventory.Data.Length)
+                        {
+                            _usedPetData = Inventory.Data[slot];
+                            Inventory.Data[slot] = null;
+                        }
                         Item successor = null;
                         if (item.SuccessorId != null)
                             successor = gameData.Items[gameData.IdToObjectType[item.SuccessorId]];
@@ -855,6 +878,7 @@ namespace WorldServer.core.objects
             // after every throw, which every nearby player was sent and every tick went through.
             var x = new Placeholder(GameServer, eff.ThrowTime + eff.DelayMS + 1000);
             x.Move(target.X, target.Y);
+            x.Z = Z;
             World.EnterWorld(x);
 
             World.StartNewTimer(throwTime + eff.DelayMS, (world, t) =>
@@ -868,14 +892,23 @@ namespace WorldServer.core.objects
                     Pos2 = new Position() { X = Id, Y = 255 }
                 }, x);
 
-                Entity entity = Resolve(World.GameServer, objType);
-                if (entity == null)
-                    return;
-                entity.AllyOwnerId = Id;
-                entity.GivesNoXp = true;
-                entity.ApplyConditionEffect(ConditionEffectIndex.Invincible, -1);
-                entity.Move(target.X, target.Y);
-                World.EnterWorld(entity);
+                // `amount` of them (the Trap of the Vile Spirit's three ships), each given its share of
+                // the circle round where they land (SavedAngle: AllyCircle starts them there)
+                var count = Math.Max(1, eff.Amount);
+                for (var i = 0; i < count; i++)
+                {
+                    Entity entity = Resolve(World.GameServer, objType);
+                    if (entity == null)
+                        return;
+                    entity.AllyOwnerId = Id;
+                    entity.GivesNoXp = true;
+                    entity.ApplyConditionEffect(ConditionEffectIndex.Invincible, -1);
+                    entity.SavedAngle = count > 1 ? i * MathF.PI * 2 / count : null;
+                    entity.Move(target.X, target.Y);
+                    // on the thrower's floor, on stacked floors (else the ground's, under them)
+                    entity.Z = Z;
+                    World.EnterWorld(entity);
+                }
             });
         }
         private void AEBackpack(TickTime time, Item item, Position target, int slot, int objId, ActivateEffect eff)
@@ -1000,6 +1033,7 @@ namespace WorldServer.core.objects
             var timeoutTime = gameData.Portals[objType].Timeout;
 
             entity.Move(X, Y);
+            entity.Z = Z;
             World.EnterWorld(entity);
 
             World.StartNewTimer(timeoutTime * 1000, (world, t) => world.LeaveWorld(entity));
@@ -1014,11 +1048,15 @@ namespace WorldServer.core.objects
             World.ForeachPlayer(_ => _.SendInfo(openedByMsg));
         }
 
-        private void AECreatePortal(TickTime time, Item item, Position target, int slot, ActivateEffect eff)
+        private void AECreatePortal(TickTime time, Item item, Position target, int slot, ActivateEffect eff) => OpenDungeonPortal(eff.Id);
+
+        /// <summary>Opens a dungeon's portal at our feet for its timeout, announced to the world, as its
+        /// key does (and a Mystery Key, Player.MysteryBoxes.cs).</summary>
+        private void OpenDungeonPortal(string portalId)
         {
             var gameData = GameServer.Resources.GameData;
 
-            if (!gameData.IdToObjectType.TryGetValue(eff.Id, out ushort objType) ||
+            if (portalId == null || !gameData.IdToObjectType.TryGetValue(portalId, out ushort objType) ||
                 !gameData.Portals.ContainsKey(objType))
                 return; // object not found, ignore
 
@@ -1026,6 +1064,7 @@ namespace WorldServer.core.objects
             var timeoutTime = gameData.Portals[objType].Timeout;
 
             entity.Move(X, Y);
+            entity.Z = Z;
             World.EnterWorld(entity);
 
             World.StartNewTimer(timeoutTime * 1000, (world, t) => world.LeaveWorld(entity));
@@ -1105,6 +1144,7 @@ namespace WorldServer.core.objects
             var newType = gameData.IdToObjectType[eff.NewId];
             var entity = Resolve(GameServer, newType);
             entity.Move(target.X, target.Y);
+            entity.Z = target.Z;
             World.LeaveWorld(target);
             World.EnterWorld(entity);
             if (entity is Portal)
@@ -1132,6 +1172,7 @@ namespace WorldServer.core.objects
                 speed == 0 ? target : Position,
                 speed, distance, objType);
             decoy.Move(X, Y);
+            decoy.Z = Z;
             World.EnterWorld(decoy);
 
             var numShots = eff.NumShots;
@@ -1473,6 +1514,7 @@ namespace WorldServer.core.objects
             entity.GivesNoXp = true;
             entity.ApplyConditionEffect(ConditionEffectIndex.Invincible, -1);
             entity.Move(X, Y);
+            entity.Z = Z;
             World.EnterWorld(entity);
         }
 
@@ -1484,10 +1526,14 @@ namespace WorldServer.core.objects
             // generators are used up, so the pet this one replaces goes back into the inventory as
             // its generator: swapping pets never loses one
             var old = PetId;
+            var oldUpgrade = PetUpgrade;
             PetId = desc.ObjectType;
+            // a generator the Pen Keeper raised brings its raise back
+            PetUpgrade = _usedPetData?.PetUpgrade ?? 0;
+            _usedPetData = null;
             SpawnPetIfAttached(World);
             if (old != 0 && old != PetId)
-                GivePetGeneratorBack(old);
+                GivePetGeneratorBack(old, oldUpgrade);
         }
 
         // The item that gives this pet (a PermaPet activate for it): a "... Generator" before the
@@ -1515,12 +1561,27 @@ namespace WorldServer.core.objects
 
         // Puts the pet's generator in the inventory (the gift chest when it's full); false when the
         // pet has no generator to give back.
-        public bool GivePetGeneratorBack(int petType)
+        public bool GivePetGeneratorBack(int petType, int upgrade = 0)
         {
             var generator = PetGenerator(petType);
             if (generator == null)
                 return false;
-            GiveItem(generator);
+            if (upgrade <= 0)
+            {
+                GiveItem(generator);
+                return true;
+            }
+            // raised by the Pen Keeper: the raise goes with it, in its slot's data (or the gift chest,
+            // which keeps no data, when the inventory is full)
+            var slot = Inventory.GetAvailableInventorySlot(generator);
+            if (slot == -1)
+            {
+                GiveItem(generator);
+                return true;
+            }
+            Inventory.Data[slot] = new Shared.database.character.inventory.ItemData { PetUpgrade = upgrade };
+            Inventory[slot] = generator;
+            SendInfo($"You received {generator.DisplayName}!");
             return true;
         }
 
@@ -1545,6 +1606,7 @@ namespace WorldServer.core.objects
             // after every throw, which every nearby player was sent and every tick went through.
             var x = new Placeholder(GameServer, eff.ThrowTime + 1000);
             x.Move(target.X, target.Y);
+            x.Z = Z;
             World.EnterWorld(x);
 
             World.StartNewTimer(eff.ThrowTime, (world, t) =>
@@ -1716,6 +1778,7 @@ namespace WorldServer.core.objects
             {
                 var trap = new Trap(this, eff.Radius, eff.TotalDamage, eff.ConditionEffect ?? ConditionEffectIndex.Slowed, eff.EffectDuration);
                 trap.Move(target.X, target.Y);
+                trap.Z = Z;
                 world.EnterWorld(trap);
             });
         }

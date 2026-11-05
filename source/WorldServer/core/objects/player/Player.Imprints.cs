@@ -263,6 +263,7 @@ namespace WorldServer.core.objects
                     wisp.GivesNoXp = true;
                     wisp.ApplyConditionEffect(ConditionEffectIndex.Invincible, -1);
                     wisp.Move(X, Y);
+                    wisp.Z = Z;
                     World.EnterWorld(wisp);
                 }
                 switch (i)

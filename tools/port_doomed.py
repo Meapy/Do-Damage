@@ -643,6 +643,7 @@ DOOMED_ABILITY_SLOTS = {30, 32, 37, 126, 128, 130, 5000, 5005}
 # The Blademaster: every Dual Blades shot ignores defense (<ArmorPiercing/>), and its T3-T8 jackets
 # also give it Attack for a while (StatBoostSelf, which shows the Att Boost status): (amount, seconds).
 DUAL_BLADES_SLOT = "36"
+JACKET_SLOT = "37"  # the Blademaster's ability
 JACKET_BOOSTS = {"Lightweight Jacket": (3, 3), "Murderous Jacket": (5, 4), "Invincibility Jacket": (7, 5),
                  "Jacket of Sorrows": (10, 6), "Skyfall Jacket": (12, 7), "Jacket of Bloodrut Nature": (15, 8)}
 ABILITY_BAGS = [1, 1, 1, 2, 2, 4, 4, 9, 9]
@@ -866,6 +867,11 @@ def tune_gear(dr):
             e.text = "IncrementStat"
             o.insert(at, e)
             at += 1
+    # the Blademaster's jackets have no cooldown of their own (the owner, 2026-11-05): the usual half
+    # a second between uses, their mana the only limit
+    for o in dr.values():
+        if o.findtext("SlotType") == JACKET_SLOT and o.find("Cooldown") is not None:
+            o.remove(o.find("Cooldown"))
     for o in dr.values():
         if o.findtext("SlotType") == DUAL_BLADES_SLOT and o.find("Projectile") is not None                 and o.find("Projectile").find("ArmorPiercing") is None:
             ET.SubElement(o.find("Projectile"), "ArmorPiercing")

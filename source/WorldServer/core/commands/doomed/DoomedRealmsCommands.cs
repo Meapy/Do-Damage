@@ -235,7 +235,7 @@ namespace WorldServer.core.commands.doomed
                 return player.AskToVisit(target.Client, summon: true);
             if (target.World == player.World)
             {
-                target.TeleportPosition(time, player.X, player.Y, true);
+                target.TeleportPosition(time, player.X, player.Y, true, player.Z);
                 return true;
             }
             target.SendInfo($"You are being summoned by {player.Name}.");

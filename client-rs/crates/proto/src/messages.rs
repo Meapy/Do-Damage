@@ -259,6 +259,16 @@ messages! {
         // floor) and the object it marks (0: none, else the ping follows it while we see it), and
         // who they are to us: 0 someone nearby, 1 our guild, 2 our party, 3 ourselves.
         135 => PingShow { player_id: i32, name: String, kind: u8, x: f32, y: f32, z: f32, target_id: i32, relation: u8 },
+        // The Collection (after CollectionRequest): every piece of gear there is to collect, the ones
+        // the account has had, and where the untiered gear comes from.
+        137 => Collection { all: List16<u16>, have: List16<u16>, groups: List16<CollectionGroup> },
+        // The Pen Keeper's answer (after PetPenAct): the pet (0 for none), its size as it hatched
+        // and now (0 Tiny to 3 Large, 255 unknown), the shards he keeps for the account and how many
+        // a raise to Large takes, whether the act worked and what to say about it (empty for a plain
+        // ask).
+        139 => PetPen { pet: u16, base_size: u8, size: u8, shards: i32, shards_needed: u8, ok: bool, message: String },
+        // The Nexus's places for the minimap (after NexusPlacesRequest): its NPCs and portals.
+        141 => NexusPlaces { places: List16<NexusPlace> },
     }
 }
 
@@ -382,5 +392,14 @@ messages! {
         // each world, says we can show PingShows. An older server doesn't know it (one unknown
         // message per world, and pings that go nowhere).
         134 => PingMark { kind: u8, x: f32, y: f32, z: f32, target_id: i32 },
+        // The Collection in the vault: ask for Collection (an older server doesn't know it).
+        136 => CollectionRequest {},
+        // The Pen Keeper: 0 asks, 1 takes the pet back, 2 puts in the pet of the generator in
+        // inventory slot `slot`, 3 raises it Small to Medium (a Superburger), 4 gives him the
+        // inventory's Shards of the Mad God (he keeps them for the account), 5 raises it Medium to
+        // Large with 25 of them. Answered by PetPen.
+        138 => PetPenAct { action: u8, slot: u8 },
+        // Ask for NexusPlaces, in the Nexus (an older server doesn't know it).
+        140 => NexusPlacesRequest {},
     }
 }

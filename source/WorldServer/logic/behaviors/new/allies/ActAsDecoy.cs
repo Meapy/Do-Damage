@@ -27,6 +27,7 @@ namespace WorldServer.logic.behaviors
             decoy = new Decoy(player, 999999, 0, host.Position,
                 0, null, 0x4972);
             decoy.Move(host.X, host.Y);
+            decoy.Z = host.Z;
             host.World.EnterWorld(decoy);
         }
 

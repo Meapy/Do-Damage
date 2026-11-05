@@ -226,6 +226,7 @@
 			</Texture>
 		</RandomTexture>
 		<BlendPriority>12</BlendPriority>
+		<Speed>1.5</Speed>
 		<Color>0x908E98</Color>
 	</Ground>
 	<Ground type="0x9B0A" id="NG Mossy Path">
@@ -249,6 +250,7 @@
 		</RandomTexture>
 		<BlendPriority>11</BlendPriority>
 		<Petals />
+		<Speed>1.5</Speed>
 		<Color>0x76847A</Color>
 	</Ground>
 	<Ground type="0x9B0B" id="NG Shrine Slab">
@@ -303,6 +305,7 @@
 			</Texture>
 		</RandomTexture>
 		<BlendPriority>15</BlendPriority>
+		<Speed>1.5</Speed>
 		<Color>0x908E98</Color>
 	</Ground>
 	<Ground type="0x9B0E" id="NG Tatami">
@@ -371,6 +374,7 @@
 			</Texture>
 		</RandomTexture>
 		<BlendPriority>22</BlendPriority>
+		<Speed>1.5</Speed>
 		<Color>0x7A4E30</Color>
 	</Ground>
 	<Ground type="0x9B12" id="NG Bridge Planks NS">
@@ -389,6 +393,7 @@
 			</Texture>
 		</RandomTexture>
 		<BlendPriority>22</BlendPriority>
+		<Speed>1.5</Speed>
 		<Color>0x7A4E30</Color>
 	</Ground>
 	<Ground type="0x9B13" id="NG Petal Gravel">

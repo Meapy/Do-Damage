@@ -51,9 +51,7 @@ namespace WorldServer.core.objects
                 if (World.Map.Contains(x, y))
                     if (ObjectDesc != null && World.Map[x, y].ObjType == ObjectType)
                     {
-                        var tile = World.Map[x, y];
-                        tile.ObjType = 0;
-                        tile.UpdateCount++;
+                        World.Map.ClearObject(x, y);
 
                         foreach (var player in World.PlayersCollision.HitTest(x, y, Player.MAX_VISIBILITY_RADIUS).OfType<Player>())
                             player.UpdateTiles();

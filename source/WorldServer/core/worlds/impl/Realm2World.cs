@@ -39,8 +39,8 @@ namespace WorldServer.core.worlds.impl
             return true;
         }
 
-        // beside the newest waystone once the realm has one, so returning players needn't walk the
-        // whole way out again; on the shore before that
-        public override Position GetPlayerSpawnPosition() => RealmManager.ArrivalPoint() ?? base.GetPlayerSpawnPosition();
+        // always on the shore, where the realm is gentlest: arriving beside the newest waystone, deep
+        // in the realm, killed low-level characters. The waystones are a teleport away (the events
+        // list) for those who want them.
     }
 }

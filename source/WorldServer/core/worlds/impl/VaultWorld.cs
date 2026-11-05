@@ -46,6 +46,21 @@ namespace WorldServer.core.worlds.impl
 
         public override bool AllowedAccess(Client client) => (AccountId == client.Account.AccountId) || client.Account.Admin;
 
+        // the Collection (Player.Collection.cs): a few steps west of the spawn, on the first free
+        // square there
+        private void PlaceCollection(IntPoint spawn)
+        {
+            foreach (var (dx, dy) in new[] { (-4, -2), (-5, -2), (-4, -3), (-3, -2), (-5, -1), (4, -2), (5, -2) })
+            {
+                int x = spawn.X + dx, y = spawn.Y + dy;
+                if (Map.Contains(x, y) && Map[x, y].ObjType == 0 && IsPassable(x + 0.5, y + 0.5, true))
+                {
+                    CreateNewEntity("The Collection", x + 0.5f, y + 0.5f);
+                    return;
+                }
+            }
+        }
+
         public override void LeaveWorld(Entity entity)
         {
             base.LeaveWorld(entity);
@@ -129,6 +144,8 @@ namespace WorldServer.core.worlds.impl
 
             foreach (var i in vaultChestPosition)
                 CreateNewEntity(0x0505, i.X + 0.5f, i.Y + 0.5f);
+
+            PlaceCollection(spawn);
 
             var gifts = Client.Account.Gifts.ToList();
             while (gifts.Count > 0 && giftChestPosition.Count > 0)

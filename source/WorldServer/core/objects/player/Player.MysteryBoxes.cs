@@ -3,6 +3,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text.RegularExpressions;
+using WorldServer.core.worlds;
 
 namespace WorldServer.core.objects
 {
@@ -31,6 +32,46 @@ namespace WorldServer.core.objects
 
         private static readonly Regex StGearId = new Regex(@"ST\d$", RegexOptions.Compiled);
 
+        // What the Mystery Keys open, at random, where they're used (as the dungeon's own key would:
+        // OpenDungeonPortal): the dungeons whose portals the realms drop, split by the wiki's
+        // difficulty (from the boss's health). Bronze the beginner and easy ones, Silver the medium
+        // and hard ones, Gold the hardest, and now and then Oryx's Castle.
+        private static readonly Dictionary<string, string[]> MysteryKeys = new Dictionary<string, string[]>
+        {
+            ["Mystery Key (Bronze)"] = new[]
+            {
+                "Pirate Cave Portal", "Forest Maze Portal", "Spider Den Portal", "Deadwater Docks", "Forbidden Jungle Portal",
+                "Snake Pit Portal", "GC Gigantic Cave Portal", "Undead Lair Portal", "Glowing Portal", "Abyss of Demons Portal",
+                "Ancient Ruins Portal", "Magic Woods Portal", "Candyland Portal", "Manor of the Immortals Portal"
+            },
+            ["Mystery Key (Silver)"] = new[]
+            {
+                "Toxic Sewers Portal", "Mad Lab Portal", "Beachzone Portal", "Cursed Library Portal", "Puppet Theatre Portal",
+                "Woodland Labyrinth", "Davy Jones' Locker Portal", "Lair of Draconis Portal", "Treasure Cave Portal",
+                "Haunted Cemetery Portal", "The Crawling Depths", "Ice Cave Portal", "Lair of Shaitan Portal", "Ice Tomb Portal",
+                "Mountain Temple Portal"
+            },
+            ["Mystery Key (Gold)"] = new[]
+            {
+                "Ocean Trench Portal", "Parasite Chambers Portal", "Secluded Thicket Portal", "The Shatters",
+                "Tomb of the Ancients Portal", "Lost Halls Portal", "Cnidarian Reef Portal"
+            }
+        };
+
+        // the Gold key's chance of Oryx's Castle instead
+        private const string MysteryKeyOryxKey = "Mystery Key (Gold)";
+        private const string MysteryKeyOryxPortal = "Oryx's Castle Portal";
+        private const double MysteryKeyOryxChance = 0.1;
+
+        // What the Mystery Pet Stones give: a pet of these sizes at random (its generator, which
+        // gives the pet when used)
+        private static readonly Dictionary<string, string[]> MysteryPetSizes = new Dictionary<string, string[]>
+        {
+            ["Mystery Pet Stone (Bronze)"] = new[] { "Tiny", "Small" },
+            ["Mystery Pet Stone (Silver)"] = new[] { "Medium" },
+            ["Mystery Pet Stone (Gold)"] = new[] { "Large" }
+        };
+
         // The reward pools of the mystery items that work, built once from the game data.
         private static Dictionary<string, (Item Item, int Weight)[]> _mysteryBoxes;
 
@@ -55,6 +96,9 @@ namespace WorldServer.core.objects
                     ["Mystery Dye (Clothing)"] = Even(items.Where(i => i.ObjectId.EndsWith(" Clothing Dye"))),
                     ["Mystery Dye (Accessory)"] = Even(items.Where(i => i.ObjectId.EndsWith(" Accessory Dye")))
                 };
+                foreach (var (stone, sizes) in MysteryPetSizes)
+                    boxes[stone] = Even(items.Where(i => i.Consumable && i.ActivateEffects.Any(e =>
+                        e.Effect == ActivateEffects.PermaPet && e.PetSize != null && sizes.Contains(e.PetSize))));
                 foreach (var name in boxes.Where(b => b.Value.Length == 0).Select(b => b.Key).ToList())
                     boxes.Remove(name);
                 return _mysteryBoxes = boxes;
@@ -70,7 +114,7 @@ namespace WorldServer.core.objects
                     return false;
                 if (eff.Effect == ActivateEffects.Exchange && (eff.Id == null || !gameData.IdToObjectType.ContainsKey(eff.Id)))
                     return false;
-                if (eff.Effect == ActivateEffects.MysteryDyes && !MysteryBoxes.ContainsKey(item.ObjectId))
+                if (eff.Effect == ActivateEffects.MysteryDyes && !MysteryBoxes.ContainsKey(item.ObjectId) && !MysteryKeys.ContainsKey(item.ObjectId))
                     return false;
             }
             return true;
@@ -98,9 +142,18 @@ namespace WorldServer.core.objects
             GiveItem(gameData.Items[gameData.IdToObjectType[eff.Id]]);
         }
 
-        // MysteryDyes: a mystery box gives one item from its pool
+        // MysteryDyes: a mystery box gives one item from its pool; a Mystery Key opens a dungeon
         private void AEMysteryBox(Item box)
         {
+            if (MysteryKeys.TryGetValue(box.ObjectId, out var portals))
+            {
+                var open = portals.Where(p => SealedDungeons.WhyPortal(p) == null).ToArray();
+                var portal = box.ObjectId == MysteryKeyOryxKey && Random.Shared.NextDouble() < MysteryKeyOryxChance
+                    ? MysteryKeyOryxPortal
+                    : open[Random.Shared.Next(open.Length)];
+                OpenDungeonPortal(portal);
+                return;
+            }
             var pool = MysteryBoxes[box.ObjectId];
             var roll = Random.Shared.Next(pool.Sum(r => r.Weight));
             foreach (var (item, weight) in pool)

@@ -24,6 +24,11 @@ namespace Shared.database.account
         public void StoredTotalCredits(int totalCredits) => SetStored("totalCredits", totalCredits);
         public bool FirstDeath { get => GetValue<bool>("firstDeath"); set => SetValue("firstDeath", value); }
         public ushort[] Gifts { get => GetValue<ushort[]>("gifts") ?? new ushort[0]; set => SetValue("gifts", value); }
+        // the Collection (WorldServer core/collection): every piece of gear the account has had, by
+        // type; null until it's first worked out from what the account holds
+        public ushort[] Collection { get => GetValue<ushort[]>("collection"); set => SetValue("collection", value); }
+        // the Shards of the Mad God the Pen Keeper keeps for the account (WorldServer Player.PetPen.cs)
+        public int PenShards { get => GetValue<int>("penShards"); set => SetValue("penShards", value); }
         public int GlowColor { get => GetValue<int>("glow"); set => SetValue("glow", value); }
         // where the glow and the chat name colour come from (Shared.champions.LookChoice)
         public int GlowFrom { get => GetValue<int>("glowFrom"); set => SetValue("glowFrom", value); }

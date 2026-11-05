@@ -104,7 +104,7 @@ const CATEGORIES: [(Category, &str); 6] = [
 ];
 
 /// A slot type's name on its filter.
-fn slot_name(t: i32) -> &'static str {
+pub(crate) fn slot_name(t: i32) -> &'static str {
     match t {
         6 => tr("Leather"),
         7 => tr("Heavy"),

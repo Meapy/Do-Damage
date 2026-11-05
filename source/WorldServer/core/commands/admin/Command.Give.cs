@@ -16,6 +16,39 @@ namespace WorldServer.core.commands
             public override RankingType RankRequirement => RankingType.Admin;
             public override string CommandName => "give";
 
+            // only letters and digits, in lower case: "mystery key gold" finds "Mystery Key (Gold)"
+            private static string Loose(string s) => new string(s.Where(char.IsLetterOrDigit).Select(char.ToLowerInvariant).ToArray());
+
+            // an item named loosely: the same letters and digits as its id or name, else the only item
+            // whose id or name has them in it; else what it might be is suggested
+            private static bool FindLoosely(Player player, string name, out ushort objType)
+            {
+                objType = 0;
+                var want = Loose(name);
+                var items = player.GameServer.Resources.GameData.Items.Values;
+                if (want.Length == 0)
+                {
+                    player.SendError("Give what?");
+                    return false;
+                }
+                var exact = items.FirstOrDefault(i => Loose(i.ObjectId) == want || Loose(i.DisplayName ?? "") == want);
+                if (exact != null)
+                {
+                    objType = exact.ObjectType;
+                    return true;
+                }
+                var some = items.Where(i => Loose(i.ObjectId).Contains(want) || Loose(i.DisplayName ?? "").Contains(want)).Take(6).ToList();
+                if (some.Count == 1)
+                {
+                    objType = some[0].ObjectType;
+                    return true;
+                }
+                player.SendError(some.Count == 0
+                    ? $"Unable to find item: {name}!"
+                    : $"Which one? {string.Join(", ", some.Take(5).Select(i => i.ObjectId))}{(some.Count > 5 ? "..." : "")}");
+                return false;
+            }
+
             protected override bool Process(Player player, TickTime time, string args)
             {
                 var gameData = player.GameServer.Resources.GameData;
@@ -33,11 +66,8 @@ namespace WorldServer.core.commands
                 // (Prismimic, an event chest's)
                 if (!gameData.DisplayIdToObjectType.TryGetValue(itemName, out ushort objType) || !gameData.Items.ContainsKey(objType))
                 {
-                    if (!gameData.IdToObjectType.TryGetValue(itemName, out objType))
-                    {
-                        player.SendError($"Unable to find item: {itemName}!");
+                    if (!gameData.IdToObjectType.TryGetValue(itemName, out objType) && !FindLoosely(player, itemName, out objType))
                         return false;
-                    }
                 }
 
                 if (!gameData.Items.ContainsKey(objType))
@@ -83,6 +113,7 @@ namespace WorldServer.core.commands
                     float offsetY = (float)((rand.NextDouble() * 2 - 1) * 0.8);
 
                     container.Move(player.X + offsetX, player.Y + offsetY);
+                    container.Z = player.Z;
                     player.World.EnterWorld(container);
 
                     remaining -= amountInThisBag;

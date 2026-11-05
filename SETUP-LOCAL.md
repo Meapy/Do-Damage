@@ -613,6 +613,44 @@ The remotes `upstream` (HaloCelsius) and `aurusenth` share no history with `main
   older client gets no pings, an older server ignores the client's hello (one unknown message per
   world).
 
+- **The Collection, the pet pen, the Nexus's places, mystery keys and floor fixes** (2026-11-05;
+  messages 136-141, after the pings' 134-135, so client and servers ship together; an older client never asks for any of
+  them).
+  - The Collection (`Player.Collection.cs`, `CollectionHandler.cs`, the Rust client's
+    `collection.rs`): `tools/build_collection.py` writes `resources/data/collection.json` from the
+    wiki's data (every obtainable piece of gear, and each dungeon's untiered gear; run it after
+    adding gear, drops or dungeons, `--check` to see it's current). The account's pieces are
+    `account.<id>` `collection` (ushort array), seeded once from its characters, vault and gift
+    chest, then added to as items enter a character's slots (`Inventory.InventoryChanged`). The
+    stand, `The Collection`, is placed by `VaultWorld.PlaceCollection`.
+  - The pet pen (`tools/build_nexus_islands.py` `PEN`, `lay_pen`; `PetPen.cs`; `Player.PetPen.cs`,
+    `PetPenActHandler.cs`, the client's `petpen.rs`; the Pen Keeper's sprite in
+    `tools/draw_quest_npcs.py`): a raise is `char` `petUpgrade`, and a generator's
+    `ItemData.PetUpgrade` once given back (the client names the stone with its size,
+    `hud::raised_pet_size`); `Pet.DamageScale` and `Pet.Heal` apply it in `PetShoot`, `PetStrike`,
+    `PetNova` and `PetHeal`. The shards he keeps are the account's `penShards`; a Shard of the Mad
+    God is `<InvUse/>`, and using one gives the stack to him (`UseItem`, `GiveShards`).
+  - The Nexus's places (`NexusPlaces.cs`, `NexusPlacesHandler.cs`, the client's
+    `events::draw_nexus_places`): entities and the map's static objects of the classes it lists,
+    on every floor, each with an object to draw (`Icons` for the invisible markers), places within
+    3 tiles sharing a mark.
+  - Mystery Keys and Pet Stones (`Player.MysteryBoxes.cs` `MysteryKeys`, `MysteryPetSizes`; the wiki
+    reads the keys' lists, `wiki_data.mystery_keys`). `/give` finds items by loose names.
+  - Floors: teleports land on the target's floor (`TeleportPosition`'s `z`, the height sent again,
+    the client's `await_height`); what a player spawns is put on their floor; pets and followers
+    join their owner's floor (`PetFollow`, `AllyFollow`).
+  - Walls and gates: `Wmap.ClearObject` brings the ground back (the loader's 0xFD under connected
+    walls, or a neighbour's where the map has none) for every way a wall goes (`Enemy.Death`,
+    `StaticObject.CheckHP`, `OpenGate`, which never told the clients before, `RemoveObject*`).
+  - Oryx 5: `ByPlayers` (the Host by party size), `LavaRing` restores the floor on leaving its
+    state and never paints in an Arena world, `SiegeTurn`.
+  - Smaller ones: the Nexus's paths' `Speed` 1.5 (`nexus_garden/grounds.py` `PATH_SPEED`), the
+    client's sinking floor (`SINK_FLOOR_SPEED`), Realm 2's arrivals always on the shore, the
+    Blademaster's jackets without `<Cooldown>` (`port_doomed.py` `JACKET_SLOT`; applied to the
+    output by hand, as the Doomed Realms repository isn't on this PC), the Vile Spirit's ships
+    (`AllyCircle`, ObjectToss `amount`), the Crystal Sentry's and Bottled Lightning's behaviours,
+    and the Warcaller's clovers.
+
 - **Pets in four sizes, all dropping, 18 new** (2026-11-04; `tools/port_doomed_pets.py`
   `TINY_PETS` / `SMALL_PETS`, `SIZE_DPS`, `PET_DPS`, `SOLD_SIZE`, `GENERATOR_NAMES`, `NEW_PETS`,
   `write_new_pets`, `shot`; `MerchantLists.InitDyes`, `port_doomed_economy.unsold_pet`,

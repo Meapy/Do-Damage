@@ -9,6 +9,11 @@ namespace WorldServer.core.objects
 
         public Player PlayerOwner { get; set; }
 
+        // what the Pen Keeper's raise makes of it (Player.PetPower): its damage times this, and its
+        // healing of HP and MP (null: its own)
+        public float DamageScale { get; set; } = 1;
+        public (int Amount, int Ms)? Heal { get; set; }
+
         public void Damage(int dmg, Entity src) { }
 
         public bool IsVisibleToEnemy() => false;

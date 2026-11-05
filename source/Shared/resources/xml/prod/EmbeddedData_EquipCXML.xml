@@ -7923,6 +7923,10 @@
 		</Texture>
 		<SlotType>20</SlotType>
 		<Description>A long lost artifact recovered by Davy Jones, believed to have been cursed by the gods of the seven seas themselves.</Description>
+		<ExtraTooltipData>
+			<EffectInfo name="Trap" description="Raises 3 ghost ships for 4 seconds"/>
+			<EffectInfo name="Ghost Ship" description="Fires at the nearest enemy within 7 sqrs every 0.5 seconds for 120-160, slowing it for 2 seconds"/>
+		</ExtraTooltipData>
 		<ActivateOnEquip stat="3" amount="20">IncrementStat</ActivateOnEquip>
 		<ActivateOnEquip stat="20" amount="3">IncrementStat</ActivateOnEquip>
 		<ActivateOnEquip stat="22" amount="3">IncrementStat</ActivateOnEquip>
@@ -7930,7 +7934,8 @@
 		<BagType>6</BagType>
 		<FameBonus>6</FameBonus>
 		<MpCost>90</MpCost>
-		<Activate radius="3" totalDamage="650" condEffect="Nothing" throwTime="0.75" sensitivity="0.65" duration="10" color="0x5c6bb8">Trap</Activate>
+		<Activate objectId="Vile Spirit Ship" amount="3" throwTime="0.75" color="0x7dff9a">ObjectToss</Activate>
+		<Cooldown>6</Cooldown>
 		<feedPower>900</feedPower>
 		<Soulbound/>
 	</Object>

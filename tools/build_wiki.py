@@ -974,6 +974,14 @@ class Gen:
             "<li><span>%s</span><span>%s</span></li>" % (esc(n), ("%.1f%%" % (100 * w / total)).replace(".0%", "%"))
             for n, w in sorted(merged.items(), key=lambda x: -x[1]))
 
+    def gen_mystery_keys(self, used):
+        out = []
+        for key, portals in wd.mystery_keys():
+            names = sorted({self.d.objects[p]["dungeon"] or self.d.name(p) for p in portals if p in self.d.objects},
+                           key=str.lower)
+            out.append("<li><strong>%s</strong>: %s</li>" % (esc(self.d.name(key)), esc(", ".join(names))))
+        return "<ul>%s</ul>" % "".join(out)
+
     # the pets: their cards have sprites, so they're built with the gear pages (tools/wiki_gear.py)
     def gen_pets(self, used):
         return self.equip.pet_generators(used)

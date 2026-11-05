@@ -86,6 +86,7 @@ namespace WorldServer.core.objects
 
             var obj = new StaticObject(GameServer, objType, time, true, true, false);
             obj.Move(X, Y);
+            obj.Z = Z;
             obj.Name = (!phantomDeath) ? deathMessage : $"{Name} got rekt";
             World.EnterWorld(obj);
         }

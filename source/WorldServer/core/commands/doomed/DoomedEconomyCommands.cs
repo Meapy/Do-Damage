@@ -725,6 +725,7 @@ namespace WorldServer.core.commands.doomed
             var grave = new StaticObject(player.GameServer, type, maxed == 0 ? 300000 : (int?)null, true, maxed == 0, false);
             grave.Move(player.X, player.Y);
             grave.Name = name;
+            grave.Z = player.Z;
             player.World.EnterWorld(grave);
             return true;
         }

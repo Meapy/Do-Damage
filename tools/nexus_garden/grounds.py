@@ -246,6 +246,9 @@ ARCH_HEIGHT = 0.5
 ARCH_LEVELS = [round(ARCH_HEIGHT * math.sin(math.pi * (i + 0.5) / 9), 3) for i in range(5)]
 
 
+# The Nexus's paths and bridges are quicker to walk (`<Speed>`), so its islands don't take long to cross.
+PATH_SPEED = "1.5"
+
 # name -> (painter, variants, extra XML, minimap colour). Extra: NoWalk, Sink, Speed, Animate and
 # BlendPriority as Realm 2's; `Petals` marks the forest's floor, where the Rust client lets cherry
 # blossom fall across the screen (its text, when there is one, how thickly: three times under the
@@ -263,16 +266,16 @@ GROUNDS = {
     "NG Forest Moss": (grass(MOSS, petals=0.03), 4, {"BlendPriority": "8", "Petals": None}, "0x38643E"),
     "NG Petal Carpet": (petal_carpet, 4, {"BlendPriority": "9", "Petals": None}, "0xE892B2"),
     "NG Packed Earth": (soil(), 4, {"BlendPriority": "10"}, "0x84603E"),
-    "NG Stone Path": (flagstones(STONE), 4, {"BlendPriority": "12"}, "0x908E98"),
-    "NG Mossy Path": (flagstones(STONE, MOSS), 4, {"BlendPriority": "11", "Petals": None}, "0x76847A"),
+    "NG Stone Path": (flagstones(STONE), 4, {"BlendPriority": "12", "Speed": PATH_SPEED}, "0x908E98"),
+    "NG Mossy Path": (flagstones(STONE, MOSS), 4, {"BlendPriority": "11", "Petals": None, "Speed": PATH_SPEED}, "0x76847A"),
     "NG Shrine Slab": (flagstones(SLAB), 4, {"BlendPriority": "13"}, "0xAEA49E"),
     "NG Raked Gravel": (gravel, 2, {"BlendPriority": "14"}, "0xD6D2C8"),
-    "NG Cobblestone": (cobbles, 3, {"BlendPriority": "15"}, "0x908E98"),
+    "NG Cobblestone": (cobbles, 3, {"BlendPriority": "15", "Speed": PATH_SPEED}, "0x908E98"),
     "NG Tatami": (tatami, 2, {"BlendPriority": "16"}, "0x9E984C"),
     "NG Sakura Deck": (planks(DECK, False, seam=1, ends=0.88), 4, {"BlendPriority": "20"}, "0xA8665A"),
     "NG Deck Beam": (deck_border, 2, {"BlendPriority": "21"}, "0x603C26"),
-    "NG Bridge Planks EW": (planks(PLANK, True), 3, {"BlendPriority": "22"}, "0x7A4E30"),
-    "NG Bridge Planks NS": (planks(PLANK, False), 3, {"BlendPriority": "22"}, "0x7A4E30"),
+    "NG Bridge Planks EW": (planks(PLANK, True), 3, {"BlendPriority": "22", "Speed": PATH_SPEED}, "0x7A4E30"),
+    "NG Bridge Planks NS": (planks(PLANK, False), 3, {"BlendPriority": "22", "Speed": PATH_SPEED}, "0x7A4E30"),
     "NG Petal Gravel": (petal_gravel, 3, {"BlendPriority": "14", "Petals": "3"}, "0xE0C8CC"),
     "NG Dojo Sand": (dojo_sand, 2, {"BlendPriority": "13"}, "0xCEBC98"),
 }

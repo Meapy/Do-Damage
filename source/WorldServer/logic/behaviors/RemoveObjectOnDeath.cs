@@ -23,6 +23,7 @@ namespace WorldServer.logic.behaviors
             var map = host.World.Map;
             var w = map.Width;
             var h = map.Height;
+            var cleared = false;
 
             for (var y = 0; y < h; y++)
                 for (var x = 0; x < w; x++)
@@ -38,9 +39,13 @@ namespace WorldServer.logic.behaviors
                     if (dx > _range || dy > _range)
                         continue;
 
-                    tile.ObjType = 0;
-                    tile.UpdateCount++;
+                    map.ClearObject(x, y);
+                    cleared = true;
                 }
+            // players work out their tiles again only when they step onto another one
+            if (cleared)
+                foreach (var player in host.World.Players.Values)
+                    player.UpdateTiles();
         }
 
         protected override void TickCore(Entity host, TickTime time, ref object state)

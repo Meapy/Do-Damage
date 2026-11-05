@@ -274,5 +274,50 @@ namespace WorldServer.core.terrain
             TileData = null;
             ObjectDefs.Clear();
         }
+        /// <summary>The object on square (x, y) taken away (a wall broken, a gate opened): the ground
+        /// the map gives the square comes back (under a connected wall the loader put the Composite
+        /// ground, 0xFD, which is black), and where the map gives it none, the ground most common
+        /// round it, so nobody walks into the void where the wall stood. Players see it once they
+        /// work out their tiles again (Player.UpdateTiles).</summary>
+        public void ClearObject(int x, int y)
+        {
+            if (!Contains(x, y))
+                return;
+            var tile = this[x, y];
+            tile.ObjType = 0;
+            if (tile.TileId == 0xFD)
+                tile.RestoreGround();
+            if (tile.TileId == 0xFF || tile.TileId == 0xFD)
+            {
+                for (var r = 1; r <= 3; r++)
+                {
+                    var counts = new Dictionary<ushort, int>();
+                    WmapTile? best = null;
+                    var most = 0;
+                    for (var dy = -r; dy <= r; dy++)
+                        for (var dx = -r; dx <= r; dx++)
+                        {
+                            if (!Contains(x + dx, y + dy) || (dx == 0 && dy == 0))
+                                continue;
+                            var n = this[x + dx, y + dy];
+                            if (n.TileId == 0xFF || n.TileId == 0xFD)
+                                continue;
+                            counts[n.TileId] = counts.GetValueOrDefault(n.TileId) + 1;
+                            if (counts[n.TileId] > most)
+                            {
+                                most = counts[n.TileId];
+                                best = n;
+                            }
+                        }
+                    if (best is WmapTile b)
+                    {
+                        tile.TileId = b.TileId;
+                        tile.TileDesc = b.TileDesc;
+                        break;
+                    }
+                }
+            }
+            tile.UpdateCount++;
+        }
     }
 }

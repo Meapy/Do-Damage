@@ -536,29 +536,11 @@ namespace WorldServer.core.worlds
             _beacons.Add(beacon);
             _snapshotDirty = true;
             if (announce)
-                RealmBroadcast($"A waystone now shines in {area?.Name ?? "the Godlands"}! Anyone entering the realm arrives there, and you can teleport to it from the events list.");
+                RealmBroadcast($"A waystone now shines in {area?.Name ?? "the Godlands"}! You can teleport to it from the events list.");
             return true;
         }
 
         private bool NearBeacon(int x, int y, double r) => Beacons().Any(b => b.DistTo(x + 0.5f, y + 0.5f) < r);
-
-        /// <summary>Realm2World: where a player arriving now lands, beside the newest waystone (null: the shore).</summary>
-        public Position? ArrivalPoint()
-        {
-            var beacon = Beacons().LastOrDefault();
-            if (beacon == null)
-                return null;
-            for (var tries = 0; tries < 40; tries++)
-            {
-                var a = Random.Shared.NextDouble() * Math.PI * 2;
-                var d = 1.5 + Random.Shared.NextDouble() * 2;
-                var x = beacon.X + (float)(Math.Cos(a) * d);
-                var y = beacon.Y + (float)(Math.Sin(a) * d);
-                if (World.IsPassable(x, y, true))
-                    return new Position(x, y);
-            }
-            return new Position(beacon.X, beacon.Y + 1.5f);
-        }
 
         // ---- the abyss: what wanders or is spawned out over the void (flying minions, a summon
         // thrown off the edge) is gone, so no monster floats out there where nobody can follow

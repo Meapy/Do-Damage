@@ -7989,7 +7989,6 @@
 		<BagType>1</BagType>
 		<MpCost>60</MpCost>
 		<Activate effect="Armored" duration="3" range="4">ConditionEffectAura</Activate>
-		<Cooldown>3.5</Cooldown>
 	</Object>
 	<Object type="0xD1A0" id="Darkness Jacket">
 		<Class>Equipment</Class>
@@ -8006,7 +8005,6 @@
 		<BagType>1</BagType>
 		<MpCost>65</MpCost>
 		<Activate effect="Armored" duration="3.5" range="4">ConditionEffectAura</Activate>
-		<Cooldown>4</Cooldown>
 	</Object>
 	<Object type="0xD1A1" id="Iron Jacket">
 		<Class>Equipment</Class>
@@ -8023,7 +8021,6 @@
 		<BagType>1</BagType>
 		<MpCost>70</MpCost>
 		<Activate effect="Armored" duration="4" range="4">ConditionEffectAura</Activate>
-		<Cooldown>4.5</Cooldown>
 	</Object>
 	<Object type="0xD1A2" id="Lightweight Jacket">
 		<Class>Equipment</Class>
@@ -8041,7 +8038,6 @@
 		<MpCost>75</MpCost>
 		<Activate effect="Armored" duration="4.5" range="4">ConditionEffectAura</Activate>
 		<Activate stat="20" amount="3" duration="3">StatBoostSelf</Activate>
-		<Cooldown>5</Cooldown>
 	</Object>
 	<Object type="0xD1A3" id="Murderous Jacket">
 		<Class>Equipment</Class>
@@ -8059,7 +8055,6 @@
 		<MpCost>80</MpCost>
 		<Activate effect="Armored" duration="5" range="4">ConditionEffectAura</Activate>
 		<Activate stat="20" amount="5" duration="4">StatBoostSelf</Activate>
-		<Cooldown>5.5</Cooldown>
 	</Object>
 	<Object type="0xD1A4" id="Invincibility Jacket">
 		<Class>Equipment</Class>
@@ -8077,7 +8072,6 @@
 		<MpCost>85</MpCost>
 		<Activate effect="Armored" duration="5.5" range="4">ConditionEffectAura</Activate>
 		<Activate stat="20" amount="7" duration="5">StatBoostSelf</Activate>
-		<Cooldown>6</Cooldown>
 	</Object>
 	<Object type="0xD1A5" id="Jacket of Sorrows">
 		<Class>Equipment</Class>
@@ -8099,7 +8093,6 @@
 		<ActivateOnEquip stat="27" amount="2">IncrementStat</ActivateOnEquip>
 		<Activate effect="Armored" duration="5.5" range="4">ConditionEffectAura</Activate>
 		<Activate stat="20" amount="10" duration="6">StatBoostSelf</Activate>
-		<Cooldown>6</Cooldown>
 	</Object>
 	<Object type="0xD1A6" id="Skyfall Jacket">
 		<Class>Equipment</Class>
@@ -8121,7 +8114,6 @@
 		<ActivateOnEquip stat="27" amount="3">IncrementStat</ActivateOnEquip>
 		<Activate effect="Armored" duration="6" range="4">ConditionEffectAura</Activate>
 		<Activate stat="20" amount="12" duration="7">StatBoostSelf</Activate>
-		<Cooldown>6.5</Cooldown>
 		<Soulbound />
 	</Object>
 	<Object type="0xD1A7" id="Jacket of Balance">
@@ -8142,7 +8134,6 @@
 		<Activate duration="3">Decoy</Activate>
 		<Activate maxDistance="20">Teleport</Activate>
 		<Activate effect="Damaging" duration="6">ConditionEffectSelf</Activate>
-		<Cooldown>7</Cooldown>
 	</Object>
 
   --&gt;
@@ -10317,7 +10308,6 @@
 		<Activate effect="Armored" duration="6" range="4">ConditionEffectAura</Activate>
 		<Activate effect="Damaging" duration="6">ConditionEffectSelf</Activate>
 		<Activate stat="20" amount="15" duration="8">StatBoostSelf</Activate>
-		<Cooldown>7</Cooldown>
 		<Soulbound />
 	</Object>
 	<Object type="0xD20B" id="Black Cat (Doomed)">

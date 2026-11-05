@@ -67,6 +67,14 @@ falling all over it: `/vault` or the Vault portal on the Nexus spawn's island. I
   vault), or use a Vault Chest Unlocker.
 - **Gift chests**, in the two fenced yards either side of the path, where things sent to you arrive. You can take items out but not put them in.
 - The **Potion Storage**, the Armoire and the Guild Chronicle.
+- The **Collection**, a golden trophy left of the spawn: every piece of gear (weapons, abilities,
+  armor and rings) there is to get, in colour once your account has had it and dark until then.
+  A piece counts as soon as it's in any of your characters' slots (picked up, forged, traded, or
+  taken from your vault or gift chests); the first time you open it, everything your account holds
+  counts. **All** lists every piece, and its outlines along the top show one kind at a time (staves,
+  robes, rings...). **Dungeons** lists the untiered gear by where it drops, hardest dungeon first,
+  then the realm's and the Divine Forge's; a piece from two places shows in both. Hover a piece for
+  its tooltip.
 - A **Training Dummy** beside the spawn. Shoot it and, 5 seconds after your first hit, the chat
   tells you (and only you) your damage and damage a second, your pet's included. It never dies and
   gives no experience. [Gear statistics](gear-statistics.html) has every class's numbers on it.
@@ -83,7 +91,8 @@ the window shows only what matches and says which chests hold it. A right-click 
 chest with a gold ring and its number.
 
 A **Backpack** (Nexus Bazaar, 500 fame) gives a character eight more inventory slots; <kbd>B</kbd>
-switches between them. Like everything a character carries, it's lost when the character dies.
+switches between them (and the side bar's Inventory and Backpack tabs, which work with the vault
+window open too; there <kbd>Ctrl</kbd>+<kbd>B</kbd>, as <kbd>B</kbd> types into its search). Like everything a character carries, it's lost when the character dies.
 
 ## Trading and the marketplace
 
@@ -131,6 +140,14 @@ Using a **Mystery ST Crate** gives one of these, with these chances:
 {{gen:crate}}
 
 - The **Mystery ST Chest** gives any set (ST) piece.
+- A **Mystery Key** opens a random dungeon's portal where you use it, as that dungeon's key would.
+  Bronze opens the easy ones, Silver the middling ones, Gold the hardest, and now and then (10%)
+  Oryx's Castle instead:
+
+{{gen:mystery_keys}}
+
+- A **Mystery Pet Stone** gives a random pet generator: Bronze a Tiny or Small pet, Silver a Medium
+  one, Gold a Large one.
 - The Bazaar's **Mystery Dyes** give a random clothing or accessory dye.
 - **Lucky Clovers**, the **Loot Drop Potion** and **XP Boosters** start a boost when used
   (`/boosts` shows yours). The **Loot Tier Potion** doesn't do anything yet.

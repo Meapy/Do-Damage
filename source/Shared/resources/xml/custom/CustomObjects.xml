@@ -495,4 +495,58 @@
 		<EnemyOccupySquare/>
 		<WallHeight>6</WallHeight>
 	</Object>
+	<!-- the Trap of the Vile Spirit's ghost ships (ObjectToss, amount 3; BehaviorDb.Allies.cs): they
+	     sail round where it lands for 4 s, firing ghostly bolts that slow -->
+	<Object type="0x7c00" id="Vile Spirit Ship">
+		<Class>GameObject</Class>
+		<AnimatedTexture>
+			<File>chars16x16rEncounters</File>
+			<Index>37</Index>
+		</AnimatedTexture>
+		<Flying/>
+		<Size>60</Size>
+		<ShadowSize>70</ShadowSize>
+		<Z>0.2</Z>
+	</Object>
+	<!-- the Collection in the vault (VaultWorld places it by the spawn): every piece of gear the
+	     account has had, in the Rust client's Collection window (Player.Collection.cs) -->
+	<Object type="0x7c01" id="The Collection">
+		<Class>Collection</Class>
+		<DisplayId>Collection</DisplayId>
+		<Texture>
+			<File>d2LofiObjEmbed</File>
+			<Index>0x22c</Index>
+		</Texture>
+		<Size>120</Size>
+		<Static/>
+		<ShadowSize>70</ShadowSize>
+	</Object>
+	<!-- the Pen Keeper at the gate of the pet pen east of the Arena court (PetPen.cs places him):
+	     takes pets back, puts them in and raises their size (Player.PetPen.cs); drawn by
+	     tools/draw_quest_npcs.py -->
+	<Object type="0x7c02" id="The Pen Keeper">
+		<Class>PetPen</Class>
+		<DisplayId>The Pen Keeper</DisplayId>
+		<Texture>
+			<File>questNpcs16x16</File>
+			<Index>0x0a</Index>
+		</Texture>
+		<Animation prob="1.0" period="0.0">
+			<Frame time="2.2">
+				<Texture>
+					<File>questNpcs16x16</File>
+					<Index>0x0a</Index>
+				</Texture>
+			</Frame>
+			<Frame time="0.7">
+				<Texture>
+					<File>questNpcs16x16</File>
+					<Index>0x0b</Index>
+				</Texture>
+			</Frame>
+		</Animation>
+		<Size>115</Size>
+		<Static/>
+		<ShadowSize>80</ShadowSize>
+	</Object>
 </Objects>

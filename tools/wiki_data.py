@@ -1002,6 +1002,15 @@ def mystery_crate():
     return [(i, int(w)) for i, w in re.findall(r'\("([^"]+)",\s*(\d+)\)', m.group(1))] if m else []
 
 
+def mystery_keys():
+    """What each Mystery Key opens: [(key, [portal ids])] (Player.MysteryBoxes.cs MysteryKeys)."""
+    src = _read(os.path.join(SRC, "WorldServer", "core", "objects", "player", "Player.MysteryBoxes.cs"))
+    m = re.search(r'MysteryKeys\s*=\s*new Dictionary<string, string\[\]>\s*\{(.*?)\n        \};', src, re.S)
+    if not m:
+        return []
+    return [(k, re.findall(r'"([^"]+)"', body)) for k, body in re.findall(r'\["([^"]+)"\]\s*=\s*new\[\]\s*\{(.*?)\}', m.group(1), re.S)]
+
+
 def level_exp(level):
     """Experience from level 1 to a level (Player.GetLevelExp)."""
     return 0 if level == 1 else 50 * (level - 1) + (level - 2) * (level - 1) * 50

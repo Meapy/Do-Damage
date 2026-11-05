@@ -431,6 +431,13 @@ impl Ui<'_> {
 
     /// `item_icon`, see-through (alpha 0-1).
     pub(crate) fn item_icon_faded(&mut self, item: i32, size: i32, cx: f32, cy: f32, scale: f32, alpha: f32) {
+        // the atlas is premultiplied, so every channel fades
+        let tint = if alpha >= 1.0 { Tint::NONE } else { Tint { mul: [alpha; 4], add: [0.0; 3] } };
+        self.item_icon_tinted(item, size, cx, cy, scale, tint);
+    }
+
+    /// `item_icon` in a tint (the Collection's dark pieces, its kinds' outlines).
+    pub(crate) fn item_icon_tinted(&mut self, item: i32, size: i32, cx: f32, cy: f32, scale: f32, tint: Tint) {
         let Some(desc) = self.data.objects.get(&(item as u16)) else { return };
         let Some(src) = self.src(&desc.texture) else { return };
         let size = if src.h == 16 { size / 2 } else { size };
@@ -439,8 +446,6 @@ impl Ui<'_> {
         let Some(icon) = self.redrawer.get(self.sprites, self.renderer, src, false, size, dye) else { return };
         let (w, h) = (icon.w as f32, icon.h as f32);
         let lift = (crate::redraw::PAD as f32 - 1.0) / 2.0;
-        // the atlas is premultiplied, so every channel fades
-        let tint = if alpha >= 1.0 { Tint::NONE } else { Tint { mul: [alpha; 4], add: [0.0; 3] } };
         self.renderer.sprite(icon.rect, Quad::rect((cx - w / 2.0).round(), (cy - h / 2.0 - lift).round(), w, h), tint);
     }
 
@@ -605,6 +610,32 @@ pub fn slot_data_stat(slot: u8) -> u8 {
 }
 
 /// The imprints on the item in an object's slot.
+/// A pet generator the Pen Keeper raised (`ItemData.PetUpgrade` in its slot's data): the size it
+/// raises its pet to, to name after the item, as "Grey Wolf (Large)".
+pub fn raised_pet_size(data: &GameData, item: i32, o: &GameObj, slot: u8) -> Option<&'static str> {
+    let json = o.stat_str(slot_data_stat(slot))?;
+    let i = json.find("\"PetUpgrade\":")?;
+    let up: usize = json[i + 13..].chars().take_while(|c| c.is_ascii_digit()).collect::<String>().parse().ok()?;
+    let size = data.objects.get(&(item as u16))?.xml.children_named("Activate").find(|a| a.text.trim() == "PermaPet")?.attr("petSize")?;
+    let base = ["Tiny", "Small", "Medium", "Large"].iter().position(|&s| s == size)?;
+    match (base + up).min(3) {
+        0 => Some(tr("Tiny")),
+        1 => Some(tr("Small")),
+        2 => Some(tr("Medium")),
+        _ => Some(tr("Large")),
+    }
+    .filter(|_| up > 0)
+}
+
+impl Line {
+    /// The first piece's text with `more` after it (an item's title, raised pet's size).
+    pub fn append(&mut self, more: &str) {
+        if let Some(first) = self.pieces.first_mut() {
+            first.0.push_str(more);
+        }
+    }
+}
+
 pub fn slot_imprints(o: &GameObj, slot: u8) -> [u8; 3] {
     bsk_data::imprint::parse(o.stat_str(slot_data_stat(slot)).unwrap_or(""))
 }
@@ -2407,6 +2438,11 @@ pub fn draw_overlay(ui: &mut Ui, lay: &Layout, world: &World, panel: &Panel, sta
     let me = world.player();
     let lines = if slot.item > 0 {
         let mut lines = item_tooltip_imprinted(ui.data, slot.item, me, slot.kind, slot.imprints);
+        if let Some(size) = me.filter(|m| m.id == slot.owner).and_then(|m| raised_pet_size(ui.data, slot.item, m, slot.index)) {
+            if let Some(title) = lines.first_mut() {
+                title.append(&format!(" ({size})"));
+            }
+        }
         lines.extend(imprint_lines(ui.data, slot.item, slot.imprints));
         lines
     } else {
