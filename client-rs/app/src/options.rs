@@ -693,6 +693,8 @@ enum Hit {
     /// (row, column) on the grid drawn in the rectangle, and clearing it.
     Style(Style),
     Colour(usize),
+    /// The colour to paint the player's own in (`crosshair::PALETTE`).
+    Brush(usize),
     Cell(usize, usize, [f32; 4]),
     ClearCustom,
     /// The crosshair's share code to the clipboard, and a code from it.
@@ -727,7 +729,9 @@ pub struct OptionsUi {
     /// The slider held down, and its track: it follows the mouse until the button comes up.
     dragging: Option<(Slider, [f32; 4])>,
     /// Painting the player's own crosshair: what the cells dragged over become, and the grid.
-    painting: Option<(bool, [f32; 4])>,
+    painting: Option<(Option<usize>, [f32; 4])>,
+    /// The colour the player's own is painted in (`crosshair::PALETTE`).
+    brush: usize,
     /// What the last Copy code or Paste code did, shown under them.
     share_note: Option<ShareNote>,
     rect: Option<[f32; 4]>,
@@ -762,6 +766,23 @@ fn set_slider(slider: Slider, track: [f32; 4], x: f64, settings: &mut Settings) 
     }
 }
 
+/// A round colour swatch (`pair`: its colour and its middle's), ringed when picked.
+fn swatch(ui: &mut Ui, r: [f32; 4], s: f32, (a, d): (u32, u32), picked: bool, hover: bool) {
+    let rad = r[2] / 2.0;
+    if picked {
+        theme::fill(ui.renderer, [r[0] - 4.0 * s, r[1] - 4.0 * s, r[2] + 8.0 * s, r[3] + 8.0 * s], rad + 4.0 * s, color::ACCENT, 1.0);
+    } else if hover {
+        theme::fill(ui.renderer, [r[0] - 3.0 * s, r[1] - 3.0 * s, r[2] + 6.0 * s, r[3] + 6.0 * s], rad + 3.0 * s, color::BORDER_HI, 1.0);
+    }
+    // Edged so black and white both show on the panel.
+    theme::fill(ui.renderer, [r[0] - 1.0, r[1] - 1.0, r[2] + 2.0, r[3] + 2.0], rad + 1.0, if a < 0x202020 { 0x7A7096 } else { 0x000000 }, 1.0);
+    theme::fill(ui.renderer, r, rad, a, 1.0);
+    if d != a {
+        let dot = r[2] * 0.4;
+        theme::fill(ui.renderer, [r[0] + (r[2] - dot) / 2.0, r[1] + (r[3] - dot) / 2.0, dot, dot], dot / 2.0, d, 1.0);
+    }
+}
+
 /// The cell of the player's own crosshair under `pos`, on the grid drawn in `grid`.
 fn grid_cell(grid: [f32; 4], pos: (f64, f64)) -> Option<(usize, usize)> {
     if !inside(grid, pos) {
@@ -774,10 +795,10 @@ fn grid_cell(grid: [f32; 4], pos: (f64, f64)) -> Option<(usize, usize)> {
 }
 
 /// Paint a cell of the player's own crosshair, which then shows. True if anything changed.
-fn paint(settings: &mut Settings, (row, col): (usize, usize), on: bool) -> bool {
+fn paint(settings: &mut Settings, (row, col): (usize, usize), paint: Option<usize>) -> bool {
     let look = &mut settings.crosshair_look;
     let before = *look;
-    look.set_cell(row, col, on);
+    look.set_cell(row, col, paint);
     look.style = Style::Custom;
     *look != before
 }
@@ -854,19 +875,21 @@ impl OptionsUi {
                 settings.crosshair_look.style = style;
                 return true;
             }
+            Hit::Brush(b) => self.brush = b,
             Hit::Colour(c) => {
                 settings.crosshair_look.colour = c;
                 return true;
             }
             Hit::Cell(row, col, grid) => {
                 // A drag paints what the first cell became.
-                let on = !settings.crosshair_look.cell(row, col);
-                paint(settings, (row, col), on);
-                self.painting = Some((on, grid));
+                // A square already in the brush's colour is emptied; any other takes the colour.
+                let brush = Some(self.brush).filter(|&b| settings.crosshair_look.cell(row, col) != Some(b));
+                paint(settings, (row, col), brush);
+                self.painting = Some((brush, grid));
                 return true;
             }
             Hit::ClearCustom => {
-                settings.crosshair_look.custom = [0; crosshair::GRID];
+                settings.crosshair_look.custom = [[0; crosshair::GRID]; crosshair::GRID];
                 settings.crosshair_look.style = Style::Custom;
                 return true;
             }
@@ -1142,7 +1165,7 @@ impl OptionsUi {
         }
         let hint = match self.tab {
             Tab::Controls => tr("Click a key, then press the new one. Backspace clears it."),
-            Tab::Crosshair => tr("Click or drag on the grid to draw your own crosshair."),
+            Tab::Crosshair => tr("Pick a colour under the grid, then click or drag on it. Click a square of that colour to empty it."),
             _ => tr("Changes apply at once."),
         };
         ui.label_fit(hint, r[0] + 22.0 * s, r[1] + r[3] - 80.0 * s, r[2] - 44.0 * s, font(12.0), false, color::TEXT_MUTED);
@@ -1166,7 +1189,6 @@ impl OptionsUi {
     fn draw_crosshair_tab(&mut self, ui: &mut Ui, lay: &Layout, body: [f32; 4], s: f32, settings: &Settings, mouse: (f64, f64)) {
         let look = settings.crosshair_look;
         let font = |size: f32| (size * s).round().max(9.0);
-        let (arm, _) = crosshair::COLOURS[look.colour.min(crosshair::COLOURS.len() - 1)];
         // The player's own.
         let n = crosshair::GRID;
         let cell = (17.0 * s).floor().max(6.0);
@@ -1178,8 +1200,8 @@ impl OptionsUi {
         for row in 0..n {
             for col in 0..n {
                 let r = [grid[0] + col as f32 * cell + 1.0, grid[1] + row as f32 * cell + 1.0, cell - 2.0, cell - 2.0];
-                let (rgb, alpha) = if look.cell(row, col) {
-                    (arm, 1.0)
+                let (rgb, alpha) = if let Some(p) = look.cell(row, col) {
+                    (crosshair::PALETTE[p], 1.0)
                 } else if row == mid || col == mid {
                     // The middle lines, so it's clear where the mouse will be.
                     (color::CHIP_HI, 0.55)
@@ -1193,7 +1215,16 @@ impl OptionsUi {
                 self.hits.push((Hit::Cell(row, col, grid), [grid[0] + col as f32 * cell, grid[1] + row as f32 * cell, cell, cell]));
             }
         }
-        let clear = [grid[0], grid[1] + grid[3] + 14.0 * s, 130.0 * s, 34.0 * s];
+        // The brush: the colour the squares clicked take.
+        let bs = 20.0 * s;
+        let by = grid[1] + grid[3] + 16.0 * s;
+        let step = (grid[2] - bs) / (crosshair::PALETTE.len() - 1) as f32;
+        for (i, rgb) in crosshair::PALETTE.into_iter().enumerate() {
+            let r = [grid[0] + i as f32 * step, by, bs, bs];
+            swatch(ui, r, s, (rgb, rgb), self.brush == i, inside(r, mouse));
+            self.hits.push((Hit::Brush(i), [r[0] - 3.0 * s, r[1] - 3.0 * s, r[2] + 6.0 * s, r[3] + 6.0 * s]));
+        }
+        let clear = [grid[0], by + bs + 16.0 * s, 130.0 * s, 34.0 * s];
         ui.button(clear, tr("Clear"), Kind::Secondary, inside(clear, mouse), s);
         self.hits.push((Hit::ClearCustom, clear));
         // Sharing: the code of the crosshair in use, to copy, and pasting one from a friend.
@@ -1209,12 +1240,11 @@ impl OptionsUi {
         self.hits.push((Hit::PasteCode, paste));
         y += 34.0 * s + 10.0 * s;
         // The code itself, so it can be read out or typed where there's no clipboard; a long
-        // one (the player's own) over two lines.
+        // one (the player's own) over several lines.
         let code = look.code();
         let cs = font(11.0);
-        let half = code.len().div_ceil(2);
-        let lines: Vec<&str> = if code.len() > 24 { vec![&code[..half], &code[half..]] } else { vec![&code] };
-        for line in lines {
+        let per = code.len().div_ceil(code.len().div_ceil(36));
+        for line in code.as_bytes().chunks(per).filter_map(|c| std::str::from_utf8(c).ok()) {
             ui.label_fit(line, grid[0], y, grid[2], cs, true, color::TEXT_DIM);
             y += cs * 1.3;
         }
@@ -1257,27 +1287,22 @@ impl OptionsUi {
             ui.label_fit(text, c[0] + (c[2] - lw) / 2.0, c[1] + c[3] - ls * 1.22 - 6.0 * s, c[2] - 8.0 * s, ls, false, if on { color::ACCENT_HI } else { color::TEXT_DIM });
             self.hits.push((Hit::Style(style), c));
         }
-        // The colours.
+        // The styles' colour; the player's own keeps the colours it was painted in.
         let rows = crosshair::STYLES.len().div_ceil(cols) as f32;
         let mut y = top + rows * (ch + gap) + 6.0 * s;
-        ui.label(tr("Colour"), rx, y, font(14.0), false, color::TEXT);
-        y += 24.0 * s;
         let sw = 26.0 * s;
-        let step = ((rw - sw) / (crosshair::COLOURS.len() - 1) as f32).min(sw + 12.0 * s);
-        for (i, (a, d)) in crosshair::COLOURS.into_iter().enumerate() {
-            let r = [rx + 4.0 * s + i as f32 * step, y, sw, sw];
-            if look.colour == i {
-                theme::fill(ui.renderer, [r[0] - 4.0 * s, r[1] - 4.0 * s, r[2] + 8.0 * s, r[3] + 8.0 * s], sw / 2.0 + 4.0 * s, color::ACCENT, 1.0);
-            } else if inside(r, mouse) {
-                theme::fill(ui.renderer, [r[0] - 3.0 * s, r[1] - 3.0 * s, r[2] + 6.0 * s, r[3] + 6.0 * s], sw / 2.0 + 3.0 * s, color::BORDER_HI, 1.0);
+        if look.style == Style::Custom {
+            ui.label_fit(tr("Your own keeps the colours you paint it in."), rx, y + 24.0 * s, rw, font(12.0), false, color::TEXT_MUTED);
+            y += 24.0 * s;
+        } else {
+            ui.label(tr("Colour"), rx, y, font(14.0), false, color::TEXT);
+            y += 24.0 * s;
+            let step = ((rw - sw) / (crosshair::COLOURS.len() - 1) as f32).min(sw + 12.0 * s);
+            for (i, pair) in crosshair::COLOURS.into_iter().enumerate() {
+                let r = [rx + 4.0 * s + i as f32 * step, y, sw, sw];
+                swatch(ui, r, s, pair, look.colour == i, inside(r, mouse));
+                self.hits.push((Hit::Colour(i), [r[0] - 4.0 * s, r[1] - 4.0 * s, r[2] + 8.0 * s, r[3] + 8.0 * s]));
             }
-            theme::fill(ui.renderer, [r[0] - 1.0, r[1] - 1.0, r[2] + 2.0, r[3] + 2.0], sw / 2.0 + 1.0, 0x000000, 1.0);
-            theme::fill(ui.renderer, r, sw / 2.0, a, 1.0);
-            if d != a {
-                let dot = 10.0 * s;
-                theme::fill(ui.renderer, [r[0] + (sw - dot) / 2.0, r[1] + (sw - dot) / 2.0, dot, dot], dot / 2.0, d, 1.0);
-            }
-            self.hits.push((Hit::Colour(i), [r[0] - 4.0 * s, r[1] - 4.0 * s, r[2] + 8.0 * s, r[3] + 8.0 * s]));
         }
         // The size.
         y += sw + 18.0 * s;
@@ -1350,7 +1375,7 @@ mod tests {
         s.pet_shots = false;
         s.crosshair = false;
         s.crosshair_look = Look { style: Style::Custom, colour: 4, size: 1.75, ..Look::default() };
-        s.crosshair_look.set_cell(0, 0, true);
+        s.crosshair_look.set_cell(0, 0, Some(3));
         s.player_alpha = 0.35;
         s.pet_alpha = 0.0;
         s.pet_shot_look = PetShots::Hidden;
@@ -1376,25 +1401,35 @@ mod tests {
     fn painting_a_crosshair() {
         let mut ui = OptionsUi { open: true, ..Default::default() };
         let mut s = Settings::default();
-        s.crosshair_look.custom = [0; crosshair::GRID];
-        // A grid of 10-pixel cells at (100, 100); a click on a cell turns it on, a drag on
-        // carries on turning cells on.
+        s.crosshair_look.custom = [[0; crosshair::GRID]; crosshair::GRID];
+        // A grid of 10-pixel cells at (100, 100), and the brush's colours beside it.
         let grid = [100.0, 100.0, 150.0, 150.0];
-        ui.hits = vec![(Hit::Cell(0, 0, grid), [100.0, 100.0, 10.0, 10.0])];
+        ui.hits = vec![(Hit::Cell(0, 0, grid), [100.0, 100.0, 10.0, 10.0]), (Hit::Brush(4), [0.0, 0.0, 10.0, 10.0]), (Hit::Brush(2), [0.0, 20.0, 10.0, 10.0])];
+        // A click paints a square in the brush's colour (white at first), a drag carries on.
         assert!(ui.click((105.0, 105.0), &mut s));
         assert_eq!(s.crosshair_look.style, Style::Custom);
-        assert!(s.crosshair_look.cell(0, 0));
+        assert_eq!(s.crosshair_look.cell(0, 0), Some(0));
         assert!(ui.drag((125.0, 105.0), &mut s));
-        assert!(s.crosshair_look.cell(0, 2));
-        assert!(!ui.drag((125.0, 105.0), &mut s), "already on");
+        assert_eq!(s.crosshair_look.cell(0, 2), Some(0));
+        assert!(!ui.drag((125.0, 105.0), &mut s), "already painted");
         assert!(!ui.drag((400.0, 105.0), &mut s), "off the grid");
         assert!(ui.release());
         assert!(!ui.drag((135.0, 105.0), &mut s), "let go");
-        // Clicking an on cell turns it, and what the drag passes, off.
+        // Another colour paints over one square without touching the rest.
+        assert!(!ui.click((5.0, 5.0), &mut s), "picking a colour changes nothing");
         assert!(ui.click((105.0, 105.0), &mut s));
-        assert!(!s.crosshair_look.cell(0, 0));
+        ui.release();
+        assert_eq!((s.crosshair_look.cell(0, 0), s.crosshair_look.cell(0, 2)), (Some(4), Some(0)));
+        // A square already in the brush's colour is emptied, and so is what the drag passes in
+        // any colour.
+        assert!(ui.click((105.0, 105.0), &mut s));
+        assert_eq!(s.crosshair_look.cell(0, 0), None);
         ui.drag((125.0, 105.0), &mut s);
-        assert_eq!(s.crosshair_look.custom, [0; crosshair::GRID]);
+        ui.release();
+        assert_eq!(s.crosshair_look.custom, [[0; crosshair::GRID]; crosshair::GRID]);
+        ui.click((5.0, 25.0), &mut s);
+        ui.click((105.0, 105.0), &mut s);
+        assert_eq!(s.crosshair_look.cell(0, 0), Some(2));
     }
 
     #[test]

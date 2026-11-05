@@ -583,8 +583,10 @@ The remotes `upstream` (HaloCelsius) and `aurusenth` share no history with `main
 - **Crosshair styles and your own** (2026-11-05; the Rust client's `crosshair.rs`, `options.rs`
   `Tab::Crosshair`). Options has a Crosshair tab: nine styles (`crosshairStyle`), eight colours
   (`crosshairColour`, an index into `crosshair::COLOURS`), a size from 50% to 200%
-  (`crosshairSize`) and the player's own on a 15×15 grid (`crosshairCustom`, four hex digits a
-  row), painted by clicking or dragging. Copy code and Paste code share it as `Look::code`: `DD`,
+  (`crosshairSize`) and the player's own on a 15×15 grid (`crosshairCustom`: four hex digits a
+  row saying which squares are filled, then a hex digit for each filled square's colour, an index
+  into `crosshair::PALETTE`), painted in the colour picked under the grid by clicking or
+  dragging. Copy code and Paste code share it as `Look::code`: `DD`,
   the style and colour digits, the size in percent as two hex digits, then the drawing for the
   player's own (`DD0064` is the default); the browser's paste comes through `take_pasted`, which
   Options takes while it's open. Linux and macOS desktops have no clipboard in the client yet, so

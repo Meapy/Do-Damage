@@ -71,37 +71,36 @@ pub const COLOURS: [(u32, u32); 8] = [
     (0xFF3D3D, 0xFF3D3D),
 ];
 
+/// The colours the player's own is painted in, each square its own (`Look::custom`).
+pub const PALETTE: [u32; 10] = [0xFFFFFF, color::ACCENT, 0xFF3D3D, 0xFFE14C, 0x5BFF7A, 0x45E8FF, 0x4C7DFF, 0xA45CFF, 0xFF5CD6, 0x101010];
+
+/// The player's own drawing: each square empty (0) or a `PALETTE` colour (its index plus one).
+pub type Drawing = [[u8; GRID]; GRID];
+
 /// How the crosshair looks, as Options keeps it.
 #[derive(Clone, Copy, Debug, PartialEq)]
 pub struct Look {
     pub style: Style,
-    /// One of `COLOURS`.
+    /// One of `COLOURS`, for the styles (the player's own has its own colours).
     pub colour: usize,
     /// Times its usual size (`SIZE_MIN` to `SIZE_MAX`).
     pub size: f32,
-    /// The player's own: a row a number, bit `c` the cell in column `c`.
-    pub custom: [u16; GRID],
+    pub custom: Drawing,
 }
 
-/// The player's own until they paint one: a diamond round a dot.
-const DEFAULT_CUSTOM: [u16; GRID] = {
-    let mut g = [0u16; GRID];
-    let rows: [(usize, u16); 9] = [
-        (3, 1 << 7),
-        (4, 1 << 6 | 1 << 8),
-        (5, 1 << 5 | 1 << 9),
-        (6, 1 << 4 | 1 << 10),
-        (7, 1 << 3 | 1 << 7 | 1 << 11),
-        (8, 1 << 4 | 1 << 10),
-        (9, 1 << 5 | 1 << 9),
-        (10, 1 << 6 | 1 << 8),
-        (11, 1 << 7),
+/// The player's own until they paint one: a white diamond round an ember dot.
+const DEFAULT_CUSTOM: Drawing = {
+    let mut g = [[0u8; GRID]; GRID];
+    let cells: [(usize, usize); 16] = [
+        (3, 7), (4, 6), (4, 8), (5, 5), (5, 9), (6, 4), (6, 10), (7, 3),
+        (7, 11), (8, 4), (8, 10), (9, 5), (9, 9), (10, 6), (10, 8), (11, 7),
     ];
     let mut i = 0;
-    while i < rows.len() {
-        g[rows[i].0] = rows[i].1;
+    while i < cells.len() {
+        g[cells[i].0][cells[i].1] = 1;
         i += 1;
     }
+    g[7][7] = 2;
     g
 };
 
@@ -112,21 +111,28 @@ impl Default for Look {
 }
 
 impl Look {
-    pub fn cell(&self, row: usize, col: usize) -> bool {
-        self.custom[row] >> col & 1 == 1
+    /// The `PALETTE` colour of a square of the player's own, or `None` where it's empty.
+    pub fn cell(&self, row: usize, col: usize) -> Option<usize> {
+        self.custom[row][col].checked_sub(1).map(usize::from)
     }
 
-    pub fn set_cell(&mut self, row: usize, col: usize, on: bool) {
-        if on {
-            self.custom[row] |= 1 << col;
-        } else {
-            self.custom[row] &= !(1 << col);
-        }
+    pub fn set_cell(&mut self, row: usize, col: usize, paint: Option<usize>) {
+        self.custom[row][col] = paint.map_or(0, |p| p.min(PALETTE.len() - 1) as u8 + 1);
     }
 
-    /// The player's own as kept: four hex digits a row.
+    /// The player's own as kept: which squares are filled (four hex digits a row, bit `c` the
+    /// square in column `c`), then each filled square's colour (a hex digit each, row by row).
     pub fn custom_text(&self) -> String {
-        self.custom.iter().map(|r| format!("{r:04X}")).collect()
+        let mut mask = String::new();
+        let mut colours = String::new();
+        for row in &self.custom {
+            let bits = row.iter().enumerate().filter(|(_, &c)| c != 0).fold(0u16, |b, (i, _)| b | 1 << i);
+            mask += &format!("{bits:04X}");
+            for &c in row.iter().filter(|&&c| c != 0) {
+                colours += &format!("{:X}", c - 1);
+            }
+        }
+        mask + &colours
     }
 
     /// A code to share it by: `DD`, the style and the colour (a digit each), the size in percent
@@ -161,16 +167,30 @@ impl Look {
         Some(Look { style, colour, size: size.clamp(SIZE_MIN, SIZE_MAX), custom })
     }
 
-    /// Read back; `None` for anything but `GRID` rows of four hex digits.
-    pub fn parse_custom(text: &str) -> Option<[u16; GRID]> {
-        if text.len() != GRID * 4 || !text.is_ascii() {
+    /// Read back (`custom_text`); `None` unless it's exactly that.
+    pub fn parse_custom(text: &str) -> Option<Drawing> {
+        if text.len() < GRID * 4 || !text.is_ascii() {
             return None;
         }
-        let mut g = [0u16; GRID];
+        let (mask, colours) = text.split_at(GRID * 4);
+        let mut colours = colours.chars();
+        let mut g = [[0u8; GRID]; GRID];
         for (i, row) in g.iter_mut().enumerate() {
-            *row = u16::from_str_radix(&text[i * 4..i * 4 + 4], 16).ok()? & ((1 << GRID) - 1);
+            let bits = u16::from_str_radix(&mask[i * 4..i * 4 + 4], 16).ok()?;
+            if bits >> GRID != 0 {
+                return None;
+            }
+            for (col, cell) in row.iter_mut().enumerate() {
+                if bits >> col & 1 == 1 {
+                    let c = colours.next()?.to_digit(16)? as usize;
+                    if c >= PALETTE.len() {
+                        return None;
+                    }
+                    *cell = c as u8 + 1;
+                }
+            }
         }
-        Some(g)
+        colours.next().is_none().then_some(g)
     }
 }
 
@@ -181,6 +201,8 @@ enum Px {
     Edge,
     Arm,
     Dot,
+    /// A square of the player's own, in its `PALETTE` colour.
+    Paint(u32),
 }
 
 /// What `style` puts at pixel (`x`, `y`) from the mouse (the mouse at the corner between four
@@ -227,7 +249,10 @@ fn shape(look: &Look, k: f32, x: i32, y: i32) -> Px {
             let o = -(c * GRID as i32) / 2;
             let (col, row) = ((x - o).div_euclid(c), (y - o).div_euclid(c));
             let inside = (0..GRID as i32).contains(&col) && (0..GRID as i32).contains(&row);
-            arm(inside && look.cell(row as usize, col as usize))
+            match if inside { look.cell(row as usize, col as usize) } else { None } {
+                Some(p) => Px::Paint(PALETTE[p]),
+                None => Px::None,
+            }
         }
     }
 }
@@ -250,7 +275,7 @@ pub fn draw(renderer: &mut bsk_render::Renderer, at: (f32, f32), k: f32, look: &
         }
     }
     // The black edge: every empty pixel beside a drawn one, corners too.
-    let filled = |x: i32, y: i32| x >= -n && y >= -n && x <= n && y <= n && matches!(px[(y + n) as usize * side + (x + n) as usize], Px::Arm | Px::Dot);
+    let filled = |x: i32, y: i32| x >= -n && y >= -n && x <= n && y <= n && !matches!(px[(y + n) as usize * side + (x + n) as usize], Px::None | Px::Edge);
     let mut edged = px.clone();
     for y in -n..=n {
         for x in -n..=n {
@@ -275,6 +300,7 @@ pub fn draw(renderer: &mut bsk_render::Renderer, at: (f32, f32), k: f32, look: &
                 Px::Edge => (0x000000, 0.75),
                 Px::Arm => (arm, 0.95),
                 Px::Dot => (dot, 1.0),
+                Px::Paint(rgb) => (rgb, 1.0),
             };
             let left = cx + start as i32 - n;
             renderer.fill(left as f32, (cy + y) as f32, (x - start) as f32, 1.0, rgb, alpha);
@@ -289,12 +315,20 @@ mod tests {
     #[test]
     fn custom_round_trip() {
         let mut look = Look::default();
-        look.set_cell(0, 14, true);
-        look.set_cell(7, 7, false);
-        let back = Look::parse_custom(&look.custom_text()).unwrap();
-        assert_eq!(back, look.custom);
+        look.set_cell(0, 14, Some(9));
+        look.set_cell(7, 7, None);
+        look.set_cell(14, 0, Some(4));
+        let text = look.custom_text();
+        assert_eq!(Look::parse_custom(&text), Some(look.custom));
+        // Each square keeps its own colour.
+        let back = Look { custom: Look::parse_custom(&text).unwrap(), ..look };
+        assert_eq!((back.cell(0, 14), back.cell(14, 0), back.cell(3, 7), back.cell(7, 7)), (Some(9), Some(4), Some(0), None));
         assert!(Look::parse_custom("12").is_none());
         assert!(Look::parse_custom(&"ZZZZ".repeat(GRID)).is_none());
+        // A colour short, one too many, or one not in the palette.
+        assert!(Look::parse_custom(&text[..text.len() - 1]).is_none());
+        assert!(Look::parse_custom(&format!("{text}0")).is_none());
+        assert!(Look::parse_custom(&format!("{}F", &text[..text.len() - 1])).is_none());
         for (s, name, _) in STYLES {
             assert_eq!(Style::from_name(name), Some(s));
         }
@@ -305,10 +339,11 @@ mod tests {
         let mine = Look::default();
         assert_eq!(mine.code(), "DD0064");
         // A style's code keeps the drawing already there; the player's own brings its own.
-        let mut theirs = Look { style: Style::Custom, colour: 3, size: 1.5, custom: [0; GRID] };
-        theirs.set_cell(7, 7, true);
+        let mut theirs = Look { style: Style::Custom, colour: 3, size: 1.5, custom: [[0; GRID]; GRID] };
+        theirs.set_cell(7, 7, Some(2));
+        theirs.set_cell(7, 8, Some(5));
         let code = theirs.code();
-        assert_eq!(code.len(), 6 + GRID * 4);
+        assert_eq!(code.len(), 6 + GRID * 4 + 2);
         assert_eq!(mine.from_code(&code), Some(theirs));
         assert_eq!(mine.from_code(&format!(" {}-{} ", &code[..6], &code[6..].to_lowercase())), Some(theirs));
         let dot = Look { style: Style::Dot, colour: 7, size: 2.0, ..theirs };
@@ -317,6 +352,8 @@ mod tests {
         for bad in ["", "DD", "XX0064", "DD9064", "DD0864", "DD00ZZ", "DD0064FFFF", "DD8064", "DD80641234"] {
             assert_eq!(mine.from_code(bad), None, "{bad}");
         }
+        // An empty drawing is a drawing.
+        assert!(mine.from_code(&format!("DD8064{}", "0000".repeat(GRID))).is_some());
         // Out of range sizes are brought into range.
         assert_eq!(mine.from_code("DD00FF").unwrap().size, SIZE_MAX);
     }

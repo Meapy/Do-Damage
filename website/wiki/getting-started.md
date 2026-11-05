@@ -85,7 +85,11 @@ height together). "Pets' shots" there switches between Normal, Subtle (the
 default: smaller, see-through shots) and Hidden. The **Crosshair** tab picks the crosshair's
 style (Classic, Cross, Dot, Circle, Circle and dot, Plus, Diagonal, Chevron or your own), its
 colour and its size (50% to 200%), with a preview over dark and light ground. To make your own,
-click or drag on its 15 by 15 grid to fill or empty squares; **Clear** starts again from nothing,
+pick one of the ten colours under its 15 by 15 grid and click or drag on the grid: each square
+takes the colour picked, so your crosshair can have as many colours as you like, and clicking a
+square already in that colour empties it. The colours under the grid only paint new squares; the
+**Colour** row beside them is for the other styles, and your own keeps the colours you painted.
+**Clear** starts again from nothing,
 and **Defaults** puts back the Classic crosshair but keeps your drawing. To share a crosshair,
 **Copy code** puts its code on the clipboard (the code also shows under the button: `DD0064` is
 the usual crosshair, and your own drawing makes it longer); a friend copies it and presses

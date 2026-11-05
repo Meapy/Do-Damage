@@ -25,7 +25,8 @@ details). Add to a group's line when a change adds to it, rather than adding ano
 ### Crosshair
 - The crosshair comes in nine styles (Classic, Cross, Dot, Circle, Circle and dot, Plus,
   Diagonal, Chevron, and your own), eight colours and sizes from 50% to 200%, on the new
-  Crosshair tab in Options. Draw your own there on a 15 by 15 grid: click or drag to fill squares.
+  Crosshair tab in Options. Draw your own there on a 15 by 15 grid in as many of ten
+  colours as you like: pick a colour under the grid, then click or drag to fill squares.
   Share one with a code: Copy code puts it on the clipboard (`DD0064` is the usual crosshair),
   and Paste code there takes a friend's.
 
