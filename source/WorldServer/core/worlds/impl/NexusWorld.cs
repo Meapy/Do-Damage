@@ -16,6 +16,8 @@ namespace WorldServer.core.worlds.impl
         public TileRegion TileRegion;
         public float TimeToSpawn;
         public IntPoint Position;
+        // the ground's height at Position, on stacked floors (the Nexus islands)
+        public float Z;
         public NexusMerchant NewMerchant;
         public ISellableItem SellableItem;
         public CurrencyType CurrencyType;
@@ -30,6 +32,20 @@ namespace WorldServer.core.worlds.impl
         void ReturnMerchant(MerchantData merchantData);
     }
 
+    /// <summary>
+    /// The Nexus. Everything in it is placed where its map puts it: the shops on their `Store N`
+    /// tiles, the market's stalls, the realm portals, and the people (the Support Bot, the quest
+    /// givers, the Broker, the villagers, the Arena's portal) on their marker regions (Nexus_Bot
+    /// and so on), on whichever floor they are: the islands (tools/build_nexus_islands.py) are
+    /// floors at several heights (World.Levels), the garden (tools/build_nexus.py) one.
+    ///
+    /// The game's Nexus is WorldManager.Nexus (<see cref="IsMain"/>). An admin can open another with
+    /// /dungeon (the world `oldnexus`, the garden the islands replaced): a copy shows the
+    /// real Nexus's realm portals (RealmPortalMonitor's mirror), sells from its own stock
+    /// (MerchantLists.Stock) and keeps its vault chests' items apart (DbNexusChest's space), its
+    /// Arena portal leads to the real Nexus's Arena; everything that sends players "to the Nexus"
+    /// still means the real one.
+    /// </summary>
     public sealed class NexusWorld : World, IMerchantWorld
     {
         // i dont really want to use static but it works so?
@@ -39,12 +55,23 @@ namespace WorldServer.core.worlds.impl
         public RealmPortalMonitor PortalMonitor { get; private set; }
         public bool MarketEnabled { get; set; } = true;
 
+        /// <summary>The game's Nexus, not an admin's copy.</summary>
+        public bool IsMain => Id == NEXUS_ID;
+        // a copy's own shop items (the real Nexus takes from MerchantLists.Shops)
+        private Dictionary<TileRegion, List<ISellableItem>> _stock;
+
         // The fountains heal whoever stands by them: Healing, renewed while they stay. The garden's
         // are stone water basins (tools/build_nexus_garden.py); an event's map may keep fountains.
         private static readonly HashSet<string> Fountains = new HashSet<string> { "White Fountain", "NG Garden Basin" };
         private const float FOUNTAIN_RANGE = 3.5f;
-        private List<(float X, float Y)> _fountains;
+        private List<objects.Entity> _fountains;
         private float _fountainCheck;
+        // The spawn heals too, as if an invisible fountain stood over it: whoever arrives in the
+        // Nexus is healed where they land, on its squares (TileRegion.Spawn) or a step beside them,
+        // on their floor. The basins round the islands' spawn stand at its deck's corners, out of
+        // reach of its middle.
+        private const float SPAWN_HEAL_RANGE = 1.5f;
+        private List<(float X, float Y, float Z)> _spawnHeal;
 
         private const ushort VAULT_CHEST = 0x0504;
 
@@ -58,24 +85,29 @@ namespace WorldServer.core.worlds.impl
         private market.MarketBroker _marketBroker;
         // the villagers walking about and the bees over the flowers
         private NexusVillagers _villagers;
+        // the islands' bar on the Arena tower, and its barman
+        private NexusBar _bar;
 
-        public NexusWorld(GameServer gameServer, int id, WorldResource resource) 
-            : base(gameServer, id, resource)
+        public NexusWorld(GameServer gameServer, int id, WorldResource resource, World parent = null)
+            : base(gameServer, id, resource, parent)
         {
-            PortalMonitor = new RealmPortalMonitor(gameServer, this);
+            PortalMonitor = new RealmPortalMonitor(gameServer, this, resource.RealmPortalNorth);
         }
 
         public override void Init()
         {
+            if (!IsMain)
+                _stock = MerchantLists.Stock.ToDictionary(s => s.Key, s => s.Value.ToList());
             foreach (var shop in MerchantLists.Shops)
             {
-                var stalls = Map.Regions.Where(r => shop.Key == r.Value).ToList();
-                foreach (var data in stalls)
+                var stalls = RegionTiles(shop.Key);
+                foreach (var (at, z) in stalls)
                     _inactiveStorePoints.Add(new MerchantData()
                     {
-                        TileRegion = data.Value,
-                        Position = data.Key,
-                        Rotates = shop.Value.Item1.Count > stalls.Count
+                        TileRegion = shop.Key,
+                        Position = at,
+                        Z = z,
+                        Rotates = Stock(shop.Key).Count > stalls.Count
                     });
             }
 
@@ -91,11 +123,16 @@ namespace WorldServer.core.worlds.impl
             _marketStalls = new market.MarketStalls(this);
             _marketBroker = new market.MarketBroker(this);
             _villagers = new NexusVillagers(this);
+            _bar = NexusBar.Find(this);
         }
+
+        // the items a shop has left to put out: the real Nexus's are the game's lists, a copy's its own
+        private List<ISellableItem> Stock(TileRegion shop) => _stock != null ? _stock[shop] : MerchantLists.Shops[shop].Item1;
 
         // The map's shared vault chests keep their items in Redis, one record per tile: the tile a
         // chest stood on in the castle Nexus, which the garden's chests carry as their names
-        // ("61_70", tools/build_nexus.py CHESTS), so they kept their items when it moved.
+        // ("61_70", tools/build_nexus.py CHESTS), so they kept their items when it moved. A copy's
+        // chests are its own (its world's name before the tile).
         private void LinkVaultChests()
         {
             var db = GameServer.Database.Conn;
@@ -106,9 +143,9 @@ namespace WorldServer.core.worlds.impl
                 var key = chest.Name?.Split('_');
                 if (key?.Length == 2 && int.TryParse(key[0], out var kx) && int.TryParse(key[1], out var ky))
                     (x, y) = (kx, ky);
-                chest.LinkToDb(new DbNexusChest(db, x, y));
+                chest.LinkToDb(new DbNexusChest(db, x, y, IsMain ? null : IdName));
             }
-            StaticLogger.Instance.Info($"Nexus: {chests.Count} vault chests, {chests.Sum(c => c.Inventory.Count(i => i != null))} stored items");
+            StaticLogger.Instance.Info($"{IdName}: {chests.Count} vault chests, {chests.Sum(c => c.Inventory.Count(i => i != null))} stored items");
         }
 
         protected override void UpdateLogic(ref TickTime time)
@@ -122,6 +159,7 @@ namespace WorldServer.core.worlds.impl
             _marketStalls?.Update(ref time);
             _marketBroker?.Update(ref time);
             _villagers?.Update(ref time);
+            _bar?.Update(ref time);
             base.UpdateLogic(ref time);
         }
 
@@ -134,24 +172,26 @@ namespace WorldServer.core.worlds.impl
 
             // Found once the map's objects are in (the first ticks can come before).
             if (_fountains == null || _fountains.Count == 0)
-                _fountains = StaticObjects.Values.Where(o => Fountains.Contains(o.ObjectDesc.IdName)).Select(o => (o.X, o.Y)).ToList();
-            if (_fountains.Count == 0)
+                _fountains = StaticObjects.Values.Where(o => Fountains.Contains(o.ObjectDesc.IdName)).Cast<objects.Entity>().ToList();
+            _spawnHeal ??= RegionTiles(TileRegion.Spawn).Select(t => (t.Point.X + 0.5f, t.Point.Y + 0.5f, t.Z)).ToList();
+            if (_fountains.Count == 0 && _spawnHeal.Count == 0)
                 return;
 
+            // DistTo: on stacked floors only a basin on the player's own floor
             foreach (var player in Players.Values)
-            {
-                var near = _fountains.Any(f => (player.X - f.X) * (player.X - f.X) + (player.Y - f.Y) * (player.Y - f.Y) <= FOUNTAIN_RANGE * FOUNTAIN_RANGE);
-                if (near)
+                if (_fountains.Any(f => player.DistTo(f) <= FOUNTAIN_RANGE) || OnSpawn(player))
                     player.ApplyConditionEffect(ConditionEffectIndex.Healing, 1000);
-            }
         }
+
+        private bool OnSpawn(objects.Player player) => _spawnHeal.Any(s =>
+            player.DistTo(s.X, s.Y) <= SPAWN_HEAL_RANGE && MathF.Abs(player.Z - s.Z) <= objects.Entity.LevelReach);
 
         public void SendOutMerchant(MerchantData merchantData)
         {
             if (MerchantLists.Shops.TryGetValue(merchantData.TileRegion, out var data))
             {
                 // every item of this shop is out on another stall: try again when one comes back
-                var items = data.Item1;
+                var items = Stock(merchantData.TileRegion);
                 if (items.Count == 0)
                 {
                     merchantData.TimeToSpawn = 10.0f;
@@ -165,12 +205,13 @@ namespace WorldServer.core.worlds.impl
 
                 merchantData.NewMerchant = new NexusMerchant(GameServer, 0x01ca);
                 merchantData.NewMerchant.Move(x + 0.5f, y + 0.5f);
+                merchantData.NewMerchant.Z = merchantData.Z;
                 merchantData.CurrencyType = data.Item2;
                 merchantData.RankRequired = data.Item3;
 
                 merchantData.SellableItem = Random.Shared.NextLength(items);
                 merchantData.NewMerchant.SetData(merchantData);
-                _ = MerchantLists.Shops[merchantData.TileRegion].Item1.Remove(merchantData.SellableItem);
+                _ = items.Remove(merchantData.SellableItem);
 
                 EnterWorld(merchantData.NewMerchant);
                 _activeStorePoints.Add(merchantData);
@@ -194,7 +235,7 @@ namespace WorldServer.core.worlds.impl
         public void ReturnMerchant(MerchantData merchantData)
         {
             merchantData.TimeToSpawn = 10.0f;
-            MerchantLists.Shops[merchantData.TileRegion].Item1.Add(merchantData.SellableItem);
+            Stock(merchantData.TileRegion).Add(merchantData.SellableItem);
             LeaveWorld(merchantData.NewMerchant);
             merchantData.NewMerchant = null;
             _inactiveStorePoints.Add(merchantData);

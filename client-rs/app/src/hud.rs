@@ -924,6 +924,10 @@ pub fn interact_target(world: &World, data: &GameData) -> Option<Interact> {
             } else {
                 return None;
             };
+            // only on our floor (stacked floors)
+            if !world.on_my_floor(o) {
+                return None;
+            }
             let dist = (o.x - me.x).hypot(o.y - me.y);
             let big = matches!(kind, InteractKind::Npc { kind: crate::npc::NpcKind::Forge | crate::npc::NpcKind::Enchanter | crate::npc::NpcKind::ChampionsBoard, .. });
             // the statues fill their squares: reach them from beside
@@ -2152,6 +2156,15 @@ fn status_bar(ui: &mut Ui, lay: &Layout, x: f32, y: f32, label: &str, value: i32
 
 /// `MiniMap.draw` at its first zoom (4 units a tile), north up, the player's arrow turned with
 /// the camera. Static objects that fill their square show their colour over the ground.
+/// `c` taken `k` of the way toward `to` (both 0xRRGGBB).
+fn fade_toward(c: u32, to: u32, k: f32) -> u32 {
+    let ch = |v: u32, s: u32| -> u32 {
+        let (a, b) = (((v >> s) & 0xFF) as f32, ((to >> s) & 0xFF) as f32);
+        ((a + (b - a) * k).round() as u32) << s
+    };
+    ch(c, 16) | ch(c, 8) | ch(c, 0)
+}
+
 fn draw_minimap(ui: &mut Ui, lay: &Layout, world: &World, colors: &mut MapColors, mini: &MiniView) {
     let [x0, y0, side, _] = mini.rect;
     ui.rect(x0, y0, side, side, MINIMAP_FILL, 1.0);
@@ -2170,7 +2183,24 @@ fn draw_minimap(ui: &mut Ui, lay: &Layout, world: &World, colors: &mut MapColors
         (dx >= 0 && dy >= 0 && dx % step == 0 && dy % step == 0 && (dx / step) < cells as i32 && (dy / step) < cells as i32)
             .then(|| (dy / step) as usize * cells + (dx / step) as usize)
     };
+    // On stacked floors (the Nexus islands), our floor's ground, and where it has none the
+    // ground of the floors above and below it, faded, so the other islands show as outlines.
+    let layered = world.levels.is_some();
+    let my_level = world.player().map_or(0, |p| p.level);
+    let floors = world.level_count() as u8;
+    let ground_at = |x: i32, y: i32| -> Option<(u16, bool)> {
+        if !layered {
+            return world.tile(x, y).map(|t| (t, false));
+        }
+        world
+            .level_tile(my_level, x, y)
+            .map(|t| (t, false))
+            .or_else(|| (0..floors).rev().filter(|&l| l != my_level).find_map(|l| world.level_tile(l, x, y)).map(|t| (t, true)))
+    };
     for o in world.objects.values() {
+        if layered && o.level != my_level {
+            continue;
+        }
         if let Some(d) = ui.data.objects.get(&o.object_type) {
             if d.is_static && d.occupy_square && !d.no_mini_map {
                 if let Some(i) = cell_of(o.x.floor() as i32, o.y.floor() as i32) {
@@ -2183,7 +2213,7 @@ fn draw_minimap(ui: &mut Ui, lay: &Layout, world: &World, colors: &mut MapColors
     for (row, y) in (ty - half..=ty + half).step_by(step as usize).enumerate() {
         let mut run: Option<([f32; 4], u32)> = None;
         for (col, x) in (tx - half..=tx + half).step_by(step as usize).enumerate() {
-            let cell = world.tile(x, y).and_then(|tile| {
+            let cell = ground_at(x, y).and_then(|(tile, other)| {
                 let (px, py) = to_map(x as f64, y as f64);
                 // Whole tiles only, clipped to the box.
                 let (l, t) = (px.max(x0), py.max(y0));
@@ -2192,7 +2222,13 @@ fn draw_minimap(ui: &mut Ui, lay: &Layout, world: &World, colors: &mut MapColors
                     return None;
                 }
                 let mark = marks.get(row * cells + col).copied().unwrap_or(u32::MAX);
-                let color = if mark != u32::MAX { mark } else { colors.tile(ui, tile) };
+                let color = if other {
+                    fade_toward(colors.tile(ui, tile), MINIMAP_FILL, 0.6)
+                } else if mark != u32::MAX {
+                    mark
+                } else {
+                    colors.tile(ui, tile)
+                };
                 Some(([l, t, r, b], color))
             });
             match (&mut run, cell) {
@@ -2246,7 +2282,7 @@ pub fn draw_bag_previews(ui: &mut Ui, world: &World, camera: &crate::view::Camer
             continue;
         }
         // above the bag, which stands about a tile tall
-        let [bx, by] = camera.to_screen(o.x, o.y, 1.0);
+        let [bx, by] = camera.to_screen(o.x, o.y, o.z + 1.0);
         let w = items.len() as f32 * icon + 2.0 * pad;
         let r = [(bx - w / 2.0).round(), (by - icon - 2.0 * pad - 4.0 * s).round(), w, icon + 2.0 * pad];
         theme::frame(ui.renderer, r, 4.0 * s, s.max(1.0), (color::BORDER, 0.95), ((0x000000, 0.75), (0x000000, 0.75)));
@@ -3372,7 +3408,7 @@ fn draw_quest_arrow(ui: &mut Ui, lay: &Layout, camera: &crate::view::Camera, q: 
     let (Some(q), Some(desc)) = (q, desc) else { return };
     let vw = lay.view_w();
     // The arrow, when it's off screen.
-    let [px, py] = camera.to_screen(q.x, q.y, 0.0);
+    let [px, py] = camera.to_screen(q.x, q.y, q.z);
     let margin = 26.0 * s;
     let (l, t, r, b) = (margin, margin + 60.0 * s, vw - margin, lay.h - margin);
     if px >= l && px <= r && py >= t && py <= b {

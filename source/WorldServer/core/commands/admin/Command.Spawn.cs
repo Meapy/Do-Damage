@@ -35,6 +35,8 @@ namespace WorldServer.core.commands
                 public int[] y;
                 public bool? target;
                 public string clasify;
+                // on stacked floors, how high (the spawner's height if left out)
+                public float? z;
             }
 #pragma warning restore CS0649
 
@@ -149,7 +151,7 @@ namespace WorldServer.core.commands
                         if (spawn.target != null)
                             target = spawn.target.Value;
 
-                        QueueSpawnEvent(player, count, objType.Value, hp, size, x, y, target, clasified);
+                        QueueSpawnEvent(player, count, objType.Value, hp, size, x, y, target, clasified, spawn.z);
                     }
 
                 if (props.notif != null)
@@ -246,7 +248,7 @@ namespace WorldServer.core.commands
                 int num,
                 ushort mobObjectType, int? hp = null, int? size = null,
                 int[] x = null, int[] y = null,
-                bool? target = false, string clasified = "normal")
+                bool? target = false, string clasified = "normal", float? z = null)
             {
                 var pX = player.X;
                 var pY = player.Y;
@@ -288,6 +290,8 @@ namespace WorldServer.core.commands
                     var sY = (y != null && i < y.Length) ? y[i] : pY;
 
                     entity.Move(sX, sY);
+                    // on stacked floors, on the floor of whoever spawned it, or as high as asked
+                    entity.Z = z ?? player.Z;
 
                     player.World.EnterWorld(entity);
                 }

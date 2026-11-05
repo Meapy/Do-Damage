@@ -20,7 +20,9 @@ with --port 8081 to use it.
 - The processes don't use the live servers' image names (App.exe, WorldServer.exe,
   redis-server.exe): Run Server.bat skips starting a server when a process with its name is
   already running, so a test stack with those names would stop the live servers from starting.
-- stop only stops the processes this script started (their ids are in build/iso/pids.json).
+- stop only stops the processes this script started (their ids are in build/iso/pids.json), so a
+  stack another checkout or worktree started on the same slot keeps running: start then refuses,
+  naming what holds the slot's ports, rather than leave a client on that other stack's servers.
 - --rolling (with start) puts the world server behind the world proxy, as the live one is: the
   proxy on the world port and world servers on slots a and b (tools/rolling_restart.py, under
   build/iso<N>/live). Try a deploy with `rolling_restart.py --iso N deploy`. stop stops them too.
@@ -29,6 +31,7 @@ import argparse
 import json
 import os
 import shutil
+import socket
 import subprocess
 import sys
 import time
@@ -67,9 +70,38 @@ def running(pid):
     return str(pid) in out
 
 
+def holder(port):
+    """What is listening on a local port: "pid <n>, <program>" (Windows), else "something"."""
+    if os.name != "nt":
+        return "something"
+    ps = ("Get-NetTCPConnection -State Listen -LocalPort %d -ErrorAction SilentlyContinue | Select-Object -First 1 | "
+          "ForEach-Object { $p = Get-CimInstance Win32_Process -Filter ('ProcessId=' + $_.OwningProcess); "
+          "'pid ' + $_.OwningProcess + ', ' + $p.ExecutablePath + ' (' + $p.CommandLine + ')' }" % port)
+    out = subprocess.run(["powershell", "-NoProfile", "-Command", ps], capture_output=True, text=True).stdout.strip()
+    return out or "something"
+
+
+def ports_taken():
+    """The stack's ports something already listens on: another checkout's stack on the same slot
+    (each checkout's stop only stops its own), whose servers a client would reach instead."""
+    taken = []
+    for name, port in (("Redis", REDIS_PORT), ("account", APP_PORT), ("world", WORLD_PORT)):
+        try:
+            socket.create_connection(("127.0.0.1", port), timeout=0.5).close()
+            taken.append("%s port %d: %s" % (name, port, holder(port)))
+        except OSError:
+            pass
+    return taken
+
+
 def start(args):
     if os.path.exists(PIDS) and any(running(p) for p in json.load(open(PIDS)).values()):
         sys.exit("already running (python tools/testclient/iso_stack.py stop)")
+    taken = ports_taken()
+    if taken:
+        sys.exit("slot %d's ports are taken, most likely by a stack started from another checkout or worktree "
+                 "(this one's stop only stops its own): stop it there (python tools/testclient/iso_stack.py "
+                 "--slot %d stop) or use another --slot.%s" % (SLOT, SLOT, "".join("\n  " + t for t in taken)))
     redis_dir = os.path.join(ISO, "redis")
     app_dir = os.path.join(ISO, "app")
     world_dir = os.path.join(ISO, "ws")

@@ -10,9 +10,10 @@ namespace WorldServer.core.market
 {
     // The Market Broker greets each player who comes near with what the Marketplace is for, at most
     // every GREET_AGAIN seconds, as the Tinkerer and the Chronicler do (QuestGivers). In the Nexus
-    // garden it walks about the market's courtyard (`NG Market Broker`, NexusVillagers): it's made
-    // here, at START, and greets from wherever it is. A map that has its own Broker (a MarketNPC on
-    // a tile) keeps it there. The lines read the cached listings only, never Redis.
+    // it walks about the market's square (`NG Market Broker`, NexusVillagers): it's made here, on
+    // the map's Nexus_Broker tile (else at START, where the garden had it), and greets from
+    // wherever it is. A map that has its own Broker (a MarketNPC on a tile) keeps it there. The
+    // lines read the cached listings only, never Redis.
     public sealed class MarketBroker
     {
         private const float GREET_RANGE = 4.5f;
@@ -54,6 +55,9 @@ namespace WorldServer.core.market
                 var (dx, dy) = (player.X - bx, player.Y - by);
                 if (_greeted.ContainsKey(player.Id) || dx * dx + dy * dy > GREET_RANGE * GREET_RANGE)
                     continue;
+                // on stacked floors, only those on its floor
+                if (_walker?.World != null && player.SqDistTo(_walker) > GREET_RANGE * GREET_RANGE)
+                    continue;
                 _greeted[player.Id] = _clock + GREET_AGAIN;
                 player.Client.SendPacket(new Text() { Name = NAME, ObjectId = id, NumStars = -1, BubbleTime = 5, Recipient = "", Txt = Line(player) });
             }
@@ -66,8 +70,9 @@ namespace WorldServer.core.market
                 for (var x = 0; x < map.Width; x++)
                     if (map[x, y].ObjDesc?.Class == Marketplace.BrokerClass)
                         return (x + 0.5f, y + 0.5f, map[x, y].ObjId);
+            var (sx, sy, sz) = _world.Marker(Shared.resources.TileRegion.Nexus_Broker) ?? (START.X, START.Y, 0f);
             if (_world.GameServer.Resources.GameData.IdToObjectType.ContainsKey(WALKER))
-                _walker = _world.CreateNewEntity(WALKER, START.X, START.Y);
+                _walker = _world.CreateNewEntity(WALKER, sx, sy, _world.Levels == null ? (float?)null : sz);
             return _walker == null ? null : (_walker.X, _walker.Y, _walker.Id);
         }
 

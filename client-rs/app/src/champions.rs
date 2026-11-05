@@ -469,6 +469,8 @@ impl Hall {
         let mut statues: Vec<&GameObj> = world
             .objects
             .values()
+            // on stacked floors from any floor: the islands' tower top shows its champions to the
+            // court and the bridges below it too
             .filter(|o| statue_board(o, ui.data).is_some())
             .collect();
         if statues.is_empty() {
@@ -480,7 +482,8 @@ impl Hall {
         for o in statues {
             let id = statue_board(o, ui.data).unwrap_or("");
             let board = self.data.as_ref().and_then(|d| d.boards.iter().find(|b| b.id == id));
-            let [px, py] = cam.to_screen(o.x, o.y, 0.0);
+            // on stacked floors, up on its floor (the islands' Arena tower)
+            let [px, py] = cam.to_screen(o.x, o.y, o.z);
             let top = py - PLINTH_TOP * 5.0 * k;
             let champion = board.and_then(|b| b.entries.first());
             let mut head = top - 12.0 * k;

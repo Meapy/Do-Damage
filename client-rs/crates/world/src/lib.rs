@@ -10,7 +10,7 @@ mod movement;
 pub mod random;
 
 use bsk_data::GameData;
-use bsk_proto::{stat, NewTick, ObjectData, StatData, StatValue, Update};
+use bsk_proto::{stat, LayerTile, NewTick, ObjectData, StatData, StatValue, Update};
 use std::collections::HashMap;
 
 pub use combat::{Hit, Impact, Projectile};
@@ -37,6 +37,26 @@ pub const MIN_ANIM_CYCLE: i32 = 160;
 
 /// The tile type of a square nothing has been sent for (`Square.tileType_` default).
 pub const NO_TILE: u16 = 255;
+
+/// On stacked floors, the furthest the ground may rise or fall between one square and the next
+/// for us to walk on (a stair's step is half a tile); more is a wall or a drop (`World.Step` on
+/// the server).
+pub const STEP: f64 = 0.75;
+/// On stacked floors, how far apart in height things can still hit each other
+/// (`Entity.LevelReach`).
+pub const LEVEL_REACH: f64 = 1.5;
+/// A railing (`<Rail>`, its colour) goes along an edge whose ground drops at least this far
+/// (`railed`).
+pub const RAIL_DROP: f64 = 0.6;
+
+/// A world of floors stacked one above another (`Layers`): the map is the lowest, and each floor
+/// above it `height` tiles above the one below. Everything then has a height (`GameObj.z`): it
+/// walks on the floor at its height, and only hits and is hit by what is on its own.
+pub struct Levels {
+    pub height: f64,
+    /// The floors above the map, their squares' ground (`NO_TILE` where there is none).
+    upper: Vec<Vec<u16>>,
+}
 
 pub struct GameObj {
     pub id: i32,
@@ -67,6 +87,10 @@ pub struct GameObj {
     /// When it last attacked and toward which world angle (for the attack frames).
     pub attack_start: i32,
     pub attack_angle: f64,
+    /// How high it stands, in tiles, on stacked floors (0 elsewhere), and on which floor: ours as
+    /// we walk, others' from the server's HEIGHT stat on the ground where they are.
+    pub z: f64,
+    pub level: u8,
     /// When the attack frames' current pass began, and how long a pass takes (ms): the time
     /// between shots, kept between `MIN_ANIM_CYCLE` and `ATTACK_PERIOD`.
     attack_cycle_start: i32,
@@ -85,6 +109,11 @@ impl GameObj {
             Some(StatValue::Int(v)) => Some(*v),
             _ => None,
         }
+    }
+
+    /// The height the server gives it (`stat::HEIGHT`), in tiles.
+    pub fn stat_height(&self) -> f64 {
+        self.stat_int(stat::HEIGHT).unwrap_or(0) as f64 / 1000.0
     }
 
     pub fn stat_str(&self, id: u8) -> Option<&str> {
@@ -156,6 +185,21 @@ pub struct World {
     known: Vec<bool>,
     /// The static object standing on each square (`Square.obj_`).
     occupant: rustc_hash::FxHashMap<(i32, i32), i32>,
+    /// On stacked floors: the floors above the map, and the static objects standing on them.
+    pub levels: Option<Levels>,
+    /// On stacked floors, every floor above the lowest drawn see-through (`/floors`, to test: to
+    /// see what is under them).
+    pub see_through: bool,
+    level_occupant: rustc_hash::FxHashMap<(i32, i32, u8), i32>,
+    /// How many times the floors above the map have come (`set_layers`): for caches of what's
+    /// drawn on them.
+    layers_gen: u32,
+    /// On stacked floors, put (a Goto) where our squares haven't come yet, so our floor isn't
+    /// known: our height comes from the server's (our `Height` stat) or, once the squares come,
+    /// from the ground (`climb`).
+    lost_height: Option<(f64, f64)>,
+    /// The world's `Background` (MapInfo): what is drawn where there is no ground (`SKY_SUNSET`).
+    pub background: u8,
     pub objects: rustc_hash::FxHashMap<i32, GameObj>,
     /// Our player's object id.
     pub me: Option<i32>,
@@ -193,6 +237,12 @@ impl World {
             tile_log: Vec::new(),
             known: vec![false; n],
             occupant: Default::default(),
+            levels: None,
+            see_through: false,
+            level_occupant: Default::default(),
+            layers_gen: 0,
+            lost_height: None,
+            background: 0,
             objects: Default::default(),
             me: None,
             last_tick_id: -1,
@@ -226,6 +276,160 @@ impl World {
             }
             self.tiles[i] = tile_type;
             self.known[i] = true;
+        }
+    }
+
+    /// `Layers`: this is a world of stacked floors, these the floors above the map.
+    pub fn set_layers(&mut self, height: f64, tiles: &[LayerTile]) {
+        let n = (self.width.max(0) * self.height.max(0)) as usize;
+        let count = tiles.iter().map(|t| t.level as usize).max().unwrap_or(0);
+        let mut upper = vec![vec![NO_TILE; n]; count];
+        for t in tiles {
+            match (t.level as usize).checked_sub(1) {
+                Some(level) => {
+                    if let Some(i) = self.index(t.x as i32, t.y as i32) {
+                        upper[level][i] = t.tile_type;
+                    }
+                }
+                // the map's own squares, all of them up front (the islands' rock is worked out
+                // from a floor's every square)
+                None => self.set_tile(t.x as i32, t.y as i32, t.tile_type),
+            }
+        }
+        self.levels = Some(Levels { height, upper });
+        self.layers_gen = self.layers_gen.wrapping_add(1);
+        // the static objects already here go on their floors
+        let ids: Vec<i32> = self.objects.keys().copied().collect();
+        for id in ids {
+            self.restand(id);
+        }
+    }
+
+    /// Changes each time the floors above the map come (`set_layers`).
+    pub fn layers_gen(&self) -> u32 {
+        self.layers_gen
+    }
+
+    /// How many floors there are (1 on a flat map).
+    pub fn level_count(&self) -> usize {
+        self.levels.as_ref().map_or(1, |l| l.upper.len() + 1)
+    }
+
+    /// A square's ground on a floor (0 the map).
+    pub fn level_tile(&self, level: u8, x: i32, y: i32) -> Option<u16> {
+        if level == 0 {
+            return self.tile(x, y);
+        }
+        let i = self.index(x, y)?;
+        let t = *self.levels.as_ref()?.upper.get(level as usize - 1)?.get(i)?;
+        (t != NO_TILE).then_some(t)
+    }
+
+    /// How high the ground of a square on a floor is: the floor's height plus its ground's lift.
+    pub fn surface(&self, level: u8, x: i32, y: i32, data: &GameData) -> Option<f64> {
+        let tile = self.level_tile(level, x, y).filter(|&t| t != NO_TILE)?;
+        let base = self.levels.as_ref().map_or(0.0, |l| l.height * level as f64);
+        Some(base + data.grounds.get(&tile).map_or(0.0, |g| g.lift))
+    }
+
+    /// On stacked floors, the floor holding square (x, y) for something at height z: the one
+    /// whose ground is nearest, within `STEP`. Always the map on a flat one.
+    pub fn level_at(&self, x: i32, y: i32, z: f64, data: &GameData) -> Option<u8> {
+        if self.levels.is_none() {
+            return Some(0);
+        }
+        let mut best: Option<(f64, u8)> = None;
+        for level in 0..self.level_count() as u8 {
+            if let Some(s) = self.surface(level, x, y, data) {
+                let d = (s - z).abs();
+                if d <= STEP && best.is_none_or(|(b, _)| d < b) {
+                    best = Some((d, level));
+                }
+            }
+        }
+        best.map(|(_, level)| level)
+    }
+
+    /// The floor at square (x, y) whose ground is nearest height z, however far.
+    pub fn nearest_level(&self, x: i32, y: i32, z: f64, data: &GameData) -> Option<u8> {
+        (0..self.level_count() as u8)
+            .filter_map(|l| self.surface(l, x, y, data).map(|s| ((s - z).abs(), l)))
+            .min_by(|a, b| a.0.total_cmp(&b.0))
+            .map(|(_, l)| l)
+    }
+
+    /// The static object standing on a square of a floor.
+    pub fn occupant_at(&self, level: u8, x: i32, y: i32) -> Option<&GameObj> {
+        if level == 0 {
+            return self.occupant(x, y);
+        }
+        self.level_occupant.get(&(x, y, level)).and_then(|id| self.objects.get(id))
+    }
+
+    /// Square (x, y) for something at height z: its ground and what stands on it, on the floor
+    /// at that height (neither if there is none). The map's square on a flat map.
+    pub fn square_at(&self, x: i32, y: i32, z: f64, data: &GameData) -> (Option<u16>, Option<&GameObj>) {
+        if self.levels.is_none() {
+            return (self.tile(x, y), self.occupant(x, y));
+        }
+        match self.level_at(x, y, z, data) {
+            Some(level) => (self.level_tile(level, x, y), self.occupant_at(level, x, y)),
+            None => (None, None),
+        }
+    }
+
+    /// Whether the ground at (x, y), `s` high, drops toward its side (nx, ny): nothing beside it
+    /// as high (within `by`), on any floor.
+    #[allow(clippy::too_many_arguments)]
+    pub fn drops(&self, x: i32, y: i32, s: f64, nx: i32, ny: i32, by: f64, data: &GameData) -> bool {
+        !(0..self.level_count() as u8).filter_map(|l| self.surface(l, x + nx, y + ny, data)).any(|v| v >= s - by)
+    }
+
+    /// Whether the ground of floor `level` at (x, y) has a railing along its side toward (nx, ny):
+    /// it has a `<Rail>` and drops there by `RAIL_DROP`, or over water (slow ground: a pond under a
+    /// little bridge) by its `<RailDrop>`; not at a bridge's ends, where it steps down to its
+    /// banks. The view draws it (`view::floors`), and it stops us (`movement`).
+    pub fn railed(&self, level: u8, x: i32, y: i32, nx: i32, ny: i32, data: &GameData) -> bool {
+        let Some(g) = self.level_tile(level, x, y).and_then(|t| data.grounds.get(&t)) else { return false };
+        if !g.xml.has("Rail") {
+            return false;
+        }
+        let Some(s) = self.surface(level, x, y, data) else { return false };
+        if self.drops(x, y, s, nx, ny, RAIL_DROP, data) {
+            return true;
+        }
+        let rail_drop = g.xml.number("RailDrop", RAIL_DROP);
+        self.drops(x, y, s, nx, ny, rail_drop, data)
+            && self.level_at(x + nx, y + ny, s, data).and_then(|l| self.level_tile(l, x + nx, y + ny)).and_then(|t| data.grounds.get(&t)).is_some_and(|g| g.speed < 1.0)
+    }
+
+    /// Whether an object is on our floor (always, on a flat map): what we can interact with, and
+    /// the signs and boards that show over things, are only those on it.
+    pub fn on_my_floor(&self, obj: &GameObj) -> bool {
+        self.levels.is_none() || self.player().is_none_or(|me| (obj.z - me.z).abs() <= LEVEL_REACH)
+    }
+
+    /// Our height (0 on a flat map).
+    pub fn my_z(&self) -> f64 {
+        self.player().map_or(0.0, |p| p.z)
+    }
+
+    /// On stacked floors, where everything other than us stands: the floor at the height the
+    /// server gives, and the ground's height there (so it climbs a stair as it glides up).
+    fn settle_heights(&mut self, data: &GameData) {
+        let Some(h) = self.levels.as_ref().map(|l| l.height) else { return };
+        let ids: Vec<i32> = self.objects.keys().copied().filter(|&id| Some(id) != self.me).collect();
+        for id in ids {
+            let Some(o) = self.objects.get(&id) else { continue };
+            if data.objects.get(&o.object_type).is_some_and(|d| d.is_static) {
+                continue;
+            }
+            let (x, y, target) = (o.x, o.y, o.stat_height());
+            let level = self.level_at(x as i32, y as i32, target, data).unwrap_or((target / h).round().max(0.0) as u8);
+            let z = self.surface(level, x as i32, y as i32, data).unwrap_or(target);
+            if let Some(o) = self.objects.get_mut(&id) {
+                (o.z, o.level) = (z, level);
+            }
         }
     }
 
@@ -280,6 +484,12 @@ impl World {
         for t in update.tiles.iter() {
             self.set_tile(t.x as i32, t.y as i32, t.tile_type as u16);
         }
+        // our floor, now its squares have come
+        if let Some((x, y)) = self.lost_height {
+            if !update.tiles.is_empty() && self.player().is_some_and(|p| (p.x - x).abs() < 1e-6 && (p.y - y).abs() < 1e-6) && self.climb(x, y, data) {
+                self.lost_height = None;
+            }
+        }
         for o in update.new_objs.iter() {
             self.add_object(o, data, time);
         }
@@ -318,8 +528,14 @@ impl World {
             dead_at: 0,
             animations: Default::default(),
             anim_frame: None,
+            z: 0.0,
+            level: 0,
         };
         obj.apply_stats(&o.status.stats);
+        if let Some(h) = self.levels.as_ref().map(|l| l.height) {
+            obj.z = obj.stat_height();
+            obj.level = (obj.z / h).round().max(0.0) as u8;
+        }
         self.objects.insert(id, obj);
         self.place(id, x, y, data);
     }
@@ -330,6 +546,24 @@ impl World {
             if self.occupant.get(&key) == Some(&id) {
                 self.occupant.remove(&key);
             }
+            let key = (key.0, key.1, obj.level);
+            if self.level_occupant.get(&key) == Some(&id) {
+                self.level_occupant.remove(&key);
+            }
+        }
+    }
+
+    /// An object already here when the floors came (`set_layers`): its height, and a static
+    /// one onto its floor's squares.
+    fn restand(&mut self, id: i32) {
+        let Some(h) = self.levels.as_ref().map(|l| l.height) else { return };
+        let Some(o) = self.objects.get_mut(&id) else { return };
+        o.z = o.stat_height();
+        o.level = (o.z / h).round().max(0.0) as u8;
+        let (key, level) = ((o.x as i32, o.y as i32), o.level);
+        if level > 0 && self.occupant.get(&key) == Some(&id) {
+            self.occupant.remove(&key);
+            self.level_occupant.insert((key.0, key.1, level), id);
         }
     }
 
@@ -343,7 +577,13 @@ impl World {
         obj.x = x;
         obj.y = y;
         let is_static = data.objects.get(&obj.object_type).is_some_and(|d| d.is_static);
-        if is_static {
+        if is_static && obj.level > 0 {
+            let (old, level) = ((old.0, old.1, obj.level), obj.level);
+            if self.level_occupant.get(&old) == Some(&id) {
+                self.level_occupant.remove(&old);
+            }
+            self.level_occupant.insert((x as i32, y as i32, level), id);
+        } else if is_static {
             if self.occupant.get(&old) == Some(&id) {
                 self.occupant.remove(&old);
             }
@@ -386,6 +626,14 @@ impl World {
                 }
             }
             obj.apply_stats(&s.stats);
+            // put somewhere our floor isn't known yet: the server's height for us
+            if is_me && self.lost_height.is_some() && s.stats.iter().any(|st| st.id == stat::HEIGHT) {
+                if let Some(h) = self.levels.as_ref().map(|l| l.height) {
+                    obj.z = obj.stat_height();
+                    obj.level = (obj.z / h).round().max(0.0) as u8;
+                    self.lost_height = None;
+                }
+            }
         }
         self.last_tick_id = tick.tick_id;
     }
@@ -393,6 +641,11 @@ impl World {
     /// `Goto`: an object (often us) is moved at once.
     pub fn apply_goto(&mut self, id: i32, x: f64, y: f64, time: i32, data: &GameData) {
         if self.place(id, x, y, data) {
+            // on stacked floors, we stand on the ground where we're put (a move put back by the
+            // server would otherwise leave our height where it went)
+            if Some(id) == self.me && !self.climb(x, y, data) && self.levels.is_some() {
+                self.lost_height = Some((x, y));
+            }
             if let Some(o) = self.objects.get_mut(&id) {
                 o.last_tick_update_time = time;
                 (o.tick_x, o.tick_y, o.pos_at_tick_x, o.pos_at_tick_y) = (x, y, x, y);
@@ -425,6 +678,7 @@ impl World {
             };
             self.place(id, nx, ny, data);
         }
+        self.settle_heights(data);
         self.walk(dt, input, data)
     }
 }

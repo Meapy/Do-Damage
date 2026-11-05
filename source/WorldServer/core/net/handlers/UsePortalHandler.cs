@@ -36,6 +36,13 @@ namespace WorldServer.core.net.handlers
             World world;
             string dungeonName;
 
+            // a second Nexus's (an admin's copy) Arena portal leads to the real Nexus's Arena, as /arena does
+            if (player.World is worlds.impl.NexusWorld { IsMain: false } && portal.ObjectDesc.IdName == worlds.impl.doomed.DoomedWorlds.ArenaPortal)
+            {
+                worlds.impl.doomed.DoomedWorlds.JoinArena(player);
+                return;
+            }
+
             if (portal.GuildHallPortal)
             {
                 GuildHallWorld.Open(player);

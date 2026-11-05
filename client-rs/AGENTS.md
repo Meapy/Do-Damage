@@ -183,7 +183,9 @@ The client itself can be scripted for tests (desktop only):
   which is the owner's own: its sign-in screen shows their email. Don't share those shots.
 - **In the background:** a run with `--shot`, `--hold` or `--mouse-script` opens its window
   without taking focus, so the keyboard stays with the window in use; `--mouse` also ignores
-  clicks on it.
+  clicks on it. It opens in the middle of the display Visual Studio Code is on (else the display
+  of the window in use); `--display-of <text>` picks the display of the first window whose title
+  has that text instead (Windows only).
 - **Chat in the log:** with `RUST_LOG=info,betterskillys=debug` every chat line is logged
   (`chat <name>: <text>`), for reading results such as the vault Training Dummy's.
 - **No server needed** for the screens outside the game: `--account http://127.0.0.1:1` with

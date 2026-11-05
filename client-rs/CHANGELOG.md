@@ -14,6 +14,22 @@ details). Add to a group's line when a change adds to it, rather than adding ano
 
 ## Unreleased
 
+### Nexus
+- The Nexus is now a cluster of floating islands in a sunset sky, with clouds drifting by and the
+  odd shooting star, joined by bridges and at two heights. The spawn sits in a koi pond you wade
+  across, and heals you as you arrive; the market island lies west over an arched bridge like the
+  old Nexus's (the shops, the Marketplace, the guild's teahouse, the quest house and the Divine
+  Forge's smithy); the realm portals are in the shrine on the island below, down the walled stone
+  bridge south; and east, over another arched bridge, is the Arena island, whose tower you climb
+  by its spiral stair to the Hall of Champions (its champions seen from all round the tower), a
+  lookout and the Sky Bar, where Barman Kenji throws a drink at his guests every 20 seconds. The
+  Warcaller and the Herald stand on the Arena island's court. Everything works as before, but the
+  Nexus's shared vault chests are gone.
+
+### Abilities
+- Poisons, traps and other thrown items now show the item itself arcing through the air, as the
+  old client did.
+
 ### Pets
 - Pets now come in four sizes, Tiny, Small, Medium and Large, each hitting about twice as hard as
   the one below: Tiny pets do about 50 damage a second, Small 125, Medium 250 and Large 500 (the

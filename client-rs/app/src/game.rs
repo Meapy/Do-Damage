@@ -6,7 +6,7 @@ use crate::i18n::{tf, tn, tr};
 use bsk_data::{GameData, ObjectClass};
 use bsk_net::{GameSocket, SocketEvent, Target};
 use bsk_proto::{
-    AcceptTrade, Buy, CancelTrade, ChangeTrade, ClientMessage, EditAccountList, EnemyHit, Escape, GroundDamage, GuildInvite,
+    AcceptTrade, Buy, CancelTrade, ChangeTrade, ClientMessage, EditAccountList, EnemyHit, Escape, GroundDamage, GuildInvite, Height,
     InvDrop, JoinGuild, JoinParty, List16, PartyInvite, RequestTrade, Teleport, TradeItem, InvSwap, OtherHit, PlayerHit, PlayerShoot, PlayerText,
     Reconnect, ServerMessage, SlotObject, SquareHit, UseItem, UsePortal, ViewRadius, WorldPos, ChangeGuildRank, ChooseName,
     CreateGuild, GuildRemove, Reskin, UseStorage,
@@ -42,6 +42,8 @@ pub struct Game {
     /// How many times we've changed worlds.
     pub reconnects: u32,
     pub camera_angle: f64,
+    /// The time of the last `update`, for what happens between them (`say`).
+    now: i32,
     out: Vec<ClientMessage>,
     /// The sight radius the server uses for us, and when we last changed it.
     sent_view_radius: i32,
@@ -283,6 +285,7 @@ impl Game {
             died: false,
             reconnects: 0,
             camera_angle: DEFAULT_CAMERA_ANGLE,
+            now: 0,
             out: Vec::new(),
             sent_view_radius: MIN_VIEW_RADIUS,
             view_radius_sent_at: i32::MIN / 2,
@@ -504,6 +507,11 @@ impl Game {
             }
         }
         let sent_move = self.out.iter().any(|m| matches!(m, ClientMessage::Move(_)));
+        // on stacked floors, the height we walk at goes just before the Move
+        if let Some(world) = self.world.as_ref().filter(|w| sent_move && w.levels.is_some()) {
+            let at = self.out.iter().position(|m| matches!(m, ClientMessage::Move(_))).unwrap_or(0);
+            self.out.insert(at, Height { z: world.my_z() as f32 }.into());
+        }
         for m in self.out.drain(..) {
             self.socket.send(&m);
         }
@@ -517,6 +525,8 @@ impl Game {
                 self.remember_map();
                 self.map_key = (self.hello.game_id, info.name.clone(), info.width as i32, info.height as i32);
                 let mut world = World::new(info.width as i32, info.height as i32, &info.display_name, info.seed);
+                world.background = info.background;
+                log::info!("map {} ({}x{}), background {}", info.name, info.width, info.height, info.background);
                 if let Some((_, squares)) = self.seen_maps.iter().find(|(k, _)| *k == self.map_key) {
                     world.restore_squares(squares);
                 }
@@ -816,6 +826,10 @@ impl Game {
             ServerMessage::CommunityData(d) => self.community_events.push(crate::community::Event::Data(Box::new(d.clone()))),
             ServerMessage::CommunityNotice(n) => self.community_events.push(crate::community::Event::Notice(n.kind, n.title.clone(), n.text.clone())),
             ServerMessage::Goto(g) => world.apply_goto(g.object_id, g.pos.x as f64, g.pos.y as f64, now, data),
+            ServerMessage::Layers(l) => {
+                log::info!("floors: {} squares above the map, {} tiles apart", l.tiles.len(), l.height);
+                world.set_layers(l.height as f64, &l.tiles)
+            }
             ServerMessage::EnemyShoot(e) => {
                 let Some(owner) = world.objects.get(&e.owner_id).filter(|o| !o.dead) else { return };
                 let container = owner.object_type;
@@ -938,8 +952,17 @@ impl Game {
     }
 
     /// Send a chat line or command (`PlayerText`); the server echoes what others should see.
+    /// `/floors`, on stacked floors, stays here: it turns every floor above the lowest
+    /// see-through or back, to see what is under them.
     pub fn say(&mut self, text: &str) {
         let text = text.trim();
+        if let Some(world) = self.world.as_mut().filter(|w| w.levels.is_some() && text.eq_ignore_ascii_case("/floors")) {
+            world.see_through = !world.see_through;
+            let line = if world.see_through { "The floors are see-through: you can see what is under them." } else { "The floors are solid again." };
+            let now = self.now;
+            self.add_chat("", "", line, 0, 0, -1, now);
+            return;
+        }
         if !text.is_empty() {
             self.socket.send(&PlayerText { text: text.to_owned() }.into());
         }
@@ -1017,6 +1040,7 @@ impl Game {
 
     /// Advance the world by `dt` ms with the keys held; `rotate` is -1, 0 or 1.
     pub fn update(&mut self, now: i32, dt: i32, keys: (f64, f64), rotate: f64, data: &GameData) {
+        self.now = now;
         self.camera_angle += dt as f64 * ROTATE_SPEED * rotate;
         let Some(world) = &mut self.world else { return };
         let input = MoveInput { x: keys.0, y: keys.1, camera_angle: self.camera_angle };
