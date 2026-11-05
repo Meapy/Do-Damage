@@ -1001,5 +1001,22 @@
 "Not in the top this time": "Diesmal nicht ganz oben",
 "Buying a listing slot...": "Kaufe einen Angebotsplatz …",
 "+1 slot: {price} fame": "+1 Platz: {price} Ruhm",
-"Confirm: {price} fame": "Bestätigen: {price} Ruhm"
+"Confirm: {price} fame": "Bestätigen: {price} Ruhm",
+"Customize": "Anpassen",
+"Achievement ranks": "Erfolgsränge",
+"Automatic": "Automatisch",
+"Glow": "Leuchten",
+"None": "Keins",
+"Your own": "Dein eigenes",
+"No glow at all.": "Gar kein Leuchten.",
+"The colour you set with /glow.": "Die Farbe, die du mit /glow gesetzt hast.",
+"The coloured outline around your character.": "Der farbige Umriss um deinen Charakter.",
+"This server can't change your glow yet.": "Dieser Server kann dein Leuchten noch nicht ändern.",
+"Your choices stay with your account, on every character.": "Deine Auswahl gilt für deinen Account, auf jedem Charakter.",
+"Your name in chat: an achievement rank's colour, or the Hall of Champions' while you hold a place there.": "Dein Name im Chat: die Farbe eines Erfolgsrangs oder die der Halle der Champions, solange du dort einen Platz hältst.",
+"Yours while you hold your place on the Achievements board.": "Deins, solange du deinen Platz auf der Erfolge-Tafel hältst.",
+"Reach the top 10 of the Achievements board to unlock it.": "Erreiche die Top 10 der Erfolge-Tafel, um sie freizuschalten.",
+"From a place in the top 10 of the Stars board in the Hall of Champions.": "Von einem Platz in den Top 10 der Sterne-Tafel in der Halle der Champions.",
+"From a character on the Legends board, the dead's fame.": "Von einem Charakter auf der Legenden-Tafel, dem Ruhm der Toten.",
+"Picked for you: your own glow first, then the Hall of Champions', then the Legends'.": "Für dich gewählt: erst dein eigenes Leuchten, dann das der Halle der Champions, dann das der Legenden."
 }

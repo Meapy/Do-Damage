@@ -46,9 +46,12 @@ The rewards come in three steps: **#1**, **#2-3** and **#4-10**.
 - **Arena fame:** the two Arena boards' rewards add up, so #1 on both gives +30% fame from Arena
   waves.
 - **Experience** at level 20 turns into fame, so Weekly Fame's reward is more fame too.
-- **Glow and name colour:** a glow you chose yourself (`/glow`) shows instead of the Stars glow, and
-  the Legends' red glow gives way to it. The Achievements name colour shows over the rank colour you
-  picked in the quest log, which comes back when the place is lost.
+- **Glow and name colour:** the **Customize** window (Escape, then Customize) picks where each comes
+  from. Your name: an achievement rank's colour, or the Achievements board's while you hold a place
+  there. Your glow: the Stars board's, the Legends' red (a character on a Legends board, the dead's
+  fame), your own `/glow`, or none. Left on **Automatic**, your own glow shows first, then the Stars
+  glow, then the Legends' red. A choice whose place you lose falls back to the usual order and comes
+  back with the place.
 - `/boosts` lists every reward you hold.
 
 ## Weekly boards

@@ -1001,5 +1001,22 @@
 "Not in the top this time": "Tym razem poza czołówką",
 "Buying a listing slot...": "Kupuję miejsce na ofertę…",
 "+1 slot: {price} fame": "+1 miejsce: {price} sławy",
-"Confirm: {price} fame": "Potwierdź: {price} sławy"
+"Confirm: {price} fame": "Potwierdź: {price} sławy",
+"Customize": "Personalizacja",
+"Achievement ranks": "Rangi osiągnięć",
+"Automatic": "Automatyczna",
+"Glow": "Poświata",
+"None": "Brak",
+"Your own": "Twoja własna",
+"No glow at all.": "Bez poświaty.",
+"The colour you set with /glow.": "Kolor ustawiony przez /glow.",
+"The coloured outline around your character.": "Kolorowy obrys wokół twojej postaci.",
+"This server can't change your glow yet.": "Ten serwer nie może jeszcze zmienić twojej poświaty.",
+"Your choices stay with your account, on every character.": "Twój wybór zostaje na koncie, na każdej postaci.",
+"Your name in chat: an achievement rank's colour, or the Hall of Champions' while you hold a place there.": "Twój nick na czacie: kolor rangi osiągnięć albo kolor Sali Czempionów, póki masz tam miejsce.",
+"Yours while you hold your place on the Achievements board.": "Twój, póki trzymasz miejsce w rankingu Osiągnięć.",
+"Reach the top 10 of the Achievements board to unlock it.": "Wejdź do top 10 rankingu Osiągnięć, by go odblokować.",
+"From a place in the top 10 of the Stars board in the Hall of Champions.": "Za miejsce w top 10 rankingu Gwiazd w Sali Czempionów.",
+"From a character on the Legends board, the dead's fame.": "Za postać w rankingu Legend, sławę poległych.",
+"Picked for you: your own glow first, then the Hall of Champions', then the Legends'.": "Wybierana za ciebie: najpierw twoja własna, potem Sali Czempionów, potem Legend."
 }

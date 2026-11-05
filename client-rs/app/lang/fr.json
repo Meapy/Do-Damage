@@ -1001,5 +1001,22 @@
 "Not in the top this time": "Pas dans le top cette fois",
 "Buying a listing slot...": "Achat d’un emplacement d’annonce…",
 "+1 slot: {price} fame": "+1 emplacement : {price} de renommée",
-"Confirm: {price} fame": "Confirmer : {price} de renommée"
+"Confirm: {price} fame": "Confirmer : {price} de renommée",
+"Customize": "Personnaliser",
+"Achievement ranks": "Rangs de succès",
+"Automatic": "Automatique",
+"Glow": "Aura",
+"None": "Aucune",
+"Your own": "La vôtre",
+"No glow at all.": "Aucune aura.",
+"The colour you set with /glow.": "La couleur choisie avec /glow.",
+"The coloured outline around your character.": "Le contour coloré autour de votre personnage.",
+"This server can't change your glow yet.": "Ce serveur ne peut pas encore changer votre aura.",
+"Your choices stay with your account, on every character.": "Vos choix restent sur votre compte, pour chaque personnage.",
+"Your name in chat: an achievement rank's colour, or the Hall of Champions' while you hold a place there.": "Votre nom dans le chat : la couleur d’un rang de succès, ou celle du Panthéon des champions tant que vous y avez une place.",
+"Yours while you hold your place on the Achievements board.": "À vous tant que vous gardez votre place au classement des Succès.",
+"Reach the top 10 of the Achievements board to unlock it.": "Entrez dans le top 10 du classement des Succès pour la débloquer.",
+"From a place in the top 10 of the Stars board in the Hall of Champions.": "Grâce à une place dans le top 10 du classement des Étoiles du Panthéon des champions.",
+"From a character on the Legends board, the dead's fame.": "Grâce à un personnage au classement des Légendes, la gloire des morts.",
+"Picked for you: your own glow first, then the Hall of Champions', then the Legends'.": "Choisie pour vous : d’abord votre propre aura, puis celle du Panthéon des champions, puis celle des Légendes."
 }

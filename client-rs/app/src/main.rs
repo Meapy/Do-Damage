@@ -240,7 +240,7 @@ struct App {
     /// `--npc <class>` (tests): open that NPC's window once in the game, wherever we stand.
     npc_test: Option<String>,
     /// `--quests <tab>` (tests): open the quest log at that tab (daily, weekly, monthly, login,
-    /// achievements) once its data has come.
+    /// achievements) or the Customize window (customize) once its data has come.
     quests_test: Option<String>,
     /// `--champions <board>` (tests): open the Hall of Champions at that board (its id or name)
     /// once in the game, wherever we stand.
@@ -1854,6 +1854,10 @@ impl App {
                     self.game_menu = false;
                     self.options_ui.show();
                 }
+                Some(screens::MenuChoice::Customize) => {
+                    self.game_menu = false;
+                    self.quest_acts.extend(self.quests.show_customize());
+                }
                 Some(screens::MenuChoice::Changelog) => {
                     self.game_menu = false;
                     self.changelog.show();
@@ -2121,7 +2125,7 @@ impl App {
             }
             if self.quests.loaded() {
                 if let Some(tab) = self.quests_test.take() {
-                    self.quests.show(quests::Tab::named(&tab));
+                    self.quests.show_named(&tab);
                 }
             }
             for act in quest_acts {

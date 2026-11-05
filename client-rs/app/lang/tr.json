@@ -1001,5 +1001,22 @@
 "Not in the top this time": "Bu sefer zirvede değilsin",
 "Buying a listing slot...": "İlan yeri satın alınıyor…",
 "+1 slot: {price} fame": "+1 yer: {price} şöhret",
-"Confirm: {price} fame": "Onayla: {price} şöhret"
+"Confirm: {price} fame": "Onayla: {price} şöhret",
+"Customize": "Özelleştir",
+"Achievement ranks": "Başarım rütbeleri",
+"Automatic": "Otomatik",
+"Glow": "Parıltı",
+"None": "Yok",
+"Your own": "Kendi rengin",
+"No glow at all.": "Hiç parıltı yok.",
+"The colour you set with /glow.": "/glow ile ayarladığın renk.",
+"The coloured outline around your character.": "Karakterinin etrafındaki renkli çerçeve.",
+"This server can't change your glow yet.": "Bu sunucu parıltını henüz değiştiremiyor.",
+"Your choices stay with your account, on every character.": "Seçimlerin hesabında kalır, her karakterde geçerlidir.",
+"Your name in chat: an achievement rank's colour, or the Hall of Champions' while you hold a place there.": "Sohbette ismin: bir başarım rütbesinin rengi ya da orada bir yerin olduğu sürece Şampiyonlar Salonu'nun rengi.",
+"Yours while you hold your place on the Achievements board.": "Başarımlar tablosundaki yerini koruduğun sürece senin.",
+"Reach the top 10 of the Achievements board to unlock it.": "Açmak için Başarımlar tablosunda ilk 10'a gir.",
+"From a place in the top 10 of the Stars board in the Hall of Champions.": "Şampiyonlar Salonu'ndaki Yıldızlar tablosunda ilk 10'daki bir yerden.",
+"From a character on the Legends board, the dead's fame.": "Efsaneler tablosundaki bir karakterden, ölülerin şöhreti.",
+"Picked for you: your own glow first, then the Hall of Champions', then the Legends'.": "Senin yerine seçilir: önce kendi parıltın, sonra Şampiyonlar Salonu'nunki, sonra Efsanelerinki."
 }

@@ -1001,5 +1001,22 @@
 "Not in the top this time": "Deze keer niet in de top",
 "Buying a listing slot...": "Aanbiedingsplek kopen…",
 "+1 slot: {price} fame": "+1 plek: {price} roem",
-"Confirm: {price} fame": "Bevestigen: {price} roem"
+"Confirm: {price} fame": "Bevestigen: {price} roem",
+"Customize": "Aanpassen",
+"Achievement ranks": "Prestatierangen",
+"Automatic": "Automatisch",
+"Glow": "Gloed",
+"None": "Geen",
+"Your own": "Je eigen",
+"No glow at all.": "Helemaal geen gloed.",
+"The colour you set with /glow.": "De kleur die je met /glow hebt ingesteld.",
+"The coloured outline around your character.": "De gekleurde rand om je personage.",
+"This server can't change your glow yet.": "Deze server kan je gloed nog niet veranderen.",
+"Your choices stay with your account, on every character.": "Je keuzes blijven bij je account, op elk personage.",
+"Your name in chat: an achievement rank's colour, or the Hall of Champions' while you hold a place there.": "Je naam in de chat: de kleur van een prestatierang, of die van de Hal der Kampioenen zolang je daar een plek hebt.",
+"Yours while you hold your place on the Achievements board.": "Van jou zolang je je plek op het Prestaties-bord houdt.",
+"Reach the top 10 of the Achievements board to unlock it.": "Haal de top 10 van het Prestaties-bord om hem vrij te spelen.",
+"From a place in the top 10 of the Stars board in the Hall of Champions.": "Van een plek in de top 10 van het Sterren-bord in de Hal der Kampioenen.",
+"From a character on the Legends board, the dead's fame.": "Van een personage op het Legendes-bord, de roem van de doden.",
+"Picked for you: your own glow first, then the Hall of Champions', then the Legends'.": "Voor je gekozen: eerst je eigen gloed, dan die van de Hal der Kampioenen, dan die van de Legendes."
 }

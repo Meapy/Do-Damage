@@ -397,7 +397,7 @@ namespace Shared.quests
             var after = RankOf(Points);
             if (after > before)
                 result.Notices.Add(new QuestNotice(QuestNotice.RankUp, $"Rank up: {Data.Ranks[after].Name}!",
-                    Data.Ranks[after].ColorValue != 0 ? "A new name colour is yours: pick it under Achievements." : "Keep going!"));
+                    Data.Ranks[after].ColorValue != 0 ? "A new name colour is yours: pick it in Customize (Esc menu)." : "Keep going!"));
         }
 
         public static string PeriodNoun(QuestPeriod p) => p switch { QuestPeriod.Daily => "day", QuestPeriod.Weekly => "week", _ => "month" };

@@ -367,6 +367,13 @@ fn quest_messages_match_quest_handlers() {
     b = b.u8(1).utf("oryx").utf("Combat").utf("Oryx's Bane").utf("Help defeat Oryx 10 times.").u8(1).i32(3).u8(2).i32(1).i32(10).i32(20).u8(1);
     b = reward(b, 0, 0, 100);
     let ServerMessage::QuestsData(d) = ServerMessage::decode(104, &b.0).unwrap() else { panic!() };
+    assert_eq!((d.gifts.as_ref(), d.looks), (None, None));
+    // then the gifts (none here) and the Customize window's choices: champion colour, champion
+    // glow, legend, own glow, name from, glow from
+    let b = b.u8(0).i32(0xFFD24A).i32(0).u8(1).i32(0).u8(1).u8(2);
+    let ServerMessage::QuestsData(d) = ServerMessage::decode(104, &b.0).unwrap() else { panic!() };
+    let looks = d.looks.unwrap();
+    assert_eq!((looks.champion_color, looks.champion_glow, looks.legend, looks.own_glow, looks.name_from, looks.glow_from), (0xFFD24A, 0, true, 0, 1, 2));
     assert_eq!((d.now, d.rank, d.points, d.color_rank), (1_800_000_000, 1, 120, 255));
     assert_eq!((d.ranks[0].name.as_str(), d.ranks[0].color), ("Adventurer", 0xCD8A4E));
     assert_eq!((d.periods[0].rerolls_left, d.periods[0].bonus[0].item), (1, 0x0c69));

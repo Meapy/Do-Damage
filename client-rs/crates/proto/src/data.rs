@@ -301,6 +301,23 @@ wire_struct! {
 }
 
 wire_struct! {
+    /// The Customize window's choices (`QuestsData`, last): the chat name colour and glow the
+    /// Hall of Champions gives now (0: no place), whether the account is a legend (the red
+    /// glow), the player's own glow (`/glow`, 0: none), and the sources chosen
+    /// (`Shared.champions.LookChoice`): the name 0 the champion's while held, 1 the rank colour
+    /// picked; the glow 0 automatic, 1 the champion's, 2 the legend's, 3 their own, 4 none.
+    #[derive(Copy, Eq)]
+    pub struct QuestLooks {
+        pub champion_color: i32,
+        pub champion_glow: i32,
+        pub legend: bool,
+        pub own_glow: i32,
+        pub name_from: u8,
+        pub glow_from: u8,
+    }
+}
+
+wire_struct! {
     /// Progress that changed (`QuestProgress`): a quest (kind 0) or an achievement (1) by its
     /// place in `QuestsData`'s lists.
     #[derive(Copy)]

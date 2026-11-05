@@ -41,6 +41,14 @@ details). Add to a group's line when a change adds to it, rather than adding ano
   bigger the next one and the harder that goal comes back, so quick finishes in a row get harder
   each time. The weekly reset comes as always.
 
+### Customize
+- A new Customize window, in the Escape menu, holds your chat name colour and your glow, the
+  coloured outline around your character. Pick your name colour from your achievement ranks or
+  the Hall of Champions' Achievements board, and your glow from the Hall of Champions' Stars
+  board, the Legends' red, your own `/glow` or none at all. A source you lose (a place in the top
+  10) falls back to the usual order and comes back with it. The name colours are no longer on the
+  quest log's Achievements tab.
+
 ### Wiki
 - Pets have a section of their own, no longer under Characters. The Pets page lists only the pets
   you can get, each with where it drops, and no longer the pet yard's, which isn't open here.
