@@ -120,7 +120,25 @@ it asks first; never run test copies under the live process names (`redis-server
   - **Collecting work:** finished work goes into the release branch for the next version,
     `release/<version>`, such as `release/2.0.3`.
     - Find the open one with `git branch --list 'release/*'`; if there is none, create it from
-      `main`, named for the next patch version (the owner may pick another number).
+      `main`, named for the next patch version (the owner may pick another number), and start
+      its [PR-BODY.md](PR-BODY.md) afresh (below).
+    - **PR-BODY.md** is the release's pull request body, written as the work goes in, so it's
+      ready when the release is. Each finished piece of work adds its part to it in the same
+      commit as the work (or, for work already in, a commit of its own), before it goes into the
+      release branch; when rebasing onto the branch, keep both sides' parts. Keep it complete:
+      - **For players:** the piece summed up in the group it belongs to (as in the changelog, but
+        fuller: numbers, names, where to find it), added to a group's line rather than as a new
+        line when one is there.
+      - **Details:** a `### ` part per piece: what changed and why, the files or areas touched
+        (scripts, maps and data regenerated), which side needs redeploying (client, servers,
+        gateway, website) and whether players are disconnected, data kept or migrated in Redis,
+        anything the owner must do (a secret, a setting, a step on the VPS), and what's not done
+        or known to be off.
+      - **Checks:** how it was tested (tests, builds, an isolated stack, a `--shot`), noted against
+        the piece.
+      When a branch is created from `main` (which has the last release's body), replace its
+      parts with an empty template: the title line, `## For players`, `## Details` and
+      `## Checks`.
     - Sessions work in worktrees under `.claude/worktrees/`, rebase onto the release branch
       (`git rebase release/<version>`), then fast-forward it from the main checkout:
       `git -C <main checkout> fetch . <branch>:release/<version>`, which refuses anything but a
@@ -141,8 +159,9 @@ it asks first; never run test copies under the live process names (`redis-server
        "Releasing to players"), and check the client tests, `python tools\build_site.py` and the
        server builds.
     2. Push it (`git push -u origin release/<version>`) and open a pull request against `main`
-       (`gh pr create --base main --head release/<version>`), its body listing what's in the
-       release.
+       (`gh pr create --base main --head release/<version> --body-file PR-BODY.md`): check
+       PR-BODY.md against `git log main..release/<version>` first, fill in anything missing, and
+       put the version and which sides deploy in its first line.
     3. Squash and merge it (`gh pr merge --squash --delete-branch`, the title naming the
        version), then update the main checkout (`git -C <main checkout> switch main` and
        `git -C <main checkout> pull --ff-only`). `--delete-branch` removes the release branch on

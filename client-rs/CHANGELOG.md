@@ -12,6 +12,12 @@ Keep each version short: changes go under `### ` group headings (Oryx 5, Arena, 
 on), one line per change players notice, summed up rather than item by item (the wiki has the
 details). Add to a group's line when a change adds to it, rather than adding another line.
 
+## Unreleased
+
+### Nexus
+- The shared vault chests are back in the Nexus, with everything that was left in them: wade
+  north across the spawn's pond to the vault yard in front of the storehouse.
+
 ## 2.4.1 (2026-11-06)
 
 ### Classes

@@ -175,7 +175,9 @@ the stone water basins at its corners do. From there:
   The koi pond round the deck is shallow: wade across it, west, east or south, to the paths to
   the big bridges. Every ten minutes the Support Bot lets a flock of **XP ducks** onto the pond:
   shoot them for experience, and now and then a Health or Magic Potion. Frogs sit among the lily pads in the pond's north-east, and cherry
-  trees bloom on its banks.
+  trees bloom on its banks. Wade north across the pond to the **vault yard**: four **shared vault
+  chests** in front of the storehouse, which everyone can use: put something in for another
+  player to take, or take what someone left.
 - **West**, over the arched wooden bridge: the **market island**. Its shopping street along the
   north is the Nexus Bazaar: each shop is a row of stalls in front of a house (stat potions, dungeon keys,
   Elder and Doomed keys, consumables, specials, pet generators, clothing and accessories). The
