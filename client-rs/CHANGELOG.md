@@ -36,6 +36,10 @@ details). Add to a group's line when a change adds to it, rather than adding ano
 - Oryx 3, 4 and 5 can no longer be stunned, paralysed, petrified, put in stasis, dazed or slowed.
   Curse and Armor Broken still work on them.
 
+### Lost Halls
+- The Marble Colossus's last burst of void shots as it dies now flies out and stays, instead of
+  vanishing with it.
+
 ### Items and imprints
 - Imprints show as a border round the item instead of small squares: one imprint's colour goes all
   the way round, two share it half and half, three take the top halves and the bottom, four a

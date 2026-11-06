@@ -544,9 +544,11 @@ namespace WorldServer.logic
                         new Flash(0x4B0082, 1, 10),
                         new SetAltTexture(8),
                         new Spawn("LH Void Rift Spawner", 1, 1, 2000000000),
-                        new Shoot(10, 45, 8, 16, angleOffset: 90, coolDownOffset: 7400, coolDown: 200),
-                        new Shoot(10, 45, 8, 17, angleOffset: 90, coolDownOffset: 7400, coolDown: 200),
-                        new Shoot(10, 30, 12, 18, angleOffset: 90, coolDownOffset: 7400, coolDown: 200),
+                        // its last burst goes out just before it dies: fired on the tick it was
+                        // removed, the clients dropped the shots of an enemy already gone
+                        new Shoot(10, 45, 8, 16, angleOffset: 90, coolDownOffset: 7000, coolDown: 10000),
+                        new Shoot(10, 45, 8, 17, angleOffset: 90, coolDownOffset: 7000, coolDown: 10000),
+                        new Shoot(10, 30, 12, 18, angleOffset: 90, coolDownOffset: 7000, coolDown: 10000),
                         new Decay(7400)
                         )
                     ),
