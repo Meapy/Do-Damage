@@ -74,6 +74,9 @@ event, and isn't sold or dropped then; if you have one, keep it for the next.
   and his gaze. Below 20% he grows and chases you.
 - **Oryx 2** (Wine Cellar) calls his guards at 55% health, with silencing and weakening spinners,
   then fights faster.
+Oryx 3, 4 and 5 can't be stunned, paralysed, petrified, put in stasis, dazed or slowed (Curse
+and Armor Broken still work on them).
+
 - **Oryx 3**, Oryx the Celestial Mad God (Sanctuary): first fight through his nobles and his court
   (kill the Deacon first: he heals the others) until the Sanctum's gate opens. He waits in the
   middle of the Sanctum, chases you while he fires missiles, charges about leaving spinning wheels

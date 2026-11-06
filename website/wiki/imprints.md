@@ -24,8 +24,10 @@ Every piece of Enthroned gear has four imprint slots, one of each colour:
 - **Apotheosis** (light blue): gear's last step, one for weapons, one for armour and one for rings,
   each making more of the stats your gear and boosts give you.
 
-An item shows a small gold-edged square for each imprint it carries, side by side at the top left
-of its slot (red first, then green, purple and light blue). Its tooltip shows its numbers with the
+An item's imprints edge its slot, each a band in its colour framed in gold: one goes all the way
+round, two share it left and right, three take the top's two halves and the bottom, and four a
+quarter each, red at the top left, green at the top right, purple at the bottom left and light blue
+at the bottom right. Its tooltip shows its numbers with the
 imprints (in green where they change them), lists the imprints under **Imprints** and sums up what
 they change under **With imprints**.
 
@@ -60,7 +62,7 @@ players' gear in their card (the players near you, bottom right), and on the cha
 
 ## What they cost
 
-An imprint is paid in **Ascended shards**, of the kinds for its colour, taken from your forge
+The Enchanter shows each imprint's price as a number and a shard. An imprint is paid in **Ascended shards**, of the kinds for its colour, taken from your forge
 storage first and then your inventory, and the kinds can be mixed:
 
 | Colour | Shards | Paid in |

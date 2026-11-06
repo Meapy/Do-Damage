@@ -48,6 +48,22 @@ impl Forge {
         cat != Category::Other && cat != Category::All && data.objects.get(&(item as u16)).is_some_and(|d| d.xml.has("Ascended"))
     }
 
+    /// An imprint's price centred in `r`: the number, then the icon of the shard it's paid in (its
+    /// colour's first; the line at the foot names the others).
+    fn draw_price(&self, ui: &mut Ui, cost: i32, kind: Kind, r: [f32; 4], s: f32) {
+        let n = cost.to_string();
+        let size = (12.0 * s).round().max(9.0);
+        let nw = ui.measure(&n, size, true);
+        // an 8 by 8 shard at 40 is 16 pixels a side, the height of `r` at scale 1
+        let icon = 16.0 * s;
+        let gap = 2.0 * s;
+        let x = r[0] + (r[2] - nw - gap - icon) / 2.0;
+        ui.label(&n, x, r[1] + (r[3] - size * 1.2) / 2.0, size, true, color::GOLD);
+        if let Some(&shard) = kind.shards().first().and_then(|id| ui.data.object_ids.get(*id)) {
+            ui.item_icon(shard as i32, 40, x + nw + gap + icon / 2.0, r[1] + r[3] / 2.0, s);
+        }
+    }
+
     /// How many shards that pay for an imprint of this colour the storage and the inventory hold.
     fn shards_for(&self, data: &GameData, kind: Kind) -> (i32, i32) {
         let types: Vec<u16> = kind.shards().iter().filter_map(|id| data.object_ids.get(*id).copied()).collect();
@@ -135,7 +151,7 @@ impl Forge {
         ui.slot_box(sr, edge, over && usable, s);
         let Some((item, imps)) = found else { return };
         ui.item_icon(item, 80, sr[0] + sr[2] / 2.0, sr[1] + sr[3] / 2.0, s * sr[2] / (54.0 * s));
-        crate::hud::draw_imprint_marks(ui, imps, sr[0] + 4.0 * s, sr[1] + 4.0 * s, s);
+        crate::hud::draw_imprint_marks(ui, imps, sr, s);
         if !usable {
             theme::fill(ui.renderer, sr, 5.0 * s, 0x000000, 0.55);
         }
@@ -217,7 +233,7 @@ impl Forge {
                 let ib = [x0, y, 56.0 * s, 56.0 * s];
                 ui.slot_box(ib, crate::screens::tier_edge(ui.data, item), false, s);
                 ui.item_icon(item, 80, ib[0] + ib[2] / 2.0, ib[1] + ib[3] / 2.0, s);
-                crate::hud::draw_imprint_marks(ui, current, ib[0] + 4.0 * s, ib[1] + 4.0 * s, s);
+                crate::hud::draw_imprint_marks(ui, current, ib, s);
                 let desc = ui.data.objects.get(&(item as u16));
                 let name = desc.map_or(String::new(), |d| d.display_id.clone());
                 let slot_type = desc.map_or(0, |d| d.xml.int("SlotType", 0));
@@ -336,15 +352,17 @@ impl Forge {
                     cx += cw + 6.0 * s;
                 }
             }
-            let br = [row[0] + row[2] - bw - 8.0 * s, y + (h - 28.0 * s) / 2.0, bw, 28.0 * s];
-            // its price, under the button
-            let price = tn!(imp.cost(), "{n} shard|{n} shards");
-            let pw = ui.measure(&price, font(10.5), false);
-            ui.label(&price, br[0] + (bw - pw) / 2.0, br[1] + br[3] + 2.0 * s, font(10.5), false, color::TEXT_MUTED);
+            // the button and its price under it, both inside the row (with nothing picked, the
+            // price alone): the number and the shard it's paid in, its colour's first
+            let (btn_h, price_h) = (24.0 * s, 16.0 * s);
+            let pair = if slot_type.is_some() { btn_h + 2.0 * s + price_h } else { price_h };
+            let br = [row[0] + row[2] - bw - 8.0 * s, y + (h - pair) / 2.0, bw, btn_h];
+            let price_y = if slot_type.is_some() { br[1] + btn_h + 2.0 * s } else { br[1] };
+            self.draw_price(ui, imp.cost(), kind, [br[0], price_y, bw, price_h], s);
             if has {
                 let t = tr("Carried");
                 let w = ui.measure(t, font(12.0), true);
-                ui.label(t, br[0] + (bw - w) / 2.0, br[1] + 6.0 * s, font(12.0), true, color::GOOD);
+                ui.label(t, br[0] + (bw - w) / 2.0, br[1] + 4.0 * s, font(12.0), true, color::GOOD);
             } else if slot_type.is_some() {
                 let label = if self.imp_pending { "..." } else if current[kind as usize] > 0 { tr("Replace") } else { tr("Imprint") };
                 ui.button(br, label, ButtonKind::Primary, inside(br, mouse), s * 0.8);

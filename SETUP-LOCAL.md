@@ -580,6 +580,87 @@ The remotes `upstream` (HaloCelsius) and `aurusenth` share no history with `main
 
 ## Changes from upstream
 
+- **The update of 6 November** (2026-11-06; the client and the servers ship together for the
+  character list's `<LastSeen>`, which an older client ignores and an older server leaves out):
+  - **Character list search, filter and order** (`screens.rs` `CharFilter`, `CharSort`,
+    `shown_chars`, `maxed_stats`, `search_matches`, the field `SEARCH`, `Front::chip`,
+    `field_text`; `bsk_net::account::CharSummary` `stats` and `last_seen`, `STAT_TAGS`; the
+    account server's `Character.LastSeen` in `App/XmlModels.cs`): `<Char>` now carries
+    `<LastSeen>` (Unix seconds from `DbChar.LastSeen`, saved at every character save, 0 when
+    never set). The list has a search field (always focused on that screen, so typing goes to it;
+    a class's or skin's display name, any part, any case; Enter plays the first match, Escape
+    clears it before leaving), filter chips (All, 8/8, Not 8/8: the character's own stats from
+    `<MaxHitPoints>`..`<MpRegen>` against its class's `max`es) and a sort chip that cycles Recently
+    played (the default, `last_seen` then newest), Most fame, Most stats maxed, Class, Newest. The
+    New character / Buy a slot card stays last; "N of M" or "No characters match" beside the search
+    while narrowed. Each card has an "N/8" pill after the class's name, gold at 8/8 (none from an
+    older server). The filter and order last the session.
+  - **Mouse buttons 4 and 5 bind as keys** (`options.rs` `MOUSE_KEYS`, `mouse_key`; `main.rs`
+    `App::key_input`, the old `KeyboardInput` arm moved into it unchanged): the side buttons are the
+    codes `BrowserBack` and `BrowserForward` (what the systems already make of them), listed in
+    `KEYS` so they save, labelled "Mouse 4" and "Mouse 5", and fed through the same path as a key
+    (windows, chat, the game's binds, held binds). A keyboard's own Back and Forward keys do the
+    same.
+  - **Chat background** (`Settings::chat_alpha`, `chatBackground=`, `Slider::ChatAlpha`;
+    `hud::draw_chat`): 0-100% of the chat box's usual darkness (0.32, 0.55 while typing or scrolled).
+  - **Trades close on a world change** (`Game::reconnect`): the server already ends a trade when a
+    player leaves a world (`World.RemoveFromWorld`), but its `TradeDone` went out while the client
+    was switching connections, so two players taking the same portal kept a dead trade window.
+    The client now drops the trade on every Reconnect.
+  - **Oryx 3, 4 and 5 shrug off crowd control** (`Entity.cs` `EndgameBosses`,
+    `EndgameBossImmunities`): Oryx the Mad God 3, Oryx the Mad God 4 and Oryx the Ascended God get
+    permanent StunImmune, ParalyzedImmune, PetrifiedImmune, StasisImmune, DazedImmune and
+    SlowedImmune at creation (in code, as Oryx 4's XML is generated). Curse and Armor Broken
+    still apply. None of their behaviours put those conditions on themselves.
+  - **Imprint borders** (`hud::draw_imprint_marks`, now taking the slot's rectangle,
+    `imprint_border`; `theme::split_ring`, `part_of`): the gold-edged squares became a rounded
+    ring round the slot, gold, then a band of each imprint's colour, gold between them: 1 all
+    round, 2 left and right, 3 the top's halves and the bottom, 4 the quarters (Offensive top left,
+    Defensive top right, Misc bottom left, Apotheosis bottom right). The ring's inner edge shares
+    the outer one's corner centres, so it follows the slot's rounding. Every caller (HUD, trade,
+    player cards, the character list, the Divine Workbench) passes the slot. The inventory's number
+    moved inside it.
+  - **Imprint prices** (`forge/imprints.rs` `draw_price`): the number in gold and the icon of the
+    colour's first shard, centred under the button inside the row (the "1 shard" text under it
+    spilled below short rows); alone in the button's place with nothing picked.
+  - **Enthroned Boots** (`ForgeRecipes.Ascended`, now with a shard count and `AnyTier`;
+    `build_ascended_items.STATS`; `wiki_data.forge_recipes`, `wiki_gear`, `build_wiki`
+    `gen_forge_ascended`; `Tests/ForgeRecipeTests.cs`): +50 Speed (was the Ring of Absolute
+    Speed's 18), forged from any tradeable ring but an Ascended one, and two Ascended Accessory
+    Shards, 1,000 fame. Boots already made have the new speed.
+  - **No pet weakens** (`port_doomed_pets.py` `PET_PROJECTILES`, `PET_KITS`, `PET_ABILITIES`, its
+    outputs regenerated): Weak on an enemy cuts its shots' damage (`Shoot.cs`), too strong on a pet.
+    Gone from the Kythal the Necromancer's big skull, Kythal the Skull's, the Nightmare's fire
+    bolts, the Abyssal Krakenling's nova (now damage only) and the Kitsune Spirit's boomerang. The
+    Nightmare (a Large pet) has `PetOwnerEffect(Armored, 2000, 5000)`, as Gebb's and Limon's
+    cadence.
+  - **XP ducks drop potions** (`BehaviorDb.Nexus.cs`): `NG XP Duck` has a behaviour now, an empty
+    state with Health Potion and Magic Potion at 25% each (soulbound bags for whoever shot it).
+  - **No Daily Quest Portal in the vault** (`tools/build_vault.py`, `Vault Garden.jm` rebuilt: only
+    that tile changed).
+  - The Priest's tomes item of the request was already done (Meapy's "Tomes buff the players
+    around the priest", below).
+  - **Looked into, not found:** buildings in the Nexus and the vault sometimes drawn "flattened"
+    (a reported screenshot: a house's whole 128 by 128 model texture as one flat block about
+    640 pixels wide). Ruled out: missing models (all load at startup, a failure stops it), type
+    clashes with model objects, items or shop stock with large textures, map-set merchandise
+    types, atlas eviction (there is none) and page batching. Not reproduced yet.
+
+- **Tomes buff the players around the priest** (2026-11-05; `Player.UseItem.cs`
+  `TomeShareRange`, `ShareTomeCondition`, `ShareTomeStatBoost`; `tools/wiki_gear.py`): a tome's
+  (slot type 4) `ConditionEffectSelf` and `StatBoostSelf` reached only the user, so the other
+  players got the heal and the Healing aura but not the Armored, Speedy, Invisible or stat boosts.
+  Used as the ability, a tome now also gives each of them to the players within its widest
+  HealNova, ConditionEffectAura, ClearConditionEffectAura or RemoveNegativeConditions range (with
+  the wisdom bonus where that activate has it), for the same time, with assist credit
+  (`BuffedBy`). Drawbacks stay on the user: a condition in `NegativeEffs` (the Tome of Forbidden
+  Knowledge's Curse) and a negative stat boost (2PriestST1's -5 Defense). The caster's own effect
+  is unchanged; item procs (`OnOtherActivate`) are not shared. The wiki says "to you and allies
+  within N tiles" on those effects, and so does the Rust client's tooltip (`hud.rs`
+  `tome_share_range`, a Range row on those Effect and Boost sections; a negative stat boost now
+  reads "-5", not "+-5"). The world server and the client ship apart: an older client just shows
+  no range.
+
 - **Enthroned gear, imprints and the item pass of 5 November** (2026-11-05; ships with a client
   release, message 110 grew and stat 149 is new):
   - **Imprints** (`Shared/resources/Imprints.cs`, its copy `client-rs/crates/data/src/imprint.rs`,
@@ -1109,7 +1190,7 @@ The remotes `upstream` (HaloCelsius) and `aurusenth` share no history with `main
   the Hall of Champions.
 
 - **Static objects tick once a tick** (2026-10-28; `World.UpdateLogic`): a `StaticObject` (a `GameObject` with a behaviour: dungeon controllers, activators, spawners, ability effects such as `Battalion Banner Effect` or `Wisp of Life`) is in `StaticObjects` and, for collision, in `EnemiesCollision`, and was ticked from both, so its timers, cooldowns, `Decay` and movement ran at double speed while a player was near (once with none). The enemy-chunk loop now skips anything that isn't an `Enemy`; static objects tick only in their own loop, at the speed written. What changes (about 45 behaviours, none found tuned around the bug except the `LH Vial Effect` comment): ability effects last their written time (Battalion Banner 4 s, the wisps 5 s as their effects already did, Elysian Halo 5 s at a volley a second, Dark Enchantment Orb 4 s, Eye of Marble 4.5 s: the same hits over twice the time); `md1 Lava Makers` lava stays 5 s (twice the lava in Shaitan's fight); `Pillar of Heaven` fires every 1.6 s (was 0.8 s); `LH Vial Effect` closes after 5 minutes; dungeon controllers' 1-3 s watch timers, the Shatters' blobomb makers and bridge pieces, the Lost Halls' pillar summoner and rift spawner and the `Parrot Cage` all run at their written pace. Tested: `dotnet test source/Tests`; on an isolated stack a spawned `LH Vial Effect`'s two taunts came 240 s apart. World server only.
-- **The Lost Halls** (2026-10-28; `tools/build_lost_halls.py`, `BehaviorDb.LostHallsRooms.cs`, `BehaviorDb.LostHalls.cs`, `source/Tests/LostHallsTests.cs`): the dungeon had the 2017 original's assets and the Marble Colossus's fight, on a fixed grid of empty rooms. The script builds `Lost Halls.jm` from rooms of the original's kinds on a grid of 7-wide halls, and `Dungeons.xml` gives the world a `<RandomLayout passage="7" corridor="5">` with `LH Monster Spawner` as the goal, so each run joins a share of them (half, three quarters or all 15) in a new tree, the Colossus room at the end of a branch: the Crusade (`LH Commander of the Crusade` and his soldiers, shipwrights and explorers), Oryx's army (`LH Champion of Oryx`, swordsmen, armorbearers that guard him, admirals), the Grotto (pools, bats and rats that leave their still teeth, slimes, the `LH Grotto Blob` that calls slimes), the Golems (Anger, Fear and Sorrow; the `LH Tormented Golem` can't be hurt while one of them stands), the Ghost Bridges (a 9-wide cross over a pit, two pairs of invincible `LH Spectral Sentry S`/`E` pacing over it), the `LH Agonized Titan`, the trap halls (`LH Grenade Trap`s that burst 1.5 s after a player steps by, `LH Wall Trap N`/`S`/`E`/`W` arrow slits firing across while a player is within 9) and the pot room (`LH Pot 1`-`7`, stat potion drops, a third turning into an `LH Evil Spirit 1`). The Colossus room's controller (`LH Monster Spawner`, invisible) orders its four `LH Marble Defender Activator`s to raise their `LH Marble Defender`s when a player comes within 10 tiles; when they have fallen it spawns the Marble Colossus at once (so `World.BossDied` sees a boss and opens no Realm Portal), or one time in four announces and places `LH Cult Portal` instead (the Cultist Hideout, `BehaviorDb.Cult.cs`). When the Colossus is gone it places `LH Vial Effect` (the Void's mark, which the Vial of Pure Darkness turns into the Void's portal), with a broadcast, for 5 minutes. Colossus fixes: `ScaleHP2(20)`, base health 150,000 (was 250,000), its heal at 10% restores 50,000 instead of all of it (`Timed` runs its children at once, so the heal came straight away), and `PR-21-B` leaves on a timer as its sibling phases do (it waited to stand still at its spawn, which it could fail to reach, invulnerable until then). Its loot is laid out as Oryx 3's: sure Life, Mana, Attack and Defense at 1% of the damage; the other stat potions, Ring of Decades 2%, Magical Lodestone 1.5% and Sword of the Colossus, Breastplate of New Life and Marble Seal 0.4% each (were 0.125%) at 3%; T13-14 weapons, T13-15 armour and T6-7 abilities and rings at 5%. The rooms' leaders roll `HallsLeader` (T12-14, T5-6, stat potions) and their monsters `HallsMinion`; the Tormented Golem adds the Lost Golem set (`TricksterST0`-`3`, 1% each, the pots 0.3%). Both copies of the objects XML: Marble Defender 72,500 to 20,000, Agonized Titan 72,500 to 25,000, Tormented Golem's defence 1,000 to 35. `/tq <object id>` (admins) teleports to the nearest object of that id, and the random layout's log line says where its goals landed, for finding the Colossus room on a test stack. Tested: `LostHallsTests` builds 40 layouts (all succeed, 6-9 kinds of room, the Colossus room reachable from the spawn) and checks every monster the map places has a behaviour; on an isolated stack with `bsk-bot`, `/god`, `/tq` and `/smite`, runs through the defenders into both branches: the Colossus fought through every phase to its death, leaving the Void's mark and one Realm Portal, and the Cultist Hideout's portal with the dungeon counted cleared; the pots broke into loot and Evil Spirits. World server only.
+- **The Lost Halls** (2026-10-28; `tools/build_lost_halls.py`, `BehaviorDb.LostHallsRooms.cs`, `BehaviorDb.LostHalls.cs`, `source/Tests/LostHallsTests.cs`): the dungeon had the 2017 original's assets and the Marble Colossus's fight, on a fixed grid of empty rooms. The script builds `Lost Halls.jm` from rooms of the original's kinds on a grid of 7-wide halls, and `Dungeons.xml` gives the world a `<RandomLayout passage="7" corridor="5">` with `LH Monster Spawner` as the goal, so each run joins a share of them (half, three quarters or all 15) in a new tree, the Colossus room at the end of a branch: the Crusade (`LH Commander of the Crusade` and his soldiers, shipwrights and explorers), Oryx's army (`LH Champion of Oryx`, swordsmen, armorbearers that guard him, admirals), the Grotto (pools, bats and rats that leave their still teeth, slimes, the `LH Grotto Blob` that calls slimes), the Golems (Anger, Fear and Sorrow; the `LH Tormented Golem` can't be hurt while one of them stands), the Ghost Bridges (a 9-wide cross over a pit, two pairs of invincible `LH Spectral Sentry S`/`E` pacing over it), the `LH Agonized Titan`, the trap halls (`LH Grenade Trap`s that burst 1.5 s after a player steps by, `LH Wall Trap N`/`S`/`E`/`W` arrow slits firing across while a player is within 9) and the pot room (`LH Pot 1`-`7`, stat potion drops, a third turning into an `LH Evil Spirit 1`). The Colossus room's controller (`LH Monster Spawner`, invisible) orders its four `LH Marble Defender Activator`s to raise their `LH Marble Defender`s when a player comes within 10 tiles; when they have fallen it spawns the Marble Colossus at once (so `World.BossDied` sees a boss and opens no Realm Portal), or one time in four announces and places `LH Cult Portal` instead (the Cultist Hideout, `BehaviorDb.Cult.cs`). When the Colossus is gone it places `LH Vial Effect` (the Void's mark, which the Vial of Pure Darkness turns into the Void's portal), with a broadcast, for 5 minutes. Colossus fixes: `ScaleHP2(20)`, base health 150,000 (was 250,000), its heal at 10% restores 50,000 instead of all of it (`Timed` runs its children at once, so the heal came straight away), and `PR-21-B` leaves on a timer as its sibling phases do (it waited to stand still at its spawn, which it could fail to reach, invulnerable until then). Entering `P-D` (its death) it clears its rocks, pillars and their summoners, marble cores and lasers within 40 tiles (`RemoveEntity` by name; Rock 11 and the cores had nothing ending them, so they kept circling the anchor and firing spirals after it was gone); `LostHallsTests.ColossusClearsItsMinionsAsItDies` checks that everything it spawns is covered. Its loot is laid out as Oryx 3's: sure Life, Mana, Attack and Defense at 1% of the damage; the other stat potions, Ring of Decades 2%, Magical Lodestone 1.5% and Sword of the Colossus, Breastplate of New Life and Marble Seal 0.4% each (were 0.125%) at 3%; T13-14 weapons, T13-15 armour and T6-7 abilities and rings at 5%. The rooms' leaders roll `HallsLeader` (T12-14, T5-6, stat potions) and their monsters `HallsMinion`; the Tormented Golem adds the Lost Golem set (`TricksterST0`-`3`, 1% each, the pots 0.3%). Both copies of the objects XML: Marble Defender 72,500 to 20,000, Agonized Titan 72,500 to 25,000, Tormented Golem's defence 1,000 to 35. `/tq <object id>` (admins) teleports to the nearest object of that id, and the random layout's log line says where its goals landed, for finding the Colossus room on a test stack. Tested: `LostHallsTests` builds 40 layouts (all succeed, 6-9 kinds of room, the Colossus room reachable from the spawn) and checks every monster the map places has a behaviour; on an isolated stack with `bsk-bot`, `/god`, `/tq` and `/smite`, runs through the defenders into both branches: the Colossus fought through every phase to its death, leaving the Void's mark and one Realm Portal, and the Cultist Hideout's portal with the dungeon counted cleared; the pots broke into loot and Evil Spirits. World server only.
 - **The Cultist Hideout and the Void** (2026-10-28; `BehaviorDb.Cult.cs`, `BehaviorDb.Void.cs`, `tools/build_cult.py`): both came with the Lost Halls assets (the 2017 originals' maps, monsters, projectiles and items) but nothing behaved, and the Void had no world.
   - *Maps* (`tools/build_cult.py`, from `tools/cult/*.base.jm`, the original layouts): 18 packs of followers (`LH Red`/`Blue`/`Yellow`/`White`/`Purple`/`Black`/`Green Cultist`, "Follower of" Malus, Basaran, Gaius, Dirge, Argus, Valus, Phaedra) and demons (`LH Fire`/`Ice`/`Lightning Demon`) down the hideout's halls, two in its dead ends; in the ritual hall the 7 x 7 pentagram (`LH Pent 1`-`49`), candles, props and `LH Cult Controller` below it. The Void gets a Spawn region on the platform's south edge and `LH Void Controller` at its centre; `The Void` is a new world in `Dungeons.xml`.
   - *The cult*: the controller greets players within 13 tiles and tosses Malus (`LH Malus`, invulnerable throughout) to the pentagram's centre; he tosses Argus, Gaius, Basaran and Dirge onto its points, dark shapes (alt texture 1, invulnerable, an odd shot) until he wakes each in turn (`OrderOnce`, the next when one is gone). Each fights with its own bolt (unstable, paralysing, slowing, silencing), calls followers of its colour and calls for help below 30%. Then Molek (charges, leaves `LH Molek Flame`s that burn for 6 s), then Balaam (three bolts; `TossOnDeath` his heads `LH Balaam 1`-`3`, one bolt each), then Malus becomes `LH Malus 2` (130,000 health, `ScaleHP2(20)` like every boss here): 8 s each of his fire and each cultist's power (alt textures 2-5 are Malus with Argus', Basaran's, Gaius' and Dirge's), all at once below 20%. A tossed monster lands 1.5 s after the throw, so Malus waits 2.5 s, and for Balaam's heads to appear, before looking for them gone.

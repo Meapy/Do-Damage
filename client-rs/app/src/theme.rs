@@ -53,6 +53,59 @@ fn mix(a: [f32; 4], b: [f32; 4], t: f32) -> [f32; 4] {
     std::array::from_fn(|i| a[i] + (b[i] - a[i]) * t)
 }
 
+/// Which of up to four parts a point of a box falls in, by where it is from the middle: one part
+/// is all of it; two, the left and right halves; three, the top's two halves and the bottom; four,
+/// the quarters (top left, top right, bottom left, bottom right).
+pub fn part_of(parts: usize, left: bool, top: bool) -> usize {
+    match parts {
+        0 | 1 => 0,
+        2 => usize::from(!left),
+        3 if top => usize::from(!left),
+        3 => 2,
+        _ => usize::from(!top) * 2 + usize::from(!left),
+    }
+}
+
+/// A rounded ring round the inside edge of `r`, `band` wide, split into `colours.len()` parts
+/// (1 to 4) as `part_of` places them, each in its colour. The ring follows the corners: its inner
+/// edge is the outer one `band` in, on the same corner centres.
+pub fn split_ring(renderer: &mut Renderer, r: [f32; 4], radius: f32, band: f32, colours: &[(u32, f32)]) {
+    if colours.is_empty() || r[2] <= 2.0 * band || r[3] <= 2.0 * band {
+        return;
+    }
+    let rad = radius.min(r[2] / 2.0).min(r[3] / 2.0).max(band);
+    let outer = outline(r, rad);
+    let inner = outline([r[0] + band, r[1] + band, r[2] - 2.0 * band, r[3] - 2.0 * band], rad - band);
+    let (cx, cy) = (r[0] + r[2] / 2.0, r[1] + r[3] / 2.0);
+    let white = renderer.white();
+    let quad = |renderer: &mut Renderer, o0: [f32; 2], o1: [f32; 2], i1: [f32; 2], i0: [f32; 2]| {
+        let mid = [(o0[0] + o1[0] + i0[0] + i1[0]) / 4.0, (o0[1] + o1[1] + i0[1] + i1[1]) / 4.0];
+        let (c, a) = colours[part_of(colours.len(), mid[0] < cx, mid[1] < cy).min(colours.len() - 1)];
+        let col = [rgba(c, a); 3];
+        renderer.triangle_colors(white, [o0, o1, i1], [[0.5, 0.5]; 3], col);
+        renderer.triangle_colors(white, [o0, i1, i0], [[0.5, 0.5]; 3], col);
+    };
+    for k in 0..outer.len() {
+        let n = (k + 1) % outer.len();
+        let (o0, o1, i0, i1) = (outer[k], outer[n], inner[k], inner[n]);
+        // a straight side crossing the middle is cut there, so each half takes its own part
+        let cut = if (o0[1] - o1[1]).abs() < 1e-3 && (o0[0] - cx) * (o1[0] - cx) < 0.0 {
+            Some(([cx, o0[1]], [cx, i0[1]]))
+        } else if (o0[0] - o1[0]).abs() < 1e-3 && (o0[1] - cy) * (o1[1] - cy) < 0.0 {
+            Some(([o0[0], cy], [i0[0], cy]))
+        } else {
+            None
+        };
+        match cut {
+            Some((om, im)) => {
+                quad(renderer, o0, om, im, i0);
+                quad(renderer, om, o1, i1, im);
+            }
+            None => quad(renderer, o0, o1, i1, i0),
+        }
+    }
+}
+
 /// Lighter (`k` > 0) or darker (`k` < 0) by a fraction.
 pub fn shade(rgb: u32, k: f32) -> u32 {
     let [r, g, b] = bsk_render::rgb_f32(rgb);
@@ -223,6 +276,16 @@ mod tests {
         assert_eq!(shade(0xFFFFFF, -1.0), 0x000000);
         let pts = outline([0.0, 0.0, 100.0, 50.0], 10.0);
         assert!(pts.iter().all(|p| p[0] >= -0.01 && p[0] <= 100.01 && p[1] >= -0.01 && p[1] <= 50.01));
+    }
+
+    #[test]
+    fn ring_parts() {
+        // (left, top) for each quarter: top left, top right, bottom left, bottom right
+        let at = |n| [(true, true), (false, true), (true, false), (false, false)].map(|(l, t)| part_of(n, l, t));
+        assert_eq!(at(1), [0, 0, 0, 0]);
+        assert_eq!(at(2), [0, 1, 0, 1], "left and right halves");
+        assert_eq!(at(3), [0, 1, 2, 2], "the top's halves, then the bottom");
+        assert_eq!(at(4), [0, 1, 2, 3], "the quarters");
     }
 }
 

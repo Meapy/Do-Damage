@@ -420,6 +420,9 @@ namespace App
         public int MagicStackCount { get; private set; }
         public bool Dead { get; private set; }
         public bool HasBackpack { get; private set; }
+        // when it was last saved in a world, Unix seconds (0: never): the character list's
+        // "Recently played" order
+        public long LastSeen { get; private set; }
 
         public static Character FromDb(DbChar character, bool dead)
         {
@@ -449,7 +452,9 @@ namespace App
                 HealthStackCount = character.HealthStackCount,
                 MagicStackCount = character.MagicStackCount,
                 Dead = dead,
-                HasBackpack = character.HasBackpack
+                HasBackpack = character.HasBackpack,
+                LastSeen = character.LastSeen <= new DateTime(1971, 1, 1) ? 0
+                    : new DateTimeOffset(character.LastSeen.ToUniversalTime()).ToUnixTimeSeconds()
             };
         }
 
@@ -489,7 +494,8 @@ namespace App
                     new XElement("HealthStackCount", HealthStackCount),
                     new XElement("MagicStackCount", MagicStackCount),
                     new XElement("Dead", Dead),
-                    new XElement("HasBackpack", HasBackpack ? "1" : "0")
+                    new XElement("HasBackpack", HasBackpack ? "1" : "0"),
+                    new XElement("LastSeen", LastSeen)
                 );
         }
     }

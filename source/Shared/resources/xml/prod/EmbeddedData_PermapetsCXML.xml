@@ -1035,7 +1035,7 @@
       <Description>Brought up from the deep, still dripping ink.</Description>
       <BagType>6</BagType>
       <Sound>spell/light_heal</Sound>
-      <Activate objectId="Abyssal Krakenling" cooldown="10" petDps="500" petSize="Large" petEffects="Hits all enemies within 3.5 tiles of its target, Weak for 2s" petHp="45" petHpMs="1500" petMp="45" petMpMs="1500">PermaPet</Activate>
+      <Activate objectId="Abyssal Krakenling" cooldown="10" petDps="500" petSize="Large" petEffects="Hits all enemies within 3.5 tiles of its target" petHp="45" petHpMs="1500" petMp="45" petMpMs="1500">PermaPet</Activate>
       <InvUse/>
    </Object>
    <Object type="0x6c0e" id="Ember Matriarch">
@@ -1271,7 +1271,6 @@
          <Speed>90</Speed>
          <LifetimeMS>1300</LifetimeMS>
          <Boomerang />
-         <ConditionEffect duration="1">Weak</ConditionEffect>
       </Projectile>
       <Size>45</Size>
       <ShadowSize>100</ShadowSize>
@@ -1290,7 +1289,7 @@
       <Description>A fox spirit of the eastern shrines, sly and quick.</Description>
       <BagType>6</BagType>
       <Sound>spell/light_heal</Sound>
-      <Activate objectId="Kitsune Spirit" cooldown="10" petDps="250" petSize="Medium" petEffects="Weak on hit for 1s" petHp="30" petHpMs="2000" petMp="30" petMpMs="2000">PermaPet</Activate>
+      <Activate objectId="Kitsune Spirit" cooldown="10" petDps="250" petSize="Medium" petHp="30" petHpMs="2000" petMp="30" petMpMs="2000">PermaPet</Activate>
       <InvUse/>
    </Object>
    <Object type="0x6c1c" id="Jade Golem">

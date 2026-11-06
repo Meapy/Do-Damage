@@ -117,7 +117,7 @@ PET_ATTACKS = {
     "Scootaloo": ["new PetShoot(10, 1, 0, 0, 0, 300)", "new PetShoot(10, 1, 0, 0, 1, 1500)"],
     # its zap bleeds the enemy for 300 over 4 seconds
     "Doomed Nature Beast": ["new PetStrike(90, 200, 4000, 10, 300, 4000)"],
-    # three skulls and a big shot that weakens (Kythal) or bleeds (Zenco); Kythal the Skull, Shroom
+    # three skulls and a big shot (Zenco's bleeds); Kythal the Skull, Shroom
     # and Cerberus Skull have kits of their own (PET_KITS)
     "Kythal the Necromancer": ["new PetShoot(10, 3, 10, 0, 0, 1000)", "new PetShoot(10, 1, 0, 0, 1, 2000)"],
     "Zenco The Undead God": ["new PetShoot(10, 3, 10, 0, 0, 1000)", "new PetShoot(10, 1, 0, 0, 1, 2000)"],
@@ -174,7 +174,10 @@ PET_PROJECTILES = {
     ("Scootaloo", 1): {"object": "Cyan Fairy Wave", "damage": 100, "speed": 120, "lifetime": 900,
                        "effects": [("Slowed", 1)], "multihit": False},
     ("Kythal the Necromancer", 0): {"damage": 70},
-    ("Kythal the Necromancer", 1): {"damage": 120, "effects": [("Weak", 2)]},
+    # no pet weakens enemies (Weak cut their shots' damage, too strong on a pet): the Kythals', the
+    # Abyssal Krakenling's, the Kitsune Spirit's and the Nightmare's Weak are gone
+    ("Kythal the Necromancer", 1): {"damage": 120, "effects": []},
+    ("Nightmareee", 0): {"effects": []},
     ("Zenco The Undead God", 0): {"damage": 70},
     ("Zenco The Undead God", 1): {"damage": 120, "bleed": (120, 3)},
 }
@@ -338,9 +341,8 @@ PET_KITS = {
     "Lunar's Phoenix": [shot("Gold Fireball", 2, 12, 1000)],
     "Support Bot": [shot("K.I.D.D. Force Energy 1.0", cooldown=1000)],
     "Knight Pet": [shot("Sword Bullet", cooldown=700, speed=130)],
-    # a ring of six skulls, one at the enemy, and a big one that weakens
-    "Kythal the Skull": [shot("Skull Proj 1", 6, 60, 1200), shot("Skull Proj 2", cooldown=2000, weight=1.7,
-                                                                 effects=[("Weak", 2)])],
+    # a ring of six skulls, one at the enemy, and a big one
+    "Kythal the Skull": [shot("Skull Proj 1", 6, 60, 1200), shot("Skull Proj 2", cooldown=2000, weight=1.7)],
     # spores, and a cloud of them that makes enemies sick
     "Shroom (Doomed)": [shot("Small Mush Proj 1", 3, 10, 1000),
                         nova(3000, 1.2, radius=2.5, effect="Sick", ms=2000, color=0xffcc66ff)],
@@ -352,6 +354,8 @@ PET_ABILITIES.update({
     # the healers among the companions
     "Priestt": ["new PetOwnerEffect(ConditionEffectIndex.Healing, 2000, 8000)"],
     "Support Bot": ["new PetOwnerEffect(ConditionEffectIndex.Armored, 2000, 10000)"],
+    # a Large pet's ability, as Gebb's and Limon's: armored for 2 s of every 5
+    "Nightmareee": ["new PetOwnerEffect(ConditionEffectIndex.Armored, 2000, 5000)"],
 })
 # Pet generators: each is used up when used (<Consumable/>), and drops in a white bag of its own
 # (<BagType>6</BagType>, <Soulbound/>: a private bag). The pet stays with the character.
@@ -420,7 +424,7 @@ PET_KITS.update({
                       shot("Yellow Energy Shot", cooldown=600, speed=130, life=650, pierce=True)],
     "Abyssal Krakenling": [shot("Deep Sea Blast", 3, 15, 1100, wavy=True),
                            shot("Black Missile", cooldown=1800, weight=2, speed=140),
-                           nova(5000, 2.5, radius=3.5, effect="Weak", ms=2000, color=0xff302050)],
+                           nova(5000, 2.5, radius=3.5, color=0xff302050)],
     "Ember Matriarch": [shot("Dragon Attack Red Firewave", 3, 15, 1200, speed=90, life=1000, multihit=True),
                         shot("Fire Bolt", cooldown=700, speed=140, life=700, bleed=(0.4, 3))],
     "Lil' Medusa": [shot("Green Bolt", 3, 15, 1000),
@@ -432,8 +436,7 @@ PET_KITS.update({
                         shot("Giant Cannonball", cooldown=3000, weight=3, speed=70, life=1200, multihit=True)],
     "Lil' Werewolf": [shot("Wereblast", 3, 15, 1100), strike(2000, weight=1.5, range=5, bleed=(0.6, 3000))],
     "Kitsune Spirit": [shot("Cyan Magic", 3, 15, 1000, wavy=True),
-                       shot("Pink Bolt", cooldown=1500, weight=1.5, speed=90, life=1300, boomerang=True,
-                            effects=[("Weak", 1)])],
+                       shot("Pink Bolt", cooldown=1500, weight=1.5, speed=90, life=1300, boomerang=True)],
     "Jade Golem": [shot("Crystal Green Shard", cooldown=900, pierce=True, multihit=True),
                    shot("Green Bolt", 3, 15, 1600, weight=0.8)],
     "Ember Wyrmling": [shot("Dragon Attack Red Spinning Fireball", 2, 8, 1000, bleed=(0.3, 2)),

@@ -45,7 +45,16 @@ pub struct CharSummary {
     pub tex2: i32,
     /// The skin (`<Texture>`), 0 for none.
     pub skin: i32,
+    /// Its own stats, without its gear (`STAT_TAGS`): health, magic, attack, defense, speed,
+    /// dexterity, vitality, wisdom. Compared with its class's maximums for "8/8".
+    pub stats: [i32; 8],
+    /// When it was last played, Unix seconds (`<LastSeen>`; 0 from an older server, or never).
+    pub last_seen: i64,
 }
+
+/// The `<Char>` elements holding a character's own stats, in `CharSummary::stats`' order (the
+/// class's `<MaxHitPoints max=..>` and so on hold the maximums).
+pub const STAT_TAGS: [&str; 8] = ["MaxHitPoints", "MaxMagicPoints", "Attack", "Defense", "Speed", "Dexterity", "HpRegen", "MpRegen"];
 
 #[derive(Debug, Clone, PartialEq, Default)]
 pub struct CharList {
@@ -140,6 +149,8 @@ pub fn parse_char_list(xml: &str) -> Result<CharList, String> {
             tex1: int("Tex1") as i32,
             tex2: int("Tex2") as i32,
             skin: int("Texture") as i32,
+            stats: STAT_TAGS.map(|t| int(t) as i32),
+            last_seen: int("LastSeen"),
         });
     }
     if let Some(account) = root.children().find(|c| c.has_tag_name("Account")) {
@@ -692,7 +703,10 @@ mod tests {
     #[test]
     fn char_list() {
         let xml = r#"<Chars nextCharId="5" maxNumChars="2">
-            <Char id="3"><ObjectType>782</ObjectType><Level>20</Level><Dead>False</Dead></Char>
+            <Char id="3"><ObjectType>782</ObjectType><Level>20</Level><Dead>False</Dead>
+                <MaxHitPoints>670</MaxHitPoints><MaxMagicPoints>385</MaxMagicPoints><Attack>75</Attack>
+                <Defense>25</Defense><Speed>50</Speed><Dexterity>75</Dexterity><HpRegen>40</HpRegen>
+                <MpRegen>60</MpRegen><LastSeen>1793750400</LastSeen></Char>
             <Char id="4"><ObjectType>0x0300</ObjectType><Level>1</Level></Char>
             <Servers><Server><Name>Localhost</Name><DNS>127.0.0.1</DNS><Port>2053</Port>
                 <Usage>0.5</Usage><AdminOnly>false</AdminOnly><UsageText>3/6</UsageText></Server></Servers>
@@ -700,7 +714,10 @@ mod tests {
         let list = parse_char_list(xml).unwrap();
         assert_eq!((list.next_char_id, list.max_num_chars), (5, 2));
         assert_eq!((list.chars[0].id, list.chars[0].object_type, list.chars[0].level, list.chars[0].dead), (3, 782, 20, false));
+        assert_eq!(list.chars[0].stats, [670, 385, 75, 25, 50, 75, 40, 60]);
+        assert_eq!(list.chars[0].last_seen, 1_793_750_400);
         assert_eq!(list.chars[1].object_type, 0x300);
+        assert_eq!((list.chars[1].stats, list.chars[1].last_seen), ([0; 8], 0), "an older server's");
         assert_eq!(list.servers[0], ServerEntry { name: "Localhost".into(), host: "127.0.0.1".into(), port: 2053, admin_only: false, usage: 0.5, usage_text: "3/6".into() });
     }
 

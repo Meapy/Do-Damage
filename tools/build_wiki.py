@@ -473,8 +473,9 @@ class Gen:
             seen.add(r["result"])
             if a["any"]:
                 kind, tier = a["any"]
-                frm = '<span class="fr-item"><span class="fr-name">any tier %d %s</span></span>' % (
-                    tier, esc({"Ability": "ability", "Ring": "ring", "Armor": "armor"}.get(kind, kind.lower())))
+                frm = '<span class="fr-item"><span class="fr-name">any %s%s</span></span>' % (
+                    "" if tier is None else "tier %d " % tier,
+                    esc({"Ability": "ability", "Ring": "ring", "Armor": "armor"}.get(kind, kind.lower())))
             else:
                 frm = self.forge_item(r["items"][0])
             rows.append('<tr><td>%s</td><td class="fr-ing">%s%s</td><td class="fr-fame">%s</td></tr>' % (

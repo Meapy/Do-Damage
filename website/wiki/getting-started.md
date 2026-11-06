@@ -51,7 +51,8 @@ class. They earn your rank stars ([Getting stronger](progression.html#fame-rank-
 
 ## Controls
 
-Every key can be rebound in Options (<kbd>O</kbd>).
+Every key can be rebound in Options (<kbd>O</kbd>), to another key or to the mouse's side
+buttons (Mouse 4 and Mouse 5).
 
 | Key | What it does |
 |---|---|
@@ -80,8 +81,9 @@ Text boxes (chat, sign-in) copy, cut and paste with <kbd>Ctrl</kbd>+<kbd>C</kbd>
 
 **Options** (<kbd>O</kbd>, or from the <kbd>Esc</kbd> menu) has a **Visuals** tab for what you
 see in the world: the crosshair, particles, shadows, health bars, damage numbers, and how much of
-other players and their pets you see, and the **Chat size** (50% to 150%: its text, width and
-height together). "Pets' shots" there switches between Normal, Subtle (the
+other players and their pets you see, the **Chat size** (50% to 150%: its text, width and
+height together) and the **Chat background** (how dark the box behind the chat is, from none to
+the usual). "Pets' shots" there switches between Normal, Subtle (the
 default: smaller, see-through shots) and Hidden. The **Crosshair** tab picks the crosshair's
 style (Classic, Cross, Dot, Circle, Circle and dot, Plus, Diagonal, Chevron or your own), its
 colour and its size (50% to 200%), with a preview over dark and light ground. To make your own,
@@ -172,7 +174,7 @@ the stone water basins at its corners do. From there:
   side and the Character Changer about its east, the Armoire (skins) and the **Vault** portal.
   The koi pond round the deck is shallow: wade across it, west, east or south, to the paths to
   the big bridges. Every ten minutes the Support Bot lets a flock of **XP ducks** onto the pond:
-  shoot them for experience. Frogs sit among the lily pads in the pond's north-east, and cherry
+  shoot them for experience, and now and then a Health or Magic Potion. Frogs sit among the lily pads in the pond's north-east, and cherry
   trees bloom on its banks.
 - **West**, over the arched wooden bridge: the **market island**. Its shopping street along the
   north is the Nexus Bazaar: each shop is a row of stalls in front of a house (stat potions, dungeon keys,

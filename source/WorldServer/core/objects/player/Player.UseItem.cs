@@ -610,6 +610,7 @@ namespace WorldServer.core.objects
                         break;
                     case ActivateEffects.StatBoostSelf:
                         AEStatBoostSelf(item, target, eff);
+                        ShareTomeStatBoost(item, eff);
                         break;
                     case ActivateEffects.StatBoostAura:
                         AEStatBoostAura(item, target, eff);
@@ -619,6 +620,7 @@ namespace WorldServer.core.objects
                         break;
                     case ActivateEffects.ConditionEffectSelf:
                         AEConditionEffectSelf(item, target, eff);
+                        ShareTomeCondition(item, eff);
                         break;
                     case ActivateEffects.ConditionEffectAura:
                         AEConditionEffectAura(item, target, eff);
@@ -1038,6 +1040,78 @@ namespace WorldServer.core.objects
                 Color = new ARGB(0xffffffff),
                 Pos1 = new Position() { X = 1 }
             }, this);
+        }
+
+        // A tome's buffs reach the players around the priest, not only the priest: a self buff
+        // (Armored, Speedy, a stat boost...) is shared as far as the tome's heal reaches.
+        // Drawbacks (Curse, a lowered stat) stay on the priest.
+        private float TomeShareRange(Item item)
+        {
+            if (item.SlotType != InventoryConstants.TOME_SLOT_TYPE)
+                return 0;
+            var range = 0f;
+            foreach (var e in item.ActivateEffects)
+            {
+                switch (e.Effect)
+                {
+                    case ActivateEffects.HealNova:
+                    case ActivateEffects.ConditionEffectAura:
+                    case ActivateEffects.ClearConditionEffectAura:
+                    case ActivateEffects.RemoveNegativeConditions:
+                        range = Math.Max(range, e.UseWisMod ? UseWisMod(e.Range) : e.Range);
+                        break;
+                }
+            }
+            return range;
+        }
+
+        private void ShareTomeCondition(Item item, ActivateEffect eff)
+        {
+            if (eff.ConditionEffect == null || NegativeEffs.Contains(eff.ConditionEffect.Value))
+                return;
+            var range = TomeShareRange(item);
+            if (range <= 0)
+                return;
+
+            var duration = eff.DurationMS;
+            if (eff.UseWisMod)
+                duration = (int)(UseWisMod(eff.DurationSec) * 1000);
+
+            this.AOE(range, true, entity =>
+            {
+                if (entity == this)
+                    return;
+                entity.ApplyConditionEffect(new ConditionEffect(eff.ConditionEffect.Value, duration));
+                (entity as Player)?.BuffedBy(this, duration, eff.ConditionEffect.Value);
+            });
+        }
+
+        private void ShareTomeStatBoost(Item item, ActivateEffect eff)
+        {
+            if (eff.Amount <= 0)
+                return;
+            var range = TomeShareRange(item);
+            if (range <= 0)
+                return;
+
+            var idx = StatsManager.GetStatIndex((StatDataType)eff.Stats);
+            var amount = eff.Amount;
+            var stack = eff.NoStack;
+            var duration = eff.DurationMS;
+
+            this.AOE(range, true, entity =>
+            {
+                if (entity == this || entity is not Player player)
+                    return;
+                player.Stats.Boost.ActivateBoost[idx].Push(amount, stack);
+                player.Stats.ReCalculateValues();
+                player.BuffedBy(this, duration);
+                World.StartNewTimer(duration, (world, t) =>
+                {
+                    player.Stats.Boost.ActivateBoost[idx].Pop(amount, stack);
+                    player.Stats.ReCalculateValues();
+                });
+            });
         }
 
         private void AECreate(TickTime time, Item item, Position target, int slot, ActivateEffect eff)

@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Reflection;
 using System.Runtime.CompilerServices;
 using Shared.resources;
 using Shared.terrain;
@@ -128,6 +129,57 @@ namespace Tests
                         Assert.True(db.Definitions.ContainsKey(od.ObjectType), $"{name}: {id} has no behaviour");
                 }
             }
+        }
+    
+
+        // When the Colossus starts dying (P-D) it clears everything it brought into the fight,
+        // directly or through its spawners: Rock 11 and the Marble Cores had nothing ending them
+        // and kept circling and firing their spirals after it was gone. Its anchor (which nothing
+        // draws) and the Void Rift Spawner, which leaves the tear into the Void, stay.
+        [Fact]
+        public void ColossusClearsItsMinionsAsItDies()
+        {
+            var (res, db) = Data.Value;
+            var data = res.GameData;
+            T Field<T>(object o, string name) =>
+                (T)o.GetType().GetField(name, BindingFlags.Instance | BindingFlags.NonPublic).GetValue(o);
+            IEnumerable<State> All(State s) => new[] { s }.Concat(s.States.SelectMany(All));
+            IEnumerable<ushort> Children(ushort type) =>
+                db.Definitions.TryGetValue(type, out var def)
+                    // the behaviours are internal to the world server: known by their type names
+                    ? All(def.Item1).SelectMany(s => s.Behaviors).SelectMany(b => b.GetType().Name switch
+                    {
+                        "Spawn" => new[] { Field<ushort>(b, "_children") },
+                        "TossObject" => Field<ushort[]>(b, "_children"),
+                        _ => Array.Empty<ushort>(),
+                    })
+                    : Enumerable.Empty<ushort>();
+
+            var colossus = data.IdToObjectType["LH Marble Colossus"];
+            var dying = All(db.Definitions[colossus].Item1).Single(s => s.Name == "P-D");
+            var cleared = dying.Behaviors.Where(b => b.GetType().Name == "RemoveEntity").Select(r => Field<string>(r, "children")).ToList();
+            var stays = new[] { "LH Marble Colossus", "LH Marble Colossus Anchor", "LH Void Rift Spawner" };
+
+            var seen = new HashSet<ushort> { colossus };
+            var queue = new Queue<ushort>(new[] { colossus });
+            var minions = new List<string>();
+            while (queue.Count > 0)
+                foreach (var child in Children(queue.Dequeue()))
+                {
+                    var id = data.ObjectTypeToId[child];
+                    if (stays.Contains(id) || !seen.Add(child))
+                        continue;
+                    minions.Add(id);
+                    queue.Enqueue(child);
+                }
+
+            _out.WriteLine(string.Join(", ", minions));
+            Assert.Contains("LH Colossus Rock 11", minions);
+            Assert.Contains("LH Marble Core 1", minions);
+            var missed = minions.Where(m => !cleared.Any(c => m.Contains(c, StringComparison.OrdinalIgnoreCase))).ToList();
+            Assert.True(missed.Count == 0, "left behind when the Colossus dies: " + string.Join(", ", missed));
+            // and none of the names clears the Colossus itself
+            Assert.DoesNotContain(cleared, c => "LH Marble Colossus".Contains(c, StringComparison.OrdinalIgnoreCase));
         }
     }
 }
