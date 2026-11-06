@@ -198,6 +198,7 @@
         {"item": "Elder Tomb Key", "weight": 6, "rarity": "rare"},
         {"item": "Elder Abyss Key", "weight": 6, "rarity": "rare"},
         {"item": "Elder Draconis Key", "weight": 3, "rarity": "epic"},
+        {"item": "Elder Ivory Wyvern Key", "weight": 2, "rarity": "epic"},
         {"item": "Ascended Weapon Shard", "weight": 2, "rarity": "epic"},
         {"item": "Ascended Armor Shard", "weight": 2, "rarity": "epic"},
         {"item": "Infernal Potion of Wisdom", "weight": 0.8, "rarity": "legendary"},

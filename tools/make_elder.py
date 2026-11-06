@@ -88,6 +88,8 @@ DUNGEONS = {
     "ElderSpriteWorld": ("Dungeons/Sprite World.jm", "BehaviorDb.SpriteWorld.cs"),
     "ElderDavy": ("Dungeons/Davy Jones' Locker.jm", "BehaviorDb.DavyJones.cs"),
     "ElderDraconis": ("Dungeons/Lair of Draconis.jm", "BehaviorDb.Draconis.cs"),
+    # not a Doomed Realms world: port_doomed_worlds.BS_ONLY_ELDER_WORLDS names it and its portal
+    "ElderIvoryWyvern": ("Dungeons/Ivory Wyvern.jm", "BehaviorDb.Wyvern.cs"),
 }
 
 
@@ -305,6 +307,9 @@ def build(dr_ids):
         new_grounds.append(g)
         made_grounds.add(name)
 
+    # the server matches object ids whatever their case (a map's "lod Ivory Wyvern" is the XML's
+    # "LOD Ivory Wyvern"); the Elder copy is named as the map and behaviours spell it
+    by_lower = {k.lower(): v for k, v in objects.items()}
     for cls, (path, behaviours) in sorted(DUNGEONS.items()):
         map_grounds, map_objects = map_ids(path)
         for gid in sorted(map_grounds):
@@ -317,7 +322,7 @@ def build(dr_ids):
         monsters = set()
         defined = defined_ids(behaviours)
         for oid in sorted(map_objects | behaviour_ids(behaviours)):
-            o = objects.get(oid)
+            o = objects.get(oid, by_lower.get(oid.lower()))
             if o is None or oid.startswith("Elder "):
                 continue
             name = "Elder " + oid
@@ -344,7 +349,7 @@ def build(dr_ids):
                 made_objects.add(name)
         copies = {}
         for oid in sorted(monsters):
-            m = copy.deepcopy(objects[oid])
+            m = copy.deepcopy(objects.get(oid, by_lower.get(oid.lower())))
             m.set("id", "Elder " + oid)
             m.set("type", types.get("Elder " + oid, OBJECT_TYPES))
             display = m.find("DisplayId")
@@ -353,7 +358,8 @@ def build(dr_ids):
                 display.text = oid
             display.text = "Elder " + display.text
             copies["Elder " + oid] = m
-        port_doomed.rebalance_elders(copies, objects)
+        # (the regular monsters under the names the copies use)
+        port_doomed.rebalance_elders(copies, dict(objects, **{oid: objects.get(oid, by_lower.get(oid.lower())) for oid in monsters}))
         for name, m in sorted(copies.items()):
             new_objects.append(m)
             made_objects.add(name)

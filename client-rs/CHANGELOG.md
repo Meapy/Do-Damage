@@ -31,6 +31,10 @@ details). Add to a group's line when a change adds to it, rather than adding ano
   Defense from the Elder Spider Den, Max Speed from the Elder Beach Zone, Max Dexterity from the
   Elder Jungle and Max Wisdom from Elder Davy Jones are new. The Elder Snake Pit, Undead Lair and
   Sprite World bosses gave theirs nearly every kill; they're 5% now too.
+- New: the Elder Ivory Wyvern. The Elder Lair of Draconis's altar now opens it, the Ivory Wyvern
+  leads to it half the time, and an Elder Ivory Wyvern Key (from the Elder Lair's dragons and the
+  Elder community goal) opens it too. Twice the health, harder hits and faster attacks; it can drop
+  a Potion of Max Life or Mana, the Elder dragons' armours and bow, and better gear.
 
 ### Oryx
 - A Rogue's or Trickster's teleport (or a Samurai's dash) in the Oryx dungeons can no longer jump

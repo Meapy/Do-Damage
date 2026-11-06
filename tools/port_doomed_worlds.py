@@ -94,6 +94,11 @@ ELDER_WORLDS = {
 # for every visit where the regular dungeon has one.
 BS_MAPS = os.path.join(ROOT, "source", "Shared", "resources", "worlds")
 BS_ELDER_WORLDS = make_elder.DUNGEONS
+# Elder dungeons of betterSkillys' own, which Doomed Realms never had: world -> (name, background,
+# allow teleport, portal ids). Their portals are betterSkillys' (custom/CustomObjects.xml).
+BS_ONLY_ELDER_WORLDS = {
+    "ElderIvoryWyvern": ("The Elder Ivory Wyvern", 0, True, ["Elder Ivory Wyvern Portal"]),
+}
 ELDER_BRAZIER = "Elder Brazier"
 # braziers stand by the rooms' walls, corners first, at least this many tiles apart
 BRAZIER_SPACING = 9
@@ -343,6 +348,8 @@ def world_maps(dr_root, dr_ids=frozenset()):
     for cls, (base, name, _) in ELDER_WORLDS.items():
         _, bg, tp, maps = classes[base]
         out[cls] = (name, bg, tp, [elder_swap(read_wmap(find_map(dr_root, m)), dr_ids) for m in maps])
+    for cls, (name, bg, tp, _) in BS_ONLY_ELDER_WORLDS.items():
+        out[cls] = (name, bg, tp, None)
     # the Elder dungeons built from betterSkillys' maps instead; players can teleport in every Elder
     # dungeon, as in the regular ones (Doomed Realms disabled it in most)
     for cls, (name, bg, tp, _) in list(out.items()):
@@ -355,6 +362,7 @@ def portal_worlds():
     """{portal id: world class} for the ported worlds."""
     out = {pid: cls for cls, pids in PORTED_WORLDS.items() for pid in pids}
     out.update({pid: cls for cls, (_, _, pids) in ELDER_WORLDS.items() for pid in pids})
+    out.update({pid: cls for cls, (_, _, _, pids) in BS_ONLY_ELDER_WORLDS.items() for pid in pids})
     return out
 
 

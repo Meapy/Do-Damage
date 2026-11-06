@@ -43,6 +43,8 @@ namespace Tests
             { "Elder lod Red Loot Balloon", "Potion of Max Vitality" },
             { "Elder lod Black Loot Balloon", "Potion of Max Dexterity" },
             { "Elder lod Green Loot Balloon", "Potion of Max Speed" },
+            { "Elder lod Ivory Loot", "Potion of Max Life" },
+            { "Elder lod Ivory Loot", "Potion of Max Mana" },
         };
 
         // A rare drop: there, but not most kills (Doomed Realms gave some bosses one nearly every kill)
@@ -61,7 +63,7 @@ namespace Tests
         public void EveryElderDungeonAllowsTeleport()
         {
             var worlds = Data.Value.Data.AllWorlds.Where(w => w.IdName.Contains("Elder")).ToList();
-            Assert.True(worlds.Count >= 13, $"only {worlds.Count} Elder worlds");
+            Assert.True(worlds.Count >= 14, $"only {worlds.Count} Elder worlds");
             Assert.All(worlds, w => Assert.True(w.AllowTeleport, $"{w.IdName} disables teleport"));
         }
 

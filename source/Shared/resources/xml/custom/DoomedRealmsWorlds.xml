@@ -73,6 +73,13 @@
 		<VisibilityType>1</VisibilityType>
 		<Dungeon/>
 	</World>
+	<World id="The Elder Ivory Wyvern">
+		<Width>27</Width>
+		<Height>28</Height>
+		<MapJM>Doomed/The Elder Ivory Wyvern.jm</MapJM>
+		<VisibilityType>1</VisibilityType>
+		<Dungeon/>
+	</World>
 	<World id="Elder Jungle">
 		<Width>28</Width>
 		<Height>28</Height>
