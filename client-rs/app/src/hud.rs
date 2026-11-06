@@ -2737,8 +2737,8 @@ fn worn_for(data: &GameData, item: i32, me: Option<&GameObj>, kind: SlotKind) ->
 }
 
 /// An `<Activate>` for the tooltip: its name, then its numbers as (label, value), damage first.
-/// A row with no label is a sentence.
-fn activate_rows(a: &bsk_data::xml::Element) -> (String, Vec<(String, String)>) {
+/// A row with no label is a sentence. `share`: how far a tome's own buffs reach (`tome_share_range`).
+fn activate_rows(a: &bsk_data::xml::Element, share: f64) -> (String, Vec<(String, String)>) {
     let effect = a.text.trim();
     let num = |k: &str| a.attr_number(k, 0.0);
     let has = |k: &str| a.attr(k).is_some();
@@ -2807,7 +2807,14 @@ fn activate_rows(a: &bsk_data::xml::Element) -> (String, Vec<(String, String)>) 
                 row(tr("Lasts"), secs(num("duration"))),
             ],
         ),
-        "StatBoostSelf" => (tr("Boost"), vec![row(tr("Gives"), format!("+{} {}", num("amount"), stat_name(a.attr_int("stat", -1)))), row(tr("Lasts"), secs(num("duration")))]),
+        "StatBoostSelf" => {
+            let mut r = vec![row(tr("Gives"), format!("{:+} {}", num("amount"), stat_name(a.attr_int("stat", -1))))];
+            if share > 0.0 && num("amount") > 0.0 {
+                r.push(row(tr("Range"), tf!("you and allies within {range}", range = sqrs(share))));
+            }
+            r.push(row(tr("Lasts"), secs(num("duration"))));
+            (tr("Boost"), r)
+        }
         "StatBoostAura" => (
             tr("Boost"),
             vec![
@@ -2816,7 +2823,14 @@ fn activate_rows(a: &bsk_data::xml::Element) -> (String, Vec<(String, String)>) 
                 row(tr("Lasts"), secs(num("duration"))),
             ],
         ),
-        "ConditionEffectSelf" => (tr("Effect"), vec![row(tr("Gives"), text("effect")), row(tr("Lasts"), secs(num("duration")))]),
+        "ConditionEffectSelf" => {
+            let mut r = vec![row(tr("Gives"), text("effect"))];
+            if share > 0.0 && !NEGATIVE_EFFECTS.contains(&a.attr("effect").unwrap_or("")) {
+                r.push(row(tr("Range"), tf!("you and allies within {range}", range = sqrs(share))));
+            }
+            r.push(row(tr("Lasts"), secs(num("duration"))));
+            (tr("Effect"), r)
+        }
         "ConditionEffectAura" => (
             tr("Effect"),
             vec![row(tr("Gives"), text("effect")), row(tr("Range"), tf!("you and allies within {range}", range = sqrs(num("range")))), row(tr("Lasts"), secs(num("duration")))],
@@ -2838,6 +2852,24 @@ fn activate_rows(a: &bsk_data::xml::Element) -> (String, Vec<(String, String)>) 
         }
     }
     (name.to_owned(), rows)
+}
+
+/// The bad conditions (the server's `Player.NegativeEffs`): a tome keeps these on its user.
+const NEGATIVE_EFFECTS: [&str; 16] = [
+    "Slowed", "Paralyzed", "Weak", "Stunned", "Confused", "Blind", "Quiet", "ArmorBroken", "Bleeding", "Dazed", "Sick", "Drunk",
+    "Hallucinating", "Hexed", "Curse", "Unstable",
+];
+
+/// How far a tome's own buffs (ConditionEffectSelf, StatBoostSelf) reach the players around its
+/// user: its widest heal or aura, as the server's `TomeShareRange`. 0 for anything but a tome.
+fn tome_share_range(xml: &bsk_data::xml::Element) -> f64 {
+    if xml.int("SlotType", 0) != 4 {
+        return 0.0;
+    }
+    xml.children_named("Activate")
+        .filter(|a| matches!(a.text.trim(), "HealNova" | "ConditionEffectAura" | "ClearConditionEffectAura" | "RemoveNegativeConditions"))
+        .map(|a| a.attr_number("range", 0.0))
+        .fold(0.0, f64::max)
 }
 
 /// How many summons a Summoner keeps out at once (the server's `Player.MaxSummons`).
@@ -2961,7 +2993,7 @@ pub fn item_tooltip_imprinted(data: &GameData, item: i32, me: Option<&GameObj>, 
         if matches!(effect, "ObjectToss" | "Pet" | "Create") && xml.child("ExtraTooltipData").is_some() {
             continue;
         }
-        let (name, rows) = activate_rows(a);
+        let (name, rows) = activate_rows(a, tome_share_range(xml));
         out.push(Line::gap());
         if !name.is_empty() {
             out.push(Line::new(&name, 13.0, true, ABILITY));
@@ -4414,5 +4446,36 @@ mod tests {
         assert_eq!(slot_stat(19), 74);
         assert_eq!(slot_stat(20), 144);
         assert_eq!(slot_stat(23), 147);
+    }
+    #[test]
+    fn tome_buffs_show_their_reach() {
+        use bsk_data::xml::Element;
+        let el = |name: &str, text: &str, attrs: &[(&str, &str)], children: Vec<Element>| Element {
+            name: name.into(),
+            attrs: attrs.iter().map(|(k, v)| (k.to_string(), v.to_string())).collect(),
+            text: text.into(),
+            children,
+        };
+        let act = |text: &str, attrs: &[(&str, &str)]| el("Activate", text, attrs, vec![]);
+        let tome = |slot: &str| {
+            el(
+                "Object",
+                "",
+                &[],
+                vec![
+                    el("SlotType", slot, &[], vec![]),
+                    act("HealNova", &[("amount", "200"), ("range", "5")]),
+                    act("ConditionEffectAura", &[("effect", "Healing"), ("range", "6"), ("duration", "6")]),
+                ],
+            )
+        };
+        assert_eq!(tome_share_range(&tome("4")), 6.0);
+        assert_eq!(tome_share_range(&tome("11")), 0.0);
+        let has_range = |a: &Element, share: f64| activate_rows(a, share).1.iter().any(|(l, _)| l == tr("Range"));
+        assert!(has_range(&act("ConditionEffectSelf", &[("effect", "Speedy"), ("duration", "1.5")]), 6.0));
+        assert!(has_range(&act("StatBoostSelf", &[("stat", "20"), ("amount", "2"), ("duration", "4")]), 6.0));
+        assert!(!has_range(&act("ConditionEffectSelf", &[("effect", "Curse"), ("duration", "4")]), 6.0));
+        assert!(!has_range(&act("StatBoostSelf", &[("stat", "21"), ("amount", "-5"), ("duration", "3")]), 6.0));
+        assert!(!has_range(&act("ConditionEffectSelf", &[("effect", "Speedy"), ("duration", "1.5")]), 0.0));
     }
 }

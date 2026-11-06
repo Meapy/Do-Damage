@@ -16,8 +16,9 @@ details). Add to a group's line when a change adds to it, rather than adding ano
 
 ### Classes
 - A Priest's tome now gives all its buffs to the players around them, not only its heal: Armored,
-  Speedy, Invisible and stat boosts reach everyone within the tome's heal range. Drawbacks, such as
-  the Tome of Forbidden Knowledge's Curse, stay on the Priest.
+  Speedy, Invisible and stat boosts reach everyone within the tome's heal range, as the tome's
+  tooltip now shows. Drawbacks, such as the Tome of Forbidden Knowledge's Curse, stay on the
+  Priest.
 
 ## 2.4.0 (2026-11-05)
 

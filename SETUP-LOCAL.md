@@ -590,7 +590,10 @@ The remotes `upstream` (HaloCelsius) and `aurusenth` share no history with `main
   (`BuffedBy`). Drawbacks stay on the user: a condition in `NegativeEffs` (the Tome of Forbidden
   Knowledge's Curse) and a negative stat boost (2PriestST1's -5 Defense). The caster's own effect
   is unchanged; item procs (`OnOtherActivate`) are not shared. The wiki says "to you and allies
-  within N tiles" on those effects. World server only.
+  within N tiles" on those effects, and so does the Rust client's tooltip (`hud.rs`
+  `tome_share_range`, a Range row on those Effect and Boost sections; a negative stat boost now
+  reads "-5", not "+-5"). The world server and the client ship apart: an older client just shows
+  no range.
 
 - **Enthroned gear, imprints and the item pass of 5 November** (2026-11-05; ships with a client
   release, message 110 grew and stat 149 is new):
