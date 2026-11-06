@@ -2226,8 +2226,8 @@
 		<SlotType>9</SlotType>
 		<Description>Oryx the Ascended God's own boots, worn as a ring.</Description>
 		<Ascended/>
-		<ActivateOnEquip stat="22" amount="18">IncrementStat</ActivateOnEquip>
 		<feedPower>325</feedPower>
+		<ActivateOnEquip stat="22" amount="50">IncrementStat</ActivateOnEquip>
 		<FameBonus>10</FameBonus>
 		<BagType>9</BagType>
 		<Soulbound/>

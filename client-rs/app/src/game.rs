@@ -368,6 +368,9 @@ impl Game {
         self.socket.send(&first);
         self.remember_map();
         self.world = None;
+        // a trade never follows us into another world: the server ends it when we leave, but its
+        // TradeDone can be lost in the switch (both players taking the same portal)
+        self.trade = None;
         self.sent_view_radius = MIN_VIEW_RADIUS;
         self.status = format!("Entering {}…", r.name);
     }

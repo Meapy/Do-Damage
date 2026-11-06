@@ -2,7 +2,8 @@
 //! `settings.txt` beside the remembered login, or the browser's storage).
 //!
 //! The window opens from the Escape menu or its key (O). On the Controls tab, click a binding
-//! and press the key to use instead (Escape cancels, Backspace clears it).
+//! and press the key to use instead, or the mouse's side button 4 or 5 (Escape cancels, Backspace
+//! clears it).
 
 use crate::audio::SoundSettings;
 use crate::crosshair::{self, Look, Style};
@@ -124,7 +125,21 @@ const KEYS: &[KeyCode] = &[
     KeyCode::Comma, KeyCode::Period, KeyCode::Slash, KeyCode::ShiftLeft, KeyCode::ShiftRight,
     KeyCode::ControlLeft, KeyCode::ControlRight, KeyCode::AltLeft, KeyCode::AltRight, KeyCode::CapsLock,
     KeyCode::PageUp, KeyCode::PageDown, KeyCode::Home, KeyCode::End, KeyCode::Insert, KeyCode::Delete,
+    KeyCode::BrowserBack, KeyCode::BrowserForward,
 ];
+
+/// The mouse buttons that bind as keys, and the key each stands for: the side buttons 4 and 5,
+/// which the systems already treat as the browser's Back and Forward. A keyboard's own Back and
+/// Forward keys do the same.
+pub const MOUSE_KEYS: [(winit::event::MouseButton, KeyCode); 2] = [
+    (winit::event::MouseButton::Back, KeyCode::BrowserBack),
+    (winit::event::MouseButton::Forward, KeyCode::BrowserForward),
+];
+
+/// The key a mouse button binds as, if it binds (`MOUSE_KEYS`).
+pub fn mouse_key(button: winit::event::MouseButton) -> Option<KeyCode> {
+    MOUSE_KEYS.iter().find(|(b, _)| *b == button).map(|&(_, k)| k)
+}
 
 fn key_name(k: KeyCode) -> String {
     format!("{k:?}")
@@ -163,6 +178,8 @@ pub fn key_label(k: Option<KeyCode>) -> String {
         KeyCode::ControlRight => tr("key::Ctrl R").into(),
         KeyCode::AltLeft => tr("key::Alt L").into(),
         KeyCode::AltRight => tr("key::Alt R").into(),
+        KeyCode::BrowserBack => tr("key::Mouse 4").into(),
+        KeyCode::BrowserForward => tr("key::Mouse 5").into(),
         KeyCode::Minus => "-".into(),
         KeyCode::Equal => "=".into(),
         KeyCode::Slash => "/".into(),
@@ -365,6 +382,8 @@ pub struct Settings {
     pub zoom: f32,
     /// How big the chat is drawn, its text, width and height together (1: as it was).
     pub chat_size: f32,
+    /// How dark the glass behind the chat is (0: none, 1: as it was).
+    pub chat_alpha: f32,
     /// The most frames a second (0: no limit).
     pub max_fps: u32,
     /// The window covers its monitor, with no border (desktop; `Fullscreen::Borderless`).
@@ -427,6 +446,7 @@ impl Default for Settings {
             show_fps: false,
             zoom: 1.0,
             chat_size: 1.0,
+            chat_alpha: 1.0,
             unlock_fps: false,
             max_fps: 0,
             fullscreen: false,
@@ -534,7 +554,7 @@ impl Settings {
         flag("pingSounds", self.ping_sounds);
         out += &format!("masterVolume={}\nsfxVolume={}\nmusicVolume={}\n", self.sound.master_volume, self.sound.sfx_volume, self.sound.music_volume);
         out += &format!("worldZoom={}\n", self.zoom);
-        out += &format!("chatSize={}\n", self.chat_size);
+        out += &format!("chatSize={}\nchatBackground={}\n", self.chat_size, self.chat_alpha);
         out += &format!("playerOpacity={}\npetOpacity={}\n", self.player_alpha, self.pet_alpha);
         out += &format!("maxFps={}\n", self.max_fps);
         out += &format!("petShotLook={}\n", self.pet_shot_look.name());
@@ -618,6 +638,7 @@ impl Settings {
                 "musicVolume" => s.sound.music_volume = vol().unwrap_or(s.sound.music_volume),
                 "worldZoom" => s.zoom = value.parse::<f32>().map_or(1.0, |z| z.clamp(ZOOM_MIN, ZOOM_MAX)),
                 "chatSize" => s.chat_size = value.parse::<f32>().map_or(1.0, |z| z.clamp(CHAT_MIN, CHAT_MAX)),
+                "chatBackground" => s.chat_alpha = value.parse::<f32>().ok().filter(|a| a.is_finite()).map_or(1.0, |a| a.clamp(0.0, 1.0)),
                 "maxFps" => s.max_fps = value.parse().unwrap_or(0),
                 "cameraAngle" => s.camera_angle = value.parse().ok().filter(|a: &f64| a.is_finite()),
                 "preferredServer" => s.preferred_server = value.to_owned(),
@@ -680,6 +701,7 @@ enum Slider {
     PetAlpha,
     PetShots,
     ChatSize,
+    ChatAlpha,
     Pings,
     CrosshairSize,
 }
@@ -761,6 +783,7 @@ fn set_slider(slider: Slider, track: [f32; 4], x: f64, settings: &mut Settings) 
         Slider::MaxFps => settings.max_fps = MAX_FPS[(f * (MAX_FPS.len() - 1) as f32).round() as usize],
         Slider::PetShots => settings.pet_shot_look = PetShots::ALL[(f * (PetShots::ALL.len() - 1) as f32).round() as usize],
         Slider::ChatSize => settings.chat_size = CHAT_MIN + v * (CHAT_MAX - CHAT_MIN),
+        Slider::ChatAlpha => settings.chat_alpha = v,
         Slider::Pings => settings.pings_from = PingsFrom::ALL[(f * (PingsFrom::ALL.len() - 1) as f32).round() as usize],
         Slider::CrosshairSize => settings.crosshair_look.size = crosshair::SIZE_MIN + v * (crosshair::SIZE_MAX - crosshair::SIZE_MIN),
     }
@@ -1054,7 +1077,7 @@ impl OptionsUi {
                     let listening = self.listening == Some(*b);
                     let edge = if listening { color::ACCENT } else if inside(kr, mouse) { color::BORDER_HI } else { color::BORDER };
                     theme::frame(ui.renderer, kr, 5.0 * s, s.max(1.0), (edge, 1.0), ((color::FIELD, 1.0), (color::FIELD, 1.0)));
-                    let text = if listening { tr("Press a key…").to_owned() } else { key_label(settings.key(*b)) };
+                    let text = if listening { tr("Press a key or mouse 4/5…").to_owned() } else { key_label(settings.key(*b)) };
                     let ks = font(12.5);
                     let kw = ui.measure(&text, ks, true);
                     ui.label(&text, kr[0] + (kr[2] - kw) / 2.0, kr[1] + (kr[3] - ks * 1.22) / 2.0, ks, true, if listening { color::ACCENT_HI } else { color::TEXT });
@@ -1119,6 +1142,7 @@ impl OptionsUi {
                         (Slider::PetAlpha, tr("Other players' pets"), settings.pet_alpha, pct(settings.pet_alpha)),
                         (Slider::PetShots, tr("Pets' shots"), lv, look.label().to_owned()),
                         (Slider::ChatSize, tr("Chat size"), (settings.chat_size - CHAT_MIN) / (CHAT_MAX - CHAT_MIN), pct(settings.chat_size)),
+                        (Slider::ChatAlpha, tr("Chat background"), settings.chat_alpha, pct(settings.chat_alpha)),
                         (Slider::Pings, tr("Others' pings"), pv, from.label().to_owned()),
                     ]
                 } else {
@@ -1350,6 +1374,8 @@ mod tests {
         assert_eq!(s.chat_size, CHAT_MIN);
         set_slider(Slider::ChatSize, track, 300.0, &mut s);
         assert_eq!(s.chat_size, CHAT_MAX);
+        set_slider(Slider::ChatAlpha, track, 150.0, &mut s);
+        assert_eq!(s.chat_alpha, 0.25);
         set_slider(Slider::Pings, track, 200.0, &mut s);
         assert_eq!(s.pings_from, PingsFrom::Friends);
         assert!(s.pings_from.shows(2) && s.pings_from.shows(1) && !s.pings_from.shows(0));
@@ -1381,6 +1407,7 @@ mod tests {
         s.pet_shot_look = PetShots::Hidden;
         s.fullscreen = true;
         s.chat_size = 0.75;
+        s.chat_alpha = 0.4;
         s.language = "de".into();
         s.pings_from = PingsFrom::Nobody;
         s.ping_sounds = false;

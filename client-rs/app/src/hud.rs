@@ -2009,11 +2009,10 @@ fn draw_slot(ui: &mut Ui, lay: &Layout, slot: &Slot, dragged: bool, target: bool
     }
     let small = lay.font(10.0);
     match slot.kind {
-        // The number key, small in the corner.
-        // its imprints take the corner, the number its foot
+        // The number key, small in the corner (inside the imprints' border)
         SlotKind::Inventory(key) => {
-            let ky = if slot.imprints != [0; 4] && !empty { y + h - small * 1.3 } else { y + 2.0 * s };
-            ui.label(&key.to_string(), x + 4.0 * s, ky, small, true, color::TEXT_MUTED)
+            let inset = if slot.imprints != [0; 4] && !empty { imprint_border(s) } else { 0.0 };
+            ui.label(&key.to_string(), x + 4.0 * s + inset * 0.5, y + 2.0 * s + inset * 0.5, small, true, color::TEXT_MUTED)
         }
         SlotKind::Potion(count) => {
             let key = &potion_keys[if slot.index == POTIONS[0].1 { 0 } else { 1 }];
@@ -2028,7 +2027,7 @@ fn draw_slot(ui: &mut Ui, lay: &Layout, slot: &Slot, dragged: bool, target: bool
         _ => {}
     }
     if !empty {
-        draw_imprint_marks(ui, slot.imprints, x + 4.0 * s, y + 4.0 * s, s);
+        draw_imprint_marks(ui, slot.imprints, slot.rect, s);
     }
     if !empty && !matches!(slot.kind, SlotKind::Potion(_)) {
         let doses = ui.data.objects.get(&(slot.item as u16)).and_then(|d| d.xml.text_of("Doses").or(d.xml.text_of("Quantity")).map(str::to_owned));
@@ -2039,23 +2038,46 @@ fn draw_slot(ui: &mut Ui, lay: &Layout, slot: &Slot, dragged: bool, target: bool
     }
 }
 
-/// An item's imprints as small squares in their colours, an even row from (x, y), packed to the
-/// left in the order Offensive (red), Defensive (green), Misc (purple), Apotheosis (light blue): a
-/// lone purple sits first, and moves over when a green one comes. Only those it carries show. Each is its colour filling a
-/// thin gold frame, on whole pixels so the colour meets the frame evenly at every size.
-pub(crate) fn draw_imprint_marks(ui: &mut Ui, imprints: [u32; 4], x: f32, y: f32, s: f32) {
+/// An item's imprints as a border round its slot `r`: each imprint it carries a band in its colour
+/// edged in gold, in the order Offensive (red), Defensive (green), Misc (purple), Apotheosis
+/// (light blue). One goes all the way round; two share it half and half, left and right; three
+/// take the top's two halves and the bottom; four a quarter each, red at the top left and light
+/// blue at the bottom right (`theme::part_of`). Gold lines part them. Nothing when it has none.
+pub(crate) fn draw_imprint_marks(ui: &mut Ui, imprints: [u32; 4], r: [f32; 4], s: f32) {
     use bsk_data::imprint::Kind;
-    let edge = s.round().max(1.0);
-    let inner = (7.0 * s).round().max(5.0);
-    let outer = inner + 2.0 * edge;
-    let step = outer + (1.5 * s).round().max(1.0);
-    let (x, y) = ((x - edge).round(), (y - edge).round());
-    let carried = Kind::ALL.into_iter().filter(|&k| imprints[k as usize] != 0);
-    for (col, kind) in carried.enumerate() {
-        let ox = x + col as f32 * step;
-        theme::fill(ui.renderer, [ox, y, outer, outer], edge, color::GOLD, 1.0);
-        theme::fill(ui.renderer, [ox + edge, y + edge, inner, inner], edge * 0.5, kind.color(), 1.0);
+    let colours: Vec<(u32, f32)> = Kind::ALL.into_iter().filter(|&k| imprints[k as usize] != 0).map(|k| (k.color(), 1.0)).collect();
+    if colours.is_empty() {
+        return;
     }
+    let gold = s.round().max(1.0);
+    let band = (2.0 * s).round().max(2.0);
+    let all = 2.0 * gold + band;
+    let r = [r[0].round(), r[1].round(), r[2].round(), r[3].round()];
+    let radius = (5.0 * s).max(all);
+    // gold all round, the colours inside it, gold between them
+    theme::split_ring(ui.renderer, r, radius, all, &[(color::GOLD, 1.0)]);
+    theme::split_ring(ui.renderer, [r[0] + gold, r[1] + gold, r[2] - 2.0 * gold, r[3] - 2.0 * gold], radius - gold, band, &colours);
+    let (cx, cy) = ((r[0] + r[2] / 2.0 - gold / 2.0).round(), (r[1] + r[3] / 2.0 - gold / 2.0).round());
+    let (top, bottom, left, right) = (
+        [cx, r[1], gold, all],
+        [cx, r[1] + r[3] - all, gold, all],
+        [r[0], cy, all, gold],
+        [r[0] + r[2] - all, cy, all, gold],
+    );
+    let lines: &[[f32; 4]] = match colours.len() {
+        1 => &[],
+        2 => &[top, bottom],
+        3 => &[top, left, right],
+        _ => &[top, bottom, left, right],
+    };
+    for &l in lines {
+        theme::fill(ui.renderer, l, 0.0, color::GOLD, 1.0);
+    }
+}
+
+/// How far in from a slot's edge its contents start when it carries imprints (their border).
+pub(crate) fn imprint_border(s: f32) -> f32 {
+    2.0 * s.round().max(1.0) + (2.0 * s).round().max(2.0)
 }
 
 /// The Imprints section at the foot of an item's tooltip: a bar with its title, each imprint's
@@ -2584,7 +2606,7 @@ fn draw_player_card(ui: &mut Ui, lay: &Layout, p: &GameObj, r: [f32; 4], pinned:
         ui.slot_box(sr, if item > 0 { crate::screens::tier_edge(ui.data, item) } else { None }, false, s);
         if item > 0 {
             ui.item_icon(item, 80, sr[0] + sr[2] / 2.0, sr[1] + sr[3] / 2.0, s);
-            draw_imprint_marks(ui, slot_imprints(p, i), sr[0] + 4.0 * s, sr[1] + 4.0 * s, s);
+            draw_imprint_marks(ui, slot_imprints(p, i), sr, s);
         }
     }
     let hint = if pinned { tr("Hover an item to see it, right-click to close") } else { tr("Right-click to keep open") };
@@ -3407,7 +3429,7 @@ pub fn draw_windows(ui: &mut Ui, lay: &Layout, world: &World, panel: &Panel, soc
                     let dim = !item.tradeable;
                     let imprints = bsk_data::imprint::parse(&item.item_data);
                     ui.item_icon(item.item, 80, sr[0] + sr[2] / 2.0, sr[1] + sr[3] / 2.0, s);
-                    draw_imprint_marks(ui, imprints, sr[0] + 4.0 * s, sr[1] + 4.0 * s, s);
+                    draw_imprint_marks(ui, imprints, sr, s);
                     if dim {
                         theme::fill(ui.renderer, sr, 5.0 * s, 0x000000, 0.5);
                     }
@@ -3992,9 +4014,10 @@ impl HudState {
 
 /// The chat box at the bottom left of the view: the newest lines (all of them, `scroll` rows
 /// back, after Page Up), wrapped to fit, and the line being typed, `chat_size` times its usual
-/// text, width and height (Options, Visuals). Returns where the players' names are, for clicks.
+/// text, width and height (Options, Visuals), on a glass `chat_alpha` times its usual darkness.
+/// Returns where the players' names are, for clicks.
 #[allow(clippy::too_many_arguments)]
-pub fn draw_chat(ui: &mut Ui, lay: &Layout, lines: &[ChatLine], me: &str, input: Option<&crate::textedit::LineEdit>, scroll: Option<usize>, chat_size: f32, now: i32) -> Vec<(String, [f32; 4])> {
+pub fn draw_chat(ui: &mut Ui, lay: &Layout, lines: &[ChatLine], me: &str, input: Option<&crate::textedit::LineEdit>, scroll: Option<usize>, chat_size: f32, chat_alpha: f32, now: i32) -> Vec<(String, [f32; 4])> {
     let mut names = Vec::new();
     let s = lay.s;
     let size = lay.font(14.0 * chat_size);
@@ -4050,7 +4073,11 @@ pub fn draw_chat(ui: &mut Ui, lay: &Layout, lines: &[ChatLine], me: &str, input:
     let bar = strong && total > rows.len();
     let bar_w = if bar { 10.0 * s } else { 0.0 };
     let back_w = if strong { max_w + 16.0 * s + bar_w } else { widest + 16.0 * s };
-    theme::fill(ui.renderer, [margin, bottom - back_h, back_w, back_h], 6.0 * s, 0x000000, if strong { 0.55 } else { 0.32 });
+    // as dark as Options, Visuals, Chat background says (none at 0%)
+    let back_alpha = if strong { 0.55 } else { 0.32 } * chat_alpha.clamp(0.0, 1.0);
+    if back_alpha > 0.0 {
+        theme::fill(ui.renderer, [margin, bottom - back_h, back_w, back_h], 6.0 * s, 0x000000, back_alpha);
+    }
     if skip > 0 {
         let t = tn!(skip, "{n} newer line below (Page Down)|{n} newer lines below (Page Down)");
         let small = lay.font(11.0);

@@ -40,8 +40,11 @@ are {{v:max_stars}} stars in all. Your star's colour moves through nine colours 
 light blue, blue, violet, red, red-orange, orange, gold, pale yellow and, with every class quest
 done, white.
 
-- The character screen shows your rank (hover over it for the colours) and each character's next
-  class quest.
+- The character screen shows your rank (hover over it for the colours), each character's next
+  class quest and how many of its 8 stats are maxed (a gold **8/8** when all are). Type to search
+  it by class (or skin) name, <kbd>Enter</kbd> playing the first match; show **All**, only the
+  **8/8** characters or those **Not 8/8**; and sort them by **Recently played** (the default),
+  **Most fame**, **Most stats maxed**, **Class** or **Newest**.
 - Your star shows next to your name in chat and over your head.
 - Trading with `/trade` needs 2 stars.
 

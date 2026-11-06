@@ -89,7 +89,8 @@ pierce, an Enthroned Dual Blades' still ignore defense). All are named **Enthron
 Sword, Dagger, Bow, Wand, Katana, Dual Blades, Fists, Hide and Plate, and the **Enthroned Staff**, a
 staff drawn after the one he holds, from a tier 15 staff (it was the Enthroned Spear, made from his
 Elysian Staff). His own pieces: the **Enthroned Robe** from his **Robe of Absolution**, the
-**Enthroned Boots** from any tier 8 ring, and the **Enthroned Ring of Grace** from both of his
+**Enthroned Boots** (+50 speed) from any ring and two Ascended Accessory Shards, and the
+**Enthroned Ring of Grace** from both of his
 gems, the **Ascended Gem of Adoration** and the **Ascended Gem of Tenderness**, and three Ascended
 Accessory Shards. The Ring of Grace gives +200 health and magic and +10 to every other stat. Every
 Enthroned item gives a **10% fame bonus**.

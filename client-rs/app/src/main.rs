@@ -1648,6 +1648,198 @@ impl App {
     }
 
     /// Page Up: show the whole recent chat, then older pages; Page Down comes back.
+    /// A key pressed or let go (or a mouse button bound like one: `options::MOUSE_KEYS`), with
+    /// the text it types: to the window open, the chat line, or the game.
+    fn key_input(&mut self, code: KeyCode, pressed: bool, repeat: bool, text: Option<String>) {
+        if let Some(a) = &mut self.audio {
+            a.wake();
+        }
+        // F11 or Alt+Enter: fullscreen (borderless) and back, kept for the next run.
+        if pressed && !repeat && (code == KeyCode::F11 || (self.alt_held && code == KeyCode::Enter)) {
+            if let Some(window) = &self.window {
+                let full = window.fullscreen().is_some();
+                #[cfg(not(target_arch = "wasm32"))]
+                {
+                    self.settings.fullscreen = !full;
+                    self.settings.save();
+                }
+                // The browser's fullscreen needs this key press: not kept.
+                #[cfg(target_arch = "wasm32")]
+                window.set_fullscreen((!full).then_some(winit::window::Fullscreen::Borderless(None)));
+            }
+            return;
+        }
+        if self.changelog.open {
+            if pressed {
+                self.changelog.key(code);
+            }
+            self.keys.remove(&code);
+            return;
+        }
+        if self.options_ui.open && matches!(self.phase, Phase::Menu) {
+            if pressed && self.options_ui.key(code, &mut self.settings) {
+                self.settings.save();
+            }
+            return;
+        }
+        if matches!(self.phase, Phase::Menu) {
+            // The page's copy or cut event comes straight after the key, before the frame
+            // that handles it, so the text goes to the clipboard now.
+            #[cfg(target_arch = "wasm32")]
+            if pressed && textedit::LineEdit::copies(code, self.ctrl_held, self.shift_held) {
+                if let Some(text) = self.front.copyable() {
+                    textedit::clipboard::set(text);
+                }
+            }
+            if pressed {
+                self.front_keys.push((code, text.clone(), self.ctrl_held, self.shift_held));
+            }
+            return;
+        }
+        // Typing a chat line: keys go to the text, not the game.
+        if let Some(input) = &mut self.chat_input {
+            if pressed {
+                match code {
+                    KeyCode::Enter | KeyCode::NumpadEnter => {
+                        let line = std::mem::take(&mut input.text);
+                        if !line.trim().is_empty() {
+                            self.chat_send.push(line);
+                        }
+                        self.chat_input = None;
+                    }
+                    KeyCode::Escape => self.chat_input = None,
+                    KeyCode::Tab => {
+                        let line = self.tell_prefix();
+                        self.chat_input = Some(chat_line(line));
+                    }
+                    KeyCode::PageUp | KeyCode::PageDown => self.scroll_chat(code == KeyCode::PageUp),
+                    _ => {
+                        input.key(code, text.as_deref(), self.ctrl_held, self.shift_held);
+                    }
+                }
+            }
+            return;
+        }
+        if self.market.open && matches!(self.phase, Phase::Playing(_)) {
+            if pressed {
+                if let Some(l) = &self.loaded {
+                    self.market.key(code, text.as_deref(), &l.data);
+                }
+            }
+            self.keys.remove(&code);
+            return;
+        }
+        if self.forge.open && matches!(self.phase, Phase::Playing(_)) {
+            if pressed {
+                if let Some(l) = &self.loaded {
+                    self.forge.key(code, text.as_deref(), &l.data);
+                }
+            }
+            self.keys.remove(&code);
+            return;
+        }
+        if self.vault.open && matches!(self.phase, Phase::Playing(_)) {
+            // Ctrl and the Inventory / backpack key turns the HUD's page (the key alone
+            // types into the search)
+            if pressed && self.ctrl_held && self.settings.bind_of(code) == Some(options::Bind::SwitchTabs) {
+                self.hud.page = if self.hud.page == hud::Page::Inventory { hud::Page::Backpack } else { hud::Page::Inventory };
+            } else if pressed {
+                if let Some(l) = &self.loaded {
+                    self.vault.key(code, text.as_deref(), &l.data);
+                }
+            }
+            self.keys.remove(&code);
+            return;
+        }
+        if self.community.open && matches!(self.phase, Phase::Playing(_)) {
+            if pressed {
+                self.community.key(code);
+            }
+            self.keys.remove(&code);
+            return;
+        }
+        if (self.collection.open || self.pet_pen.open) && matches!(self.phase, Phase::Playing(_)) {
+            if pressed {
+                self.collection.key(code);
+                self.pet_pen.key(code);
+            }
+            self.keys.remove(&code);
+            return;
+        }
+        if self.quests.open && matches!(self.phase, Phase::Playing(_)) {
+            if pressed {
+                if Some(code) == self.settings.key(options::Bind::Quests) {
+                    self.quests.close();
+                } else {
+                    self.quests.key(code);
+                }
+            }
+            self.keys.remove(&code);
+            return;
+        }
+        if self.options_ui.open && matches!(self.phase, Phase::Playing(_)) {
+            if pressed && self.options_ui.key(code, &mut self.settings) {
+                self.settings.save();
+            }
+            self.keys.remove(&code);
+            return;
+        }
+        if self.npcs.window.is_some() && matches!(self.phase, Phase::Playing(_)) {
+            if pressed {
+                self.npc_keys.push((code, text.clone()));
+            }
+            self.keys.remove(&code);
+            return;
+        }
+        if pressed && !repeat && code == KeyCode::Escape {
+            if let Phase::Playing(game) = &mut self.phase {
+                if game.trade.is_some() {
+                    game.trade_cancel();
+                    return;
+                }
+            }
+            self.game_menu = !self.game_menu;
+            self.keys.clear();
+            return;
+        }
+        if pressed && !repeat && matches!(self.phase, Phase::Playing(_)) {
+            use options::Bind;
+            let bind = self.settings.bind_of(code).or((code == KeyCode::NumpadEnter).then_some(Bind::Chat));
+            if matches!(bind, Some(Bind::ChatUp | Bind::ChatDown)) {
+                self.scroll_chat(bind == Some(Bind::ChatUp));
+                return;
+            }
+            if bind != Some(Bind::Tell) {
+                if let Phase::Playing(game) = &self.phase {
+                    self.teller = game.tellers.len();
+                }
+            }
+            // TextBox's keys: chat, a command, a tell (Tab cycles who to), guild and party.
+            let open = match bind {
+                Some(Bind::Chat) => Some(String::new()),
+                Some(Bind::Command) => Some("/".to_owned()),
+                Some(Bind::Tell) => Some(self.tell_prefix()),
+                Some(Bind::GuildChat) => Some("/g ".to_owned()),
+                Some(Bind::PartyChat) => Some("/p ".to_owned()),
+                _ => None,
+            };
+            if open.is_some() {
+                self.chat_input = open.map(chat_line);
+                self.keys.clear();
+                self.mouse_down = false;
+                return;
+            }
+        }
+        if pressed {
+            if !repeat {
+                self.pressed.push(code);
+            }
+            self.keys.insert(code);
+        } else {
+            self.keys.remove(&code);
+        }
+    }
+
     fn scroll_chat(&mut self, up: bool) {
         const PAGE: usize = 7;
         self.chat_scroll = match (self.chat_scroll, up) {
@@ -2620,7 +2812,7 @@ impl App {
                 let me = game.world.as_ref().and_then(|w| w.player()).and_then(|p| p.name()).unwrap_or("").to_owned();
                 let mut ui = hud::Ui { renderer: &mut *renderer, sprites, data, redrawer: &mut *redrawer, fonts, text: &mut *text };
                 prof::mark("pre-chat");
-                self.chat_names = hud::draw_chat(&mut ui, &lay, &game.chat, &me, self.chat_input.as_ref(), self.chat_scroll, self.settings.chat_size, now);
+                self.chat_names = hud::draw_chat(&mut ui, &lay, &game.chat, &me, self.chat_input.as_ref(), self.chat_scroll, self.settings.chat_size, self.settings.chat_alpha, now);
                 if let Some(p) = game.world.as_ref().and_then(|w| w.player()) {
                     // The frame rate and the ping (L), under the gold and fame.
                     let fps = self.settings.show_fps.then(|| match game.ping {
@@ -3027,199 +3219,8 @@ impl ApplicationHandler<UserEvent> for App {
             }
             WindowEvent::KeyboardInput { event, .. } => {
                 let PhysicalKey::Code(code) = event.physical_key else { return };
-                if let Some(a) = &mut self.audio {
-                    a.wake();
-                }
-                let pressed = event.state == ElementState::Pressed;
-                // F11 or Alt+Enter: fullscreen (borderless) and back, kept for the next run.
-                if pressed && !event.repeat && (code == KeyCode::F11 || (self.alt_held && code == KeyCode::Enter)) {
-                    if let Some(window) = &self.window {
-                        let full = window.fullscreen().is_some();
-                        #[cfg(not(target_arch = "wasm32"))]
-                        {
-                            self.settings.fullscreen = !full;
-                            self.settings.save();
-                        }
-                        // The browser's fullscreen needs this key press: not kept.
-                        #[cfg(target_arch = "wasm32")]
-                        window.set_fullscreen((!full).then_some(winit::window::Fullscreen::Borderless(None)));
-                    }
-                    return;
-                }
-                if self.changelog.open {
-                    if pressed {
-                        self.changelog.key(code);
-                    }
-                    self.keys.remove(&code);
-                    return;
-                }
-                if self.options_ui.open && matches!(self.phase, Phase::Menu) {
-                    if pressed && self.options_ui.key(code, &mut self.settings) {
-                        self.settings.save();
-                    }
-                    return;
-                }
-                if matches!(self.phase, Phase::Menu) {
-                    // The page's copy or cut event comes straight after the key, before the frame
-                    // that handles it, so the text goes to the clipboard now.
-                    #[cfg(target_arch = "wasm32")]
-                    if pressed && textedit::LineEdit::copies(code, self.ctrl_held, self.shift_held) {
-                        if let Some(text) = self.front.copyable() {
-                            textedit::clipboard::set(text);
-                        }
-                    }
-                    if pressed {
-                        self.front_keys.push((code, event.text.as_ref().map(|t| t.to_string()), self.ctrl_held, self.shift_held));
-                    }
-                    return;
-                }
-                // Typing a chat line: keys go to the text, not the game.
-                if let Some(input) = &mut self.chat_input {
-                    if pressed {
-                        match code {
-                            KeyCode::Enter | KeyCode::NumpadEnter => {
-                                let line = std::mem::take(&mut input.text);
-                                if !line.trim().is_empty() {
-                                    self.chat_send.push(line);
-                                }
-                                self.chat_input = None;
-                            }
-                            KeyCode::Escape => self.chat_input = None,
-                            KeyCode::Tab => {
-                                let line = self.tell_prefix();
-                                self.chat_input = Some(chat_line(line));
-                            }
-                            KeyCode::PageUp | KeyCode::PageDown => self.scroll_chat(code == KeyCode::PageUp),
-                            _ => {
-                                input.key(code, event.text.as_deref(), self.ctrl_held, self.shift_held);
-                            }
-                        }
-                    }
-                    return;
-                }
-                if self.market.open && matches!(self.phase, Phase::Playing(_)) {
-                    if pressed {
-                        if let Some(l) = &self.loaded {
-                            self.market.key(code, event.text.as_deref(), &l.data);
-                        }
-                    }
-                    self.keys.remove(&code);
-                    return;
-                }
-                if self.forge.open && matches!(self.phase, Phase::Playing(_)) {
-                    if pressed {
-                        if let Some(l) = &self.loaded {
-                            self.forge.key(code, event.text.as_deref(), &l.data);
-                        }
-                    }
-                    self.keys.remove(&code);
-                    return;
-                }
-                if self.vault.open && matches!(self.phase, Phase::Playing(_)) {
-                    // Ctrl and the Inventory / backpack key turns the HUD's page (the key alone
-                    // types into the search)
-                    if pressed && self.ctrl_held && self.settings.bind_of(code) == Some(options::Bind::SwitchTabs) {
-                        self.hud.page = if self.hud.page == hud::Page::Inventory { hud::Page::Backpack } else { hud::Page::Inventory };
-                    } else if pressed {
-                        if let Some(l) = &self.loaded {
-                            self.vault.key(code, event.text.as_deref(), &l.data);
-                        }
-                    }
-                    self.keys.remove(&code);
-                    return;
-                }
-                if self.community.open && matches!(self.phase, Phase::Playing(_)) {
-                    if pressed {
-                        self.community.key(code);
-                    }
-                    self.keys.remove(&code);
-                    return;
-                }
-                if (self.collection.open || self.pet_pen.open) && matches!(self.phase, Phase::Playing(_)) {
-                    if pressed {
-                        self.collection.key(code);
-                        self.pet_pen.key(code);
-                    }
-                    self.keys.remove(&code);
-                    return;
-                }
-                if self.quests.open && matches!(self.phase, Phase::Playing(_)) {
-                    if pressed {
-                        if Some(code) == self.settings.key(options::Bind::Quests) {
-                            self.quests.close();
-                        } else {
-                            self.quests.key(code);
-                        }
-                    }
-                    self.keys.remove(&code);
-                    return;
-                }
-                if self.options_ui.open && matches!(self.phase, Phase::Playing(_)) {
-                    if pressed && self.options_ui.key(code, &mut self.settings) {
-                        self.settings.save();
-                    }
-                    self.keys.remove(&code);
-                    return;
-                }
-                if self.npcs.window.is_some() && matches!(self.phase, Phase::Playing(_)) {
-                    if pressed {
-                        self.npc_keys.push((code, event.text.as_ref().map(|t| t.to_string())));
-                    }
-                    self.keys.remove(&code);
-                    return;
-                }
-                if pressed && !event.repeat && code == KeyCode::Escape {
-                    if let Phase::Playing(game) = &mut self.phase {
-                        if game.trade.is_some() {
-                            game.trade_cancel();
-                            return;
-                        }
-                    }
-                    self.game_menu = !self.game_menu;
-                    self.keys.clear();
-                    return;
-                }
-                if pressed && !event.repeat && matches!(self.phase, Phase::Playing(_)) {
-                    use options::Bind;
-                    let bind = self.settings.bind_of(code).or((code == KeyCode::NumpadEnter).then_some(Bind::Chat));
-                    if matches!(bind, Some(Bind::ChatUp | Bind::ChatDown)) {
-                        self.scroll_chat(bind == Some(Bind::ChatUp));
-                        return;
-                    }
-                    if bind != Some(Bind::Tell) {
-                        if let Phase::Playing(game) = &self.phase {
-                            self.teller = game.tellers.len();
-                        }
-                    }
-                    // TextBox's keys: chat, a command, a tell (Tab cycles who to), guild and party.
-                    let open = match bind {
-                        Some(Bind::Chat) => Some(String::new()),
-                        Some(Bind::Command) => Some("/".to_owned()),
-                        Some(Bind::Tell) => Some(self.tell_prefix()),
-                        Some(Bind::GuildChat) => Some("/g ".to_owned()),
-                        Some(Bind::PartyChat) => Some("/p ".to_owned()),
-                        _ => None,
-                    };
-                    if open.is_some() {
-                        self.chat_input = open.map(chat_line);
-                        self.keys.clear();
-                        self.mouse_down = false;
-                        return;
-                    }
-                }
-                {
-                    match event.state {
-                        ElementState::Pressed => {
-                            if !event.repeat {
-                                self.pressed.push(code);
-                            }
-                            self.keys.insert(code);
-                        }
-                        ElementState::Released => {
-                            self.keys.remove(&code);
-                        }
-                    }
-                }
+                let text = event.text.as_ref().map(|t| t.to_string());
+                self.key_input(code, event.state == ElementState::Pressed, event.repeat, text);
             }
             WindowEvent::Focused(false) => {
                 self.keys.clear();
@@ -3352,6 +3353,12 @@ impl ApplicationHandler<UserEvent> for App {
             WindowEvent::MouseInput { .. } if self.mouse_fixed => {}
             WindowEvent::MouseInput { state: ElementState::Pressed, button: winit::event::MouseButton::Right, .. } => {
                 self.right_clicks.push(self.mouse);
+            }
+            // the side buttons (4 and 5) can be bound in Options as keys are
+            WindowEvent::MouseInput { state, button, .. } if options::mouse_key(button).is_some() => {
+                if let Some(code) = options::mouse_key(button) {
+                    self.key_input(code, state == ElementState::Pressed, false, None);
+                }
             }
             WindowEvent::MouseInput { state, button: winit::event::MouseButton::Middle, .. } => {
                 if let Some(a) = &mut self.audio {

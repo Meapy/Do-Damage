@@ -48,6 +48,92 @@ pub const NAME: usize = 2;
 pub const CONFIRM: usize = 3;
 pub const NEW_PASSWORD: usize = 4;
 pub const NEW_CONFIRM: usize = 5;
+/// The character list's search.
+pub const SEARCH: usize = 6;
+
+/// Which characters the list shows: all, only those at their class's maximum in all 8 stats, or
+/// only those that aren't.
+#[derive(Clone, Copy, Debug, PartialEq, Eq, Default)]
+pub enum CharFilter {
+    #[default]
+    All,
+    Maxed,
+    NotMaxed,
+}
+
+/// The order of the character list.
+#[derive(Clone, Copy, Debug, PartialEq, Eq, Default)]
+pub enum CharSort {
+    /// The last played first (the server's `<LastSeen>`), the newest first among the unplayed.
+    #[default]
+    Recent,
+    /// The most fame first.
+    Fame,
+    /// The most stats at their maximum first, then the most fame.
+    Maxed,
+    /// The classes in their order, then the most fame.
+    Class,
+    /// The newest character first.
+    Newest,
+}
+
+impl CharSort {
+    pub const ALL: [CharSort; 5] = [CharSort::Recent, CharSort::Fame, CharSort::Maxed, CharSort::Class, CharSort::Newest];
+
+    fn label(self) -> &'static str {
+        match self {
+            CharSort::Recent => tr("Recently played"),
+            CharSort::Fame => tr("Most fame"),
+            CharSort::Maxed => tr("Most stats maxed"),
+            CharSort::Class => tr("Class"),
+            CharSort::Newest => tr("chars::Newest"),
+        }
+    }
+}
+
+/// How many of a character's 8 stats are at its class's maximum (or past it), from the list's
+/// `stats`; None when the server didn't send them (all 0).
+pub fn maxed_stats(data: &bsk_data::GameData, c: &CharSummary) -> Option<usize> {
+    if c.stats.iter().all(|&v| v == 0) {
+        return None;
+    }
+    let class = data.objects.get(&c.object_type)?;
+    let max_of = |tag: &str| class.xml.child(tag).and_then(|e| e.attr("max")).and_then(|m| m.parse::<i32>().ok());
+    Some(bsk_net::account::STAT_TAGS.iter().zip(c.stats).filter(|(tag, v)| max_of(tag).is_some_and(|m| *v >= m)).count())
+}
+
+/// Whether a search matches a character: its class's name or its skin's, any part of it, in any
+/// case. An empty search matches every one.
+pub fn search_matches(data: &bsk_data::GameData, c: &CharSummary, search: &str) -> bool {
+    let search = search.trim().to_lowercase();
+    if search.is_empty() {
+        return true;
+    }
+    let name_of = |t: u16| data.objects.get(&t).map(|d| d.display_id.to_lowercase());
+    name_of(c.object_type).is_some_and(|n| n.contains(&search)) || (c.skin != 0 && name_of(c.skin as u16).is_some_and(|n| n.contains(&search)))
+}
+
+/// The characters the list shows, in its order: those the search and the filter let through.
+pub fn shown_chars<'a>(data: &bsk_data::GameData, chars: &'a [CharSummary], search: &str, filter: CharFilter, sort: CharSort) -> Vec<&'a CharSummary> {
+    let maxed = |c: &CharSummary| maxed_stats(data, c).unwrap_or(0);
+    let mut out: Vec<&CharSummary> = chars
+        .iter()
+        .filter(|c| search_matches(data, c, search))
+        .filter(|c| match filter {
+            CharFilter::All => true,
+            CharFilter::Maxed => maxed(c) == 8,
+            CharFilter::NotMaxed => maxed(c) < 8,
+        })
+        .collect();
+    match sort {
+        CharSort::Recent => out.sort_by(|a, b| b.last_seen.cmp(&a.last_seen).then(b.id.cmp(&a.id))),
+        CharSort::Fame => out.sort_by(|a, b| b.fame.cmp(&a.fame).then(b.id.cmp(&a.id))),
+        CharSort::Maxed => out.sort_by(|a, b| maxed(b).cmp(&maxed(a)).then(b.fame.cmp(&a.fame)).then(b.id.cmp(&a.id))),
+        CharSort::Class => out.sort_by(|a, b| a.object_type.cmp(&b.object_type).then(b.fame.cmp(&a.fame)).then(b.id.cmp(&a.id))),
+        CharSort::Newest => out.sort_by_key(|c| std::cmp::Reverse(c.id)),
+    }
+    out
+}
 
 /// The legends' time spans: (id for the server, label). The last, "recent", is the server's
 /// latest deaths (`/fame/recent`) rather than a time span of `/fame/list`.
@@ -98,6 +184,9 @@ enum Target {
     ToServers,
     /// A row of the Servers screen: play on that server.
     Server(usize),
+    /// The character list's filter, and its order (the next one).
+    CharFilter(CharFilter),
+    CharSort,
     Logout,
     /// The Changelog window.
     Changelog,
@@ -139,8 +228,9 @@ pub enum Action {
 
 pub struct Front {
     pub screen: Screen,
-    /// Email, password, name, confirm password, new password, confirm new password.
-    pub fields: [LineEdit; 6],
+    /// Email, password, name, confirm password, new password, confirm new password, and the
+    /// character list's search.
+    pub fields: [LineEdit; 7],
     focus: usize,
     pub remember: bool,
     /// A line under the form or list: (text, is it an error).
@@ -192,6 +282,13 @@ pub struct Front {
     pub version_line: String,
     /// The character list's first row shown, when it's longer than the window.
     chars_row: usize,
+    /// Which characters the list shows and in what order, and the search it last drew with (a
+    /// new one goes back to the top).
+    pub char_filter: CharFilter,
+    pub char_sort: CharSort,
+    chars_search: String,
+    /// The characters shown last frame, in order (Enter plays the first after a search).
+    chars_shown: Vec<i32>,
     /// A remembered login is being checked in the background (Home says so).
     pub signing_in: bool,
     /// Signed in as this device's guest: Register saves their progress.
@@ -233,6 +330,10 @@ impl Default for Front {
             endpoint_label: String::new(),
             version_line: String::new(),
             chars_row: 0,
+            char_filter: CharFilter::default(),
+            char_sort: CharSort::default(),
+            chars_search: String::new(),
+            chars_shown: Vec::new(),
             signing_in: false,
             guest: false,
             sky: Default::default(),
@@ -331,6 +432,7 @@ impl Front {
             Screen::Login => &[EMAIL, PASSWORD],
             Screen::Register => &[NAME, EMAIL, PASSWORD, CONFIRM],
             Screen::Account => &[PASSWORD, NEW_PASSWORD, NEW_CONFIRM],
+            Screen::Chars => &[SEARCH],
             _ => &[],
         }
     }
@@ -438,6 +540,11 @@ impl Front {
                 self.focus = fields[if shift { (i + n - 1) % n } else { (i + 1) % n }];
             }
             KeyCode::Enter | KeyCode::NumpadEnter => match self.screen {
+                Screen::Chars if !self.fields[SEARCH].text.trim().is_empty() => {
+                    if let Some(&id) = self.chars_shown.first() {
+                        return Some(Action::Play(id));
+                    }
+                }
                 Screen::Login => return Some(Action::SignIn),
                 Screen::Register => return Some(Action::Register),
                 Screen::Account => return Some(Action::ChangePassword),
@@ -448,6 +555,7 @@ impl Front {
                 _ => {}
             },
             KeyCode::Escape => match self.screen {
+                Screen::Chars if !self.fields[SEARCH].text.is_empty() => self.set_field(SEARCH, String::new()),
                 Screen::Login | Screen::Register | Screen::Chars => {
                     self.message = None;
                     self.show(Screen::Home);
@@ -509,6 +617,15 @@ impl Front {
             Target::Fallen(account, id) => return Some(Action::ViewDeathOf(account, id)),
             Target::Remember => self.remember = !self.remember,
             Target::Char(id) => return Some(Action::Play(id)),
+            Target::CharFilter(f) => {
+                self.char_filter = f;
+                self.chars_row = 0;
+            }
+            Target::CharSort => {
+                let i = CharSort::ALL.iter().position(|&k| k == self.char_sort).unwrap_or(0);
+                self.char_sort = CharSort::ALL[(i + 1) % CharSort::ALL.len()];
+                self.chars_row = 0;
+            }
             Target::Delete(id) => self.confirm = Some(Confirm::Delete(id)),
             Target::ConfirmYes => return self.confirmed(),
             Target::ConfirmNo => self.confirm = None,
@@ -622,7 +739,7 @@ impl Front {
                 let tw = ui.measure(&self.busy, size, true);
                 ui.label(&self.busy, cx - tw / 2.0, cy + 30.0 * s, size, true, color::TEXT);
             }
-            Screen::Chars => self.draw_chars(ui, w, h, s, mouse),
+            Screen::Chars => self.draw_chars(ui, w, h, s, mouse, now),
             Screen::NewChar => self.draw_new_char(ui, w, h, s, mouse),
             Screen::Class(class) => self.draw_class(ui, w, h, s, class, mouse),
             Screen::Legends => self.draw_legends(ui, w, h, s, mouse),
@@ -651,6 +768,20 @@ impl Front {
         self.targets.push((target, r));
     }
 
+    /// A rounded chip with its label: lit when picked, brighter under the mouse.
+    #[allow(clippy::too_many_arguments)]
+    fn chip(&mut self, ui: &mut Ui, target: Target, r: [f32; 4], label: &str, on: bool, size: f32, s: f32, mouse: (f64, f64)) {
+        let over = inside(r, mouse) && self.confirm.is_none();
+        let (bg, fg) = if on { (color::ACCENT, color::ACCENT_TEXT) } else if over { (color::CHIP_HI, color::TEXT) } else { (color::CHIP, color::TEXT_DIM) };
+        theme::fill(ui.renderer, r, r[3] / 2.0, bg, 0.95);
+        if !on {
+            theme::frame(ui.renderer, r, r[3] / 2.0, s.max(1.0), (color::BORDER, 0.9), ((bg, 0.0), (bg, 0.0)));
+        }
+        let tw = ui.measure(label, size, true);
+        ui.label(label, r[0] + (r[2] - tw) / 2.0, r[1] + (r[3] - size * 1.22) / 2.0, size, true, fg);
+        self.targets.push((target, r));
+    }
+
     /// A text link: `lead` in grey, then `label` in gold.
     fn link(&mut self, ui: &mut Ui, target: Target, cx: f32, y: f32, lead: &str, label: &str, size: f32, mouse: (f64, f64)) {
         let lw = ui.measure(lead, size, false);
@@ -666,15 +797,27 @@ impl Front {
     fn field(&mut self, ui: &mut Ui, i: usize, label: &str, placeholder: &str, x: f32, y: f32, width: f32, s: f32, now: i32) -> f32 {
         let size = (13.0 * s).round().max(9.0);
         ui.label(label, x, y, size, true, color::TEXT_DIM);
-        let r = [x, y + 20.0 * s, width, 38.0 * s];
+        self.field_text(ui, i, placeholder, [x, y + 20.0 * s, width, 38.0 * s], (16.0 * s).round().max(10.0), s, now);
+        y + 72.0 * s
+    }
+
+    /// A field's box `r` and its text at `fsize` (the placeholder while it's empty and not being
+    /// typed in), scrolled to the cursor.
+    #[allow(clippy::too_many_arguments)]
+    fn field_text(&mut self, ui: &mut Ui, i: usize, placeholder: &str, r: [f32; 4], fsize: f32, s: f32, now: i32) {
+        let width = r[2];
         let focused = self.focus == i;
         ui.field_box(r, focused, s);
         let field = &self.fields[i];
-        let fsize = (16.0 * s).round().max(10.0);
         let ty = r[1] + (r[3] - fsize * 1.22) / 2.0;
         let (left, room) = (r[0] + 12.0 * s, width - 24.0 * s);
-        if field.text.is_empty() && !focused {
+        // the search is always being typed in: its placeholder shows while it's empty, the cursor
+        // before it
+        if field.text.is_empty() && (!focused || i == SEARCH) {
             ui.label(placeholder, left, ty, fsize, false, color::TEXT_MUTED);
+            if focused && (now / 530) % 2 == 0 {
+                theme::fill(ui.renderer, [left, ty, (1.5 * s).max(1.0), fsize * 1.2], 0.0, color::TEXT, 1.0);
+            }
         } else {
             let chars: Vec<char> = if Self::field_is_secret(i) { vec!['•'; field.text.chars().count()] } else { field.text.chars().collect() };
             let width_of = |ui: &mut Ui, a: usize, b: usize| ui.measure(&chars[a..b].iter().collect::<String>(), fsize, false);
@@ -705,7 +848,6 @@ impl Front {
             self.field_edges.push((i, first, edges));
         }
         self.targets.push((Target::Field(i), r));
-        y + 72.0 * s
     }
 
     fn message_line(&self, ui: &mut Ui, cx: f32, y: f32, max_w: f32, s: f32) {
@@ -853,8 +995,17 @@ impl Front {
         self.message_line(ui, x + bw / 2.0, y + bh + 16.0 * s, bw, s);
     }
 
-    fn draw_chars(&mut self, ui: &mut Ui, w: f32, h: f32, s: f32, mouse: (f64, f64)) {
+    fn draw_chars(&mut self, ui: &mut Ui, w: f32, h: f32, s: f32, mouse: (f64, f64), now: i32) {
         let Some(list) = self.list.clone() else { return };
+        // the characters the search and the filter let through, in the order picked
+        let search = self.fields[SEARCH].text.clone();
+        if search != self.chars_search {
+            self.chars_search = search.clone();
+            self.chars_row = 0;
+        }
+        let chars = shown_chars(ui.data, &list.chars, &search, self.char_filter, self.char_sort);
+        self.chars_shown = chars.iter().map(|c| c.id).collect();
+        let narrowed = !search.trim().is_empty() || self.char_filter != CharFilter::All;
         // The top bar: who and their rank, the buttons, then their fame and gold at the right.
         let bar = [0.0, 0.0, w, 68.0 * s];
         theme::rounded(ui.renderer, bar, 0.0, (color::PANEL_TOP, 0.92), (color::PANEL_BOTTOM, 0.92));
@@ -901,27 +1052,63 @@ impl Front {
         }
 
         // Characters, then a card for a new one while there's room, else one to buy a slot. Rows
-        // that don't fit scroll, a row a wheel notch.
+        // that don't fit scroll, a row a wheel notch. Over them the search, the filter and the
+        // order, on one row (two in a narrow window).
         let (cw, ch, gap) = (380.0 * s, 88.0 * s, 10.0 * s);
         let room = (list.chars.len() as i32) < list.max_num_chars;
-        let count = list.chars.len() + 1;
-        let cols = (((w - 2.0 * pad - 20.0 * s + gap) / (cw + gap)).floor() as usize).clamp(1, 4).min(count.max(1));
+        let count = chars.len() + 1;
+        let fit = (((w - 2.0 * pad - 20.0 * s + gap) / (cw + gap)).floor() as usize).clamp(1, 4);
+        let cols = fit.min(count.max(1));
         let rows = count.div_ceil(cols);
         let total_w = cols as f32 * (cw + gap) - gap;
         let x0 = (w - total_w) / 2.0;
-        let area_top = bar[3] + 60.0 * s;
+        // the tools span the widest the cards can be, so they keep their place as the list narrows
+        let tools_w = fit.min(list.chars.len() + 1).max(1) as f32 * (cw + gap) - gap;
+        let tools_x = (w - tools_w) / 2.0;
+        let chip_s = (13.0 * s).round().max(9.0);
+        let filters = [(CharFilter::All, tr("chars::All")), (CharFilter::Maxed, "8/8"), (CharFilter::NotMaxed, tr("Not 8/8"))];
+        let chip_w = |ui: &mut Ui, t: &str| ui.measure(t, chip_s, true) + 22.0 * s;
+        let sort_label = tf!("Sort: {order}", order = self.char_sort.label());
+        let chips_w = filters.iter().map(|(_, t)| chip_w(ui, t) + 6.0 * s).sum::<f32>() + 12.0 * s + chip_w(ui, &sort_label);
+        let tool_h = 32.0 * s;
+        let two_rows = tools_w < chips_w + 200.0 * s;
+        let tools_h = if two_rows { 2.0 * tool_h + 8.0 * s } else { tool_h };
+        let area_top = bar[3] + 72.0 * s + tools_h;
         let area_h = (h - 120.0 * s - area_top).max(ch);
         let visible = (((area_h + gap) / (ch + gap)).floor() as usize).clamp(1, rows);
         self.chars_row = self.chars_row.min(rows - visible);
         let first = self.chars_row;
         let y0 = area_top.max(area_top + (area_h - visible as f32 * (ch + gap) + gap) / 2.0);
+        let tools_y = y0 - tools_h - 12.0 * s;
         let title = tr("Choose your character");
         let ts = (22.0 * s).round();
         let tw = ui.measure(title, ts, true);
-        ui.label(title, (w - tw) / 2.0, y0 - 40.0 * s, ts, true, color::TEXT);
+        ui.label(title, (w - tw) / 2.0, tools_y - 40.0 * s, ts, true, color::TEXT);
+        // the search at the left (typing goes to it), the filter and the order at the right
+        let search_w = if two_rows { tools_w } else { (tools_w - chips_w - 16.0 * s).clamp(160.0 * s, 300.0 * s) };
+        let sr = [tools_x, tools_y, search_w, tool_h];
+        self.field_text(ui, SEARCH, tr("Search characters"), sr, (14.0 * s).round().max(9.0), s, now);
+        let chips_y = if two_rows { tools_y + tool_h + 8.0 * s } else { tools_y };
+        let mut cx = if two_rows { tools_x } else { tools_x + tools_w - chips_w };
+        for (f, label) in filters {
+            let r = [cx, chips_y, chip_w(ui, label), tool_h];
+            self.chip(ui, Target::CharFilter(f), r, label, self.char_filter == f, chip_s, s, mouse);
+            cx += r[2] + 6.0 * s;
+        }
+        cx += 12.0 * s;
+        let r = [cx, chips_y, chip_w(ui, &sort_label), tool_h];
+        self.chip(ui, Target::CharSort, r, &sort_label, false, chip_s, s, mouse);
+        // how many a search or filter left, beside the search
+        if narrowed {
+            let t = if chars.is_empty() { tr("No characters match").to_owned() } else { tf!("{shown} of {all}", shown = chars.len(), all = list.chars.len()) };
+            let size = (12.0 * s).round().max(8.0);
+            let tw = ui.measure(&t, size, false);
+            let (lx, ly) = if two_rows { (tools_x + tools_w - tw, chips_y) } else { (sr[0] + sr[2] - tw - 10.0 * s, sr[1]) };
+            ui.label(&t, lx, ly + (tool_h - size * 1.22) / 2.0, size, false, if chars.is_empty() { color::DANGER } else { color::TEXT_MUTED });
+        }
         let shown = |i: usize| (first..first + visible).contains(&(i / cols));
         let cell = |i: usize| [x0 + (i % cols) as f32 * (cw + gap), y0 + (i / cols - first) as f32 * (ch + gap), cw, ch];
-        for (i, c) in list.chars.iter().enumerate().filter(|(i, _)| shown(*i)) {
+        for (i, c) in chars.iter().enumerate().filter(|(i, _)| shown(*i)) {
             let best = list.class_stats.get(&c.object_type).map_or(0, |cs| cs.1);
             self.char_card(ui, c, best, cell(i), s, mouse);
         }
@@ -933,7 +1120,7 @@ impl Front {
             let thumb_y = track[1] + (track[3] - thumb_h) * first as f32 / (rows - visible) as f32;
             theme::fill(ui.renderer, [track[0], thumb_y, track[2], thumb_h], 2.5 * s, color::ACCENT, 0.9);
         }
-        let last = list.chars.len();
+        let last = chars.len();
         if !room && shown(last) {
             let r = cell(last);
             let over = inside(r, mouse) && self.confirm.is_none();
@@ -1019,7 +1206,18 @@ impl Front {
         }
         let tx = well[0] + well[2] + 12.0 * s;
         let name = class.map_or(tr("Unknown"), |d| d.display_id.as_str());
-        ui.label(name, tx, r[1] + 9.0 * s, (18.0 * s).round(), true, color::TEXT);
+        let ns = (18.0 * s).round();
+        ui.label(name, tx, r[1] + 9.0 * s, ns, true, color::TEXT);
+        // how many of its 8 stats are at the maximum: a gold pill at 8/8
+        if let Some(n) = maxed_stats(ui.data, c) {
+            let t = format!("{n}/8");
+            let ps = (11.0 * s).round().max(8.0);
+            let pw = ui.measure(&t, ps, true) + 12.0 * s;
+            let pill = [tx + ui.measure(name, ns, true) + 8.0 * s, r[1] + 11.0 * s, pw, ps * 1.45];
+            let full = n == 8;
+            theme::fill(ui.renderer, pill, pill[3] / 2.0, if full { color::GOLD } else { color::CHIP }, if full { 0.95 } else { 1.0 });
+            ui.label(&t, pill[0] + 6.0 * s, pill[1] + (pill[3] - ps * 1.22) / 2.0, ps, true, if full { 0x2A1A08 } else { color::TEXT_DIM });
+        }
         let size = (13.0 * s).round();
         let mut x = tx;
         for (label, value, col) in [(tr("Level"), c.level, color::TEXT), (tr("Fame"), c.fame, color::ACCENT)] {
@@ -1039,7 +1237,7 @@ impl Front {
             if item > 0 {
                 ui.item_icon(item, 80, sr[0] + side / 2.0, sr[1] + side / 2.0, s * 0.64);
                 let imprints = bsk_data::imprint::parse(c.item_datas.get(k).map_or("", String::as_str));
-                crate::hud::draw_imprint_marks(ui, imprints, sr[0] + 3.0 * s, sr[1] + 3.0 * s, s * 0.8);
+                crate::hud::draw_imprint_marks(ui, imprints, sr, s);
             }
         }
         // The class quest it's working on (`makeTagline`): its fame of the next one's.
@@ -1366,7 +1564,7 @@ impl Front {
                                 if item > 0 {
                                     ui.item_icon(item, 80, sr[0] + side / 2.0, sr[1] + side / 2.0, s * 0.7);
                                     let imprints = bsk_data::imprint::parse(l.item_datas.get(k).map_or("", String::as_str));
-                                    crate::hud::draw_imprint_marks(ui, imprints, sr[0] + 3.0 * s, sr[1] + 3.0 * s, s * 0.8);
+                                    crate::hud::draw_imprint_marks(ui, imprints, sr, s);
                                 }
                             }
                             ui.label(&fame, r[0] + r[2] - fw - 14.0 * s, r[1] + (r[3] - fs * 1.22) / 2.0, fs, true, color::ACCENT);
@@ -1765,7 +1963,7 @@ impl Front {
                     if item > 0 {
                         ui.item_icon(item, 80, sr[0] + side / 2.0, sr[1] + side / 2.0, s * 0.72);
                         let imprints = bsk_data::imprint::parse(sum.item_datas.get(slot).map_or("", String::as_str));
-                        crate::hud::draw_imprint_marks(ui, imprints, sr[0] + 3.0 * s, sr[1] + 3.0 * s, s * 0.8);
+                        crate::hud::draw_imprint_marks(ui, imprints, sr, s);
                         if inside(sr, mouse) {
                             hovered = Some(item);
                         }
@@ -2144,6 +2342,52 @@ pub fn menu_click(buttons: &[(MenuChoice, [f32; 4])], pos: (f64, f64)) -> Option
 #[cfg(test)]
 mod tests {
     use super::*;
+
+    #[test]
+    fn character_search_filter_and_order() {
+        let mut data = bsk_data::GameData::default();
+        let class = |t: u32, id: &str| {
+            format!(r#"<Object type="0x{t:x}" id="{id}"><Class>Player</Class><Player/><MaxHitPoints max="700">100</MaxHitPoints>
+                <MaxMagicPoints max="300">100</MaxMagicPoints><Attack max="75">10</Attack><Defense max="25">0</Defense>
+                <Speed max="50">10</Speed><Dexterity max="75">10</Dexterity><HpRegen max="40">10</HpRegen>
+                <MpRegen max="60">10</MpRegen></Object>"#)
+        };
+        data.add_objects(&format!("<Objects>{}{}</Objects>", class(0x30e, "Wizard"), class(0x323, "Mystic"))).unwrap();
+        let maxed = [700, 300, 75, 25, 50, 75, 40, 60];
+        let char = |id: i32, t: u16, fame: i32, seen: i64, stats: [i32; 8]| CharSummary {
+            id, object_type: t, level: 20, dead: false, exp: 0, fame, equipment: vec![], item_datas: vec![], tex1: 0, tex2: 0,
+            skin: 0, stats, last_seen: seen,
+        };
+        let chars = vec![
+            char(1, 0x30e, 19, 100, [700, 300, 75, 25, 50, 75, 40, 59]),
+            char(2, 0x323, 3712, 300, maxed),
+            char(3, 0x323, 20, 200, [0; 8]),
+        ];
+        let ids = |v: Vec<&CharSummary>| v.iter().map(|c| c.id).collect::<Vec<_>>();
+        assert_eq!(maxed_stats(&data, &chars[0]), Some(7));
+        assert_eq!(maxed_stats(&data, &chars[1]), Some(8));
+        assert_eq!(maxed_stats(&data, &chars[2]), None, "an older server sends no stats");
+        assert_eq!(ids(shown_chars(&data, &chars, "", CharFilter::All, CharSort::Recent)), [2, 3, 1]);
+        assert_eq!(ids(shown_chars(&data, &chars, "  mYst ", CharFilter::All, CharSort::Fame)), [2, 3]);
+        assert_eq!(ids(shown_chars(&data, &chars, "", CharFilter::Maxed, CharSort::Recent)), [2]);
+        assert_eq!(ids(shown_chars(&data, &chars, "", CharFilter::NotMaxed, CharSort::Newest)), [3, 1]);
+        assert_eq!(ids(shown_chars(&data, &chars, "", CharFilter::All, CharSort::Maxed)), [2, 1, 3]);
+        assert_eq!(ids(shown_chars(&data, &chars, "", CharFilter::All, CharSort::Class)), [1, 2, 3]);
+        assert!(shown_chars(&data, &chars, "knight", CharFilter::All, CharSort::Recent).is_empty());
+
+        // on the list, typing goes to the search; Enter plays the first match, Escape clears it
+        let mut f = Front::default();
+        f.show(Screen::Chars);
+        f.key(KeyCode::KeyM, Some("m"), false, false);
+        assert_eq!(f.fields[SEARCH].text, "m");
+        f.chars_shown = vec![2, 3];
+        assert_eq!(f.key(KeyCode::Enter, None, false, false), Some(Action::Play(2)));
+        f.key(KeyCode::Escape, None, false, false);
+        assert_eq!((f.fields[SEARCH].text.as_str(), f.screen), ("", Screen::Chars));
+        assert_eq!(f.key(KeyCode::Enter, None, false, false), None, "Enter does nothing without a search");
+        f.key(KeyCode::Escape, None, false, false);
+        assert_eq!(f.screen, Screen::Home);
+    }
 
     #[test]
     fn typing_and_tab() {

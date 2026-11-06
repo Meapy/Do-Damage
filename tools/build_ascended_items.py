@@ -280,8 +280,9 @@ SHOTS = {name: [("Enthroned Radiance", {}), ("Enthroned Rift", RIFT_FLAGS)]
                       "Enthroned Dual Blades", "Enthroned Fists", "Enthroned Staff")}
 
 # The stats of an Ascended item where they aren't its source's: (stat, amount) in place of all of
-# them. The Ring of Grace: 200 health and magic, 10 of every other stat.
+# them. The Ring of Grace: 200 health and magic, 10 of every other stat; the Boots: 50 speed.
 STATS = {
+    "Enthroned Boots": [("22", 50)],
     "Enthroned Ring of Grace": [("0", 200), ("3", 200), ("20", 10), ("21", 10), ("22", 10), ("28", 10),
                                 ("26", 10), ("27", 10)],
 }

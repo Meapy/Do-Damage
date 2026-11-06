@@ -85,12 +85,12 @@ Rewards tab.
   loot, experience and quests. So do their melee hits, area hits and bleeds.
 - **Some pets help you** besides healing: Geb heals you over time for 2 seconds every 5, the
   Companion Priest for 2 seconds every 8, Limon makes you speedy for 2 seconds every 5, the Support
-  Bot armored for 2 seconds every 10, Horrific Creation makes you invulnerable for 1 second every
-  10, and Lil' Malphas, Lil' Cube and Skull Shrine give you +15 Vitality, Wisdom and Attack for 5
+  Bot armored for 2 seconds every 10 and the Nightmare for 2 seconds every 5, Horrific Creation
+  makes you invulnerable for 1 second every 10, and Lil' Malphas, Lil' Cube and Skull Shrine give you +15 Vitality, Wisdom and Attack for 5
   seconds of every 10.
 - **Some pets' hits do more**: they break armor (Bes, Cerberus Skull, Lil' Crystal Prisoner, Oni
-  Warlord), slow (Scootaloo, Lil' Forgotten King, Lil' Ent), weaken (the Kythal pets, Nightmare,
-  Abyssal Krakenling, Kitsune Spirit), paralyze for a moment (Nut, Lil' Medusa) or make enemies
+  Warlord), slow (Scootaloo, Lil' Forgotten King, Lil' Ent), paralyze for a moment (Nut, Lil'
+  Medusa) or make enemies
   **bleed**: damage every second for a few seconds, ignoring defense (Zenco, the Sharkman, the Grim
   Reaper, the Doomed Nature Beast, Ember Matriarch, Ember Wyrmling...). A new bleed from your pet
   starts the old one again rather than adding to it.
