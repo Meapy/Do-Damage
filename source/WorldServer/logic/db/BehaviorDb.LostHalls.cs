@@ -544,11 +544,15 @@ namespace WorldServer.logic
                         new Flash(0x4B0082, 1, 10),
                         new SetAltTexture(8),
                         new Spawn("LH Void Rift Spawner", 1, 1, 2000000000),
-                        // its last burst goes out just before it dies: fired on the tick it was
-                        // removed, the clients dropped the shots of an enemy already gone
-                        new Shoot(10, 45, 8, 16, angleOffset: 90, coolDownOffset: 7000, coolDown: 10000),
-                        new Shoot(10, 45, 8, 17, angleOffset: 90, coolDownOffset: 7000, coolDown: 10000),
-                        new Shoot(10, 30, 12, 18, angleOffset: 90, coolDownOffset: 7000, coolDown: 10000),
+                        // its rocks, pillars, cores and lasers go with it: some (Rock 11, the
+                        // cores) had nothing ending them and kept circling and shooting spirals
+                        new RemoveEntity(40, "LH Colossus Rock"),
+                        new RemoveEntity(40, "LH Colossus Pillar"),
+                        new RemoveEntity(40, "LH Marble Core"),
+                        new RemoveEntity(40, "LH Marble Colossus Laser"),
+                        new Shoot(10, 45, 8, 16, angleOffset: 90, coolDownOffset: 7400, coolDown: 200),
+                        new Shoot(10, 45, 8, 17, angleOffset: 90, coolDownOffset: 7400, coolDown: 200),
+                        new Shoot(10, 30, 12, 18, angleOffset: 90, coolDownOffset: 7400, coolDown: 200),
                         new Decay(7400)
                         )
                     ),

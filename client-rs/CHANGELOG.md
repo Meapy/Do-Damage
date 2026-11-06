@@ -37,8 +37,8 @@ details). Add to a group's line when a change adds to it, rather than adding ano
   Curse and Armor Broken still work on them.
 
 ### Lost Halls
-- The Marble Colossus's last burst of void shots as it dies now flies out and stays, instead of
-  vanishing with it.
+- When the Marble Colossus dies, its rocks, pillars and marble cores go with it, rather than
+  staying behind and filling the room with spirals.
 
 ### Items and imprints
 - Imprints show as a border round the item instead of small squares: one imprint's colour goes all
