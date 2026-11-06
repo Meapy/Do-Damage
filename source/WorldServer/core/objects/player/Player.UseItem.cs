@@ -40,6 +40,14 @@ namespace WorldServer.core.objects
             return new Position(X + dx * scale, Y + dy * scale);
         }
 
+        // In the Oryx chain's stages an ability moves a player (a teleport, a Samurai dash) only where
+        // they could walk: their gates hold the players back until a court or the trees are dead, and
+        // shut behind them when Oryx wakes, so jumping one would wake him early or join a fight that's
+        // sealed. Elsewhere a teleport may cross walls, as ever.
+        private bool CanAbilityMoveTo(Position target) =>
+            Client.Account.Admin || !OryxChain.IsStage(World) || World.Levels != null
+            || World.WalkReachable(X, Y, target.X, target.Y);
+
         public const int DEFAULT_USE = 0;
         public const int START_USE = 1;
         public const int END_USE = 2;
@@ -252,9 +260,17 @@ namespace WorldServer.core.objects
 
             // a Samurai cut whose dash would end in a wall isn't spent for nothing
             foreach (var eff in item.ActivateEffects)
-                if (eff.Effect == ActivateEffects.SamuraiAbility && SamuraiDest(pos) is var dest && !World.IsPassable(dest.X, dest.Y))
+                if (eff.Effect == ActivateEffects.SamuraiAbility && SamuraiDest(pos) is var dest
+                    && (!World.IsPassable(dest.X, dest.Y) || !CanAbilityMoveTo(dest)))
                 {
                     Refuse("You can't dash there.");
+                    return;
+                }
+            // nor a teleport (the Rogue's and Trickster's) past a gate that's still shut
+            foreach (var eff in item.ActivateEffects)
+                if (eff.Effect == ActivateEffects.Teleport && !CanAbilityMoveTo(pos))
+                {
+                    Refuse("You can't teleport there.");
                     return;
                 }
 

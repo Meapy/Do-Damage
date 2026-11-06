@@ -612,6 +612,18 @@ The remotes `upstream` (HaloCelsius) and `aurusenth` share no history with `main
     permanent StunImmune, ParalyzedImmune, PetrifiedImmune, StasisImmune, DazedImmune and
     SlowedImmune at creation (in code, as Oryx 4's XML is generated). Curse and Armor Broken
     still apply. None of their behaviours put those conditions on themselves.
+  - **No teleporting past the Oryx gates** (2026-11-06; `Player.CanAbilityMoveTo`,
+    `World.WalkReachable`): a Teleport ability (the Rogue's Planewalker cloaks, the Trickster's
+    prisms) went straight over O3's `O3 Wall Gate` and O5's `O5 Holy Gate`, which are
+    `OccupySquare` objects players walk round, so it reached their `PlayerWithinTransition` and woke
+    them before the court or the trees were dead, or got into a fight whose gates had shut. In an
+    Oryx chain stage (`OryxChain.IsStage`), a Teleport or a Samurai dash is now refused (before
+    the mana is spent) unless the target square can be walked to from the player's: a flood fill
+    over the map, side to side, through squares with walkable ground and no FullOccupy,
+    OccupySquare or EnemyOccupySquare object. Admins and worlds of stacked floors are left
+    alone; elsewhere a teleport still crosses walls. Checked on the maps (O3 and O5: the boss
+    unreachable from the spawn with the gates on, reachable with them off; Oryx 4 unaffected).
+    World server only.
   - **Imprint borders** (`hud::draw_imprint_marks`, now taking the slot's rectangle,
     `imprint_border`; `theme::split_ring`, `part_of`): the gold-edged squares became a rounded
     ring round the slot, gold, then a band of each imprint's colour, gold between them: 1 all

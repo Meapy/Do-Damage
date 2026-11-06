@@ -28,6 +28,11 @@ details). Add to a group's line when a change adds to it, rather than adding ano
   Elder Jungle and Max Wisdom from Elder Davy Jones are new. The Elder Snake Pit, Undead Lair and
   Sprite World bosses gave theirs nearly every kill; they're 5% now too.
 
+### Oryx
+- A Rogue's or Trickster's teleport (or a Samurai's dash) in the Oryx dungeons can no longer jump
+  a gate that's still shut, so Oryx 3 and Oryx 5 can't be woken early or joined once their gates
+  close: there, you can only teleport where you could walk.
+
 ### Options
 - A new Gameplay tab, with "Drink stat potions from loot bags": while it's on, the stat potions
   in a bag you stand on are drunk by themselves (a maxed stat's go to your potion storage).
