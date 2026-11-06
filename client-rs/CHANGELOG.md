@@ -20,6 +20,38 @@ details). Add to a group's line when a change adds to it, rather than adding ano
   tooltip now shows. Drawbacks, such as the Tome of Forbidden Knowledge's Curse, stay on the
   Priest.
 
+### Characters
+- The character list has a search: type a class (or skin) name to show only those characters,
+  and Enter plays the first one. Show all of them, only those with all 8 stats maxed or those
+  without, and sort them by recently played (now the first order), fame, stats maxed, class or
+  newest. Each character shows how many of its 8 stats are maxed, in gold at 8/8.
+
+### Controls and chat
+- Mouse buttons 4 and 5 can be bound to any action in Options, Controls, as keys can.
+- Options, Visuals has a Chat background slider, to make the dark box behind the chat lighter or
+  take it away.
+- A trade always closes when you change worlds, even when both of you take the same portal.
+
+### Oryx
+- Oryx 3, 4 and 5 can no longer be stunned, paralysed, petrified, put in stasis, dazed or slowed.
+  Curse and Armor Broken still work on them.
+
+### Items and imprints
+- Imprints show as a border round the item instead of small squares: one imprint's colour goes all
+  the way round, two share it half and half, three take the top halves and the bottom, four a
+  corner each, every one edged in gold. The Enchanter shows each imprint's price as a number and
+  the shard it's paid in, inside its row.
+- The Enthroned Boots give +50 Speed (was +18) and are forged from any ring and two Ascended
+  Accessory Shards (was a tier 8 ring and one shard).
+
+### Pets
+- No pet weakens enemies any more (the Kythal pets, the Nightmare, the Abyssal Krakenling and the
+  Kitsune Spirit). The Nightmare makes you Armored for 2 seconds every 5 instead.
+
+### Nexus and vault
+- The XP ducks on the Nexus pond drop Health and Magic Potions now and then.
+- The Daily Quest Portal is gone from the vault (the quest log, J, has the quests).
+
 ## 2.4.0 (2026-11-05)
 
 ### Pings

@@ -265,8 +265,11 @@ class Gear:
             if r.get("ascended") and r["ascended"]["any"]:
                 if not any_done:
                     kind, tier = r["ascended"]["any"]
-                    rows.append(("Divine Forge", "any tier %d %s + %s, %s fame" % (
-                        tier, h.esc(kind.lower()), h.esc(d.name(r["items"][1])), "{:,}".format(r["fame"]))))
+                    shards = len(r["items"]) - 1
+                    rows.append(("Divine Forge", "any %s%s + %s%s, %s fame" % (
+                        "" if tier is None else "tier %d " % tier, h.esc(kind.lower()),
+                        "%d &times; " % shards if shards > 1 else "", h.esc(d.name(r["items"][1])),
+                        "{:,}".format(r["fame"]))))
                     any_done = True
                 continue
             counts = {}

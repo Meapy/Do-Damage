@@ -60,6 +60,19 @@ namespace WorldServer.core.objects
 
         public bool Dead { get; protected set; }
 
+        // Oryx 3, 4 and 5 shrug off crowd control: nothing stops, freezes or slows them (Curse and
+        // Armor Broken still take hold)
+        private static readonly HashSet<string> EndgameBosses = new HashSet<string>
+        {
+            "Oryx the Mad God 3", "Oryx the Mad God 4", "Oryx the Ascended God"
+        };
+
+        private static readonly ConditionEffectIndex[] EndgameBossImmunities =
+        {
+            ConditionEffectIndex.StunImmune, ConditionEffectIndex.ParalyzedImmune, ConditionEffectIndex.PetrifiedImmune,
+            ConditionEffectIndex.StasisImmune, ConditionEffectIndex.DazedImmune, ConditionEffectIndex.SlowedImmune
+        };
+
         protected Entity(GameServer coreServerManager, ushort objType)
         {
             GameServer = coreServerManager;
@@ -93,6 +106,9 @@ namespace WorldServer.core.objects
                 ApplyPermanentConditionEffect(ConditionEffectIndex.StasisImmune);
             if (ObjectDesc.StunImmune)
                 ApplyPermanentConditionEffect(ConditionEffectIndex.StunImmune);
+            if (EndgameBosses.Contains(ObjectDesc.IdName))
+                foreach (var immunity in EndgameBossImmunities)
+                    ApplyPermanentConditionEffect(immunity);
 
             _name = new StatTypeValue<string>(this, StatDataType.Name, ObjectDesc.DisplayName);
             _size = new StatTypeValue<int>(this, StatDataType.Size, ObjectDesc.Size);

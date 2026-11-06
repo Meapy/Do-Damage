@@ -3111,7 +3111,7 @@
 		<ScaleValue>3</ScaleValue>
 		<InvUse />
 		<VaultItem />
-		<Activate objectId="Kythal the Necromancer" cooldown="10" petDps="250" petSize="Medium" petEffects="Weak on hit for 2s" petHp="30" petHpMs="2000" petMp="30" petMpMs="2000">PermaPet</Activate>
+		<Activate objectId="Kythal the Necromancer" cooldown="10" petDps="250" petSize="Medium" petHp="30" petHpMs="2000" petMp="30" petMpMs="2000">PermaPet</Activate>
 		<OldSound>use_potion</OldSound>
 		<Shop>
 			<Name>donorpets</Name>
@@ -4103,7 +4103,6 @@
 			<Damage>231</Damage>
 			<LifetimeMS>1800</LifetimeMS>
 			<MultiHit />
-			<ConditionEffect duration="2">Weak</ConditionEffect>
 		</Projectile>
 		<Size>40</Size>
 		<ShadowSize>150</ShadowSize>
@@ -4157,16 +4156,15 @@
 			<Index>0</Index>
 		</AnimatedTexture>
 		<NoMiniMap />
-		<Size>65</Size>
 		<Projectile id="0">
 			<ObjectId>Fire Bolt</ObjectId>
 			<Speed>67</Speed>
 			<Damage>500</Damage>
 			<Size>90</Size>
 			<LifetimeMS>2000</LifetimeMS>
-			<ConditionEffect duration="2">Weak</ConditionEffect>
 			<MultiHit />
 		</Projectile>
+		<Size>65</Size>
 	</Object>
 	<Object type="0xD0E3" id="Zombie Penguin">
 		<Class>Character</Class>
@@ -6107,7 +6105,7 @@
 		<ScaleValue>3</ScaleValue>
 		<InvUse />
 		<VaultItem />
-		<Activate objectId="Kythal the Skull" cooldown="10" petDps="250" petSize="Medium" petEffects="Weak on hit for 2s" petHp="30" petHpMs="2000" petMp="30" petMpMs="2000">PermaPet</Activate>
+		<Activate objectId="Kythal the Skull" cooldown="10" petDps="250" petSize="Medium" petHp="30" petHpMs="2000" petMp="30" petMpMs="2000">PermaPet</Activate>
 		<OldSound>use_potion</OldSound>
 		<Shop>
 			<Name>donorpets</Name>
@@ -6204,7 +6202,7 @@
 		<InvUse />
 		<VaultItem />
 		<ScaleValue>3</ScaleValue>
-		<Activate objectId="Nightmareee" cooldown="10" petDps="500" petSize="Large" petEffects="Weak on hit for 2s" petHp="45" petHpMs="1500" petMp="45" petMpMs="1500">PermaPet</Activate>
+		<Activate objectId="Nightmareee" cooldown="10" petDps="500" petSize="Large" petEffects="Armored on you for 2s every 5s" petHp="45" petHpMs="1500" petMp="45" petMpMs="1500">PermaPet</Activate>
 		<OldSound>use_potion</OldSound>
 	</Object>
 	<Object type="0xD148" id="Lil' Oryx 2">
@@ -6582,7 +6580,6 @@
 			<Damage>252</Damage>
 			<Speed>100</Speed>
 			<LifetimeMS>800</LifetimeMS>
-			<ConditionEffect duration="2">Weak</ConditionEffect>
 		</Projectile>
 		<Size>55</Size>
 		<ShadowSize>120</ShadowSize>

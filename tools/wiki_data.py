@@ -514,14 +514,20 @@ class Data:
         forge_src = _read(os.path.join(COMMANDS, "doomed", "ForgeRecipes.cs"))
         consts = dict(re.findall(r'(\w+Shard)\s*=\s*"([^"]+)"', forge_src))
         fame_m = re.search(r'AscendedFame\s*=\s*(\d+)', forge_src)
+        # (AnyTier: a tradeable item of any tier but an Ascended one; the shard as many times as it says)
         m = re.search(r'\bAscended\s*=\s*\{(.*?)\};', forge_src, re.S)
-        for res, kind, tier, slot, shard in re.findall(
-                r'\("([^"]+)",\s*ItemType\.(\w+),\s*(\d+),\s*(\d+),\s*(\w+)\)', m.group(1) if m else ""):
-            tier, slot = int(tier), int(slot)
+        for res, kind, tier, slot, shard, shards in re.findall(
+                r'\("([^"]+)",\s*ItemType\.(\w+),\s*(\d+|AnyTier),\s*(\d+),\s*(\w+)(?:,\s*(\d+))?\)',
+                m.group(1) if m else ""):
+            tier = None if tier == "AnyTier" else int(tier)
+            slot, shards = int(slot), int(shards or 1)
             forge_only.add(res)
             for oid, o in sorted(items.items(), key=lambda kv: kv[1]["type"]):
-                if o["tier"] == tier and (o["slot"] == slot if slot else loot["types"].get(o["slot"]) == kind):
-                    r = {"result": res, "fame": int(fame_m.group(1)), "advanced": False, "items": [oid, consts[shard]]}
+                if tier is None and any(self.elements[oid].find(t) is not None for t in ("Ascended", "Soulbound")):
+                    continue
+                if (tier is None or o["tier"] == tier) and (o["slot"] == slot if slot else loot["types"].get(o["slot"]) == kind):
+                    r = {"result": res, "fame": int(fame_m.group(1)), "advanced": False,
+                         "items": [oid] + [consts[shard]] * shards}
                     if res in self.elements and self.elements[res].find("Ascended") is not None:
                         r["ascended"] = {"any": (kind, tier) if slot == 0 else None}
                     recipes.append(r)

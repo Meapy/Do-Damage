@@ -89,27 +89,30 @@ namespace WorldServer.core.commands.doomed
         // (AscendedFrom) from the items named. All are named Enthroned, but for the T16 armours, each
         // from its slot's T15 armour. Not forged (the owner, 2026-11-05): the Enthroned Helm, for now,
         // and the Enthroned Ring of Wrath, the Ring of Grace now coming from his two gems instead.
-        // Result, the kind, tier and slot it's forged from, the shard.
+        // The Enthroned Boots come from any ring at all (AnyTier, never an Ascended one) and two
+        // shards (2026-11-06).
+        // Result, the kind, tier and slot it's forged from, the shard and how many of it.
         private const string WeaponShard = "Ascended Weapon Shard", AbilityShard = "Ascended Ability Shard",
             ArmorShard = "Ascended Armor Shard", AccessoryShard = "Ascended Accessory Shard";
         private const int AscendedFame = 1000;
-        private static readonly (string Result, ItemType Kind, int Tier, int Slot, string Shard)[] Ascended =
+        private const int AnyTier = -2;
+        private static readonly (string Result, ItemType Kind, int Tier, int Slot, string Shard, int Shards)[] Ascended =
         {
-            ("Enthroned Sword", ItemType.Weapon, 15, 1, WeaponShard),
-            ("Enthroned Dagger", ItemType.Weapon, 15, 2, WeaponShard),
-            ("Enthroned Bow", ItemType.Weapon, 15, 3, WeaponShard),
-            ("Enthroned Wand", ItemType.Weapon, 15, 8, WeaponShard),
-            ("Enthroned Katana", ItemType.Weapon, 15, 24, WeaponShard),
-            ("Enthroned Dual Blades", ItemType.Weapon, 15, 36, WeaponShard),
-            ("Enthroned Fists", ItemType.Weapon, 15, 200, WeaponShard),
-            ("Enthroned Staff", ItemType.Weapon, 15, 17, WeaponShard),
-            ("Enthroned Hide", ItemType.Armor, 16, 6, ArmorShard),
-            ("Enthroned Plate", ItemType.Armor, 16, 7, ArmorShard),
-            ("Enthroned Robe", ItemType.Armor, 16, 14, ArmorShard),
-            ("Enthroned Boots", ItemType.Ring, 8, 0, AccessoryShard),
-            ("Sphinx Leather Armor", ItemType.Armor, 15, 6, ArmorShard),
-            ("Armor of the Pyramid", ItemType.Armor, 15, 7, ArmorShard),
-            ("Robe of the Nile", ItemType.Armor, 15, 14, ArmorShard),
+            ("Enthroned Sword", ItemType.Weapon, 15, 1, WeaponShard, 1),
+            ("Enthroned Dagger", ItemType.Weapon, 15, 2, WeaponShard, 1),
+            ("Enthroned Bow", ItemType.Weapon, 15, 3, WeaponShard, 1),
+            ("Enthroned Wand", ItemType.Weapon, 15, 8, WeaponShard, 1),
+            ("Enthroned Katana", ItemType.Weapon, 15, 24, WeaponShard, 1),
+            ("Enthroned Dual Blades", ItemType.Weapon, 15, 36, WeaponShard, 1),
+            ("Enthroned Fists", ItemType.Weapon, 15, 200, WeaponShard, 1),
+            ("Enthroned Staff", ItemType.Weapon, 15, 17, WeaponShard, 1),
+            ("Enthroned Hide", ItemType.Armor, 16, 6, ArmorShard, 1),
+            ("Enthroned Plate", ItemType.Armor, 16, 7, ArmorShard, 1),
+            ("Enthroned Robe", ItemType.Armor, 16, 14, ArmorShard, 1),
+            ("Enthroned Boots", ItemType.Ring, AnyTier, 0, AccessoryShard, 2),
+            ("Sphinx Leather Armor", ItemType.Armor, 15, 6, ArmorShard, 1),
+            ("Armor of the Pyramid", ItemType.Armor, 15, 7, ArmorShard, 1),
+            ("Robe of the Nile", ItemType.Armor, 15, 14, ArmorShard, 1),
         };
         // Ascended items from the items named: result, the ingredients (a shard as many times as it
         // takes). The Ring of Grace from both of his Ascended gems and three Ascended Accessory Shards.
@@ -244,14 +247,15 @@ namespace WorldServer.core.commands.doomed
                     }
                 }
             }
-            foreach (var (result, kind, tier, slot, shard) in Ascended)
+            foreach (var (result, kind, tier, slot, shard, shards) in Ascended)
             {
                 var kinds = TierLoot.GetSlotTypes(kind);
-                var from = items.Values.Where(i => i.Tier == tier && (slot == 0 ? kinds.Contains(i.SlotType) : i.SlotType == slot))
+                var from = items.Values.Where(i => (tier == AnyTier ? !i.Ascended : i.Tier == tier)
+                        && (slot == 0 ? kinds.Contains(i.SlotType) : i.SlotType == slot))
                     .OrderBy(i => i.ObjectType);
                 foreach (var f in from)
                 {
-                    var r = (result, AscendedFame, false, new[] { f.ObjectId, shard });
+                    var r = (result, AscendedFame, false, new[] { f.ObjectId }.Concat(Enumerable.Repeat(shard, shards)).ToArray());
                     if (known.Add(Key(r)))
                         recipes.Add(r);
                 }

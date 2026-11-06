@@ -580,6 +580,72 @@ The remotes `upstream` (HaloCelsius) and `aurusenth` share no history with `main
 
 ## Changes from upstream
 
+- **The update of 6 November** (2026-11-06; the client and the servers ship together for the
+  character list's `<LastSeen>`, which an older client ignores and an older server leaves out):
+  - **Character list search, filter and order** (`screens.rs` `CharFilter`, `CharSort`,
+    `shown_chars`, `maxed_stats`, `search_matches`, the field `SEARCH`, `Front::chip`,
+    `field_text`; `bsk_net::account::CharSummary` `stats` and `last_seen`, `STAT_TAGS`; the
+    account server's `Character.LastSeen` in `App/XmlModels.cs`): `<Char>` now carries
+    `<LastSeen>` (Unix seconds from `DbChar.LastSeen`, saved at every character save, 0 when
+    never set). The list has a search field (always focused on that screen, so typing goes to it;
+    a class's or skin's display name, any part, any case; Enter plays the first match, Escape
+    clears it before leaving), filter chips (All, 8/8, Not 8/8: the character's own stats from
+    `<MaxHitPoints>`..`<MpRegen>` against its class's `max`es) and a sort chip that cycles Recently
+    played (the default, `last_seen` then newest), Most fame, Most stats maxed, Class, Newest. The
+    New character / Buy a slot card stays last; "N of M" or "No characters match" beside the search
+    while narrowed. Each card has an "N/8" pill after the class's name, gold at 8/8 (none from an
+    older server). The filter and order last the session.
+  - **Mouse buttons 4 and 5 bind as keys** (`options.rs` `MOUSE_KEYS`, `mouse_key`; `main.rs`
+    `App::key_input`, the old `KeyboardInput` arm moved into it unchanged): the side buttons are the
+    codes `BrowserBack` and `BrowserForward` (what the systems already make of them), listed in
+    `KEYS` so they save, labelled "Mouse 4" and "Mouse 5", and fed through the same path as a key
+    (windows, chat, the game's binds, held binds). A keyboard's own Back and Forward keys do the
+    same.
+  - **Chat background** (`Settings::chat_alpha`, `chatBackground=`, `Slider::ChatAlpha`;
+    `hud::draw_chat`): 0-100% of the chat box's usual darkness (0.32, 0.55 while typing or scrolled).
+  - **Trades close on a world change** (`Game::reconnect`): the server already ends a trade when a
+    player leaves a world (`World.RemoveFromWorld`), but its `TradeDone` went out while the client
+    was switching connections, so two players taking the same portal kept a dead trade window.
+    The client now drops the trade on every Reconnect.
+  - **Oryx 3, 4 and 5 shrug off crowd control** (`Entity.cs` `EndgameBosses`,
+    `EndgameBossImmunities`): Oryx the Mad God 3, Oryx the Mad God 4 and Oryx the Ascended God get
+    permanent StunImmune, ParalyzedImmune, PetrifiedImmune, StasisImmune, DazedImmune and
+    SlowedImmune at creation (in code, as Oryx 4's XML is generated). Curse and Armor Broken
+    still apply. None of their behaviours put those conditions on themselves.
+  - **Imprint borders** (`hud::draw_imprint_marks`, now taking the slot's rectangle,
+    `imprint_border`; `theme::split_ring`, `part_of`): the gold-edged squares became a rounded
+    ring round the slot, gold, then a band of each imprint's colour, gold between them: 1 all
+    round, 2 left and right, 3 the top's halves and the bottom, 4 the quarters (Offensive top left,
+    Defensive top right, Misc bottom left, Apotheosis bottom right). The ring's inner edge shares
+    the outer one's corner centres, so it follows the slot's rounding. Every caller (HUD, trade,
+    player cards, the character list, the Divine Workbench) passes the slot. The inventory's number
+    moved inside it.
+  - **Imprint prices** (`forge/imprints.rs` `draw_price`): the number in gold and the icon of the
+    colour's first shard, centred under the button inside the row (the "1 shard" text under it
+    spilled below short rows); alone in the button's place with nothing picked.
+  - **Enthroned Boots** (`ForgeRecipes.Ascended`, now with a shard count and `AnyTier`;
+    `build_ascended_items.STATS`; `wiki_data.forge_recipes`, `wiki_gear`, `build_wiki`
+    `gen_forge_ascended`; `Tests/ForgeRecipeTests.cs`): +50 Speed (was the Ring of Absolute
+    Speed's 18), forged from any tradeable ring but an Ascended one, and two Ascended Accessory
+    Shards, 1,000 fame. Boots already made have the new speed.
+  - **No pet weakens** (`port_doomed_pets.py` `PET_PROJECTILES`, `PET_KITS`, `PET_ABILITIES`, its
+    outputs regenerated): Weak on an enemy cuts its shots' damage (`Shoot.cs`), too strong on a pet.
+    Gone from the Kythal the Necromancer's big skull, Kythal the Skull's, the Nightmare's fire
+    bolts, the Abyssal Krakenling's nova (now damage only) and the Kitsune Spirit's boomerang. The
+    Nightmare (a Large pet) has `PetOwnerEffect(Armored, 2000, 5000)`, as Gebb's and Limon's
+    cadence.
+  - **XP ducks drop potions** (`BehaviorDb.Nexus.cs`): `NG XP Duck` has a behaviour now, an empty
+    state with Health Potion and Magic Potion at 25% each (soulbound bags for whoever shot it).
+  - **No Daily Quest Portal in the vault** (`tools/build_vault.py`, `Vault Garden.jm` rebuilt: only
+    that tile changed).
+  - The Priest's tomes item of the request was already done (Meapy's "Tomes buff the players
+    around the priest", below).
+  - **Looked into, not found:** buildings in the Nexus and the vault sometimes drawn "flattened"
+    (a reported screenshot: a house's whole 128 by 128 model texture as one flat block about
+    640 pixels wide). Ruled out: missing models (all load at startup, a failure stops it), type
+    clashes with model objects, items or shop stock with large textures, map-set merchandise
+    types, atlas eviction (there is none) and page batching. Not reproduced yet.
+
 - **Tomes buff the players around the priest** (2026-11-05; `Player.UseItem.cs`
   `TomeShareRange`, `ShareTomeCondition`, `ShareTomeStatBoost`; `tools/wiki_gear.py`): a tome's
   (slot type 4) `ConditionEffectSelf` and `StatBoostSelf` reached only the user, so the other

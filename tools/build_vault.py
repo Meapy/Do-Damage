@@ -9,9 +9,8 @@ matters: 60 `Vault` tiles (as many chests as any account can have) and 26 `Gifti
 In the Rust client blossom falls all over the vault (`petals::map_strength`).
 
 From the south up:
-- the spawn on a deck of pink-stained planks, the Glowing Portal of Cowardice back to the Nexus
-  and the Daily Quest Portal beside it, the Training Dummy east of the spawn (`DpsMeter`: in reach
-  of every weapon from the spawn);
+- the spawn on a deck of pink-stained planks, the Glowing Portal of Cowardice back to the Nexus,
+  the Training Dummy east of the spawn (`DpsMeter`: in reach of every weapon from the spawn);
 - a stone court with the Potion Storage, the Armoire, the Guild Chronicle and the Guild Hall
   Portal;
 - the gift chests in two bamboo-fenced yards of tatami either side of the path;
@@ -64,7 +63,6 @@ def build():
             g.ground(x, y, BEAM if edge else DECK, keep=True)
     g.put(sx, sy, region="Spawn")
     g.place(sx, sy + 3, "Glowing Portal of Cowardice")     # back up to the Nexus
-    g.place(sx - 4, sy + 2, "Daily Quest Portal")
     g.place(sx + 5, sy, "Training Dummy")
     for x in (sx - 6, sx + 6):
         g.place(x, sy - 3, LANTERN, slot=nx.ACCENT)
@@ -141,7 +139,7 @@ def check(g):
     tiles = [(x, y) for y in range(g.h) for x in range(g.w) if g[x, y]["region"] in ("Vault", "Gifting Chest")]
     npcs = gh.all_of(g, {"Potion Storage", "NG Armoire", "Guild Chronicle", "Guild Hall Portal", "Glowing Portal of Cowardice",
                          "Daily Quest Portal", "Training Dummy"})
-    assert len(npcs) == 7, npcs
+    assert len(npcs) == 6, npcs
     gh.reach(g, spawn, tiles + npcs)
 
 
