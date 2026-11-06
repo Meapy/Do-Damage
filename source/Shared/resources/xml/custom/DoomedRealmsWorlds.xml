@@ -140,6 +140,9 @@
 		<Height>128</Height>
 		<MapJM>Doomed/Elder Sprite World.jm</MapJM>
 		<VisibilityType>1</VisibilityType>
+		<RandomLayout corridor="2" passage="2">
+			<Goal>Elder Limon the Sprite God</Goal>
+		</RandomLayout>
 		<DisableTeleport/>
 		<Dungeon/>
 	</World>

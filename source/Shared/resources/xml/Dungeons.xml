@@ -397,6 +397,9 @@
 		<Width>256</Width>
 		<Height>256</Height>
 		<MapJM>Dungeons/Sprite World.jm</MapJM>
+		<RandomLayout passage="2" corridor="2">
+			<Goal>Limon the Sprite God</Goal>
+		</RandomLayout>
 		<Dungeon/>
 	</World>
 	<World id="Woodland Labyrinth">

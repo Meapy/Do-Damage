@@ -37,23 +37,20 @@ namespace WorldServer.logic.behaviors
                 for (var y = 0; y < dist; y++)
                 {
                     var tile = w.Map[x + pos.X, y + pos.Y];
+                    if (!tile.Exists)
+                        continue;
 
                     var r = Random.Next(targetType.Length);
+                    var changed = groundToChange == null;
                     if (groundToChange != null)
-                    {
                         foreach (string type in groundToChange)
-                        {
-                            if (tile.TileId == dat.IdToTileType[type])
-                            {
-                                tile.TileId = dat.IdToTileType[targetType[r]];
-                            }
-                        }
-                    }
-                    else
-                    {
-                        tile.TileId = dat.IdToTileType[targetType[r]];
-                    }
+                            changed |= tile.TileId == dat.IdToTileType[type];
+                    if (!changed)
+                        continue;
 
+                    var to = dat.IdToTileType[targetType[r]];
+                    tile.TileId = to;
+                    tile.TileDesc = dat.Tiles[to];
                     tile.UpdateCount++;
                 }
         }

@@ -90,6 +90,9 @@ namespace WorldServer.logic
                 new State(
                     // the regular dungeon leads to its Elder version half the time
                     new DropPortalOnDeath("Elder Sprite World Portal", elder ? 0 : 0.5, xAdjustment: 3),
+                    // he flies, so he can die over Space or on the conveyors: a still platform where he
+                    // died holds his loot, the realm portal and the Elder portal (3 tiles to the right)
+                    new ChangeGroundOnDeath(null, new[] { elder ? "Elder White Alpha Square" : "White Alpha Square" }, 7),
                     new ScaleHP2(20),
                     new State("start_the_fun",
                         new ConditionEffectBehavior(ConditionEffectIndex.Invulnerable),

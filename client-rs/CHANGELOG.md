@@ -18,6 +18,11 @@ details). Add to a group's line when a change adds to it, rather than adding ano
 - The shared vault chests are back in the Nexus, with everything that was left in them: wade
   north across the spawn's pond to the vault yard in front of the storehouse.
 
+### Dungeons
+- The Sprite World (and its Elder version) is laid out anew for every run, from its islands:
+  small, medium or large. When Limon dies, a still platform appears where he fell, so his loot
+  and portals are never out of reach over the void or on the moving floor.
+
 ## 2.4.1 (2026-11-06)
 
 ### Classes
