@@ -219,6 +219,7 @@ pub enum Toggle {
     Shots,
     Music,
     PingSounds,
+    AutoDrink,
 }
 
 /// What's shown in the world.
@@ -295,6 +296,9 @@ const GRAPHICS: [(Toggle, &str); 8] = [
     (Toggle::Fullscreen, mark("Borderless fullscreen (F11)")),
 ];
 
+/// How the game plays for you.
+const GAMEPLAY: [(Toggle, &str); 1] = [(Toggle::AutoDrink, mark("Drink stat potions from loot bags"))];
+
 const SOUNDS: [(Toggle, &str); 4] =
     [(Toggle::Sfx, mark("Sound effects")), (Toggle::Shots, mark("Weapon sounds")), (Toggle::Music, mark("Music")), (Toggle::PingSounds, mark("Ping sounds"))];
 
@@ -362,6 +366,8 @@ pub struct Settings {
     /// Whose pings show, and whether they make a sound.
     pub pings_from: PingsFrom,
     pub ping_sounds: bool,
+    /// The stat potions in a loot bag you stand on are drunk by themselves (`auto_drink` in main.rs).
+    pub auto_drink: bool,
     /// A crosshair at the mouse over the world, instead of the pointer.
     pub crosshair: bool,
     /// Its style, colour and size, and the player's own (the Crosshair tab).
@@ -436,6 +442,7 @@ impl Default for Settings {
             pet_shot_look: PetShots::Subtle,
             pings_from: PingsFrom::Everyone,
             ping_sounds: true,
+            auto_drink: false,
             crosshair: true,
             crosshair_look: Look::default(),
             player_alpha: 1.0,
@@ -513,6 +520,7 @@ impl Settings {
             Toggle::Shots => &mut self.sound.shots,
             Toggle::Music => &mut self.sound.music,
             Toggle::PingSounds => &mut self.ping_sounds,
+            Toggle::AutoDrink => &mut self.auto_drink,
         }
     }
 
@@ -552,6 +560,7 @@ impl Settings {
         flag("playPewPew", self.sound.shots);
         flag("playMusic", self.sound.music);
         flag("pingSounds", self.ping_sounds);
+        flag("autoDrinkPotions", self.auto_drink);
         out += &format!("masterVolume={}\nsfxVolume={}\nmusicVolume={}\n", self.sound.master_volume, self.sound.sfx_volume, self.sound.music_volume);
         out += &format!("worldZoom={}\n", self.zoom);
         out += &format!("chatSize={}\nchatBackground={}\n", self.chat_size, self.chat_alpha);
@@ -632,6 +641,7 @@ impl Settings {
                 "playPewPew" => s.sound.shots = on,
                 "playMusic" => s.sound.music = on,
                 "pingSounds" => s.ping_sounds = on,
+                "autoDrinkPotions" => s.auto_drink = on,
                 "pingsFrom" => s.pings_from = PingsFrom::from_name(value).unwrap_or_default(),
                 "masterVolume" => s.sound.master_volume = vol().unwrap_or(s.sound.master_volume),
                 "sfxVolume" => s.sound.sfx_volume = vol().unwrap_or(s.sound.sfx_volume),
@@ -682,6 +692,7 @@ impl Settings {
 pub enum Tab {
     #[default]
     Controls,
+    Gameplay,
     Graphics,
     Visuals,
     Crosshair,
@@ -852,11 +863,11 @@ impl OptionsUi {
         }
     }
 
-    /// `--options <tab>` (tests): the window open at that tab (`controls`, `graphics`,
-    /// `visuals`, `crosshair`, `sound`, `language`) from the start.
+    /// `--options <tab>` (tests): the window open at that tab (`controls`, `gameplay`,
+    /// `graphics`, `visuals`, `crosshair`, `sound`, `language`) from the start.
     pub fn opened_at(tab: Option<String>) -> Self {
         let mut ui = OptionsUi::default();
-        let tabs = [Tab::Controls, Tab::Graphics, Tab::Visuals, Tab::Crosshair, Tab::Sound, Tab::Language];
+        let tabs = [Tab::Controls, Tab::Gameplay, Tab::Graphics, Tab::Visuals, Tab::Crosshair, Tab::Sound, Tab::Language];
         if let Some(t) = tab.and_then(|name| tabs.into_iter().find(|t| format!("{t:?}").eq_ignore_ascii_case(&name))) {
             ui.tab = t;
             ui.show();
@@ -932,6 +943,11 @@ impl OptionsUi {
                 let d = Settings::default();
                 match self.tab {
                     Tab::Controls => settings.keys = d.keys,
+                    Tab::Gameplay => {
+                        for (t, _) in GAMEPLAY {
+                            *settings.toggle(t) = *d.clone().toggle(t);
+                        }
+                    }
                     Tab::Graphics => {
                         // The window stays as it is.
                         for (t, _) in GRAPHICS.into_iter().filter(|(t, _)| *t != Toggle::Fullscreen) {
@@ -1025,18 +1041,24 @@ impl OptionsUi {
         }
         let (w, h) = (lay.w, lay.h);
         let rows = BINDS.len().div_ceil(2) as f32;
-        let (dw, dh) = (620.0, 176.0 + rows * 30.0);
+        let title = tr("Options");
+        let tabs = [(Tab::Controls, tr("Controls")), (Tab::Gameplay, tr("Gameplay")), (Tab::Graphics, tr("Graphics")), (Tab::Visuals, tr("Visuals")), (Tab::Crosshair, tr("Crosshair")), (Tab::Sound, tr("Sound")), (Tab::Language, tr("Language"))];
+        // The tabs sit beside the title where they fit at a readable size (as the window is drawn
+        // at its full size), else on a row of their own under it, the window that much taller.
+        let beside = 620.0 - 44.0 - (ui.measure(title, 22.0, true) + 24.0).max(128.0) - 8.0 * (tabs.len() - 1) as f32;
+        let own_row = tabs.iter().map(|(_, l)| (ui.measure(l, 11.0, true) + 16.0).max(60.0)).sum::<f32>() > beside;
+        let below = if own_row { 40.0 } else { 0.0 };
+        let (dw, dh) = (620.0, 176.0 + rows * 30.0 + below);
         let s = (lay.s * (w * 0.94 / (dw * lay.s)).min(h * 0.94 / (dh * lay.s)).min(1.0)).max(0.4);
         ui.rect(0.0, 0.0, w, h, 0x000000, 0.45);
         let r = [((w - dw * s) / 2.0).round(), ((h - dh * s) / 2.0).round(), dw * s, dh * s];
         self.rect = Some(r);
         theme::panel(ui.renderer, r, s);
         let font = |size: f32| (size * s).round().max(9.0);
-        let title = tr("Options");
         ui.label(title, r[0] + 22.0 * s, r[1] + 16.0 * s, font(22.0), true, color::TEXT);
         // Tabs, as pills as wide as their names; smaller type if a language's names are long.
-        let tabs = [(Tab::Controls, tr("Controls")), (Tab::Graphics, tr("Graphics")), (Tab::Visuals, tr("Visuals")), (Tab::Crosshair, tr("Crosshair")), (Tab::Sound, tr("Sound")), (Tab::Language, tr("Language"))];
-        let start = (r[0] + 22.0 * s + ui.measure(title, font(22.0), true) + 24.0 * s).max(r[0] + 150.0 * s);
+        let start = if own_row { r[0] + 22.0 * s } else { (r[0] + 22.0 * s + ui.measure(title, font(22.0), true) + 24.0 * s).max(r[0] + 150.0 * s) };
+        let tabs_y = r[1] + (if own_row { 58.0 } else { 18.0 }) * s;
         let gap = 8.0 * s;
         let room = r[0] + r[2] - 22.0 * s - start - gap * (tabs.len() - 1) as f32;
         // Narrower pills first, then smaller type.
@@ -1054,7 +1076,7 @@ impl OptionsUi {
         }
         let mut x = start;
         for ((tab, label), tw) in tabs.into_iter().zip(ws) {
-            let tr = [x, r[1] + 18.0 * s, tw, 28.0 * s];
+            let tr = [x, tabs_y, tw, 28.0 * s];
             let on = tab == self.tab;
             let bg = if on { color::ACCENT } else if inside(tr, mouse) { color::SECONDARY } else { color::CHIP };
             theme::fill(ui.renderer, tr, tr[3] / 2.0, bg, 1.0);
@@ -1063,7 +1085,7 @@ impl OptionsUi {
             self.hits.push((Hit::Tab(tab), tr));
             x += tr[2] + gap;
         }
-        let body = [r[0] + 22.0 * s, r[1] + 66.0 * s, r[2] - 44.0 * s, r[3] - 130.0 * s];
+        let body = [r[0] + 22.0 * s, r[1] + (66.0 + below) * s, r[2] - 44.0 * s, r[3] - (130.0 + below) * s];
         match self.tab {
             Tab::Controls => {
                 let colw = (body[2] - 20.0 * s) / 2.0;
@@ -1113,8 +1135,9 @@ impl OptionsUi {
                 }
             }
             Tab::Crosshair => self.draw_crosshair_tab(ui, lay, body, s, settings, mouse),
-            Tab::Graphics | Tab::Visuals | Tab::Sound => {
+            Tab::Graphics | Tab::Visuals | Tab::Sound | Tab::Gameplay => {
                 let list: Vec<(Toggle, &str)> = match self.tab {
+                    Tab::Gameplay => GAMEPLAY.to_vec(),
                     Tab::Graphics => GRAPHICS
                         .into_iter()
                         .filter(|(t, _)| !cfg!(target_arch = "wasm32") || !matches!(t, Toggle::Fullscreen | Toggle::Hdr))
@@ -1153,6 +1176,7 @@ impl OptionsUi {
                     let fps = if settings.max_fps == 0 { tr("No limit").to_owned() } else { settings.max_fps.to_string() };
                     vec![(Slider::Zoom, tr("World zoom"), v, pct(settings.zoom)), (Slider::MaxFps, tr("Max frame rate"), fv, fps)]
                 };
+                let sliders = if self.tab == Tab::Gameplay { Vec::new() } else { sliders };
                 for (slider, label, v, value) in sliders {
                     ui.label_fit(label, body[0] + 10.0 * s, y + 4.0 * s, 186.0 * s, font(14.0), false, color::TEXT);
                     let track = [body[0] + 200.0 * s, y + 9.0 * s, body[2] - 280.0 * s, 8.0 * s];
@@ -1190,6 +1214,7 @@ impl OptionsUi {
         let hint = match self.tab {
             Tab::Controls => tr("Click a key, then press the new one. Backspace clears it."),
             Tab::Crosshair => tr("Pick a colour under the grid, then click or drag on it. Click a square of that colour to empty it."),
+            Tab::Gameplay => tr("Stat potions are drunk from the bag you stand on; a maxed stat's go to your potion storage."),
             _ => tr("Changes apply at once."),
         };
         ui.label_fit(hint, r[0] + 22.0 * s, r[1] + r[3] - 80.0 * s, r[2] - 44.0 * s, font(12.0), false, color::TEXT_MUTED);

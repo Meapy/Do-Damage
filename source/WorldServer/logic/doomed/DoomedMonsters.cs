@@ -3125,7 +3125,7 @@ namespace WorldServer.logic.doomed
                         Tuple.Create(0.1, (ILoot) new TierLoot(5, ItemType.Ability))
                         )),
                     Tuple.Create(100, new LootDef(1, 1, 1, 2,
-                        Tuple.Create(0.8, (ILoot)new ItemLoot("Potion of Max Dexterity")),
+                        Tuple.Create(0.05, (ILoot)new ItemLoot("Potion of Max Dexterity")),
                         Tuple.Create(0.05, (ILoot)new ItemLoot("Potion of Max Defense"))
                         ))));
 
@@ -4606,7 +4606,7 @@ namespace WorldServer.logic.doomed
                         Tuple.Create(0.001, (ILoot)new ItemLoot("Seal of the Fallen Angel")),
                         Tuple.Create(0.02, (ILoot)new ItemLoot("Soul Mask")),
                         Tuple.Create(0.0009, (ILoot)new ItemLoot("Soul Tipped Dirk")),
-                        Tuple.Create(1.0, (ILoot)new ItemLoot("Potion of Max Wisdom")),
+                        Tuple.Create(0.05, (ILoot)new ItemLoot("Potion of Max Wisdom")),
                         Tuple.Create(0.3, (ILoot) new TierLoot(3, ItemType.Ring)),
                         Tuple.Create(0.2, (ILoot) new TierLoot(4, ItemType.Ring)),
                         Tuple.Create(0.3, (ILoot) new TierLoot(7, ItemType.Weapon)),
@@ -4785,7 +4785,7 @@ namespace WorldServer.logic.doomed
                     },
             new LootBehavior(LootDef.Empty,
                     Tuple.Create(100, new LootDef(0, 2, 2, 8,
-                        Tuple.Create(1.0, (ILoot)new ItemLoot("Potion of Max Speed")),
+                        Tuple.Create(0.05, (ILoot)new ItemLoot("Potion of Max Speed")),
                         Tuple.Create(0.05, (ILoot) new ItemLoot("Snake Skin Armor")),
                         Tuple.Create(0.05, (ILoot) new ItemLoot("Snake Skin Shield")),
                         Tuple.Create(0.05, (ILoot) new ItemLoot("Snake Eye Ring")),

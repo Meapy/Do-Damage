@@ -68,7 +68,11 @@ LOOT_CHANGES = {
     "Turkey God": {"America Ring": None, "America Sword": None, "America Shield": None},
     # the swords pass: the T20 and Sword of Ghostly Power can't be found for now, the America Sword
     # is a reward; Soul Spawned Armor, a T20, is unobtainable
-    "Elder Septavius the Ghost God": {"Sword of Ghostly Power": None, "Soul Mask": 0.02, "Soul Spawned Armor": None},
+    "Elder Septavius the Ghost God": {"Sword of Ghostly Power": None, "Soul Mask": 0.02, "Soul Spawned Armor": None,
+                                      "Potion of Max Wisdom": 0.05},
+    # Potions of Max at 5%, as the other Elder bosses' (Doomed Realms gave one nearly every kill)
+    "Elder Stheno the Snake Queen": {"Potion of Max Speed": 0.05},
+    "Elder Limon the Sprite God": {"Potion of Max Dexterity": 0.05},
     # the abilities pass
     "Actual Greater Nature Sprite": {"Quiver of Thunder": 0.05},
     "Mad Gas Controller": {"Orb of Conflict": 0.02},

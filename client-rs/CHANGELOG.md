@@ -22,6 +22,16 @@ details). Add to a group's line when a change adds to it, rather than adding ano
 - The Sprite World (and its Elder version) is laid out anew for every run, from its islands:
   small, medium or large. When Limon dies, a still platform appears where he fell, so his loot
   and portals are never out of reach over the void or on the moving floor.
+- Elder dungeons: you can teleport to other players in every one of them now. Every Elder boss
+  can drop its dungeon's Potion of Max, at 5%: Max Attack from the Elder Pirate Cave, Max
+  Defense from the Elder Spider Den, Max Speed from the Elder Beach Zone, Max Dexterity from the
+  Elder Jungle and Max Wisdom from Elder Davy Jones are new. The Elder Snake Pit, Undead Lair and
+  Sprite World bosses gave theirs nearly every kill; they're 5% now too.
+
+### Options
+- A new Gameplay tab, with "Drink stat potions from loot bags": while it's on, the stat potions
+  in a bag you stand on are drunk by themselves (a maxed stat's go to your potion storage).
+  Potions of Max and of Oryx are left for you to keep. Off unless you turn it on.
 
 ## 2.4.1 (2026-11-06)
 

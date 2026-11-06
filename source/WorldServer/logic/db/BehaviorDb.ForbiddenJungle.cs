@@ -76,6 +76,7 @@ namespace WorldServer.logic
             string E(string id) => ElderDefines(id, elder);
             int Cd(int ms) => ElderCooldown(ms, elder);
             MobDrops Elder(string id) => ElderDrops(id, elder);
+            MobDrops ElderLoot(double threshold, params MobDrops[] drops) => new Threshold(threshold, elder ? drops : new MobDrops[0]);
 
             return db
             .Init(E("Mixcoatl the Masked God"),
@@ -111,7 +112,9 @@ namespace WorldServer.logic
                 new Threshold(0.01,
                     new ItemLoot("Potion of Dexterity", 1),
                     new ItemLoot("Mark of Mixcoatl", 0.02)
-                    ), Elder("Mixcoatl the Masked God"))
+                    ), Elder("Mixcoatl the Masked God"),
+                // the Elder dungeon's Potion of Max
+                ElderLoot(0.01, new ItemLoot("Potion of Max Dexterity", 0.05)))
             .Init(E("Boss Totem"),
                 new State(
                     new ConditionEffectBehavior(ConditionEffectIndex.Invincible, true),

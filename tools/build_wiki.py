@@ -720,12 +720,13 @@ class Gen:
                 continue
             boss, hp = self.boss(wid)
             loot = self.notable_loot(wid)
+            maxes = self.max_potions(wid)
             group = ("oryx" if wid in ORYX_CHAIN else "elder" if wid.startswith("Elder") or "Elder" in wid
                      else "doomed" if "DoomedRealms" in w["file"] else "realm")
             out.append({
                 "id": wid, "name": w["name"], "group": group, "sources": sources, "keys": keys,
                 "special": special, "unlock": unlock, "bot": on_bot,
-                "boss": boss, "hp": hp, "loot": loot, "random": w["random"],
+                "boss": boss, "hp": hp, "loot": loot, "max": maxes, "random": w["random"],
                 "level": self.level(hp),
             })
         out.sort(key=lambda x: (x["level"] or 99, x["hp"], x["name"]))
@@ -786,6 +787,17 @@ class Gen:
                     items.append((oid, chance))
         items.sort(key=lambda x: -(x[1] or 0))
         return items
+
+    def max_potions(self, wid):
+        """[(Potion of Max, chance)] the dungeon's bosses drop (the Elder dungeons')."""
+        out = []
+        boss = self.boss(wid)[0]
+        for b in ([boss] if boss else []) + self.bosses_of(wid):
+            for kind, oid, chance in self.d.drops(b):
+                if (kind == "item" and oid.startswith("Potion of Max ") and "Level" not in oid
+                        and oid not in [i for i, _ in out]):
+                    out.append((oid, chance))
+        return out
 
     def gen_dungeons(self, used):
         groups = [("realm", "Realm dungeons", "Opened by monsters in the realm, by keys, or by the Support Bot in the Nexus."),
@@ -850,13 +862,16 @@ class Gen:
             rows.append(("Boss", "%s, %s health" % (esc(who(d, x["boss"])), "{:,}".format(x["hp"]))))
         if x["loot"]:
             rows.append(("Notable loot", self.item_links([i for i, _ in x["loot"]], limit=8)))
+        if x["max"]:
+            rows.append(("Potion of Max", ", ".join("%s%s" % (self.item_links([i]), " (%s)" % pct(c) if c else "")
+                                                    for i, c in x["max"])))
         if x["random"]:
             rows.append(("Layout", "New every run"))
         lvl = x["level"]
         pips = ('<span class="danger" style="--d:%d" role="img" aria-label="Difficulty %d of 6: %s" title="%s"></span>'
                 % (lvl, lvl, DIFFICULTY_WORDS[lvl - 1], DIFFICULTY_WORDS[lvl - 1]) if lvl else "")
         search = " ".join([x["name"], d.name(x["boss"] or "")] + [d.name(m) for m, _ in x["sources"]]
-                          + [d.name(k) for k, _, _ in x["keys"]] + [d.name(i) for i, _ in x["loot"]])
+                          + [d.name(k) for k, _, _ in x["keys"]] + [d.name(i) for i, _ in x["loot"] + x["max"]])
         return ('<article class="dg" id="%s" data-search="%s"><header><h3>%s</h3>%s</header>'
                 '<dl>%s</dl></article>' % (ident, esc(search.lower()), esc(x["name"]), pips,
                                          "".join("<div><dt>%s</dt><dd>%s</dd></div>" % r for r in rows)))
