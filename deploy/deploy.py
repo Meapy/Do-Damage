@@ -435,7 +435,8 @@ def build(cfg, args):
         # WebSockets pass through reverse_proxy as they are. The website is the site's root. The
         # browser client is the gateway's page at /play/: it asks for play/api (beside its page)
         # and /ws (from the root), which both reach the gateway as /api and /ws. The website's
-        # server status asks /api too.
+        # server status asks /api too, and /realmdex/stats (players online, plain text, for RealmDex's
+        # server list) is the account server's realmdex/stats, through /api.
         #
         # The gateway runs in three slots (bsk-gateway@a/b/c); a deploy starts the new one and the
         # old one hands over, its /healthz turning 503. Caddy checks each slot's every second and
@@ -452,6 +453,7 @@ def build(cfg, args):
                  "%(site)s {\n"
                  "\tencode zstd gzip\n"
                  "\tredir /play /play/\n"
+                 "\trewrite /realmdex/stats /api/realmdex/stats\n"
                  "\t@gateway path /play/* /api/* /ws/*\n"
                  "\thandle @gateway {\n"
                  "\t\turi strip_prefix /play\n"
