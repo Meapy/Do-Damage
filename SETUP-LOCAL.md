@@ -826,7 +826,9 @@ The remotes `upstream` (HaloCelsius) and `aurusenth` share no history with `main
   `LOOT_CHANGES`, back to Doomed Realms' 1%), as every pet the realm drops was halved once the
   critters went in; the five on Doomed monsters (Herding Sheep, Mega Sheep, Evil
   Chicken, Turkey God, Birdman Chief) in `DoomedExtraLoot` (`Pet`, `Plus`), which the wiki reads
-  (`PET_LOOT`); the godland gods' Medium pets stay at 0.5%. `NEW_PETS` are betterSkillys'
+  (`PET_LOOT`); the godland gods' Medium pets stay at 0.5%. Since 2.4.3 (2026-11-07) every pet in
+  the lands' files (Shore to Mountain, the Beer God aside) and Realm2's drops at a quarter of
+  that: the critters 0.0375-0.125%, the gods' and quest monsters' 0.125%. `NEW_PETS` are betterSkillys'
   own (types 0x6c00 on, two each, in list order: only add to its end), written into both copies of
   Permapets between markers and given a follow in `BehaviorDb.DoomedPets.cs` by `write_new_pets`,
   each drawn as a monster (its texture and animation copied) with a kit of that monster's
