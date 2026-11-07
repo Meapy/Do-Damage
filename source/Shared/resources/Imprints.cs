@@ -75,7 +75,7 @@ namespace Shared.resources
         // the numbers the rules below use
         public const int WoundsBurst = 6000, BattleMageDefense = 20, GuardianAngelCost = 20;
         public const double WispChance = 0.02;
-        public const int WispCooldownMs = 8000;
+        public const int WispCooldownMs = 3000;
 
         public static readonly Imprint[] All =
         {
@@ -90,7 +90,7 @@ namespace Shared.resources
             new Imprint(UnboundWill, "Unbound Will", ImprintKind.Misc, "Each use of your ability: a 20% chance it costs no magic", Rings),
             new Imprint(Benediction, "Benediction", ImprintKind.Misc, "Each use of your ability blesses you for 4 seconds with one of Healing, Speedy, Berserk, Armored or Damaging, never one your ability gives", Rings),
             new Imprint(GuardianAngel, "Guardian Angel", ImprintKind.Misc, "Takes the ring's other imprints, and its stats become +20 maximum health and +1 to every other stat. A death that would end you sends you to the Nexus instead, and the ring is lost", Rings, null, GuardianAngelCost),
-            new Imprint(WispCaller, "Wisp Caller", ImprintKind.Misc, "Each shot: a 2% chance of each of three wisps circling you for 5 seconds, each back 8 seconds after it goes: green heals you, blue makes you Armored, red curses you and enemies near you", new[] { StaffSlot }),
+            new Imprint(WispCaller, "Wisp Caller", ImprintKind.Misc, "Each shot: a 2% chance of each of three wisps circling you for 5 seconds, each back 3 seconds after it goes: green heals you, blue makes you Armored, red curses you and enemies near you", new[] { StaffSlot }),
             new Imprint(GatheredShot, "Gathered Shot", ImprintKind.Misc, "The three arrows fly as one charged arrow doing all three's damage; 95% rate of fire", new[] { BowSlot }),
             new Imprint(BattleMage, "Battle Mage", ImprintKind.Misc, "Range 5, +20 defense. Two more bolts fly beside each shot at 60% of the rate of fire, for 450 damage that ignores defense", new[] { WandSlot }),
             new Imprint(Spearform, "Spearform", ImprintKind.Misc, "The sword reaches like a spear: range 8, 30% less damage", new[] { SwordSlot }),

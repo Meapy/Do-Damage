@@ -12,6 +12,24 @@ Keep each version short: changes go under `### ` group headings (Oryx 5, Arena, 
 on), one line per change players notice, summed up rather than item by item (the wiki has the
 details). Add to a group's line when a change adds to it, rather than adding another line.
 
+## 2.4.3 (2026-11-07)
+
+### Pets
+- Pets from realm and godland monsters drop a quarter as often as before. Realm events and
+  dungeons drop theirs as before.
+
+### Imprints
+- Wisp Caller's wisps come back 3 seconds after they go (was 8): each can circle you 5 seconds in
+  every 8.
+
+### Website
+- The website and wiki are easier to find on Google and other search engines, and links to them
+  show a preview picture when shared. The website's screenshots show the island Nexus and today's
+  character screen.
+- The home page is freshened up: the game in numbers under the Play buttons, its features as they
+  are today (pets, imprints and the Collection, the Divine Forge, community goals, languages), the
+  newest patch notes folded to a "Show all", more keys and more questions answered.
+
 ## 2.4.2 (2026-11-07)
 
 ### Nexus

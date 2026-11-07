@@ -407,7 +407,8 @@ def build(cfg, args):
     shutil.copytree(os.path.join(ROOT, "build", "client-rs", "web"), os.path.join(STAGE, "web"))
     build_gateway(cfg)
     run([sys.executable, os.path.join(ROOT, "tools", "build_site.py"),
-         "--name", cfg.get("site_name") or "Do Damage", "--out", os.path.join(STAGE, "site")])
+         "--name", cfg.get("site_name") or "Do Damage", "--url", "https://%s/" % cfg["site"],
+         "--out", os.path.join(STAGE, "site")])
 
     for name in ("world_proxy.py", "rolling_restart.py"):
         copy_lf(os.path.join(ROOT, "tools", name), os.path.join(STAGE, "tools", name))
@@ -636,7 +637,8 @@ def build_client_bundle(cfg):
     os.makedirs(STAGE)
     stage_releases(os.path.join(STAGE, "client"))
     run([sys.executable, os.path.join(ROOT, "tools", "build_site.py"),
-         "--name", cfg.get("site_name") or "Do Damage", "--out", os.path.join(STAGE, "site")])
+         "--name", cfg.get("site_name") or "Do Damage", "--url", "https://%s/" % cfg["site"],
+         "--out", os.path.join(STAGE, "site")])
     for name in ("install-client.sh", "add-releases.sh"):
         copy_lf(os.path.join(HERE, "remote", name), os.path.join(STAGE, "deploy", name))
 

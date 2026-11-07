@@ -193,6 +193,12 @@ traffic are encrypted (see "Encrypted connections" below). Older desktop clients
 - **Screenshots:** the gallery's pictures are in `website/screenshots/` (`<name>.webp` at 1600x900,
   `<name>-small.webp` at 640x360). Take new ones with the Rust client's `--shot` on an isolated
   stack, with `--credentials` and a test character renamed there, so no real login or player shows.
+- **Search engines:** `build_site.py --url` (the deploy passes `https://<site>/`) gives every
+  page a canonical link and `og:url`, and writes `sitemap.xml` (every page) and `robots.txt`
+  (`/api/` and `/downloads/` kept out). The home page has Open Graph tags with a screenshot and
+  JSON-LD naming the site (`WebSite`, with "dodmg" as another name) and the game (`VideoGame`).
+  Google lists the site faster once it's added in Google Search Console (a Domain property,
+  verified with a TXT record at Register365) and `https://dodmg.com/sitemap.xml` is submitted there.
 - **Deploying:** `deploy.py` builds it into the bundle on every deploy.
 - **Downloads:** the site offers the zips in `dist\` (`Do-Damage-<os>.zip`). Build them for
   the VPS first: `python tools\build_client_rs.py --account https://<site>/api --package`.
@@ -826,7 +832,9 @@ The remotes `upstream` (HaloCelsius) and `aurusenth` share no history with `main
   `LOOT_CHANGES`, back to Doomed Realms' 1%), as every pet the realm drops was halved once the
   critters went in; the five on Doomed monsters (Herding Sheep, Mega Sheep, Evil
   Chicken, Turkey God, Birdman Chief) in `DoomedExtraLoot` (`Pet`, `Plus`), which the wiki reads
-  (`PET_LOOT`); the godland gods' Medium pets stay at 0.5%. `NEW_PETS` are betterSkillys'
+  (`PET_LOOT`); the godland gods' Medium pets stay at 0.5%. Since 2.4.3 (2026-11-07) every pet in
+  the lands' files (Shore to Mountain, the Beer God aside) and Realm2's drops at a quarter of
+  that: the critters 0.0375-0.125%, the gods' and quest monsters' 0.125%. `NEW_PETS` are betterSkillys'
   own (types 0x6c00 on, two each, in list order: only add to its end), written into both copies of
   Permapets between markers and given a follow in `BehaviorDb.DoomedPets.cs` by `write_new_pets`,
   each drawn as a monster (its texture and animation copied) with a kit of that monster's
@@ -1744,6 +1752,8 @@ The remotes `upstream` (HaloCelsius) and `aurusenth` share no history with `main
   `Battle Mage Bolt`, shot beside the wand's) worked out the same on both sides (`ImprintShot`,
   `imprint::Shot`); hits, kills, wisps and Last Breath on the server. Keep the two catalogues in
   step; the wiki reads the server's.
+  Wisp Caller's wisps come back 3 s after they go (`Imprint.WispCooldownMs`, was 8 s from
+  2026-11-05 to 2026-11-07), so each can be up 5 s in every 8.
 - **Alternating projectiles** (`<AlternateProjectiles/>`, the Enthroned weapons): a weapon's volleys
   take its projectiles in turn. Client and server each count the weapon's volleys (the server every
   PlayerShoot of slot 0 with a new time, taken or not), and both roll the picked projectile's damage.

@@ -1,60 +1,53 @@
-Release 2.4.2. Deploys the world server and publishes the desktop client (new objects, the Elder sprite sheet and the Gameplay option); the website and wiki update too. Nobody is disconnected.
+Release 2.4.3. Deploys the world server and publishes the desktop client (the Wisp Caller tooltip); the website and wiki update too. Nobody is disconnected.
 
 ## For players
 
-- **Nexus:** the four shared vault chests are back, with everything that was left in them when they went in 2.3.9: wade north across the spawn's koi pond to the new vault yard, where they stand in a row in front of the storehouse.
-- **Community goals:** Strength in Numbers also counts the stat potions drunk (or maxed) from the potion storage, not only from the inventory.
-- **Dungeons:** the Sprite World and the Elder Sprite World are laid out anew every run from small, medium or large islands, and Limon leaves a still 7x7 platform where he dies, so his loot and portals are always in reach. Every Elder dungeon allows teleporting now, and every Elder boss can drop its dungeon's Potion of Max at 5% (Attack from the Elder Pirate Cave, Defense from the Elder Spider Den, Speed from the Elder Beach Zone, Dexterity from the Elder Jungle and Wisdom from Elder Davy Jones are new; Elder Septavius, Stheno and Limon drop theirs at 5% instead of nearly every kill). New: the Elder Ivory Wyvern, opened by the Elder Lair of Draconis's altar, by the Ivory Wyvern half the time and by an Elder Ivory Wyvern Key (from the Elder Lair's dragons and the Elder community goal): twice the health, +10 defence, harder hits and a third faster attacks, with Potions of Max Life and Mana, the Elder dragons' armours and bow, and T13/T14/T6 gear.
-- **Oryx:** a Rogue's or Trickster's teleport or a Samurai's dash in the Oryx dungeons can't jump a shut gate any more, so Oryx 3 and 5 can't be woken early or joined once sealed.
-- **Options:** a new Gameplay tab with "Drink stat potions from loot bags" (off by default): the plain stat potions in a bag you stand on are drunk by themselves, a maxed stat's go to potion storage, and Potions of Max and of Oryx are left alone.
+- **Pets:** the pets realm and godland monsters drop are four times rarer: the realm's critters 0.0375-0.125% a kill (were 0.15-0.5%), the gods' and quest monsters' pets 0.125% (were 0.5%), the Abyssal Kraken's, the Wyrm Matriarch's and the Sumo Master's Baby 0.25% (were 1%) and the Lucky Ent God's Leprechaun 0.625%. Realm events, dungeons and the minigames drop theirs as before.
+- **Imprints:** Wisp Caller's wisps come back 3 seconds after they go (was 8), so each wisp can circle you 5 seconds in every 8.
+- **Website:** dodmg.com and its wiki are easier for Google and other search engines to find ("dodmg", "RotMG private server"): a sitemap of every page, canonical addresses, and a preview picture when a link to the site is shared on Discord and elsewhere. The gallery's Nexus and character screen shots are new: the island Nexus (was the Halloween castle plaza) and the character list with its search and filters. The home page is freshened up: the game in numbers under the Play buttons (69 dungeons, 29 classes, 706 pieces of gear, 6 Oryx stages, 11 languages), feature tiles for what the game has now (pets, imprints and the Collection, the Divine Forge, community goals, languages and crosshairs), long patch notes folded under "Show all", the ping, loot-bag, quest-log and vault keys, and questions on getting started and languages.
 
 The wiki is updated with these changes.
 
 ## Details
 
-### Shared vault chests back in the Nexus
+### Realm and godland pet drops cut by 75%
 
-- **What:** a vault yard on the spawn island's north shore, across the pond from the spawn deck: the garden's storehouse (`NG Storehouse`) with the four shared vault chests in a row before it on a paved yard, bamboo fences at its sides, two stone lanterns, open to the pond (waded to, as the other shores). The north shore keeps the island symmetric (the south-east quarter is the south-west's mirror).
-- **Why:** the owner asked for the chests back after they were removed with the pond's bridges on 2026-11-05.
-- **Files:** `tools/build_nexus_islands.py` (`VAULT_YARD`, `VAULT_CHESTS`, placed in `lay_spawn`; `check` now requires all four chests with their names instead of none), regenerated `source/Shared/resources/worlds/Exalt/Nexus Islands 1.jm`; wiki (`getting-started.md`, `items.md`), `SETUP-LOCAL.md`, changelog.
-- **Data:** the chests carry their castle tiles as their names again (`build_nexus.CHESTS`: `61_70`, `79_70`, `61_74`, `79_74`), so `NexusWorld.LinkVaultChests` links them to the same `nexusChests` fields in Redis, and whatever was left in them comes back. Nothing is migrated.
-- **Deploy:** map only, picked up by the world server's rolling deploy; nobody is disconnected. No client or gateway change.
-- **Not done:** the contents on the VPS weren't looked at (the PC's copy of the data has the chests empty).
+Every pet generator in the lands' behaviours (`BehaviorDb.Shore.cs`, `Lowland.cs`, `Midland.cs`, `Highland.cs`, `Mountain.cs`) and in Realm2's (`BehaviorDb.Realm2.cs`, the `R2Mob` and `R2Quest` extras) drops at a quarter of its chance: 56 lines. Left as they were: the realm events (the Beer God in `Highland.cs`, and the events' own files: CubeGod, SkullShrine, Sphinx, Pentaract, LotLL, Hermit, RockDragon, GhostShip, Crystal, Cyclops, Woodland's Megamoth), the dungeons, and the pets in `DoomedExtraLoot` (Birdman Chief's Eagle, the minigames' sheep, chicken and turkey). The wiki reads the rates from the behaviours. World server only; no data in Redis changes.
 
-### Sprite World: random layouts, a still platform where Limon dies
+### Wisp Caller: wisps back after 3 seconds
 
-- **What:** the Sprite World and Elder Sprite World get a `<RandomLayout>` (passage and corridor 2, Limon's island the goal). Limon flies, so he could die over Space or on the conveyor floor; he now leaves a 7x7 platform of (Elder) White Alpha Square where he dies. `ChangeGroundOnDeath` skips squares off the map and sets each tile's description with its id.
-- **Files:** `Dungeons.xml`, `DoomedRealmsWorlds.xml`, `ChangeGroundOnDeath.cs`, `BehaviorDb.SpriteWorld.cs`, `SpriteWorldTests.cs`, `SETUP-LOCAL.md`, changelog.
-- **Deploy:** world server only.
+- **What:** `Imprint.WispCooldownMs` 8000 to 3000 (`source/Shared/resources/Imprints.cs`), read by `Player.Imprints.cs` `WispCaller`: a wisp that came can come again 5 s + 3 s later (it was 5 s + 8 s). The description says "each back 3 seconds after it goes" in both catalogues (`Imprints.cs` and the client's `crates/data/src/imprint.rs`); the wiki's Imprints page reads the server's. The 2% chance a shot is unchanged.
+- **Why:** the owner asked for 5 s on and 3 s off.
+- **Files:** `Imprints.cs`, `imprint.rs`, `SETUP-LOCAL.md`, changelog.
+- **Deploy:** world server (the timing) and the client (its tooltip's text; an older client shows "8 seconds" until it updates). Nobody is disconnected.
 
-### Elder dungeons: teleport, a Potion of Max from every boss; drink stat potions from loot bags
+### Website: search engines
 
-- **What:** every Elder dungeon allows teleporting (eight had `DisableTeleport` from Doomed Realms). Each Elder boss drops its dungeon's Potion of Max at 5%. Rust client: Options has a Gameplay tab with "Drink stat potions from loot bags" (off by default); the tabs take a row of their own when they don't fit beside the title. Translated into every table.
-- **Files:** `tools/port_doomed_monsters.py`, `tools/port_doomed_worlds.py` and their output (`DoomedMonsters.cs`, `DoomedRealmsWorlds.xml`), the Beach Zone, Davy Jones, Forbidden Jungle, Pirate Cave and Spider Den behaviours, `ElderDungeonsTests.cs`, `client-rs/app/src/main.rs`, `options.rs`, `app/lang/*.json`, `tools/build_wiki.py`, wiki guides.
-- **Deploy:** world server (drops, teleport) and the client (the setting).
+- **What:** `tools/build_site.py` has `--url` (default `https://dodmg.com/`, filling `{{URL}}`) and `for_search`, which adds `<link rel="canonical">` and `og:url` to every built page and writes `sitemap.xml` (91 pages: home, changelog, wiki and gear pages) and `robots.txt` (`/api/` and `/downloads/` disallowed, the sitemap named). The home page's title and description name "dodmg" and "RotMG private server", it has Open Graph and Twitter card tags with the Oryx screenshot, and JSON-LD for the site (`WebSite`, alternate names dodmg / DoDmg / dodmg.com) and the game (`VideoGame`). The tagline and footer say "RotMG" and "dodmg.com"; the wiki home's title and the changelog's description name it as a RotMG private server.
+- **Why:** searching "dodmg" or "rotmg private server" didn't find the site: it had no sitemap or robots.txt, the pages barely used the words people search for, and the site is only weeks old on its domain.
+- **Files:** `tools/build_site.py`, `tools/build_wiki.py` (wiki home title), `website/index.html`, `website/changelog.html`, `deploy/deploy.py` (passes `--url https://<site>/` to both site builds), `SETUP-LOCAL.md`, changelog.
+- **Deploy:** website only; nobody is disconnected.
+- **Owner to do:** the Search Console TXT record is in place at Register365 (2026-11-07; seen on 1.1.1.1, 8.8.8.8, 9.9.9.9 and Register365's own nameservers). Once this is live: Search Console, Sitemaps, submit `https://dodmg.com/sitemap.xml`, and request indexing of the home page; add the site to [Bing Webmaster Tools](https://www.bing.com/webmasters) (it can import from Search Console). Links from elsewhere (RotMG private server lists, r/RotMGPrivateServers, the GitHub repository's website field) are what move it up for "rotmg private server".
+- **Not done:** no lastmod dates in the sitemap (the build doesn't know when a page last changed); the browser client at `/play/` isn't in the sitemap.
 
-### Oryx 3 and 5: no teleporting past their shut gates
+### Website: new Nexus and character screen shots
 
-- **What:** a Teleport ability (Rogue, Trickster) or a Samurai dash in an Oryx chain stage is refused unless the target can be walked to.
-- **Files:** `Player.UseItem.cs`, `World.cs`, `SETUP-LOCAL.md`, changelog.
-- **Deploy:** world server only.
+- **What:** `website/screenshots/nexus*.webp` and `characters*.webp` retaken with the Rust client's `--shot` on an isolated stack (the test account "Tester", admin there only; its own `APPDATA` so the fps counter was off and no saved login was used): the island Nexus with an item tooltip, and the character list (v2.4.2). Alt text and the Nexus caption updated in `website/index.html`. The Oryx, Godlands, Cnidarian Reef and Fungal Cavern shots are kept: they still show those places, with the HUD as it was in October.
+- **Deploy:** website only.
+- **Seen while testing:** on the isolated stack, `/dungeon Wine Cellar` dropped the test client back to the Nexus ("Unexpected Error Occured" in the world server's log). Not looked into.
 
-### Strength in Numbers counts potions drunk from potion storage
+### Website: home page polish
 
-- **What:** drinking (or maxing) from the potion storage counts towards the community goals' potion event. Personal quests are unchanged.
-- **Files:** `UseStorageHandler.cs`, `community.json`, changelog.
-- **Deploy:** world server only.
-
-### The Elder Ivory Wyvern
-
-- **What:** a new Elder dungeon built from the regular map (Elder tiles, walls and braziers) and the regular Wyvern's behaviours, now one builder for both: twice the health, +10 defence, harder hits, a third faster attacks. The Elder Lair of Draconis's altar opens it instead of the Ivory Wyvern; the regular Wyvern drops its portal half the time. Loot: T13 weapon, T14 armour, T6 ability and ring, Potion of Max Life and Mana (5% each), the four Elder dragons' armours and bow (1.5% each), Elder Ivory Wyvern and Elder Draconis Keys (2%). Elder Ivory Wyvern Key (0x7c04, portal 0x7c03) drops from the Elder Lair's dragons (1%) and is in the Elder community goal's loot; not sold in the Bazaar.
-- **Files:** `tools/make_elder.py` (finds objects whatever their case), `tools/elder/types.json`, `tools/port_doomed_worlds.py` (`BS_ONLY_ELDER_WORLDS`), regenerated `ElderObjects.xml`, `ElderGrounds.xml`, `ElderAssets8x8.png`, `CustomObjects.xml`, `The Elder Ivory Wyvern.jm`; `BehaviorDb.Draconis.cs`, `BehaviorDb.Wyvern.cs`, `collection.json`, `community.json`, `tools/build_wiki.py`, `tools/wiki_data.py`, `website/wiki/dungeons.md`.
-- **Deploy:** world server and client together (new objects, Elder sprite sheet).
+- **What:** `website/index.html`: a row of figures under the hero's buttons (`{{DUNGEONS}}`, `{{CLASSES}}` and `{{GEAR}}`, counted by `build_wiki.build`, which now returns them and runs before the pages are filled in; gear counts only what players can get: tiered, untiered, Legendary, Ascended and Ethereal, 706 of the 1,214 items); the feature tiles rewritten for today's game (10 tiles; three new sprites in `site.js`: paw, gem, banner, globe); the Controls list gains middle mouse (pings), Shift (loot bags), J and K; the FAQ is two columns with two new questions (where to start, languages). `site.js` folds a release taller than 520 px on the home page under a fade with a "Show all" / "Show less" button (without JavaScript it shows in full). `style.css`: `.facts`, `.release.folded` and `.more`, the two-column `.faq`, and narrow-screen rules for them, the wide tiles and the keys.
+- **Files:** `website/index.html`, `website/site.js`, `website/style.css`, `tools/build_site.py`, `tools/build_wiki.py`, changelog.
+- **Deploy:** website only.
+- **Not done:** the four older gameplay screenshots keep the October HUD.
 
 ## Checks
 
-- Shared vault chests: `build_nexus_islands.py` builds and passes its checks; on an isolated stack (slot 2) the world server logged `Nexus: 4 vault chests`, and the Rust client walked from the spawn across the pond into the yard (`--walk-to`, `--shot`).
-- Sprite World: `SpriteWorldTests` (40 layouts each, Limon reachable; the platform ground walkable and still).
-- Elder dungeons: `ElderDungeonsTests` checks each boss's potion and the teleport; client tests (translations).
-- Elder Ivory Wyvern: `ElderDungeonsTests`, wiki built.
-- Release: client tests, `python tools\build_site.py` and the server builds run on the release branch before the pull request.
+- Realm and godland pet drops: `dotnet build source\WorldServer\WorldServer.csproj -o build\wscheck` (0 errors); `tools/build_wiki.py` into a scratch folder, the Pets page showing the new rates (Brown Pup from the Hobbit Rogue at 0.037%).
+- Website search engines: `tools/build_site.py --out <scratch>`: `robots.txt` and `sitemap.xml` written (91 URLs), canonical and `og:url` on the home, changelog, wiki and gear pages (`https://dodmg.com/wiki/classes/adept.html`), the home page's JSON-LD parses, no `{{...}}` left.
+- Website shots: built the site and looked at the gallery in a browser (new Nexus and character screen, the rest unchanged); the Nexus WebP is 253 KB (was 173 KB), the thumbnail 63 KB.
+- Home page polish: built the site and looked through every section in a browser at desktop width and at 375 px (no sideways scroll; the figures wrap to two rows), clicked Show all and Show less on the patch notes, and checked a wiki page still renders.
+- Wisp Caller: `dotnet build source\WorldServer\WorldServer.csproj` (0 errors), `cargo test -p bsk-data` (9 passed), the wiki's Imprints page built with "each back 3 seconds". Not tried in game.
+- Release 2.4.3: `cargo test --workspace` in client-rs (all passed), `dotnet build` of App and WorldServer (0 errors), `tools/build_site.py` (version 2.4.3, 50 releases).

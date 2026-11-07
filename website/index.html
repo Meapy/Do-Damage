@@ -3,11 +3,29 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>{{NAME}}: a Realm of the Mad God private server</title>
-  <meta name="description" content="{{NAME}} is a Realm of the Mad God private server. Play free in your browser, or download the desktop client.">
-  <meta property="og:title" content="{{NAME}}">
+  <title>{{NAME}} (dodmg): a RotMG private server, free in your browser</title>
+  <meta name="description" content="{{NAME}} (dodmg.com) is a Realm of the Mad God (RotMG) private server: play free in your browser or download the desktop client, with Oryx 3 and 5, Elder dungeons, pets, imprints and a full wiki.">
+  <meta property="og:type" content="website">
+  <meta property="og:site_name" content="{{NAME}}">
+  <meta property="og:title" content="{{NAME}}: a RotMG private server">
   <meta property="og:description" content="A Realm of the Mad God private server. Play free in your browser, or download the client.">
+  <meta property="og:image" content="{{URL}}screenshots/oryx.webp">
+  <meta property="og:image:width" content="1600">
+  <meta property="og:image:height" content="900">
+  <meta name="twitter:card" content="summary_large_image">
   <meta name="theme-color" content="#0c0915">
+  <!-- Names the site in Google's results, and tells it "dodmg" and "RotMG private server" mean this game -->
+  <script type="application/ld+json">
+  {"@context": "https://schema.org", "@graph": [
+    {"@type": "WebSite", "name": "{{NAME}}", "alternateName": ["dodmg", "DoDmg", "dodmg.com"], "url": "{{URL}}"},
+    {"@type": "VideoGame", "name": "{{NAME}}", "alternateName": "dodmg", "url": "{{URL}}",
+     "description": "A free Realm of the Mad God (RotMG) private server, played in the browser or with a desktop client.",
+     "genre": ["Bullet hell", "MMORPG"], "gamePlatform": ["Web browser", "Windows", "Linux", "macOS"],
+     "playMode": "MultiPlayer", "isAccessibleForFree": true, "image": "{{URL}}screenshots/oryx.webp",
+     "sameAs": ["https://discord.gg/FVhqJe8CG", "https://github.com/Meapy/Do-Damage"],
+     "offers": {"@type": "Offer", "price": "0", "priceCurrency": "USD"}}
+  ]}
+  </script>
   <link rel="icon" href="favicon.svg" type="image/svg+xml">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -37,12 +55,20 @@
       <div class="hero-copy">
         <p class="live" id="status"><span class="beacon"></span><span id="status-text">Looking for the realm…</span></p>
         <h1><span class="h-small">Enter</span> {{NAME}}</h1>
-        <p class="tagline">A Realm of the Mad God private server. Free to play, right here in your browser.</p>
+        <p class="tagline">A Realm of the Mad God (RotMG) private server. Free to play, right here in your browser.</p>
         <div class="cta">
           <a class="btn btn-ember" href="play/" id="play"><i class="sprite" data-sprite="sword" data-px="2"></i>Play in browser</a>
           <a class="btn btn-ghost" href="#get" id="download-main">Download the client</a>
         </div>
         <p class="fine" id="play-note">No install. Chrome, Edge, Firefox or Safari, with a keyboard and mouse.</p>
+        <!-- The game in numbers, counted from its data by tools/build_site.py -->
+        <ul class="facts" aria-label="The game in numbers">
+          <li><b>{{DUNGEONS}}</b> dungeons</li>
+          <li><b>{{CLASSES}}</b> classes</li>
+          <li><b>{{GEAR}}</b> pieces of gear</li>
+          <li><b>6</b> Oryx stages</li>
+          <li><b>11</b> languages</li>
+        </ul>
         <!-- Filled by site.js from api/app/status; stays hidden when that can't be read -->
         <p class="stats" id="stats" hidden>
           <span class="stat">Players <b id="stat-players">0</b></span>
@@ -92,14 +118,14 @@
         <li class="shot">
           <a href="screenshots/nexus.webp?v={{BUILD}}">
             <img src="screenshots/nexus-small.webp?v={{BUILD}}" width="640" height="360" loading="lazy" decoding="async"
-              alt="The Nexus at Halloween, a purple plaza with pumpkins, braziers and fountains, with an item tooltip open over the inventory.">
+              alt="The island Nexus from above: a wooden deck in a koi pond full of lily pads and frogs, ringed by stone lanterns, cherry trees and bridges, with an item tooltip open over the inventory.">
           </a>
-          <p class="cap"><strong>The Nexus</strong> Home between runs. Hover any item to see its stats.</p>
+          <p class="cap"><strong>The Nexus</strong> An island home between runs. Hover any item to see its stats.</p>
         </li>
         <li class="shot">
           <a href="screenshots/characters.webp?v={{BUILD}}">
             <img src="screenshots/characters-small.webp?v={{BUILD}}" width="640" height="360" loading="lazy" decoding="async"
-              alt="The character select screen: a Mechanic and a Wizard with their gear, over a night sky and a castle skyline.">
+              alt="The character select screen: a Wizard and a Mechanic with their gear, a search box and filters, over a night sky and a castle skyline.">
           </a>
           <p class="cap"><strong>Your characters</strong> Pick a class and head in.</p>
         </li>
@@ -133,27 +159,43 @@
       <div class="tiles">
         <article class="tile wide">
           <i class="sprite" data-sprite="portal" data-px="5"></i>
-          <div><h3>Dungeons that work</h3><p>Dozens of dungeons made playable again, random layouts, rebuilt Elder dungeons, and a Nexus Bazaar to spend your fame in.</p></div>
+          <div><h3>Dungeons that work</h3><p>{{DUNGEONS}} dungeons, made playable again: random layouts, Mystery Keys that open a surprise run, and tougher Elder versions whose bosses can drop a Potion of Max.</p></div>
         </article>
         <article class="tile">
           <i class="sprite" data-sprite="skull" data-px="4"></i>
-          <h3>Doomed Realms content</h3><p>Items, classes, dungeons and minigames from Doomed Realms, with item tiers that glow.</p>
+          <h3>Doomed Realms</h3><p>Classes, items, dungeons and minigames ported from Doomed Realms, with item tiers that glow.</p>
         </article>
         <article class="tile">
-          <i class="sprite" data-sprite="potion" data-px="4"></i>
-          <h3>Pets that fight</h3><p>Pets that shoot real projectiles, and generator tooltips that tell you their damage.</p>
+          <i class="sprite" data-sprite="paw" data-px="4"></i>
+          <h3>Pets that fight</h3><p>Every pet drops somewhere, from Tiny to Large, and fights beside you. Keep the rest in the pet pen.</p>
+        </article>
+        <article class="tile">
+          <i class="sprite" data-sprite="gem" data-px="4"></i>
+          <h3>Imprints and the Collection</h3><p>Imprint your best gear at the Enchanter, and fill the Collection with every piece of gear in the game.</p>
+        </article>
+        <article class="tile">
+          <i class="sprite" data-sprite="anvil" data-px="4"></i>
+          <h3>The Divine Forge</h3><p>Turn two of a tier into the next, forge Enthroned gear, and pick from hundreds of recipes.</p>
+        </article>
+        <article class="tile">
+          <i class="sprite" data-sprite="banner" data-px="4"></i>
+          <h3>Community goals</h3><p>Three goals a week for the whole server. Everyone who helps claims every tier reached, even offline.</p>
         </article>
         <article class="tile">
           <i class="sprite" data-sprite="chest" data-px="4"></i>
-          <h3>Trade and stash</h3><p>Trade, sell on the marketplace, and keep your best gear in your vault.</p>
+          <h3>Trade and stash</h3><p>Trade, sell on the marketplace, and keep your best gear in your vault and potion storage.</p>
         </article>
         <article class="tile">
           <i class="sprite" data-sprite="shield" data-px="4"></i>
-          <h3>Guilds and parties</h3><p>Run a guild, party up with friends, and chat in both.</p>
+          <h3>Guilds and parties</h3><p>Run a guild with its own hall, party up with friends, and ping danger and loot for them.</p>
+        </article>
+        <article class="tile">
+          <i class="sprite" data-sprite="globe" data-px="4"></i>
+          <h3>Your game, your way</h3><p>11 languages, your own crosshair, and every key rebindable, mouse buttons included.</p>
         </article>
         <article class="tile wide">
           <i class="sprite" data-sprite="bolt" data-px="5"></i>
-          <div><h3>Updates without kicks</h3><p>Server updates never disconnect you. You keep playing, dungeon runs included, and move to the new version at your next trip to the Nexus.</p></div>
+          <div><h3>Updates without kicks</h3><p>New content lands almost every day, and server updates never disconnect you: keep playing, dungeon runs included, and move to the new version at your next trip to the Nexus.</p></div>
         </article>
       </div>
     </section>
@@ -203,6 +245,9 @@
         <div><dt><kbd>F</kbd><kbd>V</kbd></dt><dd>Drink a health or magic potion</dd></div>
         <div><dt><kbd>0</kbd></dt><dd>Enter a portal, or talk to the NPC beside you</dd></div>
         <div><dt><kbd>R</kbd></dt><dd>Back to the Nexus</dd></div>
+        <div><dt><kbd>Middle mouse</kbd></dt><dd>Ping for your party and guild (hold it for the ping wheel)</dd></div>
+        <div><dt><kbd>Shift</kbd></dt><dd>Hold to see what's in the loot bags nearby</dd></div>
+        <div><dt><kbd>J</kbd><kbd>K</kbd></dt><dd>Quest log, and everything in your vault</dd></div>
         <div><dt><kbd>Enter</kbd></dt><dd>Chat (<kbd>Tab</kbd> whispers, <kbd>G</kbd> guild, <kbd>P</kbd> party)</dd></div>
         <div><dt><kbd>F11</kbd></dt><dd>Fullscreen</dd></div>
         <div><dt><kbd>Esc</kbd></dt><dd>Menu: characters, log out</dd></div>
@@ -224,11 +269,13 @@
         <a class="link-arrow" href="wiki/">New here? Read the wiki</a>
       </header>
       <div class="faq">
-        <details><summary>Is it free?</summary><p>Yes. There's nothing to buy.</p></details>
+        <details><summary>Is it free?</summary><p>Yes. There's nothing to buy, and new characters can take free starter gear with <code>/gear</code>.</p></details>
+        <details><summary>I'm new. Where do I start?</summary><p>Make a character, type <code>/gear</code> for starter gear, then <code>/realm</code> to go fight. The Support Bot in the Nexus helps along the way, and the <a href="wiki/getting-started.html">Getting started</a> guide explains the rest.</p></details>
         <details><summary>Can I play on my phone?</summary><p>Not really: the game needs a keyboard and mouse. Any computer with a recent browser works.</p></details>
         <details><summary>The browser version won't start.</summary><p>It needs WebGL 2. Update your browser and turn on hardware acceleration in its settings, or download the desktop client.</p></details>
         <details><summary>Are browser and desktop accounts the same?</summary><p>Yes. Sign in with the same name and password in either, and your characters, vault and fame are all there.</p></details>
         <details><summary>Is there a Discord?</summary><p>Yes: <a href="https://discord.gg/FVhqJe8CG">join it here</a>. Every update is posted there as soon as it's out, it shows whether the game is up, and #help is the quickest way to ask anything.</p></details>
+        <details><summary>Does it play in my language?</summary><p>The game speaks 11 languages: English, German, Spanish, French, Italian, Dutch, Polish, Brazilian Portuguese, Russian, Turkish and Ukrainian. It starts in your computer's language; change it in Options, under Language.</p></details>
         <details><summary>Windows warns about the download.</summary><p>The client isn't signed with a paid certificate, so SmartScreen may say it doesn't recognise it. Choose "More info", then "Run anyway".</p></details>
       </div>
     </section>
@@ -241,7 +288,7 @@
 
   <footer class="foot">
     <p><span class="mono">{{NAME}} {{VERSION}}</span> · <a href="play/">Play</a> · <a href="wiki/">Wiki</a> · <a href="changelog.html">Changelog</a> · <a href="https://discord.gg/FVhqJe8CG">Discord</a> · <a href="https://github.com/Meapy/Do-Damage">Source code</a></p>
-    <p class="dim">A fan-made private server, not affiliated with DECA Games or Kabam. Realm of the Mad God is a trademark of its owners.</p>
+    <p class="dim">{{NAME}} (dodmg.com) is a fan-made RotMG private server, not affiliated with DECA Games or Kabam. Realm of the Mad God is a trademark of its owners.</p>
   </footer>
 
   <script src="site.js?v={{BUILD}}"></script>
