@@ -261,8 +261,12 @@ and the old one keeps what doesn't need speed:
 - **Clients:** published releases have `https://play.dodmg.com/api` built in, so desktop players'
   game traffic never crosses the website machine. Older clients (built for dodmg.com) still work
   through its forwarding, slower, until they update at their next portal. Browser players follow
-  the website's Play links to `https://play.dodmg.com/play/` (a sign-in there once: a browser
-  keeps the login per site).
+  the website's Play links to `https://play.dodmg.com/play/`. A browser keeps saved data per
+  address, so the play page's first load there takes over what it kept for dodmg.com (the
+  `betterSkillys-rs.` keys: settings, remembered login): it loads dodmg.com's
+  `storage-handover.html` in a hidden frame (the same site, so it sees that storage), which posts
+  them to `https://play.<its host>` only (`client-rs/web/index.html`, `takeOver`). The old
+  settings replace any made there meanwhile; a login made there stays.
 - **Testing** is the admin-only world server on the website machine ("Testing (admin)", listed
   last; `wServer.json` written by deploy.py: `adminOnly`, `realmsKey` "realms:Testing",
   `sendPlayersTo` "play.dodmg.com:2051"). Anyone but an admin signing in there is sent on to

@@ -115,6 +115,8 @@ def for_search(out, url):
             address = html.escape(url + rel)
             with open(path, encoding="utf-8") as f:
                 text = f.read()
+            if 'name="robots" content="noindex"' in text:
+                continue  # not for search engines (storage-handover.html)
             if 'rel="canonical"' not in text:
                 tags = '  <link rel="canonical" href="%s">\n' % address
                 if 'property="og:url"' not in text:

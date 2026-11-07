@@ -96,9 +96,51 @@
       return new Response(counted, { headers: { "Content-Type": "application/wasm" } });
     }
 
+    // Browser play moved from dodmg.com/play to play.dodmg.com (2026-11-07), and browsers keep
+    // saved data per address. Once, before the game reads them, take over the settings and the
+    // remembered login kept for the old one: its storage-handover.html, in a hidden frame (the
+    // same site, so it sees that storage), posts them here. The old settings win over any made
+    // here meanwhile; a login or guest here stays. On another address (one without a parent
+    // domain, http) nothing happens.
+    async function takeOver() {
+      const PREFIX = "betterSkillys-rs.";
+      const DONE = PREFIX + "handover";
+      let store;
+      try { store = window.localStorage; } catch (e) { return; }
+      const parts = location.hostname.split(".");
+      const local = location.hostname.endsWith(".localhost"); // a test: play.bsk.localhost
+      if (!store || store.getItem(DONE) || (location.protocol !== "https:" && !local) || parts.length < 3) return;
+      const from = location.protocol + "//" + parts.slice(1).join(".") + (location.port ? ":" + location.port : "");
+      const frame = document.createElement("iframe");
+      const data = await new Promise((resolve) => {
+        const timer = setTimeout(() => finish(null), 3000);
+        function finish(d) {
+          clearTimeout(timer);
+          window.removeEventListener("message", heard);
+          frame.remove();
+          resolve(d);
+        }
+        function heard(e) {
+          if (e.origin === from && e.source === frame.contentWindow) finish(e.data);
+        }
+        window.addEventListener("message", heard);
+        frame.style.display = "none";
+        frame.src = from + "/storage-handover.html";
+        document.body.appendChild(frame);
+      });
+      if (!data || data.bskHandover !== 1 || typeof data.items !== "object") return; // try again next time
+      for (const [key, value] of Object.entries(data.items)) {
+        if (typeof value !== "string" || !key.startsWith(PREFIX)) continue;
+        if (key === PREFIX + "settings" || store.getItem(key) === null) store.setItem(key, value);
+      }
+      store.setItem(DONE, "1");
+    }
+
     try {
       show();
-      const wasm = await fetchWasm("./betterskillys_bg.wasm?v=BSK_BUILD");
+      const download = fetchWasm("./betterskillys_bg.wasm?v=BSK_BUILD");
+      try { await takeOver(); } catch (e) { console.warn("taking over the old settings:", e); }
+      const wasm = await download;
       await init({ module_or_path: wasm });
     } catch (err) {
       track.classList.remove("busy");
