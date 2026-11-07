@@ -21,7 +21,8 @@ details). Add to a group's line when a change adds to it, rather than adding ano
   and faster, with soul novas, Wailing Souls and soul storms of its own, and much better loot,
   including 19 new untiered items, one per Empowered boss, each with a power of its own (a
   cannonball every sixth hit, bursting venom, stored souls, a shell that eats a shot, a ring that
-  saves you once a minute, group buffs and more). The wiki's Dungeons guide has the details.
+  saves you once a minute, group buffs and more). The wiki has a page on it under Dungeons:
+  how raising works, and each boss's health, item and drops.
 
 ### Pets
 - Every pet drops half as often as before, from every monster, dungeon and event. The wiki

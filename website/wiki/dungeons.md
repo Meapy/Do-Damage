@@ -1,6 +1,7 @@
 ---
 title: Dungeons
 nav: 5
+group: Dungeons
 sprite: portal
 eyebrow: Where to go
 summary: Every dungeon you can get into, where its portal or key comes from, how hard it is and what it drops. Built from the game's data.
@@ -47,44 +48,15 @@ then alone. Half the time it leaves the portal to the **Elder Ivory Wyvern**: th
 twice the health, harder hits and faster attacks. The Elder Wyvern can drop a Potion of Max Life
 or Max Mana, better gear, an Elder Draconis or Elder Ivory Wyvern Key, and, rarely, any of the
 four Elder dragons' armours and bow. Elder Ivory Wyvern Keys also drop from the Elder Lair's
-dragons and come in the Elder community goal's chests.
+dragons and come in the Elder community ## Raising an Elder boss
 
-## Raising an Elder boss: the Necromantic Relic
+Every Elder dungeon's boss can be fought twice. When it falls it leaves its remains for a little
+while, and a **Necromantic Relic** used beside them raises it again in its **Empowered** form: a
+harder fight with better loot and an untiered item of its own. See
+[Raising an Elder boss: the Necromantic Relic](necromantic-relic.html) for how it works, and each
+boss's health, item and drops.
 
-Every Elder dungeon's boss can be fought twice. When it falls it leaves its **remains** where it
-died, lying on the ground with its souls swirling round it, for 75 seconds. That's every Elder
-boss: Dreadstump, Arachna, Mixcoatl, Stheno, Septavius, Limon, Malphas, Ruthven, the Masked Party
-God, Davy Jones, Thessal, Bes, Nut and Geb, the four Elder dragons and the Elder Ivory Wyvern.
-
-The souls want their master back. If anyone nearby carries a **Necromantic Relic**, the souls call
-them by name in the chat, one carrier after another, so the whole group knows who holds one. Stand
-within 3 tiles of the remains and use the relic (double-click it, or its number key): the souls
-gather into a skull of soul-fire over the body, strike down into it, and after three seconds the
-boss bursts back to life in its **Empowered** form. Used anywhere else, the relic stays in your
-inventory.
-
-An Empowered boss is the same fight, harder: a fifth bigger and glowing violet, two and a half
-times the health, 10 more defense, shots 30% stronger, and everything it does a quarter faster.
-The souls fight for it too: rings of soul bolts, Wailing Souls that hunt the players (up to six
-at once) and, below 60% health, a storm of fast, slowing bolts sweeping round it. Below 30% it's
-enraged: faster still, and it hits harder.
-
-Its loot is worth it: everything the Elder boss drops, at twice the chance for everyone, and then
-the Elder boss's own items rolled a second time at up to twice their chance, with its Potion of
-Max at four times its chance (a tenth at least, a quarter at most).
-
-Each Empowered boss also has an untiered item of its own (6% for each player who did at least 1%
-of the damage, before loot boosts): 19 in all, one for nearly every kind of gear, each stronger
-than the best of its kind and each with a power of its own. Dreadstump's Drowned Cutlass fires a
-cannonball every sixth hit, Widowfang's venom bursts on the fifth, the Phylactery of the Ghost God
-stores the souls of what you kill and spends them in its blast, the Ring of the Drowned Captain
-pulls you back from the brink once a minute, the Obsidian Wyrmplate shrugs off a whole shot every
-8 seconds, the Bulwark of Bes and the Tome of the Night Sky lift the whole group's defense and
-attack. The gear pages list them all with their powers.
-
-The relic is Ethereal: each Elder boss drops one to each player who did at least 2% of the damage,
-3% of the time. It can be traded, so a group can pass one to whoever should use it. An Empowered
-boss leaves no remains: it can only be raised once.
+resurrection}}
 
 ## The Lost Halls
 

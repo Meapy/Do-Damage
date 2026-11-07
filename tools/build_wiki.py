@@ -315,6 +315,22 @@ DIFFICULTY = [6000, 20000, 45000, 90000, 160000]
 DIFFICULTY_WORDS = ["Beginner", "Easy", "Medium", "Hard", "Very hard", "Endgame"]
 
 
+# what's particular about raising some Elder bosses (the Raising part of the Dungeons page)
+RAISE_DUNGEON_NOTES = {
+    "Lair of Elder Draconis": "Each of the four Elder dragons leaves its own remains in its lair, so it takes a relic for "
+                              "each: a group with four can raise them all. Like the Elder dragon, the Empowered one turns "
+                              "into a loot balloon when it falls. The balloon holds the Elder dragon's loot at its "
+                              "usual chances; the doubled chances and the second roll below come with the dragon "
+                              "itself.",
+    "Elder Tomb of the Ancients": "Bes, Nut and Geb each leave their own remains where they fall, and each needs a relic of "
+                                  "its own. An Empowered Tomb boss fights without the artifacts that circle the Elder one.",
+}
+RAISE_NOTES = {
+    "Elder lod Ivory Wyvern": "Like the Elder Wyvern, the Empowered one turns into the Ivory Wyvern's loot when it "
+                              "falls. That holds the Elder Wyvern's loot at its usual chances; the doubled chances and "
+                              "the second roll below come with the Wyvern itself.",
+}
+
 class Gen:
     """The generated sections, built once from the game's data."""
 
@@ -597,11 +613,24 @@ class Gen:
             **{"market_" + k: "{:,}".format(v) for k, v in wd.market_rules().items()},
             "crate_items": len(crate),
             "dungeon_count": len(self.dungeons()),
+            **self.resurrection_values(),
             # the pets players can get (the Pets page leaves out the rest)
             "pet_count": len([p for p in self.d.pets() if self.idx.get(p["item"]) or p["item"] in self.d.bazaar_pets()]),
             "pet_bazaar": len(self.d.bazaar_pets() & {p["item"] for p in self.d.pets()}),
             "summon_count": len([s for s in self.d.summons() if "Test" not in self.d.objects[s["item"]]["file"]]),
         }
+
+    def resurrection_values(self):
+        res = self.d.resurrection()
+        uts = [c for b in res["bosses"] for i, c in b["loot"] if i == b.get("item")]
+        return {"raise_bosses": len(res["bosses"]), "raise_seconds": res.get("corpseSeconds", 0),
+                "relic_chance": pct(res.get("relicChance")), "relic_threshold": pct(res.get("relicThreshold")),
+                "raise_item_chance": pct(max(uts)) if uts else "",
+                "raise_item_min": "%g" % min((b.get("itemStrength", 1) for b in res["bosses"]), default=1),
+                "raise_item_max": "%g" % max((b.get("itemStrength", 1) for b in res["bosses"]), default=1),
+                "raise_health": ("%g" % res.get("empowered", {}).get("HealthScale", 2.5)),
+                "raise_defense": "%d" % res.get("empowered", {}).get("DefenseBonus", 10),
+                "raise_souls": "%d" % res.get("empowered", {}).get("MaxSouls", 6)}
 
     def __call__(self, name, used):
         fn = getattr(self, "gen_" + name.replace("-", "_"), None)
@@ -876,6 +905,65 @@ class Gen:
         return ('<article class="dg" id="%s" data-search="%s"><header><h3>%s</h3>%s</header>'
                 '<dl>%s</dl></article>' % (ident, esc(search.lower()), esc(x["name"]), pips,
                                          "".join("<div><dt>%s</dt><dd>%s</dd></div>" % r for r in rows)))
+
+    # --- raising an Elder boss (tools/build_resurrection.py, resources/data/resurrection.json) ----
+    def gen_resurrection(self, used):
+        """One part per boss a Necromantic Relic raises: its Empowered form's health and soul
+        attacks, what's particular about raising it, its own item and what it drops."""
+        d = self.d
+        res = d.resurrection()
+        items = {it["id"]: it for it in self.equip.items}
+        cards = {x["id"]: x for x in self.dungeons()}
+        parts = []
+        for b in res["bosses"]:
+            dg = cards.get(b["dungeon"])
+            dname = dg["name"] if dg else b["dungeon"]
+            elder = who(d, b["boss"])
+            hp = d.boss_health(b["boss"])
+            emp = int(hp * res["empowered"].get("HealthScale", 2.5))
+            soul_hp = max(400, int(emp * 0.012))
+            rows = []
+            if dg:
+                rows.append(("Dungeon", '<a href="dungeons.html#d-%s">%s</a>' % (slugify(dg["id"]), esc(dname))))
+            rows.append(("Health", "<strong>%s</strong> (the Elder boss has %s), %+d defense; more in a group, as for the Elder boss"
+                         % ("{:,}".format(emp), "{:,}".format(hp), res["empowered"].get("DefenseBonus", 10))))
+            rows.append(("Soul attacks", "Soul Nova bolts hit for <strong>%d</strong>, the Soul Storm's for %d and slow you 2 s; "
+                         "Wailing Souls have %s health" % (b["soulDamage"], round(b["soulDamage"] * 0.7), "{:,}".format(soul_hp))))
+            for note in (RAISE_DUNGEON_NOTES.get(b["dungeon"]), RAISE_NOTES.get(b["boss"])):
+                if note:
+                    rows.append(("Raising it", note))
+            ut = items.get(b.get("item"))
+            if ut:
+                bits = ['<a href="%s">%s</a>' % (self.equip.href[ut["id"]], esc(ut["name"]))]
+                kind = self.equip.tag(ut)
+                if b.get("itemBase"):
+                    bits.append("%s, built on the %s at %s times its strength"
+                                % (esc(kind), self.item_links([b["itemBase"]]), ("%.2f" % b["itemStrength"]).rstrip("0").rstrip(".")))
+                eq = self.equip.on_equip(ut)
+                rows.append(("Its item", ": ".join([bits[0], ", ".join(bits[1:])]) if len(bits) > 1 else bits[0]))
+                if eq:
+                    rows.append(("On equip", esc(eq)))
+                for info in ut["el"].iter("EffectInfo"):
+                    name, what = (info.get("name") or "").strip(), (info.get("description") or "").strip()
+                    if name and what and ut["el"].find("RelicPower") is not None:
+                        rows.append(("Power", "<strong>%s</strong>: %s" % (esc(name), esc(what))))
+            own = [(i, c) for i, c in b["loot"] if i != b.get("item")]
+            ut_chance = next((c for i, c in b["loot"] if i == b.get("item")), None)
+            # (a cloth's name is a client string, {textiles.Large_Rainbow_Cloth}: its id reads better)
+            # and a pet's generator is named for its pet: "the Bes pet"
+            drops = ["%s%s (%s)" % (esc(i) if d.name(i).startswith("{") else self.item_links([i]),
+                                    " pet" if i.endswith(" Generator") else "", pct(c))
+                     for i, c in sorted(own, key=lambda x: -x[1])]
+            rows.append(("Drops", "Everything %s drops, then a second roll: %s%s" % (
+                esc(elder), ", ".join(drops) or "nothing more",
+                "; and its item, %s" % pct(ut_chance) if ut_chance else "")))
+            # a heading of its own for each boss, its facts in a card under it
+            ident = "raise-" + slugify(b["name"])
+            used.add(ident)
+            parts.append('<h3 id="%s"><a class="anchor" href="#%s" aria-hidden="true">#</a>Empowered %s</h3>'
+                         '<div class="dg raise"><dl>%s</dl></div>' % (
+                             ident, ident, esc(b["name"]), "".join("<div><dt>%s</dt><dd>%s</dd></div>" % r for r in rows)))
+        return "\n".join(parts)
 
     # --- the Oryx chain ----------------------------------------------------------------------
     def gen_oryx_chain(self, used):

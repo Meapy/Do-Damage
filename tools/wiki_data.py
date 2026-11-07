@@ -248,6 +248,11 @@ class Data:
         if not hasattr(self, "_resurrection"):
             path = os.path.join(ROOT, "source", "Shared", "resources", "data", "resurrection.json")
             self._resurrection = json.load(open(path, encoding="utf-8")) if os.path.exists(path) else {"bosses": []}
+            # the Empowered form's numbers (core/resurrection/Empowered.cs): HealthScale, DefenseBonus, MaxSouls
+            emp = os.path.join(ROOT, "source", "WorldServer", "core", "resurrection", "Empowered.cs")
+            text = open(emp, encoding="utf-8-sig").read() if os.path.exists(emp) else ""
+            self._resurrection["empowered"] = {k: float(v.rstrip("f")) for k, v in
+                                               re.findall(r"const (?:float|int) (\w+) = ([0-9.]+f?);", text)}
         return self._resurrection
 
     # TierLoot(5, ItemType.Weapon ...) or TierLoot(tier: 5, type: ItemType.Weapon ...)
