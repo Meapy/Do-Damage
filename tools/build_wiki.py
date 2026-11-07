@@ -1195,7 +1195,7 @@ def build(out_root, values=None):
             sub = "".join("<li>%s</li>" % item(s3, m3) for s3, m3 in kids) if here else ""
             nav.append('<li class="group%s">%s%s</li>' % (" open" if here else "", item(s2, m2, m2.get("group")),
                                                           '<ul class="sub">%s</ul>' % sub if sub else ""))
-        head_title = "{{NAME}} wiki" if url == "index.html" else title + ": {{NAME}} wiki"
+        head_title = "{{NAME}} wiki: a RotMG private server guide" if url == "index.html" else title + ": {{NAME}} wiki"
         page = TEMPLATE.format(head_title=head_title, title=title, summary=esc(summary), nav="".join(nav), toc=toc,
                                body=body, pager=pager, eyebrow=eyebrow, site=up + "../", wiki=up, home=up or "./")
         return re.sub(r"\{\{(\w+)\}\}", lambda m: values.get(m.group(1), m.group(0)), page)

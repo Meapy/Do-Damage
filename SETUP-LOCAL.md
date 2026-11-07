@@ -193,6 +193,12 @@ traffic are encrypted (see "Encrypted connections" below). Older desktop clients
 - **Screenshots:** the gallery's pictures are in `website/screenshots/` (`<name>.webp` at 1600x900,
   `<name>-small.webp` at 640x360). Take new ones with the Rust client's `--shot` on an isolated
   stack, with `--credentials` and a test character renamed there, so no real login or player shows.
+- **Search engines:** `build_site.py --url` (the deploy passes `https://<site>/`) gives every
+  page a canonical link and `og:url`, and writes `sitemap.xml` (every page) and `robots.txt`
+  (`/api/` and `/downloads/` kept out). The home page has Open Graph tags with a screenshot and
+  JSON-LD naming the site (`WebSite`, with "dodmg" as another name) and the game (`VideoGame`).
+  Google lists the site faster once it's added in Google Search Console (a Domain property,
+  verified with a TXT record at Register365) and `https://dodmg.com/sitemap.xml` is submitted there.
 - **Deploying:** `deploy.py` builds it into the bundle on every deploy.
 - **Downloads:** the site offers the zips in `dist\` (`Do-Damage-<os>.zip`). Build them for
   the VPS first: `python tools\build_client_rs.py --account https://<site>/api --package`.

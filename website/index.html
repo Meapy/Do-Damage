@@ -3,11 +3,29 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>{{NAME}}: a Realm of the Mad God private server</title>
-  <meta name="description" content="{{NAME}} is a Realm of the Mad God private server. Play free in your browser, or download the desktop client.">
-  <meta property="og:title" content="{{NAME}}">
+  <title>{{NAME}} (dodmg): a RotMG private server, free in your browser</title>
+  <meta name="description" content="{{NAME}} (dodmg.com) is a Realm of the Mad God (RotMG) private server: play free in your browser or download the desktop client, with Oryx 3 and 5, Elder dungeons, pets, imprints and a full wiki.">
+  <meta property="og:type" content="website">
+  <meta property="og:site_name" content="{{NAME}}">
+  <meta property="og:title" content="{{NAME}}: a RotMG private server">
   <meta property="og:description" content="A Realm of the Mad God private server. Play free in your browser, or download the client.">
+  <meta property="og:image" content="{{URL}}screenshots/oryx.webp">
+  <meta property="og:image:width" content="1600">
+  <meta property="og:image:height" content="900">
+  <meta name="twitter:card" content="summary_large_image">
   <meta name="theme-color" content="#0c0915">
+  <!-- Names the site in Google's results, and tells it "dodmg" and "RotMG private server" mean this game -->
+  <script type="application/ld+json">
+  {"@context": "https://schema.org", "@graph": [
+    {"@type": "WebSite", "name": "{{NAME}}", "alternateName": ["dodmg", "DoDmg", "dodmg.com"], "url": "{{URL}}"},
+    {"@type": "VideoGame", "name": "{{NAME}}", "alternateName": "dodmg", "url": "{{URL}}",
+     "description": "A free Realm of the Mad God (RotMG) private server, played in the browser or with a desktop client.",
+     "genre": ["Bullet hell", "MMORPG"], "gamePlatform": ["Web browser", "Windows", "Linux", "macOS"],
+     "playMode": "MultiPlayer", "isAccessibleForFree": true, "image": "{{URL}}screenshots/oryx.webp",
+     "sameAs": ["https://discord.gg/FVhqJe8CG", "https://github.com/Meapy/Do-Damage"],
+     "offers": {"@type": "Offer", "price": "0", "priceCurrency": "USD"}}
+  ]}
+  </script>
   <link rel="icon" href="favicon.svg" type="image/svg+xml">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -37,7 +55,7 @@
       <div class="hero-copy">
         <p class="live" id="status"><span class="beacon"></span><span id="status-text">Looking for the realm…</span></p>
         <h1><span class="h-small">Enter</span> {{NAME}}</h1>
-        <p class="tagline">A Realm of the Mad God private server. Free to play, right here in your browser.</p>
+        <p class="tagline">A Realm of the Mad God (RotMG) private server. Free to play, right here in your browser.</p>
         <div class="cta">
           <a class="btn btn-ember" href="play/" id="play"><i class="sprite" data-sprite="sword" data-px="2"></i>Play in browser</a>
           <a class="btn btn-ghost" href="#get" id="download-main">Download the client</a>
@@ -241,7 +259,7 @@
 
   <footer class="foot">
     <p><span class="mono">{{NAME}} {{VERSION}}</span> · <a href="play/">Play</a> · <a href="wiki/">Wiki</a> · <a href="changelog.html">Changelog</a> · <a href="https://discord.gg/FVhqJe8CG">Discord</a> · <a href="https://github.com/Meapy/Do-Damage">Source code</a></p>
-    <p class="dim">A fan-made private server, not affiliated with DECA Games or Kabam. Realm of the Mad God is a trademark of its owners.</p>
+    <p class="dim">{{NAME}} (dodmg.com) is a fan-made RotMG private server, not affiliated with DECA Games or Kabam. Realm of the Mad God is a trademark of its owners.</p>
   </footer>
 
   <script src="site.js?v={{BUILD}}"></script>

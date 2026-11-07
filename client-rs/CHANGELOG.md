@@ -18,6 +18,10 @@ details). Add to a group's line when a change adds to it, rather than adding ano
 - Pets from realm and godland monsters drop a quarter as often as before. Realm events and
   dungeons drop theirs as before.
 
+### Website
+- The website and wiki are easier to find on Google and other search engines, and links to them
+  show a preview picture when shared.
+
 ## 2.4.2 (2026-11-07)
 
 ### Nexus

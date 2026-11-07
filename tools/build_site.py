@@ -13,6 +13,8 @@ status, the downloads and the newest changes, the full changelog page and the wi
   Rust client's --shot on a test stack: <name>.webp at 1600x900 and <name>-small.webp at 640x360.
 - website/wiki/ is the wiki's guides, which tools/build_wiki.py builds into wiki/ with the
   sections it generates from the game's data (see its docstring).
+- For search engines: {{URL}} is the site's address (--url); every page gets a canonical link and
+  og:url to its address there, and sitemap.xml (every page) and robots.txt are written beside them.
 
 On the VPS, Caddy serves the result at the site's root, with the browser client at /play/ and the
 gateway's /api and /ws beside it (deploy/deploy.py writes the Caddyfile).
@@ -97,11 +99,46 @@ def downloads(out):
     return "\n".join(found)
 
 
+def for_search(out, url):
+    """Gives every page a canonical link and og:url to its public address, and writes sitemap.xml
+    and robots.txt. A folder's index.html is listed as the folder ("wiki/"), as it is linked."""
+    addresses = []
+    for folder, dirs, files in os.walk(out):
+        dirs.sort()
+        for name in sorted(files):
+            if not name.endswith(".html"):
+                continue
+            path = os.path.join(folder, name)
+            rel = os.path.relpath(path, out).replace(os.sep, "/")
+            rel = rel[:-len("index.html")] if rel == "index.html" or rel.endswith("/index.html") else rel
+            address = html.escape(url + rel)
+            with open(path, encoding="utf-8") as f:
+                text = f.read()
+            if 'rel="canonical"' not in text:
+                tags = '  <link rel="canonical" href="%s">\n' % address
+                if 'property="og:url"' not in text:
+                    tags += '  <meta property="og:url" content="%s">\n' % address
+                text = text.replace("</head>", tags + "</head>", 1)
+                with open(path, "w", encoding="utf-8", newline="\n") as f:
+                    f.write(text)
+            addresses.append((rel.count("/"), rel, address))
+    addresses.sort()
+    with open(os.path.join(out, "sitemap.xml"), "w", encoding="utf-8", newline="\n") as f:
+        f.write('<?xml version="1.0" encoding="UTF-8"?>\n'
+                '<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n%s</urlset>\n'
+                % "".join("  <url><loc>%s</loc></url>\n" % a for _, _, a in addresses))
+    with open(os.path.join(out, "robots.txt"), "w", encoding="utf-8", newline="\n") as f:
+        f.write("User-agent: *\nDisallow: /api/\nDisallow: /downloads/\n\nSitemap: %ssitemap.xml\n" % url)
+    return len(addresses)
+
+
 def main():
     ap = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
     ap.add_argument("--name", default="Do Damage", help="the game's name on the site")
     ap.add_argument("--out", default=os.path.join(ROOT, "build", "site"))
+    ap.add_argument("--url", default="https://dodmg.com/", help="the site's public address, for search engines")
     args = ap.parse_args()
+    url = args.url.rstrip("/") + "/"
 
     out = os.path.abspath(args.out)
     if os.path.isdir(out):
@@ -124,6 +161,7 @@ def main():
     h.update(version.encode())
     values = {
         "NAME": html.escape(args.name),
+        "URL": html.escape(url),
         "VERSION": version,
         "BUILD": h.hexdigest()[:10],
         "DOWNLOADS": dl,
@@ -145,6 +183,8 @@ def main():
         else:
             shutil.copy2(src, os.path.join(out, name))
     build_wiki.build(out, values)
+    pages = for_search(out, url)
+    print("seo: %d pages in sitemap.xml" % pages)
     print("site: %s (version %s, %d releases)" % (os.path.relpath(out, ROOT), version, len(rel)))
 
 
