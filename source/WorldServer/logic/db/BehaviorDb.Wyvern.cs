@@ -11,12 +11,27 @@ namespace WorldServer.logic
 {
     partial class BehaviorDb
     {
-        private _ Wyvern = () => Behav()
-            .Init("lod Ivory Wyvern",
+        private _ Wyvern = () => WyvernBehaviours(Behav(), false);
+        private _ ElderWyvern = () => WyvernBehaviours(Behav(), true);
+
+        // The Ivory Wyvern and its Elder version (BehaviorDb.Elder.cs), which the Elder Lair of
+        // Draconis's altar opens and the Ivory Wyvern leads to half the time. The Elder Wyvern
+        // attacks a third more often and can drop what the Elder lair's four dragons drop.
+        private static Ctor WyvernBehaviours(Ctor db, bool elder)
+        {
+            string N(string id) => ElderOr(id, elder);
+            string E(string id) => ElderDefines(id, elder);
+            int Cd(int ms) => ElderCooldown(ms, elder);
+            MobDrops ElderLoot(double threshold, params MobDrops[] drops) => new Threshold(threshold, elder ? drops : new MobDrops[0]);
+
+            return db
+            .Init(E("lod Ivory Wyvern"),
                 new State(
                     new ScaleHP2(15),
                     new HpLessTransition(0.05, "45"),
-                    new TransformOnDeath("lod Ivory Loot"),
+                    new TransformOnDeath(N("lod Ivory Loot")),
+                    // the regular Wyvern leads to the Elder one half the time
+                    new DropPortalOnDeath("Elder Ivory Wyvern Portal", elder ? 0 : 0.5, xAdjustment: 3, timeout: 120),
                     new State("1",
                         new ConditionEffectBehavior(ConditionEffectIndex.Invincible, true),
                         new PlayerWithinTransition(5, "2", true)
@@ -31,10 +46,10 @@ namespace WorldServer.logic
                     ),
                     new State("4",
                         new Taunt(true, "Behold the glory of my true powers..."),
-                        new TossObject("lod Mirror Wyvern1", 4, 180, coolDown: 10000),
-                        new TossObject("lod Mirror Wyvern2", 8, 180, coolDown: 10000),
-                        new TossObject("lod Mirror Wyvern3", 4, 0, coolDown: 10000),
-                        new TossObject("lod Mirror Wyvern4", 8, 0, coolDown: 10000),
+                        new TossObject(N("lod Mirror Wyvern1"), 4, 180, coolDown: Cd(10000)),
+                        new TossObject(N("lod Mirror Wyvern2"), 8, 180, coolDown: Cd(10000)),
+                        new TossObject(N("lod Mirror Wyvern3"), 4, 0, coolDown: Cd(10000)),
+                        new TossObject(N("lod Mirror Wyvern4"), 8, 0, coolDown: Cd(10000)),
                         new TimedTransition(500, "5")
                     ),
                     new State("5",
@@ -50,7 +65,7 @@ namespace WorldServer.logic
                             new TimedTransition(2000, "8")
                         ),
                         new State("8",
-                            new Shoot(20, 1, projectileIndex: 0, coolDown: 200),
+                            new Shoot(20, 1, projectileIndex: 0, coolDown: Cd(200)),
                             new TimedTransition(1600, "9")
                         ),
                         new State("9",
@@ -59,7 +74,7 @@ namespace WorldServer.logic
                             new TimedTransition(2000, "10")
                         ),
                         new State("10",
-                            new Shoot(20, 1, projectileIndex: 0, coolDown: 200),
+                            new Shoot(20, 1, projectileIndex: 0, coolDown: Cd(200)),
                             new TimedTransition(1600, "11")
                         ),
                         new State("11",
@@ -68,7 +83,7 @@ namespace WorldServer.logic
                             new TimedTransition(2000, "12")
                         ),
                         new State("12",
-                            new Shoot(20, 1, projectileIndex: 0, coolDown: 200),
+                            new Shoot(20, 1, projectileIndex: 0, coolDown: Cd(200)),
                             new TimedTransition(1600, "13")
                         ),
                         new State("13",
@@ -77,7 +92,7 @@ namespace WorldServer.logic
                             new TimedTransition(2000, "14")
                         ),
                         new State("14",
-                            new Shoot(20, 1, projectileIndex: 0, coolDown: 200),
+                            new Shoot(20, 1, projectileIndex: 0, coolDown: Cd(200)),
                             new TimedTransition(1600, "15")
                         ),
                         new State("15",
@@ -86,7 +101,7 @@ namespace WorldServer.logic
                             new TimedTransition(2000, "16")
                         ),
                         new State("16",
-                            new Shoot(20, 1, projectileIndex: 0, coolDown: 200),
+                            new Shoot(20, 1, projectileIndex: 0, coolDown: Cd(200)),
                             new TimedTransition(1600, "17")
                         ),
                         new State("17",
@@ -95,23 +110,23 @@ namespace WorldServer.logic
                             new TimedTransition(2000, "18")
                         ),
                         new State("18",
-                            new Shoot(20, 1, projectileIndex: 0, coolDown: 200),
+                            new Shoot(20, 1, projectileIndex: 0, coolDown: Cd(200)),
                             new TimedTransition(1600, "7")
                         )
                     ),
                     new State("19",
                         new ConditionEffectBehavior(ConditionEffectIndex.Invulnerable),
                         new Taunt(true, "My magic can no longer sustain my mirrors. what have you done?!"),
-                        new OrderOnce(99, "lod Mirror Wyvern1", "Despawn"),
-                        new OrderOnce(99, "lod Mirror Wyvern2", "Despawn"),
-                        new OrderOnce(99, "lod Mirror Wyvern3", "Despawn"),
-                        new OrderOnce(99, "lod Mirror Wyvern4", "Despawn"),
+                        new OrderOnce(99, N("lod Mirror Wyvern1"), "Despawn"),
+                        new OrderOnce(99, N("lod Mirror Wyvern2"), "Despawn"),
+                        new OrderOnce(99, N("lod Mirror Wyvern3"), "Despawn"),
+                        new OrderOnce(99, N("lod Mirror Wyvern4"), "Despawn"),
                         new MoveTo(0.7f, 12, 5),
                         new TimedTransition(4000, "20")
                     ),
                     new State("20",
                         new HpLessTransition(0.6, "28"),
-                        new Shoot(0, 11, 15, 0, fixedAngle: 90, coolDown: 1500),
+                        new Shoot(0, 11, 15, 0, fixedAngle: 90, coolDown: Cd(1500)),
                         new State("21",
                             new MoveTo(0.7f, 18, 5),
                             new TimedTransition(2000, "22")
@@ -143,14 +158,14 @@ namespace WorldServer.logic
                         new TimedTransition(5000, "29")
                     ),
                     new State("29",
-                        new TossObject("lod Red Soul Flame", 4, 0, 20000),
-                        new TossObject("lod Blue Soul Flame", 8, 180, 20000),
-                        new TossObject("lod Green Soul Flame", 4, 180, 20000),
-                        new TossObject("lod Black Soul Flame", 8, 0, 20000),
-                        new EntityExistsTransition("lod Red Soul Flame", 20, "30")
+                        new TossObject(N("lod Red Soul Flame"), 4, 0, 20000),
+                        new TossObject(N("lod Blue Soul Flame"), 8, 180, 20000),
+                        new TossObject(N("lod Green Soul Flame"), 4, 180, 20000),
+                        new TossObject(N("lod Black Soul Flame"), 8, 0, 20000),
+                        new EntityExistsTransition(N("lod Red Soul Flame"), 20, "30")
                     ),
                     new State("30",
-                        new EntitiesNotExistsTransition(20, "31", "lod Red Soul Flame", "lod Blue Soul Flame", "lod Green Soul Flame", "lod Black Soul Flame")
+                        new EntitiesNotExistsTransition(20, "31", N("lod Red Soul Flame"), N("lod Blue Soul Flame"), N("lod Green Soul Flame"), N("lod Black Soul Flame"))
                     ),
                     new State("31",
                         new Taunt(true, "So you wish to fight your fate? Alright then, I will not hold back any longer."),
@@ -222,20 +237,20 @@ namespace WorldServer.logic
                         new TimedTransition(500, "42")
                     ),
                     new State("42",
-                        new TossObject("lod White Dragon Orb", 10, 45, coolDown: 9999),
-                        new TossObject("lod White Dragon Orb", 10, 135, coolDown: 9999),
-                        new TossObject("lod White Dragon Orb", 10, 225, coolDown: 9999),
-                        new TossObject("lod White Dragon Orb", 10, 315, coolDown: 9999),
+                        new TossObject(N("lod White Dragon Orb"), 10, 45, coolDown: Cd(9999)),
+                        new TossObject(N("lod White Dragon Orb"), 10, 135, coolDown: Cd(9999)),
+                        new TossObject(N("lod White Dragon Orb"), 10, 225, coolDown: Cd(9999)),
+                        new TossObject(N("lod White Dragon Orb"), 10, 315, coolDown: Cd(9999)),
                         new TimedTransition(500, "43")
                     ),
                     new State("43",
                          new HpLessTransition(0.4, "44"),
-                         new Shoot(20, 1, projectileIndex: 1, coolDown: 500)
+                         new Shoot(20, 1, projectileIndex: 1, coolDown: Cd(500))
                     ),
                     new State("44",
                         new Follow(0.5, 10, 0, 6000, 3000),
-                        new Shoot(20, 15, 12, 0, coolDown: 2000),
-                        new Shoot(20, 1, projectileIndex: 1, coolDown: 3000)
+                        new Shoot(20, 15, 12, 0, coolDown: Cd(2000)),
+                        new Shoot(20, 1, projectileIndex: 1, coolDown: Cd(3000))
                     ),
                     new State("45",
                         new ConditionEffectBehavior(ConditionEffectIndex.Invulnerable),
@@ -244,15 +259,15 @@ namespace WorldServer.logic
                     )
                 )
             )
-            .Init("lod Mirror Wyvern1",
+            .Init(E("lod Mirror Wyvern1"),
                 new State(
                     new ConditionEffectBehavior(ConditionEffectIndex.Invulnerable),
                     new State("Shoot1",
-                        new Shoot(20, 1, projectileIndex: 0, coolDown: 200),
+                        new Shoot(20, 1, projectileIndex: 0, coolDown: Cd(200)),
                         new TimedTransition(1600, "Order1")
                     ),
                     new State("Order1",
-                        new OrderOnce(99, "lod Mirror Wyvern2", "1")
+                        new OrderOnce(99, N("lod Mirror Wyvern2"), "1")
                     ),
                     new State("1",
                         new TimedTransition(2000, "Shoot1")
@@ -262,44 +277,7 @@ namespace WorldServer.logic
                     )
                 )
             )
-            .Init("lod Mirror Wyvern2",
-                new State(
-                    new ConditionEffectBehavior(ConditionEffectIndex.Invulnerable),
-                    new State("Waiting"),
-                    new State("1",
-                        new TimedTransition(2000, "Shoot1")
-                    ),
-                    new State("Shoot1",
-                        new Shoot(20, 1, projectileIndex: 0, coolDown: 200),
-                        new TimedTransition(1600, "Order1")
-                    ),
-                    new State("Order1",
-                        new OrderOnce(99, "lod Mirror Wyvern1", "1")
-                    ),
-                    new State("Despawn",
-                        new Decay(1000)
-                    )
-                )
-            )
-            .Init("lod Mirror Wyvern3",
-                new State(
-                    new ConditionEffectBehavior(ConditionEffectIndex.Invulnerable),
-                    new State("Shoot1",
-                        new Shoot(20, 1, projectileIndex: 0, coolDown: 200),
-                        new TimedTransition(1600, "Order1")
-                    ),
-                    new State("Order1",
-                        new OrderOnce(99, "lod Mirror Wyvern4", "1")
-                    ),
-                    new State("1",
-                        new TimedTransition(2000, "Shoot1")
-                    ),
-                    new State("Despawn",
-                        new Decay(1000)
-                    )
-                )
-            )
-            .Init("lod Mirror Wyvern4",
+            .Init(E("lod Mirror Wyvern2"),
                 new State(
                     new ConditionEffectBehavior(ConditionEffectIndex.Invulnerable),
                     new State("Waiting"),
@@ -307,78 +285,115 @@ namespace WorldServer.logic
                         new TimedTransition(2000, "Shoot1")
                     ),
                     new State("Shoot1",
-                        new Shoot(20, 1, projectileIndex: 0, coolDown: 200),
+                        new Shoot(20, 1, projectileIndex: 0, coolDown: Cd(200)),
                         new TimedTransition(1600, "Order1")
                     ),
                     new State("Order1",
-                        new OrderOnce(99, "lod Mirror Wyvern3", "1")
+                        new OrderOnce(99, N("lod Mirror Wyvern1"), "1")
                     ),
                     new State("Despawn",
                         new Decay(1000)
                     )
                 )
             )
-            .Init("lod Red Soul Flame",
+            .Init(E("lod Mirror Wyvern3"),
+                new State(
+                    new ConditionEffectBehavior(ConditionEffectIndex.Invulnerable),
+                    new State("Shoot1",
+                        new Shoot(20, 1, projectileIndex: 0, coolDown: Cd(200)),
+                        new TimedTransition(1600, "Order1")
+                    ),
+                    new State("Order1",
+                        new OrderOnce(99, N("lod Mirror Wyvern4"), "1")
+                    ),
+                    new State("1",
+                        new TimedTransition(2000, "Shoot1")
+                    ),
+                    new State("Despawn",
+                        new Decay(1000)
+                    )
+                )
+            )
+            .Init(E("lod Mirror Wyvern4"),
+                new State(
+                    new ConditionEffectBehavior(ConditionEffectIndex.Invulnerable),
+                    new State("Waiting"),
+                    new State("1",
+                        new TimedTransition(2000, "Shoot1")
+                    ),
+                    new State("Shoot1",
+                        new Shoot(20, 1, projectileIndex: 0, coolDown: Cd(200)),
+                        new TimedTransition(1600, "Order1")
+                    ),
+                    new State("Order1",
+                        new OrderOnce(99, N("lod Mirror Wyvern3"), "1")
+                    ),
+                    new State("Despawn",
+                        new Decay(1000)
+                    )
+                )
+            )
+            .Init(E("lod Red Soul Flame"),
                 new State(
                     new State("Taunt",
                         new ConditionEffectBehavior(ConditionEffectIndex.Invulnerable),
                         new TimedTransition(5000, "Start_Shoot")
                     ),
                     new State("Start_Shoot",
-                        new Shoot(8, 6, 30, 0, coolDown: 500),
+                        new Shoot(8, 6, 30, 0, coolDown: Cd(500)),
                         new SetAltTexture(0, 3, cooldown: 500, true)
                     )
                 )
             )
-            .Init("lod Blue Soul Flame",
+            .Init(E("lod Blue Soul Flame"),
                 new State(
                     new State("Taunt",
                         new ConditionEffectBehavior(ConditionEffectIndex.Invulnerable),
                         new TimedTransition(5000, "Start_Shoot")
                     ),
                     new State("Start_Shoot",
-                        new Shoot(8, 6, 30, 0, coolDown: 500),
+                        new Shoot(8, 6, 30, 0, coolDown: Cd(500)),
                         new SetAltTexture(0, 3, cooldown: 500, true)
                     )
                 )
             )
-            .Init("lod Green Soul Flame",
+            .Init(E("lod Green Soul Flame"),
                 new State(
                     new State("Taunt",
                         new ConditionEffectBehavior(ConditionEffectIndex.Invulnerable),
                         new TimedTransition(5000, "Start_Shoot")
                     ),
                     new State("Start_Shoot",
-                        new Shoot(8, 6, 30, 0, coolDown: 500),
+                        new Shoot(8, 6, 30, 0, coolDown: Cd(500)),
                         new SetAltTexture(0, 3, cooldown: 500, true)
                     )
                 )
             )
-            .Init("lod Black Soul Flame",
+            .Init(E("lod Black Soul Flame"),
                 new State(
                     new State("Taunt",
                         new ConditionEffectBehavior(ConditionEffectIndex.Invulnerable),
                         new TimedTransition(5000, "Start_Shoot")
                     ),
                     new State("Start_Shoot",
-                        new Shoot(8, 6, 30, 0, coolDown: 500),
+                        new Shoot(8, 6, 30, 0, coolDown: Cd(500)),
                         new SetAltTexture(0, 3, cooldown: 500, true)
                     )
                 )
             )
-            .Init("lod White Dragon Orb",
+            .Init(E("lod White Dragon Orb"),
                 new State(
                     new ConditionEffectBehavior(ConditionEffectIndex.Invincible),
-                    new EntityNotExistsTransition("lod Ivory Wyvern", 30, "despawn"),
+                    new EntityNotExistsTransition(N("lod Ivory Wyvern"), 30, "despawn"),
                     new State("shoot1",
-                        new Shoot(0, 12, 30, 0, 0, 45, coolDown: 750)
+                        new Shoot(0, 12, 30, 0, 0, 45, coolDown: Cd(750))
                     ),
                     new State("despawn",
                         new Decay(1000)
                     )
                 )
             )
-            .Init("lod Ivory Loot",
+            .Init(E("lod Ivory Loot"),
                 new State(
                     new ScaleHP2(15),
                     new ConditionEffectBehavior(ConditionEffectIndex.Invulnerable, duration: 5000)
@@ -390,8 +405,23 @@ namespace WorldServer.logic
                     new ItemLoot("Large Ivory Dragon Scale Cloth", 0.4),
                     new ItemLoot("Small Ivory Dragon Scale Cloth", 0.4),
                     new TierLoot(2, ItemType.Potion)
-                )
-            )
-            ;
+                ),
+                // the Elder Wyvern consumed the four dragons' powers: their Elder drops, and better gear
+                ElderLoot(0.01,
+                    new TierLoot(13, ItemType.Weapon, 0.06),
+                    new TierLoot(14, ItemType.Armor, 0.06),
+                    new TierLoot(6, ItemType.Ability, 0.08),
+                    new TierLoot(6, ItemType.Ring, 0.08),
+                    new ItemLoot("Potion of Max Life", 0.05),
+                    new ItemLoot("Potion of Max Mana", 0.05),
+                    new ItemLoot("Robe of Silk Water", 0.015),
+                    new ItemLoot("Momento of the Fire Dragon", 0.015),
+                    new ItemLoot("Armor of the Leaf", 0.015),
+                    new ItemLoot("Lightning Bow", 0.015),
+                    new ItemLoot("Elder Ivory Wyvern Key", 0.02),
+                    new ItemLoot("Elder Draconis Key", 0.02)
+                    )
+            );
+        }
     }
 }

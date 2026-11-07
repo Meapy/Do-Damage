@@ -620,6 +620,55 @@ namespace WorldServer.core.worlds
             return true;
         }
 
+        /// <summary>Whether a player could walk from one spot to the other: through open squares only,
+        /// side to side (a gap between two corners stops a player too), not across walls, objects that
+        /// take up their square (the Oryx stages' gates) or ground nobody may walk on. Searches the
+        /// whole map, so only for small worlds (the Oryx stages, CanTeleportAbilityTo).</summary>
+        public bool WalkReachable(double fromX, double fromY, double toX, double toY)
+        {
+            int fx = (int)fromX, fy = (int)fromY, tx = (int)toX, ty = (int)toY;
+            if (!Map.Contains(fx, fy) || !Map.Contains(tx, ty))
+                return false;
+            if (fx == tx && fy == ty)
+                return true;
+
+            var tiles = GameServer.Resources.GameData.Tiles;
+            bool Open(int x, int y)
+            {
+                var tile = GroundTile(x, y);
+                if (!tile.Exists || tiles[tile.TileId].NoWalk)
+                    return false;
+                var desc = tile.ObjType != 0 ? tile.ObjDesc : null;
+                return desc == null || !(desc.FullOccupy || desc.OccupySquare || desc.EnemyOccupySquare);
+            }
+            if (!Open(tx, ty))
+                return false;
+
+            var width = Map.Width;
+            var seen = new bool[width * Map.Height];
+            var queue = new Queue<(int X, int Y)>();
+            seen[fy * width + fx] = true;
+            queue.Enqueue((fx, fy));
+            while (queue.Count > 0)
+            {
+                var (x, y) = queue.Dequeue();
+                for (var d = 0; d < 4; d++)
+                {
+                    var nx = x + (d == 0 ? 1 : d == 1 ? -1 : 0);
+                    var ny = y + (d == 2 ? 1 : d == 3 ? -1 : 0);
+                    if (!Map.Contains(nx, ny) || seen[ny * width + nx])
+                        continue;
+                    seen[ny * width + nx] = true;
+                    if (!Open(nx, ny))
+                        continue;
+                    if (nx == tx && ny == ty)
+                        return true;
+                    queue.Enqueue((nx, ny));
+                }
+            }
+            return false;
+        }
+
         public bool IsPlayersMax() => Players.Count >= MaxPlayers;
 
         public void EnterWorld(Entity entity)

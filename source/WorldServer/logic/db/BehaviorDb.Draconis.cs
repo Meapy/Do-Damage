@@ -14,7 +14,8 @@ namespace WorldServer.logic
         // rooms round the altar, each behind a corridor of rubble. A dragon's soul stands before its
         // corridor: walking onto it takes you into the dragon's room. A slain dragon leaves a loot
         // balloon; popping it clears the corridor back to the altar. Once all four are dead the altar
-        // opens the Ivory Wyvern (and, from the regular lair, the Elder lair half the time).
+        // opens the Ivory Wyvern, or the Elder Ivory Wyvern in the Elder lair (and, from the regular
+        // lair, the Elder lair half the time).
         private static Ctor DraconisBehaviours(Ctor db, bool elder)
         {
             string N(string id) => ElderOr(id, elder);
@@ -73,7 +74,8 @@ namespace WorldServer.logic
                     new TierLoot(14, ItemType.Armor, 0.04),
                     new TierLoot(6, ItemType.Ability, 0.06),
                     new TierLoot(6, ItemType.Ring, 0.06),
-                    new ItemLoot("Elder Draconis Key", 0.01)
+                    new ItemLoot("Elder Draconis Key", 0.01),
+                    new ItemLoot("Elder Ivory Wyvern Key", 0.01)
                     )
             ];
 
@@ -96,8 +98,10 @@ namespace WorldServer.logic
                             N("lod Blue Loot Balloon"), N("lod Red Loot Balloon"), N("lod Green Loot Balloon"), N("lod Black Loot Balloon"))
                         ),
                     new State("Done",
-                        new Taunt(true, "The four dragon souls are freed. The Ivory Wyvern awaits you!"),
-                        new TossObject("Ivory Wyvern Portal", 3, 0, coolDown: 999999),
+                        new Taunt(true, elder
+                            ? "The four dragon souls are freed. The Elder Ivory Wyvern awaits you!"
+                            : "The four dragon souls are freed. The Ivory Wyvern awaits you!"),
+                        new TossObject(elder ? "Elder Ivory Wyvern Portal" : "Ivory Wyvern Portal", 3, 0, coolDown: 999999),
                         new TimedTransition(2000, "Gone")
                         ),
                     new State("Gone",

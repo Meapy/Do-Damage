@@ -17,6 +17,7 @@ namespace WorldServer.logic
             string E(string id) => ElderDefines(id, elder);
             int Cd(int ms) => ElderCooldown(ms, elder);
             MobDrops Elder(string id) => ElderDrops(id, elder);
+            MobDrops ElderLoot(double threshold, params MobDrops[] drops) => new Threshold(threshold, elder ? drops : new MobDrops[0]);
 
             return db
             .Init(E("Arachna the Spider Queen"),
@@ -54,7 +55,9 @@ namespace WorldServer.logic
                 new ItemLoot("Poison Fang Dagger", 0.2),
                 new Threshold(0.32,
                     new ItemLoot("Healing Ichor", 1)
-                    ), Elder("Arachna the Spider Queen"))
+                    ), Elder("Arachna the Spider Queen"),
+                // the Elder dungeon's Potion of Max
+                ElderLoot(0.01, new ItemLoot("Potion of Max Defense", 0.05)))
             .Init(E("Arachna Web Spoke 1"),
                 new State(
                     new State(":D",

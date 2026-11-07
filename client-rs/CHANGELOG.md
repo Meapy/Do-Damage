@@ -12,6 +12,40 @@ Keep each version short: changes go under `### ` group headings (Oryx 5, Arena, 
 on), one line per change players notice, summed up rather than item by item (the wiki has the
 details). Add to a group's line when a change adds to it, rather than adding another line.
 
+## 2.4.2 (2026-11-07)
+
+### Nexus
+- The shared vault chests are back in the Nexus, with everything that was left in them: wade
+  north across the spawn's pond to the vault yard in front of the storehouse.
+
+### Community goals
+- Strength in Numbers now also counts the stat potions you drink from your potion storage, not
+  only the ones drunk from your inventory.
+
+### Dungeons
+- The Sprite World (and its Elder version) is laid out anew for every run, from its islands:
+  small, medium or large. When Limon dies, a still platform appears where he fell, so his loot
+  and portals are never out of reach over the void or on the moving floor.
+- Elder dungeons: you can teleport to other players in every one of them now. Every Elder boss
+  can drop its dungeon's Potion of Max, at 5%: Max Attack from the Elder Pirate Cave, Max
+  Defense from the Elder Spider Den, Max Speed from the Elder Beach Zone, Max Dexterity from the
+  Elder Jungle and Max Wisdom from Elder Davy Jones are new. The Elder Snake Pit, Undead Lair and
+  Sprite World bosses gave theirs nearly every kill; they're 5% now too.
+- New: the Elder Ivory Wyvern. The Elder Lair of Draconis's altar now opens it, the Ivory Wyvern
+  leads to it half the time, and an Elder Ivory Wyvern Key (from the Elder Lair's dragons and the
+  Elder community goal) opens it too. Twice the health, harder hits and faster attacks; it can drop
+  a Potion of Max Life or Mana, the Elder dragons' armours and bow, and better gear.
+
+### Oryx
+- A Rogue's or Trickster's teleport (or a Samurai's dash) in the Oryx dungeons can no longer jump
+  a gate that's still shut, so Oryx 3 and Oryx 5 can't be woken early or joined once their gates
+  close: there, you can only teleport where you could walk.
+
+### Options
+- A new Gameplay tab, with "Drink stat potions from loot bags": while it's on, the stat potions
+  in a bag you stand on are drunk by themselves (a maxed stat's go to your potion storage).
+  Potions of Max and of Oryx are left for you to keep. Off unless you turn it on.
+
 ## 2.4.1 (2026-11-06)
 
 ### Classes

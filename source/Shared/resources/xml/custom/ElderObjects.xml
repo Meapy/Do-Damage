@@ -1584,22 +1584,753 @@
 		<DisplayId>Elder lod Red Loot Balloon</DisplayId>
 		<XpBonus>2</XpBonus>
 	</Object>
+	<Object type="0xF057" id="Elder Brown Wall">
+		<Class>Wall</Class>
+		<Texture>
+			<File>elderAssets8x8</File>
+			<Index>0x175</Index>
+		</Texture>
+		<Top>
+			<Texture>
+				<File>elderAssets8x8</File>
+				<Index>0x176</Index>
+			</Texture>
+		</Top>
+		<HitSound>monster/stone_walls_hit</HitSound>
+		<DeathSound>monster/stone_walls_death</DeathSound>
+		<Static />
+		<FullOccupy />
+		<OccupySquare />
+		<EnemyOccupySquare />
+		<BlocksSight />
+	</Object>
+	<Object type="0xF058" id="Elder lod Black Soul Flame">
+		<DisplayId>Elder Black Soul of Feargus</DisplayId>
+		<Class>Character</Class>
+		<Group>Souls</Group>
+		<Enemy />
+		<Texture>
+			<File>lofiObjBig</File>
+			<Index>0x162</Index>
+		</Texture>
+		<HitSound>monster/skeletons_hit</HitSound>
+		<DeathSound>monster/skeletons_death</DeathSound>
+		<Size>100</Size>
+		<ShadowSize>40</ShadowSize>
+		<MaxHitPoints>16000</MaxHitPoints>
+		<Defense>50</Defense>
+		<Exp>487</Exp>
+		<StasisImmune />
+		<StunImmune />
+		<AltTexture id="1">
+			<Texture>
+				<File>lofiObjBig</File>
+				<Index>0x163</Index>
+			</Texture>
+		</AltTexture>
+		<AltTexture id="2">
+			<Texture>
+				<File>lofiObjBig</File>
+				<Index>0x164</Index>
+			</Texture>
+		</AltTexture>
+		<AltTexture id="3">
+			<Texture>
+				<File>lofiObjBig</File>
+				<Index>0x162</Index>
+			</Texture>
+		</AltTexture>
+		<Projectile id="0">
+			<ObjectId>Dragon Attack Black Bullet</ObjectId>
+			<Speed>30</Speed>
+			<Damage>156</Damage>
+			<LifetimeMS>5000</LifetimeMS>
+			<ConditionEffect duration="3">Quiet</ConditionEffect>
+			<MultiHit />
+		</Projectile>
+		<XpBonus>2</XpBonus>
+	</Object>
+	<Object type="0xF059" id="Elder lod Blue Soul Flame">
+		<DisplayId>Elder Blue Soul of Nikao</DisplayId>
+		<Class>Character</Class>
+		<Group>Souls</Group>
+		<Enemy />
+		<Texture>
+			<File>lofiObjBig</File>
+			<Index>0x15F</Index>
+		</Texture>
+		<HitSound>monster/skeletons_hit</HitSound>
+		<DeathSound>monster/skeletons_death</DeathSound>
+		<Size>100</Size>
+		<ShadowSize>40</ShadowSize>
+		<MaxHitPoints>16000</MaxHitPoints>
+		<Defense>50</Defense>
+		<Exp>487</Exp>
+		<StunImmune />
+		<StasisImmune />
+		<AltTexture id="1">
+			<Texture>
+				<File>lofiObjBig</File>
+				<Index>0x160</Index>
+			</Texture>
+		</AltTexture>
+		<AltTexture id="2">
+			<Texture>
+				<File>lofiObjBig</File>
+				<Index>0x161</Index>
+			</Texture>
+		</AltTexture>
+		<AltTexture id="3">
+			<Texture>
+				<File>lofiObjBig</File>
+				<Index>0x15F</Index>
+			</Texture>
+		</AltTexture>
+		<Projectile id="0">
+			<ObjectId>Dragon Attack Blue Blast</ObjectId>
+			<Speed>30</Speed>
+			<Damage>156</Damage>
+			<LifetimeMS>5000</LifetimeMS>
+			<ConditionEffect duration="3">Weak</ConditionEffect>
+			<MultiHit />
+		</Projectile>
+		<XpBonus>2</XpBonus>
+	</Object>
+	<Object type="0xF05A" id="Elder lod Green Soul Flame">
+		<DisplayId>Elder Green Soul of Limoz</DisplayId>
+		<Class>Character</Class>
+		<Group>Souls</Group>
+		<Enemy />
+		<Texture>
+			<File>lofiObjBig</File>
+			<Index>0x165</Index>
+		</Texture>
+		<HitSound>monster/skeletons_hit</HitSound>
+		<DeathSound>monster/skeletons_death</DeathSound>
+		<Size>100</Size>
+		<ShadowSize>40</ShadowSize>
+		<MaxHitPoints>16000</MaxHitPoints>
+		<Defense>60</Defense>
+		<Exp>487</Exp>
+		<StunImmune />
+		<AltTexture id="1">
+			<Texture>
+				<File>lofiObjBig</File>
+				<Index>0x166</Index>
+			</Texture>
+		</AltTexture>
+		<AltTexture id="2">
+			<Texture>
+				<File>lofiObjBig</File>
+				<Index>0x167</Index>
+			</Texture>
+		</AltTexture>
+		<AltTexture id="3">
+			<Texture>
+				<File>lofiObjBig</File>
+				<Index>0x165</Index>
+			</Texture>
+		</AltTexture>
+		<Projectile id="0">
+			<ObjectId>Dragon Attack Green Ball</ObjectId>
+			<Speed>30</Speed>
+			<Damage>156</Damage>
+			<LifetimeMS>5000</LifetimeMS>
+			<ConditionEffect duration="3">Slowed</ConditionEffect>
+			<MultiHit />
+		</Projectile>
+		<XpBonus>2</XpBonus>
+	</Object>
+	<Object type="0xF05B" id="Elder lod Ivory Loot">
+		<DisplayId>Elder The Dragon's Treasure Cache</DisplayId>
+		<Class>Character</Class>
+		<Enemy />
+		<Texture>
+			<File>lofiObj3</File>
+			<Index>0x466</Index>
+		</Texture>
+		<MaxHitPoints>120000</MaxHitPoints>
+		<Defense>45</Defense>
+		<Size>160</Size>
+		<Exp>0</Exp>
+		<StasisImmune />
+		<XpBonus>2</XpBonus>
+	</Object>
+	<Object type="0xF05C" id="Elder lod Ivory Wyvern">
+		<DisplayId>Elder Ivory Wyvern</DisplayId>
+		<Class>Character</Class>
+		<Group>Wyvern</Group>
+		<Enemy />
+		<Portrait>
+			<AnimatedTexture>
+				<File>lairOfDraconisChars16x16</File>
+				<Index>4</Index>
+			</AnimatedTexture>
+		</Portrait>
+		<AnimatedTexture>
+			<File>lairOfDraconisChars16x16</File>
+			<Index>4</Index>
+		</AnimatedTexture>
+		<AltTexture id="1">
+			<Texture>
+				<File>lairOfDraconisObjects16x16</File>
+				<Index>0x66</Index>
+			</Texture>
+		</AltTexture>
+		<AltTexture id="2">
+			<Texture>
+				<File>lairOfDraconisObjects16x16</File>
+				<Index>0x67</Index>
+			</Texture>
+		</AltTexture>
+		<AltTexture id="3">
+			<Texture>
+				<File>lairOfDraconisObjects16x16</File>
+				<Index>0x68</Index>
+			</Texture>
+		</AltTexture>
+		<AltTexture id="4">
+			<Texture>
+				<File>lairOfDraconisObjects16x16</File>
+				<Index>0x69</Index>
+			</Texture>
+		</AltTexture>
+		<AltTexture id="5">
+			<Texture>
+				<File>lairOfDraconisObjects16x16</File>
+				<Index>0x60</Index>
+			</Texture>
+		</AltTexture>
+		<AltTexture id="6">
+			<Texture>
+				<File>lairOfDraconisObjects16x16</File>
+				<Index>0x61</Index>
+			</Texture>
+		</AltTexture>
+		<AltTexture id="7">
+			<Texture>
+				<File>lairOfDraconisObjects16x16</File>
+				<Index>0x62</Index>
+			</Texture>
+		</AltTexture>
+		<AltTexture id="8">
+			<Texture>
+				<File>lairOfDraconisObjects16x16</File>
+				<Index>0x63</Index>
+			</Texture>
+		</AltTexture>
+		<HitSound>monster/dragons_hit</HitSound>
+		<DeathSound>monster/dragons_death</DeathSound>
+		<Size>180</Size>
+		<ShadowSize>25</ShadowSize>
+		<MaxHitPoints>200000</MaxHitPoints>
+		<Defense>50</Defense>
+		<Exp>16000</Exp>
+		<Level>20</Level>
+		<Quest />
+		<HealthBarBoss />
+		<ParalyzeImmune />
+		<StasisImmune />
+		<DazedImmune />
+		<StunImmune />
+		<EventChestBoss />
+		<TrackLoot />
+		<Projectile id="0">
+			<ObjectId>LOD White Shot</ObjectId>
+			<Speed>65</Speed>
+			<Damage>195</Damage>
+			<LifetimeMS>5000</LifetimeMS>
+			<Size>140</Size>
+		</Projectile>
+		<Projectile id="1">
+			<ObjectId>LOD White Blast</ObjectId>
+			<Speed>100</Speed>
+			<Damage>195</Damage>
+			<Size>140</Size>
+			<LifetimeMS>1800</LifetimeMS>
+			<MultiHit />
+		</Projectile>
+		<Projectile id="2">
+			<ObjectId>LOD White Blast</ObjectId>
+			<Speed>65</Speed>
+			<Damage>162</Damage>
+			<Size>135</Size>
+			<LifetimeMS>3250</LifetimeMS>
+		</Projectile>
+		<Projectile id="3">
+			<ObjectId>LOD White Ball</ObjectId>
+			<Speed>80</Speed>
+			<Damage>162</Damage>
+			<Size>140</Size>
+			<LifetimeMS>2500</LifetimeMS>
+			<MultiHit />
+		</Projectile>
+		<Projectile id="4">
+			<ObjectId>LOD White Blast</ObjectId>
+			<Speed>75</Speed>
+			<Damage>156</Damage>
+			<Size>140</Size>
+			<LifetimeMS>2500</LifetimeMS>
+			<MultiHit />
+		</Projectile>
+		<Projectile id="5">
+			<ObjectId>LOD Black Ray</ObjectId>
+			<Speed>110</Speed>
+			<Damage>156</Damage>
+			<LifetimeMS>2000</LifetimeMS>
+			<Size>180</Size>
+		</Projectile>
+		<Projectile id="6">
+			<ObjectId>LOD Blue Storm</ObjectId>
+			<Speed>65</Speed>
+			<Damage>130</Damage>
+			<LifetimeMS>3400</LifetimeMS>
+			<Boomerang />
+			<Size>140</Size>
+		</Projectile>
+		<Projectile id="7">
+			<ObjectId>LOD Green Bullet</ObjectId>
+			<Speed>85</Speed>
+			<Damage>130</Damage>
+			<LifetimeMS>5000</LifetimeMS>
+			<MultiHit />
+			<Size>140</Size>
+		</Projectile>
+		<Projectile id="8">
+			<ObjectId>LOD Red Big Fireball</ObjectId>
+			<Speed>75</Speed>
+			<Damage>156</Damage>
+			<Size>300</Size>
+			<LifetimeMS>2500</LifetimeMS>
+			<MultiHit />
+		</Projectile>
+		<Projectile id="9">
+			<ObjectId>LOD Black Bullet</ObjectId>
+			<Speed>80</Speed>
+			<Damage>195</Damage>
+			<Size>140</Size>
+			<LifetimeMS>3000</LifetimeMS>
+			<MultiHit />
+			<ConditionEffect duration="3" target="1">Stasis</ConditionEffect>
+		</Projectile>
+		<Projectile id="10">
+			<ObjectId>LOD Blue Fireball</ObjectId>
+			<Speed>85</Speed>
+			<Damage>104</Damage>
+			<Size>150</Size>
+			<LifetimeMS>2500</LifetimeMS>
+			<MultiHit />
+			<ConditionEffect duration="3">Slowed</ConditionEffect>
+		</Projectile>
+		<Projectile id="11">
+			<ObjectId>LOD Green Spine</ObjectId>
+			<Speed>70</Speed>
+			<Damage>110</Damage>
+			<Size>100</Size>
+			<LifetimeMS>2500</LifetimeMS>
+			<MultiHit />
+			<ConditionEffect duration="1">Sick</ConditionEffect>
+		</Projectile>
+		<Projectile id="12">
+			<ObjectId>LOD Red Big Fireball</ObjectId>
+			<Speed>60</Speed>
+			<Damage>162</Damage>
+			<Size>150</Size>
+			<LifetimeMS>2500</LifetimeMS>
+			<MultiHit />
+			<ArmorPiercing />
+		</Projectile>
+		<Projectile id="13">
+			<ObjectId>LOD Black Bullet</ObjectId>
+			<Speed>75</Speed>
+			<Damage>156</Damage>
+			<Size>160</Size>
+			<LifetimeMS>2500</LifetimeMS>
+			<MultiHit />
+		</Projectile>
+		<Projectile id="14">
+			<ObjectId>LOD Blue Fireball</ObjectId>
+			<Speed>80</Speed>
+			<Damage>91</Damage>
+			<Size>140</Size>
+			<LifetimeMS>3200</LifetimeMS>
+			<ConditionEffect duration="3">Slowed</ConditionEffect>
+		</Projectile>
+		<Projectile id="15">
+			<ObjectId>LOD Green Spine</ObjectId>
+			<Speed>95</Speed>
+			<Damage>162</Damage>
+			<Size>140</Size>
+			<LifetimeMS>2500</LifetimeMS>
+			<MultiHit />
+		</Projectile>
+		<Projectile id="16">
+			<ObjectId>LOD Red Orb</ObjectId>
+			<Speed>70</Speed>
+			<Damage>98</Damage>
+			<Size>180</Size>
+			<LifetimeMS>2500</LifetimeMS>
+			<ArmorPiercing />
+		</Projectile>
+		<Projectile id="17">
+			<ObjectId>LOD Black Spin</ObjectId>
+			<Speed>90</Speed>
+			<Damage>156</Damage>
+			<Size>200</Size>
+			<LifetimeMS>6000</LifetimeMS>
+			<Parametric />
+			<Magnitude>6</Magnitude>
+			<ConditionEffect duration="3" target="1">Stasis</ConditionEffect>
+		</Projectile>
+		<Projectile id="18">
+			<ObjectId>LOD Blue Blast</ObjectId>
+			<Speed>60</Speed>
+			<Damage>98</Damage>
+			<Size>140</Size>
+			<LifetimeMS>2000</LifetimeMS>
+			<ConditionEffect duration="3">Slowed</ConditionEffect>
+		</Projectile>
+		<Projectile id="19">
+			<ObjectId>LOD Green Bullet</ObjectId>
+			<Speed>30</Speed>
+			<Damage>130</Damage>
+			<Size>120</Size>
+			<LifetimeMS>3000</LifetimeMS>
+			<MultiHit />
+		</Projectile>
+		<Projectile id="20">
+			<ObjectId>LOD Red Spinning Fireball</ObjectId>
+			<Speed>55</Speed>
+			<Damage>65</Damage>
+			<Size>110</Size>
+			<LifetimeMS>2000</LifetimeMS>
+			<ConditionEffect duration="3">Armor Broken</ConditionEffect>
+		</Projectile>
+		<Projectile id="21">
+			<ObjectId>LOD Black Spin</ObjectId>
+			<Speed>80</Speed>
+			<Damage>195</Damage>
+			<Size>180</Size>
+			<LifetimeMS>3000</LifetimeMS>
+			<ConditionEffect duration="3" target="1">Stasis</ConditionEffect>
+		</Projectile>
+		<Projectile id="22">
+			<ObjectId>LOD Green Spin Ball</ObjectId>
+			<Speed>45</Speed>
+			<Damage>156</Damage>
+			<Size>90</Size>
+			<LifetimeMS>2500</LifetimeMS>
+			<ConditionEffect duration="3">Sick</ConditionEffect>
+		</Projectile>
+		<Projectile id="23">
+			<ObjectId>LOD Black Bullet</ObjectId>
+			<Speed>30</Speed>
+			<Damage>195</Damage>
+			<Size>100</Size>
+			<LifetimeMS>4000</LifetimeMS>
+			<MultiHit />
+		</Projectile>
+		<Projectile id="24">
+			<ObjectId>LOD Blue Fireball</ObjectId>
+			<Speed>30</Speed>
+			<Damage>195</Damage>
+			<Size>100</Size>
+			<LifetimeMS>4000</LifetimeMS>
+		</Projectile>
+		<Projectile id="25">
+			<ObjectId>LOD Green Ball</ObjectId>
+			<Speed>30</Speed>
+			<Damage>195</Damage>
+			<Size>100</Size>
+			<LifetimeMS>4000</LifetimeMS>
+			<MultiHit />
+		</Projectile>
+		<Projectile id="26">
+			<ObjectId>LOD Red Orb</ObjectId>
+			<Speed>30</Speed>
+			<Damage>195</Damage>
+			<Size>100</Size>
+			<LifetimeMS>4000</LifetimeMS>
+			<MultiHit />
+		</Projectile>
+		<Projectile id="27">
+			<ObjectId>LOD Red Big Fireball</ObjectId>
+			<Speed>55</Speed>
+			<Damage>130</Damage>
+			<Size>300</Size>
+			<LifetimeMS>4000</LifetimeMS>
+			<ConditionEffect duration="2">Armor Broken</ConditionEffect>
+			<ArmorPiercing />
+			<PassesCover />
+		</Projectile>
+		<XpBonus>2</XpBonus>
+	</Object>
+	<Object type="0xF05D" id="Elder lod Mirror Wyvern1">
+		<DisplayId>Elder Mirror Wyvern</DisplayId>
+		<Class>Character</Class>
+		<Group>Mirror Wyvern</Group>
+		<Enemy />
+		<AnimatedTexture>
+			<File>chars16x16rEncounters</File>
+			<Index>118</Index>
+		</AnimatedTexture>
+		<HitSound>monster/skeletons_hit</HitSound>
+		<DeathSound>monster/skeletons_death</DeathSound>
+		<Size>175</Size>
+		<Z>.5</Z>
+		<ShadowSize>25</ShadowSize>
+		<MaxHitPoints>140000</MaxHitPoints>
+		<Defense>60</Defense>
+		<Exp>0</Exp>
+		<Level>20</Level>
+		<ParalyzeImmune />
+		<StasisImmune />
+		<DazedImmune />
+		<StunImmune />
+		<Projectile id="0">
+			<ObjectId>White Demon Shot</ObjectId>
+			<Speed>65</Speed>
+			<Damage>150</Damage>
+			<LifetimeMS>5000</LifetimeMS>
+		</Projectile>
+		<XpBonus>2</XpBonus>
+	</Object>
+	<Object type="0xF05E" id="Elder lod Mirror Wyvern2">
+		<DisplayId>Elder Mirror Wyvern</DisplayId>
+		<Class>Character</Class>
+		<Group>Mirror Wyvern</Group>
+		<Enemy />
+		<AnimatedTexture>
+			<File>chars16x16rEncounters</File>
+			<Index>118</Index>
+		</AnimatedTexture>
+		<HitSound>monster/skeletons_hit</HitSound>
+		<DeathSound>monster/skeletons_death</DeathSound>
+		<Size>175</Size>
+		<Z>.5</Z>
+		<ShadowSize>25</ShadowSize>
+		<MaxHitPoints>140000</MaxHitPoints>
+		<Defense>60</Defense>
+		<Exp>0</Exp>
+		<Level>20</Level>
+		<ParalyzeImmune />
+		<StasisImmune />
+		<DazedImmune />
+		<StunImmune />
+		<Projectile id="0">
+			<ObjectId>White Demon Shot</ObjectId>
+			<Speed>65</Speed>
+			<Damage>150</Damage>
+			<LifetimeMS>5000</LifetimeMS>
+		</Projectile>
+		<XpBonus>2</XpBonus>
+	</Object>
+	<Object type="0xF05F" id="Elder lod Mirror Wyvern3">
+		<DisplayId>Elder Mirror Wyvern</DisplayId>
+		<Class>Character</Class>
+		<Group>Mirror Wyvern</Group>
+		<Enemy />
+		<AnimatedTexture>
+			<File>chars16x16rEncounters</File>
+			<Index>118</Index>
+		</AnimatedTexture>
+		<HitSound>monster/skeletons_hit</HitSound>
+		<DeathSound>monster/skeletons_death</DeathSound>
+		<Size>175</Size>
+		<Z>.5</Z>
+		<ShadowSize>25</ShadowSize>
+		<MaxHitPoints>140000</MaxHitPoints>
+		<Defense>60</Defense>
+		<Exp>0</Exp>
+		<Level>20</Level>
+		<ParalyzeImmune />
+		<StasisImmune />
+		<DazedImmune />
+		<StunImmune />
+		<Projectile id="0">
+			<ObjectId>White Demon Shot</ObjectId>
+			<Speed>65</Speed>
+			<Damage>150</Damage>
+			<LifetimeMS>5000</LifetimeMS>
+		</Projectile>
+		<XpBonus>2</XpBonus>
+	</Object>
+	<Object type="0xF060" id="Elder lod Mirror Wyvern4">
+		<DisplayId>Elder Mirror Wyvern</DisplayId>
+		<Class>Character</Class>
+		<Group>Mirror Wyvern</Group>
+		<Enemy />
+		<AnimatedTexture>
+			<File>chars16x16rEncounters</File>
+			<Index>118</Index>
+		</AnimatedTexture>
+		<HitSound>monster/skeletons_hit</HitSound>
+		<DeathSound>monster/skeletons_death</DeathSound>
+		<Size>175</Size>
+		<Z>.5</Z>
+		<ShadowSize>25</ShadowSize>
+		<MaxHitPoints>140000</MaxHitPoints>
+		<Defense>60</Defense>
+		<Exp>0</Exp>
+		<Level>20</Level>
+		<ParalyzeImmune />
+		<StasisImmune />
+		<DazedImmune />
+		<StunImmune />
+		<Projectile id="0">
+			<ObjectId>White Demon Shot</ObjectId>
+			<Speed>65</Speed>
+			<Damage>150</Damage>
+			<LifetimeMS>5000</LifetimeMS>
+		</Projectile>
+		<XpBonus>2</XpBonus>
+	</Object>
+	<Object type="0xF061" id="Elder lod Red Soul Flame">
+		<DisplayId>Elder Red Soul of Pyrr</DisplayId>
+		<Class>Character</Class>
+		<Group>Souls</Group>
+		<Enemy />
+		<Texture>
+			<File>lofiObjBig</File>
+			<Index>0x15C</Index>
+		</Texture>
+		<HitSound>monster/skeletons_hit</HitSound>
+		<DeathSound>monster/skeletons_death</DeathSound>
+		<Size>100</Size>
+		<ShadowSize>40</ShadowSize>
+		<MaxHitPoints>16000</MaxHitPoints>
+		<Defense>60</Defense>
+		<Exp>487</Exp>
+		<StasisImmune />
+		<StunImmune />
+		<AltTexture id="1">
+			<Texture>
+				<File>lofiObjBig</File>
+				<Index>0x15D</Index>
+			</Texture>
+		</AltTexture>
+		<AltTexture id="2">
+			<Texture>
+				<File>lofiObjBig</File>
+				<Index>0x15E</Index>
+			</Texture>
+		</AltTexture>
+		<AltTexture id="3">
+			<Texture>
+				<File>lofiObjBig</File>
+				<Index>0x15C</Index>
+			</Texture>
+		</AltTexture>
+		<Projectile id="0">
+			<ObjectId>Dragon Attack Red Small Fireball</ObjectId>
+			<Speed>30</Speed>
+			<Damage>156</Damage>
+			<LifetimeMS>5000</LifetimeMS>
+			<ConditionEffect duration="3">Bleeding</ConditionEffect>
+			<MultiHit />
+		</Projectile>
+		<XpBonus>2</XpBonus>
+	</Object>
+	<Object type="0xF062" id="Elder lod White Dragon Orb">
+		<DisplayId>Elder White Dragon Orb</DisplayId>
+		<Class>Character</Class>
+		<Enemy />
+		<Texture>
+			<File>lairOfDraconisObjects16x16</File>
+			<Index>0x40</Index>
+		</Texture>
+		<Animation prob="1" period="0">
+			<Frame time="0.2">
+				<Texture>
+					<File>lairOfDraconisObjects16x16</File>
+					<Index>0x41</Index>
+				</Texture>
+			</Frame>
+			<Frame time="0.2">
+				<Texture>
+					<File>lairOfDraconisObjects16x16</File>
+					<Index>0x40</Index>
+				</Texture>
+			</Frame>
+			<Frame time="0.2">
+				<Texture>
+					<File>lairOfDraconisObjects16x16</File>
+					<Index>0x42</Index>
+				</Texture>
+			</Frame>
+			<Frame time="0.4">
+				<Texture>
+					<File>lairOfDraconisObjects16x16</File>
+					<Index>0x43</Index>
+				</Texture>
+			</Frame>
+			<Frame time="0.2">
+				<Texture>
+					<File>lairOfDraconisObjects16x16</File>
+					<Index>0x42</Index>
+				</Texture>
+			</Frame>
+			<Frame time="0.2">
+				<Texture>
+					<File>lairOfDraconisObjects16x16</File>
+					<Index>0x40</Index>
+				</Texture>
+			</Frame>
+			<Frame time="0.2">
+				<Texture>
+					<File>lairOfDraconisObjects16x16</File>
+					<Index>0x41</Index>
+				</Texture>
+			</Frame>
+			<Frame time="0.4">
+				<Texture>
+					<File>lairOfDraconisObjects16x16</File>
+					<Index>0x44</Index>
+				</Texture>
+			</Frame>
+		</Animation>
+		<MaxHitPoints>60000</MaxHitPoints>
+		<Defense>60</Defense>
+		<Exp>0</Exp>
+		<Size>100</Size>
+		<ShadowSize>30</ShadowSize>
+		<Z>0.26</Z>
+		<Flying />
+		<StasisImmune />
+		<Projectile id="0">
+			<ObjectId>LOD White Blast</ObjectId>
+			<Speed>43</Speed>
+			<Damage>130</Damage>
+			<Size>100</Size>
+			<LifetimeMS>2500</LifetimeMS>
+			<MultiHit />
+		</Projectile>
+		<Projectile id="1">
+			<ObjectId>LOD White Shot</ObjectId>
+			<Damage>130</Damage>
+			<Speed>40</Speed>
+			<LifetimeMS>2000</LifetimeMS>
+			<Size>80</Size>
+			<MultiHit />
+		</Projectile>
+		<XpBonus>2</XpBonus>
+	</Object>
 	<Object type="0xF018" id="Elder Gothic Arch">
 		<Class>Wall</Class>
 		<RandomTexture>
 			<Texture>
 				<File>elderAssets8x8</File>
-				<Index>0x1a6</Index>
+				<Index>0x1bd</Index>
 			</Texture>
 			<Texture>
 				<File>elderAssets8x8</File>
-				<Index>0x1a7</Index>
+				<Index>0x1be</Index>
 			</Texture>
 		</RandomTexture>
 		<Top>
 			<Texture>
 				<File>elderAssets8x8</File>
-				<Index>0x1a8</Index>
+				<Index>0x1bf</Index>
 			</Texture>
 		</Top>
 		<HitSound>monster/stone_walls_hit</HitSound>
@@ -1615,17 +2346,17 @@
 		<RandomTexture>
 			<Texture>
 				<File>elderAssets8x8</File>
-				<Index>0x1a9</Index>
+				<Index>0x1c0</Index>
 			</Texture>
 			<Texture>
 				<File>elderAssets8x8</File>
-				<Index>0x1aa</Index>
+				<Index>0x1c1</Index>
 			</Texture>
 		</RandomTexture>
 		<Top>
 			<Texture>
 				<File>elderAssets8x8</File>
-				<Index>0x1ab</Index>
+				<Index>0x1c2</Index>
 			</Texture>
 		</Top>
 		<Static />
@@ -1639,17 +2370,17 @@
 		<RandomTexture>
 			<Texture>
 				<File>elderAssets8x8</File>
-				<Index>0x1ac</Index>
+				<Index>0x1c3</Index>
 			</Texture>
 			<Texture>
 				<File>elderAssets8x8</File>
-				<Index>0x1ad</Index>
+				<Index>0x1c4</Index>
 			</Texture>
 		</RandomTexture>
 		<Top>
 			<Texture>
 				<File>elderAssets8x8</File>
-				<Index>0x1ae</Index>
+				<Index>0x1c5</Index>
 			</Texture>
 		</Top>
 		<HitSound>monster/stone_walls_hit</HitSound>
@@ -1665,17 +2396,17 @@
 		<RandomTexture>
 			<Texture>
 				<File>elderAssets8x8</File>
-				<Index>0x1af</Index>
+				<Index>0x1c6</Index>
 			</Texture>
 			<Texture>
 				<File>elderAssets8x8</File>
-				<Index>0x1b0</Index>
+				<Index>0x1c7</Index>
 			</Texture>
 		</RandomTexture>
 		<Top>
 			<Texture>
 				<File>elderAssets8x8</File>
-				<Index>0x1a8</Index>
+				<Index>0x1bf</Index>
 			</Texture>
 		</Top>
 		<HitSound>monster/stone_walls_hit</HitSound>
@@ -1690,37 +2421,37 @@
 		<Class>Wall</Class>
 		<Texture>
 			<File>elderAssets8x8</File>
-			<Index>0x1b1</Index>
+			<Index>0x1c8</Index>
 		</Texture>
 		<Top>
 			<Texture>
 				<File>elderAssets8x8</File>
-				<Index>0x1a8</Index>
+				<Index>0x1bf</Index>
 			</Texture>
 		</Top>
 		<Animation sync="true" prob="1" period="5.5">
 			<Frame time="4">
 				<Texture>
 					<File>elderAssets8x8</File>
-					<Index>0x1b1</Index>
+					<Index>0x1c8</Index>
 				</Texture>
 			</Frame>
 			<Frame time="0.2">
 				<Texture>
 					<File>elderAssets8x8</File>
-					<Index>0x1b2</Index>
+					<Index>0x1c9</Index>
 				</Texture>
 			</Frame>
 			<Frame time="0.2">
 				<Texture>
 					<File>elderAssets8x8</File>
-					<Index>0x1b1</Index>
+					<Index>0x1c8</Index>
 				</Texture>
 			</Frame>
 			<Frame time="0.4">
 				<Texture>
 					<File>elderAssets8x8</File>
-					<Index>0x1b2</Index>
+					<Index>0x1c9</Index>
 				</Texture>
 			</Frame>
 		</Animation>
@@ -1736,12 +2467,12 @@
 		<Class>Wall</Class>
 		<Texture>
 			<File>elderAssets8x8</File>
-			<Index>0x1eb</Index>
+			<Index>0x202</Index>
 		</Texture>
 		<Top>
 			<Texture>
 				<File>elderAssets8x8</File>
-				<Index>0x1ec</Index>
+				<Index>0x203</Index>
 			</Texture>
 		</Top>
 		<HitSound>monster/wooden_walls_hit</HitSound>
@@ -1756,12 +2487,12 @@
 		<Class>Wall</Class>
 		<Texture>
 			<File>elderAssets8x8</File>
-			<Index>0x1ed</Index>
+			<Index>0x204</Index>
 		</Texture>
 		<Top>
 			<Texture>
 				<File>elderAssets8x8</File>
-				<Index>0x1ec</Index>
+				<Index>0x203</Index>
 			</Texture>
 		</Top>
 		<HitSound>monster/wooden_walls_hit</HitSound>
@@ -1791,7 +2522,7 @@
 		<Class>CaveWall</Class>
 		<Texture>
 			<File>elderAssets8x8</File>
-			<Index>0x20a</Index>
+			<Index>0x221</Index>
 		</Texture>
 		<ShadowSize>0</ShadowSize>
 		<Static />
@@ -1805,45 +2536,25 @@
 		<Class>Wall</Class>
 		<Texture>
 			<File>elderAssets8x8</File>
-			<Index>0x23c</Index>
+			<Index>0x253</Index>
 		</Texture>
 		<Animation prob="0.5" period=".6">
 			<Frame time="0.2">
 				<Texture>
 					<File>elderAssets8x8</File>
-					<Index>0x23c</Index>
+					<Index>0x253</Index>
 				</Texture>
 			</Frame>
 			<Frame time="0.2">
 				<Texture>
 					<File>elderAssets8x8</File>
-					<Index>0x23d</Index>
+					<Index>0x254</Index>
 				</Texture>
 			</Frame>
 			<Frame time="0.2">
 				<Texture>
 					<File>elderAssets8x8</File>
-					<Index>0x23e</Index>
-				</Texture>
-			</Frame>
-		</Animation>
-		<Animation prob="0.5" period=".6">
-			<Frame time="0.2">
-				<Texture>
-					<File>elderAssets8x8</File>
-					<Index>0x23f</Index>
-				</Texture>
-			</Frame>
-			<Frame time="0.2">
-				<Texture>
-					<File>elderAssets8x8</File>
-					<Index>0x23e</Index>
-				</Texture>
-			</Frame>
-			<Frame time="0.2">
-				<Texture>
-					<File>elderAssets8x8</File>
-					<Index>0x23d</Index>
+					<Index>0x255</Index>
 				</Texture>
 			</Frame>
 		</Animation>
@@ -1851,26 +2562,46 @@
 			<Frame time="0.2">
 				<Texture>
 					<File>elderAssets8x8</File>
-					<Index>0x240</Index>
+					<Index>0x256</Index>
 				</Texture>
 			</Frame>
 			<Frame time="0.2">
 				<Texture>
 					<File>elderAssets8x8</File>
-					<Index>0x23c</Index>
+					<Index>0x255</Index>
 				</Texture>
 			</Frame>
 			<Frame time="0.2">
 				<Texture>
 					<File>elderAssets8x8</File>
-					<Index>0x23e</Index>
+					<Index>0x254</Index>
+				</Texture>
+			</Frame>
+		</Animation>
+		<Animation prob="0.5" period=".6">
+			<Frame time="0.2">
+				<Texture>
+					<File>elderAssets8x8</File>
+					<Index>0x257</Index>
+				</Texture>
+			</Frame>
+			<Frame time="0.2">
+				<Texture>
+					<File>elderAssets8x8</File>
+					<Index>0x253</Index>
+				</Texture>
+			</Frame>
+			<Frame time="0.2">
+				<Texture>
+					<File>elderAssets8x8</File>
+					<Index>0x255</Index>
 				</Texture>
 			</Frame>
 		</Animation>
 		<Top>
 			<Texture>
 				<File>elderAssets8x8</File>
-				<Index>0x241</Index>
+				<Index>0x176</Index>
 			</Texture>
 		</Top>
 		<HitSound>monster/stone_walls_hit</HitSound>
@@ -1886,57 +2617,57 @@
 		<RandomTexture>
 			<Texture>
 				<File>elderAssets8x8</File>
-				<Index>0x242</Index>
+				<Index>0x258</Index>
 			</Texture>
 			<Texture>
 				<File>elderAssets8x8</File>
-				<Index>0x243</Index>
+				<Index>0x259</Index>
 			</Texture>
 			<Texture>
 				<File>elderAssets8x8</File>
-				<Index>0x244</Index>
+				<Index>0x25a</Index>
 			</Texture>
 			<Texture>
 				<File>elderAssets8x8</File>
-				<Index>0x245</Index>
+				<Index>0x25b</Index>
 			</Texture>
 			<Texture>
 				<File>elderAssets8x8</File>
-				<Index>0x246</Index>
+				<Index>0x25c</Index>
 			</Texture>
 			<Texture>
 				<File>elderAssets8x8</File>
-				<Index>0x247</Index>
+				<Index>0x25d</Index>
 			</Texture>
 			<Texture>
 				<File>elderAssets8x8</File>
-				<Index>0x248</Index>
+				<Index>0x25e</Index>
 			</Texture>
 			<Texture>
 				<File>elderAssets8x8</File>
-				<Index>0x249</Index>
+				<Index>0x25f</Index>
 			</Texture>
 			<Texture>
 				<File>elderAssets8x8</File>
-				<Index>0x24a</Index>
+				<Index>0x260</Index>
 			</Texture>
 			<Texture>
 				<File>elderAssets8x8</File>
-				<Index>0x24b</Index>
+				<Index>0x261</Index>
 			</Texture>
 			<Texture>
 				<File>elderAssets8x8</File>
-				<Index>0x24c</Index>
+				<Index>0x262</Index>
 			</Texture>
 			<Texture>
 				<File>elderAssets8x8</File>
-				<Index>0x24d</Index>
+				<Index>0x263</Index>
 			</Texture>
 		</RandomTexture>
 		<Top>
 			<Texture>
 				<File>elderAssets8x8</File>
-				<Index>0x241</Index>
+				<Index>0x176</Index>
 			</Texture>
 		</Top>
 		<HitSound>monster/stone_walls_hit</HitSound>
@@ -1952,25 +2683,25 @@
 		<RandomTexture>
 			<Texture>
 				<File>elderAssets8x8</File>
-				<Index>0x24e</Index>
+				<Index>0x264</Index>
 			</Texture>
 			<Texture>
 				<File>elderAssets8x8</File>
-				<Index>0x24f</Index>
+				<Index>0x265</Index>
 			</Texture>
 			<Texture>
 				<File>elderAssets8x8</File>
-				<Index>0x250</Index>
+				<Index>0x266</Index>
 			</Texture>
 			<Texture>
 				<File>elderAssets8x8</File>
-				<Index>0x251</Index>
+				<Index>0x267</Index>
 			</Texture>
 		</RandomTexture>
 		<Top>
 			<Texture>
 				<File>elderAssets8x8</File>
-				<Index>0x241</Index>
+				<Index>0x176</Index>
 			</Texture>
 		</Top>
 		<HitSound>monster/stone_walls_hit</HitSound>
@@ -1985,12 +2716,12 @@
 		<Class>Wall</Class>
 		<Texture>
 			<File>elderAssets8x8</File>
-			<Index>0x252</Index>
+			<Index>0x268</Index>
 		</Texture>
 		<Top>
 			<Texture>
 				<File>elderAssets8x8</File>
-				<Index>0x253</Index>
+				<Index>0x269</Index>
 			</Texture>
 		</Top>
 		<HitSound>monster/stone_walls_hit</HitSound>
@@ -2008,7 +2739,7 @@
 		<Class>GameObject</Class>
 		<Texture>
 			<File>elderAssets8x8</File>
-			<Index>0x254</Index>
+			<Index>0x26a</Index>
 		</Texture>
 		<DrawOnGround />
 	</Object>
@@ -2173,94 +2904,6 @@
 		<RandomTexture>
 			<Texture>
 				<File>elderAssets8x8</File>
-				<Index>0x29b</Index>
-			</Texture>
-			<Texture>
-				<File>elderAssets8x8</File>
-				<Index>0x29c</Index>
-			</Texture>
-			<Texture>
-				<File>elderAssets8x8</File>
-				<Index>0x29d</Index>
-			</Texture>
-			<Texture>
-				<File>elderAssets8x8</File>
-				<Index>0x29e</Index>
-			</Texture>
-			<Texture>
-				<File>elderAssets8x8</File>
-				<Index>0x29f</Index>
-			</Texture>
-			<Texture>
-				<File>elderAssets8x8</File>
-				<Index>0x2a0</Index>
-			</Texture>
-			<Texture>
-				<File>elderAssets8x8</File>
-				<Index>0x2a1</Index>
-			</Texture>
-			<Texture>
-				<File>elderAssets8x8</File>
-				<Index>0x2a2</Index>
-			</Texture>
-			<Texture>
-				<File>elderAssets8x8</File>
-				<Index>0x2a3</Index>
-			</Texture>
-			<Texture>
-				<File>elderAssets8x8</File>
-				<Index>0x2a4</Index>
-			</Texture>
-			<Texture>
-				<File>elderAssets8x8</File>
-				<Index>0x2a5</Index>
-			</Texture>
-			<Texture>
-				<File>elderAssets8x8</File>
-				<Index>0x2a6</Index>
-			</Texture>
-			<Texture>
-				<File>elderAssets8x8</File>
-				<Index>0x2a7</Index>
-			</Texture>
-			<Texture>
-				<File>elderAssets8x8</File>
-				<Index>0x2a8</Index>
-			</Texture>
-			<Texture>
-				<File>elderAssets8x8</File>
-				<Index>0x2a9</Index>
-			</Texture>
-			<Texture>
-				<File>elderAssets8x8</File>
-				<Index>0x2aa</Index>
-			</Texture>
-			<Texture>
-				<File>elderAssets8x8</File>
-				<Index>0x2ab</Index>
-			</Texture>
-			<Texture>
-				<File>elderAssets8x8</File>
-				<Index>0x2ac</Index>
-			</Texture>
-			<Texture>
-				<File>elderAssets8x8</File>
-				<Index>0x2ad</Index>
-			</Texture>
-			<Texture>
-				<File>elderAssets8x8</File>
-				<Index>0x2ae</Index>
-			</Texture>
-			<Texture>
-				<File>elderAssets8x8</File>
-				<Index>0x2af</Index>
-			</Texture>
-			<Texture>
-				<File>elderAssets8x8</File>
-				<Index>0x2b0</Index>
-			</Texture>
-			<Texture>
-				<File>elderAssets8x8</File>
 				<Index>0x2b1</Index>
 			</Texture>
 			<Texture>
@@ -2287,30 +2930,118 @@
 				<File>elderAssets8x8</File>
 				<Index>0x2b7</Index>
 			</Texture>
+			<Texture>
+				<File>elderAssets8x8</File>
+				<Index>0x2b8</Index>
+			</Texture>
+			<Texture>
+				<File>elderAssets8x8</File>
+				<Index>0x2b9</Index>
+			</Texture>
+			<Texture>
+				<File>elderAssets8x8</File>
+				<Index>0x2ba</Index>
+			</Texture>
+			<Texture>
+				<File>elderAssets8x8</File>
+				<Index>0x2bb</Index>
+			</Texture>
+			<Texture>
+				<File>elderAssets8x8</File>
+				<Index>0x2bc</Index>
+			</Texture>
+			<Texture>
+				<File>elderAssets8x8</File>
+				<Index>0x2bd</Index>
+			</Texture>
+			<Texture>
+				<File>elderAssets8x8</File>
+				<Index>0x2be</Index>
+			</Texture>
+			<Texture>
+				<File>elderAssets8x8</File>
+				<Index>0x2bf</Index>
+			</Texture>
+			<Texture>
+				<File>elderAssets8x8</File>
+				<Index>0x2c0</Index>
+			</Texture>
+			<Texture>
+				<File>elderAssets8x8</File>
+				<Index>0x2c1</Index>
+			</Texture>
+			<Texture>
+				<File>elderAssets8x8</File>
+				<Index>0x2c2</Index>
+			</Texture>
+			<Texture>
+				<File>elderAssets8x8</File>
+				<Index>0x2c3</Index>
+			</Texture>
+			<Texture>
+				<File>elderAssets8x8</File>
+				<Index>0x2c4</Index>
+			</Texture>
+			<Texture>
+				<File>elderAssets8x8</File>
+				<Index>0x2c5</Index>
+			</Texture>
+			<Texture>
+				<File>elderAssets8x8</File>
+				<Index>0x2c6</Index>
+			</Texture>
+			<Texture>
+				<File>elderAssets8x8</File>
+				<Index>0x2c7</Index>
+			</Texture>
+			<Texture>
+				<File>elderAssets8x8</File>
+				<Index>0x2c8</Index>
+			</Texture>
+			<Texture>
+				<File>elderAssets8x8</File>
+				<Index>0x2c9</Index>
+			</Texture>
+			<Texture>
+				<File>elderAssets8x8</File>
+				<Index>0x2ca</Index>
+			</Texture>
+			<Texture>
+				<File>elderAssets8x8</File>
+				<Index>0x2cb</Index>
+			</Texture>
+			<Texture>
+				<File>elderAssets8x8</File>
+				<Index>0x2cc</Index>
+			</Texture>
+			<Texture>
+				<File>elderAssets8x8</File>
+				<Index>0x2cd</Index>
+			</Texture>
 		</RandomTexture>
 		<DotTexture>
 			<File>elderAssets8x8</File>
-			<Index>0x2b8</Index>
+			<Index>0x2ce</Index>
 		</DotTexture>
 		<ShortLineTexture>
 			<File>elderAssets8x8</File>
-			<Index>0x2b9</Index>
+			<Index>0x2cf</Index>
 		</ShortLineTexture>
 		<LTexture>
 			<File>elderAssets8x8</File>
-			<Index>0x2ba</Index>
+			<Index>0x2d0</Index>
 		</LTexture>
 		<LineTexture>
 			<File>elderAssets8x8</File>
-			<Index>0x2bb</Index>
+			<Index>0x2d1</Index>
 		</LineTexture>
 		<TTexture>
 			<File>elderAssets8x8</File>
-			<Index>0x2bc</Index>
+			<Index>0x2d2</Index>
 		</TTexture>
 		<CrossTexture>
 			<File>elderAssets8x8</File>
-			<Index>0x2bd</Index>
+			<Index>0x2d3</Index>
 		</CrossTexture>
 		<Static />
 		<FullOccupy />
@@ -2324,12 +3055,12 @@
 		<Class>Wall</Class>
 		<Texture>
 			<File>elderAssets8x8</File>
-			<Index>0x2d3</Index>
+			<Index>0x2e9</Index>
 		</Texture>
 		<Top>
 			<Texture>
 				<File>elderAssets8x8</File>
-				<Index>0x2d4</Index>
+				<Index>0x2ea</Index>
 			</Texture>
 		</Top>
 		<HitSound>monster/stone_walls_hit</HitSound>
@@ -2344,45 +3075,25 @@
 		<Class>Wall</Class>
 		<Texture>
 			<File>elderAssets8x8</File>
-			<Index>0x2d5</Index>
+			<Index>0x2eb</Index>
 		</Texture>
 		<Animation prob="0.5" period=".6">
 			<Frame time="0.2">
 				<Texture>
 					<File>elderAssets8x8</File>
-					<Index>0x2d6</Index>
+					<Index>0x2ec</Index>
 				</Texture>
 			</Frame>
 			<Frame time="0.2">
 				<Texture>
 					<File>elderAssets8x8</File>
-					<Index>0x2d7</Index>
+					<Index>0x2ed</Index>
 				</Texture>
 			</Frame>
 			<Frame time="0.2">
 				<Texture>
 					<File>elderAssets8x8</File>
-					<Index>0x2d8</Index>
-				</Texture>
-			</Frame>
-		</Animation>
-		<Animation prob="0.5" period=".6">
-			<Frame time="0.2">
-				<Texture>
-					<File>elderAssets8x8</File>
-					<Index>0x2d9</Index>
-				</Texture>
-			</Frame>
-			<Frame time="0.2">
-				<Texture>
-					<File>elderAssets8x8</File>
-					<Index>0x2da</Index>
-				</Texture>
-			</Frame>
-			<Frame time="0.2">
-				<Texture>
-					<File>elderAssets8x8</File>
-					<Index>0x2db</Index>
+					<Index>0x2ee</Index>
 				</Texture>
 			</Frame>
 		</Animation>
@@ -2390,26 +3101,46 @@
 			<Frame time="0.2">
 				<Texture>
 					<File>elderAssets8x8</File>
-					<Index>0x2d8</Index>
+					<Index>0x2ef</Index>
 				</Texture>
 			</Frame>
 			<Frame time="0.2">
 				<Texture>
 					<File>elderAssets8x8</File>
-					<Index>0x2d9</Index>
+					<Index>0x2f0</Index>
 				</Texture>
 			</Frame>
 			<Frame time="0.2">
 				<Texture>
 					<File>elderAssets8x8</File>
-					<Index>0x2d6</Index>
+					<Index>0x2f1</Index>
+				</Texture>
+			</Frame>
+		</Animation>
+		<Animation prob="0.5" period=".6">
+			<Frame time="0.2">
+				<Texture>
+					<File>elderAssets8x8</File>
+					<Index>0x2ee</Index>
+				</Texture>
+			</Frame>
+			<Frame time="0.2">
+				<Texture>
+					<File>elderAssets8x8</File>
+					<Index>0x2ef</Index>
+				</Texture>
+			</Frame>
+			<Frame time="0.2">
+				<Texture>
+					<File>elderAssets8x8</File>
+					<Index>0x2ec</Index>
 				</Texture>
 			</Frame>
 		</Animation>
 		<Top>
 			<Texture>
 				<File>elderAssets8x8</File>
-				<Index>0x2d4</Index>
+				<Index>0x2ea</Index>
 			</Texture>
 		</Top>
 		<HitSound>monster/stone_walls_hit</HitSound>

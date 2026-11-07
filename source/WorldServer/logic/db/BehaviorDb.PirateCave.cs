@@ -21,6 +21,7 @@ namespace WorldServer.logic
             string E(string id) => ElderDefines(id, elder);
             int Cd(int ms) => ElderCooldown(ms, elder);
             MobDrops Elder(string id) => ElderDrops(id, elder);
+            MobDrops ElderLoot(double threshold, params MobDrops[] drops) => new Threshold(threshold, elder ? drops : new MobDrops[0]);
 
             return db
             .Init(E("Dreadstump the Pirate King"),
@@ -55,7 +56,9 @@ namespace WorldServer.logic
                 new TierLoot(3, ItemType.Armor, 0.05),
                 new TierLoot(4, ItemType.Armor, 0.01),
                 new TierLoot(1, ItemType.Ring, 0.1),
-                new ItemLoot("Pirate Rum", 0.01), Elder("Dreadstump the Pirate King"))
+                new ItemLoot("Pirate Rum", 0.01), Elder("Dreadstump the Pirate King"),
+                // the Elder dungeon's Potion of Max
+                ElderLoot(0.01, new ItemLoot("Potion of Max Attack", 0.05)))
             .Init(E("Pirate Lieutenant"),
                 new State(
                     new Prioritize(

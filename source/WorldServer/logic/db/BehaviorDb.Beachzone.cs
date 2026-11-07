@@ -15,6 +15,7 @@ namespace WorldServer.logic
         {
             string E(string id) => ElderDefines(id, elder);
             MobDrops Elder(string id) => ElderDrops(id, elder);
+            MobDrops ElderLoot(double threshold, params MobDrops[] drops) => new Threshold(threshold, elder ? drops : new MobDrops[0]);
 
             return db
             .Init(E("Masked Party God"),
@@ -39,7 +40,9 @@ namespace WorldServer.logic
                     new ItemLoot("Beach Ball Generator", elder ? 0.06 : 0.03),
                     new ItemLoot("Potion of Speed", 1),
                     new ItemLoot("Potion of Dexterity", 0.5)
-                    ), Elder("Masked Party God"));
+                    ), Elder("Masked Party God"),
+                // the Elder dungeon's Potion of Max
+                ElderLoot(0.01, new ItemLoot("Potion of Max Speed", 0.05)));
         }
     }
 }

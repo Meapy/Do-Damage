@@ -65,6 +65,9 @@ falling all over it: `/vault` or the Vault portal on the Nexus spawn's island. I
   items safe when a character dies. A new account has
   {{v:vault_chests}}; more cost {{v:vault_chest_price}} fame each (click a closed chest in the
   vault), or use a Vault Chest Unlocker.
+- (Not in your vault but in the Nexus: four **shared vault chests** in the vault yard, north
+  across the spawn's pond, that every player can put items in and take them from. They keep
+  their items through restarts.)
 - **Gift chests**, in the two fenced yards either side of the path, where things sent to you arrive. You can take items out but not put them in.
 - The **Potion Storage**, the Armoire and the Guild Chronicle.
 - The **Collection**, a golden trophy left of the spawn: every piece of gear (weapons, abilities,

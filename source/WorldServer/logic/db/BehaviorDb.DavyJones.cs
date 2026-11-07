@@ -21,6 +21,7 @@ namespace WorldServer.logic
             string E(string id) => ElderDefines(id, elder);
             int Cd(int ms) => ElderCooldown(ms, elder);
             MobDrops Elder(string id) => ElderDrops(id, elder);
+            MobDrops ElderLoot(double threshold, params MobDrops[] drops) => new Threshold(threshold, elder ? drops : new MobDrops[0]);
 
             return db
             .Init(E("Davy Jones"),
@@ -81,7 +82,9 @@ namespace WorldServer.logic
                     new ItemLoot("Ruby Gemstone", 0.02),
                     new ItemLoot("Golden Chalice", 0.025),
                     new ItemLoot("Pearl Necklace", 0.035)
-                    ), Elder("Davy Jones"))
+                    ), Elder("Davy Jones"),
+                // the Elder dungeon's Potion of Max
+                ElderLoot(0.01, new ItemLoot("Potion of Max Wisdom", 0.05)))
             .Init(E("Ghost Lanturn Off"),
                 new State(
                     new State("default",

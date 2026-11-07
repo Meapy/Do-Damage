@@ -237,6 +237,8 @@ struct App {
     /// the server on opening.
     quests: quests::Quests,
     quest_acts: Vec<quests::Act>,
+    /// Options, Gameplay: what drinking from loot bags has done (`auto_drink`).
+    auto_drunk: AutoDrink,
     /// The community goals window and its banners, and what it asked of the server.
     community: community::Community,
     community_acts: Vec<community::Act>,
@@ -468,6 +470,56 @@ impl Default for Bench {
     fn default() -> Self {
         Bench { since: Instant::now(), frames: 0, build: 0.0, total: 0.0 }
     }
+}
+
+/// What `auto_drink` has done in the bag we stand on: when it last drank, and the potions it has
+/// asked for there (a slot and the item), so one the server refuses (a full potion storage, a
+/// trade) isn't asked for again until we step onto another bag.
+#[derive(Default)]
+struct AutoDrink {
+    bag: Option<i32>,
+    last: i32,
+    tried: HashSet<(u8, i32)>,
+}
+
+/// The least time between two potions drunk from a bag (ms), so each one's message shows.
+const AUTO_DRINK_GAP_MS: i32 = 250;
+
+/// Options, Gameplay, "Drink stat potions from loot bags": the stat potions in the bag we stand on
+/// are drunk one after another, as a double-click on each would (a maxed stat's goes to the potion
+/// storage). Only plain stat potions: not a Potion of Max or of Oryx, which a player may keep for
+/// another character.
+fn auto_drink(game: &mut Game, panel: &hud::Panel, now: i32, data: &GameData, state: &mut AutoDrink) {
+    let bag = panel.interact.as_ref().filter(|t| t.kind == hud::InteractKind::Container).map(|t| t.id);
+    if bag != state.bag {
+        *state = AutoDrink { bag, ..Default::default() };
+    }
+    if bag.is_none() || now.wrapping_sub(state.last) < AUTO_DRINK_GAP_MS {
+        return;
+    }
+    let next = panel
+        .slots
+        .iter()
+        .find(|s| s.kind == hud::SlotKind::Container && s.item > 0 && !state.tried.contains(&(s.index, s.item)) && plain_stat_potion(data, s.item));
+    if let Some(s) = next {
+        state.tried.insert((s.index, s.item));
+        state.last = now;
+        game.use_item(now, s.owner, s.index, s.item, data);
+    }
+}
+
+/// A stat potion `auto_drink` drinks: a consumable potion whose one activate raises a stat by a
+/// little (10 at most) and stores no different amount when the stat is maxed.
+fn plain_stat_potion(data: &GameData, item: i32) -> bool {
+    let Some(d) = data.objects.get(&(item as u16)) else { return false };
+    let xml = &d.xml;
+    let mut acts = xml.children_named("Activate");
+    let (Some(a), None) = (acts.next(), acts.next()) else { return false };
+    xml.has("Potion")
+        && xml.has("Consumable")
+        && a.text.trim() == "IncrementStat"
+        && a.attr("storeAmount").is_none()
+        && (1..=10).contains(&a.attr_int("amount", 0))
 }
 
 /// Carry out what the player did on the HUD (`ItemGridMediator`).
@@ -2598,6 +2650,11 @@ impl App {
                     self.mouse_down = down && !lay.on_panel(self.mouse.0, self.mouse.1);
                 }
             }
+            if self.settings.auto_drink {
+                if let Some(p) = &built {
+                    auto_drink(game, p, now, data, &mut self.auto_drunk);
+                }
+            }
             panel = built;
             if let Some(world) = &game.world {
                 self.hud.minimap_zoom = self.hud.minimap_zoom.min(hud::minimap_levels(world).len() - 1);
@@ -3481,6 +3538,7 @@ fn main() {
         events: Default::default(),
         quests: Default::default(),
         quest_acts: Vec::new(),
+        auto_drunk: AutoDrink::default(),
         community: Default::default(),
         community_acts: Vec::new(),
         collection: Default::default(),

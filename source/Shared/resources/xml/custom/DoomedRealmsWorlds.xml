@@ -50,7 +50,6 @@
 		<RandomLayout corridor="3" passage="4">
 			<Goal>Elder Archdemon Malphas</Goal>
 		</RandomLayout>
-		<DisableTeleport/>
 		<Dungeon/>
 	</World>
 	<World id="Elder Beach Zone">
@@ -72,7 +71,13 @@
 		<Height>119</Height>
 		<MapJM>Doomed/Lair of Elder Draconis.jm</MapJM>
 		<VisibilityType>1</VisibilityType>
-		<DisableTeleport/>
+		<Dungeon/>
+	</World>
+	<World id="The Elder Ivory Wyvern">
+		<Width>27</Width>
+		<Height>28</Height>
+		<MapJM>Doomed/The Elder Ivory Wyvern.jm</MapJM>
+		<VisibilityType>1</VisibilityType>
 		<Dungeon/>
 	</World>
 	<World id="Elder Jungle">
@@ -110,7 +115,6 @@
 		<RandomLayout corridor="3" passage="4">
 			<Goal>Elder Dreadstump the Pirate King</Goal>
 		</RandomLayout>
-		<DisableTeleport/>
 		<Dungeon/>
 	</World>
 	<World id="Elder Snake Pit">
@@ -121,7 +125,6 @@
 		<RandomLayout corridor="3" passage="4">
 			<Goal>Elder Stheno the Snake Queen</Goal>
 		</RandomLayout>
-		<DisableTeleport/>
 		<Dungeon/>
 	</World>
 	<World id="Elder Spider Den">
@@ -132,7 +135,6 @@
 		<RandomLayout corridor="3" passage="4">
 			<Goal>Elder Arachna the Spider Queen</Goal>
 		</RandomLayout>
-		<DisableTeleport/>
 		<Dungeon/>
 	</World>
 	<World id="Elder Sprite World">
@@ -140,7 +142,9 @@
 		<Height>128</Height>
 		<MapJM>Doomed/Elder Sprite World.jm</MapJM>
 		<VisibilityType>1</VisibilityType>
-		<DisableTeleport/>
+		<RandomLayout corridor="2" passage="2">
+			<Goal>Elder Limon the Sprite God</Goal>
+		</RandomLayout>
 		<Dungeon/>
 	</World>
 	<World id="Elder Tomb of the Ancients">
@@ -151,7 +155,6 @@
 		<RandomLayout>
 			<Goal>Elder Inactive Sarcophagus</Goal>
 		</RandomLayout>
-		<DisableTeleport/>
 		<Dungeon/>
 	</World>
 	<World id="Elder Undead Lair">
@@ -162,7 +165,6 @@
 		<RandomLayout corridor="3" passage="4">
 			<Goal>Elder Septavius the Ghost God</Goal>
 		</RandomLayout>
-		<DisableTeleport/>
 		<Dungeon/>
 	</World>
 	<World id="Forest Sanctuary">

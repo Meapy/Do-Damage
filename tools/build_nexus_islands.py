@@ -19,7 +19,8 @@ heights, joined by bridges; floor 1 is the lowest map (the game's `World.Levels[
   healing basins, the Armoire, the Vault Portal, the Support Bot and its dungeon portal (`Nexus
   Bot`, `Nexus Dungeon`), the XP ducks on the pond (NexusGuide), the Name Changer and the
   Character Changer about the deck (`Nexus Name Changer`, `Nexus Character Changer`), the pond's
-  lobe to the north-east with lily pads and frogs; the pond is waded (no bridges over it) to the
+  lobe to the north-east with lily pads and frogs, the vault yard on its north shore (the
+  storehouse and the shared vault chests, `VAULT_YARD`); the pond is waded (no bridges over it) to the
   paths west, east and south to the big bridges, and its south-east quarter mirrors its
   south-west (`mirror_spawn`).
 - MARKET (west, floor 2), across an arched wooden bridge (as the garden's over its pond): the
@@ -122,7 +123,13 @@ POND_SCALE = (1.75, 1.62)
 POND_LOBE = (10, -9, 6.5, 5)
 # The south-east quarter of the spawn's island, below the bridge east, is the south-west's
 # mirrored (`mirror_spawn`): the pond's corner, its bank and the grove beyond (the storehouse and
-# the shared vault chests stood there until 2026-11-05)
+# the shared vault chests stood there until 2026-11-05; they're on the north shore since 2026-11-06)
+# The vault yard on the north shore, across the pond from the spawn deck: the storehouse (its
+# middle, from the spawn's middle) and the four shared vault chests in a row before it, each named
+# after the castle tile its items are kept under in Redis (build_nexus.CHESTS, NexusWorld
+# LinkVaultChests), so they keep what's in them
+VAULT_YARD = (0, -21)
+VAULT_CHESTS = [(dx, -18) for dx in (-4, -2, 2, 4)]
 NATURE = (SAKURA, WEEPING, PINE, MAPLE, YOUNG, BAMBOO, AZALEA, BOULDER, "NG Grass Tuft", "NG Pink Flowers",
           "NG Blue Flowers", "NG Fallen Petals", "NG Lily Pad", "NG Lotus", "NG Koi")
 
@@ -402,6 +409,18 @@ def lay_spawn(g):
             px, py = (x, y + k) if d[1] == 0 else (x + k, y)
             if g.land(px, py) and g.empty(px, py):
                 g.place(px, py, lamp)
+    # the vault yard on the north shore: the storehouse with the shared vault chests before it, on
+    # a paved yard fenced in bamboo, open to the pond (waded to from the deck, as the other shores)
+    hx, hy = sx + VAULT_YARD[0], sy + VAULT_YARD[1]
+    g.rect(hx - 6, hy + 2, hx + 6, hy + 4, PATH)
+    g.model("NG Storehouse", hx, hy)
+    for ((dx, dy), (_, (ox, oy))) in zip(VAULT_CHESTS, bn.CHESTS):
+        g.place(sx + dx, sy + dy, "Vault Chest", name="%d_%d" % (ox, oy))
+    for x in (hx - 6, hx + 6):
+        for y in range(hy, hy + 5):
+            g.model("NG Bamboo Fence NS", x, y)
+    for x in (hx - 3, hx + 3):
+        g.place(x, hy + 1, LANTERN)
     # the pond's lobe to the north-east: lily pads, lotus and frogs on it
     rng = random.Random(7)
     spots = [(x, y) for y in range(int(sy + ly - lh - 1), int(sy + ly + lh + 2)) for x in range(int(sx + lx - lw - 1), int(sx + lx + lw + 2))
@@ -900,7 +919,8 @@ def check(levels):
     assert regions.get("Nexus Bar", 0) >= 12, regions
     for shop, _, n, _ in bn.SHOPS:
         assert regions.get(shop) == n, (shop, regions.get(shop))
-    assert not any(t["obj"] == "Vault Chest" for g in levels for row in g.t for t in row), "the Nexus has no shared chests"
+    chests = sorted(t["name"] for g in levels for row in g.t for t in row if t["obj"] == "Vault Chest")
+    assert chests == sorted("%d_%d" % c for _, c in bn.CHESTS), ("the shared vault chests", chests)
     # the Arena's pit and the portals' floors clear
     g0 = levels[0]
     for (cx, cy), r in [(VORTEX, 3), (ARENA_PIT, 2)] + [(c, 2) for c in CAVERNS]:

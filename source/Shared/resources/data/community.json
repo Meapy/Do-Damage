@@ -198,6 +198,7 @@
         {"item": "Elder Tomb Key", "weight": 6, "rarity": "rare"},
         {"item": "Elder Abyss Key", "weight": 6, "rarity": "rare"},
         {"item": "Elder Draconis Key", "weight": 3, "rarity": "epic"},
+        {"item": "Elder Ivory Wyvern Key", "weight": 2, "rarity": "epic"},
         {"item": "Ascended Weapon Shard", "weight": 2, "rarity": "epic"},
         {"item": "Ascended Armor Shard", "weight": 2, "rarity": "epic"},
         {"item": "Infernal Potion of Wisdom", "weight": 0.8, "rarity": "legendary"},
@@ -301,7 +302,7 @@
         {"item": "Potion of Maxy", "weight": 0.8, "rarity": "legendary"},
         {"item": "Lil' Celestial Oryx Generator", "weight": 0.25, "rarity": "divine"}
       ] },
-    { "id": "potions", "group": "potions", "title": "Strength in Numbers", "text": "Drink {n} stat potions on stats that aren't maxed yet.", "icon": "Potion of Life",
+    { "id": "potions", "group": "potions", "title": "Strength in Numbers", "text": "Drink {n} stat potions on stats that aren't maxed yet, from your inventory or your potion storage.", "icon": "Potion of Life",
       "event": "potion", "goal": 60, "minimum": 2,
       "tiers": [
         [{"fame": 150}, {"item": "Potion of Life"}],

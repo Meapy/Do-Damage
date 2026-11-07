@@ -98,6 +98,14 @@ namespace WorldServer.core.net.handlers
             player.SendInfo($"You deposited {(isGreater ? $"two {typeName}" : $"a{accForVowel} {typeName}")}!");
         }
 
+        // Potions drunk from storage count for community goals (Strength in Numbers), as ones
+        // drunk from the inventory do.
+        private static void CountForCommunity(Player player, string typeName, int count)
+        {
+            if (count > 0)
+                community.CommunityGoals.Count(player, new Shared.quests.QuestEvent(Shared.quests.QuestEvents.Potion, count) { Name = "Potion of " + typeName });
+        }
+
         private void ModifyRemove(Player player, byte type, string typeName, bool isConsume = false, bool isMax = false)
         {
             if (CanModifyStat(player, type, true))
@@ -123,6 +131,7 @@ namespace WorldServer.core.net.handlers
 
                 ModifyStat(player, type, false);
                 player.FameCounter.DrinkPot();
+                CountForCommunity(player, typeName, 1);
 
                 player.SendInfo($"You consumed a {typeName}!");
                 return;
@@ -153,6 +162,7 @@ namespace WorldServer.core.net.handlers
 
                 ModifyStat(player, type, false, toMax);
                 player.FameCounter.DrinkPot(toMax);
+                CountForCommunity(player, typeName, toMax);
                 if (newToMax > 0)
                     return;
                 else

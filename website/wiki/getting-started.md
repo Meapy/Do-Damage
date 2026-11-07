@@ -79,7 +79,10 @@ Text boxes (chat, sign-in) copy, cut and paste with <kbd>Ctrl</kbd>+<kbd>C</kbd>
 (<kbd>Cmd</kbd> on a Mac). In the browser, <kbd>Ctrl</kbd>+<kbd>R</kbd>, <kbd>F5</kbd>,
 <kbd>F12</kbd> and the browser's tab and zoom keys still work, unless a control uses that key.
 
-**Options** (<kbd>O</kbd>, or from the <kbd>Esc</kbd> menu) has a **Visuals** tab for what you
+**Options** (<kbd>O</kbd>, or from the <kbd>Esc</kbd> menu) has a **Gameplay** tab with
+"Drink stat potions from loot bags": while it's on, the stat potions in a bag you stand on are drunk
+by themselves (a maxed stat's go to your potion storage), leaving Potions of Max and of Oryx for you
+to keep. It's off unless you turn it on. A **Visuals** tab has what you
 see in the world: the crosshair, particles, shadows, health bars, damage numbers, and how much of
 other players and their pets you see, the **Chat size** (50% to 150%: its text, width and
 height together) and the **Chat background** (how dark the box behind the chat is, from none to
@@ -175,7 +178,9 @@ the stone water basins at its corners do. From there:
   The koi pond round the deck is shallow: wade across it, west, east or south, to the paths to
   the big bridges. Every ten minutes the Support Bot lets a flock of **XP ducks** onto the pond:
   shoot them for experience, and now and then a Health or Magic Potion. Frogs sit among the lily pads in the pond's north-east, and cherry
-  trees bloom on its banks.
+  trees bloom on its banks. Wade north across the pond to the **vault yard**: four **shared vault
+  chests** in front of the storehouse, which everyone can use: put something in for another
+  player to take, or take what someone left.
 - **West**, over the arched wooden bridge: the **market island**. Its shopping street along the
   north is the Nexus Bazaar: each shop is a row of stalls in front of a house (stat potions, dungeon keys,
   Elder and Doomed keys, consumables, specials, pet generators, clothing and accessories). The

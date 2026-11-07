@@ -66,8 +66,9 @@ maxed, one adds what the stat's own potion adds past your class's highest (5 Lif
 the others), up to five of them: 5 Defense, say, or 25 Life over. A stat past its highest shows in
 orange rather than gold, and stays there.
 
-A **Potion of Max** Life, Mana, Attack, Defense, Speed, Dexterity, Vitality or Wisdom (from the
-Elder dungeons' bosses; Max Life from the Elder Tomb's) fills that stat to your class's highest at
+A **Potion of Max** Life, Mana, Attack, Defense, Speed, Dexterity, Vitality or Wisdom (each Elder
+dungeon's boss drops one, listed on [Dungeons](dungeons.html#elder-dungeons); Max Life from the
+Elder Tomb's) fills that stat to your class's highest at
 once; if it's already there, it puts 6 of that stat's potions into your potion storage, as many as
 fit. If that storage is full, the potion isn't drunk and stays with you.
 

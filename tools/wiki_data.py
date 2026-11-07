@@ -121,6 +121,12 @@ class Data:
 
     def name(self, oid):
         o = self.objects.get(oid)
+        if o is None:
+            # the server matches ids whatever their case: a behaviour's "lod Ivory Wyvern" is the
+            # XML's "LOD Ivory Wyvern"
+            if not hasattr(self, "_by_lower"):
+                self._by_lower = {k.lower(): v for k, v in self.objects.items()}
+            o = self._by_lower.get(oid.lower())
         return o["name"] if o else oid
 
     def _load_worlds(self):
@@ -282,10 +288,12 @@ class Data:
                     two = re.findall(r'[0-9.]+', chance)
                     c = float(two[0] if elder else two[1]) if len(two) >= 2 else c
                 out.append(("portal", portal, c))
-            for m in re.finditer(r'(?:new Spawn|new TossObject)\(\s*"([^"]+)"', block):
-                o = self.objects.get(m.group(1))
+            # TossObject(elder ? "<Elder's>" : "<regular's>", ...) in a shared builder
+            for m in re.finditer(r'(?:new Spawn|new TossObject)\(\s*(?:elder\s*\?\s*"([^"]+)"\s*:\s*)?"([^"]+)"', block):
+                oid = m.group(1) if (m.group(1) and elder) else m.group(2)
+                o = self.objects.get(oid)
                 if o and o["class"] == "Portal":
-                    out.append(("portal", m.group(1), 1.0))
+                    out.append(("portal", oid, 1.0))
             # the portals in a set piece it places on death (the Ghost Ship's, on its island)
             for m in re.finditer(r'PlaceMapAtDeath\(\s*"([^"]+)"', block):
                 out.extend(("portal", p, 1.0) for p in self.map_portals(m.group(1)))
