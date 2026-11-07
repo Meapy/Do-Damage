@@ -282,7 +282,8 @@ and the old one keeps what doesn't need speed:
   `bsk-world` (it saves everyone), `bsk-account` and gateways; `redis-cli save` and stop
   `bsk-redis`; copy `/opt/bsk/redis/data` to the game machine; deploy with the two-machine config
   and `--retire-game` (which masks the website machine's Redis, account server, gateways and
-  backup timer, so they never start again on old data); then the Testing tunnel key (as above).
+  backups, so they never start again on old data; their unit files move to
+  `/opt/bsk/retired-units`, since `systemctl mask` refuses while they're in `/etc/systemd/system`); then the Testing tunnel key (as above).
 
 **Encrypted connections (desktop client):**
 - **How:** a desktop client whose account address ends in `/api` treats it as a site's gateway:
