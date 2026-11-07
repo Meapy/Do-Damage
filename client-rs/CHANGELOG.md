@@ -12,7 +12,7 @@ Keep each version short: changes go under `### ` group headings (Oryx 5, Arena, 
 on), one line per change players notice, summed up rather than item by item (the wiki has the
 details). Add to a group's line when a change adds to it, rather than adding another line.
 
-## Unreleased
+## 2.4.4 (2026-11-07)
 
 ### Game
 - Dying is a moment of its own now: the world freezes and greys as you fall in a burst of red, a
@@ -21,8 +21,10 @@ details). Add to a group's line when a change adds to it, rather than adding ano
   panel, and lists your bonuses one by one as the total counts up.
 
 ### Servers
-- A second server, Europe 2, is in the server list: same accounts, characters and vaults, its own
-  realms.
+- The game moved to a faster machine, Europe 2, at play.dodmg.com: steadier ping, no more lag
+  spikes from the old host. Same accounts, characters and vaults; the client switches by itself,
+  and browser play is now at play.dodmg.com (sign in there once). The old server stays as Testing,
+  for admins.
 
 ## 2.4.3 (2026-11-07)
 
