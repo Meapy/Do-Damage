@@ -215,7 +215,9 @@ from wave 30 an Elder dungeon boss joins Oryx's. The chat says which wave has be
 ## Dying
 
 Death is permanent. When a character dies, it's gone, with everything it was wearing and carrying,
-and a gravestone marks the spot. What you keep:
+and a gravestone marks the spot. The world stops for a few seconds and greys, the screen tells you
+what killed you (a click or a key skips it), and then comes the death screen, counting up your
+fame. What you keep:
 
 - its **fame**, added to your account with bonuses;
 - everything in your **vault**, your potion storage and your gift chests;

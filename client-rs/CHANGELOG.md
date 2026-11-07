@@ -12,6 +12,14 @@ Keep each version short: changes go under `### ` group headings (Oryx 5, Arena, 
 on), one line per change players notice, summed up rather than item by item (the wiki has the
 details). Add to a group's line when a change adds to it, rather than adding another line.
 
+## Unreleased
+
+### Game
+- Dying is a moment of its own now: the world freezes and greys as you fall in a burst of red, a
+  big "You died" names what killed you, and it fades into the death screen (click or press a key
+  to skip). The fame summary is ready at once instead of after "Counting your fame…", fits its
+  panel, and lists your bonuses one by one as the total counts up.
+
 ## 2.4.3 (2026-11-07)
 
 ### Pets

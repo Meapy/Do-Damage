@@ -267,6 +267,13 @@ pub struct Front {
     /// The reel's slot under the marker last frame (for its ticks), and the prize was shown.
     spin_slot: i32,
     spin_landed: bool,
+    /// The fame summary's start (`ui_time`), once drawn: its rows come in turn and the total
+    /// counts up. How many rows were shown last frame (for their ticks), and whether it was
+    /// skipped to the end or has finished counting.
+    death_start: Option<i32>,
+    death_rows: usize,
+    death_skipped: bool,
+    death_counted: bool,
     /// Sounds the screens want played (by `sfx/` name), taken by the app each frame.
     pub sounds: Vec<&'static str>,
     /// Clickable areas from the last frame.
@@ -323,6 +330,10 @@ impl Default for Front {
             spin_skipped: false,
             spin_slot: 0,
             spin_landed: false,
+            death_start: None,
+            death_rows: 0,
+            death_skipped: false,
+            death_counted: false,
             sounds: Vec::new(),
             clicked: false,
             targets: Vec::new(),
@@ -486,6 +497,12 @@ impl Front {
             self.spin_slot = 0;
             self.spin_landed = false;
         }
+        if screen == Screen::Death && self.screen != Screen::Death {
+            self.death_start = None;
+            self.death_rows = 0;
+            self.death_skipped = false;
+            self.death_counted = false;
+        }
         self.screen = screen;
         self.confirm = None;
         if screen == Screen::Account {
@@ -548,6 +565,7 @@ impl Front {
                 Screen::Login => return Some(Action::SignIn),
                 Screen::Register => return Some(Action::Register),
                 Screen::Account => return Some(Action::ChangePassword),
+                Screen::Death if !self.death_counted => self.death_skipped = true,
                 Screen::Death if self.death_from_graveyard => self.show(Screen::Graveyard),
                 Screen::Death if self.death_from_legends => self.show(Screen::Legends),
                 Screen::Death => self.show(Screen::Chars),
@@ -608,6 +626,7 @@ impl Front {
             Target::Back => match self.screen {
                 Screen::Class(_) => self.show(Screen::NewChar),
                 Screen::Spin => self.spin_next(),
+                Screen::Death if !self.death_counted => self.death_skipped = true,
                 Screen::Death if self.death_from_graveyard => self.show(Screen::Graveyard),
                 Screen::Death if self.death_from_legends => self.show(Screen::Legends),
                 _ => self.show(Screen::Chars),
@@ -1923,7 +1942,22 @@ impl Front {
             self.show(Screen::Chars);
             return;
         };
-        let r = [(w - 520.0 * s) / 2.0, 30.0 * s, 520.0 * s, h - 60.0 * s];
+        let now = ui_time();
+        let start = *self.death_start.get_or_insert(now);
+        let t = if self.death_skipped { i32::MAX / 2 } else { now - start };
+        // in from a little below
+        let rise = 1.0 - (1.0 - (t as f32 / 380.0).clamp(0.0, 1.0)).powi(3);
+        // As tall as what it shows (the window's height at most), in the middle.
+        let items_h = if sum.equipment.is_empty() {
+            0.0
+        } else {
+            let rows = if sum.equipment.iter().skip(12).any(|&t| t > 0) { 2.0 } else { 1.0 };
+            rows * 38.0 * s + 8.0 * s
+        };
+        let extras_h = if sum.spin.is_some() { 40.0 * s } else { 0.0 } + if sum.kept.is_empty() { 0.0 } else { 40.0 * s };
+        let fame_h = (1 + sum.bonuses.len().min(12)) as f32 * (15.0 * s).round() * 1.45;
+        let ph = (96.0 * s + items_h + extras_h + fame_h + 236.0 * s).min(h - 60.0 * s);
+        let r = [(w - 520.0 * s) / 2.0, (h - ph) / 2.0 + 22.0 * s * (1.0 - rise), 520.0 * s, ph];
         theme::panel(ui.renderer, r, s);
         let class = ui.data.objects.get(&sum.object_type);
         let pad = 28.0 * s;
@@ -2020,18 +2054,52 @@ impl Front {
             ui.label(&value, r[0] + r[2] - pad - vw, *y, size, true, c);
             *y += size * 1.45;
         };
-        row(ui, tr("Base fame"), sum.base_fame.to_string(), color::TEXT, false, &mut y);
         let room = ((r[1] + r[3] - 230.0 * s - y) / (size * 1.45)).floor().max(0.0) as usize;
-        for (desc, fame) in sum.bonuses.iter().take(room.min(12)) {
+        let bonuses = room.min(12).min(sum.bonuses.len());
+        let rows = 1 + bonuses;
+        let shown = ((t - DEATH_ROWS_FROM) / DEATH_ROW_MS + 1).clamp(0, rows as i32) as usize;
+        if shown > self.death_rows {
+            if !self.death_skipped {
+                self.sounds.push("inventory_move_item");
+            }
+            self.death_rows = shown;
+        }
+        let top = y;
+        if shown > 0 {
+            row(ui, tr("Base fame"), sum.base_fame.to_string(), color::TEXT, false, &mut y);
+        }
+        for (desc, fame) in sum.bonuses.iter().take(shown.saturating_sub(1)) {
             row(ui, desc, format!("+{fame}"), color::GOOD, false, &mut y);
         }
+        // the room the rows still to come will take
+        y = top + rows as f32 * size * 1.45;
         theme::fill(ui.renderer, [r[0] + pad, y + 2.0 * s, r[2] - 2.0 * pad, s.max(1.0)], 0.0, color::BORDER, 1.0);
         y += 10.0 * s;
         let big = (20.0 * s).round();
         ui.label(tr("Total fame"), r[0] + pad, y, big, true, color::TEXT);
-        let total = sum.total_fame.to_string();
+        let count_from = DEATH_ROWS_FROM + rows as i32 * DEATH_ROW_MS;
+        let u = ((t - count_from) as f32 / DEATH_COUNT_MS).clamp(0.0, 1.0);
+        let counted = u >= 1.0;
+        if counted && !self.death_counted {
+            self.death_counted = true;
+            if !self.death_skipped && sum.total_fame > 0 {
+                self.sounds.push("loot_appears");
+            }
+        }
+        let value = (sum.total_fame as f64 * (1.0 - (1.0 - u as f64).powi(3))).round() as i64;
+        let total = value.to_string();
         let tw = ui.measure(&total, big, true);
-        ui.label(&total, r[0] + r[2] - pad - tw, y, big, true, color::ACCENT);
+        let (tx, ty) = (r[0] + r[2] - pad - tw, y);
+        if counted {
+            // a glow round the total once it's in, fading
+            let since = (t - count_from - DEATH_COUNT_MS as i32) as f32;
+            let glow = (1.0 - since / 900.0).clamp(0.0, 1.0);
+            if glow > 0.0 {
+                let g = 6.0 * s * (1.0 + (1.0 - glow));
+                theme::fill(ui.renderer, [tx - g, ty - g * 0.6, tw + 2.0 * g, big * 1.3 + g * 1.2], big * 0.6, color::ACCENT, 0.22 * glow);
+            }
+        }
+        ui.label(&total, tx, ty, big, true, if counted { color::ACCENT } else { color::ACCENT_HI });
         y += big * 1.8;
         // A few of the stats.
         let stat = |k: &str| sum.stats.iter().find(|(n, _)| n == k).map_or(0, |(_, v)| *v);
@@ -2057,7 +2125,8 @@ impl Front {
             let vw = ui.measure(value, small, true);
             ui.label(value, x + colw - vw - 16.0 * s, yy, small, true, color::TEXT);
         }
-        self.button(ui, Target::Back, [r[0] + (r[2] - 180.0 * s) / 2.0, r[1] + r[3] - 60.0 * s, 180.0 * s, 42.0 * s], tr("Continue"), Kind::Primary, s, mouse);
+        let (label, kind) = if self.death_counted { (tr("Continue"), Kind::Primary) } else { (tr("Skip"), Kind::Secondary) };
+        self.button(ui, Target::Back, [r[0] + (r[2] - 180.0 * s) / 2.0, r[1] + r[3] - 60.0 * s, 180.0 * s, 42.0 * s], label, kind, s, mouse);
         if let Some(item) = hovered {
             let lay = crate::hud::Layout::new(w as u32, h as u32);
             let lines = crate::hud::item_tooltip(ui.data, item, None, crate::hud::SlotKind::Shop);
@@ -2189,6 +2258,12 @@ fn wrap(ui: &mut Ui, text: &str, size: f32, max_w: f32) -> Vec<String> {
     }
     lines
 }
+
+/// The fame summary: when its first row comes (ms after it shows), the time between rows, and
+/// how long the total takes to count up.
+const DEATH_ROWS_FROM: i32 = 350;
+const DEATH_ROW_MS: i32 = 110;
+const DEATH_COUNT_MS: f32 = 1000.0;
 
 /// How long the death spin's reel turns, in ms.
 const SPIN_MS: f32 = 6500.0;

@@ -39,6 +39,9 @@ pub struct Game {
     pub ended: bool,
     /// The character died (the game ended with its death).
     pub died: bool,
+    /// The death's last moments in the world (`DYING_MS` of them) before the game ends: the world
+    /// holds still and fades while the death is told.
+    pub dying: Option<Dying>,
     /// How many times we've changed worlds.
     pub reconnects: u32,
     pub camera_angle: f64,
@@ -259,6 +262,36 @@ fn hurt_sound(data: &GameData, object_type: u16, dead: bool) -> Option<String> {
     Some(d.xml.text_of(tag).map_or(fallback, str::trim).to_owned())
 }
 
+/// How long the death is shown in the world before the fame summary, ms.
+pub const DYING_MS: i32 = 4200;
+/// From when a click or key may skip the rest of it, ms (so the shot that was being fired
+/// doesn't skip it).
+pub const DYING_SKIP_MS: i32 = 900;
+
+/// The character's death, as it plays out in the world.
+pub struct Dying {
+    /// When it died (the game's clock).
+    pub at: i32,
+    /// Who killed it, as the server says.
+    pub killed_by: String,
+    /// The end was asked for early (a click or a key).
+    pub skipped_at: Option<i32>,
+}
+
+impl Dying {
+    /// How far into the death we are, ms (a skip jumps to the closing fade).
+    pub fn elapsed(&self, now: i32) -> i32 {
+        let t = now - self.at;
+        match self.skipped_at {
+            Some(at) => t.max(DYING_MS - DYING_FADE_MS + (now - at)),
+            None => t,
+        }
+    }
+}
+
+/// The closing fade to black, ms.
+pub const DYING_FADE_MS: i32 = 700;
+
 /// `Player.MS_BETWEEN_TELEPORT`.
 const TELEPORT_COOLDOWN: i32 = 10_000;
 
@@ -290,6 +323,7 @@ impl Game {
             world: None,
             ended: false,
             died: false,
+            dying: None,
             reconnects: 0,
             camera_angle: DEFAULT_CAMERA_ANGLE,
             now: 0,
@@ -439,6 +473,14 @@ impl Game {
         if self.held.is_some() {
             return;
         }
+        // Dead: the world holds still (nothing more is read: the server is done with us) until
+        // the death has been shown.
+        if let Some(d) = &self.dying {
+            if d.elapsed(now) >= DYING_MS {
+                self.ended = true;
+            }
+            return;
+        }
         if let Some(Lost { tries, next_at: Some(at) }) = &self.lost {
             if now < *at {
                 return;
@@ -475,7 +517,8 @@ impl Game {
                 }
                 SocketEvent::Message(msg) => self.handle(&msg, now, data),
             }
-            if self.ended {
+            // dead: nothing after the death is read (the connection closing would end it now)
+            if self.ended || self.dying.is_some() {
                 break;
             }
         }
@@ -734,8 +777,20 @@ impl Game {
             if d.char_id == self.char_id {
                 log::info!("died, killed by {}", d.killed_by);
                 self.status = tf!("You died, killed by {by}.", by = d.killed_by);
-                self.ended = true;
                 self.died = true;
+                self.dying = Some(Dying { at: now, killed_by: d.killed_by.clone(), skipped_at: None });
+                // Our death in the world: a burst of our colours and a ring of red where we fell,
+                // and our class's death cry.
+                if let Some(world) = &self.world {
+                    if let Some(me) = world.player() {
+                        let (x, y, t) = (me.x, me.y, me.object_type);
+                        self.particles.damaged(world, me.id, true);
+                        self.particles.aoe(x, y, 2.5, 0xE04040);
+                        if let Some(sound) = hurt_sound(data, t, true) {
+                            self.sounds.push((sound, 1.0, false));
+                        }
+                    }
+                }
                 return;
             }
         }
@@ -1070,6 +1125,8 @@ impl Game {
     /// Advance the world by `dt` ms with the keys held; `rotate` is -1, 0 or 1.
     pub fn update(&mut self, now: i32, dt: i32, keys: (f64, f64), rotate: f64, data: &GameData) {
         self.now = now;
+        // the dead don't walk or turn
+        let (keys, rotate) = if self.dying.is_some() { ((0.0, 0.0), 0.0) } else { (keys, rotate) };
         self.camera_angle += dt as f64 * ROTATE_SPEED * rotate;
         let Some(world) = &mut self.world else { return };
         let input = MoveInput { x: keys.0, y: keys.1, camera_angle: self.camera_angle };

@@ -10,6 +10,7 @@ mod collection;
 mod community;
 mod connected;
 mod crosshair;
+mod death;
 mod emotes;
 mod events;
 mod game;
@@ -205,6 +206,10 @@ struct App {
     /// Signed in with this device's guest login (`login::guest_login`).
     guest: bool,
     request: Option<(Request, Pending<bsk_net::http::Response>)>,
+    /// The fame summary, asked for as the character died (`death_fame_asked`) and kept here if it
+    /// comes while the death plays out in the world.
+    death_fame: Option<Result<bsk_net::account::FameSummary, String>>,
+    death_fame_asked: bool,
     /// Keys typed on the screens: (key, text).
     /// Keys for the screens: the key, the text it types, and whether Ctrl and Shift were held.
     front_keys: Vec<(KeyCode, Option<String>, bool, bool)>,
@@ -1346,6 +1351,28 @@ impl App {
         self.keys.clear();
     }
 
+    /// A character's fame summary (or why there's none): its death spin first, then the summary.
+    fn show_fame(&mut self, fame: Result<bsk_net::account::FameSummary, String>) {
+        use screens::Screen;
+        match fame {
+            Ok(summary) => {
+                let spun = summary.spin.is_some();
+                self.front.death = Some(summary);
+                self.front.show(if spun { Screen::Spin } else { Screen::Death });
+                let now = self.now();
+                if let Some(a) = &mut self.audio {
+                    a.play("death_screen", 1.0, false, now);
+                }
+            }
+            Err(e) => {
+                self.front.message = Some((tf!("You died. ({e})", e), true));
+                self.front.show(Screen::Chars);
+            }
+        }
+        // The list behind it, for afterwards.
+        self.refresh();
+    }
+
     /// Leave the game for the character list, saying why.
     fn leave_game(&mut self, why: Option<String>) {
         let mut death = None;
@@ -1373,12 +1400,21 @@ impl App {
         let account_id = self.front.list.as_ref().map(|l| l.account_id);
         self.front.death_from_graveyard = false;
         self.front.death_from_legends = false;
+        let asked = std::mem::take(&mut self.death_fame_asked);
         if let (Some(char_id), Some(account_id), Some(endpoint)) = (death, account_id, &self.endpoint) {
-            self.request = Some((Request::Fame, endpoint.char_fame(account_id, char_id)));
-            self.front.busy = tr("Counting your fame…").into();
             self.front.message = None;
+            // asked for as it died: shown now if it came while the death played out
+            if let Some(fame) = self.death_fame.take() {
+                self.show_fame(fame);
+                return;
+            }
+            if !(asked && matches!(self.request, Some((Request::Fame, _)))) {
+                self.request = Some((Request::Fame, endpoint.char_fame(account_id, char_id)));
+            }
+            self.front.busy = tr("Counting your fame…").into();
             self.front.show(screens::Screen::Busy);
         } else {
+            self.death_fame = None;
             self.refresh();
         }
     }
@@ -1486,6 +1522,14 @@ impl App {
         self.advance_npcs();
         // A game that ended (death, disconnect) goes back to the character list; a scripted shot
         // stays on the game, unless it died (to show the death spin and summary).
+        // The fame summary is asked for as soon as we die, to be ready once the death is shown.
+        if let (Phase::Playing(game), None) = (&self.phase, &self.request) {
+            let account_id = self.front.list.as_ref().map(|l| l.account_id);
+            if let (true, false, Some(account_id), Some(endpoint)) = (game.dying.is_some(), self.death_fame_asked, account_id, &self.endpoint) {
+                self.request = Some((Request::Fame, endpoint.char_fame(account_id, game.char_id)));
+                self.death_fame_asked = true;
+            }
+        }
         if let Phase::Playing(game) = &self.phase {
             if game.ended && (self.shot.is_none() || game.died) {
                 let why = game.status.clone();
@@ -1624,24 +1668,13 @@ impl App {
                 }
             },
             Request::Fame => {
-                match login::reached(response).and_then(|xml| bsk_net::account::parse_char_fame(&xml)) {
-                    Ok(summary) => {
-                        // a death spin first, then the summary
-                        let spun = summary.spin.is_some();
-                        self.front.death = Some(summary);
-                        self.front.show(if spun { Screen::Spin } else { Screen::Death });
-                        let now = self.now();
-                        if let Some(a) = &mut self.audio {
-                            a.play("death_screen", 1.0, false, now);
-                        }
-                    }
-                    Err(e) => {
-                        self.front.message = Some((tf!("You died. ({e})", e), true));
-                        self.front.show(Screen::Chars);
-                    }
+                let fame = login::reached(response).and_then(|xml| bsk_net::account::parse_char_fame(&xml));
+                if matches!(self.phase, Phase::Playing(_)) {
+                    // still dying: kept until the death has been shown
+                    self.death_fame = Some(fame);
+                } else {
+                    self.show_fame(fame);
                 }
-                // The list behind it, for afterwards.
-                self.refresh();
             }
         }
     }
@@ -1733,6 +1766,17 @@ impl App {
                 self.settings.save();
             }
             return;
+        }
+        // Dying: a key (after a moment) skips to the end; it does nothing else.
+        let now = self.now();
+        if let Phase::Playing(game) = &mut self.phase {
+            if let Some(d) = &mut game.dying {
+                if pressed && !repeat && d.skipped_at.is_none() && now - d.at >= game::DYING_SKIP_MS {
+                    d.skipped_at = Some(now);
+                }
+                self.keys.clear();
+                return;
+            }
         }
         if matches!(self.phase, Phase::Menu) {
             // The page's copy or cut event comes straight after the key, before the frame
@@ -2135,6 +2179,31 @@ impl App {
                 self.settings.save();
             }
             return;
+        }
+        // Dying: the mouse does nothing but skip to the end (after a moment); the windows close.
+        if let Phase::Playing(game) = &mut self.phase {
+            if let Some(d) = &mut game.dying {
+                let clicked = self.clicks.drain(..).any(|(down, _)| down);
+                if clicked && d.skipped_at.is_none() && now - d.at >= game::DYING_SKIP_MS {
+                    d.skipped_at = Some(now);
+                }
+                self.mouse_down = false;
+                self.autofire = false;
+                self.game_menu = false;
+                self.chat_input = None;
+                self.hud.drag = None;
+                if self.npcs.window.is_some() {
+                    self.npcs.close();
+                }
+                self.market.open = false;
+                self.forge.open = false;
+                self.vault.open = false;
+                self.quests.open = false;
+                self.community.open = false;
+                self.collection.open = false;
+                self.pet_pen.open = false;
+                self.options_ui.open = false;
+            }
         }
         // The Escape menu takes the clicks while it's open.
         if self.game_menu {
@@ -2694,6 +2763,10 @@ impl App {
                 game.particles.object_effects(world, data, sprites, dt);
             }
             jitter = game.particles.jitter(now);
+            if let Some(d) = &game.dying {
+                let (x, y) = death::shake(d, now);
+                jitter = (jitter.0 + x, jitter.1 + y);
+            }
             game.merchant_balloons(now, data);
             prof::mark("effects");
         }
@@ -2705,6 +2778,7 @@ impl App {
         let (_, h) = renderer.size();
         let status = match &self.phase {
             Phase::Menu => String::new(),
+            Phase::Playing(game) if game.dying.is_some() => String::new(),
             Phase::Playing(game) => game.status.clone(),
         };
         let mut view_radius = None;
@@ -2793,13 +2867,16 @@ impl App {
                         }
                         let hallucinating = has(bsk_world::condition::HALLUCINATING);
                         let roof = view::roof(world, data, &camera);
-                        let scene = view::Scene { sprites, data, world, camera, time: now, floaters: &game.floaters, bubbles: &game.bubbles, particles: &game.particles, show, hallucinating, roof };
+                        // dying, we fade from the world
+                        let me_alpha = game.dying.as_ref().map_or(1.0, |d| 1.0 - (d.elapsed(now) as f32 / 650.0).clamp(0.0, 1.0));
+                        let scene = view::Scene { sprites, data, world, camera, time: now, floaters: &game.floaters, bubbles: &game.bubbles, particles: &game.particles, show, hallucinating, roof, me_alpha };
                         prof::mark("pre-world");
                         view::draw(&scene, renderer, redrawer, ground, fonts, text);
                         game.petals.draw(&camera, renderer, now);
                         // The world through a filter (Map.getFilterIndex): paused, else blind, else
                         // drunk (a swaying blur).
-                        let filter = if has(bsk_world::condition::PAUSED) {
+                        let dying = game.dying.as_ref().map(|d| d.elapsed(now));
+                        let filter = if dying.is_some_and(|t| t >= 250) || has(bsk_world::condition::PAUSED) {
                             Some(bsk_render::ScreenFilter::Grey)
                         } else if has(bsk_world::condition::BLIND) {
                             Some(bsk_render::ScreenFilter::Blind)
@@ -2891,6 +2968,9 @@ impl App {
             }
         }
         if let (Some(far), Phase::Playing(game)) = (view_radius, &mut self.phase) {
+            if game.dying.is_some() {
+                (fire, ability_at, ping) = (None, None, None);
+            }
             game.want_view_radius(far, now);
             if let Some(angle) = fire {
                 game.shoot(now, angle, data);
@@ -2937,12 +3017,17 @@ impl App {
                 let inv: Vec<(u8, [f32; 4])> = p.slots.iter().filter(|s| matches!(s.kind, hud::SlotKind::Inventory(_))).map(|s| (s.index, s.rect())).collect();
                 self.vault.draw(&mut ui, &lay, world.player(), &inv, mouse, now);
                 self.quests.draw(&mut ui, &lay, world.player(), mouse, now);
-                self.quests.draw_toasts(&mut ui, &lay, now);
+                // the toasts and banners wait while we die
+                if game.dying.is_none() {
+                    self.quests.draw_toasts(&mut ui, &lay, now);
+                }
                 self.community.draw(&mut ui, &lay, world.player(), mouse, now);
                 self.collection.draw(&mut ui, &lay, world.player(), mouse, now);
                 self.pet_pen.draw(&mut ui, &lay, world.player(), mouse);
-                let below = self.quests.toasts_end(&lay);
-                self.community.draw_banners(&mut ui, &lay, below, now);
+                if game.dying.is_none() {
+                    let below = self.quests.toasts_end(&lay);
+                    self.community.draw_banners(&mut ui, &lay, below, now);
+                }
                 prof::mark("chat..windows");
                 hud::draw_overlay(&mut ui, &lay, world, p, &self.hud, mouse);
                 self.pings.draw(&mut ui, mouse, lay.s, now);
@@ -2952,7 +3037,7 @@ impl App {
         // The crosshair, over the world while nothing else has the mouse; the pointer hides
         // while it shows.
         let crosshair = self.settings.crosshair
-            && matches!(&self.phase, Phase::Playing(g) if g.world.is_some())
+            && matches!(&self.phase, Phase::Playing(g) if g.world.is_some() && g.dying.is_none())
             && !on_hud(mouse)
             && !self.game_menu
             && !self.options_ui.open
@@ -2974,6 +3059,11 @@ impl App {
             crosshair::draw(renderer, (mouse.0 as f32, mouse.1 as f32), lay.s.max(0.75) * look.size, look);
         }
         hide_pointer(&self.window, &mut self.cursor_hidden, crosshair, "game");
+        if let Phase::Playing(Game { dying: Some(d), .. }) = &self.phase {
+            let (w, h) = renderer.size();
+            let mut ui = hud::Ui { renderer: &mut *renderer, sprites, data, redrawer: &mut *redrawer, fonts, text: &mut *text };
+            death::draw(&mut ui, d, lay.camera_point(self.settings.centered), (w as f32, h as f32), now);
+        }
         if self.game_menu {
             let (w, h) = renderer.size();
             let mut ui = hud::Ui { renderer: &mut *renderer, sprites, data, redrawer: &mut *redrawer, fonts, text: &mut *text };
@@ -3522,6 +3612,8 @@ fn main() {
         test_login: false,
         guest: false,
         request: None,
+        death_fame: None,
+        death_fame_asked: false,
         front_keys: Vec::new(),
         game_menu: false,
         menu_buttons: Vec::new(),
