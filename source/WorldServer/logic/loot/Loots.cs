@@ -355,16 +355,22 @@ namespace WorldServer.logic.loot
             }
         }
 
-        // under a LootRate (the arenas), a pet's generator drops at ArenaPools.PetRate of the rest's
-        // chance; 1 for anything else, and anywhere else
+        // every pet (an item with a PermaPet activate, its generator) drops at this much of the
+        // chance its monster's loot gives it, wherever it drops (tools/wiki_data.py reads this)
+        public const double PetDropRate = 0.5;
+
+        // a pet's generator drops at PetDropRate of its written chance, and under a LootRate (the
+        // arenas) at ArenaPools.PetRate of that again; 1 for anything else
         private static double PetRate(Enemy enemy, LootDef def, double worldRate)
         {
-            if (worldRate >= 1 || def.ItemType != ItemType.None || def.Item == null)
+            if (def.ItemType != ItemType.None || def.Item == null)
                 return 1;
             var gameData = enemy.GameServer.Resources.GameData;
             if (!gameData.IdToObjectType.TryGetValue(def.Item, out var type) || !gameData.Items.TryGetValue(type, out var item))
                 return 1;
-            return Array.Exists(item.ActivateEffects, e => e.Effect == ActivateEffects.PermaPet) ? ArenaPools.PetRate : 1;
+            if (!Array.Exists(item.ActivateEffects, e => e.Effect == ActivateEffects.PermaPet))
+                return 1;
+            return worldRate < 1 ? PetDropRate * ArenaPools.PetRate : PetDropRate;
         }
 
         private static void ProcessPublic(IEnumerable<Item> drops, Enemy enemy)

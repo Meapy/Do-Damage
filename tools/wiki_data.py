@@ -319,7 +319,26 @@ class Data:
             extra = self.extra_loot.get(monster, "")
             for m in list(self.ITEM_LOOT.finditer(extra)) + list(self.PET_LOOT.finditer(extra)):
                 out.append(("item", m.group(1), float(m.group(2))))
+        if _seen is None:  # once, for the monster asked about: pets at Loot.PetDropRate
+            rate = self.pet_drop_rate()
+            pets = self.pet_items()
+            out = [(k, i, c * rate if k == "item" and i in pets and c is not None else c) for k, i, c in out]
         return out
+
+    def pet_items(self):
+        """The items that give a pet (a PermaPet activate): their generators."""
+        if not hasattr(self, "_pet_items"):
+            self._pet_items = {oid for oid, o in self.objects.items()
+                               if any(a["effect"] == "PermaPet" for a in o["activate_attrs"])}
+        return self._pet_items
+
+    def pet_drop_rate(self):
+        """Loot.PetDropRate (Loots.cs): the share of its written chance a pet drops at."""
+        if not hasattr(self, "_pet_drop_rate"):
+            with open(os.path.join(LOGIC, "loot", "Loots.cs"), encoding="utf-8-sig") as f:
+                m = re.search(r'PetDropRate\s*=\s*([0-9.]+)', f.read())
+            self._pet_drop_rate = float(m.group(1)) if m else 1.0
+        return self._pet_drop_rate
 
     def map_portals(self, path):
         """The portals a set piece (a .jm under resources/worlds) holds."""

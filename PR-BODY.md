@@ -3,6 +3,7 @@ Release 2.4.6
 ## For players
 
 - **Browser:** playing at play.dodmg.com picks up the settings and saved sign-in a browser kept at dodmg.com/play before the move (2.4.4), once, by itself.
+- **Pets:** every pet drops half as often as before, wherever it drops (realm, godlands, events, dungeons, Doomed monsters; the Arena's pets are halved again on top of its own halving). A Lil' Oryx from Oryx goes from 1% to 0.5%, a realm critter from 0.0375-0.125% to 0.019-0.0625%. The wiki shows the new chances.
 - **Game:** sound stays steady in big fights: a volley hitting many monsters is one hit sound, at most 3 copies of a sound and 16 effects play at once, and the mix is limited instead of clipping, so it no longer swings between too loud and too quiet.
 
 ## Details
@@ -27,8 +28,16 @@ Release 2.4.6
 - `client-rs/app/src/audio.rs`: effects are decoded once when they arrive and kept as samples; they play through one mixer of their own behind a limiter (`LimitSettings::gaming()`, -3 dBFS); `Voices` drops the same effect again within 45 ms, a 4th copy of one effect still playing, and anything past 16 effects at once. Music is unchanged (its own path, decoded as it plays).
 - Redeploy: the client (desktop and the gateway's web client). Nobody is disconnected.
 
+### Pets drop half as often
+
+- `source/WorldServer/logic/loot/Loots.cs`: `Loot.PetDropRate` (0.5) multiplies the chance of any item with a PermaPet activate (a pet's generator) in `Loot.Handle`, both the per-player roll and the OnePlayerLoot roll, everywhere; in the arenas `ArenaPools.PetRate` (0.5) still applies on top, as before. Every monster's drops go through `Loot.Handle` (Doomed-ported ones too, via `DoomedSetup.Drops`), so no behaviour file or generated file changed. Mystery boxes, the death spin, shops and the Pen Keeper are not drops and are unchanged.
+- `tools/wiki_data.py`: `drops()` applies `PetDropRate` (read from Loots.cs) to pets' chances, so the Pets guide and gear pages show what really drops.
+- SETUP-LOCAL.md, "Pets: single use, drops and attacks": notes the rate.
+- Redeploy: the world server (rolling, nobody is disconnected) and the website (wiki). No Redis data changes.
+
 ## Checks
 
 - `bash -n`; the same steps on dodmg.com: `systemctl is-enabled` shows `masked` for bsk-redis, bsk-account, bsk-gateway@a/b/c, bsk-backup.timer and .service, all inactive, with the other services still active.
 - Browser settings: in the built-in browser (Chromium), with `bsk.localhost` as the old site and `play.bsk.localhost` as the new one (same site, different origins, as dodmg.com and play.dodmg.com), the real `takeOver` from index.html took the old settings over the new one's and the remembered login, left an unrelated key behind, and set the marker; a second visit changed nothing; a login made on the new site stayed; another site (`evil.localhost`) framing the hand-over page got no message. Website builds, the page outside the sitemap. Not tried on the live sites before the deploy, nor in Firefox or Safari.
 - Steady sound: client tests (81, two new for the voice limits), desktop and wasm builds. Not listened to in a big fight on an isolated stack.
+- Pets drop half as often: world server builds; the wiki built before and after: the Pets guide's chances all halved (Oryx's Lil' Oryx 1% to 0.5%, Bes 2% to 1%), no other page's text changed. Not tried on an isolated stack (a chance change, too rare to measure by killing).

@@ -14,6 +14,10 @@ details). Add to a group's line when a change adds to it, rather than adding ano
 
 ## Unreleased
 
+### Pets
+- Every pet drops half as often as before, from every monster, dungeon and event. The wiki
+  shows the new chances.
+
 ### Browser
 - Playing in the browser at play.dodmg.com picks up the settings and saved sign-in you had at
   dodmg.com/play before the move, so there's nothing to set again.
