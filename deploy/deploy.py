@@ -462,7 +462,9 @@ def build(cfg, args):
     write_lf(os.path.join(STAGE, "bsk.env"),
              "# Written by deploy/deploy.py from %s: change it there.\n"
              "BSK_PUBLIC_ADDRESS=%s\nBSK_REDIS_PORT=%d\nBSK_ACCOUNT_PORT=%d\nBSK_WORLD_PORT=%d\nBSK_GATEWAY_PORT=%d\n"
-             "BSK_GATEWAY_FLAGS=%s\n"
+             # quoted: install.sh sources this file with bash (several flags are several words);
+             # systemd's EnvironmentFile strips the quotes, and $BSK_GATEWAY_FLAGS splits them
+             "BSK_GATEWAY_FLAGS=\"%s\"\n"
              % (os.path.basename(args.config), cfg["public_address"], ports["redis"], ports["account"],
                 ports["world"], ports["gateway"],
                 # other servers in the list (Europe 2: "other_worlds": ["91.90.80.8:2051"]) that
