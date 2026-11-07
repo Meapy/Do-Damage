@@ -3,6 +3,7 @@ Release 2.4.3. Deploys the world server; the website and wiki update too. Nobody
 ## For players
 
 - **Pets:** the pets realm and godland monsters drop are four times rarer: the realm's critters 0.0375-0.125% a kill (were 0.15-0.5%), the gods' and quest monsters' pets 0.125% (were 0.5%), the Abyssal Kraken's, the Wyrm Matriarch's and the Sumo Master's Baby 0.25% (were 1%) and the Lucky Ent God's Leprechaun 0.625%. Realm events, dungeons and the minigames drop theirs as before.
+- **Imprints:** Wisp Caller's wisps come back 3 seconds after they go (was 8), so each wisp can circle you 5 seconds in every 8.
 - **Website:** dodmg.com and its wiki are easier for Google and other search engines to find ("dodmg", "RotMG private server"): a sitemap of every page, canonical addresses, and a preview picture when a link to the site is shared on Discord and elsewhere. The gallery's Nexus and character screen shots are new: the island Nexus (was the Halloween castle plaza) and the character list with its search and filters. The home page is freshened up: the game in numbers under the Play buttons (69 dungeons, 29 classes, 706 pieces of gear, 6 Oryx stages, 11 languages), feature tiles for what the game has now (pets, imprints and the Collection, the Divine Forge, community goals, languages and crosshairs), long patch notes folded under "Show all", the ping, loot-bag, quest-log and vault keys, and questions on getting started and languages.
 
 The wiki is updated with these changes.
@@ -12,6 +13,13 @@ The wiki is updated with these changes.
 ### Realm and godland pet drops cut by 75%
 
 Every pet generator in the lands' behaviours (`BehaviorDb.Shore.cs`, `Lowland.cs`, `Midland.cs`, `Highland.cs`, `Mountain.cs`) and in Realm2's (`BehaviorDb.Realm2.cs`, the `R2Mob` and `R2Quest` extras) drops at a quarter of its chance: 56 lines. Left as they were: the realm events (the Beer God in `Highland.cs`, and the events' own files: CubeGod, SkullShrine, Sphinx, Pentaract, LotLL, Hermit, RockDragon, GhostShip, Crystal, Cyclops, Woodland's Megamoth), the dungeons, and the pets in `DoomedExtraLoot` (Birdman Chief's Eagle, the minigames' sheep, chicken and turkey). The wiki reads the rates from the behaviours. World server only; no data in Redis changes.
+
+### Wisp Caller: wisps back after 3 seconds
+
+- **What:** `Imprint.WispCooldownMs` 8000 to 3000 (`source/Shared/resources/Imprints.cs`), read by `Player.Imprints.cs` `WispCaller`: a wisp that came can come again 5 s + 3 s later (it was 5 s + 8 s). The description says "each back 3 seconds after it goes" in both catalogues (`Imprints.cs` and the client's `crates/data/src/imprint.rs`); the wiki's Imprints page reads the server's. The 2% chance a shot is unchanged.
+- **Why:** the owner asked for 5 s on and 3 s off.
+- **Files:** `Imprints.cs`, `imprint.rs`, `SETUP-LOCAL.md`, changelog.
+- **Deploy:** world server (the timing) and the client (its tooltip's text; an older client shows "8 seconds" until it updates). Nobody is disconnected.
 
 ### Website: search engines
 
@@ -40,3 +48,4 @@ Every pet generator in the lands' behaviours (`BehaviorDb.Shore.cs`, `Lowland.cs
 - Website search engines: `tools/build_site.py --out <scratch>`: `robots.txt` and `sitemap.xml` written (91 URLs), canonical and `og:url` on the home, changelog, wiki and gear pages (`https://dodmg.com/wiki/classes/adept.html`), the home page's JSON-LD parses, no `{{...}}` left.
 - Website shots: built the site and looked at the gallery in a browser (new Nexus and character screen, the rest unchanged); the Nexus WebP is 253 KB (was 173 KB), the thumbnail 63 KB.
 - Home page polish: built the site and looked through every section in a browser at desktop width and at 375 px (no sideways scroll; the figures wrap to two rows), clicked Show all and Show less on the patch notes, and checked a wiki page still renders.
+- Wisp Caller: `dotnet build source\WorldServer\WorldServer.csproj` (0 errors), `cargo test -p bsk-data` (9 passed), the wiki's Imprints page built with "each back 3 seconds". Not tried in game.

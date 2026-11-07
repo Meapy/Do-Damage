@@ -193,7 +193,7 @@ pub const ALL: &[Imprint] = &[
         WISP_CALLER,
         "Wisp Caller",
         Kind::Misc,
-        "Each shot: a 2% chance of each of three wisps circling you for 5 seconds, each back 8 seconds after it goes: green heals you, blue makes you Armored, red curses you and enemies near you",
+        "Each shot: a 2% chance of each of three wisps circling you for 5 seconds, each back 3 seconds after it goes: green heals you, blue makes you Armored, red curses you and enemies near you",
         Some(&[STAFF]),
     ),
     imp(GATHERED_SHOT, "Gathered Shot", Kind::Misc, "The three arrows fly as one charged arrow doing all three's damage; 95% rate of fire", Some(&[BOW])),

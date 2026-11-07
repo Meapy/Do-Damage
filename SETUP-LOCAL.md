@@ -1752,6 +1752,8 @@ The remotes `upstream` (HaloCelsius) and `aurusenth` share no history with `main
   `Battle Mage Bolt`, shot beside the wand's) worked out the same on both sides (`ImprintShot`,
   `imprint::Shot`); hits, kills, wisps and Last Breath on the server. Keep the two catalogues in
   step; the wiki reads the server's.
+  Wisp Caller's wisps come back 3 s after they go (`Imprint.WispCooldownMs`, was 8 s from
+  2026-11-05 to 2026-11-07), so each can be up 5 s in every 8.
 - **Alternating projectiles** (`<AlternateProjectiles/>`, the Enthroned weapons): a weapon's volleys
   take its projectiles in turn. Client and server each count the weapon's volleys (the server every
   PlayerShoot of slot 0 with a new time, taken or not), and both roll the picked projectile's damage.

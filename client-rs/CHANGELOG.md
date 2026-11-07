@@ -18,6 +18,10 @@ details). Add to a group's line when a change adds to it, rather than adding ano
 - Pets from realm and godland monsters drop a quarter as often as before. Realm events and
   dungeons drop theirs as before.
 
+### Imprints
+- Wisp Caller's wisps come back 3 seconds after they go (was 8): each can circle you 5 seconds in
+  every 8.
+
 ### Website
 - The website and wiki are easier to find on Google and other search engines, and links to them
   show a preview picture when shared. The website's screenshots show the island Nexus and today's
