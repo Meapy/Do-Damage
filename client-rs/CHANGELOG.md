@@ -18,6 +18,10 @@ details). Add to a group's line when a change adds to it, rather than adding ano
 - Playing in the browser at play.dodmg.com picks up the settings and saved sign-in you had at
   dodmg.com/play before the move, so there's nothing to set again.
 
+### Game
+- Sound stays steady in big fights: hits on many monsters at once no longer pile up into a
+  distorted wall of sound that swings between too loud and too quiet.
+
 ## 2.4.4 (2026-11-07)
 
 ### Game
