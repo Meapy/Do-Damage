@@ -1146,7 +1146,9 @@ def sections(page_title, url, body):
 
 
 def build(out_root, values=None):
-    """Writes <out_root>/wiki. `values` fills {{NAME}} and the like as build_site.py does."""
+    """Writes <out_root>/wiki. `values` fills {{NAME}} and the like as build_site.py does. Returns
+    the game's counts for the home page: DUNGEONS, CLASSES and GEAR (as text): the dungeons the
+    wiki lists, the classes, and the gear players can get."""
     values = values or {}
     out = os.path.join(out_root, "wiki")
     os.makedirs(out, exist_ok=True)
@@ -1240,6 +1242,10 @@ def build(out_root, values=None):
             f.write(page.replace("@INDEX@", stamp))
     print("wiki: %d pages, %d dungeons, %d gear items on %d gear pages, %d search entries" % (
         len(pages), len(gen.dungeons()), len(gen.equip.items), len(written) - len(pages), len(index)))
+    return {"DUNGEONS": str(len(gen.dungeons())), "CLASSES": str(len(gen.d.classes())),
+            # gear players can get: not the future, set, reward, admin or retired items
+            "GEAR": "{:,}".format(sum(1 for it in gen.equip.items if it["group"] in
+                                      ("tiered", "untiered", "legendary", "ascended", "ethereal")))}
 
 
 def main():

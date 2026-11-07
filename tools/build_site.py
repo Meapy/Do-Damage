@@ -3,7 +3,8 @@ status, the downloads and the newest changes, the full changelog page and the wi
 
     python tools/build_site.py [--name "Do Damage"] [--out build/site]
 
-- {{NAME}}, {{VERSION}} and {{BUILD}} in the pages are filled in; {{CHANGELOG_LATEST}} and
+- {{NAME}}, {{VERSION}} and {{BUILD}} in the pages are filled in, and {{DUNGEONS}}, {{CLASSES}}
+  and {{GEAR}} with the game's counts (from the wiki's build); {{CHANGELOG_LATEST}} and
   {{CHANGELOG_ALL}} come from client-rs/CHANGELOG.md (its Unreleased section is left out).
 - {{DOWNLOADS}} lists the desktop client zips in dist/ (Do-Damage-<os>.zip, from
   tools/build_client_rs.py --package), which are copied into downloads/. Build them with the
@@ -168,6 +169,8 @@ def main():
         "CHANGELOG_LATEST": releases_html(rel[:LATEST]),
         "CHANGELOG_ALL": releases_html(rel),
     }
+    # the wiki first: it reads the game's data, and gives the home page its counts
+    values.update(build_wiki.build(out, values))
     for name in os.listdir(SRC):
         src = os.path.join(SRC, name)
         if name == "wiki":
@@ -182,7 +185,6 @@ def main():
                 f.write(text)
         else:
             shutil.copy2(src, os.path.join(out, name))
-    build_wiki.build(out, values)
     pages = for_search(out, url)
     print("seo: %d pages in sitemap.xml" % pages)
     print("site: %s (version %s, %d releases)" % (os.path.relpath(out, ROOT), version, len(rel)))

@@ -255,6 +255,60 @@
       "..oyYo....",
       ".oyo......",
       ".oo......."
+    ],
+    paw: [
+      "..oo....oo..",
+      ".oWwo..oWwo.",
+      ".oWWo..oWWo.",
+      "o.oo.oo.oo.o",
+      "oWo.oWwo.oWo",
+      "oWo.oWWo.oWo",
+      ".o.oooooo.o.",
+      "..oWwwwwWo..",
+      ".oWwwwwwwWo.",
+      ".oWWwwwwWWo.",
+      "..oWWWWWWo..",
+      "...oooooo..."
+    ],
+    gem: [
+      "...oooooo...",
+      "..oLwLLPPo..",
+      ".oLwLLLPPPo.",
+      "oooooooooooo",
+      "oLwLLLLPPPvo",
+      ".oLLLLPPPvo.",
+      "..oLLLPPvo..",
+      "...oLPPvo...",
+      "....oPvo....",
+      ".....oo....."
+    ],
+    banner: [
+      "oo..........",
+      "ogoooooooo..",
+      "ogeeeeeeeeo.",
+      "ogeYYeeYYeo.",
+      "ogeeYYYYeeo.",
+      "ogeeeYYeeeo.",
+      "ogeeeeeeeeo.",
+      "ogeeeooeeeo.",
+      "ogeeo..oeeo.",
+      "ogoo....oo..",
+      "og..........",
+      "og..........",
+      "oo.........."
+    ],
+    globe: [
+      "...oooooo...",
+      "..ouuuuuuo..",
+      ".ouuGGuuuuo.",
+      "ouuGGGGuuGuo",
+      "ouGGGGuuGGuo",
+      "ouuGGuuuuuuo",
+      "ouuuuuuGGGuo",
+      "ouuuuuGGGGuo",
+      ".ouuuuuGGuo.",
+      "..ouuuuuuo..",
+      "...oooooo..."
     ]
   };
 
@@ -270,6 +324,29 @@
     }
     return '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ' + w + " " + h + '" width="' + w * px +
       '" height="' + h * px + '" aria-hidden="true">' + rects + "</svg>";
+  }
+
+  // --- Patch notes on the home page --------------------------------------------------------
+  // A long release folds to its first lines under a fade, with a button to open it all.
+  var notes = document.querySelectorAll(".notes .release");
+  for (var n = 0; n < notes.length; n++) {
+    var rel = notes[n];
+    if (rel.scrollHeight < 520) continue;
+    rel.classList.add("folded");
+    var more = document.createElement("button");
+    more.type = "button";
+    more.className = "more";
+    more.textContent = "Show all";
+    more.setAttribute("aria-expanded", "false");
+    more.addEventListener("click", function (r, b) {
+      return function () {
+        var open = r.classList.toggle("folded") === false;
+        b.textContent = open ? "Show less" : "Show all";
+        b.setAttribute("aria-expanded", String(open));
+        if (!open) r.scrollIntoView({ block: "nearest" });
+      };
+    }(rel, more));
+    rel.appendChild(more);
   }
 
   var marks = document.querySelectorAll(".sprite[data-sprite]");

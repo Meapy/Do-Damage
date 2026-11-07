@@ -22,6 +22,9 @@ details). Add to a group's line when a change adds to it, rather than adding ano
 - The website and wiki are easier to find on Google and other search engines, and links to them
   show a preview picture when shared. The website's screenshots show the island Nexus and today's
   character screen.
+- The home page is freshened up: the game in numbers under the Play buttons, its features as they
+  are today (pets, imprints and the Collection, the Divine Forge, community goals, languages), the
+  newest patch notes folded to a "Show all", more keys and more questions answered.
 
 ## 2.4.2 (2026-11-07)
 
