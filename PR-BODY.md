@@ -1,4 +1,4 @@
-Release 2.4.3. Deploys the world server; the website and wiki update too. Nobody is disconnected.
+Release 2.4.3. Deploys the world server and publishes the desktop client (the Wisp Caller tooltip); the website and wiki update too. Nobody is disconnected.
 
 ## For players
 
@@ -27,13 +27,14 @@ Every pet generator in the lands' behaviours (`BehaviorDb.Shore.cs`, `Lowland.cs
 - **Why:** searching "dodmg" or "rotmg private server" didn't find the site: it had no sitemap or robots.txt, the pages barely used the words people search for, and the site is only weeks old on its domain.
 - **Files:** `tools/build_site.py`, `tools/build_wiki.py` (wiki home title), `website/index.html`, `website/changelog.html`, `deploy/deploy.py` (passes `--url https://<site>/` to both site builds), `SETUP-LOCAL.md`, changelog.
 - **Deploy:** website only; nobody is disconnected.
-- **Owner to do:** add dodmg.com to [Google Search Console](https://search.google.com/search-console) as a Domain property (verify with the TXT record it gives, at Register365), submit `https://dodmg.com/sitemap.xml` and request indexing of the home page; the same at [Bing Webmaster Tools](https://www.bing.com/webmasters) (which can import from Search Console). Links to the site from elsewhere (RotMG private server lists, r/RotMGPrivateServers, the Discord's invite pages, the GitHub repository's website field) are what move it up for "rotmg private server".
+- **Owner to do:** the Search Console TXT record is in place at Register365 (2026-11-07; seen on 1.1.1.1, 8.8.8.8, 9.9.9.9 and Register365's own nameservers). Once this is live: Search Console, Sitemaps, submit `https://dodmg.com/sitemap.xml`, and request indexing of the home page; add the site to [Bing Webmaster Tools](https://www.bing.com/webmasters) (it can import from Search Console). Links from elsewhere (RotMG private server lists, r/RotMGPrivateServers, the GitHub repository's website field) are what move it up for "rotmg private server".
 - **Not done:** no lastmod dates in the sitemap (the build doesn't know when a page last changed); the browser client at `/play/` isn't in the sitemap.
 
 ### Website: new Nexus and character screen shots
 
 - **What:** `website/screenshots/nexus*.webp` and `characters*.webp` retaken with the Rust client's `--shot` on an isolated stack (the test account "Tester", admin there only; its own `APPDATA` so the fps counter was off and no saved login was used): the island Nexus with an item tooltip, and the character list (v2.4.2). Alt text and the Nexus caption updated in `website/index.html`. The Oryx, Godlands, Cnidarian Reef and Fungal Cavern shots are kept: they still show those places, with the HUD as it was in October.
 - **Deploy:** website only.
+- **Seen while testing:** on the isolated stack, `/dungeon Wine Cellar` dropped the test client back to the Nexus ("Unexpected Error Occured" in the world server's log). Not looked into.
 
 ### Website: home page polish
 
@@ -49,3 +50,4 @@ Every pet generator in the lands' behaviours (`BehaviorDb.Shore.cs`, `Lowland.cs
 - Website shots: built the site and looked at the gallery in a browser (new Nexus and character screen, the rest unchanged); the Nexus WebP is 253 KB (was 173 KB), the thumbnail 63 KB.
 - Home page polish: built the site and looked through every section in a browser at desktop width and at 375 px (no sideways scroll; the figures wrap to two rows), clicked Show all and Show less on the patch notes, and checked a wiki page still renders.
 - Wisp Caller: `dotnet build source\WorldServer\WorldServer.csproj` (0 errors), `cargo test -p bsk-data` (9 passed), the wiki's Imprints page built with "each back 3 seconds". Not tried in game.
+- Release 2.4.3: `cargo test --workspace` in client-rs (all passed), `dotnet build` of App and WorldServer (0 errors), `tools/build_site.py` (version 2.4.3, 50 releases).
