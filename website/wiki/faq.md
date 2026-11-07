@@ -9,7 +9,7 @@ summary: Browser or desktop, updates, sign-in trouble, and how to report a bug.
 
 Both are the same game, with the same accounts, characters and vault.
 
-- **Browser** ([dodmg.com/play](../play/)): nothing to install and always the newest version. It
+- **Browser** ([play.dodmg.com](https://play.dodmg.com/play/)): nothing to install and always the newest version. It
   needs WebGL 2, which any recent Chrome, Edge, Firefox or Safari has. If it won't start, update
   the browser and turn on hardware acceleration in its settings.
 - **Desktop** ([downloads](../#get), Windows, Linux and macOS): a faster game with an unlockable

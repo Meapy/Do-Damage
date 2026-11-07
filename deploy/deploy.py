@@ -53,6 +53,23 @@ The settings are in deploy/vps.local.json (copy deploy/vps.example.json; --confi
     build_wsl       on Windows: the WSL distro (with Rust) that builds the Linux gateway
     backup_repo     the private git repository the database is backed up to every 6 hours
                     (git@github.com:<owner>/<repo>.git); see deploy/backup.py
+    other_worlds    world servers on other machines that players reach through this gateway
+                    (["169.58.244.146:2051"])
+    website         the website and the Discord bot on another machine than the game (since
+                    2026-11-07: the game on play.dodmg.com, the website on dodmg.com), an object:
+                      ssh, ssh_options  as above, for that machine
+                      site              its address (dodmg.com): the website, /play redirected to
+                                        the game's site, /api and /ws forwarded there (for clients
+                                        built for it)
+                      site_redirects    other names for it (["www.dodmg.com"])
+                      testing           its public address (169.58.244.146) to run the admin-only
+                                        "Testing" world server there too, on the game's Redis
+                                        through an SSH tunnel (bsk-redis-tunnel); everyone else
+                                        signing in there is sent to the game's server
+                      game_address      the game machine's IP, which the tunnel goes to and whose
+                                        gateway Testing trusts for players' addresses
+                    The game's own "site" then only serves the game (/play, /api, /ws) and sends
+                    everything else to the website. See SETUP-LOCAL.md, "Two machines".
 
 What it builds (in build/vps/bundle), then unpacks into /opt/bsk/incoming and installs with
 deploy/remote/install.sh as root:
@@ -84,6 +101,9 @@ ROOT = os.path.dirname(HERE)
 OUT = os.path.join(ROOT, "build", "vps")
 STAGE = os.path.join(OUT, "bundle")
 BUNDLE = os.path.join(OUT, "bundle.tar.gz")
+# the website machine's part, with "website" in the config (install-site.sh)
+SITE_STAGE = os.path.join(OUT, "site-bundle")
+SITE_BUNDLE = os.path.join(OUT, "site-bundle.tar.gz")
 REMOTE = "/opt/bsk"
 WINDOWS = os.name == "nt"
 
@@ -108,7 +128,27 @@ def load_config(path):
         sys.exit("%s: ssh (user@host) is missing" % path)
     if cfg["target"] == "wsl" and not cfg.get("wsl"):
         sys.exit("%s: wsl (the distro's name) is missing" % path)
+    web = cfg.get("website")
+    if web:
+        web.setdefault("target", "ssh")
+        web.setdefault("ssh_options", cfg["ssh_options"])
+        web.setdefault("site_redirects", [])
+        if not web.get("ssh") or not web.get("site"):
+            sys.exit("%s: website needs ssh and site" % path)
+        if not cfg["site"]:
+            sys.exit("%s: with a website machine, site (the game's own https address) is needed too" % path)
+        if web.get("testing"):
+            if not web.get("game_address"):
+                sys.exit("%s: website.testing needs website.game_address (the game machine's IP)" % path)
+            world = "%s:%d" % (web["testing"], cfg["ports"]["world"])
+            if world not in cfg.setdefault("other_worlds", []):
+                cfg["other_worlds"].append(world)
     return cfg
+
+
+def website(cfg):
+    """The machine with the website and the Discord bot: the website one, else the game's."""
+    return cfg.get("website") or cfg
 
 
 def set_json(path, fn):
@@ -308,8 +348,9 @@ def fetch_files(cfg, folder, names, dest):
 def fetch_downloads(cfg):
     """The website's downloads (Do-Damage-<os>.zip, about 10 MB each) into dist/, so the site built
     here offers what the server's does."""
-    zips = [n for n in list_server(cfg, "site/downloads") if n.endswith(".zip") and "/" not in n]
-    fetch_files(cfg, "site/downloads", zips, os.path.join(ROOT, "dist"))
+    web = website(cfg)
+    zips = [n for n in list_server(web, "site/downloads") if n.endswith(".zip") and "/" not in n]
+    fetch_files(web, "site/downloads", zips, os.path.join(ROOT, "dist"))
     print("fetched the website's downloads: %s" % (", ".join(zips) or "none"), flush=True)
 
 
@@ -406,9 +447,8 @@ def build(cfg, args):
     run([sys.executable, os.path.join(ROOT, "tools", "build_client_rs.py"), "--web"])
     shutil.copytree(os.path.join(ROOT, "build", "client-rs", "web"), os.path.join(STAGE, "web"))
     build_gateway(cfg)
-    run([sys.executable, os.path.join(ROOT, "tools", "build_site.py"),
-         "--name", cfg.get("site_name") or "Do Damage", "--url", "https://%s/" % cfg["site"],
-         "--out", os.path.join(STAGE, "site")])
+    if not cfg.get("website"):
+        build_site(cfg, STAGE)
 
     for name in ("world_proxy.py", "rolling_restart.py"):
         copy_lf(os.path.join(ROOT, "tools", name), os.path.join(STAGE, "tools", name))
@@ -424,18 +464,25 @@ def build(cfg, args):
              "BSK_PUBLIC_ADDRESS=%s\nBSK_REDIS_PORT=%d\nBSK_ACCOUNT_PORT=%d\nBSK_WORLD_PORT=%d\nBSK_GATEWAY_PORT=%d\n"
              "BSK_GATEWAY_FLAGS=%s\n"
              % (os.path.basename(args.config), cfg["public_address"], ports["redis"], ports["account"],
-                ports["world"], ports["gateway"], "--forward-address" if cfg.get("forward_address") else ""))
+                ports["world"], ports["gateway"],
+                # other servers in the list (Europe 2: "other_worlds": ["91.90.80.8:2051"]) that
+                # browser and wss players reach through this gateway
+                " ".join((["--forward-address"] if cfg.get("forward_address") else [])
+                         + ["--allow %s" % w for w in cfg.get("other_worlds", [])])))
     # kept out of bsk.env, whose every change means a new gateway slot and an account restart
     write_lf(os.path.join(STAGE, "backup.env"),
              "# Written by deploy/deploy.py from %s: change it there.\nBSK_BACKUP_REPO=%s\n"
              % (os.path.basename(args.config), cfg.get("backup_repo", "")))
-    discord_env(cfg)
+    web = cfg.get("website")
+    if not web:
+        discord_env(cfg, STAGE)
     if cfg["site"]:
         # Caddy gets the certificate for the site by itself (ports 80 and 443 must be open);
         # WebSockets pass through reverse_proxy as they are. The website is the site's root. The
         # browser client is the gateway's page at /play/: it asks for play/api (beside its page)
         # and /ws (from the root), which both reach the gateway as /api and /ws. The website's
-        # server status asks /api too.
+        # server status asks /api too, and /realmdex/stats (players online, plain text, for RealmDex's
+        # server list) is the account server's realmdex/stats, through /api.
         #
         # The gateway runs in three slots (bsk-gateway@a/b/c); a deploy starts the new one and the
         # old one hands over, its /healthz turning 503. Caddy checks each slot's every second and
@@ -443,15 +490,28 @@ def build(cfg, args):
         # gateway swap needs no reload. stream_close_delay keeps open WebSockets (the game)
         # through a reload, which would otherwise close them all (Caddy 2.7 or later). The slots
         # that aren't running fail their checks every second: those lines stay out of the log.
+        #
+        # With a website machine, this site only serves the game: the rest goes to the website.
+        # Its Caddy forwards /api and /ws here for clients built for its address: trusted, so the
+        # gateway gets the player's address (client_ip) rather than that machine's.
         gateways = " ".join("127.0.0.1:%d" % (ports["gateway"] + i) for i in range(3))
+        if web:
+            elsewhere = "\thandle {\n\t\tredir https://%s{uri}\n\t}\n" % web["site"]
+            trusted = "\tservers {\n\t\ttrusted_proxies static %s\n\t}\n" % ssh_host(web)
+            client_ip = "\t\t\theader_up X-Forwarded-For {client_ip}\n"
+        else:
+            elsewhere = "\thandle {\n\t\troot * %s/site\n\t\tfile_server\n\t}\n" % REMOTE
+            trusted = client_ip = ""
         write_lf(os.path.join(STAGE, "Caddyfile"),
                  "# Written by deploy/deploy.py: the website, and the browser client over https (wss for the game).\n"
                  "{\n"
                  "\tlog default {\n\t\texclude http.handlers.reverse_proxy.health_checker.active\n\t}\n"
+                 + trusted +
                  "}\n"
                  "%(site)s {\n"
                  "\tencode zstd gzip\n"
                  "\tredir /play /play/\n"
+                 "\trewrite /realmdex/stats /api/realmdex/stats\n"
                  "\t@gateway path /play/* /api/* /ws/*\n"
                  "\thandle @gateway {\n"
                  "\t\turi strip_prefix /play\n"
@@ -464,32 +524,142 @@ def build(cfg, args):
                  "\t\t\thealth_interval 1s\n"
                  "\t\t\thealth_timeout 2s\n"
                  "\t\t\tstream_close_delay 3h\n"
+                 "%(client_ip)s"
                  "\t\t}\n"
                  "\t}\n"
-                 "\thandle {\n\t\troot * %(root)s/site\n\t\tfile_server\n\t}\n"
-                 "}\n" % {"site": cfg["site"], "gateways": gateways, "root": REMOTE}
+                 "%(elsewhere)s"
+                 "}\n" % {"site": cfg["site"], "gateways": gateways, "client_ip": client_ip, "elsewhere": elsewhere}
                  # other names for the site (www.) send visitors to it, each with its own certificate
                  + "".join("%s {\n\tredir https://%s{uri} permanent\n}\n" % (alias, cfg["site"])
                            for alias in cfg.get("site_redirects", [])))
 
     if not args.no_releases and os.path.isdir(os.path.join(ROOT, "dist", "client")):
         stage_releases(os.path.join(STAGE, "client"))
+    if web:
+        build_website(cfg, args)
 
 
-def discord_env(cfg):
+def ssh_host(machine):
+    """The host part of a machine's ssh (root@169.58.244.146 -> 169.58.244.146)."""
+    return machine["ssh"].rpartition("@")[2]
+
+
+def build_site(cfg, stage):
+    web = website(cfg)
+    run([sys.executable, os.path.join(ROOT, "tools", "build_site.py"),
+         "--name", cfg.get("site_name") or "Do Damage", "--url", "https://%s/" % web["site"],
+         "--out", os.path.join(stage, "site")])
+
+
+def build_website(cfg, args):
+    """The website machine's bundle (deploy/remote/install-site.sh): the website and its Caddy, the
+    Discord bot, and with website.testing the admin-only Testing world server. Built after the game's
+    bundle, whose world server it reuses."""
+    web = cfg["website"]
+    if os.path.exists(SITE_STAGE):
+        shutil.rmtree(SITE_STAGE)
+    os.makedirs(SITE_STAGE)
+    build_site(cfg, SITE_STAGE)
+    game = cfg["site"]
+    discord_env(cfg, SITE_STAGE, releases="https://%s/api/client/windows/latest.json" % game)
+    for name in ("bot.py", "dodmg.py", "requirements.txt"):
+        copy_lf(os.path.join(ROOT, "tools", "discord", name), os.path.join(SITE_STAGE, "tools", "discord", name))
+    for name in ("install-site.sh",):
+        copy_lf(os.path.join(HERE, "remote", name), os.path.join(SITE_STAGE, "deploy", name))
+    units = ["bsk-discord.service"]
+
+    # The website at the root. Browser play is the game machine's (/play there, so the game never
+    # crosses this machine); /api and /ws are forwarded there for desktop clients built for this
+    # address until they update, and for the website's own server status.
+    write_lf(os.path.join(SITE_STAGE, "Caddyfile"),
+             "# Written by deploy/deploy.py: the website; the game is at https://%(game)s.\n"
+             "%(site)s {\n"
+             "\tencode zstd gzip\n"
+             "\trewrite /realmdex/stats /api/realmdex/stats\n"
+             "\tredir /play https://%(game)s/play/\n"
+             "\t@play path /play/*\n"
+             "\tredir @play https://%(game)s{uri}\n"
+             "\t@game path /api/* /ws/*\n"
+             "\thandle @game {\n"
+             "\t\treverse_proxy https://%(game)s {\n"
+             "\t\t\theader_up Host %(game)s\n"
+             "\t\t\tstream_close_delay 3h\n"
+             "\t\t}\n"
+             "\t}\n"
+             "\thandle {\n\t\troot * %(root)s/site\n\t\tfile_server\n\t}\n"
+             "}\n"
+             # the oldest desktop clients sign in over plain http on the account port: forwarded
+             # to the game's, whose server list then sends them straight to its world servers
+             "http://:%(account)d {\n"
+             "\treverse_proxy http://%(game)s:%(account)d\n"
+             "}\n" % {"site": web["site"], "game": game, "root": REMOTE, "account": cfg["ports"]["account"]}
+             + "".join("%s {\n\tredir https://%s{uri} permanent\n}\n" % (alias, web["site"])
+                       for alias in web.get("site_redirects", [])))
+
+    if web.get("testing"):
+        # Testing: the game's world server, admin-only, on the game's Redis through the tunnel
+        # (local port redis + 1, so it never meets a Redis of this machine's own)
+        ports = cfg["ports"]
+        shutil.copytree(os.path.join(STAGE, "worldserver"), os.path.join(SITE_STAGE, "worldserver"))
+
+        def testing(d):
+            d["serverInfo"]["name"] = "Testing"
+            d["serverInfo"]["adminOnly"] = True
+            d["serverInfo"]["address"] = web["testing"]
+            d["serverSettings"]["realmsKey"] = "realms:Testing"
+            d["serverSettings"]["sendPlayersTo"] = "%s:%d" % (cfg["public_address"], ports["world"])
+        set_json(os.path.join(SITE_STAGE, "worldserver", "wServer.json"), testing)
+        for name in ("world_proxy.py", "rolling_restart.py"):
+            copy_lf(os.path.join(ROOT, "tools", name), os.path.join(SITE_STAGE, "tools", name))
+        # Testing's Redis is the tunnel, not a bsk-redis of this machine's
+        with open(os.path.join(HERE, "systemd", "bsk-world.service"), encoding="utf-8") as f:
+            unit = f.read().replace("\r\n", "\n")
+        unit = unit.replace("Wants=bsk-redis.service", "Wants=bsk-redis-tunnel.service")
+        unit = unit.replace("After=network.target bsk-redis.service bsk-account.service",
+                            "After=network.target bsk-redis-tunnel.service")
+        write_lf(os.path.join(SITE_STAGE, "deploy", "systemd", "bsk-world.service"), unit)
+        write_lf(os.path.join(SITE_STAGE, "bsk.env"),
+                 "# Written by deploy/deploy.py from %s: Testing, on this machine.\n"
+                 "BSK_PUBLIC_ADDRESS=%s\nBSK_REDIS_PORT=%d\nBSK_WORLD_PORT=%d\nBSK_TRUSTED_GATEWAYS=%s\n"
+                 % (os.path.basename(args.config), web["testing"], ports["redis"] + 1, ports["world"], web["game_address"]))
+        write_lf(os.path.join(SITE_STAGE, "deploy", "systemd", "bsk-redis-tunnel.service"),
+                 "# Written by deploy/deploy.py: Testing reaches the game's Redis through this SSH tunnel\n"
+                 "# (127.0.0.1:%(local)d here). On the game machine the bsk-tunnel user's key may only\n"
+                 "# forward to its 127.0.0.1:%(redis)d (SETUP-LOCAL.md, \"Two machines\").\n"
+                 "[Unit]\nDescription=betterSkillys Redis tunnel to the game machine\n"
+                 "After=network-online.target\nWants=network-online.target\nBefore=bsk-world.service\n"
+                 "ConditionPathExists=%(r)s/.ssh/redis_tunnel\n\n"
+                 "[Service]\nUser=bsk\n"
+                 "ExecStart=/usr/bin/ssh -N -i %(r)s/.ssh/redis_tunnel -o UserKnownHostsFile=%(r)s/.ssh/known_hosts"
+                 " -o StrictHostKeyChecking=yes -o BatchMode=yes -o ExitOnForwardFailure=yes"
+                 " -o ServerAliveInterval=10 -o ServerAliveCountMax=3"
+                 " -L 127.0.0.1:%(local)d:127.0.0.1:%(redis)d bsk-tunnel@%(game)s\n"
+                 "Restart=always\nRestartSec=3\n\n[Install]\nWantedBy=multi-user.target\n"
+                 % {"local": ports["redis"] + 1, "redis": ports["redis"], "r": REMOTE, "game": web["game_address"]})
+    for name in units:
+        copy_lf(os.path.join(HERE, "systemd", name), os.path.join(SITE_STAGE, "deploy", "systemd", name))
+
+
+def discord_env(cfg, stage, releases=None):
     """The Discord bot's settings (SETUP-LOCAL.md, "Discord"): deploy/discord.local.env, with where
     the releases and the site are on the server. Without that file there's no discord.env in the
-    bundle, and install.sh leaves the bot as it is."""
+    bundle, and install.sh leaves the bot as it is. releases: the published latest.json's address
+    when it's on another machine (the website machine's bot reads the game's over https)."""
+    releases = releases or "%s/dist/client/windows/latest.json" % REMOTE
+    site = website(cfg)["site"]
+    # install-site.sh puts these in the bot's settings already there when there's no discord.env
+    write_lf(os.path.join(stage, "discord-where.env"), "BSK_RELEASES=%s\nBSK_SITE=%s\n"
+             % (releases, "https://" + site if site else ""))
     local = os.path.join(HERE, "discord.local.env")
     if not os.path.exists(local):
         print("discord: no deploy/discord.local.env, leaving the bot as it is")
         return
     with open(local, encoding="utf-8-sig") as f:
         lines = [l.rstrip() for l in f if l.split("=", 1)[0].strip() not in ("BSK_RELEASES", "BSK_SITE", "DISCORD_STATE")]
-    lines += ["BSK_RELEASES=%s/dist/client/windows/latest.json" % REMOTE,
-              "BSK_SITE=%s" % ("https://" + cfg["site"] if cfg["site"] else ""),
+    lines += ["BSK_RELEASES=%s" % releases,
+              "BSK_SITE=%s" % ("https://" + site if site else ""),
               "DISCORD_STATE=%s/discord/state.json" % REMOTE]
-    write_lf(os.path.join(STAGE, "discord.env"), "\n".join(lines) + "\n")
+    write_lf(os.path.join(stage, "discord.env"), "\n".join(lines) + "\n")
 
 
 def add_data(folder):
@@ -510,7 +680,7 @@ def add_data(folder):
         sys.exit("no dump.rdb or appendonly.aof in %s" % folder)
 
 
-def pack():
+def pack(stage=STAGE, bundle=BUNDLE):
     def norm(info):
         info.uid = info.gid = 0
         info.uname = info.gname = "root"
@@ -520,10 +690,10 @@ def pack():
             executable = info.name.startswith("bin/") or info.name.endswith(".sh")
             info.mode = 0o755 if executable else 0o600 if info.name == "discord.env" else 0o644
         return info
-    with tarfile.open(BUNDLE, "w:gz", compresslevel=6) as tar:
-        for name in sorted(os.listdir(STAGE)):
-            tar.add(os.path.join(STAGE, name), arcname=name, filter=norm)
-    print("bundle: %s (%.1f MB)" % (os.path.relpath(BUNDLE, ROOT), os.path.getsize(BUNDLE) / 1e6))
+    with tarfile.open(bundle, "w:gz", compresslevel=6) as tar:
+        for name in sorted(os.listdir(stage)):
+            tar.add(os.path.join(stage, name), arcname=name, filter=norm)
+    print("bundle: %s (%.1f MB)" % (os.path.relpath(bundle, ROOT), os.path.getsize(bundle) / 1e6))
 
 
 def remote(cfg, script, stdin=None, stdout=None):
@@ -560,12 +730,22 @@ def main():
     ap.add_argument("--force-client", action="store_true",
                     help="with --client-only: upload the releases and the website even if nothing was published")
     ap.add_argument("--dry-run", action="store_true", help="build and pack, but don't touch the server")
+    ap.add_argument("--retire-game", action="store_true",
+                    help="with a website machine: stop and mask its own Redis, account server, gateways and"
+                         " backups first (the move to two machines, once; SETUP-LOCAL.md, \"Two machines\")")
     args = ap.parse_args()
     if not os.path.exists(args.config):
         sys.exit("no %s: copy deploy/vps.example.json there and fill it in" % args.config)
     cfg = load_config(args.config)
 
     if args.status:
+        web = cfg.get("website")
+        if web:
+            print("== the website machine (%s)" % web["ssh"], flush=True)
+            remote(web, "systemctl --no-pager --lines=0 status caddy bsk-discord bsk-redis-tunnel bsk-world"
+                        " | grep -E '[.]service - |^ *Active'; [ -f %(r)s/worldserver/wServer.json ] &&"
+                        " runuser -u bsk -- python3 %(r)s/tools/rolling_restart.py status; true" % {"r": REMOTE})
+            print("== the game machine (%s)" % cfg["ssh"], flush=True)
         sys.exit(remote(cfg, "systemctl --no-pager --lines=0 status bsk-redis bsk-account bsk-world 'bsk-gateway@*' caddy bsk-discord"
                              " | grep -E '[.]service - |^ *Active'; runuser -u bsk -- python3 %(r)s/tools/rolling_restart.py status;"
                              " . %(r)s/bsk.env; echo \"active gateway slot: $(cat %(r)s/gateway/active 2>/dev/null)\";"
@@ -588,8 +768,12 @@ def main():
             return
         build_client_bundle(cfg)
         pack()
+        if cfg.get("website"):
+            pack(SITE_STAGE, SITE_BUNDLE)
         if not args.dry_run:
             upload_and_install(cfg, "install-client.sh")
+            if cfg.get("website"):
+                upload_and_install(cfg["website"], "install-client.sh", SITE_BUNDLE)
         return
     if not args.skip_build:
         if not (args.no_publish or args.no_releases):
@@ -607,15 +791,21 @@ def main():
     elif os.path.exists(os.path.join(STAGE, "redis-data")):
         shutil.rmtree(os.path.join(STAGE, "redis-data"))
     pack()
+    if cfg.get("website"):
+        pack(SITE_STAGE, SITE_BUNDLE)
     if args.dry_run:
         print("dry run: nothing sent to the server")
         return
 
     flags = (" --import-data" if args.import_data else "") + (" --force-data" if args.force_data else "")
     upload_and_install(cfg, "install.sh" + flags)
+    if cfg.get("website"):
+        # after the game's: the website forwards to it, and Testing uses its Redis
+        print("== the website machine (%s)" % cfg["website"]["ssh"], flush=True)
+        upload_and_install(cfg["website"], "install-site.sh" + (" --retire-game" if args.retire_game else ""), SITE_BUNDLE)
 
 
-def upload_and_install(cfg, install):
+def upload_and_install(cfg, install, bundle=BUNDLE):
     """Unpacks the bundle into /opt/bsk/incoming and runs deploy/<install> from it. One deploy at a
     time on the server, whoever runs it (a PC or GitHub Actions): the upload and the install hold
     a lock together, so a second deploy waits for the first to finish."""
@@ -624,23 +814,26 @@ def upload_and_install(cfg, install):
               " flock -w 1800 9 || { echo 'another deploy is still running' >&2; exit 1; };"
               " rm -rf %(i)s; mkdir -p %(i)s; tar xzf - -C %(i)s; bash %(i)s/deploy/%(s)s </dev/null"
               % {"r": REMOTE, "i": incoming, "s": install})
-    code = remote(cfg, script, BUNDLE)
+    code = remote(cfg, script, bundle)
     if code:
         sys.exit("the deploy failed (%d): see the output above" % code)
 
 
 def build_client_bundle(cfg):
     """--client-only: the published client releases and the website (whose download is the new
-    release), for deploy/remote/install-client.sh. The servers and the gateway stay as they are."""
-    if os.path.exists(STAGE):
-        shutil.rmtree(STAGE)
+    release), for deploy/remote/install-client.sh. The servers and the gateway stay as they are.
+    With a website machine, the releases go to the game's and the website to that one."""
+    for stage in (STAGE, SITE_STAGE):
+        if os.path.exists(stage):
+            shutil.rmtree(stage)
     os.makedirs(STAGE)
     stage_releases(os.path.join(STAGE, "client"))
-    run([sys.executable, os.path.join(ROOT, "tools", "build_site.py"),
-         "--name", cfg.get("site_name") or "Do Damage", "--url", "https://%s/" % cfg["site"],
-         "--out", os.path.join(STAGE, "site")])
-    for name in ("install-client.sh", "add-releases.sh"):
-        copy_lf(os.path.join(HERE, "remote", name), os.path.join(STAGE, "deploy", name))
+    site_stage = SITE_STAGE if cfg.get("website") else STAGE
+    os.makedirs(site_stage, exist_ok=True)
+    build_site(cfg, site_stage)
+    for stage in {STAGE, site_stage}:
+        for name in ("install-client.sh", "add-releases.sh"):
+            copy_lf(os.path.join(HERE, "remote", name), os.path.join(stage, "deploy", name))
 
 
 if __name__ == "__main__":

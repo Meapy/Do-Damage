@@ -53,8 +53,29 @@ namespace WorldServer.core.net.handlers
             var rank = acc.Rank;
 
             // first check: admin server
-            if (config.serverInfo.adminOnly && !client.Account.Admin && !cManager.IsWhitelisted(acc.AccountId))
+            // (acc: client.Account is only set below)
+            if (config.serverInfo.adminOnly && !acc.Admin && !cManager.IsWhitelisted(acc.AccountId))
             {
+                // Testing sends everyone else to the main server's Nexus (their client connects
+                // there by itself, as for any Reconnect naming a host)
+                var to = config.serverSettings.sendPlayersTo ?? "";
+                var colon = to.LastIndexOf(':');
+                if (colon > 0 && int.TryParse(to.Substring(colon + 1), out var toPort))
+                {
+                    var reconnect = new Reconnect()
+                    {
+                        Name = "Nexus",
+                        Host = to.Substring(0, colon),
+                        Port = toPort,
+                        GameId = World.NEXUS_ID,
+                        KeyTime = -1
+                    };
+                    // no key: a sign-in there, not a hop between that server's worlds
+                    reconnect.ClearKey();
+                    client.SendPacket(reconnect);
+                    return;
+                }
+
                 client.SendFailure("You must be whitelisted to join this server.", FailureMessage.MessageNoDisconnect);
                 return;
             }

@@ -8,7 +8,9 @@ set -euo pipefail
 ROOT=/opt/bsk
 IN=$ROOT/incoming
 [ "$(id -u)" = 0 ] || { echo "run as root" >&2; exit 1; }
-[ -d $ROOT/dist ] && [ -d $ROOT/site ] || { echo "no install in $ROOT yet: deploy everything first" >&2; exit 1; }
+# (with a website machine, the game's has the releases and the website's the site)
+{ [ ! -d $IN/client ] || [ -d $ROOT/dist ]; } && { [ ! -d $IN/site ] || [ -d $ROOT/site ]; } \
+    || { echo "no install in $ROOT yet: deploy everything first" >&2; exit 1; }
 
 # the same steps as install.sh's
 if [ -d $IN/client ]; then

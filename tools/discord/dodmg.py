@@ -42,10 +42,17 @@ def version_key(v):
 
 def release_from_latest(path):
     """The newest release from a published latest.json (dist/client/<os>/latest.json): its
-    changelog is the one the release was published with. None when there's no such file."""
+    changelog is the one the release was published with. None when there's no such file. path may
+    be an https address, where the bot runs on another machine than the game
+    (https://play.dodmg.com/api/client/windows/latest.json)."""
     try:
-        with open(path, encoding="utf-8") as f:
-            data = json.load(f)
+        if path.startswith(("http://", "https://")):
+            req = urllib.request.Request(path, headers={"User-Agent": USER_AGENT, "Cache-Control": "no-cache"})
+            with urllib.request.urlopen(req, timeout=20) as f:
+                data = json.loads(f.read().decode("utf-8"))
+        else:
+            with open(path, encoding="utf-8") as f:
+                data = json.load(f)
     except (OSError, ValueError):
         return None
     entry = next((e for e in data.get("changelog", []) if e.get("version") == data.get("version")), None)

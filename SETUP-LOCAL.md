@@ -241,6 +241,49 @@ the move still look for updates at this PC's address: `python tools\update_relay
 the releases (and nothing else) on port 8080, so they switch to `dodmg.com` by themselves. Leave
 it running for a while; it doesn't survive a restart of this PC.
 
+**Two machines (since 2026-11-07):** dodmg.com's host pauses the whole VM for up
+to 300 ms at a time (a 1 ms sleep overshooting by 80-300 ms, CPU-bound work varying 3x between
+runs; VMware shows no steal), which players felt as ping spikes. The game moved to a second VPS,
+and the old one keeps what doesn't need speed:
+
+| | Game machine: `play.dodmg.com` | Website machine: `dodmg.com` |
+|---|---|---|
+| Host | Contabo KVM, 91.90.80.8, 6 cores, 12 GB | Contabo VMware, 169.58.244.146 |
+| Runs | Redis, account server, world proxy and **Europe 2** (the main world server), gateway slots, Caddy for `play.dodmg.com` (`/play`, `/api`, `/ws`; anything else redirects to dodmg.com), backups | Caddy for `dodmg.com`: the website; `/play` redirects to play.dodmg.com, `/api` and `/ws` are forwarded there (clients built for dodmg.com, the website's server status); the Discord bot; **Testing** |
+| ssh | root, `~/.ssh/dodmg_ed25519` | the same |
+
+- **Config:** `deploy/vps.local.json` names the game machine (`ssh`, `site` and `public_address`
+  `play.dodmg.com`) and, under `website`, the other one (`ssh`, `site` dodmg.com, `testing`
+  169.58.244.146, `game_address` 91.90.80.8): deploy.py's docstring has the keys. One deploy
+  installs both, the game machine first (`install.sh`, as before), then the website machine
+  (`install-site.sh`). `--status` shows both. The `VPS_CONFIG` secret is the same file, and
+  `VPS_KNOWN_HOSTS` needs both machines' host keys.
+- **Clients:** published releases have `https://play.dodmg.com/api` built in, so desktop players'
+  game traffic never crosses the website machine. Older clients (built for dodmg.com) still work
+  through its forwarding, slower, until they update at their next portal. Browser players follow
+  the website's Play links to `https://play.dodmg.com/play/` (a sign-in there once: a browser
+  keeps the login per site).
+- **Testing** is the admin-only world server on the website machine ("Testing (admin)", listed
+  last; `wServer.json` written by deploy.py: `adminOnly`, `realmsKey` "realms:Testing",
+  `sendPlayersTo` "play.dodmg.com:2051"). Anyone but an admin signing in there is sent on to
+  Europe 2's Nexus (a Reconnect naming that host), so no one is turned away. It uses the game's
+  Redis through `bsk-redis-tunnel` (an SSH tunnel to 127.0.0.1:6380 there, as the `bsk` user with
+  `/opt/bsk/.ssh/redis_tunnel`; on the game machine that key belongs to the `bsk-tunnel` user, no
+  shell, whose `authorized_keys` line only allows forwarding to `127.0.0.1:6379`). Its world proxy
+  trusts the game machine's gateway for players' addresses (`BSK_TRUSTED_GATEWAYS`), and that
+  gateway allows Testing's address (`other_worlds`, added by deploy.py). It plays on the live
+  data: test risky changes on an isolated stack, as always.
+- **Server list:** admin-only servers come last, so a client with no choice saved (or a choice
+  that's gone, "Europe") takes Europe 2. The account server gives a client on its own machine
+  (everyone through the gateway) `127.0.0.1` only for world servers with its own address
+  (`BSK_PUBLIC_ADDRESS`); Testing keeps its own.
+- **Realm snapshots** are per server (`serverSettings.realmsKey`: "realms" for Europe 2, "realms:Testing").
+- **The move itself** (once, players disconnected for its length): stop the old machine's
+  `bsk-world` (it saves everyone), `bsk-account` and gateways; `redis-cli save` and stop
+  `bsk-redis`; copy `/opt/bsk/redis/data` to the game machine; deploy with the two-machine config
+  and `--retire-game` (which masks the website machine's Redis, account server, gateways and
+  backup timer, so they never start again on old data); then the Testing tunnel key (as above).
+
 **Encrypted connections (desktop client):**
 - **How:** a desktop client whose account address ends in `/api` treats it as a site's gateway:
   account requests go to `https://<site>/api/...` and the game to `wss://<site>/ws/<host>:<port>`,
@@ -1562,6 +1605,7 @@ The remotes `upstream` (HaloCelsius) and `aurusenth` share no history with `main
 - **Servers screen (Rust client 1.1.3)**: the character list has a Servers button again (the "Server:" pill under the characters opens it too). It lists the world servers from `/char/list` with Normal/Crowded/Full and the player count, as the AIR client's `ServersScreen` does; a click picks the server and returns to the characters, and the choice is kept (`preferredServer`). The AIR client's screen (title screen, Servers) is unchanged. Client only.
 - `client/src/WebMain.as`: on a first run the map scale setting (`mscale`) is undefined until the player enters the game. The first window resize divided by it and asked for a 0-pixel-wide Stage3D back buffer (Error #3780); it now defaults to 1.
 - **Server status history** (`source/App/StatusHistory.cs`): the account server samples the world servers every minute into Redis: `status:players` (a sorted set of `<minute>:<players>`, the last 24 hours), `status:up` (a hash of UTC day to the minutes a public world server was listed, 30 days kept) and `status:since` (the first minute sampled; unsampled minutes after it, such as the account server being down, count as down). `status:minute:<minute>` (5-minute TTL) makes sure only one account server counts a minute. `GET`/`POST app/status` gives `{ online, players, peak24h, days: [{ date, up }] }`, the last 7 UTC days oldest first with `up` the fraction of the day (null before the first sample); the website shows it under the download buttons (green from 99%, amber, red at 0, grey for no data). Deploy the account server and the site together; the old site keeps working with the new server and the new site with the old one.
+- **RealmDex stats** (`source/App/Controllers/RealmdexController.cs`): `GET`/`POST realmdex/stats` gives the players online as plain text (the same count as `app/status`), for RealmDex's server list. Caddy rewrites `https://<site>/realmdex/stats` to `/api/realmdex/stats` (`deploy/deploy.py`), so it's `https://dodmg.com/realmdex/stats`.
 - `source/App`: `char/list` and `app/serverList` send 127.0.0.1 as the world server address to clients on this PC, and this PC's LAN address to clients on the local network or reaching us through our own public IP.
 - **Network performance** (world server):
   - Each world thread queues the messages it sends during one pass of its loop and sends them together at the end (`NetworkSendHandler.BeginBatch`/`FlushBatch`). A tick's messages leave in a few TCP segments per player instead of one segment per message.

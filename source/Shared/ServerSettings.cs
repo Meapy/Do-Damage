@@ -27,6 +27,13 @@ namespace Shared
         // The first world id is worldIdBase + 1. Each world server behind the proxy gets its own
         // range (1000000 for slot a, 2000000 for b), so the proxy knows which one has a world.
         public int worldIdBase { get; set; } = 0;
+        // The Redis hash that keeps this server's realms across restarts (RealmSnapshots). Each
+        // server in the list (Europe, Europe 2) needs its own, or one opens the other's realms;
+        // the slots of one server share theirs.
+        public string realmsKey { get; set; } = "realms";
+        // On an admin-only server (Testing): where everyone else is sent instead of being turned
+        // away, "<host>:<port>" (the main server's, play.dodmg.com:2051). Empty: turned away.
+        public string sendPlayersTo { get; set; } = "";
         public string version { get; set; } = "undefined";
         // An event's maps, such as "Halloween": a world whose map is "<map>.jm" plays
         // "<map> <mapEvent>.jm" instead where there is one (tools/build_nexus.py and the other map builders; none has event copies now). Empty: none.

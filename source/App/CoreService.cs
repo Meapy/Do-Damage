@@ -148,9 +148,15 @@ namespace App
         // reaching us through our own public address (NAT loopback), gets this PC's LAN address.
         // Otherwise all its game traffic would go out through the router and back in, which loads
         // the router and delays the traffic of players connecting from outside.
+        // Only for world servers on this machine: on a VPS (BSK_PUBLIC_ADDRESS, from bsk.env) one
+        // with another address is on another machine (Europe 2), and keeps it.
+        private static readonly string OwnAddress = Environment.GetEnvironmentVariable("BSK_PUBLIC_ADDRESS");
+
         private static string WorldAddressFor(System.Net.IPAddress clientIp, string publicAddress)
         {
             if (clientIp == null)
+                return publicAddress;
+            if (!string.IsNullOrEmpty(OwnAddress) && !string.Equals(publicAddress, OwnAddress, StringComparison.OrdinalIgnoreCase))
                 return publicAddress;
             if (clientIp.IsIPv4MappedToIPv6)
                 clientIp = clientIp.MapToIPv4();
@@ -185,7 +191,9 @@ namespace App
                     UsageText = group.All(_ => _.IsJustStarted()) ? "- NEW!" : $"{players}/{maxPlayers}"
                 });
             }
-            ret = ret.OrderBy(_ => _.Port).ToList();
+            // admin-only servers (Testing) last: a client that has no choice saved, or whose saved
+            // server is gone, takes the first
+            ret = ret.OrderBy(_ => _.AdminOnly).ThenBy(_ => _.Port).ToList();
             return ret;
         }
     }

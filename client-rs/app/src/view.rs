@@ -220,6 +220,8 @@ pub struct Scene<'a> {
     /// On stacked floors, the floors from which up are see-through this frame (`roof`): what
     /// stands on them fades with them.
     pub roof: Option<u8>,
+    /// How opaque we ourselves are drawn (less as we die).
+    pub me_alpha: f32,
 }
 
 impl Scene<'_> {
@@ -1572,6 +1574,8 @@ fn fade(scene: &Scene, obj: &GameObj, desc: &ObjectDesc) -> f32 {
         scene.show.player_alpha
     } else if scene.world.others_pet(obj) {
         scene.show.pet_alpha
+    } else if Some(obj.id) == scene.world.me {
+        scene.me_alpha
     } else {
         1.0
     };

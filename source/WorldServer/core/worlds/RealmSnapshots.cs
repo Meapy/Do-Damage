@@ -59,7 +59,8 @@ namespace WorldServer.core.worlds
 
     public static class RealmSnapshots
     {
-        public const string Hash = "realms";
+        // serverSettings.realmsKey, set at start-up (WorldManager)
+        public static string Hash { get; set; } = "realms";
 
         /// <summary>Older than this, a snapshot is from a game that stopped: its realms start afresh.</summary>
         public static readonly TimeSpan MaxAge = TimeSpan.FromMinutes(10);

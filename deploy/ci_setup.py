@@ -67,6 +67,9 @@ def main():
                           "-o", "ServerAliveInterval=30"] + kept
     if cfg.get("target", "ssh") != "ssh":
         sys.exit("VPS_CONFIG: target must be ssh on GitHub Actions")
+    # the website machine (two machines) signs in with the same key: VPS_KNOWN_HOSTS has both
+    if isinstance(cfg.get("website"), dict):
+        cfg["website"].pop("ssh_options", None)
     write_private(os.path.join(HERE, "vps.local.json"), json.dumps(cfg, indent=2))
 
     discord = os.environ.get("DISCORD_ENV", "").strip()

@@ -14,7 +14,8 @@ tools/rolling_restart.py starts it and keeps its state, <state folder>/state.jso
   The Nexus (-2), the other negative ids and anything unknown go to the active server.
 - Before the Hello it sends a PROXY_INFO message (id 250) with the client's address, as the
   servers would otherwise see every player as 127.0.0.1 (IP bans, the account's IP). A client's
-  own PROXY_INFO before its Hello is dropped, except from this machine: the gateway
+  own PROXY_INFO before its Hello is dropped, except from this machine (or an address in
+  BSK_TRUSTED_GATEWAYS, another machine's gateway bridging to this one): the gateway
   (`bsk-gateway --forward-address`, for players in a browser or on wss) sends the player's
   address that way, and the proxy passes that one on instead of the gateway's.
 - It reads the state again whenever the file changes: a deploy only rewrites it.
@@ -109,8 +110,13 @@ def parse_proxy_info(body):
         return None
 
 
+# Other machines whose gateway may give its players' addresses too (BSK_TRUSTED_GATEWAYS, IPs
+# separated by commas): Europe 2's proxy trusts dodmg.com's gateway, which bridges its players.
+TRUSTED_GATEWAYS = {a.strip() for a in os.environ.get("BSK_TRUSTED_GATEWAYS", "").split(",") if a.strip()}
+
+
 def is_local(address):
-    return address == "::1" or address.startswith("127.")
+    return address == "::1" or address.startswith("127.") or address in TRUSTED_GATEWAYS
 
 
 async def read_first(creader):
