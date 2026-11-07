@@ -20,7 +20,8 @@ details). Add to a group's line when a change adds to it, rather than adding ano
 
 ### Website
 - The website and wiki are easier to find on Google and other search engines, and links to them
-  show a preview picture when shared.
+  show a preview picture when shared. The website's screenshots show the island Nexus and today's
+  character screen.
 
 ## 2.4.2 (2026-11-07)
 
