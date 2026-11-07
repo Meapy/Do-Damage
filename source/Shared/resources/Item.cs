@@ -65,6 +65,8 @@ namespace Shared.resources
         // Ascended Gem of Tenderness): (stat, amount, duration in ms, the share or the chance)
         public (int Stat, int Amount, int DurationMs, float Value)? LowHealthBoost;
         public (int Stat, int Amount, int DurationMs, float Value)? AbilityBoost;
+        // what an Empowered boss's item does beyond its numbers (<RelicPower>, Player.RelicPowers.cs)
+        public string RelicPower;
         public int SlotType;
         public bool Soulbound;
         // can't be traded, sold on the market or dropped for others: admin items and the OP ones
@@ -118,6 +120,7 @@ namespace Shared.resources
             Resurrects = e.HasElement("Resurrects");
             LowHealthBoost = StatProc(e.Element("LowHealthBoost"), "below");
             AbilityBoost = StatProc(e.Element("AbilityBoost"), "chance");
+            RelicPower = e.GetValue<string>("RelicPower");
             RateOfFire = e.GetValue<float>("RateOfFire");
             Tier = e.GetValue("Tier", -1);
             BagType = e.GetValue<int>("BagType");

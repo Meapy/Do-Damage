@@ -38,6 +38,9 @@ enum Motion {
     /// Circles a point, the circle widening to `max_rad` (`CircleParticle`); `speed` is
     /// radians a frame at 60 frames a second.
     Orbit { cx: f64, cy: f64, angle: f64, speed: f64, rad: f64, rise: f64, max_rad: f64 },
+    /// A soul escaping a fallen boss (`Souls`): circles a point, drifting out by `out` and up by
+    /// `rise` tiles a millisecond, fading in and out over its life; `speed` as `Orbit`'s.
+    Soul { cx: f64, cy: f64, angle: f64, speed: f64, rad: f64, out: f64, rise: f64 },
 }
 
 /// A particle drawn as a picture: its frames (none for a blank one), each with its size in
@@ -552,6 +555,15 @@ impl Particles {
                     *angle += speed * d / (1000.0 / 60.0);
                     *rad = (*rad + rise * d / 1000.0).min(max_rad);
                 }
+                Motion::Soul { cx, cy, ref mut angle, speed, ref mut rad, out, rise } => {
+                    *angle += speed * d / (1000.0 / 60.0);
+                    *rad += out * d;
+                    p.x = cx + *rad * angle.cos();
+                    p.y = cy + *rad * angle.sin();
+                    p.z += rise * d;
+                    let age = 1.0 - p.left as f64 / p.life as f64;
+                    p.alpha = ((age * PI).sin() * 1.3).min(1.0) as f32;
+                }
                 Motion::Sparker => {
                     p.x += p.vx * d;
                     p.y += p.vy * d;
@@ -641,6 +653,7 @@ impl Particles {
                         "XMLEffect" => Emitter::Xml { wait: 0.0 },
                         "Fountain" | "FountainSnowy" | "Vent" | "Vortex" => Emitter::Steady { wait: 0.0, period: 0.05, radius: 0.0 },
                         "SkyBeam" => Emitter::Steady { wait: 0.0, period: 0.03, radius: e.min_radius },
+                        "Souls" => Emitter::Steady { wait: 0.0, period: 1.0 / e.rate.max(0.5), radius: 0.0 },
                         _ => Emitter::Done,
                     };
                     self.emitters.insert(id, s);
@@ -726,6 +739,23 @@ impl Particles {
                 let max_size = 3.5 + 2.0 * self.random();
                 let motion = Motion::Vortex { cx: x, cy: y, ax: turn.sin() * pull, ay: turn.cos() * pull, max_size };
                 self.add(Particle::new(px, py, 1.0, e.color & 0xFF_FFFF, 0.0, 3400, motion));
+            }
+            // Souls (ours): wisps circling the object, a few of the second colour, drifting up and
+            // out as they fade: the souls escaping a fallen boss's remains, or swirling round its
+            // Empowered form. speed: radians a frame at 60 frames a second; rise: tiles a second.
+            "Souls" => {
+                let angle = 2.0 * PI * self.random();
+                let rad = e.min_radius + self.random() * (e.max_radius - e.min_radius) * 0.5;
+                let life = ((e.life + e.life_variance * (2.0 * self.random() - 1.0)) * 1000.0).max(200.0) as i32;
+                let out = (e.max_radius - rad).max(0.0) * 0.6 / life as f64;
+                let color = if self.random() < 0.7 { e.color } else { e.color2 };
+                let size = (e.size as f64 + (self.random() * 3.0).floor()) * 20.0;
+                let z = e.z_offset + self.random() * 0.5;
+                let speed = e.speed * (0.7 + 0.6 * self.random());
+                let motion = Motion::Soul { cx: x, cy: y, angle, speed, rad, out, rise: e.rise / 1000.0 };
+                let mut p = Particle::new(x + rad * angle.cos(), y + rad * angle.sin(), z, color & 0xFF_FFFF, size, life, motion);
+                p.alpha = 0.0;
+                self.add(p);
             }
             // SkyBeamEffect: falling from on high within a widening circle.
             "SkyBeam" => {

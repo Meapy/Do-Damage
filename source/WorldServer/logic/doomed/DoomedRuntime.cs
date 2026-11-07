@@ -135,6 +135,8 @@ namespace WorldServer.logic.doomed
             if (host.World == null || !host.ObjectDesc.Projectiles.TryGetValue(projectileIndex, out var desc))
                 return;
             var dmg = (double)BehaviorBase.Rng.Next(desc.MinDamage, desc.MaxDamage);
+            if (host is Enemy enemy)
+                dmg *= enemy.DamageScale;
             if (host.HasConditionEffect(ConditionEffectIndex.Weak))
                 dmg /= 2;
             host.World.BroadcastEnemyShootIfVisible(new EnemyShootMessage()

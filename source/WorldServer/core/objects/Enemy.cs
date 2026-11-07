@@ -35,8 +35,19 @@ namespace WorldServer.core.objects
         public bool IsEpic { get; set; }
         public bool IsLegendary { get; set; }
         public bool IsRare { get; set; }
-        // multiplies the XML damage of this enemy's Shoot behaviours (set by BossStats)
-        public float DamageScale { get; set; } = 1f;
+        // multiplies the XML damage of this enemy's Shoot behaviours (set by BossStats), and an
+        // Empowered boss's own on top
+        private float _damageScale = 1f;
+        public float DamageScale
+        {
+            get => _damageScale * (Empowered?.DamageMultiplier ?? 1f);
+            set => _damageScale = value;
+        }
+        // a boss raised by a Necromantic Relic (resurrection.BossResurrection): its behaviour runs
+        // faster, it hits harder, takes more to kill, attacks with the souls too and drops more
+        public resurrection.Empowered Empowered { get; set; }
+        // added to every player's loot boost for this enemy's drops
+        public double LootBoost => Empowered?.LootBoost ?? 0;
         // a realm event boss whose health the realm sets by the players near it (RealmManager),
         // in place of its own ScaleHP2
         public bool RealmScaled { get; set; }
@@ -98,6 +109,7 @@ namespace WorldServer.core.objects
         {
             DpsMeter?.Tick();
             ShredTick();
+            Empowered?.Tick(this, ref time);
 
             // objects without MaxHitPoints (anchors, spawners, traps) start at 0 HP; they end
             // through their behaviour instead of dying on their first tick
@@ -118,6 +130,10 @@ namespace WorldServer.core.objects
 
             base.Tick(ref time);
         }
+
+        // an Empowered boss's behaviour runs faster: its cooldowns, phases and moves
+        protected override TickTime BehaviourTime(TickTime time) => Empowered == null ? time : Empowered.Hasten(time);
+        protected override bool BehaviourPaused => Empowered?.Paused ?? false;
 
         protected override void ExportStats(IDictionary<StatDataType, object> stats, bool isOtherPlayer)
         {
@@ -228,6 +244,8 @@ namespace WorldServer.core.objects
                 }, this);
 
                 DamageCounter?.HitBy(from, effDmg);
+                if (Health <= 0)
+                    from?.RelicKill();
                 logic.doomed.DoomedRuntime.OnHit(this, from, time);
 
                 if (Health <= 0 && World != null)
@@ -330,6 +348,8 @@ namespace WorldServer.core.objects
                 if (ObjectDesc.Quest)
                     World?.BossDied(this);
                 ClearOwnSquare();
+                // an Elder dungeon's boss leaves its remains, for a Necromantic Relic
+                resurrection.BossResurrection.BossDied(this);
             }
             Dead = true;
             World.LeaveWorld(this);

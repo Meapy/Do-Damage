@@ -194,6 +194,9 @@ namespace WorldServer.logic.loot
             /*if (enemy.Rare)
             if (enemy.Epic)
             if (enemy.Legendary)*/
+
+            // the Elder dungeons' bosses drop the Necromantic Relic (core/resurrection)
+            core.resurrection.BossResurrection.AddRelicDrop(enemy, list);
             return list;
         }
 
@@ -289,6 +292,7 @@ namespace WorldServer.logic.loot
                 if (enemy.IsRare) enemyBoost = .25;
                 if (enemy.IsEpic) enemyBoost = .5;
                 if (enemy.IsLegendary) enemyBoost = .75;
+                enemyBoost += enemy.LootBoost;
 
                 var dmgBoost = Math.Round(tupPlayer.Item2 / (double)enemy.DamageCounter.TotalDamage, 4);
                 // only on weekends, as /boosts and the login message say (it applied every day)

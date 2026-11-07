@@ -241,6 +241,14 @@ namespace WorldServer.core.objects
                     return;
                 }
 
+            // a Necromantic Relic only beside the remains of a boss it can raise (BossResurrection)
+            foreach (var eff in item.ActivateEffects)
+                if (eff.Effect == ActivateEffects.Resurrect && resurrection.BossResurrection.RemainsNear(this, eff.Radius, out var noRemains) == null)
+                {
+                    Refuse(noRemains);
+                    return;
+                }
+
             // a pet generator that's used up (Lil' Oryx's) isn't spent on the pet its user already has
             foreach (var eff in item.ActivateEffects)
                 if (eff.Effect == ActivateEffects.PermaPet && item.Consumable)
@@ -359,7 +367,10 @@ namespace WorldServer.core.objects
                 {
                     AbilityUseEffects(pos);
                     if (slot == 1 && objId == Id)
+                    {
                         AbilityBoosts();
+                        RelicAbility(pos, ref time);
+                    }
                 }
             }
             else
@@ -751,6 +762,9 @@ namespace WorldServer.core.objects
                     case ActivateEffects.GroupTransform:
                     case ActivateEffects.ChangeObject:
                         AEChangeObject(item, eff);
+                        break;
+                    case ActivateEffects.Resurrect:
+                        resurrection.BossResurrection.Raise(this, eff.Radius);
                         break;
                     case ActivateEffects.Exchange:
                         AEExchange(eff);

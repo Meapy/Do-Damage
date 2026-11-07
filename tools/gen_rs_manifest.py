@@ -85,6 +85,10 @@ RS_ONLY_SETS = [
     ("nexusIslands8x8", "kabam/rotmg/assets/custom/images/NexusIslands8x8.png", 8, 8),
     ("nexusIslands16x16", "kabam/rotmg/assets/custom/images/NexusIslands16x16.png", 16, 16),
     ("nexusIslandsModels128x128", "kabam/rotmg/assets/custom/images/NexusIslandsModels128x128.png", 128, 128),
+    # the Necromantic Relic, the soul bolt and wisp, the ritual's soul and the Wailing Soul
+    # (tools/build_resurrection.py)
+    ("resurrection8x8", "kabam/rotmg/assets/custom/images/Resurrection8x8.png", 8, 8),
+    ("resurrection16x16", "kabam/rotmg/assets/custom/images/Resurrection16x16.png", 16, 16),
 ]
 # (name, file, frame width, frame height, sheet width, sheet height, direction): characters
 RS_ONLY_CHARS = [
@@ -125,7 +129,8 @@ RS_ONLY_OBJECT_XML = ["kabam/rotmg/assets/custom/xmls/HashCellarObjects.xml",
                       "kabam/rotmg/assets/custom/xmls/ElysiumObjects.xml",
                       "kabam/rotmg/assets/custom/xmls/Realm2Objects.xml",
                       "kabam/rotmg/assets/custom/xmls/NexusGardenObjects.xml",
-                      "kabam/rotmg/assets/custom/xmls/NexusIslandsObjects.xml"]
+                      "kabam/rotmg/assets/custom/xmls/NexusIslandsObjects.xml",
+                      "kabam/rotmg/assets/custom/xmls/Resurrection.xml"]
 ADD_EMOTE = re.compile(r'addEmote\("((?:[^"\\]|\\.)*)",\s*AssetLibrary\.getImageFromSet\("(\w+)",\s*(\d+)\)(?:,\s*([\d.]+))?')
 
 EMBED_VAR = re.compile(

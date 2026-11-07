@@ -71,6 +71,8 @@
         KillRealmHeroes,
         BulletCreate,
         ArmorShred,
-        OvercapStat
+        OvercapStat,
+        // the Necromantic Relic: raises a fallen Elder boss beside its remains (BossResurrection)
+        Resurrect
     }
 }

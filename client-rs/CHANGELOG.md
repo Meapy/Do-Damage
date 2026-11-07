@@ -14,6 +14,15 @@ details). Add to a group's line when a change adds to it, rather than adding ano
 
 ## Unreleased
 
+### Elder dungeons
+- Elder bosses can rise again. Each one leaves its remains when it falls, circled by its souls,
+  who call out by name anyone nearby carrying a Necromantic Relic (a rare Ethereal drop of the
+  Elder bosses). Use the relic beside the remains and the boss returns Empowered: bigger, tougher
+  and faster, with soul novas, Wailing Souls and soul storms of its own, and much better loot,
+  including 19 new untiered items, one per Empowered boss, each with a power of its own (a
+  cannonball every sixth hit, bursting venom, stored souls, a shell that eats a shot, a ring that
+  saves you once a minute, group buffs and more). The wiki's Dungeons guide has the details.
+
 ### Pets
 - Every pet drops half as often as before, from every monster, dungeon and event. The wiki
   shows the new chances.

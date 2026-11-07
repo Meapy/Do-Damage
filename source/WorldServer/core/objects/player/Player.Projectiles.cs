@@ -153,12 +153,14 @@ namespace WorldServer.core.objects
             projectile.Disabled = !projectileDesc.MultiHit;
 
             var dmg = StatsManager.DamageWithDefense(this, projectile.Damage, projectileDesc.ArmorPiercing, Stats[3]);
+            dmg = RelicAbsorb(dmg);
             Health -= dmg;
 
             // items' damageThreshold ("Shots above 50 damage": the Chancellor's Cranium, the Diplomatic
             // Robe) is the shot's damage, before defense: after it, players in good armour hardly ever
             // took 50 and the items never fired
             PlayerHitEffects(projectile.Damage);
+            RelicHurt(projectile.Damage);
 
             ApplyConditionEffect(projectileDesc.Effects);
             World.BroadcastIfVisibleExclude(new DamageMessage()
@@ -243,7 +245,10 @@ namespace WorldServer.core.objects
                 entity.DamageCounter.HitBy(this, dmg);
 
                 if (projectile.FromWeapon && Inventory[0]?.ObjectType == projectile.ContainerType)
+                {
                     ImprintHit(entity, dmg, entity.Health <= 0, ref tickTime);
+                    RelicHit(entity, dmg, entity.Health <= 0, ref tickTime);
+                }
 
                 // At 0 health, as in Enemy.Damage: the client counts a shot that leaves it at 0 as
                 // a kill and stops hitting it.

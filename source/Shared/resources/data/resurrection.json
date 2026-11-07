@@ -1,0 +1,1089 @@
+{
+ "relic": "Necromantic Relic",
+ "relicChance": 0.03,
+ "relicThreshold": 0.02,
+ "corpseSeconds": 75,
+ "ritualSoul": "Necromantic Ritual Soul",
+ "wailingSoul": "Wailing Soul",
+ "soulBolt": 90,
+ "bosses": [
+  {
+   "boss": "Elder Dreadstump the Pirate King",
+   "dungeon": "Elder Pirate Cave",
+   "name": "Dreadstump the Pirate King",
+   "corpse": "Elder Dreadstump the Pirate King Remains",
+   "empowered": "Empowered Elder Dreadstump the Pirate King",
+   "soulDamage": 28,
+   "loot": [
+    [
+     "Pirate Cave Key",
+     0.02
+    ],
+    [
+     "Pirate Rum",
+     0.02
+    ],
+    [
+     "Potion of Max Attack",
+     0.2
+    ],
+    [
+     "Monkey Generator",
+     0.06
+    ],
+    [
+     "Dreadstump's Drowned Cutlass",
+     0.06
+    ]
+   ]
+  },
+  {
+   "boss": "Elder Arachna the Spider Queen",
+   "dungeon": "Elder Spider Den",
+   "name": "Arachna the Spider Queen",
+   "corpse": "Elder Arachna the Spider Queen Remains",
+   "empowered": "Empowered Elder Arachna the Spider Queen",
+   "soulDamage": 88,
+   "loot": [
+    [
+     "Golden Dagger",
+     0.3
+    ],
+    [
+     "Spider's Eye Ring",
+     0.3
+    ],
+    [
+     "Poison Fang Dagger",
+     0.3
+    ],
+    [
+     "Healing Ichor",
+     1.0
+    ],
+    [
+     "Potion of Max Defense",
+     0.2
+    ],
+    [
+     "Sword Shield",
+     0.6
+    ],
+    [
+     "Log Slog",
+     0.6
+    ],
+    [
+     "Widowfang",
+     0.06
+    ]
+   ]
+  },
+  {
+   "boss": "Elder Mixcoatl the Masked God",
+   "dungeon": "Elder Jungle",
+   "name": "Mixcoatl the Masked God",
+   "corpse": "Elder Mixcoatl the Masked God Remains",
+   "empowered": "Empowered Elder Mixcoatl the Masked God",
+   "soulDamage": 70,
+   "loot": [
+    [
+     "Potion of Dexterity",
+     1.0
+    ],
+    [
+     "Mark of Mixcoatl",
+     0.04
+    ],
+    [
+     "Potion of Max Dexterity",
+     0.2
+    ],
+    [
+     "Cracked Crystal Skull",
+     0.5
+    ],
+    [
+     "Robe of the Tlatoani",
+     0.6
+    ],
+    [
+     "Quiver of the Feathered Serpent",
+     0.06
+    ]
+   ]
+  },
+  {
+   "boss": "Elder Stheno the Snake Queen",
+   "dungeon": "Elder Snake Pit",
+   "name": "Stheno the Snake Queen",
+   "corpse": "Elder Stheno the Snake Queen Remains",
+   "empowered": "Empowered Elder Stheno the Snake Queen",
+   "soulDamage": 117,
+   "loot": [
+    [
+     "Potion of Speed",
+     1.0
+    ],
+    [
+     "Snake Pit Key",
+     0.2
+    ],
+    [
+     "Wand of the Bulwark",
+     0.01
+    ],
+    [
+     "Snake Skin Armor",
+     0.2
+    ],
+    [
+     "Snake Skin Shield",
+     0.2
+    ],
+    [
+     "Snake Eye Ring",
+     0.2
+    ],
+    [
+     "Stheno Generator",
+     0.04
+    ],
+    [
+     "Great Coil Snake Generator",
+     0.02
+    ],
+    [
+     "Potion of Max Speed",
+     0.2
+    ],
+    [
+     "Gorgon's Gaze",
+     0.06
+    ]
+   ]
+  },
+  {
+   "boss": "Elder Septavius the Ghost God",
+   "dungeon": "Elder Undead Lair",
+   "name": "Septavius the Ghost God",
+   "corpse": "Elder Septavius the Ghost God Remains",
+   "empowered": "Empowered Elder Septavius the Ghost God",
+   "soulDamage": 58,
+   "loot": [
+    [
+     "Potion of Wisdom",
+     1.0
+    ],
+    [
+     "Doom Bow",
+     0.04
+    ],
+    [
+     "Undead Lair Key",
+     0.018
+    ],
+    [
+     "Septavius Generator",
+     0.04
+    ],
+    [
+     "Kythal the Necromancer Generator",
+     0.06
+    ],
+    [
+     "Skeletal Guardian Generator",
+     0.06
+    ],
+    [
+     "Seal of the Fallen Angel",
+     0.002
+    ],
+    [
+     "Soul Mask",
+     0.04
+    ],
+    [
+     "Soul Tipped Dirk",
+     0.0018
+    ],
+    [
+     "Potion of Max Wisdom",
+     0.2
+    ],
+    [
+     "Phylactery of the Ghost God",
+     0.06
+    ]
+   ]
+  },
+  {
+   "boss": "Elder Limon the Sprite God",
+   "dungeon": "Elder Sprite World",
+   "name": "Limon the Sprite God",
+   "corpse": "Elder Limon the Sprite God Remains",
+   "empowered": "Empowered Elder Limon the Sprite God",
+   "soulDamage": 81,
+   "loot": [
+    [
+     "Potion of Dexterity",
+     1.0
+    ],
+    [
+     "Sprite World Key",
+     0.2
+    ],
+    [
+     "Potion of Defense",
+     1.0
+    ],
+    [
+     "Sprite Wand",
+     0.02
+    ],
+    [
+     "Cloak of the Planewalker",
+     0.04
+    ],
+    [
+     "Staff of Extreme Prejudice",
+     0.1
+    ],
+    [
+     "Spirit Staff",
+     0.04
+    ],
+    [
+     "Limon Generator",
+     0.04
+    ],
+    [
+     "Twilight Generator",
+     0.06
+    ],
+    [
+     "Staff of Tainted Light",
+     0.008
+    ],
+    [
+     "Star Power",
+     0.01
+    ],
+    [
+     "Large Rainbow Cloth",
+     0.02
+    ],
+    [
+     "Small Rainbow Cloth",
+     0.02
+    ],
+    [
+     "Potion of Max Dexterity",
+     0.2
+    ],
+    [
+     "Potion of Max Defense",
+     0.2
+    ],
+    [
+     "Necklace of Light",
+     0.01
+    ],
+    [
+     "Prism of the Fallen Sprite",
+     0.06
+    ]
+   ]
+  },
+  {
+   "boss": "Elder Archdemon Malphas",
+   "dungeon": "Elder Abyss",
+   "name": "Archdemon Malphas",
+   "corpse": "Elder Archdemon Malphas Remains",
+   "empowered": "Empowered Elder Archdemon Malphas",
+   "soulDamage": 128,
+   "loot": [
+    [
+     "Demon Blade",
+     0.04
+    ],
+    [
+     "Potion of Vitality",
+     1.0
+    ],
+    [
+     "Potion of Defense",
+     1.0
+    ],
+    [
+     "Malphas Generator",
+     0.04
+    ],
+    [
+     "Cerberus Skull Generator",
+     0.06
+    ],
+    [
+     "Potion of Max Defense",
+     0.2
+    ],
+    [
+     "Potion of Max Vitality",
+     0.2
+    ],
+    [
+     "Sword of the Abyss",
+     0.008
+    ],
+    [
+     "Ring of the Abyss",
+     0.02
+    ],
+    [
+     "Ring of the Blood Harvest",
+     0.02
+    ],
+    [
+     "Skull of Endless Torment",
+     0.02
+    ],
+    [
+     "Archdemon's Soulfire Staff",
+     0.06
+    ]
+   ]
+  },
+  {
+   "boss": "Elder Lord Ruthven",
+   "dungeon": "Elder Manor",
+   "name": "Lord Ruthven",
+   "corpse": "Elder Lord Ruthven Remains",
+   "empowered": "Empowered Elder Lord Ruthven",
+   "soulDamage": 117,
+   "loot": [
+    [
+     "Potion of Attack",
+     1.0
+    ],
+    [
+     "Potion of Dexterity",
+     0.6
+    ],
+    [
+     "Holy Water",
+     0.6
+    ],
+    [
+     "St. Abraham's Wand",
+     0.04
+    ],
+    [
+     "Tome of Purification",
+     0.04
+    ],
+    [
+     "Bone Dagger",
+     0.04
+    ],
+    [
+     "Chasuble of Holy Light",
+     0.016
+    ],
+    [
+     "Ring of Divine Faith",
+     0.016
+    ],
+    [
+     "Potion of Max Attack",
+     0.1
+    ],
+    [
+     "Manor Key",
+     0.02
+    ],
+    [
+     "Nightmare Generator",
+     0.04
+    ],
+    [
+     "Zenco Generator",
+     0.06
+    ],
+    [
+     "Broken Glass Sword",
+     0.5
+    ],
+    [
+     "Scepter of Zeus",
+     0.02
+    ],
+    [
+     "Rare Ore",
+     0.08
+    ],
+    [
+     "Sanguine Wand of Ruthven",
+     0.06
+    ]
+   ]
+  },
+  {
+   "boss": "Elder Masked Party God",
+   "dungeon": "Elder Beach Zone",
+   "name": "Masked Party God",
+   "corpse": "Elder Masked Party God Remains",
+   "empowered": "Empowered Elder Masked Party God",
+   "soulDamage": 60,
+   "loot": [
+    [
+     "Potion of Speed",
+     1.0
+    ],
+    [
+     "Potion of Dexterity",
+     0.6
+    ],
+    [
+     "Potion of Max Speed",
+     0.2
+    ],
+    [
+     "Aceaku's Pet Generator",
+     0.06
+    ],
+    [
+     "Beach Ball Generator",
+     0.06
+    ],
+    [
+     "Blue Paradise",
+     0.2
+    ],
+    [
+     "Pink Passion Breeze",
+     0.2
+    ],
+    [
+     "Bahama Sunrise",
+     0.2
+    ],
+    [
+     "Lime Jungle Bay",
+     0.2
+    ],
+    [
+     "Masquerade Robe",
+     0.06
+    ]
+   ]
+  },
+  {
+   "boss": "Elder Davy Jones",
+   "dungeon": "Elder Davy Jones' Locker",
+   "name": "Davy Jones",
+   "corpse": "Elder Davy Jones Remains",
+   "empowered": "Empowered Elder Davy Jones",
+   "soulDamage": 163,
+   "loot": [
+    [
+     "Spirit Dagger",
+     0.024
+    ],
+    [
+     "Spectral Cloth Armor",
+     0.02
+    ],
+    [
+     "Captain's Ring",
+     0.02
+    ],
+    [
+     "Ghostly Prism",
+     0.04
+    ],
+    [
+     "Potion of Wisdom",
+     1.0
+    ],
+    [
+     "Potion of Attack",
+     1.0
+    ],
+    [
+     "Davy's Key",
+     0.018
+    ],
+    [
+     "Ruby Gemstone",
+     0.04
+    ],
+    [
+     "Golden Chalice",
+     0.05
+    ],
+    [
+     "Pearl Necklace",
+     0.07
+    ],
+    [
+     "Potion of Max Wisdom",
+     0.2
+    ],
+    [
+     "Lil' Davy Jones Generator",
+     0.04
+    ],
+    [
+     "Large Purple Bones Cloth",
+     0.2
+    ],
+    [
+     "Small Purple Bones Cloth",
+     0.2
+    ],
+    [
+     "Pirate King's Cutlass",
+     0.06
+    ],
+    [
+     "Ring of the Drowned Captain",
+     0.06
+    ]
+   ]
+  },
+  {
+   "boss": "Elder NM Green Dragon God",
+   "dungeon": "Lair of Elder Draconis",
+   "name": "Limoz the Veridian Dragon",
+   "corpse": "Elder NM Green Dragon God Remains",
+   "empowered": "Empowered Elder NM Green Dragon God",
+   "soulDamage": 140,
+   "loot": [
+    [
+     "Potion of Speed",
+     1.0
+    ],
+    [
+     "Potion of Defense",
+     0.6
+    ],
+    [
+     "Large Green Dragon Scale Cloth",
+     0.5
+    ],
+    [
+     "Small Green Dragon Scale Cloth",
+     0.5
+    ],
+    [
+     "Green Dragon Gods Helm",
+     0.02
+    ],
+    [
+     "Potion of Max Speed",
+     0.24
+    ],
+    [
+     "Armor of the Leaf",
+     0.04
+    ],
+    [
+     "Draconis Key",
+     0.02
+    ],
+    [
+     "Elder Draconis Key",
+     0.02
+    ],
+    [
+     "Elder Ivory Wyvern Key",
+     0.02
+    ],
+    [
+     "Veridian Wyrmhide",
+     0.06
+    ]
+   ]
+  },
+  {
+   "boss": "Elder NM Blue Dragon God",
+   "dungeon": "Lair of Elder Draconis",
+   "name": "Nikao the Azure Dragon",
+   "corpse": "Elder NM Blue Dragon God Remains",
+   "empowered": "Empowered Elder NM Blue Dragon God",
+   "soulDamage": 111,
+   "loot": [
+    [
+     "Potion of Wisdom",
+     1.0
+    ],
+    [
+     "Large Blue Dragon Scale Cloth",
+     0.5
+    ],
+    [
+     "Small Blue Dragon Scale Cloth",
+     0.5
+    ],
+    [
+     "Blue Dragon Gods Helm",
+     0.02
+    ],
+    [
+     "Potion of Max Wisdom",
+     0.24
+    ],
+    [
+     "Robe of Silk Water",
+     0.04
+    ],
+    [
+     "Draconis Key",
+     0.02
+    ],
+    [
+     "Elder Draconis Key",
+     0.02
+    ],
+    [
+     "Elder Ivory Wyvern Key",
+     0.02
+    ],
+    [
+     "Azure Tempest Seal",
+     0.06
+    ]
+   ]
+  },
+  {
+   "boss": "Elder NM Red Dragon God",
+   "dungeon": "Lair of Elder Draconis",
+   "name": "Pyyr the Crimson Dragon",
+   "corpse": "Elder NM Red Dragon God Remains",
+   "empowered": "Empowered Elder NM Red Dragon God",
+   "soulDamage": 88,
+   "loot": [
+    [
+     "Potion of Vitality",
+     1.0
+    ],
+    [
+     "Potion of Attack",
+     0.6
+    ],
+    [
+     "Large Red Dragon Scale Cloth",
+     0.5
+    ],
+    [
+     "Small Red Dragon Scale Cloth",
+     0.5
+    ],
+    [
+     "Red Dragon Gods Helm",
+     0.02
+    ],
+    [
+     "Potion of Max Vitality",
+     0.24
+    ],
+    [
+     "Momento of the Fire Dragon",
+     0.04
+    ],
+    [
+     "Draconis Key",
+     0.02
+    ],
+    [
+     "Elder Draconis Key",
+     0.02
+    ],
+    [
+     "Elder Ivory Wyvern Key",
+     0.02
+    ],
+    [
+     "Wyrmfire Katana",
+     0.06
+    ]
+   ]
+  },
+  {
+   "boss": "Elder NM Black Dragon God",
+   "dungeon": "Lair of Elder Draconis",
+   "name": "Feargus the Obsidian Dragon",
+   "corpse": "Elder NM Black Dragon God Remains",
+   "empowered": "Empowered Elder NM Black Dragon God",
+   "soulDamage": 117,
+   "loot": [
+    [
+     "Potion of Dexterity",
+     1.0
+    ],
+    [
+     "Large Midnight Dragon Scale Cloth",
+     0.5
+    ],
+    [
+     "Small Midnight Dragon Scale Cloth",
+     0.5
+    ],
+    [
+     "Black Dragon Gods Blade",
+     0.02
+    ],
+    [
+     "Potion of Max Dexterity",
+     0.24
+    ],
+    [
+     "Lightning Bow",
+     0.04
+    ],
+    [
+     "Celestial Blade",
+     0.02
+    ],
+    [
+     "Ray Katana",
+     0.08
+    ],
+    [
+     "Doku No Ken",
+     0.08
+    ],
+    [
+     "Midnight Star",
+     0.08
+    ],
+    [
+     "Draconis Key",
+     0.02
+    ],
+    [
+     "Elder Draconis Key",
+     0.02
+    ],
+    [
+     "Elder Ivory Wyvern Key",
+     0.02
+    ],
+    [
+     "Obsidian Wyrmplate",
+     0.06
+    ]
+   ]
+  },
+  {
+   "boss": "Elder Thessal the Mermaid Goddess",
+   "dungeon": "Elder Ocean Trench",
+   "name": "Thessal the Mermaid Goddess",
+   "corpse": "Elder Thessal the Mermaid Goddess Remains",
+   "empowered": "Empowered Elder Thessal the Mermaid Goddess",
+   "soulDamage": 117,
+   "loot": [
+    [
+     "Coral Bow",
+     0.04
+    ],
+    [
+     "Coral Venom Trap",
+     0.01
+    ],
+    [
+     "Coral Silk Armor",
+     0.02
+    ],
+    [
+     "Coral Ring",
+     0.02
+    ],
+    [
+     "Ocean Trench Key",
+     0.02
+    ],
+    [
+     "Potion of Mana",
+     1.0
+    ],
+    [
+     "Potion of Wisdom",
+     0.6
+    ],
+    [
+     "Lil' Thessal Generator",
+     0.04
+    ],
+    [
+     "Sea Mare Generator",
+     0.06
+    ],
+    [
+     "Shark Generator",
+     0.06
+    ],
+    [
+     "Sea Horse Generator",
+     0.06
+    ],
+    [
+     "Potion of Max Mana",
+     0.25
+    ],
+    [
+     "Scaled Robe",
+     0.02
+    ],
+    [
+     "Oceans Gift",
+     0.02
+    ],
+    [
+     "Idol of the Fish",
+     0.02
+    ],
+    [
+     "Large Blue Wave Cloth",
+     0.1
+    ],
+    [
+     "Small Blue Wave Cloth",
+     0.1
+    ],
+    [
+     "Coral Medallion",
+     0.02
+    ],
+    [
+     "Orb of the Drowned Tide",
+     0.06
+    ]
+   ]
+  },
+  {
+   "boss": "Elder Tomb Defender",
+   "dungeon": "Elder Tomb of the Ancients",
+   "name": "Bes",
+   "corpse": "Elder Tomb Defender Remains",
+   "empowered": "Empowered Elder Tomb Defender",
+   "soulDamage": 187,
+   "loot": [
+    [
+     "Frimarra",
+     0.018
+    ],
+    [
+     "Potion of Life",
+     1.0
+    ],
+    [
+     "Tomb of the Ancients Key",
+     0.02
+    ],
+    [
+     "Ring of the Pyramid",
+     0.018
+    ],
+    [
+     "Tome of Holy Protection",
+     0.018
+    ],
+    [
+     "Jade Beetle",
+     0.018
+    ],
+    [
+     "Potion of Max Life",
+     0.1
+    ],
+    [
+     "Angel's Hope",
+     0.02
+    ],
+    [
+     "Large Egyptian Cloth",
+     0.6
+    ],
+    [
+     "Small Egyptian Cloth",
+     0.6
+    ],
+    [
+     "Bes Generator",
+     0.04
+    ],
+    [
+     "Pyramid Artifact Generator",
+     0.06
+    ],
+    [
+     "Bulwark of Bes",
+     0.06
+    ]
+   ]
+  },
+  {
+   "boss": "Elder Tomb Support",
+   "dungeon": "Elder Tomb of the Ancients",
+   "name": "Nut",
+   "corpse": "Elder Tomb Support Remains",
+   "empowered": "Empowered Elder Tomb Support",
+   "soulDamage": 46,
+   "loot": [
+    [
+     "Enchanted Ice Shard",
+     0.018
+    ],
+    [
+     "Potion of Life",
+     1.0
+    ],
+    [
+     "Tomb of the Ancients Key",
+     0.02
+    ],
+    [
+     "Ring of the Sphinx",
+     0.018
+    ],
+    [
+     "Jade Beetle",
+     0.018
+    ],
+    [
+     "Potion of Max Life",
+     0.1
+    ],
+    [
+     "Wings of Natural Bloodlust",
+     0.02
+    ],
+    [
+     "Large Egyptian Cloth",
+     0.6
+    ],
+    [
+     "Small Egyptian Cloth",
+     0.6
+    ],
+    [
+     "Nut Generator",
+     0.04
+    ],
+    [
+     "Tome of the Night Sky",
+     0.06
+    ]
+   ]
+  },
+  {
+   "boss": "Elder Tomb Attacker",
+   "dungeon": "Elder Tomb of the Ancients",
+   "name": "Geb",
+   "corpse": "Elder Tomb Attacker Remains",
+   "empowered": "Empowered Elder Tomb Attacker",
+   "soulDamage": 117,
+   "loot": [
+    [
+     "Ring of the Northern Light",
+     0.018
+    ],
+    [
+     "Tomb of the Ancients Key",
+     0.02
+    ],
+    [
+     "Potion of Life",
+     1.0
+    ],
+    [
+     "Ring of the Nile",
+     0.018
+    ],
+    [
+     "Jade Beetle",
+     0.018
+    ],
+    [
+     "Potion of Max Life",
+     0.1
+    ],
+    [
+     "Raw Hope",
+     0.02
+    ],
+    [
+     "Large Egyptian Cloth",
+     0.02
+    ],
+    [
+     "Small Egyptian Cloth",
+     0.02
+    ],
+    [
+     "Geb Generator",
+     0.04
+    ],
+    [
+     "Crown of Geb",
+     0.06
+    ]
+   ]
+  },
+  {
+   "boss": "Elder lod Ivory Wyvern",
+   "dungeon": "The Elder Ivory Wyvern",
+   "name": "Ivory Wyvern",
+   "corpse": "Elder lod Ivory Wyvern Remains",
+   "empowered": "Empowered Elder lod Ivory Wyvern",
+   "soulDamage": 140,
+   "loot": [
+    [
+     "Large Ivory Dragon Scale Cloth",
+     0.5
+    ],
+    [
+     "Small Ivory Dragon Scale Cloth",
+     0.5
+    ],
+    [
+     "Potion of Max Life",
+     0.2
+    ],
+    [
+     "Potion of Max Mana",
+     0.2
+    ],
+    [
+     "Robe of Silk Water",
+     0.03
+    ],
+    [
+     "Momento of the Fire Dragon",
+     0.03
+    ],
+    [
+     "Armor of the Leaf",
+     0.03
+    ],
+    [
+     "Lightning Bow",
+     0.03
+    ],
+    [
+     "Elder Ivory Wyvern Key",
+     0.04
+    ],
+    [
+     "Elder Draconis Key",
+     0.04
+    ],
+    [
+     "Scepter of the Ivory Wyvern",
+     0.06
+    ]
+   ]
+  }
+ ]
+}
