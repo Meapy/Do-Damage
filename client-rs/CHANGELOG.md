@@ -20,6 +20,10 @@ details). Add to a group's line when a change adds to it, rather than adding ano
   to skip). The fame summary is ready at once instead of after "Counting your fame…", fits its
   panel, and lists your bonuses one by one as the total counts up.
 
+### Servers
+- A second server, Europe 2, is in the server list: same accounts, characters and vaults, its own
+  realms.
+
 ## 2.4.3 (2026-11-07)
 
 ### Pets

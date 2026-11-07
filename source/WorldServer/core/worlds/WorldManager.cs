@@ -32,6 +32,8 @@ namespace WorldServer.core.worlds
         {
             GameServer = gameServer;
             NextWorldId = gameServer.Configuration.serverSettings.worldIdBase;
+            if (!string.IsNullOrWhiteSpace(gameServer.Configuration.serverSettings.realmsKey))
+                RealmSnapshots.Hash = gameServer.Configuration.serverSettings.realmsKey;
         }
 
         public void Initialize()

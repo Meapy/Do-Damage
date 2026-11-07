@@ -424,7 +424,11 @@ def build(cfg, args):
              "BSK_PUBLIC_ADDRESS=%s\nBSK_REDIS_PORT=%d\nBSK_ACCOUNT_PORT=%d\nBSK_WORLD_PORT=%d\nBSK_GATEWAY_PORT=%d\n"
              "BSK_GATEWAY_FLAGS=%s\n"
              % (os.path.basename(args.config), cfg["public_address"], ports["redis"], ports["account"],
-                ports["world"], ports["gateway"], "--forward-address" if cfg.get("forward_address") else ""))
+                ports["world"], ports["gateway"],
+                # other servers in the list (Europe 2: "other_worlds": ["91.90.80.8:2051"]) that
+                # browser and wss players reach through this gateway
+                " ".join((["--forward-address"] if cfg.get("forward_address") else [])
+                         + ["--allow %s" % w for w in cfg.get("other_worlds", [])])))
     # kept out of bsk.env, whose every change means a new gateway slot and an account restart
     write_lf(os.path.join(STAGE, "backup.env"),
              "# Written by deploy/deploy.py from %s: change it there.\nBSK_BACKUP_REPO=%s\n"
