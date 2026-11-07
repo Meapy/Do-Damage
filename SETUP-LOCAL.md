@@ -241,33 +241,48 @@ the move still look for updates at this PC's address: `python tools\update_relay
 the releases (and nothing else) on port 8080, so they switch to `dodmg.com` by themselves. Leave
 it running for a while; it doesn't survive a restart of this PC.
 
-**Europe 2 (since 2026-11-07):** a second world server in the server list, on its own VPS
-(Contabo, 91.90.80.8, KVM, 6 cores; ssh as root with `~/.ssh/dodmg_ed25519`). It runs only the
-world proxy and world servers (`bsk-world`, as on dodmg.com, from `/opt/bsk/worldserver` and
-`/opt/bsk/tools`); everything else (Redis, the account server, the gateway, Caddy, the bot, the
-website) stays on dodmg.com, so accounts, characters, vaults, guilds and the market are shared.
-- **Redis:** `bsk-redis-tunnel` on Europe 2 keeps an SSH tunnel to dodmg.com (its
-  `127.0.0.1:6379` to dodmg.com's), as the `bsk` user with `/opt/bsk/.ssh/redis_tunnel`. On
-  dodmg.com that key belongs to the `bsk-tunnel` user (no shell), and its `authorized_keys` line
-  only allows forwarding to `127.0.0.1:6379` (`restrict,port-forwarding,permitopen=...`).
-- **Its config** (`/opt/bsk/worldserver/wServer.json`): `serverInfo.name` "Europe 2",
-  `address` 91.90.80.8, and `serverSettings.realmsKey` "realms:Europe 2", so it keeps its own realm
-  snapshots (two servers on one key would each open the other's realms). `/opt/bsk/bsk.env` has
-  `BSK_PUBLIC_ADDRESS=91.90.80.8` and `BSK_TRUSTED_GATEWAYS=169.58.244.146`: its world proxy takes
-  the player's address from dodmg.com's gateway, as it does from a local one.
-- **Players in a browser or on wss** reach it through dodmg.com's gateway, which needs
-  `"other_worlds": ["91.90.80.8:2051"]` in `deploy/vps.local.json` and in the `VPS_CONFIG`
-  secret (the deploy turns it into `--allow 91.90.80.8:2051`); older desktop clients on plain TCP
-  connect to it directly.
-- **Shared by both:** the market sweep, community goals, weekly stats, quests and account locks
-  already work with two world servers at once (a rolling deploy runs two), and a player signing in
-  on one is signed out of the other (Redis channel `Kick`). `/uptime` counts while either runs.
-- **The server list** gives a client on dodmg.com itself (everyone through the gateway) `127.0.0.1` for Europe; a world server with another address than `BSK_PUBLIC_ADDRESS` (Europe 2) keeps its own (`App/CoreService.cs`, `WorldAddressFor`).
-- **Deploys don't reach it yet:** `deploy.py` only installs dodmg.com. To update Europe 2, build
-  the world server (`dotnet publish source\WorldServer\WorldServer.csproj -c Debug -r linux-x64
-  --self-contained false -o build\eu2\worldserver`), keep its `wServer.json` settings above, copy
-  it to `/opt/bsk/worldserver` there, and run `rolling_restart.py request update` (as on
-  dodmg.com: nobody is kicked). Keep it on the same version as dodmg.com: both share the data.
+**Two machines (since 2026-11-07):** dodmg.com's host pauses the whole VM for up
+to 300 ms at a time (a 1 ms sleep overshooting by 80-300 ms, CPU-bound work varying 3x between
+runs; VMware shows no steal), which players felt as ping spikes. The game moved to a second VPS,
+and the old one keeps what doesn't need speed:
+
+| | Game machine: `play.dodmg.com` | Website machine: `dodmg.com` |
+|---|---|---|
+| Host | Contabo KVM, 91.90.80.8, 6 cores, 12 GB | Contabo VMware, 169.58.244.146 |
+| Runs | Redis, account server, world proxy and **Europe 2** (the main world server), gateway slots, Caddy for `play.dodmg.com` (`/play`, `/api`, `/ws`; anything else redirects to dodmg.com), backups | Caddy for `dodmg.com`: the website; `/play` redirects to play.dodmg.com, `/api` and `/ws` are forwarded there (clients built for dodmg.com, the website's server status); the Discord bot; **Testing** |
+| ssh | root, `~/.ssh/dodmg_ed25519` | the same |
+
+- **Config:** `deploy/vps.local.json` names the game machine (`ssh`, `site` and `public_address`
+  `play.dodmg.com`) and, under `website`, the other one (`ssh`, `site` dodmg.com, `testing`
+  169.58.244.146, `game_address` 91.90.80.8): deploy.py's docstring has the keys. One deploy
+  installs both, the game machine first (`install.sh`, as before), then the website machine
+  (`install-site.sh`). `--status` shows both. The `VPS_CONFIG` secret is the same file, and
+  `VPS_KNOWN_HOSTS` needs both machines' host keys.
+- **Clients:** published releases have `https://play.dodmg.com/api` built in, so desktop players'
+  game traffic never crosses the website machine. Older clients (built for dodmg.com) still work
+  through its forwarding, slower, until they update at their next portal. Browser players follow
+  the website's Play links to `https://play.dodmg.com/play/` (a sign-in there once: a browser
+  keeps the login per site).
+- **Testing** is the admin-only world server on the website machine ("Testing (admin)", listed
+  last; `wServer.json` written by deploy.py: `adminOnly`, `realmsKey` "realms:Testing",
+  `sendPlayersTo` "play.dodmg.com:2051"). Anyone but an admin signing in there is sent on to
+  Europe 2's Nexus (a Reconnect naming that host), so no one is turned away. It uses the game's
+  Redis through `bsk-redis-tunnel` (an SSH tunnel to 127.0.0.1:6380 there, as the `bsk` user with
+  `/opt/bsk/.ssh/redis_tunnel`; on the game machine that key belongs to the `bsk-tunnel` user, no
+  shell, whose `authorized_keys` line only allows forwarding to `127.0.0.1:6379`). Its world proxy
+  trusts the game machine's gateway for players' addresses (`BSK_TRUSTED_GATEWAYS`), and that
+  gateway allows Testing's address (`other_worlds`, added by deploy.py). It plays on the live
+  data: test risky changes on an isolated stack, as always.
+- **Server list:** admin-only servers come last, so a client with no choice saved (or a choice
+  that's gone, "Europe") takes Europe 2. The account server gives a client on its own machine
+  (everyone through the gateway) `127.0.0.1` only for world servers with its own address
+  (`BSK_PUBLIC_ADDRESS`); Testing keeps its own.
+- **Realm snapshots** are per server (`serverSettings.realmsKey`: "realms" for Europe 2, "realms:Testing").
+- **The move itself** (once, players disconnected for its length): stop the old machine's
+  `bsk-world` (it saves everyone), `bsk-account` and gateways; `redis-cli save` and stop
+  `bsk-redis`; copy `/opt/bsk/redis/data` to the game machine; deploy with the two-machine config
+  and `--retire-game` (which masks the website machine's Redis, account server, gateways and
+  backup timer, so they never start again on old data); then the Testing tunnel key (as above).
 
 **Encrypted connections (desktop client):**
 - **How:** a desktop client whose account address ends in `/api` treats it as a site's gateway:

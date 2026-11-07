@@ -12,7 +12,7 @@ The game opens on a main menu with **Play**, **Sign in**, **Register**, **Option
 and (on the desktop) **Quit**. You can change the options before you play, and <kbd>Esc</kbd> or
 "Main menu" brings you back to it later.
 
-You can play in your browser at [dodmg.com/play](../play/) or with the desktop client from the
+You can play in your browser at [play.dodmg.com](https://play.dodmg.com/play/) or with the desktop client from the
 [downloads](../#get). Both use the same accounts, characters and vault. See the
 [FAQ](faq.html#browser-or-desktop) for the difference.
 

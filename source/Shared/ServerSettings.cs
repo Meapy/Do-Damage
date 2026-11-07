@@ -31,6 +31,9 @@ namespace Shared
         // server in the list (Europe, Europe 2) needs its own, or one opens the other's realms;
         // the slots of one server share theirs.
         public string realmsKey { get; set; } = "realms";
+        // On an admin-only server (Testing): where everyone else is sent instead of being turned
+        // away, "<host>:<port>" (the main server's, play.dodmg.com:2051). Empty: turned away.
+        public string sendPlayersTo { get; set; } = "";
         public string version { get; set; } = "undefined";
         // An event's maps, such as "Halloween": a world whose map is "<map>.jm" plays
         // "<map> <mapEvent>.jm" instead where there is one (tools/build_nexus.py and the other map builders; none has event copies now). Empty: none.

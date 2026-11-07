@@ -191,7 +191,9 @@ namespace App
                     UsageText = group.All(_ => _.IsJustStarted()) ? "- NEW!" : $"{players}/{maxPlayers}"
                 });
             }
-            ret = ret.OrderBy(_ => _.Port).ToList();
+            // admin-only servers (Testing) last: a client that has no choice saved, or whose saved
+            // server is gone, takes the first
+            ret = ret.OrderBy(_ => _.AdminOnly).ThenBy(_ => _.Port).ToList();
             return ret;
         }
     }

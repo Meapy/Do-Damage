@@ -3,7 +3,8 @@
 A Realm of the Mad God private server (C#, .NET 8) and its clients, for a small group of players.
 Players know the game as **Do Damage**: that's the name in the client, on the website and in
 anything players read; `betterSkillys` stays the repository's and the code's name. The live game
-runs on a Linux VPS at **dodmg.com**. Read the guide for the part you're changing:
+runs on two Linux VPSes: the game at **play.dodmg.com**, the website at **dodmg.com**. Read the
+guide for the part you're changing:
 
 - [client-rs/AGENTS.md](client-rs/AGENTS.md): the client players use, in Rust (desktop and
   browser), and the gateway that serves browser play.
@@ -15,21 +16,34 @@ runs on a Linux VPS at **dodmg.com**. Read the guide for the part you're changin
 - [client/AGENTS.md](client/AGENTS.md): the old Adobe AIR client. **Deprecated**: don't build,
   test or change it unless the owner asks.
 - `website/` is the site at dodmg.com (built by `tools/build_site.py`); `deploy/` puts
-  everything on the VPS.
+  everything on the two VPSes.
 
 ## What runs where
 
-**Live, on the VPS** (dodmg.com, 169.58.244.146, Ubuntu 24.04; systemd services, see
-SETUP-LOCAL.md):
+**Live, on two VPSes** (Ubuntu 24.04, systemd services; SETUP-LOCAL.md, "Two machines", since
+2026-11-07). One deploy installs both.
+
+**The game machine, play.dodmg.com** (91.90.80.8, KVM):
 
 | Part | Port | Notes |
 |---|---|---|
-| Caddy | 80, 443 | https for everything: the website at `/`, browser play at `/play/`, and `/api` and `/ws` to the gateway |
-| Gateway (`bsk-gateway@a`/`b`/`c`) | 8095-8097, VPS only | web client, account requests and the game over WebSocket; one slot takes new players, another may be handing over |
+| Caddy | 80, 443 | https for the game: browser play at `/play/`, `/api` and `/ws` to the gateway; anything else redirects to dodmg.com |
+| Gateway (`bsk-gateway@a`/`b`/`c`) | 8095-8097, local only | web client, account requests and the game over WebSocket; one slot takes new players, another may be handing over |
 | Account server (`bsk-account`) | 8080 | open for older desktop clients |
-| World proxy and world servers (`bsk-world`) | 2051 (slots 12051 / 22051, VPS only) | rolling deploys, as on Windows |
-| Redis (`bsk-redis`) | 6379, VPS only | data in `/opt/bsk/redis/data` |
+| World proxy and world servers (`bsk-world`) | 2051 (slots 12051 / 22051, local only) | **Europe 2**, the main server; rolling deploys, as on Windows |
+| Redis (`bsk-redis`) | 6379, local only | data in `/opt/bsk/redis/data`; backups (`bsk-backup.timer`) |
+
+**The website machine, dodmg.com** (169.58.244.146, VMware; its host pauses, so nothing
+latency-sensitive runs there):
+
+| Part | Port | Notes |
+|---|---|---|
+| Caddy | 80, 443, 8080 | the website at `/`; `/play` redirects to play.dodmg.com; `/api`, `/ws` and port 8080 are forwarded there for older clients |
 | Discord bot (`bsk-discord`) | none | release posts, server status and slash commands in the Discord server (SETUP-LOCAL.md, "Discord") |
+| Testing (`bsk-world`, `bsk-redis-tunnel`) | 2051 | admin-only world server on the game's Redis (an SSH tunnel to it); everyone else is sent to Europe 2 |
+
+Its old Redis, account server and gateways are masked: they hold the data as it was on
+2026-11-07, not live.
 
 **On this PC:** the old live servers are **stopped** (the game moved to the VPS on 2026-10-16;
 this PC's `source/Redis/data` is the data as it was then, not live). `tools/update_relay.py` may
