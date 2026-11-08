@@ -12,6 +12,12 @@ Keep each version short: changes go under `### ` group headings (Oryx 5, Arena, 
 on), one line per change players notice, summed up rather than item by item (the wiki has the
 details). Add to a group's line when a change adds to it, rather than adding another line.
 
+## Unreleased
+
+### Items
+- The Dagger of Divine Wrath and the Wand of Absolution show their own new sprites and shots (they
+  had each other's).
+
 ## 2.4.7 (2026-11-08)
 
 ### Items
