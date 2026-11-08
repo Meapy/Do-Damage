@@ -31,6 +31,9 @@ details). Add to a group's line when a change adds to it, rather than adding ano
 ### Browser
 - Playing in the browser at play.dodmg.com picks up the settings and saved sign-in you had at
   dodmg.com/play before the move, so there's nothing to set again.
+- The browser game loads faster and downloads less: a fifth less on a first visit, and after an
+  update only the parts that changed (not the whole game again); sounds and music are kept
+  instead of downloaded on every visit, and returning visits start much sooner.
 
 ### Game
 - Sound stays steady in big fights: hits on many monsters at once no longer pile up into a

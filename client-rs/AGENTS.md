@@ -49,14 +49,17 @@ python tools\build_client_rs.py --account https://dodmg.com/api --package --publ
   the test stack: `--account http://127.0.0.1:8082 --publish --publish-to build/iso1/client`.
 
 - **Web:** needs `rustup target add wasm32-unknown-unknown` and `wasm-bindgen-cli` at the
-  version in `Cargo.lock` (the script says which). The build writes a `.gz` beside each
-  compressible file, which the gateway sends to browsers (`precompressed_gzip`), and fills in the
-  page's loading bar totals; the gateway marks `?v=` files cacheable for good and the page
-  `no-cache`. The game reports each asset to the page (`window.bskAssetLoaded`) and says when
+  version in `Cargo.lock` (the script says which). The build writes a `.gz` and a `.br` (brotli,
+  `bsk-publish brotli`) beside each compressible file, which the gateway sends to browsers
+  (`precompressed_br`, `precompressed_gzip`), and fills in the page's loading bar totals. Every
+  file is asked for with a hash of its contents as `?v=`: the page names the module's, the
+  wasm's and the manifest's, and the built manifest's `versions` each asset's
+  (`AssetSource::load`), so an update downloads only what changed. The gateway marks `?v=` files
+  cacheable for good and the page `no-cache`; sounds and music (the account server's, through
+  `/api`) a day, then revalidated by their ETag. The game reports each asset to the page (`window.bskAssetLoaded`) and says when
   it can draw (`window.bskReady`). Serve it with the gateway (below);
   `.claude/launch.json` has `client-rs-web`, a gateway on port 8095 for isolated stack slot 1.
-  The `?v=` is the version and commit, so a rebuild before committing is cached under the old
-  one: refetch both files with `fetch(url, {cache: "reload"})` and reload the page.
+  The `?v=` follows each file's contents, so a rebuild is never mixed with a cached older one.
 - **Keys in the browser:** winit cancels every key press on the canvas; `web.rs` hands a few
   back to the browser (the clipboard keys, so the page's paste, copy and cut events come, and
   reload, tabs, zoom, the developer tools). Clipboard text goes through those events

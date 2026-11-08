@@ -13,24 +13,38 @@ pub struct AssetSource {
     manifest: String,
     files: String,
     /// Added to every URL (browsers): this build's version, so a new build never gets files a
-    /// browser kept from an older one.
+    /// browser kept from an older one. Files the manifest gives a version of (`versions`, a hash
+    /// of their contents) get that instead, so a browser keeps those across builds until they
+    /// change.
     query: String,
+    /// The manifest's `versions`, once it's been read.
+    versions: std::sync::OnceLock<std::collections::HashMap<String, String>>,
 }
 
 impl AssetSource {
     pub fn new(manifest: impl Into<String>, files: impl Into<String>) -> Self {
         let files = files.into();
         let files = if files.is_empty() || files.ends_with('/') { files } else { files + "/" };
-        Self { manifest: manifest.into(), files, query: String::new() }
+        Self { manifest: manifest.into(), files, query: String::new(), versions: Default::default() }
     }
 
     pub async fn manifest(&self) -> Result<crate::Manifest> {
-        crate::Manifest::parse(&fetch(&format!("{}{}", self.manifest, self.query)).await?)
+        let manifest = crate::Manifest::parse(&fetch(&format!("{}{}", self.manifest, manifest_query(&self.query))).await?)?;
+        let _ = self.versions.set(manifest.versions.clone());
+        Ok(manifest)
     }
 
     /// A file named by the manifest (a path relative to `client/src`).
     pub async fn load(&self, path: &str) -> Result<Vec<u8>> {
-        fetch(&format!("{}{}{}", self.files, path, self.query)).await
+        fetch(&format!("{}{}{}", self.files, path, self.query_for(path))).await
+    }
+
+    /// The query a file is asked for with: its own version when the manifest gives one.
+    fn query_for(&self, path: &str) -> String {
+        match self.versions.get().and_then(|v| v.get(path)) {
+            Some(v) if !self.query.is_empty() => format!("?v={v}"),
+            _ => self.query.clone(),
+        }
     }
 
     pub fn describe(&self) -> String {
@@ -75,6 +89,10 @@ mod imp {
         }
     }
 
+    pub fn manifest_query(query: &str) -> String {
+        query.to_owned()
+    }
+
     pub async fn fetch(path: &str) -> Result<Vec<u8>> {
         std::fs::read(PathBuf::from(path))
             .map_err(|e| Error::Io { path: path.to_owned(), message: e.to_string() })
@@ -93,6 +111,19 @@ mod imp {
             let mut source = Self::new("assets/manifest.json", "assets/");
             source.query = format!("?v={}-{}", env!("CARGO_PKG_VERSION"), option_env!("BSK_COMMIT").unwrap_or(""));
             Ok(source)
+        }
+    }
+
+    /// The manifest's version, which the page names (`window.bskManifestVersion`, a hash of it
+    /// filled in by build_client_rs.py), else the build's.
+    pub fn manifest_query(query: &str) -> String {
+        let named = web_sys::window()
+            .and_then(|w| js_sys::Reflect::get(&w, &wasm_bindgen::JsValue::from_str("bskManifestVersion")).ok())
+            .and_then(|v| v.as_string())
+            .filter(|v| !v.is_empty() && !v.starts_with("BSK_"));
+        match named {
+            Some(v) if !query.is_empty() => format!("?v={v}"),
+            _ => query.to_owned(),
         }
     }
 
@@ -124,4 +155,4 @@ mod imp {
     }
 }
 
-use imp::fetch;
+use imp::{fetch, manifest_query};

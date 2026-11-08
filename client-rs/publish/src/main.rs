@@ -13,6 +13,9 @@
 //!     hold only what's new.
 //! bsk-publish rollback --to <publish dir> --version <x.y.z> [--platform windows]
 //!     Make an earlier published version the latest again.
+//! bsk-publish brotli --dir <dir> --ext .wasm,.js,...
+//!     Write a brotli copy (<file>.br, at the strongest level) beside each file in <dir> with one
+//!     of those extensions, for the gateway to send browsers (tools/build_client_rs.py --web).
 //! ```
 
 use bsk_update::{FileEntry, Release};
@@ -37,8 +40,49 @@ fn main() {
             value("--known").map(|f| known(Path::new(&f))).unwrap_or_default(),
         ),
         Some("rollback") => rollback(Path::new(&need("--to")), &need("--version"), &platform),
-        _ => fail("usage: bsk-publish key|release|rollback (see the source for the options)"),
+        Some("brotli") => brotli_dir(Path::new(&need("--dir")), &need("--ext")),
+        _ => fail("usage: bsk-publish key|release|rollback|brotli (see the source for the options)"),
     }
+}
+
+/// `brotli`: a `.br` copy beside each file with one of `exts` (comma-separated) under `dir`. The
+/// strongest level is slow (about a megabyte a second), so the files are shared among threads.
+fn brotli_dir(dir: &Path, exts: &str) {
+    let exts: Vec<&str> = exts.split(',').map(|e| e.trim()).filter(|e| !e.is_empty()).collect();
+    let mut files = Vec::new();
+    let mut dirs = vec![dir.to_path_buf()];
+    while let Some(d) = dirs.pop() {
+        let entries = std::fs::read_dir(&d).unwrap_or_else(|e| fail(&format!("{}: {e}", d.display())));
+        for entry in entries.flatten() {
+            let path = entry.path();
+            if path.is_dir() {
+                dirs.push(path);
+            } else if exts.iter().any(|e| path.to_string_lossy().ends_with(e)) {
+                files.push(path);
+            }
+        }
+    }
+    // The largest first, so one big file (the wasm module) doesn't start last.
+    files.sort_by_key(|f| std::cmp::Reverse(std::fs::metadata(f).map(|m| m.len()).unwrap_or(0)));
+    let next = std::sync::atomic::AtomicUsize::new(0);
+    let threads = std::thread::available_parallelism().map(|n| n.get()).unwrap_or(4);
+    std::thread::scope(|s| {
+        for _ in 0..threads {
+            s.spawn(|| loop {
+                let i = next.fetch_add(1, std::sync::atomic::Ordering::Relaxed);
+                let Some(path) = files.get(i) else { break };
+                let data = std::fs::read(path).unwrap_or_else(|e| fail(&format!("{}: {e}", path.display())));
+                let params = brotli::enc::BrotliEncoderParams { quality: 11, lgwin: 24, ..Default::default() };
+                let mut out = Vec::with_capacity(data.len() / 3);
+                brotli::BrotliCompress(&mut &data[..], &mut out, &params)
+                    .unwrap_or_else(|e| fail(&format!("{}: {e}", path.display())));
+                let mut br = path.clone().into_os_string();
+                br.push(".br");
+                std::fs::write(&br, out).unwrap_or_else(|e| fail(&format!("{}: {e}", path.display())));
+            });
+        }
+    });
+    println!("{} files compressed with brotli", files.len());
 }
 
 /// `--known`: the files already published elsewhere, with their sizes.
