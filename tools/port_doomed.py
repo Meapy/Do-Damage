@@ -35,6 +35,7 @@ import time
 import urllib.request
 import xml.etree.ElementTree as ET
 
+import rework_buff_auras
 import rework_orbs
 
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
@@ -1166,6 +1167,8 @@ def write_xml(objs, path):
         f.write("\n")
     # the orbs shred armour rather than stasis (tools/rework_orbs.py)
     rework_orbs.rework_file(path)
+    # the party buffs reach further (tools/rework_buff_auras.py)
+    rework_buff_auras.rework_file(path)
 
 
 def export_dr_images(dr_root):

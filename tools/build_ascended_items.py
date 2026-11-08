@@ -39,6 +39,9 @@ import xml.etree.ElementTree as ET
 
 from PIL import Image
 
+sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+import rework_buff_auras  # noqa: E402
+
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 SRC = os.path.join(ROOT, "client", "src")
 SERVER_XML = os.path.join(ROOT, "source", "Shared", "resources", "xml")
@@ -629,6 +632,8 @@ def main():
     lines = block(items)
     for path in ITEM_XMLS:
         write_xml(path, lines)
+        # the party buffs reach further (tools/rework_buff_auras.py)
+        rework_buff_auras.rework_file(path)
     print(f"{len(SPRITES)} sprites, {len(SHARDS)} shards and {len(ASCENDED)} Ascended items")
 
 

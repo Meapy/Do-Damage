@@ -581,7 +581,7 @@
 		<BagType>4</BagType>
 		<FameBonus>5</FameBonus>
 		<MpCost>90</MpCost>
-		<Activate effect="Berserk" duration="6.5" range="4.5">ConditionEffectAura</Activate>
+		<Activate effect="Berserk" duration="6.5" range="7">ConditionEffectAura</Activate>
 		<Activate effect="Speedy" duration="6.5">ConditionEffectSelf</Activate>
 		<Cooldown>7.5</Cooldown>
 	</Object>
@@ -842,7 +842,7 @@
 		<BagType>4</BagType>
 		<FameBonus>6</FameBonus>
 		<MpCost>95</MpCost>
-		<Activate effect="Berserk" duration="5" range="4.5">ConditionEffectAura</Activate>
+		<Activate effect="Berserk" duration="5" range="7">ConditionEffectAura</Activate>
 		<Activate effect="Speedy" duration="5">ConditionEffectSelf</Activate>
 		<Activate effect="Damaging" duration="5">ConditionEffectSelf</Activate>
 		<Activate effect="Sick" duration="5">ConditionEffectSelf</Activate>
@@ -4451,8 +4451,8 @@
 		<BagType>4</BagType>
 		<FameBonus>6</FameBonus>
 		<MpCost>100</MpCost>
-		<Activate effect="Berserk" duration="10" range="4.5">ConditionEffectAura</Activate>
-		<Activate effect="Speedy" duration="3" range="4.5">ConditionEffectAura</Activate>
+		<Activate effect="Berserk" duration="10" range="7">ConditionEffectAura</Activate>
+		<Activate effect="Speedy" duration="3" range="7">ConditionEffectAura</Activate>
 		<Activate effect="Armored" duration="10">ConditionEffectSelf</Activate>
 		<Activate effect="Damaging" duration="2">ConditionEffectSelf</Activate>
 		<Activate effect="Bleeding" duration="10">ConditionEffectSelf</Activate>
@@ -7284,8 +7284,8 @@
 			<Price>30</Price>
 		</Shop>
 		<MpCost>250</MpCost>
-		<Activate amount="200" range="5">HealNova</Activate>
-		<Activate effect="Damaging" duration="5" range="5">ConditionEffectAura</Activate>
+		<Activate amount="200" range="7">HealNova</Activate>
+		<Activate effect="Damaging" duration="5" range="7">ConditionEffectAura</Activate>
 	</Object>
 	<Object type="0xD182" id="Tome of the Dead">
 		<Class>Equipment</Class>
@@ -7331,7 +7331,7 @@
 			<Price>20</Price>
 		</Shop>
 		<MpCost>110</MpCost>
-		<Activate amount="250" range="6">HealNova</Activate>
+		<Activate amount="250" range="7">HealNova</Activate>
 		<Activate effect="Speedy" duration="4.5">ConditionEffectSelf</Activate>
 	</Object>
 	<Object type="0xD184" id="Tome of Poison">
@@ -7985,7 +7985,7 @@
 		<Usable />
 		<BagType>1</BagType>
 		<MpCost>60</MpCost>
-		<Activate effect="Armored" duration="3" range="4">ConditionEffectAura</Activate>
+		<Activate effect="Armored" duration="3" range="6">ConditionEffectAura</Activate>
 	</Object>
 	<Object type="0xD1A0" id="Darkness Jacket">
 		<Class>Equipment</Class>
@@ -8001,7 +8001,7 @@
 		<Usable />
 		<BagType>1</BagType>
 		<MpCost>65</MpCost>
-		<Activate effect="Armored" duration="3.5" range="4">ConditionEffectAura</Activate>
+		<Activate effect="Armored" duration="3.5" range="6">ConditionEffectAura</Activate>
 	</Object>
 	<Object type="0xD1A1" id="Iron Jacket">
 		<Class>Equipment</Class>
@@ -8017,7 +8017,7 @@
 		<Usable />
 		<BagType>1</BagType>
 		<MpCost>70</MpCost>
-		<Activate effect="Armored" duration="4" range="4">ConditionEffectAura</Activate>
+		<Activate effect="Armored" duration="4" range="6.5">ConditionEffectAura</Activate>
 	</Object>
 	<Object type="0xD1A2" id="Lightweight Jacket">
 		<Class>Equipment</Class>
@@ -8033,7 +8033,7 @@
 		<Usable />
 		<BagType>2</BagType>
 		<MpCost>75</MpCost>
-		<Activate effect="Armored" duration="4.5" range="4">ConditionEffectAura</Activate>
+		<Activate effect="Armored" duration="4.5" range="6.5">ConditionEffectAura</Activate>
 		<Activate stat="20" amount="3" duration="3">StatBoostSelf</Activate>
 	</Object>
 	<Object type="0xD1A3" id="Murderous Jacket">
@@ -8050,7 +8050,7 @@
 		<Usable />
 		<BagType>2</BagType>
 		<MpCost>80</MpCost>
-		<Activate effect="Armored" duration="5" range="4">ConditionEffectAura</Activate>
+		<Activate effect="Armored" duration="5" range="7">ConditionEffectAura</Activate>
 		<Activate stat="20" amount="5" duration="4">StatBoostSelf</Activate>
 	</Object>
 	<Object type="0xD1A4" id="Invincibility Jacket">
@@ -8067,7 +8067,7 @@
 		<Usable />
 		<BagType>4</BagType>
 		<MpCost>85</MpCost>
-		<Activate effect="Armored" duration="5.5" range="4">ConditionEffectAura</Activate>
+		<Activate effect="Armored" duration="5.5" range="7">ConditionEffectAura</Activate>
 		<Activate stat="20" amount="7" duration="5">StatBoostSelf</Activate>
 	</Object>
 	<Object type="0xD1A5" id="Jacket of Sorrows">
@@ -8088,7 +8088,7 @@
 		<MpCost>85</MpCost>
 		<ActivateOnEquip stat="26" amount="2">IncrementStat</ActivateOnEquip>
 		<ActivateOnEquip stat="27" amount="2">IncrementStat</ActivateOnEquip>
-		<Activate effect="Armored" duration="5.5" range="4">ConditionEffectAura</Activate>
+		<Activate effect="Armored" duration="5.5" range="7.5">ConditionEffectAura</Activate>
 		<Activate stat="20" amount="10" duration="6">StatBoostSelf</Activate>
 	</Object>
 	<Object type="0xD1A6" id="Skyfall Jacket">
@@ -8109,7 +8109,7 @@
 		<MpCost>90</MpCost>
 		<ActivateOnEquip stat="26" amount="3">IncrementStat</ActivateOnEquip>
 		<ActivateOnEquip stat="27" amount="3">IncrementStat</ActivateOnEquip>
-		<Activate effect="Armored" duration="6" range="4">ConditionEffectAura</Activate>
+		<Activate effect="Armored" duration="6" range="7.5">ConditionEffectAura</Activate>
 		<Activate stat="20" amount="12" duration="7">StatBoostSelf</Activate>
 		<Soulbound />
 	</Object>
@@ -9811,8 +9811,8 @@
 		<BagType>4</BagType>
 		<FameBonus>6</FameBonus>
 		<MpCost>100</MpCost>
-		<Activate effect="Healing" duration="6" range="5">ConditionEffectAura</Activate>
-		<Activate effect="Damaging" duration="6" range="5">ConditionEffectAura</Activate>
+		<Activate effect="Healing" duration="6" range="7">ConditionEffectAura</Activate>
+		<Activate effect="Damaging" duration="6" range="7">ConditionEffectAura</Activate>
 		<Activate effect="Invulnerable" duration="2">ConditionEffectSelf</Activate>
 		<Cooldown>9</Cooldown>
 	</Object>
@@ -10057,7 +10057,7 @@
 		<BagType>4</BagType>
 		<FameBonus>7</FameBonus>
 		<MpCost>120</MpCost>
-		<Activate effect="Berserk" duration="6" range="4">ConditionEffectAura</Activate>
+		<Activate effect="Berserk" duration="6" range="7">ConditionEffectAura</Activate>
 		<Activate effect="Armored" duration="10">ConditionEffectSelf</Activate>
 		<Activate effect="Invisible" duration="6">ConditionEffectSelf</Activate>
 		<Cooldown>6</Cooldown>
@@ -10313,7 +10313,7 @@
 		<MpCost>100</MpCost>
 		<ActivateOnEquip stat="26" amount="4">IncrementStat</ActivateOnEquip>
 		<ActivateOnEquip stat="27" amount="4">IncrementStat</ActivateOnEquip>
-		<Activate effect="Armored" duration="6" range="4">ConditionEffectAura</Activate>
+		<Activate effect="Armored" duration="6" range="8">ConditionEffectAura</Activate>
 		<Activate effect="Damaging" duration="6">ConditionEffectSelf</Activate>
 		<Activate stat="20" amount="15" duration="8">StatBoostSelf</Activate>
 		<Soulbound />
@@ -11966,7 +11966,7 @@
 		<BagType>1</BagType>
 		<MpCost>60</MpCost>
 		<Cooldown>4</Cooldown>
-		<Activate range="5" amount="25" duration="8">Halo</Activate>
+		<Activate range="6" amount="25" duration="8">Halo</Activate>
 	</Object>
 	<Object type="0xD254" id="Lizard Cut">
 		<Class>Equipment</Class>
@@ -11998,7 +11998,7 @@
 		<BagType>1</BagType>
 		<MpCost>70</MpCost>
 		<Cooldown>4</Cooldown>
-		<Activate range="5.5" amount="30" duration="10">Halo</Activate>
+		<Activate range="6" amount="30" duration="10">Halo</Activate>
 	</Object>
 	<Object type="0xD256" id="Bronze Halo">
 		<Class>Equipment</Class>
@@ -12015,7 +12015,7 @@
 		<BagType>1</BagType>
 		<MpCost>80</MpCost>
 		<Cooldown>4</Cooldown>
-		<Activate range="6" amount="35" duration="10">Halo</Activate>
+		<Activate range="6.5" amount="35" duration="10">Halo</Activate>
 	</Object>
 	<Object type="0xD257" id="Silver Halo">
 		<Class>Equipment</Class>

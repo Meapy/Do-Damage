@@ -12,6 +12,15 @@ Keep each version short: changes go under `### ` group headings (Oryx 5, Arena, 
 on), one line per change players notice, summed up rather than item by item (the wiki has the
 details). Add to a group's line when a change adds to it, rather than adding another line.
 
+## Unreleased
+
+### Classes
+- Party buffs reach much further: Warrior helms, Bard lutes and Blademaster jackets go from 4 tiles
+  to between 6 (T0) and 8 (T8), Paladin seals and Priest tomes to between 5 and 7 before wisdom,
+  and the low-tier Monk fountains and Ascendant halos to at least 6. The Snake Charmer Pungi now
+  shares its Speedy and dexterity with the party, as the other lutes do, and Inspired's faster
+  shots now count fully on the server.
+
 ## 2.4.6 (2026-11-08)
 
 ### Elder dungeons

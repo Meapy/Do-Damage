@@ -306,7 +306,7 @@
 		<BagType>6</BagType>
 		<FameBonus>6</FameBonus>
 		<MpCost>90</MpCost>
-		<Activate effect="Berserk" duration="6.5" range="4">ConditionEffectAura</Activate>
+		<Activate effect="Berserk" duration="6.5" range="7">ConditionEffectAura</Activate>
 		<Activate effect="Armored" duration="6.5">ConditionEffectSelf</Activate>
 		<Activate effect="Curse" duration="4.5">ConditionEffectSelf</Activate>
 		<Cooldown>8</Cooldown>
@@ -1281,7 +1281,7 @@
 		<Tier>0</Tier>
 		<Description>Water from the Nexus fountains, that heals your friends and carries you along.</Description>
 		<Sound>spell/major_heal</Sound>
-		<Activate range="5" amount="110">HealNova</Activate>
+		<Activate range="6" amount="110">HealNova</Activate>
 		<Activate maxDistance="10">Teleport</Activate>
 		<Usable/>
 		<BagType>1</BagType>
@@ -1300,7 +1300,7 @@
 		<Tier>1</Tier>
 		<Description>Water from the Nexus fountains, that heals your friends and carries you along.</Description>
 		<Sound>spell/major_heal</Sound>
-		<Activate range="5.5" amount="145">HealNova</Activate>
+		<Activate range="6" amount="145">HealNova</Activate>
 		<Activate maxDistance="11">Teleport</Activate>
 		<Usable/>
 		<BagType>1</BagType>
@@ -2209,7 +2209,7 @@
 		<ActivateOnEquip stat="3" amount="60">IncrementStat</ActivateOnEquip>
 		<Usable/>
 		<MpCost>95</MpCost>
-		<Activate effect="Berserk" duration="7" range="4">ConditionEffectAura</Activate>
+		<Activate effect="Berserk" duration="7" range="7">ConditionEffectAura</Activate>
 		<Activate effect="Speedy" duration="7">ConditionEffectSelf</Activate>
 		<feedPower>855</feedPower>
 		<FameBonus>10</FameBonus>

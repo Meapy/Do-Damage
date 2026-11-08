@@ -634,6 +634,15 @@ The remotes `upstream` (HaloCelsius) and `aurusenth` share no history with `main
 
 ## Changes from upstream
 
+- **Wider party buffs** (2026-11-08; `tools/rework_buff_auras.py`, which `port_doomed.py`,
+  `build_resurrection.py` and `build_ascended_items.py` run after writing their XML): on the party
+  abilities (slot types 16 helm, 12 seal, 4 tome, 28 lute, 37 jacket, 130 fountain, 126 halo), each
+  ConditionEffectAura, StatBoostAura, HealNova, Halo, cleanse and player-aimed GenericActivate gets
+  `range` = max(its range, a floor by tier): 6 to 8 tiles (T0 to T8, 7 untiered) without
+  `useWisMod`, 5 to 7 (6.5 untiered) with it, before wisdom. Edits the server's and client's XML
+  in place; running it again changes nothing. The Snake Charmer Pungi's self Speedy and Dex become
+  party auras. `Player.OtherHit` takes Inspired's 1.25 speed (`SpeedMult / 100` was whole-number
+  division, so 1), and the lute's Inspired flash is drawn at the lute's range rather than 4.
 - **The update of 6 November** (2026-11-06; the client and the servers ship together for the
   character list's `<LastSeen>`, which an older client ignores and an older server leaves out):
   - **Character list search, filter and order** (`screens.rs` `CharFilter`, `CharSort`,

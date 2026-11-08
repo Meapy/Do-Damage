@@ -46,6 +46,7 @@ from PIL import Image
 
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 sys.path.insert(0, os.path.join(ROOT, "tools"))
+import rework_buff_auras  # noqa: E402
 import wiki_data  # noqa: E402
 
 XML_DIR = os.path.join(ROOT, "source", "Shared", "resources", "xml")
@@ -679,6 +680,8 @@ def main():
     for path in OUTPUTS:
         with open(path, "w", encoding="utf-8", newline="\n") as f:
             f.write(xml)
+        # the party buffs reach further (tools/rework_buff_auras.py)
+        rework_buff_auras.rework_file(path)
     with open(CONFIG, "w", encoding="utf-8", newline="\n") as f:
         json.dump(cfg, f, indent=1)
         f.write("\n")
