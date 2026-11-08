@@ -1,4 +1,4 @@
-Release 2.4.6
+Release 2.4.6: Elder bosses rise again, half as many pets, faster browser play and steady sound (deploys client, servers, gateway and website; nobody is disconnected)
 
 ## For players
 
