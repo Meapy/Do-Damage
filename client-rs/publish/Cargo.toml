@@ -8,6 +8,7 @@ description = "Publishes a client build for players' clients to update from (too
 
 [dependencies]
 bsk-update.workspace = true
+brotli = "7"
 flate2 = "1"
 getrandom = "0.2"
 serde_json.workspace = true

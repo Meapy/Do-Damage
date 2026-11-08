@@ -4,6 +4,10 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Do Damage</title>
+  <!-- Start both downloads at once, rather than the module only once the page's script runs and
+       the game only once the module has arrived. -->
+  <link rel="modulepreload" href="./betterskillys.js?v=BSK_JS_VERSION">
+  <link rel="preload" href="./betterskillys_bg.wasm?v=BSK_WASM_VERSION" as="fetch" type="application/wasm" crossorigin>
   <style>
     html, body { margin: 0; height: 100%; background: #0b0716; overflow: hidden; font: 15px system-ui, sans-serif; color: #cfc6e6; }
     canvas { display: block; width: 100vw; height: 100vh; outline: none; }
@@ -43,9 +47,12 @@
   <script type="module">
     // The client draws its own screens. A page may set window.bskLogin = {email, password}
     // before init() to sign in straight away (see client-rs/app/src/login.rs).
-    // ?v=: the build (filled in by build_client_rs.py), so a browser never mixes in files it
-    // kept from an older one; the gateway lets browsers keep those for good.
-    import init from "./betterskillys.js?v=BSK_BUILD";
+    // ?v=: a hash of each file (filled in by build_client_rs.py), so a browser never mixes in
+    // files it kept from an older build, and keeps the ones that haven't changed across builds;
+    // the gateway lets browsers keep ?v= files for good. The game asks for its art and data the
+    // same way (their hashes are in the manifest, whose own hash is this).
+    import init from "./betterskillys.js?v=BSK_JS_VERSION";
+    window.bskManifestVersion = "BSK_MANIFEST_VERSION";
     // What the first visit downloads (build_client_rs.py fills these in): the game, then its
     // art and data, which the game reports file by file (window.bskAssetLoaded).
     const WASM_BYTES = Number("BSK_WASM_BYTES") || 0;
@@ -74,31 +81,72 @@
       setTimeout(() => loader.remove(), 450);
     };
 
-    // The wasm module through a counting stream, so its download shows on the bar (it's most of
-    // a first visit) and the browser still compiles it while it arrives.
+    // The wasm module, counted on the bar as it arrives (it's most of a first visit) while the
+    // browser compiles it. The count reads a copy: the game gets the browser's own response, so
+    // the browser also keeps the compiled module and needn't compile it again on the next visit.
     async function fetchWasm(url) {
       const response = await fetch(url);
       if (!response.ok) throw new Error("HTTP " + response.status);
-      if (!response.body) return response;
-      const reader = response.body.getReader();
-      const counted = new ReadableStream({
-        async pull(controller) {
-          const { done, value } = await reader.read();
-          if (done) {
-            controller.close();
-            return;
+      const copy = response.clone();
+      if (copy.body) {
+        (async () => {
+          const reader = copy.body.getReader();
+          for (;;) {
+            const { done, value } = await reader.read();
+            if (done) return;
+            got += value.length;
+            show();
           }
-          got += value.length;
-          show();
-          controller.enqueue(value);
-        },
+        })().catch(() => {});
+      }
+      return response;
+    }
+
+    // Browser play moved from dodmg.com/play to play.dodmg.com (2026-11-07), and browsers keep
+    // saved data per address. Once, before the game reads them, take over the settings and the
+    // remembered login kept for the old one: its storage-handover.html, in a hidden frame (the
+    // same site, so it sees that storage), posts them here. The old settings win over any made
+    // here meanwhile; a login or guest here stays. On another address (one without a parent
+    // domain, http) nothing happens.
+    async function takeOver() {
+      const PREFIX = "betterSkillys-rs.";
+      const DONE = PREFIX + "handover";
+      let store;
+      try { store = window.localStorage; } catch (e) { return; }
+      const parts = location.hostname.split(".");
+      const local = location.hostname.endsWith(".localhost"); // a test: play.bsk.localhost
+      if (!store || store.getItem(DONE) || (location.protocol !== "https:" && !local) || parts.length < 3) return;
+      const from = location.protocol + "//" + parts.slice(1).join(".") + (location.port ? ":" + location.port : "");
+      const frame = document.createElement("iframe");
+      const data = await new Promise((resolve) => {
+        const timer = setTimeout(() => finish(null), 3000);
+        function finish(d) {
+          clearTimeout(timer);
+          window.removeEventListener("message", heard);
+          frame.remove();
+          resolve(d);
+        }
+        function heard(e) {
+          if (e.origin === from && e.source === frame.contentWindow) finish(e.data);
+        }
+        window.addEventListener("message", heard);
+        frame.style.display = "none";
+        frame.src = from + "/storage-handover.html";
+        document.body.appendChild(frame);
       });
-      return new Response(counted, { headers: { "Content-Type": "application/wasm" } });
+      if (!data || data.bskHandover !== 1 || typeof data.items !== "object") return; // try again next time
+      for (const [key, value] of Object.entries(data.items)) {
+        if (typeof value !== "string" || !key.startsWith(PREFIX)) continue;
+        if (key === PREFIX + "settings" || store.getItem(key) === null) store.setItem(key, value);
+      }
+      store.setItem(DONE, "1");
     }
 
     try {
       show();
-      const wasm = await fetchWasm("./betterskillys_bg.wasm?v=BSK_BUILD");
+      const download = fetchWasm("./betterskillys_bg.wasm?v=BSK_WASM_VERSION");
+      try { await takeOver(); } catch (e) { console.warn("taking over the old settings:", e); }
+      const wasm = await download;
       await init({ module_or_path: wasm });
     } catch (err) {
       track.classList.remove("busy");

@@ -1,6 +1,7 @@
 ---
 title: Dungeons
 nav: 5
+group: Dungeons
 sprite: portal
 eyebrow: Where to go
 summary: Every dungeon you can get into, where its portal or key comes from, how hard it is and what it drops. Built from the game's data.
@@ -47,7 +48,15 @@ then alone. Half the time it leaves the portal to the **Elder Ivory Wyvern**: th
 twice the health, harder hits and faster attacks. The Elder Wyvern can drop a Potion of Max Life
 or Max Mana, better gear, an Elder Draconis or Elder Ivory Wyvern Key, and, rarely, any of the
 four Elder dragons' armours and bow. Elder Ivory Wyvern Keys also drop from the Elder Lair's
-dragons and come in the Elder community goal's chests.
+dragons and come in the Elder community ## Raising an Elder boss
+
+Every Elder dungeon's boss can be fought twice. When it falls it leaves its remains for a little
+while, and a **Necromantic Relic** used beside them raises it again in its **Empowered** form: a
+harder fight with better loot and an untiered item of its own. See
+[Raising an Elder boss: the Necromantic Relic](necromantic-relic.html) for how it works, and each
+boss's health, item and drops.
+
+resurrection}}
 
 ## The Lost Halls
 

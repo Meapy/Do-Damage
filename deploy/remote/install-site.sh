@@ -30,14 +30,30 @@ done
 say() { echo "== $*"; }
 
 # --- the game's own services, from before the move --------------------------------------------
-game_units="bsk-redis.service bsk-account.service bsk-gateway@a.service bsk-gateway@b.service bsk-gateway@c.service bsk-backup.timer"
+game_units="bsk-redis.service bsk-account.service bsk-gateway@a.service bsk-gateway@b.service bsk-gateway@c.service bsk-backup.timer bsk-backup.service"
 if [ $RETIRE = 1 ]; then
     say "retiring this machine's game services (Redis, account server, gateways, backups)"
     for u in $game_units; do
         systemctl disable --now "$u" >/dev/null 2>&1 || true
-        systemctl mask "$u" >/dev/null 2>&1 || true
     done
-elif systemctl is-active --quiet bsk-redis; then
+    # mask refuses while the unit's own file is in /etc/systemd/system (install.sh put it there):
+    # move it aside (kept in $ROOT/retired-units), then mask, so nothing starts them on old data
+    mkdir -p $ROOT/retired-units
+    for u in $game_units; do
+        f=/etc/systemd/system/$u
+        if [ -f "$f" ] && [ ! -L "$f" ]; then mv "$f" $ROOT/retired-units/; fi
+    done
+    systemctl daemon-reload
+    for u in $game_units; do
+        systemctl mask "$u" >/dev/null
+    done
+fi
+for u in $game_units; do
+    if [ -e "/etc/systemd/system/$u" ] && [ "$(systemctl is-enabled "$u" 2>/dev/null)" != masked ]; then
+        say "$u is still installed here, not masked: deploy once with --retire-game"
+    fi
+done
+if systemctl is-active --quiet bsk-redis; then
     echo "this machine still runs the game's Redis (bsk-redis): run with --retire-game once the" >&2
     echo "data is on the game machine (SETUP-LOCAL.md, \"Two machines\")" >&2
     exit 1

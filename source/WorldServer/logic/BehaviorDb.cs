@@ -56,6 +56,9 @@ namespace WorldServer.logic
                     && !Definitions.ContainsKey(e) && Definitions.TryGetValue(r, out var def))
                     Definitions[e] = def;
 
+            // the Empowered forms take their Elder bosses' behaviours (core/resurrection)
+            core.resurrection.BossResurrection.Initialize(this);
+
             InitDb = null;
             _initializing = 0;
         }

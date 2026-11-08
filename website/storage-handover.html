@@ -1,0 +1,28 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="robots" content="noindex">
+  <title>Do Damage</title>
+</head>
+<body>
+<script>
+  // Browser play moved from this site's /play to play.<this site> (2026-11-07). Browsers keep a
+  // page's saved data per address, so the game there loads this page once, in a hidden frame,
+  // to take over the settings and the remembered login the browser kept here (the client's
+  // "betterSkillys-rs." keys; client-rs/web/index.html). They go to that address only: the
+  // browser delivers the message to no other page.
+  (function () {
+    if (window.parent === window) return;
+    var items = {};
+    try {
+      for (var i = 0; i < localStorage.length; i++) {
+        var key = localStorage.key(i);
+        if (key && key.indexOf("betterSkillys-rs.") === 0) items[key] = localStorage.getItem(key);
+      }
+    } catch (e) {}
+    window.parent.postMessage({ bskHandover: 1, items: items }, location.protocol + "//play." + location.host);
+  })();
+</script>
+</body>
+</html>

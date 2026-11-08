@@ -505,6 +505,7 @@ namespace WorldServer.core.objects
                 HandleEffects(ref time);
                 HandleRegen(ref time);
                 LowHealthBoosts();
+                RelicTick();
                 LastBreath();
                 UpdateStatTones();
                 GroundEffect(time);

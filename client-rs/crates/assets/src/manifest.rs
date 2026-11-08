@@ -17,6 +17,11 @@ pub struct Manifest {
     /// Images for the screens outside the game.
     #[serde(default)]
     pub screens: Screens,
+    /// A hash of each file's contents (path -> hash), which the web build adds
+    /// (build_client_rs.py --web) so browsers ask for each file by its own version and keep it
+    /// across builds until it changes.
+    #[serde(default)]
+    pub versions: std::collections::HashMap<String, String>,
     /// `Emotes`: words drawn as pictures in chat and speech balloons.
     #[serde(default)]
     pub emotes: Vec<EmoteDef>,

@@ -499,6 +499,12 @@ class Gear:
         eq = self.on_equip(it)
         if eq:
             rows.append('<p class="it-line it-eq"><span>On equip</span> %s</p>' % h.esc(eq))
+        # an Empowered boss's item's power (<RelicPower>, named and told in its tooltip's EffectInfo)
+        if it["el"].find("RelicPower") is not None:
+            for info in it["el"].iter("EffectInfo"):
+                name, what = (info.get("name") or "").strip(), (info.get("description") or "").strip()
+                if name and what:
+                    rows.append('<p class="it-line"><span>%s</span> %s</p>' % (h.esc(name), h.esc(what)))
         desc = it["desc"].strip()
         if desc:
             rows.append('<p class="it-desc">%s</p>' % h.esc(desc))

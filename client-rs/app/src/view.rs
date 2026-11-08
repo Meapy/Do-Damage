@@ -1642,6 +1642,16 @@ fn draw_sprite_faded(scene: &Scene, renderer: &mut Renderer, redrawer: &mut Redr
         }
     }
     let (sw, sh) = (sprite.w as f32 * k, sprite.h as f32 * k);
+    // A fallen boss's remains (`<Corpse/>`): lying on its side on the ground, grey, the souls'
+    // glow pulsing faintly through it.
+    if desc.corpse {
+        let pulse = ((scene.time as f32 / 650.0).sin() * 0.5 + 0.5) * 0.14;
+        let tint = Tint { mul: [0.8, 0.8, 0.8, 0.95 * alpha], add: [pulse * 0.25, pulse, pulse * 0.7] };
+        let (cx, cy) = (px.round(), (py - sw * 0.42).round());
+        let quad = Quad::rotated(cx, cy, sw, sh, -std::f32::consts::FRAC_PI_2);
+        renderer.sprite_filtered(sprite.rect, [0.0, 0.0, 1.0, 1.0], quad, tint, Filter::Grey);
+        return Some([px.round(), cy - sw / 2.0]);
+    }
     let cut = 1.0 - sink / sprite.h as f32;
     // A wide attack frame: its body (the first half, or the second when mirrored) is centred.
     let shift = if look.wide {

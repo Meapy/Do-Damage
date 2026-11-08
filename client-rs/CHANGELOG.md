@@ -12,6 +12,33 @@ Keep each version short: changes go under `### ` group headings (Oryx 5, Arena, 
 on), one line per change players notice, summed up rather than item by item (the wiki has the
 details). Add to a group's line when a change adds to it, rather than adding another line.
 
+## 2.4.6 (2026-11-08)
+
+### Elder dungeons
+- Elder bosses can rise again. Each one leaves its remains when it falls, circled by its souls,
+  who call out by name anyone nearby carrying a Necromantic Relic (a rare Ethereal drop of the
+  Elder bosses). Use the relic beside the remains and the boss returns Empowered: bigger, tougher
+  and faster, with soul novas, Wailing Souls and soul storms of its own, and much better loot,
+  including 19 new untiered items, one per Empowered boss, each with a power of its own (a
+  cannonball every sixth hit, bursting venom, stored souls, a shell that eats a shot, a ring that
+  saves you once a minute, group buffs and more). The wiki has a page on it under Dungeons:
+  how raising works, and each boss's health, item and drops.
+
+### Pets
+- Every pet drops half as often as before, from every monster, dungeon and event. The wiki
+  shows the new chances.
+
+### Browser
+- Playing in the browser at play.dodmg.com picks up the settings and saved sign-in you had at
+  dodmg.com/play before the move, so there's nothing to set again.
+- The browser game loads faster and downloads less: a fifth less on a first visit, and after an
+  update only the parts that changed (not the whole game again); sounds and music are kept
+  instead of downloaded on every visit, and returning visits start much sooner.
+
+### Game
+- Sound stays steady in big fights: hits on many monsters at once no longer pile up into a
+  distorted wall of sound that swings between too loud and too quiet.
+
 ## 2.4.4 (2026-11-07)
 
 ### Game

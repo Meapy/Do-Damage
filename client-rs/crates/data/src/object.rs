@@ -156,6 +156,8 @@ pub struct ObjectDesc {
     pub animations: Vec<crate::animation::AnimationData>,
     /// `<Effect>`: particles the object gives off (a fountain's spray, a torch's sparks).
     pub effect: Option<EffectProps>,
+    /// `<Corpse/>` (ours): a fallen boss's remains, drawn lying on the ground, grey.
+    pub corpse: bool,
     pub xml: Element,
 }
 
@@ -344,6 +346,7 @@ impl ObjectDesc {
                 .collect(),
             animations: xml.children_named("Animation").map(crate::animation::AnimationData::from_xml).collect(),
             effect: xml.child("Effect").map(EffectProps::from_xml),
+            corpse: xml.has("Corpse"),
             xml: xml.clone(),
         }
     }

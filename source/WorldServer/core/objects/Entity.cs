@@ -391,10 +391,15 @@ namespace WorldServer.core.objects
         {
             _conditionEffectManager.Update(ref time);
 
-            if (HasConditionEffect(ConditionEffectIndex.Stasis))
+            if (HasConditionEffect(ConditionEffectIndex.Stasis) || BehaviourPaused)
                 return;
-            TickState(time);
+            TickState(BehaviourTime(time));
         }
+
+        // the time its behaviour is ticked with (an Empowered boss's runs faster)
+        protected virtual TickTime BehaviourTime(TickTime time) => time;
+        // its behaviour waits (an Empowered boss while it rises)
+        protected virtual bool BehaviourPaused => false;
 
         public void TickState(TickTime time)
         {

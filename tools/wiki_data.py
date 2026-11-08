@@ -239,7 +239,21 @@ class Data:
         return inits
 
     def monsters(self):
-        return set(self.inits) | set(self.doomed)
+        return set(self.inits) | set(self.doomed) | {b["empowered"] for b in self.resurrection()["bosses"]}
+
+    def resurrection(self):
+        """The bosses a Necromantic Relic raises (resources/data/resurrection.json, written by
+        tools/build_resurrection.py): each Elder boss drops the relic, and its Empowered form drops
+        what the Elder boss does and its own loot on top (BossResurrection.Initialize)."""
+        if not hasattr(self, "_resurrection"):
+            path = os.path.join(ROOT, "source", "Shared", "resources", "data", "resurrection.json")
+            self._resurrection = json.load(open(path, encoding="utf-8")) if os.path.exists(path) else {"bosses": []}
+            # the Empowered form's numbers (core/resurrection/Empowered.cs): HealthScale, DefenseBonus, MaxSouls
+            emp = os.path.join(ROOT, "source", "WorldServer", "core", "resurrection", "Empowered.cs")
+            text = open(emp, encoding="utf-8-sig").read() if os.path.exists(emp) else ""
+            self._resurrection["empowered"] = {k: float(v.rstrip("f")) for k, v in
+                                               re.findall(r"const (?:float|int) (\w+) = ([0-9.]+f?);", text)}
+        return self._resurrection
 
     # TierLoot(5, ItemType.Weapon ...) or TierLoot(tier: 5, type: ItemType.Weapon ...)
     # ItemLoot("x", 0.01) or ItemLoot(item: "x", probability: 0.01); OnePlayerLoot("x", 0.5, 0.01)
@@ -266,6 +280,12 @@ class Data:
         leaves in a chest or balloon it turns into or spawns counts as the boss's."""
         seen = _seen or set()
         seen.add(monster)
+        res = self.resurrection()
+        for b in res["bosses"]:
+            if monster == b["empowered"]:
+                # the Elder boss's drops as a whole (its pets at Loot.PetDropRate), then its own
+                own = [x for x in self.drops(b["boss"]) if x[0] != "portal" and x[1] != res["relic"]]
+                return own + [("item", i, c) for i, c in b["loot"]]
         out = []
         for block in self.inits.get(monster, []):
             # N("x") in a shared builder is "Elder x" in the Elder version, where there is one
@@ -319,7 +339,28 @@ class Data:
             extra = self.extra_loot.get(monster, "")
             for m in list(self.ITEM_LOOT.finditer(extra)) + list(self.PET_LOOT.finditer(extra)):
                 out.append(("item", m.group(1), float(m.group(2))))
+        if any(b["boss"] == monster for b in res["bosses"]):
+            out.append(("item", res["relic"], res["relicChance"]))
+        if _seen is None:  # once, for the monster asked about: pets at Loot.PetDropRate
+            rate = self.pet_drop_rate()
+            pets = self.pet_items()
+            out = [(k, i, c * rate if k == "item" and i in pets and c is not None else c) for k, i, c in out]
         return out
+
+    def pet_items(self):
+        """The items that give a pet (a PermaPet activate): their generators."""
+        if not hasattr(self, "_pet_items"):
+            self._pet_items = {oid for oid, o in self.objects.items()
+                               if any(a["effect"] == "PermaPet" for a in o["activate_attrs"])}
+        return self._pet_items
+
+    def pet_drop_rate(self):
+        """Loot.PetDropRate (Loots.cs): the share of its written chance a pet drops at."""
+        if not hasattr(self, "_pet_drop_rate"):
+            with open(os.path.join(LOGIC, "loot", "Loots.cs"), encoding="utf-8-sig") as f:
+                m = re.search(r'PetDropRate\s*=\s*([0-9.]+)', f.read())
+            self._pet_drop_rate = float(m.group(1)) if m else 1.0
+        return self._pet_drop_rate
 
     def map_portals(self, path):
         """The portals a set piece (a .jm under resources/worlds) holds."""

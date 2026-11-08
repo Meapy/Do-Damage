@@ -188,22 +188,48 @@ def build_web(release, out, account=None, key=None):
     wasm = os.path.join(CRATE, "target", "wasm32-unknown-unknown", profile, BIN + ".wasm")
     run(["wasm-bindgen", "--target", "web", "--no-typescript", "--out-dir", out, wasm])
     copy_assets(out)
+    manifest_version = version_assets(out)
     # The page's loading bar: what a first visit downloads (the files, before compression).
     wasm_bytes = os.path.getsize(os.path.join(out, BIN + "_bg.wasm"))
     with open(MANIFEST, encoding="utf-8") as f:
         unused = set(json.load(f).get("screens", {}).values())  # the old title screen's art isn't loaded
-    asset_bytes = os.path.getsize(MANIFEST) + sum(os.path.getsize(os.path.join(SRC, rel)) for rel in manifest_files() if rel not in unused)
+    asset_bytes = os.path.getsize(os.path.join(out, "assets", "manifest.json")) + sum(os.path.getsize(os.path.join(SRC, rel)) for rel in manifest_files() if rel not in unused)
     with open(os.path.join(CRATE, "web", "index.html"), encoding="utf-8") as f:
-        page = (f.read().replace("BSK_BUILD", f"{version()}-{commit()}")
+        page = (f.read().replace("BSK_JS_VERSION", content_hash(os.path.join(out, BIN + ".js")))
+                .replace("BSK_WASM_VERSION", content_hash(os.path.join(out, BIN + "_bg.wasm")))
+                .replace("BSK_MANIFEST_VERSION", manifest_version)
                 .replace("BSK_WASM_BYTES", str(wasm_bytes)).replace("BSK_ASSET_BYTES", str(asset_bytes)))
     with open(os.path.join(out, "index.html"), "w", encoding="utf-8") as f:
         f.write(page)
     n = gzip_files(out)
     print(f"{n} files gzipped beside themselves, for the gateway to send compressed")
+    print(publish_tool("brotli", "--dir", os.path.abspath(out), "--ext", ",".join(GZIP_TYPES)))
 
 
 # Files worth compressing; images are compressed already.
-GZIP_TYPES = (".wasm", ".js", ".html", ".xml", ".json", ".dat", ".otf", ".ttf", ".txt")
+GZIP_TYPES = (".wasm", ".js", ".html", ".xml", ".json", ".dat", ".otf", ".ttf", ".txt", ".obj")
+
+
+def content_hash(path):
+    """A short hash of a file's contents: its ?v= in the browser, so a browser keeps a file across
+    builds (the gateway lets it keep ?v= files for good) and downloads it again only once it
+    changes."""
+    import hashlib
+    with open(path, "rb") as f:
+        return hashlib.sha256(f.read()).hexdigest()[:16]
+
+
+def version_assets(out):
+    """Write each asset's content hash into the built manifest ("versions"), which the game asks
+    for each file with; gives the manifest's own hash, which the page names."""
+    assets = os.path.join(out, "assets")
+    path = os.path.join(assets, "manifest.json")
+    with open(path, encoding="utf-8") as f:
+        m = json.load(f)
+    m["versions"] = {rel: content_hash(os.path.join(assets, rel)) for rel in manifest_files()}
+    with open(path, "w", encoding="utf-8") as f:
+        json.dump(m, f, separators=(",", ":"))
+    return content_hash(path)
 
 
 def gzip_files(out):

@@ -143,8 +143,9 @@ async fn main() {
         .route("/ws/:target", get(bridge))
         .route("/api/*path", any(api))
         .route("/healthz", get(health))
-        // The build's .gz copies when the browser takes gzip (build_client_rs.py --web makes them).
-        .fallback_service(tower_http::services::ServeDir::new(web).precompressed_gzip())
+        // The build's .br and .gz copies when the browser takes brotli or gzip
+        // (build_client_rs.py --web makes them); brotli's are a fifth smaller.
+        .fallback_service(tower_http::services::ServeDir::new(web).precompressed_br().precompressed_gzip())
         .layer(axum::middleware::from_fn(cache_headers))
         .with_state(config);
     let listener = tokio::net::TcpListener::bind(&bind).await.unwrap_or_else(|e| {
@@ -220,6 +221,17 @@ async fn cache_headers(req: axum::extract::Request, next: axum::middleware::Next
     response
 }
 
+/// What an account request passes on to the account server: the body's type, and the browser's
+/// "do I still have the newest?" questions (sounds and music, which it caches).
+const FORWARDED_REQUEST_HEADERS: &[&str] = &["content-type", "if-none-match", "if-modified-since"];
+/// What comes back to the browser from the account server's answer.
+const FORWARDED_RESPONSE_HEADERS: &[&str] = &["content-type", "etag", "last-modified"];
+
+/// The account server's sound effects and music (static files, `/sfx/...` and `/music/...`).
+fn is_sound(path: &str) -> bool {
+    path.starts_with("sfx/") || path.starts_with("music/")
+}
+
 async fn api(
     State(config): State<Arc<Config>>,
     Path(path): Path<String>,
@@ -240,8 +252,10 @@ async fn api(
     let started = Instant::now();
     let result = loop {
         let mut request = config.http.request(method.clone(), &url).body(body.clone());
-        if let Some(ct) = headers.get("content-type") {
-            request = request.header("content-type", ct);
+        for name in FORWARDED_REQUEST_HEADERS {
+            if let Some(v) = headers.get(*name) {
+                request = request.header(*name, v);
+            }
         }
         request = request.header("x-forwarded-for", &address);
         match request.send().await {
@@ -256,13 +270,23 @@ async fn api(
     match result {
         Ok(r) => {
             let status = StatusCode::from_u16(r.status().as_u16()).unwrap_or(StatusCode::BAD_GATEWAY);
-            let content_type = r.headers().get("content-type").cloned();
+            let kept: Vec<_> = FORWARDED_RESPONSE_HEADERS
+                .iter()
+                .filter_map(|name| Some((*name, r.headers().get(*name)?.clone())))
+                .collect();
             let bytes = r.bytes().await.unwrap_or_default();
             let mut response = (status, bytes).into_response();
-            if let Some(ct) = content_type.and_then(|v| v.to_str().ok().map(str::to_owned)) {
-                if let Ok(v) = ct.parse() {
-                    response.headers_mut().insert("content-type", v);
-                }
+            for (name, v) in kept {
+                response.headers_mut().insert(name, v);
+            }
+            // Sounds and music: browsers keep them a day, then ask whether they changed (a 304
+            // with the account server's ETag when they haven't), rather than downloading each
+            // again on every visit.
+            if is_sound(&path) && (status.is_success() || status == StatusCode::NOT_MODIFIED) {
+                response.headers_mut().insert(
+                    axum::http::header::CACHE_CONTROL,
+                    axum::http::HeaderValue::from_static("public, max-age=86400"),
+                );
             }
             response
         }
