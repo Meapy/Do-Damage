@@ -4729,8 +4729,8 @@
 		<Class>Equipment</Class>
 		<Item />
 		<Texture>
-			<File>t15Weapons8x8</File>
-			<Index>7</Index>
+			<File>bladesAndT15s8x8</File>
+			<Index>88</Index>
 		</Texture>
 		<SlotType>17</SlotType>
 		<Tier>15</Tier>
@@ -4738,7 +4738,7 @@
 		<RateOfFire>1</RateOfFire>
 		<Sound>weapon/wand_of_death</Sound>
 		<Projectile>
-			<ObjectId>Staff of Endless Energy Projectile</ObjectId>
+			<ObjectId>Staff of Endless Energy Shot</ObjectId>
 			<Speed>180</Speed>
 			<MinDamage>100</MinDamage>
 			<MaxDamage>135</MaxDamage>
@@ -9130,8 +9130,8 @@
 		<Class>Equipment</Class>
 		<Item />
 		<Texture>
-			<File>drLofiObj5</File>
-			<Index>0xd0</Index>
+			<File>bladesAndT15s8x8</File>
+			<Index>0</Index>
 		</Texture>
 		<SlotType>36</SlotType>
 		<Tier>0</Tier>
@@ -9139,7 +9139,7 @@
 		<RateOfFire>1</RateOfFire>
 		<Sound>weapon/blunt_dagger</Sound>
 		<Projectile>
-			<ObjectId>Bronze Proj</ObjectId>
+			<ObjectId>Bronze Daggers Shot</ObjectId>
 			<Speed>200</Speed>
 			<MinDamage>30</MinDamage>
 			<MaxDamage>80</MaxDamage>
@@ -9155,8 +9155,8 @@
 		<Class>Equipment</Class>
 		<Item />
 		<Texture>
-			<File>drLofiObj5</File>
-			<Index>0xd1</Index>
+			<File>bladesAndT15s8x8</File>
+			<Index>1</Index>
 		</Texture>
 		<SlotType>36</SlotType>
 		<Tier>1</Tier>
@@ -9164,7 +9164,7 @@
 		<RateOfFire>1</RateOfFire>
 		<Sound>weapon/dirk</Sound>
 		<Projectile>
-			<ObjectId>Steel Proj</ObjectId>
+			<ObjectId>Invert Blades Shot</ObjectId>
 			<Speed>200</Speed>
 			<MinDamage>35</MinDamage>
 			<MaxDamage>90</MaxDamage>
@@ -9180,8 +9180,8 @@
 		<Class>Equipment</Class>
 		<Item />
 		<Texture>
-			<File>drLofiObj5</File>
-			<Index>0xd2</Index>
+			<File>bladesAndT15s8x8</File>
+			<Index>2</Index>
 		</Texture>
 		<SlotType>36</SlotType>
 		<Tier>2</Tier>
@@ -9189,7 +9189,7 @@
 		<RateOfFire>1</RateOfFire>
 		<Sound>weapon/dirkr</Sound>
 		<Projectile>
-			<ObjectId>Bronze Proj</ObjectId>
+			<ObjectId>Dusky Blades Shot</ObjectId>
 			<Speed>200</Speed>
 			<MinDamage>45</MinDamage>
 			<MaxDamage>100</MaxDamage>
@@ -9205,8 +9205,8 @@
 		<Class>Equipment</Class>
 		<Item />
 		<Texture>
-			<File>drLofiObj5</File>
-			<Index>0xd3</Index>
+			<File>bladesAndT15s8x8</File>
+			<Index>3</Index>
 		</Texture>
 		<SlotType>36</SlotType>
 		<Tier>3</Tier>
@@ -9214,7 +9214,7 @@
 		<RateOfFire>1</RateOfFire>
 		<Sound>weapon/dirk</Sound>
 		<Projectile>
-			<ObjectId>Steel Proj</ObjectId>
+			<ObjectId>Duo Blades Shot</ObjectId>
 			<Speed>200</Speed>
 			<MinDamage>60</MinDamage>
 			<MaxDamage>110</MaxDamage>
@@ -9230,8 +9230,8 @@
 		<Class>Equipment</Class>
 		<Item />
 		<Texture>
-			<File>drLofiObj5</File>
-			<Index>0xd4</Index>
+			<File>bladesAndT15s8x8</File>
+			<Index>4</Index>
 		</Texture>
 		<SlotType>36</SlotType>
 		<Tier>4</Tier>
@@ -9239,7 +9239,7 @@
 		<RateOfFire>1</RateOfFire>
 		<Sound>weapon/dirk</Sound>
 		<Projectile>
-			<ObjectId>Silver Proj</ObjectId>
+			<ObjectId>Silver Blades Shot</ObjectId>
 			<Speed>200</Speed>
 			<MinDamage>70</MinDamage>
 			<MaxDamage>125</MaxDamage>
@@ -9255,8 +9255,8 @@
 		<Class>Equipment</Class>
 		<Item />
 		<Texture>
-			<File>drLofiObj5</File>
-			<Index>0xd5</Index>
+			<File>bladesAndT15s8x8</File>
+			<Index>5</Index>
 		</Texture>
 		<SlotType>36</SlotType>
 		<Tier>5</Tier>
@@ -9264,7 +9264,7 @@
 		<RateOfFire>1</RateOfFire>
 		<Sound>weapon/dirk</Sound>
 		<Projectile>
-			<ObjectId>Steel Proj</ObjectId>
+			<ObjectId>Half Blades Shot</ObjectId>
 			<Speed>200</Speed>
 			<MinDamage>70</MinDamage>
 			<MaxDamage>140</MaxDamage>
@@ -9280,8 +9280,8 @@
 		<Class>Equipment</Class>
 		<Item />
 		<Texture>
-			<File>drLofiObj5</File>
-			<Index>0xd6</Index>
+			<File>bladesAndT15s8x8</File>
+			<Index>6</Index>
 		</Texture>
 		<SlotType>36</SlotType>
 		<Tier>6</Tier>
@@ -9289,7 +9289,7 @@
 		<RateOfFire>1.3</RateOfFire>
 		<Sound>weapon/obsidian_dagger</Sound>
 		<Projectile>
-			<ObjectId>Black Proj</ObjectId>
+			<ObjectId>Obsidian Blades Shot</ObjectId>
 			<Speed>200</Speed>
 			<MinDamage>70</MinDamage>
 			<MaxDamage>100</MaxDamage>
@@ -9305,8 +9305,8 @@
 		<Class>Equipment</Class>
 		<Item />
 		<Texture>
-			<File>drLofiObj5</File>
-			<Index>0xd7</Index>
+			<File>bladesAndT15s8x8</File>
+			<Index>7</Index>
 		</Texture>
 		<SlotType>36</SlotType>
 		<Tier>7</Tier>
@@ -9314,7 +9314,7 @@
 		<RateOfFire>1</RateOfFire>
 		<Sound>weapon/mithril_dagger</Sound>
 		<Projectile>
-			<ObjectId>Mithril Proj</ObjectId>
+			<ObjectId>Mithril Blades Shot</ObjectId>
 			<Speed>200</Speed>
 			<MinDamage>80</MinDamage>
 			<MaxDamage>150</MaxDamage>
@@ -9330,8 +9330,8 @@
 		<Class>Equipment</Class>
 		<Item />
 		<Texture>
-			<File>drLofiObj5</File>
-			<Index>0xd8</Index>
+			<File>bladesAndT15s8x8</File>
+			<Index>8</Index>
 		</Texture>
 		<SlotType>36</SlotType>
 		<Tier>8</Tier>
@@ -9339,7 +9339,7 @@
 		<RateOfFire>1</RateOfFire>
 		<Sound>weapon/fire_dagger</Sound>
 		<Projectile>
-			<ObjectId>Infinity Proj</ObjectId>
+			<ObjectId>Infinity Blades Shot</ObjectId>
 			<Speed>200</Speed>
 			<MinDamage>90</MinDamage>
 			<MaxDamage>160</MaxDamage>
@@ -9355,8 +9355,8 @@
 		<Class>Equipment</Class>
 		<Item />
 		<Texture>
-			<File>drLofiObj5</File>
-			<Index>0xd9</Index>
+			<File>bladesAndT15s8x8</File>
+			<Index>9</Index>
 		</Texture>
 		<SlotType>36</SlotType>
 		<Tier>9</Tier>
@@ -9364,7 +9364,7 @@
 		<RateOfFire>1</RateOfFire>
 		<Sound>weapon/fire_dagger</Sound>
 		<Projectile>
-			<ObjectId>Rageclaw Proj</ObjectId>
+			<ObjectId>Rage Claw Blades Shot</ObjectId>
 			<Speed>200</Speed>
 			<MinDamage>105</MinDamage>
 			<MaxDamage>168</MaxDamage>
@@ -9381,8 +9381,8 @@
 		<Class>Equipment</Class>
 		<Item />
 		<Texture>
-			<File>drLofiObj5</File>
-			<Index>0xda</Index>
+			<File>bladesAndT15s8x8</File>
+			<Index>10</Index>
 		</Texture>
 		<SlotType>36</SlotType>
 		<Tier>10</Tier>
@@ -9390,7 +9390,7 @@
 		<RateOfFire>1</RateOfFire>
 		<Sound>weapon/fire_dagger</Sound>
 		<Projectile>
-			<ObjectId>Emalev Proj</ObjectId>
+			<ObjectId>Emerald Malevolence Blades Shot</ObjectId>
 			<Speed>200</Speed>
 			<MinDamage>120</MinDamage>
 			<MaxDamage>175</MaxDamage>
@@ -9407,8 +9407,8 @@
 		<Class>Equipment</Class>
 		<Item />
 		<Texture>
-			<File>drLofiObj5</File>
-			<Index>0xdb</Index>
+			<File>bladesAndT15s8x8</File>
+			<Index>11</Index>
 		</Texture>
 		<SlotType>36</SlotType>
 		<Tier>11</Tier>
@@ -9416,7 +9416,7 @@
 		<RateOfFire>1</RateOfFire>
 		<Sound>weapon/fire_dagger</Sound>
 		<Projectile>
-			<ObjectId>Eldricht Proj</ObjectId>
+			<ObjectId>Eldricht Blades Shot</ObjectId>
 			<Speed>200</Speed>
 			<MinDamage>130</MinDamage>
 			<MaxDamage>190</MaxDamage>
@@ -9434,8 +9434,8 @@
 		<Class>Equipment</Class>
 		<Item />
 		<Texture>
-			<File>drLofiObj5</File>
-			<Index>0xdc</Index>
+			<File>bladesAndT15s8x8</File>
+			<Index>12</Index>
 		</Texture>
 		<SlotType>36</SlotType>
 		<Tier>12</Tier>
@@ -9443,7 +9443,7 @@
 		<RateOfFire>1</RateOfFire>
 		<Sound>weapon/fire_dagger</Sound>
 		<Projectile>
-			<ObjectId>Master Proj</ObjectId>
+			<ObjectId>Master Blades Shot</ObjectId>
 			<Speed>200</Speed>
 			<MinDamage>140</MinDamage>
 			<MaxDamage>200</MaxDamage>

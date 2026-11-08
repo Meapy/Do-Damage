@@ -52,13 +52,17 @@ RS_ONLY_SETS = [
     # (tools/draw_oryx_gates.py)
     ("oryxGates32x32", "kabam/rotmg/assets/custom/images/OryxGates32x32.png", 32, 32),
     ("oryxIncantations16x16", "kabam/rotmg/assets/custom/images/OryxIncantations16x16.png", 16, 16),
-    # the T15 weapons, their T14s in Oryx 5's colours, and the T16 armours, their T15s in them
-    # (tools/draw_t15_weapons.py)
+    # the T15 weapons, their T14s in Oryx 5's colours (tools/draw_t15_weapons.py; only the Fists of the
+    # Ascended use theirs now), and the T16 armours, hand-drawn
     ("t15Weapons8x8", "kabam/rotmg/assets/custom/images/T15Weapons8x8.png", 8, 8),
     ("t16Armors8x8", "kabam/rotmg/assets/custom/images/T16Armors8x8.png", 8, 8),
+    # the dual blades' icons over their shots, and the T15 weapons' beside theirs, hand-drawn
+    ("bladesAndT15s8x8", "kabam/rotmg/assets/custom/images/BladesAndT15s8x8.png", 8, 8),
     # the forge shards and Oryx 5's Ascended pieces (tools/build_ascended_items.py)
     ("ascendedItems8x8", "kabam/rotmg/assets/custom/images/AscendedItems8x8.png", 8, 8),
     ("ascendedItems16x16", "kabam/rotmg/assets/custom/images/AscendedItems16x16.png", 16, 16),
+    # the Enthroned Rings of Wrath and Grace, hand-drawn
+    ("enthronedRings8x8", "kabam/rotmg/assets/custom/images/EnthronedRings8x8.png", 8, 8),
     # the Quests and Nexus buttons' pictures and the Herald's week (tools/draw_ui_icons.py)
     ("uiIcons16x16", "kabam/rotmg/assets/custom/images/UiIcons16x16.png", 16, 16),
     # the Infernal potions, which take a stat past its maximum (tools/build_infernal_potions.py)

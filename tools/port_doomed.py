@@ -425,11 +425,25 @@ TEXTURE_OVERRIDES = {"Oryx the Mad God 4": ("hashCellarOryx16x16", 0),
                      # the incantations' seals (tools/draw_oryx_gates.py, INCANTATION_CELLS)
                      "Hash Cellar Incantation": ("oryxIncantations16x16", 1),
                      "Doomed Cellar Incantation": ("oryxIncantations16x16", 2),
-                     # Oryx 5's colours (tools/draw_t15_weapons.py): the T15 staff, and the T16 armours
-                     "Staff of Endless Energy": ("t15Weapons8x8", 7),
+                     # the T15 staff and the T16 armours, hand-drawn (the armours on T16Armors8x8.png)
+                     "Staff of Endless Energy": ("bladesAndT15s8x8", 88),  # BladesAndT15s8x8.png
                      "Sphinx Leather Armor": ("t16Armors8x8", 0),
                      "Armor of the Pyramid": ("t16Armors8x8", 1),
                      "Robe of the Nile": ("t16Armors8x8", 2),
+                     # the dual blades, hand-drawn: tier n is cell n of BladesAndT15s8x8.png, its shot
+                     "Bronze Daggers": ("bladesAndT15s8x8", 0),
+                     "Invert Blades": ("bladesAndT15s8x8", 1),
+                     "Dusky Blades": ("bladesAndT15s8x8", 2),
+                     "Duo Blades": ("bladesAndT15s8x8", 3),
+                     "Silver Blades": ("bladesAndT15s8x8", 4),
+                     "Half Blades": ("bladesAndT15s8x8", 5),
+                     "Obsidian Blades": ("bladesAndT15s8x8", 6),
+                     "Mithril Blades": ("bladesAndT15s8x8", 7),
+                     "Infinity Blades": ("bladesAndT15s8x8", 8),
+                     "Rage Claw Blades": ("bladesAndT15s8x8", 9),
+                     "Emerald Malevolence Blades": ("bladesAndT15s8x8", 10),
+                     "Eldricht Blades": ("bladesAndT15s8x8", 11),
+                     "Master Blades": ("bladesAndT15s8x8", 12),
                      # Oryx 4's daggers, red in their shading (tools/draw_oryx_uts.py)
                      "Doom Dirk": ("oryxUts8x8", 0),
                      "Flying Doom Daggers": ("oryxUts8x8", 1),
@@ -451,7 +465,22 @@ PROJECTILE_OVERRIDES = {"Oryx the Mad God 4": {"2": "Hellfire Bolt", "4": "Hellf
                         # Elysian Staff shoots his Celestial Bolt in his colours, the Sword of Dark
                         # Enchantment a black and red slash (it shot sheep)
                         "Staff of Heavens": {None: "Elysian Bolt"},
-                        "Sword of Dark Enchantment": {None: "Dark Enchantment Slash"}}
+                        "Sword of Dark Enchantment": {None: "Dark Enchantment Slash"},
+                        # the dual blades and the T15 staff shoot their own hand-drawn shots (CustomProj.xml)
+                        "Bronze Daggers": {None: "Bronze Daggers Shot"},
+                        "Invert Blades": {None: "Invert Blades Shot"},
+                        "Dusky Blades": {None: "Dusky Blades Shot"},
+                        "Duo Blades": {None: "Duo Blades Shot"},
+                        "Silver Blades": {None: "Silver Blades Shot"},
+                        "Half Blades": {None: "Half Blades Shot"},
+                        "Obsidian Blades": {None: "Obsidian Blades Shot"},
+                        "Mithril Blades": {None: "Mithril Blades Shot"},
+                        "Infinity Blades": {None: "Infinity Blades Shot"},
+                        "Rage Claw Blades": {None: "Rage Claw Blades Shot"},
+                        "Emerald Malevolence Blades": {None: "Emerald Malevolence Blades Shot"},
+                        "Eldricht Blades": {None: "Eldricht Blades Shot"},
+                        "Master Blades": {None: "Master Blades Shot"},
+                        "Staff of Endless Energy": {None: "Staff of Endless Energy Shot"}}
 # names for players: each Oryx after the Chamber is named for his theme
 DISPLAY_OVERRIDES = {"Oryx the Mad God 4": "Oryx the Infernal Mad God", "Hash Cellar Incantation": "Oryx's Inferno Incantation",
                      "Doomed Cellar Incantation": "Oryx's Elysium Incantation", "Staff of Heavens": "Elysian Staff",

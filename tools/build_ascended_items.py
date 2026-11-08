@@ -53,6 +53,9 @@ ITEM_XMLS = [
 ]
 SHEET = "ascendedItems8x8"
 SHEET16 = "ascendedItems16x16"
+# the Enthroned rings, hand-drawn by the owner (EnthronedRings8x8.png: Wrath, then Grace); their
+# 16 by 16 cells are still drawn but no longer used
+RINGS8 = "enthronedRings8x8"
 CELL = 8
 COLS = 8
 BEGIN = "<!-- BEGIN forge shards and Ascended items (tools/build_ascended_items.py) -->"
@@ -261,8 +264,8 @@ ASCENDED = [
     (0x585a, "Enthroned Robe", "Robe of the Nile", (SHEET, cell_of("piece", "robe")), None),
     (0x585b, "Enthroned Helm", "Helm of Imperial Right", (SHEET, cell_of("piece", "helm")), None),
     (0x585c, "Enthroned Boots", "Ring of Absolute Speed", (SHEET, cell_of("piece", "boots")), None),
-    (0x585d, "Enthroned Ring of Wrath", "Ring of Absolute Attack", (SHEET16, SPRITES16.index("ring wrath")), None),
-    (0x585e, "Enthroned Ring of Grace", "Ring of Absolute Defense", (SHEET16, SPRITES16.index("ring grace")), None),
+    (0x585d, "Enthroned Ring of Wrath", "Ring of Absolute Attack", (RINGS8, 0), None),
+    (0x585e, "Enthroned Ring of Grace", "Ring of Absolute Defense", (RINGS8, 1), None),
 ]
 
 # Oryx 5's shots for the Enthroned weapons, every one of them the same: (projectile object, type

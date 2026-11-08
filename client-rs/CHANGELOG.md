@@ -14,6 +14,10 @@ details). Add to a group's line when a change adds to it, rather than adding ano
 
 ## Unreleased
 
+### Items
+- New art for the dual blades (every tier, each with a shot of its own), the T15 Sword,
+  Dagger, Bow, Wand, Staff, Katana and Dual Blades and their shots, the T16 armors and the Enthroned Rings of Wrath and Grace.
+
 ### Classes
 - Party buffs reach much further: Warrior helms, Bard lutes and Blademaster jackets go from 4 tiles
   to between 6 (T0) and 8 (T8), Paladin seals and Priest tomes to between 5 and 7 before wisdom,

@@ -87,4 +87,179 @@
 			<Index>1</Index>
 		</Texture>
 	</Object>
+	<!-- the dual blades' and T15 weapons' own shots, hand-drawn (bladesAndT15s8x8) -->
+	<Object type="0x5888" id="Bronze Daggers Shot">
+		<Class>Projectile</Class>
+		<Texture>
+			<File>bladesAndT15s8x8</File>
+			<Index>18</Index>
+		</Texture>
+		<AngleCorrection>1</AngleCorrection>
+	</Object>
+	<Object type="0x5889" id="Invert Blades Shot">
+		<Class>Projectile</Class>
+		<Texture>
+			<File>bladesAndT15s8x8</File>
+			<Index>19</Index>
+		</Texture>
+		<AngleCorrection>1</AngleCorrection>
+	</Object>
+	<Object type="0x588a" id="Dusky Blades Shot">
+		<Class>Projectile</Class>
+		<Texture>
+			<File>bladesAndT15s8x8</File>
+			<Index>20</Index>
+		</Texture>
+		<AngleCorrection>1</AngleCorrection>
+	</Object>
+	<Object type="0x588b" id="Duo Blades Shot">
+		<Class>Projectile</Class>
+		<Texture>
+			<File>bladesAndT15s8x8</File>
+			<Index>21</Index>
+		</Texture>
+		<AngleCorrection>1</AngleCorrection>
+	</Object>
+	<Object type="0x588c" id="Silver Blades Shot">
+		<Class>Projectile</Class>
+		<Texture>
+			<File>bladesAndT15s8x8</File>
+			<Index>22</Index>
+		</Texture>
+		<AngleCorrection>1</AngleCorrection>
+	</Object>
+	<Object type="0x588d" id="Half Blades Shot">
+		<Class>Projectile</Class>
+		<Texture>
+			<File>bladesAndT15s8x8</File>
+			<Index>23</Index>
+		</Texture>
+		<AngleCorrection>1</AngleCorrection>
+	</Object>
+	<Object type="0x588e" id="Obsidian Blades Shot">
+		<Class>Projectile</Class>
+		<Texture>
+			<File>bladesAndT15s8x8</File>
+			<Index>24</Index>
+		</Texture>
+		<AngleCorrection>1</AngleCorrection>
+	</Object>
+	<Object type="0x588f" id="Mithril Blades Shot">
+		<Class>Projectile</Class>
+		<Texture>
+			<File>bladesAndT15s8x8</File>
+			<Index>25</Index>
+		</Texture>
+		<AngleCorrection>1</AngleCorrection>
+	</Object>
+	<Object type="0x5890" id="Infinity Blades Shot">
+		<Class>Projectile</Class>
+		<Texture>
+			<File>bladesAndT15s8x8</File>
+			<Index>26</Index>
+		</Texture>
+		<AngleCorrection>1</AngleCorrection>
+	</Object>
+	<Object type="0x5891" id="Rage Claw Blades Shot">
+		<Class>Projectile</Class>
+		<Texture>
+			<File>bladesAndT15s8x8</File>
+			<Index>27</Index>
+		</Texture>
+		<AngleCorrection>1</AngleCorrection>
+	</Object>
+	<Object type="0x5892" id="Emerald Malevolence Blades Shot">
+		<Class>Projectile</Class>
+		<Texture>
+			<File>bladesAndT15s8x8</File>
+			<Index>28</Index>
+		</Texture>
+		<AngleCorrection>1</AngleCorrection>
+	</Object>
+	<Object type="0x5893" id="Eldricht Blades Shot">
+		<Class>Projectile</Class>
+		<Texture>
+			<File>bladesAndT15s8x8</File>
+			<Index>29</Index>
+		</Texture>
+		<AngleCorrection>1</AngleCorrection>
+	</Object>
+	<Object type="0x5894" id="Master Blades Shot">
+		<Class>Projectile</Class>
+		<Texture>
+			<File>bladesAndT15s8x8</File>
+			<Index>30</Index>
+		</Texture>
+		<AngleCorrection>1</AngleCorrection>
+	</Object>
+	<Object type="0x5895" id="Sovereign Blades Shot">
+		<Class>Projectile</Class>
+		<Texture>
+			<File>bladesAndT15s8x8</File>
+			<Index>31</Index>
+		</Texture>
+		<AngleCorrection>1</AngleCorrection>
+	</Object>
+	<Object type="0x5896" id="Eclipse Blades Shot">
+		<Class>Projectile</Class>
+		<Texture>
+			<File>bladesAndT15s8x8</File>
+			<Index>32</Index>
+		</Texture>
+		<AngleCorrection>1</AngleCorrection>
+	</Object>
+	<Object type="0x5897" id="Sword of Ascension Shot">
+		<Class>Projectile</Class>
+		<Texture>
+			<File>bladesAndT15s8x8</File>
+			<Index>17</Index>
+		</Texture>
+		<AngleCorrection>1</AngleCorrection>
+	</Object>
+	<Object type="0x5898" id="Dagger of Divine Wrath Shot">
+		<Class>Projectile</Class>
+		<Texture>
+			<File>bladesAndT15s8x8</File>
+			<Index>35</Index>
+		</Texture>
+	</Object>
+	<Object type="0x5899" id="Bow of the Firmament Shot">
+		<Class>Projectile</Class>
+		<Texture>
+			<File>bladesAndT15s8x8</File>
+			<Index>53</Index>
+		</Texture>
+		<AngleCorrection>1</AngleCorrection>
+	</Object>
+	<Object type="0x589a" id="Wand of Absolution Shot">
+		<Class>Projectile</Class>
+		<Texture>
+			<File>bladesAndT15s8x8</File>
+			<Index>71</Index>
+		</Texture>
+	</Object>
+	<Object type="0x589b" id="Staff of Endless Energy Shot">
+		<Class>Projectile</Class>
+		<Texture>
+			<File>bladesAndT15s8x8</File>
+			<Index>89</Index>
+		</Texture>
+		<AngleCorrection>1</AngleCorrection>
+	</Object>
+	<Object type="0x589c" id="Ame-no-Habakiri Shot">
+		<Class>Projectile</Class>
+		<Texture>
+			<File>bladesAndT15s8x8</File>
+			<Index>107</Index>
+		</Texture>
+		<AngleCorrection>1</AngleCorrection>
+	</Object>
+	<Object type="0x589d" id="Seraphic Blades Shot">
+		<Class>Projectile</Class>
+		<Texture>
+			<File>bladesAndT15s8x8</File>
+			<Index>125</Index>
+		</Texture>
+		<AngleCorrection>1</AngleCorrection>
+	</Object>
 </Objects>
