@@ -39,6 +39,9 @@ import xml.etree.ElementTree as ET
 
 from PIL import Image
 
+sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+import rework_buff_auras  # noqa: E402
+
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 SRC = os.path.join(ROOT, "client", "src")
 SERVER_XML = os.path.join(ROOT, "source", "Shared", "resources", "xml")
@@ -50,6 +53,9 @@ ITEM_XMLS = [
 ]
 SHEET = "ascendedItems8x8"
 SHEET16 = "ascendedItems16x16"
+# the Enthroned rings, hand-drawn by the owner (EnthronedRings8x8.png: Wrath, then Grace); their
+# 16 by 16 cells are still drawn but no longer used
+RINGS8 = "enthronedRings8x8"
 CELL = 8
 COLS = 8
 BEGIN = "<!-- BEGIN forge shards and Ascended items (tools/build_ascended_items.py) -->"
@@ -258,8 +264,8 @@ ASCENDED = [
     (0x585a, "Enthroned Robe", "Robe of the Nile", (SHEET, cell_of("piece", "robe")), None),
     (0x585b, "Enthroned Helm", "Helm of Imperial Right", (SHEET, cell_of("piece", "helm")), None),
     (0x585c, "Enthroned Boots", "Ring of Absolute Speed", (SHEET, cell_of("piece", "boots")), None),
-    (0x585d, "Enthroned Ring of Wrath", "Ring of Absolute Attack", (SHEET16, SPRITES16.index("ring wrath")), None),
-    (0x585e, "Enthroned Ring of Grace", "Ring of Absolute Defense", (SHEET16, SPRITES16.index("ring grace")), None),
+    (0x585d, "Enthroned Ring of Wrath", "Ring of Absolute Attack", (RINGS8, 0), None),
+    (0x585e, "Enthroned Ring of Grace", "Ring of Absolute Defense", (RINGS8, 1), None),
 ]
 
 # Oryx 5's shots for the Enthroned weapons, every one of them the same: (projectile object, type
@@ -629,6 +635,8 @@ def main():
     lines = block(items)
     for path in ITEM_XMLS:
         write_xml(path, lines)
+        # the party buffs reach further (tools/rework_buff_auras.py)
+        rework_buff_auras.rework_file(path)
     print(f"{len(SPRITES)} sprites, {len(SHARDS)} shards and {len(ASCENDED)} Ascended items")
 
 

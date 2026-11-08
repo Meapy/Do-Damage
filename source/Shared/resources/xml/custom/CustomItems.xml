@@ -306,7 +306,7 @@
 		<BagType>6</BagType>
 		<FameBonus>6</FameBonus>
 		<MpCost>90</MpCost>
-		<Activate effect="Berserk" duration="6.5" range="4">ConditionEffectAura</Activate>
+		<Activate effect="Berserk" duration="6.5" range="7">ConditionEffectAura</Activate>
 		<Activate effect="Armored" duration="6.5">ConditionEffectSelf</Activate>
 		<Activate effect="Curse" duration="4.5">ConditionEffectSelf</Activate>
 		<Cooldown>8</Cooldown>
@@ -557,8 +557,8 @@
 		<Class>Equipment</Class>
 		<Item/>
 		<Texture>
-			<File>drLofiObj5</File>
-			<Index>0xdc</Index>
+			<File>bladesAndT15s8x8</File>
+			<Index>13</Index>
 		</Texture>
 		<SlotType>36</SlotType>
 		<Tier>13</Tier>
@@ -566,7 +566,7 @@
 		<RateOfFire>1</RateOfFire>
 		<Sound>weapon/fire_dagger</Sound>
 		<Projectile>
-			<ObjectId>Master Proj</ObjectId>
+			<ObjectId>Sovereign Blades Shot</ObjectId>
 			<Speed>200</Speed>
 			<MinDamage>147</MinDamage>
 			<MaxDamage>210</MaxDamage>
@@ -586,8 +586,8 @@
 		<Class>Equipment</Class>
 		<Item/>
 		<Texture>
-			<File>drLofiObj5</File>
-			<Index>0xdc</Index>
+			<File>bladesAndT15s8x8</File>
+			<Index>14</Index>
 		</Texture>
 		<SlotType>36</SlotType>
 		<Tier>14</Tier>
@@ -595,7 +595,7 @@
 		<RateOfFire>1</RateOfFire>
 		<Sound>weapon/fire_dagger</Sound>
 		<Projectile>
-			<ObjectId>Master Proj</ObjectId>
+			<ObjectId>Eclipse Blades Shot</ObjectId>
 			<Speed>200</Speed>
 			<MinDamage>154</MinDamage>
 			<MaxDamage>221</MaxDamage>
@@ -1006,8 +1006,8 @@
 		<Class>Equipment</Class>
 		<Item/>
 		<Texture>
-			<File>t15Weapons8x8</File>
-			<Index>0x00</Index>
+			<File>bladesAndT15s8x8</File>
+			<Index>16</Index>
 		</Texture>
 		<SlotType>1</SlotType>
 		<Tier>15</Tier>
@@ -1015,7 +1015,7 @@
 		<RateOfFire>1</RateOfFire>
 		<Sound>weapon/mithril_sword</Sound>
 		<Projectile>
-			<ObjectId>Majesty Bolt</ObjectId>
+			<ObjectId>Sword of Ascension Shot</ObjectId>
 			<Speed>100</Speed>
 			<MinDamage>333</MinDamage>
 			<MaxDamage>358</MaxDamage>
@@ -1033,8 +1033,8 @@
 		<Class>Equipment</Class>
 		<Item/>
 		<Texture>
-			<File>t15Weapons8x8</File>
-			<Index>0x01</Index>
+			<File>bladesAndT15s8x8</File>
+			<Index>34</Index>
 		</Texture>
 		<SlotType>2</SlotType>
 		<Tier>15</Tier>
@@ -1042,7 +1042,7 @@
 		<RateOfFire>1</RateOfFire>
 		<Sound>weapon/fire_dagger</Sound>
 		<Projectile>
-			<ObjectId>Black Magic</ObjectId>
+			<ObjectId>Dagger of Divine Wrath Shot</ObjectId>
 			<Speed>150</Speed>
 			<MinDamage>184</MinDamage>
 			<MaxDamage>265</MaxDamage>
@@ -1060,8 +1060,8 @@
 		<Class>Equipment</Class>
 		<Item/>
 		<Texture>
-			<File>t15Weapons8x8</File>
-			<Index>0x02</Index>
+			<File>bladesAndT15s8x8</File>
+			<Index>52</Index>
 		</Texture>
 		<SlotType>3</SlotType>
 		<Tier>15</Tier>
@@ -1069,7 +1069,7 @@
 		<RateOfFire>1</RateOfFire>
 		<Sound>weapon/golden_bow</Sound>
 		<Projectile>
-			<ObjectId>Deep Enchantment Arrow</ObjectId>
+			<ObjectId>Bow of the Firmament Shot</ObjectId>
 			<Speed>160</Speed>
 			<MinDamage>102</MinDamage>
 			<MaxDamage>110</MaxDamage>
@@ -1090,8 +1090,8 @@
 		<Class>Equipment</Class>
 		<Item/>
 		<Texture>
-			<File>t15Weapons8x8</File>
-			<Index>0x03</Index>
+			<File>bladesAndT15s8x8</File>
+			<Index>70</Index>
 		</Texture>
 		<SlotType>8</SlotType>
 		<Tier>15</Tier>
@@ -1099,7 +1099,7 @@
 		<RateOfFire>1</RateOfFire>
 		<Sound>weapon/wand_of_death</Sound>
 		<Projectile>
-			<ObjectId>Retribution Magic</ObjectId>
+			<ObjectId>Wand of Absolution Shot</ObjectId>
 			<Speed>200</Speed>
 			<LifetimeMS>400</LifetimeMS>
 			<MinDamage>213</MinDamage>
@@ -1118,8 +1118,8 @@
 		<Class>Equipment</Class>
 		<Item/>
 		<Texture>
-			<File>t15Weapons8x8</File>
-			<Index>0x04</Index>
+			<File>bladesAndT15s8x8</File>
+			<Index>106</Index>
 		</Texture>
 		<SlotType>24</SlotType>
 		<Tier>15</Tier>
@@ -1127,7 +1127,7 @@
 		<RateOfFire>1</RateOfFire>
 		<Sound>weapon/long_sword</Sound>
 		<Projectile>
-			<ObjectId>Kusanagi Slash</ObjectId>
+			<ObjectId>Ame-no-Habakiri Shot</ObjectId>
 			<Speed>150</Speed>
 			<LifetimeMS>350</LifetimeMS>
 			<MinDamage>243</MinDamage>
@@ -1146,8 +1146,8 @@
 		<Class>Equipment</Class>
 		<Item/>
 		<Texture>
-			<File>t15Weapons8x8</File>
-			<Index>0x05</Index>
+			<File>bladesAndT15s8x8</File>
+			<Index>124</Index>
 		</Texture>
 		<SlotType>36</SlotType>
 		<Tier>15</Tier>
@@ -1155,7 +1155,7 @@
 		<RateOfFire>1</RateOfFire>
 		<Sound>weapon/fire_dagger</Sound>
 		<Projectile>
-			<ObjectId>Master Proj</ObjectId>
+			<ObjectId>Seraphic Blades Shot</ObjectId>
 			<Speed>200</Speed>
 			<MinDamage>205</MinDamage>
 			<MaxDamage>259</MaxDamage>
@@ -1281,7 +1281,7 @@
 		<Tier>0</Tier>
 		<Description>Water from the Nexus fountains, that heals your friends and carries you along.</Description>
 		<Sound>spell/major_heal</Sound>
-		<Activate range="5" amount="110">HealNova</Activate>
+		<Activate range="6" amount="110">HealNova</Activate>
 		<Activate maxDistance="10">Teleport</Activate>
 		<Usable/>
 		<BagType>1</BagType>
@@ -1300,7 +1300,7 @@
 		<Tier>1</Tier>
 		<Description>Water from the Nexus fountains, that heals your friends and carries you along.</Description>
 		<Sound>spell/major_heal</Sound>
-		<Activate range="5.5" amount="145">HealNova</Activate>
+		<Activate range="6" amount="145">HealNova</Activate>
 		<Activate maxDistance="11">Teleport</Activate>
 		<Usable/>
 		<BagType>1</BagType>
@@ -2209,7 +2209,7 @@
 		<ActivateOnEquip stat="3" amount="60">IncrementStat</ActivateOnEquip>
 		<Usable/>
 		<MpCost>95</MpCost>
-		<Activate effect="Berserk" duration="7" range="4">ConditionEffectAura</Activate>
+		<Activate effect="Berserk" duration="7" range="7">ConditionEffectAura</Activate>
 		<Activate effect="Speedy" duration="7">ConditionEffectSelf</Activate>
 		<feedPower>855</feedPower>
 		<FameBonus>10</FameBonus>
@@ -2236,8 +2236,8 @@
 		<Class>Equipment</Class>
 		<Item/>
 		<Texture>
-			<File>ascendedItems16x16</File>
-			<Index>0x01</Index>
+			<File>enthronedRings8x8</File>
+			<Index>0x00</Index>
 		</Texture>
 		<SlotType>9</SlotType>
 		<Description>Oryx the Ascended God's own ring of wrath.</Description>
@@ -2252,8 +2252,8 @@
 		<Class>Equipment</Class>
 		<Item/>
 		<Texture>
-			<File>ascendedItems16x16</File>
-			<Index>0x02</Index>
+			<File>enthronedRings8x8</File>
+			<Index>0x01</Index>
 		</Texture>
 		<SlotType>9</SlotType>
 		<Description>Oryx the Ascended God's own ring of grace, forged from both his gems.</Description>

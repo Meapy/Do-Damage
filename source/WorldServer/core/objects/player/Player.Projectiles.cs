@@ -349,7 +349,7 @@ namespace WorldServer.core.objects
             }
 
             var elapsed = time - projectile.Time;
-            var hitPos = projectile.GetPosition(elapsed, bulletId, projectileDesc, SpeedMult / 100);
+            var hitPos = projectile.GetPosition(elapsed, bulletId, projectileDesc, SpeedMult / 100f); // Inspired: 1.25 (in whole numbers it was 1)
 
             var elapsedSinceStart = time - projectile.Time;
             if (elapsedSinceStart > projectileDesc.LifetimeMS)

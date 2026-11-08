@@ -5033,7 +5033,7 @@
 		<Usable/>
 		<BagType>1</BagType>
 		<MpCost>50</MpCost>
-		<Activate range="3" amount="70" useWisMod="true">HealNova</Activate>
+		<Activate range="5" amount="70" useWisMod="true">HealNova</Activate>
 		<feedPower>5</feedPower>
 		<DropTradable/>
 	</Object>
@@ -5051,7 +5051,7 @@
 		<Usable/>
 		<BagType>1</BagType>
 		<MpCost>55</MpCost>
-		<Activate range="3.5" amount="90" useWisMod="true">HealNova</Activate>
+		<Activate range="5" amount="90" useWisMod="true">HealNova</Activate>
 		<ActivateOnEquip stat="26" amount="1">IncrementStat</ActivateOnEquip>
 		<feedPower>10</feedPower>
 		<DropTradable/>
@@ -5070,8 +5070,8 @@
 		<Usable/>
 		<BagType>1</BagType>
 		<MpCost>65</MpCost>
-		<Activate effect="Healing" duration="3" range="4" useWisMod="true">ConditionEffectAura</Activate>
-		<Activate range="4" amount="140" useWisMod="true">HealNova</Activate>
+		<Activate effect="Healing" duration="3" range="5.5" useWisMod="true">ConditionEffectAura</Activate>
+		<Activate range="5.5" amount="140" useWisMod="true">HealNova</Activate>
 		<ActivateOnEquip stat="26" amount="2">IncrementStat</ActivateOnEquip>
 		<feedPower>20</feedPower>
 		<DropTradable/>
@@ -5091,8 +5091,8 @@
 		<BagType>2</BagType>
 		<FameBonus>1</FameBonus>
 		<MpCost>70</MpCost>
-		<Activate effect="Healing" duration="4" range="4.5" useWisMod="true">ConditionEffectAura</Activate>
-		<Activate range="4.5" amount="160" useWisMod="true">HealNova</Activate>
+		<Activate effect="Healing" duration="4" range="5.5" useWisMod="true">ConditionEffectAura</Activate>
+		<Activate range="5.5" amount="160" useWisMod="true">HealNova</Activate>
 		<ActivateOnEquip stat="26" amount="3">IncrementStat</ActivateOnEquip>
 		<feedPower>45</feedPower>
 		<DropTradable/>
@@ -5112,8 +5112,8 @@
 		<BagType>2</BagType>
 		<FameBonus>2</FameBonus>
 		<MpCost>75</MpCost>
-		<Activate effect="Healing" duration="4.5" range="4.5" useWisMod="true">ConditionEffectAura</Activate>
-		<Activate range="4.5" amount="180" useWisMod="true">HealNova</Activate>
+		<Activate effect="Healing" duration="4.5" range="6" useWisMod="true">ConditionEffectAura</Activate>
+		<Activate range="6" amount="180" useWisMod="true">HealNova</Activate>
 		<ActivateOnEquip stat="26" amount="4">IncrementStat</ActivateOnEquip>
 		<feedPower>90</feedPower>
 		<DropTradable/>
@@ -5133,8 +5133,8 @@
 		<BagType>4</BagType>
 		<FameBonus>3</FameBonus>
 		<MpCost>80</MpCost>
-		<Activate effect="Healing" duration="5" range="5" useWisMod="true">ConditionEffectAura</Activate>
-		<Activate range="5" amount="200" useWisMod="true">HealNova</Activate>
+		<Activate effect="Healing" duration="5" range="6" useWisMod="true">ConditionEffectAura</Activate>
+		<Activate range="6" amount="200" useWisMod="true">HealNova</Activate>
 		<Activate stat="20" amount="2" duration="4" noStack="true">StatBoostSelf</Activate>
 		<Activate stat="28" amount="2" duration="4" noStack="true">StatBoostSelf</Activate>
 		<ActivateOnEquip stat="26" amount="5">IncrementStat</ActivateOnEquip>
@@ -5155,8 +5155,8 @@
 		<BagType>4</BagType>
 		<FameBonus>4</FameBonus>
 		<MpCost>85</MpCost>
-		<Activate effect="Healing" duration="6" range="5" useWisMod="true">ConditionEffectAura</Activate>
-		<Activate range="5" amount="200" useWisMod="true">HealNova</Activate>
+		<Activate effect="Healing" duration="6" range="6.5" useWisMod="true">ConditionEffectAura</Activate>
+		<Activate range="6.5" amount="200" useWisMod="true">HealNova</Activate>
 		<Activate effect="Speedy" duration="1.5" useWisMod="true">ConditionEffectSelf</Activate>
 		<Activate stat="20" amount="2" duration="4" noStack="true">StatBoostSelf</Activate>
 		<Activate stat="28" amount="2" duration="4" noStack="true">StatBoostSelf</Activate>
@@ -5211,8 +5211,8 @@
 		<Usable/>
 		<BagType>1</BagType>
 		<MpCost>65</MpCost>
-		<Activate effect="Healing" duration="2.5" range="4.5" color="0xff0080" target="player" center="player" visualEffect="5" useWisMod="true">GenericActivate</Activate>
-		<Activate effect="Damaging" duration="2.5" range="4.5" color="0xff0080" target="player" center="player" visualEffect="0" useWisMod="true">GenericActivate</Activate>
+		<Activate effect="Healing" duration="2.5" range="5" color="0xff0080" target="player" center="player" visualEffect="5" useWisMod="true">GenericActivate</Activate>
+		<Activate effect="Damaging" duration="2.5" range="5" color="0xff0080" target="player" center="player" visualEffect="0" useWisMod="true">GenericActivate</Activate>
 		<feedPower>5</feedPower>
 		<DropTradable/>
 	</Object>
@@ -5230,8 +5230,8 @@
 		<Usable/>
 		<BagType>1</BagType>
 		<MpCost>65</MpCost>
-		<Activate effect="Healing" duration="3" range="4.5" color="0xff0080" target="player" center="player" visualEffect="5" useWisMod="true">GenericActivate</Activate>
-		<Activate effect="Damaging" duration="3" range="4.5" color="0xff0080" target="player" center="player" visualEffect="0" useWisMod="true">GenericActivate</Activate>
+		<Activate effect="Healing" duration="3" range="5" color="0xff0080" target="player" center="player" visualEffect="5" useWisMod="true">GenericActivate</Activate>
+		<Activate effect="Damaging" duration="3" range="5" color="0xff0080" target="player" center="player" visualEffect="0" useWisMod="true">GenericActivate</Activate>
 		<feedPower>10</feedPower>
 		<DropTradable/>
 	</Object>
@@ -5249,9 +5249,9 @@
 		<Usable/>
 		<BagType>1</BagType>
 		<MpCost>70</MpCost>
-		<Activate stat="0" amount="10" duration="3" range="4.5" noStack="true" useWisMod="true">StatBoostAura</Activate>
-		<Activate effect="Healing" duration="3" range="4.5" color="0xff0080" target="player" center="player" visualEffect="5" useWisMod="true">GenericActivate</Activate>
-		<Activate effect="Damaging" duration="3" range="4.5" color="0xff0080" target="player" center="player" visualEffect="0" useWisMod="true">GenericActivate</Activate>
+		<Activate stat="0" amount="10" duration="3" range="5.5" noStack="true" useWisMod="true">StatBoostAura</Activate>
+		<Activate effect="Healing" duration="3" range="5.5" color="0xff0080" target="player" center="player" visualEffect="5" useWisMod="true">GenericActivate</Activate>
+		<Activate effect="Damaging" duration="3" range="5.5" color="0xff0080" target="player" center="player" visualEffect="0" useWisMod="true">GenericActivate</Activate>
 		<ActivateOnEquip stat="28" amount="2">IncrementStat</ActivateOnEquip>
 		<feedPower>20</feedPower>
 		<DropTradable/>
@@ -5271,9 +5271,9 @@
 		<BagType>2</BagType>
 		<FameBonus>1</FameBonus>
 		<MpCost>75</MpCost>
-		<Activate stat="0" amount="25" duration="3.5" range="4.5" noStack="true" useWisMod="true">StatBoostAura</Activate>
-		<Activate effect="Healing" duration="3.5" range="4.5" color="0xff0080" target="player" center="player" visualEffect="5" useWisMod="true">GenericActivate</Activate>
-		<Activate effect="Damaging" duration="3.5" range="4.5" color="0xff0080" target="player" center="player" visualEffect="0" useWisMod="true">GenericActivate</Activate>
+		<Activate stat="0" amount="25" duration="3.5" range="5.5" noStack="true" useWisMod="true">StatBoostAura</Activate>
+		<Activate effect="Healing" duration="3.5" range="5.5" color="0xff0080" target="player" center="player" visualEffect="5" useWisMod="true">GenericActivate</Activate>
+		<Activate effect="Damaging" duration="3.5" range="5.5" color="0xff0080" target="player" center="player" visualEffect="0" useWisMod="true">GenericActivate</Activate>
 		<ActivateOnEquip stat="28" amount="2">IncrementStat</ActivateOnEquip>
 		<feedPower>45</feedPower>
 		<DropTradable/>
@@ -5293,9 +5293,9 @@
 		<BagType>2</BagType>
 		<FameBonus>2</FameBonus>
 		<MpCost>80</MpCost>
-		<Activate stat="0" amount="45" duration="3.5" range="4.5" noStack="true" useWisMod="true">StatBoostAura</Activate>
-		<Activate effect="Healing" duration="3.5" range="4.5" color="0xff0080" target="player" center="player" visualEffect="5" useWisMod="true">GenericActivate</Activate>
-		<Activate effect="Damaging" duration="3.5" range="4.5" color="0xff0080" target="player" center="player" visualEffect="0" useWisMod="true">GenericActivate</Activate>
+		<Activate stat="0" amount="45" duration="3.5" range="6" noStack="true" useWisMod="true">StatBoostAura</Activate>
+		<Activate effect="Healing" duration="3.5" range="6" color="0xff0080" target="player" center="player" visualEffect="5" useWisMod="true">GenericActivate</Activate>
+		<Activate effect="Damaging" duration="3.5" range="6" color="0xff0080" target="player" center="player" visualEffect="0" useWisMod="true">GenericActivate</Activate>
 		<ActivateOnEquip stat="28" amount="3">IncrementStat</ActivateOnEquip>
 		<feedPower>90</feedPower>
 		<DropTradable/>
@@ -5315,9 +5315,9 @@
 		<BagType>4</BagType>
 		<FameBonus>3</FameBonus>
 		<MpCost>85</MpCost>
-		<Activate stat="0" amount="55" duration="4" range="4.5" noStack="true" useWisMod="true">StatBoostAura</Activate>
-		<Activate effect="Healing" duration="4" range="4.5" color="0xff0080" target="player" center="player" visualEffect="5" useWisMod="true">GenericActivate</Activate>
-		<Activate effect="Damaging" duration="4" range="4.5" color="0xff0080" target="player" center="player" visualEffect="0" useWisMod="true">GenericActivate</Activate>
+		<Activate stat="0" amount="55" duration="4" range="6" noStack="true" useWisMod="true">StatBoostAura</Activate>
+		<Activate effect="Healing" duration="4" range="6" color="0xff0080" target="player" center="player" visualEffect="5" useWisMod="true">GenericActivate</Activate>
+		<Activate effect="Damaging" duration="4" range="6" color="0xff0080" target="player" center="player" visualEffect="0" useWisMod="true">GenericActivate</Activate>
 		<ActivateOnEquip stat="28" amount="3">IncrementStat</ActivateOnEquip>
 		<feedPower>185</feedPower>
 	</Object>
@@ -5336,9 +5336,9 @@
 		<BagType>4</BagType>
 		<FameBonus>4</FameBonus>
 		<MpCost>90</MpCost>
-		<Activate stat="0" amount="75" duration="4" range="4.5" noStack="true" useWisMod="true">StatBoostAura</Activate>
-		<Activate effect="Healing" duration="4" range="4.5" color="0xff0080" target="player" center="player" visualEffect="5" useWisMod="true">GenericActivate</Activate>
-		<Activate effect="Damaging" duration="4" range="4.5" color="0xff0080" target="player" center="player" visualEffect="0" useWisMod="true">GenericActivate</Activate>
+		<Activate stat="0" amount="75" duration="4" range="6.5" noStack="true" useWisMod="true">StatBoostAura</Activate>
+		<Activate effect="Healing" duration="4" range="6.5" color="0xff0080" target="player" center="player" visualEffect="5" useWisMod="true">GenericActivate</Activate>
+		<Activate effect="Damaging" duration="4" range="6.5" color="0xff0080" target="player" center="player" visualEffect="0" useWisMod="true">GenericActivate</Activate>
 		<ActivateOnEquip stat="28" amount="4">IncrementStat</ActivateOnEquip>
 		<ActivateOnEquip stat="0" amount="20">IncrementStat</ActivateOnEquip>
 		<ActivateOnEquip stat="3" amount="20">IncrementStat</ActivateOnEquip>
@@ -5360,8 +5360,8 @@
 		<BagType>6</BagType>
 		<FameBonus>6</FameBonus>
 		<MpCost>120</MpCost>
-		<Activate effect="Healing" duration="5" range="5" useWisMod="true">ConditionEffectAura</Activate>
-		<Activate effect="Damaging" duration="5" range="5" useWisMod="true">ConditionEffectAura</Activate>
+		<Activate effect="Healing" duration="5" range="6.5" useWisMod="true">ConditionEffectAura</Activate>
+		<Activate effect="Damaging" duration="5" range="6.5" useWisMod="true">ConditionEffectAura</Activate>
 		<Activate effect="Invulnerable" duration="1.2" useWisMod="true">ConditionEffectSelf</Activate>
 		<Cooldown>5</Cooldown>
 		<feedPower>900</feedPower>
@@ -6092,7 +6092,7 @@
 		<Usable/>
 		<BagType>1</BagType>
 		<MpCost>55</MpCost>
-		<Activate effect="Berserk" duration="3" range="4">ConditionEffectAura</Activate>
+		<Activate effect="Berserk" duration="3" range="6">ConditionEffectAura</Activate>
 		<Activate effect="Speedy" duration="3">ConditionEffectSelf</Activate>
 		<feedPower>5</feedPower>
 		<DropTradable/>
@@ -6111,7 +6111,7 @@
 		<Usable/>
 		<BagType>1</BagType>
 		<MpCost>65</MpCost>
-		<Activate effect="Berserk" duration="3.5" range="4">ConditionEffectAura</Activate>
+		<Activate effect="Berserk" duration="3.5" range="6">ConditionEffectAura</Activate>
 		<Activate effect="Speedy" duration="3.5">ConditionEffectSelf</Activate>
 		<feedPower>10</feedPower>
 		<DropTradable/>
@@ -6130,7 +6130,7 @@
 		<Usable/>
 		<BagType>1</BagType>
 		<MpCost>70</MpCost>
-		<Activate effect="Berserk" duration="4" range="4">ConditionEffectAura</Activate>
+		<Activate effect="Berserk" duration="4" range="6.5">ConditionEffectAura</Activate>
 		<Activate effect="Speedy" duration="4">ConditionEffectSelf</Activate>
 		<feedPower>20</feedPower>
 		<DropTradable/>
@@ -6150,7 +6150,7 @@
 		<BagType>2</BagType>
 		<FameBonus>1</FameBonus>
 		<MpCost>75</MpCost>
-		<Activate effect="Berserk" duration="4.5" range="4">ConditionEffectAura</Activate>
+		<Activate effect="Berserk" duration="4.5" range="6.5">ConditionEffectAura</Activate>
 		<Activate effect="Speedy" duration="4.5">ConditionEffectSelf</Activate>
 		<feedPower>45</feedPower>
 		<DropTradable/>
@@ -6170,7 +6170,7 @@
 		<BagType>2</BagType>
 		<FameBonus>2</FameBonus>
 		<MpCost>80</MpCost>
-		<Activate effect="Berserk" duration="5" range="4">ConditionEffectAura</Activate>
+		<Activate effect="Berserk" duration="5" range="7">ConditionEffectAura</Activate>
 		<Activate effect="Speedy" duration="5">ConditionEffectSelf</Activate>
 		<feedPower>90</feedPower>
 		<DropTradable/>
@@ -6190,7 +6190,7 @@
 		<BagType>4</BagType>
 		<FameBonus>3</FameBonus>
 		<MpCost>85</MpCost>
-		<Activate effect="Berserk" duration="5.5" range="4">ConditionEffectAura</Activate>
+		<Activate effect="Berserk" duration="5.5" range="7">ConditionEffectAura</Activate>
 		<Activate effect="Speedy" duration="5.5">ConditionEffectSelf</Activate>
 		<feedPower>185</feedPower>
 	</Object>
@@ -6211,7 +6211,7 @@
 		<BagType>4</BagType>
 		<FameBonus>4</FameBonus>
 		<MpCost>85</MpCost>
-		<Activate effect="Berserk" duration="6" range="4">ConditionEffectAura</Activate>
+		<Activate effect="Berserk" duration="6" range="7.5">ConditionEffectAura</Activate>
 		<Activate effect="Speedy" duration="6">ConditionEffectSelf</Activate>
 		<feedPower>380</feedPower>
 	</Object>
@@ -6230,7 +6230,7 @@
 		<BagType>6</BagType>
 		<FameBonus>6</FameBonus>
 		<MpCost>90</MpCost>
-		<Activate effect="Berserk" duration="4.5" range="4">ConditionEffectAura</Activate>
+		<Activate effect="Berserk" duration="4.5" range="7">ConditionEffectAura</Activate>
 		<Activate effect="Armored" duration="4.5">ConditionEffectSelf</Activate>
 		<Cooldown>6</Cooldown>
 		<feedPower>1250</feedPower>
@@ -7981,9 +7981,9 @@
 		<BagType>6</BagType>
 		<FameBonus>6</FameBonus>
 		<MpCost>120</MpCost>
-		<Activate amount="200" range="6" useWisMod="true">HealNova</Activate>
+		<Activate amount="200" range="6.5" useWisMod="true">HealNova</Activate>
 		<Activate effect="Armored" duration="4" useWisMod="true">ConditionEffectSelf</Activate>
-		<Activate effect="Healing" duration="6" range="5" useWisMod="true">ConditionEffectAura</Activate>
+		<Activate effect="Healing" duration="6" range="6.5" useWisMod="true">ConditionEffectAura</Activate>
 		<feedPower>1250</feedPower>
 		<Soulbound/>
 	</Object>
@@ -8003,9 +8003,9 @@
 		<BagType>6</BagType>
 		<FameBonus>6</FameBonus>
 		<MpCost>120</MpCost>
-		<Activate amount="200" range="6" useWisMod="true">HealNova</Activate>
-		<Activate range="6" effect="Speedy" checkExistingEffect="Hexed">ClearConditionEffectAura</Activate>
-		<Activate range="6">RemoveNegativeConditions</Activate>
+		<Activate amount="200" range="6.5" useWisMod="true">HealNova</Activate>
+		<Activate range="7" effect="Speedy" checkExistingEffect="Hexed">ClearConditionEffectAura</Activate>
+		<Activate range="7">RemoveNegativeConditions</Activate>
 		<feedPower>950</feedPower>
 		<Soulbound/>
 	</Object>
@@ -12221,11 +12221,11 @@
 		<BagType>8</BagType>
 		<FameBonus>4</FameBonus>
 		<MpCost>120</MpCost>
-		<Activate effect="Healing" duration="3" range="5" useWisMod="true">ConditionEffectAura</Activate>
+		<Activate effect="Healing" duration="3" range="6.5" useWisMod="true">ConditionEffectAura</Activate>
 		<Activate effect="Speedy" duration="1.5" useWisMod="true">ConditionEffectSelf</Activate>
-		<Activate amount="90" range="5" useWisMod="true">HealNova</Activate>
-		<Activate range="5" effect="Speedy" checkExistingEffect="Hexed">ClearConditionEffectAura</Activate>
-		<Activate range="5">RemoveNegativeConditions</Activate>
+		<Activate amount="90" range="6.5" useWisMod="true">HealNova</Activate>
+		<Activate range="7" effect="Speedy" checkExistingEffect="Hexed">ClearConditionEffectAura</Activate>
+		<Activate range="7">RemoveNegativeConditions</Activate>
 		<feedPower>800</feedPower>
 	</Object>
 	<Object type="0x235F" id="PriestST0" setType="0x0002" setName="Priest of Geb Set">
@@ -12386,7 +12386,7 @@
 		<ActivateOnEquip stat="20" amount="2">IncrementStat</ActivateOnEquip>
 		<ActivateOnEquip stat="26" amount="5">IncrementStat</ActivateOnEquip>
 		<ActivateOnEquip stat="27" amount="5">IncrementStat</ActivateOnEquip>
-		<Activate stat="0" amount="60" duration="4" range="4.5" noStack="true" useWisMod="true">StatBoostAura</Activate>
+		<Activate stat="0" amount="60" duration="4" range="6.5" noStack="true" useWisMod="true">StatBoostAura</Activate>
 		<Activate effect="Slowed" duration="2" range="4.5" color="0xff0080" target="enemy" center="player" visualEffect="0" useWisMod="true">GenericActivate</Activate>
 		<Activate effect="Hallucinating" duration="1" useWisMod="false">ConditionEffectSelf</Activate>
 		<Usable/>
@@ -13828,7 +13828,7 @@
 		<BagType>6</BagType>
 		<FameBonus>6</FameBonus>
 		<MpCost>120</MpCost>
-		<Activate amount="200" range="6" useWisMod="true">HealNova</Activate>
+		<Activate amount="200" range="6.5" useWisMod="true">HealNova</Activate>
 		<Activate effect="Armored" duration="4" useWisMod="true">ConditionEffectSelf</Activate>
 		<feedPower>1250</feedPower>
 		<Soulbound/>
@@ -14641,7 +14641,7 @@
 		<MpCost>80</MpCost>
 		<ActivateOnEquip stat="21" amount="6">IncrementStat</ActivateOnEquip>
 		<ActivateOnEquip stat="22" amount="6">IncrementStat</ActivateOnEquip>
-		<Activate effect="Berserk" duration="6" range="4">ConditionEffectAura</Activate>
+		<Activate effect="Berserk" duration="6" range="7">ConditionEffectAura</Activate>
 		<ExtraTooltipData>
 			<EffectInfo name="" description="Summon 3 bees to aid you in combat for 6 seconds"/>
 			<EffectInfo name="Bee Attack" description="120 damage every 0.6 seconds"/>
@@ -16292,7 +16292,7 @@
 		<BagType>6</BagType>
 		<FameBonus>8</FameBonus>
 		<MpCost>90</MpCost>
-		<Activate effect="Berserk" duration="4.5" range="4">ConditionEffectAura</Activate>
+		<Activate effect="Berserk" duration="4.5" range="7">ConditionEffectAura</Activate>
 		<Activate effect="Armored" duration="4.5">ConditionEffectSelf</Activate>
 		<Cooldown>6</Cooldown>
 		<feedPower>2500</feedPower>
@@ -16536,7 +16536,7 @@
 		<BagType>6</BagType>
 		<FameBonus>6</FameBonus>
 		<MpCost>95</MpCost>
-		<Activate amount="120" damage="400" range="4" useWisMod="true" color="0xE28A8A">HealNova</Activate>
+		<Activate amount="120" damage="400" range="6.5" useWisMod="true" color="0xE28A8A">HealNova</Activate>
 		<feedPower>750</feedPower>
 		<Soulbound/>
 	</Object>
@@ -16642,7 +16642,7 @@
 		<BagType>4</BagType>
 		<FameBonus>4</FameBonus>
 		<MpCost>85</MpCost>
-		<Activate effect="Berserk" duration="6" range="4">ConditionEffectAura</Activate>
+		<Activate effect="Berserk" duration="6" range="7">ConditionEffectAura</Activate>
 		<Activate effect="Speedy" duration="6">ConditionEffectSelf</Activate>
 		<Cooldown>7</Cooldown>
 		<feedPower>380</feedPower>
@@ -16812,8 +16812,8 @@
 		<BagType>4</BagType>
 		<FameBonus>4</FameBonus>
 		<MpCost>85</MpCost>
-		<Activate effect="Healing" duration="6" range="5" useWisMod="true">ConditionEffectAura</Activate>
-		<Activate range="5" amount="200" useWisMod="true">HealNova</Activate>
+		<Activate effect="Healing" duration="6" range="6.5" useWisMod="true">ConditionEffectAura</Activate>
+		<Activate range="6.5" amount="200" useWisMod="true">HealNova</Activate>
 		<Activate effect="Speedy" duration="1.5" useWisMod="true">ConditionEffectSelf</Activate>
 		<ActivateOnEquip stat="26" amount="6">IncrementStat</ActivateOnEquip>
 		<ActivateOnEquip stat="0" amount="20">IncrementStat</ActivateOnEquip>
@@ -16875,9 +16875,9 @@
 		<BagType>4</BagType>
 		<FameBonus>4</FameBonus>
 		<MpCost>90</MpCost>
-		<Activate stat="0" amount="75" duration="4" range="4.5" noStack="true" useWisMod="true">StatBoostAura</Activate>
-		<Activate effect="Healing" duration="4" range="4.5" color="0xff0080" target="player" center="player" visualEffect="5" useWisMod="true">GenericActivate</Activate>
-		<Activate effect="Damaging" duration="4" range="4.5" color="0xff0080" target="player" center="player" visualEffect="0" useWisMod="true">GenericActivate</Activate>
+		<Activate stat="0" amount="75" duration="4" range="6.5" noStack="true" useWisMod="true">StatBoostAura</Activate>
+		<Activate effect="Healing" duration="4" range="6.5" color="0xff0080" target="player" center="player" visualEffect="5" useWisMod="true">GenericActivate</Activate>
+		<Activate effect="Damaging" duration="4" range="6.5" color="0xff0080" target="player" center="player" visualEffect="0" useWisMod="true">GenericActivate</Activate>
 		<ActivateOnEquip stat="28" amount="4">IncrementStat</ActivateOnEquip>
 		<ActivateOnEquip stat="0" amount="20">IncrementStat</ActivateOnEquip>
 		<ActivateOnEquip stat="3" amount="20">IncrementStat</ActivateOnEquip>
@@ -20029,7 +20029,7 @@
 		<BagType>6</BagType>
 		<FameBonus>6</FameBonus>
 		<MpCost>120</MpCost>
-		<Activate amount="135" range="4" useWisMod="true">HealNova</Activate>
+		<Activate amount="135" range="6.5" useWisMod="true">HealNova</Activate>
 		<Activate stat="28" amount="15" duration="3.5">StatBoostSelf</Activate>
 		<feedPower>950</feedPower>
 		<Soulbound/>
@@ -20074,9 +20074,9 @@
 		<BagType>6</BagType>
 		<FameBonus>6</FameBonus>
 		<MpCost>120</MpCost>
-		<Activate stat="3" amount="30" duration="4" range="3.5" noStack="true" useWisMod="true">StatBoostAura</Activate>
-		<Activate stat="27" amount="15" duration="4" range="3.5" noStack="true" useWisMod="true">StatBoostAura</Activate>
-		<Activate effect="Healing" duration="4" range="3.5" color="0xff0080" target="player" center="player" visualEffect="5" useWisMod="true">GenericActivate</Activate>
+		<Activate stat="3" amount="30" duration="4" range="6.5" noStack="true" useWisMod="true">StatBoostAura</Activate>
+		<Activate stat="27" amount="15" duration="4" range="6.5" noStack="true" useWisMod="true">StatBoostAura</Activate>
+		<Activate effect="Healing" duration="4" range="6.5" color="0xff0080" target="player" center="player" visualEffect="5" useWisMod="true">GenericActivate</Activate>
 		<Cooldown>5</Cooldown>
 		<feedPower>1000</feedPower>
 		<Soulbound/>
@@ -21259,7 +21259,7 @@
 		<BagType>6</BagType>
 		<FameBonus>5</FameBonus>
 		<MpCost>100</MpCost>
-		<Activate amount="160" range="4.5" useWisMod="true">HealNova</Activate>
+		<Activate amount="160" range="6.5" useWisMod="true">HealNova</Activate>
 		<Activate duration="4" effect="Curse" useWisMod="false">ConditionEffectSelf</Activate>
 		<Activate center="player" color="0x8B0000" duration="4" effect="Curse" range="5" target="enemy">GenericActivate</Activate>
 		<feedPower>700</feedPower>
@@ -21281,9 +21281,9 @@
 		<BagType>6</BagType>
 		<FameBonus>5</FameBonus>
 		<MpCost>200</MpCost>
-		<Activate amount="34" duration="5" noStack="true" range="3" stat="3" useWisMod="true">StatBoostAura</Activate>
-		<Activate amount="15" duration="5" noStack="true" range="3" stat="27" useWisMod="true">StatBoostAura</Activate>
-		<Activate center="player" color="0xff0080" duration="3" effect="Healing" range="5" target="player" useWisMod="true" visualEffect="5">GenericActivate</Activate>
+		<Activate amount="34" duration="5" noStack="true" range="6.5" stat="3" useWisMod="true">StatBoostAura</Activate>
+		<Activate amount="15" duration="5" noStack="true" range="6.5" stat="27" useWisMod="true">StatBoostAura</Activate>
+		<Activate center="player" color="0xff0080" duration="3" effect="Healing" range="6.5" target="player" useWisMod="true" visualEffect="5">GenericActivate</Activate>
 		<Cooldown>5</Cooldown>
 		<feedPower>800</feedPower>
 		<Soulbound/>
@@ -21513,7 +21513,7 @@
 		<ActivateOnEquip stat="21" amount="5">IncrementStat</ActivateOnEquip>
 		<ActivateOnEquip stat="20" amount="9">IncrementStat</ActivateOnEquip>
 		<ActivateOnEquip stat="27" amount="9">IncrementStat</ActivateOnEquip>
-		<Activate effect="Damaging" duration="4" range="4.5" color="0xff0080" target="player" center="player" visualEffect="-1" useWisMod="true">GenericActivate</Activate>
+		<Activate effect="Damaging" duration="4" range="6.5" color="0xff0080" target="player" center="player" visualEffect="-1" useWisMod="true">GenericActivate</Activate>
 		<Activate stat="21" amount="15" duration="4">StatBoostSelf</Activate>
 		<Activate stat="22" amount="-15" duration="4">StatBoostSelf</Activate>
 		<Usable/>
@@ -23149,7 +23149,7 @@
 		<ActivateOnEquip stat="21" amount="5">IncrementStat</ActivateOnEquip>
 		<ActivateOnEquip stat="20" amount="9">IncrementStat</ActivateOnEquip>
 		<ActivateOnEquip stat="27" amount="9">IncrementStat</ActivateOnEquip>
-		<Activate effect="Damaging" duration="4" range="4.5" color="0xff0080" target="player" center="player" visualEffect="-1" useWisMod="true">GenericActivate</Activate>
+		<Activate effect="Damaging" duration="4" range="6.5" color="0xff0080" target="player" center="player" visualEffect="-1" useWisMod="true">GenericActivate</Activate>
 		<Activate stat="21" amount="15" duration="4">StatBoostSelf</Activate>
 		<Activate stat="22" amount="-15" duration="4">StatBoostSelf</Activate>
 		<Usable/>
@@ -23991,7 +23991,7 @@
 		<Activate amount="20" duration="3" stat="20">StatBoostSelf</Activate>
 		<Activate amount="-5" duration="3" stat="21">StatBoostSelf</Activate>
 		<OnPlayerHitActivate cooldown="0" duration="2" effect="Drunk" damageThreshold="50" proc="0.01">ConditionEffectSelf</OnPlayerHitActivate>
-		<Activate amount="100" range="5" useWisMod="true">HealNova</Activate>
+		<Activate amount="100" range="6.5" useWisMod="true">HealNova</Activate>
 		<feedPower>1200</feedPower>
 		<Soulbound/>
 	</Object>
@@ -24204,7 +24204,7 @@
 		</ExtraTooltipData>
 		<OnPlayerHitActivate arcGap="14" cooldown="6" damageThreshold="60" gapAngle="0" gapTiles="0" maxDistance="4" minDistance="4" numShots="8" offsetAngle="0" proc="1" type="0x21e0">BulletCreate</OnPlayerHitActivate>
 		<ActivateOnEquip stat="21" amount="7">IncrementStat</ActivateOnEquip>
-		<Activate duration="4" effect="Berserk" range="5">ConditionEffectAura</Activate>
+		<Activate duration="4" effect="Berserk" range="7">ConditionEffectAura</Activate>
 		<Activate duration="4" effect="Speedy">ConditionEffectSelf</Activate>
 		<Cooldown>5</Cooldown>
 		<Usable/>
@@ -25591,9 +25591,9 @@
 		<BagType>6</BagType>
 		<FameBonus>7</FameBonus>
 		<MpCost>120</MpCost>
-		<Activate amount="200" range="6" useWisMod="true" color="0xf8a4d8">HealNova</Activate>
-		<Activate range="6" effect="Speedy" checkExistingEffect="Hexed">ClearConditionEffectAura</Activate>
-		<Activate range="6">RemoveNegativeConditions</Activate>
+		<Activate amount="200" range="6.5" useWisMod="true" color="0xf8a4d8">HealNova</Activate>
+		<Activate range="7" effect="Speedy" checkExistingEffect="Hexed">ClearConditionEffectAura</Activate>
+		<Activate range="7">RemoveNegativeConditions</Activate>
 		<feedPower>900</feedPower>
 		<Soulbound/>
 	</Object>
@@ -25758,7 +25758,7 @@
 		<SlotType>16</SlotType>
 		<Admin/>
 		<Activate ignoreOnTooltip="true" center="player" visualEffect="27" color="0xffdf00">GenericActivate</Activate>
-		<Activate effect="Berserk" duration="4.5" range="4" color="-1">ConditionEffectAura</Activate>
+		<Activate effect="Berserk" duration="4.5" range="7" color="-1">ConditionEffectAura</Activate>
 		<Activate effect="Armored" duration="4.5" color="-1">ConditionEffectSelf</Activate>
 		<Description>This helm was forged of metal that fell from the sky.  It is strangely light and emits a faint hum.</Description>
 		<ActivateOnEquip stat="21" amount="10">IncrementStat</ActivateOnEquip>
@@ -25781,7 +25781,7 @@
 		<SlotType>16</SlotType>
 		<Admin/>
 		<Activate ignoreOnTooltip="true" center="player" visualEffect="28" color="0xffdf00">GenericActivate</Activate>
-		<Activate effect="Berserk" duration="4.5" range="4" color="-1">ConditionEffectAura</Activate>
+		<Activate effect="Berserk" duration="4.5" range="7" color="-1">ConditionEffectAura</Activate>
 		<Activate effect="Armored" duration="4.5" color="-1">ConditionEffectSelf</Activate>
 		<Description>This helm was forged of metal that fell from the sky.  It is strangely light and emits a faint hum.</Description>
 		<ActivateOnEquip stat="21" amount="10">IncrementStat</ActivateOnEquip>
@@ -25804,7 +25804,7 @@
 		<SlotType>16</SlotType>
 		<Admin/>
 		<Activate ignoreOnTooltip="true" center="player" visualEffect="29" color="0xffdf00">GenericActivate</Activate>
-		<Activate effect="Berserk" duration="4.5" range="4" color="-1">ConditionEffectAura</Activate>
+		<Activate effect="Berserk" duration="4.5" range="7" color="-1">ConditionEffectAura</Activate>
 		<Activate effect="Armored" duration="4.5" color="-1">ConditionEffectSelf</Activate>
 		<Description>This helm was forged of metal that fell from the sky.  It is strangely light and emits a faint hum.</Description>
 		<ActivateOnEquip stat="21" amount="10">IncrementStat</ActivateOnEquip>
@@ -26309,8 +26309,8 @@
 		<ActivateOnEquip stat="26" amount="7">IncrementStat</ActivateOnEquip>
 		<ActivateOnEquip stat="0" amount="40">IncrementStat</ActivateOnEquip>
 		<ActivateOnEquip stat="3" amount="40">IncrementStat</ActivateOnEquip>
-		<Activate effect="Healing" duration="7" range="5.5" useWisMod="true">ConditionEffectAura</Activate>
-		<Activate range="5.5" amount="220" useWisMod="true">HealNova</Activate>
+		<Activate effect="Healing" duration="7" range="6.5" useWisMod="true">ConditionEffectAura</Activate>
+		<Activate range="6.5" amount="220" useWisMod="true">HealNova</Activate>
 		<Activate effect="Speedy" duration="2.2" useWisMod="true">ConditionEffectSelf</Activate>
 		<Activate stat="20" amount="2" duration="4" noStack="true">StatBoostSelf</Activate>
 		<Activate stat="28" amount="2" duration="4" noStack="true">StatBoostSelf</Activate>
@@ -26395,7 +26395,7 @@
 		<BagType>9</BagType>
 		<FameBonus>5</FameBonus>
 		<MpCost>90</MpCost>
-		<Activate effect="Berserk" duration="6.5" range="4">ConditionEffectAura</Activate>
+		<Activate effect="Berserk" duration="6.5" range="7.5">ConditionEffectAura</Activate>
 		<Activate effect="Speedy" duration="6.5">ConditionEffectSelf</Activate>
 		<Soulbound/>
 		<feedPower>570</feedPower>
@@ -26454,9 +26454,9 @@
 		<ActivateOnEquip stat="28" amount="4">IncrementStat</ActivateOnEquip>
 		<ActivateOnEquip stat="0" amount="40">IncrementStat</ActivateOnEquip>
 		<ActivateOnEquip stat="3" amount="40">IncrementStat</ActivateOnEquip>
-		<Activate stat="0" amount="95" duration="4.5" range="4.5" noStack="true" useWisMod="true">StatBoostAura</Activate>
-		<Activate effect="Healing" duration="4.5" range="4.5" color="0xff0080" target="player" center="player" visualEffect="5" useWisMod="true">GenericActivate</Activate>
-		<Activate effect="Damaging" duration="4.5" range="4.5" color="0xff0080" target="player" center="player" visualEffect="0" useWisMod="true">GenericActivate</Activate>
+		<Activate stat="0" amount="95" duration="4.5" range="6.5" noStack="true" useWisMod="true">StatBoostAura</Activate>
+		<Activate effect="Healing" duration="4.5" range="6.5" color="0xff0080" target="player" center="player" visualEffect="5" useWisMod="true">GenericActivate</Activate>
+		<Activate effect="Damaging" duration="4.5" range="6.5" color="0xff0080" target="player" center="player" visualEffect="0" useWisMod="true">GenericActivate</Activate>
 		<Activate stat="22" amount="2" duration="4.5" noStack="true">StatBoostSelf</Activate>
 		<Soulbound/>
 		<feedPower>570</feedPower>
@@ -26703,8 +26703,8 @@
 		<ActivateOnEquip stat="26" amount="8">IncrementStat</ActivateOnEquip>
 		<ActivateOnEquip stat="0" amount="60">IncrementStat</ActivateOnEquip>
 		<ActivateOnEquip stat="3" amount="60">IncrementStat</ActivateOnEquip>
-		<Activate effect="Healing" duration="8" range="6" useWisMod="true">ConditionEffectAura</Activate>
-		<Activate range="6" amount="240" useWisMod="true">HealNova</Activate>
+		<Activate effect="Healing" duration="8" range="7" useWisMod="true">ConditionEffectAura</Activate>
+		<Activate range="7" amount="240" useWisMod="true">HealNova</Activate>
 		<Activate effect="Speedy" duration="2.2" useWisMod="true">ConditionEffectSelf</Activate>
 		<Activate stat="20" amount="2" duration="4" noStack="true">StatBoostSelf</Activate>
 		<Activate stat="28" amount="2" duration="4" noStack="true">StatBoostSelf</Activate>
@@ -26789,7 +26789,7 @@
 		<BagType>9</BagType>
 		<FameBonus>6</FameBonus>
 		<MpCost>95</MpCost>
-		<Activate effect="Berserk" duration="7" range="4">ConditionEffectAura</Activate>
+		<Activate effect="Berserk" duration="7" range="8">ConditionEffectAura</Activate>
 		<Activate effect="Speedy" duration="7">ConditionEffectSelf</Activate>
 		<Soulbound/>
 		<feedPower>855</feedPower>
@@ -26848,9 +26848,9 @@
 		<ActivateOnEquip stat="28" amount="5">IncrementStat</ActivateOnEquip>
 		<ActivateOnEquip stat="0" amount="60">IncrementStat</ActivateOnEquip>
 		<ActivateOnEquip stat="3" amount="60">IncrementStat</ActivateOnEquip>
-		<Activate stat="0" amount="115" duration="4.5" range="4.5" noStack="true" useWisMod="true">StatBoostAura</Activate>
-		<Activate effect="Healing" duration="4.5" range="4.75" color="0xff0080" target="player" center="player" visualEffect="5" useWisMod="true">GenericActivate</Activate>
-		<Activate effect="Damaging" duration="4.5" range="4.75" color="0xff0080" target="player" center="player" visualEffect="0" useWisMod="true">GenericActivate</Activate>
+		<Activate stat="0" amount="115" duration="4.5" range="7" noStack="true" useWisMod="true">StatBoostAura</Activate>
+		<Activate effect="Healing" duration="4.5" range="7" color="0xff0080" target="player" center="player" visualEffect="5" useWisMod="true">GenericActivate</Activate>
+		<Activate effect="Damaging" duration="4.5" range="7" color="0xff0080" target="player" center="player" visualEffect="0" useWisMod="true">GenericActivate</Activate>
 		<Activate stat="22" amount="4" duration="4.5" noStack="true">StatBoostSelf</Activate>
 		<Soulbound/>
 		<feedPower>855</feedPower>
@@ -27066,7 +27066,7 @@
 		</ExtraTooltipData>
 		<Sound>spell/major_heal</Sound>
 		<Usable/>
-		<Activate duration="3" effect="Inspired" range="4.5">ConditionEffectAura</Activate>
+		<Activate duration="3" effect="Inspired" range="6">ConditionEffectAura</Activate>
 		<Cooldown>4</Cooldown>
 		<BagType>1</BagType>
 		<MpCost>70</MpCost>
@@ -27089,7 +27089,7 @@
 		</ExtraTooltipData>
 		<Sound>spell/major_heal</Sound>
 		<Usable/>
-		<Activate duration="3.5" effect="Inspired" range="4.5">ConditionEffectAura</Activate>
+		<Activate duration="3.5" effect="Inspired" range="6">ConditionEffectAura</Activate>
 		<Cooldown>4.5</Cooldown>
 		<BagType>1</BagType>
 		<MpCost>75</MpCost>
@@ -27112,7 +27112,7 @@
 		</ExtraTooltipData>
 		<Sound>spell/major_heal</Sound>
 		<Usable/>
-		<Activate duration="4" effect="Inspired" range="4.5">ConditionEffectAura</Activate>
+		<Activate duration="4" effect="Inspired" range="6.5">ConditionEffectAura</Activate>
 		<Cooldown>5</Cooldown>
 		<BagType>1</BagType>
 		<MpCost>80</MpCost>
@@ -27135,7 +27135,7 @@
 		</ExtraTooltipData>
 		<Sound>spell/major_heal</Sound>
 		<Usable/>
-		<Activate duration="4.5" effect="Inspired" range="4.5">ConditionEffectAura</Activate>
+		<Activate duration="4.5" effect="Inspired" range="6.5">ConditionEffectAura</Activate>
 		<ActivateOnEquip stat="22" amount="1">IncrementStat</ActivateOnEquip>
 		<Activate stat="21" amount="4" duration="2.5">StatBoostSelf</Activate>
 		<Cooldown>5.5</Cooldown>
@@ -27161,7 +27161,7 @@
 		</ExtraTooltipData>
 		<Sound>spell/major_heal</Sound>
 		<Usable/>
-		<Activate duration="5" effect="Inspired" range="4.5">ConditionEffectAura</Activate>
+		<Activate duration="5" effect="Inspired" range="7">ConditionEffectAura</Activate>
 		<ActivateOnEquip stat="22" amount="2">IncrementStat</ActivateOnEquip>
 		<Activate stat="21" amount="6" duration="3">StatBoostSelf</Activate>
 		<Cooldown>6</Cooldown>
@@ -27187,7 +27187,7 @@
 		</ExtraTooltipData>
 		<Sound>spell/major_heal</Sound>
 		<Usable/>
-		<Activate duration="5.5" effect="Inspired" range="4.5">ConditionEffectAura</Activate>
+		<Activate duration="5.5" effect="Inspired" range="7">ConditionEffectAura</Activate>
 		<ActivateOnEquip stat="22" amount="3">IncrementStat</ActivateOnEquip>
 		<Activate stat="21" amount="8" duration="3.5">StatBoostSelf</Activate>
 		<BagType>4</BagType>
@@ -27212,7 +27212,7 @@
 		</ExtraTooltipData>
 		<Sound>spell/major_heal</Sound>
 		<Usable/>
-		<Activate duration="6" effect="Inspired" range="4.5">ConditionEffectAura</Activate>
+		<Activate duration="6" effect="Inspired" range="7.5">ConditionEffectAura</Activate>
 		<ActivateOnEquip stat="22" amount="4">IncrementStat</ActivateOnEquip>
 		<ActivateOnEquip stat="0" amount="20">IncrementStat</ActivateOnEquip>
 		<ActivateOnEquip stat="3" amount="20">IncrementStat</ActivateOnEquip>
@@ -27239,7 +27239,7 @@
 		</ExtraTooltipData>
 		<Sound>spell/major_heal</Sound>
 		<Usable/>
-		<Activate duration="6.5" effect="Inspired" range="4.5">ConditionEffectAura</Activate>
+		<Activate duration="6.5" effect="Inspired" range="7.5">ConditionEffectAura</Activate>
 		<ActivateOnEquip stat="22" amount="5">IncrementStat</ActivateOnEquip>
 		<ActivateOnEquip stat="0" amount="40">IncrementStat</ActivateOnEquip>
 		<ActivateOnEquip stat="3" amount="40">IncrementStat</ActivateOnEquip>
@@ -27268,7 +27268,7 @@
 		</ExtraTooltipData>
 		<Sound>spell/major_heal</Sound>
 		<Usable/>
-		<Activate duration="7" effect="Inspired" range="4.5">ConditionEffectAura</Activate>
+		<Activate duration="7" effect="Inspired" range="8">ConditionEffectAura</Activate>
 		<ActivateOnEquip stat="22" amount="6">IncrementStat</ActivateOnEquip>
 		<ActivateOnEquip stat="0" amount="60">IncrementStat</ActivateOnEquip>
 		<ActivateOnEquip stat="3" amount="60">IncrementStat</ActivateOnEquip>
@@ -27332,8 +27332,8 @@
 		<OnPlayerAbilityActivate proc="1" mustWear="0x4dfc" cooldown="0.5" center="player" color="0xff0080" duration="4" effect="Healing" range="4" target="player" visualEffect="5">GenericActivate</OnPlayerAbilityActivate>
 		<OnPlayerAbilityActivate proc="1" mustWear="0x4dfb" cooldown="0.5" amount="12" duration="4" noStack="true" stat="21">StatBoostSelf</OnPlayerAbilityActivate>
 		<OnPlayerAbilityActivate proc="1" mustWear="0x4df9" cooldown="0.5" amount="8" duration="4" noStack="true" stat="20">StatBoostSelf</OnPlayerAbilityActivate>
-		<Activate duration="4" effect="Inspired" range="4">ConditionEffectAura</Activate>
-		<Activate range="4" duration="4" stat="0" noStack="true" amount="80">StatBoostAura</Activate>
+		<Activate duration="4" effect="Inspired" range="7">ConditionEffectAura</Activate>
+		<Activate range="7" duration="4" stat="0" noStack="true" amount="80">StatBoostAura</Activate>
 		<Usable/>
 		<BagType>8</BagType>
 		<FameBonus>5</FameBonus>
@@ -27398,7 +27398,7 @@
 		<ActivateOnEquip amount="4" stat="20">IncrementStat</ActivateOnEquip>
 		<ActivateOnEquip amount="4" stat="28">IncrementStat</ActivateOnEquip>
 		<Usable/>
-		<Activate duration="4" effect="Inspired" range="4.5">ConditionEffectAura</Activate>
+		<Activate duration="4" effect="Inspired" range="7">ConditionEffectAura</Activate>
 		<Activate objectId="Concertina Big Parrot" throwTime="0.6">ObjectToss</Activate>
 		<OnPlayerShootActivate cooldown="1" objectId="Concertina Small Parrot" proc="0.05">Pet</OnPlayerShootActivate>
 		<BagType>6</BagType>
@@ -27419,8 +27419,8 @@
 		<Sound>spell/fire_spray</Sound>
 		<ActivateOnEquip amount="7" stat="22">IncrementStat</ActivateOnEquip>
 		<Usable/>
-		<Activate duration="4" effect="Speedy">ConditionEffectSelf</Activate>
-		<Activate stat="21" amount="8" duration="2.5">StatBoostSelf</Activate>
+		<Activate duration="4" effect="Speedy" range="7">ConditionEffectAura</Activate>
+		<Activate stat="21" amount="8" duration="2.5" range="7" noStack="true">StatBoostAura</Activate>
 		<BagType>6</BagType>
 		<FameBonus>4</FameBonus>
 		<MpCost>100</MpCost>
@@ -27447,7 +27447,7 @@
 		<ActivateOnEquip amount="4" stat="21">IncrementStat</ActivateOnEquip>
 		<ActivateOnEquip amount="4" stat="26">IncrementStat</ActivateOnEquip>
 		<Usable/>
-		<Activate duration="5" effect="Inspired" range="4.5">ConditionEffectAura</Activate>
+		<Activate duration="5" effect="Inspired" range="7">ConditionEffectAura</Activate>
 		<Activate objectId="Lullaby Pharaoh Mask">Pet</Activate>
 		<OnPlayerHitActivate proc="1" damageThreshold="50" cooldown="15" effect="Weak" duration="5" range="5" color="0x808080" target="enemy" center="player">GenericActivate</OnPlayerHitActivate>
 		<OnPlayerHitActivate proc="1" damageThreshold="50" cooldown="15" effect="Armored" duration="3">ConditionEffectSelf</OnPlayerHitActivate>
@@ -27742,7 +27742,7 @@
 		</Texture>
 		<Item/>
 		<Usable/>
-		<Activate duration="4" effect="Healing" range="6" useWisMod="true">ConditionEffectAura</Activate>
+		<Activate duration="4" effect="Healing" range="6.5" useWisMod="true">ConditionEffectAura</Activate>
 		<OnPlayerAbilityActivate proc="1" hpRequired="400" objectId="AoOTomeHelperTwo" cooldown="4">Pet</OnPlayerAbilityActivate>
 		<OnPlayerAbilityActivate proc="1" hpMinThreshold="400" objectId="AoOTomeHelper" cooldown="4">Pet</OnPlayerAbilityActivate>
 		<ExtraTooltipData>
@@ -27841,7 +27841,7 @@
 		<Sound>spell/fire_spray</Sound>
 		<Usable/>
 		<Activate objectId="AoOLute Banner">Pet</Activate>
-		<Activate duration="5" effect="Inspired" range="5">ConditionEffectAura</Activate>
+		<Activate duration="5" effect="Inspired" range="7">ConditionEffectAura</Activate>
 		<OnPlayerAbilityActivate proc="1" cooldown="10" center="player" color="0x6e0400" duration="4" effect="Slowed" range="4" target="enemy">GenericActivate</OnPlayerAbilityActivate>
 		<ActivateOnEquip amount="3" stat="21">IncrementStat</ActivateOnEquip>
 		<ActivateOnEquip amount="3" stat="28">IncrementStat</ActivateOnEquip>
@@ -27871,7 +27871,7 @@
 		<BagType>6</BagType>
 		<FameBonus>5</FameBonus>
 		<MpCost>110</MpCost>
-		<Activate center="player" color="0xff0080" duration="5" effect="Damaging" range="5.5" target="player" useWisMod="false" visualEffect="0">GenericActivate</Activate>
+		<Activate center="player" color="0xff0080" duration="5" effect="Damaging" range="7" target="player" useWisMod="false" visualEffect="0">GenericActivate</Activate>
 		<OnPlayerAbilityActivate proc="1" hpMinThreshold="400" cooldown="3" color="-1" duration="3" effect="Armored">ConditionEffectSelf</OnPlayerAbilityActivate>
 		<OnPlayerAbilityActivate proc="1" hpRequired="400" cooldown="3" amount="150" duration="0.4" stat="20">StatBoostSelf</OnPlayerAbilityActivate>
 		<Cooldown>3.0</Cooldown>
@@ -27896,7 +27896,7 @@
 		<OnPlayerAbilityActivate color="0x0f0f0f" damage="1000" proc="0.25" range="5">HealNova</OnPlayerAbilityActivate>
 		<Activate amount="30" duration="3" stat="28">StatBoostSelf</Activate>
 		<Activate amount="-15" duration="6" stat="20">StatBoostSelf</Activate>
-		<Activate duration="5.5" effect="Berserk" range="5">ConditionEffectAura</Activate>
+		<Activate duration="5.5" effect="Berserk" range="7">ConditionEffectAura</Activate>
 		<MpCost>95</MpCost>
 		<Cooldown>6.5</Cooldown>
 		<BagType>6</BagType>
@@ -28217,7 +28217,7 @@
 		<ActivateOnEquip stat="26" amount="6">IncrementStat</ActivateOnEquip>
 		<ActivateOnEquip stat="0" amount="60">IncrementStat</ActivateOnEquip>
 		<Activate objectId="Chaotic Scripture Effect" throwTime="0">ObjectToss</Activate>
-		<Activate range="6.5" amount="150">HealNova</Activate>
+		<Activate range="7" amount="150">HealNova</Activate>
 		<Usable/>
 		<BagType>6</BagType>
 		<FameBonus>7</FameBonus>
@@ -28671,8 +28671,8 @@
 		<Description>Created to guide the spirits of the desert, this seal has infused itself with their energy over many years. This spiritual energy affects living creatures in unconventional ways compared to normal practices.</Description>
 		<Sound>spell/light_heal</Sound>
 		<Usable/>
-		<Activate amount="20" duration="5" noStack="false" range="5" stat="26" useWisMod="true">StatBoostAura</Activate>
-		<Activate center="player" color="0xff0080" duration="5" effect="Damaging" range="5" target="player" useWisMod="true" visualEffect="0">GenericActivate</Activate>
+		<Activate amount="20" duration="5" noStack="false" range="6.5" stat="26" useWisMod="true">StatBoostAura</Activate>
+		<Activate center="player" color="0xff0080" duration="5" effect="Damaging" range="6.5" target="player" useWisMod="true" visualEffect="0">GenericActivate</Activate>
 		<ActivateOnEquip amount="40" stat="0">IncrementStat</ActivateOnEquip>
 		<ActivateOnEquip amount="3" stat="28">IncrementStat</ActivateOnEquip>
 		<MpCost>70</MpCost>
@@ -28692,7 +28692,7 @@
 		<Description>Decorated with ancient amber, this helmet's idle solitude over many years have caused its abilities to dwindle.</Description>
 		<Usable/>
 		<MpCost>70</MpCost>
-		<Activate duration="5" effect="Berserk" range="5">ConditionEffectAura</Activate>
+		<Activate duration="5" effect="Berserk" range="7">ConditionEffectAura</Activate>
 		<Cooldown>6</Cooldown>
 		<ActivateOnEquip amount="6" stat="21">IncrementStat</ActivateOnEquip>
 		<ActivateOnEquip amount="6" stat="22">IncrementStat</ActivateOnEquip>

@@ -1352,6 +1352,12 @@
    "h": 8
   },
   {
+   "name": "bladesAndT15s8x8",
+   "file": "kabam/rotmg/assets/custom/images/BladesAndT15s8x8.png",
+   "w": 8,
+   "h": 8
+  },
+  {
    "name": "ascendedItems8x8",
    "file": "kabam/rotmg/assets/custom/images/AscendedItems8x8.png",
    "w": 8,
@@ -1362,6 +1368,12 @@
    "file": "kabam/rotmg/assets/custom/images/AscendedItems16x16.png",
    "w": 16,
    "h": 16
+  },
+  {
+   "name": "enthronedRings8x8",
+   "file": "kabam/rotmg/assets/custom/images/EnthronedRings8x8.png",
+   "w": 8,
+   "h": 8
   },
   {
    "name": "uiIcons16x16",

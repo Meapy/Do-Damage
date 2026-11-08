@@ -586,7 +586,8 @@ namespace WorldServer.core.objects
                     TargetObjectId = Id,
                     Color = new ARGB(0x6a0dad), //flash color
                     Pos2 = new Position { X = 1, Y = 1 }, // flash X = period, Y = repeat times
-                    Pos1 = new Position { X = 4, Y = 0 }
+                    // as far as the lute's party buffs reach (it was always 4 tiles)
+                    Pos1 = new Position { X = item.ActivateEffects.Select(e => e.Range).DefaultIfEmpty(0).Max() is var r && r > 0 ? r : 4, Y = 0 }
                 }, this);
             }
 
