@@ -14,7 +14,7 @@ helped** claims its reward. And the realm doesn't have to stop at the goal: ever
 everyone, up to {{v:community_bonus_max}}%.
 
 > **Help a little, share it all.** You don't need to be the best: once you've added the goal's
-> share (a small one, such as two dungeons or twenty gods), you can claim every tier the realm
+> share (a small one, such as three dungeons or 150 gods), you can claim every tier the realm
 > reaches, even the ones reached while you were offline.
 
 ## The Warcaller

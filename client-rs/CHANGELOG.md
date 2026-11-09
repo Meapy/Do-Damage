@@ -12,6 +12,15 @@ Keep each version short: changes go under `### ` group headings (Oryx 5, Arena, 
 on), one line per change players notice, summed up rather than item by item (the wiki has the
 details). Add to a group's line when a change adds to it, rather than adding another line.
 
+## Unreleased
+
+### Community goals
+- The goals are sized for how much the realm really plays: they had been finishing within a day or
+  two, and now take the whole week (Oryx 250 times, 45,000 gods, 1,200 dungeons and so on), with a
+  bigger share needed to claim the rewards. Four new goals can come up: Stronger Together (dungeons
+  cleared in a party), Spoils of the Realm (white bag items), Many Hands (quests claimed) and Roll
+  Call (daily rewards collected).
+
 ## 2.4.8 (2026-11-09)
 
 ### Community goals

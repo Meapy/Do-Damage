@@ -183,7 +183,7 @@ namespace Tests
         public void TiersAreReachedAtTheirShares()
         {
             var oryx = Data.Goal("oryx");
-            Assert.Equal(15, oryx.Goal);
+            Assert.Equal(250, oryx.Goal);
             Assert.Equal(new[] { 4, 8, 12, 15 }, Enumerable.Range(0, 4).Select(t => Data.Threshold(15, t)));
             Assert.Equal(0, Data.Reached(oryx, 15, 3));
             Assert.Equal(1, Data.Reached(oryx, 15, 4));
@@ -195,7 +195,7 @@ namespace Tests
             // what counts: any form of Oryx, not another boss
             Assert.True(oryx.Counts(new QuestEvent(QuestEvents.Kill) { Oryx = true, Boss = true }));
             Assert.False(oryx.Counts(new QuestEvent(QuestEvents.Kill) { Boss = true }));
-            Assert.Equal("Defeat Oryx the Mad God 15 times as a realm, in any of his forms.", oryx.Describe());
+            Assert.Equal("Defeat Oryx the Mad God 250 times as a realm, in any of his forms.", oryx.Describe());
             Assert.Equal("Defeat Oryx the Mad God 20 times as a realm, in any of his forms.", oryx.Describe(20));
         }
 
@@ -268,8 +268,8 @@ namespace Tests
         public void GoalsGrowAfterAnEasyWeekAndShrinkAfterAHardOne()
         {
             var oryx = Data.Goal("oryx");
-            Assert.Equal(15, CommunityData.GoalOf(oryx, 1));
-            Assert.Equal(20, CommunityData.GoalOf(oryx, 1.333));
+            Assert.Equal(250, CommunityData.GoalOf(oryx, 1));
+            Assert.Equal(330, CommunityData.GoalOf(oryx, 1.333));
             // round numbers: whole below 100, two digits above
             Assert.Equal(1100, CommunityData.Nice(1130));
             Assert.Equal(12000, CommunityData.Nice(11_960));
@@ -288,10 +288,10 @@ namespace Tests
             for (var w = 0; w < 30; w++)
             {
                 var goal = CommunityData.GoalOf(oryx, scale);
-                scale = Data.NextScale(scale, 33, goal);
+                scale = Data.NextScale(scale, 550, goal);
             }
             var settled = CommunityData.GoalOf(oryx, scale);
-            Assert.InRange(33.0 / settled, 1.05, 1.35);
+            Assert.InRange(550.0 / settled, 1.05, 1.35);
         }
     }
 }

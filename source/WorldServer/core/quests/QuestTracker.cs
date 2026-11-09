@@ -292,6 +292,12 @@ namespace WorldServer.core.quests
                 // recorded before anything is paid, so a claim is never paid twice
                 Save();
                 Pay(result.Rewards);
+                // the quest book counts these for the achievements itself; the community goals
+                // hear of them here
+                if (kind == CLAIM_QUEST)
+                    community.CommunityGoals.Count(_player, new QuestEvent(QuestEvents.Quest));
+                else if (kind == CLAIM_LOGIN)
+                    community.CommunityGoals.Count(_player, new QuestEvent(QuestEvents.Login));
                 StaticLogger.Instance.Info($"Quests: {_player.Name} {Describe(kind)} {id}: {string.Join(", ", result.Rewards)}");
             }
             _player.Client.SendPacket(new QuestResult() { Success = result.Ok, Message = result.Message });

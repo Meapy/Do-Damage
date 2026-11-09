@@ -6,7 +6,7 @@
     "Tiers: reached at 'tierShares' of the goal and named 'tierNames'. Every account past the minimum claims each tier reached, from the Warcaller by the Nexus spawn; the top 'topCount' contributors claim the 'top' prize too once the goal ends. Past the goal, an Overdrive level ('bonusName') each 'bonusStep' of the goal more, up to 'bonusTiers', each paying the goal's 'bonus'. A goal without 'tiers', 'bonus' or 'top' gives 'defaultTiers', 'defaultBonus' and 'defaultTop'.",
     "Rewards: {\"fame\": n} to the account, {\"item\": \"<id>\", \"count\": n} to the gift chest in the vault, {\"roll\": n} n items drawn from the goal's 'loot' (by 'weight'; each Overdrive level makes the rarer 'rarities' likelier by 'rarityLift', and the top's prize rolls at the highest). A roll of 'announceFrom' or rarer is told to the whole server. Rewards stay claimable 'claimWeeks' weeks after a goal ends. Each goal gives its own (the server warns of two that give the same).",
     "Specials: goals with 'from' and 'until' (UTC days, yyyy-MM-dd, both included) run besides the week's. Give each a new id.",
-    "Sizing: a week's run of a goal is its 'goal' times the goal's scale, fixed when the run begins. When it ends, the scale moves towards the realm ending at 'adapt.target' of the goal: times (done/target)^damping, between 'minStep' and 'maxStep' a run, and within 'minScale' and 'maxScale'. Specials are never scaled.",
+    "Sizing: a week's run of a goal is its 'goal' times the goal's scale, fixed when the run begins. When it ends, the scale moves towards the realm ending at 'adapt.target' of the goal: times (done/target)^damping, between 'minStep' and 'maxStep' a run, and within 'minScale' and 'maxScale'. Specials are never scaled. A scale is kept with the goal it was measured against, so changing a goal here starts its scale again at 1.",
     "Finishing early: a week's goal that reaches its last Overdrive level ends there, and a bonus goal of another group (none of this week's, and if it can, none of last week's or next week's) takes its slot until the weekly reset, as usual. Not with less than 'early.minHours' left. The faster it was finished, the harder things get: its pace over a whole week moves its goal's next run as 'adapt' does, up to 'early.maxStep' at once, and the bonus goal is that many times its usual size, times the heat of the run it replaced, up to 'early.maxHeat', so quick finishes in a row get harder each time until the weekly reset. A bonus run is sized again by its pace when it ends. 'early.enabled' false turns it off."
   ],
   "slots": 3,
@@ -20,8 +20,8 @@
   "rarities": [ "common", "uncommon", "rare", "epic", "legendary", "divine" ],
   "rarityLift": [ 0, 0.1, 0.25, 0.4, 0.6, 0.8 ],
   "announceFrom": "legendary",
-  "adapt": {"enabled": true, "target": 1.2, "damping": 0.5, "minStep": 0.75, "maxStep": 1.35, "minScale": 0.4, "maxScale": 4},
-  "early": {"enabled": true, "minHours": 6, "maxStep": 3, "maxHeat": 8},
+  "adapt": {"enabled": true, "target": 1.2, "damping": 0.5, "minStep": 0.75, "maxStep": 1.35, "minScale": 0.25, "maxScale": 4},
+  "early": {"enabled": true, "minHours": 6, "maxStep": 3, "maxHeat": 4},
   "defaultTiers": [
     [{"fame": 150}],
     [{"fame": 250}, {"item": "Loot Drop Potion"}],
@@ -32,7 +32,7 @@
   "defaultTop": [ {"fame": 1000}, {"item": "Greater Potion of Life"} ],
   "goals": [
     { "id": "oryx", "group": "oryx", "title": "Down with the Mad God", "text": "Defeat Oryx the Mad God {n} times as a realm, in any of his forms.", "icon": "Oryx the Mad God 2",
-      "event": "kill", "filter": {"oryx": true}, "goal": 15,
+      "event": "kill", "filter": {"oryx": true}, "goal": 250,
       "tiers": [
         [{"fame": 200}, {"item": "Shard of the Mad God x5"}],
         [{"fame": 300}, {"item": "Wine Cellar Incantation"}, {"roll": 1}],
@@ -56,7 +56,7 @@
         {"item": "Lil' Oryx Generator", "weight": 0.3, "rarity": "divine"}
       ] },
     { "id": "gods", "group": "gods", "title": "Twilight of the Gods", "text": "Defeat {n} gods in the Godlands together.", "icon": "Medusa",
-      "event": "kill", "filter": {"god": true}, "goal": 1000, "minimum": 20,
+      "event": "kill", "filter": {"god": true}, "goal": 45000, "minimum": 150,
       "tiers": [
         [{"fame": 150}, {"item": "Potion of Defense"}],
         [{"fame": 250}, {"item": "Potion of Attack"}, {"roll": 1}],
@@ -81,7 +81,7 @@
         {"item": "Infernal Potion of Defense", "weight": 0.8, "rarity": "legendary"}
       ] },
     { "id": "events", "group": "events", "title": "Defenders of the Realm", "text": "Defeat {n} realm event bosses together.", "icon": "Lord of the Lost Lands",
-      "event": "kill", "filter": {"realmEvent": true}, "goal": 50, "minimum": 2,
+      "event": "kill", "filter": {"realmEvent": true}, "goal": 4000, "minimum": 10,
       "tiers": [
         [{"fame": 150}, {"item": "Lucky Clover"}],
         [{"fame": 250}, {"item": "Superburger"}, {"roll": 1}],
@@ -105,7 +105,7 @@
         {"item": "Sphinx Generator", "weight": 0.7, "rarity": "legendary"}
       ] },
     { "id": "realms", "group": "realms", "title": "The Realm Breakers", "text": "Close {n} realms, driving Oryx to his castle each time.", "icon": "Wine Cellar Portal",
-      "event": "realmClosed", "goal": 6,
+      "event": "realmClosed", "goal": 75,
       "tiers": [
         [{"fame": 200}, {"item": "Lucky Clover"}],
         [{"fame": 300}, {"item": "Loot Drop Potion"}, {"roll": 1}],
@@ -129,7 +129,7 @@
         {"item": "Lil' Oryx Generator", "weight": 0.25, "rarity": "divine"}
       ] },
     { "id": "dungeons", "group": "dungeons", "title": "Delve Together", "text": "Clear {n} dungeons together.", "icon": "Tomb of the Ancients Portal",
-      "event": "dungeon", "goal": 40, "minimum": 2,
+      "event": "dungeon", "goal": 1200, "minimum": 3,
       "tiers": [
         [{"fame": 150}, {"item": "Snake Pit Key"}],
         [{"fame": 250}, {"item": "Davy's Key"}, {"roll": 1}],
@@ -155,7 +155,7 @@
         {"item": "Horrific Creation Generator", "weight": 0.25, "rarity": "divine"}
       ] },
     { "id": "hard_dungeons", "group": "dungeons", "weight": 0.7, "title": "No Easy Way Out", "text": "Clear {n} Hard or harder dungeons together.", "icon": "Malphas Protector",
-      "event": "dungeon", "filter": {"minDifficulty": 3}, "goal": 12,
+      "event": "dungeon", "filter": {"minDifficulty": 3}, "goal": 600, "minimum": 2,
       "tiers": [
         [{"fame": 200}, {"item": "Abyss of Demons Key"}],
         [{"fame": 300}, {"item": "Greater Potion of Vitality"}, {"roll": 1}],
@@ -179,7 +179,7 @@
         {"item": "Lil' Infernal Oryx Generator", "weight": 0.25, "rarity": "divine"}
       ] },
     { "id": "elder", "group": "elder", "title": "Elder Blood", "text": "Clear {n} Elder dungeons together.", "icon": "Elder Tomb Key",
-      "event": "dungeon", "filter": {"elder": true}, "goal": 6,
+      "event": "dungeon", "filter": {"elder": true}, "goal": 300,
       "tiers": [
         [{"fame": 200}, {"item": "Elder Snake Pit Key"}],
         [{"fame": 300}, {"item": "Loot Tier Potion"}, {"roll": 1}],
@@ -205,7 +205,7 @@
         {"item": "Lil' Ascended Oryx Generator", "weight": 0.25, "rarity": "divine"}
       ] },
     { "id": "monsters", "group": "kill", "title": "Legion's End", "text": "Defeat {n} monsters in realms and dungeons.", "icon": "Skull Shrine",
-      "event": "kill", "goal": 12000, "minimum": 100,
+      "event": "kill", "goal": 200000, "minimum": 800,
       "tiers": [
         [{"fame": 150}, {"item": "Potion of Vitality"}],
         [{"fame": 250}, {"item": "Lucky Clover"}, {"roll": 1}],
@@ -230,7 +230,7 @@
         {"item": "Potion of Maxy", "weight": 0.25, "rarity": "divine"}
       ] },
     { "id": "bosses", "group": "kill", "title": "Trophy Hunters", "text": "Help defeat {n} bosses.", "icon": "Grand Sphinx",
-      "event": "kill", "filter": {"boss": true}, "goal": 150, "minimum": 3,
+      "event": "kill", "filter": {"boss": true}, "goal": 6000, "minimum": 10,
       "tiers": [
         [{"fame": 175}, {"item": "Greater Potion of Dexterity"}],
         [{"fame": 275}, {"item": "Great Coil Snake Generator"}, {"roll": 1}],
@@ -255,7 +255,7 @@
         {"item": "Lil' Celestial Oryx Generator", "weight": 0.25, "rarity": "divine"}
       ] },
     { "id": "cubes", "group": "kill", "weight": 0.6, "title": "Cube Crushers", "text": "Defeat {n} cube monsters.", "icon": "Cube God",
-      "event": "kill", "filter": {"cube": true}, "goal": 150, "minimum": 10,
+      "event": "kill", "filter": {"cube": true}, "goal": 5000, "minimum": 20,
       "tiers": [
         [{"fame": 150}, {"item": "Potion of Wisdom"}],
         [{"fame": 250}, {"item": "Candy of Extreme Wisdom"}, {"roll": 1}],
@@ -279,7 +279,7 @@
         {"item": "Potion of Maxy", "weight": 0.25, "rarity": "divine"}
       ] },
     { "id": "fame", "group": "fame", "title": "Legends of the Realm", "text": "Earn {n} fame on your characters, all of you together.", "icon": "Champions Monument",
-      "event": "fame", "goal": 6000, "minimum": 100,
+      "event": "fame", "goal": 30000, "minimum": 300,
       "tiers": [
         [{"fame": 300}],
         [{"fame": 450}, {"item": "Golden Lucky Clover"}, {"roll": 1}],
@@ -303,7 +303,7 @@
         {"item": "Lil' Celestial Oryx Generator", "weight": 0.25, "rarity": "divine"}
       ] },
     { "id": "potions", "group": "potions", "title": "Strength in Numbers", "text": "Drink {n} stat potions on stats that aren't maxed yet, from your inventory or your potion storage.", "icon": "Potion of Life",
-      "event": "potion", "goal": 60, "minimum": 2,
+      "event": "potion", "goal": 35000, "minimum": 20,
       "tiers": [
         [{"fame": 150}, {"item": "Potion of Life"}],
         [{"fame": 250}, {"item": "Greater Potion of Speed"}, {"roll": 1}],
@@ -329,7 +329,7 @@
         {"item": "Infernal Potion of Dexterity", "weight": 0.6, "rarity": "legendary"}
       ] },
     { "id": "arena", "group": "arena", "title": "Roar of the Crowd", "text": "Clear {n} Arena waves.", "icon": "Arena Leaderboard",
-      "event": "arenaWave", "goal": 60, "minimum": 3,
+      "event": "arenaWave", "goal": 1200, "minimum": 10,
       "tiers": [
         [{"fame": 150}, {"item": "Tincture of Courage"}],
         [{"fame": 250}, {"item": "Effusion of Attack"}, {"roll": 1}],
@@ -354,7 +354,7 @@
         {"item": "Lil' Infernal Oryx Generator", "weight": 0.25, "rarity": "divine"}
       ] },
     { "id": "forge", "group": "forge", "weight": 0.8, "title": "Fires of the Forge", "text": "Forge {n} items at the Divine Forge.", "icon": "Divine Forge",
-      "event": "forge", "goal": 12,
+      "event": "forge", "goal": 350, "minimum": 2,
       "tiers": [
         [{"fame": 175}, {"item": "Shard of the Mad God x10"}],
         [{"fame": 275}, {"item": "Infernal Weapon Shard"}, {"roll": 1}],
@@ -378,7 +378,7 @@
         {"item": "Lil' Ascended Oryx Generator", "weight": 0.6, "rarity": "legendary"}
       ] },
     { "id": "levels", "group": "levels", "weight": 0.6, "title": "Fresh Blood", "text": "Gain {n} character levels.", "icon": "XP Booster 1 hr",
-      "event": "level", "goal": 100, "minimum": 3,
+      "event": "level", "goal": 3000, "minimum": 10,
       "tiers": [
         [{"fame": 125}, {"item": "Lucky Clover"}],
         [{"fame": 200}, {"item": "Potion of Max Level 1"}, {"roll": 1}],
@@ -400,6 +400,100 @@
         {"item": "Potion of Max Level 5", "weight": 1.5, "rarity": "epic"},
         {"item": "Drake Generator", "weight": 3, "rarity": "rare"},
         {"item": "Phoenix Generator", "weight": 0.8, "rarity": "legendary"}
+      ] },
+    { "id": "party", "group": "dungeons", "weight": 0.8, "title": "Stronger Together", "text": "Clear {n} dungeons in a party of two or more.", "icon": "Undead Lair Portal",
+      "event": "dungeon", "filter": {"group": true}, "goal": 500, "minimum": 3,
+      "tiers": [
+        [{"fame": 150}, {"item": "Sprite World Key"}],
+        [{"fame": 250}, {"item": "Ocean Trench Key"}, {"roll": 1}],
+        [{"fame": 400}, {"item": "Mystery Key (Gold)"}],
+        [{"fame": 750}, {"item": "Lost Halls Key"}, {"roll": 2}]
+      ],
+      "bonus": [{"fame": 150}, {"roll": 1}],
+      "top": [{"fame": 1200}, {"item": "Shatters Key"}, {"roll": 3}],
+      "loot": [
+        {"item": "Snake Pit Key", "weight": 14, "rarity": "common"},
+        {"item": "Sprite World Key", "weight": 14, "rarity": "common"},
+        {"item": "Manor Key", "weight": 12, "rarity": "common"},
+        {"item": "Superburger", "weight": 10, "rarity": "common"},
+        {"item": "Davy's Key", "weight": 9, "rarity": "uncommon"},
+        {"item": "Ocean Trench Key", "weight": 8, "rarity": "uncommon"},
+        {"item": "Golden Lucky Clover", "weight": 7, "rarity": "uncommon"},
+        {"item": "Mystery Key (Gold)", "weight": 5, "rarity": "rare"},
+        {"item": "Mountain Temple Key", "weight": 4, "rarity": "rare"},
+        {"item": "Lost Halls Key", "weight": 2.5, "rarity": "epic"},
+        {"item": "Shatters Key", "weight": 2.5, "rarity": "epic"},
+        {"item": "Septavius Generator", "weight": 0.8, "rarity": "legendary"},
+        {"item": "Horrific Creation Generator", "weight": 0.25, "rarity": "divine"}
+      ] },
+    { "id": "whitebags", "group": "loot", "weight": 0.8, "title": "Spoils of the Realm", "text": "Win {n} white bag items, all of you together.", "icon": "Loot Bag 6",
+      "event": "whiteBag", "goal": 300,
+      "tiers": [
+        [{"fame": 175}, {"item": "Loot Drop Potion"}],
+        [{"fame": 275}, {"item": "Loot Tier Potion"}, {"roll": 1}],
+        [{"fame": 425}, {"item": "Golden Lucky Clover"}],
+        [{"fame": 750}, {"item": "Loot Tier Potion", "count": 2}, {"roll": 2}]
+      ],
+      "bonus": [{"fame": 175}, {"roll": 1}],
+      "top": [{"fame": 1300}, {"item": "Mystery ST Chest"}, {"roll": 3}],
+      "loot": [
+        {"item": "Loot Drop Potion", "weight": 18, "rarity": "common"},
+        {"item": "Lucky Clover", "weight": 16, "rarity": "common"},
+        {"item": "Loot Tier Potion", "weight": 14, "rarity": "common"},
+        {"item": "Golden Lucky Clover", "weight": 10, "rarity": "uncommon"},
+        {"item": "Mystery ST Shard x3", "weight": 9, "rarity": "uncommon"},
+        {"item": "Mystery Key (Silver)", "weight": 7, "rarity": "uncommon"},
+        {"item": "Mystery ST Chest", "weight": 5, "rarity": "rare"},
+        {"item": "Mystery Key (Gold)", "weight": 4, "rarity": "rare"},
+        {"item": "Ascended Weapon Shard", "weight": 2, "rarity": "epic"},
+        {"item": "Ascended Armor Shard", "weight": 2, "rarity": "epic"},
+        {"item": "Potion of Maxy", "weight": 0.8, "rarity": "legendary"},
+        {"item": "Lil' Oryx Generator", "weight": 0.25, "rarity": "divine"}
+      ] },
+    { "id": "questers", "group": "quests", "weight": 0.7, "title": "Many Hands", "text": "Claim {n} quests from your quest logs.", "icon": "The Herald",
+      "event": "quest", "goal": 300, "minimum": 3,
+      "tiers": [
+        [{"fame": 150}, {"item": "Lucky Clover"}],
+        [{"fame": 250}, {"item": "Superburger"}, {"roll": 1}],
+        [{"fame": 400}, {"item": "Golden Lucky Clover"}],
+        [{"fame": 700}, {"item": "Mystery Pet Stone (Silver)"}, {"roll": 2}]
+      ],
+      "bonus": [{"fame": 150}, {"roll": 1}],
+      "top": [{"fame": 1200}, {"item": "Mystery Pet Stone (Gold)"}, {"roll": 3}],
+      "loot": [
+        {"item": "Lucky Clover", "weight": 16, "rarity": "common"},
+        {"item": "Superburger", "weight": 14, "rarity": "common"},
+        {"item": "Loot Drop Potion", "weight": 12, "rarity": "common"},
+        {"item": "Potion of Max Level 1", "weight": 10, "rarity": "common"},
+        {"item": "Golden Lucky Clover", "weight": 9, "rarity": "uncommon"},
+        {"item": "Mystery Pet Stone (Silver)", "weight": 7, "rarity": "uncommon"},
+        {"item": "Potion of Max Level 2", "weight": 7, "rarity": "uncommon"},
+        {"item": "Mystery Pet Stone (Gold)", "weight": 4, "rarity": "rare"},
+        {"item": "Mystery ST Chest", "weight": 4, "rarity": "rare"},
+        {"item": "Vault Chest Unlocker", "weight": 2, "rarity": "epic"},
+        {"item": "Char Slot Unlocker", "weight": 1.5, "rarity": "epic"},
+        {"item": "Potion of Maxy", "weight": 0.6, "rarity": "legendary"}
+      ] },
+    { "id": "logins", "group": "logins", "weight": 0.5, "title": "Roll Call", "text": "Collect {n} daily rewards, all of you together.", "icon": "Gift Chest",
+      "event": "login", "goal": 150, "minimum": 3,
+      "tiers": [
+        [{"fame": 100}],
+        [{"fame": 175}, {"item": "Lucky Clover"}],
+        [{"fame": 275}, {"item": "Loot Drop Potion"}],
+        [{"fame": 450}, {"item": "Golden Lucky Clover"}, {"roll": 1}]
+      ],
+      "bonus": [{"fame": 100}, {"roll": 1}],
+      "top": [{"fame": 600}, {"item": "Mystery Pet Stone (Silver)"}, {"roll": 2}],
+      "loot": [
+        {"item": "Lucky Clover", "weight": 18, "rarity": "common"},
+        {"item": "Loot Drop Potion", "weight": 16, "rarity": "common"},
+        {"item": "Superburger", "weight": 12, "rarity": "common"},
+        {"item": "Golden Lucky Clover", "weight": 9, "rarity": "uncommon"},
+        {"item": "Mystery Dye (Clothing)", "weight": 8, "rarity": "uncommon"},
+        {"item": "Mystery Pet Stone (Silver)", "weight": 5, "rarity": "rare"},
+        {"item": "Mystery ST Chest", "weight": 3, "rarity": "rare"},
+        {"item": "Vault Chest Unlocker", "weight": 1.5, "rarity": "epic"},
+        {"item": "Potion of Maxy", "weight": 0.4, "rarity": "legendary"}
       ] }
   ],
   "specials": [  ]
