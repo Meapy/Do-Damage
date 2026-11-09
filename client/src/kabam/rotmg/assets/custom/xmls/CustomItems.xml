@@ -615,8 +615,8 @@
 		<Class>Equipment</Class>
 		<Item/>
 		<Texture>
-			<File>customAssets8x8</File>
-			<Index>0x70</Index>
+			<File>fistsItems8x8</File>
+			<Index>0x00</Index>
 		</Texture>
 		<SlotType>200</SlotType>
 		<Tier>0</Tier>
@@ -640,8 +640,8 @@
 		<Class>Equipment</Class>
 		<Item/>
 		<Texture>
-			<File>customAssets8x8</File>
-			<Index>0x71</Index>
+			<File>fistsItems8x8</File>
+			<Index>0x01</Index>
 		</Texture>
 		<SlotType>200</SlotType>
 		<Tier>1</Tier>
@@ -665,8 +665,8 @@
 		<Class>Equipment</Class>
 		<Item/>
 		<Texture>
-			<File>customAssets8x8</File>
-			<Index>0x72</Index>
+			<File>fistsItems8x8</File>
+			<Index>0x02</Index>
 		</Texture>
 		<SlotType>200</SlotType>
 		<Tier>2</Tier>
@@ -690,8 +690,8 @@
 		<Class>Equipment</Class>
 		<Item/>
 		<Texture>
-			<File>customAssets8x8</File>
-			<Index>0x73</Index>
+			<File>fistsItems8x8</File>
+			<Index>0x03</Index>
 		</Texture>
 		<SlotType>200</SlotType>
 		<Tier>3</Tier>
@@ -715,8 +715,8 @@
 		<Class>Equipment</Class>
 		<Item/>
 		<Texture>
-			<File>customAssets8x8</File>
-			<Index>0x74</Index>
+			<File>fistsItems8x8</File>
+			<Index>0x04</Index>
 		</Texture>
 		<SlotType>200</SlotType>
 		<Tier>4</Tier>
@@ -740,8 +740,8 @@
 		<Class>Equipment</Class>
 		<Item/>
 		<Texture>
-			<File>customAssets8x8</File>
-			<Index>0x75</Index>
+			<File>fistsItems8x8</File>
+			<Index>0x05</Index>
 		</Texture>
 		<SlotType>200</SlotType>
 		<Tier>5</Tier>
@@ -765,8 +765,8 @@
 		<Class>Equipment</Class>
 		<Item/>
 		<Texture>
-			<File>customAssets8x8</File>
-			<Index>0x76</Index>
+			<File>fistsItems8x8</File>
+			<Index>0x06</Index>
 		</Texture>
 		<SlotType>200</SlotType>
 		<Tier>6</Tier>
@@ -790,8 +790,8 @@
 		<Class>Equipment</Class>
 		<Item/>
 		<Texture>
-			<File>customAssets8x8</File>
-			<Index>0x77</Index>
+			<File>fistsItems8x8</File>
+			<Index>0x07</Index>
 		</Texture>
 		<SlotType>200</SlotType>
 		<Tier>7</Tier>
@@ -815,8 +815,8 @@
 		<Class>Equipment</Class>
 		<Item/>
 		<Texture>
-			<File>customAssets8x8</File>
-			<Index>0x78</Index>
+			<File>fistsItems8x8</File>
+			<Index>0x08</Index>
 		</Texture>
 		<SlotType>200</SlotType>
 		<Tier>8</Tier>
@@ -841,8 +841,8 @@
 		<Class>Equipment</Class>
 		<Item/>
 		<Texture>
-			<File>customAssets8x8</File>
-			<Index>0x79</Index>
+			<File>fistsItems8x8</File>
+			<Index>0x09</Index>
 		</Texture>
 		<SlotType>200</SlotType>
 		<Tier>9</Tier>
@@ -867,8 +867,8 @@
 		<Class>Equipment</Class>
 		<Item/>
 		<Texture>
-			<File>customAssets8x8</File>
-			<Index>0x7a</Index>
+			<File>fistsItems8x8</File>
+			<Index>0x0a</Index>
 		</Texture>
 		<SlotType>200</SlotType>
 		<Tier>10</Tier>
@@ -893,8 +893,8 @@
 		<Class>Equipment</Class>
 		<Item/>
 		<Texture>
-			<File>customAssets8x8</File>
-			<Index>0x7b</Index>
+			<File>fistsItems8x8</File>
+			<Index>0x0b</Index>
 		</Texture>
 		<SlotType>200</SlotType>
 		<Tier>11</Tier>
@@ -920,8 +920,8 @@
 		<Class>Equipment</Class>
 		<Item/>
 		<Texture>
-			<File>customAssets8x8</File>
-			<Index>0x7c</Index>
+			<File>fistsItems8x8</File>
+			<Index>0x0c</Index>
 		</Texture>
 		<SlotType>200</SlotType>
 		<Tier>12</Tier>
@@ -948,8 +948,8 @@
 		<Class>Equipment</Class>
 		<Item/>
 		<Texture>
-			<File>customAssets8x8</File>
-			<Index>0x7d</Index>
+			<File>fistsItems8x8</File>
+			<Index>0x0d</Index>
 		</Texture>
 		<SlotType>200</SlotType>
 		<Tier>13</Tier>
@@ -976,8 +976,8 @@
 		<Class>Equipment</Class>
 		<Item/>
 		<Texture>
-			<File>customAssets8x8</File>
-			<Index>0x7e</Index>
+			<File>fistsItems8x8</File>
+			<Index>0x0e</Index>
 		</Texture>
 		<SlotType>200</SlotType>
 		<Tier>14</Tier>
@@ -1175,8 +1175,8 @@
 		<Class>Equipment</Class>
 		<Item/>
 		<Texture>
-			<File>t15Weapons8x8</File>
-			<Index>0x06</Index>
+			<File>fistsItems8x8</File>
+			<Index>0x0f</Index>
 		</Texture>
 		<SlotType>200</SlotType>
 		<Tier>15</Tier>

@@ -18,6 +18,8 @@ details). Add to a group's line when a change adds to it, rather than adding ano
 - New art for the Enthroned gear: the Sword, Dagger, Bow, Wand, Katana, Dual Blades and Staff, the
   Hide, Plate and Robe, and the Boots. Those weapons also fire a shot of their own, taking turns
   with Oryx's violet Rift as before.
+- New art for the Monk's fists, every tier from the Cloth Hand Wraps to the Fists of the Ascended;
+  the Enthroned Fists take the new look too, with their purple sparkles.
 
 ## 2.4.9 (2026-11-09)
 

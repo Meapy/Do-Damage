@@ -1,8 +1,9 @@
-Release 2.4.10: new art for the Enthroned gear (deploys the client and the servers; nobody is disconnected)
+Release 2.4.10: new art for the Enthroned gear and the Monk's fists (deploys the client and the servers; nobody is disconnected)
 
 ## For players
 
-- **Items:** new art for the Enthroned gear: the Sword, Dagger, Bow, Wand, Katana, Dual Blades and Staff, the Hide, Plate and Robe, and the Boots. Each of those seven weapons has a shot of its own for its first volley, taking turns with Oryx's violet Rift as before. The Enthroned Fists, Helm and both rings keep their look (the Fists still fire the gold Radiance).
+- **Items:** new art for the Enthroned gear: the Sword, Dagger, Bow, Wand, Katana, Dual Blades and Staff, the Hide, Plate and Robe, and the Boots. Each of those seven weapons has a shot of its own for its first volley, taking turns with Oryx's violet Rift as before. The Enthroned Helm and both rings keep their look, and the Enthroned Fists still fire the gold Radiance.
+- **Items:** new art for the Monk's fists, all sixteen tiers from the Cloth Hand Wraps (T0) to the Fists of the Ascended (T15); the Enthroned Fists take the new T15 look, with their purple sparkles.
 
 ## Details
 
@@ -14,6 +15,14 @@ Release 2.4.10: new art for the Enthroned gear (deploys the client and the serve
 - Docs: changelog (Items), the wiki's forge page, SETUP-LOCAL.md "Changes from upstream".
 - Not checked: the shots in flight in the game (only the data resolved through the manifest, see Checks). Some of the shot cells have a lone dark pixel or 2×2 block in their bottom-left corner, as drawn.
 
+### The Monk's fists: the owner's sprites
+
+- New sheet `client/src/kabam/rotmg/assets/custom/images/FistsItems8x8.png` (`fistsItems8x8`, 128×8, hand-drawn by the owner): a cell per tier, T0 Cloth Hand Wraps to T15 Fists of the Ascended (0x5802-0x5810, 0x582a). Registered in `tools/gen_rs_manifest.py` (manifest regenerated).
+- Both `CustomItems.xml`: those sixteen items' textures point at it (hand-written entries, outside any generator's marks). `tools/build_ascended_items.py` reads the new sheet for the Enthroned Fists' sparkled copy (`SOURCE_SHEETS`); `AscendedItems8x8.png` regenerated. The old tiles 0x70-0x7E of `CustomAssets8x8.png` and the T15 cell of `T15Weapons8x8.png` are unused now (left in place).
+- Redeploy: client (the new sheet) and world server (the XML). Nobody is disconnected; nothing in Redis. An older client doesn't know the sheet and shows the fists wrongly until it updates.
+- Docs: changelog (Items), SETUP-LOCAL.md (the Monk fist sprites entry), `tools/draw_t15_weapons.py`'s notes. The wiki's gear pages pick up the new icons from the data; no hand-written guide describes the fists' look.
+
 ## Checks
 
 - Enthroned gear: `build_ascended_items.py` and `gen_rs_manifest.py` rerun; every Enthroned item and shot resolved through the manifest to a non-empty cell and rendered side by side; `build_wiki.py` shows the new icons on the gear pages; server tests (`dotnet test`, 177 passed).
+- Monk's fists: every Fists item (T0-T15 and the Enthroned Fists) resolved through the manifest to a non-empty cell and rendered side by side; `build_wiki.py` draws the new icons on the Martial Art gear page; server tests (`dotnet test`, 177 passed).

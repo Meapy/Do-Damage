@@ -214,6 +214,7 @@ SPRITES16 = ["staff", "ring wrath", "ring grace", "shot radiance", "shot rift", 
 SOURCE_SHEETS = {
     "t15Weapons8x8": os.path.join(SRC, "kabam", "rotmg", "assets", "custom", "images", "T15Weapons8x8.png"),
     "t16Armors8x8": os.path.join(SRC, "kabam", "rotmg", "assets", "custom", "images", "T16Armors8x8.png"),
+    "fistsItems8x8": os.path.join(SRC, "kabam", "rotmg", "assets", "custom", "images", "FistsItems8x8.png"),
 }
 # the sparkles added round a copied sprite: in the empty pixels touching it nearest these corners
 SPARKLE = [((7, 0), (214, 160, 255)), ((0, 7), PURPLE[2]), ((7, 7), (214, 160, 255)), ((0, 0), PURPLE[2])]
