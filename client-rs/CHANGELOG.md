@@ -23,6 +23,9 @@ details). Add to a group's line when a change adds to it, rather than adding ano
 - The Dagger of Divine Wrath and the Wand of Absolution show their own new sprites and shots (they
   had each other's).
 
+### Death
+- Health and magic potions no longer come back to you when a character dies.
+
 ## 2.4.7 (2026-11-08)
 
 ### Items

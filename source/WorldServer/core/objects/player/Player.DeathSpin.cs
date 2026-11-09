@@ -223,13 +223,20 @@ namespace WorldServer.core.objects
 
         public static int DeathKeepStep(int baseFame) => DeathKeepTiers.Last(t => baseFame >= t.Fame).Step;
 
+        // Health and magic potions never come back from a death.
+        private static readonly HashSet<string> DeathKeepExcluded = new()
+        {
+            "Minor Health Potion", "Health Potion", "Greater Health Potion",
+            "Minor Magic Potion", "Magic Potion", "Greater Magic Potion"
+        };
+
         // Picks the items it died with that come back: random slots of its equipment, inventory
-        // and backpack.
+        // and backpack, leaving out health and magic potions.
         private List<Item> RollDeathKeep(Random rand, int baseFame)
         {
             var carried = new List<Item>();
             for (var i = 0; i < Inventory.Length; i++)
-                if (Inventory[i] != null)
+                if (Inventory[i] != null && !DeathKeepExcluded.Contains(Inventory[i].ObjectId))
                     carried.Add(Inventory[i]);
             var step = DeathKeepStep(baseFame);
             var count = Math.Max(0, step - 1);
