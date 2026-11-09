@@ -1,4 +1,6 @@
+using System;
 using System.Collections.Generic;
+using System.Linq;
 using Shared;
 using WorldServer.networking.packets.outgoing.quests;
 
@@ -130,9 +132,21 @@ namespace WorldServer.networking.packets.outgoing.community
         }
     }
 
+    // One loot roll of a claim, for the client's reel: what it won (item, how many, its rarity),
+    // and the reel of (item, rarity) it scrolls past, which stops at `Stop` on the prize.
+    public sealed class CommunityRollInfo
+    {
+        public ushort Item;
+        public byte Count;
+        public byte Rarity;
+        public byte Stop;
+        public List<(ushort Item, byte Rarity)> Reel = new List<(ushort, byte)>();
+    }
+
     // A popup or the window's answer: a claim paid (0) or refused (1), a tier or Overdrive level
     // reached by the server (2), a goal completed (3), the week's new goals (4), someone's rare
-    // loot (5).
+    // loot (5). A claim paid adds its loot rolls at the end, for the reel (older clients stop
+    // reading before them).
     public class CommunityNotice : OutgoingMessage
     {
         public const byte CLAIMED = 0, REFUSED = 1, TIER = 2, COMPLETE = 3, NEW_WEEK = 4, LOOT = 5;
@@ -140,6 +154,7 @@ namespace WorldServer.networking.packets.outgoing.community
         public byte Kind;
         public string Title;
         public string Text;
+        public List<CommunityRollInfo> Rolls;
 
         public override MessageId MessageId => MessageId.COMMUNITY_NOTICE;
 
@@ -148,6 +163,24 @@ namespace WorldServer.networking.packets.outgoing.community
             wtr.Write(Kind);
             wtr.WriteUTF16(Title ?? "");
             wtr.WriteUTF16(Text ?? "");
+            if (Rolls == null || Rolls.Count == 0)
+                return;
+            var n = Math.Min(Rolls.Count, 255);
+            wtr.Write((byte)n);
+            foreach (var r in Rolls.Take(n))
+            {
+                wtr.Write(r.Item);
+                wtr.Write(r.Count);
+                wtr.Write(r.Rarity);
+                wtr.Write(r.Stop);
+                var reel = r.Reel.Take(255).ToList();
+                wtr.Write((byte)reel.Count);
+                foreach (var (item, rarity) in reel)
+                {
+                    wtr.Write(item);
+                    wtr.Write(rarity);
+                }
+            }
         }
     }
 }

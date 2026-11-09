@@ -294,6 +294,27 @@ wire_struct! {
 }
 
 wire_struct! {
+    /// A line of a loot roll's reel: an item and its rarity.
+    #[derive(Copy)]
+    pub struct CommunityReelSlot {
+        pub item: u16,
+        pub rarity: u8,
+    }
+}
+
+wire_struct! {
+    /// One loot roll of a community claim (`CommunityNotice`, last): what it won, how many, its
+    /// rarity, and the reel the window scrolls past, which stops at `stop` on the prize.
+    pub struct CommunityRoll {
+        pub item: u16,
+        pub count: u8,
+        pub rarity: u8,
+        pub stop: u8,
+        pub reel: List8<CommunityReelSlot>,
+    }
+}
+
+wire_struct! {
     /// One of a community goal's top contributors, and how much they added.
     pub struct CommunityContributor {
         pub name: String,

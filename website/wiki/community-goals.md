@@ -94,6 +94,11 @@ and so on.
 - Each **{{v:community_bonus_name}}** level rolls luckier: the rarer an item, the likelier it gets
   with each level, and the top's prize rolls as lucky as {{v:community_bonus_name}}
   {{v:community_bonus_last}}.
+- When you claim, the Warcaller **rolls each one on a reel** over the window, as the death spin
+  does: it scrolls past the goal's loot and slows onto what you won, then the next roll starts,
+  and what you've won lines up below it. **Stop** (or a click, Space or Enter) lands the roll
+  turning, **Skip all** (or Escape) lands them all. The items are already in your gift chest: the
+  reel only shows them.
 - A **{{v:community_announce}}** roll or rarer is told to the whole server.
 
 ## Goals that fit the realm

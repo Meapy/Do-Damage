@@ -249,7 +249,8 @@ messages! {
         // A claim's answer (kind 0 paid, 1 refused) or a popup: a tier or Overdrive level the
         // server reached (2), a goal completed (3), the week's new goals (4), someone's rare loot
         // (5).
-        131 => CommunityNotice { kind: u8, title: String, text: String },
+        // A claim paid adds its loot rolls, for the reel; older servers leave them out.
+        131 => CommunityNotice { kind: u8, title: String, text: String, rolls: Option<List8<CommunityRoll>> },
         // A world of stacked floors (the Stair Tower), on entering: how many tiles each floor is
         // above the one below, and the ground of the floors above the map (the map's own comes
         // in Update). From then on we walk at a height and say so before each Move (Height).

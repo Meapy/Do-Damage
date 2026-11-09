@@ -1090,5 +1090,12 @@
 "chars::Newest": "Più recenti",
 "key::Mouse 4": "Mouse 4",
 "key::Mouse 5": "Mouse 5",
-"{shown} of {all}": "{shown} di {all}"
+"{shown} of {all}": "{shown} di {all}",
+"Loot roll": "Tiro del bottino",
+"Loot roll {at} of {n}": "Tiro del bottino {at} di {n}",
+"The Warcaller rolls the goal's loot for you.": "Il Warcaller tira il bottino dell'obiettivo per te.",
+"Stop": "Ferma",
+"Next roll": "Tiro successivo",
+"Skip all": "Salta tutto",
+"Items go to the gift chest in your vault.": "Gli oggetti vanno nel forziere dei regali del tuo caveau."
 }

@@ -729,8 +729,8 @@ namespace WorldServer.core.community
             var account = client?.Account;
             if (account == null)
                 return;
-            void Answer(bool ok, string text) =>
-                client.SendPacket(new CommunityNotice() { Kind = ok ? CommunityNotice.CLAIMED : CommunityNotice.REFUSED, Title = ok ? "Claimed!" : "", Text = text });
+            void Answer(bool ok, string text, List<CommunityRollInfo> rolls = null) =>
+                client.SendPacket(new CommunityNotice() { Kind = ok ? CommunityNotice.CLAIMED : CommunityNotice.REFUSED, Title = ok ? "Claimed!" : "", Text = text, Rolls = rolls });
             if (account.Guest)
             {
                 Answer(false, "Register your account to collect rewards.");
@@ -765,7 +765,7 @@ namespace WorldServer.core.community
             }
             var rewards = new List<RewardDef>();
             var names = new List<string>();
-            var rolled = new List<(CommunityGoalDef Def, LootEntry Entry)>();
+            var rolled = new List<(CommunityGoalDef Def, LootEntry Entry, int Level)>();
             foreach (var (rs, t) in wanted)
             {
                 // the claim is kept first: only one claim of it ever pays
@@ -776,7 +776,7 @@ namespace WorldServer.core.community
                 var (defs, level) = Data.ClaimRewards(def, t);
                 var rolls = new List<LootEntry>();
                 rewards.AddRange(Data.Resolve(def, defs, level, Random.Shared, rolls));
-                rolled.AddRange(rolls.Select(e => (def, e)));
+                rolled.AddRange(rolls.Select(e => (def, e, level)));
                 names.Add(ClaimName(def, t));
             }
             if (names.Count > 0)
@@ -791,14 +791,39 @@ namespace WorldServer.core.community
                 // the best roll, by name, for the player; the rarest ones for everyone
                 var top = rolled.OrderByDescending(r => Data.RarityOf(r.Entry)).Select(r => r.Entry).FirstOrDefault();
                 var bestText = top != null && Data.RarityOf(top) >= 2 ? $" Best roll: {top} ({Capital(Data.Rarities[Data.RarityOf(top)])})!" : "";
-                Answer(true, (names.Count == 1 ? $"{names[0]}: {paid}." : $"{names.Count} rewards: {paid}.") + bestText);
-                foreach (var (def, e) in rolled.Where(r => Data.Announced(r.Entry)))
+                Answer(true, (names.Count == 1 ? $"{names[0]}: {paid}." : $"{names.Count} rewards: {paid}.") + bestText, Reels(player, rolled));
+                foreach (var (def, e, _) in rolled.Where(r => Data.Announced(r.Entry)))
                     Broadcast(CommunityNotice.LOOT, $"{player.Name} struck it lucky!",
                         $"{Capital(Data.Rarities[Data.RarityOf(e)])} loot from \"{def.Title}\": {e}!");
             }
             else
                 Answer(false, "Already claimed.");
             SendData(player);
+        }
+
+        // the client's reel: it scrolls REEL_LENGTH lines of the goal's loot and stops on the prize
+        // at REEL_STOP, as the death spin's does
+        private const int REEL_LENGTH = 40, REEL_STOP = 34;
+
+        // Each roll of a claim as the client's reel shows it (rolls of items the game doesn't know
+        // are left out; they were paid as nothing too).
+        private static List<CommunityRollInfo> Reels(Player player, List<(CommunityGoalDef Def, LootEntry Entry, int Level)> rolled)
+        {
+            var types = player.GameServer.Resources.GameData.IdToObjectType;
+            var rolls = new List<CommunityRollInfo>();
+            foreach (var (def, e, level) in rolled)
+            {
+                if (!types.TryGetValue(e.Item, out var item))
+                    continue;
+                var roll = new CommunityRollInfo { Item = item, Count = (byte)Math.Clamp(e.Count, 1, 255), Rarity = (byte)Data.RarityOf(e), Stop = REEL_STOP };
+                foreach (var line in Data.Reel(def, level, e, REEL_LENGTH, REEL_STOP, Random.Shared))
+                {
+                    var known = types.TryGetValue(line.Item, out var t);
+                    roll.Reel.Add((known ? t : item, (byte)Data.RarityOf(known ? line : e)));
+                }
+                rolls.Add(roll);
+            }
+            return rolls;
         }
 
         private static string Capital(string s) => string.IsNullOrEmpty(s) ? s : char.ToUpperInvariant(s[0]) + s.Substring(1);

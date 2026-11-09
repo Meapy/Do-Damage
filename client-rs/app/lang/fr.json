@@ -1090,5 +1090,12 @@
 "chars::Newest": "Plus récents",
 "key::Mouse 4": "Souris 4",
 "key::Mouse 5": "Souris 5",
-"{shown} of {all}": "{shown} sur {all}"
+"{shown} of {all}": "{shown} sur {all}",
+"Loot roll": "Tirage de butin",
+"Loot roll {at} of {n}": "Tirage de butin {at} sur {n}",
+"The Warcaller rolls the goal's loot for you.": "Le Warcaller tire le butin de l’objectif pour vous.",
+"Stop": "Arrêter",
+"Next roll": "Tirage suivant",
+"Skip all": "Tout passer",
+"Items go to the gift chest in your vault.": "Les objets vont dans le coffre à cadeaux de votre coffre-fort."
 }

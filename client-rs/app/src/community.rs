@@ -16,7 +16,7 @@ use crate::hud::{Layout, SlotKind, Ui};
 use crate::i18n::{mark, tf, tn, tr};
 use crate::quests::{card, check, countdown, done_chip, glow, inside, locked, reward_row, rewards_width, LOOT_ROLL, TIER_COLORS};
 use crate::theme::{self, color, Kind};
-use bsk_proto::{CommunityData, CommunityGoal};
+use bsk_proto::{CommunityData, CommunityGoal, CommunityRoll};
 use bsk_world::GameObj;
 use std::collections::HashMap;
 use winit::keyboard::KeyCode;
@@ -59,6 +59,8 @@ pub enum Act {
 pub enum Event {
     Data(Box<CommunityData>),
     Notice(u8, String, String),
+    /// A claim's loot rolls, to play on the reel.
+    Rolls(Vec<CommunityRoll>),
 }
 
 #[derive(Clone, Debug, PartialEq)]
@@ -67,6 +69,53 @@ enum Hit {
     Goal(String),
     Tier(String, u8),
     All,
+    /// On the reel: land the roll turning, or go on to the next.
+    RollNext,
+    /// Land every roll left at once.
+    RollSkip,
+}
+
+/// How long a roll's reel turns (ms): the first longer, as the death spin's, the rest quicker
+/// when a claim has many.
+const ROLL_MS: f32 = 4200.0;
+const ROLL_QUICK_MS: f32 = 2200.0;
+/// How long a landed roll shows before the next starts turning (ms).
+const ROLL_REST_MS: i32 = 1100;
+
+/// A claim's loot rolls, each played on a reel as the death spin's: it scrolls past the goal's
+/// loot and slows onto what was won (the server rolled it and paid it already; this only shows
+/// it).
+struct Reels {
+    rolls: Vec<CommunityRoll>,
+    /// The roll turning or last landed.
+    at: usize,
+    /// When it started turning, and when it landed.
+    start: i32,
+    landed: Option<i32>,
+    /// The slot under the marker, for the tick as each passes.
+    slot: i32,
+    /// Land the one turning now.
+    skip: bool,
+}
+
+impl Reels {
+    fn turn_ms(&self) -> f32 {
+        if self.at == 0 || self.rolls.len() <= 2 { ROLL_MS } else { ROLL_QUICK_MS }
+    }
+
+    /// Whether every roll has landed.
+    fn done(&self) -> bool {
+        self.landed.is_some() && self.at + 1 >= self.rolls.len()
+    }
+
+    /// The next roll, from `now`.
+    fn next(&mut self, now: i32) {
+        self.at += 1;
+        self.start = now;
+        self.landed = None;
+        self.slot = 0;
+        self.skip = false;
+    }
 }
 
 struct Banner {
@@ -232,6 +281,10 @@ pub struct Community {
     /// A line for the foot about what the mouse is on (the loot's odds, the goal's size).
     hint: Option<String>,
     now: i32,
+    /// The last claim's loot rolls, playing over the window.
+    reels: Option<Reels>,
+    /// Sounds to play (the reel's ticks and landings), taken by the game each frame.
+    pub sounds: Vec<&'static str>,
 }
 
 impl Community {
@@ -250,12 +303,14 @@ impl Community {
 
     pub fn close(&mut self) {
         self.open = false;
+        self.reels = None;
     }
 
     /// Forgets the goals (a new character or account): the next join asks again.
     pub fn reset(&mut self) {
         self.data = None;
         self.open = false;
+        self.reels = None;
         self.banners.clear();
         self.shown.clear();
     }
@@ -312,7 +367,38 @@ impl Community {
                 REFUSED => self.message = Some((text, true, now)),
                 _ => self.banner(kind, title, text, now),
             },
+            Event::Rolls(rolls) => {
+                let rolls: Vec<CommunityRoll> = rolls.into_iter().filter(|r| !r.reel.is_empty()).collect();
+                if self.open && !rolls.is_empty() {
+                    self.reels = Some(Reels { rolls, at: 0, start: now, landed: None, slot: 0, skip: false });
+                }
+            }
         }
+    }
+
+    /// The reel's next step: land the roll turning, else the next roll, else put it away.
+    fn reel_next(&mut self) {
+        let now = self.now;
+        let Some(r) = &mut self.reels else { return };
+        if r.landed.is_none() {
+            r.skip = true;
+        } else if r.done() {
+            self.reels = None;
+        } else {
+            r.next(now);
+        }
+    }
+
+    /// Lands every roll left, or puts the reel away once they all have.
+    fn reel_skip(&mut self) {
+        let Some(r) = &mut self.reels else { return };
+        if r.done() {
+            self.reels = None;
+            return;
+        }
+        r.at = r.rolls.len() - 1;
+        r.skip = true;
+        r.landed = None;
     }
 
     fn banner(&mut self, kind: u8, title: String, text: String, now: i32) {
@@ -342,8 +428,19 @@ impl Community {
             self.close();
             return None;
         }
-        let hit = self.hits.iter().find(|(_, r)| inside(*r, pos)).map(|(h, _)| h.clone())?;
-        match hit {
+        // the last drawn first: the reel's buttons over the window's
+        let hit = self.hits.iter().rev().find(|(_, r)| inside(*r, pos)).map(|(h, _)| h.clone());
+        // the reel takes every click on the window while it shows
+        if self.reels.is_some() {
+            match hit {
+                Some(Hit::Close) => self.close(),
+                Some(Hit::RollSkip) => self.reel_skip(),
+                _ => self.reel_next(),
+            }
+            return None;
+        }
+        match hit? {
+            Hit::RollNext | Hit::RollSkip => {}
             Hit::Close => self.close(),
             Hit::Goal(key) => {
                 self.selected = Some(key);
@@ -357,6 +454,15 @@ impl Community {
 
     /// A key while the window is open: Escape closes it, the arrows pick a goal.
     pub fn key(&mut self, code: KeyCode) {
+        // on the reel: Escape lands them all (again: puts it away), Space or Enter steps on
+        if self.reels.is_some() {
+            match code {
+                KeyCode::Escape => self.reel_skip(),
+                KeyCode::Space | KeyCode::Enter | KeyCode::NumpadEnter => self.reel_next(),
+                _ => {}
+            }
+            return;
+        }
         let Some(d) = &self.data else {
             if code == KeyCode::Escape {
                 self.close();
@@ -386,6 +492,188 @@ impl Community {
     }
 
     pub fn draw(&mut self, ui: &mut Ui, lay: &Layout, me: Option<&GameObj>, mouse: (f64, f64), now: i32) {
+        // under the reel the window doesn't see the mouse
+        let under = if self.reels.is_some() { (-1.0e6, -1.0e6) } else { mouse };
+        self.draw_window(ui, lay, me, under, now);
+        if self.open && self.reels.is_some() {
+            self.draw_reels(ui, lay, me, mouse, now);
+        }
+    }
+
+    /// The last claim's loot rolls, over the window: each reel scrolls past the goal's loot and
+    /// slows onto what was won, then the next starts; what's been won so far lines up below.
+    fn draw_reels(&mut self, ui: &mut Ui, lay: &Layout, me: Option<&GameObj>, mouse: (f64, f64), now: i32) {
+        let Some(wr) = self.rect else { return };
+        let rarities: Vec<String> = self.data.as_ref().map_or_else(Vec::new, |d| d.rarities.to_vec());
+        let Some(reels) = &mut self.reels else { return };
+        if reels.landed.is_some_and(|t| now - t >= ROLL_REST_MS) && !reels.done() {
+            reels.next(now);
+        }
+        let n = reels.rolls.len();
+        let roll = reels.rolls[reels.at].clone();
+        let u = if reels.skip { 1.0 } else { ((now - reels.start) as f32 / reels.turn_ms()).clamp(0.0, 1.0) };
+        let stop = (roll.stop as usize).min(roll.reel.len() - 1) as f32;
+        let from = stop.min(2.0);
+        // fast, then a long slow-down onto the prize
+        let pos = from + (stop - from) * (1.0 - (1.0 - u).powi(4));
+        let landed = u >= 1.0;
+        let slot = (pos + 0.5).floor() as i32;
+        if slot != reels.slot && !landed {
+            reels.slot = slot;
+            self.sounds.push("inventory_move_item");
+        }
+        if landed && reels.landed.is_none() {
+            reels.landed = Some(now);
+            self.sounds.push(if roll.rarity >= 3 { "level_up" } else { "loot_appears" });
+        }
+        let (at, done) = (reels.at, reels.done());
+        // the rolls landed so far, the one turning too once it has
+        let won: Vec<CommunityRoll> = reels.rolls.iter().take(if landed { at + 1 } else { at }).cloned().collect();
+
+        let s = (wr[2] / 1000.0).max(0.1);
+        let font = |size: f32| (size * s).round().max(9.0);
+        let pulse = 0.5 + 0.5 * (now as f32 / 260.0).sin();
+        // the window dims behind it
+        theme::fill(ui.renderer, wr, 14.0 * s, color::BACKGROUND, 0.72);
+        let (pw, ph) = (660.0 * s, 430.0 * s);
+        let r = [wr[0] + (wr[2] - pw) / 2.0, wr[1] + (wr[3] - ph) / 2.0, pw, ph];
+        theme::shadow(ui.renderer, r, 12.0 * s, 16.0 * s, 0.5);
+        theme::panel(ui.renderer, r, s);
+        let pad = 26.0 * s;
+        let title = if n > 1 { tf!("Loot roll {at} of {n}", at = at + 1, n) } else { tr("Loot roll").to_owned() };
+        theme::star(ui.renderer, r[0] + pad + 10.0 * s, r[1] + 33.0 * s, 11.0 * s, color::GOLD);
+        ui.label(&title, r[0] + pad + 28.0 * s, r[1] + 18.0 * s, font(26.0), true, color::GOLD);
+        let line = tr("The Warcaller rolls the goal's loot for you.");
+        let line = crate::npc::fit(ui, line, font(13.0), r[2] - 2.0 * pad);
+        ui.label(&line, r[0] + pad, r[1] + 58.0 * s, font(13.0), false, color::TEXT_DIM);
+
+        // The reel: slots fade towards the ends, the marker in the middle.
+        let track = [r[0] + pad, r[1] + 88.0 * s, r[2] - 2.0 * pad, 108.0 * s];
+        theme::rounded(ui.renderer, track, 12.0 * s, (color::INSET_TOP, 1.0), (color::INSET_BOTTOM, 1.0));
+        let side = 78.0 * s;
+        let step = side + 12.0 * s;
+        let (cx, cy) = (track[0] + track[2] / 2.0, track[1] + track[3] / 2.0);
+        let half = track[2] / 2.0 - side / 2.0 - 8.0 * s;
+        let mut hovered = None;
+        for (i, slot) in roll.reel.iter().enumerate() {
+            let dx = (i as f32 - pos) * step;
+            if dx.abs() > half {
+                continue;
+            }
+            let k = dx.abs() / half;
+            let prize = landed && i == stop as usize;
+            let alpha = if landed && !prize { 0.45 * (1.0 - k * k) } else { 1.0 - k * k * 0.85 };
+            let rc = crate::screens::rarity_color(slot.rarity as i32);
+            let sr = [cx + dx - side / 2.0, cy - side / 2.0, side, side];
+            if prize {
+                let g = 6.0 * s + 4.0 * s * pulse;
+                theme::fill(ui.renderer, [sr[0] - g, sr[1] - g, side + 2.0 * g, side + 2.0 * g], 12.0 * s + g, rc, 0.22 + 0.18 * pulse);
+            }
+            theme::rounded(ui.renderer, sr, 9.0 * s, (theme::shade(rc, -0.62), alpha), (color::SLOT_BOTTOM, alpha));
+            theme::fill(ui.renderer, [sr[0] + 8.0 * s, sr[1] + side - 7.0 * s, side - 16.0 * s, 3.0 * s], 1.5 * s, rc, alpha);
+            ui.item_icon_faded(slot.item as i32, 80, sr[0] + side / 2.0, sr[1] + side / 2.0 - 3.0 * s, s * 1.3, alpha);
+            if alpha > 0.4 && inside(sr, mouse) {
+                hovered = Some(slot.item as i32);
+            }
+        }
+        for y in [track[1] - 9.0 * s, track[1] + track[3] - 9.0 * s] {
+            theme::fill(ui.renderer, [cx - 2.0 * s, y, 4.0 * s, 18.0 * s], 2.0 * s, color::GOLD, 0.95);
+        }
+
+        // What it landed on.
+        let y = track[1] + track[3] + 20.0 * s;
+        if landed {
+            let rc = crate::screens::rarity_color(roll.rarity as i32);
+            if roll.rarity >= 3 {
+                // stars turning round the prize
+                for j in 0..6 {
+                    let a = j as f32 / 6.0 * std::f32::consts::TAU + now as f32 / 900.0;
+                    let rad = side * 0.8;
+                    let twinkle = 3.5 * s + 2.5 * s * (now as f32 / 180.0 + j as f32).sin().abs();
+                    theme::star(ui.renderer, cx + rad * a.cos(), cy + rad * a.sin(), twinkle, rc);
+                }
+            }
+            let name = rarities.get(roll.rarity as usize).map_or_else(
+                || crate::screens::RARITIES.get(roll.rarity as usize).map_or_else(String::new, |r| tr(r.0).to_owned()),
+                |n| rarity_name(n),
+            );
+            let head = tf!("{rarity}!", rarity = name.to_uppercase());
+            let big = font(22.0);
+            let hw = ui.measure(&head, big, true);
+            ui.label(&head, cx - hw / 2.0, y, big, true, rc);
+            let item = ui.data.objects.get(&roll.item).map_or_else(|| tr("a prize").to_owned(), |d| d.display_id.clone());
+            let item = if roll.count > 1 { format!("{item} x{}", roll.count) } else { item };
+            let mid = font(17.0);
+            let iw = ui.measure(&item, mid, true);
+            ui.label(&item, cx - iw / 2.0, y + big * 1.45, mid, true, color::TEXT);
+        }
+
+        // What's been won so far, in a row.
+        let row_y = r[1] + ph - 118.0 * s;
+        if n > 1 {
+            let cell = 34.0 * s;
+            let gap = 6.0 * s;
+            let fit = (((r[2] - 2.0 * pad + gap) / (cell + gap)).floor() as usize).max(1);
+            let shown = won.len().min(fit);
+            let total_w = n.min(fit) as f32 * (cell + gap) - gap;
+            let x0 = r[0] + (r[2] - total_w) / 2.0;
+            for i in 0..n.min(fit) {
+                let sr = [x0 + i as f32 * (cell + gap), row_y, cell, cell];
+                if i < shown {
+                    let w = &won[won.len() - shown + i];
+                    let rc = crate::screens::rarity_color(w.rarity as i32);
+                    let over = inside(sr, mouse);
+                    ui.slot_box(sr, Some(rc), over, s);
+                    ui.item_icon(w.item as i32, 60, sr[0] + cell / 2.0, sr[1] + cell / 2.0, s);
+                    if w.count > 1 {
+                        let cs = font(10.0);
+                        let t = w.count.to_string();
+                        let tw = ui.measure(&t, cs, true);
+                        ui.label(&t, sr[0] + cell - tw - 2.0 * s, sr[1] + cell - cs * 1.2, cs, true, color::TEXT);
+                    }
+                    if over {
+                        hovered = Some(w.item as i32);
+                    }
+                } else {
+                    // a roll still to come
+                    theme::fill(ui.renderer, sr, 6.0 * s, color::CHIP, 0.5);
+                }
+            }
+        }
+
+        // The buttons: on to the next roll (or land this one, or put it away), and land them all.
+        let by = r[1] + ph - 64.0 * s;
+        let bw = 170.0 * s;
+        let next = if !landed {
+            tr("Stop")
+        } else if done {
+            tr("Done")
+        } else {
+            tr("Next roll")
+        };
+        let two = n > 1 && !done;
+        let nb = if two { [r[0] + r[2] / 2.0 + 6.0 * s, by, bw, 38.0 * s] } else { [r[0] + (r[2] - bw) / 2.0, by, bw, 38.0 * s] };
+        if done {
+            glow(ui, nb, pulse, s);
+        }
+        ui.button(nb, next, Kind::Primary, inside(nb, mouse), s);
+        self.hits.push((Hit::RollNext, nb));
+        if two {
+            let sb = [r[0] + r[2] / 2.0 - 6.0 * s - bw, by, bw, 38.0 * s];
+            ui.button(sb, tr("Skip all"), Kind::Secondary, inside(sb, mouse), s);
+            self.hits.push((Hit::RollSkip, sb));
+        }
+        let note = tr("Items go to the gift chest in your vault.");
+        let nw = ui.measure(note, font(11.0), false);
+        ui.label(note, r[0] + (r[2] - nw) / 2.0, r[1] + ph - 20.0 * s, font(11.0), false, color::TEXT_MUTED);
+
+        if let Some(item) = hovered {
+            let lines = crate::hud::item_tooltip(ui.data, item, me, SlotKind::Shop);
+            crate::hud::draw_tooltip(ui, lay, &lines, Some(item), crate::screens::tier_edge(ui.data, item), mouse);
+        }
+    }
+
+    fn draw_window(&mut self, ui: &mut Ui, lay: &Layout, me: Option<&GameObj>, mouse: (f64, f64), now: i32) {
         self.now = now;
         self.hits.clear();
         self.hover_item = None;
@@ -1077,6 +1365,37 @@ mod tests {
             rarities: vec!["common".to_owned(); 6].into(),
             goals: goals.into(),
         }
+    }
+
+    fn roll(item: u16) -> CommunityRoll {
+        let reel = (0..40).map(|i| bsk_proto::CommunityReelSlot { item: if i == 34 { item } else { 0x0a00 }, rarity: 0 }).collect::<Vec<_>>();
+        CommunityRoll { item, count: 1, rarity: 2, stop: 34, reel: reel.into() }
+    }
+
+    #[test]
+    fn claimed_rolls_play_on_the_reel() {
+        let mut c = Community::default();
+        // shut: no reel
+        c.event(Event::Rolls(vec![roll(1)]), 0);
+        assert!(c.reels.is_none());
+        c.show();
+        c.event(Event::Rolls(vec![roll(1), roll(2), roll(3)]), 100);
+        // the first turns; a press lands it, the next goes on to the second roll
+        c.key(KeyCode::Space);
+        assert!(c.reels.as_ref().unwrap().skip);
+        c.reels.as_mut().unwrap().landed = Some(100);
+        c.key(KeyCode::Space);
+        assert_eq!(c.reels.as_ref().map(|r| (r.at, r.landed)), Some((1, None)));
+        // Escape lands the rest, again puts it away; the window stays
+        c.key(KeyCode::Escape);
+        assert_eq!(c.reels.as_ref().map(|r| (r.at, r.skip)), Some((2, true)));
+        c.reels.as_mut().unwrap().landed = Some(200);
+        c.key(KeyCode::Escape);
+        assert!(c.reels.is_none() && c.open);
+        // closing the window puts it away too
+        c.event(Event::Rolls(vec![roll(1)]), 300);
+        c.close();
+        assert!(c.reels.is_none());
     }
 
     #[test]

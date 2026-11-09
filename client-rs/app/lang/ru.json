@@ -1090,5 +1090,12 @@
 "chars::Newest": "Новые",
 "key::Mouse 4": "Мышь 4",
 "key::Mouse 5": "Мышь 5",
-"{shown} of {all}": "{shown} из {all}"
+"{shown} of {all}": "{shown} из {all}",
+"Loot roll": "Бросок добычи",
+"Loot roll {at} of {n}": "Бросок добычи {at} из {n}",
+"The Warcaller rolls the goal's loot for you.": "Warcaller разыгрывает добычу цели за вас.",
+"Stop": "Стоп",
+"Next roll": "Следующий бросок",
+"Skip all": "Пропустить всё",
+"Items go to the gift chest in your vault.": "Предметы — в сундук с подарками в хранилище."
 }

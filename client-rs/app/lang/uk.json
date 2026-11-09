@@ -1090,5 +1090,12 @@
 "chars::Newest": "Нові",
 "key::Mouse 4": "Миша 4",
 "key::Mouse 5": "Миша 5",
-"{shown} of {all}": "{shown} з {all}"
+"{shown} of {all}": "{shown} з {all}",
+"Loot roll": "Кидок здобичі",
+"Loot roll {at} of {n}": "Кидок здобичі {at} з {n}",
+"The Warcaller rolls the goal's loot for you.": "Warcaller розігрує здобич цілі за вас.",
+"Stop": "Стоп",
+"Next roll": "Наступний кидок",
+"Skip all": "Пропустити все",
+"Items go to the gift chest in your vault.": "Предмети — до скрині з подарунками у сховищі."
 }

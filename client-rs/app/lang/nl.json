@@ -1090,5 +1090,12 @@
 "chars::Newest": "Nieuwste",
 "key::Mouse 4": "Muis 4",
 "key::Mouse 5": "Muis 5",
-"{shown} of {all}": "{shown} van {all}"
+"{shown} of {all}": "{shown} van {all}",
+"Loot roll": "Buitworp",
+"Loot roll {at} of {n}": "Buitworp {at} van {n}",
+"The Warcaller rolls the goal's loot for you.": "De Warcaller werpt de buit van het doel voor je.",
+"Stop": "Stoppen",
+"Next roll": "Volgende worp",
+"Skip all": "Alles overslaan",
+"Items go to the gift chest in your vault.": "Voorwerpen gaan naar de cadeaukist in je kluis."
 }

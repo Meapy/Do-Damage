@@ -1090,5 +1090,12 @@
 "chars::Newest": "Mais novos",
 "key::Mouse 4": "Mouse 4",
 "key::Mouse 5": "Mouse 5",
-"{shown} of {all}": "{shown} de {all}"
+"{shown} of {all}": "{shown} de {all}",
+"Loot roll": "Sorteio de saque",
+"Loot roll {at} of {n}": "Sorteio de saque {at} de {n}",
+"The Warcaller rolls the goal's loot for you.": "O Warcaller sorteia o saque da meta para você.",
+"Stop": "Parar",
+"Next roll": "Próximo sorteio",
+"Skip all": "Pular tudo",
+"Items go to the gift chest in your vault.": "Os itens vão para o baú de presentes do seu cofre."
 }

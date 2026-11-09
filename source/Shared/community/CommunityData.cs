@@ -350,6 +350,37 @@ namespace Shared.community
             return odds[^1].Entry;
         }
 
+        // The reel the client scrolls past to show a roll (the Warcaller's, as the death spin's):
+        // `length` lines of the goal's loot at the roll's odds, the rarer shown a little more often
+        // to tease, with the prize at `stop`.
+        public List<LootEntry> Reel(CommunityGoalDef def, int level, LootEntry prize, int length, int stop, Random rng)
+        {
+            var tease = Odds(def, level).Select(o => (o.Entry, W: o.Chance * (1 + 0.6 * RarityOf(o.Entry)))).Where(o => o.W > 0).ToList();
+            var sum = tease.Sum(o => o.W);
+            var reel = new List<LootEntry>(length);
+            for (var i = 0; i < length; i++)
+            {
+                if (i == stop || sum <= 0)
+                {
+                    reel.Add(prize);
+                    continue;
+                }
+                var roll = rng.NextDouble() * sum;
+                var pick = tease[^1].Entry;
+                foreach (var (e, w) in tease)
+                {
+                    roll -= w;
+                    if (roll < 0)
+                    {
+                        pick = e;
+                        break;
+                    }
+                }
+                reel.Add(pick);
+            }
+            return reel;
+        }
+
         // Rewards with their rolls made: each {"roll": n} becomes n items of the goal's loot; the
         // rolls made are listed in `rolled`.
         public List<RewardDef> Resolve(CommunityGoalDef def, IEnumerable<RewardDef> rewards, int level, Random rng, List<LootEntry> rolled = null)

@@ -2576,6 +2576,9 @@ impl App {
                 self.community.event(e, now);
             }
             community_acts.extend(self.community.tick(now));
+            for s in self.community.sounds.drain(..) {
+                game.sounds.push((s.into(), 1.0, false));
+            }
             for act in community_acts {
                 log::info!("community: {act:?}");
                 game.community(act);

@@ -907,7 +907,12 @@ impl Game {
             ServerMessage::QuestResult(r) => self.quest_events.push(crate::quests::Event::Result(r.success, r.message.clone())),
             ServerMessage::QuestNotice(n) => self.quest_events.push(crate::quests::Event::Notice(n.kind, n.title.clone(), n.text.clone())),
             ServerMessage::CommunityData(d) => self.community_events.push(crate::community::Event::Data(Box::new(d.clone()))),
-            ServerMessage::CommunityNotice(n) => self.community_events.push(crate::community::Event::Notice(n.kind, n.title.clone(), n.text.clone())),
+            ServerMessage::CommunityNotice(n) => {
+                self.community_events.push(crate::community::Event::Notice(n.kind, n.title.clone(), n.text.clone()));
+                if let Some(rolls) = n.rolls.as_ref().filter(|r| !r.is_empty()) {
+                    self.community_events.push(crate::community::Event::Rolls(rolls.to_vec()));
+                }
+            }
             ServerMessage::Goto(g) => world.apply_goto(g.object_id, g.pos.x as f64, g.pos.y as f64, now, data),
             ServerMessage::Layers(l) => {
                 log::info!("floors: {} squares above the map, {} tiles apart", l.tiles.len(), l.height);

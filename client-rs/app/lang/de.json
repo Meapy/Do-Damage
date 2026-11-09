@@ -1090,5 +1090,12 @@
 "chars::Newest": "Neueste",
 "key::Mouse 4": "Maus 4",
 "key::Mouse 5": "Maus 5",
-"{shown} of {all}": "{shown} von {all}"
+"{shown} of {all}": "{shown} von {all}",
+"Loot roll": "Beutewurf",
+"Loot roll {at} of {n}": "Beutewurf {at} von {n}",
+"The Warcaller rolls the goal's loot for you.": "Der Warcaller würfelt die Beute des Ziels für dich aus.",
+"Stop": "Anhalten",
+"Next roll": "Nächster Wurf",
+"Skip all": "Alle überspringen",
+"Items go to the gift chest in your vault.": "Gegenstände landen in der Geschenktruhe in deinem Tresor."
 }
