@@ -68,6 +68,9 @@ fn speed_formula() {
     assert!((move_speed(75, [1 << 3, 0], 0.5) - 0.002).abs() < 1e-12);
     // Speedy: Ã—1.35.
     assert!((move_speed(0, [1 << 14, 0], 1.0) - 0.0054).abs() < 1e-12);
+    // Swift (a tome's Speedy): half the bonus, x1.175; Speedy wins over it.
+    assert!((move_speed(0, [0, 1 << 29], 1.0) - 0.0047).abs() < 1e-12);
+    assert!((move_speed(0, [1 << 14, 1 << 29], 1.0) - 0.0054).abs() < 1e-12);
 }
 
 #[test]

@@ -1,9 +1,10 @@
-Release 2.4.8: the Warcaller rolls your loot on a reel, no potions back from a death; Dagger of Divine Wrath and Wand of Absolution show the right sprites (deploys the client and the world server; nobody is disconnected)
+Release 2.4.8: the Warcaller rolls your loot on a reel, no potions back from a death; Dagger of Divine Wrath and Wand of Absolution show the right sprites; tomes give Swift, half of Speedy (deploys the client and the world server; nobody is disconnected)
 
 ## For players
 
 - **Community goals:** claiming at the Warcaller now plays each loot roll on a reel, as the death spin does: it scrolls past the goal's loot and slows onto what you won, roll after roll ("Loot roll 3 of 14"), with everything won so far lined up below. Stop (or a click, Space, Enter) lands the roll turning, Skip all (or Escape) lands the rest. The chat lines ("Your 15 rewards went to the gift chest…", "struck it lucky!") and the window's "Claimed!" line wait until the last roll has landed, so nothing gives the rolls away. What you get is unchanged and already in your gift chest.
 - **Items:** the Dagger of Divine Wrath and the Wand of Absolution, and their shots, showed each other's new art; each now shows its own.
+- **Classes:** a Priest's tome gives Swift instead of Speedy: half Speedy's speed boost (+17.5% movement instead of +35%), for the same time, to the Priest and the players around them (Tome of Holy Guidance, Hallowed Language, Sacred Thought, the Night Sky, Nativity Tome and the other tomes that gave Speedy). The tooltip and the wiki say Swift.
 - **Death:** health and magic potions (Minor, regular and Greater) are no longer among the items that can come back to your gift chest when a character dies; the other carried items keep the same chances.
 
 ## Details
@@ -30,8 +31,19 @@ Release 2.4.8: the Warcaller rolls your loot on a reel, no potions back from a d
 - Redeploy: world server only. Nobody is disconnected; nothing in Redis changes.
 - Docs: changelog ("Death"), the wiki's Progression page ("Getting your items back"), SETUP-LOCAL.md "Death spin".
 
+### Tomes give Swift, half of Speedy
+
+- Why: tomes share Speedy with the whole party since 2.4.1; the owner asked for the tomes' Speedy to be half as effective.
+- Server: new condition `Swift` (61, `ConditionEffectIndex.cs`). `Player.UseItem.cs` `SelfCondition` turns a tome's (slot type 4) `ConditionEffectSelf` Speedy into Swift, for the Priest (`AEConditionEffectSelf`) and the players it reaches (`ShareTomeCondition`, assist credit as Swift). Speed: `StatsManager.MoveSpeed` x1.175 (Speedy x1.35), `GetSpeed` (the speed check) x1.2 (Speedy x1.4), `Entity.GetSpeedMultiplier` x1.25 (Speedy x1.5); Speedy wins when both are on. The item XML is unchanged, so the Benediction imprint still skips Speedy for a speed tome.
+- Client: `condition.rs` `SWIFT` (and `EFFECTS` grows to 62 with Mana Deplete, 60, no icon, and Swift, 61, Speedy's icon); `movement.rs` x1.175 under Swift; `hud.rs` shows a tome's Speedy as "Swift" with a line "Swift: half the speed boost of Speedy" (1 new line in all 10 language tables).
+- Wiki: `tools/wiki_gear.py` writes "Swift (half Speedy's speed boost)" for a tome's Speedy (tome gear page, Priest-like class pages, Gear statistics); `website/wiki/classes.md` explains Swift.
+- Compatibility: an older client doesn't know condition 61, so it shows no icon and walks at normal speed under Swift (slower than the server allows: no rubber-banding); its tooltip still says Speedy.
+- Redeploy: world server and client (together for the speed to show). Nobody is disconnected; nothing in Redis changes.
+- Docs: changelog ("Classes"), the wiki, SETUP-LOCAL.md ("Tomes buff the players around the priest").
+
 ## Checks
 
 - Loot reel: `dotnet test source\Tests` community tests (11, with a new one for the reel: 40 lines, the prize at its stop, only the goal's loot); the world server builds. `cargo test -p bsk-proto -p bsk-client` (a golden test for the notice with and without rolls, a test of stepping and skipping the reel, the language tables). In game on an isolated stack (slot 7): `/goaladmin add 100000`, then Claim all on "Down with the Mad God" (13 rewards) played 14 rolls on the reel; a `--shot` at roll 3 showed a Rare 25 Shards of the Mad God landed, the rolls won so far below, Skip all and Next roll. Chat held back, on the same stack: mid-reel shot (roll 2 of 14) with no reward lines in the chat; then a claim of 11 rolls sent at 13:14:10 and Skip all at 13:14:18, and the log put "Your 15 rewards went…", "struck it lucky" and the bonus goal line in the chat at 13:14:18; a shot after showed Done with all 11 rolls below and the lines in the chat and at the foot. Not looked at: the reel in German or Russian.
 - Dagger and wand: the sheet's T15 column rendered after the swap (row 2 the dagger and its shot, row 4 the wand and its). Not looked at in game.
 - No potions back from a death: the world server builds (0 errors). Not tried in game (no death on an isolated stack).
+- Tome Swift: the world server builds (0 errors); `cargo test --workspace` in client-rs passes (`speed_formula` checks Swift x1.175 and that Speedy wins over it; `tome_buffs_show_their_reach` checks a tome's Speedy shows as Swift; the language tables). The wiki built to a scratch folder shows Swift on the tome page, Gear statistics and the Priest-like class pages. Not tried in game on an isolated stack.

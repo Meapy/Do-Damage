@@ -66,6 +66,8 @@ namespace Shared.resources
         DexDebuff = 58,
         Inspired = 59,
         ManaDeplete = 60,
+        // a Priest's tome's Speedy: half its speed bonus
+        Swift = 61,
         ConditionCount
     }
 }

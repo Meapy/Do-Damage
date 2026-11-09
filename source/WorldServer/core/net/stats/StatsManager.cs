@@ -98,6 +98,8 @@ namespace WorldServer.core.net.stats
             var ret = 4 + 5.6f * (stat / 75f);
             if (entity.HasConditionEffect(ConditionEffectIndex.Speedy))
                 ret *= 1.4f;
+            else if (entity.HasConditionEffect(ConditionEffectIndex.Swift))
+                ret *= 1.2f;
             if (entity.HasConditionEffect(ConditionEffectIndex.Slowed))
                 ret = 4;
             if (entity.HasConditionEffect(ConditionEffectIndex.Paralyzed))
@@ -223,6 +225,8 @@ namespace WorldServer.core.net.stats
             var spdMult = MIN_MOVE_SPEED + this[4] / (double)75.0 * (MAX_MOVE_SPEED - MIN_MOVE_SPEED);
             if (Owner.HasConditionEffect(ConditionEffectIndex.Speedy))
                 spdMult *= 1.35;
+            else if (Owner.HasConditionEffect(ConditionEffectIndex.Swift))
+                spdMult *= 1.175;
             return spdMult * multiplier;
         }
 

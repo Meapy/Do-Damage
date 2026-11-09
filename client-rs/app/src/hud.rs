@@ -2846,11 +2846,16 @@ fn activate_rows(a: &bsk_data::xml::Element, share: f64) -> (String, Vec<(String
             ],
         ),
         "ConditionEffectSelf" => {
-            let mut r = vec![row(tr("Gives"), text("effect"))];
+            // A tome's Speedy is Swift (the server's `SelfCondition`): half Speedy's speed boost.
+            let swift = share > 0.0 && a.attr("effect") == Some("Speedy");
+            let mut r = vec![row(tr("Gives"), if swift { "Swift".to_owned() } else { text("effect") })];
             if share > 0.0 && !NEGATIVE_EFFECTS.contains(&a.attr("effect").unwrap_or("")) {
                 r.push(row(tr("Range"), tf!("you and allies within {range}", range = sqrs(share))));
             }
             r.push(row(tr("Lasts"), secs(num("duration"))));
+            if swift {
+                r.push(row("", tr("Swift: half the speed boost of Speedy").into()));
+            }
             (tr("Effect"), r)
         }
         "ConditionEffectAura" => (
@@ -4504,5 +4509,9 @@ mod tests {
         assert!(!has_range(&act("ConditionEffectSelf", &[("effect", "Curse"), ("duration", "4")]), 6.0));
         assert!(!has_range(&act("StatBoostSelf", &[("stat", "21"), ("amount", "-5"), ("duration", "3")]), 6.0));
         assert!(!has_range(&act("ConditionEffectSelf", &[("effect", "Speedy"), ("duration", "1.5")]), 0.0));
+        // A tome's Speedy is Swift; anything else's stays Speedy.
+        let gives = |share: f64| activate_rows(&act("ConditionEffectSelf", &[("effect", "Speedy"), ("duration", "1.5")]), share).1[0].1.clone();
+        assert_eq!(gives(6.0), "Swift");
+        assert_eq!(gives(0.0), "Speedy");
     }
 }

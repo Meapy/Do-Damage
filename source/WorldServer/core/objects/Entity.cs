@@ -769,6 +769,6 @@ namespace WorldServer.core.objects
         public Position PointAt(float angle, float radius) => new Position(X + MathF.Cos(angle) * radius, Y + MathF.Sin(angle) * radius);
 
         protected static float ClampSpeed(float value, float min, float max) => value < min ? min : value > max ? max : value;
-        protected float GetSpeedMultiplier(float spd) => HasConditionEffect(ConditionEffectIndex.Slowed) ? spd * 0.5f : HasConditionEffect(ConditionEffectIndex.Speedy) ? spd * 1.5f : spd;
+        protected float GetSpeedMultiplier(float spd) => HasConditionEffect(ConditionEffectIndex.Slowed) ? spd * 0.5f : HasConditionEffect(ConditionEffectIndex.Speedy) ? spd * 1.5f : HasConditionEffect(ConditionEffectIndex.Swift) ? spd * 1.25f : spd;
     }
 }

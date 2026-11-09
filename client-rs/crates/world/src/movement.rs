@@ -31,6 +31,8 @@ pub fn move_speed(speed_stat: i32, conditions: [u32; 2], multiplier: f64) -> f64
     let mut speed = MIN_MOVE_SPEED + speed_stat as f64 / 75.0 * (MAX_MOVE_SPEED - MIN_MOVE_SPEED);
     if has(conditions, condition::SPEEDY) || has(conditions, condition::NINJA_SPEEDY) {
         speed *= 1.35;
+    } else if has(conditions, condition::SWIFT) {
+        speed *= 1.175;
     }
     speed * multiplier
 }

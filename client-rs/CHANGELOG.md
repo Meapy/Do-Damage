@@ -27,6 +27,10 @@ details). Add to a group's line when a change adds to it, rather than adding ano
 ### Death
 - Health and magic potions no longer come back to you when a character dies.
 
+### Classes
+- A Priest's tome no longer gives Speedy but Swift, with half Speedy's speed boost, for as long,
+  to the Priest and the players around them.
+
 ## 2.4.7 (2026-11-08)
 
 ### Items

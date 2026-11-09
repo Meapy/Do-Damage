@@ -735,6 +735,16 @@ The remotes `upstream` (HaloCelsius) and `aurusenth` share no history with `main
   `tome_share_range`, a Range row on those Effect and Boost sections; a negative stat boost now
   reads "-5", not "+-5"). The world server and the client ship apart: an older client just shows
   no range.
+  - **Swift** (2026-11-09; `ConditionEffectIndex.Swift` = 61, `Player.UseItem.cs`
+    `SelfCondition`): a tome's `ConditionEffectSelf` Speedy gives Swift instead, to the Priest and
+    the players it reaches, for the same time: half Speedy's speed boost (move speed x1.175 where
+    Speedy is x1.35 in `StatsManager.MoveSpeed` and the client's `movement.rs`; x1.2 where Speedy
+    is x1.4 in `StatsManager.GetSpeed`, the speed check; x1.25 where Speedy is x1.5 in
+    `Entity.GetSpeedMultiplier`). Speedy wins when both are on. The item data still says Speedy
+    (so the Benediction imprint still never gives Speedy with a speed tome); the client's tooltip
+    (`hud.rs`) and the wiki (`tools/wiki_gear.py`) show Swift with a line saying what it is. The
+    client draws Swift with Speedy's icon (`condition.rs`, which also gained Mana Deplete, 60,
+    without an icon). An older client doesn't know Swift and walks at normal speed under it.
 
 - **Enthroned gear, imprints and the item pass of 5 November** (2026-11-05; ships with a client
   release, message 110 grew and stat 149 is new):
