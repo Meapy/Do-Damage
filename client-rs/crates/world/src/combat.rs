@@ -66,7 +66,9 @@ pub struct Projectile {
 #[derive(Debug, Clone, PartialEq)]
 pub enum Hit {
     /// A monster's projectile hit us: PlayerHit. `pierced`: it ignores defense (`ArmorPiercing`).
-    Player { bullet_id: i32, owner_id: i32, damage: i32, pierced: bool },
+    /// `stacked`: it flew on top of a shot that just hit us, and `damage` is only what it adds
+    /// to that one ([`stacked_on`]).
+    Player { bullet_id: i32, owner_id: i32, damage: i32, pierced: bool, stacked: bool },
     /// Our projectile hit a monster: EnemyHit (`kill` if it should die of it).
     Enemy { time: i32, bullet_id: i32, target_id: i32, kill: bool, damage: i32, pierced: bool },
     /// A monster's projectile hit something else (another player, an obstacle): OtherHit.
@@ -92,6 +94,26 @@ pub struct Impact {
     pub speed: i32,
     /// Whose pet fired it, for a pet's shot (drawn faintly, as the options say).
     pub pet_owner: Option<i32>,
+}
+
+/// Stacked shots, as the server judges them (`Player.StackedShots`): monsters' shots fired within
+/// 40 ms of each other, that look the same, point within 4 degrees of each other and are within
+/// 0.4 tiles of each other at `time`. They look like one shot, so they hit as one: the strongest.
+const STACK_FIRED_WITHIN_MS: i32 = 40;
+const STACK_HIT_WITHIN_MS: i32 = 250;
+const STACK_OVERLAP_TILES: f64 = 0.4;
+const STACK_SAME_ANGLE: f64 = 4.0 * PI / 180.0;
+
+pub fn stacked_on(a: &Projectile, a_desc: &ProjectileDesc, b: &Projectile, b_desc: &ProjectileDesc, time: i32) -> bool {
+    if a_desc.object_id != b_desc.object_id || (a.start_time - b.start_time).abs() > STACK_FIRED_WITHIN_MS {
+        return false;
+    }
+    if bound_to_pi(a.angle - b.angle).abs() > STACK_SAME_ANGLE {
+        return false;
+    }
+    let (ax, ay) = a.position_at(a_desc, (time - a.start_time).max(0));
+    let (bx, by) = b.position_at(b_desc, (time - b.start_time).max(0));
+    (ax - bx).hypot(ay - by) <= STACK_OVERLAP_TILES
 }
 
 /// `Trig.boundToPI`.
@@ -458,7 +480,8 @@ impl World {
             let dmg = damage_with_defense(p.damage, defense, desc.armor_piercing, target.conditions());
             let dead = target.stat_int(STAT_HP).is_some_and(|hp| hp <= dmg);
             if Some(target_id) == me {
-                hits.push(Hit::Player { bullet_id: p.bullet_id, owner_id: p.owner_id, damage: dmg, pierced: desc.armor_piercing });
+                let (damage, stacked) = self.unstacked_damage(p, desc, dmg, time, data);
+                hits.push(Hit::Player { bullet_id: p.bullet_id, owner_id: p.owner_id, damage, pierced: desc.armor_piercing, stacked });
             } else if target_is_enemy {
                 hits.push(Hit::Enemy { time, bullet_id: p.bullet_id, target_id, kill: dead, damage: dmg, pierced: desc.armor_piercing });
                 if let Some(i) = self.impacts.last_mut() {
@@ -515,6 +538,23 @@ impl World {
         best.map(|(_, id)| id)
     }
 
+    /// What a monster's shot that hit us deals: `dmg`, unless it's stacked on one that hit us a
+    /// moment ago, then only what it deals beyond that stack so far (and true).
+    fn unstacked_damage(&mut self, p: &Projectile, desc: &ProjectileDesc, dmg: i32, time: i32, data: &GameData) -> (i32, bool) {
+        self.recent_hits.retain(|(_, at, _)| time - *at <= STACK_HIT_WITHIN_MS && *at <= time);
+        for i in 0..self.recent_hits.len() {
+            let (earlier, _, dealt) = &self.recent_hits[i];
+            let Some(earlier_desc) = self.projectile_desc(earlier, data) else { continue };
+            if stacked_on(earlier, earlier_desc, p, desc, time) {
+                let extra = (dmg - dealt).max(0);
+                self.recent_hits[i].2 += extra;
+                return (extra, true);
+            }
+        }
+        self.recent_hits.push((p.clone(), time, dmg));
+        (dmg, false)
+    }
+
     /// `Player.update`'s ground damage: every 500 ms on damaging ground, unless invincible or
     /// protected by what stands there.
     fn ground_damage(&mut self, time: i32, data: &GameData, hits: &mut Vec<Hit>) {
@@ -567,6 +607,28 @@ mod tests {
 
     fn proj(bullet_id: i32, angle: f64) -> Projectile {
         Projectile::new(1, bullet_id, 0, 0, angle, 0, 10.0, 10.0, 1.0, 0, false)
+    }
+
+    fn shot(bullet_id: i32, x: f64, y: f64, degrees: f64, time: i32) -> Projectile {
+        Projectile::new(7, bullet_id, 0, 0, degrees.to_radians(), time, x, y, 1.0, 120, true)
+    }
+
+    #[test]
+    fn stacked_shots_hit_as_one() {
+        let d = desc();
+        // one monster's two Shoots of the same bullet on one tick
+        assert!(stacked_on(&shot(1, 10.0, 10.0, 30.0, 1000), &d, &shot(2, 10.0, 10.0, 30.0, 1000), &d, 1500));
+        // two monsters a fifth of a tile apart, aiming at us
+        assert!(stacked_on(&shot(1, 10.0, 10.0, 0.0, 1000), &d, &shot(1, 10.1, 10.15, 1.0, 1002), &d, 1400));
+        // a spread 8 degrees apart
+        assert!(!stacked_on(&shot(1, 10.0, 10.0, 0.0, 1000), &d, &shot(2, 10.0, 10.0, 8.0, 1000), &d, 1300));
+        // the next tick's shot, one behind the other
+        assert!(!stacked_on(&shot(1, 10.0, 10.0, 0.0, 1000), &d, &shot(2, 10.0, 10.0, 0.0, 1100), &d, 1500));
+        // shots that look different
+        let other = ProjectileDesc { object_id: "Star".into(), ..desc() };
+        assert!(!stacked_on(&shot(1, 10.0, 10.0, 0.0, 1000), &d, &shot(2, 10.0, 10.0, 0.0, 1000), &other, 1300));
+        // from either side of us
+        assert!(!stacked_on(&shot(1, 8.0, 10.0, 0.0, 1000), &d, &shot(1, 12.0, 10.0, 180.0, 1000), &d, 1200));
     }
 
     fn close(a: (f64, f64), b: (f64, f64)) -> bool {

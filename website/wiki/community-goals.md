@@ -14,7 +14,7 @@ helped** claims its reward. And the realm doesn't have to stop at the goal: ever
 everyone, up to {{v:community_bonus_max}}%.
 
 > **Help a little, share it all.** You don't need to be the best: once you've added the goal's
-> share (a small one, such as two dungeons or twenty gods), you can claim every tier the realm
+> share (a small one, such as three dungeons or 150 gods), you can claim every tier the realm
 > reaches, even the ones reached while you were offline.
 
 ## The Warcaller
@@ -89,7 +89,8 @@ kind takes its place at once, with its own tiers, levels and loot. A banner tell
 Every goal gives its **own** rewards, and many of them are **loot rolls**: an item drawn from the
 goal's own loot table below, from common to divine. Oryx's goal rolls incantations, shards and Lil'
 Oryx pets, the dungeon goals keys, the gods' goal stat potions, the forge's goal forging shards,
-and so on.
+the themed dungeon goals (the sea, the haunted, the wilds, the strange and the raids) their own
+keys and Lil' pets, and so on.
 
 - Each **{{v:community_bonus_name}}** level rolls luckier: the rarer an item, the likelier it gets
   with each level, and the top's prize rolls as lucky as {{v:community_bonus_name}}

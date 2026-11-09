@@ -53,6 +53,13 @@ chests are safe. An item that didn't work when you used it (an incantation away 
 anything without enough mana) stays in your inventory. If something vanished another way, report
 it as a bug.
 
+## Can one shot hit me several times?
+
+No. Monsters sometimes fire several shots exactly on top of each other: two attacks of one
+monster on the same moment, or a pack of them standing on one spot (a Mini Yeti in the Ice Cave,
+the Rock Dragon's bats and body segments). They look like one shot, so they hurt as one: the
+strongest of them, once. Shots you can tell apart, such as a spread or a stream, each still hit.
+
 ## Is it free?
 
 Yes. There's nothing to buy, and every shop in the game takes fame, which you earn by playing.

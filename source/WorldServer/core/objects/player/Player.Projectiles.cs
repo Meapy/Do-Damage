@@ -153,6 +153,14 @@ namespace WorldServer.core.objects
             projectile.Disabled = !projectileDesc.MultiHit;
 
             var dmg = StatsManager.DamageWithDefense(this, projectile.Damage, projectileDesc.ArmorPiercing, Stats[3]);
+            // a bullet stacked on one that just hit us is the same shot to the eye: it adds only
+            // what it deals beyond it (StackedShots)
+            dmg = UnstackedDamage(projectile, dmg, LastClientTime, out var stacked);
+            if (stacked && dmg <= 0)
+            {
+                ApplyConditionEffect(projectileDesc.Effects);
+                return;
+            }
             dmg = RelicAbsorb(dmg);
             Health -= dmg;
 

@@ -176,19 +176,34 @@ namespace WorldServer.core.community
             Finished.TryRemove(key, out _);
         }
 
-        // The goals' scales (1 for a goal never settled).
+        // The goals' scales (1 for a goal never settled). Each is kept with the goal as written it
+        // was measured against ("<id>:base"), so a scale is dropped once community.json changes
+        // that goal: the new number starts again at 1 rather than multiplied by the old scale.
         public static Dictionary<string, double> Scales()
         {
-            var scales = new Dictionary<string, double>();
+            var inv = System.Globalization.CultureInfo.InvariantCulture;
+            var all = new Dictionary<string, string>();
             foreach (var e in _db.HashGetAll(ScaleKey))
-                if (double.TryParse(e.Value, System.Globalization.NumberStyles.Float, System.Globalization.CultureInfo.InvariantCulture, out var v) && v > 0)
-                    scales[e.Name] = v;
+                all[e.Name] = e.Value;
+            var scales = new Dictionary<string, double>();
+            foreach (var (name, value) in all)
+                if (!name.EndsWith(":base") && Data.Goal(name) is { } def
+                    && all.TryGetValue(name + ":base", out var b) && b == def.Goal.ToString(inv)
+                    && double.TryParse(value, System.Globalization.NumberStyles.Float, inv, out var v) && v > 0)
+                    scales[name] = v;
             return scales;
         }
 
         // Staff testing (/goaladmin scale): a goal's runs from now on are `scale` times its goal.
-        public static void SetScale(string id, double scale) =>
-            _db.HashSet(ScaleKey, id, scale.ToString("0.####", System.Globalization.CultureInfo.InvariantCulture));
+        public static void SetScale(string id, double scale)
+        {
+            var inv = System.Globalization.CultureInfo.InvariantCulture;
+            _db.HashSet(ScaleKey, new[]
+            {
+                new HashEntry(id, scale.ToString("0.####", inv)),
+                new HashEntry(id + ":base", (Data.Goal(id)?.Goal ?? 0).ToString(inv)),
+            });
+        }
 
         // A week's goals: as drawn and kept when the week began, else drawn now and kept.
         private static List<string> WeekGoals(DateTime week)

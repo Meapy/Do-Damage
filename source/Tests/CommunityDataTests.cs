@@ -42,6 +42,26 @@ namespace Tests
         }
 
         [Fact]
+        public void NamedGoalsCountOnlyTheirDungeonsAndPotions()
+        {
+            QuestEvent Clear(string name, int difficulty = 1) => new QuestEvent(QuestEvents.Dungeon) { Name = name, Difficulty = difficulty };
+            var seas = Data.Goal("seas");
+            Assert.True(seas.Counts(Clear("Davy Jones' Locker")));
+            Assert.True(seas.Counts(Clear("Elder Pirate Cave")));
+            Assert.False(seas.Counts(Clear("Mad Lab")));
+            Assert.True(Data.Goal("strange").Counts(Clear("Mad Lab")));
+            Assert.True(Data.Goal("raids").Counts(Clear("The Shatters", 5)));
+            Assert.False(Data.Goal("raids").Counts(Clear("Snake Pit", 5)));
+            Assert.False(Data.Goal("party").Counts(Clear("Snake Pit")));
+            Assert.True(Data.Goal("party").Counts(new QuestEvent(QuestEvents.Dungeon) { Name = "Snake Pit", Group = true }));
+            // potions drunk from storage are named "Potion of <stat>", greater ones too
+            var battle = Data.Goal("battle_pots");
+            Assert.True(battle.Counts(new QuestEvent(QuestEvents.Potion) { Name = "Greater Potion of Dexterity" }));
+            Assert.True(battle.Counts(new QuestEvent(QuestEvents.Potion, 2) { Name = "Potion of Speed" }));
+            Assert.False(battle.Counts(new QuestEvent(QuestEvents.Potion) { Name = "Potion of Life" }));
+        }
+
+        [Fact]
         public void EachWeekDrawsGroupsInTurn()
         {
             Assert.Equal(Monday, CommunityData.WeekStart(Wed));
@@ -183,7 +203,7 @@ namespace Tests
         public void TiersAreReachedAtTheirShares()
         {
             var oryx = Data.Goal("oryx");
-            Assert.Equal(15, oryx.Goal);
+            Assert.Equal(250, oryx.Goal);
             Assert.Equal(new[] { 4, 8, 12, 15 }, Enumerable.Range(0, 4).Select(t => Data.Threshold(15, t)));
             Assert.Equal(0, Data.Reached(oryx, 15, 3));
             Assert.Equal(1, Data.Reached(oryx, 15, 4));
@@ -195,7 +215,7 @@ namespace Tests
             // what counts: any form of Oryx, not another boss
             Assert.True(oryx.Counts(new QuestEvent(QuestEvents.Kill) { Oryx = true, Boss = true }));
             Assert.False(oryx.Counts(new QuestEvent(QuestEvents.Kill) { Boss = true }));
-            Assert.Equal("Defeat Oryx the Mad God 15 times as a realm, in any of his forms.", oryx.Describe());
+            Assert.Equal("Defeat Oryx the Mad God 250 times as a realm, in any of his forms.", oryx.Describe());
             Assert.Equal("Defeat Oryx the Mad God 20 times as a realm, in any of his forms.", oryx.Describe(20));
         }
 
@@ -268,8 +288,8 @@ namespace Tests
         public void GoalsGrowAfterAnEasyWeekAndShrinkAfterAHardOne()
         {
             var oryx = Data.Goal("oryx");
-            Assert.Equal(15, CommunityData.GoalOf(oryx, 1));
-            Assert.Equal(20, CommunityData.GoalOf(oryx, 1.333));
+            Assert.Equal(250, CommunityData.GoalOf(oryx, 1));
+            Assert.Equal(330, CommunityData.GoalOf(oryx, 1.333));
             // round numbers: whole below 100, two digits above
             Assert.Equal(1100, CommunityData.Nice(1130));
             Assert.Equal(12000, CommunityData.Nice(11_960));
@@ -288,10 +308,10 @@ namespace Tests
             for (var w = 0; w < 30; w++)
             {
                 var goal = CommunityData.GoalOf(oryx, scale);
-                scale = Data.NextScale(scale, 33, goal);
+                scale = Data.NextScale(scale, 550, goal);
             }
             var settled = CommunityData.GoalOf(oryx, scale);
-            Assert.InRange(33.0 / settled, 1.05, 1.35);
+            Assert.InRange(550.0 / settled, 1.05, 1.35);
         }
     }
 }
