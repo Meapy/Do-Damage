@@ -2219,7 +2219,7 @@
 		<Item/>
 		<Texture>
 			<File>enthronedItems8x8</File>
-			<Index>0x16</Index>
+			<Index>0x17</Index>
 		</Texture>
 		<SlotType>7</SlotType>
 		<Description>The plate of Oryx the Ascended God's last stand, purple steel under gold.</Description>
@@ -2236,7 +2236,7 @@
 		<Item/>
 		<Texture>
 			<File>enthronedItems8x8</File>
-			<Index>0x17</Index>
+			<Index>0x16</Index>
 		</Texture>
 		<SlotType>14</SlotType>
 		<Description>Oryx the Ascended God's own robe.</Description>

@@ -60,7 +60,7 @@ SHEET16 = "ascendedItems16x16"
 RINGS8 = "enthronedRings8x8"
 # the Enthroned weapons, their shots, armours and boots, hand-drawn by the owner
 # (EnthronedItems8x8.png, 7 cells a row): the weapons on the top row and each one's shot under it,
-# in the order of OWN_SHOTS; the Hide, Plate and Robe on the fourth row; the Boots on the sixth
+# in the order of OWN_SHOTS; the Hide, Robe and Plate on the fourth row; the Boots on the sixth
 ITEMS8 = "enthronedItems8x8"
 ITEMS8_COLS = 7
 CELL = 8
@@ -267,8 +267,8 @@ ASCENDED = [
     # was the Enthroned Spear: a staff like the others now (its 16 by 16 cell no longer used)
     (0x5857, "Enthroned Staff", "Staff of Endless Energy", (ITEMS8, 4), None),
     (0x5858, "Enthroned Hide", "Sphinx Leather Armor", (ITEMS8, 3 * ITEMS8_COLS), None),
-    (0x5859, "Enthroned Plate", "Armor of the Pyramid", (ITEMS8, 3 * ITEMS8_COLS + 1), None),
-    (0x585a, "Enthroned Robe", "Robe of the Nile", (ITEMS8, 3 * ITEMS8_COLS + 2), None),
+    (0x5859, "Enthroned Plate", "Armor of the Pyramid", (ITEMS8, 3 * ITEMS8_COLS + 2), None),
+    (0x585a, "Enthroned Robe", "Robe of the Nile", (ITEMS8, 3 * ITEMS8_COLS + 1), None),
     (0x585b, "Enthroned Helm", "Helm of Imperial Right", (SHEET, cell_of("piece", "helm")), None),
     (0x585c, "Enthroned Boots", "Ring of Absolute Speed", (ITEMS8, 5 * ITEMS8_COLS), None),
     (0x585d, "Enthroned Ring of Wrath", "Ring of Absolute Attack", (RINGS8, 0), None),
