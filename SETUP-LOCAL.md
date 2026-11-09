@@ -789,6 +789,10 @@ The remotes `upstream` (HaloCelsius) and `aurusenth` share no history with `main
     weapon's own projectile) and the violet Enthroned Rift (the same plus `MultiHit` and
     `ArmorPiercing`), 16×16 on `AscendedItems16x16.png` (`SHOT_OBJECTS`, 0x5870-0x5872; the old
     per-weapon shots 0x5866-0x586f are gone), with a third, the Enthroned Sigil, for the imprints.
+    Since 2.4.10 the weapons (all but the Fists), their first-volley shots (`OWN_SHOTS`,
+    0x5873-0x5877 and 0x5879-0x587a, 8×8, in place of the Radiance; the Rift stays), and the Hide,
+    Plate, Robe and Boots are the owner's art on `EnthronedItems8x8.png` (`enthronedItems8x8`,
+    7 cells a row).
     Each keeps its source's flags (a katana's pierce, dual blades' armour piercing). The Enthroned
     Spear is the Enthroned Staff (same type 0x5857), forged from a T15 staff and a weapon shard;
     the Ring of Grace from both Ascended gems and three accessory shards (`AscendedFrom` now takes

@@ -1833,12 +1833,68 @@
 		</Texture>
 		<AngleCorrection>1</AngleCorrection>
 	</Object>
+	<Object type="0x5873" id="Enthroned Sword Shot">
+		<Class>Projectile</Class>
+		<Texture>
+			<File>enthronedItems8x8</File>
+			<Index>0x07</Index>
+		</Texture>
+		<AngleCorrection>1</AngleCorrection>
+	</Object>
+	<Object type="0x5874" id="Enthroned Wand Shot">
+		<Class>Projectile</Class>
+		<Texture>
+			<File>enthronedItems8x8</File>
+			<Index>0x08</Index>
+		</Texture>
+		<AngleCorrection>1</AngleCorrection>
+	</Object>
+	<Object type="0x5875" id="Enthroned Bow Shot">
+		<Class>Projectile</Class>
+		<Texture>
+			<File>enthronedItems8x8</File>
+			<Index>0x09</Index>
+		</Texture>
+		<AngleCorrection>1</AngleCorrection>
+	</Object>
+	<Object type="0x5876" id="Enthroned Dagger Shot">
+		<Class>Projectile</Class>
+		<Texture>
+			<File>enthronedItems8x8</File>
+			<Index>0x0a</Index>
+		</Texture>
+		<AngleCorrection>1</AngleCorrection>
+	</Object>
+	<Object type="0x5877" id="Enthroned Staff Shot">
+		<Class>Projectile</Class>
+		<Texture>
+			<File>enthronedItems8x8</File>
+			<Index>0x0b</Index>
+		</Texture>
+		<AngleCorrection>1</AngleCorrection>
+	</Object>
+	<Object type="0x5879" id="Enthroned Katana Shot">
+		<Class>Projectile</Class>
+		<Texture>
+			<File>enthronedItems8x8</File>
+			<Index>0x0c</Index>
+		</Texture>
+		<AngleCorrection>1</AngleCorrection>
+	</Object>
+	<Object type="0x587a" id="Enthroned Dual Blades Shot">
+		<Class>Projectile</Class>
+		<Texture>
+			<File>enthronedItems8x8</File>
+			<Index>0x0d</Index>
+		</Texture>
+		<AngleCorrection>1</AngleCorrection>
+	</Object>
 	<Object type="0x5850" id="Enthroned Sword">
 		<Class>Equipment</Class>
 		<Item/>
 		<Texture>
-			<File>ascendedItems8x8</File>
-			<Index>0x0b</Index>
+			<File>enthronedItems8x8</File>
+			<Index>0x00</Index>
 		</Texture>
 		<SlotType>1</SlotType>
 		<Description>The blade Oryx the Ascended God carried up the steps of his throne. Every second volley is Oryx's Rift, which pierces and ignores defense.</Description>
@@ -1847,7 +1903,7 @@
 		<RateOfFire>1</RateOfFire>
 		<Sound>weapon/mithril_sword</Sound>
 		<Projectile id="0">
-			<ObjectId>Enthroned Radiance</ObjectId>
+			<ObjectId>Enthroned Sword Shot</ObjectId>
 			<Speed>100</Speed>
 			<MinDamage>333</MinDamage>
 			<MaxDamage>358</MaxDamage>
@@ -1874,8 +1930,8 @@
 		<Class>Equipment</Class>
 		<Item/>
 		<Texture>
-			<File>ascendedItems8x8</File>
-			<Index>0x0c</Index>
+			<File>enthronedItems8x8</File>
+			<Index>0x03</Index>
 		</Texture>
 		<SlotType>2</SlotType>
 		<Description>A knife from Oryx the Ascended God's own belt, never once drawn in mercy. Every second volley is Oryx's Rift, which pierces and ignores defense.</Description>
@@ -1884,7 +1940,7 @@
 		<RateOfFire>1</RateOfFire>
 		<Sound>weapon/fire_dagger</Sound>
 		<Projectile id="0">
-			<ObjectId>Enthroned Radiance</ObjectId>
+			<ObjectId>Enthroned Dagger Shot</ObjectId>
 			<Speed>150</Speed>
 			<MinDamage>184</MinDamage>
 			<MaxDamage>265</MaxDamage>
@@ -1911,8 +1967,8 @@
 		<Class>Equipment</Class>
 		<Item/>
 		<Texture>
-			<File>ascendedItems8x8</File>
-			<Index>0x0d</Index>
+			<File>enthronedItems8x8</File>
+			<Index>0x02</Index>
 		</Texture>
 		<SlotType>3</SlotType>
 		<Description>The bow of Oryx the Ascended God's sky guard, strung with light. Every second volley is Oryx's Rift, which pierces and ignores defense.</Description>
@@ -1921,7 +1977,7 @@
 		<RateOfFire>1</RateOfFire>
 		<Sound>weapon/golden_bow</Sound>
 		<Projectile id="0">
-			<ObjectId>Enthroned Radiance</ObjectId>
+			<ObjectId>Enthroned Bow Shot</ObjectId>
 			<Speed>160</Speed>
 			<MinDamage>102</MinDamage>
 			<MaxDamage>110</MaxDamage>
@@ -1951,8 +2007,8 @@
 		<Class>Equipment</Class>
 		<Item/>
 		<Texture>
-			<File>ascendedItems8x8</File>
-			<Index>0x0e</Index>
+			<File>enthronedItems8x8</File>
+			<Index>0x01</Index>
 		</Texture>
 		<SlotType>8</SlotType>
 		<Description>A sceptre of Oryx the Ascended God's court, humming with judgement. Every second volley is Oryx's Rift, which pierces and ignores defense.</Description>
@@ -1961,7 +2017,7 @@
 		<RateOfFire>1</RateOfFire>
 		<Sound>weapon/wand_of_death</Sound>
 		<Projectile id="0">
-			<ObjectId>Enthroned Radiance</ObjectId>
+			<ObjectId>Enthroned Wand Shot</ObjectId>
 			<Speed>200</Speed>
 			<LifetimeMS>400</LifetimeMS>
 			<MinDamage>213</MinDamage>
@@ -1989,8 +2045,8 @@
 		<Class>Equipment</Class>
 		<Item/>
 		<Texture>
-			<File>ascendedItems8x8</File>
-			<Index>0x0f</Index>
+			<File>enthronedItems8x8</File>
+			<Index>0x05</Index>
 		</Texture>
 		<SlotType>24</SlotType>
 		<Description>A blade folded in the Elysium for Oryx the Ascended God's champion. Every second volley is Oryx's Rift, which pierces and ignores defense.</Description>
@@ -1999,7 +2055,7 @@
 		<RateOfFire>1</RateOfFire>
 		<Sound>weapon/long_sword</Sound>
 		<Projectile id="0">
-			<ObjectId>Enthroned Radiance</ObjectId>
+			<ObjectId>Enthroned Katana Shot</ObjectId>
 			<Speed>150</Speed>
 			<LifetimeMS>350</LifetimeMS>
 			<MinDamage>243</MinDamage>
@@ -2027,8 +2083,8 @@
 		<Class>Equipment</Class>
 		<Item/>
 		<Texture>
-			<File>ascendedItems8x8</File>
-			<Index>0x10</Index>
+			<File>enthronedItems8x8</File>
+			<Index>0x06</Index>
 		</Texture>
 		<SlotType>36</SlotType>
 		<Description>Twin blades of Oryx the Ascended God's executioners. Every second volley is Oryx's Rift, which pierces and ignores defense.</Description>
@@ -2037,7 +2093,7 @@
 		<RateOfFire>1</RateOfFire>
 		<Sound>weapon/fire_dagger</Sound>
 		<Projectile id="0">
-			<ObjectId>Enthroned Radiance</ObjectId>
+			<ObjectId>Enthroned Dual Blades Shot</ObjectId>
 			<Speed>200</Speed>
 			<MinDamage>205</MinDamage>
 			<MaxDamage>259</MaxDamage>
@@ -2067,7 +2123,7 @@
 		<Item/>
 		<Texture>
 			<File>ascendedItems8x8</File>
-			<Index>0x11</Index>
+			<Index>0x0b</Index>
 		</Texture>
 		<SlotType>200</SlotType>
 		<Description>Gauntlets of the Ascended God's honour guard, gold over silver. Every second volley is Oryx's Rift, which pierces and ignores defense.</Description>
@@ -2104,8 +2160,8 @@
 		<Class>Equipment</Class>
 		<Item/>
 		<Texture>
-			<File>ascendedItems16x16</File>
-			<Index>0x00</Index>
+			<File>enthronedItems8x8</File>
+			<Index>0x04</Index>
 		</Texture>
 		<SlotType>17</SlotType>
 		<Description>The staff Oryx the Ascended God raised over his Elysium. Every second volley is Oryx's Rift, which pierces and ignores defense.</Description>
@@ -2114,7 +2170,7 @@
 		<RateOfFire>1</RateOfFire>
 		<Sound>weapon/wand_of_death</Sound>
 		<Projectile id="0">
-			<ObjectId>Enthroned Radiance</ObjectId>
+			<ObjectId>Enthroned Staff Shot</ObjectId>
 			<Speed>180</Speed>
 			<MinDamage>100</MinDamage>
 			<MaxDamage>135</MaxDamage>
@@ -2145,8 +2201,8 @@
 		<Class>Equipment</Class>
 		<Item/>
 		<Texture>
-			<File>ascendedItems8x8</File>
-			<Index>0x12</Index>
+			<File>enthronedItems8x8</File>
+			<Index>0x15</Index>
 		</Texture>
 		<SlotType>6</SlotType>
 		<Description>The hide Oryx the Ascended God wore over his armour, as hard as the sky.</Description>
@@ -2162,8 +2218,8 @@
 		<Class>Equipment</Class>
 		<Item/>
 		<Texture>
-			<File>ascendedItems8x8</File>
-			<Index>0x13</Index>
+			<File>enthronedItems8x8</File>
+			<Index>0x16</Index>
 		</Texture>
 		<SlotType>7</SlotType>
 		<Description>The plate of Oryx the Ascended God's last stand, purple steel under gold.</Description>
@@ -2179,8 +2235,8 @@
 		<Class>Equipment</Class>
 		<Item/>
 		<Texture>
-			<File>ascendedItems8x8</File>
-			<Index>0x0a</Index>
+			<File>enthronedItems8x8</File>
+			<Index>0x17</Index>
 		</Texture>
 		<SlotType>14</SlotType>
 		<Description>Oryx the Ascended God's own robe.</Description>
@@ -2209,7 +2265,7 @@
 		<ActivateOnEquip stat="3" amount="60">IncrementStat</ActivateOnEquip>
 		<Usable/>
 		<MpCost>95</MpCost>
-		<Activate effect="Berserk" duration="7" range="7">ConditionEffectAura</Activate>
+		<Activate effect="Berserk" duration="7" range="8">ConditionEffectAura</Activate>
 		<Activate effect="Speedy" duration="7">ConditionEffectSelf</Activate>
 		<feedPower>855</feedPower>
 		<FameBonus>10</FameBonus>
@@ -2220,8 +2276,8 @@
 		<Class>Equipment</Class>
 		<Item/>
 		<Texture>
-			<File>ascendedItems8x8</File>
-			<Index>0x09</Index>
+			<File>enthronedItems8x8</File>
+			<Index>0x23</Index>
 		</Texture>
 		<SlotType>9</SlotType>
 		<Description>Oryx the Ascended God's own boots, worn as a ring.</Description>

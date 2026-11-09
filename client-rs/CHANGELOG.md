@@ -12,6 +12,13 @@ Keep each version short: changes go under `### ` group headings (Oryx 5, Arena, 
 on), one line per change players notice, summed up rather than item by item (the wiki has the
 details). Add to a group's line when a change adds to it, rather than adding another line.
 
+## Unreleased
+
+### Items
+- New art for the Enthroned gear: the Sword, Dagger, Bow, Wand, Katana, Dual Blades and Staff, the
+  Hide, Plate and Robe, and the Boots. Those weapons also fire a shot of their own, taking turns
+  with Oryx's violet Rift as before.
+
 ## 2.4.9 (2026-11-09)
 
 ### Community goals
