@@ -12,6 +12,25 @@ Keep each version short: changes go under `### ` group headings (Oryx 5, Arena, 
 on), one line per change players notice, summed up rather than item by item (the wiki has the
 details). Add to a group's line when a change adds to it, rather than adding another line.
 
+## 2.4.8 (2026-11-09)
+
+### Community goals
+- The Warcaller rolls your loot on a reel, as the death spin does: each loot roll a claim gives
+  scrolls past the goal's loot and stops on what you won, one after another, with what you've won
+  lined up below. Skip all lands them at once. The chat and the window only say what you got once
+  the last roll has landed.
+
+### Items
+- The Dagger of Divine Wrath and the Wand of Absolution show their own new sprites and shots (they
+  had each other's).
+
+### Death
+- Health and magic potions no longer come back to you when a character dies.
+
+### Classes
+- A Priest's tome no longer gives Speedy but Swift, with half Speedy's speed boost, for as long,
+  to the Priest and the players around them.
+
 ## 2.4.7 (2026-11-08)
 
 ### Items

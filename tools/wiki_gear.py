@@ -381,7 +381,11 @@ class Gear:
         if e == "ConditionEffectSelf":
             if g("effect") in self.NEGATIVE:
                 shared = ""
-            return "%s for %ss%s" % (g("effect") or "an effect", n("duration"), shared)
+            effect = g("effect") or "an effect"
+            # a tome's Speedy is Swift, half Speedy's speed boost (the server's SelfCondition)
+            if share and effect == "Speedy":
+                effect = "Swift (half Speedy's speed boost)"
+            return "%s for %ss%s" % (effect, n("duration"), shared)
         if e == "ConditionEffectAura":
             return "%s for %ss to allies%s" % (g("effect") or "an effect", n("duration"), within())
         if e == "GenericActivate":

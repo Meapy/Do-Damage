@@ -20,7 +20,8 @@ loot by helping: healing and buffing other players, or debuffing the monsters th
 assist credit on those monsters, so you get a share of their loot without shooting them
 ([Progression](progression.html#loot) has the rules). A Priest's tome gives all its buffs
 (Armored, Speedy, Invisible, stat boosts) to the players within its heal range as well as the
-Priest; its drawbacks, such as a Curse, stay on the Priest.
+Priest; its drawbacks, such as a Curse, stay on the Priest. A tome's speed buff is **Swift**, not
+Speedy: half Speedy's speed boost (+17.5% movement instead of +35%), for the time the tome says.
 
 **Party buffs reach well past your own spot.** A Warrior's helm, a Bard's lute and a
 Blademaster's jacket reach 6 tiles at T0 and half a tile further every other tier, up to 8 at T8

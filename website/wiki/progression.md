@@ -263,7 +263,8 @@ rarity:
 A Legendary or Divine prize is announced to everyone online.
 
 **Getting your items back.** Some of what the character was carrying (equipment, inventory and
-backpack, picked at random) comes back as well. The first item comes back a quarter of the time,
+backpack, picked at random) comes back as well. Health and magic potions (Minor, regular and
+Greater) never come back. The first item comes back a quarter of the time,
 each further one at half the chance of the one before, and each step of base fame doubles every
 chance:
 

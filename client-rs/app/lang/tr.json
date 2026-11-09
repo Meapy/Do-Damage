@@ -633,6 +633,7 @@
 "Survive waves in the Arena (/arena) on your own.": "Arenada (/arena) tek başına dalgalara dayan.",
 "Survive waves in the Arena (/arena) with others.": "Arenada (/arena) başkalarıyla dalgalara dayan.",
 "Swap": "Değiş",
+"Swift: half the speed boost of Speedy": "Swift: Speedy'nin hız artışının yarısı",
 "Sword": "Kılıç",
 "T7 and below": "T7 ve altı",
 "TIME": "SÜRE",
@@ -1090,5 +1091,12 @@
 "chars::Newest": "En yeni",
 "key::Mouse 4": "Fare 4",
 "key::Mouse 5": "Fare 5",
-"{shown} of {all}": "{all} içinden {shown}"
+"{shown} of {all}": "{all} içinden {shown}",
+"Loot roll": "Ganimet zarı",
+"Loot roll {at} of {n}": "Ganimet zarı {at}/{n}",
+"The Warcaller rolls the goal's loot for you.": "Warcaller hedefin ganimeti için senin yerine zar atar.",
+"Stop": "Durdur",
+"Next roll": "Sonraki zar",
+"Skip all": "Tümünü geç",
+"Items go to the gift chest in your vault.": "Eşyalar kasandaki hediye sandığına gider."
 }

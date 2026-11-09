@@ -251,6 +251,20 @@ namespace Tests
         }
 
         [Fact]
+        public void ReelStopsOnThePrizeAndShowsTheGoalsLoot()
+        {
+            var oryx = Data.Goal("oryx");
+            var rng = new Random(3);
+            var prize = oryx.Loot.OrderByDescending(Data.RarityOf).First();
+            var reel = Data.Reel(oryx, 2, prize, 40, 34, rng);
+            Assert.Equal(40, reel.Count);
+            Assert.Same(prize, reel[34]);
+            Assert.All(reel, e => Assert.Contains(e, oryx.Loot));
+            // more than one line of loot on it, so it turns
+            Assert.True(reel.Distinct().Count() > 1);
+        }
+
+        [Fact]
         public void GoalsGrowAfterAnEasyWeekAndShrinkAfterAHardOne()
         {
             var oryx = Data.Goal("oryx");

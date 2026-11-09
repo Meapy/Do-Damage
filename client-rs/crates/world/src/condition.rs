@@ -35,6 +35,8 @@ pub const CURSE: u32 = 38;
 pub const SILENCED: u32 = 48;
 pub const EXPOSED: u32 = 49;
 pub const INSPIRED: u32 = 59;
+/// A Priest's tome's Speedy: half its speed bonus.
+pub const SWIFT: u32 = 61;
 
 pub fn has(conditions: [u32; 2], effect: u32) -> bool {
     if effect < 32 {
@@ -62,7 +64,7 @@ const fn big(name: &'static str, icons: &'static [u32]) -> Effect {
 }
 
 /// Every effect, by number.
-pub const EFFECTS: [Effect; 60] = [
+pub const EFFECTS: [Effect; 62] = [
     e("Nothing", &[]),
     e("Dead", &[]),
     e("Quiet", &[0x20]),
@@ -123,6 +125,8 @@ pub const EFFECTS: [Effect; 60] = [
     big("Wis Debuff", &[0x37]),
     big("Dex Debuff", &[0x35]),
     e("Inspired", &[0x3e]),
+    e("Mana Deplete", &[]),
+    e("Swift", &[0x00]),
 ];
 
 /// The effects set, lowest bit first in each batch (the order `getConditionEffectIcons` lists

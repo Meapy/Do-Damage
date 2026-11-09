@@ -633,6 +633,7 @@
 "Survive waves in the Arena (/arena) on your own.": "Sobrevive oleadas en la Arena (/arena) tú solo.",
 "Survive waves in the Arena (/arena) with others.": "Sobrevive oleadas en la Arena (/arena) con otros.",
 "Swap": "Cambiar",
+"Swift: half the speed boost of Speedy": "Swift: la mitad del aumento de velocidad de Speedy",
 "Sword": "Espada",
 "T7 and below": "T7 o menos",
 "TIME": "TIEMPO",
@@ -1090,5 +1091,12 @@
 "chars::Newest": "Más nuevos",
 "key::Mouse 4": "Ratón 4",
 "key::Mouse 5": "Ratón 5",
-"{shown} of {all}": "{shown} de {all}"
+"{shown} of {all}": "{shown} de {all}",
+"Loot roll": "Tirada de botín",
+"Loot roll {at} of {n}": "Tirada de botín {at} de {n}",
+"The Warcaller rolls the goal's loot for you.": "El Warcaller tira el botín del objetivo por ti.",
+"Stop": "Parar",
+"Next roll": "Siguiente tirada",
+"Skip all": "Saltar todo",
+"Items go to the gift chest in your vault.": "Los objetos van al cofre de regalos de tu bóveda."
 }

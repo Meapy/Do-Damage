@@ -498,7 +498,13 @@ fn community_messages_match_community_goals() {
     assert_eq!((g.top[0].name.as_str(), g.top[0].amount), ("Tester", 7));
     // CommunityNotice.Write: kind, title, text.
     let ServerMessage::CommunityNotice(n) = ServerMessage::decode(131, &B::default().u8(2).utf("Flame reached!").utf("x").0).unwrap() else { panic!() };
-    assert_eq!((n.kind, n.title.as_str()), (2, "Flame reached!"));
+    assert_eq!((n.kind, n.title.as_str(), n.rolls.is_none()), (2, "Flame reached!", true));
+    // a claim paid, with its loot rolls: item, count, rarity, stop, then the reel's (item, rarity)
+    let body = B::default().u8(0).utf("Claimed!").utf("x").u8(1).i16(0x0b2c).u8(2).u8(4).u8(1).u8(2).i16(0x0a1b).u8(0).i16(0x0b2c).u8(4).0;
+    let ServerMessage::CommunityNotice(n) = ServerMessage::decode(131, &body).unwrap() else { panic!() };
+    let r = &n.rolls.as_ref().unwrap()[0];
+    assert_eq!((r.item, r.count, r.rarity, r.stop, r.reel.len()), (0x0b2c, 2, 4, 1, 2));
+    assert_eq!((r.reel[0].item, r.reel[0].rarity, r.reel[1].item), (0x0a1b, 0, 0x0b2c));
 }
 
 #[test]

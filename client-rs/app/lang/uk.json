@@ -633,6 +633,7 @@
 "Survive waves in the Arena (/arena) on your own.": "Переживіть хвилі на Арені (/arena) самотужки.",
 "Survive waves in the Arena (/arena) with others.": "Переживіть хвилі на Арені (/arena) разом з іншими.",
 "Swap": "Замінити",
+"Swift: half the speed boost of Speedy": "Swift: половина приросту швидкості від Speedy",
 "Sword": "Меч",
 "T7 and below": "T7 і нижче",
 "TIME": "ЧАС",
@@ -1090,5 +1091,12 @@
 "chars::Newest": "Нові",
 "key::Mouse 4": "Миша 4",
 "key::Mouse 5": "Миша 5",
-"{shown} of {all}": "{shown} з {all}"
+"{shown} of {all}": "{shown} з {all}",
+"Loot roll": "Кидок здобичі",
+"Loot roll {at} of {n}": "Кидок здобичі {at} з {n}",
+"The Warcaller rolls the goal's loot for you.": "Warcaller розігрує здобич цілі за вас.",
+"Stop": "Стоп",
+"Next roll": "Наступний кидок",
+"Skip all": "Пропустити все",
+"Items go to the gift chest in your vault.": "Предмети — до скрині з подарунками у сховищі."
 }

@@ -633,6 +633,7 @@
 "Survive waves in the Arena (/arena) on your own.": "Переживите волны на Арене (/arena) в одиночку.",
 "Survive waves in the Arena (/arena) with others.": "Переживите волны на Арене (/arena) вместе с другими.",
 "Swap": "Заменить",
+"Swift: half the speed boost of Speedy": "Swift: половина прибавки к скорости от Speedy",
 "Sword": "Меч",
 "T7 and below": "T7 и ниже",
 "TIME": "ВРЕМЯ",
@@ -1090,5 +1091,12 @@
 "chars::Newest": "Новые",
 "key::Mouse 4": "Мышь 4",
 "key::Mouse 5": "Мышь 5",
-"{shown} of {all}": "{shown} из {all}"
+"{shown} of {all}": "{shown} из {all}",
+"Loot roll": "Бросок добычи",
+"Loot roll {at} of {n}": "Бросок добычи {at} из {n}",
+"The Warcaller rolls the goal's loot for you.": "Warcaller разыгрывает добычу цели за вас.",
+"Stop": "Стоп",
+"Next roll": "Следующий бросок",
+"Skip all": "Пропустить всё",
+"Items go to the gift chest in your vault.": "Предметы — в сундук с подарками в хранилище."
 }

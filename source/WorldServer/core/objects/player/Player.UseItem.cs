@@ -1063,7 +1063,7 @@ namespace WorldServer.core.objects
             if (eff.UseWisMod)
                 duration = (int)(UseWisMod(eff.DurationSec) * 1000);
 
-            ApplyConditionEffect(new ConditionEffect(eff.ConditionEffect.Value, duration));
+            ApplyConditionEffect(new ConditionEffect(SelfCondition(item, eff), duration));
             World.BroadcastIfVisible(new ShowEffect()
             {
                 EffectType = EffectType.AreaBlast,
@@ -1072,6 +1072,13 @@ namespace WorldServer.core.objects
                 Pos1 = new Position() { X = 1 }
             }, this);
         }
+
+        // A tome's Speedy is Swift: half Speedy's speed bonus, for the priest and the players it
+        // reaches.
+        private static ConditionEffectIndex SelfCondition(Item item, ActivateEffect eff) =>
+            item.SlotType == InventoryConstants.TOME_SLOT_TYPE && eff.ConditionEffect == ConditionEffectIndex.Speedy
+                ? ConditionEffectIndex.Swift
+                : eff.ConditionEffect.Value;
 
         // A tome's buffs reach the players around the priest, not only the priest: a self buff
         // (Armored, Speedy, a stat boost...) is shared as far as the tome's heal reaches.
@@ -1112,8 +1119,9 @@ namespace WorldServer.core.objects
             {
                 if (entity == this)
                     return;
-                entity.ApplyConditionEffect(new ConditionEffect(eff.ConditionEffect.Value, duration));
-                (entity as Player)?.BuffedBy(this, duration, eff.ConditionEffect.Value);
+                var effect = SelfCondition(item, eff);
+                entity.ApplyConditionEffect(new ConditionEffect(effect, duration));
+                (entity as Player)?.BuffedBy(this, duration, effect);
             });
         }
 
