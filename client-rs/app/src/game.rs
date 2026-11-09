@@ -68,6 +68,9 @@ pub struct Game {
     pub quest_events: Vec<crate::quests::Event>,
     /// The community goals and their banners, for their window (`community.rs`).
     pub community_events: Vec<crate::community::Event>,
+    /// The server's chat lines held back while a community claim is answered and its loot rolls
+    /// play on the reel, so the chat doesn't tell what they land on first (`claim_chat`).
+    claim_hold: Option<ClaimHold>,
     /// Sound effects to play: (name, volume, is it a weapon's shot).
     pub sounds: Vec<(String, f32, bool)>,
     /// The map's music (`MapInfo.music`, `SwitchMusic`).
@@ -298,6 +301,17 @@ const TELEPORT_COOLDOWN: i32 = 10_000;
 /// How many chat lines to keep.
 const CHAT_KEEP: usize = 500;
 
+/// How long a community claim's chat lines wait for its answer before they go anyway (ms).
+const CLAIM_HOLD_MS: i32 = 5000;
+
+/// The server's chat lines held from a community claim until its reel has played: the lines,
+/// when the holding started (the first check after the claim), and whether it's been answered.
+struct ClaimHold {
+    lines: Vec<bsk_proto::Text>,
+    since: Option<i32>,
+    answered: bool,
+}
+
 /// A world's map, to know it again: its game id, name and size.
 type MapKey = (i32, String, i32, i32);
 /// How many worlds' maps are kept after leaving them.
@@ -341,6 +355,7 @@ impl Game {
             pet_pen: None,
             quest_events: Vec::new(),
             community_events: Vec::new(),
+            claim_hold: None,
             music: None,
             last_level: 0,
             dealt: Default::default(),
@@ -804,7 +819,13 @@ impl Game {
             }
             // a little monster's quip: a balloon over it only, not a chat line
             let bubble_only = t.recipient == "*Bubble*";
-            if !bubble_only {
+            // the server's own lines wait while a claim's rolls are shown (players' chat doesn't)
+            let held = !bubble_only && t.num_stars < 0 && t.recipient.is_empty() && self.claim_hold.is_some();
+            if held {
+                if let Some(h) = &mut self.claim_hold {
+                    h.lines.push(t.clone());
+                }
+            } else if !bubble_only {
                 self.add_chat(&t.name, &t.recipient, &t.text, t.name_color, t.text_color, t.num_stars, now);
             }
             // GameServerConnection.onText: a balloon over the speaker, coloured by who it is.
@@ -909,8 +930,16 @@ impl Game {
             ServerMessage::CommunityData(d) => self.community_events.push(crate::community::Event::Data(Box::new(d.clone()))),
             ServerMessage::CommunityNotice(n) => {
                 self.community_events.push(crate::community::Event::Notice(n.kind, n.title.clone(), n.text.clone()));
-                if let Some(rolls) = n.rolls.as_ref().filter(|r| !r.is_empty()) {
+                let rolls = n.rolls.as_ref().filter(|r| !r.is_empty());
+                if let Some(rolls) = rolls {
                     self.community_events.push(crate::community::Event::Rolls(rolls.to_vec()));
+                }
+                // the claim's answer: with rolls, its lines wait for the reel; else they go now
+                if let Some(h) = self.claim_hold.as_mut().filter(|_| n.kind <= 1) {
+                    h.answered = true;
+                    if rolls.is_none() {
+                        self.claim_chat(false, now);
+                    }
                 }
             }
             ServerMessage::Goto(g) => world.apply_goto(g.object_id, g.pos.x as f64, g.pos.y as f64, now, data),
@@ -1528,9 +1557,30 @@ impl Game {
         use crate::community::Act;
         let msg: ClientMessage = match act {
             Act::Request => bsk_proto::CommunityRequest {}.into(),
-            Act::Claim(key, tier) => bsk_proto::CommunityClaim { key, tier }.into(),
+            Act::Claim(key, tier) => {
+                // its chat lines (what was paid, a lucky roll) wait for the reel
+                if self.claim_hold.is_none() {
+                    self.claim_hold = Some(ClaimHold { lines: Vec::new(), since: None, answered: false });
+                }
+                bsk_proto::CommunityClaim { key, tier }.into()
+            }
         };
         self.send(msg);
+    }
+
+    /// The chat lines held for a claim: let them go once it's answered and its reel has played
+    /// (`rolling` false: every roll landed, or the window shut), or if no answer comes in
+    /// `CLAIM_HOLD_MS`.
+    pub fn claim_chat(&mut self, rolling: bool, now: i32) {
+        let Some(h) = &mut self.claim_hold else { return };
+        let since = *h.since.get_or_insert(now);
+        let go = if h.answered { !rolling } else { now - since >= CLAIM_HOLD_MS };
+        if !go {
+            return;
+        }
+        for t in self.claim_hold.take().map(|h| h.lines).unwrap_or_default() {
+            self.add_chat(&t.name, &t.recipient, &t.text, t.name_color, t.text_color, t.num_stars, now);
+        }
     }
 
     /// The Armoire: wear this skin (0: the class's own look).

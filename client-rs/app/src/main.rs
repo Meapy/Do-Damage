@@ -2575,6 +2575,8 @@ impl App {
             for e in std::mem::take(&mut game.community_events) {
                 self.community.event(e, now);
             }
+            // a claim's chat lines (what it paid, a lucky roll) once its reel has played
+            game.claim_chat(self.community.reeling(), now);
             community_acts.extend(self.community.tick(now));
             for s in self.community.sounds.drain(..) {
                 game.sounds.push((s.into(), 1.0, false));

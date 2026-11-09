@@ -17,7 +17,8 @@ details). Add to a group's line when a change adds to it, rather than adding ano
 ### Community goals
 - The Warcaller rolls your loot on a reel, as the death spin does: each loot roll a claim gives
   scrolls past the goal's loot and stops on what you won, one after another, with what you've won
-  lined up below. Skip all lands them at once.
+  lined up below. Skip all lands them at once. The chat and the window only say what you got once
+  the last roll has landed.
 
 ### Items
 - The Dagger of Divine Wrath and the Wand of Absolution show their own new sprites and shots (they

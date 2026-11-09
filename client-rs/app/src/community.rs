@@ -96,6 +96,8 @@ struct Reels {
     slot: i32,
     /// Land the one turning now.
     skip: bool,
+    /// The claim's answer (what it paid), shown at the window's foot once every roll has landed.
+    message: Option<(String, bool, i32)>,
 }
 
 impl Reels {
@@ -370,10 +372,17 @@ impl Community {
             Event::Rolls(rolls) => {
                 let rolls: Vec<CommunityRoll> = rolls.into_iter().filter(|r| !r.reel.is_empty()).collect();
                 if self.open && !rolls.is_empty() {
-                    self.reels = Some(Reels { rolls, at: 0, start: now, landed: None, slot: 0, skip: false });
+                    // the answer names what they landed on: it waits for the last
+                    let message = self.message.take();
+                    self.reels = Some(Reels { rolls, at: 0, start: now, landed: None, slot: 0, skip: false, message });
                 }
             }
         }
+    }
+
+    /// Whether the reel still has rolls to land (a claim's chat lines wait for it).
+    pub fn reeling(&self) -> bool {
+        self.reels.as_ref().is_some_and(|r| !r.done())
     }
 
     /// The reel's next step: land the roll turning, else the next roll, else put it away.
@@ -383,9 +392,16 @@ impl Community {
         if r.landed.is_none() {
             r.skip = true;
         } else if r.done() {
-            self.reels = None;
+            self.put_away();
         } else {
             r.next(now);
+        }
+    }
+
+    /// Puts the reel away, with the claim's answer at the foot.
+    fn put_away(&mut self) {
+        if let Some(m) = self.reels.take().and_then(|r| r.message) {
+            self.message = Some(m);
         }
     }
 
@@ -393,7 +409,7 @@ impl Community {
     fn reel_skip(&mut self) {
         let Some(r) = &mut self.reels else { return };
         if r.done() {
-            self.reels = None;
+            self.put_away();
             return;
         }
         r.at = r.rolls.len() - 1;
@@ -527,6 +543,11 @@ impl Community {
             self.sounds.push(if roll.rarity >= 3 { "level_up" } else { "loot_appears" });
         }
         let (at, done) = (reels.at, reels.done());
+        if done {
+            if let Some(m) = reels.message.take() {
+                self.message = Some(m);
+            }
+        }
         // the rolls landed so far, the one turning too once it has
         let won: Vec<CommunityRoll> = reels.rolls.iter().take(if landed { at + 1 } else { at }).cloned().collect();
 
@@ -1379,7 +1400,10 @@ mod tests {
         c.event(Event::Rolls(vec![roll(1)]), 0);
         assert!(c.reels.is_none());
         c.show();
+        // the answer waits at the foot till the last roll lands; the chat waits too (`reeling`)
+        c.event(Event::Notice(CLAIMED, "Claimed!".into(), "x".into()), 100);
         c.event(Event::Rolls(vec![roll(1), roll(2), roll(3)]), 100);
+        assert!(c.message.is_none() && c.reeling());
         // the first turns; a press lands it, the next goes on to the second roll
         c.key(KeyCode::Space);
         assert!(c.reels.as_ref().unwrap().skip);
@@ -1390,8 +1414,10 @@ mod tests {
         c.key(KeyCode::Escape);
         assert_eq!(c.reels.as_ref().map(|r| (r.at, r.skip)), Some((2, true)));
         c.reels.as_mut().unwrap().landed = Some(200);
+        assert!(!c.reeling());
         c.key(KeyCode::Escape);
         assert!(c.reels.is_none() && c.open);
+        assert_eq!(c.message.as_ref().map(|m| m.0.as_str()), Some("Claimed! x"));
         // closing the window puts it away too
         c.event(Event::Rolls(vec![roll(1)]), 300);
         c.close();
