@@ -17,9 +17,12 @@ details). Add to a group's line when a change adds to it, rather than adding ano
 ### Community goals
 - The goals are sized for how much the realm really plays: they had been finishing within a day or
   two, and now take the whole week (Oryx 250 times, 45,000 gods, 1,200 dungeons and so on), with a
-  bigger share needed to claim the rewards. Four new goals can come up: Stronger Together (dungeons
-  cleared in a party), Spoils of the Realm (white bag items), Many Hands (quests claimed) and Roll
-  Call (daily rewards collected).
+  bigger share needed to claim the rewards. Ten new goals can come up, 25 in all: Stronger Together
+  (dungeons cleared in a party), Spoils of the Realm (white bag items), Many Hands (quests claimed),
+  Roll Call (daily rewards collected), Raid Night (the Lost Halls, the Shatters, the dragons' lairs
+  and the other great raids), four themed dungeon goals (Under the Waves, Lay Them to Rest, Into
+  the Wilds and Strange Places, each with its own keys and Lil' pet) and Sharp and Swift (Attack,
+  Dexterity and Speed potions).
 
 ### Combat
 - Shots that monsters fire exactly on top of each other look like one shot, and now hurt like one:

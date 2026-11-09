@@ -123,8 +123,13 @@ class Community:
             lines.append('<b>Top %d</b>: %s' % (self.c.get("topCount", 3), self.rewards(self.goal_rewards(g, "top", "defaultTop"))))
             minimum = g.get("minimum", 1)
             share = "{:,}".format(minimum) if minimum > 1 else "1"
+            what = esc(fill(g["text"], g["goal"]))
+            # a goal that counts only some dungeons or monsters lists them all
+            names = (g.get("filter") or {}).get("names") or []
+            if names:
+                what += '<br><span class="dim">Counts: %s.</span>' % esc(", ".join(names))
             rows.append('<tr id="goal-%s"><td><b>%s</b>%s</td><td>%s</td><td>%s</td><td>%s</td></tr>'
-                        % (esc(g["id"]), esc(g["title"]), note, esc(fill(g["text"], g["goal"])), share, "<br>".join(lines)))
+                        % (esc(g["id"]), esc(g["title"]), note, what, share, "<br>".join(lines)))
         return ('<div class="table-wrap"><table><thead><tr><th>Goal</th><th>What the realm does (to begin with)</th>'
                 "<th>Your share to claim</th><th>Rewards</th></tr></thead><tbody>%s</tbody></table></div>" % "".join(rows))
 

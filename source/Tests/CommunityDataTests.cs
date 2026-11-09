@@ -42,6 +42,26 @@ namespace Tests
         }
 
         [Fact]
+        public void NamedGoalsCountOnlyTheirDungeonsAndPotions()
+        {
+            QuestEvent Clear(string name, int difficulty = 1) => new QuestEvent(QuestEvents.Dungeon) { Name = name, Difficulty = difficulty };
+            var seas = Data.Goal("seas");
+            Assert.True(seas.Counts(Clear("Davy Jones' Locker")));
+            Assert.True(seas.Counts(Clear("Elder Pirate Cave")));
+            Assert.False(seas.Counts(Clear("Mad Lab")));
+            Assert.True(Data.Goal("strange").Counts(Clear("Mad Lab")));
+            Assert.True(Data.Goal("raids").Counts(Clear("The Shatters", 5)));
+            Assert.False(Data.Goal("raids").Counts(Clear("Snake Pit", 5)));
+            Assert.False(Data.Goal("party").Counts(Clear("Snake Pit")));
+            Assert.True(Data.Goal("party").Counts(new QuestEvent(QuestEvents.Dungeon) { Name = "Snake Pit", Group = true }));
+            // potions drunk from storage are named "Potion of <stat>", greater ones too
+            var battle = Data.Goal("battle_pots");
+            Assert.True(battle.Counts(new QuestEvent(QuestEvents.Potion) { Name = "Greater Potion of Dexterity" }));
+            Assert.True(battle.Counts(new QuestEvent(QuestEvents.Potion, 2) { Name = "Potion of Speed" }));
+            Assert.False(battle.Counts(new QuestEvent(QuestEvents.Potion) { Name = "Potion of Life" }));
+        }
+
+        [Fact]
         public void EachWeekDrawsGroupsInTurn()
         {
             Assert.Equal(Monday, CommunityData.WeekStart(Wed));
