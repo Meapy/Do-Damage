@@ -228,6 +228,9 @@ pub struct World {
     pub last_bolts: Option<i32>,
     anim_seed: u32,
     last_ground_damage: HashMap<(i32, i32), i32>,
+    /// Monsters' shots that hurt us lately: when, and what their stack has dealt
+    /// (`combat::stacked_on`).
+    recent_hits: Vec<(Projectile, i32, i32)>,
 }
 
 impl World {
@@ -264,6 +267,7 @@ impl World {
             last_bolts: None,
             anim_seed: 0x9E37_79B9,
             last_ground_damage: HashMap::new(),
+            recent_hits: Vec::new(),
         }
     }
 

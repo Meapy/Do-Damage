@@ -1,8 +1,9 @@
-Release 2.4.9: community goals sized for a real week, and four new goals (deploys the world server; nobody is disconnected)
+Release 2.4.9: community goals sized for a real week, four new goals, and stacked shots hit as one (deploys the world server and the client; nobody is disconnected)
 
 ## For players
 
 - **Community goals:** the goals had been finishing in hours to a couple of days (every one reached its last Overdrive level, 300%); they're now sized for a whole week of play: Oryx 250 times, 45,000 gods, 4,000 realm event bosses, 75 realms closed, 1,200 dungeons (600 Hard or harder, 300 Elder), 200,000 monsters, 6,000 bosses, 5,000 cube monsters, 30,000 fame, 35,000 potions, 1,200 Arena waves, 350 forges, 3,000 levels. The share needed to claim rewards grew with them (such as 3 dungeons, 150 gods, 800 monsters). Four new goals can come up: **Stronger Together** (500 dungeons cleared in a party of two or more, keys as loot), **Spoils of the Realm** (300 white bag items, loot boosts and shards), **Many Hands** (300 quests claimed, pet stones and level potions) and **Roll Call** (150 daily rewards collected). The goals still resize themselves week by week, and a goal finished early still brings a bonus goal.
+- **Combat:** monsters' shots that fly exactly on top of each other look like one shot and now hurt like one: the strongest of them, once. Two attacks of one monster on the same tick (the Mini Yeti in the Ice Cave fired its snowball twice) or a pack standing on one spot (the Rock Dragon's bats and body segments around the Eye of the Dragon) had dealt every bullet's damage, so a shot that looked like 80 could deal 800. Spreads and streams still hit shot by shot. The wiki's FAQ explains it.
 
 ## Details
 
@@ -17,6 +18,16 @@ Release 2.4.9: community goals sized for a real week, and four new goals (deploy
 - Docs: changelog, the wiki's Community goals page (the share example; its goal list is generated), SETUP-LOCAL.md "Changes from upstream".
 - Not done: the new goals' sizes are estimates until a week has run; watch `community:*` after the first week.
 
+### Stacked shots hit as one
+
+- Why: a player died at the Eye of the Dragon and in the Ice Cave to a shot that looked normal. Bullets fired on top of each other each dealt full damage: the Mini Yeti's two `Shoot`s of projectile 0 fire on the same tick (both on state entry, then whenever their cooldowns meet, aimed alike at a player standing still), and monsters crowding one spot (the Rock Dragon's bats, `Follow` at 1 tile; its body segments, `Protect` at 1 tile, which turn into bombs firing 13-shot rings) fire overlapping volleys.
+- Server: `Player.StackedShots` (`core/objects/player/data/StackedShots.cs`) and `Player.PlayerHit`. A monster's bullet that hits within 250 ms of another that hurt the player, looks the same (projectile `ObjectId`), was fired within 40 ms of it (the same tick, by ShootAck times), points within 4 degrees of it and is within 0.4 tiles of where the other would be, is stacked: it deals only what it would deal beyond the stack's damage so far (so a stack deals its strongest bullet, after defense, once), and otherwise only applies its condition effects. Damage-threshold items (`PlayerHitEffects`), relics and the damage broadcast see one shot.
+- Client: `combat::stacked_on` and `World::unstacked_damage` (`client-rs/crates/world`) judge it the same way for the damage numbers and hurt sounds (`Hit::Player` has `stacked`); it still sends every PlayerHit, so no message changes. An older client shows the extra numbers, but the server deals the damage once.
+- Redeploy: world server (the fix itself) and client (the numbers shown). Nobody is disconnected; nothing in Redis.
+- Docs: changelog (Combat), the wiki's FAQ ("Can one shot hit me several times?"), SETUP-LOCAL.md "Changes from upstream".
+- Not changed: the monsters themselves (Mini Yeti, Rock Dragon) keep their attacks; shots converging from different directions and shots one after another still each hit.
+
 ## Checks
 
 - Community goals: `dotnet test` (170 passed; `CommunityDataTests` updated for Oryx's new 250), the world server builds, every item and icon in `community.json` checked against the XML. Isolated stack (slot 3) seeded with `community:scale` `oryx 3` (no base), `fame 2.2`/`fame:base 6000` (old base) and `gods 1.35`/`gods:base 45000` (current base): the week's goals were fixed at oryx 250, fame 30,000 and gods 61,000, as expected. `build_wiki.py` shows the four new goals and the new numbers.
+- Stacked shots: `dotnet test --filter StackedShotsTests` (6 passed: one monster's two Shoots on one tick, monsters a fifth of a tile apart, an 8-degree spread, the next tick's shot, different-looking shots, shots meeting from either side), `cargo test -p bsk-world` (32 passed, with `stacked_shots_hit_as_one`) and `-p bsk-client` (82 passed), the world server and the bot build. Isolated stack (slot 25: on this PC the Oculus runtime holds loopback ports around 2050-2075, so lower slots' world servers can't bind): the bot (`--fight`, `/spawn 5 Mini Yeti` in its vault) took a volley of 10 Yeti Snowballs (5 yetis x 2 Shoots, one spot); with a temporary log, the server dealt the first 80 and 0 for the other nine (800 before).

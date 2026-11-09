@@ -634,6 +634,16 @@ The remotes `upstream` (HaloCelsius) and `aurusenth` share no history with `main
 
 ## Changes from upstream
 
+- **Stacked shots hit as one** (2026-11-09; `Player.StackedShots` in
+  `core/objects/player/data/StackedShots.cs`, `Player.PlayerHit`; the client's `combat::stacked_on`):
+  monsters' shots that look the same (projectile `ObjectId`), were fired within 40 ms of each other
+  (the same tick, by the ShootAck times), point within 4 degrees of each other and are within 0.4
+  tiles of each other when the later one hits, hit the player within 250 ms of each other, are one
+  shot: the stack deals its strongest bullet's damage (after defense), once; the others only add
+  their condition effects. Two `Shoot`s of one monster firing the same bullet on one tick (the
+  Mini Yeti) and monsters on one spot (`/spawn 5`, the Rock Dragon's bats and body segments) had
+  dealt every bullet's damage. The client works it out the same way, for the damage numbers and
+  hurt sounds it shows, and still sends every PlayerHit.
 - **Wider party buffs** (2026-11-08; `tools/rework_buff_auras.py`, which `port_doomed.py`,
   `build_resurrection.py` and `build_ascended_items.py` run after writing their XML): on the party
   abilities (slot types 16 helm, 12 seal, 4 tome, 28 lute, 37 jacket, 130 fountain, 126 halo), each

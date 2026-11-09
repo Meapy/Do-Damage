@@ -21,6 +21,11 @@ details). Add to a group's line when a change adds to it, rather than adding ano
   cleared in a party), Spoils of the Realm (white bag items), Many Hands (quests claimed) and Roll
   Call (daily rewards collected).
 
+### Combat
+- Shots that monsters fire exactly on top of each other look like one shot, and now hurt like one:
+  no more dying to what looked like a single hit (Mini Yetis in the Ice Cave, the Rock Dragon's
+  bats and body segments). A stack deals its strongest shot's damage, once.
+
 ## 2.4.8 (2026-11-09)
 
 ### Community goals

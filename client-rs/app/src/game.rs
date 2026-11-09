@@ -1118,7 +1118,17 @@ impl Game {
         let Some(world) = &mut self.world else { return };
         for hit in world.update_projectiles(now, data) {
             let msg: ClientMessage = match hit {
-                Hit::Player { bullet_id, owner_id, damage, pierced } => {
+                // a shot stacked on one that just hit us adds no sound, and no number unless it
+                // deals more than that one did
+                Hit::Player { stacked: true, bullet_id, owner_id, damage, pierced } => {
+                    if damage > 0 {
+                        if let Some(me) = world.me {
+                            self.floaters.push(crate::view::Floater::hit(me, damage, pierced, now));
+                        }
+                    }
+                    PlayerHit { bullet_id, object_id: owner_id }.into()
+                }
+                Hit::Player { bullet_id, owner_id, damage, pierced, .. } => {
                     if let Some(s) = world.player().and_then(|p| hurt_sound(data, p.object_type, false)) {
                         self.sounds.push((s, 1.0, false));
                     }
