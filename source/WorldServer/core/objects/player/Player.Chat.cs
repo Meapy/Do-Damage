@@ -199,6 +199,15 @@ namespace WorldServer.core.objects
             Txt = text
         });
 
+        internal void HelpCallReceived(string from, int stars) => Client.SendPacket(new Text()
+        {
+            ObjectId = -1,
+            BubbleTime = 0,
+            NumStars = stars,
+            Name = from,
+            Txt = "is requesting help. Accept the call or /visit them, or click here to join and help."
+        });
+
         internal void PartyReceived(int objId, int stars, string from, string text) => Client.SendPacket(new Text()
         {
             ObjectId = objId,

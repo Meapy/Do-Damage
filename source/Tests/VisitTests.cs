@@ -67,6 +67,35 @@ namespace Tests
         }
 
         [Fact]
+        public void HelpCallCanAskSeveralPlayersAndEachCanAccept()
+        {
+            var book = new VisitBook();
+            Assert.Null(book.AskMany(1, "V1", new[] { (2, "T2"), (3, "T3") }, 1000, 0, out var requests, summon: true));
+            Assert.Equal(2, requests.Count);
+            Assert.All(requests, request => Assert.True(request.Summon));
+            Assert.Contains("already waiting", Ask(book, 1, 4, 1000, out _));
+            Assert.Contains("another request", Ask(book, 4, 2, 1000, out _));
+
+            Assert.Same(requests[0], book.Answer(2, requests[0].Id, true, 1000));
+            Assert.Same(requests[1], book.WaitingFor(3, 1000));
+            Assert.True(book.Any);
+        }
+
+        [Fact]
+        public void TakingBackAHelpCallRemovesEveryRequest()
+        {
+            var book = new VisitBook();
+            Assert.Null(book.AskMany(1, "V1", new[] { (2, "T2"), (3, "T3") }, 1000, 0, out _, summon: true));
+
+            var withdrawn = book.WithdrawAll(1);
+
+            Assert.Equal(2, withdrawn.Count);
+            Assert.Null(book.WaitingFor(2, 1));
+            Assert.Null(book.WaitingFor(3, 1));
+            Assert.False(book.Any);
+        }
+
+        [Fact]
         public void APlayerIsAskedByOneAtATime()
         {
             var book = new VisitBook();

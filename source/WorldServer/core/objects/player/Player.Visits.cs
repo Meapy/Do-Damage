@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using Shared;
 using Shared.resources;
@@ -106,22 +107,79 @@ namespace WorldServer.core.objects
             return true;
         }
 
-        // /visit cancel or /summon cancel: take back the request waiting.
+        // A help call is a batch of ordinary summon requests to eligible players.
+        public List<VisitBook.Request> AskForHelp(IEnumerable<Client> targets)
+        {
+            var world = World;
+            if (VisitPlace(world, this).Kind != VisitRules.Kind.Instance)
+            {
+                SendError("You can only call for help from a dungeon or instance.");
+                return new List<VisitBook.Request>();
+            }
+
+            var accountId = Client.Account.AccountId;
+            var placeName = world.GetDisplayName();
+            var candidates = targets
+                .Where(target => target?.Player?.World != null && target.Account != null && target.Account.AccountId != accountId)
+                .Where(target =>
+                {
+                    var player = target.Player;
+                    var place = VisitPlace(player.World, player);
+                    return place.Kind is VisitRules.Kind.Nexus or VisitRules.Kind.Realm
+                        && player.CanBeSeenBy(this)
+                        && !target.Account.IgnoreList.Contains(accountId)
+                        && VisitRules.Refusal(VisitPlace(world, player), player.Name, summon: true) == null;
+                })
+                .Select(target => (target.Account.AccountId, target.Player.Name))
+                .ToArray();
+
+            if (candidates.Length == 0)
+            {
+                SendInfo("No available players can join your world right now.");
+                return new List<VisitBook.Request>();
+            }
+
+            var refusal = GameServer.Visits.AskMany(accountId, Name, candidates, world.Id, VisitClock, out var requests, summon: true);
+            if (refusal != null)
+            {
+                SendError(refusal);
+                return requests;
+            }
+
+            foreach (var request in requests)
+            {
+                var target = GameServer.ConnectionManager.FindClient(request.Target);
+                OnPlayersThread(target, player =>
+                {
+                    player.ShowVisitRequest(request, placeName, (byte)(VisitBook.TimeoutMs / 1000));
+                    player.HelpCallReceived(Name, Stars);
+                });
+            }
+            SendInfo($"Asked {requests.Count} players to come to your {placeName}.");
+            return requests;
+        }
+
+        // /visit cancel or /summon cancel: take back every outgoing request.
         public void WithdrawVisit()
         {
-            var r = GameServer.Visits.Withdraw(Client.Account.AccountId);
-            if (r == null)
+            var requests = GameServer.Visits.WithdrawAll(Client.Account.AccountId);
+            if (requests.Count == 0)
             {
                 SendInfo("You have no request waiting.");
                 return;
             }
-            var target = GameServer.ConnectionManager.FindClient(r.Target);
-            OnPlayersThread(target, p =>
+            foreach (var r in requests)
             {
-                p.ShowVisitRequest(r, "", 0);
-                p.SendInfo($"{r.VisitorName} took back their {Asking(r.Summon)} request.");
-            });
-            SendInfo($"Took back your {Asking(r.Summon)} request to {r.TargetName}.");
+                var target = GameServer.ConnectionManager.FindClient(r.Target);
+                OnPlayersThread(target, p =>
+                {
+                    p.ShowVisitRequest(r, "", 0);
+                    p.SendInfo($"{r.VisitorName} took back their {Asking(r.Summon)} request.");
+                });
+            }
+            SendInfo(requests.Count == 1
+                ? $"Took back your {Asking(requests[0].Summon)} request to {requests[0].TargetName}."
+                : $"Took back your {Asking(requests[0].Summon)} requests to {requests.Count} players.");
         }
 
         // /yes or /no: answer the request waiting, and hide its box.

@@ -28,6 +28,8 @@ details). Add to a group's line when a change adds to it, rather than adding ano
 
 ### Game
 - Use Up and Down in chat to revisit messages and commands you've sent, then return to your draft.
+- Ask nearby players for help with `/help`, or limit the call to your party with `/phelp` or your
+  guild with `/ghelp`; click the chat link to ask to join them.
 
 ## 2.4.9 (2026-11-09)
 

@@ -174,8 +174,8 @@ struct App {
     chat_log: Vec<hud::ChatLine>,
     /// Tab's place in the list of people we've whispered with (`TextBox.currentTeller_`).
     teller: usize,
-    /// Players' names in the chat as last drawn, and where (a click opens their menu).
-    chat_names: Vec<(String, [f32; 4])>,
+    /// Clickable names and help links in the chat, as last drawn.
+    chat_clicks: Vec<hud::ChatClick>,
     /// `--say <text>` (desktop tests): lines still to send, one per world we join (see `say_arg`).
     say: Vec<String>,
     /// The join (`reconnects`) the last --say line went out in, and when.
@@ -2448,12 +2448,17 @@ impl App {
             // A click anywhere while the chat box is open closes it, and does nothing else (a
             // player's name in the chat still opens a whisper).
             if self.chat_input.is_some() {
-                let names = &self.chat_names;
-                let on_name = |(x, y): (f64, f64)| names.iter().any(|(_, r)| {
-                    let (x, y) = (x as f32, y as f32);
-                    x >= r[0] && y >= r[1] && x < r[0] + r[2] && y < r[1] + r[3]
-                });
-                if self.clicks.iter().any(|&(down, pos)| down && !on_name(pos)) {
+                let chat_clicks = &self.chat_clicks;
+                let on_click = |(x, y): (f64, f64)| {
+                    chat_clicks.iter().any(|click| {
+                        let (x, y) = (x as f32, y as f32);
+                        x >= click.rect[0]
+                            && y >= click.rect[1]
+                            && x < click.rect[0] + click.rect[2]
+                            && y < click.rect[1] + click.rect[3]
+                    })
+                };
+                if self.clicks.iter().any(|&(down, pos)| down && !on_click(pos)) {
                     self.chat_input = None;
                     self.chat_history.reset_navigation();
                     self.clicks.clear();
@@ -2748,18 +2753,37 @@ impl App {
                             continue;
                         }
                     }
-                    // A player's name in the chat: their menu if they're here, else a whisper.
+                    // Chat names open their menu or a whisper; a help link sends /visit at once.
                     let (px, py) = (pos.0 as f32, pos.1 as f32);
-                    let name = self.chat_names.iter().find(|(_, r)| px >= r[0] && py >= r[1] && px < r[0] + r[2] && py < r[1] + r[3]);
-                    if let (true, Some((name, _))) = (down, name) {
-                        let here = game.world.as_ref().and_then(|w| {
-                            w.objects.values().find(|o| Some(o.id) != w.me && o.name() == Some(name.as_str()) && data.objects.get(&o.object_type).is_some_and(|d| d.player))
-                        });
-                        match here {
-                            Some(o) => self.hud.open_menu(o.id, pos),
-                            None => {
-                                self.chat_history.reset_navigation();
-                                self.chat_input = Some(chat_line(format!("/tell {name} ")));
+                    let click = self.chat_clicks.iter().find(|click| {
+                        px >= click.rect[0]
+                            && py >= click.rect[1]
+                            && px < click.rect[0] + click.rect[2]
+                            && py < click.rect[1] + click.rect[3]
+                    });
+                    if let (true, Some(click)) = (down, click) {
+                        match &click.target {
+                            hud::ChatClickTarget::Visit(name) => {
+                                self.chat_send.push(format!("/visit {name}"))
+                            }
+                            hud::ChatClickTarget::Player(name) => {
+                                let here = game.world.as_ref().and_then(|w| {
+                                    w.objects.values().find(|o| {
+                                        Some(o.id) != w.me
+                                            && o.name() == Some(name.as_str())
+                                            && data
+                                                .objects
+                                                .get(&o.object_type)
+                                                .is_some_and(|d| d.player)
+                                    })
+                                });
+                                match here {
+                                    Some(o) => self.hud.open_menu(o.id, pos),
+                                    None => {
+                                        self.chat_history.reset_navigation();
+                                        self.chat_input = Some(chat_line(format!("/tell {name} ")));
+                                    }
+                                }
                             }
                         }
 
@@ -3028,7 +3052,7 @@ impl App {
                 let me = game.world.as_ref().and_then(|w| w.player()).and_then(|p| p.name()).unwrap_or("").to_owned();
                 let mut ui = hud::Ui { renderer: &mut *renderer, sprites, data, redrawer: &mut *redrawer, fonts, text: &mut *text };
                 prof::mark("pre-chat");
-                self.chat_names = hud::draw_chat(&mut ui, &lay, &game.chat, &me, self.chat_input.as_ref(), self.chat_scroll, self.settings.chat_size, self.settings.chat_alpha, now);
+                self.chat_clicks = hud::draw_chat(&mut ui, &lay, &game.chat, &me, self.chat_input.as_ref(), self.chat_scroll, self.settings.chat_size, self.settings.chat_alpha, now);
                 if let Some(p) = game.world.as_ref().and_then(|w| w.player()) {
                     // The frame rate and the ping (L), under the gold and fame.
                     let fps = self.settings.show_fps.then(|| match game.ping {
@@ -3668,7 +3692,7 @@ fn main() {
         chat_scroll: None,
         chat_log: Vec::new(),
         teller: 0,
-        chat_names: Vec::new(),
+        chat_clicks: Vec::new(),
         chat_send: Vec::new(),
         say: say_lines(),
         say_sent_in: None,

@@ -42,15 +42,22 @@ only the mouse answers it, or they type `/yes` or `/no`. If they say Yes, the on
 straight there; if they don't answer in 30 seconds it counts as No. `/visit cancel` (or
 `/summon cancel`) takes your request back.
 
+From a dungeon or instance, `/help` sends summon requests to eligible online players currently in
+the Nexus or a realm. `/phelp` and `/ghelp` limit the call to online party or guild members in
+those worlds. Requests go to players on the same world server and follow the usual summon rules.
+Each recipient sees a chat link: clicking it sends `/visit <name>` to ask permission to join you.
+You can ask multiple players at once; each recipient can accept their request, and
+`/summon cancel` takes back all outstanding help requests.
+
 - Each player gets into an instance this way **once**, and never back into one they've already
   been in, on any of their characters: dying in a dungeon and visiting (or being summoned) your
   way back in doesn't work.
 - Realms, the Nexus, vaults, guild halls and the Daily Quest Room can't be visited or summoned
   into, and nor can a full instance or one made for a single player. For realms, take a realm
   portal from the Nexus or use `/realm2`.
-- You can have one request (a visit or a summon) waiting at a time and ask again after 10 seconds;
-  a player is asked by one player at a time, and after a No (or no answer) you wait a minute before
-  asking them again.
+- You can have one `/visit` or `/summon` request waiting at a time; a help call can ask several
+  players at once. Wait 10 seconds between calls; a player is asked by one player at a time, and
+  after a No (or no answer) you wait a minute before asking them again.
 - On a game older than version 2.3.7 there's no box: your friend sees the request in chat and
   answers with `/yes` or `/no` (on 2.3.7 itself, summons come in chat too).
 
