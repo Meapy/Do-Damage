@@ -30,6 +30,7 @@ details). Add to a group's line when a change adds to it, rather than adding ano
 - Use Up and Down in chat to revisit messages and commands you've sent, then return to your draft.
 - Ask nearby players for help with `/help`, or limit the call to your party with `/phelp` or your
   guild with `/ghelp`; click the chat link to ask to join them.
+- Status effects, loot bags and timed portals flash during their last two seconds.
 
 ## 2.4.9 (2026-11-09)
 

@@ -634,6 +634,12 @@ The remotes `upstream` (HaloCelsius) and `aurusenth` share no history with `main
 
 ## Changes from upstream
 
+- **Expiry flashes** (2026-11-10; `WorldServer/core/objects/ConditionEffectManager.cs`,
+  timed portal creation and `client-rs/app/src/view.rs`): the server sends each condition effect's
+  remaining duration and each scheduled portal's lifetime as integer stats; loot bags' existing
+  health stat is already their remaining lifetime. The Rust client flashes condition icons, loot
+  bags and timed portals during their last two seconds. Permanent effects and portals without a
+  timer do not flash. Older clients ignore the added stats; no Redis migration.
 - **Stacked shots hit as one** (2026-11-09; `Player.StackedShots` in
   `core/objects/player/data/StackedShots.cs`, `Player.PlayerHit`; the client's `combat::stacked_on`):
   monsters' shots that look the same (projectile `ObjectId`), were fired within 40 ms of each other

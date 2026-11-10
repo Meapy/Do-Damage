@@ -31,6 +31,35 @@ fn obj(id: i32, object_type: u16, x: f32, y: f32, speed: i32) -> bsk_proto::Obje
     ObjectData { object_type: object_type as i32, status: ObjectStatus { object_id: id, pos: WorldPos { x, y }, stats: stats.into() } }
 }
 
+#[test]
+fn countdown_stats_track_server_updates() {
+    let d = data();
+    let mut hero = obj(2, PLAYER, 5.5, 5.5, 75);
+    hero.status.stats = vec![
+        StatData { id: stat::LIFETIME_MS, value: StatValue::Int(3_000) },
+        StatData { id: stat::condition_duration(condition::DAZED as u8), value: StatValue::Int(1_000) },
+        StatData { id: stat::HEALTH, value: StatValue::Int(1_200) },
+    ]
+    .into();
+    let update = Update { tiles: Default::default(), new_objs: vec![hero].into(), drops: Default::default() };
+    let mut w = World::new(10, 10, "test", 1);
+    w.apply_update(&update, &d, 100);
+
+    let hero = &w.objects[&2];
+    assert_eq!(hero.stat_int_remaining(stat::LIFETIME_MS, 900), Some(2_200));
+    assert_eq!(hero.stat_int_remaining(stat::condition_duration(condition::DAZED as u8), 900), Some(200));
+    assert_eq!(hero.stat_int_remaining(stat::HEALTH, 900), Some(400));
+    assert_eq!(hero.stat_int_remaining(stat::LIFETIME_MS, 3_500), Some(0));
+
+    let status = ObjectStatus {
+        object_id: 2,
+        pos: WorldPos { x: 5.5, y: 5.5 },
+        stats: vec![StatData { id: stat::condition_duration(condition::DAZED as u8), value: StatValue::Int(400) }].into(),
+    };
+    w.apply_new_tick(&NewTick { tick_id: 1, tick_time: 100, statuses: vec![status].into() }, 900);
+    assert_eq!(w.objects[&2].stat_int_remaining(stat::condition_duration(condition::DAZED as u8), 1_150), Some(150));
+}
+
 /// A 10Ã—10 floor with a wall at (6, 5) and water at (5, 7); our player at (5.5, 5.5).
 fn world(d: &GameData) -> World {
     let mut w = World::new(10, 10, "test", 1);

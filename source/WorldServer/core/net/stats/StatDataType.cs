@@ -123,6 +123,10 @@
         // 3 as far past it as the Infernal potions go (Player.StatTones); sent to everyone, so the
         // client colours anyone's stats. An older client ignores it.
         StatTones = 149,
+        // Remaining time before a timed object disappears, in milliseconds.
+        LifetimeMs = 150,
+        // Per-condition remaining durations use LifetimeMs + the condition effect number.
+        ConditionDurationBase = LifetimeMs,
         None = 255
     }
 }

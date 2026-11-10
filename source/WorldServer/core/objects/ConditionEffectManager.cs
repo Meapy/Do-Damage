@@ -38,6 +38,7 @@ namespace WorldServer.core.objects
             _masks[batchType] |= GetBit(effect);
 
             UpdateConditionStat(batchType);
+            _host.InvokeStatChange(DurationStat(effect), duration);
         }
 
         public void AddPermanentCondition(byte effect)
@@ -48,6 +49,7 @@ namespace WorldServer.core.objects
             _masks[batchType] |= GetBit(effect);
 
             UpdateConditionStat(batchType);
+            _host.InvokeStatChange(DurationStat(effect), -1);
         }
 
         public bool HasCondition(byte effect) => (_masks[GetBatch(effect)] & GetBit(effect)) != 0;
@@ -81,15 +83,21 @@ namespace WorldServer.core.objects
         {
             _host.InvokeStatChange(StatDataType.ConditionBatch1, _batch1.GetValue());
             _host.InvokeStatChange(StatDataType.ConditionBatch2, _batch2.GetValue());
+            for (byte effect = 1; effect < _durations.Length; effect++)
+                if (HasCondition(effect))
+                    _host.InvokeStatChange(DurationStat(effect), _durations[effect]);
         }
 
         public void RemoveCondition(byte effect)
         {
+            var wasActive = HasCondition(effect) || _durations[effect] != 0;
             _durations[effect] = 0;
 
             var batchType = GetBatch(effect);
             _masks[batchType] &= ~GetBit(effect);
             UpdateConditionStat(batchType);
+            if (wasActive)
+                _host.InvokeStatChange(DurationStat(effect), 0);
         }
 
 
@@ -110,7 +118,12 @@ namespace WorldServer.core.objects
         {
             stats[StatDataType.ConditionBatch1] = _batch1.GetValue();
             stats[StatDataType.ConditionBatch2] = _batch2.GetValue();
+            for (byte effect = 1; effect < _durations.Length; effect++)
+                if (HasCondition(effect))
+                    stats[DurationStat(effect)] = _durations[effect];
         }
+
+        private static StatDataType DurationStat(byte effect) => (StatDataType)((byte)StatDataType.ConditionDurationBase + effect);
 
         private static int GetBit(int effect) => 1 << effect - (IsNewCondThreshold(effect) ? NEW_CON_THREASHOLD : 1);
         private static bool IsNewCondThreshold(int effect) => effect >= NEW_CON_THREASHOLD;

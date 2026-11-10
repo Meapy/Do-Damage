@@ -764,6 +764,7 @@ namespace WorldServer.core.commands.doomed
                 player.SendError("The Arena portal doesn't exist.");
                 return false;
             }
+            portal.SetLifetime(30 * 1000);
             player.World.StartNewTimer(30 * 1000, (w, t) => w.LeaveWorld(portal));
             player.GameServer.ChatManager.ServerAnnounce($"Arena opened by {player.Name}");
             return true;

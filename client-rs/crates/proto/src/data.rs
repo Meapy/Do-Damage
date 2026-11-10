@@ -457,8 +457,13 @@ wire_struct! {
 /// Stat ids (`StatData.as`, `StatDataType.cs`). Only the ones the protocol itself needs; the
 /// game model names the rest.
 pub mod stat {
+    pub const HEALTH: u8 = 1;
     pub const NAME: u8 = 31;
     pub const GUILD_NAME: u8 = 62;
+    /// Remaining lifetime in milliseconds for an object with a scheduled expiry.
+    pub const LIFETIME_MS: u8 = 150;
+    /// Add the condition effect number to this base to get its remaining duration stat id.
+    pub const CONDITION_DURATION_BASE: u8 = 150;
     /// How high the object stands, in thousandths of a tile: only in a world of stacked floors.
     pub const HEIGHT: u8 = 148;
     /// `INVDATA0`..`INVDATA11` and `BACKPACKDATA0`..`BACKPACKDATA7`: per-slot item data (JSON).
@@ -467,6 +472,16 @@ pub mod stat {
     /// Whether the value of this stat is a string rather than an int, as the AIR client decides.
     pub fn is_string(id: u8) -> bool {
         id == NAME || id == GUILD_NAME || ITEM_DATA.contains(&id)
+    }
+
+    pub fn is_expiry(id: u8) -> bool {
+        id == HEALTH
+            || id == LIFETIME_MS
+            || (CONDITION_DURATION_BASE + 1..=CONDITION_DURATION_BASE + 61).contains(&id)
+    }
+
+    pub const fn condition_duration(effect: u8) -> u8 {
+        CONDITION_DURATION_BASE + effect
     }
 }
 

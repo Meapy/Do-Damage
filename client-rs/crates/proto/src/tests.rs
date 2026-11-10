@@ -92,13 +92,17 @@ fn update_with_string_and_int_stats() {
         .i32(77) // object id
         .f32(10.5)
         .f32(20.5)
-        .i16(3)
+        .i16(5)
         .u8(31) // name: a string
         .utf("Tester")
         .u8(0) // max hp: an int
         .i32(700)
         .u8(122) // first item data slot: a string
         .utf("{}")
+        .u8(stat::LIFETIME_MS) // new countdown stats are integers
+        .i32(2_000)
+        .u8(stat::condition_duration(1))
+        .i32(500)
         .i16(1)
         .i32(99) // drop
         .0;
@@ -112,6 +116,8 @@ fn update_with_string_and_int_stats() {
     assert_eq!(obj.status.stats[0], StatData { id: 31, value: StatValue::Str("Tester".into()) });
     assert_eq!(obj.status.stats[1], StatData { id: 0, value: StatValue::Int(700) });
     assert_eq!(obj.status.stats[2], StatData { id: 122, value: StatValue::Str("{}".into()) });
+    assert_eq!(obj.status.stats[3], StatData { id: stat::LIFETIME_MS, value: StatValue::Int(2_000) });
+    assert_eq!(obj.status.stats[4], StatData { id: stat::condition_duration(1), value: StatValue::Int(500) });
     assert_eq!(*u.drops, vec![99]);
     // And back to the same bytes.
     let mut w = wire::Writer::default();

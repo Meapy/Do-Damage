@@ -7,6 +7,7 @@ Release 2.4.10: new item art, more frequent Necromantic Relics and Elder dungeon
 - **Elder dungeons:** Necromantic Relics now have a 5% drop chance per player who dealt at least 2% of an Elder boss's damage, up from 3%; each Elder dungeon also drops its own key at the regular dungeon's chance (1% where no regular key chance is configured).
 - **Help calls:** `/help` asks eligible players in the Nexus or realms to join you; `/phelp` and
   `/ghelp` call your party or guild. Click the chat link to ask to join the caller.
+- **Game:** status effects, loot bags and timed portals flash during their last two seconds.
 
 ## Details
 
@@ -38,12 +39,20 @@ Release 2.4.10: new item art, more frequent Necromantic Relics and Elder dungeon
 - Redeploy: world server and Rust client; nobody is disconnected.
 - Docs: changelog, SETUP-LOCAL.md, wiki commands page.
 
+### Status effects and expiring objects
+
+- The world server sends remaining durations for timed status effects and portals as integer stats; loot bags already send their remaining lifetime as health. The Rust client uses these countdowns to flash status icons, bags and timed portals during their last two seconds. Permanent effects and portals that do not expire do not flash.
+- The new stats are optional and older clients ignore them. No Redis migration.
+- Redeploy: world server and Rust client; nobody is disconnected.
+- Docs: changelog and SETUP-LOCAL.md.
+
 ## Checks
 
 - Enthroned gear: `build_ascended_items.py` and `gen_rs_manifest.py` rerun; every Enthroned item and shot resolved through the manifest to a non-empty cell and rendered side by side; `build_wiki.py` shows the new icons on the gear pages; server tests (`dotnet test`, 177 passed).
 - Monk's fists: every Fists item (T0-T15 and the Enthroned Fists) resolved through the manifest to a non-empty cell and rendered side by side; `build_wiki.py` draws the new icons on the Martial Art gear page; server tests (`dotnet test`, 177 passed).
 - Elder dungeon keys: Elder loot regression tests verify each key's source and chance; `build_wiki.py` shows the key on its matching dungeon page.
 - Help calls: `dotnet test` covers multi-recipient requests, answers and withdrawal; `cargo test -p bsk-client` covers the clickable link rendering and normal chat behavior.
+- Status effects and expiring objects: `dotnet test source\Tests\Tests.csproj --no-restore` (195 passed); from `client-rs`, `cargo test -p bsk-proto -p bsk-world -p bsk-client` (145 passed).
 
 ### Necromantic Relic drop rate
 

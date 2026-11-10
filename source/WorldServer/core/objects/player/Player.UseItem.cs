@@ -1166,6 +1166,8 @@ namespace WorldServer.core.objects
 
             entity.Move(X, Y);
             entity.Z = Z;
+            if (timeoutTime > 0)
+                entity.SetLifetime(timeoutTime * 1000);
             World.EnterWorld(entity);
 
             World.StartNewTimer(timeoutTime * 1000, (world, t) => world.LeaveWorld(entity));
@@ -1197,6 +1199,8 @@ namespace WorldServer.core.objects
 
             entity.Move(X, Y);
             entity.Z = Z;
+            if (timeoutTime > 0)
+                entity.SetLifetime(timeoutTime * 1000);
             World.EnterWorld(entity);
 
             World.StartNewTimer(timeoutTime * 1000, (world, t) => world.LeaveWorld(entity));
@@ -1277,6 +1281,8 @@ namespace WorldServer.core.objects
             var entity = Resolve(GameServer, newType);
             entity.Move(target.X, target.Y);
             entity.Z = target.Z;
+            if (entity is Portal)
+                entity.SetLifetime(300 * 1000);
             World.LeaveWorld(target);
             World.EnterWorld(entity);
             if (entity is Portal)
