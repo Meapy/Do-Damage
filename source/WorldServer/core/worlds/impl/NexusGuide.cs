@@ -25,7 +25,7 @@ namespace WorldServer.core.worlds.impl
         private const string GIFT = "NG XP Duck";
         private const string NAME = "#Support Bot";
         private const int GIFT_COUNT = 100;
-        private const float GIFT_INTERVAL = 600f;   // seconds
+        private const float GIFT_INTERVAL = 300f;   // seconds
         private const float TALK_INTERVAL = 45f;
         private const float TALK_RANGE = 15f;
         private const float GREET_RANGE = 5f;
