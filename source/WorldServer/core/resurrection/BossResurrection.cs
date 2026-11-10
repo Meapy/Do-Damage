@@ -40,7 +40,7 @@ namespace WorldServer.core.resurrection
         public static ushort RitualSoulType { get; private set; }
         public static ushort WailingSoulType { get; private set; }
         public static int SoulBolt { get; private set; } = 90;
-        private static double _relicChance = 0.03;
+        private static double _relicChance = 0.05;
         private static double _relicThreshold = 0.02;
 
         // Reads the bosses and gives each Empowered form its Elder boss's behaviour, with the

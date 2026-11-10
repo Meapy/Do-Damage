@@ -14,6 +14,9 @@ details). Add to a group's line when a change adds to it, rather than adding ano
 
 ## Unreleased
 
+### Elder dungeons
+- Necromantic Relics drop more often: a 5% chance for each player who dealt at least 2% of an Elder boss's damage, up from 3%.
+
 ### Items
 - New art for the Enthroned gear: the Sword, Dagger, Bow, Wand, Katana, Dual Blades and Staff, the
   Hide, Plate and Robe, and the Boots. Those weapons also fire a shot of their own, taking turns

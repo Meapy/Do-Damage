@@ -1,6 +1,6 @@
 {
  "relic": "Necromantic Relic",
- "relicChance": 0.03,
+ "relicChance": 0.05,
  "relicThreshold": 0.02,
  "corpseSeconds": 75,
  "ritualSoul": "Necromantic Ritual Soul",
