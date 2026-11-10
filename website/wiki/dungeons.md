@@ -38,17 +38,19 @@ corridor back to the altar opens. Beat all four in any order and the altar opens
 Wyvern's portal, and half the time the Elder Lair's.
 
 Each dragon drops its own stat potions and, rarely, a relic of itself to keep. An Elder Draconis
-Key, sold for 400 fame at the Bazaar, opens the Elder Lair too. The **Elder Lair** is the same
-lair with Elder dragons: twice their health, harder hits and faster attacks, and better loot,
-including a potion that maxes the dragon's stat and its Elder armour or bow. Its altar opens the
-Elder Ivory Wyvern instead of the Ivory Wyvern.
+Key, sold for 400 fame at the Bazaar or dropped by the Elder Lair's dragons, opens the Elder Lair
+too. The **Elder Lair** is the same lair with Elder dragons: twice their health, harder hits and
+faster attacks, and better loot, including a potion that maxes the dragon's stat and its Elder
+armour or bow. Its altar opens the Elder Ivory Wyvern instead of the Ivory Wyvern.
 
 The **Ivory Wyvern** fights with four mirror images, then with the four dragons' soul flames,
 then alone. Half the time it leaves the portal to the **Elder Ivory Wyvern**: the same fight with
 twice the health, harder hits and faster attacks. The Elder Wyvern can drop a Potion of Max Life
-or Max Mana, better gear, an Elder Draconis or Elder Ivory Wyvern Key, and, rarely, any of the
-four Elder dragons' armours and bow. Elder Ivory Wyvern Keys also drop from the Elder Lair's
-dragons and come in the Elder community ## Raising an Elder boss
+or Max Mana, better gear and its own Elder Ivory Wyvern Key, and, rarely, any of the four Elder
+dragons' armours and bow. The Elder Draconis Key drops from the Elder Lair's dragons; each key
+drops in its matching Elder dungeon. Both keys can also be community-goal rewards.
+
+## Raising an Elder boss
 
 Every Elder dungeon's boss can be fought twice. When it falls it leaves its remains for a little
 while, and a **Necromantic Relic** used beside them raises it again in its **Empowered** form: a

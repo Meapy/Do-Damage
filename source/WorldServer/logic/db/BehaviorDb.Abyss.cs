@@ -17,6 +17,7 @@ namespace WorldServer.logic
             string E(string id) => ElderDefines(id, elder);
             int Cd(int ms) => ElderCooldown(ms, elder);
             MobDrops Elder(string id) => ElderDrops(id, elder);
+            MobDrops ElderLoot(double threshold, params MobDrops[] drops) => new Threshold(threshold, elder ? drops : new MobDrops[0]);
 
             return db
                 .Init(E("Malphas Protector"),
@@ -285,7 +286,8 @@ namespace WorldServer.logic
                         new ItemLoot("Demon Blade", 0.02),
                         new ItemLoot(item: "Potion of Vitality", probability: 1),
                         new ItemLoot(item: "Potion of Defense", probability: 1)
-                    ), Elder("Archdemon Malphas"));
+                    ), Elder("Archdemon Malphas"),
+                    ElderLoot(0.01, new ItemLoot("Elder Abyss Key", 0.01)));
         }
 
         private _ AbyssIdol = () => AbyssIdolBehaviours(Behav(), false);

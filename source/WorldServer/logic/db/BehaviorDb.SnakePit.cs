@@ -17,6 +17,7 @@ namespace WorldServer.logic
             string E(string id) => ElderDefines(id, elder);
             int Cd(int ms) => ElderCooldown(ms, elder);
             MobDrops Elder(string id) => ElderDrops(id, elder);
+            MobDrops ElderLoot(double threshold, params MobDrops[] drops) => new Threshold(threshold, elder ? drops : new MobDrops[0]);
 
             return db
             .Init(E("Stheno the Snake Queen"),
@@ -86,7 +87,8 @@ namespace WorldServer.logic
                     new TierLoot(9, ItemType.Armor, 0.2),
                     new TierLoot(4, ItemType.Ability, 0.2),
                     new TierLoot(11, ItemType.Armor, 0.07)
-                    ), Elder("Stheno the Snake Queen"))
+                    ), Elder("Stheno the Snake Queen"),
+                ElderLoot(0.01, new ItemLoot("Elder Snake Pit Key", 0.1)))
             .Init(E("Stheno Swarm"),
                 new State(
                     new State("Protect",

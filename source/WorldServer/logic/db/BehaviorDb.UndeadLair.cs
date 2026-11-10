@@ -17,6 +17,7 @@ namespace WorldServer.logic
             string E(string id) => ElderDefines(id, elder);
             int Cd(int ms) => ElderCooldown(ms, elder);
             MobDrops Elder(string id) => ElderDrops(id, elder);
+            MobDrops ElderLoot(double threshold, params MobDrops[] drops) => new Threshold(threshold, elder ? drops : new MobDrops[0]);
 
             return db
                 .Init(E("Septavius the Ghost God"),
@@ -97,7 +98,8 @@ namespace WorldServer.logic
                     new ItemLoot("Potion of Wisdom", 1),
                     new ItemLoot("Doom Bow", 0.02),
                     new ItemLoot("Undead Lair Key", 0.009, 0, 0.03)
-                    ), Elder("Septavius the Ghost God"))
+                    ), Elder("Septavius the Ghost God"),
+                ElderLoot(0.01, new ItemLoot("Elder Undead Lair Key", 0.009)))
             // the map's Doomed Realms helper would drop a second portal when Septavius dies
             .Init(E("Septavius Summoner"), new State(new Decay(0)))
             .Init(E("Ghost Mage of Septavius"),
