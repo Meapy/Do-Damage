@@ -29,7 +29,8 @@ details). Add to a group's line when a change adds to it, rather than adding ano
 ### Game
 - Use Up and Down in chat to revisit messages and commands you've sent, then return to your draft.
 - Ask everyone online for help with `/help` once a minute, or limit the call to your party with
-  `/phelp` or your guild with `/ghelp`; click the chat link to ask to join them.
+  `/phelp` or your guild with `/ghelp`; the chat message names the dungeon that needs help, and
+  its link lets you ask to join.
 - Timed portals and loot bags flash during their last five seconds; status effects, including
   temporary stat boosts, flash during their last two seconds.
 

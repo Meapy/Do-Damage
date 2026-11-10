@@ -47,7 +47,7 @@ the Nexus or a realm. `/phelp` and `/ghelp` limit the call to online party or gu
 those worlds. The `/help` call is announced in chat to everyone online across the world servers and
 can be used once a minute; `/phelp` and `/ghelp` still only message their recipients. Requests go
 to players on the same world server and follow the usual summon rules. The chat link sends
-`/visit <name>` to ask permission to join you.
+`/visit <name>` to ask permission to join you, and the message names the dungeon that needs help.
 You can ask multiple players at once; each recipient can accept their request, and
 `/summon cancel` takes back all outstanding help requests.
 

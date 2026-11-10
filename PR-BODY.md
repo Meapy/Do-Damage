@@ -7,7 +7,7 @@ Release 2.4.10: new item art, more frequent Necromantic Relics and Elder dungeon
 - **Elder dungeons:** Necromantic Relics now have a 5% drop chance per player who dealt at least 2% of an Elder boss's damage, up from 3%; each Elder dungeon also drops its own key at the regular dungeon's chance (1% where no regular key chance is configured).
 - **Help calls:** `/help` asks eligible players in the Nexus or realms to join you and announces
   the call to everyone online once a minute; `/phelp` and `/ghelp` call your party or guild. Click
-  the chat link to ask to join the caller.
+  the chat message names the dungeon and its link lets you ask to join the caller.
 - **Game:** timed portals and loot bags flash during their last five seconds; status effects,
   including temporary stat boosts, flash during their last two seconds.
 

@@ -88,7 +88,8 @@ namespace WorldServer.core.miscfile
                 Instance = GameServer.InstanceId,
                 ObjectId = src.Id,
                 Stars = src.Stars,
-                From = src.Client.Account.AccountId
+                From = src.Client.Account.AccountId,
+                Text = src.World.GetDisplayName()
             });
         }
 
@@ -366,7 +367,7 @@ namespace WorldServer.core.miscfile
                                 && client.Account != null
                                 && !client.Account.IgnoreList.Contains(e.Content.From));
                         foreach (var client in clients)
-                            client.Player.HelpCallReceived(from, e.Content.Stars);
+                            client.Player.HelpCallReceived(from, e.Content.Stars, e.Content.Text);
                     }
                     break;
 

@@ -3975,6 +3975,9 @@ impl ChatLine {
         }
         if self.is_help_call() {
             out.push((HELP_CALL_PREFIX.to_owned(), text_color, false));
+            if let Some(place) = self.help_call_place() {
+                out.push((format!("{place}. Accept the call or /visit them, or "), text_color, false));
+            }
             out.push((HELP_CALL_LINK.to_owned(), color::ACCENT_HI, true));
             out.push((".".to_owned(), text_color, false));
         } else {
@@ -3984,10 +3987,15 @@ impl ChatLine {
     }
 
     fn is_help_call(&self) -> bool {
-        !self.name.is_empty()
-            && self.text.starts_with(HELP_CALL_PREFIX)
-            && self.text.ends_with(HELP_CALL_SUFFIX)
-            && self.text.len() == HELP_CALL_PREFIX.len() + HELP_CALL_LINK.len() + 1
+        !self.name.is_empty() && self.help_call_place().is_some()
+    }
+
+    fn help_call_place(&self) -> Option<&str> {
+        self.text
+            .strip_prefix(HELP_CALL_PREFIX)?
+            .strip_suffix(HELP_CALL_SUFFIX)?
+            .strip_suffix(HELP_CALL_MIDDLE)
+            .filter(|place| !place.is_empty())
     }
 }
 
@@ -4023,7 +4031,8 @@ pub fn draw_line_edit(ui: &mut Ui, e: &crate::textedit::LineEdit, r: [f32; 4], s
     }
 }
 
-const HELP_CALL_PREFIX: &str = "is requesting help. Accept the call or /visit them, or ";
+const HELP_CALL_PREFIX: &str = "is requesting help in ";
+const HELP_CALL_MIDDLE: &str = ". Accept the call or /visit them, or ";
 const HELP_CALL_LINK: &str = "click here to join and help";
 const HELP_CALL_SUFFIX: &str = "click here to join and help.";
 
@@ -4521,7 +4530,7 @@ mod tests {
         let mut line = ChatLine {
             name: "Bob".into(),
             recipient: "".into(),
-            text: "is requesting help. Accept the call or /visit them, or click here to join and help.".into(),
+            text: "is requesting help in Snake Pit. Accept the call or /visit them, or click here to join and help.".into(),
             name_color: 0,
             text_color: 0,
             stars: -1,
@@ -4531,6 +4540,7 @@ mod tests {
             .pieces("Me")
             .iter()
             .any(|(piece, _, clickable)| piece == HELP_CALL_LINK && *clickable));
+        assert!(line.pieces("Me").iter().any(|(piece, _, _)| piece == "Snake Pit. Accept the call or /visit them, or "));
         line.text = "click here to join and help".into();
         assert!(line.pieces("Me").iter().all(|(_, _, clickable)| !clickable));
     }

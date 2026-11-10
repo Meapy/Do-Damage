@@ -167,7 +167,7 @@ namespace WorldServer.core.objects
                 {
                     player.ShowVisitRequest(request, placeName, (byte)(VisitBook.TimeoutMs / 1000));
                     if (!global)
-                        player.HelpCallReceived(Name, Stars);
+                        player.HelpCallReceived(Name, Stars, placeName);
                 });
             }
             if (global)
