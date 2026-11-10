@@ -17,6 +17,7 @@ namespace WorldServer.logic
             string E(string id) => ElderDefines(id, elder);
             int Cd(int ms) => ElderCooldown(ms, elder);
             MobDrops Elder(string id) => ElderDrops(id, elder);
+            MobDrops ElderLoot(double threshold, params MobDrops[] drops) => new Threshold(threshold, elder ? drops : new MobDrops[0]);
 
             return db
             .Init(E("Coral Gift"),  //credits to GhostMaree, ???
@@ -274,7 +275,8 @@ namespace WorldServer.logic
                     ),
                 new Threshold(.005,
                     LootTemplates.BasicDrop()
-                ), Elder("Thessal the Mermaid Goddess"))
+                ), Elder("Thessal the Mermaid Goddess"),
+                ElderLoot(0.01, new ItemLoot("Elder Ocean Trench Key", 0.01)))
             .Init(E("Thessal Dropper"),
                 new State(
                     new ConditionEffectBehavior(ConditionEffectIndex.Invincible),

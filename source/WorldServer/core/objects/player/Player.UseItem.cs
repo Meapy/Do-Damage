@@ -1143,6 +1143,7 @@ namespace WorldServer.core.objects
                 if (entity == this || entity is not Player player)
                     return;
                 player.Stats.Boost.ActivateBoost[idx].Push(amount, stack);
+                player.Stats.Boost.ExtendBoostCondition(idx, duration);
                 player.Stats.ReCalculateValues();
                 player.BuffedBy(this, duration);
                 World.StartNewTimer(duration, (world, t) =>
@@ -1166,6 +1167,8 @@ namespace WorldServer.core.objects
 
             entity.Move(X, Y);
             entity.Z = Z;
+            if (timeoutTime > 0)
+                entity.SetLifetime(timeoutTime * 1000);
             World.EnterWorld(entity);
 
             World.StartNewTimer(timeoutTime * 1000, (world, t) => world.LeaveWorld(entity));
@@ -1197,6 +1200,8 @@ namespace WorldServer.core.objects
 
             entity.Move(X, Y);
             entity.Z = Z;
+            if (timeoutTime > 0)
+                entity.SetLifetime(timeoutTime * 1000);
             World.EnterWorld(entity);
 
             World.StartNewTimer(timeoutTime * 1000, (world, t) => world.LeaveWorld(entity));
@@ -1277,6 +1282,8 @@ namespace WorldServer.core.objects
             var entity = Resolve(GameServer, newType);
             entity.Move(target.X, target.Y);
             entity.Z = target.Z;
+            if (entity is Portal)
+                entity.SetLifetime(300 * 1000);
             World.LeaveWorld(target);
             World.EnterWorld(entity);
             if (entity is Portal)
@@ -1920,6 +1927,7 @@ namespace WorldServer.core.objects
                     return;
 
                 ((Player)player).Stats.Boost.ActivateBoost[idx].Push(amount, stack);
+                ((Player)player).Stats.Boost.ExtendBoostCondition(idx, duration);
                 ((Player)player).Stats.ReCalculateValues();
                 ((Player)player).BuffedBy(this, duration);
 
@@ -1945,6 +1953,7 @@ namespace WorldServer.core.objects
             var s = eff.Amount;
             var stack = eff.NoStack;
             Stats.Boost.ActivateBoost[idx].Push(s, stack);
+            Stats.Boost.ExtendBoostCondition(idx, eff.DurationMS);
             Stats.ReCalculateValues();
             World.StartNewTimer(eff.DurationMS, (world, t) =>
             {

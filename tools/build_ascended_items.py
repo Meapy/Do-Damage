@@ -15,10 +15,12 @@ defense), but for STATS. Every Enthroned weapon flies the same two shots of Oryx
 here at 16 by 16), whose volleys take turns (<AlternateProjectiles/>, Player.NoteWeaponShot): his
 gold Radiance with the weapon's own numbers, then his violet Rift, the same but piercing and
 ignoring defense. A third, his crystal Sigil, is what the imprints' own shots look like (the
-Battle Mage's bolts, the Gathered Shot's arrow, the Spearform thrust). The weapons and the leather
-and heavy armours keep its sprite too, with a few purple sparkles added round it (SPARKLE); his
-helm, boots and robe are drawn here at 8 by 8, and his staff, two rings and the three shots at 16
-by 16, on `AscendedItems16x16.png` (`ascendedItems16x16`, in the order of SPRITES16): the staff his
+Battle Mage's bolts, the Gathered Shot's arrow, the Spearform thrust). All but the Fists fly a
+shot of their own in place of the Radiance (OWN_SHOTS). The weapons, their shots, the armours and
+the boots are hand-drawn by the owner on EnthronedItems8x8.png (ITEMS8); the Fists keep their
+source's sprite, with a few purple sparkles added round it (SPARKLE); his helm (and the robe and
+boots no longer used) is drawn here at 8 by 8, and his staff (no longer used), two rings and the
+three shots at 16 by 16, on `AscendedItems16x16.png` (`ascendedItems16x16`, in the order of SPRITES16): the staff his
 own sprite holds, gold with a crystal head, sideways as items lie (STAFF_HALF), the rings gold at
 the bottom, light blue up the sides and purple at the top, under a gem in its setting (ring), and
 the shots pointing up and right as projectiles lie (draw_shot).
@@ -56,6 +58,11 @@ SHEET16 = "ascendedItems16x16"
 # the Enthroned rings, hand-drawn by the owner (EnthronedRings8x8.png: Wrath, then Grace); their
 # 16 by 16 cells are still drawn but no longer used
 RINGS8 = "enthronedRings8x8"
+# the Enthroned weapons, their shots, armours and boots, hand-drawn by the owner
+# (EnthronedItems8x8.png, 7 cells a row): the weapons on the top row and each one's shot under it,
+# in the order of OWN_SHOTS; the Hide, Robe and Plate on the fourth row; the Boots on the sixth
+ITEMS8 = "enthronedItems8x8"
+ITEMS8_COLS = 7
 CELL = 8
 COLS = 8
 BEGIN = "<!-- BEGIN forge shards and Ascended items (tools/build_ascended_items.py) -->"
@@ -207,6 +214,7 @@ SPRITES16 = ["staff", "ring wrath", "ring grace", "shot radiance", "shot rift", 
 SOURCE_SHEETS = {
     "t15Weapons8x8": os.path.join(SRC, "kabam", "rotmg", "assets", "custom", "images", "T15Weapons8x8.png"),
     "t16Armors8x8": os.path.join(SRC, "kabam", "rotmg", "assets", "custom", "images", "T16Armors8x8.png"),
+    "fistsItems8x8": os.path.join(SRC, "kabam", "rotmg", "assets", "custom", "images", "FistsItems8x8.png"),
 }
 # the sparkles added round a copied sprite: in the empty pixels touching it nearest these corners
 SPARKLE = [((7, 0), (214, 160, 255)), ((0, 7), PURPLE[2]), ((7, 7), (214, 160, 255)), ((0, 0), PURPLE[2])]
@@ -250,20 +258,20 @@ DESC = {
     "Enthroned Ring of Grace": "Oryx the Ascended God's own ring of grace, forged from both his gems.",
 }
 ASCENDED = [
-    (0x5850, "Enthroned Sword", "Sword of Ascension", None, None),
-    (0x5851, "Enthroned Dagger", "Dagger of Divine Wrath", None, None),
-    (0x5852, "Enthroned Bow", "Bow of the Firmament", None, None),
-    (0x5853, "Enthroned Wand", "Wand of Absolution", None, None),
-    (0x5854, "Enthroned Katana", "Ame-no-Habakiri", None, None),
-    (0x5855, "Enthroned Dual Blades", "Seraphic Blades", None, None),
+    (0x5850, "Enthroned Sword", "Sword of Ascension", (ITEMS8, 0), None),
+    (0x5851, "Enthroned Dagger", "Dagger of Divine Wrath", (ITEMS8, 3), None),
+    (0x5852, "Enthroned Bow", "Bow of the Firmament", (ITEMS8, 2), None),
+    (0x5853, "Enthroned Wand", "Wand of Absolution", (ITEMS8, 1), None),
+    (0x5854, "Enthroned Katana", "Ame-no-Habakiri", (ITEMS8, 5), None),
+    (0x5855, "Enthroned Dual Blades", "Seraphic Blades", (ITEMS8, 6), None),
     (0x5856, "Enthroned Fists", "Fists of the Ascended", None, None),
-    # was the Enthroned Spear: a staff like the others now
-    (0x5857, "Enthroned Staff", "Staff of Endless Energy", (SHEET16, SPRITES16.index("staff")), None),
-    (0x5858, "Enthroned Hide", "Sphinx Leather Armor", None, None),
-    (0x5859, "Enthroned Plate", "Armor of the Pyramid", None, None),
-    (0x585a, "Enthroned Robe", "Robe of the Nile", (SHEET, cell_of("piece", "robe")), None),
+    # was the Enthroned Spear: a staff like the others now (its 16 by 16 cell no longer used)
+    (0x5857, "Enthroned Staff", "Staff of Endless Energy", (ITEMS8, 4), None),
+    (0x5858, "Enthroned Hide", "Sphinx Leather Armor", (ITEMS8, 3 * ITEMS8_COLS), None),
+    (0x5859, "Enthroned Plate", "Armor of the Pyramid", (ITEMS8, 3 * ITEMS8_COLS + 2), None),
+    (0x585a, "Enthroned Robe", "Robe of the Nile", (ITEMS8, 3 * ITEMS8_COLS + 1), None),
     (0x585b, "Enthroned Helm", "Helm of Imperial Right", (SHEET, cell_of("piece", "helm")), None),
-    (0x585c, "Enthroned Boots", "Ring of Absolute Speed", (SHEET, cell_of("piece", "boots")), None),
+    (0x585c, "Enthroned Boots", "Ring of Absolute Speed", (ITEMS8, 5 * ITEMS8_COLS), None),
     (0x585d, "Enthroned Ring of Wrath", "Ring of Absolute Attack", (RINGS8, 0), None),
     (0x585e, "Enthroned Ring of Grace", "Ring of Absolute Defense", (RINGS8, 1), None),
 ]
@@ -278,12 +286,26 @@ SHOT_OBJECTS = [
     ("Enthroned Rift", 0x5871, "shot rift"),
     ("Enthroned Sigil", 0x5872, "shot sigil"),
 ]
+# each weapon's own shot, hand-drawn under it on EnthronedItems8x8.png (column n of the top row,
+# cell ITEMS8_COLS + n): (projectile object, type code, weapon). Its first volley flies this in
+# place of the Radiance; the Fists keep the Radiance. 0x5878 is taken.
+OWN_SHOTS = [
+    ("Enthroned Sword Shot", 0x5873, "Enthroned Sword"),
+    ("Enthroned Wand Shot", 0x5874, "Enthroned Wand"),
+    ("Enthroned Bow Shot", 0x5875, "Enthroned Bow"),
+    ("Enthroned Dagger Shot", 0x5876, "Enthroned Dagger"),
+    ("Enthroned Staff Shot", 0x5877, "Enthroned Staff"),
+    ("Enthroned Katana Shot", 0x5879, "Enthroned Katana"),
+    ("Enthroned Dual Blades Shot", 0x587a, "Enthroned Dual Blades"),
+]
 # what the second shot adds to the weapon's own projectile
 RIFT_FLAGS = {"MultiHit": True, "ArmorPiercing": True}
 # each Enthroned weapon's shots, in the order its volleys fire them: (projectile object, flags added)
 SHOTS = {name: [("Enthroned Radiance", {}), ("Enthroned Rift", RIFT_FLAGS)]
          for name in ("Enthroned Sword", "Enthroned Dagger", "Enthroned Bow", "Enthroned Wand", "Enthroned Katana",
                       "Enthroned Dual Blades", "Enthroned Fists", "Enthroned Staff")}
+for _shot, _, _weapon in OWN_SHOTS:
+    SHOTS[_weapon][0] = (_shot, {})
 
 # The stats of an Ascended item where they aren't its source's: (stat, amount) in place of all of
 # them. The Ring of Grace: 200 health and magic, 10 of every other stat; the Boots: 50 speed.
@@ -400,13 +422,15 @@ def block(items):
             f"\t\t<BagType>{7 if set_ == 'Infernal' else 9}</BagType>",
             "\t</Object>",
         ]
-    for shot, code, cell in SHOT_OBJECTS:
+    shots = [(shot, code, SHEET16, SPRITES16.index(cell)) for shot, code, cell in SHOT_OBJECTS] + \
+            [(shot, code, ITEMS8, ITEMS8_COLS + n) for n, (shot, code, _) in enumerate(OWN_SHOTS)]
+    for shot, code, sheet, index in shots:
         out += [
             f'\t<Object type="0x{code:04x}" id="{shot}">',
             "\t\t<Class>Projectile</Class>",
             "\t\t<Texture>",
-            f"\t\t\t<File>{SHEET16}</File>",
-            f"\t\t\t<Index>0x{SPRITES16.index(cell):02x}</Index>",
+            f"\t\t\t<File>{sheet}</File>",
+            f"\t\t\t<Index>0x{index:02x}</Index>",
             "\t\t</Texture>",
             "\t\t<AngleCorrection>1</AngleCorrection>",
             "\t</Object>",

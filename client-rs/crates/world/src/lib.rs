@@ -74,6 +74,7 @@ pub struct GameObj {
     glide_ms: f64,
     /// Every stat the server has sent, latest value.
     pub stats: HashMap<u8, StatValue>,
+    stat_updated_at: HashMap<u8, i32>,
     /// Whether it shows its walk frames: we hold a direction, or it glides (or just did) to a
     /// tick that moved it.
     pub moving: bool,
@@ -109,6 +110,20 @@ impl GameObj {
             Some(StatValue::Int(v)) => Some(*v),
             _ => None,
         }
+    }
+
+    /// A countdown stat, adjusted for the time since the server last sent it.
+    pub fn stat_int_remaining(&self, id: u8, time: i32) -> Option<i32> {
+        let value = self.stat_int(id)?;
+        if value < 0 {
+            return None;
+        }
+        let updated_at = *self.stat_updated_at.get(&id)?;
+        Some(
+            value
+                .saturating_sub(time.saturating_sub(updated_at).max(0))
+                .max(0),
+        )
     }
 
     /// The height the server gives it (`stat::HEIGHT`), in tiles.
@@ -162,9 +177,12 @@ impl GameObj {
             .then(|| (time - self.attack_cycle_start).rem_euclid(self.attack_cycle) as f64 / self.attack_cycle as f64)
     }
 
-    fn apply_stats(&mut self, stats: &[StatData]) {
+    fn apply_stats(&mut self, stats: &[StatData], time: i32) {
         for s in stats {
             self.stats.insert(s.id, s.value.clone());
+            if stat::is_expiry(s.id) {
+                self.stat_updated_at.insert(s.id, time);
+            }
         }
     }
 }
@@ -527,6 +545,7 @@ impl World {
             last_tick_update_time: time,
             glide_ms: 0.0,
             stats: HashMap::new(),
+            stat_updated_at: HashMap::new(),
             moving: false,
             walk_until: i32::MIN / 2,
             walk_speed: 0.0,
@@ -542,7 +561,7 @@ impl World {
             z: 0.0,
             level: 0,
         };
-        obj.apply_stats(&o.status.stats);
+        obj.apply_stats(&o.status.stats, time);
         if let Some(h) = self.levels.as_ref().map(|l| l.height) {
             obj.z = obj.stat_height();
             obj.level = (obj.z / h).round().max(0.0) as u8;
@@ -636,7 +655,7 @@ impl World {
                     obj.walk_until = obj.walk_until.min(rest);
                 }
             }
-            obj.apply_stats(&s.stats);
+            obj.apply_stats(&s.stats, time);
             // put somewhere our floor isn't known yet, or just moved there by the server: the
             // server's height for us
             if is_me && (self.lost_height.is_some() || self.await_height > 0) && s.stats.iter().any(|st| st.id == stat::HEIGHT) {

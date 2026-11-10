@@ -732,7 +732,7 @@ namespace WorldServer.logic
                     new ItemLoot("Tincture of Life", 0.15)
                     ),
                 ElderLoot(0,
-                    new ItemLoot("Elder Tomb Key", 0.09),
+                    new ItemLoot("Elder Tomb Key", 0.01),
                     new ItemLoot("Magic Potion", 0.15)
                     )
                 )

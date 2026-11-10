@@ -5,10 +5,10 @@
 
 Writes `T15Weapons8x8.png` (client/src/kabam/rotmg/assets/custom/images), 8 by 8 pixels a cell, a
 cell per item in the order of SOURCES (`t15Weapons8x8`; tools/gen_rs_manifest.py registers it for the
-Rust client). Since 2026-11-08 only the Fists of the Ascended show their cell: the other T15 weapons,
+Rust client). Since 2.4.10 no item shows a cell of it (the Fists of the Ascended are hand-drawn on
+FistsItems8x8.png, `fistsItems8x8`); since 2026-11-08 the other T15 weapons,
 their shots and the dual blades are hand-drawn on BladesAndT15s8x8.png (`bladesAndT15s8x8`), and the
-T16 armours on T16Armors8x8.png, which this script no longer writes. tools/build_ascended_items.py
-still copies cells from this sheet. Each T14 pixel keeps
+T16 armours on T16Armors8x8.png, which this script no longer writes. Each T14 pixel keeps
 its place; its colour becomes a shade of one of Oryx the Ascended God's three colours
 (ElysiumOryx16x16.png): the blue-silver of his armour for blades and bodies, the purple of his shield
 for grips and gems, and the orange-gold of his trim for guards and fittings. Each SOURCES entry

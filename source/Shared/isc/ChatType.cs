@@ -5,6 +5,7 @@
         Tell,
         Guild,
         Info,
-        Party
+        Party,
+        HelpCall
     }
 }

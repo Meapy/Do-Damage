@@ -80,6 +80,19 @@ namespace WorldServer.core.miscfile
             return true;
         }
 
+        public void HelpCall(Player src)
+        {
+            GameServer.InterServerManager.Publish(Channel.Chat, new ChatMsg()
+            {
+                Type = ChatType.HelpCall,
+                Instance = GameServer.InstanceId,
+                ObjectId = src.Id,
+                Stars = src.Stars,
+                From = src.Client.Account.AccountId,
+                Text = src.World.GetDisplayName()
+            });
+        }
+
         public void Initialize()
         {
             GameServer.InterServerManager.AddHandler<ChatMsg>(Channel.Chat, HandleChat);
@@ -343,6 +356,18 @@ namespace WorldServer.core.miscfile
                             .Keys.Where(_ => _.Player != null && _.Account.AccountId == to.AccountId);
                         foreach (var dummy in dummies)
                             dummy.Player.SendInfo(e.Content.Text);
+                    }
+                    break;
+
+                case ChatType.HelpCall:
+                    {
+                        var from = GameServer.Database.ResolveIgn(e.Content.From);
+                        var clients = GameServer.ConnectionManager.Clients.Keys
+                            .Where(client => client.Player != null
+                                && client.Account != null
+                                && !client.Account.IgnoreList.Contains(e.Content.From));
+                        foreach (var client in clients)
+                            client.Player.HelpCallReceived(from, e.Content.Stars, e.Content.Text);
                     }
                     break;
 

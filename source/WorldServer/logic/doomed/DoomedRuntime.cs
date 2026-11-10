@@ -1105,6 +1105,8 @@ namespace WorldServer.logic.doomed
             if (portal == null)
                 return;
             portal.Move(Host.Self.X, Host.Self.Y);
+            if (timeExist > 0 && world.IsRealm)
+                portal.SetLifetime(timeExist * 1000);
             world.EnterWorld(portal);
             // as DropPortalOnDeath: only a portal dropped in a realm closes
             if (timeExist > 0 && world.IsRealm)

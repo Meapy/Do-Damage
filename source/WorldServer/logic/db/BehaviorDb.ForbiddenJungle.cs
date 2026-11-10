@@ -114,7 +114,9 @@ namespace WorldServer.logic
                     new ItemLoot("Mark of Mixcoatl", 0.02)
                     ), Elder("Mixcoatl the Masked God"),
                 // the Elder dungeon's Potion of Max
-                ElderLoot(0.01, new ItemLoot("Potion of Max Dexterity", 0.05)))
+                ElderLoot(0.01,
+                    new ItemLoot("Potion of Max Dexterity", 0.05),
+                    new ItemLoot("Elder Jungle Key", 0.01)))
             .Init(E("Boss Totem"),
                 new State(
                     new ConditionEffectBehavior(ConditionEffectIndex.Invincible, true),

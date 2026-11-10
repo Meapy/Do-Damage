@@ -57,6 +57,9 @@ namespace WorldServer.core
             ConditionEffectIndex.VitBoost, ConditionEffectIndex.WisBoost
         };
 
+        public void ExtendBoostCondition(int index, int durationMs) =>
+            _player.ExtendConditionEffect(BoostConditions[index], durationMs);
+
         private void ApplyActivateBonus()
         {
             for (var i = 0; i < ActivateBoost.Length; i++)

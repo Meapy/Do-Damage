@@ -3328,7 +3328,13 @@ pub(crate) fn draw_tooltip(ui: &mut Ui, lay: &Layout, lines: &[Line], icon: Opti
         }
         // `wrap` measures regular text: bold is wider, so leave it some room.
         let room = (inner - indent) * if line.bold { 0.9 } else { 1.0 };
-        for part in wrap(ui, &line.pieces, size, room, 0.0) {
+        let pieces: Vec<_> = line
+            .pieces
+            .iter()
+            .map(|(piece, color)| (piece.clone(), *color, false))
+            .collect();
+        for part in wrap(ui, &pieces, size, room, 0.0) {
+            let part = part.into_iter().map(|(piece, color, _)| (piece, color)).collect();
             rows.push((part, size, line.bold, y, line.centred, line.band));
             y += size * 1.25;
         }
@@ -3922,7 +3928,7 @@ pub struct ChatLine {
 
 impl ChatLine {
     /// `getTextBlock`: the pieces and their colours. `me` is our name (for "To:" lines).
-    pub fn pieces(&self, me: &str) -> Vec<(String, u32)> {
+    pub fn pieces(&self, me: &str) -> Vec<(String, u32, bool)> {
         let mut name = self.name.clone();
         let mut name_color = if self.name_color == 0x12_3456 {
             0x00FE00
@@ -3959,16 +3965,37 @@ impl ChatLine {
             to => {
                 (name_color, text_color) = (0x00F0FF, 0x00F0FF);
                 if self.name == me {
-                    out.push(("To: ".to_owned(), 0x00F0FF));
+                    out.push(("To: ".to_owned(), 0x00F0FF, false));
                     name = to.to_owned();
                 }
             }
         }
         if !name.is_empty() {
-            out.push((format!("<{name}> "), name_color));
+            out.push((format!("<{name}> "), name_color, false));
         }
-        out.push((self.text.clone(), text_color));
+        if self.is_help_call() {
+            out.push((HELP_CALL_PREFIX.to_owned(), text_color, false));
+            if let Some(place) = self.help_call_place() {
+                out.push((format!("{place}. Accept the call or /visit them, or "), text_color, false));
+            }
+            out.push((HELP_CALL_LINK.to_owned(), color::ACCENT_HI, true));
+            out.push((".".to_owned(), text_color, false));
+        } else {
+            out.push((self.text.clone(), text_color, false));
+        }
         out
+    }
+
+    fn is_help_call(&self) -> bool {
+        !self.name.is_empty() && self.help_call_place().is_some()
+    }
+
+    fn help_call_place(&self) -> Option<&str> {
+        self.text
+            .strip_prefix(HELP_CALL_PREFIX)?
+            .strip_suffix(HELP_CALL_SUFFIX)?
+            .strip_suffix(HELP_CALL_MIDDLE)
+            .filter(|place| !place.is_empty())
     }
 }
 
@@ -4004,8 +4031,26 @@ pub fn draw_line_edit(ui: &mut Ui, e: &crate::textedit::LineEdit, r: [f32; 4], s
     }
 }
 
-/// A wrapped chat row: the rank star leading it (a line's first row only), and its pieces.
-type ChatRow = (Option<i32>, Vec<(String, u32)>);
+const HELP_CALL_PREFIX: &str = "is requesting help in ";
+const HELP_CALL_MIDDLE: &str = ". Accept the call or /visit them, or ";
+const HELP_CALL_LINK: &str = "click here to join and help";
+const HELP_CALL_SUFFIX: &str = "click here to join and help.";
+
+/// A wrapped chat row: the rank star leading it (a line's first row only), its pieces and the
+/// player a help link visits.
+type ChatRow = (Option<i32>, Vec<(String, u32, bool)>, Option<String>);
+
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub enum ChatClickTarget {
+    Player(String),
+    Visit(String),
+}
+
+#[derive(Debug, Clone, PartialEq)]
+pub struct ChatClick {
+    pub target: ChatClickTarget,
+    pub rect: [f32; 4],
+}
 
 /// How long a chat line stays up while the input is closed, ms.
 const CHAT_SHOW_MS: i32 = 30_000;
@@ -4020,10 +4065,20 @@ impl HudState {
 /// The chat box at the bottom left of the view: the newest lines (all of them, `scroll` rows
 /// back, after Page Up), wrapped to fit, and the line being typed, `chat_size` times its usual
 /// text, width and height (Options, Visuals), on a glass `chat_alpha` times its usual darkness.
-/// Returns where the players' names are, for clicks.
+/// Returns clickable player names and help links.
 #[allow(clippy::too_many_arguments)]
-pub fn draw_chat(ui: &mut Ui, lay: &Layout, lines: &[ChatLine], me: &str, input: Option<&crate::textedit::LineEdit>, scroll: Option<usize>, chat_size: f32, chat_alpha: f32, now: i32) -> Vec<(String, [f32; 4])> {
-    let mut names = Vec::new();
+pub fn draw_chat(
+    ui: &mut Ui,
+    lay: &Layout,
+    lines: &[ChatLine],
+    me: &str,
+    input: Option<&crate::textedit::LineEdit>,
+    scroll: Option<usize>,
+    chat_size: f32,
+    chat_alpha: f32,
+    now: i32,
+) -> Vec<ChatClick> {
+    let mut clicks = Vec::new();
     let s = lay.s;
     let size = lay.font(14.0 * chat_size);
     let line_h = (size * 1.3).round();
@@ -4051,8 +4106,13 @@ pub fn draw_chat(ui: &mut Ui, lay: &Layout, lines: &[ChatLine], me: &str, input:
         }
         let star = (line.stars >= 0).then_some(line.stars);
         let wrapped = wrap(ui, &line.pieces(me), size, max_w, if star.is_some() { star_w } else { 0.0 });
+        let help_target = line.is_help_call().then(|| line.name.clone());
         for (i, row) in wrapped.into_iter().enumerate().rev() {
-            rows.push((if i == 0 { star } else { None }, row));
+            rows.push((
+                if i == 0 { star } else { None },
+                row,
+                help_target.clone(),
+            ));
         }
         if rows.len() >= max_rows + scroll.unwrap_or(0) {
             unwrapped = lines.len() - n - 1;
@@ -4064,12 +4124,17 @@ pub fn draw_chat(ui: &mut Ui, lay: &Layout, lines: &[ChatLine], me: &str, input:
     rows.drain(..skip);
     rows.truncate(max_rows);
     if rows.is_empty() {
-        return names;
+        return clicks;
     }
     // A dark glass behind the lines, so they read over any ground.
     let widest = rows
         .iter()
-        .map(|(star, row)| row.iter().map(|(p, _)| ui.measure_rich(p, size)).sum::<f32>() + if star.is_some() { star_w } else { 0.0 })
+        .map(|(star, row, _)| {
+            row.iter()
+                .map(|(p, _, _)| ui.measure_rich(p, size))
+                .sum::<f32>()
+                + if star.is_some() { star_w } else { 0.0 }
+        })
         .fold(0.0, f32::max);
     let back_h = rows.len() as f32 * line_h + 10.0 * s;
     let strong = input.is_some() || scroll.is_some();
@@ -4096,26 +4161,39 @@ pub fn draw_chat(ui: &mut Ui, lay: &Layout, lines: &[ChatLine], me: &str, input:
         let from_bottom = (track[3] - h) * (skip as f32 / (total - rows.len()).max(1) as f32).min(1.0);
         theme::fill(ui.renderer, [track[0], track[1] + track[3] - h - from_bottom, track[2], h], 2.0 * s, color::ACCENT, 0.9);
     }
-    for (i, (star, row)) in rows.iter().enumerate() {
+    for (i, (star, row, help_target)) in rows.iter().enumerate() {
         let y = bottom - 5.0 * s - line_h * (i as f32 + 1.0);
         let mut x = margin + 8.0 * s + bar_w;
         if let Some(stars) = *star {
             crate::stars::icon(ui.renderer, x + 8.0 * star_k, y + line_h / 2.0, star_k, crate::stars::color(stars, classes));
             x += star_w;
         }
-        for (piece, c) in row {
+        for (piece, c, help_link) in row {
             let w = ui.measure_rich(piece, size);
             // A player's name ("<Name> "; not NPCs' or announcements'): clickable.
             if let Some(name) = piece.strip_prefix('<').and_then(|p| p.strip_suffix("> ")) {
                 if !matches!(*c, 0xFFA800 | 0xFFFF00) && !name.is_empty() && name != me {
-                    names.push((name.to_owned(), [x, y, w, line_h]));
+                    clicks.push(ChatClick {
+                        target: ChatClickTarget::Player(name.to_owned()),
+                        rect: [x, y, w, line_h],
+                    });
                 }
             }
-            ui.label_rich(piece, x, y, size, *c, now);
+            let shown_color = if *help_link { color::ACCENT_HI } else { *c };
+            ui.label_rich(piece, x, y, size, shown_color, now);
+            if *help_link {
+                ui.rect(x, y + line_h - 1.0, w, 1.0, color::ACCENT_HI, 1.0);
+                if let Some(target) = help_target {
+                    clicks.push(ChatClick {
+                        target: ChatClickTarget::Visit(target.clone()),
+                        rect: [x, y, w, line_h],
+                    });
+                }
+            }
             x += w;
         }
     }
-    names
+    clicks
 }
 
 /// `CreditDisplay`: your gold and fame, each before its icon, beside the minimap (no box),
@@ -4351,10 +4429,16 @@ pub fn draw_visit(ui: &mut Ui, lay: &Layout, v: &crate::game::VisitAsk, now: i32
 
 /// Break coloured pieces into rows no wider than `max_w`, at spaces where possible; the first
 /// row starts `indent` in.
-fn wrap(ui: &mut Ui, pieces: &[(String, u32)], size: f32, max_w: f32, indent: f32) -> Vec<Vec<(String, u32)>> {
+fn wrap(
+    ui: &mut Ui,
+    pieces: &[(String, u32, bool)],
+    size: f32,
+    max_w: f32,
+    indent: f32,
+) -> Vec<Vec<(String, u32, bool)>> {
     let mut rows = vec![Vec::new()];
     let mut x = indent;
-    for (piece, color) in pieces {
+    for (piece, color, clickable) in pieces {
         for word in piece.split_inclusive(' ') {
             let w = ui.measure_rich(word, size);
             if x + w > max_w && x > 0.0 {
@@ -4372,13 +4456,13 @@ fn wrap(ui: &mut Ui, pieces: &[(String, u32)], size: f32, max_w: f32, indent: f3
                     cut = i + c.len_utf8();
                 }
                 let cut = cut.max(rest.chars().next().map_or(1, |c| c.len_utf8()));
-                rows.last_mut().unwrap().push((rest[..cut].to_owned(), *color));
+                rows.last_mut().unwrap().push((rest[..cut].to_owned(), *color, *clickable));
                 rows.push(Vec::new());
                 rest = &rest[cut..];
                 x = 0.0;
             }
             if !rest.is_empty() {
-                rows.last_mut().unwrap().push((rest.to_owned(), *color));
+                rows.last_mut().unwrap().push((rest.to_owned(), *color, *clickable));
                 x += ui.measure_rich(rest, size);
             }
         }
@@ -4434,11 +4518,31 @@ mod tests {
             stars: -1,
             at: 0,
         };
-        assert_eq!(line("Bob", "").pieces("Me"), vec![("<Bob> ".into(), 0x00FF00), ("hi".into(), 0xFFFFFF)]);
-        assert_eq!(line("", "").pieces("Me"), vec![("hi".into(), 0xFFFF00)]);
-        assert_eq!(line("#Oryx", "").pieces("Me")[0], ("<Oryx> ".into(), 0xFFA800));
+        assert_eq!(line("Bob", "").pieces("Me"), vec![("<Bob> ".into(), 0x00FF00, false), ("hi".into(), 0xFFFFFF, false)]);
+        assert_eq!(line("", "").pieces("Me"), vec![("hi".into(), 0xFFFF00, false)]);
+        assert_eq!(line("#Oryx", "").pieces("Me")[0], ("<Oryx> ".into(), 0xFFA800, false));
         // A tell we sent shows who it went to.
-        assert_eq!(line("Me", "Bob").pieces("Me")[0], ("To: ".into(), 0x00F0FF));
+        assert_eq!(line("Me", "Bob").pieces("Me")[0], ("To: ".into(), 0x00F0FF, false));
+    }
+
+    #[test]
+    fn help_call_link_is_clickable_but_ordinary_chat_is_not() {
+        let mut line = ChatLine {
+            name: "Bob".into(),
+            recipient: "".into(),
+            text: "is requesting help in Snake Pit. Accept the call or /visit them, or click here to join and help.".into(),
+            name_color: 0,
+            text_color: 0,
+            stars: -1,
+            at: 0,
+        };
+        assert!(line
+            .pieces("Me")
+            .iter()
+            .any(|(piece, _, clickable)| piece == HELP_CALL_LINK && *clickable));
+        assert!(line.pieces("Me").iter().any(|(piece, _, _)| piece == "Snake Pit. Accept the call or /visit them, or "));
+        line.text = "click here to join and help".into();
+        assert!(line.pieces("Me").iter().all(|(_, _, clickable)| !clickable));
     }
 
     #[test]

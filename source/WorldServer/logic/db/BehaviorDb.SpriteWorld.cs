@@ -17,6 +17,7 @@ namespace WorldServer.logic
             string E(string id) => ElderDefines(id, elder);
             int Cd(int ms) => ElderCooldown(ms, elder);
             MobDrops Elder(string id) => ElderDrops(id, elder);
+            MobDrops ElderLoot(double threshold, params MobDrops[] drops) => new Threshold(threshold, elder ? drops : new MobDrops[0]);
 
             return db
             .Init(E("Native Fire Sprite"),
@@ -180,7 +181,8 @@ namespace WorldServer.logic
                     new TierLoot(5, ItemType.Ring, 0.12),
                     new TierLoot(12, ItemType.Armor, 0.12),
                     new TierLoot(5, ItemType.Ability, 0.07)
-                    ), Elder("Limon the Sprite God"))
+                    ), Elder("Limon the Sprite God"),
+                ElderLoot(0.01, new ItemLoot("Elder Sprite World Key", 0.1)))
             .Init(E("Limon Element 1"),
                 new State(
                     new ConditionEffectBehavior(ConditionEffectIndex.Invulnerable),

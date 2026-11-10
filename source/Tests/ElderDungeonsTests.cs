@@ -47,6 +47,24 @@ namespace Tests
             { "Elder lod Ivory Loot", "Potion of Max Mana" },
         };
 
+        public static readonly TheoryData<string, string, double> DungeonKeys = new TheoryData<string, string, double>
+        {
+            { "Elder Dreadstump the Pirate King", "Elder Pirate Cave Key", 0.01 },
+            { "Elder Active Sarcophagus", "Elder Tomb Key", 0.01 },
+            { "Elder Arachna the Spider Queen", "Elder Spider Den Key", 0.01 },
+            { "Elder Stheno the Snake Queen", "Elder Snake Pit Key", 0.1 },
+            { "Elder Septavius the Ghost God", "Elder Undead Lair Key", 0.009 },
+            { "Elder Limon the Sprite God", "Elder Sprite World Key", 0.1 },
+            { "Elder Archdemon Malphas", "Elder Abyss Key", 0.01 },
+            { "Elder lod Blue Loot Balloon", "Elder Draconis Key", 0.01 },
+            { "Elder Thessal the Mermaid Goddess", "Elder Ocean Trench Key", 0.01 },
+            { "Elder Lord Ruthven", "Elder Manor Key", 0.01 },
+            { "Elder Mixcoatl the Masked God", "Elder Jungle Key", 0.01 },
+            { "Elder Davy Jones", "Elder Davy Key", 0.009 },
+            { "Elder Masked Party God", "Elder Beach Key", 0.01 },
+            { "Elder lod Ivory Loot", "Elder Ivory Wyvern Key", 0.01 },
+        };
+
         // A rare drop: there, but not most kills (Doomed Realms gave some bosses one nearly every kill)
         [Theory]
         [MemberData(nameof(MaxPotions))]
@@ -56,6 +74,23 @@ namespace Tests
             var chances = drops.Where(d => d.Item == potion).Select(d => d.Probabilty).ToList();
             Assert.True(chances.Count > 0, $"{boss} doesn't drop a {potion}");
             Assert.All(chances, c => Assert.InRange(c, 0.005, 0.1));
+        }
+
+        [Theory]
+        [MemberData(nameof(DungeonKeys))]
+        public void EveryElderDungeonDropsItsOwnKeyAtItsRegularRate(string boss, string key, double chance)
+        {
+            Assert.True(Data.Value.Loot.TryGetValue(boss, out var drops), $"{boss} has no loot");
+            Assert.Contains(chance, drops.Where(d => d.Item == key).Select(d => d.Probabilty));
+        }
+
+        [Theory]
+        [InlineData("Elder lod Blue Loot Balloon", "Elder Ivory Wyvern Key")]
+        [InlineData("Elder lod Ivory Loot", "Elder Draconis Key")]
+        public void ElderDungeonLootDoesNotIncludeAnotherDungeonsKey(string boss, string key)
+        {
+            Assert.True(Data.Value.Loot.TryGetValue(boss, out var drops), $"{boss} has no loot");
+            Assert.DoesNotContain(drops, d => d.Item == key);
         }
 
         // Players can teleport to each other in every Elder dungeon, as in the regular ones

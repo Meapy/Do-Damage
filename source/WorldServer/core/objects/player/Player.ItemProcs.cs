@@ -52,6 +52,7 @@ namespace WorldServer.core.objects
             if (idx < 0 || World == null)
                 return;
             Stats.Boost.ActivateBoost[idx].Push(amount, true);
+            Stats.Boost.ExtendBoostCondition(idx, durationMs);
             Stats.ReCalculateValues();
             World.StartNewTimer(durationMs, (world, t) =>
             {

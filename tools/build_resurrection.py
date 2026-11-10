@@ -65,7 +65,7 @@ RITUAL_SOUL = "Necromantic Ritual Soul"
 WAILING_SOUL = "Wailing Soul"
 # the projectile id the Empowered forms fire their soul bolts with (BossResurrection.SoulBolt)
 SOUL_BOLT_ID = 90
-RELIC_CHANCE = 0.03         # each player past RELIC_THRESHOLD of the damage, per boss
+RELIC_CHANCE = 0.05         # each player past RELIC_THRESHOLD of the damage, per boss
 RELIC_THRESHOLD = 0.02
 CORPSE_SECONDS = 75         # how long the remains wait for a relic
 

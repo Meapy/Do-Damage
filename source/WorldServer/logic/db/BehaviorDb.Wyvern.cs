@@ -418,8 +418,7 @@ namespace WorldServer.logic
                     new ItemLoot("Momento of the Fire Dragon", 0.015),
                     new ItemLoot("Armor of the Leaf", 0.015),
                     new ItemLoot("Lightning Bow", 0.015),
-                    new ItemLoot("Elder Ivory Wyvern Key", 0.02),
-                    new ItemLoot("Elder Draconis Key", 0.02)
+                    new ItemLoot("Elder Ivory Wyvern Key", 0.01)
                     )
             );
         }

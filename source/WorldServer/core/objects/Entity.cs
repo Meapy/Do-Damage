@@ -37,6 +37,7 @@ namespace WorldServer.core.objects
         private StatTypeValue<float> _x;
         private StatTypeValue<float> _y;
         private readonly ConditionEffectManager _conditionEffectManager;
+        private int? _lifetimeMs;
 
         private Position? _spawnPoint;
         public Position? SpawnPoint => _spawnPoint ??= new Position(X, Y);
@@ -278,6 +279,13 @@ namespace WorldServer.core.objects
             _conditionEffectManager.AddCondition((byte)effect, durationMs);
         }
 
+        public void ExtendConditionEffect(ConditionEffectIndex effect, int durationMs)
+        {
+            if (!CanApplyCondition(effect))
+                return;
+            _conditionEffectManager.ExtendCondition((byte)effect, durationMs);
+        }
+
         public void ApplyConditionEffect(params ConditionEffect[] effs)
         {
             foreach (var i in effs)
@@ -286,6 +294,12 @@ namespace WorldServer.core.objects
                     continue;
                 _conditionEffectManager.AddCondition((byte)i.Effect, i.DurationMS);
             }
+        }
+
+        public void SetLifetime(int durationMs)
+        {
+            _lifetimeMs = Math.Max(0, durationMs);
+            InvokeStatChange(StatDataType.LifetimeMs, _lifetimeMs.Value);
         }
 
         public bool HasConditionEffect(ConditionEffectIndex effect) => _conditionEffectManager.HasCondition((byte)effect);
@@ -389,6 +403,8 @@ namespace WorldServer.core.objects
 
         public virtual void Tick(ref TickTime time)
         {
+            if (_lifetimeMs.HasValue)
+                _lifetimeMs = Math.Max(0, _lifetimeMs.Value - time.ElapsedMsDelta);
             _conditionEffectManager.Update(ref time);
 
             if (HasConditionEffect(ConditionEffectIndex.Stasis) || BehaviourPaused)
@@ -548,6 +564,8 @@ namespace WorldServer.core.objects
             stats[StatDataType.Name] = Name;
             stats[StatDataType.Size] = Size;
             stats[StatDataType.AltTextureIndex] = AltTextureIndex;
+            if (_lifetimeMs.HasValue)
+                stats[StatDataType.LifetimeMs] = _lifetimeMs.Value;
             if (World?.Levels != null)
                 stats[StatDataType.Height] = HeightStat;
             _conditionEffectManager.ExportStats(stats);

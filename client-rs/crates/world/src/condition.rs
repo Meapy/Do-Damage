@@ -135,13 +135,17 @@ pub fn active(conditions: [u32; 2]) -> impl Iterator<Item = u32> {
     (1..EFFECTS.len() as u32).filter(move |&n| has(conditions, n))
 }
 
-/// The icons over an object at `time` (ms): (big, index) for each effect that shows one.
-pub fn icons(conditions: [u32; 2], time: i32) -> Vec<(bool, u32)> {
+pub fn duration_stat(effect: u32) -> u8 {
+    bsk_proto::stat::condition_duration(effect as u8)
+}
+
+/// The icons over an object at `time` (ms): (effect, big, index) for each effect that shows one.
+pub fn icons(conditions: [u32; 2], time: i32) -> Vec<(u32, bool, u32)> {
     let turn = (time / 500).max(0) as usize;
     active(conditions)
         .filter_map(|n| {
             let e = &EFFECTS[n as usize];
-            (!e.icons.is_empty()).then(|| (e.big, e.icons[turn % e.icons.len()]))
+            (!e.icons.is_empty()).then(|| (n, e.big, e.icons[turn % e.icons.len()]))
         })
         .collect()
 }
@@ -153,8 +157,22 @@ mod tests {
     #[test]
     fn icons_cycle() {
         let c = [1 << (PARALYZED - 1) | 1 << (SLOWED - 1), 1 << (CURSE - 32)];
-        assert_eq!(icons(c, 0), vec![(false, 0x01), (false, 0x35), (false, 0x3a)]);
-        assert_eq!(icons(c, 500), vec![(false, 0x01), (false, 0x36), (false, 0x3a)]);
+        assert_eq!(
+            icons(c, 0),
+            vec![
+                (SLOWED, false, 0x01),
+                (PARALYZED, false, 0x35),
+                (CURSE, false, 0x3a)
+            ]
+        );
+        assert_eq!(
+            icons(c, 500),
+            vec![
+                (SLOWED, false, 0x01),
+                (PARALYZED, false, 0x36),
+                (CURSE, false, 0x3a)
+            ]
+        );
         assert_eq!(EFFECTS[DRUNK as usize].name, "Drunk");
         assert_eq!(EFFECTS[INSPIRED as usize].name, "Inspired");
     }

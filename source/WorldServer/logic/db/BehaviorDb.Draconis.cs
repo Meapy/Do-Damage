@@ -74,8 +74,7 @@ namespace WorldServer.logic
                     new TierLoot(14, ItemType.Armor, 0.04),
                     new TierLoot(6, ItemType.Ability, 0.06),
                     new TierLoot(6, ItemType.Ring, 0.06),
-                    new ItemLoot("Elder Draconis Key", 0.01),
-                    new ItemLoot("Elder Ivory Wyvern Key", 0.01)
+                    new ItemLoot("Elder Draconis Key", 0.01)
                     )
             ];
 

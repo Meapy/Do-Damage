@@ -102,7 +102,8 @@ namespace WorldServer.logic
                     new ItemLoot("Potion of Dexterity", 0.5),
                     new ItemLoot("Holy Water", 0.5),
                     new ItemLoot("Manor Key", 0.01, 0, 0.03)
-                    ), Elder("Lord Ruthven"))
+                    ), Elder("Lord Ruthven"),
+                ElderLoot(0.01, new ItemLoot("Elder Manor Key", 0.01)))
             // the bats round Lord Ruthven while he is a swarm
             .Init(E("Vampire Bat"),
                 new State(

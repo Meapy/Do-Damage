@@ -892,8 +892,10 @@ namespace WorldServer.core.worlds
                 return;
             var portal = Entity.Resolve(World.GameServer, portalType);
             portal.Move(at.X, at.Y);
-            World.EnterWorld(portal);
             var timeout = gameData.Portals.TryGetValue(portalType, out var desc) ? desc.Timeout : 30;
+            if (timeout > 0)
+                portal.SetLifetime(timeout * 1000);
+            World.EnterWorld(portal);
             if (timeout > 0)
                 World.StartNewTimer(timeout * 1000, (w, t) => w.LeaveWorld(portal));
             RealmBroadcast("The Killer Bee Nest falls silent, and its hive lies open!");

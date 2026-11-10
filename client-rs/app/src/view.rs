@@ -1428,17 +1428,33 @@ pub fn draw(scene: &Scene, renderer: &mut Renderer, redrawer: &mut Redrawer, gro
         let big_scale = (icon_scale * 3 / 4).max(1);
         let icons: Vec<_> = condition::icons(c, scene.time)
             .into_iter()
-            .filter_map(|(big, index)| {
+            .filter_map(|(effect, big, index)| {
                 let src = scene.sprites.tile_src(if big { "lofiInterfaceBig" } else { "lofiInterface2" }, index)?;
-                redrawer.icon(scene.sprites, renderer, src, if big { big_scale } else { icon_scale })
+                let icon = redrawer.icon(
+                    scene.sprites,
+                    renderer,
+                    src,
+                    if big { big_scale } else { icon_scale },
+                )?;
+                let alpha = obj
+                    .stat_int_remaining(condition::duration_stat(effect), scene.time)
+                    .map_or(1.0, |remaining| {
+                        expiry_flash(scene.time, remaining, EXPIRY_WARNING_MS)
+                    });
+                Some((icon, alpha))
             })
             .collect();
         let gap = (2.0 * icon_scale as f32).max(3.0);
-        let total = icons.iter().map(|i| i.w as f32).sum::<f32>() + gap * icons.len().saturating_sub(1) as f32;
+        let total = icons.iter().map(|(i, _)| i.w as f32).sum::<f32>()
+            + gap * icons.len().saturating_sub(1) as f32;
         let mut left = x - total / 2.0;
-        for icon in &icons {
+        for (icon, alpha) in &icons {
             let (w, h) = (icon.w as f32, icon.h as f32);
-            renderer.sprite(icon.rect, Quad::rect(left.round(), (y - h / 2.0).round(), w, h), Tint::NONE);
+            renderer.sprite(
+                icon.rect,
+                Quad::rect(left.round(), (y - h / 2.0).round(), w, h),
+                Tint::color(0xFFFFFF, *alpha),
+            );
             left += w + gap;
         }
     }
@@ -1579,7 +1595,35 @@ fn fade(scene: &Scene, obj: &GameObj, desc: &ObjectDesc) -> f32 {
     } else {
         1.0
     };
-    own * under_roof(scene, obj)
+    let (remaining, warning_ms) = if matches!(desc.class, ObjectClass::Portal | ObjectClass::GuildHallPortal) {
+        (
+            obj.stat_int_remaining(bsk_proto::stat::LIFETIME_MS, scene.time),
+            PORTAL_EXPIRY_WARNING_MS,
+        )
+    } else if matches!(desc.class, ObjectClass::Container | ObjectClass::OneWayContainer) && desc.xml.has("Loot") {
+        (
+            obj.stat_int_remaining(bsk_proto::stat::HEALTH, scene.time),
+            BAG_EXPIRY_WARNING_MS,
+        )
+    } else {
+        (None, EXPIRY_WARNING_MS)
+    };
+    let expiry_alpha = remaining.map_or(1.0, |ms| expiry_flash(scene.time, ms, warning_ms));
+    own * under_roof(scene, obj) * expiry_alpha
+}
+
+const EXPIRY_WARNING_MS: i32 = 2_000;
+const BAG_EXPIRY_WARNING_MS: i32 = 5_000;
+const PORTAL_EXPIRY_WARNING_MS: i32 = 5_000;
+
+fn expiry_flash(time: i32, remaining_ms: i32, warning_ms: i32) -> f32 {
+    if remaining_ms > warning_ms {
+        1.0
+    } else if time.div_euclid(150).rem_euclid(2) == 0 {
+        0.2
+    } else {
+        1.0
+    }
 }
 
 fn draw_sprite(scene: &Scene, renderer: &mut Renderer, redrawer: &mut Redrawer, ground: &mut Ground, obj: &GameObj, desc: &ObjectDesc) -> Option<[f32; 2]> {
@@ -1970,6 +2014,36 @@ fn draw_wall(scene: &Scene, renderer: &mut Renderer, obj: &GameObj, desc: &Objec
 #[cfg(test)]
 mod tests {
     use super::*;
+
+    #[test]
+    fn expiry_flashes_only_in_the_warning_window() {
+        assert_eq!(
+            expiry_flash(0, EXPIRY_WARNING_MS + 1, EXPIRY_WARNING_MS),
+            1.0
+        );
+        assert_eq!(expiry_flash(0, EXPIRY_WARNING_MS, EXPIRY_WARNING_MS), 0.2);
+        assert_eq!(expiry_flash(150, EXPIRY_WARNING_MS, EXPIRY_WARNING_MS), 1.0);
+        assert_eq!(
+            expiry_flash(
+                0,
+                PORTAL_EXPIRY_WARNING_MS + 1,
+                PORTAL_EXPIRY_WARNING_MS
+            ),
+            1.0
+        );
+        assert_eq!(
+            expiry_flash(0, PORTAL_EXPIRY_WARNING_MS, PORTAL_EXPIRY_WARNING_MS),
+            0.2
+        );
+        assert_eq!(
+            expiry_flash(0, BAG_EXPIRY_WARNING_MS + 1, BAG_EXPIRY_WARNING_MS),
+            1.0
+        );
+        assert_eq!(
+            expiry_flash(0, BAG_EXPIRY_WARNING_MS, BAG_EXPIRY_WARNING_MS),
+            0.2
+        );
+    }
 
     #[test]
     fn camera_projection() {

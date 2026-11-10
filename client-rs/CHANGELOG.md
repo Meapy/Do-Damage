@@ -12,6 +12,28 @@ Keep each version short: changes go under `### ` group headings (Oryx 5, Arena, 
 on), one line per change players notice, summed up rather than item by item (the wiki has the
 details). Add to a group's line when a change adds to it, rather than adding another line.
 
+## 2.4.10 (2026-11-10)
+
+### Elder dungeons
+- Necromantic Relics drop more often: a 5% chance for each player who dealt at least 2% of an
+  Elder boss's damage, up from 3%. Each Elder dungeon also drops its own key at the regular
+  dungeon's chance; where no regular key chance is configured, the Elder key drops at 1%.
+
+### Items
+- New art for the Enthroned gear: the Sword, Dagger, Bow, Wand, Katana, Dual Blades and Staff, the
+  Hide, Plate and Robe, and the Boots. Those weapons also fire a shot of their own, taking turns
+  with Oryx's violet Rift as before.
+- New art for the Monk's fists, every tier from the Cloth Hand Wraps to the Fists of the Ascended;
+  the Enthroned Fists take the new look too, with their purple sparkles.
+
+### Game
+- Use Up and Down in chat to revisit messages and commands you've sent, then return to your draft.
+- Ask everyone online for help with `/help` once a minute, or limit the call to your party with
+  `/phelp` or your guild with `/ghelp`; the chat message names the dungeon that needs help, and
+  its link lets you ask to join.
+- Timed portals and loot bags flash during their last five seconds; status effects, including
+  temporary stat boosts, flash during their last two seconds.
+
 ## 2.4.9 (2026-11-09)
 
 ### Community goals

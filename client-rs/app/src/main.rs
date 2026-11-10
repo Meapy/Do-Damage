@@ -166,6 +166,7 @@ struct App {
     pressed: Vec<KeyCode>,
     /// The chat line being typed (Enter opens it), and lines to send.
     chat_input: Option<textedit::LineEdit>,
+    chat_history: ChatHistory,
     chat_send: Vec<String>,
     /// Page Up: the chat's history, so many rows back (`TextBox.showMax_`).
     chat_scroll: Option<usize>,
@@ -173,8 +174,8 @@ struct App {
     chat_log: Vec<hud::ChatLine>,
     /// Tab's place in the list of people we've whispered with (`TextBox.currentTeller_`).
     teller: usize,
-    /// Players' names in the chat as last drawn, and where (a click opens their menu).
-    chat_names: Vec<(String, [f32; 4])>,
+    /// Clickable names and help links in the chat, as last drawn.
+    chat_clicks: Vec<hud::ChatClick>,
     /// `--say <text>` (desktop tests): lines still to send, one per world we join (see `say_arg`).
     say: Vec<String>,
     /// The join (`reconnects`) the last --say line went out in, and when.
@@ -461,6 +462,51 @@ fn look(glow: bool, vivid: bool) -> bsk_render::Look {
 /// A chat line being typed, starting from `text` (TextBox's limit: 128 characters).
 fn chat_line(text: impl Into<String>) -> textedit::LineEdit {
     textedit::LineEdit::new(text, 128)
+}
+
+#[derive(Default)]
+struct ChatHistory {
+    lines: Vec<String>,
+    at: Option<usize>,
+    draft: String,
+}
+
+impl ChatHistory {
+    fn submit(&mut self, line: &str) {
+        self.lines.push(line.to_owned());
+        self.reset_navigation();
+    }
+
+    fn reset_navigation(&mut self) {
+        self.at = None;
+        self.draft.clear();
+    }
+
+    fn navigate(&mut self, input: &mut textedit::LineEdit, up: bool) {
+        if up {
+            if self.lines.is_empty() {
+                return;
+            }
+            let at = match self.at {
+                Some(at) => at.saturating_sub(1),
+                None => {
+                    self.draft.clone_from(&input.text);
+                    self.lines.len() - 1
+                }
+            };
+            self.at = Some(at);
+            *input = chat_line(self.lines[at].clone());
+        } else if let Some(at) = self.at {
+            if at + 1 < self.lines.len() {
+                self.at = Some(at + 1);
+                *input = chat_line(self.lines[at + 1].clone());
+            } else {
+                let draft = std::mem::take(&mut self.draft);
+                self.at = None;
+                *input = chat_line(draft);
+            }
+        }
+    }
 }
 
 /// Frame timings for --bench.
@@ -1340,6 +1386,7 @@ impl App {
         self.phase = Phase::Playing(game);
         self.hud = Default::default();
         self.chat_input = None;
+        self.chat_history.reset_navigation();
         self.game_menu = false;
         self.npcs.close();
         self.quests.reset();
@@ -1793,24 +1840,46 @@ impl App {
             return;
         }
         // Typing a chat line: keys go to the text, not the game.
-        if let Some(input) = &mut self.chat_input {
+        if self.chat_input.is_some() {
             if pressed {
                 match code {
                     KeyCode::Enter | KeyCode::NumpadEnter => {
-                        let line = std::mem::take(&mut input.text);
-                        if !line.trim().is_empty() {
-                            self.chat_send.push(line);
+                        if let Some(input) = &mut self.chat_input {
+                            let line = std::mem::take(&mut input.text);
+                            if !line.trim().is_empty() {
+                                self.chat_history.submit(&line);
+                                self.chat_send.push(line);
+                            }
                         }
                         self.chat_input = None;
+                        self.chat_history.reset_navigation();
                     }
-                    KeyCode::Escape => self.chat_input = None,
+                    KeyCode::Escape => {
+                        self.chat_input = None;
+                        self.chat_history.reset_navigation();
+                    }
                     KeyCode::Tab => {
                         let line = self.tell_prefix();
+                        self.chat_history.reset_navigation();
                         self.chat_input = Some(chat_line(line));
                     }
-                    KeyCode::PageUp | KeyCode::PageDown => self.scroll_chat(code == KeyCode::PageUp),
+                    KeyCode::ArrowUp => {
+                        if let Some(input) = &mut self.chat_input {
+                            self.chat_history.navigate(input, true);
+                        }
+                    }
+                    KeyCode::ArrowDown => {
+                        if let Some(input) = &mut self.chat_input {
+                            self.chat_history.navigate(input, false);
+                        }
+                    }
+                    KeyCode::PageUp | KeyCode::PageDown => {
+                        self.scroll_chat(code == KeyCode::PageUp)
+                    }
                     _ => {
-                        input.key(code, text.as_deref(), self.ctrl_held, self.shift_held);
+                        if let Some(input) = &mut self.chat_input {
+                            input.key(code, text.as_deref(), self.ctrl_held, self.shift_held);
+                        }
                     }
                 }
             }
@@ -1920,6 +1989,7 @@ impl App {
                 _ => None,
             };
             if open.is_some() {
+                self.chat_history.reset_navigation();
                 self.chat_input = open.map(chat_line);
                 self.keys.clear();
                 self.mouse_down = false;
@@ -2191,6 +2261,7 @@ impl App {
                 self.autofire = false;
                 self.game_menu = false;
                 self.chat_input = None;
+                self.chat_history.reset_navigation();
                 self.hud.drag = None;
                 if self.npcs.window.is_some() {
                     self.npcs.close();
@@ -2377,13 +2448,19 @@ impl App {
             // A click anywhere while the chat box is open closes it, and does nothing else (a
             // player's name in the chat still opens a whisper).
             if self.chat_input.is_some() {
-                let names = &self.chat_names;
-                let on_name = |(x, y): (f64, f64)| names.iter().any(|(_, r)| {
-                    let (x, y) = (x as f32, y as f32);
-                    x >= r[0] && y >= r[1] && x < r[0] + r[2] && y < r[1] + r[3]
-                });
-                if self.clicks.iter().any(|&(down, pos)| down && !on_name(pos)) {
+                let chat_clicks = &self.chat_clicks;
+                let on_click = |(x, y): (f64, f64)| {
+                    chat_clicks.iter().any(|click| {
+                        let (x, y) = (x as f32, y as f32);
+                        x >= click.rect[0]
+                            && y >= click.rect[1]
+                            && x < click.rect[0] + click.rect[2]
+                            && y < click.rect[1] + click.rect[3]
+                    })
+                };
+                if self.clicks.iter().any(|&(down, pos)| down && !on_click(pos)) {
                     self.chat_input = None;
+                    self.chat_history.reset_navigation();
                     self.clicks.clear();
                     self.mouse_down = false;
                 }
@@ -2676,17 +2753,40 @@ impl App {
                             continue;
                         }
                     }
-                    // A player's name in the chat: their menu if they're here, else a whisper.
+                    // Chat names open their menu or a whisper; a help link sends /visit at once.
                     let (px, py) = (pos.0 as f32, pos.1 as f32);
-                    let name = self.chat_names.iter().find(|(_, r)| px >= r[0] && py >= r[1] && px < r[0] + r[2] && py < r[1] + r[3]);
-                    if let (true, Some((name, _))) = (down, name) {
-                        let here = game.world.as_ref().and_then(|w| {
-                            w.objects.values().find(|o| Some(o.id) != w.me && o.name() == Some(name.as_str()) && data.objects.get(&o.object_type).is_some_and(|d| d.player))
-                        });
-                        match here {
-                            Some(o) => self.hud.open_menu(o.id, pos),
-                            None => self.chat_input = Some(chat_line(format!("/tell {name} "))),
+                    let click = self.chat_clicks.iter().find(|click| {
+                        px >= click.rect[0]
+                            && py >= click.rect[1]
+                            && px < click.rect[0] + click.rect[2]
+                            && py < click.rect[1] + click.rect[3]
+                    });
+                    if let (true, Some(click)) = (down, click) {
+                        match &click.target {
+                            hud::ChatClickTarget::Visit(name) => {
+                                self.chat_send.push(format!("/visit {name}"))
+                            }
+                            hud::ChatClickTarget::Player(name) => {
+                                let here = game.world.as_ref().and_then(|w| {
+                                    w.objects.values().find(|o| {
+                                        Some(o.id) != w.me
+                                            && o.name() == Some(name.as_str())
+                                            && data
+                                                .objects
+                                                .get(&o.object_type)
+                                                .is_some_and(|d| d.player)
+                                    })
+                                });
+                                match here {
+                                    Some(o) => self.hud.open_menu(o.id, pos),
+                                    None => {
+                                        self.chat_history.reset_navigation();
+                                        self.chat_input = Some(chat_line(format!("/tell {name} ")));
+                                    }
+                                }
+                            }
                         }
+
                         self.mouse_down = false;
                         continue;
                     }
@@ -2716,6 +2816,7 @@ impl App {
                         continue;
                     }
                     if let Some(line) = apply_action(game, p, action, now, data) {
+                        self.chat_history.reset_navigation();
                         self.chat_input = Some(chat_line(line));
                     }
                 }
@@ -2951,7 +3052,7 @@ impl App {
                 let me = game.world.as_ref().and_then(|w| w.player()).and_then(|p| p.name()).unwrap_or("").to_owned();
                 let mut ui = hud::Ui { renderer: &mut *renderer, sprites, data, redrawer: &mut *redrawer, fonts, text: &mut *text };
                 prof::mark("pre-chat");
-                self.chat_names = hud::draw_chat(&mut ui, &lay, &game.chat, &me, self.chat_input.as_ref(), self.chat_scroll, self.settings.chat_size, self.settings.chat_alpha, now);
+                self.chat_clicks = hud::draw_chat(&mut ui, &lay, &game.chat, &me, self.chat_input.as_ref(), self.chat_scroll, self.settings.chat_size, self.settings.chat_alpha, now);
                 if let Some(p) = game.world.as_ref().and_then(|w| w.player()) {
                     // The frame rate and the ping (L), under the gold and fame.
                     let fps = self.settings.show_fps.then(|| match game.ping {
@@ -3587,10 +3688,11 @@ fn main() {
         last_scripted: None,
         pressed: Vec::new(),
         chat_input: None,
+        chat_history: ChatHistory::default(),
         chat_scroll: None,
         chat_log: Vec::new(),
         teller: 0,
-        chat_names: Vec::new(),
+        chat_clicks: Vec::new(),
         chat_send: Vec::new(),
         say: say_lines(),
         say_sent_in: None,
@@ -3675,5 +3777,44 @@ fn main() {
     {
         use winit::platform::web::EventLoopExtWebSys;
         event_loop.spawn_app(app);
+    }
+}
+
+#[cfg(test)]
+mod chat_history_tests {
+    use super::{chat_line, ChatHistory};
+
+    #[test]
+    fn up_and_down_recall_lines_and_restore_the_draft() {
+        let mut history = ChatHistory::default();
+        history.submit("/first");
+        history.submit("second message");
+        let mut input = chat_line("unfinished");
+
+        history.navigate(&mut input, true);
+        assert_eq!(input.text, "second message");
+        history.navigate(&mut input, true);
+        assert_eq!(input.text, "/first");
+        history.navigate(&mut input, true);
+        assert_eq!(input.text, "/first");
+        history.navigate(&mut input, false);
+        assert_eq!(input.text, "second message");
+        history.navigate(&mut input, false);
+        assert_eq!(input.text, "unfinished");
+        history.navigate(&mut input, false);
+        assert_eq!(input.text, "unfinished");
+    }
+
+    #[test]
+    fn navigating_from_a_recalled_line_restores_the_original_draft() {
+        let mut history = ChatHistory::default();
+        history.submit("/command");
+        let mut input = chat_line("draft");
+
+        history.navigate(&mut input, true);
+        input.insert(" edited");
+        history.navigate(&mut input, false);
+
+        assert_eq!(input.text, "draft");
     }
 }

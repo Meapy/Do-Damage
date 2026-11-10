@@ -82,12 +82,12 @@ Amulet are gone: nothing drops them, and the forge neither takes nor buys them.
 
 Oryx the Ascended God's own gear, which he never drops: untiered items with a red slot edge, which
 the forge makes from an item of the highest tier he drops and an Ascended shard of its kind. Each
-weapon and armour comes from its own kind's top item (a tier 15 dagger makes the Enthroned Dagger)
-and looks like it, with purple sparkles. Each has the numbers of the item it's forged from: its
+weapon and armour comes from its own kind's top item (a tier 15 dagger makes the Enthroned Dagger),
+and each has a look of its own (the Enthroned Fists still look like theirs, with purple sparkles). Each has the numbers of the item it's forged from: its
 stats, its ability and its shots' damage and what they do (an Enthroned Katana's shots still
 pierce, an Enthroned Dual Blades' still ignore defense). All are named **Enthroned**: the Enthroned
-Sword, Dagger, Bow, Wand, Katana, Dual Blades, Fists, Hide and Plate, and the **Enthroned Staff**, a
-staff drawn after the one he holds, from a tier 15 staff (it was the Enthroned Spear, made from his
+Sword, Dagger, Bow, Wand, Katana, Dual Blades, Fists, Hide and Plate, and the **Enthroned Staff**,
+from a tier 15 staff (it was the Enthroned Spear, made from his
 Elysian Staff). His own pieces: the **Enthroned Robe** from his **Robe of Absolution**, the
 **Enthroned Boots** (+50 speed) from any ring and two Ascended Accessory Shards, and the
 **Enthroned Ring of Grace** from both of his
@@ -98,10 +98,10 @@ Enthroned item gives a **10% fame bonus**.
 The forge doesn't make the Enthroned Helm (for now) or the Enthroned Ring of Wrath any more; ones
 already made keep working.
 
-Every Enthroned weapon fires **Oryx's own shots**, the same two for all of them, in the same pattern
-as the weapon they're forged from, and their volleys take turns: his gold **Radiance**, with the
-weapon's own damage and what its shots do, then his violet **Rift**, the same but piercing and
-ignoring defense.
+Every Enthroned weapon fires in the same pattern as the weapon it's forged from, and its volleys
+take turns: first the **weapon's own shot**, with the weapon's own damage and what its shots do,
+then Oryx's violet **Rift**, the same but piercing and ignoring defense. The Enthroned Fists fly
+his gold **Radiance** in place of a shot of their own.
 
 Dropped from your inventory, an Enthroned item goes into a **purple bag only you can see**, and it
 only goes into loot bags that are yours alone.

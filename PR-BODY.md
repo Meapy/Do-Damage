@@ -1,42 +1,68 @@
-Release 2.4.9: community goals sized for a real week, ten new goals, and stacked shots hit as one (deploys the world server and the client; nobody is disconnected)
+Release 2.4.10: new item art, more frequent Necromantic Relics and Elder dungeon keys (deploys the client, servers and website; nobody is disconnected)
 
 ## For players
 
-- **Community goals:** the goals had been finishing in hours to a couple of days (every one reached its last Overdrive level, 300%); they're now sized for a whole week of play: Oryx 250 times, 45,000 gods, 4,000 realm event bosses, 75 realms closed, 1,200 dungeons (600 Hard or harder, 300 Elder), 200,000 monsters, 6,000 bosses, 5,000 cube monsters, 30,000 fame, 35,000 potions, 1,200 Arena waves, 350 forges, 3,000 levels. The share needed to claim rewards grew with them (such as 3 dungeons, 150 gods, 800 monsters). Ten new goals can come up, 25 in all: **Stronger Together** (500 dungeons cleared in a party of two or more, keys as loot), **Spoils of the Realm** (300 white bag items, loot boosts and shards), **Many Hands** (300 quests claimed, pet stones and level potions) **Roll Call** (150 daily rewards collected), **Raid Night** (80 clears of the Lost Halls, the Shatters, the Void, the Draconis and Ivory Wyvern lairs, Shaitan, the Ice Tomb or the Encore; dragon keys and the Lil' Forgotten King), four themed dungeon goals with their own keys and Lil' pets: **Under the Waves** (150 sea dungeons: pirate caves, Davy Jones, the Ocean Trench, docks, grotto, reef, beach; Lil' Davy Jones), **Lay Them to Rest** (150 Undead Lairs, Manors, Haunted Cemeteries or Tombs; Lil' Ghost), **Into the Wilds** (250 forest and jungle dungeons; Lil' Ent) and **Strange Places** (100 of the Mad Lab, Cursed Library, Theatre, Candyland, Sewers and the like; Lil' Flying Brain), and **Sharp and Swift** (12,000 Attack, Dexterity and Speed potions; Infernal Potion of Speed). The wiki lists the dungeons each one counts. The goals still resize themselves week by week, and a goal finished early still brings a bonus goal.
-- **Combat:** monsters' shots that fly exactly on top of each other look like one shot and now hurt like one: the strongest of them, once. Two attacks of one monster on the same tick (the Mini Yeti in the Ice Cave fired its snowball twice) or a pack standing on one spot (the Rock Dragon's bats and body segments around the Eye of the Dragon) had dealt every bullet's damage, so a shot that looked like 80 could deal 800. Spreads and streams still hit shot by shot. The wiki's FAQ explains it.
+- **Items:** new art for the Enthroned gear: the Sword, Dagger, Bow, Wand, Katana, Dual Blades and Staff, the Hide, Plate and Robe, and the Boots. Each of those seven weapons has a shot of its own for its first volley, taking turns with Oryx's violet Rift as before. The Enthroned Helm and both rings keep their look, and the Enthroned Fists still fire the gold Radiance.
+- **Items:** new art for the Monk's fists, all sixteen tiers from the Cloth Hand Wraps (T0) to the Fists of the Ascended (T15); the Enthroned Fists take the new T15 look, with their purple sparkles.
+- **Elder dungeons:** Necromantic Relics now have a 5% drop chance per player who dealt at least 2% of an Elder boss's damage, up from 3%; each Elder dungeon also drops its own key at the regular dungeon's chance (1% where no regular key chance is configured).
+- **Help calls:** `/help` asks eligible players in the Nexus or realms to join you and announces
+  the call to everyone online once a minute; `/phelp` and `/ghelp` call your party or guild. Click
+  the chat message names the dungeon and its link lets you ask to join the caller.
+- **Game:** timed portals and loot bags flash during their last five seconds; status effects,
+  including temporary stat boosts, flash during their last two seconds.
 
 ## Details
 
-### Community goals rebalanced, four new goals
+### Enthroned gear: the owner's sprites and per-weapon shots
 
-- Why: the VPS's Redis showed every goal finishing at 3× its goal: this week's Oryx (15), dungeons (40) and Elder (6) all on the first day, last week's bosses, fame and forge in 3-3.6 days, and the bonus goals after them too, even at 8× heat. The goals as written were 10-100× under a week's play (the week of 2026-11-02: 194,670 kills, 38,691 gods, 7,024 bosses, 6,252 cube monsters, 260 Oryx kills, 4,423 realm events, 40,860 potions, 1,236 dungeons, 427 forges, 85 realms closed; `weeklyStats:<week>`, `weeklyKills:<week>` by object type, and the runs' own paces). The scale could only grow up to 3× a run, capped at 4×, so it would never have caught up.
-- `resources/data/community.json`: each goal as written is now about a week's play divided by the 1.2 target (so the realm ends near 120%), minimums raised to match; `adapt.minScale` 0.4 → 0.25 (room to shrink on a quiet week), `early.maxHeat` 8 → 4 (the bonus goals start from realistic sizes now). The new goals' sizes come from the accounts' lifetime achievement counters (party clears ≈ 43% of dungeon clears, white bags ≈ 30%, quests ≈ 21%) and ~40 active accounts for daily rewards; the scale corrects them from the first week.
-- Old scales: `community:scale` held 1.35-4 for every goal, measured against the old numbers. `CommunityGoals.SetScale` now also writes `<id>:base` (the goal as written), and `Scales` ignores a scale without a matching base, so every goal starts again at its new number, and any later change to a goal does the same. An older world server during the rolling deploy reads `<id>:base` as a scale of an unknown goal and ignores it.
-- New goals: `party` (event `dungeon`, filter `group`, in the dungeons group, weight 0.8), `whitebags` (`whiteBag`, group `loot`), `questers` (`quest`, group `quests`), `logins` (`login`, group `logins`, weight 0.5; at most one an account a day, so it can't finish early). Quest claims and daily rewards were counted only inside the quest book (`QuestBook.ClaimQuest`/`ClaimLogin`), never reaching the community goals: `QuestTracker.Claim` now passes them to `CommunityGoals.Count` once paid. No trade goal: a trade counts for both players and two friends could swap one item back and forth.
-- The week now running (2026-11-09: oryx, dungeons and Elder finished; bonus goals gods 4,100, events 450, potions 540 fixed in Redis) keeps its goals; bonus goals started after the deploy, and next week's goals, use the new numbers.
-- Redeploy: world server only (data and code). Nobody is disconnected. Redis: the old scales stay but are ignored; nothing to migrate.
-- Docs: changelog, the wiki's Community goals page (the share example; its goal list is generated), SETUP-LOCAL.md "Changes from upstream".
-- Not done: the new goals' sizes are estimates until a week has run; watch `community:*` after the first week.
+- New sheet `client/src/kabam/rotmg/assets/custom/images/EnthronedItems8x8.png` (`enthronedItems8x8`, 56×48, 7 cells a row, hand-drawn by the owner): top row the weapons (Sword, Wand, Bow, Dagger, Staff, Katana, Dual Blades), the row under it each one's shot, the fourth row the Hide, Robe and Plate, the sixth the Boots. Registered in `tools/gen_rs_manifest.py` (manifest regenerated).
+- `tools/build_ascended_items.py`: those items' textures point at the new sheet; `OWN_SHOTS` adds seven projectile objects (0x5873-0x5877, 0x5879, 0x587a; 0x5878 was taken), each the weapon's first-volley `ObjectId` in place of the Enthroned Radiance. The Rift (second volley, piercing and ignoring defense) is unchanged, and so are all numbers. The Fists keep their sparkled T15 sprite and the Radiance; the Helm keeps its drawn piece. The old Staff (16×16), Robe and Boots cells are still drawn but unused. Regenerated: both `CustomItems.xml`, `AscendedItems8x8.png` (now without the weapons' and armours' sparkled cells).
+- Redeploy: client (the new sheet) and world server (the XML). Nobody is disconnected; nothing in Redis (type codes of the items unchanged). An older client doesn't know the new sheet or shots, so it shows them wrongly until it updates.
+- Docs: changelog (Items), the wiki's forge page, SETUP-LOCAL.md "Changes from upstream".
+- Not checked: the shots in flight in the game (only the data resolved through the manifest, see Checks). Some of the shot cells have a lone dark pixel or 2×2 block in their bottom-left corner, as drawn.
 
-### Six more community goals (25 in all)
+### The Monk's fists: the owner's sprites
 
-- Six goals on events the server already counts, so no code change: `raids` (group `raids`), `seas`, `undead`, `wilds`, `strange` (group `themed`, `strange` weight 0.8), all `dungeon` with a `filter.names` list of world `IdName`s (Elder versions included), and `battle_pots` (`potion`, names Attack/Dexterity/Speed and their Greater potions, in the potions group, weight 0.7; storage counts as `Potion of <stat>`, which is listed). Each has its own tiers, Overdrive bonus, top prize (a Lil' pet not used elsewhere, or an Infernal Potion of Speed) and loot of keys, pets and potions. Two new groups, so each group comes up about every 6th week instead of every 5th.
-- Sizes are estimates from the week of 2026-11-02 (1,236 dungeons, 40,860 potions) and how popular each kind looks: raids 80, seas 150, undead 150, wilds 250, strange 100, battle potions 12,000; `adapt` corrects them from their first run. Minimums: 1 for raids, 2 for the themed goals, 8 for potions.
-- `tools/wiki_community.py`: a goal with `filter.names` lists them under its text on the wiki's Community Goals page; `community-goals.md`'s loot paragraph names the themed goals.
-- Redeploy: world server only (data). Nobody is disconnected; nothing in Redis to migrate (a new goal starts at scale 1). The goals' texts come from the server, so the client needs nothing.
-- Not done: the per-dungeon popularity behind the sizes is a guess, not measured; `weeklyStats` has no per-dungeon counts.
+- New sheet `client/src/kabam/rotmg/assets/custom/images/FistsItems8x8.png` (`fistsItems8x8`, 128×8, hand-drawn by the owner): a cell per tier, T0 Cloth Hand Wraps to T15 Fists of the Ascended (0x5802-0x5810, 0x582a). Registered in `tools/gen_rs_manifest.py` (manifest regenerated).
+- Both `CustomItems.xml`: those sixteen items' textures point at it (hand-written entries, outside any generator's marks). `tools/build_ascended_items.py` reads the new sheet for the Enthroned Fists' sparkled copy (`SOURCE_SHEETS`); `AscendedItems8x8.png` regenerated. The old tiles 0x70-0x7E of `CustomAssets8x8.png` and the T15 cell of `T15Weapons8x8.png` are unused now (left in place).
+- Redeploy: client (the new sheet) and world server (the XML). Nobody is disconnected; nothing in Redis. An older client doesn't know the sheet and shows the fists wrongly until it updates.
+- Docs: changelog (Items), SETUP-LOCAL.md (the Monk fist sprites entry), `tools/draw_t15_weapons.py`'s notes. The wiki's gear pages pick up the new icons from the data; no hand-written guide describes the fists' look.
 
-### Stacked shots hit as one
+### Elder dungeon keys
 
-- Why: a player died at the Eye of the Dragon and in the Ice Cave to a shot that looked normal. Bullets fired on top of each other each dealt full damage: the Mini Yeti's two `Shoot`s of projectile 0 fire on the same tick (both on state entry, then whenever their cooldowns meet, aimed alike at a player standing still), and monsters crowding one spot (the Rock Dragon's bats, `Follow` at 1 tile; its body segments, `Protect` at 1 tile, which turn into bombs firing 13-shot rings) fire overlapping volleys.
-- Server: `Player.StackedShots` (`core/objects/player/data/StackedShots.cs`) and `Player.PlayerHit`. A monster's bullet that hits within 250 ms of another that hurt the player, looks the same (projectile `ObjectId`), was fired within 40 ms of it (the same tick, by ShootAck times), points within 4 degrees of it and is within 0.4 tiles of where the other would be, is stacked: it deals only what it would deal beyond the stack's damage so far (so a stack deals its strongest bullet, after defense, once), and otherwise only applies its condition effects. Damage-threshold items (`PlayerHitEffects`), relics and the damage broadcast see one shot.
-- Client: `combat::stacked_on` and `World::unstacked_damage` (`client-rs/crates/world`) judge it the same way for the damage numbers and hurt sounds (`Hit::Player` has `stacked`); it still sends every PlayerHit, so no message changes. An older client shows the extra numbers, but the server deals the damage once.
-- Redeploy: world server (the fix itself) and client (the numbers shown). Nobody is disconnected; nothing in Redis.
-- Docs: changelog (Combat), the wiki's FAQ ("Can one shot hit me several times?"), SETUP-LOCAL.md "Changes from upstream".
-- Not changed: the monsters themselves (Mini Yeti, Rock Dragon) keep their attacks; shots converging from different directions and shots one after another still each hit.
+- Each of the 14 Elder dungeon keys now drops from loot in its own dungeon. The key uses its regular dungeon's drop chance where configured (including the Snake Pit and Sprite World keys at 10% and the Davy Jones and Undead Lair keys at 0.9%); otherwise it drops at 1%. The Elder Tomb Key chance is now 1%, matching the Tomb key. The Elder Draconis Key stays at 1% on Elder Draconis dragon loot, and the Elder Ivory Wyvern Key is 1% on the Elder Wyvern; neither drops in the other dungeon.
+- Redeploy: world server and website (updated wiki); no one is disconnected. No client, protocol or Redis change.
+- Docs: changelog, wiki, SETUP-LOCAL.md.
+
+### Help calls
+
+- Added `/help`, `/phelp` and `/ghelp`. From a dungeon or instance, `/help` sends summon requests to eligible online players currently in the Nexus or a realm, announces the call to everyone online across world servers, and can be used once a minute; the party and guild variants limit recipients to those groups. Requests are limited to players connected to the same world-server process and use the existing summon rules, one request per recipient, the 30 s answer window and the usual cooldowns. Each recipient sees a clickable chat link that sends `/visit <name>` to request entry; `/summon cancel` withdraws the whole help call.
+- The Rust client styles and handles the link; other clients still see the text and can accept the summon request or type `/visit <name>`. No client protocol or persistent Redis data change; an expiring Redis key tracks the cooldown, and the announcement uses the existing inter-server chat channel.
+- Redeploy: world servers; nobody is disconnected.
+- Docs: changelog, SETUP-LOCAL.md, wiki commands page.
+
+### Status effects and expiring objects
+
+- The world server sends remaining durations for timed status effects (including stat boosts) and
+  portals as integer stats; loot bags already send their remaining lifetime as health. The Rust
+  client flashes status icons during their last two seconds and loot bags and timed portals during
+  their last five seconds. Permanent effects and portals that do not expire do not flash.
+- The new stats are optional and older clients ignore them. No Redis migration.
+- Redeploy: world server and Rust client; nobody is disconnected.
+- Docs: changelog and SETUP-LOCAL.md.
 
 ## Checks
 
-- Community goals: `dotnet test` (170 passed; `CommunityDataTests` updated for Oryx's new 250), the world server builds, every item and icon in `community.json` checked against the XML. Isolated stack (slot 3) seeded with `community:scale` `oryx 3` (no base), `fame 2.2`/`fame:base 6000` (old base) and `gods 1.35`/`gods:base 45000` (current base): the week's goals were fixed at oryx 250, fame 30,000 and gods 61,000, as expected. `build_wiki.py` shows the four new goals and the new numbers.
-- Six more goals: `dotnet test` (177 passed, with `CommunityDataTests.NamedGoalsCountOnlyTheirDungeonsAndPotions`: a sea dungeon counts for `seas` and not a Mad Lab, Shatters for `raids` and not a Snake Pit, Greater and stored potions for `battle_pots` and not Life); every item, icon and dungeon name of the 25 goals checked against the XML (world ids included); `build_wiki.py` shows 25 goals with the counted dungeons listed.
-- Stacked shots: `dotnet test --filter StackedShotsTests` (6 passed: one monster's two Shoots on one tick, monsters a fifth of a tile apart, an 8-degree spread, the next tick's shot, different-looking shots, shots meeting from either side), `cargo test -p bsk-world` (32 passed, with `stacked_shots_hit_as_one`) and `-p bsk-client` (82 passed), the world server and the bot build. Isolated stack (slot 25: on this PC the Oculus runtime holds loopback ports around 2050-2075, so lower slots' world servers can't bind): the bot (`--fight`, `/spawn 5 Mini Yeti` in its vault) took a volley of 10 Yeti Snowballs (5 yetis x 2 Shoots, one spot); with a temporary log, the server dealt the first 80 and 0 for the other nine (800 before).
+- Enthroned gear: `build_ascended_items.py` and `gen_rs_manifest.py` rerun; every Enthroned item and shot resolved through the manifest to a non-empty cell and rendered side by side; `build_wiki.py` shows the new icons on the gear pages; server tests (`dotnet test`, 177 passed).
+- Monk's fists: every Fists item (T0-T15 and the Enthroned Fists) resolved through the manifest to a non-empty cell and rendered side by side; `build_wiki.py` draws the new icons on the Martial Art gear page; server tests (`dotnet test`, 177 passed).
+- Elder dungeon keys: Elder loot regression tests verify each key's source and chance; `build_wiki.py` shows the key on its matching dungeon page.
+- Help calls: `dotnet test` covers multi-recipient requests, answers, withdrawal and the one-minute `/help` cooldown; `cargo test -p bsk-client` covers clickable link rendering and normal chat behavior.
+- Status effects and expiring objects: `dotnet test source\Tests\Tests.csproj --no-restore` (197 passed); from `client-rs`, `cargo test -p bsk-proto -p bsk-world -p bsk-client` (145 passed).
+
+### Necromantic Relic drop rate
+
+- Raised the per-eligible-player drop chance from 3% to 5%; the 2% damage threshold is unchanged. `tools/build_resurrection.py` is the source and regenerates `source/Shared/resources/data/resurrection.json`. The wiki reads the generated value. No Redis migration or client protocol change.
+- Redeploy: world server and website (updated wiki); no one is disconnected.
+- Docs: changelog, wiki, SETUP-LOCAL.md.
+
+- Checks: regenerated resurrection data and verified the wiki reports 5%.
