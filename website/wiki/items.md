@@ -76,8 +76,9 @@ falling all over it: `/vault` or the Vault portal on the Nexus spawn's island. I
   taken from your vault or gift chests); the first time you open it, everything your account holds
   counts. **All** lists every piece, and its outlines along the top show one kind at a time (staves,
   robes, rings...). **Dungeons** lists the untiered gear by where it drops, hardest dungeon first,
-  then the realm's and the Divine Forge's; a piece from two places shows in both. Hover a piece for
-  its tooltip.
+  then the unique items from Empowered Elder bosses under **Drops from Necromantic Boss**, the
+  realm's, and the Divine Forge's; a piece from two places shows in both. Hover a piece for its
+  tooltip.
 - A **Training Dummy** beside the spawn. Shoot it and, 5 seconds after your first hit, the chat
   tells you (and only you) your damage and damage a second, your pet's included. It never dies and
   gives no experience. [Gear statistics](gear-statistics.html) has every class's numbers on it.

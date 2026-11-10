@@ -634,6 +634,11 @@ The remotes `upstream` (HaloCelsius) and `aurusenth` share no history with `main
 
 ## Changes from upstream
 
+- **Empowered Elder boss items in the Collection** (2026-11-10; `tools/build_collection.py`,
+  `source/Shared/resources/data/collection.json`): the vault Collection's Dungeons view has a
+  **Drops from Necromantic Boss** group for the 19 unique items from Empowered Elder bosses.
+  Hovering one shows that source. Redeploy the world servers and website; the existing Rust client
+  already displays source groups. No protocol or Redis change.
 - **Expiry flashes** (2026-11-10; `WorldServer/core/objects/ConditionEffectManager.cs`,
   timed portal creation and `client-rs/app/src/view.rs`): the server sends each timed condition
   effect's remaining duration (including temporary stat boosts) and each scheduled portal's
