@@ -378,7 +378,7 @@ namespace WorldServer.logic
                 new State(
                     new ConditionEffectBehavior(ConditionEffectIndex.Invincible),
                     new State("Ini",
-                        new NoPlayerWithinTransition(dist: 16, targetState: "Ini2")
+                        new PlayerWithinTransition(dist: 16, targetState: "Ini2")
                         ),
                     new State("Ini2",
                         new TimedRandomTransition(0, false, "Creampuff", "Unicorn", "Troll", "Rototo", "Fairy", "Gumball Machine")

@@ -634,6 +634,10 @@ The remotes `upstream` (HaloCelsius) and `aurusenth` share no history with `main
 
 ## Changes from upstream
 
+- **Candyland boss respawns** (2026-11-10; `WorldServer/logic/db/BehaviorDb.Candyland.cs`):
+  the boss spawner starts another encounter when a player is nearby after the previous boss is
+  defeated. It no longer waits for all players to leave the room, so the dungeon keeps going
+  without interruption. Redeploy the world servers; no client, protocol or Redis change.
 - **Empowered Elder boss items in the Collection** (2026-11-10; `tools/build_collection.py`,
   `source/Shared/resources/data/collection.json`): the vault Collection's Dungeons view has a
   **Drops from Necromantic Boss** group for the 19 unique items from Empowered Elder bosses.

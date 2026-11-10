@@ -14,6 +14,9 @@ details). Add to a group's line when a change adds to it, rather than adding ano
 
 ## Unreleased
 
+### Dungeons
+- Candyland bosses return after each clear, so there is always another encounter as long as you stay in the dungeon.
+
 ### Vault
 - The Collection groups the 19 unique items from Empowered Elder bosses under
   “Drops from Necromantic Boss”.
