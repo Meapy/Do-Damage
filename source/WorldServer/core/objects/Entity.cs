@@ -279,6 +279,13 @@ namespace WorldServer.core.objects
             _conditionEffectManager.AddCondition((byte)effect, durationMs);
         }
 
+        public void ExtendConditionEffect(ConditionEffectIndex effect, int durationMs)
+        {
+            if (!CanApplyCondition(effect))
+                return;
+            _conditionEffectManager.ExtendCondition((byte)effect, durationMs);
+        }
+
         public void ApplyConditionEffect(params ConditionEffect[] effs)
         {
             foreach (var i in effs)

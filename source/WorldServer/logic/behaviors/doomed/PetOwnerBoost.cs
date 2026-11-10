@@ -46,6 +46,7 @@ namespace WorldServer.logic.behaviors.doomed
             var stats = owner.Stats;
             var idx = StatsManager.GetStatIndex(_stat);
             stats.Boost.ActivateBoost[idx].Push(_amount);
+            stats.Boost.ExtendBoostCondition(idx, _durationMs);
             stats.ReCalculateValues();
             owner.World.StartNewTimer(_durationMs, (world, t) =>
             {

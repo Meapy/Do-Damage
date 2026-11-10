@@ -24,9 +24,9 @@ namespace WorldServer.core.commands
             return kind is VisitRules.Kind.Nexus or VisitRules.Kind.Realm;
         }
 
-        public static bool Call(Player player, IEnumerable<Client> targets)
+        public static bool Call(Player player, IEnumerable<Client> targets, bool global = false)
         {
-            player.AskForHelp(targets);
+            player.AskForHelp(targets, global);
             return true;
         }
 
@@ -48,7 +48,7 @@ namespace WorldServer.core.commands
             public override string CommandName => "help";
 
             protected override bool Process(Player player, TickTime time, string args) =>
-                HelpCall.CanCall(player) && HelpCall.Call(player, HelpCall.Available(player));
+                HelpCall.CanCall(player) && HelpCall.Call(player, HelpCall.Available(player), global: true);
         }
 
         internal class PartyHelpCommand : Command

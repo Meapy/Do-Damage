@@ -1438,7 +1438,9 @@ pub fn draw(scene: &Scene, renderer: &mut Renderer, redrawer: &mut Redrawer, gro
                 )?;
                 let alpha = obj
                     .stat_int_remaining(condition::duration_stat(effect), scene.time)
-                    .map_or(1.0, |remaining| expiry_flash(scene.time, remaining));
+                    .map_or(1.0, |remaining| {
+                        expiry_flash(scene.time, remaining, EXPIRY_WARNING_MS)
+                    });
                 Some((icon, alpha))
             })
             .collect();
@@ -1593,21 +1595,29 @@ fn fade(scene: &Scene, obj: &GameObj, desc: &ObjectDesc) -> f32 {
     } else {
         1.0
     };
-    let remaining = if matches!(desc.class, ObjectClass::Portal | ObjectClass::GuildHallPortal) {
-        obj.stat_int_remaining(bsk_proto::stat::LIFETIME_MS, scene.time)
+    let (remaining, warning_ms) = if matches!(desc.class, ObjectClass::Portal | ObjectClass::GuildHallPortal) {
+        (
+            obj.stat_int_remaining(bsk_proto::stat::LIFETIME_MS, scene.time),
+            PORTAL_EXPIRY_WARNING_MS,
+        )
     } else if matches!(desc.class, ObjectClass::Container | ObjectClass::OneWayContainer) && desc.xml.has("Loot") {
-        obj.stat_int_remaining(bsk_proto::stat::HEALTH, scene.time)
+        (
+            obj.stat_int_remaining(bsk_proto::stat::HEALTH, scene.time),
+            BAG_EXPIRY_WARNING_MS,
+        )
     } else {
-        None
+        (None, EXPIRY_WARNING_MS)
     };
-    let expiry_alpha = remaining.map_or(1.0, |ms| expiry_flash(scene.time, ms));
+    let expiry_alpha = remaining.map_or(1.0, |ms| expiry_flash(scene.time, ms, warning_ms));
     own * under_roof(scene, obj) * expiry_alpha
 }
 
 const EXPIRY_WARNING_MS: i32 = 2_000;
+const BAG_EXPIRY_WARNING_MS: i32 = 5_000;
+const PORTAL_EXPIRY_WARNING_MS: i32 = 5_000;
 
-fn expiry_flash(time: i32, remaining_ms: i32) -> f32 {
-    if remaining_ms > EXPIRY_WARNING_MS {
+fn expiry_flash(time: i32, remaining_ms: i32, warning_ms: i32) -> f32 {
+    if remaining_ms > warning_ms {
         1.0
     } else if time.div_euclid(150).rem_euclid(2) == 0 {
         0.2
@@ -2007,9 +2017,32 @@ mod tests {
 
     #[test]
     fn expiry_flashes_only_in_the_warning_window() {
-        assert_eq!(expiry_flash(0, EXPIRY_WARNING_MS + 1), 1.0);
-        assert_eq!(expiry_flash(0, EXPIRY_WARNING_MS), 0.2);
-        assert_eq!(expiry_flash(150, EXPIRY_WARNING_MS), 1.0);
+        assert_eq!(
+            expiry_flash(0, EXPIRY_WARNING_MS + 1, EXPIRY_WARNING_MS),
+            1.0
+        );
+        assert_eq!(expiry_flash(0, EXPIRY_WARNING_MS, EXPIRY_WARNING_MS), 0.2);
+        assert_eq!(expiry_flash(150, EXPIRY_WARNING_MS, EXPIRY_WARNING_MS), 1.0);
+        assert_eq!(
+            expiry_flash(
+                0,
+                PORTAL_EXPIRY_WARNING_MS + 1,
+                PORTAL_EXPIRY_WARNING_MS
+            ),
+            1.0
+        );
+        assert_eq!(
+            expiry_flash(0, PORTAL_EXPIRY_WARNING_MS, PORTAL_EXPIRY_WARNING_MS),
+            0.2
+        );
+        assert_eq!(
+            expiry_flash(0, BAG_EXPIRY_WARNING_MS + 1, BAG_EXPIRY_WARNING_MS),
+            1.0
+        );
+        assert_eq!(
+            expiry_flash(0, BAG_EXPIRY_WARNING_MS, BAG_EXPIRY_WARNING_MS),
+            0.2
+        );
     }
 
     #[test]

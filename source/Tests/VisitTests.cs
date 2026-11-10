@@ -82,6 +82,27 @@ namespace Tests
         }
 
         [Fact]
+        public void HelpCommandHasOneMinuteCooldownWithoutChangingOtherHelpCalls()
+        {
+            var book = new VisitBook();
+            Assert.Null(book.AskMany(1, "V1", new[] { (2, "T2") }, 1000, 0, out _, summon: true, helpCall: true));
+            Assert.Contains("Wait 30 s", book.AskMany(1, "V1", new[] { (3, "T3") }, 1000, 30000, out _, summon: true, helpCall: true));
+
+            Assert.Null(book.AskMany(1, "V1", new[] { (3, "T3") }, 1000, 30000, out var otherRequests, summon: true));
+            Assert.Same(otherRequests[0], book.Answer(3, otherRequests[0].Id, true, 31000));
+            Assert.Contains("Wait 20 s", book.AskMany(1, "V1", new[] { (4, "T4") }, 1000, 40000, out _, summon: true, helpCall: true));
+            Assert.Null(book.AskMany(1, "V1", new[] { (5, "T5") }, 1000, VisitBook.HelpCooldownMs, out _, summon: true, helpCall: true));
+        }
+
+        [Fact]
+        public void HelpCommandCooldownAppliesWhenNoOneCanBeAsked()
+        {
+            var book = new VisitBook();
+            Assert.Null(book.AskMany(1, "V1", System.Array.Empty<(int, string)>(), 1000, 0, out _, summon: true, helpCall: true));
+            Assert.Contains("Wait 30 s", book.AskMany(1, "V1", System.Array.Empty<(int, string)>(), 1000, 30000, out _, summon: true, helpCall: true));
+        }
+
+        [Fact]
         public void TakingBackAHelpCallRemovesEveryRequest()
         {
             var book = new VisitBook();

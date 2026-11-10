@@ -5,9 +5,11 @@ Release 2.4.10: new item art, more frequent Necromantic Relics and Elder dungeon
 - **Items:** new art for the Enthroned gear: the Sword, Dagger, Bow, Wand, Katana, Dual Blades and Staff, the Hide, Plate and Robe, and the Boots. Each of those seven weapons has a shot of its own for its first volley, taking turns with Oryx's violet Rift as before. The Enthroned Helm and both rings keep their look, and the Enthroned Fists still fire the gold Radiance.
 - **Items:** new art for the Monk's fists, all sixteen tiers from the Cloth Hand Wraps (T0) to the Fists of the Ascended (T15); the Enthroned Fists take the new T15 look, with their purple sparkles.
 - **Elder dungeons:** Necromantic Relics now have a 5% drop chance per player who dealt at least 2% of an Elder boss's damage, up from 3%; each Elder dungeon also drops its own key at the regular dungeon's chance (1% where no regular key chance is configured).
-- **Help calls:** `/help` asks eligible players in the Nexus or realms to join you; `/phelp` and
-  `/ghelp` call your party or guild. Click the chat link to ask to join the caller.
-- **Game:** status effects, loot bags and timed portals flash during their last two seconds.
+- **Help calls:** `/help` asks eligible players in the Nexus or realms to join you and announces
+  the call to everyone online once a minute; `/phelp` and `/ghelp` call your party or guild. Click
+  the chat link to ask to join the caller.
+- **Game:** timed portals and loot bags flash during their last five seconds; status effects,
+  including temporary stat boosts, flash during their last two seconds.
 
 ## Details
 
@@ -34,14 +36,17 @@ Release 2.4.10: new item art, more frequent Necromantic Relics and Elder dungeon
 
 ### Help calls
 
-- Added `/help`, `/phelp` and `/ghelp`. From a dungeon or instance, `/help` sends summon requests to eligible online players currently in the Nexus or a realm; the party and guild variants limit recipients to those groups. Requests are limited to players connected to the same world-server process and use the existing summon rules, one request per recipient, the 30 s answer window and the usual cooldowns. Each recipient sees a clickable chat link that sends `/visit <name>` to request entry; `/summon cancel` withdraws the whole help call.
-- The Rust client styles and handles the link; other clients still see the text and can accept the summon request or type `/visit <name>`. No protocol or Redis change.
-- Redeploy: world server and Rust client; nobody is disconnected.
+- Added `/help`, `/phelp` and `/ghelp`. From a dungeon or instance, `/help` sends summon requests to eligible online players currently in the Nexus or a realm, announces the call to everyone online across world servers, and can be used once a minute; the party and guild variants limit recipients to those groups. Requests are limited to players connected to the same world-server process and use the existing summon rules, one request per recipient, the 30 s answer window and the usual cooldowns. Each recipient sees a clickable chat link that sends `/visit <name>` to request entry; `/summon cancel` withdraws the whole help call.
+- The Rust client styles and handles the link; other clients still see the text and can accept the summon request or type `/visit <name>`. No client protocol or persistent Redis data change; an expiring Redis key tracks the cooldown, and the announcement uses the existing inter-server chat channel.
+- Redeploy: world servers; nobody is disconnected.
 - Docs: changelog, SETUP-LOCAL.md, wiki commands page.
 
 ### Status effects and expiring objects
 
-- The world server sends remaining durations for timed status effects and portals as integer stats; loot bags already send their remaining lifetime as health. The Rust client uses these countdowns to flash status icons, bags and timed portals during their last two seconds. Permanent effects and portals that do not expire do not flash.
+- The world server sends remaining durations for timed status effects (including stat boosts) and
+  portals as integer stats; loot bags already send their remaining lifetime as health. The Rust
+  client flashes status icons during their last two seconds and loot bags and timed portals during
+  their last five seconds. Permanent effects and portals that do not expire do not flash.
 - The new stats are optional and older clients ignore them. No Redis migration.
 - Redeploy: world server and Rust client; nobody is disconnected.
 - Docs: changelog and SETUP-LOCAL.md.
@@ -51,8 +56,8 @@ Release 2.4.10: new item art, more frequent Necromantic Relics and Elder dungeon
 - Enthroned gear: `build_ascended_items.py` and `gen_rs_manifest.py` rerun; every Enthroned item and shot resolved through the manifest to a non-empty cell and rendered side by side; `build_wiki.py` shows the new icons on the gear pages; server tests (`dotnet test`, 177 passed).
 - Monk's fists: every Fists item (T0-T15 and the Enthroned Fists) resolved through the manifest to a non-empty cell and rendered side by side; `build_wiki.py` draws the new icons on the Martial Art gear page; server tests (`dotnet test`, 177 passed).
 - Elder dungeon keys: Elder loot regression tests verify each key's source and chance; `build_wiki.py` shows the key on its matching dungeon page.
-- Help calls: `dotnet test` covers multi-recipient requests, answers and withdrawal; `cargo test -p bsk-client` covers the clickable link rendering and normal chat behavior.
-- Status effects and expiring objects: `dotnet test source\Tests\Tests.csproj --no-restore` (195 passed); from `client-rs`, `cargo test -p bsk-proto -p bsk-world -p bsk-client` (145 passed).
+- Help calls: `dotnet test` covers multi-recipient requests, answers, withdrawal and the one-minute `/help` cooldown; `cargo test -p bsk-client` covers clickable link rendering and normal chat behavior.
+- Status effects and expiring objects: `dotnet test source\Tests\Tests.csproj --no-restore` (197 passed); from `client-rs`, `cargo test -p bsk-proto -p bsk-world -p bsk-client` (145 passed).
 
 ### Necromantic Relic drop rate
 

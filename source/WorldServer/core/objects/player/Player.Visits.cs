@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using Shared;
 using Shared.resources;
+using StackExchange.Redis;
 using WorldServer.core.worlds;
 using WorldServer.core.worlds.impl;
 using WorldServer.networking;
@@ -108,7 +109,7 @@ namespace WorldServer.core.objects
         }
 
         // A help call is a batch of ordinary summon requests to eligible players.
-        public List<VisitBook.Request> AskForHelp(IEnumerable<Client> targets)
+        public List<VisitBook.Request> AskForHelp(IEnumerable<Client> targets, bool global = false)
         {
             var world = World;
             if (VisitPlace(world, this).Kind != VisitRules.Kind.Instance)
@@ -119,6 +120,19 @@ namespace WorldServer.core.objects
 
             var accountId = Client.Account.AccountId;
             var placeName = world.GetDisplayName();
+            var now = VisitClock;
+            if (global)
+            {
+                var cooldownKey = $"helpCallCooldown:{accountId}";
+                if (!GameServer.Database.Conn.StringSet(cooldownKey, 1, TimeSpan.FromMilliseconds(VisitBook.HelpCooldownMs), When.NotExists))
+                {
+                    var remaining = GameServer.Database.Conn.KeyTimeToLive(cooldownKey);
+                    var seconds = (int)Math.Ceiling((remaining ?? TimeSpan.FromMilliseconds(VisitBook.HelpCooldownMs)).TotalSeconds);
+                    SendError($"Wait {seconds} s before calling for help again.");
+                    return new List<VisitBook.Request>();
+                }
+            }
+
             var candidates = targets
                 .Where(target => target?.Player?.World != null && target.Account != null && target.Account.AccountId != accountId)
                 .Where(target =>
@@ -133,13 +147,13 @@ namespace WorldServer.core.objects
                 .Select(target => (target.Account.AccountId, target.Player.Name))
                 .ToArray();
 
-            if (candidates.Length == 0)
+            if (candidates.Length == 0 && !global)
             {
                 SendInfo("No available players can join your world right now.");
                 return new List<VisitBook.Request>();
             }
 
-            var refusal = GameServer.Visits.AskMany(accountId, Name, candidates, world.Id, VisitClock, out var requests, summon: true);
+            var refusal = GameServer.Visits.AskMany(accountId, Name, candidates, world.Id, now, out var requests, summon: true, helpCall: global);
             if (refusal != null)
             {
                 SendError(refusal);
@@ -152,10 +166,15 @@ namespace WorldServer.core.objects
                 OnPlayersThread(target, player =>
                 {
                     player.ShowVisitRequest(request, placeName, (byte)(VisitBook.TimeoutMs / 1000));
-                    player.HelpCallReceived(Name, Stars);
+                    if (!global)
+                        player.HelpCallReceived(Name, Stars);
                 });
             }
-            SendInfo($"Asked {requests.Count} players to come to your {placeName}.");
+            if (global)
+                GameServer.ChatManager.HelpCall(this);
+            SendInfo(requests.Count == 0
+                ? "No available players can join your world right now."
+                : $"Asked {requests.Count} players to come to your {placeName}.");
             return requests;
         }
 

@@ -6,14 +6,15 @@ namespace Shared
     // Players' /visit and /summon requests (Command.Visit, SummonCommand, VisitAnswerHandler):
     // one waiting per player asking, except for a help call which may ask several players, and
     // one per player asked. Each is answered Yes or No or runs out after TimeoutMs (a No). A
-    // visitor waits CooldownMs between requests, and DeclinedMs after a No before asking that
-    // player again. One per world server, used from every world thread, so it locks; times are
-    // ms on any steady clock (Environment.TickCount64).
+    // visitor waits CooldownMs between requests, /help has its own HelpCooldownMs, and DeclinedMs
+    // applies after a No before asking that player again. One per world server, used from every
+    // world thread, so it locks; times are ms on any steady clock (Environment.TickCount64).
     public sealed class VisitBook
     {
         public const int TimeoutMs = 30000;
         public const int CooldownMs = 10000;
         public const int DeclinedMs = 60000;
+        public const int HelpCooldownMs = 60000;
         // a timed-out request waits this long for the side that hasn't heard yet to collect it
         private const int KeepTimedOutMs = 120000;
 
@@ -35,6 +36,7 @@ namespace Shared
         private readonly Dictionary<int, List<Request>> _byVisitor = new Dictionary<int, List<Request>>();
         private readonly Dictionary<int, Request> _byTarget = new Dictionary<int, Request>();
         private readonly Dictionary<int, long> _lastAsked = new Dictionary<int, long>();
+        private readonly Dictionary<int, long> _lastHelpCall = new Dictionary<int, long>();
         private readonly Dictionary<(int Visitor, int Target), long> _declinedUntil = new Dictionary<(int, int), long>();
         // timed out, for the side still to be told: (request, whether the visitor has been, the target has been)
         private readonly List<(Request Request, bool VisitorTold, bool TargetTold)> _timedOut = new List<(Request, bool, bool)>();
@@ -94,7 +96,7 @@ namespace Shared
 
         // A help call asks every eligible player at once. Busy or recently declined targets are
         // skipped; the requester's cooldown and outstanding-call limit still apply to the batch.
-        public string AskMany(int visitor, string visitorName, IEnumerable<(int Target, string TargetName)> targets, int worldId, long now, out List<Request> requests, bool summon = false)
+        public string AskMany(int visitor, string visitorName, IEnumerable<(int Target, string TargetName)> targets, int worldId, long now, out List<Request> requests, bool summon = false, bool helpCall = false)
         {
             requests = new List<Request>();
             lock (_lock)
@@ -108,6 +110,8 @@ namespace Shared
                         TimeOut(expired);
                     Count();
                 }
+                if (helpCall && _lastHelpCall.TryGetValue(visitor, out var lastHelpCall) && now - lastHelpCall < HelpCooldownMs)
+                    return $"Wait {Seconds(HelpCooldownMs - (now - lastHelpCall))} s before calling for help again.";
                 if (_lastAsked.TryGetValue(visitor, out var last) && now - last < CooldownMs)
                     return $"Wait {Seconds(CooldownMs - (now - last))} s before asking again.";
 
@@ -131,11 +135,20 @@ namespace Shared
                     requests.Add(NewRequest(visitor, visitorName, target, targetName, worldId, now, summon));
                 }
                 if (requests.Count == 0)
+                {
+                    if (helpCall)
+                    {
+                        _lastHelpCall[visitor] = now;
+                        return null;
+                    }
                     return "No available players could be asked right now.";
+                }
 
                 foreach (var request in requests)
                     Add(request);
                 _lastAsked[visitor] = now;
+                if (helpCall)
+                    _lastHelpCall[visitor] = now;
                 Count();
                 return null;
             }

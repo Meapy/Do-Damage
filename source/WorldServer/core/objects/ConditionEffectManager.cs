@@ -41,6 +41,19 @@ namespace WorldServer.core.objects
             _host.InvokeStatChange(DurationStat(effect), duration);
         }
 
+        public void ExtendCondition(byte effect, int duration)
+        {
+            if (_durations[effect] == -1 || duration <= _durations[effect])
+                return;
+
+            _durations[effect] = duration;
+            var batchType = GetBatch(effect);
+            _masks[batchType] |= GetBit(effect);
+
+            UpdateConditionStat(batchType);
+            _host.InvokeStatChange(DurationStat(effect), duration);
+        }
+
         public void AddPermanentCondition(byte effect)
         {
             _durations[effect] = -1;
