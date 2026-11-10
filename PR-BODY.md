@@ -1,10 +1,11 @@
-Release 2.4.11: show Necromantic Boss drops and keep Candyland bosses coming (deploys world servers and website; nobody is disconnected)
+Release 2.4.11: show Necromantic Boss drops and restore Candyland waves (deploys world servers and website; nobody is disconnected)
 
 ## For players
 
 - **Vault:** the Collection's Dungeons view shows the 19 unique items from Empowered Elder bosses
   under **Drops from Necromantic Boss**; hovering an item shows that source.
-- **Dungeons:** Candyland bosses return after each clear, so the dungeon keeps going while players stay inside.
+- **Dungeons:** Candyland rooms spawn waves of ten creatures. Clear the wave and leave the room for
+  the next boss; defeated bosses no longer leave a realm portal behind.
 
 ## Details
 
@@ -17,9 +18,12 @@ Release 2.4.11: show Necromantic Boss drops and keep Candyland bosses coming (de
 - Updated the player changelog, the Items wiki page and SETUP-LOCAL.md.
 - Redeploy: world servers (to load the catalogue) and website (updated wiki); no client release or protocol change, no Redis migration, and nobody is disconnected.
 
-### Endless Candyland bosses
+### Candyland waves and bosses
 
-- `BehaviorDb.Candyland.cs`: the Candyland boss spawner now begins another encounter when a player is within 16 tiles after the previous boss is defeated. It had been waiting for the room to be empty, leaving the dungeon with no boss if players stayed nearby.
+- `BehaviorDb.Candyland.cs`: each of the six map spawners now summons ten random Candy Creatures
+  when a player enters, then respawns a wave after it is cleared. Its boss spawner waits until
+  local Candy Creatures are gone and all players leave the room before choosing a boss; this
+  repeats after each boss. Removed the Candy Gnome's portal-on-death behavior.
 - Redeploy: world servers only; no client release or protocol change, no Redis migration, and nobody is disconnected.
 
 ## Checks

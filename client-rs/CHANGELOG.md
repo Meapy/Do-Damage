@@ -15,7 +15,8 @@ details). Add to a group's line when a change adds to it, rather than adding ano
 ## Unreleased
 
 ### Dungeons
-- Candyland bosses return after each clear, so there is always another encounter as long as you stay in the dungeon.
+- Candyland rooms spawn waves of ten creatures. Clear the wave and leave the room for the next
+  boss; defeated bosses no longer leave a realm portal behind.
 
 ### Vault
 - The Collection groups the 19 unique items from Empowered Elder bosses under
