@@ -24,6 +24,9 @@ details). Add to a group's line when a change adds to it, rather than adding ano
 - New art for the Monk's fists, every tier from the Cloth Hand Wraps to the Fists of the Ascended;
   the Enthroned Fists take the new look too, with their purple sparkles.
 
+### Game
+- Use Up and Down in chat to revisit messages and commands you've sent, then return to your draft.
+
 ## 2.4.9 (2026-11-09)
 
 ### Community goals

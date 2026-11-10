@@ -166,6 +166,7 @@ struct App {
     pressed: Vec<KeyCode>,
     /// The chat line being typed (Enter opens it), and lines to send.
     chat_input: Option<textedit::LineEdit>,
+    chat_history: ChatHistory,
     chat_send: Vec<String>,
     /// Page Up: the chat's history, so many rows back (`TextBox.showMax_`).
     chat_scroll: Option<usize>,
@@ -461,6 +462,51 @@ fn look(glow: bool, vivid: bool) -> bsk_render::Look {
 /// A chat line being typed, starting from `text` (TextBox's limit: 128 characters).
 fn chat_line(text: impl Into<String>) -> textedit::LineEdit {
     textedit::LineEdit::new(text, 128)
+}
+
+#[derive(Default)]
+struct ChatHistory {
+    lines: Vec<String>,
+    at: Option<usize>,
+    draft: String,
+}
+
+impl ChatHistory {
+    fn submit(&mut self, line: &str) {
+        self.lines.push(line.to_owned());
+        self.reset_navigation();
+    }
+
+    fn reset_navigation(&mut self) {
+        self.at = None;
+        self.draft.clear();
+    }
+
+    fn navigate(&mut self, input: &mut textedit::LineEdit, up: bool) {
+        if up {
+            if self.lines.is_empty() {
+                return;
+            }
+            let at = match self.at {
+                Some(at) => at.saturating_sub(1),
+                None => {
+                    self.draft.clone_from(&input.text);
+                    self.lines.len() - 1
+                }
+            };
+            self.at = Some(at);
+            *input = chat_line(self.lines[at].clone());
+        } else if let Some(at) = self.at {
+            if at + 1 < self.lines.len() {
+                self.at = Some(at + 1);
+                *input = chat_line(self.lines[at + 1].clone());
+            } else {
+                let draft = std::mem::take(&mut self.draft);
+                self.at = None;
+                *input = chat_line(draft);
+            }
+        }
+    }
 }
 
 /// Frame timings for --bench.
@@ -1340,6 +1386,7 @@ impl App {
         self.phase = Phase::Playing(game);
         self.hud = Default::default();
         self.chat_input = None;
+        self.chat_history.reset_navigation();
         self.game_menu = false;
         self.npcs.close();
         self.quests.reset();
@@ -1793,24 +1840,46 @@ impl App {
             return;
         }
         // Typing a chat line: keys go to the text, not the game.
-        if let Some(input) = &mut self.chat_input {
+        if self.chat_input.is_some() {
             if pressed {
                 match code {
                     KeyCode::Enter | KeyCode::NumpadEnter => {
-                        let line = std::mem::take(&mut input.text);
-                        if !line.trim().is_empty() {
-                            self.chat_send.push(line);
+                        if let Some(input) = &mut self.chat_input {
+                            let line = std::mem::take(&mut input.text);
+                            if !line.trim().is_empty() {
+                                self.chat_history.submit(&line);
+                                self.chat_send.push(line);
+                            }
                         }
                         self.chat_input = None;
+                        self.chat_history.reset_navigation();
                     }
-                    KeyCode::Escape => self.chat_input = None,
+                    KeyCode::Escape => {
+                        self.chat_input = None;
+                        self.chat_history.reset_navigation();
+                    }
                     KeyCode::Tab => {
                         let line = self.tell_prefix();
+                        self.chat_history.reset_navigation();
                         self.chat_input = Some(chat_line(line));
                     }
-                    KeyCode::PageUp | KeyCode::PageDown => self.scroll_chat(code == KeyCode::PageUp),
+                    KeyCode::ArrowUp => {
+                        if let Some(input) = &mut self.chat_input {
+                            self.chat_history.navigate(input, true);
+                        }
+                    }
+                    KeyCode::ArrowDown => {
+                        if let Some(input) = &mut self.chat_input {
+                            self.chat_history.navigate(input, false);
+                        }
+                    }
+                    KeyCode::PageUp | KeyCode::PageDown => {
+                        self.scroll_chat(code == KeyCode::PageUp)
+                    }
                     _ => {
-                        input.key(code, text.as_deref(), self.ctrl_held, self.shift_held);
+                        if let Some(input) = &mut self.chat_input {
+                            input.key(code, text.as_deref(), self.ctrl_held, self.shift_held);
+                        }
                     }
                 }
             }
@@ -1920,6 +1989,7 @@ impl App {
                 _ => None,
             };
             if open.is_some() {
+                self.chat_history.reset_navigation();
                 self.chat_input = open.map(chat_line);
                 self.keys.clear();
                 self.mouse_down = false;
@@ -2191,6 +2261,7 @@ impl App {
                 self.autofire = false;
                 self.game_menu = false;
                 self.chat_input = None;
+                self.chat_history.reset_navigation();
                 self.hud.drag = None;
                 if self.npcs.window.is_some() {
                     self.npcs.close();
@@ -2384,6 +2455,7 @@ impl App {
                 });
                 if self.clicks.iter().any(|&(down, pos)| down && !on_name(pos)) {
                     self.chat_input = None;
+                    self.chat_history.reset_navigation();
                     self.clicks.clear();
                     self.mouse_down = false;
                 }
@@ -2685,8 +2757,12 @@ impl App {
                         });
                         match here {
                             Some(o) => self.hud.open_menu(o.id, pos),
-                            None => self.chat_input = Some(chat_line(format!("/tell {name} "))),
+                            None => {
+                                self.chat_history.reset_navigation();
+                                self.chat_input = Some(chat_line(format!("/tell {name} ")));
+                            }
                         }
+
                         self.mouse_down = false;
                         continue;
                     }
@@ -2716,6 +2792,7 @@ impl App {
                         continue;
                     }
                     if let Some(line) = apply_action(game, p, action, now, data) {
+                        self.chat_history.reset_navigation();
                         self.chat_input = Some(chat_line(line));
                     }
                 }
@@ -3587,6 +3664,7 @@ fn main() {
         last_scripted: None,
         pressed: Vec::new(),
         chat_input: None,
+        chat_history: ChatHistory::default(),
         chat_scroll: None,
         chat_log: Vec::new(),
         teller: 0,
@@ -3675,5 +3753,44 @@ fn main() {
     {
         use winit::platform::web::EventLoopExtWebSys;
         event_loop.spawn_app(app);
+    }
+}
+
+#[cfg(test)]
+mod chat_history_tests {
+    use super::{chat_line, ChatHistory};
+
+    #[test]
+    fn up_and_down_recall_lines_and_restore_the_draft() {
+        let mut history = ChatHistory::default();
+        history.submit("/first");
+        history.submit("second message");
+        let mut input = chat_line("unfinished");
+
+        history.navigate(&mut input, true);
+        assert_eq!(input.text, "second message");
+        history.navigate(&mut input, true);
+        assert_eq!(input.text, "/first");
+        history.navigate(&mut input, true);
+        assert_eq!(input.text, "/first");
+        history.navigate(&mut input, false);
+        assert_eq!(input.text, "second message");
+        history.navigate(&mut input, false);
+        assert_eq!(input.text, "unfinished");
+        history.navigate(&mut input, false);
+        assert_eq!(input.text, "unfinished");
+    }
+
+    #[test]
+    fn navigating_from_a_recalled_line_restores_the_original_draft() {
+        let mut history = ChatHistory::default();
+        history.submit("/command");
+        let mut input = chat_line("draft");
+
+        history.navigate(&mut input, true);
+        input.insert(" edited");
+        history.navigate(&mut input, false);
+
+        assert_eq!(input.text, "draft");
     }
 }

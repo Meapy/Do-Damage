@@ -240,7 +240,8 @@ floor in the shrine, north-west of the spawn): `--walk-to "62.5,56;62.5,40;52,40
   uses the ability at the mouse, 1-8 equip or use an inventory slot, F/V drink a stacked potion,
   0 enters a portal (or opens the NPC beside you), the middle mouse button pings (held: the ping
   wheel, `pings.rs`), R goes to the Nexus, Enter or / chats, Tab
-  whispers (again to cycle who to), G and P guild and party chat, Page Up/Down the chat history,
+  whispers (again to cycle who to), G and P guild and party chat, Page Up/Down scroll the chat;
+  Up/Down in chat recall messages and commands you've sent,
   - and = zoom the minimap, O opens the options, J the quest log, K the vault window (in a vault) (all of these can be rebound there), Escape opens the menu (character select,
   log out). Items drag between slots, onto the
   world to drop; double-click equips, uses or takes from a bag; shift-click uses; Ctrl+click moves an
