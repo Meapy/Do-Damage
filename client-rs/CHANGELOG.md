@@ -12,7 +12,7 @@ Keep each version short: changes go under `### ` group headings (Oryx 5, Arena, 
 on), one line per change players notice, summed up rather than item by item (the wiki has the
 details). Add to a group's line when a change adds to it, rather than adding another line.
 
-## Unreleased
+## 2.4.10 (2026-11-10)
 
 ### Elder dungeons
 - Necromantic Relics drop more often: a 5% chance for each player who dealt at least 2% of an
