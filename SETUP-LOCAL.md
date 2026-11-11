@@ -658,10 +658,10 @@ The remotes `upstream` (HaloCelsius) and `aurusenth` share no history with `main
   each room now spawns six Candy Creatures at a time instead of ten. After the wave is cleared,
   players must leave for a boss to appear; another wave waits until that boss is defeated.
   Redeploy the world servers; no client, protocol or Redis change.
-- **Raid Night and the Elder Shatters** (2026-11-11; `Shared/resources/data/community.json`):
-  clearing the Elder Shatters now counts towards the Raid Night community goal, alongside Elder
-  Draconis and the Elder Ivory Wyvern. Redeploy the world servers; no client, website or Redis
-  change.
+- **Raid Night and Elder dungeons** (2026-11-11; `Shared/resources/data/community.json`): the
+  Elder Shatters and both Tombs of the Ancients now count towards the Raid Night community goal,
+  alongside Elder Draconis and the Elder Ivory Wyvern. Redeploy the world servers; no client,
+  website or Redis change.
 - **Updates of 11 November** (2026-11-11, release 2.5.1): Oryx's Inferno's Gate (`O4 Wall Gate`
   rows and `O4 Gate Deleter 1` from `tools/build_hash_cellar.py`, opened by `BehaviorDb.HashCellar.cs`
   once the Infernal Court is dead); Infernal shards at 14% each; the `damageEvent` off in

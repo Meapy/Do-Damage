@@ -54,6 +54,8 @@ namespace Tests
             Assert.True(Data.Goal("raids").Counts(Clear("The Elder Shatters", 5)));
             Assert.True(Data.Goal("raids").Counts(Clear("Lair of Elder Draconis", 5)));
             Assert.True(Data.Goal("raids").Counts(Clear("The Elder Ivory Wyvern", 5)));
+            Assert.True(Data.Goal("raids").Counts(Clear("Tomb of the Ancients", 5)));
+            Assert.True(Data.Goal("raids").Counts(Clear("Elder Tomb of the Ancients", 5)));
             Assert.False(Data.Goal("raids").Counts(Clear("Snake Pit", 5)));
             Assert.False(Data.Goal("party").Counts(Clear("Snake Pit")));
             Assert.True(Data.Goal("party").Counts(new QuestEvent(QuestEvents.Dungeon) { Name = "Snake Pit", Group = true }));

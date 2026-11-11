@@ -24,7 +24,8 @@ details). Add to a group's line when a change adds to it, rather than adding ano
   own: Bracer of the Elder Guardian, The Eclipsed Gemstone and The Remembered Crown.
 - In the Shatters and the Elder Shatters the quest arrow now leads to each boss in turn, with its
   health at the top of the screen, and the way out opens where the Forgotten King falls. The Elder
-  Shatters also counts towards the Raid Night community goal.
+  Shatters and the Tomb of the Ancients, in both its regular and Elder versions, count towards the
+  Raid Night community goal.
 - All three can be raised with a Necromantic Relic. Empowered, they drop a trap that throws a
   Blobomb, a spell that alternates fire and ice, and a cloak that makes your shots hit harder.
 

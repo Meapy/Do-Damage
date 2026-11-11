@@ -495,8 +495,8 @@
         {"item": "Vault Chest Unlocker", "weight": 1.5, "rarity": "epic"},
         {"item": "Potion of Maxy", "weight": 0.4, "rarity": "legendary"}
       ] },
-    { "id": "raids", "group": "raids", "title": "Raid Night", "text": "Clear {n} raids together: the Lost Halls, the Shatters, the dragons' lairs, Shaitan's lair, the Ice Tomb or the Encore.", "icon": "Lair of Draconis Portal",
-      "event": "dungeon", "filter": {"names": ["Lost Halls", "The Shatters", "The Elder Shatters", "The Void", "Lair of Draconis", "Lair of Elder Draconis", "The Ivory Wyvern", "The Elder Ivory Wyvern", "Lair of Shaitan", "Ice Tomb", "Puppet Master's Encore"]}, "goal": 80, "minimum": 1,
+    { "id": "raids", "group": "raids", "title": "Raid Night", "text": "Clear {n} raids together: the Lost Halls, the Shatters, the Tombs of the Ancients, the dragons' lairs, Shaitan's lair, the Ice Tomb or the Encore.", "icon": "Lair of Draconis Portal",
+      "event": "dungeon", "filter": {"names": ["Lost Halls", "The Shatters", "The Elder Shatters", "The Void", "Lair of Draconis", "Lair of Elder Draconis", "The Ivory Wyvern", "The Elder Ivory Wyvern", "Lair of Shaitan", "Tomb of the Ancients", "Elder Tomb of the Ancients", "Ice Tomb", "Puppet Master's Encore"]}, "goal": 80, "minimum": 1,
       "tiers": [
         [{"fame": 225}, {"item": "Draconis Key"}],
         [{"fame": 325}, {"item": "Shaitan's Key"}, {"roll": 1}],
