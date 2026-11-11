@@ -31,6 +31,9 @@ details). Add to a group's line when a change adds to it, rather than adding ano
   before, they blocked the way without being seen.
 
 ### Game
+- A boss made tougher for a bigger group gets weaker again when players leave the dungeon, keeping
+  how far down you've already taken it: whoever stays never faces health scaled for players
+  long gone. This goes for the Oryx chain's bosses and the Black Between's.
 - Imprinted gear's border is thinner: its colour sits at the slot's edge with a fine gold line
   inside, leaving more room for the item.
 - Darkness now darkens your view, leaving only a little light round you, as it should: before,
