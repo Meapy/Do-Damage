@@ -30,7 +30,7 @@ details). Add to a group's line when a change adds to it, rather than adding ano
   arrive: whoever comes late waits there safely but can't cross until it's over.
 - The Mysterious One drops life and mana potions, every Max potion, six new abilities (one for the
   Archer, Huntress, Warrior, Trickster, Rogue and Assassin, each with its own power) and Unstable
-  Essence.
+  Essence: at least two for everyone who finishes the fight, and sometimes a third.
 - Corruption: the Cosmic Anvil he leaves behind spends an Unstable Essence to change a piece of
   Enthroned gear, for better or worse. What it does is for you to find out; corrupted gear has a
   purple edge.

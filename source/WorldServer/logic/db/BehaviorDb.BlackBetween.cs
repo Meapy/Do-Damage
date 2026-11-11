@@ -639,8 +639,9 @@ namespace WorldServer.logic
                     )
                 ),
                 // his potions, as many as Oryx 5's, life and mana only; the Max potions as the Elder
-                // bosses drop them, at half their rate; and Unstable Essence, nine tenths as often
-                // as one of Oryx 5's Ascended shards, for the Cosmic Anvil
+                // bosses drop them, at half their rate; and Unstable Essence for the Cosmic Anvil:
+                // two for everyone who finishes the fight, then a third nine tenths as often as one
+                // of Oryx 5's Ascended shards
                 new Threshold(0.01,
                     new ItemLoot("Potion of Life", 1),
                     new ItemLoot("Potion of Life", 1),
@@ -650,6 +651,8 @@ namespace WorldServer.logic
                     new ItemLoot("Potion of Mana", 1),
                     new ItemLoot("Greater Potion of Life", 0.5),
                     new ItemLoot("Greater Potion of Mana", 0.5),
+                    new ItemLoot("Unstable Essence", 1),
+                    new ItemLoot("Unstable Essence", 1),
                     new ItemLoot("Unstable Essence", 0.1125)
                 ),
                 new Threshold(0.03,
