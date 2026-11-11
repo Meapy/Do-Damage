@@ -270,6 +270,10 @@ messages! {
         139 => PetPen { pet: u16, base_size: u8, size: u8, shards: i32, shards_needed: u8, ok: bool, message: String },
         // The Nexus's places for the minimap (after NexusPlacesRequest): its NPCs and portals.
         141 => NexusPlaces { places: List16<NexusPlace> },
+        // The answer to Corrupt (the Cosmic Anvil): whether it worked, the inventory slot, what went
+        // wrong, how far each value moved (signed bytes: damage, range, rate of fire, stats) and
+        // whether a staff's shots are now reversed.
+        161 => CorruptResult { success: bool, slot: u8, message: String, damage: u8, range: u8, rate: u8, stats: u8, reversed: bool },
     }
 }
 
@@ -404,5 +408,8 @@ messages! {
         138 => PetPenAct { action: u8, slot: u8 },
         // Ask for NexusPlaces, in the Nexus (an older server doesn't know it).
         140 => NexusPlacesRequest {},
+        // Corrupt the Enthroned item in this inventory slot with an Unstable Essence, by the Cosmic
+        // Anvil. Answered by CorruptResult.
+        160 => Corrupt { slot: u8 },
     }
 }

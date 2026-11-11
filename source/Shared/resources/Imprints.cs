@@ -164,10 +164,13 @@ namespace Shared.resources
 
         public static readonly ImprintShot None = new ImprintShot(System.Array.Empty<int>(), 100, 0, false, false, 1);
 
-        public static ImprintShot Of(int[] imprints, Item weapon)
+        // and its corruption (Corruption.cs), after the imprints: damage by its percent, range by its
+        // percent, rate of fire by twice its percent
+        public static ImprintShot Of(int[] imprints, Item weapon, int[] corruption = null)
         {
-            if (imprints == null || weapon == null || !weapon.Ascended)
+            if (weapon == null || !weapon.Ascended || imprints == null && !Corruption.Any(corruption))
                 return None;
+            imprints ??= System.Array.Empty<int>();
             var damage = new List<int>();
             int rangePercent = 100, rangeTenths = 0;
             float rateMult = 1;
@@ -194,6 +197,14 @@ namespace Shared.resources
                         }
                         break;
                 }
+            }
+            if (Corruption.Any(corruption))
+            {
+                var c = Corruption.Of(corruption);
+                if (c[Corruption.Damage] != 0)
+                    damage.Add(100 + c[Corruption.Damage]);
+                rangePercent = rangePercent * (100 + c[Corruption.Range]) / 100;
+                rateMult *= 1 + 2 * c[Corruption.RateOfFire] / 100f;
             }
             return new ImprintShot(damage.ToArray(), rangePercent, rangeTenths, noPierce, gathered, rateMult);
         }

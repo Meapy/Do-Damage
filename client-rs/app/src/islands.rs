@@ -43,8 +43,20 @@ const PIER_LENGTH: f64 = 5.0;
 const PIER_WIDTH: f64 = 0.3;
 const ARCH_CROWN: f64 = 0.3;
 const ARCH_SPRING: f64 = 1.7;
-/// The haze the deep rock fades into (the sky's lavender).
-const HAZE: u32 = 0xC6B4D4;
+/// What the undersides are made of, by the sky they hang into: the rock's ground (its pictures),
+/// the band of soil (or dressed stone) just under the rim (a ground's `<Face>`, else its pictures),
+/// and the haze the deep rock fades into.
+pub struct Style {
+    pub rock: &'static str,
+    pub soil: &'static str,
+    pub haze: u32,
+}
+
+/// The Nexus islands in the sunset: grey rock, soil and roots, fading into the sky's lavender.
+pub const SUNSET: Style = Style { rock: "NI Sky Rock", soil: "NI Island Rim", haze: 0xC6B4D4 };
+/// The Black Between's platform over the void (tools/build_black_between.py): dark violet stone
+/// veined with starlight under a band of dressed stone and gold, fading into the void's black.
+pub const VOID: Style = Style { rock: "BB Underside Rock", soil: "BB Underside Rim", haze: 0x07051A };
 
 /// A side of a column of rock, from a to b (going round its square clockwise), from `top` down to
 /// `bottom`: `deep` how deep its foot is (0 to 1 of `MAX_DEPTH`, for the haze), `tone` its stone's
@@ -138,12 +150,16 @@ impl Undersides {
 
     /// The undersides in view, back to front.
     #[allow(clippy::too_many_arguments)]
-    pub fn draw(&mut self, world: &World, data: &GameData, sprites: &Sprites, renderer: &mut Renderer, cam: &Camera, x0: i32, x1: i32, y0: i32, y1: i32) {
+    pub fn draw(&mut self, world: &World, data: &GameData, sprites: &Sprites, renderer: &mut Renderer, cam: &Camera, x0: i32, x1: i32, y0: i32, y1: i32, style: &Style) {
         self.sync(world, data, sprites);
-        let Some(rock) = data.ground_ids.get("NI Sky Rock").and_then(|t| crate::ground::plain(data, sprites, *t, 0, 0)) else { return };
-        let soil = data.ground_ids.get("NI Island Rim").and_then(|t| crate::ground::face(data, sprites, *t, 0, 0)).map_or(rock, |f| f.0);
+        let Some(rock) = data.ground_ids.get(style.rock).and_then(|t| crate::ground::plain(data, sprites, *t, 0, 0)) else { return };
+        let soil = data
+            .ground_ids
+            .get(style.soil)
+            .and_then(|t| crate::ground::face(data, sprites, *t, 0, 0).map(|f| f.0).or_else(|| crate::ground::plain(data, sprites, *t, 0, 0)))
+            .unwrap_or(rock);
         let white = renderer.white();
-        let [hr, hg, hb] = bsk_render::rgb_f32(HAZE);
+        let [hr, hg, hb] = bsk_render::rgb_f32(style.haze);
         let hazed = |k: f32, t: f32, a: f32| {
             let haze = 0.6 * t.clamp(0.0, 1.0);
             [k * (1.0 - haze) + hr * haze, k * (1.0 - haze) + hg * haze, k * (1.0 - haze) + hb * haze, a]
@@ -304,7 +320,10 @@ fn depth(dist: u8, x: i32, y: i32) -> f64 {
 fn columns(world: &World, dist: &[Vec<u8>], level: u8, cx: i32, cy: i32) -> Vec<RockFace> {
     let mut faces = Vec::new();
     let floor_h = world.levels.as_ref().map_or(1.0, |l| l.height);
-    let base = level as f64 * floor_h - SLAB;
+    // under a floor's slab on stacked floors (the Nexus islands, whose floors draw their slab's
+    // sides); on a flat map (the Black Between) nothing draws a slab, so the rock starts right at
+    // the ground, or a gap shows between them
+    let base = level as f64 * floor_h - if world.levels.is_some() { SLAB } else { 0.0 };
     let (w, h) = (world.width, world.height);
     let Some(dist) = dist.get(level as usize) else { return faces };
     let at = |x: i32, y: i32| -> Option<u8> {

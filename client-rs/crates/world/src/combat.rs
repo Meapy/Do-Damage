@@ -287,9 +287,13 @@ impl World {
         let Some(weapon) = (weapon_type > 0).then(|| data.objects.get(&(weapon_type as u16))).flatten() else {
             return vec![];
         };
-        // imprints work on Enthroned gear only, as the server has it
+        // imprints and corruption work on Enthroned gear only, as the server has it
         let imprints = if weapon.xml.has("Ascended") {
-            imprint::Shot::of(imprint::parse(player.stat_str(STAT_INVENTORY_DATA_0).unwrap_or("")), weapon.xml.int("SlotType", 0), weapon.num_projectiles())
+            let data = player.stat_str(STAT_INVENTORY_DATA_0).unwrap_or("");
+            let mut s = imprint::Shot::of(imprint::parse(data), weapon.xml.int("SlotType", 0), weapon.num_projectiles())
+                .corrupted(imprint::corruption(data));
+            s.reversed = imprint::reversed(data);
+            s
         } else {
             imprint::Shot::default()
         };
@@ -398,11 +402,18 @@ impl World {
             if time > last_move + 600 {
                 damage = 0;
             }
-            let (sx, sy) = (px + angle.cos() * 0.3, py + angle.sin() * 0.3);
-            let mut p = Projectile::new(me, bullet_id, item_type as u16, bullet_type, a, time, sx, sy, speed_mult, damage, false);
+            let (mut sx, mut sy) = (px + angle.cos() * 0.3, py + angle.sin() * 0.3);
+            let life = imprints.map_or(desc.lifetime, |i| i.lifetime(desc.speed, desc.lifetime));
+            // a reversed staff: from the far end of the shot's flight back to where it was fired
+            let mut heading = a;
+            if imprints.is_some_and(|i| i.reversed) {
+                let reach = desc.speed as f64 / 10000.0 * speed_mult * life as f64;
+                (sx, sy) = (sx + a.cos() * reach, sy + a.sin() * reach);
+                heading = a + PI;
+            }
+            let mut p = Projectile::new(me, bullet_id, item_type as u16, bullet_type, heading, time, sx, sy, speed_mult, damage, false);
             p.floor = floor;
             if let Some(i) = imprints {
-                let life = i.lifetime(desc.speed, desc.lifetime);
                 p.life = (life != desc.lifetime).then_some(life);
                 p.no_pierce = i.no_pierce;
                 if i.sigil {

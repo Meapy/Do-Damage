@@ -63,6 +63,8 @@ pub enum NpcKind {
     CommunityGoals,
     /// The Collection stand in the vault: every piece of gear the account has had.
     Collection,
+    /// The Cosmic Anvil the Mysterious One leaves in the Black Between: corrupting Enthroned gear.
+    CosmicAnvil,
     /// The Pen Keeper at the pet pen east of the Arena court: pets in and out, and raised.
     PetPen,
 }
@@ -89,6 +91,7 @@ impl NpcKind {
             "CommunityGoals" => Self::CommunityGoals,
             "Collection" => Self::Collection,
             "PetPen" => Self::PetPen,
+            "CosmicAnvil" => Self::CosmicAnvil,
             _ => return None,
         })
     }
@@ -152,6 +155,7 @@ pub fn interact_text(kind: NpcKind, me: &GameObj, rank_req: i32, price: Option<i
         NpcKind::Market => open(tr("Buy and sell items"), tr("Manage")),
         NpcKind::ArenaLeaderboard => open(tr("The arena's best runs"), tr("View")),
         NpcKind::Forge | NpcKind::Enchanter => open(tr("The Divine Workbench"), tr("Open")),
+        NpcKind::CosmicAnvil => open(tr("Corrupt Enthroned gear"), tr("Open")),
         NpcKind::QuestMaster => open(tr("Daily, weekly and monthly quests"), tr("Quests")),
         NpcKind::Chronicler => open(tr("Daily rewards and achievements"), tr("Open")),
         NpcKind::ChampionsBoard => open(tr("The living's best, and their rewards"), tr("View")),
