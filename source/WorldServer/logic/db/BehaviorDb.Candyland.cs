@@ -381,19 +381,29 @@ namespace WorldServer.logic
                         ),
                     new State("Start Wave",
                         new Spawn(children: "Candyland Boss Spawner", maxChildren: 1, initialSpawn: 1, givesNoXp: true),
-                        new SpawnGroup(group: "Candy Creature", maxChildren: 10, initialSpawn: 1, radius: 8),
+                        new SpawnGroup(group: "Candy Creature", maxChildren: 6, initialSpawn: 1, radius: 8),
                         new TimedTransition(time: 100, targetState: "Wait for Wave")
                         ),
                     new State("Wait for Wave",
-                        new EntitiesNotExistsTransition(16, "Wait for Player",
+                        new EntitiesNotExistsTransition(16, "Wait for Room Exit",
                             "Cupcake", "Unicorn", "Hard Candy", "Beefy Fairy", "Fairy", "Wishing Troll",
                             "Spilled Icecream", "Big Creampuff", "Small Creampuff", "Tiny Rototo", "Rototo")
+                        ),
+                    new State("Wait for Room Exit",
+                        new NoPlayerWithinTransition(dist: 16, targetState: "Wait for Boss Spawn")
+                        ),
+                    new State("Wait for Boss Spawn",
+                        new TimedTransition(time: 1000, targetState: "Wait for Boss")
+                        ),
+                    new State("Wait for Boss",
+                        new EntitiesNotExistsTransition(16, "Wait for Player",
+                            "Spoiled Creampuff", "Gigacorn", "Desire Troll", "MegaRototo", "Swoll Fairy", "Gumball Machine")
                         ),
                     new State("Wait for Player",
                         new PlayerWithinTransition(dist: 16, targetState: "Spawn Wave")
                         ),
                     new State("Spawn Wave",
-                        new SpawnGroup(group: "Candy Creature", maxChildren: 10, initialSpawn: 1, radius: 8),
+                        new SpawnGroup(group: "Candy Creature", maxChildren: 6, initialSpawn: 1, radius: 8),
                         new TimedTransition(time: 100, targetState: "Wait for Wave")
                         )
                 )

@@ -26,6 +26,11 @@ Some dungeons are laid out anew for every run, from the rooms of their map: smal
 > boss's health, alone: groups make bosses tougher, and some easy bosses have hard dungeons
 > before them.
 
+## Candyland Hunting Grounds
+
+Each room starts with six Candy Creatures. Clear them and leave the room for a boss to appear;
+the next wave waits until that boss is defeated and you return.
+
 ## The Lair of Draconis
 
 The Rock Dragon in the realm drops its portal, and a Draconis Key opens it. You arrive by the

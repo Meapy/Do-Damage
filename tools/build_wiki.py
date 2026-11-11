@@ -47,6 +47,7 @@ SRC = os.path.join(ROOT, "website", "wiki")
 # comes from the code, so a new command shows up with "(no description yet)" until it's added here.
 COMMAND_HELP = {
     "commands": "Lists every command you can use.",
+    "wiki": "Sends you a link to the <a href=\"https://www.dodmg.com/wiki\">Do Damage wiki</a>.",
     "nexus": "Back to the Nexus from anywhere (the <kbd>R</kbd> key does the same).",
     "realm": "To the busiest open realm.",
     "realm2": "Into Realm 2, the one its Nexus portal leads to, from anywhere. See <a href=\"realm-2.html\">Realm 2</a>.",
