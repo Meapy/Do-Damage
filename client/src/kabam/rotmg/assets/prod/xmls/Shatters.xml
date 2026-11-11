@@ -1082,6 +1082,7 @@
         <DisplayId>The Forgotten Sentinel</DisplayId>
         <Class>Character</Class>
         <Group>Stones</Group>
+        <Quest/>
         <Enemy/>
         <AnimatedTexture>
             <File>chars16x16rEncounters</File>
@@ -1164,6 +1165,7 @@
         <DisplayId>Twilight Archmage</DisplayId>
         <Class>Character</Class>
         <Group>Stone Monster</Group>
+        <Quest/>
         <Enemy/>
         <Texture>
             <File>lofiObjBig</File>
@@ -1301,6 +1303,7 @@
         <DisplayId>The Forgotten King</DisplayId>
         <Class>Character</Class>
         <Group>Stone Monster</Group>
+        <Quest/>
         <Enemy/>
         <TrackLoot/>
         <God/>
@@ -1647,6 +1650,7 @@
         <DisplayId>The Cursed Crown</DisplayId>
         <Class>Character</Class>
         <Group>Stone Monster</Group>
+        <Quest/>
         <AnimatedTexture>
             <File>chars16x16dEncounters2</File>
             <Index>82</Index>

@@ -30,6 +30,29 @@ namespace WorldServer.logic
 
         private static int ElderCooldown(int ms, bool elder) => elder ? ms * 3 / 4 : ms;
 
+        // the grounds a behaviour changes (the Shatters' bridges and lava): in the Elder version
+        // their Elder copies, with the copies a brazier lights ("Elder x Lit 1" on) when lit is set
+        private static string[] ElderGrounds(string[] grounds, bool elder, bool lit)
+        {
+            if (!elder)
+                return grounds;
+            var tiles = InitGameData.IdToTileType;
+            var list = new List<string>();
+            foreach (var g in grounds)
+            {
+                var name = "Elder " + g;
+                if (!tiles.ContainsKey(name))
+                {
+                    list.Add(g);
+                    continue;
+                }
+                list.Add(name);
+                for (var n = 1; lit && tiles.ContainsKey($"{name} Lit {n}"); n++)
+                    list.Add($"{name} Lit {n}");
+            }
+            return list.ToArray();
+        }
+
         // the Doomed Realms Elder drops of a monster, in its Elder version
         private static MobDrops ElderDrops(string id, bool elder) => new LootSet(elder ? DoomedDrops("Elder " + id) : new MobDrops[0]);
 

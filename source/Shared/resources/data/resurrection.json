@@ -1141,6 +1141,140 @@
    "item": "Scepter of the Ivory Wyvern",
    "itemBase": "Scepter of Luminous Winds",
    "itemStrength": 1.5
+  },
+  {
+   "boss": "Elder shtrs Bridge Sentinel",
+   "dungeon": "The Elder Shatters",
+   "name": "The Forgotten Sentinel",
+   "corpse": "Elder shtrs Bridge Sentinel Remains",
+   "empowered": "Empowered Elder shtrs Bridge Sentinel",
+   "soulDamage": 88,
+   "loot": [
+    [
+     "Bracer of the Elder Guardian",
+     0.02
+    ],
+    [
+     "Potion of Max Defense",
+     0.2
+    ],
+    [
+     "Elder Shatters Key",
+     0.02
+    ],
+    [
+     "Shatters Key",
+     0.004
+    ],
+    [
+     "Potion of Defense",
+     1.0
+    ],
+    [
+     "Potion of Attack",
+     1.0
+    ],
+    [
+     "Bracer of the Guardian",
+     0.04
+    ],
+    [
+     "Snare of the Bridge Sentinel",
+     0.06
+    ]
+   ],
+   "lootFrom": "Elder shtrs Loot Balloon Bridge",
+   "item": "Snare of the Bridge Sentinel",
+   "itemBase": "Mantlecrusher Trap",
+   "itemStrength": 1.25
+  },
+  {
+   "boss": "Elder shtrs Twilight Archmage",
+   "dungeon": "The Elder Shatters",
+   "name": "Twilight Archmage",
+   "corpse": "Elder shtrs Twilight Archmage Remains",
+   "empowered": "Empowered Elder shtrs Twilight Archmage",
+   "soulDamage": 117,
+   "loot": [
+    [
+     "The Eclipsed Gemstone",
+     0.02
+    ],
+    [
+     "Potion of Max Mana",
+     0.2
+    ],
+    [
+     "Elder Shatters Key",
+     0.02
+    ],
+    [
+     "Potion of Mana",
+     1.0
+    ],
+    [
+     "Shatters Key",
+     0.004
+    ],
+    [
+     "The Twilight Gemstone",
+     0.01
+    ],
+    [
+     "Twilight Cataclysm",
+     0.06
+    ]
+   ],
+   "lootFrom": "Elder shtrs Loot Balloon Mage",
+   "item": "Twilight Cataclysm",
+   "itemBase": "Spell of Galactic Creation",
+   "itemStrength": 1.3
+  },
+  {
+   "boss": "Elder shtrs The Forgotten King",
+   "dungeon": "The Elder Shatters",
+   "name": "The Forgotten King",
+   "corpse": "Elder shtrs The Forgotten King Remains",
+   "empowered": "Empowered Elder shtrs The Forgotten King",
+   "soulDamage": 222,
+   "loot": [
+    [
+     "The Remembered Crown",
+     0.02
+    ],
+    [
+     "Potion of Max Life",
+     0.2
+    ],
+    [
+     "Elder Shatters Key",
+     0.04
+    ],
+    [
+     "Shatters Key",
+     0.004
+    ],
+    [
+     "Potion of Life",
+     1.0
+    ],
+    [
+     "The Forgotten Crown",
+     0.006
+    ],
+    [
+     "Lil' Forgotten King Generator",
+     0.04
+    ],
+    [
+     "Shroud of the Forgotten King",
+     0.06
+    ]
+   ],
+   "lootFrom": "Elder shtrs Loot Balloon King",
+   "item": "Shroud of the Forgotten King",
+   "itemBase": "Cloak of Emptiness",
+   "itemStrength": 1.2
   }
  ]
 }

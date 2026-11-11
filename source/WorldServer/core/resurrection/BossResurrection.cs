@@ -89,9 +89,15 @@ namespace WorldServer.core.resurrection
                     continue;
                 }
 
+                // its own loot, or the loot of the balloon a chest spawner left for it (the
+                // Shatters' bosses carry none themselves, and the spawner is gone by now)
+                var own = def.Item2;
+                if (b.TryGetProperty("lootFrom", out var from) && data.IdToObjectType.TryGetValue(from.GetString(), out var fromType)
+                    && db.Definitions.TryGetValue(fromType, out var fromDef))
+                    own = fromDef.Item2;
                 var drops = new List<MobDrops>();
-                if (def.Item2 != null)
-                    drops.AddRange(def.Item2);
+                if (own != null)
+                    drops.AddRange(own);
                 foreach (var l in b.GetProperty("loot").EnumerateArray())
                     drops.Add(new ItemLoot(l[0].GetString(), l[1].GetDouble(), 0, 0.01));
                 db.Definitions[info.EmpoweredType] = new Tuple<State, Loot>(def.Item1, new Loot(drops.ToArray()));

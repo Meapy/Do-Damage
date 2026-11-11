@@ -14,6 +14,19 @@ details). Add to a group's line when a change adds to it, rather than adding ano
 
 ## Unreleased
 
+### The Elder Shatters
+- A new Elder dungeon: the Shatters by brazier light, every monster in its Elder version. The
+  Forgotten King leaves its portal half the time, and its three bosses drop the Elder Shatters
+  Key. Each boss has a phase the regular Shatters doesn't: the Bridge Sentinel's Judgement, the
+  Twilight Archmage's Eclipse, and the Forgotten King's last stand, where he no longer dies at a
+  tenth of his health.
+- Its bosses drop a Potion of Max (Defense, Mana, Life) and three new rings with powers of their
+  own: Bracer of the Elder Guardian, The Eclipsed Gemstone and The Remembered Crown.
+- In the Shatters and the Elder Shatters the quest arrow now leads to each boss in turn, with its
+  health at the top of the screen, and the way out opens where the Forgotten King falls.
+- All three can be raised with a Necromantic Relic. Empowered, they drop a trap that throws a
+  Blobomb, a spell that alternates fire and ice, and a cloak that makes your shots hit harder.
+
 ### Dungeons
 - Candyland rooms now spawn six creatures at a time; clear them and leave to bring out a boss.
   The next wave waits until that boss is defeated.

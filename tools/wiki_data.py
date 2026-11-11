@@ -381,11 +381,14 @@ class Data:
             self._chest_spawners = {}
             for name, blocks in self.inits.items():
                 if "Chest Spawner" not in name and (self.objects.get(name, {}).get("enemy") or not any(
-                        re.search(r'(?:Spawn|TossObject)\(\s*"[^"]*(?:Loot|Chest|Balloon|Treasure)[^"]*"', b) for b in blocks)):
+                        re.search(r'(?:Spawn|TossObject)\(\s*(?:N\()?"[^"]*(?:Loot|Chest|Balloon|Treasure)[^"]*"', b) for b in blocks)):
                     continue
                 for b in blocks:
-                    for m in re.finditer(r'Entit(?:y|ies)NotExistsTransition\(([^)]*)\)', b):
-                        for boss in re.findall(r'"([^"]+)"', m.group(1)):
+                    for m in re.finditer(r'Entit(?:y|ies)NotExistsTransition\(((?:[^()]|\([^()]*\))*)\)', b):
+                        # N("x") in a shared builder is "Elder x" in the Elder version
+                        for n, boss in re.findall(r'(N\()?"([^"]+)"', m.group(1)):
+                            if n and name.startswith("Elder ") and "Elder " + boss in self.inits:
+                                boss = "Elder " + boss
                             if boss in self.inits and self.objects.get(boss, {}).get("enemy"):
                                 self._chest_spawners.setdefault(boss, []).append(name)
         return self._chest_spawners

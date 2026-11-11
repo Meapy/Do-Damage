@@ -55,6 +55,35 @@ or Max Mana, better gear and its own Elder Ivory Wyvern Key, and, rarely, any of
 dragons' armours and bow. The Elder Draconis Key drops from the Elder Lair's dragons; each key
 drops in its matching Elder dungeon. Both keys can also be community-goal rewards.
 
+## The Shatters and the Elder Shatters
+
+The Avatar of the Forgotten King in the realm drops the Shatters' portal, and a Shatters Key
+opens it. Three bosses hold it: the Bridge Sentinel (kill its obelisks first), the Twilight
+Archmage and his birds Inferno and Blizzard, and the Forgotten King, who hides between his
+attacks. Each leaves a loot balloon.
+
+Half the time the Forgotten King also leaves the portal to the **Elder Shatters**: the same
+ruin by brazier light, every monster in its Elder version (twice the health, harder hits, faster
+attacks), and a phase of its own for each boss:
+
+- **The Bridge Sentinel's Judgement,** below 45% health: armoured, it stops sweeping the bridge
+  and spins two spirals round itself, slowing blades one way and heavy bolts the other, and
+  throws Blobombs at you between its swarms.
+- **The Twilight Archmage's Eclipse:** he throws fire portals as well as ice ones while he casts,
+  and where the regular Archmage stands spent after his last blast, the Elder one calls an
+  Eclipse (piercing bolts and confusing blades turning against each other, rings of heavy orbs,
+  a rain of firebombs) and then goes round his generators again.
+- **The Forgotten King remembered:** at a tenth of his health he doesn't die. He comes out of
+  hiding for good, fire and ice turning round him, his guardians back at his side, until he is
+  truly beaten.
+
+Each Elder boss drops a Potion of Max (Defense, Mana and Life), better gear, the Shatters' own
+rings at twice the chance, and a ring found nowhere else: the **Bracer of the Elder Guardian**
+(braces you with defense when your health falls), **The Eclipsed Gemstone** (every kill restores
+mana) and **The Remembered Crown** (your ability lends you attack). The Elder Shatters Key drops
+from all three. Like every Elder boss they can be raised again, below, for a trap, a spell and
+a cloak of their own.
+
 ## Raising an Elder boss
 
 Every Elder dungeon's boss can be fought twice. When it falls it leaves its remains for a little

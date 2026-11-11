@@ -117,6 +117,13 @@
 		</RandomLayout>
 		<Dungeon/>
 	</World>
+	<World id="The Elder Shatters">
+		<Width>489</Width>
+		<Height>281</Height>
+		<MapJM>Doomed/The Elder Shatters.jm</MapJM>
+		<VisibilityType>1</VisibilityType>
+		<Dungeon/>
+	</World>
 	<World id="Elder Snake Pit">
 		<Width>120</Width>
 		<Height>119</Height>

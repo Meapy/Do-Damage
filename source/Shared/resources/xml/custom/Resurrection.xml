@@ -625,6 +625,155 @@
 		<feedPower>1200</feedPower>
 		<Soulbound />
 	</Object>
+	<Object type="0x8C3D" id="Snare of the Bridge Sentinel">
+		<Class>Equipment</Class>
+		<Item />
+		<Texture>
+			<File>resurrection8x8</File>
+			<Index>22</Index>
+		</Texture>
+		<SlotType>20</SlotType>
+		<Usable />
+		<MpCost>115</MpCost>
+		<Activate radius="7.5" totalDamage="562" condDuration="7">Trap</Activate>
+		<ActivateOnEquip stat="20" amount="9">IncrementStat</ActivateOnEquip>
+		<ActivateOnEquip stat="0" amount="75">IncrementStat</ActivateOnEquip>
+		<ActivateOnEquip stat="3" amount="75">IncrementStat</ActivateOnEquip>
+		<ActivateOnEquip stat="21" amount="4">IncrementStat</ActivateOnEquip>
+		<RelicPower>Blobomb</RelicPower>
+		<ExtraTooltipData>
+			<EffectInfo name="Blobomb" description="Using it also throws a Blobomb at the target: 2 seconds later it bursts for 700 damage to every enemy within 3 tiles" />
+		</ExtraTooltipData>
+		<Description>A shard of the Sentinel's own stone, still humming with its duty. Nothing crosses where it lies. Dropped by the Empowered Forgotten Sentinel.</Description>
+		<BagType>6</BagType>
+		<FameBonus>7</FameBonus>
+		<feedPower>1200</feedPower>
+		<Soulbound />
+	</Object>
+	<Object type="0x8C3E" id="Twilight Cataclysm">
+		<Class>Equipment</Class>
+		<Item />
+		<Texture>
+			<File>resurrection8x8</File>
+			<Index>23</Index>
+		</Texture>
+		<SlotType>11</SlotType>
+		<Sound>spell/magic_nova</Sound>
+		<Projectile>
+			<ObjectId>Crusade Commander Bolt</ObjectId>
+			<Speed>160</Speed>
+			<MinDamage>143</MinDamage>
+			<MaxDamage>266</MaxDamage>
+			<LifetimeMS>1000</LifetimeMS>
+		</Projectile>
+		<Usable />
+		<MpCost>100</MpCost>
+		<Activate>BulletNova</Activate>
+		<ActivateOnEquip stat="27" amount="15">IncrementStat</ActivateOnEquip>
+		<ActivateOnEquip stat="0" amount="78">IncrementStat</ActivateOnEquip>
+		<ActivateOnEquip stat="3" amount="78">IncrementStat</ActivateOnEquip>
+		<RelicPower>FireAndIce</RelicPower>
+		<ExtraTooltipData>
+			<EffectInfo name="Fire and Ice" description="Each cast takes its turn: fire burns the enemies within 3.5 tiles of the target for 450 over 3 seconds, then ice hits them for 250 and slows them for 3 seconds" />
+		</ExtraTooltipData>
+		<Description>The Archmage's last spell, cast as fire and ice consumed him a second time. It has not finished burning, or freezing. Dropped by the Empowered Twilight Archmage.</Description>
+		<BagType>6</BagType>
+		<FameBonus>7</FameBonus>
+		<feedPower>1200</feedPower>
+		<Soulbound />
+	</Object>
+	<Object type="0x8C3F" id="Shroud of the Forgotten King">
+		<Class>Equipment</Class>
+		<Item />
+		<Texture>
+			<File>resurrection8x8</File>
+			<Index>24</Index>
+		</Texture>
+		<SlotType>13</SlotType>
+		<Sound>spell/fire_nova</Sound>
+		<Usable />
+		<MpCost>95</MpCost>
+		<Activate effect="Invisible" duration="7.15">ConditionEffectSelf</Activate>
+		<Cooldown>7.5</Cooldown>
+		<ActivateOnEquip stat="22" amount="8">IncrementStat</ActivateOnEquip>
+		<ActivateOnEquip stat="28" amount="13">IncrementStat</ActivateOnEquip>
+		<ActivateOnEquip stat="0" amount="72">IncrementStat</ActivateOnEquip>
+		<ActivateOnEquip stat="3" amount="72">IncrementStat</ActivateOnEquip>
+		<ActivateOnEquip stat="20" amount="3">IncrementStat</ActivateOnEquip>
+		<RelicPower>Forgotten</RelicPower>
+		<ExtraTooltipData>
+			<EffectInfo name="Forgotten" description="Using it makes the Realm forget you: for 5 seconds your shots deal a fifth more, ignoring defense" />
+		</ExtraTooltipData>
+		<Description>The King's burial shroud, torn off him when he rose. Whoever wears it slips from the Realm's memory, and strikes from there. Dropped by the Empowered Forgotten King.</Description>
+		<BagType>6</BagType>
+		<FameBonus>7</FameBonus>
+		<feedPower>1200</feedPower>
+		<Soulbound />
+	</Object>
+	<Object type="0x8C40" id="Bracer of the Elder Guardian">
+		<Class>Equipment</Class>
+		<Item />
+		<Texture>
+			<File>resurrection8x8</File>
+			<Index>25</Index>
+		</Texture>
+		<SlotType>9</SlotType>
+		<ActivateOnEquip stat="21" amount="8">IncrementStat</ActivateOnEquip>
+		<ActivateOnEquip stat="20" amount="8">IncrementStat</ActivateOnEquip>
+		<ActivateOnEquip stat="0" amount="84">IncrementStat</ActivateOnEquip>
+		<ActivateOnEquip stat="3" amount="84">IncrementStat</ActivateOnEquip>
+		<RelicPower>Bulwark</RelicPower>
+		<ExtraTooltipData>
+			<EffectInfo name="Bulwark" description="Below half your health, gives +12 defense for 5 seconds (every 20 seconds at most)" />
+		</ExtraTooltipData>
+		<Description>The Sentinel wore this for an age on the bridge. It still braces when its wearer falters. Dropped by the Elder Forgotten Sentinel.</Description>
+		<BagType>6</BagType>
+		<FameBonus>7</FameBonus>
+		<feedPower>1200</feedPower>
+		<Soulbound />
+	</Object>
+	<Object type="0x8C41" id="The Eclipsed Gemstone">
+		<Class>Equipment</Class>
+		<Item />
+		<Texture>
+			<File>resurrection8x8</File>
+			<Index>26</Index>
+		</Texture>
+		<SlotType>9</SlotType>
+		<ActivateOnEquip stat="22" amount="8">IncrementStat</ActivateOnEquip>
+		<ActivateOnEquip stat="21" amount="8">IncrementStat</ActivateOnEquip>
+		<ActivateOnEquip stat="3" amount="154">IncrementStat</ActivateOnEquip>
+		<RelicPower>Eclipse</RelicPower>
+		<ExtraTooltipData>
+			<EffectInfo name="Eclipse" description="Each enemy you kill restores 15 mana" />
+		</ExtraTooltipData>
+		<Description>The Twilight Gemstone after the eclipse: darker, and hungrier. It drinks what its wearer kills. Dropped by the Elder Twilight Archmage.</Description>
+		<BagType>6</BagType>
+		<FameBonus>7</FameBonus>
+		<feedPower>1200</feedPower>
+		<Soulbound />
+	</Object>
+	<Object type="0x8C42" id="The Remembered Crown">
+		<Class>Equipment</Class>
+		<Item />
+		<Texture>
+			<File>resurrection8x8</File>
+			<Index>27</Index>
+		</Texture>
+		<SlotType>9</SlotType>
+		<ActivateOnEquip stat="28" amount="8">IncrementStat</ActivateOnEquip>
+		<ActivateOnEquip stat="20" amount="8">IncrementStat</ActivateOnEquip>
+		<ActivateOnEquip stat="0" amount="154">IncrementStat</ActivateOnEquip>
+		<RelicPower>KingsWill</RelicPower>
+		<ExtraTooltipData>
+			<EffectInfo name="King's Will" description="Using your ability gives +8 attack for 3 seconds" />
+		</ExtraTooltipData>
+		<Description>The crown of a king somebody finally remembered. It lends its wearer the will of the one who lost it. Dropped by the Elder Forgotten King.</Description>
+		<BagType>6</BagType>
+		<FameBonus>7</FameBonus>
+		<feedPower>1200</feedPower>
+		<Soulbound />
+	</Object>
 	<Object type="0x8C04" id="Elder Dreadstump the Pirate King Remains">
 		<DisplayId>Remains of Dreadstump the Pirate King</DisplayId>
 		<Class>GameObject</Class>
@@ -3533,6 +3682,340 @@
 			<ObjectId>Necromantic Soul Bolt</ObjectId>
 			<Speed>90</Speed>
 			<Damage>98</Damage>
+			<Size>65</Size>
+			<LifetimeMS>1600</LifetimeMS>
+			<ConditionEffect duration="2">Slowed</ConditionEffect>
+		</Projectile>
+	</Object>
+	<Object type="0x8C43" id="Elder shtrs Bridge Sentinel Remains">
+		<DisplayId>Remains of The Forgotten Sentinel</DisplayId>
+		<Class>GameObject</Class>
+		<AnimatedTexture>
+			<File>chars16x16rEncounters</File>
+			<Index>109</Index>
+		</AnimatedTexture>
+		<Size>150</Size>
+		<Corpse />
+		<NoMiniMap />
+		<ShadowSize>0</ShadowSize>
+		<Sound id="0">monster/necromantic_chant</Sound>
+		<Sound id="1">monster/necromantic_blast</Sound>
+		<Effect color="0x7DFFCF" color2="0x148C5E" rate="12" minRadius="0.75" maxRadius="3.0" speed="0.035" rise="0.35" life="2.6" lifeVariance="0.65" size="5" zOffset="0.15">Souls</Effect>
+	</Object>
+	<Object type="0x8C44" id="Empowered Elder shtrs Bridge Sentinel">
+		<DisplayId>Empowered Forgotten Sentinel</DisplayId>
+		<Class>Character</Class>
+		<Group>Stones</Group>
+		<Enemy />
+		<Quest />
+		<AnimatedTexture>
+			<File>chars16x16rEncounters</File>
+			<Index>109</Index>
+		</AnimatedTexture>
+		<Size>180</Size>
+		<MaxHitPoints>150000</MaxHitPoints>
+		<HealthBarBoss />
+		<Defense>80</Defense>
+		<StasisImmune />
+		<StunImmune />
+		<ParalyzeImmune />
+		<God />
+		<Exp>4000</Exp>
+		<TrackLoot />
+		<AltTexture id="1">
+			<Texture>
+				<File>lofiObjBig</File>
+				<Index>0x14e</Index>
+			</Texture>
+		</AltTexture>
+		<AltTexture id="2">
+			<Texture>
+				<File>lofiObjBig</File>
+				<Index>0x14f</Index>
+			</Texture>
+		</AltTexture>
+		<Projectile id="0">
+			<ObjectId>White Bullet</ObjectId>
+			<Damage>325</Damage>
+			<Speed>40</Speed>
+			<Size>120</Size>
+			<LifetimeMS>5000</LifetimeMS>
+		</Projectile>
+		<Projectile id="6">
+			<ObjectId>Large White Bullet</ObjectId>
+			<Damage>325</Damage>
+			<Speed>40</Speed>
+			<Size>120</Size>
+			<LifetimeMS>5000</LifetimeMS>
+		</Projectile>
+		<Projectile id="1">
+			<ObjectId>Small White Bullet</ObjectId>
+			<Damage>65</Damage>
+			<Speed>120</Speed>
+			<LifetimeMS>1000</LifetimeMS>
+		</Projectile>
+		<Projectile id="2">
+			<ObjectId>Small White Bullet</ObjectId>
+			<Damage>65</Damage>
+			<Speed>120</Speed>
+			<LifetimeMS>1000</LifetimeMS>
+		</Projectile>
+		<Projectile id="3">
+			<ObjectId>Small White Bullet</ObjectId>
+			<Damage>65</Damage>
+			<Speed>120</Speed>
+			<LifetimeMS>1000</LifetimeMS>
+		</Projectile>
+		<Projectile id="4">
+			<ObjectId>Small White Shuriken</ObjectId>
+			<Damage>98</Damage>
+			<Speed>120</Speed>
+			<LifetimeMS>1000</LifetimeMS>
+			<ConditionEffect duration="2">Slowed</ConditionEffect>
+			<Boomerang />
+		</Projectile>
+		<Projectile id="5">
+			<ObjectId>Archmage Shield</ObjectId>
+			<Damage>156</Damage>
+			<Speed>30</Speed>
+			<LifetimeMS>670</LifetimeMS>
+			<ConditionEffect duration="3">Slowed</ConditionEffect>
+			<ConditionEffect duration="3">Confused</ConditionEffect>
+			<ConditionEffect duration="3">Unstable</ConditionEffect>
+			<Boomerang />
+		</Projectile>
+		<XpBonus>2</XpBonus>
+		<Effect color="0x7DFFCF" color2="0x148C5E" rate="10" minRadius="0.6" maxRadius="2.3" speed="0.05" rise="0.6" life="1.8" lifeVariance="0.45" size="5" zOffset="0.3">Souls</Effect>
+		<DazedImmune />
+		<Projectile id="90">
+			<ObjectId>Necromantic Soul Bolt</ObjectId>
+			<Speed>55</Speed>
+			<Damage>88</Damage>
+			<Size>80</Size>
+			<LifetimeMS>2600</LifetimeMS>
+			<MultiHit />
+		</Projectile>
+		<Projectile id="91">
+			<ObjectId>Necromantic Soul Bolt</ObjectId>
+			<Speed>90</Speed>
+			<Damage>62</Damage>
+			<Size>65</Size>
+			<LifetimeMS>1600</LifetimeMS>
+			<ConditionEffect duration="2">Slowed</ConditionEffect>
+		</Projectile>
+	</Object>
+	<Object type="0x8C45" id="Elder shtrs Twilight Archmage Remains">
+		<DisplayId>Remains of Twilight Archmage</DisplayId>
+		<Class>GameObject</Class>
+		<Texture>
+			<File>lofiObjBig</File>
+			<Index>0x150</Index>
+		</Texture>
+		<Size>150</Size>
+		<Corpse />
+		<NoMiniMap />
+		<ShadowSize>0</ShadowSize>
+		<Sound id="0">monster/necromantic_chant</Sound>
+		<Sound id="1">monster/necromantic_blast</Sound>
+		<Effect color="0x7DFFCF" color2="0x148C5E" rate="12" minRadius="0.75" maxRadius="3.0" speed="0.035" rise="0.35" life="2.6" lifeVariance="0.65" size="5" zOffset="0.15">Souls</Effect>
+	</Object>
+	<Object type="0x8C46" id="Empowered Elder shtrs Twilight Archmage">
+		<DisplayId>Empowered Twilight Archmage</DisplayId>
+		<Class>Character</Class>
+		<Group>Stone Monster</Group>
+		<Enemy />
+		<Quest />
+		<Texture>
+			<File>lofiObjBig</File>
+			<Index>0x150</Index>
+		</Texture>
+		<Size>180</Size>
+		<MaxHitPoints>155000</MaxHitPoints>
+		<HealthBarBoss />
+		<Defense>80</Defense>
+		<Exp>4000</Exp>
+		<ShadowSize>40</ShadowSize>
+		<StasisImmune />
+		<StunImmune />
+		<ParalyzeImmune />
+		<God />
+		<TrackLoot />
+		<HitSound>monster/medusa_hit</HitSound>
+		<DeathSound>monster/medusa_death</DeathSound>
+		<AltTexture id="1">
+			<AnimatedTexture>
+				<File>chars16x16rEncounters</File>
+				<Index>110</Index>
+			</AnimatedTexture>
+		</AltTexture>
+		<AltTexture id="2">
+			<AnimatedTexture>
+				<File>chars16x16rEncounters</File>
+				<Index>111</Index>
+			</AnimatedTexture>
+		</AltTexture>
+		<Projectile id="0">
+			<ObjectId>Large Blue Shuriken</ObjectId>
+			<Damage>130</Damage>
+			<Speed>120</Speed>
+			<LifetimeMS>1000</LifetimeMS>
+			<ConditionEffect duration="2">Unstable</ConditionEffect>
+		</Projectile>
+		<Projectile id="1">
+			<ObjectId>Directed Explosion</ObjectId>
+			<Damage>98</Damage>
+			<Speed>25</Speed>
+			<LifetimeMS>2000</LifetimeMS>
+		</Projectile>
+		<Projectile id="2">
+			<ObjectId>Archmage Shield</ObjectId>
+			<Damage>156</Damage>
+			<Speed>35</Speed>
+			<LifetimeMS>6000</LifetimeMS>
+			<Size>150</Size>
+			<ConditionEffect duration="3.5">Quiet</ConditionEffect>
+			<ArmorPiercing />
+		</Projectile>
+		<Projectile id="3">
+			<ObjectId>Armor Pierce Bullet</ObjectId>
+			<Damage>130</Damage>
+			<Speed>35</Speed>
+			<LifetimeMS>6000</LifetimeMS>
+			<Size>150</Size>
+			<ArmorPiercing />
+		</Projectile>
+		<Projectile id="4">
+			<ObjectId>Paralyze Bullet</ObjectId>
+			<Damage>65</Damage>
+			<Speed>35</Speed>
+			<LifetimeMS>6000</LifetimeMS>
+			<Size>150</Size>
+			<ConditionEffect duration="1.5">Paralyzed</ConditionEffect>
+		</Projectile>
+		<Projectile id="5">
+			<ObjectId>Confuse Shuriken</ObjectId>
+			<Damage>65</Damage>
+			<Speed>35</Speed>
+			<LifetimeMS>6000</LifetimeMS>
+			<ConditionEffect duration="1.5">Confused</ConditionEffect>
+			<Size>150</Size>
+		</Projectile>
+		<Projectile id="6">
+			<ObjectId>Ball Of Hurt</ObjectId>
+			<Damage>455</Damage>
+			<Size>200</Size>
+			<Speed>35</Speed>
+			<LifetimeMS>6000</LifetimeMS>
+		</Projectile>
+		<XpBonus>2</XpBonus>
+		<Effect color="0x7DFFCF" color2="0x148C5E" rate="10" minRadius="0.6" maxRadius="2.3" speed="0.05" rise="0.6" life="1.8" lifeVariance="0.45" size="5" zOffset="0.3">Souls</Effect>
+		<DazedImmune />
+		<Projectile id="90">
+			<ObjectId>Necromantic Soul Bolt</ObjectId>
+			<Speed>55</Speed>
+			<Damage>117</Damage>
+			<Size>80</Size>
+			<LifetimeMS>2600</LifetimeMS>
+			<MultiHit />
+		</Projectile>
+		<Projectile id="91">
+			<ObjectId>Necromantic Soul Bolt</ObjectId>
+			<Speed>90</Speed>
+			<Damage>82</Damage>
+			<Size>65</Size>
+			<LifetimeMS>1600</LifetimeMS>
+			<ConditionEffect duration="2">Slowed</ConditionEffect>
+		</Projectile>
+	</Object>
+	<Object type="0x8C47" id="Elder shtrs The Forgotten King Remains">
+		<DisplayId>Remains of The Forgotten King</DisplayId>
+		<Class>GameObject</Class>
+		<AnimatedTexture>
+			<File>chars16x16rEncounters</File>
+			<Index>115</Index>
+		</AnimatedTexture>
+		<Size>100</Size>
+		<Corpse />
+		<NoMiniMap />
+		<ShadowSize>0</ShadowSize>
+		<Sound id="0">monster/necromantic_chant</Sound>
+		<Sound id="1">monster/necromantic_blast</Sound>
+		<Effect color="0x7DFFCF" color2="0x148C5E" rate="12" minRadius="0.5" maxRadius="2.2" speed="0.035" rise="0.35" life="2.6" lifeVariance="0.65" size="5" zOffset="0.15">Souls</Effect>
+	</Object>
+	<Object type="0x8C48" id="Empowered Elder shtrs The Forgotten King">
+		<DisplayId>Empowered Forgotten King</DisplayId>
+		<Class>Character</Class>
+		<Group>Stone Monster</Group>
+		<Enemy />
+		<Quest />
+		<TrackLoot />
+		<God />
+		<AnimatedTexture>
+			<File>chars16x16rEncounters</File>
+			<Index>115</Index>
+		</AnimatedTexture>
+		<Size>120</Size>
+		<MaxHitPoints>200000</MaxHitPoints>
+		<HealthBarBoss />
+		<Defense>75</Defense>
+		<Exp>20000</Exp>
+		<EventChestBoss />
+		<AltTexture id="1">
+			<AnimatedTexture>
+				<File>chars16x16dEncounters2</File>
+				<Index>81</Index>
+			</AnimatedTexture>
+		</AltTexture>
+		<StasisImmune />
+		<StunImmune />
+		<ParalyzeImmune />
+		<DazedImmune />
+		<Projectile id="0">
+			<ObjectId>White Bullet</ObjectId>
+			<Speed>30</Speed>
+			<Damage>260</Damage>
+			<LifetimeMS>6000</LifetimeMS>
+		</Projectile>
+		<Projectile id="1">
+			<ObjectId>Armor Pierce Bullet</ObjectId>
+			<Speed>30</Speed>
+			<ArmorPiercing />
+			<Damage>247</Damage>
+			<LifetimeMS>6000</LifetimeMS>
+		</Projectile>
+		<Projectile id="2">
+			<ObjectId>Fire Bullet</ObjectId>
+			<Damage>156</Damage>
+			<Speed>35</Speed>
+			<LifetimeMS>5000</LifetimeMS>
+			<ConditionEffect duration="2">Unstable</ConditionEffect>
+			<ConditionEffect duration="2">Quiet</ConditionEffect>
+			<Amplitude>1.5</Amplitude>
+			<Frequency>3</Frequency>
+		</Projectile>
+		<Projectile id="3">
+			<ObjectId>Ice Bullet</ObjectId>
+			<Speed>25</Speed>
+			<Damage>156</Damage>
+			<LifetimeMS>7000</LifetimeMS>
+			<ConditionEffect duration="3">Slowed</ConditionEffect>
+			<Amplitude>1.5</Amplitude>
+			<Frequency>3</Frequency>
+		</Projectile>
+		<XpBonus>2</XpBonus>
+		<Effect color="0x7DFFCF" color2="0x148C5E" rate="10" minRadius="0.4" maxRadius="1.7" speed="0.05" rise="0.6" life="1.8" lifeVariance="0.45" size="5" zOffset="0.3">Souls</Effect>
+		<Projectile id="90">
+			<ObjectId>Necromantic Soul Bolt</ObjectId>
+			<Speed>55</Speed>
+			<Damage>222</Damage>
+			<Size>80</Size>
+			<LifetimeMS>2600</LifetimeMS>
+			<MultiHit />
+		</Projectile>
+		<Projectile id="91">
+			<ObjectId>Necromantic Soul Bolt</ObjectId>
+			<Speed>90</Speed>
+			<Damage>155</Damage>
 			<Size>65</Size>
 			<LifetimeMS>1600</LifetimeMS>
 			<ConditionEffect duration="2">Slowed</ConditionEffect>

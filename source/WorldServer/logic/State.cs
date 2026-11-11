@@ -45,6 +45,8 @@ namespace WorldServer.logic
                     Behaviors.Add(i as Behavior);
                 else if (i is Transition)
                     Transitions.Add(i as Transition);
+                else if (i == null)
+                    continue;   // a shared builder's child that this version doesn't have (elder ? x : null)
                 else
                     throw new NotSupportedException("Unknown children type.");
             }

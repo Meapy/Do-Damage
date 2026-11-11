@@ -303,6 +303,7 @@ HIDDEN_MONSTER = re.compile(r"Admin|Test(?!Chicken)|XP\b|Spawner|spawner|Control
 # bosses a script brings in, which the dungeon's map doesn't place
 BOSS_OVERRIDE = {"Tomb of the Ancients": "Tomb Defender", "Elder Tomb of the Ancients": "Elder Tomb Defender",
                  "Ice Cave": "ic Esben the Unwilling", "The Shatters": "shtrs The Forgotten King",
+                 "The Elder Shatters": "Elder shtrs The Forgotten King",
                  "Haunted Cemetery": "Ghost of Skuld", "Cultist Hideout": "LH Malus 2",
                  "Lost Halls": "LH Marble Colossus", "The Void": "LH Void Entity",
                  "The Ivory Wyvern": "LOD Ivory Wyvern", "The Elder Ivory Wyvern": "Elder lod Ivory Wyvern",
@@ -321,6 +322,14 @@ DIFFICULTY_WORDS = ["Beginner", "Easy", "Medium", "Hard", "Very hard", "Endgame"
 
 # what's particular about a dungeon's fight (a row of its card on the Dungeons page)
 DUNGEON_FIGHT_NOTES = {
+    "The Elder Shatters": "Each of its three bosses has a phase the regular Shatters doesn't. Below 45% the Bridge "
+                          "Sentinel turns armoured and spins two spirals round itself, slowing blades one way and "
+                          "heavy bolts the other, throwing Blobombs between its swarms. The Twilight Archmage "
+                          "throws fire portals as well as ice ones, and after his last blast casts an Eclipse of "
+                          "piercing bolts, confusing blades and firebombs before going round his generators "
+                          "again. The Forgotten King doesn't die at a tenth of his health: he comes out of "
+                          "hiding for a last stand, fire and ice turning round him, with his guardians back at "
+                          "his side.",
     "The Black Between": "Every shot here goes on through whoever it hits, so nobody can take the hits for the "
                          "rest of the group: each player has to dodge them. Once the fight starts the bridge falls "
                          "away into the void, all but the landing where players arrive (anyone on it is moved onto "
@@ -331,6 +340,9 @@ DUNGEON_FIGHT_NOTES = {
 
 # what's particular about raising some Elder bosses (the Raising part of the Dungeons page)
 RAISE_DUNGEON_NOTES = {
+    "The Elder Shatters": "The Bridge Sentinel, the Twilight Archmage and the Forgotten King each leave their own "
+                          "remains where they fall, and each needs a relic of its own. Raised, a boss drops what "
+                          "its loot balloon held as well: there is no second balloon.",
     "Lair of Elder Draconis": "Each of the four Elder dragons leaves its own remains in its lair, so it takes a relic for "
                               "each: a group with four can raise them all. Like the Elder dragon, the Empowered one turns "
                               "into a loot balloon when it falls. The balloon holds the Elder dragon's loot at its "

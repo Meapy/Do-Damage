@@ -98,6 +98,7 @@ BS_ELDER_WORLDS = make_elder.DUNGEONS
 # allow teleport, portal ids). Their portals are betterSkillys' (custom/CustomObjects.xml).
 BS_ONLY_ELDER_WORLDS = {
     "ElderIvoryWyvern": ("The Elder Ivory Wyvern", 0, True, ["Elder Ivory Wyvern Portal"]),
+    "ElderShatters": ("The Elder Shatters", 0, True, ["Elder Shatters Portal"]),
 }
 ELDER_BRAZIER = "Elder Brazier"
 # braziers stand by the rooms' walls, corners first, at least this many tiles apart
@@ -229,9 +230,9 @@ def elder_swap(wmap, dr_ids):
     return dict(wmap, dict=entries)
 
 
-def place_braziers(j, brazier, walls, lit_grounds):
+def place_braziers(j, brazier, walls, lit_grounds, avoid=frozenset()):
     """Puts a brazier by the walls of every room (in its corners first, then along its walls) and
-    lights the floor around it."""
+    lights the floor around it. None stands on a ground in avoid."""
     w, h, d = j["width"], j["height"], j["dict"]
     grid = list(struct.unpack(">%dh" % (w * h), zlib.decompress(base64.b64decode(j["data"]))[:2 * w * h]))
     tile = lambda x, y: d[grid[y * w + x]] if 0 <= x < w and 0 <= y < h else {}
@@ -245,10 +246,12 @@ def place_braziers(j, brazier, walls, lit_grounds):
         return t.get("ground") not in (None, "Empty") and not any(o.get("id") for o in t.get("objs") or []) \
             and not t.get("regions")
 
+    stands = lambda x, y: floor(x, y) and tile(x, y).get("ground") not in avoid
+
     cands = []
     for y in range(h):
         for x in range(w):
-            if not floor(x, y):
+            if not stands(x, y):
                 continue
             n, s_, e, wst = wall(x, y - 1), wall(x, y + 1), wall(x + 1, y), wall(x - 1, y)
             sides = n + s_ + e + wst
@@ -298,9 +301,10 @@ def place_braziers(j, brazier, walls, lit_grounds):
     return len(placed)
 
 
-def bs_elder_map(path, dr_ids):
+def bs_elder_map(path, dr_ids, dry_braziers=False):
     """A betterSkillys .jm map with its grounds, walls and monsters swapped for their Elder versions,
-    and braziers lighting its rooms."""
+    and braziers lighting its rooms. With dry_braziers none stands in lava or over a void (the
+    Shatters has both along its walls)."""
     objects, grounds = make_elder.load(make_elder.xml_files(include_elder=True))
     known = set(objects) | set(dr_ids)
     j = json.load(open(os.path.join(BS_MAPS, path), encoding="utf-8-sig"))
@@ -313,7 +317,10 @@ def bs_elder_map(path, dr_ids):
                 if o["id"] in objects and objects[o["id"]].findtext("Class") in make_elder.WALL_CLASSES:
                     walls.add("Elder " + o["id"])
                 o["id"] = "Elder " + o["id"]
-    place_braziers(j, ELDER_BRAZIER, walls, make_elder.lit_grounds())
+    # (nor on the bridges, which open and shut)
+    avoid = {gid for gid, g in grounds.items() if g.find("NoWalk") is not None or g.find("MinDamage") is not None
+             or gid.endswith(" Bridge")} if dry_braziers else frozenset()
+    place_braziers(j, ELDER_BRAZIER, walls, make_elder.lit_grounds(), avoid)
     objs = [(None, o["id"], o.get("name", ""), 0) for e in j["dict"] for o in e.get("objs") or []]
     return {"width": j["width"], "height": j["height"], "dict": objs, "jm": json.dumps(j)}
 
@@ -354,7 +361,7 @@ def world_maps(dr_root, dr_ids=frozenset()):
     # dungeon, as in the regular ones (Doomed Realms disabled it in most)
     for cls, (name, bg, tp, _) in list(out.items()):
         if cls in BS_ELDER_WORLDS:
-            out[cls] = (name, bg, True, [bs_elder_map(BS_ELDER_WORLDS[cls][0], dr_ids)])
+            out[cls] = (name, bg, True, [bs_elder_map(BS_ELDER_WORLDS[cls][0], dr_ids, cls in make_elder.SCRIPTED_DUNGEONS)])
     return out
 
 

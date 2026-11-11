@@ -90,7 +90,18 @@ BOSSES = [
     ("Elder Tomb Support", "Elder Tomb of the Ancients"),
     ("Elder Tomb Attacker", "Elder Tomb of the Ancients"),
     ("Elder lod Ivory Wyvern", "The Elder Ivory Wyvern"),
+    ("Elder shtrs Bridge Sentinel", "The Elder Shatters"),
+    ("Elder shtrs Twilight Archmage", "The Elder Shatters"),
+    ("Elder shtrs The Forgotten King", "The Elder Shatters"),
 ]
+# Bosses whose loot is in the balloon a chest spawner leaves for them (the Shatters'): raised, with
+# the spawner long gone, the Empowered form drops that balloon's loot itself
+# (BossResurrection.Initialize, "lootFrom").
+LOOT_FROM = {
+    "Elder shtrs Bridge Sentinel": "Elder shtrs Loot Balloon Bridge",
+    "Elder shtrs Twilight Archmage": "Elder shtrs Loot Balloon Mage",
+    "Elder shtrs The Forgotten King": "Elder shtrs Loot Balloon King",
+}
 
 # --- art ---------------------------------------------------------------------------------------
 # The relic after the design's own: a lump of dark stone, mossy on top, a soul glowing through it.
@@ -237,6 +248,29 @@ UTS = [
     ("Elder lod Ivory Wyvern", "Scepter of the Ivory Wyvern", "Scepter of Luminous Winds", 1.5, {"hp": 80}, None,
      ((40, 40, 40), (200, 200, 190), (255, 255, 245)),
      "Carved from the Ivory Wyvern's horn after its second death. Its lightning leaps further than any mortal's."),
+    ("Elder shtrs Bridge Sentinel", "Snare of the Bridge Sentinel", "Mantlecrusher Trap", 1.25, {"def": 4}, None,
+     ((30, 30, 40), (130, 130, 150), (240, 240, 255)),
+     "A shard of the Sentinel's own stone, still humming with its duty. Nothing crosses where it lies."),
+    ("Elder shtrs Twilight Archmage", "Twilight Cataclysm", "Spell of Galactic Creation", 1.3, {"wis": 5}, None,
+     ((30, 0, 50), (120, 60, 200), (255, 170, 120)),
+     "The Archmage's last spell, cast as fire and ice consumed him a second time. It has not finished burning, or freezing."),
+    ("Elder shtrs The Forgotten King", "Shroud of the Forgotten King", "Cloak of Emptiness", 1.2, {"dex": 5, "att": 3}, None,
+     ((20, 0, 0), (120, 20, 30), (250, 200, 90)),
+     "The King's burial shroud, torn off him when he rose. Whoever wears it slips from the Realm's memory, and strikes from there."),
+]
+# The Elder Shatters' own untiered items, dropped by its three Elder bosses (their loot balloons,
+# BehaviorDb.Shatters.cs): the Shatters' rings grown stronger, each with a power, built like the
+# Empowered bosses' items above. Same fields.
+ELDER_UTS = [
+    ("Elder shtrs Bridge Sentinel", "Bracer of the Elder Guardian", "Bracer of the Guardian", 1.4, {}, None,
+     ((30, 30, 40), (120, 130, 160), (235, 240, 255)),
+     "The Sentinel wore this for an age on the bridge. It still braces when its wearer falters."),
+    ("Elder shtrs Twilight Archmage", "The Eclipsed Gemstone", "The Twilight Gemstone", 1.4, {}, None,
+     ((25, 0, 45), (110, 50, 190), (255, 180, 130)),
+     "The Twilight Gemstone after the eclipse: darker, and hungrier. It drinks what its wearer kills."),
+    ("Elder shtrs The Forgotten King", "The Remembered Crown", "The Forgotten Crown", 1.4, {}, None,
+     ((40, 10, 0), (190, 120, 20), (255, 240, 150)),
+     "The crown of a king somebody finally remembered. It lends its wearer the will of the one who lost it."),
 ]
 for _u in UTS:
     BASES[_u[0]], STRENGTH[_u[0]] = _u[2], _u[3]
@@ -262,7 +296,15 @@ POWERS = {
     "Tome of the Night Sky": ("Starlight", "Starlight", "Using it gives everyone within 6 tiles +8 attack for 4 seconds"),
     "Crown of Geb": ("Earthshaker", "Earthshaker", "Using it shakes the earth: 400 damage to every enemy within 4 tiles"),
     "Scepter of the Ivory Wyvern": ("WyvernsFury", "Wyvern's Fury", "Half a second after using it, a second storm strikes the 3 enemies nearest the target for 300 each"),
+    "Snare of the Bridge Sentinel": ("Blobomb", "Blobomb", "Using it also throws a Blobomb at the target: 2 seconds later it bursts for 700 damage to every enemy within 3 tiles"),
+    "Twilight Cataclysm": ("FireAndIce", "Fire and Ice", "Each cast takes its turn: fire burns the enemies within 3.5 tiles of the target for 450 over 3 seconds, then ice hits them for 250 and slows them for 3 seconds"),
+    "Shroud of the Forgotten King": ("Forgotten", "Forgotten", "Using it makes the Realm forget you: for 5 seconds your shots deal a fifth more, ignoring defense"),
+    "Bracer of the Elder Guardian": ("Bulwark", "Bulwark", "Below half your health, gives +12 defense for 5 seconds (every 20 seconds at most)"),
+    "The Eclipsed Gemstone": ("Eclipse", "Eclipse", "Each enemy you kill restores 15 mana"),
+    "The Remembered Crown": ("KingsWill", "King's Will", "Using your ability gives +8 attack for 3 seconds"),
 }
+# drops of one season only (a SeasonalThreshold), which the second roll leaves out
+SEASONAL = {"Ice Crown"}
 UT_CHANCE = 0.06            # each player past the threshold, before the boosts
 # attributes of an ability's effects that are its strength (times k); durations grow by half as much
 STRENGTH_ATTRS = ("amount", "totalDamage", "impactDamage", "heal", "damage", "healAmount", "decrDamage", "wisDamageBase")
@@ -329,7 +371,8 @@ def build_uts(objects, types, root, first_cell):
     sprites and {boss: item}."""
     sets = manifest_sets()
     cells, by_boss = [], {}
-    for n, (boss, name, base_id, k, extra, condition, colours, desc) in enumerate(UTS):
+    for n, (boss, name, base_id, k, extra, condition, colours, desc) in enumerate(UTS + ELDER_UTS):
+        empowered = n < len(UTS)
         base = objects.get(base_id)
         if base is None:
             raise SystemExit("No base item %s for %s" % (base_id, name))
@@ -361,13 +404,14 @@ def build_uts(objects, types, root, first_cell):
         if info is None:
             info = el(item, "ExtraTooltipData")
         el(info, "EffectInfo", name=title, description=what)
-        el(item, "Description", desc + " Dropped by the Empowered " + name_of(objects[boss]) + ".")
+        el(item, "Description", desc + (" Dropped by the Empowered " if empowered else " Dropped by the Elder ") + bare(name_of(objects[boss])) + ".")
         el(item, "BagType", 6)
         el(item, "FameBonus", 7)
         el(item, "feedPower", 1200)
         el(item, "Soulbound")
         root.append(item)
-        by_boss[boss] = name
+        if empowered:
+            by_boss[boss] = name
     return cells, by_boss
 
 
@@ -429,10 +473,19 @@ def el(parent, tag, text=None, **attrs):
     return e
 
 
+# bosses whose own name begins with "The", which their Elder version's leaves out
+NAMES = {"Elder shtrs Bridge Sentinel": "The Forgotten Sentinel", "Elder shtrs The Forgotten King": "The Forgotten King"}
+
+
 def name_of(boss):
     """The boss's name as players read it, without "Elder"."""
     display = boss.findtext("DisplayId") or boss.get("id")
-    return re.sub(r"^Elder ", "", display)
+    return NAMES.get(boss.get("id"), re.sub(r"^Elder ", "", display))
+
+
+def bare(name):
+    """A name after "the Empowered" or "the Elder": without its own "The"."""
+    return re.sub(r"^The ", "", name)
 
 
 def soul_damage(boss):
@@ -543,7 +596,7 @@ def build(objects, types):
         if disp is None:
             disp = ET.Element("DisplayId")
             emp.insert(0, disp)
-        disp.text = "Empowered " + name
+        disp.text = "Empowered " + bare(name)
         se = emp.find("Size")
         if se is None:
             se = el(emp, "Size", size)
@@ -576,7 +629,7 @@ def build(objects, types):
         # at most)
         loot = []
         for kind, item, chance in data.drops(boss_id):
-            if kind != "item" or not chance or item == RELIC or any(item == i for i, _ in loot):
+            if kind != "item" or not chance or item == RELIC or item in SEASONAL or any(item == i for i, _ in loot):
                 continue
             if item.startswith("Potion of Max "):
                 loot.append((item, round(min(0.25, max(0.10, chance * 4)), 4)))
@@ -585,6 +638,7 @@ def build(objects, types):
         loot.append((uts[boss_id], UT_CHANCE))
         config.append({"boss": boss_id, "dungeon": dungeon, "name": name, "corpse": corpse_id, "empowered": emp_id,
                        "soulDamage": dmg, "loot": [[i, c] for i, c in loot],
+                       **({"lootFrom": LOOT_FROM[boss_id]} if boss_id in LOOT_FROM else {}),
                        # for the wiki: its item, the top-tier item it's built on, and how much stronger
                        "item": uts[boss_id], "itemBase": BASES[boss_id], "itemStrength": STRENGTH[boss_id]})
 

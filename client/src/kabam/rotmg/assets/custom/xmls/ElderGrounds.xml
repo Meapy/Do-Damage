@@ -3587,236 +3587,1800 @@
 		<Sink />
 		<Speed>.666</Speed>
 	</Ground>
-	<Ground type="0xE8F6" id="Elder Brown Closed">
+	<Ground type="0xE9A6" id="Elder Arena Dirt">
 		<Texture>
 			<File>elderAssets8x8</File>
 			<Index>0x222</Index>
+		</Texture>
+	</Ground>
+	<Ground type="0xE9A7" id="Elder Arena Dirt Lit 1">
+		<Texture>
+			<File>elderAssets8x8</File>
+			<Index>0x223</Index>
+		</Texture>
+	</Ground>
+	<Ground type="0xE9A8" id="Elder Arena Dirt Lit 2">
+		<Texture>
+			<File>elderAssets8x8</File>
+			<Index>0x224</Index>
+		</Texture>
+	</Ground>
+	<Ground type="0xE9A9" id="Elder Arena Dirt Lit 3">
+		<Texture>
+			<File>elderAssets8x8</File>
+			<Index>0x225</Index>
+		</Texture>
+	</Ground>
+	<Ground type="0xE9AA" id="Elder Arena Dirt Lit 4">
+		<Texture>
+			<File>elderAssets8x8</File>
+			<Index>0x226</Index>
+		</Texture>
+	</Ground>
+	<Ground type="0xE9AB" id="Elder Arena Dirt Lit 5">
+		<Texture>
+			<File>elderAssets8x8</File>
+			<Index>0x227</Index>
+		</Texture>
+	</Ground>
+	<Ground type="0xE9AC" id="Elder Arena Dirt Lit 6">
+		<Texture>
+			<File>elderAssets8x8</File>
+			<Index>0x228</Index>
+		</Texture>
+	</Ground>
+	<Ground type="0xE9AD" id="Elder Castle Stone Floor Tile">
+		<Texture>
+			<File>elderAssets8x8</File>
+			<Index>0x229</Index>
+		</Texture>
+	</Ground>
+	<Ground type="0xE9AE" id="Elder Castle Stone Floor Tile Lit 1">
+		<Texture>
+			<File>elderAssets8x8</File>
+			<Index>0x22a</Index>
+		</Texture>
+	</Ground>
+	<Ground type="0xE9AF" id="Elder Castle Stone Floor Tile Lit 2">
+		<Texture>
+			<File>elderAssets8x8</File>
+			<Index>0x22b</Index>
+		</Texture>
+	</Ground>
+	<Ground type="0xE9B0" id="Elder Castle Stone Floor Tile Lit 3">
+		<Texture>
+			<File>elderAssets8x8</File>
+			<Index>0x22c</Index>
+		</Texture>
+	</Ground>
+	<Ground type="0xE9B1" id="Elder Castle Stone Floor Tile Lit 4">
+		<Texture>
+			<File>elderAssets8x8</File>
+			<Index>0x22d</Index>
+		</Texture>
+	</Ground>
+	<Ground type="0xE9B2" id="Elder Castle Stone Floor Tile Lit 5">
+		<Texture>
+			<File>elderAssets8x8</File>
+			<Index>0x22e</Index>
+		</Texture>
+	</Ground>
+	<Ground type="0xE9B3" id="Elder Castle Stone Floor Tile Lit 6">
+		<Texture>
+			<File>elderAssets8x8</File>
+			<Index>0x22f</Index>
+		</Texture>
+	</Ground>
+	<Ground type="0xE9B4" id="Elder Dark Cobblestone">
+		<Texture>
+			<File>elderAssets8x8</File>
+			<Index>0x230</Index>
+		</Texture>
+	</Ground>
+	<Ground type="0xE9B5" id="Elder Dark Cobblestone Lit 1">
+		<Texture>
+			<File>elderAssets8x8</File>
+			<Index>0x231</Index>
+		</Texture>
+	</Ground>
+	<Ground type="0xE9B6" id="Elder Dark Cobblestone Lit 2">
+		<Texture>
+			<File>elderAssets8x8</File>
+			<Index>0x232</Index>
+		</Texture>
+	</Ground>
+	<Ground type="0xE9B7" id="Elder Dark Cobblestone Lit 3">
+		<Texture>
+			<File>elderAssets8x8</File>
+			<Index>0x233</Index>
+		</Texture>
+	</Ground>
+	<Ground type="0xE9B8" id="Elder Dark Cobblestone Lit 4">
+		<Texture>
+			<File>elderAssets8x8</File>
+			<Index>0x234</Index>
+		</Texture>
+	</Ground>
+	<Ground type="0xE9B9" id="Elder Dark Cobblestone Lit 5">
+		<Texture>
+			<File>elderAssets8x8</File>
+			<Index>0x235</Index>
+		</Texture>
+	</Ground>
+	<Ground type="0xE9BA" id="Elder Dark Cobblestone Lit 6">
+		<Texture>
+			<File>elderAssets8x8</File>
+			<Index>0x236</Index>
+		</Texture>
+	</Ground>
+	<Ground type="0xE9BB" id="Elder Dark Grass">
+		<Texture>
+			<File>elderAssets8x8</File>
+			<Index>0x237</Index>
+		</Texture>
+		<BlendPriority>7</BlendPriority>
+		<RandomOffset />
+	</Ground>
+	<Ground type="0xE9BC" id="Elder Dark Grass Lit 1">
+		<Texture>
+			<File>elderAssets8x8</File>
+			<Index>0x238</Index>
+		</Texture>
+		<BlendPriority>7</BlendPriority>
+		<RandomOffset />
+	</Ground>
+	<Ground type="0xE9BD" id="Elder Dark Grass Lit 2">
+		<Texture>
+			<File>elderAssets8x8</File>
+			<Index>0x239</Index>
+		</Texture>
+		<BlendPriority>7</BlendPriority>
+		<RandomOffset />
+	</Ground>
+	<Ground type="0xE9BE" id="Elder Dark Grass Lit 3">
+		<Texture>
+			<File>elderAssets8x8</File>
+			<Index>0x23a</Index>
+		</Texture>
+		<BlendPriority>7</BlendPriority>
+		<RandomOffset />
+	</Ground>
+	<Ground type="0xE9BF" id="Elder Dark Grass Lit 4">
+		<Texture>
+			<File>elderAssets8x8</File>
+			<Index>0x23b</Index>
+		</Texture>
+		<BlendPriority>7</BlendPriority>
+		<RandomOffset />
+	</Ground>
+	<Ground type="0xE9C0" id="Elder Dark Grass Lit 5">
+		<Texture>
+			<File>elderAssets8x8</File>
+			<Index>0x23c</Index>
+		</Texture>
+		<BlendPriority>7</BlendPriority>
+		<RandomOffset />
+	</Ground>
+	<Ground type="0xE9C1" id="Elder Dark Grass Lit 6">
+		<Texture>
+			<File>elderAssets8x8</File>
+			<Index>0x23d</Index>
+		</Texture>
+		<BlendPriority>7</BlendPriority>
+		<RandomOffset />
+	</Ground>
+	<Ground type="0xE807" id="Elder Gold Tile">
+		<Texture>
+			<File>elderAssets8x8</File>
+			<Index>0x23e</Index>
+		</Texture>
+	</Ground>
+	<Ground type="0xE808" id="Elder Gold Tile Lit 1">
+		<Texture>
+			<File>elderAssets8x8</File>
+			<Index>0x23f</Index>
+		</Texture>
+	</Ground>
+	<Ground type="0xE809" id="Elder Gold Tile Lit 2">
+		<Texture>
+			<File>elderAssets8x8</File>
+			<Index>0x240</Index>
+		</Texture>
+	</Ground>
+	<Ground type="0xE80A" id="Elder Gold Tile Lit 3">
+		<Texture>
+			<File>elderAssets8x8</File>
+			<Index>0x241</Index>
+		</Texture>
+	</Ground>
+	<Ground type="0xE80B" id="Elder Gold Tile Lit 4">
+		<Texture>
+			<File>elderAssets8x8</File>
+			<Index>0x242</Index>
+		</Texture>
+	</Ground>
+	<Ground type="0xE80C" id="Elder Gold Tile Lit 5">
+		<Texture>
+			<File>elderAssets8x8</File>
+			<Index>0x243</Index>
+		</Texture>
+	</Ground>
+	<Ground type="0xE80D" id="Elder Gold Tile Lit 6">
+		<Texture>
+			<File>elderAssets8x8</File>
+			<Index>0x244</Index>
+		</Texture>
+	</Ground>
+	<Ground type="0xE9C2" id="Elder Green BigSmall Squares">
+		<Texture>
+			<File>elderAssets8x8</File>
+			<Index>0x245</Index>
+		</Texture>
+	</Ground>
+	<Ground type="0xE9C3" id="Elder Green BigSmall Squares Lit 1">
+		<Texture>
+			<File>elderAssets8x8</File>
+			<Index>0x246</Index>
+		</Texture>
+	</Ground>
+	<Ground type="0xE9C4" id="Elder Green BigSmall Squares Lit 2">
+		<Texture>
+			<File>elderAssets8x8</File>
+			<Index>0x247</Index>
+		</Texture>
+	</Ground>
+	<Ground type="0xE9C5" id="Elder Green BigSmall Squares Lit 3">
+		<Texture>
+			<File>elderAssets8x8</File>
+			<Index>0x248</Index>
+		</Texture>
+	</Ground>
+	<Ground type="0xE9C6" id="Elder Green BigSmall Squares Lit 4">
+		<Texture>
+			<File>elderAssets8x8</File>
+			<Index>0x249</Index>
+		</Texture>
+	</Ground>
+	<Ground type="0xE9C7" id="Elder Green BigSmall Squares Lit 5">
+		<Texture>
+			<File>elderAssets8x8</File>
+			<Index>0x24a</Index>
+		</Texture>
+	</Ground>
+	<Ground type="0xE9C8" id="Elder Green BigSmall Squares Lit 6">
+		<Texture>
+			<File>elderAssets8x8</File>
+			<Index>0x24b</Index>
+		</Texture>
+	</Ground>
+	<Ground type="0xE9C9" id="Elder Oryx Room">
+		<RandomTexture>
+			<Texture>
+				<File>elderAssets8x8</File>
+				<Index>0x24c</Index>
+			</Texture>
+			<Texture>
+				<File>elderAssets8x8</File>
+				<Index>0x24d</Index>
+			</Texture>
+		</RandomTexture>
+	</Ground>
+	<Ground type="0xE9CA" id="Elder Oryx Room Lit 1">
+		<RandomTexture>
+			<Texture>
+				<File>elderAssets8x8</File>
+				<Index>0x24e</Index>
+			</Texture>
+			<Texture>
+				<File>elderAssets8x8</File>
+				<Index>0x24f</Index>
+			</Texture>
+		</RandomTexture>
+	</Ground>
+	<Ground type="0xE9CB" id="Elder Oryx Room Lit 2">
+		<RandomTexture>
+			<Texture>
+				<File>elderAssets8x8</File>
+				<Index>0x250</Index>
+			</Texture>
+			<Texture>
+				<File>elderAssets8x8</File>
+				<Index>0x251</Index>
+			</Texture>
+		</RandomTexture>
+	</Ground>
+	<Ground type="0xE9CC" id="Elder Oryx Room Lit 3">
+		<RandomTexture>
+			<Texture>
+				<File>elderAssets8x8</File>
+				<Index>0x252</Index>
+			</Texture>
+			<Texture>
+				<File>elderAssets8x8</File>
+				<Index>0x253</Index>
+			</Texture>
+		</RandomTexture>
+	</Ground>
+	<Ground type="0xE9CD" id="Elder Oryx Room Lit 4">
+		<RandomTexture>
+			<Texture>
+				<File>elderAssets8x8</File>
+				<Index>0x254</Index>
+			</Texture>
+			<Texture>
+				<File>elderAssets8x8</File>
+				<Index>0x255</Index>
+			</Texture>
+		</RandomTexture>
+	</Ground>
+	<Ground type="0xE9CE" id="Elder Oryx Room Lit 5">
+		<RandomTexture>
+			<Texture>
+				<File>elderAssets8x8</File>
+				<Index>0x256</Index>
+			</Texture>
+			<Texture>
+				<File>elderAssets8x8</File>
+				<Index>0x257</Index>
+			</Texture>
+		</RandomTexture>
+	</Ground>
+	<Ground type="0xE9CF" id="Elder Oryx Room Lit 6">
+		<RandomTexture>
+			<Texture>
+				<File>elderAssets8x8</File>
+				<Index>0x258</Index>
+			</Texture>
+			<Texture>
+				<File>elderAssets8x8</File>
+				<Index>0x259</Index>
+			</Texture>
+		</RandomTexture>
+	</Ground>
+	<Ground type="0xE9D0" id="Elder SpiderDirt">
+		<Texture>
+			<File>elderAssets8x8</File>
+			<Index>0x177</Index>
+		</Texture>
+		<Edge>
+			<Texture>
+				<File>elderAssets8x8</File>
+				<Index>0x186</Index>
+			</Texture>
+		</Edge>
+		<Corner>
+			<Texture>
+				<File>elderAssets8x8</File>
+				<Index>0x187</Index>
+			</Texture>
+		</Corner>
+		<RandomOffset />
+	</Ground>
+	<Ground type="0xE9D1" id="Elder SpiderDirt Lit 1">
+		<Texture>
+			<File>elderAssets8x8</File>
+			<Index>0x178</Index>
+		</Texture>
+		<Edge>
+			<Texture>
+				<File>elderAssets8x8</File>
+				<Index>0x189</Index>
+			</Texture>
+		</Edge>
+		<Corner>
+			<Texture>
+				<File>elderAssets8x8</File>
+				<Index>0x18a</Index>
+			</Texture>
+		</Corner>
+		<RandomOffset />
+	</Ground>
+	<Ground type="0xE9D2" id="Elder SpiderDirt Lit 2">
+		<Texture>
+			<File>elderAssets8x8</File>
+			<Index>0x179</Index>
+		</Texture>
+		<Edge>
+			<Texture>
+				<File>elderAssets8x8</File>
+				<Index>0x18c</Index>
+			</Texture>
+		</Edge>
+		<Corner>
+			<Texture>
+				<File>elderAssets8x8</File>
+				<Index>0x18d</Index>
+			</Texture>
+		</Corner>
+		<RandomOffset />
+	</Ground>
+	<Ground type="0xE9D3" id="Elder SpiderDirt Lit 3">
+		<Texture>
+			<File>elderAssets8x8</File>
+			<Index>0x17a</Index>
+		</Texture>
+		<Edge>
+			<Texture>
+				<File>elderAssets8x8</File>
+				<Index>0x18f</Index>
+			</Texture>
+		</Edge>
+		<Corner>
+			<Texture>
+				<File>elderAssets8x8</File>
+				<Index>0x190</Index>
+			</Texture>
+		</Corner>
+		<RandomOffset />
+	</Ground>
+	<Ground type="0xE9D4" id="Elder SpiderDirt Lit 4">
+		<Texture>
+			<File>elderAssets8x8</File>
+			<Index>0x17b</Index>
+		</Texture>
+		<Edge>
+			<Texture>
+				<File>elderAssets8x8</File>
+				<Index>0x192</Index>
+			</Texture>
+		</Edge>
+		<Corner>
+			<Texture>
+				<File>elderAssets8x8</File>
+				<Index>0x193</Index>
+			</Texture>
+		</Corner>
+		<RandomOffset />
+	</Ground>
+	<Ground type="0xE9D5" id="Elder SpiderDirt Lit 5">
+		<Texture>
+			<File>elderAssets8x8</File>
+			<Index>0x17c</Index>
+		</Texture>
+		<Edge>
+			<Texture>
+				<File>elderAssets8x8</File>
+				<Index>0x195</Index>
+			</Texture>
+		</Edge>
+		<Corner>
+			<Texture>
+				<File>elderAssets8x8</File>
+				<Index>0x196</Index>
+			</Texture>
+		</Corner>
+		<RandomOffset />
+	</Ground>
+	<Ground type="0xE9D6" id="Elder SpiderDirt Lit 6">
+		<Texture>
+			<File>elderAssets8x8</File>
+			<Index>0x17d</Index>
+		</Texture>
+		<Edge>
+			<Texture>
+				<File>elderAssets8x8</File>
+				<Index>0x198</Index>
+			</Texture>
+		</Edge>
+		<Corner>
+			<Texture>
+				<File>elderAssets8x8</File>
+				<Index>0x199</Index>
+			</Texture>
+		</Corner>
+		<RandomOffset />
+	</Ground>
+	<Ground type="0xE9D7" id="Elder Tutorial Wood Floor">
+		<RandomTexture>
+			<Texture>
+				<File>elderAssets8x8</File>
+				<Index>0x25a</Index>
+			</Texture>
+			<Texture>
+				<File>elderAssets8x8</File>
+				<Index>0x25b</Index>
+			</Texture>
+			<Texture>
+				<File>elderAssets8x8</File>
+				<Index>0x25c</Index>
+			</Texture>
+		</RandomTexture>
+	</Ground>
+	<Ground type="0xE9D8" id="Elder Tutorial Wood Floor Lit 1">
+		<RandomTexture>
+			<Texture>
+				<File>elderAssets8x8</File>
+				<Index>0x25d</Index>
+			</Texture>
+			<Texture>
+				<File>elderAssets8x8</File>
+				<Index>0x25e</Index>
+			</Texture>
+			<Texture>
+				<File>elderAssets8x8</File>
+				<Index>0x25f</Index>
+			</Texture>
+		</RandomTexture>
+	</Ground>
+	<Ground type="0xE9D9" id="Elder Tutorial Wood Floor Lit 2">
+		<RandomTexture>
+			<Texture>
+				<File>elderAssets8x8</File>
+				<Index>0x260</Index>
+			</Texture>
+			<Texture>
+				<File>elderAssets8x8</File>
+				<Index>0x261</Index>
+			</Texture>
+			<Texture>
+				<File>elderAssets8x8</File>
+				<Index>0x262</Index>
+			</Texture>
+		</RandomTexture>
+	</Ground>
+	<Ground type="0xE9DA" id="Elder Tutorial Wood Floor Lit 3">
+		<RandomTexture>
+			<Texture>
+				<File>elderAssets8x8</File>
+				<Index>0x263</Index>
+			</Texture>
+			<Texture>
+				<File>elderAssets8x8</File>
+				<Index>0x264</Index>
+			</Texture>
+			<Texture>
+				<File>elderAssets8x8</File>
+				<Index>0x265</Index>
+			</Texture>
+		</RandomTexture>
+	</Ground>
+	<Ground type="0xE9DB" id="Elder Tutorial Wood Floor Lit 4">
+		<RandomTexture>
+			<Texture>
+				<File>elderAssets8x8</File>
+				<Index>0x266</Index>
+			</Texture>
+			<Texture>
+				<File>elderAssets8x8</File>
+				<Index>0x267</Index>
+			</Texture>
+			<Texture>
+				<File>elderAssets8x8</File>
+				<Index>0x268</Index>
+			</Texture>
+		</RandomTexture>
+	</Ground>
+	<Ground type="0xE9DC" id="Elder Tutorial Wood Floor Lit 5">
+		<RandomTexture>
+			<Texture>
+				<File>elderAssets8x8</File>
+				<Index>0x269</Index>
+			</Texture>
+			<Texture>
+				<File>elderAssets8x8</File>
+				<Index>0x26a</Index>
+			</Texture>
+			<Texture>
+				<File>elderAssets8x8</File>
+				<Index>0x26b</Index>
+			</Texture>
+		</RandomTexture>
+	</Ground>
+	<Ground type="0xE9DD" id="Elder Tutorial Wood Floor Lit 6">
+		<RandomTexture>
+			<Texture>
+				<File>elderAssets8x8</File>
+				<Index>0x26c</Index>
+			</Texture>
+			<Texture>
+				<File>elderAssets8x8</File>
+				<Index>0x26d</Index>
+			</Texture>
+			<Texture>
+				<File>elderAssets8x8</File>
+				<Index>0x26e</Index>
+			</Texture>
+		</RandomTexture>
+	</Ground>
+	<Ground type="0xE9DE" id="Elder shtrs Bridge">
+		<RandomTexture>
+			<Texture>
+				<File>elderAssets8x8</File>
+				<Index>0x26f</Index>
+			</Texture>
+			<Texture>
+				<File>elderAssets8x8</File>
+				<Index>0x270</Index>
+			</Texture>
+			<Texture>
+				<File>elderAssets8x8</File>
+				<Index>0x271</Index>
+			</Texture>
+			<Texture>
+				<File>elderAssets8x8</File>
+				<Index>0x272</Index>
+			</Texture>
+			<Texture>
+				<File>elderAssets8x8</File>
+				<Index>0x273</Index>
+			</Texture>
+		</RandomTexture>
+		<BlendPriority>1</BlendPriority>
+	</Ground>
+	<Ground type="0xE9DF" id="Elder shtrs Bridge Lit 1">
+		<RandomTexture>
+			<Texture>
+				<File>elderAssets8x8</File>
+				<Index>0x274</Index>
+			</Texture>
+			<Texture>
+				<File>elderAssets8x8</File>
+				<Index>0x275</Index>
+			</Texture>
+			<Texture>
+				<File>elderAssets8x8</File>
+				<Index>0x276</Index>
+			</Texture>
+			<Texture>
+				<File>elderAssets8x8</File>
+				<Index>0x277</Index>
+			</Texture>
+			<Texture>
+				<File>elderAssets8x8</File>
+				<Index>0x278</Index>
+			</Texture>
+		</RandomTexture>
+		<BlendPriority>1</BlendPriority>
+	</Ground>
+	<Ground type="0xE9E0" id="Elder shtrs Bridge Lit 2">
+		<RandomTexture>
+			<Texture>
+				<File>elderAssets8x8</File>
+				<Index>0x279</Index>
+			</Texture>
+			<Texture>
+				<File>elderAssets8x8</File>
+				<Index>0x27a</Index>
+			</Texture>
+			<Texture>
+				<File>elderAssets8x8</File>
+				<Index>0x27b</Index>
+			</Texture>
+			<Texture>
+				<File>elderAssets8x8</File>
+				<Index>0x27c</Index>
+			</Texture>
+			<Texture>
+				<File>elderAssets8x8</File>
+				<Index>0x27d</Index>
+			</Texture>
+		</RandomTexture>
+		<BlendPriority>1</BlendPriority>
+	</Ground>
+	<Ground type="0xE9E1" id="Elder shtrs Bridge Lit 3">
+		<RandomTexture>
+			<Texture>
+				<File>elderAssets8x8</File>
+				<Index>0x27e</Index>
+			</Texture>
+			<Texture>
+				<File>elderAssets8x8</File>
+				<Index>0x27f</Index>
+			</Texture>
+			<Texture>
+				<File>elderAssets8x8</File>
+				<Index>0x280</Index>
+			</Texture>
+			<Texture>
+				<File>elderAssets8x8</File>
+				<Index>0x281</Index>
+			</Texture>
+			<Texture>
+				<File>elderAssets8x8</File>
+				<Index>0x282</Index>
+			</Texture>
+		</RandomTexture>
+		<BlendPriority>1</BlendPriority>
+	</Ground>
+	<Ground type="0xE9E2" id="Elder shtrs Bridge Lit 4">
+		<RandomTexture>
+			<Texture>
+				<File>elderAssets8x8</File>
+				<Index>0x283</Index>
+			</Texture>
+			<Texture>
+				<File>elderAssets8x8</File>
+				<Index>0x284</Index>
+			</Texture>
+			<Texture>
+				<File>elderAssets8x8</File>
+				<Index>0x285</Index>
+			</Texture>
+			<Texture>
+				<File>elderAssets8x8</File>
+				<Index>0x286</Index>
+			</Texture>
+			<Texture>
+				<File>elderAssets8x8</File>
+				<Index>0x287</Index>
+			</Texture>
+		</RandomTexture>
+		<BlendPriority>1</BlendPriority>
+	</Ground>
+	<Ground type="0xE9E3" id="Elder shtrs Bridge Lit 5">
+		<RandomTexture>
+			<Texture>
+				<File>elderAssets8x8</File>
+				<Index>0x288</Index>
+			</Texture>
+			<Texture>
+				<File>elderAssets8x8</File>
+				<Index>0x289</Index>
+			</Texture>
+			<Texture>
+				<File>elderAssets8x8</File>
+				<Index>0x28a</Index>
+			</Texture>
+			<Texture>
+				<File>elderAssets8x8</File>
+				<Index>0x28b</Index>
+			</Texture>
+			<Texture>
+				<File>elderAssets8x8</File>
+				<Index>0x28c</Index>
+			</Texture>
+		</RandomTexture>
+		<BlendPriority>1</BlendPriority>
+	</Ground>
+	<Ground type="0xE9E4" id="Elder shtrs Bridge Lit 6">
+		<RandomTexture>
+			<Texture>
+				<File>elderAssets8x8</File>
+				<Index>0x28d</Index>
+			</Texture>
+			<Texture>
+				<File>elderAssets8x8</File>
+				<Index>0x28e</Index>
+			</Texture>
+			<Texture>
+				<File>elderAssets8x8</File>
+				<Index>0x28f</Index>
+			</Texture>
+			<Texture>
+				<File>elderAssets8x8</File>
+				<Index>0x290</Index>
+			</Texture>
+			<Texture>
+				<File>elderAssets8x8</File>
+				<Index>0x291</Index>
+			</Texture>
+		</RandomTexture>
+		<BlendPriority>1</BlendPriority>
+	</Ground>
+	<Ground type="0xE9E5" id="Elder shtrs Disaster Floor">
+		<RandomTexture>
+			<Texture>
+				<File>elderAssets8x8</File>
+				<Index>0x292</Index>
+			</Texture>
+			<Texture>
+				<File>elderAssets8x8</File>
+				<Index>0x293</Index>
+			</Texture>
+			<Texture>
+				<File>elderAssets8x8</File>
+				<Index>0x294</Index>
+			</Texture>
+			<Texture>
+				<File>elderAssets8x8</File>
+				<Index>0x295</Index>
+			</Texture>
+		</RandomTexture>
+		<BlendPriority>1</BlendPriority>
+	</Ground>
+	<Ground type="0xE9E6" id="Elder shtrs Disaster Floor Lit 1">
+		<RandomTexture>
+			<Texture>
+				<File>elderAssets8x8</File>
+				<Index>0x296</Index>
+			</Texture>
+			<Texture>
+				<File>elderAssets8x8</File>
+				<Index>0x297</Index>
+			</Texture>
+			<Texture>
+				<File>elderAssets8x8</File>
+				<Index>0x298</Index>
+			</Texture>
+			<Texture>
+				<File>elderAssets8x8</File>
+				<Index>0x299</Index>
+			</Texture>
+		</RandomTexture>
+		<BlendPriority>1</BlendPriority>
+	</Ground>
+	<Ground type="0xE9E7" id="Elder shtrs Disaster Floor Lit 2">
+		<RandomTexture>
+			<Texture>
+				<File>elderAssets8x8</File>
+				<Index>0x29a</Index>
+			</Texture>
+			<Texture>
+				<File>elderAssets8x8</File>
+				<Index>0x29b</Index>
+			</Texture>
+			<Texture>
+				<File>elderAssets8x8</File>
+				<Index>0x29c</Index>
+			</Texture>
+			<Texture>
+				<File>elderAssets8x8</File>
+				<Index>0x29d</Index>
+			</Texture>
+		</RandomTexture>
+		<BlendPriority>1</BlendPriority>
+	</Ground>
+	<Ground type="0xE9E8" id="Elder shtrs Disaster Floor Lit 3">
+		<RandomTexture>
+			<Texture>
+				<File>elderAssets8x8</File>
+				<Index>0x29e</Index>
+			</Texture>
+			<Texture>
+				<File>elderAssets8x8</File>
+				<Index>0x29f</Index>
+			</Texture>
+			<Texture>
+				<File>elderAssets8x8</File>
+				<Index>0x2a0</Index>
+			</Texture>
+			<Texture>
+				<File>elderAssets8x8</File>
+				<Index>0x2a1</Index>
+			</Texture>
+		</RandomTexture>
+		<BlendPriority>1</BlendPriority>
+	</Ground>
+	<Ground type="0xE9E9" id="Elder shtrs Disaster Floor Lit 4">
+		<RandomTexture>
+			<Texture>
+				<File>elderAssets8x8</File>
+				<Index>0x2a2</Index>
+			</Texture>
+			<Texture>
+				<File>elderAssets8x8</File>
+				<Index>0x2a3</Index>
+			</Texture>
+			<Texture>
+				<File>elderAssets8x8</File>
+				<Index>0x2a4</Index>
+			</Texture>
+			<Texture>
+				<File>elderAssets8x8</File>
+				<Index>0x2a5</Index>
+			</Texture>
+		</RandomTexture>
+		<BlendPriority>1</BlendPriority>
+	</Ground>
+	<Ground type="0xE9EA" id="Elder shtrs Disaster Floor Lit 5">
+		<RandomTexture>
+			<Texture>
+				<File>elderAssets8x8</File>
+				<Index>0x2a6</Index>
+			</Texture>
+			<Texture>
+				<File>elderAssets8x8</File>
+				<Index>0x2a7</Index>
+			</Texture>
+			<Texture>
+				<File>elderAssets8x8</File>
+				<Index>0x2a8</Index>
+			</Texture>
+			<Texture>
+				<File>elderAssets8x8</File>
+				<Index>0x2a9</Index>
+			</Texture>
+		</RandomTexture>
+		<BlendPriority>1</BlendPriority>
+	</Ground>
+	<Ground type="0xE9EB" id="Elder shtrs Disaster Floor Lit 6">
+		<RandomTexture>
+			<Texture>
+				<File>elderAssets8x8</File>
+				<Index>0x2aa</Index>
+			</Texture>
+			<Texture>
+				<File>elderAssets8x8</File>
+				<Index>0x2ab</Index>
+			</Texture>
+			<Texture>
+				<File>elderAssets8x8</File>
+				<Index>0x2ac</Index>
+			</Texture>
+			<Texture>
+				<File>elderAssets8x8</File>
+				<Index>0x2ad</Index>
+			</Texture>
+		</RandomTexture>
+		<BlendPriority>1</BlendPriority>
+	</Ground>
+	<Ground type="0xE9EC" id="Elder shtrs Pure Evil">
+		<Texture>
+			<File>elderAssets8x8</File>
+			<Index>0x2ae</Index>
+		</Texture>
+		<Animate dx=".35">Flow</Animate>
+		<RandomOffset />
+		<NoWalk />
+		<BlendPriority>1</BlendPriority>
+	</Ground>
+	<Ground type="0xE9ED" id="Elder shtrs Shattered Floor">
+		<RandomTexture>
+			<Texture>
+				<File>elderAssets8x8</File>
+				<Index>0x2af</Index>
+			</Texture>
+			<Texture>
+				<File>elderAssets8x8</File>
+				<Index>0x2b0</Index>
+			</Texture>
+			<Texture>
+				<File>elderAssets8x8</File>
+				<Index>0x2b1</Index>
+			</Texture>
+			<Texture>
+				<File>elderAssets8x8</File>
+				<Index>0x2b2</Index>
+			</Texture>
+			<Texture>
+				<File>elderAssets8x8</File>
+				<Index>0x2b3</Index>
+			</Texture>
+			<Texture>
+				<File>elderAssets8x8</File>
+				<Index>0x2b4</Index>
+			</Texture>
+			<Texture>
+				<File>elderAssets8x8</File>
+				<Index>0x2b5</Index>
+			</Texture>
+			<Texture>
+				<File>elderAssets8x8</File>
+				<Index>0x2b6</Index>
+			</Texture>
+		</RandomTexture>
+		<BlendPriority>1</BlendPriority>
+	</Ground>
+	<Ground type="0xE9EE" id="Elder shtrs Shattered Floor Lit 1">
+		<RandomTexture>
+			<Texture>
+				<File>elderAssets8x8</File>
+				<Index>0x2b7</Index>
+			</Texture>
+			<Texture>
+				<File>elderAssets8x8</File>
+				<Index>0x2b8</Index>
+			</Texture>
+			<Texture>
+				<File>elderAssets8x8</File>
+				<Index>0x2b9</Index>
+			</Texture>
+			<Texture>
+				<File>elderAssets8x8</File>
+				<Index>0x2ba</Index>
+			</Texture>
+			<Texture>
+				<File>elderAssets8x8</File>
+				<Index>0x2bb</Index>
+			</Texture>
+			<Texture>
+				<File>elderAssets8x8</File>
+				<Index>0x2bc</Index>
+			</Texture>
+			<Texture>
+				<File>elderAssets8x8</File>
+				<Index>0x2bd</Index>
+			</Texture>
+			<Texture>
+				<File>elderAssets8x8</File>
+				<Index>0x2be</Index>
+			</Texture>
+		</RandomTexture>
+		<BlendPriority>1</BlendPriority>
+	</Ground>
+	<Ground type="0xE9EF" id="Elder shtrs Shattered Floor Lit 2">
+		<RandomTexture>
+			<Texture>
+				<File>elderAssets8x8</File>
+				<Index>0x2bf</Index>
+			</Texture>
+			<Texture>
+				<File>elderAssets8x8</File>
+				<Index>0x2c0</Index>
+			</Texture>
+			<Texture>
+				<File>elderAssets8x8</File>
+				<Index>0x2c1</Index>
+			</Texture>
+			<Texture>
+				<File>elderAssets8x8</File>
+				<Index>0x2c2</Index>
+			</Texture>
+			<Texture>
+				<File>elderAssets8x8</File>
+				<Index>0x2c3</Index>
+			</Texture>
+			<Texture>
+				<File>elderAssets8x8</File>
+				<Index>0x2c4</Index>
+			</Texture>
+			<Texture>
+				<File>elderAssets8x8</File>
+				<Index>0x2c5</Index>
+			</Texture>
+			<Texture>
+				<File>elderAssets8x8</File>
+				<Index>0x2c6</Index>
+			</Texture>
+		</RandomTexture>
+		<BlendPriority>1</BlendPriority>
+	</Ground>
+	<Ground type="0xE9F0" id="Elder shtrs Shattered Floor Lit 3">
+		<RandomTexture>
+			<Texture>
+				<File>elderAssets8x8</File>
+				<Index>0x2c7</Index>
+			</Texture>
+			<Texture>
+				<File>elderAssets8x8</File>
+				<Index>0x2c8</Index>
+			</Texture>
+			<Texture>
+				<File>elderAssets8x8</File>
+				<Index>0x2c9</Index>
+			</Texture>
+			<Texture>
+				<File>elderAssets8x8</File>
+				<Index>0x2ca</Index>
+			</Texture>
+			<Texture>
+				<File>elderAssets8x8</File>
+				<Index>0x2cb</Index>
+			</Texture>
+			<Texture>
+				<File>elderAssets8x8</File>
+				<Index>0x2cc</Index>
+			</Texture>
+			<Texture>
+				<File>elderAssets8x8</File>
+				<Index>0x2cd</Index>
+			</Texture>
+			<Texture>
+				<File>elderAssets8x8</File>
+				<Index>0x2ce</Index>
+			</Texture>
+		</RandomTexture>
+		<BlendPriority>1</BlendPriority>
+	</Ground>
+	<Ground type="0xE9F1" id="Elder shtrs Shattered Floor Lit 4">
+		<RandomTexture>
+			<Texture>
+				<File>elderAssets8x8</File>
+				<Index>0x2cf</Index>
+			</Texture>
+			<Texture>
+				<File>elderAssets8x8</File>
+				<Index>0x2d0</Index>
+			</Texture>
+			<Texture>
+				<File>elderAssets8x8</File>
+				<Index>0x2d1</Index>
+			</Texture>
+			<Texture>
+				<File>elderAssets8x8</File>
+				<Index>0x2d2</Index>
+			</Texture>
+			<Texture>
+				<File>elderAssets8x8</File>
+				<Index>0x2d3</Index>
+			</Texture>
+			<Texture>
+				<File>elderAssets8x8</File>
+				<Index>0x2d4</Index>
+			</Texture>
+			<Texture>
+				<File>elderAssets8x8</File>
+				<Index>0x2d5</Index>
+			</Texture>
+			<Texture>
+				<File>elderAssets8x8</File>
+				<Index>0x2d6</Index>
+			</Texture>
+		</RandomTexture>
+		<BlendPriority>1</BlendPriority>
+	</Ground>
+	<Ground type="0xE9F2" id="Elder shtrs Shattered Floor Lit 5">
+		<RandomTexture>
+			<Texture>
+				<File>elderAssets8x8</File>
+				<Index>0x2d7</Index>
+			</Texture>
+			<Texture>
+				<File>elderAssets8x8</File>
+				<Index>0x2d8</Index>
+			</Texture>
+			<Texture>
+				<File>elderAssets8x8</File>
+				<Index>0x2d9</Index>
+			</Texture>
+			<Texture>
+				<File>elderAssets8x8</File>
+				<Index>0x2da</Index>
+			</Texture>
+			<Texture>
+				<File>elderAssets8x8</File>
+				<Index>0x2db</Index>
+			</Texture>
+			<Texture>
+				<File>elderAssets8x8</File>
+				<Index>0x2dc</Index>
+			</Texture>
+			<Texture>
+				<File>elderAssets8x8</File>
+				<Index>0x2dd</Index>
+			</Texture>
+			<Texture>
+				<File>elderAssets8x8</File>
+				<Index>0x2de</Index>
+			</Texture>
+		</RandomTexture>
+		<BlendPriority>1</BlendPriority>
+	</Ground>
+	<Ground type="0xE9F3" id="Elder shtrs Shattered Floor Lit 6">
+		<RandomTexture>
+			<Texture>
+				<File>elderAssets8x8</File>
+				<Index>0x2df</Index>
+			</Texture>
+			<Texture>
+				<File>elderAssets8x8</File>
+				<Index>0x2e0</Index>
+			</Texture>
+			<Texture>
+				<File>elderAssets8x8</File>
+				<Index>0x2e1</Index>
+			</Texture>
+			<Texture>
+				<File>elderAssets8x8</File>
+				<Index>0x2e2</Index>
+			</Texture>
+			<Texture>
+				<File>elderAssets8x8</File>
+				<Index>0x2e3</Index>
+			</Texture>
+			<Texture>
+				<File>elderAssets8x8</File>
+				<Index>0x2e4</Index>
+			</Texture>
+			<Texture>
+				<File>elderAssets8x8</File>
+				<Index>0x2e5</Index>
+			</Texture>
+			<Texture>
+				<File>elderAssets8x8</File>
+				<Index>0x2e6</Index>
+			</Texture>
+		</RandomTexture>
+		<BlendPriority>1</BlendPriority>
+	</Ground>
+	<Ground type="0xE9F4" id="Elder shtrs broken stair 1">
+		<Texture>
+			<File>elderAssets8x8</File>
+			<Index>0x2e7</Index>
+		</Texture>
+	</Ground>
+	<Ground type="0xE9F5" id="Elder shtrs broken stair 1 Lit 1">
+		<Texture>
+			<File>elderAssets8x8</File>
+			<Index>0x2e8</Index>
+		</Texture>
+	</Ground>
+	<Ground type="0xE9F6" id="Elder shtrs broken stair 1 Lit 2">
+		<Texture>
+			<File>elderAssets8x8</File>
+			<Index>0x2e9</Index>
+		</Texture>
+	</Ground>
+	<Ground type="0xE9F7" id="Elder shtrs broken stair 1 Lit 3">
+		<Texture>
+			<File>elderAssets8x8</File>
+			<Index>0x2ea</Index>
+		</Texture>
+	</Ground>
+	<Ground type="0xE9F8" id="Elder shtrs broken stair 1 Lit 4">
+		<Texture>
+			<File>elderAssets8x8</File>
+			<Index>0x2eb</Index>
+		</Texture>
+	</Ground>
+	<Ground type="0xE9F9" id="Elder shtrs broken stair 1 Lit 5">
+		<Texture>
+			<File>elderAssets8x8</File>
+			<Index>0x2ec</Index>
+		</Texture>
+	</Ground>
+	<Ground type="0xE9FA" id="Elder shtrs broken stair 1 Lit 6">
+		<Texture>
+			<File>elderAssets8x8</File>
+			<Index>0x2ed</Index>
+		</Texture>
+	</Ground>
+	<Ground type="0xE9FB" id="Elder shtrs broken stair 2">
+		<Texture>
+			<File>elderAssets8x8</File>
+			<Index>0x2ee</Index>
+		</Texture>
+	</Ground>
+	<Ground type="0xE9FC" id="Elder shtrs broken stair 2 Lit 1">
+		<Texture>
+			<File>elderAssets8x8</File>
+			<Index>0x2ef</Index>
+		</Texture>
+	</Ground>
+	<Ground type="0xE9FD" id="Elder shtrs broken stair 2 Lit 2">
+		<Texture>
+			<File>elderAssets8x8</File>
+			<Index>0x2f0</Index>
+		</Texture>
+	</Ground>
+	<Ground type="0xE9FE" id="Elder shtrs broken stair 2 Lit 3">
+		<Texture>
+			<File>elderAssets8x8</File>
+			<Index>0x2f1</Index>
+		</Texture>
+	</Ground>
+	<Ground type="0xE9FF" id="Elder shtrs broken stair 2 Lit 4">
+		<Texture>
+			<File>elderAssets8x8</File>
+			<Index>0x2f2</Index>
+		</Texture>
+	</Ground>
+	<Ground type="0xEA00" id="Elder shtrs broken stair 2 Lit 5">
+		<Texture>
+			<File>elderAssets8x8</File>
+			<Index>0x2f3</Index>
+		</Texture>
+	</Ground>
+	<Ground type="0xEA01" id="Elder shtrs broken stair 2 Lit 6">
+		<Texture>
+			<File>elderAssets8x8</File>
+			<Index>0x2f4</Index>
+		</Texture>
+	</Ground>
+	<Ground type="0xEA02" id="Elder shtrs broken stair 3">
+		<Texture>
+			<File>elderAssets8x8</File>
+			<Index>0x2f5</Index>
+		</Texture>
+	</Ground>
+	<Ground type="0xEA03" id="Elder shtrs broken stair 3 Lit 1">
+		<Texture>
+			<File>elderAssets8x8</File>
+			<Index>0x2f6</Index>
+		</Texture>
+	</Ground>
+	<Ground type="0xEA04" id="Elder shtrs broken stair 3 Lit 2">
+		<Texture>
+			<File>elderAssets8x8</File>
+			<Index>0x2f7</Index>
+		</Texture>
+	</Ground>
+	<Ground type="0xEA05" id="Elder shtrs broken stair 3 Lit 3">
+		<Texture>
+			<File>elderAssets8x8</File>
+			<Index>0x2f8</Index>
+		</Texture>
+	</Ground>
+	<Ground type="0xEA06" id="Elder shtrs broken stair 3 Lit 4">
+		<Texture>
+			<File>elderAssets8x8</File>
+			<Index>0x2f9</Index>
+		</Texture>
+	</Ground>
+	<Ground type="0xEA07" id="Elder shtrs broken stair 3 Lit 5">
+		<Texture>
+			<File>elderAssets8x8</File>
+			<Index>0x2fa</Index>
+		</Texture>
+	</Ground>
+	<Ground type="0xEA08" id="Elder shtrs broken stair 3 Lit 6">
+		<Texture>
+			<File>elderAssets8x8</File>
+			<Index>0x2fb</Index>
+		</Texture>
+	</Ground>
+	<Ground type="0xEA09" id="Elder shtrs broken stair 4">
+		<Texture>
+			<File>elderAssets8x8</File>
+			<Index>0x2fc</Index>
+		</Texture>
+	</Ground>
+	<Ground type="0xEA0A" id="Elder shtrs broken stair 4 Lit 1">
+		<Texture>
+			<File>elderAssets8x8</File>
+			<Index>0x2fd</Index>
+		</Texture>
+	</Ground>
+	<Ground type="0xEA0B" id="Elder shtrs broken stair 4 Lit 2">
+		<Texture>
+			<File>elderAssets8x8</File>
+			<Index>0x2fe</Index>
+		</Texture>
+	</Ground>
+	<Ground type="0xEA0C" id="Elder shtrs broken stair 4 Lit 3">
+		<Texture>
+			<File>elderAssets8x8</File>
+			<Index>0x2ff</Index>
+		</Texture>
+	</Ground>
+	<Ground type="0xEA0D" id="Elder shtrs broken stair 4 Lit 4">
+		<Texture>
+			<File>elderAssets8x8</File>
+			<Index>0x300</Index>
+		</Texture>
+	</Ground>
+	<Ground type="0xEA0E" id="Elder shtrs broken stair 4 Lit 5">
+		<Texture>
+			<File>elderAssets8x8</File>
+			<Index>0x301</Index>
+		</Texture>
+	</Ground>
+	<Ground type="0xEA0F" id="Elder shtrs broken stair 4 Lit 6">
+		<Texture>
+			<File>elderAssets8x8</File>
+			<Index>0x302</Index>
+		</Texture>
+	</Ground>
+	<Ground type="0xEA10" id="Elder shtrs broken stair 5">
+		<Texture>
+			<File>elderAssets8x8</File>
+			<Index>0x303</Index>
+		</Texture>
+	</Ground>
+	<Ground type="0xEA11" id="Elder shtrs broken stair 5 Lit 1">
+		<Texture>
+			<File>elderAssets8x8</File>
+			<Index>0x304</Index>
+		</Texture>
+	</Ground>
+	<Ground type="0xEA12" id="Elder shtrs broken stair 5 Lit 2">
+		<Texture>
+			<File>elderAssets8x8</File>
+			<Index>0x305</Index>
+		</Texture>
+	</Ground>
+	<Ground type="0xEA13" id="Elder shtrs broken stair 5 Lit 3">
+		<Texture>
+			<File>elderAssets8x8</File>
+			<Index>0x306</Index>
+		</Texture>
+	</Ground>
+	<Ground type="0xEA14" id="Elder shtrs broken stair 5 Lit 4">
+		<Texture>
+			<File>elderAssets8x8</File>
+			<Index>0x307</Index>
+		</Texture>
+	</Ground>
+	<Ground type="0xEA15" id="Elder shtrs broken stair 5 Lit 5">
+		<Texture>
+			<File>elderAssets8x8</File>
+			<Index>0x308</Index>
+		</Texture>
+	</Ground>
+	<Ground type="0xEA16" id="Elder shtrs broken stair 5 Lit 6">
+		<Texture>
+			<File>elderAssets8x8</File>
+			<Index>0x309</Index>
+		</Texture>
+	</Ground>
+	<Ground type="0xEA17" id="Elder shtrs broken stair 6">
+		<Texture>
+			<File>elderAssets8x8</File>
+			<Index>0x30a</Index>
+		</Texture>
+	</Ground>
+	<Ground type="0xEA18" id="Elder shtrs broken stair 6 Lit 1">
+		<Texture>
+			<File>elderAssets8x8</File>
+			<Index>0x30b</Index>
+		</Texture>
+	</Ground>
+	<Ground type="0xEA19" id="Elder shtrs broken stair 6 Lit 2">
+		<Texture>
+			<File>elderAssets8x8</File>
+			<Index>0x30c</Index>
+		</Texture>
+	</Ground>
+	<Ground type="0xEA1A" id="Elder shtrs broken stair 6 Lit 3">
+		<Texture>
+			<File>elderAssets8x8</File>
+			<Index>0x30d</Index>
+		</Texture>
+	</Ground>
+	<Ground type="0xEA1B" id="Elder shtrs broken stair 6 Lit 4">
+		<Texture>
+			<File>elderAssets8x8</File>
+			<Index>0x30e</Index>
+		</Texture>
+	</Ground>
+	<Ground type="0xEA1C" id="Elder shtrs broken stair 6 Lit 5">
+		<Texture>
+			<File>elderAssets8x8</File>
+			<Index>0x30f</Index>
+		</Texture>
+	</Ground>
+	<Ground type="0xEA1D" id="Elder shtrs broken stair 6 Lit 6">
+		<Texture>
+			<File>elderAssets8x8</File>
+			<Index>0x310</Index>
+		</Texture>
+	</Ground>
+	<Ground type="0xEA1E" id="Elder shtrs broken stair 7">
+		<Texture>
+			<File>elderAssets8x8</File>
+			<Index>0x311</Index>
+		</Texture>
+	</Ground>
+	<Ground type="0xEA1F" id="Elder shtrs broken stair 7 Lit 1">
+		<Texture>
+			<File>elderAssets8x8</File>
+			<Index>0x312</Index>
+		</Texture>
+	</Ground>
+	<Ground type="0xEA20" id="Elder shtrs broken stair 7 Lit 2">
+		<Texture>
+			<File>elderAssets8x8</File>
+			<Index>0x313</Index>
+		</Texture>
+	</Ground>
+	<Ground type="0xEA21" id="Elder shtrs broken stair 7 Lit 3">
+		<Texture>
+			<File>elderAssets8x8</File>
+			<Index>0x314</Index>
+		</Texture>
+	</Ground>
+	<Ground type="0xEA22" id="Elder shtrs broken stair 7 Lit 4">
+		<Texture>
+			<File>elderAssets8x8</File>
+			<Index>0x315</Index>
+		</Texture>
+	</Ground>
+	<Ground type="0xEA23" id="Elder shtrs broken stair 7 Lit 5">
+		<Texture>
+			<File>elderAssets8x8</File>
+			<Index>0x316</Index>
+		</Texture>
+	</Ground>
+	<Ground type="0xEA24" id="Elder shtrs broken stair 7 Lit 6">
+		<Texture>
+			<File>elderAssets8x8</File>
+			<Index>0x317</Index>
+		</Texture>
+	</Ground>
+	<Ground type="0xEA25" id="Elder shtrs broken stair 8">
+		<Texture>
+			<File>elderAssets8x8</File>
+			<Index>0x318</Index>
+		</Texture>
+	</Ground>
+	<Ground type="0xEA26" id="Elder shtrs broken stair 8 Lit 1">
+		<Texture>
+			<File>elderAssets8x8</File>
+			<Index>0x319</Index>
+		</Texture>
+	</Ground>
+	<Ground type="0xEA27" id="Elder shtrs broken stair 8 Lit 2">
+		<Texture>
+			<File>elderAssets8x8</File>
+			<Index>0x31a</Index>
+		</Texture>
+	</Ground>
+	<Ground type="0xEA28" id="Elder shtrs broken stair 8 Lit 3">
+		<Texture>
+			<File>elderAssets8x8</File>
+			<Index>0x31b</Index>
+		</Texture>
+	</Ground>
+	<Ground type="0xEA29" id="Elder shtrs broken stair 8 Lit 4">
+		<Texture>
+			<File>elderAssets8x8</File>
+			<Index>0x31c</Index>
+		</Texture>
+	</Ground>
+	<Ground type="0xEA2A" id="Elder shtrs broken stair 8 Lit 5">
+		<Texture>
+			<File>elderAssets8x8</File>
+			<Index>0x31d</Index>
+		</Texture>
+	</Ground>
+	<Ground type="0xEA2B" id="Elder shtrs broken stair 8 Lit 6">
+		<Texture>
+			<File>elderAssets8x8</File>
+			<Index>0x31e</Index>
+		</Texture>
+	</Ground>
+	<Ground type="0xEA2C" id="Elder shtrs broken stair 9">
+		<Texture>
+			<File>elderAssets8x8</File>
+			<Index>0x31f</Index>
+		</Texture>
+	</Ground>
+	<Ground type="0xEA2D" id="Elder shtrs broken stair 9 Lit 1">
+		<Texture>
+			<File>elderAssets8x8</File>
+			<Index>0x320</Index>
+		</Texture>
+	</Ground>
+	<Ground type="0xEA2E" id="Elder shtrs broken stair 9 Lit 2">
+		<Texture>
+			<File>elderAssets8x8</File>
+			<Index>0x321</Index>
+		</Texture>
+	</Ground>
+	<Ground type="0xEA2F" id="Elder shtrs broken stair 9 Lit 3">
+		<Texture>
+			<File>elderAssets8x8</File>
+			<Index>0x322</Index>
+		</Texture>
+	</Ground>
+	<Ground type="0xEA30" id="Elder shtrs broken stair 9 Lit 4">
+		<Texture>
+			<File>elderAssets8x8</File>
+			<Index>0x323</Index>
+		</Texture>
+	</Ground>
+	<Ground type="0xEA31" id="Elder shtrs broken stair 9 Lit 5">
+		<Texture>
+			<File>elderAssets8x8</File>
+			<Index>0x324</Index>
+		</Texture>
+	</Ground>
+	<Ground type="0xEA32" id="Elder shtrs broken stair 9 Lit 6">
+		<Texture>
+			<File>elderAssets8x8</File>
+			<Index>0x325</Index>
+		</Texture>
+	</Ground>
+	<Ground type="0xE8F6" id="Elder Brown Closed">
+		<Texture>
+			<File>elderAssets8x8</File>
+			<Index>0x340</Index>
 		</Texture>
 		<Color>0x815027</Color>
 	</Ground>
 	<Ground type="0xE8F7" id="Elder Brown Closed Lit 1">
 		<Texture>
 			<File>elderAssets8x8</File>
-			<Index>0x223</Index>
+			<Index>0x341</Index>
 		</Texture>
 		<Color>0x815027</Color>
 	</Ground>
 	<Ground type="0xE8F8" id="Elder Brown Closed Lit 2">
 		<Texture>
 			<File>elderAssets8x8</File>
-			<Index>0x224</Index>
+			<Index>0x342</Index>
 		</Texture>
 		<Color>0x815027</Color>
 	</Ground>
 	<Ground type="0xE8F9" id="Elder Brown Closed Lit 3">
 		<Texture>
 			<File>elderAssets8x8</File>
-			<Index>0x225</Index>
+			<Index>0x343</Index>
 		</Texture>
 		<Color>0x815027</Color>
 	</Ground>
 	<Ground type="0xE8FA" id="Elder Brown Closed Lit 4">
 		<Texture>
 			<File>elderAssets8x8</File>
-			<Index>0x226</Index>
+			<Index>0x344</Index>
 		</Texture>
 		<Color>0x815027</Color>
 	</Ground>
 	<Ground type="0xE8FB" id="Elder Brown Closed Lit 5">
 		<Texture>
 			<File>elderAssets8x8</File>
-			<Index>0x227</Index>
+			<Index>0x345</Index>
 		</Texture>
 		<Color>0x815027</Color>
 	</Ground>
 	<Ground type="0xE8FC" id="Elder Brown Closed Lit 6">
 		<Texture>
 			<File>elderAssets8x8</File>
-			<Index>0x228</Index>
+			<Index>0x346</Index>
 		</Texture>
 		<Color>0x815027</Color>
 	</Ground>
 	<Ground type="0xE8FD" id="Elder Brown Closed Broken 1">
 		<Texture>
 			<File>elderAssets8x8</File>
-			<Index>0x229</Index>
+			<Index>0x347</Index>
 		</Texture>
 	</Ground>
 	<Ground type="0xE8FE" id="Elder Brown Closed Broken 1 Lit 1">
 		<Texture>
 			<File>elderAssets8x8</File>
-			<Index>0x22a</Index>
+			<Index>0x348</Index>
 		</Texture>
 	</Ground>
 	<Ground type="0xE8FF" id="Elder Brown Closed Broken 1 Lit 2">
 		<Texture>
 			<File>elderAssets8x8</File>
-			<Index>0x22b</Index>
+			<Index>0x349</Index>
 		</Texture>
 	</Ground>
 	<Ground type="0xE900" id="Elder Brown Closed Broken 1 Lit 3">
 		<Texture>
 			<File>elderAssets8x8</File>
-			<Index>0x22c</Index>
+			<Index>0x34a</Index>
 		</Texture>
 	</Ground>
 	<Ground type="0xE901" id="Elder Brown Closed Broken 1 Lit 4">
 		<Texture>
 			<File>elderAssets8x8</File>
-			<Index>0x22d</Index>
+			<Index>0x34b</Index>
 		</Texture>
 	</Ground>
 	<Ground type="0xE902" id="Elder Brown Closed Broken 1 Lit 5">
 		<Texture>
 			<File>elderAssets8x8</File>
-			<Index>0x22e</Index>
+			<Index>0x34c</Index>
 		</Texture>
 	</Ground>
 	<Ground type="0xE903" id="Elder Brown Closed Broken 1 Lit 6">
 		<Texture>
 			<File>elderAssets8x8</File>
-			<Index>0x22f</Index>
+			<Index>0x34d</Index>
 		</Texture>
 	</Ground>
 	<Ground type="0xE904" id="Elder Brown Closed Broken 2">
 		<Texture>
 			<File>elderAssets8x8</File>
-			<Index>0x230</Index>
+			<Index>0x34e</Index>
 		</Texture>
 	</Ground>
 	<Ground type="0xE905" id="Elder Brown Closed Broken 2 Lit 1">
 		<Texture>
 			<File>elderAssets8x8</File>
-			<Index>0x231</Index>
+			<Index>0x34f</Index>
 		</Texture>
 	</Ground>
 	<Ground type="0xE906" id="Elder Brown Closed Broken 2 Lit 2">
 		<Texture>
 			<File>elderAssets8x8</File>
-			<Index>0x232</Index>
+			<Index>0x350</Index>
 		</Texture>
 	</Ground>
 	<Ground type="0xE907" id="Elder Brown Closed Broken 2 Lit 3">
 		<Texture>
 			<File>elderAssets8x8</File>
-			<Index>0x233</Index>
+			<Index>0x351</Index>
 		</Texture>
 	</Ground>
 	<Ground type="0xE908" id="Elder Brown Closed Broken 2 Lit 4">
 		<Texture>
 			<File>elderAssets8x8</File>
-			<Index>0x234</Index>
+			<Index>0x352</Index>
 		</Texture>
 	</Ground>
 	<Ground type="0xE909" id="Elder Brown Closed Broken 2 Lit 5">
 		<Texture>
 			<File>elderAssets8x8</File>
-			<Index>0x235</Index>
+			<Index>0x353</Index>
 		</Texture>
 	</Ground>
 	<Ground type="0xE90A" id="Elder Brown Closed Broken 2 Lit 6">
 		<Texture>
 			<File>elderAssets8x8</File>
-			<Index>0x236</Index>
+			<Index>0x354</Index>
 		</Texture>
 	</Ground>
 	<Ground type="0xE90B" id="Elder Brown Quad">
 		<Texture>
 			<File>elderAssets8x8</File>
-			<Index>0x237</Index>
+			<Index>0x355</Index>
 		</Texture>
 	</Ground>
 	<Ground type="0xE90C" id="Elder Brown Quad Lit 1">
 		<Texture>
 			<File>elderAssets8x8</File>
-			<Index>0x238</Index>
+			<Index>0x356</Index>
 		</Texture>
 	</Ground>
 	<Ground type="0xE90D" id="Elder Brown Quad Lit 2">
 		<Texture>
 			<File>elderAssets8x8</File>
-			<Index>0x239</Index>
+			<Index>0x357</Index>
 		</Texture>
 	</Ground>
 	<Ground type="0xE90E" id="Elder Brown Quad Lit 3">
 		<Texture>
 			<File>elderAssets8x8</File>
-			<Index>0x23a</Index>
+			<Index>0x358</Index>
 		</Texture>
 	</Ground>
 	<Ground type="0xE90F" id="Elder Brown Quad Lit 4">
 		<Texture>
 			<File>elderAssets8x8</File>
-			<Index>0x23b</Index>
+			<Index>0x359</Index>
 		</Texture>
 	</Ground>
 	<Ground type="0xE910" id="Elder Brown Quad Lit 5">
 		<Texture>
 			<File>elderAssets8x8</File>
-			<Index>0x23c</Index>
+			<Index>0x35a</Index>
 		</Texture>
 	</Ground>
 	<Ground type="0xE911" id="Elder Brown Quad Lit 6">
 		<Texture>
 			<File>elderAssets8x8</File>
-			<Index>0x23d</Index>
+			<Index>0x35b</Index>
 		</Texture>
 	</Ground>
 	<Ground type="0xE912" id="Elder Metal Plate Stripes">
 		<Texture>
 			<File>elderAssets8x8</File>
-			<Index>0x23e</Index>
+			<Index>0x35c</Index>
 		</Texture>
 	</Ground>
 	<Ground type="0xE913" id="Elder Metal Plate Stripes Lit 1">
 		<Texture>
 			<File>elderAssets8x8</File>
-			<Index>0x23f</Index>
+			<Index>0x35d</Index>
 		</Texture>
 	</Ground>
 	<Ground type="0xE914" id="Elder Metal Plate Stripes Lit 2">
 		<Texture>
 			<File>elderAssets8x8</File>
-			<Index>0x240</Index>
+			<Index>0x35e</Index>
 		</Texture>
 	</Ground>
 	<Ground type="0xE915" id="Elder Metal Plate Stripes Lit 3">
 		<Texture>
 			<File>elderAssets8x8</File>
-			<Index>0x241</Index>
+			<Index>0x35f</Index>
 		</Texture>
 	</Ground>
 	<Ground type="0xE916" id="Elder Metal Plate Stripes Lit 4">
 		<Texture>
 			<File>elderAssets8x8</File>
-			<Index>0x242</Index>
+			<Index>0x360</Index>
 		</Texture>
 	</Ground>
 	<Ground type="0xE917" id="Elder Metal Plate Stripes Lit 5">
 		<Texture>
 			<File>elderAssets8x8</File>
-			<Index>0x243</Index>
+			<Index>0x361</Index>
 		</Texture>
 	</Ground>
 	<Ground type="0xE918" id="Elder Metal Plate Stripes Lit 6">
 		<Texture>
 			<File>elderAssets8x8</File>
-			<Index>0x244</Index>
+			<Index>0x362</Index>
 		</Texture>
 	</Ground>
 	<Ground type="0xE919" id="Elder Metal Plates">
 		<RandomTexture>
 			<Texture>
 				<File>elderAssets8x8</File>
-				<Index>0x245</Index>
+				<Index>0x363</Index>
 			</Texture>
 			<Texture>
 				<File>elderAssets8x8</File>
-				<Index>0x23e</Index>
+				<Index>0x35c</Index>
 			</Texture>
 			<Texture>
 				<File>elderAssets8x8</File>
-				<Index>0x246</Index>
+				<Index>0x364</Index>
 			</Texture>
 		</RandomTexture>
 	</Ground>
@@ -3824,15 +5388,15 @@
 		<RandomTexture>
 			<Texture>
 				<File>elderAssets8x8</File>
-				<Index>0x247</Index>
+				<Index>0x365</Index>
 			</Texture>
 			<Texture>
 				<File>elderAssets8x8</File>
-				<Index>0x23f</Index>
+				<Index>0x35d</Index>
 			</Texture>
 			<Texture>
 				<File>elderAssets8x8</File>
-				<Index>0x248</Index>
+				<Index>0x366</Index>
 			</Texture>
 		</RandomTexture>
 	</Ground>
@@ -3840,15 +5404,15 @@
 		<RandomTexture>
 			<Texture>
 				<File>elderAssets8x8</File>
-				<Index>0x249</Index>
+				<Index>0x367</Index>
 			</Texture>
 			<Texture>
 				<File>elderAssets8x8</File>
-				<Index>0x240</Index>
+				<Index>0x35e</Index>
 			</Texture>
 			<Texture>
 				<File>elderAssets8x8</File>
-				<Index>0x24a</Index>
+				<Index>0x368</Index>
 			</Texture>
 		</RandomTexture>
 	</Ground>
@@ -3856,15 +5420,15 @@
 		<RandomTexture>
 			<Texture>
 				<File>elderAssets8x8</File>
-				<Index>0x24b</Index>
+				<Index>0x369</Index>
 			</Texture>
 			<Texture>
 				<File>elderAssets8x8</File>
-				<Index>0x241</Index>
+				<Index>0x35f</Index>
 			</Texture>
 			<Texture>
 				<File>elderAssets8x8</File>
-				<Index>0x24c</Index>
+				<Index>0x36a</Index>
 			</Texture>
 		</RandomTexture>
 	</Ground>
@@ -3872,15 +5436,15 @@
 		<RandomTexture>
 			<Texture>
 				<File>elderAssets8x8</File>
-				<Index>0x24d</Index>
+				<Index>0x36b</Index>
 			</Texture>
 			<Texture>
 				<File>elderAssets8x8</File>
-				<Index>0x242</Index>
+				<Index>0x360</Index>
 			</Texture>
 			<Texture>
 				<File>elderAssets8x8</File>
-				<Index>0x24e</Index>
+				<Index>0x36c</Index>
 			</Texture>
 		</RandomTexture>
 	</Ground>
@@ -3888,15 +5452,15 @@
 		<RandomTexture>
 			<Texture>
 				<File>elderAssets8x8</File>
-				<Index>0x24f</Index>
+				<Index>0x36d</Index>
 			</Texture>
 			<Texture>
 				<File>elderAssets8x8</File>
-				<Index>0x243</Index>
+				<Index>0x361</Index>
 			</Texture>
 			<Texture>
 				<File>elderAssets8x8</File>
-				<Index>0x250</Index>
+				<Index>0x36e</Index>
 			</Texture>
 		</RandomTexture>
 	</Ground>
@@ -3904,64 +5468,64 @@
 		<RandomTexture>
 			<Texture>
 				<File>elderAssets8x8</File>
-				<Index>0x251</Index>
+				<Index>0x36f</Index>
 			</Texture>
 			<Texture>
 				<File>elderAssets8x8</File>
-				<Index>0x244</Index>
+				<Index>0x362</Index>
 			</Texture>
 			<Texture>
 				<File>elderAssets8x8</File>
-				<Index>0x252</Index>
+				<Index>0x370</Index>
 			</Texture>
 		</RandomTexture>
 	</Ground>
 	<Ground type="0xE920" id="Elder Dirt Hole">
 		<Texture>
 			<File>elderAssets8x8</File>
-			<Index>0x26b</Index>
+			<Index>0x389</Index>
 		</Texture>
 	</Ground>
 	<Ground type="0xE921" id="Elder Dirt Hole Lit 1">
 		<Texture>
 			<File>elderAssets8x8</File>
-			<Index>0x26c</Index>
+			<Index>0x38a</Index>
 		</Texture>
 	</Ground>
 	<Ground type="0xE922" id="Elder Dirt Hole Lit 2">
 		<Texture>
 			<File>elderAssets8x8</File>
-			<Index>0x26d</Index>
+			<Index>0x38b</Index>
 		</Texture>
 	</Ground>
 	<Ground type="0xE923" id="Elder Dirt Hole Lit 3">
 		<Texture>
 			<File>elderAssets8x8</File>
-			<Index>0x26e</Index>
+			<Index>0x38c</Index>
 		</Texture>
 	</Ground>
 	<Ground type="0xE924" id="Elder Dirt Hole Lit 4">
 		<Texture>
 			<File>elderAssets8x8</File>
-			<Index>0x26f</Index>
+			<Index>0x38d</Index>
 		</Texture>
 	</Ground>
 	<Ground type="0xE925" id="Elder Dirt Hole Lit 5">
 		<Texture>
 			<File>elderAssets8x8</File>
-			<Index>0x270</Index>
+			<Index>0x38e</Index>
 		</Texture>
 	</Ground>
 	<Ground type="0xE926" id="Elder Dirt Hole Lit 6">
 		<Texture>
 			<File>elderAssets8x8</File>
-			<Index>0x271</Index>
+			<Index>0x38f</Index>
 		</Texture>
 	</Ground>
 	<Ground type="0xE927" id="Elder Blue Alpha Square">
 		<Texture>
 			<File>elderAssets8x8</File>
-			<Index>0x272</Index>
+			<Index>0x390</Index>
 		</Texture>
 		<Animate dy="2.5">Flow</Animate>
 		<Alpha />
@@ -3972,7 +5536,7 @@
 	<Ground type="0xE928" id="Elder Blue Alpha Square Lit 1">
 		<Texture>
 			<File>elderAssets8x8</File>
-			<Index>0x273</Index>
+			<Index>0x391</Index>
 		</Texture>
 		<Animate dy="2.5">Flow</Animate>
 		<Alpha />
@@ -3983,7 +5547,7 @@
 	<Ground type="0xE929" id="Elder Blue Alpha Square Lit 2">
 		<Texture>
 			<File>elderAssets8x8</File>
-			<Index>0x274</Index>
+			<Index>0x392</Index>
 		</Texture>
 		<Animate dy="2.5">Flow</Animate>
 		<Alpha />
@@ -3994,7 +5558,7 @@
 	<Ground type="0xE92A" id="Elder Blue Alpha Square Lit 3">
 		<Texture>
 			<File>elderAssets8x8</File>
-			<Index>0x275</Index>
+			<Index>0x393</Index>
 		</Texture>
 		<Animate dy="2.5">Flow</Animate>
 		<Alpha />
@@ -4005,7 +5569,7 @@
 	<Ground type="0xE92B" id="Elder Blue Alpha Square Lit 4">
 		<Texture>
 			<File>elderAssets8x8</File>
-			<Index>0x276</Index>
+			<Index>0x394</Index>
 		</Texture>
 		<Animate dy="2.5">Flow</Animate>
 		<Alpha />
@@ -4016,7 +5580,7 @@
 	<Ground type="0xE92C" id="Elder Blue Alpha Square Lit 5">
 		<Texture>
 			<File>elderAssets8x8</File>
-			<Index>0x277</Index>
+			<Index>0x395</Index>
 		</Texture>
 		<Animate dy="2.5">Flow</Animate>
 		<Alpha />
@@ -4027,7 +5591,7 @@
 	<Ground type="0xE92D" id="Elder Blue Alpha Square Lit 6">
 		<Texture>
 			<File>elderAssets8x8</File>
-			<Index>0x278</Index>
+			<Index>0x396</Index>
 		</Texture>
 		<Animate dy="2.5">Flow</Animate>
 		<Alpha />
@@ -4038,7 +5602,7 @@
 	<Ground type="0xE92E" id="Elder Green Alpha Square">
 		<Texture>
 			<File>elderAssets8x8</File>
-			<Index>0x279</Index>
+			<Index>0x397</Index>
 		</Texture>
 		<Animate dy="-2.5">Flow</Animate>
 		<Alpha />
@@ -4049,7 +5613,7 @@
 	<Ground type="0xE92F" id="Elder Green Alpha Square Lit 1">
 		<Texture>
 			<File>elderAssets8x8</File>
-			<Index>0x27a</Index>
+			<Index>0x398</Index>
 		</Texture>
 		<Animate dy="-2.5">Flow</Animate>
 		<Alpha />
@@ -4060,7 +5624,7 @@
 	<Ground type="0xE930" id="Elder Green Alpha Square Lit 2">
 		<Texture>
 			<File>elderAssets8x8</File>
-			<Index>0x27b</Index>
+			<Index>0x399</Index>
 		</Texture>
 		<Animate dy="-2.5">Flow</Animate>
 		<Alpha />
@@ -4071,7 +5635,7 @@
 	<Ground type="0xE931" id="Elder Green Alpha Square Lit 3">
 		<Texture>
 			<File>elderAssets8x8</File>
-			<Index>0x27c</Index>
+			<Index>0x39a</Index>
 		</Texture>
 		<Animate dy="-2.5">Flow</Animate>
 		<Alpha />
@@ -4082,7 +5646,7 @@
 	<Ground type="0xE932" id="Elder Green Alpha Square Lit 4">
 		<Texture>
 			<File>elderAssets8x8</File>
-			<Index>0x27d</Index>
+			<Index>0x39b</Index>
 		</Texture>
 		<Animate dy="-2.5">Flow</Animate>
 		<Alpha />
@@ -4093,7 +5657,7 @@
 	<Ground type="0xE933" id="Elder Green Alpha Square Lit 5">
 		<Texture>
 			<File>elderAssets8x8</File>
-			<Index>0x27e</Index>
+			<Index>0x39c</Index>
 		</Texture>
 		<Animate dy="-2.5">Flow</Animate>
 		<Alpha />
@@ -4104,7 +5668,7 @@
 	<Ground type="0xE934" id="Elder Green Alpha Square Lit 6">
 		<Texture>
 			<File>elderAssets8x8</File>
-			<Index>0x27f</Index>
+			<Index>0x39d</Index>
 		</Texture>
 		<Animate dy="-2.5">Flow</Animate>
 		<Alpha />
@@ -4115,7 +5679,7 @@
 	<Ground type="0xE935" id="Elder Purple Alpha Square">
 		<Texture>
 			<File>elderAssets8x8</File>
-			<Index>0x280</Index>
+			<Index>0x39e</Index>
 		</Texture>
 		<Animate dx="2.5">Flow</Animate>
 		<Alpha />
@@ -4126,7 +5690,7 @@
 	<Ground type="0xE936" id="Elder Purple Alpha Square Lit 1">
 		<Texture>
 			<File>elderAssets8x8</File>
-			<Index>0x281</Index>
+			<Index>0x39f</Index>
 		</Texture>
 		<Animate dx="2.5">Flow</Animate>
 		<Alpha />
@@ -4137,7 +5701,7 @@
 	<Ground type="0xE937" id="Elder Purple Alpha Square Lit 2">
 		<Texture>
 			<File>elderAssets8x8</File>
-			<Index>0x282</Index>
+			<Index>0x3a0</Index>
 		</Texture>
 		<Animate dx="2.5">Flow</Animate>
 		<Alpha />
@@ -4148,7 +5712,7 @@
 	<Ground type="0xE938" id="Elder Purple Alpha Square Lit 3">
 		<Texture>
 			<File>elderAssets8x8</File>
-			<Index>0x283</Index>
+			<Index>0x3a1</Index>
 		</Texture>
 		<Animate dx="2.5">Flow</Animate>
 		<Alpha />
@@ -4159,7 +5723,7 @@
 	<Ground type="0xE939" id="Elder Purple Alpha Square Lit 4">
 		<Texture>
 			<File>elderAssets8x8</File>
-			<Index>0x284</Index>
+			<Index>0x3a2</Index>
 		</Texture>
 		<Animate dx="2.5">Flow</Animate>
 		<Alpha />
@@ -4170,7 +5734,7 @@
 	<Ground type="0xE93A" id="Elder Purple Alpha Square Lit 5">
 		<Texture>
 			<File>elderAssets8x8</File>
-			<Index>0x285</Index>
+			<Index>0x3a3</Index>
 		</Texture>
 		<Animate dx="2.5">Flow</Animate>
 		<Alpha />
@@ -4181,7 +5745,7 @@
 	<Ground type="0xE93B" id="Elder Purple Alpha Square Lit 6">
 		<Texture>
 			<File>elderAssets8x8</File>
-			<Index>0x286</Index>
+			<Index>0x3a4</Index>
 		</Texture>
 		<Animate dx="2.5">Flow</Animate>
 		<Alpha />
@@ -4192,7 +5756,7 @@
 	<Ground type="0xE93C" id="Elder Red Alpha Square">
 		<Texture>
 			<File>elderAssets8x8</File>
-			<Index>0x287</Index>
+			<Index>0x3a5</Index>
 		</Texture>
 		<Animate dx="-2.5">Flow</Animate>
 		<Alpha />
@@ -4203,7 +5767,7 @@
 	<Ground type="0xE93D" id="Elder Red Alpha Square Lit 1">
 		<Texture>
 			<File>elderAssets8x8</File>
-			<Index>0x288</Index>
+			<Index>0x3a6</Index>
 		</Texture>
 		<Animate dx="-2.5">Flow</Animate>
 		<Alpha />
@@ -4214,7 +5778,7 @@
 	<Ground type="0xE93E" id="Elder Red Alpha Square Lit 2">
 		<Texture>
 			<File>elderAssets8x8</File>
-			<Index>0x289</Index>
+			<Index>0x3a7</Index>
 		</Texture>
 		<Animate dx="-2.5">Flow</Animate>
 		<Alpha />
@@ -4225,7 +5789,7 @@
 	<Ground type="0xE93F" id="Elder Red Alpha Square Lit 3">
 		<Texture>
 			<File>elderAssets8x8</File>
-			<Index>0x28a</Index>
+			<Index>0x3a8</Index>
 		</Texture>
 		<Animate dx="-2.5">Flow</Animate>
 		<Alpha />
@@ -4236,7 +5800,7 @@
 	<Ground type="0xE940" id="Elder Red Alpha Square Lit 4">
 		<Texture>
 			<File>elderAssets8x8</File>
-			<Index>0x28b</Index>
+			<Index>0x3a9</Index>
 		</Texture>
 		<Animate dx="-2.5">Flow</Animate>
 		<Alpha />
@@ -4247,7 +5811,7 @@
 	<Ground type="0xE941" id="Elder Red Alpha Square Lit 5">
 		<Texture>
 			<File>elderAssets8x8</File>
-			<Index>0x28c</Index>
+			<Index>0x3aa</Index>
 		</Texture>
 		<Animate dx="-2.5">Flow</Animate>
 		<Alpha />
@@ -4258,7 +5822,7 @@
 	<Ground type="0xE942" id="Elder Red Alpha Square Lit 6">
 		<Texture>
 			<File>elderAssets8x8</File>
-			<Index>0x28d</Index>
+			<Index>0x3ab</Index>
 		</Texture>
 		<Animate dx="-2.5">Flow</Animate>
 		<Alpha />
@@ -4277,7 +5841,7 @@
 	<Ground type="0xE944" id="Elder White Alpha Square">
 		<Texture>
 			<File>elderAssets8x8</File>
-			<Index>0x28e</Index>
+			<Index>0x3ac</Index>
 		</Texture>
 		<XOffset>.0625</XOffset>
 		<YOffset>.0625</YOffset>
@@ -4286,7 +5850,7 @@
 	<Ground type="0xE945" id="Elder White Alpha Square Lit 1">
 		<Texture>
 			<File>elderAssets8x8</File>
-			<Index>0x28f</Index>
+			<Index>0x3ad</Index>
 		</Texture>
 		<XOffset>.0625</XOffset>
 		<YOffset>.0625</YOffset>
@@ -4295,7 +5859,7 @@
 	<Ground type="0xE946" id="Elder White Alpha Square Lit 2">
 		<Texture>
 			<File>elderAssets8x8</File>
-			<Index>0x290</Index>
+			<Index>0x3ae</Index>
 		</Texture>
 		<XOffset>.0625</XOffset>
 		<YOffset>.0625</YOffset>
@@ -4304,7 +5868,7 @@
 	<Ground type="0xE947" id="Elder White Alpha Square Lit 3">
 		<Texture>
 			<File>elderAssets8x8</File>
-			<Index>0x291</Index>
+			<Index>0x3af</Index>
 		</Texture>
 		<XOffset>.0625</XOffset>
 		<YOffset>.0625</YOffset>
@@ -4313,7 +5877,7 @@
 	<Ground type="0xE948" id="Elder White Alpha Square Lit 4">
 		<Texture>
 			<File>elderAssets8x8</File>
-			<Index>0x292</Index>
+			<Index>0x3b0</Index>
 		</Texture>
 		<XOffset>.0625</XOffset>
 		<YOffset>.0625</YOffset>
@@ -4322,7 +5886,7 @@
 	<Ground type="0xE949" id="Elder White Alpha Square Lit 5">
 		<Texture>
 			<File>elderAssets8x8</File>
-			<Index>0x293</Index>
+			<Index>0x3b1</Index>
 		</Texture>
 		<XOffset>.0625</XOffset>
 		<YOffset>.0625</YOffset>
@@ -4331,7 +5895,7 @@
 	<Ground type="0xE94A" id="Elder White Alpha Square Lit 6">
 		<Texture>
 			<File>elderAssets8x8</File>
-			<Index>0x294</Index>
+			<Index>0x3b2</Index>
 		</Texture>
 		<XOffset>.0625</XOffset>
 		<YOffset>.0625</YOffset>
@@ -4340,358 +5904,316 @@
 	<Ground type="0xE800" id="Elder Cracked Sandstone Tile">
 		<Texture>
 			<File>elderAssets8x8</File>
-			<Index>0x295</Index>
+			<Index>0x3b3</Index>
 		</Texture>
 	</Ground>
 	<Ground type="0xE801" id="Elder Cracked Sandstone Tile Lit 1">
 		<Texture>
 			<File>elderAssets8x8</File>
-			<Index>0x296</Index>
+			<Index>0x3b4</Index>
 		</Texture>
 	</Ground>
 	<Ground type="0xE802" id="Elder Cracked Sandstone Tile Lit 2">
 		<Texture>
 			<File>elderAssets8x8</File>
-			<Index>0x297</Index>
+			<Index>0x3b5</Index>
 		</Texture>
 	</Ground>
 	<Ground type="0xE803" id="Elder Cracked Sandstone Tile Lit 3">
 		<Texture>
 			<File>elderAssets8x8</File>
-			<Index>0x298</Index>
+			<Index>0x3b6</Index>
 		</Texture>
 	</Ground>
 	<Ground type="0xE804" id="Elder Cracked Sandstone Tile Lit 4">
 		<Texture>
 			<File>elderAssets8x8</File>
-			<Index>0x299</Index>
+			<Index>0x3b7</Index>
 		</Texture>
 	</Ground>
 	<Ground type="0xE805" id="Elder Cracked Sandstone Tile Lit 5">
 		<Texture>
 			<File>elderAssets8x8</File>
-			<Index>0x29a</Index>
+			<Index>0x3b8</Index>
 		</Texture>
 	</Ground>
 	<Ground type="0xE806" id="Elder Cracked Sandstone Tile Lit 6">
 		<Texture>
 			<File>elderAssets8x8</File>
-			<Index>0x29b</Index>
-		</Texture>
-	</Ground>
-	<Ground type="0xE807" id="Elder Gold Tile">
-		<Texture>
-			<File>elderAssets8x8</File>
-			<Index>0x29c</Index>
-		</Texture>
-	</Ground>
-	<Ground type="0xE808" id="Elder Gold Tile Lit 1">
-		<Texture>
-			<File>elderAssets8x8</File>
-			<Index>0x29d</Index>
-		</Texture>
-	</Ground>
-	<Ground type="0xE809" id="Elder Gold Tile Lit 2">
-		<Texture>
-			<File>elderAssets8x8</File>
-			<Index>0x29e</Index>
-		</Texture>
-	</Ground>
-	<Ground type="0xE80A" id="Elder Gold Tile Lit 3">
-		<Texture>
-			<File>elderAssets8x8</File>
-			<Index>0x29f</Index>
-		</Texture>
-	</Ground>
-	<Ground type="0xE80B" id="Elder Gold Tile Lit 4">
-		<Texture>
-			<File>elderAssets8x8</File>
-			<Index>0x2a0</Index>
-		</Texture>
-	</Ground>
-	<Ground type="0xE80C" id="Elder Gold Tile Lit 5">
-		<Texture>
-			<File>elderAssets8x8</File>
-			<Index>0x2a1</Index>
-		</Texture>
-	</Ground>
-	<Ground type="0xE80D" id="Elder Gold Tile Lit 6">
-		<Texture>
-			<File>elderAssets8x8</File>
-			<Index>0x2a2</Index>
+			<Index>0x3b9</Index>
 		</Texture>
 	</Ground>
 	<Ground type="0xE80E" id="Elder Missing Tile">
 		<Texture>
 			<File>elderAssets8x8</File>
-			<Index>0x2a3</Index>
+			<Index>0x3ba</Index>
 		</Texture>
 		<Speed>0.9</Speed>
 	</Ground>
 	<Ground type="0xE80F" id="Elder Missing Tile Lit 1">
 		<Texture>
 			<File>elderAssets8x8</File>
-			<Index>0x2a4</Index>
+			<Index>0x3bb</Index>
 		</Texture>
 		<Speed>0.9</Speed>
 	</Ground>
 	<Ground type="0xE810" id="Elder Missing Tile Lit 2">
 		<Texture>
 			<File>elderAssets8x8</File>
-			<Index>0x2a5</Index>
+			<Index>0x3bc</Index>
 		</Texture>
 		<Speed>0.9</Speed>
 	</Ground>
 	<Ground type="0xE811" id="Elder Missing Tile Lit 3">
 		<Texture>
 			<File>elderAssets8x8</File>
-			<Index>0x2a6</Index>
+			<Index>0x3bd</Index>
 		</Texture>
 		<Speed>0.9</Speed>
 	</Ground>
 	<Ground type="0xE812" id="Elder Missing Tile Lit 4">
 		<Texture>
 			<File>elderAssets8x8</File>
-			<Index>0x2a7</Index>
+			<Index>0x3be</Index>
 		</Texture>
 		<Speed>0.9</Speed>
 	</Ground>
 	<Ground type="0xE813" id="Elder Missing Tile Lit 5">
 		<Texture>
 			<File>elderAssets8x8</File>
-			<Index>0x2a8</Index>
+			<Index>0x3bf</Index>
 		</Texture>
 		<Speed>0.9</Speed>
 	</Ground>
 	<Ground type="0xE814" id="Elder Missing Tile Lit 6">
 		<Texture>
 			<File>elderAssets8x8</File>
-			<Index>0x2a9</Index>
+			<Index>0x3c0</Index>
 		</Texture>
 		<Speed>0.9</Speed>
 	</Ground>
 	<Ground type="0xE815" id="Elder Sand Covered Tile">
 		<Texture>
 			<File>elderAssets8x8</File>
-			<Index>0x295</Index>
+			<Index>0x3b3</Index>
 		</Texture>
 		<BlendPriority>3</BlendPriority>
 	</Ground>
 	<Ground type="0xE816" id="Elder Sand Covered Tile Lit 1">
 		<Texture>
 			<File>elderAssets8x8</File>
-			<Index>0x296</Index>
+			<Index>0x3b4</Index>
 		</Texture>
 		<BlendPriority>3</BlendPriority>
 	</Ground>
 	<Ground type="0xE817" id="Elder Sand Covered Tile Lit 2">
 		<Texture>
 			<File>elderAssets8x8</File>
-			<Index>0x297</Index>
+			<Index>0x3b5</Index>
 		</Texture>
 		<BlendPriority>3</BlendPriority>
 	</Ground>
 	<Ground type="0xE818" id="Elder Sand Covered Tile Lit 3">
 		<Texture>
 			<File>elderAssets8x8</File>
-			<Index>0x298</Index>
+			<Index>0x3b6</Index>
 		</Texture>
 		<BlendPriority>3</BlendPriority>
 	</Ground>
 	<Ground type="0xE819" id="Elder Sand Covered Tile Lit 4">
 		<Texture>
 			<File>elderAssets8x8</File>
-			<Index>0x299</Index>
+			<Index>0x3b7</Index>
 		</Texture>
 		<BlendPriority>3</BlendPriority>
 	</Ground>
 	<Ground type="0xE81A" id="Elder Sand Covered Tile Lit 5">
 		<Texture>
 			<File>elderAssets8x8</File>
-			<Index>0x29a</Index>
+			<Index>0x3b8</Index>
 		</Texture>
 		<BlendPriority>3</BlendPriority>
 	</Ground>
 	<Ground type="0xE81B" id="Elder Sand Covered Tile Lit 6">
 		<Texture>
 			<File>elderAssets8x8</File>
-			<Index>0x29b</Index>
+			<Index>0x3b9</Index>
 		</Texture>
 		<BlendPriority>3</BlendPriority>
 	</Ground>
 	<Ground type="0xE81C" id="Elder Sandstone Tile">
 		<Texture>
 			<File>elderAssets8x8</File>
-			<Index>0x2aa</Index>
+			<Index>0x3c1</Index>
 		</Texture>
 		<BlendPriority>1</BlendPriority>
 	</Ground>
 	<Ground type="0xE81D" id="Elder Sandstone Tile Lit 1">
 		<Texture>
 			<File>elderAssets8x8</File>
-			<Index>0x2ab</Index>
+			<Index>0x3c2</Index>
 		</Texture>
 		<BlendPriority>1</BlendPriority>
 	</Ground>
 	<Ground type="0xE81E" id="Elder Sandstone Tile Lit 2">
 		<Texture>
 			<File>elderAssets8x8</File>
-			<Index>0x2ac</Index>
+			<Index>0x3c3</Index>
 		</Texture>
 		<BlendPriority>1</BlendPriority>
 	</Ground>
 	<Ground type="0xE81F" id="Elder Sandstone Tile Lit 3">
 		<Texture>
 			<File>elderAssets8x8</File>
-			<Index>0x2ad</Index>
+			<Index>0x3c4</Index>
 		</Texture>
 		<BlendPriority>1</BlendPriority>
 	</Ground>
 	<Ground type="0xE820" id="Elder Sandstone Tile Lit 4">
 		<Texture>
 			<File>elderAssets8x8</File>
-			<Index>0x2ae</Index>
+			<Index>0x3c5</Index>
 		</Texture>
 		<BlendPriority>1</BlendPriority>
 	</Ground>
 	<Ground type="0xE821" id="Elder Sandstone Tile Lit 5">
 		<Texture>
 			<File>elderAssets8x8</File>
-			<Index>0x2af</Index>
+			<Index>0x3c6</Index>
 		</Texture>
 		<BlendPriority>1</BlendPriority>
 	</Ground>
 	<Ground type="0xE822" id="Elder Sandstone Tile Lit 6">
 		<Texture>
 			<File>elderAssets8x8</File>
-			<Index>0x2b0</Index>
+			<Index>0x3c7</Index>
 		</Texture>
 		<BlendPriority>1</BlendPriority>
 	</Ground>
 	<Ground type="0xE94B" id="Elder Grey Circle">
 		<Texture>
 			<File>elderAssets8x8</File>
-			<Index>0x2d4</Index>
+			<Index>0x3eb</Index>
 		</Texture>
 	</Ground>
 	<Ground type="0xE94C" id="Elder Grey Circle Lit 1">
 		<Texture>
 			<File>elderAssets8x8</File>
-			<Index>0x2d5</Index>
+			<Index>0x3ec</Index>
 		</Texture>
 	</Ground>
 	<Ground type="0xE94D" id="Elder Grey Circle Lit 2">
 		<Texture>
 			<File>elderAssets8x8</File>
-			<Index>0x2d6</Index>
+			<Index>0x3ed</Index>
 		</Texture>
 	</Ground>
 	<Ground type="0xE94E" id="Elder Grey Circle Lit 3">
 		<Texture>
 			<File>elderAssets8x8</File>
-			<Index>0x2d7</Index>
+			<Index>0x3ee</Index>
 		</Texture>
 	</Ground>
 	<Ground type="0xE94F" id="Elder Grey Circle Lit 4">
 		<Texture>
 			<File>elderAssets8x8</File>
-			<Index>0x2d8</Index>
+			<Index>0x3ef</Index>
 		</Texture>
 	</Ground>
 	<Ground type="0xE950" id="Elder Grey Circle Lit 5">
 		<Texture>
 			<File>elderAssets8x8</File>
-			<Index>0x2d9</Index>
+			<Index>0x3f0</Index>
 		</Texture>
 	</Ground>
 	<Ground type="0xE951" id="Elder Grey Circle Lit 6">
 		<Texture>
 			<File>elderAssets8x8</File>
-			<Index>0x2da</Index>
+			<Index>0x3f1</Index>
 		</Texture>
 	</Ground>
 	<Ground type="0xE952" id="Elder Grey Closed">
 		<Texture>
 			<File>elderAssets8x8</File>
-			<Index>0x2db</Index>
+			<Index>0x3f2</Index>
 		</Texture>
 	</Ground>
 	<Ground type="0xE953" id="Elder Grey Closed Lit 1">
 		<Texture>
 			<File>elderAssets8x8</File>
-			<Index>0x2dc</Index>
+			<Index>0x3f3</Index>
 		</Texture>
 	</Ground>
 	<Ground type="0xE954" id="Elder Grey Closed Lit 2">
 		<Texture>
 			<File>elderAssets8x8</File>
-			<Index>0x2dd</Index>
+			<Index>0x3f4</Index>
 		</Texture>
 	</Ground>
 	<Ground type="0xE955" id="Elder Grey Closed Lit 3">
 		<Texture>
 			<File>elderAssets8x8</File>
-			<Index>0x2de</Index>
+			<Index>0x3f5</Index>
 		</Texture>
 	</Ground>
 	<Ground type="0xE956" id="Elder Grey Closed Lit 4">
 		<Texture>
 			<File>elderAssets8x8</File>
-			<Index>0x2df</Index>
+			<Index>0x3f6</Index>
 		</Texture>
 	</Ground>
 	<Ground type="0xE957" id="Elder Grey Closed Lit 5">
 		<Texture>
 			<File>elderAssets8x8</File>
-			<Index>0x2e0</Index>
+			<Index>0x3f7</Index>
 		</Texture>
 	</Ground>
 	<Ground type="0xE958" id="Elder Grey Closed Lit 6">
 		<Texture>
 			<File>elderAssets8x8</File>
-			<Index>0x2e1</Index>
+			<Index>0x3f8</Index>
 		</Texture>
 	</Ground>
 	<Ground type="0xE959" id="Elder Grey Quad">
 		<Texture>
 			<File>elderAssets8x8</File>
-			<Index>0x2e2</Index>
+			<Index>0x3f9</Index>
 		</Texture>
 	</Ground>
 	<Ground type="0xE95A" id="Elder Grey Quad Lit 1">
 		<Texture>
 			<File>elderAssets8x8</File>
-			<Index>0x2e3</Index>
+			<Index>0x3fa</Index>
 		</Texture>
 	</Ground>
 	<Ground type="0xE95B" id="Elder Grey Quad Lit 2">
 		<Texture>
 			<File>elderAssets8x8</File>
-			<Index>0x2e4</Index>
+			<Index>0x3fb</Index>
 		</Texture>
 	</Ground>
 	<Ground type="0xE95C" id="Elder Grey Quad Lit 3">
 		<Texture>
 			<File>elderAssets8x8</File>
-			<Index>0x2e5</Index>
+			<Index>0x3fc</Index>
 		</Texture>
 	</Ground>
 	<Ground type="0xE95D" id="Elder Grey Quad Lit 4">
 		<Texture>
 			<File>elderAssets8x8</File>
-			<Index>0x2e6</Index>
+			<Index>0x3fd</Index>
 		</Texture>
 	</Ground>
 	<Ground type="0xE95E" id="Elder Grey Quad Lit 5">
 		<Texture>
 			<File>elderAssets8x8</File>
-			<Index>0x2e7</Index>
+			<Index>0x3fe</Index>
 		</Texture>
 	</Ground>
 	<Ground type="0xE95F" id="Elder Grey Quad Lit 6">
 		<Texture>
 			<File>elderAssets8x8</File>
-			<Index>0x2e8</Index>
+			<Index>0x3ff</Index>
 		</Texture>
 	</Ground>
 </GroundTypes>

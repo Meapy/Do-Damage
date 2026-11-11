@@ -24,6 +24,9 @@ namespace WorldServer.core.objects
         private long _phaseReadyAt;                     // Prism of the Fallen Sprite
         private long _shellReadyAt;                     // Obsidian Wyrmplate
         private bool _shell;
+        private bool _twilightIce;                      // Twilight Cataclysm: the next cast is ice
+        private long _forgottenUntil;                   // Shroud of the Forgotten King
+        private long _bulwarkReadyAt;                   // Bracer of the Elder Guardian
         private int _lifestealThisSecond;
         private long _lifestealSecond;
         [ThreadStatic] private static bool _inRelic;
@@ -64,6 +67,9 @@ namespace WorldServer.core.objects
                 RelicKill();
             if (_inRelic || World == null)
                 return;
+            // forgotten by the Realm (the Shroud's ability): a fifth more, past its defense
+            if (!killed && Now < _forgottenUntil && Power(1) == "Forgotten")
+                RelicDamage(enemy, Math.Max(1, dmg / 5), ref time, true);
             switch (Power(0))
             {
                 // every sixth hit, a cannonball bursts on the target: three times the hit to all round it
@@ -136,6 +142,9 @@ namespace WorldServer.core.objects
                 _souls++;
                 RelicNote($"Souls {_souls}/5", 0xFF7DFFCF);
             }
+            // the Eclipsed Gemstone drinks each kill
+            if (Power(3) == "Eclipse" && Mana < Stats[1])
+                Mana = Math.Min(Stats[1], Mana + 15);
         }
 
         // the ability was used, at pos
@@ -143,8 +152,52 @@ namespace WorldServer.core.objects
         {
             if (World == null)
                 return;
+            // the Remembered Crown: the king's will with every ability
+            if (Power(3) == "KingsWill")
+                TimedStatBoost(20, 8, 3000);
             switch (Power(1))
             {
+                // a Blobomb, thrown with the trap: it lands in a second and bursts a second later
+                case "Blobomb":
+                    var bomb = pos;
+                    Throw(bomb, 0xFFE0E0FF);
+                    Mark(bomb, 3, 2000, 0xFFE0E0FF);
+                    World.StartNewTimer(2000, (w, t) =>
+                    {
+                        if (World != w)
+                            return;
+                        Burst(bomb, 3, 0xFFFFFFFF);
+                        foreach (var e in EnemiesNear(bomb.X, bomb.Y, 3))
+                            RelicDamage(e, 700, ref t, false);
+                    });
+                    break;
+                // fire, then ice, turn about: a burn on everything round the target, then a
+                // freezing hit that slows it
+                case "FireAndIce":
+                    _twilightIce = !_twilightIce;
+                    if (_twilightIce)   // (this cast is fire: the flag says what comes next)
+                    {
+                        Burst(pos, 3.5f, 0xFFFF7020);
+                        foreach (var e in EnemiesNear(pos.X, pos.Y, 3.5f))
+                            e.Bleed(this, 450, 3000);
+                        RelicNote("Fire", 0xFFFF7020);
+                    }
+                    else
+                    {
+                        Burst(pos, 3.5f, 0xFF60C8FF);
+                        foreach (var e in EnemiesNear(pos.X, pos.Y, 3.5f))
+                        {
+                            e.ApplyConditionEffect(ConditionEffectIndex.Slowed, 3000);
+                            RelicDamage(e, 250, ref time, false);
+                        }
+                        RelicNote("Ice", 0xFF60C8FF);
+                    }
+                    break;
+                // out of the Realm's memory for 5 s: RelicHit adds to every shot meanwhile
+                case "Forgotten":
+                    _forgottenUntil = Now + 5000;
+                    RelicNote("Forgotten", 0xFFE04040);
+                    break;
                 // faster hands for 4 s
                 case "SerpentsWind":
                     TimedStatBoost(28, 10, 4000);
@@ -271,6 +324,15 @@ namespace WorldServer.core.objects
             }
             else
                 _shell = false;
+
+            // the Elder Guardian's bracer braces: under half health, +12 defense for 5 s, every 20 s
+            if (Power(3) == "Bulwark" && Health > 0 && Health < Stats[0] / 2 && Now >= _bulwarkReadyAt)
+            {
+                _bulwarkReadyAt = Now + 20000;
+                TimedStatBoost(21, 12, 5000);
+                RelicNote("Bulwark", 0xFFD0D8FF);
+                RelicEffect(this, EffectType.Flashing, 0xFFD0D8FF, new Position(0.25f, 4));
+            }
 
             // Davy's bargain: at a quarter of its health, its wearer is pulled back: half their
             // health and a moment untouchable, once a minute

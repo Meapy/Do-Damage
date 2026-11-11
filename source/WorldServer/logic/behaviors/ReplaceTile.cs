@@ -7,13 +7,18 @@ namespace WorldServer.logic.behaviors
 {
     internal class ReplaceTile : Behavior
     {
-        private readonly string _objName;
+        private readonly string[] _objNames;
         private readonly int _range;
         private readonly string _replacedObjName;
 
         public ReplaceTile(string objName, string replacedObjName, int range)
+            : this(new[] { objName }, replacedObjName, range)
+        { }
+
+        // several grounds to one (an Elder ground and its lit copies)
+        public ReplaceTile(string[] objNames, string replacedObjName, int range)
         {
-            _objName = objName;
+            _objNames = objNames;
             _range = range;
             _replacedObjName = replacedObjName;
         }
@@ -21,7 +26,7 @@ namespace WorldServer.logic.behaviors
         protected override void OnStateEntry(Entity host, TickTime time, ref object state)
         {
             var dat = host.GameServer.Resources.GameData;
-            var tileId = dat.IdToTileType[_objName];
+            var tileIds = Array.ConvertAll(_objNames, n => dat.IdToTileType[n]);
             var replacedTileId = dat.IdToTileType[_replacedObjName];
             var map = host.World.Map;
             var w = map.Width;
@@ -32,7 +37,7 @@ namespace WorldServer.logic.behaviors
                 {
                     var tile = map[x, y];
 
-                    if (tile.TileId != tileId || tile.TileId == replacedTileId)
+                    if (Array.IndexOf(tileIds, tile.TileId) < 0 || tile.TileId == replacedTileId)
                         continue;
 
                     var dx = Math.Abs(x - (int)host.X);

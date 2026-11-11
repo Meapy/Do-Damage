@@ -9,8 +9,8 @@ summary: How a Necromantic Relic brings a fallen Elder boss back in its Empowere
 Every Elder dungeon's boss can be fought twice. When it falls, its souls cling to the body, and
 with a **Necromantic Relic** you can drag it back to life in its **Empowered** form: a much harder
 fight with much better loot, and an item of its own found nowhere else. That's
-{{v:raise_bosses}} bosses: one for every Elder dungeon, three in the Elder Tomb and four in the
-Elder Lair of Draconis.
+{{v:raise_bosses}} bosses: one for every Elder dungeon, three in the Elder Tomb, three in the
+Elder Shatters and four in the Elder Lair of Draconis.
 
 ## Getting a relic
 
@@ -65,7 +65,8 @@ The souls fight for it too:
 ## What it drops
 
 An Empowered boss drops everything its Elder form drops, with every chance doubled for everyone
-who fought it (except what's in the loot balloon the dragons and the Wyvern turn into). Then it rolls the Elder boss's own items a second time, at up to twice their chance
+who fought it (except what's in the loot balloon the dragons and the Wyvern turn into; the
+Elder Shatters' three drop what their balloons held themselves). Then it rolls the Elder boss's own items a second time, at up to twice their chance
 (ten points more at most), with its Potion of Max at four times its chance (a tenth at least, a
 quarter at most).
 
