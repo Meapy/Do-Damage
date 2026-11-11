@@ -11,6 +11,7 @@ What it does:
     so a type never changes once characters hold the item.
   * Points their sprites at copies of the Doomed Realms sprite sheets, registered in the client
     under a "dr" prefix (drLofiObj5, drChars8x8rPets1, ...), so they keep their exact art.
+    The Potion of Maxy's sprite is overlaid on unused tile 0x7A of drLofiObj2.
     RemoteTexture sprites (downloaded once into tools/doomed/remote/ by --fetch-remote) become
     one small sheet each (drRemote<id>).
   * Writes the XML for the server (source/Shared/resources/xml/custom/DoomedRealms.xml) and the
@@ -49,6 +50,8 @@ CLIENT_XML = os.path.join(CLIENT_ASSETS, "custom", "xmls", "DoomedRealms.xml")
 CLIENT_XML_AS = os.path.join(CLIENT_ASSETS, "custom", "xmls", "DoomedRealms.as")
 CLIENT_IMAGES = os.path.join(CLIENT_ASSETS, "doomed", "images")
 CLIENT_ASSETS_AS = os.path.join(CLIENT_ASSETS, "doomed", "DoomedAssets.as")
+MAXY_POTION_SPRITE = os.path.join(STATE, "potion_maxy.png")
+MAXY_POTION_INDEX = 0x7A
 
 TYPE_START, TYPE_END = 0xD000, 0xDFFF
 PORTED_CLASSES = {"Equipment", "Dye", "Player"}
@@ -422,6 +425,8 @@ SPRITE_DONORS = {"Elder Beach Portal": "Beachzone Portal"}
 # objects drawn anew here: id -> (sheet, index). Oryx 4 burns (tools/build_hash_cellar.py). (Oryx 5
 # is a new object, Oryx the Ascended God, made by tools/build_elysium.py; this one is left unused.)
 TEXTURE_OVERRIDES = {"Oryx the Mad God 4": ("hashCellarOryx16x16", 0),
+                     # the player's 8x8 sprite overlays an unused tile in drLofiObj2
+                     "Potion of Maxy": ("drLofiObj2", MAXY_POTION_INDEX),
                      # the incantations' seals (tools/draw_oryx_gates.py, INCANTATION_CELLS)
                      "Hash Cellar Incantation": ("oryxIncantations16x16", 1),
                      "Doomed Cellar Incantation": ("oryxIncantations16x16", 2),
@@ -1228,7 +1233,25 @@ def write_assets(sheets, remotes, images_dir):
     embeds, lines = [], []
 
     def embed(name, src):
-        shutil.copyfile(src, os.path.join(CLIENT_IMAGES, name + ".png"))
+        dst = os.path.join(CLIENT_IMAGES, name + ".png")
+        shutil.copyfile(src, dst)
+        if name == "lofiObj2":
+            from PIL import Image
+
+            with Image.open(dst) as source:
+                sheet = source.convert("RGBA")
+            with Image.open(MAXY_POTION_SPRITE) as source:
+                sprite = source.convert("RGBA")
+            if sprite.size != (8, 8) or sheet.width % 8 or sheet.height % 8:
+                sys.exit("Potion of Maxy sprite and lofiObj2 must use 8x8 tiles")
+            columns = sheet.width // 8
+            x, y = (MAXY_POTION_INDEX % columns) * 8, (MAXY_POTION_INDEX // columns) * 8
+            if x + 8 > sheet.width or y + 8 > sheet.height:
+                sys.exit("Potion of Maxy sprite index is outside lofiObj2")
+            if any(sheet.getpixel((px, py))[3] for py in range(y, y + 8) for px in range(x, x + 8)):
+                sys.exit("Potion of Maxy sprite tile is no longer empty")
+            sheet.paste(sprite, (x, y))
+            sheet.save(dst)
         embeds.append('      [Embed(source="images/%s.png")]\n      private static const %s:Class;\n' % (name, name))
 
     exported = {}

@@ -23,13 +23,17 @@ details). Add to a group's line when a change adds to it, rather than adding ano
 - Its bosses drop a Potion of Max (Defense, Mana, Life) and three new rings with powers of their
   own: Bracer of the Elder Guardian, The Eclipsed Gemstone and The Remembered Crown.
 - In the Shatters and the Elder Shatters the quest arrow now leads to each boss in turn, with its
-  health at the top of the screen, and the way out opens where the Forgotten King falls.
+  health at the top of the screen, and the way out opens where the Forgotten King falls. The Elder
+  Shatters also counts towards the Raid Night community goal.
 - All three can be raised with a Necromantic Relic. Empowered, they drop a trap that throws a
   Blobomb, a spell that alternates fire and ice, and a cloak that makes your shots hit harder.
 
 ### Dungeons
 - Candyland rooms now spawn six creatures at a time; clear them and leave to bring out a boss.
   The next wave waits until that boss is defeated.
+
+### Items
+- The Potion of Maxy now has its new sprite.
 
 ### Game
 - `/wiki` sends you a link to the Do Damage wiki.

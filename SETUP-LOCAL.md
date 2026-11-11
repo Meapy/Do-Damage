@@ -646,6 +646,10 @@ The remotes `upstream` (HaloCelsius) and `aurusenth` share no history with `main
 
 ## Changes from upstream
 
+- **Potion of Maxy sprite** (2026-11-11; `tools/port_doomed.py`,
+  `tools/doomed/potion_maxy.png`): the supplied 8×8 art is added to unused tile `0x7A` of
+  `drLofiObj2`, and both generated XML copies reference it. Redeploy the client and world server;
+  no Redis change.
 - **Wiki command** (2026-11-11; `WorldServer/core/commands/player/Command.Wiki.cs`):
   `/wiki` sends players a link to `https://www.dodmg.com/wiki`. Added its description to the
   generated website command list. Redeploy the world servers and website; no client, protocol or
@@ -654,6 +658,10 @@ The remotes `upstream` (HaloCelsius) and `aurusenth` share no history with `main
   each room now spawns six Candy Creatures at a time instead of ten. After the wave is cleared,
   players must leave for a boss to appear; another wave waits until that boss is defeated.
   Redeploy the world servers; no client, protocol or Redis change.
+- **Raid Night and the Elder Shatters** (2026-11-11; `Shared/resources/data/community.json`):
+  clearing the Elder Shatters now counts towards the Raid Night community goal, alongside Elder
+  Draconis and the Elder Ivory Wyvern. Redeploy the world server; no client, website or Redis
+  change.
 - **Updates of 11 November** (2026-11-11, release 2.5.1): Oryx's Inferno's Gate (`O4 Wall Gate`
   rows and `O4 Gate Deleter 1` from `tools/build_hash_cellar.py`, opened by `BehaviorDb.HashCellar.cs`
   once the Infernal Court is dead); Infernal shards at 14% each; the `damageEvent` off in

@@ -1492,7 +1492,7 @@
 		<Item />
 		<Texture>
 			<File>drLofiObj2</File>
-			<Index>0x35</Index>
+			<Index>0x7a</Index>
 		</Texture>
 		<SlotType>10</SlotType>
 		<Description>A tasty, yummy, delicious extract of various stat potions.</Description>
