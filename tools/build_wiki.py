@@ -318,6 +318,13 @@ DIFFICULTY = [6000, 20000, 45000, 90000, 160000]
 DIFFICULTY_WORDS = ["Beginner", "Easy", "Medium", "Hard", "Very hard", "Endgame"]
 
 
+# what's particular about a dungeon's fight (a row of its card on the Dungeons page)
+DUNGEON_FIGHT_NOTES = {
+    "The Black Between": "Every shot here goes on through whoever it hits, so nobody can take the hits for the "
+                         "rest of the group: each player has to dodge them.",
+}
+
+
 # what's particular about raising some Elder bosses (the Raising part of the Dungeons page)
 RAISE_DUNGEON_NOTES = {
     "Lair of Elder Draconis": "Each of the four Elder dragons leaves its own remains in its lair, so it takes a relic for "
@@ -898,6 +905,8 @@ class Gen:
             rows.append(("Key", "<strong>%s</strong>: %s" % (esc(d.name(k)), "; ".join(bits))))
         if x["boss"]:
             rows.append(("Boss", "%s, %s health" % (esc(who(d, x["boss"])), "{:,}".format(x["hp"]))))
+        if x["id"] in DUNGEON_FIGHT_NOTES:
+            rows.append(("Fight", esc(DUNGEON_FIGHT_NOTES[x["id"]])))
         if x["loot"]:
             rows.append(("Notable loot", self.item_links([i for i, _ in x["loot"]], limit=8)))
         if x["max"]:

@@ -18,7 +18,9 @@ details). Add to a group's line when a change adds to it, rather than adding ano
 - A new endgame dungeon, harder than Oryx 5: the Mysterious One, the voice of Realm 2, and his
   children Vesper, the Dusk Star, and Aurel, the Dawn Blade, on a platform floating in the void.
   When Oryx the Ascended God falls, his Rift opens a quarter of the time, and every time during
-  The Voice in the Void (10 November to 1 December). It has music of its own.
+  The Voice in the Void (10 November to 1 December). It has music of its own. Every shot there
+  goes on through whoever it hits, so nobody can take the hits for the group: everyone has to
+  dodge.
 - The Mysterious One drops life and mana potions, every Max potion, six new abilities (one for the
   Archer, Huntress, Warrior, Trickster, Rogue and Assassin, each with its own power) and Unstable
   Essence.

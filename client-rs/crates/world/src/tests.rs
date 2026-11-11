@@ -345,6 +345,34 @@ fn a_kill_the_server_never_confirms_is_taken_back() {
     assert!(matches!(hits[..], [combat::Hit::Enemy { target_id: 3, .. }]), "{hits:?}");
 }
 
+#[test]
+fn a_monsters_multi_hit_shot_goes_on_through_another_player() {
+    // as the Black Between's shots: a player standing in front doesn't take the hit for us
+    let mut d = data();
+    d.add_objects(
+        r#"<Objects>
+            <Object type="0x40" id="Stopper"><Projectile id="0"><ObjectId>Bolt</ObjectId><Speed>100</Speed><LifetimeMS>1000</LifetimeMS><Damage>10</Damage></Projectile></Object>
+            <Object type="0x41" id="Piercer"><Projectile id="0"><ObjectId>Bolt</ObjectId><Speed>100</Speed><LifetimeMS>1000</LifetimeMS><Damage>10</Damage><MultiHit/></Projectile></Object>
+        </Objects>"#,
+    )
+    .unwrap();
+    let mut w = world(&d);
+    // another player two tiles north of us, between us and the monster's shot
+    w.apply_update(&Update { new_objs: vec![obj(3, PLAYER, 5.5, 3.5, 75)].into(), ..Default::default() }, &d, 0);
+    let fire = |w: &mut World, id: i32, container: u16| {
+        w.add_projectile(combat::Projectile::new(7, id, container, 0, std::f64::consts::FRAC_PI_2, 0, 5.5, 1.5, 1.0, 10, true));
+        let mut hits = Vec::new();
+        for t in (0..600).step_by(10) {
+            hits.extend(w.update_projectiles(t, &d));
+        }
+        hits
+    };
+    let hits = fire(&mut w, 1, 0x40);
+    assert!(matches!(hits[..], [combat::Hit::Other { target_id: 3, .. }]), "{hits:?}");
+    let hits = fire(&mut w, 2, 0x41);
+    assert!(matches!(hits[..], [combat::Hit::Player { bullet_id: 2, .. }]), "{hits:?}");
+}
+
 /// A player holding `weapon` with these imprints in its item data, in the test world.
 fn armed(d: &GameData, weapon: u16, imprints: &str) -> World {
     let mut w = world(d);

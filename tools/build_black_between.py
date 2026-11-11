@@ -168,6 +168,12 @@ def shot(pid, obj, damage, speed, life, size=100, effects=(), multi=False, ampli
     return p
 
 
+def foe(pid, obj, damage, speed, life, size=100, **kw):
+    """An enemy's shot: it goes on through whoever it hits (MultiHit), so a group can't stand a
+    couple of players in front to take the hits for everyone else: each player has to dodge it."""
+    return shot(pid, obj, damage, speed, life, size, multi=True, **kw)
+
+
 # ------------------------------------------------------------------------------------------------
 # grounds: name -> (variants, minimap colour, extras)
 
@@ -220,54 +226,54 @@ BOSSES = {
     # in Oryx's Elysium when Oryx 5 falls: he steps out of his Rift and invites them in
     "Mysterious One Visitant": ("The Mysterious One", 100, 420000, 110, "herald", [], []),
     "The Mysterious One": ("The Mysterious One", 100, 504000, 110, "boss", [], [
-        shot(0, "Dusk Bolt", 200, 90, 2400, amplitude=WAVE[0], frequency=WAVE[1]),
-        shot(1, "Umbral Orb", 170, 55, 4000, 110, effects=[("Darkness", 2)], amplitude=ARC[0], frequency=ARC[1]),
-        shot(2, "Dawn Crescent", 230, 70, 2600, 130, effects=[("Armor Broken", 2)], multi=True),
-        shot(3, "Sunspark", 180, 80, 2200, effects=[("Blind", 1)]),
-        shot(4, "Eclipse Orb", 210, 40, 6000, 120, effects=[("Darkness", 2), ("Armor Broken", 2)]),
-        shot(5, "Eclipse Orb", 190, 45, 5500, 110, effects=[("Darkness", 1.5)]),
-        shot(6, "Dawn Sword", 400, 160, 2400, 200, multi=True),
+        foe(0, "Dusk Bolt", 200, 90, 2400, amplitude=WAVE[0], frequency=WAVE[1]),
+        foe(1, "Umbral Orb", 170, 55, 4000, 110, effects=[("Darkness", 2)], amplitude=ARC[0], frequency=ARC[1]),
+        foe(2, "Dawn Crescent", 230, 70, 2600, 130, effects=[("Armor Broken", 2)]),
+        foe(3, "Sunspark", 180, 80, 2200, effects=[("Blind", 1)]),
+        foe(4, "Eclipse Orb", 210, 40, 6000, 120, effects=[("Darkness", 2), ("Armor Broken", 2)]),
+        foe(5, "Eclipse Orb", 190, 45, 5500, 110, effects=[("Darkness", 1.5)]),
+        foe(6, "Dawn Sword", 400, 160, 2400, 200),
     ]),
     "Vesper, the Dusk Star": ("Vesper, the Dusk Star", 85, 288000, 80, "boss", [], [
-        shot(0, "Dusk Bolt", 190, 95, 2300, effects=[("Silenced", 1.5)], amplitude=WAVE[0], frequency=WAVE[1]),
+        foe(0, "Dusk Bolt", 190, 95, 2300, effects=[("Silenced", 1.5)], amplitude=WAVE[0], frequency=WAVE[1]),
         # her rings darken and slow (the slow as her Gravity Well's)
-        shot(1, "Umbral Orb", 160, 50, 4200, 110, effects=[("Darkness", 1.5), ("Slowed", 1.5)], amplitude=ARC[0], frequency=ARC[1]),
+        foe(1, "Umbral Orb", 160, 50, 4200, 110, effects=[("Darkness", 1.5), ("Slowed", 1.5)], amplitude=ARC[0], frequency=ARC[1]),
     ]),
     # her copies' bolts in the Veil: light, but through any armour
     "Vesper's Veil Copy": ("Vesper's Veil Copy", 85, 100000, 0, "helper", [], [
-        shot(0, "Dusk Bolt", 50, 80, 2200, amplitude=WAVE[0], frequency=WAVE[1], piercing=True),
+        foe(0, "Dusk Bolt", 50, 80, 2200, amplitude=WAVE[0], frequency=WAVE[1], piercing=True),
     ]),
     "Spectral Vesper": ("Spectral Vesper", 85, 100000, 0, "helper", [], [
-        shot(0, "Dusk Bolt", 180, 80, 2200, amplitude=WAVE[0], frequency=WAVE[1]),
+        foe(0, "Dusk Bolt", 180, 80, 2200, amplitude=WAVE[0], frequency=WAVE[1]),
     ]),
     "Aurel, the Dawn Blade": ("Aurel, the Dawn Blade", 85, 336000, 100, "boss",
                               ["Aurel, Solar Cyclone", "Aurel, Gauntlet Form"], [
-        shot(0, "Dawn Crescent", 230, 75, 2600, 130, effects=[("Armor Broken", 2)], multi=True),
-        shot(1, "Sunspark", 180, 85, 2400, effects=[("Blind", 1)]),
-        shot(2, "Sunspark", 170, 65, 2200),
-        shot(3, "Dawn Crescent", 220, 60, 2400, 120, multi=True),
+        foe(0, "Dawn Crescent", 230, 75, 2600, 130, effects=[("Armor Broken", 2)]),
+        foe(1, "Sunspark", 180, 85, 2400, effects=[("Blind", 1)]),
+        foe(2, "Sunspark", 170, 65, 2200),
+        foe(3, "Dawn Crescent", 220, 60, 2400, 120),
         # the Sunwheel's spiral, and his sword flying across the arena (the Sword Lanes)
-        shot(4, "Dawn Crescent", 200, 80, 1800, 110, multi=True),
-        shot(5, "Dawn Sword", 400, 160, 2400, 200, multi=True),
+        foe(4, "Dawn Crescent", 200, 80, 1800, 110),
+        foe(5, "Dawn Sword", 400, 160, 2400, 200),
         # in his sister's manner: a fan of sunsparks that weave as they fly, and a ring of crescents
         # that bow as they spread and break armour
-        shot(6, "Sunspark", 180, 95, 2300, amplitude=WAVE[0], frequency=WAVE[1]),
-        shot(7, "Dawn Crescent", 190, 50, 4200, 120, effects=[("Armor Broken", 2)], multi=True,
+        foe(6, "Sunspark", 180, 95, 2300, amplitude=WAVE[0], frequency=WAVE[1]),
+        foe(7, "Dawn Crescent", 190, 50, 4200, 120, effects=[("Armor Broken", 2)],
              amplitude=ARC[0], frequency=ARC[1]),
     ]),
     # the echo of his leap: him to the life, landing on someone else while he lands on you (which
     # is which changes each time)
     "Aurel's Echo": ("Aurel, the Dawn Blade", 85, 100000, 100, "helper", [], [
-        shot(0, "Dawn Crescent", 230, 75, 2600, 130, effects=[("Armor Broken", 2)], multi=True),
-        shot(1, "Sunspark", 180, 85, 2400, effects=[("Blind", 1)]),
-        shot(2, "Sunspark", 180, 95, 2300, amplitude=WAVE[0], frequency=WAVE[1]),
+        foe(0, "Dawn Crescent", 230, 75, 2600, 130, effects=[("Armor Broken", 2)]),
+        foe(1, "Sunspark", 180, 85, 2400, effects=[("Blind", 1)]),
+        foe(2, "Sunspark", 180, 95, 2300, amplitude=WAVE[0], frequency=WAVE[1]),
     ]),
     # the second tornado of his Solar Cyclone, crossing each dash of his at right angles
     "Aurel's Twin Cyclone": ("Aurel, Solar Cyclone", 85, 100000, 0, "helper", [], [
-        shot(0, "Sunspark", 170, 65, 2200),
+        foe(0, "Sunspark", 170, 65, 2200),
     ]),
     "Spectral Aurel": ("Spectral Aurel", 85, 100000, 0, "helper", ["Spectral Cyclone"], [
-        shot(0, "Sunspark", 170, 65, 2200),
+        foe(0, "Sunspark", 170, 65, 2200),
     ]),
 }
 # like Oryx 3 to 5, none of them can be stunned, paralysed, petrified, slowed or dazed
@@ -292,7 +298,7 @@ HELPERS = {
     # the centre of the arena, which raises the walls and turns the floor for the fights
     "Observatory Heart": [],
     # the points of Vesper's Gravity Well, round the platform's edge, firing in at its middle
-    "Gravity Point": [shot(0, "Umbral Orb", 150, 45, 3400, 110, effects=[("Slowed", 1)])],
+    "Gravity Point": [foe(0, "Umbral Orb", 150, 45, 3400, 110, effects=[("Slowed", 1)])],
 }
 
 
@@ -499,7 +505,7 @@ def objects(types, s8, s16, s32, c8, c32):
     sub(e, "Defense", 0)
     sub(e, "StasisImmune")
     sub(e, "XpMult", 0)
-    e.append(shot(0, "Dusk Bolt", 170, 70, 2000))
+    e.append(foe(0, "Dusk Bolt", 170, 70, 2000))
     out.append(e)
 
     # walls of light: Vesper's veil and Aurel's dawnlight (16x16, shimmering), blocking

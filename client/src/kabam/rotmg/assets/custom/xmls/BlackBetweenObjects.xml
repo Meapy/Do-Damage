@@ -124,6 +124,7 @@
 			<Size>100</Size>
 			<Amplitude>1.0</Amplitude>
 			<Frequency>1.5</Frequency>
+			<MultiHit />
 		</Projectile>
 		<Projectile id="1">
 			<ObjectId>Umbral Orb</ObjectId>
@@ -133,6 +134,7 @@
 			<Size>110</Size>
 			<Amplitude>1.2</Amplitude>
 			<Frequency>0.5</Frequency>
+			<MultiHit />
 			<ConditionEffect duration="2">Darkness</ConditionEffect>
 		</Projectile>
 		<Projectile id="2">
@@ -150,6 +152,7 @@
 			<Speed>80</Speed>
 			<LifetimeMS>2200</LifetimeMS>
 			<Size>100</Size>
+			<MultiHit />
 			<ConditionEffect duration="1">Blind</ConditionEffect>
 		</Projectile>
 		<Projectile id="4">
@@ -158,6 +161,7 @@
 			<Speed>40</Speed>
 			<LifetimeMS>6000</LifetimeMS>
 			<Size>120</Size>
+			<MultiHit />
 			<ConditionEffect duration="2">Darkness</ConditionEffect>
 			<ConditionEffect duration="2">Armor Broken</ConditionEffect>
 		</Projectile>
@@ -167,6 +171,7 @@
 			<Speed>45</Speed>
 			<LifetimeMS>5500</LifetimeMS>
 			<Size>110</Size>
+			<MultiHit />
 			<ConditionEffect duration="1.5">Darkness</ConditionEffect>
 		</Projectile>
 		<Projectile id="6">
@@ -209,6 +214,7 @@
 			<Size>100</Size>
 			<Amplitude>1.0</Amplitude>
 			<Frequency>1.5</Frequency>
+			<MultiHit />
 			<ConditionEffect duration="1.5">Silenced</ConditionEffect>
 		</Projectile>
 		<Projectile id="1">
@@ -219,6 +225,7 @@
 			<Size>110</Size>
 			<Amplitude>1.2</Amplitude>
 			<Frequency>0.5</Frequency>
+			<MultiHit />
 			<ConditionEffect duration="1.5">Darkness</ConditionEffect>
 			<ConditionEffect duration="1.5">Slowed</ConditionEffect>
 		</Projectile>
@@ -245,6 +252,7 @@
 			<Size>100</Size>
 			<Amplitude>1.0</Amplitude>
 			<Frequency>1.5</Frequency>
+			<MultiHit />
 			<ArmorPiercing />
 		</Projectile>
 	</Object>
@@ -270,6 +278,7 @@
 			<Size>100</Size>
 			<Amplitude>1.0</Amplitude>
 			<Frequency>1.5</Frequency>
+			<MultiHit />
 		</Projectile>
 	</Object>
 	<Object type="0x8D2B" id="Aurel, the Dawn Blade">
@@ -322,6 +331,7 @@
 			<Speed>85</Speed>
 			<LifetimeMS>2400</LifetimeMS>
 			<Size>100</Size>
+			<MultiHit />
 			<ConditionEffect duration="1">Blind</ConditionEffect>
 		</Projectile>
 		<Projectile id="2">
@@ -330,6 +340,7 @@
 			<Speed>65</Speed>
 			<LifetimeMS>2200</LifetimeMS>
 			<Size>100</Size>
+			<MultiHit />
 		</Projectile>
 		<Projectile id="3">
 			<ObjectId>Dawn Crescent</ObjectId>
@@ -363,6 +374,7 @@
 			<Size>100</Size>
 			<Amplitude>1.0</Amplitude>
 			<Frequency>1.5</Frequency>
+			<MultiHit />
 		</Projectile>
 		<Projectile id="7">
 			<ObjectId>Dawn Crescent</ObjectId>
@@ -406,6 +418,7 @@
 			<Speed>85</Speed>
 			<LifetimeMS>2400</LifetimeMS>
 			<Size>100</Size>
+			<MultiHit />
 			<ConditionEffect duration="1">Blind</ConditionEffect>
 		</Projectile>
 		<Projectile id="2">
@@ -416,6 +429,7 @@
 			<Size>100</Size>
 			<Amplitude>1.0</Amplitude>
 			<Frequency>1.5</Frequency>
+			<MultiHit />
 		</Projectile>
 	</Object>
 	<Object type="0x8D3B" id="Aurel's Twin Cyclone">
@@ -439,6 +453,7 @@
 			<Speed>65</Speed>
 			<LifetimeMS>2200</LifetimeMS>
 			<Size>100</Size>
+			<MultiHit />
 		</Projectile>
 	</Object>
 	<Object type="0x8D2D" id="Spectral Aurel">
@@ -467,6 +482,7 @@
 			<Speed>65</Speed>
 			<LifetimeMS>2200</LifetimeMS>
 			<Size>100</Size>
+			<MultiHit />
 		</Projectile>
 	</Object>
 	<Object type="0x8D31" id="Starbound Sentinel">
@@ -574,6 +590,7 @@
 			<Speed>70</Speed>
 			<LifetimeMS>2000</LifetimeMS>
 			<Size>100</Size>
+			<MultiHit />
 		</Projectile>
 	</Object>
 	<Object type="0x8D33" id="Veil Wall">
@@ -979,6 +996,7 @@
 			<Speed>45</Speed>
 			<LifetimeMS>3400</LifetimeMS>
 			<Size>110</Size>
+			<MultiHit />
 			<ConditionEffect duration="1">Slowed</ConditionEffect>
 		</Projectile>
 	</Object>
