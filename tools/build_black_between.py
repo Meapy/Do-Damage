@@ -8,8 +8,9 @@ The map, from south to north:
 
 - the Constellation Approach: a causeway of astral stone four tiles wide across the void, where
   players arrive (Spawn region), with Starbound Sentinels drifting over it (harmless, as Oryx 5's
-  clouds: their stars do no damage and nothing hits them). No portal out: the Mysterious One drops
-  one when he falls;
+  clouds: their stars do no damage and nothing hits them). While the fight lasts the causeway is
+  gone into the void, all but the pad at its far end where players arrive. No portal out: the
+  Mysterious One drops one when he falls;
 - the Observatory: a disc of astral stone floating in the void (PLATFORM_R tiles in radius) with a
   rim of dressed stone banded in gold and star pylons round it. The Observatory Heart, invisible,
   stands at its centre: the fights order it to raise the walls and turn the floor, so they come
@@ -622,6 +623,8 @@ PLATFORM_R = 17               # its floor's radius; the rim is the last tile
 DIAMOND = 8                   # how far the inlaid diamond's points (and the cross's arms) reach
 CAUSEWAY = (22, 25)           # the approach's columns
 CAUSEWAY_END = 68             # its southern end, where the Nexus Portal is
+# where players arrive; from the row before it to the causeway's end is the pad, which stays when
+# the rest of the causeway goes into the void for the fight (CausewayPad in BehaviorDb.BlackBetween.cs)
 SPAWN_ROWS = (61, 66)
 SENTINELS = [(23, 46), (24, 53), (23, 59)]
 PYLONS = 12                   # round the rim, every 30 degrees but by the Rift and the causeway

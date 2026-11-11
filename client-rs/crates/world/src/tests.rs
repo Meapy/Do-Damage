@@ -346,6 +346,26 @@ fn a_kill_the_server_never_confirms_is_taken_back() {
 }
 
 #[test]
+fn ground_gone_into_the_void_cant_be_walked_on() {
+    // the Black Between's causeway in the fight: the server sends the empty tile for squares that
+    // had ground, and the square is as if never sent (the sky shows there)
+    let d = data();
+    let mut w = world(&d);
+    let logged = w.tile_log().len();
+    for y in 0..5 {
+        w.set_tile(5, y, NO_TILE);
+    }
+    assert_eq!(w.tile(5, 4), None);
+    assert_eq!(w.tile_log().len(), logged + 5);
+    // walking north stops at the edge of what's left
+    let (_, y) = walk(&mut w, &d, 0.0, -1.0, 2000);
+    assert!((5.0..5.6).contains(&y), "{y}");
+    // and it comes back as ground
+    w.set_tile(5, 4, FLOOR);
+    assert_eq!(w.tile(5, 4), Some(FLOOR));
+}
+
+#[test]
 fn a_monsters_multi_hit_shot_goes_on_through_another_player() {
     // as the Black Between's shots: a player standing in front doesn't take the hit for us
     let mut d = data();

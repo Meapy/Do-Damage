@@ -321,7 +321,10 @@ DIFFICULTY_WORDS = ["Beginner", "Easy", "Medium", "Hard", "Very hard", "Endgame"
 # what's particular about a dungeon's fight (a row of its card on the Dungeons page)
 DUNGEON_FIGHT_NOTES = {
     "The Black Between": "Every shot here goes on through whoever it hits, so nobody can take the hits for the "
-                         "rest of the group: each player has to dodge them.",
+                         "rest of the group: each player has to dodge them. Once the fight starts the bridge falls "
+                         "away into the void, all but the landing where players arrive (anyone on it is moved onto "
+                         "the platform first): whoever comes late, through /help or the Rift, waits there safely "
+                         "but can't cross until the Mysterious One falls.",
 }
 
 

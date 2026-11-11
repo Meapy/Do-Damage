@@ -17,8 +17,10 @@ namespace WorldServer.logic
     // into each phase, and it raises the walls of light, turns the floor and sends the starfall, so
     // all of it is centred on the platform and comes and goes with its states. The bosses come down
     // at the centre too (it spawns them there), so their spawn point is the platform's middle. Once
-    // the fight starts the causeway burns (the Black Between ground), so no one waits it out there,
-    // until the Mysterious One falls.
+    // the fight starts the causeway is gone into the void until the Mysterious One falls, all but
+    // the pad at its far end where players arrive (the map's Spawn region and the Nexus Portal):
+    // anyone on the causeway is moved onto the platform first, and whoever arrives later (a /help,
+    // the Rift) lands on the pad, safe, but can't cross to the fight.
     //
     // Survival phases (invulnerable, survive them): every boss's first silences everyone and puts
     // their pets in stasis; its last sickens them as well (Survival).
@@ -33,6 +35,10 @@ namespace WorldServer.logic
         private const double BrokenR = 12.5;
         // far enough to reach anyone on the platform from anywhere on it
         private const double Sight = 36;
+        // the causeway's pad (tools/build_black_between.py, SPAWN_ROWS less a row, to its end): this
+        // many tiles south of the middle and on; and where on the platform the causeway's mouth is
+        private const int CausewayPad = 38;
+        private const double CausewayMouth = 14;
         private const uint Gold = 0xFFFFD24A;
         private const uint Violet = 0xFFB040FF;
 
@@ -42,8 +48,10 @@ namespace WorldServer.logic
                 new State(
                     new State("Waiting"),
                     new State("Fight",
-                        // the causeway burns from the first trial to the last
-                        new PaintFloor("Black Between", 50, (dx, dy) => dy > 0 && dx * dx + dy * dy > PlatformR * PlatformR),
+                        // the causeway goes into the void from the first trial to the last, all
+                        // but its pad; anyone on it is moved onto the platform first
+                        new ClearTheCauseway(PlatformR, CausewayPad - 0.5, CausewayMouth),
+                        new PaintFloor("Empty", 50, (dx, dy) => dy > 0 && dy < CausewayPad && dx * dx + dy * dy > PlatformR * PlatformR),
                         new State("Summon Vesper",
                             new Spawn("Vesper, the Dusk Star", 1, 1, givesNoXp: false),
                             new TimedTransition(500, "Trial I")

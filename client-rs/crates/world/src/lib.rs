@@ -298,7 +298,17 @@ impl World {
         self.index(x, y).filter(|&i| self.known[i]).map(|i| self.tiles[i])
     }
 
+    /// `NO_TILE` is ground gone (the Black Between's causeway in the fight): the square goes back
+    /// to never sent, as the void's are, so the sky shows there and it can't be walked on.
     pub fn set_tile(&mut self, x: i32, y: i32, tile_type: u16) {
+        if tile_type == NO_TILE {
+            if let Some(i) = self.index(x, y).filter(|&i| self.known[i]) {
+                self.tiles[i] = NO_TILE;
+                self.known[i] = false;
+                self.tile_log.push(i as u32);
+            }
+            return;
+        }
         if let Some(i) = self.index(x, y) {
             if !self.known[i] || self.tiles[i] != tile_type {
                 self.tile_log.push(i as u32);
