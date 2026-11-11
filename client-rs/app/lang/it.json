@@ -472,7 +472,6 @@
 "Other players' pets": "Famigli degli altri giocatori",
 "Other players' pets' effects": "Effetti dei famigli altrui",
 "Other players' pets' shots": "Colpi dei famigli altrui",
-"Other players' shots": "Colpi degli altri giocatori",
 "Page {page} of {pages}": "Pagina {page} di {pages}",
 "Particles and effects": "Particelle ed effetti",
 "Party chat": "Chat di gruppo",
@@ -1064,7 +1063,6 @@
 "You have no pet stones with you.": "Non hai pietre famiglio con te.",
 "{from}, raised to {to}": "{from}, potenziato a {to}",
 "{have} of {all} collected": "{have} di {all} raccolti",
-"Raise to Large ({n} of {needed} shards)": "Porta a Grande ({n} di {needed} frammenti)",
 "The Pen Keeper keeps {n} of your shards": "Il guardiano del recinto custodisce {n} dei tuoi frammenti",
 "+{n} {stat}": "+{n} {stat}",
 "Guardian Angel takes no other imprints.": "Angelo custode non accetta altre impronte.",
@@ -1135,5 +1133,13 @@
 "Unlink your Discord?": "Scollegare il tuo Discord?",
 "The Discord bot can no longer reset this account's password.": "Il bot di Discord non potrà più reimpostare la password di questo account.",
 "Discord linked. A first link puts a Potion of Maxy in your vault's gift chest.": "Discord collegato. La prima volta, una Potion of Maxy finisce nel forziere dei regali del tuo caveau.",
-"Discord unlinked.": "Discord scollegato."
+"Discord unlinked.": "Discord scollegato.",
+"Characters in town": "Personaggi in città",
+"Monsters": "Mostri",
+"Other players' damage numbers": "Numeri dei danni degli altri giocatori",
+"Other players' shots and spells": "Colpi e incantesimi degli altri giocatori",
+"Players' chat": "Chat dei giocatori",
+"Raise to Large ({n} Ambrosia)": "Porta a Grande ({n} Ambrosia)",
+"Trade {needed} shards for an Ambrosia": "Scambia {needed} frammenti con un'Ambrosia",
+"Whispers": "Sussurri"
 }

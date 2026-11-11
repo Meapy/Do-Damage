@@ -215,7 +215,11 @@ namespace WorldServer.core.net.handlers
                 ObjectId = data?.ObjectId ?? item.ObjectId,
                 Stack = data?.Stack ?? 0,
                 MaxStack = data?.MaxStack ?? 0,
-                Imprints = imprints
+                Imprints = imprints,
+                // what else the item carries stays on it (a pet's upgrade, its corruption)
+                PetUpgrade = data?.PetUpgrade,
+                Corruption = data?.Corruption,
+                Unique = data?.Unique
             };
         }
 

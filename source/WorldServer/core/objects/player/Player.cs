@@ -441,6 +441,7 @@ namespace WorldServer.core.objects
             commands.Command.AutoAim.Resend(this);
 
             ResetNewbiePeriod();
+            TakeArrivalShield();
             InitializeUpdate();
         }
 

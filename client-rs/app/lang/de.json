@@ -472,7 +472,6 @@
 "Other players' pets": "Haustiere anderer Spieler",
 "Other players' pets' effects": "Effekte der Haustiere anderer",
 "Other players' pets' shots": "Schüsse der Haustiere anderer",
-"Other players' shots": "Schüsse anderer Spieler",
 "Page {page} of {pages}": "Seite {page} von {pages}",
 "Particles and effects": "Partikel und Effekte",
 "Party chat": "Gruppenchat",
@@ -1064,7 +1063,6 @@
 "You have no pet stones with you.": "Du hast keine Haustiersteine dabei.",
 "{from}, raised to {to}": "{from}, aufgewertet zu {to}",
 "{have} of {all} collected": "{have} von {all} gesammelt",
-"Raise to Large ({n} of {needed} shards)": "Auf Groß aufwerten ({n} von {needed} Splittern)",
 "The Pen Keeper keeps {n} of your shards": "Der Tierpfleger verwahrt {n} deiner Splitter",
 "+{n} {stat}": "+{n} {stat}",
 "Guardian Angel takes no other imprints.": "Schutzengel lässt keine anderen Prägungen zu.",
@@ -1135,5 +1133,13 @@
 "Unlink your Discord?": "Discord-Verknüpfung trennen?",
 "The Discord bot can no longer reset this account's password.": "Der Discord-Bot kann das Passwort dieses Kontos dann nicht mehr zurücksetzen.",
 "Discord linked. A first link puts a Potion of Maxy in your vault's gift chest.": "Discord verknüpft. Beim ersten Mal landet eine Potion of Maxy in der Geschenktruhe in deinem Tresor.",
-"Discord unlinked.": "Discord getrennt."
+"Discord unlinked.": "Discord getrennt.",
+"Characters in town": "Figuren in der Stadt",
+"Monsters": "Monster",
+"Other players' damage numbers": "Schadenszahlen anderer Spieler",
+"Other players' shots and spells": "Schüsse und Zauber anderer Spieler",
+"Players' chat": "Spielerchat",
+"Raise to Large ({n} Ambrosia)": "Auf Groß aufwerten ({n} Ambrosia)",
+"Trade {needed} shards for an Ambrosia": "{needed} Splitter gegen eine Ambrosia tauschen",
+"Whispers": "Geflüster"
 }

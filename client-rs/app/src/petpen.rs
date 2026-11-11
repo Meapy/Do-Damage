@@ -1,9 +1,9 @@
 //! The Pen Keeper's window (the world server's `Player.PetPen.cs`), at the pet pen east of the
 //! Arena court: the pet you have out, taking it back into its stone, putting in the pet of a stone
 //! from the inventory, and raising its size: Small to Medium for a Superburger, Medium to Large for
-//! 25 Shards of the Mad God from those he keeps for the account (given in his window, or used
-//! anywhere). A raised pet keeps its look and its shots; it hits and heals as the size it's raised
-//! to.
+//! an Ambrosia. He keeps the account's Shards of the Mad God (given in his window, or used
+//! anywhere) and trades 25 of them for an Ambrosia. A raised pet keeps its look and its shots; it
+//! hits and heals as the size it's raised to.
 //!
 //! The window asks as it opens and after each act (`PetPenAct`); the server answers with the pet
 //! as it is (`PetPen`).
@@ -21,8 +21,11 @@ pub const PUT_IN: u8 = 2;
 pub const TO_MEDIUM: u8 = 3;
 pub const SHARDS: u8 = 4;
 pub const TO_LARGE: u8 = 5;
+/// 25 of the shards he keeps for an Ambrosia (from 2.5.1).
+pub const AMBROSIA: u8 = 6;
 
 const BURGER: &str = "Superburger";
+const AMBROSIA_ID: &str = "Ambrosia";
 const SHARD: &str = "Shard of the Mad God x";
 
 #[derive(Clone, Copy, Debug, PartialEq)]
@@ -115,7 +118,7 @@ impl PetPen {
             self.rect = None;
             return;
         }
-        let (dw, dh) = (560.0, 460.0);
+        let (dw, dh) = (560.0, 500.0);
         let s = lay.s * (lay.view_w() * 0.96 / (dw * lay.s)).min(lay.h * 0.96 / (dh * lay.s)).min(1.0);
         let r = [((lay.view_w() - dw * s) / 2.0).round(), ((lay.h - dh * s) / 2.0).round(), dw * s, dh * s];
         self.rect = Some(r);
@@ -165,7 +168,7 @@ impl PetPen {
 
         // what's in the inventory for him
         let mut stones: Vec<(u8, i32)> = Vec::new();
-        let (mut burgers, mut shards) = (0, 0);
+        let (mut burgers, mut shards, mut ambrosia) = (0, 0, 0);
         if let Some(me) = me {
             let backpack = me.stat_int(crate::hud::stat::HAS_BACKPACK).unwrap_or(0) != 0;
             for slot in 4..if backpack { 20 } else { 12 } {
@@ -173,6 +176,8 @@ impl PetPen {
                 let Some(desc) = (item > 0).then(|| ui.data.objects.get(&(item as u16))).flatten() else { continue };
                 if desc.id == BURGER {
                     burgers += 1;
+                } else if desc.id == AMBROSIA_ID {
+                    ambrosia += 1;
                 } else if let Some(n) = desc.id.strip_prefix(SHARD).and_then(|n| n.parse::<i32>().ok()) {
                     shards += n;
                 } else if is_pet_stone(ui.data, item) {
@@ -181,7 +186,7 @@ impl PetPen {
             }
         }
 
-        // the four acts, two by two
+        // the five acts, two by two
         let (size, has_pet, kept, needed) = state.as_ref().map_or((255, false, 0, 25), |p| (p.size, p.pet != 0, p.shards, p.shards_needed as i32));
         let bh = 32.0 * s;
         let bw = (w - 8.0 * s) / 2.0;
@@ -189,7 +194,8 @@ impl PetPen {
             (TAKE_BACK, tr("Take your pet back").to_owned(), has_pet),
             (SHARDS, tf!("Give shards ({n} with you)", n = shards), shards > 0),
             (TO_MEDIUM, tf!("Raise to Medium ({n} Superburger)", n = burgers), has_pet && size == 1 && burgers > 0),
-            (TO_LARGE, tf!("Raise to Large ({n} of {needed} shards)", n = kept, needed), has_pet && size == 2 && kept >= needed),
+            (TO_LARGE, tf!("Raise to Large ({n} Ambrosia)", n = ambrosia), has_pet && size == 2 && ambrosia > 0),
+            (AMBROSIA, tf!("Trade {needed} shards for an Ambrosia", needed), kept >= needed),
         ];
         for (k, (act, label, on)) in acts.iter().enumerate() {
             let br = [x0 + (k % 2) as f32 * (bw + 8.0 * s), y + (k / 2) as f32 * (bh + 8.0 * s), bw, bh];
@@ -198,7 +204,7 @@ impl PetPen {
                 self.hits.push((Hit::Act(*act), br));
             }
         }
-        y += 2.0 * bh + 18.0 * s;
+        y += acts.len().div_ceil(2) as f32 * (bh + 8.0 * s) + 10.0 * s;
         ui.label_fit(tr("Raising keeps your pet's look and its shots: only its damage and healing grow."), x0, y, w, font(12.0), false, color::TEXT_MUTED);
         y += 26.0 * s;
 

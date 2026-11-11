@@ -21,6 +21,22 @@ namespace WorldServer.core.objects
         // (GameServer.Visits) keeps the cooldowns; each world remembers who has been in it
         // (World.HasBeenIn).
 
+        // Who is on their way through a visit, a summon or a help call, and until when: they arrive
+        // invulnerable for ArrivalShieldMs (Init), so a shot already flying or a boss's blast where
+        // they land can't kill them before they can see it.
+        private static readonly System.Collections.Concurrent.ConcurrentDictionary<int, DateTime> Arriving = new System.Collections.Concurrent.ConcurrentDictionary<int, DateTime>();
+        public const int ArrivalShieldMs = 3000;
+
+        public static void ShieldArrival(int accountId) => Arriving[accountId] = DateTime.UtcNow.AddMinutes(1);
+
+        // Just arrived in a world: invulnerable a moment, if we came by a visit, summon or help call.
+        private void TakeArrivalShield()
+        {
+            if (Arriving.IsEmpty || !Arriving.TryRemove(AccountId, out var until) || until < DateTime.UtcNow)
+                return;
+            ApplyConditionEffect(ConditionEffectIndex.Invulnerable, ArrivalShieldMs);
+        }
+
         // The client can show visit requests (VISIT_ANSWER 255): the Rust client from 2.3.7.
         public bool WantsVisitRequests { get; set; }
         // ... and summons, marked by VISIT_REQUEST's last byte (VISIT_ANSWER 254): from 2.3.8.
@@ -265,6 +281,7 @@ namespace WorldServer.core.objects
                     return;
                 }
                 p.SendInfo($"{Name} let you in.");
+                ShieldArrival(p.AccountId);
                 p.Reconnect(world);
             });
             SendInfo($"{visitorName} is on their way.");
@@ -287,6 +304,7 @@ namespace WorldServer.core.objects
             world.MarkBeenIn(myId);
             OnPlayersThread(summoner, p => p.SendInfo($"{Name} is on their way."));
             SendInfo($"Going to {name}.");
+            ShieldArrival(AccountId);
             Reconnect(world);
         }
 

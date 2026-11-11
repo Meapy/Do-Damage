@@ -36,6 +36,8 @@ namespace WorldServer.core.commands.doomed
         // (a T9 staff from two T8s is 60), half the old prices at the top (1,000 for a Sword of
         // Splendor). Starter gear can't be forged up (StarterItems).
         private static readonly int[] TierFame = { 0, 1, 2, 4, 6, 10, 15, 25, 40, 60, 125, 250, 400, 750, 1000 };
+        // forging tiered gear counts for quests and goals from T10 on that scale (its price) up
+        public static int CountedTierFame => TierFame[10];
 
         // Items only the forge makes, which no monster drops (so they skip that rule), and items
         // with the same numbers swapping looks (the Dirk of Cronus and Phantasm Dirk; the Doom Bow,

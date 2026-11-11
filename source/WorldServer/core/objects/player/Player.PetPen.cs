@@ -3,23 +3,26 @@ using System.Collections.Generic;
 using System.Linq;
 using Shared.database.character.inventory;
 using Shared.resources;
+using WorldServer.core.objects.inventory;
 using WorldServer.networking.packets.outgoing;
 
 namespace WorldServer.core.objects
 {
     // The Pen Keeper by the Arena court (PetPen.cs places him): he takes a pet back (as /removepet),
     // puts in the pet of a generator, and raises a pet's size without changing its look or its
-    // shots: Small to Medium for a Superburger, Medium to Large for 25 Shards of the Mad God from
-    // what he keeps for the account. Shards go to him whenever they're given (his window) or used
+    // shots: Small to Medium for a Superburger, Medium to Large for an Ambrosia (from 2.5.1; it was
+    // 25 Shards of the Mad God). Shards go to him whenever they're given (his window) or used
     // (anywhere, UseItem), whatever pet is out, and he keeps them for the whole account
-    // (DbAccount.PenShards) until a raise to Large spends them. A raised pet hits as hard as the size
+    // (DbAccount.PenShards) until they're traded, 25 for an Ambrosia. A raised pet hits as hard as the size
     // it's raised to (twice as hard a size) and heals as that size does (SizeHeal). The raise stays
     // with the pet: on the character while it's out (PetUpgrade), on its generator when it's given
     // back (ItemData.PetUpgrade).
     partial class Player
     {
-        public const int ShardsForLarge = 25;
+        // the shards he trades for an Ambrosia (PetPenData.ShardsNeeded)
+        public const int ShardsForAmbrosia = 25;
         public const string PetBurger = "Superburger";
+        public const string PetAmbrosia = "Ambrosia";
         public const string PetShardPrefix = "Shard of the Mad God x";
         public static readonly string[] PetSizes = { "Tiny", "Small", "Medium", "Large" };
         // each size's healing of HP and MP, and how often (tools/port_doomed_pets.py PET_SIZES)
@@ -66,7 +69,7 @@ namespace WorldServer.core.objects
                 BaseSize = (byte)(size < 0 ? 255 : size),
                 Size = (byte)(size < 0 ? 255 : Math.Min(size + PetUpgrade, 3)),
                 Shards = PenShards,
-                ShardsNeeded = ShardsForLarge,
+                ShardsNeeded = ShardsForAmbrosia,
                 Ok = ok,
                 Message = message ?? ""
             };
@@ -74,7 +77,8 @@ namespace WorldServer.core.objects
 
         /// <summary>The Pen Keeper's work (PetPenActHandler): 0 asks, 1 takes the pet back, 2 puts in
         /// the pet of the generator in inventory slot `slot`, 3 raises it Small to Medium, 4 gives him
-        /// the inventory's shards, 5 raises it Medium to Large with 25 of the shards he keeps.</summary>
+        /// the inventory's shards, 5 raises it Medium to Large for an Ambrosia, 6 trades 25 of the
+        /// shards he keeps for an Ambrosia, into the inventory.</summary>
         public PetPenData PetPenAct(int action, int slot)
         {
             switch (action)
@@ -128,12 +132,30 @@ namespace WorldServer.core.objects
                             return PetPenState(false, "Put a pet in first.");
                         if (PetBaseSize(PetId) + PetUpgrade != 2)
                             return PetPenState(false, "Only a Medium pet can be raised to Large.");
-                        if (PenShards < ShardsForLarge)
-                            return PetPenState(false, $"The Pen Keeper needs {ShardsForLarge - PenShards} more shards for that.");
-                        PenShards -= ShardsForLarge;
+                        var ambrosia = FindInventory(i => i.ObjectId == PetAmbrosia);
+                        if (ambrosia < 0)
+                            return PetPenState(false, $"Raising a pet to Large takes an Ambrosia: he trades one for {ShardsForAmbrosia} shards.");
+                        Inventory[ambrosia] = null;
                         PetUpgrade++;
                         SpawnPetIfAttached(World);
                         return PetPenState(true, "Your pet grew to Large strength!");
+                    }
+                case 6:
+                    {
+                        if (PenShards < ShardsForAmbrosia)
+                            return PetPenState(false, $"The Pen Keeper needs {ShardsForAmbrosia - PenShards} more shards for an Ambrosia.");
+                        if (!GameServer.Resources.GameData.IdToObjectType.TryGetValue(PetAmbrosia, out var type))
+                            return PetPenState(false, "The Pen Keeper has no Ambrosia to give.");
+                        var end = HasBackpack ? InventoryConstants.SWAP_FIRST : 12;
+                        var free = -1;
+                        for (var s = 4; s < end && free < 0; s++)
+                            if (Inventory[s] == null)
+                                free = s;
+                        if (free < 0)
+                            return PetPenState(false, "Make room in your inventory for the Ambrosia.");
+                        PenShards -= ShardsForAmbrosia;
+                        Inventory[free] = GameServer.Resources.GameData.Items[type];
+                        return PetPenState(true, $"The Pen Keeper trades you an Ambrosia for {ShardsForAmbrosia} shards.");
                     }
                 default:
                     return PetPenState();

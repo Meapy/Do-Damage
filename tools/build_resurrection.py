@@ -257,7 +257,7 @@ POWERS = {
     "Azure Tempest Seal": ("Stormcall", "Stormcall", "Using it calls lightning on up to 4 enemies near the target, 350 damage each"),
     "Wyrmfire Katana": ("Ignition", "Ignition", "Every 3rd hit sets the enemy alight, burning for half the hit over 2 seconds"),
     "Obsidian Wyrmplate": ("ObsidianShell", "Obsidian Shell", "A shell that takes the whole of the next shot, back 8 seconds after it breaks"),
-    "Orb of the Drowned Tide": ("Undertow", "Undertow", "Using it slows and breaks the armour of enemies within 3.5 tiles of the target for 3 seconds"),
+    "Orb of the Drowned Tide": ("Undertow", "Undertow", "Using it slows enemies within 3.5 tiles of the target for 3 seconds (its armour shred does the rest)"),
     "Bulwark of Bes": ("GuardiansOath", "Guardian's Oath", "Using it gives everyone within 5 tiles +10 defense for 4 seconds"),
     "Tome of the Night Sky": ("Starlight", "Starlight", "Using it gives everyone within 6 tiles +8 attack for 4 seconds"),
     "Crown of Geb": ("Earthshaker", "Earthshaker", "Using it shakes the earth: 400 damage to every enemy within 4 tiles"),

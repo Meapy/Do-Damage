@@ -42,6 +42,18 @@ def mix(notes, length):
     return [v / peak * 0.8 for v in buf]
 
 
+def ffmpeg():
+    """ffmpeg on the PATH, else the one the imageio-ffmpeg package bundles (pip install imageio-ffmpeg)."""
+    import shutil
+    if shutil.which("ffmpeg"):
+        return "ffmpeg"
+    try:
+        import imageio_ffmpeg
+        return imageio_ffmpeg.get_ffmpeg_exe()
+    except ImportError:
+        sys.exit("needs ffmpeg on the PATH (or pip install imageio-ffmpeg)")
+
+
 def write(name, samples):
     with tempfile.TemporaryDirectory() as tmp:
         wav = os.path.join(tmp, name + ".wav")
@@ -51,7 +63,7 @@ def write(name, samples):
             w.setframerate(RATE)
             w.writeframes(b"".join(struct.pack("<h", int(max(-1.0, min(1.0, v)) * 32767)) for v in samples))
         mp3 = os.path.join(OUT, name + ".mp3")
-        subprocess.run(["ffmpeg", "-y", "-loglevel", "error", "-i", wav, "-ac", "1", "-ar", str(RATE), "-b:a", "64k", mp3], check=True)
+        subprocess.run([ffmpeg(), "-y", "-loglevel", "error", "-i", wav, "-ac", "1", "-ar", str(RATE), "-b:a", "64k", mp3], check=True)
         print(os.path.normpath(mp3))
 
 

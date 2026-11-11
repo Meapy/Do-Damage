@@ -472,7 +472,6 @@
 "Other players' pets": "Питомцы других игроков",
 "Other players' pets' effects": "Эффекты чужих питомцев",
 "Other players' pets' shots": "Выстрелы чужих питомцев",
-"Other players' shots": "Выстрелы других игроков",
 "Page {page} of {pages}": "Страница {page} из {pages}",
 "Particles and effects": "Частицы и эффекты",
 "Party chat": "Чат группы",
@@ -1064,7 +1063,6 @@
 "You have no pet stones with you.": "У вас нет с собой камней питомцев.",
 "{from}, raised to {to}": "{from}, улучшен до {to}",
 "{have} of {all} collected": "Собрано {have} из {all}",
-"Raise to Large ({n} of {needed} shards)": "Улучшить до Большого ({n} из {needed} осколков)",
 "The Pen Keeper keeps {n} of your shards": "Смотритель загона хранит ваши осколки: {n}",
 "+{n} {stat}": "{stat}: +{n}",
 "Guardian Angel takes no other imprints.": "Ангел-хранитель не терпит других оттисков.",
@@ -1135,5 +1133,13 @@
 "Unlink your Discord?": "Отвязать Discord?",
 "The Discord bot can no longer reset this account's password.": "Бот в Discord больше не сможет сбросить пароль этого аккаунта.",
 "Discord linked. A first link puts a Potion of Maxy in your vault's gift chest.": "Discord привязан. За первую привязку Potion of Maxy — в сундуке с подарками в хранилище.",
-"Discord unlinked.": "Discord отвязан."
+"Discord unlinked.": "Discord отвязан.",
+"Characters in town": "Жители города",
+"Monsters": "Монстры",
+"Other players' damage numbers": "Числа урона других игроков",
+"Other players' shots and spells": "Выстрелы и заклинания других игроков",
+"Players' chat": "Чат игроков",
+"Raise to Large ({n} Ambrosia)": "Улучшить до Большого ({n} Ambrosia)",
+"Trade {needed} shards for an Ambrosia": "Обменять {needed} осколков на Ambrosia",
+"Whispers": "Шёпот"
 }

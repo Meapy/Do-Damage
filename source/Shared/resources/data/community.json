@@ -49,11 +49,11 @@
         {"item": "Shard of the Mad God x25", "weight": 9, "rarity": "rare"},
         {"item": "Doomed Cellar Incantation", "weight": 6, "rarity": "rare"},
         {"item": "Court of Oryx Key", "weight": 4, "rarity": "epic"},
-        {"item": "Lil' Wine Cellar Oryx Generator", "weight": 2.5, "rarity": "epic"},
-        {"item": "Lil' Celestial Oryx Generator", "weight": 1, "rarity": "legendary"},
-        {"item": "Lil' Infernal Oryx Generator", "weight": 1, "rarity": "legendary"},
-        {"item": "Lil' Ascended Oryx Generator", "weight": 0.3, "rarity": "divine"},
-        {"item": "Lil' Oryx Generator", "weight": 0.3, "rarity": "divine"}
+        {"item": "Lil' Oryx Generator", "weight": 2.5, "rarity": "epic"},
+        {"item": "Lil' Wine Cellar Oryx Generator", "weight": 1.6, "rarity": "epic"},
+        {"item": "Lil' Celestial Oryx Generator", "weight": 0.7, "rarity": "legendary"},
+        {"item": "Lil' Infernal Oryx Generator", "weight": 0.5, "rarity": "legendary"},
+        {"item": "Lil' Ascended Oryx Generator", "weight": 0.3, "rarity": "divine"}
       ] },
     { "id": "gods", "group": "gods", "title": "Twilight of the Gods", "text": "Defeat {n} gods in the Godlands together.", "icon": "Medusa",
       "event": "kill", "filter": {"god": true}, "goal": 45000, "minimum": 150,

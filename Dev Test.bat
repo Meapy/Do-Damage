@@ -47,7 +47,8 @@ if /i "%MODE%"=="client" goto client
 if /i "%MODE%"=="site" goto site
 
 echo === Stopping test servers (slot %SLOT%)
-python tools\testclient\iso_stack.py --slot %SLOT% stop
+rem --take-over: a stack another checkout or worktree left on this slot is stopped too
+python tools\testclient\iso_stack.py --slot %SLOT% stop --take-over
 
 echo === Building and starting test servers
 python tools\testclient\iso_stack.py --slot %SLOT% start

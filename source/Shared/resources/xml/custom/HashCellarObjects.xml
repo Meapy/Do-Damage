@@ -24,6 +24,14 @@
 		</Texture>
 		<ShadowSize>50</ShadowSize>
 	</Object>
+	<Object type="0x5996" id="O4 Gate Deleter 1">
+		<Class>GameObject</Class>
+		<Size>0</Size>
+		<Texture>
+			<File>hashCellar8x8</File>
+			<Index>0x38</Index>
+		</Texture>
+	</Object>
 	<Object type="0x5983" id="O4 L Banner">
 		<Class>GameObject</Class>
 		<Texture>
@@ -88,19 +96,26 @@
 		<FullOccupy />
 		<EnemyOccupySquare />
 	</Object>
+	<Object type="0x5997" id="O4 Wall Gate">
+		<Class>GameObject</Class>
+		<Model>Candy Col Whole</Model>
+		<Texture>
+			<File>hashCellar16x16</File>
+			<Index>0x04</Index>
+		</Texture>
+		<Static />
+		<OccupySquare />
+		<FullOccupy />
+		<EnemyOccupySquare />
+		<BlocksSight />
+	</Object>
 	<Object type="0x5989" id="O4C Torch Wall Flame">
 		<Class>GameObject</Class>
 		<Texture>
 			<File>hashCellar8x8</File>
-			<Index>0x38</Index>
+			<Index>0x39</Index>
 		</Texture>
 		<Animation sync="true" prob="1" period="0.6">
-			<Frame time="0.15">
-				<Texture>
-					<File>hashCellar8x8</File>
-					<Index>0x38</Index>
-				</Texture>
-			</Frame>
 			<Frame time="0.15">
 				<Texture>
 					<File>hashCellar8x8</File>
@@ -117,6 +132,12 @@
 				<Texture>
 					<File>hashCellar8x8</File>
 					<Index>0x3b</Index>
+				</Texture>
+			</Frame>
+			<Frame time="0.15">
+				<Texture>
+					<File>hashCellar8x8</File>
+					<Index>0x3c</Index>
 				</Texture>
 			</Frame>
 		</Animation>
@@ -421,7 +442,7 @@
 		<StasisImmune />
 		<Texture>
 			<File>hashCellar8x8</File>
-			<Index>0x3c</Index>
+			<Index>0x3d</Index>
 		</Texture>
 		<Projectile id="0">
 			<ObjectId>Infernal Flame</ObjectId>
@@ -454,7 +475,7 @@
 		<StasisImmune />
 		<Texture>
 			<File>hashCellar8x8</File>
-			<Index>0x3c</Index>
+			<Index>0x3d</Index>
 		</Texture>
 		<Projectile id="0">
 			<ObjectId>Infernal Flame</ObjectId>
@@ -472,7 +493,7 @@
 		<Class>Projectile</Class>
 		<Texture>
 			<File>hashCellar8x8</File>
-			<Index>0x3d</Index>
+			<Index>0x3e</Index>
 		</Texture>
 		<AngleCorrection>1</AngleCorrection>
 	</Object>
@@ -480,7 +501,7 @@
 		<Class>Projectile</Class>
 		<Texture>
 			<File>hashCellar8x8</File>
-			<Index>0x3e</Index>
+			<Index>0x3f</Index>
 		</Texture>
 		<AngleCorrection>1</AngleCorrection>
 	</Object>
@@ -488,7 +509,7 @@
 		<Class>Projectile</Class>
 		<Texture>
 			<File>hashCellar8x8</File>
-			<Index>0x3f</Index>
+			<Index>0x40</Index>
 		</Texture>
 		<Rotation>100</Rotation>
 	</Object>

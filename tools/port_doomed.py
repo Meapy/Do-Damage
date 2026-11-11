@@ -725,10 +725,18 @@ GEAR_TUNING = {
     ]},
     # the Oryx UT pass: 2,000 poison damage (was 15,000), cursing instead of dazing, and its thrower
     # silenced 2 s; Oryx 4's alone (no shop)
-    "Doom Poison": {"activates": [("PoisonGrenade", {}, {"totalDamage": "2000", "condEffect": "Curse"})],
-                    "add_activates": [("ConditionEffectSelf", {"effect": "Silenced", "duration": "2"})],
+    # (the owner, 2026-11-11) no stasis: it shreds armour as the orbs do, at half the T8 orb's rate
+    # (4% for 12 s, the T8's 8%), over its poison's 6 tiles
+    "Doom Poison": {"activates": [("PoisonGrenade", {}, {"totalDamage": "2000", "condEffect": "Curse"}),
+                                  ("StasisBlast", {}, None)],
+                    "add_activates": [("ArmorShred", {"amount": "4", "duration": "12", "radius": "6"}),
+                                      ("ConditionEffectSelf", {"effect": "Silenced", "duration": "2"})],
                     "no_shop": True},
-    "Sword Shield": {"damage": (175, 225)},  # was 350-450
+    # was 350-450, then 175-225 with 17 Defense and no cooldown (its 4 s stun could be kept up):
+    # now half the damage, 7 Defense and a cooldown half a second under the stun
+    # (the owner, 2026-11-11) no invisibility: Berserk for the group and Armored stay
+    "Soul Mask": {"activates": [("ConditionEffectSelf", {"effect": "Invisible"}, None)]},
+    "Sword Shield": {"damage": (88, 112), "stats": {DEF: 7}, "add_xml": ["<Cooldown>3.5</Cooldown>"]},
     # invulnerable 2 s (was 10), and its healing and damaging auras 6 s (were 15: the T8 seal's last 4.5)
     "Seal of the Fallen Angel": {"activates": [("ConditionEffectSelf", {"effect": "Invulnerable"}, {"duration": "2"}),
                                                ("ConditionEffectAura", {"effect": "Healing"}, {"duration": "6"}),

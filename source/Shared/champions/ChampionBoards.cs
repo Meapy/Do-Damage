@@ -12,7 +12,7 @@ namespace Shared.champions
     // everyone every few minutes (ChampionSweep) and writes who holds what into Redis
     // (DbChampions); the world servers read that and apply it (ChampionCache, Player.Champion).
     // This file is only the rules, so dotnet test source\Tests covers them.
-    public enum ChampionTab : byte { Fame = 0, Stars = 1, Achievements = 2, ArenaSolo = 3, ArenaGroup = 4, WeeklyFame = 5, WeeklyDungeons = 6, GuildLiving = 7, GuildDead = 8 }
+    public enum ChampionTab : byte { Fame = 0, Stars = 1, Achievements = 2, ArenaSolo = 3, ArenaGroup = 4, WeeklyFame = 5, WeeklyDungeons = 6, GuildLiving = 7, GuildDead = 8, AccountFame = 9 }
 
     public enum ChampionReward : byte
     {
@@ -131,6 +131,13 @@ namespace Shared.champions
                 Tab = ChampionTab.GuildDead, Id = "guildDead", Name = "Guild Dead", Yearly = true, Unit = "fame",
                 Description = "A guild's dead fame: the fame of every character that died in it this year.",
                 Reward = ChampionReward.Loot, Values = new[] { 0.02, 0.01, 0.005 },
+            },
+            // last, as the tabs are numbered (ChampionTab): the boards' order is the tabs'
+            new ChampionBoardDef
+            {
+                Tab = ChampionTab.AccountFame, Id = "accountFame", Name = "Account Fame", Unit = "fame",
+                Description = "The fame of all your living characters together.",
+                Reward = ChampionReward.Loot, Values = new[] { 0.03, 0.02, 0.01 },
             },
         };
 
