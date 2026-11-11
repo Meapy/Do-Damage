@@ -68,6 +68,9 @@ The Rust client always sent an ability's `UseItem` with use type 1 (`START_USE`)
 ### Stray pictures from the quest arrow
 The client kept `Game::quest` (the server's `QuestObjId`) across world changes, and the server sends none where there's no quest (the Nexus). The old id then named some other object in the new world (a Nexus building's model, a wall block), and `draw_quest_arrow` drew that object's picture, at its own size, at the view's edge, where it stayed. `MapInfo` now clears the quest, the quest box and arrow only take an enemy, and the arrow's picture is `object_icon` fitted to 34 pixels. Client only.
 
+### Dev Test.bat takes its slot over
+`tools/testclient/iso_stack.py stop --take-over` also stops a test stack another checkout or worktree left on the slot's ports (start refused while one held them). It only stops a test stack's processes (`iso-redis-server.exe`, `dotnet App.dll` or `WorldServer.dll`, the world proxy) found listening on the slot's ports, and names anything else and leaves it running. `Dev Test.bat` stops with it before starting. Development only: nothing deploys.
+
 ### Wiki
 Pets (Ambrosia), Champions (Account Fame), Endgame (the gate, the poison, the shards, the event gone), Forge (shards, forging counts), Imprints (black edge), Commands (invulnerable arrivals), Getting started (Options). Generated pages pick up the gear, drops and dungeon cards.
 
@@ -81,4 +84,5 @@ Client, servers (account and world) and website. Nobody is disconnected; no Redi
 - `python tools/build_wiki.py --out <scratch>`: Sword Shield (88-112, +7 Def, 3.5 s), Infernal Brimstone Poison (-4% defense, no stasis), Drowned Tide's Undertow text, pD Armor with no drop source.
 - Isolated stack (slot 3, dev account made admin in its own Redis): walked the Burning Path, the gate stood closed with the Court alive and opened after `/killall` of the four Court kinds (walked through to the Pyre); the Pen Keeper traded 25 of 30 kept shards for an Ambrosia and offered "Raise to Large (1 Ambrosia)"; the white bag flash shown (screenshot with the flash held on in a throwaway build); Options' Visuals with the balloon list open and Gameplay's new switch.
 - Updates 2: client tests pass; `build_wiki.py` shows the Soul Mask without invisibility, the Tome of Purification without the Speedy clear and the ninja stars' hold-and-throw. On the isolated stack the quest arrow over Oryx 5 draws his small picture. The ninja stars weren't played (the test account's character is a Wizard), and the stray picture didn't come back on demand (it needs the old id to match an object in the new world).
+- Dev Test: `iso_stack.py --slot 1 stop --take-over` stopped the `bb-pierce` worktree's slot 1 stack (Redis, account and world servers) and left its ports free.
 - Not tested live: the statues event, invulnerable arrivals and the refused-teleport cooldown (code read and built only), the Account Fame board's ranking (unit tests only), the chime's sound (synthesised, not listened to).
