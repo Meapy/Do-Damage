@@ -1,4 +1,4 @@
-Release 2.4.11: the Black Between, restored Candyland waves and Necromantic Boss drops in the Collection; link your Discord for a Potion of Maxy, password resets and the Verified role (deploys the client, the servers, the website and the Discord bot; nobody is disconnected)
+Release 2.5.0: the Black Between, restored Candyland waves and Necromantic Boss drops in the Collection; link your Discord for a Potion of Maxy, password resets and the Verified role (deploys the client, the servers, the website and the Discord bot; nobody is disconnected)
 
 ## For players
 

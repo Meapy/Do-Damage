@@ -12,7 +12,7 @@ Keep each version short: changes go under `### ` group headings (Oryx 5, Arena, 
 on), one line per change players notice, summed up rather than item by item (the wiki has the
 details). Add to a group's line when a change adds to it, rather than adding another line.
 
-## Unreleased
+## 2.5.0 (2026-11-11)
 
 ### Discord
 - Link your account to your Discord: the main menu's Link Discord gives a code for `/link` in the
