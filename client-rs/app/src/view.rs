@@ -1247,11 +1247,22 @@ pub fn draw(scene: &Scene, renderer: &mut Renderer, redrawer: &mut Redrawer, gro
     // islands (`<SkyUnder/>` models: their rocky undersides, the bridges' piers), back to front,
     // before any floor: everything else stands in front of them.
     let sky_under = |item: &Item| matches!(item, Item::Model { desc, .. } if desc.sky_under);
-    if world.background == crate::sunset::SKY_SUNSET {
-        ground.sky.draw(renderer, &cam, scene.time);
+    // The Black Between's void is the same: its starry sky, and rock hanging under the platform.
+    let islands = match world.background {
+        crate::sunset::SKY_SUNSET => {
+            ground.sky.draw(renderer, &cam, scene.time);
+            Some(&crate::islands::SUNSET)
+        }
+        crate::voidsky::SKY_VOID => {
+            ground.void_sky.draw(renderer, &cam, scene.time);
+            Some(&crate::islands::VOID)
+        }
+        _ => None,
+    };
+    if let Some(style) = islands {
         // rock hangs below its floor, so it shows from further up the screen
         let below = 14;
-        ground.undersides.draw(world, scene.data, scene.sprites, renderer, &cam, x0, x1, y0 - raise as i32 - below, y1 + raise as i32);
+        ground.undersides.draw(world, scene.data, scene.sprites, renderer, &cam, x0, x1, y0 - raise as i32 - below, y1 + raise as i32, style);
     }
     for (_, item) in items.iter().filter(|(_, i)| sky_under(i)) {
         if let Item::Model { obj, desc, model } = item {
@@ -1342,6 +1353,8 @@ pub fn draw(scene: &Scene, renderer: &mut Renderer, redrawer: &mut Redrawer, gro
         }
         crate::prof::mark("v.ground");
         }
+        // the ground marks (the bosses' telegraphs, the Black Between's gear) on this floor's ground
+        scene.particles.draw_marks(&cam, renderer, level);
         let here = |item: &Item| item_level(item) == level && !sky_under(item);
         for (_, item) in items.iter().filter(|(_, i)| under(i) && here(i)) {
             match item {
@@ -1410,6 +1423,14 @@ pub fn draw(scene: &Scene, renderer: &mut Renderer, redrawer: &mut Redrawer, gro
     crate::prof::mark("v.objects");
     scene.particles.draw(&cam, renderer);
     crate::prof::mark("v.particles");
+    // Darkness on us (`ConditionEffect` Darkness, as the AIR client drew it): the world goes dark
+    // but for a little light round us, under the names, bars and numbers
+    if let Some(me) = world.player().filter(|me| bsk_world::condition::has(me.conditions(), bsk_world::condition::DARKNESS)) {
+        let [sx, sy] = cam.to_screen(me.x, me.y, me.z);
+        let (w, h) = renderer.size();
+        let tile = cam.scale as f32;
+        crate::death::vignette(renderer, (sx, sy - 0.4 * tile), (w as f32, h as f32), 2.2 * tile, 4.2 * tile, 0x05030C, 0.94);
+    }
     // What follows (icons, bars, numbers, balloons, names) is read, not lit: it doesn't glow.
     renderer.glow_done();
 

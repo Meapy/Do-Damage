@@ -40,8 +40,7 @@ namespace WorldServer.logic
                 new State("RunAwaySlow",
                     new StayBack(speed: 0.8, distance: 30, entity: null),
                     new TimedRandomTransition(1000, false, "RunAwayMedFast", "RunAwayMed")
-                    ),
-                new DropPortalOnDeath(target: "Candyland Portal", probability: 1, timeout: 120)
+                    )
                 ),
                 new Threshold(0.01,
                     new ItemLoot(item: "Red Gumball", probability: 0.15),
@@ -374,10 +373,41 @@ namespace WorldServer.logic
                     ),
                 new ItemLoot("Gummy Bear Generator", 0.02)
             )
+            .Init("Candyland Spawner",
+                new State(
+                    new ConditionEffectBehavior(ConditionEffectIndex.Invincible),
+                    new State("Ini",
+                        new PlayerWithinTransition(dist: 16, targetState: "Start Wave")
+                        ),
+                    new State("Start Wave",
+                        new Spawn(children: "Candyland Boss Spawner", maxChildren: 1, initialSpawn: 1, givesNoXp: true),
+                        new SpawnGroup(group: "Candy Creature", maxChildren: 10, initialSpawn: 1, radius: 8),
+                        new TimedTransition(time: 100, targetState: "Wait for Wave")
+                        ),
+                    new State("Wait for Wave",
+                        new EntitiesNotExistsTransition(16, "Wait for Player",
+                            "Cupcake", "Unicorn", "Hard Candy", "Beefy Fairy", "Fairy", "Wishing Troll",
+                            "Spilled Icecream", "Big Creampuff", "Small Creampuff", "Tiny Rototo", "Rototo")
+                        ),
+                    new State("Wait for Player",
+                        new PlayerWithinTransition(dist: 16, targetState: "Spawn Wave")
+                        ),
+                    new State("Spawn Wave",
+                        new SpawnGroup(group: "Candy Creature", maxChildren: 10, initialSpawn: 1, radius: 8),
+                        new TimedTransition(time: 100, targetState: "Wait for Wave")
+                        )
+                )
+            )
             .Init("Candyland Boss Spawner",
                 new State(
                     new ConditionEffectBehavior(ConditionEffectIndex.Invincible),
                     new State("Ini",
+                        new EntitiesNotExistsTransition(16, "Wait for Room Exit",
+                            "Cupcake", "Unicorn", "Hard Candy", "Beefy Fairy", "Fairy", "Wishing Troll",
+                            "Spilled Icecream", "Big Creampuff", "Small Creampuff", "Tiny Rototo", "Rototo")
+                        ),
+                    new State("Wait for Room Exit",
+                        new PlayerWithinTransition(dist: 16, targetState: "Ini"),
                         new NoPlayerWithinTransition(dist: 16, targetState: "Ini2")
                         ),
                     new State("Ini2",

@@ -33,6 +33,8 @@ pub enum Screen {
     Graveyard,
     /// Account settings: change the password.
     Account,
+    /// Linking the account to a Discord account: the code for the Discord bot, or the link made.
+    Discord,
     /// How a dead character's fame was counted.
     Death,
     /// The death spin, before the fame summary: the loot reel and what it landed on.
@@ -141,12 +143,22 @@ pub const TIMESPANS: [(&str, &str); 4] = [("week", mark("This week")), ("month",
 /// The Recent Deaths tab's place in `TIMESPANS`.
 pub const RECENT: usize = 3;
 
+/// The game's Discord server: where the bot that links accounts is.
+pub const DISCORD_INVITE: &str = "discord.gg/FVhqJe8CG";
+
+/// What the player types to the Discord bot with their code.
+fn link_command(code: &str) -> String {
+    format!("/link code:{code}")
+}
+
 /// What a confirmation dialog is asking about.
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]
 enum Confirm {
     Delete(i32),
     BuySlot,
     BuySkin(u16),
+    /// Unlink the account from its Discord account.
+    Unlink,
 }
 
 /// What can be clicked.
@@ -195,6 +207,13 @@ enum Target {
     ToHome,
     ToOptions,
     Quit,
+    /// The Discord screen, and its buttons: ask for a code, copy the command, open the Discord
+    /// server, unlink.
+    ToDiscord,
+    DiscordCode,
+    DiscordCopy,
+    DiscordOpen,
+    DiscordUnlink,
 }
 
 /// What the player asked for.
@@ -222,6 +241,12 @@ pub enum Action {
     Options,
     /// Play without an account.
     PlayAsGuest,
+    /// Ask for a code that links the account to a Discord account.
+    DiscordCode,
+    /// Unlink the account from its Discord account.
+    DiscordUnlink,
+    /// Open the game's Discord server in the browser.
+    OpenDiscord,
     /// Close the game.
     Quit,
 }
@@ -300,6 +325,10 @@ pub struct Front {
     pub signing_in: bool,
     /// Signed in as this device's guest: Register saves their progress.
     pub guest: bool,
+    /// The code to give the Discord bot, while it lasts (the Discord screen).
+    pub discord_code: Option<String>,
+    /// Where the Discord screen's Back goes: the screen it was opened from.
+    discord_back: Screen,
     /// The night sky behind it all.
     sky: crate::sky::Sky,
 }
@@ -347,6 +376,8 @@ impl Default for Front {
             chars_shown: Vec::new(),
             signing_in: false,
             guest: false,
+            discord_code: None,
+            discord_back: Screen::Chars,
             sky: Default::default(),
         }
     }
@@ -516,6 +547,13 @@ impl Front {
         }
     }
 
+    /// The Discord screen, from the screen showing (its Back returns there).
+    pub fn show_discord(&mut self) {
+        self.message = None;
+        self.discord_back = self.screen;
+        self.show(Screen::Discord);
+    }
+
     /// Put `text` in a field, with the cursor at its end.
     pub fn set_field(&mut self, i: usize, text: String) {
         self.fields[i] = LineEdit::new(text, 128);
@@ -581,6 +619,10 @@ impl Front {
                 Screen::Death if self.death_from_graveyard => self.show(Screen::Graveyard),
                 Screen::Death if self.death_from_legends => self.show(Screen::Legends),
                 Screen::NewChar | Screen::Legends | Screen::Graveyard | Screen::Account | Screen::Death | Screen::Servers => self.show(Screen::Chars),
+                Screen::Discord => {
+                    self.message = None;
+                    self.show(self.discord_back);
+                }
                 Screen::Spin => self.spin_next(),
                 Screen::Class(_) => self.show(Screen::NewChar),
                 _ => {}
@@ -629,8 +671,22 @@ impl Front {
                 Screen::Death if !self.death_counted => self.death_skipped = true,
                 Screen::Death if self.death_from_graveyard => self.show(Screen::Graveyard),
                 Screen::Death if self.death_from_legends => self.show(Screen::Legends),
+                Screen::Discord => {
+                    self.message = None;
+                    self.show(self.discord_back);
+                }
                 _ => self.show(Screen::Chars),
             },
+            Target::ToDiscord => self.show_discord(),
+            Target::DiscordCode => return Some(Action::DiscordCode),
+            Target::DiscordCopy => {
+                if let Some(code) = &self.discord_code {
+                    crate::textedit::clipboard::set(&link_command(code));
+                    self.message = Some((tr("Copied. Paste it in the Discord server.").into(), false));
+                }
+            }
+            Target::DiscordOpen => return Some(Action::OpenDiscord),
+            Target::DiscordUnlink => self.confirm = Some(Confirm::Unlink),
             Target::ToGraveyard => self.show(Screen::Graveyard),
             Target::Grave(id) => return Some(Action::ViewDeath(id)),
             Target::Fallen(account, id) => return Some(Action::ViewDeathOf(account, id)),
@@ -731,6 +787,7 @@ impl Front {
             Confirm::Delete(id) => Some(Action::Delete(id)),
             Confirm::BuySlot => Some(Action::BuySlot),
             Confirm::BuySkin(t) => Some(Action::BuySkin(t)),
+            Confirm::Unlink => Some(Action::DiscordUnlink),
         }
     }
 
@@ -764,6 +821,7 @@ impl Front {
             Screen::Legends => self.draw_legends(ui, w, h, s, mouse),
             Screen::Graveyard => self.draw_graveyard(ui, w, h, s, mouse),
             Screen::Account => self.draw_account(ui, w, h, s, mouse, now),
+            Screen::Discord => self.draw_discord(ui, w, h, s, mouse),
             Screen::Death => self.draw_death(ui, w, h, s, mouse),
             Screen::Spin => self.draw_spin(ui, w, h, s, mouse),
             Screen::Servers => self.draw_servers(ui, w, h, s, mouse),
@@ -946,6 +1004,28 @@ impl Front {
         if cfg!(not(target_arch = "wasm32")) {
             self.button(ui, Target::Quit, [x, y, bw, bh], tr("Quit"), Kind::Secondary, s, mouse);
             y += bh + gap;
+        }
+        // An account that could link its Discord and hasn't: the reminder (never asked for, only
+        // offered). One that has: who to, and the way to the Discord screen.
+        match self.list.as_ref().filter(|l| l.discord_offered && !self.guest).map(|l| l.discord.clone()) {
+            Some(None) => {
+                self.button(ui, Target::ToDiscord, [x, y, bw, bh], tr("Link Discord"), Kind::Secondary, s, mouse);
+                y += bh + gap;
+                if self.message.is_none() {
+                    let hs = (13.0 * s).round().max(9.0);
+                    let hint = tr("Link your Discord for a free Potion of Maxy, and a way back in if you lose your password.");
+                    for line in wrap(ui, hint, hs, (w - 32.0).min(520.0 * s)) {
+                        let lw = ui.measure(&line, hs, false);
+                        ui.label(&line, (w - lw) / 2.0, y - 4.0 * s, hs, false, color::TEXT);
+                        y += hs * 1.35;
+                    }
+                }
+            }
+            Some(Some(name)) => {
+                self.link(ui, Target::ToDiscord, w / 2.0, y, &tf!("Discord: {name}  ", name), tr("Manage"), ws, mouse);
+                y += ws * 1.6 + 6.0 * s;
+            }
+            None => {}
         }
         if self.list.is_none() && self.message.is_none() {
             let hint = tr("No account needed: Play starts you as a guest. Register any time to keep your progress.");
@@ -1367,6 +1447,12 @@ impl Front {
                 let cost = skin.map_or(300, |d| d.xml.int("Cost", 300));
                 (tf!("Buy {name} for {cost} gold?", name, cost), tf!("You have {gold} gold.", gold = list.credits), tr("Buy"), Kind::Primary)
             }
+            Confirm::Unlink => (
+                tr("Unlink your Discord?").to_owned(),
+                tr("The Discord bot can no longer reset this account's password.").to_owned(),
+                tr("Unlink"),
+                Kind::Danger,
+            ),
         };
         // Only the dialog's buttons answer while it's up.
         self.targets.clear();
@@ -1755,6 +1841,91 @@ impl Front {
         let half = (bw - 2.0 * pad - 10.0 * s) / 2.0;
         self.button(ui, Target::Back, [x + pad, fy + 4.0 * s, half, 42.0 * s], tr("Back"), Kind::Secondary, s, mouse);
         self.button(ui, Target::SavePassword, [x + pad + half + 10.0 * s, fy + 4.0 * s, half, 42.0 * s], tr("Change password"), Kind::Primary, s, mouse);
+        let size = (14.0 * s).round().max(9.0);
+        match self.list.as_ref().filter(|l| l.discord_offered).map(|l| l.discord.clone()) {
+            Some(None) => self.link(ui, Target::ToDiscord, x + bw / 2.0, y + bh - 40.0 * s, tr("Free Potion of Maxy:  "), tr("Link Discord"), size, mouse),
+            Some(Some(name)) => self.link(ui, Target::ToDiscord, x + bw / 2.0, y + bh - 40.0 * s, &tf!("Discord: {name}  ", name), tr("Manage"), size, mouse),
+            None => {}
+        }
+        self.message_line(ui, x + bw / 2.0, y + bh + 16.0 * s, bw, s);
+    }
+
+    /// Linking the account to a Discord account. Not linked: what it's for, then the code to give
+    /// the Discord bot (the app asks for the character list every few seconds while it shows, so
+    /// the screen changes once the bot has taken it). Linked: who to, and Unlink.
+    fn draw_discord(&mut self, ui: &mut Ui, w: f32, h: f32, s: f32, mouse: (f64, f64)) {
+        let Some(linked) = self.list.as_ref().map(|l| l.discord.clone()) else { return };
+        let bw = (470.0 * s).min(w - 24.0);
+        let pad = 28.0 * s;
+        let inner = bw - 2.0 * pad;
+        let size = (15.0 * s).round().max(9.0);
+        let line_h = size * 1.4;
+        let command = self.discord_code.as_deref().filter(|_| linked.is_none()).map(link_command);
+        let (title, paragraphs, after): (&str, Vec<String>, Vec<String>) = match (&linked, &command) {
+            (Some(name), _) => (
+                tr("Discord"),
+                vec![tf!("Linked to {name}.", name), tr("Lost your password? Type /resetpassword in the Do Damage Discord to get a new one.").to_owned()],
+                Vec::new(),
+            ),
+            (None, None) => (
+                tr("Link your Discord"),
+                vec![
+                    tr("Link this account to your Discord account and a Potion of Maxy goes into your vault's gift chest.").to_owned(),
+                    tr("If you ever lose your password, the Discord bot gives you a new one.").to_owned(),
+                ],
+                Vec::new(),
+            ),
+            (None, Some(_)) => (
+                tr("Link your Discord"),
+                vec![tf!("1. Join the Do Damage Discord: {invite}", invite = DISCORD_INVITE), tr("2. There, type this command:").to_owned()],
+                vec![tr("The code works for 10 minutes. This screen changes once you're linked.").to_owned()],
+            ),
+        };
+        let before: Vec<Vec<String>> = paragraphs.iter().map(|p| wrap(ui, p, size, inner)).collect();
+        let after: Vec<Vec<String>> = after.iter().map(|p| wrap(ui, p, size, inner)).collect();
+        let para_h = |ps: &[Vec<String>]| ps.iter().map(|l| l.len() as f32 * line_h + 8.0 * s).sum::<f32>();
+        let box_h = if command.is_some() { 58.0 * s + 12.0 * s } else { 0.0 };
+        let bh = 70.0 * s + para_h(&before) + box_h + para_h(&after) + 12.0 * s + 42.0 * s + 26.0 * s;
+        let r = [(w - bw) / 2.0, ((h - bh) / 2.0).max(16.0), bw, bh];
+        let [x, y, ..] = r;
+        theme::panel(ui.renderer, r, s);
+        ui.label(title, x + pad, y + 24.0 * s, (24.0 * s).round(), true, color::TEXT);
+        let mut ty = y + 70.0 * s;
+        let text = |ui: &mut Ui, ps: &[Vec<String>], ty: &mut f32| {
+            for lines in ps {
+                for line in lines {
+                    ui.label(line, x + pad, *ty, size, false, color::TEXT_DIM);
+                    *ty += line_h;
+                }
+                *ty += 8.0 * s;
+            }
+        };
+        text(ui, &before, &mut ty);
+        if let Some(command) = &command {
+            // The command, large, in a box of its own: it's read off here and typed there.
+            let cr = [x + pad, ty + 2.0 * s, inner, 54.0 * s];
+            ui.field_box(cr, true, s);
+            let cs = ui.fit_size(command, inner - 24.0 * s, (26.0 * s).round(), true);
+            let cw = ui.measure(command, cs, true);
+            ui.label(command, cr[0] + (inner - cw) / 2.0, cr[1] + (cr[3] - cs * 1.22) / 2.0, cs, true, color::ACCENT_HI);
+            ty += box_h;
+        }
+        text(ui, &after, &mut ty);
+        let by = y + bh - 26.0 * s - 42.0 * s;
+        let gap = 10.0 * s;
+        let buttons: Vec<(Target, &str, Kind)> = match (&linked, &command) {
+            (Some(_), _) => vec![(Target::Back, tr("Back"), Kind::Secondary), (Target::DiscordUnlink, tr("Unlink"), Kind::Danger)],
+            (None, None) => vec![(Target::Back, tr("Back"), Kind::Secondary), (Target::DiscordCode, tr("Get a code"), Kind::Primary)],
+            (None, Some(_)) => vec![
+                (Target::Back, tr("Back"), Kind::Secondary),
+                (Target::DiscordCopy, tr("Copy command"), Kind::Secondary),
+                (Target::DiscordOpen, tr("Open Discord"), Kind::Primary),
+            ],
+        };
+        let each = (inner - gap * (buttons.len() - 1) as f32) / buttons.len() as f32;
+        for (i, (target, label, kind)) in buttons.into_iter().enumerate() {
+            self.button(ui, target, [x + pad + i as f32 * (each + gap), by, each, 42.0 * s], label, kind, s, mouse);
+        }
         self.message_line(ui, x + bw / 2.0, y + bh + 16.0 * s, bw, s);
     }
 

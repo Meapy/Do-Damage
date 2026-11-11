@@ -24,9 +24,13 @@ namespace WorldServer.core.objects
         private HashSet<IntPoint> _sightPoints = SightPoints(VISIBILITY_RADIUS);
         private HashSet<IntPoint> _circleCircumferenceSightPoints = CircumferencePoints(VISIBILITY_RADIUS);
 
+        // what the client last asked for; the world may give more (World.MinSightRadius)
+        private int _askedSightRadius = VISIBILITY_RADIUS;
+
         public void SetSightRadius(int radius)
         {
-            radius = Math.Clamp(radius, VISIBILITY_RADIUS, MAX_VISIBILITY_RADIUS);
+            _askedSightRadius = radius;
+            radius = Math.Clamp(Math.Max(radius, World?.MinSightRadius ?? 0), VISIBILITY_RADIUS, MAX_VISIBILITY_RADIUS);
             if (radius == SightRadius)
                 return;
             SightRadius = radius;
@@ -196,8 +200,12 @@ namespace WorldServer.core.objects
 
             var map = World.Map;
             var tile = map[x, y];
-            if (!tile.Exists || tile.TileId == 0xFF)
+            if (!tile.Exists)
                 return;
+            // no ground (the void) is never sent, unless the client was sent ground there that has
+            // gone since (PaintFloor to "Empty": the Black Between's causeway in the fight), so it
+            // forgets it
+            var empty = tile.TileId == 0xFF;
 
             // what the client has of the tile: an array for maps up to 1024 x 1024 (dungeons, the
             // Arena, the Nexus: an index instead of a hash), the dictionary for realms (2048 x 2048
@@ -206,15 +214,15 @@ namespace WorldServer.core.objects
             {
                 var seen = _seenArray ??= new byte[map.Width * map.Height];
                 var i = x + y * map.Width;
-                if (seen[i] >= tile.UpdateCount)
+                if (seen[i] >= tile.UpdateCount || empty && seen[i] == 0)
                     return;
                 seen[i] = tile.UpdateCount;
             }
             else
             {
                 var hash = x << 16 | y;
-                _ = _seenTiles.TryGetValue(hash, out var updateCount);
-                if (updateCount >= tile.UpdateCount)
+                var sent = _seenTiles.TryGetValue(hash, out var updateCount);
+                if (updateCount >= tile.UpdateCount || empty && !sent)
                     return;
                 _seenTiles[hash] = tile.UpdateCount;
             }

@@ -1,8 +1,9 @@
 //! The Collection (the world server's `Player.Collection.cs`), opened at the Collection stand in
 //! the vault: every piece of gear there is to collect, the ones the account has had in colour and
 //! the rest dark. Two views: "All", every piece by kind (an outline of each kind filters to it),
-//! and "Dungeons", the untiered gear by where it drops (hardest first), the realm's and the Divine
-//! Forge's after them; a piece from two places shows in both. Hovering a piece shows its tooltip.
+//! and "Dungeons", the untiered gear by where it drops (hardest first), the unique items from
+//! Empowered Elder bosses, the realm's and the Divine Forge's after them; a piece from two places
+//! shows in both. Hovering a piece shows its tooltip.
 //!
 //! The client asks once each time it opens (`CollectionRequest`); the list itself comes from the
 //! server (`tools/build_collection.py`), so new gear needs no client release.

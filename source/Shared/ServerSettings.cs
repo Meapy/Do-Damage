@@ -23,6 +23,10 @@ namespace Shared
         // /client/ for players' clients to update from. Empty: dist/client in the checkout the
         // server runs from.
         public string clientFolder { get; set; } = "";
+        // The account server: what the Discord bot proves itself with for linking accounts and
+        // resetting passwords (App/Controllers/DiscordController.cs), or BSK_DISCORD_SECRET in the
+        // environment. Empty: no linking. deploy/deploy.py sets it (SETUP-LOCAL.md, "Discord").
+        public string discordSecret { get; set; } = "";
         public int restartTime { get; set; } = 0;
         // The first world id is worldIdBase + 1. Each world server behind the proxy gets its own
         // range (1000000 for slot a, 2000000 for b), so the proxy knows which one has a world.

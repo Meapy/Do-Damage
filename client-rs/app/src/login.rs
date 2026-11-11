@@ -71,6 +71,17 @@ impl Endpoint {
         )
     }
 
+    /// `/account/discordCode`: a code that links this account to a Discord account, for the
+    /// Discord bot's `/link`.
+    pub fn discord_code(&self, email: &str, password: &str) -> Pending<http::Response> {
+        http::post_form(&format!("{}/account/discordCode", self.account), &[("guid", email), ("password", password)])
+    }
+
+    /// `/account/discordUnlink`.
+    pub fn discord_unlink(&self, email: &str, password: &str) -> Pending<http::Response> {
+        http::post_form(&format!("{}/account/discordUnlink", self.account), &[("guid", email), ("password", password)])
+    }
+
     /// `/fame/list`: the legends for "week", "month" or "all".
     pub fn legends(&self, timespan: &str) -> Pending<http::Response> {
         http::post_form(&format!("{}/fame/list", self.account), &[("timespan", timespan)])
@@ -133,6 +144,10 @@ pub fn parse_char_list(response: http::Response) -> Result<CharList, String> {
     account::parse_char_list(&reached(response)?).map_err(|e| explain(&e))
 }
 
+pub fn parse_discord_code(response: http::Response) -> Result<String, String> {
+    account::parse_discord_code(&reached(response)?).map_err(|e| explain(&e))
+}
+
 pub fn parse_success(response: http::Response) -> Result<(), String> {
     account::success(&reached(response)?).map_err(|e| explain(&e))
 }
@@ -169,10 +184,37 @@ pub fn explain(e: &str) -> String {
         "invalid name" => tr("That name can't be used. Names are up to 10 letters, A to Z."),
         "account in use" => tr("That account is in the game right now. Try again in a moment."),
         "account banned" => tr("This account is banned."),
+        "discord linking isn't set up on this server" => tr("This server doesn't link Discord accounts."),
+        "register first: a guest account can't be linked" => tr("Register first: a guest account can't be linked."),
+        "this account is linked to discord already" => tr("This account is linked to Discord already."),
+        "this account isn't linked to discord" => tr("This account isn't linked to Discord."),
         "" => tr("Something went wrong. Try again."),
         _ => return e.trim().to_owned(),
     };
     text.to_owned()
+}
+
+/// Open a web address in the player's browser (a new tab, in a browser).
+pub fn open_link(url: &str) {
+    #[cfg(target_arch = "wasm32")]
+    if let Some(window) = web_sys::window() {
+        let _ = window.open_with_url_and_target(url, "_blank");
+    }
+    #[cfg(not(target_arch = "wasm32"))]
+    {
+        let mut command = if cfg!(windows) {
+            let mut c = std::process::Command::new("rundll32");
+            c.arg("url.dll,FileProtocolHandler");
+            c
+        } else if cfg!(target_os = "macos") {
+            std::process::Command::new("open")
+        } else {
+            std::process::Command::new("xdg-open")
+        };
+        if let Err(e) = command.arg(url).spawn() {
+            log::warn!("opening {url}: {e}");
+        }
+    }
 }
 
 /// A new guest's login (`<Guest><GUID>..</GUID><Password>..</Password></Guest>`).
@@ -316,7 +358,7 @@ pub fn startup() -> Result<Startup, String> {
             "--stay" | "--bench" | "--resume" | "--no-update" => {}
             "--credentials" => credentials = it.next(),
             // Read by main (screenshots, scripted input).
-            "--shot" | "--shot-after" | "--look" | "--hold" | "--walk-to" | "--aim" | "--say" | "--type" | "--npc" | "--quests" | "--champions" | "--effect" | "--size" | "--mouse" | "--mouse-script" => {
+            "--shot" | "--shot-after" | "--look" | "--hold" | "--walk-to" | "--aim" | "--say" | "--type" | "--npc" | "--quests" | "--champions" | "--effect" | "--size" | "--mouse" | "--mouse-script" | "--screen" => {
                 it.next();
             }
             // Read by i18n (the language for this run).

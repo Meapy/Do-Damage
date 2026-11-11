@@ -2,9 +2,12 @@
 settings file, the releases and their changelog, the game's status and the wiki search, and the
 messages made from them (as Discord's JSON, so a dry run can print exactly what would be sent).
 """
+import hashlib
+import hmac
 import json
 import os
 import re
+import urllib.error
 import urllib.parse
 import urllib.request
 import xml.etree.ElementTree as ET
@@ -271,6 +274,119 @@ def play_embed(site=SITE):
         "",
         "It's free: one account works in both, and every shop takes fame you earn by playing.",
     ])}
+
+
+# --- linked game accounts --------------------------------------------------------------------
+# A member links their Discord account to their game account with a code from the game's menu
+# (/link), and can then see the account, reset its password and unlink it. The account server does
+# the work (source/App/Controllers/DiscordController.cs); the bot proves itself with a secret.
+
+def link_secret(env):
+    """What the bot and the account server share: BSK_LINK_SECRET when set, else made from the
+    bot's token, which deploy/deploy.py also has when it writes the account server's settings (so
+    there's nothing more to set up, and a new token changes both at the next deploy). '' without
+    either: no linking."""
+    secret = env.get("BSK_LINK_SECRET", "").strip()
+    token = env.get("DISCORD_TOKEN", "").strip()
+    if secret or not token:
+        return secret
+    return hmac.new(token.encode(), b"dodmg account linking", hashlib.sha256).hexdigest()
+
+
+class Accounts:
+    """The account server's Discord requests. Each returns (answer, error): the answer's fields as
+    a dict, or the server's error text ("Not linked", "Bad code"...; "unreachable" when it didn't
+    answer)."""
+
+    def __init__(self, base, secret):
+        self.base, self.secret = base.rstrip("/"), secret
+
+    def __call__(self, what, member_id, **fields):
+        if not self.secret:
+            return None, "not set up"
+        data = urllib.parse.urlencode(dict(fields, secret=self.secret, discordId=str(member_id))).encode()
+        req = urllib.request.Request("%s/discord/%s" % (self.base, what), data=data, headers={"User-Agent": USER_AGENT})
+        try:
+            with urllib.request.urlopen(req, timeout=15) as f:
+                body = f.read()
+        except urllib.error.HTTPError as e:
+            body = e.read()  # the account server's errors come with a status and an <Error> body
+        except OSError:
+            return None, "unreachable"
+        try:
+            root = ET.fromstring(body.decode("utf-8"))
+        except (ET.ParseError, UnicodeDecodeError):
+            return None, "unreachable"
+        if root.tag == "Error":
+            return None, (root.text or "").strip() or "unreachable"
+        return {c.tag: (c.text or "") for c in root}, None
+
+
+LINK_HOW = ("**To link your game account:** open %s, sign in, and on the main menu choose "
+            "**Link Discord**. It shows a 6-character code: give it to me with `/link code:<the code>` "
+            "within 10 minutes. You become **Verified** here under your game name, and the first time "
+            "you get a **Potion of Maxy**." % NAME)
+
+
+def link_error(error):
+    """What a member is told when a linked-account command fails, in plain words."""
+    return {
+        "not set up": "Account linking isn't set up here yet.",
+        "Discord linking isn't set up on this server.": "Account linking isn't set up here yet.",
+        "unreachable": "I couldn't reach the game just now. Try again in a minute.",
+        "Not linked": "Your Discord isn't linked to a game account yet.\n" + LINK_HOW,
+        "Bad code": "That code didn't work. A code lasts 10 minutes and works once: get a new one "
+                    "in the game (main menu, **Link Discord**) and try again.",
+        "Too many tries": "Too many wrong codes. Wait 10 minutes, then try again with a new code from the game.",
+        "Account linked": "That game account is linked to a Discord account already. Unlink it "
+                          "first: in the game, main menu, **Discord**, **Unlink**.",
+        "Discord linked": "Your Discord is linked to a game account already (`/account` shows it). "
+                          "`/unlink` first if you want to link another.",
+        "Too soon": "That account's password was reset in the last 10 minutes. Use the one you were given, "
+                    "or wait a little and ask again.",
+    }.get(error, "The game said no: %s" % error)
+
+
+VERIFIED = {
+    # what happened to the member's Verified role and nickname, said after the command's answer
+    "marked": "You're **Verified** here now, and your nickname is your game name.",
+    "unmarked": "Your Verified role and nickname are gone with it.",
+    "refused": "I couldn't change your role or nickname: Discord doesn't let me change the server's owner or "
+               "anyone ranked above me.",
+}
+
+
+def link_reply(what, answer, error, verified=None):
+    """The (private) answer to /link, /unlink, /account and /resetpassword, as text. verified:
+    what the bot did with the member's Verified role and nickname (a key of VERIFIED), if anything."""
+    text = _link_reply(what, answer, error)
+    return text + "\n" + VERIFIED[verified] if verified in VERIFIED else text
+
+
+def _link_reply(what, answer, error):
+    if error:
+        return link_error(error)
+    name = answer.get("Name", "?")
+    if what == "link":
+        reward = ("\nA **%s** is waiting in your vault's gift chest. Thanks for linking!" % answer["Reward"]
+                  if answer.get("Reward") else "")
+        return ("Linked to **%s**.%s\nIf you ever lose your password, `/resetpassword` here gets you back in. "
+                "`/account` shows the account, `/unlink` undoes this." % (name, reward))
+    if what == "unlink":
+        return "Unlinked from **%s**. You can link again any time with a new code from the game." % name
+    if what == "account":
+        lines = ["Your Discord is linked to **%s**." % name,
+                 "Fame: %s (%s earned in all)" % (answer.get("Fame", "0"), answer.get("TotalFame", "0")),
+                 "Characters alive: %s" % answer.get("Characters", "0")]
+        if answer.get("Guild"):
+            lines.append("Guild: %s" % answer["Guild"])
+        return "\n".join(lines)
+    if what == "resetPassword":
+        return ("**%s** has a new password. Sign in with:\n"
+                "Email: `%s`\nPassword: `%s`\n"
+                "Then choose your own: on the character list, **Account**, change the password. "
+                "Only you can see this message." % (name, answer.get("Email", "?"), answer.get("Password", "?")))
+    return "Done."
 
 
 # --- Discord's REST API (for the setup script and one-off posts) ------------------------------

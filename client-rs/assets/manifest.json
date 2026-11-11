@@ -1268,6 +1268,24 @@
    "h": 16
   },
   {
+   "name": "blackBetween8x8",
+   "file": "kabam/rotmg/assets/custom/images/BlackBetween8x8.png",
+   "w": 8,
+   "h": 8
+  },
+  {
+   "name": "blackBetween16x16",
+   "file": "kabam/rotmg/assets/custom/images/BlackBetween16x16.png",
+   "w": 16,
+   "h": 16
+  },
+  {
+   "name": "blackBetween32x32",
+   "file": "kabam/rotmg/assets/custom/images/BlackBetween32x32.png",
+   "w": 32,
+   "h": 32
+  },
+  {
    "name": "customAssets32x32",
    "file": "kabam/rotmg/assets/custom/images/CustomAssets32x32.png",
    "w": 32,
@@ -3122,6 +3140,26 @@
    "sheet_w": 112,
    "sheet_h": 16,
    "dir": "right"
+  },
+  {
+   "name": "blackBetweenChars8x8",
+   "file": "kabam/rotmg/assets/custom/images/BlackBetweenChars8x8.png",
+   "mask": null,
+   "w": 8,
+   "h": 8,
+   "sheet_w": 56,
+   "sheet_h": 8,
+   "dir": "right"
+  },
+  {
+   "name": "blackBetweenChars32x32",
+   "file": "kabam/rotmg/assets/custom/images/BlackBetweenChars32x32.png",
+   "mask": null,
+   "w": 32,
+   "h": 32,
+   "sheet_w": 224,
+   "sheet_h": 32,
+   "dir": "right"
   }
  ],
  "models": [
@@ -3450,7 +3488,8 @@
   "kabam/rotmg/assets/custom/xmls/ElysiumGrounds.xml",
   "kabam/rotmg/assets/custom/xmls/Realm2Grounds.xml",
   "kabam/rotmg/assets/custom/xmls/NexusGardenGrounds.xml",
-  "kabam/rotmg/assets/custom/xmls/NexusIslandsGrounds.xml"
+  "kabam/rotmg/assets/custom/xmls/NexusIslandsGrounds.xml",
+  "kabam/rotmg/assets/custom/xmls/BlackBetweenGrounds.xml"
  ],
  "object_xml": [
   "kabam/rotmg/assets/custom/xmls/CustomItems.xml",
@@ -3567,7 +3606,8 @@
   "kabam/rotmg/assets/custom/xmls/Realm2Objects.xml",
   "kabam/rotmg/assets/custom/xmls/NexusGardenObjects.xml",
   "kabam/rotmg/assets/custom/xmls/NexusIslandsObjects.xml",
-  "kabam/rotmg/assets/custom/xmls/Resurrection.xml"
+  "kabam/rotmg/assets/custom/xmls/Resurrection.xml",
+  "kabam/rotmg/assets/custom/xmls/BlackBetweenObjects.xml"
  ],
  "region_xml": [
   "kabam/rotmg/assets/prod/xmls/Regions.xml"

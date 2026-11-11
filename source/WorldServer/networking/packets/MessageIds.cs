@@ -213,6 +213,11 @@ public enum MessageId : byte
     // map shows the way to them before anyone has walked there (NEXUS_PLACES).
     NEXUS_PLACES_REQUEST = 140,
     NEXUS_PLACES = 141,
+    // The Cosmic Anvil (Rust client 2.4.7, CorruptHandler.cs): corrupt the Enthroned item in an
+    // inventory slot with an Unstable Essence (CORRUPT); the answer says how each value moved
+    // (CORRUPT_RESULT). Numbered from 160, clear of the ids Meapy's releases take next.
+    CORRUPT = 160,
+    CORRUPT_RESULT = 161,
     // From the world proxy (tools/world_proxy.py), before the client's first message: the
     // client's address. Only taken on a connection from this PC; clients never send it.
     PROXY_INFO = 250

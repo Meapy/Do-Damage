@@ -82,6 +82,17 @@ own stats become **+20 maximum health and +1 to every other stat**. In return, a
 end your character sends you to the Nexus instead, as an amulet of resurrection does, and the ring
 is lost. A ring with Guardian Angel takes no other imprints.
 
+## Corruption
+
+The **Cosmic Anvil** appears in [The Black Between](dungeons.html) once the Mysterious One falls, three
+squares south of the middle of his platform. It corrupts Enthroned gear, imprinted or not, with an
+**Unstable Essence**, which he drops in a white bag: two for everyone who finishes the fight (at least 1% of his
+damage), and sometimes a third. Walk up to the anvil, open it, pick a piece of gear
+you wear or carry and press **Corrupt**: the essence is used up and the piece changes, for better or
+worse. What changes, and how far, is for you to find out.
+
+Corrupted gear has a **purple** edge in place of its gold one, and its tooltip shows how it has changed.
+
 ## Every imprint
 
 {{gen:imprints}}

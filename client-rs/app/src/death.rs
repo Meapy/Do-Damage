@@ -28,7 +28,7 @@ fn rise(rgb: u32, a: f32) -> u32 {
 
 /// A darkness closing in on `(cx, cy)`: clear within `inner`, `alpha` of `rgb` from `outer` out
 /// to past the window's corners.
-fn vignette(renderer: &mut Renderer, (cx, cy): (f32, f32), (w, h): (f32, f32), inner: f32, outer: f32, rgb: u32, alpha: f32) {
+pub fn vignette(renderer: &mut Renderer, (cx, cy): (f32, f32), (w, h): (f32, f32), inner: f32, outer: f32, rgb: u32, alpha: f32) {
     if alpha <= 0.0 {
         return;
     }

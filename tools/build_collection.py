@@ -9,8 +9,9 @@ Writes source/Shared/resources/data/collection.json:
   forged, sold or handed out), in the order the client lists them: by slot type, then tier, then
   name. The Collection's "All" view.
 - `groups`: where the untiered gear comes from, for its "Dungeons" view: each dungeon (hardest
-  first, by the wiki's difficulty) with the untiered gear its monsters and bosses drop, then the
-  realm's own, then what the Divine Forge makes. An item from two places is in both.
+  first, by the wiki's difficulty) with the untiered gear its monsters and bosses drop, the
+  Empowered Elder bosses' unique items, the realm's own, then what the Divine Forge makes. An item
+  from two places is in both.
 
 Run it after adding gear, drops or dungeons; `--check` fails when the file is out of date (as a
 test would).
@@ -73,6 +74,17 @@ def build():
         portal = next(iter(g.portals.get(x["id"], [])), None)
         groups.append({"name": x["name"], "icon": portal, "level": x["level"], "items": items})
     groups.sort(key=lambda gr: (-(gr["level"] or 0), gr["name"].lower()))
+    necromantic = sorted(
+        {b["item"] for b in d.resurrection()["bosses"] if b["item"] in untiered},
+        key=lambda o: (d.name(o).lower(), o),
+    )
+    if necromantic:
+        groups.append({
+            "name": "Drops from Necromantic Boss",
+            "icon": "Necromantic Relic",
+            "level": 0,
+            "items": necromantic,
+        })
     # the realm's: dropped by monsters no dungeon holds (its gods, events and their minions)
     realm = []
     for oid in sorted(untiered, key=lambda o: (d.name(o).lower(), o)):

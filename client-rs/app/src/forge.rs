@@ -16,7 +16,10 @@
 //! forged item takes the first ingredient's inventory slot; with none, a free one, or the vault.
 //!
 //! Imprints: puts imprints on gear (`ImprintHandlers.cs`), or with no gear picked lists them all.
+//!
+//! Corrupt: the window as the Cosmic Anvil, its one tab (`corrupt.rs`, `CorruptHandler.cs`).
 
+mod corrupt;
 mod imprints;
 
 use crate::hud::{Layout, SlotKind, Ui};
@@ -46,6 +49,8 @@ pub enum Act {
     Imprint(u8, u8, Option<[u8; 3]>),
     /// Imprint the item in this vault chest and slot with this imprint.
     ImprintVault(u16, u8, u8),
+    /// The Cosmic Anvil: corrupt the Enthroned item in this inventory slot.
+    Corrupt(u8),
 }
 
 /// What the server said.
@@ -61,6 +66,8 @@ pub enum Event {
     Imprint { success: bool, message: String },
     /// The Enthroned gear in the vault.
     ImprintVault(Vec<bsk_proto::VaultGear>),
+    /// The answer to a corruption: how far each value moved, and whether its shots are reversed.
+    Corrupt { success: bool, message: String, changes: [i32; 4], reversed: bool },
 }
 
 #[derive(Clone, Copy, Debug, PartialEq, Eq, Default)]
@@ -71,6 +78,8 @@ enum Tab {
     Sell,
     /// The Enchanter's tab.
     Imprints,
+    /// The Cosmic Anvil's tab, the only one it shows.
+    Corrupt,
 }
 
 /// What a recipe makes, by the slots a class wears it in (`SlotTypes`: weapon, ability, armor,
@@ -157,6 +166,9 @@ enum Hit {
     ImpChoice(usize),
     /// Put the picked gear back: every imprint shows again.
     ImpClear,
+    /// The Cosmic Anvil: pick the item in this slot; corrupt it.
+    CorItem(u8),
+    CorApply,
 }
 
 /// Where a forging is.
@@ -256,6 +268,14 @@ pub struct Forge {
     imp_pending: bool,
     imp_choice: [u8; 3],
     hover_imprints: [u32; 4],
+    /// Opened as the Cosmic Anvil (its Corrupt tab alone); the piece picked, whether a corruption
+    /// is on its way, how far the last one moved each value, and each slot's corruption (slot,
+    /// values, reversed).
+    anvil: bool,
+    cor_pick: Option<u8>,
+    cor_pending: bool,
+    cor_last: Option<[i32; 4]>,
+    gear_corruption: Vec<(u8, [i32; 4], bool)>,
 }
 
 fn inside(r: [f32; 4], (x, y): (f64, f64)) -> bool {
@@ -269,6 +289,7 @@ impl Forge {
     /// Opens the window; the first time, it asks for the recipes.
     pub fn show(&mut self, data: &GameData) -> Option<Act> {
         self.open = true;
+        self.anvil = false;
         self.imp_asked = false;
         self.tab = Tab::Forge;
         self.message = None;
@@ -491,6 +512,18 @@ impl Forge {
             Event::ImprintVault(items) => {
                 self.vault_gear = items.into_iter().map(|g| (g.chest, g.slot, g.item as i32, [g.offensive as u32, g.defensive as u32, g.misc as u32, 0])).collect();
             }
+            Event::Corrupt { success, message, changes, reversed } => {
+                self.cor_pending = false;
+                if success {
+                    self.cor_last = Some(changes);
+                    self.message = Some((
+                        if reversed { tr("Corrupted. Its shots now fly back to you.") } else { tr("Corrupted.") }.into(),
+                        false,
+                    ));
+                } else {
+                    self.message = Some((message, true));
+                }
+            }
             Event::Imprint { success, message } => {
                 self.imp_pending = false;
                 self.message = Some(if success { (tr("Imprinted.").into(), false) } else { (message, true) });
@@ -527,6 +560,12 @@ impl Forge {
                 self.message = None;
             }
             Hit::ImpApply(id) => return self.imprint(id, data),
+            Hit::CorItem(slot) => {
+                self.cor_pick = if self.cor_pick == Some(slot) { None } else { Some(slot) };
+                self.cor_last = None;
+                self.message = None;
+            }
+            Hit::CorApply => return self.corrupt(data),
             Hit::ImpChoice(k) => self.next_choice(k),
             Hit::Tab(t) => {
                 if !matches!(self.forging, Some(Forging::Going { .. })) {
@@ -538,7 +577,7 @@ impl Forge {
                         self.imp_pending = false;
                         return Some(Act::ImprintShards);
                     }
-                    if t != Tab::Imprints && !self.loaded {
+                    if t != Tab::Imprints && t != Tab::Corrupt && !self.loaded {
                         return Some(Act::Data);
                     }
                 }
@@ -691,6 +730,8 @@ impl Forge {
                 self.gear.push((slot, item, crate::hud::slot_imprints(me, slot)));
             }
         }
+        self.gear_corruption =
+            self.gear.iter().map(|g| (g.0, crate::hud::slot_corruption(me, g.0), crate::hud::slot_reversed(me, g.0))).collect();
         if self.forging.is_none() {
             if let Some(r) = self.picked.map(|i| self.recipes[i].clone()) {
                 let mut from_storage: HashMap<u16, i32> = HashMap::new();
@@ -766,8 +807,11 @@ impl Forge {
         // button, all centred on one line.
         let mid = r[1] + 32.0 * s;
         let ts = font(22.0);
-        ui.label(tr("Divine Workbench"), r[0] + 22.0 * s, (mid - ui.digit_middle(ts, true)).round(), ts, true, color::GOLD);
-        let tabs: &[(Tab, &str)] = &[(Tab::Forge, tr("Forge")), (Tab::Shards, tr("Shards")), (Tab::Sell, tr("Sell for fame")), (Tab::Imprints, tr("Imprints"))];
+        let title = if self.anvil { tr("Cosmic Anvil") } else { tr("Divine Workbench") };
+        ui.label(title, r[0] + 22.0 * s, (mid - ui.digit_middle(ts, true)).round(), ts, true, color::GOLD);
+        let all: &[(Tab, &str)] = &[(Tab::Forge, tr("Forge")), (Tab::Shards, tr("Shards")), (Tab::Sell, tr("Sell for fame")), (Tab::Imprints, tr("Imprints"))];
+        let anvil: &[(Tab, &str)] = &[(Tab::Corrupt, tr("Corrupt"))];
+        let tabs = if self.anvil { anvil } else { all };
         let cs = font(13.0);
         let widths: Vec<f32> = tabs.iter().map(|(_, l)| ui.measure(l, cs, true) + 36.0 * s).collect();
         let gap = 8.0 * s;
@@ -801,11 +845,12 @@ impl Forge {
             Tab::Sell => self.draw_sell(ui, body, s, mouse),
             Tab::Shards => self.draw_shards(ui, body, s, mouse),
             Tab::Imprints => self.draw_imprints(ui, body, s, mouse, now),
+            Tab::Corrupt => self.draw_corrupt(ui, body, s, mouse),
         }
         let foot_y = r[1] + r[3] - 36.0 * s;
         if let Some((m, err)) = &self.message {
             ui.label(m, r[0] + 22.0 * s, foot_y, font(13.0), true, if *err { color::DANGER } else { color::GOOD });
-        } else if !self.loaded && self.tab != Tab::Imprints {
+        } else if !self.loaded && self.tab != Tab::Imprints && self.tab != Tab::Corrupt {
             ui.label(tr("Asking the forge for its recipes..."), r[0] + 22.0 * s, foot_y, font(13.0), false, color::TEXT_MUTED);
         }
         if let Some(item) = self.hover_item {

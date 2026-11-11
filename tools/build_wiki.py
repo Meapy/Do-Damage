@@ -307,7 +307,7 @@ BOSS_OVERRIDE = {"Tomb of the Ancients": "Tomb Defender", "Elder Tomb of the Anc
                  "The Ivory Wyvern": "LOD Ivory Wyvern", "The Elder Ivory Wyvern": "Elder lod Ivory Wyvern",
                  "Lair of Shaitan": "md1 Head of Shaitan",
                  "Woodland Labyrinth": "Murderous Megamoth", "Magic Woods": "MW Fountain Spirit",
-                 "Cave of A Thousand Treasures": "Golden Oryx Effigy"}
+                 "Cave of A Thousand Treasures": "Golden Oryx Effigy", "The Black Between": "The Mysterious One"}
 BOSS_PROPS = re.compile(r"Spawner|spawner|Wall|Sarcophagus|Present|Chest|Anchor|Gate|Tooky|Totem$")
 EQUIP_SLOTS = set(wd.SLOT_NAMES)
 ORYX_CHAIN = ["Oryx's Castle", "Oryx's Chamber", "Chicken Chamber", "Wine Cellar", "Oryx's Sanctuary",
@@ -316,6 +316,16 @@ SKIP_WORLDS = {"Admin Room", "Admin Arena", "Shop", "?????", "Lair of Shaitan Ne
 # difficulty from the boss's health: the upper bound of each of six steps
 DIFFICULTY = [6000, 20000, 45000, 90000, 160000]
 DIFFICULTY_WORDS = ["Beginner", "Easy", "Medium", "Hard", "Very hard", "Endgame"]
+
+
+# what's particular about a dungeon's fight (a row of its card on the Dungeons page)
+DUNGEON_FIGHT_NOTES = {
+    "The Black Between": "Every shot here goes on through whoever it hits, so nobody can take the hits for the "
+                         "rest of the group: each player has to dodge them. Once the fight starts the bridge falls "
+                         "away into the void, all but the landing where players arrive (anyone on it is moved onto "
+                         "the platform first): whoever comes late, through /help or the Rift, waits there safely "
+                         "but can't cross until the Mysterious One falls.",
+}
 
 
 # what's particular about raising some Elder bosses (the Raising part of the Dungeons page)
@@ -745,6 +755,11 @@ class Gen:
                             " (it drops from %s)" % joined(froms[:3]) if froms else ""))
             if wid in self.sealed:
                 special.append(self.sealed[wid][2])
+            # the Black Between opens from a behaviour (OpenTheBetween), not from a dropped portal
+            if wid == "The Black Between":
+                special.append("Opens in Oryx's Elysium a quarter of the time when Oryx the Ascended God falls (every "
+                               "time during an event): the Mysterious One steps out of his Rift, and it stays open "
+                               "behind him.")
             if wid == "Oryx's Castle":
                 special.append("Opens for everyone in a realm when it closes, once enough of its events are defeated: %s."
                                % self.realm["close_after"])
@@ -893,6 +908,8 @@ class Gen:
             rows.append(("Key", "<strong>%s</strong>: %s" % (esc(d.name(k)), "; ".join(bits))))
         if x["boss"]:
             rows.append(("Boss", "%s, %s health" % (esc(who(d, x["boss"])), "{:,}".format(x["hp"]))))
+        if x["id"] in DUNGEON_FIGHT_NOTES:
+            rows.append(("Fight", esc(DUNGEON_FIGHT_NOTES[x["id"]])))
         if x["loot"]:
             rows.append(("Notable loot", self.item_links([i for i, _ in x["loot"]], limit=8)))
         if x["max"]:

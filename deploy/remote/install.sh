@@ -168,6 +168,18 @@ systemctl start bsk-redis
 # It holds nobody's connection: players in game are on the world servers. A restart pauses
 # sign-ins and account requests for the few seconds it takes to start.
 account_restart=0
+# The Discord bot's secret (serverSettings.discordSecret, linked accounts) comes from the bot's
+# settings on the deploying machine: a deploy without them keeps the one installed.
+if [ -f $ROOT/app/server.json ]; then
+    python3 - $ROOT/app/server.json $IN/app/server.json <<'PY'
+import json, sys
+old, new = (json.load(open(p, encoding="utf-8-sig")) for p in sys.argv[1:3])
+kept = old.get("serverSettings", {}).get("discordSecret", "")
+if kept and not new.get("serverSettings", {}).get("discordSecret"):
+    new.setdefault("serverSettings", {})["discordSecret"] = kept
+    json.dump(new, open(sys.argv[2], "w", encoding="utf-8"), indent=2)
+PY
+fi
 if ! diff -rq --exclude=logs $IN/app $ROOT/app >/dev/null 2>&1; then
     say "account server changed: installing it (sign-ins pause while it restarts)"
     rm -rf /opt/bsk/app.new && cp -r $IN/app /opt/bsk/app.new && chown -R bsk:bsk /opt/bsk/app.new

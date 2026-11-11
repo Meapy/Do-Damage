@@ -644,6 +644,16 @@ pub fn slot_imprints(o: &GameObj, slot: u8) -> [u32; 4] {
     bsk_data::imprint::parse(o.stat_str(slot_data_stat(slot)).unwrap_or(""))
 }
 
+/// The corruption of the item in a slot (`bsk_data::imprint::corruption`).
+pub fn slot_corruption(o: &GameObj, slot: u8) -> [i32; 4] {
+    bsk_data::imprint::corruption(o.stat_str(slot_data_stat(slot)).unwrap_or(""))
+}
+
+/// Whether the staff in a slot shoots reversed (`bsk_data::imprint::reversed`).
+pub fn slot_reversed(o: &GameObj, slot: u8) -> bool {
+    bsk_data::imprint::reversed(o.stat_str(slot_data_stat(slot)).unwrap_or(""))
+}
+
 /// The health and magic potions kept in stacks (`PotionInventoryModel`): item, slot id.
 pub const POTIONS: [(i32, u8); 2] = [(2594, 254), (2595, 255)];
 
@@ -677,6 +687,10 @@ pub struct Slot {
     pub kind: SlotKind,
     /// The item's imprints (`bsk_data::imprint`), by kind: 0 for none.
     pub imprints: [u32; 4],
+    /// Its corruption (damage, range, rate of fire, stats; `bsk_data::imprint::corruption`), and
+    /// whether a staff's shots are reversed.
+    pub corruption: [i32; 4],
+    pub reversed: bool,
     rect: [f32; 4],
 }
 
@@ -1189,6 +1203,8 @@ impl Panel {
                 item: item(me, i),
                 kind: SlotKind::Equip(t),
                 imprints: slot_imprints(me, i),
+                corruption: slot_corruption(me, i),
+                reversed: slot_reversed(me, i),
                 rect: grid_slot(equip, s, 4, i as u32),
             });
         }
@@ -1202,6 +1218,8 @@ impl Panel {
                 item: item(me, first + i),
                 kind: SlotKind::Inventory(i + 1),
                 imprints: slot_imprints(me, first + i),
+                corruption: slot_corruption(me, first + i),
+                reversed: slot_reversed(me, first + i),
                 rect: grid_slot(lay.inventory_box(), s, 4, i as u32),
             });
         }
@@ -1216,6 +1234,8 @@ impl Panel {
                 item: *potion,
                 kind: SlotKind::Potion(count),
                 imprints: [0; 4],
+                corruption: [0; 4],
+                reversed: false,
                 rect: grid_slot(lay.potion_box(), s, 2, k as u32),
             });
         }
@@ -1283,6 +1303,8 @@ impl Panel {
                             item: item(bag, i),
                             kind: SlotKind::Container,
                             imprints: slot_imprints(bag, i),
+                            corruption: slot_corruption(bag, i),
+                            reversed: slot_reversed(bag, i),
                             rect: grid_slot(ib, s, 4, i as u32),
                         });
                     }
@@ -2011,7 +2033,7 @@ fn draw_slot(ui: &mut Ui, lay: &Layout, slot: &Slot, dragged: bool, target: bool
     match slot.kind {
         // The number key, small in the corner (inside the imprints' border)
         SlotKind::Inventory(key) => {
-            let inset = if slot.imprints != [0; 4] && !empty { imprint_border(s) } else { 0.0 };
+            let inset = if (slot.imprints != [0; 4] || slot.corruption != [0; 4]) && !empty { imprint_border(s) } else { 0.0 };
             ui.label(&key.to_string(), x + 4.0 * s + inset * 0.5, y + 2.0 * s + inset * 0.5, small, true, color::TEXT_MUTED)
         }
         SlotKind::Potion(count) => {
@@ -2027,7 +2049,7 @@ fn draw_slot(ui: &mut Ui, lay: &Layout, slot: &Slot, dragged: bool, target: bool
         _ => {}
     }
     if !empty {
-        draw_imprint_marks(ui, slot.imprints, slot.rect, s);
+        draw_item_marks(ui, slot.imprints, slot.corruption != [0; 4], slot.rect, s);
     }
     if !empty && !matches!(slot.kind, SlotKind::Potion(_)) {
         let doses = ui.data.objects.get(&(slot.item as u16)).and_then(|d| d.xml.text_of("Doses").or(d.xml.text_of("Quantity")).map(str::to_owned));
@@ -2039,30 +2061,45 @@ fn draw_slot(ui: &mut Ui, lay: &Layout, slot: &Slot, dragged: bool, target: bool
 }
 
 /// An item's imprints as a border round its slot `r`: each imprint it carries a band in its colour
-/// edged in gold, in the order Offensive (red), Defensive (green), Misc (purple), Apotheosis
-/// (light blue). One goes all the way round; two share it half and half, left and right; three
-/// take the top's two halves and the bottom; four a quarter each, red at the top left and light
-/// blue at the bottom right (`theme::part_of`). Gold lines part them. Nothing when it has none.
+/// at the slot's edge, a thin gold line inside it, in the order Offensive (red), Defensive (green),
+/// Misc (purple), Apotheosis (light blue). One goes all the way round; two share it half and half,
+/// left and right; three take the top's two halves and the bottom; four a quarter each, red at the
+/// top left and light blue at the bottom right (`theme::part_of`). Gold lines part them. Nothing
+/// when it has none.
 pub(crate) fn draw_imprint_marks(ui: &mut Ui, imprints: [u32; 4], r: [f32; 4], s: f32) {
+    draw_item_marks(ui, imprints, false, r, s);
+}
+
+/// The purple that marks corrupted gear (the Cosmic Anvil): its edge's gold line turns this colour,
+/// and corrupted gear with no imprints has a band of it all round.
+pub const CORRUPTED: u32 = 0xA040FF;
+
+/// `draw_imprint_marks`, for gear that may be corrupted: then its gold lines are purple, good
+/// corruption or bad, and with no imprints a purple band goes all round.
+pub(crate) fn draw_item_marks(ui: &mut Ui, imprints: [u32; 4], corrupted: bool, r: [f32; 4], s: f32) {
     use bsk_data::imprint::Kind;
-    let colours: Vec<(u32, f32)> = Kind::ALL.into_iter().filter(|&k| imprints[k as usize] != 0).map(|k| (k.color(), 1.0)).collect();
+    let mut colours: Vec<(u32, f32)> = Kind::ALL.into_iter().filter(|&k| imprints[k as usize] != 0).map(|k| (k.color(), 1.0)).collect();
     if colours.is_empty() {
-        return;
+        if !corrupted {
+            return;
+        }
+        colours.push((CORRUPTED, 0.85));
     }
+    let edge = if corrupted { CORRUPTED } else { color::GOLD };
     let gold = s.round().max(1.0);
     let band = (2.0 * s).round().max(2.0);
-    let all = 2.0 * gold + band;
+    let all = band + gold;
     let r = [r[0].round(), r[1].round(), r[2].round(), r[3].round()];
     let radius = (5.0 * s).max(all);
-    // gold all round, the colours inside it, gold between them
-    theme::split_ring(ui.renderer, r, radius, all, &[(color::GOLD, 1.0)]);
-    theme::split_ring(ui.renderer, [r[0] + gold, r[1] + gold, r[2] - 2.0 * gold, r[3] - 2.0 * gold], radius - gold, band, &colours);
+    // the colours at the edge, a gold line inside them, gold between them
+    theme::split_ring(ui.renderer, r, radius, band, &colours);
+    theme::split_ring(ui.renderer, [r[0] + band, r[1] + band, r[2] - 2.0 * band, r[3] - 2.0 * band], radius - band, gold, &[(edge, 1.0)]);
     let (cx, cy) = ((r[0] + r[2] / 2.0 - gold / 2.0).round(), (r[1] + r[3] / 2.0 - gold / 2.0).round());
     let (top, bottom, left, right) = (
-        [cx, r[1], gold, all],
-        [cx, r[1] + r[3] - all, gold, all],
-        [r[0], cy, all, gold],
-        [r[0] + r[2] - all, cy, all, gold],
+        [cx, r[1], gold, band],
+        [cx, r[1] + r[3] - band, gold, band],
+        [r[0], cy, band, gold],
+        [r[0] + r[2] - band, cy, band, gold],
     );
     let lines: &[[f32; 4]] = match colours.len() {
         1 => &[],
@@ -2071,13 +2108,40 @@ pub(crate) fn draw_imprint_marks(ui: &mut Ui, imprints: [u32; 4], r: [f32; 4], s
         _ => &[top, bottom, left, right],
     };
     for &l in lines {
-        theme::fill(ui.renderer, l, 0.0, color::GOLD, 1.0);
+        theme::fill(ui.renderer, l, 0.0, edge, 1.0);
     }
+}
+
+/// The Corruption section of an item's tooltip (the Cosmic Anvil): each value it moved, better in
+/// green and worse in red, and a staff's reversed shots. Nothing when it's not corrupted.
+pub fn corruption_lines(data: &GameData, item: i32, corruption: [i32; 4], reversed: bool) -> Vec<Line> {
+    let mut lines = Vec::new();
+    if corruption == [0; 4] && !reversed || !data.objects.get(&(item as u16)).is_some_and(|d| d.xml.has("Ascended")) {
+        return lines;
+    }
+    lines.push(Line::gap());
+    lines.push(Line { band: Some(CORRUPTED), ..Line::new(tr("Corruption"), 13.0, true, CORRUPTED) });
+    let rows = [
+        (tr("Damage"), corruption[0], "%"),
+        (tr("Range"), corruption[1], "%"),
+        (tr("Rate of Fire"), corruption[2] * 2, "%"),
+        (tr("Stats"), corruption[3], ""),
+    ];
+    for (label, value, unit) in rows {
+        if value != 0 {
+            let colour = if value > 0 { color::GOOD } else { color::DANGER };
+            lines.push(Line::stat(label, &format!("{value:+}{unit}"), colour));
+        }
+    }
+    if reversed {
+        lines.push(Line::new(tr("Reversed: its shots fly from the end of their range back to you."), 11.0, true, CORRUPTED));
+    }
+    lines
 }
 
 /// How far in from a slot's edge its contents start when it carries imprints (their border).
 pub(crate) fn imprint_border(s: f32) -> f32 {
-    2.0 * s.round().max(1.0) + (2.0 * s).round().max(2.0)
+    (2.0 * s).round().max(2.0) + s.round().max(1.0)
 }
 
 /// The Imprints section at the foot of an item's tooltip: a bar with its title, each imprint's
@@ -2494,12 +2558,14 @@ pub fn draw_overlay(ui: &mut Ui, lay: &Layout, world: &World, panel: &Panel, sta
     let me = world.player();
     let lines = if slot.item > 0 {
         let mut lines = item_tooltip_imprinted(ui.data, slot.item, me, slot.kind, slot.imprints);
+        let corrupted = corruption_lines(ui.data, slot.item, slot.corruption, slot.reversed);
         if let Some(size) = me.filter(|m| m.id == slot.owner).and_then(|m| raised_pet_size(ui.data, slot.item, m, slot.index)) {
             if let Some(title) = lines.first_mut() {
                 title.append(&format!(" ({size})"));
             }
         }
         lines.extend(imprint_lines(ui.data, slot.item, slot.imprints));
+        lines.extend(corrupted);
         lines
     } else {
         let text = match slot.kind {

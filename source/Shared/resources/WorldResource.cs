@@ -26,6 +26,9 @@ namespace Shared.resources
         public readonly byte Difficulty;
         public readonly byte Background;
         public readonly byte VisibilityType;
+        // the least sight radius (tiles) players get here, whatever their client asks for: an arena
+        // wider than the usual 15, where everything in it should stay in view (the Black Between)
+        public readonly int MinSightRadius;
         public readonly List<string> MapJM;
         public readonly RandomLayoutDesc RandomLayout;
         public readonly List<string> Music;
@@ -59,6 +62,7 @@ namespace Shared.resources
             // as an int: GetValue doesn't read bytes (it gave 0 for every world's Background)
             Background = (byte)elem.GetValue<int>("Background");
             VisibilityType = (byte)elem.GetValue<int>("VisibilityType");
+            MinSightRadius = elem.GetValue("MinSightRadius", 0);
             AllowTeleport = !elem.HasElement("DisableTeleport");
             ShowDisplays = elem.HasElement("ShowDisplays");
             DisableShooting = elem.HasElement("DisableShooting");

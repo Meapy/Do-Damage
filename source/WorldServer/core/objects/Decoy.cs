@@ -19,6 +19,8 @@ namespace WorldServer.core.objects
 
         private Vector2 _direction;
         private bool _exploded = false;
+        // the Prism of the Dusk Veil's decoys: when this one casts next (Player.DecoyTick)
+        internal long NextCastAt;
 
         public Decoy(Player player, int duration, float angle, Position pos, float speed, float? distance = null, ushort objType = 0x0715) 
             : base(player.GameServer, objType, duration, true, true, true)
@@ -44,6 +46,8 @@ namespace WorldServer.core.objects
 
         public override void Tick(ref TickTime time)
         {
+            // the Prism of the Dusk Veil's decoy casts (Player.BetweenPowers.cs)
+            _player.DecoyTick(this);
             if (Health > _duration - 2000 && CheckDistance(_pos))
                 ValidateAndMove(X + (_direction.X * _speed) * time.BehaviourTickTime, Y + (_direction.Y * _speed) * time.BehaviourTickTime);
 

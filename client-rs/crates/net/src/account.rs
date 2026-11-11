@@ -76,6 +76,10 @@ pub struct CharList {
     pub class_stats: std::collections::HashMap<u16, (i32, i32)>,
     /// `<News>`: the server's news and the account's dead characters, newest first.
     pub news: Vec<NewsItem>,
+    /// `<Discord>`: this server links accounts to Discord accounts (older ones and test stacks
+    /// don't), and the Discord name this account is linked to, if any.
+    pub discord_offered: bool,
+    pub discord: Option<String>,
 }
 
 /// One `<News><Item>`. A dead character's links to its fame summary: `fame:<char id>`.
@@ -160,6 +164,12 @@ pub fn parse_char_list(xml: &str) -> Result<CharList, String> {
         list.credits = int("Credits");
         list.next_slot_price = int("NextCharSlotPrice");
         list.next_slot_currency = int("NextCharSlotCurrency");
+        if let Some(d) = account.children().find(|c| c.has_tag_name("Discord")) {
+            list.discord_offered = true;
+            if d.attribute("linked").is_some_and(|l| l.eq_ignore_ascii_case("true")) {
+                list.discord = Some(d.text().unwrap_or("").trim().to_owned());
+            }
+        }
         if let Some(stats) = account.children().find(|c| c.has_tag_name("Stats")) {
             list.fame = child_text(stats, "Fame").and_then(parse_int).unwrap_or(0) as i32;
             for cs in stats.children().filter(|c| c.has_tag_name("ClassStats")) {
@@ -197,6 +207,15 @@ pub fn parse_char_list(xml: &str) -> Result<CharList, String> {
         }
     }
     Ok(list)
+}
+
+/// `/account/discordCode`: the code to give the Discord bot (`<Discord><Code>..</Code></Discord>`).
+pub fn parse_discord_code(xml: &str) -> Result<String, String> {
+    if let Some(e) = error_text(xml) {
+        return Err(e);
+    }
+    let doc = roxmltree::Document::parse(xml).map_err(|e| e.to_string())?;
+    child_text(doc.root_element(), "Code").map(|c| c.trim().to_owned()).filter(|c| !c.is_empty()).ok_or_else(|| "unexpected answer".to_owned())
 }
 
 /// One line of `/fame/list` (the legends).
@@ -719,6 +738,20 @@ mod tests {
         assert_eq!(list.chars[1].object_type, 0x300);
         assert_eq!((list.chars[1].stats, list.chars[1].last_seen), ([0; 8], 0), "an older server's");
         assert_eq!(list.servers[0], ServerEntry { name: "Localhost".into(), host: "127.0.0.1".into(), port: 2053, admin_only: false, usage: 0.5, usage_text: "3/6".into() });
+    }
+
+    #[test]
+    fn discord_link() {
+        let list = |account: &str| parse_char_list(&format!(r#"<Chars nextCharId="1" maxNumChars="1"><Account><Name>T</Name>{account}</Account></Chars>"#)).unwrap();
+        let old = list("");
+        assert_eq!((old.discord_offered, old.discord), (false, None), "an older server's");
+        let unlinked = list(r#"<Discord linked="false"/>"#);
+        assert_eq!((unlinked.discord_offered, unlinked.discord), (true, None));
+        let linked = list(r#"<Discord linked="true">meapy</Discord>"#);
+        assert_eq!((linked.discord_offered, linked.discord.as_deref()), (true, Some("meapy")));
+        assert_eq!(parse_discord_code("<Discord><Code>ABC234</Code><Seconds>600</Seconds></Discord>").as_deref(), Ok("ABC234"));
+        assert_eq!(parse_discord_code("<Error>This account is linked to Discord already.</Error>").unwrap_err(), "This account is linked to Discord already.");
+        assert!(parse_discord_code("<Success/>").is_err());
     }
 
     #[test]
