@@ -12,6 +12,57 @@ Keep each version short: changes go under `### ` group headings (Oryx 5, Arena, 
 on), one line per change players notice, summed up rather than item by item (the wiki has the
 details). Add to a group's line when a change adds to it, rather than adding another line.
 
+## Unreleased
+
+### Oryx 4 and Oryx 5
+- Oryx's Inferno has a gate before the Pyre that opens only once his whole Infernal Court is dead:
+  no more running past them to Oryx 4. Infernal shards drop twice as often.
+- The Oryx 4 and Oryx 5 event (their 20% softer hits) is over.
+
+### Items
+- The Infernal Brimstone Poison no longer puts enemies in stasis: it strips their defense as the orbs
+  do, half as much as a tier 8 orb. The Orb of the Drowned Tide lowers defense like the other orbs
+  instead of breaking armour.
+- The Spider Den's Sword Shield: half the damage, 7 Defense (was 17) and a 3.5 second cooldown, half
+  a second shorter than its stun.
+- Corrupted gear's edge is black.
+- The ninja stars work again: hold the ability key for their effect (Midnight Star's Speedy), let
+  go to throw the star. The Soul Mask no longer makes you invisible, and the Tome of Purification
+  no longer takes Speedy away.
+
+### Pets
+- Ambrosia raises a Medium pet to Large at the Pen Keeper (it was 25 Shards of the Mad God); he
+  trades 25 of the shards he keeps for an Ambrosia. In the Warcaller's Oryx rolls the Lil' Oryxes
+  are as rare as they are strong: Lil' Oryx the most common, Lil' Ascended Oryx the rarest.
+
+### Loot
+- The Tomb of the Ancients' three bosses each drop a Potion of Mana, the Elder Tomb's more.
+- A white bag rings with a bright chime and lights up the edges of the screen for a moment.
+- The pD Armor no longer drops in the Nightmare Colony: it's a staff item.
+
+### Hall of Champions
+- A new board, **Account Fame**: all your living characters' fame together, for up to +3% loot.
+
+### Realm
+- The Garnet and Jade Statues count as done only once both have fallen, whichever goes first.
+
+### Game
+- Arriving by /visit, /summon or a /help call makes you invulnerable for 3 seconds, so nothing
+  kills you as you land. A teleport that's refused (to an invisible player, say) no longer starts
+  its cooldown.
+- Imprinting gear keeps its corruption. The Cosmic Anvil works wherever it stands.
+- Drinking from loot bags drinks Potions of Oryx too, and never touches your vault's gift chest.
+- Options: other players' damage numbers are hidden unless you turn them on (Gameplay), so you can
+  see your own; "Other players' shots" hides their spells too; Speech balloons is a list where you
+  pick whose show (players, guild, party, whispers, monsters, townsfolk).
+- Viewing a Legend or a gravestone goes straight to its summary, without its death spin.
+- The quest arrow no longer leaves a stray picture (a building, a wall) at the edge of the screen
+  after you change worlds.
+- Searches in the vault, the Divine Forge and the Marketplace empty when you change worlds, and the
+  character list's when you come back from playing.
+- Forging tiered gear under tier 10 no longer counts for quests, the Master Smith or the forge's
+  community goal.
+
 ## 2.5.0 (2026-11-11)
 
 ### Discord

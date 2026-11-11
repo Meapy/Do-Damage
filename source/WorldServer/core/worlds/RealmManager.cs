@@ -399,7 +399,7 @@ namespace WorldServer.core.worlds
             { "Grand Sphinx", new[] { "Grand Sphinx" } },
             { "Hermit God", new[] { "Hermit God" } },
             { "Skull Shrine", new[] { "Skull Shrine" } },
-            { "Garnet Statue", new[] { "Garnet Statue" } },
+            { "Garnet Statue", new[] { "Garnet Statue", "Jade Statue" } },
             { "Lucky Ent God", new[] { "Lucky Ent God" } },
             { "Dragon Head", new[] { "Dragon Head" } },
             { "Lucky Djinn", new[] { "Lucky Djinn" } },
@@ -859,6 +859,14 @@ namespace WorldServer.core.worlds
                     OpenHive(enemy);
                     CountingEvents("Killer Bee Nest", enemy);
                 }
+                return;
+            }
+            // the statues are one event, done when the second of the two falls, red or green
+            if (name is "Garnet Statue" or "Jade Statue")
+            {
+                var other = name == "Garnet Statue" ? "Jade Statue" : "Garnet Statue";
+                if (!World.Enemies.Values.Any(e => e != enemy && !e.Dead && e.ObjectDesc.IdName == other && e.DistTo(enemy) < 50))
+                    CountingEvents("The Statues", enemy);
                 return;
             }
 

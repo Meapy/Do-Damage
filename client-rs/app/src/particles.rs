@@ -124,6 +124,8 @@ pub struct Particles {
     pub disabled: bool,
     /// Options: other players' pets' effects off.
     pub hide_pets: bool,
+    /// Other players' spells' effects are hidden (with their shots: Options, Visuals).
+    pub hide_allies: bool,
     /// Options: how pets' shots look, and whether other players' pets' show.
     pub pet_shots: (crate::options::PetShots, bool),
     /// The last heal burst (`ShowEffect` 1): when, its colour, and its particles in `list`. A

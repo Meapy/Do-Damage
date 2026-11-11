@@ -2070,12 +2070,14 @@ pub(crate) fn draw_imprint_marks(ui: &mut Ui, imprints: [u32; 4], r: [f32; 4], s
     draw_item_marks(ui, imprints, false, r, s);
 }
 
-/// The purple that marks corrupted gear (the Cosmic Anvil): its edge's gold line turns this colour,
-/// and corrupted gear with no imprints has a band of it all round.
+/// The purple of corruption (the Cosmic Anvil) in words: its tooltip section and the anvil's.
 pub const CORRUPTED: u32 = 0xA040FF;
+/// The black that marks corrupted gear's slot: its edge's gold line turns this colour, and
+/// corrupted gear with no imprints has a band of it all round.
+pub const CORRUPTED_EDGE: u32 = 0x000000;
 
-/// `draw_imprint_marks`, for gear that may be corrupted: then its gold lines are purple, good
-/// corruption or bad, and with no imprints a purple band goes all round.
+/// `draw_imprint_marks`, for gear that may be corrupted: then its gold lines are black, good
+/// corruption or bad, and with no imprints a black band goes all round.
 pub(crate) fn draw_item_marks(ui: &mut Ui, imprints: [u32; 4], corrupted: bool, r: [f32; 4], s: f32) {
     use bsk_data::imprint::Kind;
     let mut colours: Vec<(u32, f32)> = Kind::ALL.into_iter().filter(|&k| imprints[k as usize] != 0).map(|k| (k.color(), 1.0)).collect();
@@ -2083,9 +2085,9 @@ pub(crate) fn draw_item_marks(ui: &mut Ui, imprints: [u32; 4], corrupted: bool, 
         if !corrupted {
             return;
         }
-        colours.push((CORRUPTED, 0.85));
+        colours.push((CORRUPTED_EDGE, 0.85));
     }
-    let edge = if corrupted { CORRUPTED } else { color::GOLD };
+    let edge = if corrupted { CORRUPTED_EDGE } else { color::GOLD };
     let gold = s.round().max(1.0);
     let band = (2.0 * s).round().max(2.0);
     let all = band + gold;
@@ -3586,8 +3588,10 @@ pub fn draw_quest(
     dealt: &HashMap<i32, i32>,
     top: Option<&crate::game::QuestDamage>,
 ) -> f32 {
+    // only ever an enemy: an id from another world can name anything here
     let q = quest.and_then(|id| world.objects.get(&id));
-    let desc = q.and_then(|q| ui.data.objects.get(&q.object_type));
+    let desc = q.and_then(|q| ui.data.objects.get(&q.object_type)).filter(|d| d.enemy);
+    let q = q.filter(|_| desc.is_some());
     let near = quest_near(world, quest);
     let below = match (q, desc) {
         (Some(q), Some(desc)) if boss_showing(world, quest) => {
@@ -3656,13 +3660,10 @@ fn draw_quest_arrow(ui: &mut Ui, lay: &Layout, camera: &crate::view::Camera, q: 
     let white = ui.renderer.white();
     ui.renderer.triangle(white, tri(16.0 * s, 11.0 * s), [[0.5, 0.5]; 3], Tint::color(0x5A1010, 1.0));
     ui.renderer.triangle(white, tri(13.0 * s, 8.5 * s), [[0.5, 0.5]; 3], Tint::color(0xF98441, 1.0));
-    if let Some(src) = ui.src(&desc.texture) {
-        if let Some(icon) = ui.redrawer.get(ui.sprites, ui.renderer, src, false, 50, None) {
-            let (iw, ih) = (icon.w as f32 * s, icon.h as f32 * s);
-            let (ix, iy) = (ax - ca * 26.0 * s - iw / 2.0, ay - sa * 26.0 * s - ih / 2.0);
-            ui.renderer.sprite(icon.rect, Quad::rect(ix, iy, iw, ih), Tint::NONE);
-        }
-    }
+    // its picture behind the arrow, as the boss box draws it, fitted to 34 pixels (a big sprite
+    // drawn at its own size covered the corner)
+    let _ = desc;
+    object_icon(ui, q.object_type, ax - ca * 30.0 * s, ay - sa * 30.0 * s, 34.0 * s);
 }
 
 /// The boss's box at the top left: its picture, its name and a health bar; under it, a

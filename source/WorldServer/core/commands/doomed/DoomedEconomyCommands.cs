@@ -50,6 +50,10 @@ namespace WorldServer.core.commands.doomed
                             (world.Levels == null || world.FloorZ(level, x, y) is float z && MathF.Abs(z - player.Z) <= Entity.LevelReach))
                             return true;
             }
+            // one spawned rather than painted into the map (/spawn Cosmic Anvil): an entity
+            foreach (var o in world.StaticObjects.Values)
+                if (o.ObjectDesc?.Class == objectClass && o.DistTo(player) <= ForgeReach)
+                    return true;
             return false;
         }
 

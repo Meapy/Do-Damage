@@ -431,6 +431,9 @@ class Gear:
             return "%s damage%s" % (n("totalDamage"), within("radius"))
         if e == "DazeBlast":
             return "dazes enemies" + within("radius")
+        if e == "ShurikenAbility":
+            # a held ability (the ninja stars): its effect while the key is held, thrown on release
+            return "hold for %s (draining mana); let go to throw it" % (g("effect") or "Speedy")
         if e == "RemoveNegativeConditions":
             return "removes bad effects" + within()
         if e == "ClearConditionEffectAura":

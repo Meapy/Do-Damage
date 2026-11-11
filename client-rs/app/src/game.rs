@@ -42,6 +42,10 @@ pub struct Game {
     /// The death's last moments in the world (`DYING_MS` of them) before the game ends: the world
     /// holds still and fades while the death is told.
     pub dying: Option<Dying>,
+    /// When a white bag last landed near us (its flash round the view, `whitebag`).
+    pub white_bag_at: Option<i32>,
+    /// How many worlds we've entered (each `MapInfo`): a new one clears the windows' searches.
+    pub maps_entered: u32,
     /// How many times we've changed worlds.
     pub reconnects: u32,
     pub camera_angle: f64,
@@ -130,6 +134,12 @@ pub struct Game {
     pub locked: std::collections::HashSet<String>,
     pub ignored: std::collections::HashSet<String>,
     next_teleport: i32,
+    /// A held ability (`MultiPhase`: the ninja stars) whose key is down: its item. Its release
+    /// (`release_ability`) throws it.
+    held_ability: Option<i32>,
+    /// A teleport just asked for: when, and `next_teleport` before it, put back if the server
+    /// refuses it (`teleport_refused`), so a teleport that never happened costs no cooldown.
+    teleport_asked: Option<(i32, i32)>,
     /// Dungeon keys the server says we have (`GlobalNotification`), as colours.
     pub keys: Vec<u32>,
     /// When merchants last spoke (`Merchant.update`'s balloons every 5 s), and which message.
@@ -297,6 +307,11 @@ pub const DYING_FADE_MS: i32 = 700;
 
 /// `Player.MS_BETWEEN_TELEPORT`.
 const TELEPORT_COOLDOWN: i32 = 10_000;
+/// `UseItem`'s use types for a held ability (the server's `START_USE` and `END_USE`).
+const USE_START: u8 = 1;
+const USE_END: u8 = 2;
+/// How long after a teleport the server's refusal of it is looked for (ms).
+const TELEPORT_REFUSAL_MS: i32 = 3_000;
 
 /// How many chat lines to keep.
 const CHAT_KEEP: usize = 500;
@@ -338,6 +353,8 @@ impl Game {
             ended: false,
             died: false,
             dying: None,
+            white_bag_at: None,
+            maps_entered: 0,
             reconnects: 0,
             camera_angle: DEFAULT_CAMERA_ANGLE,
             now: 0,
@@ -383,6 +400,8 @@ impl Game {
             locked: Default::default(),
             ignored: Default::default(),
             next_teleport: 0,
+            held_ability: None,
+            teleport_asked: None,
             keys: Vec::new(),
             merchant_talk: Default::default(),
             next_ability: 0,
@@ -595,6 +614,12 @@ impl Game {
         match event {
             Some(Event::MapInfo(info)) => {
                 self.remember_map();
+                self.maps_entered += 1;
+                self.held_ability = None;
+                // the last world's quest: its id is some other object here (a building, a wall),
+                // whose picture the quest arrow drew at the view's edge until a new quest came
+                self.quest = None;
+                self.white_bag_at = None;
                 self.map_key = (self.hello.game_id, info.name.clone(), info.width as i32, info.height as i32);
                 let mut world = World::new(info.width as i32, info.height as i32, &info.display_name, info.seed);
                 world.background = info.background;
@@ -814,6 +839,9 @@ impl Game {
                 self.auto_aim = t.text == "on";
                 return;
             }
+            if t.name == "*Error*" {
+                self.teleport_refused(&t.text, now);
+            }
             if self.is_ignored(t.object_id) {
                 return;
             }
@@ -834,24 +862,26 @@ impl Game {
                 let enemy = data.objects.get(&o.object_type).is_some_and(|d| d.enemy);
                 // a monster's quip is an enemy's balloon; anyone else's aside (a Nexus villager's,
                 // NexusVillagers) a plain one
-                let colors = if enemy {
-                    [0x561F1C, 0xFC8642, 0xCDC0BF]
+                use crate::options::bubble;
+                let (colors, kind) = if enemy {
+                    ([0x561F1C, 0xFC8642, 0xCDC0BF], bubble::MONSTERS)
                 } else if bubble_only {
-                    [0xE1DEDC, 0xFFFFFF, 0x545454]
+                    ([0xE1DEDC, 0xFFFFFF, 0x545454], bubble::NPCS)
                 } else if t.recipient == "*Guild*" {
-                    [0x3E8A00, 0xA6FF5D, 0xD3F8CC]
+                    ([0x3E8A00, 0xA6FF5D, 0xD3F8CC], bubble::GUILD)
                 } else if t.recipient == "*Party*" {
-                    [0x78A0FF, 0x5A7DD1, 0xD9E4FF]
+                    ([0x78A0FF, 0x5A7DD1, 0xD9E4FF], bubble::PARTY)
                 } else if !t.recipient.is_empty() {
-                    [0x260AB6, 0x00F0FF, 0xD3CCF7]
+                    ([0x260AB6, 0x00F0FF, 0xD3CCF7], bubble::WHISPERS)
                 } else {
-                    [0xE1DEDC, 0xFFFFFF, 0x545454]
+                    ([0xE1DEDC, 0xFFFFFF, 0x545454], bubble::PLAYERS)
                 };
                 self.bubbles.retain(|b| b.object_id != t.object_id);
                 self.bubbles.push(crate::view::Bubble {
                     object_id: t.object_id,
                     text: t.text.clone(),
                     colors,
+                    kind,
                     at: now,
                     life: t.bubble_time as i32 * 1000,
                 });
@@ -861,13 +891,23 @@ impl Game {
         match msg {
             ServerMessage::Update(u) => {
                 // Container.addTo: a loot bag landing within 10 tiles.
+                // A white bag rings its own bell and lights up the edges of the view (whitebag.rs).
                 if let Some(me) = world.player() {
-                    let near_loot = u.new_objs.0.iter().any(|o| {
-                        let d = data.objects.get(&(o.object_type as u16));
-                        d.is_some_and(|d| d.class == ObjectClass::Container && d.xml.has("Loot"))
+                    let mut near_loot = false;
+                    let mut white = false;
+                    for o in &u.new_objs.0 {
+                        let Some(d) = data.objects.get(&(o.object_type as u16)) else { continue };
+                        if d.class == ObjectClass::Container && d.xml.has("Loot")
                             && (o.status.pos.x as f64 - me.x).hypot(o.status.pos.y as f64 - me.y) < 10.0
-                    });
-                    if near_loot {
+                        {
+                            near_loot = true;
+                            white |= crate::whitebag::BAGS.contains(&d.id.as_str());
+                        }
+                    }
+                    if white {
+                        self.sounds.push((crate::whitebag::SOUND.into(), 1.0, false));
+                        self.white_bag_at = Some(now);
+                    } else if near_loot {
                         self.sounds.push(("loot_appears".into(), 1.0, false));
                     }
                 }
@@ -989,6 +1029,7 @@ impl Game {
                     color: n.color & 0xFF_FFFF,
                     at: now,
                     life: 2000,
+                    others: false,
                 });
             }
             ServerMessage::ArenaVotes(v) => self.arena_votes = Some(v.clone()),
@@ -1026,7 +1067,15 @@ impl Game {
                 });
             }
             ServerMessage::Aoe(a) => self.particles.aoe(a.pos.x as f64, a.pos.y as f64, a.radius as f64, a.color),
-            ServerMessage::ShowEffect(e) => self.particles.show_effect(&e, world, now),
+            ServerMessage::ShowEffect(e) => {
+                // another player's spell, hidden with their shots (Options, Visuals)
+                let others = self.particles.hide_allies
+                    && Some(e.target_object_id) != world.me
+                    && world.objects.get(&e.target_object_id).and_then(|o| data.objects.get(&o.object_type)).is_some_and(|d| d.player);
+                if !others {
+                    self.particles.show_effect(&e, world, now);
+                }
+            }
             ServerMessage::Damage(d) => {
                 // The server never sends us our own shots' hits (we show those as they strike), so
                 // one credited to us is our ability's (poison, lightning, a trap...): show it too.
@@ -1035,8 +1084,10 @@ impl Game {
                     self.sounds.push((s, 1.0, false));
                 }
                 if d.damage_amount > 0 {
-                    // purple when it ignored defense (an imprint's burst, poison)
-                    self.floaters.push(crate::view::Floater::hit(d.target_id, d.damage_amount, d.pierce, now));
+                    // purple when it ignored defense (an imprint's burst, poison); another player's
+                    // hit on someone else, marked to hide with Options, Gameplay
+                    let others = Some(d.object_id) != world.me && Some(d.target_id) != world.me;
+                    self.floaters.push(crate::view::Floater { others, ..crate::view::Floater::hit(d.target_id, d.damage_amount, d.pierce, now) });
                 }
             }
             _ => {}
@@ -1338,6 +1389,23 @@ impl Game {
             self.sounds.push(("no_mana".into(), 1.0, false));
             return;
         }
+        // A held ability (the ninja stars): the key going down starts it (its effect while held,
+        // mana draining); letting go throws it (`release_ability`), as `Player.useAltWeapon` did.
+        if xml.has("MultiPhase") {
+            if self.held_ability.is_some() {
+                return;
+            }
+            self.held_ability = Some(item);
+            self.next_ability = now + (xml.number("Cooldown", 0.5) * 1000.0) as i32;
+            let msg = UseItem {
+                time: now,
+                slot_object: SlotObject { object_id: id, slot_id: 1, object_type: item },
+                item_use_pos: WorldPos { x: x as f32, y: y as f32 },
+                use_type: USE_START,
+            };
+            self.send(msg.into());
+            return;
+        }
         self.next_ability = now + (xml.number("Cooldown", 0.5) * 1000.0) as i32;
         let shoots = xml.children_named("Activate").any(|a| a.text.trim() == "Shoot");
         let msg = UseItem {
@@ -1360,6 +1428,43 @@ impl Game {
                 };
                 self.send(msg.into());
             }
+        }
+    }
+
+    /// Whether a held ability's key is down (`use_ability` started a `MultiPhase` one).
+    pub fn ability_held(&self) -> bool {
+        self.held_ability.is_some()
+    }
+
+    /// The held ability's key came up: it ends, and with the mana for it (`MpEndCost`) its
+    /// projectiles fly toward `angle` (`Player.useAltWeapon`'s release).
+    pub fn release_ability(&mut self, now: i32, x: f64, y: f64, angle: f64, data: &GameData) {
+        let Some(item) = self.held_ability.take() else { return };
+        let Some(me) = self.world.as_ref().and_then(|w| w.player()) else { return };
+        let (id, mp) = (me.id, me.stat_int(crate::hud::stat::MP).unwrap_or(0));
+        let Some(xml) = data.objects.get(&(item as u16)).map(|d| &d.xml) else { return };
+        let throws = mp >= xml.int("MpEndCost", 0) && xml.has("Projectile");
+        let msg = UseItem {
+            time: now,
+            slot_object: SlotObject { object_id: id, slot_id: 1, object_type: item },
+            item_use_pos: WorldPos { x: x as f32, y: y as f32 },
+            use_type: USE_END,
+        };
+        self.send(msg.into());
+        if !throws || self.session.map.as_ref().is_some_and(|m| m.disable_abilities) {
+            return;
+        }
+        let last_move = self.session.last_move_time().unwrap_or(now);
+        let Some(world) = &mut self.world else { return };
+        for p in world.shoot_ability(now, item, angle, last_move, data) {
+            let msg = PlayerShoot {
+                time: now,
+                bullet_id: p.bullet_id,
+                container_type: p.container_type as i32,
+                starting_pos: WorldPos { x: p.start_x as f32, y: p.start_y as f32 },
+                angle: p.angle as f32,
+            };
+            self.send(msg.into());
         }
     }
 
@@ -1432,8 +1537,22 @@ impl Game {
             self.add_chat("*Error*", "", &tn!(secs, "You can't teleport for {n} more second.|You can't teleport for {n} more seconds."), 0, 0, -1, now);
             return;
         }
+        self.teleport_asked = Some((now, self.next_teleport));
         self.next_teleport = now + TELEPORT_COOLDOWN;
         self.send(Teleport { object_id }.into());
+    }
+
+    /// The server's error `text`: if it refuses the teleport just asked for (an invisible or
+    /// paused player, a world without teleports), the cooldown it started is put back. "Too soon"
+    /// keeps it: the server's own cooldown is running.
+    fn teleport_refused(&mut self, text: &str, now: i32) {
+        const REFUSALS: [&str; 2] = ["Cannot teleport", "Target does not exist"];
+        if let Some((at, before)) = self.teleport_asked {
+            if now - at < TELEPORT_REFUSAL_MS && REFUSALS.iter().any(|r| text.starts_with(r)) {
+                self.next_teleport = before;
+                self.teleport_asked = None;
+            }
+        }
     }
 
     /// A vote in the Arena (`ArenaVote`): 0 for the next wave, 1 to 5 to combine that many waves;
@@ -1672,7 +1791,7 @@ impl Game {
             entry.0 = now;
             let (text, colors) = lines[entry.1].clone();
             self.bubbles.retain(|b| b.object_id != o.id);
-            self.bubbles.push(crate::view::Bubble { object_id: o.id, text, colors, at: now, life: 3000 });
+            self.bubbles.push(crate::view::Bubble { object_id: o.id, text, colors, kind: crate::options::bubble::NPCS, at: now, life: 3000 });
         }
     }
 

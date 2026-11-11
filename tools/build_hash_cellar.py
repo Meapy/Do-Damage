@@ -10,6 +10,8 @@ From south to north:
 - the vestibule, where players arrive (Spawn region) with a Nexus Portal to leave by;
 - the Burning Path, a corridor that winds through four chambers, held by Oryx's Infernal Court:
   O3's court monsters with Oryx 2's minions' tricks, a little stronger (BehaviorDb.HashCellar.cs);
+- the Gate, two rows of burnt O3 Wall Gates across the path's last leg, sealed until the Court is
+  dead (`O4 Gate Deleter 1` watches, BehaviorDb.HashCellar.cs), so nobody runs past it to him;
 - the Pyre, a round arena a little larger than the old one (his rings and guardians land 9 tiles
   out), with Oryx the Mad God 4 at its centre and a couple of lava pools on the floor.
 
@@ -402,6 +404,8 @@ PATH = [(CX, 38), (CX, 50), (14, 50), (14, 72), (50, 72), (50, 94), (CX, 94), (C
 CHAMBERS = [(14, 50), (14, 72), (50, 72), (50, 94)]
 CHAMBER_R = 6.5
 VESTIBULE = (24, 106, 40, 116)
+GATE_Y = (42, 43)           # two rows of gates on the last leg, 3 tiles short of the Pyre
+GATE_DELETER = (CX, 48)
 LAVA = [((19, 17), 1.7), ((45, 27), 1.7), ((10, 76), 1.3), ((54, 90), 1.3)]
 # who holds the path, from the vestibule up
 GUARDS = [
@@ -571,6 +575,12 @@ def build_map():
             x, y = cx + dx * 4, cy + dy * 4
             if g.is_floor(x, y) and g.obj[y][x] is None and g.ground[y][x] != LAVA_TILE:
                 g.place(x, y, COLUMN)
+
+    # --- the Gate --------------------------------------------------------------------------------
+    for y in GATE_Y:
+        for x in range(CX - CORRIDOR, CX + CORRIDOR + 1):
+            g.place(x, y, o4("O3 Wall Gate"))
+    g.place(*GATE_DELETER, o4("O3 Gate Deleter 1"))
 
     # --- the vestibule ---------------------------------------------------------------------------
     for y in range(vy0 + 2, vy1 - 1):

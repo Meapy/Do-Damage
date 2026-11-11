@@ -235,11 +235,13 @@ namespace WorldServer.core.commands.doomed
                 return player.AskToVisit(target.Client, summon: true);
             if (target.World == player.World)
             {
+                target.ApplyConditionEffect(ConditionEffectIndex.Invulnerable, Player.ArrivalShieldMs);
                 target.TeleportPosition(time, player.X, player.Y, true, player.Z);
                 return true;
             }
             target.SendInfo($"You are being summoned by {player.Name}.");
             player.World.Invite(target.Client.Account.AccountId); // even into an arena game that has started
+            Player.ShieldArrival(target.Client.Account.AccountId);
             target.Client.Reconnect(new Reconnect()
             {
                 Host = "",

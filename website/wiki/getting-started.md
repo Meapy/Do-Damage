@@ -85,10 +85,13 @@ Text boxes (chat, sign-in) copy, cut and paste with <kbd>Ctrl</kbd>+<kbd>C</kbd>
 
 **Options** (<kbd>O</kbd>, or from the <kbd>Esc</kbd> menu) has a **Gameplay** tab with
 "Drink stat potions from loot bags": while it's on, the stat potions in a bag you stand on are drunk
-by themselves (a maxed stat's go to your potion storage), leaving Potions of Max and of Oryx for you
-to keep. It's off unless you turn it on. A **Visuals** tab has what you
-see in the world: the crosshair, particles, shadows, health bars, damage numbers, and how much of
-other players and their pets you see, the **Chat size** (50% to 150%: its text, width and
+by themselves, Potions of Oryx too (a maxed stat's go to your potion storage), leaving Potions of
+Max for you to keep; only loot bags, never your vault's gift chest. It's off unless you turn it on.
+"Other players' damage numbers" (off unless you turn it on) shows the numbers of other players'
+hits too, on a boss say, so it's clear which are yours. A **Visuals** tab has what you
+see in the world: the crosshair, particles, shadows, health bars, damage numbers, other players'
+shots and spells, how much of other players and their pets you see, **Speech balloons** (a list:
+tick whose show, such as only guild and party chat), the **Chat size** (50% to 150%: its text, width and
 height together) and the **Chat background** (how dark the box behind the chat is, from none to
 the usual). "Pets' shots" there switches between Normal, Subtle (the
 default: smaller, see-through shots) and Hidden. The **Crosshair** tab picks the crosshair's

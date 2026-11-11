@@ -28,10 +28,11 @@ Arena island; pets of every kind come and go in the pen behind him. Talk to him 
 - **Raise your pet a size**, without changing its look or its shots: it hits and heals as the size
   it's raised to (twice as hard a size, and the size's healing in the table below).
   - **Small to Medium** for a **Superburger**.
-  - **Medium to Large** for **25 Shards of the Mad God** from those he keeps for you.
+  - **Medium to Large** for an **Ambrosia** from your inventory.
 - **Give him your Shards of the Mad God.** He keeps them for your whole account, whatever pet you
-  have, until a raise to Large spends 25. Using a stack of shards from your inventory, anywhere,
-  hands it to him too.
+  have. Using a stack of shards from your inventory, anywhere, hands it to him too.
+- **Trade 25 of his shards for an Ambrosia**, into your inventory. Ambrosia also comes from the
+  Mystery Box, the death spin and the community goals.
 
 Tiny pets can't be raised. A raised pet's generator keeps its raise when you take the pet back,
 and its name says the size it's raised to, such as "Grey Wolf (Large)".

@@ -65,6 +65,8 @@ namespace Shared.champions
 
             var boards = new List<ChampionRanked>[ChampionBoards.All.Length];
             boards[(int)ChampionTab.Fame] = Rank(live.Select(a => (a.Key, a.Value.BestFame, 0L)));
+            // every living character's fame together; a tie goes to the better best character
+            boards[(int)ChampionTab.AccountFame] = Rank(live.Select(a => (a.Key, a.Value.AliveFame, a.Value.BestFame)));
             boards[(int)ChampionTab.Stars] = Rank(live.Select(a => (a.Key, (long)a.Value.Stars, a.Value.StarFame)));
             boards[(int)ChampionTab.Achievements] = Rank(live.Select(a => (a.Key, (long)a.Value.Points, 0L)));
             var runs = DbArenaRuns.Top(_db, ArenaRuns);

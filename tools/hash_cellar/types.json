@@ -13,6 +13,7 @@
  "O4 B Banner": "0x5980",
  "O4 D Banner": "0x5981",
  "O4 G Banner": "0x5982",
+ "O4 Gate Deleter 1": "0x5996",
  "O4 L Banner": "0x5983",
  "O4 Molten Abyss": "0x591F",
  "O4 Normal Tile": "0x5900",
@@ -51,6 +52,7 @@
  "O4 Wall Arch 1": "0x5986",
  "O4 Wall Arch 2": "0x5987",
  "O4 Wall Column 1": "0x5988",
+ "O4 Wall Gate": "0x5997",
  "O4C Torch Wall Flame": "0x5989",
  "Oryx's Inferno Portal": "0x5993"
 }

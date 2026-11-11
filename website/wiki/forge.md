@@ -47,6 +47,8 @@ Ascended Armor Shard, for 1,000 fame (they're under Armor in [Other recipes](#ot
 The low tiers cost next to nothing (two tier 8 staffs make a tier 9 for 60 fame), so forge what you
 find. The **starter gear `/gear` hands out can't go in**: two of a class's starter weapon, ability,
 armor or ring don't make the next tier, so a fresh character can't forge its way up from free gear.
+Because they cost so little, forging tiered gear under 125 fame (below tier 10 on the weapons'
+scale) doesn't count towards quests, the Master Smith achievement or the forge's community goal.
 
 {{gen:forge_example}}
 
@@ -63,7 +65,8 @@ costs more than {{v:forge_cap}} fame.
 
 Oryx the Infernal Mad God (Oryx 4) drops **Infernal shards** and Oryx the Ascended God (Oryx 5)
 **Ascended shards**, one of each kind of gear: a Weapon, Ability, Armor and Accessory Shard. Each
-drops half as often as that Oryx's Potion of Oryx.
+Infernal shard drops as often as Oryx 4's Potion of Oryx, each Ascended shard half as often as Oryx
+5's.
 
 Use a shard (double-click it, as you would a potion) and it goes into your **forge storage**, which
 your whole account shares, wherever you are. The forge's **Shards** tab shows what it holds; click a

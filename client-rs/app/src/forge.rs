@@ -286,6 +286,14 @@ fn inside(r: [f32; 4], (x, y): (f64, f64)) -> bool {
 const COLS: usize = 5;
 
 impl Forge {
+    /// A new world: the search starts empty.
+    pub fn clear_search(&mut self, data: &GameData) {
+        if !self.query.is_empty() {
+            self.query.clear();
+            self.filter(data);
+        }
+    }
+
     /// Opens the window; the first time, it asks for the recipes.
     pub fn show(&mut self, data: &GameData) -> Option<Act> {
         self.open = true;

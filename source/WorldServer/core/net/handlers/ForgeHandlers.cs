@@ -75,7 +75,9 @@ namespace WorldServer.core.net.handlers
                 error = "That item doesn't exist here.";
             else
                 error = DoomedEconomy.Forge(player, slots, resultId, out fame);
-            if (error == null)
+            // tiered gear below T10 on the weapons' scale (under its 125 fame) is near free to forge,
+            // so it doesn't count for quests, the Master Smith or the community goal
+            if (error == null && (!data.Items.TryGetValue(result, out var forged) || forged.Tier < 0 || fame >= ForgeRecipes.CountedTierFame))
             {
                 player.Quests?.Event(new Shared.quests.QuestEvent(Shared.quests.QuestEvents.Forge));
                 WeeklyStats.Count(Shared.database.leaderboard.DbWeeklyStats.Forged);

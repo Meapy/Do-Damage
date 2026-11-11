@@ -36,9 +36,10 @@ The rewards come in three steps: **#1**, **#2-3** and **#4-10**.
 | **Weekly Dungeons** | dungeons cleared this week (be near a boss when the last one falls) | +3% loot in dungeons | +2% | +1% |
 | **Guild Living** | a [guild](guilds.html)'s living fame: its members' living characters, counting members who played in the last two weeks | +2% loot for every member | +1% | +0.5% |
 | **Guild Dead** | a guild's dead fame: every character that died in it this year (afresh each 1 January, UTC) | +2% loot for every member | +1% | +0.5% |
+| **Account Fame** | the fame of all your living characters together | +3% loot | +2% loot | +1% loot |
 
-- **Loot:** the boards' loot boosts add up to **at most +4%** (Fame's, the guild boards' and, in a
-  dungeon, Weekly Dungeons' together). The Legends' +1% and a guild hall's own (1% to 3%) come on top of that.
+- **Loot:** the boards' loot boosts add up to **at most +4%** (Fame's, Account Fame's, the guild boards'
+  and, in a dungeon, Weekly Dungeons' together). The Legends' +1% and a guild hall's own (1% to 3%) come on top of that.
   "In dungeons" means anywhere but the realms.
 - **Guilds:** each place on the guild boards is a whole guild, shown as its best member's character,
   and every member (staff aside) holds the reward.

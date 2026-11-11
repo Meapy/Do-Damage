@@ -148,6 +148,9 @@ namespace WorldServer.logic
                     ),
                 new Threshold(0.01,
                     new ItemLoot("Potion of Life", 1),
+                    // a Potion of Mana from each of the three (mana potions were hard to come by;
+                    // the Elder Tomb adds half again)
+                    new ItemLoot("Potion of Mana", 1),
                     new ItemLoot("Potion of Life", 0.5),
                     new ItemLoot("Tomb of the Ancients Key", 0.01, 0, 0.03)
                     ),
@@ -158,6 +161,7 @@ namespace WorldServer.logic
                     new ItemLoot("Tome of Holy Protection", 0.009)
                     ),
                 ElderLoot(0.01,
+                    new ItemLoot("Potion of Mana", 0.5),
                     new ItemLoot("Jade Beetle", 0.009),
                     new ItemLoot("Potion of Max Life", 0.01),
                     new ItemLoot("Angel's Hope", 0.01),
@@ -287,11 +291,15 @@ namespace WorldServer.logic
                     ),
                 new Threshold(0.01,
                     new ItemLoot("Nut Generator", elder ? 0.04 : 0.02),
+                    // a Potion of Mana from each of the three (mana potions were hard to come by;
+                    // the Elder Tomb adds half again)
+                    new ItemLoot("Potion of Mana", 1),
                     new ItemLoot("Potion of Life", 1),
                     new ItemLoot("Tomb of the Ancients Key", 0.01, 0, 0.03),
                     new ItemLoot("Ring of the Sphinx", 0.009)
                     ),
                 ElderLoot(0.01,
+                    new ItemLoot("Potion of Mana", 0.5),
                     new ItemLoot("Jade Beetle", 0.009),
                     new ItemLoot("Potion of Max Life", 0.01),
                     new ItemLoot("Wings of Natural Bloodlust", 0.01),
@@ -496,11 +504,15 @@ namespace WorldServer.logic
                 new Threshold(0.01,
                     new ItemLoot("Geb Generator", elder ? 0.04 : 0.02),
                     new ItemLoot("Tomb of the Ancients Key", 0.01, 0, 0.03),
+                    // a Potion of Mana from each of the three (mana potions were hard to come by;
+                    // the Elder Tomb adds half again)
+                    new ItemLoot("Potion of Mana", 1),
                     new ItemLoot("Potion of Life", 1),
                     new ItemLoot("Potion of Life", 1),
                     new ItemLoot("Ring of the Nile", 0.009)
                     ),
                 ElderLoot(0.01,
+                    new ItemLoot("Potion of Mana", 0.5),
                     new ItemLoot("Jade Beetle", 0.009),
                     new ItemLoot("Potion of Max Life", 0.01),
                     new ItemLoot("Raw Hope", 0.01),
