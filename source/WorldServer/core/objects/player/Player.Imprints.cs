@@ -42,7 +42,10 @@ namespace WorldServer.core.objects
             return 0;
         }
 
-        public ImprintShot WeaponImprints => ImprintShot.Of(ImprintsAt(0), Inventory[0]);
+        public ImprintShot WeaponImprints => ImprintShot.Of(ImprintsAt(0), Inventory[0], CorruptionAt(0));
+
+        // the corruption of the item in this slot (Corruption.cs), or null
+        public int[] CorruptionAt(int slot) => slot >= 0 && slot < Inventory.Length ? Inventory.Data[slot]?.Corruption : null;
 
         // the stats the ring's Ascendant Might and Ascendant Ward raise by half
         private static readonly StatDataType[] MightStats = { StatDataType.Attack, StatDataType.Speed, StatDataType.Dexterity };
@@ -55,6 +58,20 @@ namespace WorldServer.core.objects
         // The equipped items' imprinted stats, for BoostStatManager: (stat, amount) each.
         public IEnumerable<(StatDataType Stat, int Amount)> ImprintStats()
         {
+            // corrupted Enthroned gear: every stat it raises, by its corruption's stats value
+            for (var slot = 0; slot < 4; slot++)
+            {
+                var item = Inventory[slot];
+                var c = CorruptionAt(slot);
+                if (item == null || !item.Ascended || !Corruption.Any(c))
+                    continue;
+                var by = Corruption.Of(c)[Corruption.Stats];
+                if (by == 0)
+                    continue;
+                foreach (var b in item.ActivateOnEquips)
+                    if (b.Value > 0)
+                        yield return ((StatDataType)b.Key, by);
+            }
             for (var slot = 0; slot < 4; slot++)
             {
                 if (HasImprint(slot, Imprint.Vigor))

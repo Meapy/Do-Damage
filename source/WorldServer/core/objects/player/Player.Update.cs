@@ -24,9 +24,13 @@ namespace WorldServer.core.objects
         private HashSet<IntPoint> _sightPoints = SightPoints(VISIBILITY_RADIUS);
         private HashSet<IntPoint> _circleCircumferenceSightPoints = CircumferencePoints(VISIBILITY_RADIUS);
 
+        // what the client last asked for; the world may give more (World.MinSightRadius)
+        private int _askedSightRadius = VISIBILITY_RADIUS;
+
         public void SetSightRadius(int radius)
         {
-            radius = Math.Clamp(radius, VISIBILITY_RADIUS, MAX_VISIBILITY_RADIUS);
+            _askedSightRadius = radius;
+            radius = Math.Clamp(Math.Max(radius, World?.MinSightRadius ?? 0), VISIBILITY_RADIUS, MAX_VISIBILITY_RADIUS);
             if (radius == SightRadius)
                 return;
             SightRadius = radius;

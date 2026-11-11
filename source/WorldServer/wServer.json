@@ -41,6 +41,12 @@
                 "end": "2026-11-07T00:00:00Z",
                 "potionChance": 2,
                 "potionAmount": 2
+            },
+            {
+                "name": "The Voice in the Void",
+                "start": "2026-11-10T00:00:00Z",
+                "end": "2026-12-01T00:00:00Z",
+                "mysteriousOne": true
             }
         ]
     }

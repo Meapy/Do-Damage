@@ -31,6 +31,7 @@ impl Forge {
     /// Opens the window as the Enchanter; it asks for the forge storage's shards.
     pub fn show_enchanter(&mut self, data: &GameData) -> Option<Act> {
         self.open = true;
+        self.anvil = false;
         self.tab = Tab::Imprints;
         self.imp_asked = true;
         self.message = None;
@@ -43,7 +44,7 @@ impl Forge {
 
     /// Whether an item takes imprints: Enthroned gear only (`<Ascended/>`, worn as a weapon,
     /// ability, armour or ring).
-    fn imprintable(&self, data: &GameData, item: i32) -> bool {
+    pub(super) fn imprintable(&self, data: &GameData, item: i32) -> bool {
         let (cat, _) = self.category_of(data, item as u16);
         cat != Category::Other && cat != Category::All && data.objects.get(&(item as u16)).is_some_and(|d| d.xml.has("Ascended"))
     }

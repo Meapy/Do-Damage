@@ -222,6 +222,9 @@ namespace WorldServer.logic
                     new BossStats(320000, 55, 1.0, 0.35),
                     new AnnounceOnDeath("{PL_LIST} cast down Oryx the Ascended God in his Elysium! The Realm is free... for now."),
                     new RemoveObjectOnDeath("O5 Holy Gate", 30),
+                    // a quarter of the time (every time during an event), the Mysterious One's Rift
+                    // opens in his temple: the way into the Black Between (BehaviorDb.BlackBetween.cs)
+                    new OpenTheBetween(0.25),
                     new State("Where",
                         new ArenaTransition("Arena Wake"),
                         new ArenaTransition("Dormant", false)

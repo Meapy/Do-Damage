@@ -920,6 +920,12 @@ impl Game {
                 log::debug!("nexus places: {:?}", n.places.iter().map(|p| (p.name.as_str(), p.x as i32, p.y as i32, p.icon)).collect::<Vec<_>>());
                 self.nexus_places = n.places.0.clone();
             }
+            ServerMessage::CorruptResult(r) => self.forge_events.push(crate::forge::Event::Corrupt {
+                success: r.success,
+                message: r.message.clone(),
+                changes: [r.damage as i8 as i32, r.range as i8 as i32, r.rate as i8 as i32, r.stats as i8 as i32],
+                reversed: r.reversed,
+            }),
             ServerMessage::ImprintResult(r) => {
                 self.forge_events.push(crate::forge::Event::Imprint { success: r.success, message: r.message.clone() })
             }
@@ -1530,6 +1536,7 @@ impl Game {
                 bsk_proto::Imprint { slot, imprint, raised, lowered, lowered2 }.into()
             }
             Act::ImprintVault(chest, slot, imprint) => bsk_proto::ImprintVaultApply { chest, slot, imprint }.into(),
+            Act::Corrupt(slot) => bsk_proto::Corrupt { slot }.into(),
         };
         self.send(msg);
     }

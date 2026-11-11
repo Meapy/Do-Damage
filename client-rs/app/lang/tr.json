@@ -1098,5 +1098,16 @@
 "Stop": "Durdur",
 "Next roll": "Sonraki zar",
 "Skip all": "Tümünü geç",
-"Items go to the gift chest in your vault.": "Eşyalar kasandaki hediye sandığına gider."
+"Items go to the gift chest in your vault.": "Eşyalar kasandaki hediye sandığına gider.",
+"Corrupt": "Yozlaştır",
+"Corrupt Enthroned gear": "Tahtlı teçhizatı yozlaştır",
+"Corrupted.": "Yozlaştırıldı.",
+"Corrupted. Its shots now fly back to you.": "Yozlaştırıldı. Atışları artık sana geri uçuyor.",
+"Corruption": "Yozlaşma",
+"Cosmic Anvil": "Kozmik Örs",
+"No one knows quite what an Unstable Essence will do. Try one and see.": "Bir Unstable Essence'ın ne yapacağını kimse tam bilmiyor. Dene ve gör.",
+"Pick Enthroned gear on the left to corrupt it.": "Yozlaştırmak için soldan Tahtlı teçhizat seç.",
+"Reversed: its shots fly from the end of their range back to you.": "Ters: atışları menzilinin sonundan sana geri uçar.",
+"Unstable Essence in your inventory: {n}": "Envanterdeki Unstable Essence: {n}",
+"You need an Unstable Essence.": "Bir Unstable Essence gerekiyor."
 }

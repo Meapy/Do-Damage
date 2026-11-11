@@ -1098,5 +1098,16 @@
 "Stop": "Стоп",
 "Next roll": "Следующий бросок",
 "Skip all": "Пропустить всё",
-"Items go to the gift chest in your vault.": "Предметы — в сундук с подарками в хранилище."
+"Items go to the gift chest in your vault.": "Предметы — в сундук с подарками в хранилище.",
+"Corrupt": "Осквернить",
+"Corrupt Enthroned gear": "Осквернить снаряжение Возведённых",
+"Corrupted.": "Осквернено.",
+"Corrupted. Its shots now fly back to you.": "Осквернено. Теперь его выстрелы летят обратно к вам.",
+"Corruption": "Осквернение",
+"Cosmic Anvil": "Космическая наковальня",
+"No one knows quite what an Unstable Essence will do. Try one and see.": "Никто толком не знает, что сделает Unstable Essence. Попробуйте — и узнаете.",
+"Pick Enthroned gear on the left to corrupt it.": "Выберите слева снаряжение Возведённых, чтобы осквернить его.",
+"Reversed: its shots fly from the end of their range back to you.": "Развёрнут: его выстрелы летят от конца дальности обратно к вам.",
+"Unstable Essence in your inventory: {n}": "Unstable Essence в инвентаре: {n}",
+"You need an Unstable Essence.": "Нужна Unstable Essence."
 }

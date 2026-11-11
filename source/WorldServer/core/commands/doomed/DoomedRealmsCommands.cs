@@ -468,11 +468,14 @@ namespace WorldServer.core.commands.doomed
     }
 
     // Opens a new instance of a dungeon and sends you there. Several Doomed Realms areas have no
-    // natural entrance (Kitchen, Mine, Gauntlet, ...).
+    // natural entrance (Kitchen, Mine, Gauntlet, ...), nor do dungeons still being tested (Testing).
     internal class DungeonCommand : Command
     {
         public override RankingType RankRequirement => RankingType.Admin;
         public override string CommandName => "dungeon";
+
+        // dungeons players can't reach yet, opened here to try them
+        private static readonly string[] Testing = { "The Black Between" };
 
         protected override bool Process(Player player, TickTime time, string args)
         {
@@ -481,7 +484,8 @@ namespace WorldServer.core.commands.doomed
             if (name.Length == 0)
             {
                 player.SendInfo("Usage: /dungeon <name>. Doomed Realms dungeons: " +
-                    string.Join(", ", worlds.Where(w => w.MapJM.Any(m => m.StartsWith("Doomed/"))).Select(w => w.IdName).OrderBy(n => n)));
+                    string.Join(", ", worlds.Where(w => w.MapJM.Any(m => m.StartsWith("Doomed/"))).Select(w => w.IdName).OrderBy(n => n)) +
+                    ". Being tested: " + string.Join(", ", Testing));
                 return false;
             }
             var world = worlds.FirstOrDefault(w => string.Equals(w.IdName, name, StringComparison.OrdinalIgnoreCase))

@@ -52,6 +52,8 @@ pub struct Ground {
     pub sky: crate::sunset::Sunset,
     /// What hangs under the islands into that sky (`islands`).
     pub undersides: crate::islands::Undersides,
+    /// The void's starry sky behind the Black Between (`voidsky`).
+    pub void_sky: crate::voidsky::VoidSky,
 }
 
 /// What a connected wall draws: its faces, its side and top textures.

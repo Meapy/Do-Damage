@@ -307,7 +307,7 @@ BOSS_OVERRIDE = {"Tomb of the Ancients": "Tomb Defender", "Elder Tomb of the Anc
                  "The Ivory Wyvern": "LOD Ivory Wyvern", "The Elder Ivory Wyvern": "Elder lod Ivory Wyvern",
                  "Lair of Shaitan": "md1 Head of Shaitan",
                  "Woodland Labyrinth": "Murderous Megamoth", "Magic Woods": "MW Fountain Spirit",
-                 "Cave of A Thousand Treasures": "Golden Oryx Effigy"}
+                 "Cave of A Thousand Treasures": "Golden Oryx Effigy", "The Black Between": "The Mysterious One"}
 BOSS_PROPS = re.compile(r"Spawner|spawner|Wall|Sarcophagus|Present|Chest|Anchor|Gate|Tooky|Totem$")
 EQUIP_SLOTS = set(wd.SLOT_NAMES)
 ORYX_CHAIN = ["Oryx's Castle", "Oryx's Chamber", "Chicken Chamber", "Wine Cellar", "Oryx's Sanctuary",
@@ -745,6 +745,11 @@ class Gen:
                             " (it drops from %s)" % joined(froms[:3]) if froms else ""))
             if wid in self.sealed:
                 special.append(self.sealed[wid][2])
+            # the Black Between opens from a behaviour (OpenTheBetween), not from a dropped portal
+            if wid == "The Black Between":
+                special.append("Opens in Oryx's Elysium a quarter of the time when Oryx the Ascended God falls (every "
+                               "time during an event): the Mysterious One steps out of his Rift, and it stays open "
+                               "behind him.")
             if wid == "Oryx's Castle":
                 special.append("Opens for everyone in a realm when it closes, once enough of its events are defeated: %s."
                                % self.realm["close_after"])

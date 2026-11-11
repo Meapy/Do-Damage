@@ -19,6 +19,10 @@ namespace Shared.resources
         public double potionChance { get; set; } = 1;
         public int potionAmount { get; set; } = 1;
 
+        // The Mysterious One answers every fall of Oryx the Ascended God (BlackBetween.cs
+        // OpenTheBetween; a quarter of the time otherwise)
+        public bool mysteriousOne { get; set; }
+
         public bool ActiveAt(DateTime utcNow) => utcNow >= start && utcNow < end;
 
         // "until the end of 6 November (UTC)" for an end at midnight, as GuildPrice.Message says it
@@ -34,6 +38,8 @@ namespace Shared.resources
                 parts.Add($"potions drop {Times(potionChance)} as often");
             if (potionAmount > 1)
                 parts.Add($"{Times(potionAmount)} as many");
+            if (mysteriousOne)
+                parts.Add("the Mysterious One opens his Rift every time Oryx the Ascended God falls");
             return string.Join(", and ", parts);
         }
 

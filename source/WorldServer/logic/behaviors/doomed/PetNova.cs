@@ -46,6 +46,9 @@ namespace WorldServer.logic.behaviors.doomed
 
         protected override void TickCore(Entity host, TickTime time, ref object state)
         {
+            // a pet in stasis (the Black Between's survival phases) does nothing
+            if (host.HasConditionEffect(ConditionEffectIndex.Stasis))
+                return;
             var cool = (int)state;
             if (cool > 0)
             {
