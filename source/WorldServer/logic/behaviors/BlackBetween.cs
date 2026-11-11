@@ -935,6 +935,38 @@ namespace WorldServer.logic.behaviors
         protected override void TickCore(Entity host, TickTime time, ref object state) { }
     }
 
+    // As the fight starts and the causeway goes (PaintFloor to the void): anyone on it between the
+    // platform and the pad, `pad` tiles south of the middle and on, is moved onto the platform at
+    // the causeway's mouth, `mouth` tiles south of the middle, since the void can't be stood on (to
+    // the client a square with no ground is solid: they'd be stuck). Whoever is on the pad stays.
+    internal class ClearTheCauseway : Behavior
+    {
+        private readonly double _platformR;
+        private readonly double _pad;
+        private readonly double _mouth;
+
+        public ClearTheCauseway(double platformR, double pad, double mouth)
+        {
+            _platformR = platformR;
+            _pad = pad;
+            _mouth = mouth;
+        }
+
+        protected override void OnStateEntry(Entity host, TickTime time, ref object state)
+        {
+            var c = host.SpawnPoint.Value;
+            foreach (var player in host.World.Players.Values.ToArray())
+            {
+                float dx = player.X - c.X, dy = player.Y - c.Y;
+                if (dy <= 0 || dx * dx + dy * dy <= _platformR * _platformR || dy >= _pad)
+                    continue;
+                player.TeleportPosition(time, new Position(c.X + Math.Clamp(dx, -1f, 1f), c.Y + (float)_mouth), true);
+            }
+        }
+
+        protected override void TickCore(Entity host, TickTime time, ref object state) { }
+    }
+
     // Puts the pets within `range` of the host under `effect` for `durationMs`, renewed every
     // `coolDown` while the state lasts (pets in stasis neither heal nor attack: the survival phases).
     internal class PetAura : Behavior

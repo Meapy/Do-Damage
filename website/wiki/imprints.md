@@ -86,7 +86,8 @@ is lost. A ring with Guardian Angel takes no other imprints.
 
 The **Cosmic Anvil** appears in [The Black Between](dungeons.html) once the Mysterious One falls, three
 squares south of the middle of his platform. It corrupts Enthroned gear, imprinted or not, with an
-**Unstable Essence**, which he drops in a white bag. Walk up to the anvil, open it, pick a piece of gear
+**Unstable Essence**, which he drops in a white bag: two for everyone who finishes the fight (at least 1% of his
+damage), and sometimes a third. Walk up to the anvil, open it, pick a piece of gear
 you wear or carry and press **Corrupt**: the essence is used up and the piece changes, for better or
 worse. What changes, and how far, is for you to find out.
 

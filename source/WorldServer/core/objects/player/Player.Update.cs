@@ -200,8 +200,12 @@ namespace WorldServer.core.objects
 
             var map = World.Map;
             var tile = map[x, y];
-            if (!tile.Exists || tile.TileId == 0xFF)
+            if (!tile.Exists)
                 return;
+            // no ground (the void) is never sent, unless the client was sent ground there that has
+            // gone since (PaintFloor to "Empty": the Black Between's causeway in the fight), so it
+            // forgets it
+            var empty = tile.TileId == 0xFF;
 
             // what the client has of the tile: an array for maps up to 1024 x 1024 (dungeons, the
             // Arena, the Nexus: an index instead of a hash), the dictionary for realms (2048 x 2048
@@ -210,15 +214,15 @@ namespace WorldServer.core.objects
             {
                 var seen = _seenArray ??= new byte[map.Width * map.Height];
                 var i = x + y * map.Width;
-                if (seen[i] >= tile.UpdateCount)
+                if (seen[i] >= tile.UpdateCount || empty && seen[i] == 0)
                     return;
                 seen[i] = tile.UpdateCount;
             }
             else
             {
                 var hash = x << 16 | y;
-                _ = _seenTiles.TryGetValue(hash, out var updateCount);
-                if (updateCount >= tile.UpdateCount)
+                var sent = _seenTiles.TryGetValue(hash, out var updateCount);
+                if (updateCount >= tile.UpdateCount || empty && !sent)
                     return;
                 _seenTiles[hash] = tile.UpdateCount;
             }
