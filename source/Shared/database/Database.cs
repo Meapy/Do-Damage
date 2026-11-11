@@ -1362,6 +1362,10 @@ namespace Shared.database
         // Wrong passwords allowed for one account within LoginFailWindow, from anywhere (account
         // and world servers count together, in Redis), before sign-in is refused for the rest of it.
         private const string LOGIN_FAILS_PREFIX = "loginFails.";
+
+        /// <summary>Forgets the wrong passwords counted against a login (after its password was reset).</summary>
+        public void ClearLoginFails(string uuid) => _db.KeyDelete(LOGIN_FAILS_PREFIX + uuid.ToUpperInvariant());
+
         private const int MAX_LOGIN_FAILS = 10;
         private static readonly TimeSpan LoginFailWindow = TimeSpan.FromMinutes(15);
 

@@ -14,6 +14,12 @@ details). Add to a group's line when a change adds to it, rather than adding ano
 
 ## Unreleased
 
+### Discord
+- Link your account to your Discord: the main menu's Link Discord gives a code for `/link` in the
+  Do Damage Discord. The first link puts a Potion of Maxy in your vault's gift chest, you become
+  Verified there under your game name, and `/resetpassword` gets you back in if you lose your
+  password. Linking is never required.
+
 ### The Black Between
 - A new endgame dungeon, harder than Oryx 5: the Mysterious One, the voice of Realm 2, and his
   children Vesper, the Dusk Star, and Aurel, the Dawn Blade, on a platform floating in the void.

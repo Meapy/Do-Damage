@@ -191,6 +191,11 @@ dotnet build source\WorldServer\WorldServer.csproj -c Debug -o build\wscheck   #
   the `admin` flag as a single byte 0x01.
 - **Ranks:** 0 regular to 6 admin. A rank change applies from the player's next login.
 - **Arena leaderboard:** the sorted set `doomed.arenaLeaderboard`.
+- **Discord links** (`Shared/database/DiscordLinks.cs`; SETUP-LOCAL.md, "Discord", "Linked
+  accounts"): the account's `discordId`, `discordName` and `discordReward` fields, the hash
+  `discord.accounts` (Discord id to account id) and the sets `discord.rewarded` and
+  `discord.unlinked`. Only the account
+  server writes them, straight to Redis rather than through a flush.
 
 ```
 source\Redis\redis-cli.exe hget names MEAPY

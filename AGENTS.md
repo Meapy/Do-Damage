@@ -39,7 +39,7 @@ latency-sensitive runs there):
 | Part | Port | Notes |
 |---|---|---|
 | Caddy | 80, 443, 8080 | the website at `/`; `/play` redirects to play.dodmg.com; `/api`, `/ws` and port 8080 are forwarded there for older clients |
-| Discord bot (`bsk-discord`) | none | release posts, server status and slash commands in the Discord server (SETUP-LOCAL.md, "Discord") |
+| Discord bot (`bsk-discord`) | none | release posts, server status, slash commands and linked game accounts (password resets) in the Discord server (SETUP-LOCAL.md, "Discord") |
 | Testing (`bsk-world`, `bsk-redis-tunnel`) | 2051 | admin-only world server on the game's Redis (an SSH tunnel to it); everyone else is sent to Europe 2 |
 
 Its old Redis, account server and gateways are masked: they hold the data as it was on

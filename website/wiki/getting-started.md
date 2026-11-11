@@ -30,6 +30,10 @@ and fame.
 To register, choose a name, an email and a password of at least 6 characters. After 10 wrong
 passwords for one account, signing in to it is blocked for 15 minutes.
 
+Once registered, **Link Discord** on the main menu links the account to your Discord account: a
+free Potion of Maxy the first time, and a new password from the Discord bot if you ever lose
+yours ([how](faq.html#why-link-my-discord)). It's optional.
+
 A new account has {{v:char_slots}} character slots and {{v:vault_chests}} vault chests. More slots
 cost {{v:slot_cost}} on the character screen; more vault chests are bought in the vault (see
 [Items](items.html#your-vault)).

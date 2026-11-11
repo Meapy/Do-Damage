@@ -6,6 +6,7 @@ with its settings in /opt/bsk/discord/discord.env (from deploy/discord.local.env
     python tools/discord/bot.py --dry-run                            # print what it would post, no Discord
     python tools/discord/bot.py --dry-run --release 2.2.0            # ...for that release (from the changelog)
     python tools/discord/bot.py --env F --post-release 2.2.1 --channel ID   # post one release there (a test)
+    python tools/discord/bot.py --env F --as-member 123 --try "link ABC234" # a linked-account command, no Discord
 
 What it does:
 - Release posts: every minute it reads the published desktop client's latest.json
@@ -18,6 +19,15 @@ What it does:
   reach that file, and without BSK_RELEASES it posts nothing.
 - A message in #server-status that it keeps up to date (players, 24-hour peak, uptime).
 - Slash commands: /status, /online, /wiki <term>, /play, and /updates (the Updates role on or off).
+- Linked game accounts: /link <code> (the code from the game's main menu, Link Discord), then
+  /account, /resetpassword (a new password, shown to that member only) and /unlink. All answered
+  privately. The account server does the work (source/App/Controllers/DiscordController.cs).
+- Verified members: linking gives the member the Verified role and their game name as their
+  nickname here; unlinking (with /unlink, or in the game: the bot asks the account server every
+  minute who did) takes both away. /account puts them back for a member who left and came back.
+  Members can't rename themselves: setup_server.py takes Change Nickname from @everyone. The bot
+  needs Manage Roles and Manage Nicknames, and can't change the server's owner or anyone ranked
+  above it.
 
 Settings (KEY=value lines in the --env file, or the environment):
     DISCORD_TOKEN            the bot's token (secret)
@@ -25,11 +35,16 @@ Settings (KEY=value lines in the --env file, or the environment):
     DISCORD_UPDATES_CHANNEL  #updates' id (release posts); empty: none
     DISCORD_STATUS_CHANNEL   #server-status' id (the live status message); empty: none
     DISCORD_UPDATES_ROLE     the Updates role's id (pinged on releases, and /updates); empty: none
+    DISCORD_VERIFIED_ROLE    the Verified role's id (members with a linked game account); empty: none,
+                             and nicknames are left alone
     BSK_SITE                 the website (default https://dodmg.com)
     BSK_RELEASES             the published latest.json to watch; empty: no release posts
     DISCORD_STATE            the state file (default discord-state.json beside the --env file)
     DISCORD_POSTED_UP_TO     on the first start (no state file): the newest version announced
                              before the bot, so that a newer one is posted; empty: what's out then
+    BSK_ACCOUNT              the account server for linked accounts (default BSK_SITE + /api)
+    BSK_LINK_SECRET          what the bot and the account server share (serverSettings.discordSecret
+                             there); empty: made from DISCORD_TOKEN, as deploy/deploy.py does (secret)
 """
 import argparse
 import asyncio
@@ -40,6 +55,7 @@ import sys
 import dodmg
 
 RELEASE_CHECK = 60
+UNLINK_CHECK = 60
 STATUS_REFRESH = 120
 
 
@@ -55,10 +71,13 @@ def settings(path):
         "updates": num("DISCORD_UPDATES_CHANNEL"),
         "status": num("DISCORD_STATUS_CHANNEL"),
         "role": num("DISCORD_UPDATES_ROLE"),
+        "verified": num("DISCORD_VERIFIED_ROLE"),
         "site": (env.get("BSK_SITE") or dodmg.SITE).rstrip("/"),
         "releases": env.get("BSK_RELEASES", ""),
         "state": state,
         "posted_up_to": env.get("DISCORD_POSTED_UP_TO", "").strip(),
+        "account": (env.get("BSK_ACCOUNT") or (env.get("BSK_SITE") or dodmg.SITE).rstrip("/") + "/api").rstrip("/"),
+        "link_secret": dodmg.link_secret(env),
     }
 
 
@@ -127,6 +146,13 @@ def dry_run(cfg, version):
     print(json.dumps(dodmg.status_embed(status, cfg["site"]), indent=1, ensure_ascii=False))
     print("=== /online ===")
     print(json.dumps(dodmg.online_embed(status, cfg["site"]), indent=1, ensure_ascii=False))
+    print("=== /link (no code) ===")
+    print(dodmg.LINK_HOW)
+    print("=== /link, /account, /resetpassword (made-up answers) ===")
+    print(dodmg.link_reply("link", {"Name": "Tester", "Reward": "Potion of Maxy"}, None))
+    print(dodmg.link_reply("account", {"Name": "Tester", "Fame": "120", "TotalFame": "4500", "Characters": "3", "Guild": "Testers"}, None))
+    print(dodmg.link_reply("resetPassword", {"Name": "Tester", "Email": "tester@example.com", "Password": "(the new password)"}, None))
+    print(dodmg.link_reply("link", None, "Bad code"))
     print("=== /wiki oryx ===")
     print(dodmg.wiki_embed("oryx", dodmg.wiki_search(dodmg.wiki_index(cfg["site"]), "oryx"), cfg["site"])["description"])
 
@@ -142,11 +168,26 @@ def post_release(cfg, version, channel):
         print("posted message", sent["id"])
 
 
+def try_command(cfg, member, line):
+    """One linked-account command as a member would give it, answered here instead of in Discord
+    (for an isolated stack: BSK_ACCOUNT and BSK_LINK_SECRET in the --env file)."""
+    sys.stdout.reconfigure(encoding="utf-8")
+    words = line.split()
+    what = {"link": "link", "unlink": "unlink", "account": "account", "resetpassword": "resetPassword"}.get(words[0].lower() if words else "")
+    if what is None:
+        sys.exit("--try takes: link <code>, account, resetpassword or unlink")
+    member_id, _, name = member.partition(":")
+    fields = {"code": " ".join(words[1:]), "discordName": name or "tester"} if what == "link" else {}
+    answer, error = dodmg.Accounts(cfg["account"], cfg["link_secret"])(what, member_id, **fields)
+    print(dodmg.link_reply(what, answer, error))
+
+
 def run(cfg):
     import discord
     from discord import app_commands
 
     state = State(cfg["state"])
+    accounts = dodmg.Accounts(cfg["account"], cfg["link_secret"])
     intents = discord.Intents.none()
     intents.guilds = True
     client = discord.Client(intents=intents)
@@ -201,6 +242,110 @@ def run(cfg):
         else:
             await inter.user.add_roles(role, reason="/updates")
             await inter.response.send_message("You'll be pinged in <#%s> when an update is out." % cfg["updates"], ephemeral=True)
+
+    async def verify(member, name):
+        """The Verified role and the game name as nickname (name), or neither (None), for a member
+        of the server. Returns a key of dodmg.VERIFIED, or None when there's nothing to do."""
+        if not cfg["verified"] or not isinstance(member, discord.Member):
+            return None
+        role = discord.Object(id=cfg["verified"])
+        try:
+            if name:
+                if not any(r.id == role.id for r in member.roles):
+                    await member.add_roles(role, reason="linked to the game account %s" % name)
+                if member.nick != name:
+                    await member.edit(nick=name, reason="linked to the game account %s" % name)
+                return "marked"
+            if any(r.id == role.id for r in member.roles):
+                await member.remove_roles(role, reason="game account unlinked")
+                await member.edit(nick=None, reason="game account unlinked")
+            return "unmarked"
+        except discord.Forbidden:
+            print("verified: Discord refused to change member %s" % member.id, flush=True)
+            return "refused"
+        except discord.HTTPException as e:
+            print("verified: member %s: %r" % (member.id, e), flush=True)
+            return None
+
+    async def account_call(what, user, **fields):
+        answer, error = await asyncio.to_thread(accounts, what, user.id, **fields)
+        if error not in (None, "Not linked", "Bad code", "Too soon"):
+            print("accounts: %s for %s: %s" % (what, user.id, error), flush=True)
+        verified = None
+        if what in ("link", "account") and answer:
+            # /account too: a member who left the server and came back gets both again
+            verified = await verify(user, answer.get("Name"))
+            verified = None if what == "account" and verified == "marked" else verified
+        elif what == "unlink" and answer or error == "Not linked":
+            verified = await verify(user, None)
+            verified = verified if what == "unlink" and answer else None
+        return dodmg.link_reply(what, answer, error, verified)
+
+    async def unlinked_loop():
+        """Members who unlinked in the game lose the Verified role and their nickname here."""
+        done = []
+        while True:
+            try:
+                answer, error = await asyncio.to_thread(accounts, "unlinked", 0, done=",".join(done))
+                done = []
+                server = client.get_guild(cfg["guild"])
+                for member_id in filter(None, (answer or {}).get("Ids", "").split(",")) if server else []:
+                    try:
+                        await verify(await server.fetch_member(int(member_id)), None)
+                    except discord.NotFound:
+                        pass  # left the server: nothing to take away
+                    done.append(member_id)
+                if error and error != "unreachable":
+                    print("unlinked: %s" % error, flush=True)
+            except Exception as e:
+                print("unlinked: %r" % e, flush=True)
+            await asyncio.sleep(UNLINK_CHECK)
+
+    @tree.command(name="link", description="Link your Discord to your game account (a Potion of Maxy the first time).", guild=guild)
+    @app_commands.describe(code="The 6-character code from the game: main menu, Link Discord")
+    async def link_cmd(inter: discord.Interaction, code: str = ""):
+        if not code.strip():
+            await inter.response.send_message(dodmg.LINK_HOW, ephemeral=True)
+            return
+        await inter.response.defer(ephemeral=True)
+        await inter.followup.send(await account_call("link", inter.user, code=code, discordName=inter.user.name), ephemeral=True)
+
+    @tree.command(name="account", description="The game account your Discord is linked to.", guild=guild)
+    async def account_cmd(inter: discord.Interaction):
+        await inter.response.defer(ephemeral=True)
+        await inter.followup.send(await account_call("account", inter.user), ephemeral=True)
+
+    @tree.command(name="unlink", description="Unlink your Discord from your game account.", guild=guild)
+    async def unlink_cmd(inter: discord.Interaction):
+        await inter.response.defer(ephemeral=True)
+        await inter.followup.send(await account_call("unlink", inter.user), ephemeral=True)
+
+    class ConfirmReset(discord.ui.View):
+        """Asks before a reset: the old password stops working the moment it's done."""
+
+        def __init__(self):
+            super().__init__(timeout=120)
+
+        @discord.ui.button(label="Reset my password", style=discord.ButtonStyle.danger)
+        async def confirm(self, inter: discord.Interaction, button: discord.ui.Button):
+            await inter.response.defer(ephemeral=True)
+            text = await account_call("resetPassword", inter.user)
+            await inter.edit_original_response(content=text, view=None)
+
+        @discord.ui.button(label="Cancel", style=discord.ButtonStyle.secondary)
+        async def cancel(self, inter: discord.Interaction, button: discord.ui.Button):
+            await inter.response.edit_message(content="Nothing was changed.", view=None)
+
+    @tree.command(name="resetpassword", description="Lost your password? Get a new one for your linked game account.", guild=guild)
+    async def reset_cmd(inter: discord.Interaction):
+        await inter.response.defer(ephemeral=True)
+        answer, error = await asyncio.to_thread(accounts, "account", inter.user.id)
+        if error:
+            await inter.followup.send(dodmg.link_error(error), ephemeral=True)
+            return
+        await inter.followup.send("Give **%s** a new password? The one it has now stops working, and I'll show you the "
+                                  "new one here, where only you can see it." % answer.get("Name", "your account"),
+                                  view=ConfirmReset(), ephemeral=True)
 
     async def already_posted(channel, version):
         title = dodmg.release_title(version)
@@ -275,6 +420,8 @@ def run(cfg):
             asyncio.create_task(releases_loop())
         if cfg["status"]:
             asyncio.create_task(status_loop())
+        if cfg["verified"] and cfg["guild"] and cfg["link_secret"]:
+            asyncio.create_task(unlinked_loop())
 
     client.run(cfg["token"], log_handler=None)
 
@@ -286,10 +433,18 @@ def main():
     ap.add_argument("--release", help="with --dry-run: this release, from client-rs/CHANGELOG.md")
     ap.add_argument("--post-release", metavar="VERSION", help="post this release to --channel now, and stop")
     ap.add_argument("--channel", type=int, help="the channel for --post-release")
+    ap.add_argument("--try", dest="try_", metavar="COMMAND", help='a linked-account command, answered here: "link <code>", '
+                    "account, resetpassword or unlink, as --as-member")
+    ap.add_argument("--as-member", metavar="ID[:NAME]", help="the Discord member for --try (a made-up id on a test stack)")
     args = ap.parse_args()
     cfg = settings(args.env)
     if args.dry_run:
         dry_run(cfg, args.release)
+        return
+    if args.try_:
+        if not args.as_member:
+            sys.exit("--try needs --as-member")
+        try_command(cfg, args.as_member, args.try_)
         return
     if not cfg["token"]:
         sys.exit("no DISCORD_TOKEN: give --env with the settings file")

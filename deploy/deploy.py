@@ -433,6 +433,11 @@ def build(cfg, args):
     def account(d):
         d["dbInfo"]["port"] = ports["redis"]
         d["serverInfo"]["port"] = ports["account"]
+        # what the Discord bot proves itself with (linked accounts); without the bot's settings
+        # here, install.sh keeps the one the server has
+        secret = discord_link_secret()
+        if secret:
+            d["serverSettings"]["discordSecret"] = secret
     shutil.copyfile(os.path.join(source, "App", "server.json"), os.path.join(STAGE, "app", "server.json"))
     set_json(os.path.join(STAGE, "app", "server.json"), account)
 
@@ -640,6 +645,19 @@ def build_website(cfg, args):
                  % {"local": ports["redis"] + 1, "redis": ports["redis"], "r": REMOTE, "game": web["game_address"]})
     for name in units:
         copy_lf(os.path.join(HERE, "systemd", name), os.path.join(SITE_STAGE, "deploy", "systemd", name))
+
+
+def discord_link_secret():
+    """What the Discord bot and the account server share for linked accounts (SETUP-LOCAL.md,
+    "Discord"): BSK_LINK_SECRET from deploy/discord.local.env, else made from the bot's token
+    there, as the bot makes it (tools/discord/dodmg.py). '' without that file."""
+    local = os.path.join(HERE, "discord.local.env")
+    if not os.path.exists(local):
+        return ""
+    spec = importlib.util.spec_from_file_location("dodmg", os.path.join(ROOT, "tools", "discord", "dodmg.py"))
+    dodmg = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(dodmg)
+    return dodmg.link_secret(dodmg.load_env(local))
 
 
 def discord_env(cfg, stage, releases=None):

@@ -91,6 +91,11 @@ enum Phase {
     Playing(Game),
 }
 
+/// How long a Discord linking code lasts (the account server's `DiscordLinks.CodeLife`), and how
+/// often the character list is asked for while one shows.
+const DISCORD_CODE_SECS: u64 = 600;
+const DISCORD_ASK_SECS: u64 = 4;
+
 /// What we asked the account server.
 enum Request {
     /// The character list; play the first living character when it comes (tests).
@@ -108,6 +113,9 @@ enum Request {
     Fame,
     /// A new guest account.
     Guest,
+    /// A code that links the account to a Discord account.
+    DiscordCode,
+    DiscordUnlink,
 }
 
 /// What an NPC's window asked the account server.
@@ -212,6 +220,12 @@ struct App {
     /// comes while the death plays out in the world.
     death_fame: Option<Result<bsk_net::account::FameSummary, String>>,
     death_fame_asked: bool,
+    /// The Discord screen's code: when it came (it lasts `DISCORD_CODE_SECS`), and when the
+    /// character list was last asked for to see whether the Discord bot has taken it.
+    discord_code_at: Option<Instant>,
+    discord_asked: Option<Instant>,
+    /// `--screen <name>` (tests, with `--credentials --stay`): the screen to show once signed in.
+    screen_test: Option<String>,
     /// Keys typed on the screens: (key, text).
     /// Keys for the screens: the key, the text it types, and whether Ctrl and Shift were held.
     front_keys: Vec<(KeyCode, Option<String>, bool, bool)>,
@@ -1351,6 +1365,17 @@ impl App {
             Action::Options => self.options_ui.show(),
             Action::PlayAsGuest => self.play_as_guest(),
             Action::Quit => self.quit = true,
+            Action::DiscordCode => {
+                let (Some(endpoint), Some((email, password))) = (&self.endpoint, &self.account) else { return };
+                self.request = Some((Request::DiscordCode, endpoint.discord_code(email, password)));
+                self.front.message = None;
+            }
+            Action::DiscordUnlink => {
+                let (Some(endpoint), Some((email, password))) = (&self.endpoint, &self.account) else { return };
+                self.request = Some((Request::DiscordUnlink, endpoint.discord_unlink(email, password)));
+                self.front.message = None;
+            }
+            Action::OpenDiscord => login::open_link(&format!("https://{}", screens::DISCORD_INVITE)),
         }
     }
 
@@ -1360,6 +1385,8 @@ impl App {
         self.guest = false;
         self.front.guest = false;
         self.front.list = None;
+        self.front.discord_code = None;
+        self.discord_code_at = None;
         self.front.set_field(screens::PASSWORD, String::new());
         self.front.message = None;
         login::remember(None);
@@ -1588,6 +1615,21 @@ impl App {
                 self.leave_game(Some(why));
             }
         }
+        // A Discord code showing: has the bot taken it? The character list says, asked for every
+        // few seconds; the code is dropped when it has run out.
+        if let (Some(at), true) = (self.discord_code_at, self.front.discord_code.is_some()) {
+            if at.elapsed().as_secs() >= DISCORD_CODE_SECS {
+                self.front.discord_code = None;
+                self.discord_code_at = None;
+            } else if matches!(self.phase, Phase::Menu)
+                && self.front.screen == screens::Screen::Discord
+                && self.request.is_none()
+                && self.discord_asked.is_none_or(|t| t.elapsed().as_secs() >= DISCORD_ASK_SECS)
+            {
+                self.discord_asked = Some(Instant::now());
+                self.refresh();
+            }
+        }
         let Some((_, pending)) = &self.request else { return };
         let Some(response) = pending.take() else { return };
         let Some((kind, _)) = self.request.take() else { return };
@@ -1618,11 +1660,28 @@ impl App {
                         .unwrap_or(self.front.server)
                         .min(list.servers.len().saturating_sub(1));
                     let first = list.chars.iter().find(|c| !c.dead).map(|c| c.id);
+                    // The Discord bot took the code that was showing.
+                    if self.front.discord_code.is_some() && list.discord.is_some() {
+                        self.front.discord_code = None;
+                        self.discord_code_at = None;
+                        self.front.message = Some((tr("Discord linked. A first link puts a Potion of Maxy in your vault's gift chest.").into(), false));
+                    }
                     self.front.list = Some(list);
                     self.front.guest = self.guest;
                     if matches!(self.phase, Phase::Menu) {
                         if self.front.screen == Screen::Busy || self.front.screen == Screen::Login {
                             self.front.show(Screen::Chars);
+                        }
+                        // `--screen`: straight to a screen that's otherwise a click away.
+                        match self.screen_test.take().as_deref() {
+                            Some("home") => self.front.show(Screen::Home),
+                            Some("account") => self.front.show(Screen::Account),
+                            Some("discord") => self.front.show_discord(),
+                            Some("discord-code") => {
+                                self.front.show_discord();
+                                self.front_action(screens::Action::DiscordCode);
+                            }
+                            _ => {}
                         }
                         match (auto_play, first) {
                             (true, Some(id)) => self.play(Join::Load { char_id: id }),
@@ -1707,6 +1766,30 @@ impl App {
                 Err(e) => {
                     self.front.recent = Some(Vec::new());
                     self.front.message = Some((e, true));
+                }
+            },
+            Request::DiscordCode => match login::parse_discord_code(response) {
+                Ok(code) => {
+                    self.front.discord_code = Some(code);
+                    self.discord_code_at = Some(Instant::now());
+                    self.discord_asked = Some(Instant::now());
+                }
+                Err(e) => {
+                    self.front.message = Some((e, true));
+                    // Linked meanwhile (from another device), or no longer offered: the list says.
+                    self.refresh();
+                }
+            },
+            Request::DiscordUnlink => match login::parse_success(response) {
+                Ok(()) => {
+                    if let Some(list) = &mut self.front.list {
+                        list.discord = None;
+                    }
+                    self.front.message = Some((tr("Discord unlinked.").into(), false));
+                }
+                Err(e) => {
+                    self.front.message = Some((e, true));
+                    self.refresh();
                 }
             },
             Request::Guest => match login::parse_guest(response) {
@@ -3726,6 +3809,9 @@ fn main() {
         request: None,
         death_fame: None,
         death_fame_asked: false,
+        discord_code_at: None,
+        discord_asked: None,
+        screen_test: text_arg("--screen"),
         front_keys: Vec::new(),
         game_menu: false,
         menu_buttons: Vec::new(),

@@ -564,11 +564,12 @@ The game's Discord server is https://discord.gg/FVhqJe8CG. Its bot (`tools/disco
 
 - posts each release to #updates when it goes live: the version's changelog sections, a link to the changelog page, and a ping of the **Updates** role, which members turn on or off with `/updates`;
 - keeps one message in #server-status up to date (players online, the 24-hour peak and 7 days' uptime, from `/api/app/status`, or the server list if that isn't there);
-- answers `/status`, `/online`, `/wiki <term>` (the wiki's own search index, with links) and `/play`.
+- answers `/status`, `/online`, `/wiki <term>` (the wiki's own search index, with links) and `/play`;
+- links members' Discord accounts to their game accounts (`/link`, `/account`, `/resetpassword`, `/unlink`; "Linked accounts" below).
 
 **Settings** are in `deploy/discord.local.env` in the main checkout (git-ignored, never committed): `DISCORD_TOKEN` (the bot's token, from the Discord developer portal), and the server's ids, which `setup_server.py --apply` writes in. `deploy.py` adds where the releases and the site are on the VPS and installs it as `/opt/bsk/discord/discord.env` (mode 600, owned by `bsk`). A deploy without that file (one from GitHub without the `DISCORD_ENV` secret) keeps the settings already on the VPS and still updates the bot's code; with neither, the bot is left as it is. To change the token, edit the file and deploy. The `.env` in the checkout's root is where the owner first put the token; nothing reads it now.
 
-**The server's layout** (categories, channels, the Updates role, the read-only info channels that only Owner, Developer and the bot can post in, the bot's name and picture there, and the welcome, getting-started and FAQ messages from `tools/discord/messages/`) comes from `tools/discord/setup_server.py`. It only adds and arranges, never deletes, and reuses channels that are already there (`ALIASES`). Without `--apply` it shows what it would do. After editing a message file, run it with `--apply --refresh-messages`:
+**The server's layout** (categories, channels, the Updates and Verified roles, nicknames that only the bot sets, the read-only info channels that only Owner, Developer and the bot can post in, the bot's name and picture there, and the welcome, getting-started and FAQ messages from `tools/discord/messages/`) comes from `tools/discord/setup_server.py`. It only adds and arranges, never deletes, and reuses channels that are already there (`ALIASES`). Without `--apply` it shows what it would do. After editing a message file, run it with `--apply --refresh-messages`:
 
 ```
 python tools\discord\setup_server.py --env deploy\discord.local.env
@@ -584,6 +585,17 @@ sudo systemctl restart bsk-discord         # restart the bot
 journalctl -u bsk-discord -n 50            # its log (what it posted, errors)
 python deploy\deploy.py --status           # includes bsk-discord
 ```
+
+**Linked accounts.** A player links their game account to their Discord account, for a Potion of Maxy the first time and a way back in when a password is lost. It's never required: the client's main menu shows a **Link Discord** button and a line under it to registered accounts that haven't (not to guests, and only where the account server has a secret, below).
+
+- *The steps:* the client's Discord screen (`screens.rs` `draw_discord`; main menu, or Account) asks the account server for a code (`account/discordCode`, with the login): 6 characters, good for 10 minutes, a new one replacing the last. The player types `/link code:<code>` in the Discord server; the bot passes the code and the member's Discord id to the account server (`discord/link`), which links the two. The client asks for the character list every 4 seconds while a code shows, so its screen changes once the link is made.
+- *What a linked member can do* (all answered privately): `/account` (name, fame, living characters, guild), `/resetpassword` (after a confirm button: a new 12-character password and the account's email; the old password stops working, the count of wrong passwords starts again, at most one reset per account in 10 minutes) and `/unlink`. The client's Discord screen unlinks too (`account/discordUnlink`).
+- *The reward:* the first link puts a Potion of Maxy (`DiscordLinks.RewardItem`) in the account's gift chest, once per game account (its `discordReward` field) and once per Discord account (the set `discord.rewarded`), so unlinking and linking again, or one Discord linking account after account, gives no more.
+- *Verified:* a linked member has the **Verified** role and their game name as their nickname in the server (`bot.py` `verify`); `/unlink` takes both away, and so does unlinking in the game, within a minute or so: the account server keeps those Discord ids in the set `discord.unlinked` and the bot asks for them every minute (`discord/unlinked`), saying which it has dealt with. `/account` puts both back for a member who left the server and came back (the bot has no members intent, so it isn't told when someone joins). Nobody renames themselves: `setup_server.py` makes the Verified role, writes `DISCORD_VERIFIED_ROLE` into the bot's settings and takes **Change Nickname** from @everyone and from any other role that gives it (the staff's, managed roles and administrators aside). The bot needs **Manage Roles** and **Manage Nicknames**, with its own role above Verified; the script says so when it lacks them. Discord lets no bot rename the server's owner or anyone ranked above it: they get the role, and are told the nickname couldn't be set. Without `DISCORD_VERIFIED_ROLE` the bot leaves roles and nicknames alone.
+- *The rules:* one Discord account to one game account. Guests can't link (they register first). A member gets 5 wrong codes in 10 minutes.
+- *The secret:* the bot's requests (`discord/link`, `unlink`, `account`, `resetPassword`; `source/App/Controllers/DiscordController.cs`) carry a secret the account server checks (`serverSettings.discordSecret` in its `server.json`, or `BSK_DISCORD_SECRET` in its environment, as in the containers). With none set there's no linking: those requests fail, the character list has no `<Discord>` and the client shows no reminder. Nobody sets it by hand: `deploy.py` makes it from the bot's token in `deploy/discord.local.env` (HMAC-SHA256, `dodmg.link_secret`; or `BSK_LINK_SECRET` there, if the owner wants one of their own) and writes it into the account server's `server.json`, and the bot makes the same from its token. A deploy without the bot's settings keeps the secret the server has (`install.sh`). A new token changes both at the next deploy. The requests go over https (`https://dodmg.com/api/discord/...`, forwarded to the game machine's gateway); the account server's port 8080 answers them too, to anyone with the secret.
+- *In Redis:* `account.<id>` gains `discordId`, `discordName` (the Discord name when linked) and `discordReward` (when the potion was given); the hash `discord.accounts` maps Discord ids to account ids; the set `discord.rewarded` holds the Discord ids that have had the potion; the set `discord.unlinked` those unlinked in the game until the bot has taken their role away; `discord.code.<code>`, `discord.codeFor.<account>`, `discord.tries.<Discord id>` and `discord.reset.<account>` last 10 minutes each. To unlink someone by hand: `hdel account.<id> discordId discordName` and `hdel discord.accounts <Discord id>`.
+- *Trying it without Discord:* start an isolated stack with `BSK_DISCORD_SECRET=<anything>` in the environment, give the bot an env file with `BSK_ACCOUNT=http://127.0.0.1:<account port>` and `BSK_LINK_SECRET=<the same>`, and run a command as a made-up member: `python tools\discord\bot.py --env <file> --as-member 111:alice --try "link ABC234"` (also `account`, `resetpassword`, `unlink`). The client's `--screen discord-code` shows a code (client-rs/AGENTS.md).
 
 **Testing:**
 - `python tools\discord\bot.py --dry-run` prints the release post (`--release 2.2.0` for another one from the changelog) and the `/status`, `/online` and `/wiki` answers, without connecting to Discord.
@@ -634,6 +646,17 @@ The remotes `upstream` (HaloCelsius) and `aurusenth` share no history with `main
 
 ## Changes from upstream
 
+- **Discord account linking** (2026-11-11; `Shared/database/DiscordLinks.cs`,
+  `App/Controllers/DiscordController.cs`, `AccountController` `discordCode` and `discordUnlink`,
+  the `<Discord>` element of the character list's `<Account>`; `tools/discord/bot.py` and
+  `dodmg.py`; the client's `Screen::Discord`): a player links their game account to their Discord
+  account with a code from the client's main menu and the bot's `/link`, gets a Potion of Maxy in
+  the gift chest the first time, and can then have the bot reset a lost password
+  (`/resetpassword`), show the account (`/account`) or unlink (`/unlink`). In the Discord server a
+  linked member is Verified and goes by their game name; nobody there changes their own nickname
+  (`setup_server.py`). Never required: the
+  main menu reminds registered players who haven't linked. The bot proves itself to the account
+  server with a secret the deploy makes from the bot's token. See "Discord", "Linked accounts".
 - **Candyland waves and boss respawns** (2026-11-10; `WorldServer/logic/db/BehaviorDb.Candyland.cs`):
   each room's spawner brings back ten Candy Creatures after a player enters. The local wave must
   be cleared, then players must leave the room before its boss appears; this repeats after each

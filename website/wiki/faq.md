@@ -71,6 +71,35 @@ it's out (`/updates` there gets you pinged), #server-status shows whether the ga
 on, and #help and #bug-reports are the quickest way to reach the people running the game. Its bot
 answers `/status`, `/online`, `/wiki <term>` and `/play`.
 
+## Why link my Discord?
+
+For a free **Potion of Maxy**, and so a lost password doesn't cost you the account. It's never
+required: the main menu only reminds you.
+
+1. Sign in and choose **Link Discord** on the main menu (a guest registers first), then **Get a
+   code**.
+2. In the [Do Damage Discord](https://discord.gg/FVhqJe8CG), type the command the game shows:
+   `/link code:` and your 6-character code. A code lasts 10 minutes and works once.
+
+The game's screen changes by itself once you're linked. In the Discord you get the **Verified**
+role and your nickname becomes your game name, so everyone there knows who you are in game
+(nobody can change their own nickname in the server). The first time, a Potion of Maxy goes to
+your vault's gift chest: once per game account and once per Discord account, so linking again or
+linking a second account gives no more. One Discord account links to one game account.
+
+Linked, the bot answers these, to you alone:
+
+- `/account`: the account you're linked to, its fame, living characters and guild.
+- `/resetpassword`: a new password for the account, shown with the email you sign in with. Sign
+  in with it and choose your own (character list, **Account**). At most one reset in 10 minutes.
+- `/unlink`: undoes the link, and takes the Verified role and the nickname away. The main menu's
+  **Discord**, **Unlink** does the same (the Discord side follows within a minute or so).
+
+## I lost my password
+
+If your account is linked to your Discord (above), type `/resetpassword` in the Do Damage Discord.
+If it isn't, ask in #help: there is no reset by email.
+
 ## How do I report a bug?
 
 The game's code is open, on GitHub: [github.com/Meapy/Do-Damage](https://github.com/Meapy/Do-Damage).

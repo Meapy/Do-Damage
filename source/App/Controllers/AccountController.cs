@@ -154,6 +154,60 @@ namespace App.Controllers
             Response.CreateError(status.GetInfo());
         }
 
+        /// <summary>
+        /// A code that links this account to a Discord account: the player gives it to the Discord
+        /// bot (/link), which redeems it (DiscordController). Asking again replaces the last one.
+        /// </summary>
+        [HttpPost("discordCode")]
+        public void DiscordCode([FromForm] string guid, [FromForm] string password)
+        {
+            var status = _core.Database.Verify(guid, password, out var acc);
+            if (status != DbLoginStatus.OK)
+            {
+                Response.CreateError(status.GetInfo());
+                return;
+            }
+            if (_core.DiscordSecret.Length == 0)
+            {
+                Response.CreateError("Discord linking isn't set up on this server.");
+                return;
+            }
+            if (acc.Guest)
+            {
+                Response.CreateError("Register first: a guest account can't be linked.");
+                return;
+            }
+            if (!string.IsNullOrEmpty(acc.DiscordId))
+            {
+                Response.CreateError("This account is linked to Discord already.");
+                return;
+            }
+
+            var code = DiscordLinks.StartCode(_core.Database, acc);
+            Response.CreateXml(new XElement("Discord",
+                new XElement("Code", code),
+                new XElement("Seconds", (int)DiscordLinks.CodeLife.TotalSeconds)).ToString());
+        }
+
+        /// <summary>Unlinks this account from its Discord account (the bot's /unlink does the same).</summary>
+        [HttpPost("discordUnlink")]
+        public void DiscordUnlink([FromForm] string guid, [FromForm] string password)
+        {
+            var status = _core.Database.Verify(guid, password, out var acc);
+            if (status != DbLoginStatus.OK)
+            {
+                Response.CreateError(status.GetInfo());
+                return;
+            }
+            if (!DiscordLinks.Unlink(_core.Database, acc, tellBot: true))
+            {
+                Response.CreateError("This account isn't linked to Discord.");
+                return;
+            }
+            _core.Logger.Info($"Discord unlinked from <{acc.Name}-{acc.AccountId}> (in the client)");
+            Response.CreateSuccess();
+        }
+
         [HttpPost("verify")]
         public void Verify([FromForm] string guid, [FromForm] string password, [FromForm] string secret)
         {

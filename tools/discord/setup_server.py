@@ -1,4 +1,5 @@
-"""Lays out the Do Damage Discord server: categories, channels, the Updates role, who may write where, and
+"""Lays out the Do Damage Discord server: categories, channels, the Updates and Verified roles, who may write where,
+nicknames only the bot sets (members with a linked game account go by their game name), and
 the bot's name and picture in the server, and its welcome, getting-started and FAQ messages (from tools/discord/messages/). It only adds and
 arranges: it never deletes a channel, role or message. Run it again after changing the layout or a
 message; what's already right is left alone.
@@ -11,8 +12,8 @@ message; what's already right is left alone.
 An existing channel with the same name (emoji and separators aside, so "📢┃updates" is updates) is
 moved into its category and given the layout's permissions, keeping its messages and any other
 permissions it has. --apply writes the ids the bot needs (DISCORD_GUILD_ID, DISCORD_UPDATES_CHANNEL,
-DISCORD_STATUS_CHANNEL, DISCORD_UPDATES_ROLE, and DISCORD_POSTED_UP_TO: the newest release in the
-changelog, already announced) into the --env file, beside the token.
+DISCORD_STATUS_CHANNEL, DISCORD_UPDATES_ROLE, DISCORD_VERIFIED_ROLE, and DISCORD_POSTED_UP_TO: the
+newest release in the changelog, already announced) into the --env file, beside the token.
 """
 import argparse
 import base64
@@ -27,6 +28,7 @@ MESSAGES = os.path.join(dodmg.HERE, "messages")
 ICON = os.path.join(dodmg.ROOT, "client-rs", "app", "icons", "icon-256.png")  # the game's crown
 
 # permission bits (discord.com/developers/docs/topics/permissions)
+ADMINISTRATOR = 1 << 3
 ADD_REACTIONS = 1 << 6
 VIEW = 1 << 10
 SEND = 1 << 11
@@ -36,6 +38,9 @@ ATTACH_FILES = 1 << 15
 READ_HISTORY = 1 << 16
 CONNECT = 1 << 20
 SPEAK = 1 << 21
+CHANGE_NICKNAME = 1 << 26
+MANAGE_NICKNAMES = 1 << 27
+MANAGE_ROLES = 1 << 28
 MANAGE_THREADS = 1 << 34
 CREATE_PUBLIC_THREADS = 1 << 35
 CREATE_PRIVATE_THREADS = 1 << 36
@@ -47,6 +52,8 @@ TEXT, VOICE, CATEGORY = 0, 2, 4
 ROLES = [
     # name, colour, shown apart in the member list, mentionable by anyone, permissions
     ("Updates", 0xF1C40F, False, False, 0),
+    # members whose Discord is linked to a game account (the bot's /link): given and taken by the bot
+    ("Verified", 0x2ECC71, False, False, 0),
 ]
 # the server's own roles that may write in the read-only channels
 STAFF = ["Owner", "Developer"]
@@ -69,7 +76,7 @@ LAYOUT = [
         ("looking-for-group", TEXT, "Find people for dungeons, Oryx and the Arena.", False, None),
         ("screenshots", TEXT, "Show off your loot, your deaths and your best runs.", False, None),
         ("suggestions", TEXT, "Ideas for the game. One idea per message, so people can react to it.", False, None),
-        ("bot-commands", TEXT, "/status, /online, /wiki, /play and /updates.", False, None),
+        ("bot-commands", TEXT, "/status, /online, /wiki, /play, /updates, and /link for your game account.", False, None),
     ]),
     ("SUPPORT", [
         ("help", TEXT, "Stuck, can't sign in, something not working? Ask here.", False, None),
@@ -170,6 +177,35 @@ def main():
                    "permissions": str(perms)})
         role_ids[name] = made["id"] if made else "<new %s>" % name
 
+    # --- nicknames: only the bot sets them (a Verified member's is their game name), so nobody may
+    # change their own. Change Nickname is taken from @everyone and from every other role that
+    # gives it, the staff's aside. Administrators can always rename themselves.
+    mine = [r for r in roles.values() if r["id"] in member.get("roles", []) or r["id"] == everyone]
+    my_perms = 0
+    for r in mine:
+        my_perms |= int(r["permissions"])
+    top = max((r["position"] for r in mine), default=0)
+    if not my_perms & ADMINISTRATOR:
+        missing = [n for bit, n in ((MANAGE_ROLES, "Manage Roles"), (MANAGE_NICKNAMES, "Manage Nicknames")) if not my_perms & bit]
+        if missing:
+            print("  !! the bot lacks %s: give it to the bot's role (Server Settings, Roles), or it can't "
+                  "mark members Verified or set their nicknames" % " and ".join(missing))
+    for r in sorted(roles.values(), key=lambda r: r["position"]):
+        perms = int(r["permissions"])
+        if not perms & CHANGE_NICKNAME or perms & ADMINISTRATOR or r.get("managed") or r["name"] in STAFF:
+            continue
+        name = "@everyone" if r["id"] == everyone else r["name"]
+        if r["position"] >= top and r["id"] != everyone:
+            print("  !! role %s lets its members change their nickname and is above the bot: untick Change Nickname on it by hand" % name)
+            continue
+        try:
+            do("take Change Nickname from %s" % name, "PATCH", "/guilds/%d/roles/%s" % (g, r["id"]),
+               {"permissions": str(perms & ~CHANGE_NICKNAME)})
+        except RuntimeError as e:
+            print("  !! couldn't take Change Nickname from %s (%s): untick it by hand" % (name, e))
+    if "<" not in str(role_ids["Verified"]) and roles.get("verified", {}).get("position", 0) >= top:
+        print("  !! the Verified role is above the bot's own: drag the bot's role above it (Server Settings, Roles)")
+
     # --- categories and channels
     channels = rest("GET", "/guilds/%d/channels" % g)
     by_key = {}
@@ -241,6 +277,7 @@ def main():
         write_env(args.env, {"DISCORD_GUILD_ID": g, "DISCORD_UPDATES_CHANNEL": ids["updates"],
                              "DISCORD_STATUS_CHANNEL": ids["server-status"],
                              "DISCORD_UPDATES_ROLE": role_ids["Updates"],
+                             "DISCORD_VERIFIED_ROLE": role_ids["Verified"],
                              "DISCORD_POSTED_UP_TO": dodmg.releases_from_changelog()[0][0]})
         print("wrote the ids into %s" % args.env)
     left = [c["name"] for c in channels if c["id"] not in placed]

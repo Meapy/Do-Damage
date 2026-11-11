@@ -332,6 +332,10 @@ namespace App
 
         public ushort[] Skins { get; private set; }
 
+        // Discord linking: whether this server offers it, and the Discord name linked (null: none)
+        public bool DiscordOffered { get; private set; }
+        public string DiscordName { get; private set; }
+
         public static Account FromDb(CoreService core, DbAccount acc)
         {
             return new Account()
@@ -357,6 +361,9 @@ namespace App
                 Guild = GuildIdentity.FromDb(acc, new DbGuild(acc)),
 
                 Skins = acc.Skins ?? new ushort[0],
+
+                DiscordOffered = core.DiscordSecret.Length > 0,
+                DiscordName = string.IsNullOrEmpty(acc.DiscordId) ? null : acc.DiscordName ?? "",
             };
         }
 
@@ -382,7 +389,9 @@ namespace App
 
                     Vault.ToXml(),
                     Stats.ToXml(),
-                    Guild.ToXml()
+                    Guild.ToXml(),
+                    // only where linking works: the client's menu reminds players who haven't linked
+                    DiscordOffered ? new XElement("Discord", new XAttribute("linked", DiscordName != null), DiscordName ?? "") : null
                 );
         }
 

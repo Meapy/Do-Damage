@@ -79,6 +79,21 @@ namespace App
             ItemCostsXml = elem;
         }
 
+        /// <summary>
+        /// What the Discord bot proves itself with (DiscordController): serverSettings.discordSecret,
+        /// or BSK_DISCORD_SECRET from the environment. Empty: no Discord linking on this server.
+        /// </summary>
+        public string DiscordSecret
+        {
+            get
+            {
+                var secret = Config.serverSettings.discordSecret;
+                if (string.IsNullOrWhiteSpace(secret))
+                    secret = Environment.GetEnvironmentVariable("BSK_DISCORD_SECRET");
+                return secret?.Trim() ?? "";
+            }
+        }
+
         public bool IsProduction()
         {
 #if DEBUG

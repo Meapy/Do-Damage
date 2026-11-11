@@ -75,6 +75,10 @@ namespace Shared.database.account
         public int[] ForgeShards { get => GetValue<int[]>("forgeShards") ?? new int[0]; set => SetValue("forgeShards", value); }
         // quests, daily login rewards and achievements (Shared.quests.QuestState, as JSON)
         public string Progress { get => GetValue<string>("progress"); set => SetValue("progress", value); }
+        // the Discord account linked to this one (DiscordLinks, which writes them): its id and its
+        // name when it was linked; null when there's none
+        public string DiscordId => GetValue<string>("discordId");
+        public string DiscordName => GetValue<string>("discordName");
         internal string LockToken { get; set; }
 
         public DbAccount(IDatabase db, int accountId, string field = null, bool isAsync = false)
