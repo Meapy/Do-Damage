@@ -39,7 +39,7 @@ round: it asks a friend to come to the instance *you're* in. Either way they see
 the top right corner of their screen, "*Name* wants to visit you" or "*Name* wants to summon
 you", with **Yes** and **No**; it doesn't stop them moving, shooting or using their ability, and
 only the mouse answers it, or they type `/yes` or `/no`. If they say Yes, the one moving goes
-straight there; if they don't answer in 30 seconds it counts as No. `/visit cancel` (or
+straight there, invulnerable for their first 3 seconds; if they don't answer in 30 seconds it counts as No. `/visit cancel` (or
 `/summon cancel`) takes your request back.
 
 From a dungeon or instance, `/help` sends summon requests to eligible online players currently in

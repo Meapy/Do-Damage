@@ -94,7 +94,8 @@ and Armor Broken still work on them).
   2's minions' tricks and a little stronger: the Infernal Officer (confusing shuriken), the
   Brimstone Major (charges, and a cone of fire up close), the Cinder Cleric (heals the others and
   throws blasters: kill it first) and the Doom Cardinal (paralysing spears, and a Vintner at its
-  side). Oryx 4 waits in the middle of the Pyre at its end: Oryx 1's fight made harder, with
+  side). A gate across the path's last stretch keeps the Pyre shut until the whole Court is dead,
+  so nobody can run past it to him. Oryx 4 waits in the middle of the Pyre at its end: Oryx 1's fight made harder, with
   hellfire, his court called back to his side, red butterfly-winged Infernal Elements circling him
   (four close, four further out, their flames 20 damage that ignores armour), six orbiting White
   Moons and a weakening ring he warns you about. Mind the
@@ -151,12 +152,6 @@ and Armor Broken still work on them).
   - Below 90%, every second time he changes pattern he throws two splats of **Divine Ichor**. Each
     hatches an **Ichor Sprite**: it has little health, and its shots barely hurt but slow you.
 
-While the **Oryx 4 and Oryx 5 event** is on, Oryx the Infernal Mad God and Oryx the Ascended God
-deal 20% less damage with their shots and bombs, and so does everything they bring into the
-fight: the court they summon, Oryx 4's elements and moons, and Oryx 5's stars, Halo Orbs, Pillars
-of Heaven and Ichor Sprites. The monsters in the rooms on the way hit as hard as ever. The Nexus
-tells you when you arrive if it's on.
-
 ## The loot
 
 Loot rises with each stage: more stat potions, more Potions of Life and Mana, and higher-tier gear,
@@ -172,7 +167,8 @@ the real prizes:
   Escutcheon. The Ring of Oryx, Oryx Hide Armor, Oryx Hide Robe and Oryx Scale Armor no longer drop
   anywhere: they're unobtainable.
 - **Oryx 4** drops his own untiered items in white bags: the **Infernal Brimstone Poison** (2,000 poison
-  damage that curses, with a stasis blast, but it silences you for 2 seconds), the **Infernal Cloak of
+  damage that curses and strips 4% of their defense for 12 seconds, as the orbs do, but it silences
+  you for 2 seconds), the **Infernal Cloak of
   Bloodshed** (it makes you bleed for a moment), the **Infernal Bloodletter** and the **Infernal Gems
   of Adoration and Tenderness**. **Oryx 5** drops the Sword of Dark Enchantment, and his own
   **Ascended Gem of Adoration** (+400 Vitality for 3 seconds when your health drops below 20%) and
@@ -182,8 +178,8 @@ the real prizes:
 - **Oryx 5** drops the **tier 16 armours**, in his colours: Hide of the Firmament, Armor of
   Ascension and Robe of Absolution, in white bags. The Divine Forge also makes each from the tier 15
   armour of its kind, an Ascended Armor Shard and 2,000 fame.
-- **Forge shards**: Oryx 4 drops the four Infernal shards and Oryx 5 the four Ascended shards, each
-  half as often as that Oryx's Potion of Oryx. The Ascended shards forge Oryx 5's Ascended items
+- **Forge shards**: Oryx 4 drops the four Infernal shards, each as often as his Potion of Oryx, and
+  Oryx 5 the four Ascended shards, each half as often as his. The Ascended shards forge Oryx 5's Ascended items
   (see [The Divine Forge](forge.html#forge-shards-and-the-forge-storage)).
 
 Everyone who does a fair share of the damage gets the full loot: 5% of the damage is enough for the

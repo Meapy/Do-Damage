@@ -472,7 +472,6 @@
 "Other players' pets": "Huisdieren van anderen",
 "Other players' pets' effects": "Effecten van andermans huisdieren",
 "Other players' pets' shots": "Schoten van andermans huisdieren",
-"Other players' shots": "Schoten van andere spelers",
 "Page {page} of {pages}": "Pagina {page} van {pages}",
 "Particles and effects": "Deeltjes en effecten",
 "Party chat": "Groepschat",
@@ -1064,7 +1063,6 @@
 "You have no pet stones with you.": "Je hebt geen huisdierstenen bij je.",
 "{from}, raised to {to}": "{from}, verbeterd tot {to}",
 "{have} of {all} collected": "{have} van {all} verzameld",
-"Raise to Large ({n} of {needed} shards)": "Naar Groot ({n} van {needed} scherven)",
 "The Pen Keeper keeps {n} of your shards": "De hoedster bewaart {n} van je scherven",
 "+{n} {stat}": "+{n} {stat}",
 "Guardian Angel takes no other imprints.": "Beschermengel laat geen andere afdrukken toe.",
@@ -1135,5 +1133,13 @@
 "Unlink your Discord?": "Je Discord ontkoppelen?",
 "The Discord bot can no longer reset this account's password.": "De Discord-bot kan het wachtwoord van dit account dan niet meer resetten.",
 "Discord linked. A first link puts a Potion of Maxy in your vault's gift chest.": "Discord gekoppeld. De eerste keer gaat er een Potion of Maxy naar de cadeaukist in je kluis.",
-"Discord unlinked.": "Discord ontkoppeld."
+"Discord unlinked.": "Discord ontkoppeld.",
+"Characters in town": "Figuren in de stad",
+"Monsters": "Monsters",
+"Other players' damage numbers": "Schadegetallen van andere spelers",
+"Other players' shots and spells": "Schoten en spreuken van andere spelers",
+"Players' chat": "Spelerschat",
+"Raise to Large ({n} Ambrosia)": "Naar Groot ({n} Ambrosia)",
+"Trade {needed} shards for an Ambrosia": "Ruil {needed} scherven voor een Ambrosia",
+"Whispers": "Gefluister"
 }

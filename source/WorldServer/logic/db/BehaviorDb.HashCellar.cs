@@ -28,7 +28,26 @@ namespace WorldServer.logic
                 )
             );
 
+        // the Burning Path's Court: the Gate before the Pyre opens once they're all dead
+        private static readonly string[] InfernalCourt = { "Infernal Officer", "Brimstone Major", "Cinder Cleric", "Doom Cardinal" };
+
         private _ HashCellar = () => Behav()
+            // ---- the Gate: opens once the Court is dead, so nobody runs past it to Oryx 4 ----
+            .Init("O4 Gate Deleter 1",
+                new State(
+                    new State("Wait",
+                        new TimedTransition(3000, "Watch")
+                    ),
+                    new State("Watch",
+                        new EntitiesNotExistsTransition(80, "Open", InfernalCourt)
+                    ),
+                    new State("Open",
+                        new RemoveObject("O4 Wall Gate", 8),
+                        new TimedTransition(1000, "Done")
+                    ),
+                    new State("Done")
+                )
+            )
             // the Officer's volleys and spikes, and the Henchman's confusing shuriken and bolts; those
             // Oryx 4 summons throw the shuriken that doesn't confuse (projectile 12)
             .Init("Infernal Officer",

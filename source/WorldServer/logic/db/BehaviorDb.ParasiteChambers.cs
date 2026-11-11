@@ -259,8 +259,8 @@ namespace WorldServer.logic
                 new ItemLoot("Potion of Mana", 1),
                 new ItemLoot("pD Tome", 0.005),
                 new ItemLoot("pD Scepter", 0.005),
-                new ItemLoot("pD Spell", 0.005),
-                new ItemLoot("pD Armor", 0.005)
+                // (no pD Armor: an <Admin/> item, staff only)
+                new ItemLoot("pD Spell", 0.005)
                 )
             );
     }

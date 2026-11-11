@@ -646,6 +646,23 @@ The remotes `upstream` (HaloCelsius) and `aurusenth` share no history with `main
 
 ## Changes from upstream
 
+- **Updates of 11 November** (2026-11-11, release 2.5.1): Oryx's Inferno's Gate (`O4 Wall Gate`
+  rows and `O4 Gate Deleter 1` from `tools/build_hash_cellar.py`, opened by `BehaviorDb.HashCellar.cs`
+  once the Infernal Court is dead); Infernal shards at 14% each; the `damageEvent` off in
+  `wServer.json`; the Doom Poison's `StasisBlast` swapped for a 4% `ArmorShred` and the Sword
+  Shield retuned (`tools/port_doomed.py` `GEAR_TUNING`, the XML edited to match, as the Doomed
+  Realms checkout isn't on this PC); the Drowned Tide's Undertow without `ArmorBroken`; mana
+  potions from the Tomb's bosses; no pD Armor from the Nightmare Colony; Ambrosia for the Pen
+  Keeper's Large raise and his 25-shard trade (`PetPenAct` 6); the Account Fame champions board
+  (`ChampionTab.AccountFame` 9); the statues event counted when the second statue falls;
+  invulnerable arrivals (`Player.ShieldArrival`); forging below T10 not counted; imprints keep
+  `Corruption` and `Unique`; `NearObject` finds spawned objects. Client: the white bag's chime and
+  flash (`whitebag.rs`, `tools/make_white_bag_sound.py`), the black corruption edge, Options'
+  balloon kinds (`speechBalloons`), others' damage numbers (`othersDamageNumbers`) and spells,
+  auto-drink only from loot bags and with Potions of Oryx, no death spin for others' deaths,
+  searches cleared on a world change, a refused teleport's cooldown given back; held abilities (the
+  ninja stars, `<MultiPhase/>`) send `END_USE` on release and throw; the quest cleared on a world
+  change. Data: no Soul Mask invisibility, no Speedy clear on the Tome of Purification.
 - **Discord account linking** (2026-11-11; `Shared/database/DiscordLinks.cs`,
   `App/Controllers/DiscordController.cs`, `AccountController` `discordCode` and `discordUnlink`,
   the `<Discord>` element of the character list's `<Account>`; `tools/discord/bot.py` and

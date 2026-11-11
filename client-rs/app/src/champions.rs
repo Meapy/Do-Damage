@@ -1,5 +1,5 @@
 //! The Hall of Champions: the living's leaderboard in the Nexus, beside the Legends (the dead's).
-//! The account server ranks every account on six boards every few minutes (its
+//! The account server ranks every account on its boards every few minutes (its
 //! `ChampionsController`, `Shared/champions`), and each board's top 10 hold a reward of its own
 //! kind while they stay there (#1, #2-3 and #4-10 a step each), which the world server applies.
 //!

@@ -78,8 +78,8 @@ namespace Tests
         public void EachBoardGivesItsOwnReward()
         {
             // every reward comes from one board, but the Arena's (both Arena boards) and the loot boost
-            // (Fame and the two guild boards)
-            Assert.Equal(ChampionBoards.All.Length - 3, ChampionBoards.All.Select(b => b.Reward).Distinct().Count());
+            // (Fame, Account Fame and the two guild boards)
+            Assert.Equal(ChampionBoards.All.Length - 4, ChampionBoards.All.Select(b => b.Reward).Distinct().Count());
             var p = ChampionPlaces.None.With(ChampionTab.WeeklyFame, 2).With(ChampionTab.ArenaSolo, 1).With(ChampionTab.ArenaGroup, 4);
             Assert.Equal(0.06, p.Experience, 10);
             Assert.Equal(0.20, p.ArenaFame, 10);

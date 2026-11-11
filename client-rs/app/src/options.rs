@@ -201,7 +201,6 @@ pub enum Toggle {
     Particles,
     Shadows,
     HpBars,
-    Bubbles,
     AllyShots,
     PetShots,
     PetEffects,
@@ -220,15 +219,15 @@ pub enum Toggle {
     Music,
     PingSounds,
     AutoDrink,
+    OthersDamage,
 }
 
-/// What's shown in the world.
-const VISUALS: [(Toggle, &str); 9] = [
+/// What's shown in the world (and the speech balloons' list, `BUBBLE_KINDS`, above them).
+const VISUALS: [(Toggle, &str); 8] = [
     (Toggle::Particles, mark("Particles and effects")),
     (Toggle::Shadows, mark("Shadows")),
     (Toggle::HpBars, mark("Health bars")),
-    (Toggle::Bubbles, mark("Speech balloons")),
-    (Toggle::AllyShots, mark("Other players' shots")),
+    (Toggle::AllyShots, mark("Other players' shots and spells")),
     (Toggle::PetShots, mark("Other players' pets' shots")),
     (Toggle::PetEffects, mark("Other players' pets' effects")),
     (Toggle::Crosshair, mark("Crosshair")),
@@ -297,7 +296,31 @@ const GRAPHICS: [(Toggle, &str); 8] = [
 ];
 
 /// How the game plays for you.
-const GAMEPLAY: [(Toggle, &str); 1] = [(Toggle::AutoDrink, mark("Drink stat potions from loot bags"))];
+const GAMEPLAY: [(Toggle, &str); 2] = [
+    (Toggle::AutoDrink, mark("Drink stat potions from loot bags")),
+    (Toggle::OthersDamage, mark("Other players' damage numbers")),
+];
+
+/// Whose speech balloons show (`Settings::bubbles`, a bit each): the Visuals tab's list.
+pub mod bubble {
+    pub const PLAYERS: u8 = 1;
+    pub const GUILD: u8 = 2;
+    pub const PARTY: u8 = 4;
+    pub const WHISPERS: u8 = 8;
+    pub const MONSTERS: u8 = 16;
+    pub const NPCS: u8 = 32;
+    pub const ALL: u8 = 63;
+}
+
+/// The speech balloons' list, in its order: each kind and its name.
+const BUBBLE_KINDS: [(u8, &str); 6] = [
+    (bubble::PLAYERS, mark("Players' chat")),
+    (bubble::GUILD, mark("Guild chat")),
+    (bubble::PARTY, mark("Party chat")),
+    (bubble::WHISPERS, mark("Whispers")),
+    (bubble::MONSTERS, mark("Monsters")),
+    (bubble::NPCS, mark("Characters in town")),
+];
 
 const SOUNDS: [(Toggle, &str); 4] =
     [(Toggle::Sfx, mark("Sound effects")), (Toggle::Shots, mark("Weapon sounds")), (Toggle::Music, mark("Music")), (Toggle::PingSounds, mark("Ping sounds"))];
@@ -356,8 +379,12 @@ pub struct Settings {
     pub particles: bool,
     pub shadows: bool,
     pub hp_bars: bool,
-    pub bubbles: bool,
+    /// Whose speech balloons show: `bubble`'s bits (none, all, or some: only guild and party).
+    pub bubbles: u8,
+    /// Other players' projectiles, and their spells' effects.
     pub ally_shots: bool,
+    /// Damage numbers from other players' hits (on a boss, say), so it's clear when we hit.
+    pub others_damage: bool,
     /// Other players' pets' projectiles, and their pets' particle effects.
     pub pet_shots: bool,
     pub pet_effects: bool,
@@ -435,8 +462,9 @@ impl Default for Settings {
             particles: true,
             shadows: true,
             hp_bars: true,
-            bubbles: true,
+            bubbles: bubble::ALL,
             ally_shots: true,
+            others_damage: false,
             pet_shots: true,
             pet_effects: true,
             pet_shot_look: PetShots::Subtle,
@@ -502,7 +530,6 @@ impl Settings {
             Toggle::Particles => &mut self.particles,
             Toggle::Shadows => &mut self.shadows,
             Toggle::HpBars => &mut self.hp_bars,
-            Toggle::Bubbles => &mut self.bubbles,
             Toggle::AllyShots => &mut self.ally_shots,
             Toggle::PetShots => &mut self.pet_shots,
             Toggle::PetEffects => &mut self.pet_effects,
@@ -521,6 +548,7 @@ impl Settings {
             Toggle::Music => &mut self.sound.music,
             Toggle::PingSounds => &mut self.ping_sounds,
             Toggle::AutoDrink => &mut self.auto_drink,
+            Toggle::OthersDamage => &mut self.others_damage,
         }
     }
 
@@ -540,7 +568,6 @@ impl Settings {
         flag("particles", self.particles);
         flag("shadows", self.shadows);
         flag("hpBars", self.hp_bars);
-        flag("textBubbles", self.bubbles);
         flag("allyShots", self.ally_shots);
         flag("petShots", self.pet_shots);
         flag("petEffects", self.pet_effects);
@@ -561,6 +588,9 @@ impl Settings {
         flag("playMusic", self.sound.music);
         flag("pingSounds", self.ping_sounds);
         flag("autoDrinkPotions", self.auto_drink);
+        flag("othersDamageNumbers", self.others_damage);
+        out += &format!("speechBalloons={}
+", self.bubbles);
         out += &format!("masterVolume={}\nsfxVolume={}\nmusicVolume={}\n", self.sound.master_volume, self.sound.sfx_volume, self.sound.music_volume);
         out += &format!("worldZoom={}\n", self.zoom);
         out += &format!("chatSize={}\nchatBackground={}\n", self.chat_size, self.chat_alpha);
@@ -615,7 +645,10 @@ impl Settings {
                 "vividColours" => s.vivid = on,
                 "hdr" => (s.hdr, s.hdr_chosen) = (on, true),
                 "hpBars" => s.hp_bars = on,
-                "textBubbles" => s.bubbles = on,
+                // before 2.5.1 one switch for every balloon
+                "textBubbles" => s.bubbles = if on { bubble::ALL } else { 0 },
+                "speechBalloons" => s.bubbles = value.parse::<u8>().map_or(bubble::ALL, |m| m & bubble::ALL),
+                "othersDamageNumbers" => s.others_damage = on,
                 "allyShots" => s.ally_shots = on,
                 "petShots" => s.pet_shots = on,
                 "petEffects" => s.pet_effects = on,
@@ -737,6 +770,11 @@ enum Hit {
     Language(Option<usize>),
     /// A slider (a volume, the zoom...) and its track.
     Slider(Slider, [f32; 4]),
+    /// The speech balloons' list: its box (opens and closes it), a kind in it (`bubble`'s bit),
+    /// and the list itself round them (a click there does nothing).
+    BubbleMenu,
+    BubbleKind(u8),
+    BubbleList,
     Defaults,
     Close,
     Home,
@@ -767,6 +805,8 @@ pub struct OptionsUi {
     brush: usize,
     /// What the last Copy code or Paste code did, shown under them.
     share_note: Option<ShareNote>,
+    /// The speech balloons' list is open (the Visuals tab).
+    bubble_menu: bool,
     rect: Option<[f32; 4]>,
     hits: Vec<(Hit, [f32; 4])>,
     /// "Return home" was pressed: back to the Nexus.
@@ -778,6 +818,25 @@ pub struct OptionsUi {
 fn inside(r: [f32; 4], (x, y): (f64, f64)) -> bool {
     let (x, y) = (x as f32, y as f32);
     x >= r[0] && y >= r[1] && x < r[0] + r[2] && y < r[1] + r[3]
+}
+
+/// What the speech balloons' box says: everyone's, none, or the kinds ticked.
+fn bubble_summary(mask: u8) -> String {
+    match mask & bubble::ALL {
+        bubble::ALL => tr("Everyone").to_owned(),
+        0 => tr("None").to_owned(),
+        m => BUBBLE_KINDS.iter().filter(|(bit, _)| m & bit != 0).map(|(_, l)| tr(l)).collect::<Vec<_>>().join(", "),
+    }
+}
+
+/// A small triangle pointing down (or up, `open`) at (cx, cy), `r` from its middle to a corner.
+fn caret(ui: &mut Ui, cx: f32, cy: f32, r: f32, open: bool) {
+    let white = ui.renderer.white();
+    let c = bsk_render::rgb_f32(color::TEXT_DIM);
+    let col = [c[0], c[1], c[2], 1.0];
+    let d = if open { -1.0 } else { 1.0 };
+    let pts = [[cx - r, cy - d * r * 0.5], [cx + r, cy - d * r * 0.5], [cx, cy + d * r * 0.6]];
+    ui.renderer.triangle_colors(white, pts, [[0.5, 0.5]; 3], [col; 3]);
 }
 
 /// A slider set to where the mouse is along its track (in steps of 5%, or one frame rate limit).
@@ -882,9 +941,21 @@ impl OptionsUi {
             self.listening = None;
             return false;
         }
-        let Some((hit, _)) = self.hits.iter().find(|(_, r)| inside(*r, pos)).copied() else { return false };
+        let Some((hit, _)) = self.hits.iter().find(|(_, r)| inside(*r, pos)).copied() else {
+            self.bubble_menu = false;
+            return false;
+        };
         self.listening = None;
+        if !matches!(hit, Hit::BubbleMenu | Hit::BubbleKind(_) | Hit::BubbleList) {
+            self.bubble_menu = false;
+        }
         match hit {
+            Hit::BubbleMenu => self.bubble_menu = !self.bubble_menu,
+            Hit::BubbleKind(bit) => {
+                settings.bubbles ^= bit;
+                return true;
+            }
+            Hit::BubbleList => {}
             Hit::Tab(t) => {
                 self.tab = t;
                 self.share_note = None;
@@ -965,6 +1036,7 @@ impl OptionsUi {
                         settings.pet_alpha = d.pet_alpha;
                         settings.pet_shot_look = d.pet_shot_look;
                         settings.pings_from = d.pings_from;
+                        settings.bubbles = d.bubbles;
                     }
                     Tab::Sound => {
                         settings.sound = d.sound;
@@ -1189,6 +1261,19 @@ impl OptionsUi {
                     y += 40.0 * s;
                 }
                 y += 6.0 * s;
+                // The speech balloons: a box saying whose show, opening a list to tick them in.
+                let mut bubble_list = None;
+                if self.tab == Tab::Visuals {
+                    ui.label_fit(tr("Speech balloons"), body[0] + 10.0 * s, y + 8.0 * s, 186.0 * s, font(14.0), false, color::TEXT);
+                    let bx = [body[0] + 200.0 * s, y + 3.0 * s, 280.0 * s, 28.0 * s];
+                    let hot = self.bubble_menu || inside(bx, mouse);
+                    theme::frame(ui.renderer, bx, 6.0 * s, s.max(1.0), (if hot { color::BORDER_HI } else { color::BORDER }, 1.0), ((color::FIELD, 1.0), (color::FIELD, 1.0)));
+                    ui.label_fit(&bubble_summary(settings.bubbles), bx[0] + 10.0 * s, bx[1] + 6.0 * s, bx[2] - 40.0 * s, font(13.0), false, color::TEXT);
+                    caret(ui, bx[0] + bx[2] - 18.0 * s, bx[1] + bx[3] / 2.0, 5.0 * s, self.bubble_menu);
+                    self.hits.push((Hit::BubbleMenu, bx));
+                    bubble_list = Some([bx[0], bx[1] + bx[3] + 2.0 * s, bx[2]]);
+                    y += 40.0 * s;
+                }
                 // A long list of switches goes in two columns.
                 let cols = if list.len() > 6 { 2 } else { 1 };
                 let per_col = list.len().div_ceil(cols);
@@ -1208,6 +1293,31 @@ impl OptionsUi {
                     let kx = if on { sw[0] + sw[2] - knob - 2.0 * s } else { sw[0] + 2.0 * s };
                     theme::fill(ui.renderer, [kx, sw[1] + 2.0 * s, knob, knob], knob / 2.0, 0xFFFFFF, 1.0);
                     self.hits.push((Hit::Toggle(*t), row));
+                }
+                // the list over the switches, its rows taking clicks before them
+                if let Some([lx, ly, lw]) = bubble_list.filter(|_| self.bubble_menu) {
+                    let rh = 30.0 * s;
+                    let list = [lx, ly, lw, rh * BUBBLE_KINDS.len() as f32 + 8.0 * s];
+                    theme::frame(ui.renderer, list, 6.0 * s, s.max(1.0), (color::BORDER_HI, 1.0), ((color::FIELD, 1.0), (color::FIELD, 1.0)));
+                    let mut rows = vec![];
+                    for (i, (bit, label)) in BUBBLE_KINDS.into_iter().enumerate() {
+                        let row = [lx + 4.0 * s, ly + 4.0 * s + i as f32 * rh, lw - 8.0 * s, rh];
+                        if inside(row, mouse) {
+                            theme::fill(ui.renderer, row, 4.0 * s, 0xFFFFFF, 0.06);
+                        }
+                        let on = settings.bubbles & bit != 0;
+                        let bs = 16.0 * s;
+                        let tick = [row[0] + 8.0 * s, row[1] + (rh - bs) / 2.0, bs, bs];
+                        theme::fill(ui.renderer, tick, 4.0 * s, if on { color::ACCENT } else { color::SECONDARY }, 1.0);
+                        if on {
+                            let inner = 6.0 * s;
+                            theme::fill(ui.renderer, [tick[0] + (bs - inner) / 2.0, tick[1] + (bs - inner) / 2.0, inner, inner], inner / 2.0, 0xFFFFFF, 1.0);
+                        }
+                        ui.label_fit(tr(label), tick[0] + bs + 10.0 * s, row[1] + 7.0 * s, row[2] - bs - 30.0 * s, font(13.0), false, color::TEXT);
+                        rows.push((Hit::BubbleKind(bit), row));
+                    }
+                    rows.push((Hit::BubbleList, list));
+                    self.hits.splice(0..0, rows);
                 }
             }
         }

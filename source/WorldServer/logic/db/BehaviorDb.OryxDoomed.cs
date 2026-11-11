@@ -167,11 +167,11 @@ namespace WorldServer.logic
                     new ItemLoot("Potion of Attack", 1),
                     new ItemLoot("Potion of Defense", 1),
                     new ItemLoot("Potion of Oryx", 0.14),
-                    // his forge shards, each half as common as the Potion of Oryx (ForgeStorage.cs)
-                    new ItemLoot("Infernal Weapon Shard", 0.07),
-                    new ItemLoot("Infernal Ability Shard", 0.07),
-                    new ItemLoot("Infernal Armor Shard", 0.07),
-                    new ItemLoot("Infernal Accessory Shard", 0.07)
+                    // his forge shards, each as common as the Potion of Oryx (ForgeStorage.cs)
+                    new ItemLoot("Infernal Weapon Shard", 0.14),
+                    new ItemLoot("Infernal Ability Shard", 0.14),
+                    new ItemLoot("Infernal Armor Shard", 0.14),
+                    new ItemLoot("Infernal Accessory Shard", 0.14)
                 ),
                 // 3% of the damage: more stat potions and the rare drops
                 new Threshold(0.03,

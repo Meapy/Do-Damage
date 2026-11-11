@@ -170,6 +170,8 @@ pub struct Floater {
     pub at: i32,
     /// How long it shows, ms.
     pub life: i32,
+    /// Another player's hit (Options, Gameplay, "Other players' damage numbers").
+    pub others: bool,
 }
 
 /// Damage numbers: red, or purple for a hit that ignored defense (an `ArmorPiercing` shot).
@@ -185,7 +187,7 @@ impl Floater {
     /// A shot's damage number, purple when the shot ignored defense.
     pub fn hit(object_id: i32, amount: i32, pierced: bool, at: i32) -> Self {
         let color = if pierced { PIERCED_COLOR } else { DAMAGE_COLOR };
-        Floater { object_id, text: format!("-{amount}"), color, at, life: 1000 }
+        Floater { object_id, text: format!("-{amount}"), color, at, life: 1000, others: false }
     }
 
     pub fn is_damage(&self) -> bool {
@@ -200,6 +202,8 @@ pub struct Bubble {
     pub text: String,
     /// Background, outline, text.
     pub colors: [u32; 3],
+    /// Whose it is (`options::bubble`'s bits): Options, Visuals, Speech balloons.
+    pub kind: u8,
     pub at: i32,
     pub life: i32,
 }
@@ -261,7 +265,8 @@ impl Scene<'_> {
 pub struct Show {
     pub shadows: bool,
     pub hp_bars: bool,
-    pub bubbles: bool,
+    /// Whose speech balloons show (`options::bubble`'s bits).
+    pub bubbles: u8,
     /// Other players' projectiles (`allyShots`).
     pub ally_shots: bool,
     /// Other players' pets' projectiles.
@@ -272,6 +277,8 @@ pub struct Show {
     pub player_alpha: f32,
     pub pet_alpha: f32,
     pub damage_numbers: bool,
+    /// Damage numbers from other players' hits.
+    pub others_damage: bool,
 }
 
 /// The image an object shows now, before redrawing.
@@ -1510,7 +1517,7 @@ pub fn draw(scene: &Scene, renderer: &mut Renderer, redrawer: &mut Redrawer, gro
     crate::prof::mark("v.hp");
     // Damage numbers and notifications, rising above the object.
     let style = Style { size: (18.0 * k).round().max(10.0), bold: true, color: 0xFF0000 };
-    for f in scene.floaters.iter().filter(|f| scene.show.damage_numbers || !f.is_damage()) {
+    for f in scene.floaters.iter().filter(|f| (scene.show.damage_numbers || !f.is_damage()) && (scene.show.others_damage || !f.others)) {
         let Some(obj) = world.objects.get(&f.object_id).filter(|o| !hidden(o)) else { continue };
         let age = (scene.time - f.at) as f32 / 1000.0;
         let [px, py] = scene.stand(obj);
@@ -1520,7 +1527,7 @@ pub fn draw(scene: &Scene, renderer: &mut Renderer, redrawer: &mut Redrawer, gro
 
     // Speech balloons: the text wrapped to 150 px, in a cut-corner box with a tail, above the
     // speaker.
-    for b in scene.bubbles.iter().filter(|_| scene.show.bubbles) {
+    for b in scene.bubbles.iter().filter(|b| scene.show.bubbles & b.kind != 0) {
         let Some(obj) = world.objects.get(&b.object_id).filter(|o| !hidden(o)) else { continue };
         let size = (14.0 * k).round().max(9.0);
         let style = Style { size, bold: false, color: b.colors[2] };

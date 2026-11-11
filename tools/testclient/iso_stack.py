@@ -1,7 +1,7 @@
 """Isolated test servers, next to the live ones and sharing nothing with them.
 
     python tools/testclient/iso_stack.py start [--fresh-data] [--no-build] [--data-from DIR]
-    python tools/testclient/iso_stack.py stop
+    python tools/testclient/iso_stack.py stop [--take-over]
     python tools/testclient/iso_stack.py status
 
 Redis 6380, account server 8081, world server 2052, all under build/iso/. Build the test client
@@ -23,6 +23,10 @@ with --port 8081 to use it.
 - stop only stops the processes this script started (their ids are in build/iso/pids.json), so a
   stack another checkout or worktree started on the same slot keeps running: start then refuses,
   naming what holds the slot's ports, rather than leave a client on that other stack's servers.
+  `stop --take-over` stops that other stack too (Dev Test.bat uses it): whatever listens on the
+  slot's ports, as long as it's a test stack's (its iso-redis-server.exe, `dotnet App.dll` or
+  `dotnet WorldServer.dll`, the world proxy); anything else is named and left alone. Those other
+  stacks' world servers are stopped without saving, as stop always does.
 - --rolling (with start) puts the world server behind the world proxy, as the live one is: the
   proxy on the world port and world servers on slots a and b (tools/rolling_restart.py, under
   build/iso<N>/live). Try a deploy with `rolling_restart.py --iso N deploy`. stop stops them too.
@@ -79,6 +83,64 @@ def holder(port):
           "'pid ' + $_.OwningProcess + ', ' + $p.ExecutablePath + ' (' + $p.CommandLine + ')' }" % port)
     out = subprocess.run(["powershell", "-NoProfile", "-Command", ps], capture_output=True, text=True).stdout.strip()
     return out or "something"
+
+
+def listener(port):
+    """What listens on a local port: (pid, executable, command line), or None (Windows only)."""
+    if os.name != "nt":
+        return None
+    ps = ("Get-NetTCPConnection -State Listen -LocalPort %d -ErrorAction SilentlyContinue | Select-Object -First 1 | "
+          "ForEach-Object { $p = Get-CimInstance Win32_Process -Filter ('ProcessId=' + $_.OwningProcess); "
+          "'' + $_.OwningProcess + '|' + $p.ExecutablePath + '|' + $p.CommandLine }" % port)
+    out = subprocess.run(["powershell", "-NoProfile", "-Command", ps], capture_output=True, text=True).stdout.strip()
+    pid, _, rest = out.partition("|")
+    if not pid.strip().isdigit():
+        return None
+    exe, _, cmd = rest.partition("|")
+    return int(pid), exe.strip(), cmd.strip()
+
+
+def test_stack_process(exe, cmd):
+    """Whether a process is a test stack's: never a live server, Doomed Realms or anything else."""
+    name = os.path.basename(exe).lower()
+    low = cmd.lower()
+    if name == "iso-redis-server.exe":
+        return True
+    if name == "dotnet.exe":
+        return any(dll in low for dll in ("app.dll", "worldserver.dll"))
+    if name.startswith("python"):
+        return "world_proxy.py" in low
+    return False
+
+
+def take_over():
+    """Stop whatever test stack (another checkout's or worktree's) holds this slot's ports."""
+    for name, port in (("Redis", REDIS_PORT), ("account", APP_PORT), ("world", WORLD_PORT)):
+        held = listener(port)
+        if held is None:
+            continue
+        pid, exe, cmd = held
+        if not test_stack_process(exe, cmd):
+            print("%s port %d is held by pid %d, %s (%s): not a test stack's, left running" % (name, port, pid, exe, cmd))
+            continue
+        subprocess.run(["taskkill", "/PID", str(pid), "/T", "/F"], capture_output=True)
+        print("stopped %s on port %d: pid %d, %s (%s), another checkout's test stack" % (name, port, pid, exe, cmd))
+    # the ports free up a moment after their processes go
+    for _ in range(20):
+        if not ports_taken_quick():
+            return
+        time.sleep(0.5)
+
+
+def ports_taken_quick():
+    taken = False
+    for port in (REDIS_PORT, APP_PORT, WORLD_PORT):
+        try:
+            socket.create_connection(("127.0.0.1", port), timeout=0.3).close()
+            taken = True
+        except OSError:
+            pass
+    return taken
 
 
 def ports_taken():
@@ -175,7 +237,7 @@ def strays():
             if p.strip().isdigit() and int(p) not in listed]
 
 
-def stop(_):
+def stop(args):
     if os.path.exists(os.path.join(ISO, "live", "state.json")):
         subprocess.run([sys.executable, os.path.join(ROOT, "tools", "rolling_restart.py"), "--iso", str(SLOT), "stop"])
     if os.path.exists(PIDS):
@@ -189,6 +251,8 @@ def stop(_):
     for pid, path in strays():
         subprocess.run(["taskkill", "/PID", str(pid), "/T", "/F"], capture_output=True)
         print("stopped", pid, path, "(not started by this script)")
+    if getattr(args, "take_over", False):
+        take_over()
 
 
 def status(_):
@@ -210,7 +274,9 @@ def main():
     s.add_argument("--no-build", action="store_true", help="reuse the last build in build/iso")
     s.add_argument("--data-from", help="copy the Redis data from this folder")
     s.add_argument("--rolling", action="store_true", help="the world server behind the world proxy (rolling_restart.py)")
-    sub.add_parser("stop")
+    st = sub.add_parser("stop")
+    st.add_argument("--take-over", action="store_true",
+                    help="also stop another checkout's or worktree's test stack holding this slot's ports")
     sub.add_parser("status")
     args = ap.parse_args()
     use_slot(args.slot)

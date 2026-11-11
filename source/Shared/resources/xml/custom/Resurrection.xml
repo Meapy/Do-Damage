@@ -496,7 +496,7 @@
 		<ActivateOnEquip stat="27" amount="4">IncrementStat</ActivateOnEquip>
 		<RelicPower>Undertow</RelicPower>
 		<ExtraTooltipData>
-			<EffectInfo name="Undertow" description="Using it slows and breaks the armour of enemies within 3.5 tiles of the target for 3 seconds" />
+			<EffectInfo name="Undertow" description="Using it slows enemies within 3.5 tiles of the target for 3 seconds (its armour shred does the rest)" />
 		</ExtraTooltipData>
 		<Description>Thessal's pearl, grown dark in the depths of death. The tide inside it pulls at the world. Dropped by the Empowered Thessal the Mermaid Goddess.</Description>
 		<BagType>6</BagType>

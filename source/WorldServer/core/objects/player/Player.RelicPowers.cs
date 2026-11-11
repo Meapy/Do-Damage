@@ -176,13 +176,13 @@ namespace WorldServer.core.objects
                         RelicDamage(e, 350, ref time, false);
                     }
                     break;
-                // the undertow drags at everything round the target: slowed and its armour broken
+                // the undertow drags at everything round the target: slowed (its armour is the orb's
+                // ArmorShred's, as the other orbs', not broken)
                 case "Undertow":
                     RelicEffect(this, EffectType.Concentrate, 0xFF40C0FF, pos, new Position(pos.X + 3.5f, pos.Y));
                     foreach (var e in EnemiesNear(pos.X, pos.Y, 3.5f))
                     {
                         e.ApplyConditionEffect(ConditionEffectIndex.Slowed, 3000);
-                        e.ApplyConditionEffect(ConditionEffectIndex.ArmorBroken, 3000);
                     }
                     break;
                 // the guardian's oath: +10 defense to everyone within 5 tiles for 4 s

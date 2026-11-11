@@ -8004,7 +8004,6 @@
 		<FameBonus>6</FameBonus>
 		<MpCost>120</MpCost>
 		<Activate amount="200" range="6.5" useWisMod="true">HealNova</Activate>
-		<Activate range="7" effect="Speedy" checkExistingEffect="Hexed">ClearConditionEffectAura</Activate>
 		<Activate range="7">RemoveNegativeConditions</Activate>
 		<feedPower>950</feedPower>
 		<Soulbound/>
@@ -10629,7 +10628,7 @@
 			<File>lofiObj2</File>
 			<Index>0x158</Index>
 		</Texture>
-		<Description>The nectar of the gods which holds great power!</Description>
+		<Description>The nectar of the gods which holds great power! The Pen Keeper raises a Medium pet to Large with it.</Description>
 		<BagType>7</BagType>
 		<feedPower>5000</feedPower>
 		<PetFood/>

@@ -556,9 +556,13 @@ namespace WorldServer.core.objects
         {
             // the ring's Unbound Will: now and then the ability costs nothing; its Benediction: a
             // blessing with each use (Player.Imprints.cs)
-            if (!FreeCast(slot))
-                Mana -= item.MpCost;
-            Benediction(item, slot);
+            // (not again on a held ability's release, which pays its own MpEndCost)
+            if (useType != END_USE)
+            {
+                if (!FreeCast(slot))
+                    Mana -= item.MpCost;
+                Benediction(item, slot);
+            }
 
             // OBSŁUGA NOWEGO POLA EXP
             if (item.Exp > 0)
@@ -604,6 +608,10 @@ namespace WorldServer.core.objects
 
             foreach (var eff in item.ActivateEffects)
             {
+                // a held ability's release (the client sends it as the key comes up) only ends what
+                // was held: the Crystal Shield's slowing, say, isn't applied a second time
+                if (useType == END_USE && eff.Effect != ActivateEffects.ShurikenAbility)
+                    continue;
                 switch (eff.Effect)
                 {
                     case ActivateEffects.XPBoost:

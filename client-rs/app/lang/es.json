@@ -472,7 +472,6 @@
 "Other players' pets": "Mascotas de otros jugadores",
 "Other players' pets' effects": "Efectos de mascotas ajenas",
 "Other players' pets' shots": "Disparos de mascotas ajenas",
-"Other players' shots": "Disparos de otros jugadores",
 "Page {page} of {pages}": "Página {page} de {pages}",
 "Particles and effects": "Partículas y efectos",
 "Party chat": "Chat de grupo",
@@ -1064,7 +1063,6 @@
 "You have no pet stones with you.": "No llevas piedras de mascota.",
 "{from}, raised to {to}": "{from}, mejorada a {to}",
 "{have} of {all} collected": "{have} de {all} conseguidos",
-"Raise to Large ({n} of {needed} shards)": "Subir a Grande ({n} de {needed} fragmentos)",
 "The Pen Keeper keeps {n} of your shards": "El cuidador guarda {n} de tus fragmentos",
 "+{n} {stat}": "+{n} {stat}",
 "Guardian Angel takes no other imprints.": "Ángel guardián no admite otros grabados.",
@@ -1135,5 +1133,13 @@
 "Unlink your Discord?": "¿Desvincular tu Discord?",
 "The Discord bot can no longer reset this account's password.": "El bot de Discord ya no podrá restablecer la contraseña de esta cuenta.",
 "Discord linked. A first link puts a Potion of Maxy in your vault's gift chest.": "Discord vinculado. La primera vez, una Potion of Maxy va al cofre de regalos de tu bóveda.",
-"Discord unlinked.": "Discord desvinculado."
+"Discord unlinked.": "Discord desvinculado.",
+"Characters in town": "Personajes del pueblo",
+"Monsters": "Monstruos",
+"Other players' damage numbers": "Números de daño de otros jugadores",
+"Other players' shots and spells": "Disparos y hechizos de otros jugadores",
+"Players' chat": "Chat de jugadores",
+"Raise to Large ({n} Ambrosia)": "Subir a Grande ({n} Ambrosia)",
+"Trade {needed} shards for an Ambrosia": "Cambiar {needed} fragmentos por una Ambrosia",
+"Whispers": "Susurros"
 }

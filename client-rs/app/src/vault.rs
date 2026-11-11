@@ -163,6 +163,14 @@ impl Vault {
 
     /// A new connection: forget the vault and whether the server knows the request (the sort
     /// stays as the player chose it).
+    /// A new world: the search starts empty (the sort stays).
+    pub fn clear_search(&mut self) {
+        if !self.query.is_empty() {
+            self.query.clear();
+            self.dirty = true;
+        }
+    }
+
     pub fn reset(&mut self) {
         *self = Vault { sort: self.sort, kinds: std::mem::take(&mut self.kinds), ..Vault::default() };
     }

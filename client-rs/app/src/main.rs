@@ -49,6 +49,7 @@ mod version;
 mod view;
 #[cfg(target_arch = "wasm32")]
 mod web;
+mod whitebag;
 
 use bsk_assets::AssetSource;
 use bsk_data::GameData;
@@ -260,6 +261,8 @@ struct App {
     quest_acts: Vec<quests::Act>,
     /// Options, Gameplay: what drinking from loot bags has done (`auto_drink`).
     auto_drunk: AutoDrink,
+    /// The world (`Game::maps_entered`) the vault's search was typed in: a new one clears it.
+    search_map: u32,
     /// The community goals window and its banners, and what it asked of the server.
     community: community::Community,
     community_acts: Vec<community::Act>,
@@ -557,10 +560,15 @@ const AUTO_DRINK_GAP_MS: i32 = 250;
 
 /// Options, Gameplay, "Drink stat potions from loot bags": the stat potions in the bag we stand on
 /// are drunk one after another, as a double-click on each would (a maxed stat's goes to the potion
-/// storage). Only plain stat potions: not a Potion of Max or of Oryx, which a player may keep for
-/// another character.
+/// storage). Only plain stat potions and the Potion of Oryx (one of each): not a Potion of Max,
+/// which a player may keep for another character. Only loot bags (`<Loot/>`): never the vault's
+/// gift chest or chests, a gravestone or an arena chest.
 fn auto_drink(game: &mut Game, panel: &hud::Panel, now: i32, data: &GameData, state: &mut AutoDrink) {
-    let bag = panel.interact.as_ref().filter(|t| t.kind == hud::InteractKind::Container).map(|t| t.id);
+    let bag = panel
+        .interact
+        .as_ref()
+        .filter(|t| t.kind == hud::InteractKind::Container && is_loot_bag(game, data, t.id))
+        .map(|t| t.id);
     if bag != state.bag {
         *state = AutoDrink { bag, ..Default::default() };
     }
@@ -578,18 +586,26 @@ fn auto_drink(game: &mut Game, panel: &hud::Panel, now: i32, data: &GameData, st
     }
 }
 
-/// A stat potion `auto_drink` drinks: a consumable potion whose one activate raises a stat by a
-/// little (10 at most) and stores no different amount when the stat is maxed.
+/// Whether the container with this id is a loot bag (its type has `<Loot/>`).
+fn is_loot_bag(game: &Game, data: &GameData, id: i32) -> bool {
+    game.world
+        .as_ref()
+        .and_then(|w| w.objects.get(&id))
+        .and_then(|o| data.objects.get(&o.object_type))
+        .is_some_and(|d| d.xml.has("Loot"))
+}
+
+/// A stat potion `auto_drink` drinks: a consumable potion whose activates each raise a stat by a
+/// little (10 at most) and store no different amount when the stat is maxed: a plain stat potion's
+/// one, or the Potion of Oryx's eight.
 fn plain_stat_potion(data: &GameData, item: i32) -> bool {
     let Some(d) = data.objects.get(&(item as u16)) else { return false };
     let xml = &d.xml;
-    let mut acts = xml.children_named("Activate");
-    let (Some(a), None) = (acts.next(), acts.next()) else { return false };
-    xml.has("Potion")
+    let mut acts = xml.children_named("Activate").peekable();
+    acts.peek().is_some()
+        && xml.has("Potion")
         && xml.has("Consumable")
-        && a.text.trim() == "IncrementStat"
-        && a.attr("storeAmount").is_none()
-        && (1..=10).contains(&a.attr_int("amount", 0))
+        && acts.all(|a| a.text.trim() == "IncrementStat" && a.attr("storeAmount").is_none() && (1..=10).contains(&a.attr_int("amount", 0)))
 }
 
 /// Carry out what the player did on the HUD (`ItemGridMediator`).
@@ -1417,6 +1433,9 @@ impl App {
         }
         self.phase = Phase::Playing(game);
         self.hud = Default::default();
+        // the character list's search was for picking this one: it's empty when we come back
+        self.front.set_field(screens::SEARCH, String::new());
+        self.search_map = 0;
         self.chat_input = None;
         self.chat_history.reset_navigation();
         self.game_menu = false;
@@ -1431,11 +1450,13 @@ impl App {
     }
 
     /// A character's fame summary (or why there's none): its death spin first, then the summary.
+    /// Someone else's (the Legends, Recent Deaths) or an old one (the graveyard) goes straight to
+    /// the summary, whose line says what the spin won: the reel is for your own death.
     fn show_fame(&mut self, fame: Result<bsk_net::account::FameSummary, String>) {
         use screens::Screen;
         match fame {
             Ok(summary) => {
-                let spun = summary.spin.is_some();
+                let spun = summary.spin.is_some() && !self.front.death_from_legends && !self.front.death_from_graveyard;
                 self.front.death = Some(summary);
                 self.front.show(if spun { Screen::Spin } else { Screen::Death });
                 let now = self.now();
@@ -2255,6 +2276,9 @@ impl App {
         let pressed = std::mem::take(&mut self.pressed);
         let scripted_fire = self.scripted_key(now) == Some(KeyCode::F23);
         let wants_fire_scripted = self.autofire || scripted_fire;
+        // the ability key held now: a held ability (the ninja stars) is thrown when it comes up
+        let ability_keys: Vec<KeyCode> = self.settings.key(options::Bind::Ability).into_iter().collect();
+        let ability_down = self.held(&ability_keys);
         let (mouse, script_aim) = (self.mouse, self.script_aim);
         let Some(loaded) = self.loaded.as_mut() else { return };
         let Loaded { renderer, sprites, data, redrawer, fonts, text, .. } = &mut **loaded;
@@ -2288,6 +2312,7 @@ impl App {
             player_alpha: self.settings.player_alpha,
             pet_alpha: self.settings.pet_alpha,
             damage_numbers: self.settings.damage_numbers,
+            others_damage: self.settings.others_damage,
         };
         if matches!(self.phase, Phase::Menu) {
             // The crosshair is only for the game: however it was left (a death, a disconnect,
@@ -2565,6 +2590,14 @@ impl App {
             }
             game.particles.disabled = !self.settings.particles;
             game.particles.hide_pets = !self.settings.pet_effects;
+            game.particles.hide_allies = !self.settings.ally_shots;
+            // a search typed in the vault doesn't follow us to another world
+            if game.maps_entered != self.search_map {
+                self.search_map = game.maps_entered;
+                self.vault.clear_search();
+                self.forge.clear_search(data);
+                self.market.clear_search();
+            }
             game.particles.pet_shots = (self.settings.pet_shot_look, self.settings.pet_shots);
             // Options' "Return home": out to the main menu.
             if std::mem::take(&mut self.options_ui.go_home) {
@@ -2978,6 +3011,7 @@ impl App {
         let mut view_radius = None;
         let mut fire = None;
         let mut ability_at = None;
+        let mut ability_release = None;
         let mut ping = None;
         // Pings wait while a window has the mouse.
         let windows_open = self.game_menu
@@ -3045,6 +3079,10 @@ impl App {
                             let (x, y) = camera.to_world(mx, my);
                             let angle = game.camera_angle + (my - camera.cy).atan2(mx - camera.cx);
                             ability_at = Some((x, y, angle));
+                        }
+                        if game.ability_held() && !ability_down {
+                            let (x, y) = camera.to_world(mouse.0, mouse.1);
+                            ability_release = Some((x, y, game.camera_angle + (mouse.1 - camera.cy).atan2(mouse.0 - camera.cx)));
                         }
                         // The middle button: a ping, or the ping wheel.
                         if !self.pings.events.is_empty() {
@@ -3172,6 +3210,9 @@ impl App {
             if let Some((x, y, angle)) = ability_at {
                 game.use_ability(now, x, y, angle, data);
             }
+            if let Some((x, y, angle)) = ability_release {
+                game.release_ability(now, x, y, angle, data);
+            }
             // a ping too soon after the last few (or to a server without pings) doesn't go
             if let Some(mark) = ping {
                 if !game.ping(mark, now) {
@@ -3253,6 +3294,10 @@ impl App {
             crosshair::draw(renderer, (mouse.0 as f32, mouse.1 as f32), lay.s.max(0.75) * look.size, look);
         }
         hide_pointer(&self.window, &mut self.cursor_hidden, crosshair, "game");
+        if let Phase::Playing(Game { white_bag_at: Some(at), .. }) = &self.phase {
+            let (_, h) = renderer.size();
+            whitebag::draw(renderer, [0.0, 0.0, lay.column()[0], h as f32], lay.s, now - at);
+        }
         if let Phase::Playing(Game { dying: Some(d), .. }) = &self.phase {
             let (w, h) = renderer.size();
             let mut ui = hud::Ui { renderer: &mut *renderer, sprites, data, redrawer: &mut *redrawer, fonts, text: &mut *text };
@@ -3829,6 +3874,7 @@ fn main() {
         quests: Default::default(),
         quest_acts: Vec::new(),
         auto_drunk: AutoDrink::default(),
+        search_map: 0,
         community: Default::default(),
         community_acts: Vec::new(),
         collection: Default::default(),

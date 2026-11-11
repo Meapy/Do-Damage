@@ -260,6 +260,15 @@ fn name_of(data: &GameData, item: i32) -> String {
 }
 
 impl Market {
+    /// A new world: the search starts empty.
+    pub fn clear_search(&mut self) {
+        if !self.query.is_empty() {
+            self.query.clear();
+            self.dirty = true;
+            self.row = 0;
+        }
+    }
+
     /// Opens the window; the next tick asks for the listings.
     pub fn show(&mut self, data: &GameData) {
         self.open = true;

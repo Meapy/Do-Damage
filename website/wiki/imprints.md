@@ -91,7 +91,7 @@ damage), and sometimes a third. Walk up to the anvil, open it, pick a piece of g
 you wear or carry and press **Corrupt**: the essence is used up and the piece changes, for better or
 worse. What changes, and how far, is for you to find out.
 
-Corrupted gear has a **purple** edge in place of its gold one, and its tooltip shows how it has changed.
+Corrupted gear has a **black** edge in place of its gold one, and its tooltip shows how it has changed.
 
 ## Every imprint
 
