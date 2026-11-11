@@ -1098,5 +1098,16 @@
 "Stop": "Zatrzymaj",
 "Next roll": "Następne losowanie",
 "Skip all": "Pomiń wszystko",
-"Items go to the gift chest in your vault.": "Przedmioty trafiają do skrzyni z prezentami w skarbcu."
+"Items go to the gift chest in your vault.": "Przedmioty trafiają do skrzyni z prezentami w skarbcu.",
+"Corrupt": "Skaź",
+"Corrupt Enthroned gear": "Skaź sprzęt Intronizowany",
+"Corrupted.": "Skażono.",
+"Corrupted. Its shots now fly back to you.": "Skażono. Jego pociski lecą teraz z powrotem do ciebie.",
+"Corruption": "Skaza",
+"Cosmic Anvil": "Kosmiczne Kowadło",
+"No one knows quite what an Unstable Essence will do. Try one and see.": "Nikt nie wie dokładnie, co zrobi Unstable Essence. Spróbuj i przekonaj się.",
+"Pick Enthroned gear on the left to corrupt it.": "Wybierz po lewej sprzęt Intronizowany, by go skazić.",
+"Reversed: its shots fly from the end of their range back to you.": "Odwrócony: jego pociski lecą od końca zasięgu z powrotem do ciebie.",
+"Unstable Essence in your inventory: {n}": "Unstable Essence w ekwipunku: {n}",
+"You need an Unstable Essence.": "Potrzebujesz Unstable Essence."
 }

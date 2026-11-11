@@ -1,4 +1,5 @@
-﻿using Shared.resources;
+﻿using System;
+using Shared.resources;
 using WorldServer.core.objects;
 using WorldServer.core.worlds;
 using WorldServer.utils;
@@ -27,8 +28,11 @@ namespace WorldServer.logic.behaviors
             if (vect.Length() > _returnWithinRadius)
             {
                 Status = CycleStatus.InProgress;
+                // never past the spawn point: a step longer than what's left overshot it, and
+                // with a small radius the boss shuffled back and forth there
+                var left = vect.Length();
                 vect.Normalize();
-                vect *= host.GetSpeed(_speed) * time.BehaviourTickTime;
+                vect *= Math.Min(left, host.GetSpeed(_speed) * time.BehaviourTickTime);
                 host.ValidateAndMove(host.X + vect.X, host.Y + vect.Y);
             }
             else

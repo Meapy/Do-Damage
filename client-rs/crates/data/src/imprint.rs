@@ -277,6 +277,27 @@ pub fn parse(data: &str) -> Set {
     out
 }
 
+/// A piece of Enthroned gear's corruption (`Shared/resources/Corruption.cs`, the Cosmic Anvil):
+/// damage, range, rate of fire and stats, each -6 to +6 (`"Corruption":[d, r, f, s]` in its data);
+/// all 0 for none.
+pub fn corruption(data: &str) -> [i32; 4] {
+    let mut out = [0i32; 4];
+    let Some(i) = data.find("\"Corruption\"") else { return out };
+    let rest = &data[i + 12..];
+    let Some(open) = rest.find('[') else { return out };
+    let Some(close) = rest[open..].find(']') else { return out };
+    for (k, n) in rest[open + 1..open + close].split(',').take(4).enumerate() {
+        out[k] = n.trim().parse::<i32>().unwrap_or(0).clamp(-6, 6);
+    }
+    out
+}
+
+/// Whether a staff's corruption has turned its shots round (`"Unique":1`): they fly from the far
+/// end of their range back to where they were fired.
+pub fn reversed(data: &str) -> bool {
+    data.find("\"Unique\"").is_some_and(|i| data[i + 8..].trim_start_matches([':', ' ']).starts_with('1'))
+}
+
 /// What a weapon's imprints do to its shots (the server's `ImprintShot`): damage as whole
 /// percent steps on the roll, in order; range as a lifetime.
 #[derive(Clone, Debug, PartialEq)]
@@ -293,11 +314,23 @@ pub struct Shot {
     /// The shots look like the imprints' own ([`SIGIL`]): the Gathered Shot's arrow, the
     /// Spearform thrust.
     pub sigil: bool,
+    /// A staff's reversed corruption: each shot starts at the far end of its range and flies back.
+    pub reversed: bool,
 }
 
 impl Default for Shot {
     fn default() -> Self {
-        Shot { damage_percents: Vec::new(), range_percent: 100, range_tenths: 0, no_pierce: false, gathered: false, rate_mult: 1.0, battle_mage: false, sigil: false }
+        Shot {
+            damage_percents: Vec::new(),
+            range_percent: 100,
+            range_tenths: 0,
+            no_pierce: false,
+            gathered: false,
+            rate_mult: 1.0,
+            battle_mage: false,
+            sigil: false,
+            reversed: false,
+        }
     }
 }
 
@@ -342,6 +375,17 @@ impl Shot {
         s
     }
 
+    /// The weapon's corruption on top of its imprints, as the server applies it: damage by its
+    /// percent (after the imprints'), range by its percent, rate of fire by twice its percent.
+    pub fn corrupted(mut self, c: [i32; 4]) -> Shot {
+        if c[0] != 0 {
+            self.damage_percents.push(100 + c[0]);
+        }
+        self.range_percent = self.range_percent * (100 + c[1]) / 100;
+        self.rate_mult *= 1.0 + 2.0 * c[2] as f64 / 100.0;
+        self
+    }
+
     pub fn damage(&self, roll: i32) -> i32 {
         self.damage_percents.iter().fold(roll, |r, p| r * p / 100)
     }
@@ -354,6 +398,27 @@ impl Shot {
 
     pub fn num_projectiles(&self, own: i32) -> i32 {
         if self.gathered { 1 } else { own }
+    }
+}
+
+#[cfg(test)]
+mod corruption_tests {
+    use super::*;
+
+    #[test]
+    fn corruption_reads_and_applies() {
+        let data = r#"{"ObjectId":"Enthroned Staff","Stack":0,"MaxStack":0,"Imprints":[1,0,0,0],"Corruption":[4,-2,3,1],"Unique":1}"#;
+        assert_eq!(corruption(data), [4, -2, 3, 1]);
+        assert!(reversed(data));
+        assert_eq!(corruption(r#"{"Imprints":[1,0,0,0]}"#), [0; 4]);
+        assert!(!reversed(r#"{"Imprints":[1,0,0,0]}"#));
+        let s = Shot::default().corrupted([4, -2, 3, 1]);
+        assert_eq!(s.damage(1000), 1040);
+        assert_eq!(s.lifetime(100, 1000), 980);
+        assert!((s.rate_mult - 1.06).abs() < 1e-9);
+        // after the imprints' damage, as the server does it
+        let keen = Shot { damage_percents: vec![105], ..Shot::default() }.corrupted([-6, 0, 0, 0]);
+        assert_eq!(keen.damage(1000), 1000 * 105 / 100 * 94 / 100);
     }
 }
 

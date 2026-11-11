@@ -26,6 +26,15 @@ namespace Shared.database.character.inventory
         [JsonProperty(NullValueHandling = NullValueHandling.Ignore)]
         public int? PetUpgrade { get; set; }
 
+        // its corruption (Shared/resources/Corruption.cs: damage, range, rate of fire, stats), left out
+        // when it has none
+        [JsonProperty(NullValueHandling = NullValueHandling.Ignore)]
+        public int[] Corruption { get; set; }
+
+        // a unique corruption: 1, a staff whose shots fly from where it aims back to its wielder
+        [JsonProperty(NullValueHandling = NullValueHandling.Ignore)]
+        public int? Unique { get; set; }
+
         public int Imprint(ImprintKind kind) => Imprints != null && (int)kind < Imprints.Length ? Imprints[(int)kind] : 0;
 
         public string GetData() => JsonConvert.SerializeObject(this);

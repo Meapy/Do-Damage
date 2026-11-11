@@ -14,9 +14,36 @@ details). Add to a group's line when a change adds to it, rather than adding ano
 
 ## Unreleased
 
+### The Black Between
+- A new endgame dungeon, harder than Oryx 5: the Mysterious One, the voice of Realm 2, and his
+  children Vesper, the Dusk Star, and Aurel, the Dawn Blade, on a platform floating in the void.
+  When Oryx the Ascended God falls, his Rift opens a quarter of the time, and every time during
+  The Voice in the Void (10 November to 1 December). It has music of its own. Every shot there
+  goes on through whoever it hits, so nobody can take the hits for the group: everyone has to
+  dodge.
+- The Mysterious One drops life and mana potions, every Max potion, six new abilities (one for the
+  Archer, Huntress, Warrior, Trickster, Rogue and Assassin, each with its own power) and Unstable
+  Essence.
+- Corruption: the Cosmic Anvil he leaves behind spends an Unstable Essence to change a piece of
+  Enthroned gear, for better or worse. What it does is for you to find out; corrupted gear has a
+  purple edge.
+
+### Oryx 3 and Oryx 5
+- The gates that shut behind you in Oryx's Sanctuary and Oryx's Elysium now show as they close:
+  before, they blocked the way without being seen.
+
 ### Dungeons
 - Candyland rooms spawn waves of ten creatures. Clear the wave and leave the room for the next
   boss; defeated bosses no longer leave a realm portal behind.
+
+### Game
+- A boss made tougher for a bigger group gets weaker again when players leave the dungeon, keeping
+  how far down you've already taken it: whoever stays never faces health scaled for players
+  long gone. This goes for the Oryx chain's bosses and the Black Between's.
+- Imprinted gear's border is thinner: its colour sits at the slot's edge with a fine gold line
+  inside, leaving more room for the item.
+- Darkness now darkens your view, leaving only a little light round you, as it should: before, it
+  only showed its icon.
 
 ### Vault
 - The Collection groups the 19 unique items from Empowered Elder bosses under

@@ -350,6 +350,23 @@
 		<VisibilityType>1</VisibilityType>
 		<Dungeon/>
 	</World>
+	<!-- the Mysterious One's dungeon; built by tools/build_black_between.py -->
+	<World id="The Black Between">
+		<Width>48</Width>
+		<Height>72</Height>
+		<MapJM>Dungeons/The Black Between/The Black Between.jm</MapJM>
+		<!-- the Rust client's starry void sky (voidsky.rs SKY_VOID) and the platform's undersides -->
+		<Background>8</Background>
+		<VisibilityType>1</VisibilityType>
+		<!-- the whole arena in view from anywhere on it: Aurel's twin tornado, the spectres and the
+		     swords cross to its far side, beyond the usual 15 tiles -->
+		<MinSightRadius>35</MinSightRadius>
+		<!-- its own music (tools/black_between/sound.py) -->
+		<Music>
+			<Track>the_black_between</Track>
+		</Music>
+		<Dungeon/>
+	</World>
 	<!-- Oryx 3; built by tools/build_oryx_sanctuary.py -->
 	<World id="Oryx's Sanctuary">
 		<Width>80</Width>

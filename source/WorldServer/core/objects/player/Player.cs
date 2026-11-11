@@ -396,6 +396,8 @@ namespace WorldServer.core.objects
         public override void Init(World owner)
         {
             base.Init(owner);
+            if (owner.MinSightRadius > 0)
+                SetSightRadius(_askedSightRadius);
             SpawnPetIfAttached(owner);
 
             FameCounter = new FameCounter(this);

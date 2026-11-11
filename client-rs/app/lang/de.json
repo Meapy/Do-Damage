@@ -1098,5 +1098,16 @@
 "Stop": "Anhalten",
 "Next roll": "Nächster Wurf",
 "Skip all": "Alle überspringen",
-"Items go to the gift chest in your vault.": "Gegenstände landen in der Geschenktruhe in deinem Tresor."
+"Items go to the gift chest in your vault.": "Gegenstände landen in der Geschenktruhe in deinem Tresor.",
+"Corrupt": "Verderben",
+"Corrupt Enthroned gear": "Thron-Ausrüstung verderben",
+"Corrupted.": "Verdorben.",
+"Corrupted. Its shots now fly back to you.": "Verdorben. Seine Schüsse fliegen jetzt zu dir zurück.",
+"Corruption": "Verderbnis",
+"Cosmic Anvil": "Kosmischer Amboss",
+"No one knows quite what an Unstable Essence will do. Try one and see.": "Niemand weiß genau, was eine Unstable Essence bewirkt. Probier es aus.",
+"Pick Enthroned gear on the left to corrupt it.": "Wähle links Thron-Ausrüstung, um sie zu verderben.",
+"Reversed: its shots fly from the end of their range back to you.": "Umgekehrt: Seine Schüsse fliegen vom Ende ihrer Reichweite zu dir zurück.",
+"Unstable Essence in your inventory: {n}": "Unstable Essence im Inventar: {n}",
+"You need an Unstable Essence.": "Du brauchst eine Unstable Essence."
 }

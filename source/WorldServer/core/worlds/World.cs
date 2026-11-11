@@ -102,6 +102,7 @@ namespace WorldServer.core.worlds
             Persist = resource.Persists;
             ShowDisplays = Id == -2 || resource.ShowDisplays;
             Blocking = resource.VisibilityType;
+            MinSightRadius = resource.MinSightRadius;
             AllowTeleport = resource.AllowTeleport;
             DisableShooting = resource.DisableShooting;
             DisableAbilities = resource.DisableAbilities;
@@ -125,6 +126,9 @@ namespace WorldServer.core.worlds
             if (day != DayOfWeek.Saturday && day != DayOfWeek.Sunday) { }
             else isWeekend = true;
         }
+
+        // the least sight radius players get here (WorldResource.MinSightRadius)
+        public int MinSightRadius { get; private set; }
 
         public bool HasLabel(string labelName) => Labels.Contains(labelName.ToLower());
         public bool SetLabel(string labelName) => Labels.Equals(labelName.ToLower());
@@ -964,6 +968,11 @@ namespace WorldServer.core.worlds
             }
             if (IsRealm || InstanceType != WorldResourceInstanceType.Dungeon || IdName.Contains("Arena") || IdName.Contains("Zombies"))
                 return;
+            // the Black Between: his children fall on the way, and only the Mysterious One's going
+            // clears it; he leaves his own way out (BehaviorDb.BlackBetween.cs), so no Realm Portal
+            var blackBetween = IdName == "The Black Between";
+            if (blackBetween && boss.ObjectDesc.IdName != "The Mysterious One")
+                return;
             var (x, y) = (boss.X, boss.Y);
             StartNewTimer(2000, (world, t) =>
             {
@@ -974,7 +983,7 @@ namespace WorldServer.core.worlds
                 }
                 // the Oryx chain leads on, not out: each stage's boss leaves the next one's portal,
                 // and the last leads home to the Nexus
-                if (world.Quests.Count > 0 || OryxChain.IsStage(world)
+                if (world.Quests.Count > 0 || OryxChain.IsStage(world) || blackBetween
                     || world.Portals.Values.Any(p => p.ObjectDesc.IdName is "Realm Portal" or "Random Realm Portal"))
                     return;
                 var portal = Entity.Resolve(world.GameServer, "Realm Portal");

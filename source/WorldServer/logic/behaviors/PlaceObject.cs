@@ -88,6 +88,7 @@ namespace WorldServer.logic.behaviors
             var dat = host.GameServer.Resources.GameData;
             var objType = dat.IdToObjectType[_objName];
             var map = host.World.Map;
+            var placedAny = false;
 
             for (var i = tiles.Pending.Count - 1; i >= 0; i--)
             {
@@ -99,11 +100,21 @@ namespace WorldServer.logic.behaviors
                     var tile = map[x, y];
                     tile.ObjType = objType;
                     tile.ObjDesc = dat.ObjectDescs[objType];
+                    // an object id of its own, or clients are never sent it (GetNewStaticObjects):
+                    // it stood in the way unseen (Oryx 5's Holy Gates as they shut, until 2.4.7)
+                    tile.ObjId = host.World.GetNextEntityId();
                     tile.UpdateCount++;
                     tiles.Placed.Add((x, y));
+                    placedAny = true;
                 }
                 tiles.Pending.RemoveAt(i);
             }
+            // players look for new objects on the squares round them only when they work those out
+            // again (when they step onto another square, or are told to): tell them, or they never
+            // see what was placed (RemoveObject does the same)
+            if (placedAny)
+                foreach (var player in host.World.Players.Values)
+                    player.UpdateTiles();
         }
     }
 }
