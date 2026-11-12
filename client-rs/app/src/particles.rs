@@ -15,6 +15,8 @@ use bsk_world::{Impact, World};
 use std::collections::HashMap;
 use std::f64::consts::PI;
 
+mod relic;
+
 #[derive(Clone, Debug)]
 enum Motion {
     /// Moves by its velocity.
@@ -41,6 +43,14 @@ enum Motion {
     /// A soul escaping a fallen boss (`Souls`): circles a point, drifting out by `out` and up by
     /// `rise` tiles a millisecond, fading in and out over its life; `speed` as `Orbit`'s.
     Soul { cx: f64, cy: f64, angle: f64, speed: f64, rad: f64, out: f64, rise: f64 },
+    /// Thrown: moves by its velocity, falling by `g` tiles a millisecond each millisecond, and
+    /// bounces where it lands.
+    Ballistic { g: f64 },
+    /// Circles object `id` wherever it goes, as `Soul` circles its spot; gone with the object.
+    Swirl { id: i32, angle: f64, speed: f64, rad: f64, out: f64, rise: f64 },
+    /// Flies to object `id` (or, with none, the spot tx, ty), turning toward it as it goes and
+    /// faster, leaving sparks; gone once it's there. `speed`: tiles a millisecond.
+    Seek { id: i32, tx: f64, ty: f64, speed: f64 },
 }
 
 /// A particle drawn as a picture: its frames (none for a blank one), each with its size in
@@ -72,11 +82,18 @@ struct Particle {
     /// On stacked floors, the height of the floor it was made on (ours then), which its own
     /// height is above.
     floor: f64,
+    /// Not shown, nor moving, for this many ms more.
+    delay: i32,
+    /// Fades out over the second half of its life, from `opacity`.
+    fade: bool,
+    opacity: f32,
+    /// Grows by this much a millisecond (the AIR size units).
+    grow: f64,
 }
 
 impl Particle {
     fn new(x: f64, y: f64, z: f64, color: u32, size: f64, life: i32, motion: Motion) -> Self {
-        Particle { x, y, z, vx: 0.0, vy: 0.0, vz: 0.0, color, size, life, left: life, motion, image: None, alpha: 1.0, floor: 0.0 }
+        Particle { x, y, z, vx: 0.0, vy: 0.0, vz: 0.0, color, size, life, left: life, motion, image: None, alpha: 1.0, floor: 0.0, delay: 0, fade: false, opacity: 1.0, grow: 0.0 }
     }
 
     fn with_image(mut self, image: Option<Image>) -> Self {
@@ -144,6 +161,14 @@ pub struct Particles {
     marks: Vec<GroundMark>,
     /// The time of the last update, for the marks.
     now: i32,
+    /// The Necromantic items' pictures on the ground (`relic`).
+    decals: Vec<relic::Decal>,
+    /// The Necromantic items' auras: particles round an object for a while (`relic`).
+    auras: Vec<relic::Aura>,
+    /// Effects to show later (`--effect` tests): when, and which.
+    delayed: Vec<(i32, ShowEffect)>,
+    /// The height and floor of the last effect's spot, for its decals.
+    here: (f64, u8),
 }
 
 /// A circle on the ground (`ShowEffect` 40, the Black Between's telegraphs): its outline at once,
@@ -215,6 +240,9 @@ impl Particles {
     /// A new world: nothing carries over.
     pub fn clear(&mut self) {
         self.marks.clear();
+        self.decals.clear();
+        self.auras.clear();
+        self.delayed.clear();
         self.list.clear();
         self.pending.clear();
         self.flashes.clear();
@@ -516,6 +544,8 @@ impl Particles {
                 let level = world.levels.as_ref().map_or(0, |l| ((z + 0.01) / l.height).floor().max(0.0) as u8);
                 self.marks.push(GroundMark { x: p1.0, y: p1.1, radius, color, start: now, ms: e.duration.clamp(1, 20_000), style, z, level });
             }
+            // a Necromantic item's power at work (`relic`)
+            41 => self.relic(e, world, now),
             // InspireEffect: the object flashes gold.
             17 if go.is_some() => {
                 let flash = Flash { start: now, color, period: ((p2.0 * 1000.0) as i32).max(1), repeats: (p2.1 as i32).max(1) };
@@ -525,8 +555,13 @@ impl Particles {
         }
     }
 
-    /// `--effect <type>` (tests): show that effect on us (0: an area attack beside us).
+    /// `--effect <type>` (tests): show that effect on us (0: an area attack beside us; 101 to 128
+    /// the Necromantic items' looks, `relic::look`).
     pub fn test_effect(&mut self, effect_type: u8, world: &World, now: i32) {
+        if effect_type > 100 {
+            self.test_relic(effect_type - 100, world, now);
+            return;
+        }
         let Some(me) = world.player() else { return };
         let (x, y) = (me.x as f32, me.y as f32);
         if effect_type == 0 {
@@ -556,15 +591,27 @@ impl Particles {
         self.floor = world.my_z();
         self.now = now;
         self.marks.retain(|m| now - m.start < m.ms + MARK_FLASH);
+        for (_, e) in self.delayed.extract_if(.., |(at, _)| *at <= now).collect::<Vec<_>>() {
+            self.relic(&e, world, now);
+        }
+        self.relic_update(world, now);
         let dt = dt.max(0);
         let mut spawned = Vec::new();
         let mut list = std::mem::take(&mut self.list);
         list.retain_mut(|p| {
+            if p.delay > 0 {
+                p.delay -= dt;
+                return true;
+            }
             p.left -= dt;
             if p.left <= 0 {
                 return false;
             }
             let d = dt as f64;
+            if p.fade {
+                p.alpha = p.opacity * (2.0 * p.left as f64 / p.life as f64).min(1.0) as f32;
+            }
+            p.size = (p.size + p.grow * d).max(0.0);
             match p.motion {
                 Motion::Plain | Motion::Spark => {
                     p.x += p.vx * d;
@@ -606,7 +653,51 @@ impl Particles {
                 Motion::Sparker => {
                     p.x += p.vx * d;
                     p.y += p.vy * d;
+                    p.z = (p.z + p.vz * d).max(0.0);
                     spawned.push((p.x, p.y, p.z, p.color, 100.0 * (p.z + 1.0), 600));
+                }
+                Motion::Ballistic { g } => {
+                    p.vz -= g * d;
+                    p.x += p.vx * d;
+                    p.y += p.vy * d;
+                    p.z += p.vz * d;
+                    if p.z <= 0.0 {
+                        p.z = 0.0;
+                        if p.vz < 0.0 {
+                            p.vz = -p.vz * 0.3;
+                            p.vx *= 0.5;
+                            p.vy *= 0.5;
+                        }
+                    }
+                }
+                Motion::Swirl { id, ref mut angle, speed, ref mut rad, out, rise } => {
+                    let Some(o) = world.objects.get(&id) else { return false };
+                    *angle += speed * d / (1000.0 / 60.0);
+                    *rad = (*rad + out * d).max(0.0);
+                    p.x = o.x + *rad * angle.cos();
+                    p.y = o.y + *rad * angle.sin();
+                    p.z = (p.z + rise * d).max(0.0);
+                    let age = 1.0 - p.left as f64 / p.life as f64;
+                    p.alpha = ((age * PI).sin() * 1.4).min(1.0) as f32;
+                }
+                Motion::Seek { id, ref mut tx, ref mut ty, ref mut speed } => {
+                    if let Some(o) = world.objects.get(&id) {
+                        (*tx, *ty) = (o.x, o.y);
+                    }
+                    let (dx, dy) = (*tx - p.x, *ty - p.y);
+                    let dist = dx.hypot(dy);
+                    if dist < 0.3 {
+                        return false;
+                    }
+                    *speed += 0.000_02 * d;
+                    let k = (0.006 * d).min(1.0);
+                    p.vx += (dx / dist * *speed - p.vx) * k;
+                    p.vy += (dy / dist * *speed - p.vy) * k;
+                    p.vz += ((0.6 - p.z) * 0.004 - p.vz) * k;
+                    p.x += p.vx * d;
+                    p.y += p.vy * d;
+                    p.z += p.vz * d;
+                    spawned.push((p.x, p.y, p.z, p.color, p.size * 0.6, 280));
                 }
                 Motion::Throw => {
                     p.z = (p.left as f64 / p.life as f64 * PI).sin() * 2.0;
@@ -748,6 +839,35 @@ impl Particles {
                     self.emitters.insert(id, Emitter::Steady { wait: wait.max(-period), period, radius });
                 }
                 Emitter::Done => {}
+            }
+        }
+    }
+
+    /// Projectiles' trails (`<ParticleTrail>`, `Projectile.draw`): sparks of the trail's colour
+    /// left behind each such shot in flight, about 50 a second (times its intensity), drifting off
+    /// as they shrink. Hidden with the shots they follow (Options: others' shots, pets').
+    pub fn trails(&mut self, world: &World, data: &GameData, dt: i32) {
+        if self.disabled || dt <= 0 {
+            return;
+        }
+        self.floor = world.my_z();
+        let mut due = Vec::new();
+        for p in &world.projectiles {
+            let Some(trail) = world.projectile_desc(p, data).and_then(|d| d.trail) else { continue };
+            let ally = !p.damages_players && Some(p.owner_id) != world.me;
+            if (ally && self.hide_allies) || (world.pet_shot(p, data) && (self.hide_pets || self.pet_shots.0 == crate::options::PetShots::Hidden)) {
+                continue;
+            }
+            due.push((p.x, p.y, p.z, trail));
+        }
+        for (x, y, z, trail) in due {
+            let n = 50.0 * trail.intensity * dt as f64 / 1000.0;
+            let n = n.floor() as usize + usize::from(self.random() < n.fract());
+            for _ in 0..n.min(8) {
+                let (dx, dy) = (self.pm(1.2), self.pm(1.2));
+                let size = 80.0 + self.random() * 50.0;
+                let (jx, jy, jz) = (self.pm(0.08), self.pm(0.08), self.pm(0.1));
+                self.spark(x + jx, y + jy, z.max(0.3) + jz, trail.color, size, trail.life, dx, dy);
             }
         }
     }
@@ -899,6 +1019,7 @@ impl Particles {
     /// The marks on floor `level` (0 the map), after its ground.
     pub fn draw_marks(&self, cam: &Camera, renderer: &mut Renderer, level: u8) {
         const SIDES: usize = 40;
+        self.draw_decals(cam, renderer, level);
         for m in self.marks.iter().filter(|m| m.level == level) {
             let t = (self.now - m.start) as f64 / m.ms as f64;
             let fill = t.clamp(0.0, 1.0);
@@ -996,7 +1117,7 @@ impl Particles {
 
     pub fn draw(&self, cam: &Camera, renderer: &mut Renderer) {
         let k = cam.scale / 50.0;
-        for p in &self.list {
+        for p in self.list.iter().filter(|p| p.delay <= 0) {
             if let Some(img) = &p.image {
                 // The frame showing now, by how long the particle has been about.
                 let mut t = p.life - p.left;
@@ -1140,6 +1261,29 @@ mod tests {
         p.object_effects(&world, &data, &sprites, 1000);
         assert_eq!(p.list.len(), 32);
         assert!(!p.emitters.contains_key(&2));
+    }
+
+    #[test]
+    fn relic_looks_show_then_go() {
+        let world = World::new(10, 10, "test", 1);
+        let mut p = Particles::default();
+        for look in 1..=relic::look::LAST {
+            let mut e = effect(41, 99, (5.0, 5.0), (2.0, look as f32));
+            e.duration = 1500;
+            p.show_effect(&e, &world, 0);
+            assert!(!p.list.is_empty() || !p.decals.is_empty() || !p.auras.is_empty(), "look {look} shows nothing");
+            let mut now = 0;
+            while now < 12_000 {
+                now += 50;
+                p.update(&world, now, 50);
+            }
+            assert!(p.list.is_empty() && p.decals.is_empty() && p.auras.is_empty(), "look {look} stays");
+        }
+        // an unknown look does nothing, and particles off shows nothing
+        p.show_effect(&effect(41, 99, (5.0, 5.0), (2.0, 99.0)), &world, 0);
+        p.disabled = true;
+        p.show_effect(&effect(41, 99, (5.0, 5.0), (2.0, 1.0)), &world, 0);
+        assert!(p.list.is_empty() && p.decals.is_empty() && p.auras.is_empty());
     }
 
     #[test]

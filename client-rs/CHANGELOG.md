@@ -20,6 +20,12 @@ details). Add to a group's line when a change adds to it, rather than adding ano
 
 ### Items
 - New sprites drawn by players in the Sprite Editor: Coral Medallion (by Trenchant).
+- Every Necromantic item's power now shows when it works, in a look of its own: the cutlass's
+  cannonball bursting in fire and spray, venom splashing, souls flying to the Phylactery, a
+  burning brand under cursed enemies, whirlpools, lightning from the sky, the Crown of Geb's
+  cracks, the Skull's pentagram drawn in fire, the Bow's black hole and more. The weapons, the
+  Quiver, the Bulwark of Bes and the Twilight Cataclysm fire shots of their own, each leaving a
+  trail of its colour, and every other shot with a trail now shows it too.
 
 ### Fixes
 - Fewer lag spikes while anyone explores The Shatters, Oryx's Castle or the Mad Lab: the server

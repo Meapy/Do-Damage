@@ -25,7 +25,11 @@ namespace WorldServer.networking.packets.outgoing
         Inspired = 17,
         // a circle on the ground (centre pos1, radius pos2.x) filling in from its edge over Duration
         // ms: where something is about to land. Clients before 2.4.7 don't draw it.
-        GroundMark = 40
+        GroundMark = 40,
+        // a Necromantic item's power at work (Player.RelicPowers.cs RelicFx): which look in pos2.y,
+        // centred on pos1, radius pos2.x, lasting Duration ms, following or flowing to the target
+        // object. Clients before 2.5.4 don't draw it.
+        Relic = 41
     }
 
     public class ShowEffect : OutgoingMessage

@@ -1,7 +1,7 @@
 """Builds the boss resurrection: the Necromantic Relic, the remains Elder bosses leave, their
 Empowered forms and the souls that come with them.
 
-    python tools/build_resurrection.py [--sounds] [--preview <png>]
+    python tools/build_resurrection.py [--sounds] [--preview <png>] [--shots]
 
 When an Elder dungeon's boss dies it leaves its remains, circled by escaping souls
 (core/resurrection/BossResurrection.cs). The souls call out, by name, whoever nearby carries a
@@ -21,6 +21,8 @@ Writes, from the game's data:
   its Empowered form, its name as the souls say it, the soul bolt's damage (from the boss's own
   shots) and the Empowered form's loot (the boss's own drops, from tools/wiki_data.py, at better
   chances).
+- the Necromantic weapons' own shots (SHOTS), drawn into the sheet's cells SHOT_FIRST on; with
+  `--shots` only these, into the files as they are.
 - with `--sounds`, the ritual's chant and blast (source/Shared/resources/web/sfx/monster/
   necromantic_chant.mp3 and necromantic_blast.mp3), synthesised here and encoded with ffmpeg.
 
@@ -296,6 +298,20 @@ ELDER_UTS = [
 for _u in UTS:
     BASES[_u[0]], STRENGTH[_u[0]] = _u[2], _u[3]
 
+# the colour of the trail each item's shots leave (<ParticleTrail>, drawn by the Rust client)
+TRAILS = {
+    "Dreadstump's Drowned Cutlass": "0x40C8B8",
+    "Widowfang": "0x70E040",
+    "Quiver of the Feathered Serpent": "0x40E0A0",
+    "Gorgon's Gaze": "0xA8C090",
+    "Archdemon's Soulfire Staff": "0xFF4020",
+    "Sanguine Wand of Ruthven": "0xD01030",
+    "Wyrmfire Katana": "0xFF7020",
+    "Bulwark of Bes": "0xFFD050",
+    "Twilight Cataclysm": "0xC070FF",
+    "Bow of the Event Horizon": "0x8040FF",
+}
+
 # each item's power (Player.RelicPowers.cs): its id, and its name and what it does for the tooltip
 POWERS = {
     "Dreadstump's Drowned Cutlass": ("Broadside", "Broadside", "Every 6th hit, a cannonball bursts on the target for 3 times the hit to every enemy within 2 tiles"),
@@ -425,6 +441,11 @@ def build_uts(objects, types, root, first_cell):
         tex.find("File").text = "resurrection8x8"
         tex.find("Index").text = str(first_cell + n)
         scale_item(item, k, extra, condition)
+        if name in TRAILS:
+            for p in item.iter("Projectile"):
+                for old in p.findall("ParticleTrail"):
+                    p.remove(old)
+                el(p, "ParticleTrail", TRAILS[name])
         power, title, what = POWERS[name]
         el(item, "RelicPower", power)
         info = item.find("ExtraTooltipData")
@@ -742,13 +763,215 @@ def write_sound(samples, path):
         shutil.rmtree(tmp, ignore_errors=True)
 
 
+# ---- the Necromantic weapons' own shots ----
+#
+# Each weapon (and the Quiver, the Bulwark and the Twilight Cataclysm, which shoot) fires a shot
+# of its own look rather than its base's: an 8x8 sprite drawn here from shapes, pointing up and
+# to the right as RotMG's shots do (<AngleCorrection>1</AngleCorrection>), in cells SHOT_FIRST on
+# of Resurrection8x8.png, and a Projectile object for it. `--shots` writes only these, into the
+# sheet and both copies of Resurrection.xml as they are (the items there were tuned by hand
+# since a full run); a full run adds them too.
+
+SHOT_FIRST = 64
+
+
+def _rgb(c):
+    return ((c >> 16) & 0xFF, (c >> 8) & 0xFF, c & 0xFF, 255)
+
+
+def _crescent(front, mid, back):
+    """A slash: a thick arc swept forward, bright along its edge, darker behind."""
+    def f(u, v):
+        d = math.hypot(u + 1.9, v)
+        if not 2.6 <= d <= 4.5 or abs(math.atan2(v, u + 1.9)) > math.radians(68):
+            return None
+        if d > 3.85:
+            return front
+        return mid if d > 3.2 else back
+    return f
+
+
+def _cutlass(u, v):
+    c = _crescent(0xE8FFFF, 0x30B8A8, 0x10706A)(u, v)
+    if c is None and -3.2 < u < -2.2 and abs(abs(v) - 2.6) < 0.5:
+        return 0x60D0E0          # spray thrown off its tips
+    return c
+
+
+def _widowfang(u, v):
+    if -2.4 <= u <= 3.9:
+        half = 1.35 * (3.9 - u) / 6.3
+        if abs(v) <= half + 0.05:
+            if u > 2.6:
+                return 0xF0FFE0
+            return 0xD0FF90 if abs(v) < half * 0.45 else 0x58C030
+    if math.hypot(u + 3.4, v - 1.1) < 0.55 or math.hypot(u + 3.0, v + 1.3) < 0.5:
+        return 0xB050FF          # venom dripping off it
+    return None
+
+
+def _arrow(head, head_edge, shaft, fletch, fletch2):
+    def f(u, v):
+        if 1.3 <= u <= 4.2 and abs(v) <= 1.7 * (4.2 - u) / 2.9:
+            return head if abs(v) < 0.9 * (4.2 - u) / 2.9 else head_edge
+        if -3.6 <= u < 1.3 and abs(v) < 0.5:
+            return shaft
+        if -4.3 <= u <= -2.0 and 0.5 <= abs(v) <= 0.5 + 0.9 * (u + 4.3) / 2.3:
+            return fletch if (u * 2) % 2 < 1 else fletch2
+        return None
+    return f
+
+
+def _orb(core, glow, rim, tail, tail2, split=None):
+    """A bolt: a glowing ball and the tail it streams behind it."""
+    def f(u, v):
+        d = math.hypot(u - 1.6, v)
+        if d < 2.1:
+            if d < 0.8:
+                return core
+            if split and d >= 1.4:
+                return split[0] if v < 0 else split[1]
+            return glow if d < 1.5 else rim
+        if u < 1.6 and abs(v) < 1.7 * (u + 4.0) / 5.6:
+            return tail if (u + 4.0) / 5.6 > 0.5 else tail2
+        return None
+    return f
+
+
+def _drop(u, v):
+    if math.hypot(u - 1.2, v + 0.7) < 0.6:
+        return 0xFF8098
+    d = math.hypot(u - 0.9, v)
+    if d < 2.0:
+        return 0xC01030 if d < 1.5 else 0x700018
+    if -3.9 <= u < 0.9 and abs(v) < 1.55 * (u + 3.9) / 4.8:
+        return 0xA00820
+    return None
+
+
+def _event_horizon(u, v):
+    if math.hypot(u - 3.0, v) < 0.7:
+        return 0xFFFFFF          # light caught at its tip
+    c = _arrow(0x281040, 0xA070FF, 0x180828, 0x8040FF, 0xC0A0FF)(u, v)
+    if c is None and 1.0 <= u <= 2.6 and abs(v) <= 1.9 and abs(v) > 1.3:
+        return 0x5020A0          # the dark it drags behind its head
+    return c
+
+
+def _twilight(u, v):
+    c = _orb(0xFFFFFF, 0xFFF0E0, 0xC070FF, 0xFF8040, 0x60C8FF, split=(0xFF8040, 0x60C8FF))(u, v)
+    if c in (0xFF8040, 0x60C8FF) and math.hypot(u - 1.6, v) >= 2.1:
+        return 0xFF8040 if v < 0 else 0x60C8FF    # the tail streams fire on one side, ice on the other
+    return c
+
+
+# the ankh, upright (it spins as it flies: <Rotation>)
+_ANKH = [
+    "...GG...",
+    "..G..G..",
+    "..g..g..",
+    "...Gg...",
+    ".GGWGGG.",
+    "...Wg...",
+    "...Gg...",
+    "...gg...",
+]
+
+# item: (its shot's id, how it's drawn, extra XML for the shot)
+SHOTS = {
+    "Dreadstump's Drowned Cutlass": ("Drowned Cutlass Slash", _cutlass, {}),
+    "Widowfang": ("Widowfang Venom", _widowfang, {}),
+    "Quiver of the Feathered Serpent": ("Feathered Serpent Arrow", _arrow(0xFFE070, 0xB08020, 0xD0A040, 0x30D080, 0xE04030), {}),
+    "Gorgon's Gaze": ("Gorgon's Stone Arrow", _arrow(0xD8E0C8, 0x70786A, 0x9A9C90, 0x50A040, 0x2E6A28), {}),
+    "Archdemon's Soulfire Staff": ("Soulfire Bolt", _orb(0xFFFFC0, 0xFFC040, 0xFF4020, 0xE02010, 0x701008), {}),
+    "Sanguine Wand of Ruthven": ("Sanguine Bolt", _drop, {}),
+    "Wyrmfire Katana": ("Wyrmfire Slash", _crescent(0xFFF0A0, 0xFF7020, 0xB02010), {}),
+    "Bulwark of Bes": ("Ankh of Bes", _ANKH, {"Rotation": "150"}),
+    "Twilight Cataclysm": ("Twilight Bolt", _twilight, {}),
+    "Bow of the Event Horizon": ("Event Horizon Arrow", _event_horizon, {}),
+}
+
+
+def shot_cell(art):
+    """An 8x8 sprite: rows of text (G gold, g its shade, W white) or a shape f(u, v) -> colour,
+    u forward (up and to the right on the sprite) and v across, in pixels from its middle."""
+    img = Image.new("RGBA", (8, 8), (0, 0, 0, 0))
+    if isinstance(art, list):
+        colours = {"G": 0xFFD050, "g": 0xB08020, "W": 0xFFF8D0}
+        for y, row in enumerate(art):
+            for x, ch in enumerate(row):
+                if ch in colours:
+                    img.putpixel((x, y), _rgb(colours[ch]))
+        return img
+    for y in range(8):
+        for x in range(8):
+            dx, dy = x - 3.5, y - 3.5
+            u, v = (dx - dy) / math.sqrt(2), (dx + dy) / math.sqrt(2)
+            c = art(u, v)
+            if c is not None:
+                img.putpixel((x, y), _rgb(c))
+    return img
+
+
+def shot_xml(types, name, shot, n, extra):
+    o = ET.Element("Object", {"type": types.get(shot), "id": shot})
+    el(o, "Class", "Projectile")
+    tex = el(o, "Texture")
+    el(tex, "File", "resurrection8x8")
+    el(tex, "Index", SHOT_FIRST + n)
+    if "Rotation" not in extra:
+        el(o, "AngleCorrection", 1)
+    for tag, text in extra.items():
+        el(o, tag, text)
+    return o
+
+
+def apply_shots(types):
+    """Draws the shots into Resurrection8x8.png and gives the items in both Resurrection.xml their
+    shots, as the files are now."""
+    s8 = Image.open(SHEET8).convert("RGBA")
+    width = (SHOT_FIRST + len(SHOTS)) * 8
+    if s8.width < width:
+        grown = Image.new("RGBA", (width, 8), (0, 0, 0, 0))
+        grown.paste(s8, (0, 0))
+        s8 = grown
+    objects = []
+    for n, (name, (shot, art, extra)) in enumerate(SHOTS.items()):
+        s8.paste(shot_cell(art), ((SHOT_FIRST + n) * 8, 0))
+        objects.append((name, shot, shot_xml(types, name, shot, n, extra)))
+    s8.save(SHEET8)
+    for path in OUTPUTS:
+        raw = open(path, "rb").read()
+        bom = raw.startswith(b"\xef\xbb\xbf")
+        text = raw.decode("utf-8-sig")
+        nl = "\r\n" if "\r\n" in text else "\n"
+        for name, shot, obj in objects:
+            # the shot's own object (again), just before the item's
+            text = re.sub(r'[ \t]*<Object type="0x[0-9A-Fa-f]+" id="%s">.*?</Object>\r?\n' % re.escape(shot), "", text, flags=re.S)
+            ET.indent(obj, space="\t", level=1)
+            block = ("\t" + ET.tostring(obj, encoding="unicode")).replace("\n", nl) + nl
+            m = re.search(r'[ \t]*<Object type="0x[0-9A-Fa-f]+" id="%s">(.*?)</Object>' % re.escape(name), text, re.S)
+            if m is None:
+                sys.exit("%s: no %s" % (path, name))
+            body = re.sub(r"<ObjectId>[^<]*</ObjectId>", "<ObjectId>%s</ObjectId>" % shot, m.group(1))
+            text = text[:m.start()] + block + text[m.start():m.start(1)] + body + text[m.end(1):]
+        with open(path, "wb") as f:
+            f.write((b"\xef\xbb\xbf" if bom else b"") + text.encode("utf-8"))
+    types.save()
+
+
 def main():
     ap = argparse.ArgumentParser(description=__doc__.split("\n")[0])
     ap.add_argument("--sounds", action="store_true", help="also write the ritual's sounds (needs ffmpeg)")
     ap.add_argument("--preview", help="write the sprites, eight times larger, here")
+    ap.add_argument("--shots", action="store_true", help="only (re)write the weapons' shots (SHOTS) into the files as they are")
     args = ap.parse_args()
 
     types = Types()
+    if args.shots:
+        apply_shots(types)
+        print("resurrection: %d shots" % len(SHOTS))
+        return
     xml, cfg, ut_cells = build(load_objects(), types)
     s8, s16 = sheet(SPRITES8, 8, ut_cells), sheet(SPRITES16, 16)
     s8.save(SHEET8)
@@ -768,6 +991,7 @@ def main():
         json.dump(cfg, f, indent=1)
         f.write("\n")
     types.save()
+    apply_shots(types)
     if args.sounds:
         write_sound(chant(), os.path.join(SFX, "necromantic_chant.mp3"))
         write_sound(blast(), os.path.join(SFX, "necromantic_blast.mp3"))

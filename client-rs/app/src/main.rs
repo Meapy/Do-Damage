@@ -3038,7 +3038,8 @@ impl App {
                 self.settings.save();
             }
             if let (Some((kind, last)), Some(world)) = (&mut self.effect_test, &game.world) {
-                if now - *last >= 500 {
+                // (the Necromantic items' looks, 101 and up, last longer: every 0.9 s)
+                if now - *last >= if *kind > 100 { 900 } else { 500 } {
                     *last = now;
                     game.particles.test_effect(*kind, world, now);
                 }
@@ -3046,6 +3047,7 @@ impl App {
             game.particles.realize(sprites, data);
             if let Some(world) = &game.world {
                 game.particles.object_effects(world, data, sprites, dt);
+                game.particles.trails(world, data, dt);
             }
             jitter = game.particles.jitter(now);
             if let Some(d) = &game.dying {

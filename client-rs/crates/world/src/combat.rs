@@ -613,6 +613,7 @@ mod tests {
             amplitude: 0.0,
             frequency: 1.0,
             magnitude: 3.0,
+            trail: None,
         }
     }
 

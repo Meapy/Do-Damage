@@ -646,6 +646,29 @@ The remotes `upstream` (HaloCelsius) and `aurusenth` share no history with `main
 
 ## Changes from upstream
 
+- **The Necromantic items' looks** (2026-11-12; server `Player.RelicPowers.cs` `Fx`/`RelicFx`,
+  `ShowEffect.cs` `EffectType.Relic` (41), `Enemy.cs`; client `particles/relic.rs`,
+  `particles.rs`, `crates/data` `Trail`; `tools/build_resurrection.py` `TRAILS`, `SHOTS`,
+  `--shots`): each of the 25 Necromantic powers sends `ShowEffect` 41 when it works (pos2.y the
+  look, pos2.x its radius, `Duration` ms; the Phylactery's the souls released), beside the older
+  effects, which clients before 2.5.4 still show. The Rust client draws each look as particles
+  (new motions: thrown with gravity and bouncing, circling a moving object, flying to one),
+  pictures on the ground drawn with the ground marks (shockwaves, puddles, a turning brand,
+  whirlpools, cracks, a pentagram drawn line by line, a black hole, frost, scorch, a golden ward,
+  a ring of stars) and auras that keep giving off particles round an object for a while. Per-hit
+  looks (Stone Gaze, Bloodthirst, Ignition) go out at most every 250-350 ms per player. The
+  client draws `<ParticleTrail>` (its colour, `intensity`, `lifetimeMS`), which it skipped until
+  now, for every projectile that has one, hidden with the shots it follows. Ten Necromantic items
+  fire shots of their own (types 0x8C55-0x8C5E, sprite cells 64-73 of `Resurrection8x8.png`,
+  drawn from shapes by `build_resurrection.py`; `--shots` writes only those into the files as
+  they are), each with a trail of its colour. `--effect 101`-`128` shows each look on you.
+
+- **Test stacks start maxed** (2026-11-12; `ServerSettings.testStack`, `Player.TestStackStart`,
+  `tools/testclient/iso_stack.py`, `tools/rolling_restart.py --iso`): with `testStack` (which only
+  the test stack tools set), every character that enters a world is maxed as `/max` does, at full
+  health and mana, and given a Lil' Oryx pet (60 health and mana every 1.5 s) in place of any
+  other.
+
 - **Realm monsters' spots have a limit** (2026-11-12; `RealmManager.FreeSpot`, `Spawn`,
   `EnsurePopulation`, `SpawnEvent`; `Tests/RealmSpawnSpotTests.cs`): a realm's terrain top-up
   (every 60 s, under 75% of a terrain's quota) picked random tiles until one was of that terrain,

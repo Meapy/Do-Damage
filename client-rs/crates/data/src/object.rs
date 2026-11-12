@@ -81,6 +81,17 @@ pub struct ProjectileDesc {
     pub amplitude: f64,
     pub frequency: f64,
     pub magnitude: f64,
+    /// `<ParticleTrail>`: sparks of a colour left behind it as it flies.
+    pub trail: Option<Trail>,
+}
+
+/// A projectile's trail (`ProjectileProperties.particleTrail_`): its colour (the element's text,
+/// magenta when none), how thick (`intensity`, 1 the AIR client's) and how long each spark lasts.
+#[derive(Debug, Clone, Copy, PartialEq)]
+pub struct Trail {
+    pub color: u32,
+    pub intensity: f64,
+    pub life: i32,
 }
 
 impl ProjectileDesc {
@@ -108,6 +119,14 @@ impl ProjectileDesc {
             amplitude: xml.number("Amplitude", 0.0),
             frequency: xml.number("Frequency", 1.0),
             magnitude: xml.number("Magnitude", 3.0),
+            trail: xml.child("ParticleTrail").map(|t| {
+                let color = crate::xml::as3_int(t.text.trim()) as u32 & 0xFF_FFFF;
+                Trail {
+                    color: if color == 0 { 0xFF00FF } else { color },
+                    intensity: t.attr_number("intensity", 1.0).clamp(0.05, 4.0),
+                    life: t.attr_int("lifetimeMS", 600).clamp(50, 3000),
+                }
+            }),
         }
     }
 }
