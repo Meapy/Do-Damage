@@ -306,6 +306,8 @@ BOSS_OVERRIDE = {"Tomb of the Ancients": "Tomb Defender", "Elder Tomb of the Anc
                  "The Elder Shatters": "Elder shtrs The Forgotten King",
                  "Haunted Cemetery": "Ghost of Skuld", "Cultist Hideout": "LH Malus 2",
                  "Lost Halls": "LH Marble Colossus", "The Void": "LH Void Entity",
+                 "Elder Lost Halls": "Elder LH Marble Colossus", "Elder Cultist Hideout": "Elder LH Malus 2",
+                 "The Elder Void": "Elder LH Void Entity",
                  "The Ivory Wyvern": "LOD Ivory Wyvern", "The Elder Ivory Wyvern": "Elder lod Ivory Wyvern",
                  "Lair of Shaitan": "md1 Head of Shaitan",
                  "Woodland Labyrinth": "Murderous Megamoth", "Magic Woods": "MW Fountain Spirit",
@@ -320,8 +322,30 @@ DIFFICULTY = [6000, 20000, 45000, 90000, 160000]
 DIFFICULTY_WORDS = ["Beginner", "Easy", "Medium", "Hard", "Very hard", "Endgame"]
 
 
+# how a world opens that no dropped portal or key leads to: from another dungeon's own work (the
+# Elder Lost Halls' controller places the hideout's portal; the vial's ChangeObject works on the
+# Elder mark there, Player.UseItem.cs ChangeObjectTarget)
+OPENS_FROM = {
+    "Elder Cultist Hideout": "One run in four the Elder Lost Halls' Colossus room opens it, in place of the Elder "
+                             "Marble Colossus.",
+    "The Elder Void": "Use a Vial of Pure Darkness in the Elder Lost Halls, where the Elder Marble Colossus fell, to "
+                      "open it (it drops from Malus and the Elder Malus).",
+}
+
+
 # what's particular about a dungeon's fight (a row of its card on the Dungeons page)
 DUNGEON_FIGHT_NOTES = {
+    "Elder Lost Halls": "Late in his second life, below two fifths of it, the Elder Marble Colossus goes back to "
+                        "the heart of his hall for his Reckoning: wheels of marble turning one way round him, "
+                        "spikes the other, slow bullets rolling out between them. Walk with the wheels, between "
+                        "their arms. One run in four his room opens the Elder Cultist Hideout instead, and a Vial "
+                        "of Pure Darkness used where he fell opens the Elder Void.",
+    "Elder Cultist Hideout": "Once Malus has taken his cultists' powers, he goes back to the centre of the star "
+                             "after his own fire each time round and draws the Pentagram: Molek's flames land on its "
+                             "five points and the five between them, and two five-armed spirals turn through them.",
+    "The Elder Void": "At a tenth of its health the Elder Void Entity becomes a Singularity: back at the centre, "
+                      "it throws its projections onto the four marks a third time and turns two spirals against "
+                      "each other until it falls.",
     "The Elder Shatters": "Each of its three bosses has a phase the regular Shatters doesn't. Below 45% the Bridge "
                           "Sentinel turns armoured and spins two spirals round itself, slowing blades one way and "
                           "heavy bolts the other, throwing Blobombs between its swarms. The Twilight Archmage "
@@ -340,6 +364,10 @@ DUNGEON_FIGHT_NOTES = {
 
 # what's particular about raising some Elder bosses (the Raising part of the Dungeons page)
 RAISE_DUNGEON_NOTES = {
+    "Elder Lost Halls": "The Elder Marble Colossus leaves his remains at the heart of his hall, beside the tear "
+                        "into the Void. Raised, he fights his whole fight again.",
+    "Elder Cultist Hideout": "It is Malus with his cultists' powers who leaves remains, and who rises: the "
+                             "cultists, Molek and Balaam stay dead.",
     "The Elder Shatters": "The Bridge Sentinel, the Twilight Archmage and the Forgotten King each leave their own "
                           "remains where they fall, and each needs a relic of its own. Raised, a boss drops what "
                           "its loot balloon held as well: there is no second balloon.",
@@ -766,6 +794,8 @@ class Gen:
                             with_article(d.name(item)), places,
                             ", where the %s fell," % joined(bosses) if bosses else "",
                             " (it drops from %s)" % joined(froms[:3]) if froms else ""))
+            if wid in OPENS_FROM:
+                special.append(OPENS_FROM[wid])
             if wid in self.sealed:
                 special.append(self.sealed[wid][2])
             # the Black Between opens from a behaviour (OpenTheBetween), not from a dropped portal

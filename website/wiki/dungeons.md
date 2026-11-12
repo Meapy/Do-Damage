@@ -118,6 +118,33 @@ The Colossus drops like Oryx 3: stat potions, tier 13 to 15 gear, and his own Sw
 Colossus, Breastplate of New Life, Marble Seal and Magical Lodestone. The rooms' leaders drop gear
 too, and the Tormented Golem now and then a piece of the Lost Golem set.
 
+## The Elder Lost Halls
+
+Half the time the Marble Colossus, Malus and the Void Entity each leave a portal to the **Elder
+Lost Halls**, and an Elder Lost Halls Key opens one anywhere. It is the Lost Halls by brazier
+light, laid out anew for every run, every monster in its Elder version (twice the health, harder
+hits, faster attacks), and it leads on as the regular halls do: one run in four its Colossus room
+opens the **Elder Cultist Hideout**, and a Vial of Pure Darkness used where the Elder Colossus
+fell opens the **Elder Void**. Each of the three bosses has a phase of its own:
+
+- **The Marble Colossus' Reckoning,** late in his second life: he goes back to the heart of his
+  hall, wheels of marble turning one way round him and spikes the other, slow bullets rolling out
+  between them. Walk with the wheels, between their arms.
+- **Malus' Pentagram:** once he has taken his cultists' powers, he returns to the centre of the
+  star after his own fire each time round. Molek's flames land on its five points and the five
+  between them, and two five-armed spirals turn through them.
+- **The Void Entity's Singularity,** at a tenth of its health: back at the centre, it throws its
+  projections out a third time and turns two spirals against each other until it falls.
+
+Each Elder boss drops a Potion of Max (Defense from the Colossus, Attack from Malus, Life from
+the Void Entity), tier 14 weapons, tier 15 armour, tier 7 abilities and rings, its own items at
+twice the chance, the Elder Lost Halls Key and a ring found nowhere else: the **Lodestone of the
+Halls** (stand still for a moment and you turn to marble, armored until you move), the **Ring of
+the Blood Pact** (below half your health your shots hit harder and ignore defense) and **The
+Hollow Sourcestone** (every few seconds it breaks the armor of the enemy nearest you). Raised
+again, below, they drop a seal that raises marble pillars round you, a skull that draws a
+pentagram on your target and a bow whose hits open a singularity.
+
 ## The Cultist Hideout and the Void
 
 A portal in the Lost Halls sometimes leads to the **Cultist Hideout**, and a Cult Key opens it

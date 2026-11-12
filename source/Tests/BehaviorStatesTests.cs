@@ -60,7 +60,7 @@ namespace Tests
             "Earth Power", "EH Blue Guardian Bee", "EH Event Hive Corpse", "EH Event Hive", "EH Hive Bomb",
             "EH Red Guardian Bee", "EH Yellow Guardian Bee", "Elder Tomb Fire Turret",
             "Elder Tomb Frost Turret", "Elder Tomb Thunder Turret", "Fire Elemental", "Fire Power",
-            "LH Colossus Pillar", "md1 Head of Shaitan", "shtrs Defense System", "TH Queen Bee",
+            "LH Colossus Pillar", "Elder LH Colossus Pillar", "md1 Head of Shaitan", "shtrs Defense System", "TH Queen Bee",
             "Tomb Fire Turret", "Tomb Frost Turret", "Tomb Thunder Turret", "Water Elemental", "Water Power",
         };
 

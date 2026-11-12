@@ -99,6 +99,9 @@ BS_ELDER_WORLDS = make_elder.DUNGEONS
 BS_ONLY_ELDER_WORLDS = {
     "ElderIvoryWyvern": ("The Elder Ivory Wyvern", 0, True, ["Elder Ivory Wyvern Portal"]),
     "ElderShatters": ("The Elder Shatters", 0, True, ["Elder Shatters Portal"]),
+    "ElderLostHalls": ("Elder Lost Halls", 0, True, ["Elder Lost Halls Portal"]),
+    "ElderCultistHideout": ("Elder Cultist Hideout", 0, True, ["Elder LH Cult Portal"]),
+    "ElderVoid": ("The Elder Void", 0, True, ["Elder LH Void Portal"]),
 }
 ELDER_BRAZIER = "Elder Brazier"
 # braziers stand by the rooms' walls, corners first, at least this many tiles apart

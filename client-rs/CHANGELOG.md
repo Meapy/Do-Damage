@@ -29,6 +29,17 @@ details). Add to a group's line when a change adds to it, rather than adding ano
 - All three can be raised with a Necromantic Relic. Empowered, they drop a trap that throws a
   Blobomb, a spell that alternates fire and ice, and a cloak that makes your shots hit harder.
 
+### The Elder Lost Halls
+- A new Elder dungeon, with two more beyond it: the Elder Lost Halls, the Elder Cultist Hideout
+  its Colossus room sometimes opens, and the Elder Void, opened with a Vial of Pure Darkness where
+  the Elder Colossus fell. The Marble Colossus, Malus and the Void Entity leave its portal half
+  the time, and their Elder versions drop the Elder Lost Halls Key.
+- Each Elder boss has a phase of its own: the Marble Colossus' Reckoning, Malus' Pentagram and
+  the Void Entity's Singularity. They drop a Potion of Max (Defense, Attack, Life), better gear
+  and three new rings: Lodestone of the Halls, Ring of the Blood Pact and The Hollow Sourcestone.
+- All three can be raised with a Necromantic Relic. Empowered, they drop a seal that raises marble
+  pillars, a skull that draws a pentagram and a bow whose hits open a singularity.
+
 ### Dungeons
 - Candyland rooms now spawn six creatures at a time; clear them and leave to bring out a boss.
   The next wave waits until that boss is defeated.

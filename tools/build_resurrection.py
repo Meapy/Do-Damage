@@ -93,6 +93,9 @@ BOSSES = [
     ("Elder shtrs Bridge Sentinel", "The Elder Shatters"),
     ("Elder shtrs Twilight Archmage", "The Elder Shatters"),
     ("Elder shtrs The Forgotten King", "The Elder Shatters"),
+    ("Elder LH Marble Colossus", "Elder Lost Halls"),
+    ("Elder LH Malus 2", "Elder Cultist Hideout"),
+    ("Elder LH Void Entity", "The Elder Void"),
 ]
 # Bosses whose loot is in the balloon a chest spawner leaves for them (the Shatters'): raised, with
 # the spawner long gone, the Empowered form drops that balloon's loot itself
@@ -257,6 +260,15 @@ UTS = [
     ("Elder shtrs The Forgotten King", "Shroud of the Forgotten King", "Cloak of Emptiness", 1.2, {"dex": 5, "att": 3}, None,
      ((20, 0, 0), (120, 20, 30), (250, 200, 90)),
      "The King's burial shroud, torn off him when he rose. Whoever wears it slips from the Realm's memory, and strikes from there."),
+    ("Elder LH Marble Colossus", "Seal of the Risen Colossus", "Marble Seal", 1.25, {"def": 4, "vit": 4}, None,
+     ((45, 45, 60), (150, 150, 175), (250, 250, 255)),
+     "The seal that bound the Colossus to its purpose, cracked when it rose a second time. The halls still answer to it."),
+    ("Elder LH Malus 2", "Skull of the Final Ritual", "Skull of Corrupted Souls", 1.25, {"att": 4}, None,
+     ((35, 0, 0), (150, 20, 20), (255, 150, 60)),
+     "What was left on the pentagram when Malus' last ritual failed. It remembers the shape of the star."),
+    ("Elder LH Void Entity", "Bow of the Event Horizon", "Bow of the Void", 1.15, {"dex": 4}, None,
+     ((10, 0, 25), (70, 20, 140), (200, 120, 255)),
+     "Strung with a thread of the Void Entity itself. Where its arrows gather, nothing is allowed to stay."),
 ]
 # The Elder Shatters' own untiered items, dropped by its three Elder bosses (their loot balloons,
 # BehaviorDb.Shatters.cs): the Shatters' rings grown stronger, each with a power, built like the
@@ -271,6 +283,15 @@ ELDER_UTS = [
     ("Elder shtrs The Forgotten King", "The Remembered Crown", "The Forgotten Crown", 1.4, {}, None,
      ((40, 10, 0), (190, 120, 20), (255, 240, 150)),
      "The crown of a king somebody finally remembered. It lends its wearer the will of the one who lost it."),
+    ("Elder LH Marble Colossus", "Lodestone of the Halls", "Magical Lodestone", 1.4, {}, None,
+     ((45, 45, 60), (140, 140, 170), (245, 245, 255)),
+     "A lodestone from the heart of the halls. Whoever carries it stands as the Colossus stood."),
+    ("Elder LH Malus 2", "Ring of the Blood Pact", "Bloodshed Ring", 1.4, {}, None,
+     ((40, 0, 0), (160, 15, 25), (255, 120, 90)),
+     "Malus' cultists each wore one, and each paid for it. The closer its wearer is to death, the more it gives."),
+    ("Elder LH Void Entity", "The Hollow Sourcestone", "Sourcestone", 1.4, {}, None,
+     ((10, 0, 25), (60, 20, 120), (190, 120, 255)),
+     "A Sourcestone the Void has eaten through. What stands near it starts to come apart."),
 ]
 for _u in UTS:
     BASES[_u[0]], STRENGTH[_u[0]] = _u[2], _u[3]
@@ -302,6 +323,12 @@ POWERS = {
     "Bracer of the Elder Guardian": ("Bulwark", "Bulwark", "Below half your health, gives +12 defense for 5 seconds (every 20 seconds at most)"),
     "The Eclipsed Gemstone": ("Eclipse", "Eclipse", "Each enemy you kill restores 15 mana"),
     "The Remembered Crown": ("KingsWill", "King's Will", "Using your ability gives +8 attack for 3 seconds"),
+    "Seal of the Risen Colossus": ("MarblePillars", "Marble Pillars", "Using it raises four marble pillars round you for 5 seconds: each second every pillar strikes the enemies within 2.5 tiles of it for 150"),
+    "Skull of the Final Ritual": ("Pentagram", "Pentagram", "Using it draws a pentagram on the target: its five points burst one after another for 120 each to enemies within 3 tiles, then its heart erupts for 400, ignoring defense, and curses them for 3 seconds"),
+    "Bow of the Event Horizon": ("Singularity", "Singularity", "Every 10th hit opens a singularity on the enemy for 3 seconds: twice a second it deals 120, ignoring defense, to every enemy within 3 tiles and slows them"),
+    "Lodestone of the Halls": ("MarbleStance", "Marble Stance", "Standing still for 1.5 seconds turns you to marble: armored until you move"),
+    "Ring of the Blood Pact": ("BloodPact", "Blood Pact", "Below half your health, your shots deal 15% more, ignoring defense"),
+    "The Hollow Sourcestone": ("Entropy", "Entropy", "Every 5 seconds, breaks the armor of the enemy nearest you within 6 tiles for 2 seconds"),
 }
 # drops of one season only (a SeasonalThreshold), which the second roll leaves out
 SEASONAL = {"Ice Crown"}
@@ -474,7 +501,8 @@ def el(parent, tag, text=None, **attrs):
 
 
 # bosses whose own name begins with "The", which their Elder version's leaves out
-NAMES = {"Elder shtrs Bridge Sentinel": "The Forgotten Sentinel", "Elder shtrs The Forgotten King": "The Forgotten King"}
+NAMES = {"Elder shtrs Bridge Sentinel": "The Forgotten Sentinel", "Elder shtrs The Forgotten King": "The Forgotten King",
+         "Elder LH Marble Colossus": "The Marble Colossus", "Elder LH Void Entity": "The Void Entity"}
 
 
 def name_of(boss):

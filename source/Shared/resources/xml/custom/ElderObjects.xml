@@ -75,16 +75,1008 @@
 		<DisplayId>Elder Native White Demon</DisplayId>
 		<XpBonus>2</XpBonus>
 	</Object>
-	<Object type="0xF004" id="Elder GhostShip Bookshelf Lf">
+	<Object type="0xF0AF" id="Elder LH Cult Wall">
 		<Class>Wall</Class>
 		<Texture>
 			<File>elderAssets8x8</File>
-			<Index>0xd7</Index>
+			<Index>0xad</Index>
 		</Texture>
 		<Top>
 			<Texture>
 				<File>elderAssets8x8</File>
-				<Index>0xd8</Index>
+				<Index>0xae</Index>
+			</Texture>
+		</Top>
+		<Static />
+		<FullOccupy />
+		<OccupySquare />
+		<EnemyOccupySquare />
+		<BlocksSight />
+	</Object>
+	<Object type="0xF0B0" id="Elder LH Argus">
+		<Class>Character</Class>
+		<Enemy />
+		<HealthBarBoss />
+		<AnimatedTexture>
+			<File>lostHallsChars16x16</File>
+			<Index>14</Index>
+		</AnimatedTexture>
+		<AltTexture id="1">
+			<Texture>
+				<File>lostHallsObjects16x16</File>
+				<Index>0x0c</Index>
+			</Texture>
+		</AltTexture>
+		<AltTexture id="2">
+			<Texture>
+				<File>lostHallsObjects16x16</File>
+				<Index>0x0d</Index>
+			</Texture>
+		</AltTexture>
+		<AltTexture id="3">
+			<Texture>
+				<File>lostHallsObjects16x16</File>
+				<Index>0x0f</Index>
+			</Texture>
+		</AltTexture>
+		<AltTexture id="4">
+			<Texture>
+				<File>invisible</File>
+				<Index>0</Index>
+			</Texture>
+		</AltTexture>
+		<Size>100</Size>
+		<DisplayId>Elder Argus</DisplayId>
+		<MaxHitPoints>90000</MaxHitPoints>
+		<Defense>35</Defense>
+		<Exp>4000</Exp>
+		<HitSound>monster/lizard_god_hit</HitSound>
+		<DeathSound>monster/lizard_god_death</DeathSound>
+		<Projectile id="0">
+			<ObjectId>Cultist Argus Shot</ObjectId>
+			<Damage>195</Damage>
+			<Speed>100</Speed>
+			<LifetimeMS>4000</LifetimeMS>
+			<MultiHit />
+			<ConditionEffect duration="3">Unstable</ConditionEffect>
+		</Projectile>
+		<LeachHealth />
+		<StasisImmune />
+		<ParalyzeImmune />
+		<XpBonus>2</XpBonus>
+	</Object>
+	<Object type="0xF0B1" id="Elder LH Balaam">
+		<Class>Character</Class>
+		<Enemy />
+		<HealthBarBoss />
+		<AnimatedTexture>
+			<File>lostHallsChars16x16</File>
+			<Index>24</Index>
+		</AnimatedTexture>
+		<Size>120</Size>
+		<DisplayId>Elder Balaam</DisplayId>
+		<MaxHitPoints>60000</MaxHitPoints>
+		<Defense>45</Defense>
+		<HitSound>monster/archdemon_hit</HitSound>
+		<DeathSound>monster/archdemon_death</DeathSound>
+		<StasisImmune />
+		<StunImmune />
+		<ParalyzeImmune />
+		<Projectile id="0">
+			<ObjectId>Balaam Green Shot</ObjectId>
+			<Damage>156</Damage>
+			<Speed>100</Speed>
+			<LifetimeMS>3000</LifetimeMS>
+			<ConditionEffect duration="1.8">Darkness</ConditionEffect>
+			<Boomerang />
+			<FaceDir />
+		</Projectile>
+		<Projectile id="1">
+			<ObjectId>Balaam Blue Shot</ObjectId>
+			<Damage>221</Damage>
+			<Speed>50</Speed>
+			<LifetimeMS>4000</LifetimeMS>
+			<ArmorPiercing />
+		</Projectile>
+		<Projectile id="2">
+			<ObjectId>Balaam Red Shot</ObjectId>
+			<Damage>455</Damage>
+			<Size>160</Size>
+			<Speed>30</Speed>
+			<LifetimeMS>10000</LifetimeMS>
+			<MultiHit />
+		</Projectile>
+		<XpBonus>2</XpBonus>
+	</Object>
+	<Object type="0xF0B2" id="Elder LH Balaam 1">
+		<Class>Character</Class>
+		<Enemy />
+		<HealthBarBoss />
+		<AnimatedTexture>
+			<File>lostHallsChars16x16</File>
+			<Index>25</Index>
+		</AnimatedTexture>
+		<Size>120</Size>
+		<DisplayId>Elder Balaam</DisplayId>
+		<MaxHitPoints>40000</MaxHitPoints>
+		<Defense>45</Defense>
+		<Exp>666</Exp>
+		<HitSound>monster/archdemon_hit</HitSound>
+		<DeathSound>monster/archdemon_death</DeathSound>
+		<StasisImmune />
+		<StunImmune />
+		<ParalyzeImmune />
+		<Projectile id="0">
+			<ObjectId>Balaam Green Shot</ObjectId>
+			<Damage>156</Damage>
+			<Speed>100</Speed>
+			<LifetimeMS>3000</LifetimeMS>
+			<ConditionEffect duration="1.8">Darkness</ConditionEffect>
+			<Boomerang />
+			<FaceDir />
+		</Projectile>
+		<XpBonus>2</XpBonus>
+	</Object>
+	<Object type="0xF0B3" id="Elder LH Balaam 2">
+		<Class>Character</Class>
+		<Enemy />
+		<HealthBarBoss />
+		<AnimatedTexture>
+			<File>lostHallsChars16x16</File>
+			<Index>26</Index>
+		</AnimatedTexture>
+		<Size>120</Size>
+		<DisplayId>Elder Balaam</DisplayId>
+		<MaxHitPoints>40000</MaxHitPoints>
+		<Defense>45</Defense>
+		<Exp>666</Exp>
+		<HitSound>monster/archdemon_hit</HitSound>
+		<DeathSound>monster/archdemon_death</DeathSound>
+		<StasisImmune />
+		<StunImmune />
+		<ParalyzeImmune />
+		<Projectile id="0">
+			<ObjectId>Balaam Blue Shot</ObjectId>
+			<Damage>221</Damage>
+			<Speed>50</Speed>
+			<LifetimeMS>4000</LifetimeMS>
+			<ArmorPiercing />
+		</Projectile>
+		<XpBonus>2</XpBonus>
+	</Object>
+	<Object type="0xF0B4" id="Elder LH Balaam 3">
+		<Class>Character</Class>
+		<Enemy />
+		<HealthBarBoss />
+		<AnimatedTexture>
+			<File>lostHallsChars16x16</File>
+			<Index>27</Index>
+		</AnimatedTexture>
+		<Size>120</Size>
+		<DisplayId>Elder Balaam</DisplayId>
+		<MaxHitPoints>40000</MaxHitPoints>
+		<Defense>45</Defense>
+		<Exp>666</Exp>
+		<HitSound>monster/archdemon_hit</HitSound>
+		<DeathSound>monster/archdemon_death</DeathSound>
+		<StasisImmune />
+		<StunImmune />
+		<ParalyzeImmune />
+		<Projectile id="0">
+			<ObjectId>Balaam Red Shot</ObjectId>
+			<Damage>455</Damage>
+			<Size>160</Size>
+			<Speed>30</Speed>
+			<LifetimeMS>10000</LifetimeMS>
+			<MultiHit />
+		</Projectile>
+		<XpBonus>2</XpBonus>
+	</Object>
+	<Object type="0xF0B5" id="Elder LH Basaran">
+		<Class>Character</Class>
+		<Enemy />
+		<HealthBarBoss />
+		<AnimatedTexture>
+			<File>lostHallsChars16x16</File>
+			<Index>15</Index>
+		</AnimatedTexture>
+		<AltTexture id="1">
+			<Texture>
+				<File>lostHallsObjects16x16</File>
+				<Index>0x0c</Index>
+			</Texture>
+		</AltTexture>
+		<AltTexture id="2">
+			<Texture>
+				<File>lostHallsObjects16x16</File>
+				<Index>0x0d</Index>
+			</Texture>
+		</AltTexture>
+		<AltTexture id="3">
+			<Texture>
+				<File>lostHallsObjects16x16</File>
+				<Index>0x10</Index>
+			</Texture>
+		</AltTexture>
+		<AltTexture id="4">
+			<Texture>
+				<File>invisible</File>
+				<Index>0</Index>
+			</Texture>
+		</AltTexture>
+		<Size>100</Size>
+		<DisplayId>Elder Basaran</DisplayId>
+		<MaxHitPoints>90000</MaxHitPoints>
+		<Defense>35</Defense>
+		<Exp>4000</Exp>
+		<HitSound>monster/lizard_god_hit</HitSound>
+		<DeathSound>monster/lizard_god_death</DeathSound>
+		<Projectile id="0">
+			<ObjectId>Cultist Basaran Shot</ObjectId>
+			<Damage>176</Damage>
+			<Speed>100</Speed>
+			<LifetimeMS>4000</LifetimeMS>
+			<MultiHit />
+			<ConditionEffect duration="3">Slowed</ConditionEffect>
+		</Projectile>
+		<LeachHealth />
+		<StasisImmune />
+		<ParalyzeImmune />
+		<XpBonus>2</XpBonus>
+	</Object>
+	<Object type="0xF0B6" id="Elder LH Black Cultist">
+		<Class>Character</Class>
+		<Group>Cult Cultists</Group>
+		<Enemy />
+		<AnimatedTexture>
+			<File>lostHallsChars8x8</File>
+			<Index>34</Index>
+		</AnimatedTexture>
+		<DisplayId>Elder Follower of Valus</DisplayId>
+		<MaxHitPoints>10000</MaxHitPoints>
+		<Defense>40</Defense>
+		<Exp>750</Exp>
+		<Size>120</Size>
+		<HitSound>monster/mummies_hit</HitSound>
+		<DeathSound>monster/mummies_death</DeathSound>
+		<Projectile id="0">
+			<ObjectId>Cultist Dark Shot</ObjectId>
+			<Size>80</Size>
+			<Damage>234</Damage>
+			<Speed>10</Speed>
+			<LifetimeMS>8000</LifetimeMS>
+			<ConditionEffect duration="3">Darkness</ConditionEffect>
+		</Projectile>
+		<XpBonus>2</XpBonus>
+	</Object>
+	<Object type="0xF0B7" id="Elder LH Blue Cultist">
+		<Class>Character</Class>
+		<Group>Cult Cultists</Group>
+		<Enemy />
+		<AnimatedTexture>
+			<File>lostHallsChars8x8</File>
+			<Index>18</Index>
+		</AnimatedTexture>
+		<DisplayId>Elder Follower of Basaran</DisplayId>
+		<MaxHitPoints>8000</MaxHitPoints>
+		<Defense>35</Defense>
+		<Exp>500</Exp>
+		<Size>120</Size>
+		<HitSound>monster/mummies_hit</HitSound>
+		<DeathSound>monster/mummies_death</DeathSound>
+		<LeachHealth />
+		<Projectile id="0">
+			<ObjectId>Cultist Ice Shot</ObjectId>
+			<Size>120</Size>
+			<Damage>162</Damage>
+			<Speed>120</Speed>
+			<LifetimeMS>750</LifetimeMS>
+			<ConditionEffect duration="3.5">Slowed</ConditionEffect>
+			<MultiHit />
+		</Projectile>
+		<XpBonus>2</XpBonus>
+	</Object>
+	<Object type="0xF0B8" id="Elder LH Cult Controller">
+		<DisplayId>Elder Cult</DisplayId>
+		<Enemy />
+		<Class>Character</Class>
+		<Texture>
+			<File>invisible</File>
+			<Index>0</Index>
+		</Texture>
+		<Size>0</Size>
+		<NoMiniMap />
+		<Quest />
+		<Portrait>
+			<Texture>
+				<File>theMachineObjects16x16</File>
+				<Index>0x10</Index>
+			</Texture>
+		</Portrait>
+		<Invincible />
+		<XpBonus>2</XpBonus>
+	</Object>
+	<Object type="0xF0B9" id="Elder LH Dirge">
+		<Class>Character</Class>
+		<Enemy />
+		<HealthBarBoss />
+		<AnimatedTexture>
+			<File>lostHallsChars16x16</File>
+			<Index>17</Index>
+		</AnimatedTexture>
+		<AltTexture id="1">
+			<Texture>
+				<File>lostHallsObjects16x16</File>
+				<Index>0x0c</Index>
+			</Texture>
+		</AltTexture>
+		<AltTexture id="2">
+			<Texture>
+				<File>lostHallsObjects16x16</File>
+				<Index>0x0d</Index>
+			</Texture>
+		</AltTexture>
+		<AltTexture id="3">
+			<Texture>
+				<File>lostHallsObjects16x16</File>
+				<Index>0x12</Index>
+			</Texture>
+		</AltTexture>
+		<AltTexture id="4">
+			<Texture>
+				<File>invisible</File>
+				<Index>0</Index>
+			</Texture>
+		</AltTexture>
+		<Size>100</Size>
+		<DisplayId>Elder Dirge</DisplayId>
+		<MaxHitPoints>90000</MaxHitPoints>
+		<Defense>35</Defense>
+		<Exp>4000</Exp>
+		<HitSound>monster/lizard_god_hit</HitSound>
+		<DeathSound>monster/lizard_god_death</DeathSound>
+		<Projectile id="0">
+			<ObjectId>Cultist Dirge Shot</ObjectId>
+			<Damage>169</Damage>
+			<Speed>100</Speed>
+			<LifetimeMS>4000</LifetimeMS>
+			<MultiHit />
+			<ConditionEffect duration="5">Quiet</ConditionEffect>
+		</Projectile>
+		<LeachHealth />
+		<StasisImmune />
+		<ParalyzeImmune />
+		<XpBonus>2</XpBonus>
+	</Object>
+	<Object type="0xF0BA" id="Elder LH Fire Demon">
+		<Class>Character</Class>
+		<Enemy />
+		<AnimatedTexture>
+			<File>lostHallsChars8x8</File>
+			<Index>21</Index>
+		</AnimatedTexture>
+		<DisplayId>Elder Fire Demon</DisplayId>
+		<MaxHitPoints>4500</MaxHitPoints>
+		<Defense>25</Defense>
+		<Exp>0</Exp>
+		<Size>110</Size>
+		<HitSound>monster/abyss_brutes_hit</HitSound>
+		<DeathSound>monster/abyss_brutes_death</DeathSound>
+		<Projectile id="0">
+			<ObjectId>Cultist Malus Shot</ObjectId>
+			<Size>80</Size>
+			<Damage>104</Damage>
+			<Speed>90</Speed>
+			<LifetimeMS>1000</LifetimeMS>
+			<ConditionEffect duration="2">Armor Broken</ConditionEffect>
+		</Projectile>
+		<Projectile id="1">
+			<ObjectId>Cultist Fire Shot</ObjectId>
+			<Size>85</Size>
+			<Damage>130</Damage>
+			<Speed>100</Speed>
+			<LifetimeMS>800</LifetimeMS>
+			<ArmorPiercing />
+		</Projectile>
+		<XpBonus>2</XpBonus>
+	</Object>
+	<Object type="0xF0BB" id="Elder LH Gaius">
+		<Class>Character</Class>
+		<Enemy />
+		<HealthBarBoss />
+		<AnimatedTexture>
+			<File>lostHallsChars16x16</File>
+			<Index>16</Index>
+		</AnimatedTexture>
+		<AltTexture id="1">
+			<Texture>
+				<File>lostHallsObjects16x16</File>
+				<Index>0x0c</Index>
+			</Texture>
+		</AltTexture>
+		<AltTexture id="2">
+			<Texture>
+				<File>lostHallsObjects16x16</File>
+				<Index>0x0d</Index>
+			</Texture>
+		</AltTexture>
+		<AltTexture id="3">
+			<Texture>
+				<File>lostHallsObjects16x16</File>
+				<Index>0x11</Index>
+			</Texture>
+		</AltTexture>
+		<AltTexture id="4">
+			<Texture>
+				<File>invisible</File>
+				<Index>0</Index>
+			</Texture>
+		</AltTexture>
+		<Size>100</Size>
+		<DisplayId>Elder Gaius</DisplayId>
+		<MaxHitPoints>90000</MaxHitPoints>
+		<Defense>35</Defense>
+		<Exp>4000</Exp>
+		<HitSound>monster/lizard_god_hit</HitSound>
+		<DeathSound>monster/lizard_god_death</DeathSound>
+		<Projectile id="0">
+			<ObjectId>Cultist Gaius Shot</ObjectId>
+			<Damage>156</Damage>
+			<Speed>80</Speed>
+			<LifetimeMS>5000</LifetimeMS>
+			<MultiHit />
+			<ConditionEffect duration="0.8">Paralyzed</ConditionEffect>
+		</Projectile>
+		<LeachHealth />
+		<StasisImmune />
+		<ParalyzeImmune />
+		<XpBonus>2</XpBonus>
+	</Object>
+	<Object type="0xF0BC" id="Elder LH Green Cultist">
+		<Class>Character</Class>
+		<Group>Cult Cultists</Group>
+		<Enemy />
+		<AnimatedTexture>
+			<File>lostHallsChars8x8</File>
+			<Index>35</Index>
+		</AnimatedTexture>
+		<DisplayId>Elder Follower of Phaedra</DisplayId>
+		<MaxHitPoints>6500</MaxHitPoints>
+		<Defense>30</Defense>
+		<Exp>750</Exp>
+		<Size>120</Size>
+		<HitSound>monster/mummies_hit</HitSound>
+		<DeathSound>monster/mummies_death</DeathSound>
+		<Projectile id="0">
+			<ObjectId>Cultist Sick Shot</ObjectId>
+			<Size>80</Size>
+			<Damage>117</Damage>
+			<Speed>100</Speed>
+			<LifetimeMS>750</LifetimeMS>
+			<ConditionEffect duration="3">Sick</ConditionEffect>
+		</Projectile>
+		<XpBonus>2</XpBonus>
+	</Object>
+	<Object type="0xF0BD" id="Elder LH Ice Demon">
+		<Class>Character</Class>
+		<Enemy />
+		<AnimatedTexture>
+			<File>lostHallsChars8x8</File>
+			<Index>22</Index>
+		</AnimatedTexture>
+		<DisplayId>Elder Ice Demon</DisplayId>
+		<MaxHitPoints>4500</MaxHitPoints>
+		<Defense>25</Defense>
+		<Exp>0</Exp>
+		<Size>110</Size>
+		<HitSound>monster/abyss_brutes_hit</HitSound>
+		<DeathSound>monster/abyss_brutes_death</DeathSound>
+		<Projectile id="0">
+			<ObjectId>Cultist Basaran Shot</ObjectId>
+			<Size>80</Size>
+			<Damage>98</Damage>
+			<Speed>60</Speed>
+			<LifetimeMS>1000</LifetimeMS>
+			<ConditionEffect duration="2">Slowed</ConditionEffect>
+		</Projectile>
+		<XpBonus>2</XpBonus>
+	</Object>
+	<Object type="0xF0BE" id="Elder LH Lightning Demon">
+		<Class>Character</Class>
+		<Enemy />
+		<AnimatedTexture>
+			<File>lostHallsChars8x8</File>
+			<Index>23</Index>
+		</AnimatedTexture>
+		<DisplayId>Elder Lightning Demon</DisplayId>
+		<MaxHitPoints>4500</MaxHitPoints>
+		<Defense>25</Defense>
+		<Exp>0</Exp>
+		<Size>110</Size>
+		<HitSound>monster/abyss_brutes_hit</HitSound>
+		<DeathSound>monster/abyss_brutes_death</DeathSound>
+		<Projectile id="0">
+			<ObjectId>Cultist Gaius Shot</ObjectId>
+			<Size>80</Size>
+			<Damage>110</Damage>
+			<Speed>100</Speed>
+			<LifetimeMS>800</LifetimeMS>
+			<ConditionEffect duration="1">Paralyzed</ConditionEffect>
+		</Projectile>
+		<XpBonus>2</XpBonus>
+	</Object>
+	<Object type="0xF0BF" id="Elder LH Malus">
+		<Class>Character</Class>
+		<Enemy />
+		<HealthBarBoss />
+		<AnimatedTexture>
+			<File>lostHallsChars16x16</File>
+			<Index>13</Index>
+		</AnimatedTexture>
+		<AltTexture id="1">
+			<Texture>
+				<File>lostHallsObjects16x16</File>
+				<Index>0x0c</Index>
+			</Texture>
+		</AltTexture>
+		<AltTexture id="2">
+			<Texture>
+				<File>lostHallsObjects16x16</File>
+				<Index>0x0d</Index>
+			</Texture>
+		</AltTexture>
+		<AltTexture id="3">
+			<Texture>
+				<File>lostHallsObjects16x16</File>
+				<Index>0x0e</Index>
+			</Texture>
+		</AltTexture>
+		<AltTexture id="4">
+			<Texture>
+				<File>invisible</File>
+				<Index>0</Index>
+			</Texture>
+		</AltTexture>
+		<Size>100</Size>
+		<DisplayId>Elder Malus</DisplayId>
+		<MaxHitPoints>90000</MaxHitPoints>
+		<Defense>35</Defense>
+		<Exp>0</Exp>
+		<HitSound>monster/lizard_god_hit</HitSound>
+		<DeathSound>monster/lizard_god_death</DeathSound>
+		<Projectile id="0">
+			<ObjectId>Cultist Malus Shot</ObjectId>
+			<Damage>130</Damage>
+			<Speed>80</Speed>
+			<LifetimeMS>5000</LifetimeMS>
+			<MultiHit />
+			<ConditionEffect duration="4">Armor Broken</ConditionEffect>
+		</Projectile>
+		<LeachHealth />
+		<StasisImmune />
+		<ParalyzeImmune />
+		<XpBonus>2</XpBonus>
+	</Object>
+	<Object type="0xF0C0" id="Elder LH Malus 2">
+		<Class>Character</Class>
+		<Enemy />
+		<EventChestBoss />
+		<TrackLoot />
+		<Portrait>
+			<AnimatedTexture>
+				<File>lostHallsChars16x16</File>
+				<Index>18</Index>
+			</AnimatedTexture>
+		</Portrait>
+		<AnimatedTexture>
+			<File>lostHallsChars16x16</File>
+			<Index>18</Index>
+		</AnimatedTexture>
+		<AltTexture id="1">
+			<Texture>
+				<File>lostHallsObjects16x16</File>
+				<Index>0x0c</Index>
+			</Texture>
+		</AltTexture>
+		<AltTexture id="2">
+			<AnimatedTexture>
+				<File>lostHallsChars16x16</File>
+				<Index>19</Index>
+			</AnimatedTexture>
+		</AltTexture>
+		<AltTexture id="3">
+			<AnimatedTexture>
+				<File>lostHallsChars16x16</File>
+				<Index>20</Index>
+			</AnimatedTexture>
+		</AltTexture>
+		<AltTexture id="4">
+			<AnimatedTexture>
+				<File>lostHallsChars16x16</File>
+				<Index>21</Index>
+			</AnimatedTexture>
+		</AltTexture>
+		<AltTexture id="5">
+			<AnimatedTexture>
+				<File>lostHallsChars16x16</File>
+				<Index>22</Index>
+			</AnimatedTexture>
+		</AltTexture>
+		<AltTexture id="6">
+			<Texture>
+				<File>lostHallsObjects16x16</File>
+				<Index>0x0d</Index>
+			</Texture>
+		</AltTexture>
+		<AltTexture id="7">
+			<Texture>
+				<File>lostHallsObjects16x16</File>
+				<Index>0x0e</Index>
+			</Texture>
+		</AltTexture>
+		<AltTexture id="8">
+			<Texture>
+				<File>lostHallsObjects16x16</File>
+				<Index>0x0f</Index>
+			</Texture>
+		</AltTexture>
+		<AltTexture id="9">
+			<Texture>
+				<File>lostHallsObjects16x16</File>
+				<Index>0x10</Index>
+			</Texture>
+		</AltTexture>
+		<AltTexture id="10">
+			<Texture>
+				<File>lostHallsObjects16x16</File>
+				<Index>0x11</Index>
+			</Texture>
+		</AltTexture>
+		<AltTexture id="11">
+			<Texture>
+				<File>lostHallsObjects16x16</File>
+				<Index>0x12</Index>
+			</Texture>
+		</AltTexture>
+		<AltTexture id="12">
+			<Texture>
+				<File>invisible</File>
+				<Index>0</Index>
+			</Texture>
+		</AltTexture>
+		<Projectile id="0">
+			<ObjectId>Cultist Malus Shot</ObjectId>
+			<Damage>130</Damage>
+			<Speed>80</Speed>
+			<LifetimeMS>5000</LifetimeMS>
+			<MultiHit />
+			<ConditionEffect duration="4">Armor Broken</ConditionEffect>
+		</Projectile>
+		<Projectile id="1">
+			<ObjectId>Cultist Argus Shot</ObjectId>
+			<Damage>195</Damage>
+			<Speed>100</Speed>
+			<LifetimeMS>4000</LifetimeMS>
+			<MultiHit />
+			<ConditionEffect duration="3">Unstable</ConditionEffect>
+		</Projectile>
+		<Projectile id="2">
+			<ObjectId>Cultist Gaius Shot</ObjectId>
+			<Damage>156</Damage>
+			<Speed>80</Speed>
+			<LifetimeMS>5000</LifetimeMS>
+			<MultiHit />
+			<ConditionEffect duration="0.8">Paralyzed</ConditionEffect>
+		</Projectile>
+		<Projectile id="3">
+			<ObjectId>Cultist Basaran Shot</ObjectId>
+			<Damage>176</Damage>
+			<Speed>100</Speed>
+			<LifetimeMS>2800</LifetimeMS>
+			<MultiHit />
+			<ConditionEffect duration="3">Slowed</ConditionEffect>
+		</Projectile>
+		<Projectile id="4">
+			<ObjectId>Cultist Dirge Shot</ObjectId>
+			<Damage>169</Damage>
+			<Speed>100</Speed>
+			<LifetimeMS>4000</LifetimeMS>
+			<MultiHit />
+			<ConditionEffect duration="5">Quiet</ConditionEffect>
+		</Projectile>
+		<Projectile id="5">
+			<ObjectId>Cultist Fire Shot</ObjectId>
+			<Size>100</Size>
+			<Damage>195</Damage>
+			<Speed>60</Speed>
+			<LifetimeMS>7500</LifetimeMS>
+			<MultiHit />
+			<ConditionEffect duration="3.6">Armor Broken</ConditionEffect>
+		</Projectile>
+		<Projectile id="6">
+			<ObjectId>Cultist Ice Shot</ObjectId>
+			<Size>120</Size>
+			<Damage>240</Damage>
+			<Speed>120</Speed>
+			<LifetimeMS>3000</LifetimeMS>
+			<ConditionEffect duration="3.6">Slowed</ConditionEffect>
+			<MultiHit />
+		</Projectile>
+		<Projectile id="7">
+			<ObjectId>Cultist Lightning Shot</ObjectId>
+			<Size>100</Size>
+			<Damage>176</Damage>
+			<Speed>150</Speed>
+			<LifetimeMS>3000</LifetimeMS>
+			<ConditionEffect duration="0.6">Paralyzed</ConditionEffect>
+			<MultiHit />
+			<Boomerang />
+			<FaceDir />
+			<Amplitude>2</Amplitude>
+			<Frequency>2.5</Frequency>
+		</Projectile>
+		<Projectile id="8">
+			<ObjectId>Cultist Light Shot</ObjectId>
+			<Size>80</Size>
+			<Damage>221</Damage>
+			<Speed>100</Speed>
+			<LifetimeMS>2000</LifetimeMS>
+			<MultiHit />
+			<ConditionEffect duration="3">Quiet</ConditionEffect>
+		</Projectile>
+		<Projectile id="9">
+			<ObjectId>Cultist Unstable Shot</ObjectId>
+			<Size>80</Size>
+			<Damage>260</Damage>
+			<Speed>30</Speed>
+			<LifetimeMS>5000</LifetimeMS>
+			<MultiHit />
+			<Amplitude>1.5</Amplitude>
+			<Frequency>2</Frequency>
+			<ConditionEffect duration="3">Unstable</ConditionEffect>
+		</Projectile>
+		<Size>100</Size>
+		<DisplayId>Elder Malus</DisplayId>
+		<MaxHitPoints>260000</MaxHitPoints>
+		<HealthBarBoss />
+		<Defense>45</Defense>
+		<Exp>20000</Exp>
+		<HitSound>monster/lizard_god_hit</HitSound>
+		<DeathSound>monster/lizard_god_death</DeathSound>
+		<StasisImmune />
+		<StunImmune />
+		<ParalyzeImmune />
+		<LeachHealth />
+		<XpBonus>2</XpBonus>
+	</Object>
+	<Object type="0xF0C1" id="Elder LH Molek">
+		<Class>Character</Class>
+		<Enemy />
+		<HealthBarBoss />
+		<AnimatedTexture>
+			<File>lostHallsChars16x16</File>
+			<Index>23</Index>
+		</AnimatedTexture>
+		<Size>120</Size>
+		<DisplayId>Elder Molek</DisplayId>
+		<MaxHitPoints>120000</MaxHitPoints>
+		<Defense>60</Defense>
+		<Exp>4000</Exp>
+		<HitSound>monster/archdemon_hit</HitSound>
+		<DeathSound>monster/archdemon_death</DeathSound>
+		<StasisImmune />
+		<StunImmune />
+		<ParalyzeImmune />
+		<Projectile id="0">
+			<ObjectId>Molek Shockwave</ObjectId>
+			<Damage>325</Damage>
+			<Speed>80</Speed>
+			<LifetimeMS>2250</LifetimeMS>
+			<MultiHit />
+		</Projectile>
+		<Projectile id="1">
+			<ObjectId>Cultist Fire Shot</ObjectId>
+			<Size>100</Size>
+			<Damage>195</Damage>
+			<Speed>110</Speed>
+			<LifetimeMS>2450</LifetimeMS>
+			<MultiHit />
+		</Projectile>
+		<Projectile id="2">
+			<ObjectId>Cultist Fire Shot</ObjectId>
+			<Size>100</Size>
+			<Damage>234</Damage>
+			<Speed>70</Speed>
+			<LifetimeMS>3000</LifetimeMS>
+			<MultiHit />
+		</Projectile>
+		<XpBonus>2</XpBonus>
+	</Object>
+	<Object type="0xF0C2" id="Elder LH Molek Flame">
+		<Class>Character</Class>
+		<Enemy />
+		<Texture>
+			<File>summerNexusObjects16x16</File>
+			<Index>0x4f</Index>
+		</Texture>
+		<Animation prob="1.0" period="0.8">
+			<Frame time="0.2">
+				<Texture>
+					<File>summerNexusObjects16x16</File>
+					<Index>0x50</Index>
+				</Texture>
+			</Frame>
+			<Frame time="0.2">
+				<Texture>
+					<File>summerNexusObjects16x16</File>
+					<Index>0x51</Index>
+				</Texture>
+			</Frame>
+			<Frame time="0.2">
+				<Texture>
+					<File>summerNexusObjects16x16</File>
+					<Index>0x52</Index>
+				</Texture>
+			</Frame>
+			<Frame time="0.2">
+				<Texture>
+					<File>summerNexusObjects16x16</File>
+					<Index>0x4f</Index>
+				</Texture>
+			</Frame>
+		</Animation>
+		<DisplayId>Elder Molek</DisplayId>
+		<Size>100</Size>
+		<Invincible />
+		<Projectile id="0">
+			<ObjectId>Invisible</ObjectId>
+			<Damage>84</Damage>
+			<Size>80</Size>
+			<Speed>0</Speed>
+			<LifetimeMS>100</LifetimeMS>
+			<ConditionEffect duration="2.5">Armor Broken</ConditionEffect>
+		</Projectile>
+		<Projectile id="1">
+			<ObjectId>Cultist Fire Shot</ObjectId>
+			<Size>100</Size>
+			<Damage>104</Damage>
+			<Speed>50</Speed>
+			<LifetimeMS>600</LifetimeMS>
+			<MultiHit />
+			<ConditionEffect duration="2.5">Armor Broken</ConditionEffect>
+		</Projectile>
+		<XpBonus>2</XpBonus>
+	</Object>
+	<Object type="0xF0C3" id="Elder LH Purple Cultist">
+		<Class>Character</Class>
+		<Group>Cult Cultists</Group>
+		<Enemy />
+		<AnimatedTexture>
+			<File>lostHallsChars8x8</File>
+			<Index>17</Index>
+		</AnimatedTexture>
+		<DisplayId>Elder Follower of Argus</DisplayId>
+		<MaxHitPoints>10000</MaxHitPoints>
+		<Defense>40</Defense>
+		<Exp>500</Exp>
+		<Size>120</Size>
+		<HitSound>monster/mummies_hit</HitSound>
+		<DeathSound>monster/mummies_death</DeathSound>
+		<Projectile id="0">
+			<ObjectId>Cultist Unstable Shot</ObjectId>
+			<Size>80</Size>
+			<Damage>234</Damage>
+			<Speed>50</Speed>
+			<LifetimeMS>3000</LifetimeMS>
+			<ConditionEffect duration="3">Unstable</ConditionEffect>
+		</Projectile>
+		<XpBonus>2</XpBonus>
+	</Object>
+	<Object type="0xF0C4" id="Elder LH Red Cultist">
+		<Class>Character</Class>
+		<Group>Cult Cultists</Group>
+		<Enemy />
+		<AnimatedTexture>
+			<File>lostHallsChars8x8</File>
+			<Index>16</Index>
+		</AnimatedTexture>
+		<DisplayId>Elder Follower of Malus</DisplayId>
+		<MaxHitPoints>8000</MaxHitPoints>
+		<Defense>35</Defense>
+		<Exp>500</Exp>
+		<Size>120</Size>
+		<HitSound>monster/mummies_hit</HitSound>
+		<DeathSound>monster/mummies_death</DeathSound>
+		<LeachHealth />
+		<Projectile id="0">
+			<ObjectId>Cultist Fire Shot</ObjectId>
+			<Size>100</Size>
+			<Damage>104</Damage>
+			<Speed>60</Speed>
+			<LifetimeMS>1850</LifetimeMS>
+			<ConditionEffect duration="3.5">Armor Broken</ConditionEffect>
+		</Projectile>
+		<Projectile id="1">
+			<ObjectId>Cultist Fire Shot</ObjectId>
+			<Size>100</Size>
+			<Damage>104</Damage>
+			<Speed>80</Speed>
+			<LifetimeMS>1800</LifetimeMS>
+			<ConditionEffect duration="3.5">Armor Broken</ConditionEffect>
+		</Projectile>
+		<Projectile id="2">
+			<ObjectId>Cultist Fire Shot</ObjectId>
+			<Size>100</Size>
+			<Damage>104</Damage>
+			<Speed>100</Speed>
+			<LifetimeMS>1450</LifetimeMS>
+			<ConditionEffect duration="3.5">Armor Broken</ConditionEffect>
+		</Projectile>
+		<XpBonus>2</XpBonus>
+	</Object>
+	<Object type="0xF0C5" id="Elder LH White Cultist">
+		<Class>Character</Class>
+		<Group>Cult Cultists</Group>
+		<Enemy />
+		<AnimatedTexture>
+			<File>lostHallsChars8x8</File>
+			<Index>19</Index>
+		</AnimatedTexture>
+		<DisplayId>Elder Follower of Dirge</DisplayId>
+		<MaxHitPoints>6500</MaxHitPoints>
+		<Defense>30</Defense>
+		<Exp>500</Exp>
+		<Size>120</Size>
+		<HitSound>monster/mummies_hit</HitSound>
+		<DeathSound>monster/mummies_death</DeathSound>
+		<LeachHealth />
+		<Projectile id="0">
+			<ObjectId>Cultist Light Shot</ObjectId>
+			<Size>80</Size>
+			<Damage>182</Damage>
+			<Speed>100</Speed>
+			<LifetimeMS>1200</LifetimeMS>
+			<ConditionEffect duration="3">Quiet</ConditionEffect>
+		</Projectile>
+		<XpBonus>2</XpBonus>
+	</Object>
+	<Object type="0xF0C6" id="Elder LH Yellow Cultist">
+		<Class>Character</Class>
+		<Group>Cult Cultists</Group>
+		<Enemy />
+		<AnimatedTexture>
+			<File>lostHallsChars8x8</File>
+			<Index>20</Index>
+		</AnimatedTexture>
+		<DisplayId>Elder Follower of Gaius</DisplayId>
+		<MaxHitPoints>8000</MaxHitPoints>
+		<Defense>35</Defense>
+		<Exp>500</Exp>
+		<Size>120</Size>
+		<HitSound>monster/mummies_hit</HitSound>
+		<DeathSound>monster/mummies_death</DeathSound>
+		<LeachHealth />
+		<Projectile id="0">
+			<ObjectId>Cultist Lightning Shot</ObjectId>
+			<Size>100</Size>
+			<Damage>156</Damage>
+			<Speed>150</Speed>
+			<LifetimeMS>1800</LifetimeMS>
+			<ConditionEffect duration="0.4">Paralyzed</ConditionEffect>
+			<Boomerang />
+		</Projectile>
+		<XpBonus>2</XpBonus>
+	</Object>
+	<Object type="0xF004" id="Elder GhostShip Bookshelf Lf">
+		<Class>Wall</Class>
+		<Texture>
+			<File>elderAssets8x8</File>
+			<Index>0xf5</Index>
+		</Texture>
+		<Top>
+			<Texture>
+				<File>elderAssets8x8</File>
+				<Index>0xf6</Index>
 			</Texture>
 		</Top>
 		<HitSound>monster/wooden_walls_hit</HitSound>
@@ -99,12 +1091,12 @@
 		<Class>Wall</Class>
 		<Texture>
 			<File>elderAssets8x8</File>
-			<Index>0xd9</Index>
+			<Index>0xf7</Index>
 		</Texture>
 		<Top>
 			<Texture>
 				<File>elderAssets8x8</File>
-				<Index>0xd8</Index>
+				<Index>0xf6</Index>
 			</Texture>
 		</Top>
 		<HitSound>monster/wooden_walls_hit</HitSound>
@@ -120,17 +1112,17 @@
 		<RandomTexture>
 			<Texture>
 				<File>elderAssets8x8</File>
-				<Index>0xda</Index>
+				<Index>0xf8</Index>
 			</Texture>
 			<Texture>
 				<File>elderAssets8x8</File>
-				<Index>0xdb</Index>
+				<Index>0xf9</Index>
 			</Texture>
 		</RandomTexture>
 		<Top>
 			<Texture>
 				<File>elderAssets8x8</File>
-				<Index>0xdc</Index>
+				<Index>0xfa</Index>
 			</Texture>
 		</Top>
 		<HitSound>monster/wooden_walls_hit</HitSound>
@@ -146,17 +1138,17 @@
 		<RandomTexture>
 			<Texture>
 				<File>elderAssets8x8</File>
-				<Index>0xdd</Index>
+				<Index>0xfb</Index>
 			</Texture>
 			<Texture>
 				<File>elderAssets8x8</File>
-				<Index>0xde</Index>
+				<Index>0xfc</Index>
 			</Texture>
 		</RandomTexture>
 		<Top>
 			<Texture>
 				<File>elderAssets8x8</File>
-				<Index>0xdf</Index>
+				<Index>0xfd</Index>
 			</Texture>
 		</Top>
 		<HitSound>monster/wooden_walls_hit</HitSound>
@@ -171,12 +1163,12 @@
 		<Class>Wall</Class>
 		<Texture>
 			<File>elderAssets8x8</File>
-			<Index>0xe0</Index>
+			<Index>0xfe</Index>
 		</Texture>
 		<Top>
 			<Texture>
 				<File>elderAssets8x8</File>
-				<Index>0xdc</Index>
+				<Index>0xfa</Index>
 			</Texture>
 		</Top>
 		<HitSound>monster/wooden_walls_hit</HitSound>
@@ -191,12 +1183,12 @@
 		<Class>Wall</Class>
 		<Texture>
 			<File>elderAssets8x8</File>
-			<Index>0xe1</Index>
+			<Index>0xff</Index>
 		</Texture>
 		<Top>
 			<Texture>
 				<File>elderAssets8x8</File>
-				<Index>0xdc</Index>
+				<Index>0xfa</Index>
 			</Texture>
 		</Top>
 		<HitSound>monster/wooden_walls_hit</HitSound>
@@ -211,12 +1203,12 @@
 		<Class>Wall</Class>
 		<Texture>
 			<File>elderAssets8x8</File>
-			<Index>0xe2</Index>
+			<Index>0x100</Index>
 		</Texture>
 		<Top>
 			<Texture>
 				<File>elderAssets8x8</File>
-				<Index>0xdc</Index>
+				<Index>0xfa</Index>
 			</Texture>
 		</Top>
 		<HitSound>monster/wooden_walls_hit</HitSound>
@@ -232,13 +1224,13 @@
 		<RandomTexture>
 			<Texture>
 				<File>elderAssets8x8</File>
-				<Index>0xe3</Index>
+				<Index>0x101</Index>
 			</Texture>
 		</RandomTexture>
 		<Top>
 			<Texture>
 				<File>elderAssets8x8</File>
-				<Index>0xdc</Index>
+				<Index>0xfa</Index>
 			</Texture>
 		</Top>
 		<HitSound>monster/wooden_walls_hit</HitSound>
@@ -253,12 +1245,12 @@
 		<Class>Wall</Class>
 		<Texture>
 			<File>elderAssets8x8</File>
-			<Index>0xe4</Index>
+			<Index>0x102</Index>
 		</Texture>
 		<Top>
 			<Texture>
 				<File>elderAssets8x8</File>
-				<Index>0xdc</Index>
+				<Index>0xfa</Index>
 			</Texture>
 		</Top>
 		<HitSound>monster/wooden_walls_hit</HitSound>
@@ -389,29 +1381,29 @@
 		<RandomTexture>
 			<Texture>
 				<File>elderAssets8x8</File>
-				<Index>0x14e</Index>
+				<Index>0x16c</Index>
 			</Texture>
 			<Texture>
 				<File>elderAssets8x8</File>
-				<Index>0x14f</Index>
+				<Index>0x16d</Index>
 			</Texture>
 			<Texture>
 				<File>elderAssets8x8</File>
-				<Index>0x150</Index>
+				<Index>0x16e</Index>
 			</Texture>
 			<Texture>
 				<File>elderAssets8x8</File>
-				<Index>0x150</Index>
+				<Index>0x16e</Index>
 			</Texture>
 			<Texture>
 				<File>elderAssets8x8</File>
-				<Index>0x150</Index>
+				<Index>0x16e</Index>
 			</Texture>
 		</RandomTexture>
 		<Top>
 			<Texture>
 				<File>elderAssets8x8</File>
-				<Index>0x151</Index>
+				<Index>0x16f</Index>
 			</Texture>
 		</Top>
 		<HitSound>monster/stone_walls_hit</HitSound>
@@ -426,12 +1418,12 @@
 		<Class>Wall</Class>
 		<Texture>
 			<File>elderAssets8x8</File>
-			<Index>0x152</Index>
+			<Index>0x170</Index>
 		</Texture>
 		<Top>
 			<Texture>
 				<File>elderAssets8x8</File>
-				<Index>0x153</Index>
+				<Index>0x171</Index>
 			</Texture>
 		</Top>
 		<HitSound>monster/stone_walls_hit</HitSound>
@@ -447,29 +1439,29 @@
 		<RandomTexture>
 			<Texture>
 				<File>elderAssets8x8</File>
-				<Index>0x154</Index>
+				<Index>0x172</Index>
 			</Texture>
 			<Texture>
 				<File>elderAssets8x8</File>
-				<Index>0x155</Index>
+				<Index>0x173</Index>
 			</Texture>
 			<Texture>
 				<File>elderAssets8x8</File>
-				<Index>0x156</Index>
+				<Index>0x174</Index>
 			</Texture>
 			<Texture>
 				<File>elderAssets8x8</File>
-				<Index>0x156</Index>
+				<Index>0x174</Index>
 			</Texture>
 			<Texture>
 				<File>elderAssets8x8</File>
-				<Index>0x156</Index>
+				<Index>0x174</Index>
 			</Texture>
 		</RandomTexture>
 		<Top>
 			<Texture>
 				<File>elderAssets8x8</File>
-				<Index>0x157</Index>
+				<Index>0x175</Index>
 			</Texture>
 		</Top>
 		<HitSound>monster/stone_walls_hit</HitSound>
@@ -485,29 +1477,29 @@
 		<RandomTexture>
 			<Texture>
 				<File>elderAssets8x8</File>
-				<Index>0x158</Index>
+				<Index>0x176</Index>
 			</Texture>
 			<Texture>
 				<File>elderAssets8x8</File>
-				<Index>0x159</Index>
+				<Index>0x177</Index>
 			</Texture>
 			<Texture>
 				<File>elderAssets8x8</File>
-				<Index>0x15a</Index>
+				<Index>0x178</Index>
 			</Texture>
 			<Texture>
 				<File>elderAssets8x8</File>
-				<Index>0x15a</Index>
+				<Index>0x178</Index>
 			</Texture>
 			<Texture>
 				<File>elderAssets8x8</File>
-				<Index>0x15a</Index>
+				<Index>0x178</Index>
 			</Texture>
 		</RandomTexture>
 		<Top>
 			<Texture>
 				<File>elderAssets8x8</File>
-				<Index>0x15b</Index>
+				<Index>0x179</Index>
 			</Texture>
 		</Top>
 		<HitSound>monster/stone_walls_hit</HitSound>
@@ -523,29 +1515,29 @@
 		<RandomTexture>
 			<Texture>
 				<File>elderAssets8x8</File>
-				<Index>0x15c</Index>
+				<Index>0x17a</Index>
 			</Texture>
 			<Texture>
 				<File>elderAssets8x8</File>
-				<Index>0x15d</Index>
+				<Index>0x17b</Index>
 			</Texture>
 			<Texture>
 				<File>elderAssets8x8</File>
-				<Index>0x15e</Index>
+				<Index>0x17c</Index>
 			</Texture>
 			<Texture>
 				<File>elderAssets8x8</File>
-				<Index>0x15e</Index>
+				<Index>0x17c</Index>
 			</Texture>
 			<Texture>
 				<File>elderAssets8x8</File>
-				<Index>0x15e</Index>
+				<Index>0x17c</Index>
 			</Texture>
 		</RandomTexture>
 		<Top>
 			<Texture>
 				<File>elderAssets8x8</File>
-				<Index>0x15f</Index>
+				<Index>0x17d</Index>
 			</Texture>
 		</Top>
 		<HitSound>monster/stone_walls_hit</HitSound>
@@ -1588,12 +2580,12 @@
 		<Class>Wall</Class>
 		<Texture>
 			<File>elderAssets8x8</File>
-			<Index>0x175</Index>
+			<Index>0x193</Index>
 		</Texture>
 		<Top>
 			<Texture>
 				<File>elderAssets8x8</File>
-				<Index>0x176</Index>
+				<Index>0x194</Index>
 			</Texture>
 		</Top>
 		<HitSound>monster/stone_walls_hit</HitSound>
@@ -2315,22 +3307,2656 @@
 		</Projectile>
 		<XpBonus>2</XpBonus>
 	</Object>
+	<Object type="0xF0C7" id="Elder LH Colossus Pillar Summoner">
+		<Class>GameObject</Class>
+		<AnimatedTexture>
+			<File>lostHallsChars16x16</File>
+			<Index>6</Index>
+		</AnimatedTexture>
+		<Size>0</Size>
+	</Object>
+	<Object type="0xF0C8" id="Elder LH Main Wall">
+		<Class>Wall</Class>
+		<Texture>
+			<File>elderAssets8x8</File>
+			<Index>0x28b</Index>
+		</Texture>
+		<Top>
+			<Texture>
+				<File>elderAssets8x8</File>
+				<Index>0x28c</Index>
+			</Texture>
+		</Top>
+		<Static />
+		<FullOccupy />
+		<OccupySquare />
+		<EnemyOccupySquare />
+		<BlocksSight />
+	</Object>
+	<Object type="0xF0C9" id="Elder LH Marble Defender Activator E">
+		<Class>GameObject</Class>
+		<DisplayId>Marble Defender</DisplayId>
+		<AnimatedTexture>
+			<File>lostHallsChars16x16</File>
+			<Index>34</Index>
+		</AnimatedTexture>
+		<Size>0</Size>
+	</Object>
+	<Object type="0xF0CA" id="Elder LH Marble Defender Activator N">
+		<Class>GameObject</Class>
+		<DisplayId>Marble Defender</DisplayId>
+		<AnimatedTexture>
+			<File>lostHallsChars16x16</File>
+			<Index>34</Index>
+		</AnimatedTexture>
+		<Size>0</Size>
+	</Object>
+	<Object type="0xF0CB" id="Elder LH Marble Defender Activator S">
+		<Class>GameObject</Class>
+		<DisplayId>Marble Defender</DisplayId>
+		<AnimatedTexture>
+			<File>lostHallsChars16x16</File>
+			<Index>34</Index>
+		</AnimatedTexture>
+		<Size>0</Size>
+	</Object>
+	<Object type="0xF0CC" id="Elder LH Marble Defender Activator W">
+		<Class>GameObject</Class>
+		<DisplayId>Marble Defender</DisplayId>
+		<AnimatedTexture>
+			<File>lostHallsChars16x16</File>
+			<Index>34</Index>
+		</AnimatedTexture>
+		<Size>0</Size>
+	</Object>
+	<Object type="0xF0CD" id="Elder LH Monster Spawner">
+		<DisplayId>Monster Spawner</DisplayId>
+		<Class>GameObject</Class>
+		<Texture>
+			<File>lostHallsObjects8x8</File>
+			<Index>0x1d</Index>
+		</Texture>
+		<Size>0</Size>
+	</Object>
+	<Object type="0xF0CE" id="Elder LH Vial Effect">
+		<Class>GameObject</Class>
+		<Texture>
+			<File>lostHallsObjects8x8</File>
+			<Index>30</Index>
+		</Texture>
+		<Size>0</Size>
+		<DisplayId>The Void</DisplayId>
+	</Object>
+	<Object type="0xF0CF" id="Elder LH Void Rift Spawner">
+		<Class>GameObject</Class>
+		<Texture>
+			<File>lostHallsObjects8x8</File>
+			<Index>30</Index>
+		</Texture>
+		<Size>0</Size>
+	</Object>
+	<Object type="0xF0D0" id="Elder LH Agonized Titan">
+		<Class>Character</Class>
+		<Enemy />
+		<AnimatedTexture>
+			<File>lostHallsChars16x16</File>
+			<Index>3</Index>
+		</AnimatedTexture>
+		<DisplayId>Elder Agonized Titan</DisplayId>
+		<Size>140</Size>
+		<MaxHitPoints>50000</MaxHitPoints>
+		<Defense>45</Defense>
+		<Exp>10000</Exp>
+		<ShadowSize>100</ShadowSize>
+		<HitSound>monster/golems_hit</HitSound>
+		<DeathSound>monster/golems_death</DeathSound>
+		<StunImmune />
+		<StasisImmune />
+		<TrackLoot />
+		<Projectile id="0">
+			<ObjectId>Colossal Bullet</ObjectId>
+			<Size>100</Size>
+			<Damage>390</Damage>
+			<Speed>80</Speed>
+			<LifetimeMS>2000</LifetimeMS>
+			<MultiHit />
+		</Projectile>
+		<Projectile id="1">
+			<ObjectId>Cultist Malus Shot</ObjectId>
+			<Size>100</Size>
+			<Damage>0</Damage>
+			<Speed>80</Speed>
+			<LifetimeMS>1500</LifetimeMS>
+			<ConditionEffect duration="3">Armor Broken</ConditionEffect>
+		</Projectile>
+		<Projectile id="2">
+			<ObjectId>Cultist Gaius Shot</ObjectId>
+			<Size>100</Size>
+			<Damage>0</Damage>
+			<Speed>80</Speed>
+			<LifetimeMS>1500</LifetimeMS>
+			<ConditionEffect duration="3">Paralyzed</ConditionEffect>
+		</Projectile>
+		<Projectile id="3">
+			<ObjectId>Cultist Dirge Shot</ObjectId>
+			<Size>100</Size>
+			<Damage>0</Damage>
+			<Speed>80</Speed>
+			<LifetimeMS>1500</LifetimeMS>
+			<ConditionEffect duration="3">Quiet</ConditionEffect>
+		</Projectile>
+		<Projectile id="4">
+			<ObjectId>Cultist Argus Shot</ObjectId>
+			<Size>100</Size>
+			<Damage>0</Damage>
+			<Speed>80</Speed>
+			<LifetimeMS>1500</LifetimeMS>
+			<ConditionEffect duration="3">Unstable</ConditionEffect>
+		</Projectile>
+		<Projectile id="5">
+			<ObjectId>Cultist Basaran Shot</ObjectId>
+			<Size>100</Size>
+			<Damage>0</Damage>
+			<Speed>80</Speed>
+			<LifetimeMS>1500</LifetimeMS>
+			<ConditionEffect duration="3">Slowed</ConditionEffect>
+		</Projectile>
+		<Projectile id="6">
+			<ObjectId>Cultist Phaedra Shot</ObjectId>
+			<Size>100</Size>
+			<Damage>0</Damage>
+			<Speed>80</Speed>
+			<LifetimeMS>1750</LifetimeMS>
+			<ConditionEffect duration="3">Sick</ConditionEffect>
+		</Projectile>
+		<Projectile id="7">
+			<ObjectId>Cultist Valus Shot</ObjectId>
+			<Size>100</Size>
+			<Damage>0</Damage>
+			<Speed>80</Speed>
+			<LifetimeMS>1750</LifetimeMS>
+			<ConditionEffect duration="3">Darkness</ConditionEffect>
+		</Projectile>
+		<XpBonus>2</XpBonus>
+	</Object>
+	<Object type="0xF0D1" id="Elder LH Champion of Oryx">
+		<Enemy />
+		<Class>Character</Class>
+		<AnimatedTexture>
+			<File>lostHallsChars8x8</File>
+			<Index>7</Index>
+		</AnimatedTexture>
+		<Group>Oryx Infantry</Group>
+		<DisplayId>Elder Champion of Oryx</DisplayId>
+		<HitSound>monster/minion_of_oryx_hit</HitSound>
+		<DeathSound>monster/minion_of_oryx_death</DeathSound>
+		<Size>125</Size>
+		<Exp>4000</Exp>
+		<MaxHitPoints>20000</MaxHitPoints>
+		<Defense>40</Defense>
+		<StasisImmune />
+		<ParalyzeImmune />
+		<Projectile id="0">
+			<ObjectId>Oryx Champion Slash</ObjectId>
+			<Damage>260</Damage>
+			<Speed>60</Speed>
+			<LifetimeMS>2500</LifetimeMS>
+		</Projectile>
+		<XpBonus>2</XpBonus>
+	</Object>
+	<Object type="0xF0D2" id="Elder LH Colossus Pillar">
+		<DisplayId>Elder Marble Colossus Pillar</DisplayId>
+		<Class>Character</Class>
+		<Enemy />
+		<Group>Colossus Pillar</Group>
+		<Size>140</Size>
+		<ShadowSize>80</ShadowSize>
+		<HitSound>monster/rocks_hit</HitSound>
+		<DeathSound>monster/rocks_death</DeathSound>
+		<AnimatedTexture>
+			<File>lostHallsChars16x16</File>
+			<Index>6</Index>
+		</AnimatedTexture>
+		<AltTexture id="1">
+			<AnimatedTexture>
+				<File>lostHallsChars16x16</File>
+				<Index>7</Index>
+			</AnimatedTexture>
+		</AltTexture>
+		<AltTexture id="2">
+			<AnimatedTexture>
+				<File>lostHallsChars16x16</File>
+				<Index>8</Index>
+			</AnimatedTexture>
+		</AltTexture>
+		<AltTexture id="3">
+			<AnimatedTexture>
+				<File>lostHallsChars16x16</File>
+				<Index>9</Index>
+			</AnimatedTexture>
+		</AltTexture>
+		<AltTexture id="4">
+			<AnimatedTexture>
+				<File>lostHallsChars16x16</File>
+				<Index>10</Index>
+			</AnimatedTexture>
+		</AltTexture>
+		<AltTexture id="5">
+			<AnimatedTexture>
+				<File>lostHallsChars16x16</File>
+				<Index>11</Index>
+			</AnimatedTexture>
+		</AltTexture>
+		<AltTexture id="6">
+			<AnimatedTexture>
+				<File>lostHallsChars16x16</File>
+				<Index>12</Index>
+			</AnimatedTexture>
+		</AltTexture>
+		<AltTexture id="7">
+			<AnimatedTexture>
+				<File>lostHallsChars16x16</File>
+				<Index>35</Index>
+			</AnimatedTexture>
+		</AltTexture>
+		<AltTexture id="8">
+			<AnimatedTexture>
+				<File>lostHallsChars16x16</File>
+				<Index>36</Index>
+			</AnimatedTexture>
+		</AltTexture>
+		<AltTexture id="9">
+			<AnimatedTexture>
+				<File>lostHallsChars16x16</File>
+				<Index>41</Index>
+			</AnimatedTexture>
+		</AltTexture>
+		<MaxHitPoints>18000</MaxHitPoints>
+		<Defense>45</Defense>
+		<Exp>0</Exp>
+		<Projectile id="0">
+			<ObjectId>Purple Spiral</ObjectId>
+			<Size>100</Size>
+			<Damage>98</Damage>
+			<Speed>50</Speed>
+			<LifetimeMS>6600</LifetimeMS>
+			<MultiHit />
+			<ArmorPiercing />
+		</Projectile>
+		<Projectile id="1">
+			<ObjectId>Purple Spiral</ObjectId>
+			<Size>100</Size>
+			<Damage>162</Damage>
+			<Speed>60</Speed>
+			<LifetimeMS>5500</LifetimeMS>
+			<MultiHit />
+			<ArmorPiercing />
+		</Projectile>
+		<Projectile id="2">
+			<ObjectId>Green Spiral</ObjectId>
+			<Size>100</Size>
+			<Damage>130</Damage>
+			<Speed>50</Speed>
+			<LifetimeMS>6600</LifetimeMS>
+			<ConditionEffect duration="3">Slowed</ConditionEffect>
+			<MultiHit />
+		</Projectile>
+		<Projectile id="3">
+			<ObjectId>Green Spiral</ObjectId>
+			<Size>100</Size>
+			<Damage>195</Damage>
+			<Speed>60</Speed>
+			<LifetimeMS>5500</LifetimeMS>
+			<ConditionEffect duration="3">Slowed</ConditionEffect>
+			<MultiHit />
+		</Projectile>
+		<Projectile id="4">
+			<ObjectId>White Spiral</ObjectId>
+			<Size>100</Size>
+			<Damage>130</Damage>
+			<Speed>50</Speed>
+			<LifetimeMS>6600</LifetimeMS>
+			<ConditionEffect duration="3">Weak</ConditionEffect>
+			<MultiHit />
+		</Projectile>
+		<Projectile id="5">
+			<ObjectId>White Spiral</ObjectId>
+			<Size>100</Size>
+			<Damage>195</Damage>
+			<Speed>60</Speed>
+			<LifetimeMS>5500</LifetimeMS>
+			<ConditionEffect duration="3">Weak</ConditionEffect>
+			<MultiHit />
+		</Projectile>
+		<Projectile id="6">
+			<ObjectId>Blue Spiral</ObjectId>
+			<Size>100</Size>
+			<Damage>130</Damage>
+			<Speed>50</Speed>
+			<LifetimeMS>6600</LifetimeMS>
+			<ConditionEffect duration="3" target="1">Stasis</ConditionEffect>
+			<MultiHit />
+		</Projectile>
+		<Projectile id="7">
+			<ObjectId>Blue Spiral</ObjectId>
+			<Size>100</Size>
+			<Damage>195</Damage>
+			<Speed>60</Speed>
+			<LifetimeMS>5500</LifetimeMS>
+			<ConditionEffect duration="3" target="1">Stasis</ConditionEffect>
+			<MultiHit />
+		</Projectile>
+		<Projectile id="8">
+			<ObjectId>Orange Spiral</ObjectId>
+			<Size>100</Size>
+			<Damage>130</Damage>
+			<Speed>50</Speed>
+			<LifetimeMS>6600</LifetimeMS>
+			<ConditionEffect duration="3">Dazed</ConditionEffect>
+			<MultiHit />
+		</Projectile>
+		<Projectile id="9">
+			<ObjectId>Orange Spiral</ObjectId>
+			<Size>100</Size>
+			<Damage>195</Damage>
+			<Speed>60</Speed>
+			<LifetimeMS>5500</LifetimeMS>
+			<ConditionEffect duration="3">Dazed</ConditionEffect>
+			<MultiHit />
+		</Projectile>
+		<Projectile id="10">
+			<ObjectId>Black Spiral</ObjectId>
+			<Size>100</Size>
+			<Damage>130</Damage>
+			<Speed>50</Speed>
+			<LifetimeMS>6600</LifetimeMS>
+			<ConditionEffect duration="3">Blind</ConditionEffect>
+			<MultiHit />
+		</Projectile>
+		<Projectile id="11">
+			<ObjectId>Black Spiral</ObjectId>
+			<Size>100</Size>
+			<Damage>195</Damage>
+			<Speed>60</Speed>
+			<LifetimeMS>5500</LifetimeMS>
+			<ConditionEffect duration="3">Blind</ConditionEffect>
+			<MultiHit />
+		</Projectile>
+		<Projectile id="12">
+			<ObjectId>Red Spiral</ObjectId>
+			<Size>100</Size>
+			<Damage>130</Damage>
+			<Speed>50</Speed>
+			<LifetimeMS>6600</LifetimeMS>
+			<ConditionEffect duration="3">Curse</ConditionEffect>
+			<MultiHit />
+		</Projectile>
+		<Projectile id="13">
+			<ObjectId>Red Spiral</ObjectId>
+			<Size>100</Size>
+			<Damage>195</Damage>
+			<Speed>60</Speed>
+			<LifetimeMS>5500</LifetimeMS>
+			<ConditionEffect duration="3">Curse</ConditionEffect>
+			<MultiHit />
+		</Projectile>
+		<Projectile id="14">
+			<ObjectId>Pink Spiral</ObjectId>
+			<Size>100</Size>
+			<Damage>130</Damage>
+			<Speed>50</Speed>
+			<LifetimeMS>6600</LifetimeMS>
+			<ConditionEffect duration="3">Bleeding</ConditionEffect>
+			<MultiHit />
+		</Projectile>
+		<Projectile id="15">
+			<ObjectId>Pink Spiral</ObjectId>
+			<Size>100</Size>
+			<Damage>195</Damage>
+			<Speed>60</Speed>
+			<LifetimeMS>5500</LifetimeMS>
+			<ConditionEffect duration="3">Bleeding</ConditionEffect>
+			<MultiHit />
+		</Projectile>
+		<Projectile id="16">
+			<ObjectId>Colossal Ball</ObjectId>
+			<Size>100</Size>
+			<Damage>260</Damage>
+			<Speed>30</Speed>
+			<LifetimeMS>3200</LifetimeMS>
+			<MultiHit />
+		</Projectile>
+		<Projectile id="17">
+			<ObjectId>Colossal Blast</ObjectId>
+			<Size>100</Size>
+			<Damage>195</Damage>
+			<Speed>110</Speed>
+			<LifetimeMS>873</LifetimeMS>
+			<MultiHit />
+		</Projectile>
+		<Projectile id="18">
+			<ObjectId>Colossal Ball</ObjectId>
+			<Size>100</Size>
+			<Damage>169</Damage>
+			<Speed>80</Speed>
+			<LifetimeMS>1200</LifetimeMS>
+			<MultiHit />
+		</Projectile>
+		<Projectile id="19">
+			<ObjectId>Void Vortex</ObjectId>
+			<Damage>325</Damage>
+			<Speed>30</Speed>
+			<LifetimeMS>4000</LifetimeMS>
+			<Size>100</Size>
+			<MultiHit />
+		</Projectile>
+		<Projectile id="20">
+			<ObjectId>Void Laser</ObjectId>
+			<Damage>260</Damage>
+			<Speed>110</Speed>
+			<LifetimeMS>873</LifetimeMS>
+			<Size>140</Size>
+			<MultiHit />
+		</Projectile>
+		<Projectile id="21">
+			<ObjectId>Void Shot</ObjectId>
+			<Damage>234</Damage>
+			<Speed>80</Speed>
+			<LifetimeMS>1200</LifetimeMS>
+			<Size>100</Size>
+			<MultiHit />
+		</Projectile>
+		<StasisImmune />
+		<XpBonus>2</XpBonus>
+	</Object>
+	<Object type="0xF0D3" id="Elder LH Colossus Rock 1">
+		<DisplayId>Elder Marble Colossus Rock</DisplayId>
+		<Class>Character</Class>
+		<NoMiniMap />
+		<Enemy />
+		<Texture>
+			<File>lostHallsObjects8x8</File>
+			<Index>31</Index>
+		</Texture>
+		<AltTexture id="1">
+			<Texture>
+				<File>lostHallsObjects8x8</File>
+				<Index>0x1e3</Index>
+			</Texture>
+		</AltTexture>
+		<MaxHitPoints>20000</MaxHitPoints>
+		<Invincible />
+		<Z>0.2</Z>
+		<Flying />
+		<Sound id="0">spell/fire_spray</Sound>
+		<Projectile id="0">
+			<ObjectId>Colossal Spike</ObjectId>
+			<Damage>91</Damage>
+			<Speed>80</Speed>
+			<LifetimeMS>1000</LifetimeMS>
+			<MultiHit />
+			<ArmorPiercing />
+		</Projectile>
+		<XpBonus>2</XpBonus>
+	</Object>
+	<Object type="0xF0D4" id="Elder LH Colossus Rock 10">
+		<DisplayId>Elder Marble Colossus Rock</DisplayId>
+		<Class>Character</Class>
+		<NoMiniMap />
+		<Enemy />
+		<AnimatedTexture>
+			<File>lostHallsChars8x8</File>
+			<Index>25</Index>
+		</AnimatedTexture>
+		<AltTexture id="1">
+			<AnimatedTexture>
+				<File>lostHallsChars8x8</File>
+				<Index>26</Index>
+			</AnimatedTexture>
+		</AltTexture>
+		<AltTexture id="2">
+			<AnimatedTexture>
+				<File>lostHallsChars8x8</File>
+				<Index>27</Index>
+			</AnimatedTexture>
+		</AltTexture>
+		<AltTexture id="3">
+			<AnimatedTexture>
+				<File>lostHallsChars8x8</File>
+				<Index>28</Index>
+			</AnimatedTexture>
+		</AltTexture>
+		<AltTexture id="4">
+			<AnimatedTexture>
+				<File>lostHallsChars8x8</File>
+				<Index>29</Index>
+			</AnimatedTexture>
+		</AltTexture>
+		<AltTexture id="5">
+			<AnimatedTexture>
+				<File>lostHallsChars8x8</File>
+				<Index>30</Index>
+			</AnimatedTexture>
+		</AltTexture>
+		<AltTexture id="6">
+			<AnimatedTexture>
+				<File>lostHallsChars8x8</File>
+				<Index>31</Index>
+			</AnimatedTexture>
+		</AltTexture>
+		<AltTexture id="7">
+			<AnimatedTexture>
+				<File>lostHallsChars8x8</File>
+				<Index>32</Index>
+			</AnimatedTexture>
+		</AltTexture>
+		<Invincible />
+		<Z>0.2</Z>
+		<MaxHitPoints>20000</MaxHitPoints>
+		<Flying />
+		<Projectile id="0">
+			<ObjectId>Purple Spiral</ObjectId>
+			<Damage>162</Damage>
+			<Speed>50</Speed>
+			<LifetimeMS>5000</LifetimeMS>
+			<MultiHit />
+			<ArmorPiercing />
+		</Projectile>
+		<Projectile id="1">
+			<ObjectId>Green Spiral</ObjectId>
+			<Damage>195</Damage>
+			<Speed>50</Speed>
+			<LifetimeMS>5000</LifetimeMS>
+			<ConditionEffect duration="3">Slowed</ConditionEffect>
+			<MultiHit />
+		</Projectile>
+		<Projectile id="2">
+			<ObjectId>White Spiral</ObjectId>
+			<Damage>195</Damage>
+			<Speed>50</Speed>
+			<LifetimeMS>5000</LifetimeMS>
+			<ConditionEffect duration="3">Weak</ConditionEffect>
+			<MultiHit />
+		</Projectile>
+		<Projectile id="3">
+			<ObjectId>Blue Spiral</ObjectId>
+			<Damage>195</Damage>
+			<Speed>50</Speed>
+			<LifetimeMS>5000</LifetimeMS>
+			<MultiHit />
+			<ConditionEffect duration="3" target="1">Stasis</ConditionEffect>
+		</Projectile>
+		<Projectile id="4">
+			<ObjectId>Orange Spiral</ObjectId>
+			<Damage>195</Damage>
+			<Speed>50</Speed>
+			<LifetimeMS>5000</LifetimeMS>
+			<ConditionEffect duration="3">Dazed</ConditionEffect>
+			<MultiHit />
+		</Projectile>
+		<Projectile id="5">
+			<ObjectId>Black Spiral</ObjectId>
+			<Damage>195</Damage>
+			<Speed>50</Speed>
+			<LifetimeMS>5000</LifetimeMS>
+			<ConditionEffect duration="3">Blind</ConditionEffect>
+			<MultiHit />
+		</Projectile>
+		<Projectile id="6">
+			<ObjectId>Red Spiral</ObjectId>
+			<Damage>195</Damage>
+			<Speed>50</Speed>
+			<LifetimeMS>5000</LifetimeMS>
+			<ConditionEffect duration="3">Curse</ConditionEffect>
+			<MultiHit />
+		</Projectile>
+		<Projectile id="7">
+			<ObjectId>Pink Spiral</ObjectId>
+			<Damage>195</Damage>
+			<Speed>50</Speed>
+			<LifetimeMS>5000</LifetimeMS>
+			<ConditionEffect duration="3">Bleeding</ConditionEffect>
+			<MultiHit />
+		</Projectile>
+		<XpBonus>2</XpBonus>
+	</Object>
+	<Object type="0xF0D5" id="Elder LH Colossus Rock 11">
+		<DisplayId>Elder Marble Colossus Rock</DisplayId>
+		<Class>Character</Class>
+		<NoMiniMap />
+		<Enemy />
+		<AnimatedTexture>
+			<File>lostHallsChars8x8</File>
+			<Index>25</Index>
+		</AnimatedTexture>
+		<AltTexture id="1">
+			<AnimatedTexture>
+				<File>lostHallsChars8x8</File>
+				<Index>26</Index>
+			</AnimatedTexture>
+		</AltTexture>
+		<AltTexture id="2">
+			<AnimatedTexture>
+				<File>lostHallsChars8x8</File>
+				<Index>27</Index>
+			</AnimatedTexture>
+		</AltTexture>
+		<AltTexture id="3">
+			<AnimatedTexture>
+				<File>lostHallsChars8x8</File>
+				<Index>28</Index>
+			</AnimatedTexture>
+		</AltTexture>
+		<AltTexture id="4">
+			<AnimatedTexture>
+				<File>lostHallsChars8x8</File>
+				<Index>29</Index>
+			</AnimatedTexture>
+		</AltTexture>
+		<AltTexture id="5">
+			<AnimatedTexture>
+				<File>lostHallsChars8x8</File>
+				<Index>30</Index>
+			</AnimatedTexture>
+		</AltTexture>
+		<AltTexture id="6">
+			<AnimatedTexture>
+				<File>lostHallsChars8x8</File>
+				<Index>31</Index>
+			</AnimatedTexture>
+		</AltTexture>
+		<AltTexture id="7">
+			<AnimatedTexture>
+				<File>lostHallsChars8x8</File>
+				<Index>32</Index>
+			</AnimatedTexture>
+		</AltTexture>
+		<Invincible />
+		<Z>0.2</Z>
+		<MaxHitPoints>20000</MaxHitPoints>
+		<Flying />
+		<Projectile id="0">
+			<ObjectId>Purple Spiral</ObjectId>
+			<Damage>162</Damage>
+			<Speed>50</Speed>
+			<LifetimeMS>5000</LifetimeMS>
+			<MultiHit />
+			<ArmorPiercing />
+		</Projectile>
+		<Projectile id="1">
+			<ObjectId>Green Spiral</ObjectId>
+			<Damage>195</Damage>
+			<Speed>50</Speed>
+			<LifetimeMS>5000</LifetimeMS>
+			<ConditionEffect duration="3">Slowed</ConditionEffect>
+			<MultiHit />
+		</Projectile>
+		<Projectile id="2">
+			<ObjectId>White Spiral</ObjectId>
+			<Damage>195</Damage>
+			<Speed>50</Speed>
+			<LifetimeMS>5000</LifetimeMS>
+			<ConditionEffect duration="3">Weak</ConditionEffect>
+			<MultiHit />
+		</Projectile>
+		<Projectile id="3">
+			<ObjectId>Blue Spiral</ObjectId>
+			<Damage>195</Damage>
+			<Speed>50</Speed>
+			<LifetimeMS>5000</LifetimeMS>
+			<MultiHit />
+			<ConditionEffect duration="3" target="1">Stasis</ConditionEffect>
+		</Projectile>
+		<Projectile id="4">
+			<ObjectId>Orange Spiral</ObjectId>
+			<Damage>195</Damage>
+			<Speed>50</Speed>
+			<LifetimeMS>5000</LifetimeMS>
+			<ConditionEffect duration="3">Dazed</ConditionEffect>
+			<MultiHit />
+		</Projectile>
+		<Projectile id="5">
+			<ObjectId>Black Spiral</ObjectId>
+			<Damage>195</Damage>
+			<Speed>50</Speed>
+			<LifetimeMS>5000</LifetimeMS>
+			<ConditionEffect duration="3">Blind</ConditionEffect>
+			<MultiHit />
+		</Projectile>
+		<Projectile id="6">
+			<ObjectId>Red Spiral</ObjectId>
+			<Damage>195</Damage>
+			<Speed>50</Speed>
+			<LifetimeMS>5000</LifetimeMS>
+			<ConditionEffect duration="3">Curse</ConditionEffect>
+			<MultiHit />
+		</Projectile>
+		<Projectile id="7">
+			<ObjectId>Pink Spiral</ObjectId>
+			<Damage>195</Damage>
+			<Speed>50</Speed>
+			<LifetimeMS>5000</LifetimeMS>
+			<ConditionEffect duration="3">Bleeding</ConditionEffect>
+			<MultiHit />
+		</Projectile>
+		<XpBonus>2</XpBonus>
+	</Object>
+	<Object type="0xF0D6" id="Elder LH Colossus Rock 12">
+		<DisplayId>Elder Marble Colossus Rock</DisplayId>
+		<Class>Character</Class>
+		<NoMiniMap />
+		<Enemy />
+		<AnimatedTexture>
+			<File>lostHallsChars8x8</File>
+			<Index>25</Index>
+		</AnimatedTexture>
+		<AltTexture id="1">
+			<AnimatedTexture>
+				<File>lostHallsChars8x8</File>
+				<Index>26</Index>
+			</AnimatedTexture>
+		</AltTexture>
+		<AltTexture id="2">
+			<AnimatedTexture>
+				<File>lostHallsChars8x8</File>
+				<Index>27</Index>
+			</AnimatedTexture>
+		</AltTexture>
+		<AltTexture id="3">
+			<AnimatedTexture>
+				<File>lostHallsChars8x8</File>
+				<Index>28</Index>
+			</AnimatedTexture>
+		</AltTexture>
+		<AltTexture id="4">
+			<AnimatedTexture>
+				<File>lostHallsChars8x8</File>
+				<Index>29</Index>
+			</AnimatedTexture>
+		</AltTexture>
+		<AltTexture id="5">
+			<AnimatedTexture>
+				<File>lostHallsChars8x8</File>
+				<Index>30</Index>
+			</AnimatedTexture>
+		</AltTexture>
+		<AltTexture id="6">
+			<AnimatedTexture>
+				<File>lostHallsChars8x8</File>
+				<Index>31</Index>
+			</AnimatedTexture>
+		</AltTexture>
+		<AltTexture id="7">
+			<AnimatedTexture>
+				<File>lostHallsChars8x8</File>
+				<Index>32</Index>
+			</AnimatedTexture>
+		</AltTexture>
+		<Invincible />
+		<Z>0.2</Z>
+		<Flying />
+		<MaxHitPoints>20000</MaxHitPoints>
+		<Projectile id="0">
+			<ObjectId>Purple Spiral</ObjectId>
+			<Damage>162</Damage>
+			<Speed>50</Speed>
+			<LifetimeMS>5000</LifetimeMS>
+			<MultiHit />
+			<ArmorPiercing />
+		</Projectile>
+		<Projectile id="1">
+			<ObjectId>Green Spiral</ObjectId>
+			<Damage>195</Damage>
+			<Speed>50</Speed>
+			<LifetimeMS>5000</LifetimeMS>
+			<ConditionEffect duration="3">Slowed</ConditionEffect>
+			<MultiHit />
+		</Projectile>
+		<Projectile id="2">
+			<ObjectId>White Spiral</ObjectId>
+			<Damage>195</Damage>
+			<Speed>50</Speed>
+			<LifetimeMS>5000</LifetimeMS>
+			<ConditionEffect duration="3">Weak</ConditionEffect>
+			<MultiHit />
+		</Projectile>
+		<Projectile id="3">
+			<ObjectId>Blue Spiral</ObjectId>
+			<Damage>195</Damage>
+			<Speed>50</Speed>
+			<LifetimeMS>5000</LifetimeMS>
+			<MultiHit />
+			<ConditionEffect duration="3" target="1">Stasis</ConditionEffect>
+		</Projectile>
+		<Projectile id="4">
+			<ObjectId>Orange Spiral</ObjectId>
+			<Damage>195</Damage>
+			<Speed>50</Speed>
+			<LifetimeMS>5000</LifetimeMS>
+			<ConditionEffect duration="3">Dazed</ConditionEffect>
+			<MultiHit />
+		</Projectile>
+		<Projectile id="5">
+			<ObjectId>Black Spiral</ObjectId>
+			<Damage>195</Damage>
+			<Speed>50</Speed>
+			<LifetimeMS>5000</LifetimeMS>
+			<ConditionEffect duration="3">Blind</ConditionEffect>
+			<MultiHit />
+		</Projectile>
+		<Projectile id="6">
+			<ObjectId>Red Spiral</ObjectId>
+			<Damage>195</Damage>
+			<Speed>50</Speed>
+			<LifetimeMS>5000</LifetimeMS>
+			<ConditionEffect duration="3">Curse</ConditionEffect>
+			<MultiHit />
+		</Projectile>
+		<Projectile id="7">
+			<ObjectId>Pink Spiral</ObjectId>
+			<Damage>195</Damage>
+			<Speed>50</Speed>
+			<LifetimeMS>5000</LifetimeMS>
+			<ConditionEffect duration="3">Bleeding</ConditionEffect>
+			<MultiHit />
+		</Projectile>
+		<XpBonus>2</XpBonus>
+	</Object>
+	<Object type="0xF0D7" id="Elder LH Colossus Rock 13">
+		<DisplayId>Elder Marble Colossus Rock</DisplayId>
+		<Class>Character</Class>
+		<NoMiniMap />
+		<Enemy />
+		<AnimatedTexture>
+			<File>lostHallsChars8x8</File>
+			<Index>25</Index>
+		</AnimatedTexture>
+		<AltTexture id="1">
+			<AnimatedTexture>
+				<File>lostHallsChars8x8</File>
+				<Index>26</Index>
+			</AnimatedTexture>
+		</AltTexture>
+		<AltTexture id="2">
+			<AnimatedTexture>
+				<File>lostHallsChars8x8</File>
+				<Index>27</Index>
+			</AnimatedTexture>
+		</AltTexture>
+		<AltTexture id="3">
+			<AnimatedTexture>
+				<File>lostHallsChars8x8</File>
+				<Index>28</Index>
+			</AnimatedTexture>
+		</AltTexture>
+		<AltTexture id="4">
+			<AnimatedTexture>
+				<File>lostHallsChars8x8</File>
+				<Index>29</Index>
+			</AnimatedTexture>
+		</AltTexture>
+		<AltTexture id="5">
+			<AnimatedTexture>
+				<File>lostHallsChars8x8</File>
+				<Index>30</Index>
+			</AnimatedTexture>
+		</AltTexture>
+		<AltTexture id="6">
+			<AnimatedTexture>
+				<File>lostHallsChars8x8</File>
+				<Index>31</Index>
+			</AnimatedTexture>
+		</AltTexture>
+		<AltTexture id="7">
+			<AnimatedTexture>
+				<File>lostHallsChars8x8</File>
+				<Index>32</Index>
+			</AnimatedTexture>
+		</AltTexture>
+		<Invincible />
+		<MaxHitPoints>20000</MaxHitPoints>
+		<Z>0.2</Z>
+		<Flying />
+		<Projectile id="0">
+			<ObjectId>Purple Spiral</ObjectId>
+			<Damage>162</Damage>
+			<Speed>50</Speed>
+			<LifetimeMS>5000</LifetimeMS>
+			<MultiHit />
+			<ArmorPiercing />
+		</Projectile>
+		<Projectile id="1">
+			<ObjectId>Green Spiral</ObjectId>
+			<Damage>195</Damage>
+			<Speed>50</Speed>
+			<LifetimeMS>5000</LifetimeMS>
+			<ConditionEffect duration="3">Slowed</ConditionEffect>
+			<MultiHit />
+		</Projectile>
+		<Projectile id="2">
+			<ObjectId>White Spiral</ObjectId>
+			<Damage>195</Damage>
+			<Speed>50</Speed>
+			<LifetimeMS>5000</LifetimeMS>
+			<ConditionEffect duration="3">Weak</ConditionEffect>
+			<MultiHit />
+		</Projectile>
+		<Projectile id="3">
+			<ObjectId>Blue Spiral</ObjectId>
+			<Damage>195</Damage>
+			<Speed>50</Speed>
+			<LifetimeMS>5000</LifetimeMS>
+			<MultiHit />
+			<ConditionEffect duration="3" target="1">Stasis</ConditionEffect>
+		</Projectile>
+		<Projectile id="4">
+			<ObjectId>Orange Spiral</ObjectId>
+			<Damage>195</Damage>
+			<Speed>50</Speed>
+			<LifetimeMS>5000</LifetimeMS>
+			<ConditionEffect duration="3">Dazed</ConditionEffect>
+			<MultiHit />
+		</Projectile>
+		<Projectile id="5">
+			<ObjectId>Black Spiral</ObjectId>
+			<Damage>195</Damage>
+			<Speed>50</Speed>
+			<LifetimeMS>5000</LifetimeMS>
+			<ConditionEffect duration="3">Blind</ConditionEffect>
+			<MultiHit />
+		</Projectile>
+		<Projectile id="6">
+			<ObjectId>Red Spiral</ObjectId>
+			<Damage>195</Damage>
+			<Speed>50</Speed>
+			<LifetimeMS>5000</LifetimeMS>
+			<ConditionEffect duration="3">Curse</ConditionEffect>
+			<MultiHit />
+		</Projectile>
+		<Projectile id="7">
+			<ObjectId>Pink Spiral</ObjectId>
+			<Damage>195</Damage>
+			<Speed>50</Speed>
+			<LifetimeMS>5000</LifetimeMS>
+			<ConditionEffect duration="3">Bleeding</ConditionEffect>
+			<MultiHit />
+		</Projectile>
+		<XpBonus>2</XpBonus>
+	</Object>
+	<Object type="0xF0D8" id="Elder LH Colossus Rock 14">
+		<DisplayId>Elder Marble Colossus Rock</DisplayId>
+		<Class>Character</Class>
+		<NoMiniMap />
+		<Enemy />
+		<AnimatedTexture>
+			<File>lostHallsChars8x8</File>
+			<Index>25</Index>
+		</AnimatedTexture>
+		<AltTexture id="1">
+			<AnimatedTexture>
+				<File>lostHallsChars8x8</File>
+				<Index>26</Index>
+			</AnimatedTexture>
+		</AltTexture>
+		<AltTexture id="2">
+			<AnimatedTexture>
+				<File>lostHallsChars8x8</File>
+				<Index>27</Index>
+			</AnimatedTexture>
+		</AltTexture>
+		<AltTexture id="3">
+			<AnimatedTexture>
+				<File>lostHallsChars8x8</File>
+				<Index>28</Index>
+			</AnimatedTexture>
+		</AltTexture>
+		<AltTexture id="4">
+			<AnimatedTexture>
+				<File>lostHallsChars8x8</File>
+				<Index>29</Index>
+			</AnimatedTexture>
+		</AltTexture>
+		<AltTexture id="5">
+			<AnimatedTexture>
+				<File>lostHallsChars8x8</File>
+				<Index>30</Index>
+			</AnimatedTexture>
+		</AltTexture>
+		<AltTexture id="6">
+			<AnimatedTexture>
+				<File>lostHallsChars8x8</File>
+				<Index>31</Index>
+			</AnimatedTexture>
+		</AltTexture>
+		<AltTexture id="7">
+			<AnimatedTexture>
+				<File>lostHallsChars8x8</File>
+				<Index>32</Index>
+			</AnimatedTexture>
+		</AltTexture>
+		<Invincible />
+		<MaxHitPoints>20000</MaxHitPoints>
+		<Z>0.2</Z>
+		<Flying />
+		<Projectile id="0">
+			<ObjectId>Purple Spiral</ObjectId>
+			<Damage>162</Damage>
+			<Speed>50</Speed>
+			<LifetimeMS>5000</LifetimeMS>
+			<MultiHit />
+			<ArmorPiercing />
+		</Projectile>
+		<Projectile id="1">
+			<ObjectId>Green Spiral</ObjectId>
+			<Damage>195</Damage>
+			<Speed>50</Speed>
+			<LifetimeMS>5000</LifetimeMS>
+			<ConditionEffect duration="3">Slowed</ConditionEffect>
+			<MultiHit />
+		</Projectile>
+		<Projectile id="2">
+			<ObjectId>White Spiral</ObjectId>
+			<Damage>195</Damage>
+			<Speed>50</Speed>
+			<LifetimeMS>5000</LifetimeMS>
+			<ConditionEffect duration="3">Weak</ConditionEffect>
+			<MultiHit />
+		</Projectile>
+		<Projectile id="3">
+			<ObjectId>Blue Spiral</ObjectId>
+			<Damage>195</Damage>
+			<Speed>50</Speed>
+			<LifetimeMS>5000</LifetimeMS>
+			<MultiHit />
+			<ConditionEffect duration="3" target="1">Stasis</ConditionEffect>
+		</Projectile>
+		<Projectile id="4">
+			<ObjectId>Orange Spiral</ObjectId>
+			<Damage>195</Damage>
+			<Speed>50</Speed>
+			<LifetimeMS>5000</LifetimeMS>
+			<ConditionEffect duration="3">Dazed</ConditionEffect>
+			<MultiHit />
+		</Projectile>
+		<Projectile id="5">
+			<ObjectId>Black Spiral</ObjectId>
+			<Damage>195</Damage>
+			<Speed>50</Speed>
+			<LifetimeMS>5000</LifetimeMS>
+			<ConditionEffect duration="3">Blind</ConditionEffect>
+			<MultiHit />
+		</Projectile>
+		<Projectile id="6">
+			<ObjectId>Red Spiral</ObjectId>
+			<Damage>195</Damage>
+			<Speed>50</Speed>
+			<LifetimeMS>5000</LifetimeMS>
+			<ConditionEffect duration="3">Curse</ConditionEffect>
+			<MultiHit />
+		</Projectile>
+		<Projectile id="7">
+			<ObjectId>Pink Spiral</ObjectId>
+			<Damage>195</Damage>
+			<Speed>50</Speed>
+			<LifetimeMS>5000</LifetimeMS>
+			<ConditionEffect duration="3">Bleeding</ConditionEffect>
+			<MultiHit />
+		</Projectile>
+		<XpBonus>2</XpBonus>
+	</Object>
+	<Object type="0xF0D9" id="Elder LH Colossus Rock 2">
+		<DisplayId>Elder Marble Colossus Rock</DisplayId>
+		<Class>Character</Class>
+		<NoMiniMap />
+		<Enemy />
+		<Texture>
+			<File>lostHallsObjects8x8</File>
+			<Index>31</Index>
+		</Texture>
+		<AltTexture id="1">
+			<Texture>
+				<File>lostHallsObjects8x8</File>
+				<Index>0x1e3</Index>
+			</Texture>
+		</AltTexture>
+		<MaxHitPoints>20000</MaxHitPoints>
+		<Invincible />
+		<Z>0.2</Z>
+		<Flying />
+		<Sound id="0">spell/fire_spray</Sound>
+		<Projectile id="0">
+			<ObjectId>Colossal Spike</ObjectId>
+			<Damage>91</Damage>
+			<Speed>80</Speed>
+			<LifetimeMS>1000</LifetimeMS>
+			<MultiHit />
+			<ArmorPiercing />
+		</Projectile>
+		<XpBonus>2</XpBonus>
+	</Object>
+	<Object type="0xF0DA" id="Elder LH Colossus Rock 3">
+		<DisplayId>Elder Marble Colossus Rock</DisplayId>
+		<Class>Character</Class>
+		<NoMiniMap />
+		<Enemy />
+		<Texture>
+			<File>lostHallsObjects8x8</File>
+			<Index>31</Index>
+		</Texture>
+		<AltTexture id="1">
+			<Texture>
+				<File>lostHallsObjects8x8</File>
+				<Index>0x1e3</Index>
+			</Texture>
+		</AltTexture>
+		<MaxHitPoints>20000</MaxHitPoints>
+		<Invincible />
+		<Z>0.2</Z>
+		<Flying />
+		<Sound id="0">spell/fire_spray</Sound>
+		<Projectile id="0">
+			<ObjectId>Colossal Spike</ObjectId>
+			<Damage>91</Damage>
+			<Speed>80</Speed>
+			<LifetimeMS>1000</LifetimeMS>
+			<MultiHit />
+			<ArmorPiercing />
+		</Projectile>
+		<XpBonus>2</XpBonus>
+	</Object>
+	<Object type="0xF0DB" id="Elder LH Colossus Rock 4">
+		<DisplayId>Elder Marble Colossus Rock</DisplayId>
+		<Class>Character</Class>
+		<NoMiniMap />
+		<Enemy />
+		<Texture>
+			<File>lostHallsObjects8x8</File>
+			<Index>31</Index>
+		</Texture>
+		<AltTexture id="1">
+			<Texture>
+				<File>lostHallsObjects8x8</File>
+				<Index>0x1e3</Index>
+			</Texture>
+		</AltTexture>
+		<MaxHitPoints>20000</MaxHitPoints>
+		<Invincible />
+		<Z>0.2</Z>
+		<Flying />
+		<Sound id="0">spell/fire_spray</Sound>
+		<Projectile id="0">
+			<ObjectId>Colossal Spike</ObjectId>
+			<Damage>91</Damage>
+			<Speed>80</Speed>
+			<LifetimeMS>1000</LifetimeMS>
+			<MultiHit />
+			<ArmorPiercing />
+		</Projectile>
+		<XpBonus>2</XpBonus>
+	</Object>
+	<Object type="0xF0DC" id="Elder LH Colossus Rock 5">
+		<DisplayId>Elder Marble Colossus Rock</DisplayId>
+		<Class>Character</Class>
+		<NoMiniMap />
+		<Enemy />
+		<Texture>
+			<File>lostHallsObjects8x8</File>
+			<Index>31</Index>
+		</Texture>
+		<AltTexture id="1">
+			<Texture>
+				<File>lostHallsObjects8x8</File>
+				<Index>0x1e3</Index>
+			</Texture>
+		</AltTexture>
+		<MaxHitPoints>20000</MaxHitPoints>
+		<Invincible />
+		<Z>0.2</Z>
+		<Flying />
+		<Sound id="0">spell/fire_spray</Sound>
+		<Projectile id="0">
+			<ObjectId>Colossal Spike</ObjectId>
+			<Damage>91</Damage>
+			<Speed>80</Speed>
+			<LifetimeMS>1000</LifetimeMS>
+			<MultiHit />
+			<ArmorPiercing />
+		</Projectile>
+		<XpBonus>2</XpBonus>
+	</Object>
+	<Object type="0xF0DD" id="Elder LH Colossus Rock 6">
+		<DisplayId>Elder Marble Colossus Rock</DisplayId>
+		<Class>Character</Class>
+		<NoMiniMap />
+		<Enemy />
+		<Texture>
+			<File>lostHallsObjects8x8</File>
+			<Index>31</Index>
+		</Texture>
+		<AltTexture id="1">
+			<Texture>
+				<File>lostHallsObjects8x8</File>
+				<Index>0x1e3</Index>
+			</Texture>
+		</AltTexture>
+		<MaxHitPoints>20000</MaxHitPoints>
+		<Invincible />
+		<Z>0.2</Z>
+		<Flying />
+		<Sound id="0">spell/fire_spray</Sound>
+		<Projectile id="0">
+			<ObjectId>Colossal Spike</ObjectId>
+			<Damage>91</Damage>
+			<Speed>80</Speed>
+			<LifetimeMS>1000</LifetimeMS>
+			<MultiHit />
+			<ArmorPiercing />
+		</Projectile>
+		<XpBonus>2</XpBonus>
+	</Object>
+	<Object type="0xF0DE" id="Elder LH Colossus Rock 7">
+		<DisplayId>Elder Marble Colossus Rock</DisplayId>
+		<Class>Character</Class>
+		<NoMiniMap />
+		<Enemy />
+		<Texture>
+			<File>lostHallsObjects8x8</File>
+			<Index>31</Index>
+		</Texture>
+		<AltTexture id="1">
+			<Texture>
+				<File>lostHallsObjects8x8</File>
+				<Index>0x1e3</Index>
+			</Texture>
+		</AltTexture>
+		<Invincible />
+		<MaxHitPoints>20000</MaxHitPoints>
+		<Z>0.2</Z>
+		<Flying />
+		<Sound id="0">spell/fire_spray</Sound>
+		<Projectile id="0">
+			<ObjectId>Colossal Spike</ObjectId>
+			<Damage>91</Damage>
+			<Speed>80</Speed>
+			<LifetimeMS>1000</LifetimeMS>
+			<MultiHit />
+			<ArmorPiercing />
+		</Projectile>
+		<XpBonus>2</XpBonus>
+	</Object>
+	<Object type="0xF0DF" id="Elder LH Colossus Rock 8">
+		<DisplayId>Elder Marble Colossus Rock</DisplayId>
+		<Class>Character</Class>
+		<NoMiniMap />
+		<Enemy />
+		<Texture>
+			<File>lostHallsObjects8x8</File>
+			<Index>31</Index>
+		</Texture>
+		<AltTexture id="1">
+			<Texture>
+				<File>lostHallsObjects8x8</File>
+				<Index>0x1e3</Index>
+			</Texture>
+		</AltTexture>
+		<Invincible />
+		<Z>0.2</Z>
+		<Flying />
+		<MaxHitPoints>20000</MaxHitPoints>
+		<Sound id="0">spell/fire_spray</Sound>
+		<Projectile id="0">
+			<ObjectId>Colossal Spike</ObjectId>
+			<Damage>91</Damage>
+			<Speed>80</Speed>
+			<LifetimeMS>1000</LifetimeMS>
+			<MultiHit />
+			<ArmorPiercing />
+		</Projectile>
+		<XpBonus>2</XpBonus>
+	</Object>
+	<Object type="0xF0E0" id="Elder LH Colossus Rock 9">
+		<DisplayId>Elder Marble Colossus Rock</DisplayId>
+		<Class>Character</Class>
+		<NoMiniMap />
+		<Enemy />
+		<Texture>
+			<File>lostHallsObjects8x8</File>
+			<Index>31</Index>
+		</Texture>
+		<AltTexture id="1">
+			<Texture>
+				<File>lostHallsObjects8x8</File>
+				<Index>0x1e3</Index>
+			</Texture>
+		</AltTexture>
+		<Invincible />
+		<MaxHitPoints>20000</MaxHitPoints>
+		<Z>0.2</Z>
+		<Flying />
+		<Sound id="0">spell/fire_spray</Sound>
+		<Projectile id="0">
+			<ObjectId>Colossal Spike</ObjectId>
+			<Damage>91</Damage>
+			<Speed>80</Speed>
+			<LifetimeMS>1000</LifetimeMS>
+			<MultiHit />
+			<ArmorPiercing />
+		</Projectile>
+		<XpBonus>2</XpBonus>
+	</Object>
+	<Object type="0xF0E1" id="Elder LH Commander of the Crusade">
+		<Enemy />
+		<Class>Character</Class>
+		<AnimatedTexture>
+			<File>lostHallsChars8x8</File>
+			<Index>3</Index>
+		</AnimatedTexture>
+		<Group>Lost Crusaders</Group>
+		<DisplayId>Elder Commander of the Crusade</DisplayId>
+		<HitSound>monster/pirates_hit</HitSound>
+		<DeathSound>monster/cave_pirates_death</DeathSound>
+		<Size>115</Size>
+		<Exp>4000</Exp>
+		<MaxHitPoints>20000</MaxHitPoints>
+		<Defense>40</Defense>
+		<Projectile id="0">
+			<ObjectId>Crusade Commander Bolt</ObjectId>
+			<Damage>273</Damage>
+			<Speed>80</Speed>
+			<LifetimeMS>1300</LifetimeMS>
+			<Size>100</Size>
+			<MultiHit />
+		</Projectile>
+		<ParalyzeImmune />
+		<StasisImmune />
+		<XpBonus>2</XpBonus>
+	</Object>
+	<Object type="0xF0E2" id="Elder LH Crusade Explorer">
+		<Enemy />
+		<Class>Character</Class>
+		<AnimatedTexture>
+			<File>lostHallsChars8x8</File>
+			<Index>2</Index>
+		</AnimatedTexture>
+		<Group>Lost Crusaders</Group>
+		<DisplayId>Elder Crusade Explorer</DisplayId>
+		<HitSound>monster/pirate_king_hit</HitSound>
+		<DeathSound>monster/trees_death</DeathSound>
+		<Size>115</Size>
+		<MaxHitPoints>6500</MaxHitPoints>
+		<Defense>30</Defense>
+		<Projectile id="0">
+			<ObjectId>Crusade Explorer Torch</ObjectId>
+			<Damage>130</Damage>
+			<Speed>95</Speed>
+			<LifetimeMS>1500</LifetimeMS>
+			<Size>120</Size>
+			<MultiHit />
+			<ConditionEffect duration="2">Armor Broken</ConditionEffect>
+		</Projectile>
+		<StunImmune />
+		<XpBonus>2</XpBonus>
+	</Object>
+	<Object type="0xF0E3" id="Elder LH Crusade Shipwright">
+		<Enemy />
+		<Class>Character</Class>
+		<AnimatedTexture>
+			<File>lostHallsChars8x8</File>
+			<Index>1</Index>
+		</AnimatedTexture>
+		<Group>Lost Crusaders</Group>
+		<DisplayId>Elder Crusade Shipwright</DisplayId>
+		<HitSound>monster/pirate_king_hit</HitSound>
+		<DeathSound>monster/trees_death</DeathSound>
+		<Size>115</Size>
+		<MaxHitPoints>7500</MaxHitPoints>
+		<Defense>35</Defense>
+		<Projectile id="0">
+			<ObjectId>Crusade Shipwright Bolt</ObjectId>
+			<Damage>182</Damage>
+			<Speed>90</Speed>
+			<LifetimeMS>1100</LifetimeMS>
+			<Size>100</Size>
+		</Projectile>
+		<StunImmune />
+		<XpBonus>2</XpBonus>
+	</Object>
+	<Object type="0xF0E4" id="Elder LH Crusade Soldier">
+		<Enemy />
+		<Class>Character</Class>
+		<AnimatedTexture>
+			<File>lostHallsChars8x8</File>
+			<Index>0</Index>
+		</AnimatedTexture>
+		<Group>Lost Crusaders</Group>
+		<DisplayId>Elder Crusade Soldier</DisplayId>
+		<HitSound>monster/pirate_king_hit</HitSound>
+		<DeathSound>monster/trees_death</DeathSound>
+		<Size>115</Size>
+		<MaxHitPoints>8500</MaxHitPoints>
+		<Defense>40</Defense>
+		<Projectile id="0">
+			<ObjectId>Crusade Soldier Bolt</ObjectId>
+			<Damage>162</Damage>
+			<Speed>90</Speed>
+			<LifetimeMS>1100</LifetimeMS>
+			<Size>100</Size>
+		</Projectile>
+		<StunImmune />
+		<XpBonus>2</XpBonus>
+	</Object>
+	<Object type="0xF0E5" id="Elder LH Evil Spirit 1">
+		<Class>Character</Class>
+		<Enemy />
+		<AnimatedTexture>
+			<File>lostHallsChars8x8</File>
+			<Index>24</Index>
+		</AnimatedTexture>
+		<DisplayId>Elder Evil Spirit</DisplayId>
+		<HitSound>monster/ghost_god_hit</HitSound>
+		<DeathSound>monster/beholder_death</DeathSound>
+		<Size>100</Size>
+		<MaxHitPoints>5000</MaxHitPoints>
+		<Defense>15</Defense>
+		<Exp>100</Exp>
+		<Z>0.15</Z>
+		<Projectile id="0">
+			<ObjectId>Evil Spirit Shot</ObjectId>
+			<Damage>104</Damage>
+			<Speed>60</Speed>
+			<LifetimeMS>600</LifetimeMS>
+			<MultiHit />
+			<ConditionEffect duration="0.6">Petrify</ConditionEffect>
+		</Projectile>
+		<XpBonus>2</XpBonus>
+	</Object>
+	<Object type="0xF0E6" id="Elder LH Golem of Anger">
+		<Class>Character</Class>
+		<Enemy />
+		<AnimatedTexture>
+			<File>lostHallsChars8x8</File>
+			<Index>11</Index>
+		</AnimatedTexture>
+		<Group>Lost Golems</Group>
+		<DisplayId>Elder Golem of Anger</DisplayId>
+		<Size>120</Size>
+		<MaxHitPoints>6500</MaxHitPoints>
+		<Defense>60</Defense>
+		<HitSound>monster/golems_hit</HitSound>
+		<DeathSound>monster/golems_death</DeathSound>
+		<StunImmune />
+		<TrackLoot />
+		<Projectile id="0">
+			<ObjectId>Golem Anger Flame</ObjectId>
+			<Damage>110</Damage>
+			<Size>80</Size>
+			<Speed>80</Speed>
+			<LifetimeMS>1800</LifetimeMS>
+			<Amplitude>0.3</Amplitude>
+			<Frequency>1</Frequency>
+			<ArmorPiercing />
+		</Projectile>
+		<Projectile id="1">
+			<ObjectId>Golem Anger Fireball</ObjectId>
+			<Damage>130</Damage>
+			<Size>80</Size>
+			<Speed>60</Speed>
+			<LifetimeMS>2000</LifetimeMS>
+			<ArmorPiercing />
+		</Projectile>
+		<XpBonus>2</XpBonus>
+	</Object>
+	<Object type="0xF0E7" id="Elder LH Golem of Fear">
+		<Class>Character</Class>
+		<Enemy />
+		<AnimatedTexture>
+			<File>lostHallsChars8x8</File>
+			<Index>12</Index>
+		</AnimatedTexture>
+		<Group>Lost Golems</Group>
+		<DisplayId>Elder Golem of Fear</DisplayId>
+		<Size>120</Size>
+		<MaxHitPoints>8000</MaxHitPoints>
+		<Defense>60</Defense>
+		<HitSound>monster/golems_hit</HitSound>
+		<DeathSound>monster/golems_death</DeathSound>
+		<StunImmune />
+		<Projectile id="0">
+			<ObjectId>Golem Fear Bolt</ObjectId>
+			<Damage>228</Damage>
+			<Size>80</Size>
+			<Speed>100</Speed>
+			<LifetimeMS>1250</LifetimeMS>
+		</Projectile>
+		<Projectile id="1">
+			<ObjectId>Golem Fear Magic</ObjectId>
+			<Damage>169</Damage>
+			<Size>120</Size>
+			<Speed>70</Speed>
+			<LifetimeMS>1250</LifetimeMS>
+			<ConditionEffect duration="1">Petrify</ConditionEffect>
+		</Projectile>
+		<XpBonus>2</XpBonus>
+	</Object>
+	<Object type="0xF0E8" id="Elder LH Golem of Sorrow">
+		<Class>Character</Class>
+		<Enemy />
+		<AnimatedTexture>
+			<File>lostHallsChars8x8</File>
+			<Index>13</Index>
+		</AnimatedTexture>
+		<Group>Lost Golems</Group>
+		<DisplayId>Elder Golem of Sorrow</DisplayId>
+		<Size>120</Size>
+		<MaxHitPoints>7000</MaxHitPoints>
+		<Defense>60</Defense>
+		<HitSound>monster/golems_hit</HitSound>
+		<DeathSound>monster/golems_death</DeathSound>
+		<StunImmune />
+		<Projectile id="0">
+			<ObjectId>Golem Sorrow Missile</ObjectId>
+			<Damage>169</Damage>
+			<Speed>70</Speed>
+			<LifetimeMS>1200</LifetimeMS>
+			<Amplitude>1.5</Amplitude>
+			<Frequency>1</Frequency>
+			<MultiHit />
+		</Projectile>
+		<Projectile id="1">
+			<ObjectId>Golem Sorrow Spike</ObjectId>
+			<Damage>202</Damage>
+			<Speed>70</Speed>
+			<LifetimeMS>1200</LifetimeMS>
+			<MultiHit />
+		</Projectile>
+		<XpBonus>2</XpBonus>
+	</Object>
+	<Object type="0xF0E9" id="Elder LH Grenade Trap">
+		<Class>Character</Class>
+		<Enemy />
+		<Texture>
+			<File>lostHallsObjects8x8</File>
+			<Index>0x1ac</Index>
+		</Texture>
+		<DisplayId>Elder Lost Grenade Trap</DisplayId>
+		<DrawOnGround />
+		<NoMiniMap />
+		<Invincible />
+		<XpBonus>2</XpBonus>
+	</Object>
+	<Object type="0xF0EA" id="Elder LH Grotto Bat">
+		<Class>Character</Class>
+		<Enemy />
+		<AnimatedTexture>
+			<File>lostHallsChars8x8</File>
+			<Index>8</Index>
+		</AnimatedTexture>
+		<Group>Grotto Beasts</Group>
+		<DisplayId>Elder Grotto Bat</DisplayId>
+		<Size>105</Size>
+		<MaxHitPoints>5500</MaxHitPoints>
+		<Defense>20</Defense>
+		<Z>0.5</Z>
+		<HitSound>monster/bats_hit</HitSound>
+		<DeathSound>monster/bats_death</DeathSound>
+		<LeachHealth />
+		<StunImmune />
+		<Projectile id="0">
+			<ObjectId>Grotto Bat Teeth</ObjectId>
+			<Damage>188</Damage>
+			<Size>120</Size>
+			<Speed>0</Speed>
+			<LifetimeMS>7000</LifetimeMS>
+			<ConditionEffect duration="2" target="1">Stasis</ConditionEffect>
+		</Projectile>
+		<XpBonus>2</XpBonus>
+	</Object>
+	<Object type="0xF0EB" id="Elder LH Grotto Blob">
+		<Class>Character</Class>
+		<Enemy />
+		<AnimatedTexture>
+			<File>lostHallsChars16x16</File>
+			<Index>33</Index>
+		</AnimatedTexture>
+		<Group>Grotto Beasts</Group>
+		<DisplayId>Elder Grotto Blob</DisplayId>
+		<Size>120</Size>
+		<MaxHitPoints>22500</MaxHitPoints>
+		<Defense>40</Defense>
+		<Exp>4000</Exp>
+		<HitSound>monster/blobs_death</HitSound>
+		<DeathSound>monster/cubes_death</DeathSound>
+		<StasisImmune />
+		<ParalyzeImmune />
+		<Projectile id="0">
+			<ObjectId>Grotto Blob Spin</ObjectId>
+			<Damage>247</Damage>
+			<Size>100</Size>
+			<Speed>60</Speed>
+			<LifetimeMS>1900</LifetimeMS>
+			<Amplitude>0.2</Amplitude>
+			<Frequency>1</Frequency>
+		</Projectile>
+		<XpBonus>2</XpBonus>
+	</Object>
+	<Object type="0xF0EC" id="Elder LH Grotto Rat">
+		<Class>Character</Class>
+		<Enemy />
+		<AnimatedTexture>
+			<File>lostHallsChars8x8</File>
+			<Index>9</Index>
+		</AnimatedTexture>
+		<Group>Grotto Beasts</Group>
+		<DisplayId>Elder Grotto Rat</DisplayId>
+		<Size>105</Size>
+		<MaxHitPoints>5500</MaxHitPoints>
+		<Defense>20</Defense>
+		<HitSound>monster/flayers_hit</HitSound>
+		<DeathSound>monster/flayers_death</DeathSound>
+		<StunImmune />
+		<Projectile id="0">
+			<ObjectId>Grotto Rat Teeth</ObjectId>
+			<Damage>188</Damage>
+			<Size>120</Size>
+			<Speed>0</Speed>
+			<LifetimeMS>7000</LifetimeMS>
+			<ConditionEffect duration="3">Quiet</ConditionEffect>
+		</Projectile>
+		<XpBonus>2</XpBonus>
+	</Object>
+	<Object type="0xF0ED" id="Elder LH Grotto Slime">
+		<Class>Character</Class>
+		<Enemy />
+		<AnimatedTexture>
+			<File>lostHallsChars8x8</File>
+			<Index>10</Index>
+		</AnimatedTexture>
+		<Group>Grotto Beasts</Group>
+		<DisplayId>Elder Grotto Slime</DisplayId>
+		<Size>105</Size>
+		<MaxHitPoints>7000</MaxHitPoints>
+		<Defense>40</Defense>
+		<HitSound>monster/blobs_death</HitSound>
+		<DeathSound>monster/cubes_death</DeathSound>
+		<StunImmune />
+		<Projectile id="0">
+			<ObjectId>Grotto Slime Wave</ObjectId>
+			<Damage>169</Damage>
+			<Size>100</Size>
+			<Speed>80</Speed>
+			<LifetimeMS>800</LifetimeMS>
+			<Amplitude>0.1</Amplitude>
+			<Frequency>1</Frequency>
+		</Projectile>
+		<XpBonus>2</XpBonus>
+	</Object>
+	<Object type="0xF0EE" id="Elder LH Marble Colossus">
+		<Class>Character</Class>
+		<Enemy />
+		<AnimatedTexture>
+			<File>lostHallsChars16x16</File>
+			<Index>4</Index>
+		</AnimatedTexture>
+		<Portrait>
+			<AnimatedTexture>
+				<File>lostHallsChars16x16</File>
+				<Index>4</Index>
+			</AnimatedTexture>
+		</Portrait>
+		<AltTexture id="1">
+			<AnimatedTexture>
+				<File>lostHallsChars16x16</File>
+				<Index>42</Index>
+			</AnimatedTexture>
+		</AltTexture>
+		<AltTexture id="2">
+			<AnimatedTexture>
+				<File>lostHallsChars16x16</File>
+				<Index>43</Index>
+			</AnimatedTexture>
+		</AltTexture>
+		<AltTexture id="3">
+			<AnimatedTexture>
+				<File>lostHallsChars16x16</File>
+				<Index>44</Index>
+			</AnimatedTexture>
+		</AltTexture>
+		<AltTexture id="4">
+			<AnimatedTexture>
+				<File>lostHallsChars16x16</File>
+				<Index>45</Index>
+			</AnimatedTexture>
+		</AltTexture>
+		<AltTexture id="5">
+			<AnimatedTexture>
+				<File>lostHallsChars16x16</File>
+				<Index>37</Index>
+			</AnimatedTexture>
+		</AltTexture>
+		<AltTexture id="6">
+			<AnimatedTexture>
+				<File>lostHallsChars16x16</File>
+				<Index>38</Index>
+			</AnimatedTexture>
+		</AltTexture>
+		<AltTexture id="7">
+			<AnimatedTexture>
+				<File>lostHallsChars16x16</File>
+				<Index>39</Index>
+			</AnimatedTexture>
+		</AltTexture>
+		<AltTexture id="8">
+			<AnimatedTexture>
+				<File>lostHallsChars16x16</File>
+				<Index>40</Index>
+			</AnimatedTexture>
+		</AltTexture>
+		<DisplayId>Elder Marble Colossus</DisplayId>
+		<Size>140</Size>
+		<MaxHitPoints>300000</MaxHitPoints>
+		<Defense>60</Defense>
+		<Quest />
+		<HealthBarBoss />
+		<God />
+		<Exp>60000</Exp>
+		<HitSound>monster/golems_hit</HitSound>
+		<DeathSound>monster/golems_death</DeathSound>
+		<StunImmune />
+		<StasisImmune />
+		<DazedImmune />
+		<ParalyzeImmune />
+		<EventChestBoss />
+		<TrackLoot />
+		<Projectile id="0">
+			<ObjectId>Colossal Dark Boomerang</ObjectId>
+			<Damage>260</Damage>
+			<Speed>80</Speed>
+			<LifetimeMS>3000</LifetimeMS>
+			<Amplitude>0.5</Amplitude>
+			<Frequency>8</Frequency>
+			<ConditionEffect duration="2">Stunned</ConditionEffect>
+			<Boomerang />
+		</Projectile>
+		<Projectile id="1">
+			<ObjectId>Colossal Slash</ObjectId>
+			<Damage>130</Damage>
+			<Speed>90</Speed>
+			<LifetimeMS>1200</LifetimeMS>
+			<ArmorPiercing />
+			<MultiHit />
+		</Projectile>
+		<Projectile id="2">
+			<ObjectId>Colossal Light Boomerang</ObjectId>
+			<Damage>195</Damage>
+			<Speed>60</Speed>
+			<LifetimeMS>6000</LifetimeMS>
+			<ConditionEffect duration="2.5">Slowed</ConditionEffect>
+			<Boomerang />
+		</Projectile>
+		<Projectile id="3">
+			<ObjectId>Colossal Bullet</ObjectId>
+			<Damage>390</Damage>
+			<Speed>30</Speed>
+			<Size>100</Size>
+			<LifetimeMS>6200</LifetimeMS>
+			<MultiHit />
+		</Projectile>
+		<Projectile id="4">
+			<ObjectId>Colossal Blast</ObjectId>
+			<Damage>150</Damage>
+			<Speed>75</Speed>
+			<LifetimeMS>3250</LifetimeMS>
+			<MultiHit />
+			<ConditionEffect duration="0.6">Paralyzed</ConditionEffect>
+		</Projectile>
+		<Projectile id="5">
+			<ObjectId>Colossal Spear</ObjectId>
+			<Damage>325</Damage>
+			<Speed>75</Speed>
+			<LifetimeMS>2200</LifetimeMS>
+			<ConditionEffect duration="3">Unstable</ConditionEffect>
+		</Projectile>
+		<Projectile id="6">
+			<ObjectId>Colossal Star</ObjectId>
+			<Damage>130</Damage>
+			<Speed>80</Speed>
+			<LifetimeMS>8000</LifetimeMS>
+			<Parametric />
+			<Magnitude>6</Magnitude>
+			<MultiHit />
+			<ConditionEffect duration="2.5">Confused</ConditionEffect>
+		</Projectile>
+		<Projectile id="7">
+			<ObjectId>Colossal Wheel</ObjectId>
+			<Damage>234</Damage>
+			<Speed>50</Speed>
+			<LifetimeMS>4000</LifetimeMS>
+		</Projectile>
+		<Projectile id="8">
+			<ObjectId>Colossal Wheel</ObjectId>
+			<Damage>234</Damage>
+			<Speed>80</Speed>
+			<LifetimeMS>2500</LifetimeMS>
+		</Projectile>
+		<Projectile id="9">
+			<ObjectId>Colossal Rock</ObjectId>
+			<Damage>104</Damage>
+			<Speed>100</Speed>
+			<LifetimeMS>2500</LifetimeMS>
+			<MultiHit />
+			<ArmorPiercing />
+			<Size>50</Size>
+			<ConditionEffect duration="4">Silenced</ConditionEffect>
+		</Projectile>
+		<Projectile id="10">
+			<ObjectId>Colossal Rock</ObjectId>
+			<Damage>104</Damage>
+			<Speed>50</Speed>
+			<LifetimeMS>5000</LifetimeMS>
+			<MultiHit />
+			<ArmorPiercing />
+			<Size>50</Size>
+			<ConditionEffect duration="4">Silenced</ConditionEffect>
+		</Projectile>
+		<Projectile id="11">
+			<ObjectId>Colossal Ball</ObjectId>
+			<Damage>169</Damage>
+			<Speed>20</Speed>
+			<LifetimeMS>8000</LifetimeMS>
+			<ConditionEffect duration="1.2">Paralyzed</ConditionEffect>
+		</Projectile>
+		<Projectile id="12">
+			<ObjectId>Colossal Spear</ObjectId>
+			<Damage>221</Damage>
+			<Speed>60</Speed>
+			<LifetimeMS>2300</LifetimeMS>
+			<ConditionEffect duration="3">Unstable</ConditionEffect>
+		</Projectile>
+		<Projectile id="13">
+			<ObjectId>Colossal Spear</ObjectId>
+			<Damage>221</Damage>
+			<Speed>90</Speed>
+			<LifetimeMS>2000</LifetimeMS>
+			<ConditionEffect duration="3">Unstable</ConditionEffect>
+		</Projectile>
+		<Projectile id="14">
+			<ObjectId>Colossal Spinner</ObjectId>
+			<Damage>195</Damage>
+			<Speed>50</Speed>
+			<LifetimeMS>5000</LifetimeMS>
+			<Amplitude>0.25</Amplitude>
+			<Frequency>10</Frequency>
+			<ConditionEffect duration="3">Paralyzed</ConditionEffect>
+			<ConditionEffect duration="4">Confused</ConditionEffect>
+			<MultiHit />
+		</Projectile>
+		<Projectile id="15">
+			<ObjectId>Colossal Spear</ObjectId>
+			<Speed>25</Speed>
+			<Damage>162</Damage>
+			<Size>80</Size>
+			<LifetimeMS>10000</LifetimeMS>
+			<MultiHit />
+			<ArmorPiercing />
+			<ConditionEffect duration="1">Unstable</ConditionEffect>
+		</Projectile>
+		<Projectile id="16">
+			<ObjectId>Void Bullet</ObjectId>
+			<Damage>260</Damage>
+			<Speed>25</Speed>
+			<Size>100</Size>
+			<LifetimeMS>5000</LifetimeMS>
+			<ConditionEffect duration="3">Darkness</ConditionEffect>
+			<MultiHit />
+		</Projectile>
+		<Projectile id="17">
+			<ObjectId>Colossal Spike</ObjectId>
+			<Damage>260</Damage>
+			<Speed>30</Speed>
+			<LifetimeMS>5000</LifetimeMS>
+			<Size>100</Size>
+			<MultiHit />
+		</Projectile>
+		<Projectile id="18">
+			<ObjectId>Colossal Spike</ObjectId>
+			<Damage>260</Damage>
+			<Speed>50</Speed>
+			<LifetimeMS>5000</LifetimeMS>
+			<Size>100</Size>
+			<MultiHit />
+		</Projectile>
+		<Projectile id="19">
+			<ObjectId>Colossal Ball</ObjectId>
+			<Damage>169</Damage>
+			<Size>80</Size>
+			<Speed>40</Speed>
+			<LifetimeMS>10000</LifetimeMS>
+			<ConditionEffect duration="0.6">Paralyzed</ConditionEffect>
+		</Projectile>
+		<Projectile id="20">
+			<ObjectId>Colossal Spinner</ObjectId>
+			<Damage>195</Damage>
+			<Speed>50</Speed>
+			<LifetimeMS>5000</LifetimeMS>
+			<Amplitude>0.25</Amplitude>
+			<Frequency>10</Frequency>
+			<ConditionEffect duration="1.4">Paralyzed</ConditionEffect>
+			<ConditionEffect duration="2">Confused</ConditionEffect>
+			<MultiHit />
+		</Projectile>
+		<Projectile id="21">
+			<ObjectId>Void Ring</ObjectId>
+			<Damage>195</Damage>
+			<Speed>100</Speed>
+			<LifetimeMS>2500</LifetimeMS>
+			<MultiHit />
+			<ConditionEffect duration="1">Petrify</ConditionEffect>
+		</Projectile>
+		<Projectile id="22">
+			<ObjectId>Void Spear</ObjectId>
+			<Damage>325</Damage>
+			<Speed>70</Speed>
+			<LifetimeMS>4000</LifetimeMS>
+			<Size>80</Size>
+			<ConditionEffect duration="2">Blind</ConditionEffect>
+			<MultiHit />
+		</Projectile>
+		<Projectile id="23">
+			<ObjectId>Void Blast</ObjectId>
+			<Damage>240</Damage>
+			<Speed>80</Speed>
+			<LifetimeMS>3500</LifetimeMS>
+			<MultiHit />
+			<ConditionEffect duration="1">Paralyzed</ConditionEffect>
+		</Projectile>
+		<Projectile id="24">
+			<ObjectId>Void Large Bullet</ObjectId>
+			<Damage>260</Damage>
+			<Speed>110</Speed>
+			<LifetimeMS>2000</LifetimeMS>
+			<Size>200</Size>
+			<ArmorPiercing />
+			<MultiHit />
+			<ConditionEffect duration="2">Darkness</ConditionEffect>
+		</Projectile>
+		<XpBonus>2</XpBonus>
+	</Object>
+	<Object type="0xF0EF" id="Elder LH Marble Colossus Laser A">
+		<DisplayId>Elder Marble Colossus</DisplayId>
+		<Class>Character</Class>
+		<Enemy />
+		<Texture>
+			<File>invisible</File>
+			<Index>0</Index>
+		</Texture>
+		<NoMiniMap />
+		<Size>0</Size>
+		<MaxHitPoints>20000</MaxHitPoints>
+		<ShadowSize>0</ShadowSize>
+		<Invincible />
+		<Projectile id="0">
+			<ObjectId>Colossal Bullet</ObjectId>
+			<Damage>390</Damage>
+			<Speed>30</Speed>
+			<Size>100</Size>
+			<LifetimeMS>6200</LifetimeMS>
+			<MultiHit />
+		</Projectile>
+		<XpBonus>2</XpBonus>
+	</Object>
+	<Object type="0xF0F0" id="Elder LH Marble Colossus Laser B">
+		<DisplayId>Elder Marble Colossus</DisplayId>
+		<Class>Character</Class>
+		<Enemy />
+		<Texture>
+			<File>invisible</File>
+			<Index>0</Index>
+		</Texture>
+		<NoMiniMap />
+		<Size>0</Size>
+		<ShadowSize>0</ShadowSize>
+		<MaxHitPoints>20000</MaxHitPoints>
+		<Invincible />
+		<Projectile id="0">
+			<ObjectId>Colossal Bullet</ObjectId>
+			<Damage>390</Damage>
+			<Speed>30</Speed>
+			<Size>100</Size>
+			<LifetimeMS>6200</LifetimeMS>
+			<MultiHit />
+		</Projectile>
+		<XpBonus>2</XpBonus>
+	</Object>
+	<Object type="0xF0F1" id="Elder LH Marble Core 1">
+		<Class>Character</Class>
+		<Enemy />
+		<AnimatedTexture>
+			<File>lostHallsChars8x8</File>
+			<Index>33</Index>
+		</AnimatedTexture>
+		<HitSound>monster/golems_hit</HitSound>
+		<DeathSound>monster/golems_death</DeathSound>
+		<Size>120</Size>
+		<ShadowSize>80</ShadowSize>
+		<MaxHitPoints>50000</MaxHitPoints>
+		<Defense>20</Defense>
+		<Exp>0</Exp>
+		<Z>0.2</Z>
+		<Flying />
+		<ParalyzeImmune />
+		<StasisImmune />
+		<DisplayId>Elder LH Marble Core 1</DisplayId>
+		<XpBonus>2</XpBonus>
+	</Object>
+	<Object type="0xF0F2" id="Elder LH Marble Core 2">
+		<Class>Character</Class>
+		<Enemy />
+		<AnimatedTexture>
+			<File>lostHallsChars8x8</File>
+			<Index>33</Index>
+		</AnimatedTexture>
+		<HitSound>monster/golems_hit</HitSound>
+		<DeathSound>monster/golems_death</DeathSound>
+		<Size>120</Size>
+		<ShadowSize>80</ShadowSize>
+		<MaxHitPoints>50000</MaxHitPoints>
+		<Defense>20</Defense>
+		<Exp>0</Exp>
+		<Z>0.2</Z>
+		<Flying />
+		<ParalyzeImmune />
+		<StasisImmune />
+		<DisplayId>Elder LH Marble Core 2</DisplayId>
+		<XpBonus>2</XpBonus>
+	</Object>
+	<Object type="0xF0F3" id="Elder LH Marble Core 3">
+		<Class>Character</Class>
+		<Enemy />
+		<AnimatedTexture>
+			<File>lostHallsChars8x8</File>
+			<Index>33</Index>
+		</AnimatedTexture>
+		<HitSound>monster/golems_hit</HitSound>
+		<DeathSound>monster/golems_death</DeathSound>
+		<Size>120</Size>
+		<ShadowSize>80</ShadowSize>
+		<MaxHitPoints>50000</MaxHitPoints>
+		<Defense>20</Defense>
+		<Exp>0</Exp>
+		<Z>0.2</Z>
+		<Flying />
+		<ParalyzeImmune />
+		<StasisImmune />
+		<DisplayId>Elder LH Marble Core 3</DisplayId>
+		<XpBonus>2</XpBonus>
+	</Object>
+	<Object type="0xF0F4" id="Elder LH Marble Core 4">
+		<Class>Character</Class>
+		<Enemy />
+		<AnimatedTexture>
+			<File>lostHallsChars8x8</File>
+			<Index>33</Index>
+		</AnimatedTexture>
+		<HitSound>monster/golems_hit</HitSound>
+		<DeathSound>monster/golems_death</DeathSound>
+		<Size>120</Size>
+		<ShadowSize>80</ShadowSize>
+		<MaxHitPoints>50000</MaxHitPoints>
+		<Defense>20</Defense>
+		<Exp>0</Exp>
+		<Z>0.2</Z>
+		<Flying />
+		<ParalyzeImmune />
+		<StasisImmune />
+		<DisplayId>Elder LH Marble Core 4</DisplayId>
+		<XpBonus>2</XpBonus>
+	</Object>
+	<Object type="0xF0F5" id="Elder LH Marble Core 5">
+		<Class>Character</Class>
+		<Enemy />
+		<AnimatedTexture>
+			<File>lostHallsChars8x8</File>
+			<Index>33</Index>
+		</AnimatedTexture>
+		<HitSound>monster/golems_hit</HitSound>
+		<DeathSound>monster/golems_death</DeathSound>
+		<Size>120</Size>
+		<ShadowSize>80</ShadowSize>
+		<MaxHitPoints>50000</MaxHitPoints>
+		<Defense>20</Defense>
+		<Exp>0</Exp>
+		<Z>0.2</Z>
+		<Flying />
+		<ParalyzeImmune />
+		<StasisImmune />
+		<DisplayId>Elder LH Marble Core 5</DisplayId>
+		<XpBonus>2</XpBonus>
+	</Object>
+	<Object type="0xF0F6" id="Elder LH Marble Core 6">
+		<Class>Character</Class>
+		<Enemy />
+		<AnimatedTexture>
+			<File>lostHallsChars8x8</File>
+			<Index>33</Index>
+		</AnimatedTexture>
+		<HitSound>monster/golems_hit</HitSound>
+		<DeathSound>monster/golems_death</DeathSound>
+		<Size>120</Size>
+		<ShadowSize>80</ShadowSize>
+		<MaxHitPoints>50000</MaxHitPoints>
+		<Defense>20</Defense>
+		<Exp>0</Exp>
+		<Z>0.2</Z>
+		<Flying />
+		<ParalyzeImmune />
+		<StasisImmune />
+		<DisplayId>Elder LH Marble Core 6</DisplayId>
+		<XpBonus>2</XpBonus>
+	</Object>
+	<Object type="0xF0F7" id="Elder LH Marble Core 7">
+		<Class>Character</Class>
+		<Enemy />
+		<AnimatedTexture>
+			<File>lostHallsChars8x8</File>
+			<Index>33</Index>
+		</AnimatedTexture>
+		<HitSound>monster/golems_hit</HitSound>
+		<DeathSound>monster/golems_death</DeathSound>
+		<Size>120</Size>
+		<ShadowSize>80</ShadowSize>
+		<MaxHitPoints>50000</MaxHitPoints>
+		<Defense>20</Defense>
+		<Exp>0</Exp>
+		<Z>0.2</Z>
+		<Flying />
+		<ParalyzeImmune />
+		<StasisImmune />
+		<DisplayId>Elder LH Marble Core 7</DisplayId>
+		<XpBonus>2</XpBonus>
+	</Object>
+	<Object type="0xF0F8" id="Elder LH Marble Core 8">
+		<Class>Character</Class>
+		<Enemy />
+		<AnimatedTexture>
+			<File>lostHallsChars8x8</File>
+			<Index>33</Index>
+		</AnimatedTexture>
+		<HitSound>monster/golems_hit</HitSound>
+		<DeathSound>monster/golems_death</DeathSound>
+		<Size>120</Size>
+		<ShadowSize>80</ShadowSize>
+		<MaxHitPoints>50000</MaxHitPoints>
+		<Defense>20</Defense>
+		<Exp>0</Exp>
+		<Z>0.2</Z>
+		<Flying />
+		<ParalyzeImmune />
+		<StasisImmune />
+		<DisplayId>Elder LH Marble Core 8</DisplayId>
+		<XpBonus>2</XpBonus>
+	</Object>
+	<Object type="0xF0F9" id="Elder LH Marble Defender">
+		<Class>Character</Class>
+		<Enemy />
+		<AnimatedTexture>
+			<File>lostHallsChars16x16</File>
+			<Index>34</Index>
+		</AnimatedTexture>
+		<DisplayId>Elder Marble Defender</DisplayId>
+		<Size>140</Size>
+		<MaxHitPoints>40000</MaxHitPoints>
+		<Defense>40</Defense>
+		<God />
+		<Quest />
+		<HealthBarBoss />
+		<DontFaceAttacks />
+		<Exp>2000</Exp>
+		<HitSound>monster/golems_hit</HitSound>
+		<DeathSound>monster/golems_death</DeathSound>
+		<StunImmune />
+		<StasisImmune />
+		<DazedImmune />
+		<TrackLoot />
+		<Projectile id="0">
+			<ObjectId>Defender Spear</ObjectId>
+			<Damage>195</Damage>
+			<Speed>50</Speed>
+			<LifetimeMS>3480</LifetimeMS>
+			<Size>100</Size>
+			<ConditionEffect duration="2">Silenced</ConditionEffect>
+			<MultiHit />
+			<ArmorPiercing />
+		</Projectile>
+		<Projectile id="1">
+			<ObjectId>Defender Spear</ObjectId>
+			<Damage>195</Damage>
+			<Speed>50</Speed>
+			<LifetimeMS>3840</LifetimeMS>
+			<Size>100</Size>
+			<ConditionEffect duration="2">Silenced</ConditionEffect>
+			<MultiHit />
+			<ArmorPiercing />
+		</Projectile>
+		<XpBonus>2</XpBonus>
+	</Object>
+	<Object type="0xF0FA" id="Elder LH Oryx Admiral">
+		<Enemy />
+		<Class>Character</Class>
+		<AnimatedTexture>
+			<File>lostHallsChars8x8</File>
+			<Index>6</Index>
+		</AnimatedTexture>
+		<Group>Oryx Infantry</Group>
+		<DisplayId>Elder Oryx Admiral</DisplayId>
+		<HitSound>monster/abyss_demons_hit</HitSound>
+		<DeathSound>monster/abyss_demons_death</DeathSound>
+		<Size>125</Size>
+		<MaxHitPoints>7500</MaxHitPoints>
+		<Defense>35</Defense>
+		<StunImmune />
+		<Projectile id="0">
+			<ObjectId>Oryx Admiral Spike</ObjectId>
+			<Damage>130</Damage>
+			<Speed>80</Speed>
+			<LifetimeMS>1000</LifetimeMS>
+			<ConditionEffect duration="3">Confused</ConditionEffect>
+		</Projectile>
+		<Projectile id="1">
+			<ObjectId>Oryx Admiral Dagger</ObjectId>
+			<Damage>221</Damage>
+			<Speed>70</Speed>
+			<LifetimeMS>1750</LifetimeMS>
+			<MultiHit />
+		</Projectile>
+		<XpBonus>2</XpBonus>
+	</Object>
+	<Object type="0xF0FB" id="Elder LH Oryx Armorbearer">
+		<Enemy />
+		<Class>Character</Class>
+		<AnimatedTexture>
+			<File>lostHallsChars8x8</File>
+			<Index>5</Index>
+		</AnimatedTexture>
+		<Group>Oryx Infantry</Group>
+		<DisplayId>Elder Oryx Armorbearer</DisplayId>
+		<HitSound>monster/flaming_skulls_hit</HitSound>
+		<DeathSound>monster/flaming_skulls_death</DeathSound>
+		<Size>125</Size>
+		<MaxHitPoints>8000</MaxHitPoints>
+		<Defense>40</Defense>
+		<Projectile id="0">
+			<ObjectId>Oryx Armorbearer Wave</ObjectId>
+			<Damage>169</Damage>
+			<Speed>90</Speed>
+			<LifetimeMS>700</LifetimeMS>
+			<Size>100</Size>
+		</Projectile>
+		<StunImmune />
+		<XpBonus>2</XpBonus>
+	</Object>
+	<Object type="0xF0FC" id="Elder LH Oryx Swordsman">
+		<Enemy />
+		<Class>Character</Class>
+		<AnimatedTexture>
+			<File>lostHallsChars8x8</File>
+			<Index>4</Index>
+		</AnimatedTexture>
+		<Group>Oryx Infantry</Group>
+		<DisplayId>Elder Oryx Swordsman</DisplayId>
+		<HitSound>monster/flaming_skulls_hit</HitSound>
+		<DeathSound>monster/flaming_skulls_death</DeathSound>
+		<Size>125</Size>
+		<MaxHitPoints>7000</MaxHitPoints>
+		<Defense>30</Defense>
+		<Projectile id="0">
+			<ObjectId>Oryx Swordsman Slash</ObjectId>
+			<Damage>214</Damage>
+			<Speed>75</Speed>
+			<LifetimeMS>1750</LifetimeMS>
+			<Size>100</Size>
+		</Projectile>
+		<StunImmune />
+		<XpBonus>2</XpBonus>
+	</Object>
+	<Object type="0xF0FD" id="Elder LH Pot 1">
+		<Class>Character</Class>
+		<Enemy />
+		<Texture>
+			<File>lostHallsObjects8x8</File>
+			<Index>0x61</Index>
+		</Texture>
+		<DisplayId>Elder Treasure Pot</DisplayId>
+		<Size>120</Size>
+		<HitSound>monster/stone_walls_hit</HitSound>
+		<DeathSound>monster/stone_walls_death</DeathSound>
+		<MaxHitPoints>8000</MaxHitPoints>
+		<Defense>10</Defense>
+		<Exp>0</Exp>
+		<StasisImmune />
+		<XpBonus>2</XpBonus>
+	</Object>
+	<Object type="0xF0FE" id="Elder LH Pot 2">
+		<Class>Character</Class>
+		<Enemy />
+		<Texture>
+			<File>lostHallsObjects8x8</File>
+			<Index>0x61</Index>
+		</Texture>
+		<DisplayId>Elder Treasure Pot</DisplayId>
+		<Size>120</Size>
+		<HitSound>monster/stone_walls_hit</HitSound>
+		<DeathSound>monster/stone_walls_death</DeathSound>
+		<MaxHitPoints>8000</MaxHitPoints>
+		<Defense>10</Defense>
+		<Exp>0</Exp>
+		<StasisImmune />
+		<XpBonus>2</XpBonus>
+	</Object>
+	<Object type="0xF0FF" id="Elder LH Pot 3">
+		<Class>Character</Class>
+		<Enemy />
+		<Texture>
+			<File>lostHallsObjects8x8</File>
+			<Index>0x61</Index>
+		</Texture>
+		<DisplayId>Elder Treasure Pot</DisplayId>
+		<Size>120</Size>
+		<HitSound>monster/stone_walls_hit</HitSound>
+		<DeathSound>monster/stone_walls_death</DeathSound>
+		<MaxHitPoints>8000</MaxHitPoints>
+		<Defense>10</Defense>
+		<Exp>0</Exp>
+		<StasisImmune />
+		<XpBonus>2</XpBonus>
+	</Object>
+	<Object type="0xF100" id="Elder LH Pot 4">
+		<Class>Character</Class>
+		<Enemy />
+		<Texture>
+			<File>lostHallsObjects8x8</File>
+			<Index>0x61</Index>
+		</Texture>
+		<DisplayId>Elder Treasure Pot</DisplayId>
+		<Size>120</Size>
+		<HitSound>monster/stone_walls_hit</HitSound>
+		<DeathSound>monster/stone_walls_death</DeathSound>
+		<MaxHitPoints>8000</MaxHitPoints>
+		<Defense>10</Defense>
+		<Exp>0</Exp>
+		<StasisImmune />
+		<XpBonus>2</XpBonus>
+	</Object>
+	<Object type="0xF101" id="Elder LH Pot 5">
+		<Class>Character</Class>
+		<Enemy />
+		<Texture>
+			<File>lostHallsObjects8x8</File>
+			<Index>0x61</Index>
+		</Texture>
+		<DisplayId>Elder Treasure Pot</DisplayId>
+		<Size>120</Size>
+		<HitSound>monster/stone_walls_hit</HitSound>
+		<DeathSound>monster/stone_walls_death</DeathSound>
+		<MaxHitPoints>8000</MaxHitPoints>
+		<Defense>10</Defense>
+		<Exp>0</Exp>
+		<StasisImmune />
+		<XpBonus>2</XpBonus>
+	</Object>
+	<Object type="0xF102" id="Elder LH Pot 6">
+		<Class>Character</Class>
+		<Enemy />
+		<Texture>
+			<File>lostHallsObjects8x8</File>
+			<Index>0x61</Index>
+		</Texture>
+		<DisplayId>Elder Treasure Pot</DisplayId>
+		<Size>120</Size>
+		<HitSound>monster/stone_walls_hit</HitSound>
+		<DeathSound>monster/stone_walls_death</DeathSound>
+		<MaxHitPoints>8000</MaxHitPoints>
+		<Defense>10</Defense>
+		<Exp>0</Exp>
+		<StasisImmune />
+		<XpBonus>2</XpBonus>
+	</Object>
+	<Object type="0xF103" id="Elder LH Pot 7">
+		<Class>Character</Class>
+		<Enemy />
+		<Texture>
+			<File>lostHallsObjects8x8</File>
+			<Index>0x61</Index>
+		</Texture>
+		<DisplayId>Elder Treasure Pot</DisplayId>
+		<Size>120</Size>
+		<HitSound>monster/stone_walls_hit</HitSound>
+		<DeathSound>monster/stone_walls_death</DeathSound>
+		<MaxHitPoints>8000</MaxHitPoints>
+		<Defense>10</Defense>
+		<Exp>0</Exp>
+		<StasisImmune />
+		<XpBonus>2</XpBonus>
+	</Object>
+	<Object type="0xF104" id="Elder LH Spectral Sentry E">
+		<DisplayId>Elder Spectral Sentry</DisplayId>
+		<Enemy />
+		<Class>Character</Class>
+		<Invincible />
+		<Size>140</Size>
+		<AnimatedTexture>
+			<File>lostHallsChars16x16</File>
+			<Index>1</Index>
+		</AnimatedTexture>
+		<Color>0x1B006D</Color>
+		<Projectile id="0">
+			<ObjectId>Spectral Slash Blue</ObjectId>
+			<Damage>162</Damage>
+			<LifetimeMS>1600</LifetimeMS>
+			<Speed>100</Speed>
+			<Size>100</Size>
+			<MultiHit />
+			<ArmorPiercing />
+			<ConditionEffect duration="5" target="1">Stasis</ConditionEffect>
+		</Projectile>
+		<Projectile id="1">
+			<ObjectId>Spectral Slash Green</ObjectId>
+			<Damage>162</Damage>
+			<LifetimeMS>2000</LifetimeMS>
+			<Speed>80</Speed>
+			<Size>100</Size>
+			<MultiHit />
+			<ArmorPiercing />
+			<ConditionEffect duration="2.5">Slowed</ConditionEffect>
+		</Projectile>
+		<Projectile id="2">
+			<ObjectId>Spectral Slash Red</ObjectId>
+			<Damage>162</Damage>
+			<LifetimeMS>2667</LifetimeMS>
+			<Speed>60</Speed>
+			<Size>100</Size>
+			<MultiHit />
+			<ArmorPiercing />
+			<ConditionEffect duration="4">Bleeding</ConditionEffect>
+		</Projectile>
+		<XpBonus>2</XpBonus>
+	</Object>
+	<Object type="0xF105" id="Elder LH Spectral Sentry S">
+		<Class>Character</Class>
+		<Enemy />
+		<AnimatedTexture>
+			<File>lostHallsChars16x16</File>
+			<Index>1</Index>
+		</AnimatedTexture>
+		<DisplayId>Elder Spectral Sentry</DisplayId>
+		<Size>140</Size>
+		<Exp>0</Exp>
+		<Invincible />
+		<Projectile id="0">
+			<ObjectId>Spectral Spinner Blue</ObjectId>
+			<Damage>162</Damage>
+			<Size>100</Size>
+			<Speed>100</Speed>
+			<LifetimeMS>1000</LifetimeMS>
+			<MultiHit />
+			<ArmorPiercing />
+			<ConditionEffect duration="5" target="1">Stasis</ConditionEffect>
+		</Projectile>
+		<Projectile id="1">
+			<ObjectId>Spectral Spinner Green</ObjectId>
+			<Damage>162</Damage>
+			<Size>100</Size>
+			<Speed>85</Speed>
+			<LifetimeMS>1000</LifetimeMS>
+			<MultiHit />
+			<ArmorPiercing />
+			<ConditionEffect duration="2.5">Slowed</ConditionEffect>
+		</Projectile>
+		<Projectile id="2">
+			<ObjectId>Spectral Spinner Red</ObjectId>
+			<Damage>162</Damage>
+			<Size>100</Size>
+			<Speed>50</Speed>
+			<LifetimeMS>2000</LifetimeMS>
+			<MultiHit />
+			<ArmorPiercing />
+			<ConditionEffect duration="4">Bleeding</ConditionEffect>
+		</Projectile>
+		<XpBonus>2</XpBonus>
+	</Object>
+	<Object type="0xF106" id="Elder LH Tormented Golem">
+		<Class>Character</Class>
+		<Enemy />
+		<AnimatedTexture>
+			<File>lostHallsChars16x16</File>
+			<Index>0</Index>
+		</AnimatedTexture>
+		<Group>Lost Golems</Group>
+		<DisplayId>Elder Tormented Golem</DisplayId>
+		<Size>120</Size>
+		<MaxHitPoints>22500</MaxHitPoints>
+		<Defense>45</Defense>
+		<Exp>4000</Exp>
+		<HitSound>monster/dwarf_god_hit</HitSound>
+		<DeathSound>monster/dwarf_god_death</DeathSound>
+		<ParalyzeImmune />
+		<StasisImmune />
+		<TrackLoot />
+		<Projectile id="0">
+			<ObjectId>Golem Tormented Wave</ObjectId>
+			<Size>150</Size>
+			<Damage>254</Damage>
+			<Speed>80</Speed>
+			<LifetimeMS>1700</LifetimeMS>
+		</Projectile>
+		<XpBonus>2</XpBonus>
+	</Object>
+	<Object type="0xF107" id="Elder LH Wall Trap E">
+		<Class>Character</Class>
+		<Enemy />
+		<NoMiniMap />
+		<Texture>
+			<File>lostHallsObjects8x8</File>
+			<Index>0xc2</Index>
+		</Texture>
+		<DisplayId>Elder Lost Arrow Trap</DisplayId>
+		<Size>0</Size>
+		<ShadowSize>0</ShadowSize>
+		<Invincible />
+		<Projectile>
+			<ObjectId>Black Arrow</ObjectId>
+			<Speed>50</Speed>
+			<Damage>195</Damage>
+			<LifetimeMS>3400</LifetimeMS>
+			<Size>140</Size>
+			<MultiHit />
+		</Projectile>
+		<XpBonus>2</XpBonus>
+	</Object>
+	<Object type="0xF108" id="Elder LH Wall Trap N">
+		<Class>Character</Class>
+		<Enemy />
+		<NoMiniMap />
+		<Texture>
+			<File>lostHallsObjects8x8</File>
+			<Index>0xc2</Index>
+		</Texture>
+		<DisplayId>Elder Lost Arrow Trap</DisplayId>
+		<Exp>0.0</Exp>
+		<Size>0</Size>
+		<ShadowSize>0</ShadowSize>
+		<Invincible />
+		<Projectile>
+			<ObjectId>Black Arrow</ObjectId>
+			<Speed>50</Speed>
+			<Damage>195</Damage>
+			<LifetimeMS>3400</LifetimeMS>
+			<Size>140</Size>
+			<MultiHit />
+		</Projectile>
+		<XpBonus>2</XpBonus>
+	</Object>
+	<Object type="0xF109" id="Elder LH Wall Trap S">
+		<Class>Character</Class>
+		<Enemy />
+		<NoMiniMap />
+		<Texture>
+			<File>lostHallsObjects8x8</File>
+			<Index>0xc2</Index>
+		</Texture>
+		<DisplayId>Elder Lost Arrow Trap</DisplayId>
+		<Exp>0.0</Exp>
+		<Size>0</Size>
+		<ShadowSize>0</ShadowSize>
+		<Invincible />
+		<Projectile>
+			<ObjectId>Black Arrow</ObjectId>
+			<Speed>50</Speed>
+			<Damage>195</Damage>
+			<LifetimeMS>3400</LifetimeMS>
+			<Size>140</Size>
+			<MultiHit />
+		</Projectile>
+		<XpBonus>2</XpBonus>
+	</Object>
+	<Object type="0xF10A" id="Elder LH Wall Trap W">
+		<Class>Character</Class>
+		<Enemy />
+		<NoMiniMap />
+		<Texture>
+			<File>lostHallsObjects8x8</File>
+			<Index>0xc2</Index>
+		</Texture>
+		<DisplayId>Elder Lost Arrow Trap</DisplayId>
+		<Exp>0.0</Exp>
+		<Size>0</Size>
+		<ShadowSize>0</ShadowSize>
+		<Invincible />
+		<Projectile>
+			<ObjectId>Black Arrow</ObjectId>
+			<Speed>50</Speed>
+			<Damage>195</Damage>
+			<LifetimeMS>3400</LifetimeMS>
+			<Size>140</Size>
+			<MultiHit />
+		</Projectile>
+		<XpBonus>2</XpBonus>
+	</Object>
 	<Object type="0xF018" id="Elder Gothic Arch">
 		<Class>Wall</Class>
 		<RandomTexture>
 			<Texture>
 				<File>elderAssets8x8</File>
-				<Index>0x1bd</Index>
+				<Index>0x2c5</Index>
 			</Texture>
 			<Texture>
 				<File>elderAssets8x8</File>
-				<Index>0x1be</Index>
+				<Index>0x2c6</Index>
 			</Texture>
 		</RandomTexture>
 		<Top>
 			<Texture>
 				<File>elderAssets8x8</File>
-				<Index>0x1bf</Index>
+				<Index>0x2c7</Index>
 			</Texture>
 		</Top>
 		<HitSound>monster/stone_walls_hit</HitSound>
@@ -2346,17 +5972,17 @@
 		<RandomTexture>
 			<Texture>
 				<File>elderAssets8x8</File>
-				<Index>0x1c0</Index>
+				<Index>0x2c8</Index>
 			</Texture>
 			<Texture>
 				<File>elderAssets8x8</File>
-				<Index>0x1c1</Index>
+				<Index>0x2c9</Index>
 			</Texture>
 		</RandomTexture>
 		<Top>
 			<Texture>
 				<File>elderAssets8x8</File>
-				<Index>0x1c2</Index>
+				<Index>0x2ca</Index>
 			</Texture>
 		</Top>
 		<Static />
@@ -2370,17 +5996,17 @@
 		<RandomTexture>
 			<Texture>
 				<File>elderAssets8x8</File>
-				<Index>0x1c3</Index>
+				<Index>0x2cb</Index>
 			</Texture>
 			<Texture>
 				<File>elderAssets8x8</File>
-				<Index>0x1c4</Index>
+				<Index>0x2cc</Index>
 			</Texture>
 		</RandomTexture>
 		<Top>
 			<Texture>
 				<File>elderAssets8x8</File>
-				<Index>0x1c5</Index>
+				<Index>0x2cd</Index>
 			</Texture>
 		</Top>
 		<HitSound>monster/stone_walls_hit</HitSound>
@@ -2396,17 +6022,17 @@
 		<RandomTexture>
 			<Texture>
 				<File>elderAssets8x8</File>
-				<Index>0x1c6</Index>
+				<Index>0x2ce</Index>
 			</Texture>
 			<Texture>
 				<File>elderAssets8x8</File>
-				<Index>0x1c7</Index>
+				<Index>0x2cf</Index>
 			</Texture>
 		</RandomTexture>
 		<Top>
 			<Texture>
 				<File>elderAssets8x8</File>
-				<Index>0x1bf</Index>
+				<Index>0x2c7</Index>
 			</Texture>
 		</Top>
 		<HitSound>monster/stone_walls_hit</HitSound>
@@ -2421,37 +6047,37 @@
 		<Class>Wall</Class>
 		<Texture>
 			<File>elderAssets8x8</File>
-			<Index>0x1c8</Index>
+			<Index>0x2d0</Index>
 		</Texture>
 		<Top>
 			<Texture>
 				<File>elderAssets8x8</File>
-				<Index>0x1bf</Index>
+				<Index>0x2c7</Index>
 			</Texture>
 		</Top>
 		<Animation sync="true" prob="1" period="5.5">
 			<Frame time="4">
 				<Texture>
 					<File>elderAssets8x8</File>
-					<Index>0x1c8</Index>
+					<Index>0x2d0</Index>
 				</Texture>
 			</Frame>
 			<Frame time="0.2">
 				<Texture>
 					<File>elderAssets8x8</File>
-					<Index>0x1c9</Index>
+					<Index>0x2d1</Index>
 				</Texture>
 			</Frame>
 			<Frame time="0.2">
 				<Texture>
 					<File>elderAssets8x8</File>
-					<Index>0x1c8</Index>
+					<Index>0x2d0</Index>
 				</Texture>
 			</Frame>
 			<Frame time="0.4">
 				<Texture>
 					<File>elderAssets8x8</File>
-					<Index>0x1c9</Index>
+					<Index>0x2d1</Index>
 				</Texture>
 			</Frame>
 		</Animation>
@@ -2467,12 +6093,12 @@
 		<Class>Wall</Class>
 		<Texture>
 			<File>elderAssets8x8</File>
-			<Index>0x202</Index>
+			<Index>0x30a</Index>
 		</Texture>
 		<Top>
 			<Texture>
 				<File>elderAssets8x8</File>
-				<Index>0x203</Index>
+				<Index>0x30b</Index>
 			</Texture>
 		</Top>
 		<HitSound>monster/wooden_walls_hit</HitSound>
@@ -2487,12 +6113,12 @@
 		<Class>Wall</Class>
 		<Texture>
 			<File>elderAssets8x8</File>
-			<Index>0x204</Index>
+			<Index>0x30c</Index>
 		</Texture>
 		<Top>
 			<Texture>
 				<File>elderAssets8x8</File>
-				<Index>0x203</Index>
+				<Index>0x30b</Index>
 			</Texture>
 		</Top>
 		<HitSound>monster/wooden_walls_hit</HitSound>
@@ -2522,7 +6148,7 @@
 		<Class>CaveWall</Class>
 		<Texture>
 			<File>elderAssets8x8</File>
-			<Index>0x221</Index>
+			<Index>0x329</Index>
 		</Texture>
 		<ShadowSize>0</ShadowSize>
 		<Static />
@@ -2537,29 +6163,29 @@
 		<RandomTexture>
 			<Texture>
 				<File>elderAssets8x8</File>
-				<Index>0x326</Index>
+				<Index>0x42e</Index>
 			</Texture>
 			<Texture>
 				<File>elderAssets8x8</File>
-				<Index>0x327</Index>
+				<Index>0x42f</Index>
 			</Texture>
 			<Texture>
 				<File>elderAssets8x8</File>
-				<Index>0x328</Index>
+				<Index>0x430</Index>
 			</Texture>
 			<Texture>
 				<File>elderAssets8x8</File>
-				<Index>0x329</Index>
+				<Index>0x431</Index>
 			</Texture>
 			<Texture>
 				<File>elderAssets8x8</File>
-				<Index>0x32a</Index>
+				<Index>0x432</Index>
 			</Texture>
 		</RandomTexture>
 		<Top>
 			<Texture>
 				<File>elderAssets8x8</File>
-				<Index>0x32b</Index>
+				<Index>0x433</Index>
 			</Texture>
 		</Top>
 		<HitSound>monster/stone_walls_hit</HitSound>
@@ -2574,12 +6200,12 @@
 		<Class>Wall</Class>
 		<Texture>
 			<File>elderAssets8x8</File>
-			<Index>0x32c</Index>
+			<Index>0x434</Index>
 		</Texture>
 		<Top>
 			<Texture>
 				<File>elderAssets8x8</File>
-				<Index>0x32d</Index>
+				<Index>0x435</Index>
 			</Texture>
 		</Top>
 		<HitSound>monster/wooden_walls_hit</HitSound>
@@ -2594,25 +6220,25 @@
 		<Class>Wall</Class>
 		<Texture>
 			<File>elderAssets8x8</File>
-			<Index>0x32e</Index>
+			<Index>0x436</Index>
 		</Texture>
 		<Animation prob="0.5" period=".6">
 			<Frame time="0.2">
 				<Texture>
 					<File>elderAssets8x8</File>
-					<Index>0x32e</Index>
+					<Index>0x436</Index>
 				</Texture>
 			</Frame>
 			<Frame time="0.2">
 				<Texture>
 					<File>elderAssets8x8</File>
-					<Index>0x32f</Index>
+					<Index>0x437</Index>
 				</Texture>
 			</Frame>
 			<Frame time="0.2">
 				<Texture>
 					<File>elderAssets8x8</File>
-					<Index>0x330</Index>
+					<Index>0x438</Index>
 				</Texture>
 			</Frame>
 		</Animation>
@@ -2620,19 +6246,19 @@
 			<Frame time="0.2">
 				<Texture>
 					<File>elderAssets8x8</File>
-					<Index>0x32f</Index>
+					<Index>0x437</Index>
 				</Texture>
 			</Frame>
 			<Frame time="0.2">
 				<Texture>
 					<File>elderAssets8x8</File>
-					<Index>0x331</Index>
+					<Index>0x439</Index>
 				</Texture>
 			</Frame>
 			<Frame time="0.2">
 				<Texture>
 					<File>elderAssets8x8</File>
-					<Index>0x332</Index>
+					<Index>0x43a</Index>
 				</Texture>
 			</Frame>
 		</Animation>
@@ -2640,32 +6266,32 @@
 			<Frame time="0.2">
 				<Texture>
 					<File>elderAssets8x8</File>
-					<Index>0x330</Index>
+					<Index>0x438</Index>
 				</Texture>
 			</Frame>
 			<Frame time="0.2">
 				<Texture>
 					<File>elderAssets8x8</File>
-					<Index>0x333</Index>
+					<Index>0x43b</Index>
 				</Texture>
 			</Frame>
 			<Frame time="0.2">
 				<Texture>
 					<File>elderAssets8x8</File>
-					<Index>0x332</Index>
+					<Index>0x43a</Index>
 				</Texture>
 			</Frame>
 			<Frame time="0.2">
 				<Texture>
 					<File>elderAssets8x8</File>
-					<Index>0x331</Index>
+					<Index>0x439</Index>
 				</Texture>
 			</Frame>
 		</Animation>
 		<Top>
 			<Texture>
 				<File>elderAssets8x8</File>
-				<Index>0x334</Index>
+				<Index>0x43c</Index>
 			</Texture>
 		</Top>
 		<HitSound>monster/wooden_walls_hit</HitSound>
@@ -2705,12 +6331,12 @@
 		<Class>Wall</Class>
 		<Texture>
 			<File>elderAssets8x8</File>
-			<Index>0x335</Index>
+			<Index>0x43d</Index>
 		</Texture>
 		<Top>
 			<Texture>
 				<File>elderAssets8x8</File>
-				<Index>0x336</Index>
+				<Index>0x43e</Index>
 			</Texture>
 		</Top>
 		<HitSound>monster/stone_walls_hit</HitSound>
@@ -2729,21 +6355,21 @@
 		<RandomTexture>
 			<Texture>
 				<File>elderAssets8x8</File>
-				<Index>0x337</Index>
+				<Index>0x43f</Index>
 			</Texture>
 			<Texture>
 				<File>elderAssets8x8</File>
-				<Index>0x338</Index>
+				<Index>0x440</Index>
 			</Texture>
 			<Texture>
 				<File>elderAssets8x8</File>
-				<Index>0x339</Index>
+				<Index>0x441</Index>
 			</Texture>
 		</RandomTexture>
 		<Top>
 			<Texture>
 				<File>elderAssets8x8</File>
-				<Index>0x33a</Index>
+				<Index>0x442</Index>
 			</Texture>
 		</Top>
 		<HitSound>monster/wooden_walls_hit</HitSound>
@@ -2826,25 +6452,25 @@
 		<RandomTexture>
 			<Texture>
 				<File>elderAssets8x8</File>
-				<Index>0x33b</Index>
+				<Index>0x443</Index>
 			</Texture>
 			<Texture>
 				<File>elderAssets8x8</File>
-				<Index>0x33c</Index>
+				<Index>0x444</Index>
 			</Texture>
 			<Texture>
 				<File>elderAssets8x8</File>
-				<Index>0x33d</Index>
+				<Index>0x445</Index>
 			</Texture>
 			<Texture>
 				<File>elderAssets8x8</File>
-				<Index>0x33e</Index>
+				<Index>0x446</Index>
 			</Texture>
 		</RandomTexture>
 		<Top>
 			<Texture>
 				<File>elderAssets8x8</File>
-				<Index>0x33f</Index>
+				<Index>0x447</Index>
 			</Texture>
 		</Top>
 		<HitSound>monster/wooden_walls_hit</HitSound>
@@ -2860,25 +6486,25 @@
 		<RandomTexture>
 			<Texture>
 				<File>elderAssets8x8</File>
-				<Index>0x33b</Index>
+				<Index>0x443</Index>
 			</Texture>
 			<Texture>
 				<File>elderAssets8x8</File>
-				<Index>0x33c</Index>
+				<Index>0x444</Index>
 			</Texture>
 			<Texture>
 				<File>elderAssets8x8</File>
-				<Index>0x33d</Index>
+				<Index>0x445</Index>
 			</Texture>
 			<Texture>
 				<File>elderAssets8x8</File>
-				<Index>0x33e</Index>
+				<Index>0x446</Index>
 			</Texture>
 		</RandomTexture>
 		<Top>
 			<Texture>
 				<File>elderAssets8x8</File>
-				<Index>0x33f</Index>
+				<Index>0x447</Index>
 			</Texture>
 		</Top>
 		<HitSound>monster/wooden_walls_hit</HitSound>
@@ -4591,45 +8217,25 @@
 		<Class>Wall</Class>
 		<Texture>
 			<File>elderAssets8x8</File>
-			<Index>0x371</Index>
+			<Index>0x479</Index>
 		</Texture>
 		<Animation prob="0.5" period=".6">
 			<Frame time="0.2">
 				<Texture>
 					<File>elderAssets8x8</File>
-					<Index>0x371</Index>
+					<Index>0x479</Index>
 				</Texture>
 			</Frame>
 			<Frame time="0.2">
 				<Texture>
 					<File>elderAssets8x8</File>
-					<Index>0x372</Index>
+					<Index>0x47a</Index>
 				</Texture>
 			</Frame>
 			<Frame time="0.2">
 				<Texture>
 					<File>elderAssets8x8</File>
-					<Index>0x373</Index>
-				</Texture>
-			</Frame>
-		</Animation>
-		<Animation prob="0.5" period=".6">
-			<Frame time="0.2">
-				<Texture>
-					<File>elderAssets8x8</File>
-					<Index>0x374</Index>
-				</Texture>
-			</Frame>
-			<Frame time="0.2">
-				<Texture>
-					<File>elderAssets8x8</File>
-					<Index>0x373</Index>
-				</Texture>
-			</Frame>
-			<Frame time="0.2">
-				<Texture>
-					<File>elderAssets8x8</File>
-					<Index>0x372</Index>
+					<Index>0x47b</Index>
 				</Texture>
 			</Frame>
 		</Animation>
@@ -4637,26 +8243,46 @@
 			<Frame time="0.2">
 				<Texture>
 					<File>elderAssets8x8</File>
-					<Index>0x375</Index>
+					<Index>0x47c</Index>
 				</Texture>
 			</Frame>
 			<Frame time="0.2">
 				<Texture>
 					<File>elderAssets8x8</File>
-					<Index>0x371</Index>
+					<Index>0x47b</Index>
 				</Texture>
 			</Frame>
 			<Frame time="0.2">
 				<Texture>
 					<File>elderAssets8x8</File>
-					<Index>0x373</Index>
+					<Index>0x47a</Index>
+				</Texture>
+			</Frame>
+		</Animation>
+		<Animation prob="0.5" period=".6">
+			<Frame time="0.2">
+				<Texture>
+					<File>elderAssets8x8</File>
+					<Index>0x47d</Index>
+				</Texture>
+			</Frame>
+			<Frame time="0.2">
+				<Texture>
+					<File>elderAssets8x8</File>
+					<Index>0x479</Index>
+				</Texture>
+			</Frame>
+			<Frame time="0.2">
+				<Texture>
+					<File>elderAssets8x8</File>
+					<Index>0x47b</Index>
 				</Texture>
 			</Frame>
 		</Animation>
 		<Top>
 			<Texture>
 				<File>elderAssets8x8</File>
-				<Index>0x176</Index>
+				<Index>0x194</Index>
 			</Texture>
 		</Top>
 		<HitSound>monster/stone_walls_hit</HitSound>
@@ -4672,57 +8298,57 @@
 		<RandomTexture>
 			<Texture>
 				<File>elderAssets8x8</File>
-				<Index>0x376</Index>
+				<Index>0x47e</Index>
 			</Texture>
 			<Texture>
 				<File>elderAssets8x8</File>
-				<Index>0x377</Index>
+				<Index>0x47f</Index>
 			</Texture>
 			<Texture>
 				<File>elderAssets8x8</File>
-				<Index>0x378</Index>
+				<Index>0x480</Index>
 			</Texture>
 			<Texture>
 				<File>elderAssets8x8</File>
-				<Index>0x379</Index>
+				<Index>0x481</Index>
 			</Texture>
 			<Texture>
 				<File>elderAssets8x8</File>
-				<Index>0x37a</Index>
+				<Index>0x482</Index>
 			</Texture>
 			<Texture>
 				<File>elderAssets8x8</File>
-				<Index>0x37b</Index>
+				<Index>0x483</Index>
 			</Texture>
 			<Texture>
 				<File>elderAssets8x8</File>
-				<Index>0x37c</Index>
+				<Index>0x484</Index>
 			</Texture>
 			<Texture>
 				<File>elderAssets8x8</File>
-				<Index>0x37d</Index>
+				<Index>0x485</Index>
 			</Texture>
 			<Texture>
 				<File>elderAssets8x8</File>
-				<Index>0x37e</Index>
+				<Index>0x486</Index>
 			</Texture>
 			<Texture>
 				<File>elderAssets8x8</File>
-				<Index>0x37f</Index>
+				<Index>0x487</Index>
 			</Texture>
 			<Texture>
 				<File>elderAssets8x8</File>
-				<Index>0x380</Index>
+				<Index>0x488</Index>
 			</Texture>
 			<Texture>
 				<File>elderAssets8x8</File>
-				<Index>0x381</Index>
+				<Index>0x489</Index>
 			</Texture>
 		</RandomTexture>
 		<Top>
 			<Texture>
 				<File>elderAssets8x8</File>
-				<Index>0x176</Index>
+				<Index>0x194</Index>
 			</Texture>
 		</Top>
 		<HitSound>monster/stone_walls_hit</HitSound>
@@ -4738,25 +8364,25 @@
 		<RandomTexture>
 			<Texture>
 				<File>elderAssets8x8</File>
-				<Index>0x382</Index>
+				<Index>0x48a</Index>
 			</Texture>
 			<Texture>
 				<File>elderAssets8x8</File>
-				<Index>0x383</Index>
+				<Index>0x48b</Index>
 			</Texture>
 			<Texture>
 				<File>elderAssets8x8</File>
-				<Index>0x384</Index>
+				<Index>0x48c</Index>
 			</Texture>
 			<Texture>
 				<File>elderAssets8x8</File>
-				<Index>0x385</Index>
+				<Index>0x48d</Index>
 			</Texture>
 		</RandomTexture>
 		<Top>
 			<Texture>
 				<File>elderAssets8x8</File>
-				<Index>0x176</Index>
+				<Index>0x194</Index>
 			</Texture>
 		</Top>
 		<HitSound>monster/stone_walls_hit</HitSound>
@@ -4771,12 +8397,12 @@
 		<Class>Wall</Class>
 		<Texture>
 			<File>elderAssets8x8</File>
-			<Index>0x386</Index>
+			<Index>0x48e</Index>
 		</Texture>
 		<Top>
 			<Texture>
 				<File>elderAssets8x8</File>
-				<Index>0x387</Index>
+				<Index>0x48f</Index>
 			</Texture>
 		</Top>
 		<HitSound>monster/stone_walls_hit</HitSound>
@@ -4794,7 +8420,7 @@
 		<Class>GameObject</Class>
 		<Texture>
 			<File>elderAssets8x8</File>
-			<Index>0x388</Index>
+			<Index>0x490</Index>
 		</Texture>
 		<DrawOnGround />
 	</Object>
@@ -4959,144 +8585,144 @@
 		<RandomTexture>
 			<Texture>
 				<File>elderAssets8x8</File>
-				<Index>0x3c8</Index>
+				<Index>0x4d0</Index>
 			</Texture>
 			<Texture>
 				<File>elderAssets8x8</File>
-				<Index>0x3c9</Index>
+				<Index>0x4d1</Index>
 			</Texture>
 			<Texture>
 				<File>elderAssets8x8</File>
-				<Index>0x3ca</Index>
+				<Index>0x4d2</Index>
 			</Texture>
 			<Texture>
 				<File>elderAssets8x8</File>
-				<Index>0x3cb</Index>
+				<Index>0x4d3</Index>
 			</Texture>
 			<Texture>
 				<File>elderAssets8x8</File>
-				<Index>0x3cc</Index>
+				<Index>0x4d4</Index>
 			</Texture>
 			<Texture>
 				<File>elderAssets8x8</File>
-				<Index>0x3cd</Index>
+				<Index>0x4d5</Index>
 			</Texture>
 			<Texture>
 				<File>elderAssets8x8</File>
-				<Index>0x3ce</Index>
+				<Index>0x4d6</Index>
 			</Texture>
 			<Texture>
 				<File>elderAssets8x8</File>
-				<Index>0x3cf</Index>
+				<Index>0x4d7</Index>
 			</Texture>
 			<Texture>
 				<File>elderAssets8x8</File>
-				<Index>0x3d0</Index>
+				<Index>0x4d8</Index>
 			</Texture>
 			<Texture>
 				<File>elderAssets8x8</File>
-				<Index>0x3d1</Index>
+				<Index>0x4d9</Index>
 			</Texture>
 			<Texture>
 				<File>elderAssets8x8</File>
-				<Index>0x3d2</Index>
+				<Index>0x4da</Index>
 			</Texture>
 			<Texture>
 				<File>elderAssets8x8</File>
-				<Index>0x3d3</Index>
+				<Index>0x4db</Index>
 			</Texture>
 			<Texture>
 				<File>elderAssets8x8</File>
-				<Index>0x3d4</Index>
+				<Index>0x4dc</Index>
 			</Texture>
 			<Texture>
 				<File>elderAssets8x8</File>
-				<Index>0x3d5</Index>
+				<Index>0x4dd</Index>
 			</Texture>
 			<Texture>
 				<File>elderAssets8x8</File>
-				<Index>0x3d6</Index>
+				<Index>0x4de</Index>
 			</Texture>
 			<Texture>
 				<File>elderAssets8x8</File>
-				<Index>0x3d7</Index>
+				<Index>0x4df</Index>
 			</Texture>
 			<Texture>
 				<File>elderAssets8x8</File>
-				<Index>0x3d8</Index>
+				<Index>0x4e0</Index>
 			</Texture>
 			<Texture>
 				<File>elderAssets8x8</File>
-				<Index>0x3d9</Index>
+				<Index>0x4e1</Index>
 			</Texture>
 			<Texture>
 				<File>elderAssets8x8</File>
-				<Index>0x3da</Index>
+				<Index>0x4e2</Index>
 			</Texture>
 			<Texture>
 				<File>elderAssets8x8</File>
-				<Index>0x3db</Index>
+				<Index>0x4e3</Index>
 			</Texture>
 			<Texture>
 				<File>elderAssets8x8</File>
-				<Index>0x3dc</Index>
+				<Index>0x4e4</Index>
 			</Texture>
 			<Texture>
 				<File>elderAssets8x8</File>
-				<Index>0x3dd</Index>
+				<Index>0x4e5</Index>
 			</Texture>
 			<Texture>
 				<File>elderAssets8x8</File>
-				<Index>0x3de</Index>
+				<Index>0x4e6</Index>
 			</Texture>
 			<Texture>
 				<File>elderAssets8x8</File>
-				<Index>0x3df</Index>
+				<Index>0x4e7</Index>
 			</Texture>
 			<Texture>
 				<File>elderAssets8x8</File>
-				<Index>0x3e0</Index>
+				<Index>0x4e8</Index>
 			</Texture>
 			<Texture>
 				<File>elderAssets8x8</File>
-				<Index>0x3e1</Index>
+				<Index>0x4e9</Index>
 			</Texture>
 			<Texture>
 				<File>elderAssets8x8</File>
-				<Index>0x3e2</Index>
+				<Index>0x4ea</Index>
 			</Texture>
 			<Texture>
 				<File>elderAssets8x8</File>
-				<Index>0x3e3</Index>
+				<Index>0x4eb</Index>
 			</Texture>
 			<Texture>
 				<File>elderAssets8x8</File>
-				<Index>0x3e4</Index>
+				<Index>0x4ec</Index>
 			</Texture>
 		</RandomTexture>
 		<DotTexture>
 			<File>elderAssets8x8</File>
-			<Index>0x3e5</Index>
+			<Index>0x4ed</Index>
 		</DotTexture>
 		<ShortLineTexture>
 			<File>elderAssets8x8</File>
-			<Index>0x3e6</Index>
+			<Index>0x4ee</Index>
 		</ShortLineTexture>
 		<LTexture>
 			<File>elderAssets8x8</File>
-			<Index>0x3e7</Index>
+			<Index>0x4ef</Index>
 		</LTexture>
 		<LineTexture>
 			<File>elderAssets8x8</File>
-			<Index>0x3e8</Index>
+			<Index>0x4f0</Index>
 		</LineTexture>
 		<TTexture>
 			<File>elderAssets8x8</File>
-			<Index>0x3e9</Index>
+			<Index>0x4f1</Index>
 		</TTexture>
 		<CrossTexture>
 			<File>elderAssets8x8</File>
-			<Index>0x3ea</Index>
+			<Index>0x4f2</Index>
 		</CrossTexture>
 		<Static />
 		<FullOccupy />
@@ -5110,12 +8736,12 @@
 		<Class>Wall</Class>
 		<Texture>
 			<File>elderAssets8x8</File>
-			<Index>0x400</Index>
+			<Index>0x508</Index>
 		</Texture>
 		<Top>
 			<Texture>
 				<File>elderAssets8x8</File>
-				<Index>0x32b</Index>
+				<Index>0x433</Index>
 			</Texture>
 		</Top>
 		<HitSound>monster/stone_walls_hit</HitSound>
@@ -5130,45 +8756,25 @@
 		<Class>Wall</Class>
 		<Texture>
 			<File>elderAssets8x8</File>
-			<Index>0x401</Index>
+			<Index>0x509</Index>
 		</Texture>
 		<Animation prob="0.5" period=".6">
 			<Frame time="0.2">
 				<Texture>
 					<File>elderAssets8x8</File>
-					<Index>0x402</Index>
+					<Index>0x50a</Index>
 				</Texture>
 			</Frame>
 			<Frame time="0.2">
 				<Texture>
 					<File>elderAssets8x8</File>
-					<Index>0x403</Index>
+					<Index>0x50b</Index>
 				</Texture>
 			</Frame>
 			<Frame time="0.2">
 				<Texture>
 					<File>elderAssets8x8</File>
-					<Index>0x404</Index>
-				</Texture>
-			</Frame>
-		</Animation>
-		<Animation prob="0.5" period=".6">
-			<Frame time="0.2">
-				<Texture>
-					<File>elderAssets8x8</File>
-					<Index>0x405</Index>
-				</Texture>
-			</Frame>
-			<Frame time="0.2">
-				<Texture>
-					<File>elderAssets8x8</File>
-					<Index>0x406</Index>
-				</Texture>
-			</Frame>
-			<Frame time="0.2">
-				<Texture>
-					<File>elderAssets8x8</File>
-					<Index>0x407</Index>
+					<Index>0x50c</Index>
 				</Texture>
 			</Frame>
 		</Animation>
@@ -5176,26 +8782,46 @@
 			<Frame time="0.2">
 				<Texture>
 					<File>elderAssets8x8</File>
-					<Index>0x404</Index>
+					<Index>0x50d</Index>
 				</Texture>
 			</Frame>
 			<Frame time="0.2">
 				<Texture>
 					<File>elderAssets8x8</File>
-					<Index>0x405</Index>
+					<Index>0x50e</Index>
 				</Texture>
 			</Frame>
 			<Frame time="0.2">
 				<Texture>
 					<File>elderAssets8x8</File>
-					<Index>0x402</Index>
+					<Index>0x50f</Index>
+				</Texture>
+			</Frame>
+		</Animation>
+		<Animation prob="0.5" period=".6">
+			<Frame time="0.2">
+				<Texture>
+					<File>elderAssets8x8</File>
+					<Index>0x50c</Index>
+				</Texture>
+			</Frame>
+			<Frame time="0.2">
+				<Texture>
+					<File>elderAssets8x8</File>
+					<Index>0x50d</Index>
+				</Texture>
+			</Frame>
+			<Frame time="0.2">
+				<Texture>
+					<File>elderAssets8x8</File>
+					<Index>0x50a</Index>
 				</Texture>
 			</Frame>
 		</Animation>
 		<Top>
 			<Texture>
 				<File>elderAssets8x8</File>
-				<Index>0x32b</Index>
+				<Index>0x433</Index>
 			</Texture>
 		</Top>
 		<HitSound>monster/stone_walls_hit</HitSound>
@@ -5205,5 +8831,1455 @@
 		<OccupySquare />
 		<EnemyOccupySquare />
 		<BlocksSight />
+	</Object>
+	<Object type="0xF10B" id="Elder LH Void Controller">
+		<Class>GameObject</Class>
+		<DisplayId>Void Entity</DisplayId>
+		<Texture>
+			<File>lostHallsObjects8x8</File>
+			<Index>30</Index>
+		</Texture>
+		<Size>0</Size>
+	</Object>
+	<Object type="0xF10C" id="Elder LH Greater Void Shade">
+		<Class>Character</Class>
+		<Enemy />
+		<AnimatedTexture>
+			<File>lostHallsChars16x16</File>
+			<Index>2</Index>
+		</AnimatedTexture>
+		<DisplayId>Elder Greater Void Shade</DisplayId>
+		<Size>120</Size>
+		<MaxHitPoints>24000</MaxHitPoints>
+		<Defense>40</Defense>
+		<Exp>0</Exp>
+		<HitSound>monster/ghost_god_death</HitSound>
+		<DeathSound>spell/magic_nova</DeathSound>
+		<Projectile id="0">
+			<ObjectId>Void Large Bullet</ObjectId>
+			<Damage>176</Damage>
+			<Speed>110</Speed>
+			<LifetimeMS>2000</LifetimeMS>
+			<Size>160</Size>
+			<MultiHit />
+			<ArmorPiercing />
+			<ConditionEffect duration="3">Curse</ConditionEffect>
+		</Projectile>
+		<Projectile id="1">
+			<ObjectId>Void Spin</ObjectId>
+			<Damage>0</Damage>
+			<Speed>20</Speed>
+			<Size>50</Size>
+			<LifetimeMS>250</LifetimeMS>
+			<ConditionEffect duration="3" target="1">Stasis</ConditionEffect>
+		</Projectile>
+		<XpBonus>2</XpBonus>
+	</Object>
+	<Object type="0xF10D" id="Elder LH Void Entity">
+		<Class>Character</Class>
+		<Enemy />
+		<Portrait>
+			<AnimatedTexture>
+				<File>lostHallsChars16x16</File>
+				<Index>5</Index>
+			</AnimatedTexture>
+		</Portrait>
+		<AnimatedTexture>
+			<File>lostHallsChars16x16</File>
+			<Index>5</Index>
+		</AnimatedTexture>
+		<AltTexture id="1">
+			<Texture>
+				<File>lostHallsObjects16x16</File>
+				<Index>0x01</Index>
+			</Texture>
+		</AltTexture>
+		<AltTexture id="2">
+			<Texture>
+				<File>lostHallsObjects16x16</File>
+				<Index>0x02</Index>
+			</Texture>
+		</AltTexture>
+		<AltTexture id="3">
+			<Texture>
+				<File>lostHallsObjects16x16</File>
+				<Index>0x03</Index>
+			</Texture>
+		</AltTexture>
+		<AltTexture id="4">
+			<Texture>
+				<File>lostHallsObjects16x16</File>
+				<Index>0x04</Index>
+			</Texture>
+		</AltTexture>
+		<AltTexture id="5">
+			<Texture>
+				<File>lostHallsObjects16x16</File>
+				<Index>0x05</Index>
+			</Texture>
+		</AltTexture>
+		<AltTexture id="6">
+			<Texture>
+				<File>lostHallsObjects16x16</File>
+				<Index>0x14</Index>
+			</Texture>
+		</AltTexture>
+		<AltTexture id="7">
+			<Texture>
+				<File>lostHallsObjects16x16</File>
+				<Index>0x15</Index>
+			</Texture>
+		</AltTexture>
+		<AltTexture id="8">
+			<Texture>
+				<File>lostHallsObjects16x16</File>
+				<Index>0x16</Index>
+			</Texture>
+		</AltTexture>
+		<AltTexture id="9">
+			<Texture>
+				<File>lostHallsObjects16x16</File>
+				<Index>0x17</Index>
+			</Texture>
+		</AltTexture>
+		<AltTexture id="10">
+			<Texture>
+				<File>lostHallsObjects16x16</File>
+				<Index>0x18</Index>
+			</Texture>
+		</AltTexture>
+		<AltTexture id="11">
+			<Texture>
+				<File>lostHallsObjects16x16</File>
+				<Index>0x19</Index>
+			</Texture>
+		</AltTexture>
+		<AltTexture id="12">
+			<Texture>
+				<File>lostHallsObjects16x16</File>
+				<Index>0x1a</Index>
+			</Texture>
+		</AltTexture>
+		<AltTexture id="13">
+			<Texture>
+				<File>lostHallsObjects16x16</File>
+				<Index>0x1b</Index>
+			</Texture>
+		</AltTexture>
+		<AltTexture id="14">
+			<Texture>
+				<File>lostHallsObjects16x16</File>
+				<Index>0x1c</Index>
+			</Texture>
+		</AltTexture>
+		<AltTexture id="15">
+			<Texture>
+				<File>lostHallsObjects16x16</File>
+				<Index>0x1d</Index>
+			</Texture>
+		</AltTexture>
+		<AltTexture id="16">
+			<Texture>
+				<File>lostHallsObjects16x16</File>
+				<Index>0x1e</Index>
+			</Texture>
+		</AltTexture>
+		<AltTexture id="17">
+			<Texture>
+				<File>lostHallsObjects16x16</File>
+				<Index>0x1f</Index>
+			</Texture>
+		</AltTexture>
+		<AltTexture id="18">
+			<Texture>
+				<File>lostHallsObjects16x16</File>
+				<Index>0x25</Index>
+			</Texture>
+		</AltTexture>
+		<AltTexture id="19">
+			<Texture>
+				<File>lostHallsObjects16x16</File>
+				<Index>0x26</Index>
+			</Texture>
+		</AltTexture>
+		<AltTexture id="20">
+			<Texture>
+				<File>lostHallsObjects16x16</File>
+				<Index>0x27</Index>
+			</Texture>
+		</AltTexture>
+		<AltTexture id="21">
+			<Texture>
+				<File>lostHallsObjects16x16</File>
+				<Index>0x28</Index>
+			</Texture>
+		</AltTexture>
+		<AltTexture id="22">
+			<Texture>
+				<File>lostHallsObjects16x16</File>
+				<Index>0x29</Index>
+			</Texture>
+		</AltTexture>
+		<AltTexture id="23">
+			<Texture>
+				<File>lostHallsObjects16x16</File>
+				<Index>0x2a</Index>
+			</Texture>
+		</AltTexture>
+		<AltTexture id="24">
+			<Texture>
+				<File>lostHallsObjects16x16</File>
+				<Index>0x2b</Index>
+			</Texture>
+		</AltTexture>
+		<AltTexture id="25">
+			<Texture>
+				<File>lostHallsObjects16x16</File>
+				<Index>0x2c</Index>
+			</Texture>
+		</AltTexture>
+		<AltTexture id="26">
+			<Texture>
+				<File>lostHallsObjects16x16</File>
+				<Index>0x2d</Index>
+			</Texture>
+		</AltTexture>
+		<AltTexture id="27">
+			<Texture>
+				<File>lostHallsObjects16x16</File>
+				<Index>0x2e</Index>
+			</Texture>
+		</AltTexture>
+		<AltTexture id="28">
+			<Texture>
+				<File>lostHallsObjects16x16</File>
+				<Index>0x2f</Index>
+			</Texture>
+		</AltTexture>
+		<AltTexture id="29">
+			<Texture>
+				<File>lostHallsObjects16x16</File>
+				<Index>0x30</Index>
+			</Texture>
+		</AltTexture>
+		<AltTexture id="30">
+			<Texture>
+				<File>invisible</File>
+				<Index>0</Index>
+			</Texture>
+		</AltTexture>
+		<DisplayId>Elder Void Entity</DisplayId>
+		<Size>200</Size>
+		<MaxHitPoints>800000</MaxHitPoints>
+		<Exp>100000</Exp>
+		<Defense>70</Defense>
+		<HitSound>weapon/wand_of_dark_magic</HitSound>
+		<DeathSound>enter_realm</DeathSound>
+		<Quest />
+		<HealthBarBoss />
+		<Flying />
+		<EventChestBoss />
+		<TrackLoot />
+		<StunImmune />
+		<ParalyzeImmune />
+		<DazedImmune />
+		<StasisImmune />
+		<Projectile id="0">
+			<ObjectId>Void Bullet</ObjectId>
+			<Damage>228</Damage>
+			<Speed>100</Speed>
+			<LifetimeMS>2500</LifetimeMS>
+			<Size>120</Size>
+			<ArmorPiercing />
+			<MultiHit />
+			<ConditionEffect duration="2">Darkness</ConditionEffect>
+		</Projectile>
+		<Projectile id="1">
+			<ObjectId>Void Blast</ObjectId>
+			<Damage>240</Damage>
+			<Speed>80</Speed>
+			<LifetimeMS>3500</LifetimeMS>
+			<Size>120</Size>
+			<MultiHit />
+			<ConditionEffect duration="1">Paralyzed</ConditionEffect>
+		</Projectile>
+		<Projectile id="2">
+			<ObjectId>Void Small Shuriken</ObjectId>
+			<Damage>234</Damage>
+			<Speed>70</Speed>
+			<LifetimeMS>4200</LifetimeMS>
+			<Size>120</Size>
+			<MultiHit />
+			<ConditionEffect duration="3">Confused</ConditionEffect>
+		</Projectile>
+		<Projectile id="3">
+			<ObjectId>Void Shuriken</ObjectId>
+			<Damage>292</Damage>
+			<Speed>100</Speed>
+			<LifetimeMS>1800</LifetimeMS>
+			<Size>120</Size>
+			<MultiHit />
+			<ConditionEffect duration="5">Quiet</ConditionEffect>
+		</Projectile>
+		<Projectile id="4">
+			<ObjectId>Void Wheel</ObjectId>
+			<Damage>260</Damage>
+			<Speed>80</Speed>
+			<LifetimeMS>2000</LifetimeMS>
+			<Size>120</Size>
+			<MultiHit />
+			<ConditionEffect duration="3">Unstable</ConditionEffect>
+		</Projectile>
+		<Projectile id="5">
+			<ObjectId>Void Spin</ObjectId>
+			<Damage>228</Damage>
+			<Speed>60</Speed>
+			<LifetimeMS>2500</LifetimeMS>
+			<Size>120</Size>
+			<MultiHit />
+			<ConditionEffect duration="3" target="1">Stasis</ConditionEffect>
+		</Projectile>
+		<Projectile id="6">
+			<ObjectId>Void Bullet</ObjectId>
+			<Damage>228</Damage>
+			<Speed>70</Speed>
+			<LifetimeMS>3000</LifetimeMS>
+			<Size>120</Size>
+			<ArmorPiercing />
+			<MultiHit />
+			<ConditionEffect duration="2">Darkness</ConditionEffect>
+			<Amplitude>1.5</Amplitude>
+			<Frequency>1.5</Frequency>
+		</Projectile>
+		<Projectile id="7">
+			<ObjectId>Void Shockwave</ObjectId>
+			<Damage>260</Damage>
+			<Speed>50</Speed>
+			<LifetimeMS>3500</LifetimeMS>
+			<Size>120</Size>
+			<MultiHit />
+			<ConditionEffect duration="3">Stunned</ConditionEffect>
+		</Projectile>
+		<Projectile id="8">
+			<ObjectId>Void Wave</ObjectId>
+			<Damage>266</Damage>
+			<Speed>80</Speed>
+			<LifetimeMS>2000</LifetimeMS>
+			<Size>120</Size>
+			<FaceDir />
+			<MultiHit />
+			<ConditionEffect duration="3">Slowed</ConditionEffect>
+			<Amplitude>2</Amplitude>
+			<Frequency>1.2</Frequency>
+		</Projectile>
+		<Projectile id="9">
+			<ObjectId>Void Spear</ObjectId>
+			<Damage>325</Damage>
+			<Speed>70</Speed>
+			<LifetimeMS>4000</LifetimeMS>
+			<Size>120</Size>
+			<ConditionEffect duration="3">Blind</ConditionEffect>
+			<MultiHit />
+		</Projectile>
+		<Projectile id="10">
+			<ObjectId>Void Large Bullet</ObjectId>
+			<Damage>260</Damage>
+			<Speed>110</Speed>
+			<LifetimeMS>2000</LifetimeMS>
+			<Size>250</Size>
+			<ArmorPiercing />
+			<MultiHit />
+			<ConditionEffect duration="2">Darkness</ConditionEffect>
+		</Projectile>
+		<Projectile id="11">
+			<ObjectId>Void Ring</ObjectId>
+			<Damage>195</Damage>
+			<Speed>100</Speed>
+			<LifetimeMS>2500</LifetimeMS>
+			<Size>120</Size>
+			<MultiHit />
+			<ConditionEffect duration="1.4">Petrify</ConditionEffect>
+		</Projectile>
+		<Projectile id="12">
+			<ObjectId>Void Wave</ObjectId>
+			<Damage>266</Damage>
+			<Speed>80</Speed>
+			<LifetimeMS>4000</LifetimeMS>
+			<Size>120</Size>
+			<FaceDir />
+			<MultiHit />
+			<ConditionEffect duration="3">Slowed</ConditionEffect>
+			<Amplitude>2</Amplitude>
+			<Frequency>1.2</Frequency>
+		</Projectile>
+		<Projectile id="13">
+			<ObjectId>Void Shuriken</ObjectId>
+			<Damage>292</Damage>
+			<Speed>60</Speed>
+			<LifetimeMS>4000</LifetimeMS>
+			<Size>120</Size>
+			<MultiHit />
+			<ConditionEffect duration="2">Quiet</ConditionEffect>
+		</Projectile>
+		<Projectile id="14">
+			<ObjectId>Void Blast</ObjectId>
+			<Damage>240</Damage>
+			<Speed>110</Speed>
+			<LifetimeMS>3500</LifetimeMS>
+			<Size>120</Size>
+			<MultiHit />
+			<FaceDir />
+			<Amplitude>2</Amplitude>
+			<Frequency>2.5</Frequency>
+			<ConditionEffect duration="1">Paralyzed</ConditionEffect>
+		</Projectile>
+		<Projectile id="15">
+			<ObjectId>Void Small Shuriken</ObjectId>
+			<Damage>234</Damage>
+			<Speed>70</Speed>
+			<LifetimeMS>4000</LifetimeMS>
+			<Size>120</Size>
+			<Amplitude>1</Amplitude>
+			<Frequency>2.5</Frequency>
+			<ConditionEffect duration="3">Confused</ConditionEffect>
+		</Projectile>
+		<Projectile id="16">
+			<ObjectId>Void Spin</ObjectId>
+			<Damage>228</Damage>
+			<Speed>40</Speed>
+			<LifetimeMS>10000</LifetimeMS>
+			<Size>120</Size>
+			<Amplitude>2</Amplitude>
+			<Frequency>3</Frequency>
+			<MultiHit />
+			<ConditionEffect duration="5" target="1">Stasis</ConditionEffect>
+		</Projectile>
+		<Projectile id="17">
+			<ObjectId>Void Spear</ObjectId>
+			<Damage>325</Damage>
+			<Speed>70</Speed>
+			<LifetimeMS>4000</LifetimeMS>
+			<Size>120</Size>
+			<FaceDir />
+			<MultiHit />
+			<Amplitude>1.5</Amplitude>
+			<Frequency>2</Frequency>
+			<ConditionEffect duration="3">Blind</ConditionEffect>
+		</Projectile>
+		<Projectile id="18">
+			<ObjectId>Void Vortex</ObjectId>
+			<Damage>552</Damage>
+			<Speed>50</Speed>
+			<LifetimeMS>6000</LifetimeMS>
+			<Size>240</Size>
+			<MultiHit />
+			<ConditionEffect duration="3">Silenced</ConditionEffect>
+		</Projectile>
+		<Projectile id="19">
+			<ObjectId>Void Laser</ObjectId>
+			<Damage>390</Damage>
+			<Speed>110</Speed>
+			<LifetimeMS>2500</LifetimeMS>
+			<Size>160</Size>
+			<MultiHit />
+			<ConditionEffect duration="3">Silenced</ConditionEffect>
+		</Projectile>
+		<Projectile id="20">
+			<ObjectId>Void Shot</ObjectId>
+			<Damage>332</Damage>
+			<Speed>80</Speed>
+			<LifetimeMS>4000</LifetimeMS>
+			<Size>120</Size>
+			<MultiHit />
+			<ConditionEffect duration="3">Silenced</ConditionEffect>
+		</Projectile>
+		<Projectile id="21">
+			<ObjectId>Void Large Bullet</ObjectId>
+			<Damage>260</Damage>
+			<Speed>80</Speed>
+			<LifetimeMS>3000</LifetimeMS>
+			<Size>250</Size>
+			<ArmorPiercing />
+			<MultiHit />
+			<ConditionEffect duration="2">Darkness</ConditionEffect>
+		</Projectile>
+		<XpBonus>2</XpBonus>
+	</Object>
+	<Object type="0xF10E" id="Elder LH Void Entity E">
+		<Class>Character</Class>
+		<Enemy />
+		<AnimatedTexture>
+			<File>lostHallsChars16x16</File>
+			<Index>5</Index>
+		</AnimatedTexture>
+		<AltTexture id="1">
+			<Texture>
+				<File>lostHallsObjects16x16</File>
+				<Index>0x01</Index>
+			</Texture>
+		</AltTexture>
+		<AltTexture id="2">
+			<Texture>
+				<File>lostHallsObjects16x16</File>
+				<Index>0x02</Index>
+			</Texture>
+		</AltTexture>
+		<AltTexture id="3">
+			<Texture>
+				<File>lostHallsObjects16x16</File>
+				<Index>0x03</Index>
+			</Texture>
+		</AltTexture>
+		<AltTexture id="4">
+			<Texture>
+				<File>lostHallsObjects16x16</File>
+				<Index>0x04</Index>
+			</Texture>
+		</AltTexture>
+		<AltTexture id="5">
+			<Texture>
+				<File>lostHallsObjects16x16</File>
+				<Index>0x05</Index>
+			</Texture>
+		</AltTexture>
+		<AltTexture id="6">
+			<Texture>
+				<File>lostHallsObjects16x16</File>
+				<Index>0x14</Index>
+			</Texture>
+		</AltTexture>
+		<AltTexture id="7">
+			<Texture>
+				<File>lostHallsObjects16x16</File>
+				<Index>0x15</Index>
+			</Texture>
+		</AltTexture>
+		<AltTexture id="8">
+			<Texture>
+				<File>lostHallsObjects16x16</File>
+				<Index>0x16</Index>
+			</Texture>
+		</AltTexture>
+		<AltTexture id="9">
+			<Texture>
+				<File>lostHallsObjects16x16</File>
+				<Index>0x17</Index>
+			</Texture>
+		</AltTexture>
+		<AltTexture id="10">
+			<Texture>
+				<File>lostHallsObjects16x16</File>
+				<Index>0x18</Index>
+			</Texture>
+		</AltTexture>
+		<AltTexture id="11">
+			<Texture>
+				<File>lostHallsObjects16x16</File>
+				<Index>0x19</Index>
+			</Texture>
+		</AltTexture>
+		<AltTexture id="12">
+			<Texture>
+				<File>lostHallsObjects16x16</File>
+				<Index>0x1a</Index>
+			</Texture>
+		</AltTexture>
+		<AltTexture id="13">
+			<Texture>
+				<File>lostHallsObjects16x16</File>
+				<Index>0x1b</Index>
+			</Texture>
+		</AltTexture>
+		<AltTexture id="14">
+			<Texture>
+				<File>lostHallsObjects16x16</File>
+				<Index>0x1c</Index>
+			</Texture>
+		</AltTexture>
+		<AltTexture id="15">
+			<Texture>
+				<File>lostHallsObjects16x16</File>
+				<Index>0x1d</Index>
+			</Texture>
+		</AltTexture>
+		<AltTexture id="16">
+			<Texture>
+				<File>lostHallsObjects16x16</File>
+				<Index>0x1e</Index>
+			</Texture>
+		</AltTexture>
+		<AltTexture id="17">
+			<Texture>
+				<File>lostHallsObjects16x16</File>
+				<Index>0x1f</Index>
+			</Texture>
+		</AltTexture>
+		<AltTexture id="18">
+			<Texture>
+				<File>lostHallsObjects16x16</File>
+				<Index>0x25</Index>
+			</Texture>
+		</AltTexture>
+		<AltTexture id="19">
+			<Texture>
+				<File>lostHallsObjects16x16</File>
+				<Index>0x26</Index>
+			</Texture>
+		</AltTexture>
+		<AltTexture id="20">
+			<Texture>
+				<File>lostHallsObjects16x16</File>
+				<Index>0x27</Index>
+			</Texture>
+		</AltTexture>
+		<AltTexture id="21">
+			<Texture>
+				<File>lostHallsObjects16x16</File>
+				<Index>0x28</Index>
+			</Texture>
+		</AltTexture>
+		<AltTexture id="22">
+			<Texture>
+				<File>lostHallsObjects16x16</File>
+				<Index>0x29</Index>
+			</Texture>
+		</AltTexture>
+		<AltTexture id="23">
+			<Texture>
+				<File>lostHallsObjects16x16</File>
+				<Index>0x2a</Index>
+			</Texture>
+		</AltTexture>
+		<AltTexture id="24">
+			<Texture>
+				<File>lostHallsObjects16x16</File>
+				<Index>0x2b</Index>
+			</Texture>
+		</AltTexture>
+		<AltTexture id="25">
+			<Texture>
+				<File>lostHallsObjects16x16</File>
+				<Index>0x2c</Index>
+			</Texture>
+		</AltTexture>
+		<AltTexture id="26">
+			<Texture>
+				<File>lostHallsObjects16x16</File>
+				<Index>0x2d</Index>
+			</Texture>
+		</AltTexture>
+		<AltTexture id="27">
+			<Texture>
+				<File>lostHallsObjects16x16</File>
+				<Index>0x2e</Index>
+			</Texture>
+		</AltTexture>
+		<AltTexture id="28">
+			<Texture>
+				<File>lostHallsObjects16x16</File>
+				<Index>0x2f</Index>
+			</Texture>
+		</AltTexture>
+		<AltTexture id="29">
+			<Texture>
+				<File>lostHallsObjects16x16</File>
+				<Index>0x30</Index>
+			</Texture>
+		</AltTexture>
+		<AltTexture id="30">
+			<Texture>
+				<File>invisible</File>
+				<Index>0</Index>
+			</Texture>
+		</AltTexture>
+		<DisplayId>Elder Void Entity</DisplayId>
+		<Size>200</Size>
+		<MaxHitPoints>200000</MaxHitPoints>
+		<Exp>0</Exp>
+		<Defense>70</Defense>
+		<HitSound>weapon/wand_of_dark_magic</HitSound>
+		<DeathSound>weapon/wand_of_dark_magic</DeathSound>
+		<Flying />
+		<StunImmune />
+		<ParalyzeImmune />
+		<DazedImmune />
+		<StasisImmune />
+		<Projectile id="0">
+			<ObjectId>Void Vortex</ObjectId>
+			<Damage>390</Damage>
+			<Speed>50</Speed>
+			<LifetimeMS>6000</LifetimeMS>
+			<Size>240</Size>
+			<MultiHit />
+			<ConditionEffect duration="3">Silenced</ConditionEffect>
+		</Projectile>
+		<Projectile id="1">
+			<ObjectId>Void Laser</ObjectId>
+			<Damage>325</Damage>
+			<Speed>110</Speed>
+			<LifetimeMS>2500</LifetimeMS>
+			<Size>160</Size>
+			<MultiHit />
+			<ConditionEffect duration="3">Silenced</ConditionEffect>
+		</Projectile>
+		<Projectile id="2">
+			<ObjectId>Void Shot</ObjectId>
+			<Damage>299</Damage>
+			<Speed>80</Speed>
+			<LifetimeMS>4000</LifetimeMS>
+			<Size>120</Size>
+			<MultiHit />
+			<ConditionEffect duration="3">Silenced</ConditionEffect>
+		</Projectile>
+		<XpBonus>2</XpBonus>
+	</Object>
+	<Object type="0xF10F" id="Elder LH Void Entity N">
+		<Class>Character</Class>
+		<Enemy />
+		<AnimatedTexture>
+			<File>lostHallsChars16x16</File>
+			<Index>5</Index>
+		</AnimatedTexture>
+		<AltTexture id="1">
+			<Texture>
+				<File>lostHallsObjects16x16</File>
+				<Index>0x01</Index>
+			</Texture>
+		</AltTexture>
+		<AltTexture id="2">
+			<Texture>
+				<File>lostHallsObjects16x16</File>
+				<Index>0x02</Index>
+			</Texture>
+		</AltTexture>
+		<AltTexture id="3">
+			<Texture>
+				<File>lostHallsObjects16x16</File>
+				<Index>0x03</Index>
+			</Texture>
+		</AltTexture>
+		<AltTexture id="4">
+			<Texture>
+				<File>lostHallsObjects16x16</File>
+				<Index>0x04</Index>
+			</Texture>
+		</AltTexture>
+		<AltTexture id="5">
+			<Texture>
+				<File>lostHallsObjects16x16</File>
+				<Index>0x05</Index>
+			</Texture>
+		</AltTexture>
+		<AltTexture id="6">
+			<Texture>
+				<File>lostHallsObjects16x16</File>
+				<Index>0x14</Index>
+			</Texture>
+		</AltTexture>
+		<AltTexture id="7">
+			<Texture>
+				<File>lostHallsObjects16x16</File>
+				<Index>0x15</Index>
+			</Texture>
+		</AltTexture>
+		<AltTexture id="8">
+			<Texture>
+				<File>lostHallsObjects16x16</File>
+				<Index>0x16</Index>
+			</Texture>
+		</AltTexture>
+		<AltTexture id="9">
+			<Texture>
+				<File>lostHallsObjects16x16</File>
+				<Index>0x17</Index>
+			</Texture>
+		</AltTexture>
+		<AltTexture id="10">
+			<Texture>
+				<File>lostHallsObjects16x16</File>
+				<Index>0x18</Index>
+			</Texture>
+		</AltTexture>
+		<AltTexture id="11">
+			<Texture>
+				<File>lostHallsObjects16x16</File>
+				<Index>0x19</Index>
+			</Texture>
+		</AltTexture>
+		<AltTexture id="12">
+			<Texture>
+				<File>lostHallsObjects16x16</File>
+				<Index>0x1a</Index>
+			</Texture>
+		</AltTexture>
+		<AltTexture id="13">
+			<Texture>
+				<File>lostHallsObjects16x16</File>
+				<Index>0x1b</Index>
+			</Texture>
+		</AltTexture>
+		<AltTexture id="14">
+			<Texture>
+				<File>lostHallsObjects16x16</File>
+				<Index>0x1c</Index>
+			</Texture>
+		</AltTexture>
+		<AltTexture id="15">
+			<Texture>
+				<File>lostHallsObjects16x16</File>
+				<Index>0x1d</Index>
+			</Texture>
+		</AltTexture>
+		<AltTexture id="16">
+			<Texture>
+				<File>lostHallsObjects16x16</File>
+				<Index>0x1e</Index>
+			</Texture>
+		</AltTexture>
+		<AltTexture id="17">
+			<Texture>
+				<File>lostHallsObjects16x16</File>
+				<Index>0x1f</Index>
+			</Texture>
+		</AltTexture>
+		<AltTexture id="18">
+			<Texture>
+				<File>lostHallsObjects16x16</File>
+				<Index>0x25</Index>
+			</Texture>
+		</AltTexture>
+		<AltTexture id="19">
+			<Texture>
+				<File>lostHallsObjects16x16</File>
+				<Index>0x26</Index>
+			</Texture>
+		</AltTexture>
+		<AltTexture id="20">
+			<Texture>
+				<File>lostHallsObjects16x16</File>
+				<Index>0x27</Index>
+			</Texture>
+		</AltTexture>
+		<AltTexture id="21">
+			<Texture>
+				<File>lostHallsObjects16x16</File>
+				<Index>0x28</Index>
+			</Texture>
+		</AltTexture>
+		<AltTexture id="22">
+			<Texture>
+				<File>lostHallsObjects16x16</File>
+				<Index>0x29</Index>
+			</Texture>
+		</AltTexture>
+		<AltTexture id="23">
+			<Texture>
+				<File>lostHallsObjects16x16</File>
+				<Index>0x2a</Index>
+			</Texture>
+		</AltTexture>
+		<AltTexture id="24">
+			<Texture>
+				<File>lostHallsObjects16x16</File>
+				<Index>0x2b</Index>
+			</Texture>
+		</AltTexture>
+		<AltTexture id="25">
+			<Texture>
+				<File>lostHallsObjects16x16</File>
+				<Index>0x2c</Index>
+			</Texture>
+		</AltTexture>
+		<AltTexture id="26">
+			<Texture>
+				<File>lostHallsObjects16x16</File>
+				<Index>0x2d</Index>
+			</Texture>
+		</AltTexture>
+		<AltTexture id="27">
+			<Texture>
+				<File>lostHallsObjects16x16</File>
+				<Index>0x2e</Index>
+			</Texture>
+		</AltTexture>
+		<AltTexture id="28">
+			<Texture>
+				<File>lostHallsObjects16x16</File>
+				<Index>0x2f</Index>
+			</Texture>
+		</AltTexture>
+		<AltTexture id="29">
+			<Texture>
+				<File>lostHallsObjects16x16</File>
+				<Index>0x30</Index>
+			</Texture>
+		</AltTexture>
+		<AltTexture id="30">
+			<Texture>
+				<File>invisible</File>
+				<Index>0</Index>
+			</Texture>
+		</AltTexture>
+		<DisplayId>Elder Void Entity</DisplayId>
+		<Size>200</Size>
+		<MaxHitPoints>200000</MaxHitPoints>
+		<Exp>0</Exp>
+		<Defense>70</Defense>
+		<HitSound>weapon/wand_of_dark_magic</HitSound>
+		<DeathSound>weapon/wand_of_dark_magic</DeathSound>
+		<Flying />
+		<StunImmune />
+		<ParalyzeImmune />
+		<DazedImmune />
+		<StasisImmune />
+		<Projectile id="0">
+			<ObjectId>Void Vortex</ObjectId>
+			<Damage>390</Damage>
+			<Speed>50</Speed>
+			<LifetimeMS>6000</LifetimeMS>
+			<Size>240</Size>
+			<MultiHit />
+			<ConditionEffect duration="3">Silenced</ConditionEffect>
+		</Projectile>
+		<Projectile id="1">
+			<ObjectId>Void Laser</ObjectId>
+			<Damage>325</Damage>
+			<Speed>110</Speed>
+			<LifetimeMS>2500</LifetimeMS>
+			<Size>160</Size>
+			<MultiHit />
+			<ConditionEffect duration="3">Silenced</ConditionEffect>
+		</Projectile>
+		<Projectile id="2">
+			<ObjectId>Void Shot</ObjectId>
+			<Damage>299</Damage>
+			<Speed>80</Speed>
+			<LifetimeMS>4000</LifetimeMS>
+			<Size>120</Size>
+			<MultiHit />
+			<ConditionEffect duration="3">Silenced</ConditionEffect>
+		</Projectile>
+		<XpBonus>2</XpBonus>
+	</Object>
+	<Object type="0xF110" id="Elder LH Void Entity S">
+		<Class>Character</Class>
+		<Enemy />
+		<AnimatedTexture>
+			<File>lostHallsChars16x16</File>
+			<Index>5</Index>
+		</AnimatedTexture>
+		<AltTexture id="1">
+			<Texture>
+				<File>lostHallsObjects16x16</File>
+				<Index>0x01</Index>
+			</Texture>
+		</AltTexture>
+		<AltTexture id="2">
+			<Texture>
+				<File>lostHallsObjects16x16</File>
+				<Index>0x02</Index>
+			</Texture>
+		</AltTexture>
+		<AltTexture id="3">
+			<Texture>
+				<File>lostHallsObjects16x16</File>
+				<Index>0x03</Index>
+			</Texture>
+		</AltTexture>
+		<AltTexture id="4">
+			<Texture>
+				<File>lostHallsObjects16x16</File>
+				<Index>0x04</Index>
+			</Texture>
+		</AltTexture>
+		<AltTexture id="5">
+			<Texture>
+				<File>lostHallsObjects16x16</File>
+				<Index>0x05</Index>
+			</Texture>
+		</AltTexture>
+		<AltTexture id="6">
+			<Texture>
+				<File>lostHallsObjects16x16</File>
+				<Index>0x14</Index>
+			</Texture>
+		</AltTexture>
+		<AltTexture id="7">
+			<Texture>
+				<File>lostHallsObjects16x16</File>
+				<Index>0x15</Index>
+			</Texture>
+		</AltTexture>
+		<AltTexture id="8">
+			<Texture>
+				<File>lostHallsObjects16x16</File>
+				<Index>0x16</Index>
+			</Texture>
+		</AltTexture>
+		<AltTexture id="9">
+			<Texture>
+				<File>lostHallsObjects16x16</File>
+				<Index>0x17</Index>
+			</Texture>
+		</AltTexture>
+		<AltTexture id="10">
+			<Texture>
+				<File>lostHallsObjects16x16</File>
+				<Index>0x18</Index>
+			</Texture>
+		</AltTexture>
+		<AltTexture id="11">
+			<Texture>
+				<File>lostHallsObjects16x16</File>
+				<Index>0x19</Index>
+			</Texture>
+		</AltTexture>
+		<AltTexture id="12">
+			<Texture>
+				<File>lostHallsObjects16x16</File>
+				<Index>0x1a</Index>
+			</Texture>
+		</AltTexture>
+		<AltTexture id="13">
+			<Texture>
+				<File>lostHallsObjects16x16</File>
+				<Index>0x1b</Index>
+			</Texture>
+		</AltTexture>
+		<AltTexture id="14">
+			<Texture>
+				<File>lostHallsObjects16x16</File>
+				<Index>0x1c</Index>
+			</Texture>
+		</AltTexture>
+		<AltTexture id="15">
+			<Texture>
+				<File>lostHallsObjects16x16</File>
+				<Index>0x1d</Index>
+			</Texture>
+		</AltTexture>
+		<AltTexture id="16">
+			<Texture>
+				<File>lostHallsObjects16x16</File>
+				<Index>0x1e</Index>
+			</Texture>
+		</AltTexture>
+		<AltTexture id="17">
+			<Texture>
+				<File>lostHallsObjects16x16</File>
+				<Index>0x1f</Index>
+			</Texture>
+		</AltTexture>
+		<AltTexture id="18">
+			<Texture>
+				<File>lostHallsObjects16x16</File>
+				<Index>0x25</Index>
+			</Texture>
+		</AltTexture>
+		<AltTexture id="19">
+			<Texture>
+				<File>lostHallsObjects16x16</File>
+				<Index>0x26</Index>
+			</Texture>
+		</AltTexture>
+		<AltTexture id="20">
+			<Texture>
+				<File>lostHallsObjects16x16</File>
+				<Index>0x27</Index>
+			</Texture>
+		</AltTexture>
+		<AltTexture id="21">
+			<Texture>
+				<File>lostHallsObjects16x16</File>
+				<Index>0x28</Index>
+			</Texture>
+		</AltTexture>
+		<AltTexture id="22">
+			<Texture>
+				<File>lostHallsObjects16x16</File>
+				<Index>0x29</Index>
+			</Texture>
+		</AltTexture>
+		<AltTexture id="23">
+			<Texture>
+				<File>lostHallsObjects16x16</File>
+				<Index>0x2a</Index>
+			</Texture>
+		</AltTexture>
+		<AltTexture id="24">
+			<Texture>
+				<File>lostHallsObjects16x16</File>
+				<Index>0x2b</Index>
+			</Texture>
+		</AltTexture>
+		<AltTexture id="25">
+			<Texture>
+				<File>lostHallsObjects16x16</File>
+				<Index>0x2c</Index>
+			</Texture>
+		</AltTexture>
+		<AltTexture id="26">
+			<Texture>
+				<File>lostHallsObjects16x16</File>
+				<Index>0x2d</Index>
+			</Texture>
+		</AltTexture>
+		<AltTexture id="27">
+			<Texture>
+				<File>lostHallsObjects16x16</File>
+				<Index>0x2e</Index>
+			</Texture>
+		</AltTexture>
+		<AltTexture id="28">
+			<Texture>
+				<File>lostHallsObjects16x16</File>
+				<Index>0x2f</Index>
+			</Texture>
+		</AltTexture>
+		<AltTexture id="29">
+			<Texture>
+				<File>lostHallsObjects16x16</File>
+				<Index>0x30</Index>
+			</Texture>
+		</AltTexture>
+		<AltTexture id="30">
+			<Texture>
+				<File>invisible</File>
+				<Index>0</Index>
+			</Texture>
+		</AltTexture>
+		<DisplayId>Elder Void Entity</DisplayId>
+		<Size>200</Size>
+		<MaxHitPoints>200000</MaxHitPoints>
+		<Exp>0</Exp>
+		<Defense>70</Defense>
+		<HitSound>weapon/wand_of_dark_magic</HitSound>
+		<DeathSound>weapon/wand_of_dark_magic</DeathSound>
+		<Flying />
+		<StunImmune />
+		<ParalyzeImmune />
+		<DazedImmune />
+		<StasisImmune />
+		<Projectile id="0">
+			<ObjectId>Void Vortex</ObjectId>
+			<Damage>390</Damage>
+			<Speed>50</Speed>
+			<LifetimeMS>6000</LifetimeMS>
+			<Size>240</Size>
+			<MultiHit />
+			<ConditionEffect duration="3">Silenced</ConditionEffect>
+		</Projectile>
+		<Projectile id="1">
+			<ObjectId>Void Laser</ObjectId>
+			<Damage>325</Damage>
+			<Speed>110</Speed>
+			<LifetimeMS>2500</LifetimeMS>
+			<Size>160</Size>
+			<MultiHit />
+			<ConditionEffect duration="3">Silenced</ConditionEffect>
+		</Projectile>
+		<Projectile id="2">
+			<ObjectId>Void Shot</ObjectId>
+			<Damage>299</Damage>
+			<Speed>80</Speed>
+			<LifetimeMS>4000</LifetimeMS>
+			<Size>120</Size>
+			<MultiHit />
+			<ConditionEffect duration="3">Silenced</ConditionEffect>
+		</Projectile>
+		<XpBonus>2</XpBonus>
+	</Object>
+	<Object type="0xF111" id="Elder LH Void Entity W">
+		<Class>Character</Class>
+		<Enemy />
+		<AnimatedTexture>
+			<File>lostHallsChars16x16</File>
+			<Index>5</Index>
+		</AnimatedTexture>
+		<AltTexture id="1">
+			<Texture>
+				<File>lostHallsObjects16x16</File>
+				<Index>0x01</Index>
+			</Texture>
+		</AltTexture>
+		<AltTexture id="2">
+			<Texture>
+				<File>lostHallsObjects16x16</File>
+				<Index>0x02</Index>
+			</Texture>
+		</AltTexture>
+		<AltTexture id="3">
+			<Texture>
+				<File>lostHallsObjects16x16</File>
+				<Index>0x03</Index>
+			</Texture>
+		</AltTexture>
+		<AltTexture id="4">
+			<Texture>
+				<File>lostHallsObjects16x16</File>
+				<Index>0x04</Index>
+			</Texture>
+		</AltTexture>
+		<AltTexture id="5">
+			<Texture>
+				<File>lostHallsObjects16x16</File>
+				<Index>0x05</Index>
+			</Texture>
+		</AltTexture>
+		<AltTexture id="6">
+			<Texture>
+				<File>lostHallsObjects16x16</File>
+				<Index>0x14</Index>
+			</Texture>
+		</AltTexture>
+		<AltTexture id="7">
+			<Texture>
+				<File>lostHallsObjects16x16</File>
+				<Index>0x15</Index>
+			</Texture>
+		</AltTexture>
+		<AltTexture id="8">
+			<Texture>
+				<File>lostHallsObjects16x16</File>
+				<Index>0x16</Index>
+			</Texture>
+		</AltTexture>
+		<AltTexture id="9">
+			<Texture>
+				<File>lostHallsObjects16x16</File>
+				<Index>0x17</Index>
+			</Texture>
+		</AltTexture>
+		<AltTexture id="10">
+			<Texture>
+				<File>lostHallsObjects16x16</File>
+				<Index>0x18</Index>
+			</Texture>
+		</AltTexture>
+		<AltTexture id="11">
+			<Texture>
+				<File>lostHallsObjects16x16</File>
+				<Index>0x19</Index>
+			</Texture>
+		</AltTexture>
+		<AltTexture id="12">
+			<Texture>
+				<File>lostHallsObjects16x16</File>
+				<Index>0x1a</Index>
+			</Texture>
+		</AltTexture>
+		<AltTexture id="13">
+			<Texture>
+				<File>lostHallsObjects16x16</File>
+				<Index>0x1b</Index>
+			</Texture>
+		</AltTexture>
+		<AltTexture id="14">
+			<Texture>
+				<File>lostHallsObjects16x16</File>
+				<Index>0x1c</Index>
+			</Texture>
+		</AltTexture>
+		<AltTexture id="15">
+			<Texture>
+				<File>lostHallsObjects16x16</File>
+				<Index>0x1d</Index>
+			</Texture>
+		</AltTexture>
+		<AltTexture id="16">
+			<Texture>
+				<File>lostHallsObjects16x16</File>
+				<Index>0x1e</Index>
+			</Texture>
+		</AltTexture>
+		<AltTexture id="17">
+			<Texture>
+				<File>lostHallsObjects16x16</File>
+				<Index>0x1f</Index>
+			</Texture>
+		</AltTexture>
+		<AltTexture id="18">
+			<Texture>
+				<File>lostHallsObjects16x16</File>
+				<Index>0x25</Index>
+			</Texture>
+		</AltTexture>
+		<AltTexture id="19">
+			<Texture>
+				<File>lostHallsObjects16x16</File>
+				<Index>0x26</Index>
+			</Texture>
+		</AltTexture>
+		<AltTexture id="20">
+			<Texture>
+				<File>lostHallsObjects16x16</File>
+				<Index>0x27</Index>
+			</Texture>
+		</AltTexture>
+		<AltTexture id="21">
+			<Texture>
+				<File>lostHallsObjects16x16</File>
+				<Index>0x28</Index>
+			</Texture>
+		</AltTexture>
+		<AltTexture id="22">
+			<Texture>
+				<File>lostHallsObjects16x16</File>
+				<Index>0x29</Index>
+			</Texture>
+		</AltTexture>
+		<AltTexture id="23">
+			<Texture>
+				<File>lostHallsObjects16x16</File>
+				<Index>0x2a</Index>
+			</Texture>
+		</AltTexture>
+		<AltTexture id="24">
+			<Texture>
+				<File>lostHallsObjects16x16</File>
+				<Index>0x2b</Index>
+			</Texture>
+		</AltTexture>
+		<AltTexture id="25">
+			<Texture>
+				<File>lostHallsObjects16x16</File>
+				<Index>0x2c</Index>
+			</Texture>
+		</AltTexture>
+		<AltTexture id="26">
+			<Texture>
+				<File>lostHallsObjects16x16</File>
+				<Index>0x2d</Index>
+			</Texture>
+		</AltTexture>
+		<AltTexture id="27">
+			<Texture>
+				<File>lostHallsObjects16x16</File>
+				<Index>0x2e</Index>
+			</Texture>
+		</AltTexture>
+		<AltTexture id="28">
+			<Texture>
+				<File>lostHallsObjects16x16</File>
+				<Index>0x2f</Index>
+			</Texture>
+		</AltTexture>
+		<AltTexture id="29">
+			<Texture>
+				<File>lostHallsObjects16x16</File>
+				<Index>0x30</Index>
+			</Texture>
+		</AltTexture>
+		<AltTexture id="30">
+			<Texture>
+				<File>invisible</File>
+				<Index>0</Index>
+			</Texture>
+		</AltTexture>
+		<DisplayId>Elder Void Entity</DisplayId>
+		<Size>200</Size>
+		<MaxHitPoints>200000</MaxHitPoints>
+		<Exp>0</Exp>
+		<Defense>70</Defense>
+		<HitSound>weapon/wand_of_dark_magic</HitSound>
+		<DeathSound>weapon/wand_of_dark_magic</DeathSound>
+		<Flying />
+		<StunImmune />
+		<ParalyzeImmune />
+		<DazedImmune />
+		<StasisImmune />
+		<Projectile id="0">
+			<ObjectId>Void Vortex</ObjectId>
+			<Damage>390</Damage>
+			<Speed>50</Speed>
+			<LifetimeMS>6000</LifetimeMS>
+			<Size>240</Size>
+			<MultiHit />
+			<ConditionEffect duration="3">Silenced</ConditionEffect>
+		</Projectile>
+		<Projectile id="1">
+			<ObjectId>Void Laser</ObjectId>
+			<Damage>325</Damage>
+			<Speed>110</Speed>
+			<LifetimeMS>2500</LifetimeMS>
+			<Size>160</Size>
+			<MultiHit />
+			<ConditionEffect duration="3">Silenced</ConditionEffect>
+		</Projectile>
+		<Projectile id="2">
+			<ObjectId>Void Shot</ObjectId>
+			<Damage>299</Damage>
+			<Speed>80</Speed>
+			<LifetimeMS>4000</LifetimeMS>
+			<Size>120</Size>
+			<MultiHit />
+			<ConditionEffect duration="3">Silenced</ConditionEffect>
+		</Projectile>
+		<XpBonus>2</XpBonus>
+	</Object>
+	<Object type="0xF112" id="Elder LH Void Fragment">
+		<Class>Character</Class>
+		<Enemy />
+		<AnimatedTexture>
+			<File>lostHallsChars8x8</File>
+			<Index>14</Index>
+		</AnimatedTexture>
+		<DisplayId>Elder Void Fragment</DisplayId>
+		<Size>100</Size>
+		<MaxHitPoints>6000</MaxHitPoints>
+		<Defense>30</Defense>
+		<Exp>0</Exp>
+		<Projectile id="0">
+			<ObjectId>Void Bullet</ObjectId>
+			<Damage>78</Damage>
+			<Speed>80</Speed>
+			<LifetimeMS>300</LifetimeMS>
+			<MultiHit />
+			<ConditionEffect duration="3">Curse</ConditionEffect>
+		</Projectile>
+		<Projectile id="1">
+			<ObjectId>Void Spin</ObjectId>
+			<Damage>0</Damage>
+			<Speed>20</Speed>
+			<Size>50</Size>
+			<LifetimeMS>250</LifetimeMS>
+			<ConditionEffect duration="3" target="1">Stasis</ConditionEffect>
+		</Projectile>
+		<HitSound>monster/ghost_god_hit</HitSound>
+		<DeathSound>spell/magic_nova</DeathSound>
+		<XpBonus>2</XpBonus>
+	</Object>
+	<Object type="0xF113" id="Elder LH Void Shade">
+		<Class>Character</Class>
+		<Enemy />
+		<AnimatedTexture>
+			<File>lostHallsChars8x8</File>
+			<Index>15</Index>
+		</AnimatedTexture>
+		<DisplayId>Elder Void Shade</DisplayId>
+		<Size>140</Size>
+		<MaxHitPoints>12000</MaxHitPoints>
+		<Defense>35</Defense>
+		<Exp>0</Exp>
+		<HitSound>monster/beholder_hit</HitSound>
+		<DeathSound>spell/magic_nova</DeathSound>
+		<Projectile id="0">
+			<ObjectId>Void Bullet</ObjectId>
+			<Damage>130</Damage>
+			<Speed>80</Speed>
+			<LifetimeMS>900</LifetimeMS>
+			<Size>100</Size>
+			<MultiHit />
+			<ConditionEffect duration="3">Curse</ConditionEffect>
+		</Projectile>
+		<Projectile id="1">
+			<ObjectId>Void Spin</ObjectId>
+			<Damage>0</Damage>
+			<Speed>20</Speed>
+			<Size>50</Size>
+			<LifetimeMS>250</LifetimeMS>
+			<ConditionEffect duration="3" target="1">Stasis</ConditionEffect>
+		</Projectile>
+		<XpBonus>2</XpBonus>
 	</Object>
 </Objects>
