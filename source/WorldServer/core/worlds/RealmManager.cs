@@ -787,6 +787,8 @@ namespace WorldServer.core.worlds
             _snapshotDirty = true;
             var needed = EventsNeeded;
             RealmBroadcast($"{eventDead} has been defeated! [{_EventCount}/{needed}]");
+            // and to everyone elsewhere on the server (those here have the line above)
+            World.GameServer.ChatManager.Realm($"{eventDead} killed in realm {World.GetDisplayName()}.", World);
             if (needed - _EventCount > 0)
                 RealmBroadcast($"{needed - _EventCount} more {(needed - _EventCount == 1 ? "event" : "events")} until Oryx must face you.");
             if (Layout != null)

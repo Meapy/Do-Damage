@@ -71,6 +71,9 @@ RS_ONLY_SETS = [
     ("enthronedItems8x8", "kabam/rotmg/assets/custom/images/EnthronedItems8x8.png", 8, 8),
     # the Fists, T0 to T15 (Cloth Hand Wraps to Fists of the Ascended), a cell each, hand-drawn by the owner
     ("fistsItems8x8", "kabam/rotmg/assets/custom/images/FistsItems8x8.png", 8, 8),
+    # sprites players drew in the Sprite Editor and admins approved (tools/community_sprites.py)
+    ("communitySprites8x8", "kabam/rotmg/assets/custom/images/CommunitySprites8x8.png", 8, 8),
+    ("communitySprites16x16", "kabam/rotmg/assets/custom/images/CommunitySprites16x16.png", 16, 16),
     # the Quests and Nexus buttons' pictures and the Herald's week (tools/draw_ui_icons.py)
     ("uiIcons16x16", "kabam/rotmg/assets/custom/images/UiIcons16x16.png", 16, 16),
     # the Infernal potions, which take a stat past its maximum (tools/build_infernal_potions.py)

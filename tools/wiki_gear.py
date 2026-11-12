@@ -521,6 +521,10 @@ class Gear:
             flags.append("Soulbound")
         if it["doomed"]:
             flags.append("From Doomed Realms")
+        # drawn by a player in the Sprite Editor (tools/community_sprites.py), as the tooltip credits them
+        by = (it["el"].findtext("SpriteBy") or "").strip()
+        if by:
+            flags.append(h.esc("Sprite by " + by))
         if src or flags:
             rows.append('<dl class="it-src">%s%s</dl>' % (
                 "".join("<div><dt>%s</dt><dd>%s</dd></div>" % r for r in src),

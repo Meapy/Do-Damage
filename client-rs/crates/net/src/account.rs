@@ -715,9 +715,150 @@ pub fn text_answer(body: &str) -> Result<String, String> {
     }
 }
 
+/// A sprite sent in from the Sprite Editor (`SpritesController`, `/sprites/...`).
+#[derive(Debug, Clone, PartialEq, Default)]
+pub struct SpriteSub {
+    pub id: i32,
+    /// `pending`, `approved`, `rejected`, `released` (in the game) or `withdrawn`.
+    pub status: String,
+    /// `item` (a new look for `item`) or `new` (the art for a new item, `name`, of kind `slot`).
+    pub kind: String,
+    pub item: String,
+    pub name: String,
+    pub slot: String,
+    /// What the player wrote about it.
+    pub note: String,
+    pub author: String,
+    /// 8 or 16 pixels square.
+    pub size: usize,
+    /// Row by row: 0 for an empty pixel, else `0xFF_RR_GG_BB`.
+    pub pixels: Vec<u32>,
+    /// Why an admin rejected it, and who reviewed it.
+    pub review: String,
+    pub reviewed_by: String,
+    /// Unix seconds.
+    pub created: i64,
+}
+
+/// `/sprites/mine`: the account's own, newest first, whether it may review, and how many may
+/// wait at once.
+#[derive(Debug, Clone, PartialEq, Default)]
+pub struct SpriteList {
+    pub admin: bool,
+    pub max_pending: usize,
+    pub sprites: Vec<SpriteSub>,
+}
+
+/// A sprite's pixels as the server takes them: 8 hex digits each (RRGGBBAA), row by row.
+pub fn sprite_pixels_text(pixels: &[u32]) -> String {
+    pixels.iter().map(|&p| if p >> 24 == 0 { "00000000".to_owned() } else { format!("{:06x}ff", p & 0xFF_FFFF) }).collect()
+}
+
+/// The pixels of `sprite_pixels_text`; `None` unless it's `size` × `size` of them.
+pub fn parse_sprite_pixels(text: &str, size: usize) -> Option<Vec<u32>> {
+    let text = text.trim();
+    if text.len() != size * size * 8 || !text.is_ascii() {
+        return None;
+    }
+    (0..size * size)
+        .map(|i| {
+            let v = u32::from_str_radix(&text[i * 8..i * 8 + 8], 16).ok()?;
+            Some(if v & 0xFF < 0x80 { 0 } else { 0xFF00_0000 | v >> 8 })
+        })
+        .collect()
+}
+
+fn sprite_sub(e: roxmltree::Node) -> SpriteSub {
+    let text = |n: &str| child_text(e, n).unwrap_or("").to_owned();
+    let size = child_text(e, "Size").and_then(parse_int).unwrap_or(0).clamp(0, 64) as usize;
+    SpriteSub {
+        id: e.attribute("id").and_then(parse_int).unwrap_or(0) as i32,
+        status: text("Status"),
+        kind: text("Kind"),
+        item: text("Item"),
+        name: text("Name"),
+        slot: text("Slot"),
+        note: text("Note"),
+        author: text("Author"),
+        size,
+        pixels: parse_sprite_pixels(child_text(e, "Pixels").unwrap_or(""), size).unwrap_or_default(),
+        review: text("Review"),
+        reviewed_by: text("ReviewedBy"),
+        created: child_text(e, "Created").and_then(parse_int).unwrap_or(0),
+    }
+}
+
+fn sprite_subs(node: roxmltree::Node) -> Vec<SpriteSub> {
+    node.children().filter(|c| c.has_tag_name("Sprite")).map(sprite_sub).collect()
+}
+
+/// `/sprites/mine`, or the `<Error>`'s text.
+pub fn parse_sprite_list(xml: &str) -> Result<SpriteList, String> {
+    if let Some(e) = error_text(xml) {
+        return Err(e);
+    }
+    let doc = roxmltree::Document::parse(xml).map_err(|e| e.to_string())?;
+    let root = doc.root_element();
+    if !root.has_tag_name("Sprites") {
+        return Err("unexpected answer".into());
+    }
+    Ok(SpriteList {
+        admin: root.attribute("admin").is_some_and(|a| a.eq_ignore_ascii_case("true")),
+        max_pending: root.attribute("maxPending").and_then(parse_int).unwrap_or(5).clamp(1, 100) as usize,
+        sprites: sprite_subs(root),
+    })
+}
+
+/// One `<Sprite>` (`/sprites/submit`, `/sprites/review`), or the `<Error>`'s text.
+pub fn parse_sprite(xml: &str) -> Result<SpriteSub, String> {
+    if let Some(e) = error_text(xml) {
+        return Err(e);
+    }
+    let doc = roxmltree::Document::parse(xml).map_err(|e| e.to_string())?;
+    let root = doc.root_element();
+    if root.has_tag_name("Sprite") { Ok(sprite_sub(root)) } else { Err("unexpected answer".into()) }
+}
+
+/// `/sprites/queue` (admins): waiting for review, oldest first, and approved for the next release.
+pub fn parse_sprite_queue(xml: &str) -> Result<(Vec<SpriteSub>, Vec<SpriteSub>), String> {
+    if let Some(e) = error_text(xml) {
+        return Err(e);
+    }
+    let doc = roxmltree::Document::parse(xml).map_err(|e| e.to_string())?;
+    let root = doc.root_element();
+    let part = |n: &str| root.children().find(|c| c.has_tag_name(n)).map(sprite_subs).unwrap_or_default();
+    if root.has_tag_name("Queue") { Ok((part("Pending"), part("Approved"))) } else { Err("unexpected answer".into()) }
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
+
+    #[test]
+    fn sprites() {
+        let pixels = [0, 0xFF12_34AB, 0, 0xFFFF_FFFF].repeat(16);
+        let px = sprite_pixels_text(&pixels);
+        assert_eq!(&px[..16], "0000000012 34abff".replace(' ', ""));
+        let sprite = format!(
+            "<Sprite id=\"4\"><Status>pending</Status><Kind>item</Kind><Item>Potion of Maxy</Item><Name/><Slot/>\
+             <Note>hi</Note><Author>Painter</Author><Size>8</Size><Pixels>{px}</Pixels><Review/><ReviewedBy/>\
+             <Created>1800000000</Created></Sprite>"
+        );
+        let list = parse_sprite_list(&format!("<Sprites admin=\"True\" maxPending=\"5\">{sprite}</Sprites>")).unwrap();
+        assert!(list.admin);
+        assert_eq!(list.sprites.len(), 1);
+        let s = &list.sprites[0];
+        assert_eq!((s.id, s.size, s.item.as_str(), s.author.as_str()), (4, 8, "Potion of Maxy", "Painter"));
+        assert_eq!(s.pixels, pixels);
+        assert_eq!(sprite_pixels_text(&s.pixels), px);
+        // the wrong length, or not hex: no pixels
+        assert_eq!(parse_sprite_pixels(&px, 16), None);
+        assert_eq!(parse_sprite_pixels(&"zz".repeat(256), 8), None);
+        assert_eq!(parse_sprite_list("<Error>Bad login</Error>"), Err("Bad login".into()));
+        assert_eq!(parse_sprite(&sprite).unwrap().id, 4);
+        let q = parse_sprite_queue(&format!("<Queue><Pending>{sprite}</Pending><Approved/></Queue>")).unwrap();
+        assert_eq!((q.0.len(), q.1.len()), (1, 0));
+    }
 
     #[test]
     fn char_list() {

@@ -100,6 +100,8 @@ namespace WorldServer.core.worlds.impl
             if (Closed)
                 return false;
             Closed = true;
+            // to everyone on this server (during a hand-over each server tells its own players)
+            GameServer.ChatManager.Realm($"Realm {GetDisplayName()} closed.");
             WeeklyStats.Count(Shared.database.leaderboard.DbWeeklyStats.RealmsClosed);
             RealmManager.SnapshotClosed();
             RealmManager.DisableSpawning = true;

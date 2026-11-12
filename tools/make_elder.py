@@ -292,6 +292,10 @@ def write_xml(paths, root_tag, elements, comment):
     for p in paths:
         with open(p, "w", encoding="utf-8", newline="\r\n") as f:
             f.write(text)
+    # items keep the looks players drew for them (tools/community_sprites.py)
+    import community_sprites
+    for p in paths:
+        community_sprites.rework_file(p)
 
 
 def build(dr_ids):

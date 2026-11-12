@@ -34,13 +34,14 @@ namespace WorldServer.core.miscfile
                     client.Player.AnnouncementReceived(text, player.Name);
         }
 
-        public void Realm(string text)
+        /// <summary>A Realm line to every player on this server, but those in <paramref name="except"/>.</summary>
+        public void Realm(string text, World except = null)
         {
             if (string.IsNullOrWhiteSpace(text))
                 return;
             foreach (var client in GameServer.ConnectionManager.Clients.Keys)
-                if (client.Player != null)
-                    client.Player.RealmRecieved(text);
+                if (client.Player is { } player && (except == null || player.World != except))
+                    player.RealmRecieved(text);
         }
 
         public void Arena(string text)

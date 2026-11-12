@@ -165,6 +165,7 @@ namespace WorldServer.core.objects
             }
             dmg = RelicAbsorb(dmg);
             Health -= dmg;
+            EnterCombat();
 
             // items' damageThreshold ("Shots above 50 damage": the Chancellor's Cranium, the Diplomatic
             // Robe) is the shot's damage, before defense: after it, players in good armour hardly ever
@@ -235,6 +236,7 @@ namespace WorldServer.core.objects
 
                 var dmg = StatsManager.DamageWithDefense(entity, projectile.Damage, projectileDesc.ArmorPiercing, entity.Defense);
                 entity.Health -= dmg;
+                EnterCombat();
 
                 EnemyHitEffects();
 

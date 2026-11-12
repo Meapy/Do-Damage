@@ -646,9 +646,35 @@ The remotes `upstream` (HaloCelsius) and `aurusenth` share no history with `main
 
 ## Changes from upstream
 
+- **Out of combat speed** (2026-11-12; `Player.Combat.cs`, `BoostStatManager.ApplyOutOfCombat`):
+  +20 Speed (`Player.OutOfCombatSpeed`) as a stat boost, flat after the Apotheosis scaling, while
+  the player has neither been hurt by an enemy (a `PlayerHit`, or `Player.Damage` from an `Enemy`)
+  nor hurt one (`EnemyHit`, or `Enemy.Damage` credited to them, which includes their bleeds and
+  pet hits credited to them) for 10 s (`CombatMs`). `Player.Tick` flips it back and recalculates
+  the stats; the client just sees a Speed bonus. A new world starts out of combat.
+
+- **Sprite Editor** (2026-11-12; client `sprite_editor.rs`, account server `SpritesController.cs`
+  and `Shared/database/SpriteSubmissions.cs`, `tools/community_sprites.py`): players draw item
+  sprites on the main menu and send them in; admins (the `admin` flag or rank 6, see "Admin")
+  approve or turn them down in the editor's Review tab. Approved ones reach the game through the
+  repository: in a worktree rebased onto the release branch, run
+  `python tools\community_sprites.py list` to see what's waiting and
+  `python tools\community_sprites.py apply --commit` to take it in (the community sheets
+  `CommunitySprites8x8.png` / `16x16.png`, the item XML's `<Texture>` and `<SpriteBy>`, the catalog
+  `Shared/resources/data/community_sprites.json`, the changelog and PR-BODY.md), then bring the
+  commit in as any other work. Once that release is deployed the account server reads the catalog
+  and shows those submissions as in the game. Limits against floods: a sprite at most every 20 s,
+  5 waiting and 15 a day per account, 10 an hour per address, 400 a day and 300 waiting in all,
+  16 KB a request; finished submissions leave Redis after 30 days. Redis keys `sprites.*` (new;
+  nothing migrated). Redeploy the client, the account server, the world servers and the website.
 - **Potion of Maxy sprite** (2026-11-11; `tools/port_doomed.py`,
   `tools/doomed/potion_maxy.png`): the supplied 8×8 art is added to unused tile `0x7A` of
   `drLofiObj2`, and both generated XML copies reference it. Redeploy the client and world server;
+  no Redis change.
+- **Single-stat max potion sprites** (2026-11-12; `tools/port_doomed.py`,
+  `tools/doomed/single_stat_max_potions.png`): each of the eight Potions of Max now uses its own
+  supplied sprite in order from Life to Wisdom, appended to `drLofiObj2` at tiles `0x100`–`0x107`.
+  Both generated XML copies reference their matching tile. Redeploy the client and world server;
   no Redis change.
 - **Wiki command** (2026-11-11; `WorldServer/core/commands/player/Command.Wiki.cs`):
   `/wiki` sends players a link to `https://www.dodmg.com/wiki`. Added its description to the
@@ -2044,6 +2070,8 @@ The remotes `upstream` (HaloCelsius) and `aurusenth` share no history with `main
 - **The Black Between: two Unstable Essence for finishing** (2026-11-11): the Mysterious One's 1% threshold drops two Unstable Essence to everyone in it, then a third at 11.25% as before (`BehaviorDb.BlackBetween.cs`).
 - **Boss health scales back down** (2026-11-11; `BossStats.cs`): a counted player leaving the world takes their share of a boss's added health off again, the boss keeping the same fraction of its health; walking out of range changes nothing.
 - **Placed objects show** (2026-11-08; `PlaceObject.cs`): it set a square's object without an object id and never told the players round it to look again, so clients were never sent it: Oryx 5's Holy Gates and Oryx 3's gate stood in the way unseen. Each placed object now gets an id (`World.GetNextEntityId`) and players' squares are refreshed (`UpdateTiles`), as `RemoveObject` does; removal already sent the drop by id.
+- **/realm goes to Realm 2** (2026-11-12; `UnrankedCommands.RealmCommand`, `Command.Realm2.EnterNexusRealm2`): `/realm` does what `/realm2` does outside a Realm 2, taking the player into the Nexus's Realm 2 (or saying it's still being built or full), instead of the busiest realm. Realm 1 stays reachable by its Nexus portal; `/godlands` still picks the busiest realm.
+- **Realm news for the whole server** (2026-11-12; `RealmManager.CountingEvents`, `RealmWorld.CloseRealm`, `ChatManager.Realm`): every counted realm event (Realm 2's too) tells everyone on the world server outside that realm "<event> killed in realm <name>." (those inside already get the "[n/m]" line), and a realm closing (by its events, `/closerealm` or adopting a closed snapshot) tells everyone "Realm <name> closed.", as Realm lines in the chat. Each world server tells its own players, so during a hand-over nobody hears one twice; the admin-only Testing server tells only its own.
 
 ## Content ported from Doomed Realms
 

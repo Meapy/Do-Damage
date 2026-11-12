@@ -154,6 +154,8 @@ The world fills the window, with one bar down the right:
   map's edge when they're out of view: hover one for its name.
 - **Your character card:** your name, class and level, with two tabs: your stats, and your records
   (kills, god and Oryx kills, quests, dungeons, accuracy, potions drunk and time played).
+  Out of combat you walk faster: **+20 Speed** (shown in green beside it) whenever no enemy has
+  hit you and you haven't hit one for 10 seconds. It goes the moment either happens.
 - **At the foot:** the Nexus button, your equipment, your inventory (two small buttons switch to
   your backpack), your potions, and a space for whatever is beside you: a bag you stand on, a
   portal, a shop or an invitation. Drag a potion from the potion bar onto an empty inventory
@@ -291,7 +293,7 @@ The most useful ones; the [Commands](commands.html) page lists them all.
 | Command | What it does |
 |---|---|
 | `/gear` | Free starter gear (once per character) |
-| `/realm` | To the busiest realm |
+| `/realm` | Into [Realm 2](realm-2.html) |
 | `/godlands` | Straight to a realm's Godlands, from anywhere |
 | `/nexus` | Back to the Nexus |
 | `/vault` | To your vault |

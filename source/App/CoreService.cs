@@ -52,6 +52,8 @@ namespace App
                 Resources = new Resources(Config.serverSettings.resourceFolder, false);
 
             Database = new Database(Resources, Config);
+            // the players' sprites this release has in it (SpritesController)
+            SpriteSubmissions.UseCatalog(Resources.ResourcePath);
 
             ISManager = new ISManager(Database.Subscriber, Config, true);
             ISManager.OnTick += () => UpdateServersUsage();

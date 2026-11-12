@@ -8,7 +8,7 @@ summary: A realm made afresh every time: the shore, the midlands and a great God
 ---
 Realm 2 is a second kind of realm. The Nexus always has one open: its portal stands among the
 realms' portals, beside Realm 1's, named **Realm 2: Zenith** or the like, with how many are in it.
-`/realm2` takes you into it from anywhere. It stays open while it's empty, so you can come back to it, and when it closes its portal goes and
+`/realm` (or `/realm2`) takes you into it from anywhere. It stays open while it's empty, so you can come back to it, and when it closes its portal goes and
 another opens. A **Realm 2 Key** opens one of your own as well. Every Realm 2
 is built new when it opens, so no two are the same. The Nexus's Realm 2 carries on through server
 updates and restarts, with its map, its lands, its waystones and the events beaten so far (one
@@ -111,7 +111,7 @@ lands' bosses. Oryx then sends everyone in it to his Castle, as a realm does. A 
 more: with more than eight players it needs one more event for each extra player (as a realm does,
 up to 25), and those come to new lands of their own. Event bosses grow stronger with the players
 near them, as in the realm. Each event that falls is announced to Realm 2 with how many are down,
-how many it needs and how many are left. With one event to go, a mysterious voice speaks up...
+how many it needs and how many are left, and to everyone else in the game by its name and the realm's. With one event to go, a mysterious voice speaks up...
 
 The **Realm Events** list at the top left shows how many events are beaten of how many close the
 realm, then every event running and the Lost Sentry, nearest first, and the waystone nearest your

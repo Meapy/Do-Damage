@@ -12,6 +12,21 @@ Keep each version short: changes go under `### ` group headings (Oryx 5, Arena, 
 on), one line per change players notice, summed up rather than item by item (the wiki has the
 details). Add to a group's line when a change adds to it, rather than adding another line.
 
+## 2.5.3 (2026-11-12)
+
+### Game
+- Out of combat speed: +20 Speed while you haven't hit an enemy or been hit by one for 10 seconds.
+- `/realm` takes you into Realm 2, and the whole game sees in the chat when a realm event is killed
+  (and in which realm) and when a realm closes.
+
+### Sprite Editor
+- A new Sprite Editor on the main menu: draw a new look for any item, or the art for a new one, at
+  8×8 or 16×16, and send it in. My sprites shows what became of each. Sprites the admins approve
+  come with the next update, and the item's tooltip credits whoever drew it.
+
+### Items
+- each single-stat Potion of Max now have their own sprites.
+
 ## 2.5.2 (2026-11-12)
 
 ### The Elder Shatters

@@ -362,6 +362,8 @@ namespace WorldServer.core.objects
             if (IsInvulnerable)
                 return;
 
+            if (src is Enemy)
+                EnterCombat();
             dmg = GameServer.DamageEvent.Apply(src, dmg);
             dmg = (int)Stats.GetDefenseDamage(dmg, false);
             if (!HasConditionEffect(ConditionEffectIndex.Invulnerable))
@@ -508,6 +510,7 @@ namespace WorldServer.core.objects
                 HandleEffects(ref time);
                 HandleRegen(ref time);
                 LowHealthBoosts();
+                TickCombat();
                 RelicTick();
                 LastBreath();
                 UpdateStatTones();

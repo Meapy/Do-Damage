@@ -88,7 +88,7 @@ monsters get stronger the further inland you go: from the shore, through the low
 highlands, up to the grey **Godlands** in the middle.
 
 Dungeon portals drop from many realm monsters; take them. Each realm portal in the Nexus (the caverns in the shrine's floor, on the island south of the spawn, down the stone bridge) shows
-how many players are inside, and `/realm` takes you to the busiest one.
+how many players are inside; `/realm` takes you into Realm 2.
 
 [Realm 2](realm-2.html) is another kind of realm, always open from the Nexus and made afresh each time,
 with a land of its own for every realm event.
@@ -129,7 +129,8 @@ Shatters, only comes as an event to a realm that has had 5 or more players, but 
 waiting from the start in its arena in the mountains, ringed by four Killer Pillars.
 
 Each event killed counts towards closing the realm, which takes {{v:realm_close}}; the chat shows
-the count (for example "[3/8]"). The count, the realm's name and the events up carry on through
+the count (for example "[3/8]"), and everyone elsewhere is told which event was killed in which
+realm ("Medusa killed in realm Titan."), and when a realm closes ("Realm Titan closed."). The count, the realm's name and the events up carry on through
 server updates and restarts. Then Oryx closes
 the realm, and a little later everyone still inside is sent to **Oryx's Castle**, the start of the
 [Oryx chain](endgame.html).
