@@ -614,30 +614,39 @@ pub fn slot_data_stat(slot: u8) -> u8 {
 }
 
 /// The imprints on the item in an object's slot.
-/// A pet generator the Pen Keeper raised (`ItemData.PetUpgrade` in its slot's data): the size it
-/// raises its pet to, to name after the item, as "Grey Wolf (Large)".
-pub fn raised_pet_size(data: &GameData, item: i32, o: &GameObj, slot: u8) -> Option<&'static str> {
-    let json = o.stat_str(slot_data_stat(slot))?;
-    let i = json.find("\"PetUpgrade\":")?;
-    let up: usize = json[i + 13..].chars().take_while(|c| c.is_ascii_digit()).collect::<String>().parse().ok()?;
-    let size = data.objects.get(&(item as u16))?.xml.children_named("Activate").find(|a| a.text.trim() == "PermaPet")?.attr("petSize")?;
-    let base = ["Tiny", "Small", "Medium", "Large"].iter().position(|&s| s == size)?;
-    match (base + up).min(3) {
-        0 => Some(tr("Tiny")),
-        1 => Some(tr("Small")),
-        2 => Some(tr("Medium")),
-        _ => Some(tr("Large")),
-    }
-    .filter(|_| up > 0)
+/// The sizes pets come in (tools/port_doomed_pets.py PET_SIZES), smallest first.
+pub const PET_SIZES: [&str; 4] = ["Tiny", "Small", "Medium", "Large"];
+/// Each size's healing of HP and MP and how often, in ms (the server's `Player.SizeHeal`).
+const PET_SIZE_HEAL: [(u32, u32); 4] = [(15, 2000), (20, 2000), (30, 2000), (45, 1500)];
+
+/// The sizes the Pen Keeper raised the pet of a generator by (`ItemData.PetUpgrade` in its slot's
+/// data), 0 for none.
+pub fn pet_raise(o: &GameObj, slot: u8) -> u8 {
+    let Some(json) = o.stat_str(slot_data_stat(slot)) else { return 0 };
+    let Some(i) = json.find("\"PetUpgrade\":") else { return 0 };
+    json[i + 13..].chars().take_while(|c| c.is_ascii_digit()).collect::<String>().parse().unwrap_or(0)
 }
 
-impl Line {
-    /// The first piece's text with `more` after it (an item's title, raised pet's size).
-    pub fn append(&mut self, more: &str) {
-        if let Some(first) = self.pieces.first_mut() {
-            first.0.push_str(more);
-        }
+/// The size a generator's pet hatches at (its PermaPet's petSize), 0 Tiny to 3 Large.
+fn pet_base_size(data: &GameData, item: i32) -> Option<usize> {
+    let size = data.objects.get(&(item as u16))?.xml.children_named("Activate").find(|a| a.text.trim() == "PermaPet")?.attr("petSize")?;
+    PET_SIZES.iter().position(|&s| s == size)
+}
+
+fn pet_size_name(size: usize) -> &'static str {
+    match size {
+        0 => tr("Tiny"),
+        1 => tr("Small"),
+        2 => tr("Medium"),
+        _ => tr("Large"),
     }
+}
+
+/// A pet generator the Pen Keeper raised: the size it raises its pet to, as "Grey Wolf (Large)".
+pub fn raised_pet_size(data: &GameData, item: i32, o: &GameObj, slot: u8) -> Option<&'static str> {
+    let up = pet_raise(o, slot) as usize;
+    let base = pet_base_size(data, item)?;
+    (up > 0).then(|| pet_size_name((base + up).min(3)))
 }
 
 pub fn slot_imprints(o: &GameObj, slot: u8) -> [u32; 4] {
@@ -2559,13 +2568,9 @@ pub fn draw_overlay(ui: &mut Ui, lay: &Layout, world: &World, panel: &Panel, sta
     let Some(slot) = panel.slot_at(mouse) else { return };
     let me = world.player();
     let lines = if slot.item > 0 {
-        let mut lines = item_tooltip_imprinted(ui.data, slot.item, me, slot.kind, slot.imprints);
+        let raise = me.filter(|m| m.id == slot.owner).map_or(0, |m| pet_raise(m, slot.index));
+        let mut lines = item_tooltip_raised(ui.data, slot.item, me, slot.kind, slot.imprints, raise);
         let corrupted = corruption_lines(ui.data, slot.item, slot.corruption, slot.reversed);
-        if let Some(size) = me.filter(|m| m.id == slot.owner).and_then(|m| raised_pet_size(ui.data, slot.item, m, slot.index)) {
-            if let Some(title) = lines.first_mut() {
-                title.append(&format!(" ({size})"));
-            }
-        }
         lines.extend(imprint_lines(ui.data, slot.item, slot.imprints));
         lines.extend(corrupted);
         lines
@@ -2998,6 +3003,13 @@ pub fn item_tooltip(data: &GameData, item: i32, me: Option<&GameObj>, kind: Slot
 /// `item_tooltip` for an item carrying these imprints: its shots' numbers (damage, shots, range,
 /// rate of fire) are the imprinted ones, in the imprints' green.
 pub fn item_tooltip_imprinted(data: &GameData, item: i32, me: Option<&GameObj>, kind: SlotKind, imprints: [u32; 4]) -> Vec<Line> {
+    item_tooltip_raised(data, item, me, kind, imprints, 0)
+}
+
+/// `item_tooltip_imprinted` for a pet generator the Pen Keeper raised `raise` sizes (`pet_raise`):
+/// its title names the size, and its size, damage and healing are the raised pet's, in the
+/// imprints' green.
+pub fn item_tooltip_raised(data: &GameData, item: i32, me: Option<&GameObj>, kind: SlotKind, imprints: [u32; 4], raise: u8) -> Vec<Line> {
     let Some(desc) = data.objects.get(&(item as u16)) else { return vec![Line::new(tr("Unknown item"), 14.0, true, 0xFFFFFF)] };
     let xml = &desc.xml;
     let mut out = Vec::new();
@@ -3014,7 +3026,13 @@ pub fn item_tooltip_imprinted(data: &GameData, item: i32, me: Option<&GameObj>, 
         .iter()
         .find(|(t, _)| xml.has(t))
         .map_or(0xFFFFFF, |(_, c)| *c);
-    out.push(Line::new(&desc.display_id, 16.0, true, title_color));
+    // a raised pet's generator: the size the raise takes it to (sized pets only)
+    let raised = pet_base_size(data, item).filter(|_| raise > 0).map(|base| (base, (base + raise as usize).min(3)));
+    let title = match raised {
+        Some((_, to)) => format!("{} ({})", desc.display_id, pet_size_name(to)),
+        None => desc.display_id.clone(),
+    };
+    out.push(Line::new(&title, 16.0, true, title_color));
     if let Some((tag, color)) = tier_tag(xml) {
         out.push(Line::new(&tag, 14.0, true, color));
     }
@@ -3053,20 +3071,32 @@ pub fn item_tooltip_imprinted(data: &GameData, item: i32, me: Option<&GameObj>, 
             if let Some(size) = a.attr("petSize") {
                 // the sizes the server's pets come in (tools/port_doomed_pets.py); the Lil' Oryxes'
                 // own size is a name, shown as sent
-                let size = match size {
-                    "Tiny" => tr("Tiny"),
-                    "Small" => tr("Small"),
-                    "Medium" => tr("Medium"),
-                    "Large" => tr("Large"),
-                    other => other,
+                let size = match (raised, PET_SIZES.iter().position(|&s| s == size)) {
+                    (Some((_, to)), _) => pet_size_name(to),
+                    (None, Some(i)) => pet_size_name(i),
+                    (None, None) => size,
                 };
-                out.push(Line::stat(&format!("    {}", tr("Size")), size, VALUE));
+                out.push(Line::stat(&format!("    {}", tr("Size")), size, if raised.is_some() { color::GOOD } else { VALUE }));
             }
             if let Some(dps) = a.attr("petDps") {
-                out.push(Line::stat(&format!("    {}", tr("Damage")), &tf!("{dps} per second", dps), VALUE));
+                // a raise doubles the pet's damage for each size (the server's `Player.PetPower`)
+                match (raised, dps.parse::<u32>()) {
+                    (Some((base, to)), Ok(d)) => {
+                        let dps = d << (to - base);
+                        out.push(Line::stat(&format!("    {}", tr("Damage")), &tf!("{dps} per second", dps), color::GOOD));
+                    }
+                    _ => out.push(Line::stat(&format!("    {}", tr("Damage")), &tf!("{dps} per second", dps), VALUE)),
+                }
             }
             for (key, verb, what) in [("petHp", tr("Heals"), tr("HP")), ("petMp", tr("Restores"), tr("MP"))] {
                 if let Some(amount) = a.attr(key) {
+                    // a raised pet heals as the size it's raised to does
+                    if let Some((_, to)) = raised {
+                        let (amount, ms) = PET_SIZE_HEAL[to];
+                        let secs = ms as f64 / 1000.0;
+                        out.push(Line::stat(&format!("    {verb}"), &tf!("{amount} {what} every {secs}s", amount, what, secs), color::GOOD));
+                        continue;
+                    }
                     let secs = a.attr_number(&format!("{key}Ms"), 0.0) / 1000.0;
                     out.push(Line::stat(&format!("    {verb}"), &tf!("{amount} {what} every {secs}s", amount, what, secs), VALUE));
                 }

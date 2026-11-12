@@ -450,7 +450,9 @@ PET_KITS.update({
 PET_TEXTURES = {"Scootaloo": "Scootaloo Generator"}
 # How big each size is drawn, in a character's heights (a character is an 8x8 sprite at Size 100): a
 # pet's <Size> is set from how much of its sprite's frame the picture covers (pet_draw_sizes).
-SIZE_HEIGHTS = {"Tiny": 0.6, "Small": 0.7, "Medium": 0.85, "Large": 1.2, "Oryx": 1.2}
+# The steps are wide enough that a pet's size shows at a glance; the server draws a raised pet at the
+# height of the size it's raised to (Player.PetPen.cs SizeHeights, which keeps these numbers).
+SIZE_HEIGHTS = {"Tiny": 0.5, "Small": 0.75, "Medium": 1.0, "Large": 1.4, "Oryx": 1.4}
 # where pets' <Size> is written: the port's XML and betterSkillys' own pets
 PET_XMLS = ITEM_XMLS + [os.path.join(ROOT, "source", "Shared", "resources", "xml", "prod", "EmbeddedData_PermapetsCXML.xml"),
                         os.path.join(ROOT, "client", "src", "kabam", "rotmg", "assets", "prod", "xmls", "Permapets.xml")]

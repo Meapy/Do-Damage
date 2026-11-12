@@ -1,4 +1,4 @@
-Release 2.5.2: the Elder Shatters, the Elder Lost Halls with its Elder Cultist Hideout and Elder Void, smaller Candyland waves whose bosses reliably follow them, Empowered bosses whose health no longer runs away in a group, a quest arrow that finds every dungeon's boss, `/wiki` and a new Potion of Maxy sprite (deploys the client, the servers and the website; nobody is disconnected)
+Release 2.5.2: the Elder Shatters, the Elder Lost Halls with its Elder Cultist Hideout and Elder Void, smaller Candyland waves whose bosses reliably follow them, Empowered bosses whose health no longer runs away in a group, a quest arrow that finds every dungeon's boss, `/wiki`, pet sizes you can see (a raised pet grows), and a new Potion of Maxy sprite (deploys the client, the servers and the website; nobody is disconnected)
 
 ## For players
 
@@ -23,6 +23,13 @@ Release 2.5.2: the Elder Shatters, the Elder Lost Halls with its Elder Cultist H
 - **Game:** Type `/wiki` in chat to get a link to the Do Damage wiki. Swapping an item's looks at the Divine Forge (the 50-fame one-for-one swaps: Dirk of Cronus and Phantasm Dirk; Doom Bow, Sun's Judgement and Bow of the Morning Star; Thousand Shot and Sunny Side Bow; Staff of the Cosmic Whole and Frosty's Walking Stick; Staff of Extreme Prejudice and Staff of Iceblast; Wand of the Bulwark and Eternal Snowflake Wand; Wand of Evocation and Winter's Breath Wand; Demon Blade and Sword of Illumination; Helm of the Juggernaut and Helm of the Jack-o'-naut) no longer counts for quests, the Master Smith achievement or the forge community goal. Forging the same items any other way (a Doom Bow from two Coral Bows, a Reforged Doom Bow) still counts.
 - **Wiki:** the Necromantic Relic page opens with a gallery of all 25 Necromantic items: each with its sprite large in a soul glow, its kind, its power, the item it's built on and how much stronger, its chance (6%) and the Empowered boss and Elder dungeon it drops from (the boss leads to its fight further down, the item to its gear page). Buttons show one kind (weapons, abilities, armour, rings) and a filter takes a name, boss, dungeon or power.
 - **Items:** The Potion of Maxy has a new sprite.
+- **Pets:** the sizes look different at a glance: Tiny pets are drawn half a character's height
+  (was 0.6), Small three quarters (was 0.7), Medium as tall as a character (was 0.85) and Large
+  1.4 times (was 1.2), the Lil' Oryxes too. A pet the Pen Keeper raises now grows: a Small pet
+  raised to Medium is drawn as big as a Medium pet, raised to Large as big as a Large one. A
+  raised pet's stone shows the raised numbers in its tooltip, in green, in the inventory and in
+  the Pen Keeper's window: "Grey Wolf (Large)", Size Large, its damage doubled for each size
+  raised, and the Large size's healing (45 HP and MP every 1.5 seconds).
 
 ## Details
 
@@ -89,7 +96,33 @@ website wiki. Redeploy the world servers and website. No client, protocol or Red
 
 Players swapped a Doom Bow into Sun's Judgement and back for 50 fame each to fill the forge's quests and community goal. `ForgeRecipes.IsReskin` marks the one-ingredient `ForgeOnly` recipes (all of them look swaps) by recipe, not by result, so a Doom Bow from two Coral Bows still counts. `DoomedEconomy.Forge` returns it (`out bool reskin`), and `ForgeHandler` skips the quest event and `WeeklyStats.Forged` for it, as it does for tiered gear under 125 fame. Wiki: `forge.md` says so. Servers only (world server); nobody is disconnected, nothing in Redis changes, counts already made this week stay.
 
+### Pet sizes you can see
+
+- **What changed:** `tools/port_doomed_pets.py` `SIZE_HEIGHTS` is Tiny 0.5, Small 0.75, Medium
+  1.0, Large and Oryx 1.4 character heights (was 0.6, 0.7, 0.85, 1.2), and running it on its own
+  rewrote each sized pet's `<Size>` in both copies of `DoomedRealms.xml` and the Permapets XML
+  (nothing else in them changed). The server draws a raised pet at its XML size times the ratio
+  of the two sizes' heights (`Player.PetDrawScale`, the heights kept in `Player.PetPen.cs`
+  `SizeHeights`), set in `SpawnPetIfAttached`, which the Pen Keeper's raise already calls, so
+  the pet grows the moment it's raised. The Pen Keeper says "Your pet grew to Large!" (was "...
+  Large strength!").
+- **Client:** `hud::item_tooltip_raised` takes the raise (`hud::pet_raise`, read from the slot's
+  item data): the title names the size, and the Size, Damage (doubled per size, as
+  `Player.PetPower`) and Heals/Restores lines (the size's healing, `PET_SIZE_HEAL`, as the
+  server's `SizeHeal`) show the raised pet's, in green. The inventory and the Pen Keeper's window
+  use it; `Line::append` went. The Pen Keeper's note says the pet grows bigger: one line changed
+  in all 11 languages.
+- **Redeploy:** client and world server (the XML sizes come with both). Nobody is disconnected;
+  nothing in Redis changes. An older client shows the old tooltip and draws raised pets as the
+  server says.
+- **Wiki:** `pets.md`, the raise, the stone's tooltip and the Looks column of the sizes table.
+
 ## Checks
+
+- **Pet sizes you can see:** client tests (`cargo test -p bsk-client`, 88 pass, the language
+  tables included), `cargo build -p bsk-client` with no warnings, world server build.
+  `python tools\port_doomed_pets.py` run again after rebasing changes nothing. Not tried in game:
+  no raise on an isolated stack, no `--shot` of a raised pet or its tooltip.
 
 - **Forge look swaps:** `dotnet test source\Tests --filter ForgeRecipeTests` (3 passed): a new test builds the forge's recipes from the real game data and checks Sun's Judgement → Doom Bow and Staff of Iceblast → Staff of Extreme Prejudice are swaps, while the two-Coral-Bow Doom Bow, the Reforged Doom Bow and an Infernal potion are not. Not tried in game.
 - **Necromantic items gallery (wiki):** `python tools\build_site.py`, the page served locally (`.claude/launch.json` `site`) and looked at in a browser at 1400 px and on a 375 px phone: 25 cards with sprites, every chip shows its kind's count (All 25, Weapons 7, Abilities 14, Armor 3, Rings 1), the filter combines with a chip ("tomb" and Abilities: 3), no sideways scroll on the phone.

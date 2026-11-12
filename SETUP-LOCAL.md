@@ -939,7 +939,9 @@ The remotes `upstream` (HaloCelsius) and `aurusenth` share no history with `main
     chest, then added to as items enter a character's slots (`Inventory.InventoryChanged`). The
     stand, `The Collection`, is placed by `VaultWorld.PlaceCollection`.
   - The pet pen (`tools/build_nexus_islands.py` `PEN`, `lay_pen`; `PetPen.cs`; `Player.PetPen.cs`,
-    `PetPenActHandler.cs`, the client's `petpen.rs`; the Pen Keeper's sprite in
+    `PetPenActHandler.cs`, the client's `petpen.rs`; a raised pet is drawn as big as the size
+    it's raised to (`Player.PetDrawScale`) and its stone's tooltip shows the raised size, damage
+    and healing (`hud::item_tooltip_raised`); the Pen Keeper's sprite in
     `tools/draw_quest_npcs.py`): a raise is `char` `petUpgrade`, and a generator's
     `ItemData.PetUpgrade` once given back (the client names the stone with its size,
     `hud::raised_pet_size`); `Pet.DamageScale` and `Pet.Heal` apply it in `PetShoot`, `PetStrike`,

@@ -706,8 +706,9 @@ namespace WorldServer.core.objects
                 pet.Z = Z;
                 (pet.DamageScale, pet.Heal) = PetPower();
                 owner.EnterWorld(pet);
+                // a raised pet is drawn as big as pets of the size it's raised to
                 if (petDesc.Size > 0)
-                    pet.Size = petDesc.Size;
+                    pet.Size = (int)Math.Round(petDesc.Size * PetDrawScale());
                 Pet = pet;
             }
             else if (petId != 0)

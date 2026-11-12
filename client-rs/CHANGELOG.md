@@ -55,6 +55,11 @@ details). Add to a group's line when a change adds to it, rather than adding ano
 ### Items
 - The Potion of Maxy now has its new sprite.
 
+### Pets
+- Each pet size looks clearly bigger than the one below it: Tiny pets are half your height, Large
+  ones nearly half again as tall as you. A pet raised at the Pen Keeper grows to its new size, and
+  its stone's tooltip shows the raised pet's size, damage and healing.
+
 ### Game
 - `/wiki` sends you a link to the Do Damage wiki.
 - Swapping an item's looks at the Divine Forge (a Doom Bow into Sun's Judgement, the Staff of

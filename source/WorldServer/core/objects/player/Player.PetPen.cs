@@ -10,7 +10,7 @@ namespace WorldServer.core.objects
 {
     // The Pen Keeper by the Arena court (PetPen.cs places him): he takes a pet back (as /removepet),
     // puts in the pet of a generator, and raises a pet's size without changing its look or its
-    // shots: Small to Medium for a Superburger, Medium to Large for an Ambrosia (from 2.5.1; it was
+    // shots (it's drawn bigger, as big as pets of that size: SizeHeights): Small to Medium for a Superburger, Medium to Large for an Ambrosia (from 2.5.1; it was
     // 25 Shards of the Mad God). Shards go to him whenever they're given (his window) or used
     // (anywhere, UseItem), whatever pet is out, and he keeps them for the whole account
     // (DbAccount.PenShards) until they're traded, 25 for an Ambrosia. A raised pet hits as hard as the size
@@ -27,6 +27,8 @@ namespace WorldServer.core.objects
         public static readonly string[] PetSizes = { "Tiny", "Small", "Medium", "Large" };
         // each size's healing of HP and MP, and how often (tools/port_doomed_pets.py PET_SIZES)
         private static readonly (int Amount, int Ms)[] SizeHeal = { (15, 2000), (20, 2000), (30, 2000), (45, 1500) };
+        // how big each size is drawn, in a character's heights (tools/port_doomed_pets.py SIZE_HEIGHTS)
+        private static readonly float[] SizeHeights = { 0.5f, 0.75f, 1.0f, 1.4f };
 
         public int PetUpgrade { get; set; }
         // the data of a pet generator being used (UseItem takes the item out of its slot first)
@@ -58,6 +60,16 @@ namespace WorldServer.core.objects
                 return (1, null);
             var to = Math.Min(size + PetUpgrade, SizeHeal.Length - 1);
             return (MathF.Pow(2, to - size), SizeHeal[to]);
+        }
+
+        /// <summary>How much bigger the raise draws the pet than its own size: 1 when it isn't raised.</summary>
+        public float PetDrawScale()
+        {
+            var size = PetBaseSize(PetId);
+            if (PetUpgrade <= 0 || size < 0)
+                return 1;
+            var to = Math.Min(size + PetUpgrade, SizeHeights.Length - 1);
+            return SizeHeights[to] / SizeHeights[size];
         }
 
         public PetPenData PetPenState(bool ok = true, string message = "")
@@ -122,7 +134,7 @@ namespace WorldServer.core.objects
                         Inventory[burger] = null;
                         PetUpgrade++;
                         SpawnPetIfAttached(World);
-                        return PetPenState(true, "Your pet grew to Medium strength!");
+                        return PetPenState(true, "Your pet grew to Medium!");
                     }
                 case 4:
                     return GiveShards(Enumerable.Range(4, Inventory.Length - 4));
@@ -138,7 +150,7 @@ namespace WorldServer.core.objects
                         Inventory[ambrosia] = null;
                         PetUpgrade++;
                         SpawnPetIfAttached(World);
-                        return PetPenState(true, "Your pet grew to Large strength!");
+                        return PetPenState(true, "Your pet grew to Large!");
                     }
                 case 6:
                     {
