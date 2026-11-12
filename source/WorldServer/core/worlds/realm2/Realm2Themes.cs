@@ -138,7 +138,44 @@ namespace WorldServer.core.worlds.realm2
                 Mobs = new[] { ("R2 Hornet Drone", 2.0), ("R2 Honey Slime", 2.0) },
                 Quests = new[] { "R2 Royal Guard Bee", "R2 Hornet Queen" },
             },
+            new Realm2Theme
+            {
+                // a thieves' market of tents and stolen gold, where the Gilded Thief counts its hoard
+                Key = "thief", Name = "the Thieves' Bazaar", Event = "Gilded Thief",
+                Ground = "R2 Bazaar Sand", Patches = "R2 Coin Strewn", Arena = "R2 Gilded Tiles",
+                Decor = new[] { ("R2 Bazaar Tent", 2.0), ("R2 Coin Pile", 2.5), ("R2 Loot Chest", 1.5), ("R2 Gilded Urn", 1.5) },
+                DecorDensity = 0.045, Wall = "R2 Bazaar Wall",
+                Mobs = new[] { ("R2 Cutpurse", 2.0), ("R2 Bazaar Bruiser", 1.5), ("R2 Gold Gremlin", 2.0) },
+                Quests = new[] { "R2 Bandit King", "R2 Gilded Effigy" },
+            },
+            new Realm2Theme
+            {
+                // where a star came down: night-dark rock, stardust and pools of fallen starlight round
+                // the crater the Starborn Colossus sleeps in
+                Key = "star", Name = "the Starfall Crater", Event = "Starborn Colossus",
+                Ground = "R2 Starlit Rock", Patches = "R2 Stardust Ground", Arena = "R2 Crater Glass", Pools = "R2 Starlight Pool",
+                Decor = new[] { ("R2 Star Shard", 1.5), ("R2 Meteor Rock", 2.5), ("R2 Stardust", 2.0), ("R2 Astral Spire", 1.0) },
+                DecorDensity = 0.045, Wall = "R2 Meteor Wall",
+                Mobs = new[] { ("R2 Astral Sentinel", 2.0), ("R2 Meteorling", 2.0), ("R2 Void Watcher", 1.5) },
+                Quests = new[] { "R2 Star Prism", "R2 Comet Wraith" },
+            },
+            new Realm2Theme
+            {
+                // a wood gone to rot round the Blight Mother: toadstools, mycelium and stinging bogs
+                Key = "blight", Name = "the Blightwood", Event = "Blight Mother",
+                Ground = "R2 Blight Moss", Patches = "R2 Mycelium", Arena = "R2 Rot Soil", Pools = "R2 Blight Bog",
+                Decor = new[] { ("R2 Giant Toadstool", 2.5), ("R2 Blight Puffball", 2.0), ("R2 Rot Stump", 1.5), ("R2 Spore Patch", 2.0), ("R2 Glowcap", 1.5) },
+                DecorDensity = 0.06, Wall = "R2 Blight Wall",
+                Mobs = new[] { ("R2 Rot Shambler", 2.0), ("R2 Shroom Brute", 2.0), ("R2 Blight Webspinner", 1.5) },
+                Quests = new[] { "R2 Mycelial Horror", "R2 Rotcap Elder" },
+            },
         };
+
+        /// <summary>
+        /// The lands a Realm 2 needs defeated to close (with the two Lucky gods): eleven of the
+        /// fourteen, so each Realm 2 shows a different handful of them, in a random order.
+        /// </summary>
+        public const int LandsToClose = 11;
 
         // the ordinary realm's lands, as the realm's map paints them: ground, then scenery
         public static (string Ground, string[] Decor) Land(TerrainType t) => t switch

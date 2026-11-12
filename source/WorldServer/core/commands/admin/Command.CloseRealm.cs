@@ -58,6 +58,29 @@ namespace WorldServer.core.commands
             }
         }
 
+        // /realmevent <event> [here]: start one of the realm's events now, out of sight nearby (a word
+        // of its id or name: thief, colossus, blight, cube...), or 8 tiles away with `here`;
+        // with nothing, list them. Not in Realm 2,
+        // whose events come with their lands (/realm2 next <land>).
+        internal class RealmEvent : Command
+        {
+            public override RankingType RankRequirement => RankingType.Admin;
+            public override string CommandName => "realmevent";
+
+            protected override bool Process(Player player, TickTime time, string args)
+            {
+                if (!(player.World is RealmWorld rw) || rw.RealmManager.Layout != null)
+                {
+                    player.SendError("You must be in a realm (not Realm 2: there, /realm2 next <land>).");
+                    return true;
+                }
+                args = args.Trim();
+                var here = args.EndsWith(" here");
+                player.SendInfo(rw.RealmManager.ForceEvent(here ? args[..^5].Trim() : args, here ? player : null));
+                return true;
+            }
+        }
+
         internal class CloseRealm : Command
         {
             public override RankingType RankRequirement => RankingType.Admin;

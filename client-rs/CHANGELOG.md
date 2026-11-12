@@ -21,6 +21,17 @@ details). Add to a group's line when a change adds to it, rather than adding ano
   pentagrams, auras and the rest), while yours stay as they are. Their damage numbers moved there
   from Gameplay.
 
+### Realm
+- Three new realm events, in both realms, each coming at random with the others: the **Gilded
+  Thief**, who runs from you, blinks away leaving decoys and drops coffers of loot as you hit it
+  (some of them bite), and escapes with the rest if you don't catch it in three minutes; the
+  **Starborn Colossus**, a fallen star that wakes in a rain of meteors, hides behind orbiting moons
+  and goes supernova; and the **Blight Mother**, who spreads spore pods that heal her and burst
+  into sporelings unless you weed them. Each drops rare weapons that dropped nowhere before. In
+  Realm 2 each brings a land of its own (the Thieves' Bazaar, the Starfall Crater and the
+  Blightwood) with new monsters and quests, and a Realm 2 now needs eleven of its fourteen lands
+  to close, so each one shows a different mix.
+
 ### Dungeons
 - Empowered bosses fight in phases now: as their health falls they enter new ones, named over
   them, with a Soul Harvest that marks every player (80%), the Soul Storm (60%), a Death Spiral

@@ -11,7 +11,8 @@ namespace WorldServer.core.commands
     {
         // /realm2, for everyone: go into the Nexus's Realm 2, the one its portal leads to (never a new
         // one, so there's only ever the one; not those a Realm 2 Key opens). In a Realm 2, admins can
-        // list its lands so far, /realm2 next to bring its next event (and land) now, or
+        // list its lands so far, /realm2 next to bring its next event (and land) now (/realm2 next
+        // <land> for that land's: thief, star, blight...), or
         // /realm2 <land> (its key or a word of its name: midlands, godlands, cube, penta, garden...;
         // last for the newest) to go there.
         internal class Realm2 : Command
@@ -49,9 +50,9 @@ namespace WorldServer.core.commands
                 }
 
                 var areas = realm.Layout.Areas;
-                if (args == "next")
+                if (args == "next" || args.StartsWith("next "))
                 {
-                    player.SendInfo(realm.RealmManager.ForceLayoutEvent());
+                    player.SendInfo(realm.RealmManager.ForceLayoutEvent(args.Length > 4 ? args[5..].Trim() : null));
                     return true;
                 }
                 if (args.Length == 0)
@@ -60,8 +61,10 @@ namespace WorldServer.core.commands
                     return true;
                 }
 
-                var area = args == "last" ? areas[^1] : areas.FirstOrDefault(a => a.Kind.StartsWith(args.ToLowerInvariant()))
-                    ?? areas.FirstOrDefault(a => a.Name.Contains(args.ToLowerInvariant()));
+                var word = args.ToLowerInvariant();
+                var area = args == "last" ? areas[^1] : areas.FirstOrDefault(a => a.Kind == word)
+                    ?? areas.FirstOrDefault(a => a.Kind.StartsWith(word))
+                    ?? areas.FirstOrDefault(a => a.Name.Contains(word));
                 if (area == null)
                 {
                     player.SendError($"No area '{args}': {string.Join(", ", areas.Select(a => a.Kind))}");
@@ -71,7 +74,14 @@ namespace WorldServer.core.commands
                 player.ResetNewbiePeriod();
                 // beside an event land's arena; the heart of the others
                 var off = area.Theme != null ? Realm2EventPainter.ArenaRadius + 6 : 0;
-                player.TeleportPosition(time, area.Center.X + 0.5f, area.Center.Y + off + 0.5f, true);
+                // onto open ground: a land's scenery or walls there would send the move back
+                int tx = area.Center.X, ty = area.Center.Y + off;
+                for (var r = 0; r < 12 && !realm.IsPassable(tx, ty); r++)
+                    for (var dx = -r; dx <= r; dx++)
+                        foreach (var dy in new[] { -r, r })
+                            if (realm.IsPassable(area.Center.X + dx, area.Center.Y + off + dy) && !realm.IsPassable(tx, ty))
+                                (tx, ty) = (area.Center.X + dx, area.Center.Y + off + dy);
+                player.TeleportPosition(time, tx + 0.5f, ty + 0.5f, true);
                 player.SendInfo($"{area.Name}");
                 return true;
             }

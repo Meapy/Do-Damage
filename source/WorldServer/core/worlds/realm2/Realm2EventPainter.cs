@@ -183,6 +183,35 @@ namespace WorldServer.core.worlds.realm2
                     _c.Ring(c, ArenaRadius + 4, 14, "R2 Giant Flower");
                     _c.Ring(c, ArenaRadius + 4, 7, "R2 Sunflower", 0.22);
                     break;
+                case "thief":
+                    // the thief's hoard: gilded tiles under a great rug, coin heaps round it, a ring
+                    // of market tents with chests of loot between them
+                    _c.Disc(c, 6, "R2 Bazaar Carpet");
+                    _c.Ring(c, ArenaRadius - 4, 8, "R2 Coin Pile", 0.2);
+                    _c.Ring(c, ArenaRadius + 2, 10, "R2 Bazaar Tent");
+                    _c.Ring(c, ArenaRadius + 2, 10, "R2 Loot Chest", 0.31);
+                    _c.Ring(c, ArenaRadius + 6, 8, "R2 Gilded Urn", 0.15);
+                    break;
+                case "star":
+                    // the crater: fused glass with a rim of thrown-up meteor rock, a pool of starlight
+                    // round its rim and shards of the star standing in it
+                    _c.Annulus(c, ArenaRadius + 1, ArenaRadius + 3, "R2 Starlight Pool");
+                    _c.Cross(c, ArenaRadius + 4, "R2 Starlit Rock", 2);
+                    _c.Circle(c, ArenaRadius - 1, "R2 Stardust Ground");
+                    _c.Ring(c, ArenaRadius + 5, 12, "R2 Meteor Rock", 0.1);
+                    _c.Ring(c, ArenaRadius - 4, 5, "R2 Star Shard", 0.3);
+                    _c.Ring(c, ArenaRadius + 7, 4, "R2 Astral Spire", 0.4);
+                    break;
+                case "blight":
+                    // the Blight Mother's bed of rot, threaded with mycelium, ringed by giant
+                    // toadstools and a moat of stinging bog with four ways across
+                    _c.Circle(c, ArenaRadius - 2, "R2 Mycelium");
+                    _c.Cross(c, ArenaRadius - 2, "R2 Mycelium", 0);
+                    _c.Annulus(c, ArenaRadius + 2, ArenaRadius + 3, "R2 Blight Bog");
+                    _c.Cross(c, ArenaRadius + 4, "R2 Blight Moss", 2);
+                    _c.Ring(c, ArenaRadius + 6, 12, "R2 Giant Toadstool");
+                    _c.Ring(c, ArenaRadius - 5, 6, "R2 Glowcap", 0.5);
+                    break;
             }
         }
 

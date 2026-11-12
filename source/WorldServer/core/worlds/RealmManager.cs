@@ -231,7 +231,10 @@ namespace WorldServer.core.worlds
                     ""
                 },
                 NameOfDeath = "Avatar"
-            })
+            }),
+            Tuple.Create("Gilded Thief", new TauntData() { NameOfDeath = "The Gilded Thief" }),
+            Tuple.Create("Starborn Colossus", new TauntData() { NameOfDeath = "The Starborn Colossus" }),
+            Tuple.Create("Blight Mother", new TauntData() { NameOfDeath = "The Blight Mother" })
         };
 
         private static readonly Logger Log = LogManager.GetCurrentClassLogger();
@@ -384,7 +387,18 @@ namespace WorldServer.core.worlds
             Tuple.Create("Dragon Head", (ISetPiece) null),
             Tuple.Create("Lucky Djinn", (ISetPiece) null),
             Tuple.Create("shtrs Defense System", (ISetPiece)new ShtrsDefenseSystem()),
-            Tuple.Create("EH Event Hive", (ISetPiece)null)
+            Tuple.Create("EH Event Hive", (ISetPiece)null),
+            Tuple.Create("Gilded Thief", (ISetPiece)RealmEventGrounds.ThievesHoard()),
+            Tuple.Create("Starborn Colossus", (ISetPiece)RealmEventGrounds.StarfallCrater()),
+            Tuple.Create("Blight Mother", (ISetPiece)RealmEventGrounds.Blightwood())
+        };
+
+        // How some events announce themselves, in place of "... has been spawned!"
+        private static readonly Dictionary<string, string> SpawnLines = new Dictionary<string, string>()
+        {
+            { "Gilded Thief", "A Gilded Thief has been spotted counting its stolen hoard! Catch it before it gets away!" },
+            { "Starborn Colossus", "A star streaks across the sky... and crashes into the realm!" },
+            { "Blight Mother", "A creeping blight takes root in the realm! Cut it out before it spreads!" },
         };
 
         // The parts of each event that are alive while it runs: the first is the one counted
@@ -405,6 +419,9 @@ namespace WorldServer.core.worlds
             { "Lucky Djinn", new[] { "Lucky Djinn" } },
             { "shtrs Defense System", new[] { "shtrs Defense System" } },
             { "EH Event Hive", new[] { "EH Event Hive", "EH Blue Guardian Bee", "EH Yellow Guardian Bee", "EH Red Guardian Bee" } },
+            { "Gilded Thief", new[] { "Gilded Thief" } },
+            { "Starborn Colossus", new[] { "Starborn Colossus", "Star Satellite" } },
+            { "Blight Mother", new[] { "Blight Mother" } },
         };
 
         // The event monsters whose health follows the players near them (ScaleEventHealth).
@@ -413,7 +430,7 @@ namespace WorldServer.core.worlds
             "Cube God", "Pentaract Tower", "Lord of the Lost Lands", "Ghost Ship", "Grand Sphinx", "Hermit God",
             "Skull Shrine", "Garnet Statue", "Jade Statue", "Lucky Ent God", "Lucky Djinn", "Dragon Head",
             "shtrs Defense System", "EH Event Hive", "EH Blue Guardian Bee", "EH Yellow Guardian Bee", "EH Red Guardian Bee",
-            "LH Lost Sentry"
+            "LH Lost Sentry", "Gilded Thief", "Starborn Colossus", "Star Satellite", "Blight Mother"
         };
 
         // Events too hard for a small group: they only come once the realm has had this many players.
@@ -479,8 +496,8 @@ namespace WorldServer.core.worlds
             }
         }
 
-        // Realm 2 needs every one of its events, the Lucky gods and the eleven lands' (RealmManager.Realm2.cs), more for a crowd
-        public int EventsNeeded => Layout != null ? Math.Max(2 + realm2.Realm2Themes.Events.Length, EventsToClose(RecentPlayers)) : EventsToClose(RecentPlayers);
+        // Realm 2 needs the Lucky gods and eleven of its lands' events (RealmManager.Realm2.cs), more for a crowd
+        public int EventsNeeded => Layout != null ? Math.Max(2 + realm2.Realm2Themes.LandsToClose, EventsToClose(RecentPlayers)) : EventsToClose(RecentPlayers);
 
         /// <summary>For /realmstatus.</summary>
         public string Status()
@@ -1264,7 +1281,7 @@ namespace WorldServer.core.worlds
             sp.RenderSetPiece(World, pt);
 
             if (announce)
-                RealmBroadcast($"{name} has been spawned!");
+                RealmBroadcast(SpawnLines.TryGetValue(name, out var line) ? line : $"{name} has been spawned!");
         }
 
         private struct TauntData

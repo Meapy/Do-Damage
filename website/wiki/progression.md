@@ -119,6 +119,29 @@ worth more loot than anything around it. They're the realm's main quests.
 
 {{gen:realm-events}}
 
+Three of them play differently from the rest:
+
+- **The Gilded Thief** counts its stolen hoard until someone comes near, then runs. It stays
+  away from you, blinks off in a puff of smoke leaving a decoy that looks just like it (decoys burst
+  into coins when hit), and throws gold bombs that land where their mark shows. Each time it loses
+  a quarter of its health it drops a **Gilded Coffer** full of potions, and a third of those are
+  mimics that bite when you come close. Catch it within three minutes of being seen, or it gets
+  away with the rest: then it doesn't count towards closing the realm.
+- **The Starborn Colossus** lies glowing in its crater until someone comes near, then wakes in a
+  rain of meteors (each lands where its mark fills). Four moons orbit it and harden its skin; shoot
+  them all down and it lies open to heavy damage for a while before raising more. At half health it
+  goes supernova, then fights on with spiralling stars and fragments of itself, and near the end
+  collapses into rings of dark stars.
+- **The Blight Mother** seeds **Spore Pods** round her. Each pod heals her while it stands and,
+  left to ripen, bursts into a ring of spores and a Sporeling, so someone has to weed while the
+  rest fight. Her spore clouds make you Sick (no healing). At 60% she tears up her roots and stalks
+  you, and at 25% every pod she has ripens at once.
+
+Each drops weapons found nowhere else: the Heart of Gold Prism, Keychain Cutlass and Dueling
+Daggers (the Gilded Thief), the Comet of Calamity, Starlight Recurve and Moonbeam Blade (the
+Starborn Colossus) and the Gaseous Glaive, Corrosion Cutter and Sewer Cocktail (the Blight
+Mother).
+
 Events scale with the players around them. An event boss has 60% of its health when 1 or 2
 players fight it, and 20% more for each extra player who comes near, up to three times its health;
 it never loses health it has gained, and one below its full health gives that share of the

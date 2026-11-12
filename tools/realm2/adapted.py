@@ -218,4 +218,151 @@ ADAPTED = {
                   ((320, 60), EMBER), ("grey", ["#32242a", "#6e5660", "#94788a"])],
         "contrast": 1.2,
     }),
+    # --- the Thieves' Bazaar: its cutthroats in plum and stolen gold
+    "R2 Hoard Rat": ("thief", {
+        "from": "DS Golden Rat",
+        "rules": [((20, 45), ["#4a1c3a", "#7a2c5a", "#a8487a"]), ((45, 70), GOLD)],
+    }),
+    "R2 Cutpurse": ("thief", {
+        "from": "Treasure Robber",
+        "rules": [((100, 140), ["#1e0c24", "#3a1844", "#5e2a68"]),
+                  ((0, 20), ["#4e1c4e", "#8a3478"]),
+                  ((30, 45), ["#d8a020", "#fff0a0"])],
+    }),
+    "R2 Bazaar Bruiser": ("thief", {
+        "from": "Treasure Plunderer",
+        "rules": [((100, 140), ["#3a2a08", "#6a4a10", "#9a7018"]),
+                  ((260, 300), ["#5a1438", "#8a2858", "#c04a80"]),
+                  ((0, 20), ["#24102a", "#4e1c4e"])],
+    }),
+    "R2 Gold Gremlin": ("thief", {
+        "from": "Leprechaun Rare Spawn",
+        "rules": [((100, 130), ["#4e1c4e", "#8a3478", "#c060a8"]), ((20, 60), GOLD)],
+    }),
+    "R2 Bandit King": ("thief", {
+        "from": "Treasure Thief",
+        "rules": [((270, 300), ["#5a0a10", "#a01820", "#e04040"]),
+                  ((15, 33), ["#1a1214", "#2e2024", "#4a3438", "#6e5258"]),
+                  ((33, 50), GOLD)],
+    }),
+    "R2 Gilded Effigy": ("thief", {
+        "from": "Golden Oryx Effigy",
+        "rules": [((30, 70), ["#4a2c06", "#7a5410", "#b88018", "#d8a020", "#f8d860", "#fff4b8"]),
+                  ((330, 30), ["#20b8a0", "#a8fff0"])],
+    }),
+    # --- the Starfall Crater: indigo stone lit with starlight, embers of the meteors
+    "R2 Star Mote": ("star", {
+        "from": "Protection Crystal",
+        "rules": [((150, 190), ["#3a4aa0", "#5ad8ff", "#b8f0ff", "#effcff"])],
+    }),
+    "R2 Astral Sentinel": ("star", {
+        "from": "shtrs Bridge Sentinel",
+        "rules": [((20, 60), ["#0a0c24", "#141a40", "#1c2458", "#2a3478", "#3a4aa0"]),
+                  ("grey", ["#5ad8ff", "#effcff"])],
+    }),
+    "R2 Meteorling": ("star", {
+        "from": "Comet",
+        "rules": [("grey", ["#2e2a3c", "#5a5470", "#a8a2c4", "#effcff"]),
+                  ((40, 60), ["#e05a10", "#ffb040"]), ((180, 200), ["#ffb040", "#fff4c0"])],
+    }),
+    "R2 Void Watcher": ("star", {
+        "from": "AI Watcher Sentinel",
+        "rules": [((345, 15), ["#141a40", "#1c2458", "#3a4aa0", "#5a6ad0"]),
+                  ((15, 45), ["#5ad8ff", "#b8f0ff", "#effcff"])],
+    }),
+    "R2 Star Prism": ("star", {
+        "from": "Prismimic Attacker",
+        "rules": [((200, 290), ["#0a0c24", "#1c2458", "#2a3478", "#3a4aa0", "#5ad8ff", "#b8f0ff"])],
+    }),
+    "R2 Comet Wraith": ("star", {
+        "from": "Fire Blight",
+        "rules": [((190, 215), ["#e05a10", "#ffb040", "#fff4c0"]),
+                  ((260, 330), ["#0a0c24", "#141a40", "#1c2458", "#3a4aa0"])],
+    }),
+    # --- the Blightwood: rot purple caps, sick green flesh
+    "R2 Spore Puff": ("blight", {
+        "from": "GC Mushroom Circler Melee",
+        "rules": [((340, 30), ["#2a3a12", "#5a7a22", "#a8d050"]), ((170, 200), ["#d050a0", "#ffb0e0"]),
+                  ((25, 40), ["#8a7a6a", "#c8b8a8"])],
+    }),
+    "R2 Rot Shambler": ("blight", {
+        "from": "Shambling Sludge",
+        "rules": [((60, 100), ["#1a0e1e", "#3a2040", "#5a3060", "#7a4a80", "#a070a8", "#a8d050"])],
+    }),
+    "R2 Shroom Brute": ("blight", {
+        "from": "Shroom Warrior",
+        "rules": [((340, 20), ["#3a2040", "#6a3a6a", "#9a5a9a"]), ((220, 235), ["#2a3a12", "#5a7a22"])],
+    }),
+    "R2 Blight Webspinner": ("blight", {
+        "from": "GC Cavecrawler Webslinger",
+        "rules": [((250, 280), ["#1a0e1e", "#2a3a12", "#5a7a22", "#8ab040", "#c8f080"]),
+                  ((350, 10), ["#d050a0", "#ffb0e0"])],
+    }),
+    "R2 Mycelial Horror": ("blight", {
+        "from": "GC Enc Boss",
+        "rules": [((150, 200), ["#2a3a12", "#5a7a22", "#a8d050", "#eaffb0"]),
+                  ((240, 300), ["#1a0e1e", "#3a2040", "#6a3a6a", "#9a5a9a"])],
+    }),
+    "R2 Rotcap Elder": ("blight", {
+        "from": "GC Mushroom Slammer Leader",
+        "rules": [((0, 40), ["#1a0e1e", "#3a2040", "#5a3060", "#7a4a80", "#b090b0"])],
+        "contrast": 1.15,
+    }),
+    # --- the realm events' own (both realms)
+    # the Gilded Thief: a sneak in royal plum, its sack bulging with gold
+    "Gilded Thief": ("thief", {
+        "from": "Treasure Thief",
+        "rules": [((270, 300), ["#24102a", "#4e1c4e", "#8a3478", "#c060a8"]),
+                  ((15, 33), ["#3a1a48", "#5a2468", "#8a3a98", "#c070d0"]),
+                  ((33, 50), ["#9a6a10", "#d8a020", "#f8d860", "#fff4b8"])],
+    }),
+    "Gilded Decoy": ("thief", {
+        "from": "Treasure Thief",
+        "rules": [((270, 300), ["#24102a", "#4e1c4e", "#8a3478", "#c060a8"]),
+                  ((15, 33), ["#3a1a48", "#5a2468", "#8a3a98", "#c070d0"]),
+                  ((33, 50), ["#9a6a10", "#d8a020", "#f8d860", "#fff4b8"])],
+    }),
+    # its coffers, plum-lacquered and spilling gold; the mimics look no different
+    "Gilded Coffer": ("thief", {
+        "from": "Treasure Enemy",
+        "rules": [((0, 40), ["#24102a", "#4e1c4e", "#6a2860", "#8a3478"]), ((40, 75), GOLD)],
+    }),
+    "Gilded Mimic": ("thief", {
+        "from": "Treasure Enemy",
+        "rules": [((0, 40), ["#24102a", "#4e1c4e", "#6a2860", "#8a3478"]), ((40, 75), GOLD)],
+    }),
+    # the Starborn Colossus: a giant of night-blue stone, starlight burning through it
+    "Starborn Colossus": ("star", {
+        "from": "FR God Nova",
+        "rules": [((195, 215), ["#0a0c24", "#1c2458", "#3a4aa0", "#5a6ad0"]),
+                  ((170, 195), ["#5ad8ff", "#effcff"])],
+        "contrast": 1.2,
+    }),
+    "Star Satellite": ("star", {
+        "from": "Gold Planet",
+        "rules": [("dark", ["#1c2458", "#3a4aa0", "#5ad8ff"]), ((40, 60), ["#141a40", "#3a4aa0", "#7a90e0", "#c8e0ff", "#effcff"]),
+                  ((350, 10), ["#5ad8ff", "#effcff"])],
+    }),
+    "Star Fragment": ("star", {
+        "from": "Comet",
+        "rules": [("grey", ["#1c2458", "#3a4aa0", "#b8f0ff", "#effcff"]),
+                  ((40, 60), ["#5ad8ff", "#effcff"]), ((180, 200), ["#ffb040", "#fff4c0"])],
+    }),
+    # the Blight Mother: a vast toadstool, her cap rotted purple and spotted with sickly green
+    "Blight Mother": ("blight", {
+        "from": "GC Mushroom Charger Leader",
+        "rules": [((90, 130), ["#1a0e1e", "#3a2040", "#6a3a6a", "#9a5a9a"]),
+                  ((60, 90), ["#5a7a22", "#a8d050", "#eaffb0"]),
+                  ((280, 300), ["#d050a0", "#ff90d0"]),
+                  ("light", ["#a8d050", "#eaffb0"])],
+    }),
+    "Blight Spore Pod": ("blight", {
+        "from": "GC Mushroom Circler Melee",
+        "rules": [((340, 30), ["#3a2040", "#6a3a6a", "#9a5a9a"]), ((170, 200), ["#8ae040", "#eaffb0"]),
+                  ("light", ["#a8d050", "#eaffb0"]), ((25, 40), ["#5a7a22", "#a8d050"])],
+    }),
+    "Sporeling": ("blight", {
+        "from": "GC Mushroom Spiral Mage",
+        "rules": [((260, 300), ["#3a2040", "#6a3a6a", "#9a5a9a"]), ((90, 130), ["#5a7a22", "#a8d050"])],
+    }),
 }

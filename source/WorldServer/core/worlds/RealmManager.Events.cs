@@ -40,6 +40,35 @@ namespace WorldServer.core.worlds
             return list;
         }
 
+        /// <summary>
+        /// For /realmevent: start the event a word of whose id or name is `what`, out of sight not far
+        /// from the players (as EnsureQuest does), or with `here` 8 tiles east of them; with
+        /// nothing, the list of them.
+        /// </summary>
+        public string ForceEvent(string what, Player here = null)
+        {
+            var names = EventParts.Keys.ToList();
+            if (string.IsNullOrEmpty(what))
+                return "Events: " + string.Join(", ", names.Select(n => EventTitle(n)));
+            var w = what.ToLowerInvariant();
+            var name = names.FirstOrDefault(n => n.ToLowerInvariant().Contains(w) || EventTitle(n).ToLowerInvariant().Contains(w));
+            if (name == null)
+                return $"No event '{what}': " + string.Join(", ", names.Select(n => EventTitle(n)));
+            if (DisableSpawning)
+                return "No events come here now.";
+            if (here != null)
+            {
+                var sp = SetPieceFor(name) ?? new setpieces.NamedEntitySetPiece(name);
+                sp.RenderSetPiece(World, new core.structures.IntPoint((int)here.X + 8 - (sp.Size - 1) / 2, (int)here.Y - (sp.Size - 1) / 2));
+                _snapshotDirty = true;
+            }
+            else
+                SpawnEvent(name, SetPieceFor(name));
+            _spawned++;
+            _lastEventChange = _now;
+            return $"{EventTitle(name)} is coming.";
+        }
+
         // Every 2 s, and when an event falls: each player who asked gets the list when it has changed
         // (a boss moves a few tiles, an event comes or goes, they pick another).
         private void SendEventLists()

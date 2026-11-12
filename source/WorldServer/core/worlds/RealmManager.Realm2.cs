@@ -13,11 +13,12 @@ namespace WorldServer.core.worlds
     // Realm 2 (Realm2World): its map comes with a layout, and the realm runs by it. It opens with
     // the shore and lowlands, the midlands and the Godlands, whose monsters live by terrain as in
     // the realm. Events come as the realm's do (EnsureQuest: one at a time for a few players, more
-    // for a crowd): first the two Lucky gods in their midland clearings, then the eleven events in a
+    // for a crowd): first the two Lucky gods in their midland clearings, then the lands' events in a
     // random order, each bringing its own land, drawn into the Godlands (or out in the void with a
     // bridge or pool) further from the shore than the last, in any direction. Each land keeps its
-    // monsters, in small groups as the gods are, and two of each of its quests. Realm 2 needs every
-    // event to close (EventsNeeded), more for a crowd; once all have come, more come to new lands.
+    // monsters, in small groups as the gods are, and two of each of its quests. Realm 2 needs the Lucky
+    // gods and eleven of its fourteen lands to close (EventsNeeded), more for a crowd; once every land
+    // has come, more come to new lands.
     public sealed partial class RealmManager
     {
         public Realm2Layout Layout;
@@ -83,13 +84,28 @@ namespace WorldServer.core.worlds
                 player.ApplyConditionEffect(ConditionEffectIndex.Invulnerable, ArrivalInvulnerableMs);
         }
 
-        /// <summary>For /realm2 next: bring the next event now, whatever is running.</summary>
-        public string ForceLayoutEvent()
+        /// <summary>
+        /// For /realm2 next: bring the next event now, whatever is running; with `land` (a word of a
+        /// land's key or name: thief, star, blight, cube...), that land's event.
+        /// </summary>
+        public string ForceLayoutEvent(string land = null)
         {
             if (Layout == null || DisableSpawning)
                 return "No events come here now.";
             if (_upcoming.Count == 0)
                 QueueLands();
+            if (!string.IsNullOrEmpty(land))
+            {
+                var w = land.ToLowerInvariant();
+                var theme = Realm2Themes.Events.FirstOrDefault(t => t.Key.StartsWith(w) || t.Name.Contains(w));
+                if (theme == null)
+                    return $"No land '{land}': " + string.Join(", ", Realm2Themes.Events.Select(t => t.Key));
+                var rest = _upcoming.Where(e => e != theme.Event).ToList();
+                _upcoming.Clear();
+                _upcoming.Enqueue(theme.Event);
+                foreach (var e in rest)
+                    _upcoming.Enqueue(e);
+            }
             var next = _upcoming.Peek();
             if (!SpawnNextLayoutEvent(true))
                 return $"Nowhere fits {EventTitle(next)}.";
@@ -124,7 +140,7 @@ namespace WorldServer.core.worlds
             return true;
         }
 
-        // Where the next land goes: the eleven spread evenly along the Godlands from the midlands to
+        // Where the next land goes: the eleven it needs spread evenly along the Godlands from the midlands to
         // its far end (the nth at about n/11 of the way), never nearer the shore than the last, any
         // way across; best on the Godlands' edge, sticking out into the void, so its middle stays
         // free (or, a quarter of the time, out in the void beside it, joined by a bridge or pool);
@@ -138,7 +154,7 @@ namespace WorldServer.core.worlds
                 .Select(p => new IntPoint((int)p.Enemy.X, (int)p.Enemy.Y)).ToList();
             var edge = (int)(LandRadius * 1.25) + 6;
             var island = Random.Shared.NextDouble() < 0.25;
-            var count = Realm2Themes.Events.Length;
+            var count = Realm2Themes.LandsToClose;
             var span = Layout.GodlandsTo - Layout.GodlandsFrom;
             var target = Layout.GodlandsFrom + span * ((_lands % count) + 0.6) / count;
 

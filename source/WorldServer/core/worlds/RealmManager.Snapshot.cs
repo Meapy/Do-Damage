@@ -160,6 +160,9 @@ namespace WorldServer.core.worlds
             "Pentaract" => new Pentaract(),
             "Garnet Statue" => new GarnetJade(),
             "shtrs Defense System" => new ShtrsDefenseSystem(),
+            "Gilded Thief" => RealmEventGrounds.ThievesHoard(),
+            "Starborn Colossus" => RealmEventGrounds.StarfallCrater(),
+            "Blight Mother" => RealmEventGrounds.Blightwood(),
             _ => null,
         };
 

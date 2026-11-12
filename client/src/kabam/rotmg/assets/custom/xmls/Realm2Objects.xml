@@ -4,7 +4,7 @@
 		<Class>GameObject</Class>
 		<Texture>
 			<File>realm2Env8x8</File>
-			<Index>0xa6</Index>
+			<Index>0xd4</Index>
 		</Texture>
 		<MinSize>100</MinSize>
 		<MaxSize>130</MaxSize>
@@ -17,7 +17,7 @@
 		<Class>GameObject</Class>
 		<Texture>
 			<File>realm2Env8x8</File>
-			<Index>0xa7</Index>
+			<Index>0xd5</Index>
 		</Texture>
 		<MinSize>80</MinSize>
 		<MaxSize>100</MaxSize>
@@ -28,7 +28,7 @@
 		<Class>GameObject</Class>
 		<Texture>
 			<File>realm2Env8x8</File>
-			<Index>0xa8</Index>
+			<Index>0xd6</Index>
 		</Texture>
 		<MinSize>120</MinSize>
 		<MaxSize>150</MaxSize>
@@ -41,7 +41,7 @@
 		<Class>GameObject</Class>
 		<Texture>
 			<File>realm2Env8x8</File>
-			<Index>0xa9</Index>
+			<Index>0xd7</Index>
 		</Texture>
 		<Size>100</Size>
 		<DrawOnGround />
@@ -51,7 +51,7 @@
 		<Class>GameObject</Class>
 		<Texture>
 			<File>realm2Env8x8</File>
-			<Index>0xaa</Index>
+			<Index>0xd8</Index>
 		</Texture>
 		<MinSize>130</MinSize>
 		<MaxSize>160</MaxSize>
@@ -64,7 +64,7 @@
 		<Class>GameObject</Class>
 		<Texture>
 			<File>realm2Env8x8</File>
-			<Index>0xab</Index>
+			<Index>0xd9</Index>
 		</Texture>
 		<MinSize>90</MinSize>
 		<MaxSize>110</MaxSize>
@@ -75,7 +75,7 @@
 		<Class>GameObject</Class>
 		<Texture>
 			<File>realm2Env8x8</File>
-			<Index>0xac</Index>
+			<Index>0xda</Index>
 		</Texture>
 		<MinSize>90</MinSize>
 		<MaxSize>120</MaxSize>
@@ -88,7 +88,7 @@
 		<Class>GameObject</Class>
 		<Texture>
 			<File>realm2Env8x8</File>
-			<Index>0xad</Index>
+			<Index>0xdb</Index>
 		</Texture>
 		<Size>100</Size>
 		<DrawOnGround />
@@ -98,7 +98,7 @@
 		<Class>GameObject</Class>
 		<Texture>
 			<File>realm2Env8x8</File>
-			<Index>0xae</Index>
+			<Index>0xdc</Index>
 		</Texture>
 		<MinSize>110</MinSize>
 		<MaxSize>140</MaxSize>
@@ -111,7 +111,7 @@
 		<Class>GameObject</Class>
 		<Texture>
 			<File>realm2Env8x8</File>
-			<Index>0xaf</Index>
+			<Index>0xdd</Index>
 		</Texture>
 		<MinSize>90</MinSize>
 		<MaxSize>120</MaxSize>
@@ -124,7 +124,7 @@
 		<Class>GameObject</Class>
 		<Texture>
 			<File>realm2Env8x8</File>
-			<Index>0xb0</Index>
+			<Index>0xde</Index>
 		</Texture>
 		<MinSize>90</MinSize>
 		<MaxSize>110</MaxSize>
@@ -137,7 +137,7 @@
 		<Class>GameObject</Class>
 		<Texture>
 			<File>realm2Env8x8</File>
-			<Index>0xb1</Index>
+			<Index>0xdf</Index>
 		</Texture>
 		<MinSize>90</MinSize>
 		<MaxSize>110</MaxSize>
@@ -148,7 +148,7 @@
 		<Class>GameObject</Class>
 		<Texture>
 			<File>realm2Env8x8</File>
-			<Index>0xb2</Index>
+			<Index>0xe0</Index>
 		</Texture>
 		<MinSize>100</MinSize>
 		<MaxSize>130</MaxSize>
@@ -161,7 +161,7 @@
 		<Class>GameObject</Class>
 		<Texture>
 			<File>realm2Env8x8</File>
-			<Index>0xb3</Index>
+			<Index>0xe1</Index>
 		</Texture>
 		<MinSize>100</MinSize>
 		<MaxSize>120</MaxSize>
@@ -174,7 +174,7 @@
 		<Class>GameObject</Class>
 		<Texture>
 			<File>realm2Env8x8</File>
-			<Index>0xb4</Index>
+			<Index>0xe2</Index>
 		</Texture>
 		<MinSize>90</MinSize>
 		<MaxSize>120</MaxSize>
@@ -185,7 +185,7 @@
 		<Class>GameObject</Class>
 		<Texture>
 			<File>realm2Env8x8</File>
-			<Index>0xb5</Index>
+			<Index>0xe3</Index>
 		</Texture>
 		<MinSize>100</MinSize>
 		<MaxSize>130</MaxSize>
@@ -198,7 +198,7 @@
 		<Class>GameObject</Class>
 		<Texture>
 			<File>realm2Env8x8</File>
-			<Index>0xb6</Index>
+			<Index>0xe4</Index>
 		</Texture>
 		<MinSize>120</MinSize>
 		<MaxSize>150</MaxSize>
@@ -211,7 +211,7 @@
 		<Class>GameObject</Class>
 		<Texture>
 			<File>realm2Env8x8</File>
-			<Index>0xb7</Index>
+			<Index>0xe5</Index>
 		</Texture>
 		<MinSize>110</MinSize>
 		<MaxSize>130</MaxSize>
@@ -224,7 +224,7 @@
 		<Class>GameObject</Class>
 		<Texture>
 			<File>realm2Env8x8</File>
-			<Index>0xb8</Index>
+			<Index>0xe6</Index>
 		</Texture>
 		<MinSize>90</MinSize>
 		<MaxSize>110</MaxSize>
@@ -237,7 +237,7 @@
 		<Class>GameObject</Class>
 		<Texture>
 			<File>realm2Env8x8</File>
-			<Index>0xb9</Index>
+			<Index>0xe7</Index>
 		</Texture>
 		<MinSize>80</MinSize>
 		<MaxSize>100</MaxSize>
@@ -250,7 +250,7 @@
 		<Class>GameObject</Class>
 		<Texture>
 			<File>realm2Env8x8</File>
-			<Index>0xba</Index>
+			<Index>0xe8</Index>
 		</Texture>
 		<MinSize>120</MinSize>
 		<MaxSize>150</MaxSize>
@@ -263,7 +263,7 @@
 		<Class>GameObject</Class>
 		<Texture>
 			<File>realm2Env8x8</File>
-			<Index>0xbb</Index>
+			<Index>0xe9</Index>
 		</Texture>
 		<MinSize>100</MinSize>
 		<MaxSize>120</MaxSize>
@@ -276,7 +276,7 @@
 		<Class>GameObject</Class>
 		<Texture>
 			<File>realm2Env8x8</File>
-			<Index>0xbc</Index>
+			<Index>0xea</Index>
 		</Texture>
 		<MinSize>100</MinSize>
 		<MaxSize>110</MaxSize>
@@ -289,7 +289,7 @@
 		<Class>GameObject</Class>
 		<Texture>
 			<File>realm2Env8x8</File>
-			<Index>0xbd</Index>
+			<Index>0xeb</Index>
 		</Texture>
 		<MinSize>80</MinSize>
 		<MaxSize>100</MaxSize>
@@ -300,7 +300,7 @@
 		<Class>GameObject</Class>
 		<Texture>
 			<File>realm2Env8x8</File>
-			<Index>0xbe</Index>
+			<Index>0xec</Index>
 		</Texture>
 		<MinSize>100</MinSize>
 		<MaxSize>120</MaxSize>
@@ -313,7 +313,7 @@
 		<Class>GameObject</Class>
 		<Texture>
 			<File>realm2Env8x8</File>
-			<Index>0xbf</Index>
+			<Index>0xed</Index>
 		</Texture>
 		<Size>100</Size>
 		<DrawOnGround />
@@ -323,19 +323,19 @@
 		<Class>GameObject</Class>
 		<Texture>
 			<File>realm2Env8x8</File>
-			<Index>0xc0</Index>
+			<Index>0xee</Index>
 		</Texture>
 		<Animation prob="1.0">
 			<Frame time="0.25">
 				<Texture>
 					<File>realm2Env8x8</File>
-					<Index>0xc0</Index>
+					<Index>0xee</Index>
 				</Texture>
 			</Frame>
 			<Frame time="0.25">
 				<Texture>
 					<File>realm2Env8x8</File>
-					<Index>0xc1</Index>
+					<Index>0xef</Index>
 				</Texture>
 			</Frame>
 		</Animation>
@@ -350,7 +350,7 @@
 		<Class>GameObject</Class>
 		<Texture>
 			<File>realm2Env8x8</File>
-			<Index>0xc2</Index>
+			<Index>0xf0</Index>
 		</Texture>
 		<MinSize>100</MinSize>
 		<MaxSize>130</MaxSize>
@@ -363,7 +363,7 @@
 		<Class>GameObject</Class>
 		<Texture>
 			<File>realm2Env8x8</File>
-			<Index>0xc3</Index>
+			<Index>0xf1</Index>
 		</Texture>
 		<MinSize>130</MinSize>
 		<MaxSize>160</MaxSize>
@@ -376,19 +376,19 @@
 		<Class>GameObject</Class>
 		<Texture>
 			<File>realm2Env8x8</File>
-			<Index>0xc4</Index>
+			<Index>0xf2</Index>
 		</Texture>
 		<Animation prob="1.0">
 			<Frame time="0.25">
 				<Texture>
 					<File>realm2Env8x8</File>
-					<Index>0xc4</Index>
+					<Index>0xf2</Index>
 				</Texture>
 			</Frame>
 			<Frame time="0.25">
 				<Texture>
 					<File>realm2Env8x8</File>
-					<Index>0xc5</Index>
+					<Index>0xf3</Index>
 				</Texture>
 			</Frame>
 		</Animation>
@@ -403,7 +403,7 @@
 		<Class>GameObject</Class>
 		<Texture>
 			<File>realm2Env8x8</File>
-			<Index>0xc6</Index>
+			<Index>0xf4</Index>
 		</Texture>
 		<MinSize>110</MinSize>
 		<MaxSize>140</MaxSize>
@@ -416,7 +416,7 @@
 		<Class>GameObject</Class>
 		<Texture>
 			<File>realm2Env8x8</File>
-			<Index>0xc7</Index>
+			<Index>0xf5</Index>
 		</Texture>
 		<MinSize>100</MinSize>
 		<MaxSize>120</MaxSize>
@@ -427,7 +427,7 @@
 		<Class>GameObject</Class>
 		<Texture>
 			<File>realm2Env8x8</File>
-			<Index>0xc8</Index>
+			<Index>0xf6</Index>
 		</Texture>
 		<MinSize>100</MinSize>
 		<MaxSize>120</MaxSize>
@@ -439,7 +439,7 @@
 		<Class>GameObject</Class>
 		<Texture>
 			<File>realm2Env8x8</File>
-			<Index>0xc9</Index>
+			<Index>0xf7</Index>
 		</Texture>
 		<MinSize>110</MinSize>
 		<MaxSize>140</MaxSize>
@@ -452,19 +452,19 @@
 		<Class>GameObject</Class>
 		<Texture>
 			<File>realm2Env8x8</File>
-			<Index>0xca</Index>
+			<Index>0xf8</Index>
 		</Texture>
 		<Animation prob="1.0">
 			<Frame time="0.25">
 				<Texture>
 					<File>realm2Env8x8</File>
-					<Index>0xca</Index>
+					<Index>0xf8</Index>
 				</Texture>
 			</Frame>
 			<Frame time="0.25">
 				<Texture>
 					<File>realm2Env8x8</File>
-					<Index>0xcb</Index>
+					<Index>0xf9</Index>
 				</Texture>
 			</Frame>
 		</Animation>
@@ -477,7 +477,7 @@
 		<Class>GameObject</Class>
 		<Texture>
 			<File>realm2Env8x8</File>
-			<Index>0xcc</Index>
+			<Index>0xfa</Index>
 		</Texture>
 		<MinSize>120</MinSize>
 		<MaxSize>150</MaxSize>
@@ -490,7 +490,7 @@
 		<Class>GameObject</Class>
 		<Texture>
 			<File>realm2Env8x8</File>
-			<Index>0xcd</Index>
+			<Index>0xfb</Index>
 		</Texture>
 		<MinSize>80</MinSize>
 		<MaxSize>100</MaxSize>
@@ -503,7 +503,7 @@
 		<Class>GameObject</Class>
 		<Texture>
 			<File>realm2Env8x8</File>
-			<Index>0xce</Index>
+			<Index>0xfc</Index>
 		</Texture>
 		<Size>100</Size>
 		<DrawOnGround />
@@ -513,7 +513,7 @@
 		<Class>GameObject</Class>
 		<Texture>
 			<File>realm2Env8x8</File>
-			<Index>0xcf</Index>
+			<Index>0xfd</Index>
 		</Texture>
 		<MinSize>100</MinSize>
 		<MaxSize>110</MaxSize>
@@ -525,7 +525,7 @@
 		<Class>GameObject</Class>
 		<Texture>
 			<File>realm2Env8x8</File>
-			<Index>0xd0</Index>
+			<Index>0xfe</Index>
 		</Texture>
 		<MinSize>100</MinSize>
 		<MaxSize>120</MaxSize>
@@ -538,7 +538,7 @@
 		<Class>GameObject</Class>
 		<Texture>
 			<File>realm2Env8x8</File>
-			<Index>0xd1</Index>
+			<Index>0xff</Index>
 		</Texture>
 		<MinSize>110</MinSize>
 		<MaxSize>130</MaxSize>
@@ -551,19 +551,19 @@
 		<Class>GameObject</Class>
 		<Texture>
 			<File>realm2Env8x8</File>
-			<Index>0xd2</Index>
+			<Index>0x100</Index>
 		</Texture>
 		<Animation prob="1.0">
 			<Frame time="0.25">
 				<Texture>
 					<File>realm2Env8x8</File>
-					<Index>0xd2</Index>
+					<Index>0x100</Index>
 				</Texture>
 			</Frame>
 			<Frame time="0.25">
 				<Texture>
 					<File>realm2Env8x8</File>
-					<Index>0xd3</Index>
+					<Index>0x101</Index>
 				</Texture>
 			</Frame>
 		</Animation>
@@ -578,7 +578,7 @@
 		<Class>GameObject</Class>
 		<Texture>
 			<File>realm2Env8x8</File>
-			<Index>0xd4</Index>
+			<Index>0x102</Index>
 		</Texture>
 		<Size>100</Size>
 		<DrawOnGround />
@@ -588,7 +588,7 @@
 		<Class>GameObject</Class>
 		<Texture>
 			<File>realm2Env8x8</File>
-			<Index>0xd5</Index>
+			<Index>0x103</Index>
 		</Texture>
 		<MinSize>100</MinSize>
 		<MaxSize>140</MaxSize>
@@ -599,7 +599,7 @@
 		<Class>GameObject</Class>
 		<Texture>
 			<File>realm2Env8x8</File>
-			<Index>0xd6</Index>
+			<Index>0x104</Index>
 		</Texture>
 		<MinSize>110</MinSize>
 		<MaxSize>140</MaxSize>
@@ -610,7 +610,7 @@
 		<Class>GameObject</Class>
 		<Texture>
 			<File>realm2Env8x8</File>
-			<Index>0xd7</Index>
+			<Index>0x105</Index>
 		</Texture>
 		<Size>100</Size>
 		<Static />
@@ -621,7 +621,7 @@
 		<Class>GameObject</Class>
 		<Texture>
 			<File>realm2Env8x8</File>
-			<Index>0xd8</Index>
+			<Index>0x106</Index>
 		</Texture>
 		<MinSize>100</MinSize>
 		<MaxSize>120</MaxSize>
@@ -634,7 +634,7 @@
 		<Class>GameObject</Class>
 		<Texture>
 			<File>realm2Env8x8</File>
-			<Index>0xd9</Index>
+			<Index>0x107</Index>
 		</Texture>
 		<MinSize>100</MinSize>
 		<MaxSize>110</MaxSize>
@@ -647,7 +647,7 @@
 		<Class>GameObject</Class>
 		<Texture>
 			<File>realm2Env8x8</File>
-			<Index>0xda</Index>
+			<Index>0x108</Index>
 		</Texture>
 		<MinSize>90</MinSize>
 		<MaxSize>110</MaxSize>
@@ -660,10 +660,196 @@
 		<Class>GameObject</Class>
 		<Texture>
 			<File>realm2Env8x8</File>
-			<Index>0xdb</Index>
+			<Index>0x109</Index>
 		</Texture>
 		<MinSize>100</MinSize>
 		<MaxSize>120</MaxSize>
+		<SizeStep>5</SizeStep>
+		<Static />
+	</Object>
+	<Object type="0x7983" id="R2 Bazaar Tent">
+		<Class>GameObject</Class>
+		<Texture>
+			<File>realm2Env8x8</File>
+			<Index>0x10a</Index>
+		</Texture>
+		<MinSize>130</MinSize>
+		<MaxSize>160</MaxSize>
+		<SizeStep>5</SizeStep>
+		<Static />
+		<OccupySquare />
+		<EnemyOccupySquare />
+	</Object>
+	<Object type="0x7984" id="R2 Coin Pile">
+		<Class>GameObject</Class>
+		<Texture>
+			<File>realm2Env8x8</File>
+			<Index>0x10b</Index>
+		</Texture>
+		<MinSize>90</MinSize>
+		<MaxSize>110</MaxSize>
+		<SizeStep>5</SizeStep>
+		<DrawOnGround />
+		<Static />
+	</Object>
+	<Object type="0x7985" id="R2 Loot Chest">
+		<Class>GameObject</Class>
+		<Texture>
+			<File>realm2Env8x8</File>
+			<Index>0x10c</Index>
+		</Texture>
+		<MinSize>90</MinSize>
+		<MaxSize>100</MaxSize>
+		<SizeStep>5</SizeStep>
+		<Static />
+		<OccupySquare />
+		<EnemyOccupySquare />
+	</Object>
+	<Object type="0x7986" id="R2 Gilded Urn">
+		<Class>GameObject</Class>
+		<Texture>
+			<File>realm2Env8x8</File>
+			<Index>0x10d</Index>
+		</Texture>
+		<MinSize>80</MinSize>
+		<MaxSize>100</MaxSize>
+		<SizeStep>5</SizeStep>
+		<Static />
+		<OccupySquare />
+		<EnemyOccupySquare />
+	</Object>
+	<Object type="0x7987" id="R2 Star Shard">
+		<Class>GameObject</Class>
+		<Texture>
+			<File>realm2Env8x8</File>
+			<Index>0x10e</Index>
+		</Texture>
+		<Animation prob="1.0">
+			<Frame time="0.25">
+				<Texture>
+					<File>realm2Env8x8</File>
+					<Index>0x10e</Index>
+				</Texture>
+			</Frame>
+			<Frame time="0.25">
+				<Texture>
+					<File>realm2Env8x8</File>
+					<Index>0x10f</Index>
+				</Texture>
+			</Frame>
+		</Animation>
+		<MinSize>100</MinSize>
+		<MaxSize>130</MaxSize>
+		<SizeStep>5</SizeStep>
+		<Static />
+		<OccupySquare />
+		<EnemyOccupySquare />
+	</Object>
+	<Object type="0x7988" id="R2 Meteor Rock">
+		<Class>GameObject</Class>
+		<Texture>
+			<File>realm2Env8x8</File>
+			<Index>0x110</Index>
+		</Texture>
+		<MinSize>100</MinSize>
+		<MaxSize>130</MaxSize>
+		<SizeStep>5</SizeStep>
+		<Static />
+		<OccupySquare />
+		<EnemyOccupySquare />
+	</Object>
+	<Object type="0x7989" id="R2 Stardust">
+		<Class>GameObject</Class>
+		<Texture>
+			<File>realm2Env8x8</File>
+			<Index>0x111</Index>
+		</Texture>
+		<Size>100</Size>
+		<DrawOnGround />
+		<Static />
+	</Object>
+	<Object type="0x798A" id="R2 Astral Spire">
+		<Class>GameObject</Class>
+		<Texture>
+			<File>realm2Env8x8</File>
+			<Index>0x112</Index>
+		</Texture>
+		<MinSize>120</MinSize>
+		<MaxSize>150</MaxSize>
+		<SizeStep>5</SizeStep>
+		<Static />
+		<OccupySquare />
+		<EnemyOccupySquare />
+	</Object>
+	<Object type="0x798B" id="R2 Giant Toadstool">
+		<Class>GameObject</Class>
+		<Texture>
+			<File>realm2Env8x8</File>
+			<Index>0x113</Index>
+		</Texture>
+		<MinSize>130</MinSize>
+		<MaxSize>170</MaxSize>
+		<SizeStep>5</SizeStep>
+		<Static />
+		<OccupySquare />
+		<EnemyOccupySquare />
+	</Object>
+	<Object type="0x798C" id="R2 Blight Puffball">
+		<Class>GameObject</Class>
+		<Texture>
+			<File>realm2Env8x8</File>
+			<Index>0x114</Index>
+		</Texture>
+		<MinSize>90</MinSize>
+		<MaxSize>120</MaxSize>
+		<SizeStep>5</SizeStep>
+		<Static />
+	</Object>
+	<Object type="0x798D" id="R2 Rot Stump">
+		<Class>GameObject</Class>
+		<Texture>
+			<File>realm2Env8x8</File>
+			<Index>0x115</Index>
+		</Texture>
+		<MinSize>100</MinSize>
+		<MaxSize>120</MaxSize>
+		<SizeStep>5</SizeStep>
+		<Static />
+		<OccupySquare />
+		<EnemyOccupySquare />
+	</Object>
+	<Object type="0x798E" id="R2 Spore Patch">
+		<Class>GameObject</Class>
+		<Texture>
+			<File>realm2Env8x8</File>
+			<Index>0x116</Index>
+		</Texture>
+		<Size>100</Size>
+		<DrawOnGround />
+		<Static />
+	</Object>
+	<Object type="0x798F" id="R2 Glowcap">
+		<Class>GameObject</Class>
+		<Texture>
+			<File>realm2Env8x8</File>
+			<Index>0x117</Index>
+		</Texture>
+		<Animation prob="1.0">
+			<Frame time="0.25">
+				<Texture>
+					<File>realm2Env8x8</File>
+					<Index>0x117</Index>
+				</Texture>
+			</Frame>
+			<Frame time="0.25">
+				<Texture>
+					<File>realm2Env8x8</File>
+					<Index>0x118</Index>
+				</Texture>
+			</Frame>
+		</Animation>
+		<MinSize>90</MinSize>
+		<MaxSize>110</MaxSize>
 		<SizeStep>5</SizeStep>
 		<Static />
 	</Object>
@@ -671,12 +857,12 @@
 		<Class>Wall</Class>
 		<Texture>
 			<File>realm2Env8x8</File>
-			<Index>0xdc</Index>
+			<Index>0x119</Index>
 		</Texture>
 		<Top>
 			<Texture>
 				<File>realm2Env8x8</File>
-				<Index>0xdd</Index>
+				<Index>0x11a</Index>
 			</Texture>
 		</Top>
 		<HitSound>monster/stone_walls_hit</HitSound>
@@ -691,12 +877,12 @@
 		<Class>Wall</Class>
 		<Texture>
 			<File>realm2Env8x8</File>
-			<Index>0xde</Index>
+			<Index>0x11b</Index>
 		</Texture>
 		<Top>
 			<Texture>
 				<File>realm2Env8x8</File>
-				<Index>0xdf</Index>
+				<Index>0x11c</Index>
 			</Texture>
 		</Top>
 		<HitSound>monster/stone_walls_hit</HitSound>
@@ -711,12 +897,12 @@
 		<Class>Wall</Class>
 		<Texture>
 			<File>realm2Env8x8</File>
-			<Index>0xe0</Index>
+			<Index>0x11d</Index>
 		</Texture>
 		<Top>
 			<Texture>
 				<File>realm2Env8x8</File>
-				<Index>0xe1</Index>
+				<Index>0x11e</Index>
 			</Texture>
 		</Top>
 		<HitSound>monster/stone_walls_hit</HitSound>
@@ -731,12 +917,12 @@
 		<Class>Wall</Class>
 		<Texture>
 			<File>realm2Env8x8</File>
-			<Index>0xe2</Index>
+			<Index>0x11f</Index>
 		</Texture>
 		<Top>
 			<Texture>
 				<File>realm2Env8x8</File>
-				<Index>0xe3</Index>
+				<Index>0x120</Index>
 			</Texture>
 		</Top>
 		<HitSound>monster/stone_walls_hit</HitSound>
@@ -751,12 +937,12 @@
 		<Class>Wall</Class>
 		<Texture>
 			<File>realm2Env8x8</File>
-			<Index>0xe4</Index>
+			<Index>0x121</Index>
 		</Texture>
 		<Top>
 			<Texture>
 				<File>realm2Env8x8</File>
-				<Index>0xe5</Index>
+				<Index>0x122</Index>
 			</Texture>
 		</Top>
 		<HitSound>monster/stone_walls_hit</HitSound>
@@ -771,12 +957,12 @@
 		<Class>Wall</Class>
 		<Texture>
 			<File>realm2Env8x8</File>
-			<Index>0xe6</Index>
+			<Index>0x123</Index>
 		</Texture>
 		<Top>
 			<Texture>
 				<File>realm2Env8x8</File>
-				<Index>0xe7</Index>
+				<Index>0x124</Index>
 			</Texture>
 		</Top>
 		<HitSound>monster/stone_walls_hit</HitSound>
@@ -791,12 +977,12 @@
 		<Class>Wall</Class>
 		<Texture>
 			<File>realm2Env8x8</File>
-			<Index>0xe8</Index>
+			<Index>0x125</Index>
 		</Texture>
 		<Top>
 			<Texture>
 				<File>realm2Env8x8</File>
-				<Index>0xe9</Index>
+				<Index>0x126</Index>
 			</Texture>
 		</Top>
 		<HitSound>monster/stone_walls_hit</HitSound>
@@ -811,12 +997,12 @@
 		<Class>Wall</Class>
 		<Texture>
 			<File>realm2Env8x8</File>
-			<Index>0xea</Index>
+			<Index>0x127</Index>
 		</Texture>
 		<Top>
 			<Texture>
 				<File>realm2Env8x8</File>
-				<Index>0xeb</Index>
+				<Index>0x128</Index>
 			</Texture>
 		</Top>
 		<HitSound>monster/stone_walls_hit</HitSound>
@@ -831,12 +1017,12 @@
 		<Class>Wall</Class>
 		<Texture>
 			<File>realm2Env8x8</File>
-			<Index>0xec</Index>
+			<Index>0x129</Index>
 		</Texture>
 		<Top>
 			<Texture>
 				<File>realm2Env8x8</File>
-				<Index>0xed</Index>
+				<Index>0x12a</Index>
 			</Texture>
 		</Top>
 		<HitSound>monster/stone_walls_hit</HitSound>
@@ -851,12 +1037,12 @@
 		<Class>Wall</Class>
 		<Texture>
 			<File>realm2Env8x8</File>
-			<Index>0xee</Index>
+			<Index>0x12b</Index>
 		</Texture>
 		<Top>
 			<Texture>
 				<File>realm2Env8x8</File>
-				<Index>0xef</Index>
+				<Index>0x12c</Index>
 			</Texture>
 		</Top>
 		<HitSound>monster/stone_walls_hit</HitSound>
@@ -871,12 +1057,72 @@
 		<Class>Wall</Class>
 		<Texture>
 			<File>realm2Env8x8</File>
-			<Index>0xf0</Index>
+			<Index>0x12d</Index>
 		</Texture>
 		<Top>
 			<Texture>
 				<File>realm2Env8x8</File>
-				<Index>0xf1</Index>
+				<Index>0x12e</Index>
+			</Texture>
+		</Top>
+		<HitSound>monster/stone_walls_hit</HitSound>
+		<DeathSound>monster/stone_walls_death</DeathSound>
+		<Static />
+		<FullOccupy />
+		<OccupySquare />
+		<EnemyOccupySquare />
+		<BlocksSight />
+	</Object>
+	<Object type="0x7990" id="R2 Bazaar Wall">
+		<Class>Wall</Class>
+		<Texture>
+			<File>realm2Env8x8</File>
+			<Index>0x12f</Index>
+		</Texture>
+		<Top>
+			<Texture>
+				<File>realm2Env8x8</File>
+				<Index>0x130</Index>
+			</Texture>
+		</Top>
+		<HitSound>monster/stone_walls_hit</HitSound>
+		<DeathSound>monster/stone_walls_death</DeathSound>
+		<Static />
+		<FullOccupy />
+		<OccupySquare />
+		<EnemyOccupySquare />
+		<BlocksSight />
+	</Object>
+	<Object type="0x7991" id="R2 Meteor Wall">
+		<Class>Wall</Class>
+		<Texture>
+			<File>realm2Env8x8</File>
+			<Index>0x131</Index>
+		</Texture>
+		<Top>
+			<Texture>
+				<File>realm2Env8x8</File>
+				<Index>0x132</Index>
+			</Texture>
+		</Top>
+		<HitSound>monster/stone_walls_hit</HitSound>
+		<DeathSound>monster/stone_walls_death</DeathSound>
+		<Static />
+		<FullOccupy />
+		<OccupySquare />
+		<EnemyOccupySquare />
+		<BlocksSight />
+	</Object>
+	<Object type="0x7992" id="R2 Blight Wall">
+		<Class>Wall</Class>
+		<Texture>
+			<File>realm2Env8x8</File>
+			<Index>0x133</Index>
+		</Texture>
+		<Top>
+			<Texture>
+				<File>realm2Env8x8</File>
+				<Index>0x134</Index>
 			</Texture>
 		</Top>
 		<HitSound>monster/stone_walls_hit</HitSound>
@@ -2664,6 +2910,761 @@
 			<LifetimeMS>1100</LifetimeMS>
 		</Projectile>
 	</Object>
+	<Object type="0x7993" id="R2 Hoard Rat">
+		<DisplayId>Hoard Rat</DisplayId>
+		<Class>Character</Class>
+		<Enemy />
+		<Group>Realm 2 thief</Group>
+		<AnimatedTexture>
+			<File>realm2Chars8x8</File>
+			<Index>19</Index>
+		</AnimatedTexture>
+		<HitSound>monster/goblins_hit</HitSound>
+		<DeathSound>monster/goblins_death</DeathSound>
+		<Size>70</Size>
+		<MaxHitPoints>700</MaxHitPoints>
+		<Defense>4</Defense>
+		<God />
+		<Projectile id="0">
+			<ObjectId>Golden Coin</ObjectId>
+			<Damage>60</Damage>
+			<Speed>90</Speed>
+			<LifetimeMS>700</LifetimeMS>
+		</Projectile>
+	</Object>
+	<Object type="0x7994" id="R2 Cutpurse">
+		<DisplayId>Cutpurse</DisplayId>
+		<Class>Character</Class>
+		<Enemy />
+		<Group>Realm 2 thief</Group>
+		<AnimatedTexture>
+			<File>realm2Chars8x8</File>
+			<Index>20</Index>
+		</AnimatedTexture>
+		<HitSound>monster/goblins_hit</HitSound>
+		<DeathSound>monster/goblins_death</DeathSound>
+		<Size>90</Size>
+		<MaxHitPoints>1700</MaxHitPoints>
+		<Defense>8</Defense>
+		<God />
+		<Projectile id="0">
+			<ObjectId>Gold Blade</ObjectId>
+			<Damage>100</Damage>
+			<Speed>110</Speed>
+			<LifetimeMS>700</LifetimeMS>
+		</Projectile>
+	</Object>
+	<Object type="0x7995" id="R2 Bazaar Bruiser">
+		<DisplayId>Bazaar Bruiser</DisplayId>
+		<Class>Character</Class>
+		<Enemy />
+		<Group>Realm 2 thief</Group>
+		<AnimatedTexture>
+			<File>realm2Chars8x8</File>
+			<Index>21</Index>
+		</AnimatedTexture>
+		<HitSound>monster/goblins_hit</HitSound>
+		<DeathSound>monster/goblins_death</DeathSound>
+		<Size>110</Size>
+		<MaxHitPoints>2600</MaxHitPoints>
+		<Defense>22</Defense>
+		<God />
+		<Projectile id="0">
+			<ObjectId>Golden Blast</ObjectId>
+			<Damage>130</Damage>
+			<Speed>45</Speed>
+			<LifetimeMS>2000</LifetimeMS>
+			<Size>120</Size>
+		</Projectile>
+	</Object>
+	<Object type="0x7996" id="R2 Gold Gremlin">
+		<DisplayId>Gold Gremlin</DisplayId>
+		<Class>Character</Class>
+		<Enemy />
+		<Group>Realm 2 thief</Group>
+		<AnimatedTexture>
+			<File>realm2Chars8x8</File>
+			<Index>22</Index>
+		</AnimatedTexture>
+		<HitSound>monster/goblins_hit</HitSound>
+		<DeathSound>monster/goblins_death</DeathSound>
+		<Size>85</Size>
+		<MaxHitPoints>1500</MaxHitPoints>
+		<Defense>6</Defense>
+		<God />
+		<Projectile id="0">
+			<ObjectId>Golden Coin</ObjectId>
+			<Damage>80</Damage>
+			<Speed>80</Speed>
+			<LifetimeMS>1400</LifetimeMS>
+		</Projectile>
+	</Object>
+	<Object type="0x7997" id="R2 Bandit King">
+		<DisplayId>Bandit King</DisplayId>
+		<Class>Character</Class>
+		<Enemy />
+		<Group>Realm 2 thief</Group>
+		<AnimatedTexture>
+			<File>realm2Chars16x16</File>
+			<Index>48</Index>
+		</AnimatedTexture>
+		<HitSound>monster/goblins_hit</HitSound>
+		<DeathSound>monster/goblins_death</DeathSound>
+		<Size>130</Size>
+		<MaxHitPoints>14000</MaxHitPoints>
+		<Defense>22</Defense>
+		<Level>19</Level>
+		<Quest />
+		<StasisImmune />
+		<Projectile id="0">
+			<ObjectId>Gold Blade</ObjectId>
+			<Damage>150</Damage>
+			<Speed>110</Speed>
+			<LifetimeMS>900</LifetimeMS>
+			<MultiHit />
+		</Projectile>
+		<Projectile id="1">
+			<ObjectId>Golden Coin</ObjectId>
+			<Damage>110</Damage>
+			<Speed>70</Speed>
+			<LifetimeMS>1800</LifetimeMS>
+		</Projectile>
+	</Object>
+	<Object type="0x7998" id="R2 Gilded Effigy">
+		<DisplayId>Gilded Effigy</DisplayId>
+		<Class>Character</Class>
+		<Enemy />
+		<Group>Realm 2 thief</Group>
+		<AnimatedTexture>
+			<File>realm2Chars16x16</File>
+			<Index>49</Index>
+		</AnimatedTexture>
+		<HitSound>monster/goblins_hit</HitSound>
+		<DeathSound>monster/goblins_death</DeathSound>
+		<Size>130</Size>
+		<MaxHitPoints>15000</MaxHitPoints>
+		<Defense>30</Defense>
+		<Level>18</Level>
+		<Quest />
+		<StasisImmune />
+		<Projectile id="0">
+			<ObjectId>Gold Fireball</ObjectId>
+			<Damage>140</Damage>
+			<Speed>55</Speed>
+			<LifetimeMS>2400</LifetimeMS>
+		</Projectile>
+		<Projectile id="1">
+			<ObjectId>Treasurer Star Y</ObjectId>
+			<Damage>110</Damage>
+			<Speed>80</Speed>
+			<LifetimeMS>1600</LifetimeMS>
+		</Projectile>
+	</Object>
+	<Object type="0x7999" id="R2 Star Mote">
+		<DisplayId>Star Mote</DisplayId>
+		<Class>Character</Class>
+		<Enemy />
+		<Group>Realm 2 star</Group>
+		<AnimatedTexture>
+			<File>realm2Chars8x8</File>
+			<Index>23</Index>
+		</AnimatedTexture>
+		<HitSound>monster/golems_hit</HitSound>
+		<DeathSound>monster/golems_death</DeathSound>
+		<Size>70</Size>
+		<MaxHitPoints>800</MaxHitPoints>
+		<Defense>5</Defense>
+		<God />
+		<Flying />
+		<Projectile id="0">
+			<ObjectId>Starbound Mote</ObjectId>
+			<Damage>60</Damage>
+			<Speed>80</Speed>
+			<LifetimeMS>1000</LifetimeMS>
+		</Projectile>
+	</Object>
+	<Object type="0x799A" id="R2 Astral Sentinel">
+		<DisplayId>Astral Sentinel</DisplayId>
+		<Class>Character</Class>
+		<Enemy />
+		<Group>Realm 2 star</Group>
+		<AnimatedTexture>
+			<File>realm2Chars16x16</File>
+			<Index>50</Index>
+		</AnimatedTexture>
+		<HitSound>monster/golems_hit</HitSound>
+		<DeathSound>monster/golems_death</DeathSound>
+		<Size>100</Size>
+		<MaxHitPoints>2600</MaxHitPoints>
+		<Defense>25</Defense>
+		<God />
+		<Projectile id="0">
+			<ObjectId>Blue Star</ObjectId>
+			<Damage>110</Damage>
+			<Speed>60</Speed>
+			<LifetimeMS>1800</LifetimeMS>
+		</Projectile>
+		<Projectile id="1">
+			<ObjectId>White Shard Bolt</ObjectId>
+			<Damage>90</Damage>
+			<Speed>90</Speed>
+			<LifetimeMS>1100</LifetimeMS>
+		</Projectile>
+	</Object>
+	<Object type="0x799B" id="R2 Meteorling">
+		<DisplayId>Meteorling</DisplayId>
+		<Class>Character</Class>
+		<Enemy />
+		<Group>Realm 2 star</Group>
+		<AnimatedTexture>
+			<File>realm2Chars8x8</File>
+			<Index>24</Index>
+		</AnimatedTexture>
+		<HitSound>monster/golems_hit</HitSound>
+		<DeathSound>monster/golems_death</DeathSound>
+		<Size>85</Size>
+		<MaxHitPoints>1500</MaxHitPoints>
+		<Defense>8</Defense>
+		<God />
+		<Flying />
+		<Projectile id="0">
+			<ObjectId>Fire Bolt</ObjectId>
+			<Damage>100</Damage>
+			<Speed>90</Speed>
+			<LifetimeMS>1000</LifetimeMS>
+		</Projectile>
+	</Object>
+	<Object type="0x799C" id="R2 Void Watcher">
+		<DisplayId>Void Watcher</DisplayId>
+		<Class>Character</Class>
+		<Enemy />
+		<Group>Realm 2 star</Group>
+		<AnimatedTexture>
+			<File>realm2Chars16x16</File>
+			<Index>51</Index>
+		</AnimatedTexture>
+		<HitSound>monster/golems_hit</HitSound>
+		<DeathSound>monster/golems_death</DeathSound>
+		<Size>100</Size>
+		<MaxHitPoints>2000</MaxHitPoints>
+		<Defense>12</Defense>
+		<God />
+		<Flying />
+		<Projectile id="0">
+			<ObjectId>Purple Star</ObjectId>
+			<Damage>100</Damage>
+			<Speed>60</Speed>
+			<LifetimeMS>2200</LifetimeMS>
+		</Projectile>
+		<Projectile id="1">
+			<ObjectId>Blue Star</ObjectId>
+			<Damage>70</Damage>
+			<Speed>40</Speed>
+			<LifetimeMS>3000</LifetimeMS>
+			<ConditionEffect duration="2">Slowed</ConditionEffect>
+		</Projectile>
+	</Object>
+	<Object type="0x799D" id="R2 Star Prism">
+		<DisplayId>Star Prism</DisplayId>
+		<Class>Character</Class>
+		<Enemy />
+		<Group>Realm 2 star</Group>
+		<AnimatedTexture>
+			<File>realm2Chars16x16</File>
+			<Index>52</Index>
+		</AnimatedTexture>
+		<HitSound>monster/golems_hit</HitSound>
+		<DeathSound>monster/golems_death</DeathSound>
+		<Size>130</Size>
+		<MaxHitPoints>14000</MaxHitPoints>
+		<Defense>25</Defense>
+		<Level>19</Level>
+		<Quest />
+		<StasisImmune />
+		<Flying />
+		<Projectile id="0">
+			<ObjectId>White Prism</ObjectId>
+			<Damage>140</Damage>
+			<Speed>60</Speed>
+			<LifetimeMS>2200</LifetimeMS>
+		</Projectile>
+		<Projectile id="1">
+			<ObjectId>Starbound Mote</ObjectId>
+			<Damage>100</Damage>
+			<Speed>90</Speed>
+			<LifetimeMS>1400</LifetimeMS>
+		</Projectile>
+	</Object>
+	<Object type="0x799E" id="R2 Comet Wraith">
+		<DisplayId>Comet Wraith</DisplayId>
+		<Class>Character</Class>
+		<Enemy />
+		<Group>Realm 2 star</Group>
+		<AnimatedTexture>
+			<File>realm2Chars16x16</File>
+			<Index>53</Index>
+		</AnimatedTexture>
+		<HitSound>monster/golems_hit</HitSound>
+		<DeathSound>monster/golems_death</DeathSound>
+		<Size>120</Size>
+		<MaxHitPoints>13000</MaxHitPoints>
+		<Defense>18</Defense>
+		<Level>18</Level>
+		<Quest />
+		<StasisImmune />
+		<Flying />
+		<Projectile id="0">
+			<ObjectId>LOD Blue Fireball</ObjectId>
+			<Damage>140</Damage>
+			<Speed>70</Speed>
+			<LifetimeMS>1800</LifetimeMS>
+		</Projectile>
+		<Projectile id="1">
+			<ObjectId>Blue Star</ObjectId>
+			<Damage>100</Damage>
+			<Speed>60</Speed>
+			<LifetimeMS>2000</LifetimeMS>
+		</Projectile>
+	</Object>
+	<Object type="0x799F" id="R2 Spore Puff">
+		<DisplayId>Spore Puff</DisplayId>
+		<Class>Character</Class>
+		<Enemy />
+		<Group>Realm 2 blight</Group>
+		<AnimatedTexture>
+			<File>realm2Chars8x8</File>
+			<Index>25</Index>
+		</AnimatedTexture>
+		<HitSound>monster/slimes_hit</HitSound>
+		<DeathSound>monster/slimes_death</DeathSound>
+		<Size>75</Size>
+		<MaxHitPoints>800</MaxHitPoints>
+		<Defense>4</Defense>
+		<God />
+		<Projectile id="0">
+			<ObjectId>GC Purple Mushroom Spore</ObjectId>
+			<Damage>60</Damage>
+			<Speed>50</Speed>
+			<LifetimeMS>1500</LifetimeMS>
+		</Projectile>
+	</Object>
+	<Object type="0x79A0" id="R2 Rot Shambler">
+		<DisplayId>Rot Shambler</DisplayId>
+		<Class>Character</Class>
+		<Enemy />
+		<Group>Realm 2 blight</Group>
+		<AnimatedTexture>
+			<File>realm2Chars16x16</File>
+			<Index>54</Index>
+		</AnimatedTexture>
+		<HitSound>monster/slimes_hit</HitSound>
+		<DeathSound>monster/slimes_death</DeathSound>
+		<Size>110</Size>
+		<MaxHitPoints>2600</MaxHitPoints>
+		<Defense>18</Defense>
+		<God />
+		<Projectile id="0">
+			<ObjectId>Green Gas</ObjectId>
+			<Damage>110</Damage>
+			<Speed>35</Speed>
+			<LifetimeMS>3000</LifetimeMS>
+			<ConditionEffect duration="2">Slowed</ConditionEffect>
+		</Projectile>
+	</Object>
+	<Object type="0x79A1" id="R2 Shroom Brute">
+		<DisplayId>Shroom Brute</DisplayId>
+		<Class>Character</Class>
+		<Enemy />
+		<Group>Realm 2 blight</Group>
+		<AnimatedTexture>
+			<File>realm2Chars8x8</File>
+			<Index>26</Index>
+		</AnimatedTexture>
+		<HitSound>monster/slimes_hit</HitSound>
+		<DeathSound>monster/slimes_death</DeathSound>
+		<Size>95</Size>
+		<MaxHitPoints>2000</MaxHitPoints>
+		<Defense>15</Defense>
+		<God />
+		<Projectile id="0">
+			<ObjectId>GC Purple Mushroom Spear</ObjectId>
+			<Damage>110</Damage>
+			<Speed>90</Speed>
+			<LifetimeMS>900</LifetimeMS>
+		</Projectile>
+	</Object>
+	<Object type="0x79A2" id="R2 Blight Webspinner">
+		<DisplayId>Blight Webspinner</DisplayId>
+		<Class>Character</Class>
+		<Enemy />
+		<Group>Realm 2 blight</Group>
+		<AnimatedTexture>
+			<File>realm2Chars8x8</File>
+			<Index>27</Index>
+		</AnimatedTexture>
+		<HitSound>monster/slimes_hit</HitSound>
+		<DeathSound>monster/slimes_death</DeathSound>
+		<Size>90</Size>
+		<MaxHitPoints>1600</MaxHitPoints>
+		<Defense>8</Defense>
+		<God />
+		<Projectile id="0">
+			<ObjectId>Purple Spit</ObjectId>
+			<Damage>100</Damage>
+			<Speed>70</Speed>
+			<LifetimeMS>1500</LifetimeMS>
+			<ConditionEffect duration="2">Slowed</ConditionEffect>
+		</Projectile>
+	</Object>
+	<Object type="0x79A3" id="R2 Mycelial Horror">
+		<DisplayId>Mycelial Horror</DisplayId>
+		<Class>Character</Class>
+		<Enemy />
+		<Group>Realm 2 blight</Group>
+		<AnimatedTexture>
+			<File>realm2Chars16x16</File>
+			<Index>55</Index>
+		</AnimatedTexture>
+		<HitSound>monster/slimes_hit</HitSound>
+		<DeathSound>monster/slimes_death</DeathSound>
+		<Size>140</Size>
+		<MaxHitPoints>15000</MaxHitPoints>
+		<Defense>24</Defense>
+		<Level>19</Level>
+		<Quest />
+		<StasisImmune />
+		<Projectile id="0">
+			<ObjectId>GC Green Mushroom Blast</ObjectId>
+			<Damage>140</Damage>
+			<Speed>50</Speed>
+			<LifetimeMS>2400</LifetimeMS>
+		</Projectile>
+		<Projectile id="1">
+			<ObjectId>GC Purple Mushroom Spore</ObjectId>
+			<Damage>100</Damage>
+			<Speed>40</Speed>
+			<LifetimeMS>3000</LifetimeMS>
+			<ConditionEffect duration="3">Sick</ConditionEffect>
+		</Projectile>
+	</Object>
+	<Object type="0x79A4" id="R2 Rotcap Elder">
+		<DisplayId>Rotcap Elder</DisplayId>
+		<Class>Character</Class>
+		<Enemy />
+		<Group>Realm 2 blight</Group>
+		<AnimatedTexture>
+			<File>realm2Chars16x16</File>
+			<Index>56</Index>
+		</AnimatedTexture>
+		<HitSound>monster/slimes_hit</HitSound>
+		<DeathSound>monster/slimes_death</DeathSound>
+		<Size>140</Size>
+		<MaxHitPoints>14000</MaxHitPoints>
+		<Defense>28</Defense>
+		<Level>18</Level>
+		<Quest />
+		<StasisImmune />
+		<Projectile id="0">
+			<ObjectId>GC Green Mushroom Wave</ObjectId>
+			<Damage>150</Damage>
+			<Speed>55</Speed>
+			<LifetimeMS>1800</LifetimeMS>
+			<MultiHit />
+		</Projectile>
+		<Projectile id="1">
+			<ObjectId>Green Gas</ObjectId>
+			<Damage>90</Damage>
+			<Speed>30</Speed>
+			<LifetimeMS>3200</LifetimeMS>
+			<ConditionEffect duration="2">Slowed</ConditionEffect>
+		</Projectile>
+	</Object>
+	<Object type="0x79A5" id="Gilded Thief">
+		<DisplayId>Gilded Thief</DisplayId>
+		<Class>Character</Class>
+		<Enemy />
+		<Group>Realm events</Group>
+		<AnimatedTexture>
+			<File>realm2Chars16x16</File>
+			<Index>57</Index>
+		</AnimatedTexture>
+		<HitSound>monster/goblins_hit</HitSound>
+		<DeathSound>monster/goblins_death</DeathSound>
+		<Size>130</Size>
+		<MaxHitPoints>30000</MaxHitPoints>
+		<Defense>20</Defense>
+		<Level>20</Level>
+		<Quest />
+		<StasisImmune />
+		<Projectile id="0">
+			<ObjectId>Golden Coin</ObjectId>
+			<Damage>60</Damage>
+			<Speed>70</Speed>
+			<LifetimeMS>1200</LifetimeMS>
+		</Projectile>
+		<Projectile id="1">
+			<ObjectId>Gold Blade</ObjectId>
+			<Damage>110</Damage>
+			<Speed>100</Speed>
+			<LifetimeMS>800</LifetimeMS>
+		</Projectile>
+		<Projectile id="2">
+			<ObjectId>Golden Blast</ObjectId>
+			<Damage>90</Damage>
+			<Speed>50</Speed>
+			<LifetimeMS>2000</LifetimeMS>
+			<Size>120</Size>
+		</Projectile>
+	</Object>
+	<Object type="0x79A6" id="Gilded Decoy">
+		<DisplayId>Gilded Thief</DisplayId>
+		<Class>Character</Class>
+		<Enemy />
+		<Group>Realm events</Group>
+		<AnimatedTexture>
+			<File>realm2Chars16x16</File>
+			<Index>58</Index>
+		</AnimatedTexture>
+		<HitSound>monster/goblins_hit</HitSound>
+		<DeathSound>monster/goblins_death</DeathSound>
+		<Size>130</Size>
+		<MaxHitPoints>3000</MaxHitPoints>
+		<Defense>0</Defense>
+		<StasisImmune />
+		<Projectile id="0">
+			<ObjectId>Golden Coin</ObjectId>
+			<Damage>40</Damage>
+			<Speed>70</Speed>
+			<LifetimeMS>1000</LifetimeMS>
+		</Projectile>
+	</Object>
+	<Object type="0x79A7" id="Gilded Coffer">
+		<DisplayId>Gilded Coffer</DisplayId>
+		<Class>Character</Class>
+		<Enemy />
+		<Group>Realm events</Group>
+		<AnimatedTexture>
+			<File>realm2Chars16x16</File>
+			<Index>59</Index>
+		</AnimatedTexture>
+		<HitSound>monster/goblins_hit</HitSound>
+		<DeathSound>monster/goblins_death</DeathSound>
+		<Size>110</Size>
+		<MaxHitPoints>4000</MaxHitPoints>
+		<Defense>0</Defense>
+		<StasisImmune />
+	</Object>
+	<Object type="0x79A8" id="Gilded Mimic">
+		<DisplayId>Gilded Mimic</DisplayId>
+		<Class>Character</Class>
+		<Enemy />
+		<Group>Realm events</Group>
+		<AnimatedTexture>
+			<File>realm2Chars16x16</File>
+			<Index>60</Index>
+		</AnimatedTexture>
+		<HitSound>monster/goblins_hit</HitSound>
+		<DeathSound>monster/goblins_death</DeathSound>
+		<Size>110</Size>
+		<MaxHitPoints>6000</MaxHitPoints>
+		<Defense>10</Defense>
+		<StasisImmune />
+		<Projectile id="0">
+			<ObjectId>Gold Fireball</ObjectId>
+			<Damage>100</Damage>
+			<Speed>60</Speed>
+			<LifetimeMS>1600</LifetimeMS>
+		</Projectile>
+		<Projectile id="1">
+			<ObjectId>Golden Coin</ObjectId>
+			<Damage>70</Damage>
+			<Speed>80</Speed>
+			<LifetimeMS>1200</LifetimeMS>
+		</Projectile>
+	</Object>
+	<Object type="0x79A9" id="Starborn Colossus">
+		<DisplayId>Starborn Colossus</DisplayId>
+		<Class>Character</Class>
+		<Enemy />
+		<Group>Realm events</Group>
+		<AnimatedTexture>
+			<File>realm2Chars16x16</File>
+			<Index>61</Index>
+		</AnimatedTexture>
+		<HitSound>monster/golems_hit</HitSound>
+		<DeathSound>monster/golems_death</DeathSound>
+		<Size>170</Size>
+		<MaxHitPoints>60000</MaxHitPoints>
+		<Defense>30</Defense>
+		<Level>20</Level>
+		<Quest />
+		<StasisImmune />
+		<Projectile id="0">
+			<ObjectId>Colossal Star</ObjectId>
+			<Damage>150</Damage>
+			<Speed>45</Speed>
+			<LifetimeMS>3000</LifetimeMS>
+		</Projectile>
+		<Projectile id="1">
+			<ObjectId>Blue Star</ObjectId>
+			<Damage>90</Damage>
+			<Speed>70</Speed>
+			<LifetimeMS>2400</LifetimeMS>
+		</Projectile>
+		<Projectile id="2">
+			<ObjectId>White Planet Blast</ObjectId>
+			<Damage>120</Damage>
+			<Speed>55</Speed>
+			<LifetimeMS>2600</LifetimeMS>
+		</Projectile>
+		<Projectile id="3">
+			<ObjectId>Starbound Mote</ObjectId>
+			<Damage>80</Damage>
+			<Speed>90</Speed>
+			<LifetimeMS>1500</LifetimeMS>
+		</Projectile>
+		<Projectile id="4">
+			<ObjectId>Purple Star</ObjectId>
+			<Damage>110</Damage>
+			<Speed>40</Speed>
+			<LifetimeMS>3500</LifetimeMS>
+		</Projectile>
+	</Object>
+	<Object type="0x79AA" id="Star Satellite">
+		<DisplayId>Star Satellite</DisplayId>
+		<Class>Character</Class>
+		<Enemy />
+		<Group>Realm events</Group>
+		<AnimatedTexture>
+			<File>realm2Chars8x8</File>
+			<Index>28</Index>
+		</AnimatedTexture>
+		<HitSound>monster/golems_hit</HitSound>
+		<DeathSound>monster/golems_death</DeathSound>
+		<Size>90</Size>
+		<MaxHitPoints>6000</MaxHitPoints>
+		<Defense>15</Defense>
+		<StasisImmune />
+		<Flying />
+		<Projectile id="0">
+			<ObjectId>Blue Star</ObjectId>
+			<Damage>80</Damage>
+			<Speed>60</Speed>
+			<LifetimeMS>1800</LifetimeMS>
+		</Projectile>
+	</Object>
+	<Object type="0x79AB" id="Star Fragment">
+		<DisplayId>Star Fragment</DisplayId>
+		<Class>Character</Class>
+		<Enemy />
+		<Group>Realm events</Group>
+		<AnimatedTexture>
+			<File>realm2Chars8x8</File>
+			<Index>29</Index>
+		</AnimatedTexture>
+		<HitSound>monster/golems_hit</HitSound>
+		<DeathSound>monster/golems_death</DeathSound>
+		<Size>80</Size>
+		<MaxHitPoints>1500</MaxHitPoints>
+		<Defense>5</Defense>
+		<StasisImmune />
+		<Flying />
+		<Projectile id="0">
+			<ObjectId>Fire Bolt</ObjectId>
+			<Damage>70</Damage>
+			<Speed>80</Speed>
+			<LifetimeMS>900</LifetimeMS>
+		</Projectile>
+	</Object>
+	<Object type="0x79AC" id="Blight Mother">
+		<DisplayId>Blight Mother</DisplayId>
+		<Class>Character</Class>
+		<Enemy />
+		<Group>Realm events</Group>
+		<AnimatedTexture>
+			<File>realm2Chars16x16</File>
+			<Index>62</Index>
+		</AnimatedTexture>
+		<HitSound>monster/slimes_hit</HitSound>
+		<DeathSound>monster/slimes_death</DeathSound>
+		<Size>200</Size>
+		<MaxHitPoints>55000</MaxHitPoints>
+		<Defense>25</Defense>
+		<Level>20</Level>
+		<Quest />
+		<StasisImmune />
+		<Projectile id="0">
+			<ObjectId>GC Purple Mushroom Spore</ObjectId>
+			<Damage>100</Damage>
+			<Speed>40</Speed>
+			<LifetimeMS>3000</LifetimeMS>
+			<ConditionEffect duration="3">Sick</ConditionEffect>
+		</Projectile>
+		<Projectile id="1">
+			<ObjectId>GC Green Mushroom Wave</ObjectId>
+			<Damage>130</Damage>
+			<Speed>60</Speed>
+			<LifetimeMS>1800</LifetimeMS>
+		</Projectile>
+		<Projectile id="2">
+			<ObjectId>Green Gas</ObjectId>
+			<Damage>80</Damage>
+			<Speed>30</Speed>
+			<LifetimeMS>3500</LifetimeMS>
+			<ConditionEffect duration="2">Slowed</ConditionEffect>
+		</Projectile>
+		<Projectile id="3">
+			<ObjectId>Poison Fireball</ObjectId>
+			<Damage>140</Damage>
+			<Speed>70</Speed>
+			<LifetimeMS>1500</LifetimeMS>
+		</Projectile>
+	</Object>
+	<Object type="0x79AD" id="Blight Spore Pod">
+		<DisplayId>Spore Pod</DisplayId>
+		<Class>Character</Class>
+		<Enemy />
+		<Group>Realm events</Group>
+		<AnimatedTexture>
+			<File>realm2Chars8x8</File>
+			<Index>30</Index>
+		</AnimatedTexture>
+		<HitSound>monster/slimes_hit</HitSound>
+		<DeathSound>monster/slimes_death</DeathSound>
+		<Size>100</Size>
+		<MaxHitPoints>2500</MaxHitPoints>
+		<Defense>0</Defense>
+		<StasisImmune />
+		<Projectile id="0">
+			<ObjectId>GC Purple Mushroom Spore</ObjectId>
+			<Damage>70</Damage>
+			<Speed>50</Speed>
+			<LifetimeMS>1800</LifetimeMS>
+			<ConditionEffect duration="2">Sick</ConditionEffect>
+		</Projectile>
+	</Object>
+	<Object type="0x79AE" id="Sporeling">
+		<DisplayId>Sporeling</DisplayId>
+		<Class>Character</Class>
+		<Enemy />
+		<Group>Realm events</Group>
+		<AnimatedTexture>
+			<File>realm2Chars8x8</File>
+			<Index>31</Index>
+		</AnimatedTexture>
+		<HitSound>monster/slimes_hit</HitSound>
+		<DeathSound>monster/slimes_death</DeathSound>
+		<Size>80</Size>
+		<MaxHitPoints>1200</MaxHitPoints>
+		<Defense>5</Defense>
+		<StasisImmune />
+		<Projectile id="0">
+			<ObjectId>GC Green Mushroom Spear</ObjectId>
+			<Damage>70</Damage>
+			<Speed>80</Speed>
+			<LifetimeMS>900</LifetimeMS>
+		</Projectile>
+	</Object>
 	<Object type="0x7979" id="Realm2">
 		<DisplayId>Realm 2</DisplayId>
 		<Class>Portal</Class>
@@ -2745,7 +3746,7 @@
 		<Item />
 		<Texture>
 			<File>realm2Env8x8</File>
-			<Index>0xf2</Index>
+			<Index>0x135</Index>
 		</Texture>
 		<SlotType>10</SlotType>
 		<Description>A key woven from the eleven lands of Realm 2: opens a portal to a realm made afresh each time, with an area for every realm event and Oryx waiting for the last of them to fall.</Description>

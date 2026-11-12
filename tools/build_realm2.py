@@ -289,6 +289,21 @@ def p_hoard(stone, dark, gold, shine):
     return paint
 
 
+def p_carpet(base, border, pattern):
+    # a woven rug: a border band round the tile's edge, a diamond in the middle
+    def paint(seed):
+        def px(x, y):
+            if x in (0, 7) or y in (0, 7):
+                return border
+            d = abs(x - 3.5) + abs(y - 3.5)
+            if 1.5 < d < 2.6:
+                return pattern
+            v = _hash(x, y, seed)
+            return _mix(base, border, 0.18 * v)
+        return tile(px)
+    return paint
+
+
 C = art.hexc
 P = art.PALETTES
 
@@ -405,6 +420,38 @@ GROUNDS = {
     "R2 Honey Pool": ("bees", p_water(P["bees"]["2"], P["bees"]["3"], P["bees"]["8"]), 3,
                       {"Sink": None, "Speed": "0.55", "Animate": ("Flow", {"dx": "0.05", "dy": "0.05"}),
                        "BlendPriority": "4"}, "0xC07810"),
+    # the Thieves' Bazaar: trodden sand, stolen coin strewn about, rugs and gilded tiles where the
+    # Gilded Thief keeps its hoard
+    "R2 Bazaar Sand": ("thief", p_speckle(C("#b8925a"), C("#7a5a30"), C("#e0c28a"), 0.18), 4,
+                       {"BlendPriority": "5"}, "0xB8925A"),
+    "R2 Coin Strewn": ("thief", p_hoard(C("#a07a48"), C("#6a4a24"), P["thief"]["5"], P["thief"]["6"]), 4,
+                       {"BlendPriority": "6"}, "0xC09040"),
+    "R2 Bazaar Carpet": ("thief", p_carpet(P["thief"]["3"], P["thief"]["2"], P["thief"]["5"]), 4,
+                         {"BlendPriority": "8"}, "0x8A3478"),
+    "R2 Gilded Tiles": ("thief", p_flagstones(C("#c8a050"), P["thief"]["4"], P["thief"]["6"]), 4,
+                        {"BlendPriority": "7"}, "0xC8A050"),
+    # the Starfall Crater: night-dark rock, ground glittering with stardust, the crater's fused glass
+    # and pools of fallen starlight
+    "R2 Starlit Rock": ("star", p_speckle(P["star"]["2"], P["star"]["1"], P["star"]["3"], 0.16), 4,
+                        {"BlendPriority": "5"}, "0x1C2458"),
+    "R2 Stardust Ground": ("star", p_stars(P["star"]["4"], P["star"]["8"], P["star"]["6"]), 4,
+                           {"BlendPriority": "6"}, "0x2E2A3C"),
+    "R2 Crater Glass": ("star", p_cracks(C("#24203a"), C("#141022"), P["star"]["7"], 0.18), 4,
+                        {"BlendPriority": "7"}, "0x24203A"),
+    "R2 Starlight Pool": ("star", p_water(C("#1a3a8a"), P["star"]["7"], P["star"]["8"]), 3,
+                          {"Sink": None, "Speed": "0.7", "Animate": ("Wave", {"dx": "0.2", "dy": "0.2"}),
+                           "BlendPriority": "4"}, "0x3A7AD0"),
+    # the Blightwood: rotting moss, white threads of mycelium, the Blight Mother's spoiled soil and
+    # its bogs, which sting whoever wades in
+    "R2 Blight Moss": ("blight", p_speckle(P["blight"]["3"], P["blight"]["2"], P["blight"]["5"], 0.2), 4,
+                       {"BlendPriority": "5"}, "0x5A3A5A"),
+    "R2 Mycelium": ("blight", p_cracks(P["blight"]["2"], C("#9a8a9a"), None, 0.16), 4,
+                    {"BlendPriority": "6"}, "0x4A3048"),
+    "R2 Rot Soil": ("blight", p_speckle(C("#2c2418"), C("#16120c"), P["blight"]["5"], 0.2), 4,
+                    {"BlendPriority": "7"}, "0x2C2418"),
+    "R2 Blight Bog": ("blight", p_water(P["blight"]["4"], P["blight"]["5"], P["blight"]["8"]), 3,
+                      {"Sink": None, "Speed": "0.6", "MinDamage": "20", "MaxDamage": "20",
+                       "Animate": ("Flow", {"dx": "0.05", "dy": "0.05"}), "BlendPriority": "4"}, "0x4A6A1A"),
 }
 
 # ------------------------------------------------------------------------------------------------
@@ -437,15 +484,22 @@ DECOR = {
     "R2 Bridge Fence": ("block", 100, 100),
     "R2 Mossy Pillar": ("block", 100, 120), "R2 Toppled Lantern": ("block", 100, 110),
     "R2 Dragon Egg": ("block", 80, 100), "R2 Gold Hoard": ("flat", 100, 100), "R2 Dragon Nest": ("flat", 100, 110),
+    "R2 Bazaar Tent": ("block", 130, 160), "R2 Coin Pile": ("flat", 90, 110),
+    "R2 Loot Chest": ("block", 90, 100), "R2 Gilded Urn": ("block", 80, 100),
+    "R2 Star Shard": ("block", 100, 130), "R2 Meteor Rock": ("block", 100, 130),
+    "R2 Stardust": ("flat", 100, 100), "R2 Astral Spire": ("block", 120, 150),
+    "R2 Giant Toadstool": ("block", 130, 170), "R2 Blight Puffball": ("plain", 90, 120),
+    "R2 Rot Stump": ("block", 100, 120), "R2 Spore Patch": ("flat", 100, 100), "R2 Glowcap": ("plain", 90, 110),
 }
 
 # braziers, vents and lanterns flicker: their glow letters swap for a second frame
-FLICKER = {"R2 Bone Brazier", "R2 Soul Brazier", "R2 Ember Vent", "R2 Stone Lantern"}
+FLICKER = {"R2 Bone Brazier", "R2 Soul Brazier", "R2 Ember Vent", "R2 Stone Lantern", "R2 Glowcap", "R2 Star Shard"}
 
 # ------------------------------------------------------------------------------------------------
 # monsters: name -> (shown as, health, defence, size, flags, projectiles)
 # a projectile: (object id, damage, speed, lifetime ms, {extras})
-# flags: q quest (with its level), f flying, s stationary (doesn't move), g counts as a god
+# flags: q quest (with its level), f flying, s stationary (doesn't move), g counts as a god, e one of
+# the realm events' own (in both realms: not a Realm 2 land's group)
 
 def shot(obj, damage, speed, life, **extra):
     return (obj, damage, speed, life, extra)
@@ -572,6 +626,61 @@ MOBS = {
         shot("EH Yellow Glaive", 140, 70, 1800, multi=True), shot("EH Yellow Stinger Small", 100, 90, 1100)], 18),
     "R2 Hornet Queen": ("Hornet Queen", 15000, 18, 140, "f", [
         shot("EH Red Glaive", 150, 70, 1800, multi=True), shot("EH Red Stinger Small", 110, 100, 1100)], 19),
+    # --- the Thieves' Bazaar
+    "R2 Hoard Rat": ("Hoard Rat", 700, 4, 70, "g", [shot("Golden Coin", 60, 90, 700)]),
+    "R2 Cutpurse": ("Cutpurse", 1700, 8, 90, "g", [shot("Gold Blade", 100, 110, 700)]),
+    "R2 Bazaar Bruiser": ("Bazaar Bruiser", 2600, 22, 110, "g", [shot("Golden Blast", 130, 45, 2000, size=120)]),
+    "R2 Gold Gremlin": ("Gold Gremlin", 1500, 6, 85, "g", [shot("Golden Coin", 80, 80, 1400)]),
+    "R2 Bandit King": ("Bandit King", 14000, 22, 130, "", [
+        shot("Gold Blade", 150, 110, 900, multi=True), shot("Golden Coin", 110, 70, 1800)], 19),
+    "R2 Gilded Effigy": ("Gilded Effigy", 15000, 30, 130, "", [
+        shot("Gold Fireball", 140, 55, 2400), shot("Treasurer Star Y", 110, 80, 1600)], 18),
+    # --- the Starfall Crater
+    "R2 Star Mote": ("Star Mote", 800, 5, 70, "gf", [shot("Starbound Mote", 60, 80, 1000)]),
+    "R2 Astral Sentinel": ("Astral Sentinel", 2600, 25, 100, "g", [
+        shot("Blue Star", 110, 60, 1800), shot("White Shard Bolt", 90, 90, 1100)]),
+    "R2 Meteorling": ("Meteorling", 1500, 8, 85, "gf", [shot("Fire Bolt", 100, 90, 1000)]),
+    "R2 Void Watcher": ("Void Watcher", 2000, 12, 100, "gf", [
+        shot("Purple Star", 100, 60, 2200), shot("Blue Star", 70, 40, 3000, effect=("Slowed", 2))]),
+    "R2 Star Prism": ("Star Prism", 14000, 25, 130, "f", [
+        shot("White Prism", 140, 60, 2200), shot("Starbound Mote", 100, 90, 1400)], 19),
+    "R2 Comet Wraith": ("Comet Wraith", 13000, 18, 120, "f", [
+        shot("LOD Blue Fireball", 140, 70, 1800), shot("Blue Star", 100, 60, 2000)], 18),
+    # --- the Blightwood
+    "R2 Spore Puff": ("Spore Puff", 800, 4, 75, "g", [
+        shot("GC Purple Mushroom Spore", 60, 50, 1500)]),
+    "R2 Rot Shambler": ("Rot Shambler", 2600, 18, 110, "g", [
+        shot("Green Gas", 110, 35, 3000, effect=("Slowed", 2))]),
+    "R2 Shroom Brute": ("Shroom Brute", 2000, 15, 95, "g", [shot("GC Purple Mushroom Spear", 110, 90, 900)]),
+    "R2 Blight Webspinner": ("Blight Webspinner", 1600, 8, 90, "g", [
+        shot("Purple Spit", 100, 70, 1500, effect=("Slowed", 2))]),
+    "R2 Mycelial Horror": ("Mycelial Horror", 15000, 24, 140, "", [
+        shot("GC Green Mushroom Blast", 140, 50, 2400),
+        shot("GC Purple Mushroom Spore", 100, 40, 3000, effect=("Sick", 3))], 19),
+    "R2 Rotcap Elder": ("Rotcap Elder", 14000, 28, 140, "", [
+        shot("GC Green Mushroom Wave", 150, 55, 1800, multi=True), shot("Green Gas", 90, 30, 3200, effect=("Slowed", 2))], 18),
+    # --- the realm events' own monsters (both realms: RealmManager's events, BehaviorDb.RealmEvents.cs)
+    # the Gilded Thief, its decoys (named as it is) and the coffers it drops, some of them mimics
+    "Gilded Thief": ("Gilded Thief", 30000, 20, 130, "e", [
+        shot("Golden Coin", 60, 70, 1200), shot("Gold Blade", 110, 100, 800),
+        shot("Golden Blast", 90, 50, 2000, size=120)], 20),
+    "Gilded Decoy": ("Gilded Thief", 3000, 0, 130, "e", [shot("Golden Coin", 40, 70, 1000)]),
+    "Gilded Coffer": ("Gilded Coffer", 4000, 0, 110, "es", []),
+    "Gilded Mimic": ("Gilded Mimic", 6000, 10, 110, "e", [
+        shot("Gold Fireball", 100, 60, 1600), shot("Golden Coin", 70, 80, 1200)]),
+    # the Starborn Colossus, its satellites and the star fragments it sheds
+    "Starborn Colossus": ("Starborn Colossus", 60000, 30, 170, "e", [
+        shot("Colossal Star", 150, 45, 3000), shot("Blue Star", 90, 70, 2400), shot("White Planet Blast", 120, 55, 2600),
+        shot("Starbound Mote", 80, 90, 1500), shot("Purple Star", 110, 40, 3500)], 20),
+    "Star Satellite": ("Star Satellite", 6000, 15, 90, "ef", [shot("Blue Star", 80, 60, 1800)]),
+    "Star Fragment": ("Star Fragment", 1500, 5, 80, "ef", [shot("Fire Bolt", 70, 80, 900)]),
+    # the Blight Mother, the spore pods she spreads and the sporelings they burst into
+    "Blight Mother": ("Blight Mother", 55000, 25, 200, "e", [
+        shot("GC Purple Mushroom Spore", 100, 40, 3000, effect=("Sick", 3)), shot("GC Green Mushroom Wave", 130, 60, 1800),
+        shot("Green Gas", 80, 30, 3500, effect=("Slowed", 2)), shot("Poison Fireball", 140, 70, 1500)], 20),
+    "Blight Spore Pod": ("Spore Pod", 2500, 0, 100, "es", [
+        shot("GC Purple Mushroom Spore", 70, 50, 1800, effect=("Sick", 2))]),
+    "Sporeling": ("Sporeling", 1200, 5, 80, "e", [shot("GC Green Mushroom Spear", 70, 80, 900)]),
 }
 
 # each monster's land
@@ -589,6 +698,9 @@ SOUNDS = {
     "dragon": ("monster/lizard_god_hit", "monster/lizard_god_death"),
     "kingdom": ("monster/knights_hit", "monster/knights_death"),
     "bees": ("monster/flies_hit", "monster/flies_death"),
+    "thief": ("monster/goblins_hit", "monster/goblins_death"),
+    "star": ("monster/golems_hit", "monster/golems_death"),
+    "blight": ("monster/slimes_hit", "monster/slimes_death"),
 }
 
 PORTAL_ID = "Realm2"            # /spawn realm2 finds it by name
@@ -780,7 +892,12 @@ def build(preview=None):
     for name, (area, spec) in adapted.ADAPTED.items():
         if name in pictures:
             raise SystemExit("%s is both drawn and adapted" % name)
-        pictures[name] = (16, adapt.adapt(spec, art.PALETTES[area]))
+        img = adapt.adapt(spec, art.PALETTES[area])
+        # 16 by 16, or 8 by 8 (the first row only of a monster with a row for each way it faces)
+        cell = img.width // 7
+        if img.height > cell:
+            img = img.crop((0, 0, img.width, cell))
+        pictures[name] = (cell, img)
 
     for name, entry in MOBS.items():
         shown, hp, defence, size, flags, shots = entry[:6]
@@ -793,7 +910,8 @@ def build(preview=None):
         sub(o, "DisplayId", shown)
         sub(o, "Class", "Character")
         sub(o, "Enemy")
-        sub(o, "Group", "Realm 2 " + area)       # an area's monsters heal each other (HealGroup)
+        # an area's monsters heal each other (HealGroup); the events' own are apart
+        sub(o, "Group", "Realm events" if "e" in flags else "Realm 2 " + area)
         at = sub(o, "AnimatedTexture")
         sub(at, "File", sheet_name)
         sub(at, "Index", index)
@@ -806,6 +924,8 @@ def build(preview=None):
         if level:
             sub(o, "Level", level)
             sub(o, "Quest")
+            sub(o, "StasisImmune")
+        elif "e" in flags:
             sub(o, "StasisImmune")
         if "g" in flags:
             sub(o, "God")

@@ -646,6 +646,24 @@ The remotes `upstream` (HaloCelsius) and `aurusenth` share no history with `main
 
 ## Changes from upstream
 
+- **Three new realm events** (2026-11-12; `logic/db/BehaviorDb.RealmEvents.cs`,
+  `logic/behaviors/RealmEvents.cs` (`ThiefBlink`, `Vanish`), `core/setpieces/RealmEventGrounds.cs`,
+  `RealmManager` (`_events`, `EventParts`, `CriticalEnemies`, `ScaledEventMonsters`, `SpawnLines`,
+  `ForceEvent`), `Realm2Themes`, `Realm2EventPainter`; art and XML by `tools/build_realm2.py`):
+  the Gilded Thief (a chase: it flees, blinks leaving decoys, drops coffers at 75/50/25%, a third
+  of them mimics, and leaves without dying after 3 minutes, which the realm counts as no kill), the
+  Starborn Colossus (moons that give it Armored until all are down, then ArmorBroken for 9 s; a
+  supernova at 50%) and the Blight Mother (spore pods that heal her 350 every 2 s each and burst
+  into Sporelings after 14 s; she uproots at 60% and ripens every pod at 25%). In the realm each
+  comes with a ragged patch of its land's ground (`RealmEventGrounds`); in Realm 2 each brings a
+  land (the Thieves' Bazaar, the Starfall Crater, the Blightwood) with three monsters, a small one
+  and two quests. Realm 2 now needs 2 + `Realm2Themes.LandsToClose` (11) events, not every land's,
+  so a Realm 2 shows 11 of its 14 lands; its lands spread along the Godlands by that count.
+  Their drops are UTs that had no source: the Heart of Gold Prism, Keychain Cutlass, Dueling Daggers,
+  Comet of Calamity, Starlight Recurve, Moonbeam Blade, Gaseous Glaive, Corrosion Cutter and Sewer
+  Cocktail (0.6% each). Admins: `/realmevent <word> [here]` starts one of the realm's events nearby (with `here`, 8 tiles east of you),
+  `/realm2 next <land>` brings that land next.
+
 - **The Necromantic items' looks** (2026-11-12; server `Player.RelicPowers.cs` `Fx`/`RelicFx`,
   `ShowEffect.cs` `EffectType.Relic` (41), `Enemy.cs`; client `particles/relic.rs`,
   `particles.rs`, `crates/data` `Trail`; `tools/build_resurrection.py` `TRAILS`, `SHOTS`,
