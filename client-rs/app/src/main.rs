@@ -472,6 +472,22 @@ fn shot_args() -> Option<(String, f32)> {
     None
 }
 
+/// The menus (sign-in, character select and the other screens before the game) draw at most
+/// this many frames a second, so they don't spend the CPU and GPU a game frame needs.
+const MENU_FPS: u32 = 30;
+
+/// The frame rate to hold to (desktop): the player's Max frame rate (0 for none), and on the
+/// menus no more than `MENU_FPS`, whatever that and the vsync setting say.
+#[cfg_attr(target_arch = "wasm32", allow(dead_code))]
+fn frame_cap(max_fps: u32, menu: bool) -> Option<u32> {
+    match (max_fps, menu) {
+        (0, false) => None,
+        (0, true) => Some(MENU_FPS),
+        (f, true) => Some(f.min(MENU_FPS)),
+        (f, false) => Some(f),
+    }
+}
+
 /// `--look off|glow|vivid|all`: the glow and colours for this run, whatever the options say
 /// (screenshots to compare; the settings are left alone).
 fn look_arg() -> Option<(bool, bool)> {
@@ -2302,8 +2318,8 @@ impl App {
         let hdr = self.settings.hdr.then(|| bsk_render::Hdr { paper: self.hdr_paper.unwrap_or(1.0), headroom: 2.0 });
         renderer.set_hdr(hdr);
         #[cfg(not(target_arch = "wasm32"))]
-        if self.settings.max_fps > 0 && self.bench.is_none() {
-            let frame = std::time::Duration::from_secs_f64(1.0 / self.settings.max_fps as f64);
+        if let Some(cap) = frame_cap(self.settings.max_fps, matches!(self.phase, Phase::Menu)).filter(|_| self.bench.is_none()) {
+            let frame = std::time::Duration::from_secs_f64(1.0 / cap as f64);
             let spent = self.frame_start.elapsed();
             if spent < frame {
                 std::thread::sleep(frame - spent);
@@ -3022,7 +3038,8 @@ impl App {
                 self.settings.save();
             }
             if let (Some((kind, last)), Some(world)) = (&mut self.effect_test, &game.world) {
-                if now - *last >= 500 {
+                // (the Necromantic items' looks, 101 and up, last longer: every 0.9 s)
+                if now - *last >= if *kind > 100 { 900 } else { 500 } {
                     *last = now;
                     game.particles.test_effect(*kind, world, now);
                 }
@@ -3030,6 +3047,7 @@ impl App {
             game.particles.realize(sprites, data);
             if let Some(world) = &game.world {
                 game.particles.object_effects(world, data, sprites, dt);
+                game.particles.trails(world, data, dt);
             }
             jitter = game.particles.jitter(now);
             if let Some(d) = &game.dying {
@@ -3961,6 +3979,20 @@ fn main() {
     {
         use winit::platform::web::EventLoopExtWebSys;
         event_loop.spawn_app(app);
+    }
+}
+
+#[cfg(test)]
+mod frame_cap_tests {
+    use super::{frame_cap, MENU_FPS};
+
+    #[test]
+    fn menus_hold_to_thirty() {
+        assert_eq!(frame_cap(0, true), Some(MENU_FPS));
+        assert_eq!(frame_cap(144, true), Some(MENU_FPS));
+        assert_eq!(frame_cap(20, true), Some(20));
+        assert_eq!(frame_cap(0, false), None);
+        assert_eq!(frame_cap(144, false), Some(144));
     }
 }
 

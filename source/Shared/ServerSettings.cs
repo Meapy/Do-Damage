@@ -28,6 +28,10 @@ namespace Shared
         // environment. Empty: no linking. deploy/deploy.py sets it (SETUP-LOCAL.md, "Discord").
         public string discordSecret { get; set; } = "";
         public int restartTime { get; set; } = 0;
+        // An isolated test stack (tools/testclient/iso_stack.py sets it; never the live servers):
+        // every character that enters a world is maxed, as /max does, at full health and mana,
+        // with a Lil' Oryx pet to keep them up (Player.TestStackStart).
+        public bool testStack { get; set; } = false;
         // The first world id is worldIdBase + 1. Each world server behind the proxy gets its own
         // range (1000000 for slot a, 2000000 for b), so the proxy knows which one has a world.
         public int worldIdBase { get; set; } = 0;

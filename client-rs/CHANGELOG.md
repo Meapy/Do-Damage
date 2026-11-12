@@ -12,6 +12,30 @@ Keep each version short: changes go under `### ` group headings (Oryx 5, Arena, 
 on), one line per change players notice, summed up rather than item by item (the wiki has the
 details). Add to a group's line when a change adds to it, rather than adding another line.
 
+## 2.5.4 (2026-11-12)
+
+### Game
+- The menus (sign-in, character select and the other screens outside the game) draw at most 30
+  frames a second, so the game uses less of your computer while you're not playing.
+
+### Items
+- New sprites drawn by players in the Sprite Editor: two new looks for the Coral Medallion (by Trenchant).
+- Every Necromantic item's power now shows when it works, in a look of its own: the cutlass's
+  cannonball bursting in fire and spray, venom splashing, souls flying to the Phylactery, a
+  burning brand under cursed enemies, whirlpools, lightning from the sky, the Crown of Geb's
+  cracks, the Skull's pentagram drawn in fire, the Bow's black hole and more. The weapons, the
+  Quiver, the Bulwark of Bes and the Twilight Cataclysm fire shots of their own, each leaving a
+  trail of its colour, and every other shot with a trail now shows it too.
+
+### Fixes
+- Fewer lag spikes while anyone explores The Shatters, Oryx's Castle or the Mad Lab: the server
+  no longer makes a map's worth of memory to clean up with every step taken there.
+- Realm 2 no longer freezes for good for everyone in it: monsters coming back to a patch of the
+  starting lands that was all in someone's sight could stop the realm.
+- The Void's portal (opened with a Vial of Pure Darkness where the Marble Colossus fell, in the
+  Lost Halls and the Elder Lost Halls) no longer sits under the Colossus's Realm Portal, so you
+  can enter it.
+
 ## 2.5.3 (2026-11-12)
 
 ### Game

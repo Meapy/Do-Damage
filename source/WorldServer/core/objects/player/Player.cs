@@ -400,6 +400,8 @@ namespace WorldServer.core.objects
             base.Init(owner);
             if (owner.MinSightRadius > 0)
                 SetSightRadius(_askedSightRadius);
+            if (Client.GameServer.Configuration.serverSettings.testStack)
+                TestStackStart();
             SpawnPetIfAttached(owner);
 
             FameCounter = new FameCounter(this);

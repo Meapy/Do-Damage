@@ -646,6 +646,39 @@ The remotes `upstream` (HaloCelsius) and `aurusenth` share no history with `main
 
 ## Changes from upstream
 
+- **The Necromantic items' looks** (2026-11-12; server `Player.RelicPowers.cs` `Fx`/`RelicFx`,
+  `ShowEffect.cs` `EffectType.Relic` (41), `Enemy.cs`; client `particles/relic.rs`,
+  `particles.rs`, `crates/data` `Trail`; `tools/build_resurrection.py` `TRAILS`, `SHOTS`,
+  `--shots`): each of the 25 Necromantic powers sends `ShowEffect` 41 when it works (pos2.y the
+  look, pos2.x its radius, `Duration` ms; the Phylactery's the souls released), beside the older
+  effects, which clients before 2.5.4 still show. The Rust client draws each look as particles
+  (new motions: thrown with gravity and bouncing, circling a moving object, flying to one),
+  pictures on the ground drawn with the ground marks (shockwaves, puddles, a turning brand,
+  whirlpools, cracks, a pentagram drawn line by line, a black hole, frost, scorch, a golden ward,
+  a ring of stars) and auras that keep giving off particles round an object for a while. Per-hit
+  looks (Stone Gaze, Bloodthirst, Ignition) go out at most every 250-350 ms per player. The
+  client draws `<ParticleTrail>` (its colour, `intensity`, `lifetimeMS`), which it skipped until
+  now, for every projectile that has one, hidden with the shots it follows. Ten Necromantic items
+  fire shots of their own (types 0x8C55-0x8C5E, sprite cells 64-73 of `Resurrection8x8.png`,
+  drawn from shapes by `build_resurrection.py`; `--shots` writes only those into the files as
+  they are), each with a trail of its colour. `--effect 101`-`128` shows each look on you.
+
+- **Test stacks start maxed** (2026-11-12; `ServerSettings.testStack`, `Player.TestStackStart`,
+  `tools/testclient/iso_stack.py`, `tools/rolling_restart.py --iso`): with `testStack` (which only
+  the test stack tools set), every character that enters a world is maxed as `/max` does, at full
+  health and mana, and given a Lil' Oryx pet (60 health and mana every 1.5 s) in place of any
+  other.
+
+- **Realm monsters' spots have a limit** (2026-11-12; `RealmManager.FreeSpot`, `Spawn`,
+  `EnsurePopulation`, `SpawnEvent`; `Tests/RealmSpawnSpotTests.cs`): a realm's terrain top-up
+  (every 60 s, under 75% of a terrain's quota) picked random tiles until one was of that terrain,
+  passable and with no player within 30 tiles, without end. Realm 2's starter land has lowland
+  patches of a few hundred tiles that players by the spawn keep all in sight, and the realm's
+  thread then spun for good (everyone in it frozen, still connected). Now it looks at 4000 tiles
+  at most, leaves that terrain until the next pass, and logs once per terrain per realm
+  (`no free <terrain> tile for <n> more monsters ...`). The old realm's event spot search has the
+  same kind of limit (`no spot for the event <name>`).
+
 - **Out of combat speed** (2026-11-12; `Player.Combat.cs`, `BoostStatManager.ApplyOutOfCombat`):
   +20 Speed (`Player.OutOfCombatSpeed`) as a stat boost, flat after the Apotheosis scaling, while
   the player has neither been hurt by an enemy (a `PlayerHit`, or `Player.Damage` from an `Enemy`)
@@ -662,8 +695,11 @@ The remotes `upstream` (HaloCelsius) and `aurusenth` share no history with `main
   `python tools\community_sprites.py apply --commit` to take it in (the community sheets
   `CommunitySprites8x8.png` / `16x16.png`, the item XML's `<Texture>` and `<SpriteBy>`, the catalog
   `Shared/resources/data/community_sprites.json`, the changelog and PR-BODY.md), then bring the
-  commit in as any other work. Once that release is deployed the account server reads the catalog
-  and shows those submissions as in the game. Limits against floods: a sprite at most every 20 s,
+  commit in as any other work. Every release runs `python tools\community_sprites.py check` first
+  (AGENTS.md, "Releasing", step 1): it fails while approved sprites wait on the server or the
+  sheets, catalog and XML are out of step, so none is forgotten or lost to a regeneration. Once
+  that release is deployed the account server reads the catalog and shows those submissions as in
+  the game. Limits against floods: a sprite at most every 20 s,
   5 waiting and 15 a day per account, 10 an hour per address, 400 a day and 300 waiting in all,
   16 KB a request; finished submissions leave Redis after 30 days. Redis keys `sprites.*` (new;
   nothing migrated). Redeploy the client, the account server, the world servers and the website.

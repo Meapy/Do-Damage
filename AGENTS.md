@@ -169,19 +169,28 @@ it asks first; never run test copies under the live process names (`redis-server
       `worktree remove` refuses a worktree with changes: look at them rather than reaching for
       `--force`. On Windows the emptied folder stays until the session that used it is closed.
   - **Releasing** (the owner asks for it):
-    1. On the release branch, name the changelog section and raise the version (client-rs/AGENTS.md,
+    1. Take in the players' sprites: `python tools\community_sprites.py check` on the release
+       branch. It fails while sprites admins approved in the Sprite Editor aren't in the
+       repository yet (it lists them), or while the sheets, the catalog and the item XML are out
+       of step. Take the listed ones in with `python tools\community_sprites.py apply --commit`
+       (a worktree rebased onto the release branch, brought in as any other work; `rework` fixes
+       the XML), look at them in a `--shot`, and run `check` again until it passes. One it calls
+       the item's sprite as it is now (an unchanged copy) isn't taken in: ask the owner to turn it
+       down in the editor's Review tab. Do this
+       before naming the changelog section: `apply` writes under `## Unreleased`.
+    2. On the release branch, name the changelog section and raise the version (client-rs/AGENTS.md,
        "Releasing to players"), and check the client tests, `python tools\build_site.py` and the
        server builds.
-    2. Push it (`git push -u origin release/<version>`) and open a pull request against `main`
+    3. Push it (`git push -u origin release/<version>`) and open a pull request against `main`
        (`gh pr create --base main --head release/<version> --body-file PR-BODY.md`): check
        PR-BODY.md against `git log main..release/<version>` first, fill in anything missing, and
        put the version and which sides deploy in its first line.
-    3. Squash and merge it (`gh pr merge --squash --delete-branch`, the title naming the
+    4. Squash and merge it (`gh pr merge --squash --delete-branch`, the title naming the
        version), then update the main checkout (`git -C <main checkout> switch main` and
        `git -C <main checkout> pull --ff-only`). `--delete-branch` removes the release branch on
        origin; delete it locally too (`git -C <main checkout> branch -D release/<version>`), and
        remove any worktrees and branches whose work it carried.
-    4. The merge deploys by itself, so what players get is exactly `main`
+    5. The merge deploys by itself, so what players get is exactly `main`
        (`.github/workflows/deploy.yml`; SETUP-LOCAL.md, "Deploying from GitHub"). Watch it:
        `gh run watch --repo Meapy/Do-Damage $(gh run list --repo Meapy/Do-Damage --workflow
        Deploy --limit 1 --json databaseId --jq '.[0].databaseId')`. The `client` job (Windows)

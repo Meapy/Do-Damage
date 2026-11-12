@@ -34,7 +34,68 @@ namespace WorldServer.core.objects
         private long _entropyReadyAt;                   // The Hollow Sourcestone
         private int _lifestealThisSecond;
         private long _lifestealSecond;
+        private long _hitFxAt;                          // the next a hit's own look may show
         [ThreadStatic] private static bool _inRelic;
+
+        // The looks of the Necromantic items' powers (ShowEffect Relic, drawn by the Rust client:
+        // client-rs/app/src/particles/relic.rs, the same numbers). Sent beside the older effects,
+        // which clients before 2.5.4 still show.
+        private enum Fx : byte
+        {
+            Cannon = 1,         // Broadside: a cannonball bursting on the target, fire, smoke and spray
+            Venom = 2,          // Widowfang: a splash of venom, its puddle and bubbles
+            SerpentWind = 3,    // Quiver: feathered wind round its user (ms)
+            StoneGaze = 4,      // Gorgon's Gaze: stone chips off a hit enemy
+            SoulGather = 5,     // Phylactery: a soul flying from a kill to its keeper
+            SoulRelease = 6,    // Phylactery: the stored souls bursting at the target
+            Phase = 7,          // Prism: shimmering out of the world (ms)
+            Hellbrand = 8,      // Soulfire Staff: a burning brand under the enemy (ms)
+            Blood = 9,          // Sanguine Wand: blood drawn from the enemy to its wielder
+            Masquerade = 10,    // Masquerade Robe: a puff of smoke and confetti
+            Davy = 11,          // Ring of the Drowned Captain: the sea pulling its wearer back
+            ToxicScales = 12,   // Veridian Wyrmhide: a cloud of venom off the scales
+            SkyBolt = 13,       // Azure Tempest Seal, Scepter of the Ivory Wyvern: lightning from the sky
+            Ignition = 14,      // Wyrmfire Katana: flames on the enemy
+            ShellReady = 15,    // Obsidian Wyrmplate: shards closing round its wearer
+            ShellBreak = 16,    // Obsidian Wyrmplate: the shell shattering
+            Undertow = 17,      // Orb of the Drowned Tide: a whirlpool (ms)
+            Oath = 18,          // Bulwark of Bes: a golden ward on each player it reaches
+            Starlight = 19,     // Tome of the Night Sky: stars falling on each player it reaches
+            Earthshaker = 20,   // Crown of Geb: the ground cracking, rocks thrown up
+            Blobomb = 21,       // Snare of the Bridge Sentinel: the blobomb's splatter
+            Fire = 22,          // Twilight Cataclysm: a pillar of flame
+            Ice = 23,           // Twilight Cataclysm: ice spikes and frost
+            Forgotten = 24,     // Shroud of the Forgotten King: a red mist round its wearer (ms)
+            Pillar = 25,        // Seal of the Risen Colossus: a marble pillar striking up
+            Pentagram = 26,     // Skull of the Final Ritual: the star drawn on the ground (ms)
+            Eruption = 27,      // Skull of the Final Ritual: its heart erupting
+            Singularity = 28,   // Bow of the Event Horizon: the black hole (ms)
+        }
+
+        // on: the object it follows (an aura) or flies to (a soul, blood); at: where it is
+        private void RelicFx(Fx look, Entity on, Position at, float radius, uint color, int ms = 0)
+        {
+            if (World == null || on == null)
+                return;
+            World.BroadcastIfVisible(new ShowEffect
+            {
+                EffectType = EffectType.Relic, TargetObjectId = on.Id, Pos1 = at,
+                Pos2 = new Position(radius, (int)look), Color = new ARGB(color), Duration = ms,
+            }, ref at);
+        }
+
+        private Position Here => new Position(X, Y);
+
+        private static Position PosOf(Entity e) => new Position(e.X, e.Y);
+
+        // a look shown on many hits, at most every `ms`
+        private bool HitFxDue(int ms)
+        {
+            if (Now < _hitFxAt)
+                return false;
+            _hitFxAt = Now + ms;
+            return true;
+        }
 
         private string Power(int slot) => Inventory[slot]?.RelicPower;
 
@@ -69,7 +130,7 @@ namespace WorldServer.core.objects
         private void RelicHit(Enemy enemy, int dmg, bool killed, ref TickTime time)
         {
             if (killed)
-                RelicKill();
+                RelicKill(enemy);
             if (_inRelic || World == null)
                 return;
             // forgotten by the Realm (the Shroud's ability): a fifth more, past its defense
@@ -85,6 +146,7 @@ namespace WorldServer.core.objects
                     if (++_relicHits % 6 != 0)
                         break;
                     RelicEffect(enemy, EffectType.AreaBlast, 0xFFFFA040, new Position(2, 0));
+                    RelicFx(Fx.Cannon, this, PosOf(enemy), 2, 0xFFFFA040);
                     foreach (var e in EnemiesNear(enemy.X, enemy.Y, 2))
                         RelicDamage(e, dmg * 3, ref time, false);
                     break;
@@ -105,12 +167,17 @@ namespace WorldServer.core.objects
                     if (_venom.Count > 50)
                         _venom.Clear();
                     RelicEffect(enemy, EffectType.Diffuse, 0xFFB050FF, new Position(enemy.X, enemy.Y), new Position(enemy.X + 1.5f, enemy.Y));
+                    RelicFx(Fx.Venom, enemy, PosOf(enemy), 1.5f, 0xFF70E040);
                     RelicDamage(enemy, 650, ref time, true);
                     break;
                 // the gorgon's stare: half as much again on an enemy still above three quarters health
                 case "StoneGaze":
                     if (!killed && enemy.MaxHealth > 0 && enemy.Health > enemy.MaxHealth * 0.75)
+                    {
+                        if (HitFxDue(350))
+                            RelicFx(Fx.StoneGaze, enemy, PosOf(enemy), 0.8f, 0xFFA8B0A0);
                         RelicDamage(enemy, dmg / 2, ref time, true);
+                    }
                     break;
                 // a hit sometimes brands the enemy: cursed, it takes more from everyone, for 2 s
                 case "Hellbrand":
@@ -118,6 +185,7 @@ namespace WorldServer.core.objects
                     {
                         enemy.ApplyConditionEffect(ConditionEffectIndex.Curse, 2000);
                         RelicEffect(enemy, EffectType.Potion, 0xFFFF3020);
+                        RelicFx(Fx.Hellbrand, enemy, PosOf(enemy), 1.2f, 0xFFFF3020, 2000);
                     }
                     break;
                 // a share of each hit back as health, at most 40 a second
@@ -132,6 +200,8 @@ namespace WorldServer.core.objects
                     {
                         _lifestealThisSecond += heal;
                         Health = Math.Min(Stats[0], Health + heal);
+                        if (HitFxDue(300))
+                            RelicFx(Fx.Blood, this, PosOf(enemy), 0.5f, 0xFFD01030);
                     }
                     break;
                 // every tenth hit tears a singularity open on the enemy: six pulses, half a second
@@ -141,6 +211,7 @@ namespace WorldServer.core.objects
                         break;
                     var hole = new Position(enemy.X, enemy.Y);
                     Mark(hole, 3, 3000, 0xFF8040FF);
+                    RelicFx(Fx.Singularity, this, hole, 3, 0xFF8040FF, 3200);
                     RelicNote("Singularity", 0xFFB080FF);
                     for (var n = 1; n <= 6; n++)
                         World.StartNewTimer(n * 500, (w, t) =>
@@ -158,17 +229,23 @@ namespace WorldServer.core.objects
                 // every third hit sets the enemy alight: half the hit again, burning over 2 s
                 case "Ignition":
                     if (!killed && ++_relicHits % 3 == 0)
+                    {
                         enemy.Bleed(this, dmg / 2, 2000);
+                        if (HitFxDue(250))
+                            RelicFx(Fx.Ignition, enemy, PosOf(enemy), 0.8f, 0xFFFF6020, 2000);
+                    }
                     break;
             }
         }
 
         // anything of ours killed an enemy
-        public void RelicKill()
+        public void RelicKill(Entity victim = null)
         {
             if (Power(1) == "SoulHarvest" && _souls < 5)
             {
                 _souls++;
+                if (victim != null)
+                    RelicFx(Fx.SoulGather, this, PosOf(victim), 0.5f, 0xFF7DFFCF);
                 RelicNote($"Souls {_souls}/5", 0xFF7DFFCF);
             }
             // the Eclipsed Gemstone drinks each kill
@@ -191,7 +268,10 @@ namespace WorldServer.core.objects
                 case "MarblePillars":
                     var pillars = new[] { new Position(X, Y - 3), new Position(X + 3, Y), new Position(X, Y + 3), new Position(X - 3, Y) };
                     foreach (var p in pillars)
+                    {
                         Mark(p, 2.5f, 5000, 0xFFE8E8FF);
+                        RelicFx(Fx.Pillar, this, p, 2.5f, 0xFFE8E8FF);
+                    }
                     RelicNote("Marble Pillars", 0xFFE8E8FF);
                     for (var n = 1; n <= 5; n++)
                         World.StartNewTimer(n * 1000, (w, t) =>
@@ -201,6 +281,7 @@ namespace WorldServer.core.objects
                             foreach (var p in pillars)
                             {
                                 Burst(p, 2.5f, 0xFFE8E8FF);
+                                RelicFx(Fx.Pillar, this, p, 2.5f, 0xFFE8E8FF);
                                 foreach (var e in EnemiesNear(p.X, p.Y, 2.5f))
                                     RelicDamage(e, 150, ref t, false);
                             }
@@ -211,6 +292,7 @@ namespace WorldServer.core.objects
                 case "Pentagram":
                     var star = pos;
                     Mark(star, 3, 2000, 0xFFFF2020);
+                    RelicFx(Fx.Pentagram, this, star, 2.5f, 0xFFFF2020, 1900);
                     for (var n = 0; n < 5; n++)
                     {
                         var a = (-90 + n * 144) * MathF.PI / 180;   // (the star's own order: every second point)
@@ -229,6 +311,7 @@ namespace WorldServer.core.objects
                         if (World != w)
                             return;
                         Burst(star, 3, 0xFFFF0000);
+                        RelicFx(Fx.Eruption, this, star, 3, 0xFFFF2020);
                         foreach (var e in EnemiesNear(star.X, star.Y, 3))
                         {
                             e.ApplyConditionEffect(ConditionEffectIndex.Curse, 3000);
@@ -246,6 +329,7 @@ namespace WorldServer.core.objects
                         if (World != w)
                             return;
                         Burst(bomb, 3, 0xFFFFFFFF);
+                        RelicFx(Fx.Blobomb, this, bomb, 3, 0xFFE8E8FF);
                         foreach (var e in EnemiesNear(bomb.X, bomb.Y, 3))
                             RelicDamage(e, 700, ref t, false);
                     });
@@ -257,6 +341,7 @@ namespace WorldServer.core.objects
                     if (_twilightIce)   // (this cast is fire: the flag says what comes next)
                     {
                         Burst(pos, 3.5f, 0xFFFF7020);
+                        RelicFx(Fx.Fire, this, pos, 3.5f, 0xFFFF7020);
                         foreach (var e in EnemiesNear(pos.X, pos.Y, 3.5f))
                             e.Bleed(this, 450, 3000);
                         RelicNote("Fire", 0xFFFF7020);
@@ -264,6 +349,7 @@ namespace WorldServer.core.objects
                     else
                     {
                         Burst(pos, 3.5f, 0xFF60C8FF);
+                        RelicFx(Fx.Ice, this, pos, 3.5f, 0xFF60C8FF);
                         foreach (var e in EnemiesNear(pos.X, pos.Y, 3.5f))
                         {
                             e.ApplyConditionEffect(ConditionEffectIndex.Slowed, 3000);
@@ -275,17 +361,20 @@ namespace WorldServer.core.objects
                 // out of the Realm's memory for 5 s: RelicHit adds to every shot meanwhile
                 case "Forgotten":
                     _forgottenUntil = Now + 5000;
+                    RelicFx(Fx.Forgotten, this, Here, 1, 0xFFE04040, 5000);
                     RelicNote("Forgotten", 0xFFE04040);
                     break;
                 // faster hands for 4 s
                 case "SerpentsWind":
                     TimedStatBoost(28, 10, 4000);
+                    RelicFx(Fx.SerpentWind, this, Here, 1, 0xFF40E0A0, 4000);
                     break;
                 // the stored souls burst at the target and mend their keeper
                 case "SoulHarvest":
                     if (_souls == 0)
                         break;
                     RelicEffect(this, EffectType.Diffuse, 0xFF7DFFCF, pos, new Position(pos.X + 4, pos.Y));
+                    RelicFx(Fx.SoulRelease, this, pos, 4, 0xFF7DFFCF, _souls);
                     foreach (var e in EnemiesNear(pos.X, pos.Y, 4))
                         RelicDamage(e, 90 * _souls, ref time, true);
                     Player.HealDiscrete(this, 40 * _souls, false);
@@ -299,12 +388,14 @@ namespace WorldServer.core.objects
                     ApplyConditionEffect(ConditionEffectIndex.Invulnerable, 1000);
                     ApplyConditionEffect(ConditionEffectIndex.Speedy, 2000);
                     RelicNote("Phased", 0xFF80FFFF);
+                    RelicFx(Fx.Phase, this, Here, 1, 0xFF80FFFF, 1000);
                     break;
                 // the storm strikes up to four enemies round the target
                 case "Stormcall":
                     foreach (var e in EnemiesNear(pos.X, pos.Y, 6).OrderBy(e => e.DistTo(pos.X, pos.Y)).Take(4))
                     {
                         World.BroadcastIfVisible(new ShowEffect { EffectType = EffectType.Lightning, TargetObjectId = Id, Pos1 = new Position(e.X, e.Y), Pos2 = new Position(90, 0), Color = new ARGB(0xFF60A0FF) }, this);
+                        RelicFx(Fx.SkyBolt, e, PosOf(e), 1, 0xFF60A0FF);
                         RelicDamage(e, 350, ref time, false);
                     }
                     break;
@@ -312,6 +403,7 @@ namespace WorldServer.core.objects
                 // ArmorShred's, as the other orbs', not broken)
                 case "Undertow":
                     RelicEffect(this, EffectType.Concentrate, 0xFF40C0FF, pos, new Position(pos.X + 3.5f, pos.Y));
+                    RelicFx(Fx.Undertow, this, pos, 3.5f, 0xFF40C0FF, 1500);
                     foreach (var e in EnemiesNear(pos.X, pos.Y, 3.5f))
                     {
                         e.ApplyConditionEffect(ConditionEffectIndex.Slowed, 3000);
@@ -320,16 +412,23 @@ namespace WorldServer.core.objects
                 // the guardian's oath: +10 defense to everyone within 5 tiles for 4 s
                 case "GuardiansOath":
                     foreach (var p in World.Players.Values.Where(p => p.DistTo(this) <= 5))
+                    {
                         p.TimedStatBoost(21, 10, 4000);
+                        RelicFx(Fx.Oath, p, PosOf(p), p == this ? 5 : 1, 0xFFFFD050, 4000);
+                    }
                     break;
                 // starlight: +8 attack to everyone within 6 tiles for 4 s
                 case "Starlight":
                     foreach (var p in World.Players.Values.Where(p => p.DistTo(this) <= 6))
+                    {
                         p.TimedStatBoost(20, 8, 4000);
+                        RelicFx(Fx.Starlight, p, PosOf(p), p == this ? 6 : 1, 0xFFB0C8FF, 4000);
+                    }
                     break;
                 // the earth shakes round its wearer: 400 to everything within 4 tiles
                 case "Earthshaker":
                     RelicEffect(this, EffectType.AreaBlast, 0xFFC09040, new Position(4, 0));
+                    RelicFx(Fx.Earthshaker, this, Here, 4, 0xFFC09040, 1200);
                     foreach (var e in EnemiesNear(X, Y, 4))
                         RelicDamage(e, 400, ref time, false);
                     break;
@@ -343,6 +442,7 @@ namespace WorldServer.core.objects
                         foreach (var e in EnemiesNear(at.X, at.Y, 6).OrderBy(e => e.DistTo(at.X, at.Y)).Take(3))
                         {
                             w.BroadcastIfVisible(new ShowEffect { EffectType = EffectType.Lightning, TargetObjectId = Id, Pos1 = new Position(e.X, e.Y), Pos2 = new Position(120, 0), Color = new ARGB(0xFFFFFFF0) }, this);
+                            RelicFx(Fx.SkyBolt, e, PosOf(e), 1.3f, 0xFFFFF0C0);
                             RelicDamage(e, 300, ref t, false);
                         }
                     });
@@ -365,6 +465,7 @@ namespace WorldServer.core.objects
                     ApplyConditionEffect(ConditionEffectIndex.Invisible, 2000);
                     ApplyConditionEffect(ConditionEffectIndex.Speedy, 2000);
                     RelicNote("Masquerade!", 0xFFFF60C0);
+                    RelicFx(Fx.Masquerade, this, Here, 1.5f, 0xFFFF60C0);
                     break;
                 // venomous scales: enemies within 3 tiles burn for 240 over 3 s (every 2 s at most)
                 case "ToxicScales":
@@ -372,6 +473,7 @@ namespace WorldServer.core.objects
                         break;
                     _relicReadyAt = Now + 2000;
                     RelicEffect(this, EffectType.AreaBlast, 0xFF30C040, new Position(3, 0));
+                    RelicFx(Fx.ToxicScales, this, Here, 3, 0xFF30C040);
                     foreach (var e in EnemiesNear(X, Y, 3))
                         e.Bleed(this, 240, 3000);
                     break;
@@ -386,6 +488,7 @@ namespace WorldServer.core.objects
             _shell = false;
             _shellReadyAt = Now + 8000;
             RelicNote("Absorbed", 0xFFB0A0E0);
+            RelicFx(Fx.ShellBreak, this, Here, 1.5f, 0xFF9080C0);
             return 0;
         }
 
@@ -399,6 +502,7 @@ namespace WorldServer.core.objects
                 {
                     _shell = true;
                     RelicEffect(this, EffectType.Flashing, 0xFF9080C0, new Position(0.3f, 2));
+                    RelicFx(Fx.ShellReady, this, Here, 1.5f, 0xFF9080C0, 700);
                 }
             }
             else
@@ -461,6 +565,7 @@ namespace WorldServer.core.objects
                 ApplyConditionEffect(ConditionEffectIndex.Invulnerable, 1500);
                 RelicNote("Davy's Bargain", 0xFF40E0C0);
                 RelicEffect(this, EffectType.AreaBlast, 0xFF40E0C0, new Position(3, 0));
+                RelicFx(Fx.Davy, this, Here, 3, 0xFF40E0C0, 1500);
             }
         }
     }

@@ -17,6 +17,9 @@ with --port 8081 to use it.
   bin folders are locked while they run, and are left alone), sets their ports, and starts them.
 - The Redis data is a copy of the live database, made on the first start (or with --fresh-data),
   so test characters and accounts can be changed freely.
+- The world server runs with serverSettings.testStack: every character that enters a world is
+  maxed (level 20, stats at their caps, full health and mana) with a Lil' Oryx pet, which heals
+  health and mana, so tests never run dry.
 - The processes don't use the live servers' image names (App.exe, WorldServer.exe,
   redis-server.exe): Run Server.bat skips starting a server when a process with its name is
   already running, so a test stack with those names would stop the live servers from starting.
@@ -195,6 +198,8 @@ def start(args):
         d["dbInfo"]["port"] = REDIS_PORT
         d["serverInfo"]["port"] = WORLD_PORT
         d["serverInfo"]["address"] = "127.0.0.1"
+        # every character maxed, with a Lil' Oryx (Player.TestStackStart)
+        d["serverSettings"]["testStack"] = True
     if not args.rolling:
         set_json(os.path.join(world_dir, "wServer.json"), world_cfg)
 

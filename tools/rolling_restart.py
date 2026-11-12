@@ -223,6 +223,7 @@ def configure_slot(slot):
             d["dbInfo"]["port"] = 6380 + ISO
             d["serverInfo"]["port"] = front_port()
             d["serverInfo"]["address"] = "127.0.0.1"
+            d["serverSettings"]["testStack"] = True   # every character maxed (Player.TestStackStart)
         else:
             if os.environ.get("BSK_WORLD_PORT"):
                 d["serverInfo"]["port"] = front_port()

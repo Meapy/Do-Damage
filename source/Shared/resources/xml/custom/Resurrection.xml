@@ -64,6 +64,14 @@
 			<ConditionEffect duration="1.5">Slowed</ConditionEffect>
 		</Projectile>
 	</Object>
+	<Object type="0x8C55" id="Drowned Cutlass Slash">
+		<Class>Projectile</Class>
+		<Texture>
+			<File>resurrection8x8</File>
+			<Index>64</Index>
+		</Texture>
+		<AngleCorrection>1</AngleCorrection>
+	</Object>
 	<Object type="0x8C2A" id="Dreadstump's Drowned Cutlass">
 		<Class>Equipment</Class>
 		<Item />
@@ -75,11 +83,12 @@
 		<RateOfFire>1</RateOfFire>
 		<Sound>weapon/mithril_sword</Sound>
 		<Projectile>
-			<ObjectId>Majesty Bolt</ObjectId>
+			<ObjectId>Drowned Cutlass Slash</ObjectId>
 			<Speed>100</Speed>
 			<MinDamage>416</MinDamage>
 			<MaxDamage>448</MaxDamage>
 			<LifetimeMS>400</LifetimeMS>
+			<ParticleTrail>0x40C8B8</ParticleTrail>
 		</Projectile>
 		<OldSound>bladeSwing</OldSound>
 		<ActivateOnEquip stat="21" amount="12">IncrementStat</ActivateOnEquip>
@@ -95,6 +104,14 @@
 		<feedPower>1200</feedPower>
 		<Soulbound />
 	</Object>
+	<Object type="0x8C56" id="Widowfang Venom">
+		<Class>Projectile</Class>
+		<Texture>
+			<File>resurrection8x8</File>
+			<Index>65</Index>
+		</Texture>
+		<AngleCorrection>1</AngleCorrection>
+	</Object>
 	<Object type="0x8C2B" id="Widowfang">
 		<Class>Equipment</Class>
 		<Item />
@@ -106,12 +123,13 @@
 		<RateOfFire>1</RateOfFire>
 		<Sound>weapon/fire_dagger</Sound>
 		<Projectile>
-			<ObjectId>Black Magic</ObjectId>
+			<ObjectId>Widowfang Venom</ObjectId>
 			<Speed>150</Speed>
 			<MinDamage>221</MinDamage>
 			<MaxDamage>318</MaxDamage>
 			<LifetimeMS>400</LifetimeMS>
 			<ConditionEffect duration="1.5">Slowed</ConditionEffect>
+			<ParticleTrail>0x70E040</ParticleTrail>
 		</Projectile>
 		<OldSound>daggerSwing</OldSound>
 		<ActivateOnEquip stat="20" amount="10">IncrementStat</ActivateOnEquip>
@@ -127,6 +145,14 @@
 		<feedPower>1200</feedPower>
 		<Soulbound />
 	</Object>
+	<Object type="0x8C57" id="Feathered Serpent Arrow">
+		<Class>Projectile</Class>
+		<Texture>
+			<File>resurrection8x8</File>
+			<Index>66</Index>
+		</Texture>
+		<AngleCorrection>1</AngleCorrection>
+	</Object>
 	<Object type="0x8C2C" id="Quiver of the Feathered Serpent">
 		<Class>Equipment</Class>
 		<Item />
@@ -137,7 +163,7 @@
 		<SlotType>15</SlotType>
 		<Sound>spell/fire_spray</Sound>
 		<Projectile>
-			<ObjectId>Spring Green Arrow</ObjectId>
+			<ObjectId>Feathered Serpent Arrow</ObjectId>
 			<Speed>150</Speed>
 			<MinDamage>546</MinDamage>
 			<MaxDamage>598</MaxDamage>
@@ -146,7 +172,7 @@
 			<ConditionEffect duration="3">Paralyzed</ConditionEffect>
 			<MultiHit />
 			<PassesCover />
-			<ParticleTrail />
+			<ParticleTrail>0x40E0A0</ParticleTrail>
 		</Projectile>
 		<ConditionEffect duration="3">Paralyzed</ConditionEffect>
 		<NumProjectiles>3</NumProjectiles>
@@ -167,6 +193,14 @@
 		<feedPower>1200</feedPower>
 		<Soulbound />
 	</Object>
+	<Object type="0x8C58" id="Gorgon's Stone Arrow">
+		<Class>Projectile</Class>
+		<Texture>
+			<File>resurrection8x8</File>
+			<Index>67</Index>
+		</Texture>
+		<AngleCorrection>1</AngleCorrection>
+	</Object>
 	<Object type="0x8C2D" id="Gorgon's Gaze">
 		<Class>Equipment</Class>
 		<Item />
@@ -178,13 +212,14 @@
 		<RateOfFire>1</RateOfFire>
 		<Sound>weapon/golden_bow</Sound>
 		<Projectile>
-			<ObjectId>Deep Enchantment Arrow</ObjectId>
+			<ObjectId>Gorgon's Stone Arrow</ObjectId>
 			<Speed>160</Speed>
 			<MinDamage>138</MinDamage>
 			<MaxDamage>148</MaxDamage>
 			<LifetimeMS>450</LifetimeMS>
 			<MultiHit />
 			<ConditionEffect duration="2">Slowed</ConditionEffect>
+			<ParticleTrail>0xA8C090</ParticleTrail>
 		</Projectile>
 		<NumProjectiles>3</NumProjectiles>
 		<ArcGap>7.2</ArcGap>
@@ -255,6 +290,14 @@
 		<feedPower>1200</feedPower>
 		<Soulbound />
 	</Object>
+	<Object type="0x8C59" id="Soulfire Bolt">
+		<Class>Projectile</Class>
+		<Texture>
+			<File>resurrection8x8</File>
+			<Index>68</Index>
+		</Texture>
+		<AngleCorrection>1</AngleCorrection>
+	</Object>
 	<Object type="0x8C30" id="Archdemon's Soulfire Staff">
 		<Class>Equipment</Class>
 		<Item />
@@ -266,13 +309,14 @@
 		<RateOfFire>1</RateOfFire>
 		<Sound>weapon/wand_of_death</Sound>
 		<Projectile>
-			<ObjectId>Staff of Endless Energy Projectile</ObjectId>
+			<ObjectId>Soulfire Bolt</ObjectId>
 			<Speed>180</Speed>
 			<MinDamage>130</MinDamage>
 			<MaxDamage>176</MaxDamage>
 			<LifetimeMS>475</LifetimeMS>
 			<Amplitude>0.5</Amplitude>
 			<Frequency>2</Frequency>
+			<ParticleTrail>0xFF4020</ParticleTrail>
 		</Projectile>
 		<NumProjectiles>2</NumProjectiles>
 		<ArcGap>0</ArcGap>
@@ -294,6 +338,14 @@
 		<feedPower>1200</feedPower>
 		<Soulbound />
 	</Object>
+	<Object type="0x8C5A" id="Sanguine Bolt">
+		<Class>Projectile</Class>
+		<Texture>
+			<File>resurrection8x8</File>
+			<Index>69</Index>
+		</Texture>
+		<AngleCorrection>1</AngleCorrection>
+	</Object>
 	<Object type="0x8C31" id="Sanguine Wand of Ruthven">
 		<Class>Equipment</Class>
 		<Item />
@@ -305,12 +357,13 @@
 		<RateOfFire>1</RateOfFire>
 		<Sound>weapon/wand_of_death</Sound>
 		<Projectile>
-			<ObjectId>Retribution Magic</ObjectId>
+			<ObjectId>Sanguine Bolt</ObjectId>
 			<Speed>200</Speed>
 			<LifetimeMS>400</LifetimeMS>
 			<MinDamage>266</MinDamage>
 			<MaxDamage>331</MaxDamage>
 			<MultiHit />
+			<ParticleTrail>0xD01030</ParticleTrail>
 		</Projectile>
 		<OldSound>magicShoot</OldSound>
 		<ActivateOnEquip stat="20" amount="16">IncrementStat</ActivateOnEquip>
@@ -423,6 +476,14 @@
 		<feedPower>1200</feedPower>
 		<Soulbound />
 	</Object>
+	<Object type="0x8C5B" id="Wyrmfire Slash">
+		<Class>Projectile</Class>
+		<Texture>
+			<File>resurrection8x8</File>
+			<Index>70</Index>
+		</Texture>
+		<AngleCorrection>1</AngleCorrection>
+	</Object>
 	<Object type="0x8C36" id="Wyrmfire Katana">
 		<Class>Equipment</Class>
 		<Item />
@@ -434,12 +495,13 @@
 		<RateOfFire>1</RateOfFire>
 		<Sound>weapon/long_sword</Sound>
 		<Projectile>
-			<ObjectId>Kusanagi Slash</ObjectId>
+			<ObjectId>Wyrmfire Slash</ObjectId>
 			<Speed>150</Speed>
 			<LifetimeMS>350</LifetimeMS>
 			<MinDamage>316</MinDamage>
 			<MaxDamage>352</MaxDamage>
 			<MultiHit />
+			<ParticleTrail>0xFF7020</ParticleTrail>
 		</Projectile>
 		<OldSound>bladeSwing</OldSound>
 		<ActivateOnEquip stat="21" amount="8">IncrementStat</ActivateOnEquip>
@@ -504,6 +566,14 @@
 		<feedPower>1200</feedPower>
 		<Soulbound />
 	</Object>
+	<Object type="0x8C5C" id="Ankh of Bes">
+		<Class>Projectile</Class>
+		<Texture>
+			<File>resurrection8x8</File>
+			<Index>71</Index>
+		</Texture>
+		<Rotation>150</Rotation>
+	</Object>
 	<Object type="0x8C39" id="Bulwark of Bes">
 		<Class>Equipment</Class>
 		<Item />
@@ -514,7 +584,7 @@
 		<SlotType>5</SlotType>
 		<Sound>spell/fire_spray</Sound>
 		<Projectile>
-			<ObjectId>Silver Shield</ObjectId>
+			<ObjectId>Ankh of Bes</ObjectId>
 			<Speed>160</Speed>
 			<MinDamage>439</MinDamage>
 			<MaxDamage>513</MaxDamage>
@@ -523,7 +593,7 @@
 			<ConditionEffect duration="3">Stunned</ConditionEffect>
 			<MultiHit />
 			<PassesCover />
-			<ParticleTrail />
+			<ParticleTrail>0xFFD050</ParticleTrail>
 		</Projectile>
 		<ConditionEffect duration="3">Stunned</ConditionEffect>
 		<Usable />
@@ -650,6 +720,14 @@
 		<feedPower>1200</feedPower>
 		<Soulbound />
 	</Object>
+	<Object type="0x8C5D" id="Twilight Bolt">
+		<Class>Projectile</Class>
+		<Texture>
+			<File>resurrection8x8</File>
+			<Index>72</Index>
+		</Texture>
+		<AngleCorrection>1</AngleCorrection>
+	</Object>
 	<Object type="0x8C3E" id="Twilight Cataclysm">
 		<Class>Equipment</Class>
 		<Item />
@@ -660,11 +738,12 @@
 		<SlotType>11</SlotType>
 		<Sound>spell/magic_nova</Sound>
 		<Projectile>
-			<ObjectId>Crusade Commander Bolt</ObjectId>
+			<ObjectId>Twilight Bolt</ObjectId>
 			<Speed>160</Speed>
 			<MinDamage>143</MinDamage>
 			<MaxDamage>266</MaxDamage>
 			<LifetimeMS>1000</LifetimeMS>
+			<ParticleTrail>0xC070FF</ParticleTrail>
 		</Projectile>
 		<Usable />
 		<MpCost>100</MpCost>
@@ -4071,6 +4150,14 @@
 		<feedPower>1200</feedPower>
 		<Soulbound />
 	</Object>
+	<Object type="0x8C5E" id="Event Horizon Arrow">
+		<Class>Projectile</Class>
+		<Texture>
+			<File>resurrection8x8</File>
+			<Index>73</Index>
+		</Texture>
+		<AngleCorrection>1</AngleCorrection>
+	</Object>
 	<Object type="0x8C4B" id="Bow of the Event Horizon">
 		<Class>Equipment</Class>
 		<Item />
@@ -4082,7 +4169,7 @@
 		<RateOfFire>1</RateOfFire>
 		<Sound>weapon/golden_bow</Sound>
 		<Projectile>
-			<ObjectId>Void Arrow</ObjectId>
+			<ObjectId>Event Horizon Arrow</ObjectId>
 			<Speed>160</Speed>
 			<MinDamage>209</MinDamage>
 			<MaxDamage>298</MaxDamage>
@@ -4090,6 +4177,7 @@
 			<MultiHit />
 			<Amplitude>0.35</Amplitude>
 			<Frequency>0.2</Frequency>
+			<ParticleTrail>0x8040FF</ParticleTrail>
 		</Projectile>
 		<NumProjectiles>1</NumProjectiles>
 		<OldSound>arrowShoot</OldSound>

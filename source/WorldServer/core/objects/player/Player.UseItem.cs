@@ -1757,6 +1757,27 @@ namespace WorldServer.core.objects
             World.EnterWorld(entity);
         }
 
+        // On a test stack (serverSettings.testStack), each world entered: the character maxed as
+        // /max does, at full health and mana, with a Lil' Oryx (which heals both) if it has
+        // another pet or none, so a test never runs dry.
+        private void TestStackStart()
+        {
+            for (var i = 0; i < 8; i++)
+                Stats.Base[i] = StatCap(i);
+            if (Level < 20)
+            {
+                Level = 20;
+                Experience = GetLevelExp(20);
+            }
+            Health = Stats[0];
+            Mana = Stats[1];
+            if (GameServer.Resources.GameData.IdToObjectType.TryGetValue("Lil' Oryx (Doomed)", out var oryx) && PetId != oryx)
+            {
+                PetId = oryx;
+                PetUpgrade = 0;
+            }
+        }
+
         private void AEPermaPet(TickTime time, Item item, Position target, ActivateEffect eff)
         {
             var type = GameServer.Resources.GameData.IdToObjectType[eff.ObjectId];

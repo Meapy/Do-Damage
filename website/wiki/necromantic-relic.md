@@ -80,6 +80,13 @@ of its kind, at {{v:raise_item_min}} to {{v:raise_item_max}} times its strength 
 health), has stats of its own on top, and has a **power** no other item has. They're soulbound.
 The gear pages list them with their powers.
 
+Each power shows when it works, in a look of its own: the cutlass's cannonball bursting in fire,
+smoke and spray, the Skull's pentagram drawn in fire on the ground line by line, the Bow's black
+hole pulling light in, the Bulwark's golden ward and the Tome's falling stars on everyone they
+reach, and so on for all of them. The weapons, the Quiver, the Bulwark and the Twilight
+Cataclysm fire shots of their own too (a sea-green slash, a venom-dripping fang, a soulfire
+bolt, a spinning ankh and more), each leaving a trail of its colour.
+
 ## The Necromantic items
 
 Every item an Empowered boss drops, at a glance: what it is, its power, what it's built on and

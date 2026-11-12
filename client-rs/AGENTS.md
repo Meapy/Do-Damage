@@ -17,8 +17,9 @@ python tools\build_client_rs.py --web        # build\client-rs\web: index.html +
 python tools\build_client_rs.py --account https://dodmg.com/api --package --publish   # a release for players (main checkout only)
 ```
 
-- **Releasing to players** (ask the owner first): raise the version and name the changelog section
-  (below) on the release branch, and squash-merge its pull request into `main` (../AGENTS.md, Git,
+- **Releasing to players** (ask the owner first): take in the players' approved sprites first
+  (`python tools\community_sprites.py check` must pass; ../AGENTS.md, Git, "Releasing", step 1),
+  raise the version and name the changelog section (below) on the release branch, and squash-merge its pull request into `main` (../AGENTS.md, Git,
   "Release branches"). The merge deploys it: GitHub's `client` job (`.github/workflows/deploy.yml`,
   on Windows, with the signing key from a secret) runs `deploy.py --publish-only`. When
   `client-rs/` or `client/src/` changed since the server's newest release, that runs the line

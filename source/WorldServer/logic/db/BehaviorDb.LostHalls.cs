@@ -25,7 +25,9 @@ namespace WorldServer.logic
             // (BehaviorDb.LostHallsRooms.cs), where it leaves the tear into the Void when it dies.
             .Init(E("LH Marble Colossus"),
                 new State(
-                    new DropPortalOnDeath("Realm Portal", 100, 0),
+                    // 3 tiles west: the room's controller opens the tear into the Void (and with a
+                    // vial its portal) where the Colossus was raised, which is where it falls
+                    new DropPortalOnDeath("Realm Portal", 100, 0, XAdjustment: -3),
                     // the regular Colossus leads on to the Elder Lost Halls half the time
                     new DropPortalOnDeath("Elder Lost Halls Portal", elder ? 0 : 0.5, xAdjustment: 3, timeout: 120),
                     // the Elder version gains less health per extra player: its base is far higher
