@@ -1492,7 +1492,7 @@
 		<Item />
 		<Texture>
 			<File>drLofiObj2</File>
-			<Index>0x35</Index>
+			<Index>0x7a</Index>
 		</Texture>
 		<SlotType>10</SlotType>
 		<Description>A tasty, yummy, delicious extract of various stat potions.</Description>
@@ -3132,7 +3132,7 @@
 			<Speed>100</Speed>
 			<LifetimeMS>800</LifetimeMS>
 		</Projectile>
-		<Size>60</Size>
+		<Size>50</Size>
 		<ShadowSize>80</ShadowSize>
 	</Object>
 	<Object type="0xD0B3" id="Karate Penguin Red">
@@ -3149,7 +3149,7 @@
 			<Speed>120</Speed>
 			<LifetimeMS>450</LifetimeMS>
 		</Projectile>
-		<Size>70</Size>
+		<Size>75</Size>
 	</Object>
 	<Object type="0xD0B4" id="Karate Penguin Blue">
 		<Class>Character</Class>
@@ -3165,7 +3165,7 @@
 			<Speed>100</Speed>
 			<LifetimeMS>800</LifetimeMS>
 		</Projectile>
-		<Size>70</Size>
+		<Size>75</Size>
 	</Object>
 	<Object type="0xD0B5" id="Karate Penguin Yellow">
 		<Class>Character</Class>
@@ -3181,7 +3181,7 @@
 			<Speed>110</Speed>
 			<LifetimeMS>450</LifetimeMS>
 		</Projectile>
-		<Size>70</Size>
+		<Size>75</Size>
 	</Object>
 	<Object type="0xD0B6" id="Karate Penguin Purple">
 		<Class>Character</Class>
@@ -3197,7 +3197,7 @@
 			<Speed>130</Speed>
 			<LifetimeMS>800</LifetimeMS>
 		</Projectile>
-		<Size>70</Size>
+		<Size>75</Size>
 	</Object>
 	<Object type="0xD0B7" id="Sea Horsee">
 		<Class>Character</Class>
@@ -3213,7 +3213,7 @@
 			<LifetimeMS>800</LifetimeMS>
 			<MultiHit />
 		</Projectile>
-		<Size>70</Size>
+		<Size>75</Size>
 	</Object>
 	<Object type="0xD0B8" id="Sea Maree">
 		<Class>Character</Class>
@@ -3236,7 +3236,7 @@
 			<Speed>100</Speed>
 			<LifetimeMS>800</LifetimeMS>
 		</Projectile>
-		<Size>40</Size>
+		<Size>50</Size>
 	</Object>
 	<Object type="0xD0B9" id="Pentaract Eyee">
 		<Class>Character</Class>
@@ -3251,7 +3251,7 @@
 			<Speed>110</Speed>
 			<LifetimeMS>800</LifetimeMS>
 		</Projectile>
-		<Size>70</Size>
+		<Size>75</Size>
 	</Object>
 	<Object type="0xD0BA" id="Gebb">
 		<Class>Character</Class>
@@ -3308,7 +3308,7 @@
 			<Size>140</Size>
 			<MultiHit />
 		</Projectile>
-		<Size>60</Size>
+		<Size>70</Size>
 	</Object>
 	<Object type="0xD0BB" id="Thessal Pet">
 		<Class>Character</Class>
@@ -3361,7 +3361,7 @@
 			<Size>160</Size>
 			<LifetimeMS>3000</LifetimeMS>
 		</Projectile>
-		<Size>60</Size>
+		<Size>70</Size>
 	</Object>
 	<Object type="0xD0BC" id="Pyramid Artifact P">
 		<Class>Character</Class>
@@ -3376,7 +3376,7 @@
 			<Speed>100</Speed>
 			<LifetimeMS>800</LifetimeMS>
 		</Projectile>
-		<Size>85</Size>
+		<Size>100</Size>
 	</Object>
 	<Object type="0xD0BD" id="Skull Shrine P">
 		<Class>Character</Class>
@@ -3391,7 +3391,7 @@
 			<Damage>300</Damage>
 			<LifetimeMS>2400</LifetimeMS>
 		</Projectile>
-		<Size>60</Size>
+		<Size>70</Size>
 	</Object>
 	<Object type="0xD0BE" id="Bunnyy">
 		<Class>Character</Class>
@@ -3406,7 +3406,7 @@
 			<Speed>100</Speed>
 			<LifetimeMS>800</LifetimeMS>
 		</Projectile>
-		<Size>60</Size>
+		<Size>50</Size>
 	</Object>
 	<Object type="0xD0BF" id="White Bag Pet">
 		<Class>Character</Class>
@@ -3440,7 +3440,7 @@
 			<Speed>100</Speed>
 			<LifetimeMS>800</LifetimeMS>
 		</Projectile>
-		<Size>60</Size>
+		<Size>50</Size>
 	</Object>
 	<Object type="0xD0C0" id="Cubee">
 		<Class>Character</Class>
@@ -3461,7 +3461,7 @@
 			<Damage>225</Damage>
 			<LifetimeMS>2500</LifetimeMS>
 		</Projectile>
-		<Size>60</Size>
+		<Size>70</Size>
 	</Object>
 	<Object type="0xD0C1" id="Angell">
 		<Class>Character</Class>
@@ -3476,7 +3476,7 @@
 			<Speed>140</Speed>
 			<LifetimeMS>650</LifetimeMS>
 		</Projectile>
-		<Size>85</Size>
+		<Size>100</Size>
 	</Object>
 	<Object type="0xD0C2" id="Ninjaa">
 		<Class>Character</Class>
@@ -3497,7 +3497,7 @@
 			<Speed>150</Speed>
 			<LifetimeMS>600</LifetimeMS>
 		</Projectile>
-		<Size>85</Size>
+		<Size>100</Size>
 	</Object>
 	<Object type="0xD0C3" id="Septaviuss">
 		<Class>Character</Class>
@@ -3551,7 +3551,7 @@
 			<LifetimeMS>2000</LifetimeMS>
 			<MultiHit />
 		</Projectile>
-		<Size>60</Size>
+		<Size>70</Size>
 	</Object>
 	<Object type="0xD0C4" id="Malphass">
 		<Class>Character</Class>
@@ -3593,7 +3593,7 @@
 			<LifetimeMS>3000</LifetimeMS>
 			<MultiHit />
 		</Projectile>
-		<Size>60</Size>
+		<Size>70</Size>
 	</Object>
 	<Object type="0xD0C5" id="Sthenos">
 		<Class>Character</Class>
@@ -3618,7 +3618,7 @@
 			<LifetimeMS>2000</LifetimeMS>
 			<MultiHit />
 		</Projectile>
-		<Size>60</Size>
+		<Size>70</Size>
 	</Object>
 	<Object type="0xD0C6" id="Reaperr">
 		<Class>Character</Class>
@@ -3638,7 +3638,7 @@
 			<Boomerang />
 			<Bleed duration="3">155</Bleed>
 		</Projectile>
-		<Size>40</Size>
+		<Size>50</Size>
 		<ShadowSize>100</ShadowSize>
 	</Object>
 	<Object type="0xD0C7" id="Kirbyy">
@@ -3654,7 +3654,7 @@
 			<Speed>120</Speed>
 			<LifetimeMS>800</LifetimeMS>
 		</Projectile>
-		<Size>35</Size>
+		<Size>40</Size>
 	</Object>
 	<Object type="0xD0C8" id="Djinnn">
 		<Class>Character</Class>
@@ -3670,7 +3670,7 @@
 			<LifetimeMS>800</LifetimeMS>
 			<Wavy />
 		</Projectile>
-		<Size>50</Size>
+		<Size>60</Size>
 	</Object>
 	<Object type="0xD0C9" id="Knightt">
 		<Class>Character</Class>
@@ -3686,7 +3686,7 @@
 			<LifetimeMS>800</LifetimeMS>
 			<MultiHit />
 		</Projectile>
-		<Size>85</Size>
+		<Size>100</Size>
 	</Object>
 	<Object type="0xD0CA" id="Paladinn">
 		<Class>Character</Class>
@@ -3703,7 +3703,7 @@
 			<MultiHit />
 			<ArmorPiercing />
 		</Projectile>
-		<Size>85</Size>
+		<Size>100</Size>
 	</Object>
 	<Object type="0xD0CB" id="Priestt">
 		<Class>Character</Class>
@@ -3718,7 +3718,7 @@
 			<Speed>100</Speed>
 			<LifetimeMS>800</LifetimeMS>
 		</Projectile>
-		<Size>85</Size>
+		<Size>100</Size>
 	</Object>
 	<Object type="0xD0CC" id="Tornadoo">
 		<Class>Character</Class>
@@ -3736,7 +3736,7 @@
 			<Amplitude>0.6</Amplitude>
 			<Frequency>1</Frequency>
 		</Projectile>
-		<Size>40</Size>
+		<Size>50</Size>
 	</Object>
 	<Object type="0xD0CD" id="sharkmann">
 		<Class>Character</Class>
@@ -3752,7 +3752,7 @@
 			<LifetimeMS>650</LifetimeMS>
 			<Bleed duration="3">58</Bleed>
 		</Projectile>
-		<Size>85</Size>
+		<Size>100</Size>
 	</Object>
 	<Object type="0xD0CE" id="pumpkmann">
 		<Class>Character</Class>
@@ -3768,7 +3768,7 @@
 			<LifetimeMS>800</LifetimeMS>
 			<Wavy />
 		</Projectile>
-		<Size>85</Size>
+		<Size>100</Size>
 	</Object>
 	<Object type="0xD0CF" id="Phoenixx">
 		<Class>Character</Class>
@@ -3783,7 +3783,7 @@
 			<Speed>100</Speed>
 			<LifetimeMS>800</LifetimeMS>
 		</Projectile>
-		<Size>40</Size>
+		<Size>50</Size>
 	</Object>
 	<Object type="0xD0D0" id="Horrificc">
 		<Class>Character</Class>
@@ -3834,7 +3834,7 @@
 			<Damage>291</Damage>
 			<LifetimeMS>1000</LifetimeMS>
 		</Projectile>
-		<Size>60</Size>
+		<Size>70</Size>
 	</Object>
 	<Object type="0xD0D1" id="Limonn">
 		<Class>Character</Class>
@@ -3851,7 +3851,7 @@
 			<LifetimeMS>2300</LifetimeMS>
 			<MultiHit />
 		</Projectile>
-		<Size>60</Size>
+		<Size>70</Size>
 	</Object>
 	<Object type="0xD0D2" id="Reddemonn">
 		<Class>Character</Class>
@@ -3868,7 +3868,7 @@
 			<MultiHit />
 			<ArmorPiercing />
 		</Projectile>
-		<Size>40</Size>
+		<Size>50</Size>
 	</Object>
 	<Object type="0xD0D3" id="Monkeyn">
 		<Class>Character</Class>
@@ -3883,7 +3883,7 @@
 			<Speed>80</Speed>
 			<LifetimeMS>800</LifetimeMS>
 		</Projectile>
-		<Size>70</Size>
+		<Size>75</Size>
 	</Object>
 	<Object type="0xD0D4" id="Beholderr">
 		<Class>Character</Class>
@@ -3905,7 +3905,7 @@
 			<Speed>160</Speed>
 			<LifetimeMS>550</LifetimeMS>
 		</Projectile>
-		<Size>40</Size>
+		<Size>50</Size>
 	</Object>
 	<Object type="0xD0D5" id="Coill Snake">
 		<Class>Character</Class>
@@ -3928,7 +3928,7 @@
 			<Size>90</Size>
 			<LifetimeMS>1000</LifetimeMS>
 		</Projectile>
-		<Size>65</Size>
+		<Size>75</Size>
 	</Object>
 	<Object type="0xD0D6" id="Drakee">
 		<Class>Character</Class>
@@ -3943,7 +3943,7 @@
 			<Speed>100</Speed>
 			<LifetimeMS>800</LifetimeMS>
 		</Projectile>
-		<Size>40</Size>
+		<Size>50</Size>
 		<ShadowSize>120</ShadowSize>
 	</Object>
 	<Object type="0xD0D7" id="Josh's Pet">
@@ -3959,7 +3959,7 @@
 			<Speed>140</Speed>
 			<LifetimeMS>800</LifetimeMS>
 		</Projectile>
-		<Size>40</Size>
+		<Size>50</Size>
 		<ShadowSize>80</ShadowSize>
 	</Object>
 	<Object type="0xD0D8" id="Skeletal Guardian Pet">
@@ -3975,7 +3975,7 @@
 			<Speed>100</Speed>
 			<LifetimeMS>800</LifetimeMS>
 		</Projectile>
-		<Size>40</Size>
+		<Size>50</Size>
 		<ShadowSize>80</ShadowSize>
 	</Object>
 	<Object type="0xD0D9" id="Knight Pet">
@@ -3991,7 +3991,7 @@
 			<Speed>130</Speed>
 			<LifetimeMS>800</LifetimeMS>
 		</Projectile>
-		<Size>115</Size>
+		<Size>135</Size>
 		<ShadowSize>60</ShadowSize>
 	</Object>
 	<Object type="0xD0DA" id="Lunar's Phoenix">
@@ -4007,7 +4007,7 @@
 			<Speed>100</Speed>
 			<LifetimeMS>800</LifetimeMS>
 		</Projectile>
-		<Size>40</Size>
+		<Size>50</Size>
 		<ShadowSize>75</ShadowSize>
 	</Object>
 	<Object type="0xD0DB" id="Dallas's Pet">
@@ -4023,7 +4023,7 @@
 			<Speed>100</Speed>
 			<LifetimeMS>800</LifetimeMS>
 		</Projectile>
-		<Size>40</Size>
+		<Size>50</Size>
 		<ShadowSize>80</ShadowSize>
 	</Object>
 	<Object type="0xD0DC" id="Astro's Griffin">
@@ -4039,7 +4039,7 @@
 			<Speed>150</Speed>
 			<LifetimeMS>800</LifetimeMS>
 		</Projectile>
-		<Size>45</Size>
+		<Size>55</Size>
 		<ShadowSize>80</ShadowSize>
 	</Object>
 	<Object type="0xD0DD" id="Scootaloo">
@@ -4063,7 +4063,7 @@
 			<LifetimeMS>900</LifetimeMS>
 			<ConditionEffect duration="1">Slowed</ConditionEffect>
 		</Projectile>
-		<Size>60</Size>
+		<Size>70</Size>
 		<ShadowSize>80</ShadowSize>
 	</Object>
 	<Object type="0xD0DE" id="Twilight Sparkle">
@@ -4073,7 +4073,7 @@
 			<Index>0</Index>
 		</AnimatedTexture>
 		<NoMiniMap />
-		<Size>55</Size>
+		<Size>65</Size>
 		<Projectile id="0">
 			<ObjectId>Rainbow Magic Star</ObjectId>
 			<Speed>130</Speed>
@@ -4104,7 +4104,7 @@
 			<LifetimeMS>1800</LifetimeMS>
 			<MultiHit />
 		</Projectile>
-		<Size>40</Size>
+		<Size>50</Size>
 		<ShadowSize>150</ShadowSize>
 	</Object>
 	<Object type="0xD0E0" id="KingSlime">
@@ -4130,7 +4130,7 @@
 			<Speed>70</Speed>
 			<LifetimeMS>800</LifetimeMS>
 		</Projectile>
-		<Size>40</Size>
+		<Size>50</Size>
 		<ShadowSize>100</ShadowSize>
 	</Object>
 	<Object type="0xD0E1" id="Pumpkinnnnn">
@@ -4147,7 +4147,7 @@
 			<LifetimeMS>800</LifetimeMS>
 			<MultiHit />
 		</Projectile>
-		<Size>85</Size>
+		<Size>100</Size>
 	</Object>
 	<Object type="0xD0E2" id="Nightmareee">
 		<Class>Character</Class>
@@ -4164,7 +4164,7 @@
 			<LifetimeMS>2000</LifetimeMS>
 			<MultiHit />
 		</Projectile>
-		<Size>65</Size>
+		<Size>75</Size>
 	</Object>
 	<Object type="0xD0E3" id="Zombie Penguin">
 		<Class>Character</Class>
@@ -4180,7 +4180,7 @@
 			<LifetimeMS>800</LifetimeMS>
 			<ConditionEffect duration="2">Sick</ConditionEffect>
 		</Projectile>
-		<Size>85</Size>
+		<Size>100</Size>
 	</Object>
 	<Object type="0xD0E4" id="Mithril Sword">
 		<Class>Equipment</Class>
@@ -6581,7 +6581,7 @@
 			<Speed>100</Speed>
 			<LifetimeMS>800</LifetimeMS>
 		</Projectile>
-		<Size>55</Size>
+		<Size>65</Size>
 		<ShadowSize>120</ShadowSize>
 	</Object>
 	<Object type="0xD15D" id="Bess">
@@ -6630,7 +6630,7 @@
 			<LifetimeMS>1200</LifetimeMS>
 			<Size>200</Size>
 		</Projectile>
-		<Size>60</Size>
+		<Size>70</Size>
 		<ShadowSize>120</ShadowSize>
 	</Object>
 	<Object type="0xD15E" id="Nutt">
@@ -6711,7 +6711,7 @@
 			<Size>120</Size>
 			<ConditionEffect duration="0.25">Paralyzed</ConditionEffect>
 		</Projectile>
-		<Size>60</Size>
+		<Size>70</Size>
 	</Object>
 	<Object type="0xD15F" id="sphinxxx">
 		<Class>Character</Class>
@@ -6747,7 +6747,7 @@
 			<MultiHit />
 			<PassesCover />
 		</Projectile>
-		<Size>60</Size>
+		<Size>70</Size>
 		<ShadowSize>120</ShadowSize>
 	</Object>
 	<Object type="0xD160" id="Party Balloons">
@@ -6859,7 +6859,7 @@
 			<Index>0</Index>
 		</AnimatedTexture>
 		<NoMiniMap />
-		<Size>60</Size>
+		<Size>70</Size>
 	</Object>
 	<Object type="0xD167" id="Doomed Nature Generator">
 		<DisplayId>Doomed Nature Beast</DisplayId>
@@ -7195,7 +7195,7 @@
 			<Speed>100</Speed>
 			<LifetimeMS>800</LifetimeMS>
 		</Projectile>
-		<Size>40</Size>
+		<Size>50</Size>
 	</Object>
 	<Object type="0xD17E" id="Cookiee">
 		<Class>Character</Class>
@@ -7203,7 +7203,7 @@
 			<File>drRemote_draw_20482145</File>
 			<Index>0</Index>
 		</AnimatedTexture>
-		<Size>120</Size>
+		<Size>140</Size>
 		<ShadowSize>120</ShadowSize>
 		<NoMiniMap />
 		<Z>0.20</Z>
@@ -8227,7 +8227,7 @@
 			<Size>160</Size>
 			<LifetimeMS>3000</LifetimeMS>
 		</Projectile>
-		<Size>60</Size>
+		<Size>70</Size>
 	</Object>
 	<Object type="0xD1AB" id="Aceaku's Pet">
 		<Class>Character</Class>
@@ -8253,7 +8253,7 @@
 			<LifetimeMS>800</LifetimeMS>
 			<ConditionEffect duration="0.2">Paralyzed</ConditionEffect>
 		</Projectile>
-		<Size>85</Size>
+		<Size>100</Size>
 	</Object>
 	<Object type="0xD1AC" id="The Snowball">
 		<Class>Equipment</Class>
@@ -9004,7 +9004,7 @@
 			<Speed>100</Speed>
 			<LifetimeMS>800</LifetimeMS>
 		</Projectile>
-		<Size>40</Size>
+		<Size>50</Size>
 		<ShadowSize>120</ShadowSize>
 		<NoMiniMap />
 	</Object>
@@ -9029,7 +9029,7 @@
 			<MultiHit />
 			<Bleed duration="3">176</Bleed>
 		</Projectile>
-		<Size>40</Size>
+		<Size>50</Size>
 		<ShadowSize>120</ShadowSize>
 		<NoMiniMap />
 	</Object>
@@ -9052,7 +9052,7 @@
 			<LifetimeMS>800</LifetimeMS>
 			<ConditionEffect duration="1">Armor Broken</ConditionEffect>
 		</Projectile>
-		<Size>50</Size>
+		<Size>60</Size>
 		<ShadowSize>120</ShadowSize>
 		<NoMiniMap />
 	</Object>
@@ -10333,7 +10333,7 @@
 			<Speed>110</Speed>
 			<LifetimeMS>600</LifetimeMS>
 		</Projectile>
-		<Size>60</Size>
+		<Size>50</Size>
 	</Object>
 	<Object type="0xD20C" id="Grey Cat (Doomed)">
 		<DisplayId>Grey Cat</DisplayId>
@@ -10350,7 +10350,7 @@
 			<Speed>120</Speed>
 			<LifetimeMS>550</LifetimeMS>
 		</Projectile>
-		<Size>60</Size>
+		<Size>50</Size>
 	</Object>
 	<Object type="0xD20D" id="Orange Cat (Doomed)">
 		<DisplayId>Orange Cat</DisplayId>
@@ -10367,7 +10367,7 @@
 			<Speed>100</Speed>
 			<LifetimeMS>650</LifetimeMS>
 		</Projectile>
-		<Size>60</Size>
+		<Size>50</Size>
 	</Object>
 	<Object type="0xD20E" id="Tan Cat (Doomed)">
 		<DisplayId>Tan Cat</DisplayId>
@@ -10385,7 +10385,7 @@
 			<Speed>100</Speed>
 			<LifetimeMS>600</LifetimeMS>
 		</Projectile>
-		<Size>60</Size>
+		<Size>50</Size>
 	</Object>
 	<Object type="0xD20F" id="Yellow Cat (Doomed)">
 		<DisplayId>Yellow Cat</DisplayId>
@@ -10404,7 +10404,7 @@
 			<LifetimeMS>700</LifetimeMS>
 			<MultiHit />
 		</Projectile>
-		<Size>60</Size>
+		<Size>50</Size>
 	</Object>
 	<Object type="0xD210" id="Brown Pup (Doomed)">
 		<DisplayId>Brown Pup</DisplayId>
@@ -10422,7 +10422,7 @@
 			<LifetimeMS>900</LifetimeMS>
 			<Boomerang />
 		</Projectile>
-		<Size>60</Size>
+		<Size>50</Size>
 	</Object>
 	<Object type="0xD211" id="Grey Pup (Doomed)">
 		<DisplayId>Grey Pup</DisplayId>
@@ -10434,7 +10434,7 @@
 		</AnimatedTexture>
 		<Tex1>0x1767676</Tex1>
 		<NoMiniMap />
-		<Size>60</Size>
+		<Size>50</Size>
 	</Object>
 	<Object type="0xD212" id="Golden Pup (Doomed)">
 		<DisplayId>Golden Pup</DisplayId>
@@ -10452,7 +10452,7 @@
 			<Speed>100</Speed>
 			<LifetimeMS>800</LifetimeMS>
 		</Projectile>
-		<Size>70</Size>
+		<Size>75</Size>
 	</Object>
 	<Object type="0xD213" id="White Cat (Doomed)">
 		<DisplayId>White Cat</DisplayId>
@@ -10471,7 +10471,7 @@
 			<LifetimeMS>1000</LifetimeMS>
 			<Wavy />
 		</Projectile>
-		<Size>60</Size>
+		<Size>50</Size>
 	</Object>
 	<Object type="0xD214" id="Blue Snail (Doomed)">
 		<DisplayId>Blue Snail</DisplayId>
@@ -10489,7 +10489,7 @@
 			<LifetimeMS>1600</LifetimeMS>
 			<ConditionEffect duration="1">Slowed</ConditionEffect>
 		</Projectile>
-		<Size>60</Size>
+		<Size>50</Size>
 	</Object>
 	<Object type="0xD215" id="Grey Wolf (Doomed)">
 		<DisplayId>Grey Wolf</DisplayId>
@@ -10506,7 +10506,7 @@
 			<Speed>100</Speed>
 			<LifetimeMS>800</LifetimeMS>
 		</Projectile>
-		<Size>70</Size>
+		<Size>75</Size>
 	</Object>
 	<Object type="0xD216" id="Brown Fox (Doomed)">
 		<DisplayId>Brown Fox</DisplayId>
@@ -10523,7 +10523,7 @@
 			<Speed>160</Speed>
 			<LifetimeMS>500</LifetimeMS>
 		</Projectile>
-		<Size>60</Size>
+		<Size>50</Size>
 	</Object>
 	<Object type="0xD217" id="Green Frog (Doomed)">
 		<DisplayId>Green Frog</DisplayId>
@@ -10540,7 +10540,7 @@
 			<Speed>140</Speed>
 			<LifetimeMS>450</LifetimeMS>
 		</Projectile>
-		<Size>80</Size>
+		<Size>65</Size>
 	</Object>
 	<Object type="0xD218" id="Lion (Doomed)">
 		<DisplayId>Lion</DisplayId>
@@ -10551,7 +10551,7 @@
 			<Index>0x08</Index>
 		</AnimatedTexture>
 		<NoMiniMap />
-		<Size>70</Size>
+		<Size>75</Size>
 	</Object>
 	<Object type="0xD219" id="Penguin (Doomed)">
 		<DisplayId>Penguin</DisplayId>
@@ -10568,7 +10568,7 @@
 			<Speed>90</Speed>
 			<LifetimeMS>800</LifetimeMS>
 		</Projectile>
-		<Size>60</Size>
+		<Size>50</Size>
 	</Object>
 	<Object type="0xD21A" id="Sheepdog (Doomed)">
 		<DisplayId>Sheepdog</DisplayId>
@@ -10585,7 +10585,7 @@
 			<Speed>70</Speed>
 			<LifetimeMS>1200</LifetimeMS>
 		</Projectile>
-		<Size>60</Size>
+		<Size>50</Size>
 	</Object>
 	<Object type="0xD21B" id="Panda (Doomed)">
 		<DisplayId>Panda</DisplayId>
@@ -10602,7 +10602,7 @@
 			<Speed>80</Speed>
 			<LifetimeMS>1000</LifetimeMS>
 		</Projectile>
-		<Size>60</Size>
+		<Size>50</Size>
 	</Object>
 	<Object type="0xD21C" id="Purple Snail (Doomed)">
 		<DisplayId>Purple Snail</DisplayId>
@@ -10622,7 +10622,7 @@
 			<Wavy />
 			<ConditionEffect duration="1">Slowed</ConditionEffect>
 		</Projectile>
-		<Size>60</Size>
+		<Size>50</Size>
 	</Object>
 	<Object type="0xD21D" id="Black Wolf (Doomed)">
 		<DisplayId>Black Wolf</DisplayId>
@@ -10642,7 +10642,7 @@
 			<LifetimeMS>900</LifetimeMS>
 			<MultiHit />
 		</Projectile>
-		<Size>70</Size>
+		<Size>75</Size>
 	</Object>
 	<Object type="0xD21E" id="Grey Fox (Doomed)">
 		<DisplayId>Grey Fox</DisplayId>
@@ -10661,7 +10661,7 @@
 			<LifetimeMS>800</LifetimeMS>
 			<Bleed duration="2">22</Bleed>
 		</Projectile>
-		<Size>60</Size>
+		<Size>50</Size>
 	</Object>
 	<Object type="0xD21F" id="Purple Frog (Doomed)">
 		<DisplayId>Purple Frog</DisplayId>
@@ -10679,7 +10679,7 @@
 			<Speed>80</Speed>
 			<LifetimeMS>800</LifetimeMS>
 		</Projectile>
-		<Size>80</Size>
+		<Size>65</Size>
 	</Object>
 	<Object type="0xD220" id="White Lion (Doomed)">
 		<DisplayId>White Lion</DisplayId>
@@ -10699,7 +10699,7 @@
 			<MultiHit />
 			<ArmorPiercing />
 		</Projectile>
-		<Size>70</Size>
+		<Size>75</Size>
 	</Object>
 	<Object type="0xD221" id="Green Penguin (Doomed)">
 		<DisplayId>Green Penguin</DisplayId>
@@ -10717,7 +10717,7 @@
 			<Speed>100</Speed>
 			<LifetimeMS>800</LifetimeMS>
 		</Projectile>
-		<Size>60</Size>
+		<Size>50</Size>
 	</Object>
 	<Object type="0xD222" id="Golden Sheepdog (Doomed)">
 		<DisplayId>Golden Sheepdog</DisplayId>
@@ -10735,7 +10735,7 @@
 			<Speed>70</Speed>
 			<LifetimeMS>1200</LifetimeMS>
 		</Projectile>
-		<Size>70</Size>
+		<Size>75</Size>
 	</Object>
 	<Object type="0xD223" id="Bluebird (Doomed)">
 		<DisplayId>Bluebird</DisplayId>
@@ -10751,7 +10751,7 @@
 			<Speed>130</Speed>
 			<LifetimeMS>550</LifetimeMS>
 		</Projectile>
-		<Size>60</Size>
+		<Size>50</Size>
 	</Object>
 	<Object type="0xD224" id="Chick (Doomed)">
 		<DisplayId>Chick</DisplayId>
@@ -10767,7 +10767,7 @@
 			<Speed>60</Speed>
 			<LifetimeMS>1300</LifetimeMS>
 		</Projectile>
-		<Size>80</Size>
+		<Size>65</Size>
 	</Object>
 	<Object type="0xD225" id="Pig (Doomed)">
 		<DisplayId>Pig</DisplayId>
@@ -10784,7 +10784,7 @@
 			<Speed>70</Speed>
 			<LifetimeMS>800</LifetimeMS>
 		</Projectile>
-		<Size>60</Size>
+		<Size>50</Size>
 	</Object>
 	<Object type="0xD226" id="Sea Slurp (Doomed)">
 		<DisplayId>Sea Slurp</DisplayId>
@@ -10802,7 +10802,7 @@
 			<LifetimeMS>800</LifetimeMS>
 			<Wavy />
 		</Projectile>
-		<Size>110</Size>
+		<Size>120</Size>
 	</Object>
 	<Object type="0xD227" id="Squirrel (Doomed)">
 		<DisplayId>Squirrel</DisplayId>
@@ -10820,7 +10820,7 @@
 			<Speed>90</Speed>
 			<LifetimeMS>800</LifetimeMS>
 		</Projectile>
-		<Size>60</Size>
+		<Size>50</Size>
 	</Object>
 	<Object type="0xD228" id="Bat (Doomed)">
 		<DisplayId>Bat</DisplayId>
@@ -10853,7 +10853,7 @@
 			<LifetimeMS>800</LifetimeMS>
 			<MultiHit />
 		</Projectile>
-		<Size>70</Size>
+		<Size>55</Size>
 		<ShadowSize>80</ShadowSize>
 	</Object>
 	<Object type="0xD229" id="Lil' Ghost (Doomed)">
@@ -10874,7 +10874,7 @@
 			<MultiHit />
 			<Wavy />
 		</Projectile>
-		<Size>95</Size>
+		<Size>100</Size>
 		<ShadowSize>80</ShadowSize>
 	</Object>
 	<Object type="0xD22A" id="Leprechaun (Doomed)">
@@ -10897,7 +10897,7 @@
 			<Speed>100</Speed>
 			<LifetimeMS>800</LifetimeMS>
 		</Projectile>
-		<Size>70</Size>
+		<Size>75</Size>
 	</Object>
 	<Object type="0xD22B" id="Toucan (Doomed)">
 		<DisplayId>Toucan</DisplayId>
@@ -10913,7 +10913,7 @@
 			<Speed>80</Speed>
 			<LifetimeMS>800</LifetimeMS>
 		</Projectile>
-		<Size>60</Size>
+		<Size>50</Size>
 		<WhileMoving>
 			<Z>0.35</Z>
 			<Flying />
@@ -10928,7 +10928,7 @@
 			<Index>20</Index>
 		</AnimatedTexture>
 		<NoMiniMap />
-		<Size>70</Size>
+		<Size>75</Size>
 	</Object>
 	<Object type="0xD22D" id="Mallard (Doomed)">
 		<DisplayId>Mallard</DisplayId>
@@ -10945,7 +10945,7 @@
 			<Speed>100</Speed>
 			<LifetimeMS>800</LifetimeMS>
 		</Projectile>
-		<Size>60</Size>
+		<Size>50</Size>
 	</Object>
 	<Object type="0xD22E" id="Duck (Doomed)">
 		<DisplayId>Duck</DisplayId>
@@ -10963,7 +10963,7 @@
 			<LifetimeMS>1100</LifetimeMS>
 			<Wavy />
 		</Projectile>
-		<Size>60</Size>
+		<Size>50</Size>
 	</Object>
 	<Object type="0xD22F" id="Eagle (Doomed)">
 		<DisplayId>Eagle</DisplayId>
@@ -10980,7 +10980,7 @@
 			<LifetimeMS>500</LifetimeMS>
 			<ArmorPiercing />
 		</Projectile>
-		<Size>70</Size>
+		<Size>75</Size>
 		<WhileMoving>
 			<Z>0.35</Z>
 			<Flying />
@@ -11003,7 +11003,7 @@
 			<MultiHit />
 			<Boomerang />
 		</Projectile>
-		<Size>70</Size>
+		<Size>55</Size>
 	</Object>
 	<Object type="0xD231" id="Jelly (Doomed)">
 		<DisplayId>Jelly</DisplayId>
@@ -11013,7 +11013,7 @@
 			<Index>25</Index>
 		</AnimatedTexture>
 		<NoMiniMap />
-		<Size>80</Size>
+		<Size>85</Size>
 		<ShadowSize>80</ShadowSize>
 	</Object>
 	<Object type="0xD232" id="Bee (Doomed)">
@@ -11040,7 +11040,7 @@
 			<LifetimeMS>500</LifetimeMS>
 			<Bleed duration="2">31</Bleed>
 		</Projectile>
-		<Size>95</Size>
+		<Size>100</Size>
 	</Object>
 	<Object type="0xD233" id="Raven (Doomed)">
 		<DisplayId>Raven</DisplayId>
@@ -11056,7 +11056,7 @@
 			<Speed>100</Speed>
 			<LifetimeMS>800</LifetimeMS>
 		</Projectile>
-		<Size>60</Size>
+		<Size>50</Size>
 		<WhileMoving>
 			<Z>0.35</Z>
 			<Flying />
@@ -11078,7 +11078,7 @@
 			<LifetimeMS>800</LifetimeMS>
 			<Wavy />
 		</Projectile>
-		<Size>60</Size>
+		<Size>50</Size>
 		<ShadowSize>80</ShadowSize>
 	</Object>
 	<Object type="0xD235" id="Elf (Doomed)">
@@ -11096,7 +11096,7 @@
 			<LifetimeMS>650</LifetimeMS>
 			<ArmorPiercing />
 		</Projectile>
-		<Size>80</Size>
+		<Size>85</Size>
 		<ShadowSize>80</ShadowSize>
 	</Object>
 	<Object type="0xD236" id="Crab (Doomed)">
@@ -11114,7 +11114,7 @@
 			<Speed>100</Speed>
 			<LifetimeMS>500</LifetimeMS>
 		</Projectile>
-		<Size>60</Size>
+		<Size>50</Size>
 		<ShadowSize>80</ShadowSize>
 	</Object>
 	<Object type="0xD237" id="Hamster (Doomed)">
@@ -11132,7 +11132,7 @@
 			<Speed>100</Speed>
 			<LifetimeMS>800</LifetimeMS>
 		</Projectile>
-		<Size>60</Size>
+		<Size>50</Size>
 	</Object>
 	<Object type="0xD238" id="Dino (Doomed)">
 		<DisplayId>Dino</DisplayId>
@@ -11149,7 +11149,7 @@
 			<Speed>90</Speed>
 			<LifetimeMS>450</LifetimeMS>
 		</Projectile>
-		<Size>70</Size>
+		<Size>75</Size>
 	</Object>
 	<Object type="0xD239" id="Elephant (Doomed)">
 		<DisplayId>Elephant</DisplayId>
@@ -11160,7 +11160,7 @@
 			<Index>35</Index>
 		</AnimatedTexture>
 		<NoMiniMap />
-		<Size>70</Size>
+		<Size>75</Size>
 	</Object>
 	<Object type="0xD23A" id="Demon Frog (Doomed)">
 		<DisplayId>Demon Frog</DisplayId>
@@ -11177,7 +11177,7 @@
 			<Speed>100</Speed>
 			<LifetimeMS>900</LifetimeMS>
 		</Projectile>
-		<Size>95</Size>
+		<Size>100</Size>
 	</Object>
 	<Object type="0xD23B" id="Gargoyle (Doomed)">
 		<DisplayId>Gargoyle</DisplayId>
@@ -11193,7 +11193,7 @@
 			<Speed>60</Speed>
 			<LifetimeMS>1300</LifetimeMS>
 		</Projectile>
-		<Size>95</Size>
+		<Size>100</Size>
 		<WhileMoving>
 			<Z>0.25</Z>
 			<Flying />
@@ -11214,7 +11214,7 @@
 			<Speed>100</Speed>
 			<LifetimeMS>800</LifetimeMS>
 		</Projectile>
-		<Size>70</Size>
+		<Size>75</Size>
 	</Object>
 	<Object type="0xD23D" id="Dragonfly (Doomed)">
 		<DisplayId>Dragonfly</DisplayId>
@@ -11239,7 +11239,7 @@
 			<Speed>170</Speed>
 			<LifetimeMS>450</LifetimeMS>
 		</Projectile>
-		<Size>60</Size>
+		<Size>50</Size>
 	</Object>
 	<Object type="0xD23E" id="Lil' Cyclops (Doomed)">
 		<DisplayId>Lil' Cyclops</DisplayId>
@@ -11256,7 +11256,7 @@
 			<LifetimeMS>550</LifetimeMS>
 			<MultiHit />
 		</Projectile>
-		<Size>80</Size>
+		<Size>85</Size>
 	</Object>
 	<Object type="0xD23F" id="Snowy Owl (Doomed)">
 		<DisplayId>Snowy Owl</DisplayId>
@@ -11273,7 +11273,7 @@
 			<LifetimeMS>800</LifetimeMS>
 			<ConditionEffect duration="1">Slowed</ConditionEffect>
 		</Projectile>
-		<Size>80</Size>
+		<Size>85</Size>
 		<ShadowSize>80</ShadowSize>
 		<WhileMoving>
 			<Z>0.24</Z>
@@ -11294,7 +11294,7 @@
 			<Speed>100</Speed>
 			<LifetimeMS>800</LifetimeMS>
 		</Projectile>
-		<Size>60</Size>
+		<Size>50</Size>
 	</Object>
 	<Object type="0xD241" id="Baby (Doomed)">
 		<DisplayId>Baby</DisplayId>
@@ -11310,7 +11310,7 @@
 			<Speed>80</Speed>
 			<LifetimeMS>800</LifetimeMS>
 		</Projectile>
-		<Size>70</Size>
+		<Size>75</Size>
 	</Object>
 	<Object type="0xD242" id="Baby Dragon (Doomed)">
 		<DisplayId>Baby Dragon</DisplayId>
@@ -11326,7 +11326,7 @@
 			<Speed>100</Speed>
 			<LifetimeMS>800</LifetimeMS>
 		</Projectile>
-		<Size>70</Size>
+		<Size>75</Size>
 	</Object>
 	<Object type="0xD243" id="Robobuddy (Doomed)">
 		<DisplayId>Robobuddy</DisplayId>
@@ -11342,7 +11342,7 @@
 			<Speed>140</Speed>
 			<LifetimeMS>500</LifetimeMS>
 		</Projectile>
-		<Size>70</Size>
+		<Size>75</Size>
 	</Object>
 	<Object type="0xD244" id="Shroom (Doomed)">
 		<DisplayId>Shroom</DisplayId>
@@ -11357,7 +11357,7 @@
 			<Speed>100</Speed>
 			<LifetimeMS>800</LifetimeMS>
 		</Projectile>
-		<Size>40</Size>
+		<Size>50</Size>
 		<ShadowSize>120</ShadowSize>
 		<NoMiniMap />
 	</Object>
@@ -11510,7 +11510,7 @@
 			<LifetimeMS>3000</LifetimeMS>
 			<MultiHit />
 		</Projectile>
-		<Size>60</Size>
+		<Size>70</Size>
 		<ShadowSize>70</ShadowSize>
 	</Object>
 	<Object type="0xD246" id="Blademaster">
@@ -21823,7 +21823,7 @@
 			<LifetimeMS>6500</LifetimeMS>
 			<Size>100</Size>
 		</Projectile>
-		<Size>60</Size>
+		<Size>70</Size>
 		<ShadowSize>70</ShadowSize>
 	</Object>
 	<Object type="0xD3E4" id="Lil' Celestial Oryx">
@@ -22235,7 +22235,7 @@
 			<MultiHit />
 			<ArmorPiercing />
 		</Projectile>
-		<Size>40</Size>
+		<Size>45</Size>
 		<ShadowSize>70</ShadowSize>
 	</Object>
 	<Object type="0xD3E5" id="Lil' Infernal Oryx">
@@ -22387,7 +22387,7 @@
 			<LifetimeMS>3000</LifetimeMS>
 			<MultiHit />
 		</Projectile>
-		<Size>60</Size>
+		<Size>70</Size>
 		<ShadowSize>70</ShadowSize>
 	</Object>
 	<Object type="0xD3E6" id="Lil' Wine Cellar Oryx">
@@ -22458,7 +22458,7 @@
 			<LifetimeMS>1800</LifetimeMS>
 			<MultiHit />
 		</Projectile>
-		<Size>60</Size>
+		<Size>70</Size>
 		<ShadowSize>70</ShadowSize>
 	</Object>
 	<Object type="0xD3E7" id="Lil' Ascended Oryx Generator">

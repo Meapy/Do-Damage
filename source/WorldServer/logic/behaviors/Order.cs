@@ -40,7 +40,12 @@ namespace WorldServer.logic.behaviors
         protected override void TickCore(Entity host, TickTime time, ref object state)
         {
             if (_targetState == null)
-                _targetState = FindState(host.GameServer.BehaviorDb.Definitions[_children].Item1, _targetStateName);
+            {
+                // (ordering an object that has no behaviour, the Marble Colossus's anchor: nothing to do)
+                if (!host.GameServer.BehaviorDb.Definitions.TryGetValue(_children, out var def))
+                    return;
+                _targetState = FindState(def.Item1, _targetStateName);
+            }
 
             foreach (var i in host.GetNearestEntities(_range, _children))
             {

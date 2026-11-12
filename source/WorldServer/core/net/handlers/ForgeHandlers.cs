@@ -69,15 +69,18 @@ namespace WorldServer.core.net.handlers
             var data = client.GameServer.Resources.GameData;
             string error;
             var fame = 0;
+            var reskin = false;
             if (!DoomedEconomy.NearForge(player))
                 error = "Stand by the Divine Forge to forge.";
             else if (!data.ObjectTypeToId.TryGetValue(result, out var resultId))
                 error = "That item doesn't exist here.";
             else
-                error = DoomedEconomy.Forge(player, slots, resultId, out fame);
+                error = DoomedEconomy.Forge(player, slots, resultId, out fame, out reskin);
             // tiered gear below T10 on the weapons' scale (under its 125 fame) is near free to forge,
-            // so it doesn't count for quests, the Master Smith or the community goal
-            if (error == null && (!data.Items.TryGetValue(result, out var forged) || forged.Tier < 0 || fame >= ForgeRecipes.CountedTierFame))
+            // and a look swap (the Doom Bow into Sun's Judgement) makes nothing new, so neither counts
+            // for quests, the Master Smith or the community goal
+            if (error == null && !reskin
+                && (!data.Items.TryGetValue(result, out var forged) || forged.Tier < 0 || fame >= ForgeRecipes.CountedTierFame))
             {
                 player.Quests?.Event(new Shared.quests.QuestEvent(Shared.quests.QuestEvents.Forge));
                 WeeklyStats.Count(Shared.database.leaderboard.DbWeeklyStats.Forged);

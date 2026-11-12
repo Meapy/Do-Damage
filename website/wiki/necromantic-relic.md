@@ -9,8 +9,8 @@ summary: How a Necromantic Relic brings a fallen Elder boss back in its Empowere
 Every Elder dungeon's boss can be fought twice. When it falls, its souls cling to the body, and
 with a **Necromantic Relic** you can drag it back to life in its **Empowered** form: a much harder
 fight with much better loot, and an item of its own found nowhere else. That's
-{{v:raise_bosses}} bosses: one for every Elder dungeon, three in the Elder Tomb and four in the
-Elder Lair of Draconis.
+{{v:raise_bosses}} bosses: one for every Elder dungeon, three in the Elder Tomb, three in the
+Elder Shatters and four in the Elder Lair of Draconis.
 
 ## Getting a relic
 
@@ -48,7 +48,10 @@ raised it.
 An Empowered boss is the same boss, and it fights as it always did, but stronger in every way:
 
 - a fifth bigger, wreathed in souls and glowing violet;
-- {{v:raise_health}} times the Elder boss's health and {{v:raise_defense}} more defense;
+- more health than the Elder boss: {{v:raise_health_small}} times for the smaller bosses, less the
+  bigger the boss ({{v:raise_health_200k}} times at 200,000, down to {{v:raise_health_big}} times), and up to
+  {{v:raise_defense}} more defense (less for a boss already heavily armoured). In a group each player
+  adds the same share as on the Elder boss;
 - its own shots hit 30% harder, and everything it does is a quarter faster;
 - for its first moments it is rising and can't be hurt.
 
@@ -65,7 +68,8 @@ The souls fight for it too:
 ## What it drops
 
 An Empowered boss drops everything its Elder form drops, with every chance doubled for everyone
-who fought it (except what's in the loot balloon the dragons and the Wyvern turn into). Then it rolls the Elder boss's own items a second time, at up to twice their chance
+who fought it (except what's in the loot balloon the dragons and the Wyvern turn into; the
+Elder Shatters' three drop what their balloons held themselves). Then it rolls the Elder boss's own items a second time, at up to twice their chance
 (ten points more at most), with its Potion of Max at four times its chance (a tenth at least, a
 quarter at most).
 
@@ -75,6 +79,14 @@ a different kind of gear for each, so every class has some to hunt. Each is buil
 of its kind, at {{v:raise_item_min}} to {{v:raise_item_max}} times its strength (the strongest give something up: speed, defense or
 health), has stats of its own on top, and has a **power** no other item has. They're soulbound.
 The gear pages list them with their powers.
+
+## The Necromantic items
+
+Every item an Empowered boss drops, at a glance: what it is, its power, what it's built on and
+where to hunt it. Pick a kind of gear, or filter by name, boss, dungeon or power; the boss's name
+leads to its fight below, the item's to its full entry on the gear pages.
+
+{{gen:raise-items}}
 
 ## Each boss, its item and its drops
 

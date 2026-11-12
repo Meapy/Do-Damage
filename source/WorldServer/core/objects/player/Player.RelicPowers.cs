@@ -24,6 +24,14 @@ namespace WorldServer.core.objects
         private long _phaseReadyAt;                     // Prism of the Fallen Sprite
         private long _shellReadyAt;                     // Obsidian Wyrmplate
         private bool _shell;
+        private bool _twilightIce;                      // Twilight Cataclysm: the next cast is ice
+        private long _forgottenUntil;                   // Shroud of the Forgotten King
+        private long _bulwarkReadyAt;                   // Bracer of the Elder Guardian
+        private int _horizonHits;                       // Bow of the Event Horizon: hits counted
+        private float _stanceX, _stanceY;               // Lodestone of the Halls: where its wearer stands,
+        private long _stanceSince;                      // and since when
+        private bool _stanceOn;
+        private long _entropyReadyAt;                   // The Hollow Sourcestone
         private int _lifestealThisSecond;
         private long _lifestealSecond;
         [ThreadStatic] private static bool _inRelic;
@@ -64,6 +72,12 @@ namespace WorldServer.core.objects
                 RelicKill();
             if (_inRelic || World == null)
                 return;
+            // forgotten by the Realm (the Shroud's ability): a fifth more, past its defense
+            if (!killed && Now < _forgottenUntil && Power(1) == "Forgotten")
+                RelicDamage(enemy, Math.Max(1, dmg / 5), ref time, true);
+            // the Blood Pact pays its wearer near death: 15% more, past its defense
+            if (!killed && Power(3) == "BloodPact" && Health > 0 && Health < Stats[0] / 2)
+                RelicDamage(enemy, Math.Max(1, dmg * 15 / 100), ref time, true);
             switch (Power(0))
             {
                 // every sixth hit, a cannonball bursts on the target: three times the hit to all round it
@@ -120,6 +134,27 @@ namespace WorldServer.core.objects
                         Health = Math.Min(Stats[0], Health + heal);
                     }
                     break;
+                // every tenth hit tears a singularity open on the enemy: six pulses, half a second
+                // apart, each past the defense of everything within 3 tiles, which it slows
+                case "Singularity":
+                    if (++_horizonHits % 10 != 0)
+                        break;
+                    var hole = new Position(enemy.X, enemy.Y);
+                    Mark(hole, 3, 3000, 0xFF8040FF);
+                    RelicNote("Singularity", 0xFFB080FF);
+                    for (var n = 1; n <= 6; n++)
+                        World.StartNewTimer(n * 500, (w, t) =>
+                        {
+                            if (World != w)
+                                return;
+                            RelicEffect(this, EffectType.Concentrate, 0xFF8040FF, hole, new Position(hole.X + 3, hole.Y));
+                            foreach (var e in EnemiesNear(hole.X, hole.Y, 3))
+                            {
+                                e.ApplyConditionEffect(ConditionEffectIndex.Slowed, 800);
+                                RelicDamage(e, 120, ref t, true);
+                            }
+                        });
+                    break;
                 // every third hit sets the enemy alight: half the hit again, burning over 2 s
                 case "Ignition":
                     if (!killed && ++_relicHits % 3 == 0)
@@ -136,6 +171,9 @@ namespace WorldServer.core.objects
                 _souls++;
                 RelicNote($"Souls {_souls}/5", 0xFF7DFFCF);
             }
+            // the Eclipsed Gemstone drinks each kill
+            if (Power(3) == "Eclipse" && Mana < Stats[1])
+                Mana = Math.Min(Stats[1], Mana + 15);
         }
 
         // the ability was used, at pos
@@ -143,8 +181,102 @@ namespace WorldServer.core.objects
         {
             if (World == null)
                 return;
+            // the Remembered Crown: the king's will with every ability
+            if (Power(3) == "KingsWill")
+                TimedStatBoost(20, 8, 3000);
             switch (Power(1))
             {
+                // four marble pillars round its user, north, east, south and west, for 5 s: each
+                // strikes what stands within 2.5 tiles of it once a second
+                case "MarblePillars":
+                    var pillars = new[] { new Position(X, Y - 3), new Position(X + 3, Y), new Position(X, Y + 3), new Position(X - 3, Y) };
+                    foreach (var p in pillars)
+                        Mark(p, 2.5f, 5000, 0xFFE8E8FF);
+                    RelicNote("Marble Pillars", 0xFFE8E8FF);
+                    for (var n = 1; n <= 5; n++)
+                        World.StartNewTimer(n * 1000, (w, t) =>
+                        {
+                            if (World != w)
+                                return;
+                            foreach (var p in pillars)
+                            {
+                                Burst(p, 2.5f, 0xFFE8E8FF);
+                                foreach (var e in EnemiesNear(p.X, p.Y, 2.5f))
+                                    RelicDamage(e, 150, ref t, false);
+                            }
+                        });
+                    break;
+                // a pentagram on the target: its five points burst in turn, 300 ms apart, then its
+                // heart erupts past the defense of what stands in it, and curses it
+                case "Pentagram":
+                    var star = pos;
+                    Mark(star, 3, 2000, 0xFFFF2020);
+                    for (var n = 0; n < 5; n++)
+                    {
+                        var a = (-90 + n * 144) * MathF.PI / 180;   // (the star's own order: every second point)
+                        var point = new Position(star.X + 2.5f * MathF.Cos(a), star.Y + 2.5f * MathF.Sin(a));
+                        World.StartNewTimer(300 + n * 300, (w, t) =>
+                        {
+                            if (World != w)
+                                return;
+                            Burst(point, 1.5f, 0xFFFF4020);
+                            foreach (var e in EnemiesNear(star.X, star.Y, 3))
+                                RelicDamage(e, 120, ref t, false);
+                        });
+                    }
+                    World.StartNewTimer(1900, (w, t) =>
+                    {
+                        if (World != w)
+                            return;
+                        Burst(star, 3, 0xFFFF0000);
+                        foreach (var e in EnemiesNear(star.X, star.Y, 3))
+                        {
+                            e.ApplyConditionEffect(ConditionEffectIndex.Curse, 3000);
+                            RelicDamage(e, 400, ref t, true);
+                        }
+                    });
+                    break;
+                // a Blobomb, thrown with the trap: it lands in a second and bursts a second later
+                case "Blobomb":
+                    var bomb = pos;
+                    Throw(bomb, 0xFFE0E0FF);
+                    Mark(bomb, 3, 2000, 0xFFE0E0FF);
+                    World.StartNewTimer(2000, (w, t) =>
+                    {
+                        if (World != w)
+                            return;
+                        Burst(bomb, 3, 0xFFFFFFFF);
+                        foreach (var e in EnemiesNear(bomb.X, bomb.Y, 3))
+                            RelicDamage(e, 700, ref t, false);
+                    });
+                    break;
+                // fire, then ice, turn about: a burn on everything round the target, then a
+                // freezing hit that slows it
+                case "FireAndIce":
+                    _twilightIce = !_twilightIce;
+                    if (_twilightIce)   // (this cast is fire: the flag says what comes next)
+                    {
+                        Burst(pos, 3.5f, 0xFFFF7020);
+                        foreach (var e in EnemiesNear(pos.X, pos.Y, 3.5f))
+                            e.Bleed(this, 450, 3000);
+                        RelicNote("Fire", 0xFFFF7020);
+                    }
+                    else
+                    {
+                        Burst(pos, 3.5f, 0xFF60C8FF);
+                        foreach (var e in EnemiesNear(pos.X, pos.Y, 3.5f))
+                        {
+                            e.ApplyConditionEffect(ConditionEffectIndex.Slowed, 3000);
+                            RelicDamage(e, 250, ref time, false);
+                        }
+                        RelicNote("Ice", 0xFF60C8FF);
+                    }
+                    break;
+                // out of the Realm's memory for 5 s: RelicHit adds to every shot meanwhile
+                case "Forgotten":
+                    _forgottenUntil = Now + 5000;
+                    RelicNote("Forgotten", 0xFFE04040);
+                    break;
                 // faster hands for 4 s
                 case "SerpentsWind":
                     TimedStatBoost(28, 10, 4000);
@@ -271,6 +403,54 @@ namespace WorldServer.core.objects
             }
             else
                 _shell = false;
+
+            // the halls' lodestone: 1.5 s without a step and its wearer stands as marble, armored
+            // until they move
+            if (Power(3) == "MarbleStance")
+            {
+                if (MathF.Abs(X - _stanceX) > 0.05f || MathF.Abs(Y - _stanceY) > 0.05f)
+                {
+                    _stanceX = X;
+                    _stanceY = Y;
+                    _stanceSince = Now;
+                    _stanceOn = false;
+                }
+                else if (Now - _stanceSince >= 1500 && Health > 0)
+                {
+                    if (!_stanceOn)
+                    {
+                        _stanceOn = true;
+                        RelicNote("Marble Stance", 0xFFE8E8FF);
+                        RelicEffect(this, EffectType.Flashing, 0xFFE8E8FF, new Position(0.25f, 2));
+                    }
+                    // (kept up a tick at a time, so a step ends it)
+                    ApplyConditionEffect(ConditionEffectIndex.Armored, 400);
+                }
+            }
+            else
+                _stanceOn = false;
+
+            // the Hollow Sourcestone eats at the nearest enemy: its armor broken for 2 s, every 5 s
+            if (Power(3) == "Entropy" && Now >= _entropyReadyAt && Health > 0)
+            {
+                var near = EnemiesNear(X, Y, 6).Where(e => !e.HasConditionEffect(ConditionEffectIndex.Invincible) && !e.HasConditionEffect(ConditionEffectIndex.Invulnerable))
+                    .OrderBy(e => e.DistTo(X, Y)).FirstOrDefault();
+                if (near != null)
+                {
+                    _entropyReadyAt = Now + 5000;
+                    near.ApplyConditionEffect(ConditionEffectIndex.ArmorBroken, 2000);
+                    RelicEffect(near, EffectType.Potion, 0xFF8040FF);
+                }
+            }
+
+            // the Elder Guardian's bracer braces: under half health, +12 defense for 5 s, every 20 s
+            if (Power(3) == "Bulwark" && Health > 0 && Health < Stats[0] / 2 && Now >= _bulwarkReadyAt)
+            {
+                _bulwarkReadyAt = Now + 20000;
+                TimedStatBoost(21, 12, 5000);
+                RelicNote("Bulwark", 0xFFD0D8FF);
+                RelicEffect(this, EffectType.Flashing, 0xFFD0D8FF, new Position(0.25f, 4));
+            }
 
             // Davy's bargain: at a quarter of its health, its wearer is pulled back: half their
             // health and a moment untouchable, once a minute

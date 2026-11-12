@@ -7,6 +7,7 @@ for the commands (COMMAND_HELP in build_wiki.py), so the wiki follows the game a
 """
 import glob
 import json
+import math
 import os
 import re
 import sys
@@ -248,12 +249,34 @@ class Data:
         if not hasattr(self, "_resurrection"):
             path = os.path.join(ROOT, "source", "Shared", "resources", "data", "resurrection.json")
             self._resurrection = json.load(open(path, encoding="utf-8")) if os.path.exists(path) else {"bosses": []}
-            # the Empowered form's numbers (core/resurrection/Empowered.cs): HealthScale, DefenseBonus, MaxSouls
+            # the Empowered form's numbers (core/resurrection/Empowered.cs): DefenseBonusMax, MaxSouls,
+            # and EmpoweredHealth's Curve, (Elder health, times) points on a log scale
             emp = os.path.join(ROOT, "source", "WorldServer", "core", "resurrection", "Empowered.cs")
             text = open(emp, encoding="utf-8-sig").read() if os.path.exists(emp) else ""
             self._resurrection["empowered"] = {k: float(v.rstrip("f")) for k, v in
                                                re.findall(r"const (?:float|int) (\w+) = ([0-9.]+f?);", text)}
+            curve = re.search(r"Curve = \{(.*?)\};", text)
+            self._resurrection["empowered_curve"] = [(float(h), float(x)) for h, x in
+                                                     re.findall(r"\(([0-9.]+), ([0-9.]+)\)", curve.group(1))] if curve else [(1, 2.5)]
         return self._resurrection
+
+    def empowered_scale(self, elder_hp):
+        """How many times its Elder form's health an Empowered boss has (EmpoweredHealth.ScaleFor)."""
+        curve = self.resurrection()["empowered_curve"]
+        if elder_hp <= curve[0][0]:
+            return curve[0][1]
+        for (h0, s0), (h1, s1) in zip(curve, curve[1:]):
+            if elder_hp <= h1:
+                return s0 + (s1 - s0) * math.log(elder_hp / h0) / math.log(h1 / h0)
+        return curve[-1][1]
+
+    def empowered_health(self, elder_hp):
+        return elder_hp + round(elder_hp * (self.empowered_scale(elder_hp) - 1))
+
+    def empowered_defense_bonus(self, defense):
+        """The defense an Empowered boss adds (Empowered.DefenseBonusFor)."""
+        top = self.resurrection()["empowered"].get("DefenseBonusMax", 10)
+        return max(0, int(math.floor(top * (1 - defense / 100.0) + 0.5)))
 
     # TierLoot(5, ItemType.Weapon ...) or TierLoot(tier: 5, type: ItemType.Weapon ...)
     # ItemLoot("x", 0.01) or ItemLoot(item: "x", probability: 0.01); OnePlayerLoot("x", 0.5, 0.01)
@@ -381,11 +404,14 @@ class Data:
             self._chest_spawners = {}
             for name, blocks in self.inits.items():
                 if "Chest Spawner" not in name and (self.objects.get(name, {}).get("enemy") or not any(
-                        re.search(r'(?:Spawn|TossObject)\(\s*"[^"]*(?:Loot|Chest|Balloon|Treasure)[^"]*"', b) for b in blocks)):
+                        re.search(r'(?:Spawn|TossObject)\(\s*(?:N\()?"[^"]*(?:Loot|Chest|Balloon|Treasure)[^"]*"', b) for b in blocks)):
                     continue
                 for b in blocks:
-                    for m in re.finditer(r'Entit(?:y|ies)NotExistsTransition\(([^)]*)\)', b):
-                        for boss in re.findall(r'"([^"]+)"', m.group(1)):
+                    for m in re.finditer(r'Entit(?:y|ies)NotExistsTransition\(((?:[^()]|\([^()]*\))*)\)', b):
+                        # N("x") in a shared builder is "Elder x" in the Elder version
+                        for n, boss in re.findall(r'(N\()?"([^"]+)"', m.group(1)):
+                            if n and name.startswith("Elder ") and "Elder " + boss in self.inits:
+                                boss = "Elder " + boss
                             if boss in self.inits and self.objects.get(boss, {}).get("enemy"):
                                 self._chest_spawners.setdefault(boss, []).append(name)
         return self._chest_spawners

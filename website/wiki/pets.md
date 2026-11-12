@@ -25,8 +25,9 @@ Arena island; pets of every kind come and go in the pen behind him. Talk to him 
 
 - **Take your pet back** into its generator (as `/removepet` does).
 - **Put in a pet**: click any pet generator in your inventory or backpack.
-- **Raise your pet a size**, without changing its look or its shots: it hits and heals as the size
-  it's raised to (twice as hard a size, and the size's healing in the table below).
+- **Raise your pet a size**, without changing its look or its shots: it grows to the size it's
+  raised to, and hits and heals as that size does (twice as hard a size, and the size's healing
+  in the table below).
   - **Small to Medium** for a **Superburger**.
   - **Medium to Large** for an **Ambrosia** from your inventory.
 - **Give him your Shards of the Mad God.** He keeps them for your whole account, whatever pet you
@@ -34,8 +35,9 @@ Arena island; pets of every kind come and go in the pen behind him. Talk to him 
 - **Trade 25 of his shards for an Ambrosia**, into your inventory. Ambrosia also comes from the
   Mystery Box, the death spin and the community goals.
 
-Tiny pets can't be raised. A raised pet's generator keeps its raise when you take the pet back,
-and its name says the size it's raised to, such as "Grey Wolf (Large)".
+Tiny pets can't be raised. A raised pet's generator keeps its raise when you take the pet back:
+its name says the size it's raised to, such as "Grey Wolf (Large)", and its tooltip shows the
+raised pet's size, damage and healing in green.
 
 ### Sizes
 
@@ -45,10 +47,10 @@ you, and the generator's tooltip says which it is.
 
 | Size | Heals HP and MP | Damage a second | Looks | Which pets |
 |---|---|---|---|---|
-| Tiny | 15 each, every 2 seconds | about 50 | about half your height | the plain critters: cats, pups, foxes, frogs, snails, penguins, birds... |
-| Small | 20 each, every 2 seconds | about 125 | a little over half your height | the rarer critters and the odd ones: wolves, lions, the Karate Penguins, the Leprechaun, Lil' Ghost... |
-| Medium | 30 each, every 2 seconds | about 250 | a little shorter than you | monsters, heroes and gods' look-alikes, and the named pets |
-| Large | 45 each, every 1.5 seconds | 500 to 600 | a little taller than you | the boss pets |
+| Tiny | 15 each, every 2 seconds | about 50 | half your height | the plain critters: cats, pups, foxes, frogs, snails, penguins, birds... |
+| Small | 20 each, every 2 seconds | about 125 | three quarters of your height | the rarer critters and the odd ones: wolves, lions, the Karate Penguins, the Leprechaun, Lil' Ghost... |
+| Medium | 30 each, every 2 seconds | about 250 | as tall as you | monsters, heroes and gods' look-alikes, and the named pets |
+| Large | 45 each, every 1.5 seconds | 500 to 600 | nearly half again as tall as you | the boss pets |
 
 The Tomb of the Ancients' Bes, Nut and Geb hit hardest of the Large pets (about 600 a second), then
 Lil' Thessal, Horrific Creation and Pancookie (about 550).

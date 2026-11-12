@@ -625,6 +625,155 @@
 		<feedPower>1200</feedPower>
 		<Soulbound />
 	</Object>
+	<Object type="0x8C3D" id="Snare of the Bridge Sentinel">
+		<Class>Equipment</Class>
+		<Item />
+		<Texture>
+			<File>resurrection8x8</File>
+			<Index>22</Index>
+		</Texture>
+		<SlotType>20</SlotType>
+		<Usable />
+		<MpCost>115</MpCost>
+		<Activate radius="7.5" totalDamage="562" condDuration="7">Trap</Activate>
+		<ActivateOnEquip stat="20" amount="9">IncrementStat</ActivateOnEquip>
+		<ActivateOnEquip stat="0" amount="75">IncrementStat</ActivateOnEquip>
+		<ActivateOnEquip stat="3" amount="75">IncrementStat</ActivateOnEquip>
+		<ActivateOnEquip stat="21" amount="4">IncrementStat</ActivateOnEquip>
+		<RelicPower>Blobomb</RelicPower>
+		<ExtraTooltipData>
+			<EffectInfo name="Blobomb" description="Using it also throws a Blobomb at the target: 2 seconds later it bursts for 700 damage to every enemy within 3 tiles" />
+		</ExtraTooltipData>
+		<Description>A shard of the Sentinel's own stone, still humming with its duty. Nothing crosses where it lies. Dropped by the Empowered Forgotten Sentinel.</Description>
+		<BagType>6</BagType>
+		<FameBonus>7</FameBonus>
+		<feedPower>1200</feedPower>
+		<Soulbound />
+	</Object>
+	<Object type="0x8C3E" id="Twilight Cataclysm">
+		<Class>Equipment</Class>
+		<Item />
+		<Texture>
+			<File>resurrection8x8</File>
+			<Index>23</Index>
+		</Texture>
+		<SlotType>11</SlotType>
+		<Sound>spell/magic_nova</Sound>
+		<Projectile>
+			<ObjectId>Crusade Commander Bolt</ObjectId>
+			<Speed>160</Speed>
+			<MinDamage>143</MinDamage>
+			<MaxDamage>266</MaxDamage>
+			<LifetimeMS>1000</LifetimeMS>
+		</Projectile>
+		<Usable />
+		<MpCost>100</MpCost>
+		<Activate>BulletNova</Activate>
+		<ActivateOnEquip stat="27" amount="15">IncrementStat</ActivateOnEquip>
+		<ActivateOnEquip stat="0" amount="78">IncrementStat</ActivateOnEquip>
+		<ActivateOnEquip stat="3" amount="78">IncrementStat</ActivateOnEquip>
+		<RelicPower>FireAndIce</RelicPower>
+		<ExtraTooltipData>
+			<EffectInfo name="Fire and Ice" description="Each cast takes its turn: fire burns the enemies within 3.5 tiles of the target for 450 over 3 seconds, then ice hits them for 250 and slows them for 3 seconds" />
+		</ExtraTooltipData>
+		<Description>The Archmage's last spell, cast as fire and ice consumed him a second time. It has not finished burning, or freezing. Dropped by the Empowered Twilight Archmage.</Description>
+		<BagType>6</BagType>
+		<FameBonus>7</FameBonus>
+		<feedPower>1200</feedPower>
+		<Soulbound />
+	</Object>
+	<Object type="0x8C3F" id="Shroud of the Forgotten King">
+		<Class>Equipment</Class>
+		<Item />
+		<Texture>
+			<File>resurrection8x8</File>
+			<Index>24</Index>
+		</Texture>
+		<SlotType>13</SlotType>
+		<Sound>spell/fire_nova</Sound>
+		<Usable />
+		<MpCost>95</MpCost>
+		<Activate effect="Invisible" duration="7.15">ConditionEffectSelf</Activate>
+		<Cooldown>7.5</Cooldown>
+		<ActivateOnEquip stat="22" amount="8">IncrementStat</ActivateOnEquip>
+		<ActivateOnEquip stat="28" amount="13">IncrementStat</ActivateOnEquip>
+		<ActivateOnEquip stat="0" amount="72">IncrementStat</ActivateOnEquip>
+		<ActivateOnEquip stat="3" amount="72">IncrementStat</ActivateOnEquip>
+		<ActivateOnEquip stat="20" amount="3">IncrementStat</ActivateOnEquip>
+		<RelicPower>Forgotten</RelicPower>
+		<ExtraTooltipData>
+			<EffectInfo name="Forgotten" description="Using it makes the Realm forget you: for 5 seconds your shots deal a fifth more, ignoring defense" />
+		</ExtraTooltipData>
+		<Description>The King's burial shroud, torn off him when he rose. Whoever wears it slips from the Realm's memory, and strikes from there. Dropped by the Empowered Forgotten King.</Description>
+		<BagType>6</BagType>
+		<FameBonus>7</FameBonus>
+		<feedPower>1200</feedPower>
+		<Soulbound />
+	</Object>
+	<Object type="0x8C40" id="Bracer of the Elder Guardian">
+		<Class>Equipment</Class>
+		<Item />
+		<Texture>
+			<File>resurrection8x8</File>
+			<Index>28</Index>
+		</Texture>
+		<SlotType>9</SlotType>
+		<ActivateOnEquip stat="21" amount="8">IncrementStat</ActivateOnEquip>
+		<ActivateOnEquip stat="20" amount="8">IncrementStat</ActivateOnEquip>
+		<ActivateOnEquip stat="0" amount="84">IncrementStat</ActivateOnEquip>
+		<ActivateOnEquip stat="3" amount="84">IncrementStat</ActivateOnEquip>
+		<RelicPower>Bulwark</RelicPower>
+		<ExtraTooltipData>
+			<EffectInfo name="Bulwark" description="Below half your health, gives +12 defense for 5 seconds (every 20 seconds at most)" />
+		</ExtraTooltipData>
+		<Description>The Sentinel wore this for an age on the bridge. It still braces when its wearer falters. Dropped by the Elder Forgotten Sentinel.</Description>
+		<BagType>6</BagType>
+		<FameBonus>7</FameBonus>
+		<feedPower>1200</feedPower>
+		<Soulbound />
+	</Object>
+	<Object type="0x8C41" id="The Eclipsed Gemstone">
+		<Class>Equipment</Class>
+		<Item />
+		<Texture>
+			<File>resurrection8x8</File>
+			<Index>29</Index>
+		</Texture>
+		<SlotType>9</SlotType>
+		<ActivateOnEquip stat="22" amount="8">IncrementStat</ActivateOnEquip>
+		<ActivateOnEquip stat="21" amount="8">IncrementStat</ActivateOnEquip>
+		<ActivateOnEquip stat="3" amount="154">IncrementStat</ActivateOnEquip>
+		<RelicPower>Eclipse</RelicPower>
+		<ExtraTooltipData>
+			<EffectInfo name="Eclipse" description="Each enemy you kill restores 15 mana" />
+		</ExtraTooltipData>
+		<Description>The Twilight Gemstone after the eclipse: darker, and hungrier. It drinks what its wearer kills. Dropped by the Elder Twilight Archmage.</Description>
+		<BagType>6</BagType>
+		<FameBonus>7</FameBonus>
+		<feedPower>1200</feedPower>
+		<Soulbound />
+	</Object>
+	<Object type="0x8C42" id="The Remembered Crown">
+		<Class>Equipment</Class>
+		<Item />
+		<Texture>
+			<File>resurrection8x8</File>
+			<Index>30</Index>
+		</Texture>
+		<SlotType>9</SlotType>
+		<ActivateOnEquip stat="28" amount="8">IncrementStat</ActivateOnEquip>
+		<ActivateOnEquip stat="20" amount="8">IncrementStat</ActivateOnEquip>
+		<ActivateOnEquip stat="0" amount="154">IncrementStat</ActivateOnEquip>
+		<RelicPower>KingsWill</RelicPower>
+		<ExtraTooltipData>
+			<EffectInfo name="King's Will" description="Using your ability gives +8 attack for 3 seconds" />
+		</ExtraTooltipData>
+		<Description>The crown of a king somebody finally remembered. It lends its wearer the will of the one who lost it. Dropped by the Elder Forgotten King.</Description>
+		<BagType>6</BagType>
+		<FameBonus>7</FameBonus>
+		<feedPower>1200</feedPower>
+		<Soulbound />
+	</Object>
 	<Object type="0x8C04" id="Elder Dreadstump the Pirate King Remains">
 		<DisplayId>Remains of Dreadstump the Pirate King</DisplayId>
 		<Class>GameObject</Class>
@@ -3533,6 +3682,1498 @@
 			<ObjectId>Necromantic Soul Bolt</ObjectId>
 			<Speed>90</Speed>
 			<Damage>98</Damage>
+			<Size>65</Size>
+			<LifetimeMS>1600</LifetimeMS>
+			<ConditionEffect duration="2">Slowed</ConditionEffect>
+		</Projectile>
+	</Object>
+	<Object type="0x8C43" id="Elder shtrs Bridge Sentinel Remains">
+		<DisplayId>Remains of The Forgotten Sentinel</DisplayId>
+		<Class>GameObject</Class>
+		<AnimatedTexture>
+			<File>chars16x16rEncounters</File>
+			<Index>109</Index>
+		</AnimatedTexture>
+		<Size>150</Size>
+		<Corpse />
+		<NoMiniMap />
+		<ShadowSize>0</ShadowSize>
+		<Sound id="0">monster/necromantic_chant</Sound>
+		<Sound id="1">monster/necromantic_blast</Sound>
+		<Effect color="0x7DFFCF" color2="0x148C5E" rate="12" minRadius="0.75" maxRadius="3.0" speed="0.035" rise="0.35" life="2.6" lifeVariance="0.65" size="5" zOffset="0.15">Souls</Effect>
+	</Object>
+	<Object type="0x8C44" id="Empowered Elder shtrs Bridge Sentinel">
+		<DisplayId>Empowered Forgotten Sentinel</DisplayId>
+		<Class>Character</Class>
+		<Group>Stones</Group>
+		<Enemy />
+		<Quest />
+		<AnimatedTexture>
+			<File>chars16x16rEncounters</File>
+			<Index>109</Index>
+		</AnimatedTexture>
+		<Size>180</Size>
+		<MaxHitPoints>150000</MaxHitPoints>
+		<HealthBarBoss />
+		<Defense>80</Defense>
+		<StasisImmune />
+		<StunImmune />
+		<ParalyzeImmune />
+		<God />
+		<Exp>4000</Exp>
+		<TrackLoot />
+		<AltTexture id="1">
+			<Texture>
+				<File>lofiObjBig</File>
+				<Index>0x14e</Index>
+			</Texture>
+		</AltTexture>
+		<AltTexture id="2">
+			<Texture>
+				<File>lofiObjBig</File>
+				<Index>0x14f</Index>
+			</Texture>
+		</AltTexture>
+		<Projectile id="0">
+			<ObjectId>White Bullet</ObjectId>
+			<Damage>325</Damage>
+			<Speed>40</Speed>
+			<Size>120</Size>
+			<LifetimeMS>5000</LifetimeMS>
+		</Projectile>
+		<Projectile id="6">
+			<ObjectId>Large White Bullet</ObjectId>
+			<Damage>325</Damage>
+			<Speed>40</Speed>
+			<Size>120</Size>
+			<LifetimeMS>5000</LifetimeMS>
+		</Projectile>
+		<Projectile id="1">
+			<ObjectId>Small White Bullet</ObjectId>
+			<Damage>65</Damage>
+			<Speed>120</Speed>
+			<LifetimeMS>1000</LifetimeMS>
+		</Projectile>
+		<Projectile id="2">
+			<ObjectId>Small White Bullet</ObjectId>
+			<Damage>65</Damage>
+			<Speed>120</Speed>
+			<LifetimeMS>1000</LifetimeMS>
+		</Projectile>
+		<Projectile id="3">
+			<ObjectId>Small White Bullet</ObjectId>
+			<Damage>65</Damage>
+			<Speed>120</Speed>
+			<LifetimeMS>1000</LifetimeMS>
+		</Projectile>
+		<Projectile id="4">
+			<ObjectId>Small White Shuriken</ObjectId>
+			<Damage>98</Damage>
+			<Speed>120</Speed>
+			<LifetimeMS>1000</LifetimeMS>
+			<ConditionEffect duration="2">Slowed</ConditionEffect>
+			<Boomerang />
+		</Projectile>
+		<Projectile id="5">
+			<ObjectId>Archmage Shield</ObjectId>
+			<Damage>156</Damage>
+			<Speed>30</Speed>
+			<LifetimeMS>670</LifetimeMS>
+			<ConditionEffect duration="3">Slowed</ConditionEffect>
+			<ConditionEffect duration="3">Confused</ConditionEffect>
+			<ConditionEffect duration="3">Unstable</ConditionEffect>
+			<Boomerang />
+		</Projectile>
+		<XpBonus>2</XpBonus>
+		<Effect color="0x7DFFCF" color2="0x148C5E" rate="10" minRadius="0.6" maxRadius="2.3" speed="0.05" rise="0.6" life="1.8" lifeVariance="0.45" size="5" zOffset="0.3">Souls</Effect>
+		<DazedImmune />
+		<Projectile id="90">
+			<ObjectId>Necromantic Soul Bolt</ObjectId>
+			<Speed>55</Speed>
+			<Damage>88</Damage>
+			<Size>80</Size>
+			<LifetimeMS>2600</LifetimeMS>
+			<MultiHit />
+		</Projectile>
+		<Projectile id="91">
+			<ObjectId>Necromantic Soul Bolt</ObjectId>
+			<Speed>90</Speed>
+			<Damage>62</Damage>
+			<Size>65</Size>
+			<LifetimeMS>1600</LifetimeMS>
+			<ConditionEffect duration="2">Slowed</ConditionEffect>
+		</Projectile>
+	</Object>
+	<Object type="0x8C45" id="Elder shtrs Twilight Archmage Remains">
+		<DisplayId>Remains of Twilight Archmage</DisplayId>
+		<Class>GameObject</Class>
+		<Texture>
+			<File>lofiObjBig</File>
+			<Index>0x150</Index>
+		</Texture>
+		<Size>150</Size>
+		<Corpse />
+		<NoMiniMap />
+		<ShadowSize>0</ShadowSize>
+		<Sound id="0">monster/necromantic_chant</Sound>
+		<Sound id="1">monster/necromantic_blast</Sound>
+		<Effect color="0x7DFFCF" color2="0x148C5E" rate="12" minRadius="0.75" maxRadius="3.0" speed="0.035" rise="0.35" life="2.6" lifeVariance="0.65" size="5" zOffset="0.15">Souls</Effect>
+	</Object>
+	<Object type="0x8C46" id="Empowered Elder shtrs Twilight Archmage">
+		<DisplayId>Empowered Twilight Archmage</DisplayId>
+		<Class>Character</Class>
+		<Group>Stone Monster</Group>
+		<Enemy />
+		<Quest />
+		<Texture>
+			<File>lofiObjBig</File>
+			<Index>0x150</Index>
+		</Texture>
+		<Size>180</Size>
+		<MaxHitPoints>155000</MaxHitPoints>
+		<HealthBarBoss />
+		<Defense>80</Defense>
+		<Exp>4000</Exp>
+		<ShadowSize>40</ShadowSize>
+		<StasisImmune />
+		<StunImmune />
+		<ParalyzeImmune />
+		<God />
+		<TrackLoot />
+		<HitSound>monster/medusa_hit</HitSound>
+		<DeathSound>monster/medusa_death</DeathSound>
+		<AltTexture id="1">
+			<AnimatedTexture>
+				<File>chars16x16rEncounters</File>
+				<Index>110</Index>
+			</AnimatedTexture>
+		</AltTexture>
+		<AltTexture id="2">
+			<AnimatedTexture>
+				<File>chars16x16rEncounters</File>
+				<Index>111</Index>
+			</AnimatedTexture>
+		</AltTexture>
+		<Projectile id="0">
+			<ObjectId>Large Blue Shuriken</ObjectId>
+			<Damage>130</Damage>
+			<Speed>120</Speed>
+			<LifetimeMS>1000</LifetimeMS>
+			<ConditionEffect duration="2">Unstable</ConditionEffect>
+		</Projectile>
+		<Projectile id="1">
+			<ObjectId>Directed Explosion</ObjectId>
+			<Damage>98</Damage>
+			<Speed>25</Speed>
+			<LifetimeMS>2000</LifetimeMS>
+		</Projectile>
+		<Projectile id="2">
+			<ObjectId>Archmage Shield</ObjectId>
+			<Damage>156</Damage>
+			<Speed>35</Speed>
+			<LifetimeMS>6000</LifetimeMS>
+			<Size>150</Size>
+			<ConditionEffect duration="3.5">Quiet</ConditionEffect>
+			<ArmorPiercing />
+		</Projectile>
+		<Projectile id="3">
+			<ObjectId>Armor Pierce Bullet</ObjectId>
+			<Damage>130</Damage>
+			<Speed>35</Speed>
+			<LifetimeMS>6000</LifetimeMS>
+			<Size>150</Size>
+			<ArmorPiercing />
+		</Projectile>
+		<Projectile id="4">
+			<ObjectId>Paralyze Bullet</ObjectId>
+			<Damage>65</Damage>
+			<Speed>35</Speed>
+			<LifetimeMS>6000</LifetimeMS>
+			<Size>150</Size>
+			<ConditionEffect duration="1.5">Paralyzed</ConditionEffect>
+		</Projectile>
+		<Projectile id="5">
+			<ObjectId>Confuse Shuriken</ObjectId>
+			<Damage>65</Damage>
+			<Speed>35</Speed>
+			<LifetimeMS>6000</LifetimeMS>
+			<ConditionEffect duration="1.5">Confused</ConditionEffect>
+			<Size>150</Size>
+		</Projectile>
+		<Projectile id="6">
+			<ObjectId>Ball Of Hurt</ObjectId>
+			<Damage>455</Damage>
+			<Size>200</Size>
+			<Speed>35</Speed>
+			<LifetimeMS>6000</LifetimeMS>
+		</Projectile>
+		<XpBonus>2</XpBonus>
+		<Effect color="0x7DFFCF" color2="0x148C5E" rate="10" minRadius="0.6" maxRadius="2.3" speed="0.05" rise="0.6" life="1.8" lifeVariance="0.45" size="5" zOffset="0.3">Souls</Effect>
+		<DazedImmune />
+		<Projectile id="90">
+			<ObjectId>Necromantic Soul Bolt</ObjectId>
+			<Speed>55</Speed>
+			<Damage>117</Damage>
+			<Size>80</Size>
+			<LifetimeMS>2600</LifetimeMS>
+			<MultiHit />
+		</Projectile>
+		<Projectile id="91">
+			<ObjectId>Necromantic Soul Bolt</ObjectId>
+			<Speed>90</Speed>
+			<Damage>82</Damage>
+			<Size>65</Size>
+			<LifetimeMS>1600</LifetimeMS>
+			<ConditionEffect duration="2">Slowed</ConditionEffect>
+		</Projectile>
+	</Object>
+	<Object type="0x8C47" id="Elder shtrs The Forgotten King Remains">
+		<DisplayId>Remains of The Forgotten King</DisplayId>
+		<Class>GameObject</Class>
+		<AnimatedTexture>
+			<File>chars16x16rEncounters</File>
+			<Index>115</Index>
+		</AnimatedTexture>
+		<Size>100</Size>
+		<Corpse />
+		<NoMiniMap />
+		<ShadowSize>0</ShadowSize>
+		<Sound id="0">monster/necromantic_chant</Sound>
+		<Sound id="1">monster/necromantic_blast</Sound>
+		<Effect color="0x7DFFCF" color2="0x148C5E" rate="12" minRadius="0.5" maxRadius="2.2" speed="0.035" rise="0.35" life="2.6" lifeVariance="0.65" size="5" zOffset="0.15">Souls</Effect>
+	</Object>
+	<Object type="0x8C48" id="Empowered Elder shtrs The Forgotten King">
+		<DisplayId>Empowered Forgotten King</DisplayId>
+		<Class>Character</Class>
+		<Group>Stone Monster</Group>
+		<Enemy />
+		<Quest />
+		<TrackLoot />
+		<God />
+		<AnimatedTexture>
+			<File>chars16x16rEncounters</File>
+			<Index>115</Index>
+		</AnimatedTexture>
+		<Size>120</Size>
+		<MaxHitPoints>200000</MaxHitPoints>
+		<HealthBarBoss />
+		<Defense>75</Defense>
+		<Exp>20000</Exp>
+		<EventChestBoss />
+		<AltTexture id="1">
+			<AnimatedTexture>
+				<File>chars16x16dEncounters2</File>
+				<Index>81</Index>
+			</AnimatedTexture>
+		</AltTexture>
+		<StasisImmune />
+		<StunImmune />
+		<ParalyzeImmune />
+		<DazedImmune />
+		<Projectile id="0">
+			<ObjectId>White Bullet</ObjectId>
+			<Speed>30</Speed>
+			<Damage>260</Damage>
+			<LifetimeMS>6000</LifetimeMS>
+		</Projectile>
+		<Projectile id="1">
+			<ObjectId>Armor Pierce Bullet</ObjectId>
+			<Speed>30</Speed>
+			<ArmorPiercing />
+			<Damage>247</Damage>
+			<LifetimeMS>6000</LifetimeMS>
+		</Projectile>
+		<Projectile id="2">
+			<ObjectId>Fire Bullet</ObjectId>
+			<Damage>156</Damage>
+			<Speed>35</Speed>
+			<LifetimeMS>5000</LifetimeMS>
+			<ConditionEffect duration="2">Unstable</ConditionEffect>
+			<ConditionEffect duration="2">Quiet</ConditionEffect>
+			<Amplitude>1.5</Amplitude>
+			<Frequency>3</Frequency>
+		</Projectile>
+		<Projectile id="3">
+			<ObjectId>Ice Bullet</ObjectId>
+			<Speed>25</Speed>
+			<Damage>156</Damage>
+			<LifetimeMS>7000</LifetimeMS>
+			<ConditionEffect duration="3">Slowed</ConditionEffect>
+			<Amplitude>1.5</Amplitude>
+			<Frequency>3</Frequency>
+		</Projectile>
+		<XpBonus>2</XpBonus>
+		<Effect color="0x7DFFCF" color2="0x148C5E" rate="10" minRadius="0.4" maxRadius="1.7" speed="0.05" rise="0.6" life="1.8" lifeVariance="0.45" size="5" zOffset="0.3">Souls</Effect>
+		<Projectile id="90">
+			<ObjectId>Necromantic Soul Bolt</ObjectId>
+			<Speed>55</Speed>
+			<Damage>222</Damage>
+			<Size>80</Size>
+			<LifetimeMS>2600</LifetimeMS>
+			<MultiHit />
+		</Projectile>
+		<Projectile id="91">
+			<ObjectId>Necromantic Soul Bolt</ObjectId>
+			<Speed>90</Speed>
+			<Damage>155</Damage>
+			<Size>65</Size>
+			<LifetimeMS>1600</LifetimeMS>
+			<ConditionEffect duration="2">Slowed</ConditionEffect>
+		</Projectile>
+	</Object>
+	<Object type="0x8C49" id="Seal of the Risen Colossus">
+		<Class>Equipment</Class>
+		<Item />
+		<Texture>
+			<File>resurrection8x8</File>
+			<Index>25</Index>
+		</Texture>
+		<Usable />
+		<SlotType>12</SlotType>
+		<MpCost>135</MpCost>
+		<ExtraTooltipData>
+			<EffectInfo name="" description="Summon an Eye of Marble for 4.5 seconds" />
+			<EffectInfo name="Eye Effect" description="Armored, Damaging and Healing for 2 seconds (renewed) within 4 squares" />
+			<EffectInfo name="Marble Pillars" description="Using it raises four marble pillars round you for 5 seconds: each second every pillar strikes the enemies within 2.5 tiles of it for 150" />
+		</ExtraTooltipData>
+		<Activate objectId="Eye of Marble">Pet</Activate>
+		<Cooldown>5.5</Cooldown>
+		<ActivateOnEquip stat="21" amount="10">IncrementStat</ActivateOnEquip>
+		<ActivateOnEquip stat="26" amount="4">IncrementStat</ActivateOnEquip>
+		<RelicPower>MarblePillars</RelicPower>
+		<Description>The seal that bound the Colossus to its purpose, cracked when it rose a second time. The halls still answer to it. Dropped by the Empowered Marble Colossus.</Description>
+		<BagType>6</BagType>
+		<FameBonus>7</FameBonus>
+		<feedPower>1200</feedPower>
+		<Soulbound />
+	</Object>
+	<Object type="0x8C4A" id="Skull of the Final Ritual">
+		<Class>Equipment</Class>
+		<Item />
+		<Texture>
+			<File>resurrection8x8</File>
+			<Index>26</Index>
+		</Texture>
+		<Usable />
+		<SlotType>19</SlotType>
+		<Activate radius="2.25" totalDamage="125" healRange="4.2" heal="100" ignoreDef="40" wisMin="50" wisPerRad="10" color="4C4C4C" incrRad="0.8" wisDamageBase="62" condEffect="Curse" condDuration="4">VampireBlast</Activate>
+		<MpCost>100</MpCost>
+		<ActivateOnEquip stat="0" amount="82">IncrementStat</ActivateOnEquip>
+		<ActivateOnEquip stat="26" amount="8">IncrementStat</ActivateOnEquip>
+		<ActivateOnEquip stat="20" amount="4">IncrementStat</ActivateOnEquip>
+		<RelicPower>Pentagram</RelicPower>
+		<ExtraTooltipData>
+			<EffectInfo name="Pentagram" description="Using it draws a pentagram on the target: its five points burst one after another for 120 each to enemies within 3 tiles, then its heart erupts for 400, ignoring defense, and curses them for 3 seconds" />
+		</ExtraTooltipData>
+		<Description>What was left on the pentagram when Malus' last ritual failed. It remembers the shape of the star. Dropped by the Empowered Malus.</Description>
+		<BagType>6</BagType>
+		<FameBonus>7</FameBonus>
+		<feedPower>1200</feedPower>
+		<Soulbound />
+	</Object>
+	<Object type="0x8C4B" id="Bow of the Event Horizon">
+		<Class>Equipment</Class>
+		<Item />
+		<Texture>
+			<File>resurrection8x8</File>
+			<Index>27</Index>
+		</Texture>
+		<SlotType>3</SlotType>
+		<RateOfFire>1</RateOfFire>
+		<Sound>weapon/golden_bow</Sound>
+		<Projectile>
+			<ObjectId>Void Arrow</ObjectId>
+			<Speed>160</Speed>
+			<MinDamage>209</MinDamage>
+			<MaxDamage>298</MaxDamage>
+			<LifetimeMS>350</LifetimeMS>
+			<MultiHit />
+			<Amplitude>0.35</Amplitude>
+			<Frequency>0.2</Frequency>
+		</Projectile>
+		<NumProjectiles>1</NumProjectiles>
+		<OldSound>arrowShoot</OldSound>
+		<ActivateOnEquip stat="28" amount="4">IncrementStat</ActivateOnEquip>
+		<RelicPower>Singularity</RelicPower>
+		<ExtraTooltipData>
+			<EffectInfo name="Singularity" description="Every 10th hit opens a singularity on the enemy for 3 seconds: twice a second it deals 120, ignoring defense, to every enemy within 3 tiles and slows them" />
+		</ExtraTooltipData>
+		<Description>Strung with a thread of the Void Entity itself. Where its arrows gather, nothing is allowed to stay. Dropped by the Empowered Void Entity.</Description>
+		<BagType>6</BagType>
+		<FameBonus>7</FameBonus>
+		<feedPower>1200</feedPower>
+		<Soulbound />
+	</Object>
+	<Object type="0x8C4C" id="Lodestone of the Halls">
+		<Class>Equipment</Class>
+		<Item />
+		<Texture>
+			<File>resurrection8x8</File>
+			<Index>31</Index>
+		</Texture>
+		<SlotType>9</SlotType>
+		<ActivateOnEquip stat="21" amount="8">IncrementStat</ActivateOnEquip>
+		<ActivateOnEquip stat="28" amount="8">IncrementStat</ActivateOnEquip>
+		<ActivateOnEquip stat="20" amount="8">IncrementStat</ActivateOnEquip>
+		<ActivateOnEquip stat="22" amount="8">IncrementStat</ActivateOnEquip>
+		<RelicPower>MarbleStance</RelicPower>
+		<ExtraTooltipData>
+			<EffectInfo name="Marble Stance" description="Standing still for 1.5 seconds turns you to marble: armored until you move" />
+		</ExtraTooltipData>
+		<Description>A lodestone from the heart of the halls. Whoever carries it stands as the Colossus stood. Dropped by the Elder Marble Colossus.</Description>
+		<BagType>6</BagType>
+		<FameBonus>7</FameBonus>
+		<feedPower>1200</feedPower>
+		<Soulbound />
+	</Object>
+	<Object type="0x8C4D" id="Ring of the Blood Pact">
+		<Class>Equipment</Class>
+		<Item />
+		<Texture>
+			<File>resurrection8x8</File>
+			<Index>32</Index>
+		</Texture>
+		<SlotType>9</SlotType>
+		<ActivateOnEquip stat="0" amount="140">IncrementStat</ActivateOnEquip>
+		<ActivateOnEquip stat="21" amount="7">IncrementStat</ActivateOnEquip>
+		<ActivateOnEquip stat="27" amount="7">IncrementStat</ActivateOnEquip>
+		<RelicPower>BloodPact</RelicPower>
+		<ExtraTooltipData>
+			<EffectInfo name="Blood Pact" description="Below half your health, your shots deal 15% more, ignoring defense" />
+		</ExtraTooltipData>
+		<Description>Malus' cultists each wore one, and each paid for it. The closer its wearer is to death, the more it gives. Dropped by the Elder Malus.</Description>
+		<BagType>6</BagType>
+		<FameBonus>7</FameBonus>
+		<feedPower>1200</feedPower>
+		<Soulbound />
+	</Object>
+	<Object type="0x8C4E" id="The Hollow Sourcestone">
+		<Class>Equipment</Class>
+		<Item />
+		<Texture>
+			<File>resurrection8x8</File>
+			<Index>33</Index>
+		</Texture>
+		<SlotType>9</SlotType>
+		<ActivateOnEquip stat="0" amount="154">IncrementStat</ActivateOnEquip>
+		<ActivateOnEquip stat="3" amount="154">IncrementStat</ActivateOnEquip>
+		<ActivateOnEquip stat="22" amount="8">IncrementStat</ActivateOnEquip>
+		<RelicPower>Entropy</RelicPower>
+		<ExtraTooltipData>
+			<EffectInfo name="Entropy" description="Every 5 seconds, breaks the armor of the enemy nearest you within 6 tiles for 2 seconds" />
+		</ExtraTooltipData>
+		<Description>A Sourcestone the Void has eaten through. What stands near it starts to come apart. Dropped by the Elder Void Entity.</Description>
+		<BagType>6</BagType>
+		<FameBonus>7</FameBonus>
+		<feedPower>1200</feedPower>
+		<Soulbound />
+	</Object>
+	<Object type="0x8C4F" id="Elder LH Marble Colossus Remains">
+		<DisplayId>Remains of The Marble Colossus</DisplayId>
+		<Class>GameObject</Class>
+		<AnimatedTexture>
+			<File>lostHallsChars16x16</File>
+			<Index>4</Index>
+		</AnimatedTexture>
+		<Size>140</Size>
+		<Corpse />
+		<NoMiniMap />
+		<ShadowSize>0</ShadowSize>
+		<Sound id="0">monster/necromantic_chant</Sound>
+		<Sound id="1">monster/necromantic_blast</Sound>
+		<Effect color="0x7DFFCF" color2="0x148C5E" rate="12" minRadius="0.7" maxRadius="2.8400000000000003" speed="0.035" rise="0.35" life="2.6" lifeVariance="0.65" size="5" zOffset="0.15">Souls</Effect>
+	</Object>
+	<Object type="0x8C50" id="Empowered Elder LH Marble Colossus">
+		<Class>Character</Class>
+		<Enemy />
+		<AnimatedTexture>
+			<File>lostHallsChars16x16</File>
+			<Index>4</Index>
+		</AnimatedTexture>
+		<Portrait>
+			<AnimatedTexture>
+				<File>lostHallsChars16x16</File>
+				<Index>4</Index>
+			</AnimatedTexture>
+		</Portrait>
+		<AltTexture id="1">
+			<AnimatedTexture>
+				<File>lostHallsChars16x16</File>
+				<Index>42</Index>
+			</AnimatedTexture>
+		</AltTexture>
+		<AltTexture id="2">
+			<AnimatedTexture>
+				<File>lostHallsChars16x16</File>
+				<Index>43</Index>
+			</AnimatedTexture>
+		</AltTexture>
+		<AltTexture id="3">
+			<AnimatedTexture>
+				<File>lostHallsChars16x16</File>
+				<Index>44</Index>
+			</AnimatedTexture>
+		</AltTexture>
+		<AltTexture id="4">
+			<AnimatedTexture>
+				<File>lostHallsChars16x16</File>
+				<Index>45</Index>
+			</AnimatedTexture>
+		</AltTexture>
+		<AltTexture id="5">
+			<AnimatedTexture>
+				<File>lostHallsChars16x16</File>
+				<Index>37</Index>
+			</AnimatedTexture>
+		</AltTexture>
+		<AltTexture id="6">
+			<AnimatedTexture>
+				<File>lostHallsChars16x16</File>
+				<Index>38</Index>
+			</AnimatedTexture>
+		</AltTexture>
+		<AltTexture id="7">
+			<AnimatedTexture>
+				<File>lostHallsChars16x16</File>
+				<Index>39</Index>
+			</AnimatedTexture>
+		</AltTexture>
+		<AltTexture id="8">
+			<AnimatedTexture>
+				<File>lostHallsChars16x16</File>
+				<Index>40</Index>
+			</AnimatedTexture>
+		</AltTexture>
+		<DisplayId>Empowered Marble Colossus</DisplayId>
+		<Size>168</Size>
+		<MaxHitPoints>300000</MaxHitPoints>
+		<Defense>60</Defense>
+		<Quest />
+		<HealthBarBoss />
+		<God />
+		<Exp>60000</Exp>
+		<HitSound>monster/golems_hit</HitSound>
+		<DeathSound>monster/golems_death</DeathSound>
+		<StunImmune />
+		<StasisImmune />
+		<DazedImmune />
+		<ParalyzeImmune />
+		<EventChestBoss />
+		<TrackLoot />
+		<Projectile id="0">
+			<ObjectId>Colossal Dark Boomerang</ObjectId>
+			<Damage>260</Damage>
+			<Speed>80</Speed>
+			<LifetimeMS>3000</LifetimeMS>
+			<Amplitude>0.5</Amplitude>
+			<Frequency>8</Frequency>
+			<ConditionEffect duration="2">Stunned</ConditionEffect>
+			<Boomerang />
+		</Projectile>
+		<Projectile id="1">
+			<ObjectId>Colossal Slash</ObjectId>
+			<Damage>130</Damage>
+			<Speed>90</Speed>
+			<LifetimeMS>1200</LifetimeMS>
+			<ArmorPiercing />
+			<MultiHit />
+		</Projectile>
+		<Projectile id="2">
+			<ObjectId>Colossal Light Boomerang</ObjectId>
+			<Damage>195</Damage>
+			<Speed>60</Speed>
+			<LifetimeMS>6000</LifetimeMS>
+			<ConditionEffect duration="2.5">Slowed</ConditionEffect>
+			<Boomerang />
+		</Projectile>
+		<Projectile id="3">
+			<ObjectId>Colossal Bullet</ObjectId>
+			<Damage>390</Damage>
+			<Speed>30</Speed>
+			<Size>100</Size>
+			<LifetimeMS>6200</LifetimeMS>
+			<MultiHit />
+		</Projectile>
+		<Projectile id="4">
+			<ObjectId>Colossal Blast</ObjectId>
+			<Damage>150</Damage>
+			<Speed>75</Speed>
+			<LifetimeMS>3250</LifetimeMS>
+			<MultiHit />
+			<ConditionEffect duration="0.6">Paralyzed</ConditionEffect>
+		</Projectile>
+		<Projectile id="5">
+			<ObjectId>Colossal Spear</ObjectId>
+			<Damage>325</Damage>
+			<Speed>75</Speed>
+			<LifetimeMS>2200</LifetimeMS>
+			<ConditionEffect duration="3">Unstable</ConditionEffect>
+		</Projectile>
+		<Projectile id="6">
+			<ObjectId>Colossal Star</ObjectId>
+			<Damage>130</Damage>
+			<Speed>80</Speed>
+			<LifetimeMS>8000</LifetimeMS>
+			<Parametric />
+			<Magnitude>6</Magnitude>
+			<MultiHit />
+			<ConditionEffect duration="2.5">Confused</ConditionEffect>
+		</Projectile>
+		<Projectile id="7">
+			<ObjectId>Colossal Wheel</ObjectId>
+			<Damage>234</Damage>
+			<Speed>50</Speed>
+			<LifetimeMS>4000</LifetimeMS>
+		</Projectile>
+		<Projectile id="8">
+			<ObjectId>Colossal Wheel</ObjectId>
+			<Damage>234</Damage>
+			<Speed>80</Speed>
+			<LifetimeMS>2500</LifetimeMS>
+		</Projectile>
+		<Projectile id="9">
+			<ObjectId>Colossal Rock</ObjectId>
+			<Damage>104</Damage>
+			<Speed>100</Speed>
+			<LifetimeMS>2500</LifetimeMS>
+			<MultiHit />
+			<ArmorPiercing />
+			<Size>50</Size>
+			<ConditionEffect duration="4">Silenced</ConditionEffect>
+		</Projectile>
+		<Projectile id="10">
+			<ObjectId>Colossal Rock</ObjectId>
+			<Damage>104</Damage>
+			<Speed>50</Speed>
+			<LifetimeMS>5000</LifetimeMS>
+			<MultiHit />
+			<ArmorPiercing />
+			<Size>50</Size>
+			<ConditionEffect duration="4">Silenced</ConditionEffect>
+		</Projectile>
+		<Projectile id="11">
+			<ObjectId>Colossal Ball</ObjectId>
+			<Damage>169</Damage>
+			<Speed>20</Speed>
+			<LifetimeMS>8000</LifetimeMS>
+			<ConditionEffect duration="1.2">Paralyzed</ConditionEffect>
+		</Projectile>
+		<Projectile id="12">
+			<ObjectId>Colossal Spear</ObjectId>
+			<Damage>221</Damage>
+			<Speed>60</Speed>
+			<LifetimeMS>2300</LifetimeMS>
+			<ConditionEffect duration="3">Unstable</ConditionEffect>
+		</Projectile>
+		<Projectile id="13">
+			<ObjectId>Colossal Spear</ObjectId>
+			<Damage>221</Damage>
+			<Speed>90</Speed>
+			<LifetimeMS>2000</LifetimeMS>
+			<ConditionEffect duration="3">Unstable</ConditionEffect>
+		</Projectile>
+		<Projectile id="14">
+			<ObjectId>Colossal Spinner</ObjectId>
+			<Damage>195</Damage>
+			<Speed>50</Speed>
+			<LifetimeMS>5000</LifetimeMS>
+			<Amplitude>0.25</Amplitude>
+			<Frequency>10</Frequency>
+			<ConditionEffect duration="3">Paralyzed</ConditionEffect>
+			<ConditionEffect duration="4">Confused</ConditionEffect>
+			<MultiHit />
+		</Projectile>
+		<Projectile id="15">
+			<ObjectId>Colossal Spear</ObjectId>
+			<Speed>25</Speed>
+			<Damage>162</Damage>
+			<Size>80</Size>
+			<LifetimeMS>10000</LifetimeMS>
+			<MultiHit />
+			<ArmorPiercing />
+			<ConditionEffect duration="1">Unstable</ConditionEffect>
+		</Projectile>
+		<Projectile id="16">
+			<ObjectId>Void Bullet</ObjectId>
+			<Damage>260</Damage>
+			<Speed>25</Speed>
+			<Size>100</Size>
+			<LifetimeMS>5000</LifetimeMS>
+			<ConditionEffect duration="3">Darkness</ConditionEffect>
+			<MultiHit />
+		</Projectile>
+		<Projectile id="17">
+			<ObjectId>Colossal Spike</ObjectId>
+			<Damage>260</Damage>
+			<Speed>30</Speed>
+			<LifetimeMS>5000</LifetimeMS>
+			<Size>100</Size>
+			<MultiHit />
+		</Projectile>
+		<Projectile id="18">
+			<ObjectId>Colossal Spike</ObjectId>
+			<Damage>260</Damage>
+			<Speed>50</Speed>
+			<LifetimeMS>5000</LifetimeMS>
+			<Size>100</Size>
+			<MultiHit />
+		</Projectile>
+		<Projectile id="19">
+			<ObjectId>Colossal Ball</ObjectId>
+			<Damage>169</Damage>
+			<Size>80</Size>
+			<Speed>40</Speed>
+			<LifetimeMS>10000</LifetimeMS>
+			<ConditionEffect duration="0.6">Paralyzed</ConditionEffect>
+		</Projectile>
+		<Projectile id="20">
+			<ObjectId>Colossal Spinner</ObjectId>
+			<Damage>195</Damage>
+			<Speed>50</Speed>
+			<LifetimeMS>5000</LifetimeMS>
+			<Amplitude>0.25</Amplitude>
+			<Frequency>10</Frequency>
+			<ConditionEffect duration="1.4">Paralyzed</ConditionEffect>
+			<ConditionEffect duration="2">Confused</ConditionEffect>
+			<MultiHit />
+		</Projectile>
+		<Projectile id="21">
+			<ObjectId>Void Ring</ObjectId>
+			<Damage>195</Damage>
+			<Speed>100</Speed>
+			<LifetimeMS>2500</LifetimeMS>
+			<MultiHit />
+			<ConditionEffect duration="1">Petrify</ConditionEffect>
+		</Projectile>
+		<Projectile id="22">
+			<ObjectId>Void Spear</ObjectId>
+			<Damage>325</Damage>
+			<Speed>70</Speed>
+			<LifetimeMS>4000</LifetimeMS>
+			<Size>80</Size>
+			<ConditionEffect duration="2">Blind</ConditionEffect>
+			<MultiHit />
+		</Projectile>
+		<Projectile id="23">
+			<ObjectId>Void Blast</ObjectId>
+			<Damage>240</Damage>
+			<Speed>80</Speed>
+			<LifetimeMS>3500</LifetimeMS>
+			<MultiHit />
+			<ConditionEffect duration="1">Paralyzed</ConditionEffect>
+		</Projectile>
+		<Projectile id="24">
+			<ObjectId>Void Large Bullet</ObjectId>
+			<Damage>260</Damage>
+			<Speed>110</Speed>
+			<LifetimeMS>2000</LifetimeMS>
+			<Size>200</Size>
+			<ArmorPiercing />
+			<MultiHit />
+			<ConditionEffect duration="2">Darkness</ConditionEffect>
+		</Projectile>
+		<XpBonus>2</XpBonus>
+		<Effect color="0x7DFFCF" color2="0x148C5E" rate="10" minRadius="0.56" maxRadius="2.1799999999999997" speed="0.05" rise="0.6" life="1.8" lifeVariance="0.45" size="5" zOffset="0.3">Souls</Effect>
+		<Projectile id="90">
+			<ObjectId>Necromantic Soul Bolt</ObjectId>
+			<Speed>55</Speed>
+			<Damage>198</Damage>
+			<Size>80</Size>
+			<LifetimeMS>2600</LifetimeMS>
+			<MultiHit />
+		</Projectile>
+		<Projectile id="91">
+			<ObjectId>Necromantic Soul Bolt</ObjectId>
+			<Speed>90</Speed>
+			<Damage>139</Damage>
+			<Size>65</Size>
+			<LifetimeMS>1600</LifetimeMS>
+			<ConditionEffect duration="2">Slowed</ConditionEffect>
+		</Projectile>
+	</Object>
+	<Object type="0x8C51" id="Elder LH Malus 2 Remains">
+		<DisplayId>Remains of Malus</DisplayId>
+		<Class>GameObject</Class>
+		<AnimatedTexture>
+			<File>lostHallsChars16x16</File>
+			<Index>18</Index>
+		</AnimatedTexture>
+		<Size>100</Size>
+		<Corpse />
+		<NoMiniMap />
+		<ShadowSize>0</ShadowSize>
+		<Sound id="0">monster/necromantic_chant</Sound>
+		<Sound id="1">monster/necromantic_blast</Sound>
+		<Effect color="0x7DFFCF" color2="0x148C5E" rate="12" minRadius="0.5" maxRadius="2.2" speed="0.035" rise="0.35" life="2.6" lifeVariance="0.65" size="5" zOffset="0.15">Souls</Effect>
+	</Object>
+	<Object type="0x8C52" id="Empowered Elder LH Malus 2">
+		<Class>Character</Class>
+		<Enemy />
+		<Quest />
+		<EventChestBoss />
+		<TrackLoot />
+		<Portrait>
+			<AnimatedTexture>
+				<File>lostHallsChars16x16</File>
+				<Index>18</Index>
+			</AnimatedTexture>
+		</Portrait>
+		<AnimatedTexture>
+			<File>lostHallsChars16x16</File>
+			<Index>18</Index>
+		</AnimatedTexture>
+		<AltTexture id="1">
+			<Texture>
+				<File>lostHallsObjects16x16</File>
+				<Index>0x0c</Index>
+			</Texture>
+		</AltTexture>
+		<AltTexture id="2">
+			<AnimatedTexture>
+				<File>lostHallsChars16x16</File>
+				<Index>19</Index>
+			</AnimatedTexture>
+		</AltTexture>
+		<AltTexture id="3">
+			<AnimatedTexture>
+				<File>lostHallsChars16x16</File>
+				<Index>20</Index>
+			</AnimatedTexture>
+		</AltTexture>
+		<AltTexture id="4">
+			<AnimatedTexture>
+				<File>lostHallsChars16x16</File>
+				<Index>21</Index>
+			</AnimatedTexture>
+		</AltTexture>
+		<AltTexture id="5">
+			<AnimatedTexture>
+				<File>lostHallsChars16x16</File>
+				<Index>22</Index>
+			</AnimatedTexture>
+		</AltTexture>
+		<AltTexture id="6">
+			<Texture>
+				<File>lostHallsObjects16x16</File>
+				<Index>0x0d</Index>
+			</Texture>
+		</AltTexture>
+		<AltTexture id="7">
+			<Texture>
+				<File>lostHallsObjects16x16</File>
+				<Index>0x0e</Index>
+			</Texture>
+		</AltTexture>
+		<AltTexture id="8">
+			<Texture>
+				<File>lostHallsObjects16x16</File>
+				<Index>0x0f</Index>
+			</Texture>
+		</AltTexture>
+		<AltTexture id="9">
+			<Texture>
+				<File>lostHallsObjects16x16</File>
+				<Index>0x10</Index>
+			</Texture>
+		</AltTexture>
+		<AltTexture id="10">
+			<Texture>
+				<File>lostHallsObjects16x16</File>
+				<Index>0x11</Index>
+			</Texture>
+		</AltTexture>
+		<AltTexture id="11">
+			<Texture>
+				<File>lostHallsObjects16x16</File>
+				<Index>0x12</Index>
+			</Texture>
+		</AltTexture>
+		<AltTexture id="12">
+			<Texture>
+				<File>invisible</File>
+				<Index>0</Index>
+			</Texture>
+		</AltTexture>
+		<Projectile id="0">
+			<ObjectId>Cultist Malus Shot</ObjectId>
+			<Damage>130</Damage>
+			<Speed>80</Speed>
+			<LifetimeMS>5000</LifetimeMS>
+			<MultiHit />
+			<ConditionEffect duration="4">Armor Broken</ConditionEffect>
+		</Projectile>
+		<Projectile id="1">
+			<ObjectId>Cultist Argus Shot</ObjectId>
+			<Damage>195</Damage>
+			<Speed>100</Speed>
+			<LifetimeMS>4000</LifetimeMS>
+			<MultiHit />
+			<ConditionEffect duration="3">Unstable</ConditionEffect>
+		</Projectile>
+		<Projectile id="2">
+			<ObjectId>Cultist Gaius Shot</ObjectId>
+			<Damage>156</Damage>
+			<Speed>80</Speed>
+			<LifetimeMS>5000</LifetimeMS>
+			<MultiHit />
+			<ConditionEffect duration="0.8">Paralyzed</ConditionEffect>
+		</Projectile>
+		<Projectile id="3">
+			<ObjectId>Cultist Basaran Shot</ObjectId>
+			<Damage>176</Damage>
+			<Speed>100</Speed>
+			<LifetimeMS>2800</LifetimeMS>
+			<MultiHit />
+			<ConditionEffect duration="3">Slowed</ConditionEffect>
+		</Projectile>
+		<Projectile id="4">
+			<ObjectId>Cultist Dirge Shot</ObjectId>
+			<Damage>169</Damage>
+			<Speed>100</Speed>
+			<LifetimeMS>4000</LifetimeMS>
+			<MultiHit />
+			<ConditionEffect duration="5">Quiet</ConditionEffect>
+		</Projectile>
+		<Projectile id="5">
+			<ObjectId>Cultist Fire Shot</ObjectId>
+			<Size>100</Size>
+			<Damage>195</Damage>
+			<Speed>60</Speed>
+			<LifetimeMS>7500</LifetimeMS>
+			<MultiHit />
+			<ConditionEffect duration="3.6">Armor Broken</ConditionEffect>
+		</Projectile>
+		<Projectile id="6">
+			<ObjectId>Cultist Ice Shot</ObjectId>
+			<Size>120</Size>
+			<Damage>240</Damage>
+			<Speed>120</Speed>
+			<LifetimeMS>3000</LifetimeMS>
+			<ConditionEffect duration="3.6">Slowed</ConditionEffect>
+			<MultiHit />
+		</Projectile>
+		<Projectile id="7">
+			<ObjectId>Cultist Lightning Shot</ObjectId>
+			<Size>100</Size>
+			<Damage>176</Damage>
+			<Speed>150</Speed>
+			<LifetimeMS>3000</LifetimeMS>
+			<ConditionEffect duration="0.6">Paralyzed</ConditionEffect>
+			<MultiHit />
+			<Boomerang />
+			<FaceDir />
+			<Amplitude>2</Amplitude>
+			<Frequency>2.5</Frequency>
+		</Projectile>
+		<Projectile id="8">
+			<ObjectId>Cultist Light Shot</ObjectId>
+			<Size>80</Size>
+			<Damage>221</Damage>
+			<Speed>100</Speed>
+			<LifetimeMS>2000</LifetimeMS>
+			<MultiHit />
+			<ConditionEffect duration="3">Quiet</ConditionEffect>
+		</Projectile>
+		<Projectile id="9">
+			<ObjectId>Cultist Unstable Shot</ObjectId>
+			<Size>80</Size>
+			<Damage>260</Damage>
+			<Speed>30</Speed>
+			<LifetimeMS>5000</LifetimeMS>
+			<MultiHit />
+			<Amplitude>1.5</Amplitude>
+			<Frequency>2</Frequency>
+			<ConditionEffect duration="3">Unstable</ConditionEffect>
+		</Projectile>
+		<Size>120</Size>
+		<DisplayId>Empowered Malus</DisplayId>
+		<MaxHitPoints>260000</MaxHitPoints>
+		<HealthBarBoss />
+		<Defense>45</Defense>
+		<Exp>20000</Exp>
+		<HitSound>monster/lizard_god_hit</HitSound>
+		<DeathSound>monster/lizard_god_death</DeathSound>
+		<StasisImmune />
+		<StunImmune />
+		<ParalyzeImmune />
+		<LeachHealth />
+		<XpBonus>2</XpBonus>
+		<Effect color="0x7DFFCF" color2="0x148C5E" rate="10" minRadius="0.4" maxRadius="1.7" speed="0.05" rise="0.6" life="1.8" lifeVariance="0.45" size="5" zOffset="0.3">Souls</Effect>
+		<DazedImmune />
+		<Projectile id="90">
+			<ObjectId>Necromantic Soul Bolt</ObjectId>
+			<Speed>55</Speed>
+			<Damage>175</Damage>
+			<Size>80</Size>
+			<LifetimeMS>2600</LifetimeMS>
+			<MultiHit />
+		</Projectile>
+		<Projectile id="91">
+			<ObjectId>Necromantic Soul Bolt</ObjectId>
+			<Speed>90</Speed>
+			<Damage>122</Damage>
+			<Size>65</Size>
+			<LifetimeMS>1600</LifetimeMS>
+			<ConditionEffect duration="2">Slowed</ConditionEffect>
+		</Projectile>
+	</Object>
+	<Object type="0x8C53" id="Elder LH Void Entity Remains">
+		<DisplayId>Remains of The Void Entity</DisplayId>
+		<Class>GameObject</Class>
+		<AnimatedTexture>
+			<File>lostHallsChars16x16</File>
+			<Index>5</Index>
+		</AnimatedTexture>
+		<Size>200</Size>
+		<Corpse />
+		<NoMiniMap />
+		<ShadowSize>0</ShadowSize>
+		<Sound id="0">monster/necromantic_chant</Sound>
+		<Sound id="1">monster/necromantic_blast</Sound>
+		<Effect color="0x7DFFCF" color2="0x148C5E" rate="12" minRadius="1.0" maxRadius="3.8000000000000003" speed="0.035" rise="0.35" life="2.6" lifeVariance="0.65" size="5" zOffset="0.15">Souls</Effect>
+	</Object>
+	<Object type="0x8C54" id="Empowered Elder LH Void Entity">
+		<Class>Character</Class>
+		<Enemy />
+		<Portrait>
+			<AnimatedTexture>
+				<File>lostHallsChars16x16</File>
+				<Index>5</Index>
+			</AnimatedTexture>
+		</Portrait>
+		<AnimatedTexture>
+			<File>lostHallsChars16x16</File>
+			<Index>5</Index>
+		</AnimatedTexture>
+		<AltTexture id="1">
+			<Texture>
+				<File>lostHallsObjects16x16</File>
+				<Index>0x01</Index>
+			</Texture>
+		</AltTexture>
+		<AltTexture id="2">
+			<Texture>
+				<File>lostHallsObjects16x16</File>
+				<Index>0x02</Index>
+			</Texture>
+		</AltTexture>
+		<AltTexture id="3">
+			<Texture>
+				<File>lostHallsObjects16x16</File>
+				<Index>0x03</Index>
+			</Texture>
+		</AltTexture>
+		<AltTexture id="4">
+			<Texture>
+				<File>lostHallsObjects16x16</File>
+				<Index>0x04</Index>
+			</Texture>
+		</AltTexture>
+		<AltTexture id="5">
+			<Texture>
+				<File>lostHallsObjects16x16</File>
+				<Index>0x05</Index>
+			</Texture>
+		</AltTexture>
+		<AltTexture id="6">
+			<Texture>
+				<File>lostHallsObjects16x16</File>
+				<Index>0x14</Index>
+			</Texture>
+		</AltTexture>
+		<AltTexture id="7">
+			<Texture>
+				<File>lostHallsObjects16x16</File>
+				<Index>0x15</Index>
+			</Texture>
+		</AltTexture>
+		<AltTexture id="8">
+			<Texture>
+				<File>lostHallsObjects16x16</File>
+				<Index>0x16</Index>
+			</Texture>
+		</AltTexture>
+		<AltTexture id="9">
+			<Texture>
+				<File>lostHallsObjects16x16</File>
+				<Index>0x17</Index>
+			</Texture>
+		</AltTexture>
+		<AltTexture id="10">
+			<Texture>
+				<File>lostHallsObjects16x16</File>
+				<Index>0x18</Index>
+			</Texture>
+		</AltTexture>
+		<AltTexture id="11">
+			<Texture>
+				<File>lostHallsObjects16x16</File>
+				<Index>0x19</Index>
+			</Texture>
+		</AltTexture>
+		<AltTexture id="12">
+			<Texture>
+				<File>lostHallsObjects16x16</File>
+				<Index>0x1a</Index>
+			</Texture>
+		</AltTexture>
+		<AltTexture id="13">
+			<Texture>
+				<File>lostHallsObjects16x16</File>
+				<Index>0x1b</Index>
+			</Texture>
+		</AltTexture>
+		<AltTexture id="14">
+			<Texture>
+				<File>lostHallsObjects16x16</File>
+				<Index>0x1c</Index>
+			</Texture>
+		</AltTexture>
+		<AltTexture id="15">
+			<Texture>
+				<File>lostHallsObjects16x16</File>
+				<Index>0x1d</Index>
+			</Texture>
+		</AltTexture>
+		<AltTexture id="16">
+			<Texture>
+				<File>lostHallsObjects16x16</File>
+				<Index>0x1e</Index>
+			</Texture>
+		</AltTexture>
+		<AltTexture id="17">
+			<Texture>
+				<File>lostHallsObjects16x16</File>
+				<Index>0x1f</Index>
+			</Texture>
+		</AltTexture>
+		<AltTexture id="18">
+			<Texture>
+				<File>lostHallsObjects16x16</File>
+				<Index>0x25</Index>
+			</Texture>
+		</AltTexture>
+		<AltTexture id="19">
+			<Texture>
+				<File>lostHallsObjects16x16</File>
+				<Index>0x26</Index>
+			</Texture>
+		</AltTexture>
+		<AltTexture id="20">
+			<Texture>
+				<File>lostHallsObjects16x16</File>
+				<Index>0x27</Index>
+			</Texture>
+		</AltTexture>
+		<AltTexture id="21">
+			<Texture>
+				<File>lostHallsObjects16x16</File>
+				<Index>0x28</Index>
+			</Texture>
+		</AltTexture>
+		<AltTexture id="22">
+			<Texture>
+				<File>lostHallsObjects16x16</File>
+				<Index>0x29</Index>
+			</Texture>
+		</AltTexture>
+		<AltTexture id="23">
+			<Texture>
+				<File>lostHallsObjects16x16</File>
+				<Index>0x2a</Index>
+			</Texture>
+		</AltTexture>
+		<AltTexture id="24">
+			<Texture>
+				<File>lostHallsObjects16x16</File>
+				<Index>0x2b</Index>
+			</Texture>
+		</AltTexture>
+		<AltTexture id="25">
+			<Texture>
+				<File>lostHallsObjects16x16</File>
+				<Index>0x2c</Index>
+			</Texture>
+		</AltTexture>
+		<AltTexture id="26">
+			<Texture>
+				<File>lostHallsObjects16x16</File>
+				<Index>0x2d</Index>
+			</Texture>
+		</AltTexture>
+		<AltTexture id="27">
+			<Texture>
+				<File>lostHallsObjects16x16</File>
+				<Index>0x2e</Index>
+			</Texture>
+		</AltTexture>
+		<AltTexture id="28">
+			<Texture>
+				<File>lostHallsObjects16x16</File>
+				<Index>0x2f</Index>
+			</Texture>
+		</AltTexture>
+		<AltTexture id="29">
+			<Texture>
+				<File>lostHallsObjects16x16</File>
+				<Index>0x30</Index>
+			</Texture>
+		</AltTexture>
+		<AltTexture id="30">
+			<Texture>
+				<File>invisible</File>
+				<Index>0</Index>
+			</Texture>
+		</AltTexture>
+		<DisplayId>Empowered Void Entity</DisplayId>
+		<Size>240</Size>
+		<MaxHitPoints>800000</MaxHitPoints>
+		<Exp>100000</Exp>
+		<Defense>70</Defense>
+		<HitSound>weapon/wand_of_dark_magic</HitSound>
+		<DeathSound>enter_realm</DeathSound>
+		<Quest />
+		<HealthBarBoss />
+		<Flying />
+		<EventChestBoss />
+		<TrackLoot />
+		<StunImmune />
+		<ParalyzeImmune />
+		<DazedImmune />
+		<StasisImmune />
+		<Projectile id="0">
+			<ObjectId>Void Bullet</ObjectId>
+			<Damage>228</Damage>
+			<Speed>100</Speed>
+			<LifetimeMS>2500</LifetimeMS>
+			<Size>120</Size>
+			<ArmorPiercing />
+			<MultiHit />
+			<ConditionEffect duration="2">Darkness</ConditionEffect>
+		</Projectile>
+		<Projectile id="1">
+			<ObjectId>Void Blast</ObjectId>
+			<Damage>240</Damage>
+			<Speed>80</Speed>
+			<LifetimeMS>3500</LifetimeMS>
+			<Size>120</Size>
+			<MultiHit />
+			<ConditionEffect duration="1">Paralyzed</ConditionEffect>
+		</Projectile>
+		<Projectile id="2">
+			<ObjectId>Void Small Shuriken</ObjectId>
+			<Damage>234</Damage>
+			<Speed>70</Speed>
+			<LifetimeMS>4200</LifetimeMS>
+			<Size>120</Size>
+			<MultiHit />
+			<ConditionEffect duration="3">Confused</ConditionEffect>
+		</Projectile>
+		<Projectile id="3">
+			<ObjectId>Void Shuriken</ObjectId>
+			<Damage>292</Damage>
+			<Speed>100</Speed>
+			<LifetimeMS>1800</LifetimeMS>
+			<Size>120</Size>
+			<MultiHit />
+			<ConditionEffect duration="5">Quiet</ConditionEffect>
+		</Projectile>
+		<Projectile id="4">
+			<ObjectId>Void Wheel</ObjectId>
+			<Damage>260</Damage>
+			<Speed>80</Speed>
+			<LifetimeMS>2000</LifetimeMS>
+			<Size>120</Size>
+			<MultiHit />
+			<ConditionEffect duration="3">Unstable</ConditionEffect>
+		</Projectile>
+		<Projectile id="5">
+			<ObjectId>Void Spin</ObjectId>
+			<Damage>228</Damage>
+			<Speed>60</Speed>
+			<LifetimeMS>2500</LifetimeMS>
+			<Size>120</Size>
+			<MultiHit />
+			<ConditionEffect duration="3" target="1">Stasis</ConditionEffect>
+		</Projectile>
+		<Projectile id="6">
+			<ObjectId>Void Bullet</ObjectId>
+			<Damage>228</Damage>
+			<Speed>70</Speed>
+			<LifetimeMS>3000</LifetimeMS>
+			<Size>120</Size>
+			<ArmorPiercing />
+			<MultiHit />
+			<ConditionEffect duration="2">Darkness</ConditionEffect>
+			<Amplitude>1.5</Amplitude>
+			<Frequency>1.5</Frequency>
+		</Projectile>
+		<Projectile id="7">
+			<ObjectId>Void Shockwave</ObjectId>
+			<Damage>260</Damage>
+			<Speed>50</Speed>
+			<LifetimeMS>3500</LifetimeMS>
+			<Size>120</Size>
+			<MultiHit />
+			<ConditionEffect duration="3">Stunned</ConditionEffect>
+		</Projectile>
+		<Projectile id="8">
+			<ObjectId>Void Wave</ObjectId>
+			<Damage>266</Damage>
+			<Speed>80</Speed>
+			<LifetimeMS>2000</LifetimeMS>
+			<Size>120</Size>
+			<FaceDir />
+			<MultiHit />
+			<ConditionEffect duration="3">Slowed</ConditionEffect>
+			<Amplitude>2</Amplitude>
+			<Frequency>1.2</Frequency>
+		</Projectile>
+		<Projectile id="9">
+			<ObjectId>Void Spear</ObjectId>
+			<Damage>325</Damage>
+			<Speed>70</Speed>
+			<LifetimeMS>4000</LifetimeMS>
+			<Size>120</Size>
+			<ConditionEffect duration="3">Blind</ConditionEffect>
+			<MultiHit />
+		</Projectile>
+		<Projectile id="10">
+			<ObjectId>Void Large Bullet</ObjectId>
+			<Damage>260</Damage>
+			<Speed>110</Speed>
+			<LifetimeMS>2000</LifetimeMS>
+			<Size>250</Size>
+			<ArmorPiercing />
+			<MultiHit />
+			<ConditionEffect duration="2">Darkness</ConditionEffect>
+		</Projectile>
+		<Projectile id="11">
+			<ObjectId>Void Ring</ObjectId>
+			<Damage>195</Damage>
+			<Speed>100</Speed>
+			<LifetimeMS>2500</LifetimeMS>
+			<Size>120</Size>
+			<MultiHit />
+			<ConditionEffect duration="1.4">Petrify</ConditionEffect>
+		</Projectile>
+		<Projectile id="12">
+			<ObjectId>Void Wave</ObjectId>
+			<Damage>266</Damage>
+			<Speed>80</Speed>
+			<LifetimeMS>4000</LifetimeMS>
+			<Size>120</Size>
+			<FaceDir />
+			<MultiHit />
+			<ConditionEffect duration="3">Slowed</ConditionEffect>
+			<Amplitude>2</Amplitude>
+			<Frequency>1.2</Frequency>
+		</Projectile>
+		<Projectile id="13">
+			<ObjectId>Void Shuriken</ObjectId>
+			<Damage>292</Damage>
+			<Speed>60</Speed>
+			<LifetimeMS>4000</LifetimeMS>
+			<Size>120</Size>
+			<MultiHit />
+			<ConditionEffect duration="2">Quiet</ConditionEffect>
+		</Projectile>
+		<Projectile id="14">
+			<ObjectId>Void Blast</ObjectId>
+			<Damage>240</Damage>
+			<Speed>110</Speed>
+			<LifetimeMS>3500</LifetimeMS>
+			<Size>120</Size>
+			<MultiHit />
+			<FaceDir />
+			<Amplitude>2</Amplitude>
+			<Frequency>2.5</Frequency>
+			<ConditionEffect duration="1">Paralyzed</ConditionEffect>
+		</Projectile>
+		<Projectile id="15">
+			<ObjectId>Void Small Shuriken</ObjectId>
+			<Damage>234</Damage>
+			<Speed>70</Speed>
+			<LifetimeMS>4000</LifetimeMS>
+			<Size>120</Size>
+			<Amplitude>1</Amplitude>
+			<Frequency>2.5</Frequency>
+			<ConditionEffect duration="3">Confused</ConditionEffect>
+		</Projectile>
+		<Projectile id="16">
+			<ObjectId>Void Spin</ObjectId>
+			<Damage>228</Damage>
+			<Speed>40</Speed>
+			<LifetimeMS>10000</LifetimeMS>
+			<Size>120</Size>
+			<Amplitude>2</Amplitude>
+			<Frequency>3</Frequency>
+			<MultiHit />
+			<ConditionEffect duration="5" target="1">Stasis</ConditionEffect>
+		</Projectile>
+		<Projectile id="17">
+			<ObjectId>Void Spear</ObjectId>
+			<Damage>325</Damage>
+			<Speed>70</Speed>
+			<LifetimeMS>4000</LifetimeMS>
+			<Size>120</Size>
+			<FaceDir />
+			<MultiHit />
+			<Amplitude>1.5</Amplitude>
+			<Frequency>2</Frequency>
+			<ConditionEffect duration="3">Blind</ConditionEffect>
+		</Projectile>
+		<Projectile id="18">
+			<ObjectId>Void Vortex</ObjectId>
+			<Damage>552</Damage>
+			<Speed>50</Speed>
+			<LifetimeMS>6000</LifetimeMS>
+			<Size>240</Size>
+			<MultiHit />
+			<ConditionEffect duration="3">Silenced</ConditionEffect>
+		</Projectile>
+		<Projectile id="19">
+			<ObjectId>Void Laser</ObjectId>
+			<Damage>390</Damage>
+			<Speed>110</Speed>
+			<LifetimeMS>2500</LifetimeMS>
+			<Size>160</Size>
+			<MultiHit />
+			<ConditionEffect duration="3">Silenced</ConditionEffect>
+		</Projectile>
+		<Projectile id="20">
+			<ObjectId>Void Shot</ObjectId>
+			<Damage>332</Damage>
+			<Speed>80</Speed>
+			<LifetimeMS>4000</LifetimeMS>
+			<Size>120</Size>
+			<MultiHit />
+			<ConditionEffect duration="3">Silenced</ConditionEffect>
+		</Projectile>
+		<Projectile id="21">
+			<ObjectId>Void Large Bullet</ObjectId>
+			<Damage>260</Damage>
+			<Speed>80</Speed>
+			<LifetimeMS>3000</LifetimeMS>
+			<Size>250</Size>
+			<ArmorPiercing />
+			<MultiHit />
+			<ConditionEffect duration="2">Darkness</ConditionEffect>
+		</Projectile>
+		<XpBonus>2</XpBonus>
+		<Effect color="0x7DFFCF" color2="0x148C5E" rate="10" minRadius="0.8" maxRadius="2.9" speed="0.05" rise="0.6" life="1.8" lifeVariance="0.45" size="5" zOffset="0.3">Souls</Effect>
+		<Projectile id="90">
+			<ObjectId>Necromantic Soul Bolt</ObjectId>
+			<Speed>55</Speed>
+			<Damage>234</Damage>
+			<Size>80</Size>
+			<LifetimeMS>2600</LifetimeMS>
+			<MultiHit />
+		</Projectile>
+		<Projectile id="91">
+			<ObjectId>Necromantic Soul Bolt</ObjectId>
+			<Speed>90</Speed>
+			<Damage>164</Damage>
 			<Size>65</Size>
 			<LifetimeMS>1600</LifetimeMS>
 			<ConditionEffect duration="2">Slowed</ConditionEffect>

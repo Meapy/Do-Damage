@@ -12,6 +12,62 @@ Keep each version short: changes go under `### ` group headings (Oryx 5, Arena, 
 on), one line per change players notice, summed up rather than item by item (the wiki has the
 details). Add to a group's line when a change adds to it, rather than adding another line.
 
+## 2.5.2 (2026-11-12)
+
+### The Elder Shatters
+- A new Elder dungeon: the Shatters by brazier light, every monster in its Elder version. The
+  Forgotten King leaves its portal half the time, and its three bosses drop the Elder Shatters
+  Key. Each boss has a phase the regular Shatters doesn't: the Bridge Sentinel's Judgement, the
+  Twilight Archmage's Eclipse, and the Forgotten King's last stand, where he no longer dies at a
+  tenth of his health.
+- Its bosses drop a Potion of Max (Defense, Mana, Life) and three new rings with powers of their
+  own: Bracer of the Elder Guardian, The Eclipsed Gemstone and The Remembered Crown.
+- In the Shatters and the Elder Shatters the quest arrow now leads to each boss in turn, with its
+  health at the top of the screen, and the way out opens where the Forgotten King falls. The Elder
+  Shatters and the Tomb of the Ancients, in both its regular and Elder versions, count towards the
+  Raid Night community goal.
+- All three can be raised with a Necromantic Relic. Empowered, they drop a trap that throws a
+  Blobomb, a spell that alternates fire and ice, and a cloak that makes your shots hit harder.
+
+### The Elder Lost Halls
+- A new Elder dungeon, with two more beyond it: the Elder Lost Halls, the Elder Cultist Hideout
+  its Colossus room sometimes opens, and the Elder Void, opened with a Vial of Pure Darkness where
+  the Elder Colossus fell. The Marble Colossus, Malus and the Void Entity leave its portal half
+  the time, and their Elder versions drop the Elder Lost Halls Key.
+- Each Elder boss has a phase of its own: the Marble Colossus' Reckoning, Malus' Pentagram and
+  the Void Entity's Singularity. They drop a Potion of Max (Defense, Attack, Life), better gear
+  and three new rings: Lodestone of the Halls, Ring of the Blood Pact and The Hollow Sourcestone.
+- All three can be raised with a Necromantic Relic. Empowered, they drop a seal that raises marble
+  pillars, a skull that draws a pentagram and a bow whose hits open a singularity.
+
+### Dungeons
+- Candyland rooms now spawn six creatures at a time; clear them and leave to bring out a boss.
+  The next wave waits until that boss is defeated.
+- Empowered bosses raised with a Necromantic Relic no longer gain far more health with every
+  player who joins (five players on the Ivory Wyvern faced over 20 million; now 420,000). The
+  bigger the boss, the less its Empowered form adds: 2.5 times the health for the small ones, 1.5
+  times at 200,000, and big, heavily armoured bosses gain less defense. The Elder Thessal gains
+  less health for each extra player (15% of hers instead of 20%).
+- In every dungeon the quest arrow and the boss's health at the top of the screen now lead to its
+  boss however far away it is; the Lost Halls' bosses, Davy Jones and others often went missing.
+  In the Cultist Hideout they follow Malus himself, and beating him counts as clearing it.
+
+### Items
+- The Potion of Maxy now has its new sprite.
+
+### Pets
+- Each pet size looks clearly bigger than the one below it: Tiny pets are half your height, Large
+  ones nearly half again as tall as you. A pet raised at the Pen Keeper grows to its new size, and
+  its stone's tooltip shows the raised pet's size, damage and healing.
+
+### Game
+- `/wiki` sends you a link to the Do Damage wiki.
+- Swapping an item's looks at the Divine Forge (a Doom Bow into Sun's Judgement, the Staff of
+  Extreme Prejudice into the Staff of Iceblast and back) no longer counts for quests, the Master
+  Smith achievement or the forge community goal.
+- The wiki's Necromantic Relic page has a gallery of every Necromantic item: its icon, power and
+  base, and the Empowered boss and dungeon it drops from, with buttons to show one kind of gear.
+
 ## 2.5.1 (2026-11-11)
 
 ### Oryx 4 and Oryx 5

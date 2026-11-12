@@ -48,7 +48,7 @@
          <LifetimeMS>800</LifetimeMS>
          <Wavy />
       </Projectile>
-      <Size>60</Size>
+      <Size>50</Size>
       <ShadowSize>70</ShadowSize>
    </Object>
    <Object type="0x1547" id="Beer Slurp Generator">
@@ -93,7 +93,7 @@
          <Speed>70</Speed>
          <LifetimeMS>800</LifetimeMS>
       </Projectile>
-      <Size>110</Size>
+      <Size>120</Size>
       <ShadowSize>50</ShadowSize>
    </Object>
    <Object type="0x153f" id="Beach Ball Generator">
@@ -763,7 +763,7 @@
          <LifetimeMS>1100</LifetimeMS>
          <MultiHit />
       </Projectile>
-      <Size>60</Size>
+      <Size>70</Size>
       <ShadowSize>100</ShadowSize>
    </Object>
    <Object type="0x6c01" id="Lil' Puppet Master Generator">
@@ -804,7 +804,7 @@
          <Boomerang />
          <ConditionEffect duration="1">Slowed</ConditionEffect>
       </Projectile>
-      <Size>60</Size>
+      <Size>70</Size>
       <ShadowSize>100</ShadowSize>
    </Object>
    <Object type="0x6c03" id="Lil' Davy Jones Generator">
@@ -850,7 +850,7 @@
          <LifetimeMS>800</LifetimeMS>
          <ConditionEffect duration="1.5">Armor Broken</ConditionEffect>
       </Projectile>
-      <Size>60</Size>
+      <Size>70</Size>
       <ShadowSize>100</ShadowSize>
    </Object>
    <Object type="0x6c05" id="Lil' Crystal Prisoner Generator">
@@ -897,7 +897,7 @@
          <LifetimeMS>800</LifetimeMS>
          <ConditionEffect duration="1.5">Slowed</ConditionEffect>
       </Projectile>
-      <Size>60</Size>
+      <Size>70</Size>
       <ShadowSize>100</ShadowSize>
    </Object>
    <Object type="0x6c07" id="Lil' Forgotten King Generator">
@@ -937,7 +937,7 @@
          <LifetimeMS>1100</LifetimeMS>
          <Boomerang />
       </Projectile>
-      <Size>60</Size>
+      <Size>70</Size>
       <ShadowSize>100</ShadowSize>
    </Object>
    <Object type="0x6c09" id="Lil' Esben Generator">
@@ -978,7 +978,7 @@
          <LifetimeMS>650</LifetimeMS>
          <ArmorPiercing />
       </Projectile>
-      <Size>60</Size>
+      <Size>70</Size>
       <ShadowSize>100</ShadowSize>
    </Object>
    <Object type="0x6c0b" id="Lil' Megamoth Generator">
@@ -1018,7 +1018,7 @@
          <Speed>140</Speed>
          <LifetimeMS>800</LifetimeMS>
       </Projectile>
-      <Size>60</Size>
+      <Size>70</Size>
       <ShadowSize>100</ShadowSize>
    </Object>
    <Object type="0x6c0d" id="Abyssal Krakenling Generator">
@@ -1059,7 +1059,7 @@
          <LifetimeMS>700</LifetimeMS>
          <Bleed duration="3">83</Bleed>
       </Projectile>
-      <Size>60</Size>
+      <Size>70</Size>
       <ShadowSize>100</ShadowSize>
    </Object>
    <Object type="0x6c0f" id="Ember Matriarch Generator">
@@ -1092,7 +1092,7 @@
          <Speed>100</Speed>
          <LifetimeMS>800</LifetimeMS>
       </Projectile>
-      <Size>40</Size>
+      <Size>50</Size>
       <ShadowSize>100</ShadowSize>
    </Object>
    <Object type="0x6c11" id="Lil' Medusa Generator">
@@ -1125,7 +1125,7 @@
          <Speed>80</Speed>
          <LifetimeMS>1000</LifetimeMS>
       </Projectile>
-      <Size>40</Size>
+      <Size>50</Size>
       <ShadowSize>100</ShadowSize>
    </Object>
    <Object type="0x6c13" id="Lil' Ent Generator">
@@ -1158,7 +1158,7 @@
          <Speed>100</Speed>
          <LifetimeMS>800</LifetimeMS>
       </Projectile>
-      <Size>40</Size>
+      <Size>50</Size>
       <ShadowSize>100</ShadowSize>
    </Object>
    <Object type="0x6c15" id="Lil' Flying Brain Generator">
@@ -1198,7 +1198,7 @@
          <LifetimeMS>1200</LifetimeMS>
          <MultiHit />
       </Projectile>
-      <Size>40</Size>
+      <Size>50</Size>
       <ShadowSize>100</ShadowSize>
    </Object>
    <Object type="0x6c17" id="Lil' Ghost Ship Generator">
@@ -1231,7 +1231,7 @@
          <Speed>100</Speed>
          <LifetimeMS>800</LifetimeMS>
       </Projectile>
-      <Size>40</Size>
+      <Size>50</Size>
       <ShadowSize>100</ShadowSize>
    </Object>
    <Object type="0x6c19" id="Lil' Werewolf Generator">
@@ -1272,7 +1272,7 @@
          <LifetimeMS>1300</LifetimeMS>
          <Boomerang />
       </Projectile>
-      <Size>45</Size>
+      <Size>55</Size>
       <ShadowSize>100</ShadowSize>
    </Object>
    <Object type="0x6c1b" id="Kitsune Spirit Generator">
@@ -1313,7 +1313,7 @@
          <Speed>100</Speed>
          <LifetimeMS>800</LifetimeMS>
       </Projectile>
-      <Size>40</Size>
+      <Size>50</Size>
       <ShadowSize>100</ShadowSize>
    </Object>
    <Object type="0x6c1d" id="Jade Golem Generator">
@@ -1347,7 +1347,7 @@
          <LifetimeMS>800</LifetimeMS>
          <Bleed duration="2">30</Bleed>
       </Projectile>
-      <Size>40</Size>
+      <Size>50</Size>
       <ShadowSize>100</ShadowSize>
    </Object>
    <Object type="0x6c1f" id="Ember Wyrmling Generator">
@@ -1387,7 +1387,7 @@
          <LifetimeMS>800</LifetimeMS>
          <ConditionEffect duration="1">Armor Broken</ConditionEffect>
       </Projectile>
-      <Size>40</Size>
+      <Size>50</Size>
       <ShadowSize>100</ShadowSize>
    </Object>
    <Object type="0x6c21" id="Oni Warlord Generator">
@@ -1421,7 +1421,7 @@
          <LifetimeMS>800</LifetimeMS>
          <Wavy />
       </Projectile>
-      <Size>45</Size>
+      <Size>55</Size>
       <ShadowSize>100</ShadowSize>
    </Object>
    <Object type="0x6c23" id="Lantern Wisp Generator">

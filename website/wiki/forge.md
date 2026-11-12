@@ -127,7 +127,8 @@ and the **Sunny Side Bow**; the **Staff of the Cosmic Whole** and **Frosty's Wal
 **Staff of Extreme Prejudice** and the **Staff of Iceblast**; the **Wand of the Bulwark** and the
 **Eternal Snowflake Wand**; the **Wand of Evocation** and **Winter's Breath Wand**; the **Demon Blade**
 and the **Sword of Illumination**; the **Helm of the Juggernaut** and the **Helm of the
-Jack-o'-naut**. The **Prismatic Crystal Wand** is forged from two Crystal Wands, and the
+Jack-o'-naut**. A swap makes nothing new, so it doesn't count towards quests, the Master Smith
+achievement or the forge's community goal (forging a Doom Bow from two Coral Bows still does). The **Prismatic Crystal Wand** is forged from two Crystal Wands, and the
 **Penetrating Blast Spell** from two Elemental Detonation Spells.
 No recipe for an untiered item costs more than 3,000 fame. Click an item for what it does.
 

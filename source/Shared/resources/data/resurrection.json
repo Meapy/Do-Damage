@@ -1141,6 +1141,359 @@
    "item": "Scepter of the Ivory Wyvern",
    "itemBase": "Scepter of Luminous Winds",
    "itemStrength": 1.5
+  },
+  {
+   "boss": "Elder shtrs Bridge Sentinel",
+   "dungeon": "The Elder Shatters",
+   "name": "The Forgotten Sentinel",
+   "corpse": "Elder shtrs Bridge Sentinel Remains",
+   "empowered": "Empowered Elder shtrs Bridge Sentinel",
+   "soulDamage": 88,
+   "loot": [
+    [
+     "Bracer of the Elder Guardian",
+     0.02
+    ],
+    [
+     "Potion of Max Defense",
+     0.2
+    ],
+    [
+     "Elder Shatters Key",
+     0.02
+    ],
+    [
+     "Shatters Key",
+     0.004
+    ],
+    [
+     "Potion of Defense",
+     1.0
+    ],
+    [
+     "Potion of Attack",
+     1.0
+    ],
+    [
+     "Bracer of the Guardian",
+     0.04
+    ],
+    [
+     "Snare of the Bridge Sentinel",
+     0.06
+    ]
+   ],
+   "lootFrom": "Elder shtrs Loot Balloon Bridge",
+   "item": "Snare of the Bridge Sentinel",
+   "itemBase": "Mantlecrusher Trap",
+   "itemStrength": 1.25
+  },
+  {
+   "boss": "Elder shtrs Twilight Archmage",
+   "dungeon": "The Elder Shatters",
+   "name": "Twilight Archmage",
+   "corpse": "Elder shtrs Twilight Archmage Remains",
+   "empowered": "Empowered Elder shtrs Twilight Archmage",
+   "soulDamage": 117,
+   "loot": [
+    [
+     "The Eclipsed Gemstone",
+     0.02
+    ],
+    [
+     "Potion of Max Mana",
+     0.2
+    ],
+    [
+     "Elder Shatters Key",
+     0.02
+    ],
+    [
+     "Potion of Mana",
+     1.0
+    ],
+    [
+     "Shatters Key",
+     0.004
+    ],
+    [
+     "The Twilight Gemstone",
+     0.01
+    ],
+    [
+     "Twilight Cataclysm",
+     0.06
+    ]
+   ],
+   "lootFrom": "Elder shtrs Loot Balloon Mage",
+   "item": "Twilight Cataclysm",
+   "itemBase": "Spell of Galactic Creation",
+   "itemStrength": 1.3
+  },
+  {
+   "boss": "Elder shtrs The Forgotten King",
+   "dungeon": "The Elder Shatters",
+   "name": "The Forgotten King",
+   "corpse": "Elder shtrs The Forgotten King Remains",
+   "empowered": "Empowered Elder shtrs The Forgotten King",
+   "soulDamage": 222,
+   "loot": [
+    [
+     "The Remembered Crown",
+     0.02
+    ],
+    [
+     "Potion of Max Life",
+     0.2
+    ],
+    [
+     "Elder Shatters Key",
+     0.04
+    ],
+    [
+     "Shatters Key",
+     0.004
+    ],
+    [
+     "Potion of Life",
+     1.0
+    ],
+    [
+     "The Forgotten Crown",
+     0.006
+    ],
+    [
+     "Lil' Forgotten King Generator",
+     0.04
+    ],
+    [
+     "Shroud of the Forgotten King",
+     0.06
+    ]
+   ],
+   "lootFrom": "Elder shtrs Loot Balloon King",
+   "item": "Shroud of the Forgotten King",
+   "itemBase": "Cloak of Emptiness",
+   "itemStrength": 1.2
+  },
+  {
+   "boss": "Elder LH Marble Colossus",
+   "dungeon": "Elder Lost Halls",
+   "name": "The Marble Colossus",
+   "corpse": "Elder LH Marble Colossus Remains",
+   "empowered": "Empowered Elder LH Marble Colossus",
+   "soulDamage": 198,
+   "loot": [
+    [
+     "Potion of Life",
+     1.0
+    ],
+    [
+     "Potion of Mana",
+     1.0
+    ],
+    [
+     "Potion of Attack",
+     1.0
+    ],
+    [
+     "Potion of Defense",
+     1.0
+    ],
+    [
+     "Potion of Speed",
+     0.6
+    ],
+    [
+     "Potion of Dexterity",
+     0.6
+    ],
+    [
+     "Potion of Vitality",
+     0.6
+    ],
+    [
+     "Potion of Wisdom",
+     0.6
+    ],
+    [
+     "Ring of Decades",
+     0.04
+    ],
+    [
+     "Magical Lodestone",
+     0.03
+    ],
+    [
+     "Lodestone of the Halls",
+     0.02
+    ],
+    [
+     "Potion of Max Defense",
+     0.2
+    ],
+    [
+     "Elder Lost Halls Key",
+     0.02
+    ],
+    [
+     "Angel Generator",
+     0.02
+    ],
+    [
+     "Sword of the Colossus",
+     0.016
+    ],
+    [
+     "Breastplate of New Life",
+     0.016
+    ],
+    [
+     "Marble Seal",
+     0.016
+    ],
+    [
+     "Seal of the Risen Colossus",
+     0.06
+    ]
+   ],
+   "item": "Seal of the Risen Colossus",
+   "itemBase": "Marble Seal",
+   "itemStrength": 1.25
+  },
+  {
+   "boss": "Elder LH Malus 2",
+   "dungeon": "Elder Cultist Hideout",
+   "name": "Malus",
+   "corpse": "Elder LH Malus 2 Remains",
+   "empowered": "Empowered Elder LH Malus 2",
+   "soulDamage": 175,
+   "loot": [
+    [
+     "Potion of Life",
+     1.0
+    ],
+    [
+     "Potion of Mana",
+     0.6
+    ],
+    [
+     "Potion of Attack",
+     1.0
+    ],
+    [
+     "Potion of Defense",
+     1.0
+    ],
+    [
+     "Vial of Pure Darkness",
+     0.6
+    ],
+    [
+     "Ring of the Blood Pact",
+     0.02
+    ],
+    [
+     "Potion of Max Attack",
+     0.2
+    ],
+    [
+     "Elder Lost Halls Key",
+     0.02
+    ],
+    [
+     "Staff of Unholy Sacrifice",
+     0.012
+    ],
+    [
+     "Skull of Corrupted Souls",
+     0.012
+    ],
+    [
+     "Ritual Robe",
+     0.012
+    ],
+    [
+     "Bloodshed Ring",
+     0.012
+    ],
+    [
+     "Skull of the Final Ritual",
+     0.06
+    ]
+   ],
+   "item": "Skull of the Final Ritual",
+   "itemBase": "Skull of Corrupted Souls",
+   "itemStrength": 1.25
+  },
+  {
+   "boss": "Elder LH Void Entity",
+   "dungeon": "The Elder Void",
+   "name": "The Void Entity",
+   "corpse": "Elder LH Void Entity Remains",
+   "empowered": "Empowered Elder LH Void Entity",
+   "soulDamage": 234,
+   "loot": [
+    [
+     "Potion of Life",
+     1.0
+    ],
+    [
+     "Potion of Mana",
+     1.0
+    ],
+    [
+     "Potion of Attack",
+     1.0
+    ],
+    [
+     "Potion of Defense",
+     1.0
+    ],
+    [
+     "Potion of Vitality",
+     0.6
+    ],
+    [
+     "Potion of Wisdom",
+     0.6
+    ],
+    [
+     "The Hollow Sourcestone",
+     0.02
+    ],
+    [
+     "Potion of Max Life",
+     0.2
+    ],
+    [
+     "Elder Lost Halls Key",
+     0.04
+    ],
+    [
+     "Bow of the Void",
+     0.016
+    ],
+    [
+     "Quiver of the Shadows",
+     0.016
+    ],
+    [
+     "Armor of Nil",
+     0.016
+    ],
+    [
+     "Sourcestone",
+     0.016
+    ],
+    [
+     "Bow of the Event Horizon",
+     0.06
+    ]
+   ],
+   "item": "Bow of the Event Horizon",
+   "itemBase": "Bow of the Void",
+   "itemStrength": 1.15
   }
  ]
 }

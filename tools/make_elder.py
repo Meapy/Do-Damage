@@ -90,7 +90,17 @@ DUNGEONS = {
     "ElderDraconis": ("Dungeons/Lair of Draconis.jm", "BehaviorDb.Draconis.cs"),
     # not a Doomed Realms world: port_doomed_worlds.BS_ONLY_ELDER_WORLDS names it and its portal
     "ElderIvoryWyvern": ("Dungeons/Ivory Wyvern.jm", "BehaviorDb.Wyvern.cs"),
+    "ElderShatters": ("Dungeons/The Shatters.jm", "BehaviorDb.Shatters.cs"),
+    # the Lost Halls and the two worlds it leads to (several behaviour files: "a+b")
+    "ElderLostHalls": ("Dungeons/Lost Halls.jm", "BehaviorDb.LostHallsRooms.cs+BehaviorDb.LostHalls.cs"),
+    "ElderCultistHideout": ("Dungeons/Cultist Hideout.jm", "BehaviorDb.Cult.cs"),
+    "ElderVoid": ("Dungeons/The Void/The Void.jm", "BehaviorDb.Void.cs"),
 }
+# Dungeons run by hidden objects that watch each other by name (the Shatters' switches, gates,
+# bridges, timers and chest spawners): every object their behaviours define gets an Elder copy,
+# the gates the behaviours open and the helpers they only spawn included, so the Elder version's
+# objects watch the Elder ones.
+SCRIPTED_DUNGEONS = {"ElderShatters", "ElderLostHalls", "ElderCultistHideout", "ElderVoid"}
 
 
 def load(files):
@@ -128,14 +138,14 @@ def map_ids(path):
 
 
 def behaviour_ids(name):
-    """The monsters a behaviour file defines or refers to by id."""
-    text = open(os.path.join(BEHAVIOURS, name), encoding="utf-8-sig").read()
+    """The monsters a behaviour file (or several, "a+b") defines or refers to by id."""
+    text = "\n".join(open(os.path.join(BEHAVIOURS, n), encoding="utf-8-sig").read() for n in name.split("+"))
     return set(re.findall(r'"([^"\n]+)"', text))
 
 
 def defined_ids(name):
     """The objects a dungeon's shared builder (BehaviorDb.Elder.cs) gives a behaviour."""
-    text = open(os.path.join(BEHAVIOURS, name), encoding="utf-8-sig").read()
+    text = "\n".join(open(os.path.join(BEHAVIOURS, n), encoding="utf-8-sig").read() for n in name.split("+"))
     return set(re.findall(r'\.Init\(E\("([^"\n]+)"\)', text))
 
 
@@ -321,14 +331,15 @@ def build(dr_ids):
                     elder_ground(gid, shade, "Elder %s Lit %d" % (gid, n))
         monsters = set()
         defined = defined_ids(behaviours)
-        for oid in sorted(map_objects | behaviour_ids(behaviours)):
+        all_defined = cls in SCRIPTED_DUNGEONS
+        for oid in sorted(map_objects | (defined if all_defined else behaviour_ids(behaviours))):
             o = objects.get(oid, by_lower.get(oid.lower()))
             if o is None or oid.startswith("Elder "):
                 continue
             name = "Elder " + oid
             if o.findtext("Class") in WALL_CLASSES and oid in map_objects:
                 # walls a behaviour opens or breaks by name (Davy's doors) stay as they are
-                if name in made_objects or name in objects or oid in scripted:
+                if name in made_objects or name in objects or (oid in scripted and not (all_defined and oid in defined)):
                     continue
                 w = copy.deepcopy(o)
                 w.set("id", name)
@@ -338,7 +349,7 @@ def build(dr_ids):
                 made_objects.add(name)
             elif o.find("Enemy") is not None and name not in dr_ids and name not in objects and name not in made_objects:
                 monsters.add(oid)
-            elif oid in map_objects and oid in defined and name not in dr_ids and name not in objects and name not in made_objects:
+            elif (oid in map_objects or all_defined) and oid in defined and name not in dr_ids and name not in objects and name not in made_objects:
                 # a spawner the map places (Snake Grate): its Elder copy spawns the Elder monsters
                 g = copy.deepcopy(o)
                 g.set("id", name)
@@ -356,7 +367,8 @@ def build(dr_ids):
             if display is None:
                 display = ET.SubElement(m, "DisplayId")
                 display.text = oid
-            display.text = "Elder " + display.text
+            # ("The Forgotten King" is the Elder Forgotten King)
+            display.text = "Elder " + re.sub(r"^The ", "", display.text)
             copies["Elder " + oid] = m
         # (the regular monsters under the names the copies use)
         port_doomed.rebalance_elders(copies, dict(objects, **{oid: objects.get(oid, by_lower.get(oid.lower())) for oid in monsters}))

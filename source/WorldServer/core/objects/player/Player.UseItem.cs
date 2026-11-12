@@ -1227,28 +1227,47 @@ namespace WorldServer.core.objects
 
         // The object an incantation (ChangeObject) would change: the nearest targetId within its
         // radius, in one of its onlyInArea worlds. Null, with the reason, when there is none.
-        private Entity ChangeObjectTarget(ActivateEffect eff, out string why)
+        private Entity ChangeObjectTarget(ActivateEffect eff, out string why) => ChangeObjectTarget(eff, out why, out _);
+
+        // newId: what it becomes. In the Elder version of one of its worlds ("Elder Lost Halls",
+        // "The Elder Shatters") an incantation works on the Elder versions of its target and of
+        // what that becomes, where both exist: the Vial of Pure Darkness opens the Elder Void where
+        // the Elder Colossus fell.
+        private Entity ChangeObjectTarget(ActivateEffect eff, out string why, out string newId)
         {
             why = null;
+            newId = eff.NewId;
+            var targetId = eff.TargetId;
             var gameData = GameServer.Resources.GameData;
-            if (eff.TargetId == null || eff.NewId == null ||
-                !gameData.IdToObjectType.TryGetValue(eff.TargetId, out var targetType) ||
-                !gameData.IdToObjectType.ContainsKey(eff.NewId))
+            var areas = (eff.OnlyInArea ?? "").Split(',').Select(a => a.Trim()).Where(a => a.Length > 0).ToArray();
+            var elderArea = areas.Any(a => string.Equals("Elder " + a, World.IdName, StringComparison.OrdinalIgnoreCase)
+                || (a.StartsWith("The ") && string.Equals("The Elder " + a.Substring(4), World.IdName, StringComparison.OrdinalIgnoreCase)));
+            if (elderArea && targetId != null && newId != null
+                && gameData.IdToObjectType.ContainsKey("Elder " + targetId) && gameData.IdToObjectType.ContainsKey("Elder " + newId))
+            {
+                targetId = "Elder " + targetId;
+                newId = "Elder " + newId;
+            }
+            else
+                elderArea = false;
+
+            if (targetId == null || newId == null ||
+                !gameData.IdToObjectType.TryGetValue(targetId, out var targetType) ||
+                !gameData.IdToObjectType.ContainsKey(newId))
             {
                 why = "This item can't be used.";
                 return null;
             }
 
-            var sealedWhy = SealedDungeons.WhyPortal(eff.NewId);
+            var sealedWhy = SealedDungeons.WhyPortal(newId);
             if (sealedWhy != null && !Client.Account.Admin)
             {
                 why = sealedWhy;
                 return null;
             }
 
-            if (!string.IsNullOrWhiteSpace(eff.OnlyInArea))
+            if (areas.Length > 0 && !elderArea)
             {
-                var areas = eff.OnlyInArea.Split(',').Select(a => a.Trim()).Where(a => a.Length > 0).ToArray();
                 if (!areas.Any(a => string.Equals(a, World.IdName, StringComparison.OrdinalIgnoreCase)))
                 {
                     why = $"This can only be used in {string.Join(" or ", areas)}.";
@@ -1273,13 +1292,13 @@ namespace WorldServer.core.objects
             }
 
             if (best == null)
-                why = $"There is no {eff.TargetId} nearby.";
+                why = $"There is no {targetId} nearby.";
             return best;
         }
 
         private void AEChangeObject(Item item, ActivateEffect eff)
         {
-            var target = ChangeObjectTarget(eff, out var why);
+            var target = ChangeObjectTarget(eff, out var why, out var newId);
             if (target == null)
             {
                 SendError(why);
@@ -1287,7 +1306,7 @@ namespace WorldServer.core.objects
             }
 
             var gameData = GameServer.Resources.GameData;
-            var newType = gameData.IdToObjectType[eff.NewId];
+            var newType = gameData.IdToObjectType[newId];
             var entity = Resolve(GameServer, newType);
             entity.Move(target.X, target.Y);
             entity.Z = target.Z;
@@ -1298,7 +1317,7 @@ namespace WorldServer.core.objects
             if (entity is Portal)
                 World.StartNewTimer(300 * 1000, (world, t) => world.LeaveWorld(entity));
 
-            var msg = $"{eff.CustomString ?? (eff.NewId + " opened by")} {Name}!";
+            var msg = $"{eff.CustomString ?? (newId + " opened by")} {Name}!";
             World.Broadcast(new Notification
             {
                 Color = new ARGB(0xFF00FF00),

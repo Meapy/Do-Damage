@@ -59,6 +59,13 @@
 		<VisibilityType>1</VisibilityType>
 		<Dungeon/>
 	</World>
+	<World id="Elder Cultist Hideout">
+		<Width>103</Width>
+		<Height>138</Height>
+		<MapJM>Doomed/Elder Cultist Hideout.jm</MapJM>
+		<VisibilityType>1</VisibilityType>
+		<Dungeon/>
+	</World>
 	<World id="Elder Davy Jones' Locker">
 		<Width>153</Width>
 		<Height>118</Height>
@@ -85,6 +92,16 @@
 		<Height>28</Height>
 		<MapJM>Doomed/Elder Jungle.jm</MapJM>
 		<VisibilityType>1</VisibilityType>
+		<Dungeon/>
+	</World>
+	<World id="Elder Lost Halls">
+		<Width>110</Width>
+		<Height>246</Height>
+		<MapJM>Doomed/Elder Lost Halls.jm</MapJM>
+		<VisibilityType>1</VisibilityType>
+		<RandomLayout corridor="5" maxGap="12" medium="0.75" minGap="5" passage="7" small="0.5">
+			<Goal>Elder LH Monster Spawner</Goal>
+		</RandomLayout>
 		<Dungeon/>
 	</World>
 	<World id="Elder Manor">
@@ -115,6 +132,13 @@
 		<RandomLayout corridor="3" passage="4">
 			<Goal>Elder Dreadstump the Pirate King</Goal>
 		</RandomLayout>
+		<Dungeon/>
+	</World>
+	<World id="The Elder Shatters">
+		<Width>489</Width>
+		<Height>281</Height>
+		<MapJM>Doomed/The Elder Shatters.jm</MapJM>
+		<VisibilityType>1</VisibilityType>
 		<Dungeon/>
 	</World>
 	<World id="Elder Snake Pit">
@@ -165,6 +189,13 @@
 		<RandomLayout corridor="3" passage="4">
 			<Goal>Elder Septavius the Ghost God</Goal>
 		</RandomLayout>
+		<Dungeon/>
+	</World>
+	<World id="The Elder Void">
+		<Width>65</Width>
+		<Height>65</Height>
+		<MapJM>Doomed/The Elder Void.jm</MapJM>
+		<VisibilityType>1</VisibilityType>
 		<Dungeon/>
 	</World>
 	<World id="Forest Sanctuary">

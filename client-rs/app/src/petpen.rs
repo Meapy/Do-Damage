@@ -45,8 +45,8 @@ pub struct PetPen {
     rect: Option<[f32; 4]>,
     hits: Vec<(Hit, [f32; 4])>,
     hover: Option<i32>,
-    /// The raised size of the stone hovered, if the Pen Keeper raised its pet.
-    hover_size: Option<&'static str>,
+    /// The sizes the Pen Keeper raised the hovered stone's pet by (0 for none).
+    hover_raise: u8,
 }
 
 fn inside(r: [f32; 4], (x, y): (f64, f64)) -> bool {
@@ -113,7 +113,7 @@ impl PetPen {
     pub fn draw(&mut self, ui: &mut Ui, lay: &Layout, me: Option<&GameObj>, mouse: (f64, f64)) {
         self.hits.clear();
         self.hover = None;
-        self.hover_size = None;
+        self.hover_raise = 0;
         if !self.open {
             self.rect = None;
             return;
@@ -205,7 +205,7 @@ impl PetPen {
             }
         }
         y += acts.len().div_ceil(2) as f32 * (bh + 8.0 * s) + 10.0 * s;
-        ui.label_fit(tr("Raising keeps your pet's look and its shots: only its damage and healing grow."), x0, y, w, font(12.0), false, color::TEXT_MUTED);
+        ui.label_fit(tr("Raising keeps your pet's look and its shots: it grows bigger, and hits and heals harder."), x0, y, w, font(12.0), false, color::TEXT_MUTED);
         y += 26.0 * s;
 
         // the pet stones in the inventory: a click puts that pet in
@@ -222,6 +222,7 @@ impl PetPen {
             ui.slot_box(sr, crate::screens::tier_edge(ui.data, item), over, s);
             ui.item_icon(item, 80, sr[0] + sr[2] / 2.0, sr[1] + sr[3] / 2.0, s);
             let raised = me.and_then(|m| crate::hud::raised_pet_size(ui.data, item, m, slot));
+            let raise = me.map_or(0, |m| crate::hud::pet_raise(m, slot));
             if let Some(size) = raised {
                 // the raise, on the stone: the size's first letter in the corner
                 let tag = &size[..size.char_indices().nth(1).map_or(size.len(), |(i, _)| i)];
@@ -229,7 +230,7 @@ impl PetPen {
             }
             if over {
                 self.hover = Some(item);
-                self.hover_size = raised;
+                self.hover_raise = raise;
             }
             self.hits.push((Hit::Stone(slot), sr));
         }
@@ -237,10 +238,7 @@ impl PetPen {
             ui.label_fit(m, x0, r[1] + r[3] - 34.0 * s, w, font(13.0), true, if *ok { color::GOOD } else { color::DANGER });
         }
         if let Some(item) = self.hover {
-            let mut lines = crate::hud::item_tooltip_imprinted(ui.data, item, me, crate::hud::SlotKind::Shop, [0; 4]);
-            if let (Some(size), Some(title)) = (self.hover_size, lines.first_mut()) {
-                title.append(&format!(" ({size})"));
-            }
+            let lines = crate::hud::item_tooltip_raised(ui.data, item, me, crate::hud::SlotKind::Shop, [0; 4], self.hover_raise);
             crate::hud::draw_tooltip(ui, lay, &lines, Some(item), crate::screens::tier_edge(ui.data, item), mouse);
         }
     }

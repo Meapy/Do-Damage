@@ -47,6 +47,7 @@ SRC = os.path.join(ROOT, "website", "wiki")
 # comes from the code, so a new command shows up with "(no description yet)" until it's added here.
 COMMAND_HELP = {
     "commands": "Lists every command you can use.",
+    "wiki": "Sends you a link to the <a href=\"https://www.dodmg.com/wiki\">Do Damage wiki</a>.",
     "nexus": "Back to the Nexus from anywhere (the <kbd>R</kbd> key does the same).",
     "realm": "To the busiest open realm.",
     "realm2": "Into Realm 2, the one its Nexus portal leads to, from anywhere. See <a href=\"realm-2.html\">Realm 2</a>.",
@@ -302,8 +303,11 @@ HIDDEN_MONSTER = re.compile(r"Admin|Test(?!Chicken)|XP\b|Spawner|spawner|Control
 # bosses a script brings in, which the dungeon's map doesn't place
 BOSS_OVERRIDE = {"Tomb of the Ancients": "Tomb Defender", "Elder Tomb of the Ancients": "Elder Tomb Defender",
                  "Ice Cave": "ic Esben the Unwilling", "The Shatters": "shtrs The Forgotten King",
+                 "The Elder Shatters": "Elder shtrs The Forgotten King",
                  "Haunted Cemetery": "Ghost of Skuld", "Cultist Hideout": "LH Malus 2",
                  "Lost Halls": "LH Marble Colossus", "The Void": "LH Void Entity",
+                 "Elder Lost Halls": "Elder LH Marble Colossus", "Elder Cultist Hideout": "Elder LH Malus 2",
+                 "The Elder Void": "Elder LH Void Entity",
                  "The Ivory Wyvern": "LOD Ivory Wyvern", "The Elder Ivory Wyvern": "Elder lod Ivory Wyvern",
                  "Lair of Shaitan": "md1 Head of Shaitan",
                  "Woodland Labyrinth": "Murderous Megamoth", "Magic Woods": "MW Fountain Spirit",
@@ -318,8 +322,38 @@ DIFFICULTY = [6000, 20000, 45000, 90000, 160000]
 DIFFICULTY_WORDS = ["Beginner", "Easy", "Medium", "Hard", "Very hard", "Endgame"]
 
 
+# how a world opens that no dropped portal or key leads to: from another dungeon's own work (the
+# Elder Lost Halls' controller places the hideout's portal; the vial's ChangeObject works on the
+# Elder mark there, Player.UseItem.cs ChangeObjectTarget)
+OPENS_FROM = {
+    "Elder Cultist Hideout": "One run in four the Elder Lost Halls' Colossus room opens it, in place of the Elder "
+                             "Marble Colossus.",
+    "The Elder Void": "Use a Vial of Pure Darkness in the Elder Lost Halls, where the Elder Marble Colossus fell, to "
+                      "open it (it drops from Malus and the Elder Malus).",
+}
+
+
 # what's particular about a dungeon's fight (a row of its card on the Dungeons page)
 DUNGEON_FIGHT_NOTES = {
+    "Elder Lost Halls": "Late in his second life, below two fifths of it, the Elder Marble Colossus goes back to "
+                        "the heart of his hall for his Reckoning: wheels of marble turning one way round him, "
+                        "spikes the other, slow bullets rolling out between them. Walk with the wheels, between "
+                        "their arms. One run in four his room opens the Elder Cultist Hideout instead, and a Vial "
+                        "of Pure Darkness used where he fell opens the Elder Void.",
+    "Elder Cultist Hideout": "Once Malus has taken his cultists' powers, he goes back to the centre of the star "
+                             "after his own fire each time round and draws the Pentagram: Molek's flames land on its "
+                             "five points and the five between them, and two five-armed spirals turn through them.",
+    "The Elder Void": "At a tenth of its health the Elder Void Entity becomes a Singularity: back at the centre, "
+                      "it throws its projections onto the four marks a third time and turns two spirals against "
+                      "each other until it falls.",
+    "The Elder Shatters": "Each of its three bosses has a phase the regular Shatters doesn't. Below 45% the Bridge "
+                          "Sentinel turns armoured and spins two spirals round itself, slowing blades one way and "
+                          "heavy bolts the other, throwing Blobombs between its swarms. The Twilight Archmage "
+                          "throws fire portals as well as ice ones, and after his last blast casts an Eclipse of "
+                          "piercing bolts, confusing blades and firebombs before going round his generators "
+                          "again. The Forgotten King doesn't die at a tenth of his health: he comes out of "
+                          "hiding for a last stand, fire and ice turning round him, with his guardians back at "
+                          "his side.",
     "The Black Between": "Every shot here goes on through whoever it hits, so nobody can take the hits for the "
                          "rest of the group: each player has to dodge them. Once the fight starts the bridge falls "
                          "away into the void, all but the landing where players arrive (anyone on it is moved onto "
@@ -330,6 +364,13 @@ DUNGEON_FIGHT_NOTES = {
 
 # what's particular about raising some Elder bosses (the Raising part of the Dungeons page)
 RAISE_DUNGEON_NOTES = {
+    "Elder Lost Halls": "The Elder Marble Colossus leaves his remains at the heart of his hall, beside the tear "
+                        "into the Void. Raised, he fights his whole fight again.",
+    "Elder Cultist Hideout": "It is Malus with his cultists' powers who leaves remains, and who rises: the "
+                             "cultists, Molek and Balaam stay dead.",
+    "The Elder Shatters": "The Bridge Sentinel, the Twilight Archmage and the Forgotten King each leave their own "
+                          "remains where they fall, and each needs a relic of its own. Raised, a boss drops what "
+                          "its loot balloon held as well: there is no second balloon.",
     "Lair of Elder Draconis": "Each of the four Elder dragons leaves its own remains in its lair, so it takes a relic for "
                               "each: a group with four can raise them all. Like the Elder dragon, the Empowered one turns "
                               "into a loot balloon when it falls. The balloon holds the Elder dragon's loot at its "
@@ -641,8 +682,10 @@ class Gen:
                 "raise_item_chance": pct(max(uts)) if uts else "",
                 "raise_item_min": "%g" % min((b.get("itemStrength", 1) for b in res["bosses"]), default=1),
                 "raise_item_max": "%g" % max((b.get("itemStrength", 1) for b in res["bosses"]), default=1),
-                "raise_health": ("%g" % res.get("empowered", {}).get("HealthScale", 2.5)),
-                "raise_defense": "%d" % res.get("empowered", {}).get("DefenseBonus", 10),
+                "raise_health_small": "%g" % self.d.empowered_scale(1),
+                "raise_health_200k": "%g" % self.d.empowered_scale(200000),
+                "raise_health_big": "%g" % self.d.empowered_scale(10 ** 9),
+                "raise_defense": "%d" % res.get("empowered", {}).get("DefenseBonusMax", 10),
                 "raise_souls": "%d" % res.get("empowered", {}).get("MaxSouls", 6)}
 
     def __call__(self, name, used):
@@ -753,6 +796,8 @@ class Gen:
                             with_article(d.name(item)), places,
                             ", where the %s fell," % joined(bosses) if bosses else "",
                             " (it drops from %s)" % joined(froms[:3]) if froms else ""))
+            if wid in OPENS_FROM:
+                special.append(OPENS_FROM[wid])
             if wid in self.sealed:
                 special.append(self.sealed[wid][2])
             # the Black Between opens from a behaviour (OpenTheBetween), not from a dropped portal
@@ -940,13 +985,15 @@ class Gen:
             dname = dg["name"] if dg else b["dungeon"]
             elder = who(d, b["boss"])
             hp = d.boss_health(b["boss"])
-            emp = int(hp * res["empowered"].get("HealthScale", 2.5))
+            emp = d.empowered_health(hp)
+            o = d.objects.get(b["boss"])
+            bonus = d.empowered_defense_bonus(o["defense"] if o else 0)
             soul_hp = max(400, int(emp * 0.012))
             rows = []
             if dg:
                 rows.append(("Dungeon", '<a href="dungeons.html#d-%s">%s</a>' % (slugify(dg["id"]), esc(dname))))
             rows.append(("Health", "<strong>%s</strong> (the Elder boss has %s), %+d defense; more in a group, as for the Elder boss"
-                         % ("{:,}".format(emp), "{:,}".format(hp), res["empowered"].get("DefenseBonus", 10))))
+                         % ("{:,}".format(emp), "{:,}".format(hp), bonus)))
             rows.append(("Soul attacks", "Soul Nova bolts hit for <strong>%d</strong>, the Soul Storm's for %d and slow you 2 s; "
                          "Wailing Souls have %s health" % (b["soulDamage"], round(b["soulDamage"] * 0.7), "{:,}".format(soul_hp))))
             for note in (RAISE_DUNGEON_NOTES.get(b["dungeon"]), RAISE_NOTES.get(b["boss"])):
@@ -984,6 +1031,73 @@ class Gen:
                          '<div class="dg raise"><dl>%s</dl></div>' % (
                              ident, ident, esc(b["name"]), "".join("<div><dt>%s</dt><dd>%s</dd></div>" % r for r in rows)))
         return "\n".join(parts)
+
+    # --- the Necromantic items, {{gen:raise-items}} ---------------------------------------------
+    def gen_raise_items(self, used):
+        """A showcase of every Empowered boss's own item: its sprite, kind, power and base, and the
+        boss, dungeon and chance it drops from, with chips to show one kind of gear."""
+        d = self.d
+        eq = self.equip
+        res = d.resurrection()
+        items = {it["id"]: it for it in eq.items}
+        cards_by_id = {x["id"]: x for x in self.dungeons()}
+        cats = dict((c[0], c[1]) for c in wiki_gear.CATEGORIES)
+        cards, kinds, dungeons = [], {}, []
+        for b in res["bosses"]:
+            it = items.get(b.get("item"))
+            if not it:
+                continue
+            chance = next((c for i, c in b["loot"] if i == b.get("item")), None)
+            dg = cards_by_id.get(b["dungeon"])
+            dname = dg["name"] if dg else b["dungeon"]
+            if dname not in dungeons:
+                dungeons.append(dname)
+            cat = it["category"]
+            kinds[cat] = kinds.get(cat, 0) + 1
+            kind = wd.SLOT_NAMES.get(it["slot"], it["kind"])
+            power = []
+            if it["el"].find("RelicPower") is not None:
+                for info in it["el"].iter("EffectInfo"):
+                    n, what = (info.get("name") or "").strip(), (info.get("description") or "").strip()
+                    if n and what:
+                        power.append('<p class="nx-power"><span>%s</span>%s</p>' % (esc(n), esc(what)))
+            base = ""
+            if b.get("itemBase"):
+                base = '<p class="nx-base">Built on %s at <b>%s&times;</b> its strength</p>' % (
+                    self.item_links([b["itemBase"]]), ("%.2f" % b["itemStrength"]).rstrip("0").rstrip("."))
+            boss_id = "raise-" + slugify(b["name"])
+            where = '<a href="dungeons.html#d-%s">%s</a>' % (slugify(dg["id"]), esc(dname)) if dg else esc(dname)
+            src = ('<p class="nx-src"><span>Drops from</span><a href="#%s">Empowered %s</a>, raised in %s</p>'
+                   % (boss_id, esc(b["name"]), where))
+            search = " ".join([it["name"], kind, b["name"], dname] +
+                              [re.sub(r"<[^>]+>", "", x) for x in power]).lower()
+            cards.append(
+                '<article class="nx-card" id="nx-%s" data-cat="%s" data-search="%s" style="--c:%s">'
+                '<div class="nx-art">%s%s</div>'
+                '<div class="nx-body"><h3><a href="%s">%s</a></h3>'
+                '<p class="nx-kind"><span class="tag" style="--c:%s">%s</span><span>%s</span>%s</p>'
+                '%s%s%s</div></article>' % (
+                    slugify(it["id"]), cat, esc(search), eq.edge(it), eq.icon(it),
+                    '<span class="nx-chance" title="The chance for each player, before loot boosts">%s</span>' % pct(chance) if chance else "",
+                    eq.href[it["id"]], esc(it["name"]), eq.edge(it), esc(eq.tag(it)), esc(kind),
+                    '<span class="nx-sb">Soulbound</span>' if it["soulbound"] else "",
+                    "".join(power), base, src))
+        used.add("nx-items")
+        # the chips set the section's data-cat, and style.css hides the other kinds
+        chips = ['<button type="button" class="nx-chip" data-cat="all" data-cat-for="nx-items" aria-pressed="true">All <b>%d</b></button>' % len(cards)]
+        for c, title, _, _ in wiki_gear.CATEGORIES:
+            if kinds.get(c):
+                chips.append('<button type="button" class="nx-chip" data-cat="%s" data-cat-for="nx-items" aria-pressed="false">%s <b>%d</b></button>'
+                             % (c, esc(title), kinds[c]))
+        stats = ('<div class="nx-stats"><div><b>%d</b><span>items</span></div><div><b>%d</b><span>Elder dungeons</span></div>'
+                 '<div><b>%s</b><span>each, per player</span></div><div><b>%s&ndash;%s&times;</b><span>their base</span></div></div>' % (
+                     len(cards), len(dungeons), self.resurrection_values()["raise_item_chance"],
+                     self.resurrection_values()["raise_item_min"], self.resurrection_values()["raise_item_max"]))
+        return ('<section class="nx" id="nx-items" data-cat="all">%s'
+                '<div class="nx-tools"><div class="nx-chips" role="group" aria-label="Kind of gear">%s</div>'
+                '<div class="filter"><label for="nx-filter">Filter</label><input id="nx-filter" type="search" '
+                'placeholder="Name, boss, dungeon or power" data-filter=".nx-card" autocomplete="off"></div></div>'
+                '<div class="nx-grid">%s</div></section>' % (stats, "".join(chips), "".join(cards)))
 
     # --- the Oryx chain ----------------------------------------------------------------------
     def gen_oryx_chain(self, used):

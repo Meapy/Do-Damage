@@ -81,7 +81,8 @@ namespace WorldServer.logic
                 new State(
                     // the regular dungeon leads to its Elder version half the time
                     new DropPortalOnDeath("Elder Ocean Trench Portal", elder ? 0 : 0.5, xAdjustment: 3),
-                    new ScaleHP2(20),
+                    // the Elder version gains less health per extra player: its base is far higher
+                    new ScaleHP2(elder ? 15 : 20),
                     new TransformOnDeath(N("Thessal the Mermaid Goddess Wounded"), probability: 0.1),
                     new TransformOnDeath(N("Thessal Dropper")),
                     new DropPortalOnDeath("Realm Portal", 1.0),

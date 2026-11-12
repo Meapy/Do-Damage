@@ -54,6 +54,28 @@ namespace Tests
             Assert.Equal(50, items["Enthroned Boots"].ActivateOnEquips.Single(b => b.Key == 22).Value);
         }
 
+        // a look swap (Sun's Judgement into a Doom Bow, the Staff of Iceblast into the Staff of
+        // Extreme Prejudice) doesn't count for quests or the community goal; forging the same item
+        // from other items, or anything else, still does
+        [Fact]
+        public void LookSwapsAreReskins()
+        {
+            var (_, all) = Data.Value;
+            var forge = typeof(GameServer).Assembly.GetType("WorldServer.core.commands.doomed.ForgeRecipes");
+            var isReskin = forge.GetMethod("IsReskin");
+            bool Reskin((string, int, bool, string[]) r) => (bool)isReskin.Invoke(null, new object[] { r });
+
+            var swaps = all.Where(Reskin).ToList();
+            Assert.Contains(swaps, r => r.Result == "Doom Bow" && r.Items.SequenceEqual(new[] { "Sun's Judgement" }));
+            Assert.Contains(swaps, r => r.Result == "Staff of Extreme Prejudice" && r.Items.SequenceEqual(new[] { "Staff of Iceblast" }));
+            Assert.Contains(swaps, r => r.Result == "Sun's Judgement");
+            Assert.All(swaps, r => Assert.Single(r.Items));
+
+            Assert.Contains(all, r => r.Result == "Doom Bow" && r.Items.Length == 2 && !Reskin(r));
+            Assert.Contains(all, r => r.Result == "Reforged Doom Bow" && !Reskin(r));
+            Assert.Contains(all, r => r.Result == "Infernal Potion of Life" && !Reskin(r));
+        }
+
         // the other Ascended items still take one shard and an item of their tier
         [Fact]
         public void OtherAscendedItemsTakeOneShard()

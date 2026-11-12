@@ -108,6 +108,8 @@ Be at least level 20 and bring friends.
 Your **quest** is a strong monster near your level. An arrow at the edge of the screen points at
 it, and it shows at the top left of the screen with its health and the five players doing the most
 damage to it.
+In a dungeon your quest is its boss, whatever your level: the arrow leads to the nearest one,
+however far it is.
 Killing it gives a bigger share of experience. `/getquest` names it.
 
 ### Realm events
