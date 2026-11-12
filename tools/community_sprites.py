@@ -204,6 +204,52 @@ def item_ids():
     return ids
 
 
+MANIFEST = os.path.join(ROOT, "client-rs", "assets", "manifest.json")
+
+
+def current_pixels(item, size):
+    """The item's sprite now, scaled to size (nearest), as RGBA rows; None when it can't be found."""
+    from PIL import Image
+    try:
+        for path in xml_files():
+            with open(path, encoding="utf-8-sig", errors="replace") as f:
+                text = f.read()
+            for m in OBJECT.finditer(text):
+                if html.unescape(m.group(1)) != item:
+                    continue
+                t = TEXTURE.search(m.group(0))
+                if not t:
+                    return None
+                sheet = re.search(r"<File>([^<]*)</File>", t.group(1)).group(1).strip()
+                index = int(re.search(r"<Index>([^<]*)</Index>", t.group(1)).group(1).strip(), 0)
+                with open(MANIFEST, encoding="utf-8") as mf:
+                    entry = next(e for e in json.load(mf)["image_sets"] if e["name"] == sheet)
+                img = Image.open(os.path.join(ROOT, "client", "src", entry["file"])).convert("RGBA")
+                w, h = entry["w"], entry["h"]
+                cols = img.width // w
+                x0, y0 = (index % cols) * w, (index // cols) * w
+                return img.crop((x0, y0, x0 + w, y0 + h)).resize((size, size), Image.NEAREST)
+    except Exception:  # an odd texture (remote, animated, missing sheet): can't tell, so don't refuse
+        return None
+    return None
+
+
+def unchanged(s):
+    """True when a new look for an item is its current sprite, pixel for pixel (solid or empty as drawn)."""
+    if s["kind"] != "item":
+        return False
+    now = current_pixels(s["item"], s["size"])
+    if now is None:
+        return False
+    for i in range(s["size"] * s["size"]):
+        px = s["pixels"][i * 8:i * 8 + 8]
+        r, g, b, a = (int(px[k:k + 2], 16) for k in (0, 2, 4, 6))
+        nr, ng, nb, na = now.getpixel((i % s["size"], i // s["size"]))
+        if (a >= 0x80) != (na >= 0x80) or (a >= 0x80 and (r, g, b) != (nr, ng, nb)):
+            return False
+    return True
+
+
 def looks(cat):
     """Each item's look from the catalog: the last approved one for it wins."""
     out = {}
@@ -352,7 +398,10 @@ def update_pr_body(players, details, check):
             at = s[1]
             while at > s[0] + 1 and not lines[at - 1].strip():
                 at -= 1
-            lines.insert(at, PR_PLAYERS_PREFIX + ", ".join(players) + ".")
+            new = [PR_PLAYERS_PREFIX + ", ".join(players) + "."]
+            if at == s[0] + 1:  # an empty section: keep a blank line under its heading
+                new.insert(0, "")
+            lines[at:at] = new
     if PR_DETAILS_HEAD in lines:
         at = lines.index(PR_DETAILS_HEAD) + 1
         while at < len(lines) and not lines[at].startswith("#"):
@@ -422,6 +471,9 @@ def cmd_apply(args):
     for s in todo:
         if s["kind"] == "item" and s["item"] not in known:
             print(f"  skipped {describe(s)}: no item with that id in the XML")
+            continue
+        if unchanged(s):
+            print(f"  skipped {describe(s)}: it's the item's sprite as it is now; turn it down in the Review tab")
             continue
         sheet, file = SHEETS[s["size"]]
         index = next_index(cat, sheet)
@@ -512,10 +564,14 @@ def cmd_check(args):
             sys.exit(1)
         done = {s["id"] for s in cat["sprites"]}
         waiting = [s for s in approved if s["id"] not in done]
+        same = [s for s in waiting if unchanged(s)]
         for s in waiting:
-            print("  approved, not taken in: " + describe(s))
+            if s in same:
+                print("  approved, but the item's sprite as it is now (turn it down in the Review tab): " + describe(s))
+            else:
+                print("  approved, not taken in: " + describe(s))
     if bad or waiting:
-        if waiting:
+        if len(waiting) > len(same):
             print("Take them in with `python tools/community_sprites.py apply --commit` on the release branch.")
         sys.exit(1)
     print(f"Player sprites in order: {len(cat['sprites'])} in the catalog"

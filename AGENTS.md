@@ -174,7 +174,9 @@ it asks first; never run test copies under the live process names (`redis-server
        repository yet (it lists them), or while the sheets, the catalog and the item XML are out
        of step. Take the listed ones in with `python tools\community_sprites.py apply --commit`
        (a worktree rebased onto the release branch, brought in as any other work; `rework` fixes
-       the XML), look at them in a `--shot`, and run `check` again until it passes. Do this
+       the XML), look at them in a `--shot`, and run `check` again until it passes. One it calls
+       the item's sprite as it is now (an unchanged copy) isn't taken in: ask the owner to turn it
+       down in the editor's Review tab. Do this
        before naming the changelog section: `apply` writes under `## Unreleased`.
     2. On the release branch, name the changelog section and raise the version (client-rs/AGENTS.md,
        "Releasing to players"), and check the client tests, `python tools\build_site.py` and the
