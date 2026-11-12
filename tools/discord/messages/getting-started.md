@@ -7,7 +7,7 @@
 
 **3. Make a character and type `/gear`.** Every class is open from the start. In the Nexus, below level 20, `/gear` gives you free starter gear for your class, plus an XP Booster and a Loot Drop Potion. It works once per character, so keep a few inventory slots free.
 
-**4. Into the realm.** `/realm` takes you to the busiest realm. Start by the beaches and move inland as you level, and take the dungeon portals monsters drop. At level 20, try `/godlands` with friends. Put anything you want to keep in your vault (`/vault`) first: a death takes everything your character carries.
+**4. Into the realm.** `/realm` takes you into Realm 2. Start by the shore and move inland as you level, and take the dungeon portals monsters drop. At level 20, try `/godlands` with friends. Put anything you want to keep in your vault (`/vault`) first: a death takes everything your character carries.
 
 **Good to know**
 • `/commands` lists every command, and **J** opens your quests and daily reward.

@@ -18,25 +18,29 @@ namespace WorldServer.core.commands
         {
             public override string CommandName => "realm2";
 
+            /// <summary>Sends the player into the Nexus's Realm 2 (for /realm2 and /realm).</summary>
+            internal static bool EnterNexusRealm2(Player player)
+            {
+                var open = player.GameServer.WorldManager.Nexus.PortalMonitor.Realm2();
+                if (open == null)
+                {
+                    player.SendError("The Nexus's Realm 2 is still being built: try again in a moment.");
+                    return false;
+                }
+                if (open.IsPlayersMax())
+                {
+                    player.SendError($"Realm 2 ({open.GetDisplayName()}) is full: try again in a moment.");
+                    return false;
+                }
+                player.Reconnect(open);
+                return true;
+            }
+
             protected override bool Process(Player player, TickTime time, string args)
             {
                 args = args.Trim();
                 if (player.World is not Realm2World realm)
-                {
-                    var open = player.GameServer.WorldManager.Nexus.PortalMonitor.Realm2();
-                    if (open == null)
-                    {
-                        player.SendError("The Nexus's Realm 2 is still being built: try again in a moment.");
-                        return false;
-                    }
-                    if (open.IsPlayersMax())
-                    {
-                        player.SendError($"Realm 2 ({open.GetDisplayName()}) is full: try again in a moment.");
-                        return false;
-                    }
-                    player.Reconnect(open);
-                    return true;
-                }
+                    return EnterNexusRealm2(player);
 
                 if (!player.Client.Account.Admin && player.Client.Account.Rank < (int)RankingType.Admin)
                 {

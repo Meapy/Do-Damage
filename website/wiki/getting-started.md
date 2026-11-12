@@ -293,7 +293,7 @@ The most useful ones; the [Commands](commands.html) page lists them all.
 | Command | What it does |
 |---|---|
 | `/gear` | Free starter gear (once per character) |
-| `/realm` | To the busiest realm |
+| `/realm` | Into [Realm 2](realm-2.html) |
 | `/godlands` | Straight to a realm's Godlands, from anywhere |
 | `/nexus` | Back to the Nexus |
 | `/vault` | To your vault |

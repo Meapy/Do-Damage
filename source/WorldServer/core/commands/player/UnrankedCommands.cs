@@ -1135,40 +1135,13 @@ namespace WorldServer.core.commands.player
         }
     }
 
+    // /realm: into the Nexus's Realm 2, as /realm2 from outside one (Realm 1 is its Nexus portal).
     internal class RealmCommand : Command
     {
         public override string CommandName => "realm";
 
-        protected override bool Process(Player player, TickTime time, string args)
-        {
-            var worlds = player.GameServer.WorldManager.GetRealms();
-            if (worlds.Count == 0)
-            {
-                player.SendInfo("Unable to find a realm.");
-                return true;
-            }
-
-            var world = worlds[0];
-
-            var max = int.MinValue;
-            foreach (var i in worlds)
-            {
-                if (i.Players.Count > max)
-                {
-                    world = i;
-                    max = i.Players.Count;
-                }
-            }
-
-            if (world.IsPlayersMax())
-            {
-                player.SendError("Dungeon is full");
-                return true;
-            }
-
-            player.Reconnect(world);
-            return true;
-        }
+        protected override bool Process(Player player, TickTime time, string args) =>
+            Command.Realm2.EnterNexusRealm2(player);
     }
 
     internal class RestartWhen : Command

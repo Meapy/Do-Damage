@@ -16,6 +16,8 @@ details). Add to a group's line when a change adds to it, rather than adding ano
 
 ### Game
 - Out of combat speed: +20 Speed while you haven't hit an enemy or been hit by one for 10 seconds.
+- `/realm` takes you into Realm 2, and the whole game sees in the chat when a realm event is killed
+  (and in which realm) and when a realm closes.
 
 ### Sprite Editor
 - A new Sprite Editor on the main menu: draw a new look for any item, or the art for a new one, at
