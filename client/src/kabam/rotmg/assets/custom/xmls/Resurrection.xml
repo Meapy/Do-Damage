@@ -919,6 +919,21 @@
 			<LifetimeMS>1600</LifetimeMS>
 			<ConditionEffect duration="2">Slowed</ConditionEffect>
 		</Projectile>
+		<Projectile id="92">
+			<ObjectId>Necromantic Soul Bolt</ObjectId>
+			<Speed>28</Speed>
+			<Damage>36</Damage>
+			<Size>140</Size>
+			<LifetimeMS>4200</LifetimeMS>
+			<MultiHit />
+		</Projectile>
+		<Projectile id="93">
+			<ObjectId>Necromantic Soul Bolt</ObjectId>
+			<Speed>110</Speed>
+			<Damage>17</Damage>
+			<Size>60</Size>
+			<LifetimeMS>1200</LifetimeMS>
+		</Projectile>
 	</Object>
 	<Object type="0x8C06" id="Elder Arachna the Spider Queen Remains">
 		<DisplayId>Remains of Arachna the Spider Queen</DisplayId>
@@ -990,6 +1005,21 @@
 			<Size>65</Size>
 			<LifetimeMS>1600</LifetimeMS>
 			<ConditionEffect duration="2">Slowed</ConditionEffect>
+		</Projectile>
+		<Projectile id="92">
+			<ObjectId>Necromantic Soul Bolt</ObjectId>
+			<Speed>28</Speed>
+			<Damage>114</Damage>
+			<Size>140</Size>
+			<LifetimeMS>4200</LifetimeMS>
+			<MultiHit />
+		</Projectile>
+		<Projectile id="93">
+			<ObjectId>Necromantic Soul Bolt</ObjectId>
+			<Speed>110</Speed>
+			<Damage>53</Damage>
+			<Size>60</Size>
+			<LifetimeMS>1200</LifetimeMS>
 		</Projectile>
 	</Object>
 	<Object type="0x8C08" id="Elder Mixcoatl the Masked God Remains">
@@ -1107,6 +1137,21 @@
 			<LifetimeMS>1600</LifetimeMS>
 			<ConditionEffect duration="2">Slowed</ConditionEffect>
 		</Projectile>
+		<Projectile id="92">
+			<ObjectId>Necromantic Soul Bolt</ObjectId>
+			<Speed>28</Speed>
+			<Damage>91</Damage>
+			<Size>140</Size>
+			<LifetimeMS>4200</LifetimeMS>
+			<MultiHit />
+		</Projectile>
+		<Projectile id="93">
+			<ObjectId>Necromantic Soul Bolt</ObjectId>
+			<Speed>110</Speed>
+			<Damage>42</Damage>
+			<Size>60</Size>
+			<LifetimeMS>1200</LifetimeMS>
+		</Projectile>
 	</Object>
 	<Object type="0x8C0A" id="Elder Stheno the Snake Queen Remains">
 		<DisplayId>Remains of Stheno the Snake Queen</DisplayId>
@@ -1179,6 +1224,21 @@
 			<Size>65</Size>
 			<LifetimeMS>1600</LifetimeMS>
 			<ConditionEffect duration="2">Slowed</ConditionEffect>
+		</Projectile>
+		<Projectile id="92">
+			<ObjectId>Necromantic Soul Bolt</ObjectId>
+			<Speed>28</Speed>
+			<Damage>152</Damage>
+			<Size>140</Size>
+			<LifetimeMS>4200</LifetimeMS>
+			<MultiHit />
+		</Projectile>
+		<Projectile id="93">
+			<ObjectId>Necromantic Soul Bolt</ObjectId>
+			<Speed>110</Speed>
+			<Damage>70</Damage>
+			<Size>60</Size>
+			<LifetimeMS>1200</LifetimeMS>
 		</Projectile>
 	</Object>
 	<Object type="0x8C0C" id="Elder Septavius the Ghost God Remains">
@@ -2037,6 +2097,21 @@
 			<LifetimeMS>1600</LifetimeMS>
 			<ConditionEffect duration="2">Slowed</ConditionEffect>
 		</Projectile>
+		<Projectile id="92">
+			<ObjectId>Necromantic Soul Bolt</ObjectId>
+			<Speed>28</Speed>
+			<Damage>75</Damage>
+			<Size>140</Size>
+			<LifetimeMS>4200</LifetimeMS>
+			<MultiHit />
+		</Projectile>
+		<Projectile id="93">
+			<ObjectId>Necromantic Soul Bolt</ObjectId>
+			<Speed>110</Speed>
+			<Damage>35</Damage>
+			<Size>60</Size>
+			<LifetimeMS>1200</LifetimeMS>
+		</Projectile>
 	</Object>
 	<Object type="0x8C0E" id="Elder Limon the Sprite God Remains">
 		<DisplayId>Remains of Limon the Sprite God</DisplayId>
@@ -2100,6 +2175,21 @@
 			<Size>65</Size>
 			<LifetimeMS>1600</LifetimeMS>
 			<ConditionEffect duration="2">Slowed</ConditionEffect>
+		</Projectile>
+		<Projectile id="92">
+			<ObjectId>Necromantic Soul Bolt</ObjectId>
+			<Speed>28</Speed>
+			<Damage>105</Damage>
+			<Size>140</Size>
+			<LifetimeMS>4200</LifetimeMS>
+			<MultiHit />
+		</Projectile>
+		<Projectile id="93">
+			<ObjectId>Necromantic Soul Bolt</ObjectId>
+			<Speed>110</Speed>
+			<Damage>49</Damage>
+			<Size>60</Size>
+			<LifetimeMS>1200</LifetimeMS>
 		</Projectile>
 	</Object>
 	<Object type="0x8C10" id="Elder Archdemon Malphas Remains">
@@ -2202,6 +2292,21 @@
 			<LifetimeMS>1600</LifetimeMS>
 			<ConditionEffect duration="2">Slowed</ConditionEffect>
 		</Projectile>
+		<Projectile id="92">
+			<ObjectId>Necromantic Soul Bolt</ObjectId>
+			<Speed>28</Speed>
+			<Damage>166</Damage>
+			<Size>140</Size>
+			<LifetimeMS>4200</LifetimeMS>
+			<MultiHit />
+		</Projectile>
+		<Projectile id="93">
+			<ObjectId>Necromantic Soul Bolt</ObjectId>
+			<Speed>110</Speed>
+			<Damage>77</Damage>
+			<Size>60</Size>
+			<LifetimeMS>1200</LifetimeMS>
+		</Projectile>
 	</Object>
 	<Object type="0x8C12" id="Elder Lord Ruthven Remains">
 		<DisplayId>Remains of Lord Ruthven</DisplayId>
@@ -2297,6 +2402,21 @@
 			<LifetimeMS>1600</LifetimeMS>
 			<ConditionEffect duration="2">Slowed</ConditionEffect>
 		</Projectile>
+		<Projectile id="92">
+			<ObjectId>Necromantic Soul Bolt</ObjectId>
+			<Speed>28</Speed>
+			<Damage>152</Damage>
+			<Size>140</Size>
+			<LifetimeMS>4200</LifetimeMS>
+			<MultiHit />
+		</Projectile>
+		<Projectile id="93">
+			<ObjectId>Necromantic Soul Bolt</ObjectId>
+			<Speed>110</Speed>
+			<Damage>70</Damage>
+			<Size>60</Size>
+			<LifetimeMS>1200</LifetimeMS>
+		</Projectile>
 	</Object>
 	<Object type="0x8C14" id="Elder Masked Party God Remains">
 		<DisplayId>Remains of Masked Party God</DisplayId>
@@ -2366,6 +2486,21 @@
 			<Size>65</Size>
 			<LifetimeMS>1600</LifetimeMS>
 			<ConditionEffect duration="2">Slowed</ConditionEffect>
+		</Projectile>
+		<Projectile id="92">
+			<ObjectId>Necromantic Soul Bolt</ObjectId>
+			<Speed>28</Speed>
+			<Damage>78</Damage>
+			<Size>140</Size>
+			<LifetimeMS>4200</LifetimeMS>
+			<MultiHit />
+		</Projectile>
+		<Projectile id="93">
+			<ObjectId>Necromantic Soul Bolt</ObjectId>
+			<Speed>110</Speed>
+			<Damage>36</Damage>
+			<Size>60</Size>
+			<LifetimeMS>1200</LifetimeMS>
 		</Projectile>
 	</Object>
 	<Object type="0x8C16" id="Elder Davy Jones Remains">
@@ -2476,6 +2611,21 @@
 			<Size>65</Size>
 			<LifetimeMS>1600</LifetimeMS>
 			<ConditionEffect duration="2">Slowed</ConditionEffect>
+		</Projectile>
+		<Projectile id="92">
+			<ObjectId>Necromantic Soul Bolt</ObjectId>
+			<Speed>28</Speed>
+			<Damage>212</Damage>
+			<Size>140</Size>
+			<LifetimeMS>4200</LifetimeMS>
+			<MultiHit />
+		</Projectile>
+		<Projectile id="93">
+			<ObjectId>Necromantic Soul Bolt</ObjectId>
+			<Speed>110</Speed>
+			<Damage>98</Damage>
+			<Size>60</Size>
+			<LifetimeMS>1200</LifetimeMS>
 		</Projectile>
 	</Object>
 	<Object type="0x8C18" id="Elder NM Green Dragon God Remains">
@@ -2591,6 +2741,36 @@
 			<LifetimeMS>1600</LifetimeMS>
 			<ConditionEffect duration="2">Slowed</ConditionEffect>
 		</Projectile>
+		<Projectile id="92">
+			<ObjectId>Necromantic Soul Bolt</ObjectId>
+			<Speed>28</Speed>
+			<Damage>182</Damage>
+			<Size>140</Size>
+			<LifetimeMS>4200</LifetimeMS>
+			<MultiHit />
+		</Projectile>
+		<Projectile id="93">
+			<ObjectId>Necromantic Soul Bolt</ObjectId>
+			<Speed>110</Speed>
+			<Damage>84</Damage>
+			<Size>60</Size>
+			<LifetimeMS>1200</LifetimeMS>
+		</Projectile>
+		<Projectile id="100">
+			<ObjectId>Dragon Attack Green Spine</ObjectId>
+			<Speed>70</Speed>
+			<Damage>112</Damage>
+			<Size>100</Size>
+			<LifetimeMS>1800</LifetimeMS>
+			<ConditionEffect duration="2">Sick</ConditionEffect>
+		</Projectile>
+		<Projectile id="101">
+			<ObjectId>Dragon Attack Green Ball</ObjectId>
+			<Speed>40</Speed>
+			<Damage>140</Damage>
+			<Size>120</Size>
+			<LifetimeMS>2600</LifetimeMS>
+		</Projectile>
 	</Object>
 	<Object type="0x8C1A" id="Elder NM Blue Dragon God Remains">
 		<DisplayId>Remains of Nikao the Azure Dragon</DisplayId>
@@ -2698,6 +2878,36 @@
 			<Size>65</Size>
 			<LifetimeMS>1600</LifetimeMS>
 			<ConditionEffect duration="2">Slowed</ConditionEffect>
+		</Projectile>
+		<Projectile id="92">
+			<ObjectId>Necromantic Soul Bolt</ObjectId>
+			<Speed>28</Speed>
+			<Damage>144</Damage>
+			<Size>140</Size>
+			<LifetimeMS>4200</LifetimeMS>
+			<MultiHit />
+		</Projectile>
+		<Projectile id="93">
+			<ObjectId>Necromantic Soul Bolt</ObjectId>
+			<Speed>110</Speed>
+			<Damage>67</Damage>
+			<Size>60</Size>
+			<LifetimeMS>1200</LifetimeMS>
+		</Projectile>
+		<Projectile id="100">
+			<ObjectId>Dragon Attack Blue Bullet</ObjectId>
+			<Speed>65</Speed>
+			<Damage>89</Damage>
+			<Size>100</Size>
+			<LifetimeMS>3600</LifetimeMS>
+		</Projectile>
+		<Projectile id="101">
+			<ObjectId>Water Storm</ObjectId>
+			<Speed>45</Speed>
+			<Damage>111</Damage>
+			<Size>120</Size>
+			<LifetimeMS>3000</LifetimeMS>
+			<ConditionEffect duration="1.5">Slowed</ConditionEffect>
 		</Projectile>
 	</Object>
 	<Object type="0x8C1C" id="Elder NM Red Dragon God Remains">
@@ -2842,6 +3052,35 @@
 			<Size>65</Size>
 			<LifetimeMS>1600</LifetimeMS>
 			<ConditionEffect duration="2">Slowed</ConditionEffect>
+		</Projectile>
+		<Projectile id="92">
+			<ObjectId>Necromantic Soul Bolt</ObjectId>
+			<Speed>28</Speed>
+			<Damage>114</Damage>
+			<Size>140</Size>
+			<LifetimeMS>4200</LifetimeMS>
+			<MultiHit />
+		</Projectile>
+		<Projectile id="93">
+			<ObjectId>Necromantic Soul Bolt</ObjectId>
+			<Speed>110</Speed>
+			<Damage>53</Damage>
+			<Size>60</Size>
+			<LifetimeMS>1200</LifetimeMS>
+		</Projectile>
+		<Projectile id="100">
+			<ObjectId>Red Fire</ObjectId>
+			<Speed>85</Speed>
+			<Damage>62</Damage>
+			<Size>100</Size>
+			<LifetimeMS>1300</LifetimeMS>
+		</Projectile>
+		<Projectile id="101">
+			<ObjectId>Dragon Attack Red Big Fireball</ObjectId>
+			<Speed>40</Speed>
+			<Damage>97</Damage>
+			<Size>130</Size>
+			<LifetimeMS>2600</LifetimeMS>
 		</Projectile>
 	</Object>
 	<Object type="0x8C1E" id="Elder NM Black Dragon God Remains">
@@ -2991,6 +3230,35 @@
 			<LifetimeMS>1600</LifetimeMS>
 			<ConditionEffect duration="2">Slowed</ConditionEffect>
 		</Projectile>
+		<Projectile id="92">
+			<ObjectId>Necromantic Soul Bolt</ObjectId>
+			<Speed>28</Speed>
+			<Damage>152</Damage>
+			<Size>140</Size>
+			<LifetimeMS>4200</LifetimeMS>
+			<MultiHit />
+		</Projectile>
+		<Projectile id="93">
+			<ObjectId>Necromantic Soul Bolt</ObjectId>
+			<Speed>110</Speed>
+			<Damage>70</Damage>
+			<Size>60</Size>
+			<LifetimeMS>1200</LifetimeMS>
+		</Projectile>
+		<Projectile id="100">
+			<ObjectId>Dragon Attack Black Shot</ObjectId>
+			<Speed>75</Speed>
+			<Damage>94</Damage>
+			<Size>100</Size>
+			<LifetimeMS>2000</LifetimeMS>
+		</Projectile>
+		<Projectile id="101">
+			<ObjectId>Black Missile</ObjectId>
+			<Speed>55</Speed>
+			<Damage>117</Damage>
+			<Size>110</Size>
+			<LifetimeMS>2400</LifetimeMS>
+		</Projectile>
 	</Object>
 	<Object type="0x8C20" id="Elder Thessal the Mermaid Goddess Remains">
 		<DisplayId>Remains of Thessal the Mermaid Goddess</DisplayId>
@@ -3079,6 +3347,35 @@
 			<Size>65</Size>
 			<LifetimeMS>1600</LifetimeMS>
 			<ConditionEffect duration="2">Slowed</ConditionEffect>
+		</Projectile>
+		<Projectile id="92">
+			<ObjectId>Necromantic Soul Bolt</ObjectId>
+			<Speed>28</Speed>
+			<Damage>152</Damage>
+			<Size>140</Size>
+			<LifetimeMS>4200</LifetimeMS>
+			<MultiHit />
+		</Projectile>
+		<Projectile id="93">
+			<ObjectId>Necromantic Soul Bolt</ObjectId>
+			<Speed>110</Speed>
+			<Damage>70</Damage>
+			<Size>60</Size>
+			<LifetimeMS>1200</LifetimeMS>
+		</Projectile>
+		<Projectile id="100">
+			<ObjectId>Trident</ObjectId>
+			<Speed>55</Speed>
+			<Damage>105</Damage>
+			<Size>100</Size>
+			<LifetimeMS>4600</LifetimeMS>
+		</Projectile>
+		<Projectile id="101">
+			<ObjectId>Thunder Swirl</ObjectId>
+			<Speed>45</Speed>
+			<Damage>105</Damage>
+			<Size>110</Size>
+			<LifetimeMS>2200</LifetimeMS>
 		</Projectile>
 	</Object>
 	<Object type="0x8C22" id="Elder Tomb Defender Remains">
@@ -3180,6 +3477,36 @@
 			<Size>65</Size>
 			<LifetimeMS>1600</LifetimeMS>
 			<ConditionEffect duration="2">Slowed</ConditionEffect>
+		</Projectile>
+		<Projectile id="92">
+			<ObjectId>Necromantic Soul Bolt</ObjectId>
+			<Speed>28</Speed>
+			<Damage>243</Damage>
+			<Size>140</Size>
+			<LifetimeMS>4200</LifetimeMS>
+			<MultiHit />
+		</Projectile>
+		<Projectile id="93">
+			<ObjectId>Necromantic Soul Bolt</ObjectId>
+			<Speed>110</Speed>
+			<Damage>112</Damage>
+			<Size>60</Size>
+			<LifetimeMS>1200</LifetimeMS>
+		</Projectile>
+		<Projectile id="100">
+			<ObjectId>Silver Shield</ObjectId>
+			<Speed>65</Speed>
+			<Damage>168</Damage>
+			<Size>100</Size>
+			<LifetimeMS>2200</LifetimeMS>
+		</Projectile>
+		<Projectile id="101">
+			<ObjectId>Fire Boomerang</ObjectId>
+			<Speed>55</Speed>
+			<Damage>187</Damage>
+			<Size>110</Size>
+			<LifetimeMS>2600</LifetimeMS>
+			<ConditionEffect duration="2">Armor Broken</ConditionEffect>
 		</Projectile>
 	</Object>
 	<Object type="0x8C24" id="Elder Tomb Support Remains">
@@ -3316,6 +3643,36 @@
 			<LifetimeMS>1600</LifetimeMS>
 			<ConditionEffect duration="2">Slowed</ConditionEffect>
 		</Projectile>
+		<Projectile id="92">
+			<ObjectId>Necromantic Soul Bolt</ObjectId>
+			<Speed>28</Speed>
+			<Damage>60</Damage>
+			<Size>140</Size>
+			<LifetimeMS>4200</LifetimeMS>
+			<MultiHit />
+		</Projectile>
+		<Projectile id="93">
+			<ObjectId>Necromantic Soul Bolt</ObjectId>
+			<Speed>110</Speed>
+			<Damage>28</Damage>
+			<Size>60</Size>
+			<LifetimeMS>1200</LifetimeMS>
+		</Projectile>
+		<Projectile id="100">
+			<ObjectId>Ice Magic</ObjectId>
+			<Speed>80</Speed>
+			<Damage>32</Damage>
+			<Size>100</Size>
+			<LifetimeMS>2200</LifetimeMS>
+			<ConditionEffect duration="1.5">Slowed</ConditionEffect>
+		</Projectile>
+		<Projectile id="101">
+			<ObjectId>Purple Boomerang</ObjectId>
+			<Speed>40</Speed>
+			<Damage>41</Damage>
+			<Size>110</Size>
+			<LifetimeMS>3000</LifetimeMS>
+		</Projectile>
 	</Object>
 	<Object type="0x8C26" id="Elder Tomb Attacker Remains">
 		<DisplayId>Remains of Geb</DisplayId>
@@ -3423,6 +3780,35 @@
 			<Size>65</Size>
 			<LifetimeMS>1600</LifetimeMS>
 			<ConditionEffect duration="2">Slowed</ConditionEffect>
+		</Projectile>
+		<Projectile id="92">
+			<ObjectId>Necromantic Soul Bolt</ObjectId>
+			<Speed>28</Speed>
+			<Damage>152</Damage>
+			<Size>140</Size>
+			<LifetimeMS>4200</LifetimeMS>
+			<MultiHit />
+		</Projectile>
+		<Projectile id="93">
+			<ObjectId>Necromantic Soul Bolt</ObjectId>
+			<Speed>110</Speed>
+			<Damage>70</Damage>
+			<Size>60</Size>
+			<LifetimeMS>1200</LifetimeMS>
+		</Projectile>
+		<Projectile id="100">
+			<ObjectId>Fireball</ObjectId>
+			<Speed>60</Speed>
+			<Damage>94</Damage>
+			<Size>100</Size>
+			<LifetimeMS>2000</LifetimeMS>
+		</Projectile>
+		<Projectile id="101">
+			<ObjectId>Fire Magic</ObjectId>
+			<Speed>22</Speed>
+			<Damage>164</Damage>
+			<Size>160</Size>
+			<LifetimeMS>2400</LifetimeMS>
 		</Projectile>
 	</Object>
 	<Object type="0x8C28" id="Elder lod Ivory Wyvern Remains">
@@ -3765,6 +4151,50 @@
 			<LifetimeMS>1600</LifetimeMS>
 			<ConditionEffect duration="2">Slowed</ConditionEffect>
 		</Projectile>
+		<Projectile id="92">
+			<ObjectId>Necromantic Soul Bolt</ObjectId>
+			<Speed>28</Speed>
+			<Damage>182</Damage>
+			<Size>140</Size>
+			<LifetimeMS>4200</LifetimeMS>
+			<MultiHit />
+		</Projectile>
+		<Projectile id="93">
+			<ObjectId>Necromantic Soul Bolt</ObjectId>
+			<Speed>110</Speed>
+			<Damage>84</Damage>
+			<Size>60</Size>
+			<LifetimeMS>1200</LifetimeMS>
+		</Projectile>
+		<Projectile id="100">
+			<ObjectId>LOD Green Spine</ObjectId>
+			<Speed>60</Speed>
+			<Damage>112</Damage>
+			<Size>100</Size>
+			<LifetimeMS>2600</LifetimeMS>
+		</Projectile>
+		<Projectile id="101">
+			<ObjectId>LOD Blue Fireball</ObjectId>
+			<Speed>60</Speed>
+			<Damage>112</Damage>
+			<Size>100</Size>
+			<LifetimeMS>2600</LifetimeMS>
+			<ConditionEffect duration="1">Slowed</ConditionEffect>
+		</Projectile>
+		<Projectile id="102">
+			<ObjectId>LOD Red Orb</ObjectId>
+			<Speed>60</Speed>
+			<Damage>112</Damage>
+			<Size>100</Size>
+			<LifetimeMS>2600</LifetimeMS>
+		</Projectile>
+		<Projectile id="103">
+			<ObjectId>LOD Black Bullet</ObjectId>
+			<Speed>60</Speed>
+			<Damage>112</Damage>
+			<Size>100</Size>
+			<LifetimeMS>2600</LifetimeMS>
+		</Projectile>
 	</Object>
 	<Object type="0x8C43" id="Elder shtrs Bridge Sentinel Remains">
 		<DisplayId>Remains of The Forgotten Sentinel</DisplayId>
@@ -3881,6 +4311,36 @@
 			<Size>65</Size>
 			<LifetimeMS>1600</LifetimeMS>
 			<ConditionEffect duration="2">Slowed</ConditionEffect>
+		</Projectile>
+		<Projectile id="92">
+			<ObjectId>Necromantic Soul Bolt</ObjectId>
+			<Speed>28</Speed>
+			<Damage>114</Damage>
+			<Size>140</Size>
+			<LifetimeMS>4200</LifetimeMS>
+			<MultiHit />
+		</Projectile>
+		<Projectile id="93">
+			<ObjectId>Necromantic Soul Bolt</ObjectId>
+			<Speed>110</Speed>
+			<Damage>53</Damage>
+			<Size>60</Size>
+			<LifetimeMS>1200</LifetimeMS>
+		</Projectile>
+		<Projectile id="100">
+			<ObjectId>Small White Shuriken</ObjectId>
+			<Speed>100</Speed>
+			<Damage>62</Damage>
+			<Size>90</Size>
+			<LifetimeMS>1500</LifetimeMS>
+			<ConditionEffect duration="1">Slowed</ConditionEffect>
+		</Projectile>
+		<Projectile id="101">
+			<ObjectId>White Bullet</ObjectId>
+			<Speed>45</Speed>
+			<Damage>97</Damage>
+			<Size>110</Size>
+			<LifetimeMS>3500</LifetimeMS>
 		</Projectile>
 	</Object>
 	<Object type="0x8C45" id="Elder shtrs Twilight Archmage Remains">
@@ -4005,6 +4465,35 @@
 			<LifetimeMS>1600</LifetimeMS>
 			<ConditionEffect duration="2">Slowed</ConditionEffect>
 		</Projectile>
+		<Projectile id="92">
+			<ObjectId>Necromantic Soul Bolt</ObjectId>
+			<Speed>28</Speed>
+			<Damage>152</Damage>
+			<Size>140</Size>
+			<LifetimeMS>4200</LifetimeMS>
+			<MultiHit />
+		</Projectile>
+		<Projectile id="93">
+			<ObjectId>Necromantic Soul Bolt</ObjectId>
+			<Speed>110</Speed>
+			<Damage>70</Damage>
+			<Size>60</Size>
+			<LifetimeMS>1200</LifetimeMS>
+		</Projectile>
+		<Projectile id="100">
+			<ObjectId>Large Blue Shuriken</ObjectId>
+			<Speed>70</Speed>
+			<Damage>94</Damage>
+			<Size>100</Size>
+			<LifetimeMS>2200</LifetimeMS>
+		</Projectile>
+		<Projectile id="101">
+			<ObjectId>Ball Of Hurt</ObjectId>
+			<Speed>35</Speed>
+			<Damage>140</Damage>
+			<Size>120</Size>
+			<LifetimeMS>3200</LifetimeMS>
+		</Projectile>
 	</Object>
 	<Object type="0x8C47" id="Elder shtrs The Forgotten King Remains">
 		<DisplayId>Remains of The Forgotten King</DisplayId>
@@ -4098,6 +4587,35 @@
 			<Size>65</Size>
 			<LifetimeMS>1600</LifetimeMS>
 			<ConditionEffect duration="2">Slowed</ConditionEffect>
+		</Projectile>
+		<Projectile id="92">
+			<ObjectId>Necromantic Soul Bolt</ObjectId>
+			<Speed>28</Speed>
+			<Damage>289</Damage>
+			<Size>140</Size>
+			<LifetimeMS>4200</LifetimeMS>
+			<MultiHit />
+		</Projectile>
+		<Projectile id="93">
+			<ObjectId>Necromantic Soul Bolt</ObjectId>
+			<Speed>110</Speed>
+			<Damage>133</Damage>
+			<Size>60</Size>
+			<LifetimeMS>1200</LifetimeMS>
+		</Projectile>
+		<Projectile id="100">
+			<ObjectId>White Bullet</ObjectId>
+			<Speed>60</Speed>
+			<Damage>222</Damage>
+			<Size>100</Size>
+			<LifetimeMS>4200</LifetimeMS>
+		</Projectile>
+		<Projectile id="101">
+			<ObjectId>Fire Bullet</ObjectId>
+			<Speed>50</Speed>
+			<Damage>200</Damage>
+			<Size>100</Size>
+			<LifetimeMS>3000</LifetimeMS>
 		</Projectile>
 	</Object>
 	<Object type="0x8C49" id="Seal of the Risen Colossus">
@@ -4578,6 +5096,35 @@
 			<LifetimeMS>1600</LifetimeMS>
 			<ConditionEffect duration="2">Slowed</ConditionEffect>
 		</Projectile>
+		<Projectile id="92">
+			<ObjectId>Necromantic Soul Bolt</ObjectId>
+			<Speed>28</Speed>
+			<Damage>257</Damage>
+			<Size>140</Size>
+			<LifetimeMS>4200</LifetimeMS>
+			<MultiHit />
+		</Projectile>
+		<Projectile id="93">
+			<ObjectId>Necromantic Soul Bolt</ObjectId>
+			<Speed>110</Speed>
+			<Damage>119</Damage>
+			<Size>60</Size>
+			<LifetimeMS>1200</LifetimeMS>
+		</Projectile>
+		<Projectile id="100">
+			<ObjectId>Colossal Rock</ObjectId>
+			<Speed>70</Speed>
+			<Damage>158</Damage>
+			<Size>100</Size>
+			<LifetimeMS>1800</LifetimeMS>
+		</Projectile>
+		<Projectile id="101">
+			<ObjectId>Colossal Wheel</ObjectId>
+			<Speed>55</Speed>
+			<Damage>198</Damage>
+			<Size>110</Size>
+			<LifetimeMS>3000</LifetimeMS>
+		</Projectile>
 	</Object>
 	<Object type="0x8C51" id="Elder LH Malus 2 Remains">
 		<DisplayId>Remains of Malus</DisplayId>
@@ -4803,6 +5350,36 @@
 			<Size>65</Size>
 			<LifetimeMS>1600</LifetimeMS>
 			<ConditionEffect duration="2">Slowed</ConditionEffect>
+		</Projectile>
+		<Projectile id="92">
+			<ObjectId>Necromantic Soul Bolt</ObjectId>
+			<Speed>28</Speed>
+			<Damage>228</Damage>
+			<Size>140</Size>
+			<LifetimeMS>4200</LifetimeMS>
+			<MultiHit />
+		</Projectile>
+		<Projectile id="93">
+			<ObjectId>Necromantic Soul Bolt</ObjectId>
+			<Speed>110</Speed>
+			<Damage>105</Damage>
+			<Size>60</Size>
+			<LifetimeMS>1200</LifetimeMS>
+		</Projectile>
+		<Projectile id="100">
+			<ObjectId>Cultist Lightning Shot</ObjectId>
+			<Speed>90</Speed>
+			<Damage>140</Damage>
+			<Size>100</Size>
+			<LifetimeMS>2000</LifetimeMS>
+		</Projectile>
+		<Projectile id="101">
+			<ObjectId>Cultist Fire Shot</ObjectId>
+			<Speed>45</Speed>
+			<Damage>193</Damage>
+			<Size>120</Size>
+			<LifetimeMS>3500</LifetimeMS>
+			<ConditionEffect duration="2">Armor Broken</ConditionEffect>
 		</Projectile>
 	</Object>
 	<Object type="0x8C53" id="Elder LH Void Entity Remains">
@@ -5265,6 +5842,36 @@
 			<Size>65</Size>
 			<LifetimeMS>1600</LifetimeMS>
 			<ConditionEffect duration="2">Slowed</ConditionEffect>
+		</Projectile>
+		<Projectile id="92">
+			<ObjectId>Necromantic Soul Bolt</ObjectId>
+			<Speed>28</Speed>
+			<Damage>304</Damage>
+			<Size>140</Size>
+			<LifetimeMS>4200</LifetimeMS>
+			<MultiHit />
+		</Projectile>
+		<Projectile id="93">
+			<ObjectId>Necromantic Soul Bolt</ObjectId>
+			<Speed>110</Speed>
+			<Damage>140</Damage>
+			<Size>60</Size>
+			<LifetimeMS>1200</LifetimeMS>
+		</Projectile>
+		<Projectile id="100">
+			<ObjectId>Void Bullet</ObjectId>
+			<Speed>70</Speed>
+			<Damage>187</Damage>
+			<Size>100</Size>
+			<LifetimeMS>2600</LifetimeMS>
+			<ConditionEffect duration="1.5">Darkness</ConditionEffect>
+		</Projectile>
+		<Projectile id="101">
+			<ObjectId>Void Ring</ObjectId>
+			<Speed>40</Speed>
+			<Damage>257</Damage>
+			<Size>120</Size>
+			<LifetimeMS>3500</LifetimeMS>
 		</Projectile>
 	</Object>
 </Objects>

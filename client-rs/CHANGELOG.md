@@ -12,6 +12,17 @@ Keep each version short: changes go under `### ` group headings (Oryx 5, Arena, 
 on), one line per change players notice, summed up rather than item by item (the wiki has the
 details). Add to a group's line when a change adds to it, rather than adding another line.
 
+## Unreleased
+
+### Dungeons
+- Empowered bosses fight in phases now: as their health falls they enter new ones, named over
+  them, with a Soul Harvest that marks every player (80%), the Soul Storm (60%), a Death Spiral
+  (30%) and a Last Breath (10%) where they shield themselves and unleash everything at once. The
+  bosses of the Elder Shatters, Lost Halls, Cultist Hideout, Void, Tomb, Draconis lair, the Ivory
+  Wyvern and Thessal each have two phases of their own on top, such as the Sentinel's collapsing
+  bridge, Malus' blood moon ritual (kill his cultist souls before the chant ends), the Void
+  Entity's event horizon, Pyyr's meteor shower and Thessal's riptides. The wiki lists them all.
+
 ## 2.5.4 (2026-11-12)
 
 ### Game

@@ -182,13 +182,7 @@ namespace WorldServer.core.resurrection
                 world.LeaveWorld(_soul);
             world.LeaveWorld(this);
 
-            if (Entity.Resolve(GameServer, Info.EmpoweredType) is not Enemy boss)
-                return;
-            boss.Empowered = new Empowered(Info);
-            boss.Move(pos.X, pos.Y);
-            boss.Z = Z;
-            world.EnterWorld(boss);
-            boss.Empowered.Risen(boss, _raiser);
+            BossResurrection.RaiseAt(world, Info, pos, Z, _raiser);
         }
     }
 }

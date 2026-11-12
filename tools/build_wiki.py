@@ -996,6 +996,12 @@ class Gen:
                          % ("{:,}".format(emp), "{:,}".format(hp), bonus)))
             rows.append(("Soul attacks", "Soul Nova bolts hit for <strong>%d</strong>, the Soul Storm's for %d and slow you 2 s; "
                          "Wailing Souls have %s health" % (b["soulDamage"], round(b["soulDamage"] * 0.7), "{:,}".format(soul_hp))))
+            # a raid boss's (and the Trench's) phases of its own (EmpoweredSignatures.cs)
+            own = res.get("signature_phases", {}).get(b["boss"])
+            if own:
+                rows.append(("Its own phases", "; ".join(
+                    "<strong>%s</strong> (below %d%%): %s" % (esc(n), round(below * 100), esc(what))
+                    for n, below, what in own)))
             for note in (RAISE_DUNGEON_NOTES.get(b["dungeon"]), RAISE_NOTES.get(b["boss"])):
                 if note:
                     rows.append(("Raising it", note))

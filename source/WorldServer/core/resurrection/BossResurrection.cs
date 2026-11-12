@@ -7,6 +7,7 @@ using NLog;
 using WorldServer.core.net.datas;
 using WorldServer.core.objects;
 using WorldServer.core.structures;
+using WorldServer.core.worlds;
 using WorldServer.logic;
 using WorldServer.logic.loot;
 using WorldServer.networking.packets.outgoing;
@@ -173,6 +174,24 @@ namespace WorldServer.core.resurrection
             else
                 remains.BeginRitual(player);
         }
+
+        /// <summary>The boss's Empowered form, rising at <paramref name="pos"/>.</summary>
+        public static Enemy RaiseAt(World world, BossInfo info, Position pos, float z, string raiser)
+        {
+            if (Entity.Resolve(world.GameServer, info.EmpoweredType) is not Enemy boss)
+                return null;
+            boss.Empowered = new Empowered(info);
+            boss.Move(pos.X, pos.Y);
+            boss.Z = z;
+            world.EnterWorld(boss);
+            boss.Empowered.Risen(boss, raiser);
+            return boss;
+        }
+
+        /// <summary>The bosses that can be raised whose id or name holds <paramref name="text"/> (/empower).</summary>
+        public static List<BossInfo> Find(string text) =>
+            ByBoss.Values.Where(b => b.Boss.Contains(text, StringComparison.OrdinalIgnoreCase)
+                || b.Name.Contains(text, StringComparison.OrdinalIgnoreCase)).ToList();
 
         // --- shared bits ---
 

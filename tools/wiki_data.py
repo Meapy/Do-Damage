@@ -255,10 +255,34 @@ class Data:
             text = open(emp, encoding="utf-8-sig").read() if os.path.exists(emp) else ""
             self._resurrection["empowered"] = {k: float(v.rstrip("f")) for k, v in
                                                re.findall(r"const (?:float|int) (\w+) = ([0-9.]+f?);", text)}
+            # the raid bosses' and the Trench's own phases (EmpoweredSignatures.cs): boss -> [(name,
+            # below this share of health, what it does: the comment over it)]
+            sig = os.path.join(ROOT, "source", "WorldServer", "core", "resurrection", "EmpoweredSignatures.cs")
+            self._resurrection["signature_phases"] = self._signature_phases(
+                open(sig, encoding="utf-8-sig").read() if os.path.exists(sig) else "")
             curve = re.search(r"Curve = \{(.*?)\};", text)
             self._resurrection["empowered_curve"] = [(float(h), float(x)) for h, x in
                                                      re.findall(r"\(([0-9.]+), ([0-9.]+)\)", curve.group(1))] if curve else [(1, 2.5)]
         return self._resurrection
+
+    @staticmethod
+    def _signature_phases(text):
+        text = text.replace("\r\n", "\n")
+        m = re.search(r"const double High = ([0-9.]+), Low = ([0-9.]+);", text)
+        shares = {"High": float(m.group(1)), "Low": float(m.group(2))} if m else {}
+        out = {}
+        for boss, method in re.findall(r'"([^"]+)" => (\w+)\(\),', text):
+            body = re.search(r"private static SoulPhase\[\] %s\(\)(.*?)(?=\n        private static |\Z)" % method, text, re.S)
+            if not body:
+                continue
+            phases = []
+            for comment, name, below in re.findall(
+                    r'((?:[ \t]*// [^\n]*\n)+)[ \t]*new SoulPhase\s*\{\s*Name = "([^"]+)", Below = (\w+|[0-9.]+)',
+                    body.group(1)):
+                what = " ".join(line.strip()[3:] for line in comment.strip().split("\n"))
+                phases.append((name, shares[below] if below in shares else float(below), what))
+            out[boss] = phases
+        return out
 
     def empowered_scale(self, elder_hp):
         """How many times its Elder form's health an Empowered boss has (EmpoweredHealth.ScaleFor)."""

@@ -60,10 +60,33 @@ The souls fight for it too:
 - **Soul Nova:** a ring of eighteen soul bolts, then a second ring a moment later, every 7 seconds.
 - **Wailing Souls:** two ghosts that hunt the players and fire bolts at them, every 11 seconds, up to
   {{v:raise_souls}} at once. They go when the boss falls.
-- **Soul Storm,** below 60% health: four arms of fast, slowing bolts sweeping round the boss, every
-  10 seconds.
 - **Enraged,** below 30% health: faster still (nearly half as fast again as the Elder boss), shots
   45% harder, a Soul Nova every 5 seconds and three Wailing Souls every 8, glowing pink.
+
+### Its phases
+
+As its health falls, an Empowered boss moves into new phases, each named over it as it begins
+(Phase II, III and so on) with a moment's shield while the souls gather. Every phase it has
+reached comes back every 9 to 13 seconds, one at a time, the newest first:
+
+- **Soul Harvest,** below 80%: the souls throw a mark under every player; whoever is still in it
+  when it fills takes a heavy hit and is slowed, and a burst of bolts flies out of it.
+- **Soul Storm,** below 60%: four arms of fast, slowing bolts sweeping round the boss.
+- **Death Spiral,** below 30%: two pairs of soul shards spiralling against each other, rings of
+  soul bolts between them.
+- **Last Breath,** below 10%: the boss shields itself for three seconds and loosens everything at
+  once (three rings of marks round it, landing outward, and three rings of heavy soul orbs);
+  after that, rings of orbs and shards every few seconds until it falls.
+
+The bosses of the raid-like dungeons (the Elder Shatters, the Elder Lost Halls, the Elder Cultist
+Hideout and the Elder Void, the Elder Tomb of the Ancients, the Lair of Elder Draconis and the
+Elder Ivory Wyvern) and Thessal of the Elder Ocean Trench have two more phases of their own, at 70%
+and 40%, each in the boss's own style and with its own shots: the Sentinel's bridge collapsing in
+a checkerboard, Malus' blood moon ritual (kill his three cultist souls before the chant ends, or
+each heals him; kill them all and his armour breaks), the Void Entity's closing event horizon,
+Pyyr's meteor shower and fire breath, the Ivory Wyvern's prismatic breath and Thessal's riptides
+and whirlpools among them. Each boss's card below names them. Marks on the ground always fill
+before they strike: step out before they're full.
 
 ## What it drops
 

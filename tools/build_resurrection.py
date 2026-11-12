@@ -67,6 +67,44 @@ RITUAL_SOUL = "Necromantic Ritual Soul"
 WAILING_SOUL = "Wailing Soul"
 # the projectile id the Empowered forms fire their soul bolts with (BossResurrection.SoulBolt)
 SOUL_BOLT_ID = 90
+# the first id of an Empowered form's signature shots (EmpoweredSignatures.cs, SignatureShot)
+SIGNATURE_SHOT_ID = 100
+# the raid bosses' and the Trench's signature shots: (the shot's art, speed, damage as a share of
+# the soul bolt's, size, lifetime in ms, condition effects (name, seconds)), ids from SIGNATURE_SHOT_ID
+SIGNATURE_SHOTS = {
+    "Elder shtrs Bridge Sentinel": [("Small White Shuriken", 100, 0.7, 90, 1500, [("Slowed", 1)]),
+                                    ("White Bullet", 45, 1.1, 110, 3500, [])],
+    "Elder shtrs Twilight Archmage": [("Large Blue Shuriken", 70, 0.8, 100, 2200, []),
+                                      ("Ball Of Hurt", 35, 1.2, 120, 3200, [])],
+    "Elder shtrs The Forgotten King": [("White Bullet", 60, 1.0, 100, 4200, []),
+                                       ("Fire Bullet", 50, 0.9, 100, 3000, [])],
+    "Elder LH Marble Colossus": [("Colossal Rock", 70, 0.8, 100, 1800, []),
+                                 ("Colossal Wheel", 55, 1.0, 110, 3000, [])],
+    "Elder LH Malus 2": [("Cultist Lightning Shot", 90, 0.8, 100, 2000, []),
+                         ("Cultist Fire Shot", 45, 1.1, 120, 3500, [("Armor Broken", 2)])],
+    "Elder LH Void Entity": [("Void Bullet", 70, 0.8, 100, 2600, [("Darkness", 1.5)]),
+                             ("Void Ring", 40, 1.1, 120, 3500, [])],
+    "Elder Tomb Defender": [("Silver Shield", 65, 0.9, 100, 2200, []),
+                            ("Fire Boomerang", 55, 1.0, 110, 2600, [("Armor Broken", 2)])],
+    "Elder Tomb Support": [("Ice Magic", 80, 0.7, 100, 2200, [("Slowed", 1.5)]),
+                           ("Purple Boomerang", 40, 0.9, 110, 3000, [])],
+    "Elder Tomb Attacker": [("Fireball", 60, 0.8, 100, 2000, []),
+                            ("Fire Magic", 22, 1.4, 160, 2400, [])],
+    "Elder NM Green Dragon God": [("Dragon Attack Green Spine", 70, 0.8, 100, 1800, [("Sick", 2)]),
+                                  ("Dragon Attack Green Ball", 40, 1.0, 120, 2600, [])],
+    "Elder NM Blue Dragon God": [("Dragon Attack Blue Bullet", 65, 0.8, 100, 3600, []),
+                                 ("Water Storm", 45, 1.0, 120, 3000, [("Slowed", 1.5)])],
+    "Elder NM Red Dragon God": [("Red Fire", 85, 0.7, 100, 1300, []),
+                                ("Dragon Attack Red Big Fireball", 40, 1.1, 130, 2600, [])],
+    "Elder NM Black Dragon God": [("Dragon Attack Black Shot", 75, 0.8, 100, 2000, []),
+                                  ("Black Missile", 55, 1.0, 110, 2400, [])],
+    "Elder lod Ivory Wyvern": [("LOD Green Spine", 60, 0.8, 100, 2600, []),
+                               ("LOD Blue Fireball", 60, 0.8, 100, 2600, [("Slowed", 1)]),
+                               ("LOD Red Orb", 60, 0.8, 100, 2600, []),
+                               ("LOD Black Bullet", 60, 0.8, 100, 2600, [])],
+    "Elder Thessal the Mermaid Goddess": [("Trident", 55, 0.9, 100, 4600, []),
+                                          ("Thunder Swirl", 45, 0.9, 110, 2200, [])],
+}
 RELIC_CHANCE = 0.05         # each player past RELIC_THRESHOLD of the damage, per boss
 RELIC_THRESHOLD = 0.02
 CORPSE_SECONDS = 75         # how long the remains wait for a relic
@@ -537,6 +575,19 @@ def bare(name):
     return re.sub(r"^The ", "", name)
 
 
+def add_shot(obj, pid, object_id, speed, damage, size, life, effects, multi):
+    p = el(obj, "Projectile", id=pid)
+    el(p, "ObjectId", object_id)
+    el(p, "Speed", speed)
+    el(p, "Damage", damage)
+    el(p, "Size", size)
+    el(p, "LifetimeMS", life)
+    for name, secs in effects:
+        el(p, "ConditionEffect", name, duration=secs)
+    if multi:
+        el(p, "MultiHit")
+
+
 def soul_damage(boss):
     """The soul bolt's damage: about the boss's middling shot."""
     dmg = sorted(int(p.findtext("Damage") or 0) for p in boss.iter("Projectile") if int(p.findtext("Damage") or 0) > 0)
@@ -671,6 +722,13 @@ def build(objects, types):
         el(p, "Size", 65)
         el(p, "LifetimeMS", 1600)
         el(p, "ConditionEffect", "Slowed", duration=2)
+        # the phases' shots (core/resurrection/EmpoweredPhases.cs): a heavy, slow soul orb, a fast
+        # soul shard, and the boss's own signature shots from SIGNATURE_SHOT_ID on
+        shots = [(SOUL_BOLT, 28, 1.3, 140, 4200, (), True), (SOUL_BOLT, 110, 0.6, 60, 1200, (), False)]
+        for i, (obj, speed, factor, psize, life, effects, multi) in enumerate(shots):
+            add_shot(emp, SOUL_BOLT_ID + 2 + i, obj, speed, round(dmg * factor), psize, life, effects, multi)
+        for i, (obj, speed, factor, psize, life, effects) in enumerate(SIGNATURE_SHOTS.get(boss_id, ())):
+            add_shot(emp, SIGNATURE_SHOT_ID + i, obj, speed, round(dmg * factor), psize, life, effects, False)
         root.append(emp)
 
         # the boss's own item drops, rolled again by the Empowered form: twice as likely (ten points
