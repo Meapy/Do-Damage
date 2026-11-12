@@ -87,14 +87,16 @@ Text boxes (chat, sign-in) copy, cut and paste with <kbd>Ctrl</kbd>+<kbd>C</kbd>
 "Drink stat potions from loot bags": while it's on, the stat potions in a bag you stand on are drunk
 by themselves, Potions of Oryx too (a maxed stat's go to your potion storage), leaving Potions of
 Max for you to keep; only loot bags, never your vault's gift chest. It's off unless you turn it on.
-"Other players' damage numbers" (off unless you turn it on) shows the numbers of other players'
-hits too, on a boss say, so it's clear which are yours. A **Visuals** tab has what you
-see in the world: the crosshair, particles, shadows, health bars, damage numbers, other players'
-shots and spells, how much of other players and their pets you see, **Speech balloons** (a list:
-tick whose show, such as only guild and party chat), the **Chat size** (50% to 150%: its text, width and
-height together) and the **Chat background** (how dark the box behind the chat is, from none to
-the usual). "Pets' shots" there switches between Normal, Subtle (the
-default: smaller, see-through shots) and Hidden. The **Crosshair** tab picks the crosshair's
+The **Visuals** tab is in three parts. **World**: "Pets' shots" (every pet's, yours too: Normal,
+Subtle, the default, with smaller see-through shots, or Hidden), particles, shadows, health bars,
+damage numbers and the crosshair. **Other players**: how much you see of other players, of their
+**shots and spells** (a slider from 100% down to Hidden; it fades their projectiles, their pets'
+shots, their spells and their Necromantic items' powers alike, while your own stay as they are),
+of their pets, and whose **pings** show; then their pets' effects, and their **damage numbers**
+(off unless you turn it on: the numbers of their hits too, on a boss say, so it's clear which are
+yours). **Chat**: its **size** (50% to 150%: its text, width and height together), its
+**background** (how dark the box behind it is, from none to the usual) and **Speech balloons** (a
+list: tick whose show, such as only guild and party chat). The **Crosshair** tab picks the crosshair's
 style (Classic, Cross, Dot, Circle, Circle and dot, Plus, Diagonal, Chevron or your own), its
 colour and its size (50% to 200%), with a preview over dark and light ground. To make your own,
 pick one of the ten colours under its 15 by 15 grid and click or drag on the grid: each square
@@ -139,7 +141,7 @@ here, Loot or Help and let go to ping it there; let go in the middle to cancel.
 A ping shows for six seconds: a ring on the ground with a pin over it, saying what it is and who
 sent it (green for your party, blue for your guild), a marker at the edge of the screen pointing to
 it when it's out of view, and a dot on the minimap. Danger has a sound of its own. You can ping four
-times in five seconds. In Options, **Visuals**, "Others' pings" shows everyone's, only your party's
+times in five seconds. In Options, **Visuals**, Other players, "Pings" shows everyone's, only your party's
 and guild's, or nobody's (yours always show), and **Sound** has Ping sounds.
 
 ## The screen

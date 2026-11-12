@@ -2335,8 +2335,7 @@ impl App {
             shadows: self.settings.shadows,
             hp_bars: self.settings.hp_bars,
             bubbles: self.settings.bubbles,
-            ally_shots: self.settings.ally_shots,
-            pet_shots: self.settings.pet_shots,
+            others_shots: self.settings.others_shots,
             pet_shot_look: self.settings.pet_shot_look,
             player_alpha: self.settings.player_alpha,
             pet_alpha: self.settings.pet_alpha,
@@ -2648,7 +2647,7 @@ impl App {
             }
             game.particles.disabled = !self.settings.particles;
             game.particles.hide_pets = !self.settings.pet_effects;
-            game.particles.hide_allies = !self.settings.ally_shots;
+            game.particles.others = self.settings.others_shots;
             // a search typed in the vault doesn't follow us to another world
             if game.maps_entered != self.search_map {
                 self.search_map = game.maps_entered;
@@ -2656,7 +2655,7 @@ impl App {
                 self.forge.clear_search(data);
                 self.market.clear_search();
             }
-            game.particles.pet_shots = (self.settings.pet_shot_look, self.settings.pet_shots);
+            game.particles.pet_shots = self.settings.pet_shot_look;
             // Options' "Return home": out to the main menu.
             if std::mem::take(&mut self.options_ui.go_home) {
                 self.leave_game(None);

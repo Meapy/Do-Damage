@@ -116,6 +116,8 @@ messages! {
         15 => ShowEffect {
             effect_type: u8, target_object_id: i32, pos1: WorldPos, pos2: WorldPos, color: u32, duration: i32,
             object_type: u16,
+            // the player whose power it is (a Necromantic item's); older servers leave it out
+            source_id: Option<i32>,
         },
         17 => Goto { object_id: i32, pos: WorldPos },
         19 => InvResult { result: i32 },

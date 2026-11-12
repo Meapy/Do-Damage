@@ -14,6 +14,13 @@ details). Add to a group's line when a change adds to it, rather than adding ano
 
 ## Unreleased
 
+### Game
+- Options, Visuals is tidier, in three parts (World, Other players, Chat), and other players'
+  shots have a slider instead of a switch: fade them from 100% down to Hidden. It takes their
+  spells, their pets' shots and their Necromantic items' powers with it (the black holes,
+  pentagrams, auras and the rest), while yours stay as they are. Their damage numbers moved there
+  from Gameplay.
+
 ### Dungeons
 - Empowered bosses fight in phases now: as their health falls they enter new ones, named over
   them, with a Soul Harvest that marks every player (80%), the Soul Storm (60%), a Death Spiral

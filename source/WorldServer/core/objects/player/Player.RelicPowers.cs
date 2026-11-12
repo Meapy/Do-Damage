@@ -80,7 +80,7 @@ namespace WorldServer.core.objects
             World.BroadcastIfVisible(new ShowEffect
             {
                 EffectType = EffectType.Relic, TargetObjectId = on.Id, Pos1 = at,
-                Pos2 = new Position(radius, (int)look), Color = new ARGB(color), Duration = ms,
+                Pos2 = new Position(radius, (int)look), Color = new ARGB(color), Duration = ms, SourceId = Id,
             }, ref at);
         }
 
@@ -102,7 +102,7 @@ namespace WorldServer.core.objects
         private static long Now => Environment.TickCount64;
 
         private void RelicEffect(Entity at, EffectType type, uint color, Position p1 = default, Position p2 = default) =>
-            World?.BroadcastIfVisible(new ShowEffect { EffectType = type, TargetObjectId = at.Id, Pos1 = p1, Pos2 = p2, Color = new ARGB(color) }, at);
+            World?.BroadcastIfVisible(new ShowEffect { EffectType = type, TargetObjectId = at.Id, Pos1 = p1, Pos2 = p2, Color = new ARGB(color), SourceId = Id }, at);
 
         private void RelicNote(string text, uint color) =>
             World?.BroadcastIfVisible(new Notification { ObjectId = Id, Message = text, Color = new ARGB(color) }, this);

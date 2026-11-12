@@ -2109,6 +2109,21 @@ The remotes `upstream` (HaloCelsius) and `aurusenth` share no history with `main
 - **Placed objects show** (2026-11-08; `PlaceObject.cs`): it set a square's object without an object id and never told the players round it to look again, so clients were never sent it: Oryx 5's Holy Gates and Oryx 3's gate stood in the way unseen. Each placed object now gets an id (`World.GetNextEntityId`) and players' squares are refreshed (`UpdateTiles`), as `RemoveObject` does; removal already sent the drop by id.
 - **/realm goes to Realm 2** (2026-11-12; `UnrankedCommands.RealmCommand`, `Command.Realm2.EnterNexusRealm2`): `/realm` does what `/realm2` does outside a Realm 2, taking the player into the Nexus's Realm 2 (or saying it's still being built or full), instead of the busiest realm. Realm 1 stays reachable by its Nexus portal; `/godlands` still picks the busiest realm.
 - **Realm news for the whole server** (2026-11-12; `RealmManager.CountingEvents`, `RealmWorld.CloseRealm`, `ChatManager.Realm`): every counted realm event (Realm 2's too) tells everyone on the world server outside that realm "<event> killed in realm <name>." (those inside already get the "[n/m]" line), and a realm closing (by its events, `/closerealm` or adopting a closed snapshot) tells everyone "Realm <name> closed.", as Realm lines in the chat. Each world server tells its own players, so during a hand-over nobody hears one twice; the admin-only Testing server tells only its own.
+- **Other players' shots: a slider, and a tidier Visuals tab** (2026-11-12; Rust client `options.rs`
+  `draw_visuals_tab`, `Settings::others_shots`, `particles.rs` `Particles::others`/`muting` and
+  `Particle::dim`, `particles/relic.rs` `Decal::dim`/`Aura::muting`, `view.rs` `Show::others_shots`,
+  `game.rs`; `bsk-world` `Impact::others`; `ShowEffect.SourceId` in `ShowEffect.cs` and
+  `Player.RelicPowers.cs`): Options, Visuals is in three headed parts (World: Pets' shots,
+  particles, shadows, health bars, damage numbers, crosshair; Other players: players, shots and
+  spells, pets, pings, pets' effects, damage numbers, which moved from Gameplay; Chat: size,
+  background, speech balloons). The "Other players' shots and spells" and "Other players' pets'
+  shots" switches became one slider (`otherShotsOpacity`, 0 to 1 in steps of 5%; an old
+  `allyShots=0` reads as 0, `petShots` is dropped): other players' projectiles (their pets' too),
+  hit sparks, trails, spells and Necromantic powers are drawn that opaque, and hidden at 0. The
+  Necromantic powers' `ShowEffect`s now carry the player whose power it is (`SourceId`, an int
+  after `ObjectType`, written only when set; older clients leave it unread), so one shown on a
+  monster fades with that player's shots; other effects still go by their target being another
+  player, as before.
 
 ## Content ported from Doomed Realms
 

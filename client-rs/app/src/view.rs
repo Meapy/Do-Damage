@@ -170,7 +170,7 @@ pub struct Floater {
     pub at: i32,
     /// How long it shows, ms.
     pub life: i32,
-    /// Another player's hit (Options, Gameplay, "Other players' damage numbers").
+    /// Another player's hit (Options, Visuals, Other players, "Damage numbers").
     pub others: bool,
 }
 
@@ -267,10 +267,8 @@ pub struct Show {
     pub hp_bars: bool,
     /// Whose speech balloons show (`options::bubble`'s bits).
     pub bubbles: u8,
-    /// Other players' projectiles (`allyShots`).
-    pub ally_shots: bool,
-    /// Other players' pets' projectiles.
-    pub pet_shots: bool,
+    /// How opaque other players' projectiles, their pets' among them, are drawn (0: hidden).
+    pub others_shots: f32,
     /// How every pet's projectiles look.
     pub pet_shot_look: crate::options::PetShots,
     /// How opaque other players and other players' pets are.
@@ -1212,10 +1210,10 @@ pub fn draw(scene: &Scene, renderer: &mut Renderer, redrawer: &mut Redrawer, gro
     }
     for p in &world.projectiles {
         let ally = !p.damages_players && Some(p.owner_id) != world.me;
-        if ally && !scene.show.ally_shots {
+        if ally && scene.show.others_shots <= 0.0 {
             continue;
         }
-        if world.pet_shot(p, scene.data) && ((ally && !scene.show.pet_shots) || scene.show.pet_shot_look == crate::options::PetShots::Hidden) {
+        if world.pet_shot(p, scene.data) && scene.show.pet_shot_look == crate::options::PetShots::Hidden {
             continue;
         }
         if (p.x - cam.x).abs() <= radius + raise && (p.y - cam.y).abs() <= radius + raise {
@@ -1795,6 +1793,10 @@ fn draw_projectile(scene: &Scene, renderer: &mut Renderer, redrawer: &mut Redraw
         let (scale, alpha) = scene.show.pet_shot_look.look(Some(p.owner_id) == scene.world.me);
         size = ((size as f32 * scale).round() as i32).max(1);
         tint.mul[3] = alpha;
+    }
+    // another player's (or their pet's), as faint as the options say
+    if !p.damages_players && Some(p.owner_id) != scene.world.me {
+        tint.mul[3] *= scene.show.others_shots;
     }
     let Some(sprite) = redrawer.get_padded(scene.sprites, renderer, src, false, size, None, true) else { return };
     let spin = if look_desc.rotation == 0.0 { 0.0 } else { scene.time as f64 / look_desc.rotation };

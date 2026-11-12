@@ -1068,12 +1068,19 @@ impl Game {
             }
             ServerMessage::Aoe(a) => self.particles.aoe(a.pos.x as f64, a.pos.y as f64, a.radius as f64, a.color),
             ServerMessage::ShowEffect(e) => {
-                // another player's spell, hidden with their shots (Options, Visuals)
-                let others = self.particles.hide_allies
-                    && Some(e.target_object_id) != world.me
-                    && world.objects.get(&e.target_object_id).and_then(|o| data.objects.get(&o.object_type)).is_some_and(|d| d.player);
+                // another player's spell or Necromantic power, as faint as their shots (Options,
+                // Visuals): a power names its player (`source_id`), even when it shows on a monster
+                let player = |id: i32| world.objects.get(&id).and_then(|o| data.objects.get(&o.object_type)).is_some_and(|d| d.player);
+                let others = match e.source_id.filter(|&id| id != 0) {
+                    Some(id) => Some(id) != world.me,
+                    None => Some(e.target_object_id) != world.me && player(e.target_object_id),
+                };
                 if !others {
-                    self.particles.show_effect(&e, world, now);
+                    self.particles.show_effect(e, world, now);
+                } else if self.particles.others > 0.0 {
+                    self.particles.muting = 1.0 - self.particles.others;
+                    self.particles.show_effect(e, world, now);
+                    self.particles.muting = 0.0;
                 }
             }
             ServerMessage::Damage(d) => {
