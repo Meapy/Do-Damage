@@ -43,6 +43,14 @@ details). Add to a group's line when a change adds to it, rather than adding ano
 ### Dungeons
 - Candyland rooms now spawn six creatures at a time; clear them and leave to bring out a boss.
   The next wave waits until that boss is defeated.
+- Empowered bosses raised with a Necromantic Relic no longer gain far more health with every
+  player who joins (five players on the Ivory Wyvern faced over 20 million; now 420,000). The
+  bigger the boss, the less its Empowered form adds: 2.5 times the health for the small ones, 1.5
+  times at 200,000, and big, heavily armoured bosses gain less defense. The Elder Thessal gains
+  less health for each extra player (15% of hers instead of 20%).
+- In every dungeon the quest arrow and the boss's health at the top of the screen now lead to its
+  boss however far away it is; the Lost Halls' bosses, Davy Jones and others often went missing.
+  In the Cultist Hideout they follow Malus himself, and beating him counts as clearing it.
 
 ### Items
 - The Potion of Maxy now has its new sprite.

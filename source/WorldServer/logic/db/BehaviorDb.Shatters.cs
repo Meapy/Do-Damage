@@ -255,7 +255,8 @@ namespace WorldServer.logic
         #region 1stboss
         .Init(E("shtrs Bridge Sentinel"),
             new State(
-                new ScaleHP2(35),
+                // the Elder version gains less health per extra player: its base is far higher
+                new ScaleHP2(elder ? 15 : 35),
                 new HpLessTransition(0.1, "Death"),
                 new State("Idle",
                     new ConditionEffectBehavior(ConditionEffectIndex.Invulnerable),
@@ -437,7 +438,7 @@ namespace WorldServer.logic
         #region 2ndboss
         .Init(E("shtrs Twilight Archmage"),
             new State(
-                new ScaleHP2(35),
+                new ScaleHP2(elder ? 15 : 35),
                 new HpLessTransition(.1, "Death"),
                 new State("Idle",
                     new ConditionEffectBehavior(ConditionEffectIndex.Invulnerable),
@@ -1717,7 +1718,7 @@ namespace WorldServer.logic
         #region 3rdboss
         .Init(E("shtrs The Forgotten King"),
             new State(
-                new ScaleHP2(35),
+                new ScaleHP2(elder ? 15 : 35),
                 // the regular King leads to the Elder Shatters half the time
                 new DropPortalOnDeath("Elder Shatters Portal", elder ? 0 : 0.5, xAdjustment: 3, timeout: 120),
                 new HpLessTransition(0.1, elder ? "Remembered" : "Death"),

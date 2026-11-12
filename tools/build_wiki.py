@@ -682,8 +682,10 @@ class Gen:
                 "raise_item_chance": pct(max(uts)) if uts else "",
                 "raise_item_min": "%g" % min((b.get("itemStrength", 1) for b in res["bosses"]), default=1),
                 "raise_item_max": "%g" % max((b.get("itemStrength", 1) for b in res["bosses"]), default=1),
-                "raise_health": ("%g" % res.get("empowered", {}).get("HealthScale", 2.5)),
-                "raise_defense": "%d" % res.get("empowered", {}).get("DefenseBonus", 10),
+                "raise_health_small": "%g" % self.d.empowered_scale(1),
+                "raise_health_200k": "%g" % self.d.empowered_scale(200000),
+                "raise_health_big": "%g" % self.d.empowered_scale(10 ** 9),
+                "raise_defense": "%d" % res.get("empowered", {}).get("DefenseBonusMax", 10),
                 "raise_souls": "%d" % res.get("empowered", {}).get("MaxSouls", 6)}
 
     def __call__(self, name, used):
@@ -983,13 +985,15 @@ class Gen:
             dname = dg["name"] if dg else b["dungeon"]
             elder = who(d, b["boss"])
             hp = d.boss_health(b["boss"])
-            emp = int(hp * res["empowered"].get("HealthScale", 2.5))
+            emp = d.empowered_health(hp)
+            o = d.objects.get(b["boss"])
+            bonus = d.empowered_defense_bonus(o["defense"] if o else 0)
             soul_hp = max(400, int(emp * 0.012))
             rows = []
             if dg:
                 rows.append(("Dungeon", '<a href="dungeons.html#d-%s">%s</a>' % (slugify(dg["id"]), esc(dname))))
             rows.append(("Health", "<strong>%s</strong> (the Elder boss has %s), %+d defense; more in a group, as for the Elder boss"
-                         % ("{:,}".format(emp), "{:,}".format(hp), res["empowered"].get("DefenseBonus", 10))))
+                         % ("{:,}".format(emp), "{:,}".format(hp), bonus)))
             rows.append(("Soul attacks", "Soul Nova bolts hit for <strong>%d</strong>, the Soul Storm's for %d and slow you 2 s; "
                          "Wailing Souls have %s health" % (b["soulDamage"], round(b["soulDamage"] * 0.7), "{:,}".format(soul_hp))))
             for note in (RAISE_DUNGEON_NOTES.get(b["dungeon"]), RAISE_NOTES.get(b["boss"])):

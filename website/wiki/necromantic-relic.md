@@ -48,7 +48,10 @@ raised it.
 An Empowered boss is the same boss, and it fights as it always did, but stronger in every way:
 
 - a fifth bigger, wreathed in souls and glowing violet;
-- {{v:raise_health}} times the Elder boss's health and {{v:raise_defense}} more defense;
+- more health than the Elder boss: {{v:raise_health_small}} times for the smaller bosses, less the
+  bigger the boss ({{v:raise_health_200k}} times at 200,000, down to {{v:raise_health_big}} times), and up to
+  {{v:raise_defense}} more defense (less for a boss already heavily armoured). In a group each player
+  adds the same share as on the Elder boss;
 - its own shots hit 30% harder, and everything it does is a quarter faster;
 - for its first moments it is rising and can't be hurt.
 

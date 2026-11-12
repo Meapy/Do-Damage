@@ -4509,6 +4509,7 @@
 	<Object type="0x8C52" id="Empowered Elder LH Malus 2">
 		<Class>Character</Class>
 		<Enemy />
+		<Quest />
 		<EventChestBoss />
 		<TrackLoot />
 		<Portrait>

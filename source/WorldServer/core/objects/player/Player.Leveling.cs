@@ -287,7 +287,10 @@ namespace WorldServer.core.objects
                     // Oryx himself (<Oryx/>) always comes first: the Doomed Cellar's Skull Shrine, an
                     // Encounter, outscored Oryx 5, and Oryx 3's XML level is 1
                     var priority = quest.ObjectDesc.Oryx ? 4 : quest.ObjectDesc.Encounter ? 3 : quest.ObjectDesc.Hero ? 2 : 1;
-                    var levelFit = quest.ObjectDesc.Oryx ? 20 : 20 - Math.Abs(quest.ObjectDesc.Level - Level);
+                    // in a dungeon its bosses are everyone's quest, whatever their level: many have
+                    // none in their XML (so 1), which for a level 20 player scored 1 less a point per
+                    // 100 tiles, and a boss further off than that (the Lost Halls) was never the quest
+                    var levelFit = quest.ObjectDesc.Oryx || force ? 20 : 20 - Math.Abs(quest.ObjectDesc.Level - Level);
                     var score =
                         //priority * level diff
                         levelFit * priority -

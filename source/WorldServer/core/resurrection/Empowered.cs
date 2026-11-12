@@ -12,8 +12,10 @@ namespace WorldServer.core.resurrection
 {
     /// <summary>
     /// A boss raised by a Necromantic Relic. It runs its Elder form's behaviour a quarter faster
-    /// (Entity.BehaviourTime), with 2.5 times the health (kept so when its behaviour sets its health,
-    /// as BossStats does), 10 more defense and shots 30% harder, glowing violet. On top, the souls
+    /// (Entity.BehaviourTime), with more health (<see cref="EmpoweredHealth"/>: 2.5 times for the
+    /// small bosses, tapering to 1.5 times at 200k and 1.25 times at 800k), a little more defense
+    /// (less for a boss that's already heavily armoured) and shots 30% harder, glowing violet. On
+    /// top, the souls
     /// that brought it back fight for it:
     /// - Soul Nova: two rings of soul bolts, every 7 seconds (5 enraged);
     /// - Wailing Souls: two (three enraged) ghosts that chase the players, every 11 seconds (8 enraged),
@@ -25,15 +27,15 @@ namespace WorldServer.core.resurrection
     /// </summary>
     public sealed class Empowered
     {
-        private const float HealthScale = 2.5f;
-        private const int DefenseBonus = 10;
+        // defense: up to 10 more, less the more the boss already has (none at 100)
+        private const int DefenseBonusMax = 10;
         private const int RiseMs = 2500;
         private const int MaxSouls = 6;
         private const int GlowCalm = 0x9B5CFF;
         private const int GlowEnraged = 0xFF4FD8;
 
         private readonly BossInfo _info;
-        private int _setMax = -1;
+        private EmpoweredHealth _health;
         private int _setDefense = -1;
         private bool _enraged;
         private int _rising = RiseMs;
@@ -93,20 +95,25 @@ namespace WorldServer.core.resurrection
 
         private static string Pick(string[] lines) => lines[Random.Shared.Next(lines.Length)];
 
+        /// <summary>The defense an Empowered boss adds to its Elder form's.</summary>
+        public static int DefenseBonusFor(int defense) =>
+            Math.Max(0, (int)Math.Round(DefenseBonusMax * (1 - defense / 100.0)));
+
         // its health, defense and glow, put back whenever its behaviour sets them afresh
         private void Apply(Enemy boss)
         {
-            if (boss.MaxHealth != _setMax && boss.MaxHealth > 0)
+            if (boss.MaxHealth > 0)
             {
-                var share = boss.Health / (double)boss.MaxHealth;
-                var max = (int)Math.Min(int.MaxValue / 2, boss.MaxHealth * (double)HealthScale);
-                boss.MaxHealth = max;
-                boss.Health = Math.Max(1, (int)(max * Math.Min(1, share)));
-                _setMax = max;
+                _health ??= new EmpoweredHealth(boss.ObjectDesc.MaxHP > 0 ? boss.ObjectDesc.MaxHP : boss.MaxHealth);
+                var (max, health) = _health.Update(boss.MaxHealth, boss.Health);
+                if (max != boss.MaxHealth)
+                    boss.MaxHealth = max;
+                if (health != boss.Health)
+                    boss.Health = health;
             }
             if (boss.Defense != _setDefense)
             {
-                boss.Defense += DefenseBonus;
+                boss.Defense += DefenseBonusFor(boss.Defense);
                 _setDefense = boss.Defense;
             }
             var glow = _enraged ? GlowEnraged : GlowCalm;
@@ -228,6 +235,67 @@ namespace WorldServer.core.resurrection
             BossResurrection.Notify(boss, "The souls are free", BossResurrection.SoulGreen);
             var msg = $"{DisplayName(boss)} has fallen for good. The souls are at peace.";
             world.ForeachPlayer(p => p.SendInfo(msg));
+        }
+    }
+
+    /// <summary>
+    /// An Empowered boss's health. Its Elder form's is multiplied by <see cref="Scale"/>: 2.5 for
+    /// a boss of 20k or less, 1.5 at 200k (the Tomb's, the Ivory Wyvern), 1.25 at 800k (the Elder
+    /// Void Entity) and no lower, on a log scale between. What its behaviour adds for more players
+    /// (ScaleHP2, ScaleHP, BossStats) is added as it is, as for the Elder boss: before, the whole
+    /// pool was multiplied again each time a player came near, so a group's boss grew 2.5 times
+    /// per player (3.4 million health for three players on the Ivory Wyvern).
+    /// </summary>
+    public sealed class EmpoweredHealth
+    {
+        private static readonly (double Hp, double Scale)[] Curve = { (20000, 2.5), (200000, 1.5), (800000, 1.25) };
+
+        public readonly double Scale;
+        private readonly int _bonus;
+        // the max health last set
+        private int _setMax = -1;
+
+        public EmpoweredHealth(int elderHp)
+        {
+            Scale = ScaleFor(elderHp);
+            _bonus = (int)Math.Min(int.MaxValue / 4, Math.Round(elderHp * (Scale - 1)));
+        }
+
+        public static double ScaleFor(int elderHp)
+        {
+            if (elderHp <= Curve[0].Hp)
+                return Curve[0].Scale;
+            for (var i = 1; i < Curve.Length; i++)
+                if (elderHp <= Curve[i].Hp)
+                {
+                    var (h0, s0) = Curve[i - 1];
+                    var (h1, s1) = Curve[i];
+                    var t = Math.Log(elderHp / h0) / Math.Log(h1 / h0);
+                    return s0 + (s1 - s0) * t;
+                }
+            return Curve[^1].Scale;
+        }
+
+        /// <summary>The boss's max health and health now, given what its behaviour has left them at.</summary>
+        public (int Max, int Health) Update(int max, int health)
+        {
+            if (max == _setMax)
+                return (max, health);
+            if (_setMax < 0)
+            {
+                // first time: the Elder boss's health and the bonus on top, at the same share
+                var share = Math.Clamp(health / (double)max, 0, 1);
+                var first = max + _bonus;
+                _setMax = first;
+                return (first, Math.Max(1, (int)Math.Round(first * share)));
+            }
+            // the behaviour added (or took off) this much: it stands, the bonus stays as it was
+            var delta = max - _setMax;
+            var newMax = Math.Max(_bonus + 1, max);
+            if (delta < 0)
+                health = (int)Math.Round(newMax * Math.Clamp(health / (double)Math.Max(1, max), 0, 1));
+            _setMax = newMax;
+            return (newMax, Math.Clamp(health, 1, newMax));
         }
     }
 }

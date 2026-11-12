@@ -28,7 +28,8 @@ namespace WorldServer.logic
                     new DropPortalOnDeath("Realm Portal", 100, 0),
                     // the regular Colossus leads on to the Elder Lost Halls half the time
                     new DropPortalOnDeath("Elder Lost Halls Portal", elder ? 0 : 0.5, xAdjustment: 3, timeout: 120),
-                    new ScaleHP2(20),
+                    // the Elder version gains less health per extra player: its base is far higher
+                    new ScaleHP2(elder ? 15 : 20),
                     new State("A-P",
                         new ConditionEffectBehavior(ConditionEffectIndex.Invulnerable, true),
                         new SetAltTexture(1),

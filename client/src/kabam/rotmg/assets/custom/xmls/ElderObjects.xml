@@ -386,7 +386,6 @@
 		</Texture>
 		<Size>0</Size>
 		<NoMiniMap />
-		<Quest />
 		<Portrait>
 			<Texture>
 				<File>theMachineObjects16x16</File>
@@ -608,6 +607,7 @@
 	<Object type="0xF0BF" id="Elder LH Malus">
 		<Class>Character</Class>
 		<Enemy />
+		<Quest />
 		<HealthBarBoss />
 		<AnimatedTexture>
 			<File>lostHallsChars16x16</File>
@@ -660,6 +660,7 @@
 	<Object type="0xF0C0" id="Elder LH Malus 2">
 		<Class>Character</Class>
 		<Enemy />
+		<Quest />
 		<EventChestBoss />
 		<TrackLoot />
 		<Portrait>

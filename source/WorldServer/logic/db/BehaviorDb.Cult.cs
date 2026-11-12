@@ -52,7 +52,8 @@ namespace WorldServer.logic
             // Malus wakes it, then itself, calling its followers to it
             State Cultist(string follower, string wake, string low, params IStateChildren[] attacks) =>
                 new State(
-                    new ScaleHP2(20),
+                    // the Elder version gains less health per extra player: its base is far higher
+                    new ScaleHP2(elder ? 15 : 20),
                     new State("Dormant",
                         // not perm: leaving the state takes it off
                         new ConditionEffectBehavior(ConditionEffectIndex.Invulnerable),
@@ -304,7 +305,7 @@ namespace WorldServer.logic
             // Molek, the fire demon: charges about, leaving flames, and shakes the ground
             .Init(E("LH Molek"),
                 new State(
-                    new ScaleHP2(20),
+                    new ScaleHP2(elder ? 15 : 20),
                     new State("Arise",
                         new ConditionEffectBehavior(ConditionEffectIndex.Invulnerable, duration: 2500),
                         new Taunt(true, "MOLEK HUNGERS!"),
@@ -348,7 +349,7 @@ namespace WorldServer.logic
             // Balaam: green boomerangs, blue armour-piercing bolts, red orbs; splits in three at death
             .Init(E("LH Balaam"),
                 new State(
-                    new ScaleHP2(20),
+                    new ScaleHP2(elder ? 15 : 20),
                     new TossOnDeath(N("LH Balaam 1"), 1, 2),
                     new TossOnDeath(N("LH Balaam 2"), 1, 2),
                     new TossOnDeath(N("LH Balaam 3"), 1, 2),
@@ -375,7 +376,7 @@ namespace WorldServer.logic
             // Malus with his cultists' powers: cycles through them, faster as he weakens
             .Init(E("LH Malus 2"),
                 new State(
-                    new ScaleHP2(20),
+                    new ScaleHP2(elder ? 15 : 20),
                     new DropPortalOnDeath("Realm Portal", 1.0, timeout: 120),
                     // the regular Malus leads on to the Elder Lost Halls half the time
                     new DropPortalOnDeath("Elder Lost Halls Portal", elder ? 0 : 0.5, xAdjustment: 3, timeout: 120),
