@@ -662,8 +662,11 @@ The remotes `upstream` (HaloCelsius) and `aurusenth` share no history with `main
   `python tools\community_sprites.py apply --commit` to take it in (the community sheets
   `CommunitySprites8x8.png` / `16x16.png`, the item XML's `<Texture>` and `<SpriteBy>`, the catalog
   `Shared/resources/data/community_sprites.json`, the changelog and PR-BODY.md), then bring the
-  commit in as any other work. Once that release is deployed the account server reads the catalog
-  and shows those submissions as in the game. Limits against floods: a sprite at most every 20 s,
+  commit in as any other work. Every release runs `python tools\community_sprites.py check` first
+  (AGENTS.md, "Releasing", step 1): it fails while approved sprites wait on the server or the
+  sheets, catalog and XML are out of step, so none is forgotten or lost to a regeneration. Once
+  that release is deployed the account server reads the catalog and shows those submissions as in
+  the game. Limits against floods: a sprite at most every 20 s,
   5 waiting and 15 a day per account, 10 an hour per address, 400 a day and 300 waiting in all,
   16 KB a request; finished submissions leave Redis after 30 days. Redis keys `sprites.*` (new;
   nothing migrated). Redeploy the client, the account server, the world servers and the website.

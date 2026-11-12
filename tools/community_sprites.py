@@ -3,6 +3,7 @@
     python tools/community_sprites.py list   [--server https://dodmg.com/api]
     python tools/community_sprites.py apply  [--server ...] [--only 12,15] [--dry-run] [--commit]
     python tools/community_sprites.py rework
+    python tools/community_sprites.py check  [--server ...] [--offline]
 
 Players draw in the client's Sprite Editor (main menu) and send their sprites to the account
 server (SpritesController): a new look for an item, or the art for an item still to be made.
@@ -27,6 +28,11 @@ as approved.
 `rework` points the items at their cells again from the catalog: tools/port_doomed.py and
 tools/make_elder.py run it after they regenerate their XML, so a regeneration keeps the players'
 sprites. Running it again changes nothing.
+
+`check` is one of the release checks (AGENTS.md, Git, "Releasing"): it fails while sprites approved
+on the server haven't been taken in, or while the catalog, the sheets and the XML are out of step
+(an empty cell, an item gone, an item no longer pointed at its sprite or credited). `--offline`
+checks only the repository.
 
 Everything the server sends is checked again here as untrusted: ids, sizes and pixels must be
 well formed, an item must exist in the XML, and names are cleaned before they go into Markdown.
@@ -228,8 +234,9 @@ def retexture(block, sheet, index, author=""):
     return block
 
 
-def rework_file(path, cat=None):
-    """Points every item the catalog has a look for at its cell, in one XML file. Returns how many changed."""
+def rework_file(path, cat=None, write=True):
+    """Points every item the catalog has a look for at its cell, in one XML file. Returns how many changed
+    (with write=False, how many would change; the file is left alone)."""
     want = looks(cat or load_catalog())
     if not want:
         return 0
@@ -261,7 +268,7 @@ def rework_file(path, cat=None):
         out = out.replace("\n", "\r\n")
     bom = b"\xef\xbb\xbf" if encoding == "utf-8" and raw.startswith(b"\xef\xbb\xbf") else b""
     data = bom + out.encode(encoding)
-    if data != raw:
+    if data != raw and write:
         with open(path, "wb") as f:
             f.write(data)
     return count
@@ -461,16 +468,71 @@ def cmd_rework(args):
     print(f"{len(changed)} files changed")
 
 
+def problems_in_repo(cat):
+    """What's out of step between the catalog, the sheets and the XML (empty when all is well)."""
+    from PIL import Image
+    out = []
+    known = item_ids()
+    sheets = {}
+    for s in cat["sprites"]:
+        size = next((k for k, (name, _) in SHEETS.items() if name == s.get("sheet")), None)
+        if size is None:
+            out.append(f"#{s.get('id')}: unknown sheet {s.get('sheet')!r}")
+            continue
+        if size not in sheets:
+            sheets[size] = Image.open(SHEETS[size][1]).convert("RGBA")
+        img, i = sheets[size], s.get("index", -1)
+        x0, y0 = (i % COLUMNS) * size, (i // COLUMNS) * size
+        if i < 0 or x0 + size > img.width or y0 + size > img.height \
+                or img.crop((x0, y0, x0 + size, y0 + size)).getbbox() is None:
+            out.append(f"#{s.get('id')}: its cell {s['sheet']} 0x{i:x} is empty or missing from the sheet")
+        if s.get("kind") == "item" and s.get("item") not in known:
+            out.append(f"#{s.get('id')}: no item {s.get('item')!r} in the XML any more")
+    for path in xml_files():
+        if rework_file(path, cat, write=False):
+            out.append(f"{os.path.relpath(path, ROOT)}: an item isn't pointed at its player sprite "
+                       "(or lost its <SpriteBy>); run `rework`")
+    return out
+
+
+def cmd_check(args):
+    """For the release checks: fails when the repository is out of step with the catalog, or when
+    sprites approved on the server haven't been taken in yet."""
+    cat = load_catalog()
+    bad = problems_in_repo(cat)
+    for p in bad:
+        print("  " + p)
+    waiting = []
+    if not args.offline:
+        try:
+            approved = fetch(args.server)
+        except Exception as e:  # say why and fail: a release shouldn't skip this silently
+            print(f"Couldn't ask {args.server} what's approved ({e}); "
+                  "rerun with --offline to check only the repository.")
+            sys.exit(1)
+        done = {s["id"] for s in cat["sprites"]}
+        waiting = [s for s in approved if s["id"] not in done]
+        for s in waiting:
+            print("  approved, not taken in: " + describe(s))
+    if bad or waiting:
+        if waiting:
+            print("Take them in with `python tools/community_sprites.py apply --commit` on the release branch.")
+        sys.exit(1)
+    print(f"Player sprites in order: {len(cat['sprites'])} in the catalog"
+          + ("" if args.offline else ", nothing approved waiting") + ".")
+
+
 def main():
     ap = argparse.ArgumentParser(description=__doc__.split("\n")[0])
-    ap.add_argument("command", choices=["list", "apply", "rework"])
+    ap.add_argument("command", choices=["list", "apply", "rework", "check"])
+    ap.add_argument("--offline", action="store_true", help="check: only the repository, don't ask the server")
     ap.add_argument("--server", default=DEFAULT_SERVER, help="the account server (its /api address on a site)")
     ap.add_argument("--from-file", help="apply: read the approved list from this file instead of the server")
     ap.add_argument("--only", help="apply: only these submission ids, comma-separated")
     ap.add_argument("--dry-run", action="store_true", help="apply: say what would change, change nothing")
     ap.add_argument("--commit", action="store_true", help="apply: commit the changed files")
     args = ap.parse_args()
-    {"list": cmd_list, "apply": cmd_apply, "rework": cmd_rework}[args.command](args)
+    {"list": cmd_list, "apply": cmd_apply, "rework": cmd_rework, "check": cmd_check}[args.command](args)
 
 
 if __name__ == "__main__":
