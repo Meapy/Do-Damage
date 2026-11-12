@@ -14,6 +14,10 @@ details). Add to a group's line when a change adds to it, rather than adding ano
 
 ## Unreleased
 
+### Game
+- The menus (sign-in, character select and the other screens outside the game) draw at most 30
+  frames a second, so the game uses less of your computer while you're not playing.
+
 ### Items
 - New sprites drawn by players in the Sprite Editor: Coral Medallion (by Trenchant).
 

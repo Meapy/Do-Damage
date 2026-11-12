@@ -2,6 +2,7 @@ Release 2.5.4
 
 ## For players
 
+- **Game:** the desktop client's menus (the main menu, sign-in, register, character select, new character and the Sprite Editor) draw at most 30 frames a second, whatever Max frame rate and vsync say, so they use less CPU and GPU. In the game the frame rate is as before.
 - **Fixes:** fewer lag spikes while anyone explores The Shatters, Oryx's Castle or the Mad Lab, whose walls hide what's behind them: each step there no longer makes a map's worth of memory (239 KB in the Shatters) for the server to clean up, which hurried the collections that pause every world at once. Realm 2 no longer freezes for good for everyone in it (monsters stood still, nothing could be hit, and only leaving the realm helped): it happened when the monsters of a small patch of the starting lands (the shore and lowlands round the spawn) were to come back while every tile of that patch was in some player's sight. The Void's portal, opened with a Vial of Pure Darkness where the Marble Colossus fell (Lost Halls and Elder Lost Halls), no longer opens under the Colossus's Realm Portal, which took every click on Enter: the Realm Portal now opens 3 tiles west.
 - **Player sprites:** new looks drawn by players in the Sprite Editor: Coral Medallion (by Trenchant).
 
@@ -48,7 +49,15 @@ Sprites players drew in the Sprite Editor and admins approved, taken in by `tool
 
 - #3: `Coral Medallion`, drawn by `Trenchant`, approved by `Meapy`: `communitySprites8x8` `0x0`.
 
+### Menus hold to 30 fps
+
+While the client is on `Phase::Menu` (every screen before the game), the frame pacing in `client-rs/app/src/main.rs` holds to `MENU_FPS` (30), or to the player's Max frame rate when that's lower (`frame_cap`). It's the same sleep the Max frame rate setting already used, so it applies with vsync on or off; `--bench` still runs uncapped. Desktop only: the browser paces its frames itself (no sleeping on the page's thread), as Max frame rate never applied there. The in-game Escape menu and windows are part of the game and keep its rate.
+
+Redeploy: client only; nobody is disconnected.
+
 ## Checks
+
+- **Menus hold to 30 fps:** `frame_cap_tests` (new) passes. The client on its main menu (`--account http://127.0.0.1:1`, Max frame rate at no limit, vsync on) titled its window "30 fps" from the second second on.
 
 - **Sight in worlds whose walls block it:** `SightPathTests` (new): on 200 random maps and walls, at sight radii 15, 20 and 40, the tiles in sight equal those of the old map-sized flood fill, and the grid is kept between steps. Server tests: 250 of 251 pass; `TheWorldServersConfigHasTheEventInUtc` fails only because the tests were built into another folder (`-o`), where it can't find `wServer.json`. Isolated stack (slot 130), 12 bots for 10 minutes each (4 fighting in Realm 2, 3 in the Arena, one each in The Shatters, The Elder Shatters and the Elder Tomb, 2 in vaults), GC traced with `dotnet-trace --profile gc-verbose`: before, `bool[,]` was the most allocated type (19%, 82 MB in 3.5 min, nearly all from one bot in the Shatters), gen 0 pauses 4.7 ms median and 8 ms worst, gen 1 17 ms worst; after, `bool[,]` is gone from the allocations and pauses were 1.8 ms median, 4.4 ms worst (gen 0) and 9.3 ms worst (gen 1), in a run that allocated more (a third Arena bot). An untraced run of the fix: no tick over 150 ms (worst gap 116 ms), no GC pause over 50 ms. The same load with Server GC (`DOTNET_gcServer=1`): one 65 ms gen 1 pause and 886 MB of memory against 500 MB, so the workstation collector stays. Not tried on the VPS.
 - **Found on the way:** in 2 of the 4 runs (before the fix and with it, both while traced), Realm 2's thread stopped ticking for good partway through. Realm 2 doesn't use the code changed here; it's the realm freeze fixed below.
