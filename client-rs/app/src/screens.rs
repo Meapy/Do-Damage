@@ -41,6 +41,8 @@ pub enum Screen {
     Spin,
     /// The world servers to play on (`ServersScreen`).
     Servers,
+    /// The Sprite Editor (`sprite_editor.rs`, which the app draws and feeds over the sky).
+    Sprites,
 }
 
 /// The text fields, by index.
@@ -206,6 +208,7 @@ enum Target {
     Play,
     ToHome,
     ToOptions,
+    ToSprites,
     Quit,
     /// The Discord screen, and its buttons: ask for a code, copy the command, open the Discord
     /// server, unlink.
@@ -247,6 +250,8 @@ pub enum Action {
     DiscordUnlink,
     /// Open the game's Discord server in the browser.
     OpenDiscord,
+    /// Open the Sprite Editor.
+    SpriteEditor,
     /// Close the game.
     Quit,
 }
@@ -776,6 +781,10 @@ impl Front {
                 self.show(Screen::Home);
             }
             Target::ToOptions => return Some(Action::Options),
+            Target::ToSprites => {
+                self.message = None;
+                return Some(Action::SpriteEditor);
+            }
             Target::Quit => return Some(Action::Quit),
         }
         None
@@ -825,6 +834,8 @@ impl Front {
             Screen::Death => self.draw_death(ui, w, h, s, mouse),
             Screen::Spin => self.draw_spin(ui, w, h, s, mouse),
             Screen::Servers => self.draw_servers(ui, w, h, s, mouse),
+            // drawn by the app, over the sky (sprite_editor.rs)
+            Screen::Sprites => {}
         }
         // The version, bottom right: opens the changelog.
         if !self.version_line.is_empty() && self.screen != Screen::Busy {
@@ -999,6 +1010,8 @@ impl Front {
         y += bh + gap;
         self.button(ui, Target::ToOptions, [x, y, half, bh], tr("Options"), Kind::Secondary, s, mouse);
         self.button(ui, Target::Changelog, [x + half + gap, y, half, bh], tr("Changelog"), Kind::Secondary, s, mouse);
+        y += bh + gap;
+        self.button(ui, Target::ToSprites, [x, y, bw, bh], tr("Sprite Editor"), Kind::Secondary, s, mouse);
         y += bh + gap;
         // A browser tab is closed by the browser.
         if cfg!(not(target_arch = "wasm32")) {
@@ -2403,7 +2416,7 @@ fn draw_logo(ui: &mut Ui, w: f32, h: f32, s: f32, card_x: f32) {
 
 /// `text` broken into lines no wider than `max_w` (bold), at spaces where it can, else
 /// anywhere (a long address).
-fn wrap(ui: &mut Ui, text: &str, size: f32, max_w: f32) -> Vec<String> {
+pub(crate) fn wrap(ui: &mut Ui, text: &str, size: f32, max_w: f32) -> Vec<String> {
     let mut lines = Vec::new();
     let mut line = String::new();
     for word in text.split_ascii_whitespace() {

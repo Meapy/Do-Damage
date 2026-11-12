@@ -166,7 +166,7 @@ The client itself can be scripted for tests (desktop only):
 |---|---|
 | `--credentials <file>` | Sign in with the file's `email:` and `password:` and play the first character (a new Wizard if there is none) |
 | `--stay` | With `--credentials`: stop at the character list instead |
-| `--screen <name>` | With `--credentials --stay`: show that screen once signed in: `home` (the main menu, signed in), `account`, `discord` (the Discord linking screen) or `discord-code` (it, with a code asked for) |
+| `--screen <name>` | With `--credentials --stay`: show that screen once signed in: `home` (the main menu, signed in), `account`, `discord` (the Discord linking screen), `discord-code` (it, with a code asked for), `sprites` (the Sprite Editor), `sprites-mine`, `sprites-review` (its tabs; Review needs an admin, rank 6 in the stack's Redis) or `sprites-item:<item id>` (drawing from that item's sprite) |
 | `--no-update` | Don't look for or install updates (published builds) |
 | `--bench` | No vsync or frame cap for this run (the settings are left alone), and every 2 s the frame rate, CPU time by section and draw calls in the log. Measure a release build, after the first few seconds |
 | `--shot <png> --shot-after <seconds>` | Save one frame, then quit (logs the position and what it sent) |

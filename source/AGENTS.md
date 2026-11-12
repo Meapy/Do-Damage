@@ -196,6 +196,12 @@ dotnet build source\WorldServer\WorldServer.csproj -c Debug -o build\wscheck   #
   `discord.accounts` (Discord id to account id) and the sets `discord.rewarded` and
   `discord.unlinked`. Only the account
   server writes them, straight to Redis rather than through a flush.
+- **Sprite Editor submissions** (`Shared/database/SpriteSubmissions.cs`, `App/Controllers/SpritesController.cs`;
+  SETUP-LOCAL.md, "Sprite Editor"): `sprites.<id>` hashes (finished ones expire after 30 days),
+  `sprites.nextId`, the sorted sets `sprites.pending` and `sprites.approved`, the lists
+  `sprites.by.<account>`, and expiring rate counters `sprites.wait.*`, `sprites.day.*`,
+  `sprites.ip.*` and `sprites.all.*`. What shipped is `resources/data/community_sprites.json`,
+  written by `tools/community_sprites.py`: never edit it by hand.
 
 ```
 source\Redis\redis-cli.exe hget names MEAPY

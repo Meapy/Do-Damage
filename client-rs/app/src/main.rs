@@ -35,6 +35,7 @@ mod screens;
 mod signs;
 #[allow(dead_code)] // lookups the game screens will use
 mod sky;
+mod sprite_editor;
 mod sprites;
 mod stars;
 mod sunset;
@@ -224,6 +225,9 @@ struct App {
     /// The Discord screen's code: when it came (it lasts `DISCORD_CODE_SECS`), and when the
     /// character list was last asked for to see whether the Discord bot has taken it.
     discord_code_at: Option<Instant>,
+    /// The Sprite Editor (the main menu's): kept while the client runs, so a drawing survives
+    /// going back to the menu.
+    sprite_editor: sprite_editor::SpriteEditor,
     discord_asked: Option<Instant>,
     /// `--screen <name>` (tests, with `--credentials --stay`): the screen to show once signed in.
     screen_test: Option<String>,
@@ -1392,6 +1396,10 @@ impl App {
                 self.front.message = None;
             }
             Action::OpenDiscord => login::open_link(&format!("https://{}", screens::DISCORD_INVITE)),
+            Action::SpriteEditor => {
+                self.sprite_editor.open();
+                self.front.show(screens::Screen::Sprites);
+            }
         }
     }
 
@@ -1698,6 +1706,10 @@ impl App {
                             Some("home") => self.front.show(Screen::Home),
                             Some("account") => self.front.show(Screen::Account),
                             Some("discord") => self.front.show_discord(),
+                            Some(s) if s.starts_with("sprites") => {
+                                self.front_action(screens::Action::SpriteEditor);
+                                self.sprite_editor.test_screen(s);
+                            }
                             Some("discord-code") => {
                                 self.front.show_discord();
                                 self.front_action(screens::Action::DiscordCode);
@@ -2164,6 +2176,7 @@ impl App {
             } else {
                 match (&mut self.chat_input, &self.phase) {
                     (Some(input), _) => input.insert(&text),
+                    (None, Phase::Menu) if self.front.screen == screens::Screen::Sprites => self.sprite_editor.paste(&text),
                     (None, Phase::Menu) => self.front.paste(&text),
                     _ => {}
                 }
@@ -2319,12 +2332,25 @@ impl App {
             // the Escape menu), the pointer shows again here.
             hide_pointer(&self.window, &mut self.cursor_hidden, false, "menu");
             let mut actions = Vec::new();
+            // The Sprite Editor takes the keys and the mouse while it shows.
+            let editing = self.front.screen == screens::Screen::Sprites;
+            let mut editor_out = Vec::new();
+            if editing {
+                self.sprite_editor.login = self.endpoint.clone().zip(self.account.clone()).map(|(e, (a, p))| (e, a, p));
+                self.sprite_editor.guest = self.guest;
+                self.sprite_editor.update();
+            }
             for (code, text, ctrl, shift) in std::mem::take(&mut self.front_keys) {
-                actions.extend(self.front.key(code, text.as_deref(), ctrl, shift));
+                if editing && !self.options_ui.open {
+                    editor_out.extend(self.sprite_editor.key(code, text.as_deref(), ctrl, shift));
+                } else {
+                    actions.extend(self.front.key(code, text.as_deref(), ctrl, shift));
+                }
             }
             for (down, pos) in std::mem::take(&mut self.clicks) {
                 if !down {
                     self.front.release(pos);
+                    self.sprite_editor.release();
                     if self.options_ui.release() {
                         self.settings.save();
                     }
@@ -2334,18 +2360,34 @@ impl App {
                     if self.options_ui.click(pos, &mut self.settings) {
                         self.settings.save();
                     }
+                } else if editing {
+                    editor_out.extend(self.sprite_editor.click(pos));
                 } else {
                     actions.extend(self.front.click(pos));
                 }
             }
             self.options_ui.drag(mouse, &mut self.settings);
             self.front.drag(mouse);
+            if editing {
+                self.sprite_editor.drag(mouse);
+                self.front.clicked |= std::mem::take(&mut self.sprite_editor.clicked);
+            }
+            for out in editor_out {
+                self.front.message = None;
+                match out {
+                    sprite_editor::Out::Back => self.front.show(screens::Screen::Home),
+                    sprite_editor::Out::SignIn => self.front.show(screens::Screen::Login),
+                }
+            }
             // Its "Return home" means nothing out here.
             self.options_ui.go_home = false;
             renderer.begin();
             let (w, h) = renderer.size();
             let mut ui = hud::Ui { renderer: &mut *renderer, sprites, data, redrawer: &mut *redrawer, fonts, text: &mut *text };
             self.front.draw(&mut ui, w as f32, h as f32, mouse, now);
+            if self.front.screen == screens::Screen::Sprites {
+                self.sprite_editor.draw(&mut ui, w as f32, h as f32, mouse, now);
+            }
             self.options_ui.in_game = false;
             self.options_ui.draw(&mut ui, &lay, &self.settings, mouse);
             let s = screens::scale(w as f32, h as f32);
@@ -3631,7 +3673,11 @@ impl ApplicationHandler<UserEvent> for App {
                 self.wheel += lines;
                 let notches = self.wheel.trunc();
                 self.wheel -= notches;
-                self.front.wheel(notches as i32);
+                if self.front.screen == screens::Screen::Sprites {
+                    self.sprite_editor.wheel(notches as i32);
+                } else {
+                    self.front.wheel(notches as i32);
+                }
             }
             WindowEvent::MouseWheel { delta, .. } if self.quests.open && matches!(self.phase, Phase::Playing(_)) => {
                 // The achievements scroll a row a notch.
@@ -3855,6 +3901,7 @@ fn main() {
         death_fame: None,
         death_fame_asked: false,
         discord_code_at: None,
+        sprite_editor: Default::default(),
         discord_asked: None,
         screen_test: text_arg("--screen"),
         front_keys: Vec::new(),

@@ -165,3 +165,18 @@ A **dungeon key** opens a portal to its dungeon where you use it. Every dungeon 
 lists it on the [Dungeons](dungeons.html) page, with where it drops and its price in the Bazaar.
 **Incantations** are different: they open the locked portal Oryx 3 or Oryx 4 leaves behind, and
 only beside it ([The Oryx chain](endgame.html#incantations)).
+
+## Draw your own sprites: the Sprite Editor
+
+**Sprite Editor** on the main menu lets you draw how an item looks. Pick an item and it starts
+from the item's sprite as the game draws it, or choose **A new item** to draw the art for one that
+doesn't exist yet (give it a name and say what kind of item it is). Draw at 8×8 or 16×16, the
+game's item sizes, with a pencil, an eraser, a fill and a colour picker (B, E, G and I), both sides
+at once with Mirror (M), and Ctrl+Z to undo. The preview shows it outlined in a slot, as it will
+look in your inventory, beside the item's sprite now.
+
+**Send in for review** sends it to the admins (you need a registered account; up to 5 can wait at
+once). **My sprites** follows each one: waiting for review, approved, turned down (with the admins'
+reason) or in the game. A sprite the admins approve comes with the next update, and the item's
+tooltip, and its card on the [Gear](gear.html) pages, say **Sprite by** and your name. Art for a new
+item waits until the admins make that item, credited to you.

@@ -412,7 +412,7 @@ impl Ui<'_> {
         crate::emotes::draw(self.sprites, self.fonts, self.text, self.renderer, s, x, y, Style { size, bold: false, color }, now);
     }
 
-    fn src(&self, tex: &TextureData) -> Option<SrcRect> {
+    pub(crate) fn src(&self, tex: &TextureData) -> Option<SrcRect> {
         match &tex.pick(0).main {
             TextureRef::Image { set, index } => self.sprites.tile_src(set, *index),
             TextureRef::Animated { set, index } => self.sprites.char_src(set, *index, 0, 0),
@@ -3253,6 +3253,11 @@ pub fn item_tooltip_raised(data: &GameData, item: i32, me: Option<&GameObj>, kin
             }
         }
     }
+    // A sprite a player drew in the Sprite Editor: who to thank (tools/community_sprites.py)
+    if let Some(by) = xml.text_of("SpriteBy").map(str::trim).filter(|b| !b.is_empty()) {
+        out.push(Line::gap());
+        out.push(Line::new(&tf!("Sprite by {name}", name = by), 12.0, false, theme::color::GOLD));
+    }
     out
 }
 
@@ -4570,6 +4575,25 @@ fn wrap(
 #[cfg(test)]
 mod tests {
     use super::*;
+
+    #[test]
+    fn tooltip_credits_a_players_sprite() {
+        let mut data = GameData::default();
+        data.add_objects(
+            r#"<Objects>
+                <Object type="0x7001" id="Drawn Potion"><Class>Equipment</Class><Item/><SlotType>10</SlotType>
+                    <Texture><File>communitySprites8x8</File><Index>0x0</Index></Texture><SpriteBy>Painter</SpriteBy>
+                    <Description>Tasty.</Description><Consumable/></Object>
+                <Object type="0x7002" id="Plain Potion"><Class>Equipment</Class><Item/><SlotType>10</SlotType><Consumable/></Object>
+            </Objects>"#,
+        )
+        .unwrap();
+        let text = |item: i32| -> Vec<String> {
+            item_tooltip(&data, item, None, SlotKind::Shop).iter().map(|l| l.pieces.iter().map(|p| p.0.as_str()).collect()).collect()
+        };
+        assert_eq!(text(0x7001).last().map(String::as_str), Some("Sprite by Painter"));
+        assert!(!text(0x7002).iter().any(|l| l.starts_with("Sprite by")));
+    }
 
     #[test]
     fn layout_fits_any_window() {

@@ -37,6 +37,7 @@ import time
 import urllib.request
 import xml.etree.ElementTree as ET
 
+import community_sprites
 import rework_buff_auras
 import rework_orbs
 
@@ -1226,6 +1227,8 @@ def write_xml(objs, path):
     rework_orbs.rework_file(path)
     # the party buffs reach further (tools/rework_buff_auras.py)
     rework_buff_auras.rework_file(path)
+    # items keep the looks players drew for them (tools/community_sprites.py)
+    community_sprites.rework_file(path)
 
 
 def export_dr_images(dr_root):

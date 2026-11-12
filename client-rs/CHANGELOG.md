@@ -17,6 +17,11 @@ details). Add to a group's line when a change adds to it, rather than adding ano
 ### Game
 - Out of combat speed: +20 Speed while you haven't hit an enemy or been hit by one for 10 seconds.
 
+### Sprite Editor
+- A new Sprite Editor on the main menu: draw a new look for any item, or the art for a new one, at
+  8×8 or 16×16, and send it in. My sprites shows what became of each. Sprites the admins approve
+  come with the next update, and the item's tooltip credits whoever drew it.
+
 ### Items
 - each single-stat Potion of Max now have their own sprites.
 

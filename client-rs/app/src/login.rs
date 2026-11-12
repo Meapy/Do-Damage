@@ -131,6 +131,42 @@ impl Endpoint {
         http::post_form(&format!("{}/stats/weekly", self.account), &[])
     }
 
+    /// `/sprites/mine`: the Sprite Editor's sprites sent in from this account.
+    pub fn sprites_mine(&self, email: &str, password: &str) -> Pending<http::Response> {
+        http::post_form(&format!("{}/sprites/mine", self.account), &[("guid", email), ("password", password)])
+    }
+
+    /// `/sprites/submit`: a sprite for `item` (an item's id), or for a new item (`item` empty)
+    /// named `name`, of kind `slot`.
+    #[allow(clippy::too_many_arguments)]
+    pub fn sprite_submit(&self, email: &str, password: &str, item: &str, name: &str, slot: &str, note: &str, size: usize, pixels: &str) -> Pending<http::Response> {
+        let size = size.to_string();
+        http::post_form(
+            &format!("{}/sprites/submit", self.account),
+            &[("guid", email), ("password", password), ("item", item), ("name", name), ("slot", slot), ("note", note), ("size", &size), ("pixels", pixels)],
+        )
+    }
+
+    /// `/sprites/withdraw`: take back one still waiting for review.
+    pub fn sprite_withdraw(&self, email: &str, password: &str, id: i32) -> Pending<http::Response> {
+        let id = id.to_string();
+        http::post_form(&format!("{}/sprites/withdraw", self.account), &[("guid", email), ("password", password), ("id", &id)])
+    }
+
+    /// `/sprites/queue` (admins): waiting for review, and approved for the next release.
+    pub fn sprite_queue(&self, email: &str, password: &str) -> Pending<http::Response> {
+        http::post_form(&format!("{}/sprites/queue", self.account), &[("guid", email), ("password", password)])
+    }
+
+    /// `/sprites/review` (admins): `approved`, `rejected` (why, in `note`) or `pending` again.
+    pub fn sprite_review(&self, email: &str, password: &str, id: i32, verdict: &str, note: &str) -> Pending<http::Response> {
+        let id = id.to_string();
+        http::post_form(
+            &format!("{}/sprites/review", self.account),
+            &[("guid", email), ("password", password), ("id", &id), ("verdict", verdict), ("note", note)],
+        )
+    }
+
     pub fn potions(&self, email: &str, password: &str) -> Pending<http::Response> {
         http::post_form(&format!("{}/account/grabPotions", self.account), &[("guid", email), ("password", password)])
     }

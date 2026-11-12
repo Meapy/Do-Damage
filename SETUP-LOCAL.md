@@ -653,6 +653,20 @@ The remotes `upstream` (HaloCelsius) and `aurusenth` share no history with `main
   pet hits credited to them) for 10 s (`CombatMs`). `Player.Tick` flips it back and recalculates
   the stats; the client just sees a Speed bonus. A new world starts out of combat.
 
+- **Sprite Editor** (2026-11-12; client `sprite_editor.rs`, account server `SpritesController.cs`
+  and `Shared/database/SpriteSubmissions.cs`, `tools/community_sprites.py`): players draw item
+  sprites on the main menu and send them in; admins (the `admin` flag or rank 6, see "Admin")
+  approve or turn them down in the editor's Review tab. Approved ones reach the game through the
+  repository: in a worktree rebased onto the release branch, run
+  `python tools\community_sprites.py list` to see what's waiting and
+  `python tools\community_sprites.py apply --commit` to take it in (the community sheets
+  `CommunitySprites8x8.png` / `16x16.png`, the item XML's `<Texture>` and `<SpriteBy>`, the catalog
+  `Shared/resources/data/community_sprites.json`, the changelog and PR-BODY.md), then bring the
+  commit in as any other work. Once that release is deployed the account server reads the catalog
+  and shows those submissions as in the game. Limits against floods: a sprite at most every 20 s,
+  5 waiting and 15 a day per account, 10 an hour per address, 400 a day and 300 waiting in all,
+  16 KB a request; finished submissions leave Redis after 30 days. Redis keys `sprites.*` (new;
+  nothing migrated). Redeploy the client, the account server, the world servers and the website.
 - **Potion of Maxy sprite** (2026-11-11; `tools/port_doomed.py`,
   `tools/doomed/potion_maxy.png`): the supplied 8×8 art is added to unused tile `0x7A` of
   `drLofiObj2`, and both generated XML copies reference it. Redeploy the client and world server;
