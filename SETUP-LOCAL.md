@@ -650,6 +650,11 @@ The remotes `upstream` (HaloCelsius) and `aurusenth` share no history with `main
   `tools/doomed/potion_maxy.png`): the supplied 8×8 art is added to unused tile `0x7A` of
   `drLofiObj2`, and both generated XML copies reference it. Redeploy the client and world server;
   no Redis change.
+- **Single-stat max potion sprites** (2026-11-12; `tools/port_doomed.py`,
+  `tools/doomed/single_stat_max_potions.png`): each of the eight Potions of Max now uses its own
+  supplied sprite in order from Life to Wisdom, appended to `drLofiObj2` at tiles `0x100`–`0x107`.
+  Both generated XML copies reference their matching tile. Redeploy the client and world server;
+  no Redis change.
 - **Wiki command** (2026-11-11; `WorldServer/core/commands/player/Command.Wiki.cs`):
   `/wiki` sends players a link to `https://www.dodmg.com/wiki`. Added its description to the
   generated website command list. Redeploy the world servers and website; no client, protocol or

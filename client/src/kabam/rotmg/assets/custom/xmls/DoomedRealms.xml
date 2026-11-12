@@ -8799,7 +8799,7 @@
 		<Item />
 		<Texture>
 			<File>drLofiObj2</File>
-			<Index>0x34</Index>
+			<Index>0x103</Index>
 		</Texture>
 		<SlotType>10</SlotType>
 		<Tier>12</Tier>
@@ -8815,7 +8815,7 @@
 		<Item />
 		<Texture>
 			<File>drLofiObj2</File>
-			<Index>0x35</Index>
+			<Index>0x102</Index>
 		</Texture>
 		<SlotType>10</SlotType>
 		<Tier>12</Tier>
@@ -8831,7 +8831,7 @@
 		<Item />
 		<Texture>
 			<File>drLofiObj2</File>
-			<Index>0x36</Index>
+			<Index>0x104</Index>
 		</Texture>
 		<SlotType>10</SlotType>
 		<Tier>12</Tier>
@@ -8847,7 +8847,7 @@
 		<Item />
 		<Texture>
 			<File>drLofiObj2</File>
-			<Index>0x30</Index>
+			<Index>0x106</Index>
 		</Texture>
 		<SlotType>10</SlotType>
 		<Tier>12</Tier>
@@ -8863,7 +8863,7 @@
 		<Item />
 		<Texture>
 			<File>drLofiObj2</File>
-			<Index>0x31</Index>
+			<Index>0x107</Index>
 		</Texture>
 		<SlotType>10</SlotType>
 		<Tier>12</Tier>
@@ -8879,7 +8879,7 @@
 		<Item />
 		<Texture>
 			<File>drLofiObj2</File>
-			<Index>0x37</Index>
+			<Index>0x105</Index>
 		</Texture>
 		<SlotType>10</SlotType>
 		<Tier>12</Tier>
@@ -8895,7 +8895,7 @@
 		<Item />
 		<Texture>
 			<File>drLofiObj2</File>
-			<Index>0x26</Index>
+			<Index>0x100</Index>
 		</Texture>
 		<SlotType>10</SlotType>
 		<Description>A rare potion that permanently maxes health. At full maximum health, it adds 6 life potions to your potion storage instead.</Description>
@@ -8910,7 +8910,7 @@
 		<Item />
 		<Texture>
 			<File>drLofiObj2</File>
-			<Index>0x27</Index>
+			<Index>0x101</Index>
 		</Texture>
 		<SlotType>10</SlotType>
 		<Description>A potion that permanently maxes magic. At full maximum magic, it adds 6 mana potions to your potion storage instead.</Description>

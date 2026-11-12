@@ -12,6 +12,7 @@ What it does:
   * Points their sprites at copies of the Doomed Realms sprite sheets, registered in the client
     under a "dr" prefix (drLofiObj5, drChars8x8rPets1, ...), so they keep their exact art.
     The Potion of Maxy's sprite is overlaid on unused tile 0x7A of drLofiObj2.
+    The single-stat max potion sprites are appended to that sheet starting at tile 0x100.
     RemoteTexture sprites (downloaded once into tools/doomed/remote/ by --fetch-remote) become
     one small sheet each (drRemote<id>).
   * Writes the XML for the server (source/Shared/resources/xml/custom/DoomedRealms.xml) and the
@@ -52,6 +53,18 @@ CLIENT_IMAGES = os.path.join(CLIENT_ASSETS, "doomed", "images")
 CLIENT_ASSETS_AS = os.path.join(CLIENT_ASSETS, "doomed", "DoomedAssets.as")
 MAXY_POTION_SPRITE = os.path.join(STATE, "potion_maxy.png")
 MAXY_POTION_INDEX = 0x7A
+SINGLE_STAT_MAX_POTIONS_SPRITE = os.path.join(STATE, "single_stat_max_potions.png")
+SINGLE_STAT_MAX_POTIONS = (
+    "Potion of Max Life",
+    "Potion of Max Mana",
+    "Potion of Max Defense",
+    "Potion of Max Attack",
+    "Potion of Max Speed",
+    "Potion of Max Dexterity",
+    "Potion of Max Vitality",
+    "Potion of Max Wisdom",
+)
+SINGLE_STAT_MAX_POTION_START_INDEX = 0x100
 
 TYPE_START, TYPE_END = 0xD000, 0xDFFF
 PORTED_CLASSES = {"Equipment", "Dye", "Player"}
@@ -427,6 +440,8 @@ SPRITE_DONORS = {"Elder Beach Portal": "Beachzone Portal"}
 TEXTURE_OVERRIDES = {"Oryx the Mad God 4": ("hashCellarOryx16x16", 0),
                      # the player's 8x8 sprite overlays an unused tile in drLofiObj2
                      "Potion of Maxy": ("drLofiObj2", MAXY_POTION_INDEX),
+                     **{name: ("drLofiObj2", SINGLE_STAT_MAX_POTION_START_INDEX + i)
+                        for i, name in enumerate(SINGLE_STAT_MAX_POTIONS)},
                      # the incantations' seals (tools/draw_oryx_gates.py, INCANTATION_CELLS)
                      "Hash Cellar Incantation": ("oryxIncantations16x16", 1),
                      "Doomed Cellar Incantation": ("oryxIncantations16x16", 2),
@@ -1240,17 +1255,45 @@ def write_assets(sheets, remotes, images_dir):
 
             with Image.open(dst) as source:
                 sheet = source.convert("RGBA")
-            with Image.open(MAXY_POTION_SPRITE) as source:
-                sprite = source.convert("RGBA")
-            if sprite.size != (8, 8) or sheet.width % 8 or sheet.height % 8:
-                sys.exit("Potion of Maxy sprite and lofiObj2 must use 8x8 tiles")
+            if sheet.width % 8 or sheet.height % 8:
+                sys.exit("lofiObj2 dimensions must align to 8x8 tiles")
             columns = sheet.width // 8
-            x, y = (MAXY_POTION_INDEX % columns) * 8, (MAXY_POTION_INDEX // columns) * 8
-            if x + 8 > sheet.width or y + 8 > sheet.height:
+            if MAXY_POTION_INDEX >= columns * (sheet.height // 8):
                 sys.exit("Potion of Maxy sprite index is outside lofiObj2")
-            if any(sheet.getpixel((px, py))[3] for py in range(y, y + 8) for px in range(x, x + 8)):
-                sys.exit("Potion of Maxy sprite tile is no longer empty")
-            sheet.paste(sprite, (x, y))
+            with Image.open(MAXY_POTION_SPRITE) as source:
+                maxy = source.convert("RGBA")
+            with Image.open(SINGLE_STAT_MAX_POTIONS_SPRITE) as source:
+                stat_potions = source.convert("RGBA")
+            if maxy.size != (8, 8):
+                sys.exit("Potion of Maxy sprite must be 8x8")
+            if stat_potions.size != (len(SINGLE_STAT_MAX_POTIONS) * 8, 8):
+                sys.exit("Single-stat max potion sprites must be one 8x8 tile per potion")
+
+            def tile_position(index):
+                return (index % columns) * 8, (index // columns) * 8
+
+            def ensure_empty(index):
+                x, y = tile_position(index)
+                if x + 8 > sheet.width or y + 8 > sheet.height:
+                    sys.exit("Potion sprite index %s is outside lofiObj2" % hex(index))
+                if any(sheet.getpixel((px, py))[3] for py in range(y, y + 8) for px in range(x, x + 8)):
+                    sys.exit("Potion sprite tile %s is no longer empty" % hex(index))
+
+            ensure_empty(MAXY_POTION_INDEX)
+            stat_indices = range(SINGLE_STAT_MAX_POTION_START_INDEX,
+                                 SINGLE_STAT_MAX_POTION_START_INDEX + len(SINGLE_STAT_MAX_POTIONS))
+            required_height = max(sheet.height, ((stat_indices.stop - 1) // columns + 1) * 8)
+            if required_height > sheet.height:
+                extended = Image.new("RGBA", (sheet.width, required_height), (0, 0, 0, 0))
+                extended.paste(sheet, (0, 0))
+                sheet = extended
+            for i, index in enumerate(stat_indices):
+                ensure_empty(index)
+                x, y = tile_position(index)
+                sprite = stat_potions.crop((i * 8, 0, (i + 1) * 8, 8))
+                sheet.paste(sprite, (x, y))
+            x, y = tile_position(MAXY_POTION_INDEX)
+            sheet.paste(maxy, (x, y))
             sheet.save(dst)
         embeds.append('      [Embed(source="images/%s.png")]\n      private static const %s:Class;\n' % (name, name))
 
