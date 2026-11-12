@@ -19,6 +19,9 @@ details). Add to a group's line when a change adds to it, rather than adding ano
   no longer makes a map's worth of memory to clean up with every step taken there.
 - Realm 2 no longer freezes for good for everyone in it: monsters coming back to a patch of the
   starting lands that was all in someone's sight could stop the realm.
+- The Void's portal (opened with a Vial of Pure Darkness where the Marble Colossus fell, in the
+  Lost Halls and the Elder Lost Halls) no longer sits under the Colossus's Realm Portal, so you
+  can enter it.
 
 ## 2.5.3 (2026-11-12)
 

@@ -112,7 +112,8 @@ him, lasers, marble cores you must break before he can be hurt again, and a last
 draws back part of his strength. One run in four the Colossus doesn't stir and a hidden passage
 to the **Cultist Hideout** opens instead. Where the Colossus falls, a tear into the Void stays
 open for five minutes (after four it warns that it's closing): that's where a Vial of Pure
-Darkness opens the Void.
+Darkness opens the Void. His Realm Portal opens three tiles west of it (and the Elder Lost Halls
+portal, when he leaves one, three tiles east), so the Void's portal has its own spot.
 
 The Colossus drops like Oryx 3: stat potions, tier 13 to 15 gear, and his own Sword of the
 Colossus, Breastplate of New Life, Marble Seal and Magical Lodestone. The rooms' leaders drop gear
