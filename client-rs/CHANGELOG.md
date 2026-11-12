@@ -12,14 +12,14 @@ Keep each version short: changes go under `### ` group headings (Oryx 5, Arena, 
 on), one line per change players notice, summed up rather than item by item (the wiki has the
 details). Add to a group's line when a change adds to it, rather than adding another line.
 
-## Unreleased
+## 2.5.4 (2026-11-12)
 
 ### Game
 - The menus (sign-in, character select and the other screens outside the game) draw at most 30
   frames a second, so the game uses less of your computer while you're not playing.
 
 ### Items
-- New sprites drawn by players in the Sprite Editor: Coral Medallion (by Trenchant).
+- New sprites drawn by players in the Sprite Editor: two new looks for the Coral Medallion (by Trenchant).
 - Every Necromantic item's power now shows when it works, in a look of its own: the cutlass's
   cannonball bursting in fire and spray, venom splashing, souls flying to the Phylactery, a
   burning brand under cursed enemies, whirlpools, lightning from the sky, the Crown of Geb's
