@@ -2,7 +2,17 @@ Release 2.5.4
 
 ## For players
 
+- **Fixes:** fewer lag spikes while anyone explores The Shatters, Oryx's Castle or the Mad Lab, whose walls hide what's behind them: each step there no longer makes a map's worth of memory (239 KB in the Shatters) for the server to clean up, which hurried the collections that pause every world at once.
+
 ## Details
+
+### Sight in worlds whose walls block it: no map-sized array per step
+
+In worlds with `VisibilityType` 2 (The Shatters, Oryx's Castle, Mad Lab), `Player.CalculatePath` worked out what a player sees with a new `bool[map width, map height]` every time they stepped onto another tile: 239 KB for the Shatters' 489×489 map, about 1 MB/s for a player on the move. Arrays that size go to the large object heap, which counts towards full (gen 2) collections, and every collection pauses all worlds at once. It now marks the tiles in a `(2r+1)²` grid round the player (r the sight radius: 961 bytes at the default 15), kept by the player between steps and remade only when the sight radius changes. Same tiles in sight as before: the flood fill is unchanged, it only stops at the edge of the sight square, past which nothing was ever in sight. `Player.SightPath` (public static, for the tests) holds it; `source/WorldServer/core/objects/player/Player.Update.cs`.
+
+Found while looking into the lag and ping spikes on the game VPS since 11/10. They are pauses of 150-330 ms in the world server's ticks (the Tick stats logs): garbage collections of 50-200 ms (`GC pause` lines; next to none before 11/10 16:48) and work on the Nexus's thread, which also runs every dungeon, vault and Arena opened from the Nexus. The VPS's CPU history (sysstat) shows its kernel time per packet at 2-3× the earlier level from 11/10 13:00-15:00 to 11/12 03:00, with no change in traffic, and a fixed tick (a Vault's) taking about twice as long. That is the machine (or something left running on it), not this code, and it has mostly recovered. This fix takes away one steady source of full collections. Server GC, tried as well, made the pauses worse (below), so the collector is unchanged.
+
+Redeploy: world server only; nobody is disconnected (rolling deploy).
 
 ### Player sprites are a release check
 
@@ -13,5 +23,8 @@ Release 2.5.4
 - **The owner must:** turn down #2 in the Sprite Editor's Review tab. It's the only approved sprite on the live server: a "new look" for the April Fools Skin Bag that is its existing 8×8 sprite doubled to 16×16, with no pixel changed (the item's description credits Seelpit for its art). Until it's turned down, `check` fails.
 
 ## Checks
+
+- **Sight in worlds whose walls block it:** `SightPathTests` (new): on 200 random maps and walls, at sight radii 15, 20 and 40, the tiles in sight equal those of the old map-sized flood fill, and the grid is kept between steps. Server tests: 250 of 251 pass; `TheWorldServersConfigHasTheEventInUtc` fails only because the tests were built into another folder (`-o`), where it can't find `wServer.json`. Isolated stack (slot 130), 12 bots for 10 minutes each (4 fighting in Realm 2, 3 in the Arena, one each in The Shatters, The Elder Shatters and the Elder Tomb, 2 in vaults), GC traced with `dotnet-trace --profile gc-verbose`: before, `bool[,]` was the most allocated type (19%, 82 MB in 3.5 min, nearly all from one bot in the Shatters), gen 0 pauses 4.7 ms median and 8 ms worst, gen 1 17 ms worst; after, `bool[,]` is gone from the allocations and pauses were 1.8 ms median, 4.4 ms worst (gen 0) and 9.3 ms worst (gen 1), in a run that allocated more (a third Arena bot). An untraced run of the fix: no tick over 150 ms (worst gap 116 ms), no GC pause over 50 ms. The same load with Server GC (`DOTNET_gcServer=1`): one 65 ms gen 1 pause and 886 MB of memory against 500 MB, so the workstation collector stays. Not tried on the VPS.
+- **Not done, found on the way:** in 2 of the 4 runs (before the fix and with it, both while traced), Realm 2's thread stopped ticking for good partway through (its 4 bots stopped getting `NewTick`s within 6 s of each other, its Tick stats stopped; the Nexus thread went on). Realm 2 doesn't use the code changed here. The cause isn't known yet: no thread stacks were caught (it didn't happen in the run watched for it).
 
 - **Player sprites are a release check:** `check --offline` passes on the clean repository; against https://dodmg.com/api it fails, listing #2. With a test sprite applied it passes; it fails once the server XML is put back without it (`rework` named), and again once the sheet's cell is wiped. Against the live list, `apply` skips #2 as the bag's sprite as it is now and `check` names it to turn down; a changed test sprite still goes in, with a blank line kept under an empty `## For players`. Test changes undone afterwards.

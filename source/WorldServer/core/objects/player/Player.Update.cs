@@ -284,33 +284,61 @@ namespace WorldServer.core.objects
             }
         }
 
+        // the tiles CalculatePath has been to, kept between steps (see SightPath)
+        private bool[] _pathVisited;
+
         public void CalculatePath(HashSet<IntPoint> points)
         {
-            var px = (int)X;
-            var py = (int)Y;
-
-            var pathMap = new bool[World.Map.Width, World.Map.Height];
-            StepPath(points, pathMap, px, py, px, py);
+            var map = World.Map;
+            SightPath(points, _sightPoints, SightRadius, (int)X, (int)Y, map.Contains, (x, y) =>
+            {
+                var t = map[x, y];
+                return t.ObjType != 0 && t.ObjDesc != null && t.ObjDesc.BlocksSight;
+            }, ref _pathVisited);
         }
 
-        private void StepPath(HashSet<IntPoint> points, bool[,] pathMap, int x, int y, int px, int py)
+        /// <summary>
+        /// What a player at (<paramref name="px"/>, <paramref name="py"/>) sees in a world whose
+        /// walls block sight by path (VisibilityType 2: the Shatters, Oryx's Castle, Mad Lab): the
+        /// points of <paramref name="sightPoints"/> (offsets within <paramref name="radius"/>) reached
+        /// from the player's tile through tiles that don't block sight, a blocking tile itself seen.
+        /// The tiles it has been to are marked in <paramref name="visited"/>, a grid the size of the
+        /// sight square kept between calls: a new map-sized array at every step (239 KB in the
+        /// Shatters, on the large object heap) hurried full garbage collections, which stop every world.
+        /// </summary>
+        public static void SightPath(HashSet<IntPoint> points, HashSet<IntPoint> sightPoints, int radius, int px, int py,
+            Func<int, int, bool> contains, Func<int, int, bool> blocksSight, ref bool[] visited)
         {
-            if (!World.Map.Contains(x, y))
-                return;
+            var side = 2 * radius + 1;
+            if (visited == null || visited.Length != side * side)
+                visited = new bool[side * side];
+            else
+                Array.Clear(visited);
 
-            if (pathMap[x, y])
-                return;
-            pathMap[x, y] = true;
+            var seen = visited;
+            Step(px, py);
 
-            var point = new IntPoint(x - px, y - py);
-            if (!_sightPoints.Contains(point))
-                return;
-            _ = points.Add(point);
+            void Step(int x, int y)
+            {
+                int dx = x - px, dy = y - py;
+                // outside the sight square nothing is in sight
+                if (dx < -radius || dx > radius || dy < -radius || dy > radius || !contains(x, y))
+                    return;
 
-            var t = World.Map[x, y];
-            if (!(t.ObjType != 0 && t.ObjDesc != null && t.ObjDesc.BlocksSight))
-                foreach (var p in _surroundingPoints)
-                    StepPath(points, pathMap, x + p.X, y + p.Y, px, py);
+                var i = (dy + radius) * side + dx + radius;
+                if (seen[i])
+                    return;
+                seen[i] = true;
+
+                var point = new IntPoint(dx, dy);
+                if (!sightPoints.Contains(point))
+                    return;
+                _ = points.Add(point);
+
+                if (!blocksSight(x, y))
+                    foreach (var p in _surroundingPoints)
+                        Step(x + p.X, y + p.Y);
+            }
         }
 
         private void GetNewStaticObjects(Update update)

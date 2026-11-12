@@ -12,6 +12,12 @@ Keep each version short: changes go under `### ` group headings (Oryx 5, Arena, 
 on), one line per change players notice, summed up rather than item by item (the wiki has the
 details). Add to a group's line when a change adds to it, rather than adding another line.
 
+## Unreleased
+
+### Fixes
+- Fewer lag spikes while anyone explores The Shatters, Oryx's Castle or the Mad Lab: the server
+  no longer makes a map's worth of memory to clean up with every step taken there.
+
 ## 2.5.3 (2026-11-12)
 
 ### Game
