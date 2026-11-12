@@ -689,6 +689,64 @@ code { font: .86em ui-monospace, "Cascadia Mono", Consolas, monospace; padding: 
 .prose .it-eq { color: var(--good); }
 .prose .it-desc { color: var(--text-muted); font-style: italic; }
 .it-src { display: grid; gap: 2px; margin: 6px 0 0; font-size: .82rem; line-height: 1.4; }
+
+/* the Necromantic items (wiki, {{gen:raise-items}}): a showcase card each, the sprite large in a
+   soul-green and violet glow, its power, base and where it drops */
+.nx { --soul: #7dffcf; margin: 0 0 1.8em; }
+.prose .nx { max-width: none; }
+.nx-stats { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 1px; margin: 0 0 14px;
+  background: var(--line); border: 1px solid var(--line); }
+.nx-stats > div { padding: 12px 14px; background: radial-gradient(120% 140% at 0 0, rgba(139, 92, 246, .16), transparent 60%), var(--surface); }
+.nx-stats b { display: block; font: 400 1.5rem/1.1 var(--pixel); color: var(--soul); text-shadow: 0 0 14px rgba(125, 255, 207, .35); }
+.nx-stats span { font-size: .78rem; color: var(--text-muted); }
+.nx-tools { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 10px 18px; margin: 0 0 14px; }
+.nx-tools .filter { margin: 0; flex: 1 1 260px; }
+.nx-chips { display: flex; flex-wrap: wrap; gap: 6px; }
+.nx-chip { padding: 6px 12px; background: var(--surface); border: 1px solid var(--line); color: var(--text-dim);
+  font: 600 .86rem var(--body); cursor: pointer; }
+.nx-chip b { margin-left: 4px; color: var(--text-muted); font-weight: 600; }
+.nx-chip:hover { border-color: var(--line-hi); color: var(--text); }
+.nx-chip[aria-pressed="true"] { border-color: var(--violet); background: color-mix(in srgb, var(--violet) 18%, var(--surface)); color: var(--text); }
+.nx[data-cat="weapons"] .nx-card:not([data-cat="weapons"]), .nx[data-cat="abilities"] .nx-card:not([data-cat="abilities"]),
+.nx[data-cat="armor"] .nx-card:not([data-cat="armor"]), .nx[data-cat="rings"] .nx-card:not([data-cat="rings"]),
+.nx-card[hidden] { display: none; }
+.nx-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(min(100%, 330px), 1fr)); gap: 12px; }
+.nx-card {
+  position: relative; display: grid; grid-template-columns: 96px minmax(0, 1fr); gap: 14px; align-items: start; padding: 14px 16px;
+  background: linear-gradient(160deg, rgba(139, 92, 246, .10), transparent 45%), var(--surface);
+  border: 1px solid var(--line); scroll-margin-top: 80px; overflow: hidden;
+  transition: border-color .15s, transform .15s, box-shadow .15s;
+}
+.nx-card::before { content: ""; position: absolute; inset: 0 auto auto 0; width: 100%; height: 2px;
+  background: linear-gradient(90deg, var(--violet), var(--soul), transparent); opacity: .7; }
+.nx-card:hover, .nx-card:target { border-color: color-mix(in srgb, var(--violet) 70%, var(--line)); transform: translateY(-2px);
+  box-shadow: 0 10px 28px -14px rgba(139, 92, 246, .7); }
+@media (prefers-reduced-motion: reduce) { .nx-card { transition: none; } .nx-card:hover, .nx-card:target { transform: none; } }
+.nx-art { position: relative; display: grid; place-items: center; width: 96px; height: 96px; }
+.nx-art::before { content: ""; position: absolute; inset: -6px; border-radius: 50%;
+  background: radial-gradient(closest-side, rgba(125, 255, 207, .28), rgba(139, 92, 246, .18) 55%, transparent 75%);
+  animation: nx-pulse 3.2s ease-in-out infinite; }
+@keyframes nx-pulse { 50% { transform: scale(1.08); opacity: .7; } }
+@media (prefers-reduced-motion: reduce) { .nx-art::before { animation: none; } }
+.nx-art .ico { position: relative; width: 84px; height: 84px; border-color: color-mix(in srgb, var(--c) 70%, var(--violet)); border-radius: 10px;
+  box-shadow: 0 0 0 1px rgba(0, 0, 0, .4), 0 0 18px -4px var(--violet); }
+.nx-art .ico i { zoom: 1.5; }
+.nx-chance { position: absolute; right: -6px; bottom: -4px; padding: 1px 6px; background: var(--bg-deep); border: 1px solid var(--soul);
+  color: var(--soul); font: 700 .62rem var(--pixel); letter-spacing: .04em; }
+.nx-body { min-width: 0; }
+.prose .nx-body h3 { margin: 2px 0 6px; font-size: 1.02rem; line-height: 1.25; }
+.prose .nx-body h3 a { color: var(--text); }
+.prose .nx-body h3 a:hover { color: var(--gold); }
+.prose .nx-body p { margin: 0 0 6px; font-size: .86rem; line-height: 1.45; }
+.nx-kind { display: flex; flex-wrap: wrap; align-items: center; gap: 6px; color: var(--text-dim); }
+.nx-sb { color: var(--text-muted); font-size: .78rem; }
+.nx-sb::before { content: "\00b7"; margin-right: 6px; }
+.prose .nx-power { padding: 7px 9px; background: rgba(125, 255, 207, .05); border-left: 2px solid var(--soul); color: var(--text); }
+.nx-power > span { display: block; margin-bottom: 2px; font: 700 .64rem var(--pixel); color: var(--soul); letter-spacing: .08em; text-transform: uppercase; }
+.prose .nx-base { color: var(--text-muted); font-size: .8rem; }
+.nx-base b { color: var(--text-dim); font-weight: 600; }
+.prose .nx-src { margin: 8px 0 0; padding-top: 8px; border-top: 1px dashed var(--line); color: var(--text-muted); font-size: .82rem; line-height: 1.45; }
+.nx-src > span { display: block; margin-bottom: 1px; font: 700 .6rem var(--pixel); color: var(--ember); letter-spacing: .08em; text-transform: uppercase; }
 /* a pet's healing: a small titled block, a row each for HP and MP */
 .it-heal { display: grid; gap: 2px; margin: 6px 0 0; padding: 6px 8px; border: 1px solid var(--line); border-radius: 6px;
   background: rgba(255, 255, 255, .02); font-size: .82rem; line-height: 1.4; }
@@ -756,6 +814,11 @@ code { font: .86em ui-monospace, "Cascadia Mono", Consolas, monospace; padding: 
   .dg dl > div, .cls dl > div { grid-template-columns: 1fr; gap: 0; }
   .dg dd, .cls dd { margin-bottom: 4px; }
   .it { grid-template-columns: 56px minmax(0, 1fr); gap: 10px; padding: 10px 12px; }
+  .nx-stats { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .nx-card { grid-template-columns: 72px minmax(0, 1fr); gap: 12px; padding: 12px; }
+  .nx-art { width: 72px; height: 72px; }
+  .nx-art .ico { width: 64px; height: 64px; }
+  .nx-art .ico i { zoom: 1.15; }
   .it-src > div { grid-template-columns: 1fr; gap: 0; }
   .it-src dd { margin-bottom: 3px; }
   .anchor { display: none; }

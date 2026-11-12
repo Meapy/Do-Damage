@@ -80,6 +80,14 @@ of its kind, at {{v:raise_item_min}} to {{v:raise_item_max}} times its strength 
 health), has stats of its own on top, and has a **power** no other item has. They're soulbound.
 The gear pages list them with their powers.
 
+## The Necromantic items
+
+Every item an Empowered boss drops, at a glance: what it is, its power, what it's built on and
+where to hunt it. Pick a kind of gear, or filter by name, boss, dungeon or power; the boss's name
+leads to its fight below, the item's to its full entry on the gear pages.
+
+{{gen:raise-items}}
+
 ## Each boss, its item and its drops
 
 The health below is for one player; like the Elder bosses, the Empowered ones have more in a

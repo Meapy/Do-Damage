@@ -21,6 +21,7 @@ Release 2.5.2: the Elder Shatters, the Elder Lost Halls with its Elder Cultist H
 - **Elder bosses in a group:** the Elder Thessal gains 15% of her health per extra player (was 20%: 221,000 for five instead of 248,000). In the Elder Shatters its three bosses gain 15% per extra player instead of the regular Shatters' 35% (the Forgotten King 320,000 for five instead of 480,000); in the Elder Lost Halls the Marble Colossus, Malus and his cultists, Molek and Balaam 15% instead of 20%, and the Elder Void Entity 10% (1.12 million for five instead of 1.44 million). The regular dungeons keep their rates.
 - **Quest arrow in dungeons:** in a dungeon its boss is everyone's quest, whatever their level. Bosses with no level of their own (the Lost Halls' Marble Defenders, Colossus and Void Entity, Davy Jones, the Black Dragon God, Malphas and about 60 more) only counted within 100 tiles of a level 20 player, so in the big Lost Halls the arrow and the boss's health at the top of the screen were often missing. In the Cultist Hideout (and its Elder version) the arrow and the boss bar follow Malus, in both his forms, instead of the invisible Cult below the pentagram, and beating him counts as clearing the dungeon, which it never did.
 - **Game:** Type `/wiki` in chat to get a link to the Do Damage wiki.
+- **Wiki:** the Necromantic Relic page opens with a gallery of all 25 Necromantic items: each with its sprite large in a soul glow, its kind, its power, the item it's built on and how much stronger, its chance (6%) and the Empowered boss and Elder dungeon it drops from (the boss leads to its fight further down, the item to its gear page). Buttons show one kind (weapons, abilities, armour, rings) and a filter takes a name, boss, dungeon or power.
 - **Items:** The Potion of Maxy has a new sprite.
 
 ## Details
@@ -67,6 +68,12 @@ Redeploy the client and world server; nobody is disconnected and no Redis data c
 - **Redeploy:** world server (health, rates, quests) and client (the Cult's XML, for the quest panel's own-damage tally); website (wiki). Nobody is disconnected; nothing in Redis changes.
 - **Not done or not checked:** not tried in game: a raised boss with several players near, or the arrow in a Lost Halls run. The Beach Zone's Masked Party God is no quest in any version (Doomed Realms XML; its test lists it as known).
 
+### Necromantic items gallery (wiki)
+
+- **What changed:** `tools/build_wiki.py` `gen_raise_items` (`{{gen:raise-items}}`, a new "The Necromantic items" part of `website/wiki/necromantic-relic.md`): a card per Empowered boss's own item from `resurrection.json` and the gear data (sprite through `wiki_gear.icon`, `<RelicPower>` and its `EffectInfo`, `itemBase` and `itemStrength`, the item's chance, the boss's `#raise-` anchor, the dungeon's card), a strip of counts, kind chips and the usual filter. `website/style.css` `.nx*` (dark only, as the site is; the glow's pulse and the hover lift stop under reduced motion; two columns of counts and smaller sprites on a phone). `website/wiki/wiki.js`: `button[data-cat-for]` sets `data-cat` on its section, which the CSS uses to show one kind.
+- **Redeploy:** website only.
+- **Not done:** nothing else on the site uses the chips yet.
+
 ### Candyland wave pacing
 `BehaviorDb.Candyland.cs`: after a wave is cleared, its room waits for players to leave before
 starting the boss spawn. The next wave waits for the boss to be defeated and players to return.
@@ -79,6 +86,8 @@ Redeploy the world servers and website. No client, protocol or Redis change.
 website wiki. Redeploy the world servers and website. No client, protocol or Redis change.
 
 ## Checks
+
+- **Necromantic items gallery (wiki):** `python tools\build_site.py`, the page served locally (`.claude/launch.json` `site`) and looked at in a browser at 1400 px and on a 375 px phone: 25 cards with sprites, every chip shows its kind's count (All 25, Weapons 7, Abilities 14, Armor 3, Rings 1), the filter combines with a chip ("tomb" and Abilities: 3), no sideways scroll on the phone.
 
 - **Empowered boss health, Elder group scaling and dungeon quests:** `dotnet test source\Tests`, 242 pass (new `EmpoweredHealthTests`: the curve, a share per player added once for 5 players on a 200k boss and 3 on Thessal, damage kept when a player joins, a share taken off when one leaves, every raisable boss and its Empowered form a quest, Malus and not the Cult the quest in both versions). World server build. `python tools\build_wiki.py`: the Necromantic Relic page lists each Empowered health and defense bonus. Not played on an isolated stack.
 

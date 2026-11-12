@@ -1032,6 +1032,73 @@ class Gen:
                              ident, ident, esc(b["name"]), "".join("<div><dt>%s</dt><dd>%s</dd></div>" % r for r in rows)))
         return "\n".join(parts)
 
+    # --- the Necromantic items, {{gen:raise-items}} ---------------------------------------------
+    def gen_raise_items(self, used):
+        """A showcase of every Empowered boss's own item: its sprite, kind, power and base, and the
+        boss, dungeon and chance it drops from, with chips to show one kind of gear."""
+        d = self.d
+        eq = self.equip
+        res = d.resurrection()
+        items = {it["id"]: it for it in eq.items}
+        cards_by_id = {x["id"]: x for x in self.dungeons()}
+        cats = dict((c[0], c[1]) for c in wiki_gear.CATEGORIES)
+        cards, kinds, dungeons = [], {}, []
+        for b in res["bosses"]:
+            it = items.get(b.get("item"))
+            if not it:
+                continue
+            chance = next((c for i, c in b["loot"] if i == b.get("item")), None)
+            dg = cards_by_id.get(b["dungeon"])
+            dname = dg["name"] if dg else b["dungeon"]
+            if dname not in dungeons:
+                dungeons.append(dname)
+            cat = it["category"]
+            kinds[cat] = kinds.get(cat, 0) + 1
+            kind = wd.SLOT_NAMES.get(it["slot"], it["kind"])
+            power = []
+            if it["el"].find("RelicPower") is not None:
+                for info in it["el"].iter("EffectInfo"):
+                    n, what = (info.get("name") or "").strip(), (info.get("description") or "").strip()
+                    if n and what:
+                        power.append('<p class="nx-power"><span>%s</span>%s</p>' % (esc(n), esc(what)))
+            base = ""
+            if b.get("itemBase"):
+                base = '<p class="nx-base">Built on %s at <b>%s&times;</b> its strength</p>' % (
+                    self.item_links([b["itemBase"]]), ("%.2f" % b["itemStrength"]).rstrip("0").rstrip("."))
+            boss_id = "raise-" + slugify(b["name"])
+            where = '<a href="dungeons.html#d-%s">%s</a>' % (slugify(dg["id"]), esc(dname)) if dg else esc(dname)
+            src = ('<p class="nx-src"><span>Drops from</span><a href="#%s">Empowered %s</a>, raised in %s</p>'
+                   % (boss_id, esc(b["name"]), where))
+            search = " ".join([it["name"], kind, b["name"], dname] +
+                              [re.sub(r"<[^>]+>", "", x) for x in power]).lower()
+            cards.append(
+                '<article class="nx-card" id="nx-%s" data-cat="%s" data-search="%s" style="--c:%s">'
+                '<div class="nx-art">%s%s</div>'
+                '<div class="nx-body"><h3><a href="%s">%s</a></h3>'
+                '<p class="nx-kind"><span class="tag" style="--c:%s">%s</span><span>%s</span>%s</p>'
+                '%s%s%s</div></article>' % (
+                    slugify(it["id"]), cat, esc(search), eq.edge(it), eq.icon(it),
+                    '<span class="nx-chance" title="The chance for each player, before loot boosts">%s</span>' % pct(chance) if chance else "",
+                    eq.href[it["id"]], esc(it["name"]), eq.edge(it), esc(eq.tag(it)), esc(kind),
+                    '<span class="nx-sb">Soulbound</span>' if it["soulbound"] else "",
+                    "".join(power), base, src))
+        used.add("nx-items")
+        # the chips set the section's data-cat, and style.css hides the other kinds
+        chips = ['<button type="button" class="nx-chip" data-cat="all" data-cat-for="nx-items" aria-pressed="true">All <b>%d</b></button>' % len(cards)]
+        for c, title, _, _ in wiki_gear.CATEGORIES:
+            if kinds.get(c):
+                chips.append('<button type="button" class="nx-chip" data-cat="%s" data-cat-for="nx-items" aria-pressed="false">%s <b>%d</b></button>'
+                             % (c, esc(title), kinds[c]))
+        stats = ('<div class="nx-stats"><div><b>%d</b><span>items</span></div><div><b>%d</b><span>Elder dungeons</span></div>'
+                 '<div><b>%s</b><span>each, per player</span></div><div><b>%s&ndash;%s&times;</b><span>their base</span></div></div>' % (
+                     len(cards), len(dungeons), self.resurrection_values()["raise_item_chance"],
+                     self.resurrection_values()["raise_item_min"], self.resurrection_values()["raise_item_max"]))
+        return ('<section class="nx" id="nx-items" data-cat="all">%s'
+                '<div class="nx-tools"><div class="nx-chips" role="group" aria-label="Kind of gear">%s</div>'
+                '<div class="filter"><label for="nx-filter">Filter</label><input id="nx-filter" type="search" '
+                'placeholder="Name, boss, dungeon or power" data-filter=".nx-card" autocomplete="off"></div></div>'
+                '<div class="nx-grid">%s</div></section>' % (stats, "".join(chips), "".join(cards)))
+
     # --- the Oryx chain ----------------------------------------------------------------------
     def gen_oryx_chain(self, used):
         d = self.d

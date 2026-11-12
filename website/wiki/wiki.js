@@ -185,4 +185,17 @@
       });
     });
   });
+
+  // --- Kind chips: <button data-cat="x" data-cat-for="id"> sets data-cat on that element, and the
+  // page's CSS shows only the cards of that kind (the Necromantic items) ------------------------------
+  document.querySelectorAll("button[data-cat-for]").forEach(function (chip) {
+    chip.addEventListener("click", function () {
+      var box = document.getElementById(chip.getAttribute("data-cat-for"));
+      if (!box) return;
+      box.setAttribute("data-cat", chip.getAttribute("data-cat"));
+      chip.parentNode.querySelectorAll("button[data-cat-for]").forEach(function (c) {
+        c.setAttribute("aria-pressed", c === chip ? "true" : "false");
+      });
+    });
+  });
 })();

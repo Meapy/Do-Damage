@@ -57,6 +57,8 @@ details). Add to a group's line when a change adds to it, rather than adding ano
 
 ### Game
 - `/wiki` sends you a link to the Do Damage wiki.
+- The wiki's Necromantic Relic page has a gallery of every Necromantic item: its icon, power and
+  base, and the Empowered boss and dungeon it drops from, with buttons to show one kind of gear.
 
 ## 2.5.1 (2026-11-11)
 
