@@ -120,10 +120,12 @@ namespace WorldServer.core.commands.doomed
         // the vault, into `result`, the item the window showed: they must make that recipe. (The
         // advanced recipes needed a worn Forge Amulet, which is gone: none is forged.) The forged
         // item takes the first slot; with none, the first free inventory slot, or the vault when the
-        // inventory is full. Returns what went wrong, or null.
-        public static string Forge(Player player, byte[] slots, string result, out int fame)
+        // inventory is full. `reskin` says the recipe only swapped an item's looks
+        // (ForgeRecipes.IsReskin). Returns what went wrong, or null.
+        public static string Forge(Player player, byte[] slots, string result, out int fame, out bool reskin)
         {
             fame = 0;
+            reskin = false;
             if (!ValidSlots(player, slots, true))
                 return "Put the ingredients in your inventory first.";
             var inv = player.Inventory;
@@ -137,6 +139,7 @@ namespace WorldServer.core.commands.doomed
                     : "You don't have all the ingredients, in your inventory, forge storage or vault.";
             var (recipe, from) = found.Value;
             fame = recipe.Fame;
+            reskin = ForgeRecipes.IsReskin(recipe);
             if (player.CurrentFame < fame)
                 return "Not enough fame to forge these items!";
             // an Infernal potion also takes its stat's potions from the potion storage

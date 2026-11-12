@@ -57,6 +57,9 @@ details). Add to a group's line when a change adds to it, rather than adding ano
 
 ### Game
 - `/wiki` sends you a link to the Do Damage wiki.
+- Swapping an item's looks at the Divine Forge (a Doom Bow into Sun's Judgement, the Staff of
+  Extreme Prejudice into the Staff of Iceblast and back) no longer counts for quests, the Master
+  Smith achievement or the forge community goal.
 - The wiki's Necromantic Relic page has a gallery of every Necromantic item: its icon, power and
   base, and the Empowered boss and dungeon it drops from, with buttons to show one kind of gear.
 

@@ -76,6 +76,15 @@ namespace WorldServer.core.commands.doomed
             ("Helm of the Juggernaut", 100, false, new[] { "Helm of the Jack-o'-naut" }),
         };
 
+        // The look swaps above (one item forged into its twin, such as the Doom Bow and Sun's
+        // Judgement): they make nothing new, so they don't count for quests or the community goal.
+        // Only the swap itself: a Doom Bow forged from two Coral Bows still counts.
+        private static readonly HashSet<string> Reskins = new HashSet<string>(
+            ForgeOnly.Where(r => r.Items.Length == 1).Select(r => Key(r)));
+
+        public static bool IsReskin((string Result, int Fame, bool Advanced, string[] Items) recipe) =>
+            Reskins.Contains(Key(recipe));
+
         // Tiered items two of the tier below don't make: the T16 armours, forged from a T15 armour and an
         // Ascended Armor Shard (Ascended below). They still count for their slot's price scale.
         private static readonly HashSet<string> NotChained = new HashSet<string>
