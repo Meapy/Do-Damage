@@ -2,14 +2,14 @@ Release 2.5.3: out of combat speed and single-stat max potion sprites (deploys t
 
 ## For players
 
-- **Game:** out of combat you walk faster: +20 Speed (shown in green beside your Speed) whenever no enemy has hit you and you haven't hit one for 5 seconds. It goes the moment either happens and comes back after 5 quiet seconds.
+- **Game:** out of combat you walk faster: +20 Speed (shown in green beside your Speed) whenever no enemy has hit you and you haven't hit one for 10 seconds. It goes the moment either happens and comes back after 10 quiet seconds.
 - **Items:** each of the eight single-stat Potions of Max has its own sprite.
 
 ## Details
 
 ### Out of combat speed
 
-`Player.Combat.cs` keeps when the player was last in combat: hurt by an enemy (`PlayerHit`, or `Player.Damage` from an `Enemy`) or hurting one (`EnemyHit`, or `Enemy.Damage` credited to them, which also covers their bleeds and pet hits credited to them). `Player.Tick` flips the state back after 5 s (`CombatMs`) and recalculates the stats. `BoostStatManager.ApplyOutOfCombat` adds +20 Speed (`Player.OutOfCombatSpeed`) as a stat boost, flat after the Apotheosis scaling. The client needs no change: it reads the Speed stat and its bonus as before, so older clients get it too.
+`Player.Combat.cs` keeps when the player was last in combat: hurt by an enemy (`PlayerHit`, or `Player.Damage` from an `Enemy`) or hurting one (`EnemyHit`, or `Enemy.Damage` credited to them, which also covers their bleeds and pet hits credited to them). `Player.Tick` flips the state back after 10 s (`CombatMs`) and recalculates the stats. `BoostStatManager.ApplyOutOfCombat` adds +20 Speed (`Player.OutOfCombatSpeed`) as a stat boost, flat after the Apotheosis scaling. The client needs no change: it reads the Speed stat and its bonus as before, so older clients get it too.
 
 - Redeploy the world server. No Redis change, nobody disconnected.
 - A world change gives a new player object, so you arrive in a new world out of combat.

@@ -9,7 +9,7 @@ namespace WorldServer.core.objects
     partial class Player
     {
         public const int OutOfCombatSpeed = 20;
-        private const long CombatMs = 5000;
+        private const long CombatMs = 10000;
 
         private long _lastCombatMs = long.MinValue / 2;
 

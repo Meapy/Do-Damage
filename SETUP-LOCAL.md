@@ -650,7 +650,7 @@ The remotes `upstream` (HaloCelsius) and `aurusenth` share no history with `main
   +20 Speed (`Player.OutOfCombatSpeed`) as a stat boost, flat after the Apotheosis scaling, while
   the player has neither been hurt by an enemy (a `PlayerHit`, or `Player.Damage` from an `Enemy`)
   nor hurt one (`EnemyHit`, or `Enemy.Damage` credited to them, which includes their bleeds and
-  pet hits credited to them) for 5 s (`CombatMs`). `Player.Tick` flips it back and recalculates
+  pet hits credited to them) for 10 s (`CombatMs`). `Player.Tick` flips it back and recalculates
   the stats; the client just sees a Speed bonus. A new world starts out of combat.
 
 - **Potion of Maxy sprite** (2026-11-11; `tools/port_doomed.py`,
