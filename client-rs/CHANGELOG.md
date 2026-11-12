@@ -14,6 +14,9 @@ details). Add to a group's line when a change adds to it, rather than adding ano
 
 ## Unreleased
 
+### Items
+- New sprites drawn by players in the Sprite Editor: Coral Medallion (by Trenchant).
+
 ### Fixes
 - Fewer lag spikes while anyone explores The Shatters, Oryx's Castle or the Mad Lab: the server
   no longer makes a map's worth of memory to clean up with every step taken there.

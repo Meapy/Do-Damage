@@ -7806,9 +7806,10 @@
 		<Class>Equipment</Class>
 		<Item />
 		<Texture>
-			<File>drLofiObj5</File>
-			<Index>0x141</Index>
+			<File>communitySprites8x8</File>
+			<Index>0x0</Index>
 		</Texture>
+		<SpriteBy>Trenchant</SpriteBy>
 		<SlotType>9</SlotType>
 		<Description>A medallion worn by Thessal herself, given to her by a BladeRaider.</Description>
 		<ActivateOnEquip stat="28" amount="10">IncrementStat</ActivateOnEquip>

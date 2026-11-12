@@ -1,3 +1,18 @@
 {
-  "sprites": []
+  "sprites": [
+    {
+      "id": 3,
+      "kind": "item",
+      "item": "Coral Medallion",
+      "name": "",
+      "slot": "",
+      "note": "",
+      "author": "Trenchant",
+      "approvedBy": "Meapy",
+      "size": 8,
+      "sheet": "communitySprites8x8",
+      "index": 0,
+      "added": "2026-11-12"
+    }
+  ]
 }
