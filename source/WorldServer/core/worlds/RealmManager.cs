@@ -1023,18 +1023,46 @@ namespace WorldServer.core.worlds
                 var x = diff[i];
                 var t = (TerrainType)(i + 1);
 
-                for (var j = 0; j < x;)
+                // until a spawn finds no spot (the rest come in a minute, or once players move on)
+                for (int j = 0, rolls = 0; j < x && rolls < x * 4; rolls++)
                 {
                     var objType = GetRandomObjType(RegionMobs[t].Item2);
 
                     if (objType == 0)
                         continue;
 
-                    j += Spawn(World.GameServer.Resources.GameData.ObjectDescs[objType], t, w, h);
+                    var placed = Spawn(World.GameServer.Resources.GameData.ObjectDescs[objType], t, w, h);
+                    if (placed == 0)
+                    {
+                        NoSpotFor(t, x - j);
+                        break;
+                    }
+                    j += placed;
                 }
             }
 
             RecalculateEnemyCount();
+        }
+
+        // terrains already logged as having no spot left for their monsters, once each per realm
+        private readonly HashSet<TerrainType> _noSpotLogged = new HashSet<TerrainType>();
+
+        private void NoSpotFor(TerrainType terrain, int missing)
+        {
+            if (!_noSpotLogged.Add(terrain))
+                return;
+            int tiles = 0, open = 0;
+            for (var x = 0; x < World.Map.Width; x++)
+                for (var y = 0; y < World.Map.Height; y++)
+                    if (World.Map[x, y].Terrain == terrain)
+                    {
+                        tiles++;
+                        if (World.IsPassable(x, y))
+                            open++;
+                    }
+            var idx = (int)terrain - 1;
+            Log.Warn("{0} {1}: no free {2} tile for {3} more monsters ({4} of {5} there; {6} tiles, {7} passable, {8} players)",
+                World.IdName, World.Id, terrain, missing, EnemyCounts[idx], EnemyMaxCounts[idx], tiles, open, World.Players.Count);
         }
 
         private ushort GetRandomObjType(IEnumerable<Tuple<string, double>> dat)
@@ -1114,12 +1142,40 @@ namespace WorldServer.core.worlds
             }
         }
 
+        // random tiles looked at for a monster's spot before giving up for now
+        public const int SpawnTries = 4000;
+
+        /// <summary>
+        /// A spot of this terrain for a monster: passable and out of every player's sight. None when
+        /// no such tile turns up in SpawnTries: a terrain can have only a small patch, all in some
+        /// player's sight (Realm 2's starter land round the spawn has lowland patches of a few
+        /// hundred tiles), and a search without end held the realm's thread for good, every player
+        /// in it frozen.
+        /// </summary>
+        private IntPoint? FreeSpot(TerrainType terrain, int w, int h) =>
+            FreeSpot(w, h, (x, y) => World.Map[x, y].Terrain == terrain && World.IsPassable(x, y) && !World.AnyPlayerNearby(x, y), Random.Shared);
+
+        /// <summary>A random tile of the w by h map that fits, from SpawnTries looks; null when none of them did.</summary>
+        public static IntPoint? FreeSpot(int w, int h, Func<int, int, bool> fits, Random random)
+        {
+            for (var tries = 0; tries < SpawnTries; tries++)
+            {
+                var x = random.Next(0, w);
+                var y = random.Next(0, h);
+                if (fits(x, y))
+                    return new IntPoint(x, y);
+            }
+            return null;
+        }
+
+        /// <summary>A monster of this kind, or its group, on a free spot of the terrain: how many came (0 with no spot).</summary>
         private int Spawn(ObjectDesc desc, TerrainType terrain, int w, int h)
         {
             Entity entity;
 
             var ret = 0;
-            var pt = new IntPoint();
+            if (FreeSpot(terrain, w, h) is not IntPoint pt)
+                return 0;
 
             if (desc.Spawn != null)
             {
@@ -1129,12 +1185,6 @@ namespace WorldServer.core.worlds
                     num = desc.Spawn.Max;
                 else if (num < desc.Spawn.Min)
                     num = desc.Spawn.Min;
-
-                do
-                {
-                    pt.X = Random.Shared.Next(0, w);
-                    pt.Y = Random.Shared.Next(0, h);
-                } while (World.Map[pt.X, pt.Y].Terrain != terrain || !World.IsPassable(pt.X, pt.Y) || World.AnyPlayerNearby(pt.X, pt.Y));
 
                 for (var k = 0; k < num; k++)
                 {
@@ -1147,13 +1197,6 @@ namespace WorldServer.core.worlds
 
                 return ret;
             }
-
-            do
-            {
-                pt.X = Random.Shared.Next(0, w);
-                pt.Y = Random.Shared.Next(0, h);
-            }
-            while (World.Map[pt.X, pt.Y].Terrain != terrain || !World.IsPassable(pt.X, pt.Y) || World.AnyPlayerNearby(pt.X, pt.Y));
 
             entity = Entity.Resolve(World.GameServer, desc.ObjectType);
             entity.Move(pt.X, pt.Y);
@@ -1202,8 +1245,14 @@ namespace WorldServer.core.worlds
                 pt.X = Math.Clamp((int)(near.X + Math.Cos(angle) * dist), 0, World.Map.Width - 1);
                 pt.Y = Math.Clamp((int)(near.Y + Math.Sin(angle) * dist), 0, World.Map.Height - 1);
             }
-            while (Unfit(pt))
+            // anywhere, but not for ever (Spawn's FreeSpot): no event this time if nowhere fits
+            for (var tries = 0; Unfit(pt); tries++)
             {
+                if (tries >= SpawnTries * 5)
+                {
+                    Log.Warn("{0} {1}: no spot for the event {2}", World.IdName, World.Id, name);
+                    return;
+                }
                 pt.X = Random.Shared.Next(0, World.Map.Width);
                 pt.Y = Random.Shared.Next(0, World.Map.Height);
             }

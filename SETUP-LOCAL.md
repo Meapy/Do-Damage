@@ -646,6 +646,16 @@ The remotes `upstream` (HaloCelsius) and `aurusenth` share no history with `main
 
 ## Changes from upstream
 
+- **Realm monsters' spots have a limit** (2026-11-12; `RealmManager.FreeSpot`, `Spawn`,
+  `EnsurePopulation`, `SpawnEvent`; `Tests/RealmSpawnSpotTests.cs`): a realm's terrain top-up
+  (every 60 s, under 75% of a terrain's quota) picked random tiles until one was of that terrain,
+  passable and with no player within 30 tiles, without end. Realm 2's starter land has lowland
+  patches of a few hundred tiles that players by the spawn keep all in sight, and the realm's
+  thread then spun for good (everyone in it frozen, still connected). Now it looks at 4000 tiles
+  at most, leaves that terrain until the next pass, and logs once per terrain per realm
+  (`no free <terrain> tile for <n> more monsters ...`). The old realm's event spot search has the
+  same kind of limit (`no spot for the event <name>`).
+
 - **Out of combat speed** (2026-11-12; `Player.Combat.cs`, `BoostStatManager.ApplyOutOfCombat`):
   +20 Speed (`Player.OutOfCombatSpeed`) as a stat boost, flat after the Apotheosis scaling, while
   the player has neither been hurt by an enemy (a `PlayerHit`, or `Player.Damage` from an `Enemy`)

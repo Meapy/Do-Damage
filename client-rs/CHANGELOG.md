@@ -17,6 +17,8 @@ details). Add to a group's line when a change adds to it, rather than adding ano
 ### Fixes
 - Fewer lag spikes while anyone explores The Shatters, Oryx's Castle or the Mad Lab: the server
   no longer makes a map's worth of memory to clean up with every step taken there.
+- Realm 2 no longer freezes for good for everyone in it: monsters coming back to a patch of the
+  starting lands that was all in someone's sight could stop the realm.
 
 ## 2.5.3 (2026-11-12)
 
