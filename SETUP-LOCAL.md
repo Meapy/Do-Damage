@@ -646,6 +646,13 @@ The remotes `upstream` (HaloCelsius) and `aurusenth` share no history with `main
 
 ## Changes from upstream
 
+- **Out of combat speed** (2026-11-12; `Player.Combat.cs`, `BoostStatManager.ApplyOutOfCombat`):
+  +20 Speed (`Player.OutOfCombatSpeed`) as a stat boost, flat after the Apotheosis scaling, while
+  the player has neither been hurt by an enemy (a `PlayerHit`, or `Player.Damage` from an `Enemy`)
+  nor hurt one (`EnemyHit`, or `Enemy.Damage` credited to them, which includes their bleeds and
+  pet hits credited to them) for 5 s (`CombatMs`). `Player.Tick` flips it back and recalculates
+  the stats; the client just sees a Speed bonus. A new world starts out of combat.
+
 - **Potion of Maxy sprite** (2026-11-11; `tools/port_doomed.py`,
   `tools/doomed/potion_maxy.png`): the supplied 8×8 art is added to unused tile `0x7A` of
   `drLofiObj2`, and both generated XML copies reference it. Redeploy the client and world server;

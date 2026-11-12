@@ -43,6 +43,7 @@ namespace WorldServer.core
             ApplyActivateBonus();
             IncrementStatBoost();
             ApplyImprintScaling();
+            ApplyOutOfCombat();
 
             for (var i = 0; i < _boost.Length; i++)
                 _boostSV[i].SetValue(_boost[i]);
@@ -141,6 +142,13 @@ namespace WorldServer.core
                         _boost[i] -= cut;
                 }
             }
+        }
+
+        // Out of combat speed (Player.Combat.cs): flat, after the Apotheosis scaling
+        private void ApplyOutOfCombat()
+        {
+            if (_player != null && _player.OutOfCombat)
+                _boost[4] += Player.OutOfCombatSpeed;
         }
 
         private void FixedStat(StatDataType stat, int value)

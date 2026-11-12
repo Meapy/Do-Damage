@@ -14,6 +14,9 @@ details). Add to a group's line when a change adds to it, rather than adding ano
 
 ## Unreleased
 
+### Game
+- Out of combat speed: +20 Speed while you haven't hit an enemy or been hit by one for 5 seconds.
+
 ### Items
 - each single-stat Potion of Max now have their own sprites.
 

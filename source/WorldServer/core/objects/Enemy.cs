@@ -244,6 +244,7 @@ namespace WorldServer.core.objects
                 }, this);
 
                 DamageCounter?.HitBy(from, effDmg);
+                from?.EnterCombat();
                 if (Health <= 0)
                     from?.RelicKill();
                 logic.doomed.DoomedRuntime.OnHit(this, from, time);
