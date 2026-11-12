@@ -1,4 +1,4 @@
-Release 2.5.4
+Release 2.5.4: the client and the world server deploy; nobody is disconnected
 
 ## For players
 
