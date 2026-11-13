@@ -311,7 +311,8 @@ BOSS_OVERRIDE = {"Tomb of the Ancients": "Tomb Defender", "Elder Tomb of the Anc
                  "The Ivory Wyvern": "LOD Ivory Wyvern", "The Elder Ivory Wyvern": "Elder lod Ivory Wyvern",
                  "Lair of Shaitan": "md1 Head of Shaitan",
                  "Woodland Labyrinth": "Murderous Megamoth", "Magic Woods": "MW Fountain Spirit",
-                 "Cave of A Thousand Treasures": "Golden Oryx Effigy", "The Black Between": "The Mysterious One"}
+                 "Cave of A Thousand Treasures": "Golden Oryx Effigy", "The Black Between": "The Mysterious One",
+                 "Candyland Hunting Grounds": "Cupcake"}
 BOSS_PROPS = re.compile(r"Spawner|spawner|Wall|Sarcophagus|Present|Chest|Anchor|Gate|Tooky|Totem$")
 EQUIP_SLOTS = set(wd.SLOT_NAMES)
 ORYX_CHAIN = ["Oryx's Castle", "Oryx's Chamber", "Chicken Chamber", "Wine Cellar", "Oryx's Sanctuary",
@@ -330,6 +331,8 @@ OPENS_FROM = {
                              "Marble Colossus.",
     "The Elder Void": "Use a Vial of Pure Darkness in the Elder Lost Halls, where the Elder Marble Colossus fell, to "
                       "open it (it drops from Malus and the Elder Malus).",
+    # RealmManager.OpenHive, not a drop
+    "The Nest": "The realm's Killer Bee Nest opens it, beside the Hive's portal, when its last guardian bee falls.",
 }
 
 

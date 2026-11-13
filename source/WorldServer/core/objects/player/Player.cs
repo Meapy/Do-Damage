@@ -421,7 +421,8 @@ namespace WorldServer.core.objects
 
             TickCount = 0;
 
-            if (owner.IdName.Equals("Ocean Trench"))
+            // underwater: a full breath to start with (Player.Breath.cs)
+            if (AirSeconds(owner) > 0)
                 Breath = 100;
             if (owner is NexusWorld)
             {

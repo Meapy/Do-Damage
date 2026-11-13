@@ -40,6 +40,19 @@ details). Add to a group's line when a change adds to it, rather than adding ano
   Wyvern and Thessal each have two phases of their own on top, such as the Sentinel's collapsing
   bridge, Malus' blood moon ritual (kill his cultist souls before the chant ends), the Void
   Entity's event horizon, Pyyr's meteor shower and Thessal's riptides. The wiki lists them all.
+- Five unfinished dungeons are finished. **Magic Woods:** come near the big fountain and three
+  waves of fairies pour out of the small ones before the Fountain Spirit rises. **Candyland:** its
+  five bosses taunt you and drop their loot (they dropped nothing before), and once all five have
+  fallen the Cupcake wakes. **Fungal Cavern:** break 25 Cavern Crystals to power the dwarves'
+  drill, hold off their war bands while it bores through the wall, then fight the Crystal Worm
+  Mother, a worm of crystal you hit through its weak points, in seven phases with her Father and
+  Children. **The Nest:** the Killer Bee Nest now opens it beside the Hive, and The Nest Key opens
+  it anywhere, with the bee-filled rooms and the Killer Bee Queen at the end. **Cnidarian Reef:**
+  the Royal Cnidarian fights in six phases, shielded while its Gold Cnidarians circle the reef.
+- Underwater dungeons (the Ocean Trench, its Elder version and the Cnidarian Reef) now use your
+  breath: a blue bar under your health empties while you swim and refills at an Ocean Vent, and when
+  it runs out you start to drown. Also fixed: the Magic Woods' Radph healed nobody, and the
+  Deadwater Docks' breakable walls were missing.
 
 ## 2.5.4 (2026-11-12)
 

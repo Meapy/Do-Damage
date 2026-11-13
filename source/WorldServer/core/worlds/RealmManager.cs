@@ -898,7 +898,8 @@ namespace WorldServer.core.worlds
                 }
         }
 
-        // The third guardian bee is down: the hive's corpse goes, leaving its portal to the Hive. The
+        // The third guardian bee is down: the hive's corpse goes, leaving its portals to the Hive and,
+        // beside it, to The Nest (RealmEye: the Killer Bee Nest drops The Nest's portal). The
         // corpse used to leave it only once it saw every bee gone within 30 tiles of it, which a bee
         // chasing a player further away, or two dying together, could stop.
         private void OpenHive(Enemy lastBee)
@@ -915,17 +916,21 @@ namespace WorldServer.core.worlds
                     World.LeaveWorld(corpse);
                 }
             }
-            if (!gameData.IdToObjectType.TryGetValue("The Hive Portal", out var portalType))
-                return;
-            var portal = Entity.Resolve(World.GameServer, portalType);
-            portal.Move(at.X, at.Y);
-            var timeout = gameData.Portals.TryGetValue(portalType, out var desc) ? desc.Timeout : 30;
-            if (timeout > 0)
-                portal.SetLifetime(timeout * 1000);
-            World.EnterWorld(portal);
-            if (timeout > 0)
-                World.StartNewTimer(timeout * 1000, (w, t) => w.LeaveWorld(portal));
-            RealmBroadcast("The Killer Bee Nest falls silent, and its hive lies open!");
+            foreach (var (id, dx) in new[] { ("The Hive Portal", -1.5f), ("The Epic Hive Portal", 1.5f) })
+            {
+                if (!gameData.IdToObjectType.TryGetValue(id, out var portalType))
+                    continue;
+                var portal = Entity.Resolve(World.GameServer, portalType);
+                var x = World.IsPassable(at.X + dx, at.Y) ? at.X + dx : at.X;
+                portal.Move(x, at.Y);
+                var timeout = gameData.Portals.TryGetValue(portalType, out var desc) ? desc.Timeout : 30;
+                if (timeout > 0)
+                    portal.SetLifetime(timeout * 1000);
+                World.EnterWorld(portal);
+                if (timeout > 0)
+                    World.StartNewTimer(timeout * 1000, (w, t) => w.LeaveWorld(portal));
+            }
+            RealmBroadcast("The Killer Bee Nest falls silent, and its hive and the Nest beneath lie open!");
         }
 
         public void OnProcEvent(string enemy, Player killer)

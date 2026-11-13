@@ -178,6 +178,18 @@ pub struct Floater {
 pub const DAMAGE_COLOR: u32 = 0xFF0000;
 pub const PIERCED_COLOR: u32 = 0xC060FF;
 
+/// Our air underwater (`StatDataType.OxygenBar`): 0-100, or -1 out of the water.
+const BREATH: u8 = 64;
+/// Below this the breath bar and the screen pulse red (`Parameters.BREATH_THRESH`).
+const BREATH_LOW: i32 = 20;
+
+/// `a` blended toward `b` by `t` (0-1), channel by channel (`MoreColorUtil.lerpColor`).
+fn lerp_color(a: u32, b: u32, t: f32) -> u32 {
+    let t = t.clamp(0.0, 1.0);
+    let ch = |c: u32, s: u32| ((c >> s) & 0xFF) as f32;
+    [16, 8, 0].iter().fold(0, |acc, &s| acc | (((ch(a, s) + (ch(b, s) - ch(a, s)) * t).round() as u32) << s))
+}
+
 impl Floater {
     /// A damage number: red, for a second.
     pub fn damage(object_id: i32, amount: i32, at: i32) -> Self {
@@ -1509,6 +1521,28 @@ pub fn draw(scene: &Scene, renderer: &mut Renderer, redrawer: &mut Redrawer, gro
             let f = hp as f32 / max as f32;
             let color = if f < 0.2 { 0xE01010 } else if f < 0.5 { 0xFF8010 } else { 0x10FF00 };
             renderer.fill(px - half, top, 2.0 * half * f.min(1.0), tall, color, 1.0);
+        }
+    }
+
+    // Breath underwater (`Player.drawBreathBar`, Map's breath overlay): the server sends our air,
+    // 0-100, in the Ocean Trench, its Elder version and the Cnidarian Reef, and -1 elsewhere. A blue
+    // bar under our HP bar, its back pulsing red below a fifth; and the screen pulses red as the
+    // air runs out.
+    if let Some(me) = world.player().filter(|o| !hidden(o)) {
+        if let Some(breath) = me.stat_int(BREATH).filter(|&b| b >= 0) {
+            let [px, py] = scene.stand(me);
+            let (half, tall, border) = (20.0 * k, 5.0 * k, 1.2 * k);
+            let top = py + 5.0 * k + tall + 2.0 * border + k;
+            let pulse = ((scene.time as f32 / 300.0).sin()).abs();
+            let low = if breath <= BREATH_LOW { (BREATH_LOW - breath) as f32 / BREATH_LOW as f32 } else { 0.0 };
+            renderer.fill(px - half - border, top - border, 2.0 * (half + border), tall + 2.0 * border, 0x111111, 1.0);
+            renderer.fill(px - half, top, 2.0 * half, tall, lerp_color(0x545454, 0xFF0000, pulse * low), 1.0);
+            if breath > 0 {
+                renderer.fill(px - half, top, 2.0 * half * (breath.min(100) as f32 / 100.0), tall, 0x26CAFF, 1.0);
+            }
+            if low > 0.0 {
+                renderer.fill(0.0, 0.0, w as f32, h as f32, 0xFF3700, low * pulse * 0.75 * 0.35);
+            }
         }
     }
 

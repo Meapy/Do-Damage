@@ -29,7 +29,56 @@ Some dungeons are laid out anew for every run, from the rooms of their map: smal
 ## Candyland Hunting Grounds
 
 Each room starts with six Candy Creatures. Clear them and leave the room for a boss to appear;
-the next wave waits until that boss is defeated and you return.
+the next wave waits until that boss is defeated and you return. The bosses are Gigacorn, the
+Desire Troll, the Spoiled Creampuff, MegaRototo and the Swoll Fairy, and each drops its own stat
+potions and, rarely, a piece of the Swoll Paladin set. Once all five kinds have fallen, the
+**Cupcake** wakes in the starting room: the dungeon isn't done, and its Realm Portal doesn't open,
+until it's beaten too.
+
+## Magic Woods
+
+The fairies of the woods guard a great fountain in its heart. Come near it and it speaks: three
+waves of fairies pour out of the four small fountains round it (lesser, then standard, then
+greater fairies; the next wave comes once one is beaten, or after 40 seconds). Then the fountain
+opens and the **Fountain Spirit** rises. She wanders, orbits and fires in five patterns while the small fountains keep sending fairies. She drops Speed and
+Dexterity potions, the Magic Woods Key and, rarely, the Shield of Flowing Clarity and the Spirit
+Staff.
+
+## Fungal Cavern
+
+The Blight Mother in the realm can leave its portal. Dwarf miners are boring into a crystal
+chamber at the end of the caves, and their drill needs power: break **25 Cavern Crystals** (34 are
+spread over the caves). Each five charges the drill a
+little more. At 25 it starts boring, and for 40 seconds the dwarves' war bands come out of the side
+caves; then the wall breaks.
+
+Inside sleeps the **Crystal Worm Mother**, a worm of crystal segments. Her body can't be hurt:
+shoot her head when she opens up, and the two weak points on her body. She fights in seven
+phases: rings of crystal, the **Crystal Worm Father** at her side (he retreats when nearly dead),
+her **Children** joining the fight, a frenzy, and at the end her tail fighting on
+alone.
+
+## The Nest
+
+When the realm's Killer Bee Nest falls, it opens two portals: the Hive and, beside it, **the
+Nest**. The Nest Key (400 fame at the Bazaar, or a drop in the Nest) opens it anywhere. Its rooms
+are full of Soldier Bees (each colour fights its own way), Killer Bees, Mini Killer Bee Nests,
+larvae and eggs. At the end is the **Killer Bee Queen**: she fights in eight phases, calling her
+bees by colour, then raises three Killer Bee Nests that hatch Adolescent Beehemoths to guard her
+to the end.
+
+## Underwater: the Ocean Trench and the Cnidarian Reef
+
+You hold your breath underwater. In the Ocean Trench, the Elder Ocean Trench and the Cnidarian
+Reef a blue bar under your health shows your breath. It lasts 16 seconds in the Trench, 14 in
+the Elder Trench and 9 in the Reef. Stand by an **Ocean Vent** (within a tile) to fill it again.
+When it runs out you start to drown, losing health fast until you reach a vent.
+
+The **Royal Cnidarian** at the bottom of the Reef fights in six phases. It can't be hurt while
+its **Gold Cnidarians** circle the reef (one, then three, then five): shoot them down. Between
+those it is open while its blue, green and pink cnidarians move round it, on an outer ring, in a
+wall round it or closer in, and it throws shockwaves, pink bombs that silence and a five-way
+laser. In its last phase it chases you and its minions can be shot.
 
 ## The Lair of Draconis
 

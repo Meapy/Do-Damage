@@ -429,6 +429,15 @@
 		<VisibilityType>1</VisibilityType>
 		<Dungeon/>
 	</World>
+	<!-- the Killer Bee Queen's hive; built by tools/build_nest.py -->
+	<World id="The Nest">
+		<Width>96</Width>
+		<Height>164</Height>
+		<MapJM>Dungeons/The Nest.jm</MapJM>
+		<VisibilityType>1</VisibilityType>
+		<DisableTeleport/>
+		<Dungeon/>
+	</World>
 	<World id="Admin Arena">
 		<Width>256</Width>
 		<Height>256</Height>

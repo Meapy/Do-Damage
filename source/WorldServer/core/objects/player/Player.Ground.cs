@@ -35,29 +35,6 @@ namespace WorldServer.core.objects
             return true;
         }*/
 
-        private void HandleOxygen(TickTime time)
-        {
-            if (time.TotalElapsedMs - l <= 100 || World?.DisplayName != "Ocean Trench") 
-                return;
-            if (!(World?.StaticObjects.Where(i => i.Value.ObjectType == 0x0731).Count(i => (X - i.Value.X) * (X - i.Value.X) + (Y - i.Value.Y) * (Y - i.Value.Y) < 1) > 0))
-            {
-                if (OxygenBar == 0)
-                    Health -= 10;
-                else
-                    OxygenBar -= 8;
-                if (Health <= 0)
-                    Death("suffocation");
-            }
-            else
-            {
-                if (OxygenBar < 100)
-                    OxygenBar += 8;
-                if (OxygenBar > 100)
-                    OxygenBar = 100;
-            }
-            l = time.TotalElapsedMs;
-        }
-
         public void ForceGroundHit(TickTime time, Position pos, int timeHit)
         {
             if (World == null || World.Map == null)

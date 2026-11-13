@@ -951,6 +951,11 @@ namespace WorldServer.core.worlds
         // for quests (QuestTracker.DungeonCleared): the accounts near a boss here when it died, the
         // strongest boss's health (the dungeon's difficulty), and whether it was counted
         public readonly HashSet<int> BossCredit = new HashSet<int>();
+        // what has happened here, for behaviours that wait on several things at once
+        // (MarkWorldOnDeath: the Candyland's Cupcake comes once all five kinds of its bosses have fallen)
+        public readonly HashSet<string> Marks = new HashSet<string>();
+        // counts of things done here (CountOnDeath: the Fungal Cavern's broken Cavern Crystals)
+        public readonly Dictionary<string, int> Counts = new Dictionary<string, int>();
         public int StrongestBossHp { get; set; }
         private bool _clearCounted;
         // for the Herald's week (WeeklyStats): a player came in, and an Oryx chain stage's boss fell
@@ -972,6 +977,10 @@ namespace WorldServer.core.worlds
             // clears it; he leaves his own way out (BehaviorDb.BlackBetween.cs), so no Realm Portal
             var blackBetween = IdName == "The Black Between";
             if (blackBetween && boss.ObjectDesc.IdName != "The Mysterious One")
+                return;
+            // the Candyland: its bosses come again and again; only the Cupcake, which comes once all five
+            // kinds have fallen, clears it and opens the way out (RealmEye)
+            if (IdName == "Candyland Hunting Grounds" && boss.ObjectDesc.IdName != "Cupcake")
                 return;
             var (x, y) = (boss.X, boss.Y);
             StartNewTimer(2000, (world, t) =>

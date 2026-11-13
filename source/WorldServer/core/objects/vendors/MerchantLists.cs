@@ -83,7 +83,7 @@ namespace WorldServer.core.objects.vendors
             ("Fungal Cavern Key", 100), ("Parasite Chambers Key", 100), ("Mountain Temple Key", 100), ("Ancient Ruins Key", 100),
             ("Cult Key", 150), ("Ice Tomb Key", 150), ("Shaitan's Key", 300), ("Draconis Key", 300),
             ("Puppet Master's Encore Key", 300), ("Oryx's Castle Key", 300), ("Shatters Key", 400), ("Oryx Chamber Key", 400),
-            ("Battle Nexus Key", 400), ("Tomb of the Ancients Key", 500), ("Lost Halls Key", 500),
+            ("Battle Nexus Key", 400), ("Tomb of the Ancients Key", 500), ("Lost Halls Key", 500), ("The Nest Key", 400),
             ("Oryx Chicken Chamber Key", 400)
         };
 

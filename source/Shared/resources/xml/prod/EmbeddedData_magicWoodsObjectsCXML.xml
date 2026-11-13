@@ -1367,6 +1367,7 @@
       <Size>0</Size>
    </Object>
    <Object id="MW Boss Spawner" type="0x82f">
+      <DisplayId>Fountain Spirit</DisplayId>
       <Class>GameObject</Class>
       <AnimatedTexture>
          <File>magicWoodsChars16x16</File>

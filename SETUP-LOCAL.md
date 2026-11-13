@@ -646,6 +646,32 @@ The remotes `upstream` (HaloCelsius) and `aurusenth` share no history with `main
 
 ## Changes from upstream
 
+- **Unfinished dungeons finished** (2026-11-13). **Magic Woods** (`BehaviorDb.MagicWoods.cs`): the
+  map had no `MW Boss Spawner`; it's placed in the fountain (132, 112) and runs three fairy waves
+  (`FairyWave`: tossed to the four small fountains, beaten when none is left within 22 tiles or
+  after 40 s), opens the fountain and raises the Fountain Spirit, with RealmEye's loot; Radph's
+  heal named "MW Vurv". **Candyland** (`BehaviorDb.Candyland.cs`, both `CandyLand.xml`): its five
+  bosses came from `Spawn` ticks, so `SpawnedByBehavior` cost them all their loot; they now spawn
+  with `spawnedByBehav: false`, taunt, and drop RealmEye's table. `MarkWorldOnDeath` (new) marks
+  the world as each falls; all five wake the Cupcake (a boss now: 9,750 HP, Quest), and
+  `World.BossDied` waits for the Cupcake before the Realm Portal opens there. **Fungal Cavern**
+  (`BehaviorDb.FungalCavern.cs`; `Worm.cs`, `CountOnDeath`, `WorldCountTransition`,
+  `KilledSinceEntryTransition` new): 34 Cavern Crystals (25 charge the drill), the drill wall,
+  drill and Dwarf Miner and the Crystal Worm Mother placed on the map; the Mother is a segmented
+  worm (`SpawnWorm`, `WormSegment`, `CircleArena`) in seven phases with her Father and Children;
+  the mushroom leaders lost the Charger Leader's old boss loot and portal. **The Nest**
+  (`BehaviorDb.Nest.cs`, map by `tools/build_nest.py`, world in `Dungeons.xml`): it had no map or
+  world; the Killer Bee Queen in eight phases; `RealmManager.OpenHive` opens it beside the Hive;
+  The Nest Key sold in the Bazaar (400). **Breath** (`Player.Breath.cs`, replacing
+  `HandleOxygen`): 16 s in the Ocean Trench, 14 in the Elder one, 9 in the Cnidarian Reef, refilled
+  within a tile of an Ocean Vent; at 0 the player loses 10 HP every 100 ms ("suffocation"); the
+  Rust client draws the bar (`view.rs`). **Cnidarian Reef** (`BehaviorDb.CnidarianReef.cs`): the
+  Royal Cnidarian in RealmEye's six phases (Gold Cnidarians 1/3/5 shield it), its minions'
+  formations by `Order`. **Deadwater Docks**: its breakable walls were `Destructible Brown Wall 1`,
+  an id the game lacks, so they were missing. `tools/dungeon_placements.py` places (and renames)
+  the map objects, and is safe to run again (`--check`).
+  Not done: the Fungal Cavern's flooding arena, the Nest's treasure room, Beekeeper and Killer
+  Honey flood, the Crystal Cavern portal.
 - **Three new realm events** (2026-11-12; `logic/db/BehaviorDb.RealmEvents.cs`,
   `logic/behaviors/RealmEvents.cs` (`ThiefBlink`, `Vanish`), `core/setpieces/RealmEventGrounds.cs`,
   `RealmManager` (`_events`, `EventParts`, `CriticalEnemies`, `ScaledEventMonsters`, `SpawnLines`,
