@@ -14,6 +14,9 @@ details). Add to a group's line when a change adds to it, rather than adding ano
 
 ## Unreleased
 
+### Items
+- Superior (the staff from Oryx the Celestial Mad God) hits harder, 60-95 damage a shot (was 45-75), and every fifth volley pierces and ignores defense. It drops 1% of the time (was 0.4%).
+
 ### Dungeons
 - The Marble Colossus (and its Elder version) in the Lost Halls now stays inside its boss room: it
   no longer follows players out through the doors.
