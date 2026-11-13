@@ -181,6 +181,8 @@ struct App {
     chat_send: Vec<String>,
     /// Page Up: the chat's history, so many rows back (`TextBox.showMax_`).
     chat_scroll: Option<usize>,
+    /// Where the lines typed from now on go (the buttons above the chat box, `hud::ChatChannel`).
+    chat_channel: hud::ChatChannel,
     /// The chat log kept from the last game, for the next (`Game::chat`).
     chat_log: Vec<hud::ChatLine>,
     /// Tab's place in the list of people we've whispered with (`TextBox.currentTeller_`).
@@ -1985,7 +1987,7 @@ impl App {
                             let line = std::mem::take(&mut input.text);
                             if !line.trim().is_empty() {
                                 self.chat_history.submit(&line);
-                                self.chat_send.push(line);
+                                self.chat_send.push(self.chat_channel.send_line(&line));
                             }
                         }
                         self.chat_input = None;
@@ -2944,6 +2946,7 @@ impl App {
                             hud::ChatClickTarget::Visit(name) => {
                                 self.chat_send.push(format!("/visit {name}"))
                             }
+                            hud::ChatClickTarget::Channel(channel) => self.chat_channel = *channel,
                             hud::ChatClickTarget::Player(name) => {
                                 let here = game.world.as_ref().and_then(|w| {
                                     w.objects.values().find(|o| {
@@ -3237,7 +3240,7 @@ impl App {
                 let me = game.world.as_ref().and_then(|w| w.player()).and_then(|p| p.name()).unwrap_or("").to_owned();
                 let mut ui = hud::Ui { renderer: &mut *renderer, sprites, data, redrawer: &mut *redrawer, fonts, text: &mut *text };
                 prof::mark("pre-chat");
-                self.chat_clicks = hud::draw_chat(&mut ui, &lay, &game.chat, &me, self.chat_input.as_ref(), self.chat_scroll, self.settings.chat_size, self.settings.chat_alpha, now);
+                self.chat_clicks = hud::draw_chat(&mut ui, &lay, &game.chat, &me, self.chat_input.as_ref(), self.chat_channel, self.chat_scroll, self.settings.chat_size, self.settings.chat_alpha, now);
                 if let Some(p) = game.world.as_ref().and_then(|w| w.player()) {
                     // The frame rate and the ping (L), under the gold and fame.
                     let fps = self.settings.show_fps.then(|| match game.ping {
@@ -3884,6 +3887,7 @@ fn main() {
         last_scripted: None,
         pressed: Vec::new(),
         chat_input: None,
+        chat_channel: hud::ChatChannel::default(),
         chat_history: ChatHistory::default(),
         chat_scroll: None,
         chat_log: Vec::new(),

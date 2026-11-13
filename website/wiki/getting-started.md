@@ -72,7 +72,7 @@ buttons (Mouse 4 and Mouse 5).
 | <kbd>R</kbd> | Back to the Nexus |
 | <kbd>J</kbd> | The quest log: quests, the daily reward and achievements |
 | <kbd>K</kbd> | In your vault: the vault window, every vault chest at once ([Items](items.html#your-vault)) |
-| <kbd>Enter</kbd> | Chat; <kbd>Tab</kbd> whispers, <kbd>G</kbd> guild chat, <kbd>P</kbd> party chat |
+| <kbd>Enter</kbd> | Chat; <kbd>Tab</kbd> whispers, <kbd>G</kbd> guild chat, <kbd>P</kbd> party chat. The buttons above the chat box (All, Local, Guild, Party) pick where the lines you type go |
 | <kbd>L</kbd> | Show the frame rate and your ping |
 | <kbd>X</kbd> | Center the view on you |
 | <kbd>F11</kbd> or <kbd>Alt</kbd>+<kbd>Enter</kbd> | Borderless fullscreen, and back to a window |
@@ -300,6 +300,8 @@ The most useful ones; the [Commands](commands.html) page lists them all.
 | `/nexus` | Back to the Nexus |
 | `/vault` | To your vault |
 | `/tell <name> <message>` | Whisper |
+| `/all <message>` | Chat to every player on every world |
+| `/local <message>` | Chat to the world you are in (what plain chat does) |
 | `/trade <name>` | Trade (needs 2 rank stars; clicking a player's name and choosing Trade doesn't) |
 | `/shop` | The shops: gear, potions, keys and pets for fame |
 | `/sellfame` | Points you to the Divine Forge, which buys items for fame |

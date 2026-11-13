@@ -4064,6 +4064,7 @@ impl ChatLine {
             "" => {}
             "*Guild*" => (name_color, text_color) = (0xA6FF5D, 0xA6FF5D),
             "*Party*" => (name_color, text_color) = (0x78A0FF, 0x78A0FF),
+            "*All*" => (name_color, text_color) = (0xF5C77E, 0xF5C77E),
             to => {
                 (name_color, text_color) = (0x00F0FF, 0x00F0FF);
                 if self.name == me {
@@ -4142,10 +4143,56 @@ const HELP_CALL_SUFFIX: &str = "click here to join and help.";
 /// player a help link visits.
 type ChatRow = (Option<i32>, Vec<(String, u32, bool)>, Option<String>);
 
+/// Where a line you type goes: this world (`Local`, as plain text always has), every player
+/// (`All`), your guild or your party. Picked with the buttons above the chat box, or by typing
+/// `/all`, `/local`, `/guild` or `/party` in front of a line.
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Default)]
+pub enum ChatChannel {
+    All,
+    #[default]
+    Local,
+    Guild,
+    Party,
+}
+
+impl ChatChannel {
+    /// The buttons, in order.
+    pub const ALL: [ChatChannel; 4] = [ChatChannel::All, ChatChannel::Local, ChatChannel::Guild, ChatChannel::Party];
+
+    /// The command that sends a line to this channel, or `None` for Local (plain text).
+    pub fn command(self) -> Option<&'static str> {
+        match self {
+            ChatChannel::All => Some("/all"),
+            ChatChannel::Local => None,
+            ChatChannel::Guild => Some("/guild"),
+            ChatChannel::Party => Some("/party"),
+        }
+    }
+
+    /// The line as it is sent: a line that is already a command (`/tell`, `/all`...) goes as it is.
+    pub fn send_line(self, line: &str) -> String {
+        match self.command() {
+            Some(command) if !line.trim_start().starts_with('/') => format!("{command} {line}"),
+            _ => line.to_owned(),
+        }
+    }
+
+    fn label(self) -> &'static str {
+        match self {
+            ChatChannel::All => tr("All"),
+            ChatChannel::Local => tr("Local"),
+            ChatChannel::Guild => tr("Guild"),
+            ChatChannel::Party => tr("Party"),
+        }
+    }
+}
+
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub enum ChatClickTarget {
     Player(String),
     Visit(String),
+    /// A channel button above the chat box: that channel for the lines typed from now on.
+    Channel(ChatChannel),
 }
 
 #[derive(Debug, Clone, PartialEq)]
@@ -4175,6 +4222,7 @@ pub fn draw_chat(
     lines: &[ChatLine],
     me: &str,
     input: Option<&crate::textedit::LineEdit>,
+    channel: ChatChannel,
     scroll: Option<usize>,
     chat_size: f32,
     chat_alpha: f32,
@@ -4192,7 +4240,19 @@ pub fn draw_chat(
         let r = [margin, bottom - line_h - 12.0 * s, max_w + 16.0 * s, line_h + 12.0 * s];
         ui.field_box(r, true, s);
         draw_line_edit(ui, input, [r[0] + 8.0 * s, r[1], max_w, r[3]], size, tr("Say something, or /help"), now);
-        bottom = r[1] - 6.0 * s;
+        // the channel buttons above the box, the one lines go to in ember
+        let gap = 4.0 * s;
+        let count = ChatChannel::ALL.len() as f32;
+        let bw = (r[2] - gap * (count - 1.0)) / count;
+        let bh = (line_h * 1.1).round();
+        let by = r[1] - gap - bh;
+        for (i, button) in ChatChannel::ALL.into_iter().enumerate() {
+            let rect = [r[0] + i as f32 * (bw + gap), by, bw, bh];
+            let kind = if button == channel { Kind::Primary } else { Kind::Secondary };
+            ui.button(rect, button.label(), kind, false, s);
+            clicks.push(ChatClick { target: ChatClickTarget::Channel(button), rect });
+        }
+        bottom = by - 6.0 * s;
     }
     // Wrap the newest lines into rows, newest at the bottom. A speaker's rank star leads the
     // line's first row.
