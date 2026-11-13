@@ -3071,9 +3071,10 @@
 		<Class>Equipment</Class>
 		<Item/>
 		<Texture>
-			<File>lofiObj2</File>
-			<Index>0x2f</Index>
+			<File>communitySprites8x8</File>
+			<Index>0x4</Index>
 		</Texture>
+		<SpriteBy>Godes</SpriteBy>
 		<SlotType>10</SlotType>
 		<Tier>3</Tier>
 		<Description>A potent draught from Oryx's wine cellar.</Description>
@@ -8137,9 +8138,10 @@
 		<Class>Equipment</Class>
 		<Item/>
 		<Texture>
-			<File>lofiObj3</File>
-			<Index>0xc6</Index>
+			<File>communitySprites8x8</File>
+			<Index>0x2</Index>
 		</Texture>
+		<SpriteBy>Godes</SpriteBy>
 		<SlotType>9</SlotType>
 		<Admin/>
 		<Description>Super regal!</Description>
