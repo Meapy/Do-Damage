@@ -13,6 +13,13 @@ Release 2.5.7: chat channels, with buttons above the chat box and /all, /local, 
 - **Redeploy:** the world server (rolling; nobody is disconnected) and the client. Nothing in Redis. Until every world server runs this build, `/all` only reaches the players on the ones that do: an older world server doesn't know the new chat type and drops it.
 - **Not done or known to be off:** `/all`, `/local`, `/guild` and `/party` aren't in the `/help` list (they aren't command classes); the buttons aren't drawn on screen in a live run yet.
 
+### Deploy from the PC: gateway build in WSL
+
+- **What changed:** on Windows, `deploy/deploy.py` (`build_gateway`) no longer runs cargo on the checkout through `/mnt/c`, which was slow and made WSL show its "Performance Tip" pop-up on every deploy. It sends `client-rs` (without `target`) into WSL as a tar on stdin, unpacks it in `~/.cache/bsk-gateway-src` and builds there (same target folder, `~/.cache/bsk-gateway`). Linux and the GitHub workflow build as before.
+- **Files:** `deploy/deploy.py`.
+- **Redeploy:** nothing; it only changes how a deploy from the PC builds.
+
 ## Checks
 
 - **Chat channels:** `cargo test -p bsk-client` (98 passed, the translation tables included); `dotnet build` of `source/WorldServer` succeeds with no warnings; `python tools/build_wiki.py` builds. Not looked at on screen, and not run across two live world servers.
+- **Deploy from the PC: gateway build in WSL:** `build_gateway` run on its own builds `bsk-gateway` in WSL from the copy (11 s, only the gateway recompiled) and copies it into the bundle. No full deploy run.
