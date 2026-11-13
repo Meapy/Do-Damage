@@ -20,6 +20,18 @@ details). Add to a group's line when a change adds to it, rather than adding ano
 ### Dungeons
 - The Marble Colossus (and its Elder version) in the Lost Halls now stays inside its boss room: it
   no longer follows players out through the doors.
+- Some monsters fight as they did in the original game again (Elder versions too): the Snake Pit's
+  hidden dart throwers fire bleeding darts across the room while you fight the Snakepit Guard;
+  answer the wounded Thessal wrongly (or not at all) and she rages for six seconds of tridents,
+  walls and coral bombs before she leaves; the Ghost of Roger follows you, and below 40% health
+  charges with Skull Bolts and calls Violent Spirits; the Undead Lair's vampires bite with their
+  heavy green bolt up close.
+
+### Realm
+- Realm monsters fixed to fight as they did in the original game: the Weretiger fires three claws,
+  the enraged Desert Werewolf a stronger, faster fireball, the Werelion's ring its heavier black
+  missiles, a hurt Drake Baby shoots back while it calls its mother, the Giant Crab aims where you
+  are going, and the Warrior Wasp leads its shots ahead of you only now and then, not every time.
 
 ## 2.5.7 (2026-11-13)
 

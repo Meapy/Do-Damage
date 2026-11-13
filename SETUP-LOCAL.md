@@ -2210,6 +2210,42 @@ The remotes `upstream` (HaloCelsius) and `aurusenth` share no history with `main
   after `ObjectType`, written only when set; older clients leave it unread), so one shown on a
   monster fades with that player's shots; other effects still go by their target being another
   player, as before.
+- **Behaviours checked against the original server's** (2026-11-13; `BehaviorDb.Midland.cs`,
+  `Lowland.cs`, `UndeadLair.cs`, `SnakePit.cs`, `OceanTrench.cs`, `DavyJones.cs`): the official
+  release 7.0 server data (about 2013; `data/reference/release-7.0` on the
+  `docs/mpgh-behavior-reference` branch of dginovker/Open-RotMG-Server: XML `<Behavior>`s and
+  `<State>`s, and `behavior.cc` for what they mean) was compared with ours, Shoot by Shoot. Its
+  defaults differ from ours: an unset `cooldown` is 1 s (ours 0, which `Cooldown.Normalize` also
+  makes 1 s), an unset `angle` is 9° (ours 360/count), and `type="auto"` fires at `defaultAngle`
+  with the spread starting there (`angle - inc * (n / 2)`), where ours centres the spread on
+  `fixedAngle`. Of the 736 monsters with behaviours there, 191 shoot as ours do; 271 differ, most
+  of them bosses we run a later official rework of (the Tomb, Oryx 1-3, the Abyss, Mad Lab, Stheno)
+  or our own changes, which were kept. The 42 monsters with attacks there and no behaviour here are
+  never spawned. Taken, where ours was a transcription slip and the projectiles are the same:
+  Warrior Wasp `predictive: 200` (a chance, so every shot led the player) to 0.2; Weretiger 3 shots
+  9° apart (was 1); Desert Werewolf enraged fires projectile 1 (Red Fire 20, never used) every 0.6 s
+  at 0.5 predictive; Werelion's ring is projectile 1 (Black Missile 35, never used) at fixed 20° and
+  42° (was `defaultAngle`, so it aimed at the player); Drake Baby's `cry_for_mama` shoots (one shot
+  every 0.7 s for 0.8 s, then three 40° apart once); Giant Crab's beams `predictive: 1`; Lair
+  Vampire and Lair Vampire King bite with projectile 1 (Green Bolt 100/120, never used) within 3
+  tiles and aim their star ahead (range 9). Taken where ours did nothing: the Snakepit Dart
+  Throwers, ordered to "Protect the Guard" by the Guard Spawner, now fire two Snakepit Darts
+  (bleeding) east and west every 3 s ±1.5 s while the Guard lives (the Guard Spawner now orders
+  them half a second after raising the Guard: ordered in the same tick, their "no Guard"
+  transition saw none yet and sent them back to Idle at once); the wounded Thessal's "Fail"
+  (12 s with no right answer) goes through "Rage", 6 s of the original's super attack (two 15-shot
+  rings of Yellow Walls and Thunder Swirls, four 4-shot Super Trident crosses, a Coral Bomb Big at
+  the nearest player every 1.6 s and four more on the diagonals every second), before she leaves;
+  her question's transitions moved into a "Question" state so they end with it. The Ghost of Roger
+  (it stood still firing a 3-shot burst) follows players, fires its bursts of three Roger Blasts at
+  rising prediction, and below 40% calls up to two Violent Spirits and charges, with 5-shot Skull
+  Bolt spreads (projectile 1, never used); it keeps our Lost Soul spawning (3, every 5 s), as ours
+  shoot and the original's didn't. Elder versions follow (`E()`). The test bot's `--shots` logs
+  every enemy volley (client-rs/AGENTS.md). Tested on an isolated stack (slot 130: Windows had
+  reserved 1973-2172, every lower slot's world port) with `bsk-bot --shots`, each monster
+  `/spawn`ed in a vault, the bosses with raised health and `--fight`: every attack above showed with
+  its projectile, count and spread; the Werelion's ring (only while nobody is within 10 tiles)
+  wasn't seen, the bot standing beside it.
 
 ## Content ported from Doomed Realms
 

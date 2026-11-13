@@ -212,7 +212,7 @@ namespace WorldServer.logic
             )
         .Init("Warrior Wasp",
             new State(
-                new Shoot(8, predictive: 200, coolDown: 1000),
+                new Shoot(8, predictive: 0.2, coolDown: 1000),
                 new State("protecting",
                     new Prioritize(
                         new Orbit(1, 2, target: "Wasp Queen", radiusVariance: 0),
@@ -518,9 +518,9 @@ namespace WorldServer.logic
                         new TimedTransition(900, "if_cloaked")
                         ),
                     new State("if_cloaked",
-                        new Shoot(10, count: 8, shootAngle: 45, defaultAngle: 20, coolDown: 1600,
+                        new Shoot(10, count: 8, shootAngle: 45, projectileIndex: 1, fixedAngle: 20, coolDown: 1600,
                             coolDownOffset: 400),
-                        new Shoot(10, count: 8, shootAngle: 45, defaultAngle: 42, coolDown: 1600,
+                        new Shoot(10, count: 8, shootAngle: 45, projectileIndex: 1, fixedAngle: 42, coolDown: 1600,
                             coolDownOffset: 1200),
                         new PlayerWithinTransition(10, "normal_attack")
                         ),
@@ -544,7 +544,7 @@ namespace WorldServer.logic
             )
         .Init("Weretiger",
             new State(
-                new Shoot(8, predictive: 0.3, coolDown: 1000),
+                new Shoot(8, count: 3, shootAngle: 9, predictive: 0.3, coolDown: 1000),
                 new Prioritize(
                     new StayAbove(0.6, 60),
                     new Protect(1.1, "Werelion", acquireRange: 12, protectionRange: 10, reprotectRange: 5),
@@ -679,7 +679,15 @@ namespace WorldServer.logic
                         ),
                     new State("cry_for_mama",
                         new StayBack(0.65, 8),
-                        new Order(8, "Horned Drake", "protect_me")
+                        new Order(8, "Horned Drake", "protect_me"),
+                        new State("one_shot",
+                            new Shoot(8, predictive: 0.1, coolDown: 700),
+                            new TimedTransition(800, "three_shot")
+                            ),
+                        new State("three_shot",
+                            new Shoot(8, count: 3, shootAngle: 40, predictive: 0.1, coolDown: 100000, coolDownOffset: 700),
+                            new TimedTransition(1800, "one_shot")
+                            )
                         )
                     )
                 )
@@ -834,7 +842,7 @@ namespace WorldServer.logic
                     new HpLessTransition(0.75, "enraged")
                     ),
                 new State("enraged",
-                    new Shoot(8, projectileIndex: 0, predictive: 0.3, coolDown: 1000, coolDownOffset: 500),
+                    new Shoot(8, projectileIndex: 1, predictive: 0.5, coolDown: 600, coolDownOffset: 500),
                     new Taunt(0.7, "GRRRRAAGH!"),
                     new ChangeSize(20, 170),
                     new Flash(0xffff0000, 0.4, 5000),
