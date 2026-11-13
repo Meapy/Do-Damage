@@ -1,4 +1,4 @@
-Release 2.5.6
+Release 2.5.6: the client (desktop and browser) and the world server (rolling deploy) and the website (wiki); nobody is disconnected
 
 ## For players
 
