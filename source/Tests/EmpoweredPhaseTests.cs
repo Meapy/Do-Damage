@@ -63,5 +63,45 @@ namespace Tests
             // the rest keep the shared phases only
             Assert.Equal(4, EmpoweredPhases.For(new BossInfo { Boss = "Elder Dreadstump the Pirate King" }).Count);
         }
+
+        private static int[] SoulDamages()
+        {
+            var path = Path.Combine(AppContext.BaseDirectory, "resources", "data", "resurrection.json");
+            using var doc = JsonDocument.Parse(File.ReadAllText(path));
+            return doc.RootElement.GetProperty("bosses").EnumerateArray().Select(b => b.GetProperty("soulDamage").GetInt32()).ToArray();
+        }
+
+        // no telegraphed blast takes a full-health Wizard or Priest (670 health) in one hit, even
+        // with no defense and the boss enraged; the phases' heaviest blast is 2.2 times the soul bolt
+        [Fact]
+        public void NoBlastKillsAFullHealthPlayer()
+        {
+            var worst = Bosses().Max(b => Empowered.TuningFor(b).EnragedDamage);
+            foreach (var soul in SoulDamages())
+                Assert.InRange(Arena.BlastDamage(soul, 2.2) * worst, 0, 520);
+        }
+
+        // Last Breath's rings of marks leave at least a tile between their marks to step through
+        [Fact]
+        public void LastBreathLeavesAWayThrough()
+        {
+            foreach (var (radius, count) in EmpoweredPhases.LastBreathRings)
+                Assert.True(2 * Math.PI * radius / count - 2 * EmpoweredPhases.LastBreathMark >= 1.0,
+                    $"Last Breath's ring at {radius} tiles has no gap");
+        }
+
+        // Empowered Malus fights softer and slower than the others, and his ritual souls can be
+        // broken in time
+        [Fact]
+        public void EmpoweredMalusIsSofter()
+        {
+            var malus = Empowered.TuningFor("Elder LH Malus 2");
+            var other = Empowered.TuningFor("Elder LH Void Entity");
+            Assert.Equal(Empowered.DefaultTuning, other);
+            Assert.True(malus.Damage < other.Damage && malus.EnragedDamage < other.EnragedDamage);
+            Assert.True(malus.Haste < other.Haste && malus.EnragedHaste < other.EnragedHaste);
+            Assert.True(malus.Damage > 1 && malus.Haste > 1, "Empowered Malus is still harder than the Elder one");
+            Assert.InRange(EmpoweredSignatures.RitualSoulShare, 0.005, 0.015);
+        }
     }
 }

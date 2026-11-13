@@ -1049,6 +1049,29 @@ class Gen:
         return "\n".join(parts)
 
     # --- the Necromantic items, {{gen:raise-items}} ---------------------------------------------
+    def gen_relic_event(self, used):
+        """A note on the Necromantic Relic page while a timed event in wServer.json makes the relic
+        drop more often (relicChance), or is still to come: nothing once it's over."""
+        import datetime
+        now = datetime.datetime.now(datetime.timezone.utc)
+        base = self.d.resurrection().get("relicChance")
+        notes = []
+        for e in wd.server_events():
+            x = float(e.get("relicChance", 1) or 1)
+            if x <= 1 or e["end"] <= now:
+                continue
+            last = e["end"] - datetime.timedelta(seconds=1)
+            until = ("until the end of %d %s (UTC)" % (last.day, last.strftime("%B")) if e["end"].time() == datetime.time(0)
+                     else "until %d %s, %s UTC" % (e["end"].day, e["end"].strftime("%B"), e["end"].strftime("%H:%M")))
+            since = "" if e["start"] <= now else " from %d %s" % (e["start"].day, e["start"].strftime("%B"))
+            times = {2: "twice", 3: "three times"}.get(x, "%g times" % x)
+            notes.append('<div class="note"><p><strong>Event: %s.</strong> Necromantic Relics drop %s as often from '
+                         'every Elder boss%s %s: %s of the time instead of %s, for the same %s of the damage. '
+                         '<code>/boosts</code> in the game shows it while it runs.</p></div>'
+                         % (esc(e.get("name", "")), times, since, until, pct(min(1, base * x)), pct(base),
+                            pct(self.d.resurrection().get("relicThreshold"))))
+        return "".join(notes)
+
     def gen_raise_items(self, used):
         """A showcase of every Empowered boss's own item: its sprite, kind, power and base, and the
         boss, dungeon and chance it drops from, with chips to show one kind of gear."""

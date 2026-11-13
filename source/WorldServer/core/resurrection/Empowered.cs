@@ -26,11 +26,29 @@ namespace WorldServer.core.resurrection
     ///   raid bosses and the Ocean Trench's two signature phases of their own (70% and 40%,
     ///   <see cref="EmpoweredSignatures"/>). One phase attack plays at a time, the newest first.
     /// Below 30% it is enraged: faster still, harder shots, a hotter glow.
+    /// A boss whose own fight is already crowded fights a little softer and slower (<see cref="Tunings"/>).
+    /// The Soul Nova waits while a phase attack plays, so the two never land together.
     /// Its loot is its Elder form's, with every player's boost raised by 1 (twice the chances) and its
     /// own drops rolled again (BossResurrection.Initialize).
     /// </summary>
     public sealed class Empowered
     {
+        /// <summary>How much harder its shots hit and how much faster it fights, calm and enraged.</summary>
+        public readonly record struct Tuning(float Damage, float EnragedDamage, float Haste, float EnragedHaste);
+
+        public static readonly Tuning DefaultTuning = new Tuning(1.3f, 1.45f, 1.25f, 1.45f);
+
+        /// <summary>The bosses that don't take the default (<see cref="DefaultTuning"/>).</summary>
+        public static readonly Dictionary<string, Tuning> Tunings = new Dictionary<string, Tuning>
+        {
+            // Malus 2 already cycles his four cultists' attacks and fires five at once in his Fury:
+            // sped up as much as the others, his hall was a wall of bullets
+            ["Elder LH Malus 2"] = new Tuning(1.15f, 1.25f, 1.1f, 1.25f),
+        };
+
+        public static Tuning TuningFor(string boss) =>
+            boss != null && Tunings.TryGetValue(boss, out var t) ? t : DefaultTuning;
+
         // defense: up to 10 more, less the more the boss already has (none at 100)
         private const int DefenseBonusMax = 10;
         private const int RiseMs = 2500;
@@ -47,7 +65,8 @@ namespace WorldServer.core.resurrection
         private int _secondRingIn = -1;
         private float _ringAngle;
         private int _soulsIn = 6500;
-        private float _haste = 1.25f;
+        private readonly Tuning _tuning;
+        private float _haste;
         private readonly List<SoulPhase> _phases;
         // a phase attack is playing (or the breath after one): no other starts
         private int _stage = 2000;
@@ -57,13 +76,15 @@ namespace WorldServer.core.resurrection
         public Empowered(BossInfo info)
         {
             _info = info;
+            _tuning = TuningFor(info?.Boss);
+            _haste = _tuning.Haste;
             _phases = EmpoweredPhases.For(info);
         }
 
         /// <summary>Its phases' names, in the order they open (for the tests).</summary>
         public IEnumerable<string> PhaseNames => _phases.Select(p => p.Name);
 
-        public float DamageMultiplier => _enraged ? 1.45f : 1.3f;
+        public float DamageMultiplier => _enraged ? _tuning.EnragedDamage : _tuning.Damage;
         public double LootBoost => 1.0;
         public bool Paused => _rising > 0;
 
@@ -150,7 +171,7 @@ namespace WorldServer.core.resurrection
             if (!_enraged && boss.Health < boss.MaxHealth * 0.3)
             {
                 _enraged = true;
-                _haste = 1.45f;
+                _haste = _tuning.EnragedHaste;
                 Apply(boss);
                 BossResurrection.Notify(boss, "ENRAGED", 0xFFFF4FD8);
                 BossResurrection.Effect(boss, EffectType.AreaBlast, 0xFFFF4FD8, new Position(5, 0));
@@ -163,8 +184,9 @@ namespace WorldServer.core.resurrection
 
             dt = (int)(dt * _haste);
 
+            // held while a phase attack plays, and fired once it's over
             _novaIn -= dt;
-            if (_novaIn <= 0)
+            if (_novaIn <= 0 && _stage <= 0)
             {
                 _ringAngle = (float)(Random.Shared.NextDouble() * Math.PI * 2);
                 Ring(boss, _ringAngle);

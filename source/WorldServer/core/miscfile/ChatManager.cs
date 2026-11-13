@@ -81,6 +81,25 @@ namespace WorldServer.core.miscfile
             return true;
         }
 
+        /// <summary>/all: a line to every player on every world server (the local one included).</summary>
+        public bool All(Player src, string text)
+        {
+            if (string.IsNullOrWhiteSpace(text))
+                return true;
+
+            GameServer.InterServerManager.Publish(Channel.Chat, new ChatMsg()
+            {
+                Type = ChatType.All,
+                Instance = GameServer.InstanceId,
+                ObjectId = src.Id,
+                Stars = src.Stars,
+                From = src.Client.Account.AccountId,
+                Text = text
+            });
+
+            return true;
+        }
+
         public void HelpCall(Player src)
         {
             GameServer.InterServerManager.Publish(Channel.Chat, new ChatMsg()
@@ -369,6 +388,18 @@ namespace WorldServer.core.miscfile
                                 && !client.Account.IgnoreList.Contains(e.Content.From));
                         foreach (var client in clients)
                             client.Player.HelpCallReceived(from, e.Content.Stars, e.Content.Text);
+                    }
+                    break;
+
+                case ChatType.All:
+                    {
+                        var from = GameServer.Database.ResolveIgn(e.Content.From);
+                        var clients = GameServer.ConnectionManager.Clients.Keys
+                            .Where(client => client.Player != null
+                                && client.Account != null
+                                && !client.Account.IgnoreList.Contains(e.Content.From));
+                        foreach (var client in clients)
+                            client.Player.AllReceived(e.Content.Stars, from, e.Content.Text);
                     }
                     break;
 

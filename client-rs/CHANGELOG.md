@@ -12,6 +12,26 @@ Keep each version short: changes go under `### ` group headings (Oryx 5, Arena, 
 on), one line per change players notice, summed up rather than item by item (the wiki has the
 details). Add to a group's line when a change adds to it, rather than adding another line.
 
+## 2.5.7 (2026-11-13)
+
+### Events
+- Necromantic Harvest, until the end of 30 November (UTC): every Elder boss drops a Necromantic
+  Relic twice as often (10% instead of 5%). `/boosts` shows it while it runs.
+
+### Chat
+- Chat channels: buttons above the chat box pick where your lines go (All, Local, Guild, Party), and `/all`, `/local`, `/guild` or `/party` in front of a line sends just that line there. `/all` reaches players on every world; `/local` is the world you are in, as plain chat always was.
+
+### Items
+- The Coral Medallion drop rate went from 1% to 0.75%
+
+### Dungeons
+- Empowered Malus (raised in the Elder Cultist Hideout) hits softer and fires less: his shots
+  are 15% harder than the Elder Malus' instead of 30% (25% instead of 45% enraged) and his own
+  attacks come a tenth faster instead of a quarter. His ritual souls have less health, so a small
+  group can break the chant, and his ritual fires fewer bolts. Every Empowered boss is fairer:
+  no telegraphed mark can kill a full-health player in one hit, the Last Breath's rings of marks
+  have gaps to slip through, and the Soul Nova waits until a phase attack is over.
+
 ## 2.5.6 (2026-11-13)
 
 ### Community goals

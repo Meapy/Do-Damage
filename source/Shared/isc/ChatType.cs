@@ -6,6 +6,8 @@
         Guild,
         Info,
         Party,
-        HelpCall
+        HelpCall,
+        /// <summary>/all: to every player on every world server.</summary>
+        All
     }
 }

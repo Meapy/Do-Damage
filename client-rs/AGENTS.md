@@ -176,6 +176,7 @@ The client itself can be scripted for tests (desktop only):
 | `--aim <degrees>` / `--aim auto` | Where `f` fires on the screen, or at the nearest enemy. `auto` is staff's `/autoaim`: the client sends it first and aims only once the server agrees, so the account must be an admin on the test stack (`rank` 6 in its Redis) |
 | `--say <text>` | Send a chat line or command once in the game; several lines split by `;;` go out in turn, each once another world is joined or 3 s after the last (`"/dungeon Oryx's Sanctuary;;/god"`) |
 | `--npc <class>` | Open that NPC's window once in the game (`GuildBoard`, `PotionStorage`...), wherever you stand; `Vault` opens the vault window once in the vault (with `--say "/vault"`) |
+| `--chat <channel>[:text]` | Open the chat box once in the game on that channel (`all`, `local`, `guild`, `party`), with the text typed in, to look at it and its channel tabs (after any `--say` lines) |
 | `--quests <tab>` | Open the quest log at a tab once its data has come: `daily`, `weekly`, `monthly`, `login`, `achievements`, or `customize` for the Customize window (with `/questadmin` in `--say` to set up a state) |
 | `--options <tab>` | Open Options at a tab from the start (`controls`, `gameplay`, `graphics`, `visuals`, `crosshair`, `sound`, `language`), on the menu too (with `--account http://127.0.0.1:1` no server is needed) |
 | `--effect <type>` | Show that `ShowEffect` type on you every half second (0: an area attack beside you), to check particles |

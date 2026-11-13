@@ -251,6 +251,10 @@ namespace WorldServer.core.resurrection
             },
         };
 
+        /// <summary>Each of Malus' ritual souls' health, as a share of his (2% made three of them
+        /// 21,000 health to break in 6.5 seconds for a group of two).</summary>
+        public const double RitualSoulShare = 0.012;
+
         private static SoulPhase[] Malus()
         {
             var ritual = new List<Enemy>();
@@ -272,8 +276,8 @@ namespace WorldServer.core.resurrection
                             var next = a.At(start + (k + 2) * Math.PI * 2 / 5, 7);
                             a.Lightning(at, CultRed);
                             for (var s = 1; s < 4; s++)
-                                a.Blast(new Position(at.X + (next.X - at.X) * s / 4, at.Y + (next.Y - at.Y) * s / 4), 0.9, 1700, 1.0, CultRed);
-                            a.Blast(at, 1.6, 1400, 1.5, CultRed, landed: () =>
+                                a.Blast(new Position(at.X + (next.X - at.X) * s / 4, at.Y + (next.Y - at.Y) * s / 4), 0.9, 1700, 0.85, CultRed);
+                            a.Blast(at, 1.6, 1400, 1.25, CultRed, landed: () =>
                             {
                                 var target = a.Targets().OrderBy(p => Math.Abs(p.X - at.X) + Math.Abs(p.Y - at.Y)).FirstOrDefault();
                                 if (target != null)
@@ -283,7 +287,8 @@ namespace WorldServer.core.resurrection
                     },
                 },
                 // Malus shields himself while three cultist souls chant: each one still standing
-                // when the chant ends heals him; kill them all and his armour breaks
+                // when the chant ends heals him; kill them all and his armour breaks. Four slow
+                // rings of bolts while they chant, and one great ring if the ritual holds
                 new SoulPhase
                 {
                     Name = "Blood Moon Ritual", Below = Low, Color = CultFire,
@@ -299,8 +304,8 @@ namespace WorldServer.core.resurrection
                         ritual.Clear();
                         var start = a.RandomAngle();
                         ritual.AddRange(a.Empowered.SummonSoulsAt(a.Boss,
-                            Enumerable.Range(0, 3).Select(k => a.At(start + k * Math.PI * 2 / 3, 6)), 0.02));
-                        a.Repeat(6, 1000, i => a.Ring(Arena.Bolt, 10, i * Math.PI / 10), 500);
+                            Enumerable.Range(0, 3).Select(k => a.At(start + k * Math.PI * 2 / 3, 6)), RitualSoulShare));
+                        a.Repeat(4, 1500, i => a.Ring(Arena.Bolt, 8, i * Math.PI / 8), 700);
                         a.Later(chant, () =>
                         {
                             var left = ritual.Where(s => s.World == a.World && !s.Dead).ToList();
@@ -319,8 +324,7 @@ namespace WorldServer.core.resurrection
                             }
                             a.Heal(0.025 * left.Count);
                             a.Say("Their blood is MINE!");
-                            a.Ring(Arena.Sig1, 24, a.RandomAngle());
-                            a.Later(350, () => a.Ring(Arena.Sig1, 24, a.RandomAngle()));
+                            a.Ring(Arena.Sig1, 20, a.RandomAngle());
                         });
                     },
                 },

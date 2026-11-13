@@ -99,6 +99,29 @@ namespace Tests
             Assert.False(e.ActiveAt(Utc(11, 7)));
         }
 
+        [Fact]
+        public void TheNecromanticHarvestDoublesTheRelicUntilTheEndOfNovember()
+        {
+            var config = ServerConfig.ReadJson(File.ReadAllText(Path.Combine(SourceDir(), "WorldServer", "wServer.json")));
+            var events = config.serverSettings.events;
+            var e = events.Single(x => x.relicChance > 1);
+            Assert.Equal(2, e.relicChance);
+            Assert.Equal(new DateTime(2026, 12, 1, 0, 0, 0, DateTimeKind.Utc), e.end);
+            Assert.Equal(DateTimeKind.Utc, e.end.Kind);
+            Assert.True(e.start <= Utc(11, 13));
+
+            Assert.Equal(1, ServerEvents.RelicChance(events, Utc(11, 12)));
+            Assert.Equal(2, ServerEvents.RelicChance(events, Utc(11, 13)));
+            Assert.Equal(2, ServerEvents.RelicChance(events, Utc(11, 30, 23, 59, 59)));
+            Assert.Equal(1, ServerEvents.RelicChance(events, Utc(12, 1)));
+            // nothing else changes: the potions stay as they are
+            Assert.Equal(1, ServerEvents.PotionChance(events, Utc(11, 20)));
+            Assert.Equal(1, ServerEvents.RelicChance(SweetTreats(), Utc(11, 1)));
+            Assert.Equal(1, ServerEvents.RelicChance(null, Utc(11, 20)));
+
+            Assert.Equal($"{e.name}: Necromantic Relics drop twice as often from the Elder bosses, until the end of 30 November (UTC)!", e.Message());
+        }
+
         private static string SourceDir()
         {
             var dir = new DirectoryInfo(AppContext.BaseDirectory);

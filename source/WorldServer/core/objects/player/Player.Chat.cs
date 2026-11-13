@@ -199,6 +199,16 @@ namespace WorldServer.core.objects
             Txt = text
         });
 
+        internal void AllReceived(int stars, string from, string text) => Client.SendPacket(new Text()
+        {
+            ObjectId = -1,
+            BubbleTime = 0,
+            NumStars = stars,
+            Name = from,
+            Recipient = "*All*",
+            Txt = text
+        });
+
         internal void HelpCallReceived(string from, int stars, string place) => Client.SendPacket(new Text()
         {
             ObjectId = -1,

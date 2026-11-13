@@ -47,6 +47,12 @@
                 "start": "2026-11-10T00:00:00Z",
                 "end": "2026-12-01T00:00:00Z",
                 "mysteriousOne": true
+            },
+            {
+                "name": "Necromantic Harvest",
+                "start": "2026-11-13T00:00:00Z",
+                "end": "2026-12-01T00:00:00Z",
+                "relicChance": 2
             }
         ]
     }

@@ -109,7 +109,15 @@ namespace WorldServer.core.resurrection
                 Strike.Mark(Boss, at, radius, ms, color, style);
         }
 
-        /// <summary>A telegraphed blast: the mark fills for <paramref name="ms"/>, then everyone in it takes the soul bolt's damage times <paramref name="factor"/>.</summary>
+        /// <summary>The most a blast deals before the boss's damage scale and the player's defense:
+        /// the big bosses' heaviest blasts (the Void Entity's Singularity, 2.2 times a 234 bolt) took
+        /// a full-health player in one hit, enraged.</summary>
+        public const int BlastCap = 350;
+
+        /// <summary>What a blast of this factor deals (before the boss's damage scale).</summary>
+        public static int BlastDamage(int soul, double factor) => (int)Math.Min(soul * factor, BlastCap);
+
+        /// <summary>A telegraphed blast: the mark fills for <paramref name="ms"/>, then everyone in it takes the soul bolt's damage times <paramref name="factor"/> (<see cref="BlastCap"/> at most).</summary>
         public void Blast(Position at, double radius, int ms, double factor, uint color,
             ConditionEffectIndex effect = 0, int effectMs = 0, int style = 0, Action landed = null)
         {
@@ -117,7 +125,7 @@ namespace WorldServer.core.resurrection
             var world = World;
             Later(ms, () =>
             {
-                Strike.Land(world, Boss, at, radius, (int)(Soul * factor), color, effect, effectMs);
+                Strike.Land(world, Boss, at, radius, BlastDamage(Soul, factor), color, effect, effectMs);
                 landed?.Invoke();
             });
         }
@@ -279,6 +287,10 @@ namespace WorldServer.core.resurrection
             },
         };
 
+        /// <summary>The radius of Last Breath's marks, and how many there are in each of its rings.</summary>
+        public const double LastBreathMark = 1.2;
+        public static readonly (double Radius, int Count)[] LastBreathRings = { (3.5, 6), (6.5, 10), (9.5, 14) };
+
         // 10%: one last burst of everything the souls have, then a requiem every few seconds
         private static SoulPhase LastBreath()
         {
@@ -300,13 +312,14 @@ namespace WorldServer.core.resurrection
                         a.Shield(3200);
                         a.Gather(0xFFFF4FD8, 6);
                         a.Effect(EffectType.Flashing, 0xFFFF4FD8, new Position(0.25f, 10));
-                        for (var k = 0; k < 3; k++)
+                        // a tile or more between the marks of each ring: before, the rings were
+                        // solid and the only way out was to outrun all three
+                        for (var k = 0; k < LastBreathRings.Length; k++)
                         {
-                            var r = 3.5 + k * 3;
-                            var n = 8 + k * 6;
+                            var (r, n) = LastBreathRings[k];
                             var off = a.RandomAngle();
                             for (var j = 0; j < n; j++)
-                                a.Blast(a.At(off + j * Math.PI * 2 / n, r), 1.4, 1600 + k * 500, 1.6, 0xFFFF4FD8);
+                                a.Blast(a.At(off + j * Math.PI * 2 / n, r), LastBreathMark, 1600 + k * 500, 1.6, 0xFFFF4FD8);
                         }
                         a.Repeat(3, 700, i => a.Ring(Arena.Orb, 20, i * Math.PI / 20), 1000);
                         return;
