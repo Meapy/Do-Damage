@@ -2286,7 +2286,7 @@ The remotes `upstream` (HaloCelsius) and `aurusenth` share no history with `main
     charge, 20 s), Anti-Spectators (circle 12 tiles out at speed 4), Guardian Elements 1-4 (32 s:
     single shots, growing spin rings, a burst), Outer Guardian Elements, White and Black Planets,
     Black Moons and Chase Elements. The White Moon serves Oryx 1 (invulnerable, 13.4 tiles out) or
-    Oryx 4 (as before), by which is within 30 tiles; Guardian Elements 3, 4 and the Outer one were
+    Oryx 4 (see Oryx 4 below); Guardian Elements 3, 4 and the Outer one were
     Oryx 4 leftovers he no longer throws (he has his Infernal Elements).
   - **Oryx 2:** his six stars always, each at its own range and cooldown (Blade within 6); above
     30% up to three Henchmen (one per 12 s) and, once a player is within 12 or he's hit, two 8-shot
@@ -2318,6 +2318,26 @@ The remotes `upstream` (HaloCelsius) and `aurusenth` share no history with `main
     they bite within 1.8 tiles (ours fired at 10). The Knight, Brute, Eye Warrior and Pet are
     unchanged: their 7.0 data is half-written (template placeholders, transitions to missing
     states).
+  - **Oryx 4 (the Inferno) on the new Oryx 1:** Oryx 1's fight is now a builder,
+    `OryxFight(OryxSpec)` in `BehaviorDb.OryxChamber.cs` (the "Fight" and "All In" states), and
+    Oryx 4 fights it outside an arena, with `OryxSpec` changes: 4 s pauses (Oryx 1's 5 s), All In
+    at 10% (6%), taunts in chat only, Infernal Elements and Infernal Outer Elements in the Artifact
+    Dance, his All In line, heal 5000 a tick (2500) and size 220 (160); added throughout a Hellfire
+    Bolt pair (projectile 2) every 2.4 s within 10 tiles; Make Minions also `KeepMinions` one
+    Infernal Officer and one Brimstone Major (12 s); the hunt two Officers (8 s) and a Major (10 s),
+    a predictive hellfire triple and his old rage lines. His intro (Dormant within 15, Awaken),
+    health, loot, locked portal and announcement are kept; his old non-arena cycle (Hatred,
+    Silence, Artifacts, Moons, Doom Ring, then Ascend and Rage below 25%) is gone. In an arena he
+    keeps that cycle without the Silence (`O4Cycle`, now arena-only: the fight's tosses reach 22
+    tiles). Oryx 1's helpers serve either Oryx: they orbit whichever is near (`OryxOrbit`, a
+    `Prioritize` of an Orbit round each) and fall apart only when neither is within 40
+    (`EntitiesNotExistsTransition`); the White Moon picks its Chamber or Inferno version by
+    `ArenaTransition` (Oryx 4 in his Inferno now throws it in White Planet too). The Infernal
+    Element runs `O1Guardian(null, O4)`, the Guardian Elements' dance with aimed single shots (its
+    `fixedAngle` ones need one element per angle), and the Infernal Outer Element the Outer
+    Guardian Element's orbit (3.2 speed, 8.5 tiles, 32 s); both keep their fixed rings in an arena.
+    The Inferno's Pyre is about 17 tiles across each way, so the Chase Course's outer ring (22
+    tiles) lands in the walls and is dropped (`TossObject` skips impassable tiles).
   Tested on the isolated stack (slot 130) with `bsk-bot --shots --fight`, in the real dungeons
   (`/dungeon`, `/tppos`): Oryx 1 drew Make Minions, White Planet, Circle Combat, Hadouken,
   Artifact Dance, Bullet Dance, Orbitals, Hadouken, Chase Course, Minion Toss in four minutes, no

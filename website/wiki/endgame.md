@@ -115,11 +115,15 @@ and Armor Broken still work on them).
   Brimstone Major (charges, and a cone of fire up close), the Cinder Cleric (heals the others and
   throws blasters: kill it first) and the Doom Cardinal (paralysing spears, and a Vintner at its
   side). A gate across the path's last stretch keeps the Pyre shut until the whole Court is dead,
-  so nobody can run past it to him. Oryx 4 waits in the middle of the Pyre at its end: Oryx 1's fight made harder, with
-  hellfire, his court called back to his side, red butterfly-winged Infernal Elements circling him
-  (four close, four further out, their flames 20 damage that ignores armour), six orbiting White
-  Moons and a weakening ring he warns you about. Mind the
-  lava pools on the floor.
+  so nobody can run past it to him. Oryx 4 waits in the middle of the Pyre at its end and fights
+  **Oryx 1's fight** (above), burning: the same nine attacks drawn at random, with four seconds'
+  warning instead of five; hellfire bolts at anyone within ten tiles throughout; an Infernal
+  Officer and a Brimstone Major back at his side with every wave of minions; and in his Artifact
+  Dance red butterfly-winged Infernal Elements, four spinning close that aim at you (their flames
+  20 damage that ignores armour) and three fast ones further out. His last stand comes at 10%
+  (Oryx 1's at 6%): he heals more, grows bigger and hunts you with his Assassins, two Officers and
+  a Major. Mind the lava pools on the floor. In an arena he keeps his old cycle (his court, the
+  Infernal Elements on fixed rings, six White Moons he sends round him, and a weakening ring).
 - **Oryx 5**, Oryx the Ascended God (Oryx's Elysium): a holy island of gold, marble and turquoise
   sea, where he wears white and gold and carries a spear. From the Landing the road forks round the
   island, held by his **Ascended Host**, Oryx 3's court ascended with attacks of their own: the

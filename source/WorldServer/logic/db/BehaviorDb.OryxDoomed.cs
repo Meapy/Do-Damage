@@ -12,9 +12,9 @@ namespace WorldServer.logic
     // Ascended God, in BehaviorDb.Elysium.cs; his old helpers stay here.
     partial class BehaviorDb
     {
-        // Oryx 4's cycle above 25%: Hatred, Silence, Artifacts, Moons and the Doom Ring in turn; p goes
-        // before the states' names. In an arena it skips the Silence, ten invulnerable seconds.
-        private static IStateChildren[] O4Cycle(string p, bool arena)
+        // Oryx 4 in an arena: Hatred, Artifacts, Moons and the Doom Ring in turn; p goes before the
+        // states' names. (In his Inferno he fights Oryx 1's fight instead: OryxFight.)
+        private static IStateChildren[] O4Cycle(string p)
         {
             var hatred = new State(p + "Hatred",
                 new Taunt("Fools! I still have {HP} hitpoints!") { Bubble = false },
@@ -26,30 +26,7 @@ namespace WorldServer.logic
                 new Shoot(25, 5, 10, projectileIndex: 4, coolDown: 1000),
                 new Shoot(25, 3, 12, projectileIndex: 2, predictive: 0.6, coolDown: 800),
                 new Shoot(25, 2, 6, projectileIndex: 3, coolDown: 1300, coolDownOffset: 600),
-                new TimedTransition(12000, p + (arena ? "Artifacts" : "Silence"))
-            );
-            var silence = new State(p + "Silence",
-                new ConditionEffectBehavior(ConditionEffectIndex.Invulnerable),
-                new ReturnToSpawn(1.5),
-                new Flash(0xFF389E13, 0.5, 20),
-                new Taunt("BE SILENT!!!") { Bubble = false },
-                new Shoot(0, 4, fixedAngle: 0, rotateAngle: 15, projectileIndex: 17, coolDown: 260),
-                new TossObject("Ring Element", 9, 24, 320000),
-                new TossObject("Ring Element", 9, 48, 320000),
-                new TossObject("Ring Element", 9, 72, 320000),
-                new TossObject("Ring Element", 9, 96, 320000),
-                new TossObject("Ring Element", 9, 120, 320000),
-                new TossObject("Ring Element", 9, 144, 320000),
-                new TossObject("Ring Element", 9, 168, 320000),
-                new TossObject("Ring Element", 9, 192, 320000),
-                new TossObject("Ring Element", 9, 216, 320000),
-                new TossObject("Ring Element", 9, 240, 320000),
-                new TossObject("Ring Element", 9, 264, 320000),
-                new TossObject("Ring Element", 9, 288, 320000),
-                new TossObject("Ring Element", 9, 312, 320000),
-                new TossObject("Ring Element", 9, 336, 320000),
-                new TossObject("Ring Element", 9, 360, 320000),
-                new TimedTransition(10000, p + "Artifacts")
+                new TimedTransition(12000, p + "Artifacts")
             );
             var rest = new IStateChildren[]
             {
@@ -99,14 +76,15 @@ namespace WorldServer.logic
                     )
                 )
             };
-            return (arena ? new IStateChildren[] { hatred } : new IStateChildren[] { hatred, silence }).Concat(rest).ToArray();
+            return new IStateChildren[] { hatred }.Concat(rest).ToArray();
         }
 
         private _ OryxDoomed = () => Behav()
-            // Stage 6, Oryx the Infernal Mad God: Oryx 1's moveset, burning and harder, with his Infernal
-            // Court and White Moons. His taunts go to chat only (no bubbles over his attacks).
-            .Init("Oryx the Mad God 4",
-                new State(
+            // Stage 6, Oryx the Infernal Mad God: Oryx 1's fight (BehaviorDb.OryxChamber.cs), burning and
+            // harder, with his Infernal Court. His taunts go to chat only (no bubbles over his attacks).
+            .Init(O4,
+                new State(new IStateChildren[]
+                {
                     new BossStats(90000, 50, 1.0, 0.3, arena: true),
                     new BossStats(240000, 50, 1.0, 0.3),
                     new DropPortalOnDeath("Locked Oryx's Elysium Portal", 1.0, timeout: 600, xAdjustment: 2,
@@ -119,9 +97,9 @@ namespace WorldServer.logic
                         new ArenaTransition("Arena Wake"),
                         new ArenaTransition("Dormant", false)
                     ),
-                    // in an arena: only his cycle, without the Silence, and no Ascend or Rage
+                    // in an arena: his old cycle (an arena has no room for Oryx 1's fight)
                     ArenaWake("Here, too, the fire answers me.", "Arena Hatred"),
-                    new State("Arena Cycle", O4Cycle("Arena ", true)),
+                    new State("Arena Cycle", O4Cycle("Arena ")),
                     new State("Dormant",
                         new ConditionEffectBehavior(ConditionEffectIndex.Invulnerable),
                         new PlayerWithinTransition(15, "Awaken")
@@ -130,32 +108,37 @@ namespace WorldServer.logic
                         new ConditionEffectBehavior(ConditionEffectIndex.Invulnerable),
                         new Flash(0xFFFF4400, 0.4, 10),
                         new Taunt(true, "Three times you have struck me down. Here, in the fire, I am stronger.") { Bubble = false },
-                        new TimedTransition(4000, "Hatred")
-                    ),
-                    new State("Cycle",
-                        new IStateChildren[] { new HpLessTransition(0.25, "Ascend") }.Concat(O4Cycle("", false)).ToArray()
-                    ),
-                    new State("Ascend",
-                        new ConditionEffectBehavior(ConditionEffectIndex.Invulnerable),
-                        new ReturnToSpawn(1.5),
-                        new ChangeSize(15, 220),
-                        new Flash(0xFFFF0000, 0.3, 12),
-                        new Taunt(true, "I HAVE HAD ENOUGH OF YOU! THE FIRE TAKES YOU ALL!") { Bubble = false },
-                        new Shoot(0, 8, fixedAngle: 0, rotateAngle: 9, projectileIndex: 13, coolDown: 500),
-                        new Shoot(0, 8, fixedAngle: 22, rotateAngle: -9, projectileIndex: 14, coolDown: 500, coolDownOffset: 250),
-                        new TimedTransition(4000, "Rage")
-                    ),
-                    new State("Rage",
-                        new Follow(0.6, 20, 3),
-                        new Flash(0xFFFF0000, 1, 9000000),
-                        new Spawn("Infernal Officer", 2, 0.5, 8000),
-                        new Spawn("Brimstone Major", 1, 1, 10000),
-                        new Shoot(25, 5, 10, projectileIndex: 16, coolDown: 1600),
-                        new Shoot(0, 12, fixedAngle: 0, rotateAngle: 15, projectileIndex: 18, coolDown: 3200),
-                        new Shoot(25, 3, 12, projectileIndex: 2, predictive: 0.8, coolDown: 700),
-                        new Shoot(0, 6, fixedAngle: 0, rotateAngle: 12, projectileIndex: 14, coolDown: 1200),
-                        new Taunt(0.4, 6000, "DIE!!!", "ENOUGH!!!", "Your bones will feed my fire!") { Bubble = false }
+                        new TimedTransition(4000, "Old Times")
                     )
+                }.Concat(OryxFight(new OryxSpec
+                {
+                    // Oryx 1's fight, burning: less warning, his last stand from 10%, hellfire throughout
+                    Pause = 4000,
+                    AllIn = 0.10,
+                    Bubble = false,
+                    Inner = "Infernal Element",
+                    Outer = "Infernal Outer Element",
+                    AllInTaunt = new[] { "I HAVE HAD ENOUGH OF YOU! THE FIRE TAKES YOU ALL!" },
+                    Heal = 5000,
+                    Size = 220,
+                    Fight = new IStateChildren[]
+                    {
+                        new Shoot(10, 2, 12, projectileIndex: 2, predictive: 0.5, coolDown: 2400)
+                    },
+                    // his Infernal Court comes with the minions (BehaviorDb.HashCellar.cs)
+                    Minions = new IStateChildren[]
+                    {
+                        new KeepMinions("Infernal Officer", 1, 12000),
+                        new KeepMinions("Brimstone Major", 1, 12000)
+                    },
+                    Hunt = new IStateChildren[]
+                    {
+                        new KeepMinions("Infernal Officer", 2, 8000),
+                        new KeepMinions("Brimstone Major", 1, 10000),
+                        new Shoot(25, 3, 12, projectileIndex: 2, predictive: 0.8, coolDown: 1400),
+                        new Taunt(0.4, 6000, "DIE!!!", "ENOUGH!!!", "Your bones will feed my fire!") { Bubble = false }
+                    }
+                })).ToArray()
                 ),
                 // everyone who did 1% of the damage: the sure drops
                 new Threshold(0.01,
@@ -206,17 +189,18 @@ namespace WorldServer.logic
             )
 
             // ---- Oryx 4's helpers ----
-            // White Moons serve both: round Oryx 1 (his White Planet attack: invulnerable, far out and
-            // fast, as in the original) or round Oryx 4 (slower and closer, and they can be killed)
+            // White Moons serve both: round Oryx 1, or Oryx 4 in his Inferno (their White Planet attack:
+            // invulnerable, far out and fast, as in the original), or round Oryx 4 in an arena (slower
+            // and closer, and they can be killed)
             .Init("White Moon",
                 new State(
                     new State("Which",
-                        new EntityExistsTransition("Oryx the Mad God 1", 30, "Chamber"),
-                        new TimedTransition(0, "Inferno")
+                        new ArenaTransition("Inferno"),
+                        new ArenaTransition("Chamber", false)
                     ),
                     new State("Chamber",
                         new ConditionEffectBehavior(ConditionEffectIndex.Invulnerable),
-                        new Orbit(4, 13.4, 20, "Oryx the Mad God 1", 0, 0),
+                        OryxOrbit(4, 13.4, 20),
                         new Shoot(0, 10, 36, 0, fixedAngle: -18, coolDownOffset: 1500, coolDown: 700),
                         new Shoot(0, 10, 36, 0, fixedAngle: 0, coolDownOffset: 1850, coolDown: 700),
                         new TimedTransition(19000, "Gone")
@@ -224,13 +208,13 @@ namespace WorldServer.logic
                     new State("Inferno",
                         new BossStats(4000, 20, 1.4, 0.25),
                         new Prioritize(
-                            new Orbit(0.7, 8, 20, "Oryx the Mad God 4", speedVariance: 0, radiusVariance: 0),
+                            new Orbit(0.7, 8, 20, O4, speedVariance: 0, radiusVariance: 0),
                             new Wander(0.3)),
                         new Shoot(3, 4, projectileIndex: 0, coolDown: 1000),
                         new Shoot(12, projectileIndex: 1, predictive: 0.4, coolDown: 1500),
                         new TimedTransition(12000, "Gone")
                     ),
-                    // Oryx 1's last stand: a parting ring
+                    // Oryx's last stand: a parting ring
                     // (its end inside it, as Oryx orders "Final" every tick: O1Final)
                     O1Final(5, 0),
                     new State("Gone", new Suicide())

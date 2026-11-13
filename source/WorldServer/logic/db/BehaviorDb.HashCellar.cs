@@ -1,3 +1,4 @@
+using System.Linq;
 using Shared.resources;
 using WorldServer.logic.behaviors;
 using WorldServer.logic.loot;
@@ -125,23 +126,41 @@ namespace WorldServer.logic
                 InfernalLoot()
             )
 
-            // Oryx 4's Artifacts: red Guardian Elements on fixed rings at one speed, so they stay
-            // evenly spaced round him (the inner ones counter to the outer)
+            // Oryx 4's Artifacts: red Guardian Elements. In his Inferno they dance as Oryx 1's do
+            // (O1Guardian, aiming their shots); in an arena they keep fixed rings at one speed, evenly
+            // spaced round him (the inner ones counter to the outer).
             .Init("Infernal Element",
-                new State(
-                    new ConditionEffectBehavior(ConditionEffectIndex.Invulnerable),
-                    new Orbit(1, InfernalInner, 20, "Oryx the Mad God 4", speedVariance: 0, radiusVariance: 0, orbitClockwise: true),
-                    new Shoot(25, 3, 10, projectileIndex: 0, coolDown: 1000),
-                    new State("Live", new TimedTransition(14000, "Gone")),
-                    new State("Gone", new Suicide())
-                )
+                new State(new IStateChildren[]
+                {
+                    new State("Which",
+                        new ArenaTransition("Arena"),
+                        new ArenaTransition("Setup", false)
+                    ),
+                    new State("Arena",
+                        new Orbit(1, InfernalInner, 20, O4, speedVariance: 0, radiusVariance: 0, orbitClockwise: true),
+                        new Shoot(25, 3, 10, projectileIndex: 0, coolDown: 1000),
+                        new TimedTransition(14000, "Gone")
+                    )
+                }.Concat(O1Guardian(null, O4)).ToArray())
             )
             .Init("Infernal Outer Element",
                 new State(
                     new ConditionEffectBehavior(ConditionEffectIndex.Invulnerable),
-                    new Orbit(1.1, InfernalOuter, 25, "Oryx the Mad God 4", speedVariance: 0, radiusVariance: 0, orbitClockwise: false),
-                    new Shoot(6, 2, 20, projectileIndex: 0, coolDown: 900),
-                    new State("Live", new TimedTransition(14000, "Gone")),
+                    new State("Which",
+                        new ArenaTransition("Arena"),
+                        new ArenaTransition("Inferno", false)
+                    ),
+                    new State("Arena",
+                        new Orbit(1.1, InfernalOuter, 25, O4, speedVariance: 0, radiusVariance: 0, orbitClockwise: false),
+                        new Shoot(6, 2, 20, projectileIndex: 0, coolDown: 900),
+                        new TimedTransition(14000, "Gone")
+                    ),
+                    // as Oryx 1's Outer Guardian Elements: fast, 8.5 tiles out, 32 seconds
+                    new State("Inferno",
+                        new Orbit(3.2, 8.5, 20, O4, 0, 0),
+                        new Shoot(3, 3, 9, 0, predictive: 0.45, coolDown: 1200),
+                        new TimedTransition(32000, "Gone")
+                    ),
                     new State("Gone", new Suicide())
                 )
             );

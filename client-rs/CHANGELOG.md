@@ -37,6 +37,10 @@ details). Add to a group's line when a change adds to it, rather than adding ano
   Henchmen's minions come back after they die (the Bile's puddles sicken and slow you), and at 30%
   he sends the Henchmen away and floods the cellar with silencing and weakening spinners. The
   castle's living floors, suits of armour and insect swarms fight as they did too.
+- Oryx 4 in his Inferno now fights Oryx 1's new fight, burning: the same nine attacks with less
+  warning between them, hellfire bolts throughout, his Infernal Officer and Brimstone Major back
+  with every wave of minions, red Infernal Elements in his Artifact Dance, and his last stand from
+  10% health with his Assassins and his court. In an arena he fights as before.
 
 ### Realm
 - Realm monsters fixed to fight as they did in the original game: the Weretiger fires three claws,
