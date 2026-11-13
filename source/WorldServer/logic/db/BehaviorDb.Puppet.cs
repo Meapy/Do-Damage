@@ -258,35 +258,10 @@ namespace WorldServer.logic
                 )
             )
 
-        .Init("Puppet Loot Chest",
-            new State(
-                new ScaleHP2(20),
-                new State("Idle",
-                    new ConditionEffectBehavior(ConditionEffectIndex.Invulnerable),
-                    new TimedTransition(5000, "UnsetEffect")
-                    ),
-                new State("UnsetEffect",
-                    new DropPortalOnDeath("Puppet Encore Portal", 1, 0, 0f, 2f, 120)
-                    )
-                ),
-            new Threshold(0.01,
-                new ItemLoot("Harlequin Armor", 0.01),
-                new ItemLoot("Prism of Dancing Swords", 0.01)
-                ),
-            new Threshold(.005,
-                LootTemplates.BasicDrop()
-                ),
-            new Threshold(0.01,
-                new ItemLoot("Potion of Attack", 1),
-                new ItemLoot("Large Jester Argyle Cloth", 0.1),
-                new ItemLoot("Small Jester Argyle Cloth", 0.1),
-                new ItemLoot("Theatre Key", 0.01, 0, 0.03)
-                )
-            )
         .Init("The Puppet Master",
             new State(
                 new ScaleHP2(20),
-                new TransformOnDeath("Puppet Loot Chest", 1, 1),
+                new DropPortalOnDeath("Puppet Encore Portal", 1, 0, 0f, 2f, 120),
                 new DropPortalOnDeath("Realm Portal", probability: 1.0, timeout: null),
                 new State("default",
                     new ConditionEffectBehavior(ConditionEffectIndex.Invincible),
@@ -404,8 +379,20 @@ namespace WorldServer.logic
                     new Suicide()
                     )
                 ),
-            new ItemLoot("Lil' Puppet Master Generator", 0.02)
-            );
+            new ItemLoot("Lil' Puppet Master Generator", 0.02),
+            new Threshold(0.01,
+                new ItemLoot("Harlequin Armor", 0.01),
+                new ItemLoot("Prism of Dancing Swords", 0.01)
+                ),
+            new Threshold(.005,
+                LootTemplates.BasicDrop()
+                ),
+            new Threshold(0.01,
+                new ItemLoot("Potion of Attack", 1),
+                new ItemLoot("Large Jester Argyle Cloth", 0.1),
+                new ItemLoot("Small Jester Argyle Cloth", 0.1),
+                new ItemLoot("Theatre Key", 0.01, 0, 0.03)
+                ));
 
         private _ PuppetWizard2 = () => Behav()
         .Init("Puppet Wizard 2",

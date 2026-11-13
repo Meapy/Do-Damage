@@ -12,8 +12,8 @@ namespace WorldServer.logic
 
         // The Lair of Draconis and its Elder version (BehaviorDb.Elder.cs). Four dragons sleep in
         // rooms round the altar, each behind a corridor of rubble. A dragon's soul stands before its
-        // corridor: walking onto it takes you into the dragon's room. A slain dragon leaves a loot
-        // balloon; popping it clears the corridor back to the altar. Once all four are dead the altar
+        // corridor: walking onto it takes you into the dragon's room. A slain dragon drops its loot
+        // itself and clears the corridor back to the altar. Once all four are dead the altar
         // opens the Ivory Wyvern, or the Elder Ivory Wyvern in the Elder lair (and, from the regular
         // lair, the Elder lair half the time).
         private static Ctor DraconisBehaviours(Ctor db, bool elder)
@@ -46,23 +46,13 @@ namespace WorldServer.logic
                         )
                     );
 
-            // the balloon a dragon leaves: popping it drops the loot and opens the way back
-            State Balloon(string colour) =>
-                new State(
-                    new ScaleHP2(15),
-                    new TransformOnDeath(N($"NM {colour} Dragon Dead")),
-                    new ConditionEffectBehavior(ConditionEffectIndex.Invulnerable, duration: 3000),
-                    new Flash(0xFFFFFF, 0.5, 1),
-                    new OrderOnDeath(200, N($"NM {colour} Open Wall"), "open")
-                    );
-
             State Marker() =>
                 new State(
                     new ConditionEffectBehavior(ConditionEffectIndex.Invincible, true),
                     new State("1")
                     );
 
-            // what every balloon drops besides its dragon's own
+            // what every dragon drops besides its own
             MobDrops[] Common() =>
             [
                 new Threshold(0.01, LootTemplates.StrongerDrop()),
@@ -77,6 +67,71 @@ namespace WorldServer.logic
                     new ItemLoot("Elder Draconis Key", 0.01)
                     )
             ];
+
+            MobDrops[] BlueLoot() => [.. Common(),
+                new Threshold(0.01,
+                    new ItemLoot("Potion of Wisdom", 1),
+                    new ItemLoot("Potion of Wisdom", 0.5),
+                    new ItemLoot("Large Blue Dragon Scale Cloth", 0.4),
+                    new ItemLoot("Small Blue Dragon Scale Cloth", 0.4)
+                    ),
+                new Threshold(0.02,
+                    new ItemLoot("Blue Dragon Gods Helm", 0.01)
+                    ),
+                ElderLoot(0.01,
+                    new ItemLoot("Potion of Max Wisdom", 0.06),
+                    new ItemLoot("Robe of Silk Water", 0.02)
+                    )];
+
+            MobDrops[] RedLoot() => [.. Common(),
+                new Threshold(0.01,
+                    new ItemLoot("Potion of Vitality", 1),
+                    new ItemLoot("Potion of Attack", 0.5),
+                    new ItemLoot("Large Red Dragon Scale Cloth", 0.4),
+                    new ItemLoot("Small Red Dragon Scale Cloth", 0.4)
+                    ),
+                new Threshold(0.02,
+                    new ItemLoot("Red Dragon Gods Helm", 0.01)
+                    ),
+                ElderLoot(0.01,
+                    new ItemLoot("Potion of Max Vitality", 0.06),
+                    new ItemLoot("Momento of the Fire Dragon", 0.02)
+                    )];
+
+            MobDrops[] BlackLoot() => [.. Common(),
+                new Threshold(0.01,
+                    new ItemLoot("Potion of Dexterity", 1),
+                    new ItemLoot("Potion of Dexterity", 0.5),
+                    new ItemLoot("Large Midnight Dragon Scale Cloth", 0.4),
+                    new ItemLoot("Small Midnight Dragon Scale Cloth", 0.4)
+                    ),
+                new Threshold(0.02,
+                    new ItemLoot("Black Dragon Gods Blade", 0.01)
+                    ),
+                ElderLoot(0.01,
+                    new ItemLoot("Potion of Max Dexterity", 0.06),
+                    new ItemLoot("Lightning Bow", 0.02),
+                    // what Doomed Realms' Black Dragon God dropped in the old Elder lair
+                    new ItemLoot("Celestial Blade", 0.01),
+                    new ItemLoot("Ray Katana", 0.04),
+                    new ItemLoot("Doku No Ken", 0.04),
+                    new ItemLoot("Midnight Star", 0.04)
+                    )];
+
+            MobDrops[] GreenLoot() => [.. Common(),
+                new Threshold(0.01,
+                    new ItemLoot("Potion of Speed", 1),
+                    new ItemLoot("Potion of Defense", 0.5),
+                    new ItemLoot("Large Green Dragon Scale Cloth", 0.4),
+                    new ItemLoot("Small Green Dragon Scale Cloth", 0.4)
+                    ),
+                new Threshold(0.02,
+                    new ItemLoot("Green Dragon Gods Helm", 0.01)
+                    ),
+                ElderLoot(0.01,
+                    new ItemLoot("Potion of Max Speed", 0.06),
+                    new ItemLoot("Armor of the Leaf", 0.02)
+                    )];
 
             return db
             .Init(E("NM Altar of Draconis"),
@@ -93,8 +148,7 @@ namespace WorldServer.logic
                         ),
                     new State("Waiting",
                         new EntitiesNotExistsTransition(200, "Done",
-                            N("NM Blue Dragon God"), N("NM Red Dragon God"), N("NM Green Dragon God"), N("NM Black Dragon God"),
-                            N("lod Blue Loot Balloon"), N("lod Red Loot Balloon"), N("lod Green Loot Balloon"), N("lod Black Loot Balloon"))
+                            N("NM Blue Dragon God"), N("NM Red Dragon God"), N("NM Green Dragon God"), N("NM Black Dragon God"))
                         ),
                     new State("Done",
                         new Taunt(true, elder
@@ -122,27 +176,12 @@ namespace WorldServer.logic
             .Init(E("NM Black Dragon Dead"), Marker())
 
             // Nikao the Azure Dragon: wakes its eggs' shards, then three phases of bullet rings
-            .Init(E("lod Blue Loot Balloon"), Balloon("Blue"),
-                [.. Common(),
-                new Threshold(0.01,
-                    new ItemLoot("Potion of Wisdom", 1),
-                    new ItemLoot("Potion of Wisdom", 0.5),
-                    new ItemLoot("Large Blue Dragon Scale Cloth", 0.4),
-                    new ItemLoot("Small Blue Dragon Scale Cloth", 0.4)
-                    ),
-                new Threshold(0.02,
-                    new ItemLoot("Blue Dragon Gods Helm", 0.01)
-                    ),
-                ElderLoot(0.01,
-                    new ItemLoot("Potion of Max Wisdom", 0.06),
-                    new ItemLoot("Robe of Silk Water", 0.02)
-                    )]
-                )
             .Init(E("NM Blue Dragon God"),
                 new State(
                     new ScaleHP2(15),
                     new StayCloseToSpawn(0.5, 12),
-                    new TransformOnDeath(N("lod Blue Loot Balloon")),
+                    new TransformOnDeath(N("NM Blue Dragon Dead")),
+                    new OrderOnDeath(200, N("NM Blue Open Wall"), "open"),
                     new State("1",
                         new ConditionEffectBehavior(ConditionEffectIndex.Invincible, true),
                         new SetAltTexture(1),
@@ -231,8 +270,8 @@ namespace WorldServer.logic
                         new ReturnToSpawn(0.6),
                         new Decay(3000)
                         )
-                    )
-                )
+                    ),
+                BlueLoot())
             .Init(E("NM Blue Minion Spawner"),
                 new State(
                     new State("Waiting"),
@@ -250,27 +289,12 @@ namespace WorldServer.logic
                 )
 
             // Pyyr the Crimson Dragon: hides behind its hatchlings, then chases you over lava
-            .Init(E("lod Red Loot Balloon"), Balloon("Red"),
-                [.. Common(),
-                new Threshold(0.01,
-                    new ItemLoot("Potion of Vitality", 1),
-                    new ItemLoot("Potion of Attack", 0.5),
-                    new ItemLoot("Large Red Dragon Scale Cloth", 0.4),
-                    new ItemLoot("Small Red Dragon Scale Cloth", 0.4)
-                    ),
-                new Threshold(0.02,
-                    new ItemLoot("Red Dragon Gods Helm", 0.01)
-                    ),
-                ElderLoot(0.01,
-                    new ItemLoot("Potion of Max Vitality", 0.06),
-                    new ItemLoot("Momento of the Fire Dragon", 0.02)
-                    )]
-                )
             .Init(E("NM Red Dragon God"),
                 new State(
                     new ScaleHP2(15),
                     new StayCloseToSpawn(0.5, 12),
-                    new TransformOnDeath(N("lod Red Loot Balloon")),
+                    new TransformOnDeath(N("NM Red Dragon Dead")),
+                    new OrderOnDeath(200, N("NM Red Open Wall"), "open"),
                     new State("1",
                         new ConditionEffectBehavior(ConditionEffectIndex.Invincible, true),
                         new SetAltTexture(1),
@@ -371,8 +395,8 @@ namespace WorldServer.logic
                         new ReturnToSpawn(0.7),
                         new Decay(3000)
                         )
-                    )
-                )
+                    ),
+                RedLoot())
             // a lava bomb lands, bursts, and leaves a pool of lava for a few seconds
             .Init(E("NM Red Dragon Lava Bomb"),
                 new State(
@@ -423,32 +447,12 @@ namespace WorldServer.logic
                 )
 
             // Feargus the Obsidian Dragon: one long fight, its shards waking as you pass
-            .Init(E("lod Black Loot Balloon"), Balloon("Black"),
-                [.. Common(),
-                new Threshold(0.01,
-                    new ItemLoot("Potion of Dexterity", 1),
-                    new ItemLoot("Potion of Dexterity", 0.5),
-                    new ItemLoot("Large Midnight Dragon Scale Cloth", 0.4),
-                    new ItemLoot("Small Midnight Dragon Scale Cloth", 0.4)
-                    ),
-                new Threshold(0.02,
-                    new ItemLoot("Black Dragon Gods Blade", 0.01)
-                    ),
-                ElderLoot(0.01,
-                    new ItemLoot("Potion of Max Dexterity", 0.06),
-                    new ItemLoot("Lightning Bow", 0.02),
-                    // what Doomed Realms' Black Dragon God dropped in the old Elder lair
-                    new ItemLoot("Celestial Blade", 0.01),
-                    new ItemLoot("Ray Katana", 0.04),
-                    new ItemLoot("Doku No Ken", 0.04),
-                    new ItemLoot("Midnight Star", 0.04)
-                    )]
-                )
             .Init(E("NM Black Dragon God"),
                 new State(
                     new ScaleHP2(15),
                     new StayCloseToSpawn(0.5, 14),
-                    new TransformOnDeath(N("lod Black Loot Balloon")),
+                    new TransformOnDeath(N("NM Black Dragon Dead")),
+                    new OrderOnDeath(200, N("NM Black Open Wall"), "open"),
                     new State("1",
                         new ConditionEffectBehavior(ConditionEffectIndex.Invincible, true),
                         new SetAltTexture(1),
@@ -490,8 +494,8 @@ namespace WorldServer.logic
                         new ReturnToSpawn(0.7),
                         new Decay(3000)
                         )
-                    )
-                )
+                    ),
+                BlackLoot())
             .Init(E("NM Black Dragon Minion"),
                 new State(
                     new State("2",
@@ -509,27 +513,12 @@ namespace WorldServer.logic
                 )
 
             // Limoz the Veridian Dragon: shielded until its shields fall, then calls its hatchlings
-            .Init(E("lod Green Loot Balloon"), Balloon("Green"),
-                [.. Common(),
-                new Threshold(0.01,
-                    new ItemLoot("Potion of Speed", 1),
-                    new ItemLoot("Potion of Defense", 0.5),
-                    new ItemLoot("Large Green Dragon Scale Cloth", 0.4),
-                    new ItemLoot("Small Green Dragon Scale Cloth", 0.4)
-                    ),
-                new Threshold(0.02,
-                    new ItemLoot("Green Dragon Gods Helm", 0.01)
-                    ),
-                ElderLoot(0.01,
-                    new ItemLoot("Potion of Max Speed", 0.06),
-                    new ItemLoot("Armor of the Leaf", 0.02)
-                    )]
-                )
             .Init(E("NM Green Dragon God"),
                 new State(
                     new ScaleHP2(15),
                     new StayCloseToSpawn(0.5, 12),
-                    new TransformOnDeath(N("lod Green Loot Balloon")),
+                    new TransformOnDeath(N("NM Green Dragon Dead")),
+                    new OrderOnDeath(200, N("NM Green Open Wall"), "open"),
                     new State("1",
                         new ConditionEffectBehavior(ConditionEffectIndex.Invincible, true),
                         new SetAltTexture(1),
@@ -617,8 +606,8 @@ namespace WorldServer.logic
                         new ReturnToSpawn(0.7),
                         new Decay(3000)
                         )
-                    )
-                )
+                    ),
+                GreenLoot())
             .Init(E("NM Green Dragon Minion"),
                 new State(
                     new Prioritize(

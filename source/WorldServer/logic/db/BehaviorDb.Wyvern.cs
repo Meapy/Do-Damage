@@ -29,7 +29,6 @@ namespace WorldServer.logic
                 new State(
                     new ScaleHP2(15),
                     new HpLessTransition(0.05, "45"),
-                    new TransformOnDeath(N("lod Ivory Loot")),
                     // the regular Wyvern leads to the Elder one half the time
                     new DropPortalOnDeath("Elder Ivory Wyvern Portal", elder ? 0 : 0.5, xAdjustment: 3, timeout: 120),
                     new State("1",
@@ -257,7 +256,29 @@ namespace WorldServer.logic
                         new Taunt("You may have beaten me this time, but i will find a way to leave this place! And on that day, you will suffer greatly..."),
                         new Decay(4000)
                     )
-                )
+                ),
+                new Threshold(0.01,
+                    new TierLoot(4, ItemType.Ability, 0.125),
+                    new TierLoot(12, ItemType.Weapon, 0.03125),
+                    new TierLoot(13, ItemType.Armor, 0.03125),
+                    new ItemLoot("Large Ivory Dragon Scale Cloth", 0.4),
+                    new ItemLoot("Small Ivory Dragon Scale Cloth", 0.4),
+                    new TierLoot(2, ItemType.Potion)
+                ),
+                // the Elder Wyvern consumed the four dragons' powers: their Elder drops, and better gear
+                ElderLoot(0.01,
+                    new TierLoot(13, ItemType.Weapon, 0.06),
+                    new TierLoot(14, ItemType.Armor, 0.06),
+                    new TierLoot(6, ItemType.Ability, 0.08),
+                    new TierLoot(6, ItemType.Ring, 0.08),
+                    new ItemLoot("Potion of Max Life", 0.05),
+                    new ItemLoot("Potion of Max Mana", 0.05),
+                    new ItemLoot("Robe of Silk Water", 0.015),
+                    new ItemLoot("Momento of the Fire Dragon", 0.015),
+                    new ItemLoot("Armor of the Leaf", 0.015),
+                    new ItemLoot("Lightning Bow", 0.015),
+                    new ItemLoot("Elder Ivory Wyvern Key", 0.01)
+                    )
             )
             .Init(E("lod Mirror Wyvern1"),
                 new State(
@@ -392,34 +413,6 @@ namespace WorldServer.logic
                         new Decay(1000)
                     )
                 )
-            )
-            .Init(E("lod Ivory Loot"),
-                new State(
-                    new ScaleHP2(15),
-                    new ConditionEffectBehavior(ConditionEffectIndex.Invulnerable, duration: 5000)
-                ),
-                new Threshold(0.01,
-                    new TierLoot(4, ItemType.Ability, 0.125),
-                    new TierLoot(12, ItemType.Weapon, 0.03125),
-                    new TierLoot(13, ItemType.Armor, 0.03125),
-                    new ItemLoot("Large Ivory Dragon Scale Cloth", 0.4),
-                    new ItemLoot("Small Ivory Dragon Scale Cloth", 0.4),
-                    new TierLoot(2, ItemType.Potion)
-                ),
-                // the Elder Wyvern consumed the four dragons' powers: their Elder drops, and better gear
-                ElderLoot(0.01,
-                    new TierLoot(13, ItemType.Weapon, 0.06),
-                    new TierLoot(14, ItemType.Armor, 0.06),
-                    new TierLoot(6, ItemType.Ability, 0.08),
-                    new TierLoot(6, ItemType.Ring, 0.08),
-                    new ItemLoot("Potion of Max Life", 0.05),
-                    new ItemLoot("Potion of Max Mana", 0.05),
-                    new ItemLoot("Robe of Silk Water", 0.015),
-                    new ItemLoot("Momento of the Fire Dragon", 0.015),
-                    new ItemLoot("Armor of the Leaf", 0.015),
-                    new ItemLoot("Lightning Bow", 0.015),
-                    new ItemLoot("Elder Ivory Wyvern Key", 0.01)
-                    )
             );
         }
     }

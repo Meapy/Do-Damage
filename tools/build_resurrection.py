@@ -137,15 +137,6 @@ BOSSES = [
     ("Elder LH Malus 2", "Elder Cultist Hideout"),
     ("Elder LH Void Entity", "The Elder Void"),
 ]
-# Bosses whose loot is in the balloon a chest spawner leaves for them (the Shatters'): raised, with
-# the spawner long gone, the Empowered form drops that balloon's loot itself
-# (BossResurrection.Initialize, "lootFrom").
-LOOT_FROM = {
-    "Elder shtrs Bridge Sentinel": "Elder shtrs Loot Balloon Bridge",
-    "Elder shtrs Twilight Archmage": "Elder shtrs Loot Balloon Mage",
-    "Elder shtrs The Forgotten King": "Elder shtrs Loot Balloon King",
-}
-
 # --- art ---------------------------------------------------------------------------------------
 # The relic after the design's own: a lump of dark stone, mossy on top, a soul glowing through it.
 # The souls are its teal glow.
@@ -745,7 +736,6 @@ def build(objects, types):
         loot.append((uts[boss_id], UT_CHANCE))
         config.append({"boss": boss_id, "dungeon": dungeon, "name": name, "corpse": corpse_id, "empowered": emp_id,
                        "soulDamage": dmg, "loot": [[i, c] for i, c in loot],
-                       **({"lootFrom": LOOT_FROM[boss_id]} if boss_id in LOOT_FROM else {}),
                        # for the wiki: its item, the top-tier item it's built on, and how much stronger
                        "item": uts[boss_id], "itemBase": BASES[boss_id], "itemStrength": STRENGTH[boss_id]})
 

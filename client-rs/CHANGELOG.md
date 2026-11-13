@@ -71,6 +71,11 @@ details). Add to a group's line when a change adds to it, rather than adding ano
   breath: a blue bar under your health empties while you swim and refills at an Ocean Vent, and when
   it runs out you start to drown. Also fixed: the Magic Woods' Radph healed nobody, and the
   Deadwater Docks' breakable walls were missing.
+- Bosses drop their loot themselves where they fall: no more loot balloons or chests to break
+  after the Lair of Draconis' dragons, the Ivory Wyvern, the Shatters' three bosses, the Puppet
+  Master, Esben, Shaitan, Lord Ruthven (his Coffin is gone) and the Ice Tomb's three (each drops a
+  third of the old chest's chances). The Elder Lair of Draconis' dragons now drop the Necromantic
+  Relic, which they never did, and raised Empowered dragons and Wyverns drop their full loot.
 
 ## 2.5.4 (2026-11-12)
 

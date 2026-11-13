@@ -91,8 +91,7 @@ before they strike: step out before they're full.
 ## What it drops
 
 An Empowered boss drops everything its Elder form drops, with every chance doubled for everyone
-who fought it (except what's in the loot balloon the dragons and the Wyvern turn into; the
-Elder Shatters' three drop what their balloons held themselves). Then it rolls the Elder boss's own items a second time, at up to twice their chance
+who fought it. Then it rolls the Elder boss's own items a second time, at up to twice their chance
 (ten points more at most), with its Potion of Max at four times its chance (a tenth at least, a
 quarter at most).
 

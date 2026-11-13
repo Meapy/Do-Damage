@@ -1183,7 +1183,6 @@
      0.06
     ]
    ],
-   "lootFrom": "Elder shtrs Loot Balloon Bridge",
    "item": "Snare of the Bridge Sentinel",
    "itemBase": "Mantlecrusher Trap",
    "itemStrength": 1.25
@@ -1225,7 +1224,6 @@
      0.06
     ]
    ],
-   "lootFrom": "Elder shtrs Loot Balloon Mage",
    "item": "Twilight Cataclysm",
    "itemBase": "Spell of Galactic Creation",
    "itemStrength": 1.3
@@ -1271,7 +1269,6 @@
      0.06
     ]
    ],
-   "lootFrom": "Elder shtrs Loot Balloon King",
    "item": "Shroud of the Forgotten King",
    "itemBase": "Cloak of Emptiness",
    "itemStrength": 1.2

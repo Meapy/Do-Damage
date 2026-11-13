@@ -413,7 +413,36 @@ namespace WorldServer.logic
                     new OrderOnce(46, N("shtrs Spawn Bridge"), "Open"),
                     new Suicide()
                     )
-                )
+                ),
+            new Threshold(0.03,
+                    new ItemLoot("Bracer of the Guardian", elder ? 0.02 : 0.01)
+                    ),
+                ElderLoot(0.03,
+                    new ItemLoot("Bracer of the Elder Guardian", 0.01),
+                    new ItemLoot("Potion of Max Defense", 0.05),
+                    new ItemLoot("Elder Shatters Key", 0.01)
+                    ),
+                ElderLoot(0.0001,
+                    new TierLoot(13, ItemType.Weapon, .1),
+                    new TierLoot(14, ItemType.Armor, .1),
+                    new TierLoot(6, ItemType.Ability, .1),
+                    new TierLoot(6, ItemType.Ring, .1)
+                    ),
+                new Threshold(0.0001,
+                    new TierLoot(11, ItemType.Weapon, .1),
+                    new TierLoot(12, ItemType.Weapon, .05),
+                    new TierLoot(5, ItemType.Ability, .1),
+                    new TierLoot(6, ItemType.Ability, .05),
+                    new TierLoot(12, ItemType.Armor, .1),
+                    new TierLoot(13, ItemType.Armor, .05),
+                    new TierLoot(5, ItemType.Ring, .1),
+                    new TierLoot(6, ItemType.Ring, .05)
+                    ),
+                new Threshold(0.00001,
+                    new ItemLoot("Shatters Key", 0.002),
+                    new ItemLoot("Potion of Defense", 1),
+                    new ItemLoot("Potion of Attack", 1)
+                    )
             )
         #endregion 1stboss
         #region blobomb
@@ -633,7 +662,33 @@ namespace WorldServer.logic
                     new Shoot(35, projectileIndex: 0, count: 30),
                     new Suicide()
                      )
-                )
+                ),
+            new Threshold(0.03,
+                    new ItemLoot("The Twilight Gemstone", elder ? 0.005 : 0.0025)
+                    ),
+                ElderLoot(0.03,
+                    new ItemLoot("The Eclipsed Gemstone", 0.01),
+                    new ItemLoot("Potion of Max Mana", 0.05),
+                    new ItemLoot("Elder Shatters Key", 0.01)
+                    ),
+                ElderLoot(0.0001,
+                    new TierLoot(13, ItemType.Weapon, .1),
+                    new TierLoot(14, ItemType.Armor, .1),
+                    new TierLoot(6, ItemType.Ability, .1),
+                    new TierLoot(6, ItemType.Ring, .1)
+                    ),
+               new Threshold(0.0001,
+                   new ItemLoot("Potion of Mana", 1),
+                   new ItemLoot("Shatters Key", 0.002),
+                    new TierLoot(11, ItemType.Weapon, .1),
+                    new TierLoot(12, ItemType.Weapon, .05),
+                    new TierLoot(5, ItemType.Ability, .1),
+                    new TierLoot(6, ItemType.Ability, .05),
+                    new TierLoot(12, ItemType.Armor, .1),
+                    new TierLoot(13, ItemType.Armor, .05),
+                    new TierLoot(5, ItemType.Ring, .1),
+                    new TierLoot(6, ItemType.Ring, .05)
+                    )
             )
         #endregion 2ndboss
         #region birds
@@ -723,86 +778,6 @@ namespace WorldServer.logic
                 )
             )
         #endregion birds
-        #region 1stbosschest
-        .Init(E("shtrs Loot Balloon Bridge"),
-            new State(
-                new ScaleHP2(20),
-                new State("Idle",
-                    new ConditionEffectBehavior(ConditionEffectIndex.Invulnerable),
-                    new TimedTransition(5000, "Bridge")
-                    ),
-                new State("Bridge")
-
-                ),
-            new Threshold(0.03,
-                    new ItemLoot("Bracer of the Guardian", elder ? 0.02 : 0.01)
-                    ),
-                ElderLoot(0.03,
-                    new ItemLoot("Bracer of the Elder Guardian", 0.01),
-                    new ItemLoot("Potion of Max Defense", 0.05),
-                    new ItemLoot("Elder Shatters Key", 0.01)
-                    ),
-                ElderLoot(0.0001,
-                    new TierLoot(13, ItemType.Weapon, .1),
-                    new TierLoot(14, ItemType.Armor, .1),
-                    new TierLoot(6, ItemType.Ability, .1),
-                    new TierLoot(6, ItemType.Ring, .1)
-                    ),
-                new Threshold(0.0001,
-                    new TierLoot(11, ItemType.Weapon, .1),
-                    new TierLoot(12, ItemType.Weapon, .05),
-                    new TierLoot(5, ItemType.Ability, .1),
-                    new TierLoot(6, ItemType.Ability, .05),
-                    new TierLoot(12, ItemType.Armor, .1),
-                    new TierLoot(13, ItemType.Armor, .05),
-                    new TierLoot(5, ItemType.Ring, .1),
-                    new TierLoot(6, ItemType.Ring, .05)
-                    ),
-                new Threshold(0.00001,
-                    new ItemLoot("Shatters Key", 0.002),
-                    new ItemLoot("Potion of Defense", 1),
-                    new ItemLoot("Potion of Attack", 1)
-                    )
-            )
-        #endregion 1stbosschest
-        #region 2ndbosschest
-        .Init(E("shtrs Loot Balloon Mage"),
-            new State(
-                new ScaleHP2(20),
-                new State("Idle",
-                    new ConditionEffectBehavior(ConditionEffectIndex.Invulnerable),
-                    new TimedTransition(5000, "Mage")
-                    ),
-                new State("Mage")
-                ),
-            new Threshold(0.03,
-                    new ItemLoot("The Twilight Gemstone", elder ? 0.005 : 0.0025)
-                    ),
-                ElderLoot(0.03,
-                    new ItemLoot("The Eclipsed Gemstone", 0.01),
-                    new ItemLoot("Potion of Max Mana", 0.05),
-                    new ItemLoot("Elder Shatters Key", 0.01)
-                    ),
-                ElderLoot(0.0001,
-                    new TierLoot(13, ItemType.Weapon, .1),
-                    new TierLoot(14, ItemType.Armor, .1),
-                    new TierLoot(6, ItemType.Ability, .1),
-                    new TierLoot(6, ItemType.Ring, .1)
-                    ),
-               new Threshold(0.0001,
-                   new ItemLoot("Potion of Mana", 1),
-                   new ItemLoot("Shatters Key", 0.002),
-                    new TierLoot(11, ItemType.Weapon, .1),
-                    new TierLoot(12, ItemType.Weapon, .05),
-                    new TierLoot(5, ItemType.Ability, .1),
-                    new TierLoot(6, ItemType.Ability, .05),
-                    new TierLoot(12, ItemType.Armor, .1),
-                    new TierLoot(13, ItemType.Armor, .05),
-                    new TierLoot(5, ItemType.Ring, .1),
-                    new TierLoot(6, ItemType.Ring, .05)
-                    )
-            )
-        #endregion 2ndbosschest
         #region BridgeStatues
         .Init(E("shtrs Bridge Obelisk A"),
             new State(
@@ -2483,8 +2458,38 @@ namespace WorldServer.logic
                     new Suicide()
                    )
                 ),
-            new ItemLoot("Lil' Forgotten King Generator", elder ? 0.04 : 0.02)
-            )
+            new ItemLoot("Lil' Forgotten King Generator", elder ? 0.04 : 0.02),
+            new Threshold(0.03,
+                    new ItemLoot("The Forgotten Crown", elder ? 0.003 : 0.0015)
+                    ),
+                new SeasonalThreshold("winter", 0.03,
+                    new ItemLoot("Ice Crown", elder ? 0.003 : 0.0015)
+                    ),
+                ElderLoot(0.03,
+                    new ItemLoot("The Remembered Crown", 0.01),
+                    new ItemLoot("Potion of Max Life", 0.05),
+                    new ItemLoot("Elder Shatters Key", 0.02)
+                    ),
+                ElderLoot(0.0001,
+                    new TierLoot(13, ItemType.Weapon, .1),
+                    new TierLoot(14, ItemType.Armor, .1),
+                    new TierLoot(6, ItemType.Ability, .1),
+                    new TierLoot(6, ItemType.Ring, .1)
+                    ),
+                new Threshold(0.0001,
+                    new TierLoot(11, ItemType.Weapon, .1),
+                    new TierLoot(12, ItemType.Weapon, .05),
+                    new TierLoot(5, ItemType.Ability, .1),
+                    new TierLoot(6, ItemType.Ability, .05),
+                    new TierLoot(12, ItemType.Armor, .1),
+                    new TierLoot(13, ItemType.Armor, .05),
+                    new TierLoot(5, ItemType.Ring, .1),
+                    new TierLoot(6, ItemType.Ring, .05)
+                    ),
+                new Threshold(0.00001,
+                    new ItemLoot("Shatters Key", 0.002),
+                    new ItemLoot("Potion of Life", 1)
+                    ))
         .Init(E("shtrs Royal Guardian J"),
             new State(
                 new ScaleHP2(5),
@@ -2681,51 +2686,6 @@ namespace WorldServer.logic
                 )
             )
         #endregion 3rdboss
-        #region 3rdbosschest
-        .Init(E("shtrs Loot Balloon King"),
-            new State(
-                // (no Realm Portal of its own: the King is the dungeon's last quest monster, so
-                // one opens where he fell, World.BossDied)
-                new ScaleHP2(20),
-                new State("Idle",
-                    new ConditionEffectBehavior(ConditionEffectIndex.Invulnerable),
-                    new TimedTransition(5000, "Crown")
-                    ),
-                new State("Crown")
-                ),
-            new Threshold(0.03,
-                    new ItemLoot("The Forgotten Crown", elder ? 0.003 : 0.0015)
-                    ),
-                new SeasonalThreshold("winter", 0.03,
-                    new ItemLoot("Ice Crown", elder ? 0.003 : 0.0015)
-                    ),
-                ElderLoot(0.03,
-                    new ItemLoot("The Remembered Crown", 0.01),
-                    new ItemLoot("Potion of Max Life", 0.05),
-                    new ItemLoot("Elder Shatters Key", 0.02)
-                    ),
-                ElderLoot(0.0001,
-                    new TierLoot(13, ItemType.Weapon, .1),
-                    new TierLoot(14, ItemType.Armor, .1),
-                    new TierLoot(6, ItemType.Ability, .1),
-                    new TierLoot(6, ItemType.Ring, .1)
-                    ),
-                new Threshold(0.0001,
-                    new TierLoot(11, ItemType.Weapon, .1),
-                    new TierLoot(12, ItemType.Weapon, .05),
-                    new TierLoot(5, ItemType.Ability, .1),
-                    new TierLoot(6, ItemType.Ability, .05),
-                    new TierLoot(12, ItemType.Armor, .1),
-                    new TierLoot(13, ItemType.Armor, .05),
-                    new TierLoot(5, ItemType.Ring, .1),
-                    new TierLoot(6, ItemType.Ring, .05)
-                    ),
-                new Threshold(0.00001,
-                    new ItemLoot("Shatters Key", 0.002),
-                    new ItemLoot("Potion of Life", 1)
-                    )
-            )
-        #endregion 3rdbosschest
         // Use this for other stuff.
         #region NotInUse
         //      .Init("shtrs Spawn Bridge 6",
@@ -2769,32 +2729,9 @@ namespace WorldServer.logic
         //          )
         #endregion NotInUse
         #region MISC
-        .Init(E("shtrs Chest Spawner 1"),
-            new State(
-                new ConditionEffectBehavior(ConditionEffectIndex.Invincible, true),
-                new State("Idle",
-                    new ConditionEffectBehavior(ConditionEffectIndex.Invincible, true),
-                    new EntityNotExistsTransition(N("shtrs Bridge Sentinel"), 500, "Open")
-                    ),
-                new State("Open",
-                    new Spawn(N("shtrs Loot Balloon Bridge"), 1, spawnedByBehav: false),
-                    new Decay(100)
-                    )
-                )
-            )
-        .Init(E("shtrs Chest Spawner 2"),
-            new State(
-                new ConditionEffectBehavior(ConditionEffectIndex.Invincible, true),
-                new State("Idle",
-                    new ConditionEffectBehavior(ConditionEffectIndex.Invincible, true),
-                    new EntityNotExistsTransition(N("shtrs Twilight Archmage"), 500, "Open")
-                    ),
-                new State("Open",
-                    new Spawn(N("shtrs Loot Balloon Mage"), 1, spawnedByBehav: false),
-                    new Decay(100)
-                    )
-                )
-            )
+        // the map's chest spawners: the bosses drop their loot themselves now
+        .Init(E("shtrs Chest Spawner 1"), new State(new ConditionEffectBehavior(ConditionEffectIndex.Invincible, true), new Decay(0)))
+        .Init(E("shtrs Chest Spawner 2"), new State(new ConditionEffectBehavior(ConditionEffectIndex.Invincible, true), new Decay(0)))
         .Init(E("shtrs blobomb maker"),
             new State(
                 new ConditionEffectBehavior(ConditionEffectIndex.Invincible, true),
@@ -2824,19 +2761,7 @@ namespace WorldServer.logic
                 )
             )
 
-        .Init(E("shtrs Chest Spawner 3"),
-            new State(
-                new ConditionEffectBehavior(ConditionEffectIndex.Invincible, true),
-                new State("Idle",
-                    new ConditionEffectBehavior(ConditionEffectIndex.Invincible, true),
-                    new EntitiesNotExistsTransition(30, "Open", N("shtrs The Cursed Crown"), N("shtrs The Forgotten King"))
-                    ),
-                new State("Open",
-                    new Spawn(N("shtrs Loot Balloon King"), 1, spawnedByBehav: false),
-                    new Decay(100)
-                    )
-                )
-            )
+        .Init(E("shtrs Chest Spawner 3"), new State(new ConditionEffectBehavior(ConditionEffectIndex.Invincible, true), new Decay(0)))
         #endregion MISC
         // the map's "S" Glassier Archmages fight like the regular ones
         .Init(E("shtrs S Glassier Archmage"),

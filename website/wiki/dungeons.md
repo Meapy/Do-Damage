@@ -116,8 +116,8 @@ Altar of Draconis, with four dragon souls round it, one in front of each sealed 
 a soul to be taken into its dragon's lair: Nikao the Azure Dragon (north), Pyyr the Crimson Dragon
 (west), Limoz the Veridian Dragon (east) or Feargus the Obsidian Dragon (south). A dragon wakes
 when you come near. Pyyr hides behind his hatchlings and throws lava bombs, Limoz behind six
-shields that must fall first. At the end each dragon turns into a loot balloon: pop it and the
-corridor back to the altar opens. Beat all four in any order and the altar opens the Ivory
+shields that must fall first. A slain dragon drops its loot where it falls, and the corridor back
+to the altar opens. Beat all four in any order and the altar opens the Ivory
 Wyvern's portal, and half the time the Elder Lair's.
 
 Each dragon drops its own stat potions and, rarely, a relic of itself to keep. An Elder Draconis
@@ -138,7 +138,7 @@ drops in its matching Elder dungeon. Both keys can also be community-goal reward
 The Avatar of the Forgotten King in the realm drops the Shatters' portal, and a Shatters Key
 opens it. Three bosses hold it: the Bridge Sentinel (kill its obelisks first), the Twilight
 Archmage and his birds Inferno and Blizzard, and the Forgotten King, who hides between his
-attacks. Each leaves a loot balloon.
+attacks. Each drops its loot where it falls.
 
 Half the time the Forgotten King also leaves the portal to the **Elder Shatters**: the same
 ruin by brazier light, every monster in its Elder version (twice the health, harder hits, faster

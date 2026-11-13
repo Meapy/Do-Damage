@@ -191,11 +191,20 @@ class Data:
             helpers = dict(re.findall(r'static MobDrops\[\]\s+(\w+)\(\)\s*=>\s*new MobDrops\[\]\s*\{(.*?)\};', text, re.S))
             # and a shared builder's local ones (MobDrops[] Common() => [ ... ];, BehaviorDb.Draconis.cs)
             helpers.update(re.findall(r'\bMobDrops\[\]\s+(\w+)\(\)\s*=>\s*\[(.*?)\];', text, re.S))
+            # and one drop a file's monsters share (static MobDrops IceTombTreasure() => new Threshold(...);)
+            helpers.update(re.findall(r'static MobDrops\s+(\w+)\(\)\s*=>(.*?)\n\s*\);', text, re.S))
             marks = list(start.finditer(text))
             for i, m in enumerate(marks):
                 end = marks[i + 1].start() if i + 1 < len(marks) else len(text)
                 block = text[m.start():end]
-                block += "".join(helpers[h] for h in re.findall(r'\b(\w+)\(\)', block) if h in helpers)
+                # (a list may call another: each dragon's own list calls the lair's Common())
+                seen, todo = set(), [block]
+                while todo:
+                    for h in re.findall(r'\b(\w+)\(\)', todo.pop()):
+                        if h in helpers and h not in seen:
+                            seen.add(h)
+                            block += helpers[h]
+                            todo.append(helpers[h])
                 name = m.group(3)
                 if m.group(1):
                     d = re.search(r'DoomedMonsterDefs\.(M_\w+)', block)

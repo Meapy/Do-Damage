@@ -646,6 +646,28 @@ The remotes `upstream` (HaloCelsius) and `aurusenth` share no history with `main
 
 ## Changes from upstream
 
+- **Bosses drop their own loot** (2026-11-13). Every boss that left its loot in a balloon or chest
+  now drops it itself, and the chests are gone: the Lair of Draconis' four dragons
+  (`BehaviorDb.Draconis.cs`: each dragon's list, `BlueLoot()` and the rest, with `Common()`; on
+  death it turns into its `NM <colour> Dragon Dead` marker and orders its corridor open, as the
+  balloon did; the altar no longer waits for balloons), the Ivory Wyvern (`lod Ivory Loot`), the
+  Shatters' Bridge Sentinel, Twilight Archmage and Forgotten King (their `shtrs Chest Spawner`s
+  stay on the maps but only decay), the Puppet Master (the Encore portal moved to him), Esben (`ic
+  Loot Balloon`), Shaitan's head (it steps onto the floor at (32.5, 36) before it dies;
+  `md1 LeftHandSmash` drops the Realm Portal that the balloon did, on the floor), Lord Ruthven (his
+  Coffin, with its bats and Nosferatu, is gone; its loot and the Elder Manor portal moved to him)
+  and the Ice Tomb (`IceTombTreasure()`: each of the three bosses drops the old `Ice Tomb Chest`'s
+  loot at a third of its chances; `Ice Tomb Boss Anchor` drops the Realm Portal). All of these
+  bosses, regular and Elder. The Elder lair's dragons carried no loot of their own, so
+  `Loot.ExtraLootTables` never ran for them and they never dropped the Necromantic Relic though
+  they leave remains; they do now, and their Empowered forms (and the Wyvern's) drop the balloon's
+  loot too. `BossResurrection`'s `lootFrom` (the Shatters' balloons for their Empowered bosses) is
+  gone, from `tools/build_resurrection.py` and `resurrection.json` (only those three lines taken
+  out by hand: a full run drifts, see the 2.5.5 notes). `wiki_data.py` follows helper lists that
+  call others and a shared `static MobDrops X()`. Thessal's riddle Coral Gifts and the Pentaract's
+  corpse stay (not a boss's loot chest). Tests: `ElderDungeonsTests` (every boss that leaves
+  remains has loot of its own; nothing turns into or spawns any of the old chests).
+
 - **Unfinished dungeons finished** (2026-11-13). **Magic Woods** (`BehaviorDb.MagicWoods.cs`): the
   map had no `MW Boss Spawner`; it's placed in the fountain (132, 112) and runs three fairy waves
   (`FairyWave`: tossed to the four small fountains, beaten when none is left within 22 tiles or
