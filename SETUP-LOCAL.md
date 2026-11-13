@@ -646,6 +646,10 @@ The remotes `upstream` (HaloCelsius) and `aurusenth` share no history with `main
 
 ## Changes from upstream
 
+- **Earthquake shake stops** (2026-11-13; `client-rs/app/src/particles.rs`, `jitter`). The Rust
+  client's Earthquake effect (`ShowEffect` 14) shook the camera for good, building to half a tile
+  until the world changed, as the AIR client's `Camera.startJitter` did. It now rises to a quarter
+  of a tile and settles over 2.5 s; each Earthquake starts it again.
 - **Bosses drop their own loot** (2026-11-13). Every boss that left its loot in a balloon or chest
   now drops it itself, and the chests are gone: the Lair of Draconis' four dragons
   (`BehaviorDb.Draconis.cs`: each dragon's list, `BlueLoot()` and the rest, with `Common()`; on

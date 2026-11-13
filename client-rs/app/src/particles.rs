@@ -524,9 +524,9 @@ impl Particles {
                     }
                 }
             }
-            // The camera shakes (`Camera.startJitter`).
+            // The camera shakes for a moment (`Camera.startJitter`, which shook for good).
             14 => {
-                self.jitter_since.get_or_insert(now);
+                self.jitter_since = Some(now);
             }
             // FlashDescription: period pos1.x seconds, pos1.y times.
             15 if go.is_some() => {
@@ -1008,10 +1008,21 @@ impl Particles {
         Some(Image { frames, standing: true })
     }
 
-    /// `Camera.update`'s shake: up to half a tile, building up over ten seconds.
+    /// The camera's shake after an Earthquake: a quarter of a tile within a fifth of a second,
+    /// settling over `JITTER_MS`, then still. (`Camera.update` built it up to half a tile over ten
+    /// seconds and never stopped it until the world changed.) Another Earthquake starts it again.
     pub fn jitter(&mut self, now: i32) -> (f64, f64) {
+        const JITTER_MS: i32 = 2500;
+        const RISE_MS: f64 = 200.0;
         let Some(since) = self.jitter_since else { return (0.0, 0.0) };
-        let j = ((now - since) as f64 * 0.5 / 10_000.0).min(0.5);
+        let t = now - since;
+        if t >= JITTER_MS || t < 0 {
+            self.jitter_since = None;
+            return (0.0, 0.0);
+        }
+        let t = t as f64;
+        let k = if t < RISE_MS { t / RISE_MS } else { 1.0 - (t - RISE_MS) / (JITTER_MS as f64 - RISE_MS) };
+        let j = 0.25 * k;
         (self.pm(j), self.pm(j))
     }
 
@@ -1347,8 +1358,14 @@ mod tests {
         let world = World::new(10, 10, "test", 1);
         let mut p = Particles::default();
         p.show_effect(&effect(14, 0, (0.0, 0.0), (0.0, 0.0)), &world, 1000);
-        let (jx, jy) = p.jitter(21_000);
-        assert!(jx.abs() <= 0.5 && jy.abs() <= 0.5);
+        let (jx, jy) = p.jitter(2000);
+        assert!(jx.abs() <= 0.25 && jy.abs() <= 0.25);
+        // it stops after a couple of seconds, and a new one starts it again
+        assert_eq!(p.jitter(3500), (0.0, 0.0));
+        assert_eq!(p.jitter(21_000), (0.0, 0.0));
+        p.show_effect(&effect(14, 0, (0.0, 0.0), (0.0, 0.0)), &world, 22_000);
+        assert!(p.jitter_since.is_some());
+        assert_eq!(p.jitter(30_000), (0.0, 0.0));
         assert!(p.flash_tint(7, 0).is_none());
     }
 }
