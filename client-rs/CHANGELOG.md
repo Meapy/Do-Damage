@@ -14,6 +14,9 @@ details). Add to a group's line when a change adds to it, rather than adding ano
 
 ## Unreleased
 
+### Items
+- New sprites drawn by players in the Sprite Editor: two new looks for the Coral Medallion (by Trenchant), Crown (by Godes), Elder Shatters Key (by Godes), Cabernet (by Godes).
+
 ### Game
 - Options, Visuals is tidier, in three parts (World, Other players, Chat), and other players'
   shots have a slider instead of a switch: fade them from 100% down to Hidden. It takes their
@@ -61,7 +64,6 @@ details). Add to a group's line when a change adds to it, rather than adding ano
   frames a second, so the game uses less of your computer while you're not playing.
 
 ### Items
-- New sprites drawn by players in the Sprite Editor: two new looks for the Coral Medallion (by Trenchant), Crown (by Godes), Elder Shatters Key (by Godes), Cabernet (by Godes).
 - Every Necromantic item's power now shows when it works, in a look of its own: the cutlass's
   cannonball bursting in fire and spray, venom splashing, souls flying to the Phylactery, a
   burning brand under cursed enemies, whirlpools, lightning from the sky, the Crown of Geb's
