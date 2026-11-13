@@ -4185,6 +4185,25 @@ impl ChatChannel {
             ChatChannel::Party => tr("Party"),
         }
     }
+
+    /// The channel's colour: its tab, the chat box while it's picked, and (All, Guild, Party)
+    /// its lines in the chat.
+    pub fn colour(self) -> u32 {
+        match self {
+            ChatChannel::All => 0xF5C77E,
+            ChatChannel::Local => 0xD9D2EE,
+            ChatChannel::Guild => 0xA6FF5D,
+            ChatChannel::Party => 0x78A0FF,
+        }
+    }
+
+    /// A channel by its command's name (`all`, `local`, `guild`, `party`), as `--chat` takes it.
+    pub fn of(name: &str) -> Option<ChatChannel> {
+        ChatChannel::ALL.into_iter().find(|c| match c.command() {
+            Some(command) => command[1..].eq_ignore_ascii_case(name),
+            None => name.eq_ignore_ascii_case("local"),
+        })
+    }
 }
 
 #[derive(Debug, Clone, PartialEq, Eq)]
@@ -4199,6 +4218,62 @@ pub enum ChatClickTarget {
 pub struct ChatClick {
     pub target: ChatClickTarget,
     pub rect: [f32; 4],
+}
+
+/// The chat box `r` and its channel tabs, which sit on its top edge like a browser's: the quiet
+/// ones behind it, the picked one joined to it, both drawn in the channel's colour. Returns the
+/// top of the tabs.
+fn draw_chat_tabs(ui: &mut Ui, r: [f32; 4], channel: ChatChannel, mouse: (f32, f32), clicks: &mut Vec<ChatClick>, size: f32, s: f32) -> f32 {
+    let accent = channel.colour();
+    let radius = 6.0 * s;
+    let b = s.max(1.0);
+    let tab_size = (size * 0.86).round().max(10.0);
+    let pad = 11.0 * s;
+    let dot = (tab_size * 0.42).round().max(4.0);
+    let tab_h = (tab_size * 1.85).round();
+    let lowered = 3.0 * s;
+    let top = r[1] - tab_h;
+    // each tab's place, the widest label setting none apart from the others
+    let mut tabs = Vec::new();
+    let mut x = r[0] + 8.0 * s;
+    for c in ChatChannel::ALL {
+        let w = pad + dot + 7.0 * s + ui.measure(c.label(), tab_size, true) + pad;
+        tabs.push((c, [x, top, w, tab_h]));
+        x += w + 3.0 * s;
+    }
+    let under_mouse = |t: [f32; 4]| mouse.0 >= t[0] && mouse.1 >= t[1] && mouse.0 < t[0] + t[2] && mouse.1 < r[1];
+    let text_at = |t: [f32; 4], drop: f32| t[1] + drop + (t[3] - drop - tab_size * 1.22) / 2.0;
+    let draw_label = |ui: &mut Ui, c: ChatChannel, t: [f32; 4], drop: f32, (dot_alpha, rgb, bold): (f32, u32, bool)| {
+        let cy = t[1] + drop + (t[3] - drop) / 2.0;
+        theme::fill(ui.renderer, [t[0] + pad, cy - dot / 2.0, dot, dot], dot / 2.0, c.colour(), dot_alpha);
+        ui.label(c.label(), t[0] + pad + dot + 7.0 * s, text_at(t, drop), tab_size, bold, rgb);
+    };
+    // the quiet tabs, a little lower, their feet hidden behind the box
+    for &(c, t) in tabs.iter().filter(|(c, _)| *c != channel) {
+        let hover = under_mouse(t);
+        let body = [t[0], t[1] + lowered, t[2], t[3] - lowered + radius];
+        let (top_rgb, bottom_rgb) = if hover { (theme::shade(color::PANEL_TOP, 0.08), color::PANEL_TOP) } else { (color::PANEL_TOP, color::PANEL_BOTTOM) };
+        theme::frame(ui.renderer, body, radius, b, (if hover { color::BORDER_HI } else { color::BORDER }, 0.95), ((top_rgb, 0.9), (bottom_rgb, 0.92)));
+        let text = if hover { color::TEXT } else { color::TEXT_DIM };
+        draw_label(ui, c, t, lowered, (if hover { 1.0 } else { 0.7 }, text, false));
+        clicks.push(ChatClick { target: ChatClickTarget::Channel(c), rect: [t[0], t[1], t[2], r[1] - t[1]] });
+    }
+    // the box, its edge and a soft glow in the channel's colour
+    theme::fill(ui.renderer, [r[0] - 3.0 * s, r[1] - 3.0 * s, r[2] + 6.0 * s, r[3] + 6.0 * s], radius + 3.0 * s, accent, 0.16);
+    // (one flat, opaque colour with the picked tab, so where they overlap they read as one piece)
+    let inside = theme::shade(color::FIELD, 0.03);
+    theme::frame(ui.renderer, r, radius, b, (accent, 0.9), ((inside, 1.0), (inside, 1.0)));
+    // the picked tab, joined to the box: its frame open at the foot, over the box's edge
+    if let Some(&(c, t)) = tabs.iter().find(|(c, _)| *c == channel) {
+        theme::fill(ui.renderer, [t[0] - 3.0 * s, t[1] - 3.0 * s, t[2] + 6.0 * s, t[3] + 3.0 * s], radius + 3.0 * s, accent, 0.16);
+        theme::frame(ui.renderer, [t[0], t[1], t[2], t[3] + radius], radius, b, (accent, 0.9), ((inside, 1.0), (inside, 1.0)));
+        theme::fill(ui.renderer, [t[0] + b, r[1] - b, t[2] - 2.0 * b, radius + 2.0 * b], 0.0, inside, 1.0);
+        // a bright line along the top, as the box's own highlight
+        theme::fill(ui.renderer, [t[0] + radius, t[1] + b, t[2] - 2.0 * radius, b], 0.0, accent, 0.45);
+        draw_label(ui, c, t, 0.0, (1.0, accent, true));
+        clicks.push(ChatClick { target: ChatClickTarget::Channel(c), rect: [t[0], t[1], t[2], r[1] - t[1]] });
+    }
+    top
 }
 
 /// How long a chat line stays up while the input is closed, ms.
@@ -4223,6 +4298,7 @@ pub fn draw_chat(
     me: &str,
     input: Option<&crate::textedit::LineEdit>,
     channel: ChatChannel,
+    mouse: (f32, f32),
     scroll: Option<usize>,
     chat_size: f32,
     chat_alpha: f32,
@@ -4238,21 +4314,8 @@ pub fn draw_chat(
     let mut bottom = lay.h - margin;
     if let Some(input) = input {
         let r = [margin, bottom - line_h - 12.0 * s, max_w + 16.0 * s, line_h + 12.0 * s];
-        ui.field_box(r, true, s);
-        draw_line_edit(ui, input, [r[0] + 8.0 * s, r[1], max_w, r[3]], size, tr("Say something, or /help"), now);
-        // the channel buttons above the box, the one lines go to in ember
-        let gap = 4.0 * s;
-        let count = ChatChannel::ALL.len() as f32;
-        let bw = (r[2] - gap * (count - 1.0)) / count;
-        let bh = (line_h * 1.1).round();
-        let by = r[1] - gap - bh;
-        for (i, button) in ChatChannel::ALL.into_iter().enumerate() {
-            let rect = [r[0] + i as f32 * (bw + gap), by, bw, bh];
-            let kind = if button == channel { Kind::Primary } else { Kind::Secondary };
-            ui.button(rect, button.label(), kind, false, s);
-            clicks.push(ChatClick { target: ChatClickTarget::Channel(button), rect });
-        }
-        bottom = by - 6.0 * s;
+        bottom = draw_chat_tabs(ui, r, channel, mouse, &mut clicks, size, s) - 6.0 * s;
+        draw_line_edit(ui, input, [r[0] + 10.0 * s, r[1], max_w - 2.0 * s, r[3]], size, tr("Say something, or /help"), now);
     }
     // Wrap the newest lines into rows, newest at the bottom. A speaker's rank star leads the
     // line's first row.

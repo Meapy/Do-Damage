@@ -394,7 +394,7 @@ pub fn startup() -> Result<Startup, String> {
             "--stay" | "--bench" | "--resume" | "--no-update" => {}
             "--credentials" => credentials = it.next(),
             // Read by main (screenshots, scripted input).
-            "--shot" | "--shot-after" | "--look" | "--hold" | "--walk-to" | "--aim" | "--say" | "--type" | "--npc" | "--quests" | "--champions" | "--effect" | "--size" | "--mouse" | "--mouse-script" | "--screen" => {
+            "--shot" | "--shot-after" | "--look" | "--hold" | "--walk-to" | "--aim" | "--say" | "--type" | "--npc" | "--chat" | "--quests" | "--champions" | "--effect" | "--size" | "--mouse" | "--mouse-script" | "--screen" => {
                 it.next();
             }
             // Read by i18n (the language for this run).

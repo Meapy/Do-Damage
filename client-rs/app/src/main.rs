@@ -284,6 +284,9 @@ struct App {
     type_text: Option<String>,
     /// `--npc <class>` (tests): open that NPC's window once in the game, wherever we stand.
     npc_test: Option<String>,
+    /// `--chat <channel>[:text]` (tests): open the chat box on that channel (`all`, `local`,
+    /// `guild`, `party`) once in the game, with the text typed in.
+    chat_test: Option<String>,
     /// `--quests <tab>` (tests): open the quest log at that tab (daily, weekly, monthly, login,
     /// achievements) or the Customize window (customize) once its data has come.
     quests_test: Option<String>,
@@ -2612,6 +2615,16 @@ impl App {
                 if let Some(kind) = self.npc_test.take_if(|c| c != "Vault").and_then(|c| npc::NpcKind::of_class(&c)) {
                     to_chars |= npc_open(kind, game, &mut self.npcs, &mut self.market, &mut self.forge, &mut self.forge_acts, (&mut self.quests, &mut self.quest_acts), (&mut self.community, &mut self.community_acts), (&mut self.collection, &mut self.pet_pen, &mut self.keeper_acts), self.front.list.as_ref(), data);
                 }
+                // --chat: once the --say lines have gone, so they don't type into it
+                if self.say.is_empty() {
+                    if let Some(arg) = self.chat_test.take() {
+                        let (name, text) = arg.split_once(':').unwrap_or((arg.as_str(), ""));
+                        self.chat_channel = hud::ChatChannel::of(name).unwrap_or_default();
+                        let mut line = chat_line(text);
+                        line.cursor = text.chars().count();
+                        self.chat_input = Some(line);
+                    }
+                }
                 if let Some(board) = self.champions_test.take() {
                     self.npcs.open(npc::Window::Champions(Box::new(champions::View::at(Some(&board)))));
                     self.npcs.reload_at = Some(0);
@@ -3240,7 +3253,7 @@ impl App {
                 let me = game.world.as_ref().and_then(|w| w.player()).and_then(|p| p.name()).unwrap_or("").to_owned();
                 let mut ui = hud::Ui { renderer: &mut *renderer, sprites, data, redrawer: &mut *redrawer, fonts, text: &mut *text };
                 prof::mark("pre-chat");
-                self.chat_clicks = hud::draw_chat(&mut ui, &lay, &game.chat, &me, self.chat_input.as_ref(), self.chat_channel, self.chat_scroll, self.settings.chat_size, self.settings.chat_alpha, now);
+                self.chat_clicks = hud::draw_chat(&mut ui, &lay, &game.chat, &me, self.chat_input.as_ref(), self.chat_channel, (self.mouse.0 as f32, self.mouse.1 as f32), self.chat_scroll, self.settings.chat_size, self.settings.chat_alpha, now);
                 if let Some(p) = game.world.as_ref().and_then(|w| w.player()) {
                     // The frame rate and the ping (L), under the gold and fame.
                     let fps = self.settings.show_fps.then(|| match game.ping {
@@ -3953,6 +3966,7 @@ fn main() {
         pings: Default::default(),
         type_text: text_arg("--type"),
         npc_test: text_arg("--npc"),
+        chat_test: text_arg("--chat"),
         quests_test: text_arg("--quests"),
         champions_test: text_arg("--champions"),
         effect_test: text_arg("--effect").and_then(|t| t.parse().ok()).map(|t| (t, i32::MIN / 2)),
