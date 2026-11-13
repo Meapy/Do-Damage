@@ -185,12 +185,22 @@ def build_gateway(cfg):
         shutil.copy2(os.path.join(ROOT, "client-rs", "target", "release", "bsk-gateway"), dest)
         return
     distro = cfg.get("build_wsl") or "Ubuntu-24.04"
-    # the target folder stays in WSL's own disk: building on /mnt/c is slow
-    script = ('set -e; . "$HOME/.cargo/env" 2>/dev/null || true; '
-              'cargo build --release -p bsk-gateway --manifest-path "%s" --target-dir "$HOME/.cache/bsk-gateway"; '
+    # Cargo builds a copy of client-rs on WSL's own disk, not on /mnt/c: reading the sources
+    # through /mnt/c is slow, and WSL pops up its "Performance Tip" whenever cargo runs there.
+    # The sources go in as a tar on stdin (mtimes kept, so unchanged crates aren't rebuilt).
+    buf = io.BytesIO()
+    src = os.path.join(ROOT, "client-rs")
+    with tarfile.open(fileobj=buf, mode="w") as tar:
+        tar.add(src, arcname=".",
+                filter=lambda t: None if os.path.basename(t.name) in ("target", ".git") else t)
+    script = ('set -e; cd "$HOME"; . "$HOME/.cargo/env" 2>/dev/null || true; '
+              'src="$HOME/.cache/bsk-gateway-src"; rm -rf "$src"; mkdir -p "$src"; tar -xf - -C "$src"; '
+              'cd "$src"; '
+              'cargo build --release -p bsk-gateway --target-dir "$HOME/.cache/bsk-gateway"; '
               'cp "$HOME/.cache/bsk-gateway/release/bsk-gateway" "%s/"'
-              % (wsl_path(distro, manifest), wsl_path(distro, dest)))
-    run(["wsl", "-d", distro, "--", "bash", "-c", script])
+              % wsl_path(distro, dest))
+    # -e: run bash directly (with --, wsl hands the line to a shell first, which expands $)
+    run(["wsl", "-d", distro, "--cd", "~", "-e", "bash", "-c", script], input=buf.getvalue())
 
 
 def git(*args):
