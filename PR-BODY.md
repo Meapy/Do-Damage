@@ -5,6 +5,8 @@ Release 2.5.7: chat channels, picked with tabs on the chat box or /all, /local, 
 - **Chat:** tabs on the chat box's top edge (All, Local, Guild, Party) pick where the lines you type go, the box taking the channel's colour, and `/all`, `/local`, `/guild` or `/party` in front of a line sends just that line there. `/all` reaches players on every world; `/local` is the world you are in, as plain chat always was.
 - **Dungeons:** Empowered Malus (the Necromantic Relic in the Elder Cultist Hideout) is easier but still hard: his shots 15% harder than the Elder Malus' (was 30%; enraged 25%, was 45%), his own attacks 10% faster (was 25%; enraged 25%, was 45%), Cult Sigils' marks lighter, his Blood Moon Ritual's three souls at 1.2% of his health each (was 2%), four rings of 8 bolts during the chant (was six of 10) and one ring of 20 if it holds (was two of 24). Every Empowered boss: no telegraphed mark deals more than 350 before its damage scale (at most ~508 enraged, before defense: under a 670-health Wizard), Last Breath's three rings of marks have gaps of over a tile (6, 10 and 14 marks of radius 1.2, were 8, 14 and 20 of 1.4 with no gaps), and the Soul Nova waits until a phase attack is over.
 
+- **Items:** the Coral Medallion drops half as often from Elder Thessal the Mermaid Goddess (0.5% instead of 1%).
+
 ## Details
 
 ### Chat channels
@@ -26,6 +28,10 @@ Release 2.5.7: chat channels, picked with tabs on the chat box or /all, /local, 
 - **Files:** `source/WorldServer/core/resurrection/Empowered.cs`, `EmpoweredPhases.cs`, `EmpoweredSignatures.cs`, `source/Tests/EmpoweredPhaseTests.cs`, `website/wiki/necromantic-relic.md`, `client-rs/CHANGELOG.md`, `SETUP-LOCAL.md`.
 - **Redeploy:** the world server only (rolling; nobody is disconnected). Nothing in Redis, no XML or client change.
 - **Not done or known to be off:** not fought by real players; the other Empowered bosses' own (Elder) attacks and speed are unchanged.
+
+### Coral Medallion drop halved
+
+- Drop chance 0.01 to 0.005 in `source/WorldServer/logic/doomed/DoomedExtraLoot.cs`, `client-rs/CHANGELOG.md`. Redeploy: the world server only (rolling; nobody is disconnected). Not built or run here.
 
 ## Checks
 
