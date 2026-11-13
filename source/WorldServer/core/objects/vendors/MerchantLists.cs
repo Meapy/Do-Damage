@@ -98,7 +98,20 @@ namespace WorldServer.core.objects.vendors
             ("Elder Tomb Key", 500)
         };
 
-        private static readonly List<ISellableItem> DungeonKeys = DungeonKeyPrices.Where(k => !SealedDungeons.IsSealedItem(k.Key)).Select(k => (ISellableItem)new ShopItem(k.Key, (ushort)k.Price)).ToList();
+        // /shop keys (DoomedShop): every key the Bazaar sells, regular, Doomed and Elder, but the
+        // Oryx chain's keys (Oryx 1 and 2 leave those portals open), plus the Elder keys the
+        // Bazaar's pavilion has no stall for. More than the shop's 48 stalls, so they rotate.
+        private static readonly string[] NotInKeyShop = { "Oryx's Castle Key", "Oryx Chamber Key", "Oryx Chicken Chamber Key" };
+        private static readonly (string Key, int Price)[] KeyShopOnlyPrices =
+        {
+            ("Elder Ivory Wyvern Key", 400), ("Elder Shatters Key", 600), ("Elder Lost Halls Key", 750)
+        };
+
+        public static IEnumerable<(string Key, int Price)> KeyShopPrices =>
+            DungeonKeyPrices.Concat(DoomedKeyPrices).Concat(KeyShopOnlyPrices)
+                .Where(k => !NotInKeyShop.Contains(k.Key) && !SealedDungeons.IsSealedItem(k.Key));
+
+        private static readonly List<ISellableItem> DungeonKeys =DungeonKeyPrices.Where(k => !SealedDungeons.IsSealedItem(k.Key)).Select(k => (ISellableItem)new ShopItem(k.Key, (ushort)k.Price)).ToList();
         private static readonly List<ISellableItem> DoomedKeys = DoomedKeyPrices.Where(k => !SealedDungeons.IsSealedItem(k.Key)).Select(k => (ISellableItem)new ShopItem(k.Key, (ushort)k.Price)).ToList();
 
         public static void Initialize(GameServer gameServer)

@@ -18,6 +18,10 @@ details). Add to a group's line when a change adds to it, rather than adding ano
 - New sprites drawn by players in the Sprite Editor: two new looks for the Coral Medallion (by Trenchant), Crown (by Godes), Elder Shatters Key (by Godes), Cabernet (by Godes).
 
 ### Game
+- `/shop keys` sells every dungeon's key at the Bazaar's prices: the regular keys, the Doomed
+  Realms keys and all the Elder keys, the Elder Ivory Wyvern (400 fame), Elder Shatters (600) and
+  Elder Lost Halls (750) keys for the first time, and the Inferno and Elysium incantations. There
+  are more keys than stalls, so the stalls take turns every few minutes.
 - Options, Visuals is tidier, in three parts (World, Other players, Chat), and other players'
   shots have a slider instead of a switch: fade them from 100% down to Hidden. It takes their
   spells, their pets' shots and their Necromantic items' powers with it (the black holes,

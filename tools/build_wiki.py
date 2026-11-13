@@ -395,6 +395,7 @@ class Gen:
         self.d = wd.Data()
         self.idx = self.d.drops_index()
         self.bazaar = self.d.bazaar()
+        self.key_shop = self.d.key_shop()
         self.portals = self.d.portals()
         self.keys = self.d.keys()
         self.incant = self.d.incantations(dropped=self.idx)
@@ -772,8 +773,9 @@ class Gen:
                         continue
                     kd = [(m, c) for m, c in self.idx.get(k, []) if not HIDDEN_MONSTER.search(m) and c]
                     price = self.bazaar.get(k)
-                    if kd or price:
-                        keys.append((k, kd, price))
+                    shop = self.key_shop.get(k)
+                    if kd or price or shop:
+                        keys.append((k, kd, price, shop))
             special = []
             unlock = []
             for p in portals:
@@ -943,10 +945,15 @@ class Gen:
             rows.append(("Portal from", ", ".join(src)))
         if x["bot"]:
             rows.append(("Nexus", "The Support Bot opens it sometimes"))
-        for k, kd, price in x["keys"]:
+        for k, kd, price, shop in x["keys"]:
             bits = []
-            if price:
-                bits.append("Nexus Bazaar, %d fame" % price[0])
+            if price and shop == price[0]:
+                bits.append("Nexus Bazaar or <code>/shop keys</code>, %d fame" % shop)
+            else:
+                if price:
+                    bits.append("Nexus Bazaar, %d fame" % price[0])
+                if shop:
+                    bits.append("<code>/shop keys</code>, %d fame" % shop)
             if kd:
                 kd = unique(kd, d)
                 names = ["%s (%s)" % (esc(who(d, m)), pct(c)) for m, c in kd[:3]]
@@ -969,7 +976,7 @@ class Gen:
         pips = ('<span class="danger" style="--d:%d" role="img" aria-label="Difficulty %d of 6: %s" title="%s"></span>'
                 % (lvl, lvl, DIFFICULTY_WORDS[lvl - 1], DIFFICULTY_WORDS[lvl - 1]) if lvl else "")
         search = " ".join([x["name"], d.name(x["boss"] or "")] + [d.name(m) for m, _ in x["sources"]]
-                          + [d.name(k) for k, _, _ in x["keys"]] + [d.name(i) for i, _ in x["loot"] + x["max"]])
+                          + [d.name(k) for k, _, _, _ in x["keys"]] + [d.name(i) for i, _ in x["loot"] + x["max"]])
         return ('<article class="dg" id="%s" data-search="%s"><header><h3>%s</h3>%s</header>'
                 '<dl>%s</dl></article>' % (ident, esc(search.lower()), esc(x["name"]), pips,
                                          "".join("<div><dt>%s</dt><dd>%s</dd></div>" % r for r in rows)))
@@ -1125,12 +1132,17 @@ class Gen:
                 how.append("%s, in %s" % (esc(d.name(item)), joined([esc(a) for a in areas])))
             if not how and x["sources"]:
                 how.append("Portal from " + joined([esc(who(d, m)) for m, _ in x["sources"]]))
-            for k, kd, price in x["keys"]:
+            for k, kd, price, shop in x["keys"]:
                 bits = []
                 if kd:
                     bits.append("from " + joined(["%s (%s)" % (esc(who(d, m)), pct(c)) for m, c in kd[:3]]))
-                if price:
-                    bits.append("%d fame in the Bazaar" % price[0])
+                if price and shop == price[0]:
+                    bits.append("%d fame in the Bazaar or /shop keys" % shop)
+                else:
+                    if price:
+                        bits.append("%d fame in the Bazaar" % price[0])
+                    if shop:
+                        bits.append("%d fame in /shop keys" % shop)
                 how.append("%s (%s)" % (esc(with_article(d.name(k))), ", ".join(bits)))
             how = how[:1] + ["or " + h for h in how[1:]]
             if how:

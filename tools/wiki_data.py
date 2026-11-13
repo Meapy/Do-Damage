@@ -703,6 +703,21 @@ class Data:
         self.pet_generator_price = int(m.group(1)) if m else None
         return out
 
+    def key_shop(self):
+        """{key item id: price in fame} that /shop keys sells (MerchantLists.KeyShopPrices): the
+        Bazaar's keys but NotInKeyShop, and KeyShopOnlyPrices, without a closed dungeon's key."""
+        with open(MERCHANTS, encoding="utf-8-sig") as f:
+            text = f.read()
+        m = re.search(r'NotInKeyShop\s*=\s*\{(.*?)\};', text, re.S)
+        left_out = set(re.findall(r'"([^"]+)"', m.group(1) if m else ""))
+        out = {}
+        for arr in ("DungeonKeyPrices", "DoomedKeyPrices", "KeyShopOnlyPrices"):
+            m = re.search(arr + r'\s*=\s*\{(.*?)\};', text, re.S)
+            for name, price in re.findall(r'\("([^"]+)",\s*(\d+)\)', m.group(1) if m else ""):
+                if name not in left_out and name not in sealed_items():
+                    out[name] = int(price)
+        return out
+
     # --- items -------------------------------------------------------------------------------
     def keys(self):
         """{portal id: [key item ids]}: items whose CreatePortal makes that portal."""
