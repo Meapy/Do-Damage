@@ -1,8 +1,9 @@
-Release 2.5.7: chat channels, picked with tabs on the chat box or /all, /local, /guild and /party (deploys the client and the world server; nobody is disconnected)
+Release 2.5.7: chat channels, picked with tabs on the chat box or /all, /local, /guild and /party, and a softer Empowered Malus with every Empowered boss made doable (deploys the client and the world server; nobody is disconnected)
 
 ## For players
 
 - **Chat:** tabs on the chat box's top edge (All, Local, Guild, Party) pick where the lines you type go, the box taking the channel's colour, and `/all`, `/local`, `/guild` or `/party` in front of a line sends just that line there. `/all` reaches players on every world; `/local` is the world you are in, as plain chat always was.
+- **Dungeons:** Empowered Malus (the Necromantic Relic in the Elder Cultist Hideout) is easier but still hard: his shots 15% harder than the Elder Malus' (was 30%; enraged 25%, was 45%), his own attacks 10% faster (was 25%; enraged 25%, was 45%), Cult Sigils' marks lighter, his Blood Moon Ritual's three souls at 1.2% of his health each (was 2%), four rings of 8 bolts during the chant (was six of 10) and one ring of 20 if it holds (was two of 24). Every Empowered boss: no telegraphed mark deals more than 350 before its damage scale (at most ~508 enraged, before defense: under a 670-health Wizard), Last Breath's three rings of marks have gaps of over a tile (6, 10 and 14 marks of radius 1.2, were 8, 14 and 20 of 1.4 with no gaps), and the Soul Nova waits until a phase attack is over.
 
 ## Details
 
@@ -19,7 +20,15 @@ Release 2.5.7: chat channels, picked with tabs on the chat box or /all, /local, 
 - **Files:** `deploy/deploy.py`.
 - **Redeploy:** nothing; it only changes how a deploy from the PC builds.
 
+### Empowered Malus softer, and every Empowered boss doable
+
+- **What changed:** `Empowered.Tuning` (calm and enraged damage multiplier and haste) with a per-boss table, `Empowered.Tunings`; only `Elder LH Malus 2` differs from the default (1.15 / 1.25 damage, 1.1 / 1.25 haste; the default stays 1.3 / 1.45 and 1.25 / 1.45). His Elder behaviour cycles four cultists' patterns and fires five at once in his Fury, so the Empowered speed-up made it a wall of bullets. `Arena.BlastCap` (350) caps every phase blast's base damage: the outliers were the Void Entity's Singularity (515), the Marble Colossus's Colossal Wheel (396), the Void's and Colossus's Last Breath marks and the Forgotten King's Royal Decree (355). Last Breath's opening rings (`EmpoweredPhases.LastBreathRings`) were solid walls with no gap, so the only way out was to outrun all three in 1.6 s. The Soul Nova holds while a phase attack plays (`_stage`). Malus' Cult Sigils: line marks 0.85x (was 1.0x), sigils 1.25x (was 1.5x); Blood Moon Ritual: souls `RitualSoulShare` 1.2% each (2% made three souls of ~7,000 health to kill in 6.5 s), four rings of 8 bolts 1.5 s apart, one ring of 20 if the ritual holds. I looked through the other 29 signature phases for any with no safe spot: the Void's Event Horizon (bands between its rings), the Archmage's Arcane Prison (walk out once the runes land) and the Sentinel's Collapsing Bridge (the other half of the checkerboard) all leave a way out, so they stay as they are.
+- **Files:** `source/WorldServer/core/resurrection/Empowered.cs`, `EmpoweredPhases.cs`, `EmpoweredSignatures.cs`, `source/Tests/EmpoweredPhaseTests.cs`, `website/wiki/necromantic-relic.md`, `client-rs/CHANGELOG.md`, `SETUP-LOCAL.md`.
+- **Redeploy:** the world server only (rolling; nobody is disconnected). Nothing in Redis, no XML or client change.
+- **Not done or known to be off:** not fought by real players; the other Empowered bosses' own (Elder) attacks and speed are unchanged.
+
 ## Checks
 
 - **Chat channels:** `cargo test -p bsk-client` (98 passed, the translation tables included); `dotnet build` of `source/WorldServer` succeeds with no warnings; `python tools/build_wiki.py` builds. `--shot`s on an isolated stack at 1300x800 and 2560x1440 with `--chat` on All, Guild and Party, in English and Polish (the longest labels), with a tab under the mouse. Not run across two live world servers.
+- **Empowered Malus softer, and every Empowered boss doable:** `dotnet test --filter Empowered` (23 passed; new: no blast kills a full-health 670-health player even enraged for any boss, Last Breath's rings leave a tile's gap, Malus' tuning is softer than the default but still above the Elder Malus'). On an isolated stack (slot 200: Windows reserves ports 1973-2172 just now, so slots 0-119 can't open their world port), a `bsk-bot --fight` with `/dungeon Elder Cultist Hideout`, `/empower Malus 90` and `/smite` went through every phase (Soul Harvest, Cult Sigils, Soul Storm, Blood Moon Ritual, Death Spiral, Last Breath) to his death, no errors in the world log. `python tools/build_wiki.py` builds; the Empowered page shows Malus' numbers and the ritual's new text.
 - **Deploy from the PC: gateway build in WSL:** `build_gateway` run on its own builds `bsk-gateway` in WSL from the copy (11 s, only the gateway recompiled) and copies it into the bundle. No full deploy run.
