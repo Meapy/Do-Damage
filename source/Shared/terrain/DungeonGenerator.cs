@@ -125,6 +125,7 @@ namespace Shared.terrain
             public bool[,] Area;    // the room's floor
             public bool[,] Halo;    // Has grown by Spacing, offset by Spacing
             public bool Start, Goal;
+            public string GoalId;   // the goal object it holds
             public readonly List<Door>[] Doors = new List<Door>[4];
         }
 
@@ -310,7 +311,10 @@ namespace Shared.terrain
                     if (map[x, y].Region == TileRegion.Spawn)
                         spawnRooms[room] = spawnRooms.GetValueOrDefault(room) + 1;
                     if (goals.Contains(map[x, y].TileObj ?? ""))
+                    {
                         room.Goal = true;
+                        room.GoalId = map[x, y].TileObj;
+                    }
                 }
 
                 // pools and pits inside it come along
@@ -588,10 +592,16 @@ namespace Shared.terrain
                 var main = (int)Math.Round(fillers.Count * Desc.MainPath);
                 var spurs = new List<Room>();
 
+                // goals with a set path take theirs first; the others share what's left of the main path
+                int? SetPath(int c) => c < goals.Count && goals[c].GoalId != null && Desc.GoalPaths.TryGetValue(goals[c].GoalId, out var p) ? p : null;
+                var set = Enumerable.Range(0, chains).Select(SetPath).Where(p => p != null).Sum(p => p.Value);
+                var free = Enumerable.Range(0, chains).Count(c => SetPath(c) == null);
+                var shared = free == 0 ? 0 : Math.Max(0, Math.Min(main, fillers.Count - set));
                 var next = 0;
+                var f = 0;
                 for (var c = 0; c < chains; c++)
                 {
-                    var count = main / chains + (c < main % chains ? 1 : 0);
+                    var count = SetPath(c) ?? shared / Math.Max(1, free) + (f++ < shared % Math.Max(1, free) ? 1 : 0);
                     var chain = fillers.Skip(next).Take(count).ToList();
                     next += count;
                     if (c < goals.Count)

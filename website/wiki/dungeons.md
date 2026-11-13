@@ -84,11 +84,13 @@ Nest**. The Nest Key (400 fame at the Bazaar, or a drop in the Nest) opens it an
 are full of Soldier Bees (each colour fights its own way), Killer Bees, Mini Killer Bee Nests,
 larvae and eggs. At the end is the **Killer Bee Queen**: she fights in eight phases, calling her
 bees by colour, then raises three Killer Bee Nests that hatch Adolescent Beehemoths to guard her
-to the end. The Nest is laid out anew each run. Its pools of **Killer Honey** hurt and slow you;
-walk the paths of broken tiles across them.
+to the end. The Nest is laid out anew each run from its set pieces, always with five rooms
+between the start and the Queen. Its pools and rivers of **Killer Honey** hurt and slow you; the
+broken yellow tiles over them are safe to walk.
 
 At the end of one dead end, **breakable blocks** in the north wall hide the **Beekeeper's
-laboratory** (the quest arrow doesn't show it). The Beekeeper fights in four phases: chasing you
+laboratory** (the quest arrow doesn't show it): navy floor and walls, six bee tanks and a big
+monitor across the top, beehives down its sides. The Beekeeper fights in four phases: chasing you
 with fireballs, bees and flames on the floor that break your armour; calling Killer Bees that heal
 him; armoured at the back of the room in a storm of flames and lava bombs; and at the end,
 healing in the middle with two invulnerable **Experimental Soldier Bees** of one colour, which

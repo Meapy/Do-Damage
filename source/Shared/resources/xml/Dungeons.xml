@@ -453,14 +453,15 @@
 		<Dungeon/>
 	</World>
 	<!-- the Killer Bee Queen's hive: its rooms are built by tools/build_nest.py and joined anew for
-	     every visit, the Queen's room and the Beekeeper's laboratory (behind breakable blocks at the
-	     end of a dead-end room) each ending a branch -->
+	     every visit, the Queen's room (always five rooms from the start, RealmEye) and the
+	     Beekeeper's laboratory (behind breakable blocks at the end of a dead-end room) each ending
+	     a branch -->
 	<World id="The Nest">
-		<Width>176</Width>
-		<Height>220</Height>
+		<Width>184</Width>
+		<Height>230</Height>
 		<MapJM>Dungeons/The Nest.jm</MapJM>
 		<RandomLayout passage="6" corridor="3" mainPath="0.8" keep="EH Destructible Wall" entrance="EH Waiting Floor">
-			<Goal>EH King Bee</Goal>
+			<Goal path="5">EH King Bee</Goal>
 			<Goal>EH Beekeeper</Goal>
 		</RandomLayout>
 		<VisibilityType>1</VisibilityType>

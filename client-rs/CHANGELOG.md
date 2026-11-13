@@ -54,8 +54,9 @@ details). Add to a group's line when a change adds to it, rather than adding ano
   drill, hold off their war bands while it bores through the wall, then fight the Crystal Worm
   Mother, a worm of crystal you hit through its weak points, in seven phases with her Father and
   Children, while Crystallised Water floods her chamber from the edges. **The Nest:** the Killer
-  Bee Nest now opens it beside the Hive, and The Nest Key opens it anywhere, with the bee-filled
-  rooms, pools of Killer Honey with paths across them, and the Killer Bee Queen at the end; and
+  Bee Nest now opens it beside the Hive, and The Nest Key opens it anywhere: honeycomb rooms in
+  wax walls with pools and rivers of Killer Honey edged with broken tiles, five rooms to the
+  Killer Bee Queen in her dark chamber over a lake of honey; and
   behind breakable blocks at the end of one dead end hides the Beekeeper's laboratory, where he
   fights in four phases with his flames, his Killer Bees and his Experimental Soldier Bees.
   **Cnidarian Reef:** the Royal Cnidarian fights in six phases, shielded while its Gold Cnidarians

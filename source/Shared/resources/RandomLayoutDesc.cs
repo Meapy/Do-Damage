@@ -17,6 +17,9 @@ namespace Shared.resources
         public readonly double MainPath;
         // a room holding one of these objects ends a branch (the boss room, a key room)
         public readonly string[] Goals;
+        // how many rooms lie between the start and a goal (<Goal path="5">), where the map has them;
+        // without it a goal's branch gets its share of MainPath
+        public readonly System.Collections.Generic.Dictionary<string, int> GoalPaths;
         // share of the map's other rooms (not the spawn or goal rooms) used by a small, medium and
         // large layout; each instance picks a size, small 30%, medium 60% and large 10% of the time
         public readonly double Small;
@@ -42,6 +45,8 @@ namespace Shared.resources
             MaxGap = e.GetAttribute("maxGap", 9);
             MainPath = e.GetAttribute("mainPath", 0.6);
             Goals = e.Elements("Goal").Select(g => g.Value.Trim()).ToArray();
+            GoalPaths = e.Elements("Goal").Where(g => g.Attribute("path") != null)
+                .ToDictionary(g => g.Value.Trim(), g => (int)g.Attribute("path"), System.StringComparer.OrdinalIgnoreCase);
         }
 
         private static string[] Split(string list) =>
