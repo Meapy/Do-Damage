@@ -104,12 +104,16 @@ namespace WorldServer.core.resurrection
 
         public static bool Leaves(Enemy enemy) => ByBoss.ContainsKey(enemy.ObjectType);
 
-        // Loot.ExtraLootTables: the relic, from every boss that leaves remains
+        // Loot.ExtraLootTables: the relic, from every boss that leaves remains, more often while a
+        // timed event says so (ServerEvent.relicChance)
         public static void AddRelicDrop(Enemy enemy, List<LootDef> list)
         {
             if (Leaves(enemy))
-                list.Add(new LootDef(RelicId, _relicChance, _relicThreshold));
+                list.Add(new LootDef(RelicId, RelicChance(enemy.GameServer?.Configuration.serverSettings.events, DateTime.UtcNow), _relicThreshold));
         }
+
+        public static double RelicChance(Shared.resources.ServerEvent[] events, DateTime utcNow) =>
+            Math.Min(1, _relicChance * Shared.resources.ServerEvents.RelicChance(events, utcNow));
 
         // Enemy.Death: a boss that can be raised leaves its remains; an Empowered one lets its souls go
         public static void BossDied(Enemy enemy)

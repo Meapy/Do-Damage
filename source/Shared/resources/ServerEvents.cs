@@ -23,6 +23,10 @@ namespace Shared.resources
         // OpenTheBetween; a quarter of the time otherwise)
         public bool mysteriousOne { get; set; }
 
+        // The Necromantic Relic (BossResurrection.AddRelicDrop): its chance from every Elder boss
+        // times relicChance (at most a sure drop). 1: unchanged.
+        public double relicChance { get; set; } = 1;
+
         public bool ActiveAt(DateTime utcNow) => utcNow >= start && utcNow < end;
 
         // "until the end of 6 November (UTC)" for an end at midnight, as GuildPrice.Message says it
@@ -38,6 +42,8 @@ namespace Shared.resources
                 parts.Add($"potions drop {Times(potionChance)} as often");
             if (potionAmount > 1)
                 parts.Add($"{Times(potionAmount)} as many");
+            if (relicChance > 1)
+                parts.Add($"Necromantic Relics drop {Times(relicChance)} as often from the Elder bosses");
             if (mysteriousOne)
                 parts.Add("the Mysterious One opens his Rift every time Oryx the Ascended God falls");
             return string.Join(", and ", parts);
@@ -75,6 +81,11 @@ namespace Shared.resources
         // multiply it as any drop's (Loot.Chance caps it at a sure drop).
         public static double PotionChance(ServerEvent[] events, DateTime utcNow) =>
             Active(events, utcNow).Aggregate(1.0, (m, e) => m * Math.Max(1, e.potionChance));
+
+        // What the events running now multiply the Necromantic Relic's chance by (both multiply
+        // when two overlap), before the loot boosts, as a stat potion's chance
+        public static double RelicChance(ServerEvent[] events, DateTime utcNow) =>
+            Active(events, utcNow).Aggregate(1.0, (m, e) => m * Math.Max(1, e.relicChance));
 
         public static int PotionAmount(ServerEvent[] events, DateTime utcNow) =>
             Active(events, utcNow).Aggregate(1, (m, e) => m * Math.Max(1, e.potionAmount));

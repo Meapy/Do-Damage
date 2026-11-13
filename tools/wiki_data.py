@@ -971,6 +971,26 @@ def nexus_afk_minutes():
         return 20.0
 
 
+def server_events():
+    """The timed events in wServer.json (serverSettings.events, Shared/resources/ServerEvents.cs):
+    each a dict with its name, start and end (aware UTC datetimes) and its effects."""
+    import datetime
+    try:
+        cfg = json.loads(_read(os.path.join(SRC, "WorldServer", "wServer.json")).lstrip("﻿"))
+        events = cfg["serverSettings"].get("events") or []
+    except (OSError, ValueError, KeyError):
+        return []
+    out = []
+    for e in events:
+        try:
+            when = {k: datetime.datetime.strptime(e[k], "%Y-%m-%dT%H:%M:%SZ").replace(tzinfo=datetime.timezone.utc)
+                    for k in ("start", "end")}
+        except (KeyError, ValueError):
+            continue
+        out.append(dict(e, **when))
+    return out
+
+
 def market_rules():
     """The Marketplace's tax, listing limit and how long a listing lasts (Marketplace.cs)."""
     src = _read(os.path.join(SRC, "WorldServer", "core", "market", "Marketplace.cs"))

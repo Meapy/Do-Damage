@@ -14,6 +14,10 @@ details). Add to a group's line when a change adds to it, rather than adding ano
 
 ## Unreleased
 
+### Events
+- Necromantic Harvest, until the end of 30 November (UTC): every Elder boss drops a Necromantic
+  Relic twice as often (10% instead of 5%). `/boosts` shows it while it runs.
+
 ### Chat
 - Chat channels: buttons above the chat box pick where your lines go (All, Local, Guild, Party), and `/all`, `/local`, `/guild` or `/party` in front of a line sends just that line there. `/all` reaches players on every world; `/local` is the world you are in, as plain chat always was.
 

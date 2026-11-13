@@ -19,6 +19,8 @@ Every Elder boss drops a Necromantic Relic to each player who did at least
 it can be traded: a group can pass one to whoever should use it, and a relic kept from one run
 raises a boss in the next.
 
+{{gen:relic-event}}
+
 ## The remains
 
 A fallen Elder boss leaves its **remains** where it died: the body lying on the ground, grey and
