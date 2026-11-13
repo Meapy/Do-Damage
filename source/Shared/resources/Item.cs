@@ -35,6 +35,9 @@ namespace Shared.resources
         // Oryx 5's own gear, made by the Divine Forge from his top tier and an Ascended shard
         // (tools/build_ascended_items.py): dropped, it goes in a bag only its owner sees
         public bool Ascended;
+        // each hit on an enemy takes Percent of its defense for Seconds, stacking up to Max times;
+        // a hit renews all of them (<ArmorShred percent="1" max="10" duration="5"/>)
+        public (float Percent, int Max, int DurationMs)? ArmorShred;
         public bool Backpack;
         public int BagType;
         public string Class;
@@ -132,6 +135,8 @@ namespace Shared.resources
                 VolleyProjectiles = e.GetValue<string>("VolleyProjectiles").Split(',')
                     .Select(s => int.TryParse(s.Trim(), out var n) ? n : 0).ToArray();
             Ascended = e.HasElement("Ascended");
+            if (e.Element("ArmorShred") is { } shred)
+                ArmorShred = (shred.GetAttribute<float>("percent"), shred.GetAttribute<int>("max"), (int)(shred.GetAttribute<float>("duration") * 1000));
             MpCost = e.GetValue<int>("MpCost");
             Cooldown = e.GetValue("Cooldown", 0.5f);
             Doses = e.GetValue<int>("Doses");
