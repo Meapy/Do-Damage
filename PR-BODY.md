@@ -1,32 +1,18 @@
-Release 2.5.6: the client (desktop and browser) and the world server (rolling deploy) and the website (wiki); nobody is disconnected
+Release 2.5.7: chat channels, with buttons above the chat box and /all, /local, /guild and /party (deploys the client and the world server; nobody is disconnected)
 
 ## For players
 
-- **Community goals:** the bonus goals that follow a goal finished early are easier: a quick finish makes the next one at most twice its usual size (was three times), and a chain of quick finishes tops out at 2.5 times (was 4). The bonus goals running when this deploys shrink to match by themselves, and a goal finished early comes back at most twice as hard the next time it's drawn (was three times).
-- **Game:** the screen shake from an earthquake (Empowered bosses' phases, such as the Marble Colossus's Earthsplitter in the Lost Halls, Feargus, Geb and the Shatters' bosses) lasts about two and a half seconds and settles, instead of shaking harder and harder until you left the dungeon. Another earthquake starts it again.
+- **Chat:** buttons above the chat box (All, Local, Guild, Party) pick where the lines you type go, and `/all`, `/local`, `/guild` or `/party` in front of a line sends just that line there. `/all` reaches players on every world; `/local` is the world you are in, as plain chat always was.
 
 ## Details
 
-### Earthquake shake stops
+### Chat channels
 
-The client's `ShowEffect` Earthquake (14) ported the AIR client's `Camera.startJitter`: the shake started once, grew to half a tile over ten seconds and only stopped on a world change, so the Empowered signature phases that use it (`EmpoweredSignatures.cs`) left the screen shaking for the rest of the fight.
-
-- **Client** (`client-rs/app/src/particles.rs`): `jitter` rises to a quarter of a tile in 0.2 s and fades to nothing by 2.5 s, then clears; each Earthquake restarts it. Test `flash_and_jitter` covers the stop and the restart.
-- **Server:** no change, only the comment in `BossRemains.cs`.
-- Files: `client-rs/app/src/particles.rs`, `source/WorldServer/core/resurrection/BossRemains.cs`, `client-rs/CHANGELOG.md`, SETUP-LOCAL.md.
-- **Redeploy:** the client only. Nobody is disconnected; nothing in Redis. Players keep the endless shake until they update.
-
-### Bonus goals eased
-
-Bonus goals after an early finish were too hard to finish: each quick finish could make the next goal three times its size, compounding to four.
-
-- **Numbers** (`source/Shared/resources/data/community.json`, defaults in `CommunityData.cs`): `early.maxStep` 3 → 2, `early.maxHeat` 4 → 2.5. `maxStep` also caps how much a goal finished early grows for its next run.
-- **Current ones** (`CommunityData.Recap`, `Runs`): the heat stored in `community:week:<yyyyMMdd>:early` is read at today's limits, each run's step from the one before held to `maxStep`, the whole to `maxHeat`. In `CommunityGoals.Refresh`, when a server first reads a running bonus goal whose `goal` in Redis is bigger than that gives, it lowers it (logged "eased from ... to ..."); it never raises one. So the deploy eases this week's running bonus goals on its own; nothing to do by hand. A goal lowered past a tier's line is claimable at once; the announcement comes with the next count.
-- **Not changed:** the scales (`community:scale`) already grown by earlier early finishes stay as they are; `adapt` brings them back down week by week.
-- Files: `community.json`, `Shared/community/CommunityData.cs`, `WorldServer/core/community/CommunityGoals.cs`, `Tests/CommunityDataTests.cs`, `website/wiki/community-goals.md`, `client-rs/CHANGELOG.md`, SETUP-LOCAL.md.
-- **Redeploy:** the world server (and the website for the wiki). Nobody is disconnected. Redis: running bonus goals' `goal` field lowered once by the new server. During the rolling hand-over the old world server keeps the old goal until it stops.
+- **What changed:** `/all` and `/local` are read as channels in `PlayerTextHandler` and go through the same checks as plain text (name, mute, spam; `/all` alone answers with its usage). `/all` publishes a new `ChatType.All` over the inter-server chat channel, and every world server delivers it to its players (`Player.AllReceived`: recipient `*All*`, no speech bubble). Plain text, `/guild` and `/party` work as before. On the client, `hud::ChatChannel` (All, Local, Guild, Party) draws four buttons above the chat box (`draw_chat`, `ChatClickTarget::Channel`); Enter sends the line through `ChatChannel::send_line`, which puts the channel's command in front unless the line already starts with `/`. The choice lives in `App.chat_channel` and isn't saved.
+- **Files:** `source/Shared/isc/ChatType.cs`, `source/WorldServer/core/net/handlers/PlayerTextHandler.cs`, `source/WorldServer/core/miscfile/ChatManager.cs`, `source/WorldServer/core/objects/player/Player.Chat.cs`, `client-rs/app/src/hud.rs`, `client-rs/app/src/main.rs`, `client-rs/app/lang/*.json` (Local, Guild and Party added to all ten tables; All was there), `client-rs/CHANGELOG.md`, `website/wiki/getting-started.md`.
+- **Redeploy:** the world server (rolling; nobody is disconnected) and the client. Nothing in Redis. Until every world server runs this build, `/all` only reaches the players on the ones that do: an older world server doesn't know the new chat type and drops it.
+- **Not done or known to be off:** `/all`, `/local`, `/guild` and `/party` aren't in the `/help` list (they aren't command classes); the buttons aren't drawn on screen in a live run yet.
 
 ## Checks
 
-- **Earthquake shake stops:** `cargo test -p bsk-client particles` (7 passed). Not looked at in a live fight.
-- **Bonus goals eased:** `dotnet test source/Tests` (279 passed; `CommunityDataTests` cover `Recap` and old heats of 3 and 4 read at the new limits); the WorldServer builds; the wiki builds. Not tried on an isolated stack, and the live bonus goals' sizes weren't read before the change.
+- **Chat channels:** `cargo test -p bsk-client` (98 passed, the translation tables included); `dotnet build` of `source/WorldServer` succeeds with no warnings; `python tools/build_wiki.py` builds. Not looked at on screen, and not run across two live world servers.
