@@ -206,26 +206,33 @@ namespace WorldServer.logic
             )
 
             // ---- Oryx 4's helpers ----
-            .Init("Guardian Element 3", OryxInnerElement())
-            .Init("Guardian Element 4", OryxInnerElement())
-            .Init("Outer Guardian Element",
-                new State(
-                    new ConditionEffectBehavior(ConditionEffectIndex.Invulnerable),
-                    new Orbit(1.1, 9.5, 20, "Oryx the Mad God 4", speedVariance: 0, radiusVariance: 0, orbitClockwise: true),
-                    new Shoot(6, 2, 20, projectileIndex: 0, coolDown: 900),
-                    new State("Live", new TimedTransition(14000, "Gone")),
-                    new State("Gone", new Suicide())
-                )
-            )
+            // White Moons serve both: round Oryx 1 (his White Planet attack: invulnerable, far out and
+            // fast, as in the original) or round Oryx 4 (slower and closer, and they can be killed)
             .Init("White Moon",
                 new State(
-                    new BossStats(4000, 20, 1.4, 0.25),
-                    new Prioritize(
-                        new Orbit(0.7, 8, 20, "Oryx the Mad God 4", speedVariance: 0, radiusVariance: 0),
-                        new Wander(0.3)),
-                    new Shoot(3, 4, projectileIndex: 0, coolDown: 1000),
-                    new Shoot(12, projectileIndex: 1, predictive: 0.4, coolDown: 1500),
-                    new State("Live", new TimedTransition(12000, "Gone")),
+                    new State("Which",
+                        new EntityExistsTransition("Oryx the Mad God 1", 30, "Chamber"),
+                        new TimedTransition(0, "Inferno")
+                    ),
+                    new State("Chamber",
+                        new ConditionEffectBehavior(ConditionEffectIndex.Invulnerable),
+                        new Orbit(4, 13.4, 20, "Oryx the Mad God 1", 0, 0),
+                        new Shoot(0, 10, 36, 0, fixedAngle: -18, coolDownOffset: 1500, coolDown: 700),
+                        new Shoot(0, 10, 36, 0, fixedAngle: 0, coolDownOffset: 1850, coolDown: 700),
+                        new TimedTransition(19000, "Gone")
+                    ),
+                    new State("Inferno",
+                        new BossStats(4000, 20, 1.4, 0.25),
+                        new Prioritize(
+                            new Orbit(0.7, 8, 20, "Oryx the Mad God 4", speedVariance: 0, radiusVariance: 0),
+                            new Wander(0.3)),
+                        new Shoot(3, 4, projectileIndex: 0, coolDown: 1000),
+                        new Shoot(12, projectileIndex: 1, predictive: 0.4, coolDown: 1500),
+                        new TimedTransition(12000, "Gone")
+                    ),
+                    // Oryx 1's last stand: a parting ring
+                    // (its end inside it, as Oryx orders "Final" every tick: O1Final)
+                    O1Final(5, 0),
                     new State("Gone", new Suicide())
                 )
             )
@@ -251,18 +258,6 @@ namespace WorldServer.logic
                     new HealEntity(30, "Oryx the Ascended God", 900, 2000)
                 )
             )
-            .Init("Oryx Guardian Sword",
-                new State(
-                    new State("Idle", new PlayerWithinTransition(8, "Spin")),
-                    new State("Spin",
-                        new Wander(0.2),
-                        new StayCloseToSpawn(0.4, 4),
-                        new Shoot(0, 4, fixedAngle: 0, rotateAngle: 12, projectileIndex: 0, coolDown: 600),
-                        new NoPlayerWithinTransition(12, "Idle")
-                    )
-                ),
-                new ItemLoot("Potion of Defense", 0.05)
-            )
             // a fireball for anyone who stands right beside one, mild enough that walking past is safe
             // (they lined the old Oryx 4 dungeon's path)
             .Init("Jungle Fire",
@@ -273,15 +268,5 @@ namespace WorldServer.logic
                 )
             );
 
-        private static State OryxInnerElement() =>
-            new State(
-                new ConditionEffectBehavior(ConditionEffectIndex.Invulnerable),
-                new Prioritize(
-                    new Orbit(1, 1, target: "Oryx the Mad God 1", radiusVariance: 0),
-                    new Orbit(1, 2, target: "Oryx the Mad God 4", radiusVariance: 0)),
-                new Shoot(25, 3, 10, 0, coolDown: 1000),
-                new State("Live", new TimedTransition(14000, "Gone")),
-                new State("Gone", new Suicide())
-            );
     }
 }

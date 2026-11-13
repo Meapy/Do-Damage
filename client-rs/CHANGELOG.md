@@ -29,6 +29,14 @@ details). Add to a group's line when a change adds to it, rather than adding ano
   walls and coral bombs before she leaves; the Ghost of Roger follows you, and below 40% health
   charges with Skull Bolts and calls Violent Spirits; the Undead Lair's vampires bite with their
   heavy green bolt up close.
+- Oryx's Castle, Oryx 1 and Oryx 2 fight as they did in the original game. The Stone Guardians
+  wake together, join in formations round their room, and the last one standing heals and throws
+  its sword (knock the sword to half to send it back). Oryx 1 picks from nine attacks at random,
+  never one of his last three, with a short pause and his shield dropping between them, and makes
+  a last stand with his Assassins below 6%. Oryx 2 throws each of his stars at its own reach; his
+  Henchmen's minions come back after they die (the Bile's puddles sicken and slow you), and at 30%
+  he sends the Henchmen away and floods the cellar with silencing and weakening spinners. The
+  castle's living floors, suits of armour and insect swarms fight as they did too.
 
 ### Realm
 - Realm monsters fixed to fight as they did in the original game: the Weretiger fires three claws,

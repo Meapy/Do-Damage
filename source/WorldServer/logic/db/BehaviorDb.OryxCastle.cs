@@ -1,4 +1,6 @@
-﻿using Shared.resources;
+﻿using System.Collections.Generic;
+using System.Linq;
+using Shared.resources;
 using WorldServer.logic.behaviors;
 using WorldServer.logic.loot;
 using WorldServer.logic.transitions;
@@ -9,47 +11,8 @@ namespace WorldServer.logic
     {
         private _ OryxCastle = () => Behav()
             .Init("Oryx Stone Guardian Right",
-                new State(
-                    // stage 1 of the Oryx chain
-                    new BossStats(35000, 30, 0.75, 0.25),
-                    new State("Idle",
-                        new ConditionEffectBehavior(ConditionEffectIndex.Invulnerable),
-                        new PlayerWithinTransition(14, "Start")
-                    ),
-                    new State("Start",
-                        new Order(30, "Oryx Stone Guardian Left", "Start"),
-                        new ConditionEffectBehavior(ConditionEffectIndex.Invulnerable),
-                        new Flash(0xC0C0C0, 0.5, 3),
-                        new TimedTransition(1500, "Attack")
-                    ),
-                    new State("Attack",
-                        new StayCloseToSpawn(0.5, range: 3),
-                        new Wander(0.25),
-                        new Shoot(15, count: 5, shootAngle: 7, projectileIndex: 0, coolDown: 1200),
-                        new Shoot(0, count: 12, fixedAngle: 0, rotateAngle: 15, projectileIndex: 1, coolDown: 3000),
-                        new HpLessTransition(0.75, "Attack2")
-                    ),
-                    new State("Attack2",
-                        new Follow(0.75, 10, 0),
-                        new Shoot(15, count: 12, shootAngle: 12, projectileIndex: 0, coolDown: 2500),
-                        new Shoot(10, count: 4, shootAngle: 90, angleOffset: 0, projectileIndex: 2, coolDown: 1000),
-                        new Shoot(10, count: 4, shootAngle: 90, angleOffset: 18, projectileIndex: 2, coolDown: 1000, coolDownOffset: 200),
-                        new Shoot(10, count: 4, shootAngle: 90, angleOffset: 36, projectileIndex: 2, coolDown: 1000, coolDownOffset: 400),
-                        new Shoot(10, count: 4, shootAngle: 90, angleOffset: 54, projectileIndex: 2, coolDown: 1000, coolDownOffset: 600),
-                        new Shoot(10, count: 4, shootAngle: 90, angleOffset: 72, projectileIndex: 2, coolDown: 1000, coolDownOffset: 800),
-                        new HpLessTransition(0.50, "Attack3")
-                    ),
-                    new State("Attack3",
-                        new Orbit(1.0, 6, target: "Oryx Stone Guardian Left", acquireRange: 10, speedVariance: 0, radiusVariance: 0),
-                        new Shoot(15, count: 3, shootAngle: 7, projectileIndex: 0, coolDown: 400),
-                        new HpLessTransition(0.25, "Attack4")
-                    ),
-                    new State("Attack4",
-                        new Follow(0.5, 10, 0),
-                        new Shoot(0, count: 3, fixedAngle: 0, rotateAngle: 11, projectileIndex: 0, coolDown: 200)
-                    )
-                 ),
-                 new Threshold(0.01,
+                CastleGuardian(true),
+                new Threshold(0.01,
                     new ItemLoot("Potion of Defense", 0.3),
                     new ItemLoot("Potion of Attack", 0.15),
                     new ItemLoot("Ancient Stone Sword", 0.003)
@@ -69,42 +32,7 @@ namespace WorldServer.logic
                 )
             )
             .Init("Oryx Stone Guardian Left",
-                new State(
-                    new BossStats(35000, 30, 0.75, 0.25),
-                    new State("Start",
-                        new ConditionEffectBehavior(ConditionEffectIndex.Invulnerable),
-                        new Flash(0xC0C0C0, 0.5, 3),
-                        new TimedTransition(1500, "Attack")
-                    ),
-                    new State("Attack",
-                        new Follow(0.35, 10, 0),
-                        new Shoot(15, count: 2, shootAngle: 12, projectileIndex: 0, coolDown: 900),
-                        new HpLessTransition(0.75, "Attack2")
-                    ),
-                    new State("Attack2",
-                        new Charge(speed: 2, range: 20, coolDown: 1800),
-                        new Shoot(0, count: 16, fixedAngle: 0, rotateAngle: 11, projectileIndex: 1, coolDown: 5000),
-                        new HpLessTransition(0.50, "Return1")
-                    ),
-                    new State("Return1",
-                        new ConditionEffectBehavior(ConditionEffectIndex.Invincible),
-                        new ReturnToSpawn(speed: 1.40),
-                        new TimedTransition(2000, "Attack3")
-                    ),
-                    new State("Attack3",
-                        new Charge(speed: 2, range: 20, coolDown: 1800),
-                        new Shoot(15, count: 4, shootAngle: 12, projectileIndex: 0, coolDown: 3500),
-                        new Shoot(15, count: 4, shootAngle: 12, projectileIndex: 1, coolDown: 3500, coolDownOffset: 300),
-                        new Shoot(15, count: 4, shootAngle: 12, projectileIndex: 2, coolDown: 3500, coolDownOffset: 600),
-                        new HpLessTransition(0.25, "Attack4")
-                    ),
-                    new State("Attack4",
-                        new StayCloseToSpawn(0.5, range: 6),
-                        new Wander(0.25),
-                        new Shoot(15, count: 3, shootAngle: 14, projectileIndex: 1, coolDown: 1000),
-                        new Shoot(0, count: 10, fixedAngle: 0, rotateAngle: 11, projectileIndex: 2, coolDown: 3000)
-                    )
-                 ),
+                CastleGuardian(false),
                 new Threshold(0.01,
                     new ItemLoot("Potion of Defense", 0.4),
                     new ItemLoot("Potion of Attack", 0.2)
@@ -118,14 +46,44 @@ namespace WorldServer.logic
                     new TierLoot(4, ItemType.Ring, 0.05)
                 )
             )
-            .Init("Oryx Guardian TaskMaster",
+            // stands between the guardians and, while both live, calls their joint attacks: every 3 s
+            // a third of the time it lets them be, else one of four formations for both at once
+            .Init(TaskMaster,
                 new State(
-                    new State("Idle",
-                        new EntitiesNotExistsTransition(100, "Death", "Oryx Stone Guardian Right", "Oryx Stone Guardian Left")
+                    new ConditionEffectBehavior(ConditionEffectIndex.Invincible, true),
+                    new State("Off"),
+                    new State("Duo",
+                        new EntityNotExistsTransition(GuardianRight, 60, "Solo"),
+                        new EntityNotExistsTransition(GuardianLeft, 60, "Solo"),
+                        new State("Rest", new TimedTransition(3000, "Pick")),
+                        new State("Pick", new TimedRandomTransition(0, false, "Rest", "Rest", "Duo Circle", "Duo Side", "Duo Spin", "Duo Blast")),
+                        TaskMasterCall("Duo Circle", 4000),
+                        TaskMasterCall("Duo Side", 4600),
+                        TaskMasterCall("Duo Spin", 6200),
+                        TaskMasterCall("Duo Blast", 6000)
+                    ),
+                    new State("Solo",
+                        new EntitiesNotExistsTransition(100, "Death", GuardianRight, GuardianLeft)
                     ),
                     new State("Death",
                         new Decay(0)
                     )
+                )
+            )
+            // the guardian's thrown sword: knock it down to half and it flies back, bursting
+            .Init("Oryx Guardian Sword",
+                new State(
+                    new State("Spin",
+                        new Shoot(0, 5, 72, 0, fixedAngle: Auto(5, 72, 36), coolDown: 2000),
+                        new Shoot(0, 5, 72, 0, fixedAngle: Auto(5, 72, 0), coolDownOffset: 500, coolDown: 2000),
+                        new HpLessTransition(0.5, "Return")
+                    ),
+                    new State("Return",
+                        new Grenade(4, 50, 10, 270, 90000),
+                        new Shoot(0, 8, projectileIndex: 0, fixedAngle: 0, coolDown: 90000),
+                        new TimedTransition(200, "Gone")
+                    ),
+                    new State("Gone", new Suicide())
                 )
             )
             // sits directly above the wall between the guardian room and Janus' room (row 30), and
@@ -226,24 +184,9 @@ namespace WorldServer.logic
                     new Shoot(10, count: 3, shootAngle: 15, projectileIndex: 1, coolDown: 1600)
                 )
             )
-            .Init("Oryx's Living Floor Fire Down",
-                new State(
-                    new State("Idle",
-                        new PlayerWithinTransition(20, "Toss")
-                    ),
-                    new State("Toss",
-                        new TossObject("Quiet Bomb", 10, coolDown: 1000),
-                        new NoPlayerWithinTransition(21, "Idle"),
-                        new PlayerWithinTransition(5, "Shoot and Toss")
-                    ),
-                    new State("Shoot and Toss",
-                        new NoPlayerWithinTransition(21, "Idle"),
-                        new NoPlayerWithinTransition(6, "Toss"),
-                        new Shoot(0, 18, fixedAngle: 0, coolDown: new Cooldown(750, 250)),
-                        new TossObject("Quiet Bomb", 10, coolDown: 1000)
-                    )
-                )
-            )
+            // tosses Quiet Bombs about while nobody is near, at you from 6 to 15 tiles, and silencing
+            // rings closer in
+            .Init("Oryx's Living Floor Fire Down", LivingFloor(15, true))
             .Init("Oryx Knight",
                 new State(
                       new State("waiting for u bae <3",
@@ -269,64 +212,87 @@ namespace WorldServer.logic
                          )
                   )
             )
+            // keeps a swarm of twelve; when you come close it sends them at you, and lobs grenades
             .Init("Oryx Insect Commander",
                 new State(
-                      new State("lol jordan is a nub",
-                          new Prioritize(
-                              new Wander(0.2)
-                              ),
-                          new Reproduce("Oryx Insect Minion", 10, 20, 1),
-                          new Shoot(10, 1, projectileIndex: 0, coolDown: 900)
-                         )
-                  )
+                    new KeepMinions("Oryx Insect Minion", 12, 500),
+                    new Grenade(3, 80, 5, coolDown: 1200),
+                    new State("Chill",
+                        new Wander(0.75),
+                        new Order(12, "Oryx Insect Minion", "Roam"),
+                        new PlayerWithinTransition(4, "Swarm")
+                    ),
+                    new State("Swarm",
+                        new Order(12, "Oryx Insect Minion", "Swarm"),
+                        new TimedTransition(4000, "Chill")
+                    )
+                )
             )
+            // they bite only up close
             .Init("Oryx Insect Minion",
                 new State(
-                      new State("its SWARMING time",
-                          new Prioritize(
-                              new Wander(0.2),
-                              new StayCloseToSpawn(0.4, 8),
-                                 new Follow(0.8, 10, 1, -1, 0)
-                              ),
-                          new Shoot(10, 5, projectileIndex: 0, coolDown: 1500),
-                          new Shoot(10, 1, projectileIndex: 0, coolDown: 230)
-                          )
-                  )
+                    new State("Roam",
+                        new SetAltTexture(2),
+                        new Prioritize(
+                            new Protect(1.5, "Oryx Insect Commander", 4, 3.5, 3),
+                            new Charge(3, 8, 1500),
+                            new Buzz(2, 0.5),
+                            new Wander(0.5)
+                        ),
+                        new Shoot(1.8, 6, 60, 0, coolDown: 1200)
+                    ),
+                    new State("Swarm",
+                        new SetAltTexture(1),
+                        new Prioritize(
+                            new Charge(2, 2.25f, 2000),
+                            new Circle(2, 2, 6),
+                            new Wander(0.5)
+                        ),
+                        new Shoot(1.8, 6, 60, 1, coolDown: 500)
+                    )
+                )
             )
+            // a suit stands still until you come within 4 tiles or hit it; it then follows slowly and
+            // charges anyone who backs off. Once, at 45%, it guards a moment, shooting and healing.
             .Init("Oryx Suit of Armor",
                 new State(
-                      new State("idle",
-                          new PlayerWithinTransition(8, "attack me pl0x")
-                          ),
-                      new State("attack me pl0x",
-                          new TimedTransition(1500, "jordan is stanking")
-                          ),
-                      new State("jordan is stanking",
-                          new Prioritize(
-                               new Wander(0.2),
-                               new Follow(0.4, 10, 2, -1, 0)
-                              ),
-                          new SetAltTexture(1),
-                          new Shoot(10, 2, 15, 0, coolDown: 600),
-                          new HpLessTransition(0.2, "heal")
-                          ),
-                      // once a suit: a moment's guard and a small heal, then it fights on to the end
-                      new State("heal",
-                          new ConditionEffectBehavior(ConditionEffectIndex.Invulnerable),
-                          new SetAltTexture(0),
-                          new Shoot(10, 6, projectileIndex: 0, coolDown: 200),
-                          new HealSelf(coolDown: 2000, amount: 200),
-                          new TimedTransition(1500, "last stand")
-                         ),
-                      new State("last stand",
-                          new Prioritize(
-                               new Wander(0.2),
-                               new Follow(0.4, 10, 2, -1, 0)
-                              ),
-                          new SetAltTexture(1),
-                          new Shoot(10, 2, 15, 0, coolDown: 600)
-                          )
-                  )
+                    new State("Idle",
+                        new PlayerWithinTransition(4, "Awake"),
+                        new HpLessTransition(0.995, "Awake")
+                    ),
+                    new State("Awake",
+                        new SetAltTexture(1),
+                        new Shoot(4, 2, 17, 0, coolDown: 600),
+                        new HpLessTransition(0.45, "Guard"),
+                        new State("Near",
+                            new Prioritize(new Follow(0.35, 6, 2), new Wander(0.35)),
+                            new NoPlayerWithinTransition(5, "Far")
+                        ),
+                        new State("Far",
+                            new Charge(2.25, 10, 100),
+                            new PlayerWithinTransition(3, "Near")
+                        )
+                    ),
+                    new State("Guard",
+                        new Taunt(" ... "),
+                        new ConditionEffectBehavior(ConditionEffectIndex.Invulnerable),
+                        new Shoot(5, 6, 60, 0, coolDown: 1000),
+                        new HealSelf(500, 200),
+                        new TimedTransition(4000, "Again")
+                    ),
+                    new State("Again",
+                        new SetAltTexture(1),
+                        new Shoot(4, 2, 17, 0, coolDown: 600),
+                        new State("Again Near",
+                            new Prioritize(new Follow(0.35, 6, 2), new Wander(0.35)),
+                            new NoPlayerWithinTransition(6, "Again Far")
+                        ),
+                        new State("Again Far",
+                            new Charge(2.25, 10, 100),
+                            new PlayerWithinTransition(3, "Again Near")
+                        )
+                    )
+                )
             )
             .Init("Oryx Eye Warrior",
                 new State(
@@ -412,16 +378,234 @@ namespace WorldServer.logic
                         )
                     )
                 )
-            .Init("Oryx's Living Floor",
-                new State(
-                    new State("Idle",
-                        new PlayerWithinTransition(3, "Curse")
-                        ),
-                    new State("Curse",
-                        new Shoot(4, count: 4, shootAngle: 90, projectileIndex: 0, fixedAngle: 45, coolDown: 2500),
-                        new NoPlayerWithinTransition(5, "Idle")
-                        )
+            // Quiet Bombs at you from 6 to 13 tiles, silencing rings closer in
+            .Init("Oryx's Living Floor", LivingFloor(13, false));
+
+        private const string GuardianRight = "Oryx Stone Guardian Right";
+        private const string GuardianLeft = "Oryx Stone Guardian Left";
+        private const string TaskMaster = "Oryx Guardian TaskMaster";
+
+        // the TaskMaster calls one joint attack, once, and waits it out
+        private static State TaskMasterCall(string attack, int ms) =>
+            new State(attack,
+                new OrderOnce(30, GuardianRight, attack),
+                new OrderOnce(30, GuardianLeft, attack),
+                new TimedTransition(ms, "Rest")
+            );
+
+        // a Stone Guardian's attacks, as the original game's server had them (release 7.0,
+        // oryxCastle.xml), under names starting p, each going back to `back` when done. The Right one
+        // steps east to spin and spray, the Left one west.
+        private static State[] GuardianAttacks(string p, string back, bool right, bool sword)
+        {
+            var outward = right ? 0 : 180;
+            var states = new List<State>
+            {
+                new State(p + "Wander Attack",
+                    new SetAltTexture(0),
+                    new Wander(0.5),
+                    new Shoot(0, 10, 36, 2, fixedAngle: Auto(10, 36, 0), coolDown: 2000),
+                    new TimedTransition(3000, back)
+                ),
+                new State(p + "Charge Attack",
+                    new SetAltTexture(0),
+                    new Charge(1.5, 8, 100),
+                    new Shoot(7, 5, 10, 0, predictive: 1, coolDown: 1000),
+                    new TimedTransition(3000, back)
+                ),
+                // both circle the TaskMaster, firing pairs four ways
+                new State(p + "Circle",
+                    new SetAltTexture(0),
+                    new Prioritize(
+                        new Protect(1.5, TaskMaster, 20, 5, 4.25),
+                        new Orbit(0.75, 4, 20, TaskMaster, 0, 0)
+                    ),
+                    new Shoot(0, 2, 10, 0, fixedAngle: Auto(2, 10, 0), coolDown: 1000),
+                    new Shoot(0, 2, 10, 0, fixedAngle: Auto(2, 10, 90), coolDown: 1000),
+                    new Shoot(0, 2, 10, 0, fixedAngle: Auto(2, 10, 180), coolDown: 1000),
+                    new Shoot(0, 2, 10, 0, fixedAngle: Auto(2, 10, 270), coolDown: 1000),
+                    new TimedTransition(4000, back)
+                ),
+                // to the TaskMaster, out 4 tiles, then round it slowly, spinning out two spiral arms
+                new State(p + "Spin",
+                    new SetAltTexture(0),
+                    new Protect(2, TaskMaster, 20, 1, 0.3),
+                    new TimedTransition(1000, p + "Spin Out")
+                ),
+                new State(p + "Spin Out",
+                    new MoveLine(2, outward, 4),
+                    new TimedTransition(400, p + "Spin Fire")
+                ),
+                new State(p + "Spin Fire",
+                    Enumerable.Range(0, 9).SelectMany(i => new IStateChildren[]
+                    {
+                        new Shoot(0, 1, projectileIndex: 0, fixedAngle: i * 40, coolDownOffset: i * 200, coolDown: 1800),
+                        new Shoot(0, 1, projectileIndex: 0, fixedAngle: 180 + i * 40, coolDownOffset: i * 200, coolDown: 1800)
+                    }).Concat(new IStateChildren[]
+                    {
+                        new SetAltTexture(3, 4, 200, true),
+                        new Orbit(0.4, 4, 20, TaskMaster, 0, 0),
+                        new TimedTransition(4800, back)
+                    }).ToArray()
+                ),
+                // to the TaskMaster, out 11 tiles, then a sweeping pair of arms and grenades at your feet
+                new State(p + "Side",
+                    new SetAltTexture(0),
+                    new Protect(2, TaskMaster, 20, 1, 0.3),
+                    new TimedTransition(1000, p + "Side Out")
+                ),
+                new State(p + "Side Out",
+                    new MoveLine(2, outward, 11),
+                    new Shoot(0, 10, 36, 2, fixedAngle: Auto(10, 36, 0), coolDown: 2000),
+                    new TimedTransition(1000, p + "Side Fire")
+                ),
+                new State(p + "Side Fire",
+                    new[] { (120, 0), (140, 200), (160, 400), (180, 800), (200, 1000), (220, 1200), (240, 1400),
+                            (260, 1600), (280, 1800), (300, 2000), (320, 2200), (340, 2400) }
+                    .Select(s => (IStateChildren)new Shoot(0, 2, s.Item1, 0, fixedAngle: 0, coolDownOffset: s.Item2, coolDown: 3000))
+                    .Concat(new IStateChildren[]
+                    {
+                        new Shoot(0, 1, projectileIndex: 0, fixedAngle: 180, coolDownOffset: 2600, coolDown: 3000),
+                        new Grenade(right ? 2.5 : 2, 50, 4.33, coolDown: 500),
+                        new TimedTransition(2600, back)
+                    }).ToArray()
+                ),
+                // to the TaskMaster, then heavy rings and grenades
+                new State(p + "Blast",
+                    new SetAltTexture(0),
+                    new Protect(2, TaskMaster, 20, 1, 0.3),
+                    new TimedTransition(1000, p + "Blast Step")
+                ),
+                new State(p + "Blast Step",
+                    new MoveLine(2, outward, 0.2),
+                    new TimedTransition(1000, p + "Blast Fire")
+                ),
+                new State(p + "Blast Fire",
+                    new Shoot(0, 7, 26, 1, fixedAngle: Auto(7, 26, 0), coolDown: 1000),
+                    new Shoot(0, 8, 22, 1, fixedAngle: Auto(8, 22, 0), coolDownOffset: 200, coolDown: 1000),
+                    new Grenade(2.5, 50, 4.33, coolDown: 500),
+                    new TimedTransition(4000, back)
+                )
+            };
+            if (sword)
+                states.AddRange(new[]
+                {
+                    // home, a step in, then it throws its sword and shelters until the sword is gone
+                    new State(p + "Sword",
+                        new SetAltTexture(0),
+                        new ReturnToSpawn(2, 0.2),
+                        new TimedTransition(1000, p + "Sword Step")
+                    ),
+                    new State(p + "Sword Step",
+                        new MoveLine(1.5, right ? 180 : 0, 3),
+                        new TimedTransition(600, p + "Sword Throw")
+                    ),
+                    new State(p + "Sword Throw",
+                        new ConditionEffectBehavior(ConditionEffectIndex.Invulnerable),
+                        new SetAltTexture(2),
+                        new TossObject("Oryx Guardian Sword", 10, 90, 90000),
+                        new TimedTransition(2000, p + "Sword Wait")
+                    ),
+                    // (at most 20 s, in case the sword can't be reached)
+                    new State(p + "Sword Wait",
+                        new ConditionEffectBehavior(ConditionEffectIndex.Invulnerable),
+                        new SetAltTexture(2),
+                        new EntityNotExistsTransition("Oryx Guardian Sword", 30, p + "Sword Back"),
+                        new TimedTransition(20000, p + "Sword Back")
+                    ),
+                    new State(p + "Sword Back",
+                        new ConditionEffectBehavior(ConditionEffectIndex.Invulnerable),
+                        new SetAltTexture(2),
+                        new TimedTransition(1600, back)
                     )
-                );
+                });
+            return states.ToArray();
+        }
+
+        // stage 1 of the Oryx chain: the two Stone Guardians wake together when you come within 8
+        // tiles; while both stand they mostly act alone, and join in the TaskMaster's formations. When
+        // one falls the other shelters 5 s, healing, then fights alone, starting with its sword.
+        private static State CastleGuardian(bool right)
+        {
+            var other = right ? GuardianLeft : GuardianRight;
+            return new State(
+                new BossStats(35000, 30, 0.75, 0.25),
+                new State("Idle",
+                    new ConditionEffectBehavior(ConditionEffectIndex.Invulnerable),
+                    new SetAltTexture(1),
+                    new PlayerWithinTransition(8, "Glow")
+                ),
+                new State("Glow",
+                    new OrderOnce(30, other, "Glow"),
+                    new OrderOnce(30, TaskMaster, "Duo"),
+                    new ConditionEffectBehavior(ConditionEffectIndex.Invulnerable),
+                    new SetAltTexture(1),
+                    new Flash(0xFF888888, 1, 3),
+                    new TimedTransition(3000, "Duo")
+                ),
+                new State("Duo",
+                    new[]
+                    {
+                        (IStateChildren)new EntityNotExistsTransition(other, 60, "Alone"),
+                        new State("Duo Choose",
+                            new SetAltTexture(0),
+                            new TimedRandomTransition(200, false, "Duo Wander Attack", "Duo Wander Attack", "Duo Wander Attack", "Duo Charge Attack")
+                        )
+                    }.Concat(GuardianAttacks("Duo ", "Duo Choose", right, false)).ToArray()
+                ),
+                new State("Alone",
+                    new ConditionEffectBehavior(ConditionEffectIndex.Invulnerable),
+                    new SetAltTexture(1),
+                    new Flash(0xFF888888, 1, 5),
+                    new HealSelf(500, right ? 1400 : 950),
+                    new TimedTransition(5000, "Solo")
+                ),
+                new State("Solo",
+                    new[]
+                    {
+                        (IStateChildren)new State("Solo Start", new TimedTransition(0, "Solo Sword")),
+                        new State("Solo Choose",
+                            new SetAltTexture(0),
+                            new TimedRandomTransition(0, false,
+                                "Solo Wander Attack", "Solo Wander Attack", "Solo Wander Attack", "Solo Wander Attack",
+                                "Solo Charge Attack", "Solo Charge Attack", "Solo Charge Attack", "Solo Charge Attack",
+                                "Solo Spin", "Solo Spin", "Solo Spin", "Solo Circle", "Solo Circle", "Solo Circle",
+                                "Solo Side", "Solo Side", "Solo Sword", "Solo Sword", "Solo Sword", "Solo Sword")
+                        )
+                    }.Concat(GuardianAttacks("Solo ", "Solo Choose", right, true)).ToArray()
+                )
+            );
+        }
+
+        // the living floors: near, rings of silencing spells; from 6 tiles to `reach`, Quiet Bombs
+        // thrown at you; further off, only the Fire Down floors toss bombs about. Each looks again
+        // every 1.6 s (1.2 s close in).
+        private static State LivingFloor(double reach, bool fireDown) =>
+            new State(
+                new State("Far",
+                    fireDown ? new TossObject("Quiet Bomb", 10, 90, 1600, minRange: 9, maxRange: 12) : (IStateChildren)new SetAltTexture(0),
+                    new State("Far Wait", new TimedTransition(1600, "Far Look")),
+                    new State("Far Look",
+                        new PlayerWithinTransition(6, "Close"),
+                        new PlayerWithinTransition(reach, "Mid")
+                    )
+                ),
+                new State("Mid",
+                    new TossObject("Quiet Bomb", 12, coolDown: 1600),
+                    new State("Mid Wait", new TimedTransition(1600, "Mid Look")),
+                    new State("Mid Look",
+                        new PlayerWithinTransition(6, "Close"),
+                        new NoPlayerWithinTransition(reach, "Far")
+                    )
+                ),
+                new State("Close",
+                    new Shoot(10, 18, 20, 0, predictive: 1, coolDown: 1000),
+                    new State("Close Wait", new TimedTransition(1200, "Close Look")),
+                    new State("Close Look",
+                        new NoPlayerWithinTransition(reach, "Far"),
+                        new NoPlayerWithinTransition(6, "Mid")
+                    )
+                )
+            );
     }
 }
