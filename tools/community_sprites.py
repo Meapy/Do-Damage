@@ -71,6 +71,7 @@ SLOTS = {"weapon", "ability", "armor", "ring", "consumable", "other"}
 
 OBJECT = re.compile(r'<Object\b[^>]*?\bid="([^"]*)"[^>]*>.*?</Object>', re.S)
 TEXTURE = re.compile(r"<Texture>(.*?)</Texture>", re.S)
+ANIMATED = re.compile(r"<AnimatedTexture>.*?</AnimatedTexture>", re.S)
 
 CHANGELOG_PREFIX = "- New sprites drawn by players in the Sprite Editor: "
 PR_PLAYERS_PREFIX = "- **Player sprites:** new looks drawn by players in the Sprite Editor: "
@@ -263,7 +264,19 @@ SPRITE_BY = re.compile(r"[ \t]*<SpriteBy>[^<]*</SpriteBy>\n?")
 
 
 def retexture(block, sheet, index, author=""):
-    """The block's <Texture> pointed at the cell, and <SpriteBy> (the tooltip's credit) after it."""
+    """The block's <Texture> pointed at the cell, and <SpriteBy> (the tooltip's credit) after it.
+    An item drawn from an <AnimatedTexture> (the Elder Shatters Key) gets a plain <Texture> in its
+    place: a player's look is one still frame."""
+    if not TEXTURE.search(block):
+        a = ANIMATED.search(block)
+        if a:
+            # indented as the element it replaces
+            line_start = block.rfind("\n", 0, a.start()) + 1
+            indent = re.match(r"[ \t]*", block[line_start:]).group(0)
+            inner = indent + ("  " if indent.startswith(" ") else "\t")
+            texture = (f"<Texture>\n{inner}<File>{sheet}</File>\n{inner}<Index>0x{index:x}</Index>\n"
+                       f"{indent}</Texture>")
+            block = block[:a.start()] + texture + block[a.end():]
     m = TEXTURE.search(block)
     if not m or "<RandomTexture" in block[:m.start()]:
         return block
@@ -354,9 +367,6 @@ def add_to_line(lines, prefix, names):
 def update_changelog(names):
     text, crlf = read_text(CHANGELOG)
     lines = text.split("\n")
-    if add_to_line(lines, CHANGELOG_PREFIX, names):
-        write_text(CHANGELOG, "\n".join(lines), crlf)
-        return
     new_line = CHANGELOG_PREFIX + ", ".join(names) + "."
     try:
         start = lines.index("## Unreleased")
@@ -366,6 +376,12 @@ def update_changelog(names):
         write_text(CHANGELOG, "\n".join(lines), crlf)
         return
     end = next((i for i in range(start + 1, len(lines)) if lines[i].startswith("## ")), len(lines))
+    # only Unreleased's own line: a released section's (the last version's sprites) stays as it was
+    unreleased = lines[start:end]
+    if add_to_line(unreleased, CHANGELOG_PREFIX, names):
+        lines[start:end] = unreleased
+        write_text(CHANGELOG, "\n".join(lines), crlf)
+        return
     items = next((i for i in range(start + 1, end) if lines[i].strip() == "### Items"), None)
     if items is None:
         lines[start + 1:start + 1] = ["", "### Items", new_line]
@@ -544,6 +560,19 @@ def problems_in_repo(cat):
         if rework_file(path, cat, write=False):
             out.append(f"{os.path.relpath(path, ROOT)}: an item isn't pointed at its player sprite "
                        "(or lost its <SpriteBy>); run `rework`")
+    # an item `rework` can't point (no <Texture> it understands) would pass the check above unseen
+    for item, (sheet, index, _) in looks(cat).items():
+        for path in xml_files():
+            with open(path, encoding="utf-8-sig", errors="replace") as f:
+                text = f.read()
+            for m in OBJECT.finditer(text):
+                if html.unescape(m.group(1)) != item:
+                    continue
+                t = TEXTURE.search(m.group(0))
+                f_, i_ = (re.search(r"<File>([^<]*)</File>", t.group(1)), re.search(r"<Index>([^<]*)</Index>", t.group(1))) if t else (None, None)
+                if not (f_ and i_ and f_.group(1).strip() == sheet and int(i_.group(1).strip(), 0) == index):
+                    out.append(f"{os.path.relpath(path, ROOT)}: {item!r} doesn't show its player sprite "
+                               f"({sheet} 0x{index:x}); `rework` can't point its texture")
     return out
 
 
@@ -554,7 +583,7 @@ def cmd_check(args):
     bad = problems_in_repo(cat)
     for p in bad:
         print("  " + p)
-    waiting = []
+    waiting, same = [], []
     if not args.offline:
         try:
             approved = fetch(args.server)

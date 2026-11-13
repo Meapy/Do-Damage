@@ -590,10 +590,11 @@
 	<Object type="0x7c06" id="Elder Shatters Key">
 		<Class>Equipment</Class>
 		<Item/>
-		<AnimatedTexture>
-			<File>chars8x8dEncounters</File>
-			<Index>43</Index>
-		</AnimatedTexture>
+		<Texture>
+			<File>communitySprites8x8</File>
+			<Index>0x3</Index>
+		</Texture>
+		<SpriteBy>Godes</SpriteBy>
 		<SlotType>10</SlotType>
 		<Description>A key of cracked black stone, which opens a portal to the Elder Shatters. The kingdom nobody remembers has not forgotten itself: its sentinel, its archmage and its king are all still there, older and angrier.</Description>
 		<Sound>use_key</Sound>
