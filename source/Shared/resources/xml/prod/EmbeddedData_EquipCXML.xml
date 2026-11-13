@@ -28277,17 +28277,55 @@
 			<Index>0x2a0</Index>
 		</Texture>
 		<SlotType>17</SlotType>
-		<Description>This aptly named staff is the manifestation of Chancellor Dammah's assertions of grandeur. Although he seldom uses it for actual combat purposes, it is no less potent as a legitimate weapon.</Description>
+		<Description>This aptly named staff is the manifestation of Chancellor Dammah's assertions of grandeur. Although he seldom uses it for actual combat purposes, it is no less potent as a legitimate weapon. Every fifth volley pierces and ignores defense.</Description>
+		<AlternateProjectiles/>
 		<RateOfFire>1.0</RateOfFire>
 		<Sound>weapon/sprite_wand</Sound>
-		<Projectile>
+		<Projectile id="0">
 			<ObjectId>Superior Projectile</ObjectId>
 			<Speed>150</Speed>
-			<MinDamage>45</MinDamage>
-			<MaxDamage>75</MaxDamage>
+			<MinDamage>60</MinDamage>
+			<MaxDamage>95</MaxDamage>
 			<LifetimeMS>415</LifetimeMS>
 			<Amplitude>0.5</Amplitude>
 			<Frequency>1.5</Frequency>
+		</Projectile>
+		<Projectile id="1">
+			<ObjectId>Superior Projectile</ObjectId>
+			<Speed>150</Speed>
+			<MinDamage>60</MinDamage>
+			<MaxDamage>95</MaxDamage>
+			<LifetimeMS>415</LifetimeMS>
+			<Amplitude>0.5</Amplitude>
+			<Frequency>1.5</Frequency>
+		</Projectile>
+		<Projectile id="2">
+			<ObjectId>Superior Projectile</ObjectId>
+			<Speed>150</Speed>
+			<MinDamage>60</MinDamage>
+			<MaxDamage>95</MaxDamage>
+			<LifetimeMS>415</LifetimeMS>
+			<Amplitude>0.5</Amplitude>
+			<Frequency>1.5</Frequency>
+		</Projectile>
+		<Projectile id="3">
+			<ObjectId>Superior Projectile</ObjectId>
+			<Speed>150</Speed>
+			<MinDamage>60</MinDamage>
+			<MaxDamage>95</MaxDamage>
+			<LifetimeMS>415</LifetimeMS>
+			<Amplitude>0.5</Amplitude>
+			<Frequency>1.5</Frequency>
+		</Projectile>
+		<Projectile id="4">
+			<ObjectId>Superior Projectile</ObjectId>
+			<Speed>150</Speed>
+			<MinDamage>60</MinDamage>
+			<MaxDamage>95</MaxDamage>
+			<LifetimeMS>415</LifetimeMS>
+			<Amplitude>0.5</Amplitude>
+			<Frequency>1.5</Frequency>
+			<ArmorPiercing/>
 		</Projectile>
 		<BagType>6</BagType>
 		<FameBonus>7</FameBonus>
