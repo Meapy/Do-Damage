@@ -14,6 +14,12 @@ details). Add to a group's line when a change adds to it, rather than adding ano
 
 ## Unreleased
 
+### Community goals
+- The bonus goals that follow a goal finished early are easier to complete: a quick finish now
+  makes the next one at most twice its usual size, and a run of them tops out at two and a half
+  times rather than four. The bonus goals running now shrink to match, and a goal finished early
+  comes back at most twice as hard.
+
 ### Fixes
 - The screen shake from an earthquake (Empowered bosses, the Lost Halls) settles after a couple
   of seconds instead of shaking until you leave.

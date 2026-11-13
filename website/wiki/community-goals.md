@@ -76,10 +76,11 @@ kind takes its place at once, with its own tiers, levels and loot. A banner tell
 
 - The bonus goal runs until the usual **Monday reset**, when the new week's goals come as always.
 - **The faster a goal is finished, the harder things get.** The bonus goal is bigger than usual by
-  how quickly the last one went (finish one in a day and a half and the next asks over twice as
+  how quickly the last one went (finish one in a day and a half and the next asks up to twice as
   much), and each quick finish in a row builds on the last, up to {{v:community_early_heat}} times
   the usual size. It all cools off at the Monday reset.
-- The finished goal comes back harder too, by the same pace, the next time it's drawn.
+- The finished goal comes back harder too, by the same pace (at most twice as hard), the next time
+  it's drawn.
 - It's never one of the week's other goals, and where it can be, none of last week's or next
   week's either. Finish the bonus goal too and another follows.
 - None starts in the last {{v:community_early_hours}} hours of the week.
