@@ -22,9 +22,17 @@ namespace Shared.resources
         public readonly double Small;
         public readonly double Medium;
         public readonly double Large;
+        // objects that block the way only for a while (a wall a drill breaks, breakable blocks): the
+        // rooms on either side of them are cut as one room, with the objects inside it
+        public readonly string[] Keep;
+        // a room holding one of these objects is only joined to the rest through the side nearest it
+        // (the drill room's way in, so nobody walks round the wall into the boss's chamber)
+        public readonly string[] Entrance;
 
         public RandomLayoutDesc(XElement e)
         {
+            Keep = Split(e.GetAttribute("keep", ""));
+            Entrance = Split(e.GetAttribute("entrance", ""));
             Small = e.GetAttribute("small", 0.4);
             Medium = e.GetAttribute("medium", 0.65);
             Large = e.GetAttribute("large", 1.0);
@@ -35,5 +43,8 @@ namespace Shared.resources
             MainPath = e.GetAttribute("mainPath", 0.6);
             Goals = e.Elements("Goal").Select(g => g.Value.Trim()).ToArray();
         }
+
+        private static string[] Split(string list) =>
+            list.Split(';').Select(s => s.Trim()).Where(s => s.Length > 0).ToArray();
     }
 }

@@ -50,12 +50,22 @@ details). Add to a group's line when a change adds to it, rather than adding ano
 - Five unfinished dungeons are finished. **Magic Woods:** come near the big fountain and three
   waves of fairies pour out of the small ones before the Fountain Spirit rises. **Candyland:** its
   five bosses taunt you and drop their loot (they dropped nothing before), and once all five have
-  fallen the Cupcake wakes. **Fungal Cavern:** break 25 Cavern Crystals to power the dwarves'
+  fallen the Cupcake wakes. **Fungal Cavern:** break 20 Cavern Crystals to power the dwarves'
   drill, hold off their war bands while it bores through the wall, then fight the Crystal Worm
   Mother, a worm of crystal you hit through its weak points, in seven phases with her Father and
-  Children. **The Nest:** the Killer Bee Nest now opens it beside the Hive, and The Nest Key opens
-  it anywhere, with the bee-filled rooms and the Killer Bee Queen at the end. **Cnidarian Reef:**
-  the Royal Cnidarian fights in six phases, shielded while its Gold Cnidarians circle the reef.
+  Children, while Crystallised Water floods her chamber from the edges. **The Nest:** the Killer
+  Bee Nest now opens it beside the Hive, and The Nest Key opens it anywhere, with the bee-filled
+  rooms, pools of Killer Honey with paths across them, and the Killer Bee Queen at the end; and
+  behind breakable blocks at the end of one dead end hides the Beekeeper's laboratory, where he
+  fights in four phases with his flames, his Killer Bees and his Experimental Soldier Bees.
+  **Cnidarian Reef:** the Royal Cnidarian fights in six phases, shielded while its Gold Cnidarians
+  circle the reef.
+- A new dungeon, the **Crystal Cavern**: the Crystal Worm Mother now leaves its portal. Break 20
+  crystals among its bats, slimes and Crystallised beasts to drill through to the Crystal Entity,
+  who fights in six phases on a platform in the water, sending its guardians (the Lizard or the
+  Cyclops, the Scorpion or the Fish, then the Monstrosity) and its Pulse Locks.
+- The Fungal Cavern, the Crystal Cavern, The Nest and Candyland are laid out anew every time you
+  go in: the same rooms, joined in a different order and number each visit.
 - Underwater dungeons (the Ocean Trench, its Elder version and the Cnidarian Reef) now use your
   breath: a blue bar under your health empties while you swim and refills at an Ocean Vent, and when
   it runs out you start to drown. Also fixed: the Magic Woods' Radph healed nobody, and the

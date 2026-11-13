@@ -20,13 +20,17 @@ import zlib
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 DUNGEONS = os.path.join(ROOT, "source", "Shared", "resources", "worlds", "Dungeons")
 
-# the 34 Cavern Crystals: spread over the caves at least 13 tiles apart, away from the start
-# (25 of them power the drill; BehaviorDb.FungalCavern.cs)
+# the 55 Cavern Crystals: spread over the caves' rooms at least 9 tiles apart, away from the start
+# (20 of them power the drill; BehaviorDb.FungalCavern.cs). The random layout uses part of the
+# rooms, so a run keeps 20 to 50 of them.
 CAVERN_CRYSTALS = [
     (6, 56), (7, 105), (9, 75), (10, 23), (10, 122), (21, 70), (30, 138), (31, 113), (37, 66),
     (38, 88), (45, 27), (50, 99), (50, 115), (51, 73), (52, 49), (55, 9), (55, 128), (62, 25),
     (68, 93), (72, 57), (76, 104), (79, 68), (81, 2), (83, 21), (84, 44), (99, 52), (101, 91),
     (102, 107), (105, 25), (113, 54), (116, 33), (121, 16), (124, 95), (126, 78),
+    (6, 91), (16, 32), (16, 58), (16, 89), (19, 19), (25, 26), (26, 126), (40, 111), (40, 139),
+    (46, 7), (47, 90), (58, 65), (58, 93), (59, 56), (72, 27), (80, 91), (91, 27), (105, 59),
+    (106, 46), (119, 85), (121, 25),
 ]
 
 PLACEMENTS = {
@@ -40,13 +44,26 @@ PLACEMENTS = {
             # the wall across the corridor into the round chamber, which the drill breaks
             (152, 24, "GC Drill Wall"), (152, 25, "GC Drill Wall"), (152, 26, "GC Drill Wall"),
             (152, 27, "GC Drill Wall"), (152, 28, "GC Drill Wall"),
-            # the drill facing it, and the Dwarf Miner beside
-            (149, 26, "GC Drill Charge"),
-            (147, 24, "GC Drill Dwarf"),
+            # the drill facing it, and the Dwarf Miner by the drill room's way in (its entrance marker
+            # for the random layout: Dungeons.xml)
+            (148, 26, "GC Drill Charge"),
+            (138, 24, "GC Drill Dwarf"),
             # the Crystal Worm Mother, in the chamber's centre
             (169, 26, "GC Boss"),
         ]
     ),
+}
+
+# rooms cut into a map: (x0, y0, x1, y1, floor ground, wall object, openings). The inside becomes
+# bare floor, the ring around it wall, except the openings (tiles left as they are) and the tiles
+# PLACEMENTS fills. The Fungal Cavern's drill hall, a 5-wide passage with six alcoves, becomes a
+# drill room, so the random layout (Dungeons.xml) keeps it whole, with the drill wall and the
+# Crystal Worm Mother's chamber behind it.
+CARVES = {
+    "Fungal Cavern.jm": [
+        (134, 18, 152, 34, "Crystal Main Floor Dungeon", "GC Wall",
+         [(134, y) for y in range(24, 29)] + [(152, y) for y in range(24, 29)]),
+    ],
 }
 
 # objects a map names by an id the game doesn't have, so they were left out of the dungeon
@@ -75,6 +92,37 @@ def rename(name, check):
     return found
 
 
+def carve(name, jm, data, check):
+    """Applies CARVES to a loaded map; returns how many tiles it changed (or would change)."""
+    w = jm["width"]
+    index = {json.dumps(e, sort_keys=True): i for i, e in enumerate(jm["dict"])}
+    placed = {(x, y) for x, y, _ in PLACEMENTS.get(name, [])}
+    changed = 0
+    for x0, y0, x1, y1, floor, wall, openings in CARVES.get(name, []):
+        skip = set(openings) | placed
+        for y in range(y0, y1 + 1):
+            for x in range(x0, x1 + 1):
+                if (x, y) in skip:
+                    continue
+                inside = x0 < x < x1 and y0 < y < y1
+                want = {"ground": floor} if inside else {"objs": [{"id": wall, "name": "size:100"}], "ground": "Composite"}
+                at = (y * w + x) * 2
+                if jm["dict"][(data[at] << 8) | data[at + 1]] == want:
+                    continue
+                changed += 1
+                if check:
+                    continue
+                key = json.dumps(want, sort_keys=True)
+                if key not in index:
+                    index[key] = len(jm["dict"])
+                    jm["dict"].append(want)
+                i = index[key]
+                data[at], data[at + 1] = i >> 8, i & 0xFF
+    if changed:
+        print(f"{name}: {'would carve' if check else 'carved'} {changed} tiles")
+    return changed
+
+
 def load(path):
     with open(path, encoding="utf-8") as f:
         jm = json.load(f)
@@ -95,6 +143,8 @@ def main():
         path = os.path.join(DUNGEONS, name)
         jm, data = load(path)
         w = jm["width"]
+        carved = carve(name, jm, data, check)
+        missing += carved if check else 0
         index = {json.dumps(e, sort_keys=True): i for i, e in enumerate(jm["dict"])}
         changed = 0
         for x, y, obj in items:
@@ -118,8 +168,9 @@ def main():
             i = index[key]
             data[at], data[at + 1] = i >> 8, i & 0xFF
             changed += 1
-        if changed:
+        if changed or (carved and not check):
             save(path, jm, data)
+        if changed:
             print(f"{name}: placed {changed}")
     if check and missing:
         sys.exit(1)

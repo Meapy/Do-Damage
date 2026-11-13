@@ -1,3 +1,5 @@
+using System;
+using System.Linq;
 using Shared.resources;
 using WorldServer.logic.behaviors;
 using WorldServer.logic.loot;
@@ -263,7 +265,8 @@ namespace WorldServer.logic
         #endregion
 
         #region The Cavern Crystals and the drill
-        // 25 broken power the drill; each bursts into quieting shards
+        // 20 broken power the drill (RealmEye; fewer if the layout kept fewer); each bursts into
+        // quieting shards
         .Init("GC Crystal",
             new State(
                 new CountOnDeath("Cavern Crystals"),
@@ -285,30 +288,30 @@ namespace WorldServer.logic
                     )
                 )
             )
-        // the drill before the wall (149, 26 on the map): it shows its charge, one step for every five
-        // crystals, and once full drills for 40 s while war bands come out of the six alcoves, then
-        // breaks the wall (OpenGate)
+        // the drill before the wall, in the drill room (tools/dungeon_placements.py): it shows its
+        // charge in five steps up to 20 crystals, and once full drills for 40 s while war bands come
+        // out round the room, then breaks the wall (OpenGate)
         .Init("GC Drill Charge",
             new State(
                 new ConditionEffectBehavior(ConditionEffectIndex.Invincible, true),
                 new State("Charge0",
-                    new WorldCountTransition("Cavern Crystals", 5, "Charge1")
+                    new WorldCountTransition("Cavern Crystals", Crystals, "Charge1", "GC Crystal", 0.2)
                     ),
                 new State("Charge1",
                     new SetAltTexture(1),
-                    new WorldCountTransition("Cavern Crystals", 10, "Charge2")
+                    new WorldCountTransition("Cavern Crystals", Crystals, "Charge2", "GC Crystal", 0.4)
                     ),
                 new State("Charge2",
                     new SetAltTexture(2),
-                    new WorldCountTransition("Cavern Crystals", 15, "Charge3")
+                    new WorldCountTransition("Cavern Crystals", Crystals, "Charge3", "GC Crystal", 0.6)
                     ),
                 new State("Charge3",
                     new SetAltTexture(3),
-                    new WorldCountTransition("Cavern Crystals", 20, "Charge4")
+                    new WorldCountTransition("Cavern Crystals", Crystals, "Charge4", "GC Crystal", 0.8)
                     ),
                 new State("Charge4",
                     new SetAltTexture(4),
-                    new WorldCountTransition("Cavern Crystals", 25, "Drilling")
+                    new WorldCountTransition("Cavern Crystals", Crystals, "Drilling", "GC Crystal", 1.0)
                     ),
                 Drilling(),
                 new State("Break",
@@ -326,11 +329,11 @@ namespace WorldServer.logic
                     ),
                 new State("Ask",
                     new Taunt("My drill needs power! Break the Cavern Crystals in these caves and she'll cut through that wall."),
-                    new WorldCountTransition("Cavern Crystals", 10, "Halfway")
+                    new WorldCountTransition("Cavern Crystals", Crystals, "Halfway", "GC Crystal", 0.5)
                     ),
                 new State("Halfway",
                     new Taunt(true, "The drill's charging up nicely. Keep breaking those crystals!"),
-                    new WorldCountTransition("Cavern Crystals", 25, "Go")
+                    new WorldCountTransition("Cavern Crystals", Crystals, "Go", "GC Crystal")
                     ),
                 new State("Go",
                     new Taunt(true, "That's the lot! Stand back, she's starting up... and here come the mushrooms!"),
@@ -351,6 +354,8 @@ namespace WorldServer.logic
             new State(
                 new ScaleHP2(20),
                 new SpawnWorm(1.3f, 0, WormMotherBody),
+                // the second part of the Abandoned Mineshaft opens where she falls (RealmEye)
+                new DropPortalOnDeath("Crystal Cave Portal", 1.0, xAdjustment: 2),
                 new State("Idle",
                     new ConditionEffectBehavior(ConditionEffectIndex.Invulnerable),
                     new CircleArena(0.5, 11),
@@ -366,7 +371,9 @@ namespace WorldServer.logic
                     new Shoot(30, count: 5, shootAngle: 14, projectileIndex: 0, coolDown: 1500),
                     new EntitiesNotExistsTransition(40, "P1 Open", "GC Boss Body Weakpoint")
                     ),
+                // Crystallised Water floods in from the chamber's edges at each turn of the fight
                 new State("P1 Open",
+                    new FloodArena("GC Worm Goop", 15.5),
                     new Follow(0.4, 30, 3),
                     new Shoot(30, count: 5, shootAngle: 14, projectileIndex: 0, coolDown: 1200),
                     new Shoot(30, count: 3, shootAngle: 20, projectileIndex: 1, coolDown: 1200, coolDownOffset: 600),
@@ -375,6 +382,7 @@ namespace WorldServer.logic
                 // she circles; two segments must break before her head is open again
                 RingPhase("P2", 2, 1, "P2 Open"),
                 new State("P2 Open",
+                    new FloodArena("GC Worm Goop", 14.5),
                     new Order(40, "GC Boss Body", "Armored"),
                     new Follow(0.45, 30, 3),
                     new Shoot(30, count: 5, shootAngle: 14, projectileIndex: 0, coolDown: 1200),
@@ -396,6 +404,7 @@ namespace WorldServer.logic
                         )
                     ),
                 new State("P3 Rest",
+                    new FloodArena("GC Worm Goop", 13.5),
                     new ConditionEffectBehavior(ConditionEffectIndex.Invulnerable),
                     new CircleArena(0.6, 11),
                     new TimedTransition(3000, "P3 Ring")
@@ -423,6 +432,7 @@ namespace WorldServer.logic
                         )
                     ),
                 new State("P4 Rest",
+                    new FloodArena("GC Worm Goop", 12.5),
                     new ConditionEffectBehavior(ConditionEffectIndex.Invulnerable),
                     new CircleArena(0.6, 11),
                     new TimedTransition(3000, "P4 Ring")
@@ -437,6 +447,7 @@ namespace WorldServer.logic
                 // fast round the shrinking arena, throwing yellow shards that come back, while every
                 // segment left fires hard: all must break
                 new State("P5",
+                    new FloodArena("GC Worm Goop", 11.5),
                     new ConditionEffectBehavior(ConditionEffectIndex.Invulnerable),
                     new Order(40, "GC Boss Body", "Frenzy"),
                     new CircleArena(1.5, 10),
@@ -627,15 +638,19 @@ namespace WorldServer.logic
                 new KilledSinceEntryTransition(40, kills, next, "GC Boss Body")
                 );
 
-        // the drill at work: 40 s, while a war band (a leader and two of its tribe) comes out of each of
-        // the six alcoves beside it, given as (range, angle) from the drill
+        // how many Cavern Crystals power the drill (RealmEye)
+        private const int Crystals = 20;
+
+        // the drill at work: 40 s, while a war band (a leader and two of its tribe) comes out at each of
+        // six spots round the drill room, given as tiles from the drill (148, 26 on the map)
         private static State Drilling()
         {
-            var bands = new (string Family, double Range, double Angle)[]
+            var spots = new (string Family, int Dx, int Dy)[]
             {
-                ("Slammer", 19.65, 194.74), ("Circler", 13.93, 201.04), ("Passive", 8.6, 215.54),
-                ("Coward", 19.65, 165.26), ("Charger", 13.93, 158.96), ("Spiral", 8.6, 144.46),
+                ("Slammer", -11, -6), ("Circler", -5, -6), ("Passive", -11, 0),
+                ("Coward", -11, 6), ("Charger", -5, 6), ("Spiral", -7, 0),
             };
+            var bands = spots.Select(s => (s.Family, Range: Math.Sqrt(s.Dx * s.Dx + s.Dy * s.Dy), Angle: Math.Atan2(s.Dy, s.Dx) * 180 / Math.PI));
             var children = new System.Collections.Generic.List<IStateChildren>
             {
                 new SetAltTexture(5),

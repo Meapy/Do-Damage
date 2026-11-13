@@ -670,8 +670,21 @@ The remotes `upstream` (HaloCelsius) and `aurusenth` share no history with `main
   formations by `Order`. **Deadwater Docks**: its breakable walls were `Destructible Brown Wall 1`,
   an id the game lacks, so they were missing. `tools/dungeon_placements.py` places (and renames)
   the map objects, and is safe to run again (`--check`).
-  Not done: the Fungal Cavern's flooding arena, the Nest's treasure room, Beekeeper and Killer
-  Honey flood, the Crystal Cavern portal.
+  **Random layouts and the rest** (2026-11-13, later): `<RandomLayout>` takes `keep` (objects
+  such as a drill's wall that stay in their room, joining the rooms on both sides) and
+  `entrance` (a marker: the kept room is entered only by the doors nearest it), in
+  `RandomLayoutDesc` and `DungeonGenerator`; `source/Tests/RandomDungeonTests.cs` checks 30
+  layouts of each. The Fungal Cavern (20 crystals now, as RealmEye says, or as many as the layout
+  kept: `WorldCountTransition` with `of`), the Nest (`tools/build_nest.py` now draws a pool of
+  rooms with Killer Honey and the Beekeeper's laboratory behind `EH Destructible Wall`s), the new
+  **Crystal Cavern** (`tools/build_crystal_cavern.py`, `BehaviorDb.CrystalCavern.cs`: caves,
+  drill and the Crystal Entity in six phases with its guardians and Pulse Locks; the Worm Mother
+  drops its portal) and Candyland are laid out anew every run. `FloodArena` (new) floods the Worm
+  Mother's chamber with Crystallised Water as she weakens. The Beekeeper fights in four phases;
+  his `<Quest/>` is off in the server's XML so the arrow points at the Queen. Left hand-made:
+  the Mountain Temple (fixed boss positions), the Magic Woods (loses its fairies), the Secluded
+  Thicket (too few rooms), the Parasite Chambers, Deadwater Docks and Cave of a Thousand
+  Treasures (lose traps or treasure). Not done: the Killer Honey flooding the Queen's room.
 - **Three new realm events** (2026-11-12; `logic/db/BehaviorDb.RealmEvents.cs`,
   `logic/behaviors/RealmEvents.cs` (`ThiefBlink`, `Vanish`), `core/setpieces/RealmEventGrounds.cs`,
   `RealmManager` (`_events`, `EventParts`, `CriticalEnemies`, `ScaledEventMonsters`, `SpawnLines`,

@@ -11,8 +11,9 @@ namespace WorldServer.logic
     // (RealmManager.OpenHive) or with The Nest Key. Its map is tools/build_nest.py's. The rooms hold
     // Soldier Bees, Killer Bees, Mini Killer Bee Nests, larvae and eggs; the Queen fights in eight
     // phases, calling her bees by colour, then three Killer Bee Nests that hatch Adolescent
-    // Beehemoths to guard her to the end. Left out: the Killer Honey flooding the boss room, the
-    // treasure room and its Beekeeper.
+    // Beehemoths to guard her to the end. Behind breakable blocks at the end of a dead-end room is
+    // the Beekeeper's laboratory, where Oryx's old bee-maker fights in four phases. Left out: the
+    // Killer Honey flooding the boss room.
     partial class BehaviorDb
     {
         private _ Nest = () => Behav()
@@ -246,6 +247,172 @@ namespace WorldServer.logic
             )
         // her three Killer Bee Nests (phase 6): they swell for 29 s, sending out workers and firing,
         // then break open into an Adolescent Beehemoth each, leaving their shells firing till she dies
+        #region The Beekeeper
+        // RealmEye, Beekeeper: he wakes when a player comes in, is untouchable for a moment at the
+        // start of each phase, and taunts anyone who leaves. 1: a slow chase with fireball streams,
+        // spreads of bees and fire blasts, and flames where players stand (armour-breaking). 2: his
+        // Killer Bees, which heal him, and four-way spirals while he circles the middle. 3: armoured
+        // at the back of the room, flames everywhere, streams, spreads and lava bombs. 4: back in the
+        // middle he heals and calls two Experimental Soldier Bees of one colour, which follow him
+        // round the room and burst into rings when he dies.
+        .Init("EH Beekeeper",
+            new State(
+                new ScaleHP2(20),
+                new State("Wait",
+                    new ConditionEffectBehavior(ConditionEffectIndex.Invulnerable),
+                    new PlayerWithinTransition(10, "Found")
+                    ),
+                new State("Found",
+                    new ConditionEffectBehavior(ConditionEffectIndex.Invulnerable),
+                    new Taunt(true, "Who goes there? Oryx...have you come for me at last?"),
+                    new TimedTransition(2500, "P1")
+                    ),
+                new State("Fight",
+                    new NoPlayerWithinTransition(25, "Lost"),
+                    new State("P1",
+                        new HpLessTransition(0.75, "P2"),
+                        new State("P1 Start",
+                            new ConditionEffectBehavior(ConditionEffectIndex.Invulnerable),
+                            new Taunt("You...you will not stop me again!"),
+                            new TimedTransition(1500, "P1 Fight")
+                            ),
+                        new State("P1 Fight",
+                            new Follow(0.35, 12, 3),
+                            new Shoot(12, count: 1, projectileIndex: 0, coolDown: 250),
+                            new Shoot(12, count: 5, shootAngle: 15, projectileIndex: 3, coolDown: 1800),
+                            new Shoot(12, count: 3, shootAngle: 20, projectileIndex: 4, coolDown: 2400, coolDownOffset: 900),
+                            new TossObject("EH Beekeeper Flame", 10, coolDown: 1200)
+                            )
+                        ),
+                    new State("P2",
+                        new HpLessTransition(0.5, "P3"),
+                        new State("P2 Start",
+                            new ConditionEffectBehavior(ConditionEffectIndex.Invulnerable),
+                            new Taunt("Enough! Come forth my insect children, and make them beg for death!"),
+                            new ReturnToSpawn(1),
+                            new TimedTransition(2000, "P2 Fight")
+                            ),
+                        new State("P2 Fight",
+                            new CircleArena(0.5, 4),
+                            new Spawn("EH Secret Fat Bees", maxChildren: 2, initialSpawn: 1, coolDown: 6000),
+                            new Spawn("EH Secret Red Fat Bees", maxChildren: 2, initialSpawn: 1, coolDown: 6000),
+                            new Spawn("EH Secret Blue Fat Bees", maxChildren: 2, initialSpawn: 1, coolDown: 6000),
+                            new Shoot(0, count: 4, shootAngle: 90, projectileIndex: 1, fixedAngle: 0, rotateAngle: 12, coolDown: 300),
+                            new Shoot(12, count: 5, shootAngle: 15, projectileIndex: 3, coolDown: 2500)
+                            )
+                        ),
+                    new State("P3",
+                        new HpLessTransition(0.25, "P4"),
+                        new State("P3 Start",
+                            new ConditionEffectBehavior(ConditionEffectIndex.Invulnerable),
+                            new Taunt("I am the creator of a perfect insect race! You WILL kneel before me RIGHT NOW!"),
+                            new ReturnToSpawn(1.2),
+                            new TimedTransition(2000, "P3 Fight")
+                            ),
+                        new State("P3 Fight",
+                            new ConditionEffectBehavior(ConditionEffectIndex.Armored),
+                            // to the back of the laboratory, below its monitor
+                            new MoveTo3(0, -5, 0.6, once: true),
+                            new Shoot(14, count: 2, shootAngle: 8, projectileIndex: 2, coolDown: 300),
+                            new Shoot(14, count: 7, shootAngle: 12, projectileIndex: 3, coolDown: 1600),
+                            new Shoot(14, count: 5, shootAngle: 18, projectileIndex: 4, coolDown: 2000, coolDownOffset: 800),
+                            new TossObject("EH Beekeeper Flame", 12, coolDown: 600),
+                            new TossObject("EH Beekeeper Flame Short", minRange: 2, maxRange: 9, minAngle: 0, maxAngle: 360, coolDown: 250),
+                            new TossObject("EH Secret Bullet Spawner", 8, coolDown: 3500)
+                            )
+                        ),
+                    new State("P4",
+                        new State("P4 Start",
+                            new ConditionEffectBehavior(ConditionEffectIndex.Invulnerable),
+                            new Taunt("Augh! No...I cannot...My experiments..."),
+                            new ReturnToSpawn(1.2),
+                            new HealSelf(1000, 3000),
+                            new RemoveEntity(30, "EH Secret Fat Bees"),
+                            new RemoveEntity(30, "EH Secret Red Fat Bees"),
+                            new RemoveEntity(30, "EH Secret Blue Fat Bees"),
+                            new TimedRandomTransition(3000, false, "P4 Yellow", "P4 Red", "P4 Blue")
+                            ),
+                        ExperimentalBees("P4 Yellow", "EH SLBY"),
+                        ExperimentalBees("P4 Red", "EH SLBR"),
+                        ExperimentalBees("P4 Blue", "EH SLBB"),
+                        new State("P4 Queen",
+                            new ConditionEffectBehavior(ConditionEffectIndex.Invulnerable),
+                            new EntityExistsTransition("EH King Bee", 400, "P4 Queen Lives"),
+                            new TimedTransition(100, "P4 Queen Dead")
+                            ),
+                        new State("P4 Queen Lives",
+                            new Taunt(true, "I WILL NOT LET YOU DESTROY THE QUEEN!"),
+                            new TimedTransition(0, "P4 Fight")
+                            ),
+                        new State("P4 Queen Dead",
+                            new Taunt(true, "YOU WILL PAY FOR DESTROYING THE QUEEN!"),
+                            new TimedTransition(0, "P4 Fight")
+                            ),
+                        new State("P4 Fight",
+                            new CircleArena(0.7, 6),
+                            new Shoot(14, count: 1, projectileIndex: 1, coolDown: 200),
+                            new Shoot(14, count: 3, shootAngle: 15, projectileIndex: 4, coolDown: 1500)
+                            )
+                        )
+                    ),
+                new State("Lost",
+                    new Taunt("Show yourself you lousy rat!"),
+                    new ReturnToSpawn(1),
+                    new PlayerWithinTransition(10, "P1")
+                    )
+                ),
+            new Threshold(0.01,
+                new ItemLoot("Greater Potion of Dexterity", 1),
+                new ItemLoot("Greater Potion of Defense", 0.5),
+                new ItemLoot("Potion of Dexterity", 1),
+                new ItemLoot("EH Royal Jelly", 0.5),
+                new ItemLoot("EH Yellow Bee Armor", 0.02),
+                new ItemLoot("EH Red Bee Armor", 0.02),
+                new ItemLoot("EH Blue Bee Armor", 0.02),
+                new TierLoot(12, ItemType.Weapon, 0.2),
+                new TierLoot(12, ItemType.Armor, 0.2),
+                new TierLoot(6, ItemType.Ability, 0.12),
+                new TierLoot(6, ItemType.Ring, 0.12)
+                )
+            )
+        // his flames burn whoever stands in them, then go out
+        .Init("EH Beekeeper Flame",
+            new State(
+                new Shoot(1.5, count: 1, projectileIndex: 0, coolDown: 200),
+                new Decay(4500)
+                )
+            )
+        .Init("EH Beekeeper Flame Short",
+            new State(
+                new Shoot(1.2, count: 1, projectileIndex: 0, coolDown: 200),
+                new Decay(2500)
+                )
+            )
+        // the lava bomb: a moment's warning, then a ring of blasts and bees
+        .Init("EH Secret Bullet Spawner",
+            new State(
+                new State("Wait",
+                    new TimedTransition(900, "Burst")
+                    ),
+                new State("Burst",
+                    new Shoot(0, count: 8, shootAngle: 45, projectileIndex: 1, fixedAngle: 0, coolDown: 9999),
+                    new Shoot(0, count: 8, shootAngle: 45, projectileIndex: 2, fixedAngle: 22.5, coolDown: 9999),
+                    new TimedTransition(100, "Gone")
+                    ),
+                new State("Gone",
+                    new Suicide()
+                    )
+                )
+            )
+        // his Killer Bees heal him while they live
+        .Init("EH Secret Fat Bees", SecretBee())
+        .Init("EH Secret Red Fat Bees", SecretBee())
+        .Init("EH Secret Blue Fat Bees", SecretBee())
+        .Init("EH SLBY", ExperimentalBee())
+        .Init("EH SLBR", ExperimentalBee())
+        .Init("EH SLBB", ExperimentalBee())
+        #endregion
+
         .Init("EH Queen Red Hive", QueenNest("EH QLB Red", "EH QRH Corpse"))
         .Init("EH Queen Blue Hive", QueenNest("EH QLB Blue", "EH QBH Corpse"))
         .Init("EH Queen Yellow Hive", QueenNest("EH QLB Yellow", "EH QYH Corpse"))
@@ -395,6 +562,54 @@ namespace WorldServer.logic
                 Gap("Gap Yellow", "Red", noBees ? null : hard ? "EH Queen Yellow Bees" : "EH Fat Bees")
                 );
         }
+
+        // the Beekeeper's fourth phase with two Experimental Soldier Bees of one colour
+        private static State ExperimentalBees(string name, string bee) =>
+            new State(name,
+                new ConditionEffectBehavior(ConditionEffectIndex.Invulnerable),
+                new HealSelf(1000, 3000),
+                new TossObject(bee, 4, 0, coolDown: 999999),
+                new TossObject(bee, 4, 180, coolDown: 999999),
+                new TimedTransition(2500, "P4 Queen")
+                );
+
+        private static State SecretBee() =>
+            new State(
+                new Prioritize(
+                    new Orbit(1.2, 3, 15, "EH Beekeeper"),
+                    new Follow(1, 10, 2),
+                    new Wander(0.5)
+                    ),
+                new Shoot(8, count: 1, projectileIndex: 0, predictive: 0.4, coolDown: 1000),
+                new HealEntity(15, "EH Beekeeper", 200, coolDown: 5000)
+                );
+
+        // can't be hurt; follows the Beekeeper, firing rings of its colour's stingers, glaives and
+        // balls, and bursts into dense rings when he dies
+        private static State ExperimentalBee() =>
+            new State(
+                new ConditionEffectBehavior(ConditionEffectIndex.Invulnerable, true),
+                new State("Follow",
+                    new Prioritize(
+                        new Orbit(0.9, 3, 30, "EH Beekeeper"),
+                        new Wander(0.4)
+                        ),
+                    new Shoot(0, count: 8, shootAngle: 45, projectileIndex: 0, fixedAngle: 0, rotateAngle: 11, coolDown: 1400),
+                    new Shoot(10, count: 1, projectileIndex: 1, predictive: 0.5, coolDown: 1800),
+                    new Shoot(0, count: 4, shootAngle: 90, projectileIndex: 2, fixedAngle: 45, rotateAngle: 20, coolDown: 2600),
+                    new Shoot(10, count: 3, shootAngle: 20, projectileIndex: 3, coolDown: 3000),
+                    new EntityNotExistsTransition("EH Beekeeper", 60, "Burst")
+                    ),
+                new State("Burst",
+                    new Flash(0xFFFFFF, 0.2, 8),
+                    new TimedTransition(1500, "Die")
+                    ),
+                new State("Die",
+                    new Shoot(0, count: 24, shootAngle: 15, projectileIndex: 0, fixedAngle: 0, coolDown: 9999),
+                    new Shoot(0, count: 12, shootAngle: 30, projectileIndex: 3, fixedAngle: 7.5, coolDown: 9999),
+                    new Suicide()
+                    )
+                );
 
         private static State QueenNest(string beehemoth, string shell) =>
             new State(

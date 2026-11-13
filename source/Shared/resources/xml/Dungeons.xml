@@ -27,6 +27,25 @@
 		<Width>256</Width>
 		<Height>256</Height>
 		<MapJM>Dungeons/Fungal Cavern.jm</MapJM>
+		<!-- the caves joined anew each visit; the drill room and the Mother's chamber behind its wall
+		     stay one room, entered by the drill room's side (tools/dungeon_placements.py) -->
+		<RandomLayout passage="6" corridor="4" keep="GC Drill Wall" entrance="GC Drill Dwarf">
+			<Goal>GC Boss</Goal>
+		</RandomLayout>
+		<VisibilityType>1</VisibilityType>
+		<DisableTeleport/>
+		<Dungeon/>
+	</World>
+	<!-- the Fungal Cavern's second part, through the portal the Crystal Worm Mother leaves: its
+	     caves are built by tools/build_crystal_cavern.py and joined anew each visit; the drill room
+	     and the Crystal Entity's chamber behind its wall stay one room, entered from the south -->
+	<World id="Crystal Cavern">
+		<Width>168</Width>
+		<Height>222</Height>
+		<MapJM>Dungeons/Crystal Cavern.jm</MapJM>
+		<RandomLayout passage="6" corridor="3" mainPath="0.7" keep="CC Drill Wall" entrance="CC Drill Dwarf">
+			<Goal>mc</Goal>
+		</RandomLayout>
 		<VisibilityType>1</VisibilityType>
 		<DisableTeleport/>
 		<Dungeon/>
@@ -104,6 +123,10 @@
 		<Width>256</Width>
 		<Height>256</Height>
 		<MapJM>Dungeons/Candyland Hunting Grounds.jm</MapJM>
+		<!-- its glades joined anew each visit (RealmEye: procedurally generated) -->
+		<RandomLayout passage="4" corridor="3">
+			<Goal>Gigacorn</Goal>
+		</RandomLayout>
 		<Dungeon/>
 	</World>
 	<World id="Haunted Cemetery">
@@ -429,11 +452,17 @@
 		<VisibilityType>1</VisibilityType>
 		<Dungeon/>
 	</World>
-	<!-- the Killer Bee Queen's hive; built by tools/build_nest.py -->
+	<!-- the Killer Bee Queen's hive: its rooms are built by tools/build_nest.py and joined anew for
+	     every visit, the Queen's room and the Beekeeper's laboratory (behind breakable blocks at the
+	     end of a dead-end room) each ending a branch -->
 	<World id="The Nest">
-		<Width>96</Width>
-		<Height>164</Height>
+		<Width>176</Width>
+		<Height>220</Height>
 		<MapJM>Dungeons/The Nest.jm</MapJM>
+		<RandomLayout passage="6" corridor="3" mainPath="0.8" keep="EH Destructible Wall" entrance="EH Waiting Floor">
+			<Goal>EH King Bee</Goal>
+			<Goal>EH Beekeeper</Goal>
+		</RandomLayout>
 		<VisibilityType>1</VisibilityType>
 		<DisableTeleport/>
 		<Dungeon/>

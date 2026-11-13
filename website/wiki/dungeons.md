@@ -47,16 +47,35 @@ Staff.
 ## Fungal Cavern
 
 The Blight Mother in the realm can leave its portal. Dwarf miners are boring into a crystal
-chamber at the end of the caves, and their drill needs power: break **25 Cavern Crystals** (34 are
-spread over the caves). Each five charges the drill a
-little more. At 25 it starts boring, and for 40 seconds the dwarves' war bands come out of the side
-caves; then the wall breaks.
+chamber at the end of the caves, and their drill needs power: break **20 Cavern Crystals** (the
+caves are laid out anew each run and always hold more than that). Each four charge the drill a
+little more. At 20 it starts boring, and for 40 seconds the dwarves' war bands come out round the
+drill room; then the wall breaks.
 
 Inside sleeps the **Crystal Worm Mother**, a worm of crystal segments. Her body can't be hurt:
 shoot her head when she opens up, and the two weak points on her body. She fights in seven
 phases: rings of crystal, the **Crystal Worm Father** at her side (he retreats when nearly dead),
 her **Children** joining the fight, a frenzy, and at the end her tail fighting on
-alone.
+alone. As she weakens, **Crystallised Water** floods her chamber from the edges (80 damage a hit),
+leaving less room each time. When she dies she leaves the portal to the Crystal Cavern.
+
+## Crystal Cavern
+
+The second part of the Fungal Cavern, through the portal the Crystal Worm Mother leaves (or the
+Crystal Cavern Key). Its caves, laid out anew each run, hold Amethyst, Emerald, Ruby, Sapphire and
+Topaz Bats and Slimes, the Crystallised Chargers, Watchers, Splitters, Shriekers and Boomers, and
+Crystal Worm Children (break a Child's body before its head can be hurt). Again a dwarf's drill
+needs **20 crystals**; once it has them it bores for 30 seconds while Crystallised beasts come out
+round the drill room.
+
+Behind the wall, on a pentagon platform in the water, waits the **Crystal Entity**. It fights in
+six phases. In the first, third and fifth it can't be hurt and sends a guardian: the
+**Crystallised Lizard** or the **Cyclops**, then the **Scorpion** or the **Fish**, then the
+**Monstrosity**. In between it fights itself, with **Pulse Locks** that aim at a player and then
+fire at them (faster each time), down to 75% and then 50% of its health. In the last phase it
+grows and armours itself and fills the chamber with crystal buds that burst into rings, flowers
+that slow you, and prisms in every direction. It drops Life and Mana potions, the Crystallised
+Fang's Venom, the Crystallised Mist and the Mark of the Crystal Entity.
 
 ## The Nest
 
@@ -65,7 +84,15 @@ Nest**. The Nest Key (400 fame at the Bazaar, or a drop in the Nest) opens it an
 are full of Soldier Bees (each colour fights its own way), Killer Bees, Mini Killer Bee Nests,
 larvae and eggs. At the end is the **Killer Bee Queen**: she fights in eight phases, calling her
 bees by colour, then raises three Killer Bee Nests that hatch Adolescent Beehemoths to guard her
-to the end.
+to the end. The Nest is laid out anew each run. Its pools of **Killer Honey** hurt and slow you;
+walk the paths of broken tiles across them.
+
+At the end of one dead end, **breakable blocks** in the north wall hide the **Beekeeper's
+laboratory** (the quest arrow doesn't show it). The Beekeeper fights in four phases: chasing you
+with fireballs, bees and flames on the floor that break your armour; calling Killer Bees that heal
+him; armoured at the back of the room in a storm of flames and lava bombs; and at the end,
+healing in the middle with two invulnerable **Experimental Soldier Bees** of one colour, which
+follow him round the room and burst when he dies.
 
 ## Underwater: the Ocean Trench and the Cnidarian Reef
 
