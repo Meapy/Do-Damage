@@ -7,7 +7,7 @@
     "Rewards: {\"fame\": n} to the account, {\"item\": \"<id>\", \"count\": n} to the gift chest in the vault, {\"roll\": n} n items drawn from the goal's 'loot' (by 'weight'; each Overdrive level makes the rarer 'rarities' likelier by 'rarityLift', and the top's prize rolls at the highest). A roll of 'announceFrom' or rarer is told to the whole server. Rewards stay claimable 'claimWeeks' weeks after a goal ends. Each goal gives its own (the server warns of two that give the same).",
     "Specials: goals with 'from' and 'until' (UTC days, yyyy-MM-dd, both included) run besides the week's. Give each a new id.",
     "Sizing: a week's run of a goal is its 'goal' times the goal's scale, fixed when the run begins. When it ends, the scale moves towards the realm ending at 'adapt.target' of the goal: times (done/target)^damping, between 'minStep' and 'maxStep' a run, and within 'minScale' and 'maxScale'. Specials are never scaled. A scale is kept with the goal it was measured against, so changing a goal here starts its scale again at 1.",
-    "Finishing early: a week's goal that reaches its last Overdrive level ends there, and a bonus goal of another group (none of this week's, and if it can, none of last week's or next week's) takes its slot until the weekly reset, as usual. Not with less than 'early.minHours' left. The faster it was finished, the harder things get: its pace over a whole week moves its goal's next run as 'adapt' does, up to 'early.maxStep' at once, and the bonus goal is that many times its usual size, times the heat of the run it replaced, up to 'early.maxHeat', so quick finishes in a row get harder each time until the weekly reset. A bonus run is sized again by its pace when it ends. 'early.enabled' false turns it off."
+    "Finishing early: a week's goal that reaches its last Overdrive level ends there, and a bonus goal of another group (none of this week's, and if it can, none of last week's or next week's) takes its slot until the weekly reset, as usual. Not with less than 'early.minHours' left. The faster it was finished, the harder things get: its pace over a whole week moves its goal's next run as 'adapt' does, up to 'early.maxStep' at once, and the bonus goal is that many times its usual size, times the heat of the run it replaced, up to 'early.maxHeat', so quick finishes in a row get harder each time until the weekly reset. A bonus run is sized again by its pace when it ends. Lowering these eases the bonus goals already running too: a server starting lowers a running bonus goal to what they give now (never raises one). 'early.enabled' false turns it off."
   ],
   "slots": 3,
   "tierShares": [ 0.25, 0.5, 0.75, 1 ],
@@ -21,7 +21,7 @@
   "rarityLift": [ 0, 0.1, 0.25, 0.4, 0.6, 0.8 ],
   "announceFrom": "legendary",
   "adapt": {"enabled": true, "target": 1.2, "damping": 0.5, "minStep": 0.75, "maxStep": 1.35, "minScale": 0.25, "maxScale": 4},
-  "early": {"enabled": true, "minHours": 6, "maxStep": 3, "maxHeat": 4},
+  "early": {"enabled": true, "minHours": 6, "maxStep": 2, "maxHeat": 2.5},
   "defaultTiers": [
     [{"fame": 150}],
     [{"fame": 250}, {"item": "Loot Drop Potion"}],

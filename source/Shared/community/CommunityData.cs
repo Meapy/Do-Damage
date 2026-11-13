@@ -94,8 +94,8 @@ namespace Shared.community
     {
         public bool Enabled { get; set; } = true;
         public double MinHours { get; set; } = 6;
-        public double MaxStep { get; set; } = 3;
-        public double MaxHeat { get; set; } = 8;
+        public double MaxStep { get; set; } = 2;
+        public double MaxHeat { get; set; } = 2.5;
     }
 
     // A bonus goal started in a week (CommunityData.Runs): in place of the slot's goal, from
@@ -243,6 +243,17 @@ namespace Shared.community
         // run's own heat times its pace (PaceStep), at most Early.MaxHeat.
         public double Heat(CommunityRun run, long total, int goal, DateTime now) =>
             Math.Clamp(run.Heat * PaceStep(total, goal, (now - run.Start).TotalDays / 7), 1, Math.Max(1, Early.MaxHeat));
+
+        // A bonus run's heat under today's Early limits: `kept` was stored after `keptBefore` (the
+        // run before it in its slot, 1 for the week's own) when it began, perhaps under higher
+        // limits; its step from that one is held to Early.MaxStep, on top of `before` (the run
+        // before's heat recapped), and the whole to Early.MaxHeat. The same as kept when nothing
+        // changed, so lowering the limits eases the bonus goals already running.
+        public double Recap(double before, double keptBefore, double kept)
+        {
+            var step = Math.Clamp((kept > 0 ? kept : 1) / Math.Max(1, keptBefore), 1, Math.Max(1, Early.MaxStep));
+            return Math.Clamp(Math.Max(1, before) * step, 1, Math.Max(1, Early.MaxHeat));
+        }
 
         // A bonus goal for a week that has `used` (its goals so far): by weight, one of a group in
         // neither this week, next week's draw nor last week's (`lastWeek`, as kept; drawn when not
@@ -490,11 +501,16 @@ namespace Shared.community
                     // the slot's goals in turn: the drawn one, then each bonus goal
                     var chain = new List<(string Id, DateTime Start, double Heat)> { (drawn[slot], start, 1) };
                     chain.AddRange(early.Where(e => e.Slot == slot).Select(e => (e.Id, e.Start, e.Heat)));
+                    // each heat as the rules give it now (Recap): kept as it was started, under
+                    // Early's limits then
+                    var heat = 1.0;
                     for (var k = 0; k < chain.Count; k++)
                     {
+                        if (k > 0)
+                            heat = Recap(heat, chain[k - 1].Heat, chain[k].Heat);
                         var def = Goals.FirstOrDefault(g => g.Id == chain[k].Id);
                         if (def != null)
-                            runs.Add(new CommunityRun(def, chain[k].Start, k + 1 < chain.Count ? chain[k + 1].Start : end, false, k > 0, slot, chain[k].Heat));
+                            runs.Add(new CommunityRun(def, chain[k].Start, k + 1 < chain.Count ? chain[k + 1].Start : end, false, k > 0, slot, heat));
                     }
                 }
             }

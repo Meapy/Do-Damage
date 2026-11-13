@@ -41,6 +41,8 @@ namespace WorldServer.core.community
     // first server to see it so marks it `finished` and adds a bonus goal for its slot to
     // `community:week:<yyyyMMdd>:early` ("<slot>,<goal>,<unix start>"), which ends that run and
     // runs until the weekly reset as usual. Each server announces the bonus goals it sees start.
+    // A running bonus goal whose goal was fixed bigger than Early's limits give now is eased to
+    // match when a server first reads it (a deploy that lowers them eases those running).
     public static class CommunityGoals
     {
         private const int RefreshSeconds = 5;
@@ -336,7 +338,7 @@ namespace WorldServer.core.community
 
                 var batch = _db.CreateBatch();
                 var tasks = new List<Task>();
-                var fixing = new List<(CommunityRun Run, Task<bool> First, Task<RedisValue> Goal)>();
+                var fixing = new List<(CommunityRun Run, int Wanted, Task<bool> First, Task<RedisValue> Goal)>();
                 foreach (var run in unfixed)
                 {
                     // a bonus goal after quick finishes is harder by their heat
@@ -345,7 +347,7 @@ namespace WorldServer.core.community
                     tasks.Add(first);
                     tasks.Add(batch.KeyExpireAsync(TotalKey(run.Key), KeepFor(run)));
                     var t = batch.HashGetAsync(TotalKey(run.Key), "goal");
-                    fixing.Add((run, first, t));
+                    fixing.Add((run, goal, first, t));
                     tasks.Add(t);
                 }
                 var added = new List<(CommunityRun Run, long Delta, Task<long> After)>();
@@ -375,9 +377,22 @@ namespace WorldServer.core.community
                 if (!Task.WaitAll(tasks.ToArray(), TimeSpan.FromSeconds(10)))
                     Log.Warn("Community goals: Redis was slow to answer");
 
-                foreach (var (run, first, goal) in fixing)
+                foreach (var (run, wanted, first, goal) in fixing)
                     if (goal.IsCompletedSuccessfully && goal.Result.TryParse(out int g) && g > 0)
                     {
+                        // a running bonus goal fixed bigger than the rules give now (Early's
+                        // limits lowered since it began): eased to match, never made harder
+                        if (run.Bonus && run.Running(now) && wanted < g)
+                            try
+                            {
+                                _db.HashSet(TotalKey(run.Key), "goal", wanted);
+                                Log.Info($"Community goals: {run.Key} eased from {g:N0} to {wanted:N0}, as the bonus goals are sized now");
+                                g = wanted;
+                            }
+                            catch (Exception e)
+                            {
+                                Log.Warn($"Community goals: couldn't ease {run.Key}: {e.Message}");
+                            }
                         RunGoals[run.Key] = g;
                         // a run no server saw while it ran (one from before community goals, or
                         // before a long stop) says nothing of the goal: it's never settled

@@ -175,7 +175,7 @@ namespace WorldServer.core.resurrection
             BossResurrection.Sound(this, 1);
             BossResurrection.Effect(this, EffectType.AreaBlast, BossResurrection.SoulGreen, new Position(6, 0));
             BossResurrection.Effect(this, EffectType.Diffuse, BossResurrection.SoulViolet, pos, new Position(X + 4.5f, Y));
-            // (no Earthquake: the client's shake builds for good until the world changes)
+            // (no Earthquake: clients before 2.5.6 shake for good until the world changes)
             BossResurrection.Effect(this, EffectType.Trap, BossResurrection.SoulViolet, new Position(5, 0));
 
             if (_soul?.World != null)

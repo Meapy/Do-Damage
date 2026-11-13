@@ -155,6 +155,18 @@ namespace Tests
             var hotter = Data.Runs(Wed, null, week => week == Monday ? new[] { new EarlyStart(1, next, at, hot) } : Array.Empty<EarlyStart>()).Single(r => r.Bonus);
             Assert.Equal(hot, hotter.Heat);
             Assert.Equal(Data.Early.MaxHeat, Data.Heat(hotter, 1000, 15, at.AddHours(1)), 6);
+            // bonus goals started under higher limits (2026-11, steps of 3 up to 4) are read at
+            // today's: each step held to MaxStep, the whole to MaxHeat; one within them as it was
+            Assert.Equal(1.5, Data.Recap(1, 1, 1.5), 6);
+            Assert.Equal(Data.Early.MaxStep, Data.Recap(1, 1, 3), 6);
+            Assert.Equal(Math.Min(Data.Early.MaxHeat, Data.Early.MaxStep * 1.2), Data.Recap(Data.Early.MaxStep, 3, 3.6), 6);
+            var other = Data.NextGoal(Monday, drawn.Append(next).ToList());
+            var old = Data.Runs(Wed, null, week => week == Monday
+                ? new[] { new EarlyStart(1, next, at, 3), new EarlyStart(1, other, at.AddHours(6), 4) }
+                : Array.Empty<EarlyStart>()).Where(r => r.Bonus).OrderBy(r => r.Start).ToList();
+            Assert.Equal(Data.Early.MaxStep, old[0].Heat, 6);
+            Assert.Equal(Math.Min(Data.Early.MaxHeat, Data.Early.MaxStep * 4 / 3.0), old[1].Heat, 6);
+            Assert.True(Data.Early.MaxHeat < 4);
             // its goal's next run grows by the pace too, past adapt's usual step
             Assert.True(Data.NextScale(1, 45, 15, 1.5 / 7, true) > Data.Adapt.MaxStep);
             Assert.Equal(Data.Adapt.MaxStep, Data.NextScale(1, 45, 15, 1.5 / 7), 6);
@@ -174,7 +186,8 @@ namespace Tests
             var runs = Data.Runs(Wed, null, week => week == Monday ? twice : Array.Empty<EarlyStart>());
             Assert.Equal(runs.Count, runs.Select(r => r.Key).Distinct().Count());
             var bonus = Assert.Single(runs, r => r.Bonus);
-            Assert.Equal((0, 3.0), (bonus.Slot, bonus.Heat));
+            // (its heat of 3 read at today's limits)
+            Assert.Equal((0, Data.Early.MaxStep), (bonus.Slot, bonus.Heat));
             var second = Assert.Single(runs, r => r.Week == Monday && r.Slot == 1);
             Assert.Equal((drawn[1], Monday.AddDays(7)), (second.Def.Id, second.End));
             // a later bonus goal of its own for that slot then takes its place

@@ -12,6 +12,18 @@ Keep each version short: changes go under `### ` group headings (Oryx 5, Arena, 
 on), one line per change players notice, summed up rather than item by item (the wiki has the
 details). Add to a group's line when a change adds to it, rather than adding another line.
 
+## 2.5.6 (2026-11-13)
+
+### Community goals
+- The bonus goals that follow a goal finished early are easier to complete: a quick finish now
+  makes the next one at most twice its usual size, and a run of them tops out at two and a half
+  times rather than four. The bonus goals running now shrink to match, and a goal finished early
+  comes back at most twice as hard.
+
+### Fixes
+- The screen shake from an earthquake (Empowered bosses, the Lost Halls) settles after a couple
+  of seconds instead of shaking until you leave.
+
 ## 2.5.5 (2026-11-13)
 
 ### Items
