@@ -12,6 +12,12 @@ Keep each version short: changes go under `### ` group headings (Oryx 5, Arena, 
 on), one line per change players notice, summed up rather than item by item (the wiki has the
 details). Add to a group's line when a change adds to it, rather than adding another line.
 
+## Unreleased
+
+### Dungeons
+- The Marble Colossus (and its Elder version) in the Lost Halls now stays inside its boss room: it
+  no longer follows players out through the doors.
+
 ## 2.5.7 (2026-11-13)
 
 ### Events
