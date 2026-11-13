@@ -36,12 +36,13 @@ namespace WorldServer.logic
                 )
             )
         // the Chaotic Scripture's Chaos Beam on the cursor: 1800-2200 within 2.5 tiles, ignoring defense
+        // (look 29: the beam slamming down and the rift it leaves, in the Rust client's particles/relic.rs)
         .Init("Chaotic Scripture Effect",
             new State(
                 new TimedTransition(100, "strike"),
                 new State("0"),
                 new State("strike",
-                    new AllyAOE(1800, 2200, 2.5f, 0xb44cff, beam: true),
+                    new AllyAOE(1800, 2200, 2.5f, 0xb44cff, beam: true, fx: 29),
                     new Suicide()
                     )
                 )

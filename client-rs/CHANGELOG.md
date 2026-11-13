@@ -16,6 +16,9 @@ details). Add to a group's line when a change adds to it, rather than adding ano
 
 ### Items
 - Superior (the staff from Oryx the Celestial Mad God) hits harder, 60-95 damage a shot (was 45-75), and each hit strips 1% of the enemy's defense for 5 seconds, stacking up to 10 times: keep hitting to keep it on. It drops 1% of the time (was 0.4%).
+- The Chaotic Scripture's Chaos Beam looks the part: a column of violet light slams down out of the
+  sky onto your cursor, a shockwave races out to the blast's edge, and a rift stays torn open for a
+  moment, the eight arrows of chaos turning round it as it crackles.
 
 ### Dungeons
 - The Marble Colossus (and its Elder version) in the Lost Halls now stays inside its boss room: it

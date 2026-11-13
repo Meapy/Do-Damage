@@ -747,6 +747,13 @@ The remotes `upstream` (HaloCelsius) and `aurusenth` share no history with `main
   drawn from shapes by `build_resurrection.py`; `--shots` writes only those into the files as
   they are), each with a trail of its colour. `--effect 101`-`128` shows each look on you.
 
+- **The Chaotic Scripture's Chaos Beam** (2026-11-13; server `AllyAOE` `fx`,
+  `BehaviorDb.Allies.cs`; client `particles/relic.rs` look 29 `CHAOS`, decal `Rift`): the beam
+  sends `ShowEffect` 41 look 29 before its old lightning and ring, which clients before 2.5.8
+  still draw. The Rust client draws a column of light slamming down, a shockwave and a rift with
+  the eight arrows of chaos, and leaves out the lightning and ring that follow on the same object.
+  `--effect 129` shows it on you.
+
 - **Test stacks start maxed** (2026-11-12; `ServerSettings.testStack`, `Player.TestStackStart`,
   `tools/testclient/iso_stack.py`, `tools/rolling_restart.py --iso`): with `testStack` (which only
   the test stack tools set), every character that enters a world is maxed as `/max` does, at full

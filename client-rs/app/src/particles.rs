@@ -176,6 +176,9 @@ pub struct Particles {
     delayed: Vec<(i32, ShowEffect)>,
     /// The height and floor of the last effect's spot, for its decals.
     here: (f64, u8),
+    /// The last Chaos Beam (`relic`, look 29): its object and when. The plain lightning and blast
+    /// the server sends with it, for older clients, aren't drawn.
+    chaos_on: Option<(i32, i32)>,
 }
 
 /// A circle on the ground (`ShowEffect` 40, the Black Between's telegraphs): its outline at once,
@@ -388,6 +391,9 @@ impl Particles {
             if (e.effect_type == 1 || e.effect_type == 5) && self.pet_line.take() == Some((now, color)) {
                 return;
             }
+        }
+        if matches!(e.effect_type, 5 | 11) && self.chaos_on.is_some_and(|(id, at)| id == e.target_object_id && (0..500).contains(&(now - at))) {
+            return;
         }
         match e.effect_type {
             // HealEffect: ten rising squares around the object.
@@ -1328,6 +1334,31 @@ mod tests {
         p.object_effects(&world, &data, &sprites, 1000);
         assert_eq!(p.list.len(), 32);
         assert!(!p.emitters.contains_key(&2));
+    }
+
+    #[test]
+    fn the_chaos_beam_stands_in_for_the_plain_lightning() {
+        let data = GameData::default();
+        let mut world = World::new(10, 10, "test", 1);
+        let tiles: Vec<_> = (0..100).map(|i| bsk_proto::GroundTile { x: i % 10, y: i / 10, tile_type: 0 }).collect();
+        let obj = |id: i32| bsk_proto::ObjectData { object_type: 0x70a4, status: bsk_proto::ObjectStatus { object_id: id, pos: WorldPos { x: 5.5, y: 5.5 }, stats: Default::default() } };
+        world.apply_update(&bsk_proto::Update { tiles: tiles.into(), new_objs: vec![obj(7), obj(8)].into(), drops: Default::default() }, &data, 0);
+        let mut p = Particles::default();
+        // the beam's own look: particles, the rift and its crackling
+        p.show_effect(&effect(41, 7, (5.5, 5.5), (2.5, relic::look::CHAOS as f32)), &world, 1000);
+        let n = p.list.len();
+        assert!(n > 100);
+        assert!(!p.decals.is_empty() && !p.auras.is_empty());
+        // the lightning and ring sent with it for older clients aren't drawn too
+        p.show_effect(&effect(11, 7, (5.5, -0.5), (450.0, 0.0)), &world, 1000);
+        p.show_effect(&effect(5, 7, (2.5, 0.0), (7.0, 255.0)), &world, 1000);
+        assert_eq!(p.list.len(), n);
+        // but another's are, and a later one's
+        p.show_effect(&effect(5, 8, (2.5, 0.0), (8.0, 255.0)), &world, 1000);
+        assert!(p.list.len() > n);
+        let n = p.list.len();
+        p.show_effect(&effect(5, 7, (2.5, 0.0), (7.0, 255.0)), &world, 2000);
+        assert!(p.list.len() > n);
     }
 
     #[test]

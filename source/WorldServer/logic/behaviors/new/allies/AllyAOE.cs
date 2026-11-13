@@ -14,6 +14,8 @@ namespace WorldServer.logic.behaviors
     // An ally's blast: minDamage-maxDamage to every enemy within radius, ignoring defense, credited to
     // the player who summoned it, every cooldown. Optionally each enemy hit gets a condition (with a
     // chance), and beam draws a bolt falling from the sky onto the host instead of the area ring.
+    // fx names a look of its own (ShowEffect Relic, pos2.y) that the Rust client draws instead, from
+    // 2.5.8; the lightning and ring still go out for clients before it.
     internal class AllyAOE : CycleBehavior
     {
         private readonly uint _color;
@@ -26,9 +28,10 @@ namespace WorldServer.logic.behaviors
         private readonly int _effectMs;
         private readonly double _effectChance;
         private readonly bool _beam;
+        private readonly byte _fx;
 
         public AllyAOE(int minDamage, int maxDamage, float radius, uint color = 0, Cooldown cooldown = new Cooldown(), int coolDownOffset = 0,
-            ConditionEffectIndex? effect = null, int effectMs = 0, double effectChance = 1, bool beam = false)
+            ConditionEffectIndex? effect = null, int effectMs = 0, double effectChance = 1, bool beam = false, byte fx = 0)
         {
             _minDamage = minDamage;
             _maxDamage = maxDamage;
@@ -40,6 +43,7 @@ namespace WorldServer.logic.behaviors
             _effectMs = effectMs;
             _effectChance = effectChance;
             _beam = beam;
+            _fx = fx;
         }
         protected override void OnStateEntry(Entity host, TickTime time, ref object state)
         {
@@ -63,6 +67,17 @@ namespace WorldServer.logic.behaviors
 
             var world = host.World;
             var color = new ARGB(_color != 0 ? _color : 0xffffffff);
+            // first, so the client knows to leave out the plain lightning and ring after it
+            if (_fx != 0)
+                world.BroadcastIfVisible(new ShowEffect()
+                {
+                    EffectType = EffectType.Relic,
+                    TargetObjectId = host.Id,
+                    Color = color,
+                    Pos1 = new Position(host.X, host.Y),
+                    Pos2 = new Position(_radius, _fx),
+                    SourceId = host.AllyOwnerId > 0 ? host.AllyOwnerId : 0
+                }, host);
             if (_beam)
                 world.BroadcastIfVisible(new ShowEffect()
                 {

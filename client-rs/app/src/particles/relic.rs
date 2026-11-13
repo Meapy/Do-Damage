@@ -6,6 +6,9 @@
 //!
 //! pos1 is where it happens, pos2.x its radius, `duration` how long it lasts in ms (the
 //! Phylactery's: how many souls), and the target object is the one it follows or flies to.
+//!
+//! Not only the Necromantic items: look 29 is the Chaotic Scripture's Chaos Beam, sent by the
+//! server's `AllyAOE` (`BehaviorDb.Allies.cs`).
 
 use super::{Motion, Particle, Particles};
 use crate::view::Camera;
@@ -44,7 +47,9 @@ pub mod look {
     pub const PENTAGRAM: u8 = 26;
     pub const ERUPTION: u8 = 27;
     pub const SINGULARITY: u8 = 28;
-    pub const LAST: u8 = 28;
+    /// The Chaotic Scripture's Chaos Beam (`AllyAOE`, not a Necromantic power).
+    pub const CHAOS: u8 = 29;
+    pub const LAST: u8 = 29;
 }
 
 /// Falling, tiles a millisecond each millisecond (12 tiles a second each second).
@@ -76,6 +81,9 @@ pub(super) enum DecalKind {
     Ward,
     /// The Tome's ring of stars under a player.
     Stars,
+    /// The Chaotic Scripture's rift: a torn, glowing void, the eight arrows of chaos turning round
+    /// it.
+    Rift,
 }
 
 /// A picture on the ground: `DecalKind` at x, y, out to `radius`, from `start` for `ms`
@@ -120,7 +128,7 @@ fn period(look: u8) -> i32 {
         look::PHASE | look::SINGULARITY => 22,
         look::SERPENT_WIND | look::UNDERTOW | look::FORGOTTEN => 32,
         look::DAVY | look::IGNITION | look::PENTAGRAM => 45,
-        look::HELLBRAND => 60,
+        look::HELLBRAND | look::CHAOS => 60,
         look::OATH => 120,
         look::STARLIGHT => 140,
         _ => 100,
@@ -264,6 +272,56 @@ impl Particles {
         // the strike: a white heart, sparks skittering off
         self.add(Particle::new(x, y, 0.3, 0xFFFFFF, 420.0 * k, 160, Motion::Spark));
         self.debris(x, y, 10, &[0xFFFFFF, color], 90.0 * k, 4.0, 3.0, 400, 0);
+    }
+
+    /// The Chaos Beam slamming down onto (x, y): a column of violet light round a white-hot core,
+    /// falling out of the sky in a few frames, chaos spiralling down round it, then the burst.
+    fn chaos_beam(&mut self, x: f64, y: f64, r: f64, color: u32) {
+        const ROWS: i32 = 48;
+        const FALL: i32 = 90;
+        let dark = mix(color, 0x000000, 0.55);
+        let hot = mix(color, 0xFFFFFF, 0.55);
+        for row in 0..ROWS {
+            let z = 9.0 * (1.0 - row as f64 / ROWS as f64);
+            let delay = row * FALL / ROWS;
+            // the core, white, and round it the beam's violet and its dark edge, overlapping so
+            // they read as one column
+            for (ox, c, size, life) in [(0.0, 0xFFFFFF, 260.0, 260), (-0.12, hot, 280.0, 320), (0.12, hot, 280.0, 320), (-0.24, color, 260.0, 400), (0.24, color, 260.0, 400), (-0.34, dark, 190.0, 380), (0.34, dark, 190.0, 380)] {
+                let mut p = Particle::new(x + ox + self.pm(0.03), y, z, c, size, life, Motion::Plain);
+                p.delay = delay;
+                p.fade = true;
+                self.add(p);
+            }
+        }
+        // chaos winding down round the beam as it lands
+        for i in 0..22 {
+            let c = self.pick(&[color, 0xFF60D0, 0xFFFFFF, dark]);
+            let life = 380 + (self.random() * 160.0) as i32;
+            let z0 = 4.0 + 4.0 * self.random();
+            let speed = if i % 2 == 0 { 0.22 } else { -0.22 };
+            let motion = Motion::Soul { cx: x, cy: y, angle: 2.0 * PI * self.random(), speed, rad: 0.55 + 0.35 * self.random(), out: 0.0006, rise: -z0 / life as f64 };
+            let mut p = Particle::new(x, y, z0, c, 120.0, life, motion);
+            p.alpha = 0.0;
+            p.delay = (i * 4) % FALL;
+            self.add(p);
+        }
+        // the strike: a white flash, violet light flung out along the floor, shards thrown up,
+        // dark smoke rolling out
+        for (size, c, life) in [(900.0, color, 220), (560.0, 0xFFFFFF, 160)] {
+            let mut p = Particle::new(x, y, 0.3, c, size, life, Motion::Spark);
+            p.delay = FALL;
+            self.add(p);
+        }
+        for i in 0..28 {
+            let a = i as f64 * 2.0 * PI / 28.0 + self.pm(0.08);
+            let s = (r / 260.0) * (0.75 + 0.5 * self.random());
+            let c = if i % 4 == 0 { 0xFFFFFF } else if i % 2 == 0 { hot } else { color };
+            let mut p = Particle::new(x, y, 0.15, c, 140.0, 260, Motion::Sparker).moving(a.cos() * s, a.sin() * s, 0.0);
+            p.delay = FALL;
+            self.add(p);
+        }
+        self.debris(x, y, 22, &[color, 0xFF60D0, 0xFFFFFF, 0x301040], 110.0, 4.5, 6.0, 800, FALL);
+        self.puffs(x, y, 12, &[0x1A0828, 0x2C1040, dark], 300.0, r * 0.6, 0.8, 1300, FALL + 40);
     }
 
     /// `ShowEffect` 41: the power `look` (pos2.y) at work.
@@ -616,6 +674,17 @@ impl Particles {
                 self.decal(DecalKind::BlackHole, x, y, r, color, now, ms.max(800), None);
                 self.aura(look, id, x, y, r, color, now, ms.max(800), false);
             }
+            // the Chaotic Scripture's Chaos Beam: the beam slams down, a shockwave races out to
+            // the blast's edge, and a rift stays torn open a moment, chaos crackling off it
+            look::CHAOS => {
+                self.chaos_beam(x, y, r, color);
+                self.decal(DecalKind::Ring, x, y, r, color, now + 90, 420, None);
+                self.decal(DecalKind::Ring, x, y, r * 0.7, 0xFFFFFF, now + 110, 300, None);
+                self.decal(DecalKind::Rift, x, y, r, color, now + 60, 1400, None);
+                self.aura(look, id, x, y, r, color, now + 90, 1100, false);
+                // the plain lightning and blast that come with it (for older clients): not drawn
+                self.chaos_on = Some((id, now));
+            }
             _ => {}
         }
     }
@@ -713,6 +782,28 @@ impl Particles {
                 p.fade = true;
                 self.add(p);
             }
+            // chaos crackling out of the rift: a jagged arc along the floor, a mote rising
+            look::CHAOS => {
+                let base = 2.0 * PI * self.random();
+                let len = a.radius * (0.45 + 0.5 * self.random()) * left.max(0.3);
+                let (mut px, mut py) = (x + 0.3 * base.cos(), y + 0.3 * base.sin());
+                for k in 1..=7 {
+                    let f = k as f64 / 7.0;
+                    let ang = base + self.pm(0.5);
+                    let (tx, ty) = (x + (0.3 + len * f) * ang.cos(), y + (0.3 + len * f) * ang.sin());
+                    let c = if k % 3 == 0 { 0xFFFFFF } else { self.pick(&[a.color, 0xFF60D0]) };
+                    for j in 0..2 {
+                        let t = j as f64 / 2.0;
+                        self.add(Particle::new(px + (tx - px) * t, py + (ty - py) * t, 0.05, c, 80.0, 140 + k * 12, Motion::Spark));
+                    }
+                    (px, py) = (tx, ty);
+                }
+                let (ang, d) = (2.0 * PI * self.random(), a.radius * 0.5 * self.random().sqrt());
+                let c = self.pick(&[a.color, 0x301040, 0xFFFFFF]);
+                let mut p = Particle::new(x + d * ang.cos(), y + d * ang.sin(), 0.05, c, 110.0, 700, Motion::Spark).moving(0.0, 0.0, 0.003);
+                p.fade = true;
+                self.add(p);
+            }
             // light pulled round and down into the black hole
             look::SINGULARITY => {
                 let angle = 2.0 * PI * self.random();
@@ -797,6 +888,7 @@ impl Particles {
             look::PENTAGRAM => (2.5, 0xFFFF2020, 1900, false),
             look::ERUPTION => (3.0, 0xFFFF2020, 0, false),
             look::SINGULARITY => (3.0, 0xFF8040FF, 3200, false),
+            look::CHAOS => (2.5, 0xFFB44CFF, 0, false),
             _ => return,
         };
         // (centred on us, where a shot can see it, but for what flies between us and somewhere else)
@@ -1078,6 +1170,46 @@ fn draw_decal(pen: &mut Pen, d: &Decal, t: f64, now: i32) {
                 let rr = r * 0.75;
                 pen.line((rr * a0.cos(), rr * a0.sin()), (rr * a1.cos(), rr * a1.sin()), 0.06, 0xFFF4C0, 0.85 * a);
             }
+        }
+        DecalKind::Rift => {
+            let a = envelope(t, 0.0, 0.45);
+            let open = 1.0 - (1.0 - (t / 0.1).min(1.0)).powi(2);
+            let flicker = 0.75 + 0.25 * ((secs * 23.0).sin() * (secs * 7.0).cos()) as f32;
+            let glow = mix(d.color, 0xFFFFFF, 0.45);
+            let rr = r * open;
+            // darkened ground out to the blast's edge
+            pen.disc(rr, mix(d.color, 0x000000, 0.8), 0.35 * a);
+            pen.band(rr - 0.1, rr, d.color, 0.7 * a * flicker);
+            // the tears, glowing and jagged, out from the void
+            for i in 0..7u64 {
+                let base = i as f64 * 2.0 * PI / 7.0 + hash(d.seed, i) * 0.6;
+                let len = rr * (0.55 + 0.4 * hash(d.seed, i + 10));
+                let mut prev = (0.0, 0.0);
+                for k in 1..=5u64 {
+                    let f = k as f64 / 5.0;
+                    let ang = base + (hash(d.seed, i * 7 + k) - 0.5) * 0.8;
+                    let next = (len * f * ang.cos(), len * f * ang.sin());
+                    let w = 0.16 * (1.0 - f * 0.75);
+                    pen.line(prev, next, w * 1.8, d.color, 0.35 * a * flicker);
+                    pen.line(prev, next, w * 0.6, glow, 0.95 * a);
+                    prev = next;
+                }
+            }
+            // the eight arrows of chaos, turning
+            let spin = secs * 1.6;
+            for i in 0..8 {
+                let ang = spin + i as f64 * PI / 4.0;
+                let (c, s) = (ang.cos(), ang.sin());
+                let (r0, r1) = (rr * 0.42, rr * 0.86);
+                pen.line((r0 * c, r0 * s), (r1 * c, r1 * s), 0.07, glow, 0.85 * a * flicker);
+                let head = 0.2;
+                let tip = (r1 * c + head * c, r1 * s + head * s);
+                pen.tri([pen.pt(tip.0, tip.1), pen.pt(r1 * c - head * s, r1 * s + head * c), pen.pt(r1 * c + head * s, r1 * s - head * c)], glow, 0.9 * a * flicker);
+            }
+            // the void at its heart
+            pen.band(rr * 0.42 - 0.06, rr * 0.42, glow, 0.8 * a);
+            pen.disc(rr * 0.36, 0x0A0012, 0.85 * a);
+            pen.disc(rr * 0.18 * (1.0 + 0.15 * (secs * 11.0).sin()), d.color, 0.55 * a * flicker);
         }
         DecalKind::Stars => {
             let a = envelope(t, 0.1, 0.2);
