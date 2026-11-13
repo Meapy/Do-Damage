@@ -116,7 +116,9 @@ Santa's reindeer, a firecracker. They're listed under [Summoned helpers](#summon
 - The **Nexus Bazaar** sells the {{v:pet_bazaar}} Tiny pets' generators, for {{v:pet_price}} fame
   each, and `/shop pets` has them too. No other pet is sold.
 
-Other players' pets, and their shots, can be faded or hidden in Options, Visuals.
+Other players' pets, and their shots (with the rest of their shots), can be faded or hidden in
+Options, Visuals, Other players; "Pets' shots" under World makes every pet's shots subtle or hides
+them.
 
 ## Pet generators
 

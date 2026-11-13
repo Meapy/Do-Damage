@@ -41,6 +41,10 @@ namespace WorldServer.networking.packets.outgoing
         public ARGB Color { get; set; }
         public int Duration { get; set; }
         public ushort ObjectType { get; set; }
+        // the player whose power it is (a Necromantic item's: Player.RelicPowers.cs), so clients
+        // can fade or hide other players' effects; written only when set, after the fields older
+        // clients read, which leave it unread (Rust clients from 2.5.5 read it)
+        public int SourceId { get; set; }
 
         public override MessageId MessageId => MessageId.SHOWEFFECT;
 
@@ -53,6 +57,8 @@ namespace WorldServer.networking.packets.outgoing
             Color.Write(wtr);
             wtr.Write(Duration);
             wtr.Write(ObjectType);
+            if (SourceId != 0)
+                wtr.Write(SourceId);
         }
     }
 }

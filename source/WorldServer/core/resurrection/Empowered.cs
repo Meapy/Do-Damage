@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using Shared.resources;
 using WorldServer.core.objects;
@@ -20,7 +21,10 @@ namespace WorldServer.core.resurrection
     /// - Soul Nova: two rings of soul bolts, every 7 seconds (5 enraged);
     /// - Wailing Souls: two (three enraged) ghosts that chase the players, every 11 seconds (8 enraged),
     ///   six at most;
-    /// - Soul Storm, below 60% health: four arms of fast, slowing bolts sweeping round, every 10 seconds.
+    /// - its phases (<see cref="EmpoweredPhases"/>), each opening as its health falls and announced over
+    ///   it: Soul Harvest (80%), Soul Storm (60%), Death Spiral (30%) and Last Breath (10%), and for the
+    ///   raid bosses and the Ocean Trench's two signature phases of their own (70% and 40%,
+    ///   <see cref="EmpoweredSignatures"/>). One phase attack plays at a time, the newest first.
     /// Below 30% it is enraged: faster still, harder shots, a hotter glow.
     /// Its loot is its Elder form's, with every player's boost raised by 1 (twice the chances) and its
     /// own drops rolled again (BossResurrection.Initialize).
@@ -43,13 +47,21 @@ namespace WorldServer.core.resurrection
         private int _secondRingIn = -1;
         private float _ringAngle;
         private int _soulsIn = 6500;
-        private int _stormIn = 3000;
-        private int _storm;
-        private int _stormShotIn;
-        private float _stormAngle;
         private float _haste = 1.25f;
+        private readonly List<SoulPhase> _phases;
+        // a phase attack is playing (or the breath after one): no other starts
+        private int _stage = 2000;
+        private int _opened;
+        private Arena _arena;
 
-        public Empowered(BossInfo info) => _info = info;
+        public Empowered(BossInfo info)
+        {
+            _info = info;
+            _phases = EmpoweredPhases.For(info);
+        }
+
+        /// <summary>Its phases' names, in the order they open (for the tests).</summary>
+        public IEnumerable<string> PhaseNames => _phases.Select(p => p.Name);
 
         public float DamageMultiplier => _enraged ? 1.45f : 1.3f;
         public double LootBoost => 1.0;
@@ -61,7 +73,7 @@ namespace WorldServer.core.resurrection
             return time;
         }
 
-        private string DisplayName(Enemy boss) => boss.ObjectDesc.DisplayId ?? boss.ObjectDesc.IdName;
+        public static string DisplayName(Enemy boss) => boss.ObjectDesc.DisplayId ?? boss.ObjectDesc.IdName;
 
         // just entered the world, where it rises for a moment, untouchable, before it fights
         public void Risen(Enemy boss, string raiser)
@@ -169,30 +181,59 @@ namespace WorldServer.core.resurrection
                 _soulsIn = _enraged ? 8000 : 11000;
             }
 
-            if (boss.Health < boss.MaxHealth * 0.6)
-            {
-                _stormIn -= dt;
-                if (_stormIn <= 0 && _storm <= 0)
-                {
-                    _storm = 2400;
-                    _stormShotIn = 0;
-                    _stormAngle = (float)(Random.Shared.NextDouble() * Math.PI * 2);
-                    _stormIn = 10000;
-                    BossResurrection.Effect(boss, EffectType.Concentrate, BossResurrection.SoulViolet, new Position(boss.X, boss.Y), new Position(boss.X + 3, boss.Y));
-                }
-                if (_storm > 0)
-                {
-                    _storm -= dt;
-                    _stormShotIn -= dt;
-                    if (_stormShotIn <= 0)
-                    {
-                        DoomedRuntime.Fire(boss, BossResurrection.SoulBolt + 1, _stormAngle, Math.PI / 2, 4);
-                        _stormAngle += (float)(14 * Math.PI / 180);
-                        _stormShotIn = 200;
-                    }
-                }
-            }
+            Phases(boss, dt, time.ElapsedMsDelta);
         }
+
+        // opens each phase as the health falls past it, and plays the newest one that's ready
+        // (dt sped up with the boss for the phases' clocks; a phase attack plays out in real time)
+        private void Phases(Enemy boss, int dt, int realDt)
+        {
+            _arena ??= new Arena(boss, _info, this);
+            var share = boss.MaxHealth > 0 ? boss.Health / (double)boss.MaxHealth : 1;
+            foreach (var phase in _phases)
+            {
+                if (phase.Open || share >= phase.Below)
+                    continue;
+                phase.Open = true;
+                phase.Wait = phase.First;
+                _opened++;
+                Announce(boss, phase);
+            }
+
+            if (_stage > 0)
+                _stage -= realDt;
+            SoulPhase next = null;
+            foreach (var phase in _phases)
+            {
+                if (!phase.Open)
+                    continue;
+                phase.Wait -= dt;
+                if (phase.Wait <= 0 && (next == null || phase.Below < next.Below))
+                    next = phase;
+            }
+            if (next == null || _stage > 0)
+                return;
+            next.Wait = next.Every;
+            _stage = next.Busy + 1200;
+            BossResurrection.Notify(boss, next.Name, next.Color);
+            next.Run(_arena);
+        }
+
+        private void Announce(Enemy boss, SoulPhase phase)
+        {
+            BossResurrection.Notify(boss, $"Phase {ToRoman(_opened + 1)}: {phase.Name}", phase.Color);
+            BossResurrection.Effect(boss, EffectType.BlastWave, phase.Color, new Position(boss.X, boss.Y), new Position(6, 0));
+            if (phase.Line != null)
+                BossResurrection.Say(boss, DisplayName(boss), phase.Line, true);
+            var msg = $"{DisplayName(boss)} enters a new phase: {phase.Name}!";
+            boss.World.ForeachPlayer(p => p.SendInfo(msg));
+            // a moment's shield as the souls gather for it, and the phase opens on its own clock
+            _arena.Shield(1200);
+            _stage = Math.Max(_stage, 1000);
+        }
+
+        private static string ToRoman(int n) =>
+            n switch { 1 => "I", 2 => "II", 3 => "III", 4 => "IV", 5 => "V", 6 => "VI", 7 => "VII", 8 => "VIII", _ => n.ToString() };
 
         private static void Ring(Enemy boss, float angle)
         {
@@ -223,6 +264,31 @@ namespace WorldServer.core.resurrection
             }
             if (count > 0)
                 BossResurrection.Say(boss, "Escaping Souls", "We hunt for our master!", false);
+        }
+
+        /// <summary>Wailing Souls at these spots (a phase's own, as Malus's ritual), with this share of the boss's health each.</summary>
+        public List<Enemy> SummonSoulsAt(Enemy boss, IEnumerable<Position> spots, double healthShare)
+        {
+            var list = new List<Enemy>();
+            var world = boss.World;
+            if (world == null || BossResurrection.WailingSoulType == 0)
+                return list;
+            foreach (var at in spots)
+            {
+                if (Entity.Resolve(boss.GameServer, BossResurrection.WailingSoulType) is not Enemy soul)
+                    break;
+                var (x, y) = world.IsPassable(at.X, at.Y) ? (at.X, at.Y) : (boss.X, boss.Y);
+                soul.Move(x, y);
+                soul.SummonedBy(boss);
+                soul.SpawnedByBehavior = true;
+                world.EnterWorld(soul);
+                soul.IsLegendary = soul.IsEpic = soul.IsRare = false;
+                soul.MaxHealth = soul.Health = Math.Max(800, (int)(boss.MaxHealth * healthShare));
+                soul.DamageScale = _info.SoulDamage * 0.6f / 100f;
+                BossResurrection.Effect(soul, EffectType.Concentrate, BossResurrection.SoulGreen, new Position(soul.X, soul.Y), new Position(soul.X + 1.5f, soul.Y));
+                list.Add(soul);
+            }
+            return list;
         }
 
         // killed a second time: the souls are free, and their ghosts go with it

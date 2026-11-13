@@ -88,7 +88,6 @@ namespace WorldServer.logic
         .Init("ic Esben the Unwilling",
             new State(
                 new ScaleHP2(20),
-                new TransformOnDeath("ic Loot Balloon"),
                 new HpLessTransition(0.1, "die"),
                 new State("start",
                     new PlayerWithinTransition(50, "idle", true)
@@ -397,8 +396,22 @@ namespace WorldServer.logic
                   new SetAltTexture(3),
                   new Wander(1.5)
                     )
-                )
-            )
+                ),
+                new Threshold(0.005,
+                    LootTemplates.StrongerDrop()
+                    ),
+                new Threshold(0.005,
+                    new ItemLoot("Zombie Penguin Generator", 0.03),
+                    new ItemLoot("Staff of Esben", 0.02),
+                    new ItemLoot("Frosty's Walking Stick", 0.005),
+                    new ItemLoot("Winter's Breath Wand", 0.005),
+                    new ItemLoot("Skullish Remains of Esben", 0.016),
+                    new ItemLoot("Esben's Wedding Ring", 0.016),
+                    new ItemLoot("Esben's Shaman Attire", 0.016),
+                    new ItemLoot("An Icicle", 0.004),
+                    new ItemLoot("Potion of Mana", 1)
+                ),
+            new ItemLoot("Lil' Esben Generator", 0.02))
         .Init("ic boss purifier",
             new State(
                 new State(":P",
@@ -454,31 +467,6 @@ namespace WorldServer.logic
                     new Decay(1000)
                     )
                 )
-            )
-        .Init("ic Loot Balloon",
-            new State(
-                new ScaleHP2(40, 3, 15),
-                    new State("Idle",
-                        new ConditionEffectBehavior(ConditionEffectIndex.Invulnerable),
-                        new TimedTransition(5000, "UnsetEffect")
-                    ),
-                    new State("UnsetEffect")
-                ),
-                new Threshold(0.005,
-                    LootTemplates.StrongerDrop()
-                    ),
-                new Threshold(0.005,
-                    new ItemLoot("Zombie Penguin Generator", 0.03),
-                    new ItemLoot("Staff of Esben", 0.02),
-                    new ItemLoot("Frosty's Walking Stick", 0.005),
-                    new ItemLoot("Winter's Breath Wand", 0.005),
-                    new ItemLoot("Skullish Remains of Esben", 0.016),
-                    new ItemLoot("Esben's Wedding Ring", 0.016),
-                    new ItemLoot("Esben's Shaman Attire", 0.016),
-                    new ItemLoot("An Icicle", 0.004),
-                    new ItemLoot("Potion of Mana", 1)
-                ),
-            new ItemLoot("Lil' Esben Generator", 0.02)
             );
     }
 }

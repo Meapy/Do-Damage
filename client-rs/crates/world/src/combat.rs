@@ -94,6 +94,8 @@ pub struct Impact {
     pub speed: i32,
     /// Whose pet fired it, for a pet's shot (drawn faintly, as the options say).
     pub pet_owner: Option<i32>,
+    /// Another player's shot (not a pet's), drawn as faintly as the options draw those shots.
+    pub others: bool,
 }
 
 /// Stacked shots, as the server judges them (`Player.StackedShots`): monsters' shots fired within
@@ -471,7 +473,8 @@ impl World {
                         hits.push(Hit::Other { time, bullet_id: p.bullet_id, owner_id: p.owner_id, target_id: obstacle.id });
                     } else {
                         let pet_owner = self.pet_shot(p, data).then_some(p.owner_id);
-                        self.impacts.push(Impact { x, y, target: None, kill: false, look: desc.object_id.clone(), angle: p.angle, speed: desc.speed, pet_owner });
+                        let others = pet_owner.is_none() && !p.damages_players && Some(p.owner_id) != self.me;
+                        self.impacts.push(Impact { x, y, target: None, kill: false, look: desc.object_id.clone(), angle: p.angle, speed: desc.speed, pet_owner, others });
                     }
                     return false;
                 }
@@ -484,7 +487,8 @@ impl World {
         let target_is_enemy = tdesc.is_some_and(|d| d.enemy);
         let send = (me.is_some() && p.damages_players) || (target_is_enemy && Some(p.owner_id) == me);
         let pet_owner = self.pet_shot(p, data).then_some(p.owner_id);
-        let impact = Impact { x, y, target: Some(target_id), kill: false, look: desc.object_id.clone(), angle: p.angle, speed: desc.speed, pet_owner };
+        let others = pet_owner.is_none() && !p.damages_players && Some(p.owner_id) != self.me;
+        let impact = Impact { x, y, target: Some(target_id), kill: false, look: desc.object_id.clone(), angle: p.angle, speed: desc.speed, pet_owner, others };
         self.impacts.push(impact);
         if send {
             let defense = target.stat_int(STAT_DEFENSE).unwrap_or_else(|| tdesc.map_or(0, |d| d.xml.int("Defense", 0)));

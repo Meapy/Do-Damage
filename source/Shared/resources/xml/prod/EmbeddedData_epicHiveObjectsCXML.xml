@@ -3046,7 +3046,7 @@
       </AnimatedTexture>
       <MaxHitPoints>60000</MaxHitPoints>
       <Enemy/>
-      <Quest/>
+      <!-- not a quest: the treasure room is a secret (the arrow points at the Queen) -->
       <HealthBarBoss/>
       <TrackLoot/>
       <Size>120</Size>

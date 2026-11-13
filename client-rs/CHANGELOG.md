@@ -12,6 +12,71 @@ Keep each version short: changes go under `### ` group headings (Oryx 5, Arena, 
 on), one line per change players notice, summed up rather than item by item (the wiki has the
 details). Add to a group's line when a change adds to it, rather than adding another line.
 
+## 2.5.5 (2026-11-13)
+
+### Items
+- New sprites drawn by players in the Sprite Editor: Crown (by Godes), Elder Shatters Key (by Godes), Cabernet (by Godes).
+
+### Game
+- `/shop keys` sells every dungeon's key at the Bazaar's prices: the regular keys, the Doomed
+  Realms keys and all the Elder keys, the Elder Ivory Wyvern (400 fame), Elder Shatters (600) and
+  Elder Lost Halls (750) keys for the first time, and the Inferno and Elysium incantations. There
+  are more keys than stalls, so the stalls take turns every few minutes.
+- Options, Visuals is tidier, in three parts (World, Other players, Chat), and other players'
+  shots have a slider instead of a switch: fade them from 100% down to Hidden. It takes their
+  spells, their pets' shots and their Necromantic items' powers with it (the black holes,
+  pentagrams, auras and the rest), while yours stay as they are. Their damage numbers moved there
+  from Gameplay.
+
+### Realm
+- Three new realm events, in both realms, each coming at random with the others: the **Gilded
+  Thief**, who runs from you, blinks away leaving decoys and drops coffers of loot as you hit it
+  (some of them bite), and escapes with the rest if you don't catch it in three minutes; the
+  **Starborn Colossus**, a fallen star that wakes in a rain of meteors, hides behind orbiting moons
+  and goes supernova; and the **Blight Mother**, who spreads spore pods that heal her and burst
+  into sporelings unless you weed them. Each drops rare weapons that dropped nowhere before. In
+  Realm 2 each brings a land of its own (the Thieves' Bazaar, the Starfall Crater and the
+  Blightwood) with new monsters and quests, and a Realm 2 now needs eleven of its fourteen lands
+  to close, so each one shows a different mix.
+
+### Dungeons
+- Empowered bosses fight in phases now: as their health falls they enter new ones, named over
+  them, with a Soul Harvest that marks every player (80%), the Soul Storm (60%), a Death Spiral
+  (30%) and a Last Breath (10%) where they shield themselves and unleash everything at once. The
+  bosses of the Elder Shatters, Lost Halls, Cultist Hideout, Void, Tomb, Draconis lair, the Ivory
+  Wyvern and Thessal each have two phases of their own on top, such as the Sentinel's collapsing
+  bridge, Malus' blood moon ritual (kill his cultist souls before the chant ends), the Void
+  Entity's event horizon, Pyyr's meteor shower and Thessal's riptides. The wiki lists them all.
+- Five unfinished dungeons are finished. **Magic Woods:** come near the big fountain and three
+  waves of fairies pour out of the small ones before the Fountain Spirit rises. **Candyland:** its
+  five bosses taunt you and drop their loot (they dropped nothing before), and once all five have
+  fallen the Cupcake wakes. **Fungal Cavern:** break 20 Cavern Crystals to power the dwarves'
+  drill, hold off their war bands while it bores through the wall, then fight the Crystal Worm
+  Mother, a worm of crystal you hit through its weak points, in seven phases with her Father and
+  Children, while Crystallised Water floods her chamber from the edges. **The Nest:** the Killer
+  Bee Nest now opens it beside the Hive, and The Nest Key opens it anywhere: honeycomb rooms in
+  wax walls with pools and rivers of Killer Honey edged with broken tiles, five rooms to the
+  Killer Bee Queen in her dark chamber over a lake of honey; and
+  behind breakable blocks at the end of one dead end hides the Beekeeper's laboratory, where he
+  fights in four phases with his flames, his Killer Bees and his Experimental Soldier Bees.
+  **Cnidarian Reef:** the Royal Cnidarian fights in six phases, shielded while its Gold Cnidarians
+  circle the reef.
+- A new dungeon, the **Crystal Cavern**: the Crystal Worm Mother now leaves its portal. Break 20
+  crystals among its bats, slimes and Crystallised beasts to drill through to the Crystal Entity,
+  who fights in six phases on a platform in the water, sending its guardians (the Lizard or the
+  Cyclops, the Scorpion or the Fish, then the Monstrosity) and its Pulse Locks.
+- The Fungal Cavern, the Crystal Cavern, The Nest and Candyland are laid out anew every time you
+  go in: the same rooms, joined in a different order and number each visit.
+- Underwater dungeons (the Ocean Trench, its Elder version and the Cnidarian Reef) now use your
+  breath: a blue bar under your health empties while you swim and refills at an Ocean Vent, and when
+  it runs out you start to drown. Also fixed: the Magic Woods' Radph healed nobody, and the
+  Deadwater Docks' breakable walls were missing.
+- Bosses drop their loot themselves where they fall: no more loot balloons or chests to break
+  after the Lair of Draconis' dragons, the Ivory Wyvern, the Shatters' three bosses, the Puppet
+  Master, Esben, Shaitan, Lord Ruthven (his Coffin is gone) and the Ice Tomb's three (each drops a
+  third of the old chest's chances). The Elder Lair of Draconis' dragons now drop the Necromantic
+  Relic, which they never did, and raised Empowered dragons and Wyverns drop their full loot.
+
 ## 2.5.4 (2026-11-12)
 
 ### Game

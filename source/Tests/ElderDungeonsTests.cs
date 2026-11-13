@@ -22,7 +22,7 @@ namespace Tests
 
         public ElderDungeonsTests(ITestOutputHelper output) => _out = output;
 
-        // Each Elder dungeon's boss (or what it leaves, a balloon or coffin) and its Potion of Max.
+        // Each Elder dungeon's boss and its Potion of Max (every boss drops its loot itself).
         public static readonly TheoryData<string, string> MaxPotions = new TheoryData<string, string>
         {
             { "Elder Tomb Attacker", "Potion of Max Life" },
@@ -36,18 +36,18 @@ namespace Tests
             { "Elder Thessal the Mermaid Goddess", "Potion of Max Mana" },
             { "Elder Masked Party God", "Potion of Max Speed" },
             { "Elder Mixcoatl the Masked God", "Potion of Max Dexterity" },
-            { "Elder Coffin", "Potion of Max Attack" },
+            { "Elder Lord Ruthven", "Potion of Max Attack" },
             { "Elder Limon the Sprite God", "Potion of Max Dexterity" },
             { "Elder Davy Jones", "Potion of Max Wisdom" },
-            { "Elder lod Blue Loot Balloon", "Potion of Max Wisdom" },
-            { "Elder lod Red Loot Balloon", "Potion of Max Vitality" },
-            { "Elder lod Black Loot Balloon", "Potion of Max Dexterity" },
-            { "Elder lod Green Loot Balloon", "Potion of Max Speed" },
-            { "Elder lod Ivory Loot", "Potion of Max Life" },
-            { "Elder lod Ivory Loot", "Potion of Max Mana" },
-            { "Elder shtrs Loot Balloon Bridge", "Potion of Max Defense" },
-            { "Elder shtrs Loot Balloon Mage", "Potion of Max Mana" },
-            { "Elder shtrs Loot Balloon King", "Potion of Max Life" },
+            { "Elder NM Blue Dragon God", "Potion of Max Wisdom" },
+            { "Elder NM Red Dragon God", "Potion of Max Vitality" },
+            { "Elder NM Black Dragon God", "Potion of Max Dexterity" },
+            { "Elder NM Green Dragon God", "Potion of Max Speed" },
+            { "Elder lod Ivory Wyvern", "Potion of Max Life" },
+            { "Elder lod Ivory Wyvern", "Potion of Max Mana" },
+            { "Elder shtrs Bridge Sentinel", "Potion of Max Defense" },
+            { "Elder shtrs Twilight Archmage", "Potion of Max Mana" },
+            { "Elder shtrs The Forgotten King", "Potion of Max Life" },
             { "Elder LH Marble Colossus", "Potion of Max Defense" },
             { "Elder LH Malus 2", "Potion of Max Attack" },
             { "Elder LH Void Entity", "Potion of Max Life" },
@@ -62,14 +62,14 @@ namespace Tests
             { "Elder Septavius the Ghost God", "Elder Undead Lair Key", 0.009 },
             { "Elder Limon the Sprite God", "Elder Sprite World Key", 0.1 },
             { "Elder Archdemon Malphas", "Elder Abyss Key", 0.01 },
-            { "Elder lod Blue Loot Balloon", "Elder Draconis Key", 0.01 },
+            { "Elder NM Blue Dragon God", "Elder Draconis Key", 0.01 },
             { "Elder Thessal the Mermaid Goddess", "Elder Ocean Trench Key", 0.01 },
             { "Elder Lord Ruthven", "Elder Manor Key", 0.01 },
             { "Elder Mixcoatl the Masked God", "Elder Jungle Key", 0.01 },
             { "Elder Davy Jones", "Elder Davy Key", 0.009 },
             { "Elder Masked Party God", "Elder Beach Key", 0.01 },
-            { "Elder lod Ivory Loot", "Elder Ivory Wyvern Key", 0.01 },
-            { "Elder shtrs Loot Balloon King", "Elder Shatters Key", 0.02 },
+            { "Elder lod Ivory Wyvern", "Elder Ivory Wyvern Key", 0.01 },
+            { "Elder shtrs The Forgotten King", "Elder Shatters Key", 0.02 },
             { "Elder LH Marble Colossus", "Elder Lost Halls Key", 0.01 },
             { "Elder LH Malus 2", "Elder Lost Halls Key", 0.01 },
             { "Elder LH Void Entity", "Elder Lost Halls Key", 0.02 },
@@ -94,9 +94,55 @@ namespace Tests
             Assert.Contains(chance, drops.Where(d => d.Item == key).Select(d => d.Probabilty));
         }
 
+        // Every boss drops its loot itself, never a chest or balloon it leaves: so every boss that
+        // leaves remains has loot of its own, and with it rolls the Necromantic Relic
+        // (Loot.ExtraLootTables runs only for a monster with loot).
+        [Fact]
+        public void EveryBossThatLeavesRemainsHasItsOwnLoot()
+        {
+            var a = Data.Value;
+            var path = Path.Combine(AppContext.BaseDirectory, "resources", "data", "resurrection.json");
+            using var doc = System.Text.Json.JsonDocument.Parse(File.ReadAllText(path));
+            var bosses = doc.RootElement.GetProperty("bosses").EnumerateArray().Select(b => b.GetProperty("boss").GetString()).ToList();
+            Assert.Contains("Elder NM Blue Dragon God", bosses);
+            foreach (var boss in bosses)
+                Assert.True(a.Loot.TryGetValue(boss, out var drops) && drops.Count > 0, $"{boss} has no loot of its own");
+        }
+
+        // The loot chests and balloons bosses once left are gone: nothing turns into one or spawns one.
         [Theory]
-        [InlineData("Elder lod Blue Loot Balloon", "Elder Ivory Wyvern Key")]
-        [InlineData("Elder lod Ivory Loot", "Elder Draconis Key")]
+        [InlineData("lod Blue Loot Balloon")]
+        [InlineData("lod Red Loot Balloon")]
+        [InlineData("lod Green Loot Balloon")]
+        [InlineData("lod Black Loot Balloon")]
+        [InlineData("lod Ivory Loot")]
+        [InlineData("shtrs Loot Balloon Bridge")]
+        [InlineData("shtrs Loot Balloon Mage")]
+        [InlineData("shtrs Loot Balloon King")]
+        [InlineData("Coffin")]
+        [InlineData("Puppet Loot Chest")]
+        [InlineData("ic Loot Balloon")]
+        [InlineData("md1 Loot Balloon Shaitan")]
+        [InlineData("Ice Tomb Chest")]
+        public void NoBossLeavesALootChest(string chest)
+        {
+            var a = Data.Value;
+            var types = new[] { chest, "Elder " + chest }.Where(a.Data.IdToObjectType.ContainsKey).Select(id => a.Data.IdToObjectType[id]).ToHashSet();
+            Assert.NotEmpty(types);
+            foreach (var (owner, root) in a.States)
+                foreach (var b in All(root).SelectMany(s => s.Behaviors))
+                {
+                    var name = b.GetType().Name;
+                    var target = name is "TransformOnDeath" or "Transform" ? Field<ushort>(b, "target")
+                        : name == "Spawn" ? Field<ushort>(b, "_children") : (ushort)0;
+                    if (types.Contains(target))
+                        Assert.Fail($"{a.Data.ObjectTypeToId[owner]} leaves a {a.Data.ObjectTypeToId[target]}");
+                }
+        }
+
+        [Theory]
+        [InlineData("Elder NM Blue Dragon God", "Elder Ivory Wyvern Key")]
+        [InlineData("Elder lod Ivory Wyvern", "Elder Draconis Key")]
         public void ElderDungeonLootDoesNotIncludeAnotherDungeonsKey(string boss, string key)
         {
             Assert.True(Data.Value.Loot.TryGetValue(boss, out var drops), $"{boss} has no loot");
@@ -151,14 +197,13 @@ namespace Tests
             Assert.Contains(data.Items.Values.Single(i => i.ObjectId == "Elder Shatters Key").ActivateEffects, e => e.Id == "Elder Shatters Portal");
         }
 
-        // The Elder Shatters' bosses carry no loot themselves (a chest spawner leaves their balloon):
-        // raised by a Necromantic Relic, with the spawner gone, the Empowered form drops the
-        // balloon's loot and its own item.
+        // Raised by a Necromantic Relic, each Elder Shatters boss drops its Elder loot again and an
+        // item of its own.
         [Theory]
         [InlineData("Elder shtrs Bridge Sentinel", "Potion of Max Defense", "Snare of the Bridge Sentinel", "Bracer of the Elder Guardian")]
         [InlineData("Elder shtrs Twilight Archmage", "Potion of Max Mana", "Twilight Cataclysm", "The Eclipsed Gemstone")]
         [InlineData("Elder shtrs The Forgotten King", "Potion of Max Life", "Shroud of the Forgotten King", "The Remembered Crown")]
-        public void TheShattersEmpoweredBossesDropTheirBalloonsLoot(string boss, string potion, string item, string ring)
+        public void TheShattersEmpoweredBossesDropTheirElderLoot(string boss, string potion, string item, string ring)
         {
             var a = Data.Value;
             Assert.True(a.Data.IdToObjectType.ContainsKey(boss + " Remains"), $"{boss} leaves no remains");

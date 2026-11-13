@@ -123,7 +123,7 @@ Every shop here sells for fame; there's no way to earn gold.
   than items: the stalls take turns through its items, a few minutes each (a stall says when its
   item goes). Guests can't buy.
 - `/shop` opens the Doomed Realms shops: weapons, abilities, armor, rings, consumables, dyes, keys
-  and pets.
+  (every dungeon's key, Elder ones too, at the Bazaar's prices) and pets.
 - The Divine Forge in the Nexus buys items for fame (its Sell for fame tab).
 
 The Nexus Bazaar's specials and consumables:

@@ -7,6 +7,25 @@ namespace WorldServer.logic
 {
     partial class BehaviorDb
     {
+        // The tomb's treasure, once in a chest that opened when all three bosses were dead: each of
+        // the three drops it at a third of the chest's chances.
+        private static MobDrops IceTombTreasure() =>
+            new Threshold(.01,
+                new ItemLoot("Ring of the Northern Light", 0.0067),
+                new ItemLoot("Enchanted Ice Shard", 0.0067),
+                new ItemLoot("Frimarra", 0.0067),
+                new ItemLoot("Freezing Quiver", 0.0017),
+                new ItemLoot("Arctic Bow", 0.0017),
+                new ItemLoot("Bow of Eternal Frost", 0.0017),
+                new ItemLoot("Frosty's Walking Stick", 0.0017),
+                new ItemLoot("Staff of Iceblast", 0.0017),
+                new ItemLoot("Eternal Snowflake Wand", 0.0017),
+                new ItemLoot("Frozen Wand", 0.0017),
+                new ItemLoot("Snowblind Wand", 0.0017),
+                new ItemLoot("Potion of Life", 0.12),
+                new ItemLoot("Ice Crown", 0.0008)
+            );
+
         private _ IceTomb = () => Behav()
             .Init("Aqua Artifact 1",
                 new State(
@@ -241,8 +260,8 @@ namespace WorldServer.logic
                         new Shoot(50, 3, 10, 0, coolDown: 4750, coolDownOffset: 500)
                     )
                 ),
-                new Threshold(0.01, new ItemLoot("Tome of Frigid Protection", 0.005))
-            )
+                new Threshold(0.01, new ItemLoot("Tome of Frigid Protection", 0.005)),
+                IceTombTreasure())
             .Init("Ice Tomb Support",
                 new State(
                     new State("Idle",
@@ -459,8 +478,8 @@ namespace WorldServer.logic
                         new Shoot(16, count: 5, shootAngle: 360 / 5, projectileIndex: 3, coolDown: 2500),
                         new HpLessTransition(0.10, "Rage")
                     )
-                )
-            )
+                ),
+                IceTombTreasure())
             .Init("Ice Tomb Attacker",
                 new State(
                     new State("Idle",
@@ -669,8 +688,8 @@ namespace WorldServer.logic
                         new Reproduce("ice golem", 3, 3, coolDown: 10000),
                         new HpLessTransition(0.10, "Rage")
                     )
-                )
-            )
+                ),
+                IceTombTreasure())
             .Init("shard Artifact 1",
                 new State(
                     new Prioritize(
@@ -721,9 +740,11 @@ namespace WorldServer.logic
                     )
                 )
             )
+            // once the three are dead: the way out
             .Init("Ice Tomb Boss Anchor",
                 new State(
                     new ConditionEffectBehavior(ConditionEffectIndex.Invincible),
+                    new DropPortalOnDeath("Realm Portal", 1.0),
                     new State("Wait",
                         new EntitiesNotExistsTransition(30, "Wait2", "Activator")
                     ),
@@ -734,35 +755,8 @@ namespace WorldServer.logic
                         new EntitiesNotExistsTransition(30, "Spawn", "Ice Tomb Support", "Ice Tomb Attacker", "Ice Tomb Defender")
                     ),
                     new State("Spawn",
-                        new Transform("Ice Tomb Chest")
+                        new Suicide()
                     )
-                )
-            )
-            .Init("Ice Tomb Chest",
-                new State(
-                    new DropPortalOnDeath("Realm Portal", 1.0),
-                    new State("Wait",
-                        new ConditionEffectBehavior(ConditionEffectIndex.Invulnerable),
-                        new TimedTransition(5000, "Open")
-                    ),
-                    new State("Open",
-                        new RemoveConditionalEffect(ConditionEffectIndex.Invulnerable)
-                    )
-                ),
-                new Threshold(.01,
-                    new ItemLoot("Ring of the Northern Light", 0.02),
-                    new ItemLoot("Enchanted Ice Shard", 0.02),
-                    new ItemLoot("Frimarra", 0.02),
-                    new ItemLoot("Freezing Quiver", 0.005),
-                    new ItemLoot("Arctic Bow", 0.005),
-                    new ItemLoot("Bow of Eternal Frost", 0.005),
-                    new ItemLoot("Frosty's Walking Stick", 0.005),
-                    new ItemLoot("Staff of Iceblast", 0.005),
-                    new ItemLoot("Eternal Snowflake Wand", 0.005),
-                    new ItemLoot("Frozen Wand", 0.005),
-                    new ItemLoot("Snowblind Wand", 0.005),
-                    new ItemLoot("Potion of Life", .35, 3),
-                    new ItemLoot("Ice Crown", .0025)
                 )
             );
     }

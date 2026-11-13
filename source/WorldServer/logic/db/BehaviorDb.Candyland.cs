@@ -52,6 +52,8 @@ namespace WorldServer.logic
             )
             .Init("MegaRototo",
                 new State(
+                    new Taunt(true, "The MegaRototo's breath will roast you, well done!", "You really shouldn't have threatened the Rototos!"),
+                    new MarkWorldOnDeath("MegaRototo", CandyBosses, "Cupcake", "Your crazy hijinks even awakened the great Cupcake!"),
                     new Reproduce(children: "Tiny Rototo", densityRadius: 12, densityMax: 7, coolDown: 7000),
                     new State("Follow",
                         new Shoot(radius: 0, count: 4, shootAngle: 90, defaultAngle: 45, coolDown: 1400),
@@ -80,15 +82,7 @@ namespace WorldServer.logic
                         new TimedTransition(time: 4000, targetState: "Follow")
                         )
                 ),
-                new Threshold(0.01,
-                    new ItemLoot(item: "Candy-Coated Armor", probability: 0.005),
-                    new ItemLoot(item: "Candy Ring", probability: 0.005),
-                    new ItemLoot(item: "Red Gumball", probability: 0.15),
-                    new ItemLoot(item: "Purple Gumball", probability: 0.15),
-                    new ItemLoot(item: "Blue Gumball", probability: 0.15),
-                    new ItemLoot(item: "Green Gumball", probability: 0.15),
-                    new ItemLoot(item: "Yellow Gumball", probability: 0.15)
-                    ),
+                CandyBossLoot("Legacy Fairy Plate"),
                 new Threshold(.005,
                     LootTemplates.BasicDrop()
                     ),
@@ -102,6 +96,8 @@ namespace WorldServer.logic
             )
             .Init("Spoiled Creampuff",
                 new State(
+                    new Taunt(true, "These puffs are sure to sour your mood!", "This creampuff is here to spoil your fun!"),
+                    new MarkWorldOnDeath("Spoiled Creampuff", CandyBosses, "Cupcake", "Your crazy hijinks even awakened the great Cupcake!"),
                     new Spawn(children: "Big Creampuff", maxChildren: 2, initialSpawn: 0, givesNoXp: true),
                     new Reproduce(children: "Big Creampuff", densityRadius: 24, densityMax: 2, coolDown: 25000),
                     new Shoot(radius: 10, count: 1, projectileIndex: 0, predictive: 1, coolDown: 1400),
@@ -114,15 +110,7 @@ namespace WorldServer.logic
                     new StayCloseToSpawn(speed: 1.35, range: 13),
                     new Wander(speed: 0.4)
                 ),
-                new Threshold(0.01,
-                    new ItemLoot(item: "Candy-Coated Armor", probability: 0.005),
-                    new ItemLoot(item: "Candy Ring", probability: 0.005),
-                    new ItemLoot(item: "Red Gumball", probability: 0.15),
-                    new ItemLoot(item: "Purple Gumball", probability: 0.15),
-                    new ItemLoot(item: "Blue Gumball", probability: 0.15),
-                    new ItemLoot(item: "Green Gumball", probability: 0.15),
-                    new ItemLoot(item: "Yellow Gumball", probability: 0.15)
-                    ),
+                CandyBossLoot("Potion of Defense", "Potion of Attack", "Legacy Seal of the Enchanted Forest"),
                 new Threshold(.005,
                     LootTemplates.BasicDrop()
                     ),
@@ -136,6 +124,8 @@ namespace WorldServer.logic
             )
             .Init("Desire Troll",
                 new State(
+                    new Taunt(true, "It's all you don't desire, and more!", "This troll will keep all your dreams just out of reach!"),
+                    new MarkWorldOnDeath("Desire Troll", CandyBosses, "Cupcake", "Your crazy hijinks even awakened the great Cupcake!"),
                     new State("BaseAttack",
                         new Shoot(radius: 10, count: 3, shootAngle: 15, projectileIndex: 0, predictive: 1, coolDown: 1400),
                         new Grenade(radius: 5, damage: 200, range: 8, coolDown: 3000),
@@ -182,15 +172,7 @@ namespace WorldServer.logic
                         ),
                     new Wander(speed: 0.4)
                 ),
-                new Threshold(0.01,
-                    new ItemLoot(item: "Candy-Coated Armor", probability: 0.005),
-                    new ItemLoot(item: "Candy Ring", probability: 0.005),
-                    new ItemLoot(item: "Red Gumball", probability: 0.15),
-                    new ItemLoot(item: "Purple Gumball", probability: 0.15),
-                    new ItemLoot(item: "Blue Gumball", probability: 0.15),
-                    new ItemLoot(item: "Green Gumball", probability: 0.15),
-                    new ItemLoot(item: "Yellow Gumball", probability: 0.15)
-                    ),
+                CandyBossLoot("Potion of Attack", "Potion of Wisdom", "Legacy Seal of the Enchanted Forest", "Mini Desire Troll Pet Stone"),
                 new Threshold(.005,
                     LootTemplates.BasicDrop()
                     ),
@@ -254,6 +236,8 @@ namespace WorldServer.logic
             )
             .Init("Swoll Fairy",
                 new State(
+                    new Taunt(true, "All pain, no gain is the credo of these potent pixies!", "The brawny fairies won't even break a sweat against you!"),
+                    new MarkWorldOnDeath("Swoll Fairy", CandyBosses, "Cupcake", "Your crazy hijinks even awakened the great Cupcake!"),
                     new Spawn(children: "Fairy", maxChildren: 6, initialSpawn: 0, coolDown: 10000, givesNoXp: false),
                     new StayCloseToSpawn(speed: 0.6, range: 13),
                     new Prioritize(
@@ -271,16 +255,7 @@ namespace WorldServer.logic
                         new TimedRandomTransition(3000, false, "Shoot", "ShootB")
                         )
                 ),
-                new Threshold(0.01,
-                    new ItemLoot(item: "Fairy Ring", probability: 0.005),
-                    new ItemLoot(item: "Candy-Coated Armor", probability: 0.005),
-                    new ItemLoot(item: "Candy Ring", probability: 0.005),
-                    new ItemLoot(item: "Red Gumball", probability: 0.15),
-                    new ItemLoot(item: "Purple Gumball", probability: 0.15),
-                    new ItemLoot(item: "Blue Gumball", probability: 0.15),
-                    new ItemLoot(item: "Green Gumball", probability: 0.15),
-                    new ItemLoot(item: "Yellow Gumball", probability: 0.15)
-                    ),
+                CandyBossLoot("Potion of Defense", "Potion of Wisdom", "Legacy Fairy Plate"),
                 new Threshold(.005,
                     LootTemplates.BasicDrop()
                     ),
@@ -313,7 +288,7 @@ namespace WorldServer.logic
                         )
                 )
             )
-         .Init("Spilled IceCream",
+         .Init("Spilled Icecream",
              new State(
                     new Prioritize(
                         new Charge(speed: 1.4, range: 11, coolDown: 3800),
@@ -335,6 +310,8 @@ namespace WorldServer.logic
             )
             .Init("Gigacorn",
                 new State(
+                    new Taunt(true, "You'll taste the rainbow when this Gigacorn tramples you!", "Time for you to see what's at the end of the rainbow!"),
+                    new MarkWorldOnDeath("Gigacorn", CandyBosses, "Cupcake", "Your crazy hijinks even awakened the great Cupcake!"),
                     new StayCloseToSpawn(speed: 1, range: 13),
                     new Prioritize(
                         new Charge(speed: 1.4, range: 11, coolDown: 3800),
@@ -353,15 +330,7 @@ namespace WorldServer.logic
                             )
                         )
                 ),
-                new Threshold(0.01,
-                    new ItemLoot(item: "Candy-Coated Armor", probability: 0.005),
-                    new ItemLoot(item: "Candy Ring", probability: 0.005),
-                    new ItemLoot(item: "Red Gumball", probability: 0.15),
-                    new ItemLoot(item: "Purple Gumball", probability: 0.15),
-                    new ItemLoot(item: "Blue Gumball", probability: 0.15),
-                    new ItemLoot(item: "Green Gumball", probability: 0.15),
-                    new ItemLoot(item: "Yellow Gumball", probability: 0.15)
-                    ),
+                CandyBossLoot("Potion of Attack", "Potion of Wisdom", "Legacy Pixie-Enchanted Sword"),
                 new Threshold(.005,
                     LootTemplates.BasicDrop()
                     ),
@@ -386,7 +355,7 @@ namespace WorldServer.logic
                         ),
                     new State("Wait for Wave",
                         new EntitiesNotExistsTransition(16, "Wait for Room Exit",
-                            "Cupcake", "Unicorn", "Hard Candy", "Beefy Fairy", "Fairy", "Wishing Troll",
+                            "Unicorn", "Hard Candy", "Beefy Fairy", "Fairy", "Wishing Troll",
                             "Spilled Icecream", "Big Creampuff", "Small Creampuff", "Tiny Rototo", "Rototo")
                         ),
                     new State("Wait for Room Exit",
@@ -397,7 +366,7 @@ namespace WorldServer.logic
                         ),
                     new State("Wait for Boss",
                         new EntitiesNotExistsTransition(16, "Wait for Player",
-                            "Spoiled Creampuff", "Gigacorn", "Desire Troll", "MegaRototo", "Swoll Fairy", "Gumball Machine")
+                            "Spoiled Creampuff", "Gigacorn", "Desire Troll", "MegaRototo", "Swoll Fairy")
                         ),
                     new State("Wait for Player",
                         new PlayerWithinTransition(dist: 16, targetState: "Spawn Wave")
@@ -413,7 +382,7 @@ namespace WorldServer.logic
                     new ConditionEffectBehavior(ConditionEffectIndex.Invincible),
                     new State("Ini",
                         new EntitiesNotExistsTransition(16, "Wait for Room Exit",
-                            "Cupcake", "Unicorn", "Hard Candy", "Beefy Fairy", "Fairy", "Wishing Troll",
+                            "Unicorn", "Hard Candy", "Beefy Fairy", "Fairy", "Wishing Troll",
                             "Spilled Icecream", "Big Creampuff", "Small Creampuff", "Tiny Rototo", "Rototo")
                         ),
                     new State("Wait for Room Exit",
@@ -421,33 +390,29 @@ namespace WorldServer.logic
                         new NoPlayerWithinTransition(dist: 16, targetState: "Ini2")
                         ),
                     new State("Ini2",
-                        new TimedRandomTransition(0, false, "Creampuff", "Unicorn", "Troll", "Rototo", "Fairy", "Gumball Machine")
+                        new TimedRandomTransition(0, false, "Creampuff", "Unicorn", "Troll", "Rototo", "Fairy")
                         ),
                     new State("Ini3",
-                        new EntitiesNotExistsTransition(16, "Ini", "Spoiled Creampuff", "Gigacorn", "Desire Troll", "MegaRototo", "Swoll Fairy", "Gumball Machine")
+                        new EntitiesNotExistsTransition(16, "Ini", "Spoiled Creampuff", "Gigacorn", "Desire Troll", "MegaRototo", "Swoll Fairy")
                         ),
                     new State("Creampuff",
-                        new Spawn(children: "Spoiled Creampuff", maxChildren: 1, initialSpawn: 0, givesNoXp: true),
+                        new Spawn(children: "Spoiled Creampuff", maxChildren: 1, initialSpawn: 0, givesNoXp: false, spawnedByBehav: false),
                         new TimedTransition(time: 3000, targetState: "Ini3")
                         ),
                     new State("Unicorn",
-                        new Spawn(children: "Gigacorn", maxChildren: 1, initialSpawn: 0, givesNoXp: true),
+                        new Spawn(children: "Gigacorn", maxChildren: 1, initialSpawn: 0, givesNoXp: false, spawnedByBehav: false),
                         new TimedTransition(time: 3000, targetState: "Ini3")
                         ),
                     new State("Troll",
-                        new Spawn(children: "Desire Troll", maxChildren: 1, initialSpawn: 0, givesNoXp: true),
+                        new Spawn(children: "Desire Troll", maxChildren: 1, initialSpawn: 0, givesNoXp: false, spawnedByBehav: false),
                         new TimedTransition(time: 3000, targetState: "Ini3")
                         ),
                     new State("Rototo",
-                        new Spawn(children: "MegaRototo", maxChildren: 1, initialSpawn: 0, givesNoXp: true),
+                        new Spawn(children: "MegaRototo", maxChildren: 1, initialSpawn: 0, givesNoXp: false, spawnedByBehav: false),
                         new TimedTransition(time: 3000, targetState: "Ini3")
                         ),
                     new State("Fairy",
-                        new Spawn(children: "Swoll Fairy", maxChildren: 1, initialSpawn: 0, givesNoXp: true),
-                        new TimedTransition(time: 3000, targetState: "Ini3")
-                        ),
-                    new State("Gumball Machine",
-                        new Spawn(children: "Gumball Machine", maxChildren: 1, initialSpawn: 0, givesNoXp: true),
+                        new Spawn(children: "Swoll Fairy", maxChildren: 1, initialSpawn: 0, givesNoXp: false, spawnedByBehav: false),
                         new TimedTransition(time: 3000, targetState: "Ini3")
                         )
                 )
@@ -561,6 +526,118 @@ namespace WorldServer.logic
                         )
                 )
             )
+            // a miniboss: the MegaRototo's kind, guarded by Tiny Rototos (RealmEye, Rototo)
+            .Init("Rototo",
+                new State(
+                    new Reproduce(children: "Tiny Rototo", densityRadius: 10, densityMax: 4, coolDown: 9000),
+                    new StayCloseToSpawn(speed: 0.8, range: 12),
+                    new State("Follow",
+                        new Follow(speed: 0.5, acquireRange: 11, range: 4),
+                        new Shoot(radius: 10, count: 4, shootAngle: 90, projectileIndex: 1, defaultAngle: 45, coolDown: 1600),
+                        new Shoot(radius: 10, count: 2, shootAngle: 20, projectileIndex: 0, predictive: 0.6, coolDown: 1200),
+                        new TimedTransition(time: 4000, targetState: "StayBack")
+                        ),
+                    new State("StayBack",
+                        new StayBack(speed: 0.6, distance: 7, entity: null),
+                        new Shoot(radius: 10, count: 3, shootAngle: 16, projectileIndex: 0, predictive: 0.8, coolDown: 900),
+                        new TimedTransition(time: 2500, targetState: "Follow")
+                        )
+                ),
+                new ItemLoot("Red Gumball", 0.04),
+                new ItemLoot("Purple Gumball", 0.04)
+            )
+            // it stands in its room and spills gumballs when broken (RealmEye, Gumball Machine)
+            .Init("Gumball Machine",
+                new State(
+                    new ConditionEffectBehavior(ConditionEffectIndex.StasisImmune, true)
+                ),
+                new Threshold(0.01,
+                    new ItemLoot(item: "Red Gumball", probability: 0.3),
+                    new ItemLoot(item: "Purple Gumball", probability: 0.3),
+                    new ItemLoot(item: "Blue Gumball", probability: 0.3),
+                    new ItemLoot(item: "Green Gumball", probability: 0.3),
+                    new ItemLoot(item: "Yellow Gumball", probability: 0.3),
+                    new ItemLoot(item: "Rock Candy", probability: 0.1),
+                    new ItemLoot(item: "Candy Ring", probability: 0.005)
+                    )
+            )
+            // the final boss: it comes to the starting room once each of the five bosses has fallen
+            // (MarkWorldOnDeath), chases players with rings of happy magic, and its death clears the
+            // dungeon and opens the Realm Portal (World.BossDied) (RealmEye, Cupcake)
+            .Init("Cupcake",
+                new State(
+                    new ScaleHP2(20),
+                    new State("Wake",
+                        new ConditionEffectBehavior(ConditionEffectIndex.Invulnerable, false, 3000),
+                        new Taunt("Even the happy-go-lucky Cupcake despises you!"),
+                        new TimedTransition(time: 3000, targetState: "Chase")
+                        ),
+                    new State("Chase",
+                        new Prioritize(
+                            new Follow(speed: 0.7, acquireRange: 20, range: 2),
+                            new Wander(speed: 0.4)
+                            ),
+                        new Shoot(radius: 20, count: 12, shootAngle: 30, projectileIndex: 0, fixedAngle: 0, rotateAngle: 12, coolDown: 1200),
+                        new Shoot(radius: 20, count: 3, shootAngle: 12, projectileIndex: 1, predictive: 0.5, coolDown: 1800, coolDownOffset: 600),
+                        new HpLessTransition(threshold: 0.5, targetState: "Frenzy")
+                        ),
+                    new State("Frenzy",
+                        new Prioritize(
+                            new Follow(speed: 0.9, acquireRange: 20, range: 1),
+                            new Wander(speed: 0.4)
+                            ),
+                        new Shoot(radius: 20, count: 16, shootAngle: 22.5, projectileIndex: 0, fixedAngle: 0, rotateAngle: 11, coolDown: 1000),
+                        new Shoot(radius: 20, count: 5, shootAngle: 10, projectileIndex: 1, predictive: 0.5, coolDown: 1500, coolDownOffset: 500)
+                        ),
+                    new MarkWorldOnDeath("Cupcake", deathTaunt: "You're no fun! Just get out and leave us alone!")
+                ),
+                new Threshold(0.01,
+                    new ItemLoot("Potion of Defense", 1),
+                    new ItemLoot("Potion of Attack", 1),
+                    new ItemLoot("Potion of Wisdom", 1),
+                    new ItemLoot("Candy-Coated Armor", 0.03),
+                    new ItemLoot("Candy Ring", 0.03),
+                    new ItemLoot("Legacy Pixie-Enchanted Sword", 0.02),
+                    new ItemLoot("Legacy Seal of the Enchanted Forest", 0.02),
+                    new ItemLoot("Legacy Fairy Plate", 0.02),
+                    new ItemLoot("Legacy Ring of Pure Wishes", 0.02),
+                    new ItemLoot("Rock Candy", 0.3),
+                    new ItemLoot("Red Gumball", 0.3),
+                    new ItemLoot("Purple Gumball", 0.3),
+                    new ItemLoot("Blue Gumball", 0.3),
+                    new ItemLoot("Green Gumball", 0.3),
+                    new ItemLoot("Yellow Gumball", 0.3),
+                    new ItemLoot("Candy Key", 0.1, 0, 0.03),
+                    new TierLoot(11, ItemType.Weapon, 0.12),
+                    new TierLoot(12, ItemType.Armor, 0.12),
+                    new TierLoot(5, ItemType.Ability, 0.1),
+                    new TierLoot(5, ItemType.Ring, 0.1)
+                    )
+            )
         ;
+
+        // the five bosses; each marks the dungeon when it falls, and the fifth kind brings the Cupcake
+        private static readonly string[] CandyBosses = { "Gigacorn", "Desire Troll", "Spoiled Creampuff", "MegaRototo", "Swoll Fairy" };
+
+        // what every Candyland boss drops (RealmEye's drops table), with its own extras: its stat
+        // potions at half, its piece of the Swoll Paladin set at 1%, or a pet stone
+        private static Threshold CandyBossLoot(params string[] extras)
+        {
+            var loot = new System.Collections.Generic.List<MobDrops>
+            {
+                new ItemLoot("Candy-Coated Armor", 0.01),
+                new ItemLoot("Candy Ring", 0.01),
+                new ItemLoot("Legacy Ring of Pure Wishes", 0.01),
+                new ItemLoot("Rock Candy", 0.15),
+                new ItemLoot("Red Gumball", 0.15),
+                new ItemLoot("Purple Gumball", 0.15),
+                new ItemLoot("Blue Gumball", 0.15),
+                new ItemLoot("Green Gumball", 0.15),
+                new ItemLoot("Yellow Gumball", 0.15),
+            };
+            foreach (var item in extras)
+                loot.Add(new ItemLoot(item, item.StartsWith("Potion of") ? 0.5 : item.EndsWith("Pet Stone") ? 0.005 : 0.01));
+            return new Threshold(0.01, loot.ToArray());
+        }
     }
 }

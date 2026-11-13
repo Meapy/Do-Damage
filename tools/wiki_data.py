@@ -191,11 +191,20 @@ class Data:
             helpers = dict(re.findall(r'static MobDrops\[\]\s+(\w+)\(\)\s*=>\s*new MobDrops\[\]\s*\{(.*?)\};', text, re.S))
             # and a shared builder's local ones (MobDrops[] Common() => [ ... ];, BehaviorDb.Draconis.cs)
             helpers.update(re.findall(r'\bMobDrops\[\]\s+(\w+)\(\)\s*=>\s*\[(.*?)\];', text, re.S))
+            # and one drop a file's monsters share (static MobDrops IceTombTreasure() => new Threshold(...);)
+            helpers.update(re.findall(r'static MobDrops\s+(\w+)\(\)\s*=>(.*?)\n\s*\);', text, re.S))
             marks = list(start.finditer(text))
             for i, m in enumerate(marks):
                 end = marks[i + 1].start() if i + 1 < len(marks) else len(text)
                 block = text[m.start():end]
-                block += "".join(helpers[h] for h in re.findall(r'\b(\w+)\(\)', block) if h in helpers)
+                # (a list may call another: each dragon's own list calls the lair's Common())
+                seen, todo = set(), [block]
+                while todo:
+                    for h in re.findall(r'\b(\w+)\(\)', todo.pop()):
+                        if h in helpers and h not in seen:
+                            seen.add(h)
+                            block += helpers[h]
+                            todo.append(helpers[h])
                 name = m.group(3)
                 if m.group(1):
                     d = re.search(r'DoomedMonsterDefs\.(M_\w+)', block)
@@ -255,10 +264,34 @@ class Data:
             text = open(emp, encoding="utf-8-sig").read() if os.path.exists(emp) else ""
             self._resurrection["empowered"] = {k: float(v.rstrip("f")) for k, v in
                                                re.findall(r"const (?:float|int) (\w+) = ([0-9.]+f?);", text)}
+            # the raid bosses' and the Trench's own phases (EmpoweredSignatures.cs): boss -> [(name,
+            # below this share of health, what it does: the comment over it)]
+            sig = os.path.join(ROOT, "source", "WorldServer", "core", "resurrection", "EmpoweredSignatures.cs")
+            self._resurrection["signature_phases"] = self._signature_phases(
+                open(sig, encoding="utf-8-sig").read() if os.path.exists(sig) else "")
             curve = re.search(r"Curve = \{(.*?)\};", text)
             self._resurrection["empowered_curve"] = [(float(h), float(x)) for h, x in
                                                      re.findall(r"\(([0-9.]+), ([0-9.]+)\)", curve.group(1))] if curve else [(1, 2.5)]
         return self._resurrection
+
+    @staticmethod
+    def _signature_phases(text):
+        text = text.replace("\r\n", "\n")
+        m = re.search(r"const double High = ([0-9.]+), Low = ([0-9.]+);", text)
+        shares = {"High": float(m.group(1)), "Low": float(m.group(2))} if m else {}
+        out = {}
+        for boss, method in re.findall(r'"([^"]+)" => (\w+)\(\),', text):
+            body = re.search(r"private static SoulPhase\[\] %s\(\)(.*?)(?=\n        private static |\Z)" % method, text, re.S)
+            if not body:
+                continue
+            phases = []
+            for comment, name, below in re.findall(
+                    r'((?:[ \t]*// [^\n]*\n)+)[ \t]*new SoulPhase\s*\{\s*Name = "([^"]+)", Below = (\w+|[0-9.]+)',
+                    body.group(1)):
+                what = " ".join(line.strip()[3:] for line in comment.strip().split("\n"))
+                phases.append((name, shares[below] if below in shares else float(below), what))
+            out[boss] = phases
+        return out
 
     def empowered_scale(self, elder_hp):
         """How many times its Elder form's health an Empowered boss has (EmpoweredHealth.ScaleFor)."""
@@ -677,6 +710,21 @@ class Data:
                     out[name] = (int(price), shop)
         m = re.search(r'petGenerators\.Add\(new ShopItem\(i\.ObjectId,\s*(\d+)\)', text)
         self.pet_generator_price = int(m.group(1)) if m else None
+        return out
+
+    def key_shop(self):
+        """{key item id: price in fame} that /shop keys sells (MerchantLists.KeyShopPrices): the
+        Bazaar's keys but NotInKeyShop, and KeyShopOnlyPrices, without a closed dungeon's key."""
+        with open(MERCHANTS, encoding="utf-8-sig") as f:
+            text = f.read()
+        m = re.search(r'NotInKeyShop\s*=\s*\{(.*?)\};', text, re.S)
+        left_out = set(re.findall(r'"([^"]+)"', m.group(1) if m else ""))
+        out = {}
+        for arr in ("DungeonKeyPrices", "DoomedKeyPrices", "KeyShopOnlyPrices"):
+            m = re.search(arr + r'\s*=\s*\{(.*?)\};', text, re.S)
+            for name, price in re.findall(r'\("([^"]+)",\s*(\d+)\)', m.group(1) if m else ""):
+                if name not in left_out and name not in sealed_items():
+                    out[name] = int(price)
         return out
 
     # --- items -------------------------------------------------------------------------------

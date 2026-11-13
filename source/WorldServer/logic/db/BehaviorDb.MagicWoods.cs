@@ -1,4 +1,5 @@
-﻿using Shared.resources;
+﻿using System.Linq;
+using Shared.resources;
 using WorldServer.logic.behaviors;
 using WorldServer.logic.loot;
 using WorldServer.logic.transitions;
@@ -94,7 +95,7 @@ namespace WorldServer.logic
           .Init("MW Radph",
             new State(
                 new Orbit(3, 2, 10, "MW Vorv"),
-                new HealEntity(8, "MW Vurv", 40, coolDown: 2000),
+                new HealEntity(8, "MW Vorv", 40, coolDown: 2000),
             new State("Shoot",
                 new Wander(2),
                 new Shoot(radius: 0.5, count: 1, projectileIndex: 0, predictive: 1, coolDown: 400)
@@ -489,34 +490,48 @@ namespace WorldServer.logic
         #endregion
 
         #region Fountain Spirit
-        .Init("MW Boss Spawner", //Takes out the water blocks
+        // The fountain in the boss room (its spout at 132, 116 on the map; the spawner sits in its pool
+        // four tiles above, at 132, 112). A player coming near stirs it; the four small fountains
+        // around it (120/144, 104/128) send out a
+        // wave of lesser, then standard, then greater fairies, and once each wave is beaten (none left
+        // within 22 tiles, or after 40 s) the next comes. Then the fountain opens and the Fountain Spirit rises from it, the
+        // small fountains sending a fairy now and then while she lives (RealmEye, Magic Woods).
+        .Init("MW Boss Spawner",
             new State(
                 new ConditionEffectBehavior(ConditionEffectIndex.Invincible, true),
                 new State("Wait",
-                    new PlayerWithinTransition(16, "Taunt")
+                    new PlayerWithinTransition(12, "Taunt")
                     ),
                 new State("Taunt",
-                    new ConditionEffectBehavior(ConditionEffectIndex.Invincible, true),
-                    new Taunt("Ah, so you must be the guest I have felt the presence of! Strike my flowing waters and I shall richly reward you!"),
-                    new Taunt(cooldown: 4000, "In an eternity with US!"),
-                    new TimedTransition(6000, "Fight")
-                ),
+                    new Taunt("Ah, so you must be the guest I have felt the presence of! Best my fairies and I shall show myself!"),
+                    new TimedTransition(4000, "Wave1")
+                    ),
+                FairyWave("Wave1", "Lesser Fairies", 2, "Wave2"),
+                FairyWave("Wave2", "Standard Fairies", 2, "Wave3"),
+                FairyWave("Wave3", "Greater Fairies", 1, "Emerge"),
+                new State("Emerge",
+                    new Taunt("You have stirred my waters. Now you shall live an eternity with US!"),
+                    new OpenGate("MW Fountain Inner Left", 6),
+                    new OpenGate("MW Fountain Inner Right", 6),
+                    new OpenGate("MW Fountain Inner Top", 6),
+                    new OpenGate("MW Fountain Inner Bottom", 6),
+                    new OpenGate("MW Fountain Inner Bottom Left", 6),
+                    new OpenGate("MW Fountain Inner Bottom Right", 6),
+                    new OpenGate("MW Fountain Inner Top Left", 6),
+                    new OpenGate("MW Fountain Inner Top Right", 6),
+                    new OpenGate("MW Big Fountain Top", 6),
+                    // she rises from the spout
+                    new TossObject("MW Fountain Spirit", 4, 90, coolDown: 999999),
+                    new TimedTransition(1500, "Fight")
+                    ),
                 new State("Fight",
-                    new Spawn("MW Fountain Spirit", 1, 1),
-                    new TimedTransition(1000, "Check")
+                    new TossObject(null, 20, 53.13, coolDown: 12000, group: "Lesser Fairies", densityRange: 30, maxDensity: 6),
+                    new TossObject(null, 20, 126.87, coolDown: 12000, coolDownOffset: 3000, group: "Lesser Fairies", densityRange: 30, maxDensity: 6),
+                    new TossObject(null, 14.42, 213.69, coolDown: 12000, coolDownOffset: 6000, group: "Lesser Fairies", densityRange: 30, maxDensity: 6),
+                    new TossObject(null, 14.42, 326.31, coolDown: 12000, coolDownOffset: 9000, group: "Lesser Fairies", densityRange: 30, maxDensity: 6),
+                    new EntityNotExistsTransition("MW Fountain Spirit", 60, "Done")
                     ),
-                new State("Check",
-                    new EntityNotExistsTransition("MW Fountain Spirit", 200, "Open")
-                    ),
-                new State("Open",
-                    new OpenGate("MW Fountain Inner Left", 3),
-                    new OpenGate("MW Fountain Inner Right", 3),
-                    new OpenGate("MW Fountain Inner Top", 3),
-                    new OpenGate("MW Fountain Inner Bottom", 3),
-                    new OpenGate("MW Fountain Inner Bottom Left", 3),
-                    new OpenGate("MW Fountain Inner Bottom Right", 3),
-                    new OpenGate("MW Fountain Inner Top Left", 3),
-                    new OpenGate("MW Fountain Inner Top Right", 3),
+                new State("Done",
                     new Decay(0)
                     )
                 )
@@ -568,11 +583,57 @@ namespace WorldServer.logic
                 new Shoot(16, 1, projectileIndex: 5, coolDown: 500),
                 new Shoot(16, 1, projectileIndex: 6, coolDown: 500),
                 new TimedTransition(12000, "Random")
-        #endregion
                    )
-              )
+              ),
+            new Threshold(0.01,
+                new ItemLoot("Potion of Speed", 1),
+                new ItemLoot("Potion of Dexterity", 1),
+                new ItemLoot("Potion of Speed", 0.5),
+                new ItemLoot("Magic Woods Key", 0.1, 0, 0.03),
+                new ItemLoot("Shield of Flowing Clarity", 0.01),
+                new ItemLoot("Spirit Staff", 0.02),
+                new ItemLoot("Fountain Child Pet Stone", 0.005),
+                new TierLoot(11, ItemType.Weapon, 0.1),
+                new TierLoot(5, ItemType.Ability, 0.1),
+                new TierLoot(11, ItemType.Armor, 0.1),
+                new TierLoot(5, ItemType.Ring, 0.08)
+                )
             )
+        #endregion
 
        ;
+
+        // every fairy in the woods, for knowing when a wave from the fountains is beaten
+        private static readonly string[] Fairies =
+        {
+            "MW Drac", "MW Gharr", "MW Iatho", "MW Issz", "MW Lauk", "MW Lorz", "MW Orothi", "MW Radph", "MW Ril",
+            "MW Sek", "MW Serl", "MW Seus", "MW Tal", "MW Uoro", "MW Zhiar", "MW Deyst", "MW Eango", "MW Eati",
+            "MW Ehoni", "MW Iawa", "MW Laen", "MW Odaru", "MW Rilr", "MW Risrr", "MW SayIt", "MW Scheev", "MW Tiar",
+            "MW Vorck", "MW Yangu", "MW Yimi", "MW Darq", "MW Eashy", "MW Eendi", "MW Idrae", "MW Iri", "MW Itani",
+            "MW Oalei", "MW Oeti", "MW Oshyu", "MW Queq", "MW Rayr", "MW Urake", "MW Utanu", "MW Vorv"
+        };
+
+        // one wave from the four small fountains: `each` fairies of the group from every fountain,
+        // then on once none of the woods' fairies is near (or after 40 s, so a straggler lost in the
+        // woods can't hold the fight up)
+        private static State FairyWave(string name, string group, int each, string next)
+        {
+            var tosses = new System.Collections.Generic.List<IStateChildren>();
+            // the small fountains, as (range, angle) from the spawner
+            foreach (var (range, angle) in new[] { (20, 53.13), (20, 126.87), (14.42, 213.69), (14.42, 326.31) })
+                for (var i = 0; i < each; i++)
+                    tosses.Add(new TossObject(null, range, angle, coolDown: 999999, coolDownOffset: i * 600, group: group));
+            var check = name + " Check";
+            return new State(name,
+                new State(name + " Toss",
+                    tosses.Concat(new IStateChildren[] { new TimedTransition(each * 600 + 1000, check) }).ToArray()
+                    ),
+                new State(check,
+                    // within the fountains' reach (14-20 tiles) only: the woods' own fairies stand 25 out
+                    new EntitiesNotExistsTransition(22, next, Fairies),
+                    new TimedTransition(40000, next)
+                    )
+                );
+        }
     }
 }

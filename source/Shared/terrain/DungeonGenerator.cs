@@ -125,6 +125,7 @@ namespace Shared.terrain
             public bool[,] Area;    // the room's floor
             public bool[,] Halo;    // Has grown by Spacing, offset by Spacing
             public bool Start, Goal;
+            public string GoalId;   // the goal object it holds
             public readonly List<Door>[] Doors = new List<Door>[4];
         }
 
@@ -143,9 +144,11 @@ namespace Shared.terrain
             var w = map.GetLength(0);
             var h = map.GetLength(1);
 
+            var keep = new HashSet<string>(desc.Keep, StringComparer.OrdinalIgnoreCase);
+            var entrances = new HashSet<string>(desc.Entrance, StringComparer.OrdinalIgnoreCase);
             bool IsWallObject(string id)
             {
-                if (string.IsNullOrEmpty(id) || !data.IdToObjectType.TryGetValue(id, out var type) || !data.ObjectDescs.TryGetValue(type, out var od))
+                if (string.IsNullOrEmpty(id) || keep.Contains(id) || !data.IdToObjectType.TryGetValue(id, out var type) || !data.ObjectDescs.TryGetValue(type, out var od))
                     return false;
                 return od.Class is "Wall" or "ConnectedWall" or "CaveWall" || (od.FullOccupy && od.Static && !od.Enemy);
             }
@@ -196,6 +199,13 @@ namespace Shared.terrain
                         for (var j = -r; j <= r && !opened[x, y]; j++)
                             opened[x, y] = x + i >= 0 && y + j >= 0 && x + i < w && y + j < h && core[x + i, y + j];
                 }
+
+            // a kept object (a gate) joins the rooms on either side of it into one
+            if (keep.Count > 0)
+                for (var x = 0; x < w; x++)
+                    for (var y = 0; y < h; y++)
+                        if (keep.Contains(map[x, y].TileObj ?? ""))
+                            opened[x, y] = true;
 
             var label = new int[w, h];
             var areas = new List<List<(int x, int y)>>();
@@ -301,7 +311,10 @@ namespace Shared.terrain
                     if (map[x, y].Region == TileRegion.Spawn)
                         spawnRooms[room] = spawnRooms.GetValueOrDefault(room) + 1;
                     if (goals.Contains(map[x, y].TileObj ?? ""))
+                    {
                         room.Goal = true;
+                        room.GoalId = map[x, y].TileObj;
+                    }
                 }
 
                 // pools and pits inside it come along
@@ -357,6 +370,9 @@ namespace Shared.terrain
 
                 for (var d = 0; d < 4; d++)
                     room.Doors[d] = FindDoors(room, area, d, desc.Corridor);
+                var entrance = cells.Where(c => entrances.Contains(map[c.x, c.y].TileObj ?? "")).Select(c => (c.x, c.y)).DefaultIfEmpty((-1, -1)).First();
+                if (entrance.Item1 >= 0)
+                    KeepNearestDoors(room, entrance.Item1 - minX, entrance.Item2 - minY, desc.Corridor);
                 rooms.Add(room);
             }
 
@@ -409,6 +425,22 @@ namespace Shared.terrain
                 return null;
             }
             return source;
+        }
+
+        // a room with an entrance marker keeps only the doors within a few tiles of the nearest one to
+        // the marker, so it's only ever joined to the rest there
+        private static void KeepNearestDoors(Room room, int ex, int ey, int width)
+        {
+            double Dist(int d, Door door)
+            {
+                var along = door.Outer.Average();
+                var perp = door.Perp + (width - 1) / 2.0;
+                var (x, y) = d % 2 == 0 ? (along, perp) : (perp, along);
+                return Math.Sqrt((x - ex) * (x - ex) + (y - ey) * (y - ey));
+            }
+            var nearest = Enumerable.Range(0, 4).SelectMany(d => room.Doors[d].Select(door => Dist(d, door))).DefaultIfEmpty(double.MaxValue).Min();
+            for (var d = 0; d < 4; d++)
+                room.Doors[d] = room.Doors[d].Where(door => Dist(d, door) <= nearest + 4).ToList();
         }
 
         private static bool NextToFloor(Room room, int x, int y)
@@ -560,10 +592,16 @@ namespace Shared.terrain
                 var main = (int)Math.Round(fillers.Count * Desc.MainPath);
                 var spurs = new List<Room>();
 
+                // goals with a set path take theirs first; the others share what's left of the main path
+                int? SetPath(int c) => c < goals.Count && goals[c].GoalId != null && Desc.GoalPaths.TryGetValue(goals[c].GoalId, out var p) ? p : null;
+                var set = Enumerable.Range(0, chains).Select(SetPath).Where(p => p != null).Sum(p => p.Value);
+                var free = Enumerable.Range(0, chains).Count(c => SetPath(c) == null);
+                var shared = free == 0 ? 0 : Math.Max(0, Math.Min(main, fillers.Count - set));
                 var next = 0;
+                var f = 0;
                 for (var c = 0; c < chains; c++)
                 {
-                    var count = main / chains + (c < main % chains ? 1 : 0);
+                    var count = SetPath(c) ?? shared / Math.Max(1, free) + (f++ < shared % Math.Max(1, free) ? 1 : 0);
                     var chain = fillers.Skip(next).Take(count).ToList();
                     next += count;
                     if (c < goals.Count)

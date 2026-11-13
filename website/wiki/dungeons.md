@@ -29,7 +29,85 @@ Some dungeons are laid out anew for every run, from the rooms of their map: smal
 ## Candyland Hunting Grounds
 
 Each room starts with six Candy Creatures. Clear them and leave the room for a boss to appear;
-the next wave waits until that boss is defeated and you return.
+the next wave waits until that boss is defeated and you return. The bosses are Gigacorn, the
+Desire Troll, the Spoiled Creampuff, MegaRototo and the Swoll Fairy, and each drops its own stat
+potions and, rarely, a piece of the Swoll Paladin set. Once all five kinds have fallen, the
+**Cupcake** wakes in the starting room: the dungeon isn't done, and its Realm Portal doesn't open,
+until it's beaten too.
+
+## Magic Woods
+
+The fairies of the woods guard a great fountain in its heart. Come near it and it speaks: three
+waves of fairies pour out of the four small fountains round it (lesser, then standard, then
+greater fairies; the next wave comes once one is beaten, or after 40 seconds). Then the fountain
+opens and the **Fountain Spirit** rises. She wanders, orbits and fires in five patterns while the small fountains keep sending fairies. She drops Speed and
+Dexterity potions, the Magic Woods Key and, rarely, the Shield of Flowing Clarity and the Spirit
+Staff.
+
+## Fungal Cavern
+
+The Blight Mother in the realm can leave its portal. Dwarf miners are boring into a crystal
+chamber at the end of the caves, and their drill needs power: break **20 Cavern Crystals** (the
+caves are laid out anew each run and always hold more than that). Each four charge the drill a
+little more. At 20 it starts boring, and for 40 seconds the dwarves' war bands come out round the
+drill room; then the wall breaks.
+
+Inside sleeps the **Crystal Worm Mother**, a worm of crystal segments. Her body can't be hurt:
+shoot her head when she opens up, and the two weak points on her body. She fights in seven
+phases: rings of crystal, the **Crystal Worm Father** at her side (he retreats when nearly dead),
+her **Children** joining the fight, a frenzy, and at the end her tail fighting on
+alone. As she weakens, **Crystallised Water** floods her chamber from the edges (80 damage a hit),
+leaving less room each time. When she dies she leaves the portal to the Crystal Cavern.
+
+## Crystal Cavern
+
+The second part of the Fungal Cavern, through the portal the Crystal Worm Mother leaves (or the
+Crystal Cavern Key). Its caves, laid out anew each run, hold Amethyst, Emerald, Ruby, Sapphire and
+Topaz Bats and Slimes, the Crystallised Chargers, Watchers, Splitters, Shriekers and Boomers, and
+Crystal Worm Children (break a Child's body before its head can be hurt). Again a dwarf's drill
+needs **20 crystals**; once it has them it bores for 30 seconds while Crystallised beasts come out
+round the drill room.
+
+Behind the wall, on a pentagon platform in the water, waits the **Crystal Entity**. It fights in
+six phases. In the first, third and fifth it can't be hurt and sends a guardian: the
+**Crystallised Lizard** or the **Cyclops**, then the **Scorpion** or the **Fish**, then the
+**Monstrosity**. In between it fights itself, with **Pulse Locks** that aim at a player and then
+fire at them (faster each time), down to 75% and then 50% of its health. In the last phase it
+grows and armours itself and fills the chamber with crystal buds that burst into rings, flowers
+that slow you, and prisms in every direction. It drops Life and Mana potions, the Crystallised
+Fang's Venom, the Crystallised Mist and the Mark of the Crystal Entity.
+
+## The Nest
+
+When the realm's Killer Bee Nest falls, it opens two portals: the Hive and, beside it, **the
+Nest**. The Nest Key (400 fame at the Bazaar, or a drop in the Nest) opens it anywhere. Its rooms
+are full of Soldier Bees (each colour fights its own way), Killer Bees, Mini Killer Bee Nests,
+larvae and eggs. At the end is the **Killer Bee Queen**: she fights in eight phases, calling her
+bees by colour, then raises three Killer Bee Nests that hatch Adolescent Beehemoths to guard her
+to the end. The Nest is laid out anew each run from its set pieces, always with five rooms
+between the start and the Queen. Its pools and rivers of **Killer Honey** hurt and slow you; the
+broken yellow tiles over them are safe to walk.
+
+At the end of one dead end, **breakable blocks** in the north wall hide the **Beekeeper's
+laboratory** (the quest arrow doesn't show it): navy floor and walls, six bee tanks and a big
+monitor across the top, beehives down its sides. The Beekeeper fights in four phases: chasing you
+with fireballs, bees and flames on the floor that break your armour; calling Killer Bees that heal
+him; armoured at the back of the room in a storm of flames and lava bombs; and at the end,
+healing in the middle with two invulnerable **Experimental Soldier Bees** of one colour, which
+follow him round the room and burst when he dies.
+
+## Underwater: the Ocean Trench and the Cnidarian Reef
+
+You hold your breath underwater. In the Ocean Trench, the Elder Ocean Trench and the Cnidarian
+Reef a blue bar under your health shows your breath. It lasts 16 seconds in the Trench, 14 in
+the Elder Trench and 9 in the Reef. Stand by an **Ocean Vent** (within a tile) to fill it again.
+When it runs out you start to drown, losing health fast until you reach a vent.
+
+The **Royal Cnidarian** at the bottom of the Reef fights in six phases. It can't be hurt while
+its **Gold Cnidarians** circle the reef (one, then three, then five): shoot them down. Between
+those it is open while its blue, green and pink cnidarians move round it, on an outer ring, in a
+wall round it or closer in, and it throws shockwaves, pink bombs that silence and a five-way
+laser. In its last phase it chases you and its minions can be shot.
 
 ## The Lair of Draconis
 
@@ -38,8 +116,8 @@ Altar of Draconis, with four dragon souls round it, one in front of each sealed 
 a soul to be taken into its dragon's lair: Nikao the Azure Dragon (north), Pyyr the Crimson Dragon
 (west), Limoz the Veridian Dragon (east) or Feargus the Obsidian Dragon (south). A dragon wakes
 when you come near. Pyyr hides behind his hatchlings and throws lava bombs, Limoz behind six
-shields that must fall first. At the end each dragon turns into a loot balloon: pop it and the
-corridor back to the altar opens. Beat all four in any order and the altar opens the Ivory
+shields that must fall first. A slain dragon drops its loot where it falls, and the corridor back
+to the altar opens. Beat all four in any order and the altar opens the Ivory
 Wyvern's portal, and half the time the Elder Lair's.
 
 Each dragon drops its own stat potions and, rarely, a relic of itself to keep. An Elder Draconis
@@ -60,7 +138,7 @@ drops in its matching Elder dungeon. Both keys can also be community-goal reward
 The Avatar of the Forgotten King in the realm drops the Shatters' portal, and a Shatters Key
 opens it. Three bosses hold it: the Bridge Sentinel (kill its obelisks first), the Twilight
 Archmage and his birds Inferno and Blizzard, and the Forgotten King, who hides between his
-attacks. Each leaves a loot balloon.
+attacks. Each drops its loot where it falls.
 
 Half the time the Forgotten King also leaves the portal to the **Elder Shatters**: the same
 ruin by brazier light, every monster in its Elder version (twice the health, harder hits, faster

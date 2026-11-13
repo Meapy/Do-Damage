@@ -93,6 +93,8 @@ pub(super) struct Decal {
     level: u8,
     follow: Option<i32>,
     seed: u64,
+    /// How opaque (another player's, faded by the options).
+    dim: f32,
 }
 
 /// Particles given off round an object (or a spot) until `until`, a few every `period(look)`.
@@ -108,6 +110,8 @@ pub(super) struct Aura {
     until: i32,
     next: i32,
     follow: bool,
+    /// How faint its particles are made (`Particles::muting`).
+    muting: f32,
 }
 
 /// How often an aura gives off a particle, ms.
@@ -148,21 +152,21 @@ impl Particles {
     }
 
     fn decal(&mut self, kind: DecalKind, x: f64, y: f64, radius: f64, color: u32, start: i32, ms: i32, follow: Option<i32>) {
-        if self.disabled || self.decals.len() >= 64 {
+        if self.disabled || self.decals.len() >= 64 || self.muting >= 1.0 {
             return;
         }
         let seed = (self.random() * u32::MAX as f64) as u64;
         let (z, level) = self.here;
-        self.decals.push(Decal { kind, x, y, radius, color, start, ms: ms.max(1), z, level, follow, seed });
+        self.decals.push(Decal { kind, x, y, radius, color, start, ms: ms.max(1), z, level, follow, seed, dim: 1.0 - self.muting });
     }
 
     fn aura(&mut self, look: u8, id: i32, x: f64, y: f64, radius: f64, color: u32, now: i32, ms: i32, follow: bool) {
-        if self.disabled || self.auras.len() >= 48 {
+        if self.disabled || self.auras.len() >= 48 || self.muting >= 1.0 {
             return;
         }
         // the same power again on the same object: the newer one carries on
         self.auras.retain(|a| !(a.look == look && a.id == id && follow));
-        self.auras.push(Aura { look, id, x, y, radius, color, start: now, until: now + ms.max(1), next: now, follow });
+        self.auras.push(Aura { look, id, x, y, radius, color, start: now, until: now + ms.max(1), next: now, follow, muting: self.muting });
     }
 
     /// Pieces thrown up and out, falling back and bouncing.
@@ -745,11 +749,13 @@ impl Particles {
                 }
             }
             let mut n = 0;
+            self.muting = a.muting;
             while a.next <= now && n < 6 {
                 a.next += period(a.look);
                 n += 1;
                 self.aura_tick(*a, now);
             }
+            self.muting = 0.0;
             a.next = a.next.max(now - period(a.look));
         }
         auras.retain(|a| a.until > 0);
@@ -796,7 +802,7 @@ impl Particles {
         // (centred on us, where a shot can see it, but for what flies between us and somewhere else)
         let flies = matches!(which, look::SOUL_GATHER | look::SOUL_RELEASE | look::BLOOD);
         let pos1 = if mine || !flies { bsk_proto::WorldPos { x: mx, y: my } } else { bsk_proto::WorldPos { x: mx + 2.5, y: my } };
-        let e = ShowEffect { effect_type: 41, target_object_id: me.id, pos1, pos2: bsk_proto::WorldPos { x: r, y: which as f32 }, color, duration: ms, object_type: 0 };
+        let e = ShowEffect { effect_type: 41, target_object_id: me.id, pos1, pos2: bsk_proto::WorldPos { x: r, y: which as f32 }, color, duration: ms, object_type: 0, source_id: None };
         self.relic(&e, world, now);
         // the pentagram's heart erupts as it fills, as the server has it
         if which == look::PENTAGRAM {
@@ -809,7 +815,7 @@ impl Particles {
     pub(super) fn draw_decals(&self, cam: &Camera, renderer: &mut Renderer, level: u8) {
         for d in self.decals.iter().filter(|d| d.level == level && self.now >= d.start) {
             let t = ((self.now - d.start) as f64 / d.ms as f64).clamp(0.0, 1.0);
-            let mut pen = Pen { cam, renderer, x: d.x, y: d.y, z: d.z };
+            let mut pen = Pen { cam, renderer, x: d.x, y: d.y, z: d.z, dim: d.dim };
             draw_decal(&mut pen, d, t, self.now);
         }
     }
@@ -822,6 +828,8 @@ struct Pen<'a> {
     x: f64,
     y: f64,
     z: f64,
+    /// Every alpha times this (another player's decal, faded).
+    dim: f32,
 }
 
 impl Pen<'_> {
@@ -835,6 +843,7 @@ impl Pen<'_> {
     }
 
     fn tri(&mut self, pts: [[f32; 2]; 3], rgb: u32, alpha: f32) {
+        let alpha = alpha * self.dim;
         if alpha <= 0.005 {
             return;
         }

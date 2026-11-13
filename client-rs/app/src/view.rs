@@ -170,13 +170,25 @@ pub struct Floater {
     pub at: i32,
     /// How long it shows, ms.
     pub life: i32,
-    /// Another player's hit (Options, Gameplay, "Other players' damage numbers").
+    /// Another player's hit (Options, Visuals, Other players, "Damage numbers").
     pub others: bool,
 }
 
 /// Damage numbers: red, or purple for a hit that ignored defense (an `ArmorPiercing` shot).
 pub const DAMAGE_COLOR: u32 = 0xFF0000;
 pub const PIERCED_COLOR: u32 = 0xC060FF;
+
+/// Our air underwater (`StatDataType.OxygenBar`): 0-100, or -1 out of the water.
+const BREATH: u8 = 64;
+/// Below this the breath bar and the screen pulse red (`Parameters.BREATH_THRESH`).
+const BREATH_LOW: i32 = 20;
+
+/// `a` blended toward `b` by `t` (0-1), channel by channel (`MoreColorUtil.lerpColor`).
+fn lerp_color(a: u32, b: u32, t: f32) -> u32 {
+    let t = t.clamp(0.0, 1.0);
+    let ch = |c: u32, s: u32| ((c >> s) & 0xFF) as f32;
+    [16, 8, 0].iter().fold(0, |acc, &s| acc | (((ch(a, s) + (ch(b, s) - ch(a, s)) * t).round() as u32) << s))
+}
 
 impl Floater {
     /// A damage number: red, for a second.
@@ -267,10 +279,8 @@ pub struct Show {
     pub hp_bars: bool,
     /// Whose speech balloons show (`options::bubble`'s bits).
     pub bubbles: u8,
-    /// Other players' projectiles (`allyShots`).
-    pub ally_shots: bool,
-    /// Other players' pets' projectiles.
-    pub pet_shots: bool,
+    /// How opaque other players' projectiles, their pets' among them, are drawn (0: hidden).
+    pub others_shots: f32,
     /// How every pet's projectiles look.
     pub pet_shot_look: crate::options::PetShots,
     /// How opaque other players and other players' pets are.
@@ -1212,10 +1222,10 @@ pub fn draw(scene: &Scene, renderer: &mut Renderer, redrawer: &mut Redrawer, gro
     }
     for p in &world.projectiles {
         let ally = !p.damages_players && Some(p.owner_id) != world.me;
-        if ally && !scene.show.ally_shots {
+        if ally && scene.show.others_shots <= 0.0 {
             continue;
         }
-        if world.pet_shot(p, scene.data) && ((ally && !scene.show.pet_shots) || scene.show.pet_shot_look == crate::options::PetShots::Hidden) {
+        if world.pet_shot(p, scene.data) && scene.show.pet_shot_look == crate::options::PetShots::Hidden {
             continue;
         }
         if (p.x - cam.x).abs() <= radius + raise && (p.y - cam.y).abs() <= radius + raise {
@@ -1514,6 +1524,28 @@ pub fn draw(scene: &Scene, renderer: &mut Renderer, redrawer: &mut Redrawer, gro
         }
     }
 
+    // Breath underwater (`Player.drawBreathBar`, Map's breath overlay): the server sends our air,
+    // 0-100, in the Ocean Trench, its Elder version and the Cnidarian Reef, and -1 elsewhere. A blue
+    // bar under our HP bar, its back pulsing red below a fifth; and the screen pulses red as the
+    // air runs out.
+    if let Some(me) = world.player().filter(|o| !hidden(o)) {
+        if let Some(breath) = me.stat_int(BREATH).filter(|&b| b >= 0) {
+            let [px, py] = scene.stand(me);
+            let (half, tall, border) = (20.0 * k, 5.0 * k, 1.2 * k);
+            let top = py + 5.0 * k + tall + 2.0 * border + k;
+            let pulse = ((scene.time as f32 / 300.0).sin()).abs();
+            let low = if breath <= BREATH_LOW { (BREATH_LOW - breath) as f32 / BREATH_LOW as f32 } else { 0.0 };
+            renderer.fill(px - half - border, top - border, 2.0 * (half + border), tall + 2.0 * border, 0x111111, 1.0);
+            renderer.fill(px - half, top, 2.0 * half, tall, lerp_color(0x545454, 0xFF0000, pulse * low), 1.0);
+            if breath > 0 {
+                renderer.fill(px - half, top, 2.0 * half * (breath.min(100) as f32 / 100.0), tall, 0x26CAFF, 1.0);
+            }
+            if low > 0.0 {
+                renderer.fill(0.0, 0.0, w as f32, h as f32, 0xFF3700, low * pulse * 0.75 * 0.35);
+            }
+        }
+    }
+
     crate::prof::mark("v.hp");
     // Damage numbers and notifications, rising above the object.
     let style = Style { size: (18.0 * k).round().max(10.0), bold: true, color: 0xFF0000 };
@@ -1795,6 +1827,10 @@ fn draw_projectile(scene: &Scene, renderer: &mut Renderer, redrawer: &mut Redraw
         let (scale, alpha) = scene.show.pet_shot_look.look(Some(p.owner_id) == scene.world.me);
         size = ((size as f32 * scale).round() as i32).max(1);
         tint.mul[3] = alpha;
+    }
+    // another player's (or their pet's), as faint as the options say
+    if !p.damages_players && Some(p.owner_id) != scene.world.me {
+        tint.mul[3] *= scene.show.others_shots;
     }
     let Some(sprite) = redrawer.get_padded(scene.sprites, renderer, src, false, size, None, true) else { return };
     let spin = if look_desc.rotation == 0.0 { 0.0 } else { scene.time as f64 / look_desc.rotation };

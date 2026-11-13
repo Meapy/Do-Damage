@@ -41,7 +41,7 @@ STAGES = [
 ]
 COMPARE = [
     ("Lost Halls: Marble Colossus", "BehaviorDb.LostHalls.cs", [("LH Marble Colossus", 1)]),
-    ("Shatters: King's balloon", "BehaviorDb.Shatters.cs", [("shtrs Loot Balloon King", 1)]),
+    ("Shatters: Forgotten King", "BehaviorDb.Shatters.cs", [("shtrs The Forgotten King", 1)]),
     ("Tomb: three bosses", "BehaviorDb.Tomb.cs", [("Tomb Defender", 1), ("Tomb Attacker", 1), ("Tomb Support", 1)]),
     ("Ocean Trench: Thessal", "BehaviorDb.OceanTrench.cs", [("Thessal the Mermaid Goddess", 1)]),
 ]

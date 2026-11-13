@@ -27,6 +27,48 @@
       "sheet": "communitySprites8x8",
       "index": 1,
       "added": "2026-11-12"
+    },
+    {
+      "id": 14,
+      "kind": "item",
+      "item": "Crown",
+      "name": "",
+      "slot": "",
+      "note": "",
+      "author": "Godes",
+      "approvedBy": "Meapy",
+      "size": 8,
+      "sheet": "communitySprites8x8",
+      "index": 2,
+      "added": "2026-11-13"
+    },
+    {
+      "id": 16,
+      "kind": "item",
+      "item": "Elder Shatters Key",
+      "name": "",
+      "slot": "",
+      "note": "",
+      "author": "Godes",
+      "approvedBy": "Meapy",
+      "size": 8,
+      "sheet": "communitySprites8x8",
+      "index": 3,
+      "added": "2026-11-13"
+    },
+    {
+      "id": 13,
+      "kind": "item",
+      "item": "Cabernet",
+      "name": "",
+      "slot": "",
+      "note": "",
+      "author": "Godes",
+      "approvedBy": "Meapy",
+      "size": 8,
+      "sheet": "communitySprites8x8",
+      "index": 4,
+      "added": "2026-11-13"
     }
   ]
 }

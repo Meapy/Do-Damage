@@ -930,7 +930,9 @@ namespace WorldServer.core.worlds.impl.doomed
         public DoomedShop(GameServer gameServer, int id, WorldResource resource, World parent)
             : base(gameServer, id, resource, parent) { }
 
-        public static IEnumerable<string> ShopNames => DoomedEconomyData.ShopItems.Select(i => i.Shop).Distinct();
+        private const string KeysShop = "keys";
+
+        public static IEnumerable<string> ShopNames =>DoomedEconomyData.ShopItems.Select(i => i.Shop).Distinct();
 
         public void SetShop(string name)
         {
@@ -949,7 +951,11 @@ namespace WorldServer.core.worlds.impl.doomed
         {
             var data = GameServer.Resources.GameData;
             _items = new List<ISellableItem>();
-            var entries = DoomedEconomyData.ShopItems.Where(i => i.Shop == ShopName && !SealedDungeons.IsSealedItem(i.Item)).ToList();
+            // the keys shop sells the Bazaar's keys at its prices (MerchantLists.KeyShopPrices), not
+            // the few Doomed Realms' key shop had
+            var entries = ShopName == KeysShop
+                ? MerchantLists.KeyShopPrices.Select(k => (Shop: KeysShop, Item: k.Key, k.Price, Currency: CurrencyType.Fame)).ToList()
+                : DoomedEconomyData.ShopItems.Where(i => i.Shop == ShopName && !SealedDungeons.IsSealedItem(i.Item)).ToList();
             _currency = entries.Count > 0 ? entries[0].Currency : CurrencyType.Fame;
             foreach (var e in entries)
                 if (data.IdToObjectType.TryGetValue(e.Item, out var type) && data.Items.ContainsKey(type))
@@ -958,6 +964,11 @@ namespace WorldServer.core.worlds.impl.doomed
                     item.SetItem(type);
                     _items.Add(item);
                 }
+            // more items than stalls (the keys): each stall shows its item for a few minutes, as
+            // the Bazaar's do, so all of them come round
+            var rotates = _items.Count > _inactive.Count;
+            foreach (var m in _inactive)
+                m.Rotates = rotates;
         }
 
         protected override void UpdateLogic(ref TickTime time)

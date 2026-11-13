@@ -311,7 +311,8 @@ BOSS_OVERRIDE = {"Tomb of the Ancients": "Tomb Defender", "Elder Tomb of the Anc
                  "The Ivory Wyvern": "LOD Ivory Wyvern", "The Elder Ivory Wyvern": "Elder lod Ivory Wyvern",
                  "Lair of Shaitan": "md1 Head of Shaitan",
                  "Woodland Labyrinth": "Murderous Megamoth", "Magic Woods": "MW Fountain Spirit",
-                 "Cave of A Thousand Treasures": "Golden Oryx Effigy", "The Black Between": "The Mysterious One"}
+                 "Cave of A Thousand Treasures": "Golden Oryx Effigy", "The Black Between": "The Mysterious One",
+                 "Candyland Hunting Grounds": "Cupcake"}
 BOSS_PROPS = re.compile(r"Spawner|spawner|Wall|Sarcophagus|Present|Chest|Anchor|Gate|Tooky|Totem$")
 EQUIP_SLOTS = set(wd.SLOT_NAMES)
 ORYX_CHAIN = ["Oryx's Castle", "Oryx's Chamber", "Chicken Chamber", "Wine Cellar", "Oryx's Sanctuary",
@@ -330,6 +331,8 @@ OPENS_FROM = {
                              "Marble Colossus.",
     "The Elder Void": "Use a Vial of Pure Darkness in the Elder Lost Halls, where the Elder Marble Colossus fell, to "
                       "open it (it drops from Malus and the Elder Malus).",
+    # RealmManager.OpenHive, not a drop
+    "The Nest": "The realm's Killer Bee Nest opens it, beside the Hive's portal, when its last guardian bee falls.",
 }
 
 
@@ -392,6 +395,7 @@ class Gen:
         self.d = wd.Data()
         self.idx = self.d.drops_index()
         self.bazaar = self.d.bazaar()
+        self.key_shop = self.d.key_shop()
         self.portals = self.d.portals()
         self.keys = self.d.keys()
         self.incant = self.d.incantations(dropped=self.idx)
@@ -769,8 +773,9 @@ class Gen:
                         continue
                     kd = [(m, c) for m, c in self.idx.get(k, []) if not HIDDEN_MONSTER.search(m) and c]
                     price = self.bazaar.get(k)
-                    if kd or price:
-                        keys.append((k, kd, price))
+                    shop = self.key_shop.get(k)
+                    if kd or price or shop:
+                        keys.append((k, kd, price, shop))
             special = []
             unlock = []
             for p in portals:
@@ -940,10 +945,15 @@ class Gen:
             rows.append(("Portal from", ", ".join(src)))
         if x["bot"]:
             rows.append(("Nexus", "The Support Bot opens it sometimes"))
-        for k, kd, price in x["keys"]:
+        for k, kd, price, shop in x["keys"]:
             bits = []
-            if price:
-                bits.append("Nexus Bazaar, %d fame" % price[0])
+            if price and shop == price[0]:
+                bits.append("Nexus Bazaar or <code>/shop keys</code>, %d fame" % shop)
+            else:
+                if price:
+                    bits.append("Nexus Bazaar, %d fame" % price[0])
+                if shop:
+                    bits.append("<code>/shop keys</code>, %d fame" % shop)
             if kd:
                 kd = unique(kd, d)
                 names = ["%s (%s)" % (esc(who(d, m)), pct(c)) for m, c in kd[:3]]
@@ -966,7 +976,7 @@ class Gen:
         pips = ('<span class="danger" style="--d:%d" role="img" aria-label="Difficulty %d of 6: %s" title="%s"></span>'
                 % (lvl, lvl, DIFFICULTY_WORDS[lvl - 1], DIFFICULTY_WORDS[lvl - 1]) if lvl else "")
         search = " ".join([x["name"], d.name(x["boss"] or "")] + [d.name(m) for m, _ in x["sources"]]
-                          + [d.name(k) for k, _, _ in x["keys"]] + [d.name(i) for i, _ in x["loot"] + x["max"]])
+                          + [d.name(k) for k, _, _, _ in x["keys"]] + [d.name(i) for i, _ in x["loot"] + x["max"]])
         return ('<article class="dg" id="%s" data-search="%s"><header><h3>%s</h3>%s</header>'
                 '<dl>%s</dl></article>' % (ident, esc(search.lower()), esc(x["name"]), pips,
                                          "".join("<div><dt>%s</dt><dd>%s</dd></div>" % r for r in rows)))
@@ -996,6 +1006,12 @@ class Gen:
                          % ("{:,}".format(emp), "{:,}".format(hp), bonus)))
             rows.append(("Soul attacks", "Soul Nova bolts hit for <strong>%d</strong>, the Soul Storm's for %d and slow you 2 s; "
                          "Wailing Souls have %s health" % (b["soulDamage"], round(b["soulDamage"] * 0.7), "{:,}".format(soul_hp))))
+            # a raid boss's (and the Trench's) phases of its own (EmpoweredSignatures.cs)
+            own = res.get("signature_phases", {}).get(b["boss"])
+            if own:
+                rows.append(("Its own phases", "; ".join(
+                    "<strong>%s</strong> (below %d%%): %s" % (esc(n), round(below * 100), esc(what))
+                    for n, below, what in own)))
             for note in (RAISE_DUNGEON_NOTES.get(b["dungeon"]), RAISE_NOTES.get(b["boss"])):
                 if note:
                     rows.append(("Raising it", note))
@@ -1116,12 +1132,17 @@ class Gen:
                 how.append("%s, in %s" % (esc(d.name(item)), joined([esc(a) for a in areas])))
             if not how and x["sources"]:
                 how.append("Portal from " + joined([esc(who(d, m)) for m, _ in x["sources"]]))
-            for k, kd, price in x["keys"]:
+            for k, kd, price, shop in x["keys"]:
                 bits = []
                 if kd:
                     bits.append("from " + joined(["%s (%s)" % (esc(who(d, m)), pct(c)) for m, c in kd[:3]]))
-                if price:
-                    bits.append("%d fame in the Bazaar" % price[0])
+                if price and shop == price[0]:
+                    bits.append("%d fame in the Bazaar or /shop keys" % shop)
+                else:
+                    if price:
+                        bits.append("%d fame in the Bazaar" % price[0])
+                    if shop:
+                        bits.append("%d fame in /shop keys" % shop)
                 how.append("%s (%s)" % (esc(with_article(d.name(k))), ", ".join(bits)))
             how = how[:1] + ["or " + h for h in how[1:]]
             if how:

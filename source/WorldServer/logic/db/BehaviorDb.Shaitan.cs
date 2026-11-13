@@ -556,6 +556,8 @@ namespace WorldServer.logic
                         ),
                     new State("94",
                         new ConditionEffectBehavior(ConditionEffectIndex.Invulnerable),
+                        // it dies on the floor, where its loot can be picked up
+                        new MoveTo(0.8f, 32.5f, 36),
                         new Taunt(true, "THE MAD GOD SHALL KNOW OF THESE TRANSGRESSIONS!"),
                         new TimedTransition(2000, "95")
                         ),
@@ -564,11 +566,29 @@ namespace WorldServer.logic
                         new Suicide()
                         )
 
-                    )
-            )
+                    ),
+                new Threshold(0.005,
+                    LootTemplates.BasicDrop()
+                    ),
+                new Threshold(0.005,
+                    new ItemLoot("Potion of Attack", 1),
+                    new ItemLoot("Potion of Defense", 0.5),
+                    new ItemLoot("Large Flame Cloth", 0.1),
+                    new ItemLoot("Small Flame Cloth", 0.1),
+                    new ItemLoot("Large Crossbox Cloth", 0.1),
+                    new ItemLoot("Small Crossbox Cloth", 0.1),
+                    new ItemLoot("Large Heavy Chainmail Cloth", 0.1)
+                    ),
+                new Threshold(0.01,
+                    new ItemLoot("Lunar's Phoenix Generator", 0.03),
+                    new ItemLoot("Skull of Endless Torment", 0.01)
+                    ))
+            // once the head is dead: the way out, on the floor rather than in the lava where the head
+            // dies (the head drops its loot itself)
             .Init("md1 LeftHandSmash",
                 new State(
                     new ConditionEffectBehavior(ConditionEffectIndex.Invincible),
+                    new DropPortalOnDeath("Realm Portal", 1.0),
                     new State("1",
                         new EntityNotExistsTransition("md1 Head of Shaitan", 999, "2")
                         ),
@@ -576,8 +596,6 @@ namespace WorldServer.logic
                         new TimedTransition(2000, "3")
                         ),
                     new State("3",
-                        // not as a minion: those drop no loot
-                        new Spawn("md1 Loot Balloon Shaitan", 1, 0, spawnedByBehav: false),
                         new Suicide()
                         )
                     )
@@ -864,34 +882,6 @@ namespace WorldServer.logic
                                 )
                             )
                         )
-                    )
-            .Init("md1 Loot Balloon Shaitan",
-                new State(
-                    // the way out, on the floor rather than in the lava where the head dies (as the
-                    // Shatters' chests do)
-                    new DropPortalOnDeath("Realm Portal", 1.0),
-                    new State("Idle",
-                        new ConditionEffectBehavior(ConditionEffectIndex.Invulnerable),
-                        new TimedTransition(5000, "UnsetEffect")
-                    ),
-                    new State("UnsetEffect")
-                ),
-                new Threshold(0.005,
-                    LootTemplates.BasicDrop()
-                    ),
-                new Threshold(0.005,
-                    new ItemLoot("Potion of Attack", 1),
-                    new ItemLoot("Potion of Defense", 0.5),
-                    new ItemLoot("Large Flame Cloth", 0.1),
-                    new ItemLoot("Small Flame Cloth", 0.1),
-                    new ItemLoot("Large Crossbox Cloth", 0.1),
-                    new ItemLoot("Small Crossbox Cloth", 0.1),
-                    new ItemLoot("Large Heavy Chainmail Cloth", 0.1)
-                    ),
-                new Threshold(0.01,
-                    new ItemLoot("Lunar's Phoenix Generator", 0.03),
-                    new ItemLoot("Skull of Endless Torment", 0.01)
-                    )
-                );
+                    );
     }
 }

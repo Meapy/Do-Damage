@@ -79,6 +79,9 @@ struct Particle {
     image: Option<Image>,
     /// How opaque it's drawn (a pet's shot's sparks are as faint as the shot).
     alpha: f32,
+    /// Times that again, whatever its motion does to `alpha`: another player's spell or shot,
+    /// faded as Options, Visuals says (`Particles::muting`).
+    dim: f32,
     /// On stacked floors, the height of the floor it was made on (ours then), which its own
     /// height is above.
     floor: f64,
@@ -93,7 +96,7 @@ struct Particle {
 
 impl Particle {
     fn new(x: f64, y: f64, z: f64, color: u32, size: f64, life: i32, motion: Motion) -> Self {
-        Particle { x, y, z, vx: 0.0, vy: 0.0, vz: 0.0, color, size, life, left: life, motion, image: None, alpha: 1.0, floor: 0.0, delay: 0, fade: false, opacity: 1.0, grow: 0.0 }
+        Particle { x, y, z, vx: 0.0, vy: 0.0, vz: 0.0, color, size, life, left: life, motion, image: None, alpha: 1.0, dim: 1.0, floor: 0.0, delay: 0, fade: false, opacity: 1.0, grow: 0.0 }
     }
 
     fn with_image(mut self, image: Option<Image>) -> Self {
@@ -141,10 +144,14 @@ pub struct Particles {
     pub disabled: bool,
     /// Options: other players' pets' effects off.
     pub hide_pets: bool,
-    /// Other players' spells' effects are hidden (with their shots: Options, Visuals).
-    pub hide_allies: bool,
-    /// Options: how pets' shots look, and whether other players' pets' show.
-    pub pet_shots: (crate::options::PetShots, bool),
+    /// How opaque other players' shots, spells and Necromantic powers are drawn (Options,
+    /// Visuals; 0 hides them).
+    pub others: f32,
+    /// How much fainter the particles, decals and auras being made now are (0: as they are):
+    /// `1 - others` while another player's effect is made.
+    pub(crate) muting: f32,
+    /// Options: how pets' shots look (other players' pets' also as faint as `others`).
+    pub pet_shots: crate::options::PetShots,
     /// The last heal burst (`ShowEffect` 1): when, its colour, and its particles in `list`. A
     /// pet's heal or strike sends one beside the line from the pet, so it goes with that line.
     last_burst: Option<(i32, u32, std::ops::Range<usize>)>,
@@ -231,7 +238,8 @@ impl Particles {
     }
 
     fn add(&mut self, mut p: Particle) {
-        if !self.disabled && self.list.len() < MAX_PARTICLES {
+        p.dim *= 1.0 - self.muting;
+        if !self.disabled && self.list.len() < MAX_PARTICLES && p.dim > 0.0 {
             p.floor = self.floor;
             self.list.push(p);
         }
@@ -286,9 +294,9 @@ impl Particles {
                 continue;
             }
             let alpha = match impact.pet_owner {
-                Some(owner) if Some(owner) == world.me => self.pet_shots.0.look(true).1,
-                Some(_) if self.pet_shots.1 => self.pet_shots.0.look(false).1,
-                Some(_) => 0.0,
+                Some(owner) if Some(owner) == world.me => self.pet_shots.look(true).1,
+                Some(_) => self.pet_shots.look(false).1 * self.others,
+                None if impact.others => self.others,
                 None => 1.0,
             };
             if alpha > 0.0 {
@@ -300,7 +308,7 @@ impl Particles {
     /// `Damage` from the server for someone else's hit: an explosion of the target's colours.
     pub fn damaged(&mut self, world: &World, target_id: i32, kill: bool) {
         let Some(o) = world.objects.get(&target_id) else { return };
-        let impact = Impact { x: o.x, y: o.y, target: Some(target_id), kill, look: String::new(), angle: 0.0, speed: 0, pet_owner: None };
+        let impact = Impact { x: o.x, y: o.y, target: Some(target_id), kill, look: String::new(), angle: 0.0, speed: 0, pet_owner: None, others: false };
         self.pending.push(Pending { impact, target: Some((o.object_type, o.stat_int(2).unwrap_or(100))), alpha: 1.0 });
     }
 
@@ -576,6 +584,7 @@ impl Particles {
             color: 0xFF40C0FF,
             duration: 0,
             object_type: 0,
+            source_id: None,
         };
         let e = match effect_type {
             5 | 10 => ShowEffect { pos1: bsk_proto::WorldPos { x: 3.0, y: 0.0 }, ..e },
@@ -855,12 +864,13 @@ impl Particles {
         for p in &world.projectiles {
             let Some(trail) = world.projectile_desc(p, data).and_then(|d| d.trail) else { continue };
             let ally = !p.damages_players && Some(p.owner_id) != world.me;
-            if (ally && self.hide_allies) || (world.pet_shot(p, data) && (self.hide_pets || self.pet_shots.0 == crate::options::PetShots::Hidden)) {
+            if (ally && self.others <= 0.0) || (world.pet_shot(p, data) && (self.hide_pets || self.pet_shots == crate::options::PetShots::Hidden)) {
                 continue;
             }
-            due.push((p.x, p.y, p.z, trail));
+            due.push((p.x, p.y, p.z, trail, if ally { 1.0 - self.others } else { 0.0 }));
         }
-        for (x, y, z, trail) in due {
+        for (x, y, z, trail, muting) in due {
+            self.muting = muting;
             let n = 50.0 * trail.intensity * dt as f64 / 1000.0;
             let n = n.floor() as usize + usize::from(self.random() < n.fract());
             for _ in 0..n.min(8) {
@@ -870,6 +880,7 @@ impl Particles {
                 self.spark(x + jx, y + jy, z.max(0.3) + jz, trail.color, size, trail.life, dx, dy);
             }
         }
+        self.muting = 0.0;
     }
 
     /// One particle of a steady effect.
@@ -1132,7 +1143,9 @@ impl Particles {
                     let [sx, sy] = cam.to_screen(p.x, p.y, p.z + p.floor);
                     let (w, h) = (w * k as f32, h * k as f32);
                     let top = if img.standing { sy - h } else { sy - h / 2.0 };
-                    renderer.sprite(rect, Quad::rect((sx - w / 2.0).round(), top.round(), w, h), Tint::NONE);
+                    let mut tint = Tint::NONE;
+                    tint.mul[3] = p.dim;
+                    renderer.sprite(rect, Quad::rect((sx - w / 2.0).round(), top.round(), w, h), tint);
                 }
                 continue;
             }
@@ -1145,9 +1158,10 @@ impl Particles {
             let [sx, sy] = cam.to_screen(p.x, p.y, p.z + p.floor);
             let edge = (1.0 * k).max(1.0) as f32;
             let half = (side / 2.0) as f32;
-            renderer.fill(sx - half - edge, sy - half - edge, 2.0 * (half + edge), 2.0 * (half + edge), 0x000000, 0.6 * p.alpha);
+            let alpha = p.alpha * p.dim;
+            renderer.fill(sx - half - edge, sy - half - edge, 2.0 * (half + edge), 2.0 * (half + edge), 0x000000, 0.6 * alpha);
             if side > 0.0 {
-                renderer.fill(sx - half, sy - half, 2.0 * half, 2.0 * half, p.color, p.alpha);
+                renderer.fill(sx - half, sy - half, 2.0 * half, 2.0 * half, p.color, alpha);
             }
         }
     }
@@ -1184,6 +1198,7 @@ mod tests {
             color: 0xFFFF0000,
             duration: 0,
             object_type: 0,
+            source_id: None,
         }
     }
 
@@ -1203,6 +1218,47 @@ mod tests {
         // Effects on unknown objects do nothing.
         p.show_effect(&effect(5, 99, (3.0, 0.0), (0.0, 0.0)), &world, 0);
         assert!(p.list.is_empty());
+    }
+
+    #[test]
+    fn others_effects_fade_with_the_option() {
+        let mut data = GameData::default();
+        data.add_objects(r#"<Objects><Object type="0x20" id="Hero"><Class>Player</Class><Player/></Object></Objects>"#).unwrap();
+        let mut world = World::new(10, 10, "test", 1);
+        let tiles: Vec<_> = (0..100).map(|i| bsk_proto::GroundTile { x: i % 10, y: i / 10, tile_type: 0 }).collect();
+        let hero = bsk_proto::ObjectData { object_type: 0x20, status: bsk_proto::ObjectStatus { object_id: 1, pos: WorldPos { x: 5.5, y: 5.5 }, stats: Default::default() } };
+        world.apply_update(&bsk_proto::Update { tiles: tiles.into(), new_objs: vec![hero].into(), drops: Default::default() }, &data, 0);
+        world.me = Some(1);
+        // the Bow of the Event Horizon's black hole: a decal and an aura
+        let mut e = effect(41, 1, (5.5, 5.5), (3.0, relic::look::SINGULARITY as f32));
+        e.duration = 2000;
+        // another player's at 40%: everything it makes as faint
+        let mut p = Particles::default();
+        p.muting = 0.6;
+        p.show_effect(&e, &world, 0);
+        p.muting = 0.0;
+        assert_eq!(p.decals.len(), 1);
+        assert_eq!(p.auras.len(), 1);
+        assert!(p.list.iter().all(|q| (q.dim - 0.4).abs() < 1e-6));
+        p.update(&world, 300, 300);
+        assert!(!p.list.is_empty() && p.list.iter().all(|q| (q.dim - 0.4).abs() < 1e-6), "the aura's particles too");
+        // hidden: nothing at all
+        let mut p = Particles::default();
+        p.muting = 1.0;
+        p.show_effect(&e, &world, 0);
+        assert!(p.decals.is_empty() && p.auras.is_empty() && p.list.is_empty());
+    }
+
+    #[test]
+    fn show_effect_names_its_player_when_the_server_does() {
+        // effect 41 with nothing set, as servers before 2.5.5 send it, then with the player
+        let mut body = vec![0u8; 31];
+        body[0] = 41;
+        let Ok(bsk_proto::ServerMessage::ShowEffect(old)) = bsk_proto::ServerMessage::decode(15, &body) else { panic!() };
+        assert_eq!(old.source_id, None);
+        body.extend(7i32.to_be_bytes());
+        let Ok(bsk_proto::ServerMessage::ShowEffect(new)) = bsk_proto::ServerMessage::decode(15, &body) else { panic!() };
+        assert_eq!(new.source_id, Some(7));
     }
 
     #[test]

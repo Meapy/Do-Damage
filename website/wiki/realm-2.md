@@ -39,8 +39,9 @@ but some of what they hold is:
 ## Events and their lands
 
 Events come one at a time, as in the realm (more at once when it's busy). First the two easy ones,
-the **Lucky Ent God** and the **Lucky Djinn**, in the midlands. Then come the eleven big events in
-a random order, and each one brings **a land of its own** when it appears: its own ground,
+the **Lucky Ent God** and the **Lucky Djinn**, in the midlands. Then come the big events in a
+random order, eleven of the fourteen below (so each Realm 2 has a different mix), and each one
+brings **a land of its own** when it appears: its own ground,
 scenery, ruined walls and monsters, with its boss in an arena at its heart. Every land comes a
 little further from the shore than the last, in any direction, and well apart from the others.
 Most rise out of the Godlands' edge, some out in the void beside it, joined by a bridge or a pool.
@@ -64,6 +65,9 @@ touched for a minute and a half no longer holds up the next.
 | The Dragon's Roost | Eye of the Dragon | Drakeling, Kobold Hoarder, Ember Wyvern, Hoard Mimic | Wyrm Matriarch, Elder Drake |
 | The Forgotten Kingdom | Avatar of the Forgotten King | Shattered Knight, Forgotten Mage, Stone Gargoyle | Forgotten Archmage (with Soul Lanterns), King's Champion |
 | The Honey Meadow | Killer Bee Nest | Hornet Drone, Honey Slime (with Pollen Sprites) | Royal Guard Bee, Hornet Queen (with Worker Bees) |
+| The Thieves' Bazaar | Gilded Thief | Cutpurse (with Hoard Rats), Bazaar Bruiser, Gold Gremlin | Bandit King, Gilded Effigy |
+| The Starfall Crater | Starborn Colossus | Astral Sentinel (with Star Motes), Meteorling, Void Watcher | Star Prism, Comet Wraith |
+| The Blightwood | Blight Mother | Rot Shambler (with Spore Puffs), Shroom Brute, Blight Webspinner | Mycelial Horror, Rotcap Elder |
 
 - **Monsters** roam in small groups, as the gods do, and are about as strong. They drop as the gods
   do (tiered gear up to T10 armour, and a stat potion of their land's kind now and then) and count
@@ -76,11 +80,13 @@ touched for a minute and a half no longer holds up the next.
   Lost Lands), Beachzone (the Tidepools), Pirate Cave (the Wreck Coast), Ancient Ruins (the Sunken
   Tombs), Undead Lair (the Bonefields), Magic Woods (the Jade Garden; its Oni Warlord can open the
   Forbidden Jungle too), Cave of a Thousand Treasures (the Dragon's Roost), Manor of the Immortals
-  (the Forgotten Kingdom) and Forest Maze (the Honey Meadow). Each land always has its two; one
+  (the Forgotten Kingdom), Forest Maze (the Honey Meadow), Pirate Cave (the Thieves' Bazaar), Ice
+  Cave (the Starfall Crater) and Toxic Sewers (the Blightwood). Each land always has its two; one
   that dies comes back within a minute or so.
 - Some lands have ground of their own to watch for: the Dragon's Roost's **lava** and the Forgotten
   Kingdom's **crystal lava** burn, the Sunken Tombs' **sinking sand** slows you and pulls you under,
-  and the Honey Meadow's **honey** and the Tidepools' and Wreck Coast's water slow you.
+  the Blightwood's **bogs** sting and slow you, and the Honey Meadow's **honey**, the Starfall
+  Crater's **starlight** and the Tidepools' and Wreck Coast's water slow you.
 - Bosses that bring a map of their own bring it in their land's colours: the Hermit God's island
   in the Tidepools' seagrass and kelp with a deep lagoon, the Skull Shrine's court in the
   Bonefields' blood soil and bone (its flaming skulls round it, as in the realm), the Eye of the
@@ -106,8 +112,8 @@ makes you invulnerable for a few seconds. No monsters spawn round a waystone.
 
 ## Closing Realm 2
 
-Realm 2 closes once all thirteen of its events are defeated: the two Lucky gods and the eleven
-lands' bosses. Oryx then sends everyone in it to his Castle, as a realm does. A busy Realm 2 needs
+Realm 2 closes once thirteen of its events are defeated: the two Lucky gods and eleven lands'
+bosses. Oryx then sends everyone in it to his Castle, as a realm does. A busy Realm 2 needs
 more: with more than eight players it needs one more event for each extra player (as a realm does,
 up to 25), and those come to new lands of their own. Event bosses grow stronger with the players
 near them, as in the realm. Each event that falls is announced to Realm 2 with how many are down,

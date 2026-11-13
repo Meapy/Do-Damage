@@ -69,10 +69,10 @@ namespace WorldServer.logic
             .Init(E("Lord Ruthven"),
                 new State(
                     new ScaleHP2(15),
-                    // his Coffin holds the loot (and the Elder portal); the way out opens as he dies,
-                    // so the world doesn't open another one (World.BossDied: the Coffin is no quest)
-                    new TransformOnDeath(N("Coffin")),
+                    // the way out opens as he dies, so the world doesn't open another one
                     new DropPortalOnDeath("Realm Portal", probability: 1.0, timeout: null, yAdjustment: 3),
+                    // the regular dungeon leads to its Elder version half the time
+                    new DropPortalOnDeath("Elder Manor Portal", elder ? 0 : 0.5, xAdjustment: 3),
                     new State("Asleep",
                         new ConditionEffectBehavior(ConditionEffectIndex.Invulnerable),
                         new PlayerWithinTransition(8, "Wake")
@@ -103,7 +103,24 @@ namespace WorldServer.logic
                     new ItemLoot("Holy Water", 0.5),
                     new ItemLoot("Manor Key", 0.01, 0, 0.03)
                     ), Elder("Lord Ruthven"),
-                ElderLoot(0.01, new ItemLoot("Elder Manor Key", 0.01)))
+                ElderLoot(0.01, new ItemLoot("Elder Manor Key", 0.01)),
+                new Threshold(0.01,
+                    new ItemLoot("Potion of Attack", 1),
+                    new ItemLoot("Potion of Dexterity", 0.5),
+                    new ItemLoot("Holy Water", 0.5),
+                    new ItemLoot("St. Abraham's Wand", 0.02),
+                    new ItemLoot("Tome of Purification", 0.02),
+                    new ItemLoot("Bone Dagger", 0.02),
+                    new ItemLoot("Chasuble of Holy Light", 0.008),
+                    new ItemLoot("Ring of Divine Faith", 0.008)
+                    ),
+                new Threshold(0.005,
+                    LootTemplates.BasicDrop()
+                    ),
+                // the Elder Manor's chance at a Potion of Max, as the Elder Tomb's bosses
+                ElderLoot(0.01,
+                    new ItemLoot("Potion of Max Attack", 0.01)
+                    ), Elder("Coffin"))
             // the bats round Lord Ruthven while he is a swarm
             .Init(E("Vampire Bat"),
                 new State(
@@ -207,46 +224,7 @@ namespace WorldServer.logic
                         new Shoot(8.4, count: 8, projectileIndex: 0, fixedAngle: 0, coolDown: Cd(1000)),
                         new Suicide()
                         )
-                    ), Elder("RockBomb"))
-            // what Lord Ruthven leaves: his Coffin, which wakes his bats and his Nosferatu as it breaks
-            .Init(E("Coffin"),
-                new State(
-                    new ScaleHP2(20),
-                    // the regular dungeon leads to its Elder version half the time
-                    new DropPortalOnDeath("Elder Manor Portal", elder ? 0 : 0.5, xAdjustment: 3),
-                    new State("Settling",
-                        new ConditionEffectBehavior(ConditionEffectIndex.Invulnerable),
-                        new TimedTransition(3000, "Coffin1")
-                        ),
-                    new State("Coffin1",
-                        new HpLessTransition(0.75, "Coffin2")
-                        ),
-                    new State("Coffin2",
-                        new Spawn(N("Vampire Bat Swarmer"), initialSpawn: 1, maxChildren: 8),
-                        new HpLessTransition(0.40, "Coffin3")
-                        ),
-                    new State("Coffin3",
-                        new Spawn(N("Vampire Bat Swarmer"), initialSpawn: 1, maxChildren: 6),
-                        new Spawn(N("Nosferatu"), initialSpawn: 1, maxChildren: 2)
-                        )
-                    ),
-                new Threshold(0.01,
-                    new ItemLoot("Potion of Attack", 1),
-                    new ItemLoot("Potion of Dexterity", 0.5),
-                    new ItemLoot("Holy Water", 0.5),
-                    new ItemLoot("St. Abraham's Wand", 0.02),
-                    new ItemLoot("Tome of Purification", 0.02),
-                    new ItemLoot("Bone Dagger", 0.02),
-                    new ItemLoot("Chasuble of Holy Light", 0.008),
-                    new ItemLoot("Ring of Divine Faith", 0.008)
-                    ),
-                new Threshold(0.005,
-                    LootTemplates.BasicDrop()
-                    ),
-                // the Elder Manor's chance at a Potion of Max, as the Elder Tomb's bosses
-                ElderLoot(0.01,
-                    new ItemLoot("Potion of Max Attack", 0.01)
-                    ), Elder("Coffin"));
+                    ), Elder("RockBomb"));
         }
     }
 }

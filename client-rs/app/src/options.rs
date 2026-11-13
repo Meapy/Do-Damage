@@ -201,8 +201,6 @@ pub enum Toggle {
     Particles,
     Shadows,
     HpBars,
-    AllyShots,
-    PetShots,
     PetEffects,
     Crosshair,
     DamageNumbers,
@@ -222,17 +220,22 @@ pub enum Toggle {
     OthersDamage,
 }
 
-/// What's shown in the world (and the speech balloons' list, `BUBBLE_KINDS`, above them).
-const VISUALS: [(Toggle, &str); 8] = [
+/// The Visuals tab's switches: what's shown in the world, under "World"...
+const VISUALS_WORLD: [(Toggle, &str); 5] = [
     (Toggle::Particles, mark("Particles and effects")),
     (Toggle::Shadows, mark("Shadows")),
     (Toggle::HpBars, mark("Health bars")),
-    (Toggle::AllyShots, mark("Other players' shots and spells")),
-    (Toggle::PetShots, mark("Other players' pets' shots")),
-    (Toggle::PetEffects, mark("Other players' pets' effects")),
-    (Toggle::Crosshair, mark("Crosshair")),
     (Toggle::DamageNumbers, mark("Damage numbers")),
+    (Toggle::Crosshair, mark("Crosshair")),
 ];
+
+/// ...and other players' things, under "Other players" (their sliders above them).
+const VISUALS_OTHERS: [(Toggle, &str); 2] = [(Toggle::PetEffects, mark("Pets' effects")), (Toggle::OthersDamage, mark("Damage numbers"))];
+
+/// A share as the sliders show it.
+fn pct(a: f32) -> String {
+    format!("{}%", (a * 100.0).round() as i32)
+}
 
 /// How pets' shots (yours and other players') are drawn. Their hits and damage are the same
 /// whichever: only the look changes.
@@ -296,10 +299,7 @@ const GRAPHICS: [(Toggle, &str); 8] = [
 ];
 
 /// How the game plays for you.
-const GAMEPLAY: [(Toggle, &str); 2] = [
-    (Toggle::AutoDrink, mark("Drink stat potions from loot bags")),
-    (Toggle::OthersDamage, mark("Other players' damage numbers")),
-];
+const GAMEPLAY: [(Toggle, &str); 1] = [(Toggle::AutoDrink, mark("Drink stat potions from loot bags"))];
 
 /// Whose speech balloons show (`Settings::bubbles`, a bit each): the Visuals tab's list.
 pub mod bubble {
@@ -381,12 +381,12 @@ pub struct Settings {
     pub hp_bars: bool,
     /// Whose speech balloons show: `bubble`'s bits (none, all, or some: only guild and party).
     pub bubbles: u8,
-    /// Other players' projectiles, and their spells' effects.
-    pub ally_shots: bool,
+    /// How opaque other players' projectiles (their pets' too), their spells' effects and their
+    /// Necromantic items' powers are drawn (0 hides them; `allyShots` before 2.5.5).
+    pub others_shots: f32,
     /// Damage numbers from other players' hits (on a boss, say), so it's clear when we hit.
     pub others_damage: bool,
-    /// Other players' pets' projectiles, and their pets' particle effects.
-    pub pet_shots: bool,
+    /// Other players' pets' particle effects.
     pub pet_effects: bool,
     /// How every pet's shots look.
     pub pet_shot_look: PetShots,
@@ -463,9 +463,8 @@ impl Default for Settings {
             shadows: true,
             hp_bars: true,
             bubbles: bubble::ALL,
-            ally_shots: true,
+            others_shots: 1.0,
             others_damage: false,
-            pet_shots: true,
             pet_effects: true,
             pet_shot_look: PetShots::Subtle,
             pings_from: PingsFrom::Everyone,
@@ -530,8 +529,6 @@ impl Settings {
             Toggle::Particles => &mut self.particles,
             Toggle::Shadows => &mut self.shadows,
             Toggle::HpBars => &mut self.hp_bars,
-            Toggle::AllyShots => &mut self.ally_shots,
-            Toggle::PetShots => &mut self.pet_shots,
             Toggle::PetEffects => &mut self.pet_effects,
             Toggle::Crosshair => &mut self.crosshair,
             Toggle::DamageNumbers => &mut self.damage_numbers,
@@ -568,8 +565,6 @@ impl Settings {
         flag("particles", self.particles);
         flag("shadows", self.shadows);
         flag("hpBars", self.hp_bars);
-        flag("allyShots", self.ally_shots);
-        flag("petShots", self.pet_shots);
         flag("petEffects", self.pet_effects);
         flag("crosshair", self.crosshair);
         flag("damageNumbers", self.damage_numbers);
@@ -594,7 +589,7 @@ impl Settings {
         out += &format!("masterVolume={}\nsfxVolume={}\nmusicVolume={}\n", self.sound.master_volume, self.sound.sfx_volume, self.sound.music_volume);
         out += &format!("worldZoom={}\n", self.zoom);
         out += &format!("chatSize={}\nchatBackground={}\n", self.chat_size, self.chat_alpha);
-        out += &format!("playerOpacity={}\npetOpacity={}\n", self.player_alpha, self.pet_alpha);
+        out += &format!("playerOpacity={}\npetOpacity={}\notherShotsOpacity={}\n", self.player_alpha, self.pet_alpha, self.others_shots);
         out += &format!("maxFps={}\n", self.max_fps);
         out += &format!("petShotLook={}\n", self.pet_shot_look.name());
         out += &format!("pingsFrom={}\n", self.pings_from.name());
@@ -649,8 +644,11 @@ impl Settings {
                 "textBubbles" => s.bubbles = if on { bubble::ALL } else { 0 },
                 "speechBalloons" => s.bubbles = value.parse::<u8>().map_or(bubble::ALL, |m| m & bubble::ALL),
                 "othersDamageNumbers" => s.others_damage = on,
-                "allyShots" => s.ally_shots = on,
-                "petShots" => s.pet_shots = on,
+                // before 2.5.5: switches for other players' shots, and their pets' (now with
+                // theirs, on the slider)
+                "allyShots" => s.others_shots = if on { 1.0 } else { 0.0 },
+                "petShots" => {}
+                "otherShotsOpacity" => s.others_shots = vol().unwrap_or(1.0),
                 "petEffects" => s.pet_effects = on,
                 "crosshair" => s.crosshair = on,
                 "crosshairStyle" => s.crosshair_look.style = Style::from_name(value).unwrap_or_default(),
@@ -744,6 +742,7 @@ enum Slider {
     PlayerAlpha,
     PetAlpha,
     PetShots,
+    OthersShots,
     ChatSize,
     ChatAlpha,
     Pings,
@@ -850,6 +849,7 @@ fn set_slider(slider: Slider, track: [f32; 4], x: f64, settings: &mut Settings) 
         Slider::Zoom => settings.zoom = ZOOM_MIN + v * (ZOOM_MAX - ZOOM_MIN),
         Slider::PlayerAlpha => settings.player_alpha = v,
         Slider::PetAlpha => settings.pet_alpha = v,
+        Slider::OthersShots => settings.others_shots = v,
         Slider::MaxFps => settings.max_fps = MAX_FPS[(f * (MAX_FPS.len() - 1) as f32).round() as usize],
         Slider::PetShots => settings.pet_shot_look = PetShots::ALL[(f * (PetShots::ALL.len() - 1) as f32).round() as usize],
         Slider::ChatSize => settings.chat_size = CHAT_MIN + v * (CHAT_MAX - CHAT_MIN),
@@ -1029,10 +1029,13 @@ impl OptionsUi {
                         settings.hdr_chosen = false;
                     }
                     Tab::Visuals => {
-                        for (t, _) in VISUALS {
+                        for (t, _) in VISUALS_WORLD.into_iter().chain(VISUALS_OTHERS) {
                             *settings.toggle(t) = *d.clone().toggle(t);
                         }
                         settings.player_alpha = d.player_alpha;
+                        settings.others_shots = d.others_shots;
+                        settings.chat_size = d.chat_size;
+                        settings.chat_alpha = d.chat_alpha;
                         settings.pet_alpha = d.pet_alpha;
                         settings.pet_shot_look = d.pet_shot_look;
                         settings.pings_from = d.pings_from;
@@ -1207,118 +1210,44 @@ impl OptionsUi {
                 }
             }
             Tab::Crosshair => self.draw_crosshair_tab(ui, lay, body, s, settings, mouse),
-            Tab::Graphics | Tab::Visuals | Tab::Sound | Tab::Gameplay => {
+            Tab::Visuals => self.draw_visuals_tab(ui, body, s, settings, mouse),
+            Tab::Graphics | Tab::Sound | Tab::Gameplay => {
                 let list: Vec<(Toggle, &str)> = match self.tab {
                     Tab::Gameplay => GAMEPLAY.to_vec(),
                     Tab::Graphics => GRAPHICS
                         .into_iter()
                         .filter(|(t, _)| !cfg!(target_arch = "wasm32") || !matches!(t, Toggle::Fullscreen | Toggle::Hdr))
                         .collect(),
-                    Tab::Visuals => VISUALS.to_vec(),
                     _ => SOUNDS.to_vec(),
                 };
                 // The sliders first, then the switches under them.
                 let mut y = body[1];
-                let pct = |a: f32| format!("{}%", (a * 100.0).round() as i32);
-                let sliders: Vec<(Slider, &str, f32, String)> = if self.tab == Tab::Sound {
-                    let snd = settings.sound;
-                    vec![
-                        (Slider::Master, tr("Master volume"), snd.master_volume, pct(snd.master_volume)),
-                        (Slider::Sfx, tr("Effects volume"), snd.sfx_volume, pct(snd.sfx_volume)),
-                        (Slider::Music, tr("Music volume"), snd.music_volume, pct(snd.music_volume)),
-                    ]
-                } else if self.tab == Tab::Visuals {
-                    let look = settings.pet_shot_look;
-                    let lv = PetShots::ALL.iter().position(|&p| p == look).unwrap_or(1) as f32 / (PetShots::ALL.len() - 1) as f32;
-                    let from = settings.pings_from;
-                    let pv = PingsFrom::ALL.iter().position(|&p| p == from).unwrap_or(2) as f32 / (PingsFrom::ALL.len() - 1) as f32;
-                    vec![
-                        (Slider::PlayerAlpha, tr("Other players"), settings.player_alpha, pct(settings.player_alpha)),
-                        (Slider::PetAlpha, tr("Other players' pets"), settings.pet_alpha, pct(settings.pet_alpha)),
-                        (Slider::PetShots, tr("Pets' shots"), lv, look.label().to_owned()),
-                        (Slider::ChatSize, tr("Chat size"), (settings.chat_size - CHAT_MIN) / (CHAT_MAX - CHAT_MIN), pct(settings.chat_size)),
-                        (Slider::ChatAlpha, tr("Chat background"), settings.chat_alpha, pct(settings.chat_alpha)),
-                        (Slider::Pings, tr("Others' pings"), pv, from.label().to_owned()),
-                    ]
-                } else {
-                    // Lower shows more of the world (the mouse wheel over the world does it too).
-                    let v = (settings.zoom - ZOOM_MIN) / (ZOOM_MAX - ZOOM_MIN);
-                    let i = MAX_FPS.iter().position(|&f| f == settings.max_fps).unwrap_or(0);
-                    let fv = i as f32 / (MAX_FPS.len() - 1) as f32;
-                    let fps = if settings.max_fps == 0 { tr("No limit").to_owned() } else { settings.max_fps.to_string() };
-                    vec![(Slider::Zoom, tr("World zoom"), v, pct(settings.zoom)), (Slider::MaxFps, tr("Max frame rate"), fv, fps)]
+                let sliders: Vec<(Slider, &str, f32, String)> = match self.tab {
+                    Tab::Sound => {
+                        let snd = settings.sound;
+                        vec![
+                            (Slider::Master, tr("Master volume"), snd.master_volume, pct(snd.master_volume)),
+                            (Slider::Sfx, tr("Effects volume"), snd.sfx_volume, pct(snd.sfx_volume)),
+                            (Slider::Music, tr("Music volume"), snd.music_volume, pct(snd.music_volume)),
+                        ]
+                    }
+                    Tab::Graphics => {
+                        // Lower shows more of the world (the mouse wheel over the world does it too).
+                        let v = (settings.zoom - ZOOM_MIN) / (ZOOM_MAX - ZOOM_MIN);
+                        let i = MAX_FPS.iter().position(|&f| f == settings.max_fps).unwrap_or(0);
+                        let fv = i as f32 / (MAX_FPS.len() - 1) as f32;
+                        let fps = if settings.max_fps == 0 { tr("No limit").to_owned() } else { settings.max_fps.to_string() };
+                        vec![(Slider::Zoom, tr("World zoom"), v, pct(settings.zoom)), (Slider::MaxFps, tr("Max frame rate"), fv, fps)]
+                    }
+                    _ => Vec::new(),
                 };
-                let sliders = if self.tab == Tab::Gameplay { Vec::new() } else { sliders };
                 for (slider, label, v, value) in sliders {
-                    ui.label_fit(label, body[0] + 10.0 * s, y + 4.0 * s, 186.0 * s, font(14.0), false, color::TEXT);
-                    let track = [body[0] + 200.0 * s, y + 9.0 * s, body[2] - 280.0 * s, 8.0 * s];
-                    theme::fill(ui.renderer, track, 4.0 * s, color::TRACK, 1.0);
-                    theme::fill(ui.renderer, [track[0], track[1], track[2] * v, track[3]], 4.0 * s, color::ACCENT, 1.0);
-                    let knob = 16.0 * s;
-                    theme::fill(ui.renderer, [track[0] + track[2] * v - knob / 2.0, track[1] - 4.0 * s, knob, knob], knob / 2.0, 0xFFFFFF, 1.0);
-                    ui.label(&value, track[0] + track[2] + 16.0 * s, y + 4.0 * s, font(13.0), true, color::TEXT_DIM);
-                    self.hits.push((Hit::Slider(slider, track), [track[0] - 8.0 * s, y, track[2] + 16.0 * s, 26.0 * s]));
+                    self.slider_row(ui, [body[0], y, body[2]], s, (slider, label, v, &value));
                     y += 40.0 * s;
                 }
                 y += 6.0 * s;
-                // The speech balloons: a box saying whose show, opening a list to tick them in.
-                let mut bubble_list = None;
-                if self.tab == Tab::Visuals {
-                    ui.label_fit(tr("Speech balloons"), body[0] + 10.0 * s, y + 8.0 * s, 186.0 * s, font(14.0), false, color::TEXT);
-                    let bx = [body[0] + 200.0 * s, y + 3.0 * s, 280.0 * s, 28.0 * s];
-                    let hot = self.bubble_menu || inside(bx, mouse);
-                    theme::frame(ui.renderer, bx, 6.0 * s, s.max(1.0), (if hot { color::BORDER_HI } else { color::BORDER }, 1.0), ((color::FIELD, 1.0), (color::FIELD, 1.0)));
-                    ui.label_fit(&bubble_summary(settings.bubbles), bx[0] + 10.0 * s, bx[1] + 6.0 * s, bx[2] - 40.0 * s, font(13.0), false, color::TEXT);
-                    caret(ui, bx[0] + bx[2] - 18.0 * s, bx[1] + bx[3] / 2.0, 5.0 * s, self.bubble_menu);
-                    self.hits.push((Hit::BubbleMenu, bx));
-                    bubble_list = Some([bx[0], bx[1] + bx[3] + 2.0 * s, bx[2]]);
-                    y += 40.0 * s;
-                }
-                // A long list of switches goes in two columns.
                 let cols = if list.len() > 6 { 2 } else { 1 };
-                let per_col = list.len().div_ceil(cols);
-                let colw = (body[2] - 20.0 * s * (cols - 1) as f32) / cols as f32;
-                for (i, (t, label)) in list.iter().enumerate() {
-                    let (col, line) = (i / per_col, i % per_col);
-                    let row = [body[0] + col as f32 * (colw + 20.0 * s), y + line as f32 * 38.0 * s, colw, 34.0 * s];
-                    if inside(row, mouse) {
-                        theme::fill(ui.renderer, row, 6.0 * s, 0xFFFFFF, 0.05);
-                    }
-                    ui.label_fit(tr(label), row[0] + 10.0 * s, row[1] + 8.0 * s, row[2] - 76.0 * s, font(14.0), false, color::TEXT);
-                    let on = *settings.clone().toggle(*t);
-                    // A switch.
-                    let sw = [row[0] + row[2] - 56.0 * s, row[1] + 7.0 * s, 44.0 * s, 20.0 * s];
-                    theme::fill(ui.renderer, sw, sw[3] / 2.0, if on { color::ACCENT } else { color::SECONDARY }, 1.0);
-                    let knob = sw[3] - 4.0 * s;
-                    let kx = if on { sw[0] + sw[2] - knob - 2.0 * s } else { sw[0] + 2.0 * s };
-                    theme::fill(ui.renderer, [kx, sw[1] + 2.0 * s, knob, knob], knob / 2.0, 0xFFFFFF, 1.0);
-                    self.hits.push((Hit::Toggle(*t), row));
-                }
-                // the list over the switches, its rows taking clicks before them
-                if let Some([lx, ly, lw]) = bubble_list.filter(|_| self.bubble_menu) {
-                    let rh = 30.0 * s;
-                    let list = [lx, ly, lw, rh * BUBBLE_KINDS.len() as f32 + 8.0 * s];
-                    theme::frame(ui.renderer, list, 6.0 * s, s.max(1.0), (color::BORDER_HI, 1.0), ((color::FIELD, 1.0), (color::FIELD, 1.0)));
-                    let mut rows = vec![];
-                    for (i, (bit, label)) in BUBBLE_KINDS.into_iter().enumerate() {
-                        let row = [lx + 4.0 * s, ly + 4.0 * s + i as f32 * rh, lw - 8.0 * s, rh];
-                        if inside(row, mouse) {
-                            theme::fill(ui.renderer, row, 4.0 * s, 0xFFFFFF, 0.06);
-                        }
-                        let on = settings.bubbles & bit != 0;
-                        let bs = 16.0 * s;
-                        let tick = [row[0] + 8.0 * s, row[1] + (rh - bs) / 2.0, bs, bs];
-                        theme::fill(ui.renderer, tick, 4.0 * s, if on { color::ACCENT } else { color::SECONDARY }, 1.0);
-                        if on {
-                            let inner = 6.0 * s;
-                            theme::fill(ui.renderer, [tick[0] + (bs - inner) / 2.0, tick[1] + (bs - inner) / 2.0, inner, inner], inner / 2.0, 0xFFFFFF, 1.0);
-                        }
-                        ui.label_fit(tr(label), tick[0] + bs + 10.0 * s, row[1] + 7.0 * s, row[2] - bs - 30.0 * s, font(13.0), false, color::TEXT);
-                        rows.push((Hit::BubbleKind(bit), row));
-                    }
-                    rows.push((Hit::BubbleList, list));
-                    self.hits.splice(0..0, rows);
-                }
+                self.switches(ui, [body[0], y, body[2]], s, cols, &list, settings, mouse);
             }
         }
         let hint = match self.tab {
@@ -1341,6 +1270,133 @@ impl OptionsUi {
             ui.button(home, tr("Return home"), Kind::Secondary, inside(home, mouse), s);
             self.hits.push((Hit::Home, home));
         }
+    }
+
+    /// A slider's row at (x, y), `w` wide: its name, the track and its value. Its hit goes in
+    /// `hits` (the track, a little wider so its ends are easy to catch).
+    fn slider_row(&mut self, ui: &mut Ui, [x, y, w]: [f32; 3], s: f32, (slider, label, v, value): (Slider, &str, f32, &str)) {
+        let font = |size: f32| (size * s).round().max(9.0);
+        ui.label_fit(label, x + 10.0 * s, y + 4.0 * s, 186.0 * s, font(14.0), false, color::TEXT);
+        let track = [x + 200.0 * s, y + 9.0 * s, w - 300.0 * s, 8.0 * s];
+        theme::fill(ui.renderer, track, 4.0 * s, color::TRACK, 1.0);
+        theme::fill(ui.renderer, [track[0], track[1], track[2] * v, track[3]], 4.0 * s, color::ACCENT, 1.0);
+        let knob = 16.0 * s;
+        theme::fill(ui.renderer, [track[0] + track[2] * v - knob / 2.0, track[1] - 4.0 * s, knob, knob], knob / 2.0, 0xFFFFFF, 1.0);
+        ui.label_fit(value, track[0] + track[2] + 16.0 * s, y + 4.0 * s, x + w - track[0] - track[2] - 16.0 * s, font(13.0), true, color::TEXT_DIM);
+        self.hits.push((Hit::Slider(slider, track), [track[0] - 8.0 * s, y, track[2] + 16.0 * s, 26.0 * s]));
+    }
+
+    /// Switches from (x, y), `w` wide, in `cols` columns, filled down each column first.
+    /// Returns how tall they are.
+    #[allow(clippy::too_many_arguments)]
+    fn switches(&mut self, ui: &mut Ui, [x, y, w]: [f32; 3], s: f32, cols: usize, list: &[(Toggle, &str)], settings: &Settings, mouse: (f64, f64)) -> f32 {
+        let font = |size: f32| (size * s).round().max(9.0);
+        let per_col = list.len().div_ceil(cols);
+        let colw = (w - 20.0 * s * (cols - 1) as f32) / cols as f32;
+        for (i, (t, label)) in list.iter().enumerate() {
+            let (col, line) = (i / per_col, i % per_col);
+            let row = [x + col as f32 * (colw + 20.0 * s), y + line as f32 * 38.0 * s, colw, 34.0 * s];
+            if inside(row, mouse) {
+                theme::fill(ui.renderer, row, 6.0 * s, 0xFFFFFF, 0.05);
+            }
+            ui.label_fit(tr(label), row[0] + 10.0 * s, row[1] + 8.0 * s, row[2] - 76.0 * s, font(14.0), false, color::TEXT);
+            let on = *settings.clone().toggle(*t);
+            // A switch.
+            let sw = [row[0] + row[2] - 56.0 * s, row[1] + 7.0 * s, 44.0 * s, 20.0 * s];
+            theme::fill(ui.renderer, sw, sw[3] / 2.0, if on { color::ACCENT } else { color::SECONDARY }, 1.0);
+            let knob = sw[3] - 4.0 * s;
+            let kx = if on { sw[0] + sw[2] - knob - 2.0 * s } else { sw[0] + 2.0 * s };
+            theme::fill(ui.renderer, [kx, sw[1] + 2.0 * s, knob, knob], knob / 2.0, 0xFFFFFF, 1.0);
+            self.hits.push((Hit::Toggle(*t), row));
+        }
+        per_col as f32 * 38.0 * s
+    }
+
+    /// The Visuals tab, in three parts under their headings: the world, other players (how
+    /// faint they, their shots, spells and Necromantic powers, and their pets are), and the chat.
+    fn draw_visuals_tab(&mut self, ui: &mut Ui, body: [f32; 4], s: f32, settings: &Settings, mouse: (f64, f64)) {
+        let font = |size: f32| (size * s).round().max(9.0);
+        let (x, w) = (body[0], body[2]);
+        let mut y = body[1];
+        let heading = |ui: &mut Ui, y: f32, text: &str| {
+            ui.label_fit(text, x + 10.0 * s, y, w - 20.0 * s, font(12.5), true, color::ACCENT_HI);
+            ui.renderer.fill(x + 10.0 * s, y + 21.0 * s, w - 20.0 * s, s.max(1.0), color::BORDER_HI, 1.0);
+        };
+        let step = |all: usize, at: usize| at as f32 / (all - 1) as f32;
+        // the world
+        heading(ui, y, tr("World"));
+        y += 32.0 * s;
+        let look = settings.pet_shot_look;
+        let lv = step(PetShots::ALL.len(), PetShots::ALL.iter().position(|&p| p == look).unwrap_or(1));
+        self.slider_row(ui, [x, y, w], s, (Slider::PetShots, tr("Pets' shots"), lv, look.label()));
+        y += 38.0 * s;
+        y += self.switches(ui, [x, y, w], s, 2, &VISUALS_WORLD, settings, mouse) + 12.0 * s;
+        // other players
+        heading(ui, y, tr("Other players"));
+        y += 32.0 * s;
+        let shots = settings.others_shots;
+        let shots_value = if shots <= 0.0 { tr("Hidden").to_owned() } else { pct(shots) };
+        let from = settings.pings_from;
+        let pv = step(PingsFrom::ALL.len(), PingsFrom::ALL.iter().position(|&p| p == from).unwrap_or(2));
+        let rows: [(Slider, &str, f32, String); 4] = [
+            (Slider::PlayerAlpha, tr("Players"), settings.player_alpha, pct(settings.player_alpha)),
+            (Slider::OthersShots, tr("Shots and spells"), shots, shots_value),
+            (Slider::PetAlpha, tr("Pets"), settings.pet_alpha, pct(settings.pet_alpha)),
+            (Slider::Pings, tr("Pings"), pv, from.label().to_owned()),
+        ];
+        for (slider, label, v, value) in rows {
+            self.slider_row(ui, [x, y, w], s, (slider, label, v, &value));
+            y += 38.0 * s;
+        }
+        y += self.switches(ui, [x, y, w], s, 2, &VISUALS_OTHERS, settings, mouse) + 12.0 * s;
+        // the chat
+        heading(ui, y, tr("Chat"));
+        y += 32.0 * s;
+        let size = (settings.chat_size - CHAT_MIN) / (CHAT_MAX - CHAT_MIN);
+        self.slider_row(ui, [x, y, w], s, (Slider::ChatSize, tr("Size"), size, &pct(settings.chat_size)));
+        y += 38.0 * s;
+        self.slider_row(ui, [x, y, w], s, (Slider::ChatAlpha, tr("Background"), settings.chat_alpha, &pct(settings.chat_alpha)));
+        y += 38.0 * s;
+        // The speech balloons: a box saying whose show, opening a list to tick them in.
+        ui.label_fit(tr("Speech balloons"), x + 10.0 * s, y + 8.0 * s, 186.0 * s, font(14.0), false, color::TEXT);
+        // as wide as the sliders' tracks above it
+        let bx = [x + 200.0 * s, y + 3.0 * s, w - 300.0 * s, 28.0 * s];
+        let hot = self.bubble_menu || inside(bx, mouse);
+        theme::frame(ui.renderer, bx, 6.0 * s, s.max(1.0), (if hot { color::BORDER_HI } else { color::BORDER }, 1.0), ((color::FIELD, 1.0), (color::FIELD, 1.0)));
+        ui.label_fit(&bubble_summary(settings.bubbles), bx[0] + 10.0 * s, bx[1] + 6.0 * s, bx[2] - 40.0 * s, font(13.0), false, color::TEXT);
+        caret(ui, bx[0] + bx[2] - 18.0 * s, bx[1] + bx[3] / 2.0, 5.0 * s, self.bubble_menu);
+        self.hits.push((Hit::BubbleMenu, bx));
+        if !self.bubble_menu {
+            return;
+        }
+        // the list, under the box or over it where there's no room below, its rows taking clicks
+        // before what it covers
+        let rh = 30.0 * s;
+        let lh = rh * BUBBLE_KINDS.len() as f32 + 8.0 * s;
+        let below = bx[1] + bx[3] + 2.0 * s;
+        let ly = if below + lh <= body[1] + body[3] { below } else { bx[1] - 2.0 * s - lh };
+        let (lx, lw) = (bx[0], bx[2]);
+        let list = [lx, ly, lw, lh];
+        theme::frame(ui.renderer, list, 6.0 * s, s.max(1.0), (color::BORDER_HI, 1.0), ((color::FIELD, 1.0), (color::FIELD, 1.0)));
+        let mut rows = vec![];
+        for (i, (bit, label)) in BUBBLE_KINDS.into_iter().enumerate() {
+            let row = [lx + 4.0 * s, ly + 4.0 * s + i as f32 * rh, lw - 8.0 * s, rh];
+            if inside(row, mouse) {
+                theme::fill(ui.renderer, row, 4.0 * s, 0xFFFFFF, 0.06);
+            }
+            let on = settings.bubbles & bit != 0;
+            let bs = 16.0 * s;
+            let tick = [row[0] + 8.0 * s, row[1] + (rh - bs) / 2.0, bs, bs];
+            theme::fill(ui.renderer, tick, 4.0 * s, if on { color::ACCENT } else { color::SECONDARY }, 1.0);
+            if on {
+                let inner = 6.0 * s;
+                theme::fill(ui.renderer, [tick[0] + (bs - inner) / 2.0, tick[1] + (bs - inner) / 2.0, inner, inner], inner / 2.0, 0xFFFFFF, 1.0);
+            }
+            ui.label_fit(tr(label), tick[0] + bs + 10.0 * s, row[1] + 7.0 * s, row[2] - bs - 30.0 * s, font(13.0), false, color::TEXT);
+            rows.push((Hit::BubbleKind(bit), row));
+        }
+        rows.push((Hit::BubbleList, list));
+        self.hits.splice(0..0, rows);
     }
 
     /// The Crosshair tab: the grid for the player's own on the left; on the right how it looks
@@ -1533,7 +1589,7 @@ mod tests {
         s.max_fps = 144;
         s.camera_angle = Some(1.5);
         s.preferred_server = "Europe".into();
-        s.pet_shots = false;
+        s.others_shots = 0.45;
         s.crosshair = false;
         s.crosshair_look = Look { style: Style::Custom, colour: 4, size: 1.75, ..Look::default() };
         s.crosshair_look.set_cell(0, 0, Some(3));
@@ -1554,6 +1610,11 @@ mod tests {
         assert_eq!(t.key(Bind::MoveUp), Some(KeyCode::KeyQ));
         assert_eq!(t.key(Bind::RotateLeft), None, "Q went to moving up");
         assert!(t.to_text().contains("someFutureOption=7\n"));
+        // before 2.5.5 other players' shots were a switch, their pets' another
+        let old = Settings::from_text("allyShots=0\npetShots=0\n");
+        assert_eq!(old.others_shots, 0.0);
+        assert!(!old.to_text().contains("allyShots") && !old.to_text().contains("petShots"));
+        assert_eq!(Settings::from_text("allyShots=1\n").others_shots, 1.0);
         assert_eq!(key_label(Some(KeyCode::KeyW)), "W");
         assert_eq!(key_label(Some(KeyCode::Digit0)), "0");
         assert_eq!(key_label(Some(KeyCode::PageUp)), "Page Up");
