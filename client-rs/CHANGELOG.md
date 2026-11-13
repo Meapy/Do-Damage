@@ -18,7 +18,7 @@ details). Add to a group's line when a change adds to it, rather than adding ano
 - Chat channels: buttons above the chat box pick where your lines go (All, Local, Guild, Party), and `/all`, `/local`, `/guild` or `/party` in front of a line sends just that line there. `/all` reaches players on every world; `/local` is the world you are in, as plain chat always was.
 
 ### Items
-- The Coral Medallion drops half as often from Elder Thessal the Mermaid Goddess.
+- The Coral Medallion drop rate went from 1% to 0.75%
 
 ### Dungeons
 - Empowered Malus (raised in the Elder Cultist Hideout) hits softer and fires less: his shots

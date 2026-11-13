@@ -55,7 +55,7 @@ namespace WorldServer.logic.doomed
                 new BL.ItemLoot("Oryxmas Ornament: Exposed", 0.01, threshold: .01),
                 new BL.ItemLoot("Oryxmas Ornament: Weak", 0.01, threshold: .01)
             },
-            ["Elder Thessal the Mermaid Goddess"] = () => new BL.MobDrops[] { new BL.ItemLoot("Coral Medallion", 0.005, threshold: .01) },
+            ["Elder Thessal the Mermaid Goddess"] = () => new BL.MobDrops[] { new BL.ItemLoot("Coral Medallion", 0.0075, threshold: .01) },
             ["Elder Limon the Sprite God"] = () => new BL.MobDrops[] { new BL.ItemLoot("Necklace of Light", 0.005, threshold: .01) },
             ["Elder Archdemon Malphas"] = () => new BL.MobDrops[]
             {
