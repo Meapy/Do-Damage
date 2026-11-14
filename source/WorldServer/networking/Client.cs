@@ -89,8 +89,12 @@ namespace WorldServer.networking
 
         public void SendPacket(OutgoingMessage pkt)
         {
-            if (State != ProtocolState.Disconnected)
-                _handler.SendPacket(pkt);
+            if (State == ProtocolState.Disconnected)
+                return;
+            _handler.SendPacket(pkt);
+            // the shots and effects a player watched in the Scrying Glass sees go to its viewers
+            if (Player?.Spectated == true)
+                GameServer.Spectators.Forward(Player, pkt);
         }
 
         public void SendPackets(IEnumerable<OutgoingMessage> pkts)

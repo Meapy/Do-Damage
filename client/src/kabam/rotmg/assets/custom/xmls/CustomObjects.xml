@@ -457,6 +457,21 @@
 		<OccupySquare/>
 		<ShadowSize>60</ShadowSize>
 	</Object>
+	<!-- the Scrying Glass on the Nexus spawn's north side (tools/build_nexus_islands.py): it shows
+	     a player out adventuring, and opens a big view with arrows through everyone and a chat
+	     of its own (core/spectate/SpectatorHub.cs). The Rust client draws its frame and picture
+	     (glass.rs); other clients the plinth it stands on -->
+	<Object type="0x498d" id="Scrying Glass">
+		<Class>ScryingGlass</Class>
+		<DisplayId>Scrying Glass</DisplayId>
+		<Texture>
+			<File>champions32x32</File>
+			<Index>0x02</Index>
+		</Texture>
+		<Static/>
+		<OccupySquare/>
+		<ShadowSize>0</ShadowSize>
+	</Object>
 	<!-- the Stair Tower's pillars (tools/build_stair_tower.py): Gothic Pillar's stone, as tall as a floor
 	     (WallHeight, the Rust client's draw_wall), holding up the floor above -->
 	<Object type="0x9C40" id="ST Pillar">

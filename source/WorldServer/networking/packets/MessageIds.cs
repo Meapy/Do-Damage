@@ -218,6 +218,20 @@ public enum MessageId : byte
     // (CORRUPT_RESULT). Numbered from 160, clear of the ids Meapy's releases take next.
     CORRUPT = 160,
     CORRUPT_RESULT = 161,
+    // The Scrying Glass in the Nexus (Rust client 2.5.9, core/spectate/SpectatorHub.cs): the
+    // client asks to watch while the glass is in view, opens and closes its big view and steps
+    // between players (SPECTATE: 0 stop, 1 watch the glass, 2 open the big view, 3 next, 4
+    // previous, 5 close it, 6 stay on the one shown, 7 let the glass pick again). The server says who is shown, in which world (SPECTATE_INFO, a new
+    // serial each time the picture starts afresh), and sends what that player sees, each message
+    // wrapped with the serial and its own id (SPECTATE_FEED: Update, NewTick, shots, effects).
+    // SPECTATE_STATUS has the list's place and how many watch; the big view's watchers talk in
+    // SPECTATE_SAY, which reaches them all as SPECTATE_CHAT.
+    SPECTATE = 162,
+    SPECTATE_INFO = 163,
+    SPECTATE_FEED = 164,
+    SPECTATE_STATUS = 165,
+    SPECTATE_CHAT = 166,
+    SPECTATE_SAY = 167,
     // From the world proxy (tools/world_proxy.py), before the client's first message: the
     // client's address. Only taken on a connection from this PC; clients never send it.
     PROXY_INFO = 250

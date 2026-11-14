@@ -176,6 +176,8 @@ namespace WorldServer.core.worlds.impl
             _villagers?.Update(ref time);
             _petPen?.Update(ref time);
             _bar?.Update(ref time);
+            if (IsMain)
+                GameServer.Spectators.Tick(this, time.TotalElapsedMs);
             base.UpdateLogic(ref time);
         }
 

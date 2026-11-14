@@ -18,7 +18,7 @@ namespace WorldServer.core.worlds.impl
         {
             ["CommunityGoals"] = null, ["Herald"] = null, ["QuestMaster"] = null, ["Chronicler"] = null,
             ["Forge"] = "Divine Forge", ["MarketNPC"] = null, ["PetPen"] = null, ["ChampionsBoard"] = "Hall of Champions",
-            ["ReskinVendor"] = null, ["GuildRegister"] = null
+            ["ReskinVendor"] = null, ["GuildRegister"] = null, ["ScryingGlass"] = null
         };
 
         // the object drawn for those whose own sprite won't do (the islands' forge and Guild Hall door

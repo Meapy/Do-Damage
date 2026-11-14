@@ -88,10 +88,10 @@ impl Camera {
         Quad { origin: o, x_axis: [a[0] - o[0], a[1] - o[1]], y_axis: [b[0] - o[0], b[1] - o[1]] }
     }
 
-    /// The world area (in tiles from the camera) that can be on screen.
-    fn radius(&self, w: f64, h: f64) -> f64 {
-        let far_x = self.cx.max(w - self.cx);
-        let far_y = self.cy.max(h - self.cy) + 2.0 * self.scale;
+    /// The world area (in tiles from the camera) that can be in a rectangle of the screen.
+    fn radius_in(&self, [x, y, w, h]: [f64; 4]) -> f64 {
+        let far_x = (self.cx - x).max(x + w - self.cx).max(0.0);
+        let far_y = (self.cy - y).max(y + h - self.cy).max(0.0) + 2.0 * self.scale;
         (far_x * far_x + far_y * far_y).sqrt() / self.scale + 1.0
     }
 }
@@ -238,6 +238,20 @@ pub struct Scene<'a> {
     pub roof: Option<u8>,
     /// How opaque we ourselves are drawn (less as we die).
     pub me_alpha: f32,
+    /// Drawn inside this rectangle of the window rather than all of it (the Scrying Glass's
+    /// picture, `glass.rs`): the renderer is clipped to it, and what's drawn is what it shows.
+    pub inset: Option<[f32; 4]>,
+    /// Draws the Scrying Glass standing in the world, in its place among the things round it
+    /// (instead of its sprite): the frame and the picture in it.
+    pub glass: Option<&'a std::cell::RefCell<GlassDraw<'a>>>,
+}
+
+/// `Scene.glass`: draws a Scrying Glass (`obj`, standing `z` high) with the camera.
+pub type GlassDraw<'a> = dyn FnMut(&mut Renderer, &mut Redrawer, &Fonts, &mut Text, &GameObj, &Camera, f64) + 'a;
+
+/// Whether an object is the Nexus's Scrying Glass (`glass.rs` draws it).
+pub fn is_glass(desc: &ObjectDesc) -> bool {
+    matches!(&desc.class, ObjectClass::Other(c) if c == "ScryingGlass")
 }
 
 impl Scene<'_> {
@@ -588,7 +602,7 @@ fn see_through_from(world: &World, data: &GameData, cam: &Camera) -> Option<u8> 
     if world.see_through {
         return Some(1);
     }
-    let me = world.player()?;
+    let me = world.player().or_else(|| world.watched.and_then(|id| world.objects.get(&id)))?;
     let over = (me.level + 1..world.level_count() as u8).find(|&l| floor_over_sprite(world, data, cam, me, l));
     // inside a tower (a floor's `<Column/>` ground over us, or beside us under an opening in
     // it, as its stairwell): its walls stand round us, so they and the floors from it up are
@@ -1005,7 +1019,7 @@ fn floors(scene: &Scene, renderer: &mut Renderer, ground: &mut Ground, x0: i32, 
     let roof = scene.roof;
     let me_z = world.player().map(|p| p.z);
     let white = renderer.white();
-    let (sw, sh) = renderer.size();
+    let [vx, vy, vw, vh] = renderer.clip_rect();
     let margin = cam.scale * 1.5;
     let mut tops: Vec<Vec<TopDraw>> = (0..count).map(|_| Vec::new()).collect();
     let mut faces = Vec::new();
@@ -1033,7 +1047,8 @@ fn floors(scene: &Scene, renderer: &mut Renderer, ground: &mut Ground, x0: i32, 
                 for t in &chunk.tops {
                     let (fx, fy) = (t.x as f64, t.y as f64);
                     let mid = cam.to_screen(fx + 0.5, fy + 0.5, t.s);
-                    if mid[0] < -margin as f32 || mid[1] < -margin as f32 || mid[0] > sw as f32 + margin as f32 || mid[1] > sh as f32 + margin as f32 {
+                    let m = margin as f32;
+                    if mid[0] < vx - m || mid[1] < vy - m || mid[0] > vx + vw + m || mid[1] > vy + vh + m {
                         continue;
                     }
                     let layers = match t.under {
@@ -1178,9 +1193,17 @@ fn floors(scene: &Scene, renderer: &mut Renderer, ground: &mut Ground, x0: i32, 
 
 #[allow(clippy::too_many_arguments)]
 pub fn draw(scene: &Scene, renderer: &mut Renderer, redrawer: &mut Redrawer, ground: &mut Ground, fonts: &Fonts, text: &mut Text) {
-    let (w, h) = renderer.size();
+    // a picture inside a frame: clipped to it, and only what's in it worked out
+    let [vx, vy, vw, vh] = scene.inset.unwrap_or_else(|| {
+        let (w, h) = renderer.size();
+        [0.0, 0.0, w as f32, h as f32]
+    });
+    if scene.inset.is_some() {
+        renderer.set_clip(scene.inset);
+    }
     let cam = scene.camera;
-    let radius = cam.radius(w as f64, h as f64);
+    let (w, h) = ((vx + vw) as u32, (vy + vh) as u32);
+    let radius = cam.radius_in([vx as f64, vy as f64, vw as f64, vh as f64]);
     let world = scene.world;
     let (x0, x1) = ((cam.x - radius).floor() as i32, (cam.x + radius).ceil() as i32);
     let (y0, y1) = ((cam.y - radius).floor() as i32, (cam.y + radius).ceil() as i32);
@@ -1328,19 +1351,20 @@ pub fn draw(scene: &Scene, renderer: &mut Renderer, redrawer: &mut Redrawer, gro
         let (o, ex, ey) = cam.affine();
         // Only squares on the screen: a tile's centre within a tile of the window's edges.
         let (sw, sh, margin) = (w as f64, h as f64, cam.scale);
+        let (lx, ly) = (vx as f64, vy as f64);
         for ty in y0.max(0)..=y1.min(world.height - 1) {
             let y = ty as f64;
             // Along a row the tile centres move in a straight line: the columns on screen are
             // where both screen coordinates are in range.
             let (mut lo, mut hi) = (x0.max(0) as f64, x1.min(world.width - 1) as f64);
-            for (base, step, max) in [(o[0] + (y + 0.5) * ey[0] + 0.5 * ex[0], ex[0], sw), (o[1] + (y + 0.5) * ey[1] + 0.5 * ex[1], ex[1], sh)] {
+            for (base, step, min, max) in [(o[0] + (y + 0.5) * ey[0] + 0.5 * ex[0], ex[0], lx, sw), (o[1] + (y + 0.5) * ey[1] + 0.5 * ex[1], ex[1], ly, sh)] {
                 if step.abs() < 1e-9 {
-                    if base < -margin || base > max + margin {
+                    if base < min - margin || base > max + margin {
                         hi = lo - 1.0;
                     }
                     continue;
                 }
-                let (a, b) = ((-margin - base) / step, (max + margin - base) / step);
+                let (a, b) = ((min - margin - base) / step, (max + margin - base) / step);
                 lo = lo.max(a.min(b).floor());
                 hi = hi.min(a.max(b).ceil());
             }
@@ -1350,7 +1374,7 @@ pub fn draw(scene: &Scene, renderer: &mut Renderer, redrawer: &mut Redrawer, gro
             for tx in lo as i32..=hi as i32 {
                 let x = tx as f64;
                 let (cx, cy) = (o[0] + (x + 0.5) * ex[0] + (y + 0.5) * ey[0], o[1] + (x + 0.5) * ex[1] + (y + 0.5) * ey[1]);
-                if cx < -margin || cy < -margin || cx > sw + margin || cy > sh + margin {
+                if cx < lx - margin || cy < ly - margin || cx > sw + margin || cy > sh + margin {
                     continue;
                 }
                 let Some(layers) = ground.layers(world, scene.data, scene.sprites, renderer, tx, ty) else { continue };
@@ -1420,6 +1444,11 @@ pub fn draw(scene: &Scene, renderer: &mut Renderer, redrawer: &mut Redrawer, gro
                 Item::Projectile(p) => draw_projectile(scene, renderer, redrawer, p),
                 Item::Face { plate, .. } => renderer.sprite(plate.rect, plate.quad, plate.tint),
                 Item::Tri { pts, tint, .. } => renderer.triangle(renderer.white(), *pts, [[0.5, 0.5]; 3], *tint),
+                Item::Sprite { obj, desc } if scene.glass.is_some() && is_glass(desc) => {
+                    if let Some(glass) = scene.glass {
+                        (glass.borrow_mut())(renderer, redrawer, fonts, text, obj, &cam, scene.height(obj));
+                    }
+                }
                 Item::Sprite { obj, desc } => {
                     if let Some(top) = draw_sprite(scene, renderer, redrawer, ground, obj, desc) {
                         tops.push((obj, top));
@@ -1449,7 +1478,10 @@ pub fn draw(scene: &Scene, renderer: &mut Renderer, redrawer: &mut Redrawer, gro
         crate::death::vignette(renderer, (sx, sy - 0.4 * tile), (w as f32, h as f32), 2.2 * tile, 4.2 * tile, 0x05030C, 0.94);
     }
     // What follows (icons, bars, numbers, balloons, names) is read, not lit: it doesn't glow.
-    renderer.glow_done();
+    // (A picture inside the world leaves that to the world round it.)
+    if scene.inset.is_none() {
+        renderer.glow_done();
+    }
 
     // Condition icons (`GameObject.drawConditionIcons`): in a row centred on the sprite's top,
     // each taking turns through its icons; none while paused.
@@ -1640,6 +1672,9 @@ pub fn draw(scene: &Scene, renderer: &mut Renderer, redrawer: &mut Redrawer, gro
     }
     crate::prof::mark("v.text");
     let _ = PAD;
+    if scene.inset.is_some() {
+        renderer.set_clip(None);
+    }
 }
 
 /// `GameObject.draw` for sprite objects. Returns where the sprite's top centre is drawn.

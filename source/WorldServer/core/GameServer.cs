@@ -48,6 +48,8 @@ namespace WorldServer.core
         // players' /visit requests waiting for an answer
         public VisitBook Visits { get; } = new VisitBook();
         public RemoteVisits RemoteVisits { get; private set; }
+        // the Scrying Glass in the Nexus: who watches whom (core/spectate)
+        public core.spectate.SpectatorHub Spectators { get; }
 
         public GameServer(string[] appArgs)
         {
@@ -76,6 +78,7 @@ namespace WorldServer.core
             ConnectionManager = new ConnectionManager(this);
             ConnectionListener = new ConnectionListener(this);
             ChatManager = new ChatManager(this);
+            Spectators = new core.spectate.SpectatorHub(this);
             BehaviorDb = new BehaviorDb(this);
             CommandManager = new CommandManager();
             DbEvents = new DbEvents(this);

@@ -14,6 +14,7 @@ mod death;
 mod emotes;
 mod events;
 mod game;
+mod glass;
 mod ground;
 mod hud;
 mod i18n;
@@ -259,6 +260,8 @@ struct App {
     forge_acts: Vec<forge::Act>,
     /// The vault window: every vault chest's items at once.
     vault: vault::Vault,
+    /// The Scrying Glass in the Nexus: its picture and its big view.
+    glass: glass::Glass,
     /// The middle mouse button's pings, and the ping wheel.
     pings: pings::Input,
     /// The quest log (quests, daily rewards, achievements) and its popups, and what it asked of
@@ -336,6 +339,8 @@ fn guild_register_price(world: &bsk_world::World, data: &bsk_data::GameData) -> 
 enum KeeperAct {
     Collection,
     PetPen(u8, u8),
+    /// The Scrying Glass's big view.
+    Glass,
 }
 
 fn npc_open(kind: npc::NpcKind, game: &Game, npcs: &mut npc::Npcs, market: &mut market::Market, forge: &mut forge::Forge, forge_acts: &mut Vec<forge::Act>, quests: (&mut quests::Quests, &mut Vec<quests::Act>), community: (&mut community::Community, &mut Vec<community::Act>), keepers: (&mut collection::Collection, &mut petpen::PetPen, &mut Vec<KeeperAct>), list: Option<&bsk_net::account::CharList>, data: &bsk_data::GameData) -> bool {
@@ -353,6 +358,10 @@ fn npc_open(kind: npc::NpcKind, game: &Game, npcs: &mut npc::Npcs, market: &mut 
         NpcKind::PetPen => {
             let (_, window, acts) = keepers;
             acts.push(KeeperAct::PetPen(window.show(), 0));
+            return false;
+        }
+        NpcKind::ScryingGlass => {
+            keepers.2.push(KeeperAct::Glass);
             return false;
         }
         NpcKind::Market => {
@@ -1472,6 +1481,7 @@ impl App {
         self.quests.reset();
         self.community.reset();
         self.vault.reset();
+        self.glass.reset();
         self.collection.reset();
         self.pet_pen.reset();
         self.npc_request = None;
@@ -1519,6 +1529,7 @@ impl App {
         self.quests.reset();
         self.community.reset();
         self.vault.reset();
+        self.glass.reset();
         self.collection.reset();
         self.pet_pen.reset();
         self.npc_request = None;
@@ -1981,6 +1992,14 @@ impl App {
             }
             return;
         }
+        // The Scrying Glass's big view: keys go to its chat and its arrows.
+        if self.glass.open && matches!(self.phase, Phase::Playing(_)) {
+            if pressed {
+                self.glass.key(code, text.as_deref(), self.ctrl_held, self.shift_held);
+            }
+            self.keys.remove(&code);
+            return;
+        }
         // Typing a chat line: keys go to the text, not the game.
         if self.chat_input.is_some() {
             if pressed {
@@ -2229,6 +2248,8 @@ impl App {
                 if self.options_ui.paste(&text, &mut self.settings) {
                     self.settings.save();
                 }
+            } else if self.glass.open {
+                self.glass.paste(&text);
             } else {
                 match (&mut self.chat_input, &self.phase) {
                     (Some(input), _) => input.insert(&text),
@@ -2869,7 +2890,33 @@ impl App {
                 match act {
                     KeeperAct::Collection => game.collection_request(),
                     KeeperAct::PetPen(action, slot) => game.pet_pen(action, slot),
+                    KeeperAct::Glass => self.glass.show(),
                 }
+            }
+            // the Scrying Glass: its messages, its picture moving on, and while its big view is
+            // open, the mouse
+            for m in std::mem::take(&mut game.glass_events) {
+                self.glass.message(&m, now, data);
+            }
+            self.glass.tick(game.world.as_ref(), game.map_name(), data, now, dt);
+            // --type: into the big view's chat once it's open
+            if self.glass.open {
+                if let Some(t) = self.type_text.take() {
+                    self.glass.say(&t);
+                }
+            }
+            if self.glass.open {
+                for (down, pos) in std::mem::take(&mut self.clicks) {
+                    if down {
+                        self.glass.click(pos);
+                    }
+                }
+                self.right_clicks.clear();
+                self.mouse_down = false;
+            }
+            let (glass_acts, said) = self.glass.take_out();
+            if !glass_acts.is_empty() || !said.is_empty() {
+                game.glass(glass_acts, said);
             }
             let mut community_acts = std::mem::take(&mut self.community_acts);
             if self.community.open {
@@ -3133,6 +3180,7 @@ impl App {
             || self.market.open
             || self.forge.open
             || self.vault.open
+            || self.glass.open
             || self.quests.open
             || self.community.open
             || self.npcs.window.is_some()
@@ -3214,7 +3262,13 @@ impl App {
                         let roof = view::roof(world, data, &camera);
                         // dying, we fade from the world
                         let me_alpha = game.dying.as_ref().map_or(1.0, |d| 1.0 - (d.elapsed(now) as f32 / 650.0).clamp(0.0, 1.0));
-                        let scene = view::Scene { sprites, data, world, camera, time: now, floaters: &game.floaters, bubbles: &game.bubbles, particles: &game.particles, show, hallucinating, roof, me_alpha };
+                        // the Scrying Glass, drawn in its place among what stands round it
+                        let glass_show = glass::picture_show(show);
+                        let glass_ref = &mut self.glass;
+                        let glass_draw = std::cell::RefCell::new(|r: &mut Renderer, rd: &mut redraw::Redrawer, f: &text::Fonts, t: &mut text::Text, obj: &bsk_world::GameObj, cam: &view::Camera, z: f64| {
+                            glass_ref.draw_in_world(r, rd, f, t, sprites, data, glass_show, obj, cam, z, now);
+                        });
+                        let scene = view::Scene { sprites, data, world, camera, time: now, floaters: &game.floaters, bubbles: &game.bubbles, particles: &game.particles, show, hallucinating, roof, me_alpha, inset: None, glass: Some(&glass_draw) };
                         prof::mark("pre-world");
                         view::draw(&scene, renderer, redrawer, ground, fonts, text);
                         game.petals.draw(&camera, renderer, now);
@@ -3372,6 +3426,7 @@ impl App {
                 self.community.draw(&mut ui, &lay, world.player(), mouse, now);
                 self.collection.draw(&mut ui, &lay, world.player(), mouse, now);
                 self.pet_pen.draw(&mut ui, &lay, world.player(), mouse);
+                self.glass.draw_big(&mut ui, &lay, show, mouse, now);
                 if game.dying.is_none() {
                     let below = self.quests.toasts_end(&lay);
                     self.community.draw_banners(&mut ui, &lay, below, now);
@@ -3393,6 +3448,7 @@ impl App {
             && !self.market.open
             && !self.forge.open
             && !self.vault.open
+            && !self.glass.open
             && !self.quests.open
             && !self.quests.on_toast(mouse)
             && !self.community.open
@@ -3783,6 +3839,17 @@ impl ApplicationHandler<UserEvent> for App {
                 self.wheel -= notches;
                 self.collection.scroll(-notches as i32);
             }
+            WindowEvent::MouseWheel { delta, .. } if self.glass.open && matches!(self.phase, Phase::Playing(_)) => {
+                // the watchers' chat scrolls a row a notch
+                let lines = match delta {
+                    winit::event::MouseScrollDelta::LineDelta(_, y) => y,
+                    winit::event::MouseScrollDelta::PixelDelta(p) => (p.y / 40.0) as f32,
+                };
+                self.wheel += lines;
+                let notches = self.wheel.trunc();
+                self.wheel -= notches;
+                self.glass.scroll(notches as i32);
+            }
             WindowEvent::MouseWheel { delta, .. } if self.vault.open && matches!(self.phase, Phase::Playing(_)) => {
                 // The vault's chests scroll a row a notch.
                 let lines = match delta {
@@ -4001,6 +4068,7 @@ fn main() {
         keeper_acts: Vec::new(),
         forge_acts: Vec::new(),
         vault: Default::default(),
+        glass: Default::default(),
         pings: Default::default(),
         type_text: text_arg("--type"),
         npc_test: text_arg("--npc"),

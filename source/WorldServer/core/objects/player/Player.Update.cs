@@ -56,6 +56,15 @@ namespace WorldServer.core.objects
         private readonly Stack<Dictionary<StatDataType, object>> _statsPool = new Stack<Dictionary<StatDataType, object>>();
         
         private bool _needsUpdateTiles = true;
+
+        // For the Scrying Glass (core/spectate/SpectatorHub.cs): what this player's client knows,
+        // which those watching them are sent too, and whether anyone watches.
+        internal int SightStamp { get; private set; }
+        internal List<IntPoint> SightTiles => _activeTiles.Points;
+        internal HashSet<Entity> KnownObjects => _newObjects;
+        public bool Spectated { get; set; }
+        // the stats anyone may see of this player (ExportStats(true)'s), once worked out
+        internal HashSet<core.net.stats.StatDataType> PublicStats { get; set; }
         
         public void InitializeUpdate()
         {
@@ -146,7 +155,11 @@ namespace WorldServer.core.objects
             TickTime = dt;
 
             HandleUpdate();
-            HandleNewTick();
+            var statuses = HandleNewTick();
+            if (GameServer.Spectators.Any)
+                GameServer.Spectators.Feed(this, statuses);
+            else
+                Spectated = false;
         }
 
         private void HandleUpdate()
@@ -172,6 +185,7 @@ namespace WorldServer.core.objects
             var px = _sightX = (int)X;
             var py = _sightY = (int)Y;
             _activeTiles.Reset(px, py);
+            SightStamp++;
             switch (World.Blocking)
             {
                 case 1:
@@ -437,7 +451,7 @@ namespace WorldServer.core.objects
                 update.NewObjs.Add(Quest.ToDefinition());
         }
 
-        private void HandleNewTick()
+        private List<ObjectStats> HandleNewTick()
         {
             var newTick = new NewTickMessage(TickId, TickTime);
 
@@ -463,6 +477,7 @@ namespace WorldServer.core.objects
 
             Client.SendPacket(newTick);
             AwaitMove(TickId);
+            return newTick.Statuses;
         }
 
         private static readonly KeyValuePair<StatDataType, object>[] NoStats = Array.Empty<KeyValuePair<StatDataType, object>>();

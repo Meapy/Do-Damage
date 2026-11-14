@@ -2,7 +2,7 @@
 //! world server's `MessageIds.cs`, `networking/packets/outgoing` and `core/net/handlers`.
 
 use crate::data::*;
-use crate::wire::{List16, List8, LongString, Reader, Result, Wire, Writer};
+use crate::wire::{List16, List8, LongString, Reader, Rest, Result, Wire, Writer};
 use crate::wire_struct;
 
 /// Declares the message structs, plus an enum of them with id-based decoding and encoding.
@@ -276,6 +276,18 @@ messages! {
         // wrong, how far each value moved (signed bytes: damage, range, rate of fire, stats) and
         // whether a staff's shots are now reversed.
         161 => CorruptResult { success: bool, slot: u8, message: String, damage: u8, range: u8, rate: u8, stats: u8, reversed: bool },
+        // The Scrying Glass in the Nexus (after Spectate 1 or 2): who it shows now. A new serial
+        // starts the picture afresh: their object id in it (0: no one), name, the world's name,
+        // its map's name and size (the larger side, as MapInfo's), its background and their class.
+        163 => SpectateInfo { serial: u16, target_id: i32, name: String, world: String, map: String, size: i16, background: u8, object_type: u16 },
+        // A message of what they see, for the picture of that serial: its own id, then its body.
+        164 => SpectateFeed { serial: u16, kind: u8, body: Rest },
+        // Their place in the list of those who can be watched (from 1, 0: none), how many there
+        // are, how many have the big view open, and whether we picked them with the arrows.
+        165 => SpectateStatus { index: u8, count: u8, watchers: u16, picked: bool },
+        // A line of the big view's chat: kind 0 someone said it, 1 they came to watch, 2 they
+        // left; who, their stars and name colour, and the text.
+        166 => SpectateChat { kind: u8, name: String, stars: i32, name_color: i32, text: String },
     }
 }
 
@@ -413,5 +425,11 @@ messages! {
         // Corrupt the Enthroned item in this inventory slot with an Unstable Essence, by the Cosmic
         // Anvil. Answered by CorruptResult.
         160 => Corrupt { slot: u8 },
+        // The Scrying Glass: 0 stop watching, 1 watch it (it's in view), 2 open its big view, 3 the
+        // next player, 4 the one before, 5 close the big view, 6 stay on the one shown, 7 let the
+        // glass pick again. An older server doesn't know it.
+        162 => Spectate { action: u8 },
+        // A line in the big view's chat (or a /command).
+        167 => SpectateSay { text: String },
     }
 }

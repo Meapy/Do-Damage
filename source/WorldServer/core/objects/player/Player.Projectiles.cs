@@ -83,6 +83,9 @@ namespace WorldServer.core.objects
 
             var allyShoot = new AllyShootMessage(newBulletId, Id, item.ObjectType, angle);
             World.BroadcastIfVisibleExclude(allyShoot, this, this);
+            // our own shots, which our client fires itself, for those watching us
+            if (Spectated)
+                GameServer.Spectators.Forward(this, allyShoot);
             PlayerShootEffects(angle);
             if (slot == 0)
                 WispCaller();
