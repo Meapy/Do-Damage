@@ -646,6 +646,28 @@ The remotes `upstream` (HaloCelsius) and `aurusenth` share no history with `main
 
 ## Changes from upstream
 
+- **The Scrying Glass** (2026-11-14; new `core/spectate/SpectatorHub.cs`,
+  `net/handlers/SpectateHandler.cs`, `packets/outgoing/Spectate.cs`, `Command.Glass.cs`; the Rust
+  client's `glass.rs`; the Nexus map's `Scrying Glass`, object 0x498d, placed by
+  `tools/build_nexus_islands.py`): a glass north of the Nexus spawn shows a player out adventuring,
+  live. Its messages: 162 `SPECTATE` (client: 0 stop, 1 watch, it's in view, 2 open the big view,
+  3 next, 4 previous, 5 close it, 6 stay on the one shown, 7 let the glass pick), 163
+  `SPECTATE_INFO` (who and which map: a new serial each time), 164 `SPECTATE_FEED` (a serial, an
+  inner message id and its body: the watched player's `Update`, `NewTick`, `Goto`, shots,
+  `ShowEffect` and `Aoe`), 165 `SPECTATE_STATUS` (n of count, watchers, picked by you), 166
+  `SPECTATE_CHAT` and 167 `SPECTATE_SAY` (the watchers' chat). The hub, ticked by the main Nexus
+  once a second, picks a channel at random every 45 s among players outside the Nexus, vaults,
+  guild halls and test worlds (falling back to the Nexus's own players), not hidden and not
+  `/glass off` (`DbAccount.HideFromGlass`, `hideFromGlass`). Each viewer's feed is built on the
+  watched player's own world thread right after their `UpdateState`, from what that player sees
+  (`SightTiles`, `KnownObjects`): tiles only when their sight changed (`SightStamp`), one shared
+  `NewTick` per watched player with their own stats cut down to the public ones, and the packets
+  `Client.SendPacket` sends them forwarded while `Player.Spectated`. Nothing is built for a player
+  nobody watches. The client keeps the feed as a second `World` and draws it with its own camera
+  in the glass (clipped by the renderer's new scissor runs) and in the big view, beside the chat.
+  Older clients never send 162 (the glass only asks in the Nexus with the object in view), and an
+  older server simply ignores a new client's.
+
 - **Visits between world servers** (2026-11-14; new `core/RemoteVisits.cs`, `Channel.Visit` and
   `VisitMsg` in `Shared/isc`; `Command.Visit`, `SummonCommand`, `Player.Visits.cs`,
   `VisitBook.Request.Server`/`RemoteId`, `ConnectionManager.AddTicket`, `Reconnect.SetKey`;

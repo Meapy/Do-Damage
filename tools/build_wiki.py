@@ -98,6 +98,7 @@ COMMAND_HELP = {
     "world": "Which world you're in and how many players are there.",
     "teleport": "Teleports you to a player in the same world: <code>/tp &lt;name&gt;</code>.",
     "position": "Your position on the map.",
+    "glass": "Whether the Scrying Glass in the Nexus may show you: <code>/glass off</code> keeps you out of it, <code>/glass on</code> lets it show you again; with neither it says which you chose.",
     "boosts": "Your loot and experience boosts and how long they last.",
     "getquest": "Says which monster your quest arrow points at.",
     "stats": "Your character's stats.",

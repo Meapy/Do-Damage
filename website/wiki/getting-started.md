@@ -188,6 +188,11 @@ the stone water basins at its corners do. From there:
 - **On the spawn's island**: the **Support Bot** in the middle of the deck, the Name Changer
   (your first name is free; changing it costs {{v:name_change}} fame) strolling about its west
   side and the Character Changer about its east, the Armoire (skins) and the **Vault** portal.
+  Just north of the deck the **Scrying Glass** shows a player out in a realm or a dungeon, live,
+  and picks someone new every 45 seconds. Press **Watch** to open it big: the arrows (or the
+  Left and Right keys) go through everyone who can be watched, **Stay on this player** keeps it on
+  them, and beside it a chat for everyone watching. Players in the Nexus, a vault or a guild hall
+  aren't shown, and `/glass off` keeps you out of it.
   The koi pond round the deck is shallow: wade across it, west, east or south, to the paths to
   the big bridges. Every ten minutes the Support Bot lets a flock of **XP ducks** onto the pond:
   shoot them for experience, and now and then a Health or Magic Potion. Frogs sit among the lily pads in the pond's north-east, and cherry

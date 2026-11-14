@@ -42,6 +42,12 @@ details). Add to a group's line when a change adds to it, rather than adding ano
   /summon still reach a friend on the other one, /swho lists everyone on both, and the
   confusing "a new server has come online" and "is no longer online" messages are gone.
 
+### Nexus
+- The Scrying Glass stands just north of the spawn: it shows a player out adventuring, live, and
+  picks someone new every 45 seconds. Press Watch to open it big, with arrows through everyone
+  out there, a button to stay on one player, and a chat for everyone watching. Type `/glass off`
+  if you'd rather not be shown in it.
+
 ## 2.5.8 (2026-11-14)
 
 ### Items
