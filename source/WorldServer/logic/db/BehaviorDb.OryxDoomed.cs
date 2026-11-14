@@ -112,8 +112,13 @@ namespace WorldServer.logic
                     )
                 }.Concat(OryxFight(new OryxSpec
                 {
-                    // Oryx 1's fight, burning: less warning, his last stand from 10%, hellfire throughout
-                    Pause = 4000,
+                    // Oryx 1's fight, burning: less warning, his last stand from 10%, hellfire throughout.
+                    // With Oryx 1's shields he was invulnerable four fifths of the fight; his open
+                    // longer and shut half as long, and no shut stretches inside his attacks, about half
+                    Pause = 2500,
+                    ShutFor = 0.5,
+                    OpenFor = 2.0,
+                    Guarded = false,
                     AllIn = 0.10,
                     Bubble = false,
                     Inner = "Infernal Element",

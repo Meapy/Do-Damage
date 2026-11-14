@@ -12,6 +12,14 @@ Keep each version short: changes go under `### ` group headings (Oryx 5, Arena, 
 on), one line per change players notice, summed up rather than item by item (the wiki has the
 details). Add to a group's line when a change adds to it, rather than adding another line.
 
+## Unreleased
+
+### Dungeons
+- Oryx 4 in his Inferno is invulnerable far less often: about half his fight instead of four
+  fifths. His warning before each attack is 2.5 seconds (was 4), his shields stay open longer and
+  shut half as long, and he no longer stays shielded through whole parts of his attacks (the
+  Minion Toss, the end of the Artifact Dance, the grenade and bullet turns). Oryx 1 is unchanged.
+
 ## 2.5.8 (2026-11-14)
 
 ### Items
