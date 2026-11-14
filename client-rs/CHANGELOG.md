@@ -25,6 +25,11 @@ details). Add to a group's line when a change adds to it, rather than adding ano
   attacks (the Minion Toss, the end of the Artifact Dance, the grenade and bullet turns). Oryx 1
   is unchanged.
 
+### Game
+- Right click can be bound in Options, Controls, like any key: bind it to Use ability to cast at
+  the cursor with the right mouse button. Right clicks on the HUD (player cards, breaking items
+  down) work as before.
+
 ## 2.5.8 (2026-11-14)
 
 ### Items

@@ -2158,6 +2158,41 @@ impl App {
         };
     }
 
+    /// The right mouse button. It always clicks (the HUD's menus, Ctrl+right-click); bound in
+    /// Options (`options::RIGHT_CLICK`), a press over the world also acts as that key, and in
+    /// Options it binds while a key is asked for.
+    fn right_button(&mut self, pressed: bool, pos: (f64, f64)) {
+        let key = options::RIGHT_CLICK;
+        if self.options_ui.listening() {
+            if pressed {
+                self.key_input(key, true, false, None);
+            }
+            return;
+        }
+        if pressed {
+            self.right_clicks.push(pos);
+        }
+        if !pressed {
+            // let go wherever it was pressed, so a held ability is thrown
+            if self.keys.contains(&key) {
+                self.key_input(key, false, false, None);
+            }
+            return;
+        }
+        let over_world = matches!(self.phase, Phase::Playing(_))
+            && self.settings.bind_of(key).is_some()
+            && self.chat_input.is_none()
+            && !(self.game_menu || self.options_ui.open || self.market.open || self.vault.open || self.npcs.window.is_some())
+            && self.loaded.as_ref().is_some_and(|l| {
+                let (w, h) = l.renderer.size();
+                let col = hud::Layout::new(w, h).column();
+                (pos.0 as f32) < col[0]
+            });
+        if over_world {
+            self.key_input(key, true, false, None);
+        }
+    }
+
     fn held(&self, codes: &[KeyCode]) -> bool {
         codes.iter().any(|c| self.keys.contains(c) || self.scripted_key(self.now()) == Some(*c))
     }
@@ -2287,7 +2322,10 @@ impl App {
                     MouseStep::Down => self.clicks.push((true, pos)),
                     MouseStep::Up => self.clicks.push((false, pos)),
                     MouseStep::Move => {}
-                    MouseStep::Right => self.right_clicks.push(pos),
+                    MouseStep::Right => {
+                        self.right_button(true, pos);
+                        self.right_button(false, pos);
+                    }
                     MouseStep::MiddleDown => self.pings.events.push((true, pos)),
                     MouseStep::MiddleUp => self.pings.events.push((false, pos)),
                     MouseStep::Middle => self.pings.events.extend([(true, pos), (false, pos)]),
@@ -3816,8 +3854,8 @@ impl ApplicationHandler<UserEvent> for App {
                 }
             }
             WindowEvent::MouseInput { .. } if self.mouse_fixed => {}
-            WindowEvent::MouseInput { state: ElementState::Pressed, button: winit::event::MouseButton::Right, .. } => {
-                self.right_clicks.push(self.mouse);
+            WindowEvent::MouseInput { state, button: winit::event::MouseButton::Right, .. } => {
+                self.right_button(state == ElementState::Pressed, self.mouse);
             }
             // the side buttons (4 and 5) can be bound in Options as keys are
             WindowEvent::MouseInput { state, button, .. } if options::mouse_key(button).is_some() => {

@@ -1,11 +1,19 @@
-Release 2.5.9: Oryx 4 is armoured instead of invulnerable (deploys the world server and the website; nobody is disconnected)
+Release 2.5.9: Oryx 4 is armoured instead of invulnerable, and right click can be bound (deploys the client, the world server and the website; nobody is disconnected)
 
 ## For players
 
 - **Dungeons:** Oryx 4 is never invulnerable once awake, in his Inferno or an arena: his shields, warnings and the arena's wake and Doom Ring make him Armored (defense doubled, 50 to 100) instead, and for about half his Inferno fight (was invulnerable four fifths): 2.5 s of warning before each attack (was 4 s), shields up half as long and down twice as long (his usual 3.5 s shut / 1 s open is now 1.75 s / 2 s), and no shield through whole parts of his attacks (Minion Toss, the Artifact Dance's last stretch, Circle Combat's and Bullet Dance's shielded turns, the last spell of Make Minions and the Hadouken now open and shut again). Oryx 1 fights as before.
 - **Player sprites:** new looks drawn by players in the Sprite Editor: Archdemon's Soulfire Staff (by Joseph).
+- **Controls:** the right mouse button can be bound in Options, Controls like any key (shown as "Right click"), for example to Use ability, to cast at the cursor. It acts as the key only over the world, with no window or chat open; right clicks on the HUD (pinning a player's card, Ctrl+right-click breaking an item down, marking a vault chest) work as before.
 
 ## Details
+
+### Right click as a bindable key
+
+- **What changed:** the right mouse button binds as the `ContextMenu` key (`options::RIGHT_CLICK`, saved as `ContextMenu` in the settings file, labelled "Right click"), as the side buttons bind as BrowserBack/Forward. `App::right_button` handles the button: while Options is waiting for a key it binds; otherwise it always queues the usual right click, and, only when something is bound to it, the game is being played, no window, menu or chat is open and the mouse is left of the HUD bar, it also presses the key. Letting go always releases it, so a held ability (the ninja stars) is thrown wherever the button comes up. Scripted `right@` mouse steps go through the same path. The rebinding prompt now reads "Press a key, right click or mouse 4/5…" (translated in all 10 tables, with the new "Right click" label).
+- **Files:** `client-rs/app/src/main.rs`, `client-rs/app/src/options.rs`, `client-rs/app/lang/*.json`, `client-rs/CHANGELOG.md`, `website/wiki/getting-started.md`.
+- **Redeploy:** the client (and the website for the changelog and wiki). Nothing on the server, nothing in Redis.
+- **Not done or known to be off:** not tried in game: the binding is covered by a unit test, the in-game press isn't. A keyboard's Menu key (`ContextMenu`) does the same as right click.
 
 ### Oryx 4 armoured instead of invulnerable
 
@@ -23,4 +31,5 @@ Sprites players drew in the Sprite Editor and admins approved, taken in by `tool
 ## Checks
 
 - **Oryx 4:** world server builds; `BehaviorStatesTests` pass. On an isolated stack (slot 130: Windows had ports 1973-2172 reserved, so the usual slots couldn't bind), the bot fought a `/spawn`ed Oryx 4 in a vault for 3.5 minutes with `--fight --shots`: he woke, went through Make Minions, Orbitals, White Planet, Artifact Dance, Minion Toss and the Hadouken, took damage between taunts, and the world server logged no exceptions. After the switch to Armored, `BehaviorStatesTests` (with the new Oryx 4 test) pass, and a second 3-minute bot fight ran through Make Minions, Circle Combat, White Planet, Artifact Dance and Orbitals with no exceptions; he lost 20k health in the first 17 s (8k before, when his warnings made him invulnerable).
+- **Right click:** `cargo test -p bsk-client` passes (100, with the new `right_click_binds_and_is_kept` and the translation checks); `tools/build_wiki.py` builds. Not tried in a running client.
 - Player sprites: `python tools/community_sprites.py apply` drew them into the sheets and pointed the items at them; check them in a `--shot` of the client.

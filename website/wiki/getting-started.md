@@ -55,8 +55,10 @@ class. They earn your rank stars ([Getting stronger](progression.html#fame-rank-
 
 ## Controls
 
-Every key can be rebound in Options (<kbd>O</kbd>), to another key or to the mouse's side
-buttons (Mouse 4 and Mouse 5).
+Every key can be rebound in Options (<kbd>O</kbd>), to another key, to the mouse's side
+buttons (Mouse 4 and Mouse 5) or to the right mouse button: right click over the world then does
+that action (use your ability at the cursor, say), while right clicks on the HUD keep their usual
+jobs.
 
 | Key | What it does |
 |---|---|
