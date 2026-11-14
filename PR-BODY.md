@@ -3,6 +3,7 @@ Release 2.5.9: Oryx 4 is armoured instead of invulnerable (deploys the world ser
 ## For players
 
 - **Dungeons:** Oryx 4 is never invulnerable once awake, in his Inferno or an arena: his shields, warnings and the arena's wake and Doom Ring make him Armored (defense doubled, 50 to 100) instead, and for about half his Inferno fight (was invulnerable four fifths): 2.5 s of warning before each attack (was 4 s), shields up half as long and down twice as long (his usual 3.5 s shut / 1 s open is now 1.75 s / 2 s), and no shield through whole parts of his attacks (Minion Toss, the Artifact Dance's last stretch, Circle Combat's and Bullet Dance's shielded turns, the last spell of Make Minions and the Hadouken now open and shut again). Oryx 1 fights as before.
+- **Player sprites:** new looks drawn by players in the Sprite Editor: Archdemon's Soulfire Staff (by Joseph).
 
 ## Details
 
@@ -13,6 +14,13 @@ Release 2.5.9: Oryx 4 is armoured instead of invulnerable (deploys the world ser
 - **Redeploy:** the world server (rolling; nobody is disconnected) and the website (changelog, wiki). Nothing in Redis.
 - **Not done or known to be off:** the share of time invulnerable is worked out from the state timings, not measured in a full kill; Armored doubles his defense to 100, so weak weapons do little while he's shielded (the minimum damage still lands); in an arena only his wake and Doom Ring changed, his cycle's timings didn't.
 
+### Player sprites (tools/community_sprites.py)
+
+Sprites players drew in the Sprite Editor and admins approved, taken in by `tools/community_sprites.py apply`: drawn into the community sheets (`CommunitySprites8x8.png`, `CommunitySprites16x16.png`), listed in `source/Shared/resources/data/community_sprites.json`, and each new look's item pointed at its cell in both XML copies. Redeploy the client (sheets, XML) and the servers (XML, the catalog, which marks them as in the game); nobody is disconnected, no Redis change.
+
+- #17: `Archdemon's Soulfire Staff`, drawn by `Joseph`, approved by `Meapy`: `communitySprites8x8` `0x5`.
+
 ## Checks
 
 - **Oryx 4:** world server builds; `BehaviorStatesTests` pass. On an isolated stack (slot 130: Windows had ports 1973-2172 reserved, so the usual slots couldn't bind), the bot fought a `/spawn`ed Oryx 4 in a vault for 3.5 minutes with `--fight --shots`: he woke, went through Make Minions, Orbitals, White Planet, Artifact Dance, Minion Toss and the Hadouken, took damage between taunts, and the world server logged no exceptions. After the switch to Armored, `BehaviorStatesTests` (with the new Oryx 4 test) pass, and a second 3-minute bot fight ran through Make Minions, Circle Combat, White Planet, Artifact Dance and Orbitals with no exceptions; he lost 20k health in the first 17 s (8k before, when his warnings made him invulnerable).
+- Player sprites: `python tools/community_sprites.py apply` drew them into the sheets and pointed the items at them; check them in a `--shot` of the client.

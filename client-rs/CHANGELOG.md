@@ -14,6 +14,9 @@ details). Add to a group's line when a change adds to it, rather than adding ano
 
 ## Unreleased
 
+### Items
+- New sprites drawn by players in the Sprite Editor: Archdemon's Soulfire Staff (by Joseph).
+
 ### Dungeons
 - Oryx 4 is never invulnerable once he wakes, in his Inferno or an arena: where he used to shield
   himself he is armoured instead (his defense doubled), and for much less of the fight, about half
