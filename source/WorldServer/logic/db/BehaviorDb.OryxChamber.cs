@@ -42,6 +42,9 @@ namespace WorldServer.logic
             public ConditionEffectIndex Shield = ConditionEffectIndex.Invulnerable;
             public string Minion = "Minion of Oryx";      // the minions he calls and throws
             public string Assassin = "Assassin of Oryx";  // and his Assassins
+            public string[] Draws = new string[0];   // attacks of his own, drawn with Oryx 1's
+            public string[] Skips = new string[0];   // Oryx 1's attacks he never draws
+            public IStateChildren[] Attacks = new IStateChildren[0]; // their states (and any of his own), in the fight
             public IStateChildren[] Fight = new IStateChildren[0];   // added throughout the fight
             public IStateChildren[] Minions = new IStateChildren[0]; // added to Make Minions
             public IStateChildren[] Hunt = new IStateChildren[0];    // added to his last stand's hunt
@@ -99,10 +102,11 @@ namespace WorldServer.logic
             return new State("Pre " + attack, c.ToArray());
         }
 
-        // where he goes after an attack: pools as the original's, the low one below 55%
+        // where he goes after an attack: pools as the original's, the low one below 55%, less any he
+        // skips and with his own draws in each
         private static State O1Chooser(OryxSpec o, string name, string prefix)
         {
-            string[] P(params string[] s) => s.Select(x => prefix + x).ToArray();
+            string[] P(params string[] s) => s.Where(x => !o.Skips.Contains(x)).Concat(o.Draws).Select(x => prefix + x).ToArray();
             return new State(name,
                 new ConditionEffectBehavior(o.Shield),
                 new State(name + " Pool",
@@ -698,7 +702,7 @@ namespace WorldServer.logic
                         }).ToArray()
                     )
                 )
-            }.Concat(o.Fight).ToArray()),
+            }.Concat(o.Fight).Concat(o.Attacks).ToArray()),
 
             // at his last stand (6% for Oryx 1): his helpers burst, he heals a little, grows, and hunts with his Assassins
             new State("All In",

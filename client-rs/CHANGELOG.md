@@ -27,6 +27,12 @@ details). Add to a group's line when a change adds to it, rather than adding ano
 - Oryx 4 has minions of his own in his Inferno, burnt red: Infernal Minions and Infernal Assassins
   in place of Oryx 1's, with nearly twice the health, more defense, shots about 40% stronger and
   a quarter faster.
+- Oryx 4 fights a fight of his own now, not just a harder Oryx 1. Three new attacks take the place
+  of the Bullet Dance and the Orbitals: the Hellfire Spiral (four arms of fire turning round his
+  throne, then turning back, with slowing rings), the Meteor Storm (meteors rain all over the Pyre,
+  the biggest on you) and the Soul Hunt (he names one of you and chases them down, leaving burning
+  ground behind him). At half health he ignites: a burst of fire, he grows, and a sweep of
+  hellfire turns round him for the rest of the fight.
 
 ### Game
 - Right click can be bound in Options, Controls, like any key: bind it to Use ability to cast at

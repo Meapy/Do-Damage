@@ -80,6 +80,141 @@ namespace WorldServer.logic
             return new IStateChildren[] { hatred }.Concat(rest).ToArray();
         }
 
+        // how Oryx 4 fights Oryx 1's fight in his Inferno: burning, armoured where Oryx 1 is
+        // invulnerable, with his own minions, attacks of his own in place of the Bullet Dance and
+        // the Orbitals, and a second phase from half his health
+        private static OryxSpec O4Spec()
+        {
+            var o = new OryxSpec
+            {
+                // Oryx 1's fight, burning: less warning, his last stand from 10%, hellfire throughout.
+                // His shields and warnings only armour him (his defense doubled), never make him
+                // invulnerable; they're open longer and shut half as long as Oryx 1's, with no
+                // shut stretches inside his attacks: armoured about half the fight
+                Shield = ConditionEffectIndex.Armored,
+                // his own minions and Assassins, burnt: tougher, harder-hitting and quicker to
+                // fire than Oryx 1's (tools/build_hash_cellar.py, OryxMinion, OryxAssassin)
+                Minion = "Infernal Minion of Oryx",
+                Assassin = "Infernal Assassin of Oryx",
+                Pause = 2500,
+                ShutFor = 0.5,
+                OpenFor = 2.0,
+                Guarded = false,
+                AllIn = 0.10,
+                Bubble = false,
+                Inner = "Infernal Element",
+                Outer = "Infernal Outer Element",
+                AllInTaunt = new[] { "I HAVE HAD ENOUGH OF YOU! THE FIRE TAKES YOU ALL!" },
+                Heal = 5000,
+                Size = 220,
+                Fight = new IStateChildren[]
+                {
+                    new Shoot(10, 2, 12, projectileIndex: 2, predictive: 0.5, coolDown: 2400)
+                },
+                // his Infernal Court comes with the minions (BehaviorDb.HashCellar.cs)
+                Minions = new IStateChildren[]
+                {
+                    new KeepMinions("Infernal Officer", 1, 12000),
+                    new KeepMinions("Brimstone Major", 1, 12000)
+                },
+                Hunt = new IStateChildren[]
+                {
+                    new KeepMinions("Infernal Officer", 2, 8000),
+                    new KeepMinions("Brimstone Major", 1, 10000),
+                    new Shoot(25, 3, 12, projectileIndex: 2, predictive: 0.8, coolDown: 1400),
+                    new Taunt(0.4, 6000, "DIE!!!", "ENOUGH!!!", "Your bones will feed my fire!") { Bubble = false }
+                }
+            };
+            o.Draws = new[] { "Hellfire Spiral", "Meteor Storm", "Soul Hunt" };
+            o.Skips = new[] { "Bullet Dance", "Orbitals" };
+            o.Attacks = O4Attacks(o);
+            // his second phase: from half his health a hellfire sweep turns round him through
+            // whatever else he does
+            o.Fight = o.Fight.Concat(new IStateChildren[]
+            {
+                new HpLessOnceTransition(0.5, "Ignite"),
+                new BelowHealth(0.5, new Shoot(0, 2, 180, projectileIndex: 2, fixedAngle: 0, rotateAngle: 8, coolDown: 500))
+            }).ToArray();
+            return o;
+        }
+
+        // Oryx 4's own attacks (drawn as Oryx 1's are, each after its warning) and his second phase
+        private static IStateChildren[] O4Attacks(OryxSpec o) => new IStateChildren[]
+        {
+            O1Pause(o, "Hellfire Spiral", "Burn! BURN, all of you!"),
+            O1Pause(o, "Meteor Storm", "The heavens themselves rain fire at my command!"),
+            O1Pause(o, "Soul Hunt"),
+
+            // back to his throne, four arms of hellfire bolts turning one way then the other, and a
+            // slowing ring of hellfire stars every 3 seconds: walk with the arms, turn when they do
+            new State("Hellfire Spiral",
+                new[]
+                {
+                    (IStateChildren)new ReturnToSpawn(1.2),
+                    new Shoot(0, 12, 30, projectileIndex: 4, fixedAngle: 15, coolDownOffset: 1500, coolDown: 3000),
+                    new TimedTransition(15000, "Choose"),
+                    new State("HS Turn",
+                        new[]
+                        {
+                            (IStateChildren)new Shoot(0, 4, 90, projectileIndex: 2, fixedAngle: 0, rotateAngle: 11, coolDown: 200),
+                            new TimedTransition(7000, "HS Back")
+                        }.Concat(O1Shield(o, "HS T", 3000, 1000)).ToArray()
+                    ),
+                    new State("HS Back",
+                        new[]
+                        {
+                            (IStateChildren)new Shoot(0, 4, 90, projectileIndex: 2, fixedAngle: 45, rotateAngle: -11, coolDown: 200),
+                            new TimedTransition(8000, "HS Turn")
+                        }.Concat(O1Shield(o, "HS B", 3000, 1000)).ToArray()
+                    )
+                }
+            ),
+
+            // meteors fall all over the Pyre, a bigger one on whoever is nearest, and his white
+            // superblasts between them: keep moving
+            new State("Meteor Storm",
+                new[]
+                {
+                    (IStateChildren)new StayCloseToSpawn(0.5, 5),
+                    new Wander(0.5),
+                    new Flash(0xFFFF6A00, 0.3, 4),
+                    new Grenade(2, 140, coolDown: 250, color: 0xffff6a00, scatter: 13),
+                    new Grenade(3, 220, 14, coolDown: 1400, color: 0xffff2000, effect: ConditionEffectIndex.Slowed, effectDuration: 2000, coolDownOffset: 700),
+                    new Shoot(14, 1, projectileIndex: 16, predictive: 0.4, coolDownOffset: 1000, coolDown: 2600),
+                    new TimedTransition(14000, "Choose")
+                }.Concat(O1Shield(o, "MS", 2500, 1500)).ToArray()
+            ),
+
+            // he picks one of you and hunts them down, burning ground in his wake: fire bolts at his
+            // prey, slowing rings for everyone else
+            new State("Soul Hunt",
+                new[]
+                {
+                    (IStateChildren)new HuntRandomPlayer(20, "{PLAYER}! Your soul will feed my fire!",
+                        "I see you, {PLAYER}. There is nowhere to run.", "{PLAYER}! You are MINE!"),
+                    new Prioritize(new StayCloseToSpawn(1.2, 12), new Follow(1.1, 25, 1.5)),
+                    new Shoot(12, 3, 14, projectileIndex: 3, predictive: 0.6, coolDown: 700),
+                    new Shoot(0, 10, 36, projectileIndex: 4, fixedAngle: 0, rotateAngle: 18, coolDownOffset: 800, coolDown: 1600),
+                    new Grenade(1.8, 150, 0, fixedAngle: 0, coolDown: 450, color: 0xffff4400),
+                    new TimedTransition(12000, "Choose")
+                }.Concat(O1Shield(o, "SH", 2500, 1500)).ToArray()
+            ),
+
+            // at half his health, once: back to his throne, a burst of fire, he grows, and from then on
+            // his hellfire sweep turns round him (O4Spec)
+            new State("Ignite",
+                new ConditionEffectBehavior(o.Shield),
+                new ReturnToSpawn(1.5),
+                new Flash(0xFFFF4400, 0.25, 16),
+                new Taunt(true, "ENOUGH! Witness the true fire of the Inferno!") { Bubble = false },
+                new ChangeSize(15, 195),
+                new Shoot(0, 24, 15, projectileIndex: 16, fixedAngle: 0, coolDownOffset: 1500, coolDown: 90000),
+                new Shoot(0, 24, 15, projectileIndex: 2, fixedAngle: 7.5, coolDownOffset: 2100, coolDown: 90000),
+                new Shoot(0, 24, 15, projectileIndex: 4, fixedAngle: 0, coolDownOffset: 2700, coolDown: 90000),
+                new TimedTransition(4000, "Choose")
+            )
+        };
+
         private _ OryxDoomed = () => Behav()
             // Stage 6, Oryx the Infernal Mad God: Oryx 1's fight (BehaviorDb.OryxChamber.cs), burning and
             // harder, with his Infernal Court. His taunts go to chat only (no bubbles over his attacks).
@@ -111,46 +246,7 @@ namespace WorldServer.logic
                         new Taunt(true, "Three times you have struck me down. Here, in the fire, I am stronger.") { Bubble = false },
                         new TimedTransition(4000, "Old Times")
                     )
-                }.Concat(OryxFight(new OryxSpec
-                {
-                    // Oryx 1's fight, burning: less warning, his last stand from 10%, hellfire throughout.
-                    // His shields and warnings only armour him (his defense doubled), never make him
-                    // invulnerable; they're open longer and shut half as long as Oryx 1's, with no
-                    // shut stretches inside his attacks: armoured about half the fight
-                    Shield = ConditionEffectIndex.Armored,
-                    // his own minions and Assassins, burnt: tougher, harder-hitting and quicker to
-                    // fire than Oryx 1's (tools/build_hash_cellar.py, OryxMinion, OryxAssassin)
-                    Minion = "Infernal Minion of Oryx",
-                    Assassin = "Infernal Assassin of Oryx",
-                    Pause = 2500,
-                    ShutFor = 0.5,
-                    OpenFor = 2.0,
-                    Guarded = false,
-                    AllIn = 0.10,
-                    Bubble = false,
-                    Inner = "Infernal Element",
-                    Outer = "Infernal Outer Element",
-                    AllInTaunt = new[] { "I HAVE HAD ENOUGH OF YOU! THE FIRE TAKES YOU ALL!" },
-                    Heal = 5000,
-                    Size = 220,
-                    Fight = new IStateChildren[]
-                    {
-                        new Shoot(10, 2, 12, projectileIndex: 2, predictive: 0.5, coolDown: 2400)
-                    },
-                    // his Infernal Court comes with the minions (BehaviorDb.HashCellar.cs)
-                    Minions = new IStateChildren[]
-                    {
-                        new KeepMinions("Infernal Officer", 1, 12000),
-                        new KeepMinions("Brimstone Major", 1, 12000)
-                    },
-                    Hunt = new IStateChildren[]
-                    {
-                        new KeepMinions("Infernal Officer", 2, 8000),
-                        new KeepMinions("Brimstone Major", 1, 10000),
-                        new Shoot(25, 3, 12, projectileIndex: 2, predictive: 0.8, coolDown: 1400),
-                        new Taunt(0.4, 6000, "DIE!!!", "ENOUGH!!!", "Your bones will feed my fire!") { Bubble = false }
-                    }
-                })).ToArray()
+                }.Concat(OryxFight(O4Spec())).ToArray()
                 ),
                 // everyone who did 1% of the damage: the sure drops
                 new Threshold(0.01,

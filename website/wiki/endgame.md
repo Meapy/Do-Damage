@@ -116,7 +116,16 @@ and Armor Broken still work on them).
   throws blasters: kill it first) and the Doom Cardinal (paralysing spears, and a Vintner at its
   side). A gate across the path's last stretch keeps the Pyre shut until the whole Court is dead,
   so nobody can run past it to him. Oryx 4 waits in the middle of the Pyre at its end and fights
-  **Oryx 1's fight** (above), burning: the same nine attacks drawn at random, with two and a half seconds'
+  **Oryx 1's fight** (above), burning and remade as his own: Oryx 1's attacks drawn at random,
+  less the Bullet Dance and the Orbitals, and three of his own in their place: the **Hellfire
+  Spiral** (back on his throne, four arms of fire bolts turning one way, then the other, and a
+  slowing ring of hellfire stars every 3 seconds: walk with the arms), the **Meteor Storm**
+  (meteors fall all over the Pyre, a bigger one that slows on whoever is nearest, and his white
+  superblasts: keep moving) and the **Soul Hunt** (he names one of you, chases them with fire
+  bolts and leaves burning ground behind him, while slowing rings spin out at everyone). At
+  **half his health he ignites**, once: a triple ring of fire, he grows, and from then on a sweep
+  of two hellfire arms turns round him through everything else he does. His attacks come with
+  two and a half seconds'
   warning instead of five, and his shields only **armour** him (his defense doubled) instead of
   making him invulnerable, and for less of the time (about half the fight, where Oryx 1 is
   invulnerable four fifths): you can always hurt him; hellfire bolts at anyone within ten tiles throughout; his own burnt

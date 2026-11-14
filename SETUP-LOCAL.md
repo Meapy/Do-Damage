@@ -2352,6 +2352,20 @@ The remotes `upstream` (HaloCelsius) and `aurusenth` share no history with `main
     `hashCellarChars16x16` (right-facing, after the court's four) and the new
     `hashCellarCharsDown16x16` (down-facing; `gen_rs_manifest.RS_ONLY_CHARS`). Their behaviours are
     Oryx 1's minions' (`OryxMinion`, `OryxAssassin`) with cooldowns x0.75; the Minion keeps its loot.
+  - **Oryx 4's own attacks and second phase** (2026-11-14, release 2.5.9): his spec is
+    `O4Spec()` in `BehaviorDb.OryxDoomed.cs`. `OryxSpec` gains `Draws` (attacks of his own, added
+    to every pool of `O1Chooser`), `Skips` (Oryx 1's he never draws; Oryx 4 skips the Bullet Dance
+    and the Orbitals) and `Attacks` (their states, added to "Fight"). `O4Attacks`: "Hellfire
+    Spiral" (15 s at his spawn: 4 Hellfire Bolts every 0.2 s turning 11 degrees a volley, reversing
+    after 7 s; 12 slowing Hellfire Stars every 3 s), "Meteor Storm" (14 s: `Grenade` scatter 13
+    every 0.25 s, a 3-tile slowing one on the nearest every 1.4 s, a Superblast every 2.6 s), "Soul
+    Hunt" (12 s: `HuntRandomPlayer` and `Follow`, Fire Bolt triples at the prey, rotating Hellfire
+    Star rings, and a `Grenade` of range 0 every 0.45 s, which lands where he was: a burning
+    trail); each has a warning (`O1Pause`) and shields. "Ignite" comes once at 50% from anywhere in
+    the fight (new `HpLessOnceTransition`): armoured 4 s, back to his spawn, grows to 195, rings of
+    Superblasts, Hellfire Bolts and Hellfire Stars; then new `BelowHealth(0.5, ...)` keeps a
+    two-armed Hellfire Bolt sweep (8 degrees a volley, every 0.5 s) going through the rest of
+    "Fight".
   Tested on the isolated stack (slot 130) with `bsk-bot --shots --fight`, in the real dungeons
   (`/dungeon`, `/tppos`): Oryx 1 drew Make Minions, White Planet, Circle Combat, Hadouken,
   Artifact Dance, Bullet Dance, Orbitals, Hadouken, Chase Course, Minion Toss in four minutes, no
