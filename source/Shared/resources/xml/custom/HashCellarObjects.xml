@@ -513,6 +513,73 @@
 		</Texture>
 		<Rotation>100</Rotation>
 	</Object>
+	<Object type="0x5998" id="Infernal Minion of Oryx">
+		<Class>Character</Class>
+		<MaxHitPoints>8000</MaxHitPoints>
+		<Defense>20</Defense>
+		<Enemy />
+		<AnimatedTexture>
+			<File>hashCellarCharsDown16x16</File>
+			<Index>0</Index>
+		</AnimatedTexture>
+		<AltTexture id="1">
+			<AnimatedTexture>
+				<File>hashCellarChars16x16</File>
+				<Index>4</Index>
+			</AnimatedTexture>
+		</AltTexture>
+		<Projectile id="0">
+			<ObjectId>Fire Bolt</ObjectId>
+			<Speed>70</Speed>
+			<Damage>77</Damage>
+			<Size>80</Size>
+			<LifetimeMS>1300</LifetimeMS>
+		</Projectile>
+		<Projectile id="1">
+			<ObjectId>Hellfire Star</ObjectId>
+			<Speed>60</Speed>
+			<Damage>105</Damage>
+			<Size>100</Size>
+			<LifetimeMS>1600</LifetimeMS>
+			<ConditionEffect duration="6">Slowed</ConditionEffect>
+			<MultiHit />
+		</Projectile>
+		<Size>100</Size>
+		<XpMult>0.3</XpMult>
+	</Object>
+	<Object type="0x5999" id="Infernal Assassin of Oryx">
+		<Class>Character</Class>
+		<Enemy />
+		<AnimatedTexture>
+			<File>hashCellarChars16x16</File>
+			<Index>5</Index>
+		</AnimatedTexture>
+		<AltTexture id="1">
+			<AnimatedTexture>
+				<File>hashCellarChars16x16</File>
+				<Index>6</Index>
+			</AnimatedTexture>
+		</AltTexture>
+		<MaxHitPoints>7000</MaxHitPoints>
+		<Defense>18</Defense>
+		<XpMult>0</XpMult>
+		<Size>100</Size>
+		<ShadowSize>100</ShadowSize>
+		<Projectile id="0">
+			<ObjectId>Assassin Swipe</ObjectId>
+			<Speed>65</Speed>
+			<Damage>148</Damage>
+			<Size>100</Size>
+			<LifetimeMS>1200</LifetimeMS>
+		</Projectile>
+		<Projectile id="1">
+			<ObjectId>Assassin Slash</ObjectId>
+			<Damage>108</Damage>
+			<Speed>40</Speed>
+			<LifetimeMS>1200</LifetimeMS>
+			<Size>100</Size>
+		</Projectile>
+	</Object>
 	<Object type="0x5994" id="Locked Oryx's Sanctuary Portal">
 		<Class>Portal</Class>
 		<LockedPortal />

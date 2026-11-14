@@ -22,8 +22,8 @@ Outputs (generated, don't edit):
 - the map, source/Shared/resources/worlds/Dungeons/Oryx's Inferno/Oryx's Inferno.jm;
 - HashCellarGrounds.xml and HashCellarObjects.xml, in source/Shared/resources/xml/custom and the
   client's custom/xmls;
-- the sheets HashCellar8x8.png, HashCellar16x16.png, HashCellar32x32.png, HashCellarChars16x16.png
-  and HashCellarOryx16x16.png in the client's custom/images (registered for the Rust client by
+- the sheets HashCellar8x8.png, HashCellar16x16.png, HashCellar32x32.png, HashCellarChars16x16.png,
+  HashCellarCharsDown16x16.png and HashCellarOryx16x16.png in the client's custom/images (registered for the Rust client by
   tools/gen_rs_manifest.py).
 Type codes are kept stable in tools/hash_cellar/types.json.
 """
@@ -65,6 +65,8 @@ SHEETS = {
     32: ("hashCellar32x32", "HashCellar32x32.png"),
 }
 CHARS = ("hashCellarChars16x16", "HashCellarChars16x16.png")
+# Oryx 4's minions' frames that face down (CHARS faces right)
+CHARS_DOWN = ("hashCellarCharsDown16x16", "HashCellarCharsDown16x16.png")
 ORYX = ("hashCellarOryx16x16", "HashCellarOryx16x16.png")
 
 # ------------------------------------------------------------------------------------------------
@@ -273,7 +275,7 @@ def court(types, chars, sanctuary, cellar):
         if group is not None:
             e.remove(group)
         tex = e.find("AnimatedTexture")
-        chars.append(int(tex.findtext("Index"), 0))
+        chars.append(("oryxSanctuaryChars16x16", int(tex.findtext("Index"), 0)))
         tex.find("File").text = CHARS[0]
         tex.find("Index").text = str(row)
         if extra:
@@ -310,9 +312,17 @@ BURNT_OBJECTS = {
     "Infernal Flame": ("White Flame", RED_RAMP, {}),
     "Hellfire Bolt": ("White Bolt", FIRE_RAMP, {}),
     "Hellfire Star": ("Green Star", FIRE_RAMP, {}),
+    # Oryx 4's own minions and Assassins, burnt and stronger than Oryx 1's (BehaviorDb.OryxChamber.cs)
+    "Infernal Minion of Oryx": ("Minion of Oryx", CHAR_RAMP, {"Green Star": "Hellfire Star"}),
+    "Infernal Assassin of Oryx": ("Assassin of Oryx", CHAR_RAMP, {}),
 }
-# what the copies are called and where they lead, where they need it
-BURNT_FIELDS = {}
+# what the copies are called and where they lead, where they need it, and their stats
+BURNT_FIELDS = {
+    "Infernal Minion of Oryx": {"MaxHitPoints": "8000", "Defense": "20"},
+    "Infernal Assassin of Oryx": {"MaxHitPoints": "7000", "Defense": "18"},
+}
+# the copies' shots' damage, as a multiple of the original's
+BURNT_DAMAGE = {"Infernal Minion of Oryx": 1.4, "Infernal Assassin of Oryx": 1.35}
 # the copies' shots, where they differ from the original's: Oryx 4's butterflies (both kinds of
 # Infernal Element) sting for 20, through armour
 BUTTERFLY_SHOTS = {"Damage": "20", "ArmorPiercing": None}
@@ -333,7 +343,31 @@ MOLTEN = "O4 Molten Abyss"
 MOLTEN_RAMP = [(0.0, (10, 2, 2)), (0.4, (44, 8, 6)), (0.7, (96, 18, 10)), (1.0, (168, 52, 18))]
 
 
-def burnt_objects(types, sheets, everything):
+def anim_chars():
+    """{animated sheet name: (png path, direction)}, the last registration of each, as the client takes it."""
+    out = {}
+    for e in json.load(open(MANIFEST, encoding="utf-8"))["animated_chars"]:
+        if e["w"] == e["h"] == 16 and e["sheet_w"] == 112 and not e["name"].startswith("hashCellar"):
+            out[e["name"]] = (os.path.join(ROOT, "client", "src", e["file"]), e["dir"])
+    return out
+
+
+def burn_anim(element, chars, chars_down):
+    """Points every animated texture of the element at a burnt row on CHARS or CHARS_DOWN."""
+    anim = anim_chars()
+    for tex in element.iter("AnimatedTexture"):
+        f, i = tex.find("File"), tex.find("Index")
+        if f.text not in anim:
+            continue
+        rows, sheet = (chars_down, CHARS_DOWN) if anim[f.text][1] == "down" else (chars, CHARS)
+        key = (f.text, int(i.text, 0))
+        if key not in rows:
+            rows.append(key)
+        i.text = str(rows.index(key))
+        f.text = sheet[0]
+
+
+def burnt_objects(types, sheets, everything, chars, chars_down):
     out = []
     for name, (orig, stops, renames) in BURNT_OBJECTS.items():
         e = copy.deepcopy(everything[orig])
@@ -351,12 +385,16 @@ def burnt_objects(types, sheets, everything):
                 e.insert(0, node)
             node.text = text
         for shot in e.iter("Projectile"):
+            dmg = shot.find("Damage")
+            if name in BURNT_DAMAGE and dmg is not None:
+                dmg.text = str(round(int(dmg.text) * BURNT_DAMAGE[name]))
             for tag, text in BURNT_SHOTS.get(name, {}).items():
                 node = shot.find(tag)
                 if node is None:
                     node = ET.SubElement(shot, tag)
                 node.text = text
         retexture(e, sheets, stops)
+        burn_anim(e, chars, chars_down)
         out.append(e)
     return out
 
@@ -692,7 +730,8 @@ def main():
     # the moons and hellfire, and the dark beyond the walls
     everything = load("Object", "EmbeddedData_OryxChamberCXML.xml", "EmbeddedData_ProjectilesCXML.xml",
                       "EmbeddedData_oryxSanctuaryObjectsCXML.xml")
-    objects += burnt_objects(types, sheets, everything)
+    rows_down = []
+    objects += burnt_objects(types, sheets, everything, rows, rows_down)
     objects += locked_portals(types, sheets)
     grounds.append(molten(types, sheets, load("Ground", "EmbeddedData_GroundCXML.xml")[LAVA_TILE]))
 
@@ -703,10 +742,14 @@ def main():
     for size, (_, fname) in SHEETS.items():
         sheets[size].write(os.path.join(IMAGES, fname), sources)
 
-    # the court's sprites: one burnt row of the sanctuary's character sheet each
-    sw, _, px = sources["oryxSanctuaryChars16x16"]
-    pix = [[burn(px(x, row * 16 + y), CHAR_RAMP, keep=0.25) for x in range(sw)] for row in rows for y in range(16)]
-    write_png(os.path.join(IMAGES, CHARS[1]), sw, 16 * len(rows), pix)
+    # the court's and Oryx 4's minions' sprites: one burnt row of a character sheet each
+    anim = anim_chars()
+    for src in {k for k, _ in rows + rows_down} - set(sources):
+        sources[src] = read_png(anim[src][0])
+    for (_, fname), sheet_rows in ((CHARS, rows), (CHARS_DOWN, rows_down)):
+        pix = [[burn(sources[src][2](x, row * 16 + y), CHAR_RAMP, keep=0.25) for x in range(112)]
+               for src, row in sheet_rows for y in range(16)]
+        write_png(os.path.join(IMAGES, fname), 112, 16 * len(sheet_rows), pix)
     draw_oryx(os.path.join(IMAGES, ORYX[1]))
 
     write_xml(OUT_XML["grounds"], "Grounds", grounds,

@@ -2338,6 +2338,20 @@ The remotes `upstream` (HaloCelsius) and `aurusenth` share no history with `main
     Guardian Element's orbit (3.2 speed, 8.5 tiles, 32 s); both keep their fixed rings in an arena.
     The Inferno's Pyre is about 17 tiles across each way, so the Chase Course's outer ring (22
     tiles) lands in the walls and is dropped (`TossObject` skips impassable tiles).
+  - **Oryx 4 armoured, with minions of his own** (2026-11-14, release 2.5.9): `OryxSpec` gains
+    `Shield` (the effect of every shield, warning and set-up moment: `Invulnerable`, Oryx 4
+    `Armored`), `ShutFor`/`OpenFor` (scales on the shields' shut and open spells; Oryx 4 0.5 and
+    2.0), `Guarded` (the invulnerable stretches inside attacks; Oryx 4 false) and `Minion`/
+    `Assassin` (whom he calls and throws). Oryx 4: `Pause` 2500, his Awaken, arena wake
+    (`ArenaWake`'s new effect parameter) and arena Doom Ring armoured; only Dormant stays
+    invulnerable (test `Oryx4IsNeverInvulnerableOnceAwake`). His minions are `Infernal Minion of
+    Oryx` (0x5998) and `Infernal Assassin of Oryx` (0x5999), burnt copies made by
+    `build_hash_cellar.py` (`BURNT_OBJECTS`, with `BURNT_FIELDS` for their health and defense and
+    the new `BURNT_DAMAGE` for their shots: 8000 HP / 20 def / x1.4, 7000 / 18 / x1.35; the
+    Minion's Green Star becomes the Hellfire Star). Their animated sprites are burnt rows on
+    `hashCellarChars16x16` (right-facing, after the court's four) and the new
+    `hashCellarCharsDown16x16` (down-facing; `gen_rs_manifest.RS_ONLY_CHARS`). Their behaviours are
+    Oryx 1's minions' (`OryxMinion`, `OryxAssassin`) with cooldowns x0.75; the Minion keeps its loot.
   Tested on the isolated stack (slot 130) with `bsk-bot --shots --fight`, in the real dungeons
   (`/dungeon`, `/tppos`): Oryx 1 drew Make Minions, White Planet, Circle Combat, Hadouken,
   Artifact Dance, Bullet Dance, Orbitals, Hadouken, Chase Course, Minion Toss in four minutes, no

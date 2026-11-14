@@ -24,6 +24,9 @@ details). Add to a group's line when a change adds to it, rather than adding ano
   down longer and up half as long, and he no longer stays shielded through whole parts of his
   attacks (the Minion Toss, the end of the Artifact Dance, the grenade and bullet turns). Oryx 1
   is unchanged.
+- Oryx 4 has minions of his own in his Inferno, burnt red: Infernal Minions and Infernal Assassins
+  in place of Oryx 1's, with nearly twice the health, more defense, shots about 40% stronger and
+  a quarter faster.
 
 ### Game
 - Right click can be bound in Options, Controls, like any key: bind it to Use ability to cast at

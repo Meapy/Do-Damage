@@ -119,7 +119,9 @@ and Armor Broken still work on them).
   **Oryx 1's fight** (above), burning: the same nine attacks drawn at random, with two and a half seconds'
   warning instead of five, and his shields only **armour** him (his defense doubled) instead of
   making him invulnerable, and for less of the time (about half the fight, where Oryx 1 is
-  invulnerable four fifths): you can always hurt him; hellfire bolts at anyone within ten tiles throughout; an Infernal
+  invulnerable four fifths): you can always hurt him; hellfire bolts at anyone within ten tiles throughout; his own burnt
+  **Infernal Minions** and **Infernal Assassins** in place of Oryx 1's (nearly twice the health,
+  more defense, shots about 40% stronger and a quarter faster); an Infernal
   Officer and a Brimstone Major back at his side with every wave of minions; and in his Artifact
   Dance red butterfly-winged Infernal Elements, four spinning close that aim at you (their flames
   20 damage that ignores armour) and three fast ones further out. His last stand comes at 10%

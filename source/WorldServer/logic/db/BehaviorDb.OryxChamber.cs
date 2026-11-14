@@ -40,6 +40,8 @@ namespace WorldServer.logic
             public bool Guarded = true;
             // what his shields and warnings give him: Oryx 1 is invulnerable, Oryx 4 only armoured
             public ConditionEffectIndex Shield = ConditionEffectIndex.Invulnerable;
+            public string Minion = "Minion of Oryx";      // the minions he calls and throws
+            public string Assassin = "Assassin of Oryx";  // and his Assassins
             public IStateChildren[] Fight = new IStateChildren[0];   // added throughout the fight
             public IStateChildren[] Minions = new IStateChildren[0]; // added to Make Minions
             public IStateChildren[] Hunt = new IStateChildren[0];    // added to his last stand's hunt
@@ -202,6 +204,88 @@ namespace WorldServer.logic
                 new State("Final Gone", new Suicide())
             );
 
+        // Oryx's minions: circle and shoot; with Oryx gone they fall apart. They live 15 seconds.
+        // Oryx 4's Infernal ones fire a quarter faster (`fire` scales their cooldowns).
+        private static State OryxMinion(double fire)
+        {
+            int f(int ms) => (int)(ms * fire);
+            return new State(
+                new Decay(15000),
+                new State("With Oryx",
+                    new EntitiesNotExistsTransition(40, "No Oryx", O1, O4),
+                    new Shoot(8, 3, 12, 0, coolDown: f(800)),
+                    new Shoot(8, 2, 180, 1, predictive: 0.35, coolDownOffset: f(400), coolDown: f(1000)),
+                    new State("Roam", new Wander(0.6), new TimedTransition(3000, "Circle")),
+                    new State("Circle",
+                        new Prioritize(new Circle(0.8, 3.5, 8), new Wander(0.8)),
+                        new TimedTransition(4000, "Roam")
+                    )
+                ),
+                new State("No Oryx",
+                    new SetAltTexture(1),
+                    new Flash(0xFFFFFFFF, 0.2, 10),
+                    new Shoot(0, 5, projectileIndex: 0, fixedAngle: 0, coolDownOffset: f(2000), coolDown: 90000),
+                    new TimedTransition(2200, "Gone")
+                ),
+                new State("Gone", new Suicide())
+            );
+        }
+
+        // Oryx's Assassins circle him 12 tiles out and dart in at whoever is near; they live 20
+        // seconds. Oryx 4's Infernal ones fire a quarter faster.
+        private static State OryxAssassin(double fire)
+        {
+            int f(int ms) => (int)(ms * fire);
+            return new State(
+                new Decay(20000),
+                new State("Hunting",
+                    new EntitiesNotExistsTransition(40, "No Oryx", O1, O4),
+                    new State("Arrive",
+                        new Charge(1.6, 20, 2400),
+                        new TimedRandomTransition(800, false, "Orbit Oryx", "Chase Attack")
+                    ),
+                    new State("Orbit Oryx",
+                        OryxOrbit(1.4, 12, 30, 0.5, 1.5),
+                        new Shoot(9, 4, 90, 1, coolDown: f(1000)),
+                        new TimedTransition(2200, "Chase Attack")
+                    ),
+                    new State("Chase Attack",
+                        new Prioritize(new Charge(1.6, 12, 2400), new Circle(1.4, 3, 15)),
+                        new Shoot(6, 3, 20, 0, predictive: 0.75, coolDown: f(1000)),
+                        new Shoot(9, 4, 90, 1, coolDownOffset: f(400), coolDown: f(3200)),
+                        new TimedTransition(7000, "Orbit Oryx")
+                    )
+                ),
+                // Oryx's last stand: faster, wider, and two kinds of shot at once
+                new State("Final",
+                    new EntitiesNotExistsTransition(40, "No Oryx", O1, O4),
+                    new State("Final Arrive",
+                        new Charge(1.6, 20, 2400),
+                        new TimedRandomTransition(800, false, "Final Orbit", "Final Chase")
+                    ),
+                    new State("Final Orbit",
+                        OryxOrbit(1.8, 13, 30, 0.4, 1.5),
+                        new Shoot(9, 4, 90, 1, coolDown: f(1000)),
+                        new Shoot(7, 3, 20, 0, predictive: 0.75, coolDown: f(3200)),
+                        new TimedTransition(5000, "Final Chase")
+                    ),
+                    new State("Final Chase",
+                        new Prioritize(new Charge(1.4, 12, 2400), new Circle(1, 3, 15)),
+                        new Shoot(7, 3, 20, 0, predictive: 0.75, coolDown: f(1000)),
+                        new Shoot(9, 4, 90, 1, coolDownOffset: f(400), coolDown: f(3200)),
+                        new TimedTransition(5000, "Final Orbit")
+                    )
+                ),
+                new State("No Oryx",
+                    new SetAltTexture(1),
+                    new Flash(0xFFFFFFFF, 0.2, 10),
+                    new Shoot(0, 4, 90, 1, fixedAngle: 0, coolDownOffset: f(2000), coolDown: 90000),
+                    new TimedTransition(2200, "Gone")
+                ),
+                new State("Gone", new Suicide())
+            );
+        }
+
         private _ OryxChamber = () => Behav()
             // Stage 3 of the Oryx chain
             .Init(O1,
@@ -272,82 +356,16 @@ namespace WorldServer.logic
                     new State("Final", new State("Final Gone", new Suicide()))
                 )
             )
-            // circle and shoot; with Oryx gone they fall apart. They live 15 seconds.
-            .Init("Minion of Oryx",
-                new State(
-                    new Decay(15000),
-                    new State("With Oryx",
-                        new EntitiesNotExistsTransition(40, "No Oryx", O1, O4),
-                        new Shoot(8, 3, 12, 0, coolDown: 800),
-                        new Shoot(8, 2, 180, 1, predictive: 0.35, coolDownOffset: 400, coolDown: 1000),
-                        new State("Roam", new Wander(0.6), new TimedTransition(3000, "Circle")),
-                        new State("Circle",
-                            new Prioritize(new Circle(0.8, 3.5, 8), new Wander(0.8)),
-                            new TimedTransition(4000, "Roam")
-                        )
-                    ),
-                    new State("No Oryx",
-                        new SetAltTexture(1),
-                        new Flash(0xFFFFFFFF, 0.2, 10),
-                        new Shoot(0, 5, projectileIndex: 0, fixedAngle: 0, coolDownOffset: 2000, coolDown: 90000),
-                        new TimedTransition(2200, "Gone")
-                    ),
-                    new State("Gone", new Suicide())
-                ),
+            .Init("Minion of Oryx", OryxMinion(1.0),
                 new TierLoot(7, ItemType.Weapon, 0.2),
                 new ItemLoot("Magic Potion", 0.03)
             )
-            // they circle Oryx 12 tiles out and dart in at whoever is near; they live 20 seconds
-            .Init("Assassin of Oryx",
-                new State(
-                    new Decay(20000),
-                    new State("Hunting",
-                        new EntitiesNotExistsTransition(40, "No Oryx", O1, O4),
-                        new State("Arrive",
-                            new Charge(1.6, 20, 2400),
-                            new TimedRandomTransition(800, false, "Orbit Oryx", "Chase Attack")
-                        ),
-                        new State("Orbit Oryx",
-                            OryxOrbit(1.4, 12, 30, 0.5, 1.5),
-                            new Shoot(9, 4, 90, 1, coolDown: 1000),
-                            new TimedTransition(2200, "Chase Attack")
-                        ),
-                        new State("Chase Attack",
-                            new Prioritize(new Charge(1.6, 12, 2400), new Circle(1.4, 3, 15)),
-                            new Shoot(6, 3, 20, 0, predictive: 0.75, coolDown: 1000),
-                            new Shoot(9, 4, 90, 1, coolDownOffset: 400, coolDown: 3200),
-                            new TimedTransition(7000, "Orbit Oryx")
-                        )
-                    ),
-                    // Oryx's last stand: faster, wider, and two kinds of shot at once
-                    new State("Final",
-                        new EntitiesNotExistsTransition(40, "No Oryx", O1, O4),
-                        new State("Final Arrive",
-                            new Charge(1.6, 20, 2400),
-                            new TimedRandomTransition(800, false, "Final Orbit", "Final Chase")
-                        ),
-                        new State("Final Orbit",
-                            OryxOrbit(1.8, 13, 30, 0.4, 1.5),
-                            new Shoot(9, 4, 90, 1, coolDown: 1000),
-                            new Shoot(7, 3, 20, 0, predictive: 0.75, coolDown: 3200),
-                            new TimedTransition(5000, "Final Chase")
-                        ),
-                        new State("Final Chase",
-                            new Prioritize(new Charge(1.4, 12, 2400), new Circle(1, 3, 15)),
-                            new Shoot(7, 3, 20, 0, predictive: 0.75, coolDown: 1000),
-                            new Shoot(9, 4, 90, 1, coolDownOffset: 400, coolDown: 3200),
-                            new TimedTransition(5000, "Final Orbit")
-                        )
-                    ),
-                    new State("No Oryx",
-                        new SetAltTexture(1),
-                        new Flash(0xFFFFFFFF, 0.2, 10),
-                        new Shoot(0, 4, 90, 1, fixedAngle: 0, coolDownOffset: 2000, coolDown: 90000),
-                        new TimedTransition(2200, "Gone")
-                    ),
-                    new State("Gone", new Suicide())
-                )
+            .Init("Infernal Minion of Oryx", OryxMinion(0.75),
+                new TierLoot(7, ItemType.Weapon, 0.2),
+                new ItemLoot("Magic Potion", 0.03)
             )
+            .Init("Assassin of Oryx", OryxAssassin(1.0))
+            .Init("Infernal Assassin of Oryx", OryxAssassin(0.75))
             // circle Oryx 12 tiles out fast for 18 seconds
             .Init("Anti-Spectator",
                 new State(
@@ -467,7 +485,7 @@ namespace WorldServer.logic
                         "I have {HP} hitpoints and I shall destroy you!", "Insignificant peons! I have {HP} hitpoints!") { Bubble = o.Bubble },
                     new StayCloseToSpawn(0.4, 5),
                     new Wander(0.4),
-                    new KeepMinions("Minion of Oryx", 5, 300),
+                    new KeepMinions(o.Minion, 5, 300),
                     new Shoot(22, 4, 9, 4, coolDown: 800),
                     new TimedTransition(12000, "Choose"),
                 }.Concat(O1ShieldOnce(o, "MM", 6000, 1500, 3000, new HpLessTransition(0.45, "MM Shut Again"))).Concat(o.Minions).ToArray()),
@@ -482,7 +500,7 @@ namespace WorldServer.logic
                             new ConditionEffectBehavior(o.Shield),
                             (IStateChildren)new TimedTransition(4000, "CC Grenade 0")
                         }
-                        .Concat(Enumerable.Range(0, 5).Select(i => (IStateChildren)new TossObject("Minion of Oryx", 20, i * 72, 90000)))
+                        .Concat(Enumerable.Range(0, 5).Select(i => (IStateChildren)new TossObject(o.Minion, 20, i * 72, 90000)))
                         .Concat(O1Ring(8.5))
                         .Concat(O1AntiSpectators("CC", 600)).ToArray()
                     ),
@@ -554,17 +572,17 @@ namespace WorldServer.logic
                     new TimedTransition(15000, "Choose"),
                     new State("MT 0", new ConditionEffectBehavior(o.Shield), new TimedTransition(2000, "MT 1")),
                     new State("MT 1", O1Guarded(o,
-                        new TossObject("Minion of Oryx", 3, 30, 90000), new TossObject("Minion of Oryx", 3, 180, 90000),
-                        new TossObject("Assassin of Oryx", 3, 330, 90000), new TimedTransition(400, "MT 2"))),
+                        new TossObject(o.Minion, 3, 30, 90000), new TossObject(o.Minion, 3, 180, 90000),
+                        new TossObject(o.Assassin, 3, 330, 90000), new TimedTransition(400, "MT 2"))),
                     new State("MT 2", O1Guarded(o,
-                        new TossObject("Minion of Oryx", 4, 120, 90000), new TossObject("Minion of Oryx", 4, 260, 90000),
-                        new TossObject("Assassin of Oryx", 4, 40, 90000), new TimedTransition(400, "MT 3"))),
+                        new TossObject(o.Minion, 4, 120, 90000), new TossObject(o.Minion, 4, 260, 90000),
+                        new TossObject(o.Assassin, 4, 40, 90000), new TimedTransition(400, "MT 3"))),
                     new State("MT 3", O1Guarded(o,
-                        new TossObject("Minion of Oryx", 6, 210, 90000), new TossObject("Minion of Oryx", 6, 300, 90000),
-                        new TossObject("Assassin of Oryx", 6, 120, 90000), new TimedTransition(400, "MT 4"))),
+                        new TossObject(o.Minion, 6, 210, 90000), new TossObject(o.Minion, 6, 300, 90000),
+                        new TossObject(o.Assassin, 6, 120, 90000), new TimedTransition(400, "MT 4"))),
                     new State("MT 4",
-                        new TossObject("Minion of Oryx", 11, 0, 90000), new TossObject("Minion of Oryx", 11, 120, 90000),
-                        new TossObject("Assassin of Oryx", 11, 240, 90000), new TimedTransition(4000, "MT Watch")),
+                        new TossObject(o.Minion, 11, 0, 90000), new TossObject(o.Minion, 11, 120, 90000),
+                        new TossObject(o.Assassin, 11, 240, 90000), new TimedTransition(4000, "MT Watch")),
                     new State("MT Watch", O1Guarded(o))
                 ),
 
@@ -690,7 +708,7 @@ namespace WorldServer.logic
                 new Order(40, "Black Planet", "Final"),
                 new Order(40, "Black Moon", "Final"),
                 new Order(40, "Ring Element", "Final"),
-                new Order(40, "Assassin of Oryx", "Final"),
+                new Order(40, o.Assassin, "Final"),
                 new State("AI Start",
                     new ConditionEffectBehavior(o.Shield),
                     new ReturnToSpawn(1),
@@ -703,9 +721,9 @@ namespace WorldServer.logic
                     new ChangeSize(10, o.Size),
                     new ConditionEffectBehavior(o.Shield),
                     new Shoot(10, 12, 30, 18, predictive: 0.5, coolDownOffset: 200, coolDown: 1000),
-                    new TossObject("Assassin of Oryx", 4.3, 270, 90000),
-                    new TossObject("Assassin of Oryx", 4.3, 150, 90000),
-                    new TossObject("Assassin of Oryx", 4.3, 30, 90000),
+                    new TossObject(o.Assassin, 4.3, 270, 90000),
+                    new TossObject(o.Assassin, 4.3, 150, 90000),
+                    new TossObject(o.Assassin, 4.3, 30, 90000),
                     new TimedTransition(1000, "AI Hunt")
                 ),
                 new State("AI Hunt", new IStateChildren[]
@@ -713,7 +731,7 @@ namespace WorldServer.logic
                     new ChangeSize(10, o.Size),
                     new ConditionEffectBehavior(ConditionEffectIndex.Armored),
                     new Flash(0xFFFF0000, 0.2, 12),
-                    new KeepMinions("Assassin of Oryx", 5, 5000),
+                    new KeepMinions(o.Assassin, 5, 5000),
                     new Prioritize(
                         new Charge(1.2, 10, 800),
                         new Wander(1)
@@ -722,13 +740,13 @@ namespace WorldServer.logic
                     new Shoot(8, 6, 25, 18, predictive: 1, coolDownOffset: 3000, coolDown: 3400),
                     new Shoot(8, 4, 90, 17, predictive: 0.6, coolDownOffset: 1000, coolDown: 2000),
                     new State("AI Toss 1",
-                        new TossObject("Minion of Oryx", 3, 45, 90000),
-                        new TossObject("Minion of Oryx", 3, 225, 90000),
+                        new TossObject(o.Minion, 3, 45, 90000),
+                        new TossObject(o.Minion, 3, 225, 90000),
                         new TimedTransition(2200, "AI Toss 2")
                     ),
                     new State("AI Toss 2",
-                        new TossObject("Minion of Oryx", 3, 135, 90000),
-                        new TossObject("Minion of Oryx", 3, 315, 90000),
+                        new TossObject(o.Minion, 3, 135, 90000),
+                        new TossObject(o.Minion, 3, 315, 90000),
                         new TimedTransition(2200, "AI Wait")
                     ),
                     new State("AI Wait", new TimedTransition(12000, "AI Toss 1"))

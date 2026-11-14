@@ -118,6 +118,10 @@ namespace WorldServer.logic
                     // invulnerable; they're open longer and shut half as long as Oryx 1's, with no
                     // shut stretches inside his attacks: armoured about half the fight
                     Shield = ConditionEffectIndex.Armored,
+                    // his own minions and Assassins, burnt: tougher, harder-hitting and quicker to
+                    // fire than Oryx 1's (tools/build_hash_cellar.py, OryxMinion, OryxAssassin)
+                    Minion = "Infernal Minion of Oryx",
+                    Assassin = "Infernal Assassin of Oryx",
                     Pause = 2500,
                     ShutFor = 0.5,
                     OpenFor = 2.0,
