@@ -37,6 +37,10 @@ const SCREEN_H: f64 = 2.6;
 const SCREEN_LIFT: f64 = 0.9;
 /// We watch while the glass is this near (tiles): about as far as a window shows.
 const WATCH_RANGE: f64 = 24.0;
+/// How quickly the glass's camera catches up with the watched player (ms to close about two
+/// thirds of the gap), and how far they must jump for it to cut straight there, tiles.
+const CAMERA_EASE_MS: f64 = 110.0;
+const CAMERA_JUMP: f64 = 4.0;
 /// How long the picture ripples when it changes, ms.
 const RIPPLE_MS: i32 = 650;
 /// Chat lines kept, and the most typed in one.
@@ -60,6 +64,9 @@ pub struct Picture {
     world: World,
     ground: Ground,
     particles: crate::particles::Particles,
+    /// Where the camera looks: it follows the watched player a little behind, so the picture
+    /// glides through the turns and stops of their walk rather than jerking with each tick.
+    camera: Option<(f64, f64)>,
 }
 
 impl Picture {
@@ -105,6 +112,19 @@ impl Picture {
 
     fn target(&self) -> Option<&GameObj> {
         self.world.objects.get(&self.target_id)
+    }
+
+    /// The camera `dt` ms on, toward the watched player: eased, and straight there when they
+    /// jumped (a teleport, a new floor) or it has nowhere yet.
+    fn follow(&mut self, dt: i32) {
+        let Some((tx, ty)) = self.target().map(|t| (t.x, t.y)) else { return };
+        self.camera = Some(match self.camera {
+            Some((x, y)) if (tx - x).hypot(ty - y) < CAMERA_JUMP => {
+                let k = 1.0 - (-(dt.max(0) as f64) / CAMERA_EASE_MS).exp();
+                (x + (tx - x) * k, y + (ty - y) * k)
+            }
+            _ => (tx, ty),
+        });
     }
 }
 
@@ -213,6 +233,7 @@ impl Glass {
                     world,
                     ground: Ground::default(),
                     particles: Default::default(),
+                    camera: None,
                 });
             }
             ServerMessage::SpectateFeed(f) => {
@@ -241,6 +262,15 @@ impl Glass {
 
     /// Each frame: watch while the glass is near us in the Nexus, and move the picture on.
     pub fn tick(&mut self, world: Option<&World>, map: &str, data: &GameData, now: i32, dt: i32) {
+        // Between worlds (a portal's reconnect, a dropped connection): the new connection's
+        // server knows nothing of our watching, and takes nothing from us before our player is
+        // in, so forget it all and ask again once we're there.
+        if !world.is_some_and(|w| w.player().is_some()) {
+            if self.watching || self.open || !self.out.is_empty() || !self.said.is_empty() {
+                self.reset();
+            }
+            return;
+        }
         if self.looked_at.is_none_or(|t| now - t >= 500 || now < t) {
             self.looked_at = Some(now);
             self.near = map == "Nexus"
@@ -266,6 +296,7 @@ impl Glass {
             p.world.update_projectiles(now, data);
             p.particles.impacts(&mut p.world);
             p.particles.update(&p.world, now, dt);
+            p.follow(dt);
         }
     }
 
@@ -278,7 +309,8 @@ impl Glass {
             let scale = rect[3] as f64 / tiles;
             let (cx, cy) = ((rect[0] + rect[2] / 2.0) as f64, (rect[1] + rect[3] * 0.56) as f64);
             let z = if p.world.levels.is_some() { view::height_of(&p.world, data, target) } else { 0.0 };
-            let camera = Camera::new(target.x, target.y, 0.0, scale, cx, cy).at_height(z).snapped();
+            let (x, y) = p.camera.unwrap_or((target.x, target.y));
+            let camera = Camera::new(x, y, 0.0, scale, cx, cy).at_height(z).snapped();
             let roof = view::roof(&p.world, data, &camera);
             let scene = Scene {
                 sprites,

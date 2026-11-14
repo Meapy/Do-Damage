@@ -12,6 +12,17 @@ Keep each version short: changes go under `### ` group headings (Oryx 5, Arena, 
 on), one line per change players notice, summed up rather than item by item (the wiki has the
 details). Add to a group's line when a change adds to it, rather than adding another line.
 
+## 2.5.10 (2026-11-15)
+
+### Nexus
+- The Scrying Glass follows the player it shows smoothly: the picture no longer jumps about while
+  they move, so you can follow what's happening.
+
+### Fixes
+- Taking a portal from near the Scrying Glass, into a dungeon or your vault, no longer
+  disconnects you (in the browser, "code 1005"), nor does chatting or searching the market
+  while you change worlds.
+
 ## 2.5.9 (2026-11-14)
 
 ### Items
