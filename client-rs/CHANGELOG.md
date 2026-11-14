@@ -12,7 +12,7 @@ Keep each version short: changes go under `### ` group headings (Oryx 5, Arena, 
 on), one line per change players notice, summed up rather than item by item (the wiki has the
 details). Add to a group's line when a change adds to it, rather than adding another line.
 
-## Unreleased
+## 2.5.8 (2026-11-14)
 
 ### Items
 - Superior (the staff from Oryx the Celestial Mad God) hits harder, 60-95 damage a shot (was 45-75), and each hit strips 1% of the enemy's defense for 5 seconds, stacking up to 10 times: keep hitting to keep it on. It drops 1% of the time (was 0.4%).
