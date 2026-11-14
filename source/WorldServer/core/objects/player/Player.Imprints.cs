@@ -217,7 +217,10 @@ namespace WorldServer.core.objects
                 ActiveProjectiles[Id] = new Dictionary<int, ValidatedProjectile>();
             var proj = new ValidatedProjectile(Id, bulletId, start, angle, type, damage, DamageType.Enemy, desc, false) { Time = time };
             ActiveProjectiles[Id][bulletId] = proj;
-            World.BroadcastIfVisibleExclude(new AllyShootMessage(bulletId, Id, type, angle), this, this);
+            var bolt = new AllyShootMessage(bulletId, Id, type, angle);
+            World.BroadcastIfVisibleExclude(bolt, this, this);
+            if (Spectated)
+                GameServer.Spectators.Forward(this, bolt);
         }
 
         // --- the weapon's hits ---

@@ -9,7 +9,7 @@ pub mod wire;
 pub use data::*;
 pub use frame::{FrameDecoder, FrameError};
 pub use messages::*;
-pub use wire::{List16, List8, LongString};
+pub use wire::{List16, List8, LongString, Rest};
 
 #[cfg(test)]
 mod tests;

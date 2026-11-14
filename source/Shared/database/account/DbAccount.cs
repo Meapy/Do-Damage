@@ -39,6 +39,8 @@ namespace Shared.database.account
         public int GuildId { get => GetValue<int>("guildId"); set => SetValue("guildId", value); }
         public int GuildRank { get => GetValue<int>("guildRank"); set => SetValue("guildRank", value); }
         public bool Hidden { get => GetValue<bool>("hidden"); set => SetValue("hidden", value); }
+        // not shown in the Nexus's Scrying Glass (/glass off)
+        public bool HideFromGlass { get => GetValue<bool>("hideFromGlass"); set => SetValue("hideFromGlass", value); }
         public int[] IgnoreList { get => GetValue<int[]>("ignoreList") ?? new int[0]; set => SetValue("ignoreList", value); }
         public string IP { get => GetValue<string>("ip"); set => SetValue("ip", value); }
         public DateTime LastRecoveryTime { get => GetValue<DateTime>("lastRecoveryTime"); set => SetValue("lastRecoveryTime", value); }

@@ -89,5 +89,19 @@ namespace Tests
                 _out.WriteLine(f);
             Assert.True(found.Count == 0, "States that take off their parent's effect when left:\n" + string.Join("\n", found));
         }
+
+        // Oryx 4's shields only armour him: players can always hurt him once he's awake (he's
+        // invulnerable only while nobody is near, "Dormant")
+        [Fact]
+        public void Oryx4IsNeverInvulnerableOnceAwake()
+        {
+            var found = Monsters()
+                .Where(m => m.Monster == "Oryx the Mad God 4" && m.State.Name != "Dormant")
+                .Where(m => m.State.Behaviors.Any(b => b.GetType().Name == "ConditionEffectBehavior"
+                    && Field<ConditionEffectIndex>(b, "effect") == ConditionEffectIndex.Invulnerable))
+                .Select(m => m.State.Name).ToList();
+            Assert.True(found.Count == 0, "Oryx 4 invulnerable in: " + string.Join(", ", found));
+            Assert.Contains(Monsters(), m => m.Monster == "Oryx the Mad God 4" && m.State.Name == "Pre Hadouken");
+        }
     }
 }

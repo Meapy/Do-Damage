@@ -110,6 +110,19 @@ impl Wire for LongString {
     }
 }
 
+/// The rest of a message, as it is: another message's body inside this one (`SpectateFeed`).
+#[derive(Debug, Clone, Default, PartialEq, Eq)]
+pub struct Rest(pub Vec<u8>);
+
+impl Wire for Rest {
+    fn read(r: &mut Reader) -> Result<Self> {
+        Ok(Rest(r.bytes(r.remaining())?.to_vec()))
+    }
+    fn write(&self, w: &mut Writer) {
+        w.bytes(&self.0);
+    }
+}
+
 fn read_len(n: i64) -> Result<usize> {
     if n < 0 { Err(Error::NegativeLength(n)) } else { Ok(n as usize) }
 }

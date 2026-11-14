@@ -23,6 +23,9 @@ namespace WorldServer.networking.packets.outgoing
         // land on another world server than the one that sent this.
         public void ClearKey() => Key = Array.Empty<byte>();
 
+        // A key another world server keeps for this player (a visit between servers).
+        public void SetKey(byte[] key) => Key = key;
+
         public override void Write(NetworkWriter wtr)
         {
             wtr.WriteUTF16(Name);

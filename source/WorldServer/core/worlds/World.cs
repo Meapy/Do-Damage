@@ -548,7 +548,7 @@ namespace WorldServer.core.worlds
         // nothing to tell sky (never sent) from squares not sent yet
         private List<(byte, short, short, ushort)> _layerTiles;
 
-        private LayersMessage Layers()
+        internal LayersMessage Layers()
         {
             if (_layerTiles == null)
             {

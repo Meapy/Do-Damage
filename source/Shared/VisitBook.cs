@@ -30,6 +30,10 @@ namespace Shared
             public string TargetName;
             public int WorldId;
             public long Expires;
+            // On another world server (RemoteVisits): the instance id of the server the other side
+            // plays on, and the id the request has there; null when both sides play here.
+            public string Server;
+            public int RemoteId;
         }
 
         private readonly object _lock = new object();
@@ -56,8 +60,9 @@ namespace Shared
 
         private static int Seconds(long ms) => (int)((ms + 999) / 1000);
 
-        // A new request, or why there can't be one (and request null).
-        public string Ask(int visitor, string visitorName, int target, string targetName, int worldId, long now, out Request request, bool summon = false)
+        // A new request, or why there can't be one (and request null). `graceMs` keeps it open
+        // that much longer, for a target on another server whose answer comes over Redis.
+        public string Ask(int visitor, string visitorName, int target, string targetName, int worldId, long now, out Request request, bool summon = false, int graceMs = 0)
         {
             request = null;
             lock (_lock)
@@ -87,6 +92,7 @@ namespace Shared
                 }
 
                 request = NewRequest(visitor, visitorName, target, targetName, worldId, now, summon);
+                request.Expires += graceMs;
                 Add(request);
                 _lastAsked[visitor] = now;
                 Count();

@@ -130,6 +130,8 @@ pub struct Game {
     pub visit: Option<VisitAsk>,
     /// The pings showing in this world (`PingShow`), and whether the server knows pings.
     pub pings: crate::pings::Marks,
+    /// The Scrying Glass's messages, for its picture and big view (`glass.rs`).
+    pub glass_events: Vec<ServerMessage>,
     /// `AccountList` 0 and 1: locked (starred) and ignored players' account ids.
     pub locked: std::collections::HashSet<String>,
     pub ignored: std::collections::HashSet<String>,
@@ -397,6 +399,7 @@ impl Game {
             invite: None,
             visit: None,
             pings: Default::default(),
+            glass_events: Vec::new(),
             locked: Default::default(),
             ignored: Default::default(),
             next_teleport: 0,
@@ -1034,6 +1037,9 @@ impl Game {
             }
             ServerMessage::ArenaVotes(v) => self.arena_votes = Some(v.clone()),
             ServerMessage::PingShow(p) => self.pings.show(p, now),
+            ServerMessage::SpectateInfo(_) | ServerMessage::SpectateFeed(_) | ServerMessage::SpectateStatus(_) | ServerMessage::SpectateChat(_) => {
+                self.glass_events.push(msg.clone())
+            }
             ServerMessage::VisitRequest(v) => {
                 if v.seconds == 0 {
                     // taken back or run out
@@ -1668,6 +1674,16 @@ impl Game {
     }
 
     /// Ask for the Collection (`CollectionHandler.cs`).
+    /// The Scrying Glass's asks (`Spectate`) and the lines typed in its chat (`SpectateSay`).
+    pub fn glass(&mut self, actions: Vec<u8>, said: Vec<String>) {
+        for action in actions {
+            self.send(bsk_proto::Spectate { action }.into());
+        }
+        for text in said {
+            self.send(bsk_proto::SpectateSay { text }.into());
+        }
+    }
+
     pub fn collection_request(&mut self) {
         self.send(bsk_proto::CollectionRequest {}.into());
     }

@@ -19,7 +19,8 @@ namespace WorldServer.core.commands
                 var servers = player.GameServer.InterServerManager.GetServerList();
                 var s = servers.Where(_ => _.type != ServerType.Account);
                 var isare = s.Sum(_ => _.players) == 1 ? "is" : "are";
-                var sb = new StringBuilder($"On '{string.Join(", ", s.Select(_ => _.name))}', there {isare} {s.Sum(_ => _.players)} online.");
+                // the two servers of a hand-over share a name
+                var sb = new StringBuilder($"On '{string.Join(", ", s.Select(_ => _.name).Distinct())}', there {isare} {s.Sum(_ => _.players)} online.");
                 player.SendInfo(sb.ToString());
                 return true;
             }

@@ -47,6 +47,9 @@ namespace WorldServer.core
         public GameUptime Uptime { get; private set; }
         // players' /visit requests waiting for an answer
         public VisitBook Visits { get; } = new VisitBook();
+        public RemoteVisits RemoteVisits { get; private set; }
+        // the Scrying Glass in the Nexus: who watches whom (core/spectate)
+        public core.spectate.SpectatorHub Spectators { get; }
 
         public GameServer(string[] appArgs)
         {
@@ -75,6 +78,7 @@ namespace WorldServer.core
             ConnectionManager = new ConnectionManager(this);
             ConnectionListener = new ConnectionListener(this);
             ChatManager = new ChatManager(this);
+            Spectators = new core.spectate.SpectatorHub(this);
             BehaviorDb = new BehaviorDb(this);
             CommandManager = new CommandManager();
             DbEvents = new DbEvents(this);
@@ -124,6 +128,7 @@ namespace WorldServer.core
             WorldManager.Initialize();
             InterServerManager.Initialize();
             InterServerManager.AddHandler<KickMsg>(Channel.Kick, ConnectionManager.OnKick);
+            RemoteVisits = new RemoteVisits(this);
             ChatManager.Initialize();
             Marketplace.Init();
             WeeklyStats.Start(Database.Conn);

@@ -12,6 +12,42 @@ Keep each version short: changes go under `### ` group headings (Oryx 5, Arena, 
 on), one line per change players notice, summed up rather than item by item (the wiki has the
 details). Add to a group's line when a change adds to it, rather than adding another line.
 
+## 2.5.9 (2026-11-14)
+
+### Items
+- New sprites drawn by players in the Sprite Editor: Archdemon's Soulfire Staff (by Joseph).
+
+### Dungeons
+- Oryx 4 is never invulnerable once he wakes, in his Inferno or an arena: where he used to shield
+  himself he is armoured instead (his defense doubled), and for much less of the fight, about half
+  instead of four fifths. His warning before each attack is 2.5 seconds (was 4), his shields stay
+  down longer and up half as long, and he no longer stays shielded through whole parts of his
+  attacks (the Minion Toss, the end of the Artifact Dance, the grenade and bullet turns). Oryx 1
+  is unchanged.
+- Oryx 4 has minions of his own in his Inferno, burnt red: Infernal Minions and Infernal Assassins
+  in place of Oryx 1's, with nearly twice the health, more defense, shots about 40% stronger and
+  a quarter faster.
+- Oryx 4 fights a fight of his own now, not just a harder Oryx 1. Three new attacks take the place
+  of the Bullet Dance and the Orbitals: the Hellfire Spiral (four arms of fire turning round his
+  throne, then turning back, with slowing rings), the Meteor Storm (meteors rain all over the Pyre,
+  the biggest on you) and the Soul Hunt (he names one of you and chases them down, leaving burning
+  ground behind him). At half health he ignites: a burst of fire, he grows, and a sweep of
+  hellfire turns round him for the rest of the fight.
+
+### Game
+- Right click can be bound in Options, Controls, like any key: bind it to Use ability to cast at
+  the cursor with the right mouse button. Right clicks on the HUD (player cards, breaking items
+  down) work as before.
+- Updates and restarts are smoother: while players move over to the updated server, /visit and
+  /summon still reach a friend on the other one, /swho lists everyone on both, and the
+  confusing "a new server has come online" and "is no longer online" messages are gone.
+
+### Nexus
+- The Scrying Glass stands just north of the spawn: it shows a player out adventuring, live, and
+  picks someone new every 45 seconds. Press Watch to open it big, with arrows through everyone
+  out there, a button to stay on one player, and a chat for everyone watching. Type `/glass off`
+  if you'd rather not be shown in it.
+
 ## 2.5.8 (2026-11-14)
 
 ### Items

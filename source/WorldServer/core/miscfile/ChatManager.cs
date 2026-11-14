@@ -307,11 +307,17 @@ namespace WorldServer.core.miscfile
             return true;
         }
 
+        // Another world server came or went. Not the account server (restarted by every deploy),
+        // nor a world server of this one's name: the other half of a hand-over (an update or the
+        // scheduled restart), which players don't need to hear about; nor an admin-only one (Testing).
+        private bool WorthAnnouncing(ServerInfo info) =>
+            info != null && info.type == ServerType.World && !info.adminOnly && info.name != GameServer.Configuration.serverInfo.name;
+
         private void AnnounceNewServer(object sender, EventArgs e)
         {
             var networkMsg = (InterServerEventArgs<NetworkMsg>)e;
 
-            if (networkMsg.Content.Info.type == ServerType.Account)
+            if (!WorthAnnouncing(networkMsg.Content.Info))
                 return;
 
             ServerAnnounce($"A new server has come online: {networkMsg.Content.Info.name}");
@@ -320,6 +326,9 @@ namespace WorldServer.core.miscfile
         private void AnnounceServerQuit(object sender, EventArgs e)
         {
             var networkMsg = (InterServerEventArgs<NetworkMsg>)e;
+
+            if (!WorthAnnouncing(networkMsg.Content.Info))
+                return;
 
             ServerAnnounce($"Server, {networkMsg.Content.Info.name}, is no longer online.");
         }

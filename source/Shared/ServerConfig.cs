@@ -37,6 +37,9 @@ namespace Shared
         // 127.0.0.1 only, while `port` stays the public one the proxy owns. 0: listen on `port`.
         public int listenPort { get; set; } = 0;
         public ServerType type { get; set; } = ServerType.Account;
+        // A world server that takes /visit and /summon from the other world servers (Channel.Visit):
+        // set at start-up, so it reads false from a server older than that.
+        public bool crossVisits { get; set; } = false;
 
         public bool IsJustStarted() => players == 0 && maxPlayers == 0;
     }

@@ -3074,6 +3074,16 @@
    "dir": "right"
   },
   {
+   "name": "hashCellarCharsDown16x16",
+   "file": "kabam/rotmg/assets/custom/images/HashCellarCharsDown16x16.png",
+   "mask": null,
+   "w": 16,
+   "h": 16,
+   "sheet_w": 112,
+   "sheet_h": 16,
+   "dir": "down"
+  },
+  {
    "name": "hashCellarOryx16x16",
    "file": "kabam/rotmg/assets/custom/images/HashCellarOryx16x16.png",
    "mask": null,

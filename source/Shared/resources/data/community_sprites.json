@@ -69,6 +69,20 @@
       "sheet": "communitySprites8x8",
       "index": 4,
       "added": "2026-11-13"
+    },
+    {
+      "id": 17,
+      "kind": "item",
+      "item": "Archdemon's Soulfire Staff",
+      "name": "",
+      "slot": "",
+      "note": "",
+      "author": "Joseph",
+      "approvedBy": "Meapy",
+      "size": 8,
+      "sheet": "communitySprites8x8",
+      "index": 5,
+      "added": "2026-11-14"
     }
   ]
 }

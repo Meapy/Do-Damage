@@ -109,6 +109,7 @@ RS_ONLY_SETS = [
 RS_ONLY_CHARS = [
     # Oryx's Inferno's Infernal Court and Oryx 4 (tools/build_hash_cellar.py)
     ("hashCellarChars16x16", "kabam/rotmg/assets/custom/images/HashCellarChars16x16.png", 16, 16, 112, 16, "right"),
+    ("hashCellarCharsDown16x16", "kabam/rotmg/assets/custom/images/HashCellarCharsDown16x16.png", 16, 16, 112, 16, "down"),
     ("hashCellarOryx16x16", "kabam/rotmg/assets/custom/images/HashCellarOryx16x16.png", 16, 16, 112, 16, "down"),
     # Oryx's Elysium's Ascended Host and guardians, and Oryx 5 (tools/build_elysium.py)
     ("elysiumChars16x16", "kabam/rotmg/assets/custom/images/ElysiumChars16x16.png", 16, 16, 112, 16, "right"),

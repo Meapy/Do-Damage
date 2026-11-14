@@ -16,7 +16,8 @@ The garden's theme and art (tools/build_nexus_garden.py), rebuilt as four island
 heights, joined by bridges; floor 1 is the lowest map (the game's `World.Levels[0]`):
 
 - SPAWN (middle, floor 2): the spawn deck in its koi pond (`Spawn`, which heals: NexusWorld), the
-  healing basins, the Armoire, the Vault Portal, the Support Bot and its dungeon portal (`Nexus
+  healing basins, the Armoire, the Vault Portal, the Scrying Glass north of the spawn (it shows
+  players out adventuring), the Support Bot and its dungeon portal (`Nexus
   Bot`, `Nexus Dungeon`), the XP ducks on the pond (NexusGuide), the Name Changer and the
   Character Changer about the deck (`Nexus Name Changer`, `Nexus Character Changer`), the pond's
   lobe to the north-east with lily pads and frogs, the vault yard on its north shore (the
@@ -383,11 +384,15 @@ def lay_spawn(g):
         g.place(sx + dx, sy + dy, BASIN)
     g.place(sx, sy + 4, "NG Armoire")
     g.place(sx - 6, sy + 5, "Vault Portal")
+    # the Scrying Glass north of the spawn, facing it: a player out adventuring on its screen
+    # (core/spectate/SpectatorHub.cs; the Rust client's glass.rs draws it over this square)
+    g.place(sx, sy - 5, "Scrying Glass")
     g.put(sx, sy, region="Nexus Bot")             # the Support Bot, in the middle of the spawn
     g.put(sx, sy + 7, region="Nexus Dungeon")
     g.put(sx - 5, sy - 2, region="Nexus Name Changer")
     g.put(sx + 5, sy - 2, region="Nexus Character Changer")
-    for x, y in ((sx, sy - dh + 1), (sx - dw + 1, sy - dh // 2), (sx + dw - 1, sy - dh // 2),
+    # (the deck's north point is left bare: the Scrying Glass stands just south of it)
+    for x, y in ((sx - dw + 1, sy - dh // 2), (sx + dw - 1, sy - dh // 2),
                  (sx - dw + 1, sy + dh // 2), (sx + dw - 1, sy + dh // 2)):
         g.place(x, y, LANTERN)
     # west, east and south, from the pond's shore (waded to: no bridges) to the big bridges

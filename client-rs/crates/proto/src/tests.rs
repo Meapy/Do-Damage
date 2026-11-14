@@ -540,3 +540,28 @@ fn ping_messages_match_ping_handler() {
     msg.encode_body(&mut w);
     assert_eq!(w.buf, body);
 }
+
+#[test]
+fn spectate_messages_match_the_scrying_glass() {
+    // SpectateInfo.Write: serial, target, name, world, map, size, background, object type.
+    let body = B::default().i16(7).i32(1234).utf("Meapy").utf("Realm").utf("Realm of the Mad God").i16(2048).u8(0).i16(0x0300).0;
+    let ServerMessage::SpectateInfo(i) = ServerMessage::decode(163, &body).unwrap() else { panic!() };
+    assert_eq!((i.serial, i.target_id, i.name.as_str(), i.world.as_str(), i.size, i.object_type), (7, 1234, "Meapy", "Realm", 2048, 0x0300));
+    // SpectateFeed.Write: the serial, the inner message's id, then its body as it is.
+    let inner = B::default().i32(5).i32(100).i16(0).0;
+    let body = B::default().i16(7).u8(12).0.into_iter().chain(inner.clone()).collect::<Vec<u8>>();
+    let ServerMessage::SpectateFeed(f) = ServerMessage::decode(164, &body).unwrap() else { panic!() };
+    assert_eq!((f.serial, f.kind, &f.body.0), (7, 12, &inner));
+    let ServerMessage::NewTick(t) = ServerMessage::decode(f.kind, &f.body.0).unwrap() else { panic!() };
+    assert_eq!((t.tick_id, t.tick_time), (5, 100));
+    // SpectateStatus.Write: index, count, watchers, picked; SpectateChat.Write: kind, name,
+    // stars, name colour, text.
+    let ServerMessage::SpectateStatus(s) = ServerMessage::decode(165, &B::default().u8(2).u8(5).i16(3).u8(1).0).unwrap() else { panic!() };
+    assert_eq!((s.index, s.count, s.watchers, s.picked), (2, 5, 3, true));
+    let body = B::default().u8(0).utf("Tester").i32(12).i32(0xF52476).utf("nice dodge").0;
+    let ServerMessage::SpectateChat(c) = ServerMessage::decode(166, &body).unwrap() else { panic!() };
+    assert_eq!((c.kind, c.name.as_str(), c.stars, c.name_color, c.text.as_str()), (0, "Tester", 12, 0xF52476, "nice dodge"));
+    // SpectateHandler reads a byte; SpectateSayHandler a string.
+    assert_eq!(ClientMessage::from(Spectate { action: 3 }).to_frame(), B::default().u8(3).frame(162));
+    assert_eq!(ClientMessage::from(SpectateSay { text: "hi".into() }).to_frame(), B::default().utf("hi").frame(167));
+}

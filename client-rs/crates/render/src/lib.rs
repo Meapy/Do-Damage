@@ -63,6 +63,8 @@ struct Run {
     group: u16,
     start: u32,
     end: u32,
+    /// Drawn only inside this rectangle of the window (x, y, w, h in pixels), or everywhere.
+    clip: Option<[u32; 4]>,
 }
 
 /// An affine transform from the unit square to the screen: the quad's corner (0, 0) lands on
@@ -240,6 +242,8 @@ pub struct Renderer {
     /// drawn after the glow is picked out).
     glow_split: Option<usize>,
     screen_filter: Option<ScreenFilter>,
+    /// What's drawn now is cut to this rectangle (`set_clip`).
+    clip: Option<[u32; 4]>,
 }
 
 impl Renderer {
@@ -556,6 +560,7 @@ impl Renderer {
             split: None,
             glow_split: None,
             screen_filter: None,
+            clip: None,
         };
         let white = image::RgbaImage::from_pixel(4, 4, image::Rgba([255; 4]));
         renderer.white = renderer.add_image(&white).expect("4×4 fits").sub(1, 1, 2, 2);
@@ -680,6 +685,26 @@ impl Renderer {
         self.split = None;
         self.glow_split = None;
         self.screen_filter = None;
+        self.clip = None;
+    }
+
+    /// Cut what's drawn from now on to a rectangle of the window (x, y, w, h in pixels), or
+    /// draw everywhere again (`None`): a picture inside a frame (the Nexus's Scrying Glass).
+    pub fn set_clip(&mut self, rect: Option<[f32; 4]>) {
+        let (w, h) = (self.config.width as f32, self.config.height as f32);
+        self.clip = rect.map(|[x, y, rw, rh]| {
+            let (x0, y0) = (x.clamp(0.0, w).floor(), y.clamp(0.0, h).floor());
+            let (x1, y1) = ((x + rw).clamp(0.0, w).ceil(), (y + rh).clamp(0.0, h).ceil());
+            [x0 as u32, y0 as u32, (x1 - x0).max(0.0) as u32, (y1 - y0).max(0.0) as u32]
+        });
+    }
+
+    /// The rectangle drawing is cut to now, else the whole window.
+    pub fn clip_rect(&self) -> [f32; 4] {
+        match self.clip {
+            Some([x, y, w, h]) => [x as f32, y as f32, w as f32, h as f32],
+            None => [0.0, 0.0, self.config.width as f32, self.config.height as f32],
+        }
     }
 
     /// Everything drawn so far this frame is the world: draw it through `filter` (if any). What
@@ -688,7 +713,11 @@ impl Renderer {
     /// these only. What's drawn after, until `world_done`, is still the world (its filter and
     /// colours) but never glows: names, damage numbers, health bars.
     pub fn glow_done(&mut self) {
-        self.glow_split = Some(self.runs.len());
+        // the first time in a frame: a picture drawn inside the world afterwards (the Scrying
+        // Glass's) mustn't move it
+        if self.glow_split.is_none() {
+            self.glow_split = Some(self.runs.len());
+        }
     }
 
     pub fn world_done(&mut self, filter: Option<ScreenFilter>) {
@@ -699,9 +728,10 @@ impl Renderer {
     fn extend_run(&mut self, kind: Kind, page: u16, start: u32, end: u32) {
         let group = page / GROUP as u16;
         let at_split = self.split == Some(self.runs.len()) || self.glow_split == Some(self.runs.len());
+        let clip = self.clip;
         match self.runs.last_mut() {
-            Some(run) if !at_split && run.kind == kind && run.group == group && run.end == start => run.end = end,
-            _ => self.runs.push(Run { kind, group, start, end }),
+            Some(run) if !at_split && run.kind == kind && run.group == group && run.end == start && run.clip == clip => run.end = end,
+            _ => self.runs.push(Run { kind, group, start, end, clip }),
         }
     }
 
@@ -921,7 +951,17 @@ impl Renderer {
         pass.set_bind_group(0, &self.globals_group, &[]);
         let mut bound: Option<Kind> = None;
         let mut bound_group: Option<u16> = None;
+        let full = [0, 0, self.config.width, self.config.height];
+        let mut scissor = full;
         for run in runs {
+            let want = run.clip.unwrap_or(full);
+            if want != scissor {
+                if want[2] == 0 || want[3] == 0 {
+                    continue;
+                }
+                pass.set_scissor_rect(want[0], want[1], want[2], want[3]);
+                scissor = want;
+            }
             if bound != Some(run.kind) {
                 match run.kind {
                     Kind::Quads => {

@@ -67,6 +67,8 @@ pub enum NpcKind {
     CosmicAnvil,
     /// The Pen Keeper at the pet pen east of the Arena court: pets in and out, and raised.
     PetPen,
+    /// The Scrying Glass north of the Nexus spawn: its big view (`glass.rs`).
+    ScryingGlass,
 }
 
 impl NpcKind {
@@ -92,6 +94,7 @@ impl NpcKind {
             "Collection" => Self::Collection,
             "PetPen" => Self::PetPen,
             "CosmicAnvil" => Self::CosmicAnvil,
+            "ScryingGlass" => Self::ScryingGlass,
             _ => return None,
         })
     }
@@ -164,6 +167,7 @@ pub fn interact_text(kind: NpcKind, me: &GameObj, rank_req: i32, price: Option<i
         NpcKind::CommunityGoals => open(tr("The realm's goals, together"), tr("Rally")),
         NpcKind::Collection => open(tr("Every piece of gear you've had"), tr("View")),
         NpcKind::PetPen => open(tr("Raise and swap your pets"), tr("Open")),
+        NpcKind::ScryingGlass => open(tr("Watch adventurers out in the realm"), tr("Watch")),
     }
 }
 

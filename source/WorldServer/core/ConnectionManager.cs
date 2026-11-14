@@ -74,6 +74,15 @@ namespace WorldServer.core
             ReconnectInfo.TryAdd(accountId, rInfo);
         }
 
+        // A ticket for a player coming from another world server (RemoteVisits): their client
+        // reconnects here into world `gameId` with the key returned, as for a hop between worlds.
+        public byte[] AddTicket(int accountId, int gameId)
+        {
+            var key = Guid.NewGuid().ToByteArray();
+            ReconnectInfo[accountId] = new ReconnectInfo(gameId, key, DateTime.Now.AddSeconds(RECON_TTL));
+            return key;
+        }
+
         public void ClientConnected(Client client)
         {
             Connecting.TryRemove(client, out _); // _ is a discard
@@ -81,6 +90,7 @@ namespace WorldServer.core
             var plrInfo = Clients[client];
             plrInfo.WorldInstance = client.Player.World.Id;
             plrInfo.WorldName = client.Player.World.IdName;
+            plrInfo.WorldDisplay = client.Player.World.GetDisplayName();
         }
 
         public void HandleConnect(ConnectionInfo connectionInfo)

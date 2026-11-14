@@ -1,7 +1,10 @@
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using Shared;
+using Shared.isc;
+using Shared.isc.data;
 using Shared.resources;
 using StackExchange.Redis;
 using WorldServer.core.net.datas;
@@ -42,20 +45,43 @@ namespace WorldServer.core.commands.doomed
     {
         public override string CommandName => "swho";
 
+        // Everyone online on every world server, from the lists they share over Redis (ISManager):
+        // the other server of a hand-over (an update or the scheduled restart) has the same name,
+        // so its players count as this server's; Testing's are listed for admins only.
         protected override bool Process(Player player, TickTime time, string args)
         {
-            var players = player.GameServer.ConnectionManager.Clients.Keys
-                .Where(c => c.Player?.World != null && c.Player.CanBeSeenBy(player))
-                .GroupBy(c => c.Player.World.DisplayName ?? c.Player.World.IdName)
-                .OrderBy(g => g.Key);
-            var total = 0;
-            foreach (var world in players)
+            var game = player.GameServer;
+            var here = game.Configuration.serverInfo.name;
+            var admin = player.Client.Account.Admin;
+            var seen = new HashSet<int>();
+            var online = new List<(string Server, string World, string Name)>();
+
+            foreach (var c in game.ConnectionManager.Clients.Keys)
+                if (c.Player?.World != null && c.Account != null && c.Player.CanBeSeenBy(player) && seen.Add(c.Account.AccountId))
+                    online.Add((here, c.Player.World.GetDisplayName(), c.Player.Name));
+            foreach (var s in game.InterServerManager.GetServerList())
             {
-                var names = world.Select(c => c.Player.Name).OrderBy(n => n).ToArray();
-                total += names.Length;
-                player.SendInfo($"{world.Key} ({names.Length}): {string.Join(", ", names)}");
+                if (s.type != Shared.ServerType.World || s.instanceId == game.InstanceId || s.adminOnly && !admin || s.playerList == null)
+                    continue;
+                foreach (PlayerInfo p in s.playerList)
+                    if (!p.Hidden && p.Name != null && p.WorldInstance != -1 && seen.Add(p.AccountId))
+                        online.Add((s.name, p.WorldDisplay ?? p.WorldName ?? "?", p.Name));
             }
-            player.SendInfo($"{total} player{(total == 1 ? "" : "s")} online.");
+
+            var servers = online.Select(o => o.Server).Distinct()
+                .OrderBy(s => s == here ? 0 : 1).ThenBy(s => s).ToArray();
+            foreach (var server in servers)
+                foreach (var world in online.Where(o => o.Server == server).GroupBy(o => o.World).OrderBy(g => g.Key))
+                {
+                    var names = world.Select(o => o.Name).OrderBy(n => n).ToArray();
+                    var label = servers.Length > 1 ? $"{server}, {world.Key}" : world.Key;
+                    player.SendInfo($"{label} ({names.Length}): {string.Join(", ", names)}");
+                }
+            var total = online.Count;
+            var split = servers.Length > 1
+                ? $" ({string.Join(", ", servers.Select(s => $"{online.Count(o => o.Server == s)} on {s}"))})"
+                : "";
+            player.SendInfo($"{total} player{(total == 1 ? "" : "s")} online{split}.");
             return true;
         }
     }
@@ -225,6 +251,9 @@ namespace WorldServer.core.commands.doomed
                 return true;
             }
             var target = DoomedHelpers.FindOnline(player, args);
+            // on another world server: the other one of a hand-over, or Testing for admins
+            if (target == null && player.GameServer.RemoteVisits.Find(args, player) is { } found)
+                return player.GameServer.RemoteVisits.Ask(player, found.Server, found.Player, summon: true);
             if (target == null || target == player || !target.CanBeSeenBy(player))
             {
                 player.SendError(target == player ? "That's you." : "Player not found!");

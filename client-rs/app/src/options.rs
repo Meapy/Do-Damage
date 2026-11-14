@@ -125,8 +125,13 @@ const KEYS: &[KeyCode] = &[
     KeyCode::Comma, KeyCode::Period, KeyCode::Slash, KeyCode::ShiftLeft, KeyCode::ShiftRight,
     KeyCode::ControlLeft, KeyCode::ControlRight, KeyCode::AltLeft, KeyCode::AltRight, KeyCode::CapsLock,
     KeyCode::PageUp, KeyCode::PageDown, KeyCode::Home, KeyCode::End, KeyCode::Insert, KeyCode::Delete,
-    KeyCode::BrowserBack, KeyCode::BrowserForward,
+    KeyCode::BrowserBack, KeyCode::BrowserForward, RIGHT_CLICK,
 ];
+
+/// The key the right mouse button binds as. Unlike the side buttons it keeps its own jobs
+/// (menus on the HUD, Ctrl+right-click breaking an item down): it acts as a key only when
+/// something is bound to it, and only over the world.
+pub const RIGHT_CLICK: KeyCode = KeyCode::ContextMenu;
 
 /// The mouse buttons that bind as keys, and the key each stands for: the side buttons 4 and 5,
 /// which the systems already treat as the browser's Back and Forward. A keyboard's own Back and
@@ -180,6 +185,7 @@ pub fn key_label(k: Option<KeyCode>) -> String {
         KeyCode::AltRight => tr("key::Alt R").into(),
         KeyCode::BrowserBack => tr("key::Mouse 4").into(),
         KeyCode::BrowserForward => tr("key::Mouse 5").into(),
+        RIGHT_CLICK => tr("key::Right click").into(),
         KeyCode::Minus => "-".into(),
         KeyCode::Equal => "=".into(),
         KeyCode::Slash => "/".into(),
@@ -902,6 +908,11 @@ impl OptionsUi {
         self.listening = None;
     }
 
+    /// Waiting for a key to bind (a right click then binds rather than clicks).
+    pub fn listening(&self) -> bool {
+        self.open && self.listening.is_some()
+    }
+
     /// Text pasted while the window is open (Paste code, or Ctrl+V in the browser): on the
     /// Crosshair tab, a shared crosshair's code. True if the settings changed.
     pub fn paste(&mut self, text: &str, settings: &mut Settings) -> bool {
@@ -1174,7 +1185,7 @@ impl OptionsUi {
                     let listening = self.listening == Some(*b);
                     let edge = if listening { color::ACCENT } else if inside(kr, mouse) { color::BORDER_HI } else { color::BORDER };
                     theme::frame(ui.renderer, kr, 5.0 * s, s.max(1.0), (edge, 1.0), ((color::FIELD, 1.0), (color::FIELD, 1.0)));
-                    let text = if listening { tr("Press a key or mouse 4/5…").to_owned() } else { key_label(settings.key(*b)) };
+                    let text = if listening { tr("Press a key, right click or mouse 4/5…").to_owned() } else { key_label(settings.key(*b)) };
                     let ks = font(12.5);
                     let kw = ui.measure(&text, ks, true);
                     ui.label(&text, kr[0] + (kr[2] - kw) / 2.0, kr[1] + (kr[3] - ks * 1.22) / 2.0, ks, true, if listening { color::ACCENT_HI } else { color::TEXT });
@@ -1685,5 +1696,18 @@ mod tests {
         assert!(ui.open);
         ui.key(KeyCode::Escape, &mut s);
         assert!(!ui.open);
+    }
+
+    #[test]
+    fn right_click_binds_and_is_kept() {
+        let mut ui = OptionsUi::default();
+        let mut s = Settings::default();
+        ui.show();
+        ui.listening = Some(Bind::Ability);
+        assert!(ui.listening());
+        assert!(ui.key(RIGHT_CLICK, &mut s));
+        assert_eq!(s.key(Bind::Ability), Some(RIGHT_CLICK));
+        assert_eq!(s.bind_of(RIGHT_CLICK), Some(Bind::Ability));
+        assert_eq!(parse_key(&key_name(RIGHT_CLICK)), Some(RIGHT_CLICK));
     }
 }

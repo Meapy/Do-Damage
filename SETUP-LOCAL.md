@@ -646,6 +646,50 @@ The remotes `upstream` (HaloCelsius) and `aurusenth` share no history with `main
 
 ## Changes from upstream
 
+- **The Scrying Glass** (2026-11-14; new `core/spectate/SpectatorHub.cs`,
+  `net/handlers/SpectateHandler.cs`, `packets/outgoing/Spectate.cs`, `Command.Glass.cs`; the Rust
+  client's `glass.rs`; the Nexus map's `Scrying Glass`, object 0x498d, placed by
+  `tools/build_nexus_islands.py`): a glass north of the Nexus spawn shows a player out adventuring,
+  live. Its messages: 162 `SPECTATE` (client: 0 stop, 1 watch, it's in view, 2 open the big view,
+  3 next, 4 previous, 5 close it, 6 stay on the one shown, 7 let the glass pick), 163
+  `SPECTATE_INFO` (who and which map: a new serial each time), 164 `SPECTATE_FEED` (a serial, an
+  inner message id and its body: the watched player's `Update`, `NewTick`, `Goto`, shots,
+  `ShowEffect` and `Aoe`), 165 `SPECTATE_STATUS` (n of count, watchers, picked by you), 166
+  `SPECTATE_CHAT` and 167 `SPECTATE_SAY` (the watchers' chat). The hub, ticked by the main Nexus
+  once a second, picks a channel at random every 45 s among players outside the Nexus, vaults,
+  guild halls and test worlds (falling back to the Nexus's own players), not hidden and not
+  `/glass off` (`DbAccount.HideFromGlass`, `hideFromGlass`). Each viewer's feed is built on the
+  watched player's own world thread right after their `UpdateState`, from what that player sees
+  (`SightTiles`, `KnownObjects`): tiles only when their sight changed (`SightStamp`), one shared
+  `NewTick` per watched player with their own stats cut down to the public ones, and the packets
+  `Client.SendPacket` sends them forwarded while `Player.Spectated`. Nothing is built for a player
+  nobody watches. The client keeps the feed as a second `World` and draws it with its own camera
+  in the glass (clipped by the renderer's new scissor runs) and in the big view, beside the chat.
+  Older clients never send 162 (the glass only asks in the Nexus with the object in view), and an
+  older server simply ignores a new client's.
+
+- **Visits between world servers** (2026-11-14; new `core/RemoteVisits.cs`, `Channel.Visit` and
+  `VisitMsg` in `Shared/isc`; `Command.Visit`, `SummonCommand`, `Player.Visits.cs`,
+  `VisitBook.Request.Server`/`RemoteId`, `ConnectionManager.AddTicket`, `Reconnect.SetKey`;
+  `Tests/CrossServerVisitTests.cs`). During a hand-over (a rolling deploy or the scheduled
+  restart) friends end up on different world servers, and `/visit`, `/summon` and `/swho` only
+  saw their own. Now a name not found here is looked up in the other servers' player lists (the
+  ISC pings' `playerList`; hidden players and, for non-admins, admin-only servers left out), and
+  the request goes over Redis to the server the player is on. Each side keeps it in its own
+  `VisitBook` (the asker's 3 s longer, for the answer to come across), so cooldowns, the Yes/No
+  box, `/yes`, `/no`, `/visit cancel` and running out all work as before. The server whose world
+  the player goes into checks `VisitRules` (been in, full, made for one), invites them, marks them
+  as having been in, shields their arrival and makes a reconnect ticket (`ReconnectInfo` with a
+  key of its own); the mover's server sends their client a `Reconnect` with that key: `Host` ""
+  when both servers share a public address, so the world proxy routes the world id to the slot
+  that owns it, else that server's address (Testing). Admins go, or summon, straight away. A
+  server that predates this (`ServerInfo.crossVisits` false, so only the first deploy's old slot)
+  is named rather than asked. `/swho` lists every world server's players (the hand-over partner's
+  under the same name, merged, by world display name: `PlayerInfo.WorldDisplay`; other servers'
+  lines start with their name; Testing for admins only), `/online` names a server once, and the
+  "A new server has come online" / "Server, X, is no longer online" announcements are only made
+  for a public world server of another name (not the hand-over partner, Testing or the account
+  server).
 - **Earthquake shake stops** (2026-11-13; `client-rs/app/src/particles.rs`, `jitter`). The Rust
   client's Earthquake effect (`ShowEffect` 14) shook the camera for good, building to half a tile
   until the world changed, as the AIR client's `Camera.startJitter` did. It now rises to a quarter
@@ -2338,6 +2382,34 @@ The remotes `upstream` (HaloCelsius) and `aurusenth` share no history with `main
     Guardian Element's orbit (3.2 speed, 8.5 tiles, 32 s); both keep their fixed rings in an arena.
     The Inferno's Pyre is about 17 tiles across each way, so the Chase Course's outer ring (22
     tiles) lands in the walls and is dropped (`TossObject` skips impassable tiles).
+  - **Oryx 4 armoured, with minions of his own** (2026-11-14, release 2.5.9): `OryxSpec` gains
+    `Shield` (the effect of every shield, warning and set-up moment: `Invulnerable`, Oryx 4
+    `Armored`), `ShutFor`/`OpenFor` (scales on the shields' shut and open spells; Oryx 4 0.5 and
+    2.0), `Guarded` (the invulnerable stretches inside attacks; Oryx 4 false) and `Minion`/
+    `Assassin` (whom he calls and throws). Oryx 4: `Pause` 2500, his Awaken, arena wake
+    (`ArenaWake`'s new effect parameter) and arena Doom Ring armoured; only Dormant stays
+    invulnerable (test `Oryx4IsNeverInvulnerableOnceAwake`). His minions are `Infernal Minion of
+    Oryx` (0x5998) and `Infernal Assassin of Oryx` (0x5999), burnt copies made by
+    `build_hash_cellar.py` (`BURNT_OBJECTS`, with `BURNT_FIELDS` for their health and defense and
+    the new `BURNT_DAMAGE` for their shots: 8000 HP / 20 def / x1.4, 7000 / 18 / x1.35; the
+    Minion's Green Star becomes the Hellfire Star). Their animated sprites are burnt rows on
+    `hashCellarChars16x16` (right-facing, after the court's four) and the new
+    `hashCellarCharsDown16x16` (down-facing; `gen_rs_manifest.RS_ONLY_CHARS`). Their behaviours are
+    Oryx 1's minions' (`OryxMinion`, `OryxAssassin`) with cooldowns x0.75; the Minion keeps its loot.
+  - **Oryx 4's own attacks and second phase** (2026-11-14, release 2.5.9): his spec is
+    `O4Spec()` in `BehaviorDb.OryxDoomed.cs`. `OryxSpec` gains `Draws` (attacks of his own, added
+    to every pool of `O1Chooser`), `Skips` (Oryx 1's he never draws; Oryx 4 skips the Bullet Dance
+    and the Orbitals) and `Attacks` (their states, added to "Fight"). `O4Attacks`: "Hellfire
+    Spiral" (15 s at his spawn: 4 Hellfire Bolts every 0.2 s turning 11 degrees a volley, reversing
+    after 7 s; 12 slowing Hellfire Stars every 3 s), "Meteor Storm" (14 s: `Grenade` scatter 13
+    every 0.25 s, a 3-tile slowing one on the nearest every 1.4 s, a Superblast every 2.6 s), "Soul
+    Hunt" (12 s: `HuntRandomPlayer` and `Follow`, Fire Bolt triples at the prey, rotating Hellfire
+    Star rings, and a `Grenade` of range 0 every 0.45 s, which lands where he was: a burning
+    trail); each has a warning (`O1Pause`) and shields. "Ignite" comes once at 50% from anywhere in
+    the fight (new `HpLessOnceTransition`): armoured 4 s, back to his spawn, grows to 195, rings of
+    Superblasts, Hellfire Bolts and Hellfire Stars; then new `BelowHealth(0.5, ...)` keeps a
+    two-armed Hellfire Bolt sweep (8 degrees a volley, every 0.5 s) going through the rest of
+    "Fight".
   Tested on the isolated stack (slot 130) with `bsk-bot --shots --fight`, in the real dungeons
   (`/dungeon`, `/tppos`): Oryx 1 drew Make Minions, White Planet, Circle Combat, Hadouken,
   Artifact Dance, Bullet Dance, Orbitals, Hadouken, Chase Course, Minion Toss in four minutes, no
