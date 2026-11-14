@@ -258,6 +258,8 @@ namespace WorldServer.core.objects
 
                 if (projectile.FromWeapon && Inventory[0]?.ObjectType == projectile.ContainerType)
                 {
+                    if (Inventory[0].ArmorShred is { } shred && entity.Health > 0)
+                        entity.StackShred(shred.Percent, shred.Max, shred.DurationMs);
                     ImprintHit(entity, dmg, entity.Health <= 0, ref tickTime);
                     RelicHit(entity, dmg, entity.Health <= 0, ref tickTime);
                 }

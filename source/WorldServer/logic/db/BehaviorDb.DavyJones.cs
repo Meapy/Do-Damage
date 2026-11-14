@@ -141,24 +141,46 @@ namespace WorldServer.logic
                         )
                     ), Elder("Lost Soul")).Init(E("Ghost of Roger"),
                 new State(
-                    new State("spawn",
-                        new Spawn(N("Lost Soul"), 3, 1, 5000),
-                        new TimedTransition(100, "Attack")
+                    new Spawn(N("Lost Soul"), 3, 1, 5000),
+                    // drifts after players, firing Roger Blasts in bursts of three
+                    new State("Fight",
+                        new Prioritize(
+                            new Follow(0.25, acquireRange: 10, range: 1, coolDown: Cd(200)),
+                            new Wander(0.15)
+                            ),
+                        new State("Burst",
+                            new Shoot(10, predictive: 0.2, coolDown: Cd(1000)),
+                            new Shoot(10, predictive: 0.5, coolDown: Cd(1000), coolDownOffset: 200),
+                            new Shoot(10, predictive: 0.8, coolDown: Cd(1000), coolDownOffset: 400),
+                            new TimedTransition(600, "Wait")
+                            ),
+                        new State("Wait",
+                            new TimedTransition(800, "Burst")
+                            ),
+                        new HpLessTransition(0.4, "Fight Two")
                         ),
-                    new State("Attack",
-                        new Shoot(13, 1, 0, 0, coolDown: Cd(10)),
-                        new TimedTransition(20, "Attack2")
-                        ),
-                    new State("Attack2",
-                        new Shoot(13, 1, 0, 0, coolDown: Cd(10)),
-                        new TimedTransition(20, "Attack3")
-                        ),
-                    new State("Attack3",
-                        new Shoot(13, 1, 0, 0, coolDown: Cd(10)),
-                        new TimedTransition(20, "Wait")
-                        ),
-                    new State("Wait",
-                        new TimedTransition(1000, "Attack")
+                    // below 40%: Violent Spirits join, and he charges with Skull Bolts
+                    new State("Fight Two",
+                        new Spawn(N("Violent Spirit"), 2, 0, 2000),
+                        new State("Burst Two",
+                            new Prioritize(
+                                new Charge(0.5, 10, coolDown: Cd(4000)),
+                                new Follow(0.25, acquireRange: 8, range: 1, coolDown: Cd(1000)),
+                                new Wander(0.15)
+                                ),
+                            new Shoot(10, predictive: 0.2, coolDown: Cd(1000)),
+                            new Shoot(10, predictive: 0.5, coolDown: Cd(1000), coolDownOffset: 200),
+                            new Shoot(10, predictive: 0.8, coolDown: Cd(1000), coolDownOffset: 400),
+                            new TimedTransition(800, "Wait Two")
+                            ),
+                        new State("Wait Two",
+                            new TimedTransition(200, "Charging")
+                            ),
+                        new State("Charging",
+                            new Charge(0.9, 11, coolDown: Cd(3000)),
+                            new Shoot(10, count: 5, shootAngle: 10, projectileIndex: 1, predictive: 0.2, coolDown: Cd(400), coolDownOffset: 400),
+                            new TimedTransition(1400, "Burst Two")
+                            )
                         )
                     ), Elder("Ghost of Roger"))
             .Init(E("Purple Key"),

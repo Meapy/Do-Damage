@@ -32,6 +32,9 @@ namespace WorldServer.logic
                     new DropPortalOnDeath("Elder Lost Halls Portal", elder ? 0 : 0.5, xAdjustment: 3, timeout: 120),
                     // the Elder version gains less health per extra player: its base is far higher
                     new ScaleHP2(elder ? 15 : 20),
+                    // the room is round, 31 tiles across and centred on where it rises: it can't
+                    // follow anyone out through the doors, however it moves
+                    new StayInRoom(12),
                     new State("A-P",
                         new ConditionEffectBehavior(ConditionEffectIndex.Invulnerable, true),
                         new SetAltTexture(1),

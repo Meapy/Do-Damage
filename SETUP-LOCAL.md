@@ -747,6 +747,13 @@ The remotes `upstream` (HaloCelsius) and `aurusenth` share no history with `main
   drawn from shapes by `build_resurrection.py`; `--shots` writes only those into the files as
   they are), each with a trail of its colour. `--effect 101`-`128` shows each look on you.
 
+- **The Chaotic Scripture's Chaos Beam** (2026-11-13; server `AllyAOE` `fx`,
+  `BehaviorDb.Allies.cs`; client `particles/relic.rs` look 29 `CHAOS`, decal `Rift`): the beam
+  sends `ShowEffect` 41 look 29 before its old lightning and ring, which clients before 2.5.8
+  still draw. The Rust client draws a column of light slamming down, a shockwave and a rift with
+  the eight arrows of chaos, and leaves out the lightning and ring that follow on the same object.
+  `--effect 129` shows it on you.
+
 - **Test stacks start maxed** (2026-11-12; `ServerSettings.testStack`, `Player.TestStackStart`,
   `tools/testclient/iso_stack.py`, `tools/rolling_restart.py --iso`): with `testStack` (which only
   the test stack tools set), every character that enters a world is maxed as `/max` does, at full
@@ -2210,6 +2217,138 @@ The remotes `upstream` (HaloCelsius) and `aurusenth` share no history with `main
   after `ObjectType`, written only when set; older clients leave it unread), so one shown on a
   monster fades with that player's shots; other effects still go by their target being another
   player, as before.
+- **Behaviours checked against the original server's** (2026-11-13; `BehaviorDb.Midland.cs`,
+  `Lowland.cs`, `UndeadLair.cs`, `SnakePit.cs`, `OceanTrench.cs`, `DavyJones.cs`): the official
+  release 7.0 server data (about 2013; `data/reference/release-7.0` on the
+  `docs/mpgh-behavior-reference` branch of dginovker/Open-RotMG-Server: XML `<Behavior>`s and
+  `<State>`s, and `behavior.cc` for what they mean) was compared with ours, Shoot by Shoot. Its
+  defaults differ from ours: an unset `cooldown` is 1 s (ours 0, which `Cooldown.Normalize` also
+  makes 1 s), an unset `angle` is 9° (ours 360/count), and `type="auto"` fires at `defaultAngle`
+  with the spread starting there (`angle - inc * (n / 2)`), where ours centres the spread on
+  `fixedAngle`. Of the 736 monsters with behaviours there, 191 shoot as ours do; 271 differ, most
+  of them bosses we run a later official rework of (the Tomb, Oryx 3, the Abyss, Mad Lab, Stheno)
+  or our own changes, which were kept (Oryx 1, 2 and the castle were then taken: next entry). The 42 monsters with attacks there and no behaviour here are
+  never spawned. Taken, where ours was a transcription slip and the projectiles are the same:
+  Warrior Wasp `predictive: 200` (a chance, so every shot led the player) to 0.2; Weretiger 3 shots
+  9° apart (was 1); Desert Werewolf enraged fires projectile 1 (Red Fire 20, never used) every 0.6 s
+  at 0.5 predictive; Werelion's ring is projectile 1 (Black Missile 35, never used) at fixed 20° and
+  42° (was `defaultAngle`, so it aimed at the player); Drake Baby's `cry_for_mama` shoots (one shot
+  every 0.7 s for 0.8 s, then three 40° apart once); Giant Crab's beams `predictive: 1`; Lair
+  Vampire and Lair Vampire King bite with projectile 1 (Green Bolt 100/120, never used) within 3
+  tiles and aim their star ahead (range 9). Taken where ours did nothing: the Snakepit Dart
+  Throwers, ordered to "Protect the Guard" by the Guard Spawner, now fire two Snakepit Darts
+  (bleeding) east and west every 3 s ±1.5 s while the Guard lives (the Guard Spawner now orders
+  them half a second after raising the Guard: ordered in the same tick, their "no Guard"
+  transition saw none yet and sent them back to Idle at once); the wounded Thessal's "Fail"
+  (12 s with no right answer) goes through "Rage", 6 s of the original's super attack (two 15-shot
+  rings of Yellow Walls and Thunder Swirls, four 4-shot Super Trident crosses, a Coral Bomb Big at
+  the nearest player every 1.6 s and four more on the diagonals every second), before she leaves;
+  her question's transitions moved into a "Question" state so they end with it. The Ghost of Roger
+  (it stood still firing a 3-shot burst) follows players, fires its bursts of three Roger Blasts at
+  rising prediction, and below 40% calls up to two Violent Spirits and charges, with 5-shot Skull
+  Bolt spreads (projectile 1, never used); it keeps our Lost Soul spawning (3, every 5 s), as ours
+  shoot and the original's didn't. Elder versions follow (`E()`). The test bot's `--shots` logs
+  every enemy volley (client-rs/AGENTS.md). Tested on an isolated stack (slot 130: Windows had
+  reserved 1973-2172, every lower slot's world port) with `bsk-bot --shots`, each monster
+  `/spawn`ed in a vault, the bosses with raised health and `--fight`: every attack above showed with
+  its projectile, count and spread; the Werelion's ring (only while nobody is within 10 tiles)
+  wasn't seen, the bot standing beside it.
+- **Oryx 1, Oryx 2 and Oryx's Castle as the original server ran them** (2026-11-13;
+  `BehaviorDb.OryxChamber.cs` (new: Oryx 1 and his helpers), `BehaviorDb.Oryx.cs` (Oryx 2 and the
+  Wine Cellar), `BehaviorDb.OryxCastle.cs`, `BehaviorDb.OryxDoomed.cs`): from the same release 7.0
+  data (`oryxChamber.xml`, `oryxWineCellar.xml`, `oryxCastle.xml`, and `testingObjects.xml` for
+  Oryx 2 and the Henchman). NR-CORE (cp-nilly/NR-CORE) was looked at too, but its repository ships
+  without behaviours (its README: they came in a forum resource pack); its descendants that carry
+  them (Omniraptyr/Valor-Server, UniverseRealms/UTR-Source) and Nilly's older nillys-realm-phoenix
+  have the same lineage as ours, simpler (UTR's Stone Guardians are a hand-made fight on fixed map
+  coordinates), so nothing was taken from them. Our projectile data matches 7.0's for the chamber
+  and cellar exactly, and the castle's slots (its damage is the later buffs'). Kept: our health
+  (`BossStats`), loot, portals, announcements and Oryx 2's arena version. New pieces:
+  `FreshRandomTransition` (goes to a random state, never one of the last N, history on the monster
+  under a shared key; a prefix makes "Pre X" and "X" one) with `RememberPicks` (seeds it), and
+  `KeepMinions` (keeps N of its own minions alive, one per cooldown: the original's MakeMinions;
+  `Spawn` makes a fixed number per state entry and `Reproduce` only adds while no player is near,
+  so the old Oryx 1's minion `Reproduce`s never fired in a fight). `Auto(n, inc, angle)` turns a
+  7.0 `type="auto"` spread into our centred `fixedAngle`.
+  - **Oryx 1:** opens with Fire Bolt fans, then at 97% Make Minions; after each attack (all
+    invulnerable while choosing) 5 s invulnerable with a green flash and the next attack's line,
+    then one drawn at random from his pools, never one of the last three (the opening counts
+    Hadouken and Minion Toss as used): above 55% half the time {Circle Combat, Artifact Dance,
+    Hadouken, Minion Toss, White Planet}, else {those but White Planet, plus Bullet Dance, Orbitals,
+    Chase Course}; below 55% {Hadouken, Minion Toss, Bullet Dance, Orbitals, Chase Course, White
+    Planet}. After the Hadouken the next comes at once (no pause). Shield cycles as the original's
+    (e.g. 3.6 s shut, 1 s open). Below 6% "All In": every helper (`Order` "Final") fires a parting
+    ring and dies; he heals 2500 every 0.4 s for 3 s, grows to 160, throws three Assassins, then
+    hunts, Armored, keeping five Assassins and throwing minions. The helpers' "Final" holds its own
+    end (`O1Final`), because `Order` re-orders every tick and a separate end state would be
+    switched back. His helpers follow the original: Ring Elements (a warning ring of projectile 9,
+    then projectile 0, 19 s), Minions (live 15 s, burst when he's gone), Assassins (orbit and
+    charge, 20 s), Anti-Spectators (circle 12 tiles out at speed 4), Guardian Elements 1-4 (32 s:
+    single shots, growing spin rings, a burst), Outer Guardian Elements, White and Black Planets,
+    Black Moons and Chase Elements. The White Moon serves Oryx 1 (invulnerable, 13.4 tiles out) or
+    Oryx 4 (see Oryx 4 below); Guardian Elements 3, 4 and the Outer one were
+    Oryx 4 leftovers he no longer throws (he has his Infernal Elements).
+  - **Oryx 2:** his six stars always, each at its own range and cooldown (Blade within 6); above
+    30% up to three Henchmen (one per 12 s) and, once a player is within 12 or he's hit, two 8-shot
+    Fire Bolt rings 20° apart every 3 s; at 30% (was our invulnerable "Guards" call at 55% and a
+    20% rage) the Henchmen `Decay`, 3 s, then 7 s invulnerable with one 36-shot silencing ring
+    (20 s) and one weakening ring (60 s), then strafing (circling 4 tiles out, a weakening ring each
+    pass) and backing off, 9-shot rings, and six Scarab tosses every 2.4 s. The Henchman brings one
+    of four trios (`KeepMinions`, 1 each, 7 s), alternating guarding Oryx (2.5 s) and following
+    players (2 s); the Bile of Oryx (never spawned before) keeps 20 Purple Goos, each a 6 s puddle
+    that sickens and slows; Vintner bursts of three Wine Bombs (was one every 0.25 s); Abomination's
+    fans reach 6 tiles (were 1); Aberrant throws Blasters at players every 1.5 s (was one in a
+    random direction every 5 s); Blasters and Scarabs go after 10 s and 5 s (they stayed for good).
+    The map places 44 Henchmen, so the cellar now refills its minions as the original did.
+  - **Castle:** the Stone Guardians wake together within 8 tiles (`OrderOnce` each other and the
+    TaskMaster, 3 s glow); while both live each wanders (ring of projectile 2) or charges (75/25),
+    and the TaskMaster, every 3 s, either lets them be (a third) or `OrderOnce`s both into one of
+    four formations round itself: Circle (pairs four ways), Side (out 11 tiles, a sweeping pair of
+    arms and grenades), Spin (out 4, two spiral arms) or Blast (7- and 8-shot rings of projectile 1
+    and grenades). When one dies the other is invulnerable 5 s healing (1400 or 950 every 0.5 s,
+    the original's share of its health), then fights alone, starting with the sword: home, a step
+    in, it throws the Oryx Guardian Sword 10 tiles south and stays invulnerable until the sword is
+    gone (the sword, at half health, flies back as a grenade and bursts; at most 20 s, our cap).
+    The sword took over the old Oryx 5 helper's entry, which nothing used. Their phases by health
+    (ours) are gone. Living floors: rings of 18 within 6 tiles, Quiet Bombs at players up to 15
+    (Fire Down) or 13 tiles, and the Fire Down ones toss bombs about when nobody is near (ours: 4
+    shots within 3 tiles). Suits of Armor wake within 4 tiles or when hit, follow, charge anyone
+    who backs off, and guard and heal at 45% (was 20%); the original's 45% chance of a lifeless suit
+    was left out. The Insect Commander keeps twelve minions and sends them in when you're within 4;
+    they bite within 1.8 tiles (ours fired at 10). The Knight, Brute, Eye Warrior and Pet are
+    unchanged: their 7.0 data is half-written (template placeholders, transitions to missing
+    states).
+  - **Oryx 4 (the Inferno) on the new Oryx 1:** Oryx 1's fight is now a builder,
+    `OryxFight(OryxSpec)` in `BehaviorDb.OryxChamber.cs` (the "Fight" and "All In" states), and
+    Oryx 4 fights it outside an arena, with `OryxSpec` changes: 4 s pauses (Oryx 1's 5 s), All In
+    at 10% (6%), taunts in chat only, Infernal Elements and Infernal Outer Elements in the Artifact
+    Dance, his All In line, heal 5000 a tick (2500) and size 220 (160); added throughout a Hellfire
+    Bolt pair (projectile 2) every 2.4 s within 10 tiles; Make Minions also `KeepMinions` one
+    Infernal Officer and one Brimstone Major (12 s); the hunt two Officers (8 s) and a Major (10 s),
+    a predictive hellfire triple and his old rage lines. His intro (Dormant within 15, Awaken),
+    health, loot, locked portal and announcement are kept; his old non-arena cycle (Hatred,
+    Silence, Artifacts, Moons, Doom Ring, then Ascend and Rage below 25%) is gone. In an arena he
+    keeps that cycle without the Silence (`O4Cycle`, now arena-only: the fight's tosses reach 22
+    tiles). Oryx 1's helpers serve either Oryx: they orbit whichever is near (`OryxOrbit`, a
+    `Prioritize` of an Orbit round each) and fall apart only when neither is within 40
+    (`EntitiesNotExistsTransition`); the White Moon picks its Chamber or Inferno version by
+    `ArenaTransition` (Oryx 4 in his Inferno now throws it in White Planet too). The Infernal
+    Element runs `O1Guardian(null, O4)`, the Guardian Elements' dance with aimed single shots (its
+    `fixedAngle` ones need one element per angle), and the Infernal Outer Element the Outer
+    Guardian Element's orbit (3.2 speed, 8.5 tiles, 32 s); both keep their fixed rings in an arena.
+    The Inferno's Pyre is about 17 tiles across each way, so the Chase Course's outer ring (22
+    tiles) lands in the walls and is dropped (`TossObject` skips impassable tiles).
+  Tested on the isolated stack (slot 130) with `bsk-bot --shots --fight`, in the real dungeons
+  (`/dungeon`, `/tppos`): Oryx 1 drew Make Minions, White Planet, Circle Combat, Hadouken,
+  Artifact Dance, Bullet Dance, Orbitals, Hadouken, Chase Course, Minion Toss in four minutes, no
+  repeat within three, no pause after each Hadouken, and every helper fired its projectiles;
+  with his health lowered to 8000 for one run he went All In (12-shot burst, Assassins, the hunt;
+  the White Moons and Planets burst) and died, leaving his portal. Oryx 2 went through every
+  phase, his Henchmen bringing Vintners, Abominations, Biles' goo, Aberrants and Scarabs. The
+  Stone Guardians did all four formations; with one dead, the other threw its sword, which the bot
+  broke once (its 8-shot burst) and once left (the 20 s cap). The Insect Commander, a Fire Down
+  floor, an Aberrant and a Bile were also `/spawn`ed in a vault. No exceptions in the world
+  server's log.
 
 ## Content ported from Doomed Realms
 

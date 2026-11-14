@@ -160,6 +160,9 @@ or never (to let them time out), and logs each, so one bot in a dungeon tests an
 `--ping "1;3"` pings those kinds (0 look, 1 danger, 2 go, 3 loot, 4 help) a second apart two tiles
 east of itself once the server says it knows pings, and logs every `PingShow`; `--ping ""` only
 listens, so a second bot shows who gets a ping (and its relation).
+`--shots` logs every enemy volley it sees (the monster, its projectile id, how many shots and how
+far apart, the angle and damage), for checking a behaviour: `/spawn` the monster in a `/vault`
+and read what it fires.
 
 The client itself can be scripted for tests (desktop only):
 

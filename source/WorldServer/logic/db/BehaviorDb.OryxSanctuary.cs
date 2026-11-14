@@ -245,7 +245,7 @@ namespace WorldServer.logic
                     new ItemLoot("Divine Coronation", 0.004),
                     new ItemLoot("Exalted God's Horn", 0.004),
                     new ItemLoot("Avarice", 0.004),
-                    new ItemLoot("Superior", 0.004),
+                    new ItemLoot("Superior", 0.01),
                     new ItemLoot("Lumiaire", 0.004),
                     new ItemLoot("Divinity", 0.004),
                     new ItemLoot("Chaotic Scripture", 0.004),

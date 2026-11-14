@@ -72,6 +72,8 @@ struct Args {
     visit_answer: Option<Option<u8>>,
     /// `--ping`: the kinds to ping in each world; unset, no pings.
     ping: Option<Vec<u8>>,
+    /// `--shots`: log every enemy volley (who fired, projectile id, shots and spread).
+    shots: bool,
 }
 
 /// One of `--vault`'s moves.
@@ -102,7 +104,7 @@ fn parse_class(v: &str) -> Result<u16, String> {
 
 fn parse_args() -> Result<Args, String> {
     let mut args =
-        Args { account: String::new(), credentials: String::new(), seconds: 60, char_id: None, gateway: None, say: Vec::new(), wander: 0.0, fight: false, class: 0x030e, view: 15, enter: Vec::new(), arena_vote: Vec::new(), vault: Vec::new(), visit_answer: None, ping: None };
+        Args { account: String::new(), credentials: String::new(), seconds: 60, char_id: None, gateway: None, say: Vec::new(), wander: 0.0, fight: false, class: 0x030e, view: 15, enter: Vec::new(), arena_vote: Vec::new(), vault: Vec::new(), visit_answer: None, ping: None, shots: false };
     let mut it = std::env::args().skip(1);
     while let Some(a) = it.next() {
         let mut value = || it.next().ok_or(format!("{a} needs a value"));
@@ -115,6 +117,7 @@ fn parse_args() -> Result<Args, String> {
             "--say" => args.say = value()?.split(";;").map(|l| l.trim().to_owned()).filter(|l| !l.is_empty()).collect(),
             "--wander" => args.wander = value()?.parse().map_err(|e| format!("--wander: {e}"))?,
             "--fight" => args.fight = true,
+            "--shots" => args.shots = true,
             "--class" => args.class = parse_class(&value()?)?,
             "--view" => args.view = value()?.parse().map_err(|e| format!("--view: {e}"))?,
             "--arena-vote" => {
@@ -219,6 +222,8 @@ fn run(args: Args) -> Result<(), String> {
     let mut received: BTreeMap<&'static str, u32> = BTreeMap::new();
     let mut sent: BTreeMap<&'static str, u32> = BTreeMap::new();
     let mut objects = std::collections::HashSet::new();
+    // object id to object type, for --shots
+    let mut types = std::collections::HashMap::new();
     let mut out: Vec<ClientMessage> = Vec::new();
     let deadline = started + Duration::from_secs(args.seconds);
     let mut next_report = started + Duration::from_secs(10);
@@ -234,7 +239,7 @@ fn run(args: Args) -> Result<(), String> {
     let mut circle: Option<Instant> = None;
     let mut last_step = Instant::now();
     // --fight: the game's data and the fighting, a frame every 16 ms as the client's
-    let data = if args.fight || !args.enter.is_empty() { Some(load_data()?) } else { None };
+    let data = if args.fight || args.shots || !args.enter.is_empty() { Some(load_data()?) } else { None };
     // --enter: the portals not yet taken
     let mut enter = args.enter.clone();
     let mut fighter = fight::Fighter::new();
@@ -392,6 +397,7 @@ fn run(args: Args) -> Result<(), String> {
                     }
                     ServerMessage::Update(u) => {
                         objects.extend(u.new_objs.iter().map(|o| o.status.object_id));
+                        types.extend(u.new_objs.iter().map(|o| (o.status.object_id, o.object_type as u16)));
                         if upgrade.is_none() {
                             if let Some(o) = u.new_objs.iter().find(|o| (0x0736..=0x0738).contains(&o.object_type)) {
                                 upgrade = Some((o.status.object_id, o.status.pos));
@@ -419,6 +425,14 @@ fn run(args: Args) -> Result<(), String> {
                                 me.status.stats.iter().map(|s| format!("{}={:?}", s.id, s.value)).collect();
                             log::debug!("our stats: {}", stats.join(" "));
                         }
+                    }
+                    ServerMessage::EnemyShoot(s) if args.shots => {
+                        let name = types.get(&s.owner_id).and_then(|t| data.as_ref().and_then(|d| d.objects.get(t))).map_or("?", |d| d.id.as_str());
+                        let (n, inc) = s.spread.as_ref().map_or((1, 0.0), |sp| (sp.num_shots, sp.angle_inc));
+                        log::info!(
+                            "shot {name} ({}): projectile {} x{n}, {:.0} deg apart, from {:.0} deg, damage {}",
+                            s.owner_id, s.bullet_type, inc.to_degrees(), s.angle.to_degrees(), s.damage
+                        );
                     }
                     ServerMessage::InvResult(r) => log::info!("vault: InvResult {}", r.result),
                     ServerMessage::BuyResult(r) => log::info!("vault: BuyResult {} {}", r.result, r.result_string),

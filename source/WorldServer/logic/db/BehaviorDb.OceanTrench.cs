@@ -291,17 +291,20 @@ namespace WorldServer.logic
             .Init(E("Thessal the Mermaid Goddess Wounded"),
                 new State(
                     new ConditionEffectBehavior(ConditionEffectIndex.Invincible),
-                    new Taunt("Is King Alexander alive?"),
-                    new PlayerTextTransition("Prize", "He lives and reigns and conquers the world"),
-                    new PlayerTextTransition("Prize", "He lives and reigns and conquers the world."),
-                    new TimedTransition(12000, "Fail"),
-                    new State("Texture1",
-                        new SetAltTexture(1),
-                        new TimedTransition(250, "Texture2")
-                        ),
-                    new State("Texture2",
-                        new SetAltTexture(0),
-                        new TimedTransition(250, "Texture1")
+                    // the question's transitions live in its own state, so they end with it
+                    new State("Question",
+                        new Taunt("Is King Alexander alive?"),
+                        new PlayerTextTransition("Prize", "He lives and reigns and conquers the world"),
+                        new PlayerTextTransition("Prize", "He lives and reigns and conquers the world."),
+                        new TimedTransition(12000, "Fail"),
+                        new State("Texture1",
+                            new SetAltTexture(1),
+                            new TimedTransition(250, "Texture2")
+                            ),
+                        new State("Texture2",
+                            new SetAltTexture(0),
+                            new TimedTransition(250, "Texture1")
+                            )
                         ),
                     new State("Prize",
                         new Taunt("Thank you kind sailor."),
@@ -310,9 +313,24 @@ namespace WorldServer.logic
                         new TossObject(N("Coral Gift"), range: 5, angle: 235),
                         new TimedTransition(0, "Suicide")
                         ),
+                    // a wrong answer, or none, is punished: six seconds of tridents, walls and coral bombs
                     new State("Fail",
-                        new Taunt("You speak LIES!!"),
-                        new TimedTransition(0, "Suicide")
+                        new Taunt("You speak LIES!!!"),
+                        new TimedTransition(400, "Rage")
+                        ),
+                    new State("Rage",
+                        new Shoot(15, count: 15, shootAngle: 24, projectileIndex: 3, fixedAngle: 0, coolDown: 1600),
+                        new Shoot(15, count: 15, shootAngle: 24, projectileIndex: 0, fixedAngle: 12, coolDown: 1600, coolDownOffset: 800),
+                        new Shoot(15, count: 4, shootAngle: 90, projectileIndex: 2, fixedAngle: 100, coolDown: 1200),
+                        new Shoot(15, count: 4, shootAngle: 90, projectileIndex: 2, fixedAngle: 80, coolDown: 1200),
+                        new Shoot(15, count: 4, shootAngle: 90, projectileIndex: 2, fixedAngle: 55, coolDown: 1200, coolDownOffset: 600),
+                        new Shoot(15, count: 4, shootAngle: 90, projectileIndex: 2, fixedAngle: 35, coolDown: 1200, coolDownOffset: 600),
+                        new TossObject(N("Coral Bomb Big"), 18, coolDown: 1600),
+                        new TossObject(N("Coral Bomb Big"), 15, angle: 45, coolDown: 1000),
+                        new TossObject(N("Coral Bomb Big"), 15, angle: 135, coolDown: 1000),
+                        new TossObject(N("Coral Bomb Big"), 15, angle: 225, coolDown: 1000),
+                        new TossObject(N("Coral Bomb Big"), 15, angle: 315, coolDown: 1000),
+                        new TimedTransition(6000, "Suicide")
                         ),
                     new State("Suicide",
                         new Suicide()

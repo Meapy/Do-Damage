@@ -230,6 +230,8 @@ namespace WorldServer.logic
                     new ConditionEffectBehavior(ConditionEffectIndex.Invincible, true),
                     new State("Idle"),
                     new State("Protect the Guard",
+                        // bleeding darts east and west across the room while the Guard fights
+                        new Shoot(20, count: 2, shootAngle: 180, fixedAngle: 90, coolDown: new Cooldown(3000, 1500)),
                         new EntityNotExistsTransition(N("Snakepit Guard"), 40, "Idle")
                         )
                     ), Elder("Snakepit Dart Thrower"))
@@ -251,8 +253,12 @@ namespace WorldServer.logic
                     new ConditionEffectBehavior(ConditionEffectIndex.Invincible, true),
                     new State("Idle"),
                     new State("Spawn the Guard",
-                        new Order(15, N("Snakepit Dart Thrower"), "Protect the Guard"),
                         new Spawn(N("Snakepit Guard"), maxChildren: 1, initialSpawn: 1),
+                        new TimedTransition(500, "Wake the Darts")
+                        ),
+                    // once the Guard stands, or the darts see none and go back to sleep
+                    new State("Wake the Darts",
+                        new Order(15, N("Snakepit Dart Thrower"), "Protect the Guard"),
                         new TimedTransition(0, "Idle")
                         )
                     ), Elder("Snakepit Guard Spawner"))

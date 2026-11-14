@@ -28277,18 +28277,19 @@
 			<Index>0x2a0</Index>
 		</Texture>
 		<SlotType>17</SlotType>
-		<Description>This aptly named staff is the manifestation of Chancellor Dammah's assertions of grandeur. Although he seldom uses it for actual combat purposes, it is no less potent as a legitimate weapon.</Description>
+		<Description>This aptly named staff is the manifestation of Chancellor Dammah's assertions of grandeur. Although he seldom uses it for actual combat purposes, it is no less potent as a legitimate weapon. Each hit strips 1% of the target's defense for 5 seconds, up to 10 times. Keep hitting to keep it on.</Description>
 		<RateOfFire>1.0</RateOfFire>
 		<Sound>weapon/sprite_wand</Sound>
 		<Projectile>
 			<ObjectId>Superior Projectile</ObjectId>
 			<Speed>150</Speed>
-			<MinDamage>45</MinDamage>
-			<MaxDamage>75</MaxDamage>
+			<MinDamage>60</MinDamage>
+			<MaxDamage>95</MaxDamage>
 			<LifetimeMS>415</LifetimeMS>
 			<Amplitude>0.5</Amplitude>
 			<Frequency>1.5</Frequency>
 		</Projectile>
+		<ArmorShred percent="1" max="10" duration="5"/>
 		<BagType>6</BagType>
 		<FameBonus>7</FameBonus>
 		<NumProjectiles>4</NumProjectiles>

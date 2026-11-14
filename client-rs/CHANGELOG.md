@@ -12,6 +12,42 @@ Keep each version short: changes go under `### ` group headings (Oryx 5, Arena, 
 on), one line per change players notice, summed up rather than item by item (the wiki has the
 details). Add to a group's line when a change adds to it, rather than adding another line.
 
+## 2.5.8 (2026-11-14)
+
+### Items
+- Superior (the staff from Oryx the Celestial Mad God) hits harder, 60-95 damage a shot (was 45-75), and each hit strips 1% of the enemy's defense for 5 seconds, stacking up to 10 times: keep hitting to keep it on. It drops 1% of the time (was 0.4%).
+- The Chaotic Scripture's Chaos Beam looks the part: a column of violet light slams down out of the
+  sky onto your cursor, a shockwave races out to the blast's edge, and a rift stays torn open for a
+  moment, the eight arrows of chaos turning round it as it crackles.
+
+### Dungeons
+- The Marble Colossus (and its Elder version) in the Lost Halls now stays inside its boss room: it
+  no longer follows players out through the doors.
+- Some monsters fight as they did in the original game again (Elder versions too): the Snake Pit's
+  hidden dart throwers fire bleeding darts across the room while you fight the Snakepit Guard;
+  answer the wounded Thessal wrongly (or not at all) and she rages for six seconds of tridents,
+  walls and coral bombs before she leaves; the Ghost of Roger follows you, and below 40% health
+  charges with Skull Bolts and calls Violent Spirits; the Undead Lair's vampires bite with their
+  heavy green bolt up close.
+- Oryx's Castle, Oryx 1 and Oryx 2 fight as they did in the original game. The Stone Guardians
+  wake together, join in formations round their room, and the last one standing heals and throws
+  its sword (knock the sword to half to send it back). Oryx 1 picks from nine attacks at random,
+  never one of his last three, with a short pause and his shield dropping between them, and makes
+  a last stand with his Assassins below 6%. Oryx 2 throws each of his stars at its own reach; his
+  Henchmen's minions come back after they die (the Bile's puddles sicken and slow you), and at 30%
+  he sends the Henchmen away and floods the cellar with silencing and weakening spinners. The
+  castle's living floors, suits of armour and insect swarms fight as they did too.
+- Oryx 4 in his Inferno now fights Oryx 1's new fight, burning: the same nine attacks with less
+  warning between them, hellfire bolts throughout, his Infernal Officer and Brimstone Major back
+  with every wave of minions, red Infernal Elements in his Artifact Dance, and his last stand from
+  10% health with his Assassins and his court. In an arena he fights as before.
+
+### Realm
+- Realm monsters fixed to fight as they did in the original game: the Weretiger fires three claws,
+  the enraged Desert Werewolf a stronger, faster fireball, the Werelion's ring its heavier black
+  missiles, a hurt Drake Baby shoots back while it calls its mother, the Giant Crab aims where you
+  are going, and the Warrior Wasp leads its shots ahead of you only now and then, not every time.
+
 ## 2.5.7 (2026-11-13)
 
 ### Events

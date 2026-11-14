@@ -377,8 +377,9 @@ namespace WorldServer.logic
                     ), Elder("Lair Reaper"))
             .Init(E("Lair Vampire"),
                 new State(
-                    new Shoot(10, coolDown: Cd(500)),
-                    new Shoot(3, coolDown: Cd(1000)),
+                    new Shoot(9, predictive: 1, coolDown: Cd(500)),
+                    // up close, the heavy Green Bolt
+                    new Shoot(3, projectileIndex: 1, coolDown: Cd(1000)),
                     new Follow(1.3, range: 1),
                     new Wander(0.1)
                     ),
@@ -386,8 +387,9 @@ namespace WorldServer.logic
                 new ItemLoot("Health Potion", 0.05), Elder("Lair Vampire"))
             .Init(E("Lair Vampire King"),
                 new State(
-                    new Shoot(10, coolDown: Cd(500)),
-                    new Shoot(3, coolDown: Cd(1000)),
+                    new Shoot(9, predictive: 1, coolDown: Cd(500)),
+                    // up close, the heavy Green Bolt
+                    new Shoot(3, projectileIndex: 1, coolDown: Cd(1000)),
                     new Follow(1.3, range: 1),
                     new Wander(0.1)
                     ),

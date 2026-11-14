@@ -67,13 +67,33 @@ event, and isn't sold or dropped then; if you have one, keep it for the next.
 
 ## Tips for each boss
 
-- **Stone Guardians and Janus:** the Guardians fire rings; keep moving around them, not through
-  them. Janus's door opens as soon as both are dead. The haunted Suits of Armor on the way guard
-  and heal themselves once, at a fifth of their health, then fight on to the end.
-- **Oryx 1** (Chamber) cycles minions, an invulnerable dance with rings and a spiral, his artifacts
-  and his gaze. Below 20% he grows and chases you.
-- **Oryx 2** (Wine Cellar) calls his guards at 55% health, with silencing and weakening spinners,
-  then fights faster.
+- **Stone Guardians and Janus:** the Guardians wake together when you come near. While both stand
+  they mostly wander or charge on their own, and every few seconds join in a formation round the
+  middle of their room: circling it with pairs fired four ways, a sweeping spray from the sides, two
+  spiral arms, or heavy rings with grenades. Kill one and the other shelters for five seconds,
+  healing, then fights alone and throws its sword: it stays invulnerable until the sword is gone, so
+  knock the sword to half its health to send it flying back. Janus's door opens as soon as both are
+  dead. The haunted Suits of Armor on the way stand still until you come within four tiles or hit
+  them; they follow slowly, charge if you back off, and once, at 45% health, guard and heal. The
+  living floors throw Quiet Bombs at you from a distance and fire silencing rings up close; the
+  Insect Commanders keep a swarm that bites only up close.
+- **Oryx 1** (Chamber) picks his attacks at random, never one of his last three, with five
+  invulnerable seconds between them (he flashes green; some he names). Minions; **Circle Combat**,
+  inside a ring of elements under grenades and silencing and weakening rings, with Anti-Spectators
+  circling outside for anyone hanging back; **Artifact Dance**, four Guardian Elements spinning close
+  and three further out; the **Hadouken**, his flames for anyone within ten tiles (below 55%
+  bubbles in every direction too), straight into his next attack with no pause; **Minion Toss**,
+  minions and Assassins thrown round him; **Bullet Dance**, spinning crosses inside a ring;
+  **Orbitals**, Black Planets and their moons; **Chase Course**, a field of Chase Elements he
+  charges through; **White Planet**, moons racing round far out while planets swing in and out.
+  His shield drops for a second or so at a time during most of them. Below 55% only the harder
+  ones; below 6% his helpers burst, he heals a little, grows, and hunts you with his Assassins.
+- **Oryx 2** (Wine Cellar) throws six kinds of star, each at its own reach (the Blade only up
+  close), and rings of fire bolts. Up to three Henchmen guard him, each with three of his four kinds
+  of minion, back seven seconds after they die: the Bile leaves puddles that sicken and slow you,
+  the Vintner's wine makes you drunk, the Aberrant throws blasters, the Monstrosity breeds Scarabs.
+  At 30% the Henchmen leave and he floods the cellar with silencing and weakening spinners; then he
+  circles close, weakening everyone near each time, and backs off, with Scarabs all round.
 Oryx 3, 4 and 5 can't be stunned, paralysed, petrified, put in stasis, dazed or slowed (Curse
 and Armor Broken still work on them).
 
@@ -95,11 +115,15 @@ and Armor Broken still work on them).
   Brimstone Major (charges, and a cone of fire up close), the Cinder Cleric (heals the others and
   throws blasters: kill it first) and the Doom Cardinal (paralysing spears, and a Vintner at its
   side). A gate across the path's last stretch keeps the Pyre shut until the whole Court is dead,
-  so nobody can run past it to him. Oryx 4 waits in the middle of the Pyre at its end: Oryx 1's fight made harder, with
-  hellfire, his court called back to his side, red butterfly-winged Infernal Elements circling him
-  (four close, four further out, their flames 20 damage that ignores armour), six orbiting White
-  Moons and a weakening ring he warns you about. Mind the
-  lava pools on the floor.
+  so nobody can run past it to him. Oryx 4 waits in the middle of the Pyre at its end and fights
+  **Oryx 1's fight** (above), burning: the same nine attacks drawn at random, with four seconds'
+  warning instead of five; hellfire bolts at anyone within ten tiles throughout; an Infernal
+  Officer and a Brimstone Major back at his side with every wave of minions; and in his Artifact
+  Dance red butterfly-winged Infernal Elements, four spinning close that aim at you (their flames
+  20 damage that ignores armour) and three fast ones further out. His last stand comes at 10%
+  (Oryx 1's at 6%): he heals more, grows bigger and hunts you with his Assassins, two Officers and
+  a Major. Mind the lava pools on the floor. In an arena he keeps his old cycle (his court, the
+  Infernal Elements on fixed rings, six White Moons he sends round him, and a weakening ring).
 - **Oryx 5**, Oryx the Ascended God (Oryx's Elysium): a holy island of gold, marble and turquoise
   sea, where he wears white and gold and carries a spear. From the Landing the road forks round the
   island, held by his **Ascended Host**, Oryx 3's court ascended with attacks of their own: the

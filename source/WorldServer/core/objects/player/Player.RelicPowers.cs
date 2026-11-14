@@ -70,6 +70,7 @@ namespace WorldServer.core.objects
             Pentagram = 26,     // Skull of the Final Ritual: the star drawn on the ground (ms)
             Eruption = 27,      // Skull of the Final Ritual: its heart erupting
             Singularity = 28,   // Bow of the Event Horizon: the black hole (ms)
+            // 29: the Chaotic Scripture's Chaos Beam, sent by AllyAOE (BehaviorDb.Allies.cs)
         }
 
         // on: the object it follows (an aura) or flies to (a soul, blood); at: where it is

@@ -94,6 +94,21 @@ namespace WorldServer.core.objects
             Defense = _shredTo;
         }
 
+        // A weapon's stacking shred (Superior): each hit adds a stack of percent, up to max, and
+        // renews them all; with no hit for durationMs they all go (ShredTick) and it starts again.
+        private int _shredStacks;
+        private long _shredStacksUntil;
+
+        public void StackShred(float percent, int max, int durationMs)
+        {
+            var now = Environment.TickCount64;
+            if (now >= _shredStacksUntil)
+                _shredStacks = 0;
+            _shredStacks = Math.Min(max, _shredStacks + 1);
+            _shredStacksUntil = now + durationMs;
+            ShredArmor(_shredStacks * percent / 100.0, durationMs);
+        }
+
         private void ShredTick()
         {
             if (_shredUntil == 0 || Environment.TickCount64 < _shredUntil)
