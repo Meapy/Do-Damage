@@ -15,10 +15,12 @@ details). Add to a group's line when a change adds to it, rather than adding ano
 ## Unreleased
 
 ### Dungeons
-- Oryx 4 in his Inferno is invulnerable far less often: about half his fight instead of four
-  fifths. His warning before each attack is 2.5 seconds (was 4), his shields stay open longer and
-  shut half as long, and he no longer stays shielded through whole parts of his attacks (the
-  Minion Toss, the end of the Artifact Dance, the grenade and bullet turns). Oryx 1 is unchanged.
+- Oryx 4 is never invulnerable once he wakes, in his Inferno or an arena: where he used to shield
+  himself he is armoured instead (his defense doubled), and for much less of the fight, about half
+  instead of four fifths. His warning before each attack is 2.5 seconds (was 4), his shields stay
+  down longer and up half as long, and he no longer stays shielded through whole parts of his
+  attacks (the Minion Toss, the end of the Artifact Dance, the grenade and bullet turns). Oryx 1
+  is unchanged.
 
 ## 2.5.8 (2026-11-14)
 

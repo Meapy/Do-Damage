@@ -117,8 +117,9 @@ and Armor Broken still work on them).
   side). A gate across the path's last stretch keeps the Pyre shut until the whole Court is dead,
   so nobody can run past it to him. Oryx 4 waits in the middle of the Pyre at its end and fights
   **Oryx 1's fight** (above), burning: the same nine attacks drawn at random, with two and a half seconds'
-  warning instead of five, and his shields open far more of the time (invulnerable about half
-  the fight, where Oryx 1 is four fifths); hellfire bolts at anyone within ten tiles throughout; an Infernal
+  warning instead of five, and his shields only **armour** him (his defense doubled) instead of
+  making him invulnerable, and for less of the time (about half the fight, where Oryx 1 is
+  invulnerable four fifths): you can always hurt him; hellfire bolts at anyone within ten tiles throughout; an Infernal
   Officer and a Brimstone Major back at his side with every wave of minions; and in his Artifact
   Dance red butterfly-winged Infernal Elements, four spinning close that aim at you (their flames
   20 damage that ignores armour) and three fast ones further out. His last stand comes at 10%

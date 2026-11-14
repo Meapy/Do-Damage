@@ -38,6 +38,8 @@ namespace WorldServer.logic
             // the Minion Toss, the Artifact Dance's end, his shields' last spell); unguarded, he
             // doesn't, and those last spells shut and open again and again
             public bool Guarded = true;
+            // what his shields and warnings give him: Oryx 1 is invulnerable, Oryx 4 only armoured
+            public ConditionEffectIndex Shield = ConditionEffectIndex.Invulnerable;
             public IStateChildren[] Fight = new IStateChildren[0];   // added throughout the fight
             public IStateChildren[] Minions = new IStateChildren[0]; // added to Make Minions
             public IStateChildren[] Hunt = new IStateChildren[0];    // added to his last stand's hunt
@@ -49,7 +51,7 @@ namespace WorldServer.logic
         // invulnerable for `on` ms, open for `off`, again and again
         private static State[] O1Shield(OryxSpec o, string p, int on, int off) => new[]
         {
-            new State(p + " Shut", new ConditionEffectBehavior(ConditionEffectIndex.Invulnerable), new TimedTransition(o.Shut(on), p + " Open")),
+            new State(p + " Shut", new ConditionEffectBehavior(o.Shield), new TimedTransition(o.Shut(on), p + " Open")),
             new State(p + " Open", new TimedTransition(o.Open(off), p + " Shut"))
         };
 
@@ -57,11 +59,11 @@ namespace WorldServer.logic
         // for `again` ms and round again instead
         private static State[] O1ShieldOnce(OryxSpec o, string p, int on, int off, int again, params IStateChildren[] open) => new[]
         {
-            new State(p + " Shut", new ConditionEffectBehavior(ConditionEffectIndex.Invulnerable), new TimedTransition(o.Shut(on), p + " Open")),
+            new State(p + " Shut", new ConditionEffectBehavior(o.Shield), new TimedTransition(o.Shut(on), p + " Open")),
             new State(p + " Open", new IStateChildren[] { new TimedTransition(o.Open(off), p + " Shut Again") }.Concat(o.Guarded ? open : new IStateChildren[0]).ToArray()),
             o.Guarded
-                ? new State(p + " Shut Again", new ConditionEffectBehavior(ConditionEffectIndex.Invulnerable))
-                : new State(p + " Shut Again", new ConditionEffectBehavior(ConditionEffectIndex.Invulnerable), new TimedTransition(o.Shut(again), p + " Open"))
+                ? new State(p + " Shut Again", new ConditionEffectBehavior(o.Shield))
+                : new State(p + " Shut Again", new ConditionEffectBehavior(o.Shield), new TimedTransition(o.Shut(again), p + " Open"))
         };
 
         // a guarded part of an attack: its children, invulnerable only while guarded
@@ -76,7 +78,7 @@ namespace WorldServer.logic
         private static void O1Guard(OryxSpec o, List<IStateChildren> c)
         {
             if (o.Guarded)
-                c.Add(new ConditionEffectBehavior(ConditionEffectIndex.Invulnerable));
+                c.Add(new ConditionEffectBehavior(o.Shield));
         }
 
         // the invulnerable seconds before an attack (five for Oryx 1), with the line that warns of it
@@ -84,7 +86,7 @@ namespace WorldServer.logic
         {
             var c = new List<IStateChildren>
             {
-                new ConditionEffectBehavior(ConditionEffectIndex.Invulnerable),
+                new ConditionEffectBehavior(o.Shield),
                 new StayCloseToSpawn(0.4, 5),
                 new Wander(0.4),
                 new Flash(0xFF00FF00, 0.2, 20),
@@ -96,11 +98,11 @@ namespace WorldServer.logic
         }
 
         // where he goes after an attack: pools as the original's, the low one below 55%
-        private static State O1Chooser(string name, string prefix)
+        private static State O1Chooser(OryxSpec o, string name, string prefix)
         {
             string[] P(params string[] s) => s.Select(x => prefix + x).ToArray();
             return new State(name,
-                new ConditionEffectBehavior(ConditionEffectIndex.Invulnerable),
+                new ConditionEffectBehavior(o.Shield),
                 new State(name + " Pool",
                     new HpLessTransition(0.55, name + " Low"),
                     new TimedRandomTransition(0, false, name + " A", name + " B")
@@ -445,9 +447,9 @@ namespace WorldServer.logic
                     new Shoot(12, 1, projectileIndex: 4, coolDownOffset: 1000, coolDown: 800),
                     new HpLessTransition(0.97, "Make Minions")
                 ),
-                O1Chooser("Choose", "Pre "),
+                O1Chooser(o, "Choose", "Pre "),
                 // after the Hadouken: straight into the next attack
-                O1Chooser("Choose Now", ""),
+                O1Chooser(o, "Choose Now", ""),
                 O1Pause(o, "Circle Combat"),
                 O1Pause(o, "Artifact Dance", "My artifacts will protect me!"),
                 O1Pause(o, "Hadouken", "Insufferable fools! If I see you, I will kill you!"),
@@ -477,7 +479,7 @@ namespace WorldServer.logic
                     new State("CC Setup",
                         new[]
                         {
-                            new ConditionEffectBehavior(ConditionEffectIndex.Invulnerable),
+                            new ConditionEffectBehavior(o.Shield),
                             (IStateChildren)new TimedTransition(4000, "CC Grenade 0")
                         }
                         .Concat(Enumerable.Range(0, 5).Select(i => (IStateChildren)new TossObject("Minion of Oryx", 20, i * 72, 90000)))
@@ -507,7 +509,7 @@ namespace WorldServer.logic
                     new State("AD Defended 2", O1Shield(o, "AD D2", 2500, 1000)
                         .Concat(new IStateChildren[] { new Shoot(8, 6, 45, 8, coolDown: 1500), new TimedTransition(5000, "AD Attack 3") }).ToArray()),
                     new State("AD Attack 3", (o.Guarded
-                            ? new IStateChildren[] { new ConditionEffectBehavior(ConditionEffectIndex.Invulnerable) }
+                            ? new IStateChildren[] { new ConditionEffectBehavior(o.Shield) }
                             : O1Shield(o, "AD A3", 2500, 1000))
                         .Concat(new IStateChildren[] { new Shoot(8, 3, 120, 9, coolDownOffset: 1500, coolDown: 900) }).ToArray())
                 ),
@@ -550,7 +552,7 @@ namespace WorldServer.logic
                     new Shoot(8.5, 1, projectileIndex: 2, predictive: 0.5, coolDown: 1000),
                     new Shoot(22, 4, 9, 4, coolDown: 2400),
                     new TimedTransition(15000, "Choose"),
-                    new State("MT 0", new ConditionEffectBehavior(ConditionEffectIndex.Invulnerable), new TimedTransition(2000, "MT 1")),
+                    new State("MT 0", new ConditionEffectBehavior(o.Shield), new TimedTransition(2000, "MT 1")),
                     new State("MT 1", O1Guarded(o,
                         new TossObject("Minion of Oryx", 3, 30, 90000), new TossObject("Minion of Oryx", 3, 180, 90000),
                         new TossObject("Assassin of Oryx", 3, 330, 90000), new TimedTransition(400, "MT 2"))),
@@ -573,7 +575,7 @@ namespace WorldServer.logic
                     new State("BD Setup",
                         new[]
                         {
-                            new ConditionEffectBehavior(ConditionEffectIndex.Invulnerable),
+                            new ConditionEffectBehavior(o.Shield),
                             (IStateChildren)new TimedTransition(2000, "BD 0 0")
                         }
                         .Concat(O1Ring(8))
@@ -601,7 +603,7 @@ namespace WorldServer.logic
                 new State("Chase Course",
                     new TimedTransition(25000, "Choose"),
                     new State("CH Start",
-                        new ConditionEffectBehavior(ConditionEffectIndex.Invulnerable),
+                        new ConditionEffectBehavior(o.Shield),
                         new ReturnToSpawn(1),
                         new Taunt("FOOL! Flee while you can!!!", "You shall never see the light of day!",
                             "Yes, run for your worthless lives!!!", "You WILL fear me!!!") { Bubble = o.Bubble },
@@ -610,7 +612,7 @@ namespace WorldServer.logic
                     new State("CH Throw",
                         new[]
                         {
-                            new ConditionEffectBehavior(ConditionEffectIndex.Invulnerable),
+                            new ConditionEffectBehavior(o.Shield),
                             (IStateChildren)new TimedTransition(2000, "CH Wake")
                         }
                         .Concat(new[] { (8.0, 0), (11.0, 45), (16.0, 0), (22.0, 45) }
@@ -618,7 +620,7 @@ namespace WorldServer.logic
                         .ToArray()
                     ),
                     new State("CH Wake",
-                        new ConditionEffectBehavior(ConditionEffectIndex.Invulnerable),
+                        new ConditionEffectBehavior(o.Shield),
                         new Order(30, "Chase Element", "Attacking"),
                         new TimedTransition(200, "CH Chase")
                     ),
@@ -640,7 +642,7 @@ namespace WorldServer.logic
                 new State("White Planet",
                     new TimedTransition(20000, "Choose"),
                     new State("WP Start",
-                        new ConditionEffectBehavior(ConditionEffectIndex.Invulnerable),
+                        new ConditionEffectBehavior(o.Shield),
                         new ReturnToSpawn(1),
                         new Taunt("I am the master of this existence!!!", "I control your fate!", "The universe bends to my will alone!!!") { Bubble = o.Bubble },
                         new TimedTransition(1600, "WP Throw")
@@ -648,7 +650,7 @@ namespace WorldServer.logic
                     new State("WP Throw",
                         new[]
                         {
-                            new ConditionEffectBehavior(ConditionEffectIndex.Invulnerable),
+                            new ConditionEffectBehavior(o.Shield),
                             (IStateChildren)new TimedTransition(200, "WP Attack")
                         }
                         .Concat(Enumerable.Range(0, 4).Select(i => (IStateChildren)new TossObject("White Moon", 13.4, i * 90, 90000)))
@@ -662,9 +664,9 @@ namespace WorldServer.logic
                         .Concat(new IStateChildren[]
                         {
                             new TimedTransition(8000, "WP Return"),
-                            new State("WP C Shut", new ConditionEffectBehavior(ConditionEffectIndex.Invulnerable), new TimedTransition(o.Shut(1400), "WP C Open")),
+                            new State("WP C Shut", new ConditionEffectBehavior(o.Shield), new TimedTransition(o.Shut(1400), "WP C Open")),
                             new State("WP C Open", new TimedTransition(o.Open(1400), "WP C Shut Again")),
-                            new State("WP C Shut Again", new ConditionEffectBehavior(ConditionEffectIndex.Invulnerable), new TimedTransition(o.Shut(2200), "WP C Shut"))
+                            new State("WP C Shut Again", new ConditionEffectBehavior(o.Shield), new TimedTransition(o.Shut(2200), "WP C Shut"))
                         }).ToArray()
                     ),
                     new State("WP Return",
@@ -672,9 +674,9 @@ namespace WorldServer.logic
                         {
                             new Taunt(0.8, "You have uttered your last pathetic whimper!", "SILENCE!", "Speak no more, fools!", "You have spoken your last!") { Bubble = o.Bubble },
                             new TimedTransition(7000, "WP Cross"),
-                            new State("WP R Shut", new ConditionEffectBehavior(ConditionEffectIndex.Invulnerable), new TimedTransition(o.Shut(1600), "WP R Open")),
+                            new State("WP R Shut", new ConditionEffectBehavior(o.Shield), new TimedTransition(o.Shut(1600), "WP R Open")),
                             new State("WP R Open", new TimedTransition(o.Open(800), "WP R Shut Again")),
-                            new State("WP R Shut Again", new ConditionEffectBehavior(ConditionEffectIndex.Invulnerable), new TimedTransition(o.Shut(1600), "WP R Shut"))
+                            new State("WP R Shut Again", new ConditionEffectBehavior(o.Shield), new TimedTransition(o.Shut(1600), "WP R Shut"))
                         }).ToArray()
                     )
                 )
@@ -690,7 +692,7 @@ namespace WorldServer.logic
                 new Order(40, "Ring Element", "Final"),
                 new Order(40, "Assassin of Oryx", "Final"),
                 new State("AI Start",
-                    new ConditionEffectBehavior(ConditionEffectIndex.Invulnerable),
+                    new ConditionEffectBehavior(o.Shield),
                     new ReturnToSpawn(1),
                     new Taunt(o.AllInTaunt) { Bubble = o.Bubble },
                     new HealSelf(400, o.Heal),
@@ -699,7 +701,7 @@ namespace WorldServer.logic
                 new State("AI Summon",
                     new Flash(0xFFFF0000, 0.2, 10),
                     new ChangeSize(10, o.Size),
-                    new ConditionEffectBehavior(ConditionEffectIndex.Invulnerable),
+                    new ConditionEffectBehavior(o.Shield),
                     new Shoot(10, 12, 30, 18, predictive: 0.5, coolDownOffset: 200, coolDown: 1000),
                     new TossObject("Assassin of Oryx", 4.3, 270, 90000),
                     new TossObject("Assassin of Oryx", 4.3, 150, 90000),

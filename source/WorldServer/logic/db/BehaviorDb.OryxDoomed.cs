@@ -61,8 +61,9 @@ namespace WorldServer.logic
                     new TimedTransition(12000, p + "Doom Ring")
                 ),
                 // telegraphed: a weakening ring with gaps to stand in
+                // armoured, never invulnerable (as in his Inferno)
                 new State(p + "Doom Ring",
-                    new ConditionEffectBehavior(ConditionEffectIndex.Invulnerable),
+                    new ConditionEffectBehavior(ConditionEffectIndex.Armored),
                     new ReturnToSpawn(1.5),
                     new Flash(0xFFFFFFFF, 0.3, 6),
                     new Taunt("Feel the weight of my doom!") { Bubble = false },
@@ -98,14 +99,14 @@ namespace WorldServer.logic
                         new ArenaTransition("Dormant", false)
                     ),
                     // in an arena: his old cycle (an arena has no room for Oryx 1's fight)
-                    ArenaWake("Here, too, the fire answers me.", "Arena Hatred"),
+                    ArenaWake("Here, too, the fire answers me.", "Arena Hatred", ConditionEffectIndex.Armored),
                     new State("Arena Cycle", O4Cycle("Arena ")),
                     new State("Dormant",
                         new ConditionEffectBehavior(ConditionEffectIndex.Invulnerable),
                         new PlayerWithinTransition(15, "Awaken")
                     ),
                     new State("Awaken",
-                        new ConditionEffectBehavior(ConditionEffectIndex.Invulnerable),
+                        new ConditionEffectBehavior(ConditionEffectIndex.Armored),
                         new Flash(0xFFFF4400, 0.4, 10),
                         new Taunt(true, "Three times you have struck me down. Here, in the fire, I am stronger.") { Bubble = false },
                         new TimedTransition(4000, "Old Times")
@@ -113,8 +114,10 @@ namespace WorldServer.logic
                 }.Concat(OryxFight(new OryxSpec
                 {
                     // Oryx 1's fight, burning: less warning, his last stand from 10%, hellfire throughout.
-                    // With Oryx 1's shields he was invulnerable four fifths of the fight; his open
-                    // longer and shut half as long, and no shut stretches inside his attacks, about half
+                    // His shields and warnings only armour him (his defense doubled), never make him
+                    // invulnerable; they're open longer and shut half as long as Oryx 1's, with no
+                    // shut stretches inside his attacks: armoured about half the fight
+                    Shield = ConditionEffectIndex.Armored,
                     Pause = 2500,
                     ShutFor = 0.5,
                     OpenFor = 2.0,
