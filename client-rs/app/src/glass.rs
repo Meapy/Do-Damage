@@ -262,6 +262,15 @@ impl Glass {
 
     /// Each frame: watch while the glass is near us in the Nexus, and move the picture on.
     pub fn tick(&mut self, world: Option<&World>, map: &str, data: &GameData, now: i32, dt: i32) {
+        // Between worlds (a portal's reconnect, a dropped connection): the new connection's
+        // server knows nothing of our watching, and takes nothing from us before our player is
+        // in, so forget it all and ask again once we're there.
+        if !world.is_some_and(|w| w.player().is_some()) {
+            if self.watching || self.open || !self.out.is_empty() || !self.said.is_empty() {
+                self.reset();
+            }
+            return;
+        }
         if self.looked_at.is_none_or(|t| now - t >= 500 || now < t) {
             self.looked_at = Some(now);
             self.near = map == "Nexus"

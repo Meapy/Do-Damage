@@ -1676,6 +1676,11 @@ impl Game {
     /// Ask for the Collection (`CollectionHandler.cs`).
     /// The Scrying Glass's asks (`Spectate`) and the lines typed in its chat (`SpectateSay`).
     pub fn glass(&mut self, actions: Vec<u8>, said: Vec<String>) {
+        // not while changing worlds: the server cut off a client whose message came before its
+        // player was in
+        if self.world.as_ref().is_none_or(|w| w.me.is_none()) {
+            return;
+        }
         for action in actions {
             self.send(bsk_proto::Spectate { action }.into());
         }

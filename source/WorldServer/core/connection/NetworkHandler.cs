@@ -308,8 +308,17 @@ namespace WorldServer.core.connection
                         {
                             if (id != MessageId.HELLO && id != MessageId.LOAD && id != MessageId.CREATE)
                             {
-                                Console.WriteLine(id + " Received with null player");
-                                Client.Disconnect("Invalid State");
+                                // A message the client sent while changing worlds (a chat line, the
+                                // Scrying Glass's ask, a market search) can land on the new connection
+                                // before its player exists: drop it rather than the player. Only a
+                                // client that keeps at it is cut off.
+                                Client.PacketSpamAmount++;
+                                if (Client.PacketSpamAmount > 32)
+                                {
+                                    Console.WriteLine(id + " Received with null player, too many");
+                                    Client.Disconnect("Invalid State");
+                                }
+                                r.Reset();
                                 continue;
                             }
 
