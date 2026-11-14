@@ -12,6 +12,12 @@ Keep each version short: changes go under `### ` group headings (Oryx 5, Arena, 
 on), one line per change players notice, summed up rather than item by item (the wiki has the
 details). Add to a group's line when a change adds to it, rather than adding another line.
 
+## Unreleased
+
+### Nexus
+- The Scrying Glass follows the player it shows smoothly: the picture no longer jumps about while
+  they move, so you can follow what's happening.
+
 ## 2.5.9 (2026-11-14)
 
 ### Items

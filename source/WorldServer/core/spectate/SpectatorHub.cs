@@ -344,12 +344,16 @@ namespace WorldServer.core.spectate
             target.Spectated = watched;
         }
 
-        // the tick as the player got it, with only the stats anyone may see of the player
+        // the tick as the player got it, with only the stats anyone may see of the player, and
+        // the player's own place every tick: their own tick leaves them out when only they moved
+        // (their client moves them itself), and the glass's camera follows them, so without it the
+        // picture would jump from wherever they were at their last stat change
         private static NewTickMessage Tick(Player target, List<ObjectStats> statuses)
         {
             var open = target.PublicStats ??= new HashSet<StatDataType>(target.ExportStats(true).Stats.Select(kv => kv.Key));
             var tick = new NewTickMessage(target.TickId, target.TickTime);
-            tick.Statuses.Capacity = statuses.Count;
+            tick.Statuses.Capacity = statuses.Count + 1;
+            var self = false;
             foreach (var st in statuses)
             {
                 if (st.Id != target.Id)
@@ -357,10 +361,15 @@ namespace WorldServer.core.spectate
                     tick.Statuses.Add(st);
                     continue;
                 }
-                tick.Statuses.Add(new ObjectStats(st.Id, st.X, st.Y, st.Stats.Where(kv => open.Contains(kv.Key)).ToArray()));
+                self = true;
+                tick.Statuses.Add(new ObjectStats(st.Id, target.X, target.Y, st.Stats.Where(kv => open.Contains(kv.Key)).ToArray()));
             }
+            if (!self)
+                tick.Statuses.Add(new ObjectStats(target.Id, target.X, target.Y, NoStats));
             return tick;
         }
+
+        private static readonly KeyValuePair<StatDataType, object>[] NoStats = Array.Empty<KeyValuePair<StatDataType, object>>();
 
         private static void Start(Spectator s, Player target)
         {
