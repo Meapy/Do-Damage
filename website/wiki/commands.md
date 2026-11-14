@@ -60,6 +60,9 @@ You can ask multiple players at once; each recipient can accept their request, a
 - You can have one `/visit` or `/summon` request waiting at a time; a help call can ask several
   players at once. Wait 10 seconds between calls; a player is asked by one player at a time, and
   after a No (or no answer) you wait a minute before asking them again.
+- It works across world servers: while an update or the scheduled restart hands players over to
+  the new server, you can still visit or summon a friend who is on the other one (in a dungeon
+  the old server keeps going, say). `/swho` lists everyone on both.
 - On a game older than version 2.3.7 there's no box: your friend sees the request in chat and
   answers with `/yes` or `/no` (on 2.3.7 itself, summons come in chat too).
 

@@ -646,6 +646,28 @@ The remotes `upstream` (HaloCelsius) and `aurusenth` share no history with `main
 
 ## Changes from upstream
 
+- **Visits between world servers** (2026-11-14; new `core/RemoteVisits.cs`, `Channel.Visit` and
+  `VisitMsg` in `Shared/isc`; `Command.Visit`, `SummonCommand`, `Player.Visits.cs`,
+  `VisitBook.Request.Server`/`RemoteId`, `ConnectionManager.AddTicket`, `Reconnect.SetKey`;
+  `Tests/CrossServerVisitTests.cs`). During a hand-over (a rolling deploy or the scheduled
+  restart) friends end up on different world servers, and `/visit`, `/summon` and `/swho` only
+  saw their own. Now a name not found here is looked up in the other servers' player lists (the
+  ISC pings' `playerList`; hidden players and, for non-admins, admin-only servers left out), and
+  the request goes over Redis to the server the player is on. Each side keeps it in its own
+  `VisitBook` (the asker's 3 s longer, for the answer to come across), so cooldowns, the Yes/No
+  box, `/yes`, `/no`, `/visit cancel` and running out all work as before. The server whose world
+  the player goes into checks `VisitRules` (been in, full, made for one), invites them, marks them
+  as having been in, shields their arrival and makes a reconnect ticket (`ReconnectInfo` with a
+  key of its own); the mover's server sends their client a `Reconnect` with that key: `Host` ""
+  when both servers share a public address, so the world proxy routes the world id to the slot
+  that owns it, else that server's address (Testing). Admins go, or summon, straight away. A
+  server that predates this (`ServerInfo.crossVisits` false, so only the first deploy's old slot)
+  is named rather than asked. `/swho` lists every world server's players (the hand-over partner's
+  under the same name, merged, by world display name: `PlayerInfo.WorldDisplay`; other servers'
+  lines start with their name; Testing for admins only), `/online` names a server once, and the
+  "A new server has come online" / "Server, X, is no longer online" announcements are only made
+  for a public world server of another name (not the hand-over partner, Testing or the account
+  server).
 - **Earthquake shake stops** (2026-11-13; `client-rs/app/src/particles.rs`, `jitter`). The Rust
   client's Earthquake effect (`ShowEffect` 14) shook the camera for good, building to half a tile
   until the world changed, as the AIR client's `Camera.startJitter` did. It now rises to a quarter

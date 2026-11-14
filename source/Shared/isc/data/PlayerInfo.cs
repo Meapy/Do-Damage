@@ -8,5 +8,7 @@
         public string Name;
         public int WorldInstance;
         public string WorldName;
+        // the world's name as players see it (/swho on the other servers); null from older servers
+        public string WorldDisplay;
     }
 }

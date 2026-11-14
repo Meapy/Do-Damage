@@ -91,7 +91,7 @@ COMMAND_HELP = {
     "guildkick": "Removes a player from your guild.",
     "guildwho": "Lists your guild's members who are online.",
     "who": "Lists the players in your world.",
-    "swho": "Lists the players on the whole server.",
+    "swho": "Lists everyone online and the world each is in, on every world server (during an update, the old one's players too).",
     "where": "Says where a player is: <code>/where &lt;name&gt;</code>.",
     "online": "How many players are online.",
     "servers": "The world servers and how many players each has.",

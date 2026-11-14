@@ -47,6 +47,7 @@ namespace WorldServer.core
         public GameUptime Uptime { get; private set; }
         // players' /visit requests waiting for an answer
         public VisitBook Visits { get; } = new VisitBook();
+        public RemoteVisits RemoteVisits { get; private set; }
 
         public GameServer(string[] appArgs)
         {
@@ -124,6 +125,7 @@ namespace WorldServer.core
             WorldManager.Initialize();
             InterServerManager.Initialize();
             InterServerManager.AddHandler<KickMsg>(Channel.Kick, ConnectionManager.OnKick);
+            RemoteVisits = new RemoteVisits(this);
             ChatManager.Initialize();
             Marketplace.Init();
             WeeklyStats.Start(Database.Conn);

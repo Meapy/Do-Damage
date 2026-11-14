@@ -47,6 +47,14 @@ namespace WorldServer.core.objects
         // Where /visit or /summon would take `mover` into `world`.
         public static VisitRules.Place VisitPlace(World world, Player mover)
         {
+            var p = VisitPlace(world, mover.Client.Account.AccountId);
+            p.Same = mover.World == world;
+            return p;
+        }
+
+        // ... or the player with this account, wherever they are (on another world server: RemoteVisits).
+        public static VisitRules.Place VisitPlace(World world, int moverAccountId)
+        {
             var p = new VisitRules.Place { Name = world?.GetDisplayName() ?? "" };
             if (world == null || world.Deleted)
                 p.Kind = VisitRules.Kind.Gone;
@@ -64,15 +72,14 @@ namespace WorldServer.core.objects
                 p.Kind = VisitRules.Kind.Shared;
             else
                 p.Kind = VisitRules.Kind.Instance;
-            p.Same = mover.World == world;
-            p.BeenIn = world != null && world.HasBeenIn(mover.Client.Account.AccountId);
+            p.BeenIn = world != null && world.HasBeenIn(moverAccountId);
             p.SinglePlayer = world != null && world.MaxPlayers <= 1;
             p.Full = world != null && world.IsPlayersMax();
             return p;
         }
 
         // Runs `action` with the client's player on its world's thread, if it's still in a world.
-        private static void OnPlayersThread(Client client, Action<Player> action)
+        internal static void OnPlayersThread(Client client, Action<Player> action)
         {
             var world = client?.Player?.World;
             world?.Post(() =>
@@ -86,7 +93,7 @@ namespace WorldServer.core.objects
 
         // Show this player the request, or take it off their screen (seconds 0). A client that
         // can show visits but not summons (2.3.7) gets summons in chat.
-        private void ShowVisitRequest(VisitBook.Request r, string place, byte seconds)
+        internal void ShowVisitRequest(VisitBook.Request r, string place, byte seconds)
         {
             if (WantsVisitRequests && (!r.Summon || WantsSummonRequests))
                 Client.SendPacket(new VisitRequest { Id = r.Id, Name = r.VisitorName, World = place, Seconds = seconds, Summon = WantsSummonRequests ? r.Summon : null });
@@ -203,6 +210,7 @@ namespace WorldServer.core.objects
                 SendInfo("You have no request waiting.");
                 return;
             }
+            GameServer.RemoteVisits.Withdrawn(Client.Account.AccountId, requests);
             foreach (var r in requests)
             {
                 var target = GameServer.ConnectionManager.FindClient(r.Target);
@@ -240,6 +248,12 @@ namespace WorldServer.core.objects
             {
                 if (yes)
                     SendError("That request has run out.");
+                return;
+            }
+            if (r.Server != null)
+            {
+                // from a player on another world server
+                GameServer.RemoteVisits.Answered(this, r, yes);
                 return;
             }
             var asker = GameServer.ConnectionManager.FindClient(r.Visitor);

@@ -38,6 +38,9 @@ details). Add to a group's line when a change adds to it, rather than adding ano
 - Right click can be bound in Options, Controls, like any key: bind it to Use ability to cast at
   the cursor with the right mouse button. Right clicks on the HUD (player cards, breaking items
   down) work as before.
+- Updates and restarts are smoother: while players move over to the updated server, /visit and
+  /summon still reach a friend on the other one, /swho lists everyone on both, and the
+  confusing "a new server has come online" and "is no longer online" messages are gone.
 
 ## 2.5.8 (2026-11-14)
 

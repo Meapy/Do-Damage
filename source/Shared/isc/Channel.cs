@@ -25,6 +25,11 @@ namespace Shared.isc
         // a Marketplace sale or expiry for an account: the server it plays on updates its fame
         // and tells it (Marketplace.OnMarketMsg)
         [Description("Market")]
-        Market
+        Market,
+
+        // a /visit or /summon between two world servers, such as the old and the new one of a
+        // hand-over (WorldServer RemoteVisits)
+        [Description("Visit")]
+        Visit
     }
 }

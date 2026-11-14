@@ -11,7 +11,8 @@ namespace WorldServer.core.commands
         // /visit <player>, for everyone: ask to join them in the dungeon, Arena or other instance
         // they're in. They answer Yes or No in a corner of their screen (Player.Visits.cs), once
         // per instance, never back into one you've been in; /visit cancel takes the request back.
-        // Admins go straight there, anywhere, as before.
+        // Admins go straight there, anywhere, as before. A player on another world server (the
+        // other one of a hand-over, or Testing for admins) is asked over Redis (RemoteVisits).
         internal class Visit : Command
         {
             public override string CommandName => "visit";
@@ -31,6 +32,8 @@ namespace WorldServer.core.commands
                 }
 
                 var target = player.GameServer.ConnectionManager.FindClient(name);
+                if (target?.Player?.World == null && player.GameServer.RemoteVisits.Find(name, player) is { } found)
+                    return player.GameServer.RemoteVisits.Ask(player, found.Server, found.Player, summon: false);
                 if (target?.Player?.World == null || !target.Player.CanBeSeenBy(player))
                 {
                     player.SendError("Player not found!");
