@@ -322,6 +322,64 @@ class Accounts:
         return {c.tag: (c.text or "") for c in root}, None
 
 
+MARKET_COLOUR = 0xF1C40F  # the game's Marketplace lines
+MARKET_LINES = 15  # listings per message
+
+
+def market_listings(answer):
+    """The listings in the account server's discord/market answer: [{id, item, price, seller,
+    hours, time}], oldest first, and the newest id (Last)."""
+    try:
+        listings = json.loads((answer or {}).get("Listings") or "[]")
+    except ValueError:
+        listings = []
+    try:
+        last = int((answer or {}).get("Last") or 0)
+    except ValueError:
+        last = 0
+    return listings, last
+
+
+def _md(text):
+    """Text with Discord's markdown characters escaped (players' and items' names)."""
+    return re.sub(r"([\\*_~`|>#\[\]()-])", r"\\\1", str(text))
+
+
+def market_line(l):
+    hours = int(l.get("hours") or 0)
+    days = hours // 24
+    lasts = ("1 day" if days == 1 else "%d days" % days) if hours >= 24 and hours % 24 == 0 else "%d h" % hours
+    return "**%s** listed **%s** for **%s** fame (for %s)" % (
+        _md(l.get("seller", "?")), _md(l.get("item", "an item")), "{:,}".format(int(l.get("price") or 0)), lasts)
+
+
+def market_messages(listings, site=SITE):
+    """New listings as #marketplace messages (Discord's JSON), MARKET_LINES to a message."""
+    out = []
+    for i in range(0, len(listings), MARKET_LINES):
+        part = listings[i:i + MARKET_LINES]
+        out.append({"embeds": [{
+            "title": "New on the Marketplace" if len(part) > 1 else None,
+            "description": "\n".join(market_line(l) for l in part),
+            "color": MARKET_COLOUR,
+            "footer": {"text": "Buy at the Marketplace in the Nexus."},
+            "timestamp": _iso(part[-1].get("time")),
+        }]})
+        if out[-1]["embeds"][0]["title"] is None:
+            del out[-1]["embeds"][0]["title"]
+        if out[-1]["embeds"][0]["timestamp"] is None:
+            del out[-1]["embeds"][0]["timestamp"]
+    return out
+
+
+def _iso(t):
+    import datetime
+    try:
+        return datetime.datetime.fromtimestamp(int(t), datetime.timezone.utc).isoformat()
+    except (TypeError, ValueError, OverflowError, OSError):
+        return None
+
+
 LINK_HOW = ("**To link your game account:** open %s, sign in, and on the main menu choose "
             "**Link Discord**. It shows a 6-character code: give it to me with `/link code:<the code>` "
             "within 10 minutes. You become **Verified** here under your game name, and the first time "

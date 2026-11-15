@@ -910,6 +910,7 @@
 			<Damage>28</Damage>
 			<Size>80</Size>
 			<LifetimeMS>2600</LifetimeMS>
+			<ConditionEffect duration="1">Quiet</ConditionEffect>
 			<MultiHit />
 		</Projectile>
 		<Projectile id="91">
@@ -919,6 +920,7 @@
 			<Size>65</Size>
 			<LifetimeMS>1600</LifetimeMS>
 			<ConditionEffect duration="2">Slowed</ConditionEffect>
+			<ConditionEffect duration="1">Quiet</ConditionEffect>
 		</Projectile>
 		<Projectile id="92">
 			<ObjectId>Necromantic Soul Bolt</ObjectId>
@@ -926,6 +928,7 @@
 			<Damage>36</Damage>
 			<Size>140</Size>
 			<LifetimeMS>4200</LifetimeMS>
+			<ConditionEffect duration="1">Quiet</ConditionEffect>
 			<MultiHit />
 		</Projectile>
 		<Projectile id="93">
@@ -934,6 +937,7 @@
 			<Damage>17</Damage>
 			<Size>60</Size>
 			<LifetimeMS>1200</LifetimeMS>
+			<ConditionEffect duration="1">Quiet</ConditionEffect>
 		</Projectile>
 	</Object>
 	<Object type="0x8C06" id="Elder Arachna the Spider Queen Remains">
@@ -997,6 +1001,7 @@
 			<Damage>88</Damage>
 			<Size>80</Size>
 			<LifetimeMS>2600</LifetimeMS>
+			<ConditionEffect duration="1">Quiet</ConditionEffect>
 			<MultiHit />
 		</Projectile>
 		<Projectile id="91">
@@ -1006,6 +1011,7 @@
 			<Size>65</Size>
 			<LifetimeMS>1600</LifetimeMS>
 			<ConditionEffect duration="2">Slowed</ConditionEffect>
+			<ConditionEffect duration="1">Quiet</ConditionEffect>
 		</Projectile>
 		<Projectile id="92">
 			<ObjectId>Necromantic Soul Bolt</ObjectId>
@@ -1013,6 +1019,7 @@
 			<Damage>114</Damage>
 			<Size>140</Size>
 			<LifetimeMS>4200</LifetimeMS>
+			<ConditionEffect duration="1">Quiet</ConditionEffect>
 			<MultiHit />
 		</Projectile>
 		<Projectile id="93">
@@ -1021,6 +1028,7 @@
 			<Damage>53</Damage>
 			<Size>60</Size>
 			<LifetimeMS>1200</LifetimeMS>
+			<ConditionEffect duration="1">Quiet</ConditionEffect>
 		</Projectile>
 	</Object>
 	<Object type="0x8C08" id="Elder Mixcoatl the Masked God Remains">
@@ -1128,6 +1136,7 @@
 			<Damage>70</Damage>
 			<Size>80</Size>
 			<LifetimeMS>2600</LifetimeMS>
+			<ConditionEffect duration="1">Quiet</ConditionEffect>
 			<MultiHit />
 		</Projectile>
 		<Projectile id="91">
@@ -1137,6 +1146,7 @@
 			<Size>65</Size>
 			<LifetimeMS>1600</LifetimeMS>
 			<ConditionEffect duration="2">Slowed</ConditionEffect>
+			<ConditionEffect duration="1">Quiet</ConditionEffect>
 		</Projectile>
 		<Projectile id="92">
 			<ObjectId>Necromantic Soul Bolt</ObjectId>
@@ -1144,6 +1154,7 @@
 			<Damage>91</Damage>
 			<Size>140</Size>
 			<LifetimeMS>4200</LifetimeMS>
+			<ConditionEffect duration="1">Quiet</ConditionEffect>
 			<MultiHit />
 		</Projectile>
 		<Projectile id="93">
@@ -1152,6 +1163,7 @@
 			<Damage>42</Damage>
 			<Size>60</Size>
 			<LifetimeMS>1200</LifetimeMS>
+			<ConditionEffect duration="1">Quiet</ConditionEffect>
 		</Projectile>
 	</Object>
 	<Object type="0x8C0A" id="Elder Stheno the Snake Queen Remains">
@@ -1216,6 +1228,7 @@
 			<Damage>117</Damage>
 			<Size>80</Size>
 			<LifetimeMS>2600</LifetimeMS>
+			<ConditionEffect duration="1">Quiet</ConditionEffect>
 			<MultiHit />
 		</Projectile>
 		<Projectile id="91">
@@ -1225,6 +1238,7 @@
 			<Size>65</Size>
 			<LifetimeMS>1600</LifetimeMS>
 			<ConditionEffect duration="2">Slowed</ConditionEffect>
+			<ConditionEffect duration="1">Quiet</ConditionEffect>
 		</Projectile>
 		<Projectile id="92">
 			<ObjectId>Necromantic Soul Bolt</ObjectId>
@@ -1232,6 +1246,7 @@
 			<Damage>152</Damage>
 			<Size>140</Size>
 			<LifetimeMS>4200</LifetimeMS>
+			<ConditionEffect duration="1">Quiet</ConditionEffect>
 			<MultiHit />
 		</Projectile>
 		<Projectile id="93">
@@ -1240,6 +1255,7 @@
 			<Damage>70</Damage>
 			<Size>60</Size>
 			<LifetimeMS>1200</LifetimeMS>
+			<ConditionEffect duration="1">Quiet</ConditionEffect>
 		</Projectile>
 	</Object>
 	<Object type="0x8C0C" id="Elder Septavius the Ghost God Remains">
@@ -2088,6 +2104,7 @@
 			<Damage>58</Damage>
 			<Size>80</Size>
 			<LifetimeMS>2600</LifetimeMS>
+			<ConditionEffect duration="1">Quiet</ConditionEffect>
 			<MultiHit />
 		</Projectile>
 		<Projectile id="91">
@@ -2097,6 +2114,7 @@
 			<Size>65</Size>
 			<LifetimeMS>1600</LifetimeMS>
 			<ConditionEffect duration="2">Slowed</ConditionEffect>
+			<ConditionEffect duration="1">Quiet</ConditionEffect>
 		</Projectile>
 		<Projectile id="92">
 			<ObjectId>Necromantic Soul Bolt</ObjectId>
@@ -2104,6 +2122,7 @@
 			<Damage>75</Damage>
 			<Size>140</Size>
 			<LifetimeMS>4200</LifetimeMS>
+			<ConditionEffect duration="1">Quiet</ConditionEffect>
 			<MultiHit />
 		</Projectile>
 		<Projectile id="93">
@@ -2112,6 +2131,7 @@
 			<Damage>35</Damage>
 			<Size>60</Size>
 			<LifetimeMS>1200</LifetimeMS>
+			<ConditionEffect duration="1">Quiet</ConditionEffect>
 		</Projectile>
 	</Object>
 	<Object type="0x8C0E" id="Elder Limon the Sprite God Remains">
@@ -2167,6 +2187,7 @@
 			<Damage>81</Damage>
 			<Size>80</Size>
 			<LifetimeMS>2600</LifetimeMS>
+			<ConditionEffect duration="1">Quiet</ConditionEffect>
 			<MultiHit />
 		</Projectile>
 		<Projectile id="91">
@@ -2176,6 +2197,7 @@
 			<Size>65</Size>
 			<LifetimeMS>1600</LifetimeMS>
 			<ConditionEffect duration="2">Slowed</ConditionEffect>
+			<ConditionEffect duration="1">Quiet</ConditionEffect>
 		</Projectile>
 		<Projectile id="92">
 			<ObjectId>Necromantic Soul Bolt</ObjectId>
@@ -2183,6 +2205,7 @@
 			<Damage>105</Damage>
 			<Size>140</Size>
 			<LifetimeMS>4200</LifetimeMS>
+			<ConditionEffect duration="1">Quiet</ConditionEffect>
 			<MultiHit />
 		</Projectile>
 		<Projectile id="93">
@@ -2191,6 +2214,7 @@
 			<Damage>49</Damage>
 			<Size>60</Size>
 			<LifetimeMS>1200</LifetimeMS>
+			<ConditionEffect duration="1">Quiet</ConditionEffect>
 		</Projectile>
 	</Object>
 	<Object type="0x8C10" id="Elder Archdemon Malphas Remains">
@@ -2283,6 +2307,7 @@
 			<Damage>128</Damage>
 			<Size>80</Size>
 			<LifetimeMS>2600</LifetimeMS>
+			<ConditionEffect duration="1">Quiet</ConditionEffect>
 			<MultiHit />
 		</Projectile>
 		<Projectile id="91">
@@ -2292,6 +2317,7 @@
 			<Size>65</Size>
 			<LifetimeMS>1600</LifetimeMS>
 			<ConditionEffect duration="2">Slowed</ConditionEffect>
+			<ConditionEffect duration="1">Quiet</ConditionEffect>
 		</Projectile>
 		<Projectile id="92">
 			<ObjectId>Necromantic Soul Bolt</ObjectId>
@@ -2299,6 +2325,7 @@
 			<Damage>166</Damage>
 			<Size>140</Size>
 			<LifetimeMS>4200</LifetimeMS>
+			<ConditionEffect duration="1">Quiet</ConditionEffect>
 			<MultiHit />
 		</Projectile>
 		<Projectile id="93">
@@ -2307,6 +2334,7 @@
 			<Damage>77</Damage>
 			<Size>60</Size>
 			<LifetimeMS>1200</LifetimeMS>
+			<ConditionEffect duration="1">Quiet</ConditionEffect>
 		</Projectile>
 	</Object>
 	<Object type="0x8C12" id="Elder Lord Ruthven Remains">
@@ -2393,6 +2421,7 @@
 			<Damage>117</Damage>
 			<Size>80</Size>
 			<LifetimeMS>2600</LifetimeMS>
+			<ConditionEffect duration="1">Quiet</ConditionEffect>
 			<MultiHit />
 		</Projectile>
 		<Projectile id="91">
@@ -2402,6 +2431,7 @@
 			<Size>65</Size>
 			<LifetimeMS>1600</LifetimeMS>
 			<ConditionEffect duration="2">Slowed</ConditionEffect>
+			<ConditionEffect duration="1">Quiet</ConditionEffect>
 		</Projectile>
 		<Projectile id="92">
 			<ObjectId>Necromantic Soul Bolt</ObjectId>
@@ -2409,6 +2439,7 @@
 			<Damage>152</Damage>
 			<Size>140</Size>
 			<LifetimeMS>4200</LifetimeMS>
+			<ConditionEffect duration="1">Quiet</ConditionEffect>
 			<MultiHit />
 		</Projectile>
 		<Projectile id="93">
@@ -2417,6 +2448,7 @@
 			<Damage>70</Damage>
 			<Size>60</Size>
 			<LifetimeMS>1200</LifetimeMS>
+			<ConditionEffect duration="1">Quiet</ConditionEffect>
 		</Projectile>
 	</Object>
 	<Object type="0x8C14" id="Elder Masked Party God Remains">
@@ -2478,6 +2510,7 @@
 			<Damage>60</Damage>
 			<Size>80</Size>
 			<LifetimeMS>2600</LifetimeMS>
+			<ConditionEffect duration="1">Quiet</ConditionEffect>
 			<MultiHit />
 		</Projectile>
 		<Projectile id="91">
@@ -2487,6 +2520,7 @@
 			<Size>65</Size>
 			<LifetimeMS>1600</LifetimeMS>
 			<ConditionEffect duration="2">Slowed</ConditionEffect>
+			<ConditionEffect duration="1">Quiet</ConditionEffect>
 		</Projectile>
 		<Projectile id="92">
 			<ObjectId>Necromantic Soul Bolt</ObjectId>
@@ -2494,6 +2528,7 @@
 			<Damage>78</Damage>
 			<Size>140</Size>
 			<LifetimeMS>4200</LifetimeMS>
+			<ConditionEffect duration="1">Quiet</ConditionEffect>
 			<MultiHit />
 		</Projectile>
 		<Projectile id="93">
@@ -2502,6 +2537,7 @@
 			<Damage>36</Damage>
 			<Size>60</Size>
 			<LifetimeMS>1200</LifetimeMS>
+			<ConditionEffect duration="1">Quiet</ConditionEffect>
 		</Projectile>
 	</Object>
 	<Object type="0x8C16" id="Elder Davy Jones Remains">
@@ -2603,6 +2639,7 @@
 			<Damage>163</Damage>
 			<Size>80</Size>
 			<LifetimeMS>2600</LifetimeMS>
+			<ConditionEffect duration="1">Quiet</ConditionEffect>
 			<MultiHit />
 		</Projectile>
 		<Projectile id="91">
@@ -2612,6 +2649,7 @@
 			<Size>65</Size>
 			<LifetimeMS>1600</LifetimeMS>
 			<ConditionEffect duration="2">Slowed</ConditionEffect>
+			<ConditionEffect duration="1">Quiet</ConditionEffect>
 		</Projectile>
 		<Projectile id="92">
 			<ObjectId>Necromantic Soul Bolt</ObjectId>
@@ -2619,6 +2657,7 @@
 			<Damage>212</Damage>
 			<Size>140</Size>
 			<LifetimeMS>4200</LifetimeMS>
+			<ConditionEffect duration="1">Quiet</ConditionEffect>
 			<MultiHit />
 		</Projectile>
 		<Projectile id="93">
@@ -2627,6 +2666,7 @@
 			<Damage>98</Damage>
 			<Size>60</Size>
 			<LifetimeMS>1200</LifetimeMS>
+			<ConditionEffect duration="1">Quiet</ConditionEffect>
 		</Projectile>
 	</Object>
 	<Object type="0x8C18" id="Elder NM Green Dragon God Remains">
@@ -2732,6 +2772,7 @@
 			<Damage>140</Damage>
 			<Size>80</Size>
 			<LifetimeMS>2600</LifetimeMS>
+			<ConditionEffect duration="1">Quiet</ConditionEffect>
 			<MultiHit />
 		</Projectile>
 		<Projectile id="91">
@@ -2741,6 +2782,7 @@
 			<Size>65</Size>
 			<LifetimeMS>1600</LifetimeMS>
 			<ConditionEffect duration="2">Slowed</ConditionEffect>
+			<ConditionEffect duration="1">Quiet</ConditionEffect>
 		</Projectile>
 		<Projectile id="92">
 			<ObjectId>Necromantic Soul Bolt</ObjectId>
@@ -2748,6 +2790,7 @@
 			<Damage>182</Damage>
 			<Size>140</Size>
 			<LifetimeMS>4200</LifetimeMS>
+			<ConditionEffect duration="1">Quiet</ConditionEffect>
 			<MultiHit />
 		</Projectile>
 		<Projectile id="93">
@@ -2756,6 +2799,7 @@
 			<Damage>84</Damage>
 			<Size>60</Size>
 			<LifetimeMS>1200</LifetimeMS>
+			<ConditionEffect duration="1">Quiet</ConditionEffect>
 		</Projectile>
 		<Projectile id="100">
 			<ObjectId>Dragon Attack Green Spine</ObjectId>
@@ -2870,6 +2914,7 @@
 			<Damage>111</Damage>
 			<Size>80</Size>
 			<LifetimeMS>2600</LifetimeMS>
+			<ConditionEffect duration="1">Quiet</ConditionEffect>
 			<MultiHit />
 		</Projectile>
 		<Projectile id="91">
@@ -2879,6 +2924,7 @@
 			<Size>65</Size>
 			<LifetimeMS>1600</LifetimeMS>
 			<ConditionEffect duration="2">Slowed</ConditionEffect>
+			<ConditionEffect duration="1">Quiet</ConditionEffect>
 		</Projectile>
 		<Projectile id="92">
 			<ObjectId>Necromantic Soul Bolt</ObjectId>
@@ -2886,6 +2932,7 @@
 			<Damage>144</Damage>
 			<Size>140</Size>
 			<LifetimeMS>4200</LifetimeMS>
+			<ConditionEffect duration="1">Quiet</ConditionEffect>
 			<MultiHit />
 		</Projectile>
 		<Projectile id="93">
@@ -2894,6 +2941,7 @@
 			<Damage>67</Damage>
 			<Size>60</Size>
 			<LifetimeMS>1200</LifetimeMS>
+			<ConditionEffect duration="1">Quiet</ConditionEffect>
 		</Projectile>
 		<Projectile id="100">
 			<ObjectId>Dragon Attack Blue Bullet</ObjectId>
@@ -3044,6 +3092,7 @@
 			<Damage>88</Damage>
 			<Size>80</Size>
 			<LifetimeMS>2600</LifetimeMS>
+			<ConditionEffect duration="1">Quiet</ConditionEffect>
 			<MultiHit />
 		</Projectile>
 		<Projectile id="91">
@@ -3053,6 +3102,7 @@
 			<Size>65</Size>
 			<LifetimeMS>1600</LifetimeMS>
 			<ConditionEffect duration="2">Slowed</ConditionEffect>
+			<ConditionEffect duration="1">Quiet</ConditionEffect>
 		</Projectile>
 		<Projectile id="92">
 			<ObjectId>Necromantic Soul Bolt</ObjectId>
@@ -3060,6 +3110,7 @@
 			<Damage>114</Damage>
 			<Size>140</Size>
 			<LifetimeMS>4200</LifetimeMS>
+			<ConditionEffect duration="1">Quiet</ConditionEffect>
 			<MultiHit />
 		</Projectile>
 		<Projectile id="93">
@@ -3068,6 +3119,7 @@
 			<Damage>53</Damage>
 			<Size>60</Size>
 			<LifetimeMS>1200</LifetimeMS>
+			<ConditionEffect duration="1">Quiet</ConditionEffect>
 		</Projectile>
 		<Projectile id="100">
 			<ObjectId>Red Fire</ObjectId>
@@ -3221,6 +3273,7 @@
 			<Damage>117</Damage>
 			<Size>80</Size>
 			<LifetimeMS>2600</LifetimeMS>
+			<ConditionEffect duration="1">Quiet</ConditionEffect>
 			<MultiHit />
 		</Projectile>
 		<Projectile id="91">
@@ -3230,6 +3283,7 @@
 			<Size>65</Size>
 			<LifetimeMS>1600</LifetimeMS>
 			<ConditionEffect duration="2">Slowed</ConditionEffect>
+			<ConditionEffect duration="1">Quiet</ConditionEffect>
 		</Projectile>
 		<Projectile id="92">
 			<ObjectId>Necromantic Soul Bolt</ObjectId>
@@ -3237,6 +3291,7 @@
 			<Damage>152</Damage>
 			<Size>140</Size>
 			<LifetimeMS>4200</LifetimeMS>
+			<ConditionEffect duration="1">Quiet</ConditionEffect>
 			<MultiHit />
 		</Projectile>
 		<Projectile id="93">
@@ -3245,6 +3300,7 @@
 			<Damage>70</Damage>
 			<Size>60</Size>
 			<LifetimeMS>1200</LifetimeMS>
+			<ConditionEffect duration="1">Quiet</ConditionEffect>
 		</Projectile>
 		<Projectile id="100">
 			<ObjectId>Dragon Attack Black Shot</ObjectId>
@@ -3339,6 +3395,7 @@
 			<Damage>117</Damage>
 			<Size>80</Size>
 			<LifetimeMS>2600</LifetimeMS>
+			<ConditionEffect duration="1">Quiet</ConditionEffect>
 			<MultiHit />
 		</Projectile>
 		<Projectile id="91">
@@ -3348,6 +3405,7 @@
 			<Size>65</Size>
 			<LifetimeMS>1600</LifetimeMS>
 			<ConditionEffect duration="2">Slowed</ConditionEffect>
+			<ConditionEffect duration="1">Quiet</ConditionEffect>
 		</Projectile>
 		<Projectile id="92">
 			<ObjectId>Necromantic Soul Bolt</ObjectId>
@@ -3355,6 +3413,7 @@
 			<Damage>152</Damage>
 			<Size>140</Size>
 			<LifetimeMS>4200</LifetimeMS>
+			<ConditionEffect duration="1">Quiet</ConditionEffect>
 			<MultiHit />
 		</Projectile>
 		<Projectile id="93">
@@ -3363,6 +3422,7 @@
 			<Damage>70</Damage>
 			<Size>60</Size>
 			<LifetimeMS>1200</LifetimeMS>
+			<ConditionEffect duration="1">Quiet</ConditionEffect>
 		</Projectile>
 		<Projectile id="100">
 			<ObjectId>Trident</ObjectId>
@@ -3469,6 +3529,7 @@
 			<Damage>187</Damage>
 			<Size>80</Size>
 			<LifetimeMS>2600</LifetimeMS>
+			<ConditionEffect duration="1">Quiet</ConditionEffect>
 			<MultiHit />
 		</Projectile>
 		<Projectile id="91">
@@ -3478,6 +3539,7 @@
 			<Size>65</Size>
 			<LifetimeMS>1600</LifetimeMS>
 			<ConditionEffect duration="2">Slowed</ConditionEffect>
+			<ConditionEffect duration="1">Quiet</ConditionEffect>
 		</Projectile>
 		<Projectile id="92">
 			<ObjectId>Necromantic Soul Bolt</ObjectId>
@@ -3485,6 +3547,7 @@
 			<Damage>243</Damage>
 			<Size>140</Size>
 			<LifetimeMS>4200</LifetimeMS>
+			<ConditionEffect duration="1">Quiet</ConditionEffect>
 			<MultiHit />
 		</Projectile>
 		<Projectile id="93">
@@ -3493,6 +3556,7 @@
 			<Damage>112</Damage>
 			<Size>60</Size>
 			<LifetimeMS>1200</LifetimeMS>
+			<ConditionEffect duration="1">Quiet</ConditionEffect>
 		</Projectile>
 		<Projectile id="100">
 			<ObjectId>Silver Shield</ObjectId>
@@ -3634,6 +3698,7 @@
 			<Damage>46</Damage>
 			<Size>80</Size>
 			<LifetimeMS>2600</LifetimeMS>
+			<ConditionEffect duration="1">Quiet</ConditionEffect>
 			<MultiHit />
 		</Projectile>
 		<Projectile id="91">
@@ -3643,6 +3708,7 @@
 			<Size>65</Size>
 			<LifetimeMS>1600</LifetimeMS>
 			<ConditionEffect duration="2">Slowed</ConditionEffect>
+			<ConditionEffect duration="1">Quiet</ConditionEffect>
 		</Projectile>
 		<Projectile id="92">
 			<ObjectId>Necromantic Soul Bolt</ObjectId>
@@ -3650,6 +3716,7 @@
 			<Damage>60</Damage>
 			<Size>140</Size>
 			<LifetimeMS>4200</LifetimeMS>
+			<ConditionEffect duration="1">Quiet</ConditionEffect>
 			<MultiHit />
 		</Projectile>
 		<Projectile id="93">
@@ -3658,6 +3725,7 @@
 			<Damage>28</Damage>
 			<Size>60</Size>
 			<LifetimeMS>1200</LifetimeMS>
+			<ConditionEffect duration="1">Quiet</ConditionEffect>
 		</Projectile>
 		<Projectile id="100">
 			<ObjectId>Ice Magic</ObjectId>
@@ -3772,6 +3840,7 @@
 			<Damage>117</Damage>
 			<Size>80</Size>
 			<LifetimeMS>2600</LifetimeMS>
+			<ConditionEffect duration="1">Quiet</ConditionEffect>
 			<MultiHit />
 		</Projectile>
 		<Projectile id="91">
@@ -3781,6 +3850,7 @@
 			<Size>65</Size>
 			<LifetimeMS>1600</LifetimeMS>
 			<ConditionEffect duration="2">Slowed</ConditionEffect>
+			<ConditionEffect duration="1">Quiet</ConditionEffect>
 		</Projectile>
 		<Projectile id="92">
 			<ObjectId>Necromantic Soul Bolt</ObjectId>
@@ -3788,6 +3858,7 @@
 			<Damage>152</Damage>
 			<Size>140</Size>
 			<LifetimeMS>4200</LifetimeMS>
+			<ConditionEffect duration="1">Quiet</ConditionEffect>
 			<MultiHit />
 		</Projectile>
 		<Projectile id="93">
@@ -3796,6 +3867,7 @@
 			<Damage>70</Damage>
 			<Size>60</Size>
 			<LifetimeMS>1200</LifetimeMS>
+			<ConditionEffect duration="1">Quiet</ConditionEffect>
 		</Projectile>
 		<Projectile id="100">
 			<ObjectId>Fireball</ObjectId>
@@ -4142,6 +4214,7 @@
 			<Damage>140</Damage>
 			<Size>80</Size>
 			<LifetimeMS>2600</LifetimeMS>
+			<ConditionEffect duration="1">Quiet</ConditionEffect>
 			<MultiHit />
 		</Projectile>
 		<Projectile id="91">
@@ -4151,6 +4224,7 @@
 			<Size>65</Size>
 			<LifetimeMS>1600</LifetimeMS>
 			<ConditionEffect duration="2">Slowed</ConditionEffect>
+			<ConditionEffect duration="1">Quiet</ConditionEffect>
 		</Projectile>
 		<Projectile id="92">
 			<ObjectId>Necromantic Soul Bolt</ObjectId>
@@ -4158,6 +4232,7 @@
 			<Damage>182</Damage>
 			<Size>140</Size>
 			<LifetimeMS>4200</LifetimeMS>
+			<ConditionEffect duration="1">Quiet</ConditionEffect>
 			<MultiHit />
 		</Projectile>
 		<Projectile id="93">
@@ -4166,6 +4241,7 @@
 			<Damage>84</Damage>
 			<Size>60</Size>
 			<LifetimeMS>1200</LifetimeMS>
+			<ConditionEffect duration="1">Quiet</ConditionEffect>
 		</Projectile>
 		<Projectile id="100">
 			<ObjectId>LOD Green Spine</ObjectId>
@@ -4303,6 +4379,7 @@
 			<Damage>88</Damage>
 			<Size>80</Size>
 			<LifetimeMS>2600</LifetimeMS>
+			<ConditionEffect duration="1">Quiet</ConditionEffect>
 			<MultiHit />
 		</Projectile>
 		<Projectile id="91">
@@ -4312,6 +4389,7 @@
 			<Size>65</Size>
 			<LifetimeMS>1600</LifetimeMS>
 			<ConditionEffect duration="2">Slowed</ConditionEffect>
+			<ConditionEffect duration="1">Quiet</ConditionEffect>
 		</Projectile>
 		<Projectile id="92">
 			<ObjectId>Necromantic Soul Bolt</ObjectId>
@@ -4319,6 +4397,7 @@
 			<Damage>114</Damage>
 			<Size>140</Size>
 			<LifetimeMS>4200</LifetimeMS>
+			<ConditionEffect duration="1">Quiet</ConditionEffect>
 			<MultiHit />
 		</Projectile>
 		<Projectile id="93">
@@ -4327,6 +4406,7 @@
 			<Damage>53</Damage>
 			<Size>60</Size>
 			<LifetimeMS>1200</LifetimeMS>
+			<ConditionEffect duration="1">Quiet</ConditionEffect>
 		</Projectile>
 		<Projectile id="100">
 			<ObjectId>Small White Shuriken</ObjectId>
@@ -4456,6 +4536,7 @@
 			<Damage>117</Damage>
 			<Size>80</Size>
 			<LifetimeMS>2600</LifetimeMS>
+			<ConditionEffect duration="1">Quiet</ConditionEffect>
 			<MultiHit />
 		</Projectile>
 		<Projectile id="91">
@@ -4465,6 +4546,7 @@
 			<Size>65</Size>
 			<LifetimeMS>1600</LifetimeMS>
 			<ConditionEffect duration="2">Slowed</ConditionEffect>
+			<ConditionEffect duration="1">Quiet</ConditionEffect>
 		</Projectile>
 		<Projectile id="92">
 			<ObjectId>Necromantic Soul Bolt</ObjectId>
@@ -4472,6 +4554,7 @@
 			<Damage>152</Damage>
 			<Size>140</Size>
 			<LifetimeMS>4200</LifetimeMS>
+			<ConditionEffect duration="1">Quiet</ConditionEffect>
 			<MultiHit />
 		</Projectile>
 		<Projectile id="93">
@@ -4480,6 +4563,7 @@
 			<Damage>70</Damage>
 			<Size>60</Size>
 			<LifetimeMS>1200</LifetimeMS>
+			<ConditionEffect duration="1">Quiet</ConditionEffect>
 		</Projectile>
 		<Projectile id="100">
 			<ObjectId>Large Blue Shuriken</ObjectId>
@@ -4579,6 +4663,7 @@
 			<Damage>222</Damage>
 			<Size>80</Size>
 			<LifetimeMS>2600</LifetimeMS>
+			<ConditionEffect duration="1">Quiet</ConditionEffect>
 			<MultiHit />
 		</Projectile>
 		<Projectile id="91">
@@ -4588,6 +4673,7 @@
 			<Size>65</Size>
 			<LifetimeMS>1600</LifetimeMS>
 			<ConditionEffect duration="2">Slowed</ConditionEffect>
+			<ConditionEffect duration="1">Quiet</ConditionEffect>
 		</Projectile>
 		<Projectile id="92">
 			<ObjectId>Necromantic Soul Bolt</ObjectId>
@@ -4595,6 +4681,7 @@
 			<Damage>289</Damage>
 			<Size>140</Size>
 			<LifetimeMS>4200</LifetimeMS>
+			<ConditionEffect duration="1">Quiet</ConditionEffect>
 			<MultiHit />
 		</Projectile>
 		<Projectile id="93">
@@ -4603,6 +4690,7 @@
 			<Damage>133</Damage>
 			<Size>60</Size>
 			<LifetimeMS>1200</LifetimeMS>
+			<ConditionEffect duration="1">Quiet</ConditionEffect>
 		</Projectile>
 		<Projectile id="100">
 			<ObjectId>White Bullet</ObjectId>
@@ -5087,6 +5175,7 @@
 			<Damage>198</Damage>
 			<Size>80</Size>
 			<LifetimeMS>2600</LifetimeMS>
+			<ConditionEffect duration="1">Quiet</ConditionEffect>
 			<MultiHit />
 		</Projectile>
 		<Projectile id="91">
@@ -5096,6 +5185,7 @@
 			<Size>65</Size>
 			<LifetimeMS>1600</LifetimeMS>
 			<ConditionEffect duration="2">Slowed</ConditionEffect>
+			<ConditionEffect duration="1">Quiet</ConditionEffect>
 		</Projectile>
 		<Projectile id="92">
 			<ObjectId>Necromantic Soul Bolt</ObjectId>
@@ -5103,6 +5193,7 @@
 			<Damage>257</Damage>
 			<Size>140</Size>
 			<LifetimeMS>4200</LifetimeMS>
+			<ConditionEffect duration="1">Quiet</ConditionEffect>
 			<MultiHit />
 		</Projectile>
 		<Projectile id="93">
@@ -5111,6 +5202,7 @@
 			<Damage>119</Damage>
 			<Size>60</Size>
 			<LifetimeMS>1200</LifetimeMS>
+			<ConditionEffect duration="1">Quiet</ConditionEffect>
 		</Projectile>
 		<Projectile id="100">
 			<ObjectId>Colossal Rock</ObjectId>
@@ -5342,6 +5434,7 @@
 			<Damage>175</Damage>
 			<Size>80</Size>
 			<LifetimeMS>2600</LifetimeMS>
+			<ConditionEffect duration="1">Quiet</ConditionEffect>
 			<MultiHit />
 		</Projectile>
 		<Projectile id="91">
@@ -5351,6 +5444,7 @@
 			<Size>65</Size>
 			<LifetimeMS>1600</LifetimeMS>
 			<ConditionEffect duration="2">Slowed</ConditionEffect>
+			<ConditionEffect duration="1">Quiet</ConditionEffect>
 		</Projectile>
 		<Projectile id="92">
 			<ObjectId>Necromantic Soul Bolt</ObjectId>
@@ -5358,6 +5452,7 @@
 			<Damage>228</Damage>
 			<Size>140</Size>
 			<LifetimeMS>4200</LifetimeMS>
+			<ConditionEffect duration="1">Quiet</ConditionEffect>
 			<MultiHit />
 		</Projectile>
 		<Projectile id="93">
@@ -5366,6 +5461,7 @@
 			<Damage>105</Damage>
 			<Size>60</Size>
 			<LifetimeMS>1200</LifetimeMS>
+			<ConditionEffect duration="1">Quiet</ConditionEffect>
 		</Projectile>
 		<Projectile id="100">
 			<ObjectId>Cultist Lightning Shot</ObjectId>
@@ -5834,6 +5930,7 @@
 			<Damage>234</Damage>
 			<Size>80</Size>
 			<LifetimeMS>2600</LifetimeMS>
+			<ConditionEffect duration="1">Quiet</ConditionEffect>
 			<MultiHit />
 		</Projectile>
 		<Projectile id="91">
@@ -5843,6 +5940,7 @@
 			<Size>65</Size>
 			<LifetimeMS>1600</LifetimeMS>
 			<ConditionEffect duration="2">Slowed</ConditionEffect>
+			<ConditionEffect duration="1">Quiet</ConditionEffect>
 		</Projectile>
 		<Projectile id="92">
 			<ObjectId>Necromantic Soul Bolt</ObjectId>
@@ -5850,6 +5948,7 @@
 			<Damage>304</Damage>
 			<Size>140</Size>
 			<LifetimeMS>4200</LifetimeMS>
+			<ConditionEffect duration="1">Quiet</ConditionEffect>
 			<MultiHit />
 		</Projectile>
 		<Projectile id="93">
@@ -5858,6 +5957,7 @@
 			<Damage>140</Damage>
 			<Size>60</Size>
 			<LifetimeMS>1200</LifetimeMS>
+			<ConditionEffect duration="1">Quiet</ConditionEffect>
 		</Projectile>
 		<Projectile id="100">
 			<ObjectId>Void Bullet</ObjectId>

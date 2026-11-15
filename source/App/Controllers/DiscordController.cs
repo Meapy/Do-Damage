@@ -117,6 +117,24 @@ namespace App.Controllers
             Response.CreateXml(new XElement("Unlinked", new XElement("Ids", string.Join(",", ids))).ToString());
         }
 
+        /// <summary>
+        /// New Marketplace listings for #marketplace (market.feed, written by the world servers):
+        /// those after the listing id `after`, oldest first, as JSON in Listings, and the newest id
+        /// there is in Last. A bot starting afresh asks with after -1, for Last only, and begins
+        /// from there rather than posting old listings.
+        /// </summary>
+        [HttpPost("market")]
+        public void Market([FromForm] string secret, [FromForm] string discordId, [FromForm] int after)
+        {
+            if (!FromBot(secret, ref discordId))
+                return;
+            var store = new Shared.database.market.MarketStore(_core.Database.Conn);
+            var listings = after < 0 ? new System.Collections.Generic.List<Shared.database.market.MarketFeedEntry>() : store.FeedAfter(after);
+            Response.CreateXml(new XElement("Market",
+                new XElement("Last", listings.Count > 0 ? listings[^1].Id : System.Math.Max(after, store.FeedNewest())),
+                new XElement("Listings", Newtonsoft.Json.JsonConvert.SerializeObject(listings))).ToString());
+        }
+
         [HttpPost("account")]
         public void AccountOf([FromForm] string secret, [FromForm] string discordId)
         {

@@ -1,4 +1,5 @@
 ﻿using WorldServer.core.objects;
+using WorldServer.core.resurrection;
 using WorldServer.core.worlds;
 using WorldServer.logic;
 using WorldServer.utils;
@@ -21,7 +22,8 @@ namespace WorldServer.logic.transitions
 
         protected override bool TickCore(Entity host, TickTime time, ref object state)
         {
-            return host.GetNearestEntity(_dist, null, _seeInvis) != null;
+            // an Empowered boss's fight sees cloaked players: it can't be held back by hiding
+            return host.GetNearestEntity(_dist, null, _seeInvis, BossResurrection.InEmpoweredFight(host)) != null;
         }
     }
 }

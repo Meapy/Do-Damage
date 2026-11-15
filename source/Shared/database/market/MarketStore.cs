@@ -23,6 +23,8 @@ namespace Shared.database.market
     //   market.history.<acc>      list of MarketHistoryEntry JSON, newest first, the last 50
     //   market.news.<acc>         list of MarketHistoryEntry JSON the account hasn't been told
     //                             about yet (sales and expiries while it was away)
+    //   market.feed               list of MarketFeedEntry JSON, newest first, the last 100: new
+    //                             listings, for the Discord bot's #marketplace (DiscordController)
     //
     // A listing from the inventory writes the character's items in the same script, on the
     // condition that this world server still holds the account's lock: the item is never both
@@ -33,6 +35,8 @@ namespace Shared.database.market
         public const string MarketKey = "market";
         public const string VersionKey = "market.version";
         public const int HistoryLength = 50;
+        public const string FeedKey = "market.feed";
+        public const int FeedLength = 100;
 
         public static string SellerKey(int accountId) => "market.seller." + accountId;
         public static string BoxKey(int accountId) => "market.box." + accountId;
@@ -443,6 +447,26 @@ return all
             return r.Select(v => Parse<MarketHistoryEntry>((string)v)).Where(e => e != null).ToList();
         }
 
+        // A new listing, for the Discord bot (best effort: a listing that isn't in the feed is
+        // still listed).
+        public void RecordListed(MarketFeedEntry entry)
+        {
+            try
+            {
+                _db.ListLeftPush(FeedKey, JsonConvert.SerializeObject(entry), flags: CommandFlags.FireAndForget);
+                _db.ListTrim(FeedKey, 0, FeedLength - 1, CommandFlags.FireAndForget);
+            }
+            catch (RedisException) { }
+        }
+
+        // The feed's listings newer than `after` (a listing id), oldest first.
+        public List<MarketFeedEntry> FeedAfter(int after) =>
+            _db.ListRange(FeedKey).Select(v => Parse<MarketFeedEntry>(v)).Where(e => e != null && e.Id > after)
+                .OrderBy(e => e.Id).ToList();
+
+        // The newest listing id in the feed, 0 when it's empty.
+        public int FeedNewest() => Parse<MarketFeedEntry>(_db.ListGetByIndex(FeedKey, 0))?.Id ?? 0;
+
         public long ListingCount(int accountId) => _db.SetLength(SellerKey(accountId));
 
         // Buys the account's next listing slot for `price` fame, if it has bought `have` so far
@@ -491,6 +515,17 @@ return all
         [JsonProperty("itemData")] public string ItemData;
         // bought, cancelled or expired
         [JsonProperty("why")] public string Why;
+        [JsonProperty("time")] public int Time;
+    }
+
+    // A new listing as the Discord bot posts it (market.feed).
+    public sealed class MarketFeedEntry
+    {
+        [JsonProperty("id")] public int Id;
+        [JsonProperty("item")] public string Item;
+        [JsonProperty("price")] public int Price;
+        [JsonProperty("seller")] public string Seller;
+        [JsonProperty("hours")] public int Hours;
         [JsonProperty("time")] public int Time;
     }
 

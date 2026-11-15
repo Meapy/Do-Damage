@@ -18,6 +18,11 @@ What it does:
   current version, or DISCORD_POSTED_UP_TO when that's set. Test publishes (--publish-to, the isolated stacks) write elsewhere and never
   reach that file, and without BSK_RELEASES it posts nothing.
 - A message in #server-status that it keeps up to date (players, 24-hour peak, uptime).
+- #marketplace: every new Marketplace listing (who, what, for how much), as the game's chat says
+  it too. Every 30 seconds it asks the account server for the listings after the last it posted
+  (DiscordController, discord/market; the world servers keep the last 100 in Redis, market.feed).
+  On its first start it only notes the newest, so old listings aren't posted. The channel is
+  DISCORD_MARKET_CHANNEL, or else the server's channel named marketplace (setup_server.py makes it).
 - Slash commands: /status, /online, /wiki <term>, /play, and /updates (the Updates role on or off).
 - Linked game accounts: /link <code> (the code from the game's main menu, Link Discord), then
   /account, /resetpassword (a new password, shown to that member only) and /unlink. All answered
@@ -34,6 +39,8 @@ Settings (KEY=value lines in the --env file, or the environment):
     DISCORD_GUILD_ID         the Do Damage server's id
     DISCORD_UPDATES_CHANNEL  #updates' id (release posts); empty: none
     DISCORD_STATUS_CHANNEL   #server-status' id (the live status message); empty: none
+    DISCORD_MARKET_CHANNEL   #marketplace's id (new listings); empty: the channel named marketplace,
+                             if there is one
     DISCORD_UPDATES_ROLE     the Updates role's id (pinged on releases, and /updates); empty: none
     DISCORD_VERIFIED_ROLE    the Verified role's id (members with a linked game account); empty: none,
                              and nicknames are left alone
@@ -57,6 +64,7 @@ import dodmg
 RELEASE_CHECK = 60
 UNLINK_CHECK = 60
 STATUS_REFRESH = 120
+MARKET_CHECK = 30
 
 
 def settings(path):
@@ -70,6 +78,7 @@ def settings(path):
         "guild": num("DISCORD_GUILD_ID"),
         "updates": num("DISCORD_UPDATES_CHANNEL"),
         "status": num("DISCORD_STATUS_CHANNEL"),
+        "market": num("DISCORD_MARKET_CHANNEL"),
         "role": num("DISCORD_UPDATES_ROLE"),
         "verified": num("DISCORD_VERIFIED_ROLE"),
         "site": (env.get("BSK_SITE") or dodmg.SITE).rstrip("/"),
@@ -146,6 +155,11 @@ def dry_run(cfg, version):
     print(json.dumps(dodmg.status_embed(status, cfg["site"]), indent=1, ensure_ascii=False))
     print("=== /online ===")
     print(json.dumps(dodmg.online_embed(status, cfg["site"]), indent=1, ensure_ascii=False))
+    print("=== #marketplace (made-up listings) ===")
+    made_up = [{"id": 1, "item": "Doom Bow", "price": 25000, "seller": "Tester", "hours": 72, "time": 1763164800},
+               {"id": 2, "item": "Potion of Life", "price": 900, "seller": "Some_one", "hours": 24, "time": 1763164830}]
+    for msg in dodmg.market_messages(made_up[:1]) + dodmg.market_messages(made_up):
+        print(json.dumps(msg, indent=1, ensure_ascii=False))
     print("=== /link (no code) ===")
     print(dodmg.LINK_HOW)
     print("=== /link, /account, /resetpassword (made-up answers) ===")
@@ -407,6 +421,43 @@ def run(cfg):
                 print("status message: %r" % e, flush=True)
             await asyncio.sleep(STATUS_REFRESH)
 
+    async def market_channel():
+        if cfg["market"]:
+            return client.get_channel(cfg["market"]) or await client.fetch_channel(cfg["market"])
+        server = client.get_guild(cfg["guild"]) if cfg["guild"] else None
+        return next((c for c in (server.text_channels if server else [])
+                     if "".join(ch for ch in c.name.lower() if ch.isalnum()) == "marketplace"), None)
+
+    async def market_loop():
+        """New Marketplace listings into #marketplace, each once (state: market_after, the last
+        listing id posted)."""
+        channel = None
+        while True:
+            try:
+                channel = channel or await market_channel()
+                after = state.data.get("market_after")
+                answer, error = await asyncio.to_thread(accounts, "market", 0, after=-1 if after is None else after)
+                if error:
+                    if error != "unreachable":
+                        print("market: %s" % error, flush=True)
+                else:
+                    listings, last = dodmg.market_listings(answer)
+                    if after is None:
+                        print("market: first start, listings up to %d count as posted" % last, flush=True)
+                    elif channel is None:
+                        listings = []  # no channel: nothing to post, but don't pile them up
+                    for msg in dodmg.market_messages(listings, site):
+                        await channel.send(embed=discord.Embed.from_dict(msg["embeds"][0]),
+                                           allowed_mentions=discord.AllowedMentions.none())
+                    if listings:
+                        print("market: posted %d listing(s)" % len(listings), flush=True)
+                    if last != after:
+                        state.data["market_after"] = last
+                        state.save()
+            except Exception as e:
+                print("market: %r" % e, flush=True)
+            await asyncio.sleep(MARKET_CHECK)
+
     started = {"done": False}
 
     @client.event
@@ -422,6 +473,8 @@ def run(cfg):
             asyncio.create_task(status_loop())
         if cfg["verified"] and cfg["guild"] and cfg["link_secret"]:
             asyncio.create_task(unlinked_loop())
+        if (cfg["market"] or cfg["guild"]) and cfg["link_secret"]:
+            asyncio.create_task(market_loop())
 
     client.run(cfg["token"], log_handler=None)
 

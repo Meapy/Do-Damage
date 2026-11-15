@@ -178,8 +178,8 @@ namespace WorldServer.core.resurrection
                 BossResurrection.Say(boss, DisplayName(boss), Pick(RageLines), true);
             }
 
-            // only with someone to fight
-            if (boss.GetNearestEntity(20, true) == null)
+            // only with someone to fight (cloaked or not: hiding held every phase back)
+            if (boss.GetNearestEntity(20, null, false, ignoreInvisible: true) == null)
                 return;
 
             dt = (int)(dt * _haste);

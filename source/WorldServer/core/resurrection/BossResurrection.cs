@@ -183,8 +183,31 @@ namespace WorldServer.core.resurrection
             boss.Move(pos.X, pos.Y);
             boss.Z = z;
             world.EnterWorld(boss);
+            world.EmpoweredBosses.RemoveAll(b => b.Dead || b.World != world && b.World != null);
+            world.EmpoweredBosses.Add(boss);
             boss.Empowered.Risen(boss, raiser);
             return boss;
+        }
+
+        /// <summary>The fight around an Empowered boss: within this many tiles of one still fighting.</summary>
+        public const float FightRange = 40;
+
+        /// <summary>
+        /// Whether <paramref name="host"/> (the boss, or a monster of its fight) is near an Empowered
+        /// boss still fighting. There, invisibility doesn't hide players from the checks that move
+        /// the fight on (a player within range, none left, the phases' "someone to fight"), so a
+        /// cloaked player can't hold a phase back or sit through one untouched; it still hides them
+        /// from aimed shots.
+        /// </summary>
+        public static bool InEmpoweredFight(Entity host)
+        {
+            var world = host?.World;
+            if (world == null || world.EmpoweredBosses.Count == 0)
+                return false;
+            foreach (var b in world.EmpoweredBosses)
+                if (!b.Dead && b.World == world && b.SqDistTo(host) < FightRange * FightRange)
+                    return true;
+            return false;
         }
 
         /// <summary>The bosses that can be raised whose id or name holds <paramref name="text"/> (/empower).</summary>

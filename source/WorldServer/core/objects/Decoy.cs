@@ -34,7 +34,7 @@ namespace WorldServer.core.objects
             _direction = new Vector2(MathF.Cos(angle), MathF.Sin(angle));
         }
 
-        public bool IsVisibleToEnemy() => true;
+        public bool IsVisibleToEnemy(bool ignoreInvisible = false) => true;
         public void Damage(int dmg, Entity src) { }
 
         public bool CheckDistance(Position pos)

@@ -16,7 +16,7 @@ namespace WorldServer.core.objects
 
         public void Damage(int dmg, Entity src) { }
 
-        public bool IsVisibleToEnemy() => false;
+        public bool IsVisibleToEnemy(bool ignoreInvisible = false) => false;
 
         protected override void ExportStats(IDictionary<StatDataType, object> stats, bool isOtherPlayer)
         {

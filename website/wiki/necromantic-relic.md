@@ -58,7 +58,8 @@ An Empowered boss is the same boss, and it fights as it always did, but stronger
   is already crowded, only 15% harder and a tenth faster);
 - for its first moments it is rising and can't be hurt.
 
-The souls fight for it too:
+The souls fight for it too. Every soul shot the boss fires (the bolts, fast bolts, orbs and shards
+of its Soul Nova and its phases) leaves you **Quiet** for a second: no mana while it lasts.
 
 - **Soul Nova:** a ring of eighteen soul bolts, then a second ring a moment later, every 7 seconds
   (held back while one of its phase attacks plays).
@@ -94,6 +95,10 @@ Pyyr's meteor shower and fire breath, the Ivory Wyvern's prismatic breath and Th
 and whirlpools among them. Each boss's card below names them. Marks on the ground always fill
 before they strike: step out before they're full. No mark hits a full-health player hard enough
 to kill them outright, even a Wizard with no defense.
+
+Going invisible (the Rogue's cloak) doesn't hold a phase back or let you sit one out: the boss
+and the monsters of its fight still know you're there, and its phases go on. Its aimed shots
+still lose you while you're cloaked.
 
 ## What it drops
 
