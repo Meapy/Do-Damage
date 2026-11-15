@@ -12,6 +12,15 @@ Keep each version short: changes go under `### ` group headings (Oryx 5, Arena, 
 on), one line per change players notice, summed up rather than item by item (the wiki has the
 details). Add to a group's line when a change adds to it, rather than adding another line.
 
+## Unreleased
+
+### Dungeons
+- Empowered bosses can no longer be held back by going invisible (the Rogue's cloak): their phases
+  go on, and the checks that move each fight along (the Forgotten King punishing whoever stands
+  close in his last stand, among them) still find you. Their aimed shots still lose you while
+  you're cloaked. Every soul shot an Empowered boss fires (its Soul Nova and its phases' bolts,
+  orbs and shards) now leaves you Quiet for a second.
+
 ## 2.5.10 (2026-11-15)
 
 ### Nexus

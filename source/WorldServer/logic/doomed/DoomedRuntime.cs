@@ -6,6 +6,7 @@ using System.Runtime.CompilerServices;
 using Shared.resources;
 using WorldServer.core.net.datas;
 using WorldServer.core.objects;
+using WorldServer.core.resurrection;
 using WorldServer.core.structures;
 using WorldServer.core.worlds;
 using WorldServer.core.worlds.impl.doomed;
@@ -221,9 +222,12 @@ namespace WorldServer.logic.doomed
         public static double Dist(double x1, double y1, double x2, double y2) => Math.Sqrt((x1 - x2) * (x1 - x2) + (y1 - y2) * (y1 - y2));
 
         public const int MAGIC_EYE_KEY = -11;
-        private bool VisibleToEnemy(Entity e) => !(e is IPlayer p) || p.IsVisibleToEnemy() || Host.StateStorage.ContainsKey(MAGIC_EYE_KEY);
+        private bool VisibleToEnemy(Entity e, bool gate = false) => !(e is IPlayer p)
+            || p.IsVisibleToEnemy(gate && BossResurrection.InEmpoweredFight(Host.Self)) || Host.StateStorage.ContainsKey(MAGIC_EYE_KEY);
 
-        protected Entity GetNearestEntity(ref float dist, ushort? objType)
+        // gate: a check that moves the fight on (IsEntityPresent and the like) rather than an aim:
+        // in an Empowered boss's fight it sees cloaked players, so hiding can't hold a phase back
+        protected Entity GetNearestEntity(ref float dist, ushort? objType, bool gate = false)
         {
             var self = Host.Self;
             if (self.World == null) return null;
@@ -232,7 +236,7 @@ namespace WorldServer.logic.doomed
             {
                 foreach (var i in self.World.PlayersCollision.HitTest(self.X, self.Y, dist))
                 {
-                    if (!(i is Player) || !VisibleToEnemy(i)) continue;
+                    if (!(i is Player) || !VisibleToEnemy(i, gate)) continue;
                     var d = Dist(i, self);
                     if (d < dist) { dist = d; ret = i; }
                 }
@@ -249,14 +253,14 @@ namespace WorldServer.logic.doomed
             return ret;
         }
 
-        protected IEnumerable<Entity> GetNearestEntities(float dist, ushort? objType)
+        protected IEnumerable<Entity> GetNearestEntities(float dist, ushort? objType, bool gate = false)
         {
             var self = Host.Self;
             if (self.World == null) yield break;
             if (objType == null)
             {
                 foreach (var i in self.World.PlayersCollision.HitTest(self.X, self.Y, dist).ToArray())
-                    if (i is Player && VisibleToEnemy(i) && Dist(i, self) < dist)
+                    if (i is Player && VisibleToEnemy(i, gate) && Dist(i, self) < dist)
                         yield return i;
             }
             else
@@ -288,7 +292,7 @@ namespace WorldServer.logic.doomed
             return ret;
         }
 
-        protected int CountEntity(float dist, ushort? objType) => GetNearestEntities(dist, objType).Count();
+        protected int CountEntity(float dist, ushort? objType, bool gate = false) => GetNearestEntities(dist, objType, gate).Count();
         protected int CountEntity(float dist, string group) => GetNearestEntitiesByGroup(dist, group).Count();
 
         protected static float GetSpeedMultiplier(Entity entity)
@@ -790,7 +794,7 @@ namespace WorldServer.logic.doomed
         private readonly ushort? objType;
         private IsEntityPresent(float radius, ushort? objType) { this.radius = radius; this.objType = objType; }
         public static IsEntityPresent Instance(float radius, ushort? objType) => Cached(Tuple.Create(radius, objType), () => new IsEntityPresent(radius, objType));
-        protected override bool TickCore(TickTime time) { var d = radius; return GetNearestEntity(ref d, objType) != null; }
+        protected override bool TickCore(TickTime time) { var d = radius; return GetNearestEntity(ref d, objType, gate: true) != null; }
     }
 
     internal class IsEntityNotPresent : Behavior
@@ -799,7 +803,7 @@ namespace WorldServer.logic.doomed
         private readonly ushort? objType;
         private IsEntityNotPresent(float radius, ushort? objType) { this.radius = radius; this.objType = objType; }
         public static IsEntityNotPresent Instance(float radius, ushort? objType) => Cached(Tuple.Create(radius, objType), () => new IsEntityNotPresent(radius, objType));
-        protected override bool TickCore(TickTime time) { var d = radius; return GetNearestEntity(ref d, objType) == null; }
+        protected override bool TickCore(TickTime time) { var d = radius; return GetNearestEntity(ref d, objType, gate: true) == null; }
     }
 
     internal class EntityLesserThan : Behavior
@@ -809,7 +813,7 @@ namespace WorldServer.logic.doomed
         private readonly ushort? objType;
         private EntityLesserThan(float radius, int count, ushort? objType) { this.radius = radius; this.count = count; this.objType = objType; }
         public static EntityLesserThan Instance(float radius, int count, ushort? objType) => Cached(Tuple.Create(radius, count, objType), () => new EntityLesserThan(radius, count, objType));
-        protected override bool TickCore(TickTime time) => CountEntity(radius, objType) < count;
+        protected override bool TickCore(TickTime time) => CountEntity(radius, objType, gate: true) < count;
     }
 
     internal class EntityGroupLesserThan : Behavior

@@ -81,6 +81,20 @@ namespace Tests
                 Assert.InRange(Arena.BlastDamage(soul, 2.2) * worst, 0, 520);
         }
 
+        // every soul shot (the bolt, the fast bolt, the orb and the shard) silences for a second
+        [Fact]
+        public void EverySoulShotSilences()
+        {
+            var data = Res.Value.GameData;
+            foreach (var boss in Bosses())
+            {
+                var desc = data.ObjectDescs[data.IdToObjectType["Empowered " + boss]];
+                foreach (var id in new[] { Arena.Bolt, Arena.FastBolt, Arena.Orb, Arena.Shard })
+                    Assert.Contains(desc.Projectiles[id].Effects,
+                        e => e.Effect == ConditionEffectIndex.Quiet && e.DurationMS == 1000);
+            }
+        }
+
         // Last Breath's rings of marks leave at least a tile between their marks to step through
         [Fact]
         public void LastBreathLeavesAWayThrough()

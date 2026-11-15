@@ -8,7 +8,7 @@ namespace WorldServer.core.objects
     {
         private int _newbiePeriod;
 
-        public bool IsVisibleToEnemy()
+        public bool IsVisibleToEnemy(bool ignoreInvisible = false)
         {
             if (_newbiePeriod > 0)
                 return false;
@@ -16,7 +16,7 @@ namespace WorldServer.core.objects
             if (HasConditionEffect(ConditionEffectIndex.Paused))
                 return false;
 
-            if (HasConditionEffect(ConditionEffectIndex.Invisible))
+            if (!ignoreInvisible && HasConditionEffect(ConditionEffectIndex.Invisible))
                 return false;
 
             if (IsHidden)

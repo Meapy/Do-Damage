@@ -67,6 +67,8 @@ RITUAL_SOUL = "Necromantic Ritual Soul"
 WAILING_SOUL = "Wailing Soul"
 # the projectile id the Empowered forms fire their soul bolts with (BossResurrection.SoulBolt)
 SOUL_BOLT_ID = 90
+# every soul shot (the bolt, the fast bolt, the orb and the shard) silences for this many seconds
+SOUL_QUIET = 1
 # the first id of an Empowered form's signature shots (EmpoweredSignatures.cs, SignatureShot)
 SIGNATURE_SHOT_ID = 100
 # the raid bosses' and the Trench's signature shots: (the shot's art, speed, damage as a share of
@@ -705,6 +707,7 @@ def build(objects, types):
         el(p, "Damage", dmg)
         el(p, "Size", 80)
         el(p, "LifetimeMS", 2600)
+        el(p, "ConditionEffect", "Quiet", duration=SOUL_QUIET)
         el(p, "MultiHit")
         p = el(emp, "Projectile", id=SOUL_BOLT_ID + 1)
         el(p, "ObjectId", SOUL_BOLT)
@@ -713,9 +716,11 @@ def build(objects, types):
         el(p, "Size", 65)
         el(p, "LifetimeMS", 1600)
         el(p, "ConditionEffect", "Slowed", duration=2)
+        el(p, "ConditionEffect", "Quiet", duration=SOUL_QUIET)
         # the phases' shots (core/resurrection/EmpoweredPhases.cs): a heavy, slow soul orb, a fast
         # soul shard, and the boss's own signature shots from SIGNATURE_SHOT_ID on
-        shots = [(SOUL_BOLT, 28, 1.3, 140, 4200, (), True), (SOUL_BOLT, 110, 0.6, 60, 1200, (), False)]
+        quiet = (("Quiet", SOUL_QUIET),)
+        shots = [(SOUL_BOLT, 28, 1.3, 140, 4200, quiet, True), (SOUL_BOLT, 110, 0.6, 60, 1200, quiet, False)]
         for i, (obj, speed, factor, psize, life, effects, multi) in enumerate(shots):
             add_shot(emp, SOUL_BOLT_ID + 2 + i, obj, speed, round(dmg * factor), psize, life, effects, multi)
         for i, (obj, speed, factor, psize, life, effects) in enumerate(SIGNATURE_SHOTS.get(boss_id, ())):

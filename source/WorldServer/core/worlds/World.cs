@@ -72,6 +72,8 @@ namespace WorldServer.core.worlds
         public Dictionary<int, Portal> Portals { get; private set; } = new Dictionary<int, Portal>();
         public Dictionary<int, Pet> Pets { get; private set; } = new Dictionary<int, Pet>();
         public Dictionary<int, SellableObject> SellableObjects { get; private set; } = new Dictionary<int, SellableObject>();
+        // the Empowered bosses raised here (core/resurrection), alive or not: see InEmpoweredFight
+        public readonly List<Enemy> EmpoweredBosses = new List<Enemy>();
 
         private readonly List<Entity> EntitiesToAdd = new List<Entity>();
         // the map's objects between loading and the first tick, for a world's Init to adjust

@@ -21,7 +21,9 @@ namespace WorldServer.core.objects
     internal interface IPlayer
     {
         void Damage(int dmg, Entity src);
-        bool IsVisibleToEnemy();
+        // ignoreInvisible: seen through the Invisible effect (the checks of an Empowered boss's
+        // fight, resurrection.BossResurrection.InEmpoweredFight), though not when hidden or paused
+        bool IsVisibleToEnemy(bool ignoreInvisible = false);
     }
 
     public partial class Player : Character, IContainer, IPlayer

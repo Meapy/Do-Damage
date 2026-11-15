@@ -369,7 +369,8 @@ namespace WorldServer.utils
                 }
         }
 
-        public static Entity GetNearestEntity(this Entity entity, double dist, ushort? objType, bool seeInvis = false)   //Null for entity
+        // ignoreInvisible: players under the Invisible effect count (still not hidden or paused ones)
+        public static Entity GetNearestEntity(this Entity entity, double dist, ushort? objType, bool seeInvis = false, bool ignoreInvisible = false)   //Null for entity
         {
             // the nearest of GetNearestEntities (the same filters), in one pass with nothing allocated:
             // monsters' AI asks this every tick, and its iterator was a fifth of all allocations
@@ -383,7 +384,7 @@ namespace WorldServer.utils
                 switch (objType)
                 {
                     case null:
-                        if (!(e is IPlayer p) || !seeInvis && !p.IsVisibleToEnemy()) // pets share the map
+                        if (!(e is IPlayer p) || !seeInvis && !p.IsVisibleToEnemy(ignoreInvisible)) // pets share the map
                             continue;
                         break;
                     case 0:
