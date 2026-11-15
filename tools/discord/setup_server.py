@@ -12,7 +12,7 @@ message; what's already right is left alone.
 An existing channel with the same name (emoji and separators aside, so "📢┃updates" is updates) is
 moved into its category and given the layout's permissions, keeping its messages and any other
 permissions it has. --apply writes the ids the bot needs (DISCORD_GUILD_ID, DISCORD_UPDATES_CHANNEL,
-DISCORD_STATUS_CHANNEL, DISCORD_UPDATES_ROLE, DISCORD_VERIFIED_ROLE, and DISCORD_POSTED_UP_TO: the
+DISCORD_STATUS_CHANNEL, DISCORD_MARKET_CHANNEL, DISCORD_UPDATES_ROLE, DISCORD_VERIFIED_ROLE, and DISCORD_POSTED_UP_TO: the
 newest release in the changelog, already announced) into the --env file, beside the token.
 """
 import argparse
@@ -65,6 +65,7 @@ LAYOUT = [
         ("announcements", TEXT, "News from the staff.", True, None),
         ("updates", TEXT, "Every game update, posted by the bot when it's out. /updates to get pinged.", True, None),
         ("server-status", TEXT, "Is the game up? Players online, kept up to date by the bot.", True, None),
+        ("marketplace", TEXT, "Every new Marketplace listing and its price, posted by the bot as it's listed in game.", True, None),
     ]),
     ("GETTING STARTED", [
         ("getting-started", TEXT, "How to start playing: browser or download, your account, /gear, the wiki.", True, "getting-started.md"),
@@ -276,6 +277,7 @@ def main():
         print("arranged the categories and channels in order")
         write_env(args.env, {"DISCORD_GUILD_ID": g, "DISCORD_UPDATES_CHANNEL": ids["updates"],
                              "DISCORD_STATUS_CHANNEL": ids["server-status"],
+                             "DISCORD_MARKET_CHANNEL": ids["marketplace"],
                              "DISCORD_UPDATES_ROLE": role_ids["Updates"],
                              "DISCORD_VERIFIED_ROLE": role_ids["Verified"],
                              "DISCORD_POSTED_UP_TO": dodmg.releases_from_changelog()[0][0]})

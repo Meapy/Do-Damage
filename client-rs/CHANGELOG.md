@@ -14,6 +14,10 @@ details). Add to a group's line when a change adds to it, rather than adding ano
 
 ## Unreleased
 
+### Marketplace
+- Every new listing is announced: a Marketplace line in chat tells everyone in the game who
+  listed what and for how much, and the Discord server's new #marketplace channel posts the same.
+
 ### Dungeons
 - Empowered bosses can no longer be held back by going invisible (the Rogue's cloak): their phases
   go on, and the checks that move each fight along (the Forgotten King punishing whoever stands

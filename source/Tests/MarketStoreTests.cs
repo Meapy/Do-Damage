@@ -126,6 +126,22 @@ namespace Tests
         }
 
         [Fact]
+        public void TheFeedKeepsTheNewestListingsForTheDiscordBot()
+        {
+            Assert.Equal(0, _store.FeedNewest());
+            for (var id = 1; id <= MarketStore.FeedLength + 5; id++)
+                _store.RecordListed(new MarketFeedEntry { Id = id, Item = "Sword", Price = id * 10, Seller = "Seller", Hours = 24, Time = Now });
+
+            Assert.Equal(MarketStore.FeedLength + 5, _store.FeedNewest());
+            Assert.Equal(MarketStore.FeedLength, _db.ListLength(MarketStore.FeedKey));
+            var after = _store.FeedAfter(MarketStore.FeedLength + 2);
+            Assert.Equal(new[] { 103, 104, 105 }, after.Select(e => e.Id));
+            Assert.Equal(1040, after[1].Price);
+            Assert.Equal(6, _store.FeedAfter(0).First().Id);  // the oldest ones are trimmed
+            Assert.Empty(_store.FeedAfter(MarketStore.FeedLength + 5));
+        }
+
+        [Fact]
         public void ListingTakesTheItemOutOfTheCharacterInTheSameStep()
         {
             var seller = Player(1, 0, Sword);

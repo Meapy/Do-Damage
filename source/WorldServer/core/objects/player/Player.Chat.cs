@@ -258,6 +258,16 @@ namespace WorldServer.core.objects
             NameColor = 0xAD054F
         });
 
+        internal void SendMarketNotif(string text) => Client.SendPacket(new Text()
+        {
+            BubbleTime = 0,
+            NumStars = -1,
+            Name = "Marketplace",
+            Txt = text,
+            TextColor = 0xFFFFFF,
+            NameColor = 0xF1C40F
+        });
+
         internal void TellReceived(int objId, int stars, int admin, string from, string to, string text) => Client.SendPacket(new Text()
         {
             ObjectId = objId,

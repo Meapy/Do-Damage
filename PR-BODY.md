@@ -3,6 +3,7 @@ Release 2.5.11
 ## For players
 
 - **Dungeons:** Empowered bosses (raised with a Necromantic Relic) can no longer be held back by going invisible (the Rogue's cloak, or anything else that makes you Invisible). Their phases open and play on, and the checks that move each fight along still find a cloaked player: the Forgotten King's last stand fires at whoever stands within 7 tiles of him, which a cloaked player used to sit through untouched. Their aimed shots still lose you while you're cloaked. Every soul shot an Empowered boss fires (the bolts, fast bolts, orbs and shards of its Soul Nova and its phases) now leaves you Quiet for 1 second.
+- **Marketplace:** every new listing is announced. A gold **Marketplace** line in chat tells every player on every world server who listed what and for how much ("Tester listed Health Potion for 1,234 fame."), and the Discord server's new **#marketplace** channel gets the same within 30 seconds, with how long the listing lasts. Players who ignore the seller don't see their lines in game.
 
 ## Details
 
@@ -34,8 +35,20 @@ The four soul shots every Empowered form carries (projectiles 90 to 93: the soul
 
 Deploys the world server and the client (the client applies a hit's conditions as it's hit; an older client shows the Quiet once the server's flags arrive).
 
+### New listings announced in game and on Discord
+
+- World server: `Marketplace.Sell` and `SellFromVault` call `Announce` once a listing is in: `ChatManager.MarketListed` publishes a `ChatType.Market` chat message to every world server, each sending its players a `Marketplace` line (`Player.SendMarketNotif`, gold name), not to those ignoring the seller; and `MarketStore.RecordListed` pushes the listing onto the Redis list `market.feed` (newest first, trimmed to 100). A hidden admin's listings aren't announced. An older world server during a rolling deploy ignores the new chat type.
+- Account server: `discord/market` (`DiscordController`, behind the bot's secret) answers the feed's listings after a given id, oldest first, and the newest id (`after=-1`: the newest only, for a first start).
+- Bot: `market_loop` polls it every 30 s and posts to #marketplace (`DISCORD_MARKET_CHANNEL`, else the guild's channel named marketplace), up to 15 listings to an embed, mentions off; the last id posted is `market_after` in its state file. `setup_server.py` adds #marketplace (INFO, read-only) and writes `DISCORD_MARKET_CHANNEL`.
+- Docs: SETUP-LOCAL.md ("Discord", "Marketplace listings"), AGENTS.md, the wiki's Marketplace page.
+
+Deploys the world server (rolling), the account server (sign-ins pause), and the Discord bot on the website machine; nobody is disconnected. No client change (the line is an ordinary chat line). Redis gains `market.feed`; nothing migrated.
+
+**For the owner:** create the channel: `python tools\discord\setup_server.py --env deploy\discord.local.env --apply` (look at its plan first without `--apply`). The bot finds the channel by name, so the `DISCORD_ENV` secret on GitHub needn't change; if you'd rather pin the id, copy the new `DISCORD_MARKET_CHANNEL` line into that secret too.
+
 ## Checks
 
 - Invisibility: built the world server; on an isolated stack (slot 13000, a copy of the data), a bot with `/god` and `/eff Invisible` in its vault raised `/empower Pirate 50` beside itself: Soul Harvest and Soul Storm were announced and their bolts and the Soul Nova fired (logged with `--shots`) while it stayed invisible. The old code returned before the phases whenever no visible player was within 20 tiles (not run again to compare). The Forgotten King's stand itself wasn't played through in game.
 - Quiet: `EmpoweredPhaseTests.EverySoulShotSilences` (all 25 Empowered forms, shots 90 to 93); `dotnet test source/Tests`, 289 passed.
 - Wiki: `tools/build_wiki.py` into a scratch folder; the Necromantic Relic page shows both notes.
+- Marketplace announcements: `MarketStoreTests.TheFeedKeepsTheNewestListingsForTheDiscordBot` (`dotnet test source/Tests`, 290 passed); world and account servers build. On an isolated stack (slot 150, a copy of the data, a test `discordSecret`), a `bsk-bot` ran `/sell 1 1234 3` and got `<Marketplace> Tester listed Health Potion for 1,234 fame.` in chat; `discord/market` then answered that listing (`after=0`), nothing after it, only the newest id with `after=-1`, and "Not allowed." for a wrong secret; `dodmg.market_messages` made the embed from that answer. Not posted to a real Discord channel, and the in-game line not seen from a second world server.

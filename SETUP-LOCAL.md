@@ -564,6 +564,7 @@ The game's Discord server is https://discord.gg/FVhqJe8CG. Its bot (`tools/disco
 
 - posts each release to #updates when it goes live: the version's changelog sections, a link to the changelog page, and a ping of the **Updates** role, which members turn on or off with `/updates`;
 - keeps one message in #server-status up to date (players online, the 24-hour peak and 7 days' uptime, from `/api/app/status`, or the server list if that isn't there);
+- posts every new Marketplace listing to #marketplace (who, what, the price and how long), as the game's chat announces it too ("Marketplace listings" below);
 - answers `/status`, `/online`, `/wiki <term>` (the wiki's own search index, with links) and `/play`;
 - links members' Discord accounts to their game accounts (`/link`, `/account`, `/resetpassword`, `/unlink`; "Linked accounts" below).
 
@@ -597,8 +598,10 @@ python deploy\deploy.py --status           # includes bsk-discord
 - *In Redis:* `account.<id>` gains `discordId`, `discordName` (the Discord name when linked) and `discordReward` (when the potion was given); the hash `discord.accounts` maps Discord ids to account ids; the set `discord.rewarded` holds the Discord ids that have had the potion; the set `discord.unlinked` those unlinked in the game until the bot has taken their role away; `discord.code.<code>`, `discord.codeFor.<account>`, `discord.tries.<Discord id>` and `discord.reset.<account>` last 10 minutes each. To unlink someone by hand: `hdel account.<id> discordId discordName` and `hdel discord.accounts <Discord id>`.
 - *Trying it without Discord:* start an isolated stack with `BSK_DISCORD_SECRET=<anything>` in the environment, give the bot an env file with `BSK_ACCOUNT=http://127.0.0.1:<account port>` and `BSK_LINK_SECRET=<the same>`, and run a command as a made-up member: `python tools\discord\bot.py --env <file> --as-member 111:alice --try "link ABC234"` (also `account`, `resetpassword`, `unlink`). The client's `--screen discord-code` shows a code (client-rs/AGENTS.md).
 
+**Marketplace listings.** Each new listing (from the inventory or the vault; not a hidden admin's) is announced by the world server that took it (`Marketplace.Announce`): a `Marketplace` line in chat to every player on every world server (`ChatType.Market` over the inter-server chat channel, skipped by anyone who ignores the seller), and an entry in the Redis list `market.feed` (JSON: listing id, item name, price, seller, hours, time; newest first, the last 100). The bot asks the account server every 30 seconds for those after the last it posted (`discord/market`, with the linking secret) and posts them to #marketplace, up to 15 to a message. It keeps the last id it posted in its state file (`market_after`); on its first start it only notes the newest, so nothing old is posted. The channel is `DISCORD_MARKET_CHANNEL`, or else the server's channel named marketplace (`setup_server.py --apply` makes it, read-only, and writes the id in). Without the linking secret it posts none.
+
 **Testing:**
-- `python tools\discord\bot.py --dry-run` prints the release post (`--release 2.2.0` for another one from the changelog) and the `/status`, `/online` and `/wiki` answers, without connecting to Discord.
+- `python tools\discord\bot.py --dry-run` prints the release post (`--release 2.2.0` for another one from the changelog) and the `/status`, `/online` and `/wiki` answers and two made-up #marketplace posts, without connecting to Discord.
 - `bot.py --env deploy\discord.local.env --post-release <version> --channel <id>` posts one release to a channel. Use a private test channel, and delete it after.
 
 Running the bot itself on this PC (`bot.py --env ...`) works for a quick check, with `DISCORD_STATE` pointed somewhere outside the repository. Don't leave it running beside the VPS's: both would edit the status message and answer commands.

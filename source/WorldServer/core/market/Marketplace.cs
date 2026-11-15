@@ -279,6 +279,7 @@ namespace WorldServer.core.market
                 return (false, Describe(r));
             SetSlot(player, slot, null, null);
             Changed();
+            Announce(player, listing, item, hours, now);
             StaticLogger.Instance.Info($"Marketplace: <{player.Name} {acc.AccountId}> listed {item.ObjectId} for {price} fame ({listing.Id}, {hours} h)");
             return (true, $"Listed {item.DisplayName} for {price:N0} fame. You'll get {Net(price):N0} when it sells.");
         }
@@ -338,8 +339,28 @@ namespace WorldServer.core.market
             if (r != MarketStore.Result.Ok)
                 return (false, Describe(r));
             Changed();
+            Announce(player, listing, item, hours, now);
             StaticLogger.Instance.Info($"Marketplace: <{player.Name} {acc.AccountId}> listed {item.ObjectId} from vault chest {chest} for {price} fame ({listing.Id}, {hours} h)");
             return (true, $"Listed {item.DisplayName} from your vault for {price:N0} fame. You'll get {Net(price):N0} when it sells.");
+        }
+
+        // A new listing, told to everyone: a Marketplace line in every world server's chat, and the
+        // feed the Discord bot posts to #marketplace. Not for a hidden admin's listings.
+        private void Announce(Player player, DbMarketData listing, Item item, int hours, int now)
+        {
+            if (player.Client.Account.Hidden)
+                return;
+            var name = item.DisplayName;
+            _server.ChatManager.MarketListed(player.AccountId, $"{player.Name} listed {name} for {listing.Price:N0} fame.");
+            Store.RecordListed(new MarketFeedEntry
+            {
+                Id = listing.Id,
+                Item = name,
+                Price = listing.Price,
+                Seller = player.Name,
+                Hours = hours,
+                Time = now
+            });
         }
 
         // --- listing slots ------------------------------------------------------------------

@@ -100,6 +100,18 @@ namespace WorldServer.core.miscfile
             return true;
         }
 
+        /// <summary>A new Marketplace listing (Marketplace.Announce), to every player on every world server.</summary>
+        public void MarketListed(int sellerId, string text)
+        {
+            GameServer.InterServerManager.Publish(Channel.Chat, new ChatMsg()
+            {
+                Type = ChatType.Market,
+                Instance = GameServer.InstanceId,
+                From = sellerId,
+                Text = text
+            });
+        }
+
         public void HelpCall(Player src)
         {
             GameServer.InterServerManager.Publish(Channel.Chat, new ChatMsg()
@@ -409,6 +421,17 @@ namespace WorldServer.core.miscfile
                                 && !client.Account.IgnoreList.Contains(e.Content.From));
                         foreach (var client in clients)
                             client.Player.AllReceived(e.Content.Stars, from, e.Content.Text);
+                    }
+                    break;
+
+                case ChatType.Market:
+                    {
+                        var clients = GameServer.ConnectionManager.Clients.Keys
+                            .Where(client => client.Player != null
+                                && client.Account != null
+                                && !client.Account.IgnoreList.Contains(e.Content.From));
+                        foreach (var client in clients)
+                            client.Player.SendMarketNotif(e.Content.Text);
                     }
                     break;
 
