@@ -16,6 +16,7 @@ details). Add to a group's line when a change adds to it, rather than adding ano
 
 ### Dungeons
 - The Empowered Forgotten King can always be hurt: nothing he does (hiding, his crystals, his phases' shields) makes him untouchable once he has risen. His Last Court phase hits half as hard.
+- Raising the Forgotten King opens up his arena: the floor spreads out from him to both sides, turning the magma and broken walls round his island into cobblestone, and his lava traps are gone, so the fight keeps all its room instead of shrinking.
 
 ## 2.5.11 (2026-11-15)
 

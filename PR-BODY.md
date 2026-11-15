@@ -1,8 +1,9 @@
-Release 2.5.12: Empowered Forgotten King tuning; deploys the world server (rolling, nobody is disconnected)
+Release 2.5.12: Empowered Forgotten King tuning and a bigger arena; deploys the world server (rolling, nobody is disconnected)
 
 ## For players
 
 - **Dungeons:** the Empowered Forgotten King can always be hurt once he has risen: his hiding, crystal and phase shields no longer make him untouchable. His Last Court phase (the four pillars) hits half as hard.
+- **Dungeons:** raising the Forgotten King opens up his arena: the floor spreads out from him over about 2 seconds, up to 30 tiles to each side and 19 south, turning the magma and broken walls round his island into the island's cobblestone. His lava traps (which eat the floor at 60% and 40% health) are removed, so the arena doesn't shrink.
 
 ## Details
 
@@ -14,6 +15,12 @@ Release 2.5.12: Empowered Forgotten King tuning; deploys the world server (rolli
 
 Deploys the world server only (rolling). No client change, no Redis data.
 
+### Empowered Forgotten King: bigger arena
+
+- `EmpoweredGround.Widen`, called from `BossResurrection.RaiseAt` for the Forgotten King only: Elder magma (no object on it) and Shattered Walls within 30 tiles sideways, 9 north (the entrance walls stop it) and 19 south of him become Elder Dark Cobblestone, in 11 waves over 2.2 s while he rises; his `king lava1`/`king lava2` traps leave the world. Gold blast rings play meanwhile (no Earthquake: clients before 2.5.6 shake for good).
+- Files: `core/resurrection/EmpoweredGround.cs`, `BossResurrection.cs`. World server only (rolling). No client change, no Redis data.
+
 ## Checks
 
 - World server builds; `dotnet test source/Tests`, 290 passed. Not played through in game on an isolated stack.
+- Bigger arena: world server builds; not yet played through in game on an isolated stack.
