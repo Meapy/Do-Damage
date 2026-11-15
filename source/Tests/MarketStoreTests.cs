@@ -142,6 +142,19 @@ namespace Tests
         }
 
         [Fact]
+        public void ASaleGoesInTheFeedAfterTheListing()
+        {
+            var listed = _store.NextId();
+            _store.RecordListed(new MarketFeedEntry { Id = listed, Item = "Sword", Price = 50, Seller = "S", Hours = 24, Time = Now });
+            _store.RecordListed(new MarketFeedEntry { Id = _store.NextId(), Kind = "sold", Item = "Sword", Price = 50, Seller = "S", Buyer = "B", Time = Now });
+
+            var after = _store.FeedAfter(listed);
+            Assert.Single(after);
+            Assert.Equal("sold", after[0].Kind);
+            Assert.Equal("B", after[0].Buyer);
+        }
+
+        [Fact]
         public void ListingTakesTheItemOutOfTheCharacterInTheSameStep()
         {
             var seller = Player(1, 0, Sword);
