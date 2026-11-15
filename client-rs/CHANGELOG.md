@@ -14,6 +14,9 @@ details). Add to a group's line when a change adds to it, rather than adding ano
 
 ## Unreleased
 
+### Items
+- Assassin poisons are stronger: they can be thrown twice as far (28 tiles), their cloud is 25% wider and they do 50% more damage (impact and poison).
+
 ### Dungeons
 - The Empowered Forgotten King can always be hurt: nothing he does (hiding, his crystals, his phases' shields) makes him untouchable once he has risen. His Last Court phase hits half as hard.
 - Raising the Forgotten King opens up his arena: the floor spreads out from him to both sides, turning the magma and broken walls round his island into cobblestone, and his lava traps are gone, so the fight keeps all its room instead of shrinking.
