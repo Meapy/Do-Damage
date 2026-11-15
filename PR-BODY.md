@@ -6,6 +6,7 @@ Release 2.5.12: Empowered Forgotten King tuning and a bigger arena; deploys the 
 - **Dungeons:** raising the Forgotten King opens up his arena: the floor spreads out from him over about 2 seconds, up to 30 tiles to each side and 19 south, turning the magma and broken walls round his island into the island's cobblestone. His lava traps (which eat the floor at 60% and 40% health) are removed, so the arena doesn't shrink.
 
 - **Items:** assassin poisons can be thrown twice as far (28 tiles), their cloud is 25% wider and they do 50% more damage (impact and poison). The Infernal Brimstone Poison now does 3,000.
+- **Marketplace:** purchases are announced like new listings: a gold **Marketplace** line in chat ("Buyer bought Health Potion from Seller for 1,234 fame.") and a line in Discord's **#marketplace**.
 
 ## Details
 
@@ -28,6 +29,13 @@ Deploys the world server only (rolling). No client change, no Redis data.
 - `ActivateEffect.ThrowRange` is read by `Player.AEPoisonGrenade`, which clamps the throw to it instead of the shared 14-tile `MAX_ABILITY_DIST` (`ClampAbilityTarget` gained a `maxDist` argument). Other abilities keep 14.
 - Wiki: Infernal Brimstone Poison 2,000 to 3,000; note on the Assassin row of Gear statistics.
 - Deploys the world server (rolling) and the website. The item tooltips read the new radius and damage from the XML; no client change. No Redis data.
+
+### Marketplace purchases announced
+
+- World server: `Marketplace.Buy` calls `AnnounceSale` after a purchase goes through: the same `ChatManager.MarketListed` chat line to every world server (not for those ignoring the buyer; none for a hidden admin buyer), and a `market.feed` entry with `kind` "sold", the buyer, and a fresh id from `MarketStore.NextId()` so the feed stays ordered for the bot's `after` cursor (a listing and its sale don't share an id).
+- Bot: `dodmg.market_line` words a sold entry ("X bought Y from Z for N fame"); the account server's `discord/market` needed no change. An older bot shows a sale as a listing, so deploy the bot with the world server.
+- Deploys the world server and the Discord bot. No client change, nobody is disconnected.
+- Tested: `MarketStoreTests.ASaleGoesInTheFeedAfterTheListing`; `bot.py --dry-run` shows the sale post.
 
 ## Checks
 

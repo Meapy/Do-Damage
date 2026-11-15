@@ -48,7 +48,7 @@ needn't go there), and click it. Then:
 The item leaves your inventory or vault at once and is held by the Marketplace until it sells,
 ends or you take it back. Everyone hears about it: a **Marketplace** line in chat tells every
 player in the game who listed what and for how much, and the bot posts the same in the Discord
-server's **#marketplace** channel. The window shows what you'll get: the Broker keeps
+server's **#marketplace** channel. Every purchase is announced the same way, with who bought what from whom. The window shows what you'll get: the Broker keeps
 **{{v:market_tax}}%** of each sale as its fee. You can have **{{v:market_limit}} listings** at a
 time.
 

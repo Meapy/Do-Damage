@@ -14,6 +14,9 @@ details). Add to a group's line when a change adds to it, rather than adding ano
 
 ## Unreleased
 
+### Marketplace
+- Every purchase is announced too, like a new listing: a Marketplace line in chat and a post in the Discord server's #marketplace channel say who bought what from whom, and for how much.
+
 ### Items
 - Assassin poisons are stronger: they can be thrown twice as far (28 tiles), their cloud is 25% wider and they do 50% more damage (impact and poison).
 
