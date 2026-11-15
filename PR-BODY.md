@@ -1,4 +1,4 @@
-Release 2.5.11
+Release 2.5.11: deploys the desktop client, the world server, the account server and the Discord bot; nobody is disconnected
 
 ## For players
 
