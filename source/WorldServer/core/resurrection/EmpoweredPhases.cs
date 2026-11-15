@@ -133,10 +133,10 @@ namespace WorldServer.core.resurrection
         /// <summary>Shots from the boss: <paramref name="count"/> of them <paramref name="inc"/> radians apart, centred on <paramref name="angle"/>.</summary>
         public void Shoot(int index, double angle, int count = 1, double inc = 0) => ShootFrom(Pos, index, angle, count, inc);
 
-        public void ShootFrom(Position from, int index, double angle, int count = 1, double inc = 0)
+        public void ShootFrom(Position from, int index, double angle, int count = 1, double inc = 0, double damageScale = 1)
         {
             if (World != null)
-                Strike.FireFrom(Boss, from.X, from.Y, index, angle, count, inc);
+                Strike.FireFrom(Boss, from.X, from.Y, index, angle, count, inc, damageScale);
         }
 
         public void Ring(int index, int count, double offset = 0) => RingFrom(Pos, index, count, offset);
@@ -173,6 +173,8 @@ namespace WorldServer.core.resurrection
         /// <summary>Untouchable for a moment (unless its own fight has it so already).</summary>
         public void Shield(int ms)
         {
+            if (Empowered.AlwaysVulnerable)
+                return;
             var now = Environment.TickCount64;
             if (Boss.HasConditionEffect(ConditionEffectIndex.Invulnerable) && now >= _shieldUntil)
                 return;

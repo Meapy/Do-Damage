@@ -12,6 +12,11 @@ Keep each version short: changes go under `### ` group headings (Oryx 5, Arena, 
 on), one line per change players notice, summed up rather than item by item (the wiki has the
 details). Add to a group's line when a change adds to it, rather than adding another line.
 
+## Unreleased
+
+### Dungeons
+- The Empowered Forgotten King can always be hurt: nothing he does (hiding, his crystals, his phases' shields) makes him untouchable once he has risen. His Last Court phase hits half as hard.
+
 ## 2.5.11 (2026-11-15)
 
 ### Marketplace

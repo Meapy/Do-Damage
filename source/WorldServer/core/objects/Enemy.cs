@@ -230,10 +230,13 @@ namespace WorldServer.core.objects
 
         public int Damage(Player from, ref TickTime time, int dmg, bool noDef, bool itsPoison = false, params ConditionEffect[] effs)
         {
-            if (!itsPoison && HasConditionEffect(ConditionEffectIndex.Invincible))
+            // the Empowered Forgotten King can always be hurt: his Elder fight's hiding and crystal
+            // phases (Invincible, Stasis) and the phases' shields don't hold against players
+            var open = Empowered?.AlwaysVulnerable ?? false;
+            if (!open && !itsPoison && HasConditionEffect(ConditionEffectIndex.Invincible))
                 return 0;
 
-            if (!HasConditionEffect(ConditionEffectIndex.Paused) && !HasConditionEffect(ConditionEffectIndex.Stasis))
+            if (open || !HasConditionEffect(ConditionEffectIndex.Paused) && !HasConditionEffect(ConditionEffectIndex.Stasis))
             {
                 var def = Defense;
                 var dmgd = StatsManager.DamageWithDefense(this, dmg, noDef, def);
@@ -243,7 +246,7 @@ namespace WorldServer.core.objects
                 if (effDmg > Health)
                     effDmg = Health;
 
-                if (!HasConditionEffect(ConditionEffectIndex.Invulnerable))
+                if (open || !HasConditionEffect(ConditionEffectIndex.Invulnerable))
                     Health -= effDmg;
 
                 ApplyConditionEffect(effs);

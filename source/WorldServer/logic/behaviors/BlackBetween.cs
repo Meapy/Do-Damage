@@ -78,11 +78,11 @@ namespace WorldServer.logic.behaviors
             FireFrom(host, host.X, host.Y, index, angle, count, inc);
 
         // the same from anywhere (Aurel's sword flying in from the arena's edge)
-        public static void FireFrom(Entity host, float x, float y, int index, double angle, int count = 1, double inc = 0)
+        public static void FireFrom(Entity host, float x, float y, int index, double angle, int count = 1, double inc = 0, double damageScale = 1)
         {
             if (host.World == null || !host.ObjectDesc.Projectiles.TryGetValue(index, out var desc))
                 return;
-            var dmg = (double)Random.Shared.Next(desc.MinDamage, desc.MaxDamage);
+            var dmg = (double)Random.Shared.Next(desc.MinDamage, desc.MaxDamage) * damageScale;
             if (host is Enemy enemy)
                 dmg *= enemy.DamageScale;
             host.World.BroadcastEnemyShootIfVisible(new EnemyShootMessage

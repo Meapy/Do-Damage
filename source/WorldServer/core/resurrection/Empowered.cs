@@ -88,6 +88,12 @@ namespace WorldServer.core.resurrection
         public double LootBoost => 1.0;
         public bool Paused => _rising > 0;
 
+        /// <summary>The Empowered Forgotten King takes damage at every moment of the fight (after
+        /// he has risen): no hiding, crystal or phase shield makes him untouchable.</summary>
+        public bool AlwaysVulnerable => _rising <= 0 && _info?.Boss == ForgottenKingBoss;
+
+        public const string ForgottenKingBoss = "Elder shtrs The Forgotten King";
+
         public TickTime Hasten(TickTime time)
         {
             time.ElapsedMsDelta = (int)Math.Round(time.ElapsedMsDelta * _haste);
