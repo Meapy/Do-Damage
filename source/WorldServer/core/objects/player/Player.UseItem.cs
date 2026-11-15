@@ -29,14 +29,14 @@ namespace WorldServer.core.objects
 
         // A throw aimed past MAX_ABILITY_DIST lands at MAX_ABILITY_DIST towards it: the mana is
         // already spent by then, so it mustn't fizzle (the client lets you aim as far as you can see).
-        private Position ClampAbilityTarget(Position target)
+        private Position ClampAbilityTarget(Position target, float maxDist = MAX_ABILITY_DIST)
         {
             var dx = target.X - X;
             var dy = target.Y - Y;
             var distSqr = dx * dx + dy * dy;
-            if (distSqr <= MAX_ABILITY_DIST_SQR)
+            if (distSqr <= maxDist * maxDist)
                 return target;
-            var scale = MAX_ABILITY_DIST / Math.Sqrt(distSqr);
+            var scale = maxDist / Math.Sqrt(distSqr);
             return new Position(X + dx * scale, Y + dy * scale);
         }
 
@@ -1847,7 +1847,8 @@ namespace WorldServer.core.objects
 
         private void AEPoisonGrenade(TickTime time, Item item, Position target, ActivateEffect eff)
         {
-            target = ClampAbilityTarget(target);
+            // an assassin's poison may carry further (throwRange)
+            target = ClampAbilityTarget(target, eff.ThrowRange > 0 ? eff.ThrowRange : MAX_ABILITY_DIST);
             var impDamage = eff.ImpactDamage;
             if (eff.UseWisMod)
                 impDamage = (int)UseWisMod(eff.ImpactDamage);

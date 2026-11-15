@@ -6706,7 +6706,7 @@
 		<Usable/>
 		<BagType>1</BagType>
 		<MpCost>25</MpCost>
-		<Activate radius="2" impactDamage="25" totalDamage="140" duration="3" throwTime="0.8">PoisonGrenade</Activate>
+		<Activate radius="2.5" impactDamage="38" totalDamage="210" duration="3" throwTime="0.8" throwRange="28">PoisonGrenade</Activate>
 		<feedPower>5</feedPower>
 		<DropTradable/>
 	</Object>
@@ -6723,7 +6723,7 @@
 		<Usable/>
 		<BagType>1</BagType>
 		<MpCost>40</MpCost>
-		<Activate radius="2.5" impactDamage="55" totalDamage="290" duration="3.2" throwTime="0.8">PoisonGrenade</Activate>
+		<Activate radius="3.125" impactDamage="83" totalDamage="435" duration="3.2" throwTime="0.8" throwRange="28">PoisonGrenade</Activate>
 		<ActivateOnEquip stat="27" amount="1">IncrementStat</ActivateOnEquip>
 		<feedPower>10</feedPower>
 		<DropTradable/>
@@ -6741,7 +6741,7 @@
 		<Usable/>
 		<BagType>1</BagType>
 		<MpCost>55</MpCost>
-		<Activate radius="3" impactDamage="90" totalDamage="435" duration="3.5" throwTime="0.8">PoisonGrenade</Activate>
+		<Activate radius="3.75" impactDamage="135" totalDamage="653" duration="3.5" throwTime="0.8" throwRange="28">PoisonGrenade</Activate>
 		<ActivateOnEquip stat="27" amount="1">IncrementStat</ActivateOnEquip>
 		<feedPower>20</feedPower>
 		<DropTradable/>
@@ -6760,7 +6760,7 @@
 		<BagType>2</BagType>
 		<FameBonus>1</FameBonus>
 		<MpCost>70</MpCost>
-		<Activate radius="3.5" impactDamage="125" totalDamage="585" duration="3.7" throwTime="0.8">PoisonGrenade</Activate>
+		<Activate radius="4.375" impactDamage="188" totalDamage="878" duration="3.7" throwTime="0.8" throwRange="28">PoisonGrenade</Activate>
 		<ActivateOnEquip stat="27" amount="2">IncrementStat</ActivateOnEquip>
 		<feedPower>45</feedPower>
 		<DropTradable/>
@@ -6779,7 +6779,7 @@
 		<BagType>2</BagType>
 		<FameBonus>2</FameBonus>
 		<MpCost>80</MpCost>
-		<Activate radius="4" impactDamage="160" totalDamage="735" duration="4" throwTime="0.8">PoisonGrenade</Activate>
+		<Activate radius="5" impactDamage="240" totalDamage="1103" duration="4" throwTime="0.8" throwRange="28">PoisonGrenade</Activate>
 		<ActivateOnEquip stat="27" amount="2">IncrementStat</ActivateOnEquip>
 		<feedPower>90</feedPower>
 		<DropTradable/>
@@ -6798,7 +6798,7 @@
 		<BagType>4</BagType>
 		<FameBonus>3</FameBonus>
 		<MpCost>90</MpCost>
-		<Activate radius="4.5" impactDamage="195" totalDamage="885" duration="4.3" throwTime="0.8">PoisonGrenade</Activate>
+		<Activate radius="5.625" impactDamage="293" totalDamage="1328" duration="4.3" throwTime="0.8" throwRange="28">PoisonGrenade</Activate>
 		<ActivateOnEquip stat="27" amount="3">IncrementStat</ActivateOnEquip>
 		<feedPower>185</feedPower>
 	</Object>
@@ -6816,7 +6816,7 @@
 		<BagType>4</BagType>
 		<FameBonus>4</FameBonus>
 		<MpCost>100</MpCost>
-		<Activate radius="5" impactDamage="230" totalDamage="1035" duration="4.5" throwTime="0.8">PoisonGrenade</Activate>
+		<Activate radius="6.25" impactDamage="345" totalDamage="1553" duration="4.5" throwTime="0.8" throwRange="28">PoisonGrenade</Activate>
 		<ActivateOnEquip stat="27" amount="3">IncrementStat</ActivateOnEquip>
 		<ActivateOnEquip stat="0" amount="20">IncrementStat</ActivateOnEquip>
 		<ActivateOnEquip stat="3" amount="20">IncrementStat</ActivateOnEquip>
@@ -9923,7 +9923,7 @@
 		<BagType>6</BagType>
 		<FameBonus>6</FameBonus>
 		<MpCost>90</MpCost>
-		<Activate radius="9" totalDamage="800" duration="10" color="8fa547" throwTime="1.5">PoisonGrenade</Activate>
+		<Activate radius="11.25" totalDamage="1200" duration="10" color="8fa547" throwTime="1.5" throwRange="28">PoisonGrenade</Activate>
 		<feedPower>1000</feedPower>
 		<Soulbound/>
 	</Object>
@@ -13184,7 +13184,7 @@
 		<BagType>6</BagType>
 		<FameBonus>6</FameBonus>
 		<MpCost>120</MpCost>
-		<Activate radius="6" totalDamage="1352" duration="8">PoisonGrenade</Activate>
+		<Activate radius="7.5" totalDamage="2028" duration="8" throwRange="28">PoisonGrenade</Activate>
 		<Activate effect="Dazed" duration="5">ConditionEffectSelf</Activate>
 		<feedPower>750</feedPower>
 		<Soulbound/>
@@ -13232,8 +13232,8 @@
 		<MpCost>120</MpCost>
 		<ActivateOnEquip stat="20" amount="3">IncrementStat</ActivateOnEquip>
 		<ActivateOnEquip stat="28" amount="3">IncrementStat</ActivateOnEquip>
-		<Activate color="0xAA7400" radius="2" impactDamage="180" totalDamage="1080" duration="4" throwTime="0.8">PoisonGrenade</Activate>
-		<Activate color="0x7E5700" radius="4" impactDamage="60" totalDamage="360" duration="4" throwTime="0.8">PoisonGrenade</Activate>
+		<Activate color="0xAA7400" radius="2.5" impactDamage="270" totalDamage="1620" duration="4" throwTime="0.8" throwRange="28">PoisonGrenade</Activate>
+		<Activate color="0x7E5700" radius="5" impactDamage="90" totalDamage="540" duration="4" throwTime="0.8" throwRange="28">PoisonGrenade</Activate>
 		<feedPower>800</feedPower>
 		<Soulbound/>
 	</Object>
@@ -16834,7 +16834,7 @@
 		<BagType>4</BagType>
 		<FameBonus>4</FameBonus>
 		<MpCost>100</MpCost>
-		<Activate radius="5" impactDamage="200" totalDamage="900" duration="4.5" throwTime="0.8">PoisonGrenade</Activate>
+		<Activate radius="6.25" impactDamage="300" totalDamage="1350" duration="4.5" throwTime="0.8" throwRange="28">PoisonGrenade</Activate>
 		<ActivateOnEquip stat="27" amount="3">IncrementStat</ActivateOnEquip>
 		<ActivateOnEquip stat="0" amount="20">IncrementStat</ActivateOnEquip>
 		<ActivateOnEquip stat="3" amount="20">IncrementStat</ActivateOnEquip>
@@ -19088,7 +19088,7 @@
 		</Texture>
 		<SlotType>18</SlotType>
 		<Description>Swarming cells fill this jar, prepared to bind to whatever may foolishly approach them.</Description>
-		<Activate radius="2.67" totalDamage="495" duration="3" condEffect="Curse" condDuration="3" throwTime=".9" color="0xFF8585">PoisonGrenade</Activate>
+		<Activate radius="3.337" totalDamage="743" duration="3" condEffect="Curse" condDuration="3" throwTime=".9" color="0xFF8585" throwRange="28">PoisonGrenade</Activate>
 		<ActivateOnEquip stat="20" amount="2">IncrementStat</ActivateOnEquip>
 		<ActivateOnEquip stat="26" amount="-2">IncrementStat</ActivateOnEquip>
 		<MpCost>120</MpCost>
@@ -22432,7 +22432,7 @@
 		<MpCost>100</MpCost>
 		<ActivateOnEquip stat="20" amount="4">IncrementStat</ActivateOnEquip>
 		<ActivateOnEquip stat="28" amount="4">IncrementStat</ActivateOnEquip>
-		<Activate radius="4" totalDamage="500" duration="4" condEffect="Armor Broken" condDuration="4" throwTime="1.5" color="0xD6DBFF">PoisonGrenade</Activate>
+		<Activate radius="5" totalDamage="750" duration="4" condEffect="Armor Broken" condDuration="4" throwTime="1.5" color="0xD6DBFF" throwRange="28">PoisonGrenade</Activate>
 		<feedPower>850</feedPower>
 		<Soulbound/>
 	</Object>
@@ -23328,7 +23328,7 @@
 		<BagType>6</BagType>
 		<FameBonus>3</FameBonus>
 		<MpCost>90</MpCost>
-		<Activate radius="8" impactDamage="80" totalDamage="650" duration="8" color="FFA500" throwTime="0.5">PoisonGrenade</Activate>
+		<Activate radius="10" impactDamage="120" totalDamage="975" duration="8" color="FFA500" throwTime="0.5" throwRange="28">PoisonGrenade</Activate>
 		<Activate effect="Drunk" duration="1.5">ConditionEffectSelf</Activate>
 		<Activate stat="21" amount="5" duration="3">StatBoostSelf</Activate>
 		<feedPower>650</feedPower>
@@ -25126,7 +25126,7 @@
 		<BagType>8</BagType>
 		<FameBonus>5</FameBonus>
 		<MpCost>105</MpCost>
-		<Activate color="0xADC718" impactDamage="650" radius="3" throwTime="0.8" totalDamage="0">PoisonGrenade</Activate>
+		<Activate color="0xADC718" impactDamage="975" radius="3.75" throwTime="0.8" totalDamage="0" throwRange="28">PoisonGrenade</Activate>
 		<OnPlayerHitActivate proc="1" cooldown="6" duration="0" impactDamage="650" radius="3" throwTime="0.8" totalDamage="500" color="0xADC718">PoisonGrenade</OnPlayerHitActivate>
 		<feedPower>900</feedPower>
 		<Soulbound/>
@@ -26480,7 +26480,7 @@
 		<BagType>9</BagType>
 		<FameBonus>5</FameBonus>
 		<MpCost>110</MpCost>
-		<Activate radius="5.5" impactDamage="265" totalDamage="1185" duration="4.8" throwTime="0.8">PoisonGrenade</Activate>
+		<Activate radius="6.875" impactDamage="398" totalDamage="1778" duration="4.8" throwTime="0.8" throwRange="28">PoisonGrenade</Activate>
 		<Soulbound/>
 		<feedPower>570</feedPower>
 	</Object>
@@ -26874,7 +26874,7 @@
 		<BagType>9</BagType>
 		<FameBonus>6</FameBonus>
 		<MpCost>120</MpCost>
-		<Activate radius="6" impactDamage="300" totalDamage="1335" duration="5" throwTime="0.8">PoisonGrenade</Activate>
+		<Activate radius="7.5" impactDamage="450" totalDamage="2003" duration="5" throwTime="0.8" throwRange="28">PoisonGrenade</Activate>
 		<Soulbound/>
 		<feedPower>855</feedPower>
 	</Object>
@@ -28019,7 +28019,7 @@
 		<Activate objectId="AoOPoison Cluster 1" color="0xA31026" throwTime="1.2">ObjectToss</Activate>
 		<Activate objectId="AoOPoison Cluster 2" color="0xA31026" throwTime="1.2">ObjectToss</Activate>
 		<Activate objectId="AoOPoison Cluster 3" color="0xA31026" throwTime="1.2">ObjectToss</Activate>
-		<Activate radius="3" totalDamage="750" impactDamage="500" duration="2" color="0xD6471C" throwTime="1.2">PoisonGrenade</Activate>
+		<Activate radius="3.75" totalDamage="1125" impactDamage="750" duration="2" color="0xD6471C" throwTime="1.2" throwRange="28">PoisonGrenade</Activate>
 		<OnPlayerAbilityActivate manaRequired="0" manaCost="0" proc=".33" amount="50">Magic</OnPlayerAbilityActivate>
 		<OnPlayerAbilityActivate manaRequired="0" manaCost="0" proc=".33" stat="22" amount="-20" duration="5">StatBoostSelf</OnPlayerAbilityActivate>
 		<ExtraTooltipData>

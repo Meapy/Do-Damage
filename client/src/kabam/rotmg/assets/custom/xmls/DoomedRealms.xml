@@ -916,7 +916,7 @@
 		<BagType>4</BagType>
 		<FameBonus>6</FameBonus>
 		<MpCost>150</MpCost>
-		<Activate radius="6" totalDamage="1500" condEffect="Sick" condDuration="6" duration="8">PoisonGrenade</Activate>
+		<Activate radius="7.5" totalDamage="2250" condEffect="Sick" condDuration="6" duration="8" throwRange="28">PoisonGrenade</Activate>
 	</Object>
 	<Object type="0xD036" id="Super Elixir">
 		<DisplayId>Super Elixir of Magic</DisplayId>
@@ -4560,7 +4560,7 @@
 		<BagType>4</BagType>
 		<FameBonus>6</FameBonus>
 		<MpCost>170</MpCost>
-		<Activate radius="4" totalDamage="900" duration="3">PoisonGrenade</Activate>
+		<Activate radius="5" totalDamage="1350" duration="3" throwRange="28">PoisonGrenade</Activate>
 	</Object>
 	<Object type="0xD0F6" id="Platinum Wand">
 		<Class>Equipment</Class>
@@ -4956,7 +4956,7 @@
 		<BagType>6</BagType>
 		<FameBonus>6</FameBonus>
 		<MpCost>250</MpCost>
-		<Activate radius="6" totalDamage="2000" condEffect="Curse" condDuration="6" duration="10">PoisonGrenade</Activate>
+		<Activate radius="7.5" totalDamage="3000" condEffect="Curse" condDuration="6" duration="10" throwRange="28">PoisonGrenade</Activate>
 		<Activate amount="4" duration="12" radius="6">ArmorShred</Activate>
 		<Activate effect="Silenced" duration="2">ConditionEffectSelf</Activate>
 	</Object>
@@ -8324,7 +8324,7 @@
 		<BagType>4</BagType>
 		<FameBonus>5</FameBonus>
 		<MpCost>125</MpCost>
-		<Activate radius="5.5" totalDamage="1100" duration="8">PoisonGrenade</Activate>
+		<Activate radius="6.875" totalDamage="1650" duration="8" throwRange="28">PoisonGrenade</Activate>
 	</Object>
 	<Object type="0xD1B0" id="Dagger of the Mallard King">
 		<Class>Equipment</Class>
