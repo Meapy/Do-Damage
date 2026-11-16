@@ -1,4 +1,4 @@
-Release 2.5.12: Empowered Forgotten King tuning and a bigger arena; deploys the world server (rolling, nobody is disconnected)
+Release 2.5.12: Empowered Forgotten King tuning, a bigger arena and potion stacks; deploys the client, world server, website and Discord bot (rolling, nobody is disconnected)
 
 ## For players
 
@@ -40,11 +40,11 @@ Deploys the world server only (rolling). No client change, no Redis data.
 
 ### Health and magic potion stacks hold up to 10
 
-- Raised `MaxStackablePotions` in `Shared/resources/data/init.xml` from 6 to 10; this applies to both the health and magic potion stacks. Existing character counts are kept and aren't automatically increased.
-- World server only (rolling deploy, nobody is disconnected). No client change or Redis migration.
+- Raised `MaxStackablePotions` in `Shared/resources/data/init.xml` and the client's `hud::MAX_STACKED` from 6 to 10; both the health and magic stacks use the same limit. Existing character counts are kept and aren't automatically increased.
+- Requires both the client release and the world server (rolling deploy, nobody is disconnected). No Redis migration.
 
 ## Checks
 
 - World server builds; `dotnet test source/Tests`, 290 passed. Not played through in game on an isolated stack.
 - Bigger arena: world server builds; not yet played through in game on an isolated stack.
-- Potion stack limit: world server builds and tests pass; existing counts are unchanged.
+- Potion stack limit: client and world server builds and tests pass; existing counts are unchanged.

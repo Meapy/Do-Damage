@@ -650,8 +650,9 @@ The remotes `upstream` (HaloCelsius) and `aurusenth` share no history with `main
 ## Changes from upstream
 
 - **Health and magic potion stacks** (2026-11-16; `Shared/resources/data/init.xml`,
-  `MaxStackablePotions`): each stack holds up to 10 potions instead of 6. Existing counts are
-  kept; the world server uses the setting when players add potions to their stacks.
+  `MaxStackablePotions`, and `client-rs/app/src/hud.rs`, `MAX_STACKED`): each stack holds up to
+  10 potions instead of 6. The client and world server both enforce the limit. Existing counts
+  are kept.
 - **The Scrying Glass** (2026-11-14; new `core/spectate/SpectatorHub.cs`,
   `net/handlers/SpectateHandler.cs`, `packets/outgoing/Spectate.cs`, `Command.Glass.cs`; the Rust
   client's `glass.rs`; the Nexus map's `Scrying Glass`, object 0x498d, placed by
