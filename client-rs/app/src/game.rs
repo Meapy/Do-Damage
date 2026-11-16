@@ -88,6 +88,10 @@ pub struct Game {
     pub quest_damage: Option<QuestDamage>,
     /// The last bosses (quests) we hit that died, newest first (`BOSS_HISTORY` of them).
     pub boss_history: Vec<BossFight>,
+    /// The Ascendants' forcefields up in this world (`ShowEffect` 41, looks 30 and 32): their
+    /// anchor, middle, radius, when they fade and the percentage they take off our hits, which
+    /// comes off the numbers we show for them as the server takes it off our health.
+    forcefields: Vec<(i32, f64, f64, f64, i32, i32)>,
     /// The character's fame records by id (`FameStats`: kills, dungeons, shots...), as the
     /// server last sent them.
     pub fame_stats: std::collections::HashMap<u8, i32>,
@@ -380,6 +384,7 @@ impl Game {
             dealt: Default::default(),
             quest_damage: None,
             boss_history: Vec::new(),
+            forcefields: Vec::new(),
             fame_stats: Default::default(),
             arena: None,
             arena_votes: None,
@@ -632,6 +637,7 @@ impl Game {
                 }
                 self.world = Some(world);
                 self.particles.clear();
+                self.forcefields.clear();
                 self.arena = None;
                 self.arena_votes = None;
                 self.arena_asked = false;
@@ -1074,6 +1080,15 @@ impl Game {
             }
             ServerMessage::Aoe(a) => self.particles.aoe(a.pos.x as f64, a.pos.y as f64, a.radius as f64, a.color),
             ServerMessage::ShowEffect(e) => {
+                // an Ascendant's forcefield (Forcefield.cs): kept for our hits' numbers, however
+                // faint other players' effects are drawn
+                let look = e.pos2.y.round() as i32;
+                if e.effect_type == 41 && (look == 30 || look == 32) {
+                    let id = e.target_object_id;
+                    self.forcefields.retain(|f| f.0 != id);
+                    let until = now + e.duration.clamp(0, 60_000);
+                    self.forcefields.push((id, e.pos1.x as f64, e.pos1.y as f64, e.pos2.x as f64, until, e.object_type as i32));
+                }
                 // another player's spell or Necromantic power, as faint as their shots (Options,
                 // Visuals): a power names its player (`source_id`), even when it shows on a monster
                 let player = |id: i32| world.objects.get(&id).and_then(|o| data.objects.get(&o.object_type)).is_some_and(|d| d.player);
@@ -1186,7 +1201,17 @@ impl Game {
     /// Move the projectiles and tell the server what they hit.
     fn update_projectiles(&mut self, now: i32, data: &GameData) {
         let Some(world) = &mut self.world else { return };
+        // standing in an Ascendant's forcefield: the strongest one's percentage off each hit
+        self.forcefields.retain(|f| now < f.4);
+        let shield = world.player().map_or(0, |p| {
+            self.forcefields.iter().filter(|f| (p.x - f.1).hypot(p.y - f.2) <= f.3).map(|f| f.5).max().unwrap_or(0)
+        });
         for hit in world.update_projectiles(now, data) {
+            let hit = match hit {
+                Hit::Player { bullet_id, owner_id, damage, pierced, stacked } => Hit::Player { bullet_id, owner_id, damage: bsk_world::combat::shielded(damage, shield), pierced, stacked },
+                Hit::Ground { time, x, y, damage } => Hit::Ground { time, x, y, damage: bsk_world::combat::shielded(damage, shield) },
+                other => other,
+            };
             let msg: ClientMessage = match hit {
                 // a shot stacked on one that just hit us adds no sound, and no number unless it
                 // deals more than that one did

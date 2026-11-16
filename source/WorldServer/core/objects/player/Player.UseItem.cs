@@ -205,9 +205,9 @@ namespace WorldServer.core.objects
                 return;
             }
 
-            // a halo not again before its cooldown (4 s) is over, as the client waits it out; a little
-            // slack for the trip (other abilities' cooldowns are still the client's alone)
-            if (slot == 1 && entity == this && item.Cooldown >= 1 && item.ActivateEffects.Any(e => e.Effect == ActivateEffects.Halo))
+            // a halo's forcefield not again before its cooldown (4 s) is over, as the client waits it
+            // out; a little slack for the trip (other abilities' cooldowns are still the client's alone)
+            if (slot == 1 && entity == this && item.Cooldown >= 1 && item.ActivateEffects.Any(e => e.Effect == ActivateEffects.Forcefield))
             {
                 var now = Environment.TickCount64;
                 if (now < _abilityReadyAt - AbilityCooldownSlackMs)
@@ -749,8 +749,8 @@ namespace WorldServer.core.objects
                     case ActivateEffects.MiniPot:
                         AEMiniPot(time, item, target, eff);
                         break;
-                    case ActivateEffects.Halo:
-                        AEHalo(time, item, target, eff);
+                    case ActivateEffects.Forcefield:
+                        AEForcefield(time, item, target, eff);
                         break;
                     case ActivateEffects.SamuraiAbility:
                         AESamuraiAbility(time, item, target, eff);

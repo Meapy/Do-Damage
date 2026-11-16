@@ -602,6 +602,17 @@ UNOBTAINABLE_ITEMS = ["Ring of Oryx", "Oryx Hide Armor", "Oryx Hide Robe", "Oryx
 # loot in a private bag (the T16 armours, as the T15s they top, and the Oryxes' pets)
 SOULBOUND_ITEMS = ["Sphinx Leather Armor", "Armor of the Pyramid", "Robe of the Nile", "Lil' Oryx Generator"]
 DESCRIPTIONS = {
+    # the Ascendant and its halos, which raise forcefields now (FORCEFIELDS)
+    "Ascendant": "A guardian of the heavens who raises golden forcefields that turn aside the blows meant for "
+                 "those inside them.",
+    "Worn Halo": "An old halo that could be mistaken for scrap metal. Its forcefield flickers, but it holds.",
+    "Rusty Halo": "Someone left their halo lying around in the rain. Its forcefield still crackles to life.",
+    "Bronze Halo": "A halo made out of bronze. It's surprisingly sturdy, and so is the forcefield it raises.",
+    "Silver Halo": "A halo made of silver whose forcefield shields all who come near it.",
+    "Golden Halo": "A beautiful halo crafted out of pure gold. Its forcefield repels the evil spirits of the underworld.",
+    "Halo of Eternal Peace": "A divine halo whose forcefield shelters anyone with good intentions from those with evil ones.",
+    "Halo of God's Blessing": "A halo once worn by one of the greatest angels of all time. No blow of evil passes its "
+                              "forcefield unblunted.",
     # the Lair of Draconis's four relics (BehaviorDb.Draconis.cs)
     "Black Dragon Gods Blade": "A shard of Feargus the Obsidian Dragon, dropped in the Lair of Draconis.",
     "Blue Dragon Gods Helm": "A relic of Nikao the Azure Dragon, dropped in the Lair of Draconis.",
@@ -698,6 +709,12 @@ DOOMED_ABILITY_SLOTS = {30, 32, 37, 126, 128, 130, 5000, 5005}
 DUAL_BLADES_SLOT = "36"
 JACKET_SLOT = "37"  # the Blademaster's ability
 HALO_COOLDOWN = "4"  # seconds between a halo's uses
+# The Ascendant's halos raise a forcefield instead of healing (the owner, 2026-11-16): every player in
+# it takes a percentage off each hit while it lasts (WorldServer Forcefield.cs). Each halo's radius
+# (1.5 tiles less than its healing circle reached) and percentage, 2% at T0 rising 1% a tier to
+# the T8 Halo of the Archangel's 10% (CustomItems.xml); the duration stays its own.
+FORCEFIELDS = {"Worn Halo": (4.5, 2), "Rusty Halo": (4.5, 3), "Bronze Halo": (5, 4), "Silver Halo": (5.5, 5),
+               "Golden Halo": (6.5, 6), "Halo of Eternal Peace": (6.5, 7), "Halo of God's Blessing": (6.5, 8)}
 BOW_DAGGER_DAMAGE = 1.1  # bows' and daggers' damage, rounded to whole numbers
 JACKET_BOOSTS = {"Lightweight Jacket": (3, 3), "Murderous Jacket": (5, 4), "Invincibility Jacket": (7, 5),
                  "Jacket of Sorrows": (10, 6), "Skyfall Jacket": (12, 7), "Jacket of Bloodrut Nature": (15, 8)}
@@ -959,6 +976,12 @@ def tune_gear(dr):
             e = ET.Element("Cooldown")
             e.text = HALO_COOLDOWN
             o.insert(list(o).index(acts[0]), e)
+    for oid, (radius, percent) in FORCEFIELDS.items():
+        for a in (dr[oid].findall("Activate") if oid in dr else []):
+            if (a.text or "").strip() == "Halo":
+                a.text = "Forcefield"
+                a.set("range", str(int(radius)) if radius == int(radius) else str(radius))
+                a.set("amount", str(percent))
     # the Blademaster's jackets have no cooldown of their own (the owner, 2026-11-05): the usual half
     # a second between uses, their mana the only limit
     for o in dr.values():

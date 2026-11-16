@@ -121,13 +121,14 @@ namespace WorldServer.core.objects
             SendInfo("You feel very small.");
         }
 
-        // Ascendant halos: a healing circle left where it was cast.
-        private void AEHalo(TickTime time, Item item, Position target, ActivateEffect eff)
+        // Ascendant halos: a forcefield left where it was cast, taking Amount percent off every hit
+        // the players inside it take (Forcefield.cs).
+        private void AEForcefield(TickTime time, Item item, Position target, ActivateEffect eff)
         {
-            var halo = new Halo(this, eff.Range, eff.Amount, eff.DurationMS > 0 ? eff.DurationMS : 8000);
-            halo.Move(X, Y);
-            halo.Z = Z;
-            World.EnterWorld(halo);
+            var field = new Forcefield(this, eff.Range, eff.Amount, eff.DurationMS > 0 ? eff.DurationMS : 8000);
+            field.Move(X, Y);
+            field.Z = Z;
+            World.EnterWorld(field);
         }
 
         // Tome of Noble Assault: damages every enemy around the player.

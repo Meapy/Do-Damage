@@ -155,6 +155,15 @@ pub fn damage_with_defense(damage: i32, defense: i32, armor_piercing: bool, cond
     d
 }
 
+/// A hit of `damage` (after defense) taken in an Ascendant's forcefield that takes `percent` off:
+/// the server's `Player.ShieldedDamage`, the part taken off rounded to the nearest point.
+pub fn shielded(damage: i32, percent: i32) -> i32 {
+    if damage <= 0 || percent <= 0 {
+        return damage;
+    }
+    damage - (damage * percent + 50) / 100
+}
+
 impl Projectile {
     #[allow(clippy::too_many_arguments)]
     pub fn new(owner_id: i32, bullet_id: i32, container_type: u16, bullet_type: i32, angle: f64, start_time: i32, x: f64, y: f64, speed_mul: f64, damage: i32, damages_players: bool) -> Self {
@@ -711,5 +720,16 @@ mod tests {
         assert_eq!(damage_with_defense(100, 30, false, [1 << (condition::ARMORED - 1), 0]), 55);
         // Curse: ×1.25.
         assert_eq!(damage_with_defense(100, 0, false, [0, 1 << (condition::CURSE - 32)]), 125);
+    }
+
+    #[test]
+    fn forcefield_rounds_as_the_server_does() {
+        assert_eq!(shielded(100, 10), 90);
+        assert_eq!(shielded(49, 2), 48);
+        // under half a point off: nothing
+        assert_eq!(shielded(20, 2), 20);
+        assert_eq!(shielded(25, 2), 24);
+        assert_eq!(shielded(0, 10), 0);
+        assert_eq!(shielded(80, 0), 80);
     }
 }

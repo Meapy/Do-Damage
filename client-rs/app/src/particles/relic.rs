@@ -8,7 +8,8 @@
 //! Phylactery's: how many souls), and the target object is the one it follows or flies to.
 //!
 //! Not only the Necromantic items: look 29 is the Chaotic Scripture's Chaos Beam, sent by the
-//! server's `AllyAOE` (`BehaviorDb.Allies.cs`).
+//! server's `AllyAOE` (`BehaviorDb.Allies.cs`), and looks 30 to 32 the Ascendant's forcefield
+//! (`Forcefield.cs`, `Player.Forcefield.cs`).
 
 use super::{Motion, Particle, Particles};
 use crate::view::Camera;
@@ -49,7 +50,13 @@ pub mod look {
     pub const SINGULARITY: u8 = 28;
     /// The Chaotic Scripture's Chaos Beam (`AllyAOE`, not a Necromantic power).
     pub const CHAOS: u8 = 29;
-    pub const LAST: u8 = 29;
+    /// The Ascendant's forcefield raised: its halo falls, a column of light, then the dome.
+    pub const FORCEFIELD: u8 = 30;
+    /// A player in a forcefield hit: the field flaring round them.
+    pub const FIELD_BLOCK: u8 = 31;
+    /// A forcefield already up when it came into view: the dome alone, for the time left.
+    pub const FIELD_SEEN: u8 = 32;
+    pub const LAST: u8 = 32;
 }
 
 /// Falling, tiles a millisecond each millisecond (12 tiles a second each second).
@@ -84,6 +91,11 @@ pub(super) enum DecalKind {
     /// The Chaotic Scripture's rift: a torn, glowing void, the eight arrows of chaos turning round
     /// it.
     Rift,
+    /// The Ascendant's forcefield: a dome of light seen from above, brightest at its rim, a lattice
+    /// of hexagons shimmering across it, rings of runes turning, ripples running out.
+    Forcefield,
+    /// A hexagon of the forcefield flaring round a player as it turns a blow.
+    FieldFlare,
 }
 
 /// A picture on the ground: `DecalKind` at x, y, out to `radius`, from `start` for `ms`
@@ -126,6 +138,7 @@ pub(super) struct Aura {
 fn period(look: u8) -> i32 {
     match look {
         look::PHASE | look::SINGULARITY => 22,
+        look::FORCEFIELD => 26,
         look::SERPENT_WIND | look::UNDERTOW | look::FORGOTTEN => 32,
         look::DAVY | look::IGNITION | look::PENTAGRAM => 45,
         look::HELLBRAND | look::CHAOS => 60,
@@ -334,7 +347,8 @@ impl Particles {
         let (x, y) = (e.pos1.x as f64, e.pos1.y as f64);
         let r = (e.pos2.x as f64).clamp(0.2, 8.0);
         let color = e.color & 0xFF_FFFF;
-        let ms = e.duration.clamp(0, 10_000);
+        // (a forcefield lasts up to 20 s)
+        let ms = e.duration.clamp(0, if matches!(look, look::FORCEFIELD | look::FIELD_SEEN) { 30_000 } else { 10_000 });
         let id = e.target_object_id;
         let on = world.objects.get(&id).map(|o| (o.x, o.y));
         let z = world.my_z();
@@ -685,7 +699,116 @@ impl Particles {
                 // the plain lightning and blast that come with it (for older clients): not drawn
                 self.chaos_on = Some((id, now));
             }
+            // the Ascendant's forcefield: a halo drops out of the sky onto the spot, strikes a
+            // column of light, and the dome bursts open from it in a double shockwave, golden
+            // light skittering out to its edge and feathers of light drifting down
+            look::FORCEFIELD => {
+                const LAND: i32 = 280;
+                let pale = mix(color, 0xFFFFFF, 0.6);
+                self.fields.retain(|f| f.0 != id);
+                self.fields.push((id, now + ms + 500));
+                // the halo, falling and turning
+                for i in 0..18 {
+                    let a = i as f64 * 2.0 * PI / 18.0;
+                    let c = if i % 3 == 0 { 0xFFFFFF } else { color };
+                    let motion = Motion::Soul { cx: x, cy: y, angle: a, speed: 0.18, rad: 0.7, out: 0.0012, rise: -4.0 / LAND as f64 };
+                    let mut p = Particle::new(x + 0.7 * a.cos(), y + 0.7 * a.sin(), 4.0, c, 170.0, LAND, motion);
+                    p.alpha = 1.0;
+                    self.add(p);
+                }
+                // the column of light it strikes, white at its heart
+                for row in 0..22 {
+                    for (ox, c, size) in [(0.0, 0xFFFFFF, 260.0), (-0.22, pale, 230.0), (0.22, pale, 230.0), (-0.4, color, 170.0), (0.4, color, 170.0)] {
+                        let mut p = Particle::new(x + ox, y, row as f64 * 0.32, c, size, 520 - row * 6, Motion::Plain).moving(0.0, 0.0, 0.0015);
+                        p.delay = LAND + row * 9;
+                        p.fade = true;
+                        self.add(p);
+                    }
+                }
+                // the flash where it lands
+                for (size, c, life) in [(1100.0, color, 260), (650.0, 0xFFFFFF, 180)] {
+                    let mut p = Particle::new(x, y, 0.3, c, size, life, Motion::Spark);
+                    p.delay = LAND;
+                    self.add(p);
+                }
+                // the shockwaves, the second paler and a beat behind
+                self.decal(DecalKind::Ring, x, y, r * 1.08, color, now + LAND, 520, None);
+                self.decal(DecalKind::Ring, x, y, r * 0.9, 0xFFFFFF, now + LAND + 110, 420, None);
+                // light skittering out along the floor to the dome's edge
+                for i in 0..36 {
+                    let a = i as f64 * 2.0 * PI / 36.0 + self.pm(0.05);
+                    let s = (r / 300.0) * (0.85 + 0.3 * self.random());
+                    let c = if i % 4 == 0 { 0xFFFFFF } else if i % 2 == 0 { pale } else { color };
+                    let mut p = Particle::new(x, y, 0.15, c, 140.0, 300, Motion::Sparker).moving(a.cos() * s, a.sin() * s, 0.0);
+                    p.delay = LAND;
+                    self.add(p);
+                }
+                // feathers of light, drifting down over it
+                for _ in 0..26 {
+                    let (a, d) = (2.0 * PI * self.random(), r * 0.9 * self.random().sqrt());
+                    let fall = 1400 + (self.random() * 900.0) as i32;
+                    let c = self.pick(&[0xFFFFFF, pale, color, 0xBFEFFF]);
+                    let mut p = Particle::new(x + d * a.cos(), y + d * a.sin(), 3.0 + 1.5 * self.random(), c, 100.0, fall, Motion::Plain)
+                        .moving(self.pm(0.25) / 1000.0, self.pm(0.25) / 1000.0, -3.2 / fall as f64);
+                    p.delay = LAND + (self.random() * 500.0) as i32;
+                    p.fade = true;
+                    self.add(p);
+                }
+                // the dome itself, and the wall of light rising off its rim, for as long as it lasts
+                self.decal(DecalKind::Forcefield, x, y, r, color, now + LAND, (ms - LAND).max(600), None);
+                self.aura(look, id, x, y, r, color, now + LAND, (ms - LAND).max(600), false);
+            }
+            // a forcefield already up: the dome as it is now, for the time it has left
+            look::FIELD_SEEN => {
+                self.fields.retain(|f| f.0 != id);
+                self.fields.push((id, now + ms + 500));
+                // (started as if opened half a second ago: no opening)
+                self.decal(DecalKind::Forcefield, x, y, r, color, now - 500, ms.max(600) + 500, None);
+                self.aura(look::FORCEFIELD, id, x, y, r, color, now, ms.max(600), false);
+            }
+            // a blow turned aside: a hexagon of the field flares round the player, light glancing off
+            look::FIELD_BLOCK => {
+                let (cx, cy) = on.unwrap_or((x, y));
+                self.decal(DecalKind::FieldFlare, cx, cy, r, color, now, 380, Some(id));
+                for i in 0..10 {
+                    let a = i as f64 * 2.0 * PI / 10.0 + self.pm(0.2);
+                    let c = if i % 2 == 0 { 0xFFFFFF } else { color };
+                    let mut p = Particle::new(cx + r * 0.8 * a.cos(), cy + r * 0.8 * a.sin(), 0.5 + 0.3 * self.random(), c, 90.0, 260, Motion::Spark)
+                        .moving(a.cos() * 0.004, a.sin() * 0.004, 0.002);
+                    p.fade = true;
+                    self.add(p);
+                }
+                if on.is_some() {
+                    self.flashes.insert(id, super::Flash { start: now, color: 0xFFF2B8, period: 120, repeats: 1 });
+                }
+            }
             _ => {}
+        }
+    }
+
+    /// A forcefield fading away: its dome shatters, shards of light thrown off its rim and
+    /// falling.
+    fn field_shatter(&mut self, a: Aura) {
+        let pale = mix(a.color, 0xFFFFFF, 0.6);
+        let n = (14.0 + a.radius * 5.0) as usize;
+        for i in 0..n {
+            let ang = i as f64 * 2.0 * PI / n as f64 + self.pm(0.1);
+            let (sx, sy) = (a.x + a.radius * ang.cos(), a.y + a.radius * ang.sin());
+            let c = self.pick(&[a.color, pale, 0xFFFFFF, 0xBFEFFF]);
+            let s = 0.6 + 1.2 * self.random();
+            let z = 0.3 + 1.6 * self.random();
+            let mut p = Particle::new(sx, sy, z, c, 120.0 + 60.0 * self.random(), 700 + (self.random() * 400.0) as i32, Motion::Ballistic { g: GRAVITY * 0.5 })
+                .moving(ang.cos() * s / 1000.0, ang.sin() * s / 1000.0, (1.0 + 2.0 * self.random()) / 1000.0);
+            p.fade = true;
+            self.add(p);
+        }
+        for i in 0..12 {
+            let ang = 2.0 * PI * self.random();
+            let d = a.radius * self.random().sqrt();
+            let c = if i % 3 == 0 { 0xFFFFFF } else { pale };
+            let mut p = Particle::new(a.x + d * ang.cos(), a.y + d * ang.sin(), 0.1, c, 110.0, 800, Motion::Plain).moving(0.0, 0.0, 0.0022);
+            p.fade = true;
+            self.add(p);
         }
     }
 
@@ -804,6 +927,38 @@ impl Particles {
                 p.fade = true;
                 self.add(p);
             }
+            // the forcefield's wall: motes of light rising off its rim, so it stands up off the
+            // floor; now and then one drifting up inside it, or a glint racing round the rim
+            look::FORCEFIELD => {
+                let pale = mix(a.color, 0xFFFFFF, 0.6);
+                let fading = left.clamp(0.25, 1.0);
+                let ang = 2.0 * PI * self.random();
+                let rr = a.radius * (0.97 + 0.03 * self.random());
+                let c = self.pick(&[a.color, pale, 0xFFFFFF, a.color]);
+                let rise = 0.0016 + 0.0016 * self.random();
+                let mut p = Particle::new(x + rr * ang.cos(), y + rr * ang.sin(), 0.05, c, (100.0 + 50.0 * self.random()) * fading, 900, Motion::Plain).moving(0.0, 0.0, rise);
+                p.fade = true;
+                self.add(p);
+                if self.random() < 0.3 {
+                    let (ang, d) = (2.0 * PI * self.random(), a.radius * 0.85 * self.random().sqrt());
+                    let c = self.pick(&[pale, 0xBFEFFF, 0xFFFFFF]);
+                    let mut p = Particle::new(x + d * ang.cos(), y + d * ang.sin(), 0.1, c, 70.0, 1200, Motion::Plain)
+                        .moving(self.pm(0.1) / 1000.0, self.pm(0.1) / 1000.0, 0.0012);
+                    p.fade = true;
+                    self.add(p);
+                }
+                if self.random() < 0.05 {
+                    let ang = 2.0 * PI * self.random();
+                    let dir = if self.random() < 0.5 { 1.0 } else { -1.0 };
+                    let motion = Motion::Soul { cx: x, cy: y, angle: ang, speed: 0.09 * dir, rad: a.radius, out: 0.0, rise: 0.0 };
+                    for k in 0..4 {
+                        let mut p = Particle::new(x, y, 0.15, if k == 0 { 0xFFFFFF } else { a.color }, 150.0 - k as f64 * 25.0, 520, motion.clone());
+                        p.alpha = 0.0;
+                        p.delay = k * 18;
+                        self.add(p);
+                    }
+                }
+            }
             // light pulled round and down into the black hole
             look::SINGULARITY => {
                 let angle = 2.0 * PI * self.random();
@@ -828,6 +983,12 @@ impl Particles {
             }
         }
         let mut auras = std::mem::take(&mut self.auras);
+        // a forcefield's time is up: it shatters
+        for a in auras.iter().filter(|a| a.look == look::FORCEFIELD && now >= a.until) {
+            self.muting = a.muting;
+            self.field_shatter(*a);
+            self.muting = 0.0;
+        }
         auras.retain(|a| now < a.until);
         for a in auras.iter_mut() {
             if a.follow {
@@ -889,6 +1050,8 @@ impl Particles {
             look::ERUPTION => (3.0, 0xFFFF2020, 0, false),
             look::SINGULARITY => (3.0, 0xFF8040FF, 3200, false),
             look::CHAOS => (2.5, 0xFFB44CFF, 0, false),
+            look::FORCEFIELD | look::FIELD_SEEN => (6.5, 0xFFFFD34A, 8000, false),
+            look::FIELD_BLOCK => (0.9, 0xFFFFD34A, 0, true),
             _ => return,
         };
         // (centred on us, where a shot can see it, but for what flies between us and somewhere else)
@@ -1211,6 +1374,25 @@ fn draw_decal(pen: &mut Pen, d: &Decal, t: f64, now: i32) {
             pen.disc(rr * 0.36, 0x0A0012, 0.85 * a);
             pen.disc(rr * 0.18 * (1.0 + 0.15 * (secs * 11.0).sin()), d.color, 0.55 * a * flicker);
         }
+        DecalKind::Forcefield => draw_forcefield(pen, d, now),
+        DecalKind::FieldFlare => {
+            let a = envelope(t, 0.0, 0.7);
+            let grow = 1.0 - (1.0 - (t / 0.35).min(1.0)).powi(2);
+            let rr = r * (0.55 + 0.45 * grow);
+            let pale = mix(d.color, 0xFFFFFF, 0.6);
+            let corner = |i: usize, rad: f64| {
+                let ang = PI / 6.0 + i as f64 * PI / 3.0;
+                (rad * ang.cos(), rad * ang.sin())
+            };
+            for i in 0..6 {
+                let (p0, p1) = (corner(i, rr), corner(i + 1, rr));
+                pen.tri([pen.pt(0.0, 0.0), pen.pt(p0.0, p0.1), pen.pt(p1.0, p1.1)], d.color, 0.22 * a);
+                pen.line(p0, p1, 0.14, d.color, 0.45 * a);
+                pen.line(p0, p1, 0.05, 0xFFFFFF, 0.95 * a);
+                let (q0, q1) = (corner(i, rr * 0.55), corner(i + 1, rr * 0.55));
+                pen.line(q0, q1, 0.04, pale, 0.7 * a);
+            }
+        }
         DecalKind::Stars => {
             let a = envelope(t, 0.1, 0.2);
             let spin = secs * 0.9;
@@ -1224,6 +1406,124 @@ fn draw_decal(pen: &mut Pen, d: &Decal, t: f64, now: i32) {
                 pen.line((sx, sy - k), (sx, sy + k), 0.05, 0xFFFFFF, 0.95 * a * tw);
                 pen.disc_at(sx, sy, 0.06, d.color, a);
             }
+        }
+    }
+}
+
+/// How far a spring has gone at `x` (0 to 1): past its end a little, then back (`easeOutBack`).
+fn overshoot(x: f64) -> f64 {
+    let x = x.clamp(0.0, 1.0);
+    let (c1, c3) = (1.70158, 2.70158);
+    1.0 + c3 * (x - 1.0).powi(3) + c1 * (x - 1.0).powi(2)
+}
+
+/// The Ascendant's forcefield (`DecalKind::Forcefield`): springing open, a dome of light brighter
+/// toward its rim, a lattice of hexagons with ripples of light running out across it and cells
+/// glinting, two rings of runes turning against each other, a six-pointed star at its heart; it
+/// flickers in its last two seconds and fades.
+fn draw_forcefield(pen: &mut Pen, d: &Decal, now: i32) {
+    let since = (now - d.start) as f64;
+    let left = d.ms as f64 - since;
+    let secs = since / 1000.0;
+    let r = d.radius;
+    let rr = r * overshoot(since / 420.0);
+    if rr <= 0.05 {
+        return;
+    }
+    let pale = mix(d.color, 0xFFFFFF, 0.6);
+    let azure = 0xBFEFFF;
+    let fade = ((left / 700.0).min(1.0) * (since / 120.0).min(1.0)).clamp(0.0, 1.0) as f32;
+    let flicker = if left < 2000.0 { 0.55 + 0.45 * ((secs * 23.0).sin() * (secs * 7.0).cos()).abs() as f32 } else { 1.0 };
+    let breathe = 0.88 + 0.12 * (secs * 2.6).sin() as f32;
+    let a = fade * flicker;
+
+    // the dome's body: faint in the middle, brighter toward the rim
+    const BANDS: usize = 7;
+    for k in 0..BANDS {
+        let (f0, f1) = (k as f64 / BANDS as f64, (k + 1) as f64 / BANDS as f64);
+        let alpha = 0.035 + 0.17 * f1.powi(3) as f32;
+        pen.band(rr * f0, rr * f1, mix(d.color, azure, 0.25 * (1.0 - f1)), alpha * a * breathe);
+    }
+    // a flash as it opens
+    if since < 500.0 {
+        pen.disc(rr, 0xFFFFFF, 0.35 * (1.0 - since / 500.0) as f32 * fade);
+    }
+
+    // the lattice: hexagons across the dome, clearer toward its rim, ripples of light running out
+    // and a cell glinting here and there
+    let s = 0.62;
+    let (w, h) = (s * 3f64.sqrt(), s * 1.5);
+    let n = (rr / h).ceil() as i32 + 1;
+    let corner = |cx: f64, cy: f64, i: usize| {
+        let ang = PI / 6.0 + i as f64 * PI / 3.0;
+        (cx + s * ang.cos(), cy + s * ang.sin())
+    };
+    let glint_step = (secs * 3.0).floor() as u64;
+    for row in -n..=n {
+        for col in -n..=n {
+            let cx = (col as f64 + if row.rem_euclid(2) == 1 { 0.5 } else { 0.0 }) * w;
+            let cy = row as f64 * h;
+            let dist = cx.hypot(cy);
+            if dist + s > rr {
+                continue;
+            }
+            let edge = (dist / rr).powf(1.4) as f32;
+            let wave = ((dist * 1.9 - secs * 5.5).sin().max(0.0)).powi(6) as f32;
+            let alpha = (0.1 + 0.35 * edge + 0.55 * wave) * a;
+            let cell = ((row + 64) * 131 + col + 64) as u64;
+            if hash(d.seed, cell * 7 + glint_step) > 0.94 {
+                let glow = (1.0 - (secs * 3.0).fract()) as f32;
+                for i in 0..6 {
+                    let (p0, p1) = (corner(cx, cy, i), corner(cx, cy, i + 1));
+                    pen.tri([pen.pt(cx, cy), pen.pt(p0.0, p0.1), pen.pt(p1.0, p1.1)], pale, 0.28 * glow * a);
+                }
+            }
+            // three sides each, so shared sides aren't drawn twice
+            for i in 0..3 {
+                let (p0, p1) = (corner(cx, cy, i), corner(cx, cy, i + 1));
+                pen.line(p0, p1, 0.045, if wave > 0.4 { 0xFFFFFF } else { pale }, alpha);
+            }
+        }
+    }
+
+    // ripples running out from its heart
+    let phase = (secs / 1.6).fract();
+    let pr = rr * phase;
+    pen.band(pr - 0.14, pr, pale, 0.35 * (1.0 - phase) as f32 * a);
+
+    // the rings of runes: golden arcs turning one way, pale ones the other, a rune at each end
+    let arcs = |pen: &mut Pen, rad: f64, spin: f64, n: usize, len: f64, width: f64, rgb: u32, alpha: f32| {
+        for k in 0..n {
+            let start = spin + k as f64 * 2.0 * PI / n as f64;
+            const STEPS: usize = 10;
+            for j in 0..STEPS {
+                let (a0, a1) = (start + len * j as f64 / STEPS as f64, start + len * (j + 1) as f64 / STEPS as f64);
+                pen.quad([pen.at(rad + width / 2.0, a0), pen.at(rad + width / 2.0, a1), pen.at(rad - width / 2.0, a1), pen.at(rad - width / 2.0, a0)], rgb, alpha);
+            }
+            for end in [start, start + len] {
+                let (c, sn) = (end.cos(), end.sin());
+                let (px, py) = (rad * c, rad * sn);
+                let k = width * 1.6;
+                pen.quad([pen.pt(px + k * c, py + k * sn), pen.pt(px - k * sn, py + k * c), pen.pt(px - k * c, py - k * sn), pen.pt(px + k * sn, py - k * c)], 0xFFFFFF, alpha);
+            }
+        }
+    };
+    arcs(pen, rr * 0.86, secs * 0.6, 3, 1.1, 0.07, d.color, 0.8 * a);
+    arcs(pen, rr * 0.74, -secs * 0.9, 4, 0.7, 0.05, pale, 0.65 * a);
+
+    // the rim: a bright edge, white at its line, glowing out a little
+    pen.band(rr, rr + 0.22, d.color, 0.16 * a * breathe);
+    pen.band(rr - 0.18, rr, d.color, 0.8 * a * breathe);
+    pen.band(rr - 0.06, rr, 0xFFFFFF, 0.75 * a);
+
+    // a six-pointed star turning at its heart
+    let spin = secs * 0.8;
+    pen.disc(0.55, pale, 0.25 * a * breathe);
+    for tri in 0..2 {
+        let off = spin + tri as f64 * PI / 3.0;
+        for i in 0..3 {
+            let (a0, a1) = (off + i as f64 * 2.0 * PI / 3.0, off + (i + 1) as f64 * 2.0 * PI / 3.0);
+            pen.line((0.6 * a0.cos(), 0.6 * a0.sin()), (0.6 * a1.cos(), 0.6 * a1.sin()), 0.06, 0xFFFFFF, 0.85 * a);
         }
     }
 }

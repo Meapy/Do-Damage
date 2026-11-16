@@ -368,6 +368,7 @@ namespace WorldServer.core.objects
                 EnterCombat();
             dmg = GameServer.DamageEvent.Apply(src, dmg);
             dmg = (int)Stats.GetDefenseDamage(dmg, false);
+            dmg = ShieldedDamage(dmg);
             if (!HasConditionEffect(ConditionEffectIndex.Invulnerable))
                 Health -= dmg;
 

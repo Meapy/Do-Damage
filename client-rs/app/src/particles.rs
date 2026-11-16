@@ -179,6 +179,9 @@ pub struct Particles {
     /// The last Chaos Beam (`relic`, look 29): its object and when. The plain lightning and blast
     /// the server sends with it, for older clients, aren't drawn.
     chaos_on: Option<(i32, i32)>,
+    /// The Ascendants' forcefields shown (`relic`, looks 30 and 32): their anchor and until when.
+    /// The plain rings the server sends round them, for older clients, aren't drawn.
+    fields: Vec<(i32, i32)>,
 }
 
 /// A circle on the ground (`ShowEffect` 40, the Black Between's telegraphs): its outline at once,
@@ -258,6 +261,7 @@ impl Particles {
         self.pending.clear();
         self.flashes.clear();
         self.emitters.clear();
+        self.fields.clear();
         self.jitter_since = None;
     }
 
@@ -394,6 +398,12 @@ impl Particles {
         }
         if matches!(e.effect_type, 5 | 11) && self.chaos_on.is_some_and(|(id, at)| id == e.target_object_id && (0..500).contains(&(now - at))) {
             return;
+        }
+        if e.effect_type == 10 {
+            self.fields.retain(|f| now < f.1);
+            if self.fields.iter().any(|f| f.0 == e.target_object_id) {
+                return;
+            }
         }
         match e.effect_type {
             // HealEffect: ten rising squares around the object.

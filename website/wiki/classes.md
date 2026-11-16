@@ -16,7 +16,8 @@ hit), **Spd** (how fast you move), **Dex** (how fast you shoot), **Vit** (health
 
 **Support classes** (the Priest's tomes, the Paladin's seals, the Warrior's helms, the
 Necromancer's skulls, the Mystic's cursing orbs, the Doomed Realms halos and Disco Lights) earn
-loot by helping: healing and buffing other players, or debuffing the monsters they fight, gives you
+loot by helping: healing, buffing and shielding other players (an Ascendant earns it for every
+player standing in its halo's forcefield), or debuffing the monsters they fight, gives you
 assist credit on those monsters, so you get a share of their loot without shooting them
 ([Progression](progression.html#loot) has the rules). A Priest's tome gives all its buffs
 (Armored, Speedy, Invisible, stat boosts) to the players within its heal range as well as the

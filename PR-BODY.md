@@ -1,57 +1,21 @@
-Release 2.5.12: Forgotten King, Marketplace, items and Nexus; deploys client, servers, website and Discord
+Release 2.5.13
 
 ## For players
 
-- **Dungeons:** the Empowered Forgotten King can always be hurt once he has risen: his hiding, crystal and phase shields no longer make him untouchable. His Last Court phase (the four pillars) hits half as hard.
-- **Dungeons:** raising the Forgotten King opens up his arena: the floor spreads out from him over about 2 seconds, up to 30 tiles to each side and 19 south, turning the magma and broken walls round his island into the island's cobblestone. His lava traps (which eat the floor at 60% and 40% health) are removed, so the arena doesn't shrink.
-
-- **Items:** assassin poisons can be thrown twice as far (28 tiles), their cloud is 25% wider and they do 50% more damage (impact and poison). The Infernal Brimstone Poison now does 3,000.
-- **Items:** health and magic potion stacks hold up to 10 instead of 6.
-- **Marketplace:** purchases are announced like new listings: a gold **Marketplace** line in chat ("Buyer bought Health Potion from Seller for 1,234 fame.") and a line in Discord's **#marketplace**.
-- **Nexus:** vault chests now cost 500 fame and character slots cost 1,000 fame; the Nexus Bazaar no longer sells their unlockers.
+- **Classes:** the Ascendant's halos raise a golden forcefield instead of healing. You and every ally standing in it take less from each hit while it lasts (shots, damaging ground, everything): 2% with the Worn Halo, 1% more each tier, up to 10% with the T8 Halo of the Archangel. Each field is 1.5 tiles smaller than the old healing circle (4.5 tiles at T0-T1, up to 6.5 from T4) and lasts as long as the halo's heal did (8 to 24 seconds). It looks the part: the halo falls from the sky in a column of light, shockwaves race out, a shimmering hex-lattice dome opens with turning rune rings and a wall of light rising off its rim, it flares round anyone it shields from a blow, and it shatters as it fades. The Ascendant still earns assist loot for every player it covers. The class and halo descriptions are rewritten to match.
 
 ## Details
 
-### Empowered Forgotten King: always vulnerable, softer Last Court
+### Ascendant halos: forcefields instead of healing
 
-- `Empowered.AlwaysVulnerable` (true for the Forgotten King once his 2.5 s rise is over): `Enemy.Damage` ignores Invincible, Stasis and Invulnerable for him, and `Arena.Shield` (the phases' short shields) does nothing. His Elder behaviour's intro and crystal states still run; they just don't protect him.
-- The Last Court's pillar shots take `EmpoweredSignatures.LastCourtDamage` (0.5): `Strike.FireFrom` / `Arena.ShootFrom` gained a `damageScale` argument.
-- Files: `core/objects/Enemy.cs`, `core/resurrection/Empowered.cs`, `EmpoweredPhases.cs`, `EmpoweredSignatures.cs`, `logic/behaviors/BlackBetween.cs`.
-
-Deploys the world server only (rolling). No client change, no Redis data.
-
-### Empowered Forgotten King: bigger arena
-
-- `EmpoweredGround.Widen`, called from `BossResurrection.RaiseAt` for the Forgotten King only: Elder magma (no object on it) and Shattered Walls within 30 tiles sideways, 9 north (the entrance walls stop it) and 19 south of him become Elder Dark Cobblestone, in 11 waves over 2.2 s while he rises; his `king lava1`/`king lava2` traps leave the world. Gold blast rings play meanwhile (no Earthquake: clients before 2.5.6 shake for good).
-- Files: `core/resurrection/EmpoweredGround.cs`, `BossResurrection.cs`. World server only (rolling). No client change, no Redis data.
-
-### Assassin poisons: farther, wider, stronger
-
-- `tools/rework_poisons.py` edits every slot-18 `PoisonGrenade` in the server's and client's item XML (radius x1.25, `impactDamage` and `totalDamage` x1.5, new `throwRange="28"`, which also marks it done so a rerun changes nothing); `port_doomed.py` runs it after writing `DoomedRealms.xml`, so the Doomed poisons keep it (18 prod items, 4 Doomed ones).
-- `ActivateEffect.ThrowRange` is read by `Player.AEPoisonGrenade`, which clamps the throw to it instead of the shared 14-tile `MAX_ABILITY_DIST` (`ClampAbilityTarget` gained a `maxDist` argument). Other abilities keep 14.
-- Wiki: Infernal Brimstone Poison 2,000 to 3,000; note on the Assassin row of Gear statistics.
-- Deploys the world server (rolling) and the website. The item tooltips read the new radius and damage from the XML; no client change. No Redis data.
-
-### Marketplace purchases announced
-
-- World server: `Marketplace.Buy` calls `AnnounceSale` after a purchase goes through: the same `ChatManager.MarketListed` chat line to every world server (not for those ignoring the buyer; none for a hidden admin buyer), and a `market.feed` entry with `kind` "sold", the buyer, and a fresh id from `MarketStore.NextId()` so the feed stays ordered for the bot's `after` cursor (a listing and its sale don't share an id).
-- Bot: `dodmg.market_line` words a sold entry ("X bought Y from Z for N fame"); the account server's `discord/market` needed no change. An older bot shows a sale as a listing, so deploy the bot with the world server.
-- Deploys the world server and the Discord bot. No client change, nobody is disconnected.
-- Tested: `MarketStoreTests.ASaleGoesInTheFeedAfterTheListing`; `bot.py --dry-run` shows the sale post.
-
-### Health and magic potion stacks hold up to 10
-
-- Raised `MaxStackablePotions` in `Shared/resources/data/init.xml` and the client's `hud::MAX_STACKED` from 6 to 10; both the health and magic stacks use the same limit. Existing character counts are kept and aren't automatically increased.
-- Requires both the client release and the world server (rolling deploy, nobody is disconnected). No Redis migration.
-
-### Vault chest and character slot prices
-
-- Doubled `VaultChestPrice` in `Shared/resources/data/init.xml` from 250 to 500 fame and `NewAccounts.SlotCost` from 500 to 1,000 fame. Removed both unlockers from the Nexus Bazaar's Specials list (`MerchantLists.cs`); other ways of obtaining unlockers are unchanged.
-- Deploys the account and world servers (rolling world-server deploy, nobody is disconnected). No client change or Redis migration.
+- **What changed:** the halo ability's `Halo` activate is now `Forcefield` (`ActivateEffects.Forcefield`): `range` the radius, `amount` the percent off each hit, `duration` its time. `Forcefield.cs` (was `Halo.cs`) shields every player in it each tick (`Player.Shield`, held 250 ms so the edge doesn't flicker); `Player.ShieldedDamage` takes the percent off each hit after defense, rounded to the nearest point, in `PlayerHit`, `Player.Damage` and both ground-damage paths. Overlapping fields don't add up: the strongest counts. The caster gets assist credit (`BuffedBy`) for each player in it, a second at a time. Its server-side cooldown (4 s) is kept.
+- **Numbers:** T0 Worn 2% / 4.5 tiles, T1 Rusty 3% / 4.5, T2 Bronze 4% / 5, T3 Silver 5% / 5.5, T4 Golden 6% / 6.5, T5 Eternal Peace 7% / 6.5, T6 God's Blessing 8% / 6.5, T7 Seraphim 9% / 6.5, T8 Archangel 10% / 6.5. Durations and mana unchanged.
+- **Look (Rust client, `particles/relic.rs`):** `ShowEffect` 41 looks 30 (cast), 31 (a player in it hit, at most every 250 ms each) and 32 (already up when a player comes into view, sent then). The percent rides in `ObjectType`, which the client uses to take the same cut off the damage numbers it shows for your own hits (`bsk_world::combat::shielded`, tested against the server's rounding). New decals `Forcefield` and `FieldFlare`, an aura for the rising wall, a shatter when the aura ends. Older clients don't know these looks; the server also sends a golden Trap ring at its edge every 1.5 s for them, which the new client leaves out.
+- **Data:** `tools/port_doomed.py` (`FORCEFIELDS`, halo and class `DESCRIPTIONS`) converts the T0-T6 halos; both `DoomedRealms.xml` copies were changed by hand to what it writes, because the port currently stops early on an unrelated world (`ElderPirateCave` missing from `port_doomed_worlds`). The T7 and T8 halos are hand-written in both `CustomItems.xml` copies. `tools/rework_buff_auras.py` no longer floors the halos' range (re-running it changes nothing).
+- **Wiki:** `tools/wiki_gear.py` describes the forcefield; `website/wiki/classes.md` mentions shielding for assist loot.
+- **Deploys:** client, servers and website. Ship client and server together (new looks and the `Forcefield` activate name): an old client still plays, but sees only the gold rings and its tooltip doesn't describe the halo. Nobody is disconnected; no Redis data changes.
+- **Not done:** the halos keep their `spell/major_heal` sound.
 
 ## Checks
 
-- Server solution builds; `dotnet test source/Tests`, 292 passed. Client: `cargo test -p bsk-client`, 100 passed. Website: `python tools/build_site.py` succeeds. Not played through in game on an isolated stack.
-- Bigger arena: world server builds; not yet played through in game on an isolated stack.
-- Potion stack limit: client and world server builds and tests pass; existing counts are unchanged.
-- Vault chest and character slot prices: not yet checked on an isolated stack.
+- **Ascendant forcefields:** `dotnet build` of WorldServer; `cargo test -p bsk-client` (100 passed, including the language tables) and `cargo test -p bsk-world` (including `forcefield_rounds_as_the_server_does`); `python tools/rework_buff_auras.py` changes nothing; `python tools/build_wiki.py` into a scratch folder, the Halo gear page and the Ascendant class page read right. On an isolated stack (slot 121), a level 20 Ascendant cast the Halo of God's Blessing in a vault: `--shot`s at 1280x800 and full screen show the dome, lattice, rune rings and rim round the caster. The damage cut itself wasn't measured in game (the test stack keeps the character topped up).

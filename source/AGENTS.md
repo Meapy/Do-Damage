@@ -232,4 +232,4 @@ never renumber them.
 
 Behaviour that isn't generated: `DoomedRuntime.cs`, `DoomedExtraLoot.cs` (loot added to monsters whose Doomed Realms loot is missing or thin), `core/worlds/impl/doomed/DoomedWorlds.cs` (arenas, zombies,
 herding, shop), `DoomedRealmsCommands.cs`, `DoomedEconomyCommands.cs`, `Player.UseItem.Doomed.cs`
-(class abilities) and `Halo.cs`. Doomed Realms' slot types 26 and 28 are 126 and 128 here.
+(class abilities) and `Forcefield.cs`. Doomed Realms' slot types 26 and 28 are 126 and 128 here.

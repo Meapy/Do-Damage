@@ -12,6 +12,11 @@ Keep each version short: changes go under `### ` group headings (Oryx 5, Arena, 
 on), one line per change players notice, summed up rather than item by item (the wiki has the
 details). Add to a group's line when a change adds to it, rather than adding another line.
 
+## Unreleased
+
+### Classes
+- The Ascendant's halos raise a golden forcefield instead of healing: you and every ally standing in it take less damage from each hit while it lasts, 2% with the Worn Halo up to 10% with the Halo of the Archangel. The field is 1.5 tiles smaller than the old healing circle, and it looks the part: the halo falls from the sky in a column of light, a shimmering dome of hexagons opens out, it flares round anyone it shields from a blow, and it shatters as it fades.
+
 ## 2.5.12 (2026-11-16)
 
 ### Nexus

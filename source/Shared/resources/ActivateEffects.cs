@@ -50,7 +50,7 @@
         MonsterToss,
         PartyAOE,
         MiniPot,
-        Halo,
+        Forcefield,
         SamuraiAbility,
         Summon,
         TomeDamage,

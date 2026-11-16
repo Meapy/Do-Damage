@@ -1208,10 +1208,10 @@
 		</Texture>
 		<SlotType>126</SlotType>
 		<Tier>7</Tier>
-		<Description>A halo worn by the highest of the angels.</Description>
+		<Description>A halo worn by the highest of the angels. Its forcefield bends even the fiercest blows aside.</Description>
 		<Sound>spell/major_heal</Sound>
 		<Cooldown>4</Cooldown>
-		<Activate range="8" amount="70" duration="22">Halo</Activate>
+		<Activate range="6.5" amount="9" duration="22">Forcefield</Activate>
 		<ActivateOnEquip stat="26" amount="3">IncrementStat</ActivateOnEquip>
 		<ActivateOnEquip stat="27" amount="3">IncrementStat</ActivateOnEquip>
 		<Usable/>
@@ -1232,10 +1232,10 @@
 		</Texture>
 		<SlotType>126</SlotType>
 		<Tier>8</Tier>
-		<Description>The halo of the first angel, brighter than any sun.</Description>
+		<Description>The halo of the first angel, brighter than any sun. Little that strikes its forcefield gets through whole.</Description>
 		<Sound>spell/major_heal</Sound>
 		<Cooldown>4</Cooldown>
-		<Activate range="8" amount="80" duration="24">Halo</Activate>
+		<Activate range="6.5" amount="10" duration="24">Forcefield</Activate>
 		<ActivateOnEquip stat="26" amount="4">IncrementStat</ActivateOnEquip>
 		<ActivateOnEquip stat="27" amount="4">IncrementStat</ActivateOnEquip>
 		<Usable/>

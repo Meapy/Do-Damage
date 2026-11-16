@@ -423,8 +423,8 @@ class Gear:
             return "%s shots" % n("numShots", "1")
         if e == "Shoot":
             return "fires its shot"
-        if e == "Halo":
-            return "a halo: heals %s HP%s for %ss" % (n("amount"), within(), n("duration"))
+        if e == "Forcefield":
+            return "a forcefield: %s%% less damage taken%s for %ss" % (n("amount"), within(), n("duration"))
         if e == "TomeDamage":
             return "%s damage%s" % (n("totalDamage"), within())
         if e == "SamuraiAbility":

@@ -2892,7 +2892,7 @@ fn activate_rows(a: &bsk_data::xml::Element, share: f64) -> (String, Vec<(String
         "Magic" => (tr("Magic"), vec![row(tr("Restores"), tf!("{n} MP", n = num("amount")))]),
         "HealNova" => (tr("Heal"), vec![row(tr("Heals"), tf!("{n} HP", n = num("amount"))), row(tr("Range"), tf!("you and allies within {range}", range = sqrs(num("range"))))]),
         "MagicNova" => (tr("Magic"), vec![row(tr("Restores"), tf!("{n} MP", n = num("amount"))), row(tr("Range"), tf!("you and allies within {range}", range = sqrs(num("range"))))]),
-        "Halo" => (tr("Halo"), vec![row(tr("Heals"), tf!("{n} HP", n = num("amount"))), row(tr("Range"), sqrs(num("range"))), row(tr("Lasts"), secs(num("duration")))]),
+        "Forcefield" => (tr("Forcefield"), vec![row(tr("Damage taken"), tf!("-{n}%", n = num("amount"))), row(tr("Range"), sqrs(num("range"))), row(tr("Lasts"), secs(num("duration")))]),
         "StasisBlast" => (tr("Stasis"), vec![row(tr("Radius"), sqrs(if has("radius") { num("radius") } else { 3.0 })), row(tr("Lasts"), secs(num("duration")))]),
         "ArmorShred" => (
             tr("Shred"),
@@ -3335,7 +3335,7 @@ fn activate_detail(a: &bsk_data::xml::Element) -> String {
                 tf!("{effect} to allies within {range} sqrs for {time} secs", effect, range, time)
             }
         }
-        "Halo" => tf!("Heals {n} HP to allies within {range} sqrs, for {time} secs", n = num("amount"), range = num("range"), time = num("duration")),
+        "Forcefield" => tf!("You and allies within {range} sqrs take {n}% less damage, for {time} secs", n = num("amount"), range = num("range"), time = num("duration")),
         "BulletNova" => tf!("Fires a ring of {n} shots", n = if has("numShots") { num("numShots") } else { 20.0 }),
         "BulletCreate" => tf!("Fires {n} shots", n = num("numShots")),
         "Shoot" => tr("Fires its shots").to_owned(),
