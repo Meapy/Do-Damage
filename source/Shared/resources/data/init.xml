@@ -17,5 +17,5 @@
     <Level>1</Level>
   </NewCharacters>
   <UseExternalPayments>0</UseExternalPayments>
-  <MaxStackablePotions>6</MaxStackablePotions>
+  <MaxStackablePotions>10</MaxStackablePotions>
 </AppSettings>

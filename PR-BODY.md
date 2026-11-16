@@ -6,6 +6,7 @@ Release 2.5.12: Empowered Forgotten King tuning and a bigger arena; deploys the 
 - **Dungeons:** raising the Forgotten King opens up his arena: the floor spreads out from him over about 2 seconds, up to 30 tiles to each side and 19 south, turning the magma and broken walls round his island into the island's cobblestone. His lava traps (which eat the floor at 60% and 40% health) are removed, so the arena doesn't shrink.
 
 - **Items:** assassin poisons can be thrown twice as far (28 tiles), their cloud is 25% wider and they do 50% more damage (impact and poison). The Infernal Brimstone Poison now does 3,000.
+- **Items:** health and magic potion stacks hold up to 10 instead of 6.
 - **Marketplace:** purchases are announced like new listings: a gold **Marketplace** line in chat ("Buyer bought Health Potion from Seller for 1,234 fame.") and a line in Discord's **#marketplace**.
 
 ## Details
@@ -37,7 +38,13 @@ Deploys the world server only (rolling). No client change, no Redis data.
 - Deploys the world server and the Discord bot. No client change, nobody is disconnected.
 - Tested: `MarketStoreTests.ASaleGoesInTheFeedAfterTheListing`; `bot.py --dry-run` shows the sale post.
 
+### Health and magic potion stacks hold up to 10
+
+- Raised `MaxStackablePotions` in `Shared/resources/data/init.xml` from 6 to 10; this applies to both the health and magic potion stacks. Existing character counts are kept and aren't automatically increased.
+- World server only (rolling deploy, nobody is disconnected). No client change or Redis migration.
+
 ## Checks
 
 - World server builds; `dotnet test source/Tests`, 290 passed. Not played through in game on an isolated stack.
 - Bigger arena: world server builds; not yet played through in game on an isolated stack.
+- Potion stack limit: world server builds and tests pass; existing counts are unchanged.

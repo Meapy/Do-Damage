@@ -19,6 +19,7 @@ details). Add to a group's line when a change adds to it, rather than adding ano
 
 ### Items
 - Assassin poisons are stronger: they can be thrown twice as far (28 tiles), their cloud is 25% wider and they do 50% more damage (impact and poison).
+- Health and magic potion stacks hold up to 10 instead of 6.
 
 ### Dungeons
 - The Empowered Forgotten King can always be hurt: nothing he does (hiding, his crystals, his phases' shields) makes him untouchable once he has risen. His Last Court phase hits half as hard.
