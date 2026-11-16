@@ -363,6 +363,26 @@ namespace WorldServer.core.market
             });
         }
 
+        // A purchase, told to everyone like a listing: a chat line and a feed entry for #marketplace.
+        // Not when the buyer is a hidden admin.
+        private void AnnounceSale(Player buyer, DbMarketData listing, Item item)
+        {
+            if (buyer.Client.Account.Hidden)
+                return;
+            var name = item.DisplayName;
+            _server.ChatManager.MarketListed(buyer.AccountId, $"{buyer.Name} bought {name} from {listing.SellerName} for {listing.Price:N0} fame.");
+            Store.RecordListed(new MarketFeedEntry
+            {
+                Id = Store.NextId(),
+                Kind = "sold",
+                Item = name,
+                Price = listing.Price,
+                Seller = listing.SellerName,
+                Buyer = buyer.Name,
+                Time = Now
+            });
+        }
+
         // --- listing slots ------------------------------------------------------------------
 
         // Buys another listing slot for fame (expectedPrice: what the window showed, 0 for any).
@@ -463,6 +483,7 @@ namespace WorldServer.core.market
             if (r.InInventory)
                 SetSlot(player, slot, item, data);
             Notify(r.SellerId);
+            AnnounceSale(player, listing, item);
             StaticLogger.Instance.Info($"Marketplace: <{player.Name} {acc.AccountId}> bought {item.ObjectId} ({id}) for {listing.Price} fame from <{listing.SellerName} {listing.SellerId}>");
             return (true, r.InInventory
                 ? $"Bought {item.DisplayName} for {listing.Price:N0} fame."

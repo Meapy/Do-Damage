@@ -203,7 +203,7 @@ the real prizes:
   Assault, in white bags announced to everyone, and Potions of Oryx. Oryx 3 can also drop Oryx's
   Escutcheon. The Ring of Oryx, Oryx Hide Armor, Oryx Hide Robe and Oryx Scale Armor no longer drop
   anywhere: they're unobtainable.
-- **Oryx 4** drops his own untiered items in white bags: the **Infernal Brimstone Poison** (2,000 poison
+- **Oryx 4** drops his own untiered items in white bags: the **Infernal Brimstone Poison** (3,000 poison
   damage that curses and strips 4% of their defense for 12 seconds, as the orbs do, but it silences
   you for 2 seconds), the **Infernal Cloak of
   Bloodshed** (it makes you bleed for a moment), the **Infernal Bloodletter** and the **Infernal Gems

@@ -12,6 +12,22 @@ Keep each version short: changes go under `### ` group headings (Oryx 5, Arena, 
 on), one line per change players notice, summed up rather than item by item (the wiki has the
 details). Add to a group's line when a change adds to it, rather than adding another line.
 
+## 2.5.12 (2026-11-16)
+
+### Nexus
+- Vault chests now cost 500 fame and character slots cost 1,000 fame; the Nexus Bazaar no longer sells their unlockers.
+
+### Marketplace
+- Every purchase is announced too, like a new listing: a Marketplace line in chat and a post in the Discord server's #marketplace channel say who bought what from whom, and for how much.
+
+### Items
+- Assassin poisons are stronger: they can be thrown twice as far (28 tiles), their cloud is 25% wider and they do 50% more damage (impact and poison).
+- Health and magic potion stacks hold up to 10 instead of 6.
+
+### Dungeons
+- The Empowered Forgotten King can always be hurt: nothing he does (hiding, his crystals, his phases' shields) makes him untouchable once he has risen. His Last Court phase hits half as hard.
+- Raising the Forgotten King opens up his arena: the floor spreads out from him to both sides, turning the magma and broken walls round his island into cobblestone, and his lava traps are gone, so the fight keeps all its room instead of shrinking.
+
 ## 2.5.11 (2026-11-15)
 
 ### Marketplace

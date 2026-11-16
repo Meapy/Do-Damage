@@ -183,6 +183,7 @@ namespace WorldServer.core.resurrection
             boss.Move(pos.X, pos.Y);
             boss.Z = z;
             world.EnterWorld(boss);
+            EmpoweredGround.Widen(boss, info);
             world.EmpoweredBosses.RemoveAll(b => b.Dead || b.World != world && b.World != null);
             world.EmpoweredBosses.Add(boss);
             boss.Empowered.Risen(boss, raiser);

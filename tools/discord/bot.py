@@ -157,7 +157,8 @@ def dry_run(cfg, version):
     print(json.dumps(dodmg.online_embed(status, cfg["site"]), indent=1, ensure_ascii=False))
     print("=== #marketplace (made-up listings) ===")
     made_up = [{"id": 1, "item": "Doom Bow", "price": 25000, "seller": "Tester", "hours": 72, "time": 1763164800},
-               {"id": 2, "item": "Potion of Life", "price": 900, "seller": "Some_one", "hours": 24, "time": 1763164830}]
+               {"id": 2, "item": "Potion of Life", "price": 900, "seller": "Some_one", "hours": 24, "time": 1763164830},
+               {"id": 3, "kind": "sold", "item": "Doom Bow", "price": 25000, "seller": "Tester", "buyer": "Some_one", "time": 1763164900}]
     for msg in dodmg.market_messages(made_up[:1]) + dodmg.market_messages(made_up):
         print(json.dumps(msg, indent=1, ensure_ascii=False))
     print("=== /link (no code) ===")

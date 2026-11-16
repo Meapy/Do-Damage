@@ -63,8 +63,6 @@ namespace WorldServer.core.objects.vendors
             new ShopItem("XP Booster 1 hr", 60),
             new ShopItem("Loot Drop Potion", 150),
             new ShopItem("Backpack", 500),
-            new ShopItem("Vault Chest Unlocker", 250),
-            new ShopItem("Char Slot Unlocker", 1000),
             new ShopItem("Mystery Dye (Clothing)", 15),
             new ShopItem("Mystery Dye (Accessory)", 10)
         };

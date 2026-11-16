@@ -1,54 +1,57 @@
-Release 2.5.11: deploys the desktop client, the world server, the account server and the Discord bot; nobody is disconnected
+Release 2.5.12: Forgotten King, Marketplace, items and Nexus; deploys client, servers, website and Discord
 
 ## For players
 
-- **Dungeons:** Empowered bosses (raised with a Necromantic Relic) can no longer be held back by going invisible (the Rogue's cloak, or anything else that makes you Invisible). Their phases open and play on, and the checks that move each fight along still find a cloaked player: the Forgotten King's last stand fires at whoever stands within 7 tiles of him, which a cloaked player used to sit through untouched. Their aimed shots still lose you while you're cloaked. Every soul shot an Empowered boss fires (the bolts, fast bolts, orbs and shards of its Soul Nova and its phases) now leaves you Quiet for 1 second.
-- **Marketplace:** every new listing is announced. A gold **Marketplace** line in chat tells every player on every world server who listed what and for how much ("Tester listed Health Potion for 1,234 fame."), and the Discord server's new **#marketplace** channel gets the same within 30 seconds, with how long the listing lasts. Players who ignore the seller don't see their lines in game.
+- **Dungeons:** the Empowered Forgotten King can always be hurt once he has risen: his hiding, crystal and phase shields no longer make him untouchable. His Last Court phase (the four pillars) hits half as hard.
+- **Dungeons:** raising the Forgotten King opens up his arena: the floor spreads out from him over about 2 seconds, up to 30 tiles to each side and 19 south, turning the magma and broken walls round his island into the island's cobblestone. His lava traps (which eat the floor at 60% and 40% health) are removed, so the arena doesn't shrink.
+
+- **Items:** assassin poisons can be thrown twice as far (28 tiles), their cloud is 25% wider and they do 50% more damage (impact and poison). The Infernal Brimstone Poison now does 3,000.
+- **Items:** health and magic potion stacks hold up to 10 instead of 6.
+- **Marketplace:** purchases are announced like new listings: a gold **Marketplace** line in chat ("Buyer bought Health Potion from Seller for 1,234 fame.") and a line in Discord's **#marketplace**.
+- **Nexus:** vault chests now cost 500 fame and character slots cost 1,000 fame; the Nexus Bazaar no longer sells their unlockers.
 
 ## Details
 
-### Invisibility no longer holds back an Empowered boss's fight
+### Empowered Forgotten King: always vulnerable, softer Last Court
 
-Invisibility hid players from every check a boss's fight makes, so a cloaked player could stall it:
+- `Empowered.AlwaysVulnerable` (true for the Forgotten King once his 2.5 s rise is over): `Enemy.Damage` ignores Invincible, Stasis and Invulnerable for him, and `Arena.Shield` (the phases' short shields) does nothing. His Elder behaviour's intro and crystal states still run; they just don't protect him.
+- The Last Court's pillar shots take `EmpoweredSignatures.LastCourtDamage` (0.5): `Strike.FireFrom` / `Arena.ShootFrom` gained a `damageScale` argument.
+- Files: `core/objects/Enemy.cs`, `core/resurrection/Empowered.cs`, `EmpoweredPhases.cs`, `EmpoweredSignatures.cs`, `logic/behaviors/BlackBetween.cs`.
 
-- the Empowered layer (`core/resurrection/Empowered.cs`) skipped its whole tick, phases included, while no *visible* player was within 20 tiles: a fully cloaked group froze the phases (no Soul Harvest, Storm, Death Spiral, Last Breath, nor the signature phases), and damage dealt meanwhile went through phase thresholds without their shield;
-- the bosses' own behaviours gate their phases on players being near or gone (`PlayerWithinTransition`, `NoPlayerWithinTransition`; in the Doomed Realms engine `IsEntityPresent`, `IsEntityNotPresent`, `EntityLesserThan`). Every one of the 25 bosses' areas has such gates, in both engines: Arachna, Malphas, Davy Jones, Limon, Ruthven, Mixcoatl, Septavius and Stheno's Doomed definitions, and the hand-written Tomb, Shatters, Lost Halls, Draconis, Davy Jones, Jungle, Abyss and others. The Shatters one the owner saw: the Forgotten King's "diedie" stand fires at whoever is within 7 tiles (`dieshoot`) and waits otherwise (`diewait`); cloaked, he waited.
+Deploys the world server only (rolling). No client change, no Redis data.
 
-The fix is central rather than boss by boss, so it covers every boss, its minions and both engines:
+### Empowered Forgotten King: bigger arena
 
-- `World.EmpoweredBosses` lists the Empowered bosses raised there (`BossResurrection.RaiseAt`), and `BossResurrection.InEmpoweredFight(host)` says whether a monster is within 40 tiles of one still fighting.
-- `IPlayer.IsVisibleToEnemy(ignoreInvisible)`: with it, the Invisible effect doesn't hide a player (hidden admins, paused players and the newbie period still do). `EntityUtils.GetNearestEntity` takes it through.
-- `PlayerWithinTransition` and `NoPlayerWithinTransition` see cloaked players in an Empowered fight; so do the Doomed engine's presence conditions (`DoomedRuntime`: `IsEntityPresent`, `IsEntityNotPresent`, `EntityLesserThan`, through a `gate` flag on its nearest-entity helpers).
-- `Empowered.Tick`'s "someone to fight" counts cloaked players.
-- Aiming is unchanged: `Shoot`, chasing and the Doomed attacks still lose an invisible player, so the cloak still dodges aimed shots. Fixed-angle patterns (the King's stand) were never aimed.
-- Outside an Empowered fight nothing changes (Elder and regular bosses behave as before).
+- `EmpoweredGround.Widen`, called from `BossResurrection.RaiseAt` for the Forgotten King only: Elder magma (no object on it) and Shattered Walls within 30 tiles sideways, 9 north (the entrance walls stop it) and 19 south of him become Elder Dark Cobblestone, in 11 waves over 2.2 s while he rises; his `king lava1`/`king lava2` traps leave the world. Gold blast rings play meanwhile (no Earthquake: clients before 2.5.6 shake for good).
+- Files: `core/resurrection/EmpoweredGround.cs`, `BossResurrection.cs`. World server only (rolling). No client change, no Redis data.
 
-Files: `core/worlds/World.cs`, `core/resurrection/BossResurrection.cs`, `core/resurrection/Empowered.cs`, `core/objects/player/Player.cs`, `Player.Effects.cs`, `core/objects/Decoy.cs`, `Pet.cs`, `utils/EntityUtils.cs`, `logic/transitions/PlayerWithinTransition.cs`, `NoPlayerWithinTransition.cs`, `logic/doomed/DoomedRuntime.cs`; the wiki's Necromantic Relic page.
+### Assassin poisons: farther, wider, stronger
 
-Deploys the world server only (rolling, nobody is disconnected). No Redis data.
+- `tools/rework_poisons.py` edits every slot-18 `PoisonGrenade` in the server's and client's item XML (radius x1.25, `impactDamage` and `totalDamage` x1.5, new `throwRange="28"`, which also marks it done so a rerun changes nothing); `port_doomed.py` runs it after writing `DoomedRealms.xml`, so the Doomed poisons keep it (18 prod items, 4 Doomed ones).
+- `ActivateEffect.ThrowRange` is read by `Player.AEPoisonGrenade`, which clamps the throw to it instead of the shared 14-tile `MAX_ABILITY_DIST` (`ClampAbilityTarget` gained a `maxDist` argument). Other abilities keep 14.
+- Wiki: Infernal Brimstone Poison 2,000 to 3,000; note on the Assassin row of Gear statistics.
+- Deploys the world server (rolling) and the website. The item tooltips read the new radius and damage from the XML; no client change. No Redis data.
 
-### Every Empowered soul shot silences for a second
+### Marketplace purchases announced
 
-The four soul shots every Empowered form carries (projectiles 90 to 93: the soul bolt, the fast bolt, the orb and the shard) put Quiet on for 1 second, on top of what they had (the fast bolt still slows for 2). The Wailing Souls' own bolts and the bosses' signature shots are unchanged.
+- World server: `Marketplace.Buy` calls `AnnounceSale` after a purchase goes through: the same `ChatManager.MarketListed` chat line to every world server (not for those ignoring the buyer; none for a hidden admin buyer), and a `market.feed` entry with `kind` "sold", the buyer, and a fresh id from `MarketStore.NextId()` so the feed stays ordered for the bot's `after` cursor (a listing and its sale don't share an id).
+- Bot: `dodmg.market_line` words a sold entry ("X bought Y from Z for N fame"); the account server's `discord/market` needed no change. An older bot shows a sale as a listing, so deploy the bot with the world server.
+- Deploys the world server and the Discord bot. No client change, nobody is disconnected.
+- Tested: `MarketStoreTests.ASaleGoesInTheFeedAfterTheListing`; `bot.py --dry-run` shows the sale post.
 
-`tools/build_resurrection.py` adds it (`SOUL_QUIET`). Running the generator today rewrites far more than this (the committed `Resurrection.xml` and `resurrection.json` have drifted from it: other items reordered, the Elder dungeon keys added to the Empowered loot), so the two `Resurrection.xml` copies (`source/Shared/resources/xml/custom/` and the client's `custom/xmls/`) were patched with exactly what the generator now writes for these shots, and nothing else. Someone should look at that drift before the generator is next run.
+### Health and magic potion stacks hold up to 10
 
-Deploys the world server and the client (the client applies a hit's conditions as it's hit; an older client shows the Quiet once the server's flags arrive).
+- Raised `MaxStackablePotions` in `Shared/resources/data/init.xml` and the client's `hud::MAX_STACKED` from 6 to 10; both the health and magic stacks use the same limit. Existing character counts are kept and aren't automatically increased.
+- Requires both the client release and the world server (rolling deploy, nobody is disconnected). No Redis migration.
 
-### New listings announced in game and on Discord
+### Vault chest and character slot prices
 
-- World server: `Marketplace.Sell` and `SellFromVault` call `Announce` once a listing is in: `ChatManager.MarketListed` publishes a `ChatType.Market` chat message to every world server, each sending its players a `Marketplace` line (`Player.SendMarketNotif`, gold name), not to those ignoring the seller; and `MarketStore.RecordListed` pushes the listing onto the Redis list `market.feed` (newest first, trimmed to 100). A hidden admin's listings aren't announced. An older world server during a rolling deploy ignores the new chat type.
-- Account server: `discord/market` (`DiscordController`, behind the bot's secret) answers the feed's listings after a given id, oldest first, and the newest id (`after=-1`: the newest only, for a first start).
-- Bot: `market_loop` polls it every 30 s and posts to #marketplace (`DISCORD_MARKET_CHANNEL`, else the guild's channel named marketplace), up to 15 listings to an embed, mentions off; the last id posted is `market_after` in its state file. `setup_server.py` adds #marketplace (INFO, read-only) and writes `DISCORD_MARKET_CHANNEL`.
-- Docs: SETUP-LOCAL.md ("Discord", "Marketplace listings"), AGENTS.md, the wiki's Marketplace page.
-
-Deploys the world server (rolling), the account server (sign-ins pause), and the Discord bot on the website machine; nobody is disconnected. No client change (the line is an ordinary chat line). Redis gains `market.feed`; nothing migrated.
-
-**For the owner:** create the channel: `python tools\discord\setup_server.py --env deploy\discord.local.env --apply` (look at its plan first without `--apply`). The bot finds the channel by name, so the `DISCORD_ENV` secret on GitHub needn't change; if you'd rather pin the id, copy the new `DISCORD_MARKET_CHANNEL` line into that secret too.
+- Doubled `VaultChestPrice` in `Shared/resources/data/init.xml` from 250 to 500 fame and `NewAccounts.SlotCost` from 500 to 1,000 fame. Removed both unlockers from the Nexus Bazaar's Specials list (`MerchantLists.cs`); other ways of obtaining unlockers are unchanged.
+- Deploys the account and world servers (rolling world-server deploy, nobody is disconnected). No client change or Redis migration.
 
 ## Checks
 
-- Invisibility: built the world server; on an isolated stack (slot 13000, a copy of the data), a bot with `/god` and `/eff Invisible` in its vault raised `/empower Pirate 50` beside itself: Soul Harvest and Soul Storm were announced and their bolts and the Soul Nova fired (logged with `--shots`) while it stayed invisible. The old code returned before the phases whenever no visible player was within 20 tiles (not run again to compare). The Forgotten King's stand itself wasn't played through in game.
-- Quiet: `EmpoweredPhaseTests.EverySoulShotSilences` (all 25 Empowered forms, shots 90 to 93); `dotnet test source/Tests`, 289 passed.
-- Wiki: `tools/build_wiki.py` into a scratch folder; the Necromantic Relic page shows both notes.
-- Marketplace announcements: `MarketStoreTests.TheFeedKeepsTheNewestListingsForTheDiscordBot` (`dotnet test source/Tests`, 290 passed); world and account servers build. On an isolated stack (slot 150, a copy of the data, a test `discordSecret`), a `bsk-bot` ran `/sell 1 1234 3` and got `<Marketplace> Tester listed Health Potion for 1,234 fame.` in chat; `discord/market` then answered that listing (`after=0`), nothing after it, only the newest id with `after=-1`, and "Not allowed." for a wrong secret; `dodmg.market_messages` made the embed from that answer. Not posted to a real Discord channel, and the in-game line not seen from a second world server.
+- Server solution builds; `dotnet test source/Tests`, 292 passed. Client: `cargo test -p bsk-client`, 100 passed. Website: `python tools/build_site.py` succeeds. Not played through in game on an isolated stack.
+- Bigger arena: world server builds; not yet played through in game on an isolated stack.
+- Potion stack limit: client and world server builds and tests pass; existing counts are unchanged.
+- Vault chest and character slot prices: not yet checked on an isolated stack.

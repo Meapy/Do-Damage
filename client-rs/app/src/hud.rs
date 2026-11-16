@@ -667,7 +667,7 @@ pub fn slot_reversed(o: &GameObj, slot: u8) -> bool {
 pub const POTIONS: [(i32, u8); 2] = [(2594, 254), (2595, 255)];
 
 /// The most potions a stack holds.
-pub const MAX_STACKED: i32 = 6;
+pub const MAX_STACKED: i32 = 10;
 
 /// The minimap's ground where nothing is known.
 const MINIMAP_FILL: u32 = 0x1B1B1B;

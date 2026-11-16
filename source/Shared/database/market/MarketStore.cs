@@ -447,7 +447,7 @@ return all
             return r.Select(v => Parse<MarketHistoryEntry>((string)v)).Where(e => e != null).ToList();
         }
 
-        // A new listing, for the Discord bot (best effort: a listing that isn't in the feed is
+        // A new listing or a sale, for the Discord bot (best effort: a listing that isn't in the feed is
         // still listed).
         public void RecordListed(MarketFeedEntry entry)
         {
@@ -527,6 +527,10 @@ return all
         [JsonProperty("seller")] public string Seller;
         [JsonProperty("hours")] public int Hours;
         [JsonProperty("time")] public int Time;
+        // "sold" for a purchase (Seller then being who sold it, Buyer who bought it); empty for a new
+        // listing. A sale's Id is a fresh one, so the feed stays in order for the bot.
+        [JsonProperty("kind", NullValueHandling = NullValueHandling.Ignore)] public string Kind;
+        [JsonProperty("buyer", NullValueHandling = NullValueHandling.Ignore)] public string Buyer;
     }
 
     public sealed class MarketHistoryEntry

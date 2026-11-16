@@ -148,6 +148,9 @@ namespace WorldServer.core.resurrection
             },
         };
 
+        /// <summary>The Last Court's pillar shots hit for half what the signature shot does.</summary>
+        public const double LastCourtDamage = 0.5;
+
         private static SoulPhase[] ForgottenKing() => new[]
         {
             // the King's decree falls on every player and shatters into a crown of fire
@@ -189,7 +192,7 @@ namespace WorldServer.core.resurrection
                         {
                             var target = a.Targets().OrderBy(p => Math.Abs(p.X - at.X) + Math.Abs(p.Y - at.Y)).FirstOrDefault();
                             if (target != null)
-                                a.ShootFrom(at, Arena.Sig0, Arena.AngleBetween(at, Arena.P(target)), 3, Arena.Deg(14));
+                                a.ShootFrom(at, Arena.Sig0, Arena.AngleBetween(at, Arena.P(target)), 3, Arena.Deg(14), LastCourtDamage);
                         }
                     }, 600);
                 },

@@ -346,6 +346,10 @@ def _md(text):
 
 
 def market_line(l):
+    if l.get("kind") == "sold":
+        return "**%s** bought **%s** from **%s** for **%s** fame" % (
+            _md(l.get("buyer", "?")), _md(l.get("item", "an item")), _md(l.get("seller", "?")),
+            "{:,}".format(int(l.get("price") or 0)))
     hours = int(l.get("hours") or 0)
     days = hours // 24
     lasts = ("1 day" if days == 1 else "%d days" % days) if hours >= 24 and hours % 24 == 0 else "%d h" % hours
@@ -359,7 +363,7 @@ def market_messages(listings, site=SITE):
     for i in range(0, len(listings), MARKET_LINES):
         part = listings[i:i + MARKET_LINES]
         out.append({"embeds": [{
-            "title": "New on the Marketplace" if len(part) > 1 else None,
+            "title": "On the Marketplace" if len(part) > 1 else None,
             "description": "\n".join(market_line(l) for l in part),
             "color": MARKET_COLOUR,
             "footer": {"text": "Buy at the Marketplace in the Nexus."},

@@ -40,6 +40,7 @@ import xml.etree.ElementTree as ET
 import community_sprites
 import rework_buff_auras
 import rework_orbs
+import rework_poisons
 
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 STATE = os.path.join(ROOT, "tools", "doomed")
@@ -1225,6 +1226,8 @@ def write_xml(objs, path):
         f.write("\n")
     # the orbs shred armour rather than stasis (tools/rework_orbs.py)
     rework_orbs.rework_file(path)
+    # the assassin poisons: bigger, stronger, thrown twice as far (tools/rework_poisons.py)
+    rework_poisons.rework_file(path)
     # the party buffs reach further (tools/rework_buff_auras.py)
     rework_buff_auras.rework_file(path)
     # items keep the looks players drew for them (tools/community_sprites.py)
