@@ -1,4 +1,4 @@
-Release 2.5.12: Empowered Forgotten King tuning, a bigger arena and potion stacks; deploys the client, world server, website and Discord bot (rolling, nobody is disconnected)
+Release 2.5.12: Forgotten King, Marketplace, items and Nexus; deploys client, servers, website and Discord
 
 ## For players
 
@@ -51,7 +51,7 @@ Deploys the world server only (rolling). No client change, no Redis data.
 
 ## Checks
 
-- World server builds; `dotnet test source/Tests`, 290 passed. Not played through in game on an isolated stack.
+- Server solution builds; `dotnet test source/Tests`, 292 passed. Client: `cargo test -p bsk-client`, 100 passed. Website: `python tools/build_site.py` succeeds. Not played through in game on an isolated stack.
 - Bigger arena: world server builds; not yet played through in game on an isolated stack.
 - Potion stack limit: client and world server builds and tests pass; existing counts are unchanged.
 - Vault chest and character slot prices: not yet checked on an isolated stack.
