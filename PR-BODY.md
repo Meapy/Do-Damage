@@ -8,6 +8,7 @@ Release 2.5.12: Empowered Forgotten King tuning, a bigger arena and potion stack
 - **Items:** assassin poisons can be thrown twice as far (28 tiles), their cloud is 25% wider and they do 50% more damage (impact and poison). The Infernal Brimstone Poison now does 3,000.
 - **Items:** health and magic potion stacks hold up to 10 instead of 6.
 - **Marketplace:** purchases are announced like new listings: a gold **Marketplace** line in chat ("Buyer bought Health Potion from Seller for 1,234 fame.") and a line in Discord's **#marketplace**.
+- **Nexus:** vault chests now cost 500 fame and character slots cost 1,000 fame; the Nexus Bazaar no longer sells their unlockers.
 
 ## Details
 
@@ -43,8 +44,14 @@ Deploys the world server only (rolling). No client change, no Redis data.
 - Raised `MaxStackablePotions` in `Shared/resources/data/init.xml` and the client's `hud::MAX_STACKED` from 6 to 10; both the health and magic stacks use the same limit. Existing character counts are kept and aren't automatically increased.
 - Requires both the client release and the world server (rolling deploy, nobody is disconnected). No Redis migration.
 
+### Vault chest and character slot prices
+
+- Doubled `VaultChestPrice` in `Shared/resources/data/init.xml` from 250 to 500 fame and `NewAccounts.SlotCost` from 500 to 1,000 fame. Removed both unlockers from the Nexus Bazaar's Specials list (`MerchantLists.cs`); other ways of obtaining unlockers are unchanged.
+- Deploys the account and world servers (rolling world-server deploy, nobody is disconnected). No client change or Redis migration.
+
 ## Checks
 
 - World server builds; `dotnet test source/Tests`, 290 passed. Not played through in game on an isolated stack.
 - Bigger arena: world server builds; not yet played through in game on an isolated stack.
 - Potion stack limit: client and world server builds and tests pass; existing counts are unchanged.
+- Vault chest and character slot prices: not yet checked on an isolated stack.

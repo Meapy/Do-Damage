@@ -14,6 +14,9 @@ details). Add to a group's line when a change adds to it, rather than adding ano
 
 ## Unreleased
 
+### Nexus
+- Vault chests now cost 500 fame and character slots cost 1,000 fame; the Nexus Bazaar no longer sells their unlockers.
+
 ### Marketplace
 - Every purchase is announced too, like a new listing: a Marketplace line in chat and a post in the Discord server's #marketplace channel say who bought what from whom, and for how much.
 
