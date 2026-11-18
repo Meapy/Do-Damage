@@ -86,12 +86,12 @@ page). The track has {{v:quests_login_days}} days, with bigger rewards (&#9733;)
 week; after the last day it starts again. The day moves on only when you collect, so **missing a
 day never loses your place**: you just pick up where you left off. A new reward comes at midnight
 UTC, and a popup tells you when one is waiting. A full track is worth {{v:quests_login_fame}} fame
-as well as its items.
+as well as its items. You need **5 stars** to collect it (see below).
 
 {{gen:quests_login}}
 
 Now and then there's a **gift** above the track for a while: a free item every account can claim
-once, before its countdown runs out. Until 27 November 2026 it's a Lil' Oryx Generator.
+once, before its countdown runs out, from 5 stars. Until 27 November 2026 it's a Lil' Oryx Generator.
 
 ## Achievements
 
@@ -121,6 +121,9 @@ colour** for the chat: pick it in the **Customize** window (Escape, then Customi
 ## Good to know
 
 - Guests can't collect rewards: register your account first.
+- The daily reward and gifts need **5 stars** on your account, so fresh accounts can't be made
+  just to collect them. Each class gives stars from its best character's fame: one at 20 fame, up
+  to five at 2,000. Quests and achievements need no stars.
 - Quests, the daily reward and achievements are kept on your account, so they follow you to every
   character and every server, and survive server restarts.
 - The rewards are meant to add to your play, not replace it: a quest gives a few minutes' worth of

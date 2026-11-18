@@ -100,6 +100,10 @@ namespace WorldServer.core.net.handlers
             // only a trade that moves something counts for the achievements
             var moved = thisItems.Count(x => x.Item1 != null) + targetItems.Count(x => x.Item1 != null);
 
+            // what each side gives, for the log: the moves below empty these lists
+            var thisGives = ItemNames(thisItems);
+            var targetGives = ItemNames(targetItems);
+
             // move thisItems -> tradeTarget (into its backpack too, if it has one)
             for (var i = 0; i < tradeTarget.TradeSlots; i++)
                 for (var j = 0; j < thisItems.Count; j++)
@@ -126,9 +130,6 @@ namespace WorldServer.core.net.handlers
                     }
                 }
 
-            LogTrade(player, tradeTarget, thisItems);
-            LogTrade(tradeTarget, player, targetItems);
-
             // save
             if (!Inventory.DatExecute(pInvDataTrans, tInvDataTrans))
             {
@@ -140,6 +141,9 @@ namespace WorldServer.core.net.handlers
                 TradeDone(player, tradeTarget, failedMsg);
                 return;
             }
+
+            LogTrade(player, tradeTarget, thisGives);
+            LogTrade(tradeTarget, player, targetGives);
 
             // check for lingering items
             if (thisItems.Count > 0 || targetItems.Count > 0)
@@ -156,13 +160,19 @@ namespace WorldServer.core.net.handlers
             }
         }
 
-        private void LogTrade(Player player, Player tradeTarget, List<(Item, ItemData)> items)
+        private static string ItemNames(List<(Item, ItemData)> items)
+        {
+            var given = items.Where(x => x.Item1 != null).Select(x => x.Item1.ObjectId).ToList();
+            return given.Count > 0 ? string.Join(", ", given) : "nothing";
+        }
+
+        private void LogTrade(Player player, Player tradeTarget, string items)
         {
             try
             {
                 var sb = new StringBuilder($"[{player.World.IdName}({player.World.Id})] ");
                 sb.Append($"<{player.Stars} {player.Name} {player.AccountId}-{player.Client.Character.CharId}> traded ");
-                //sb.Append(string.Join(", ", items.Select(_ => _.Item1.DisplayId ?? _.Item1.ObjectId))); // todo fix
+                sb.Append(items);
                 sb.Append($" to <{tradeTarget.Stars} {tradeTarget.Name} {tradeTarget.AccountId}-{tradeTarget.Client.Character.CharId}>");
                 StaticLogger.Instance.Info(sb.ToString());
             }

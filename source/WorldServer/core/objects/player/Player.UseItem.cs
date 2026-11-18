@@ -843,6 +843,8 @@ namespace WorldServer.core.objects
             if (World is TestWorld || Client.Account == null)
                 return;
 
+            StaticLogger.Instance.Info($"Fame: <{Name} {AccountId}> got {eff.Amount} fame from using {item.ObjectId}");
+
             var acc = Client.Account;
             var trans = GameServer.Database.Conn.CreateTransaction();
             GameServer.Database.UpdateCurrency(acc, eff.Amount, CurrencyType.Fame, trans)
@@ -909,6 +911,8 @@ namespace WorldServer.core.objects
         {
             if (World is TestWorld || Client.Account == null)
                 return;
+
+            StaticLogger.Instance.Info($"Fame: <{Name} {AccountId}> got {eff.Amount} fame from using {item.ObjectId}");
 
             var acc = Client.Account;
             var trans = GameServer.Database.Conn.CreateTransaction();

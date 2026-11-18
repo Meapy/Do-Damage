@@ -77,6 +77,7 @@ namespace WorldServer.core.net.handlers
 
             var fameToGive = item.BreakDownData.Fame;
             var data = TakeOut(e, slot);
+            LogBreakdown(player, item, fameToGive);
 
             var db = player.GameServer.Database;
             var acc = player.Client.Account;
@@ -134,6 +135,9 @@ namespace WorldServer.core.net.handlers
             e.Inventory.Data[slot] = null;
             return data;
         }
+
+        private static void LogBreakdown(Player player, Item item, int fame) =>
+            StaticLogger.Instance.Info($"Breakdown: <{player.Name} {player.AccountId}> broke down {item.ObjectId} for {fame} fame");
 
         private static void PutBack(IContainer e, int slot, Item item, ItemData data)
         {
@@ -216,6 +220,7 @@ namespace WorldServer.core.net.handlers
             }
 
             var data = TakeOut(e, slot);
+            LogBreakdown(player, item, fameToGive);
 
             var db = player.GameServer.Database;
             var acc = player.Client.Account;

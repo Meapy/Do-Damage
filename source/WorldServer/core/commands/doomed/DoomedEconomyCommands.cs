@@ -220,6 +220,7 @@ namespace WorldServer.core.commands.doomed
             if (slots.Any(s => SellPrice(inv[s].ObjectId) <= 0))
                 return "The forge doesn't buy some of those items.";
             fame = slots.Sum(s => SellPrice(inv[s].ObjectId));
+            WorldServer.utils.StaticLogger.Instance.Info($"Forge: <{player.Name} {player.AccountId}> sold {string.Join(", ", slots.Select(s => inv[s].ObjectId))} for {fame} fame");
             foreach (var s in slots)
             {
                 inv[s] = null;

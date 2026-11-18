@@ -23,6 +23,12 @@ namespace WorldServer.core.quests
     {
         public const byte CLAIM_QUEST = 0, CLAIM_BONUS = 1, CLAIM_LOGIN = 2, CLAIM_ACHIEVEMENT = 3, SWAP = 4, COLOR = 5, CLAIM_GIFT = 6, GLOW = 7;
 
+        // The stars an account needs for the daily login rewards and the free gifts, so fresh
+        // accounts made only to collect them (a Lil' Oryx each) get nothing.
+        public const int RewardStars = 5;
+
+        private bool TooNewForRewards => _player.Stars < RewardStars;
+
         private static QuestData _data;
         private static readonly object DataLock = new object();
 
@@ -266,6 +272,8 @@ namespace WorldServer.core.quests
                 result = ClaimResult.Fail("Register your account to collect rewards.");
             else if (_player.World is TestWorld)
                 result = ClaimResult.Fail("Not here.");
+            else if ((kind == CLAIM_LOGIN || kind == CLAIM_GIFT) && TooNewForRewards)
+                result = ClaimResult.Fail($"Reach {RewardStars} stars to collect daily rewards and gifts.");
             else
                 result = kind switch
                 {

@@ -115,11 +115,14 @@ namespace WorldServer.core.worlds.impl.doomed
             });
         }
 
-        public static void GiveFame(Player player, int amount)
+        // `why` names a payout the logs don't show elsewhere (the minigames), for tracing fame
+        public static void GiveFame(Player player, int amount, string why = null)
         {
             if (amount == 0 || player.Client?.Account == null)
                 return;
             var acc = player.Client.Account;
+            if (why != null)
+                WorldServer.utils.StaticLogger.Instance.Info($"Fame: <{player.Name} {player.AccountId}> got {amount} fame from {why}");
             player.GameServer.Database.UpdateCurrency(acc, amount, CurrencyType.Fame)
                 .ContinueWith(_ => player.CurrentFame = acc.Fame);
         }
@@ -1047,7 +1050,7 @@ namespace WorldServer.core.worlds.impl.doomed
                 {
                     // the Hall of Champions' Arena board: more of each wave's fame
                     var mine = (int)Math.Round(pot * (1 + p.Champion.ArenaFame));
-                    DoomedWorlds.GiveFame(p, mine);
+                    DoomedWorlds.GiveFame(p, mine, $"the Arena, wave {Wave}");
                     DoomedWorlds.Notify(p, 0xFFFF6600, "+" + mine + " Fame");
                 }
                 var ms = 6000;
@@ -1307,7 +1310,7 @@ namespace WorldServer.core.worlds.impl.doomed
             DoomedWorlds.Say(this, "#Zombies", $"Your tower's been destroyed! You each earn {_famePot} fame!");
             foreach (var p in Players.Values)
             {
-                DoomedWorlds.GiveFame(p, _famePot);
+                DoomedWorlds.GiveFame(p, _famePot, "Zombies");
                 DoomedWorlds.Notify(p, 0xFFFF6600, "+" + _famePot + " Fame");
             }
             if (_tower != null)
@@ -1424,7 +1427,7 @@ namespace WorldServer.core.worlds.impl.doomed
                 DoomedWorlds.Say(this, "#Sheep Herding", $"Time's up! You each win {share} fame!");
                 foreach (var p in Players.Values)
                 {
-                    DoomedWorlds.GiveFame(p, share);
+                    DoomedWorlds.GiveFame(p, share, "Sheep Herding");
                     DoomedWorlds.Notify(p, 0xFFFF6600, "+" + share + " Fame");
                 }
                 foreach (var e in Hostiles.ToList())
