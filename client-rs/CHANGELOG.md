@@ -15,7 +15,7 @@ details). Add to a group's line when a change adds to it, rather than adding ano
 ## Unreleased
 
 ### Dungeons
-- The Necromantic items (the untiered drop of each Empowered Elder boss) drop at half the chance: 3% instead of 6%.
+- The Necromantic items (the untiered drop of each Empowered Elder boss) drop at: 3%
 
 ## 2.6.0 (2026-11-18)
 
