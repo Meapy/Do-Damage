@@ -305,7 +305,8 @@ HIDDEN_MONSTER = re.compile(r"Admin|Test(?!Chicken)|XP\b|Spawner|spawner|Control
 BOSS_OVERRIDE = {"Tomb of the Ancients": "Tomb Defender", "Elder Tomb of the Ancients": "Elder Tomb Defender",
                  "Ice Cave": "ic Esben the Unwilling", "The Shatters": "shtrs The Forgotten King",
                  "The Elder Shatters": "Elder shtrs The Forgotten King",
-                 "Haunted Cemetery": "Ghost of Skuld", "Cultist Hideout": "LH Malus 2",
+                 "Haunted Cemetery": "Ghost of Skuld", "Elder Cemetery": "Elder Ghost of Skuld",
+                 "Cultist Hideout": "LH Malus 2",
                  "Lost Halls": "LH Marble Colossus", "The Void": "LH Void Entity",
                  "Elder Lost Halls": "Elder LH Marble Colossus", "Elder Cultist Hideout": "Elder LH Malus 2",
                  "The Elder Void": "Elder LH Void Entity",
@@ -358,6 +359,12 @@ DUNGEON_FIGHT_NOTES = {
                           "again. The Forgotten King doesn't die at a tenth of his health: he comes out of "
                           "hiding for a last stand, fire and ice turning round him, with his guardians back at "
                           "his side.",
+    "Elder Cemetery": "Each of its three bosses has a phase the regular Cemetery doesn't. Below 30% the Ghost "
+                      "Bride dances her Last Waltz: her ghosts at her side, two pairs of bolts wheeling round her "
+                      "and rings between, with a veil of light now and then. Below 40% the Grave Caretaker holds "
+                      "a Last Burial, six blue flames thrown round him and two spirals turning. At a tenth of his "
+                      "health the Ghost of Skuld doesn't die: he sings his Requiem from the centre of his crypt, "
+                      "flaming skulls and the risen dead round him, until he is truly beaten.",
     "The Black Between": "Every shot here goes on through whoever it hits, so nobody can take the hits for the "
                          "rest of the group: each player has to dodge them. Once the fight starts the bridge falls "
                          "away into the void, all but the landing where players arrive (anyone on it is moved onto "
@@ -375,6 +382,8 @@ RAISE_DUNGEON_NOTES = {
     "The Elder Shatters": "The Bridge Sentinel, the Twilight Archmage and the Forgotten King each leave their own "
                           "remains where they fall, and each needs a relic of its own. Raised, a boss drops what "
                           "its loot balloon held as well: there is no second balloon.",
+    "Elder Cemetery": "The Ghost Bride, the Grave Caretaker and the Ghost of Skuld each leave their own remains, "
+                      "in their own arena, and each needs a relic of its own.",
     "Lair of Elder Draconis": "Each of the four Elder dragons leaves its own remains in its lair, so it takes a relic for "
                               "each: a group with four can raise them all. Like the Elder dragon, the Empowered one turns "
                               "into a loot balloon when it falls. The balloon holds the Elder dragon's loot at its "

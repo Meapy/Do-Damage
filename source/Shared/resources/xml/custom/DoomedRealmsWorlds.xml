@@ -59,6 +59,34 @@
 		<VisibilityType>1</VisibilityType>
 		<Dungeon/>
 	</World>
+	<World id="Elder Cemetery">
+		<Width>44</Width>
+		<Height>44</Height>
+		<MapJM>Doomed/Elder Cemetery.jm</MapJM>
+		<VisibilityType>1</VisibilityType>
+		<Dungeon/>
+	</World>
+	<World id="Elder Cemetery Final Battle">
+		<Width>49</Width>
+		<Height>49</Height>
+		<MapJM>Doomed/Elder Cemetery Final Battle.jm</MapJM>
+		<VisibilityType>1</VisibilityType>
+		<Dungeon/>
+	</World>
+	<World id="Elder Cemetery Gates">
+		<Width>46</Width>
+		<Height>44</Height>
+		<MapJM>Doomed/Elder Cemetery Gates.jm</MapJM>
+		<VisibilityType>1</VisibilityType>
+		<Dungeon/>
+	</World>
+	<World id="Elder Cemetery Graves">
+		<Width>48</Width>
+		<Height>49</Height>
+		<MapJM>Doomed/Elder Cemetery Graves.jm</MapJM>
+		<VisibilityType>1</VisibilityType>
+		<Dungeon/>
+	</World>
 	<World id="Elder Cultist Hideout">
 		<Width>103</Width>
 		<Height>138</Height>

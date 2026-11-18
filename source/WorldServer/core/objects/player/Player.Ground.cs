@@ -57,6 +57,7 @@ namespace WorldServer.core.objects
             {
                 dmg = ShieldedDamage(dmg);
                 dmg = WardAbsorb(dmg);
+                dmg = VowedDamage(dmg);
                 Health -= dmg;
 
                 if (Health <= 0)
@@ -104,6 +105,7 @@ namespace WorldServer.core.objects
                     int dmg = Random.Shared.Next(tileDesc.MinDamage, Math.Max(tileDesc.MinDamage, tileDesc.MaxDamage));
                     dmg = ShieldedDamage(dmg);
                     dmg = WardAbsorb(dmg);
+                    dmg = VowedDamage(dmg);
 
                     Health -= dmg;
 

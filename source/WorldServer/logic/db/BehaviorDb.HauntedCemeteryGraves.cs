@@ -7,11 +7,19 @@ namespace WorldServer.logic
 {
     partial class BehaviorDb
     {
-        private _ HauntedCemeteryGraves = () => Behav()
-            .Init("Area 3 Controller",
+        private _ HauntedCemeteryGraves = () => HauntedCemeteryGravesBehaviours(Behav(), false);
+        private _ ElderCemeteryGraves = () => HauntedCemeteryGravesBehaviours(Behav(), true);
+
+        private static Ctor HauntedCemeteryGravesBehaviours(Ctor db, bool elder)
+        {
+            string N(string id) => ElderOr(id, elder);
+            string E(string id) => ElderDefines(id, elder);
+            MobDrops ElderLoot(double threshold, params MobDrops[] drops) => new Threshold(threshold, elder ? drops : new MobDrops[0]);
+            return db
+            .Init(E("Area 3 Controller"),
                 new State(
                     new ConditionEffectBehavior(ConditionEffectIndex.Invincible),
-                    new TransformOnDeath("Haunted Cemetery Final Rest Portal"),
+                    new TransformOnDeath(N("Haunted Cemetery Final Rest Portal")),
                     new State("Start",
                         new PlayerWithinTransition(4, "1")
                         ),
@@ -63,14 +71,14 @@ namespace WorldServer.logic
                         ),
                     new State("7",
                         new SetAltTexture(0),
-                        new OrderOnce(100, "Arena South Gate Spawner", "Stage 11"),
-                        new OrderOnce(100, "Arena West Gate Spawner", "Stage 11"),
-                        new OrderOnce(100, "Arena East Gate Spawner", "Stage 11"),
-                        new OrderOnce(100, "Arena North Gate Spawner", "Stage 11"),
-                        new EntityExistsTransition("Arena Risen Warrior", 999, "Check 1")
+                        new OrderOnce(100, N("Arena South Gate Spawner"), "Stage 11"),
+                        new OrderOnce(100, N("Arena West Gate Spawner"), "Stage 11"),
+                        new OrderOnce(100, N("Arena East Gate Spawner"), "Stage 11"),
+                        new OrderOnce(100, N("Arena North Gate Spawner"), "Stage 11"),
+                        new EntityExistsTransition(N("Arena Risen Warrior"), 999, "Check 1")
                         ),
                     new State("Check 1",
-                        new EntitiesNotExistsTransition(100, "8", "Arena Risen Archer", "Arena Risen Mage", "Arena Risen Brawler", "Arena Risen Warrior")
+                        new EntitiesNotExistsTransition(100, "8", N("Arena Risen Archer"), N("Arena Risen Mage"), N("Arena Risen Brawler"), N("Arena Risen Warrior"))
                         ),
                     new State("8",
                         new SetAltTexture(2),
@@ -150,14 +158,14 @@ namespace WorldServer.logic
                         ),
                     new State("27",
                         new SetAltTexture(0),
-                        new OrderOnce(100, "Arena South Gate Spawner", "Stage 12"),
-                        new OrderOnce(100, "Arena West Gate Spawner", "Stage 12"),
-                        new OrderOnce(100, "Arena East Gate Spawner", "Stage 12"),
-                        new OrderOnce(100, "Arena North Gate Spawner", "Stage 12"),
-                        new EntityExistsTransition("Arena Risen Warrior", 999, "Check 2")
+                        new OrderOnce(100, N("Arena South Gate Spawner"), "Stage 12"),
+                        new OrderOnce(100, N("Arena West Gate Spawner"), "Stage 12"),
+                        new OrderOnce(100, N("Arena East Gate Spawner"), "Stage 12"),
+                        new OrderOnce(100, N("Arena North Gate Spawner"), "Stage 12"),
+                        new EntityExistsTransition(N("Arena Risen Warrior"), 999, "Check 2")
                         ),
                     new State("Check 2",
-                        new EntitiesNotExistsTransition(100, "28", "Arena Risen Archer", "Arena Risen Mage", "Arena Risen Brawler", "Arena Risen Warrior")
+                        new EntitiesNotExistsTransition(100, "28", N("Arena Risen Archer"), N("Arena Risen Mage"), N("Arena Risen Brawler"), N("Arena Risen Warrior"))
                         ),
                     new State("28",
                         new SetAltTexture(2),
@@ -237,14 +245,14 @@ namespace WorldServer.logic
                         ),
                     new State("47",
                         new SetAltTexture(0),
-                        new OrderOnce(100, "Arena South Gate Spawner", "Stage 13"),
-                        new OrderOnce(100, "Arena West Gate Spawner", "Stage 13"),
-                        new OrderOnce(100, "Arena East Gate Spawner", "Stage 13"),
-                        new OrderOnce(100, "Arena North Gate Spawner", "Stage 13"),
-                        new EntityExistsTransition("Arena Risen Warrior", 999, "Check 3")
+                        new OrderOnce(100, N("Arena South Gate Spawner"), "Stage 13"),
+                        new OrderOnce(100, N("Arena West Gate Spawner"), "Stage 13"),
+                        new OrderOnce(100, N("Arena East Gate Spawner"), "Stage 13"),
+                        new OrderOnce(100, N("Arena North Gate Spawner"), "Stage 13"),
+                        new EntityExistsTransition(N("Arena Risen Warrior"), 999, "Check 3")
                         ),
                     new State("Check 3",
-                        new EntitiesNotExistsTransition(100, "48", "Arena Risen Archer", "Arena Risen Mage", "Arena Risen Brawler", "Arena Risen Warrior")
+                        new EntitiesNotExistsTransition(100, "48", N("Arena Risen Archer"), N("Arena Risen Mage"), N("Arena Risen Brawler"), N("Arena Risen Warrior"))
                         ),
                     new State("48",
                         new SetAltTexture(2),
@@ -324,14 +332,14 @@ namespace WorldServer.logic
                         ),
                     new State("67",
                         new SetAltTexture(0),
-                        new OrderOnce(100, "Arena South Gate Spawner", "Stage 14"),
-                        new OrderOnce(100, "Arena West Gate Spawner", "Stage 14"),
-                        new OrderOnce(100, "Arena East Gate Spawner", "Stage 14"),
-                        new OrderOnce(100, "Arena North Gate Spawner", "Stage 14"),
-                        new EntityExistsTransition("Arena Risen Warrior", 999, "Check 4")
+                        new OrderOnce(100, N("Arena South Gate Spawner"), "Stage 14"),
+                        new OrderOnce(100, N("Arena West Gate Spawner"), "Stage 14"),
+                        new OrderOnce(100, N("Arena East Gate Spawner"), "Stage 14"),
+                        new OrderOnce(100, N("Arena North Gate Spawner"), "Stage 14"),
+                        new EntityExistsTransition(N("Arena Risen Warrior"), 999, "Check 4")
                         ),
                     new State("Check 4",
-                        new EntitiesNotExistsTransition(100, "68", "Arena Risen Archer", "Arena Risen Mage", "Arena Risen Brawler", "Arena Risen Warrior")
+                        new EntitiesNotExistsTransition(100, "68", N("Arena Risen Archer"), N("Arena Risen Mage"), N("Arena Risen Brawler"), N("Arena Risen Warrior"))
                         ),
                     new State("68",
                         new SetAltTexture(2),
@@ -411,21 +419,21 @@ namespace WorldServer.logic
                         ),
                     new State("87",
                         new SetAltTexture(0),
-                        new OrderOnce(100, "Arena South Gate Spawner", "Stage 15"),
-                        new OrderOnce(100, "Arena West Gate Spawner", "Stage 15"),
-                        new OrderOnce(100, "Arena East Gate Spawner", "Stage 15"),
-                        new OrderOnce(100, "Arena North Gate Spawner", "Stage 15"),
-                        new EntityExistsTransition("Arena Grave Caretaker", 999, "Check 5")
+                        new OrderOnce(100, N("Arena South Gate Spawner"), "Stage 15"),
+                        new OrderOnce(100, N("Arena West Gate Spawner"), "Stage 15"),
+                        new OrderOnce(100, N("Arena East Gate Spawner"), "Stage 15"),
+                        new OrderOnce(100, N("Arena North Gate Spawner"), "Stage 15"),
+                        new EntityExistsTransition(N("Arena Grave Caretaker"), 999, "Check 5")
                         ),
                     new State("Check 5",
-                        new EntitiesNotExistsTransition(100, "88", "Arena Blue Flame", "Arena Grave Caretaker")
+                        new EntitiesNotExistsTransition(100, "88", N("Arena Blue Flame"), N("Arena Grave Caretaker"))
                         ),
                     new State("88",
                         new Suicide()
                     )
                 )
             )
-            .Init("Arena Risen Brawler",
+            .Init(E("Arena Risen Brawler"),
                 new State(
                     new Shoot(radius: 10, count: 3, shootAngle: 10, projectileIndex: 0, coolDown: 2000),
                     new Prioritize(
@@ -434,7 +442,7 @@ namespace WorldServer.logic
                     )
                 )
             )
-            .Init("Arena Risen Warrior",
+            .Init(E("Arena Risen Warrior"),
                 new State(
                     new Shoot(radius: 4, projectileIndex: 0, coolDown: 1200),
                     new Prioritize(
@@ -443,7 +451,7 @@ namespace WorldServer.logic
                     )
                 )
             )
-            .Init("Arena Risen Mage",
+            .Init(E("Arena Risen Mage"),
                 new State(
                     new Shoot(radius: 10, projectileIndex: 0, coolDown: 1000),
                     new Prioritize(
@@ -453,7 +461,7 @@ namespace WorldServer.logic
                     new HealGroup(range: 7, group: "Hallowrena", coolDown: 2500, healAmount: 175)
                 )
             )
-            .Init("Arena Risen Archer",
+            .Init(E("Arena Risen Archer"),
                 new State(
                     new Shoot(radius: 10, count: 3, shootAngle: 33, projectileIndex: 0, coolDown: 3000),
                     new Shoot(radius: 10, count: 1, projectileIndex: 1, coolDown: 1300),
@@ -463,10 +471,12 @@ namespace WorldServer.logic
                     )
                 )
             )
-            .Init("Arena Blue Flame",
+            .Init(E("Arena Blue Flame"),
                 new State(
                     new State("Ini",
-                        new Orbit(speed: 1.6, radius: 1.5, acquireRange: 15, target: "Arena Grave Caretaker"),
+                        new Orbit(speed: 1.6, radius: 1.5, acquireRange: 15, target: N("Arena Grave Caretaker")),
+                        // (round the Elder Caretaker raised again too, core/resurrection)
+                        elder ? new Orbit(speed: 1.6, radius: 1.5, acquireRange: 15, target: "Empowered Elder Arena Grave Caretaker") : null,
                         new PlayerWithinTransition(dist: 3, targetState: "AttackPlayer", seeInvis: true)
                     ),
                     new State("AttackPlayer",
@@ -484,9 +494,9 @@ namespace WorldServer.logic
                     )
                 )
             )
-            .Init("Arena Grave Caretaker",
+            .Init(E("Arena Grave Caretaker"),
                 new State(
-                    new ScaleHP2(35),
+                    new ScaleHP2(elder ? 15 : 35),
                     new State("Ini",
                         new Prioritize(
                             new StayBack(speed: 0.6, distance: 4, entity: null),
@@ -494,14 +504,33 @@ namespace WorldServer.logic
                         ),
                         new Shoot(radius: 8, count: 1, projectileIndex: 0, coolDown: 1000),
                         new Shoot(radius: 8, count: 2, shootAngle: 45, projectileIndex: 1, coolDown: 1000),
-                        new Spawn(children: "Arena Blue Flame", maxChildren: 5, initialSpawn: 0, coolDown: 1000, givesNoXp: true),
+                        new Spawn(children: N("Arena Blue Flame"), maxChildren: 5, initialSpawn: 0, coolDown: 1000, givesNoXp: true),
                         new TimedTransition(time: 10000, targetState: "Circle")
                     ),
                     new State("Circle",
                         new Orbit(speed: 0.8, radius: 3, acquireRange: 10, target: null),
                         new Shoot(radius: 8, count: 2, shootAngle: 45, projectileIndex: 1, coolDown: 1000),
-                        new Spawn(children: "Arena Blue Flame", maxChildren: 5, initialSpawn: 0, coolDown: 2000, givesNoXp: true),
+                        new Spawn(children: N("Arena Blue Flame"), maxChildren: 5, initialSpawn: 0, coolDown: 2000, givesNoXp: true),
+                        elder ? new HpLessTransition(threshold: 0.4, targetState: "Burial") : null,
                         new TimedTransition(time: 8000, targetState: "Ini")
+                    ),
+                    // the Elder Caretaker's Last Burial, below 40% (each time he would circle): he
+                    // stands his ground armoured, a ring of graves opening round him, each giving
+                    // up a blue flame that rushes in, while two crosses of angry ghosts and
+                    // blinding spinners turn round him
+                    new State("Burial",
+                        new Taunt(true, "Every grave in this yard has room for one more. I dug yours myself."),
+                        new Flash(0xFF60A0FF, 0.2, 8),
+                        new ConditionEffectBehavior(ConditionEffectIndex.Armored),
+                        new TossObject(N("Arena Blue Flame"), range: 6, angle: 0, coolDown: 3000),
+                        new TossObject(N("Arena Blue Flame"), range: 6, angle: 60, coolDown: 3000, coolDownOffset: 250),
+                        new TossObject(N("Arena Blue Flame"), range: 6, angle: 120, coolDown: 3000, coolDownOffset: 500),
+                        new TossObject(N("Arena Blue Flame"), range: 6, angle: 180, coolDown: 3000, coolDownOffset: 750),
+                        new TossObject(N("Arena Blue Flame"), range: 6, angle: 240, coolDown: 3000, coolDownOffset: 1000),
+                        new TossObject(N("Arena Blue Flame"), range: 6, angle: 300, coolDown: 3000, coolDownOffset: 1250),
+                        new Shoot(radius: 20, count: 4, shootAngle: 90, projectileIndex: 0, fixedAngle: 0, rotateAngle: 10, coolDown: 250),
+                        new Shoot(radius: 20, count: 4, shootAngle: 90, projectileIndex: 1, fixedAngle: 45, rotateAngle: -8, coolDown: 500),
+                        new TimedTransition(time: 9000, targetState: "Ini")
                     )
                 ),
                 new Threshold(.005,
@@ -510,7 +539,18 @@ namespace WorldServer.logic
                 new Threshold(0.01,
                     new ItemLoot("Potion of Speed", 0.3, 3),
                     new ItemLoot("Potion of Wisdom", 0.3)
-                )
+                ),
+                ElderLoot(0.03,
+                    new ItemLoot("Potion of Max Wisdom", 0.05),
+                    new ItemLoot("Elder Cemetery Key", 0.01)
+                    ),
+                ElderLoot(0.0001,
+                    new TierLoot(13, ItemType.Weapon, .1),
+                    new TierLoot(14, ItemType.Armor, .1),
+                    new TierLoot(6, ItemType.Ability, .1),
+                    new TierLoot(6, ItemType.Ring, .1)
+                    )
             );
+        }
     }
 }

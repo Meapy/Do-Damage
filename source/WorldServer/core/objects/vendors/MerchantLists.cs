@@ -102,7 +102,8 @@ namespace WorldServer.core.objects.vendors
         private static readonly string[] NotInKeyShop = { "Oryx's Castle Key", "Oryx Chamber Key", "Oryx Chicken Chamber Key" };
         private static readonly (string Key, int Price)[] KeyShopOnlyPrices =
         {
-            ("Elder Ivory Wyvern Key", 400), ("Elder Shatters Key", 600), ("Elder Lost Halls Key", 750)
+            ("Elder Ivory Wyvern Key", 400), ("Elder Shatters Key", 600), ("Elder Lost Halls Key", 750),
+            ("Elder Cemetery Key", 300)
         };
 
         public static IEnumerable<(string Key, int Price)> KeyShopPrices =>

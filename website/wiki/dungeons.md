@@ -162,6 +162,31 @@ mana) and **The Remembered Crown** (your ability lends you attack). The Elder Sh
 from all three. Like every Elder boss they can be raised again, below, for a trap, a spell and
 a cloak of their own.
 
+## The Haunted Cemetery and the Elder Cemetery
+
+The Haunted Cemetery is four worlds in a row: a graveyard whose arena calls waves of the dead
+through its gates, then the Ghost Bride's arena, the Grave Caretaker's and, at the end, the
+Ghost of Skuld in his crypt. Each arena's portal opens when its fight is won.
+
+Half the time the Ghost of Skuld leaves the portal to the **Elder Cemetery**, and an Elder
+Cemetery Key opens one anywhere: the same four worlds, every monster in its Elder version
+(twice the health, harder hits, faster attacks), and a phase of its own for each boss:
+
+- **The Ghost Bride's Last Waltz,** below 30% health: she calls her ghosts to her side and
+  dances, two pairs of bolts wheeling round her one way and the other and rings of shots
+  between, drawing a veil of light round herself between dances.
+- **The Grave Caretaker's Last Burial,** below 40%: armoured, he throws six blue flames round
+  himself and turns two spirals through them, then takes up his fight again.
+- **Skuld's Requiem:** at a tenth of his health he doesn't die. He goes to the centre of his
+  crypt and sings, flaming skulls round him, the dead rising, his crosses turning, until he is
+  truly beaten.
+
+Each Elder boss drops a Potion of Max (Speed from the Bride, Wisdom from the Caretaker, Vitality
+from Skuld), better gear, and the Elder Cemetery Key; Skuld drops the Cemetery's own items at
+twice the chance. Raised again, below, each drops an item for a class that had none: the
+Ascendant's **Halo of the Ghost Bride**, the Father's **The Gravekeeper's Censer** and the
+Assassin's **Pestilence of Skuld**, the strongest poison in the game.
+
 ## Raising an Elder boss
 
 Every Elder dungeon's boss can be fought twice. When it falls it leaves its remains for a little

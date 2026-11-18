@@ -374,6 +374,7 @@ namespace WorldServer.core.objects
             if (!HasConditionEffect(ConditionEffectIndex.Invulnerable))
             {
                 dmg = WardAbsorb(dmg);
+                dmg = VowedDamage(dmg);
                 Health -= dmg;
             }
 

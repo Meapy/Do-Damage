@@ -605,9 +605,14 @@ impl Particles {
         }
     }
 
-    /// `--effect <type>` (tests): show that effect on us (0: an area attack beside us; 101 to 128
-    /// the Necromantic items' looks, `relic::look`; 140 to 148 the Ascendant's forcefields by tier).
+    /// `--effect <type>` (tests): show that effect on us (0: an area attack beside us; 101 to 138
+    /// the Necromantic items' looks, `relic::look`; 140 to 148 the Ascendant's forcefields by tier;
+    /// 2xx look xx too, for the looks from 39 on).
     pub fn test_effect(&mut self, effect_type: u8, world: &World, now: i32) {
+        if effect_type >= 200 {
+            self.test_relic(effect_type - 200, world, now);
+            return;
+        }
         if (140..=148).contains(&effect_type) {
             self.test_field(effect_type - 140, world, now);
             return;

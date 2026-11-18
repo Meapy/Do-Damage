@@ -44,6 +44,7 @@ namespace WorldServer.core.objects
         private readonly int lifetime;
         private readonly Player owner;
         private readonly uint color;
+        private readonly bool vow;
         private readonly HashSet<int> shown = new();
         private int t;
         private int ring;
@@ -51,9 +52,11 @@ namespace WorldServer.core.objects
         private int credit;
         private bool raised;
 
-        public Forcefield(Player player, float radius, int percent, int lifetimeMs, uint color = COLOR)
+        // vow: the Ghost Bride's halo's (Player.VowedDamage): no player in it dies of a hit
+        public Forcefield(Player player, float radius, int percent, int lifetimeMs, uint color = COLOR, bool vow = false)
             : base(player.GameServer, 0x0711, lifetimeMs, true, true, false)
         {
+            this.vow = vow;
             this.radius = radius;
             this.percent = System.Math.Clamp(percent, 0, 90);
             lifetime = lifetimeMs;
@@ -124,7 +127,7 @@ namespace WorldServer.core.objects
             {
                 if (entity is not Player player)
                     return;
-                player.Shield(percent, HOLD_MS, color);
+                player.Shield(percent, HOLD_MS, color, vow);
                 if (giveCredit)
                     player.BuffedBy(owner, 1500);
             });

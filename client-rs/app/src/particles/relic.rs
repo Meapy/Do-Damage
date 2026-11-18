@@ -70,7 +70,19 @@ pub mod look {
     pub const WARD_FADE: u8 = 37;
     /// The Censer of the Last Rite's ward breaking: its shards bursting out to the radius.
     pub const LAST_RITE: u8 = 38;
-    pub const LAST: u8 = 38;
+    /// Pestilence of Skuld: the plague climbing out of an enemy that fell to it, a new cloud
+    /// where it fell (pos2.x its radius, `duration` how long it lingers).
+    pub const CONTAGION: u8 = 39;
+    /// The Gravekeeper's Censer: blue grave-flames circling its user (`duration`; pos2.x how many
+    /// are left, none putting them out).
+    pub const GRAVE_FLAMES: u8 = 40;
+    /// The Gravekeeper's Censer: a flame rushing from its user (`source_id`) to an enemy and
+    /// bursting on it.
+    pub const GRAVE_FLAME: u8 = 41;
+    /// Halo of the Ghost Bride: a player its forcefield kept from dying: a veil of light falling
+    /// round them while they're untouchable.
+    pub const VOW: u8 = 42;
+    pub const LAST: u8 = 42;
 }
 
 /// Falling, tiles a millisecond each millisecond (12 tiles a second each second).
@@ -158,7 +170,9 @@ fn period(look: u8) -> i32 {
         look::FORCEFIELD => 26,
         look::SERPENT_WIND | look::UNDERTOW | look::FORGOTTEN => 32,
         look::DAVY | look::IGNITION | look::PENTAGRAM => 45,
-        look::HELLBRAND | look::CHAOS => 60,
+        look::HELLBRAND | look::CHAOS | look::CONTAGION => 60,
+        look::GRAVE_FLAMES => 30,
+        look::VOW => 50,
         look::OATH => 120,
         look::STARLIGHT => 140,
         _ => 100,
@@ -221,6 +235,8 @@ fn field_style(color: u32) -> FieldStyle {
         0xFFF0A8 => (0xFFC040, 0xFFFFFF, 0.0, Drift::Rays),
         0xFF6A28 => (0xFFD040, 0xFFF4C8, 0.0, Drift::Embers),
         0xB27CFF => (0x60D8FF, 0xFFFFFF, 0.0, Drift::Stars),
+        // the Halo of the Ghost Bride's (`Player.VowColor`): rose-white, petals drifting down
+        0xF4E8FF => (0xFFC8E0, 0xFFFFFF, 0.0, Drift::Petals),
         // the Golden Halo's, and any other
         _ => (0xBFEFFF, 0xFFFFFF, 0.0, Drift::Clear),
     };
@@ -751,6 +767,79 @@ impl Particles {
                 self.debris(x, y, 18, &[0xFF2020, 0x400000, 0xFF8040], 130.0, 4.0, 6.0, 800, 0);
                 self.puffs(x, y, 10, &[0x200000, 0x401010, 0x101010], 300.0, 1.0, 2.2, 1300, 120);
             }
+            // Pestilence of Skuld's contagion: the fallen enemy bursts into a sick green cloud,
+            // its dead climbing out of it as wisps of mist, the cloud bubbling while it lingers
+            look::CONTAGION => {
+                self.decal(DecalKind::Puddle, x, y, r * 0.8, color, now, ms.clamp(1200, 6000), None);
+                self.decal(DecalKind::Ring, x, y, r, 0xD0FF80, now, 420, None);
+                self.puffs(x, y, 16, &[color, 0x4A7A20, 0x2A3A10, 0xB0E060], 300.0, r * 0.5, 0.5, 1600, 0);
+                self.debris(x, y, 16, &[color, 0xD0FF80, 0x2A3A10], 100.0, 3.0, 5.0, 700, 0);
+                for i in 0..3 {
+                    let mut p = Particle::new(x + self.pm(0.5), y + self.pm(0.5), 0.2, 0xE0FFD0, 220.0, 1100, Motion::Plain).moving(self.pm(0.2) / 1000.0, self.pm(0.2) / 1000.0, 0.0022);
+                    p.delay = 150 + i * 160;
+                    p.fade = true;
+                    p.opacity = 0.7;
+                    p.grow = 0.1;
+                    self.add(p);
+                }
+                self.aura(look, id, x, y, r, color, now, ms.clamp(600, 6000), false);
+            }
+            // the Gravekeeper's Censer: blue flames lit round its user, circling it (an aura) as
+            // many as are left; with none left they go out in a puff of smoke
+            look::GRAVE_FLAMES => {
+                let (cx, cy) = on.unwrap_or((x, y));
+                let n = r.round() as usize;
+                let lit = self.auras.iter().any(|a| a.look == look && a.id == id);
+                if n == 0 || ms <= 1 {
+                    self.auras.retain(|a| !(a.look == look && a.id == id));
+                    if lit {
+                        self.puffs(cx, cy, 6, &[0x2440A0, color, 0x606870], 160.0, 0.6, 0.8, 600, 0);
+                    }
+                } else {
+                    if !lit {
+                        self.decal(DecalKind::Ring, cx, cy, 1.4, color, now, 400, None);
+                        self.flames(cx, cy, 0.9, 24, &[0xC0E8FF, color, 0x2440A0], 200.0, 4.0, 700, 300);
+                    }
+                    self.aura(look, id, cx, cy, n as f64, color, now, ms, true);
+                }
+            }
+            // ...one rushing out: a streak of blue fire from its user onto the enemy, bursting
+            // there in a ring of flame and scorch
+            look::GRAVE_FLAME => {
+                let from = e.source_id.and_then(|s| world.objects.get(&s)).map(|o| (o.x, o.y)).unwrap_or((x, y));
+                self.seekers(from.0, from.1, id, (x, y), 6, &[0xFFFFFF, 0xC0E8FF, color], 170.0, 20);
+                self.decal(DecalKind::Ring, x, y, r, color, now + 300, 380, None);
+                self.decal(DecalKind::Scorch, x, y, r * 0.6, 0x2440A0, now + 300, 900, None);
+                for i in 0..26 {
+                    let (a, d) = (2.0 * PI * self.random(), r * 0.6 * self.random().sqrt());
+                    let c = self.pick(&[0xFFFFFF, 0xC0E8FF, color, 0x2440A0]);
+                    let mut p = Particle::new(x + d * a.cos(), y + d * a.sin(), 0.1, c, 160.0 + 80.0 * self.random(), 500, Motion::Spark)
+                        .moving(self.pm(0.6) / 1000.0, self.pm(0.6) / 1000.0, (3.0 + 3.0 * self.random()) / 1000.0);
+                    p.delay = 300 + i * 6;
+                    self.add(p);
+                }
+                self.debris(x, y, 10, &[color, 0xC0E8FF], 90.0, 3.0, 4.0, 600, 300);
+            }
+            // the Ghost Bride's vow kept: a ring of light, a veil of petals and lace falling round
+            // the player it saved, who shines white, and motes rising off them while they're
+            // untouchable
+            look::VOW => {
+                let (cx, cy) = on.unwrap_or((x, y));
+                self.decal(DecalKind::Ring, cx, cy, r * 1.6, color, now, 500, None);
+                self.decal(DecalKind::Ring, cx, cy, r * 0.9, 0xFFC8E0, now + 120, 450, None);
+                for i in 0..28 {
+                    let angle = i as f64 * 2.0 * PI / 28.0;
+                    let motion = Motion::Swirl { id, angle, speed: 0.12, rad: 0.75, out: 0.0, rise: -0.0016 };
+                    let mut p = Particle::new(cx, cy, 2.2, if i % 3 == 0 { 0xFFC8E0 } else { 0xFFFFFF }, 120.0, 900, motion);
+                    p.alpha = 0.0;
+                    p.delay = i * 12;
+                    self.add(p);
+                }
+                if on.is_some() {
+                    self.flashes.insert(id, super::Flash { start: now, color: 0xFFFFFF, period: 300, repeats: (ms / 300).max(1) });
+                }
+                self.aura(look, id, cx, cy, r, color, now, ms.max(600), true);
+            }
             // the Bow of the Event Horizon: a black hole tears open, swallowing light
             look::SINGULARITY => {
                 self.decal(DecalKind::BlackHole, x, y, r, color, now, ms.max(800), None);
@@ -1175,6 +1264,35 @@ impl Particles {
                 p.alpha = 0.0;
                 self.add(p);
             }
+            // the plague cloud bubbling
+            look::CONTAGION => {
+                let (ang, d) = (2.0 * PI * self.random(), a.radius * 0.8 * self.random().sqrt());
+                let c = self.pick(&[a.color, 0x4A7A20, 0xD0FF80]);
+                let mut p = Particle::new(x + d * ang.cos(), y + d * ang.sin(), 0.05, c, 100.0 + 60.0 * self.random(), 800, Motion::Plain).moving(0.0, 0.0, 0.0012);
+                p.fade = true;
+                self.add(p);
+            }
+            // the grave-flames circling their keeper, as many as are left (the radius)
+            look::GRAVE_FLAMES => {
+                let n = a.radius.round().max(1.0) as usize;
+                let spin = (now - a.start) as f64 * 0.004;
+                for k in 0..n {
+                    let ang = spin + k as f64 * 2.0 * PI / n as f64;
+                    let (fx, fy) = (x + 0.9 * ang.cos(), y + 0.9 * ang.sin());
+                    let c = self.pick(&[0xFFFFFF, 0xC0E8FF, a.color, a.color, 0x2440A0]);
+                    let mut p = Particle::new(fx + self.pm(0.06), fy + self.pm(0.06), 0.45, c, 150.0, 300, Motion::Spark).moving(0.0, 0.0, 0.0025);
+                    p.fade = true;
+                    self.add(p);
+                }
+            }
+            // white motes rising off the player the vow keeps
+            look::VOW => {
+                let angle = 2.0 * PI * self.random();
+                let motion = Motion::Swirl { id: a.id, angle, speed: 0.08, rad: 0.55, out: 0.0, rise: 0.0022 };
+                let mut p = Particle::new(x, y, 0.0, self.pick(&[0xFFFFFF, a.color, 0xFFC8E0]), 100.0, 700, motion);
+                p.alpha = 0.0;
+                self.add(p);
+            }
             // a star twinkling about the player
             look::STARLIGHT => {
                 let angle = 2.0 * PI * self.random();
@@ -1376,12 +1494,18 @@ impl Particles {
             look::WARD_BREAK => (1.1, 0xFFE8C860, 0, true),
             look::WARD_FADE => (1.0, 0xFFE8C860, 0, true),
             look::LAST_RITE => (3.0, 0xFFC8A0FF, 0, true),
+            look::CONTAGION => (3.0, 0xFF8FA547, 3000, false),
+            look::GRAVE_FLAMES => (3.0, 0xFF60A0FF, 9000, true),
+            look::GRAVE_FLAME => (1.5, 0xFF60A0FF, 0, false),
+            look::VOW => (1.5, 0xFFF4E8FF, 1500, true),
             _ => return,
         };
         // (centred on us, where a shot can see it, but for what flies between us and somewhere else)
-        let flies = matches!(which, look::SOUL_GATHER | look::SOUL_RELEASE | look::BLOOD);
+        let flies = matches!(which, look::SOUL_GATHER | look::SOUL_RELEASE | look::BLOOD | look::GRAVE_FLAME);
         let pos1 = if mine || !flies { bsk_proto::WorldPos { x: mx, y: my } } else { bsk_proto::WorldPos { x: mx + 2.5, y: my } };
-        let e = ShowEffect { effect_type: 41, target_object_id: me.id, pos1, pos2: bsk_proto::WorldPos { x: r, y: which as f32 }, color, duration: ms, object_type: 0, source_id: None };
+        // (a grave-flame flies from us)
+        let source_id = (which == look::GRAVE_FLAME).then_some(me.id);
+        let e = ShowEffect { effect_type: 41, target_object_id: me.id, pos1, pos2: bsk_proto::WorldPos { x: r, y: which as f32 }, color, duration: ms, object_type: 0, source_id };
         self.relic(&e, world, now);
         // the pentagram's heart erupts as it fills, as the server has it
         if which == look::PENTAGRAM {

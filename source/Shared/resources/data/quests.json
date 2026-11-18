@@ -16,7 +16,7 @@
   },
   "difficulty": [ 6000, 20000, 45000, 90000, 160000 ],
   "difficultyNames": [ "Beginner", "Easy", "Medium", "Hard", "Very hard", "Endgame" ],
-  "notDungeons": [ "Haunted Cemetery Gates", "Haunted Cemetery Graves", "Daily Quest Room", "Sheep Herding Minigame", "Turkey Hunting Grounds", "Admin Room", "Admin Arena", "Testing" ],
+  "notDungeons": [ "Haunted Cemetery Gates", "Haunted Cemetery Graves", "Elder Cemetery Gates", "Elder Cemetery Graves", "Daily Quest Room", "Sheep Herding Minigame", "Turkey Hunting Grounds", "Admin Room", "Admin Arena", "Testing" ],
   "quests": [
     { "id": "d_monsters", "period": "daily", "group": "kill", "title": "Thin the Herd", "text": "Defeat {n} monsters in realms or dungeons.", "event": "kill", "goal": 400, "rewards": [ { "fame": 100 } ] },
     { "id": "d_gods", "period": "daily", "group": "gods", "title": "Godslayer's Errand", "text": "Defeat {n} gods in the Godlands.", "event": "kill", "filter": { "god": true }, "goal": 40, "rewards": [ { "fame": 150 } ] },

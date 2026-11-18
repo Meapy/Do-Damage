@@ -12,11 +12,16 @@ namespace WorldServer.core.objects
         private long _shieldUntil;
         private long _shieldFxAt;
         private uint _shieldColor = Forcefield.COLOR;
+        private long _vowUntil;     // in the Ghost Bride's halo's forcefield until (VowedDamage)
+        private long _vowReadyAt;   // when its vow may save this player again
 
-        // in a forcefield for the next `holdMs`; of several overlapping, the strongest counts
-        public void Shield(int percent, int holdMs, uint color = Forcefield.COLOR)
+        // in a forcefield for the next `holdMs`; of several overlapping, the strongest counts. A
+        // vow's (the Ghost Bride's halo) keeps the player from dying too, whichever counts.
+        public void Shield(int percent, int holdMs, uint color = Forcefield.COLOR, bool vow = false)
         {
             var now = Environment.TickCount64;
+            if (vow)
+                _vowUntil = Math.Max(_vowUntil, now + holdMs);
             if (now >= _shieldUntil || percent >= _shieldPercent)
             {
                 _shieldPercent = percent;

@@ -545,7 +545,7 @@
         {"item": "Lil' Ghost Ship Generator", "weight": 0.25, "rarity": "divine"}
       ] },
     { "id": "undead", "group": "themed", "title": "Lay Them to Rest", "text": "Clear {n} Undead Lairs, Manors, Haunted Cemeteries or Tombs of the Ancients together.", "icon": "Undead Lair Portal",
-      "event": "dungeon", "filter": {"names": ["Undead Lair", "Elder Undead Lair", "Manor of the Immortals", "Elder Manor", "Haunted Cemetery", "Haunted Cemetery Final Battle", "Tomb of the Ancients", "Elder Tomb of the Ancients"]}, "goal": 150, "minimum": 2,
+      "event": "dungeon", "filter": {"names": ["Undead Lair", "Elder Undead Lair", "Manor of the Immortals", "Elder Manor", "Haunted Cemetery", "Haunted Cemetery Final Battle", "Elder Cemetery", "Elder Cemetery Final Battle", "Tomb of the Ancients", "Elder Tomb of the Ancients"]}, "goal": 150, "minimum": 2,
       "tiers": [
         [{"fame": 150}, {"item": "Undead Lair Key"}],
         [{"fame": 250}, {"item": "Cemetery Key"}, {"roll": 1}],

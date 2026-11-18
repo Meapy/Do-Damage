@@ -24,6 +24,10 @@
      0.02
     ],
     [
+     "Elder Pirate Cave Key",
+     0.02
+    ],
+    [
      "Potion of Max Attack",
      0.2
     ],
@@ -69,6 +73,10 @@
      0.2
     ],
     [
+     "Elder Spider Den Key",
+     0.02
+    ],
+    [
      "Sword Shield",
      0.6
     ],
@@ -104,6 +112,10 @@
     [
      "Potion of Max Dexterity",
      0.2
+    ],
+    [
+     "Elder Jungle Key",
+     0.02
     ],
     [
      "Cracked Crystal Skull",
@@ -155,6 +167,10 @@
      0.2
     ],
     [
+     "Elder Snake Pit Key",
+     0.2
+    ],
+    [
      "Stheno Generator",
      0.04
     ],
@@ -193,6 +209,10 @@
     ],
     [
      "Undead Lair Key",
+     0.018
+    ],
+    [
+     "Elder Undead Lair Key",
      0.018
     ],
     [
@@ -269,6 +289,10 @@
      0.04
     ],
     [
+     "Elder Sprite World Key",
+     0.2
+    ],
+    [
      "Limon Generator",
      0.04
     ],
@@ -334,6 +358,10 @@
      1.0
     ],
     [
+     "Elder Abyss Key",
+     0.02
+    ],
+    [
      "Malphas Generator",
      0.04
     ],
@@ -383,16 +411,24 @@
    "soulDamage": 117,
    "loot": [
     [
-     "Potion of Attack",
-     1.0
-    ],
-    [
      "Potion of Dexterity",
      0.6
     ],
     [
      "Holy Water",
      0.6
+    ],
+    [
+     "Manor Key",
+     0.02
+    ],
+    [
+     "Elder Manor Key",
+     0.02
+    ],
+    [
+     "Potion of Attack",
+     1.0
     ],
     [
      "St. Abraham's Wand",
@@ -417,10 +453,6 @@
     [
      "Potion of Max Attack",
      0.1
-    ],
-    [
-     "Manor Key",
-     0.02
     ],
     [
      "Nightmare Generator",
@@ -470,6 +502,10 @@
     [
      "Potion of Max Speed",
      0.2
+    ],
+    [
+     "Elder Beach Key",
+     0.02
     ],
     [
      "Aceaku's Pet Generator",
@@ -553,6 +589,10 @@
      0.07
     ],
     [
+     "Elder Davy Key",
+     0.018
+    ],
+    [
      "Potion of Max Wisdom",
      0.2
     ],
@@ -626,10 +666,6 @@
      0.02
     ],
     [
-     "Elder Ivory Wyvern Key",
-     0.02
-    ],
-    [
      "Veridian Wyrmhide",
      0.06
     ]
@@ -676,10 +712,6 @@
     ],
     [
      "Elder Draconis Key",
-     0.02
-    ],
-    [
-     "Elder Ivory Wyvern Key",
      0.02
     ],
     [
@@ -733,10 +765,6 @@
     ],
     [
      "Elder Draconis Key",
-     0.02
-    ],
-    [
-     "Elder Ivory Wyvern Key",
      0.02
     ],
     [
@@ -805,10 +833,6 @@
      0.02
     ],
     [
-     "Elder Ivory Wyvern Key",
-     0.02
-    ],
-    [
      "Obsidian Wyrmplate",
      0.06
     ]
@@ -854,6 +878,10 @@
      0.6
     ],
     [
+     "Elder Ocean Trench Key",
+     0.02
+    ],
+    [
      "Lil' Thessal Generator",
      0.04
     ],
@@ -895,7 +923,7 @@
     ],
     [
      "Coral Medallion",
-     0.02
+     0.015
     ],
     [
      "Orb of the Drowned Tide",
@@ -920,6 +948,10 @@
     ],
     [
      "Potion of Life",
+     1.0
+    ],
+    [
+     "Potion of Mana",
      1.0
     ],
     [
@@ -984,6 +1016,10 @@
      0.018
     ],
     [
+     "Potion of Mana",
+     1.0
+    ],
+    [
      "Potion of Life",
      1.0
     ],
@@ -1043,6 +1079,10 @@
     [
      "Tomb of the Ancients Key",
      0.02
+    ],
+    [
+     "Potion of Mana",
+     1.0
     ],
     [
      "Potion of Life",
@@ -1127,11 +1167,7 @@
     ],
     [
      "Elder Ivory Wyvern Key",
-     0.04
-    ],
-    [
-     "Elder Draconis Key",
-     0.04
+     0.02
     ],
     [
      "Scepter of the Ivory Wyvern",
@@ -1257,12 +1293,12 @@
      1.0
     ],
     [
-     "The Forgotten Crown",
-     0.006
-    ],
-    [
      "Lil' Forgotten King Generator",
      0.04
+    ],
+    [
+     "The Forgotten Crown",
+     0.006
     ],
     [
      "Shroud of the Forgotten King",
@@ -1491,6 +1527,137 @@
    "item": "Bow of the Event Horizon",
    "itemBase": "Bow of the Void",
    "itemStrength": 1.15
+  },
+  {
+   "boss": "Elder Arena Ghost Bride",
+   "dungeon": "Elder Cemetery",
+   "name": "Ghost Bride",
+   "corpse": "Elder Arena Ghost Bride Remains",
+   "empowered": "Empowered Elder Arena Ghost Bride",
+   "soulDamage": 111,
+   "loot": [
+    [
+     "Potion of Speed",
+     0.4
+    ],
+    [
+     "Potion of Wisdom",
+     0.4
+    ],
+    [
+     "Potion of Max Speed",
+     0.2
+    ],
+    [
+     "Elder Cemetery Key",
+     0.02
+    ],
+    [
+     "Halo of the Ghost Bride",
+     0.06
+    ]
+   ],
+   "item": "Halo of the Ghost Bride",
+   "itemBase": "Halo of the Archangel",
+   "itemStrength": 1.2
+  },
+  {
+   "boss": "Elder Arena Grave Caretaker",
+   "dungeon": "Elder Cemetery",
+   "name": "Grave Caretaker",
+   "corpse": "Elder Arena Grave Caretaker Remains",
+   "empowered": "Empowered Elder Arena Grave Caretaker",
+   "soulDamage": 64,
+   "loot": [
+    [
+     "Potion of Speed",
+     0.4
+    ],
+    [
+     "Potion of Wisdom",
+     0.4
+    ],
+    [
+     "Potion of Max Wisdom",
+     0.2
+    ],
+    [
+     "Elder Cemetery Key",
+     0.02
+    ],
+    [
+     "The Gravekeeper's Censer",
+     0.06
+    ]
+   ],
+   "item": "The Gravekeeper's Censer",
+   "itemBase": "Censer of the Last Rite",
+   "itemStrength": 1.25
+  },
+  {
+   "boss": "Elder Ghost of Skuld",
+   "dungeon": "Elder Cemetery",
+   "name": "Ghost of Skuld",
+   "corpse": "Elder Ghost of Skuld Remains",
+   "empowered": "Empowered Elder Ghost of Skuld",
+   "soulDamage": 163,
+   "loot": [
+    [
+     "Reaper Generator",
+     0.03
+    ],
+    [
+     "Pumpkin Head Generator",
+     0.03
+    ],
+    [
+     "Pumpkman Generator",
+     0.03
+    ],
+    [
+     "Potion of Vitality",
+     1.0
+    ],
+    [
+     "Potion of Wisdom",
+     1.0
+    ],
+    [
+     "Resurrected Warrior's Armor",
+     0.016
+    ],
+    [
+     "Cemetery Key",
+     0.016
+    ],
+    [
+     "Potion of Max Vitality",
+     0.2
+    ],
+    [
+     "Elder Cemetery Key",
+     0.04
+    ],
+    [
+     "Plague Poison",
+     0.2
+    ],
+    [
+     "Amulet of Resurrection",
+     0.008
+    ],
+    [
+     "Soul's Guidance",
+     0.032
+    ],
+    [
+     "Pestilence of Skuld",
+     0.06
+    ]
+   ],
+   "item": "Pestilence of Skuld",
+   "itemBase": "Grimhydra Poison",
+   "itemStrength": 1.3
   }
  ]
 }

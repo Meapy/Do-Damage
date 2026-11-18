@@ -8,103 +8,111 @@ namespace WorldServer.logic
 {
     partial class BehaviorDb
     {
-        private _ HauntedCemetery = () => Behav()
-            .Init("Arena Dn Spawner",
+        private _ HauntedCemetery = () => HauntedCemeteryBehaviours(Behav(), false);
+        private _ ElderCemetery = () => HauntedCemeteryBehaviours(Behav(), true);
+
+        private static Ctor HauntedCemeteryBehaviours(Ctor db, bool elder)
+        {
+            string N(string id) => ElderOr(id, elder);
+            string E(string id) => ElderDefines(id, elder);
+            MobDrops ElderLoot(double threshold, params MobDrops[] drops) => new Threshold(threshold, elder ? drops : new MobDrops[0]);
+            return db
+            .Init(E("Arena Dn Spawner"),
                 new State(
                     new ConditionEffectBehavior(ConditionEffectIndex.Invincible),
                     new State("Leech"
                     ),
                     new State("Stage 1",
-                        new Spawn("Classic Ghost", maxChildren: 1)
+                        new Spawn(N("Classic Ghost"), maxChildren: 1)
                     ),
                     new State("Stage 2",
-                        new Spawn("Classic Ghost", maxChildren: 2)
+                        new Spawn(N("Classic Ghost"), maxChildren: 2)
                     ),
                     new State("Stage 3",
-                        new Spawn("Classic Ghost", maxChildren: 2)
+                        new Spawn(N("Classic Ghost"), maxChildren: 2)
                     ),
                     new State("Stage 4",
-                        new Spawn("Werewolf", maxChildren: 1),
-                        new Spawn("Zombie Hulk", maxChildren: 1)
+                        new Spawn(N("Werewolf"), maxChildren: 1),
+                        new Spawn(N("Zombie Hulk"), maxChildren: 1)
                     ),
                     new State("Stage 5",
                         new Suicide()
                     )
                  )
             )
-            .Init("Arena Up Spawner",
+            .Init(E("Arena Up Spawner"),
                 new State(
                     new ConditionEffectBehavior(ConditionEffectIndex.Invincible),
                     new State("Leech"
                     ),
                     new State("Stage 1",
-                        new Spawn("Classic Ghost", maxChildren: 1)
+                        new Spawn(N("Classic Ghost"), maxChildren: 1)
                     ),
                     new State("Stage 2",
-                        new Spawn("Werewolf", maxChildren: 1)
+                        new Spawn(N("Werewolf"), maxChildren: 1)
                     ),
                     new State("Stage 3",
-                        new Spawn("Classic Ghost", maxChildren: 2)
+                        new Spawn(N("Classic Ghost"), maxChildren: 2)
                     ),
                     new State("Stage 4",
-                        new Spawn("Classic Ghost", maxChildren: 3)
+                        new Spawn(N("Classic Ghost"), maxChildren: 3)
                     ),
                     new State("Stage 5",
                         new Suicide()
                     )
                 )
             )
-            .Init("Arena Lf Spawner",
+            .Init(E("Arena Lf Spawner"),
                 new State(
                     new ConditionEffectBehavior(ConditionEffectIndex.Invincible),
                     new State("Leech"
                     ),
                     new State("Stage 1",
-                        new Spawn("Zombie Hulk", maxChildren: 1)
+                        new Spawn(N("Zombie Hulk"), maxChildren: 1)
                     ),
                     new State("Stage 2",
-                        new Spawn("Werewolf", maxChildren: 1),
-                        new Spawn("Classic Ghost", maxChildren: 1)
+                        new Spawn(N("Werewolf"), maxChildren: 1),
+                        new Spawn(N("Classic Ghost"), maxChildren: 1)
                     ),
                     new State("Stage 3",
-                        new Spawn("Classic Ghost", maxChildren: 1),
-                        new Spawn("Werewolf", maxChildren: 1)
+                        new Spawn(N("Classic Ghost"), maxChildren: 1),
+                        new Spawn(N("Werewolf"), maxChildren: 1)
                     ),
                     new State("Stage 4",
-                        new Spawn("Werewolf", maxChildren: 1),
-                        new Spawn("Zombie Hulk", maxChildren: 1)
+                        new Spawn(N("Werewolf"), maxChildren: 1),
+                        new Spawn(N("Zombie Hulk"), maxChildren: 1)
                     ),
                     new State("Stage 5",
                         new Suicide()
                     )
                 )
             )
-            .Init("Arena Rt Spawner",
+            .Init(E("Arena Rt Spawner"),
                 new State(
                     new ConditionEffectBehavior(ConditionEffectIndex.Invincible),
                     new State("Leech"
                     ),
                     new State("Stage 1",
-                        new Spawn("Zombie Hulk", maxChildren: 1)
+                        new Spawn(N("Zombie Hulk"), maxChildren: 1)
                     ),
                     new State("Stage 2",
-                        new Spawn("Werewolf", maxChildren: 1)
+                        new Spawn(N("Werewolf"), maxChildren: 1)
                     ),
                     new State("Stage 3",
-                        new Spawn("Classic Ghost", maxChildren: 2)
+                        new Spawn(N("Classic Ghost"), maxChildren: 2)
                     ),
                     new State("Stage 4",
-                        new Spawn("Classic Ghost", maxChildren: 3)
+                        new Spawn(N("Classic Ghost"), maxChildren: 3)
                     ),
                     new State("Stage 5",
                         new Suicide()
                     )
                 )
             )
-            .Init("Area 1 Controller",
+            .Init(E("Area 1 Controller"),
                 new State(
                     new ConditionEffectBehavior(ConditionEffectIndex.Invincible, perm: true),
-                    new TransformOnDeath("Haunted Cemetery Gates Portal"),
+                    new TransformOnDeath(N("Haunted Cemetery Gates Portal")),
                     new State("Start",
                         new PlayerWithinTransition(4, "1")
                     ),
@@ -155,14 +163,14 @@ namespace WorldServer.logic
                     ),
                     new State("7",
                         new SetAltTexture(0),
-                        new OrderOnce(100, "Arena South Gate Spawner", "Stage 1"),
-                        new OrderOnce(100, "Arena West Gate Spawner", "Stage 1"),
-                        new OrderOnce(100, "Arena East Gate Spawner", "Stage 1"),
-                        new OrderOnce(100, "Arena North Gate Spawner", "Stage 1"),
-                        new EntityExistsTransition("Arena Skeleton", 999, "Check 1")
+                        new OrderOnce(100, N("Arena South Gate Spawner"), "Stage 1"),
+                        new OrderOnce(100, N("Arena West Gate Spawner"), "Stage 1"),
+                        new OrderOnce(100, N("Arena East Gate Spawner"), "Stage 1"),
+                        new OrderOnce(100, N("Arena North Gate Spawner"), "Stage 1"),
+                        new EntityExistsTransition(N("Arena Skeleton"), 999, "Check 1")
                     ),
                     new State("Check 1",
-                        new EntitiesNotExistsTransition(100, "8", "Arena Skeleton", "Troll 1", "Troll 2")
+                        new EntitiesNotExistsTransition(100, "8", N("Arena Skeleton"), N("Troll 1"), N("Troll 2"))
                     ),
                     new State("8",
                         new SetAltTexture(2),
@@ -242,14 +250,14 @@ namespace WorldServer.logic
                     ),
                     new State("27",
                         new SetAltTexture(0),
-                        new OrderOnce(100, "Arena South Gate Spawner", "Stage 2"),
-                        new OrderOnce(100, "Arena West Gate Spawner", "Stage 2"),
-                        new OrderOnce(100, "Arena East Gate Spawner", "Stage 2"),
-                        new OrderOnce(100, "Arena North Gate Spawner", "Stage 2"),
-                        new EntityExistsTransition("Arena Skeleton", 999, "Check 2")
+                        new OrderOnce(100, N("Arena South Gate Spawner"), "Stage 2"),
+                        new OrderOnce(100, N("Arena West Gate Spawner"), "Stage 2"),
+                        new OrderOnce(100, N("Arena East Gate Spawner"), "Stage 2"),
+                        new OrderOnce(100, N("Arena North Gate Spawner"), "Stage 2"),
+                        new EntityExistsTransition(N("Arena Skeleton"), 999, "Check 2")
                         ),
                     new State("Check 2",
-                        new EntitiesNotExistsTransition(100, "28", "Arena Skeleton", "Troll 1", "Troll 2")
+                        new EntitiesNotExistsTransition(100, "28", N("Arena Skeleton"), N("Troll 1"), N("Troll 2"))
                         ),
                     new State("28",
                         new SetAltTexture(2),
@@ -329,14 +337,14 @@ namespace WorldServer.logic
                         ),
                     new State("47",
                         new SetAltTexture(0),
-                        new OrderOnce(100, "Arena South Gate Spawner", "Stage 3"),
-                        new OrderOnce(100, "Arena West Gate Spawner", "Stage 3"),
-                        new OrderOnce(100, "Arena East Gate Spawner", "Stage 3"),
-                        new OrderOnce(100, "Arena North Gate Spawner", "Stage 3"),
-                        new EntityExistsTransition("Arena Skeleton", 999, "Check 3")
+                        new OrderOnce(100, N("Arena South Gate Spawner"), "Stage 3"),
+                        new OrderOnce(100, N("Arena West Gate Spawner"), "Stage 3"),
+                        new OrderOnce(100, N("Arena East Gate Spawner"), "Stage 3"),
+                        new OrderOnce(100, N("Arena North Gate Spawner"), "Stage 3"),
+                        new EntityExistsTransition(N("Arena Skeleton"), 999, "Check 3")
                         ),
                     new State("Check 3",
-                        new EntitiesNotExistsTransition(100, "48", "Arena Skeleton", "Troll 1", "Troll 2")
+                        new EntitiesNotExistsTransition(100, "48", N("Arena Skeleton"), N("Troll 1"), N("Troll 2"))
                         ),
                     new State("48",
                         new SetAltTexture(2),
@@ -416,14 +424,14 @@ namespace WorldServer.logic
                         ),
                     new State("67",
                         new SetAltTexture(0),
-                        new OrderOnce(100, "Arena South Gate Spawner", "Stage 4"),
-                        new OrderOnce(100, "Arena West Gate Spawner", "Stage 4"),
-                        new OrderOnce(100, "Arena East Gate Spawner", "Stage 4"),
-                        new OrderOnce(100, "Arena North Gate Spawner", "Stage 4"),
-                        new EntityExistsTransition("Arena Skeleton", 999, "Check 4")
+                        new OrderOnce(100, N("Arena South Gate Spawner"), "Stage 4"),
+                        new OrderOnce(100, N("Arena West Gate Spawner"), "Stage 4"),
+                        new OrderOnce(100, N("Arena East Gate Spawner"), "Stage 4"),
+                        new OrderOnce(100, N("Arena North Gate Spawner"), "Stage 4"),
+                        new EntityExistsTransition(N("Arena Skeleton"), 999, "Check 4")
                         ),
                     new State("Check 4",
-                        new EntitiesNotExistsTransition(100, "68", "Arena Skeleton", "Troll 1", "Troll 2")
+                        new EntitiesNotExistsTransition(100, "68", N("Arena Skeleton"), N("Troll 1"), N("Troll 2"))
                         ),
                     new State("68",
                         new SetAltTexture(2),
@@ -503,237 +511,237 @@ namespace WorldServer.logic
                         ),
                     new State("87",
                         new SetAltTexture(0),
-                        new OrderOnce(100, "Arena South Gate Spawner", "Stage 5"),
-                        new OrderOnce(100, "Arena West Gate Spawner", "Stage 5"),
-                        new OrderOnce(100, "Arena East Gate Spawner", "Stage 5"),
-                        new OrderOnce(100, "Arena North Gate Spawner", "Stage 5"),
-                        new EntityExistsTransition("Troll 3", 999, "Check 5")
+                        new OrderOnce(100, N("Arena South Gate Spawner"), "Stage 5"),
+                        new OrderOnce(100, N("Arena West Gate Spawner"), "Stage 5"),
+                        new OrderOnce(100, N("Arena East Gate Spawner"), "Stage 5"),
+                        new OrderOnce(100, N("Arena North Gate Spawner"), "Stage 5"),
+                        new EntityExistsTransition(N("Troll 3"), 999, "Check 5")
                         ),
                     new State("Check 5",
-                        new EntityNotExistsTransition("Troll 3", 100, "88")
+                        new EntityNotExistsTransition(N("Troll 3"), 100, "88")
                         ),
                     new State("88",
                         new Suicide()
                         )
                     )
                 )
-        .Init("Arena South Gate Spawner",
+        .Init(E("Arena South Gate Spawner"),
             new State(
                 new ConditionEffectBehavior(ConditionEffectIndex.Invincible),
                 new State("Leech"
                     ),
                 new State("Stage 1",
-                    new Spawn("Arena Skeleton", maxChildren: 2)
+                    new Spawn(N("Arena Skeleton"), maxChildren: 2)
                     ),
                 new State("Stage 2",
-                    new Spawn("Arena Skeleton", maxChildren: 2)
+                    new Spawn(N("Arena Skeleton"), maxChildren: 2)
                     ),
                 new State("Stage 3",
-                    new Spawn("Troll 1", maxChildren: 1)
+                    new Spawn(N("Troll 1"), maxChildren: 1)
                     ),
                 new State("Stage 4",
-                    new Spawn("Troll 1", maxChildren: 1)
+                    new Spawn(N("Troll 1"), maxChildren: 1)
                     ),
                 new State("Stage 5",
                     new Suicide()
                     ),
                 new State("Stage 6",
-                    new Spawn("Arena Ghost 2", maxChildren: 1)
+                    new Spawn(N("Arena Ghost 2"), maxChildren: 1)
                     ),
                 new State("Stage 7",
-                    new Spawn("Arena Ghost 2", maxChildren: 1)
+                    new Spawn(N("Arena Ghost 2"), maxChildren: 1)
                     ),
                new State("Stage 8",
-                    new Spawn("Arena Ghost 2", maxChildren: 1)
+                    new Spawn(N("Arena Ghost 2"), maxChildren: 1)
                     ),
                 new State("Stage 9",
-                    new Spawn("Arena Possessed Girl", maxChildren: 1)
+                    new Spawn(N("Arena Possessed Girl"), maxChildren: 1)
                     ),
                 new State("Stage 10",
                     new Suicide()
                     ),
                 new State("Stage 11",
-                    new Spawn("Arena Risen Brawler", maxChildren: 1)
+                    new Spawn(N("Arena Risen Brawler"), maxChildren: 1)
                     ),
                 new State("Stage 12",
-                    new Spawn("Arena Risen Warrior", maxChildren: 1)
+                    new Spawn(N("Arena Risen Warrior"), maxChildren: 1)
                     ),
                 new State("Stage 13",
-                    new Spawn("Arena Risen Warrior", maxChildren: 1)
+                    new Spawn(N("Arena Risen Warrior"), maxChildren: 1)
                     ),
                 new State("Stage 14",
-                    new Spawn("Arena Risen Warrior", maxChildren: 1),
-                    new Spawn("Arena Risen Archer", maxChildren: 1)
+                    new Spawn(N("Arena Risen Warrior"), maxChildren: 1),
+                    new Spawn(N("Arena Risen Archer"), maxChildren: 1)
                     ),
                 new State("Stage 15",
                     new Suicide()
                     )
                 )
             )
-        .Init("Arena East Gate Spawner",
+        .Init(E("Arena East Gate Spawner"),
             new State(
                 new ConditionEffectBehavior(ConditionEffectIndex.Invincible),
                 new State("Leech"
                     ),
                 new State("Stage 1",
-                    new Spawn("Arena Skeleton", maxChildren: 1)
+                    new Spawn(N("Arena Skeleton"), maxChildren: 1)
                     ),
                 new State("Stage 2",
-                    new Spawn("Arena Skeleton", maxChildren: 2)
+                    new Spawn(N("Arena Skeleton"), maxChildren: 2)
                     ),
                 new State("Stage 3",
-                    new Spawn("Arena Skeleton", maxChildren: 1),
-                    new Spawn("Troll 2", maxChildren: 1)
+                    new Spawn(N("Arena Skeleton"), maxChildren: 1),
+                    new Spawn(N("Troll 2"), maxChildren: 1)
                     ),
                 new State("Stage 4",
-                    new Spawn("Arena Skeleton", maxChildren: 1),
-                    new Spawn("Troll 2", maxChildren: 1)
+                    new Spawn(N("Arena Skeleton"), maxChildren: 1),
+                    new Spawn(N("Troll 2"), maxChildren: 1)
                     ),
                 new State("Stage 5",
                     new Suicide()
                     ),
                 new State("Stage 6",
-                    new Spawn("Arena Ghost 1", maxChildren: 1)
+                    new Spawn(N("Arena Ghost 1"), maxChildren: 1)
                     ),
                 new State("Stage 7",
-                    new Spawn("Arena Ghost 1", maxChildren: 1)
+                    new Spawn(N("Arena Ghost 1"), maxChildren: 1)
                     ),
                 new State("Stage 8",
-                    new Spawn("Arena Ghost 2", maxChildren: 1)
+                    new Spawn(N("Arena Ghost 2"), maxChildren: 1)
                     ),
                 new State("Stage 9",
-                    new Spawn("Arena Ghost 2", maxChildren: 1)
+                    new Spawn(N("Arena Ghost 2"), maxChildren: 1)
                     ),
                 new State("Stage 10",
-                    new Spawn("Arena Possessed Girl", maxChildren: 1)
+                    new Spawn(N("Arena Possessed Girl"), maxChildren: 1)
                     ),
                 new State("Stage 11",
-                    new Spawn("Arena Risen Warrior", maxChildren: 1)
+                    new Spawn(N("Arena Risen Warrior"), maxChildren: 1)
                     ),
                 new State("Stage 12",
-                    new Spawn("Arena Risen Brawler", maxChildren: 1)
+                    new Spawn(N("Arena Risen Brawler"), maxChildren: 1)
                     ),
                 new State("Stage 13",
-                    new Spawn("Arena Risen Brawler", maxChildren: 1)
+                    new Spawn(N("Arena Risen Brawler"), maxChildren: 1)
                     ),
                 new State("Stage 14",
-                    new Spawn("Arena Risen Brawler", maxChildren: 1)
+                    new Spawn(N("Arena Risen Brawler"), maxChildren: 1)
                     ),
                 new State("Stage 15",
                     new Suicide()
                     )
                 )
             )
-        .Init("Arena West Gate Spawner",
+        .Init(E("Arena West Gate Spawner"),
             new State(
                 new ConditionEffectBehavior(ConditionEffectIndex.Invincible),
                 new State("Leech"
                     ),
                 new State("Stage 1",
-                    new Spawn("Arena Skeleton", maxChildren: 1)
+                    new Spawn(N("Arena Skeleton"), maxChildren: 1)
                     ),
                 new State("Stage 2",
-                    new Spawn("Arena Skeleton", maxChildren: 2)
+                    new Spawn(N("Arena Skeleton"), maxChildren: 2)
                     ),
                 new State("Stage 3",
-                    new Spawn("Arena Skeleton", maxChildren: 1),
-                    new Spawn("Troll 2", maxChildren: 1)
+                    new Spawn(N("Arena Skeleton"), maxChildren: 1),
+                    new Spawn(N("Troll 2"), maxChildren: 1)
                     ),
                 new State("Stage 4",
-                    new Spawn("Arena Skeleton", maxChildren: 1),
-                    new Spawn("Troll 2", maxChildren: 1)
+                    new Spawn(N("Arena Skeleton"), maxChildren: 1),
+                    new Spawn(N("Troll 2"), maxChildren: 1)
                     ),
                 new State("Stage 5",
                     new Suicide()
                     ),
                 new State("Stage 6",
-                    new Spawn("Arena Ghost 1", maxChildren: 1)
+                    new Spawn(N("Arena Ghost 1"), maxChildren: 1)
                     ),
                 new State("Stage 7",
-                    new Spawn("Arena Ghost 2", maxChildren: 1)
+                    new Spawn(N("Arena Ghost 2"), maxChildren: 1)
                     ),
                 new State("Stage 8",
-                    new Spawn("Arena Ghost 2", maxChildren: 1)
+                    new Spawn(N("Arena Ghost 2"), maxChildren: 1)
                     ),
                 new State("Stage 9",
-                    new Spawn("Arena Possessed Girl", maxChildren: 1)
+                    new Spawn(N("Arena Possessed Girl"), maxChildren: 1)
                     ),
                 new State("Stage 10",
-                    new Spawn("Arena Possessed Girl", maxChildren: 1)
+                    new Spawn(N("Arena Possessed Girl"), maxChildren: 1)
                     ),
                 new State("Stage 11",
-                    new Spawn("Arena Risen Archer", maxChildren: 1)
+                    new Spawn(N("Arena Risen Archer"), maxChildren: 1)
                     ),
                 new State("Stage 12",
-                    new Spawn("Arena Risen Brawler", maxChildren: 1),
-                    new Spawn("Arena Risen Warrior", maxChildren: 1)
+                    new Spawn(N("Arena Risen Brawler"), maxChildren: 1),
+                    new Spawn(N("Arena Risen Warrior"), maxChildren: 1)
                     ),
                 new State("Stage 13",
-                    new Spawn("Arena Risen Archer", maxChildren: 1)
+                    new Spawn(N("Arena Risen Archer"), maxChildren: 1)
                     ),
                 new State("Stage 14",
-                    new Spawn("Arena Risen Archer", maxChildren: 1),
-                    new Spawn("Arena Risen Mage", maxChildren: 1)
+                    new Spawn(N("Arena Risen Archer"), maxChildren: 1),
+                    new Spawn(N("Arena Risen Mage"), maxChildren: 1)
                     ),
                 new State("Stage 15",
                     new Suicide()
                     )
                 )
             )
-        .Init("Arena North Gate Spawner",
+        .Init(E("Arena North Gate Spawner"),
             new State(
                 new ConditionEffectBehavior(ConditionEffectIndex.Invincible),
                 new State("Leech"
                     ),
                 new State("Stage 1",
-                    new Spawn("Arena Skeleton", maxChildren: 1)
+                    new Spawn(N("Arena Skeleton"), maxChildren: 1)
                     ),
                 new State("Stage 2",
-                    new Spawn("Troll 1", maxChildren: 1)
+                    new Spawn(N("Troll 1"), maxChildren: 1)
                     ),
                 new State("Stage 3",
-                    new Spawn("Troll 2", maxChildren: 1)
+                    new Spawn(N("Troll 2"), maxChildren: 1)
                     ),
                 new State("Stage 4",
-                    new Spawn("Troll 2", maxChildren: 1)
+                    new Spawn(N("Troll 2"), maxChildren: 1)
                     ),
                 new State("Stage 5",
-                    new Spawn("Troll 3", maxChildren: 1, spawnedByBehav: false)
+                    new Spawn(N("Troll 3"), maxChildren: 1, spawnedByBehav: false)
                     ),
                 new State("Stage 6",
-                    new Spawn("Arena Ghost 1", maxChildren: 1)
+                    new Spawn(N("Arena Ghost 1"), maxChildren: 1)
                     ),
                 new State("Stage 7",
-                    new Spawn("Arena Possessed Girl", maxChildren: 1)
+                    new Spawn(N("Arena Possessed Girl"), maxChildren: 1)
                     ),
                 new State("Stage 8",
-                    new Spawn("Arena Ghost 2", maxChildren: 1)
+                    new Spawn(N("Arena Ghost 2"), maxChildren: 1)
                     ),
                 new State("Stage 9",
-                    new Spawn("Arena Ghost 1", maxChildren: 1)
+                    new Spawn(N("Arena Ghost 1"), maxChildren: 1)
                     ),
                 new State("Stage 10",
-                    new Spawn("Arena Ghost Bride", maxChildren: 1, spawnedByBehav: false)
+                    new Spawn(N("Arena Ghost Bride"), maxChildren: 1, spawnedByBehav: false)
                     ),
                 new State("Stage 11",
-                    new Spawn("Arena Risen Mage", maxChildren: 1)
+                    new Spawn(N("Arena Risen Mage"), maxChildren: 1)
                     ),
                 new State("Stage 12",
-                    new Spawn("Arena Risen Warrior", maxChildren: 2)
+                    new Spawn(N("Arena Risen Warrior"), maxChildren: 2)
                     ),
                 new State("Stage 13",
-                    new Spawn("Arena Risen Warrior", maxChildren: 1),
-                    new Spawn("Arena Risen Mage", maxChildren: 1)
+                    new Spawn(N("Arena Risen Warrior"), maxChildren: 1),
+                    new Spawn(N("Arena Risen Mage"), maxChildren: 1)
                     ),
                 new State("Stage 14",
-                    new Spawn("Arena Risen Warrior", maxChildren: 2)
+                    new Spawn(N("Arena Risen Warrior"), maxChildren: 2)
                     ),
                 new State("Stage 15",
-                    new Spawn("Arena Grave Caretaker", maxChildren: 1, spawnedByBehav: false)
+                    new Spawn(N("Arena Grave Caretaker"), maxChildren: 1, spawnedByBehav: false)
                     )
                 )
             )
-            .Init("Arena Skeleton",
+            .Init(E("Arena Skeleton"),
                 new State(
                     new Prioritize(
                         new Follow(speed: 0.5, acquireRange: 8, range: 2, duration: 2000, coolDown: 3500),
@@ -742,9 +750,9 @@ namespace WorldServer.logic
                     new Shoot(radius: 8, count: 1, projectileIndex: 0, coolDown: 800)
                 )
             )
-            .Init("Troll 1",
+            .Init(E("Troll 1"),
                 new State(
-                    new ScaleHP2(35),
+                    new ScaleHP2(elder ? 15 : 35),
                     new Prioritize(
                         new Charge(speed: 1.1, range: 8, coolDown: 3000),
                         new Follow(speed: 0.5, acquireRange: 15, range: 2, duration: 4000, coolDown: 2000)
@@ -752,9 +760,9 @@ namespace WorldServer.logic
                     new Shoot(radius: 5, count: 1, projectileIndex: 0, coolDown: 1000)
                 )
             )
-            .Init("Troll 2",
+            .Init(E("Troll 2"),
                 new State(
-                    new ScaleHP2(35),
+                    new ScaleHP2(elder ? 15 : 35),
                     new Orbit(speed: 0.5, radius: 5, acquireRange: 10, target: null),
                     new Prioritize(
                         new Follow(speed: 1.1, acquireRange: 15, range: 6, duration: 4000, coolDown: 5000)
@@ -763,19 +771,19 @@ namespace WorldServer.logic
                     new Grenade(radius: 3, range: 6, damage: 85, coolDown: 2000)
                     )
             )
-            .Init("Troll 3",
+            .Init(E("Troll 3"),
                 new State(
-                    new ScaleHP2(35),
+                    new ScaleHP2(elder ? 15 : 35),
                     new State("Ini",
                         new ConditionEffectBehavior(ConditionEffectIndex.Invincible),
                         new State("Check1",
-                            new EntityExistsTransition(target: "Area 1 Controller", dist: 999, targetState: "2")
+                            new EntityExistsTransition(target: N("Area 1 Controller"), dist: 999, targetState: "2")
                         ),
                         new State("2",
                             new MoveTo(speed: 0.9f, x: 21f, y: 21f)
                         ),
                         new Taunt("This forest will be your tomb!"),
-                        new TossObject(child: "Arena Mushroom", range: 7, coolDown: 3000),
+                        new TossObject(child: N("Arena Mushroom"), range: 7, coolDown: 3000),
                         new TimedTransition(time: 2000, targetState: "Normal")
                     ),
                     new State("Normal",
@@ -785,17 +793,17 @@ namespace WorldServer.logic
                         new Follow(speed: 0.6, acquireRange: 10, range: 3, duration: 5000, coolDown: 5500),
                         new Shoot(radius: 8, count: 1, projectileIndex: 0, coolDown: 1000),
                         new Shoot(radius: 24, count: 6, shootAngle: 60, projectileIndex: 1, fixedAngle: 30, coolDown: 2000),
-                        new TossObject(child: "Arena Mushroom", range: 7, coolDown: 3000),
+                        new TossObject(child: N("Arena Mushroom"), range: 7, coolDown: 3000),
                         new HpLessTransition(threshold: 0.7, targetState: "Summon")
                     ),
                     new State("Summon",
                         new ConditionEffectBehavior(ConditionEffectIndex.Invulnerable),
                         new Taunt("I call upon the aid of warriors past! Smite these trespassers!"),
-                        new Spawn(children: "Arena Skeleton", maxChildren: 5, coolDown: 4000),
+                        new Spawn(children: N("Arena Skeleton"), maxChildren: 5, coolDown: 4000),
                         new Shoot(radius: 24, count: 6, shootAngle: 60, projectileIndex: 1, fixedAngle: 0, coolDown: 1500),
                         new Shoot(radius: 24, count: 6, shootAngle: 60, projectileIndex: 1, fixedAngle: 30, coolDown: 1500),
-                        new TossObject(child: "Arena Mushroom", range: 7, coolDown: 3000),
-                        new EntitiesNotExistsTransition(99, "Enrage", "Arena Skeleton")
+                        new TossObject(child: N("Arena Mushroom"), range: 7, coolDown: 3000),
+                        new EntitiesNotExistsTransition(99, "Enrage", N("Arena Skeleton"))
                     ),
                     new State("Enrage",
                         new Flash(color: 0xFFFFFF, flashPeriod: 0.1, flashRepeats: 15),
@@ -803,14 +811,14 @@ namespace WorldServer.logic
                         new Follow(speed: 1.1, acquireRange: 10, range: 3, duration: 5000, coolDown: 5500),
                         new Charge(speed: 1.3, range: 7, coolDown: 3000),
                         new Shoot(radius: 24, count: 6, shootAngle: 60, projectileIndex: 1, fixedAngle: 0, coolDown: 900),
-                        new TossObject(child: "Arena Mushroom", range: 7, coolDown: 1500),
+                        new TossObject(child: N("Arena Mushroom"), range: 7, coolDown: 1500),
                         new TimedTransition(time: 15000, targetState: "Normal 2")
                         ),
                     new State("Normal 2",
                         new Wander(speed: 0.3),
                         new ChangeSize(rate: 1, target: 150),
                         new Follow(speed: 1.1, acquireRange: 10, range: 3, duration: 5000, coolDown: 5500),
-                        new TossObject(child: "Arena Mushroom", range: 7, coolDown: 3000),
+                        new TossObject(child: N("Arena Mushroom"), range: 7, coolDown: 3000),
                         new Shoot(radius: 8, count: 1, projectileIndex: 0, coolDown: 1000),
                         new HpLessTransition(threshold: 0.4, targetState: "Summon")
                     )
@@ -821,9 +829,16 @@ namespace WorldServer.logic
                 new Threshold(0.01,
                     new ItemLoot("Potion of Speed", 0.8),
                     new ItemLoot("Potion of Wisdom", 0.8)
-                )
+                ),
+                ElderLoot(0.01,
+                    new ItemLoot("Elder Cemetery Key", 0.005),
+                    new TierLoot(12, ItemType.Weapon, .1),
+                    new TierLoot(13, ItemType.Armor, .1),
+                    new TierLoot(5, ItemType.Ability, .1),
+                    new TierLoot(5, ItemType.Ring, .1)
+                    )
             )
-            .Init("Arena Mushroom",
+            .Init(E("Arena Mushroom"),
                 new State(
                     new State("Ini",
                         new PlayerWithinTransition(dist: 3, targetState: "A1", seeInvis: true)
@@ -850,6 +865,6 @@ namespace WorldServer.logic
                 )
             )
             ;
-
+        }
     }
 }

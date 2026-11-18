@@ -122,10 +122,13 @@ namespace WorldServer.core.objects
         }
 
         // Ascendant halos: a forcefield left where it was cast, taking Amount percent off every hit
-        // the players inside it take (Forcefield.cs), in the colour of the halo's tier.
+        // the players inside it take (Forcefield.cs), in the colour of the halo's tier. The Halo of
+        // the Ghost Bride's keeps them from dying too (its Vow, Player.VowedDamage).
         private void AEForcefield(TickTime time, Item item, Position target, ActivateEffect eff)
         {
-            var field = new Forcefield(this, eff.Range, eff.Amount, eff.DurationMS > 0 ? eff.DurationMS : 8000, Forcefield.ColorOf(item.Tier));
+            var vow = item.RelicPower == "Vow";
+            var field = new Forcefield(this, eff.Range, eff.Amount, eff.DurationMS > 0 ? eff.DurationMS : 8000,
+                vow ? VowColor : Forcefield.ColorOf(item.Tier), vow);
             field.Move(X, Y);
             field.Z = Z;
             World.EnterWorld(field);

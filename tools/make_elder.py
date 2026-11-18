@@ -98,12 +98,18 @@ DUNGEONS = {
     "ElderLostHalls": ("Dungeons/Lost Halls.jm", "BehaviorDb.LostHallsRooms.cs+BehaviorDb.LostHalls.cs"),
     "ElderCultistHideout": ("Dungeons/Cultist Hideout.jm", "BehaviorDb.Cult.cs"),
     "ElderVoid": ("Dungeons/The Void/The Void.jm", "BehaviorDb.Void.cs"),
+    # the Haunted Cemetery's four worlds (the first one's gate spawners serve all three arenas)
+    "ElderCemetery": ("Dungeons/Haunted Cemetery.jm", "BehaviorDb.HauntedCemetery.cs"),
+    "ElderCemeteryGates": ("Dungeons/Haunted Cemetery Gates.jm", "BehaviorDb.HauntedCemeteryGates.cs+BehaviorDb.HauntedCemetery.cs"),
+    "ElderCemeteryGraves": ("Dungeons/Haunted Cemetery Graves.jm", "BehaviorDb.HauntedCemeteryGraves.cs+BehaviorDb.HauntedCemetery.cs"),
+    "ElderCemeteryFinalBattle": ("Dungeons/Haunted Cemetery Final Battle.jm", "BehaviorDb.HauntedCemeteryFinalBattle.cs"),
 }
 # Dungeons run by hidden objects that watch each other by name (the Shatters' switches, gates,
 # bridges, timers and chest spawners): every object their behaviours define gets an Elder copy,
 # the gates the behaviours open and the helpers they only spawn included, so the Elder version's
 # objects watch the Elder ones.
-SCRIPTED_DUNGEONS = {"ElderShatters", "ElderLostHalls", "ElderCultistHideout", "ElderVoid"}
+SCRIPTED_DUNGEONS = {"ElderShatters", "ElderLostHalls", "ElderCultistHideout", "ElderVoid", "ElderCemetery",
+                     "ElderCemeteryGates", "ElderCemeteryGraves", "ElderCemeteryFinalBattle"}
 # where the Elder maps go, under source/Shared/resources/worlds
 MAPS_DIR = "Doomed"
 
@@ -111,6 +117,9 @@ ELDER_HP = 2.0
 ELDER_DEFENSE = 10      # added
 ELDER_DAMAGE = 1.3
 ELDER_XP = 2            # <XpBonus>: the experience (and so fame) of a kill, and its per-kill cap
+# regular bosses that are no quest, whose Elder versions are (a Necromantic Relic raises them, and
+# a raised boss is a quest: the arrow, and its health at the top of the screen)
+ELDER_QUESTS = {"Arena Ghost Bride", "Arena Grave Caretaker", "Ghost of Skuld"}
 
 
 def rebalance_elders(dr, bs):
@@ -146,6 +155,8 @@ def rebalance_elders(dr, bs):
         for tag in ("Quest", "Level"):
             if regular.find(tag) is not None and o.find(tag) is None:
                 ET.SubElement(o, tag).text = regular.find(tag).text
+        if oid[len("Elder "):] in ELDER_QUESTS and o.find("Quest") is None:
+            ET.SubElement(o, "Quest")
         bonus = o.find("XpBonus") if o.find("XpBonus") is not None else ET.SubElement(o, "XpBonus")
         bonus.text = str(ELDER_XP)
         # projectiles: no id twice (Elder Septavius had two 0s), and every one of the regular
