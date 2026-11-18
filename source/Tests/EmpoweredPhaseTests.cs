@@ -116,6 +116,8 @@ namespace Tests
             Assert.True(malus.Haste < other.Haste && malus.EnragedHaste < other.EnragedHaste);
             Assert.True(malus.Damage > 1 && malus.Haste > 1, "Empowered Malus is still harder than the Elder one");
             Assert.InRange(EmpoweredSignatures.RitualSoulShare, 0.005, 0.015);
+            // a whole ritual left standing must not heal more than a player alone can deal between rituals
+            Assert.True(EmpoweredSignatures.RitualHealShare * 3 <= 0.03, "Malus' ritual heals too much to solo");
         }
     }
 }
