@@ -60,6 +60,11 @@ dotnet test source\Tests
   runs `rolling_restart.py deploy --reuse` (asked again every 30 minutes until draining). Without
   the proxy it kicks everyone 5 minutes after a warning and starts itself again (on Linux, systemd
   does).
+- **Crashes:** if the active world server's process is gone and no restart or deploy is running,
+  the proxy runs `rolling_restart.py up --no-build` after 5 s (at most once per 5 minutes). Code
+  on socket threads (the `NetworkHandler` callbacks, `Client.Disconnect`) must never let an
+  exception out: on a pool thread it ends the process without saving anyone. Touch a player's
+  world state there only through `World.Post`.
 - **Realms carry over:** each Nexus realm keeps a snapshot in the Redis hash `realms`
   (`core/worlds/RealmSnapshots.cs`, `RealmManager.Snapshot.cs`) that a new server reopens;
   `/uptime` reads `worlds:upSince`. New realm state worth keeping goes in the snapshot; what it

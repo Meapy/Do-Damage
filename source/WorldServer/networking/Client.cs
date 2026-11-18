@@ -207,7 +207,18 @@ namespace WorldServer.networking
             Account = null;
             Character = null;
             IpAddress = null;
-            Player?.CleanupPlayerUpdate();
+            // This runs on a socket thread while the player's world may still be ticking it (it
+            // leaves at the world's next tick): clearing what it sees from here broke that tick's
+            // loop over the same set and ended the server (2026-11-18). Clear it on the world's
+            // thread instead; with no world left, nothing else touches it.
+            var player = Player;
+            if (player != null)
+            {
+                if (player.World != null && !player.World.Deleted)
+                    player.World.Post(player.CleanupPlayerUpdate);
+                else
+                    player.CleanupPlayerUpdate();
+            }
             Player = null;
             Random = null;
             Socket = null;

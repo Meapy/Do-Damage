@@ -26,6 +26,9 @@ details). Add to a group's line when a change adds to it, rather than adding ano
 ### Items
 - The Vial of Cascading Dusk hits twice as hard (400 where it lands and 3,000 over 6 seconds, the cascade's splashes in step) and has a new look: the vial tumbles through the air trailing dusk and stars, shatters in a flash of violet light, and its dusk runs out along the floor to each next splash, every splash leaving a pool of twilight under a ring of stars. It and the Trinity Trap now show their damage in their tooltips: each splash or stage, its radius and its damage over time.
 
+### Servers
+- Fixed a rare crash when a player disconnected that took Europe 2 down on 18 November, and if the server ever stops unexpectedly it now comes back by itself within seconds instead of staying down until someone restarts it.
+
 ## 2.6.0 (2026-11-18)
 
 ### Game

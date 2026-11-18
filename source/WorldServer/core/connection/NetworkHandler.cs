@@ -100,7 +100,21 @@ namespace WorldServer.core.connection
                 OnCompleted(null, e);
         }
 
+        // Runs on a socket thread: an exception left here ends the whole server, so log it and drop
+        // only this client.
         private void OnCompleted(object sender, SocketAsyncEventArgs e)
+        {
+            try
+            {
+                OnSent(e);
+            }
+            catch (Exception ex)
+            {
+                SocketCallbacks.Failed(Client, "send", ex);
+            }
+        }
+
+        private void OnSent(SocketAsyncEventArgs e)
         {
             var s = (SendToken)e.UserToken;
 
@@ -233,7 +247,21 @@ namespace WorldServer.core.connection
                 OnCompleted(null, e);
         }
 
+        // Runs on a socket thread: an exception left here ends the whole server (it did on
+        // 2026-11-18, from a disconnect), so log it and drop only this client.
         private void OnCompleted(object sender, SocketAsyncEventArgs e)
+        {
+            try
+            {
+                OnReceived(e);
+            }
+            catch (Exception ex)
+            {
+                SocketCallbacks.Failed(Client, "receive", ex);
+            }
+        }
+
+        private void OnReceived(SocketAsyncEventArgs e)
         {
             var r = (ReceiveToken)e.UserToken;
 
@@ -445,6 +473,31 @@ namespace WorldServer.core.connection
         {
             NetworkSendHandler.Reset();
             NetworkReceiveHandler.Reset();
+        }
+    }
+
+    internal static class SocketCallbacks
+    {
+        // What a socket callback does with an exception it didn't expect: log it and disconnect the
+        // client, never let it out (on a pool thread, that ends the process and skips every save).
+        public static void Failed(Client client, string what, Exception e)
+        {
+            try
+            {
+                StaticLogger.Instance.Error($"Socket {what} callback failed for {client?.Account?.Name ?? "?"} @ {client?.IpAddress}: {e}");
+                if (client != null && client.State != ProtocolState.Disconnected)
+                    client.Disconnect($"socket {what} callback failed");
+            }
+            catch (Exception again)
+            {
+                try
+                {
+                    StaticLogger.Instance.Error($"...and disconnecting after it failed too: {again}");
+                }
+                catch
+                {
+                }
+            }
         }
     }
 }
