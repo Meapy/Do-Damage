@@ -11,6 +11,10 @@ impl B {
         self.0.push(v);
         self
     }
+    fn u16(mut self, v: u16) -> Self {
+        self.0.extend(v.to_be_bytes());
+        self
+    }
     fn i16(mut self, v: i16) -> Self {
         self.0.extend(v.to_be_bytes());
         self
@@ -436,6 +440,21 @@ fn arena_vote_messages_match_arena_votes() {
     assert_eq!((v.open, v.next_wave, v.max_combine, v.combine, v.next_needed, v.combine_needed, v.starting), (true, 7, 5, 2, 2, 2, false));
     let p = &v.voters[0];
     assert_eq!((p.object_id, p.name.as_str(), p.next, p.pick), (1001, "Tester", true, 2));
+}
+
+#[test]
+fn arena_round_matches_arena_round_message() {
+    // ArenaRoundMessage.Write: kind, season, first and last wave, a byte count of rounds (wave,
+    // title, format, twist, a byte count of boss types).
+    let body = B::default().u8(1).u8(2).i32(12).i32(13).u8(2)
+        .i32(12).utf("The Snake Pit").u8(3).u8(1).u8(2).u16(0x0d4f).u16(0x0d50)
+        .i32(13).utf("Candyland").u8(0).u8(0).u8(0).0;
+    let ServerMessage::ArenaRound(r) = ServerMessage::decode(170, &body).unwrap() else { panic!() };
+    assert_eq!((r.kind, r.season, r.wave, r.last_wave, r.rounds.len()), (1, 2, 12, 13, 2));
+    let first = &r.rounds[0];
+    assert_eq!((first.wave, first.title.as_str(), first.format, first.twist), (12, "The Snake Pit", 3, 1));
+    assert_eq!(first.bosses.iter().copied().collect::<Vec<_>>(), vec![0x0d4f, 0x0d50]);
+    assert!(r.rounds[1].bosses.is_empty());
 }
 
 #[test]

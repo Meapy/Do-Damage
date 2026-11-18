@@ -110,7 +110,7 @@ COMMAND_HELP = {
     "afk": "Pauses you while no monster is near (not in the Arena). Again to unpause.",
     "pause": "The same as /afk.",
     "arenas": "Lists the Arena games running now.",
-    "leaderboard": "The best Arena waves, solo runs and group runs apart.",
+    "leaderboard": "The best Arena waves of the current season, solo runs and group runs apart; <code>/leaderboard 1</code> for Season 1.",
     "gleaderboard": "The guilds with the most fame.",
     "uptime": "How long the game has been up (server updates don't stop it), and how long ago the current server took over.",
     "restartwhen": "When the world server next restarts.",

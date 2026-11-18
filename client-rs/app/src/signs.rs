@@ -6,7 +6,7 @@
 //! another object one, fetch what it should say into `Signs` and add it to `Signs::draw`.
 
 use crate::hud::Ui;
-use crate::i18n::{tf, tr};
+use crate::i18n::{tf, tn, tr};
 use crate::theme::{self, color};
 use bsk_data::ObjectClass;
 use bsk_net::account::ArenaRun;
@@ -128,8 +128,9 @@ fn fit(ui: &mut Ui, text: &str, size: f32, bold: bool, width: f32) -> String {
     t
 }
 
-/// The arena leaderboard's sign: the best run's wave and time, and who took part.
-pub fn arena_sign(best: Option<&ArenaRun>) -> Sign {
+/// The arena leaderboard's sign: the season's best run's wave and time, who took part, and the
+/// Empowered bosses it slew (`season` 0: an older server, without seasons).
+pub fn arena_sign(best: Option<&ArenaRun>, season: i32) -> Sign {
     const GOLD: u32 = 0xFFD24A;
     let lines = match best {
         None => vec![
@@ -142,13 +143,16 @@ pub fn arena_sign(best: Option<&ArenaRun>) -> Sign {
                 Line::new(tf!("Wave {wave}  ·  {time}", wave = run.wave, time = crate::npc::run_time(run.seconds)), 17.0, true, color::TEXT),
                 Line::new(names, 13.0, true, GOLD).wrapped(2),
             ];
-            if !run.arena.is_empty() {
+            if run.empowered > 0 {
+                lines.push(Line::new(tn!(run.empowered, "{n} Empowered slain|{n} Empowered slain", n = run.empowered), 11.0, true, 0xFF4FD8));
+            } else if season == 0 && !run.arena.is_empty() {
                 lines.push(Line::new(run.arena.clone(), 11.0, false, color::TEXT_MUTED));
             }
             lines
         }
     };
-    Sign { title: tr("ARENA RECORD").to_owned(), accent: GOLD, lines }
+    let title = if season > 0 { tf!("SEASON {n} RECORD", n = season) } else { tr("ARENA RECORD").to_owned() };
+    Sign { title, accent: GOLD, lines }
 }
 
 /// The Arena Chest's sign: shared, kept while the Arena is open, lost when it closes (its XML's
@@ -179,6 +183,8 @@ fn is_arena_board(world_obj: &GameObj, data: &bsk_data::GameData) -> bool {
 pub struct Signs {
     /// The arena's best run: `None` until fetched, `Some(None)` when there are no runs.
     pub arena: Option<Option<ArenaRun>>,
+    /// The season it's of (0 from an older server).
+    arena_season: i32,
     /// When the arena's sign may be fetched again.
     next_arena: i32,
     /// Whether an arena board was in range at the last frame drawn.
@@ -198,8 +204,9 @@ impl Signs {
     }
 
     /// Take the leaderboard's runs (from the sign's own fetch or the leaderboard window's).
-    pub fn set_arena(&mut self, runs: &[ArenaRun]) {
+    pub fn set_arena(&mut self, runs: &[ArenaRun], season: i32) {
         self.arena = Some(runs.first().cloned());
+        self.arena_season = season;
     }
 
     /// The signs over the objects in range (and note which are, for `want_arena`).
@@ -227,7 +234,7 @@ impl Signs {
             // on stacked floors, up on its floor (`GameObj.z`, 0 on a flat map)
             let [px, py] = cam.to_screen(o.x, o.y, o.z);
             let size_pct = o.stat_int(2).unwrap_or(100) as f32 / 100.0;
-            draw(ui, &arena_sign(best.as_ref()), px, py, size_pct, k);
+            draw(ui, &arena_sign(best.as_ref(), self.arena_season), px, py, size_pct, k);
         }
     }
 }

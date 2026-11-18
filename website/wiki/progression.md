@@ -187,16 +187,69 @@ damage, counted as it counts for loot, and their share includes it.
 
 ## The Arena
 
-The Arena is waves of monsters that get harder as you go: realm monsters first, then the
-Godlands gods (from wave 5), dungeon bosses (10), harder dungeon bosses (15), Elder dungeon bosses
-(20), Oryx (30) and Oryx's Court (40), where the courts of Oryx 3, 4 and 5 fight beside Oryx 3, 4
-or 5. Each wave has a boss of its stage, a few of its monsters come from the stage before, and
-from wave 30 an Elder dungeon boss joins Oryx's. The chat says which wave has begun and its stage.
+The Arena is waves of monsters that get harder as you go, until everyone has fallen. It plays in
+**seasons**, each with its own leaderboard: Season 1 (*The Mad God's Trial*) is over and kept as it
+ended, and **Season 2, *Rise of the Fallen***, is being played.
+
+### Season 2: rounds
+
+Every wave is a **round** from one of nearly 80 dungeons and corners of the realm: its boss or
+bosses and its own monsters. The waves fall into six tiers, and each tier deals its rounds from a
+shuffled pile, so you won't meet the same dungeon twice before the rest of its tier have come.
+
+| Waves | Tier | Where the rounds come from |
+|---|---|---|
+| 1-5 | The realm | the realm's gods (the Lich, the Ent Ancient, the Oasis Giant, the Deathmage) and Realm 2's bosses |
+| 6-11 | The Godlands | the Godlands' gods, Realm 2's events, the Snake Pit, the Undead Lair, the Abyss, Candyland, the Sewers, the Mad Lab, the Ruins and more |
+| 12-19 | Dungeons | the Manor, the Woodland Labyrinth, the Deadwater Docks, the Cave of a Thousand Treasures, the Ice Cave, the Library, the Cemetery, the Sphinx, the Ocean Trench, the Puppet Master and more |
+| 20-29 | Hard and Elder dungeons | the Tomb, the Ice Tomb, Oryx's Castle, the Crystal Prisoner, the Lost Lands, the Parasite Chambers, the Cult's lieutenants, the Elder Cemetery and dragons and the other Elder dungeons |
+| 30-39 | The end of the realm | Oryx 2 and 3, the Shatters, the Lost Sentry, the Cultist Hideout, the Void, the Cnidarian Reef, the Doorwarden, the Elder Ocean Trench, Tomb and Graveyard |
+| 40 and on | Legends | Oryx 4 and the Ascended God with their courts, the Elder Shatters, Cult and Void, the Elder Snake Pit's, Undead Lair's and Abyss's gods all at once, Limoz, the Ivory Wyvern |
+
+Bosses are kept to their tier's health, so a raid boss in the ring is a hard fight rather than a
+long one. From wave 40 they grow tougher every wave.
+
+**Shapes.** A round may come in another shape (never the same one twice in a row):
+
+- **Horde:** no boss, but three times the monsters, some of them Rare.
+- **Clash:** two dungeons at once, each with its boss.
+- **Boss Rush:** three bosses of the tier, one after another: the next comes as the last falls.
+- **Throwback:** a boss from two tiers back returns Legendary, with more of its monsters.
+- **Showdown:** every tenth wave, a fight of its own: the Godlands' four gods together (10), the
+  Tomb's three guardians (20), the Battle for the Nexus's four bosses (30), and from 40 Oryx's
+  court, the Elder Cult and the Elder Tomb in turn.
+
+**Twists.** From wave 6 a round may have a twist, more often as you go and always from wave 40:
+
+| Twist | What it does |
+|---|---|
+| Elite | the bosses are Epic (half again their health, more defense), a third of the monsters Rare |
+| Swarm | twice the monsters |
+| Ironclad | every monster has more defense |
+| Frenzy | the monsters move half again as fast |
+| Bounty | the wave pays twice the fame |
+| Blessing | you hit harder and faster for the wave's first 20 seconds |
+| Golden | the wave's loot isn't halved |
+
+**Empowered bosses.** From wave 12 a fight may bring an Empowered Elder boss, as a
+[Necromantic Relic](necromantic-relic.html) raises one: the souls stir, and four seconds later it
+rises in the middle of the ring, with its souls' attacks and its Empowered loot. It's rare (3% a
+fight at wave 12, rising to 8%, never on a Showdown and never within five waves of the last one),
+and the chat tells the whole server. Slaying it pays everyone in the Arena 200 fame, and the
+leaderboard counts the Empowered bosses each run slew. Which ones can rise grows with the tiers:
+the Snake Pit's, Undead Lair's, Abyss's, Jungle's, Manor's and Pirate Cave's Elders first, then the
+Cemetery's, the Beach's and Draconis's dragons, then the Ocean Trench's, the Tomb's and Skuld.
+
+**Seeing what's coming.** A banner shows each round as it begins (its wave, its name, its shape
+and twist and what they do, and its bosses), and the box under the wave counter keeps its name
+while you fight. Between waves the vote panel shows what the next fight will be. An Empowered
+boss rising and a boss rush's next boss get banners of their own.
+
+### Playing the Arena
 
 - **Oryx in the Arena** appears in the middle and is invulnerable for his first 5 seconds. He has
   less health than in his own dungeon and only fights his first phase, over and over: no calls
   for help, shields or rage.
-
 - **The ring:** you arrive in the forest outside a walled ring and walk in through one of its four
   gateways while the countdown runs. When the game starts the gates shut, and anyone still outside
   or in a gateway is moved just inside. Mind the lava inside the walls.
@@ -209,8 +262,8 @@ from wave 30 an Elder dungeon boss joins Oryx's. The chat says which wave has be
   what it used to. At level 20 kills there give three quarters of the usual experience, so three
   quarters of the fame on your character, and of the death bonuses that come from it. Levelling below 20 is as fast as anywhere, and the
   quest and achievement rewards for Arena waves are unchanged.
-- **Loot is halved** in the Arena and the Admin Arena, since losing there costs nothing. A boss (a
-  wave's boss, or Oryx) drops loot as often as anywhere else, but half the items, rounded up: if
+- **Loot is halved** in the Arena and the Admin Arena, since losing there costs nothing (a Golden
+  wave's isn't). A boss (a wave's boss, or Oryx) drops loot as often as anywhere else, but half the items, rounded up: if
   you'd have got 4 items you get 2, and 1 stays 1. Oryx 3, 4 and 5 also drop each item half as
   often, so they give about a quarter of their usual loot. Any other monster drops each item half
   as often. Pets are halved again on top of that: each pet drops half as often as the rest of
@@ -221,7 +274,7 @@ from wave 30 an Elder dungeon boss joins Oryx's. The chat says which wave has be
   - **Next wave** starts the next wave (or the game) in 3 seconds once at least half of the players
     have pressed it: 1 of 1 or 2, 2 of 3 or 4. Press it again to take your vote back. Typing **GO**
     in chat counts as pressing it. If not enough vote, the rest runs out and the wave starts anyway.
-  - **+1, +2, +5** combine waves into one fight: +5 brings the next five waves' monsters all at
+  - **+1, +2, +5** combine waves into one fight: +5 brings the next five waves' rounds all at
     once. It takes more than half of the players (2 of 2, 2 of 3, 3 of 4), and the fight brings the
     most waves that many picked at least, so with picks of +5, +2 and none it's 2 waves. Alone, you
     decide. Your pick stays from break to break until you change it (+1 is no combining).
@@ -233,10 +286,13 @@ from wave 30 an Elder dungeon boss joins Oryx's. The chat says which wave has be
   though: anything still inside when everyone has left is lost. Soulbound items can't go in.
 - **Losing doesn't kill you.** A hit that would kill you in the Arena sends you to the Nexus at full
   health, with your gear and fame: no grave, and it doesn't count as a death.
-- **The leaderboard:** the golden trophy beside the Arena portal shows the best run (its wave,
-  how long it took and who took part) as you walk by; stand on it for the top ten, solo runs and
-  group runs on their own tabs. `/leaderboard` lists both. The best solo and group players also
-  stand in the [Hall of Champions](champions.html).
+- **The leaderboard:** the golden trophy beside the Arena portal shows the current season's best
+  run (its wave, how long it took, who took part and the Empowered bosses it slew) as you walk by;
+  stand on it for the top ten, with a tab for each season and solo and group runs on their own
+  tabs. A Season 2 run also shows the round it fell at. `/leaderboard` lists the current season,
+  `/leaderboard 1` Season 1. A new best of the season (from wave 10) is announced to everyone. The
+  best solo and group players of the current season also stand in the
+  [Hall of Champions](champions.html).
 
 ## Dying
 

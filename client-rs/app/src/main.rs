@@ -129,8 +129,8 @@ enum NpcRequest {
     SetBoard,
     Members,
     Potions,
-    /// the Arena Leaderboard's solo (true) or group runs
-    Leaderboard(bool),
+    /// the Arena Leaderboard's solo (true) or group runs, of a season (None: the current one)
+    Leaderboard(bool, Option<i32>),
     Champions,
     Weekly,
 }
@@ -423,7 +423,7 @@ fn npc_open(kind: npc::NpcKind, game: &Game, npcs: &mut npc::Npcs, market: &mut 
         NpcKind::GuildBoard => Window::Board { text: None, edit: None, error: None },
         NpcKind::GuildChronicle => Window::Members { list: None, page: 0, error: None },
         NpcKind::PotionStorage => Window::Potions { counts: None, error: None },
-        NpcKind::ArenaLeaderboard => Window::Leaderboard { solo: true, runs: None, error: None },
+        NpcKind::ArenaLeaderboard => Window::Leaderboard { solo: true, season: None, board: None, seasons: Vec::new(), error: None },
         NpcKind::ChampionsBoard => Window::Champions(Box::default()),
         NpcKind::Herald => Window::Weekly { stats: None, error: None },
         // a statue: the Hall at its board (the nearest statue's)
@@ -1577,12 +1577,12 @@ impl App {
         let (Some(endpoint), Some((email, password))) = (&self.endpoint, &self.account) else { return };
         // The signs over objects: fetched while one is near, and taken when they come.
         if self.signs.want_arena(now) {
-            self.signs.request = Some(endpoint.arena_leaderboard(1, None));
+            self.signs.request = Some(endpoint.arena_leaderboard(1, None, None));
         }
         if let Some(response) = self.signs.request.as_ref().and_then(|p| p.take()) {
             self.signs.request = None;
-            if let Ok(runs) = login::reached(response).and_then(|x| bsk_net::account::parse_arena_runs(&x)) {
-                self.signs.set_arena(&runs);
+            if let Ok(board) = login::reached(response).and_then(|x| bsk_net::account::parse_arena_board(&x)) {
+                self.signs.set_arena(&board.runs, board.season);
             }
         }
         // ... and the Hall of Champions' statues
@@ -1602,7 +1602,9 @@ impl App {
                 Some(npc::Window::Board { .. }) => Some((NpcRequest::Board, endpoint.guild_board(email, password))),
                 Some(npc::Window::Members { .. }) => Some((NpcRequest::Members, endpoint.guild_members(email, password))),
                 Some(npc::Window::Potions { .. }) => Some((NpcRequest::Potions, endpoint.potions(email, password))),
-                Some(npc::Window::Leaderboard { solo, .. }) => Some((NpcRequest::Leaderboard(solo), endpoint.arena_leaderboard(npc::LEADERBOARD_RUNS, Some(solo)))),
+                Some(npc::Window::Leaderboard { solo, season, .. }) => {
+                    Some((NpcRequest::Leaderboard(solo, season), endpoint.arena_leaderboard(npc::LEADERBOARD_RUNS, Some(solo), season)))
+                }
                 Some(npc::Window::Champions(_)) => Some((NpcRequest::Champions, endpoint.champions(&my_name))),
                 Some(npc::Window::Weekly { .. }) => Some((NpcRequest::Weekly, endpoint.weekly_stats())),
                 _ => None,
@@ -1633,11 +1635,20 @@ impl App {
                 Ok(c) => (*counts, *error) = (Some(c), None),
                 Err(e) => *error = Some(e),
             },
-            // an answer for the other tab, from before a switch, is dropped (the switch asked again)
-            (NpcRequest::Leaderboard(asked), Some(npc::Window::Leaderboard { solo, runs, error })) if asked == *solo => match response.and_then(|x| acc::parse_arena_runs(&x)) {
-                Ok(r) => (*runs, *error) = (Some(r), None),
-                Err(e) => *error = Some(e),
-            },
+            // an answer for another tab, from before a switch, is dropped (the switch asked again)
+            (NpcRequest::Leaderboard(asked, asked_season), Some(npc::Window::Leaderboard { solo, season, board, seasons, error }))
+                if asked == *solo && asked_season == *season =>
+            {
+                match response.and_then(|x| acc::parse_arena_board(&x)) {
+                    Ok(b) => {
+                        if !b.seasons.is_empty() {
+                            *seasons = b.seasons.clone();
+                        }
+                        (*board, *error) = (Some(b), None);
+                    }
+                    Err(e) => *error = Some(e),
+                }
+            }
             (NpcRequest::Champions, Some(npc::Window::Champions(view))) => {
                 match response.and_then(|x| acc::parse_champions(&x)) {
                     Ok(data) => {
@@ -2618,6 +2629,7 @@ impl App {
                 now,
                 history: &game.boss_history,
                 arena_votes: game.arena_votes.as_ref(),
+                arena_next: game.arena_next.as_ref(),
                 visit: game.visit.as_ref(),
                 fame: &game.fame_stats,
             };
@@ -3386,6 +3398,7 @@ impl App {
                             now,
                             history: &game.boss_history,
                             arena_votes: game.arena_votes.as_ref(),
+                            arena_next: game.arena_next.as_ref(),
                             visit: game.visit.as_ref(),
                             fame: &game.fame_stats,
                         };
@@ -3425,9 +3438,17 @@ impl App {
                 if let Some(arena) = game.arena {
                     hud::draw_arena(&mut ui, &lay, arena, now);
                 }
+                let voting = game.arena_votes.as_ref().is_some_and(|v| v.open);
                 if let Some(votes) = &game.arena_votes {
                     let me = game.world.as_ref().and_then(|w| w.me);
-                    hud::draw_arena_votes(&mut ui, &lay, votes, me, mouse);
+                    hud::draw_arena_votes(&mut ui, &lay, votes, game.arena_next.as_ref(), me, mouse);
+                }
+                // the round being fought, under the wave box while the votes are shut
+                if let (Some(fight), false, Some(_)) = (&game.arena_fight, voting, game.arena) {
+                    hud::draw_arena_round(&mut ui, &lay, fight);
+                }
+                if let Some(banner) = &game.arena_banner {
+                    hud::draw_arena_banner(&mut ui, &lay, banner, now);
                 }
                 if let Some(visit) = &game.visit {
                     hud::draw_visit(&mut ui, &lay, visit, now, mouse);
@@ -3475,6 +3496,7 @@ impl App {
                     now,
                     history: &game.boss_history,
                     arena_votes: game.arena_votes.as_ref(),
+                    arena_next: game.arena_next.as_ref(),
                     visit: game.visit.as_ref(),
                     fame: &game.fame_stats,
                 };

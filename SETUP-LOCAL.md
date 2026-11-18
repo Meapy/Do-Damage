@@ -1918,7 +1918,7 @@ The remotes `upstream` (HaloCelsius) and `aurusenth` share no history with `main
 - **Forge prices for abilities** (`ForgeRecipes.Build`, mirrored in `wiki_data.Data.forge_recipes`): a two-of-the-tier-below recipe for an ability slot type (a class's second slot) costs its tier's fame on the scale (`TierFame` at `round(tier * 14 / top)`, every ability kind and the rings reaching T8: 30, 70, 90, 200, 400, 500, 1000, 2000), including the ones in the Doomed Realms list, whose own prices went up and down (T6 2000, T7 1000; shields T6 500). Weapons and armor keep the Doomed Realms prices where its list has them.
 - **The Divine Forge on the wiki** (`website/wiki/forge.md` and `forge.webp`; `tools/build_wiki.py`: `gen_forge_*`; `wiki_data.Data.forge_recipes`): its own page in the sidebar (an anvil sprite in `site.js`), with a shot of the forge's window as its banner (the Rust client's `--npc Forge --mouse-script` on an isolated stack, cropped to the window), how to use it, the two-for-one tier upgrades as one table of fame by tier (a row for each set of kinds that share a price list) and the other recipes with their items' icons. `forge_recipes` rebuilds the list as `ForgeRecipes.Build` does (the Doomed Realms recipes, tiered results capped at 2000 fame, the tier chains, and only tradeable, dropped, non-seasonal results); it gives the server's 447. Commands' forging section is shorter and links to it. The wiki also follows hand-written Elder monsters' loot to their generated definitions (`ElderDrops`; `wiki_data.Data.elder_loot`), so 115 Elder monsters' drops show on the gear pages. The forge's slot filters in the Rust client (`forge.rs` `slot_name`) name the newer classes' slot types, which fell back to "Item".
 - **Tier 9 weapons and tier 10 armor** (`LootTemplates.MountainDrop`, `BehaviorDb.Highland.cs`, `BehaviorDb.ToxicSewers.cs`, `BehaviorDb.CaveTT.cs`): the realm's ladder stopped at weapon T8 and armor T9 (the godlands gods' `MountainDrop`) and the dungeons began at weapon T10 and armor T11 (`BasicDrop`), so only the Treasure Pot, the Lava Fissure set piece, the Golden Oryx Effigy and a few Doomed Elder monsters dropped weapon T9 or armor T10. `MountainDrop` now adds weapon T9 and armor T10 at 2% each; the Beer God weapon T9 and armor T9 at 4%; the Natural Slime God weapon T9 at 5% and armor T10 at 3%. The Treasure Pot's armor skipped T5; it drops T5 and T10 at 3% (both were commented out).
-- **Arena waves** (`ArenaPools`): both arenas spawn from the same seven stages, by wave: Realm (1), Godlands (5), Dungeons (10), Hard dungeons (15), Elder dungeons (20), Oryx (30) and Oryx's Court (40); each wave has `ceil((wave + players) / 2)` minions and one of its stage's bosses. From the Godlands on, two of those minions (`CarriedMinions`, fewer when the count would leave none for the current stage) come from earlier stages: the stage just before, plus the Godlands in every later stage, less any already in the current stage's list. From wave 30 (`ElderBossFromWave`) an Elder dungeons boss spawns as well as the Oryx stage's boss. As a wave spawns, both arenas send everyone a chat line with its number and stage (`ArenaPools.WaveMessage`). They replace the public arena's god list with five boss levels and the Battle Arena's own lists. Monsters that stay invulnerable (Limon's elements, Arachna's webs, Oryx's Suit of Armor and the Son of Arachna until a player is close) would leave a wave that can't end, so they're left out. The Oryx stage also has four of Oryx 3's court as minions, and Oryx 2 and 3 as bosses; Oryx's Court has the rest of Oryx 3's court, Oryx 4's Infernal Court and Oryx 5's Ascended Host as minions, and Oryx 3, 4 and 5 as bosses.
+- **Arena waves** (Season 1, until 2026-11; replaced by Season 2's rounds, below) (`ArenaPools`): both arenas spawned from the same seven stages, by wave: Realm (1), Godlands (5), Dungeons (10), Hard dungeons (15), Elder dungeons (20), Oryx (30) and Oryx's Court (40); each wave has `ceil((wave + players) / 2)` minions and one of its stage's bosses. From the Godlands on, two of those minions (`CarriedMinions`, fewer when the count would leave none for the current stage) come from earlier stages: the stage just before, plus the Godlands in every later stage, less any already in the current stage's list. From wave 30 (`ElderBossFromWave`) an Elder dungeons boss spawns as well as the Oryx stage's boss. As a wave spawns, both arenas send everyone a chat line with its number and stage (`ArenaPools.WaveMessage`). They replace the public arena's god list with five boss levels and the Battle Arena's own lists. Monsters that stay invulnerable (Limon's elements, Arachna's webs, Oryx's Suit of Armor and the Son of Arachna until a player is close) would leave a wave that can't end, so they're left out. The Oryx stage also has four of Oryx 3's court as minions, and Oryx 2 and 3 as bosses; Oryx's Court has the rest of Oryx 3's court, Oryx 4's Infernal Court and Oryx 5's Ascended Host as minions, and Oryx 3, 4 and 5 as bosses.
 - **Developing locally** (`Dev Test.bat`, README "Developing locally"): servers and client on isolated stack slot 1, or `Dev Test.bat site` to build the website and wiki and serve `build\site` on 127.0.0.1:8000 (Python's `http.server`). `iso_stack.py stop` also stops anything still running from the stack's own folder that it didn't start (a world server opened by hand from `build\iso<N>\ws`), which otherwise kept its files locked and failed the next build.
 - **Pet heals on the wiki** (`tools/wiki_data.py`, `wiki_gear.py`): a PermaPet's `petHp` / `petMp` are ranges ("10-60"), which the wiki read as numbers, so healing never showed; each pet card on the Pets page now has a Heals block under its damage line, with a row for HP and one for MP: the range, how often and about how much a second.
 - **Arena wave starts** (`ArenaPools.WaveStartInvulnerableMs`, `ArenaWorld.Spawn`, `DoomedBattleArena.SpawnWave`): as a wave spawns, both arenas make everyone in them Invulnerable for 2.5 s.
@@ -2491,6 +2491,60 @@ The remotes `upstream` (HaloCelsius) and `aurusenth` share no history with `main
   broke once (its 8-shot burst) and once left (the 20 s cap). The Insect Commander, a Fire Down
   floor, an Aberrant and a Bile were also `/spawn`ed in a vault. No exceptions in the world
   server's log.
+
+- **Arena seasons** (2026-11-18; `Shared/database/leaderboard/ArenaSeasons.cs`, `DbArenaRuns`,
+  `App/Controllers/ArenaController.cs`, `GameServer.Run`, `/leaderboard [season]` in
+  `DoomedEconomyCommands.cs`, `ChampionSweep`; Rust client `npc.rs`, `signs.rs`,
+  `bsk_net::account::parse_arena_board`): each season has its own sorted set. Season 1, *The Mad
+  God's Trial*, keeps the old key `doomed.arenaLeaderboard` untouched (every run from before
+  seasons); Season 2, *Rise of the Fallen*, is `doomed.arenaLeaderboard.s2`, with members
+  `2|<unix ms>|<seconds>|<empowered slain>|<round it ended in>|<players>` (the same score). The
+  hash `doomed.arenaSeasons` keeps when each season began (unix ms), set once by the first world
+  server to start with it (`ArenaSeasons.Begin`); the season before ended then. `/arena/leaderboard`
+  takes `season` (the current one without it, as older clients ask) and answers with
+  `season`/`current` attributes, a `<Season number name start end>` per season, and the runs'
+  `empowered` and `fell`. The Hall of Champions' two Arena boards rank the current season only. A
+  new season: add it to `ArenaSeasons.All` with a new key; the last one is the current one. The
+  Rust client's leaderboard window has a chip per season (an older server sends none: no chips),
+  a line with the season's name and dates, and Season 2's Empowered count and where a run fell;
+  the trophy's sign says "SEASON n RECORD".
+- **Arena Season 2's rounds** (2026-11-18; `core/worlds/impl/ArenaSeason2.cs` (`ArenaSeason2`,
+  `ArenaPlanner`, `ArenaRound`, `ArenaFormat`, `ArenaTwist`), `DoomedBattleArena` in
+  `DoomedWorlds.cs`, `ArenaPools` (Season 1's stages removed), `BossResurrection.InfoFor`,
+  `ArenaRoundMessage` (ARENA_ROUND 170); Rust client `hud.rs` (`draw_arena_round`,
+  `draw_arena_banner`, the vote box's preview), `game.rs`, `bsk_proto::ArenaRound`): each wave is a
+  round planned in order by the game's `ArenaPlanner`: an encounter (a dungeon or realm corner:
+  bosses, how many of them come, its monsters) from its tier's shuffled pile (tiers from waves 1,
+  6, 12, 20, 30, 40), a shape (`ArenaFormat`: Horde, Clash, Boss Rush, Throwback; Showdown on every
+  tenth wave from `Showdowns`; never the same non-standard shape twice running) and from wave 6 a
+  twist (`ArenaTwist`, `TwistChance`, always from 40; never twice running). A quarter of the
+  monsters come from the whole tier's pool. Bosses (not the Oryxes' arena versions) are held to
+  the tier's `HealthCap` (18k to 260k, +3% a wave past 40; shared out when several come) every
+  tick at the same share of their health, so their phases come as ever; Legendary and Epic ones
+  get 2 and 1.5 times. A Boss Rush's bosses come one after another (`_relay`, 2.5 s apart). From
+  wave 12 (`EmpoweredChance`: 3% rising to 8%, not on a Showdown, five waves apart) an Empowered
+  Elder boss of the tier's `EmpoweredPool` rises 4 s into the fight through
+  `BossResurrection.RaiseAt` (not the Forgotten King, whose rising rebuilds the floor), announced
+  with `ChatManager.Arena`; slaying it pays 400 fame at the Arena's rate and counts on the run.
+  Bounty doubles the wave's pot, Golden sets `LootRate` 1 for the fight, Blessing gives everyone
+  Damaging and Berserk for 20 s, Frenzy makes monsters Speedy, Ironclad adds 12 defense once their
+  behaviour has started, Elite makes bosses Epic and a third of the monsters Rare. The dragons'
+  corpses and the Lost Sentry's spectre (`IsLeftover`) are taken away, since they never die. ARENA_ROUND goes to the clients
+  that subscribed to the votes (ARENA_VOTE 255): the next fight while the votes are open (kind 0),
+  a fight beginning (1), an Empowered boss rising (2), a boss rush's next boss (3). A new record of
+  the season from wave 10 is announced (`DbArenaRuns.RankOf`). Admins test it in an Arena with
+  `/arenatest wave <n>`, `/arenatest empowered [boss]`, `/arenatest plan [from] [to]` and
+  `/arenatest probe [seconds] [text | #k/n]` (a game changed by these isn't recorded), which fights every boss of the season in the ring in
+  turn, striking each and what it spawns for 2.5% of its health every half second, and logs how
+  long each took, its longest untouchable stretch and anything left (`ArenaProbe`;
+  `ArenaSeason2Tests` checks every name has a behaviour). Every encounter passed the probe on an
+  isolated stack. Sleeping bosses are woken into their dungeon's state as they spawn
+  (`ArenaSeason2.Wakes`: the Garden Statues, the Cult's lieutenants), and leftovers that never die
+  are taken away (`IsLeftover`: the dragons' corpses, the Lost Sentry's spectre). Left out: the
+  Mountain Temple (Daichi moves to fixed spots of his own map), the Forgotten King (his timer and
+  crystals), the Marble Colossus (his rocks never die, so both Lost Halls) and Elder Malus
+  (untouchable while his lieutenants are away); NM Green Dragon God Deux waits for Malphas Deux's
+  death, so it only comes in the Battle for the Nexus Showdown.
 
 ## Classes, minigames and the economy
 

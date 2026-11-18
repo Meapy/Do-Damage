@@ -238,6 +238,10 @@ public enum MessageId : byte
     // closes it to go on to its death screen. Clients that never said so are disconnected at death.
     GRAVE = 168,
     GRAVE_INFO = 169,
+    // The Arena's rounds (Rust client 2.6.1, Season 2: ArenaSeason2.cs), to clients that subscribed
+    // to its votes (ARENA_VOTE 255): what the next fight will be while the votes are open, what a
+    // fight is as it begins, an Empowered boss rising in it, and a boss rush's next boss.
+    ARENA_ROUND = 170,
     // From the world proxy (tools/world_proxy.py), before the client's first message: the
     // client's address. Only taken on a connection from this PC; clients never send it.
     PROXY_INFO = 250

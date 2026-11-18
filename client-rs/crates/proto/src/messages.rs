@@ -291,6 +291,11 @@ messages! {
         // With our Death, after Grave 255: we stay at our grave as a ghost, for this many ms at
         // most, and the connection stays open until we close it.
         169 => GraveInfo { ms: i32 },
+        // The Arena's rounds (Season 2), after ArenaVote 255: kind 0 what the next fight will be
+        // (while the votes are open), 1 a fight beginning, 2 an Empowered boss rising in it, 3 a
+        // boss rush's next boss (2 and 3 with one round: the boss's name and type); the season, the
+        // fight's first and last wave, and each round (`ArenaRoundInfo`).
+        170 => ArenaRound { kind: u8, season: u8, wave: i32, last_wave: i32, rounds: List8<ArenaRoundInfo> },
     }
 }
 

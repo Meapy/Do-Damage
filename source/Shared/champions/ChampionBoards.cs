@@ -99,13 +99,13 @@ namespace Shared.champions
             new ChampionBoardDef
             {
                 Tab = ChampionTab.ArenaSolo, Id = "arenaSolo", Name = "Arena Solo", Unit = "wave",
-                Description = "The best Arena run you played alone: its wave, then the quicker run.",
+                Description = "The best Arena run you played alone this season: its wave, then the quicker run.",
                 Reward = ChampionReward.ArenaFame, Values = new[] { 0.15, 0.10, 0.05 },
             },
             new ChampionBoardDef
             {
                 Tab = ChampionTab.ArenaGroup, Id = "arenaGroup", Name = "Arena Group", Unit = "wave",
-                Description = "The best Arena run you played with others: its wave, then the quicker run.",
+                Description = "The best Arena run you played with others this season: its wave, then the quicker run.",
                 Reward = ChampionReward.ArenaFame, Values = new[] { 0.15, 0.10, 0.05 },
             },
             new ChampionBoardDef

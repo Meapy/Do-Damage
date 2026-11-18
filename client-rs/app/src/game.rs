@@ -111,6 +111,11 @@ pub struct Game {
     /// asks).
     pub arena_votes: Option<bsk_proto::ArenaVotes>,
     arena_asked: bool,
+    /// The Arena's rounds (`ArenaRound`, Season 2): the fight running, what the next one will be
+    /// (while the votes are open), and the banner shown over the world (the message, and when).
+    pub arena_fight: Option<bsk_proto::ArenaRound>,
+    pub arena_next: Option<bsk_proto::ArenaRound>,
+    pub arena_banner: Option<(bsk_proto::ArenaRound, i32)>,
     /// Staff's `/autoaim`: shots go at the nearest enemy. Only the server turns it on, with a line
     /// from `*AutoAim*` (a name no player can have); `--aim auto` asks for it.
     pub auto_aim: bool,
@@ -427,6 +432,9 @@ impl Game {
             arena: None,
             arena_votes: None,
             arena_asked: false,
+            arena_fight: None,
+            arena_next: None,
+            arena_banner: None,
             auto_aim: false,
             show_displays: false,
             particles: Default::default(),
@@ -707,6 +715,9 @@ impl Game {
                 self.arena = None;
                 self.arena_votes = None;
                 self.arena_asked = false;
+                self.arena_fight = None;
+                self.arena_next = None;
+                self.arena_banner = None;
                 self.pings.clear();
                 self.show_displays = info.show_displays;
                 self.music = Some(info.music.clone());
@@ -1120,7 +1131,24 @@ impl Game {
                     others: false,
                 });
             }
-            ServerMessage::ArenaVotes(v) => self.arena_votes = Some(v.clone()),
+            ServerMessage::ArenaVotes(v) => {
+                if !v.open {
+                    self.arena_next = None;
+                }
+                self.arena_votes = Some(v.clone());
+            }
+            ServerMessage::ArenaRound(r) => match r.kind {
+                // what the next fight will be
+                0 => self.arena_next = Some(r.clone()),
+                // a fight begins: its rounds, and its banner
+                1 => {
+                    self.arena_next = None;
+                    self.arena_fight = Some(r.clone());
+                    self.arena_banner = Some((r.clone(), now));
+                }
+                // an Empowered boss rises, a boss rush's next boss: a banner of its own
+                _ => self.arena_banner = Some((r.clone(), now)),
+            },
             ServerMessage::PingShow(p) => self.pings.show(p, now),
             ServerMessage::SpectateInfo(_) | ServerMessage::SpectateFeed(_) | ServerMessage::SpectateStatus(_) | ServerMessage::SpectateChat(_) => {
                 self.glass_events.push(msg.clone())

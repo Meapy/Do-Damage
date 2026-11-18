@@ -9,6 +9,7 @@ using WorldServer.core.net.datas;
 using WorldServer.core.objects;
 using WorldServer.core.objects.containers;
 using WorldServer.core.objects.vendors;
+using WorldServer.core.resurrection;
 using WorldServer.core.structures;
 using WorldServer.core.terrain;
 using WorldServer.logic.doomed;
@@ -113,10 +114,6 @@ namespace WorldServer.core.worlds.impl.doomed
                 });
             });
         }
-
-        // a finished arena game (Shared DbArenaRuns): the wave reached, how long from the first wave
-        public static void AddArenaScore(GameServer gameServer, int wave, TimeSpan taken, string arena, IEnumerable<string> players) =>
-            DbArenaRuns.Add(gameServer.Database.Conn, wave, (int)taken.TotalSeconds, arena, players);
 
         public static void GiveFame(Player player, int amount)
         {
@@ -229,8 +226,16 @@ namespace WorldServer.core.worlds.impl.doomed
         }
     }
 
-    // The Arena (Doomed Realms' Battle Arena): waves of gods and a boss until everyone is defeated,
-    // fame after every wave; the wave reached goes on the /leaderboard.
+    // The Arena (Doomed Realms' Battle Arena): waves of monsters and bosses until everyone is
+    // defeated, fame after every wave; the wave reached goes on the season's leaderboard.
+    //
+    // Each wave is a round of the season (ArenaSeason2, planned by an ArenaPlanner): an
+    // encounter's bosses and monsters, in one of several shapes (a horde, a clash of two dungeons,
+    // a boss rush that brings its bosses one after another, a throwback's Legendary boss, a
+    // showdown every tenth wave) and maybe with a twist (elite bosses, a swarm, armoured or hasted
+    // monsters, double fame, a blessing, full loot). Bosses have at most the tier's health
+    // (ArenaSeason2.HealthCap), and from wave 12 an Empowered Elder boss (BossResurrection) may rise
+    // in the middle of a fight, for fame of its own and a count on the leaderboard.
     //
     // Between waves (and in the minute before the first) the players vote (Vote, the Rust client's
     // Arena panel): Next starts the wave once at least half of them want it (the countdown is cut to
@@ -240,7 +245,8 @@ namespace WorldServer.core.worlds.impl.doomed
     // alone and nobody is dragged into more than most want. A combined fight spawns every one of
     // its waves' monsters at once and pays each wave's fame and quest progress as it would have
     // one by one, so combining only saves time. From ArenaPools.CombineBeforeWave (Oryx) on,
-    // waves come one at a time.
+    // waves come one at a time. While the votes are open, subscribers see what the next fight
+    // will be (ARENA_ROUND).
     //
     // Two Arena Chests stand inside the ring (ArenaChest): anyone in the Arena can leave items in
     // them for the others, and they don't go the way loot bags do. When the Arena closes (everyone
@@ -280,6 +286,36 @@ namespace WorldServer.core.worlds.impl.doomed
         private int _paidWave;
         private bool _skipFirstGap;
 
+        // ---- Season 2's rounds ----
+        private readonly ArenaPlanner _planner = new ArenaPlanner();
+        // a boss rush's bosses still to come, the one fighting, and the wait before the next
+        private readonly Queue<(string Name, ArenaRound Round)> _relay = new Queue<(string, ArenaRound)>();
+        private Enemy _relayBoss;
+        private int _relayWaitMs;
+        // an Empowered boss to rise in this fight (and when), the one risen, the last wave one rose
+        // in, and how many the players have slain
+        private string _empoweredNext;
+        private long _empoweredAt;
+        private Enemy _empowered;
+        private int _lastEmpoweredWave = -100;
+        private int _empoweredSlain;
+        // the bosses' health caps and the twists' defense, kept up while they live
+        private readonly Dictionary<Enemy, (int Cap, int Defense, int Ticks)> _tuned = new Dictionary<Enemy, (int, int, int)>();
+        // the Golden twist's full loot until the fight ends
+        private bool _golden;
+        // the admins' tests (/arenatest): the next fight's wave and an Empowered boss to force
+        private int _forceWave;
+        private string _forceEmpowered;
+        // a game an admin changed with /arenatest: kept off the leaderboard
+        private bool _tested;
+        // what the last preview sent was, so it goes again only when it changes
+        private string _previewSent;
+        private ArenaProbe _probe;
+        // the last round fought, for the leaderboard (where the run fell)
+        private string _lastRound = "";
+
+        public const int IroncladDefense = 12;
+
         public DoomedBattleArena(GameServer gameServer, int id, WorldResource resource, World parent)
             : base(gameServer, id, resource, parent)
         {
@@ -290,8 +326,9 @@ namespace WorldServer.core.worlds.impl.doomed
             KillFameRate = ArenaPools.KillFameRate;
         }
 
-        public override bool Joinable => !_started;
+        public override bool Joinable => !_started && _probe == null;
         public IEnumerable<string> PlayerNames => Players.Values.Select(p => p.Name);
+        public int EmpoweredSlain => _empoweredSlain;
 
         public override void Init()
         {
@@ -335,7 +372,7 @@ namespace WorldServer.core.worlds.impl.doomed
         private bool VotingOpen => _counting && CountingDown && Players.Count > 0;
 
         // the wave the next fight starts at
-        private int NextWave => _started ? Wave : 1;
+        private int NextWave => _started ? Wave : _forceWave > 0 ? _forceWave : 1;
 
         // the most waves the next fight may combine: up to ArenaPools.MaxCombine, never into the Oryx stage
         private int MaxCombine => ArenaPools.MaxCombineAt(NextWave);
@@ -351,13 +388,15 @@ namespace WorldServer.core.worlds.impl.doomed
         private int Combine => ArenaPools.CombineDecided(Players.Keys.Select(id => _combinePicks.TryGetValue(id, out var k) ? k : 1), MaxCombine);
 
         // ARENA_VOTE: 0 Next (again to take it back), 1 to 5 a combine pick (+1 is no combining),
-        // 255 to get ARENA_VOTES from now on
+        // 255 to get ARENA_VOTES (and ARENA_ROUND) from now on
         public void Vote(Player player, byte action)
         {
             if (action == 255)
             {
                 _voteSubscribers.Add(player.Id);
                 SendVotes(player);
+                if (_started && !_counting && Wave > 0)
+                    player.Client?.SendPacket(RoundMessage(ArenaRoundMessage.Begins, _fightFrom, Wave));
                 return;
             }
             if (!VotingOpen || !Players.ContainsKey(player.Id))
@@ -416,7 +455,8 @@ namespace WorldServer.core.worlds.impl.doomed
                 (byte)(_combinePicks.TryGetValue(p.Id, out var k) ? k : 0))).ToArray(),
         };
 
-        // ARENA_VOTES to one subscriber, or to every one
+        // ARENA_VOTES to one subscriber, or to every one; while the votes are open, what the next
+        // fight will be too (ARENA_ROUND), when it changed or to a new subscriber
         private void SendVotes(Player only = null)
         {
             var to = only != null ? new[] { only } : Players.Values.Where(p => _voteSubscribers.Contains(p.Id)).ToArray();
@@ -424,6 +464,47 @@ namespace WorldServer.core.worlds.impl.doomed
                 return;
             var message = VotesMessage();
             foreach (var p in to)
+                p.Client?.SendPacket(message);
+            if (!VotingOpen)
+            {
+                _previewSent = null;
+                return;
+            }
+            var last = NextWave + Combine - 1;
+            var key = NextWave + "-" + last;
+            if (only == null && key == _previewSent)
+                return;
+            _previewSent = key;
+            var preview = RoundMessage(ArenaRoundMessage.Next, NextWave, last);
+            foreach (var p in to)
+                p.Client?.SendPacket(preview);
+        }
+
+        private ushort TypeOf(string id) => GameServer.Resources.GameData.IdToObjectType.TryGetValue(id, out var t) ? t : (ushort)0;
+
+        // ARENA_ROUND for the waves from..to: their rounds as planned
+        private ArenaRoundMessage RoundMessage(byte kind, int from, int to) => new ArenaRoundMessage
+        {
+            Kind = kind,
+            Season = (byte)ArenaSeasons.Current.Number,
+            Wave = from,
+            LastWave = to,
+            Rounds = Enumerable.Range(from, Math.Max(1, to - from + 1)).Select(w => _planner.Round(w))
+                .Select(r => (r.Wave, r.Title, (byte)r.Format, (byte)r.Twist, r.AllBosses.Distinct().Select(TypeOf).Where(t => t != 0).ToArray())).ToArray(),
+        };
+
+        // ARENA_ROUND with one boss (an Empowered one rising, a boss rush's next)
+        private void SendBoss(byte kind, Enemy boss)
+        {
+            var message = new ArenaRoundMessage
+            {
+                Kind = kind,
+                Season = (byte)ArenaSeasons.Current.Number,
+                Wave = _fightFrom,
+                LastWave = Wave,
+                Rounds = new[] { (Wave, boss.ObjectDesc.DisplayId ?? boss.ObjectDesc.IdName, (byte)0, (byte)0, new[] { boss.ObjectType }) },
+            };
+            foreach (var p in Players.Values.Where(p => _voteSubscribers.Contains(p.Id)))
                 p.Client?.SendPacket(message);
         }
 
@@ -557,34 +638,322 @@ namespace WorldServer.core.worlds.impl.doomed
             return (f.X + 0.5f, f.Y + 0.5f);
         }
 
+        public (float X, float Y) Middle => (_middle.X + 0.5f, _middle.Y + 0.5f);
+
+        // a round's chat line: "Wave 12 has begun: The Snake Pit (Boss Rush, Elite)."
+        public static string RoundLine(ArenaRound r)
+        {
+            var extras = new List<string>();
+            if (r.Format != ArenaFormat.Standard && r.Format != ArenaFormat.Showdown)
+                extras.Add(FormatName(r.Format));
+            if (r.Twist != ArenaTwist.None)
+                extras.Add(TwistName(r.Twist));
+            return $"Wave {r.Wave} has begun: {r.Title}" + (extras.Count > 0 ? $" ({string.Join(", ", extras)})" : "") + ".";
+        }
+
+        public static string FormatName(ArenaFormat f) => f switch
+        {
+            ArenaFormat.Horde => "Horde",
+            ArenaFormat.Clash => "Clash",
+            ArenaFormat.BossRush => "Boss Rush",
+            ArenaFormat.Showdown => "Showdown",
+            ArenaFormat.Throwback => "Throwback",
+            _ => "Standard",
+        };
+
+        public static string TwistName(ArenaTwist t) => t switch
+        {
+            ArenaTwist.Elite => "Elite",
+            ArenaTwist.Swarm => "Swarm",
+            ArenaTwist.Ironclad => "Ironclad",
+            ArenaTwist.Frenzy => "Frenzy",
+            ArenaTwist.Bounty => "Bounty",
+            ArenaTwist.Blessing => "Blessing",
+            ArenaTwist.Golden => "Golden",
+            _ => "",
+        };
+
         // the fight: `count` waves from Wave on (combined by the votes), all of their monsters at once
         private void SpawnWave(int count)
         {
-            // the stages of ArenaPools
             _fightFrom = Wave;
             var waves = Enumerable.Range(Wave, Math.Max(1, count)).ToList();
             Wave = waves.Last();
-            var bosses = waves.SelectMany(ArenaPools.Bosses).ToArray();
-            var minions = waves.SelectMany(w => ArenaPools.Minions(w, Players.Count)).ToList();
+            var rounds = waves.Select(_planner.Round).ToList();
+            var bosses = rounds.SelectMany(r => r.Bosses).ToArray();
+            _lastRound = rounds.Last().Title;
             foreach (var p in Players.Values)
             {
-                p.SendInfo(waves.Count == 1 ? ArenaPools.WaveMessage(Wave) : ArenaPools.WavesMessage(_fightFrom, Wave));
+                foreach (var r in rounds)
+                    p.SendInfo(RoundLine(r));
                 p.ApplyConditionEffect(ConditionEffectIndex.Invulnerable, ArenaPools.StartInvulnerableMs(bosses));
+                if (rounds.Any(r => r.Twist == ArenaTwist.Blessing))
+                {
+                    p.ApplyConditionEffect(ConditionEffectIndex.Damaging, ArenaSeason2.BlessingMs);
+                    p.ApplyConditionEffect(ConditionEffectIndex.Berserk, ArenaSeason2.BlessingMs);
+                }
             }
             foreach (var p in Players.Values)
                 SendWaveInfo(p);
-            foreach (var name in minions.Concat(bosses))
+            var message = RoundMessage(ArenaRoundMessage.Begins, _fightFrom, Wave);
+            foreach (var p in Players.Values.Where(p => _voteSubscribers.Contains(p.Id)))
+                p.Client?.SendPacket(message);
+
+            _golden = rounds.Any(r => r.Twist == ArenaTwist.Golden);
+            LootRate = _golden ? 1 : ArenaPools.LootRate;
+
+            foreach (var r in rounds)
             {
-                // an Oryx fights round where he spawns, so he takes the middle
-                if (ArenaPools.IsOryx(name))
-                    Spawn(name, _middle.X + 0.5f, _middle.Y + 0.5f);
-                else
-                {
-                    var (x, y) = SpawnSpot();
-                    Spawn(name, x, y);
-                }
+                foreach (var name in _planner.Minions(r, Players.Count))
+                    SpawnMonster(name, r, false, 1);
+                foreach (var name in r.Bosses)
+                    SpawnMonster(name, r, true, ArenaSeason2.CapShare(r.Bosses.Count));
+                foreach (var name in r.Relay)
+                    _relay.Enqueue((name, r));
+            }
+            _relayBoss = null;
+            _relayWaitMs = 0;
+            NextRelay(false);
+
+            // an Empowered boss, now and then (or as an admin asked)
+            _empoweredNext = _forceEmpowered ?? _planner.Empowered(_fightFrom, _lastEmpoweredWave);
+            _forceEmpowered = null;
+            if (_empoweredNext != null)
+            {
+                _empoweredAt = _time.TotalElapsedMs + ArenaSeason2.EmpoweredDelayMs;
+                _lastEmpoweredWave = Wave;
+                NotifyAll(0xFFFF4FD8, "The souls stir...");
             }
         }
+
+        // a wave's monster, with its round's twist; a boss also with its health cap
+        private Enemy SpawnMonster(string name, ArenaRound round, bool boss, double capShare)
+        {
+            var oryx = ArenaPools.IsOryx(name);
+            var (x, y) = oryx ? Middle : SpawnSpot();
+            if (Spawn(name, x, y) is not Enemy e)
+                return null;
+            Wake(e);
+            var cap = 0;
+            if (boss)
+            {
+                var scale = 1.0;
+                if (round.Legendary)
+                {
+                    e.ClasifyEnemyJson("legendary");
+                    scale = 2;
+                }
+                else if (round.Twist == ArenaTwist.Elite)
+                {
+                    e.ClasifyEnemyJson("epic");
+                    scale = 1.5;
+                }
+                // an Oryx's arena version keeps the health it has
+                if (!oryx)
+                    cap = (int)(round.HealthCap * capShare * scale);
+            }
+            else if (round.Twist == ArenaTwist.Elite && _planner.NextRandom(3) == 0
+                || round.Format == ArenaFormat.Horde && _planner.NextRandom(5) == 0)
+                e.ClasifyEnemyJson(round.Format == ArenaFormat.Horde && round.Twist == ArenaTwist.Elite ? "epic" : "rare");
+            if (round.Twist == ArenaTwist.Frenzy)
+                e.ApplyConditionEffect(ConditionEffectIndex.Speedy, -1);
+            var defense = round.Twist == ArenaTwist.Ironclad ? IroncladDefense : 0;
+            if (cap > 0 || defense > 0)
+                _tuned[e] = (cap, defense, 0);
+            return e;
+        }
+
+        // Keeps each boss under its cap (at the same share of its health, so its phases come as
+        // ever), whatever its behaviour sets; the Ironclad defense goes on once its behaviour has
+        // started (which may set its defense).
+        private void Tune()
+        {
+            foreach (var e in _tuned.Keys.ToList())
+            {
+                if (e.Dead || e.World != this)
+                {
+                    _tuned.Remove(e);
+                    continue;
+                }
+                var (cap, defense, ticks) = _tuned[e];
+                if (cap > 0 && e.MaxHealth > cap)
+                {
+                    var share = Math.Clamp(e.Health / (double)Math.Max(1, e.MaxHealth), 0, 1);
+                    e.MaxHealth = cap;
+                    e.Health = Math.Max(1, (int)Math.Round(cap * share));
+                }
+                if (defense > 0 && ticks == 2)
+                    e.Defense += defense;
+                _tuned[e] = (cap, defense, ticks + 1);
+            }
+        }
+
+        // a boss rush's next boss, once the one before has fallen (after a breath)
+        private void NextRelay(bool announce)
+        {
+            if (_relay.Count == 0)
+                return;
+            var (name, round) = _relay.Dequeue();
+            _relayBoss = SpawnMonster(name, round, true, 0.7);
+            if (_relayBoss == null)
+                return;
+            if (announce)
+            {
+                NotifyAll(0xFFFFB347, "Next challenger!");
+                SendBoss(ArenaRoundMessage.NextChallenger, _relayBoss);
+            }
+        }
+
+        private void UpdateRelay(int dt)
+        {
+            if (_relay.Count == 0 || _relayBoss != null && !_relayBoss.Dead && _relayBoss.World == this)
+                return;
+            if (_relayWaitMs <= 0)
+            {
+                _relayWaitMs = 2500;
+                return;
+            }
+            _relayWaitMs -= dt;
+            if (_relayWaitMs <= 0)
+                NextRelay(true);
+        }
+
+        // the Empowered boss rising, and its fall
+        private void UpdateEmpowered()
+        {
+            if (_empoweredNext != null && _time.TotalElapsedMs >= _empoweredAt)
+            {
+                var name = _empoweredNext;
+                _empoweredNext = null;
+                var info = BossResurrection.InfoFor(name);
+                if (info == null)
+                    return;
+                var (x, y) = Middle;
+                _empowered = BossResurrection.RaiseAt(this, info, new Position(x, y - 3), 0, "the Arena");
+                if (_empowered == null)
+                    return;
+                SendBoss(ArenaRoundMessage.EmpoweredRises, _empowered);
+                GameServer.ChatManager.Arena($"Empowered {info.Name} has risen in the Arena at wave {Wave}! ({string.Join(", ", PlayerNames)})");
+            }
+            if (_empowered != null && (_empowered.Dead || _empowered.World != this))
+            {
+                var name = Empowered.DisplayName(_empowered);
+                _empowered = null;
+                _empoweredSlain++;
+                var fame = FameRates.Fame(ArenaSeason2.EmpoweredFame, FameRate);
+                foreach (var p in Players.Values)
+                {
+                    DoomedWorlds.GiveFame(p, fame);
+                    DoomedWorlds.Notify(p, 0xFFFF4FD8, $"Empowered slain! +{fame} Fame");
+                }
+                GameServer.ChatManager.Arena($"{name} has fallen in the Arena to {string.Join(", ", PlayerNames)}!");
+            }
+        }
+
+        // the fight is over once its monsters are dead and no boss is still to come
+        private bool FightOver => !Hostiles.Any() && _relay.Count == 0 && _empoweredNext == null && _empowered == null;
+
+        // a game's end: its run on the season's leaderboard, and a new best announced
+        private void Finish()
+        {
+            if (_tested)
+            {
+                _participants.Clear();
+                return;
+            }
+            var db = GameServer.Database.Conn;
+            var season = ArenaSeasons.Current;
+            var seconds = (int)(DateTime.UtcNow - _firstWave).TotalSeconds;
+            var fell = _lastRound;
+            var solo = _participants.Count == 1;
+            var best = Wave >= 10 && DbArenaRuns.RankOf(db, season, Wave, seconds, solo) == 0;
+            DbArenaRuns.Add(db, season, Wave, seconds, IdName, _participants, _empoweredSlain, fell);
+            if (best)
+                GameServer.ChatManager.Arena($"New Season {season.Number} record ({(solo ? "solo" : "group")}): wave {Wave} in {DbArenaRuns.FormatTime(seconds)} by {string.Join(", ", _participants)}!");
+            _participants.Clear();
+        }
+
+        // the round planned for a wave (/arenatest plan)
+        public ArenaRound Planned(int wave) => _planner.Round(wave);
+
+        // /arenatest: the next fight starts at this wave
+        public bool ForceWave(int wave)
+        {
+            if (wave < 1)
+                return false;
+            _tested = true;
+            if (_started)
+            {
+                if (!_counting)
+                    return false;
+                Wave = wave;
+                _paidWave = wave;
+            }
+            else
+                _forceWave = wave;
+            SendVotes();
+            return true;
+        }
+
+        // /arenatest empowered: the next fight brings this Empowered boss
+        public bool ForceEmpowered(string boss)
+        {
+            if (BossResurrection.InfoFor(boss) == null)
+                return false;
+            _forceEmpowered = boss;
+            _tested = true;
+            return true;
+        }
+
+        // /arenatest probe: fights each boss in the ring (ArenaProbe), instead of the game
+        public void StartProbe(Player admin, IEnumerable<string> bosses, int seconds)
+        {
+            _probe = new ArenaProbe(this, admin, bosses.ToList(), seconds);
+            _tested = true;
+            _counting = false;
+            _started = true;
+        }
+
+        public Entity SpawnForProbe(string name)
+        {
+            var (x, y) = ArenaPools.IsOryx(name) ? Middle : (Middle.X + 4, Middle.Y);
+            var e = Spawn(name, x, y);
+            if (e != null)
+                Wake(e);
+            return e;
+        }
+
+        // a monster its dungeon would order awake, woken (ArenaSeason2.Wakes)
+        private void Wake(Entity e)
+        {
+            if (!ArenaSeason2.Wakes.TryGetValue(e.ObjectDesc.IdName, out var name)
+                || !GameServer.BehaviorDb.Definitions.TryGetValue(e.ObjectType, out var def))
+                return;
+            var state = FindState(def.Item1, name);
+            if (state != null)
+                e.SwitchTo(state);
+        }
+
+        private static logic.State FindState(logic.State state, string name)
+        {
+            if (state.Name == name)
+                return state;
+            foreach (var child in state.States)
+                if (FindState(child, name) is { } found)
+                    return found;
+            return null;
+        }
+
+        public IEnumerable<Enemy> ProbeHostiles => Hostiles;
+
+        // what bosses leave for good in their dungeons, taken away (ArenaSeason2.IsLeftover)
+        private void ClearLeftovers()
+        {
+            foreach (var e in Hostiles.Where(e => ArenaSeason2.IsLeftover(e.ObjectDesc.IdName)).ToList())
+                LeaveWorld(e);
+        }
+
+        public bool ProbeOutOfBounds(Entity e) => OutOfBounds(e.X, e.Y);
 
         protected override void UpdateLogic(ref TickTime time)
         {
@@ -593,22 +962,27 @@ namespace WorldServer.core.worlds.impl.doomed
             var wasOpen = VotingOpen;
             base.UpdateLogic(ref time);
             PruneVotes();
+            ClearLeftovers();
+            if (_probe != null)
+            {
+                _probe.Tick(ref time);
+                if (_probe.Done)
+                    _probe = null;
+                return;
+            }
             if (_closed)
                 foreach (var p in Players.Values)
                     MoveInside(p); // someone let in after the start (admins, /summon) spawns outside
             if (Players.Count == 0)
             {
                 if (_participants.Count > 0)
-                {
-                    DoomedWorlds.AddArenaScore(GameServer, Wave, DateTime.UtcNow - _firstWave, IdName, _participants);
-                    _participants.Clear();
-                }
+                    Finish();
                 return;
             }
 
             if (!_started && !_counting)
             {
-                GameServer.ChatManager.Arena("An Arena game starts in one minute. Type /arena to join.");
+                GameServer.ChatManager.Arena($"An Arena game (Season {ArenaSeasons.Current.Number}) starts in one minute. Type /arena to join.");
                 _counting = true;
                 Countdown(60, s => NotifyAll(0xffff00ff, s + " Second" + (s == 1 ? "" : "s")), () =>
                 {
@@ -617,6 +991,13 @@ namespace WorldServer.core.worlds.impl.doomed
                     _started = true;
                     _counting = false;
                     _firstWave = DateTime.UtcNow;
+                    if (_forceWave > 0)
+                    {
+                        // an admin's test: from that wave, with nothing paid or counted before it
+                        Wave = _forceWave - 1;
+                        _paidWave = Wave;
+                        _fightFrom = _forceWave;
+                    }
                     CloseGates();
                     foreach (var p in Players.Values)
                         SendWaveInfo(p);
@@ -632,7 +1013,11 @@ namespace WorldServer.core.worlds.impl.doomed
             if (!_started || _counting)
                 return;
 
-            if (!Hostiles.Any())
+            Tune();
+            UpdateRelay(time.ElapsedMsDelta);
+            UpdateEmpowered();
+
+            if (FightOver)
             {
                 // the waves just beaten, each for quests and achievements (none at the start)
                 if (Wave > 0)
@@ -642,11 +1027,22 @@ namespace WorldServer.core.worlds.impl.doomed
                         foreach (var p in Players.Values)
                             p.Quests?.Event(wave);
                     }
+                if (_golden)
+                {
+                    _golden = false;
+                    LootRate = ArenaPools.LootRate;
+                }
                 Wave++;
-                // each wave's fame pot, as one by one: after a combined fight, the waves it took in too
+                // each wave's fame pot, as one by one: after a combined fight, the waves it took in
+                // too; a Bounty wave's twice over
                 var pot = 0;
                 for (; _paidWave < Wave; _paidWave++)
-                    pot += ArenaPools.WavePot(_paidWave + 1, Players.Count, FameRate);
+                {
+                    var wavePot = ArenaPools.WavePot(_paidWave + 1, Players.Count, FameRate);
+                    if (_paidWave >= 1 && _planner.Round(_paidWave).Twist == ArenaTwist.Bounty)
+                        wavePot *= 2;
+                    pot += wavePot;
+                }
                 foreach (var p in Players.Values)
                 {
                     // the Hall of Champions' Arena board: more of each wave's fame
@@ -677,6 +1073,126 @@ namespace WorldServer.core.worlds.impl.doomed
             else
                 foreach (var e in Hostiles.Where(e => OutOfBounds(e.X, e.Y)).ToList())
                     LeaveWorld(e);
+        }
+    }
+
+    // /arenatest probe: each boss in turn, in an Arena that hasn't started, struck for a share of its
+    // health every half second (as players would, so invulnerable phases hold) with everything it
+    // spawned, until they're all dead or the time runs out. What happened goes to the admin and the
+    // log: how long it took, its longest untouchable stretch, the most monsters at once, and what was
+    // left, out of the ring, or still standing.
+    public sealed class ArenaProbe
+    {
+        private static readonly NLog.Logger Log = NLog.LogManager.GetCurrentClassLogger();
+        private readonly DoomedBattleArena _arena;
+        private readonly Player _admin;
+        private readonly List<string> _bosses;
+        private readonly int _limitMs;
+        private int _index = -1;
+        private int _elapsed, _strikeIn, _invulnMs, _invulnMax, _peak, _wait;
+        private Entity _boss;
+        private int _bossMax;
+        private readonly List<string> _results = new List<string>();
+        public bool Done { get; private set; }
+
+        // a hit for this share of a monster's max health every half second: 20 s for one without tricks
+        private const double Share = 0.025;
+
+        public ArenaProbe(DoomedBattleArena arena, Player admin, List<string> bosses, int seconds)
+        {
+            _arena = arena;
+            _admin = admin;
+            _bosses = bosses;
+            _limitMs = Math.Max(10, seconds) * 1000;
+        }
+
+        private void Report(string line)
+        {
+            Log.Info("ArenaProbe: " + line);
+            _results.Add(line);
+            _admin.SendInfo(line);
+        }
+
+        public void Tick(ref TickTime time)
+        {
+            if (Done)
+                return;
+            if (_admin.World != _arena)
+            {
+                Done = true;
+                Log.Info("ArenaProbe: stopped, the admin left.");
+                return;
+            }
+            var dt = time.ElapsedMsDelta;
+            if (_index < 0 || _boss == null)
+            {
+                // between bosses: the ring cleared, then the next
+                _wait -= dt;
+                if (_wait > 0)
+                    return;
+                foreach (var e in _arena.ProbeHostiles.ToList())
+                    _arena.LeaveWorld(e);
+                _index++;
+                if (_index >= _bosses.Count)
+                {
+                    Done = true;
+                    Report($"Probe done: {_bosses.Count} bosses.");
+                    return;
+                }
+                var (mx, my) = _arena.Middle;
+                _admin.TeleportPosition(time, mx, my + 2, true);
+                _boss = _arena.SpawnForProbe(_bosses[_index]);
+                if (_boss == null)
+                {
+                    Report($"{_bosses[_index]} | NO OBJECT");
+                    _wait = 500;
+                    return;
+                }
+                _bossMax = (_boss as Enemy)?.MaxHealth ?? 0;
+                (_elapsed, _strikeIn, _invulnMs, _invulnMax, _peak) = (0, 500, 0, 0, 1);
+                return;
+            }
+
+            _elapsed += dt;
+            var hostiles = _arena.ProbeHostiles.ToList();
+            _peak = Math.Max(_peak, hostiles.Count);
+            var boss = _boss as Enemy;
+            if (boss != null && !boss.Dead && boss.World == _arena)
+            {
+                _bossMax = Math.Max(_bossMax, boss.MaxHealth);
+                var untouchable = boss.HasConditionEffect(ConditionEffectIndex.Invulnerable) || boss.HasConditionEffect(ConditionEffectIndex.Invincible)
+                    || boss.HasConditionEffect(ConditionEffectIndex.Stasis) || boss.HasConditionEffect(ConditionEffectIndex.Paused);
+                _invulnMs = untouchable ? _invulnMs + dt : 0;
+                _invulnMax = Math.Max(_invulnMax, _invulnMs);
+            }
+            _strikeIn -= dt;
+            if (_strikeIn <= 0)
+            {
+                _strikeIn += 500;
+                foreach (var e in hostiles)
+                    if (!e.Dead && e.MaxHealth > 0)
+                        e.Damage(_admin, ref time, Math.Max(10, (int)(e.MaxHealth * Share)), true);
+            }
+            var outside = hostiles.Where(_arena.ProbeOutOfBounds).Select(e => e.ObjectDesc.IdName).Distinct().ToList();
+            if (hostiles.Count == 0)
+            {
+                Report($"{_bosses[_index]} | cleared in {_elapsed / 1000.0:0.0} s | hp {_bossMax} | untouchable up to {_invulnMax / 1000.0:0.0} s | peak {_peak}");
+                _boss = null;
+                _wait = 1500;
+            }
+            else if (_elapsed >= _limitMs)
+            {
+                var left = string.Join(", ", hostiles.GroupBy(e => e.ObjectDesc.IdName).Select(g =>
+                {
+                    var e = g.First();
+                    var flags = (e.HasConditionEffect(ConditionEffectIndex.Invulnerable) ? " inv" : "") + (e.HasConditionEffect(ConditionEffectIndex.Invincible) ? " invc" : "")
+                        + (e.HasConditionEffect(ConditionEffectIndex.Stasis) ? " stasis" : "") + (_arena.ProbeOutOfBounds(e) ? " OUT" : "");
+                    return $"{g.Key} x{g.Count()} ({e.Health}/{e.MaxHealth}{flags})";
+                }));
+                Report($"{_bosses[_index]} | TIMEOUT {_limitMs / 1000} s | hp {_bossMax} | untouchable up to {_invulnMax / 1000.0:0.0} s | peak {_peak} | left: {left}" + (outside.Count > 0 ? " | out: " + string.Join(", ", outside) : ""));
+                _boss = null;
+                _wait = 1500;
+            }
         }
     }
 

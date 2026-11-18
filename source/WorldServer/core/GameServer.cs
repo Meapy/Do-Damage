@@ -132,6 +132,8 @@ namespace WorldServer.core
             ChatManager.Initialize();
             Marketplace.Init();
             WeeklyStats.Start(Database.Conn);
+            // the Arena season this server plays has begun, if it hadn't (its leaderboard's dates)
+            Shared.database.leaderboard.ArenaSeasons.Begin(Database.Conn);
             community.CommunityGoals.Start(this);
             ConnectionListener.Initialize();
             MarketSweeper.Start();

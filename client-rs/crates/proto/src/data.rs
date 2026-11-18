@@ -118,6 +118,20 @@ wire_struct! {
 }
 
 wire_struct! {
+    /// One round of an Arena fight (`ArenaRound`): its wave, its title (the encounter's name,
+    /// as the server has it), its shape (0 standard, 1 horde, 2 clash, 3 boss rush, 4 showdown,
+    /// 5 throwback) and twist (0 none, 1 elite, 2 swarm, 3 ironclad, 4 frenzy, 5 bounty, 6
+    /// blessing, 7 golden), and its bosses' object types.
+    pub struct ArenaRoundInfo {
+        pub wave: i32,
+        pub title: String,
+        pub format: u8,
+        pub twist: u8,
+        pub bosses: List8<u16>,
+    }
+}
+
+wire_struct! {
     /// A player's votes in the Arena between waves (`ArenaVotes`): whether they want the next
     /// wave now, and how many waves they want the next fight to combine (0 for no pick).
     pub struct ArenaVoter {

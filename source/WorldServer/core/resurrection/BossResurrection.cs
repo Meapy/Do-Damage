@@ -211,6 +211,10 @@ namespace WorldServer.core.resurrection
             return false;
         }
 
+        /// <summary>The boss that can be raised with this id ("Elder Stheno the Snake Queen"); null for none.</summary>
+        public static BossInfo InfoFor(string boss) =>
+            ByBoss.Values.FirstOrDefault(b => b.Boss == boss);
+
         /// <summary>The bosses that can be raised whose id or name holds <paramref name="text"/> (/empower).</summary>
         public static List<BossInfo> Find(string text) =>
             ByBoss.Values.Where(b => b.Boss.Contains(text, StringComparison.OrdinalIgnoreCase)

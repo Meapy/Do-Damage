@@ -69,7 +69,8 @@ namespace Shared.champions
             boards[(int)ChampionTab.AccountFame] = Rank(live.Select(a => (a.Key, a.Value.AliveFame, a.Value.BestFame)));
             boards[(int)ChampionTab.Stars] = Rank(live.Select(a => (a.Key, (long)a.Value.Stars, a.Value.StarFame)));
             boards[(int)ChampionTab.Achievements] = Rank(live.Select(a => (a.Key, (long)a.Value.Points, 0L)));
-            var runs = DbArenaRuns.Top(_db, ArenaRuns);
+            // the current Arena season's runs (ArenaSeasons): a new season starts the boards afresh
+            var runs = DbArenaRuns.Top(_db, ArenaSeasons.Current, ArenaRuns);
             boards[(int)ChampionTab.ArenaSolo] = Rank(ArenaBests(live, runs.Where(r => r.Solo).ToList()));
             boards[(int)ChampionTab.ArenaGroup] = ChampionBoards.Rank(ArenaGroups(live, runs.Where(r => !r.Solo).ToList()));
             DbChampions.SeedGuildDead(_db, weekNow.Year);

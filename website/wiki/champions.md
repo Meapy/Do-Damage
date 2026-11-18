@@ -30,8 +30,8 @@ The rewards come in three steps: **#1**, **#2-3** and **#4-10**.
 | **Fame** | the most fame on a living character (each account's best) | +3% loot | +2% loot | +1% loot |
 | **Stars** | class stars: up to five per class, from its best character's fame | gold glow | silver glow | bronze glow |
 | **Achievements** | achievement points, from the tiers claimed in the [quest log](quests.html) | gold name in chat | silver name in chat | bronze name in chat |
-| **Arena Solo** | your best [Arena](progression.html#the-arena) run on your own: its wave, then the quicker run | +15% fame from Arena waves | +10% | +5% |
-| **Arena Group** | the best Arena runs with others: each place is a **whole group** (the same players, its best run), and everyone in it holds the place | +15% fame from Arena waves | +10% | +5% |
+| **Arena Solo** | your best [Arena](progression.html#the-arena) run on your own this season: its wave, then the quicker run | +15% fame from Arena waves | +10% | +5% |
+| **Arena Group** | the best Arena runs with others this season: each place is a **whole group** (the same players, its best run), and everyone in it holds the place | +15% fame from Arena waves | +10% | +5% |
 | **Weekly Fame** | fame earned this week, on all your characters together | +10% experience and fame | +6% | +3% |
 | **Weekly Dungeons** | dungeons cleared this week (be near a boss when the last one falls) | +3% loot in dungeons | +2% | +1% |
 | **Guild Living** | a [guild](guilds.html)'s living fame: its members' living characters, counting members who played in the last two weeks | +2% loot for every member | +1% | +0.5% |

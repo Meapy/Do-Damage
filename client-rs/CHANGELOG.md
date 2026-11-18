@@ -14,6 +14,11 @@ details). Add to a group's line when a change adds to it, rather than adding ano
 
 ## Unreleased
 
+### Arena
+- Arena Season 2, Rise of the Fallen: every wave is a round from one of nearly 80 dungeons and corners of the realm, from Realm 2's bosses and the Snake Pit up to the Shatters, the Lost Halls, the Cult, the Void, Oryx and the Elder dungeons, dealt so none comes back before the rest have. Rounds can be a Horde, a Clash of two dungeons, a Boss Rush, a Legendary Throwback or a Showdown every tenth wave, and from wave 6 they may bring a twist (Elite, Swarm, Ironclad, Frenzy, Bounty, Blessing or Golden). From wave 12 an Empowered Elder boss may rise in the middle of a fight, worth 200 fame each and counted on the leaderboard.
+- A banner shows each wave's round as it begins, the box under the wave counter keeps its name, and the vote panel shows what the next fight will be.
+- The Arena Leaderboard has a tab for each season: Season 1's runs are kept as they ended, and Season 2 starts afresh, with the Empowered bosses each run slew and where it fell. `/leaderboard 1` lists Season 1. The Hall of Champions' Arena boards follow the current season.
+
 ### Dungeons
 - The Necromantic items (the untiered drop of each Empowered Elder boss) drop at: 3%
 - Empowered Malus heals much less from his blood moon ritual: each cultist soul left standing gives him back 1% of his health instead of 2.5%, so he can be beaten on your own.

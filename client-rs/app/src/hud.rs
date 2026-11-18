@@ -376,6 +376,12 @@ impl Ui<'_> {
         self.text.draw_ui(self.fonts, self.renderer, s, x, y, Style { size, bold, color });
     }
 
+    /// `label`, faded to `alpha`.
+    #[allow(clippy::too_many_arguments)]
+    pub(crate) fn label_alpha(&mut self, s: &str, x: f32, y: f32, size: f32, bold: bool, color: u32, alpha: f32) {
+        self.text.draw_ui_alpha(self.fonts, self.renderer, s, x, y, Style { size, bold, color }, alpha);
+    }
+
     /// The size a line is drawn at to fit `width`: `size`, or smaller (to 70%) for a longer line,
     /// as a language's words may be.
     pub(crate) fn fit_size(&mut self, s: &str, width: f32, size: f32, bold: bool) -> f32 {
@@ -890,6 +896,8 @@ pub struct Social<'a> {
     pub fame: &'a HashMap<u8, i32>,
     /// The Arena's votes, in the Arena (`Game::arena_votes`).
     pub arena_votes: Option<&'a bsk_proto::ArenaVotes>,
+    /// What the Arena's next fight will be, shown in its vote box (`Game::arena_next`).
+    pub arena_next: Option<&'a bsk_proto::ArenaRound>,
     /// Someone's /visit waiting for our answer (`Game::visit`).
     pub visit: Option<&'a crate::game::VisitAsk>,
 }
@@ -1262,7 +1270,7 @@ impl Panel {
         // The Arena's votes under its wave box, while they're open (the box counts as the HUD's,
         // as the boss history does, so clicks on it don't shoot).
         if let Some(v) = social.arena_votes.filter(|v| v.open) {
-            let al = arena_vote_layout(lay, v);
+            let al = arena_vote_layout(lay, v, social.arena_next.is_some());
             panel.history.push(al.frame);
             if !v.starting {
                 panel.buttons.push((Button::ArenaNext, al.next));
@@ -4555,34 +4563,229 @@ pub struct ArenaVoteLayout {
     pub frame: [f32; 4],
     pub next: [f32; 4],
     pub picks: [(u8, [f32; 4]); 3],
-    /// The summary's top, and the voters' list's.
+    /// The summary's top, the next fight's preview's (when there is one), and the voters' list's.
     pub summary_y: f32,
+    pub preview_y: f32,
     pub voters_y: f32,
 }
 
-pub fn arena_vote_layout(lay: &Layout, v: &bsk_proto::ArenaVotes) -> ArenaVoteLayout {
+/// The preview of the next fight in the vote box: two lines (Season 2 servers send it).
+const ARENA_PREVIEW_H: f32 = 40.0;
+
+pub fn arena_vote_layout(lay: &Layout, v: &bsk_proto::ArenaVotes, preview: bool) -> ArenaVoteLayout {
     let s = lay.s;
-    let (w, pad) = (232.0, 8.0);
+    let (w, pad) = (252.0, 8.0);
     let rows = v.voters.len().min(ARENA_VOTERS_SHOWN) as f32;
-    // the Next button, the combine row, two lines of summary, the voters
-    let h = pad + 30.0 + 8.0 + 26.0 + 6.0 + 30.0 + if rows > 0.0 { 4.0 + rows * 15.0 } else { 0.0 } + pad;
+    let preview_h = if preview { ARENA_PREVIEW_H } else { 0.0 };
+    // the Next button, the combine row, two lines of summary, the next fight, the voters
+    let h = pad + 30.0 + 8.0 + 26.0 + 6.0 + 30.0 + preview_h + if rows > 0.0 { 4.0 + rows * 15.0 } else { 0.0 } + pad;
     let frame = [((lay.w - w * s) / 2.0).round(), (62.0 * s).round(), w * s, h * s];
     let at = |x: f32, y: f32, bw: f32, bh: f32| within(frame, s, x, y, bw, bh);
     let next = at(pad, pad, w - 2.0 * pad, 30.0);
     let pick_y = pad + 38.0;
     let picks = std::array::from_fn(|i| (ARENA_PICKS[i], at(w - pad - (3 - i) as f32 * 44.0 + 4.0, pick_y, 40.0, 26.0)));
-    ArenaVoteLayout { frame, next, picks, summary_y: frame[1] + (pick_y + 32.0) * s, voters_y: frame[1] + (pick_y + 66.0) * s }
+    ArenaVoteLayout {
+        frame,
+        next,
+        picks,
+        summary_y: frame[1] + (pick_y + 32.0) * s,
+        preview_y: frame[1] + (pick_y + 66.0) * s,
+        voters_y: frame[1] + (pick_y + 66.0 + preview_h) * s,
+    }
+}
+
+/// A round's shape (`ArenaRoundInfo::format`) as players read it; empty for a standard round.
+pub fn arena_format_name(format: u8) -> &'static str {
+    match format {
+        1 => tr("Horde"),
+        2 => tr("Clash"),
+        3 => tr("Boss Rush"),
+        4 => tr("Showdown"),
+        5 => tr("Throwback"),
+        _ => "",
+    }
+}
+
+/// What a round's shape means, for the banner.
+pub fn arena_format_help(format: u8) -> &'static str {
+    match format {
+        1 => tr("No boss, but three times the monsters"),
+        2 => tr("Two dungeons at once, each with its boss"),
+        3 => tr("Three bosses, one after another"),
+        4 => tr("A fight of its own, every tenth wave"),
+        5 => tr("An old foe returns, Legendary"),
+        _ => "",
+    }
+}
+
+/// A round's twist (`ArenaRoundInfo::twist`); empty for none.
+pub fn arena_twist_name(twist: u8) -> &'static str {
+    match twist {
+        1 => tr("Elite"),
+        2 => tr("Swarm"),
+        3 => tr("Ironclad"),
+        4 => tr("Frenzy"),
+        5 => tr("Bounty"),
+        6 => tr("Blessing"),
+        7 => tr("Golden"),
+        _ => "",
+    }
+}
+
+/// What a twist does, for the banner.
+pub fn arena_twist_help(twist: u8) -> &'static str {
+    match twist {
+        1 => tr("The bosses are Epic, some monsters Rare"),
+        2 => tr("Twice the monsters"),
+        3 => tr("The monsters have more defense"),
+        4 => tr("The monsters move faster"),
+        5 => tr("This wave pays twice the fame"),
+        6 => tr("You hit harder and faster for 20 seconds"),
+        7 => tr("This wave's loot isn't halved"),
+        _ => "",
+    }
+}
+
+/// A twist's colour: ember for the monsters' own, green for the players' gifts.
+fn arena_twist_color(twist: u8) -> u32 {
+    if matches!(twist, 5..=7) { color::GOOD } else { color::ACCENT_HI }
+}
+
+/// A round's title with its shape and twist after it: "The Snake Pit  ·  Boss Rush  ·  Elite".
+fn arena_round_pieces(r: &bsk_proto::ArenaRoundInfo) -> Vec<(String, u32)> {
+    let mut out = vec![(r.title.clone(), if r.format == 4 { color::GOLD } else { color::TEXT })];
+    let f = arena_format_name(r.format);
+    if !f.is_empty() && r.format != 4 {
+        out.push((format!("  ·  {f}"), color::TEXT_DIM));
+    }
+    let t = arena_twist_name(r.twist);
+    if !t.is_empty() {
+        out.push((format!("  ·  {t}"), arena_twist_color(r.twist)));
+    }
+    out
+}
+
+/// Coloured pieces on one line, centred on `cx`, the title cut to fit `max_w`.
+fn arena_pieces_centred(ui: &mut Ui, pieces: &[(String, u32)], cx: f32, y: f32, size: f32, bold: bool, max_w: f32) {
+    let rest: f32 = pieces.iter().skip(1).map(|(t, _)| ui.measure(t, size, bold)).sum();
+    let mut pieces = pieces.to_vec();
+    if let Some(first) = pieces.first_mut() {
+        first.0 = crate::npc::fit(ui, &first.0, size, (max_w - rest).max(40.0));
+    }
+    let total: f32 = pieces.iter().map(|(t, _)| ui.measure(t, size, bold)).sum();
+    let mut x = (cx - total / 2.0).round();
+    for (t, c) in &pieces {
+        ui.label(t, x, y, size, bold, *c);
+        x += ui.measure(t, size, bold);
+    }
+}
+
+/// The round being fought, in a strip under the wave box while no vote box is there: its title,
+/// shape and twist (the first round's, and how many more a combined fight brings).
+pub fn draw_arena_round(ui: &mut Ui, lay: &Layout, fight: &bsk_proto::ArenaRound) {
+    let Some(first) = fight.rounds.first() else { return };
+    let s = lay.s;
+    let w = 300.0 * s;
+    let r = [((lay.w - w) / 2.0).round(), (62.0 * s).round(), w, 26.0 * s];
+    hud_box(ui, r, s);
+    let size = lay.font(12.0);
+    let mut pieces = arena_round_pieces(first);
+    if fight.rounds.len() > 1 {
+        pieces.push((tf!("  ·  +{n} more", n = fight.rounds.len() - 1), color::TEXT_MUTED));
+    }
+    arena_pieces_centred(ui, &pieces, r[0] + r[2] / 2.0, r[1] + (r[3] - size * 1.22) / 2.0, size, true, r[2] - 20.0 * s);
+}
+
+/// How long the Arena's banners stay (ms), the last part fading.
+pub const ARENA_BANNER_MS: i32 = 4200;
+
+/// The banner over the world as a fight begins (its waves, its title large, its shape and twist
+/// and what they mean, its bosses' portraits), an Empowered boss rises, or a boss rush's next
+/// boss comes.
+pub fn draw_arena_banner(ui: &mut Ui, lay: &Layout, banner: &(bsk_proto::ArenaRound, i32), now: i32) {
+    const EMPOWERED: u32 = 0xFF4FD8;
+    let (b, at) = banner;
+    let age = now - at;
+    if !(0..ARENA_BANNER_MS).contains(&age) {
+        return;
+    }
+    let Some(first) = b.rounds.first() else { return };
+    // in quickly, out slowly
+    let alpha = if age < 250 { age as f32 / 250.0 } else if age > ARENA_BANNER_MS - 900 { (ARENA_BANNER_MS - age) as f32 / 900.0 } else { 1.0 };
+    let s = lay.s;
+    let cx = (lay.view_w() / 2.0).round();
+    let top = (lay.h * 0.17).round();
+    let w = (lay.view_w() * 0.9).min(620.0 * s);
+    let (kicker, kicker_color, title, title_color) = match b.kind {
+        2 => (tr("EMPOWERED").to_owned(), EMPOWERED, tf!("{name} has risen!", name = first.title), EMPOWERED),
+        3 => (tr("NEXT CHALLENGER").to_owned(), color::ACCENT_HI, first.title.clone(), color::TEXT),
+        _ => {
+            let waves = if b.last_wave > b.wave { tf!("WAVES {from}–{to}", from = b.wave, to = b.last_wave) } else { tf!("WAVE {wave}", wave = b.wave) };
+            let showdown = first.format == 4;
+            (waves, if showdown { color::GOLD } else { color::ACCENT_HI }, first.title.clone(), if showdown { color::GOLD } else { color::TEXT })
+        }
+    };
+    let ks = lay.font(13.0);
+    let ts = lay.font(26.0);
+    let hs = lay.font(12.0);
+    // what the shape and twist mean (a fight beginning only)
+    let mut notes: Vec<(String, u32)> = Vec::new();
+    if b.kind == 1 {
+        for r in b.rounds.iter().take(3) {
+            let f = arena_format_name(r.format);
+            if !f.is_empty() && !notes.iter().any(|(t, _)| t.starts_with(f)) {
+                notes.push((format!("{f}: {}", arena_format_help(r.format)), color::TEXT_DIM));
+            }
+            let t = arena_twist_name(r.twist);
+            if !t.is_empty() && !notes.iter().any(|(n, _)| n.starts_with(t)) {
+                notes.push((format!("{t}: {}", arena_twist_help(r.twist)), arena_twist_color(r.twist)));
+            }
+        }
+        if b.rounds.len() > 1 {
+            let more = b.rounds.iter().skip(1).map(|r| r.title.as_str()).collect::<Vec<_>>().join(", ");
+            notes.insert(0, (tf!("Then: {rounds}", rounds = more), color::TEXT_MUTED));
+        }
+    }
+    let bosses: Vec<u16> = b.rounds.iter().flat_map(|r| r.bosses.iter().copied()).take(6).collect();
+    let portrait = 40.0 * s;
+    let h = 14.0 * s + ks * 1.4 + ts * 1.3 + notes.len() as f32 * hs * 1.45 + if bosses.is_empty() { 0.0 } else { portrait + 8.0 * s } + 12.0 * s;
+    let r = [(cx - w / 2.0).round(), top, w, h];
+    theme::fill(ui.renderer, r, 10.0 * s, 0x0B0814, 0.72 * alpha);
+    theme::fill(ui.renderer, [r[0] + 24.0 * s, r[1], r[2] - 48.0 * s, 2.0 * s], 1.0 * s, kicker_color, 0.9 * alpha);
+    let mut y = r[1] + 10.0 * s;
+    let label = |ui: &mut Ui, text: &str, y: f32, size: f32, bold: bool, c: u32| {
+        let text = crate::npc::fit(ui, text, size, w - 30.0 * s);
+        let tw = ui.measure(&text, size, bold);
+        ui.label_alpha(&text, (cx - tw / 2.0).round(), y, size, bold, c, alpha);
+    };
+    label(ui, &kicker, y, ks, true, kicker_color);
+    y += ks * 1.4;
+    label(ui, &title, y, ts, true, title_color);
+    y += ts * 1.3;
+    for (t, c) in &notes {
+        label(ui, t, y, hs, false, *c);
+        y += hs * 1.45;
+    }
+    if !bosses.is_empty() {
+        let n = bosses.len() as f32;
+        let gap = 10.0 * s;
+        let mut x = cx - (n * portrait + (n - 1.0) * gap) / 2.0 + portrait / 2.0;
+        for t in bosses {
+            object_icon(ui, t, x, y + portrait / 2.0 + 2.0 * s, portrait);
+            x += portrait + gap;
+        }
+    }
 }
 
 /// The Arena's votes between waves, under its wave box (`ArenaVotes`): Next with its count (the
 /// wave starts once enough want it), the combine picks with ours lit (those above what the next
 /// fight may combine dimmed), what the next fight will be, and who voted what.
-pub fn draw_arena_votes(ui: &mut Ui, lay: &Layout, v: &bsk_proto::ArenaVotes, me: Option<i32>, mouse: (f64, f64)) {
+pub fn draw_arena_votes(ui: &mut Ui, lay: &Layout, v: &bsk_proto::ArenaVotes, next: Option<&bsk_proto::ArenaRound>, me: Option<i32>, mouse: (f64, f64)) {
     if !v.open {
         return;
     }
     let s = lay.s;
-    let al = arena_vote_layout(lay, v);
+    let al = arena_vote_layout(lay, v, next.is_some());
     hud_box(ui, al.frame, s);
     let mine = v.voters.iter().find(|p| Some(p.object_id) == me);
     let voted = mine.is_some_and(|p| p.next);
@@ -4621,6 +4824,18 @@ pub fn draw_arena_votes(ui: &mut Ui, lay: &Layout, v: &bsk_proto::ArenaVotes, me
     let tiny = lay.font(10.0);
     let nw = ui.measure(&note, tiny, false);
     ui.label(&note, (cx - nw / 2.0).round(), al.summary_y + 16.0 * s, tiny, false, color::TEXT_MUTED);
+
+    // What the next fight will be: its first round, and the rest counted.
+    if let Some(first) = next.and_then(|n| n.rounds.first()) {
+        let n = next.map_or(0, |n| n.rounds.len());
+        let y = al.preview_y + 2.0 * s;
+        theme::fill(ui.renderer, [al.frame[0] + 10.0 * s, y - 3.0 * s, al.frame[2] - 20.0 * s, s.max(1.0)], 0.0, 0xFFFFFF, 0.08);
+        let head = if n > 1 { tf!("Up next, and {n} more:", n = n - 1) } else { tr("Up next:").to_owned() };
+        let hw = ui.measure(&head, tiny, true);
+        ui.label(&head, (cx - hw / 2.0).round(), y + 1.0 * s, tiny, true, color::TEXT_MUTED);
+        let size = lay.font(12.0);
+        arena_pieces_centred(ui, &arena_round_pieces(first), cx, y + 15.0 * s, size, true, al.frame[2] - 20.0 * s);
+    }
 
     // Who voted what: Next in green, the pick in ember.
     let mut y = al.voters_y;
@@ -4855,7 +5070,7 @@ mod tests {
     #[test]
     fn portal_button_waits_for_its_panel() {
         let (locked, fame) = (Default::default(), HashMap::new());
-        let social = Social { trade: None, invite: None, locked: &locked, ignored: &locked, now: 0, history: &[], fame: &fame, arena_votes: None, visit: None };
+        let social = Social { trade: None, invite: None, locked: &locked, ignored: &locked, now: 0, history: &[], fame: &fame, arena_votes: None, arena_next: None, visit: None };
         let (lay, data, world) = (Layout::new(1920, 1080), GameData::default(), World::new(10, 10, "test", 1));
         let mut state = HudState::default();
         let mut panel = Panel::new(&lay, &world, &data, &state, &social);
