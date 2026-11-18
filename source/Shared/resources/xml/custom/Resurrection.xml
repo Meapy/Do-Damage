@@ -302,9 +302,10 @@
 		<Class>Equipment</Class>
 		<Item />
 		<Texture>
-			<File>resurrection8x8</File>
-			<Index>9</Index>
+			<File>communitySprites8x8</File>
+			<Index>0x5</Index>
 		</Texture>
+		<SpriteBy>Joseph</SpriteBy>
 		<SlotType>17</SlotType>
 		<RateOfFire>1</RateOfFire>
 		<Sound>weapon/wand_of_death</Sound>
