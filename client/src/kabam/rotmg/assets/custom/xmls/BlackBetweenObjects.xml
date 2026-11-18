@@ -824,6 +824,12 @@
 		<ActivateOnEquip stat="3" amount="25">IncrementStat</ActivateOnEquip>
 		<Usable />
 		<MpCost>110</MpCost>
+		<ExtraTooltipData>
+			<EffectInfo name="Lightning" description="300, paralysed for 2 secs" />
+			<EffectInfo name="Veil" description="300, slowed for 4 secs" />
+			<EffectInfo name="Rift" description="200 + 450 over 3 secs" />
+			<EffectInfo name="Radius" description="3.5 sqrs (rift 4)" />
+		</ExtraTooltipData>
 		<RelicPower>TrinityTrap</RelicPower>
 		<BagType>6</BagType>
 		<FameBonus>5</FameBonus>
@@ -931,6 +937,13 @@
 		<ActivateOnEquip stat="27" amount="3">IncrementStat</ActivateOnEquip>
 		<Usable />
 		<MpCost>90</MpCost>
+		<ExtraTooltipData>
+			<EffectInfo name="Splash" description="200 + 1,500 over 6 secs" />
+			<EffectInfo name="Radius" description="2.5 sqrs" />
+			<EffectInfo name="4 round it" description="100 + 750 over 6 secs" />
+			<EffectInfo name="4 beyond" description="50 + 375 over 6 secs" />
+			<EffectInfo name="" description="Damage over time ignores defense" />
+		</ExtraTooltipData>
 		<RelicPower>CascadeDusk</RelicPower>
 		<BagType>6</BagType>
 		<FameBonus>5</FameBonus>

@@ -1,4 +1,4 @@
-Release 2.6.1: Arena Season 2, Necromantic items drop half as often; deploys client, servers and website (players are not disconnected)
+Release 2.6.1: Arena Season 2, Necromantic items drop half as often, Black Between tooltips; deploys client, servers and website (players are not disconnected)
 
 ## For players
 
@@ -8,6 +8,7 @@ Release 2.6.1: Arena Season 2, Necromantic items drop half as often; deploys cli
 
 - **Dungeons:** the untiered item an Empowered Elder boss drops (the Necromantic weapons, armor, rings and the rest) now drops at half the chance: 3% for each player who did enough damage, down from 6%.
 - **Dungeons:** Empowered Malus' blood moon ritual heals him far less: each cultist soul still standing when the chant ends gives back 1% of his health, down from 2.5% (at most 3% a ritual instead of 7.5%). Players on their own could not out-damage it.
+- **Items:** the Vial of Cascading Dusk's tooltip shows its numbers: Splash 200 + 1,500 over 6 secs, Radius 2.5 sqrs, 4 round it 100 + 750 over 6 secs, 4 beyond 50 + 375 over 6 secs, and that the damage over time ignores defense. The Trinity Trap's shows its three stages the same way (Lightning 300 and paralysed 2 secs, Veil 300 and slowed 4 secs, Rift 200 + 450 over 3 secs, radius 3.5, the rift 4). Before, only the description said what they do; the wiki's gear pages list the same rows.
 
 ## Details
 
@@ -29,9 +30,15 @@ Release 2.6.1: Arena Season 2, Necromantic items drop half as often; deploys cli
 - **Redis:** Season 1's `doomed.arenaLeaderboard` is untouched. Season 2 writes `doomed.arenaLeaderboard.s2` and the hash `doomed.arenaSeasons` (its start, set by the first world server that runs it). The Hall of Champions' Arena boards are empty until Season 2 runs come in, so their fame rewards go to the new season's best.
 - **Not done:** no new achievements or quests for Season 2 (the Arena wave quests count as before). Not played through by real players: tuned by the probe and the planner's tests.
 
+### Black Between tooltips
+
+- **What changed:** the Vial of Cascading Dusk and the Trinity Trap work entirely through their `<RelicPower>` (`Player.BetweenPowers.cs`), with no projectile and no `<Activate>` with numbers, so the client's tooltip had nothing to show but the description. `tools/build_black_between.py` has a new `TOOLTIPS` table that `gear_item` writes as `<ExtraTooltipData>` `EffectInfo` rows; both `BlackBetweenObjects.xml` copies regenerated (only those two items changed; the generator's line-ending-only rewrites of other files were dropped). The Rust client and the wiki's gear pages already show `EffectInfo`, so neither needed code changes. The numbers are the server's (`Splash`: 200 and a 1,500 bleed over 6 s, scaled 1, 0.5, 0.25; the bleed ignores defense).
+- **Deploys:** client (the XML) and servers. Nobody is disconnected; no Redis changes.
+- **Not done:** the rows are English text from the XML, like item descriptions. An enemy within half a tile of where the Vial lands is in both the centre splash and a ring splash, and the ring restarts its bleed at the smaller total; not changed.
+
 ## Checks
 
 - `python tools/build_resurrection.py`, then the diff of the JSON checked: 28 bosses, each last loot chance 0.06 to 0.03, nothing else.
 - `dotnet test source\Tests --filter EmpoweredPhaseTests`: 6 passed. Not tried in game.
 - Arena Season 2: `dotnet test source\Tests --filter "ArenaSeason2Tests|ArenaVotes|Champions"` (every monster of the catalog is an enemy with a behaviour, every Empowered boss can be raised, the planner's rules over 100 waves and several seeds, the run formats of all seasons). `cargo test -p bsk-client -p bsk-proto -p bsk-net` (ARENA_ROUND's layout, the season board, every language table). On an isolated stack, `/arenatest probe` by four admin bots fought each of the 135 bosses alone in the ring, struck for 5% of its health a second with everything it spawned: those that couldn't be finished were fixed (woken, leftovers removed) or left out, and the fixed ones were probed again (the Green Dragon Gods are slow, about 26 s untouchable, but fall). The release client on the same stack, in screenshots: the vote panel's next fight, the round banner and the strip under the wave box (wave 21, the Cult's Lieutenants, Elite), Empowered Stheno's banner and boss bar, and the leaderboard's season tabs and line, Season 2 runs with where they fell. Full `dotnet test source\Tests`: 318 passed.
-
+- Black Between tooltips: on an isolated stack an Assassin's Vial hit a Training Dummy for 200, bled it 250 a second and its ring splashes hit for 100 (bot, damage messages logged), so the damage itself works; the tooltip was checked in the Rust client (`--mouse` over the equipped Vial, `--shot`), and the wiki build lists the rows on the Poison gear page.

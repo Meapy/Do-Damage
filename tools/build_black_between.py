@@ -356,6 +356,24 @@ ITEM_SPECS = {
 }
 
 
+# the numbers in the tooltip (ExtraTooltipData) for gear whose ability shoots nothing: without a
+# projectile or an <Activate> with numbers, the client has no damage to show
+TOOLTIPS = {
+    "Trinity Trap": [
+        ("Lightning", "300, paralysed for 2 secs"),
+        ("Veil", "300, slowed for 4 secs"),
+        ("Rift", "200 + 450 over 3 secs"),
+        ("Radius", "3.5 sqrs (rift 4)"),
+    ],
+    "Vial of Cascading Dusk": [
+        ("Splash", "200 + 1,500 over 6 secs"),
+        ("Radius", "2.5 sqrs"),
+        ("4 round it", "100 + 750 over 6 secs"),
+        ("4 beyond", "50 + 375 over 6 secs"),
+        ("", "Damage over time ignores defense"),
+    ],
+}
+
 def gear_item(types, sheet, name, spec):
     slot, mp, cooldown, stats, power, text, activates, shots, extra = spec
     e = ET.Element("Object", {"type": types.get(name, OBJECT_TYPES), "id": name})
@@ -372,6 +390,10 @@ def gear_item(types, sheet, name, spec):
         sub(e, "Cooldown", cooldown)
     for effect, attrs in activates:
         sub(e, "Activate", effect, **attrs)
+    if name in TOOLTIPS:
+        extra_data = sub(e, "ExtraTooltipData")
+        for label, text in TOOLTIPS[name]:
+            sub(extra_data, "EffectInfo", name=label, description=text)
     for k, v in extra.items():
         sub(e, k, v)
     for p in shots:

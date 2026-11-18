@@ -23,6 +23,9 @@ details). Add to a group's line when a change adds to it, rather than adding ano
 - The Necromantic items (the untiered drop of each Empowered Elder boss) drop at: 3%
 - Empowered Malus heals much less from his blood moon ritual: each cultist soul left standing gives him back 1% of his health instead of 2.5%, so he can be beaten on your own.
 
+### Items
+- The Vial of Cascading Dusk and the Trinity Trap now show their damage in their tooltips: each splash or stage, its radius and its damage over time.
+
 ## 2.6.0 (2026-11-18)
 
 ### Game
