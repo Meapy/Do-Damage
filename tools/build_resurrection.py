@@ -412,7 +412,7 @@ POWERS = {
 }
 # drops of one season only (a SeasonalThreshold), which the second roll leaves out
 SEASONAL = {"Ice Crown"}
-UT_CHANCE = 0.06            # each player past the threshold, before the boosts
+UT_CHANCE = 0.03            # each player past the threshold, before the boosts
 # attributes of an ability's effects that are its strength (times k); durations grow by half as much
 STRENGTH_ATTRS = ("amount", "totalDamage", "impactDamage", "heal", "damage", "healAmount", "decrDamage", "wisDamageBase")
 DURATION_ATTRS = ("duration", "durationMS")
