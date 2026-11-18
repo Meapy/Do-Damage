@@ -13,7 +13,7 @@
 
 Both go in the client's custom/images (registered for the Rust client by tools/gen_rs_manifest.py).
 The cells are at fixed places (below), which tools/build_hash_cellar.py, tools/build_elysium.py and
-the incantations' XML point at (port_doomed.TEXTURE_OVERRIDES; the Sanctuary's in the prod XML).
+the incantations' XML point at (DoomedRealms.xml; the Sanctuary's in the prod XML).
 """
 import math
 import os

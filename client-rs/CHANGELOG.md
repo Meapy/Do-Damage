@@ -17,6 +17,9 @@ details). Add to a group's line when a change adds to it, rather than adding ano
 ### Classes
 - The Ascendant's halos raise a golden forcefield instead of healing: you and every ally standing in it take less damage from each hit while it lasts, 2% with the Worn Halo up to 10% with the Halo of the Archangel. The field is 1.5 tiles smaller than the old healing circle, and it looks the part: the halo falls from the sky in a column of light, a shimmering dome of hexagons opens out, it flares round anyone it shields from a blow, and it shatters as it fades.
 
+### Website
+- The wiki no longer labels classes, items and pets as coming from another server, and the Party Balloons' description now welcomes you to Do Damage.
+
 ## 2.5.12 (2026-11-16)
 
 ### Nexus

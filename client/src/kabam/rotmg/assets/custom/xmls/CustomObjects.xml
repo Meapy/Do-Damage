@@ -214,7 +214,7 @@
 		<NoMiniMap/>
 	</Object>
 	<!-- a brazier for the Elder dungeons' rooms; the light on the floor around it is lit ground
-	     tiles (tools/port_doomed_worlds.py) -->
+	     tiles (tools/make_elder.py) -->
 	<Object type="0xe902" id="Elder Brazier">
 		<Class>GameObject</Class>
 		<Texture>
@@ -565,7 +565,7 @@
 		<Static/>
 		<ShadowSize>80</ShadowSize>
 	</Object>
-	<!-- the Elder Ivory Wyvern (tools/port_doomed_worlds.py BS_ONLY_ELDER_WORLDS): the Elder Lair of
+	<!-- the Elder Ivory Wyvern (custom/DoomedRealmsWorlds.xml): the Elder Lair of
 	     Draconis's altar opens it, and the Ivory Wyvern leads to it half the time -->
 	<Object type="0x7c03" id="Elder Ivory Wyvern Portal">
 		<Class>Portal</Class>
@@ -590,7 +590,7 @@
 		<Activate id="Elder Ivory Wyvern Portal">CreatePortal</Activate>
 		<feedPower>150</feedPower>
 	</Object>
-	<!-- the Elder Shatters (tools/port_doomed_worlds.py BS_ONLY_ELDER_WORLDS): the Forgotten King's
+	<!-- the Elder Shatters (custom/DoomedRealmsWorlds.xml): the Forgotten King's
 	     loot leads to it half the time, and its key drops from the Elder Shatters' three bosses -->
 	<Object type="0x7c05" id="Elder Shatters Portal">
 		<DisplayId>The Elder Shatters</DisplayId>
@@ -618,7 +618,7 @@
 		<feedPower>200</feedPower>
 		<BagType>7</BagType>
 	</Object>
-	<!-- the Elder Lost Halls (tools/port_doomed_worlds.py BS_ONLY_ELDER_WORLDS): the Marble Colossus,
+	<!-- the Elder Lost Halls (custom/DoomedRealmsWorlds.xml): the Marble Colossus,
 	     Malus and the Void Entity lead to it half the time, and its key drops from their Elder
 	     versions. Its Colossus room leads on to the Elder Cultist Hideout, and a Vial of Pure
 	     Darkness used where the Elder Colossus fell opens the Elder Void (Player.UseItem.cs,

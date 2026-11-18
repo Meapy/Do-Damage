@@ -26,7 +26,7 @@ Forge doesn't take starter gear: two of it don't make the next tier.
 ## Forging
 
 The **Divine Forge** in the Nexus's smithy, on the market island west of the spawn, combines items into new ones: two of any tiered
-weapon, ability, armor or ring make one of the next tier, and Doomed Realms' own recipes make
+weapon, ability, armor or ring make one of the next tier, and special recipes make
 untiered items and a few potions (a **Potion of Oryx** from one of each of the eight stat
 potions). `/forge` takes you there from anywhere. [The Divine Forge](forge.html) has every
 recipe and what it costs.
@@ -69,8 +69,8 @@ You can ask multiple players at once; each recipient can accept their request, a
 ## Shops and selling
 
 - `/shop` lists the shops and `/shop <name>` opens one: weapons, abilities, armor, rings,
-  consumables, dyes, keys and pets, for fame. `/shop keys` has every dungeon's key, regular,
-  Doomed Realms and Elder (the Elder Ivory Wyvern, Shatters and Lost Halls keys are sold only
+  consumables, dyes, keys and pets, for fame. `/shop keys` has every dungeon's key, regular
+  and Elder (the Elder Ivory Wyvern, Shatters and Lost Halls keys are sold only
   there), and the Oryx's Inferno and Elysium incantations; not the Oryx's Castle and Chamber keys.
   It has more keys than stalls, so the stalls take turns, a few minutes each.
 - The Divine Forge's **Sell for fame** tab buys items: it shows your inventory with what it pays

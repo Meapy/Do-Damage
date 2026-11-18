@@ -16,7 +16,7 @@ using BL = WorldServer.logic.loot;
 
 // The behaviour engine of the Doomed Realms server (its wserver/logic/Behavior.cs and friends),
 // rebuilt on betterSkillys so the monsters of the ported dungeons keep their original logic.
-// Their definitions are generated into DoomedMonsters.cs by tools/port_doomed.py, nearly verbatim.
+// Their definitions are in DoomedMonsters.cs.
 //
 // Semantics are the original's: every behaviour returns whether it "did something", composites
 // (If, IfNot, QueuedBehavior, ...) branch on that, and per-monster memory (cooldowns, keys,

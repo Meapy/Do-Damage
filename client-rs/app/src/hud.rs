@@ -614,7 +614,7 @@ pub fn slot_data_stat(slot: u8) -> u8 {
 }
 
 /// The imprints on the item in an object's slot.
-/// The sizes pets come in (tools/port_doomed_pets.py PET_SIZES), smallest first.
+/// The sizes pets come in (the server's Player.PetSizes), smallest first.
 pub const PET_SIZES: [&str; 4] = ["Tiny", "Small", "Medium", "Large"];
 /// Each size's healing of HP and MP and how often, in ms (the server's `Player.SizeHeal`).
 const PET_SIZE_HEAL: [(u32, u32); 4] = [(15, 2000), (20, 2000), (30, 2000), (45, 1500)];
@@ -3069,7 +3069,7 @@ pub fn item_tooltip_raised(data: &GameData, item: i32, me: Option<&GameObj>, kin
             out.push(Line::gap());
             out.push(Line::new(tr("Permanent pet"), 13.0, true, ABILITY));
             if let Some(size) = a.attr("petSize") {
-                // the sizes the server's pets come in (tools/port_doomed_pets.py); the Lil' Oryxes'
+                // the sizes the server's pets come in (Player.PetSizes); the Lil' Oryxes'
                 // own size is a name, shown as sent
                 let size = match (raised, PET_SIZES.iter().position(|&s| s == size)) {
                     (Some((_, to)), _) => pet_size_name(to),
@@ -3226,7 +3226,7 @@ pub fn item_tooltip_raised(data: &GameData, item: i32, me: Option<&GameObj>, kin
     if desc.untradeable() {
         note(tr("Untradeable"), ATTR);
     }
-    // taken out of the game's drops (tools/port_doomed.py UNOBTAINABLE_ITEMS)
+    // taken out of the game's drops (<Unobtainable/> in the item XML)
     if xml.has("Unobtainable") {
         note(tr("Unobtainable: nothing drops it any more"), ATTR);
     }

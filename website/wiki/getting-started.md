@@ -40,7 +40,7 @@ in the vault (see [Items](items.html#your-vault)).
 
 ## Choosing a class
 
-Every class is open from the start, the classic ones and the Doomed Realms ones:
+Every class is open from the start, the classic ones and the newer ones:
 {{v:class_count}} in all. Each class uses one kind of weapon, one kind of ability and one
 kind of armor, and has its own highest stats. The [Classes](classes.html) page lists them all.
 
@@ -201,7 +201,7 @@ the stone water basins at its corners do. From there:
   player to take, or take what someone left.
 - **West**, over the arched wooden bridge: the **market island**. Its shopping street along the
   north is the Nexus Bazaar: each shop is a row of stalls in front of a house (stat potions, dungeon keys,
-  Elder and Doomed keys, consumables, specials, pet generators, clothing and accessories). The
+  Elder and minigame keys, consumables, specials, pet generators, clothing and accessories). The
   stalls take turns through each shop's items, and everything there costs fame. Over the bridge
   you come to the **market square**: two rows of stalls showing what players sell, where the
   **Market Broker** (the [Marketplace](marketplace.html)), the **Tinkerer** and the **Chronicler**

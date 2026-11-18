@@ -735,7 +735,7 @@
       </Texture>
       <Size>-1</Size>
    </Object>
-   <!-- betterSkillys' new pets: written by tools/port_doomed_pets.py (NEW_PETS) -->
+   <!-- betterSkillys' new pets -->
    <Object type="0x6c00" id="Lil' Puppet Master">
       <Class>Character</Class>
       <AnimatedTexture>

@@ -490,7 +490,7 @@ class Gen:
                 % (head, "".join(body)))
 
     def gen_forge_special(self, used):
-        """The other recipes, by what they make: the Doomed Realms forge's own."""
+        """The other recipes, by what they make: the special recipes."""
         eq = self.equip
         cat_of = {i["id"]: i["category"] for i in eq.items}
         groups = [("weapons", "Weapons"), ("abilities", "Abilities"), ("armor", "Armor"), ("rings", "Rings"),
@@ -901,7 +901,7 @@ class Gen:
     def gen_dungeons(self, used):
         groups = [("realm", "Realm dungeons", "Opened by monsters in the realm, by keys, or by the Support Bot in the Nexus."),
                   ("elder", "Elder dungeons", "Darker, harder versions of the regular dungeons, with Elder monsters worth twice the experience. Their bosses drop the regular loot and Elder drops."),
-                  ("doomed", "Doomed Realms dungeons and minigames", "Ported from Doomed Realms. Most open with a key from the Nexus Bazaar."),
+                  ("doomed", "Minigames and more dungeons", "Most open with a key from the Nexus Bazaar."),
                   ("oryx", "The Oryx chain", "Oryx's own dungeons, one after the other. See <a href=\"endgame.html\">the endgame</a>.")]
         parts = ['<div class="filter"><label for="dg-filter">Filter</label><input id="dg-filter" type="search" '
                  'placeholder="Name, boss, key or item" data-filter=".dg" autocomplete="off"></div>',
@@ -1284,10 +1284,10 @@ class Gen:
         labels = [("MaxHitPoints", "HP"), ("MaxMagicPoints", "MP"), ("Attack", "Att"), ("Defense", "Def"),
                   ("Speed", "Spd"), ("Dexterity", "Dex"), ("HpRegen", "Vit"), ("MpRegen", "Wis")]
         for doomed in (False, True):
-            ident = "doomed-realms-classes" if doomed else "the-classic-classes"
+            ident = "the-newer-classes" if doomed else "the-classic-classes"
             used.add(ident)
             cards.append('<h2 id="%s"><a class="anchor" href="#%s" aria-hidden="true">#</a>%s</h2>' % (
-                ident, ident, "Doomed Realms classes" if doomed else "The classic classes"))
+                ident, ident, "The newer classes" if doomed else "The classic classes"))
             cards.append('<div class="classes">')
             for c in d.classes():
                 if c["doomed"] != doomed:

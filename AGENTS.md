@@ -1,233 +1,166 @@
 # betterSkillys: working notes
 
 A Realm of the Mad God private server (C#, .NET 8) and its clients, for a small group of players.
-Players know the game as **Do Damage**: that's the name in the client, on the website and in
-anything players read; `betterSkillys` stays the repository's and the code's name. The live game
-runs on two Linux VPSes: the game at **play.dodmg.com**, the website at **dodmg.com**. Read the
-guide for the part you're changing:
+Players know it as **Do Damage** (the client, the website, anything players read);
+`betterSkillys` is the repository's and the code's name. Read the guide for the part you change:
 
-- [client-rs/AGENTS.md](client-rs/AGENTS.md): the client players use, in Rust (desktop and
-  browser), and the gateway that serves browser play.
-- [source/AGENTS.md](source/AGENTS.md): the servers (account server, world server, behaviours,
-  worlds, Redis data).
-- [SETUP-LOCAL.md](SETUP-LOCAL.md): how to run, deploy and share the game ("Running on a VPS"),
-  and the list of changes made here. Add to its "Changes from upstream" or "Content ported from
-  Doomed Realms" section when you change behaviour or add content.
-- [client/AGENTS.md](client/AGENTS.md): the old Adobe AIR client. **Deprecated**: don't build,
-  test or change it unless the owner asks.
-- `website/` is the site at dodmg.com (built by `tools/build_site.py`); `deploy/` puts
-  everything on the two VPSes.
+- [source/AGENTS.md](source/AGENTS.md): the servers (account, world, behaviours, worlds, Redis).
+- [client-rs/AGENTS.md](client-rs/AGENTS.md): the Rust client players use (desktop and browser)
+  and the gateway for browser play.
+- [SETUP-LOCAL.md](SETUP-LOCAL.md): running, deploying ("Running on a VPS") and sharing the game,
+  and every change made here. Add to its "Changes from upstream" when you change behaviour or add
+  content; "Classes, minigames and the economy" says where those live.
+- [client/AGENTS.md](client/AGENTS.md): the old AIR client. **Deprecated**: don't build, test or
+  change it unless the owner asks.
+- `website/` is dodmg.com (built by `tools/build_site.py`); `deploy/` installs everything on the
+  VPSes.
 
 ## What runs where
 
-**Live, on two VPSes** (Ubuntu 24.04, systemd services; SETUP-LOCAL.md, "Two machines", since
-2026-11-07). One deploy installs both.
+Two Ubuntu 24.04 VPSes with systemd services, installed together by one deploy (SETUP-LOCAL.md,
+"Two machines").
 
-**The game machine, play.dodmg.com** (91.90.80.8, KVM):
+**Game, play.dodmg.com** (91.90.80.8, KVM):
 
 | Part | Port | Notes |
 |---|---|---|
-| Caddy | 80, 443 | https for the game: browser play at `/play/`, `/api` and `/ws` to the gateway; anything else redirects to dodmg.com |
-| Gateway (`bsk-gateway@a`/`b`/`c`) | 8095-8097, local only | web client, account requests and the game over WebSocket; one slot takes new players, another may be handing over |
+| Caddy | 80, 443 | browser play at `/play/`, `/api` and `/ws` to the gateway; the rest redirects to dodmg.com |
+| Gateway (`bsk-gateway@a`/`b`/`c`) | 8095-8097, local | web client, account requests, the game over WebSocket; one slot takes new players, another may be handing over |
 | Account server (`bsk-account`) | 8080 | open for older desktop clients |
-| World proxy and world servers (`bsk-world`) | 2051 (slots 12051 / 22051, local only) | **Europe 2**, the main server; rolling deploys, as on Windows |
-| Redis (`bsk-redis`) | 6379, local only | data in `/opt/bsk/redis/data`; backups (`bsk-backup.timer`) |
+| World proxy and servers (`bsk-world`) | 2051 (slots 12051 / 22051, local) | **Europe 2**, the main server; rolling deploys |
+| Redis (`bsk-redis`) | 6379, local | data in `/opt/bsk/redis/data`; backups (`bsk-backup.timer`) |
 
-**The website machine, dodmg.com** (169.58.244.146, VMware; its host pauses, so nothing
-latency-sensitive runs there):
+**Website, dodmg.com** (169.58.244.146, VMware; its host pauses, so nothing latency-sensitive):
 
 | Part | Port | Notes |
 |---|---|---|
-| Caddy | 80, 443, 8080 | the website at `/`; `/play` redirects to play.dodmg.com; `/api`, `/ws` and port 8080 are forwarded there for older clients |
-| Discord bot (`bsk-discord`) | none | release posts, server status, new Marketplace listings (#marketplace), slash commands and linked game accounts (password resets) in the Discord server (SETUP-LOCAL.md, "Discord") |
-| Testing (`bsk-world`, `bsk-redis-tunnel`) | 2051 | admin-only world server on the game's Redis (an SSH tunnel to it); everyone else is sent to Europe 2 |
+| Caddy | 80, 443, 8080 | the website; `/play` redirects to play.dodmg.com; `/api`, `/ws` and 8080 forwarded there for older clients |
+| Discord bot (`bsk-discord`) | none | release posts, server status, Marketplace listings, slash commands, linked accounts (SETUP-LOCAL.md, "Discord") |
+| Testing (`bsk-world`, `bsk-redis-tunnel`) | 2051 | admin-only world server on the game's Redis (SSH tunnel); everyone else goes to Europe 2 |
 
-Its old Redis, account server and gateways are masked: they hold the data as it was on
-2026-11-07, not live.
+Its old Redis, account server and gateways are masked: their data is from 2026-11-07, not live.
 
-**On this PC:** the old live servers are **stopped** (the game moved to the VPS on 2026-10-16;
-this PC's `source/Redis/data` is the data as it was then, not live). `tools/update_relay.py` may
-be running on 8080: it hands the client releases to desktop clients built for this PC's address
-so they switch to dodmg.com. Isolated test servers use 6380 / 8081 / 2052, slot N adding N
-(`tools/testclient/iso_stack.py`, under `build/iso*/`).
-
-The tools the VPS uses (`world_proxy.py`, `rolling_restart.py`) must keep working on both Windows
-and Linux. Doomed Realms, another server on this PC, uses 8888, 2050 and 843: don't take those
-ports. `Run Server.bat` would start a separate copy of the servers on this PC, on its old data, so
-it asks first; never run test copies under the live process names (`redis-server.exe`,
-`App.exe`, `WorldServer.exe`; `iso_stack.py` doesn't).
+**This PC:** the old live servers are stopped since 2026-10-16 (`source/Redis/data` is that day's
+data, not live). `tools/update_relay.py` may run on 8080, sending desktop clients built for this
+PC to dodmg.com. Isolated test servers use 6380 / 8081 / 2052, slot N adding N
+(`tools/testclient/iso_stack.py`, under `build/iso*/`). Another server on this PC uses 8888, 2050
+and 843: don't take those ports. `world_proxy.py` and `rolling_restart.py` must keep working on
+Windows and Linux. `Run Server.bat` starts a copy on the old data, so it asks first; never run test
+copies under the live process names (`redis-server.exe`, `App.exe`, `WorldServer.exe`).
 
 ## Ground rules
 
-- **Real people play on the live servers.** Anything that changes what they run (a deploy, a
-  publish, a restart) is the owner's call: ask first, every time, unless they just asked for it.
-  Test on an isolated stack instead. What disconnects whom:
-  - a deploy (each merge to `main`, `.github/workflows/deploy.yml` running `deploy/deploy.py`)
-    kicks nobody: a new world server is a rolling deploy, a new
-    gateway starts in another slot while the old one hands over, the account server restart only
-    pauses sign-ins, and Caddy keeps WebSockets through a reload (SETUP-LOCAL.md, "Deploys that
-    kick nobody"). The first deploy onto the gateway slots (from the single `bsk-gateway` of
-    before 2026-10-17) is the exception: it disconnects https players once;
-  - restarting `bsk-world` itself kicks everyone (they're saved first);
-  - restarting or stopping a gateway slot (`bsk-gateway@<slot>`) or Caddy drops the players on it,
-    nearly everyone (browser and https desktop clients). The Rust client then takes them back to
-    the Nexus by itself.
-- **Stopping a world server cleanly:** it saves everyone on Ctrl+C (Windows) or SIGTERM (Linux,
-  `systemctl stop`). `taskkill /F`, which `rolling_restart.py stop` uses on Windows, skips the
-  save. To stop one from a script on Windows, attach to its console and send Ctrl+C
-  (`AttachConsole` and `GenerateConsoleCtrlEvent`).
-- **Never drive a player's window**: the clients' titles are "Do Damage" (the Rust client) and
-  "betterSkillys" (the old AIR client). Test with the Rust client's scripted flags, in its own
-  window, on an isolated stack (client-rs/AGENTS.md).
-- **The client and server ship together** when a message changes (ids, fields). An old client
-  must keep working with a new server where possible. Note in the commit which side needs
-  redeploying.
-- **Client releases are published by the deploy on merge to `main`** (Git, "Release branches"):
-  GitHub's `client` job signs them with the key in the `CLIENT_UPDATE_KEY` secret, checked
-  against the `CLIENT_UPDATE_PUBLIC_KEY` variable first. The only other copy of that key is the
-  main checkout's `build/client-update.key`, for deploying from the PC when GitHub can't. Clients
-  only take releases signed with it, so publishing from a worktree or a fresh clone makes a new key
-  and strands every player: never publish anywhere else.
-- **Releases post to Discord.** Once a release is live on the VPS, the bot posts its changelog
-  section to the Discord server's #updates and pings the Updates role, once per version. So name
-  the changelog section as players should read it. Tests must never post: publish test releases
-  with `--publish-to` (they never reach the VPS's `dist/client`), and try the bot with
-  `bot.py --dry-run`, or in a private test channel deleted afterwards (SETUP-LOCAL.md, "Discord").
-- **Secrets** stay in git-ignored files: `*.local.txt` (`test-account.local.txt`),
-  `deploy/*.local.json` (the VPS config), `deploy/discord.local.env` (the Discord bot's token),
-  `build/` (signing key) and `~/.ssh/dodmg_ed25519` (the
-  VPS key). The deploy from GitHub has its own copies as repository secrets (`VPS_SSH_KEY`, a key
-  of its own, `VPS_KNOWN_HOSTS`, `VPS_CONFIG`, `DISCORD_ENV`, `CLIENT_UPDATE_KEY`; SETUP-LOCAL.md,
-  "Deploying from GitHub"); never print them in a workflow, whose logs are public. Never sign in
-  anywhere with a password pasted into a chat: ask the owner to set up a key instead. `build/`, `dist/`, `client/bin/`, `tools/airsdk/` and `source/Redis/data/` are not
-  tracked.
-- **Changelog:** every change players can notice (client, servers, content, website, fixes) gets a
-  line in [client-rs/CHANGELOG.md](client-rs/CHANGELOG.md) under `## Unreleased` at the top, in
-  the same commit as the change. Write it in plain words for players, not code names; the game's
-  Changelog window and the website show it. Put it in its `### ` group, summed up with what's
-  already there rather than as a new line for each detail. Start the section if it isn't there.
-  Publishing a client version renames it to that version, so only release lines that are true for
-  players by then: hold back a line whose change isn't live yet (put it back under `Unreleased`).
-- **Wiki:** a finished change players can notice (content, items, drops, classes, commands, a
-  feature) also updates the wiki, `website/wiki/` (built by `tools/build_wiki.py`), in the same
-  commit. Much of it is read from the game's data (the gear pages and their drops, dungeons,
-  commands, the forge's recipes), so build it (`python tools/build_wiki.py --out <a scratch
-  folder>`) and read the pages the change touches. Fix the generator (`tools/wiki_*.py`) when it
-  doesn't pick the change up, and edit the hand-written guides (`website/wiki/*.md`) where they
-  describe it. Measured tables (Gear statistics) stay as measured: add a note when one goes out of
-  date.
-- **Languages:** the Rust client speaks 11 languages (Options, Language). Any text it shows
-  players, new or changed, goes through `tr` / `tf!` / `tn!` and gets its translation in every
-  table, `client-rs/app/lang/*.json`, in the same commit: written as a native player of that
-  language would say it, not word for word (client-rs/AGENTS.md, "Languages"). The client's
-  tests fail while a table lacks a line or keeps one no longer used.
-- **Generated files** come from the `tools/port_doomed*.py` scripts (see source/AGENTS.md). Change
-  the script and regenerate rather than editing the output by hand.
-- **DNS:** dodmg.com's records live at Register365 with a TTL of a day, so a change can take that
-  long to reach everyone. Check several resolvers (1.1.1.1, 8.8.8.8, 9.9.9.9) before relying on
-  one.
+- **Real people play on the live servers.** A deploy, publish or restart is the owner's call: ask
+  first, every time, unless they just asked for it. Test on an isolated stack. What disconnects
+  whom:
+  - a deploy (each merge to `main`: `.github/workflows/deploy.yml` runs `deploy/deploy.py`) kicks
+    nobody: rolling world servers, a new gateway slot while the old hands over, an account server
+    restart that only pauses sign-ins, Caddy reloads keep WebSockets (SETUP-LOCAL.md, "Deploys
+    that kick nobody");
+  - restarting `bsk-world` itself kicks everyone (saved first);
+  - restarting a gateway slot (`bsk-gateway@<slot>`) or Caddy drops nearly everyone on it; the
+    Rust client takes them back to the Nexus by itself.
+- **Stopping a world server** saves everyone on Ctrl+C (Windows) or SIGTERM (Linux).
+  `taskkill /F` (what `rolling_restart.py stop` uses on Windows) skips the save; from a script,
+  attach to its console and send Ctrl+C (`AttachConsole`, `GenerateConsoleCtrlEvent`).
+- **Never drive a player's window** ("Do Damage", or "betterSkillys" for the AIR client). Test
+  with the Rust client's scripted flags, in its own window, on an isolated stack.
+- **Client and server ship together** when a message changes. Keep old clients working with a new
+  server where possible, and say in the commit which side needs redeploying.
+- **Client releases** are published by the deploy on merge to `main`, signed with the
+  `CLIENT_UPDATE_KEY` secret (checked against `CLIENT_UPDATE_PUBLIC_KEY`). The only other copy is
+  the main checkout's `build/client-update.key`. Publishing from a worktree or a fresh clone makes
+  a new key and strands every player: never publish anywhere else.
+- **Releases post to Discord** (#updates, pinging the Updates role, once per version), so name the
+  changelog section as players should read it. Tests never post: publish test releases with
+  `--publish-to`, try the bot with `bot.py --dry-run` or in a private test channel deleted after.
+- **Secrets** stay in git-ignored files: `*.local.txt`, `deploy/*.local.json`,
+  `deploy/discord.local.env`, `build/` (signing key), `~/.ssh/dodmg_ed25519`. GitHub has its own
+  copies as secrets (`VPS_SSH_KEY`, `VPS_KNOWN_HOSTS`, `VPS_CONFIG`, `DISCORD_ENV`,
+  `CLIENT_UPDATE_KEY`); never print them in a workflow (the logs are public). Never sign in with a
+  password pasted into a chat: ask the owner for a key. `build/`, `dist/`, `client/bin/`,
+  `tools/airsdk/` and `source/Redis/data/` aren't tracked.
+- **Changelog:** every change players can notice gets a line in
+  [client-rs/CHANGELOG.md](client-rs/CHANGELOG.md) under `## Unreleased`, in the same commit, in
+  plain words for players, in its `### ` group, summed up with what's there rather than a line per
+  detail. Publishing renames the section to the version, so hold back lines that aren't live yet.
+- **Wiki:** a finished change players can notice also updates `website/wiki/` in the same commit.
+  Much is generated from the game's data (`tools/build_wiki.py`, `tools/wiki_*.py`): build it
+  (`python tools/build_wiki.py --out <scratch folder>`), read the pages the change touches, fix the
+  generator when it misses the change, and edit the hand-written guides (`website/wiki/*.md`).
+  Measured tables (Gear statistics) stay as measured; add a note when one goes out of date.
+- **Languages:** the Rust client's text goes through `tr` / `tf!` / `tn!` with a translation in
+  every `client-rs/app/lang/*.json`, in the same commit, written as a native player would say it
+  (client-rs/AGENTS.md, "Languages"). Its tests fail on a missing or unused line.
+- **Game content is edited in place.** Items, monsters, worlds and behaviours are in the
+  repository's XML, maps and C#; change them directly, keeping the server's and the client's copy
+  of an XML in step. A file whose first line says "Generated by tools/<script>" is the exception:
+  change that script and rerun it.
+- **DNS** for dodmg.com is at Register365 with a one-day TTL; check several resolvers (1.1.1.1,
+  8.8.8.8, 9.9.9.9) before relying on a change.
 
 ## Git
 
-- **Release branches (since 2026-10-24).** `main` only ever gets one squashed commit per
-  released version, through a pull request; nothing else lands on it directly.
-  - **Collecting work:** finished work goes into the release branch for the next version,
-    `release/<version>`, such as `release/2.0.3`.
-    - Find the open one with `git branch --list 'release/*'`; if there is none, create it from
-      `main`, named for the next patch version (the owner may pick another number), and start
-      its [PR-BODY.md](PR-BODY.md) afresh (below).
-    - **PR-BODY.md** is the release's pull request body, written as the work goes in, so it's
-      ready when the release is. Each finished piece of work adds its part to it in the same
-      commit as the work (or, for work already in, a commit of its own), before it goes into the
-      release branch; when rebasing onto the branch, keep both sides' parts. Keep it complete:
-      - **For players:** the piece summed up in the group it belongs to (as in the changelog, but
-        fuller: numbers, names, where to find it), added to a group's line rather than as a new
-        line when one is there.
-      - **Details:** a `### ` part per piece: what changed and why, the files or areas touched
-        (scripts, maps and data regenerated), which side needs redeploying (client, servers,
-        gateway, website) and whether players are disconnected, data kept or migrated in Redis,
-        anything the owner must do (a secret, a setting, a step on the VPS), and what's not done
-        or known to be off.
-      - **Checks:** how it was tested (tests, builds, an isolated stack, a `--shot`), noted against
-        the piece.
-      When a branch is created from `main` (which has the last release's body), replace its
-      parts with an empty template: the title line, `## For players`, `## Details` and
-      `## Checks`.
-    - Sessions work in worktrees under `.claude/worktrees/`, rebase onto the release branch
-      (`git rebase release/<version>`), then fast-forward it from the main checkout:
-      `git -C <main checkout> fetch . <branch>:release/<version>`, which refuses anything but a
-      fast-forward. When the main checkout has the release branch checked out, `fetch` refuses
-      it: use `git -C <main checkout> merge --ff-only <branch>` there instead.
-    - A hook stops edits into the main checkout from a worktree session.
-    - **Clean up once it's in.** When a session's work has been fast-forwarded into the release
-      branch, that session removes its own worktree and branch (or the app's worktree clean-up
-      does):
-      `git -C <main checkout> worktree remove <worktree>`, then
-      `git -C <main checkout> branch -D <branch>`. Check first that nothing is uncommitted
-      (`git status --short`; `__pycache__` and `TODO.MD` don't count) and that the work is on the
-      release branch (`git merge-base --is-ancestor <branch> release/<version>`). Plain
-      `worktree remove` refuses a worktree with changes: look at them rather than reaching for
-      `--force`. On Windows the emptied folder stays until the session that used it is closed.
-  - **Releasing** (the owner asks for it):
-    1. Take in the players' sprites: `python tools\community_sprites.py check` on the release
-       branch. It fails while sprites admins approved in the Sprite Editor aren't in the
-       repository yet (it lists them), or while the sheets, the catalog and the item XML are out
-       of step. Take the listed ones in with `python tools\community_sprites.py apply --commit`
-       (a worktree rebased onto the release branch, brought in as any other work; `rework` fixes
-       the XML), look at them in a `--shot`, and run `check` again until it passes. One it calls
-       the item's sprite as it is now (an unchanged copy) isn't taken in: ask the owner to turn it
-       down in the editor's Review tab. Do this
-       before naming the changelog section: `apply` writes under `## Unreleased`.
-    2. On the release branch, name the changelog section and raise the version (client-rs/AGENTS.md,
-       "Releasing to players"), and check the client tests, `python tools\build_site.py` and the
-       server builds.
-    3. Push it (`git push -u origin release/<version>`) and open a pull request against `main`
-       (`gh pr create --base main --head release/<version> --body-file PR-BODY.md`): check
-       PR-BODY.md against `git log main..release/<version>` first, fill in anything missing, and
-       put the version and which sides deploy in its first line.
-    4. Squash and merge it (`gh pr merge --squash --delete-branch`, the title naming the
-       version), then update the main checkout (`git -C <main checkout> switch main` and
-       `git -C <main checkout> pull --ff-only`). `--delete-branch` removes the release branch on
-       origin; delete it locally too (`git -C <main checkout> branch -D release/<version>`), and
-       remove any worktrees and branches whose work it carried.
-    5. The merge deploys by itself, so what players get is exactly `main`
-       (`.github/workflows/deploy.yml`; SETUP-LOCAL.md, "Deploying from GitHub"). Watch it:
-       `gh run watch --repo Meapy/Do-Damage $(gh run list --repo Meapy/Do-Damage --workflow
-       Deploy --limit 1 --json databaseId --jq '.[0].databaseId')`. The `client` job (Windows)
-       publishes the desktop client when it changed; `deploy` (Linux) installs everything. Then
-       check `https://dodmg.com/api/client/windows/latest.json` names the new version. Don't
-       deploy from the PC as well. If the run fails, read its log, fix it on the next release
-       branch, and only if players need the release now deploy from the main checkout
-       (`python deploy\deploy.py`, which waits for any deploy still running on the VPS).
-- **No merge commits** on `main` or a release branch: if the branch moved while you worked,
-  rebase onto it instead of merging it in. Never `git merge` one branch into another, and don't
-  rewrite commits already pushed to `origin` unless the owner asks.
-- Another session may be editing the same tree. Stage and commit explicit paths only (never
-  `git add -A` or `git commit -a`), and check `git status` for changes that aren't yours.
-- `core.autocrlf` is on: the repository stores LF, while many working files are CRLF. Scripts
-  that patch source text should detect and keep each file's line endings; `sed -i` in Git Bash
-  can turn a CRLF file into LF.
-- `origin` is [Meapy/Do-Damage](https://github.com/Meapy/Do-Damage), a standalone repository
-  (not a fork). Its history was condensed on 2026-10-18 to one commit per milestone; the full
-  history before that is the local branch `full-history` and the old fork, Meapy/betterSkillys
-  (SETUP-LOCAL.md, "Code history"). Never push `full-history`. A branch cut from `main` before
-  then shares no history with it: move it over with
-  `git rebase --onto main full-history <branch>`.
-- Commit messages, merge messages and authors name the change, not the tool that made it: when
-  merging `main` into a worktree branch, write the message yourself
-  (`git merge -m "Merge main" main`), since the default names the `claude/...` branch.
-- The remotes `aurusenth` (Aurusenth/betterSkillys) and `upstream` (HaloCelsius/betterSkillys)
-  were merged in earlier. Their histories aren't in `main` any more, so pick up a later change
-  from them by hand (cherry-pick or copy), not with `git merge`.
+- **`main` gets one squashed commit per released version**, through a pull request; nothing
+  else lands on it.
+- **Collecting work:** finished work goes into the next version's branch, `release/<version>`
+  (`git branch --list 'release/*'`; with none, create it from `main` named for the next patch
+  version, and reset its PR-BODY.md to the empty template: the title line, `## For players`,
+  `## Details`, `## Checks`).
+  - **[PR-BODY.md](PR-BODY.md)** is the release's pull request body, written as work goes in, in
+    the same commit as the work. For players: the piece summed up in its group (fuller than the
+    changelog). Details: a `### ` part per piece: what and why, files touched (and what was
+    regenerated), which side redeploys and whether players are disconnected, Redis data kept or
+    migrated, anything the owner must do, what's not done. Checks: how it was tested. Keep both
+    sides' parts when rebasing.
+  - Sessions work in worktrees under `.claude/worktrees/`, rebase onto the release branch, then
+    fast-forward it from the main checkout:
+    `git -C <main checkout> fetch . <branch>:release/<version>` (refuses anything but a
+    fast-forward), or `git -C <main checkout> merge --ff-only <branch>` when the main checkout has
+    the release branch checked out. A hook stops edits into the main checkout from a worktree.
+  - **Clean up once it's in:** check `git status --short` is clean (`__pycache__` and `TODO.MD`
+    don't count) and `git merge-base --is-ancestor <branch> release/<version>`, then
+    `git -C <main checkout> worktree remove <worktree>` and `branch -D <branch>`. Don't reach for
+    `--force` on a worktree with changes: look at them. On Windows the folder stays until its
+    session closes.
+- **Releasing** (when the owner asks):
+  1. `python tools\community_sprites.py check` on the release branch. While it lists sprites
+     approved in the Sprite Editor but not taken in, take them with
+     `python tools\community_sprites.py apply --commit` (in a worktree rebased onto the branch;
+     `rework` fixes the XML), look at them in a `--shot`, and check again until it passes. One it
+     calls an unchanged copy isn't taken: ask the owner to turn it down in the editor's Review tab.
+     Do this before naming the changelog section (`apply` writes under `## Unreleased`).
+  2. Name the changelog section and raise the version (client-rs/AGENTS.md, "Releasing to
+     players"); check the client tests, `python tools\build_site.py` and the server builds.
+  3. `git push -u origin release/<version>`, check PR-BODY.md against
+     `git log main..release/<version>` (version and deploying sides in its first line), then
+     `gh pr create --base main --head release/<version> --body-file PR-BODY.md`.
+  4. `gh pr merge --squash --delete-branch` (title naming the version), then in the main checkout
+     `switch main`, `pull --ff-only`, `branch -D release/<version>`, and remove the worktrees and
+     branches it carried.
+  5. The merge deploys (SETUP-LOCAL.md, "Deploying from GitHub"). Watch it:
+     `gh run watch --repo Meapy/Do-Damage $(gh run list --repo Meapy/Do-Damage --workflow Deploy --limit 1 --json databaseId --jq '.[0].databaseId')`,
+     then check `https://dodmg.com/api/client/windows/latest.json` names the new version. Don't
+     also deploy from the PC. If it fails, fix it on the next release branch; only if players need
+     it now, run `python deploy\deploy.py` from the main checkout.
+- **No merge commits** on `main` or a release branch: rebase instead. Don't rewrite commits
+  pushed to `origin` unless the owner asks.
+- Another session may be editing the same tree: stage and commit explicit paths only (never
+  `git add -A` or `commit -a`), and check `git status` for changes that aren't yours.
+- `core.autocrlf` is on: the repository stores LF, many working files are CRLF. Scripts that patch
+  text should keep each file's line endings (`sed -i` in Git Bash can turn CRLF into LF).
+- `origin` is [Meapy/Do-Damage](https://github.com/Meapy/Do-Damage), standalone. Its history was
+  condensed on 2026-10-18; the full history is the local branch `full-history` (never push it) and
+  Meapy/betterSkillys. Move a branch cut before then with
+  `git rebase --onto main full-history <branch>`. The remotes `aurusenth` and `upstream` aren't in
+  `main`'s history: pick up their changes by hand (cherry-pick or copy), never `git merge`.
+- Commit messages and authors name the change, not the tool that made it.
 
 ## Tools
 
-- Python 3 for the scripts in `tools/` and `deploy/`.
-- The .NET 8 SDK for the servers.
-- Rust (stable, with the `wasm32-unknown-unknown` target and `wasm-bindgen-cli`) for
-  `client-rs/`, and WSL with Ubuntu 24.04 and Rust inside it, which builds the Linux gateway for
-  the VPS.
-- Git Bash rewrites arguments that start with `/` into Windows paths: prefix
-  `MSYS_NO_PATHCONV=1` for slash commands, and give Windows programs Windows paths
-  (`C:/Users/...`, not `/c/Users/...`).
-- AIR SDK 32, only for the deprecated AIR client, unzipped into `tools/airsdk/`.
+- Python 3 (`tools/`, `deploy/`), the .NET 8 SDK (servers), Rust stable with
+  `wasm32-unknown-unknown` and `wasm-bindgen-cli` (`client-rs/`), and WSL Ubuntu 24.04 with Rust
+  (the Linux gateway).
+- Git Bash rewrites arguments starting with `/` into Windows paths: prefix `MSYS_NO_PATHCONV=1`
+  for slash commands, and give Windows programs `C:/Users/...` paths, not `/c/Users/...`.
+- AIR SDK 32 in `tools/airsdk/`, only for the deprecated AIR client.

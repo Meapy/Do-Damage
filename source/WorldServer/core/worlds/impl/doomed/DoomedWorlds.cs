@@ -16,8 +16,8 @@ using WorldServer.networking;
 using WorldServer.networking.packets.outgoing;
 
 // The Doomed Realms worlds that run a game of their own (its wserver/realm/worlds/BattleArena.cs,
-// BattleArena2.cs, ZombieMap.cs, ZombieMG.cs, Herding.cs and Shop.cs). Their maps are ported by
-// tools/port_doomed.py like the other dungeons; WorldManager.CreateNewWorld asks Create for them.
+// BattleArena2.cs, ZombieMap.cs, ZombieMG.cs, Herding.cs and Shop.cs). Their worlds are in
+// custom/DoomedRealmsWorlds.xml; WorldManager.CreateNewWorld asks Create for them.
 namespace WorldServer.core.worlds.impl.doomed
 {
     public static class DoomedWorlds
@@ -35,7 +35,7 @@ namespace WorldServer.core.worlds.impl.doomed
             }
         }
 
-        // the Arena (Doomed Realms' Battle Arena; port_doomed_worlds.WORLD_NAMES) and its portal: the
+        // the Arena (Doomed Realms' Battle Arena) and its portal: the
         // Nexus garden's, a sand pit sunk into the shrine's floor (tools/build_nexus_garden.py; the
         // old standing one was Doomed Realms' "Battle Arena Portal")
         public const string ArenaName = "Arena";
@@ -252,7 +252,7 @@ namespace WorldServer.core.worlds.impl.doomed
         private DateTime _firstWave; // when the countdown ended, for the leaderboard's time
         public int Wave { get; private set; }
 
-        // The map is the Admin Arena's (port_doomed_worlds.OWN_MAPS): a walled ring with four
+        // The map is the Admin Arena's (its <MapJM>): a walled ring with four
         // gateways, each shut by a pair of Oryx Doors (spiked gates drawn wider than their tile, so
         // two cover the gateway), and the spawn points outside it in the forest. The doors come off
         // when the world opens, so the gateways look and are open through the countdown; when it
@@ -283,7 +283,7 @@ namespace WorldServer.core.worlds.impl.doomed
         public DoomedBattleArena(GameServer gameServer, int id, WorldResource resource, World parent)
             : base(gameServer, id, resource, parent)
         {
-            // its world XML is generated (port_doomed_worlds.py)
+            // (set here rather than in its world XML)
             DefeatToNexus = true;
             LootRate = ArenaPools.LootRate;
             FameRate = ArenaPools.FameRate;

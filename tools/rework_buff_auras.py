@@ -18,8 +18,8 @@ The Snake Charmer Pungi, the one lute that only buffed the bard, shares its Spee
 with the party, as the other lutes do.
 
 Edits the server's and the client's copies of the XML in place, as text, so nothing else in the
-files moves. Running it again changes nothing. tools/port_doomed.py, tools/build_resurrection.py
-and tools/build_ascended_items.py run it after they write their XML, so their items keep it.
+files moves. Running it again changes nothing. tools/build_resurrection.py and
+tools/build_ascended_items.py run it after they write their XML, so their items keep it.
 """
 import os
 import re
@@ -40,7 +40,7 @@ FILES = [
 
 # the abilities that buff the party: Warrior helm, Paladin seal, Priest tome, Bard lute,
 # Blademaster jacket, Monk fountain (not the Ascendant's halos: their forcefields are kept smaller on
-# purpose, tools/port_doomed.py FORCEFIELDS)
+# purpose)
 SLOTS = {"16", "12", "4", "28", "37", "130"}
 PARTY = {"ConditionEffectAura", "StatBoostAura", "HealNova", "ClearConditionEffectAura",
          "RemoveNegativeConditions"}

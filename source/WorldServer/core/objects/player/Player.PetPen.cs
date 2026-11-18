@@ -25,9 +25,9 @@ namespace WorldServer.core.objects
         public const string PetAmbrosia = "Ambrosia";
         public const string PetShardPrefix = "Shard of the Mad God x";
         public static readonly string[] PetSizes = { "Tiny", "Small", "Medium", "Large" };
-        // each size's healing of HP and MP, and how often (tools/port_doomed_pets.py PET_SIZES)
+        // each size's healing of HP and MP, and how often (as BehaviorDb.DoomedPets.cs heals)
         private static readonly (int Amount, int Ms)[] SizeHeal = { (15, 2000), (20, 2000), (30, 2000), (45, 1500) };
-        // how big each size is drawn, in a character's heights (tools/port_doomed_pets.py SIZE_HEIGHTS)
+        // how big each size is drawn, in a character's heights
         private static readonly float[] SizeHeights = { 0.5f, 0.75f, 1.0f, 1.4f };
 
         public int PetUpgrade { get; set; }

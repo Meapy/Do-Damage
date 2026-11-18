@@ -9,7 +9,7 @@ summary: Forging items at the Divine Forge in the Nexus: two of a tier make one 
 
 The **Divine Forge** turns items you don't need into ones you do. It knows {{v:forge_recipes}}
 recipes: {{v:forge_chains}} of them make any tiered weapon, ability, armor or ring from two of the
-tier below, and the rest are special recipes, most of them from Doomed Realms.
+tier below, and the rest are special recipes.
 
 ## Using the forge
 
@@ -116,7 +116,7 @@ too (see [Imprints](imprints.html)).
 
 ## Other recipes
 
-Recipes that don't follow the two-for-one rule: the Doomed Realms forge's untiered (UT) items,
+Recipes that don't follow the two-for-one rule: untiered (UT) items,
 other ways to the same tiered items, a few potions, and items no monster drops, which only the forge
 makes: the **Reforged Forgotten Crown** (from two Forgotten Crowns), the **Reforged Dirk of Cronus**
 (two Dirks of Cronus), the **Reforged Doom Bow** (two Doom Bows) and the **Dagger of the Terrible

@@ -12,8 +12,8 @@ NR-CORE/Skilly's 7.0, built on TK-Reborn, with the XMLs of RotMG 1.0.4.0). On to
 - [Aurusenth/betterSkillys](https://github.com/Aurusenth/betterSkillys) merged in: item tiers and
   glow, an admin class, the Admin Arena and Shaitan dungeons, Battle for the Nexus, a new nexus
   and vault, and more.
-- The content of Doomed Realms, another private server: its items, pets, classes, dungeons,
-  minigames, commands and economy.
+- Thirteen more classes, hundreds of items and pets, minigames, commands and a fame economy,
+  first brought over from another private server (see Credits).
 - Many dungeons made playable, random dungeon layouts, rebuilt Elder dungeons and a Nexus Bazaar.
 - Its own endgame: Realm 2, the Oryx chain up to Oryx 5, the Lost Halls with the Cultist Hideout
   and the Void, the Divine Forge and Workbench with imprints, quests and achievements, and the
@@ -122,7 +122,7 @@ See [client-rs/AGENTS.md](client-rs/AGENTS.md) for the gateway, testing and layo
 | `source/` | The servers: `App` (account server), `WorldServer`, `Shared` (game data, XMLs, maps in `resources/worlds`), `Redis` |
 | `client/` | The AIR client (`src/`, ActionScript 3) |
 | `client-rs/` | The Rust client: `app` (the game), `crates/` (renderer, protocol, session, data, world, net, assets), `gateway`, `bot` |
-| `tools/` | Build scripts, the Doomed Realms porting tools, the Elder dungeon generator, the Nexus Bazaar builder, and `testclient/` (isolated test servers and a test client) |
+| `tools/` | Build scripts, the Elder dungeon generator, the Nexus Bazaar builder, and `testclient/` (isolated test servers and a test client) |
 
 The working notes for each part are [AGENTS.md](AGENTS.md), [source/AGENTS.md](source/AGENTS.md),
 [client/AGENTS.md](client/AGENTS.md) and [client-rs/AGENTS.md](client-rs/AGENTS.md).
@@ -157,11 +157,11 @@ The highlights; [SETUP-LOCAL.md](SETUP-LOCAL.md) has the rest.
   loot; defeats send you to the Nexus.
 - **Legends:** the top characters of the week, month and all time glow red and get a small loot
   boost.
-- **Doomed Realms port:**
-  - 13 classes and about 390 items, dyes and 122 pets;
-  - 31 dungeons and its minigames (the Arena, Zombies, Sheep Herding);
+- **More classes and content:**
+  - 13 more classes and about 390 items, dyes and 122 pets;
+  - minigames (the Arena, Zombies, Sheep Herding) and more dungeons;
   - 29 commands, the forge, fame selling and the shops;
-  - its monster behaviour engine.
+  - a second monster behaviour engine.
 - **Elder dungeons:** rebuilt from this server's own maps, with darker tiles, braziers whose light
   is baked into the floor, Elder versions of every monster and a fresh layout every visit.
   Elder monsters are rebalanced to suit these characters.
@@ -196,8 +196,7 @@ The highlights; [SETUP-LOCAL.md](SETUP-LOCAL.md) has the rest.
   - world threads sleep instead of spinning;
   - a stream corruption bug in large sends is fixed.
 - **AIR client:**
-  - rendering ported from the Doomed Realms client: ground chunks, tile culling, batching and a
-    texture atlas;
+  - rendering rebuilt: ground chunks, tile culling, batching and a texture atlas;
   - fullscreen sees the whole screen;
   - almost no garbage per frame.
 

@@ -519,8 +519,6 @@ class Gear:
         flags = []
         if it["soulbound"]:
             flags.append("Soulbound")
-        if it["doomed"]:
-            flags.append("From Doomed Realms")
         # drawn by a player in the Sprite Editor (tools/community_sprites.py), as the tooltip credits them
         by = (it["el"].findtext("SpriteBy") or "").strip()
         if by:
@@ -709,7 +707,7 @@ class Gear:
             if not src:
                 # nothing gives it (test pets, an old donation reward): not something players can get
                 continue
-            flags = [x for x, on in (("Soulbound", d.objects[oid]["soulbound"]), ("From Doomed Realms", p["doomed"])) if on]
+            flags = ["Soulbound"] if d.objects[oid]["soulbound"] else []
             search = " ".join([p["name"], pet, "pet generator", p["size"]] + p["effects"] + [re.sub(r"<[^>]+>", "", v) for _, v in src])
             tag = " · ".join(x for x in (p["size"], "%d DPS" % p["dps"] if p["dps"] else "") if x) or "Pet"
             cards.append(self._pet_card(self._anchor("pet-" + oid, ids), d.texture(p["pet"]) or d.texture(oid), edge,

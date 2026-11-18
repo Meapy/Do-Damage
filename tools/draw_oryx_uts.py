@@ -7,15 +7,13 @@ and helpers.
 Writes `OryxUts8x8.png` (client/src/kabam/rotmg/assets/custom/images, `oryxUts8x8`, which
 tools/gen_rs_manifest.py registers for the Rust client), 8 by 8 pixels a cell in the order of CELLS:
 
-- the Doom Dirk and the Flying Doom Daggers (tools/port_doomed.py TEXTURE_OVERRIDES): their own
-  Doomed Realms sprites, white and black kept and red put in the shades between (RED_GREYS maps
+- the Doom Dirk and the Flying Doom Daggers (DoomedRealms.xml): their old sprites, white and black kept and red put in the shades between (RED_GREYS maps
   each grey to a red; a two-colour sprite gets its red where its dark meets its white);
 - the Ascended Gem of Adoration and of Tenderness (CustomItems.xml): Oryx 4's Infernal gems in Oryx 5's
   silver, purple and gold (their RECOLOUR);
 - the Sword of Dark Enchantment's shot, a black blade with a red core and a purple glow, and its
   small dark orb (CustomObjects.xml), drawn here (DRAWN);
-- the five Lil' Oryx generators (tools/port_doomed.py LIL_ORYXES, TEXTURE_OVERRIDES): Doomed Realms'
-  Lil' Oryx head in each Oryx's colours (LIL_ORYX_HEADS).
+- the five Lil' Oryx generators (DoomedRealms.xml): the old Lil' Oryx head in each Oryx's colours (LIL_ORYX_HEADS).
 And `OryxUts16x16.png` (`oryxUts16x16`), 16 by 16 a cell in the order of CELLS16: the Elysian Staff's
 shots, Oryx 5's Celestial Bolt in his silver, purple and gold (its weaving pair) and in his staff's
 light blues (the one flying straight).

@@ -9,8 +9,7 @@ at T8; an untiered orb counts as the tier its stasis lasted for (3 seconds at T0
 more a tier). Every orb then has a cooldown of at least 2 seconds.
 
 Edits the server's and the client's copies of the XML in place, as text, so nothing else in the
-files moves. Running it again changes nothing. tools/port_doomed.py runs it after it writes
-DoomedRealms.xml, so the Doomed Realms orbs keep it.
+files moves. Running it again changes nothing.
 """
 import os
 import re

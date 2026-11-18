@@ -108,7 +108,7 @@ namespace Tests
         {
             var json = JsonDocument.Parse(File.ReadAllText(Path.Combine(AppContext.BaseDirectory, "resources", "data", "resurrection.json")));
             var data = Res.Value.GameData;
-            // the Beach Zone's god is no quest in any version (its XML is the Doomed Realms port's)
+            // the Beach Zone's god is no quest in any version (its XML in DoomedRealms.xml has no <Quest/>)
             var known = new[] { "Elder Masked Party God", "Empowered Elder Masked Party God" };
             foreach (var b in json.RootElement.GetProperty("bosses").EnumerateArray())
                 foreach (var id in new[] { b.GetProperty("boss").GetString(), b.GetProperty("empowered").GetString() }.Except(known))
