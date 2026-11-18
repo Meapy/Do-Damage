@@ -61,6 +61,12 @@ namespace WorldServer.core.objects
                     return;
                 }
 
+                if (obj is Player ghost && ghost.Ghost)
+                {
+                    SendError($"{ghost.Name} is a ghost: there's nothing to teleport to.");
+                    return;
+                }
+
                 if (obj is Player p && p.IsHidden)
                 {
                     SendError("Target does not exist.");

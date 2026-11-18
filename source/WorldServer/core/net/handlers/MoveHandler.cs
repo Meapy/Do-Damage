@@ -34,7 +34,8 @@ namespace WorldServer.core.net.handlers
 
             var player = client.Player;
 
-            player.HandleProjectileDetection(time, newX, newY, ref moveRecords);
+            if (!player.Ghost)
+                player.HandleProjectileDetection(time, newX, newY, ref moveRecords);
 
             if (newX != -1 && newX != player.X || newY != -1 && newY != player.Y)
             {
@@ -51,7 +52,8 @@ namespace WorldServer.core.net.handlers
                     player.TeleportHeight = null;
                 }
 
-                if (!player.World.IsPassableAt(newX, newY, player.Z))
+                // a ghost floats through walls (Player.Grave.cs)
+                if (!player.Ghost && !player.World.IsPassableAt(newX, newY, player.Z))
                 {
                     // the client only stops a player entering a no-walk square, so it can end up
                     // standing on one; keep the server position, put the client back there, and

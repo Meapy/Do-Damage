@@ -97,7 +97,7 @@ namespace WorldServer.core.spectate
         {
             var w = p?.World;
             var c = p?.Client;
-            if (w == null || c?.Account == null || c.State == ProtocolState.Disconnected || p.IsHidden || c.Account.HideFromGlass)
+            if (w == null || c?.Account == null || c.State == ProtocolState.Disconnected || p.IsHidden || p.Ghost || c.Account.HideFromGlass)
                 return false;
             return !(w is VaultWorld) && w.InstanceType != WorldResourceInstanceType.Guild && w.InstanceType != WorldResourceInstanceType.Test;
         }

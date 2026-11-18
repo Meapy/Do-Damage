@@ -1254,5 +1254,10 @@
 "Watch": "Дивитися",
 "Stay on this player": "Залишитися на цьому гравцеві",
 "Let the glass pick": "Хай обирає дзеркало",
-"Staying on them: the glass won't switch until you let it pick.": "Ви залишаєтеся на цьому гравцеві: дзеркало не змінить його, доки ви не дозволите йому обирати."
+"Staying on them: the glass won't switch until you let it pick.": "Ви залишаєтеся на цьому гравцеві: дзеркало не змінить його, доки ви не дозволите йому обирати.",
+"Stay as a ghost when you die": "Залишатися привидом після смерті",
+"Your ghost lingers for {time}: drift, watch and chat.": "Твій привид затримається ще на {time}: літай, дивись і спілкуйся.",
+"No one else is in sight.": "Більше нікого не видно.",
+"Following {name}": "Слідуєш за: {name}",
+"Follow a player": "Слідувати за гравцем"
 }

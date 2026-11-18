@@ -20,6 +20,9 @@ namespace WorldServer.core.objects
         // time) counts as a heal, so not on a player at full health
         public void BuffedBy(Player helper, int durationMs, ConditionEffectIndex effect)
         {
+            // a ghost (Player.Grave.cs) earns no one credit
+            if (Ghost)
+                return;
             if (effect == ConditionEffectIndex.Healing && Health >= Stats[0])
                 return;
             if (helper != null && helper != this)
@@ -29,6 +32,8 @@ namespace WorldServer.core.objects
         // buffed by another player's stat boost, for durationMs
         public void BuffedBy(Player helper, int durationMs)
         {
+            if (Ghost)
+                return;
             if (helper != null && helper != this)
                 Helpers.Cover(helper, AssistCredit.EffectWindow(durationMs));
         }

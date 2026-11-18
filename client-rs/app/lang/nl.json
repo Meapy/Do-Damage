@@ -1254,5 +1254,10 @@
 "Watch": "Kijken",
 "Stay on this player": "Bij deze speler blijven",
 "Let the glass pick": "Laat het glas kiezen",
-"Staying on them: the glass won't switch until you let it pick.": "Je blijft bij deze speler: het glas wisselt pas als je het weer laat kiezen."
+"Staying on them: the glass won't switch until you let it pick.": "Je blijft bij deze speler: het glas wisselt pas als je het weer laat kiezen.",
+"Stay as a ghost when you die": "Als geest blijven wanneer je sterft",
+"Your ghost lingers for {time}: drift, watch and chat.": "Je geest blijft nog {time}: zweef rond, kijk mee en chat.",
+"No one else is in sight.": "Er is verder niemand in zicht.",
+"Following {name}": "Je volgt {name}",
+"Follow a player": "Volg een speler"
 }

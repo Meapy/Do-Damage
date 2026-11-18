@@ -1254,5 +1254,10 @@
 "Watch": "Смотреть",
 "Stay on this player": "Остаться на этом игроке",
 "Let the glass pick": "Пусть выбирает зеркало",
-"Staying on them: the glass won't switch until you let it pick.": "Вы остаётесь на этом игроке: зеркало не сменит его, пока вы не позволите ему выбирать."
+"Staying on them: the glass won't switch until you let it pick.": "Вы остаётесь на этом игроке: зеркало не сменит его, пока вы не позволите ему выбирать.",
+"Stay as a ghost when you die": "Оставаться призраком после смерти",
+"Your ghost lingers for {time}: drift, watch and chat.": "Твой призрак задержится ещё на {time}: летай, смотри и общайся.",
+"No one else is in sight.": "Больше никого не видно.",
+"Following {name}": "Следуешь за: {name}",
+"Follow a player": "Следовать за игроком"
 }

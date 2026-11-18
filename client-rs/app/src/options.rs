@@ -224,6 +224,7 @@ pub enum Toggle {
     PingSounds,
     AutoDrink,
     OthersDamage,
+    Linger,
 }
 
 /// The Visuals tab's switches: what's shown in the world, under "World"...
@@ -305,7 +306,8 @@ const GRAPHICS: [(Toggle, &str); 8] = [
 ];
 
 /// How the game plays for you.
-const GAMEPLAY: [(Toggle, &str); 1] = [(Toggle::AutoDrink, mark("Drink stat potions from loot bags"))];
+const GAMEPLAY: [(Toggle, &str); 2] =
+    [(Toggle::AutoDrink, mark("Drink stat potions from loot bags")), (Toggle::Linger, mark("Stay as a ghost when you die"))];
 
 /// Whose speech balloons show (`Settings::bubbles`, a bit each): the Visuals tab's list.
 pub mod bubble {
@@ -401,6 +403,9 @@ pub struct Settings {
     pub ping_sounds: bool,
     /// The stat potions in a loot bag you stand on are drunk by themselves (`auto_drink` in main.rs).
     pub auto_drink: bool,
+    /// Dying, stay at the grave as a ghost (watching and chatting) until Continue, on a server
+    /// that keeps us (grave.rs); else straight on to the death's summary.
+    pub linger: bool,
     /// A crosshair at the mouse over the world, instead of the pointer.
     pub crosshair: bool,
     /// Its style, colour and size, and the player's own (the Crosshair tab).
@@ -476,6 +481,7 @@ impl Default for Settings {
             pings_from: PingsFrom::Everyone,
             ping_sounds: true,
             auto_drink: false,
+            linger: true,
             crosshair: true,
             crosshair_look: Look::default(),
             player_alpha: 1.0,
@@ -551,6 +557,7 @@ impl Settings {
             Toggle::Music => &mut self.sound.music,
             Toggle::PingSounds => &mut self.ping_sounds,
             Toggle::AutoDrink => &mut self.auto_drink,
+            Toggle::Linger => &mut self.linger,
             Toggle::OthersDamage => &mut self.others_damage,
         }
     }
@@ -589,6 +596,7 @@ impl Settings {
         flag("playMusic", self.sound.music);
         flag("pingSounds", self.ping_sounds);
         flag("autoDrinkPotions", self.auto_drink);
+        flag("lingerAtGrave", self.linger);
         flag("othersDamageNumbers", self.others_damage);
         out += &format!("speechBalloons={}
 ", self.bubbles);
@@ -679,6 +687,7 @@ impl Settings {
                 "playMusic" => s.sound.music = on,
                 "pingSounds" => s.ping_sounds = on,
                 "autoDrinkPotions" => s.auto_drink = on,
+                "lingerAtGrave" => s.linger = on,
                 "pingsFrom" => s.pings_from = PingsFrom::from_name(value).unwrap_or_default(),
                 "masterVolume" => s.sound.master_volume = vol().unwrap_or(s.sound.master_volume),
                 "sfxVolume" => s.sound.sfx_volume = vol().unwrap_or(s.sound.sfx_volume),
@@ -1613,6 +1622,7 @@ mod tests {
         s.language = "de".into();
         s.pings_from = PingsFrom::Nobody;
         s.ping_sounds = false;
+        s.linger = false;
         let back = Settings::from_text(&s.to_text());
         assert_eq!(back, s);
         // Lines another version wrote stay, and its keys don't take a key this one gives.

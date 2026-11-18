@@ -1254,5 +1254,10 @@
 "Watch": "İzle",
 "Stay on this player": "Bu oyuncuda kal",
 "Let the glass pick": "Seçimi aynaya bırak",
-"Staying on them: the glass won't switch until you let it pick.": "Bu oyuncuda kalıyorsun: sen izin verene kadar ayna değiştirmez."
+"Staying on them: the glass won't switch until you let it pick.": "Bu oyuncuda kalıyorsun: sen izin verene kadar ayna değiştirmez.",
+"Stay as a ghost when you die": "Ölünce hayalet olarak kal",
+"Your ghost lingers for {time}: drift, watch and chat.": "Hayaletin {time} daha burada: süzül, izle ve sohbet et.",
+"No one else is in sight.": "Görünürde başka kimse yok.",
+"Following {name}": "{name} takip ediliyor",
+"Follow a player": "Bir oyuncuyu takip et"
 }

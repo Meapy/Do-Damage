@@ -102,7 +102,8 @@ namespace WorldServer.core.objects
         // warded by `by`: the stronger of this ward and one still up, its time from now
         public void GiveWard(Player by, int amount, int ms, uint color, int tier, int burst = 0, float burstRadius = 0)
         {
-            if (amount <= 0 || World == null)
+            // nothing to ward in a ghost (Player.Grave.cs)
+            if (amount <= 0 || World == null || Ghost)
                 return;
             var now = Environment.TickCount64;
             if (Ward <= 0 || amount >= Ward)

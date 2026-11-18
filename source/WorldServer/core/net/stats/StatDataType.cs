@@ -132,6 +132,9 @@
         LifetimeMs = 150,
         // Per-condition remaining durations use LifetimeMs + the condition effect number.
         ConditionDurationBase = LifetimeMs,
+        // A player who died and lingers at their grave as a ghost (1; Player.Grave.cs). Clear of
+        // the condition durations (LifetimeMs + 1..61). An older client ignores it.
+        Ghost = 220,
         None = 255
     }
 }

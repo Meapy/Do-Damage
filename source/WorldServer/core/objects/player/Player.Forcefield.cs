@@ -19,6 +19,9 @@ namespace WorldServer.core.objects
         // vow's (the Ghost Bride's halo) keeps the player from dying too, whichever counts.
         public void Shield(int percent, int holdMs, uint color = Forcefield.COLOR, bool vow = false)
         {
+            // nothing to shield in a ghost (Player.Grave.cs)
+            if (Ghost)
+                return;
             var now = Environment.TickCount64;
             if (vow)
                 _vowUntil = Math.Max(_vowUntil, now + holdMs);

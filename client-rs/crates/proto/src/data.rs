@@ -466,6 +466,8 @@ pub mod stat {
     pub const CONDITION_DURATION_BASE: u8 = 150;
     /// How high the object stands, in thousandths of a tile: only in a world of stacked floors.
     pub const HEIGHT: u8 = 148;
+    /// A player who died and lingers at their grave as a ghost (1).
+    pub const GHOST: u8 = 220;
     /// `INVDATA0`..`INVDATA11` and `BACKPACKDATA0`..`BACKPACKDATA7`: per-slot item data (JSON).
     pub const ITEM_DATA: std::ops::RangeInclusive<u8> = 122..=141;
 

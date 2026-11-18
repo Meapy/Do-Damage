@@ -93,7 +93,7 @@ namespace WorldServer.core.objects
 
         public void Death(string killer, bool rekt = false)
         {
-            if (Client.State == ProtocolState.Disconnected || Dead)
+            if (Client.State == ProtocolState.Disconnected || Dead || Ghost)
                 return;
             Dead = true;
 
@@ -123,6 +123,10 @@ namespace WorldServer.core.objects
 
             GenerateGravestone();
             AnnounceDeath(killer);
+
+            // a client that can stays as a ghost at its grave, watching and chatting
+            if (TryLinger(killer))
+                return;
 
             Client.SendPacket(new DeathMessage(AccountId, Client.Character.CharId, killer));
             Client.Disconnect("Death");

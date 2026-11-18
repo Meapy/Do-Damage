@@ -146,6 +146,28 @@ it when it's out of view, and a dot on the minimap. Danger has a sound of its ow
 times in five seconds. In Options, **Visuals**, Other players, "Pings" shows everyone's, only your party's
 and guild's, or nobody's (yours always show), and **Sound** has Ping sounds.
 
+## When you die
+
+Death is permanent: the character and everything it wore and carried are gone, and its fame is
+counted (keep your best items in your vault). But you don't leave straight away. Once your death
+has been told, you **rise as a ghost** from your grave, pale and see-through, and the world turns
+cold and grey around you. For up to **10 minutes** you can:
+
+- **drift** anywhere in the world with the movement keys, straight through walls and over water
+  and lava, at one steady speed;
+- **follow a player**: the banner at the top names who you follow; the arrows step through the
+  players in sight (guildmates first, then the nearest), and your ghost glides after them while
+  you watch the fight go on (a movement key takes you back);
+- **chat**, whisper (`/tell`), and talk in your guild and party chats: your words show pale blue,
+  and everyone in the world sees your ghost;
+- **ping** with the middle mouse button, to point things out to those still fighting.
+
+A ghost can't be hurt, isn't seen by enemies, and can't shoot, use items, pick up loot, trade,
+teleport or take portals. When you're ready, press **Continue** on the banner (or your Nexus key,
+R) for your death's fame summary. Your ghost also moves on when its time is up, or if its world
+closes. In Options, **Gameplay**, turn off "Stay as a ghost when you die" to go straight to the
+summary instead.
+
 ## The screen
 
 The world fills the window, with one bar down the right:

@@ -14,6 +14,9 @@ details). Add to a group's line when a change adds to it, rather than adding ano
 
 ## Unreleased
 
+### Game
+- When you die you rise as a ghost from your grave instead of leaving at once: for up to 10 minutes you can drift through walls, follow the players still in sight, watch, chat and ping, until you press Continue for your fame summary. Everyone sees your ghost, pale and see-through; nothing can hurt it, and it can't fight, loot or trade. Options, Gameplay can turn it off.
+
 ### Classes
 - The Father swings censers instead of tomes, Tin Censer at T0 up to the Censer of the Last Rite at T8: each lays a grey ward over him and his allies that takes the damage of every hit before their health does, until it breaks or its time is up. The ward shows in grey over the HP bar and as a shell of steel plates round each player, losing a plate for every blow it soaks, with smoke, a turning sigil and plates locking into place as it's raised, sparks as it's struck and a shatter when it breaks. The Censer of the Last Rite's ward bursts into shards that hit every enemy nearby when it breaks. A Father's old tome moves into his inventory.
 - The Ascendant's halos raise a forcefield instead of healing: you and every ally standing in it take less damage from each hit while it lasts, 2% with the Worn Halo up to 10% with the Halo of the Archangel. The field is 1.5 tiles smaller than the old healing circle, and it looks the part: the halo falls from the sky in a column of light, a shimmering dome of hexagons opens out with a ring of hex cells turning at its heart, it flares round anyone it shields from a blow, and it shatters as it fades. Every halo has a new look, and its forcefield takes its colours: a worn iron field that stutters, rust that flakes away, bronze with verdigris, silver, gold, jade with drifting petals, God's Blessing's turning shafts of light, the Seraphim's ring of flame and the Archangel's violet dome with stars wheeling round it.

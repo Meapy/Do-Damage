@@ -231,6 +231,13 @@ namespace WorldServer.core.miscfile
                 textColor = 0xFFFFFF; // Biały tekst
             }
 
+            // a ghost's words come pale, from beyond (Player.Grave.cs)
+            if (player.Ghost && !player.Client.Account.Admin)
+            {
+                nameColor = 0x8FA3E8;
+                textColor = 0xC4D0F5;
+            }
+
             var tp = new Text()
             {
                 Name = $"{nameTag}{player.Name}",

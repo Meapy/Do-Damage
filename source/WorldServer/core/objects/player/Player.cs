@@ -39,7 +39,7 @@ namespace WorldServer.core.objects
         public int PetId { get; set; }
         public int[] SlotTypes { get; private set; }
         public int? GuildInvite { get; set; }
-        public bool IsInvulnerable => HasConditionEffect(ConditionEffectIndex.Paused) || HasConditionEffect(ConditionEffectIndex.Stasis) || HasConditionEffect(ConditionEffectIndex.Invincible) || HasConditionEffect(ConditionEffectIndex.Invulnerable);
+        public bool IsInvulnerable => Ghost || HasConditionEffect(ConditionEffectIndex.Paused) || HasConditionEffect(ConditionEffectIndex.Stasis) || HasConditionEffect(ConditionEffectIndex.Invincible) || HasConditionEffect(ConditionEffectIndex.Invulnerable);
         public int LDBoostTime { get; set; }
         public int XPBoostTime { get; set; }
         public bool IsHidden { get; set; }
@@ -512,6 +512,13 @@ namespace WorldServer.core.objects
         }
         public override void Tick(ref TickTime time)
         {
+            if (Ghost)
+            {
+                if (KeepAlive(time))
+                    GhostTick(time);
+                base.Tick(ref time);
+                return;
+            }
             if (KeepAlive(time))
             {
                 if (ShowDeltaTimeLog)
@@ -662,6 +669,8 @@ namespace WorldServer.core.objects
             stats[StatDataType.StatTones] = StatTones();
             stats[StatDataType.Ward] = Ward;
             stats[StatDataType.WardMax] = WardMax;
+            if (Ghost)
+                stats[StatDataType.Ghost] = 1;
             stats[StatDataType.InventoryData0] = Inventory.Data[0]?.GetData() ?? "{}";
             stats[StatDataType.InventoryData1] = Inventory.Data[1]?.GetData() ?? "{}";
             stats[StatDataType.InventoryData2] = Inventory.Data[2]?.GetData() ?? "{}";

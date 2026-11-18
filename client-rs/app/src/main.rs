@@ -15,6 +15,7 @@ mod emotes;
 mod events;
 mod game;
 mod glass;
+mod grave;
 mod ground;
 mod hud;
 mod i18n;
@@ -263,6 +264,8 @@ struct App {
     vault: vault::Vault,
     /// The Scrying Glass in the Nexus: its picture and its big view.
     glass: glass::Glass,
+    /// Lingering at the grave: the banner's buttons as last drawn.
+    grave_ui: grave::GraveUi,
     /// The middle mouse button's pings, and the ping wheel.
     pings: pings::Input,
     /// The quest log (quests, daily rewards, achievements) and its popups, and what it asked of
@@ -1978,6 +1981,11 @@ impl App {
                 self.keys.clear();
                 return;
             }
+            // Leaving the grave: the world fades, nothing more to do in it.
+            if game.grave.as_ref().is_some_and(|g| g.leaving_at.is_some()) {
+                self.keys.clear();
+                return;
+            }
         }
         if matches!(self.phase, Phase::Menu) {
             // The page's copy or cut event comes straight after the key, before the frame
@@ -2509,6 +2517,51 @@ impl App {
                 self.collection.open = false;
                 self.pet_pen.open = false;
                 self.options_ui.open = false;
+            }
+        }
+        // A ghost: the banner's buttons take their clicks; it holds nothing, shoots nothing and
+        // opens no merchant's or chest's window (the server would refuse it all).
+        if let Phase::Playing(game) = &mut self.phase {
+            if game.grave.is_some() && game.dying.is_none() {
+                if !self.game_menu && !self.options_ui.open {
+                    let ui = &self.grave_ui;
+                    let mut acts = Vec::new();
+                    self.clicks.retain(|&(down, pos)| match ui.click(pos) {
+                        Some(act) => {
+                            if down {
+                                acts.push(act);
+                            }
+                            false
+                        }
+                        None => true,
+                    });
+                    for act in acts {
+                        log::debug!("grave: {act:?}");
+                        match act {
+                            grave::Act::Continue => game.leave_grave(now),
+                            grave::Act::Follow(step) => {
+                                let step = if step == 2 { 1 } else { step };
+                                game.ghost_follow(step, now, data);
+                            }
+                        }
+                        game.sounds.push(("button_click".into(), 1.0, false));
+                    }
+                }
+                self.autofire = false;
+                self.hud.drag = None;
+                if self.npcs.window.is_some() {
+                    self.npcs.close();
+                }
+                self.market.open = false;
+                self.forge.open = false;
+                self.vault.open = false;
+                self.collection.open = false;
+                self.pet_pen.open = false;
+                if game.grave.as_ref().is_some_and(|g| g.leaving_at.is_some()) {
+                    self.game_menu = false;
+                    self.chat_input = None;
+                    self.options_ui.open = false;
+                }
             }
         }
         // The Escape menu takes the clicks while it's open.
@@ -3125,6 +3178,7 @@ impl App {
                 self.say_sent_in = Some((game.reconnects, now));
             }
             prof::mark("pre");
+            game.linger = self.settings.linger;
             game.poll(now, data);
             prof::mark("poll");
             if reset_angle {
@@ -3166,7 +3220,7 @@ impl App {
         let (_, h) = renderer.size();
         let status = match &self.phase {
             Phase::Menu => String::new(),
-            Phase::Playing(game) if game.dying.is_some() => String::new(),
+            Phase::Playing(game) if game.haunting() => String::new(),
             Phase::Playing(game) => game.status.clone(),
         };
         let mut view_radius = None;
@@ -3262,7 +3316,12 @@ impl App {
                         let hallucinating = has(bsk_world::condition::HALLUCINATING);
                         let roof = view::roof(world, data, &camera);
                         // dying, we fade from the world
-                        let me_alpha = game.dying.as_ref().map_or(1.0, |d| 1.0 - (d.elapsed(now) as f32 / 650.0).clamp(0.0, 1.0));
+                        let me_alpha = match (&game.dying, &game.grave) {
+                            (Some(d), _) => 1.0 - (d.elapsed(now) as f32 / 650.0).clamp(0.0, 1.0),
+                            // a ghost, rising from where we fell
+                            (None, Some(g)) => grave::me_alpha(g, now),
+                            (None, None) => 1.0,
+                        };
                         // the Scrying Glass, drawn in its place among what stands round it
                         let glass_show = glass::picture_show(show);
                         let glass_ref = &mut self.glass;
@@ -3276,7 +3335,10 @@ impl App {
                         // The world through a filter (Map.getFilterIndex): paused, else blind, else
                         // drunk (a swaying blur).
                         let dying = game.dying.as_ref().map(|d| d.elapsed(now));
-                        let filter = if dying.is_some_and(|t| t >= 250) || has(bsk_world::condition::PAUSED) {
+                        let filter = if game.dying.is_none() && game.grave.is_some() {
+                            // a ghost's cold sight
+                            Some(bsk_render::ScreenFilter::Spirit(1.0))
+                        } else if dying.is_some_and(|t| t >= 250) || has(bsk_world::condition::PAUSED) {
                             Some(bsk_render::ScreenFilter::Grey)
                         } else if has(bsk_world::condition::BLIND) {
                             Some(bsk_render::ScreenFilter::Blind)
@@ -3288,6 +3350,9 @@ impl App {
                         };
                         renderer.world_done(filter);
                         let mut ui = hud::Ui { renderer: &mut *renderer, sprites, data, redrawer: &mut *redrawer, fonts, text: &mut *text };
+                        if let (None, Some(g)) = (&game.dying, &game.grave) {
+                            grave::draw_world(&mut ui, g, lay.camera_point(self.settings.centered), &lay, now);
+                        }
                         self.signs.draw(&mut ui, world, &camera);
                         self.hall.draw(&mut ui, world, &camera);
                         self.vault.draw_marker(&mut ui, world, &camera, (lay.view_w(), lay.h));
@@ -3368,8 +3433,12 @@ impl App {
             }
         }
         if let (Some(far), Phase::Playing(game)) = (view_radius, &mut self.phase) {
+            // the dying fire nothing; a ghost may still ping, for those it watches over
             if game.dying.is_some() {
                 (fire, ability_at, ping) = (None, None, None);
+            }
+            if game.grave.is_some() {
+                (fire, ability_at, ability_release) = (None, None, None);
             }
             game.want_view_radius(far, now);
             if let Some(angle) = fire {
@@ -3441,7 +3510,7 @@ impl App {
         // The crosshair, over the world while nothing else has the mouse; the pointer hides
         // while it shows.
         let crosshair = self.settings.crosshair
-            && matches!(&self.phase, Phase::Playing(g) if g.world.is_some() && g.dying.is_none())
+            && matches!(&self.phase, Phase::Playing(g) if g.world.is_some() && !g.haunting())
             && !on_hud(mouse)
             && !self.game_menu
             && !self.options_ui.open
@@ -3458,7 +3527,8 @@ impl App {
             && !self.pet_pen.open
             && self.npcs.window.is_none()
             && self.hud.drag.is_none()
-            && !self.pings.wheel_open(mouse, lay.s, now);
+            && !self.pings.wheel_open(mouse, lay.s, now)
+            && !self.grave_ui.on(mouse);
         if crosshair {
             let look = &self.settings.crosshair_look;
             crosshair::draw(renderer, (mouse.0 as f32, mouse.1 as f32), lay.s.max(0.75) * look.size, look);
@@ -3472,6 +3542,19 @@ impl App {
             let (w, h) = renderer.size();
             let mut ui = hud::Ui { renderer: &mut *renderer, sprites, data, redrawer: &mut *redrawer, fonts, text: &mut *text };
             death::draw(&mut ui, d, lay.camera_point(self.settings.centered), (w as f32, h as f32), now);
+        }
+        // Lingering at the grave: the banner (how we died, who we follow, Continue).
+        self.grave_ui.buttons.clear();
+        if let Phase::Playing(game @ Game { dying: None, grave: Some(_), .. }) = &self.phase {
+            let following = game.grave.as_ref().and_then(|g| g.follow).and_then(|(id, _)| game.world.as_ref()?.objects.get(&id)?.name().map(str::to_owned));
+            let others = game.followable(data).len();
+            let mut ui = hud::Ui { renderer: &mut *renderer, sprites, data, redrawer: &mut *redrawer, fonts, text: &mut *text };
+            if let Some(g) = &game.grave {
+                let shown = if self.game_menu || self.options_ui.open { (-1.0, -1.0) } else { mouse };
+                grave::draw(&mut ui, &mut self.grave_ui, g, following.as_deref(), others, &lay, shown, now);
+                let (w, h) = ui.renderer.size();
+                grave::draw_leaving(&mut ui, g, (w as f32, h as f32), now);
+            }
         }
         if self.game_menu {
             let (w, h) = renderer.size();
@@ -4070,6 +4153,7 @@ fn main() {
         forge_acts: Vec::new(),
         vault: Default::default(),
         glass: Default::default(),
+        grave_ui: Default::default(),
         pings: Default::default(),
         type_text: text_arg("--type"),
         npc_test: text_arg("--npc"),

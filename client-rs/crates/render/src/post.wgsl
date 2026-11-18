@@ -1,14 +1,15 @@
 // The world drawn through a filter, as the AIR client's Stage3D post effects do: grey while
-// paused, nearly black while blind, blurred (swaying) while drunk. One triangle covers the screen.
+// paused, nearly black while blind, blurred (swaying) while drunk; washed pale and cold as a
+// ghost sees it, lingering at its grave. One triangle covers the screen.
 // The look (Options, Graphics) goes on top: a glow round bright light (`fs_bright` picks it out
 // at a quarter of the size, `fs_blur` spreads it, twice), and vivid colours with a vignette.
 // With HDR on, `fs_hdr` turns the finished frame into scRGB for the display, the glow brighter
 // than white.
 
 struct Post {
-    // 0 none, 1 grey, 2 blind, 3 blur.
+    // 0 none, 1 grey, 2 blind, 3 blur, 4 a ghost's sight.
     mode: f32,
-    // The blur's radius, in pixels.
+    // The blur's radius, in pixels; for a ghost's sight, how far it has come over (0 to 1).
     radius: f32,
     texel: vec2<f32>,
     // `fs_blur`'s step, in texels of what it reads.
@@ -52,7 +53,7 @@ fn vs_main(@builtin(vertex_index) vi: u32) -> VertexOut {
 }
 
 fn filtered(uv: vec2<f32>, px: vec2<f32>) -> vec3<f32> {
-    if (post.mode > 2.5) {
+    if (post.mode > 2.5 && post.mode < 3.5) {
         // A 7 × 7 spread of samples over the radius.
         var sum = vec4<f32>(0.0);
         for (var i = -3; i <= 3; i++) {
@@ -65,6 +66,14 @@ fn filtered(uv: vec2<f32>, px: vec2<f32>) -> vec3<f32> {
     }
     // The pixel itself, read exactly: filtering could soften the art.
     let c = textureLoad(scene, vec2<i32>(px), 0).rgb;
+    if (post.mode > 3.5) {
+        // A ghost's sight: the colour drained to a moonlit blue, the lights keeping a little of
+        // theirs, the darks lifted a touch toward a deep violet, so the world reads as beyond.
+        let l = dot(c, vec3<f32>(0.3, 0.59, 0.11));
+        let moon = vec3<f32>(l) * vec3<f32>(0.80, 0.90, 1.12) + vec3<f32>(0.035, 0.03, 0.085) * (1.0 - l);
+        let keep = 0.18 * smoothstep(0.55, 0.95, max(c.r, max(c.g, c.b)));
+        return mix(c, moon, clamp(post.radius, 0.0, 1.0) * (1.0 - keep));
+    }
     if (post.mode > 1.5) {
         // Map.BLIND_FILTER: each channel 0.05 × (r + g + b).
         return vec3<f32>(0.05 * (c.r + c.g + c.b));

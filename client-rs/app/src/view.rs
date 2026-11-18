@@ -1428,7 +1428,8 @@ pub fn draw(scene: &Scene, renderer: &mut Renderer, redrawer: &mut Redrawer, gro
         if let Some(shadow) = redrawer.shadow(renderer).filter(|_| scene.show.shadows) {
             for (_, item) in items.iter().filter(|(_, i)| !under(i) && here(i)) {
                 let Item::Sprite { obj, desc } = item else { continue };
-                if desc.shadow_size <= 0 {
+                // a ghost casts none
+                if desc.shadow_size <= 0 || is_ghost(scene, obj, desc) {
                     continue;
                 }
                 // 30 × 15 px half-axes at size 100, under the object's ground point.
@@ -1557,7 +1558,8 @@ pub fn draw(scene: &Scene, renderer: &mut Renderer, redrawer: &mut Redrawer, gro
     // HP bars (`GameObject.drawHpBar`) under monsters and players.
     for (_, item) in items.iter().filter(|_| scene.show.hp_bars) {
         let Item::Sprite { obj, desc } = item else { continue };
-        if !(desc.enemy || desc.player) || desc.no_mini_map || fade(scene, obj, desc) <= 0.0 || hidden(obj) {
+        // a ghost has no health to show
+        if !(desc.enemy || desc.player) || desc.no_mini_map || fade(scene, obj, desc) <= 0.0 || hidden(obj) || is_ghost(scene, obj, desc) {
             continue;
         }
         let c = obj.conditions();
@@ -1736,6 +1738,15 @@ fn fade(scene: &Scene, obj: &GameObj, desc: &ObjectDesc) -> f32 {
     own * under_roof(scene, obj) * expiry_alpha
 }
 
+/// A player lingering at their grave as a ghost (grave.rs): the server's `GHOST` stat, or us
+/// once we've risen.
+fn is_ghost(scene: &Scene, obj: &GameObj, desc: &ObjectDesc) -> bool {
+    desc.player && (obj.is_ghost() || (scene.world.ghost && Some(obj.id) == scene.world.me))
+}
+
+/// A ghost's pale blue edge.
+const GHOST_GLOW: u32 = 0x9CB6FF;
+
 const EXPIRY_WARNING_MS: i32 = 2_000;
 const BAG_EXPIRY_WARNING_MS: i32 = 5_000;
 const PORTAL_EXPIRY_WARNING_MS: i32 = 5_000;
@@ -1792,6 +1803,8 @@ fn draw_sprite_faded(scene: &Scene, renderer: &mut Renderer, redrawer: &mut Redr
     // epic or legendary one.
     let glow_stat = if desc.player { Some(59) } else if desc.enemy { Some(115) } else { None };
     let glow = glow_stat.and_then(|s| obj.stat_int(s)).filter(|&g| g > 0 && g <= 0xFF_FFFF).unwrap_or(0) as u32;
+    let ghost = is_ghost(scene, obj, desc);
+    let glow = if ghost { GHOST_GLOW } else { glow };
     let sprite = redrawer.get_glowing(scene.sprites, renderer, look.src, look.mirror, size, dye, glow)?;
     // The canvas's bottom centre stands on the object (raised by its z); sprites scale with the
     // map. On sinking ground (water) the sprite is drawn lower with its bottom cut off, unless it
@@ -1799,12 +1812,15 @@ fn draw_sprite_faded(scene: &Scene, renderer: &mut Renderer, redrawer: &mut Redr
     let k = (cam.scale / TILE_PX) as f32;
     let lift = scene.height(obj);
     let [px, py] = cam.to_screen(obj.x, obj.y, desc.z + lift);
+    // a ghost floats a little off the ground, rising and falling as it breathes
+    let phase = scene.time as f32 / 430.0 + (obj.id % 97) as f32;
+    let py = if ghost { py - (3.0 + 2.2 * phase.sin()) * k } else { py };
     let mut sink = 0.0;
     // on stacked floors, how far above its floor's ground it stands (a bridge's deck): standing
     // on it, it sinks into water as on a flat map
     let floor_h = scene.world.levels.as_ref().map_or(0.0, |l| l.height);
     let level = if floor_h > 0.0 { obj.level } else { 0 };
-    if (lift - level as f64 * floor_h).abs() < 1e-6 && !desc.flying && !desc.protect_from_sink() {
+    if !ghost && (lift - level as f64 * floor_h).abs() < 1e-6 && !desc.flying && !desc.protect_from_sink() {
         if let Some(l) = ground.layers_on(scene.world, scene.data, scene.sprites, renderer, level, obj.x as i32, obj.y as i32) {
             sink = (l.sink as f32).min(sprite.h as f32);
         }
@@ -1839,7 +1855,12 @@ fn draw_sprite_faded(scene: &Scene, renderer: &mut Renderer, redrawer: &mut Redr
     // pulses red.
     let c = obj.conditions();
     let mut filter = Filter::None;
-    if desc.player {
+    if ghost {
+        // see-through and cold, flickering faintly like a candle
+        let flicker = 0.9 + 0.06 * (scene.time as f32 / 170.0 + phase).sin() + 0.04 * (scene.time as f32 / 61.0).sin();
+        tint.mul = [0.72 * tint.mul[0], 0.86 * tint.mul[1], tint.mul[2], 0.58 * flicker];
+        tint.add = [tint.add[0] + 0.10, tint.add[1] + 0.16, tint.add[2] + 0.30];
+    } else if desc.player {
         if let (Some(hp), Some(max)) = (obj.stat_int(1), obj.stat_int(0)) {
             if (hp as f32) < max as f32 * 0.2 {
                 let rv = ((scene.time as f32 / 200.0).sin().abs() * 10.0).floor() / 10.0;

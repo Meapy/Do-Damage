@@ -1254,5 +1254,10 @@
 "Watch": "Regarder",
 "Stay on this player": "Rester sur ce joueur",
 "Let the glass pick": "Laisser choisir le miroir",
-"Staying on them: the glass won't switch until you let it pick.": "Vous restez sur ce joueur : le miroir ne changera pas tant que vous ne le laissez pas choisir."
+"Staying on them: the glass won't switch until you let it pick.": "Vous restez sur ce joueur : le miroir ne changera pas tant que vous ne le laissez pas choisir.",
+"Stay as a ghost when you die": "Rester en fantôme après la mort",
+"Your ghost lingers for {time}: drift, watch and chat.": "Votre fantôme s'attarde encore {time} : flottez, observez et discutez.",
+"No one else is in sight.": "Personne d'autre en vue.",
+"Following {name}": "Vous suivez {name}",
+"Follow a player": "Suivre un joueur"
 }

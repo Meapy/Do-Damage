@@ -288,6 +288,9 @@ messages! {
         // A line of the big view's chat: kind 0 someone said it, 1 they came to watch, 2 they
         // left; who, their stars and name colour, and the text.
         166 => SpectateChat { kind: u8, name: String, stars: i32, name_color: i32, text: String },
+        // With our Death, after Grave 255: we stay at our grave as a ghost, for this many ms at
+        // most, and the connection stays open until we close it.
+        169 => GraveInfo { ms: i32 },
     }
 }
 
@@ -431,5 +434,8 @@ messages! {
         162 => Spectate { action: u8 },
         // A line in the big view's chat (or a /command).
         167 => SpectateSay { text: String },
+        // 255, once in each world: we can stay at our grave as a ghost when we die (GraveInfo).
+        // An older server doesn't know it.
+        168 => Grave { action: u8 },
     }
 }

@@ -548,6 +548,10 @@ impl World {
             if go.dead || has(c, condition::INVINCIBLE) || has(c, condition::PAUSED) || has(c, condition::STASIS) {
                 continue;
             }
+            // shots pass through ghosts, ours too
+            if go.is_ghost() || (self.ghost && Some(go.id) == self.me) {
+                continue;
+            }
             let Some(gd) = data.objects.get(&go.object_type) else { continue };
             if (!p.damages_players && gd.enemy) || (p.damages_players && gd.player) {
                 if Some(go.id) == self.me {
@@ -583,6 +587,9 @@ impl World {
     /// protected by what stands there.
     fn ground_damage(&mut self, time: i32, data: &GameData, hits: &mut Vec<Hit>) {
         let Some(me) = self.player() else { return };
+        if self.ghost {
+            return;
+        }
         let (x, y) = (me.x, me.y);
         let (sx, sy) = (x as i32, y as i32);
         let (tile, occupant) = self.square_at(sx, sy, me.z, data);

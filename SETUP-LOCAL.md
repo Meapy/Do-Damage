@@ -649,6 +649,29 @@ The remotes `upstream` (HaloCelsius) and `aurusenth` share no history with `main
 
 ## Changes from upstream
 
+- **Lingering at the grave** (2026-11-18; `Player.Grave.cs`, `GraveHandler.cs`,
+  `packets/outgoing/GraveInfo.cs`; the Rust client's `grave.rs`): a player who dies stays in the
+  world as a ghost instead of being disconnected, if their client said it can (168 `GRAVE` 255,
+  once in each world). `Player.Death` records the death exactly as before (the character, fame,
+  gravestone, announcement), then `TryLinger` sends `DEATH` and 169 `GRAVE_INFO` (the ms the ghost
+  may stay, `GhostMs`, 10 minutes) and keeps the connection: `Dead` is cleared so the world keeps
+  the player, `Ghost` set, conditions and any ward removed, and stat 220 `Ghost` sent to everyone.
+  A ghost's incoming messages are dropped unread except moves, chat, pings and the acks
+  (`GhostMessages`, in `HandleIO`); its chat commands are limited to `GhostCommands`, its local
+  chat is pale blue, and its words don't reach monsters' chat triggers. It moves through walls
+  (the Move handler skips the passability check), ticks nothing but its time, and is invulnerable,
+  invisible to enemies (even Empowered ones), left out of damage, loot and assist credit, the
+  Scrying Glass, forcefields, wards, trades and teleports. Any `Reconnect` (a world closing, a
+  hand-over, a summon) disconnects it instead, as does its time running out; the client closing
+  the connection (Continue) saves the dead character as a death's disconnect always did. Clients
+  that never send 168 (the AIR client, older Rust clients, `bsk-bot`) are disconnected at death as
+  before. The Rust client keeps reading after a death, rises at 3 s (`GRAVE_RISE_MS`), draws the
+  world through a new `ScreenFilter::Spirit`, every ghost pale, glowing and floating
+  (`view.rs`, no shadow or health bar), lets its own ghost drift through walls or after a player
+  (`World::ghost`, `ghost_to`, `movement.rs` `drift`), blocks its shots, items, portals, trades and
+  teleports (`Game::haunting`), and shows the banner with the follow arrows and Continue. Options,
+  Gameplay, "Stay as a ghost when you die" (`lingerAtGrave`) goes straight to the summary instead.
+
 - **Health and magic potion stacks** (2026-11-16; `Shared/resources/data/init.xml`,
   `MaxStackablePotions`, and `client-rs/app/src/hud.rs`, `MAX_STACKED`): each stack holds up to
   10 potions instead of 6. The client and world server both enforce the limit. Existing counts

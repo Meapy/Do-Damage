@@ -132,6 +132,10 @@ namespace WorldServer.networking
                 return;
             }
 
+            // a ghost goes on to its death screen rather than to another world (its character is dead)
+            if (Player != null && Player.LeaveAsGhost())
+                return;
+
             // a world server that is being replaced hands its players over to the new one, behind
             // the world proxy, when they go to the Nexus or a realm
             if (GameServer.Draining && GameServer.HandsOver(pkt.GameId))
