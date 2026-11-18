@@ -168,6 +168,7 @@ namespace WorldServer.core.objects
             }
             dmg = RelicAbsorb(dmg);
             dmg = ShieldedDamage(dmg);
+            dmg = WardAbsorb(dmg);
             Health -= dmg;
             EnterCombat();
 

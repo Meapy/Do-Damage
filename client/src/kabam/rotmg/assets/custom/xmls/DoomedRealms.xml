@@ -11849,7 +11849,7 @@
 	</Object>
 	<Object type="0xD250" id="Father">
 		<Class>Player</Class>
-		<Description>The father attacks at long range and can heal himself and his allies.</Description>
+		<Description>The father attacks at long range and swings a censer whose smoke hardens into a grey ward over himself and his allies, taking the blows before their health does.</Description>
 		<AnimatedTexture>
 			<File>drPlayers</File>
 			<Index>28</Index>
@@ -11858,8 +11858,8 @@
 		<DeathSound>player/priest_death</DeathSound>
 		<Player />
 		<BloodProb>1.0</BloodProb>
-		<SlotTypes>8, 4, 14, 9, 0, 0, 0, 0, 0, 0, 0, 0</SlotTypes>
-		<Equipment>0xa04, 0xa31, -1, -1, 0xa22, -1, -1, -1, -1, -1, -1, -1</Equipment>
+		<SlotTypes>8, 132, 14, 9, 0, 0, 0, 0, 0, 0, 0, 0</SlotTypes>
+		<Equipment>0xa04, 0x58a0, -1, -1, 0xa22, -1, -1, -1, -1, -1, -1, -1</Equipment>
 		<MaxHitPoints max="670">100</MaxHitPoints>
 		<MaxMagicPoints max="385">100</MaxMagicPoints>
 		<Attack max="60">10</Attack>

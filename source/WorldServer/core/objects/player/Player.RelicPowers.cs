@@ -72,6 +72,7 @@ namespace WorldServer.core.objects
             Singularity = 28,   // Bow of the Event Horizon: the black hole (ms)
             // 29: the Chaotic Scripture's Chaos Beam, sent by AllyAOE (BehaviorDb.Allies.cs)
             // 30-32: the Ascendant's forcefield, sent by Forcefield.cs and Player.Forcefield.cs
+            // 33-38: the Father's ward, sent by Player.Ward.cs
         }
 
         // on: the object it follows (an aura) or flies to (a soul, blood); at: where it is

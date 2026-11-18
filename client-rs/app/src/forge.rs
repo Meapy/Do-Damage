@@ -131,6 +131,7 @@ pub(crate) fn slot_name(t: i32) -> &'static str {
         126 => tr("Halo"),
         128 => tr("Scroll"),
         130 => tr("Fountain"),
+        132 => tr("Censer"),
         200 => tr("Fists"),
         5000 => tr("Oceanic Spell"),
         5005 => tr("Cannon"),

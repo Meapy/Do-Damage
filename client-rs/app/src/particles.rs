@@ -15,7 +15,7 @@ use bsk_world::{Impact, World};
 use std::collections::HashMap;
 use std::f64::consts::PI;
 
-mod relic;
+pub(crate) mod relic;
 
 #[derive(Clone, Debug)]
 enum Motion {
@@ -182,6 +182,22 @@ pub struct Particles {
     /// The Ascendants' forcefields shown (`relic`, looks 30 and 32): their anchor and until when.
     /// The plain rings the server sends round them, for older clients, aren't drawn.
     fields: Vec<(i32, i32)>,
+    /// The last ward cast (`relic`, look 33): its Father and when. The plain blast the server
+    /// sends with it, for older clients, isn't drawn.
+    ward_on: Option<(i32, i32)>,
+    /// The Father's wards on players, by player id (`relic`, looks 34 to 37), for the shell drawn
+    /// round them (`ward.rs`).
+    wards: HashMap<i32, WardLook>,
+}
+
+/// How a player's ward has looked of late: its censer's colour, when it was raised and last
+/// struck, and the percent of it left then.
+#[derive(Clone, Copy, Debug)]
+pub struct WardLook {
+    pub color: u32,
+    pub gained: i32,
+    pub hit: i32,
+    pub left: i32,
 }
 
 /// A circle on the ground (`ShowEffect` 40, the Black Between's telegraphs): its outline at once,
@@ -251,6 +267,11 @@ impl Particles {
         }
     }
 
+    /// How player `id`'s ward has looked of late (`relic`, looks 34 to 37).
+    pub fn ward_look(&self, id: i32) -> Option<WardLook> {
+        self.wards.get(&id).copied()
+    }
+
     /// A new world: nothing carries over.
     pub fn clear(&mut self) {
         self.marks.clear();
@@ -262,6 +283,8 @@ impl Particles {
         self.flashes.clear();
         self.emitters.clear();
         self.fields.clear();
+        self.wards.clear();
+        self.ward_on = None;
         self.jitter_since = None;
     }
 
@@ -397,6 +420,9 @@ impl Particles {
             }
         }
         if matches!(e.effect_type, 5 | 11) && self.chaos_on.is_some_and(|(id, at)| id == e.target_object_id && (0..500).contains(&(now - at))) {
+            return;
+        }
+        if e.effect_type == 5 && self.ward_on.is_some_and(|(id, at)| id == e.target_object_id && (0..500).contains(&(now - at))) {
             return;
         }
         if e.effect_type == 10 {

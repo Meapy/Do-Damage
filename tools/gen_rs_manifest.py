@@ -73,6 +73,8 @@ RS_ONLY_SETS = [
     ("fistsItems8x8", "kabam/rotmg/assets/custom/images/FistsItems8x8.png", 8, 8),
     # the Ascendant's halos, tier 0 to 8, a cell each (tools/draw_halos.py)
     ("ascendantHalos16x16", "kabam/rotmg/assets/custom/images/AscendantHalos16x16.png", 16, 16),
+    # the Father's censers, tier 0 to 8, a cell each (tools/draw_censers.py)
+    ("fatherCensers16x16", "kabam/rotmg/assets/custom/images/FatherCensers16x16.png", 16, 16),
     # sprites players drew in the Sprite Editor and admins approved (tools/community_sprites.py)
     ("communitySprites8x8", "kabam/rotmg/assets/custom/images/CommunitySprites8x8.png", 8, 8),
     ("communitySprites16x16", "kabam/rotmg/assets/custom/images/CommunitySprites16x16.png", 16, 16),

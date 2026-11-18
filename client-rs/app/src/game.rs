@@ -1206,6 +1206,14 @@ impl Game {
         let shield = world.player().map_or(0, |p| {
             self.forcefields.iter().filter(|f| (p.x - f.1).hypot(p.y - f.2) <= f.3).map(|f| f.5).max().unwrap_or(0)
         });
+        // our ward (`ward.rs`): what it still takes, counted down as we're hit, so a blow it takes
+        // whole shows grey
+        let mut ward = world.player().and_then(|p| p.stat_int(crate::ward::WARD)).unwrap_or(0);
+        let mut warded = |damage: i32| {
+            let all = damage > 0 && ward >= damage;
+            ward = (ward - damage.max(0)).max(0);
+            all
+        };
         for hit in world.update_projectiles(now, data) {
             let hit = match hit {
                 Hit::Player { bullet_id, owner_id, damage, pierced, stacked } => Hit::Player { bullet_id, owner_id, damage: bsk_world::combat::shielded(damage, shield), pierced, stacked },
@@ -1218,7 +1226,8 @@ impl Game {
                 Hit::Player { stacked: true, bullet_id, owner_id, damage, pierced } => {
                     if damage > 0 {
                         if let Some(me) = world.me {
-                            self.floaters.push(crate::view::Floater::hit(me, damage, pierced, now));
+                            let f = if warded(damage) { crate::view::Floater::warded(me, damage, now) } else { crate::view::Floater::hit(me, damage, pierced, now) };
+                            self.floaters.push(f);
                         }
                     }
                     PlayerHit { bullet_id, object_id: owner_id }.into()
@@ -1228,7 +1237,8 @@ impl Game {
                         self.sounds.push((s, 1.0, false));
                     }
                     if let Some(me) = world.me {
-                        self.floaters.push(crate::view::Floater::hit(me, damage, pierced, now));
+                        let f = if warded(damage) { crate::view::Floater::warded(me, damage, now) } else { crate::view::Floater::hit(me, damage, pierced, now) };
+                        self.floaters.push(f);
                     }
                     PlayerHit { bullet_id, object_id: owner_id }.into()
                 }
@@ -1249,7 +1259,8 @@ impl Game {
                 Hit::Square { time, bullet_id, owner_id } => SquareHit { time, bullet_id, object_id: owner_id }.into(),
                 Hit::Ground { time, x, y, damage } => {
                     if let Some(me) = world.me {
-                        self.floaters.push(crate::view::Floater::damage(me, damage, now));
+                        let f = if warded(damage) { crate::view::Floater::warded(me, damage, now) } else { crate::view::Floater::damage(me, damage, now) };
+                        self.floaters.push(f);
                     }
                     GroundDamage { time, position: WorldPos { x: x as f32, y: y as f32 } }.into()
                 }

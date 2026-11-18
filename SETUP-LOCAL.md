@@ -2115,7 +2115,33 @@ The remotes `upstream` (HaloCelsius) and `aurusenth` share no history with `main
   light, the Seraphim's rim of flame and embers, the Archangel's third rune ring and wheeling
   stars). `--effect 140` to `148` shows tier 0 to 8 on yourself. The nine halos' sprites are
   drawn by `tools/draw_halos.py` (`AscendantHalos16x16.png`, `ascendantHalos16x16`, a cell a
-  tier; the T6 to T8 halos shared one sprite before).
+  tier; the T6 to T8 halos shared one sprite before). The dome's heart is a ring of six hex cells
+  turning (2026-11-18; it was a six-pointed star).
+- **The Father's ward** (2026-11-18; `WorldServer/core/objects/player/Player.Ward.cs`, the nine
+  censers in both `CustomItems.xml` copies, the Father in both `DoomedRealms.xml` copies): the
+  Father's ability slot is a new slot type, 132 (Censer), in place of the Priest's tomes: the Tin,
+  Iron, Pewter, Silver and Cathedral Censers, the Censer of the Bulwark, of the Unbroken Vigil, of
+  the Iron Choir and of the Last Rite, T0 to T8 (0x58A0-0x58A8; sprites by
+  `tools/draw_censers.py`, `FatherCensers16x16.png`, `fatherCensers16x16`). It's in
+  `TierLoot`'s ability slots, so they drop with the T0-T8 abilities, `/gear` gives one, and the
+  forge chains them as any tiered line (the T5 doesn't forge from two T4s, as for every slot,
+  since the T4 is `/gear`'s). A censer (`<Activate range amount duration useWisMod>Ward</Activate>`,
+  a 4 s cooldown the server holds as for the halos) gives the Father and every player within range
+  a ward of `amount` points (Wisdom adds to it as to a tome's heal: 50 to 170, about 270 at T8 with
+  maxed Wisdom) for `duration` (4 to 8 s): stats 80 `Ward` and 81 `WardMax`, sent to everyone.
+  Every hit after defense and any forcefield takes from it before health (`WardAbsorb` in
+  `PlayerHit`, `Player.Damage` and both ground paths); damage over time goes through it. A new
+  ward over one still up keeps the stronger and starts its time again. The Censer of the Last
+  Rite's ward (`radius`, `totalDamage`) bursts when broken, for 400 to every enemy within 3 tiles,
+  in the next tick. The caster gets assist credit for each player warded. Looks: `ShowEffect` 41
+  looks 33 to 38 (cast, a player warded, a blow taken at most every 200 ms with the percent left in
+  `ObjectType`, broken, faded, the Last Rite's burst), in each censer's colour (`WARD_ACCENTS`);
+  older clients see a tome's plain blast. The Rust client (`ward.rs`) draws the ward as a grey
+  layer over the top of the HP bars and a shell of twelve steel plates round the player, one
+  falling away for each twelfth spent, and shows a hit the ward took whole as a grey number.
+  `--effect 133` to `138` shows the looks. A character whose equipment slot holds an item its
+  class doesn't take any more (a Father's tome) has it moved to the first empty inventory or
+  backpack slot when it enters a world (`Player.MoveMisfits`).
 - **Summoner summons** (`Player.UseItem.Doomed.cs` `AESummon`; `logic/behaviors/new/allies/AllyShoot.cs`;; matching `tune_gear`): a Summoner keeps up to 6 summons (`MaxSummons`); a seventh sends the oldest away. `AllyShoot` gave every shot of a volley the same bullet id, from the ally's own counter (starting at 1, so it clashed with the owner's weapon shots too), and the server took one hit per id: the Dragon and Oryx summons' 5-shot volleys did a fifth of their damage (75 and 95 a second on the Training Dummy instead of 375 and 475), the Drake's a third. Its shots now take ids from the owner's ability range, one each, as `PetShoot`'s do; this also counts every shot of the Elysian Staff halo's two orbs and the Pirate Ally's and Admin Cat's volleys. The T0-T5 summons' shots do 70, 100, 140, 180, 100 and 100 (Bunny to Wisp; were 20, 30, 45, 60, 50 and 65), and every summon fires at its Doomed Realms rate (from 2026-11-05; they fired 3 times slower before, `SUMMON_FIRE_SLOWDOWN`, which is gone), so one summon does 70-300 a second up to the Dragon's 375 and the Oryx's 475, and six (easily kept up: mana comes back at 1 + 0.24 x Wisdom a second, about 20 for a maxed Summoner) add more than a staff of the matching tier (six Oryxes about 2,850 a second against no defense; the T14 staff does about 2,500 at maxed stats). Measured at the slower rate, on an isolated stack on the vault's Training Dummy (no defense): one Bunny 28, one Oryx 158-190, seven Oryx casts levelling off at 950; not measured since. World server deploy.
   - **Size** (both `DoomedRealms.xml` copies): a sprite is drawn 5 x Size / 100 screen pixels per sprite pixel, so Doomed Realms' Dragon, Oryx and Dragonholder (16x16 at 150) were 120 pixels wide, three players, and six of them hid the boss. Now Bunny, Snake and Wasp 60 (24 pixels, were 40, 32, 32), Wolf, Wisp and Sheep 80 (32, were 40), Drake 60 (48x24, was 80x40), Dragon, Oryx and Dragonholder 60 (48, a little over a player); their shots are at most 80 (the Dragon's and Oryxes' waves were 150). The server sends the size (`Size` stat) and the client draws its own copy's shots, so this is a world server deploy plus a client release.
 - **Tooltips: who can use an item, and summon and turret damage** (Rust client `hud.rs` `item_tooltip`, `ally_shot_rows`, `MAX_SUMMONS`; `bsk-data` `GameData.classes`; `tools/wiki_gear.py`): every equipment item's tooltip lists the classes that have its slot type among their four equipment slots (`GameData.classes`: the `<Player/>` objects that aren't `<AdminOnly/>`, by type), "Usable by every class" when all do, and still "Not usable by <your class>" in orange, now for the Doomed Realms slot types too (it covered slot types 1-24 only). Each summon's and turret's shots are on the Summon and BuildTower activates of the items that make it, as pets' are (`allyDamage` a shot, "min-max" if it varies; `allyShots` a volley; `allyMs` between volleys), from the generated behaviours and the helper's projectile; both `DoomedRealms.xml` copies have what it writes (from the current `BehaviorDb.DoomedAllies.cs`) and both `CustomItems.xml` copies the same by hand for the Scroll of the Mad God. The tooltip shows a Summon's "Summons", "Damage" (95 x5 every 1 sec), "Per second" (on one enemy, before defense) and "Up to 6 out at once" (`MAX_SUMMONS`, the server's `Player.MaxSummons`), and a turret's damage every 0.5 secs and a second instead of its `totalDamage`; the wiki's gear pages add the same to the item's line. Client only, but older clients ignore the new attributes.
@@ -2459,7 +2485,8 @@ XML in step.
   Father, Adept, Monk, Pirate and Snowman. The last two have the ids "Pirate (Doomed)" and
   "Snowman (Doomed)" (the plain names are monsters) and show as Pirate and Snowman. Their abilities
   are in `Player.UseItem.Doomed.cs` (PearlAbility, BuildTower, Summon, Forcefield, SamuraiAbility,
-  TomeDamage, PartyAOE, MultiDecoy, MonsterToss, MiniPot; the forcefield is `Forcefield.cs`), and
+  TomeDamage, PartyAOE, MultiDecoy, MonsterToss, MiniPot; the forcefield is `Forcefield.cs`; the
+  Father's censers' Ward is `Player.Ward.cs`), and
   their turrets, summons and pearl substitutes are allies in `BehaviorDb.DoomedAllies.cs`. Their
   slot types 126 and 128 are 26 and 28 elsewhere, which betterSkillys uses for pet eggs and lutes;
   the clients name them in `ItemConstants`.

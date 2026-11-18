@@ -1833,7 +1833,9 @@ pub fn draw_bars(ui: &mut Ui, lay: &Layout, me: &GameObj, r: [f32; 4]) {
     ];
     for (i, (label, value, max, c, boost, maxed)) in bars.into_iter().enumerate() {
         let b = within(r, lay.s, 12.0, 6.0 + 22.0 * i as f32, 0.0, 0.0);
-        status_bar(ui, lay, b[0], b[1], label, value, max, c, boost, maxed);
+        // the Father's ward on the HP bar
+        let ward = if i == 1 { stat(crate::ward::WARD) } else { 0 };
+        status_bar(ui, lay, b[0], b[1], label, value, max, c, boost, maxed, ward);
     }
 }
 
@@ -2290,7 +2292,7 @@ fn draw_character(ui: &mut Ui, me: &GameObj, cx: f32, cy: f32, size: i32) {
 /// `boost` is what items add to the maximum, shown after it in dark green (red if negative);
 /// `maxed` colours the numbers (`max_tone`).
 #[allow(clippy::too_many_arguments)]
-fn status_bar(ui: &mut Ui, lay: &Layout, x: f32, y: f32, label: &str, value: i32, max: i32, c: u32, boost: i32, maxed: Option<u32>) {
+fn status_bar(ui: &mut Ui, lay: &Layout, x: f32, y: f32, label: &str, value: i32, max: i32, c: u32, boost: i32, maxed: Option<u32>, ward: i32) {
     let s = lay.s;
     let (w, h) = (176.0 * s, 18.0 * s);
     let r = [x, y, w, h];
@@ -2304,9 +2306,21 @@ fn status_bar(ui: &mut Ui, lay: &Layout, x: f32, y: f32, label: &str, value: i32
         theme::rounded(ui.renderer, inner, 4.0 * s, (theme::shade(c, 0.25), 1.0), (theme::shade(c, -0.2), 1.0));
         theme::fill(ui.renderer, [inner[0] + 2.0 * s, inner[1] + s, (inner[2] - 4.0 * s).max(0.0), inner[3] * 0.35], 2.0 * s, 0xFFFFFF, 0.14);
     }
+    // the Father's ward: a grey layer over the top of the health (`ward.rs`)
+    if let Some(cover) = crate::ward::cover(max, ward) {
+        let wr = [x + s, y + s, (w - 2.0 * s) * cover, (h - 2.0 * s) * crate::ward::LAYER];
+        if wr[2] > 1.0 {
+            theme::rounded(ui.renderer, wr, 4.0 * s, (crate::ward::BAR_LIGHT, 1.0), (theme::shade(crate::ward::BAR, -0.25), 1.0));
+            theme::fill(ui.renderer, [wr[0] + s, wr[1] + s, (wr[2] - 2.0 * s).max(0.0), wr[3] * 0.35], 2.0 * s, 0xFFFFFF, 0.3);
+        }
+    }
     let size = lay.font(11.0);
     let ty = y + (h - size * 1.22) / 2.0;
     ui.label(label, x + 6.0 * s, ty, size, true, color::TEXT);
+    if ward > 0 {
+        let lw = ui.measure(label, size, true);
+        ui.label(&format!("+{ward}"), x + 10.0 * s + lw, ty, size, true, crate::ward::BAR_LIGHT);
+    }
     let (v, m) = if goal { (format!("{value} / "), max.to_string()) } else { (value.to_string(), String::new()) };
     let b = if boost != 0 { format!(" {boost:+}") } else { String::new() };
     let small = lay.font(9.5);
@@ -2642,12 +2656,16 @@ fn draw_player_card(ui: &mut Ui, lay: &Layout, p: &GameObj, r: [f32; 4], pinned:
         ui.label(guild, x, by, lay.font(11.0), true, 0xA6FF5D);
         by += 15.0 * s;
     }
-    let bar = |ui: &mut Ui, y: f32, label: &str, value: i32, max: i32, c: u32, tone: Option<u32>| {
+    let bar = |ui: &mut Ui, y: f32, label: &str, value: i32, max: i32, c: u32, tone: Option<u32>, ward: i32| {
         let br = [x, y, w - 2.0 * pad, 14.0 * s];
         theme::fill(ui.renderer, br, 4.0 * s, color::TRACK, 1.0);
         let frac = if max > 0 { (value as f32 / max as f32).clamp(0.0, 1.0) } else { 0.0 };
         if frac > 0.0 {
             theme::fill(ui.renderer, [br[0], br[1], br[2] * frac, br[3]], 4.0 * s, c, 1.0);
+        }
+        // the Father's ward (`ward.rs`)
+        if let Some(cover) = crate::ward::cover(max, ward) {
+            theme::fill(ui.renderer, [br[0], br[1], br[2] * cover, br[3] * crate::ward::LAYER], 4.0 * s, crate::ward::BAR, 1.0);
         }
         let size = lay.font(10.0);
         let ty = y + (br[3] - size * 1.22) / 2.0;
@@ -2657,8 +2675,8 @@ fn draw_player_card(ui: &mut Ui, lay: &Layout, p: &GameObj, r: [f32; 4], pinned:
         ui.label(&t, br[0] + br[2] - tw - 5.0 * s, ty, size, true, tone.unwrap_or(color::TEXT));
     };
     let tone = |i: usize| stat_tone(p, i).flatten();
-    bar(ui, by, tr("HP"), stat(stat::HP), stat(stat::MAX_HP), 0xE03434, tone(0));
-    bar(ui, by + 18.0 * s, tr("MP"), stat(stat::MP), stat(stat::MAX_MP), 0x3A6FE0, tone(1));
+    bar(ui, by, tr("HP"), stat(stat::HP), stat(stat::MAX_HP), 0xE03434, tone(0), stat(crate::ward::WARD));
+    bar(ui, by + 18.0 * s, tr("MP"), stat(stat::MP), stat(stat::MAX_MP), 0x3A6FE0, tone(1), 0);
     // the six other stats, each lit in its tone (dim below its maximum)
     let labels = [tr("ATT"), tr("DEF"), tr("SPD"), tr("DEX"), tr("VIT"), tr("WIS")];
     let cw = (w - 2.0 * pad - 5.0 * 4.0 * s) / 6.0;
@@ -2892,6 +2910,17 @@ fn activate_rows(a: &bsk_data::xml::Element, share: f64) -> (String, Vec<(String
         "Magic" => (tr("Magic"), vec![row(tr("Restores"), tf!("{n} MP", n = num("amount")))]),
         "HealNova" => (tr("Heal"), vec![row(tr("Heals"), tf!("{n} HP", n = num("amount"))), row(tr("Range"), tf!("you and allies within {range}", range = sqrs(num("range"))))]),
         "MagicNova" => (tr("Magic"), vec![row(tr("Restores"), tf!("{n} MP", n = num("amount"))), row(tr("Range"), tf!("you and allies within {range}", range = sqrs(num("range"))))]),
+        "Ward" => {
+            let mut rows = vec![
+                row(tr("Ward"), tf!("{n} HP", n = num("amount"))),
+                row(tr("Range"), tf!("you and allies within {range}", range = sqrs(num("range")))),
+                row(tr("Lasts"), secs(num("duration"))),
+            ];
+            if has("totalDamage") {
+                rows.push(row(tr("When broken"), tf!("{n} damage within {range}", n = num("totalDamage"), range = sqrs(num("radius")))));
+            }
+            (tr("Ward"), rows)
+        }
         "Forcefield" => (tr("Forcefield"), vec![row(tr("Damage taken"), tf!("-{n}%", n = num("amount"))), row(tr("Range"), sqrs(num("range"))), row(tr("Lasts"), secs(num("duration")))]),
         "StasisBlast" => (tr("Stasis"), vec![row(tr("Radius"), sqrs(if has("radius") { num("radius") } else { 3.0 })), row(tr("Lasts"), secs(num("duration")))]),
         "ArmorShred" => (
@@ -3335,6 +3364,7 @@ fn activate_detail(a: &bsk_data::xml::Element) -> String {
                 tf!("{effect} to allies within {range} sqrs for {time} secs", effect, range, time)
             }
         }
+        "Ward" => tf!("A ward of {n} HP over you and allies within {range} sqrs, for {time} secs", n = num("amount"), range = num("range"), time = num("duration")),
         "Forcefield" => tf!("You and allies within {range} sqrs take {n}% less damage, for {time} secs", n = num("amount"), range = num("range"), time = num("duration")),
         "BulletNova" => tf!("Fires a ring of {n} shots", n = if has("numShots") { num("numShots") } else { 20.0 }),
         "BulletCreate" => tf!("Fires {n} shots", n = num("numShots")),

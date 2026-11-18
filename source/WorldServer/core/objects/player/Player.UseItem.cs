@@ -205,9 +205,9 @@ namespace WorldServer.core.objects
                 return;
             }
 
-            // a halo's forcefield not again before its cooldown (4 s) is over, as the client waits it
+            // a halo's forcefield or a censer's ward not again before its cooldown (4 s) is over, as the client waits it
             // out; a little slack for the trip (other abilities' cooldowns are still the client's alone)
-            if (slot == 1 && entity == this && item.Cooldown >= 1 && item.ActivateEffects.Any(e => e.Effect == ActivateEffects.Forcefield))
+            if (slot == 1 && entity == this && item.Cooldown >= 1 && item.ActivateEffects.Any(e => e.Effect == ActivateEffects.Forcefield || e.Effect == ActivateEffects.Ward))
             {
                 var now = Environment.TickCount64;
                 if (now < _abilityReadyAt - AbilityCooldownSlackMs)
@@ -751,6 +751,9 @@ namespace WorldServer.core.objects
                         break;
                     case ActivateEffects.Forcefield:
                         AEForcefield(time, item, target, eff);
+                        break;
+                    case ActivateEffects.Ward:
+                        AEWard(item, eff);
                         break;
                     case ActivateEffects.SamuraiAbility:
                         AESamuraiAbility(time, item, target, eff);

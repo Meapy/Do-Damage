@@ -79,6 +79,11 @@
         Rank = 77,
         LDBoostTime = 78,
         BaseStat = 79,
+        // the Father's ward (Player.Ward.cs): the points of damage it still takes before health, and
+        // how many it had when raised (the grey bar over the HP bar is the one against the other);
+        // sent to everyone. An older client ignores them.
+        Ward = 80,
+        WardMax = 81,
         ColorChat = 113,
         ColorNameChat = 114,
         GlowEnemy = 115,

@@ -423,6 +423,11 @@ class Gear:
             return "%s shots" % n("numShots", "1")
         if e == "Shoot":
             return "fires its shot"
+        if e == "Ward":
+            burst = (", and when it breaks, %s damage to enemies within %s tiles" % (n("totalDamage"), n("radius"))
+                     if g("totalDamage") else "")
+            return "a ward of %s HP over you and allies%s for %ss (wisdom adds to it)%s" % (
+                n("amount"), within(), n("duration"), burst)
         if e == "Forcefield":
             return "a forcefield: %s%% less damage taken%s for %ss" % (n("amount"), within(), n("duration"))
         if e == "TomeDamage":

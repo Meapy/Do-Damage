@@ -742,7 +742,16 @@
     "Wave Cannon",
     "Nature Cannon",
     "Shade Cannon",
-    "Fragment Cannon"
+    "Fragment Cannon",
+    "Tin Censer",
+    "Iron Censer",
+    "Pewter Censer",
+    "Silver Censer",
+    "Cathedral Censer",
+    "Censer of the Bulwark",
+    "Censer of the Unbroken Vigil",
+    "Censer of the Iron Choir",
+    "Censer of the Last Rite"
   ],
   "groups": [
     {"name": "Cnidarian Reef", "icon": "Cnidarian Reef Portal", "level": 6, "items": ["Bottled Medusozoan", "Mask of Cnidaria", "Cnidaria Rod"]},
